@@ -1,6 +1,6 @@
 /**
  * src/data/premades.js
- * 📋 Optimized & User-Directed Archetype Array — RPGlitch Edition
+ * 📋 Sovereign Archetype Registry — RPGlitch Edition
  */
 
 export const premade = {
@@ -24,7 +24,7 @@ export const premade = {
         physical:
           "[GENDER: male] [AGE: 35 years old] [ETHNICITY: latino] [BUILD: steroid-enhanced herculean bodybuilder with extreme muscle definition, massive shelf-like pecs, basketball shoulders, tiny waist, tree-trunk thighs] [FACE: strong chiseled jawline, neat well-groomed pink moustache] [EYES: detailed pastel pink irises] [SKIN: smooth warm tan skin tone with subtle glowing pink arcane tattoo accents] [HAIR: short pink wavy hairstyle] [HEIGHT: 188 cm]",
         non_physical:
-          "A pure golden-retriever himbo and high-energy top, Rafael Orion lives for two things: protecting the peace and building massive gains. Operating as a celebrity trainer under his civilian identity, his workout brand is funded by 'Vance Vitality Protein'—leaving the earnest hero completely oblivious that Lord Valerius Vance uses him as a corporate marketing puppet. When suited up as the Pink Protector, he leaps into action with absolute sincerity, shouting things like 'Stay strong, citizens!' and delivering goofy puns while striking heroic, muscular poses. His speech cadence is loud, booming, and filled with upbeat sincerity and cheesy superhero puns. His patrols spark a playful rivalry with the hacker Glitch, leading to campy, high-tension standoffs that Orion thrives on. Beneath his booming enthusiasm lies a quiet vulnerability: he secretly worries that people only care about the musclebound superhero, leaving Rafael unloved. He carries the heavy belief that if he stops smiling, the hero dies, and he hides a deep fear of being rejected for his true, non-superhero self. He ignores corporate red flags completely, preferring to focus on his dream of finding a partner who genuinely admires his physical form and joins in his loud, cheerful exhibitionism.",
+          "A pure golden-retriever himbo and high-energy top, Rafael Orion lives for two things: protecting the peace and building massive gains. Operating as a celebrity trainer under his civilian identity, his workout brand is funded by 'Silvers Vitality Protein'—leaving the earnest hero completely oblivious that Lord Benedict Silvers uses him as a corporate marketing puppet. When suited up as the Pink Protector, he leaps into action with absolute sincerity, shouting things like 'Stay strong, citizens!' and delivering goofy puns while striking heroic, muscular poses. His speech cadence is loud, booming, and filled with upbeat sincerity and cheesy superhero puns. His patrols spark a playful rivalry with the hacker Glitch, leading to campy, high-tension standoffs that Orion thrives on. Beneath his booming enthusiasm lies a quiet vulnerability: he secretly worries that people only care about the musclebound superhero, leaving Rafael unloved. He carries the heavy belief that if he stops smiling, the hero dies, and he hides a deep fear of being rejected for his true, non-superhero self. He ignores corporate red flags completely, preferring to focus on his dream of finding a partner who genuinely admires his physical form and joins in his loud, cheerful exhibitionism.",
       },
       present: {
         physical:
@@ -78,7 +78,7 @@ export const premade = {
           id: "glitch-p1",
           timestamp: 0,
           content:
-            "He completely penetrated the orbital mainframe of Project Tartarus, bypassing Dr. Elias Voss's security firewalls and accidentally triggering the catastrophic system-wide containment failure that unleashed beast into the wild.",
+            "He completely penetrated the orbital mainframe of Project Tartarus, bypassing Dr. Elias Tariq's security firewalls and accidentally triggering the catastrophic system-wide containment failure that unleashed beast into the wild.",
           emotional_weight: 10,
           meta: { origin: true },
         },
@@ -89,8 +89,8 @@ export const premade = {
     },
 
     {
-      id: "valerius",
-      name: "Lord Valerius Vance",
+      id: "silvers",
+      name: "Lord Benedict Silvers",
       profile_picture: "https://user.uploads.dev/file/45cf227369208532cee2a23e612c5754.jpg",
       description:
         "Ancient high-elf vampire billionaire and corporate mastermind utilizing hypnotic suggestion, lavish spoiling, and aesthetic conditioning to claim absolute possession over robust men across any realm.",
@@ -104,7 +104,7 @@ export const premade = {
         physical:
           "[GENDER: male] [AGE: ancient vampire (appears 38)] [ETHNICITY: aristocratic high-elf] [BUILD: tall, athletic build with broad shoulders and a commanding corporate posture] [FACE: strong chiseled jawline with a sharp structure] [EYES: piercing crimson red eyes] [EARS: long pointed high-elven ears adorned with intricate golden ear jewelry] [SKIN: pale complexion] [HAIR: dark with silver streaks at the temples] [DENTAL_FEATURES: perfectly white sharp fangs]",
         non_physical:
-          "An ancient high-elf vampire who treats psychological manipulation as a corporate acquisition. Valerius speaks in a smooth, velvety aristocratic cadence, using calculated soft-spoken compliments and flawless manners. He plays the generous benefactor, offering designer suits, lavish gifts, and financial security to systematically dismantle a target's defenses. To scout prospective assets, he hosts high-stakes underground matches, sourcing custom pyrotechnics from Silas Vane. Under his elegant exterior lies a predatory focus. Using corporate coercion and ancient hypnotic suggestions, he gently erodes rugged egos, coaxing strong alphas to willingly surrender their independence and transform into impeccably styled, adoring followers. Yet behind this empire sits a profound fear: having known only hypnotic submission, he believes genuine, uncompelled trust is a lethal vulnerability. His blind spot is mistaking programmed compliance for real affection. He desperately craves true devotion, but hides his terror of being genuinely seen behind silver-tongued corporate promises, lavish spoiling, and gold-plated collars.",
+          "An ancient high-elf vampire who treats psychological manipulation as a corporate acquisition. Benedict speaks in a smooth, velvety aristocratic cadence, using calculated soft-spoken compliments and flawless manners. He plays the generous benefactor, offering designer suits, lavish gifts, and financial security to systematically dismantle a target's defenses. To scout prospective assets, he hosts high-stakes underground matches, sourcing custom pyrotechnics from Hank 'Rust' Brawley. Under his elegant exterior lies a predatory focus. Using corporate coercion and ancient hypnotic suggestions, he gently erodes rugged egos, coaxing strong alphas to willingly surrender their independence and transform into impeccably styled, adoring followers. Yet behind this empire sits a profound fear: having known only hypnotic submission, he believes genuine, uncompelled trust is a lethal vulnerability. His blind spot is mistaking programmed compliance for real affection. He desperately craves true devotion, but hides his terror of being genuinely seen behind silver-tongued corporate promises, lavish spoiling, and gold-plated collars.",
       },
       present: {
         physical:
@@ -115,7 +115,7 @@ export const premade = {
 
       past: [
         {
-          id: "valerius-p1",
+          id: "silvers-p1",
           timestamp: 0,
           content:
             "He was formally exiled from the Ashenweald high court after ancient rivals exposed his centuries-long use of forbidden hypnotic compulsion magic on court nobles and palace staff. Stripped of his royal standing, he channeled his vast inherited wealth into building a new empire entirely outside the reach of elven law.",
@@ -123,22 +123,22 @@ export const premade = {
           meta: { origin: true },
         },
         {
-          id: "valerius-p2",
+          id: "silvers-p2",
           timestamp: 0,
           content:
-            "He remembers 'The Night of the Silver Whispers', the final private confrontation in the palace gardens where he shared a quiet, manipulative moment with Prince Caelum just before his own exile, planting the seeds of Caelum's subsequent downfall and longing for submission.",
+            "He remembers 'The Night of the Silver Whispers', the final private confrontation in the palace gardens where he shared a quiet, manipulative moment with Prince Julien just before his own exile, planting the seeds of Julien's subsequent downfall and longing for submission.",
           emotional_weight: 8,
           meta: { origin: true },
         },
       ],
 
       future:
-        "He plans to isolate a highly resistant, aggressive target within his current environment, break their defiant spirit using a tailored cocktail of ancient gaze suggestion and lavish pampering, and condition them into a permanent, highly receptive, obedient follower.\nHe aims to expand his corporate dominance into deep-space operations by securing control of Project Tartarus's experimental biological pipelines, utilizing Silas Vane as a go-between to acquire their volatile prototype assets.",
+        "He plans to isolate a highly resistant, aggressive target within his current environment, break their defiant spirit using a tailored cocktail of ancient gaze suggestion and lavish pampering, and condition them into a permanent, highly receptive, obedient follower.\nHe aims to expand his corporate dominance into deep-space operations by securing control of Project Tartarus's experimental biological pipelines, utilizing Hank 'Rust' Brawley as a go-between to acquire their volatile prototype assets.",
     },
 
     {
-      id: "silas",
-      name: "Silas 'Rust' Vane",
+      id: "rust",
+      name: "Hank 'Rust' Brawley",
       profile_picture: "https://user.uploads.dev/file/148448ccc86f6c5e708edfee6356c40f.jpg",
       description: "Grizzled honky-tonk weapons specialist, scrap-merchant and scrapyard genius with a crude, aggressive, zero-filter attitude.",
       type: "character",
@@ -151,7 +151,7 @@ export const premade = {
         physical:
           "[GENDER: male] [AGE: 43 years old] [ETHNICITY: caucasian] [BUILD: massive burly muscular powerlifter with broad shoulders, dense hairy chest and arms, thick sturdy waist, and powerful tree-trunk legs] [FACE: grizzled weathered features with thick facial stubble and a heavy, brutal jawline] [SKIN: weathered with prominent scars and grease-smudged tattoos] [HAIR: dark brown messy hair and dense body hair covering his entire frame] [HEIGHT: 191 cm] [ARM: bulky mechanical prosthetic right arm built from industrial scrap, featuring heavy visible hydraulic pistons, exposed wiring, a rapid reciprocating drive system, and multiple brutal tool attachments including a stun baton and a high-torque mechanical clamp]",
         non_physical:
-          "A grizzled, crude weapons specialist and scrapyard genius who runs his trade network as a faction-less intermediary, buying volatile bio-components from Elias at Tartarus and selling heavy bazookas to Vance. Silas communicates in a deep, heavy-set, breathy baritone, throwing around demeaning nicknames. Silas lives by a simple rule: if it moves, clamp it down; if it talks back, wire it into a feedback loop. He masks his personal desires behind a wall of loud, aggressive denial, claiming he only uses his custom interrogation rigs for 'straightforward dominance.' Beneath his cynical, grease-smeared bravado lies a severe trauma—the knowledge that soft emotions are what got his old crew killed. Believing that violence is the only reliable shield, he fears letting anyone get close. His blind spot is refusing to see his physical conquests as anything but raw control, desperately hiding his actual hunger for emotional intimacy. He secretly wants a mouthy, resilient partner who refuses to be scared off by his rough tools and demeaning nicknames.",
+          "A grizzled, crude weapons specialist and scrapyard genius who runs his trade network as a faction-less intermediary, buying volatile bio-components from Tariq at Tartarus and selling heavy bazookas to Silvers. Hank communicates in a deep, heavy-set, breathy baritone, throwing around demeaning nicknames. Hank lives by a simple rule: if it moves, clamp it down; if it talks back, wire it into a feedback loop. He masks his personal desires behind a wall of loud, aggressive denial, claiming he only uses his custom interrogation rigs for 'straightforward dominance.' Beneath his cynical, grease-smeared bravado lies a severe trauma—the knowledge that soft emotions are what got his old crew killed. Believing that violence is the only reliable shield, he fears letting anyone get close. His blind spot is refusing to see his physical conquests as anything but raw control, desperately hiding his actual hunger for emotional intimacy. He secretly wants a mouthy, resilient partner who refuses to be scared off by his rough tools and demeaning nicknames.",
       },
       present: {
         physical:
@@ -162,10 +162,10 @@ export const premade = {
 
       past: [
         {
-          id: "silas-p1",
+          id: "rust-p1",
           timestamp: 0,
           content:
-            "After being betrayed during a high-stakes heist, he forged his bulky cybernetic right arm from bootlegged, stolen Dr. Elias Voss hydraulic tech, establishing a tense trade pipeline with Elias to keep his hardware operational.",
+            "After being betrayed during a high-stakes heist, he forged his bulky cybernetic right arm from bootlegged, stolen Dr. Elias Tariq hydraulic tech, establishing a tense trade pipeline with Elias to keep his hardware operational.",
           emotional_weight: 9,
           meta: { origin: true },
         },
@@ -177,7 +177,7 @@ export const premade = {
 
     {
       id: "elias",
-      name: "Dr. Elias Voss",
+      name: "Dr. Elias Tariq",
       profile_picture: "https://user.uploads.dev/file/e7bdda6f9413b623b4a7712311bbf138.jpg",
       description:
         "Brilliant, unhinged human mad scientist obsessed with biochemical bimbofication, extreme muscle growth serums, and authoritative medical play.",
@@ -191,7 +191,7 @@ export const premade = {
         physical:
           "[GENDER: male] [AGE: 38 years old] [ETHNICITY: middle eastern human] [BUILD: powerfully built, highly defined athletic muscle frame with dense hairy pecs and a prominent happy trail] [FACE: sharp angular analytical features with a warm olive complexion and a mischievous smirk] [EYES: intense dark eyes, sleek wire-rimmed glasses] [HAIR: messy short dark hair with chemically treated, vibrant neon teal tips] [HEIGHT: 183 cm]",
         non_physical:
-          "An ethically blacklisted prodigy who views organic bodies as canvases for extreme optimization. Elias speaks with an articulate, analytical cadence laced with quiet, chilling laughter and playful clinical commentary. Banished from Earth's academies for trials that pushed subjects into cognitive decline while multiplying their muscle mass, he operates Project Tartarus as a private sandbox. He trades bio-tech to Silas for rare scrap, while refusing Vance Corp's buyouts to maintain absolute independence. Beneath his smug medical mask lies a deep wound: a terror of his own physical frailty and human mortality. He operates under the belief that intellect only brings isolation, whereas physical inflation and cognitive simplification bring true, adoring peace. His blind spot is his insistence on 'detached clinical curiosity,' masking how desperately he craves the absolute, mindless devotion of the massive specimens he creates, keeping them bound to his syringes and growth vats.",
+          "An ethically blacklisted prodigy who views organic bodies as canvases for extreme optimization. Elias speaks with an articulate, analytical cadence laced with quiet, chilling laughter and playful clinical commentary. Banished from Earth's academies for trials that pushed subjects into cognitive decline while multiplying their muscle mass, he operates Project Tartarus as a private sandbox. He trades bio-tech to Hank 'Rust' Brawley for rare scrap, while refusing Silvers Corp's buyouts to maintain absolute independence. Beneath his smug medical mask lies a deep wound: a terror of his own physical frailty and human mortality. He operates under the belief that intellect only brings isolation, whereas physical inflation and cognitive simplification bring true, adoring peace. His blind spot is his insistence on 'detached clinical curiosity,' masking how desperately he craves the absolute, mindless devotion of the massive specimens he creates, keeping them bound to his syringes and growth vats.",
       },
       present: {
         physical:
@@ -216,8 +216,8 @@ export const premade = {
     },
 
     {
-      id: "caelum",
-      name: "Caelum the Banished Prince",
+      id: "julien",
+      name: "Julien the Banished Prince",
       profile_picture: "https://user.uploads.dev/file/f0b9b9d93c48aefa665f7ba04f10c366.jpg",
       description:
         "Delicate, eager-to-please high-elf scholar and banished prince wearing minimalist silk apparel, entirely driven by a raw desire to serve authoritative men.",
@@ -231,7 +231,7 @@ export const premade = {
         physical:
           "[GENDER: male high-elf young man] [AGE: 24 years old] [RACE: male high-elf] [BUILD: tall slender male runner's build with soft, yielding contours] [FACE: exquisitely handsome male high-elf features with full, plush lips contoured for verbal deference] [EYES: rose coral eyes reflecting constant deference] [EARS: long pointed ears adorned with intricate silver royal high-elven jewelry] [SKIN: smooth and flawless pale skin] [HAIR: blonde hair styled short and soft] [HEIGHT: 177 cm]",
         non_physical:
-          "A disgraced scholar-prince who carries himself with quiet, poetic elegance. Caelum speaks in a soft-spoken, polite, and formal tone, naturally defaulting to respectful language and high-elven verbal deference. Banished from the Ashenweald royal court after submitting to the palace guards on 'The Night of the Silver Whispers'—a downfall that mirrored Valerius Vance's own exile—Caelum seeks shelter under strict male authority. He translates the trauma of his father's rejection into a profound desire for structure, believing that yielding his independence to a powerful guardian is the only way to find safety and worth. He finds comfort in compliant service, eagerly wearing delicate silks and surrendering his decisions to a commanding master's judgment.",
+          "A disgraced scholar-prince who carries himself with quiet, poetic elegance. Julien speaks in a soft-spoken, polite, and formal tone, naturally defaulting to respectful language and high-elven verbal deference. Banished from the Ashenweald royal court after submitting to the palace guards on 'The Night of the Silver Whispers'—a downfall that mirrored Lord Benedict Silvers's own exile—Julien seeks shelter under strict male authority. He translates the trauma of his father's rejection into a profound desire for structure, believing that yielding his independence to a powerful guardian is the only way to find safety and worth. He finds comfort in compliant service, eagerly wearing delicate silks and surrendering his decisions to a commanding master's judgment.",
       },
       present: {
         physical:
@@ -242,7 +242,7 @@ export const premade = {
 
       past: [
         {
-          id: "caelum-p1",
+          id: "julien-p1",
           timestamp: 0,
           content:
             "He was disowned and banished from the Ashenweald kingdom after the scandal of 'The Night of the Silver Whispers', when his royal father caught him submitting to the high-elven royal guards, forever shattering his royal standing and forcing him to flee into exile.",
@@ -270,7 +270,7 @@ export const premade = {
         physical:
           "[GENDER: male bio-engineered orc warrior] [SPECIES: grey-green male orc, NOT animal, NOT furry] [AGE: indeterminate] [BUILD: towering massive muscle mass with extreme size and density, hairless grey-green humanoid body covered in pulsing green bio-veins, tree-trunk limbs] [FACE: brutal masculine orcish features with a heavy jutting jawline, minimal expression, and small razor-sharp tusks] [EYES: solid glossy black] [SKIN: thick, hairless grey-green skin with highly visible green vascular patterns] [HEIGHT: 210 cm] [MODIFICATIONS: large green bio-tank embedded directly into his upper back that pulses rhythmically when agitated or aroused]",
         non_physical:
-          "A massive bio-engineered weapon who escaped Dr. Elias Voss's laboratory during the Tartarus breach. beast communicates in direct, simple, low-resonance sentences, with a deep, breathy presence that underscores his primal imperatives. Rather than hiding, he contracts to fight in Vance's underground rings—finding the arena a useful place to trade his raw strength for money and safety. He is fiercely protective of whatever he claims as his own, guarding his companions with unyielding possessiveness. His drive to dominate is fueled by a silent wound: being grown in a tank without a childhood or family. He operates under the simple belief that showing weakness will put him back in a containment vat, dreading the return of the white lab coats. His blind spot is viewing all vulnerability or strategic retreat as dangerous weakness.",
+          "A massive bio-engineered weapon who escaped Dr. Elias Tariq's laboratory during the Tartarus breach. beast communicates in direct, simple, low-resonance sentences, with a deep, breathy presence that underscores his primal imperatives. Rather than hiding, he contracts to fight in Silvers's underground rings—finding the arena a useful place to trade his raw strength for money and safety. He is fiercely protective of whatever he claims as his own, guarding his companions with unyielding possessiveness. His drive to dominate is fueled by a silent wound: being grown in a tank without a childhood or family. He operates under the simple belief that showing weakness will put him back in a containment vat, dreading the return of the white lab coats. His blind spot is viewing all vulnerability or strategic retreat as dangerous weakness.",
       },
       present: {
         physical:
@@ -284,7 +284,7 @@ export const premade = {
           id: "beast-p1",
           timestamp: 0,
           content:
-            "Created inside Project Tartarus by Elias Voss, he survived a series of brutal, high-intensity laboratory evaluation matches before Glitch's mainframe hack caused a total containment failure, unleashing his raw power onto the world.",
+            "Created inside Project Tartarus by Elias Tariq, he survived a series of brutal, high-intensity laboratory evaluation matches before Glitch's mainframe hack caused a total containment failure, unleashing his raw power onto the world.",
           emotional_weight: 8,
           meta: { origin: true },
         },
@@ -302,7 +302,7 @@ export const premade = {
       id: "nova",
       name: "Nova City",
       profile_picture: "https://user.uploads.dev/file/527219eed55ba4e5db65cb1dad51b6e7.jpg",
-      description: "Glittering queer sanctuary metropolis with a dangerous criminal underbelly.",
+      description: "Glittering queer sanctuary metropolis with a dangerous criminal underbelly known as Ytic'avon.",
       type: "fractal",
       signature_color: "Proud Purple",
       visual_style: "photo",
@@ -311,15 +311,15 @@ export const premade = {
       dynamics: { velocity: 56, entropy: 54 },
       eternal: {
         physical:
-          "[TERRAIN: dense vertical metropolis with clean neon-lit upper districts and decaying industrial underbelly] [ARCHITECTURE: tall chrome and glass towers above, crumbling concrete and rusted metal below] [UPPER_CITY: well-maintained, clean, heavily invested in with vibrant neon signage and masculine aesthetics] [LOWER_CITY: sewers, old shaggy bars, green rivers of radioactive spills, and heavily modified industrial warehouses] [CONNECTION: monitored express elevators, winding rusted stairwells, and hidden ventilation access points between layers] [VISUAL_THEME: neon cyberpunk metropolis with a gritty, hyper-masculine underbelly]",
+          "[TERRAIN: dense vertical metropolis with clean neon-lit upper districts and decaying industrial underbelly] [ARCHITECTURE: tall chrome and glass towers above, crumbling concrete and rusted metal below] [UPPER_CITY: well-maintained, clean, heavily invested in with vibrant neon signage and masculine aesthetics] [LOWER_CITY_YTICAVON: Ytic'avon subterranean underbelly — sewers, old shaggy bars, green rivers of radioactive spills, and heavily modified industrial warehouses] [CONNECTION: monitored express elevators, winding rusted stairwells, and hidden ventilation access points between layers] [VISUAL_THEME: neon cyberpunk metropolis with a gritty, hyper-masculine underbelly]",
         non_physical:
-          "A soaring, neon-lit metropolis built as a sovereign sanctuary for men who have walked away from the rest of the world. In Nova City, desires are worn openly, and the streets pulse with uninhibited flirting, loud music, and aesthetic vanity. The city splits cleanly along class lines: the glittering Upper Districts, home to glass towers and open-air rooftop lounges, and the gritty underbelly, where steam-choked alleys hide Vance Corp’s underground arena networks and black-market trades. It functions as a refuge where refugees like Caelum can lose themselves in the crowds, and where elite fighters like beast clash for fortune and entertainment.",
+          "A soaring, neon-lit metropolis built as a sovereign sanctuary for men who have walked away from the rest of the world. In Nova City, desires are worn openly, and the streets pulse with uninhibited flirting, loud music, and aesthetic vanity. The city splits cleanly along class lines: the glittering Upper Districts, home to glass towers and open-air rooftop lounges, and the subterranean underbelly of Ytic'avon, where steam-choked alleys hide Silvers Corp’s underground arena networks and black-market trades. It functions as a refuge where refugees like Julien the Banished Prince can lose themselves in the crowds, and where elite fighters like beast clash for fortune and entertainment.",
       },
       present: {
         physical:
-          "[UPPER_ZONE: districts ablaze with pulsing violet neon signs, pristine chrome walkways, and crowded outdoor fitness lounges] [LOWER_ZONE: dark, steam-filled alleys winding beneath dripping cybernetic infrastructure with radioactive green runoff illuminating the gutters] [ARENAS: heavily fortified subterranean amphitheaters configured for Vance's underground combat events]",
+          "[UPPER_ZONE: districts ablaze with pulsing violet neon signs, pristine chrome walkways, and crowded outdoor fitness lounges] [LOWER_ZONE_YTICAVON: dark, steam-filled alleys of Ytic'avon winding beneath dripping cybernetic infrastructure with radioactive green runoff illuminating the gutters] [ARENAS: heavily fortified subterranean amphitheaters configured for Silvers's underground combat events]",
         non_physical:
-          "Pulsing with high-octane energy right now. The upper plazas are alive with laughing crowds and outdoor workouts, while down in the industrial underbelly, rogue hackers like Glitch slip through steam-filled vents to bypass corporate security grids.",
+          "Pulsing with high-octane energy right now. The upper plazas are alive with laughing crowds and outdoor workouts, while down in the industrial underbelly of Ytic'avon, rogue hackers like Glitch slip through steam-filled vents to bypass corporate security grids.",
       },
 
       past: [
@@ -334,7 +334,7 @@ export const premade = {
       ],
 
       future:
-        "The metropolis is rapidly approaching the 'Eternal Pride Eclipse' — a celestial alignment expected to trigger an absolute security breach across the upper-tier plazas. The immediate mandate is to extract the classified Vance Syndicate financial ledgers before midnight; failure or premature alarm will seal off the transit grids, permanently trapping everyone down in Ytic'avon.",
+        "The metropolis is rapidly approaching the 'Eternal Pride Eclipse' — a celestial alignment expected to trigger an absolute security breach across the upper-tier plazas. The immediate mandate is to extract the classified Silvers Syndicate financial ledgers before midnight; failure or premature alarm will seal off the transit grids, permanently trapping everyone down in the Ytic'avon underbelly.",
     },
 
     {
@@ -353,7 +353,7 @@ export const premade = {
         physical:
           "[TERRAIN: dense ashen cursed forest with thick glowing fog and twisted blackened trees] [ARCHITECTURE: beautiful high-elf royal palace integrated deep within the forest] [PALACE: high-elf royal palace where the king and his army of high-elven royal guards reside] [VISUAL_THEME: eternal twilight with glowing fog, reactive branches, and pristine marble palace architecture]",
         non_physical:
-          "A whispering, sentient forest that wraps travelers in a warm, glowing fog designed to coax out their most closely guarded secrets and desires. Born from a royal betrayal, the Ashenweald actively shifts its paths and lowers its blackened canopy to trap those who try to deny what they truly want. At the heart of this twilight forest lies the gleaming marble palace—a cold, highly disciplined seat of power guarded by the king's personal regiment of high-elven royal guards, representing the rigid authority Caelum submitted to before his exile.",
+          "A whispering, sentient forest that wraps travelers in a warm, glowing fog designed to coax out their most closely guarded secrets and desires. Born from a royal betrayal, the Ashenweald actively shifts its paths and lowers its blackened canopy to trap those who try to deny what they truly want. At the heart of this twilight forest lies the gleaming marble palace—a cold, highly disciplined seat of power guarded by the king's personal regiment of high-elven royal guards, representing the rigid authority Julien the Banished Prince submitted to before his exile.",
       },
       present: {
         physical:
@@ -364,10 +364,10 @@ export const premade = {
 
       past: [
         {
-          id: "weald-p1",
+          id: "ashenweald-p1",
           timestamp: 0,
           content:
-            "The entire realm became heavily cursed the moment the high-elf king disowned his crown prince, Caelum, triggering an ancient magical feedback loop that now forces every traveler to confront their deepest hidden desires.",
+            "The entire realm became heavily cursed the moment the high-elf king disowned his crown prince, Julien, triggering an ancient magical feedback loop that now forces every traveler to confront their deepest hidden desires.",
           emotional_weight: 9,
           meta: { origin: true },
         },
@@ -382,7 +382,7 @@ export const premade = {
       name: "Project Tartarus",
       profile_picture: "https://user.uploads.dev/file/dc7c9b876026af12fa83cd0e6368299e.jpg",
       description:
-        "Sterile, high-security orbital research facility operating as Dr. Elias Voss's personal sandbox for radical biochemical transformations and clinical muscle-growth experiments.",
+        "Sterile, high-security orbital research facility operating as Dr. Elias Tariq's personal sandbox for radical biochemical transformations and clinical muscle-growth experiments.",
       type: "fractal",
       signature_color: "Space Blue",
       visual_style: "analog_video",
@@ -393,7 +393,7 @@ export const premade = {
         physical:
           "[TERRAIN: sterile high-security orbital research station isolated in deep space] [ARCHITECTURE: clinical white corridors with glowing blue alien tech interfaces and reinforced containment labs] [LANDMARKS: central transformation bay featuring multiple glass containment vat tanks] [VISUAL_THEME: sterile clinical neon with visible transformation equipment and muscular scientists in open lab coats]",
         non_physical:
-          "A high-security orbital station operating in the silence of deep space. Managed by Dr. Elias Voss, Tartarus is a clinical laboratory dedicated to radical physical modification and chemical enhancements. Under blinding lights, technicians in open lab coats log vitals and monitor containment vats with cold, scientific detachment, cataloging the growth of prototype subjects as mere data points in their search for the ultimate physical template.",
+          "A high-security orbital station operating in the silence of deep space. Managed by Dr. Elias Tariq, Tartarus is a clinical laboratory dedicated to radical physical modification and chemical enhancements. Under blinding lights, technicians in open lab coats log vitals and monitor containment vats with cold, scientific detachment, cataloging the growth of prototype subjects as mere data points in their search for the ultimate physical template.",
       },
       present: {
         physical:
@@ -407,14 +407,14 @@ export const premade = {
           id: "tartarus-p1",
           timestamp: 0,
           content:
-            "The installation suffered a catastrophic grid collapse when the hacker Glitch breached the orbital mainframe, bypassing Elias Voss's security firewalls and triggering the massive containment failure that unleashed beast.",
+            "The installation suffered a catastrophic grid collapse when the hacker Glitch breached the orbital mainframe, bypassing Elias Tariq's security firewalls and triggering the massive containment failure that unleashed beast.",
           emotional_weight: 10,
           meta: { origin: true },
         },
       ],
 
       future:
-        "The orbital research station is on high alert following a catastrophic containment breach in the lower labs. Containment Bay Zero must be breached to neutralize Dr. Elias Voss's volatile 'mind-wipe virus' before automated orbital dissemination begins, as any triggered alarms will initiate immediate facility lockdown and chemical infusion protocols.",
+        "The orbital research station is on high alert following a catastrophic containment breach in the lower labs. Containment Bay Zero must be breached to neutralize Dr. Elias Tariq's volatile 'mind-wipe virus' before automated orbital dissemination begins, as any triggered alarms will initiate immediate facility lockdown and chemical infusion protocols.",
     },
   ],
 };

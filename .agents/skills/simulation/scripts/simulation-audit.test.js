@@ -13,8 +13,8 @@ import { SimulationAudit } from "./simulation-audit.js";
 describe("🕹️ SYSTEM TURN: Source Audit", () => {
   it("executes the 'Gothic Trial' baseline and generates an audit report", async () => {
     const scenario = {
-      ai_id: "valerius",
-      user_id: "caelum",
+      ai_id: "silvers",
+      user_id: "julien",
       fractal_id: "ashenweald",
       history: [
         {
@@ -113,8 +113,8 @@ ${SEP}
 
   it("Character prompt contains cognitive attrs (certainty/regulation)", async () => {
     const scenario = {
-      ai_id: "valerius",
-      user_id: "caelum",
+      ai_id: "silvers",
+      user_id: "julien",
       fractal_id: "ashenweald",
       history: [],
     };
@@ -127,8 +127,8 @@ ${SEP}
 
   it("Character prompt keeps cognitive attrs in volatile task, not static system", async () => {
     const scenario = {
-      ai_id: "valerius",
-      user_id: "caelum",
+      ai_id: "silvers",
+      user_id: "julien",
       fractal_id: "ashenweald",
       history: [],
     };
@@ -141,8 +141,8 @@ ${SEP}
 
   it("Pipeline verification passes all critical checks", async () => {
     const scenario = {
-      ai_id: "valerius",
-      user_id: "caelum",
+      ai_id: "silvers",
+      user_id: "julien",
       fractal_id: "ashenweald",
       history: [],
     };

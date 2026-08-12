@@ -270,6 +270,7 @@ export class ChronoEngine {
 
         // 5. ANCHOR: Persist the timeline
         await state_bridge.runtime.save(state_bridge.runtime.round);
+        state_bridge.simulation_state.unlock();
       } catch (err) {
         const error = /** @type {any} */ (err);
         if (error.name === "AbortError" || error.message?.includes("aborted")) {

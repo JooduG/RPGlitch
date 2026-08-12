@@ -601,15 +601,15 @@ export function detox_prose(raw_text, register = "plain") {
           "a metallic tang cuts through the air",
         ],
         ornate: [
-          "a bitter static coats the tongue",
+          "a bitter charge coats the tongue",
           "the atmosphere carries the weight of a storm",
           "the air feels bruised and electric",
           "a charged sharpness lingers in the lungs",
         ],
         raw: [
-          "air tastes like copper and heat",
+          "air tastes like hot iron and heat",
           "the smell of burned wire fills the space",
-          "it tastes like chewed foil",
+          "it tastes like metallic foil",
           "the air bites with raw electricity",
         ],
         clinical: [
@@ -626,21 +626,39 @@ export function detox_prose(raw_text, register = "plain") {
         plain: ["smell of hot wire", "scent of scorched metal", "smell of overheated electronics", "a sharp electrical smell"],
         ornate: [
           "fragrance of a broken storm",
-          "bitter perfume of raw current",
+          "bitter aroma of raw current",
           "scent of something burnt and electric",
           "ghost of lightning in the air",
         ],
-        raw: ["stink of hot copper", "burnt wire smell", "harsh electrical stink", "smell of fried circuits"],
+        raw: ["stink of hot wiring", "burnt wire smell", "harsh electrical stink", "smell of fried circuits"],
         clinical: ["ionized atmospheric odor", "scent of electrical discharge", "metallic olfactory signature", "high-voltage particulate smell"],
       },
     },
     {
       regex: /\bozone\b/gi,
       replace: {
-        plain: ["static", "hot wire", "scorched metal", "raw current"],
-        ornate: ["sparking air", "electric ghost", "heavy static", "bitter air"],
-        raw: ["hot copper", "fried wire", "burnt metal", "harsh static"],
+        plain: ["charged air", "hot wire", "scorched metal", "raw current"],
+        ornate: ["sparking air", "electric ghost", "charged atmosphere", "bitter air"],
+        raw: ["hot iron", "fried wire", "burnt metal", "scorched insulation"],
         clinical: ["ionization", "electrical discharge", "atmospheric charge", "metallic particulate"],
+      },
+    },
+    {
+      regex: /\bphantom\s+(itch|ache|pain)\b/gi,
+      replace: {
+        plain: ["deep ache", "dull throbbing", "lingering tension", "stale muscle pull"],
+        ornate: ["an echo of old pain", "a persistent dull throb", "a lingering sensory ghost", "a deep-seated ache"],
+        raw: ["dull ache", "old throb", "stale pull", "deep throb"],
+        clinical: ["phantom sensation", "neurological echo", "residual nerve response", "referred pain"],
+      },
+    },
+    {
+      regex: /\b(hit|hits|felt)\s+like\s+a\s+physical\s+blow\b/gi,
+      replace: {
+        plain: ["landed with sudden force", "carried real weight", "hit like a heavy punch", "pulled the air right out"],
+        ornate: ["struck with visceral force", "landed with devastating clarity", "carried heavy physical weight", "reverberated instantly"],
+        raw: ["hit like a fist", "landed hard", "knocked the wind out", "struck like iron"],
+        clinical: ["produced high impact force", "registered as acute shock", "delivered significant force", "impacted sharply"],
       },
     },
     {

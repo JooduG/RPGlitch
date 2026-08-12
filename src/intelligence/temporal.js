@@ -1350,13 +1350,18 @@ export const temporal_engine = {
           // new intents are folded in as one clean block.
           for (const { key, type, entity } of entity_targets) {
             let rewritten = forged.future_consolidated?.[key];
-            if ((!rewritten || typeof rewritten !== "string" || !rewritten.trim()) && key === "FRACTAL" && entity?.future) {
-              const last_msg = slice.slice(-1)[0]?.text || "";
-              const snippet = last_msg
-                .replace(/<[^>]+>/g, "")
-                .trim()
-                .slice(0, 80);
-              rewritten = snippet ? `${entity.future} (Active trajectory: ${snippet}...)` : entity.future;
+            if (!rewritten || typeof rewritten !== "string" || !rewritten.trim()) {
+              const present_summary = forged.present_consolidated?.[key] || "";
+              if (present_summary && entity?.future) {
+                const clean_summary = String(present_summary)
+                  .replace(/<[^>]+>/g, "")
+                  .trim()
+                  .slice(0, 120);
+                const lead_sentence = entity.future.split(".")[0];
+                rewritten = `${lead_sentence}. Active focus: ${clean_summary}.`;
+              } else if (entity?.future) {
+                rewritten = entity.future;
+              }
             }
             if (typeof rewritten !== "string" || !rewritten.trim()) continue;
             entity.future = rewritten.trim();

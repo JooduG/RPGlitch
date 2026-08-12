@@ -8,7 +8,7 @@ describe("TelemetryCard Telemetry Logic", () => {
       type: "DYNAMICS_DELTA",
       updates: {
         AI_CHARACTER: {
-          name: "Lord Valerius Vance",
+          name: "Lord Benedict Silvers",
           present_mutations: {
             physical: "[EXPRESSION: predatory curiosity]",
             non_physical: "He feels a flicker of genuine interest.",
@@ -38,7 +38,7 @@ describe("TelemetryCard Telemetry Logic", () => {
     expect(blocks.map((b) => b.key)).toEqual(["ai", "user"]);
 
     const ai = blocks[0];
-    expect(ai.name).toBe("Lord Valerius Vance");
+    expect(ai.name).toBe("Lord Benedict Silvers");
     expect(ai.dynamics).toEqual([
       { axis: "chaos", value: 48, old_value: 46, new_value: 48, diff: 2, has_delta: true },
       { axis: "affinity", value: 55, old_value: 54, new_value: 55, diff: 1, has_delta: true },
@@ -98,7 +98,7 @@ describe("TelemetryCard Telemetry Logic", () => {
       type: "DYNAMICS_DELTA",
       updates: {
         AI_CHARACTER: {
-          name: "Lord Valerius Vance",
+          name: "Lord Benedict Silvers",
           present_mutations: { physical: "", non_physical: "" },
           vectors: {
             resolved: [],
@@ -117,7 +117,7 @@ describe("TelemetryCard Telemetry Logic", () => {
       type: "DYNAMICS_DELTA",
       updates: {
         AI_CHARACTER: {
-          name: "Lord Valerius Vance",
+          name: "Lord Benedict Silvers",
           present_mutations: { physical: "", non_physical: "" },
           vectors: {
             resolved: [],

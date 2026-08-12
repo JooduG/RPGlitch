@@ -9,7 +9,7 @@ import { claimed_entity_lock, compute_initials, deck_geometry } from "./Storyboa
 
 describe("compute_initials", () => {
   it("skips common name prefixes using the default stop list", () => {
-    expect(compute_initials("Lord Valerius Vance")).toBe("VV");
+    expect(compute_initials("Lord Benedict Silvers")).toBe("BS");
     expect(compute_initials("The One Ring")).toBe("OR");
     expect(compute_initials("Sir Reginald")).toBe("R");
     expect(compute_initials("Alexander The Great")).toBe("AG");

@@ -104,6 +104,12 @@ async function sweep_stale_ghosts() {
 async function mark_placeholder_failed(id, metadata = {}) {
   if (!id) return;
   try {
+    const key = isNaN(Number(id)) ? id : Number(id);
+    const feed_match = state_bridge.simulation_log?.feed?.find((m) => m.id === key || m.id === id || String(m.id) === String(id));
+    if (feed_match && (!feed_match.text || !feed_match.text.trim())) {
+      await state_bridge.session_driver.delete_log_entry(id);
+      return;
+    }
     await state_bridge.session_driver.update_log_attachment(id, 0, {
       src: null,
       metadata: { ...metadata, failed: true, error: "Image beat was dropped before it could resolve." },
@@ -509,10 +515,20 @@ export const gamemaster = {
 
     if (snapshot.ai?.dynamics) {
       compute_deltas("ai", snapshot.ai.dynamics, state_bridge.runtime.ai, deltas, log_strings);
+      if (state_bridge.runtime.active_ai?.id) {
+        await state_bridge.runtime.update_entity("character", state_bridge.runtime.active_ai.id, {
+          dynamics: { ...snapshot.ai.dynamics },
+        });
+      }
     }
 
     if (snapshot.fractal?.dynamics) {
       compute_deltas("fractal", snapshot.fractal.dynamics, state_bridge.runtime.fractal, deltas, log_strings);
+      if (state_bridge.runtime.active_fractal?.id) {
+        await state_bridge.runtime.update_entity("fractal", state_bridge.runtime.active_fractal.id, {
+          dynamics: { ...snapshot.fractal.dynamics },
+        });
+      }
     }
 
     if (deltas.length > 0 || meta) {
