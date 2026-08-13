@@ -1,7 +1,18 @@
-import { DYNAMICS_META, dynamics_engine, evaluate_image_trigger } from "./dynamics.js";
+import { DYNAMICS_META, dynamics_engine, evaluate_image_trigger, IMAGE_TRIGGER } from "./dynamics.js";
 import { describe, expect, it } from "vitest";
 
 describe("dynamics.js", () => {
+  describe("IMAGE_TRIGGER", () => {
+    it("defines 4-tier taxonomy, bands, and cooldown parameters", () => {
+      expect(IMAGE_TRIGGER.band_high).toBe(85);
+      expect(IMAGE_TRIGGER.band_low).toBe(15);
+      expect(IMAGE_TRIGGER.displacement_threshold).toBe(60);
+      expect(IMAGE_TRIGGER.cooldown_rounds).toBe(3);
+      expect(IMAGE_TRIGGER.default_tier).toBe("story_scene");
+      expect(IMAGE_TRIGGER.tiers).toEqual(["story_entities", "story_character", "solo_entity", "story_scene"]);
+    });
+  });
+
   describe("DYNAMICS_META", () => {
     it("defines all 6 axes with label and desc", () => {
       const axes = ["chaos", "intensity", "openness", "affinity", "velocity", "entropy"];

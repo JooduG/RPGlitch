@@ -906,12 +906,15 @@ export class VoiceEngine {
   }
 
   /**
-   * Suspends the shared AudioContext and flushes all audio resources.
+   * Cleans up vocal engine queues, cached audio buffers, stops active playback, and suspends master context.
    * Called when components consuming voice playback unmount.
    */
   destroy() {
     this.stop();
     this.#audio_cache.clear();
+    this.#queue = [];
+    this.#tts = null;
+    this.spoken_character_cursor = 0;
     suspend_master_context();
   }
 
@@ -1009,6 +1012,23 @@ function suspend_master_context() {
     } catch {
       /* empty */
     }
+  }
+}
+
+/**
+ * Closes and nullifies the shared AudioContext on teardown.
+ */
+function close_master_context() {
+  if (shared_context) {
+    if (shared_context.state !== "closed") {
+      try {
+        shared_context.close();
+      } catch {
+        /* empty */
+      }
+    }
+    shared_context = null;
+    master_gain = null;
   }
 }
 
@@ -1197,11 +1217,11 @@ class AudioEffectsEngine {
   }
 
   /**
-   * Suspends the shared AudioContext and flushes buffered audio resources.
-   * Called when the host component or application unmounts.
+   * Closes the shared AudioContext and flushes buffered audio resources.
+   * Called when the host component or application unmounts or on teardown.
    */
   destroy() {
-    suspend_master_context();
+    close_master_context();
     this.#sound_cache.clear();
     this.#pending_fetches.clear();
   }
@@ -1337,11 +1357,18 @@ export const Audio = new (class {
   }
 
   /**
-   * Suspends all AudioContexts and flushes audio resources.
-   * Called on application unmount or pagehide to prevent context leaks.
+   * Suspends and closes all AudioContexts and flushes audio resources.
+   * Called on application unmount, story reset, or pagehide to prevent context leaks.
    */
   destroy() {
     this.voice.destroy();
     this.#effects.destroy();
+  }
+
+  /**
+   * Alias for destroy() matching the standard lifecycle teardown signature.
+   */
+  teardown() {
+    this.destroy();
   }
 })();

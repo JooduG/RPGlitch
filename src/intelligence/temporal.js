@@ -82,7 +82,7 @@ function normalize_forged_type(value) {
   return VALID_FORGED_TYPES.has(type) ? /** @type {any} */ (type) : "past";
 }
 
-export function create(content, type = "future", weight = 5) {
+function create(content, type = "future", weight = 5) {
   return {
     id: _uuid(),
     timestamp: Date.now(),

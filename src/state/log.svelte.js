@@ -16,7 +16,7 @@ import { runtime } from "./runtime.svelte.js";
  * @property {string[]} [attachments]
  */
 
-export class SimulationLogStore {
+class SimulationLogStore {
   /** @type {LogEntry[]} */
   feed = $state([]);
   /** @type {Set<string|number>} */

@@ -8,7 +8,7 @@ import { pick_random, generate_uuid } from "@utils";
 import { security } from "@platform";
 
 const sanitize_html = (/** @type {any} */ val) => security.sanitize(val);
-export const STORAGE_VERSION = 3;
+const STORAGE_VERSION = 3;
 
 /**
  * Valid signature color keys.

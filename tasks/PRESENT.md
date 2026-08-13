@@ -35,7 +35,8 @@ All 9 phases of the Monolithic Refactoring Campaign, the Stress-Test Remediation
 
 > **Archival Standard**: Upon track completion, implementation blueprints are archived exclusively to `C:\Users\johng\source\repos\RPGlitch\archive\`.
 
-- [~] track-remediate-stress-test-feedback-2026-08-13: Remediate 4 approved stress-test review findings (Ghost Row Purge on failed/timed-out image placeholders, Memory Forge Stale-Goal Eviction Law reinforcement, Director Physical Causality Law enforcement, and Present Physical Wardrobe/Equipment Preservation).
+- [x] track-codebase-improvements-2026-08-13: Execute approved architectural optimizations across src/ (Layer boundary decoupling in kernel.js, resolve_image_trigger helper extraction, AudioEngine teardown method, and export surface pruning across 6 files).
+- [x] track-remediate-stress-test-feedback-2026-08-13: Remediate 4 approved stress-test review findings (Ghost Row Purge on failed/timed-out image placeholders, Memory Forge Stale-Goal Eviction Law reinforcement, Director Physical Causality Law enforcement, and Present Physical Wardrobe/Equipment Preservation).
 - [x] remediate-stress-test-issues-2026-08-12: Remediate 7 stress-test issues from long-term-review-4 (Fractal future standing agenda stagnation, session_driver reload sync, ONNX WASM embed recovery, Director terse thought formatting, reply length allocation, and telemetry logging completeness).
 - [x] 093d403 track-audio-expressiveness: Emotional Cadence Modulation (linear +-5% rate drift from base cadence anchor) & Intonation Micro-Perturbations (Markdown typography performance, 100% invisible engine magic).
 
@@ -116,6 +117,7 @@ All 9 phases of the Monolithic Refactoring Campaign, the Stress-Test Remediation
 | 2026-07-11 15:02 | Refactor Backlog Generator & Config Links | `/02-implement` | ✅ Done |
 | 2026-07-11 14:38 | Milestone 2: Code Stability & Logic Polish | `/02-implement` | ✅ Done |
 | 2026-07-11 14:18 | Consolidate Imperative Refreshes & Inline Wrappers | `/02-implement` | ✅ Done |
+| 2026-08-13 21:10 | Execute approved codebase architectural improvements across src/ (Areas A-E) | `/02-implement` | ✅ Done |
 | 2026-07-11 14:07 | Plan and draft state ownership & import guidelines (docs/architecture.md) | `planning` | ✅ Done |
 | 2026-07-10 18:54 | Smooth out background blur/dimming transition and suppress inactive card view-transition-names to prevent snapping | `design`, `svelte` | ✅ Done |
 | 2026-07-10 18:08 | Unify profile modal opening with a horizontal 3D card-flip and zoom transition | `/02-implement` | ✅ Done |

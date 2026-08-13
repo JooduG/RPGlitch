@@ -9,11 +9,10 @@
 
 import { db, entities, prune } from "@data";
 import { generate_uuid as generateUUID, state_bridge } from "@utils";
-import { IMAGE_TRIGGER } from "@engine/config.js";
 import { visual_engine } from "@media";
 import { llm_service, looks_truncated, security } from "@platform";
 import { context_builder } from "./context.svelte.js";
-import { dynamics_engine, evaluate_image_trigger } from "./dynamics.js";
+import { dynamics_engine, evaluate_image_trigger, IMAGE_TRIGGER } from "./dynamics.js";
 import { escape_unescaped_json_quotes, extract_json_block, parse_think_block, strip_cognition_blocks } from "./parser.js";
 import { prompt_builder } from "./prompts.js";
 import { temporal_engine } from "./temporal.js";
@@ -156,11 +155,62 @@ function parse_director_json(raw_text) {
     return payload;
   } catch (parse_err) {
     console.warn("[GameMaster] Director JSON invalid, falling back to raw prose:", parse_err);
-    state_bridge.app.log("[GameMaster] Director JSON parse failed — using raw prose fallback", "warn");
     const stripped = raw_text.replace(/```json\n?|```/g, "").trim();
     const extracted_think = parse_think_block(stripped).think;
     return { internal_monologue: extracted_think || stripped, _parse_error: true };
   }
+}
+
+/**
+ * Resolves whether an image beat should trigger (Dual-source: Dynamics Gate + LLM Director)
+ * subject to shared cooldown gating.
+ * @param {Object} params
+ * @param {any} params.snapshot - Current entity dynamics snapshot
+ * @param {any} params.prev_dynamics - Previous dynamics state
+ * @param {any} params.director_data - Parsed Director output
+ * @param {number} params.turn_round - Active round number
+ * @param {number} params.last_auto - Last round an image was auto-triggered
+ * @returns {{ active: boolean, tier: string|null, source: 'director'|'dynamics'|null, signals: any, next_auto_round: number|null }}
+ */
+function _resolve_image_trigger({ snapshot, prev_dynamics, director_data, turn_round, last_auto }) {
+  const image_trigger_eval = evaluate_image_trigger({ ai: snapshot?.ai?.dynamics, fractal: snapshot?.fractal?.dynamics }, prev_dynamics, {
+    band_high: IMAGE_TRIGGER.band_high,
+    band_low: IMAGE_TRIGGER.band_low,
+    displacement_threshold: IMAGE_TRIGGER.displacement_threshold,
+    default_tier: IMAGE_TRIGGER.default_tier,
+  });
+
+  const cooldown_elapsed = last_auto < 0 || turn_round >= last_auto + IMAGE_TRIGGER.cooldown_rounds;
+
+  let auto_image_trigger = null;
+  let next_auto_round = null;
+  if (image_trigger_eval.triggered && cooldown_elapsed) {
+    auto_image_trigger = { tier: image_trigger_eval.tier, source: "dynamics" };
+    next_auto_round = turn_round;
+  }
+
+  const raw_trigger = typeof director_data.trigger_image === "string" ? director_data.trigger_image.trim() : director_data.trigger_image;
+  const tier_from_string = typeof raw_trigger === "string" && IMAGE_TRIGGER.tiers.includes(raw_trigger) ? raw_trigger : null;
+  const tier_from_pref =
+    typeof director_data.image_tier === "string" && IMAGE_TRIGGER.tiers.includes(director_data.image_tier) ? director_data.image_tier : null;
+  const director_explicit = raw_trigger === true || raw_trigger === "true" || tier_from_string !== null;
+  const director_allowed = director_explicit && cooldown_elapsed;
+  if (director_allowed) {
+    next_auto_round = turn_round;
+  }
+
+  const active = director_allowed || auto_image_trigger !== null;
+  const tier = tier_from_string || (director_explicit ? tier_from_pref || IMAGE_TRIGGER.default_tier : auto_image_trigger?.tier || null) || null;
+  const source = active ? (director_explicit ? "director" : "dynamics") : null;
+
+  return {
+    active,
+    tier: active ? tier : null,
+    source,
+    signals: image_trigger_eval.signals,
+    next_auto_round,
+    director_explicit,
+  };
 }
 
 /**
@@ -883,50 +933,30 @@ export const gamemaster = {
       // 4.6 IMAGE TRIGGER ENGINE — Dual-Source & Shared Cooldown
       // Source A: pure-JS dynamics gate (band entry + displacement sum), no LLM call.
       // Source B: LLM Director explicit trigger (trigger_image true or a 4-tier string).
-      const image_trigger_eval = evaluate_image_trigger({ ai: snapshot.ai?.dynamics, fractal: snapshot.fractal?.dynamics }, prev_dynamics, {
-        band_high: IMAGE_TRIGGER.band_high,
-        band_low: IMAGE_TRIGGER.band_low,
-        displacement_threshold: IMAGE_TRIGGER.displacement_threshold,
-        default_tier: IMAGE_TRIGGER.default_tier,
+      const turn_round = state_bridge.runtime.round || 0;
+      const last_auto = state_bridge.runtime.last_auto_image_round ?? -1;
+      const resolved_image = _resolve_image_trigger({
+        snapshot,
+        prev_dynamics,
+        director_data,
+        turn_round,
+        last_auto,
       });
 
-      const turn_round = state_bridge.runtime.round || 0;
-      // -1 is the "never triggered" sentinel. A 0 sentinel collided with real round-0
-      // (prologue) triggers, permanently opening the shared cooldown gate.
-      const last_auto = state_bridge.runtime.last_auto_image_round ?? -1;
-      // First auto-trigger is allowed anytime; afterwards enforce the shared cooldown.
-      const cooldown_elapsed = last_auto < 0 || turn_round >= last_auto + IMAGE_TRIGGER.cooldown_rounds;
-
-      let auto_image_trigger = null;
-      if (image_trigger_eval.triggered && cooldown_elapsed) {
-        auto_image_trigger = { tier: image_trigger_eval.tier, source: "dynamics" };
-        state_bridge.runtime.last_auto_image_round = turn_round;
+      if (resolved_image.next_auto_round !== null) {
+        state_bridge.runtime.last_auto_image_round = resolved_image.next_auto_round;
       }
 
-      const raw_trigger = typeof director_data.trigger_image === "string" ? director_data.trigger_image.trim() : director_data.trigger_image;
-      const tier_from_string = typeof raw_trigger === "string" && IMAGE_TRIGGER.tiers.includes(raw_trigger) ? raw_trigger : null;
-      const tier_from_pref =
-        typeof director_data.image_tier === "string" && IMAGE_TRIGGER.tiers.includes(director_data.image_tier) ? director_data.image_tier : null;
-      const director_explicit = raw_trigger === true || raw_trigger === "true" || tier_from_string !== null;
-      // The shared cooldown gates BOTH image sources (dynamics + Director explicit),
-      // so consecutive turns can't each fire an image. The prologue's image opens the
-      // timer at round 0, so the opening turn is covered too.
-      const director_allowed = director_explicit && cooldown_elapsed;
-      if (director_allowed) {
-        state_bridge.runtime.last_auto_image_round = turn_round;
+      final_meta.trigger_image = resolved_image.active;
+      final_meta.image_trigger = resolved_image.active;
+      final_meta.image_tier = resolved_image.tier;
+      if (resolved_image.active) {
+        final_meta.image_source = resolved_image.source;
+        final_meta.image_signals = resolved_image.signals;
       }
 
-      const image_trigger_active = director_allowed || auto_image_trigger !== null;
-      const image_tier =
-        tier_from_string || (director_explicit ? tier_from_pref || IMAGE_TRIGGER.default_tier : auto_image_trigger?.tier || null) || null;
-
-      final_meta.trigger_image = image_trigger_active;
-      final_meta.image_trigger = image_trigger_active;
-      final_meta.image_tier = image_trigger_active ? image_tier : null;
-      if (image_trigger_active) {
-        final_meta.image_source = director_explicit ? "director" : "dynamics";
-        final_meta.image_signals = image_trigger_eval.signals;
-      }
+      const image_trigger_active = resolved_image.active;
+      const image_tier = resolved_image.tier;
 
       if (image_trigger_active && image_tier) {
         let trigger_prompt = [input, clean_think(director_data._thought_process), clean_think(director_data.directive)]
@@ -943,7 +973,7 @@ export const gamemaster = {
           }
         }
         await this.fire_image_trigger(image_tier, {
-          explicit: director_explicit,
+          explicit: resolved_image.director_explicit,
           source: final_meta.image_source,
           prompt: trigger_prompt,
         });

@@ -137,4 +137,14 @@ describe("Audio & Voice Configurations", () => {
       ]),
     );
   });
+
+  it("safely tears down and cleans up resources via destroy() and teardown()", async () => {
+    const { Audio } = await import("./audio.svelte.js");
+    expect(typeof Audio.destroy).toBe("function");
+    expect(typeof Audio.teardown).toBe("function");
+
+    expect(() => Audio.destroy()).not.toThrow();
+    expect(() => Audio.teardown()).not.toThrow();
+    expect(Audio.voice.is_speaking).toBe(false);
+  });
 });

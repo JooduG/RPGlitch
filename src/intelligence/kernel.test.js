@@ -158,9 +158,15 @@ vi.mock("@intelligence/dynamics.js", () => ({
   evaluate_image_trigger: vi.fn().mockReturnValue({
     triggered: false,
     signals: { band_entry: null, displacement: 0, displacement_threshold: 60 },
-    tier: "story_scene",
-    deltas: [],
   }),
+  IMAGE_TRIGGER: {
+    band_high: 85,
+    band_low: 15,
+    displacement_threshold: 60,
+    cooldown_rounds: 3,
+    default_tier: "story_scene",
+    tiers: ["story_entities", "story_character", "solo_entity", "story_scene"],
+  },
 }));
 
 describe("gamemaster (Intelligence Kernel)", () => {

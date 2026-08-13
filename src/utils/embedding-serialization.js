@@ -7,7 +7,7 @@
  * read so cold loads can reuse persisted embeddings instead of re-inferring.
  */
 
-export const EMBEDDING_DIM = 384;
+const EMBEDDING_DIM = 384;
 
 /**
  * Serializes an embedding into a JSON-safe form (number[]).

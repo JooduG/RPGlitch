@@ -26,25 +26,7 @@ export const CONFIG = {
 
 export const { ROLES, ENTITIES, VIEWS } = CONFIG;
 
-/**
- * 🖼️ IMAGE TRIGGER ENGINE CONFIG
- * Dual-source automatic image generation (pure-JS dynamics gate + LLM director),
- * sharing a single cooldown state. See src/intelligence/dynamics.js and kernel.js step 4.6.
- */
-export const IMAGE_TRIGGER = {
-  // Source A — Pure-JS Dynamics Gate thresholds (Signal B band entry)
-  band_high: 85,
-  band_low: 15,
-  // Source A — Signal A: sum of |Δaxis| across all six axes
-  displacement_threshold: 60,
-  // Shared cooldown: rounds to wait after any auto-trigger before the next one.
-  // Director-explicit triggers bypass the check but reset this timer.
-  cooldown_rounds: 3,
-  // Default tier for dynamics-gate triggers.
-  default_tier: "story_scene",
-  // The unified 4-Tier Image Taxonomy.
-  tiers: ["story_entities", "story_character", "solo_entity", "story_scene"],
-};
+export { IMAGE_TRIGGER } from "@intelligence/dynamics.js";
 
 /**
  * Clamps a number between min and max.
