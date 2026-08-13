@@ -995,8 +995,8 @@ export async function forge_memory(entity_targets, history_slice) {
 
     const forged = {
       memories: {},
-      present_consolidated: memory?.present_consolidated || {},
-      eternal_consolidated: memory?.eternal_consolidated || {},
+      present_consolidated: memory?.state_consolidated || memory?.present_consolidated || {},
+      eternal_consolidated: memory?.personality_consolidated || memory?.eternal_consolidated || {},
       future_consolidated: {},
     };
 
@@ -1006,17 +1006,17 @@ export async function forge_memory(entity_targets, history_slice) {
       // FUTURE is a single consolidated prose field, mirroring present:
       // the forge rewrites the standing agenda wholesale, dropping fulfilled or
       // abandoned goals and keeping/adding what still matters.
-      const fut = entity_block.future_consolidated;
+      const fut = entity_block.objective_consolidated ?? entity_block.future_consolidated;
       if (typeof fut === "string" && fut.trim()) {
         forged.future_consolidated[key] = fut.trim();
       }
 
-      const pres = entity_block.present_consolidated;
+      const pres = entity_block.state_consolidated ?? entity_block.present_consolidated;
       if (pres && typeof pres === "object") {
         forged.present_consolidated[key] = pres;
       }
 
-      const et = entity_block.eternal_consolidated;
+      const et = entity_block.personality_consolidated ?? entity_block.eternal_consolidated;
       if (et && typeof et === "object") {
         forged.eternal_consolidated[key] = et;
       }
@@ -1123,7 +1123,7 @@ export function apply_state_mutations(entity, mutations, session = null) {
   if (!entity || !mutations || typeof mutations !== "object") return false;
   let changed = false;
 
-  const pres_phys = mutations.present_append?.physical || mutations.present_mutations?.physical || mutations.present_append_physical || "";
+  const pres_phys = mutations.state_append?.physical || mutations.present_append?.physical || mutations.present_mutations?.physical || mutations.present_append_physical || "";
   if (pres_phys.trim()) {
     if (!entity.present) entity.present = { physical: "", non_physical: "" };
     entity.present.physical = merge_prose_into_field(entity.present.physical, pres_phys);
@@ -1131,7 +1131,7 @@ export function apply_state_mutations(entity, mutations, session = null) {
   }
 
   const pres_non_phys =
-    mutations.present_append?.non_physical || mutations.present_mutations?.non_physical || mutations.present_append_non_physical || "";
+    mutations.state_append?.non_physical || mutations.present_append?.non_physical || mutations.present_mutations?.non_physical || mutations.present_append_non_physical || "";
   if (pres_non_phys.trim()) {
     if (!entity.present) entity.present = { physical: "", non_physical: "" };
     entity.present.non_physical = cap_present_prose(merge_prose_into_field(entity.present.non_physical, pres_non_phys));
@@ -1176,7 +1176,7 @@ export function apply_state_mutations(entity, mutations, session = null) {
     });
   }
 
-  const eternal_muts = mutations.eternal_consolidated || mutations.eternal_baseline || mutations.eternal_mutations;
+  const eternal_muts = mutations.personality_consolidated || mutations.eternal_consolidated || mutations.eternal_baseline || mutations.eternal_mutations;
   if (eternal_muts && entity.eternal) {
     if (eternal_muts.physical?.trim()) {
       entity.eternal.physical = merge_eternal_field(entity.eternal.physical, eternal_muts.physical);

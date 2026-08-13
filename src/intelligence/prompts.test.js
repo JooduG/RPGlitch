@@ -202,7 +202,7 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.task).toContain("<POV_DIRECTIVE>");
       expect(result.task).toContain("Write strictly in first-person");
       expect(result.task).not.toContain("undefined");
-      expect(result.task).toContain("<PAST>");
+      expect(result.task).toContain("<MEMORIES>");
     });
 
     it("build_prologue() renders third-person POV when entity pov is 3rd_person", () => {
@@ -254,8 +254,9 @@ describe("prompt_builder (Refactored)", () => {
       };
       const result = prompt_builder.build_prologue(empty_payload, mock_snapshot);
       expect(result.system).toContain("<SYSTEM");
-      expect(result.system).not.toContain("<PAST>");
-      expect(result.system).not.toContain("<FUTURE>");
+      expect(result.system).not.toContain("<MEMORIES>");
+      // Empty entity OBJECTIVES blocks are pruned; the single remaining reference is the PHASES protocol prose.
+      expect(result.system.match(/<OBJECTIVES>/g) || []).toHaveLength(1);
     });
   });
 
@@ -373,7 +374,7 @@ describe("prompt_builder (Refactored)", () => {
 
       const result = prompt_builder.build_director_prompt(payload, snapshot);
 
-      expect(result.system).toContain("<PAST>");
+      expect(result.system).toContain("<MEMORIES>");
       expect(result.system).toContain("Viper past thread");
       expect(result.system).toContain("Ghost past thread");
       expect(result.system).toContain("Void past thread");
@@ -436,7 +437,7 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.system).toContain('<SYSTEM role="Viper">');
       expect(result.system).toContain('<YOUR_IDENTITY name="Viper">');
       expect(result.task).toContain('<YOUR_IDENTITY name="Viper" intensity="50" openness="60">');
-      expect(result.task).toContain("<PAST>");
+      expect(result.task).toContain("<MEMORIES>");
       expect(result.system).not.toContain("<DIRECTION>");
       expect(result.system).toContain("<PROTOCOLS>");
       expect(result.task).toContain("<USER_ACTION>");
@@ -514,7 +515,7 @@ describe("prompt_builder (Refactored)", () => {
         eternal: { physical: '{"eyeColor": "blue", "hair": "black"}' },
       };
       const result = prompt_builder.build_enhancement("eternal.physical", "Content", "Viper", "character", false, entity);
-      expect(result.system).toContain("<ETERNAL>");
+      expect(result.system).toContain("<PERSONALITY>");
       expect(result.system).toContain("<PHYSICAL>");
       expect(result.system).toContain("<eyeColor>blue</eyeColor>");
       expect(result.system).toContain("<hair>black</hair>");
@@ -914,7 +915,7 @@ describe("prompt_builder (Refactored)", () => {
       const snapshot = { ai: { dynamics: { affinity: 50, openness: 50 } }, fractal: { dynamics: {} }, flags: {} };
       const result = prompt_builder.build_character_prompt(payload, snapshot, {});
 
-      expect(result.task).toContain("<FUTURE>");
+      expect(result.task).toContain("<OBJECTIVES>");
       expect(result.task).toContain("Seek the artifact");
       expect(result.task).toContain("The empire watches");
     });

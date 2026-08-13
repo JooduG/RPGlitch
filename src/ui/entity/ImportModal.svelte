@@ -193,8 +193,11 @@
           }
         } else if (typeof val === "string") {
           // Map flat LLM keys (e.g., eternal_physical) back to nested DB schema (eternal: { physical })
-          if (key.includes("_") && (key.startsWith("eternal_") || key.startsWith("present_"))) {
-            const [mainKey, ...rest] = key.split("_");
+          let mapped_key = key;
+          if (key.startsWith("personality_")) mapped_key = "eternal_" + key.slice("personality_".length);
+          else if (key.startsWith("state_")) mapped_key = "present_" + key.slice("state_".length);
+          if (mapped_key.includes("_") && (mapped_key.startsWith("eternal_") || mapped_key.startsWith("present_"))) {
+            const [mainKey, ...rest] = mapped_key.split("_");
             const sub_key = rest.join("_");
             if (!entity[mainKey]) entity[mainKey] = {};
             entity[mainKey][sub_key] = val;

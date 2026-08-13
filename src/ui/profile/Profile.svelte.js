@@ -478,7 +478,11 @@ export class ProfileState {
             if (key === "name" || key === "profile_picture" || key === "image" || key === "id" || key === "type") continue;
 
             // Map flat LLM keys (e.g. eternal_physical) back to nested DB schema (eternal.physical)
-            if (key === "eternal_physical") key = "eternal.physical";
+            if (key === "personality_physical") key = "eternal.physical";
+            else if (key === "personality_non_physical") key = "eternal.non_physical";
+            else if (key === "state_physical") key = "present.physical";
+            else if (key === "state_non_physical") key = "present.non_physical";
+            else if (key === "eternal_physical") key = "eternal.physical";
             else if (key === "eternal_non_physical") key = "eternal.non_physical";
             else if (key === "present_physical") key = "present.physical";
             else if (key === "present_non_physical") key = "present.non_physical";

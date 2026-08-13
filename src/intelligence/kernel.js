@@ -199,7 +199,7 @@ function terse_director_task() {
   - Omit "_thought_process" entirely, or keep it to one clause of a few words.
   - Omit the "directive" key entirely.
   - For each entity, include only NON-EMPTY mutations:
-      "present_append": { "physical": "", "non_physical": "<one short clause>" }
+      "state_append": { "physical": "", "non_physical": "<one short clause>" }
       "vector_append": [] (or a SINGLE item)
       "vector_resolve": []
       "dynamics_deltas": { small integers }
@@ -246,21 +246,21 @@ function synthesize_director_fallback(prev_data, input, bridge) {
   const fractal = bridge?.runtime?.active_fractal;
   if (ai) {
     fallback.AI_CHARACTER = {
-      present_append: { physical: "", non_physical: first_sentence(monologue) || "Reacts to the turn's events." },
+      state_append: { physical: "", non_physical: first_sentence(monologue) || "Reacts to the turn's events." },
       vector_append: [],
       vector_resolve: [],
     };
   }
   if (user) {
     fallback.USER_PERSONA = {
-      present_append: { physical: "", non_physical: first_sentence(input) || "" },
+      state_append: { physical: "", non_physical: first_sentence(input) || "" },
       vector_append: [],
       vector_resolve: [],
     };
   }
   if (fractal) {
     fallback.FRACTAL = {
-      present_append: { physical: "", non_physical: "" },
+      state_append: { physical: "", non_physical: "" },
       vector_append: [{ content: `${fractal.name || "The environment"} shifts with the turn's events.`, type: "past", emotional_weight: 3 }],
       vector_resolve: [],
     };
@@ -414,7 +414,9 @@ function compute_deltas(target, dynamics, runtime_target, deltas, log_strings) {
 /**
  * Builds one entity's normalized `updates` block for telemetry. Director fields
  * are aligned into the display shape: `present_mutations.{physical,non_physical}`
- * and `eternal_mutations.{physical,non_physical}`, `new_vectors` keep `content`/`type`
+ * and `eternal_mutations.{physical,non_physical}` (from `state_append`/`present_append` and
+ * `personality_consolidated`/`eternal_consolidated`/`eternal_baseline`/`eternal_mutations`),
+ * `new_vectors` keep `content`/`type`
  * but their `weight` becomes `emotional_weight`, `resolve_vectors` → `vectors.resolved`,
  * `dynamics_deltas` is dropped (the computed `dynamics` array already carries old/new/diff per
  * axis). Returns null when the entity carries no content so the dump stays lean.
@@ -428,13 +430,13 @@ function build_update_entry(name, mutations, dynamics, retrieval) {
   const entry = {};
   if (name) entry.name = name;
 
-  const pres = mutations?.present_append || mutations?.present_mutations || {};
+  const pres = mutations?.state_append || mutations?.present_append || mutations?.present_mutations || {};
   entry.present_mutations = {
     physical: pres.physical || mutations?.present_append_physical || "",
     non_physical: pres.non_physical || mutations?.present_append_non_physical || "",
   };
 
-  const eternal = mutations?.eternal_consolidated || mutations?.eternal_baseline || mutations?.eternal_mutations || {};
+  const eternal = mutations?.personality_consolidated || mutations?.eternal_consolidated || mutations?.eternal_baseline || mutations?.eternal_mutations || {};
   entry.eternal_mutations = {
     physical: eternal.physical || "",
     non_physical: eternal.non_physical || "",
