@@ -60,7 +60,6 @@
   }
 </script>
 
-<!-- eslint-disable better-tailwindcss/no-unknown-classes -->
 <div
   class="
     meter-card

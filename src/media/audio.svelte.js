@@ -141,7 +141,6 @@ export function extract_styled_segments(text) {
   let match;
   while ((match = regex.exec(text)) !== null) {
     let content;
-    // eslint-disable-next-line better-tailwindcss/no-unknown-classes
     let style = "normal";
     let volume_db = 0;
     let rate_scale = 1.0;
