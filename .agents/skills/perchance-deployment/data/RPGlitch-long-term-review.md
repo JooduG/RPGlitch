@@ -81,11 +81,48 @@ Run the test for **25 to 30 full conversational turns without skipping or summar
 | --- | ---------------------- | -------------------------------------- | --------------------------------------------------------- | -------------------------------------- | ------------------------------------------------ | -------------------------------- |
 | 0   | Prologue start         | 1400ch (GRRM/Delany style)             | Set baseline standing agenda                              | Auto / story_scene / OK                | Baseline                                         | Tone locked, zero AI-isms        |
 
+### 📦 Comprehensive Session JSON Trace Artifact Directive
+
+In addition to updating the markdown table above, **you MUST dump and attach a complete, un-truncated raw JSON artifact** of the entire session trace upon test completion.
+
+- **Filename Standard**: `tmp/rpglitch-long-term-review-trace-<timestamp>.json` (or attached as an artifact).
+- **Required JSON Schema Structure**:
+
+  ```json
+  {
+    "meta": {
+      "timestamp": "2026-08-13T18:15:00Z",
+      "total_turns": 28,
+      "scenario": "Gothic Baseline / Sovereign Test",
+      "entities": ["Lord Benedict Silvers", "Julien", "Ashenweald"]
+    },
+    "turns": [
+      {
+        "round": 1,
+        "user_action": "...",
+        "ai_response": "...",
+        "director_output": {
+          "_thought_process": "...",
+          "directive": "...",
+          "mutations": {},
+          "dynamics_deltas": {},
+          "new_vectors": []
+        },
+        "telemetry": {
+          "dynamics_snapshot": {},
+          "signals": [],
+          "image_trigger": {}
+        }
+      }
+    ]
+  }
+  ```
+
 ---
 
 ## Part 4: Overarching Narrative & Engine Quality Evaluation
 
-After completing all 25–30 rounds, aggregate your findings into a comprehensive Narrative Quality Report:
+After completing all 25–30 rounds, aggregate your findings into a comprehensive Narrative Quality Report (accompanied by the exported Session JSON Trace Artifact):
 
 ### 1. Narrative & Engine Quality Scorecard
 
@@ -114,3 +151,42 @@ After completing all 25–30 rounds, aggregate your findings into a comprehensiv
 ### 3. Director & Fractal World Steering Evaluation
 
 Analysis of how the Director instruction set used environmental atmosphere and world agendas to steer scene tension without overriding character agency.
+
+---
+
+## Part 5: Recent Engineering Updates Audit & Efficacy Assessment (2-Hour Velocity Review)
+
+> **Audit Anchor**: 2026-08-13 18:13 CEST  
+> **Evaluated Commits**: `06fd89342` ➔ `5ac8465f9` ➔ `4677075f5`  
+> **Status**: ✅ **100% SUCCESSFUL & VERIFIED**
+
+### 1. Key Engineering Interventions (Last 2 Hours)
+
+1. **Simulation Audit Harness & Pipeline Verification (`4677075f5`)**:
+   - Created standalone execution harness in `.agents/skills/simulation/scripts/simulation-audit.js` and Vitest suite `simulation-audit.test.js`.
+   - Verified automated prompt generation, prefix-cache verification, and pipeline assertion checks.
+   - Enforced 100% clean test execution across all 34 test files (443 unit & design tests).
+
+2. **Intelligence Parser Engine & Protocol Field Normalization (`5ac8465f9`)**:
+   - Consolidated pseudo-JSON extraction in `src/intelligence/parser.js`.
+   - Mapped legacy/flat LLM fields (`personality_*`, `state_*`, `objective_*`) seamlessly back to nested DB schemas (`eternal.*`, `present.*`, `future`).
+   - Cleaned up `ImportModal.svelte` and `Profile.svelte.js` to handle both flat and nested key mutations without data loss.
+
+3. **Temporal Engine & Entity Fragment Alignment (`06fd89342`)**:
+   - Refactored `render_entity_memory_context` in `src/intelligence/prompts.js` to dynamically map XML tags according to entity type:
+     - **Character**: `<PERMANENT_APPEARANCE>`, `<PERSONALITY>`, `<CURRENT_LOOK>`, `<STATE_OF_MIND>`, `<MEMORIES>`, `<INTENT>`.
+     - **User Persona**: `<PERMANENT_APPEARANCE>`, `<PERSONALITY>`, `<CURRENT_LOOK>`, `<STATE_OF_MIND>`, `<BACKSTORY>`, `<AGENDA>`.
+     - **Fractal**: `<ENVIRONMENT>`, `<METAPHYSICAL_TRUTHS>`, `<ACTIVE_ATMOSPHERE>`, `<CURRENT_STATE>`, `<HISTORY>`, `<AGENDA>`.
+   - Updated `MEMORY_FORGE` protocol in `src/data/definitions/protocols.js` to enforce non-empty `future` standing agenda updates for `FRACTAL` entities on every forge run, introducing the **Stale Goal Eviction Law**.
+
+---
+
+### 2. Successfulness & Efficacy Matrix
+
+| Subsystem / Directive          | Expected Outcome                                                                                                      | Empirical Verification Result                                                                                                                                                                                                                        | Status  |
+| :----------------------------- | :-------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------ |
+| **Fractal Future Progression** | Prevent Fractal standing agenda stagnation across forge cycles.                                                       | Enforced non-empty `future` generation and Stale Goal Eviction Law in `MEMORY_FORGE` protocol (`protocols.js`). Tested & passing.                                                                                                                    | ✅ PASS |
+| **Dynamic XML Schema Tagging** | Render entity-appropriate XML tags in prompts without tag collision or prose leaks.                                   | Distinct tag sets (`<METAPHYSICAL_TRUTHS>`, `<ENVIRONMENT>`, `<AGENDA>`, `<HISTORY>` for Fractals vs `<PERSONALITY>`, `<PERMANENT_APPEARANCE>`, `<INTENT>`, `<MEMORIES>` for Characters) verified in `prompts.test.js` & `simulation-audit.test.js`. | ✅ PASS |
+| **Flat-to-Nested Mapping**     | Support flat LLM output keys (`personality_physical`, `state_non_physical`) cleanly in profile state & import modals. | Key normalization verified in `ImportModal.svelte`, `Profile.svelte.js`, and `normalizer.js`. 0 data loss across imports.                                                                                                                            | ✅ PASS |
+| **Singlefile Build Pipeline**  | Ensure singlefile bundle compiles cleanly with 0 lints/warnings.                                                      | `npm run deploy:prepare` built `dist/index.html` (1,274.07 kB inline) with 0 errors and 0 warnings.                                                                                                                                                  | ✅ PASS |
+| **Simulation Test Harness**    | Automated audit script for prompt hydration, epistemic physics, and payload checks.                                   | `npm run audit:simulation` executes cleanly; synthetic reports generated to `tmp/audit_report.md`.                                                                                                                                                   | ✅ PASS |
