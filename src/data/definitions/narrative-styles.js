@@ -11,7 +11,8 @@ export const GLOBAL_TRIGGERS = [
   {
     id: "ADRENALINE",
     when: (ai) => ai.intensity > 70,
-    directive: "High-adrenaline pacing. Slow narrative time: expand detail in decisive beats — micro-expressions, split-second thoughts, and immediate sensory physics.",
+    directive:
+      "High-adrenaline pacing. Slow narrative time: expand detail in decisive beats — micro-expressions, split-second thoughts, and immediate sensory physics.",
   },
   {
     id: "SLOW_MOTION",
@@ -71,7 +72,8 @@ export const GLOBAL_TRIGGERS = [
   {
     id: "HIGH_ENTROPY",
     when: (ai, fractal) => fractal.entropy > 70,
-    directive: "Pathetic fallacy: The environmental geometry is unstable. Weave sensory descriptions of physical glitches, non-linear decay, and structural reality degradation directly into the background texture.",
+    directive:
+      "Pathetic fallacy: The environmental geometry is unstable. Weave sensory descriptions of physical glitches, non-linear decay, and structural reality degradation directly into the background texture.",
   },
   {
     id: "LOW_ENTROPY",

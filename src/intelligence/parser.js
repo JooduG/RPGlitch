@@ -82,7 +82,6 @@ export function parse_think_block(text) {
   };
 }
 
-
 /**
  * Extracts the outermost JSON object from a raw LLM response.
  * Strips markdown code fences and isolates the substring between the first "{" and last "}".

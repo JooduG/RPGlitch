@@ -255,8 +255,10 @@ describe("prompt_builder (Refactored)", () => {
       const result = prompt_builder.build_prologue(empty_payload, mock_snapshot);
       expect(result.system).toContain("<SYSTEM");
       expect(result.system).not.toContain("<MEMORIES>");
-      // Empty entity OBJECTIVE blocks are pruned; the single remaining reference is the PHASES protocol prose.
-      expect(result.system.match(/<OBJECTIVE>/g) || []).toHaveLength(1);
+      // Empty entity standing-agenda blocks (<INTENT>/<AGENDA>) are pruned;
+      // the only remaining reference is the PHASES protocol prose.
+      expect(result.system.match(/<INTENT>/g) || []).toHaveLength(0);
+      expect(result.system.match(/<AGENDA>/g) || []).toHaveLength(1);
     });
   });
 
@@ -515,8 +517,7 @@ describe("prompt_builder (Refactored)", () => {
         eternal: { physical: '{"eyeColor": "blue", "hair": "black"}' },
       };
       const result = prompt_builder.build_enhancement("eternal.physical", "Content", "Viper", "character", false, entity);
-      expect(result.system).toContain("<FOUNDATION>");
-      expect(result.system).toContain("<APPEARANCE>");
+      expect(result.system).toContain("<PERMANENT_APPEARANCE>");
       expect(result.system).toContain("<eyeColor>blue</eyeColor>");
       expect(result.system).toContain("<hair>black</hair>");
     });

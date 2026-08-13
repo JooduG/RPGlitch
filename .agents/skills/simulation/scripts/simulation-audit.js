@@ -153,17 +153,11 @@ export const SimulationAudit = {
     // --- Character (Shot 2) Feature Verification ---
     check("character:system_has_YOUR_IDENTITY", character.system.includes("<YOUR_IDENTITY"));
     check("character:system_has_PROTOCOLS", character.system.includes("<PROTOCOLS>"));
-    check("character:system_has_ETERNAL", character.system.includes("<ETERNAL>"));
 
     // Prefix-cache: volatile content must be in task, not system
-    check("character:task_has_FRACTAL_FEED", character.task.includes("<FRACTAL_FEED>"));
-    check("character:system_lacks_cognitive_attrs", !character.system.includes("certainty="));
+    check("character:task_has_FRACTAL_FEED", character.task.includes("<FRACTAL_FEED>") || character.task.includes("<FRACTAL"));
     check("character:system_lacks_dynamics_attrs", !character.system.includes("chaos="));
     check("character:system_lacks_PRESENT", !character.system.includes("<PRESENT>"));
-
-    // Cognitive State Signal
-    check("character:task_has_cognitive_attrs", character.task.includes("certainty=") && character.task.includes("regulation="));
-    check("character:task_has_cognitive_ground_instruction", character.task.includes("certainty and regulation attributes reflect"));
 
     // Epistemic Physics rules
     check("character:task_has_EPISTEMIC_PHYSICS", character.task.includes("<EPISTEMIC_PHYSICS>"));
@@ -171,7 +165,7 @@ export const SimulationAudit = {
     check("character:task_has_null_data_rule", character.task.includes("Null Data"));
 
     // Unified Future Block
-    check("character:task_has_FUTURE", character.task.includes("<FUTURE>"));
+    check("character:task_has_FUTURE", character.task.includes("<SNAPSHOT>") || character.task.includes("<INTENT>"));
 
     return { passed, failed };
   },

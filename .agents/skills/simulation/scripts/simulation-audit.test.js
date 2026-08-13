@@ -111,7 +111,7 @@ ${SEP}
     expect(result.character_task).toBeDefined();
   });
 
-  it("Character prompt contains cognitive attrs (certainty/regulation)", async () => {
+  it("Character prompt keeps dynamics in task snapshot", async () => {
     const scenario = {
       ai_id: "silvers",
       user_id: "julien",
@@ -121,22 +121,8 @@ ${SEP}
 
     const result = await SimulationAudit.execute_turn("Test input", scenario);
 
-    expect(result.character_task).toContain("certainty=");
-    expect(result.character_task).toContain("regulation=");
-  });
-
-  it("Character prompt keeps cognitive attrs in volatile task, not static system", async () => {
-    const scenario = {
-      ai_id: "silvers",
-      user_id: "julien",
-      fractal_id: "ashenweald",
-      history: [],
-    };
-
-    const result = await SimulationAudit.execute_turn("Test input", scenario);
-
-    expect(result.character_system || result.character_prompt).not.toContain("certainty=");
-    expect(result.character_task).toContain("certainty=");
+    expect(result.character_task).toContain("<SNAPSHOT>");
+    expect(result.character_task).toContain("chaos=");
   });
 
   it("Pipeline verification passes all critical checks", async () => {
@@ -150,10 +136,8 @@ ${SEP}
     const result = await SimulationAudit.execute_turn("Test input", scenario);
 
     expect(result.verification).toBeDefined();
-    expect(result.verification.passed).toContain("character:task_has_cognitive_attrs");
     expect(result.verification.passed).toContain("character:task_has_EPISTEMIC_PHYSICS");
-    expect(result.verification.passed).toContain("character:system_lacks_cognitive_attrs");
-    expect(result.verification.failed).not.toContain("character:task_has_cognitive_attrs");
+    expect(result.verification.passed).toContain("character:system_lacks_dynamics_attrs");
   });
 
   it("passes raw_messages for Director AI_LAST_TURN block", async () => {
@@ -166,7 +150,7 @@ ${SEP}
 
     const result = await SimulationAudit.execute_turn("I submit.", scenario);
 
-    expect(result.director_task).toContain("<AI_LAST_TURN>");
+    expect(result.director_task).toContain("<AI_CHARACTER_LAST_TURN>");
     expect(result.director_task).toContain("The vampire lord smiles coldly.");
   });
 });

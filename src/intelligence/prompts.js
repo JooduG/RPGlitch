@@ -466,28 +466,37 @@ ${round != null ? `<ROUND>${escape_xml(String(round))}</ROUND>\n` : ""}${input?.
 function render_entity_memory_context(key, entity) {
   if (!entity) return "";
   const name = escape_xml(entity?.name || key);
+  const is_fractal = key === "FRACTAL";
+  const is_user = key === "USER_PERSONA";
+  const T = {
+    personality: is_fractal ? "METAPHYSICAL_TRUTHS" : "PERSONALITY",
+    state_of_mind: is_fractal ? "CURRENT_STATE" : "STATE_OF_MIND",
+    appearance: is_fractal ? "ENVIRONMENT" : "PERMANENT_APPEARANCE",
+    current_look: is_fractal ? "ACTIVE_ATMOSPHERE" : "CURRENT_LOOK",
+    future: is_fractal || is_user ? "AGENDA" : "INTENT",
+  };
   return clean_xml(`
   <${key} name="${name}">
     <NAME>${name}</NAME>
-      <PERSONALITY>${escape_xml(entity?.eternal?.non_physical || "")}</PERSONALITY>
-      <STATE_OF_MIND>${escape_xml(entity?.present?.non_physical || "")}</STATE_OF_MIND>
-      <PERMANENT_APPEARANCE>
-        ${ind(
-          physical_to_xml(entity?.eternal?.physical, "PHYSICAL")
-            .replace(/<PHYSICAL>|<\/PHYSICAL>/g, "")
-            .trim(),
-          8,
-        )}
-      </PERMANENT_APPEARANCE>
-      <CURRENT_LOOK>
-        ${ind(
-          physical_to_xml(entity?.present?.physical, "PHYSICAL")
-            .replace(/<PHYSICAL>|<\/PHYSICAL>/g, "")
-            .trim(),
-          8,
-        )}
-      </CURRENT_LOOK>
-    <INTENT>${escape_xml(String(entity?.future || "").trim())}</INTENT>
+    <${T.personality}>${escape_xml(entity?.eternal?.non_physical || "")}</${T.personality}>
+    <${T.state_of_mind}>${escape_xml(entity?.present?.non_physical || "")}</${T.state_of_mind}>
+    <${T.appearance}>
+      ${ind(
+        physical_to_xml(entity?.eternal?.physical, "PHYSICAL")
+          .replace(/<PHYSICAL>|<\/PHYSICAL>/g, "")
+          .trim(),
+        6,
+      )}
+    </${T.appearance}>
+    <${T.current_look}>
+      ${ind(
+        physical_to_xml(entity?.present?.physical, "PHYSICAL")
+          .replace(/<PHYSICAL>|<\/PHYSICAL>/g, "")
+          .trim(),
+        6,
+      )}
+    </${T.current_look}>
+    <${T.future}>${escape_xml(String(entity?.future || "").trim())}</${T.future}>
   </${key}>
   `).trim();
 }
@@ -524,7 +533,7 @@ ${entity_blocks}
     For each active entity (AI_CHARACTER, USER_PERSONA, FRACTAL):
       - "eternal": Record permanent identity, psychological, or physical changes to baseline form (or empty string).
       - "present": Rewrite clean, updated current look (physical) and state of mind (non_physical), discarding expired temporary deltas. MANDATORY FOR CURRENT LOOK: You MUST retain physical attire/clothing (e.g. [CLOTHING: flight suit], [SHIRT: cargo jacket]) and active equipment/implants/containers (e.g. [EQUIPMENT: scrap-tech arm, bio-tank]) unless explicitly destroyed or disrobed.
-      - "future": Rewrite the entity's standing agenda as ONE clean block of 2-5 sentences (active future tense). Read the entity's current <INTENT> text above; CRITICAL STALE GOAL EVICTION LAW: If a goal or standing agenda objective was FULFILLED, COMPLETED, or ELAPSED in recent turns, you MUST DROP IT completely (and record what actually happened as a "past" vector instead), sharpen whatever still matters, and fold in at most one genuinely new intent. NEVER retain a fulfilled goal in "future". This field is REQUIRED for every active entity this batch — never omit it. For FRACTAL entities, you MUST rewrite the standing agenda so world events and environmental prophecies advance; do not leave the world agenda unchanged. When an event resolves a prophecy or threat, that agenda item must be dropped and REPLACED by its aftermath — a resolved "eclipse in 3 days" must become the post-eclipse state, never remain verbatim.
+      - "future": Rewrite the entity's standing agenda as ONE clean block of 2-5 sentences (active future tense). Read the entity's current <INTENT> (AI_CHARACTER) or <AGENDA> (USER_PERSONA/FRACTAL) text above; CRITICAL STALE GOAL EVICTION LAW: If a goal or standing agenda objective was FULFILLED, COMPLETED, or ELAPSED in recent turns, you MUST DROP IT completely (and record what actually happened as a "past" vector instead), sharpen whatever still matters, and fold in at most one genuinely new intent. NEVER retain a fulfilled goal in "future". This field is REQUIRED for every active entity this batch — never omit it. For FRACTAL entities, you MUST rewrite the standing agenda so world events and environmental prophecies advance; do not leave the world agenda unchanged. When an event resolves a prophecy or threat, that agenda item must be dropped and REPLACED by its aftermath — a resolved "eclipse in 3 days" must become the post-eclipse state, never remain verbatim.
       - "past": Add settled historical anchors (memories) written strictly from that entity's own perspective — a "past" vector is a concrete event or fact that already happened and must be remembered. No future items: the agenda lives in "future". HIGH THRESHOLD FOR FRACTAL: For FRACTAL entities, past vectors are strictly restricted to MAJOR structural shifts or cataclysmic chapter transitions (e.g. facility destruction). Do NOT record minor room breaches, vent entries, or security alarms as past vectors for the Fractal — leave past as an EMPTY LIST [] for standard turns.
     FACT RETENTION (mandatory — facts outrank feelings):
       - Concrete facts MUST survive: proper nouns (names, places, organizations, facilities, rooms), numbers (years, counts, floor levels, prices), named objects (files, devices, blueprints, vats), cause/effect chains, and promises or agreements.
@@ -533,8 +542,8 @@ ${entity_blocks}
       - When in doubt about whether a fact will matter later, retain it. Missing facts corrupt long-form continuity.
     CRITICAL OUTPUT CONSTRAINT (failure to obey will corrupt memory):
       - Output ONLY the JSON object. No code fences, no prose, no trailing commas.
-      - Keep the ENTIRE JSON under 1800 characters. Omit any truly unchanged optional field; "_thought_process" must be one short clause. Never omit "intent_consolidated" for an active entity — if you must cut something to fit, cut foundation_consolidated or vector_append extras first.
-      - Never truncate — a complete smaller JSON beats a large cut-off one. If you run out of room, drop vector_append before dropping the closing brace.
+      - Keep the ENTIRE JSON under 1800 characters. Omit any truly unchanged optional field; "_thought_process" must be one short clause. Never omit "future" for an active entity — if you must cut something to fit, cut eternal/present extras or past vector entries first.
+      - Never truncate — a complete smaller JSON beats a large cut-off one. If you run out of room, drop past vector entries before dropping the closing brace.
     Output strict JSON matching this schema:
     ${MEMORY_JSON_SCHEMA}
   </TASK>
@@ -542,17 +551,23 @@ ${entity_blocks}
   `).trim();
 }
 
-function render_enhancement_field_context(entity, field_id, content = "") {
+function render_enhancement_field_context(entity, field_id, content = "", entity_type = "character") {
   if (!entity) return "";
   const [section, sub] = String(field_id || "").split(".");
 
   if (section && sub && ["eternal", "present"].includes(section)) {
-    const FIELD_TAGS = {
-      eternal: { layer: "FOUNDATION", physical: "APPEARANCE", non_physical: "PERSONALITY" },
-      present: { layer: "CURRENT_STATE", physical: "CURRENT_LOOK", non_physical: "STATE_OF_MIND" },
+    const FLAT_TAGS = {
+      character: {
+        eternal: { physical: "PERMANENT_APPEARANCE", non_physical: "PERSONALITY" },
+        present: { physical: "CURRENT_LOOK", non_physical: "STATE_OF_MIND" },
+      },
+      fractal: {
+        eternal: { physical: "ENVIRONMENT", non_physical: "METAPHYSICAL_TRUTHS" },
+        present: { physical: "ACTIVE_ATMOSPHERE", non_physical: "CURRENT_STATE" },
+      },
     };
-    const layer = FIELD_TAGS[section].layer;
-    const sub_key = FIELD_TAGS[section][sub];
+    const kind = entity?.type === "fractal" || entity_type === "fractal" ? "fractal" : "character";
+    const tag = FLAT_TAGS[kind][section][sub];
     const raw = entity?.[section]?.[sub];
     const value =
       sub === "physical"
@@ -562,11 +577,9 @@ function render_enhancement_field_context(entity, field_id, content = "") {
         : escape_xml(String(raw ?? ""));
     return clean_xml(`
   <ENTITY_CONTEXT>
-    <${layer}>
-      <${sub_key}>
-        ${ind(value, 8)}
-      </${sub_key}>
-    </${layer}>
+    <${tag}>
+      ${ind(value, 8)}
+    </${tag}>
   </ENTITY_CONTEXT>
   `).trim();
   }
@@ -574,22 +587,24 @@ function render_enhancement_field_context(entity, field_id, content = "") {
   if (field_id === "past") {
     const vectors = resolve_vector_pool(entity).filter((v) => v?.type !== "future");
     const text = vectors.length ? temporal_engine.format(vectors, content || "", { max_chars: 1500 }) : "";
+    const tag = entity?.type === "fractal" || entity_type === "fractal" ? "HISTORY" : entity?.type === "user" ? "BACKSTORY" : "MEMORIES";
     return clean_xml(`
   <ENTITY_CONTEXT>
-    <MEMORIES>
+    <${tag}>
       ${ind(escape_xml(text), 6)}
-    </MEMORIES>
+    </${tag}>
   </ENTITY_CONTEXT>
   `).trim();
   }
 
   if (field_id === "future") {
     const text = String(entity?.future || "").trim();
+    const tag = entity?.type === "fractal" || entity_type === "fractal" || entity?.type === "user" ? "AGENDA" : "INTENT";
     return clean_xml(`
   <ENTITY_CONTEXT>
-    <INTENT>
+    <${tag}>
       ${ind(escape_xml(text), 6)}
-    </INTENT>
+    </${tag}>
   </ENTITY_CONTEXT>
   `).trim();
   }
@@ -631,7 +646,7 @@ function render_enhancement({
   <PROTOCOLS>
     ${ind(prompt_builder.render_protocols(protocols), 4)}
   </PROTOCOLS>
-  ${render_enhancement_field_context(entity, _field_id, content) || ""}
+  ${render_enhancement_field_context(entity, _field_id, content, entity_type) || ""}
   <INPUT_CONTENT>
     ${ind(escape_xml(content), 4)}
   </INPUT_CONTENT>

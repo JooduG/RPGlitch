@@ -187,7 +187,11 @@ export function evaluate_dynamics_signals(ai_dynamics = {}, fractal_dynamics = {
   let active_style = style;
 
   // Handle options object signature: evaluate_dynamics_signals({ ai_dynamics, fractal_dynamics, style })
-  if (ai_dynamics && typeof ai_dynamics === "object" && (ai_dynamics.ai_dynamics || ai_dynamics.fractal_dynamics || ai_dynamics.style !== undefined)) {
+  if (
+    ai_dynamics &&
+    typeof ai_dynamics === "object" &&
+    (ai_dynamics.ai_dynamics || ai_dynamics.fractal_dynamics || ai_dynamics.style !== undefined)
+  ) {
     ai = ai_dynamics.ai_dynamics || {};
     fractal = ai_dynamics.fractal_dynamics || {};
     active_style = ai_dynamics.style || null;

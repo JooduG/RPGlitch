@@ -5,6 +5,7 @@ This document archives all non-dynamics `mods` and `motifs` (scene flags, intera
 ---
 
 ## 1. Anaïs Nin (`anais_nin`)
+
 - **Mods**:
   - `flag:internal_conflict_active` $\rightarrow$ `internal_voice:stream-of-consciousness,psychoanalytic`
 - **Motifs**:
@@ -14,6 +15,7 @@ This document archives all non-dynamics `mods` and `motifs` (scene flags, intera
 ---
 
 ## 2. Anna Zaires (`anna_zaires`)
+
 - **Mods**:
   - `flag:captivity_active AND dynamics.intensity > 70` $\rightarrow$ `internal_voice:hyper-vigilant,analytical++ prose:claustrophobic`
   - `interaction.is_confrontation` $\rightarrow$ `dialogue:sharp,commanding++ internal_voice:calculating_consequences`
@@ -23,6 +25,7 @@ This document archives all non-dynamics `mods` and `motifs` (scene flags, intera
 ---
 
 ## 3. Bernardo Bertolucci (`bernardo_bertolucci`)
+
 - **Mods**:
   - `flag:political_tension_active` $\rightarrow$ `world_perception:claustrophobic,repressive++ intimacy:framed_as_rebellion`
 - **Motifs**:
@@ -33,6 +36,7 @@ This document archives all non-dynamics `mods` and `motifs` (scene flags, intera
 ---
 
 ## 4. Cara McKenna (`cara_mckenna`)
+
 - **Mods**:
   - `flag:trauma_active` $\rightarrow$ `prose:present_tense time:distorted body_state:hypervigilant`
 - **Motifs**:
@@ -41,6 +45,7 @@ This document archives all non-dynamics `mods` and `motifs` (scene flags, intera
 ---
 
 ## 5. Cormac McCarthy (`cormac_mccarthy`)
+
 - **Mods**:
   - `interaction.is_confrontation OR dynamics.intensity > 70` $\rightarrow$ `punctuation:none++ prose:brutal,clinical++ sentence_rhythm:relentless`
   - `location.is_barren` $\rightarrow$ `prose:archaic,biblical++ focus:indifferent_nature++`
@@ -52,6 +57,7 @@ This document archives all non-dynamics `mods` and `motifs` (scene flags, intera
 ---
 
 ## 6. David Lynch (`david_lynch`)
+
 - **Mods**:
   - `interaction.is_confrontation` $\rightarrow$ `dialogue:slow,cryptic++ focus:intense_micro_detail`
   - `flag:subconscious_leakage` $\rightarrow$ `world_perception:symbolic,nightmarish++ motif_bonus:red_curtains++`
@@ -62,6 +68,7 @@ This document archives all non-dynamics `mods` and `motifs` (scene flags, intera
 ---
 
 ## 7. Edgar Allan Poe (`edgar_allan_poe`)
+
 - **Mods**:
   - `flag:trauma_active` $\rightarrow$ `prose:present_tense time:distorted sensory_input:overwhelming`
 - **Motifs**:
@@ -70,6 +77,7 @@ This document archives all non-dynamics `mods` and `motifs` (scene flags, intera
 ---
 
 ## 8. George R.R. Martin (`george_rr_martin`)
+
 - **Mods**:
   - `flag:political_tension_active` $\rightarrow$ `internal_voice:calculating,paranoid++ focus:analyzing_others_motives`
   - `interaction.is_confrontation` $\rightarrow$ `internal_voice:bitter,hyper-aware++ dialogue:sharp,cutting`
@@ -81,6 +89,7 @@ This document archives all non-dynamics `mods` and `motifs` (scene flags, intera
 ---
 
 ## 9. Haruki Murakami (`haruki_murakami`)
+
 - **Mods**:
   - `interaction.is_observation` $\rightarrow$ `prose:reflective,domestic++ focus:cooking_or_listening_to_music`
   - `flag:subconscious_leakage` $\rightarrow$ `world_perception:metaphorical,labyrinthine++ internal_voice:melancholic`
@@ -92,6 +101,7 @@ This document archives all non-dynamics `mods` and `motifs` (scene flags, intera
 ---
 
 ## 10. H.D. Carlton (`hd_carlton`)
+
 - **Mods**:
   - `interaction.is_observation` $\rightarrow$ `world_perception:shrinks_to_threat++ motif_bonus:shadows_and_masks++`
 - **Motifs**:
@@ -101,6 +111,7 @@ This document archives all non-dynamics `mods` and `motifs` (scene flags, intera
 ---
 
 ## 11. H.P. Lovecraft (`hp_lovecraft`)
+
 - **Mods**:
   - `flag:subconscious_leakage` $\rightarrow$ `world_perception:monstrous,non_euclidean++ sensory_focus:sight,scent++`
 - **Motifs**:
@@ -110,6 +121,7 @@ This document archives all non-dynamics `mods` and `motifs` (scene flags, intera
 ---
 
 ## 12. Jane Austen (`jane_austen`)
+
 - **Mods**: None (allAusten mods are dynamics-based)
 - **Motifs**:
   - `handwritten_letter` (base: 0.4, trigger: `interaction.is_observation`, bonus: +0.5)
@@ -118,6 +130,7 @@ This document archives all non-dynamics `mods` and `motifs` (scene flags, intera
 ---
 
 ## 13. J.R.R. Tolkien (`jrr_tolkien`)
+
 - **Mods**: None (all Tolkien mods are dynamics-based)
 - **Motifs**:
   - `ancient_trees` (base: 0.4, trigger: `location.is_wild`, bonus: +0.4)
@@ -126,6 +139,7 @@ This document archives all non-dynamics `mods` and `motifs` (scene flags, intera
 ---
 
 ## 14. Lee Child (`lee_child`)
+
 - **Mods**:
   - `interaction.is_confrontation` $\rightarrow$ `sentence:fragment++ focus:physics,geometry,leverage++`
   - `interaction.is_observation` $\rightarrow$ `detail:microscopic++ analysis:deductive,procedural++`
@@ -136,6 +150,7 @@ This document archives all non-dynamics `mods` and `motifs` (scene flags, intera
 ---
 
 ## 15. Penelope Douglas (`penelope_douglas`)
+
 - **Mods**:
   - `interaction.is_confrontation` $\rightarrow$ `internal_voice:conflicted,argumentative++ dialogue:sharp,witty++`
 - **Motifs**:
@@ -146,6 +161,7 @@ This document archives all non-dynamics `mods` and `motifs` (scene flags, intera
 ---
 
 ## 16. Philip K. Dick (`philip_k_dick`)
+
 - **Mods**:
   - `flag:subconscious_leakage` $\rightarrow$ `prose:clinical,alienated++ motif_bonus:glowing_advertisements++`
 - **Motifs**:
@@ -156,6 +172,7 @@ This document archives all non-dynamics `mods` and `motifs` (scene flags, intera
 ---
 
 ## 17. Sally Rooney (`sally_rooney`)
+
 - **Mods**:
   - `interaction.is_confrontation OR interaction.is_intimate` $\rightarrow$ `punctuation:no_quotes++ flow:seamless++ analysis:power_dynamic++`
 - **Motifs**:
@@ -165,6 +182,7 @@ This document archives all non-dynamics `mods` and `motifs` (scene flags, intera
 ---
 
 ## 18. Samuel R. Delany (`samuel_delany`)
+
 - **Mods**:
   - `interaction.is_confrontation` $\rightarrow$ `dialogue:philosophical,dense++ internal_voice:analytical`
   - `location.is_urban` $\rightarrow$ `world_perception:detailed,gritty++ focus:textures_of_decay`
@@ -176,6 +194,7 @@ This document archives all non-dynamics `mods` and `motifs` (scene flags, intera
 ---
 
 ## 19. Stephen King (`stephen_king`)
+
 - **Mods**:
   - `location.is_indoor` $\rightarrow$ `tone:nostalgic++ detail:ephemera,brand_names++`
 - **Motifs**:
@@ -185,6 +204,7 @@ This document archives all non-dynamics `mods` and `motifs` (scene flags, intera
 ---
 
 ## 20. William Gibson (`william_gibson`)
+
 - **Mods**:
   - `flag:trauma_active` $\rightarrow$ `metaphor:glitches,memory_corruption++`
   - `location.is_urban` $\rightarrow$ `world_perception:high_tech_low_life++ focus:decaying_infrastructure`
