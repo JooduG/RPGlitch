@@ -64,11 +64,14 @@ export default defineConfig([
     files: ["**/*.{js,mjs,cjs,jsx,ts,tsx,svelte}"],
   },
   {
-    files: ["**/*.{js,mjs,cjs}"],
+    files: ["**/*.{js,mjs,cjs,svelte}"],
     languageOptions: {
       globals: {
         ...globals.browser,
         ...globals.node,
+        generate_text: "readonly",
+        pluginGenerateText: "readonly",
+        Perchance: "readonly",
       },
     },
   },

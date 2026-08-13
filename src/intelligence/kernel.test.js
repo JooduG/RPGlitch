@@ -93,6 +93,7 @@ vi.mock("@engine/session.svelte.js", () => ({
     edit_log_entry: vi.fn().mockResolvedValue({}),
     log_system_entry: vi.fn().mockResolvedValue({}),
     update_log_attachment: vi.fn().mockResolvedValue({}),
+    delete_log_entry: vi.fn().mockResolvedValue({}),
   },
 }));
 
@@ -130,6 +131,7 @@ vi.mock("@utils", async (importOriginal) => {
           edit_log_entry: session_driver.edit_log_entry,
           log_system_entry: session_driver.log_system_entry,
           update_log_attachment: session_driver.update_log_attachment,
+          delete_log_entry: session_driver.delete_log_entry,
         };
       },
     },
@@ -1037,14 +1039,13 @@ describe("gamemaster (Intelligence Kernel)", () => {
       vi.mocked(llm_service.generate).mockResolvedValue(JSON.stringify({ mutations: { AI_CHARACTER: {} } }));
       // Keep beats pending so the queue fills to capacity instead of resolving immediately.
       visual_engine.visualize.mockReturnValue(new Promise(() => {}));
+      // Deterministic start: the module-level queue may hold leftovers from earlier tests.
+      _image_gen_queue.splice(0, _image_gen_queue.length);
 
       // Fire one more beat than the queue capacity (5); the oldest must be evicted.
-      await gamemaster.fire_image_trigger("story_scene", { source: "dynamics" });
-      await gamemaster.fire_image_trigger("story_scene", { source: "dynamics" });
-      await gamemaster.fire_image_trigger("story_scene", { source: "dynamics" });
-      await gamemaster.fire_image_trigger("story_scene", { source: "dynamics" });
-      await gamemaster.fire_image_trigger("story_scene", { source: "dynamics" });
-      await gamemaster.fire_image_trigger("story_character", { source: "dynamics" });
+      for (let i = 0; i <= 5; i++) {
+        await gamemaster.fire_image_trigger("story_scene", { source: "dynamics" });
+      }
 
       await vi.waitFor(() =>
         expect(session_driver.update_log_attachment).toHaveBeenCalledWith(
@@ -1054,6 +1055,32 @@ describe("gamemaster (Intelligence Kernel)", () => {
         ),
       );
       expect(_image_gen_queue.length).toBeLessThanOrEqual(5);
+    });
+
+    it("purge_stale_ghosts deletes empty-text failed/stale ghosts and marks stale unfailed ones", async () => {
+      _mock_runtime.story_id = "story-123";
+      const now = Date.now();
+      const ghost_age = 5 * 60 * 1000;
+      session_driver.load_log.mockResolvedValue([
+        { id: "ghost-failed", text: "", created_at: now, attachments: [{ src: null, metadata: { failed: true, image_ghost_swept: true } }] },
+        { id: "ghost-stale", text: "", created_at: now - ghost_age - 1, attachments: [{ src: null, metadata: {} }] },
+        { id: "ghost-fresh", text: "", created_at: now, attachments: [{ src: null, metadata: {} }] },
+        { id: "ghost-stale-with-text", text: "Scene endures.", created_at: now - ghost_age - 1, attachments: [{ src: null, metadata: {} }] },
+        { id: "resolved", text: "Done.", created_at: now, attachments: [{ src: "https://img.test/x.png", metadata: {} }] },
+      ]);
+
+      await gamemaster.purge_stale_ghosts();
+
+      expect(session_driver.delete_log_entry).toHaveBeenCalledWith("ghost-failed");
+      expect(session_driver.delete_log_entry).toHaveBeenCalledWith("ghost-stale");
+      expect(session_driver.delete_log_entry).not.toHaveBeenCalledWith("ghost-fresh");
+      expect(session_driver.delete_log_entry).not.toHaveBeenCalledWith("ghost-stale-with-text");
+      expect(session_driver.delete_log_entry).not.toHaveBeenCalledWith("resolved");
+      expect(session_driver.update_log_attachment).toHaveBeenCalledWith(
+        "ghost-stale-with-text",
+        0,
+        expect.objectContaining({ metadata: expect.objectContaining({ failed: true, image_ghost_swept: true }) }),
+      );
     });
   });
 });

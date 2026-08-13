@@ -656,6 +656,18 @@ export const gamemaster = {
   },
 
   /**
+   * 🧹 PURGE STALE GHOSTS
+   * Runs the unresolved-image sweep against the active story's log. Exposed as a
+   * public method so boot/story-open can clean leftover ghost placeholders even
+   * when no new image trigger ever fires — otherwise they'd linger until the next
+   * beat. Mirrors the internal sweep fire_image_trigger runs before each trigger.
+   * @returns {Promise<void>}
+   */
+  async purge_stale_ghosts() {
+    await sweep_stale_ghosts();
+  },
+
+  /**
    * EXECUTE TURN
    * The primary simulation loop for a narrative turn.
    * @param {string} story_id

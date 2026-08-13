@@ -113,13 +113,13 @@ function get_ai_engine() {
   }
 
   try {
-    if (typeof generate_text === "function") return (_resolved_ai_engine = generate_text); // eslint-disable-line no-undef
+    if (typeof generate_text === "function") return (_resolved_ai_engine = generate_text);
   } catch (_e) {
     /* ignore */
   }
 
   try {
-    if (typeof pluginGenerateText === "function") return (_resolved_ai_engine = pluginGenerateText); // eslint-disable-line no-undef
+    if (typeof pluginGenerateText === "function") return (_resolved_ai_engine = pluginGenerateText);
   } catch (_e) {
     /* ignore */
   }
