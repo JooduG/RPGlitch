@@ -33,8 +33,9 @@ All 9 phases of the Monolithic Refactoring Campaign, the Stress-Test Remediation
 
 ## 🗺️ Roadmap (Tracks)
 
-> **Archival Standard**: Upon track completion, implementation blueprints are archived exclusively to `C:\Users\johng\.gemini\antigravity-ide\archive\`.
+> **Archival Standard**: Upon track completion, implementation blueprints are archived exclusively to `C:\Users\johng\source\repos\RPGlitch\archive\`.
 
+- [~] track-remediate-stress-test-feedback-2026-08-13: Remediate 4 approved stress-test review findings (Ghost Row Purge on failed/timed-out image placeholders, Memory Forge Stale-Goal Eviction Law reinforcement, Director Physical Causality Law enforcement, and Present Physical Wardrobe/Equipment Preservation).
 - [x] remediate-stress-test-issues-2026-08-12: Remediate 7 stress-test issues from long-term-review-4 (Fractal future standing agenda stagnation, session_driver reload sync, ONNX WASM embed recovery, Director terse thought formatting, reply length allocation, and telemetry logging completeness).
 - [x] 093d403 track-audio-expressiveness: Emotional Cadence Modulation (linear +-5% rate drift from base cadence anchor) & Intonation Micro-Perturbations (Markdown typography performance, 100% invisible engine magic).
 

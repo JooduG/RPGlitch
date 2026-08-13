@@ -755,3 +755,75 @@ describe("resolve_vector_pool()", () => {
     expect(pool[0].type).toBe("past");
   });
 });
+
+describe("temporal_engine.consolidate()", () => {
+  it("preserves baseline clothing tags when merging memory forge present.physical updates", async () => {
+    const mock_ai = {
+      id: "ai-1",
+      name: "Lord Benedict Silvers",
+      type: "character",
+      present: {
+        physical: "[SUIT: tailored charcoal jacket] [RING: blood-diamond ring]",
+        non_physical: "Observant",
+      },
+      past: [],
+      future: "Standing objective",
+    };
+    const mock_user = {
+      id: "user-1",
+      name: "Julien the Banished Prince",
+      type: "character",
+      present: {
+        physical: "[ROBES: sheer high-elven scholarly robes] [EXPRESSION: soft deferential gaze] [APPAREL: minimalist coral-rose silk thong]",
+        non_physical: "Kneeling softly",
+      },
+      past: [],
+      future: "Seeking structure",
+    };
+    const mock_session = {
+      require_active: vi.fn(() => "story-1"),
+      load_log: vi.fn(async () => [
+        { id: 1, role: "user", text: "t1" },
+        { id: 2, role: "ai", text: "t2" },
+        { id: 3, role: "user", text: "t3" },
+        { id: 4, role: "ai", text: "t4" },
+        { id: 5, role: "user", text: "t5" },
+        { id: 6, role: "ai", text: "t6" },
+        { id: 7, role: "user", text: "t7" },
+        { id: 8, role: "ai", text: "t8" },
+      ]),
+      log_system_entry: vi.fn(),
+    };
+    const mock_runtime = {
+      active_ai: mock_ai,
+      active_user: mock_user,
+      active_fractal: null,
+      update_entity: vi.fn(),
+    };
+    const mock_app = { log: vi.fn() };
+    const mock_db = { simulation_log: { bulkPut: vi.fn() } };
+
+    // Forge response provides condition/expression updates without repeating full robes/thong
+    llm_service.generate.mockResolvedValue(
+      JSON.stringify({
+        _thought_process: "Consolidating state.",
+        USER_PERSONA: {
+          present: {
+            physical: "[EXPRESSION: wide eyes, flushed] [CONDITION: blindfolded with midnight-blue silk]",
+            non_physical: "Deeply submissive",
+          },
+          future: "New intent",
+          past: [],
+        },
+      }),
+    );
+
+    await temporal_engine.consolidate(mock_session, mock_db, {}, mock_runtime, mock_app);
+
+    expect(mock_user.present.physical).toContain("[ROBES: sheer high-elven scholarly robes]");
+    expect(mock_user.present.physical).toContain("[APPAREL: minimalist coral-rose silk thong]");
+    expect(mock_user.present.physical).toContain("[EXPRESSION: wide eyes, flushed]");
+    expect(mock_user.present.physical).toContain("[CONDITION: blindfolded with midnight-blue silk]");
+    expect(mock_user.present.non_physical).toBe("Deeply submissive");
+  });
+});

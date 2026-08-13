@@ -1041,18 +1041,12 @@ describe("gamemaster (Intelligence Kernel)", () => {
       // Deterministic start: the module-level queue may hold leftovers from earlier tests.
       _image_gen_queue.splice(0, _image_gen_queue.length);
 
-      // Fire one more beat than the queue capacity (5); the oldest must be evicted.
+      // Fire one more beat than the queue capacity (5); the oldest must be evicted and deleted.
       for (let i = 0; i <= 5; i++) {
         await gamemaster.fire_image_trigger("story_scene", { source: "dynamics" });
       }
 
-      await vi.waitFor(() =>
-        expect(session_driver.update_log_attachment).toHaveBeenCalledWith(
-          "img-1",
-          0,
-          expect.objectContaining({ metadata: expect.objectContaining({ failed: true }) }),
-        ),
-      );
+      await vi.waitFor(() => expect(session_driver.delete_log_entry).toHaveBeenCalledWith("img-1"));
       expect(_image_gen_queue.length).toBeLessThanOrEqual(5);
     });
 

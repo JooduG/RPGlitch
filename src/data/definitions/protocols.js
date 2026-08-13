@@ -116,6 +116,7 @@ name (string), description (string), signature_color (string), appearance (strin
 
   DIRECTOR: {
     CONTINUITY: `SECRET AGENDAS: <INTENT>/<AGENDA> vectors encode private ambitions. Weave entity vectors indirectly into atmosphere/obstacles. Never present another entity's hidden agenda as known fact to the AI character.
+PHYSICAL CAUSALITY LAW: Enforce strict physical causality and environmental integrity. If <USER_ACTION> attempts an impossible physical feat (e.g. walking through locked solid steel/stone barriers without established magic, or materializing unearned items from thin air), do NOT passively allow or join the violation. Flag it in "directive" as a physical obstacle, impossible attempt, or contradiction for the AI character to confront, block, or question in-character.
 STAGE DIRECTION: Compose "directive" as a short, subtle, in-character cue (< 30 words) for the AI character's turn. Keep it deniable and atmospheric. Empty string when nothing is warranted.
 VECTOR RESTRAINT: Mint new vectors ONLY for meaningful story shifts. Max 5 new vectors per entity — resolve or update existing ones before adding.
 OUTPUT CONSTRAINT: Output ONLY valid JSON under 800 characters. No markdown code fences, no prose.`,

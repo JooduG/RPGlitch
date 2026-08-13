@@ -231,12 +231,14 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.system).toContain('role="FRACTAL"');
     });
 
-    it("build_memory_prompt() renders entity-specific forge contexts", () => {
+    it("build_memory_prompt() renders entity-specific forge contexts and Stale Goal Eviction Law", () => {
       const result = prompt_builder.build_memory_prompt({ AI_CHARACTER: { name: "Viper" }, FRACTAL: { name: "Void" } }, []);
       expect(result.system).toContain('<SYSTEM role="MEMORY_FORGE">');
       expect(result.system).toContain('name="Viper"');
       expect(result.system).toContain('name="Void"');
       expect(result.system).toContain("For each active entity");
+      expect(result.system).toContain("CRITICAL STALE GOAL EVICTION LAW");
+      expect(result.system).toContain("NEVER retain an in-progress statement of an already resolved action");
       expect(result.system).toContain('"type": "past"');
       expect(result.system).not.toContain('"tags"');
     });
@@ -382,7 +384,7 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.system).toContain("Void past thread");
     });
 
-    it("should include the directive schema key in the Director JSON schema", () => {
+    it("should include the directive schema key and Physical Causality Law in the Director prompt", () => {
       const payload = {
         round: 1,
         entities: { AI: { name: "Viper" }, USER: { name: "Ghost" } },
@@ -394,6 +396,7 @@ describe("prompt_builder (Refactored)", () => {
       const result = prompt_builder.build_director_prompt(payload, snapshot);
       expect(result.task).toContain('"directive"');
       expect(result.task).toContain("stage direction");
+      expect(result.system).toContain("PHYSICAL CAUSALITY LAW");
     });
   });
 

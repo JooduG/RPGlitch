@@ -109,14 +109,15 @@ async function mark_placeholder_failed(id, metadata = {}) {
   try {
     const key = isNaN(Number(id)) ? id : Number(id);
     const feed_match = state_bridge.simulation_log?.feed?.find((m) => m.id === key || m.id === id || String(m.id) === String(id));
-    if (feed_match && (!feed_match.text || !feed_match.text.trim())) {
-      await state_bridge.session_driver.delete_log_entry(id);
+    if (feed_match && feed_match.text && feed_match.text.trim()) {
+      await state_bridge.session_driver.update_log_attachment(id, 0, {
+        src: null,
+        metadata: { ...metadata, failed: true, error: "Image beat was dropped before it could resolve." },
+      });
       return;
     }
-    await state_bridge.session_driver.update_log_attachment(id, 0, {
-      src: null,
-      metadata: { ...metadata, failed: true, error: "Image beat was dropped before it could resolve." },
-    });
+    // For standalone image placeholders (empty or whitespace text), delete entry completely so no ghost row lingers
+    await state_bridge.session_driver.delete_log_entry(id);
   } catch (err) {
     console.warn("[GameMaster] Failed to mark image placeholder as failed:", err);
   }

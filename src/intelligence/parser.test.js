@@ -355,4 +355,22 @@ describe("merge_prose_into_field", () => {
     const merged = merge_prose_into_field(current, new_prose);
     expect(merged).toBe("[SHIRT: grease-stained tank top] [CONDITION: Heavy breathing, Sweat trickling down his neck]");
   });
+
+  it("should preserve ROBES and APPAREL when updating EXPRESSION and CONDITION", () => {
+    const current = "[ROBES: sheer high-elven scholarly robes] [EXPRESSION: soft deferential gaze] [APPAREL: minimalist coral-rose silk thong]";
+    const new_prose = "[EXPRESSION: wide-eyed and flushed] [CONDITION: kneeling in the fog]";
+    const merged = merge_prose_into_field(current, new_prose);
+    expect(merged).toContain("[ROBES: sheer high-elven scholarly robes]");
+    expect(merged).toContain("[APPAREL: minimalist coral-rose silk thong]");
+    expect(merged).toContain("[EXPRESSION: wide-eyed and flushed]");
+    expect(merged).toContain("[CONDITION: kneeling in the fog]");
+  });
+
+  it("should strip specified clothing key when disrobed or removed", () => {
+    const current = "[ROBES: sheer high-elven scholarly robes] [APPAREL: minimalist coral-rose silk thong]";
+    const new_prose = "[ROBES: removed]";
+    const merged = merge_prose_into_field(current, new_prose);
+    expect(merged).not.toContain("[ROBES:");
+    expect(merged).toContain("[APPAREL: minimalist coral-rose silk thong]");
+  });
 });

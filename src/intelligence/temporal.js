@@ -1299,8 +1299,12 @@ export const temporal_engine = {
               const summary = summaries[key];
               if (summary && typeof summary === "object") {
                 if (!entity.present) entity.present = { physical: "", non_physical: "" };
-                if (summary.physical !== undefined) entity.present.physical = summary.physical;
-                if (summary.non_physical !== undefined) entity.present.non_physical = summary.non_physical;
+                if (summary.physical !== undefined && summary.physical.trim()) {
+                  entity.present.physical = merge_prose_into_field(entity.present.physical, summary.physical);
+                }
+                if (summary.non_physical !== undefined && summary.non_physical.trim()) {
+                  entity.present.non_physical = summary.non_physical;
+                }
               } else {
                 // No fresh replacement this batch: decay the accumulated prose so
                 // stale snapshots (conflicting locations/situations) can't pile up.
