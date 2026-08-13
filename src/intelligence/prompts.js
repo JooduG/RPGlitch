@@ -134,8 +134,7 @@ function render_narrative_style_xml() {
   if (!style_key) return "";
 
   const style_def = NARRATIVE_STYLES[style_key];
-  const style_content = style_def.narrative_engine;
-  if (!style_content) return "";
+  if (!style_def) return "";
 
   const narrator_attr = `narrator="${escape_xml(style_key)}"`;
 
@@ -149,44 +148,9 @@ function render_narrative_style_xml() {
     themes_xml = `\n    <DEFINING_CHARACTERISTICS>${escape_xml(style_def.tags.join(", "))}</DEFINING_CHARACTERISTICS>`;
   }
 
-  return `\n  <NARRATIVE_STYLE ${narrator_attr}>${desc_xml}${themes_xml}\n    ${ind(style_content, 4).trim()}\n  </NARRATIVE_STYLE>`;
-}
+  const base_engine = style_def.narrative_engine ? `\n    ${ind(style_def.narrative_engine, 4).trim()}` : "";
 
-/**
- * Derives a cognitive state signal from dynamics values.
- * Produces certainty (grounded/moderate/fragile) and regulation (stable/elevated/strained/depleted).
- * @param {Record<string, number>} [dynamics]
- * @returns {string} XML attributes string, e.g. ` certainty="grounded" regulation="stable"`
- */
-function build_cognitive_state(dynamics) {
-  const chaos = dynamics?.chaos ?? 50;
-  const intensity = dynamics?.intensity ?? 50;
-  const openness = dynamics?.openness ?? 50;
-
-  const certainty = openness > 60 && chaos < 40 ? "grounded" : openness < 40 && chaos > 60 ? "fragile" : "moderate";
-
-  const regulation = intensity > 70 && chaos > 60 ? "strained" : intensity > 70 && chaos < 40 ? "elevated" : intensity < 30 ? "depleted" : "stable";
-
-  return ` certainty="${certainty}" regulation="${regulation}"`;
-}
-
-/**
- * Builds a response-length directive scaled by the AI's current pacing dynamics.
- * High intensity compresses prose into urgent beats; low intensity draws it out.
- * @param {Record<string, number>} [dynamics]
- * @returns {string}
- */
-function build_length_directive(dynamics) {
-  const intensity = dynamics?.intensity;
-  let base;
-  if (typeof intensity === "number" && intensity > 70) {
-    base = "Aim for roughly 1\u20132 short, clipped paragraphs \u2014 high energy compresses prose into urgent beats.";
-  } else if (typeof intensity === "number" && intensity < 30) {
-    base = "Aim for up to 3 paragraphs, drawn out with heavy, deliberate detail.";
-  } else {
-    base = "Aim for a length of roughly 2 paragraphs, adjusting as the context demands.";
-  }
-  return `${base} Always end your response with a complete sentence — never stop mid-thought or mid-quote.`;
+  return `\n  <NARRATIVE_STYLE ${narrator_attr}>${desc_xml}${themes_xml}${base_engine}\n  </NARRATIVE_STYLE>`;
 }
 
 /**
@@ -194,14 +158,12 @@ function build_length_directive(dynamics) {
  * @param {Record<string, number>} [dynObj]
  * @returns {string}
  */
-function format_dynamics_attrs(dynObj, options = {}) {
+function format_dynamics_attrs(dynObj) {
   if (!dynObj) return "";
-  const { cognitive = true } = options;
   const attrs = Object.entries(dynObj)
     .map(([k, v]) => `${escape_xml(k)}="${Math.round(v)}"`)
     .join(" ");
-  const cognitive_state = cognitive ? build_cognitive_state(dynObj) : "";
-  return attrs ? ` ${attrs}${cognitive_state}` : cognitive_state || "";
+  return attrs ? ` ${attrs}` : "";
 }
 
 /**
@@ -331,7 +293,7 @@ function render_character({ round, entities, input, compressed_snapshot, meta, r
     meta?.structural_errors >= 3 ? PROTOCOL_LIBRARY.STABILITY.CRITICAL : meta?.structural_errors >= 1 ? PROTOCOL_LIBRARY.STABILITY.WARNING : "";
 
   const system = clean_xml(`
-<SYSTEM role="${escape_xml(entities?.AI?.name || "AI")}">${render_narrative_style_xml()}
+<SYSTEM role="${escape_xml(entities?.AI?.name || "AI")}">${render_narrative_style_xml(compressed_snapshot?.ai?.dynamics, compressed_snapshot?.fractal?.dynamics)}
 You are ${escape_xml(entities?.AI?.name || "AI")} in an active scene with ${escape_xml(entities?.USER?.name || "User")} inside ${escape_xml(entities?.FRACTAL?.name || "the environment")}.
   ${ind(build_dynamics_legend(), 2)}
   <YOUR_IDENTITY name="${escape_xml(entities?.AI?.name || "AI")}">
@@ -387,7 +349,7 @@ ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
     <EPISTEMIC_PHYSICS>
       ${ind(PROTOCOL_LIBRARY.EPISTEMIC_PHYSICS.RULES, 6)}
     </EPISTEMIC_PHYSICS>
-    ${build_signals_xml(compressed_snapshot?.ai?.dynamics, compressed_snapshot?.fractal?.dynamics)}
+    ${build_signals_xml(compressed_snapshot?.ai?.dynamics, compressed_snapshot?.fractal?.dynamics, { style: NARRATIVE_STYLES[resolve_active_style_key()] })}
     <POV_DIRECTIVE>
       ${PROTOCOL_LIBRARY.POV[pov_protocol.split(".")[1] || "FIRST_PERSON"]}
     </POV_DIRECTIVE>
@@ -398,7 +360,7 @@ ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
           ? "Execute your reaction against <USER_ACTION>."
           : "Continue the scene, reacting to the current situation."
     } Stay fully in character. Honor all active <PROTOCOLS>.
-    ${build_length_directive(compressed_snapshot?.ai?.dynamics)}
+    ${PROTOCOL_LIBRARY.HYGIENE.RESPONSE_LENGTH}
   </TASK>
   `).trim();
 
@@ -926,9 +888,7 @@ export const prompt_builder = {
 
 export {
   build_ai_future_xml,
-  build_cognitive_state,
   build_dynamics_legend,
-  build_length_directive,
   render_character,
   render_director,
   render_enhancement,

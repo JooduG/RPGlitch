@@ -1,4 +1,4 @@
-import { prompt_builder, PROTOCOL_LIBRARY, render_ghostwriter, build_cognitive_state, build_length_directive } from "./prompts.js";
+import { prompt_builder, PROTOCOL_LIBRARY, render_ghostwriter } from "./prompts.js";
 import { vi, describe, expect, it } from "vitest";
 
 const _mock_app = {
@@ -435,7 +435,7 @@ describe("prompt_builder (Refactored)", () => {
 
       expect(result.system).toContain('<SYSTEM role="Viper">');
       expect(result.system).toContain('<YOUR_IDENTITY name="Viper">');
-      expect(result.task).toContain('<YOUR_IDENTITY name="Viper" intensity="50" openness="60" certainty="moderate" regulation="stable">');
+      expect(result.task).toContain('<YOUR_IDENTITY name="Viper" intensity="50" openness="60">');
       expect(result.task).toContain("<PAST>");
       expect(result.system).not.toContain("<DIRECTION>");
       expect(result.system).toContain("<PROTOCOLS>");
@@ -797,64 +797,6 @@ describe("prompt_builder (Refactored)", () => {
     });
   });
 
-  describe("build_cognitive_state()", () => {
-    it("returns grounded when openness is high and chaos is low", () => {
-      expect(build_cognitive_state({ openness: 70, chaos: 30, intensity: 50 })).toContain('certainty="grounded"');
-    });
-
-    it("returns fragile when openness is low and chaos is high", () => {
-      expect(build_cognitive_state({ openness: 30, chaos: 70, intensity: 50 })).toContain('certainty="fragile"');
-    });
-
-    it("returns moderate for neutral dynamics", () => {
-      expect(build_cognitive_state({ openness: 50, chaos: 50, intensity: 50 })).toContain('certainty="moderate"');
-    });
-
-    it("returns strained when intensity and chaos are both high", () => {
-      expect(build_cognitive_state({ openness: 50, chaos: 70, intensity: 80 })).toContain('regulation="strained"');
-    });
-
-    it("returns elevated when intensity is high but chaos is low", () => {
-      expect(build_cognitive_state({ openness: 50, chaos: 30, intensity: 80 })).toContain('regulation="elevated"');
-    });
-
-    it("returns depleted when intensity is very low", () => {
-      expect(build_cognitive_state({ openness: 50, chaos: 50, intensity: 20 })).toContain('regulation="depleted"');
-    });
-
-    it("returns stable for moderate intensity and chaos", () => {
-      expect(build_cognitive_state({ openness: 50, chaos: 50, intensity: 50 })).toContain('regulation="stable"');
-    });
-
-    it("handles null/undefined dynamics gracefully", () => {
-      const result = build_cognitive_state(null);
-      expect(result).toContain('certainty="moderate"');
-      expect(result).toContain('regulation="stable"');
-    });
-  });
-
-  describe("build_length_directive()", () => {
-    it("defaults to the neutral 2-paragraph directive when no dynamics are present", () => {
-      expect(build_length_directive(null)).toContain("2 paragraphs");
-      expect(build_length_directive(undefined)).toContain("2 paragraphs");
-      expect(build_length_directive({})).toContain("2 paragraphs");
-    });
-
-    it("compresses prose when intensity is high", () => {
-      const result = build_length_directive({ intensity: 85, chaos: 50 });
-      expect(result).toContain("1\u20132 short, clipped paragraphs");
-    });
-
-    it("draws prose out when intensity is low", () => {
-      const result = build_length_directive({ intensity: 20, chaos: 50 });
-      expect(result).toContain("up to 3 paragraphs");
-    });
-
-    it("keeps the neutral directive at mid-range intensity", () => {
-      expect(build_length_directive({ intensity: 50, chaos: 50 })).toContain("2 paragraphs");
-    });
-  });
-
   describe("Phase 4: Cognitive State Attrs in render_character", () => {
     const mock_payload = {
       round: 1,
@@ -884,41 +826,6 @@ describe("prompt_builder (Refactored)", () => {
       simulation_log: [],
       input: "Hello",
     };
-
-    it("injects certainty and regulation attrs onto YOUR_IDENTITY tag", () => {
-      const snapshot = {
-        ai: { dynamics: { openness: 70, chaos: 30, intensity: 50 } },
-        fractal: { dynamics: {} },
-        flags: {},
-      };
-      const result = prompt_builder.build_character_prompt(mock_payload, snapshot, {});
-      expect(result.task).toContain('certainty="grounded"');
-      expect(result.task).toContain('regulation="stable"');
-    });
-
-    it("places certainty and regulation attrs on YOUR_IDENTITY before PRESENT", () => {
-      const payload = {
-        ...mock_payload,
-        entities: {
-          ...mock_payload.entities,
-          AI: {
-            ...mock_payload.entities.AI,
-            past: [{ directive: "Viper past 1", emotional_weight: 5 }],
-          },
-        },
-      };
-      const snapshot = {
-        ai: { dynamics: { openness: 30, chaos: 70, intensity: 80 } },
-        fractal: { dynamics: {} },
-        flags: {},
-      };
-      const result = prompt_builder.build_character_prompt(payload, snapshot, {});
-      const identity_idx = result.task.indexOf("<YOUR_IDENTITY");
-      const present_idx = result.task.indexOf("Volatile Present");
-      expect(identity_idx).toBeLessThan(present_idx);
-      expect(result.task.substring(identity_idx, present_idx)).toContain("certainty=");
-      expect(result.task.substring(identity_idx, present_idx)).toContain("regulation=");
-    });
 
     it("includes the cognitive ground instruction in EPISTEMIC_PHYSICS", () => {
       const snapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} }, flags: {} };
@@ -954,13 +861,6 @@ describe("prompt_builder (Refactored)", () => {
       expect(without_input.task).toContain("Continue the scene, reacting to the current situation.");
     });
 
-    it("drives the length directive from AI intensity", () => {
-      const snapshot = { ai: { dynamics: { intensity: 85, chaos: 50, openness: 50, affinity: 50 } }, fractal: { dynamics: {} }, flags: {} };
-      const result = prompt_builder.build_character_prompt(mock_payload, snapshot, {});
-      expect(result.task).toContain("1\u20132 short, clipped paragraphs");
-      expect(result.task).not.toContain("roughly 2 paragraphs");
-    });
-
     it("injects a pacing signal when AI intensity is high", () => {
       const snapshot = {
         ai: { dynamics: { intensity: 85, chaos: 50, openness: 50, affinity: 50 } },
@@ -990,17 +890,6 @@ describe("prompt_builder (Refactored)", () => {
       };
       const result = prompt_builder.build_character_prompt(mock_payload, snapshot, {});
       expect(result.task).not.toContain("<DYNAMICS_SIGNALS>");
-    });
-
-    it("keeps cognitive attrs in volatile task, not static system prefix", () => {
-      const snapshot = {
-        ai: { dynamics: { openness: 70, chaos: 30, intensity: 50 } },
-        fractal: { dynamics: {} },
-        flags: {},
-      };
-      const result = prompt_builder.build_character_prompt(mock_payload, snapshot, {});
-      expect(result.system).not.toContain("certainty=");
-      expect(result.task).toContain("certainty=");
     });
   });
 

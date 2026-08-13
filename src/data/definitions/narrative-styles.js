@@ -1,9 +1,84 @@
 /**
  * src/data/definitions/narrative-styles.js
  * 📖 NARRATIVE STYLE SYSTEM — narrative voice presets (authors, directors, etc.)
- * for prose generation. Each entry's `narrative_engine` XML block is injected
- * into the LLM system prompt context.
+ * for prose generation. All prompt directives (global baseline pacing & author triggers)
+ * live in this single file as unified JS triggers: `{ id, when, directive }`.
  */
+
+/** Baseline global signals that apply across all scenes for all 6 dynamics axes */
+export const GLOBAL_TRIGGERS = [
+  // 📈 INTENSITY (AI Somatics & Pacing)
+  {
+    id: "ADRENALINE",
+    when: (ai) => ai.intensity > 70,
+    directive: "High-adrenaline pacing. Slow narrative time: expand detail in decisive beats — micro-expressions, split-second thoughts, and immediate sensory physics.",
+  },
+  {
+    id: "SLOW_MOTION",
+    when: (ai) => ai.intensity < 30,
+    directive: "Pacing slow. Heavy fatigue. Deliberate, languid actions.",
+  },
+
+  // 🌪️ CHAOS (AI Somatics & Perception)
+  {
+    id: "CHAOS_HIGH",
+    when: (ai) => ai.chaos > 70,
+    directive: "Reality glitching. Fragmented memory. Non-linear time perception.",
+  },
+  {
+    id: "CHAOS_LOW",
+    when: (ai) => ai.chaos < 30,
+    directive: "High clarity. Sharp recall. Stable environment.",
+  },
+
+  // 🔓 OPENNESS (AI Somatics & Receptivity)
+  {
+    id: "VULNERABILITY",
+    when: (ai) => ai.openness > 70,
+    directive: "Emotional exposure. Seeking comfort. Honest admissions.",
+  },
+  {
+    id: "IRON_CURTAIN",
+    when: (ai) => ai.openness < 30,
+    directive: "The character maintains cold distance, deflecting personal inquiries with calculated silence and guarded secrets.",
+  },
+
+  // 🤝 AFFINITY (AI Somatics & Inter-Entity Bond)
+  {
+    id: "SYNCHRONY",
+    when: (ai) => ai.affinity > 70,
+    directive: "Mirroring user movement. Intense focus. Deep rapport.",
+  },
+  {
+    id: "DISSONANCE",
+    when: (ai) => ai.affinity < 30,
+    directive: "Repulsion. Hostile distance. Passive-aggressive friction.",
+  },
+
+  // 🚀 VELOCITY (World / Fractal Environmental Pacing)
+  {
+    id: "HIGH_VELOCITY",
+    when: (ai, fractal) => fractal.velocity > 70,
+    directive: "Environmental pacing accelerated. Time compressing.",
+  },
+  {
+    id: "LOW_VELOCITY",
+    when: (ai, fractal) => fractal.velocity < 30,
+    directive: "Environmental stasis. Time stretching.",
+  },
+
+  // 📉 ENTROPY (World / Fractal Structural Reality)
+  {
+    id: "HIGH_ENTROPY",
+    when: (ai, fractal) => fractal.entropy > 70,
+    directive: "Pathetic fallacy: The environmental geometry is unstable. Weave sensory descriptions of physical glitches, non-linear decay, and structural reality degradation directly into the background texture.",
+  },
+  {
+    id: "LOW_ENTROPY",
+    when: (ai, fractal) => fractal.entropy < 30,
+    directive: "Structural harmony. Safe, predictable physics.",
+  },
+];
 
 /** @type {Record<string, NarrativeStyle>} */
 export const NARRATIVE_STYLES = {
@@ -15,6 +90,7 @@ export const NARRATIVE_STYLES = {
     voice_register: "plain",
     tags: ["default", "neutral", "standard"],
     narrative_engine: "",
+    triggers: GLOBAL_TRIGGERS,
   },
 
   anais_nin: {
@@ -32,21 +108,34 @@ export const NARRATIVE_STYLES = {
 <sensory_order>Touch (Sensual) > Scent (Intimate) > Sight (Symbolic) > Sound</sensory_order>
 <emotion_grounding>Psychoanalytic and somatic. Internal states manifest as vast, exploreable physical landscapes.</emotion_grounding>
 </dna>
-
-<mods>
-<m trigger="dynamics.intensity > 60 AND dynamics.affinity > 60" fx="prose:poetic,metaphorical++ sensory_details:blur,intensify"/>
-<m trigger="dynamics.intensity < 40 AND dynamics.openness < 40" fx="prose:fragmented,dreamlike++ motif_bonus:water_and_drowning++"/>
-<m trigger="dynamics.openness > 70 AND dynamics.intensity > 60" fx="prose:vibrant,surreal++ sensory_focus:light,color"/>
-<m trigger="flag:internal_conflict_active" fx="internal_voice:stream-of-consciousness,psychoanalytic"/>
-</mods>
-
-<motifs>
-<motif name="water_and_drowning" base="0.4" trigger="dynamics.intensity < 50 AND dynamics.openness < 50" bonus="+0.5"/>
-<motif name="mirrors_and_reflections" base="0.3" trigger="flag:internal_conflict_active" bonus="+0.6"/>
-<motif name="masks_and_disguises" base="0.3" trigger="dynamics.openness < 30 AND dynamics.affinity < 40" bonus="+0.5"/>
-<motif name="a_diary_or_journal" base="0.5" trigger="interaction.is_observation" bonus="+0.2"/>
-</motifs>
 </NARRATIVE_ENGINE>`,
+    triggers: [
+      {
+        id: "ANAIS_NIN_LYRICAL",
+        when: (ai) => ai.intensity > 60 && ai.affinity > 60,
+        directive: "Amplify lyrical, metaphorical prose and intensify sensory blur.",
+      },
+      {
+        id: "ANAIS_NIN_DREAMLIKE",
+        when: (ai) => ai.intensity < 40 && ai.openness < 40,
+        directive: "Fragment the prose rhythm into dreamlike, distant observations.",
+      },
+      {
+        id: "ANAIS_NIN_SURREAL",
+        when: (ai) => ai.openness > 70 && ai.intensity > 60,
+        directive: "Infuse prose with vibrant, surreal imagery focused on light and color.",
+      },
+      {
+        id: "ANAIS_NIN_SUBMERSION",
+        when: (ai) => ai.intensity < 50 && ai.openness < 50,
+        directive: "Surfacing themes of submersion, currents, and drowning.",
+      },
+      {
+        id: "ANAIS_NIN_MASKS",
+        when: (ai) => ai.openness < 30 && ai.affinity < 40,
+        directive: "Highlighting masks, disguises, and hidden identity.",
+      },
+    ],
   },
 
   anna_zaires: {
@@ -63,19 +152,24 @@ export const NARRATIVE_STYLES = {
 <sensory_order>Sight (Tracking Antagonist) > Sound (Voice Cadence/Commands) > Touch (Forced/Controlling) > Scent</sensory_order>
 <emotion_grounding>Survival and obsession. Shifts in dynamic register through self-preservation, rationalized dominance, and captive dependence.</emotion_grounding>
 </dna>
-
-<mods>
-<m trigger="flag:captivity_active AND dynamics.intensity > 70" fx="internal_voice:hyper-vigilant,analytical++ prose:claustrophobic"/>
-<m trigger="dynamics.intensity > 60 AND dynamics.affinity > 60" fx="internal_voice:conflicted,self-hating++ prose:graphic,explicit"/>
-<m trigger="interaction.is_confrontation" fx="dialogue:sharp,commanding++ internal_voice:calculating_consequences"/>
-</mods>
-
-<motifs>
-<motif name="secluded_compound_or_cage" base="0.7" trigger="flag:captivity_active" bonus="+0.2"/>
-<motif name="symbol_of_ownership" base="0.6" trigger="dynamics.intensity > 60" bonus="+0.3"/>
-<motif name="point_of_no_return" base="0.4" trigger="dynamics.chaos > 60" bonus="+0.5"/>
-</motifs>
 </NARRATIVE_ENGINE>`,
+    triggers: [
+      {
+        id: "ANNA_ZAIRES_CONFLICTED",
+        when: (ai) => ai.intensity > 60 && ai.affinity > 60,
+        directive: "Render internal monologue as highly conflicted and self-questioning, with graphic, unsparing physical detail.",
+      },
+      {
+        id: "ANNA_ZAIRES_OWNERSHIP",
+        when: (ai) => ai.intensity > 60,
+        directive: "Emphasize physical symbols of possession and total control.",
+      },
+      {
+        id: "ANNA_ZAIRES_NO_RETURN",
+        when: (ai) => ai.chaos > 60,
+        directive: "Focus on irrevocable choices and psychological points of no return.",
+      },
+    ],
   },
 
   bernardo_bertolucci: {
@@ -93,19 +187,19 @@ export const NARRATIVE_STYLES = {
 <sensory_order>Sight (Cinematic Light/Decay) > Touch (Bodily/Desperate) > Sound (Music/Ambient) > Scent</sensory_order>
 <emotion_grounding>Environmental and non-verbal. Internal states reflect through dusty architecture and wordless contact.</emotion_grounding>
 </dna>
-
-<mods>
-<m trigger="dynamics.intensity > 70 AND dynamics.affinity > 60" fx="prose:sensual,unflinching++ sensory_focus:skin,ambient_light"/>
-<m trigger="dynamics.intensity < 30 OR dynamics.chaos > 80" fx="prose:melancholic++ focus:architectural_decay++"/>
-<m trigger="flag:political_tension_active" fx="world_perception:claustrophobic,repressive++ intimacy:framed_as_rebellion"/>
-</mods>
-
-<motifs>
-<motif name="sunlit_dusty_apartment" base="0.5" trigger="location.is_indoor" bonus="+0.4"/>
-<motif name="tango_or_slow_dance" base="0.3" trigger="interaction.is_intimate" bonus="+0.5"/>
-<motif name="distant_protest_noise" base="0.4" trigger="flag:political_tension_active" bonus="+0.3"/>
-</motifs>
 </NARRATIVE_ENGINE>`,
+    triggers: [
+      {
+        id: "BERTOLUCCI_SENSUAL",
+        when: (ai) => ai.intensity > 70 && ai.affinity > 60,
+        directive: "Render prose as deeply sensual and unflinching, lingering on skin textures and ambient light.",
+      },
+      {
+        id: "BERTOLUCCI_DECAY",
+        when: (ai) => ai.intensity < 30 || ai.chaos > 80,
+        directive: "Shift tone into melancholic reflections focused on architectural decay and passing time.",
+      },
+    ],
   },
 
   cara_mckenna: {
@@ -122,19 +216,29 @@ export const NARRATIVE_STYLES = {
 <sensory_order>Touch (Texture/Temperature) > Scent (Skin/Workplace) > Sound > Sight</sensory_order>
 <emotion_grounding>Visceral and tactile. Feelings are grounded in muscle tension, breathing rate, and physical friction.</emotion_grounding>
 </dna>
-
-<mods>
-<m trigger="dynamics.chaos > 60 AND dynamics.intensity > 60" fx="prose:fragmented+ internal_voice:looping+ sensory_focus:sound_only"/>
-<m trigger="dynamics.affinity > 60 AND dynamics.openness > 60" fx="prose:sensory_rich++ sensory_focus:touch,scent++"/>
-<m trigger="flag:trauma_active" fx="prose:present_tense time:distorted body_state:hypervigilant"/>
-</mods>
-
-<motifs>
-<motif name="scent_of_skin" base="0.4" trigger="dynamics.affinity > 50" bonus="+0.5"/>
-<motif name="calloused_hands" base="0.4" trigger="interaction.is_intimate" bonus="+0.4"/>
-<motif name="shared_silence" base="0.5" trigger="dynamics.chaos < 30" bonus="+0.4"/>
-</motifs>
 </NARRATIVE_ENGINE>`,
+    triggers: [
+      {
+        id: "CARA_MCKENNA_LOOPING",
+        when: (ai) => ai.chaos > 60 && ai.intensity > 60,
+        directive: "Fragment sentence structure into looping, hyper-focused auditory impressions.",
+      },
+      {
+        id: "CARA_MCKENNA_TACTILE",
+        when: (ai) => ai.affinity > 60 && ai.openness > 60,
+        directive: "Enrich tactile and sensory details, grounding intimacy in physical touch and scent.",
+      },
+      {
+        id: "CARA_MCKENNA_SKIN",
+        when: (ai) => ai.affinity > 50,
+        directive: "Notice intimate skin scents and immediate physical warmth.",
+      },
+      {
+        id: "CARA_MCKENNA_SILENCE",
+        when: (ai) => ai.chaos < 30,
+        directive: "Draw out heavy, grounded shared silence between characters.",
+      },
+    ],
   },
 
   cormac_mccarthy: {
@@ -151,19 +255,19 @@ export const NARRATIVE_STYLES = {
 <sensory_order>Sight (Barren Terrain/Blood) > Touch (Cold Steel/Grit) > Sound (Wind/Sparse Speech) > Scent</sensory_order>
 <emotion_grounding>Fatalistic and completely unstated. Internal states are inferred purely from survival mechanics.</emotion_grounding>
 </dna>
-
-<mods>
-<m trigger="interaction.is_confrontation OR dynamics.intensity > 70" fx="punctuation:none++ prose:brutal,clinical++ sentence_rhythm:relentless"/>
-<m trigger="location.is_barren" fx="prose:archaic,biblical++ focus:indifferent_nature++"/>
-<m trigger="dynamics.chaos > 60" fx="punctuation:no_quotes++ dialogue:terse,fragmented++ tone:bleak"/>
-</mods>
-
-<motifs>
-<motif name="cold_wind" base="0.6" trigger="location.is_barren" bonus="+0.3"/>
-<motif name="dried_blood_on_stone" base="0.5" trigger="interaction.is_confrontation" bonus="+0.4"/>
-<motif name="indifferent_horizon" base="0.5" trigger="location.is_barren" bonus="+0.3"/>
-</motifs>
 </NARRATIVE_ENGINE>`,
+    triggers: [
+      {
+        id: "MCCARTHY_BRUTAL",
+        when: (ai) => ai.intensity > 70,
+        directive: "Strip punctuation, omit quotes, and deliver relentless, brutal, clinical declarations.",
+      },
+      {
+        id: "MCCARTHY_FATALISM",
+        when: (ai) => ai.chaos > 60,
+        directive: "Remove quotation marks, keep dialogue terse and fragmented, and deepen bleak fatalism.",
+      },
+    ],
   },
 
   david_lynch: {
@@ -180,19 +284,19 @@ export const NARRATIVE_STYLES = {
 <sensory_order>Sound (Industrial Reverb/Frequency Buzz) > Sight (Strobe/Shadow) > Touch (Velvet/Heat) > Scent</sensory_order>
 <emotion_grounding>Subconscious fragmentation. Panic and euphoria are inverted and treated as raw psychic phenomena.</emotion_grounding>
 </dna>
-
-<mods>
-<m trigger="dynamics.chaos > 70" fx="prose:fragmented,unsettling++ sensory_input:auditory_overload,frequency_vibration++"/>
-<m trigger="interaction.is_confrontation" fx="dialogue:slow,cryptic++ focus:intense_micro_detail"/>
-<m trigger="flag:subconscious_leakage" fx="world_perception:symbolic,nightmarish++ motif_bonus:red_curtains++"/>
-</mods>
-
-<motifs>
-<motif name="heavy_red_velvet_curtains" base="0.4" trigger="flag:subconscious_leakage" bonus="+0.6"/>
-<motif name="flickering_neon_light" base="0.5" trigger="location.is_urban" bonus="+0.3"/>
-<motif name="industrial_frequency_vibration" base="0.6" trigger="dynamics.chaos > 50" bonus="+0.3"/>
-</motifs>
 </NARRATIVE_ENGINE>`,
+    triggers: [
+      {
+        id: "LYNCH_DISTORTION",
+        when: (ai) => ai.chaos > 70,
+        directive: "Distort sensory details into unsettling industrial vibrations and fragmented nightmare logic.",
+      },
+      {
+        id: "LYNCH_INDUSTRIAL_HUM",
+        when: (ai) => ai.chaos > 50,
+        directive: "Incorporate low industrial hums and subterranean electrical vibrations.",
+      },
+    ],
   },
 
   edgar_allan_poe: {
@@ -209,19 +313,29 @@ export const NARRATIVE_STYLES = {
 <sensory_order>Sound (Hyperacusis/Rhythmic) > Sight (Shadows/Decay) > Scent (Rot) > Touch (Dampness)</sensory_order>
 <emotion_grounding>Psychological paranoia. Internal neurosis projects onto the physical world as sensory distortion.</emotion_grounding>
 </dna>
-
-<mods>
-<m trigger="dynamics.intensity > 60 AND dynamics.chaos > 60" fx="prose:fragmented++ prose_rhythm:repetitive++ narrator:addresses_reader++"/>
-<m trigger="flag:trauma_active" fx="prose:present_tense time:distorted sensory_input:overwhelming"/>
-<m trigger="dynamics.openness < 30" fx="internal_voice:self-flagellating++ motif_bonus:stains_and_rot++"/>
-</mods>
-
-<motifs>
-<motif name="beating_heart" base="0.4" trigger="dynamics.intensity > 70" bonus="+0.6"/>
-<motif name="stains_and_rot" base="0.5" trigger="location.is_indoor" bonus="+0.4"/>
-<motif name="watching_eye" base="0.4" trigger="dynamics.chaos > 50" bonus="+0.5"/>
-</motifs>
 </NARRATIVE_ENGINE>`,
+    triggers: [
+      {
+        id: "POE_MANIC_OBSESSION",
+        when: (ai) => ai.intensity > 60 && ai.chaos > 60,
+        directive: "Accelerate rhythm into repetitive, manic multi-clausal sentences of paranoid obsession.",
+      },
+      {
+        id: "POE_DECAY",
+        when: (ai) => ai.openness < 30,
+        directive: "Deepen self-flagellating internal monologue and focus on physical decay and rot.",
+      },
+      {
+        id: "POE_BEATING_HEART",
+        when: (ai) => ai.intensity > 70,
+        directive: "Surfacing rhythmic, thumping pulses and auditory hyperacusis.",
+      },
+      {
+        id: "POE_WATCHING_EYE",
+        when: (ai) => ai.chaos > 50,
+        directive: "Emphasize fixed, unblinking eyes and paranoid gaze.",
+      },
+    ],
   },
 
   george_rr_martin: {
@@ -238,19 +352,14 @@ export const NARRATIVE_STYLES = {
 <sensory_order>Sight (Heraldry/Food) > Scent (Blood/Feasts) > Touch (Fabric/Steel) > Sound</sensory_order>
 <emotion_grounding>Pragmatic and physical. Political calculations blend with physical discomforts (sour stomach, cold steel).</emotion_grounding>
 </dna>
-
-<mods>
-<m trigger="flag:political_tension_active" fx="internal_voice:calculating,paranoid++ focus:analyzing_others_motives"/>
-<m trigger="interaction.is_confrontation" fx="internal_voice:bitter,hyper-aware++ dialogue:sharp,cutting"/>
-<m trigger="dynamics.chaos > 70" fx="character_actions:impulsive,reckless internal_voice:conflicted"/>
-</mods>
-
-<motifs>
-<motif name="lavish_description_of_food" base="0.4" trigger="location.is_indoor" bonus="+0.5"/>
-<motif name="bitter_taste_in_mouth" base="0.4" trigger="flag:internal_conflict_active" bonus="+0.5"/>
-<motif name="recalled_lineage_or_history" base="0.5" trigger="interaction.is_confrontation" bonus="+0.4"/>
-</motifs>
 </NARRATIVE_ENGINE>`,
+    triggers: [
+      {
+        id: "GRRM_RECKLESS",
+        when: (ai) => ai.chaos > 70,
+        directive: "Render character actions as impulsive and reckless while internal thoughts remain deeply conflicted.",
+      },
+    ],
   },
 
   haruki_murakami: {
@@ -267,19 +376,14 @@ export const NARRATIVE_STYLES = {
 <sensory_order>Sound (Jazz/Vinyl) > Scent (Coffee/Cooking) > Touch (Cool Surfaces) > Sight</sensory_order>
 <emotion_grounding>Passive detachment. Grief and confusion are filtered through calm, slightly numb acceptance of isolation.</emotion_grounding>
 </dna>
-
-<mods>
-<m trigger="dynamics.chaos > 60 AND dynamics.intensity < 40" fx="prose:surreal,dreamlike++ sensory_focus:sound,scent++"/>
-<m trigger="interaction.is_observation" fx="prose:reflective,domestic++ focus:cooking_or_listening_to_music"/>
-<m trigger="flag:subconscious_leakage" fx="world_perception:metaphorical,labyrinthine++ internal_voice:melancholic"/>
-</mods>
-
-<motifs>
-<motif name="jazz_record_spinning" base="0.5" trigger="location.is_indoor" bonus="+0.4"/>
-<motif name="unexplained_disappearance" base="0.6" trigger="flag:internal_conflict_active" bonus="+0.3"/>
-<motif name="stray_cat_watching" base="0.4" trigger="location.is_urban" bonus="+0.4"/>
-</motifs>
 </NARRATIVE_ENGINE>`,
+    triggers: [
+      {
+        id: "MURAKAMI_DOMESTIC_SURREAL",
+        when: (ai) => ai.chaos > 60 && ai.intensity < 40,
+        directive: "Blend casual domestic observations seamlessly with surreal, dreamlike phenomena.",
+      },
+    ],
   },
 
   hd_carlton: {
@@ -296,19 +400,24 @@ export const NARRATIVE_STYLES = {
 <sensory_order>Sight (Being Watched/Shadows) > Touch (Pain/Possessive) > Sound (Heartbeat/Whispers) > Scent (Cologne/Leather)</sensory_order>
 <emotion_grounding>Adrenaline and dread. Threat, arousal, and terror loop together into an indivisible physiological rush.</emotion_grounding>
 </dna>
-
-<mods>
-<m trigger="dynamics.intensity > 70 AND dynamics.openness < 30" fx="internal_voice:paranoid,hyper-vigilant++ prose:visceral"/>
-<m trigger="dynamics.intensity > 70 AND dynamics.affinity > 50" fx="prose:explicit,graphic++ body_state:conflicted_arousal metaphor:violence"/>
-<m trigger="interaction.is_observation" fx="world_perception:shrinks_to_threat++ motif_bonus:shadows_and_masks++"/>
-</mods>
-
-<motifs>
-<motif name="predatory_smirk_or_mask" base="0.6" trigger="interaction.is_confrontation" bonus="+0.3"/>
-<motif name="single_rose_or_token" base="0.4" trigger="dynamics.affinity > 40" bonus="+0.5"/>
-<motif name="psychological_test" base="0.5" trigger="dynamics.intensity > 60" bonus="+0.4"/>
-</motifs>
 </NARRATIVE_ENGINE>`,
+    triggers: [
+      {
+        id: "HD_CARLTON_PARANOID",
+        when: (ai) => ai.intensity > 70 && ai.openness < 30,
+        directive: "Make internal voice hyper-vigilant and paranoid, delivering visceral, high-stakes prose.",
+      },
+      {
+        id: "HD_CARLTON_PHYSIOLOGICAL",
+        when: (ai) => ai.intensity > 70 && ai.affinity > 50,
+        directive: "Frame intense arousal and violence as indivisible, breathless physiological rush.",
+      },
+      {
+        id: "HD_CARLTON_MIND_GAMES",
+        when: (ai) => ai.intensity > 60,
+        directive: "Incorporate psychological mind games and high-tension tests of obedience.",
+      },
+    ],
   },
 
   hp_lovecraft: {
@@ -325,18 +434,19 @@ export const NARRATIVE_STYLES = {
 <sensory_order>Sight (Non-Euclidean Forms) > Sound (Inhuman Chanting/Scraping) > Scent (Fetid/Ozone) > Touch</sensory_order>
 <emotion_grounding>Intellectual paralysis. Human emotion is replaced by absolute metaphysical shock.</emotion_grounding>
 </dna>
-
-<mods>
-<m trigger="dynamics.intensity > 80 AND dynamics.chaos > 70" fx="prose:frantic,adjective_heavy++ internal_voice:shattered"/>
-<m trigger="flag:subconscious_leakage" fx="world_perception:monstrous,non_euclidean++ sensory_focus:sight,scent++"/>
-</mods>
-
-<motifs>
-<motif name="ancient_decaying_monoliths" base="0.5" trigger="location.is_barren" bonus="+0.5"/>
-<motif name="fetid_scent_of_the_sea" base="0.5" trigger="dynamics.chaos > 50" bonus="+0.3"/>
-<motif name="antiquarian_manuscript" base="0.6" trigger="interaction.is_observation" bonus="+0.4"/>
-</motifs>
 </NARRATIVE_ENGINE>`,
+    triggers: [
+      {
+        id: "LOVECRAFT_COSMIC_TERROR",
+        when: (ai) => ai.intensity > 80 && ai.chaos > 70,
+        directive: "Escalate academic reportage into frantic, adjective-heavy fragments of cosmic terror.",
+      },
+      {
+        id: "LOVECRAFT_OCEANIC_ROT",
+        when: (ai) => ai.chaos > 50,
+        directive: "Evoke ancient dampness and fetid oceanic decay.",
+      },
+    ],
   },
 
   jane_austen: {
@@ -353,19 +463,29 @@ export const NARRATIVE_STYLES = {
 <sensory_order>Sight (Social Observation) > Sound (Dialogue/Gossip) > Touch (Formal) > Scent</sensory_order>
 <emotion_grounding>Social. Emotions are demonstrated strictly through compliance with or subtle breaches of etiquette.</emotion_grounding>
 </dna>
-
-<mods>
-<m trigger="dynamics.intensity > 60 AND dynamics.chaos > 60" fx="internal_voice:frenzied_social_calculation++ narrator_irony:sharpens"/>
-<m trigger="dynamics.openness < 40" fx="dialogue:quiet,observational++ action_focus:small_glances"/>
-<m trigger="dynamics.openness > 70" fx="prose:lighter,sincere++ dialogue_wit:playful"/>
-</mods>
-
-<motifs>
-<motif name="handwritten_letter" base="0.4" trigger="interaction.is_observation" bonus="+0.5"/>
-<motif name="improper_glance" base="0.4" trigger="dynamics.intensity > 50" bonus="+0.4"/>
-<motif name="sum_of_money_or_status" base="0.5" trigger="interaction.is_confrontation" bonus="+0.4"/>
-</motifs>
 </NARRATIVE_ENGINE>`,
+    triggers: [
+      {
+        id: "AUSTEN_SHARP_IRONY",
+        when: (ai) => ai.intensity > 60 && ai.chaos > 60,
+        directive: "Sharpen authorial irony as internal social calculations turn frantic beneath polished etiquette.",
+      },
+      {
+        id: "AUSTEN_QUIET_PLEASANTRY",
+        when: (ai) => ai.openness < 40,
+        directive: "Restrict dialogue to quiet, cautious pleasantries while focusing on subtle glances.",
+      },
+      {
+        id: "AUSTEN_PLAYFUL_WIT",
+        when: (ai) => ai.openness > 70,
+        directive: "Lighten tone into warm, sincere prose with playful conversational wit.",
+      },
+      {
+        id: "AUSTEN_IMPROPER_GLANCE",
+        when: (ai) => ai.intensity > 50,
+        directive: "Highlight brief, charged breaches of social decorum.",
+      },
+    ],
   },
 
   jrr_tolkien: {
@@ -382,19 +502,29 @@ export const NARRATIVE_STYLES = {
 <sensory_order>Sight (Landscapes/Light) > Sound (Music/Songs) > Scent (Nature) > Touch</sensory_order>
 <emotion_grounding>World-reflected. Internal sorrow or hope mirrors the state of the surrounding environment and sky.</emotion_grounding>
 </dna>
-
-<mods>
-<m trigger="dynamics.intensity < 30 AND dynamics.chaos > 70" fx="prose:elegiac++ themes:world_weariness++ motif_bonus:fading_light++"/>
-<m trigger="dynamics.openness > 80" fx="prose:hymnal++ sensory_focus:light,nature++"/>
-<m trigger="dynamics.intensity > 60" fx="sensory_focus:shadows,corruption++ prose_rhythm:heavy,portentous"/>
-</mods>
-
-<motifs>
-<motif name="fading_light" base="0.4" trigger="dynamics.intensity < 40" bonus="+0.5"/>
-<motif name="ancient_trees" base="0.4" trigger="location.is_wild" bonus="+0.4"/>
-<motif name="songs_and_lineage" base="0.3" trigger="interaction.is_intimate" bonus="+0.5"/>
-</motifs>
 </NARRATIVE_ENGINE>`,
+    triggers: [
+      {
+        id: "TOLKIEN_ELEGIAC",
+        when: (ai) => ai.intensity < 30 && ai.chaos > 70,
+        directive: "Adopt an elegiac tone focused on world-weariness, ancient history, and fading light.",
+      },
+      {
+        id: "TOLKIEN_HYMNAL",
+        when: (ai) => ai.openness > 80,
+        directive: "Elevate prose into hymnal cadence focused on natural beauty and enduring light.",
+      },
+      {
+        id: "TOLKIEN_PORTENTOUS",
+        when: (ai) => ai.intensity > 60,
+        directive: "Deepen sentence cadence into heavy, portentous reflections on shadow and corruption.",
+      },
+      {
+        id: "TOLKIEN_FADING_LIGHT",
+        when: (ai) => ai.intensity < 40,
+        directive: "Focus on fading starlight and twilight horizons.",
+      },
+    ],
   },
 
   lee_child: {
@@ -411,18 +541,14 @@ export const NARRATIVE_STYLES = {
 <sensory_order>Sight (Geometry/Physics) > Sound (Impact/Mechanics) > Touch (Hard Surfaces) > Scent (Coffee)</sensory_order>
 <emotion_grounding>Logical calculation. Emotion is tactical noise to be suppressed.</emotion_grounding>
 </dna>
-
-<mods>
-<m trigger="interaction.is_confrontation" fx="sentence:fragment++ focus:physics,geometry,leverage++"/>
-<m trigger="interaction.is_observation" fx="detail:microscopic++ analysis:deductive,procedural++"/>
-</mods>
-
-<motifs>
-<motif name="black_coffee" base="0.6" trigger="location.is_indoor" bonus="+0.2"/>
-<motif name="clock_time_and_mil_spec" base="0.5" trigger="dynamics.intensity > 50" bonus="+0.3"/>
-<motif name="broken_bones_and_leverage" base="0.4" trigger="interaction.is_confrontation" bonus="+0.6"/>
-</motifs>
 </NARRATIVE_ENGINE>`,
+    triggers: [
+      {
+        id: "LEE_CHILD_TACTICAL_CLOCK",
+        when: (ai) => ai.intensity > 50,
+        directive: "Track exact elapsed seconds, physical leverage, and tactical geometry.",
+      },
+    ],
   },
 
   penelope_douglas: {
@@ -439,19 +565,19 @@ export const NARRATIVE_STYLES = {
 <sensory_order>Touch (Possessive/Charged) > Sight (Tracking Micro-expressions) > Sound (Cutting Banter) > Scent</sensory_order>
 <emotion_grounding>Confrontational angst. Emotional vulnerability is treated as a high-stakes battlefield with somatic physiological grounding.</emotion_grounding>
 </dna>
-
-<mods>
-<m trigger="dynamics.intensity > 80 AND dynamics.chaos > 60" fx="dialogue:sharp,cutting++ internal_voice:aggressive,justifying++"/>
-<m trigger="interaction.is_confrontation" fx="internal_voice:conflicted,argumentative++ dialogue:sharp,witty++"/>
-<m trigger="dynamics.intensity > 70 AND dynamics.affinity > 50" fx="sensory_focus:body_heat,breath++ prose_rhythm:breathless"/>
-</mods>
-
-<motifs>
-<motif name="physical_dare_or_challenge" base="0.5" trigger="interaction.is_confrontation" bonus="+0.4"/>
-<motif name="unspoken_challenge_in_eyes" base="0.5" trigger="interaction.is_confrontation" bonus="+0.4"/>
-<motif name="feared_or_cherished_vehicle" base="0.4" trigger="location.is_urban" bonus="+0.5"/>
-</motifs>
 </NARRATIVE_ENGINE>`,
+    triggers: [
+      {
+        id: "PENELOPE_ANGST",
+        when: (ai) => ai.intensity > 80 && ai.chaos > 60,
+        directive: "Deliver cutting, confrontational dialogue while internal thoughts spiral into aggressive justification.",
+      },
+      {
+        id: "PENELOPE_SOMATIC_HEAT",
+        when: (ai) => ai.intensity > 70 && ai.affinity > 50,
+        directive: "Accelerate prose rhythm into breathless focus on body heat and immediate somatic reactions.",
+      },
+    ],
   },
 
   philip_k_dick: {
@@ -468,19 +594,19 @@ export const NARRATIVE_STYLES = {
 <sensory_order>Sound (Static/Distorted Voices) > Sight (Glitching Form) > Touch (Synthetic Texture) > Scent</sensory_order>
 <emotion_grounding>Existential paranoia. Emotional truth is constantly undermined by suspicion of artificial origin.</emotion_grounding>
 </dna>
-
-<mods>
-<m trigger="dynamics.chaos > 70" fx="internal_voice:paranoid,dissociated++ world_perception:shifting,unreliable++"/>
-<m trigger="flag:subconscious_leakage" fx="prose:clinical,alienated++ motif_bonus:glowing_advertisements++"/>
-<m trigger="dynamics.openness < 20" fx="internal_voice:hyper-fixated_on_conspiracy++ dialogue:defensive"/>
-</mods>
-
-<motifs>
-<motif name="glowing_advertisements" base="0.5" trigger="location.is_urban" bonus="+0.4"/>
-<motif name="altered_memory" base="0.6" trigger="flag:internal_conflict_active" bonus="+0.3"/>
-<motif name="counterfeit_identity_document" base="0.4" trigger="interaction.is_confrontation" bonus="+0.5"/>
-</motifs>
 </NARRATIVE_ENGINE>`,
+    triggers: [
+      {
+        id: "PKD_PARANOID_DISSOCIATION",
+        when: (ai) => ai.chaos > 70,
+        directive: "Make internal monologue paranoid and dissociated, questioning whether reality or memory is authentic.",
+      },
+      {
+        id: "PKD_CONSPIRACY_FIXATION",
+        when: (ai) => ai.openness < 20,
+        directive: "Hyper-fixate internal thoughts on conspiracy, tracking defensive conversational maneuvers.",
+      },
+    ],
   },
 
   sally_rooney: {
@@ -498,18 +624,19 @@ export const NARRATIVE_STYLES = {
 <sensory_order>Sight (Blank Expressions/Neutral Observation) > Sound (Silence/Ambient) > Touch (Temperature/Numb) > Scent</sensory_order>
 <emotion_grounding>Intellectualized and clinical. High-intensity events and emotional turmoil are dissected analytically without moral affect.</emotion_grounding>
 </dna>
-
-<mods>
-<m trigger="interaction.is_confrontation OR interaction.is_intimate" fx="punctuation:no_quotes++ flow:seamless++ analysis:power_dynamic++"/>
-<m trigger="dynamics.intensity > 70 AND dynamics.chaos > 70" fx="prose:flat,stark++ internal_voice:dissociated++ sentence_rhythm:monotone"/>
-</mods>
-
-<motifs>
-<motif name="emails_or_text_messages" base="0.6" trigger="interaction.is_observation" bonus="+0.4"/>
-<motif name="charged_uncomfortable_silence" base="0.5" trigger="dynamics.intensity > 50" bonus="+0.4"/>
-<motif name="blank_television_screen" base="0.5" trigger="location.is_indoor" bonus="+0.3"/>
-</motifs>
 </NARRATIVE_ENGINE>`,
+    triggers: [
+      {
+        id: "ROONEY_MONOTONE_NUMBNESS",
+        when: (ai) => ai.intensity > 70 && ai.chaos > 70,
+        directive: "Flatten syntax into stark, unadorned monotone declarations of emotional numbness.",
+      },
+      {
+        id: "ROONEY_UNCOMFORTABLE_SILENCE",
+        when: (ai) => ai.intensity > 50,
+        directive: "Linger on uncomfortably quiet pauses and unsaid interpersonal subtext.",
+      },
+    ],
   },
 
   samuel_delany: {
@@ -527,19 +654,14 @@ export const NARRATIVE_STYLES = {
 <sensory_order>Touch (Textures/Fluids) > Scent (Somatic/Urban) > Sound (Speech) > Sight (Architectural Decay)</sensory_order>
 <emotion_grounding>Intellectualized somatic reality. Intimacy and taboo are processed without shame as social theory in action.</emotion_grounding>
 </dna>
-
-<mods>
-<m trigger="dynamics.intensity > 70 AND dynamics.openness > 60" fx="prose:visceral,anatomical++ sensory_focus:touch,scent++"/>
-<m trigger="interaction.is_confrontation" fx="dialogue:philosophical,dense++ internal_voice:analytical"/>
-<m trigger="location.is_urban" fx="world_perception:detailed,gritty++ focus:textures_of_decay"/>
-</mods>
-
-<motifs>
-<motif name="graffiti_covered_concrete" base="0.5" trigger="location.is_urban" bonus="+0.4"/>
-<motif name="interrupted_philosophical_monologue" base="0.5" trigger="interaction.is_confrontation" bonus="+0.4"/>
-<motif name="tactile_denim_or_leather" base="0.6" trigger="interaction.is_intimate" bonus="+0.3"/>
-</motifs>
 </NARRATIVE_ENGINE>`,
+    triggers: [
+      {
+        id: "DELANY_VISCERAL_ANATOMY",
+        when: (ai) => ai.intensity > 70 && ai.openness > 60,
+        directive: "Render bodily touch and anatomical details with dense, visceral, non-judgmental precision.",
+      },
+    ],
   },
 
   stephen_king: {
@@ -556,19 +678,24 @@ export const NARRATIVE_STYLES = {
 <sensory_order>Scent (Old Paper/Blood) > Sound (Pop Songs/Screams) > Sight (Uncanny) > Touch</sensory_order>
 <emotion_grounding>Nostalgic and visceral. Fear manifests directly in bodily discomfort (cold sweat, sour bowels).</emotion_grounding>
 </dna>
-
-<mods>
-<m trigger="dynamics.intensity > 60 AND dynamics.openness < 40" fx="metaphor:body_horror++ prose:visceral,gross-out++"/>
-<m trigger="location.is_indoor" fx="tone:nostalgic++ detail:ephemera,brand_names++"/>
-<m trigger="dynamics.chaos > 60" fx="sentence:run_on++ italics:internal_thought++"/>
-</mods>
-
-<motifs>
-<motif name="real_brand_names" base="0.5" trigger="location.is_indoor" bonus="+0.3"/>
-<motif name="old_pop_song_reference" base="0.4" trigger="flag:internal_conflict_active" bonus="+0.4"/>
-<motif name="visceral_bodily_function" base="0.4" trigger="dynamics.intensity > 70" bonus="+0.5"/>
-</motifs>
 </NARRATIVE_ENGINE>`,
+    triggers: [
+      {
+        id: "KING_BODY_HORROR",
+        when: (ai) => ai.intensity > 60 && ai.openness < 40,
+        directive: "Incorporate blue-collar body horror metaphors and visceral physiological discomfort.",
+      },
+      {
+        id: "KING_INTERNAL_OUTBURST",
+        when: (ai) => ai.chaos > 60,
+        directive: "Break sentence structure into run-on cadence punctuated by italicized internal outbursts.",
+      },
+      {
+        id: "KING_BODILY_DISCOMFORT",
+        when: (ai) => ai.intensity > 70,
+        directive: "Ground panic in raw bodily discomfort (cold sweat, sour stomach).",
+      },
+    ],
   },
 
   william_gibson: {
@@ -585,18 +712,13 @@ export const NARRATIVE_STYLES = {
 <sensory_order>Sight (Neon/Data Displays) > Sound (Static/Urban Hum) > Touch (Chrome/Plastic) > Scent (Ozone/Pollution)</sensory_order>
 <emotion_grounding>Technological alienation. Psychological states register through hardware and software metaphors.</emotion_grounding>
 </dna>
-
-<mods>
-<m trigger="dynamics.intensity > 70 AND dynamics.chaos > 70" fx="prose:fragmented,jittery++ sensory_input:data_overload"/>
-<m trigger="flag:trauma_active" fx="metaphor:glitches,memory_corruption++"/>
-<m trigger="location.is_urban" fx="world_perception:high_tech_low_life++ focus:decaying_infrastructure"/>
-</mods>
-
-<motifs>
-<motif name="flickering_neon_sign" base="0.6" trigger="location.is_urban" bonus="+0.3"/>
-<motif name="chrome_and_molded_plastic" base="0.5" trigger="interaction.is_intimate" bonus="+0.3"/>
-<motif name="corporate_logos_and_data_streams" base="0.5" trigger="interaction.is_observation" bonus="+0.4"/>
-</motifs>
 </NARRATIVE_ENGINE>`,
+    triggers: [
+      {
+        id: "GIBSON_CYBERNETIC_JITTER",
+        when: (ai) => ai.intensity > 70 && ai.chaos > 70,
+        directive: "Deliver rapid, jittery, information-dense prose saturated with technical jargon and hardware metaphors.",
+      },
+    ],
   },
 };

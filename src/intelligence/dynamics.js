@@ -167,63 +167,62 @@ export function evaluate_image_trigger(current = {}, previous = {}, options = {}
 // ---------------------------------------------------------------------------
 // Scope guards vs. the legacy DYNAMICS registry:
 //  - NO user-input keyword scanning (active impulses) — intentionally excluded.
-//  - NO numerical axis mutation — the Director owns state mutations.
+import { GLOBAL_TRIGGERS } from "../data/definitions/narrative-styles.js";
+
+// Re-export GLOBAL_TRIGGERS as DYNAMICS_SIGNALS for backwards compatibility
+export { GLOBAL_TRIGGERS as DYNAMICS_SIGNALS };
 
 /**
- * Narrative signal registry.
- * Each entry triggers when its axis crosses the threshold on the owning domain:
- *  - domain "ai"      → the AI character's dynamics (intensity, chaos, ...)
- *  - domain "fractal" → the fractal's dynamics (entropy, velocity, ...)
- * At most one of `above`/`below` may be set.
+ * Evaluates active physics signals and style triggers for current dynamics.
+ * Single-pass evaluator for both baseline global signals and narrative style triggers.
+ *
+ * @param {Record<string, number>|{ ai_dynamics?: Record<string, number>, fractal_dynamics?: Record<string, number>, style?: object }} [ai_dynamics={}]
+ * @param {Record<string, number>} [fractal_dynamics={}]
+ * @param {object|null} [style=null]
+ * @returns {Array<{ id: string, text: string }>}
  */
-export const DYNAMICS_SIGNALS = [
-  {
-    id: "PACING_HIGH",
-    domain: "ai",
-    axis: "intensity",
-    above: 70,
-    text: "High-adrenaline pacing. Slow narrative time: expand detail in decisive beats — micro-expressions, split-second thoughts, immediate sensory physics. Use short, urgent sentences.",
-  },
-  {
-    id: "PACING_LOW",
-    domain: "ai",
-    axis: "intensity",
-    below: 30,
-    text: "Low-energy pacing. Compress routine transitions; draw out actions with heavy, deliberate, languid detail.",
-  },
-  {
-    id: "ATMOSPHERE_TENSE",
-    domain: "fractal",
-    axis: "entropy",
-    above: 70,
-    text: "Pathetic fallacy: the environment mirrors the scene's emotional tension — sharp sounds, cold drafts, oppressive light, close space.",
-  },
-  {
-    id: "ATMOSPHERE_CALM",
-    domain: "fractal",
-    axis: "entropy",
-    below: 30,
-    text: "Pathetic fallacy: the environment mirrors calm — ambient hum, warmth, expansive views, rhythmic sounds.",
-  },
-];
+export function evaluate_dynamics_signals(ai_dynamics = {}, fractal_dynamics = {}, style = null) {
+  let ai = ai_dynamics || {};
+  let fractal = fractal_dynamics || {};
+  let active_style = style;
 
-/**
- * Evaluates which narrative signals are active for the given dynamics.
- * Emits nothing for unknown/non-numeric axis values and stays silent at
- * neutral values so mid-range turns are free of prompt noise.
- * @param {Record<string, number>} [ai_dynamics]
- * @param {Record<string, number>} [fractal_dynamics]
- * @returns {Array<{id: string, domain: string, axis: string, value: number, text: string}>}
- */
-export function evaluate_dynamics_signals(ai_dynamics = {}, fractal_dynamics = {}) {
-  const active = [];
-  for (const signal of DYNAMICS_SIGNALS) {
-    const dynamics = signal.domain === "fractal" ? fractal_dynamics : ai_dynamics;
-    const value = dynamics?.[signal.axis];
-    if (typeof value !== "number" || !Number.isFinite(value)) continue;
-    const passes = signal.above !== undefined ? value > signal.above : signal.below !== undefined ? value < signal.below : false;
-    if (passes) active.push({ id: signal.id, domain: signal.domain, axis: signal.axis, value: Math.round(value), text: signal.text });
+  // Handle options object signature: evaluate_dynamics_signals({ ai_dynamics, fractal_dynamics, style })
+  if (ai_dynamics && typeof ai_dynamics === "object" && (ai_dynamics.ai_dynamics || ai_dynamics.fractal_dynamics || ai_dynamics.style !== undefined)) {
+    ai = ai_dynamics.ai_dynamics || {};
+    fractal = ai_dynamics.fractal_dynamics || {};
+    active_style = ai_dynamics.style || null;
   }
+
+  const active = [];
+
+  // 1. Evaluate baseline global triggers
+  for (const trigger of GLOBAL_TRIGGERS) {
+    if (typeof trigger.when === "function") {
+      try {
+        if (trigger.when(ai, fractal)) {
+          active.push({ id: trigger.id, text: trigger.directive });
+        }
+      } catch (_err) {
+        /* ignore error */
+      }
+    }
+  }
+
+  // 2. Evaluate active narrative style triggers (when custom style selected)
+  if (active_style && typeof active_style === "object" && Array.isArray(active_style.triggers) && active_style.id !== "default") {
+    for (const trigger of active_style.triggers) {
+      if (typeof trigger.when === "function") {
+        try {
+          if (trigger.when(ai, fractal)) {
+            active.push({ id: trigger.id, text: trigger.directive });
+          }
+        } catch (_err) {
+          /* ignore error */
+        }
+      }
+    }
+  }
+
   return active;
 }
 
@@ -231,13 +230,128 @@ export function evaluate_dynamics_signals(ai_dynamics = {}, fractal_dynamics = {
  * Renders the active narrative signals as a <DYNAMICS_SIGNALS> XML block.
  * @param {Record<string, number>} [ai_dynamics]
  * @param {Record<string, number>} [fractal_dynamics]
- * @param {{ domains?: Array<"ai" | "fractal"> }} [options]
+ * @param {{ style?: object }} [options]
  * @returns {string} XML block string, or "" when no signals are active.
  */
 export function build_signals_xml(ai_dynamics = {}, fractal_dynamics = {}, options = {}) {
-  const domains = options.domains ?? ["ai", "fractal"];
-  const active = evaluate_dynamics_signals(ai_dynamics, fractal_dynamics).filter((s) => domains.includes(s.domain));
+  const active = evaluate_dynamics_signals(ai_dynamics, fractal_dynamics, options?.style);
   if (active.length === 0) return "";
-  const inner = active.map((s) => `      ${s.text}`).join("\n");
+  const inner = active.map((s) => `      • ${s.text}`).join("\n");
   return `    <DYNAMICS_SIGNALS>\n${inner}\n    </DYNAMICS_SIGNALS>`;
+}
+
+/**
+ * Evaluates active narrative style mods and motifs based on current dynamics.
+ * Supports both JS-structured rule arrays (mods/motifs) and legacy string triggers.
+ * @param {object|null} style - Narrative style definition object
+ * @param {Record<string, number>} [ai_dynamics] - Current AI character dynamics
+ * @param {Record<string, number>} [fractal_dynamics] - Current Fractal environmental dynamics
+ * @returns {string[]} Array of active directive strings
+ */
+export function evaluate_style_directives(style, ai_dynamics = {}, fractal_dynamics = {}) {
+  if (!style || typeof style !== "object") return [];
+  const active = [];
+
+  const ai = ai_dynamics || {};
+  const fractal = fractal_dynamics || {};
+
+  // 1. JS-driven structured mods
+  if (Array.isArray(style.mods)) {
+    for (const mod of style.mods) {
+      if (typeof mod.when === "function") {
+        try {
+          if (mod.when(ai, fractal)) {
+            if (mod.directive) active.push(mod.directive);
+          }
+        } catch (_err) {
+          /* ignore execution error */
+        }
+      }
+    }
+  }
+
+  // 2. JS-driven structured motifs
+  if (Array.isArray(style.motifs)) {
+    for (const motif of style.motifs) {
+      if (typeof motif.when === "function") {
+        try {
+          if (motif.when(ai, fractal)) {
+            const label = motif.name ? `MOTIF (${motif.name}): ` : "MOTIF: ";
+            if (motif.directive) active.push(label + (motif.directive || `Emphasize themes of ${motif.name}.`));
+          }
+        } catch (_err) {
+          /* ignore execution error */
+        }
+      }
+    }
+  }
+
+  // 3. Fallback: XML string regex parser for legacy style definitions
+  if (active.length === 0 && typeof style.narrative_engine === "string" && style.narrative_engine.trim()) {
+    const raw = style.narrative_engine;
+
+    // Parse <m trigger="..." fx="..."/>
+    const mod_regex = /<m\s+trigger="([^"]+)"\s+fx="([^"]+)"\s*\/?>/gi;
+    let match;
+    while ((match = mod_regex.exec(raw)) !== null) {
+      const condition = match[1];
+      const fx = match[2];
+      if (eval_legacy_condition(condition, ai, fractal)) {
+        active.push(`Style Modifier: ${fx}`);
+      }
+    }
+
+    // Parse <motif .../> regardless of attribute order
+    const motif_regex = /<motif\s+([^>]+)\/?>/gi;
+    let motif_match;
+    while ((motif_match = motif_regex.exec(raw)) !== null) {
+      const attrs_str = motif_match[1];
+      const name_match = attrs_str.match(/name="([^"]+)"/i);
+      const trigger_match = attrs_str.match(/trigger="([^"]+)"/i);
+      if (name_match && trigger_match) {
+        const name = name_match[1];
+        const condition = trigger_match[1];
+        if (eval_legacy_condition(condition, ai, fractal)) {
+          active.push(`MOTIF (${name}): Emphasize themes of ${name.replace(/_/g, " ")}.`);
+        }
+      }
+    }
+  }
+
+  return active;
+}
+
+/**
+ * Legacy condition evaluator for XML trigger strings (e.g. "dynamics.intensity > 60 AND dynamics.affinity > 60").
+ */
+function eval_legacy_condition(condition, ai, fractal) {
+  if (!condition || typeof condition !== "string") return false;
+  if (condition.includes("flag:") || condition.includes("interaction.")) return false; // Non-dynamics excluded for later
+
+  const parts = condition.split(/\s+AND\s+/i);
+  for (const part of parts) {
+    const subparts = part.split(/\s+OR\s+/i);
+    let or_passed = false;
+    for (const sub of subparts) {
+      const m = sub.trim().match(/dynamics\.([a-z0-9_-]+)\s*(>|<|>=|<=|==)\s*(\d+)/i);
+      if (m) {
+        const axis = m[1];
+        const op = m[2];
+        const val = Number(m[3]);
+        const current_val = ai[axis] ?? fractal[axis] ?? 50;
+        let pass = false;
+        if (op === ">") pass = current_val > val;
+        else if (op === "<") pass = current_val < val;
+        else if (op === ">=") pass = current_val >= val;
+        else if (op === "<=") pass = current_val <= val;
+        else if (op === "==") pass = current_val === val;
+        if (pass) {
+          or_passed = true;
+          break;
+        }
+      }
+    }
+    if (!or_passed) return false;
+  }
+  return true;
 }
