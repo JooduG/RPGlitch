@@ -82,69 +82,6 @@ export function parse_think_block(text) {
   };
 }
 
-/**
- * Extracts a concise 1-sentence immediate intent from a <think> block for 1-turn TTL carryover.
- * Looks for line 3 (Intent & Rhythm, Intent:, or final beat) inside the think text.
- * @param {string|null|undefined} think_text
- * @returns {string|null}
- */
-/** Mechanical dynamics-noise that must never be treated as a physical intent beat. */
-const INTENT_NOISE_RE = /(?:^|[\s(])(?:delta|deltas)?\s*(?:chaos|intensity|openness|affinity|velocity|entropy)\s*[+\-–—]\s*\d+/i;
-
-/** Strips list markers, emphasis, and surrounding whitespace from a candidate intent line. */
-function clean_intent_candidate(text) {
-  return String(text || "")
-    .replace(/^[\s\-•*_]+/, "")
-    .replace(/\*\*/g, "")
-    .replace(/\*/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-/**
- * Extracts the AI character's "immediate intent" (the physical beat carried into the
- * next turn's <IMMEDIATE_INTENT>). LLMs rarely follow the structured "3. Intent & Rhythm:"
- * line the prompt asks for — they usually write the whole think as one long paragraph — so
- * this falls back to the last sentence, then to a bounded tail of the think. Mechanical
- * dynamics-delta noise is rejected so the intent channel stays physical rather than echoing
- * "+4 chaos" bookkeeping.
- */
-export function extract_immediate_intent(think_text) {
-  if (!think_text || typeof think_text !== "string") return null;
-  const lines = think_text
-    .split("\n")
-    .map((l) => l.trim())
-    .filter(Boolean);
-
-  // Primary: explicit "3. Intent & Rhythm:" / "Intent:" / "Rhythm:" lines.
-  for (const line of lines) {
-    if (/^(?:3\.?|(?:3\.?\s*)?intent(?:\s*&\s*rhythm)?|rhythm|beat)/i.test(line) && line.includes(":")) {
-      const cleaned = clean_intent_candidate(line.replace(/^(?:\d+\.\s*)?(?:intent(?:\s*&\s*rhythm)?|rhythm|beat)?:\s*/i, ""));
-      if (cleaned && !INTENT_NOISE_RE.test(cleaned)) return cleaned.slice(0, 250);
-    }
-  }
-
-  // Fallback 1: the last line of the think, when concise.
-  const last_line = lines[lines.length - 1];
-  if (last_line && last_line.length < 250) {
-    const cleaned = clean_intent_candidate(last_line.replace(/^\d+\.\s*/, "").replace(/^(?:intent(?:\s*&\s*rhythm)?|rhythm|beat):\s*/i, ""));
-    if (cleaned && !INTENT_NOISE_RE.test(cleaned)) return cleaned.slice(0, 250);
-  }
-
-  // Fallback 2: the last sentence of the (possibly single-paragraph) think.
-  const sentences = think_text.match(/[^.!?]+[.!?]+/g) || [];
-  const last_sentence = sentences.length ? sentences[sentences.length - 1].trim() : "";
-  if (last_sentence && last_sentence.length < 250) {
-    const cleaned = clean_intent_candidate(last_sentence);
-    if (cleaned && !INTENT_NOISE_RE.test(cleaned)) return cleaned.slice(0, 250);
-  }
-
-  // Fallback 3: a bounded tail of the think.
-  const tail = clean_intent_candidate(think_text.trim().slice(-240));
-  if (tail && !INTENT_NOISE_RE.test(tail)) return tail.slice(0, 250);
-
-  return null;
-}
 
 /**
  * Extracts the outermost JSON object from a raw LLM response.

@@ -40,9 +40,10 @@ import { prompt_builder } from "./prompts.js";
 
 /**
  * 🧠 VECTOR POOL — Unified memory accessor.
- * Entities store memories in the `past` and `future` arrays. `resolve_vector_pool`
- * flattens both into a single normalized pool so every read path shares one
- * consistent shape and no memory is missed because it lived in the other array.
+ * Entities store memories in the `past` array (a pool of vectors); `future` is a
+ * single consolidated prose field, not a pool. `resolve_vector_pool` flattens
+ * past into one normalized shape so every read path shares a consistent
+ * interface and no memory is missed.
  */
 
 /**
@@ -995,9 +996,9 @@ export async function forge_memory(entity_targets, history_slice) {
 
     const forged = {
       memories: {},
-      present_consolidated: memory?.state_consolidated || memory?.present_consolidated || {},
-      eternal_consolidated: memory?.personality_consolidated || memory?.eternal_consolidated || {},
-      future_consolidated: {},
+      present: memory?.present || {},
+      eternal: memory?.eternal || {},
+      future: {},
     };
 
     for (const { key } of entity_targets) {
@@ -1006,22 +1007,24 @@ export async function forge_memory(entity_targets, history_slice) {
       // FUTURE is a single consolidated prose field, mirroring present:
       // the forge rewrites the standing agenda wholesale, dropping fulfilled or
       // abandoned goals and keeping/adding what still matters.
-      const fut = entity_block.objective_consolidated ?? entity_block.future_consolidated;
-      if (typeof fut === "string" && fut.trim()) {
-        forged.future_consolidated[key] = fut.trim();
+      if (entity_block.future) {
+        const intent = entity_block.future;
+        if (typeof intent === "string") {
+          forged.future[key] = intent.trim();
+        }
       }
 
-      const pres = entity_block.state_consolidated ?? entity_block.present_consolidated;
+      const pres = entity_block.present;
       if (pres && typeof pres === "object") {
-        forged.present_consolidated[key] = pres;
+        forged.present[key] = pres;
       }
 
-      const et = entity_block.personality_consolidated ?? entity_block.eternal_consolidated;
+      const et = entity_block.eternal;
       if (et && typeof et === "object") {
-        forged.eternal_consolidated[key] = et;
+        forged.eternal[key] = et;
       }
 
-      const raw_vectors = Array.isArray(entity_block.vector_append) ? entity_block.vector_append : [];
+      const raw_vectors = Array.isArray(entity_block.past) ? entity_block.past : [];
 
       forged.memories[key] = [];
       const pending_embeds = [];
@@ -1062,9 +1065,9 @@ export async function forge_memory(entity_targets, history_slice) {
     }
 
     const has_memories = Object.values(forged.memories).some((arr) => arr.length > 0);
-    const has_present = Object.keys(forged.present_consolidated).length > 0;
-    const has_eternal = Object.keys(forged.eternal_consolidated).length > 0;
-    const has_future = Object.keys(forged.future_consolidated).length > 0;
+    const has_present = Object.keys(forged.present).length > 0;
+    const has_eternal = Object.keys(forged.eternal).length > 0;
+    const has_future = Object.keys(forged.future).length > 0;
 
     if (!has_memories && !has_present && !has_eternal && !has_future) return null;
 
@@ -1123,26 +1126,21 @@ export function apply_state_mutations(entity, mutations, session = null) {
   if (!entity || !mutations || typeof mutations !== "object") return false;
   let changed = false;
 
-  const pres_phys = mutations.state_append?.physical || mutations.present_append?.physical || mutations.present_mutations?.physical || mutations.present_append_physical || "";
+  const pres_phys = mutations.state_append?.physical || "";
   if (pres_phys.trim()) {
     if (!entity.present) entity.present = { physical: "", non_physical: "" };
     entity.present.physical = merge_prose_into_field(entity.present.physical, pres_phys);
     changed = true;
   }
 
-  const pres_non_phys =
-    mutations.state_append?.non_physical || mutations.present_append?.non_physical || mutations.present_mutations?.non_physical || mutations.present_append_non_physical || "";
+  const pres_non_phys = mutations.state_append?.non_physical || "";
   if (pres_non_phys.trim()) {
     if (!entity.present) entity.present = { physical: "", non_physical: "" };
     entity.present.non_physical = cap_present_prose(merge_prose_into_field(entity.present.non_physical, pres_non_phys));
     changed = true;
   }
 
-  const resolve_list = Array.isArray(mutations.vector_resolve)
-    ? mutations.vector_resolve
-    : Array.isArray(mutations.resolve_vectors)
-      ? mutations.resolve_vectors
-      : [];
+  const resolve_list = Array.isArray(mutations.vector_resolve) ? mutations.vector_resolve : [];
   if (resolve_list.length > 0) {
     resolve_list.forEach((v) => {
       resolve(entity, v.id, v.resolution_summary || "DIRECTOR_RESOLUTION", session, v.outcome, v.past_content);
@@ -1150,17 +1148,13 @@ export function apply_state_mutations(entity, mutations, session = null) {
     });
   }
 
-  const new_list = Array.isArray(mutations.vector_append)
-    ? mutations.vector_append
-    : Array.isArray(mutations.new_vectors)
-      ? mutations.new_vectors
-      : [];
+  const new_list = Array.isArray(mutations.past) ? mutations.past : [];
   if (new_list.length > 0) {
     new_list.forEach((v) => {
       const payload = (v.content || v.directive || "").trim();
       if (!payload) return;
       // FUTURE is prose now — every appended vector is a past anchor.
-      const new_vector = create(payload, "past", v.emotional_weight ?? v.weight ?? 5);
+      const new_vector = create(payload, "past", v.emotional_weight ?? 5);
       ensure_unique_vector_id(entity, new_vector);
       v.id = new_vector.id;
       ensure_embedding(new_vector)
@@ -1176,7 +1170,7 @@ export function apply_state_mutations(entity, mutations, session = null) {
     });
   }
 
-  const eternal_muts = mutations.personality_consolidated || mutations.eternal_consolidated || mutations.eternal_baseline || mutations.eternal_mutations;
+  const eternal_muts = mutations.eternal;
   if (eternal_muts && entity.eternal) {
     if (eternal_muts.physical?.trim()) {
       entity.eternal.physical = merge_eternal_field(entity.eternal.physical, eternal_muts.physical);
@@ -1299,8 +1293,8 @@ export const temporal_engine = {
             }
           }
 
-          if (forged.present_consolidated) {
-            const summaries = forged.present_consolidated;
+          if (forged.present) {
+            const summaries = forged.present;
             for (const { key, type, entity } of entity_targets) {
               const summary = summaries[key];
               if (summary && typeof summary === "object") {
@@ -1318,8 +1312,8 @@ export const temporal_engine = {
             }
           }
 
-          if (forged.eternal_consolidated) {
-            const e_muts = forged.eternal_consolidated;
+          if (forged.eternal) {
+            const e_muts = forged.eternal;
             for (const { key, type, entity } of entity_targets) {
               const e_mut = e_muts[key];
               if (!e_mut || typeof e_mut !== "object") continue;
@@ -1344,14 +1338,14 @@ export const temporal_engine = {
             }
           }
 
-          // FUTURE CONSOLIDATION — the forge rewrites each entity's standing
-          // agenda prose wholesale (mirroring present_consolidated): fulfilled
+          // INTENT CONSOLIDATION — the forge rewrites each entity's standing
+          // agenda prose wholesale (mirroring present): fulfilled
           // or abandoned goals fall away, still-relevant ones are refreshed, and
           // new intents are folded in as one clean block.
           for (const { key, type, entity } of entity_targets) {
-            let rewritten = forged.future_consolidated?.[key];
+            let rewritten = forged.future?.[key];
             if (!rewritten || typeof rewritten !== "string" || !rewritten.trim()) {
-              const present_summary = forged.present_consolidated?.[key] || "";
+              const present_summary = forged.present?.[key] || "";
               if (present_summary && entity?.future) {
                 const clean_summary = String(present_summary)
                   .replace(/<[^>]+>/g, "")

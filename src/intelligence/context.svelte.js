@@ -19,7 +19,7 @@
 
 import { state_bridge } from "@utils";
 import { ensure_embeddings } from "./embeddings.svelte.js";
-import { ENTITY_CATALOG } from "../data/definitions/fragments.js";
+import { ENTITY_CATALOG } from "@data";
 import { clean_text } from "./parser.js";
 import { resolve_vector_pool } from "./temporal.js";
 
@@ -170,7 +170,6 @@ export const context_builder = {
         eternal: fragments.eternal,
         present: fragments.present,
         memories: resolve_vector_pool(raw),
-        immediate_intent: raw.immediate_intent || null,
         dynamics: raw.dynamics,
         dynamics_baseline: raw.dynamics_baseline,
         associated_ids: /** @type {any} */ (raw).associated_ids || [],
@@ -194,11 +193,11 @@ export const context_builder = {
   /**
    * Relevance-based sorting for raw data points.
    * @param {DataPoint[]} data_points
-   * @param {string} objective
+   * @param {string} intent
    * @returns {DataPoint[]}
    */
-  lexical_filter(data_points, objective) {
-    if (!objective || !Array.isArray(data_points)) return data_points;
+  lexical_filter(data_points, intent) {
+    if (!intent || !Array.isArray(data_points)) return data_points;
 
     const STOP_WORDS = new Set([
       "about",
@@ -264,7 +263,7 @@ export const context_builder = {
       "down",
     ]);
 
-    const keywords = objective
+    const keywords = intent
       .toLowerCase()
       .split(/\W+/)
       .filter((w) => w.length > 3 && !STOP_WORDS.has(w));

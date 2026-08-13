@@ -222,12 +222,11 @@ describe("gamemaster (Intelligence Kernel)", () => {
       const meta = {
         mutations: {
           AI_CHARACTER: {
-            present_append_physical: "torn coat",
-            present_append_non_physical: "quiet fury",
+            state_append: { physical: "torn coat", non_physical: "quiet fury" },
             dynamics_deltas: { intensity: 10 },
-            resolve_vectors: [{ id: "v-old", resolution_summary: "Resolved" }],
-            new_vectors: [{ content: "A vow to the storm", type: "future", weight: 5 }],
-            eternal_mutations: { physical: "scar", non_physical: "" },
+            vector_resolve: [{ id: "v-old", resolution_summary: "Resolved" }],
+            vector_append: [{ content: "A vow to the storm", type: "future", weight: 5 }],
+            foundation_consolidated: { physical: "scar", non_physical: "" },
           },
         },
         vectors: [
@@ -279,8 +278,8 @@ describe("gamemaster (Intelligence Kernel)", () => {
       const meta = {
         mutations: {
           USER_PERSONA: {
-            present_append_non_physical: "His heart hammers against his ribs.",
-            new_vectors: [{ content: "Attempt to hack the blast doors open.", type: "future", weight: 6 }],
+            state_append: { non_physical: "His heart hammers against his ribs." },
+            vector_append: [{ content: "Attempt to hack the blast doors open.", type: "future", weight: 6 }],
           },
         },
       };
@@ -317,7 +316,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
         thoughts: "## Cognition\nHe plans the ambush.\n\n## Reasoning\nThe attack must stay silent.",
         mutations: {
           AI_CHARACTER: {
-            new_vectors: [{ id: "valerius-f3", content: " Corner Glitch against the sterile walls.", type: "future", weight: 8 }],
+            vector_append: [{ id: "valerius-f3", content: " Corner Glitch against the sterile walls.", type: "future", weight: 8 }],
           },
         },
       };
@@ -636,15 +635,15 @@ describe("gamemaster (Intelligence Kernel)", () => {
       // Mock LLM to return valid JSON for Director and then the respective text for Character
       vi.mocked(llm_service.generate)
         .mockResolvedValueOnce(
-          JSON.stringify({ mutations: { AI_CHARACTER: { present_append_physical: "some state", dynamics_deltas: { intensity: 5 } } } }),
+          JSON.stringify({ mutations: { AI_CHARACTER: { state_append: { physical: "some state" }, dynamics_deltas: { intensity: 5 } } } }),
         ) // Turn 1 Director
         .mockResolvedValueOnce("<think>Unclosed block") // Turn 1 Character
         .mockResolvedValueOnce(
-          JSON.stringify({ mutations: { AI_CHARACTER: { present_append_physical: "some state", dynamics_deltas: { intensity: 5 } } } }),
+          JSON.stringify({ mutations: { AI_CHARACTER: { state_append: { physical: "some state" }, dynamics_deltas: { intensity: 5 } } } }),
         ) // Turn 2 Director
         .mockResolvedValueOnce("<think>Clean block</think> Normal text") // Turn 2 Character
         .mockResolvedValueOnce(
-          JSON.stringify({ mutations: { AI_CHARACTER: { present_append_physical: "some state", dynamics_deltas: { intensity: 5 } } } }),
+          JSON.stringify({ mutations: { AI_CHARACTER: { state_append: { physical: "some state" }, dynamics_deltas: { intensity: 5 } } } }),
         ) // Turn 3 Director
         .mockResolvedValueOnce("<think>Clean block</think> Normal text"); // Turn 3 Character
 
@@ -733,7 +732,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
       vi.mocked(llm_service.generate).mockImplementation(async () => {
         call_count++;
         if (call_count === 1) {
-          return JSON.stringify({ mutations: { AI_CHARACTER: { present_append_physical: "some state", dynamics_deltas: { intensity: 5 } } } });
+          return JSON.stringify({ mutations: { AI_CHARACTER: { state_append: { physical: "some state" }, dynamics_deltas: { intensity: 5 } } } });
         }
         expect(_mock_runtime.ai?.intensity).not.toBe(50);
         return "shoot kill attack";
@@ -754,7 +753,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
             trigger_image: true,
             mutations: {
               AI_CHARACTER: {
-                new_vectors: [{ content: " corner Glitch against the sterile walls.", type: "future", weight: 8 }],
+                vector_append: [{ content: " corner Glitch against the sterile walls.", type: "future", weight: 8 }],
               },
             },
           }),

@@ -14,7 +14,7 @@ import { visual_engine } from "@media";
 import { llm_service, looks_truncated, security } from "@platform";
 import { context_builder } from "./context.svelte.js";
 import { dynamics_engine, evaluate_image_trigger } from "./dynamics.js";
-import { escape_unescaped_json_quotes, extract_immediate_intent, extract_json_block, parse_think_block, strip_cognition_blocks } from "./parser.js";
+import { escape_unescaped_json_quotes, extract_json_block, parse_think_block, strip_cognition_blocks } from "./parser.js";
 import { prompt_builder } from "./prompts.js";
 import { temporal_engine } from "./temporal.js";
 
@@ -414,10 +414,9 @@ function compute_deltas(target, dynamics, runtime_target, deltas, log_strings) {
 /**
  * Builds one entity's normalized `updates` block for telemetry. Director fields
  * are aligned into the display shape: `present_mutations.{physical,non_physical}`
- * and `eternal_mutations.{physical,non_physical}` (from `state_append`/`present_append` and
- * `personality_consolidated`/`eternal_consolidated`/`eternal_baseline`/`eternal_mutations`),
- * `new_vectors` keep `content`/`type`
- * but their `weight` becomes `emotional_weight`, `resolve_vectors` → `vectors.resolved`,
+ * and `eternal_mutations.{physical,non_physical}` (from `state_append` and
+ * `foundation_consolidated`), `vector_append` items keep `content`/`type`
+ * but their `weight` becomes `emotional_weight`, `vector_resolve` → `vectors.resolved`,
  * `dynamics_deltas` is dropped (the computed `dynamics` array already carries old/new/diff per
  * axis). Returns null when the entity carries no content so the dump stays lean.
  * @param {string|null} name
@@ -430,28 +429,20 @@ function build_update_entry(name, mutations, dynamics, retrieval) {
   const entry = {};
   if (name) entry.name = name;
 
-  const pres = mutations?.state_append || mutations?.present_append || mutations?.present_mutations || {};
+  const pres = mutations?.state_append || {};
   entry.present_mutations = {
-    physical: pres.physical || mutations?.present_append_physical || "",
-    non_physical: pres.non_physical || mutations?.present_append_non_physical || "",
+    physical: pres.physical || "",
+    non_physical: pres.non_physical || "",
   };
 
-  const eternal = mutations?.personality_consolidated || mutations?.eternal_consolidated || mutations?.eternal_baseline || mutations?.eternal_mutations || {};
+  const eternal = mutations?.foundation_consolidated || {};
   entry.eternal_mutations = {
     physical: eternal.physical || "",
     non_physical: eternal.non_physical || "",
   };
 
-  const resolve_list = Array.isArray(mutations?.vector_resolve)
-    ? mutations.vector_resolve
-    : Array.isArray(mutations?.resolve_vectors)
-      ? mutations.resolve_vectors
-      : [];
-  const new_list = Array.isArray(mutations?.vector_append)
-    ? mutations.vector_append
-    : Array.isArray(mutations?.new_vectors)
-      ? mutations.new_vectors
-      : [];
+  const resolve_list = Array.isArray(mutations?.vector_resolve) ? mutations.vector_resolve : [];
+  const new_list = Array.isArray(mutations?.vector_append) ? mutations.vector_append : [];
 
   entry.vectors = {
     resolved: resolve_list,
@@ -1039,13 +1030,6 @@ export const gamemaster = {
         state_bridge.runtime.structural_errors = (state_bridge.runtime.structural_errors || 0) + 1;
       } else {
         state_bridge.runtime.structural_errors = Math.max(0, (state_bridge.runtime.structural_errors || 0) - 1);
-      }
-
-      // 6.6. EXTRACT 1-TURN IMMEDIATE INTENT (Carryover for Turn N+1)
-      const character_think = parse_think_block(validation_result.text).think;
-      const extracted_intent = extract_immediate_intent(character_think);
-      if (state_bridge.runtime.active_ai) {
-        state_bridge.runtime.active_ai.immediate_intent = extracted_intent || null;
       }
 
       // 7. PERSISTENCE: Save the result

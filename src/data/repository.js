@@ -112,17 +112,6 @@ export const entities = {
       if (!item) item = premade_entity_map.get(id);
       if (!item || item.type !== type) return null;
       let out = _map_vector_embeddings(item, deserialize_embedding);
-      // FUTURE is a single prose field now — flatten any legacy array payloads
-      // on read so old seeded entities don't render as comma-joined objects.
-      if (out && Array.isArray(out.future)) {
-        out = {
-          ...out,
-          future: out.future
-            .map((v) => (v && typeof v === "object" ? v.content || v.directive || "" : String(v ?? "")))
-            .filter(Boolean)
-            .join("\n"),
-        };
-      }
       return out;
     } catch (err) {
       error(`Failed to fetch ${type} [${id}] from the void:`, err);

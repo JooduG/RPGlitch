@@ -61,9 +61,10 @@ export const PROTOCOL_LIBRARY = {
 
   // ── 3. Cognition & World Physics ───────────────────────────────────────────
   COGNITION: {
+    ANCHOR: `Resolve all state inferences strictly from the <YOUR_IDENTITY> block above. Never invent state that is not listed there.`,
     PHASES: `Document internal calculations inside <think> as an organic train of thought:
 1. Visceral Reaction: How does the immediate situation hit your body and state?
-2. Secret Tensions & Drivers: How does the Fractal's <OBJECTIVES> steer your choice? Treat objective as a distant target; build tension through initial hurdles first.
+2. Secret Tensions & Drivers: How does the Fractal's <OBJECTIVE> steer your choice? Treat objective as a distant target; build tension through initial hurdles first.
 3. Intent & Rhythm: What physical movement or vocal beat will you execute?
 Keep think block concise (< 200 words).`,
     THINK_CHARACTER: `Begin response with <think>. Process reaction to <USER_ACTION> using in-character subconscious reasoning. ${BASE_THINK_CLOSURE}`,
@@ -90,18 +91,18 @@ Narrative Sequence:
 3. Place <AI_CHARACTER> inside and establish their current action.
 4. Trigger the encounter. End the prologue immediately before interaction begins.
 No dialogue.`,
-    EPILOGUE: `You see everything. Close the scene. Use <think> to evaluate unresolved threads and active <OBJECTIVES> vectors (fulfilled, fractured, or transformed). Write the epilogue resolving these ends. Show concrete aftermath and physical changes. End on lingering sensation, not summary. No dialogue.`,
+    EPILOGUE: `You see everything. Close the scene. Use <think> to evaluate unresolved threads and active <OBJECTIVE> vectors (fulfilled, fractured, or transformed). Write the epilogue resolving these ends. Show concrete aftermath and physical changes. End on lingering sensation, not summary. No dialogue.`,
   },
 
   PROFILE: {
     SCHEMA: `Extract and sort raw text into a flat JSON object with keys:
-name (string), description (string), signature_color (string), personality_physical (string), personality_non_physical (string), state_physical (string), state_non_physical (string), past (array of strings → become memory vectors), future (array of strings → become intent vectors).
+name (string), description (string), signature_color (string), appearance (string), personality (string), current_look (string), state_of_mind (string), past (array of strings → become memory vectors), future (string).
 
 - description: HUMAN EYES ONLY. Internal notes/OOC info.
 - signature_color: Choose from: Soft Rose, Crimson Red, Deep Indigo, Electric Cyan, Emerald Green, Forest Green, Adrenaline Pink, Lemon Yellow, Toxic Green, Scientific Teal, Space Blue, Pumpkin Amber, Proud Purple, Rusty Orange, Twilight Violet.
-- personality_physical / personality_non_physical: Permanent architecture vs Core philosophy.
-- state_physical / state_non_physical: Temporary visual features vs Current mood state.
-- past / future: Historical anchors vs Active impulses/intent.`,
+- appearance / personality: Permanent form vs Core philosophy.
+- current_look / state_of_mind: Temporary visual features vs Current mood/mental state.
+- past / future: Historical anchors vs Active impulses/intent (a single standing objective string).`,
     SORT_CHARACTER: `FOCUS: Extracting data for an individual CHARACTER. Re-contextualize or discard environmental/world text. ${MACROS.CHARACTER}`,
     SORT_FRACTAL: `FOCUS: Extracting data for a FRACTAL (world/environment). Re-contextualize or discard character-specific traits. ${MACROS.FRACTAL}`,
     MACROS,
@@ -114,11 +115,11 @@ name (string), description (string), signature_color (string), personality_physi
   },
 
   DIRECTOR: {
-    CONTINUITY: `SECRET AGENDAS: <OBJECTIVES> vectors encode private ambitions. Weave entity vectors indirectly into atmosphere/obstacles. Never present another entity's hidden agenda as known fact to the AI character.
+    CONTINUITY: `SECRET AGENDAS: <OBJECTIVE> vectors encode private ambitions. Weave entity vectors indirectly into atmosphere/obstacles. Never present another entity's hidden agenda as known fact to the AI character.
 STAGE DIRECTION: Compose "directive" as a short, subtle, in-character cue (< 30 words) for the AI character's turn. Keep it deniable and atmospheric. Empty string when nothing is warranted.
-VECTOR RESTRAINT: Mint new vectors ONLY for meaningful story shifts. Max 5 future vectors per entity — resolve or update existing ones before adding.
+VECTOR RESTRAINT: Mint new vectors ONLY for meaningful story shifts. Max 5 new vectors per entity — resolve or update existing ones before adding.
 OUTPUT CONSTRAINT: Output ONLY valid JSON under 800 characters. No markdown code fences, no prose.`,
-    PLOT_DRIVE: `Treat the active Fractal's <OBJECTIVES> as a long-term scenario horizon. Evaluate whether <USER_ACTION> advances, complicates, or risks this objective. CRITICAL PACING LAW: Do NOT rush to accomplish or resolve the standing objective in early turns. Cue subtle, incremental developments and initial obstacles in "directive" that build tension gradually over time, preserving narrative momentum. PASSIVE USER TURN LAW: When <USER_ACTION> contains no action verbs or questions (e.g. passive waiting or silence), use "directive" to introduce an unexpected environmental complication, obstacle, or in-character choice. Never let the scene stall into dead-air passive waiting.`,
+    PLOT_DRIVE: `Treat the active Fractal's <OBJECTIVE> as a long-term scenario horizon. Evaluate whether <USER_ACTION> advances, complicates, or risks this objective. CRITICAL PACING LAW: Do NOT rush to accomplish or resolve the standing objective in early turns. Cue subtle, incremental developments and initial obstacles in "directive" that build tension gradually over time, preserving narrative momentum. PASSIVE USER TURN LAW: When <USER_ACTION> contains no action verbs or questions (e.g. passive waiting or silence), use "directive" to introduce an unexpected environmental complication, obstacle, or in-character choice. Never let the scene stall into dead-air passive waiting.`,
     IMAGE_TRIGGERS: `Set "trigger_image" to false unless the moment demands a visual. Target strings: "story_entities" (group), "story_character" (solo focus), "solo_entity" (portrait), "story_scene" (environment).`,
   },
 

@@ -125,7 +125,7 @@ describe("context_builder", () => {
   });
 
   describe("lexical_filter", () => {
-    it("should return data_points as is if objective is null or empty", () => {
+    it("should return data_points as is if intent is null or empty", () => {
       const data_points = [
         { text: "apple", type: "fragment", enhancer: "none", section: "test" },
         { text: "banana", type: "fragment", enhancer: "none", section: "test" },
@@ -149,8 +149,8 @@ describe("context_builder", () => {
         { text: "The quick brown fox.", type: "fragment", enhancer: "none", section: "test" },
         { text: "Another random sentence.", type: "fragment", enhancer: "none", section: "test" },
       ];
-      const objective = "The quick fox";
-      const result = context_builder.lexical_filter(data_points, objective);
+      const intent = "The quick fox";
+      const result = context_builder.lexical_filter(data_points, intent);
 
       const expected_order = [
         { text: "The quick brown fox.", type: "fragment", enhancer: "none", section: "test" },
@@ -165,8 +165,8 @@ describe("context_builder", () => {
         { text: "APPLE", type: "fragment", enhancer: "none", section: "test" },
         { text: "banana", type: "fragment", enhancer: "none", section: "test" },
       ];
-      const objective = "apple";
-      const result = context_builder.lexical_filter(data_points, objective);
+      const intent = "apple";
+      const result = context_builder.lexical_filter(data_points, intent);
       expect(result[0].text).toBe("APPLE");
     });
 
@@ -175,19 +175,19 @@ describe("context_builder", () => {
         { text: "apple", type: "fragment", enhancer: "none", section: "test" },
         { something: "else", type: "fragment", enhancer: "none", section: "test" },
       ];
-      const objective = "else";
+      const intent = "else";
       // "else" is length 4, so it counts as a keyword
       // @ts-ignore
-      const result = context_builder.lexical_filter(data_points, objective);
+      const result = context_builder.lexical_filter(data_points, intent);
       // Since {something: 'else'} doesn't have 'text', it won't match in current implementation
       expect(result).toEqual(data_points);
     });
 
     it("should handle non-array data_points gracefully", () => {
       // @ts-ignore
-      expect(context_builder.lexical_filter(null, "objective")).toBe(null);
+      expect(context_builder.lexical_filter(null, "intent")).toBe(null);
       // @ts-ignore
-      expect(context_builder.lexical_filter({}, "objective")).toEqual({});
+      expect(context_builder.lexical_filter({}, "intent")).toEqual({});
     });
 
     it("should preserve all data points in original order if no matches", () => {
@@ -195,8 +195,8 @@ describe("context_builder", () => {
         { text: "apple", type: "fragment", enhancer: "none", section: "test" },
         { text: "banana", type: "fragment", enhancer: "none", section: "test" },
       ];
-      const objective = "zebra";
-      const result = context_builder.lexical_filter(data_points, objective);
+      const intent = "zebra";
+      const result = context_builder.lexical_filter(data_points, intent);
       expect(result).toEqual(data_points);
     });
 
@@ -230,8 +230,8 @@ describe("context_builder", () => {
           density_multiplier: 1,
         },
       ];
-      const objective = "plot";
-      const result = context_builder.lexical_filter(data_points, objective);
+      const intent = "plot";
+      const result = context_builder.lexical_filter(data_points, intent);
 
       // Expected order based on score:
       // 1. "Unrelated baseline trait" (Score: 1000 + 10 = 1010) - Since original order was preserved, it might sort with Voice tic
@@ -282,8 +282,8 @@ describe("context_builder", () => {
           density_multiplier: 1,
         },
       ];
-      const objective = "keyword";
-      const result = context_builder.lexical_filter(data_points, objective);
+      const intent = "keyword";
+      const result = context_builder.lexical_filter(data_points, intent);
 
       // Expected: "Eternal voice tic" (Score: 1000 + 10 = 1010)
       // "Plot keyword match keyword keyword" (Score: 3 * 1 + 5 = 8)

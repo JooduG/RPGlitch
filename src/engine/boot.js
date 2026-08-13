@@ -1,7 +1,7 @@
 import { seed_premades, set_versionchange_quiesce } from "@data";
 import { Audio } from "@media";
 import { state_bridge } from "@utils";
-import App from "../App.svelte";
+import App from "@/App.svelte";
 import { sanitize_to_fragment } from "@platform";
 import { mount } from "svelte";
 import { embeddings_engine, gamemaster, reconcile_vector_caps } from "@intelligence";

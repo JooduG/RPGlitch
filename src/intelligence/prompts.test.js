@@ -255,8 +255,8 @@ describe("prompt_builder (Refactored)", () => {
       const result = prompt_builder.build_prologue(empty_payload, mock_snapshot);
       expect(result.system).toContain("<SYSTEM");
       expect(result.system).not.toContain("<MEMORIES>");
-      // Empty entity OBJECTIVES blocks are pruned; the single remaining reference is the PHASES protocol prose.
-      expect(result.system.match(/<OBJECTIVES>/g) || []).toHaveLength(1);
+      // Empty entity OBJECTIVE blocks are pruned; the single remaining reference is the PHASES protocol prose.
+      expect(result.system.match(/<OBJECTIVE>/g) || []).toHaveLength(1);
     });
   });
 
@@ -515,8 +515,8 @@ describe("prompt_builder (Refactored)", () => {
         eternal: { physical: '{"eyeColor": "blue", "hair": "black"}' },
       };
       const result = prompt_builder.build_enhancement("eternal.physical", "Content", "Viper", "character", false, entity);
-      expect(result.system).toContain("<PERSONALITY>");
-      expect(result.system).toContain("<PHYSICAL>");
+      expect(result.system).toContain("<FOUNDATION>");
+      expect(result.system).toContain("<APPEARANCE>");
       expect(result.system).toContain("<eyeColor>blue</eyeColor>");
       expect(result.system).toContain("<hair>black</hair>");
     });
@@ -915,7 +915,7 @@ describe("prompt_builder (Refactored)", () => {
       const snapshot = { ai: { dynamics: { affinity: 50, openness: 50 } }, fractal: { dynamics: {} }, flags: {} };
       const result = prompt_builder.build_character_prompt(payload, snapshot, {});
 
-      expect(result.task).toContain("<OBJECTIVES>");
+      expect(result.task).toContain("<INTENT>");
       expect(result.task).toContain("Seek the artifact");
       expect(result.task).toContain("The empire watches");
     });

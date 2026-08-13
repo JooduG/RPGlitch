@@ -62,8 +62,8 @@ Alongside narrative edge-case probing, collect empirical telemetry on these 6 co
    - _Target_: Confirm that `evaluate_dynamics_signals()` evaluates baseline global signals (`GLOBAL_TRIGGERS`) and author style `triggers` in one clean pass, rendering a single `<DYNAMICS_SIGNALS>` block. Confirm non-exclusive triggers fire smoothly for complex composite moods without prompt noise.
 3. 🔓 **Zero Post-Turn Phase Lock (UI Stasis Verification)**:
    - _Target_: Verify 0 instances of UI stasis or phase lockup (`simulation_state` stuck in `"locked"` phase). The composer input box must unlock immediately after turn generation and memory saving across all 30 rounds.
-4. 🎯 **Standing Agenda (`future_consolidated`) Refresh & Eviction**:
-   - _Target_: Audit every Memory Forge cycle (R3, R7, R11, R15, R19, R23, R27). Confirm `future_consolidated` updates on **100% of forge cycles** (via primary LLM output or fallback synthesis), and that completed objectives are evicted when plot milestones are reached.
+4. 🎯 **Standing Agenda (`intent_consolidated`) Refresh & Eviction**:
+   - _Target_: Audit every Memory Forge cycle (R3, R7, R11, R15, R19, R23, R27). Confirm `intent_consolidated` updates on **100% of forge cycles** (via primary LLM output or fallback synthesis), and that completed objectives are evicted when plot milestones are reached.
 5. 👻 **Zero-Byte Ghost Row Cleanup on Image Timeouts**:
    - _Target_: Track all visual triggers. Confirm that any timed-out or dropped image beats leave **0 empty ghost rows** (`attachments: [{src: null, failed: true}]`) in `simulation_log`.
 6. 💾 **IndexedDB Dynamics Persistence & State Restoration**:
@@ -77,7 +77,7 @@ Run the test for **25 to 30 full conversational turns without skipping or summar
 
 ### Telemetry & Narrative Audit Table (Update after every turn)
 
-| Rnd | User Hook & Edge Probe | AI Reply (Len / Register / Detox Pass) | Director Intent & Standing Agenda (`future_consolidated`) | Image Trigger (Source / Tier / Result) | Active Dynamics & Signals (`<DYNAMICS_SIGNALS>`) | Narrative Continuity & Tic Audit |
+| Rnd | User Hook & Edge Probe | AI Reply (Len / Register / Detox Pass) | Director Intent & Standing Agenda (`intent_consolidated`) | Image Trigger (Source / Tier / Result) | Active Dynamics & Signals (`<DYNAMICS_SIGNALS>`) | Narrative Continuity & Tic Audit |
 | --- | ---------------------- | -------------------------------------- | --------------------------------------------------------- | -------------------------------------- | ------------------------------------------------ | -------------------------------- |
 | 0   | Prologue start         | 1400ch (GRRM/Delany style)             | Set baseline standing agenda                              | Auto / story_scene / OK                | Baseline                                         | Tone locked, zero AI-isms        |
 
@@ -99,7 +99,7 @@ After completing all 25–30 rounds, aggregate your findings into a comprehensiv
 - [ ] **Factual Retention & Long-Horizon Recall**: 15+ turn fact round-trip (codenames, items, NPCs) accurately retrieved and integrated into dialogue.
 - [ ] **Mid-Session State Reload Continuity**: Mid-session reload (Turn 15) restored state cleanly with zero physics loss or UI lockup.
 - [ ] **Post-Climax Resolution Transition**: Smooth voice and world transition from climactic peak into quiet aftermath.
-- [ ] **Standing Agenda (`future_consolidated`) Refresh**: Agenda refreshed on 100% of forge cycles without goal starvation or stale objectives.
+- [ ] **Standing Agenda (`intent_consolidated`) Refresh**: Agenda refreshed on 100% of forge cycles without goal starvation or stale objectives.
 - [ ] **Visual Trigger Telemetry & Ghost Row Cleanup**: 0-byte ghost rows 100% prevented on image timeouts; clean tier distribution.
 - [ ] **Sovereign Vocabulary Compliance**: 100% sovereign name compliance (**Benedict Silvers**, **Julien**, **Elias Tariq**, **Hank 'Rust' Brawley**, **Ytic'avon**).
 
@@ -107,7 +107,7 @@ After completing all 25–30 rounds, aggregate your findings into a comprehensiv
 
 - **Slimmed-Down Detox Audit**: Analysis of raw vs scrubbed LLM outputs under the new allocation limits (3-item `plain`, 2-item `ornate`/`raw`/`clinical`).
 - **Unified Dynamics Signal Telemetry**: Audit of active `<DYNAMICS_SIGNALS>` blocks across all 6 axes (`intensity`, `chaos`, `openness`, `affinity`, `velocity`, `entropy`) and multi-trigger non-exclusive style evaluations.
-- **Standing Agenda Eviction Report**: Breakdown of how `future_consolidated` evolved across all forge cycles.
+- **Standing Agenda Eviction Report**: Breakdown of how `intent_consolidated` evolved across all forge cycles.
 - **Visual Trigger Telemetry**: Total triggers fired, tier distribution, cooldown enforcement, and timeout cleanup.
 - **Physics Persistence & Reload Report**: Evaluation of IndexedDB physics updates and mid-session reload continuity.
 

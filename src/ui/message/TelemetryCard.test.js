@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { process_entity_blocks, resolve_entity_name, vector_label } from "../../intelligence/telemetry.js";
+import { process_entity_blocks, resolve_entity_name, vector_label } from "@intelligence";
 
 describe("TelemetryCard Telemetry Logic", () => {
   test("reads the updates shape into per-entity blocks (dynamics + present_mutations + new vectors)", () => {

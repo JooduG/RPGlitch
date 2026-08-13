@@ -9,7 +9,6 @@ export {
   extract_json_block,
   parse_message,
   parse_think_block,
-  extract_immediate_intent,
   resolve_voice_register,
   strip_cognition_blocks,
   wrap_dialogue,

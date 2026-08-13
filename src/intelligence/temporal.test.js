@@ -222,7 +222,7 @@ describe("temporal_engine", () => {
   });
 
   describe("apply_state_mutations", () => {
-    it("appends to present_append and resolves a past anchor", () => {
+    it("appends to state_append and resolves a past anchor", () => {
       const entity = /** @type {any} */ ({
         present: { physical: "", non_physical: "Initial state." },
         past: [
@@ -239,8 +239,8 @@ describe("temporal_engine", () => {
       });
 
       const mutations = {
-        present_append_non_physical: "Now they are angry.",
-        resolve_vectors: [{ id: "v1", resolution_summary: "Resolved via anger" }],
+        state_append: { non_physical: "Now they are angry." },
+        vector_resolve: [{ id: "v1", resolution_summary: "Resolved via anger" }],
       };
 
       const result = temporal_engine.apply_state_mutations(entity, mutations);
@@ -256,10 +256,10 @@ describe("temporal_engine", () => {
       expect(result).toBe(false);
     });
 
-    it("passes category through from Director new_vectors (all become past anchors)", () => {
+    it("passes category through from Director past: (all become past anchors)", () => {
       const entity = /** @type {any} */ ({ present: { physical: "", non_physical: "" }, past: [] });
       const mutations = {
-        new_vectors: [
+        past: [
           { content: "Avenge the fallen", category: "goal", tags: ["vengeance"] },
           { content: "Storm approaches", category: "threat" },
         ],
@@ -268,13 +268,13 @@ describe("temporal_engine", () => {
       expect(entity.past).toHaveLength(2);
     });
 
-    it("applies present_append_non_physical state mutations", () => {
+    it("applies state_append state mutations", () => {
       const entity = /** @type {any} */ ({
         present: { physical: "", non_physical: "Calm." },
         future: "",
       });
 
-      const mutations = { present_append_non_physical: "She smiles." };
+      const mutations = { state_append: { non_physical: "She smiles." } };
 
       temporal_engine.apply_state_mutations(entity, mutations);
 
@@ -287,7 +287,7 @@ describe("temporal_engine", () => {
         future: "",
       });
 
-      const mutations = { present_append_non_physical: "She reacts." };
+      const mutations = { state_append: { non_physical: "She reacts." } };
 
       temporal_engine.apply_state_mutations(entity, mutations, null, null);
       expect(entity.present.non_physical).not.toContain("The old wound stirs");
@@ -364,7 +364,7 @@ describe("temporal_engine", () => {
     it("forges ONE distinct memory per entity from its own perspective", async () => {
       const mock_memory = {
         AI_CHARACTER: {
-          vector_append: [
+          past: [
             {
               content: "Viper felt the crowd's distrust and decided to stay quiet.",
               type: "past",
@@ -374,7 +374,7 @@ describe("temporal_engine", () => {
           ],
         },
         USER_PERSONA: {
-          vector_append: [
+          past: [
             {
               content: "Ghost noticed Viper's tension and resolved to press for the truth.",
               type: "future",
@@ -384,7 +384,7 @@ describe("temporal_engine", () => {
           ],
         },
         FRACTAL: {
-          vector_append: [
+          past: [
             {
               content: "The market din turned hostile after the guard's announcement.",
               type: "past",
@@ -409,9 +409,9 @@ describe("temporal_engine", () => {
     it("preserves present type while normalizing future and invalid types to past", async () => {
       vi.mocked(llm_service.generate).mockResolvedValue(
         JSON.stringify({
-          AI_CHARACTER: { vector_append: [{ content: "Prophecy", type: "future" }] },
-          USER_PERSONA: { vector_append: [{ content: "Directive", type: "present" }] },
-          FRACTAL: { vector_append: [{ content: "Odd", type: "prophecy" }] },
+          AI_CHARACTER: { past: [{ content: "Prophecy", type: "future" }] },
+          USER_PERSONA: { past: [{ content: "Directive", type: "present" }] },
+          FRACTAL: { past: [{ content: "Odd", type: "prophecy" }] },
         }),
       );
 
@@ -426,8 +426,8 @@ describe("temporal_engine", () => {
     it("skips embeddings for present directives", async () => {
       vi.mocked(llm_service.generate).mockResolvedValue(
         JSON.stringify({
-          AI_CHARACTER: { vector_append: [{ content: "Now", type: "present" }] },
-          USER_PERSONA: { vector_append: [{ content: "Later", type: "future" }] },
+          AI_CHARACTER: { past: [{ content: "Now", type: "present" }] },
+          USER_PERSONA: { past: [{ content: "Later", type: "future" }] },
         }),
       );
 
@@ -437,7 +437,7 @@ describe("temporal_engine", () => {
     });
 
     it("handles malformed LLM JSON via non-greedy extraction", async () => {
-      const json_str = JSON.stringify({ AI_CHARACTER: { vector_append: [{ content: "First object" }] } });
+      const json_str = JSON.stringify({ AI_CHARACTER: { past: [{ content: "First object" }] } });
       vi.mocked(llm_service.generate).mockResolvedValue(`Noise before ${json_str} noise after`);
 
       const result = await temporal_engine.forge_memory(targets(), []);
@@ -447,7 +447,7 @@ describe("temporal_engine", () => {
 
     it("handles nested JSON structures robustly", async () => {
       const nested_memory = {
-        AI_CHARACTER: { vector_append: [{ content: "Event with nested info.", details: { depth: 2, meta: "data" } }] },
+        AI_CHARACTER: { past: [{ content: "Event with nested info.", details: { depth: 2, meta: "data" } }] },
       };
       const response = `Here is the JSON: ${JSON.stringify(nested_memory)} and some noise.`;
       vi.mocked(llm_service.generate).mockResolvedValue(response);
@@ -520,9 +520,9 @@ describe("temporal_engine", () => {
 
       vi.mocked(llm_service.generate).mockResolvedValue(
         JSON.stringify({
-          AI_CHARACTER: { vector_append: [{ content: "Viper learned to trust Ghost.", type: "past", emotional_weight: 6 }] },
-          USER_PERSONA: { vector_append: [{ content: "Ghost plans to confront the warden.", type: "future", emotional_weight: 4 }] },
-          FRACTAL: { present_consolidated: { non_physical: "Nova City is on the brink of a blackout." } },
+          AI_CHARACTER: { past: [{ content: "Viper learned to trust Ghost.", type: "past", emotional_weight: 6 }] },
+          USER_PERSONA: { past: [{ content: "Ghost plans to confront the warden.", type: "future", emotional_weight: 4 }] },
+          FRACTAL: { present: { non_physical: "Nova City is on the brink of a blackout." } },
         }),
       );
 

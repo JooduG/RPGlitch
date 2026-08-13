@@ -7,7 +7,7 @@
 import { ind, prompt_escape, state_bridge, escape_xml, physical_to_xml } from "@utils";
 import { NARRATIVE_STYLES, PROTOCOL_LIBRARY } from "@data";
 import { DYNAMICS_META, build_signals_xml } from "./dynamics.js";
-import { ENTITY_CATALOG, ENTITY_FRAGMENTS } from "../data/definitions/fragments.js";
+import { ENTITY_CATALOG, ENTITY_FRAGMENTS } from "@data";
 import { clean_xml, collapse_history, strip_cognition_blocks } from "./parser.js";
 import { temporal_engine, resolve_vector_pool } from "./temporal.js";
 
@@ -46,22 +46,22 @@ const DIRECTOR_JSON_SCHEMA = `{
 const MEMORY_JSON_SCHEMA = `{
   "_thought_process": "<one short sentence>",
   "AI_CHARACTER": {
-    "personality_consolidated": { "physical": "Permanent physical change or empty string", "non_physical": "Permanent psychological shift or empty string" },
-    "state_consolidated": { "physical": "Clean updated physical state (or empty if unchanged)", "non_physical": "Clean updated mental/emotional baseline (or empty if unchanged)" },
-    "objective_consolidated": "REQUIRED: the standing agenda rewritten from this history (intent, prophecy, looming threat, impulse) as 2-5 sentences of active future tense — must differ from the old agenda whenever events changed it; never echo it verbatim",
-    "vector_append": [ { "content": "ONLY if a durable fact emerged worth keeping (EMPTY LIST otherwise; AT MOST 1 ITEM)", "type": "past", "emotional_weight": 5 } ]
+    "eternal": { "physical": "Permanent appearance change or empty string", "non_physical": "Permanent personality shift or empty string" },
+    "present": { "physical": "Clean updated current conditions (or empty if unchanged)", "non_physical": "Clean updated state of mind (or empty if unchanged)" },
+    "future": "REQUIRED: the standing agenda rewritten from this history (intent, prophecy, looming threat, impulse) as 2-5 sentences of active future tense — must differ from the old agenda whenever events changed it; never echo it verbatim",
+    "past": [ { "content": "ONLY if a durable fact emerged worth keeping (EMPTY LIST otherwise; AT MOST 1 ITEM)", "type": "past", "emotional_weight": 5 } ]
   },
   "USER_PERSONA": {
-    "personality_consolidated": { "physical": "", "non_physical": "" },
-    "state_consolidated": { "physical": "", "non_physical": "" },
-    "objective_consolidated": "REQUIRED: the standing agenda rewritten from this history (2-5 sentences, active future tense) — drop goals this history fulfilled, refresh the rest; never echo the old text verbatim",
-    "vector_append": [ { "content": "ONLY if a durable fact emerged worth keeping (EMPTY LIST otherwise; AT MOST 1 ITEM)", "type": "past", "emotional_weight": 5 } ]
+    "eternal": { "physical": "", "non_physical": "" },
+    "present": { "physical": "", "non_physical": "" },
+    "future": "REQUIRED: the standing agenda rewritten from this history (2-5 sentences, active future tense) — drop goals this history fulfilled, refresh the rest; never echo the old text verbatim",
+    "past": [ { "content": "ONLY if a durable fact emerged worth keeping (EMPTY LIST otherwise; AT MOST 1 ITEM)", "type": "past", "emotional_weight": 5 } ]
   },
   "FRACTAL": {
-    "personality_consolidated": { "physical": "", "non_physical": "" },
-    "state_consolidated": { "physical": "", "non_physical": "" },
-    "objective_consolidated": "REQUIRED: the world standing agenda — environmental prophecy, looming threat, or impulse — rewritten from this history (2-5 sentences, active future tense). Resolved threats/prophecies MUST be dropped and replaced by their aftermath; never leave the world agenda unchanged and never echo the old text verbatim",
-    "vector_append": [ { "content": "ONLY if a durable fact/environmental shift emerged (EMPTY LIST otherwise; AT MOST 1 ITEM)", "type": "past", "emotional_weight": 5 } ]
+    "eternal": { "physical": "", "non_physical": "" },
+    "present": { "physical": "", "non_physical": "" },
+    "future": "REQUIRED: the world standing agenda — environmental prophecy, looming threat, or impulse — rewritten from this history (2-5 sentences, active future tense). Resolved threats/prophecies MUST be dropped and replaced by their aftermath; never leave the world agenda unchanged and never echo the old text verbatim",
+    "past": [ { "content": "ONLY if a durable fact/environmental shift emerged (EMPTY LIST otherwise; AT MOST 1 ITEM)", "type": "past", "emotional_weight": 5 } ]
   }
 }`;
 
@@ -185,44 +185,32 @@ function render_director({ round, entities, input, render_accessors, compressed_
 
   <ACTIVE_CHARACTERS>
     <AI_CHARACTER name="${escape_xml(entities?.AI?.name || "AI")}"${format_dynamics_attrs(compressed_snapshot?.ai?.dynamics)}>
-      <CURRENT_STATE>
-        <PHYSICAL>${ind(render_field_value(entities?.AI?.present?.physical, entities?.AI, entities), 8)}</PHYSICAL>
-        <NON_PHYSICAL>${ind(render_field_value(entities?.AI?.present?.non_physical, entities?.AI, entities), 8)}</NON_PHYSICAL>
-      </CURRENT_STATE>
-      <PERSONALITY>
-        <PHYSICAL>${render_field_value(entities?.AI?.eternal?.physical, entities?.AI, entities)}</PHYSICAL>
-        <NON_PHYSICAL>${render_field_value(entities?.AI?.eternal?.non_physical, entities?.AI, entities)}</NON_PHYSICAL>
-      </PERSONALITY>
+      <PERSONALITY>${render_field_value(entities?.AI?.eternal?.non_physical, entities?.AI, entities)}</PERSONALITY>
+      <STATE_OF_MIND>${ind(render_field_value(entities?.AI?.present?.non_physical, entities?.AI, entities), 8)}</STATE_OF_MIND>
+      <PERMANENT_APPEARANCE>${render_field_value(entities?.AI?.eternal?.physical, entities?.AI, entities)}</PERMANENT_APPEARANCE>
+      <CURRENT_LOOK>${ind(render_field_value(entities?.AI?.present?.physical, entities?.AI, entities), 8)}</CURRENT_LOOK>
+      <INTENT>${ind(render_accessors.future(entities?.AI, { vector_text: true }), 8)}</INTENT>
       <MEMORIES>${ind(render_accessors.past(entities?.AI, { vector_text: true }), 8)}</MEMORIES>
-      <OBJECTIVES>${ind(render_accessors.future(entities?.AI, { vector_text: true }), 8)}</OBJECTIVES>
     </AI_CHARACTER>
     <USER_PERSONA name="${escape_xml(entities?.USER?.name || "User")}">
-      <CURRENT_STATE>
-        <PHYSICAL>${ind(render_field_value(entities?.USER?.present?.physical, entities?.USER, entities), 8)}</PHYSICAL>
-        <NON_PHYSICAL>${ind(render_field_value(entities?.USER?.present?.non_physical, entities?.USER, entities), 8)}</NON_PHYSICAL>
-      </CURRENT_STATE>
-      <PERSONALITY>
-        <PHYSICAL>${render_field_value(entities?.USER?.eternal?.physical, entities?.USER, entities)}</PHYSICAL>
-        <NON_PHYSICAL>${render_field_value(entities?.USER?.eternal?.non_physical, entities?.USER, entities)}</NON_PHYSICAL>
-      </PERSONALITY>
-      <MEMORIES>${ind(render_accessors.past(entities?.USER, { vector_text: true }), 8)}</MEMORIES>
-      <OBJECTIVES>${ind(render_accessors.future(entities?.USER, { vector_text: true }), 8)}</OBJECTIVES>
+      <PERSONALITY>${render_field_value(entities?.USER?.eternal?.non_physical, entities?.USER, entities)}</PERSONALITY>
+      <STATE_OF_MIND>${ind(render_field_value(entities?.USER?.present?.non_physical, entities?.USER, entities), 8)}</STATE_OF_MIND>
+      <PERMANENT_APPEARANCE>${render_field_value(entities?.USER?.eternal?.physical, entities?.USER, entities)}</PERMANENT_APPEARANCE>
+      <CURRENT_LOOK>${ind(render_field_value(entities?.USER?.present?.physical, entities?.USER, entities), 8)}</CURRENT_LOOK>
+      <AGENDA>${ind(render_accessors.future(entities?.USER, { vector_text: true }), 8)}</AGENDA>
+      <BACKSTORY>${ind(render_accessors.past(entities?.USER, { vector_text: true }), 8)}</BACKSTORY>
     </USER_PERSONA>
   </ACTIVE_CHARACTERS>
   ${
     entities?.FRACTAL
       ? `
-  <FRACTAL name="${escape_xml(entities.FRACTAL.name)}"${format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics, { cognitive: false })}>
-    <CURRENT_STATE>
-      <PHYSICAL>${render_field_value(entities.FRACTAL.present?.physical, entities.FRACTAL, entities)}</PHYSICAL>
-      <NON_PHYSICAL>${render_field_value(entities.FRACTAL.present?.non_physical, entities.FRACTAL, entities)}</NON_PHYSICAL>
-    </CURRENT_STATE>
-    <PERSONALITY>
-      <PHYSICAL>${render_field_value(entities.FRACTAL.eternal?.physical, entities.FRACTAL, entities)}</PHYSICAL>
-      <NON_PHYSICAL>${render_field_value(entities.FRACTAL.eternal?.non_physical, entities.FRACTAL, entities)}</NON_PHYSICAL>
-    </PERSONALITY>
-    <MEMORIES>${ind(render_accessors.past(entities.FRACTAL, { vector_text: true }), 6)}</MEMORIES>
-    <OBJECTIVES>${ind(render_accessors.future(entities.FRACTAL, { vector_text: true }), 6)}</OBJECTIVES>
+  <FRACTAL name="${escape_xml(entities.FRACTAL.name)}"${format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics)}>
+    <METAPHYSICAL_TRUTHS>${render_field_value(entities.FRACTAL.eternal?.non_physical, entities.FRACTAL, entities)}</METAPHYSICAL_TRUTHS>
+    <CURRENT_STATE>${render_field_value(entities.FRACTAL.present?.non_physical, entities.FRACTAL, entities)}</CURRENT_STATE>
+    <ENVIRONMENT>${render_field_value(entities.FRACTAL.eternal?.physical, entities.FRACTAL, entities)}</ENVIRONMENT>
+    <ACTIVE_ATMOSPHERE>${render_field_value(entities.FRACTAL.present?.physical, entities.FRACTAL, entities)}</ACTIVE_ATMOSPHERE>
+    <AGENDA>${ind(render_accessors.future(entities.FRACTAL, { vector_text: true }), 6)}</AGENDA>
+    <HISTORY>${ind(render_accessors.past(entities.FRACTAL, { vector_text: true }), 6)}</HISTORY>
   </FRACTAL>`.trim()
       : ""
   }
@@ -240,7 +228,7 @@ ${(() => {
   if (!last_ai) return "";
   const text = strip_cognition_blocks(last_ai.content || last_ai.text || "").trim();
   if (!text) return "";
-  return `<AI_LAST_TURN>${ind(text, 2)}</AI_LAST_TURN>`;
+  return `<AI_CHARACTER_LAST_TURN>${ind(text, 2)}</AI_CHARACTER_LAST_TURN>`;
 })()}
 <TASK>
     Evaluate state mutations caused by ${input?.trim() ? "<USER_ACTION>" : "the current situation"}.
@@ -256,7 +244,7 @@ ${(() => {
 function build_ai_future_xml(entity, _scoring_context = "", entities = {}) {
   const text = String(entity?.future || "").trim();
   if (!text) return "";
-  return `    <OBJECTIVES>${ind(prompt_builder.parse_macros(text, entity, entities), 6)}</OBJECTIVES>`;
+  return `    <INTENT>${ind(prompt_builder.parse_macros(text, entity, entities), 6)}</INTENT>`;
 }
 
 function render_character({ round, entities, input, compressed_snapshot, meta, render_accessors, ghostwrite = false, director_data }) {
@@ -266,7 +254,7 @@ function render_character({ round, entities, input, compressed_snapshot, meta, r
   const director_note = director_data?.directive?.trim()
     ? `<DIRECTOR_NOTE>
       ${ind(escape_xml(director_data.directive.trim()), 6)}
-      Treat this as an unseen stage direction: weave it into your behavior subtly and in character. Never mention the note, never break the scene, and never present another entity's hidden agenda as known fact.
+      Treat this as an unseen stage direction: weave it into your behavior subtly and in character. Never mention the note, never break the scene, and never present an hidden agenda as known fact.
     </DIRECTOR_NOTE>
     `
     : "";
@@ -297,16 +285,19 @@ function render_character({ round, entities, input, compressed_snapshot, meta, r
 You are ${escape_xml(entities?.AI?.name || "AI")} in an active scene with ${escape_xml(entities?.USER?.name || "User")} inside ${escape_xml(entities?.FRACTAL?.name || "the environment")}.
   ${ind(build_dynamics_legend(), 2)}
   <YOUR_IDENTITY name="${escape_xml(entities?.AI?.name || "AI")}">
-    ${render_field_value(entities?.AI?.eternal?.non_physical, entities?.AI, entities)}
+    <PERSONALITY>${render_field_value(entities?.AI?.eternal?.non_physical, entities?.AI, entities)}</PERSONALITY>
+    <PERMANENT_APPEARANCE>${render_field_value(entities?.AI?.eternal?.physical, entities?.AI, entities)}</PERMANENT_APPEARANCE>
   </YOUR_IDENTITY>
   <USER_PERSONA name="${escape_xml(entities?.USER?.name || "User")}">
-    ${render_field_value(entities?.USER?.eternal?.non_physical, entities?.USER, entities)}
+    <PERSONALITY>${render_field_value(entities?.USER?.eternal?.non_physical, entities?.USER, entities)}</PERSONALITY>
+    <PERMANENT_APPEARANCE>${render_field_value(entities?.USER?.eternal?.physical, entities?.USER, entities)}</PERMANENT_APPEARANCE>
   </USER_PERSONA>
   ${
     entities?.FRACTAL
       ? `
   <FRACTAL name="${escape_xml(entities.FRACTAL.name)}">
-    ${render_field_value(entities.FRACTAL.eternal?.non_physical, entities.FRACTAL, entities)}
+    <METAPHYSICAL_TRUTHS>${render_field_value(entities.FRACTAL.eternal?.non_physical, entities.FRACTAL, entities)}</METAPHYSICAL_TRUTHS>
+    <ENVIRONMENT>${render_field_value(entities.FRACTAL.eternal?.physical, entities.FRACTAL, entities)}</ENVIRONMENT>
   </FRACTAL>`.trim()
       : ""
   }
@@ -319,21 +310,24 @@ You are ${escape_xml(entities?.AI?.name || "AI")} in an active scene with ${esca
   const task = clean_xml(`
 <SNAPSHOT>
   <YOUR_IDENTITY name="${escape_xml(entities?.AI?.name || "AI")}"${format_dynamics_attrs(compressed_snapshot?.ai?.dynamics)}>
-    <CURRENT_STATE>${ind(render_field_value(entities?.AI?.present?.non_physical, entities?.AI, entities), 6)}</CURRENT_STATE>
-    ${entities?.AI?.immediate_intent ? `<IMMEDIATE_INTENT>${ind(escape_xml(entities.AI.immediate_intent), 6)}</IMMEDIATE_INTENT>\n    ` : ""}<MEMORIES>${ind(render_accessors.past(entities?.AI, { vector_text: true }), 6)}</MEMORIES>
-${build_ai_future_xml(entities?.AI, render_accessors._context, entities)}
+    <STATE_OF_MIND>${ind(render_field_value(entities?.AI?.present?.non_physical, entities?.AI, entities), 6)}</STATE_OF_MIND>
+    <CURRENT_LOOK>${ind(render_field_value(entities?.AI?.present?.physical, entities?.AI, entities), 6)}</CURRENT_LOOK>
+    <INTENT>${ind(render_accessors.future(entities?.AI, { vector_text: true }), 6)}</INTENT>
+    <MEMORIES>${ind(render_accessors.past(entities?.AI, { vector_text: true }), 6)}</MEMORIES>
   </YOUR_IDENTITY>
   <USER_PERSONA name="${escape_xml(entities?.USER?.name || "User")}">
-    <CURRENT_STATE>${ind(render_field_value(entities?.USER?.present?.non_physical, entities?.USER, entities), 6)}</CURRENT_STATE>
-    <MEMORIES>${ind(render_accessors.past(entities?.USER, { vector_text: true }), 6)}</MEMORIES>
+    <STATE_OF_MIND>${ind(render_field_value(entities?.USER?.present?.non_physical, entities?.USER, entities), 6)}</STATE_OF_MIND>
+    <CURRENT_LOOK>${ind(render_field_value(entities?.USER?.present?.physical, entities?.USER, entities), 6)}</CURRENT_LOOK>
+    <BACKSTORY>${ind(render_accessors.past(entities?.USER, { vector_text: true }), 6)}</BACKSTORY>
   </USER_PERSONA>
   ${
     entities?.FRACTAL
       ? `
-  <FRACTAL name="${escape_xml(entities.FRACTAL.name)}"${format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics, { cognitive: false })}>
+  <FRACTAL name="${escape_xml(entities.FRACTAL.name)}"${format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics)}>
     <CURRENT_STATE>${render_field_value(entities.FRACTAL.present?.non_physical, entities.FRACTAL, entities)}</CURRENT_STATE>
-    <MEMORIES>${ind(render_accessors.past(entities.FRACTAL, { vector_text: true }), 6)}</MEMORIES>
-    <OBJECTIVES>${ind(render_accessors.future(entities.FRACTAL, { vector_text: true }), 6)}</OBJECTIVES>
+    <ACTIVE_ATMOSPHERE>${render_field_value(entities.FRACTAL.present?.physical, entities.FRACTAL, entities)}</ACTIVE_ATMOSPHERE>
+    <AGENDA>${ind(render_accessors.future(entities.FRACTAL, { vector_text: true }), 6)}</AGENDA>
+    <HISTORY>${ind(render_accessors.past(entities.FRACTAL, { vector_text: true }), 6)}</HISTORY>
   </FRACTAL>`.trim()
       : ""
   }
@@ -418,29 +412,34 @@ function build_narrator(mode, { entities, render_accessors, compressed_snapshot,
   const system = clean_xml(`
 <SYSTEM role="${escape_xml(fractal_name)}" mode="${mode.toUpperCase()}">${render_narrative_style_xml()}
   ${ind(build_dynamics_legend(), 2)}
-  <YOUR_IDENTITY name="${escape_xml(fractal_name)}"${format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics, { cognitive: false })}>
-    <ANCHOR>Resolve all state inferences strictly from this identity block.</ANCHOR>
+  <YOUR_IDENTITY name="${escape_xml(fractal_name)}"${format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics)}>
+    <METAPHYSICAL_TRUTHS>${render_field_value(entities?.FRACTAL?.eternal?.non_physical, entities?.FRACTAL, entities)}</METAPHYSICAL_TRUTHS>
     <CURRENT_STATE>${render_field_value(entities?.FRACTAL?.present?.non_physical, entities?.FRACTAL, entities)}</CURRENT_STATE>
-    <PERSONALITY>${render_field_value(entities?.FRACTAL?.eternal?.non_physical, entities?.FRACTAL, entities)}</PERSONALITY>
-    <MEMORIES>${ind(render_accessors?.past(entities?.FRACTAL, { vector_text: true }), 6)}</MEMORIES>
-    <OBJECTIVES>${ind(render_accessors?.future(entities?.FRACTAL, { vector_text: true }), 6)}</OBJECTIVES>
+    <ENVIRONMENT>${render_field_value(entities?.FRACTAL?.eternal?.physical, entities?.FRACTAL, entities)}</ENVIRONMENT>
+    <ACTIVE_ATMOSPHERE>${render_field_value(entities?.FRACTAL?.present?.physical, entities?.FRACTAL, entities)}</ACTIVE_ATMOSPHERE>
+    <AGENDA>${ind(render_accessors?.future(entities?.FRACTAL, { vector_text: true }), 6)}</AGENDA>
+    <HISTORY>${ind(render_accessors?.past(entities?.FRACTAL, { vector_text: true }), 6)}</HISTORY>
   </YOUR_IDENTITY>
   <ACTIVE_CHARACTERS>
     <AI_CHARACTER name="${escape_xml(entities?.AI?.name || "AI")}"${format_dynamics_attrs(compressed_snapshot?.ai?.dynamics)}>
-      <CURRENT_STATE>${render_field_value(entities?.AI?.present?.non_physical, entities?.AI, entities)}</CURRENT_STATE>
-      ${render_field_value(entities?.AI?.eternal?.non_physical, entities?.AI, entities)}
+      <PERSONALITY>${render_field_value(entities?.AI?.eternal?.non_physical, entities?.AI, entities)}</PERSONALITY>
+      <STATE_OF_MIND>${render_field_value(entities?.AI?.present?.non_physical, entities?.AI, entities)}</STATE_OF_MIND>
+      <PERMANENT_APPEARANCE>${render_field_value(entities?.AI?.eternal?.physical, entities?.AI, entities)}</PERMANENT_APPEARANCE>
+      <CURRENT_LOOK>${render_field_value(entities?.AI?.present?.physical, entities?.AI, entities)}</CURRENT_LOOK>
+      <INTENT>${ind(render_accessors?.future(entities?.AI, { vector_text: true }), 8)}</INTENT>
       <MEMORIES>${ind(render_accessors?.past(entities?.AI, { vector_text: true }), 8)}</MEMORIES>
-      <OBJECTIVES>${ind(render_accessors?.future(entities?.AI, { vector_text: true }), 8)}</OBJECTIVES>
     </AI_CHARACTER>
     <USER_PERSONA name="${escape_xml(entities?.USER?.name || "User")}">
-      <CURRENT_STATE>${render_field_value(entities?.USER?.present?.non_physical, entities?.USER, entities)}</CURRENT_STATE>
-      ${render_field_value(entities?.USER?.eternal?.non_physical, entities?.USER, entities)}
-      <MEMORIES>${ind(render_accessors?.past(entities?.USER, { vector_text: true }), 8)}</MEMORIES>
-      <OBJECTIVES>${ind(render_accessors?.future(entities?.USER, { vector_text: true }), 8)}</OBJECTIVES>
+      <PERSONALITY>${render_field_value(entities?.USER?.eternal?.non_physical, entities?.USER, entities)}</PERSONALITY>
+      <STATE_OF_MIND>${render_field_value(entities?.USER?.present?.non_physical, entities?.USER, entities)}</STATE_OF_MIND>
+      <PERMANENT_APPEARANCE>${render_field_value(entities?.USER?.eternal?.physical, entities?.USER, entities)}</PERMANENT_APPEARANCE>
+      <CURRENT_LOOK>${render_field_value(entities?.USER?.present?.physical, entities?.USER, entities)}</CURRENT_LOOK>
+      <AGENDA>${ind(render_accessors?.future(entities?.USER, { vector_text: true }), 8)}</AGENDA>
+      <BACKSTORY>${ind(render_accessors?.past(entities?.USER, { vector_text: true }), 8)}</BACKSTORY>
     </USER_PERSONA>
   </ACTIVE_CHARACTERS>
   <PROTOCOLS>
-    ${ind(prompt_builder.render_protocols("COGNITION.PHASES, AGENCY.PRESENT_TENSE, HYGIENE.PROSE, AGENCY.MOMENTUM, HYGIENE.MARKDOWN, HYGIENE.BANNED_TROPES, HYGIENE.PROSE_STRUCTURE, AGENCY.FICTIONAL_LICENSE"), 4)}
+    ${ind(prompt_builder.render_protocols("COGNITION.ANCHOR, COGNITION.PHASES, AGENCY.PRESENT_TENSE, HYGIENE.PROSE, AGENCY.MOMENTUM, HYGIENE.MARKDOWN, HYGIENE.BANNED_TROPES, HYGIENE.PROSE_STRUCTURE, AGENCY.FICTIONAL_LICENSE"), 4)}
   </PROTOCOLS>
 </SYSTEM>
   `).trim();
@@ -470,29 +469,25 @@ function render_entity_memory_context(key, entity) {
   return clean_xml(`
   <${key} name="${name}">
     <NAME>${name}</NAME>
-    <PERSONALITY>
-      <PHYSICAL>
+      <PERSONALITY>${escape_xml(entity?.eternal?.non_physical || "")}</PERSONALITY>
+      <STATE_OF_MIND>${escape_xml(entity?.present?.non_physical || "")}</STATE_OF_MIND>
+      <PERMANENT_APPEARANCE>
         ${ind(
           physical_to_xml(entity?.eternal?.physical, "PHYSICAL")
             .replace(/<PHYSICAL>|<\/PHYSICAL>/g, "")
             .trim(),
           8,
         )}
-      </PHYSICAL>
-      <NON_PHYSICAL>${escape_xml(entity?.eternal?.non_physical || "")}</NON_PHYSICAL>
-    </PERSONALITY>
-    <CURRENT_STATE>
-      <PHYSICAL>
+      </PERMANENT_APPEARANCE>
+      <CURRENT_LOOK>
         ${ind(
           physical_to_xml(entity?.present?.physical, "PHYSICAL")
             .replace(/<PHYSICAL>|<\/PHYSICAL>/g, "")
             .trim(),
           8,
         )}
-      </PHYSICAL>
-      <NON_PHYSICAL>${escape_xml(entity?.present?.non_physical || "")}</NON_PHYSICAL>
-    </CURRENT_STATE>
-    <OBJECTIVES>${escape_xml(String(entity?.future || "").trim())}</OBJECTIVES>
+      </CURRENT_LOOK>
+    <INTENT>${escape_xml(String(entity?.future || "").trim())}</INTENT>
   </${key}>
   `).trim();
 }
@@ -527,10 +522,10 @@ ${entity_blocks}
   <TASK>
     Compress this history into structured state updates and temporal vectors. Record internal evaluation inside "_thought_process" at the top of the JSON object.
     For each active entity (AI_CHARACTER, USER_PERSONA, FRACTAL):
-      - "personality_consolidated": Record permanent identity, psychological, or physical changes to baseline form (or empty string).
-      - "state_consolidated": Rewrite a clean, updated physical and non-physical state, discarding expired temporary deltas. MANDATORY FOR PHYSICAL STATE: You MUST retain physical attire/clothing (e.g. [CLOTHING: flight suit], [SHIRT: cargo jacket]) and active equipment/implants/containers (e.g. [EQUIPMENT: scrap-tech arm, bio-tank]) unless explicitly destroyed or disrobed.
-      - "objective_consolidated": Rewrite the entity's standing agenda as ONE clean block of 2-5 sentences (active future tense). Read the entity's current <OBJECTIVES> text above; CRITICAL STALE GOAL EVICTION LAW: If a goal or standing agenda objective was FULFILLED, COMPLETED, or ELAPSED in recent turns, you MUST DROP IT completely (and record what actually happened as a "past" vector instead), sharpen whatever still matters, and fold in at most one genuinely new intent. NEVER retain a fulfilled goal in "objective_consolidated". This field is REQUIRED for every active entity this batch — never omit it. For FRACTAL entities, you MUST rewrite the standing agenda so world events and environmental prophecies advance; do not leave the world agenda unchanged. When an event resolves a prophecy or threat, that agenda item must be dropped and REPLACED by its aftermath — a resolved "eclipse in 3 days" must become the post-eclipse state, never remain verbatim.
-      - "vector_append": Add settled historical anchors (memories) written strictly from that entity's own perspective — a "past" vector is a concrete event or fact that already happened and must be remembered. No future items: the agenda lives in "objective_consolidated". HIGH THRESHOLD FOR FRACTAL: For FRACTAL entities, vector_append is strictly restricted to MAJOR structural shifts or cataclysmic chapter transitions (e.g. facility destruction). Do NOT record minor room breaches, vent entries, or security alarms as past vectors for the Fractal — leave vector_append as an EMPTY LIST [] for standard turns.
+      - "eternal": Record permanent identity, psychological, or physical changes to baseline form (or empty string).
+      - "present": Rewrite clean, updated current look (physical) and state of mind (non_physical), discarding expired temporary deltas. MANDATORY FOR CURRENT LOOK: You MUST retain physical attire/clothing (e.g. [CLOTHING: flight suit], [SHIRT: cargo jacket]) and active equipment/implants/containers (e.g. [EQUIPMENT: scrap-tech arm, bio-tank]) unless explicitly destroyed or disrobed.
+      - "future": Rewrite the entity's standing agenda as ONE clean block of 2-5 sentences (active future tense). Read the entity's current <INTENT> text above; CRITICAL STALE GOAL EVICTION LAW: If a goal or standing agenda objective was FULFILLED, COMPLETED, or ELAPSED in recent turns, you MUST DROP IT completely (and record what actually happened as a "past" vector instead), sharpen whatever still matters, and fold in at most one genuinely new intent. NEVER retain a fulfilled goal in "future". This field is REQUIRED for every active entity this batch — never omit it. For FRACTAL entities, you MUST rewrite the standing agenda so world events and environmental prophecies advance; do not leave the world agenda unchanged. When an event resolves a prophecy or threat, that agenda item must be dropped and REPLACED by its aftermath — a resolved "eclipse in 3 days" must become the post-eclipse state, never remain verbatim.
+      - "past": Add settled historical anchors (memories) written strictly from that entity's own perspective — a "past" vector is a concrete event or fact that already happened and must be remembered. No future items: the agenda lives in "future". HIGH THRESHOLD FOR FRACTAL: For FRACTAL entities, past vectors are strictly restricted to MAJOR structural shifts or cataclysmic chapter transitions (e.g. facility destruction). Do NOT record minor room breaches, vent entries, or security alarms as past vectors for the Fractal — leave past as an EMPTY LIST [] for standard turns.
     FACT RETENTION (mandatory — facts outrank feelings):
       - Concrete facts MUST survive: proper nouns (names, places, organizations, facilities, rooms), numbers (years, counts, floor levels, prices), named objects (files, devices, blueprints, vats), cause/effect chains, and promises or agreements.
       - Encode settled facts as "past" vectors even when they carry no emotion — a dry, factual anchor beats an eloquent omission. The current emotional color is secondary and may be dropped; the facts may not.
@@ -538,7 +533,7 @@ ${entity_blocks}
       - When in doubt about whether a fact will matter later, retain it. Missing facts corrupt long-form continuity.
     CRITICAL OUTPUT CONSTRAINT (failure to obey will corrupt memory):
       - Output ONLY the JSON object. No code fences, no prose, no trailing commas.
-      - Keep the ENTIRE JSON under 1800 characters. Omit any truly unchanged optional field; "_thought_process" must be one short clause. Never omit "objective_consolidated" for an active entity — if you must cut something to fit, cut personality_consolidated or vector_append extras first.
+      - Keep the ENTIRE JSON under 1800 characters. Omit any truly unchanged optional field; "_thought_process" must be one short clause. Never omit "intent_consolidated" for an active entity — if you must cut something to fit, cut foundation_consolidated or vector_append extras first.
       - Never truncate — a complete smaller JSON beats a large cut-off one. If you run out of room, drop vector_append before dropping the closing brace.
     Output strict JSON matching this schema:
     ${MEMORY_JSON_SCHEMA}
@@ -552,8 +547,12 @@ function render_enhancement_field_context(entity, field_id, content = "") {
   const [section, sub] = String(field_id || "").split(".");
 
   if (section && sub && ["eternal", "present"].includes(section)) {
-    const layer = section === "eternal" ? "PERSONALITY" : section === "present" ? "CURRENT_STATE" : section.toUpperCase();
-    const sub_key = sub.toUpperCase();
+    const FIELD_TAGS = {
+      eternal: { layer: "FOUNDATION", physical: "APPEARANCE", non_physical: "PERSONALITY" },
+      present: { layer: "CURRENT_STATE", physical: "CURRENT_LOOK", non_physical: "STATE_OF_MIND" },
+    };
+    const layer = FIELD_TAGS[section].layer;
+    const sub_key = FIELD_TAGS[section][sub];
     const raw = entity?.[section]?.[sub];
     const value =
       sub === "physical"
@@ -588,9 +587,9 @@ function render_enhancement_field_context(entity, field_id, content = "") {
     const text = String(entity?.future || "").trim();
     return clean_xml(`
   <ENTITY_CONTEXT>
-    <OBJECTIVES>
+    <INTENT>
       ${ind(escape_xml(text), 6)}
-    </OBJECTIVES>
+    </INTENT>
   </ENTITY_CONTEXT>
   `).trim();
   }
@@ -650,7 +649,7 @@ function render_profile_sorting(entity_type = "character") {
   <INSTRUCTIONS>
     ${ind(escape_xml(PROTOCOL_LIBRARY.PROFILE.SCHEMA), 4)}
 
-    Write in third-person POV.
+    ${ind(escape_xml(PROTOCOL_LIBRARY.POV.THIRD_PERSON), 4)}
 
     ${ind(sorting_instruction, 4)}
   </INSTRUCTIONS>

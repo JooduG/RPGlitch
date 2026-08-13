@@ -477,15 +477,14 @@ export class ProfileState {
           for (let [key, val] of Object.entries(clean_json)) {
             if (key === "name" || key === "profile_picture" || key === "image" || key === "id" || key === "type") continue;
 
-            // Map flat LLM keys (e.g. eternal_physical) back to nested DB schema (eternal.physical)
-            if (key === "personality_physical") key = "eternal.physical";
-            else if (key === "personality_non_physical") key = "eternal.non_physical";
-            else if (key === "state_physical") key = "present.physical";
-            else if (key === "state_non_physical") key = "present.non_physical";
-            else if (key === "eternal_physical") key = "eternal.physical";
-            else if (key === "eternal_non_physical") key = "eternal.non_physical";
-            else if (key === "present_physical") key = "present.physical";
-            else if (key === "present_non_physical") key = "present.non_physical";
+            // Map flat LLM keys back to nested DB schema (eternal.physical, etc.)
+            const FLAT_LEAF_MAP = {
+              appearance: "eternal.physical",
+              personality: "eternal.non_physical",
+              current_look: "present.physical",
+              state_of_mind: "present.non_physical",
+            };
+            if (FLAT_LEAF_MAP[key]) key = FLAT_LEAF_MAP[key];
 
             if (key === "past") {
               if (Array.isArray(val)) {

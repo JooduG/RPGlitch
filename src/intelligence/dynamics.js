@@ -167,7 +167,7 @@ export function evaluate_image_trigger(current = {}, previous = {}, options = {}
 // ---------------------------------------------------------------------------
 // Scope guards vs. the legacy DYNAMICS registry:
 //  - NO user-input keyword scanning (active impulses) — intentionally excluded.
-import { GLOBAL_TRIGGERS } from "../data/definitions/narrative-styles.js";
+import { GLOBAL_TRIGGERS } from "@data";
 
 // Re-export GLOBAL_TRIGGERS as DYNAMICS_SIGNALS for backwards compatibility
 export { GLOBAL_TRIGGERS as DYNAMICS_SIGNALS };

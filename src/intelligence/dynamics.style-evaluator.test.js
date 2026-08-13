@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { evaluate_dynamics_signals } from "./dynamics.js";
-import { NARRATIVE_STYLES } from "../data/definitions/narrative-styles.js";
+import { NARRATIVE_STYLES } from "@data";
 
 describe("evaluate_dynamics_signals (Unified Signals & Triggers Engine)", () => {
   it("evaluates global baseline triggers when intensity or entropy cross thresholds", () => {

@@ -17,7 +17,7 @@ export {
   detox_prose,
 } from "./normalizer.js";
 export { premade } from "./definitions/premades.js";
-export { NARRATIVE_STYLES } from "./definitions/narrative-styles.js";
+export { NARRATIVE_STYLES, GLOBAL_TRIGGERS } from "./definitions/narrative-styles.js";
 export { VISUAL_STYLES } from "./definitions/visual-styles.js";
 export {
   ENTITY_FRAGMENTS,
