@@ -105,6 +105,16 @@ name (string), description (string), signature_color (string), appearance (strin
 - past / future: Historical anchors vs Active impulses/intent (a single standing objective string).`,
     SORT_CHARACTER: `FOCUS: Extracting data for an individual CHARACTER. Re-contextualize or discard environmental/world text. ${MACROS.CHARACTER}`,
     SORT_FRACTAL: `FOCUS: Extracting data for a FRACTAL (world/environment). Re-contextualize or discard character-specific traits. ${MACROS.FRACTAL}`,
+    INGESTION_DIRECTIVE: `<INGESTION_DIRECTIVE Authority="L3_HIGH">
+  <RULE name="SOURCE_OF_TRUTH">
+    Source text details are absolute truth. Map them verbatim into corresponding schema fields.
+  </RULE>
+  <RULE name="NO_NULL_FABRICATION">
+    If a field (e.g., eye color, attire, height, unstated motivations) is absent from the source text:
+    - Synthesize a vivid, lore-consistent default.
+    - NEVER emit null, undefined, or empty string values.
+  </RULE>
+</INGESTION_DIRECTIVE>`,
     MACROS,
   },
 

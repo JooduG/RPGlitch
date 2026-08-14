@@ -15,7 +15,9 @@ export {
   create_new,
   format_premade,
   detox_prose,
+  serialize_entity_for_export,
 } from "./normalizer.js";
+export { detect_card_format, parse_character_card, serialize_character_card, serialize_rpglitch_entity } from "./cards.js";
 export { premade } from "./definitions/premades.js";
 export { NARRATIVE_STYLES, GLOBAL_TRIGGERS } from "./definitions/narrative-styles.js";
 export { VISUAL_STYLES } from "./definitions/visual-styles.js";

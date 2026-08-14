@@ -98,6 +98,23 @@ export function extract_json_block(raw) {
 }
 
 /**
+ * Parses a raw LLM profile-sorting response into a structured object.
+ * Strips cognition blocks and code fences, isolates the outermost JSON object,
+ * and returns null on any failure (no braces, malformed JSON).
+ * @param {string} raw
+ * @returns {Object|null}
+ */
+export function parse_profile_json(raw) {
+  const block = extract_json_block(strip_cognition_blocks(String(raw ?? "")));
+  if (!block) return null;
+  try {
+    return JSON.parse(block);
+  } catch (_e) {
+    return null;
+  }
+}
+
+/**
  * Removes <image_prompt> tags and Markdown images from text.
  * @param {string|null|undefined} text
  * @returns {string}

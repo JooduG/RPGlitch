@@ -17,7 +17,8 @@
  * nothing about the narrative. It only sends and receives.
  */
 
-import { collapse_history, escape_xml, stream_bridge } from "@utils";
+import { collapse_history, escape_xml, html_to_plain_text, INGESTION_CHAR_LIMIT, INGESTION_WORD_LIMIT, stream_bridge } from "@utils";
+import { validate_url } from "./security.js";
 
 /************************************************************************************
  * [SECTION: SANITIZATION]
@@ -134,6 +135,92 @@ function get_ai_engine() {
   }
   return null;
 }
+
+/************************************************************************************
+ * [SECTION: WEB CONTENT INGESTION]
+ * ----------------------------------------------------------------------------------
+ * fetch_web_content resolves the super-fetch-plugin engine exactly the way
+ * get_ai_engine resolves the AI plugin, then fetches + parses a page into clean,
+ * budgeted plain text for the ingestion pipeline (wikis, lore, bios).
+ ************************************************************************************/
+
+/**
+ * Resolves the super-fetch-plugin engine (window.superFetch / pluginSuperFetch /
+ * lexical fallbacks), mirroring get_ai_engine's resolution order. Resolution is
+ * deliberately UNCACHED: the fetch path is called once per request anyway, and
+ * tests hot-swap the engine between cases.
+ * @returns {((url: string) => Promise<any>) | null}
+ */
+function get_super_fetch_engine() {
+  if (typeof window === "undefined") return null;
+
+  const probes = [
+    () => window.superFetch,
+    () => window.pluginSuperFetch,
+    () => (typeof superFetch === "function" ? superFetch : undefined),
+    () => (typeof pluginSuperFetch === "function" ? pluginSuperFetch : undefined),
+    () => window.parent?.superFetch,
+    () => window.parent?.pluginSuperFetch,
+  ];
+  for (const probe of probes) {
+    try {
+      const fn = probe();
+      if (typeof fn === "function") return fn;
+    } catch (_e) {
+      /* Ignore cross-origin errors if sandboxed */
+    }
+  }
+  return null;
+}
+
+/**
+ * Fetches a webpage's text content for ingestion.
+ * Uses the super-fetch-plugin (CORS-free) when present; falls back to native
+ * fetch in local dev only. HTML is stripped to clean plain text and clipped to
+ * the ingestion budget (characters: 8000, worlds/fractals: 10000).
+ * @param {string} raw_url
+ * @param {{ allow_http?: boolean, allowed_hosts?: string[], type?: 'character' | 'fractal' | 'world', max_chars?: number }} [options]
+ * @returns {Promise<{ url: string, text: string }>}
+ */
+export const fetch_web_content = async (raw_url, options = {}) => {
+  const url = validate_url(raw_url, options);
+  const budget = options.max_chars || (options.type === "fractal" || options.type === "world" ? INGESTION_WORD_LIMIT : INGESTION_CHAR_LIMIT);
+
+  const engine = get_super_fetch_engine();
+  if (!engine) {
+    const is_local_dev =
+      typeof window !== "undefined" &&
+      !(typeof process !== "undefined" && process.env.VITEST) &&
+      (window.location?.hostname === "localhost" || window.location?.hostname === "127.0.0.1" || import.meta.env.DEV);
+    if (is_local_dev) {
+      // Local dev fallback: same-origin native fetch (CORS applies normally).
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`Page returned HTTP ${res.status}.`);
+      const html = await res.text();
+      const text = html_to_plain_text(html, { max_chars: budget });
+      if (!text.trim()) throw new Error("No readable text found on that page.");
+      return { url, text };
+    }
+    throw new Error("superFetch plugin unavailable. Add superFetch = {import:super-fetch-plugin} to the Perchance left panel, then reload.");
+  }
+
+  let response;
+  try {
+    response = await engine(url);
+  } catch (err) {
+    throw new Error(`Network request to "${url}" failed.`, { cause: err });
+  }
+
+  const status = typeof response?.status === "number" ? response.status : response?.ok ? 200 : null;
+  if (status != null && (status < 200 || status >= 300)) {
+    throw new Error(`Page returned HTTP ${status}.`);
+  }
+
+  const html = typeof response?.text === "function" ? await response.text() : String(response?.responseText ?? response?.body ?? response ?? "");
+  const text = html_to_plain_text(html, { max_chars: budget });
+  if (!text.trim()) throw new Error("No readable text found on that page.");
+  return { url, text };
+};
 
 export const llm_service = {
   /**

@@ -42,17 +42,17 @@ Active conditions, held weapons, worn clothing, inventory items, mood, secrets, 
 
 ### A. Pseudo-JSON Bracket Taxonomies
 
-| Key Taxonomy | Target Field | Description & Example | Lifecycle & Mutation Behavior |
-| :--- | :--- | :--- | :--- |
-| **`[SHIRT: ...]`, `[PANTS: ...]`** | `present.physical` | Worn garments (e.g. `[SHIRT: white greasy tank-top]`). | Overwrites directly; `[SHIRT: none]` marks shirtless. |
-| **`[INVENTORY: ...]`** | `present.physical` | Carried items, un-worn clothing, tools (e.g. `[INVENTORY: copper key]`). | Multi-item array; groups in UI; **filtered out** of image prompts. |
-| **`[HELD: ...]`** | `present.physical` | Weapon or held prop (e.g. `[HELD: plasma pistol]`). | Feeds image generation; clears via `[HELD: none]`. |
-| **`[INJURY: ...]`** | `present.physical` | Physical wounds/braces (e.g. `[INJURY: left arm in sling]`). | Feeds visual generation; clears via `[INJURY: none]` / `[INJURY: healed]`. |
-| **`[DISGUISE: ...]`** | `present.physical` | Active concealment (e.g. `[DISGUISE: watch cloak]`). | Modifies visual generation; clears via `[DISGUISE: none]`. |
-| **`[POSE: ...]`, `[POSTURE: ...]`** | `present.physical` | Stance (e.g. `[POSE: kneeling on gravel]`). | Isolated kinematic key; **never** pollutes inventory. |
-| **`[LOCATION: ...]`, `[WEATHER: ...]`** | `fractal.present.physical` | Active room & weather (e.g. `[LOCATION: clock tower]`). | Environmental backdrop; entity-agnostic structure. |
-| **`[MOOD: ...]`, `[STATUS: ...]`** | `present.non_physical` | Immediate mindset (e.g. `[MOOD: suspicious]`). | Injected into `<STATE_OF_MIND>`; clears via `[STATUS: normal]`. |
-| **`[SECRET: ...]`, `[PLAN: ...]`** | `present.non_physical` | Private knowledge / intent (e.g. `[SECRET: stole ledger]`). | Private truth; **filtered across the Epistemic Wall**. |
+| Key Taxonomy                            | Target Field               | Description & Example                                                    | Lifecycle & Mutation Behavior                                              |
+| :-------------------------------------- | :------------------------- | :----------------------------------------------------------------------- | :------------------------------------------------------------------------- |
+| **`[SHIRT: ...]`, `[PANTS: ...]`**      | `present.physical`         | Worn garments (e.g. `[SHIRT: white greasy tank-top]`).                   | Overwrites directly; `[SHIRT: none]` marks shirtless.                      |
+| **`[INVENTORY: ...]`**                  | `present.physical`         | Carried items, un-worn clothing, tools (e.g. `[INVENTORY: copper key]`). | Multi-item array; groups in UI; **filtered out** of image prompts.         |
+| **`[HELD: ...]`**                       | `present.physical`         | Weapon or held prop (e.g. `[HELD: plasma pistol]`).                      | Feeds image generation; clears via `[HELD: none]`.                         |
+| **`[INJURY: ...]`**                     | `present.physical`         | Physical wounds/braces (e.g. `[INJURY: left arm in sling]`).             | Feeds visual generation; clears via `[INJURY: none]` / `[INJURY: healed]`. |
+| **`[DISGUISE: ...]`**                   | `present.physical`         | Active concealment (e.g. `[DISGUISE: watch cloak]`).                     | Modifies visual generation; clears via `[DISGUISE: none]`.                 |
+| **`[POSE: ...]`, `[POSTURE: ...]`**     | `present.physical`         | Stance (e.g. `[POSE: kneeling on gravel]`).                              | Isolated kinematic key; **never** pollutes inventory.                      |
+| **`[LOCATION: ...]`, `[WEATHER: ...]`** | `fractal.present.physical` | Active room & weather (e.g. `[LOCATION: clock tower]`).                  | Environmental backdrop; entity-agnostic structure.                         |
+| **`[MOOD: ...]`, `[STATUS: ...]`**      | `present.non_physical`     | Immediate mindset (e.g. `[MOOD: suspicious]`).                           | Injected into `<STATE_OF_MIND>`; clears via `[STATUS: normal]`.            |
+| **`[SECRET: ...]`, `[PLAN: ...]`**      | `present.non_physical`     | Private knowledge / intent (e.g. `[SECRET: stole ledger]`).              | Private truth; **filtered across the Epistemic Wall**.                     |
 
 ### B. Natural Overwrite, Undressing & Redressing Lifecycle
 
@@ -97,10 +97,10 @@ Instead of complex metadata flags (`meta.chronicle`), memory provenance is ident
 
 ```javascript
 // User / Lore Pinned Memory (Permanently Protected)
-id: `usr_${generate_uuid()}`  // e.g. "usr_4f8a12bc-..."
+id: `usr_${generate_uuid()}`; // e.g. "usr_4f8a12bc-..."
 
 // AI Session Memory (Consolidating / Rolling)
-id: `ai_${generate_uuid()}`   // e.g. "ai_99e03d41-..."
+id: `ai_${generate_uuid()}`; // e.g. "ai_99e03d41-..."
 ```
 
 - **Forge-Skip Preservation**: During Memory Forge consolidation cycles, any record satisfying `v.id?.startsWith("usr_") || v.timestamp === 0` is **explicitly bypassed, preserved intact, and immune to eviction**.
@@ -109,11 +109,11 @@ id: `ai_${generate_uuid()}`   // e.g. "ai_99e03d41-..."
 
 ### B. Ingestion Deduplication Matrix
 
-| Deduplication Layer | Criteria | Action |
-| :--- | :--- | :--- |
-| **Exact Match** | Identical string content | Drop candidate duplicate. |
-| **Substring Match** | Candidate exists within an existing entry or vice-versa | Drop candidate or keep the most descriptive record. |
-| **Fuzzy Semantic Match** | $\ge 85\%$ word-overlap similarity | Reject candidate as duplicate. |
+| Deduplication Layer      | Criteria                                                | Action                                              |
+| :----------------------- | :------------------------------------------------------ | :-------------------------------------------------- |
+| **Exact Match**          | Identical string content                                | Drop candidate duplicate.                           |
+| **Substring Match**      | Candidate exists within an existing entry or vice-versa | Drop candidate or keep the most descriptive record. |
+| **Fuzzy Semantic Match** | $\ge 85\%$ word-overlap similarity                      | Reject candidate as duplicate.                      |
 
 ---
 

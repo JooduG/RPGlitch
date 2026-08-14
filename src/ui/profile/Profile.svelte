@@ -5,7 +5,7 @@
    * Flat DOM · Bolted Architecture
    */
   import { auto_resize, click_outside } from "@ui";
-  import { safe_parse_pseudo_json } from "@utils";
+  import { download_json_file, safe_parse_pseudo_json } from "@utils";
   import { Button, Modal, TextField, Toggle, tooltip, Dropdown, Label, StyleBadge } from "@primitives";
   import { ProfilePicture } from "@image";
   import { get_signature_color } from "@media";
@@ -18,7 +18,7 @@
   import Header from "./Header.svelte";
   import { app, runtime, simulation_state } from "@state";
   import { fade } from "svelte/transition";
-  import { NARRATIVE_STYLES, VISUAL_STYLES, PROFILE_SECTIONS_BY_TYPE } from "@data";
+  import { NARRATIVE_STYLES, VISUAL_STYLES, PROFILE_SECTIONS_BY_TYPE, serialize_character_card, serialize_rpglitch_entity } from "@data";
 
   /** @type {{ entity_type?: "character" | "fractal" }} */
   let { entity_type = "character" } = $props();
@@ -368,6 +368,29 @@
       profile_state.handle_close(entity_type);
     }
   }
+
+  // --- ENTITY EXPORT (Edit Mode Footer) ---
+  function export_entity_filename(extension = "json") {
+    const name =
+      String(profile_state.char?.name || "entity")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .slice(0, 48) || "entity";
+    return `${name}.${extension}`;
+  }
+
+  /** Downloads the entity as a standalone native RPGlitch .json backup. */
+  function export_entity_json() {
+    if (!profile_state.char) return;
+    download_json_file(export_entity_filename("json"), serialize_rpglitch_entity({ ...profile_state.char, type: entity_type }));
+  }
+
+  /** Downloads the entity as a standard Character Card V2 .json (Tavern/Chub/Janitor). */
+  function export_entity_card() {
+    if (!profile_state.char) return;
+    download_json_file(export_entity_filename("v2.json"), serialize_character_card({ ...profile_state.char, type: entity_type }));
+  }
 </script>
 
 <svelte:window
@@ -583,6 +606,28 @@
                 {:else}
                   Enhance Profile
                 {/if}
+              </Button>
+              <Button
+                variant="invisible"
+                size="small"
+                actions={[tooltip]}
+                aria-label="Save Entity (.json) — standalone RPGlitch backup"
+                disabled={profile_state.is_saving}
+                onclick={export_entity_json}
+                class="touch-target-coarse text-slate-400! hover:text-slate-50! hover:brightness-125"
+              >
+                Save Entity (.json)
+              </Button>
+              <Button
+                variant="invisible"
+                size="small"
+                actions={[tooltip]}
+                aria-label="Save as Character Card V2 (.json) — Tavern / Chub / Janitor"
+                disabled={profile_state.is_saving}
+                onclick={export_entity_card}
+                class="touch-target-coarse text-slate-400! hover:text-slate-50! hover:brightness-125"
+              >
+                V2 Card
               </Button>
               <Button
                 variant="danger"

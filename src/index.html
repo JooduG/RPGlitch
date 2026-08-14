@@ -61,6 +61,18 @@
               allFound = false;
             }
           }
+          if (typeof window.superFetch === "undefined") {
+            try {
+              if (typeof superFetch !== "undefined") {
+                window.superFetch = superFetch;
+                window.pluginSuperFetch = superFetch;
+              } else {
+                allFound = false;
+              }
+            } catch (e) {
+              allFound = false;
+            }
+          }
 
           if (!allFound && polls < MAX_POLLS) {
             polls++;

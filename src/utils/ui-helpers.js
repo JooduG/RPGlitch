@@ -297,3 +297,44 @@ export const get_rpg_list = (key) => {
   }
   return [];
 };
+
+/**
+ * Triggers a browser download of a Blob or string payload.
+ * No-op (returns false) outside the DOM.
+ * @param {string} filename
+ * @param {string | Blob} content
+ * @param {string} [mime]
+ * @returns {boolean}
+ */
+export const download_blob = (filename, content, mime = "application/octet-stream") => {
+  if (typeof document === "undefined") return false;
+  const blob = content instanceof Blob ? content : new Blob([content], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = filename;
+  anchor.rel = "noopener";
+  anchor.style.display = "none";
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+  return true;
+};
+
+/**
+ * Downloads a text payload as a file.
+ * @param {string} filename
+ * @param {string} text
+ * @param {string} [mime]
+ * @returns {boolean}
+ */
+export const download_text_file = (filename, text, mime = "text/plain;charset=utf-8") => download_blob(filename, text, mime);
+
+/**
+ * Downloads a JSON-serializable value as an indented .json file.
+ * @param {string} filename
+ * @param {any} value
+ * @returns {boolean}
+ */
+export const download_json_file = (filename, value) => download_blob(filename, JSON.stringify(value, null, 2), "application/json;charset=utf-8");

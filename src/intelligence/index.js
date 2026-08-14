@@ -8,6 +8,7 @@ export {
   escape_xml,
   extract_json_block,
   parse_message,
+  parse_profile_json,
   parse_think_block,
   resolve_voice_register,
   strip_cognition_blocks,

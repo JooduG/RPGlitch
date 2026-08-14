@@ -293,4 +293,62 @@ export const format_premade = (entity, type) => {
   };
 };
 
+/**
+ * Serializes an entity into a standalone, re-importable export payload.
+ * Strips internal transient database fields (ids, version stamps, premade
+ * flags) and drops `_embedding` blobs from memory vectors so the file stays
+ * portable and human-readable. Re-import normalizes defaults on the way in.
+ * @param {any} entity
+ * @returns {any}
+ */
+export const serialize_entity_for_export = (entity) => {
+  if (!entity || typeof entity !== "object") return {};
+  const TRANSIENT_KEYS = new Set([
+    "id",
+    "created_at",
+    "updated_at",
+    "origin_id",
+    "version",
+    "is_premade",
+    "is_custom",
+    "is_snapshot",
+    "dynamics_baseline",
+  ]);
+
+  /** @param {any} value */
+  const clone_clean = (value) => {
+    if (Array.isArray(value)) {
+      return value
+        .map((item) => {
+          if (item && typeof item === "object") {
+            const copy = { ...item };
+            delete copy._embedding;
+            return copy;
+          }
+          return item;
+        })
+        .filter((item) => {
+          if (item && typeof item === "object") return !!(item.content || item.directive)?.trim();
+          return true;
+        });
+    }
+    if (value && typeof value === "object") {
+      const out = {};
+      for (const [k, v] of Object.entries(value)) {
+        if (k === "_embedding") continue;
+        out[k] = clone_clean(v);
+      }
+      return out;
+    }
+    return value;
+  };
+
+  const out = {};
+  for (const [key, value] of Object.entries(entity)) {
+    if (TRANSIENT_KEYS.has(key)) continue;
+    out[key] = clone_clean(value);
+  }
+  return JSON.parse(JSON.stringify(out));
+};
+
 export { detox_prose } from "./definitions/detox-rules.js";

@@ -951,4 +951,32 @@ describe("prompt_builder (Refactored)", () => {
       expect(director.system).toContain("Bind the Protector to the rig");
     });
   });
+
+  describe("Ingestion Directive", () => {
+    it("omits the ingestion directive by default", () => {
+      const result = prompt_builder.build_profile_sorting_prompt("Raw lore", "character");
+      expect(result.system).not.toContain("INGESTION_DIRECTIVE");
+      expect(result.system).not.toContain("SOURCE_OF_TRUTH");
+    });
+
+    it("appends the ingestion directive when ingestion: true", () => {
+      const result = prompt_builder.build_profile_sorting_prompt("Raw lore", "character", { ingestion: true });
+      expect(result.system).toContain("<INGESTION_DIRECTIVE");
+      expect(result.system).toContain("SOURCE_OF_TRUTH");
+      expect(result.system).toContain("Map them verbatim into corresponding schema fields.");
+      expect(result.system).toContain("NO_NULL_FABRICATION");
+      expect(result.system).toContain("NEVER emit null, undefined, or empty string values.");
+    });
+
+    it("applies the ingestion directive to fractal sorting too", () => {
+      const result = prompt_builder.build_profile_sorting_prompt("World lore", "fractal", { ingestion: true });
+      expect(result.system).toContain("FOCUS: Extracting data for a FRACTAL");
+      expect(result.system).toContain("<INGESTION_DIRECTIVE");
+    });
+
+    it("exposes the directive text in the protocol library", () => {
+      expect(PROTOCOL_LIBRARY.PROFILE.INGESTION_DIRECTIVE).toContain("L3_HIGH");
+      expect(PROTOCOL_LIBRARY.PROFILE.INGESTION_DIRECTIVE).toContain("NO_NULL_FABRICATION");
+    });
+  });
 });

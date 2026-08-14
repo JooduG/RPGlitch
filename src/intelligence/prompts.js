@@ -654,10 +654,11 @@ function render_enhancement({
   `).trim();
 }
 
-function render_profile_sorting(entity_type = "character") {
+function render_profile_sorting(entity_type = "character", options = {}) {
   const resolved_type = entity_type === "user" ? "character" : entity_type || "character";
   const protocols = ["HYGIENE.DATA", "HYGIENE.AFFIRMATIVE", "FORMATS.JSON_ONLY"].filter(Boolean).join(", ");
   const sorting_instruction = resolved_type === "fractal" ? PROTOCOL_LIBRARY.PROFILE.SORT_FRACTAL : PROTOCOL_LIBRARY.PROFILE.SORT_CHARACTER;
+  const ingestion_directive = options.ingestion ? `\n\n    ${ind(PROTOCOL_LIBRARY.PROFILE.INGESTION_DIRECTIVE, 4)}` : "";
 
   return clean_xml(`
 <SYSTEM role="${ENTITY_FRAGMENTS.profile[resolved_type]?.enhancer || "ENHANCER"}" enhancing="Entire Profile">
@@ -666,7 +667,7 @@ function render_profile_sorting(entity_type = "character") {
 
     ${ind(escape_xml(PROTOCOL_LIBRARY.POV.THIRD_PERSON), 4)}
 
-    ${ind(sorting_instruction, 4)}
+    ${ind(sorting_instruction, 4)}${ingestion_directive}
   </INSTRUCTIONS>
   <PROTOCOLS>
     ${ind(prompt_builder.render_protocols(protocols), 4)}
@@ -888,9 +889,17 @@ export const prompt_builder = {
       messages: [],
     };
   },
-  build_profile_sorting_prompt(inputData, entity_type = "character") {
+  /**
+   * Builds the profile-sorting payload for raw ingestion text or an existing
+   * entity. Pass { ingestion: true } to append the INGESTION_DIRECTIVE
+   * (SOURCE_OF_TRUTH + NO_NULL_FABRICATION) for external source material.
+   * @param {string | any} inputData
+   * @param {'character' | 'fractal'} [entity_type]
+   * @param {{ ingestion?: boolean }} [options]
+   */
+  build_profile_sorting_prompt(inputData, entity_type = "character", options = {}) {
     return {
-      system: render_profile_sorting(entity_type),
+      system: render_profile_sorting(entity_type, options),
       messages: [
         {
           role: "user",

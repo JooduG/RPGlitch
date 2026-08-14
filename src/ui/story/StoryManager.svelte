@@ -1,10 +1,11 @@
 <script>
   import { Dialog } from "@primitives";
   import StoryCard from "./StoryCard.svelte";
-  import { stories } from "@data";
+  import { db, stories } from "@data";
   import { session_driver } from "@engine";
   import { item_in } from "@motion";
   import { app, runtime, simulation_log, simulation_state } from "@state";
+  import { build_story_export_filename, download_text_file, export_story_markdown } from "@utils";
 
   let is_confirming_story_delete = $state(false);
   let pending_story_delete = $state(null);
@@ -30,6 +31,28 @@
 
   async function refresh_stories() {
     story_cache = await stories.list();
+  }
+
+  /**
+   * Exports a story's transcript to a clean Markdown file (.md).
+   * Fetches the story row + its full simulation log, compiles the transcript,
+   * and triggers a browser download.
+   * @param {any} story
+   */
+  async function export_story(story) {
+    try {
+      const row = await stories.get(story.id);
+      const log = await db.simulation_log
+        .where("story_id")
+        .anyOf([String(story.id), story.id])
+        .sortBy("created_at");
+      const markdown = export_story_markdown({ ...(row || {}), ...story }, log);
+      download_text_file(build_story_export_filename(story), markdown, "text/markdown;charset=utf-8");
+      app.log(`Story "${story.title}" exported as Markdown.`, "system");
+    } catch (err) {
+      console.error(err);
+      app.log(`Export failed: ${err.message}`, "error");
+    }
   }
 
   async function delete_story(story) {
@@ -114,6 +137,7 @@
           onclick={() => load_story(story.id)}
           ondelete={delete_story}
           onrename={start_rename_story}
+          onexport={export_story}
         />
       </div>
     {/each}

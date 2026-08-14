@@ -71,10 +71,10 @@ When raw unformatted text (from Web URL or Textbox) is submitted, `prompt_builde
 
 ## 2. Outbound Engine: Serialization & Standard Card Formats
 
-| Target Format | Scope & Surface | Architecture & Compatibility |
-| :--- | :--- | :--- |
-| **Story Markdown** (`.md`) | Control Panel Library (`ControlPanel.svelte` / `Library.svelte`) | Handled by `src/utils/story-export.js` (`export_story_markdown`). Compiles header metadata (Title, Characters, Setting, Beats count, Date) and formatted transcript beats (dialogue sensory quotes, protagonist actions, narrator blockquotes, and optional telemetry blocks) into a clean markdown document. |
-| **Entity JSON / V2 Card** (`.json`) | Profile Modal Footer in Edit Mode (`Profile.svelte`) | Handled by `src/data/normalizer.js` & `src/utils/ui-helpers.js`. Strips internal transient database IDs, indents with 2 spaces, and triggers a browser blob download (`download_blob`). Maps cleanly to both native RPGlitch schemas and industry-standard Character Card V2 schemas. |
+| Target Format                       | Scope & Surface                                                  | Architecture & Compatibility                                                                                                                                                                                                                                                                                  |
+| :---------------------------------- | :--------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Story Markdown** (`.md`)          | Control Panel Library (`ControlPanel.svelte` / `Library.svelte`) | Handled by `src/utils/story-export.js` (`export_story_markdown`). Compiles header metadata (Title, Characters, Setting, Beats count, Date) and formatted transcript beats (dialogue sensory quotes, protagonist actions, narrator blockquotes, and optional telemetry blocks) into a clean markdown document. |
+| **Entity JSON / V2 Card** (`.json`) | Profile Modal Footer in Edit Mode (`Profile.svelte`)             | Handled by `src/data/normalizer.js` & `src/utils/ui-helpers.js`. Strips internal transient database IDs, indents with 2 spaces, and triggers a browser blob download (`download_blob`). Maps cleanly to both native RPGlitch schemas and industry-standard Character Card V2 schemas.                         |
 
 ### Industry Standard Card V2 Mapping
 

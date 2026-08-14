@@ -71,6 +71,8 @@ export default defineConfig([
         ...globals.node,
         generate_text: "readonly",
         pluginGenerateText: "readonly",
+        superFetch: "readonly",
+        pluginSuperFetch: "readonly",
         Perchance: "readonly",
       },
     },

@@ -6,3 +6,4 @@ $meta
 
 generate_text = {import:ai-text-plugin}
 generate_image = {import:text-to-image-plugin}
+superFetch = {import:super-fetch-plugin}
