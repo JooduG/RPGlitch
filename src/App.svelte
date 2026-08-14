@@ -287,9 +287,9 @@
     const photo_label = type === "ai" ? "Generate AI Character Image" : type === "user" ? "Generate User Persona Image" : "Generate Fractal Image";
     const photo_prompt =
       type === "ai"
-        ? "A character portrait of the AI character"
+        ? "A cinematic shot of the AI character situated within the active setting"
         : type === "user"
-          ? "A character portrait of the user persona"
+          ? "A cinematic shot of the user persona situated within the active setting"
           : "An environmental shot of the current setting";
 
     const items = [{ label: "Profile", onSelect: () => app.toggle_profile(true, entity), disabled: !entity }];

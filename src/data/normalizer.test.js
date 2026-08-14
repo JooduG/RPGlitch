@@ -192,6 +192,13 @@ describe("detox_prose()", () => {
     expect(detox_prose(plain)).toBe(plain);
   });
 
+  it("should scrub posture tropes like lean in across all verb tenses", () => {
+    expect(detox_prose("He leaned in, whispering softly.")).not.toMatch(/leaned in/i);
+    expect(detox_prose("I lean in to hear what he says.")).not.toMatch(/lean in/i);
+    expect(detox_prose("Silvers leans in, his expression unreadable.")).not.toMatch(/leans in/i);
+    expect(detox_prose("Leaning in, he closed the distance.")).not.toMatch(/leaning in/i);
+  });
+
   it("should not touch non-cliché usages", () => {
     expect(detox_prose("He leaned in the doorway, watching her.")).toContain("leaned in the doorway");
     expect(detox_prose("The room was devoid of light.")).toContain("devoid of");

@@ -60,10 +60,12 @@ export function resolve_portrait_visual_style_key(entity = {}) {
 
 /**
  * Resolves the active visual style key for story scene generation.
+ * @param {any} [fractal]
  * @returns {string}
  */
-export function resolve_story_visual_style_key() {
-  const fractal_style = state_bridge.runtime?.active_fractal?.visual_style;
+export function resolve_story_visual_style_key(fractal) {
+  const fractal_style =
+    fractal?.visual_style || state_bridge.runtime?.active_fractal?.visual_style || state_bridge.app?.selected_fractal?.visual_style;
   if (fractal_style && fractal_style !== "default" && fractal_style !== "" && VISUAL_STYLES[fractal_style]) {
     return fractal_style;
   }
@@ -312,7 +314,7 @@ export const prompt_templates = {
           ? `<BACKGROUND_DIRECTIVE>No explicit fractal environment setting is provided. You MUST synthesize an evocative, atmospheric background environment that naturally fits the personality, visual theme, and signature colors of ${prompt_escape(main_entity.name || "the subject")}.</BACKGROUND_DIRECTIVE>`
           : "";
 
-    const style_key = tier === "solo_entity" ? resolve_portrait_visual_style_key(solo_subject) : resolve_story_visual_style_key();
+    const style_key = tier === "solo_entity" ? resolve_portrait_visual_style_key(solo_subject) : resolve_story_visual_style_key(active_fractal);
     const style_obj = VISUAL_STYLES[style_key] || VISUAL_STYLES.none;
     const engine_tokens = resolve_visual_engine_tokens(style_key);
     const visual_engine_block = style_obj.visual_engine
@@ -339,7 +341,11 @@ export const prompt_templates = {
         break;
       case "story_character":
       default:
-        ctxBlock = `<ACTIVE_CHARACTERS>\n${render_entity(main_entity === active_user || main_entity?.type === "user" ? "USER_PERSONA" : "AI_CHARACTER", main_entity)}\n</ACTIVE_CHARACTERS>\n${fractal_block}`;
+        ctxBlock = `<ACTIVE_CHARACTERS>\n${render_entity(main_entity === active_user || main_entity?.type === "user" ? "USER_PERSONA" : "AI_CHARACTER", main_entity)}\n</ACTIVE_CHARACTERS>\n${fractal_block}${
+          active_fractal
+            ? `\n<NARRATIVE_CONTEXT>CHARACTER IN SCENE MANDATE: The image MUST depict the character (${prompt_escape(main_entity?.name || "Subject")}) situated directly within the active fractal environment (${prompt_escape(active_fractal.name || "Setting")}), integrating the setting's architecture, atmosphere, lighting, and textures into the background and surroundings.</NARRATIVE_CONTEXT>`
+            : ""
+        }`;
         subject = "a character framed within their environment, emphasizing their presence with an evocative background setting";
         break;
     }

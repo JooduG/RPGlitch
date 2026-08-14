@@ -846,31 +846,39 @@ export function detox_prose(raw_text, register = "plain") {
       },
     },
     {
-      regex: /\blean(ed|ing)\s+in(?=[,.!?;)\]"]|["']?\s*$|\s+(?:and|to|for|until|so|enough|order)\b)/gi,
+      regex: /\blean(ed|ing|s)?\s+in(?=[,.!?;)\]"]|["']?\s*$|\s+(?:and|to|for|until|so|enough|order)\b)/gi,
       replace: (match, p1, ...args) => {
         const offset = args[args.length - 2];
         const forms_map = {
           plain: {
             ed: ["moved closer", "drew closer", "shifted nearer"],
             ing: ["moving closer", "drawing closer", "shifting nearer"],
+            s: ["moves closer", "draws closer", "shifts nearer"],
+            "": ["move closer", "draw closer", "shift nearer"],
           },
           ornate: {
             ed: ["inclined toward the other", "closed the space between them"],
             ing: ["inclining toward the other", "closing the space between them"],
+            s: ["inclines toward the other", "closes the space between them"],
+            "": ["incline toward the other", "close the space between them"],
           },
           raw: {
             ed: ["got right in close", "crowded in"],
             ing: ["getting right in close", "crowding in"],
+            s: ["gets right in close", "crowds in"],
+            "": ["get right in close", "crowd in"],
           },
           clinical: {
             ed: ["reduced the distance", "moved nearer"],
             ing: ["reducing the distance", "moving nearer"],
+            s: ["reduces the distance", "moves nearer"],
+            "": ["reduce the distance", "move nearer"],
           },
         };
-        const is_ing = p1 === "ing";
-        const key_form = is_ing ? "ing" : "ed";
+        const key_form = p1 ? p1.toLowerCase() : "";
         const active_voice = forms_map[exact_voice] || forms_map[fallback_voice] || forms_map.plain;
-        return match_case(match, stable_pick(active_voice[key_form], match, offset));
+        const choices = active_voice[key_form] || active_voice[""];
+        return match_case(match, stable_pick(choices, match, offset));
       },
     },
     {

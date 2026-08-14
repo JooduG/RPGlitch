@@ -178,7 +178,7 @@ export class VisualEngine {
             const style_key =
               options._entity && normalize_image_tier(options.mode || "") === "solo_entity"
                 ? resolve_portrait_visual_style_key(options._entity)
-                : resolve_story_visual_style_key();
+                : resolve_story_visual_style_key(options._fractal || options.fractal);
             const vs_tokens = resolve_visual_engine_tokens(style_key);
 
             // Inject positive style tokens into the prompt if available
@@ -416,7 +416,8 @@ export class VisualEngine {
       //  - story_entities: always LLM (multi-character composition needs planning)
       //  - solo_entity: quick path — deterministic flattening, no LLM round-trip
       //  - story_character / story_scene: defer to the active style's llm_refine flag
-      const style_key_for_llm = tier === "solo_entity" ? resolve_portrait_visual_style_key(solo_or_char_entity) : resolve_story_visual_style_key();
+      const style_key_for_llm =
+        tier === "solo_entity" ? resolve_portrait_visual_style_key(solo_or_char_entity) : resolve_story_visual_style_key(fractal);
       const use_llm = is_selfie || tier === "story_entities" || (tier !== "solo_entity" && (VISUAL_STYLES[style_key_for_llm]?.llm_refine ?? true));
 
       let refined = null;
@@ -456,7 +457,12 @@ export class VisualEngine {
         const fallback_desc = aesthetic_resolver.flatten(fallback_entity);
         const fallback_name = fallback_entity?.name || tier;
         const short_intent = visualPrompt && visualPrompt.length < 200 ? visualPrompt : "";
-        refined = `<image_prompt>${short_intent ? `${short_intent}, ` : ""}${fallback_name}, ${fallback_desc || "detailed character portrait, dramatic lighting"}</image_prompt>`;
+        if (tier === "story_character" && fractal) {
+          const fractal_desc = aesthetic_resolver.flatten(fractal);
+          refined = `<image_prompt>${short_intent ? `${short_intent}, ` : ""}${fallback_name}, ${fallback_desc || "detailed character"}, situated within ${fractal.name || "the setting"}, ${fractal_desc || "atmospheric environment, dramatic lighting"}</image_prompt>`;
+        } else {
+          refined = `<image_prompt>${short_intent ? `${short_intent}, ` : ""}${fallback_name}, ${fallback_desc || "detailed character portrait, dramatic lighting"}</image_prompt>`;
+        }
       }
 
       const parsed_json = this._parseRefineResponse(refined);
@@ -483,7 +489,7 @@ export class VisualEngine {
         caption = caption_match?.[1] || "You wanted a selfie? There you go.";
       }
 
-      const generate_options = { mode: tier, returnPayload: true, ...options };
+      const generate_options = { mode: tier, returnPayload: true, _fractal: fractal, ...options };
       if (tier === "solo_entity") generate_options._entity = solo_or_char_entity;
       if (extracted_negative && !generate_options.negative_prompt) {
         generate_options.negative_prompt = extracted_negative;
