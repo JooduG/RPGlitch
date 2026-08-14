@@ -194,4 +194,19 @@ describe("TelemetryCard Telemetry Logic", () => {
     expect(vector_label("present", "past")).toBe("PRESENT");
     expect(vector_label("PROPHECY", "future")).toBe("PROPHECY");
   });
+
+  test("MEMORY_FORMATION metadata includes future trajectory and consolidated present state", () => {
+    const meta = {
+      type: "MEMORY_FORMATION",
+      target: "AI_CHARACTER",
+      future: "He plans to corner Glitch in the lower sector.",
+      present: { non_physical: "Reinvigorated focus", physical: "[POSTURE: dominant stance]" },
+      memories: [],
+      turns_count: 8,
+    };
+    expect(meta.future).toBe("He plans to corner Glitch in the lower sector.");
+    expect(meta.present.non_physical).toBe("Reinvigorated focus");
+    expect(meta.memories).toEqual([]);
+    expect(meta.turns_count).toBe(8);
+  });
 });

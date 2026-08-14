@@ -117,6 +117,8 @@ All 9 phases of the Monolithic Refactoring Campaign, the Stress-Test Remediation
 | 2026-07-11 15:02 | Refactor Backlog Generator & Config Links | `/02-implement` | ✅ Done |
 | 2026-07-11 14:38 | Milestone 2: Code Stability & Logic Polish | `/02-implement` | ✅ Done |
 | 2026-07-11 14:18 | Consolidate Imperative Refreshes & Inline Wrappers | `/02-implement` | ✅ Done |
+| 2026-08-14 03:25 | Fix UndoToast chassis dimensions, card offset padding, and Svelte 5 reactive pending_deletes state | `/02-implement` | ✅ Done |
+| 2026-08-14 03:12 | Add informative Memory Formation cards (standing trajectory, state, anchors), YES_AND physical validation, and jockstrap optics specificity | `/02-implement` | ✅ Done |
 | 2026-08-14 02:29 | Enforce lexical fidelity in Director state mutations and wire in-scene fractal grounding for story_character | `/02-implement` | ✅ Done |
 | 2026-08-14 02:02 | Fix detox-rules.js regex gap for bare and 3rd person singular 'lean in' / 'leans in' | `/02-implement` | ✅ Done |
 | 2026-08-13 21:10 | Execute approved codebase architectural improvements across src/ (Areas A-E) | `/02-implement` | ✅ Done |

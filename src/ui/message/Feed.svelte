@@ -191,17 +191,24 @@
     const pending = pending_deletes[id];
     if (pending) clearTimeout(pending.timer);
     const timer = setTimeout(async () => {
-      delete pending_deletes[id];
+      const copy = { ...pending_deletes };
+      delete copy[id];
+      pending_deletes = copy;
       await chrono_engine.delete_log_entry(String(id));
     }, UNDO_DELETE_WINDOW_MS);
-    pending_deletes[id] = { timer, expires_at: Date.now() + UNDO_DELETE_WINDOW_MS };
+    pending_deletes = {
+      ...pending_deletes,
+      [id]: { timer, expires_at: Date.now() + UNDO_DELETE_WINDOW_MS },
+    };
   }
 
   function undo_delete(id) {
     const pending = pending_deletes[id];
     if (pending) {
       clearTimeout(pending.timer);
-      delete pending_deletes[id];
+      const copy = { ...pending_deletes };
+      delete copy[id];
+      pending_deletes = copy;
     }
   }
 
@@ -233,7 +240,22 @@
   <ScrollArea data-id="storymode-scroll-area" style="height: 100%; width: 100%;">
     {#each visible_feed as entry, index (entry.id)}
       {#if pending_deletes[entry.id]}
-        <UndoToast undo_window_ms={UNDO_DELETE_WINDOW_MS} on_undo={() => undo_delete(entry.id)} />
+        <div
+          class="
+            relative
+            flex
+            w-full
+            p-4
+            transition-all
+            duration-200
+            {entry.role === 'user' ? 'justify-end pr-column-unit' : entry.role === 'ai' ? 'justify-start pl-column-unit' : 'justify-center'}
+          "
+          in:item_in={{ duration: 200 }}
+        >
+          <div class="w-[calc(var(--spacing-column-unit)*5)]">
+            <UndoToast undo_window_ms={UNDO_DELETE_WINDOW_MS} on_undo={() => undo_delete(entry.id)} />
+          </div>
+        </div>
       {:else}
         <div
           class="w-full shrink-0 {entry.meta?.is_prologue ? 'message--prologue' : ''}"

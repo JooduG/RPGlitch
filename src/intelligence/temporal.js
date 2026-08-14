@@ -1112,6 +1112,9 @@ async function fallback_consolidate(entity_targets, slice, runtime, session) {
         type: "MEMORY_FORMATION",
         target: key,
         memories: [vector],
+        vectors: [vector],
+        future: entity.future || "",
+        present: entity.present || null,
         turns_count: slice.length,
       });
     }
@@ -1366,7 +1369,7 @@ export const temporal_engine = {
             await runtime.update_entity(type, entity.id, { future: entity.future });
           }
 
-          for (const { key } of entity_targets) {
+          for (const { key, entity } of entity_targets) {
             const memories = forged.memories?.[key] || [];
             const text = memories.length ? memories.map((v) => v.content || v.directive || "").join(" | ") : "State consolidated.";
             await session.log_system_entry(`Memory Forged (${key}): ${text.substring(0, 50)}...`, "system", {
@@ -1374,6 +1377,10 @@ export const temporal_engine = {
               target: key,
               memories,
               vectors: memories,
+              future: entity?.future || forged.future?.[key] || "",
+              present: entity?.present || forged.present?.[key] || null,
+              eternal: forged.eternal?.[key] || null,
+              thought_process: forged._thought_process || "",
               turns_count: slice.length,
             });
           }

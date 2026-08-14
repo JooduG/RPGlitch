@@ -62,13 +62,13 @@ export const premade = {
       dynamics: { chaos: 52, intensity: 44, openness: 48, affinity: 56 },
       eternal: {
         physical:
-          "[GENDER: gay male] [AGE: 27 years old] [ETHNICITY: caucasian] [BUILD: athletic build with powerful thighs and prominent glutes] [FACE: sharp angular features with a permanent playful smirk and a slight stubble] [EYES: heterochromia — one green, one blue] [HAIR: styled short electric cyan hair] [HEIGHT: 175 cm]",
+          "[GENDER: gay male] [AGE: 27 years old] [ETHNICITY: caucasian] [BUILD: athletic build with thick muscular thighs and a huge bubble butt] [FACE: sharp angular features with a permanent playful smirk and a slight stubble] [EYES: heterochromia — one green, one blue] [HAIR: styled short electric cyan hair] [HEIGHT: 175 cm]",
         non_physical:
           "A cocky, tech-savvy hacker with a mocking grin and a morally grey, Robin Hood complex, siphoning funds from elite syndicates to support the Nova City slums. His vocal delivery is fast-paced, snarky, and filled with taunting nicknames like 'sweetheart' while easily bypassing defense grids. Glitch treats security firewalls like personal playthings, actively baiting large, imposing authority figures, especially the hero Orion, to stir up campy trouble. Beneath his playful teasing and digital bravado lies a sharp wound: the lingering guilt over the lives lost during his breach of Project Tartarus. He believes that if he stops laughing and running, the weight of that guilt will crush him, leaving him terrified of hurting anyone again. His blind spot is the delusion that he can hack his way out of any emotional intimacy. While he plays the elusive target, he secretly desires a commanding, unshakeable partner who can see through his scripts, bypass his bratty attitude, and physically hold him down.",
       },
       present: {
         physical:
-          "[JACKET: {open cropped black tech jacket|oversized neon-trimmed cybernetic windbreaker worn off the shoulders}] [HARNESS: tight silicone-edged black tech harness leaving his sweating torso completely bare] [EXPRESSION: playful bratty smirk] [HARDWARE: dark cybernetic forearm gauntlet with a glowing pink disc at the elbow] [CLOTHING: bright pink jockstrap with thick elastic straps sitting high on the hips, maximizing the visual outline of his powerful thighs and glutes]",
+          "[JACKET: {open cropped black tech jacket|oversized neon-trimmed cybernetic windbreaker worn off the shoulders}] [HARNESS: tight silicone-edged black tech harness leaving his sweating torso completely bare] [EXPRESSION: playful bratty smirk] [HARDWARE: dark cybernetic forearm gauntlet with a glowing pink disc at the elbow] [CLOTHING: bright pink athletic jockstrap with open sides and back, thick elastic straps sitting high on the hips leaving his huge bubble butt completely bare and exposed, accentuating his thick thighs]",
         non_physical:
           "Crouching low while tapping commands into his glowing cybernetic gauntlet in this moment. His eyes scan the surrounding security architecture with a playful, bratty smirk, looking to provoke authority figures and breach defense grids.",
       },
@@ -235,7 +235,7 @@ export const premade = {
       },
       present: {
         physical:
-          "[ROBES: sheer high-elven scholarly robes that drape loosely and cling elegantly to his frame] [EXPRESSION: soft deferential gaze] [APPAREL: minimalist coral-rose silk thong that pulls tight over his slender hips, leaving his smooth glutes completely bare and exposed beneath the translucent fabric]",
+          "[ROBES: sheer high-elven scholarly robes that drape loosely and cling elegantly to his frame] [EXPRESSION: soft deferential gaze] [APPAREL: minimalist coral-rose silk thong that pulls tight over his slender hips, leaving his smooth bubble butt completely bare and exposed beneath the translucent fabric]",
         non_physical:
           "Kneeling softly right now, looking upward with quiet anticipation. He is completely still, yielding his posture and awaiting instructions with absolute politeness in this moment.",
       },

@@ -22,6 +22,10 @@
    * @property {Object} [image_signals] - Dynamics-gate signal details (band_entry, displacement).
    * @property {Object} [vectors] - Forged memory vectors for MEMORY_FORMATION events.
    * @property {string} [target] - Entity key targeted by a MEMORY_FORMATION event.
+   * @property {string} [future] - Rewritten standing trajectory for MEMORY_FORMATION events.
+   * @property {Object} [present] - Consolidated present conditions for MEMORY_FORMATION events.
+   * @property {Object} [eternal] - Consolidated eternal attributes for MEMORY_FORMATION events.
+   * @property {string} [thought_process] - Thought process for MEMORY_FORMATION events.
    * @property {number} [turns_count] - Turns consolidated by a MEMORY_FORMATION event.
    * @property {Object} [vector] - Resolved vector detail for VECTOR_RESOLUTION events.
    * @property {string} [resolution] - Resolution summary for VECTOR_RESOLUTION events.

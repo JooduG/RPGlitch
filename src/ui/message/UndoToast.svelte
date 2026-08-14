@@ -11,18 +11,54 @@
 
 <div
   role="status"
-  class="relative mx-(--spacing-padding-standard) flex items-center gap-(--spacing-gap-tight) overflow-hidden rounded-(--radius-standard) bg-glass-sunken px-(--spacing-padding-tight) py-(--spacing-padding-tight) text-sm text-frozen"
+  class="
+    relative
+    flex
+    w-full
+    items-center
+    justify-between
+    gap-4
+    overflow-hidden
+    rounded-2xl
+    border
+    border-white/10
+    bg-[color-mix(in_srgb,var(--color-slate-900)_85%,transparent)]
+    px-5
+    py-3.5
+    text-xs
+    text-slate-200
+    shadow-[0_8px_32px_rgba(0,0,0,0.5)]
+    [backdrop-filter:var(--blur-mist)]
+  "
 >
-  <span class="flex-1 opacity-80">Message deleted</span>
+  <div class="flex items-center gap-3">
+    <span class="h-2 w-2 animate-pulse rounded-full bg-rose-400 shadow-[0_0_8px_rgba(244,63,94,0.6)]"></span>
+    <span class="font-mono text-xs tracking-wide text-slate-300">Message deleted</span>
+  </div>
   <button
-    class="cursor-pointer rounded-(--radius-standard) bg-(--color-electric-cyan) px-[calc(var(--spacing-unit)*3)] py-1.5 text-xs font-semibold text-(--color-void-black) transition-[filter] duration-150 hover:brightness-[1.15]"
+    class="
+      cursor-pointer
+      rounded-lg
+      bg-(--color-dev-accent)
+      px-4
+      py-1.5
+      font-mono
+      text-xs
+      font-bold
+      tracking-wider
+      text-slate-950
+      uppercase
+      transition-all
+      hover:brightness-110
+      active:scale-95
+    "
     onclick={on_undo}
   >
     Undo
   </button>
   <span
     aria-hidden="true"
-    class="absolute inset-x-0 bottom-0 h-0.5 origin-left bg-(--color-electric-cyan)"
+    class="absolute inset-x-0 bottom-0 h-0.5 origin-left bg-(--color-dev-accent)"
     style="animation: undo-countdown-shrink {undo_window_ms}ms linear forwards;"
   ></span>
 </div>
