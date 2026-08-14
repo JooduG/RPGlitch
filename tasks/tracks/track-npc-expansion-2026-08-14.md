@@ -111,6 +111,14 @@ NPCs do not treat player statements as absolute truth. Persuasion and claim acce
 - **For**: Intuitive to prompt, rapid execution, eliminates runtime math overhead during inference.
 - **Against**: Less mathematically deterministic across high turn-count dialogues.
 
+### D. Open Issue: In-Scene Character Scoring & Memory Salience
+
+> [!NOTE]
+> **Open Architectural Question**: When multiple secondary NPCs exist in the world roster, how should in-scene presence modulate memory retrieval?
+>
+> - **In-Scene Character Bonus**: When a specific NPC enters the room, should their relationship anchors and past memories receive an automatic heuristic scoring boost ($+3.0$) in prompt assembly?
+> - **Trade-Offs**: Guarantees high conversational relevance for whichever NPC is physically speaking, but requires reliable tracking of active scene presence vs. background/off-screen status across turns.
+
 ---
 
 ## 3. Dynamic Multi-Voice Acoustic Pipeline

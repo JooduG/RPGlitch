@@ -1202,37 +1202,6 @@ export function apply_state_mutations(entity, mutations, session = null) {
   return changed;
 }
 
-export function apply_neuroplasticity(entity_targets, memory, runtime) {
-  try {
-    const chaos = runtime?.active_ai?.dynamics?.chaos ?? 50;
-    const mem_text = String(memory?.content || "").toLowerCase();
-    const is_reconciliation = mem_text.includes("reconciliation") || mem_text.includes("healing");
-    const is_positive = (memory?.emotional_weight ?? 5) <= 4 || is_reconciliation;
-
-    const ai_target = entity_targets.find((t) => t.entity === runtime?.active_ai);
-    if (!ai_target || !Array.isArray(ai_target.entity.past)) return;
-
-    let changed = false;
-    for (const v of ai_target.entity.past) {
-      if (v.type === "future") continue;
-      if (v.emotional_weight >= 8) {
-        if (is_positive && chaos < 80) {
-          v.emotional_weight = Math.max(1, v.emotional_weight - 1);
-          changed = true;
-        } else if (chaos > 80) {
-          v.emotional_weight = Math.min(10, v.emotional_weight + 1);
-          changed = true;
-        }
-      }
-    }
-    if (changed) {
-      runtime?.update_entity?.(ai_target.type, ai_target.entity.id, { past: ai_target.entity.past });
-    }
-  } catch (err) {
-    console.error("[TemporalEngine] Neuroplasticity pass failed:", err);
-  }
-}
-
 export const temporal_engine = {
   create,
   score,
@@ -1286,13 +1255,6 @@ export const temporal_engine = {
                 append_past_vector(entity, memory);
                 await runtime.update_entity(type, entity.id, { past: entity.past });
               }
-            }
-          }
-
-          if (forged.memories?.AI_CHARACTER?.length) {
-            const primary_mem = forged.memories.AI_CHARACTER[0];
-            if (primary_mem) {
-              apply_neuroplasticity(entity_targets, primary_mem, runtime);
             }
           }
 
