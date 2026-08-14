@@ -49,7 +49,7 @@ export default defineConfig([
       "**/test-results/**",
       "**/yarn.lock",
       "**/tmp/**",
-      "tmp/**/*"
+      "tmp/**/*",
     ],
     // @agent:ignore-end
   },

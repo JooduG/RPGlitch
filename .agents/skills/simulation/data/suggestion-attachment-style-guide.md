@@ -1,6 +1,8 @@
 # Attachment Style → Dynamics Baseline Guide
 
-This is a design reference, not runtime code. Use it when designing characters to decide what `dynamics_baseline` values to set.
+This is a design reference, not runtime code. Use it when designing characters to decide what `dynamics_baseline` values to set and how Bayesian belief priors govern their goal hierarchies.
+
+---
 
 ## The Four Attachment Styles
 
@@ -8,14 +10,18 @@ Attachment theory (Bowlby/Ainsworth) describes how early relational patterns sha
 
 If you don't set a `dynamics_baseline`, all axes default to 50 (neutral). Setting one gives a character a "home" they drift back to.
 
+---
+
 ## Preset Values
 
-| Style            | chaos | intensity | openness | affinity |
-| ---------------- | ----- | --------- | -------- | -------- |
-| **secure**       | 30    | 40        | 70       | 65       |
-| **anxious**      | 55    | 70        | 80       | 75       |
-| **avoidant**     | 35    | 45        | 20       | 25       |
-| **disorganized** | 75    | 65        | 50       | 40       |
+| Style | chaos | intensity | openness | affinity |
+| :--- | :--- | :--- | :--- | :--- |
+| **secure** | 30 | 40 | 70 | 65 |
+| **anxious** | 55 | 70 | 80 | 75 |
+| **avoidant** | 35 | 45 | 20 | 25 |
+| **disorganized** | 75 | 65 | 50 | 40 |
+
+---
 
 ## What Each Axis Means
 
@@ -23,6 +29,8 @@ If you don't set a `dynamics_baseline`, all axes default to 50 (neutral). Settin
 - **intensity** — Internal Energy / Adrenaline. High = wired, urgent. Low = flat, depleted.
 - **openness** — Receptivity vs Guardedness. High = open to influence, porous. Low = walled off, suspicious.
 - **affinity** — Inter-Entity Bond / Empathy. High = drawn toward the other person. Low = distant, cold.
+
+---
 
 ## How Each Style Behaves Over Time
 
@@ -50,6 +58,39 @@ The most volatile pattern. Chaos at 75 means the physics engine itself is unstab
 
 **Best for:** Characters whose unpredictability is the drama. The system makes them genuinely unstable — their dynamics won't settle cleanly.
 
+---
+
+## Bayesian Attachment Priors & Belief States
+
+Characters do not hold static trust scores. In advanced Bayesian psychological modeling, their baseline expectations are governed by a belief system seeded by their **Attachment Style**:
+
+- **Secure Attachment**: Sets balanced priors that favor safety and trust:
+  - $P(H_{Trustworthy}) \approx 0.60$
+  - $P(H_{Untrustworthy}) \approx 0.10$
+- **Anxious Attachment**: Sets high priors for abandonment and rejection:
+  - $P(P\_Will\_Abandon) \approx 0.85$
+  - $P(P\_Genuine\_Care) \approx 0.25$
+- **Avoidant Attachment**: Sets low priors for vulnerability and high priors for hidden agendas:
+  - $P(P\_Safe\_Vulnerable) \approx 0.15$
+  - $P(P\_Hidden\_Agenda) \approx 0.70$
+- **Disorganized Attachment**: Characterized by high entropy (uncertainty) and conflicting priors across all domains.
+
+---
+
+## Goal Arbitration Formula
+
+Goal priority is dynamically recalculated using the current posterior probabilities of core beliefs:
+
+$$\text{Goal Priority}(G) = \text{Base Weight}(G) \times \sum (P(H_i) \times w_i)$$
+
+### Example Calculation
+
+$$\text{Priority}(G\_Avoid\_Vulnerability) = 8 \times P(P\_Will\_Abandon) \times P(P\_Hidden\_Agenda)$$
+
+A sharp rise in abandonment probability instantly shifts the entire goal hierarchy, forcing avoidant behaviors to override connection drives.
+
+---
+
 ## How to Use This
 
 1. Pick an attachment style for your character based on their psychology
@@ -65,13 +106,15 @@ The most volatile pattern. Chaos at 75 means the physics engine itself is unstab
 
 Set `dynamics` to the same values as `dynamics_baseline` for a character who starts in their natural state. Or set `dynamics` differently to start them in a displaced state (e.g. an avoidant character forced into high openness by circumstances — they'll start open but drift back to closed over time).
 
+---
+
 ## Inferring Style From Dynamics
 
 If you have a character with existing dynamics but no baseline, you can infer which style fits:
 
-- openness < 35 + affinity < 35 → **avoidant**
-- openness > 65 + (intensity > 60 or affinity > 60) → **anxious**
-- openness > 65 + chaos < 45 → **secure**
-- chaos > 65 → **disorganized**
+- `openness < 35` + `affinity < 35` → **avoidant**
+- `openness > 65` + (`intensity > 60` or `affinity > 60`) → **anxious**
+- `openness > 65` + `chaos < 45` → **secure**
+- `chaos > 65` → **disorganized**
 
 This is just a heuristic — use your judgment. The character's eternal/non_physical description should align with whatever baseline you choose.

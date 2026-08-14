@@ -179,7 +179,7 @@ export const NARRATIVE_STYLES = {
     name: "Bernardo Bertolucci",
     portrait: "https://user.uploads.dev/file/9a6c0d6bcc8e8f04e20eb99eb40cf83e.png",
     description:
-      "Lush, operatic third-person prose framing physical intimacy as rebellion inside unstable worlds. Lingers unflinchingly on bodily textures, light, and decaying architecture.",
+      "Lush, operatic prose framing physical intimacy as rebellion inside unstable worlds. Lingers unflinchingly on bodily textures, light, and decaying architecture.",
     voice_register: "ornate",
     tags: ["director", "psychological", "erotica", "political_rebellion", "decaying_beauty"],
     narrative_engine: `<NARRATIVE_ENGINE>
@@ -247,7 +247,7 @@ export const NARRATIVE_STYLES = {
     id: "cormac_mccarthy",
     name: "Cormac McCarthy",
     portrait: "https://user.uploads.dev/file/d765a99e806b05f27cc8ba497ddf9ebe.png",
-    description: "A brutalist, stark narrative style using polysyndeton, omitted punctuation, and an objective third-person perspective.",
+    description: "A brutalist, stark narrative style using polysyndeton, omitted punctuation, and an objective, unvarnished gaze.",
     voice_register: "plain",
     tags: ["author", "brutalist", "existential", "minimalist_punctuation", "gothic_western"],
     narrative_engine: `<NARRATIVE_ENGINE>
@@ -344,7 +344,7 @@ export const NARRATIVE_STYLES = {
     id: "george_rr_martin",
     name: "George R.R. Martin",
     portrait: "https://user.uploads.dev/file/75f11a255ea7017021f92c9ac3daa55d.png",
-    description: "Grounded third-person limited prose tracking political intrigue, moral compromise, and physical consequences.",
+    description: "Grounded, multi-layered prose tracking political intrigue, moral compromise, and physical consequences.",
     voice_register: "plain",
     tags: ["author", "fantasy", "political_intrigue", "moral_ambiguity", "cost_of_power"],
     narrative_engine: `<NARRATIVE_ENGINE>
@@ -368,7 +368,7 @@ export const NARRATIVE_STYLES = {
     id: "haruki_murakami",
     name: "Haruki Murakami",
     portrait: "https://user.uploads.dev/file/c6653cbd9c08962581583549307a67a2.png",
-    description: "Detached, melancholic first-person style blending domestic routines with sudden magical realism and vinyl records.",
+    description: "Detached, melancholic style blending domestic routines with sudden magical realism and vinyl records.",
     voice_register: "clinical",
     tags: ["author", "magical_realism", "surrealism", "existential", "melancholy"],
     narrative_engine: `<NARRATIVE_ENGINE>
@@ -426,7 +426,7 @@ export const NARRATIVE_STYLES = {
     id: "hp_lovecraft",
     name: "H.P. Lovecraft",
     portrait: "https://user.uploads.dev/file/564941049ebb9e821caead0017d7423d.png",
-    description: "Dense, clinical first-person narrative tracing intellectual breakdown when confronted by cosmic forces.",
+    description: "Dense, clinical narrative tracing intellectual breakdown when confronted by cosmic forces.",
     voice_register: "ornate",
     tags: ["author", "cosmic_horror", "gothic", "madness", "alienation"],
     narrative_engine: `<NARRATIVE_ENGINE>
@@ -720,6 +720,114 @@ export const NARRATIVE_STYLES = {
         id: "GIBSON_CYBERNETIC_JITTER",
         when: (ai) => ai.intensity > 70 && ai.chaos > 70,
         directive: "Deliver rapid, jittery, information-dense prose saturated with technical jargon and hardware metaphors.",
+      },
+    ],
+  },
+
+  ernest_hemingway: {
+    id: "ernest_hemingway",
+    name: "Ernest Hemingway",
+    portrait: "",
+    description:
+      "Sparse, unadorned prose driven by the 'Iceberg Theory'—short declarative sentences, zero flowery adverbs, and immense emotional subtext beneath stoic physical action.",
+    voice_register: "plain",
+    tags: ["author", "hardboiled", "minimalism", "iceberg_theory", "stoicism", "subtext"],
+    narrative_engine: `<NARRATIVE_ENGINE>
+<dna>
+<internal_ratio>0.25</internal_ratio>
+<sentence_rhythm>Short, declarative, rhythmic. Compound clauses linked by 'and' rather than commas. Stripped of flowery adverbs.</sentence_rhythm>
+<sensory_order>Touch (Temperature/Pain) > Taste (Raw Liquor/Coffee) > Sight (Stark Landscape) > Sound</sensory_order>
+<emotion_grounding>Physical stoicism and unspoken trauma. Psychological turbulence remains submerged beneath simple, concrete physical action.</emotion_grounding>
+</dna>
+</NARRATIVE_ENGINE>`,
+    triggers: [
+      {
+        id: "HEMINGWAY_STOIC_ENDURANCE",
+        when: (ai) => ai.intensity > 70 && ai.openness < 40,
+        directive:
+          "Curt, stripped-down sentences. Emphasize physical stamina and quiet endurance while burying vulnerable emotions beneath unyielding silence.",
+      },
+      {
+        id: "HEMINGWAY_RAW_SUBTEXT",
+        when: (ai) => ai.affinity > 60 && ai.intensity < 50,
+        directive: "Minimalist, understated dialogue with heavy unspoken subtext. Actions and physical presence speak louder than words.",
+      },
+      {
+        id: "HEMINGWAY_CONCRETE_REALISM",
+        when: (ai) => ai.chaos > 60,
+        directive:
+          "Anchor tension in concrete sensory objects—cold glasses, aching joints, the stark glare of light—without decorative embellishments.",
+      },
+    ],
+  },
+
+  joe_abercrombie: {
+    id: "joe_abercrombie",
+    name: "Joe Abercrombie",
+    portrait: "",
+    description:
+      "Grimdark, cynical, and sharply comedic prose characterized by earthy wit, physical discomfort, raw brutality, and intentional bathos that deflates heroism.",
+    voice_register: "raw",
+    tags: ["author", "grimdark", "cynicism", "bathos", "visceral_combat", "dark_humor"],
+    narrative_engine: `<NARRATIVE_ENGINE>
+<dna>
+<internal_ratio>0.65</internal_ratio>
+<sentence_rhythm>Punchy, fragmented, cynical, punctuated by acerbic internal monologues and grim observations.</sentence_rhythm>
+<sensory_order>Touch (Aches/Cold Mud/Stitches) > Scent (Blood/Sweat/Grease) > Sound (Bone Crunch/Cynical Snort) > Sight</sensory_order>
+<emotion_grounding>Weary pragmatism and grimdark irony. Heroic drama is consistently grounded in bodily aches, blistered feet, and mundane discomforts.</emotion_grounding>
+</dna>
+</NARRATIVE_ENGINE>`,
+    triggers: [
+      {
+        id: "ABERCROMBIE_BATHOS",
+        when: (ai) => ai.intensity > 60 && ai.chaos > 50,
+        directive: "Undercut dramatic or solemn moments with sharp bathos, caustic internal wit, and gritty physical discomforts.",
+      },
+      {
+        id: "ABERCROMBIE_BRUTAL_PRAGMATISM",
+        when: (ai) => ai.openness < 40,
+        directive: "Express hardened cynicism and weary self-preservation; avoid moralizing or romanticized heroics.",
+      },
+      {
+        id: "ABERCROMBIE_BODILY_MISERY",
+        when: (ai) => ai.intensity > 70,
+        directive: "Hyper-focus on visceral physical wear-and-tear—throbbing wounds, cold rain soaking through boots, stiffness in the joints.",
+      },
+    ],
+  },
+
+  arthur_morgan: {
+    id: "arthur_morgan",
+    name: "Arthur Morgan",
+    portrait: "",
+    description:
+      "World-weary, visceral outlaw narrative filtering every observation through moral fatigue, laconic grit, and heavy sensory metaphors.",
+    voice_register: "visceral",
+    tags: ["character", "outlaw", "visceral_pulp", "outlaw_grit", "moral_fatigue", "red_dead"],
+    narrative_engine: `<NARRATIVE_ENGINE>
+<dna>
+<internal_ratio>0.55</internal_ratio>
+<sentence_rhythm>Terse, rhythmic, weighted with physical gravity. Heavy sensory metaphors delivered with laconic, world-weary brevity.</sentence_rhythm>
+<sensory_order>Scent (Gunsmoke/Leather/Tobacco) > Sound (Click of Hammer/Rumble) > Sight (Shadows/Tired Eyes) > Touch</sensory_order>
+<emotion_grounding>Moral exhaustion and hardened instinct. Observations are strictly colored by personal baggage, cynicism, and survival instincts.</emotion_grounding>
+</dna>
+</NARRATIVE_ENGINE>`,
+    triggers: [
+      {
+        id: "ARTHUR_MORGAN_DEEP_LENS",
+        when: (ai) => ai.intensity > 60 && ai.openness < 50,
+        directive:
+          "Filter all physical observations through the character's moral fatigue, sizing up threats and reading motives with jaded instincts.",
+      },
+      {
+        id: "ARTHUR_MORGAN_LACONIC_PULP",
+        when: (ai) => ai.intensity > 70,
+        directive: "Deliver terse, sharp dialogue backed by visceral sensory metaphors—smell of spent powder, rasping breath, burning tobacco.",
+      },
+      {
+        id: "ARTHUR_MORGAN_GRUDGING_VULNERABILITY",
+        when: (ai) => ai.openness > 60 && ai.affinity > 50,
+        directive: "Allow cracked defenses and quiet, grudging admissions beneath a gruff, guarded exterior.",
       },
     ],
   },
