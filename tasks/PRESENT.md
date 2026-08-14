@@ -35,6 +35,10 @@ All 9 phases of the Monolithic Refactoring Campaign, the Stress-Test Remediation
 
 > **Archival Standard**: Upon track completion, implementation blueprints are archived exclusively to `C:\Users\johng\source\repos\RPGlitch\archive\`.
 
+- [ ] track-director-expansion-2026-08-14: Harden and expand Director turn pipeline (Async Job Queue, Fractal Turn Delegation, Dual Somatic/Trauma Injections, Input Pacing Calibration, Masking vs Somatic Leakage, and 23-Style Registry Catalog).
+- [ ] track-npc-expansion-2026-08-14: Multi-NPC Roster & Scene Presence (3-tier memory hierarchy, relational graph strings, naivety prior, epistemic horizon, protagonist syndrome filter, and multi-voice Kokoro TTS).
+- [ ] track-import-export-2026-08-14: Comprehensive data portability (Wiki/Fandom URL ingestion via superFetch proxy, standalone entity JSON export/import, Story Markdown compilation, and Epilogue resolution cards).
+- [ ] track-memory-bundle-2026-08-14: Canon Chronicle for exact fact persistence in `entity.past` with forge-skip protection, `FACT[]`/`FACT-CLEAR[]` protocol, and deterministic zero-LLM retrieval.
 - [x] track-codebase-improvements-2026-08-13: Execute approved architectural optimizations across src/ (Layer boundary decoupling in kernel.js, resolve_image_trigger helper extraction, AudioEngine teardown method, and export surface pruning across 6 files).
 - [x] track-remediate-stress-test-feedback-2026-08-13: Remediate 4 approved stress-test review findings (Ghost Row Purge on failed/timed-out image placeholders, Memory Forge Stale-Goal Eviction Law reinforcement, Director Physical Causality Law enforcement, and Present Physical Wardrobe/Equipment Preservation).
 - [x] remediate-stress-test-issues-2026-08-12: Remediate 7 stress-test issues from long-term-review-4 (Fractal future standing agenda stagnation, session_driver reload sync, ONNX WASM embed recovery, Director terse thought formatting, reply length allocation, and telemetry logging completeness).

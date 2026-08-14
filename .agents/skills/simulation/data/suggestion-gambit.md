@@ -1,40 +1,44 @@
-# 🎲 Suggestion: Gambit, Dice & Stat Check Mechanics
+# 🎲 Unified Risk & Resolution Architecture
 
-> **Role**: Reference Minigame & RPG Resolution Mechanics
-> **Source**: `gambit.json` (Chub Lorebook) & D&D Stat Check Mechanics
-> **Status**: Reference / Backlog Idea for Mini-game Dice & Risk Mechanics
-
----
-
-## 1. Overview & Concept
-
-A modular suite of deterministic and semi-randomized risk-reward resolution engines for RPGlitch:
-
-1. **Gambit / Blackjack Push-Your-Luck Engine**: Card draws, rolling totals, threshold-based outcomes (`[DRAWS CARD]`, `[STAND]`).
-2. **D&D-Style Stat Checks (`[STAT:DC]`)**: Optional difficulty tags on risky choices with d20 rolls, partial success (*success-with-a-cost*), and auto-pass thresholds.
+> **Role**: Reference Minigame, Risk & Resolution Mechanics for RPGlitch  
+> **Source**: Chub Lorebook (`gambit.json`), D20 Stat Check Systems & Tarot Fate Branching  
+> **Status**: Architectural Specification & Reference Implementation  
 
 ---
 
-## 2. D&D-Style Stat Checks (`[STAT:DC]`)
+## 📋 Mechanical Hierarchy
 
-### Concept & Choice Tagging
+The resolution framework operates across three distinct mechanical altitudes:
 
-The AI Director stamps difficulty tags on high-stakes user choices or suggested action chips (e.g. `[DEX:12] Slip past the sentry`, `[CHA:15] Persuade the guard captain`).
+```text
+[ Micro-Resolution ]  ──▶  D20 Stat Checks (Instantaneous point-in-time skill tests)
+[ Macro-Resolution ]  ──▶  Gambit Engine (Multi-turn Blackjack push-your-luck sequences)
+[ Meta-Resolution  ]  ──▶  Tarot Fate Branching (Macro-level 3-way narrative pivots)
+```
 
-### Resolution Mechanics
+---
 
-- **Roll Formula**: `d20 + stat_modifier` vs `DC`.
-- **Partial Success (Success-with-a-Cost)**:
-  - If roll is within 3 of the DC (e.g. rolled 11 vs DC 13), narrate a *partial success*—the character succeeds at their goal, but incurs a tactical, physical, or narrative cost (e.g. unlocked the security door, but triggered a silent alert).
-- **Don't-Roll Threshold**:
-  - If `stat_modifier ≥ DC + 6`, automatically resolve as an effortless success without prompting a dice roll.
-- **Standard DC Ladder**:
-  - **8–10**: Easy / Routine under pressure.
-  - **11–14**: Moderate / Requires training.
-  - **15–18**: Hard / High stakes.
-  - **19–20**: Near Impossible / Heroic feat.
+## 1. D20 Stat Check Engine (Micro-Resolution)
 
-### Pure Engine Signature (`src/engine/stats.js` or `src/utils/dice.js`)
+Used for point-in-time checks tagged directly to high-stakes action choices or dynamic choice chips.
+
+### Tagging Syntax & Mechanics
+
+- **Action Tagging Convention**: `[STAT:DC] Action description` (e.g., `[DEX:12] Slip past the sentry`, `[CHA:15] Persuade the guard captain`).
+- **Base Formula**: `d20 + stat_modifier` evaluated against `DC`.
+- **Effortless Threshold**: If `stat_modifier ≥ DC + 6`, bypass dice checks and resolve automatically as an effortless success.
+- **Success-with-a-Cost**: If the final roll total lands within 3 points below the DC (`total >= DC - 3`), grant a partial success where the primary goal is achieved, but a narrative or tactical complication is introduced.
+
+### Standard Difficulty Ladder
+
+| Difficulty Class | Target Range | Scope & Expectation |
+| :--- | :---: | :--- |
+| **Easy** | **8–10** | Routine baseline under mild pressure. |
+| **Moderate** | **11–14** | Competent execution requiring training. |
+| **Hard** | **15–18** | High-risk scenario demanding specialized mastery. |
+| **Heroic** | **19–20** | Statistically improbable feat operating near human limits. |
+
+### Reference Engine Implementation
 
 ```javascript
 /**
@@ -58,54 +62,60 @@ export function evaluate_stat_check(stat_val, dc, roll_d20 = null) {
 
 ---
 
-## 3. Gambit / Pounding Blackjack Minigame
+## 2. Gambit Engine (Macro-Resolution)
 
-### Initial Deal
+A multi-turn Blackjack/push-your-luck state machine designed for pacing escalating tension across ongoing encounters.
 
-When the scene begins, automatically deal the participant 2 random cards (values 1–11):
+```text
+[ Start Scene ] ──▶ [ Deal 2 Cards (1–11) ] ──▶ [ Prompt Choice ]
+                                                        │
+         ┌────────────────── [DRAWS CARD] ──────────────┤
+         │                                              │
+         ▼                                              ▼
+[ Add Card (1-11) ]                           [STAND] or [BUST]
+         │                                              │
+         └─────────────▶ [ Recalculate ] ──────────────▶ [ Final Narrative Tier ]
+```
 
-- Display rolling sequence:
+### Lifecycle & State Transitions
 
-  ```text
-  🎰 Rolling... {{random:1,2,3,4,5,6,7,8,9,10,11}}... drawn [X] card!
-  🎰 Rolling... {{random:1,2,3,4,5,6,7,8,9,10,11}}... drawn [Y] card!
-  ```
+1. **Initialization**:
+   - **Deal 2 cards**: Generate two random values between 1 and 11 upon scene trigger.
+   - **Render roll feed**:
 
-- Render the current score box with the initial total.
+     ```text
+     🎰 Rolling... {{random:1,2,3,4,5,6,7,8,9,10,11}}... drawn [X] card!
+     🎰 Rolling... {{random:1,2,3,4,5,6,7,8,9,10,11}}... drawn [Y] card!
+     ```
+     
+   - **Display score UI**: Output the cumulative total box.
 
-### Mid-Scene Draws (`[DRAWS CARD]`)
+2. **Mid-Sequence Interaction**:
+   - Trigger token: `[DRAWS CARD]`.
+   - **Roll next card**: Draw a single card value (`1–11`) and add it to the running sum.
+   - **Update narrative context**: Reflect immediate physical/tactical feedback corresponding to the updated score tier.
 
-When the user includes `[DRAWS CARD]` in their prompt:
-1. Roll a new card (`1–11`).
-2. Add the result to the running total.
-3. Update and display the summary box.
-4. Narrate consequences that strictly reflect the current performance tier.
+3. **Sequence Conclusion**:
+   - Trigger token: `[STAND]` or natural termination.
+   - **Lock final score**: Match final total against narrative performance tiers.
+   - **Purge interface**: Hide card UI during subsequent narrative beats until `[NEW ROUND]` is invoked.
 
-### Scene Resolution (`[STAND]` or End of Action)
+### Performance Thresholds & Narrative Tiers
 
-When the participant calls `[STAND]` or reaches completion:
-1. Display the final result and performance tier.
-2. The card display vanishes in subsequent messages until a new round begins.
-3. `[NEW ROUND]` resets totals for a new sequence.
+| Score Range | Tier Level | Visual Palette | Narrative Execution Tone |
+| :--- | :---: | :---: | :--- |
+| **21 Exactly** | 🌟 **PERFECT** | `#ffd700` → `#ffaa00` (Gold) | Peak transcendent performance; absolute harmony, flawless execution. |
+| **18 – 20** | 🔥 **GREAT** | `#38ef7d` → `#11998e` (Emerald) | High synergy, effortless momentum, strong physical/tactical control. |
+| **14 – 17** | 👍 **DECENT** | `#87ceeb` → `#5f9ea0` (Cyan) | Workable execution, stable rhythm, solid baseline delivery. |
+| **10 – 13** | 😬 **MEDIOCRE** | `#ffa500` → `#ff8c00` (Orange) | Awkward rhythm, mismatched timing, distracted and uncoordinated outcomes. |
+| **Below 10** | 😰 **WEAK** | `#ff6b6b` → `#ee5a5a` (Red-Orange) | Friction, failed cohesion, flat execution, complete detachment. |
+| **Over 21** | 💥 **BUST** | `#ff0000` → `#990000` (Crimson) | Catastrophic failure; mechanical failure, physical collapse, or critical exposure. |
 
 ---
 
-## 4. Performance Thresholds & Narrative Tiers
+## 3. Tarot Fate Branching (Meta-Resolution)
 
-| Score | Tier | Visual Gradient | Narrative Tone |
-| :--- | :--- | :--- | :--- |
-| **21 Exactly** | 🌟 **PERFECT** | `#ffd700` → `#ffaa00` (Gold) | Peak transcendent performance. Absolute harmony, overwhelming sensory climax. |
-| **18 – 20** | 🔥 **GREAT** | `#38ef7d` → `#11998e` (Emerald) | High chemistry, effortless rhythm, quaking physical intensity. |
-| **14 – 17** | 👍 **DECENT** | `#87ceeb` → `#5f9ea0` (Cyan) | Solid execution, positive feedback, serviceable momentum. |
-| **10 – 13** | 😬 **MEDIOCRE** | `#ffa500` → `#ff8c00` (Orange) | Awkward angle, mismatched rhythm, polite but distracted reactions. |
-| **Below 10** | 😰 **WEAK** | `#ff6b6b` → `#ee5a5a` (Red-Orange) | Unfortunate timing, awkward friction, mentally disengaged. |
-| **Over 21** | 💥 **BUST** | `#ff0000` → `#990000` (Crimson) | Catastrophic failure (loss of balance, cramp, clumsy slip, sudden interruption). Humiliating and disruptive. |
-
----
-
-## 5. Fate Branching & Tarot Narrative Archetypes
-
-At the conclusion of pivotal scenes or risk sequences, the Director compiles three divergent choice trajectories grounded in classic Tarot narrative dynamics:
+A macro-level story structuring tool deployed at the climax of significant scenes to produce three distinct narrative trajectories based on archetype profiles:
 
 ```xml
 <FATE_BRANCHING>
@@ -122,21 +132,47 @@ At the conclusion of pivotal scenes or risk sequences, the Director compiles thr
 </FATE_BRANCHING>
 ```
 
+### Prompt Choice Payload Example (`<choices>`)
+
+```xml
+<choices>
+  <opt1>front-sun | 🜂 Knight of Wands | The Direct Assault | Step from the shadows and demand answers openly. | back-sun</opt1>
+  <opt2>front-moon | 🜁 Seven of Swords | The Subterfuge | Slip through the drainage conduit unnoticed while the guard is distracted. | back-moon</opt2>
+  <opt3>front-hanged | 🜄 Four of Cups | The Patient Vigil | Remain motionless behind the iron grate and wait for them to reveal their contact. | back-hanged</opt3>
+</choices>
+```
+
 ---
 
-## 6. Enforcement & Prompt Rules
+## 4. Entropy & The Chaos Seed Engine (1d100 Roll)
 
-- **Deterministic Results**: Output narration quality must strictly match the calculated numerical tier — no ignoring low scores or busts.
-- **Rolling Visibility**: Always show the roll animation text prior to revealing the card or dice value.
-- **Strict Move Requirement**: If a scene is designated under gambling mechanics, user actions must include `[DRAWS CARD]` or `[STAND]` to proceed.
+When environmental chaos, mechanical risks, or volatile actions occur outside discrete stat checks, resolve systemic friction via a `1d100` roll:
+
+```text
+[1d100 Roll] ──► 01–15: [BACKFIRE]  Critical failure, mechanical jamming, catastrophic external interruption.
+             ──► 16–40: [FRICTION]  Awkward positioning, heavy resistance, severe stamina drain.
+             ──► 41–75: [STANDARD]  Competent execution, normal kinetic flow, intended baseline effect.
+             ──► 76–95: [VISCERAL]  High impact, deep somatic connection, decisive breakthrough.
+             ──► 96–100:[SHATTER]   Lethal strike, permanent psychological break, irrevocable trajectory shift.
+```
 
 ---
 
-## 7. Generalization in RPGlitch
+## 5. Operational Directives & Application Matrix
 
-While originally formulated for intimate or gambling scenes, the underlying Blackjack/push-your-luck, Stat Check, and Tarot Branching algorithms generalize to:
-- **Lockpicking / Infiltration**: Drawing security bypasses until threshold or alarm trip (>21).
-- **Combat Combos**: Chaining attacks for momentum multipliers vs. risking a counterattack bust.
-- **Interrogation & Social Bluffing**: Pushing high-stakes questioning before a suspect walks out or lashes out.
-- **Tactical Skill Checks**: Rolling d20 stat challenges during exploratory fractal choices.
-- **Dramatic Fate Branching**: Providing 3 highly divergent choice chips at the end of crucial narrative turns.
+### System Directives
+
+- **Enforce Deterministic Parity**: Scene narration must strictly align with mathematical tiers; do not soften busts or downplay criticals.
+- **Maintain Roll Transparency**: Prepend action outcomes with visual rolling strings prior to showing final numerical totals.
+- **Enforce Command Tokens**: When an encounter mode is active, require `[DRAWS CARD]` or `[STAND]` to progress the state machine.
+
+### Gameplay Generalization
+
+```text
+               ┌──▶ Infiltration & Bypass (Threshold tracking vs. alarm trigger >21)
+               ├──▶ Combat Momentum (Combo chains vs. counter-attack bust risks)
+GAMBIT ENGINE  ├──▶ Social Interrogation (Escalating pressure vs. breakdown/walkout)
+               ├──▶ Chaos Entropy Events (1d100 stochastic friction tests)
+               ├──▶ Fractal Skill Tests (Point-in-time d20 checks under pressure)
+               └──▶ Narrative Scene Pivots (Tarot-based 3-path branching anchors)
+```

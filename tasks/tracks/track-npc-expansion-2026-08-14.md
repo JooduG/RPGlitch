@@ -1,32 +1,44 @@
 # 🚀 Implementation Blueprint — `track-npc-expansion-2026-08-14`
 
-> **Track Goal**: Build the complete NPC & World Living Ecosystem for RPGlitch, turning static single-companion roleplay into a dynamic multi-character world:
+> **Track Goal**: Build the complete NPC & Living World Ecosystem for RPGlitch, transitioning single-companion roleplay into an autonomous multi-agent social mesh:
 >
-> 1. **Multi-NPC Roster & Scene Presence**: Support multiple active secondary NPCs alongside the primary AI companion.
+> 1. **Multi-NPC Roster & Scene Presence**: Support multiple active secondary NPCs across a 3-tier memory hierarchy alongside the primary AI companion.
 > 2. **Structured Relationships List**: Flat prose relationship graph (`Aiko → Ren: secretly dating, grew closer this week`) + injected `<CURRENT_STORY_STATE>` prompt block.
 > 3. **The Naivety Prior & Credulity Model**: Calibrate how readily NPCs accept incoming player claims and social persuasion based on their `openness` dynamic axis.
 > 4. **Epistemic Horizon & Information Vectors**: Enforce strict boundary physics where NPCs only know what they have personally witnessed or received through tangible information vectors.
-> 5. **NPC Independence Directive**: Prompt architecture establishing that NPCs have independent routines, goals, and off-screen lives ("The player is one person in this world, not its center").
+> 5. **NPC Independence Directive & Protagonist Syndrome Filter**: Enforce sovereign prompt laws establishing that NPCs have independent routines, goals, and off-screen lives.
 > 6. **Multi-Voice Kokoro TTS Scenes**: Dynamic Kokoro voice switching mid-narration when dialogue transitions between the narrator, NPCs, and player.
+
+```text
+               ┌────────────────────────────────────────────────────────┐
+               │              World Roster & Memory Tiering             │
+               └───────────┬────────────────┬───────────────────────────┘
+                           │                │
+             ┌─────────────▼──────┐  ┌──────▼──────────────────┐
+             │ Epistemic Horizon  │  │ Social Credulity Engine │
+             │ (Information Flow) │  │ (Openness & Friction)   │
+             └─────────────┬──────┘  └──────┬──────────────────┘
+                           │                │
+               ┌───────────▼────────────────▼───────────────────────────┐
+               │       Context Assembler (<CURRENT_STORY_STATE>)        │
+               └────────────────────────────┬───────────────────────────┘
+                                            │
+               ┌────────────────────────────▼───────────────────────────┐
+               │    Multi-Voice Kokoro Audio Dispatcher (TTS Stream)    │
+               └────────────────────────────────────────────────────────┘
+```
 
 ---
 
-## 🎯 Goal & Specifications
+## 1. World Representation & Entity Tiers
 
-### 1. Multi-NPC Roster & Scene Presence
+To keep context windows lean and memory efficient on standard desktop hardware without sacrificing world depth, entities operate across three distinct operational tiers:
 
-- Expand story session state to track a roster of active and background NPCs in the active Fractal/Setting.
-- Allow the Director to pull secondary characters into scenes dynamically or swap in-focus characters.
-
-#### Three-Tier NPC Roster Architecture
-
-To populate rich living worlds without exploding token budgets, secondary characters are managed across three operational tiers:
-
-```text
-[WORLD ROSTER] ──> Tier 1: Background (Function-Only, Zero Memory Overhead)
-               ──> Tier 2: Recurring  (Plot Memory, Relationship Anchors)
-               ──> Tier 3: Major      (Full Unified Memory, Autonomous Agenda)
-```
+| Tier       | Classification | Memory & Context Overhead | Operational Scope                                                                                                           |
+| :--------- | :------------- | :------------------------ | :-------------------------------------------------------------------------------------------------------------------------- |
+| **Tier 1** | Background     | Zero persistent memory    | Incidental scene dressings (bartenders, sentries, merchants). Functional dialogue and immediate sensory reactions only.     |
+| **Tier 2** | Recurring      | Light persistent memory   | Faction contacts, rivals, and acquaintances. Retains plot milestones and flat relational prose (`relationships: string[]`). |
+| **Tier 3** | Major          | Full Unified Memory Model | Primary co-protagonists, key companions, core antagonists. Persistent episodic, emotional, and procedural states.           |
 
 ```xml
 <NPC_ECOLOGY Authority="L3_HIGH">
@@ -39,7 +51,7 @@ To populate rich living worlds without exploding token budgets, secondary charac
   <!-- Tier 2: Recurring NPCs -->
   <TIER level="2" name="RECURRING">
     - Role: Secondary characters, faction contacts, known acquaintances.
-    - Scope: Retains plot history and direct relationship state (`relationships: string[]`).
+    - Scope: Retains plot history and direct relationship state (relationships: string[]).
   </TIER>
 
   <!-- Tier 3: Major NPCs / Companions -->
@@ -50,30 +62,17 @@ To populate rich living worlds without exploding token budgets, secondary charac
 </NPC_ECOLOGY>
 ```
 
-### 2. Structured Relationships List
+### Relational State Schema
 
-- **Storage**: Maintain a lightweight per-entity prose list of active relationships (`relationships: string[]`, e.g. `"Ren → Mia: deeply distrustful after the break-in"`).
-- **Prompt Injection**: Injected as `<CURRENT_STORY_STATE>` block into Director and Character prompts, providing grounded relational memory.
+Relationships are stored as dynamic, directed prose statements rather than heavyweight nested graph matrices. This keeps context injection compact and human-readable:
 
-### 3. The Naivety Prior & Credulity Model
+- **Data representation**: Array of plain strings attached to the entity (`relationships: string[]`).
+- **Format syntax**: `"[Source] → [Target]: [Relational dynamic and recent history]"`.
+- **Example**: `"Ren → Mia: deeply distrustful after the break-in"`.
 
-To model believable social friction and prevent NPCs from acting as gullible yes-men:
+---
 
-- **Baseline Credulity (`openness` axis)**: High `openness` represents baseline trust and receptivity; low `openness` represents hardened skepticism.
-- **Evidence Triggers & Accumulation**: When a player makes promises, excuses, or assertions ("I swear", "it wasn't me"), skeptical NPCs treat assertions with suspicion unless backed by consistent actions over time. Naive NPCs update beliefs more rapidly on single claims.
-
-### 4. Epistemic Horizon & Information Vectors
-
-To eliminate omniscient NPC slop and maintain hard world physics:
-
-- **No Mind-Reading / Null Data**: Unspoken player motives, secrets, or behind-the-scenes actions remain inaccessible **Null Data** to NPCs until physically voiced or demonstrated.
-- **Information Vectors**: Facts must travel via a tangible medium (direct line of sight, hearing a conversation, intercepting a message, or hearing town gossip). If no vector connected the event to the NPC, the information does not exist for them.
-
-### 5. NPC Independence & Off-Screen Trajectories
-
-- Embed sovereign prompt law across Narrator and Director systems:
-  > "NPCs are fully independent people with their own routines, loyalties, and off-screen agendas. They do not wait idly for the protagonist. The world advances in their absence."
-- Secondary NPCs can form or alter relationships with each other independently of the player's presence.
+## 2. Cognitive Physics & Social Dynamics
 
 ```xml
 <ECOLOGICAL_MESH Authority="L3_HIGH">
@@ -85,50 +84,90 @@ To eliminate omniscient NPC slop and maintain hard world physics:
 </ECOLOGICAL_MESH>
 ```
 
-### 6. Multi-Voice Kokoro TTS Dialogue Switching
+### A. The Epistemic Horizon & Information Propagation
 
-- During turn narration, split transcript across speakers (Narrator, Character A, Character B).
-- Switch Kokoro voice URIs (`af_heart`, `am_adam`, `bm_george`, etc.) dynamically between dialogue segments during audio stream generation.
+To eliminate psychic NPC tendencies, the engine strictly bounds NPC knowledge:
+
+- **Null Data Principle**: Unspoken player thoughts, off-screen events, and unshared plot points are strictly inaccessible **Null Data** to NPCs.
+- **Vector Validation**: Knowledge must travel along physical conduits: direct sight, auditory range, physical correspondence, or rumor networks. If no physical vector connects an event to an NPC, the NPC acts with zero knowledge.
+
+### B. Naivety Prior & Credulity Dynamic
+
+NPCs do not treat player statements as absolute truth. Persuasion and claim acceptance are governed by the dynamic `openness` axis:
+
+- **High Openness**: Lower baseline friction; more receptive to direct claims and rapid social updates.
+- **Low Openness**: High friction; claims without corroborating physical evidence are met with suspicion.
+- **Evidence Accumulation**: Skeptical entities require behavioral track records before updating their internal trust state.
+
+### C. System Trade-Off Analysis
+
+#### Prose-Based Relational Strings vs. Formal Graph Databases
+
+- **For**: Extremely low token overhead, natively understood by LLM attention mechanisms, zero serialization latency.
+- **Against**: Lacks native relational querying, pathfinding, or mathematical clustering across massive NPC populations.
+
+#### Heuristic Openness Axis vs. Probabilistic Bayesian Updating
+
+- **For**: Intuitive to prompt, rapid execution, eliminates runtime math overhead during inference.
+- **Against**: Less mathematically deterministic across high turn-count dialogues.
 
 ---
 
-## 🏗️ Technical Design
+## 3. Dynamic Multi-Voice Acoustic Pipeline
 
-### 1. Data Schema (`src/data/normalizer.js` & `src/data/schema.js`)
+During turn generation, the monologue/dialogue transcript is parsed by speaker attribution to orchestrate smooth multi-character voice transitions:
 
-- Add `relationships: string[]` to entity schema with length caps and defaults.
-- Support secondary NPC references in session models.
+```text
+[Narrated Stream]
+   │
+   ├── "The rain hammered against the glass." (Narrator) ──> Kokoro: bm_george
+   ├── "We can't stay here," Ren whispered.  (Ren)      ──> Kokoro: am_adam
+   └── "I know," Mia sighed.                 (Mia)      ──> Kokoro: af_heart
+```
 
-### 2. Prompt Engineering (`src/intelligence/prompts.js`)
-
-- Inject `<CURRENT_STORY_STATE>` (relationships and active NPC statuses).
-- Add the **NPC Independence Directive**, **Naivety Prior / Credulity Guidelines**, and **Epistemic Information Vector Boundaries** to Director and Narrator prompts.
-
-### 3. Audio Voice Switching (`src/media/audio.svelte.js`)
-
-- `split_speech_by_speaker(text, entity_roster)`: Maps dialogue quotes and attributions to specific Kokoro voice URIs, enqueuing voice-swapped audio buffers seamlessly.
+- Parser divides the output text into speaker-tagged sequential chunks.
+- Voice IDs (e.g., `af_heart`, `am_adam`, `bm_george`) are mapped dynamically against the active entity roster.
+- Audio buffers are enqueued sequentially to prevent overlapping output or voice-switching latency spikes.
 
 ---
 
-## 📋 Task Checklist
+## 4. Implementation Playbook (Bite-Sized Checklist)
 
-- [ ] **Phase 1 (RED — Unit Tests)**:
-  - [ ] Relationships normalization and formatting tests (`src/data/normalizer.test.js`).
-  - [ ] Speaker segmentation and multi-voice dispatch tests (`src/media/audio.test.js`).
-  - [ ] NPC independence, naivety prior, and epistemic vector prompt assembly assertions (`src/intelligence/prompts.test.js`).
+### Phase 1: Test-Driven Red Suite
 
-- [ ] **Phase 2 (GREEN — Core Logic)**:
-  - [ ] Implement `relationships` field in schema & normalizer.
-  - [ ] Implement multi-voice segmentation in `src/media/audio.svelte.js`.
-  - [ ] Update Director and Narrator prompts with NPC independence, naivety credulity, and `<CURRENT_STORY_STATE>` blocks in `src/intelligence/prompts.js`.
+- [ ] **Create unit tests for schema normalization** in `src/data/normalizer.test.js` covering relationship arrays and length limits.
+- [ ] **Write parser unit tests** in `src/media/audio.test.js` validating speaker attribution segmentation and voice mapping.
+- [ ] **Add prompt assembly tests** in `src/intelligence/prompts.test.js` ensuring `<CURRENT_STORY_STATE>`, credulity markers, and vector constraints render correctly.
 
-- [ ] **Phase 3 (UI & Interactive Expression)**:
-  - [ ] Render secondary NPC cards in Storyboard / side asides.
+### Phase 2: Core Logic & Prompt Construction
 
-- [ ] **Phase 4 (VERIFY)**:
-  - [ ] Run `npm run verify` (`test:unit`, `test:design`, `lint`, `svelte-check`).
-  - [ ] Simulate multi-character dialogue and test TTS voice switching across speakers.
+- [ ] **Add `relationships: string[]` field** with validation and defaults inside `src/data/schema.js` and `src/data/normalizer.js`.
+- [ ] **Implement `split_speech_by_speaker(text, entity_roster)`** in `src/media/audio.svelte.js` to segment text by speaker and route voice URIs.
+- [ ] **Inject the `<ECOLOGICAL_MESH>` directive** and `<CURRENT_STORY_STATE>` blocks inside `src/intelligence/prompts.js`.
 
-- [ ] **Phase 5 (HANDOFF & DEPLOY)**:
-  - [ ] Run `npm run build` for single-file bundle verification.
-  - [ ] Update `tasks/PRESENT.md` and archive blueprint.
+### Phase 3: Interface & Scene Expression
+
+- [ ] **Add secondary NPC visual cards** to the Storyboard/Aside UI components.
+- [ ] **Wire up dynamic roster indicators** showing which secondary characters currently occupy the scene.
+
+### Phase 4: Verification & Stress Testing
+
+- [ ] **Execute test verification suite**:
+
+  ```bash
+  npm run verify
+  ```
+
+  _(Runs `test:unit`, `test:design`, `lint`, and `svelte-check`)_.
+
+- [ ] **Run a multi-character interactive simulation** to verify voice-switching transitions and epistemic boundary containment in audio playback.
+
+### Phase 5: Deployment & Archival
+
+- [ ] **Execute the production bundle build**:
+
+  ```bash
+  npm run build
+  ```
+
+- [ ] **Update tracking documentation** in `tasks/PRESENT.md` and archive the blueprint.

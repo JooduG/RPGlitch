@@ -7,132 +7,141 @@
 > 3. **Story Markdown Export**: Export complete story transcripts (dialogue, narration, telemetry, timestamps) to cleanly formatted Markdown.
 > 4. **Epilogue / End-of-Story Action**: Integrate "Export Story (Markdown)" and "Export Entities (JSON)" directly into the Epilogue/End-of-Story flow.
 
----
+```text
+  INBOUND PIPELINE (Wiki / Fandom URL)
+  ┌──────────────┐     ┌───────────────────────┐     ┌───────────────────────┐     ┌─────────────────────┐
+  │  Wiki/Fandom │ ──> │   superFetch Proxy    │ ──> │ HTML Sanitization &   │ ──> │ LLM Synthesis &     │ ──> Local DB (Dexie)
+  │     URL      │     │ (platform/transport)  │     │ Truncation (utils)    │     │ Normalizer (schema) │
+  └──────────────┘     └───────────────────────┘     └───────────────────────┘     └─────────────────────┘
 
-## 🧩 Track Overview
-
-| Feature                         | Surface / Layer                                                                    | Primary Objective                                                                                   |
-| :------------------------------ | :--------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------- |
-| **Wiki/Fandom URL Import**      | `platform/transport.js`, `intelligence/prompts.js`, `ui/entity/ImportModal.svelte` | Paste URL → Fetch HTML via `superFetch` → Strip & Truncate → Extract Entity JSON → Normalize.       |
-| **Entity JSON Export / Import** | `utils/ui-helpers.js`, `data/normalizer.js`, `ui/profile/Profile.svelte`           | Download active/saved character or fractal as standalone JSON file; import with schema validation.  |
-| **Story Markdown Export**       | `utils/story-export.js`, `ui/Storyboard.svelte`, `ui/Storymode.svelte`             | Compile session history to Markdown with title, summary, character metadata, and timestamped beats. |
-| **End of Story Integration**    | `ui/organisms/Storymode.svelte`, `ui/molecules/EpilogueCard.svelte`                | Surface story export & entity saving upon reaching narrative resolution/epilogue.                   |
-
----
-
-## 1. Wiki/Fandom Ingestion
-
-### 🎯 Goal & Specifications
-
-In the Import modal, paste a URL to a wiki/fandom page for a **character** or a **world/setting**. One click produces a fully-formed profile (`character` or `fractal` entity).
-
-**The Ingestion Fill Rules**:
-
-- Wiki-stated details are **source of truth** — use them verbatim.
-- Anything NOT stated (eye color, outfit, height, unspoken traits) → invent a fitting, vivid default consistent with the setting. **Never leave a field null or blank.**
-- Output is a single JSON object matching our existing entity schema fields.
-
-### 🏗️ Technical Design
-
-1. **Plugin import (`main.pjs`)**:
-   - `superFetch = {import:super-fetch-plugin}` (top-level assignment only; accessed via `root.superFetch`).
-   - Wrap in `platform/transport.js` as `fetch_wiki_text(url)` so the rest of the application never touches `root.superFetch` directly.
-
-2. **Fetch + content extraction (`utils/text.js`)**:
-   - `fetch_wiki_text(url)` → HTML via `root.superFetch` → strip scripts, navigation, headers, footers, tags → clean plain text.
-   - Truncate to readable token budget (~8k chars for characters, ~10k chars for worlds).
-   - Validate scheme (`https:`) + security boundary sanitization in `platform/security.js`.
-
-3. **Prompt builders (`intelligence/prompts.js`)**:
-   - `render_wiki_character_form(truncated_text, scenario_context)` → JSON schema of character fields (name, appearance, personality, backstory, fears, values, dynamics) mapped to our `eternal` and `present` schemas.
-   - `render_wiki_scenario_form(truncated_text)` → JSON schema of world fields (name, description, setting, fashion, races, tone, story rules) mapped to our `fractal` entity schema.
-   - Strict system directive: "Source of truth for stated details; invent vivid defaults for missing fields; never emit blanks/nulls."
-
-4. **Parse + map (`intelligence/parser.js` & `data/normalizer.js`)**:
-   - Parse pseudo-JSON / JSON output.
-   - Map into normalized entity shape via `normalize_entity` with schema-safe fallbacks.
-
-5. **UI Wiring (`ui/entity/ImportModal.svelte`)**:
-   - "Import from Wiki / Fandom URL" tab/section: URL input + Character/World toggle + "Import" button.
-   - Busy spinner during fetch/generation, clean error notifications, preview step before committing to database.
+  OUTBOUND PIPELINE (Portability & Archival)
+  ┌──────────────┐     ┌───────────────────────┐     ┌───────────────────────┐
+  │ Active Story │ ──> │ Story Markdown Engine │ ──> │ story-{title}-{date}  │
+  │ / Epilogue   │     │ (utils/story-export)  │     │ .md Download          │
+  └──────────────┘     └───────────────────────┘     └───────────────────────┘
+  ┌──────────────┐     ┌───────────────────────┐     ┌───────────────────────┐
+  │ Entity State │ ──> │ Schema Serializer     │ ──> │ {entity-name}.json    │
+  │ (Char/World) │     │ (data/normalizer)     │     │ Standalone Export     │
+  └──────────────┘     └───────────────────────┘     └───────────────────────┘
+```
 
 ---
 
-## 2. Entity JSON Export & Import
+## 1. Inbound Engine: Wiki & Fandom Ingestion
 
-### 🎯 Goal & Specifications
+### A. Security, Transport & Extraction Flow
 
-Allow users to export any Character or Fractal entity as a standalone `.json` file from the Profile or EntityCard, and drag-and-drop or select a `.json` file to import it.
+To safely ingest external HTML without polluting core domain logic or exposing security vulnerabilities:
 
-### 🏗️ Technical Design
+1. **Transport Isolation**: `superFetch` is isolated within `src/platform/transport.js` via `fetch_wiki_text(url)` to ensure the rest of the application never touches raw plugin roots directly.
+2. **Security & Protocol Sanitization**: `src/platform/security.js` enforces strict `https:` scheme validation and blocks malicious URI vectors before request execution.
+3. **HTML Extraction & Token Budgeting**: `src/utils/text.js` strips scripts, navigations, headers, footers, and markup tags. Content is hard-truncated against token budgets to protect LLM context windows:
+   - **Characters**: Truncated to ~8,000 characters.
+   - **Worlds / Fractals**: Truncated to ~10,000 characters.
 
-1. **Serialization (`data/normalizer.js` & `utils/ui-helpers.js`)**:
-   - `export_entity_to_json(entity)`: Sanitizes internal IDs, formats JSON with 2-space indentation, triggers browser download via `download_blob(filename, content, "application/json")`.
-2. **Deserialization & Validation**:
-   - `import_entity_from_json(json_string)`: Validates schema, runs `normalize_entity`, generates fresh unique ID, and saves to Dexie repository.
-3. **UI Hooks**:
-   - Export icon/button in Profile Header / Action Bar.
-   - Import JSON file dropzone / file picker in `ImportModal.svelte`.
+### B. LLM Ingestion Directive & Fill Rules
 
----
+The extraction prompts in `src/intelligence/prompts.js` (`render_wiki_character_form` and `render_wiki_scenario_form`) enforce strict generation rules to map unstructured text into structured entity schemas:
 
-## 3. Story Markdown Export
+```xml
+<INGESTION_DIRECTIVE Authority="L3_HIGH">
+  <RULE name="SOURCE_OF_TRUTH">
+    Wiki-stated details are absolute truth. Map them verbatim into corresponding schema fields.
+  </RULE>
+  <RULE name="NO_NULL_FABRICATION">
+    If a field (e.g., eye color, attire, height, unstated motivations) is absent from the source text:
+    - Synthesize a vivid, lore-consistent default.
+    - NEVER emit null, undefined, or empty string values.
+  </RULE>
+</INGESTION_DIRECTIVE>
+```
 
-### 🎯 Goal & Specifications
-
-Allow exporting an ongoing or completed narrative session into a publication-ready Markdown file (`.md`).
-
-### 🏗️ Technical Design
-
-1. **Markdown Compilation Helper (`src/utils/story-export.js`)**:
-   - Formats metadata header: Title, Characters involved, Fractal/Setting, Rounds count, Date.
-   - Formats transcript:
-     - AI dialogue & actions formatted with character names and sensory quotes.
-     - User actions formatted with clear protagonist markers.
-     - Narrator / Fractal environmental beats styled with blockquotes or dividers.
-     - Optional inclusion of internal thoughts / telemetry blocks based on user preference toggle.
-2. **Download Trigger**:
-   - `export_story_markdown(story_id, options)` generates `story-{title}-{date}.md` and triggers browser download.
+- **Character Mapping**: Maps source text into `eternal` and `present` schemas (name, appearance, personality, backstory, fears, values, dynamics).
+- **World / Fractal Mapping**: Maps source text into `fractal` schemas (name, description, setting, fashion, races, tone, story rules).
+- **Normalization Layer**: Parsed JSON passes through `normalize_entity` to ensure schema safety and provide robust fallbacks.
 
 ---
 
-## 4. Epilogue & End-of-Story Integration
+## 2. Outbound Engine: Serialization & Export Formats
 
-### 🎯 Goal & Specifications
-
-When a story concludes (Epilogue rendered or "The End" state triggered), provide clear action cards to save the memories:
-
-- **Save Story**: Download complete story Markdown.
-- **Save Entities**: Export modified characters and world states to library or JSON.
+| Target Format              | Scope & Surface                                | Architecture & Behavior                                                                                                                                                                                                                                                                                       |
+| :------------------------- | :--------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Story Markdown** (`.md`) | Ongoing Storyboard, Epilogue Screen, Storymode | Handled by `src/utils/story-export.js` (`export_story_markdown`). Compiles header metadata (Title, Characters, Setting, Beats count, Date) and formatted transcript beats (dialogue sensory quotes, protagonist actions, narrator blockquotes, and optional telemetry blocks) into a clean markdown document. |
+| **Entity JSON** (`.json`)  | Profile Header, Entity Cards, Import Modal     | Handled by `src/data/normalizer.js` & `src/utils/ui-helpers.js`. Strips internal transient database IDs, indents with 2 spaces, and triggers a browser blob download (`download_blob`). Supports bidirectional drag-and-drop import with unique ID re-generation.                                             |
 
 ---
 
-## 📋 Task Checklist
+## 3. UI Surface Integration & Lifecycle Touchpoints
 
-- [ ] **Phase 1 (RED)**:
-  - [ ] HTML stripping and text budget truncation tests (`src/utils/text.test.js`).
-  - [ ] Wiki prompt builder schema tests (`src/intelligence/prompts.test.js`).
-  - [ ] Entity JSON export/import round-trip validation tests (`src/data/normalizer.test.js`).
-  - [ ] Story Markdown formatting tests (`src/utils/story-export.test.js`).
+```text
+                        ┌──────────────────────────────────────────┐
+                        │           Entity Import Modal            │
+                        │ ┌──────────────────────┬───────────────┐ │
+                        │ │ Wiki/Fandom URL      │ JSON Dropzone │ │
+                        │ └──────────────────────┴───────────────┘ │
+                        └────────────────────┬─────────────────────┘
+                                             │
+                       ┌─────────────────────┴─────────────────────┐
+                       ▼                                           ▼
+         ┌───────────────────────────┐               ┌───────────────────────────┐
+         │     Active Gameplay       │               │      Story Epilogue       │
+         │   (Storyboard Action Bar) │               │   (PrologueEpilogue Card) │
+         │ ┌───────────────────────┐ │               │ ┌───────────────────────┐ │
+         │ │ Export Story (.md)    │ │               │ │ Save Story (.md)      │ │
+         │ │ Export Entity (.json) │ │               │ │ Save Entities (.json) │ │
+         │ └───────────────────────┘ │               │ └───────────────────────┘ │
+         └───────────────────────────┘               └───────────────────────────┘
+```
 
-- [ ] **Phase 2 (GREEN — Core Logic)**:
-  - [ ] Implement `fetch_wiki_text(url)` in `src/platform/transport.js` + URL validation in `src/platform/security.js`.
-  - [ ] Implement HTML stripping & truncation helpers in `src/utils/text.js`.
-  - [ ] Implement `render_wiki_character_form` and `render_wiki_scenario_form` in `src/intelligence/prompts.js`.
-  - [ ] Implement parser mappings for wiki forms in `src/intelligence/parser.js`.
-  - [ ] Implement `story-export.js` and entity JSON export utilities in `src/utils/`.
+- **`src/ui/entity/ImportModal.svelte`**: Unified modal featuring a tabbed interface for Wiki/Fandom URL fetching (with Entity Type toggle and progress spinner) and a standalone JSON file dropzone.
+- **`src/ui/profile/Header.svelte` & `src/ui/profile/Profile.svelte`**: Single-click "Export Entity JSON" action button for instant backup.
+- **`src/ui/story/Storyboard.svelte` & `src/ui/message/PrologueEpilogue.svelte`**: End-of-story action cards offering immediate archival choices when narrative closure is reached.
 
-- [ ] **Phase 3 (UI & Expression)**:
-  - [ ] Update `src/ui/entity/ImportModal.svelte` with Wiki URL input, entity type toggle, and JSON file dropzone.
-  - [ ] Add "Export Entity JSON" button to `src/ui/profile/ProfileHeader.svelte` / `Profile.svelte`.
-  - [ ] Add "Export Story (Markdown)" action to `src/ui/story/Storyboard.svelte` and Epilogue views.
+---
 
-- [ ] **Phase 4 (VERIFY)**:
-  - [ ] Run `npm run verify` (`test:unit`, `test:design`, `lint`, `svelte-check`).
-  - [ ] Test live wiki import against sample character/world fandom pages.
-  - [ ] Verify exported JSON imports cleanly without schema degradation.
-  - [ ] Verify exported Markdown renders cleanly in standard Markdown viewers.
+## 4. Implementation Playbook (Bite-Sized Checklist)
 
-- [ ] **Phase 5 (HANDOFF & DEPLOY)**:
-  - [ ] Run `npm run build` to verify single-file bundle.
-  - [ ] Record completion in `tasks/PRESENT.md` pulse and archive blueprint.
+### Phase 1: Test-Driven Red Suite
+
+- [ ] **Sanitization & Budgeting Tests**: Create unit tests in `src/utils/text.test.js` validating script stripping, tag removal, and length clipping.
+- [ ] **Prompt Schema Tests**: Build prompt assertions in `src/intelligence/prompts.test.js` verifying JSON schema output structure and ingestion directives.
+- [ ] **JSON Serialization Round-Trip**: Test import/export round trips and schema normalization in `src/data/normalizer.test.js`.
+- [ ] **Markdown Formatter Tests**: Validate metadata compilation and dialogue block styling in `src/utils/story-export.test.js`.
+
+### Phase 2: Core Logic Implementation
+
+- [ ] **Transport & Security Layers**: Implement `fetch_wiki_text(url)` in `src/platform/transport.js` and URL scheme sanitization in `src/platform/security.js`.
+- [ ] **HTML Parsing Utilities**: Implement clean plain-text stripping and token truncator in `src/utils/text.js`.
+- [ ] **Prompt Builders & Parsers**: Implement `render_wiki_character_form` / `render_wiki_scenario_form` in `src/intelligence/prompts.js` and wire response parsing in `src/intelligence/parser.js`.
+- [ ] **Export Helpers**: Build `story-export.js` and standalone JSON download utilities in `src/utils/`.
+
+### Phase 3: UI Wiring & Presentation
+
+- [ ] **Import Modal Overhaul**: Implement Wiki URL input, entity toggle (Character vs. World), preview step, and JSON dropzone in `src/ui/entity/ImportModal.svelte`.
+- [ ] **Profile Export Integration**: Wire JSON export buttons in `src/ui/profile/Header.svelte` and `src/ui/profile/Profile.svelte`.
+- [ ] **Story Action Surfacing**: Wire Markdown export triggers in `src/ui/story/Storyboard.svelte` and resolution cards in `src/ui/message/PrologueEpilogue.svelte`.
+
+### Phase 4: Verification & Stress Testing
+
+- [ ] **Execute verification suite**:
+
+  ```bash
+  npm run verify
+  ```
+
+  _(Validates `test:unit`, `test:design`, `lint`, and `svelte-check`)_.
+
+- [ ] **Perform live import verification**: Test against live character and world fandom URLs to confirm schema field completeness and fallback synthesis.
+- [ ] **Inspect exported artifacts**: Verify that exported Markdown parses cleanly in standard viewers and exported JSON passes schema validation upon re-import.
+
+### Phase 5: Build & Archival
+
+- [ ] **Execute production build**:
+
+  ```bash
+  npm run build
+  ```
+
+  _(Validates bundle integrity)_.
+
+- [ ] **Update project log**: Record completion in `tasks/PRESENT.md` and archive track blueprint.
