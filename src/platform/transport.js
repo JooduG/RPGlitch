@@ -139,50 +139,87 @@ function get_ai_engine() {
 /************************************************************************************
  * [SECTION: WEB CONTENT INGESTION]
  * ----------------------------------------------------------------------------------
- * fetch_web_content resolves the super-fetch-plugin engine exactly the way
- * get_ai_engine resolves the AI plugin, then fetches + parses a page into clean,
- * budgeted plain text for the ingestion pipeline (wikis, lore, bios).
+ * fetch_web resolves the super-fetch-plugin engine exactly the way
+ * get_ai_engine resolves the AI plugin, then fetches a page as clean, budgeted
+ * plain text (for the ingestion pipeline) or as an image data URL (for avatars).
  ************************************************************************************/
 
 /**
- * Resolves the super-fetch-plugin engine (window.superFetch / pluginSuperFetch /
- * lexical fallbacks), mirroring get_ai_engine's resolution order. Resolution is
- * deliberately UNCACHED: the fetch path is called once per request anyway, and
- * tests hot-swap the engine between cases.
+ * Resolves the super-fetch-plugin engine (window.fetch_web / pluginFetchWeb /
+ * parent-frame variants), mirroring get_ai_engine's resolution order. Resolution
+ * is deliberately UNCACHED: the fetch path is called once per request anyway,
+ * and tests hot-swap the engine between cases.
+ * NOTE: a bare lexical `fetch_web` probe is intentionally absent — that name is
+ * this module's own wrapper export, so it would self-resolve into infinite recursion.
  * @returns {((url: string) => Promise<any>) | null}
  */
 function get_super_fetch_engine() {
   if (typeof window === "undefined") return null;
 
-  const probes = [
-    () => window.superFetch,
-    () => window.pluginSuperFetch,
-    () => (typeof superFetch === "function" ? superFetch : undefined),
-    () => (typeof pluginSuperFetch === "function" ? pluginSuperFetch : undefined),
-    () => window.parent?.superFetch,
-    () => window.parent?.pluginSuperFetch,
-  ];
-  for (const probe of probes) {
-    try {
-      const fn = probe();
-      if (typeof fn === "function") return fn;
-    } catch (_e) {
-      /* Ignore cross-origin errors if sandboxed */
-    }
+  try {
+    if (typeof window.fetch_web === "function") return window.fetch_web;
+  } catch (_e) {
+    /* ignore */
+  }
+  try {
+    if (typeof window.pluginFetchWeb === "function") return window.pluginFetchWeb;
+  } catch (_e) {
+    /* ignore */
+  }
+
+  try {
+    if (typeof window.parent !== "undefined" && typeof window.parent.fetch_web === "function") return window.parent.fetch_web;
+    if (typeof window.parent !== "undefined" && typeof window.parent.pluginFetchWeb === "function") return window.parent.pluginFetchWeb;
+  } catch (_e) {
+    /* Ignore cross-origin errors if we're somehow sandboxed */
   }
   return null;
 }
 
 /**
- * Fetches a webpage's text content for ingestion.
- * Uses the super-fetch-plugin (CORS-free) when present; falls back to native
- * fetch in local dev only. HTML is stripped to clean plain text and clipped to
- * the ingestion budget (characters: 8000, worlds/fractals: 10000).
- * @param {string} raw_url
- * @param {{ allow_http?: boolean, allowed_hosts?: string[], type?: 'character' | 'fractal' | 'world', max_chars?: number }} [options]
- * @returns {Promise<{ url: string, text: string }>}
+ * Reads a Response-like object into a Blob (binary-safe).
+ * @param {any} response
+ * @returns {Promise<Blob>}
  */
-export const fetch_web_content = async (raw_url, options = {}) => {
+async function blob_from_response(response) {
+  if (typeof response?.blob === "function") {
+    const blob = await response.blob();
+    if (blob) return blob;
+  }
+  if (typeof response?.arrayBuffer === "function") {
+    return new Blob([new Uint8Array(await response.arrayBuffer())]);
+  }
+  if (typeof response?.text === "function") {
+    return new Blob([await response.text()]);
+  }
+  throw new Error("Could not read data from that page.");
+}
+
+/**
+ * Converts a Blob into a base64 data URL.
+ * @param {Blob} blob
+ * @returns {Promise<string>}
+ */
+function blob_to_data_url(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new globalThis.FileReader();
+    reader.onload = (event) => resolve(/** @type {string} */ (event.target?.result));
+    reader.onerror = (err) => reject(err);
+    reader.readAsDataURL(blob);
+  });
+}
+
+/**
+ * Fetches a web resource for ingestion.
+ * Uses the super-fetch-plugin (CORS-free, binary-safe) when present; falls back to
+ * native fetch in local dev only. By default HTML is stripped to clean plain text
+ * and clipped to the ingestion budget (characters: 8000, worlds/fractals: 10000);
+ * with `as_image: true` the response must be an image and is returned as a data URL.
+ * @param {string} raw_url
+ * @param {{ allow_http?: boolean, allowed_hosts?: string[], type?: 'character' | 'fractal' | 'world', max_chars?: number, as_image?: boolean }} [options]
+ * @returns {Promise<{ url: string, text: string } | { url: string, data_url: string }>}
+ */
+export const fetch_web = async (raw_url, options = {}) => {
   const url = validate_url(raw_url, options);
   const budget = options.max_chars || (options.type === "fractal" || options.type === "world" ? INGESTION_WORD_LIMIT : INGESTION_CHAR_LIMIT);
 
@@ -196,12 +233,17 @@ export const fetch_web_content = async (raw_url, options = {}) => {
       // Local dev fallback: same-origin native fetch (CORS applies normally).
       const res = await fetch(url);
       if (!res.ok) throw new Error(`Page returned HTTP ${res.status}.`);
+      if (options.as_image) {
+        const blob = await blob_from_response(res);
+        if (!blob.type?.startsWith("image/")) throw new Error("That URL is not an image.");
+        return { url, data_url: await blob_to_data_url(blob) };
+      }
       const html = await res.text();
       const text = html_to_plain_text(html, { max_chars: budget });
       if (!text.trim()) throw new Error("No readable text found on that page.");
       return { url, text };
     }
-    throw new Error("superFetch plugin unavailable. Add superFetch = {import:super-fetch-plugin} to the Perchance left panel, then reload.");
+    throw new Error("fetch_web plugin unavailable. Add fetch_web = {import:super-fetch-plugin} to the Perchance left panel, then reload.");
   }
 
   let response;
@@ -214,6 +256,12 @@ export const fetch_web_content = async (raw_url, options = {}) => {
   const status = typeof response?.status === "number" ? response.status : response?.ok ? 200 : null;
   if (status != null && (status < 200 || status >= 300)) {
     throw new Error(`Page returned HTTP ${status}.`);
+  }
+
+  if (options.as_image) {
+    const blob = await blob_from_response(response);
+    if (!blob.type?.startsWith("image/")) throw new Error("That URL is not an image.");
+    return { url, data_url: await blob_to_data_url(blob) };
   }
 
   const html = typeof response?.text === "function" ? await response.text() : String(response?.responseText ?? response?.body ?? response ?? "");

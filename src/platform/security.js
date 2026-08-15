@@ -32,7 +32,7 @@ export const escape_html = (str) => {
  * @returns {boolean}
  */
 /**
- * Validates a web URL for ingestion (fetch_web_content).
+ * Validates a web URL for ingestion (fetch_web).
  * Zero-Trust: only https (optionally http) schemes pass; the host may be
  * restricted to an explicit allow-list; opaque schemes (javascript:, data:,
  * file:) are rejected outright. Returns the normalized canonical URL.

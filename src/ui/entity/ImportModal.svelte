@@ -1,21 +1,17 @@
 <script>
-  import { Button, Modal, TextField, Toggle } from "@primitives";
+  import { Button, Modal, Toggle } from "@primitives";
+  import SourceField from "./SourceField.svelte";
   import { app, runtime, simulation_state } from "@state";
   import { parse_profile_json, prompt_builder, temporal_engine } from "@intelligence";
   import { create_new, detect_card_format, normalize, parse_character_card } from "@data";
-  import { fetch_web_content, llm_service, validate_image } from "@platform";
+  import { llm_service } from "@platform";
   import { generate_uuid } from "@utils";
 
   let { open = $bindable(false), target_type: _target_type = "character" } = $props();
 
-  // --- INGESTION STATE ---
-  let active_tab = $state("url"); // "url" | "file" | "text"
+  // --- INGESTION STATE (fed by SourceField) ---
   let raw_text = $state("");
   let image_data = $state(null);
-  let url_input = $state("");
-  let ingest_source = $state("");
-  let is_fetching = $state(false);
-  let is_dragging = $state(false);
 
   // --- TARGET TOGGLES ---
   let import_character = $state(true);
@@ -23,11 +19,7 @@
   let is_loading = $state(false);
   let error_message = $state("");
 
-  const tabs = [
-    { id: "url", label: "Web URL" },
-    { id: "file", label: "File" },
-    { id: "text", label: "Raw Text" },
-  ];
+  const fetch_type = $derived(import_fractal && !import_character ? "fractal" : "character");
 
   $effect(() => {
     if (open) {
@@ -36,123 +28,24 @@
     }
   });
 
-  // ---------------------------------------------------------------------------
-  // TAB 1: Web URL fetch
-  // ---------------------------------------------------------------------------
-  async function handle_fetch_url() {
-    const url = url_input.trim();
-    if (!url) return;
-    error_message = "";
-    is_fetching = true;
-    simulation_state.set_intent_active(true);
-    try {
-      const { text } = await fetch_web_content(url, { type: import_fractal && !import_character ? "fractal" : "character" });
-      raw_text = text;
-      ingest_source = url;
-      image_data = null;
-      app.log(`Fetched ${text.length.toLocaleString()} chars from ${url}`, "system");
-      active_tab = "text";
-    } catch (err) {
-      console.error(err);
-      error_message = err.message || "Failed to fetch the page.";
-    } finally {
-      is_fetching = false;
-      simulation_state.set_intent_active(false);
+  /**
+   * Surface feedback from SourceField: successful sources log + clear errors,
+   * failures surface in the error banner.
+   * @param {{kind: string, url?: string, name?: string, chars?: number, message?: string}} info
+   */
+  function handle_source(info) {
+    if (info.kind === "error") {
+      error_message = info.message || "Failed to load source.";
+      return;
     }
-  }
-
-  // ---------------------------------------------------------------------------
-  // TAB 2: File upload / dropzone (.json cards, .png chara cards, images)
-  // ---------------------------------------------------------------------------
-  /**
-   * @param {File} file
-   */
-  async function process_file(file) {
-    if (!file) return;
     error_message = "";
-    is_loading = true;
-    try {
-      if (file.name.endsWith(".json")) {
-        raw_text = await file.text();
-        image_data = null;
-        ingest_source = "";
-      } else {
-        // Validate image constraints
-        await validate_image(file);
-
-        // Read file to get base64 DataURL for the image
-        const reader = new globalThis.FileReader();
-        const data_url_promise = new Promise((resolve, reject) => {
-          reader.onload = (event) => resolve(event.target?.result || null);
-          reader.onerror = (err) => reject(err);
-        });
-        reader.readAsDataURL(file);
-
-        const data_url = await data_url_promise;
-        image_data = data_url;
-
-        // If PNG, attempt to extract tEXt chara chunks
-        if (file.name.endsWith(".png")) {
-          const array_buffer = await file.arrayBuffer();
-          const buffer = new Uint8Array(array_buffer);
-          let offset = 8;
-          let found_text = false;
-          while (offset < buffer.length) {
-            const length = new DataView(buffer.buffer).getUint32(offset, false);
-            const type_str = String.fromCharCode(...buffer.slice(offset + 4, offset + 8));
-
-            if (type_str === "tEXt") {
-              const chunk_data = buffer.slice(offset + 8, offset + 8 + length);
-              const null_idx = chunk_data.indexOf(0);
-              if (null_idx !== -1) {
-                const keyword = String.fromCharCode(...chunk_data.slice(0, null_idx));
-                if (keyword === "chara") {
-                  const base64_data = String.fromCharCode(...chunk_data.slice(null_idx + 1));
-                  raw_text = atob(base64_data);
-                  found_text = true;
-                  break;
-                }
-              }
-            }
-            offset += 12 + length;
-          }
-          if (!found_text) {
-            error_message = "No character data found inside PNG. The image was loaded, but you must manually paste the prompt.";
-          }
-        }
-      }
-    } catch (err) {
-      console.error(err);
-      error_message = err.message || "Failed to process file.";
-    } finally {
-      is_loading = false;
+    if (info.kind === "url") {
+      app.log(`Fetched ${info.chars?.toLocaleString()} chars from ${info.url}`, "system");
+    } else if (info.kind === "file") {
+      app.log(`Loaded ${info.name}${info.chars ? ` (${info.chars.toLocaleString()} chars)` : ""}`, "system");
+    } else if (info.kind === "image") {
+      app.log(`Loaded avatar from ${info.name || info.url}`, "system");
     }
-  }
-
-  /**
-   * @param {Event} e
-   */
-  async function handle_file_upload(e) {
-    const file = e.target.files?.[0];
-    await process_file(file);
-    // Clear input so it can be selected again
-    e.target.value = "";
-  }
-
-  function trigger_file_input() {
-    const file_input = document.createElement("input");
-    file_input.type = "file";
-    file_input.accept = ".json,.png,.jpg,.jpeg,.webp,.txt";
-    file_input.onchange = handle_file_upload;
-    file_input.click();
-  }
-
-  /**
-   * @param {DragEvent} e
-   */
-  async function handle_drop(e) {
-    const file = e.dataTransfer?.files?.[0];
-    if (file) await process_file(file);
   }
 
   // ---------------------------------------------------------------------------
@@ -318,8 +211,6 @@
       // Reset and close
       raw_text = "";
       image_data = null;
-      url_input = "";
-      ingest_source = "";
       open = false;
     } catch (err) {
       console.error(err);
@@ -338,7 +229,12 @@
   z_index="1000"
   class="relative w-[clamp(26rem,92vw,44rem)] max-w-2xl rounded-2xl bg-glass-elevated p-6 shadow-[0_16px_48px_rgba(0,0,0,0.8)] [backdrop-filter:var(--blur-mist)] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-(--noise-url) before:opacity-10 before:mix-blend-overlay before:content-['']"
   busy={is_loading}
-  on_close={() => (open = false)}
+  on_close={() => {
+    open = false;
+    raw_text = "";
+    image_data = null;
+    error_message = "";
+  }}
 >
   <div class="flex h-full flex-col gap-6 font-sans">
     <div class="flex items-center justify-between">
@@ -349,35 +245,6 @@
       </div>
     </div>
 
-    <!-- Tab Bar -->
-    <div class="flex gap-1 self-start rounded-lg border border-white/10 bg-black/30 p-1" role="tablist" aria-label="Import source">
-      {#each tabs as tab (tab.id)}
-        <button
-          role="tab"
-          aria-selected={active_tab === tab.id}
-          class="
-            cursor-pointer
-            rounded-md
-            px-3
-            py-1.5
-            text-[11px]
-            font-bold
-            tracking-widest
-            uppercase
-            transition-all
-            duration-200
-            disabled:pointer-events-none
-            disabled:opacity-30
-            {active_tab === tab.id ? 'bg-(--signature-color)/25 text-slate-50 shadow-sm' : 'text-slate-500 hover:bg-white/5 hover:text-slate-300'}
-          "
-          disabled={is_loading}
-          onclick={() => (active_tab = tab.id)}
-        >
-          {tab.label}
-        </button>
-      {/each}
-    </div>
-
     <div class="flex flex-1 flex-col gap-4">
       {#if error_message}
         <div class="rounded-xl border border-red-500/20 bg-red-500/10 p-3.5 text-xs text-red-400">
@@ -385,133 +252,7 @@
         </div>
       {/if}
 
-      {#if active_tab === "url"}
-        <div class="flex flex-col gap-3">
-          <TextField
-            is_edit={true}
-            size="md"
-            bind:value={url_input}
-            placeholder="https://example.com/wiki/Character or lore page..."
-            disabled={is_loading || is_fetching}
-          />
-          <div class="flex items-center gap-3">
-            <Button variant="secondary" size="small" onclick={handle_fetch_url} disabled={is_loading || is_fetching || !url_input.trim()}>
-              {#if is_fetching}
-                <span class="animate-pulse text-xs font-bold tracking-widest uppercase">Fetching...</span>
-              {:else}
-                <svg viewBox="0 0 24 24" class="size-3.5 fill-none stroke-current stroke-2" style="stroke-linecap: round; stroke-linejoin: round;">
-                  <path d="M12 2a10 10 0 1 0 10 10" />
-                  <path d="M2 12h8" />
-                  <path d="M18 4l4 4-4 4" />
-                  <path d="M22 8h-8" />
-                </svg>
-                <span class="text-xs font-bold tracking-widest uppercase">Fetch Page</span>
-              {/if}
-            </Button>
-            <span class="text-[10px] text-slate-500 italic"> Fetches clean readable text from any https page (wikis, fandom, bios, lore). </span>
-          </div>
-          {#if ingest_source}
-            <div class="flex flex-col gap-2 rounded-xl border border-white/10 bg-white/5 p-3">
-              <div class="flex items-center justify-between gap-2">
-                <span class="truncate font-mono text-[10px] text-(--signature-color)">{ingest_source}</span>
-                <span class="shrink-0 font-mono text-[10px] text-slate-400">{raw_text.length.toLocaleString()} chars</span>
-              </div>
-              <p class="m-0 max-h-24 overflow-y-auto text-xs text-slate-300 select-text">
-                {raw_text.slice(0, 320)}{raw_text.length > 320 ? "…" : ""}
-              </p>
-              <Button variant="invisible" size="small" class="self-start text-slate-400" onclick={() => (active_tab = "text")}>
-                <span class="text-[10px] font-bold tracking-widest uppercase">Review / Edit Text</span>
-              </Button>
-            </div>
-          {/if}
-        </div>
-      {/if}
-
-      {#if active_tab === "file"}
-        <div
-          class="
-            flex
-            cursor-pointer
-            flex-col
-            items-center
-            justify-center
-            gap-3
-            rounded-xl
-            border
-            border-dashed
-            border-white/20
-            bg-white/5
-            p-10
-            text-center
-            transition-all
-            duration-200
-            {is_dragging
-            ? 'scale-[1.01] border-(--signature-color)/70 bg-(--signature-color)/10'
-            : 'hover:border-(--signature-color)/60 hover:bg-(--signature-color)/10'}
-          "
-          role="button"
-          tabindex="0"
-          aria-label="Upload a Character Card file"
-          onclick={trigger_file_input}
-          onkeydown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              trigger_file_input();
-            }
-          }}
-          ondragover={(e) => {
-            e.preventDefault();
-            is_dragging = true;
-          }}
-          ondragleave={() => (is_dragging = false)}
-          ondrop={(e) => {
-            e.preventDefault();
-            is_dragging = false;
-            handle_drop(e);
-          }}
-        >
-          <svg
-            viewBox="0 0 24 24"
-            class="size-8 fill-none stroke-current stroke-2 text-slate-400"
-            style="stroke-linecap: round; stroke-linejoin: round;"
-          >
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-            <polyline points="17 8 12 3 7 8" />
-            <line x1="12" y1="3" x2="12" y2="15" />
-          </svg>
-          <div class="flex flex-col gap-1">
-            <span class="text-sm font-bold text-slate-200">Drop a Character Card here</span>
-            <span class="text-[11px] text-slate-400">
-              .json cards (Tavern / Chub / Janitor) · .png cards (embedded chara data) · native RPGlitch .json
-            </span>
-          </div>
-        </div>
-      {/if}
-
-      {#if active_tab === "text"}
-        <div class="flex flex-col gap-2">
-          <TextField
-            is_edit={true}
-            bind:value={raw_text}
-            placeholder="Paste raw text, lore, character descriptions, or raw entity JSON here, or use the Web URL / File tabs above..."
-            disabled={is_loading}
-            class="min-h-52"
-          />
-          {#if raw_text.length > 0}
-            <span class="self-end font-mono text-[10px] text-slate-500">{raw_text.length.toLocaleString()} chars</span>
-          {/if}
-        </div>
-      {/if}
-
-      {#if image_data}
-        <div class="flex items-center gap-3.5 rounded-xl border border-white/10 bg-white/5 p-3">
-          <img src={image_data} alt="Import Avatar" class="h-12 w-12 rounded-lg border border-white/10 object-cover shadow-md" />
-          <div class="flex flex-col gap-0.5">
-            <span class="text-xs font-bold text-slate-200">Avatar Image Detected</span>
-            <span class="text-[10px] text-slate-400">Image will be attached as the primary entity profile picture.</span>
-          </div>
-        </div>
-      {/if}
+      <SourceField bind:value={raw_text} bind:image_data type={fetch_type} disabled={is_loading} on_source={handle_source} />
     </div>
 
     <div class="flex items-center justify-between pt-2">

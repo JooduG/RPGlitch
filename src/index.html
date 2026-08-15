@@ -61,11 +61,13 @@
               allFound = false;
             }
           }
-          if (typeof window.superFetch === "undefined") {
+          if (typeof window.fetch_web === "undefined") {
             try {
-              if (typeof superFetch !== "undefined") {
-                window.superFetch = superFetch;
-                window.pluginSuperFetch = superFetch;
+              if (typeof fetch_web !== "undefined") {
+                window.fetch_web = fetch_web;
+                window.pluginFetchWeb = fetch_web;
+              } else if (typeof pluginFetchWeb !== "undefined") {
+                window.fetch_web = pluginFetchWeb;
               } else {
                 allFound = false;
               }
