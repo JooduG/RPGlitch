@@ -46,7 +46,6 @@
     cursor-pointer
     items-center
     gap-4
-    py-1
     transition-opacity
     duration-300
     ease-in-out
