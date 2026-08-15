@@ -952,6 +952,52 @@ describe("prompt_builder (Refactored)", () => {
     });
   });
 
+  describe("Epistemic Wall: SECRET/PLAN filtering", () => {
+    const build_entities = () => ({
+      AI: {
+        name: "Viper",
+        present: { non_physical: "[MOOD: alert] [SECRET: knows the vault code] [PLAN: steal the cipher]" },
+        eternal: { non_physical: "Static Eternal" },
+        past: [],
+        future: "",
+      },
+      USER: {
+        name: "Ghost",
+        present: { non_physical: "[MOOD: calm] [SECRET: stole the ledger] [PLAN: reach the docks]" },
+        eternal: { non_physical: "User Eternal" },
+        past: [],
+        future: "",
+      },
+      FRACTAL: { name: "Void", present: { non_physical: "Void Present" }, eternal: { non_physical: "Void Eternal" }, past: [], future: "" },
+    });
+
+    const snapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} }, flags: {} };
+
+    it("strips the User's SECRET and PLAN from AI Character prompt rendering", () => {
+      const payload = { round: 1, entities: build_entities(), simulation_log: [], input: "Check the door." };
+      const result = prompt_builder.build_character_prompt(payload, snapshot, {});
+
+      expect(result.task).not.toContain("stole the ledger");
+      expect(result.task).not.toContain("reach the docks");
+    });
+
+    it("keeps the AI character's own SECRET and PLAN visible to itself", () => {
+      const payload = { round: 1, entities: build_entities(), simulation_log: [], input: "Check the door." };
+      const result = prompt_builder.build_character_prompt(payload, snapshot, {});
+
+      expect(result.task).toContain("knows the vault code");
+      expect(result.task).toContain("steal the cipher");
+    });
+
+    it("keeps the User's SECRET and PLAN visible in the Director overview", () => {
+      const payload = { round: 1, entities: build_entities(), simulation_log: [], input: "Check the door." };
+      const result = prompt_builder.build_director_prompt(payload, snapshot);
+
+      expect(result.system).toContain("stole the ledger");
+      expect(result.system).toContain("reach the docks");
+    });
+  });
+
   describe("Ingestion Directive", () => {
     it("omits the ingestion directive by default", () => {
       const result = prompt_builder.build_profile_sorting_prompt("Raw lore", "character");

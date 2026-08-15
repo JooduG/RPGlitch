@@ -247,7 +247,7 @@ export function coerce_temporal_vectors(val) {
       const text = typeof item === "string" ? item.trim() : "";
       if (!text) return null;
       return {
-        id: generate_uuid(),
+        id: `usr_${generate_uuid()}`,
         timestamp: Date.now(),
         content: text,
         directive: text,

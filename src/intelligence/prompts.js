@@ -66,6 +66,22 @@ const MEMORY_JSON_SCHEMA = `{
 }`;
 
 /**
+ * Strips epistemic [SECRET: ...] / [PLAN: ...] brackets from rendered state so
+ * the AI character never receives another entity's private knowledge across the
+ * Epistemic Wall (telepathy/metagaming guard). Director & Ghostwriter keep the
+ * full state; only render_character sanitizes the USER_PERSONA blocks.
+ * @param {string} text
+ * @returns {string}
+ */
+function strip_epistemic_tags(text) {
+  if (!text) return "";
+  return String(text)
+    .replace(/\[(?:SECRET|PLAN)\s*:\s*[^\]]*\]/gi, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
+/**
  * Builds a dynamic rule guide explaining all simulation sliders to the LLM.
  * @returns {string}
  */
@@ -172,7 +188,14 @@ function format_dynamics_attrs(dynObj) {
  * @returns {{ system: string, task: string }}
  */
 function render_director({ round, entities, input, render_accessors, compressed_snapshot, raw_messages }) {
-  const protocols = ["FORMATS.JSON_ONLY", "AGENCY.FICTIONAL_LICENSE", "DIRECTOR.CONTINUITY", "DIRECTOR.PLOT_DRIVE", "DIRECTOR.IMAGE_TRIGGERS"]
+  const protocols = [
+    "FORMATS.JSON_ONLY",
+    "AGENCY.FICTIONAL_LICENSE",
+    "DIRECTOR.CONTINUITY",
+    "DIRECTOR.PLOT_DRIVE",
+    "DIRECTOR.IMAGE_TRIGGERS",
+    "PRESENT.EMISSION",
+  ]
     .filter(Boolean)
     .join(", ");
   const dynamics_legend = build_dynamics_legend();
@@ -280,6 +303,13 @@ function render_character({ round, entities, input, compressed_snapshot, meta, r
   const stability_lock_content =
     meta?.structural_errors >= 3 ? PROTOCOL_LIBRARY.STABILITY.CRITICAL : meta?.structural_errors >= 1 ? PROTOCOL_LIBRARY.STABILITY.WARNING : "";
 
+  // Epistemic Wall: the character sees its OWN secrets/plans but the user's
+  // [SECRET:]/[PLAN:] tags are stripped so the model cannot read the player's
+  // mind or metagame. The Director (omniscient) keeps 100% of the state.
+  // Strip BEFORE render_field_value so prompt_escape (which escapes the
+  // brackets to &#91;/&#93;) can't hide the tags from the wall regex.
+  const user_field = (text) => render_field_value(strip_epistemic_tags(text), entities?.USER, entities);
+
   const system = clean_xml(`
 <SYSTEM role="${escape_xml(entities?.AI?.name || "AI")}">${render_narrative_style_xml(compressed_snapshot?.ai?.dynamics, compressed_snapshot?.fractal?.dynamics)}
 You are ${escape_xml(entities?.AI?.name || "AI")} in an active scene with ${escape_xml(entities?.USER?.name || "User")} inside ${escape_xml(entities?.FRACTAL?.name || "the environment")}.
@@ -289,8 +319,8 @@ You are ${escape_xml(entities?.AI?.name || "AI")} in an active scene with ${esca
     <PERMANENT_APPEARANCE>${render_field_value(entities?.AI?.eternal?.physical, entities?.AI, entities)}</PERMANENT_APPEARANCE>
   </YOUR_IDENTITY>
   <USER_PERSONA name="${escape_xml(entities?.USER?.name || "User")}">
-    <PERSONALITY>${render_field_value(entities?.USER?.eternal?.non_physical, entities?.USER, entities)}</PERSONALITY>
-    <PERMANENT_APPEARANCE>${render_field_value(entities?.USER?.eternal?.physical, entities?.USER, entities)}</PERMANENT_APPEARANCE>
+    <PERSONALITY>${user_field(entities?.USER?.eternal?.non_physical)}</PERSONALITY>
+    <PERMANENT_APPEARANCE>${user_field(entities?.USER?.eternal?.physical)}</PERMANENT_APPEARANCE>
   </USER_PERSONA>
   ${
     entities?.FRACTAL
@@ -316,9 +346,9 @@ You are ${escape_xml(entities?.AI?.name || "AI")} in an active scene with ${esca
     <MEMORIES>${ind(render_accessors.past(entities?.AI, { vector_text: true }), 6)}</MEMORIES>
   </YOUR_IDENTITY>
   <USER_PERSONA name="${escape_xml(entities?.USER?.name || "User")}">
-    <STATE_OF_MIND>${ind(render_field_value(entities?.USER?.present?.non_physical, entities?.USER, entities), 6)}</STATE_OF_MIND>
-    <CURRENT_LOOK>${ind(render_field_value(entities?.USER?.present?.physical, entities?.USER, entities), 6)}</CURRENT_LOOK>
-    <BACKSTORY>${ind(render_accessors.past(entities?.USER, { vector_text: true }), 6)}</BACKSTORY>
+    <STATE_OF_MIND>${ind(user_field(entities?.USER?.present?.non_physical), 6)}</STATE_OF_MIND>
+    <CURRENT_LOOK>${ind(user_field(entities?.USER?.present?.physical), 6)}</CURRENT_LOOK>
+    <BACKSTORY>${ind(strip_epistemic_tags(render_accessors.past(entities?.USER, { vector_text: true })), 6)}</BACKSTORY>
   </USER_PERSONA>
   ${
     entities?.FRACTAL
@@ -510,7 +540,7 @@ function render_memory({ entities, history }) {
   return clean_xml(`
 <SYSTEM role="MEMORY_FORGE">
   <PROTOCOLS>
-    ${ind(prompt_builder.render_protocols("HYGIENE.DATA, HYGIENE.AFFIRMATIVE, AGENCY.PRESENT_TENSE"), 4)}
+    ${ind(prompt_builder.render_protocols("HYGIENE.DATA, HYGIENE.AFFIRMATIVE, AGENCY.PRESENT_TENSE, PRESENT.EMISSION"), 4)}
   </PROTOCOLS>
   <ENTITY_CONTEXT>
 ${entity_blocks}

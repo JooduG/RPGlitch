@@ -339,6 +339,28 @@ describe("safe_parse_pseudo_json", () => {
     const result = safe_parse_pseudo_json(input);
     expect(result).toEqual({ __raw_prose__: "Beneath his playful teasing: lies a sharp wound." });
   });
+
+  it("should aggregate repeated INVENTORY brackets into a normalized list", () => {
+    const input = "[INVENTORY: white greasy tank-top] [INVENTORY: plasma pistol] [INVENTORY: copper key]";
+    const result = safe_parse_pseudo_json(input);
+    expect(result.INVENTORY).toEqual(["white greasy tank-top", "plasma pistol", "copper key"]);
+  });
+
+  it("should split comma-separated INVENTORY values into a normalized list", () => {
+    const result = safe_parse_pseudo_json("[INVENTORY: copper key, plasma pistol]");
+    expect(result.INVENTORY).toEqual(["copper key", "plasma pistol"]);
+  });
+
+  it("should aggregate STASH alongside INVENTORY", () => {
+    const result = safe_parse_pseudo_json("[INVENTORY: copper key] [STASH: old maps] [INVENTORY: rope]");
+    expect(result.INVENTORY).toEqual(["copper key", "rope"]);
+    expect(result.STASH).toEqual(["old maps"]);
+  });
+
+  it("should universally drop keys carrying clear tokens", () => {
+    const result = safe_parse_pseudo_json("[HELD: plasma gun] [HELD: none]");
+    expect(result.HELD).toBeUndefined();
+  });
 });
 
 describe("merge_prose_into_field", () => {
@@ -372,5 +394,54 @@ describe("merge_prose_into_field", () => {
     const merged = merge_prose_into_field(current, new_prose);
     expect(merged).not.toContain("[ROBES:");
     expect(merged).toContain("[APPAREL: minimalist coral-rose silk thong]");
+  });
+
+  it("should overwrite a key directly without string duplication", () => {
+    const current = "[SHIRT: white greasy tank-top] [HELD: plasma gun]";
+    const merged = merge_prose_into_field(current, "[SHIRT: knitted sweater]");
+    expect(merged).toBe("[SHIRT: knitted sweater] [HELD: plasma gun]");
+  });
+
+  it("should universally delete any key via [KEY: none]", () => {
+    const current = "[SHIRT: tank top] [HELD: plasma gun] [DISGUISE: watch cloak]";
+    const merged = merge_prose_into_field(current, "[HELD: none] [DISGUISE: removed]");
+    expect(merged).toBe("[SHIRT: tank top]");
+  });
+
+  it("should delete non-physical keys via clear tokens", () => {
+    const current = "[MOOD: suspicious] [STATUS: hunted] [SECRET: stole the ledger]";
+    const merged = merge_prose_into_field(current, "[STATUS: normal] [SECRET: cleared]");
+    expect(merged).toBe("[MOOD: suspicious]");
+  });
+
+  it("should clear INJURY via [INJURY: healed]", () => {
+    const current = "[INJURY: left arm in sling] [HELD: pistol]";
+    const merged = merge_prose_into_field(current, "[INJURY: healed]");
+    expect(merged).toBe("[HELD: pistol]");
+  });
+
+  it("should aggregate repeated INVENTORY brackets into a single list", () => {
+    const current = "[SHIRT: tank top] [INVENTORY: copper key]";
+    const merged = merge_prose_into_field(current, "[INVENTORY: plasma pistol] [INVENTORY: rope]");
+    expect(merged).toBe("[SHIRT: tank top] [INVENTORY: copper key, plasma pistol, rope]");
+  });
+
+  it("should support the clothing-to-inventory undressing lifecycle", () => {
+    const current = "[SHIRT: white greasy tank-top] [INVENTORY: copper key]";
+    const merged = merge_prose_into_field(current, "[SHIRT: none] [INVENTORY: white greasy tank-top]");
+    expect(merged).toBe("[INVENTORY: copper key, white greasy tank-top]");
+  });
+
+  it("should support zero-hallucination redressing by reading INVENTORY back", () => {
+    const current = "[SHIRT: none] [INVENTORY: white greasy tank-top]";
+    const merged = merge_prose_into_field(current, "[SHIRT: white greasy tank-top]");
+    expect(merged).toContain("[SHIRT: white greasy tank-top]");
+    expect(merged).toContain("[INVENTORY: white greasy tank-top]");
+  });
+
+  it("should wildcard-purge all CLOTHING_KEYS on [CLOTHING: none]", () => {
+    const current = "[SHIRT: tank top] [PANTS: cargo pants] [HELD: gun]";
+    const merged = merge_prose_into_field(current, "[CLOTHING: none]");
+    expect(merged).toBe("[HELD: gun]");
   });
 });

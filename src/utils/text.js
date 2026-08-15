@@ -33,11 +33,24 @@ export function strip_cognition_blocks(text) {
 }
 
 /**
+ * Universal atomic-clearing tokens — emitting [KEY: one of these] deletes KEY
+ * from the present-state dictionary (e.g. [HELD: none], [INJURY: healed],
+ * [STATUS: normal], [SECRET: cleared]). Shared by safe_parse_pseudo_json
+ * (@utils) and merge_prose_into_field (@intelligence).
+ */
+export const CLEAR_TOKENS = new Set(["none", "bare", "naked", "off", "removed", "disrobed", "healed", "cleared", "normal"]);
+
+/**
+ * Keys whose repeated brackets aggregate into a single multi-item list.
+ */
+export const AGGREGATE_KEYS = new Set(["INVENTORY", "STASH"]);
+
+/**
  * High-fidelity parser that extracts pseudo-JSON configurations.
  * Exclusively parses bracketed [KEY: VALUE] parameters.
  * Inlined here to avoid cross-layer imports from @intelligence.
  * @param {string} raw
- * @returns {Record<string, string>}
+ * @returns {Record<string, string | string[]>}
  */
 export const safe_parse_pseudo_json = (raw) => {
   if (!raw) return {};
@@ -49,12 +62,38 @@ export const safe_parse_pseudo_json = (raw) => {
     const bracket_extracted = {};
     const bracket_regex = /\[([^:\]]+)\s*:\s*([^\]]+)\]/g;
     let match;
+    let matched_any = false;
     while ((match = bracket_regex.exec(clean_raw)) !== null) {
+      matched_any = true;
       const k = match[1].replace(/["']/g, "").trim().replace(/\s+/g, "_");
       const v = match[2].replace(/^["']|["']$/g, "").trim();
-      if (k && v) bracket_extracted[k] = v;
+      if (!k || !v) continue;
+
+      // Universal atomic clearing: clear-token values drop the key entirely.
+      if (CLEAR_TOKENS.has(v.toLowerCase())) {
+        delete bracket_extracted[k];
+        continue;
+      }
+
+      // Multi-item aggregation: repeated INVENTORY/STASH brackets (and
+      // comma-separated values) merge into one normalized list.
+      if (AGGREGATE_KEYS.has(k)) {
+        const items = v
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean);
+        const existing = bracket_extracted[k];
+        const list = Array.isArray(existing) ? existing : existing ? [existing] : [];
+        for (const item of items) {
+          if (item && !list.includes(item)) list.push(item);
+        }
+        bracket_extracted[k] = list;
+        continue;
+      }
+
+      bracket_extracted[k] = v;
     }
-    if (Object.keys(bracket_extracted).length > 0) return bracket_extracted;
+    if (matched_any) return bracket_extracted; // all keys cleared → {}
   }
 
   // Tier 2: Process quoted key-value pairs "KEY": "VALUE" or JSON {"KEY": "VALUE"}

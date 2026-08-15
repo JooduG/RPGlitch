@@ -399,7 +399,7 @@ export class ProfileState {
                   };
                 } else {
                   current_items.push({
-                    id: generate_uuid(),
+                    id: `ai_${generate_uuid()}`,
                     timestamp: Date.now(),
                     content: dir,
                     type: path,
@@ -493,11 +493,12 @@ export class ProfileState {
                   const existing = current_vectors[idx] || {};
                   const vector_str =
                     typeof text_str === "string" ? text_str : text_str.content || text_str.directive || text_str.text || JSON.stringify(text_str);
-                  return {
-                    ...temporal_engine.create(vector_str, key),
-                    id: existing.id || generate_uuid(),
-                    emotional_weight: existing.emotional_weight || 5,
-                  };
+                  const base_vector = temporal_engine.create(vector_str, key);
+                  // Keep the original vector's provenance id when enhancing an
+                  // existing memory; otherwise the engine's ai_ stamp stands.
+                  base_vector.id = existing.id || base_vector.id;
+                  base_vector.emotional_weight = existing.emotional_weight || 5;
+                  return base_vector;
                 });
                 this._set_vectors_of_type(key, new_vectors);
               }
@@ -540,8 +541,10 @@ export class ProfileState {
 
     const items = this._vectors_of_type(path);
 
+    // User-authored memories are pinned: the usr_ prefix marks them immune to
+    // Memory Forge eviction, compression, and alteration.
     const new_item = {
-      id: generate_uuid(),
+      id: `usr_${generate_uuid()}`,
       timestamp: Date.now(),
       content: "",
       type: path,

@@ -1,4 +1,12 @@
-import { temporal_engine, TEMPORAL_SCORING, resolve_vector_pool } from "./temporal.js";
+import {
+  temporal_engine,
+  TEMPORAL_SCORING,
+  resolve_vector_pool,
+  PAST_VECTOR_CAP,
+  MAX_TOTAL_VECTORS,
+  MAX_VECTOR_CHARS,
+  is_origin,
+} from "./temporal.js";
 import { llm_service } from "@platform";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cosine_similarity, embed } from "@intelligence/embeddings.svelte.js";
@@ -47,6 +55,84 @@ describe("temporal_engine", () => {
   afterEach(() => {
     vi.useRealTimers();
     vi.restoreAllMocks();
+  });
+
+  describe("usr_ / ai_ memory provenance", () => {
+    it("stamps ai_ prefixes on engine-created vectors", () => {
+      const entry = temporal_engine.create("A session memory.");
+      expect(entry.id.startsWith("ai_")).toBe(true);
+    });
+
+    it("truncates payloads to the 220-char budget on creation", () => {
+      const entry = temporal_engine.create("x".repeat(500));
+      expect(entry.content.length).toBeLessThanOrEqual(MAX_VECTOR_CHARS);
+    });
+
+    it("is_origin() protects usr_ prefixed memories", () => {
+      expect(is_origin({ id: "usr_abc", timestamp: Date.now(), meta: {} })).toBe(true);
+      expect(is_origin({ id: "ai_abc", timestamp: Date.now(), meta: {} })).toBe(false);
+    });
+
+    it("usr_ memories survive consolidation evictions", () => {
+      const entity = { past: [] };
+      for (let i = 0; i < PAST_VECTOR_CAP; i++) {
+        entity.past.push({ id: `ai_${i}`, timestamp: i, content: `session memory ${i}`, type: "past", emotional_weight: 5, meta: {} });
+      }
+      entity.past.push({ id: "usr_pinned", timestamp: 999999, content: "pinned backstory", type: "past", emotional_weight: 5, meta: {} });
+
+      temporal_engine.append_past_vector(entity, {
+        id: "ai_overflow",
+        timestamp: 1000000,
+        content: "new overflow memory",
+        type: "past",
+        emotional_weight: 5,
+        meta: {},
+      });
+
+      expect(entity.past.some((v) => v.id === "usr_pinned")).toBe(true);
+      expect(entity.past.some((v) => v.id === "ai_overflow")).toBe(true);
+    });
+
+    it("enforces the 200-record total ceiling", () => {
+      const entity = { past: [] };
+      for (let i = 0; i < MAX_TOTAL_VECTORS; i++) {
+        entity.past.push({ id: `usr_${i}`, timestamp: i, content: `pinned ${i}`, type: "past", emotional_weight: 5, meta: {} });
+      }
+      temporal_engine.append_past_vector(entity, {
+        id: "ai_overflow",
+        timestamp: 999999,
+        content: "beyond ceiling",
+        type: "past",
+        emotional_weight: 5,
+        meta: {},
+      });
+      expect(entity.past.length).toBeLessThanOrEqual(MAX_TOTAL_VECTORS);
+    });
+
+    it("grants pinned memories the 1.5x relevance boost", async () => {
+      temporal_engine.set_round(0);
+      const pinned = {
+        id: "usr_anchor",
+        timestamp: Date.now(),
+        content: "The Ashenweald exile.",
+        type: "past",
+        emotional_weight: 5,
+        meta: { round: 0 },
+      };
+      const session = {
+        id: "ai_fresh",
+        timestamp: Date.now(),
+        content: "The Ashenweald exile.",
+        type: "past",
+        emotional_weight: 5,
+        meta: { round: 0 },
+      };
+
+      const scored = temporal_engine.score([session, pinned]);
+      const pinned_hit = scored.find((v) => v.id === "usr_anchor");
+      const session_hit = scored.find((v) => v.id === "ai_fresh");
+      expect(pinned_hit._relevance).toBeCloseTo(session_hit._relevance * 1.5, 3);
+    });
   });
 
   describe("create", () => {

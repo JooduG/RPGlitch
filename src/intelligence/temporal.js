@@ -84,9 +84,9 @@ function normalize_forged_type(value) {
 
 function create(content, type = "future", weight = 5) {
   return {
-    id: _uuid(),
+    id: `ai_${_uuid()}`,
     timestamp: Date.now(),
-    content: content || "",
+    content: String(content || "").slice(0, MAX_VECTOR_CHARS),
     type,
     emotional_weight: weight,
     meta: {},
@@ -119,7 +119,11 @@ function compute_relevance(v, semantic_similarity, current_round) {
   const raw_recency = recency_factor(v, current_round);
   const recency = Math.max(RECENCY_FLOOR, Math.pow(raw_recency, DECAY_SOFTEN));
   v._recency_factor = recency;
-  return weight * (1 + SEMANTIC_GAIN * semantic) * recency;
+  // Pinned memories (usr_ or hand-authored origin vectors) rank above rolling
+  // session memories — core backstory anchors must stay near the top of the
+  // character's <MEMORIES> block.
+  const pinned_boost = v.id?.startsWith("usr_") || is_origin(v) ? 1.5 : 1.0;
+  return weight * (1 + SEMANTIC_GAIN * semantic) * recency * pinned_boost;
 }
 
 export function score(vectors) {
@@ -215,14 +219,17 @@ function is_duplicate(a, b) {
 // past block can never be silently destroyed by a busy forge cycle.
 // (FUTURE is a prose field now — it has no pool or cap.)
 export const PAST_VECTOR_CAP = 20;
+export const MAX_TOTAL_VECTORS = 200;
+export const MAX_VECTOR_CHARS = 220;
 const ETERNAL_MAX_CHARS = 1500;
 const PRESENT_MAX_SEGMENTS = 3;
 
-/** True for vectors that were hand-authored (premade stock) and must never be evicted.
- *  Premade vectors are stamped `timestamp: 0`, so that marker also protects stock
- *  vectors inside saved entities that predate the `meta.origin` flag. */
-function is_origin(v) {
-  return !!(v && (v.meta?.origin || v.origin || v.timestamp === 0));
+/** True for vectors that are hand-authored (premade stock) and must never be evicted.
+ *  This includes `usr_`-prefixed pinned memories (user/lore) as well as premade
+ *  vectors stamped `timestamp: 0`, which also protects stock vectors inside saved
+ *  entities that predate the `meta.origin` flag. */
+export function is_origin(v) {
+  return !!(v && (v.id?.startsWith("usr_") || v.meta?.origin || v.origin || v.timestamp === 0));
 }
 
 /**
@@ -239,6 +246,13 @@ export function reconcile_vector_caps(entity) {
       const before = entity[bucket].length;
       evict_oldest_evictable(entity, bucket, PAST_VECTOR_CAP);
       if (entity[bucket].length === before) break; // pool fully origin-protected
+      changed = true;
+    }
+    // Absolute safety ceiling: combined usr_ + ai_ records may never exceed 200.
+    while (entity[bucket].length > MAX_TOTAL_VECTORS) {
+      const before = entity[bucket].length;
+      evict_oldest_evictable(entity, bucket, MAX_TOTAL_VECTORS);
+      if (entity[bucket].length === before) break; // everything protected
       changed = true;
     }
   }
@@ -302,7 +316,8 @@ export function ensure_unique_vector_id(entity, vector) {
   if (!entity || !vector || !vector.id) return vector;
   let attempts = 0;
   while (vector_id_exists(entity, vector.id) && attempts < 5) {
-    vector.id = _uuid();
+    const prefix = vector.id?.startsWith("usr_") ? "usr_" : vector.id?.startsWith("ai_") ? "ai_" : "";
+    vector.id = `${prefix}${_uuid()}`;
     attempts++;
   }
   return vector;
@@ -317,6 +332,14 @@ export function append_past_vector(entity, vector) {
   if (is_semantic_duplicate(entity.past, vector)) return;
   entity.past.push(vector);
   evict_oldest_evictable(entity, "past", PAST_VECTOR_CAP);
+  // Absolute safety ceiling: never exceed 200 records per entity, evicting
+  // oldest evictable (non-origin) records first. If every record is protected,
+  // allow growth rather than destroying pinned memory.
+  while (entity.past.length > MAX_TOTAL_VECTORS) {
+    const before = entity.past.length;
+    evict_oldest_evictable(entity, "past", MAX_TOTAL_VECTORS);
+    if (entity.past.length === before) break;
+  }
 }
 
 /** Deduplicates an incoming eternal mutation against the existing identity field. */
@@ -1035,7 +1058,7 @@ export async function forge_memory(entity_targets, history_slice) {
         if (!content) continue;
 
         const vector = {
-          id: _uuid(),
+          id: `ai_${_uuid()}`,
           timestamp: Date.now(),
           type: normalize_forged_type(raw.type),
           content,

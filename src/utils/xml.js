@@ -55,7 +55,8 @@ export function physical_to_xml(raw, tagName) {
   const children = Object.entries(parsed)
     .map(([k, v]) => {
       const tag = k.replace(/\s+/g, "_");
-      return `    <${tag}>${prompt_escape(String(v))}</${tag}>`;
+      const val_str = Array.isArray(v) ? v.join(", ") : String(v);
+      return `    <${tag}>${prompt_escape(val_str)}</${tag}>`;
     })
     .join("\n");
   return `  <${tagName}>\n${children}\n  </${tagName}>`;

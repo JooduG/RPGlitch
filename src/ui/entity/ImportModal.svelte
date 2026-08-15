@@ -75,7 +75,7 @@
               if (!vector_str || !String(vector_str).trim()) return null;
               return {
                 ...temporal_engine.create(vector_str, key),
-                id: generate_uuid(),
+                id: `usr_${generate_uuid()}`,
                 emotional_weight: 5,
               };
             })

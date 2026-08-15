@@ -16,6 +16,31 @@ import { get_signature_label, PALETTE } from "./tokens.js";
 export const NEGATIVE_PROMPT = PROTOCOL_LIBRARY.OPTICS.NEGATIVE_PROMPT;
 
 /**
+ * Keys that must NEVER reach an image-generation prompt. Carried/stashed items
+ * (INVENTORY/STASH) would be painted onto the body as worn clothing, and the
+ * epistemic/status tags (SECRET/PLAN/STATUS) are private or non-visual state.
+ */
+export const VISUAL_EXCLUDED_KEYS = new Set(["INVENTORY", "STASH", "SECRET", "PLAN", "STATUS"]);
+
+/**
+ * Strips visual-excluded keys (INVENTORY/STASH/SECRET/PLAN/STATUS) from a raw
+ * physical-state string before it is rendered into an image prompt, while
+ * preserving every visual trait. Returns the filtered raw string (or the
+ * original prose when no bracket keys are present).
+ * @param {string} raw
+ * @returns {string}
+ */
+export function strip_visual_excluded(raw) {
+  if (!raw) return "";
+  const parsed = safe_parse_pseudo_json(raw);
+  if (parsed.__raw_prose__) return raw;
+  const kept = Object.entries(parsed)
+    .filter(([k]) => !VISUAL_EXCLUDED_KEYS.has(k))
+    .map(([k, v]) => `[${k}: ${Array.isArray(v) ? v.join(", ") : String(v).replace(/[[\]]/g, "")}]`);
+  return kept.join(" ");
+}
+
+/**
  * 🖼️ UNIFIED 4-TIER IMAGE TAXONOMY
  * All image generation routes through one of these four targets:
  *  - story_entities:   group shot of all active entities (AI, User, Fractal presence) — active fractal style
@@ -151,10 +176,12 @@ export const flatten_physical = (raw) => {
 
 /**
  * Builds the merged aesthetic property map shared by extract() and flatten().
+ * Visual-prompt hygiene: carried/stashed items and private/epistemic tags are
+ * strictly excluded so they can never be painted onto the body as worn clothing.
  * @param {any} [entity]
  * @returns {Record<string, any>}
  */
-function build_aesthetic_map(entity = {}) {
+export function build_aesthetic_map(entity = {}) {
   const eternal_obj = safe_parse_pseudo_json(entity.eternal?.physical || "");
   const present_obj = safe_parse_pseudo_json(entity.present?.physical || "");
 
@@ -165,6 +192,7 @@ function build_aesthetic_map(entity = {}) {
       merged[fallbackLabel] = sourceObj.__raw_prose__;
     } else {
       Object.entries(sourceObj).forEach(([k, v]) => {
+        if (VISUAL_EXCLUDED_KEYS.has(k)) return;
         merged[k] = v;
       });
     }
@@ -174,15 +202,18 @@ function build_aesthetic_map(entity = {}) {
   merge_input_source(present_obj, "present");
 
   // CLOTHING OVERRIDE PROTOCOL
-  // If present state declares clothing as None or Bare, strip all eternal clothing tags
-  const clothing_val = (merged.CLOTHING || merged.SHIRT || "").toString().toLowerCase();
-  if (clothing_val === "none" || clothing_val === "bare" || clothing_val === "naked") {
+  // If present state declares clothing as None or Bare, strip all eternal clothing tags.
+  // Clear markers ([SHIRT: none]) are now DROPPED by safe_parse_pseudo_json, so also scan
+  // the raw present text — otherwise a shirtless state would repaint the eternal outfit.
+  const raw_present = entity.present?.physical || "";
+  const bare_marker =
+    /\[(?:CLOTHING|SHIRT|PANTS|SUIT|JACKET|DRESS|SKIRT|COAT|ROBE|ROBES|APPAREL|UNDERWEAR|OUTFIT|CLOAK|BOTTOMS|TOPS|ACCESSORIES|HARNESS|SCRUBS|HARDWARE|EQUIPMENT|GEAR)\s*:\s*(?:none|bare|naked|off|removed|disrobed)\s*\]/i.test(
+      raw_present,
+    );
+  if (bare_marker) {
     for (const ck of CLOTHING_KEYS) {
-      if (merged[ck] && merged[ck].toString().toLowerCase() !== clothing_val) {
-        // Only strip if this key was NOT explicitly defined in the present state
-        if (!(ck in present_obj)) {
-          delete merged[ck];
-        }
+      if (merged[ck] && !(ck in present_obj)) {
+        delete merged[ck];
       }
     }
   }
@@ -294,10 +325,10 @@ export const prompt_templates = {
       if (!ent) return "";
       const blocks = [];
       if (ent.eternal?.physical) {
-        blocks.push(physical_to_xml(ent.eternal.physical, "ETERNAL"));
+        blocks.push(physical_to_xml(strip_visual_excluded(ent.eternal.physical), "ETERNAL"));
       }
       if (ent.present?.physical) {
-        blocks.push(physical_to_xml(ent.present.physical, "PRESENT"));
+        blocks.push(physical_to_xml(strip_visual_excluded(ent.present.physical), "PRESENT"));
       }
       if (!blocks.length) return `<${tagStr} name="${escape_xml(ent.name || "Unknown")}" />`;
       return `<${tagStr} name="${escape_xml(ent.name || "Unknown")}">\n${blocks.join("\n")}\n</${tagStr}>`;

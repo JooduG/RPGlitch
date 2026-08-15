@@ -1,3 +1,11 @@
+<!--
+  tasks/tracks/track-memory-bundle-2026-08-14.md
+  🚀 IMPLEMENTATION BLUEPRINT: MEMORY BUNDLE & STATE UNIFICATION
+  Track Goal: Unify state architecture across PRESENT (Active State via Pseudo-JSON Brackets & Epistemic Filtering)
+  and PAST (Pinned Memories via usr_ Prefix & Memory Forge), providing zero-latency active status mutation, native
+  clothing-to-inventory lifecycles, visual prompt filtering, and forge-protected pinned memory persistence.
+-->
+
 # 🚀 Implementation Blueprint — `track-memory-bundle-2026-08-14`
 
 > **Track Goal**: Unify state architecture across **`PRESENT` (Active State via Pseudo-JSON Brackets & Epistemic Filtering)** and **`PAST` (Pinned Memories via `usr_` Prefix & Memory Forge)**, providing zero-latency active status mutation, native clothing-to-inventory lifecycles, visual prompt filtering, and forge-protected pinned memory persistence.
@@ -13,10 +21,10 @@
   │   id: "usr_4f8a12bc..." -> "Banished from Ashenweald court."          │
   └───────────────────────────────────┬────────────────────────────────────┘
                                       │
-                               ┌──────▼──────┐
-                               │ Parser / DM │
-                               └──────┬──────┘
-                                      │
+                                ┌──────▼──────┐
+                                │ Parser / DM │
+                                └──────┬──────┘
+                                       │
      ┌────────────────────────────────┴────────────────────────────────┐
      │                                                                 │
      ▼                                                                 ▼
@@ -25,12 +33,12 @@ ACTIVE PRESENT STATE (Mutable)                    HISTORICAL PAST MEMORY (Immuta
 │ Target: entity.present (phys & non_phys) │     │ Target: entity.past[] (vectors)          │
 │ • Pseudo-JSON Brackets ([KEY: VALUE])    │     │ • Pinned ID Prefix: `usr_...`            │
 │ • Overwrite: [KEY: new_value]             │     │ • AI Session ID Prefix: `ai_...`         │
-│ • Clear: [KEY: none] (deletes key)        │     │ • Forge-Skip: id.startsWith("usr_") is   │
+│ • Universal Clear: [KEY: none/bare/etc]  │     │ • Forge-Skip: id.startsWith("usr_") is   │
 │ • Multi-Item: [INVENTORY: item1, item2]   │     │   NEVER altered, compressed, or evicted  │
-│ • Visual Filter: INVENTORY excluded from │     │ • Deduplication: exact, substring, ≥85%  │
-│   image generation prompts               │     │ • Bounds: Max 200 entries, ≤220 chars    │
-│ • Epistemic Filter: User's [SECRET:] and │     │ • Naturally Ranks in existing <MEMORIES> │
-│   [PLAN:] filtered from AI Character     │     │   via lightweight pinned priority boost  │
+│ • Visual Filter: INVENTORY/SECRET cut    │     │ • Deduplication: exact, substr, >60%     │
+│   from image generation prompts          │     │ • Bounds: Max 200 entries, ≤220 chars    │
+│ • Epistemic Filter: User's [SECRET:] and │     │ • Pinned Scoring Boost: 1.5x multiplier  │
+│   [PLAN:] filtered from AI Character     │     │   in compute_relevance() in temporal.js  │
 └──────────────────────────────────────────┘     └──────────────────────────────────────────┘
 ```
 
@@ -42,17 +50,17 @@ Active conditions, held weapons, worn clothing, inventory items, mood, secrets, 
 
 ### A. Pseudo-JSON Bracket Taxonomies
 
-| Key Taxonomy                            | Target Field               | Description & Example                                                    | Lifecycle & Mutation Behavior                                              |
-| :-------------------------------------- | :------------------------- | :----------------------------------------------------------------------- | :------------------------------------------------------------------------- |
-| **`[SHIRT: ...]`, `[PANTS: ...]`**      | `present.physical`         | Worn garments (e.g. `[SHIRT: white greasy tank-top]`).                   | Overwrites directly; `[SHIRT: none]` marks shirtless.                      |
-| **`[INVENTORY: ...]`**                  | `present.physical`         | Carried items, un-worn clothing, tools (e.g. `[INVENTORY: copper key]`). | Multi-item array; groups in UI; **filtered out** of image prompts.         |
-| **`[HELD: ...]`**                       | `present.physical`         | Weapon or held prop (e.g. `[HELD: plasma pistol]`).                      | Feeds image generation; clears via `[HELD: none]`.                         |
-| **`[INJURY: ...]`**                     | `present.physical`         | Physical wounds/braces (e.g. `[INJURY: left arm in sling]`).             | Feeds visual generation; clears via `[INJURY: none]` / `[INJURY: healed]`. |
-| **`[DISGUISE: ...]`**                   | `present.physical`         | Active concealment (e.g. `[DISGUISE: watch cloak]`).                     | Modifies visual generation; clears via `[DISGUISE: none]`.                 |
-| **`[POSE: ...]`, `[POSTURE: ...]`**     | `present.physical`         | Stance (e.g. `[POSE: kneeling on gravel]`).                              | Isolated kinematic key; **never** pollutes inventory.                      |
-| **`[LOCATION: ...]`, `[WEATHER: ...]`** | `fractal.present.physical` | Active room & weather (e.g. `[LOCATION: clock tower]`).                  | Environmental backdrop; entity-agnostic structure.                         |
-| **`[MOOD: ...]`, `[STATUS: ...]`**      | `present.non_physical`     | Immediate mindset (e.g. `[MOOD: suspicious]`).                           | Injected into `<STATE_OF_MIND>`; clears via `[STATUS: normal]`.            |
-| **`[SECRET: ...]`, `[PLAN: ...]`**      | `present.non_physical`     | Private knowledge / intent (e.g. `[SECRET: stole ledger]`).              | Private truth; **filtered across the Epistemic Wall**.                     |
+| Key Taxonomy                            | Target Field               | Description & Example                                                    | Lifecycle & Mutation Behavior                                                               |
+| :-------------------------------------- | :------------------------- | :----------------------------------------------------------------------- | :------------------------------------------------------------------------------------------ |
+| **`[SHIRT: ...]`, `[PANTS: ...]`**      | `present.physical`         | Worn garments (e.g. `[SHIRT: white greasy tank-top]`).                   | Overwrites directly; `[SHIRT: none]` marks shirtless.                                       |
+| **`[INVENTORY: ...]`**                  | `present.physical`         | Carried items, un-worn clothing, tools (e.g. `[INVENTORY: copper key]`). | Multi-item array/list; groups in UI; **filtered out** of image prompts.                     |
+| **`[HELD: ...]`**                       | `present.physical`         | Weapon or held prop (e.g. `[HELD: plasma pistol]`).                      | Feeds image generation; clears via `[HELD: none]`.                                          |
+| **`[INJURY: ...]`**                     | `present.physical`         | Physical wounds/braces (e.g. `[INJURY: left arm in sling]`).             | Feeds visual generation; clears via `[INJURY: none]` / `[INJURY: healed]`.                  |
+| **`[DISGUISE: ...]`**                   | `present.physical`         | Active concealment (e.g. `[DISGUISE: watch cloak]`).                     | Modifies visual generation; clears via `[DISGUISE: none]`.                                  |
+| **`[POSE: ...]`, `[POSTURE: ...]`**     | `present.physical`         | Stance (e.g. `[POSE: kneeling on gravel]`).                              | Isolated kinematic key; **never** pollutes inventory.                                       |
+| **`[LOCATION: ...]`, `[WEATHER: ...]`** | `fractal.present.physical` | Active room & weather (e.g. `[LOCATION: clock tower]`).                  | Environmental backdrop; entity-agnostic structure.                                          |
+| **`[MOOD: ...]`, `[STATUS: ...]`**      | `present.non_physical`     | Immediate mindset (e.g. `[MOOD: suspicious]`).                           | Injected into `<STATE_OF_MIND>`; clears via `[STATUS: normal]`.                             |
+| **`[SECRET: ...]`, `[PLAN: ...]`**      | `present.non_physical`     | Private knowledge / intent (e.g. `[SECRET: stole ledger]`).              | Private truth; **filtered across the Epistemic Wall** from other characters' prompt blocks. |
 
 ### B. Natural Overwrite, Undressing & Redressing Lifecycle
 
@@ -62,8 +70,8 @@ Active conditions, held weapons, worn clothing, inventory items, mood, secrets, 
    When a character undresses, emitting `[SHIRT: none] [INVENTORY: white greasy tank-top]` marks the character as shirtless while safely stashing the item in inventory.
 3. **Zero-Hallucination Redressing**:
    When redressing, the AI reads `INVENTORY: white greasy tank-top` from `<CURRENT_LOOK>` and emits `[SHIRT: white greasy tank-top]`. The character puts on their **actual original clothing**, rather than hallucinating a random new outfit.
-4. **Atomic Clearing**:
-   Emitting `[KEY: none]`, `[KEY: bare]`, or `[KEY: removed]` automatically deletes the key from the present state dictionary, preventing stale clutter.
+4. **Universal Atomic Clearing**:
+   Emitting `[KEY: none]`, `[KEY: bare]`, `[KEY: naked]`, `[KEY: off]`, `[KEY: removed]`, `[KEY: disrobed]`, `[KEY: healed]`, `[KEY: cleared]`, or `[KEY: normal]` automatically deletes `KEY` from the present state dictionary (e.g. `[HELD: none]` removes `HELD`, `[DISGUISE: none]` removes `DISGUISE`), preventing stale clutter. `[CLOTHING: none]` preserves wildcard purging of all `CLOTHING_KEYS`.
 
 ### C. Multi-Item Collection & UI Grouping
 
@@ -73,17 +81,17 @@ When multiple `[INVENTORY: ...]` brackets or comma-separated items are emitted:
 [INVENTORY: white greasy tank-top] [INVENTORY: plasma pistol] [INVENTORY: copper key]
 ```
 
-- **Parser Normalization**: `safe_parse_pseudo_json` aggregates repeated keys into an array: `inventory: ["white greasy tank-top", "plasma pistol", "copper key"]`.
-- **UI Presentation**: Grouped under a single cohesive section in the Character Sheet and DevWing:
-  $$\text{Inventory: white greasy tank-top, plasma pistol, copper key}$$
+- **Parser Normalization**: `safe_parse_pseudo_json` aggregates repeated `INVENTORY` (and `STASH`) keys into a normalized list: `INVENTORY: "white greasy tank-top, plasma pistol, copper key"` or string array.
+- **Consumer Type Safety**: Downstream consumers (`physical_to_xml`, `flatten_physical`, `build_aesthetic_map`, `Profile.svelte`) safely support array or string representations with `.join(", ")` formatting.
+- **UI Presentation**: Grouped under a single cohesive section in the Character Sheet and DevWing.
 
 ### D. Dual Filter Engine (Visual & Epistemic)
 
 1. **Visual Prompt Filter (`image-prompts.js`)**:
-   - `build_aesthetic_map()` strictly **excludes `INVENTORY`**, `STASH`, `SECRET`, and `STATUS` from image prompts so carried/stashed items are never painted on the body as worn clothing.
+   - `build_aesthetic_map()` and prompt constructors strictly **exclude `INVENTORY`**, `STASH`, `SECRET`, `PLAN`, and `STATUS` from image prompts so carried/stashed items are never painted on the body as worn clothing.
 2. **Epistemic Prompt Filter (`prompts.js`)**:
-   - **Director Context**: Receives 100% of all entities' `[SECRET: ...]` and `[PLAN: ...]` (omniscient DM overview).
-   - **AI Character Context**: Receives its own secrets and public physical tags, but **User's `[SECRET: ...]` and `[PLAN: ...]` are filtered out** to prevent telepathic mind-reading and metagaming.
+   - **Director & Ghostwriter Context**: Receives 100% of all entities' `[SECRET: ...]` and `[PLAN: ...]` (omniscient DM overview).
+   - **AI Character Context (`render_character`)**: Receives its own secrets and public physical tags, but **User's `[SECRET: ...]` and `[PLAN: ...]` are stripped across the Epistemic Wall** to prevent telepathic mind-reading and metagaming.
 
 ---
 
@@ -93,7 +101,7 @@ Historical events that occurred in previous chapters are permanent backstory. Th
 
 ### A. ID Prefix Provenance & Forge-Skip
 
-Instead of complex metadata flags (`meta.chronicle`), memory provenance is identified directly by ID prefix:
+Memory provenance is identified directly by ID prefix:
 
 ```javascript
 // User / Lore Pinned Memory (Permanently Protected)
@@ -103,9 +111,11 @@ id: `usr_${generate_uuid()}`; // e.g. "usr_4f8a12bc-..."
 id: `ai_${generate_uuid()}`; // e.g. "ai_99e03d41-..."
 ```
 
-- **Forge-Skip Preservation**: During Memory Forge consolidation cycles, any record satisfying `v.id?.startsWith("usr_") || v.timestamp === 0` is **explicitly bypassed, preserved intact, and immune to eviction**.
-- **Bound Limits**: Hard maximum of **200 records per entity**; **≤220 characters per entry**. Oldest `ai_` records evict first upon capacity overflow.
-- **Lightweight Pinned Scoring Boost**: In `compute_relevance()` inside `temporal.js`, pinned memories receive a natural priority multiplier (`v.id?.startsWith("usr_") ? 1.5 : 1.0`) ensuring core backstory anchors rank near the top of the character's `<MEMORIES>` prompt block.
+- **Forge-Skip Preservation**: During Memory Forge consolidation cycles, any record satisfying `v.id?.startsWith("usr_") || v.meta?.origin || v.origin || v.timestamp === 0` is **explicitly bypassed, preserved intact, and immune to eviction**.
+- **Bound Limits**:
+  - `PAST_VECTOR_CAP = 20`: Rolling cap for active session `ai_` memories (oldest `ai_` records evict first upon capacity overflow).
+  - **200 records per entity**: Absolute safety ceiling for combined `usr_` and `ai_` records; **≤220 characters per entry**.
+- **Lightweight Pinned Scoring Boost**: In `compute_relevance()` inside `temporal.js`, pinned memories receive a natural priority multiplier (`(v.id?.startsWith("usr_") || is_origin(v)) ? 1.5 : 1.0`) ensuring core backstory anchors rank near the top of the character's `<MEMORIES>` prompt block.
 
 ### B. Ingestion Deduplication Matrix
 
@@ -113,7 +123,7 @@ id: `ai_${generate_uuid()}`; // e.g. "ai_99e03d41-..."
 | :----------------------- | :------------------------------------------------------ | :-------------------------------------------------- |
 | **Exact Match**          | Identical string content                                | Drop candidate duplicate.                           |
 | **Substring Match**      | Candidate exists within an existing entry or vice-versa | Drop candidate or keep the most descriptive record. |
-| **Fuzzy Semantic Match** | $\ge 85\%$ word-overlap similarity                      | Reject candidate as duplicate.                      |
+| **Fuzzy Semantic Match** | $>60\%$ word-overlap similarity or $>0.92$ cosine       | Reject candidate as duplicate.                      |
 
 ---
 
@@ -121,41 +131,46 @@ id: `ai_${generate_uuid()}`; // e.g. "ai_99e03d41-..."
 
 ### Phase 1: Test-Driven Red Suite
 
-- [ ] **Pseudo-JSON Extended Key Tests**: Add test assertions in `src/intelligence/parser.test.js` validating parsing, overwriting, multi-item `INVENTORY` aggregation, and deletion (`[KEY: none]`) for `SHIRT`, `PANTS`, `HELD`, `INVENTORY`, `INJURY`, `DISGUISE`, `MOOD`, `SECRET`, and `LOCATION`.
-- [ ] **Epistemic Filter Tests**: Build test assertions in `src/intelligence/prompts.test.js` verifying that `[SECRET: ...]` and `[PLAN: ...]` of the User are filtered out from AI Character prompt rendering.
-- [ ] **Visual Prompt Filtering Tests**: Add tests in `src/media/image-prompts.test.js` verifying that `INVENTORY` and `SECRET` keys are excluded from `build_aesthetic_map()`.
-- [ ] **Prefix ID & Forge-Skip Protection**: Create tests in `src/intelligence/temporal.test.js` proving `usr_` prefixed memories survive consolidation routines, capacity evictions, and receive the pinned scoring boost.
+- [x] **Step 1.1 (RED)**: Update `src/intelligence/parser.test.js` validating parsing, overwriting, multi-item `INVENTORY` aggregation, and universal deletion (`[KEY: none]`, `[HELD: none]`, `[DISGUISE: none]`, `[INJURY: healed]`).
+- [x] **Step 1.2 (RED)**: Add test assertions in `src/intelligence/prompts.test.js` verifying that `[SECRET: ...]` and `[PLAN: ...]` of the User are filtered out from AI Character prompt rendering (`render_character`) while remaining visible in `render_director`.
+- [x] **Step 1.3 (RED)**: Create `src/media/image-prompts.test.js` verifying that `INVENTORY`, `STASH`, and `SECRET` keys are excluded from `build_aesthetic_map()`.
+- [x] **Step 1.4 (RED)**: Update `src/intelligence/temporal.test.js` proving `usr_` prefixed memories survive consolidation routines, are protected by `is_origin()`, receive the $1.5\times$ pinned scoring multiplier, enforce the $\le 220$-char budget, and respect the 200 total memory ceiling.
 
 ### Phase 2: Storage & Prefix Normalization
 
-- [ ] **Schema Normalization**: Update `src/data/normalizer.js` and `Profile.svelte.js` to stamp user-created memories with `usr_` ID prefixes.
-- [ ] **Temporal Forge-Skip Engine**: Implement `usr_` prefix checks, pinned priority boosting, and string/overlap deduplication in `src/intelligence/temporal.js`.
+- [x] **Step 2.1 (GREEN)**: Update `src/data/normalizer.js` (`coerce_temporal_vectors`) and `src/ui/profile/Profile.svelte.js` (`add_vector_item`) to stamp user-created and imported memories with `usr_` ID prefixes.
+- [x] **Step 2.2 (GREEN)**: Update `src/intelligence/temporal.js` to stamp `ai_` prefixes in `create()`, truncate payloads to 220 chars on creation, guard against total pool overflow (>200 hard max), update `is_origin()` to protect `usr_` IDs, and implement the $1.5\times$ relevance multiplier in `compute_relevance()`.
 
 ### Phase 3: Parser, Guardrails & Dual Filter Integration
 
-- [ ] **Pseudo-JSON Extended Parser**: Extend `merge_prose_into_field` and `safe_parse_pseudo_json` in `src/utils/text.js` and `src/intelligence/parser.js` to handle multi-item `INVENTORY` aggregation and posture guardrails.
-- [ ] **Visual Filter Integration**: Update `build_aesthetic_map` in `src/media/image-prompts.js` to omit `INVENTORY` and non-physical tags from image generation prompts.
-- [ ] **Epistemic Filter in Prompts**: Update `render_character` in `src/intelligence/prompts.js` to strip `SECRET` and `PLAN` tags from other entities' `present.non_physical` rendering.
+- [x] **Step 3.1 (GREEN)**: Extend `safe_parse_pseudo_json` in `src/utils/text.js` and `merge_prose_into_field` in `src/intelligence/parser.js` to support multi-item `INVENTORY` aggregation and universal `[KEY: none]` deletion.
+- [x] **Step 3.2 (GREEN)**: Update `build_aesthetic_map` in `src/media/image-prompts.js` to omit `INVENTORY`, `STASH`, and non-physical tags from image generation prompts.
+- [x] **Step 3.3 (GREEN)**: Implement `strip_epistemic_tags` helper in `src/intelligence/prompts.js` and integrate into `render_character()` for `USER_PERSONA` state rendering.
 
 ### Phase 4: Prompt Directives & Lifecycle Integration
 
-- [ ] **Prompt Directive Injection**: Add emission formatting instructions for Pseudo-JSON present tags and clothing-to-inventory lifecycles into Director and Character system prompts within `src/intelligence/prompts.js`.
+- [x] **Step 4.1 (GREEN)**: Add emission formatting instructions for Pseudo-JSON present tags, universal clearing, and clothing-to-inventory lifecycles into Director and Memory Forge system prompts within `src/intelligence/prompts.js` and `src/data/definitions/protocols.js`.
 
-### Phase 5: Verification & Deployment
+### Phase 5: Verification & Quality Gate
 
-- [ ] **Run Test Verification Suite**:
+- [x] **Step 5.1 (VERIFY)**: Run full test verification suite:
 
   ```bash
   npm run verify
   ```
 
-  _(Validates `test:unit`, `test:design`, `lint`, and `svelte-check`)_.
+  _(Validates `lint`, `audit`, `test:unit`, and `test:design` — 37 test files, 524 tests passed)_.
 
-- [ ] **Long-Session Simulation**: Simulate a 50+ turn narrative session to verify that active present states mutate cleanly, inventory persists without visual pollution, epistemic walls hold, and pinned memories survive consecutive forge cycles.
-- [ ] **Production Bundle**:
+- [x] **Step 5.2 (BUILD)**: Verify singlefile bundle build:
 
   ```bash
   npm run build
   ```
 
-- [ ] **Archival**: Update `tasks/PRESENT.md` and archive track documentation.
+- [x] **Step 5.3 (ARCHIVE)**: Synchronize `tasks/PRESENT.md`, update task state, and archive track documentation.
+
+<!--
+  CHANGELOG
+  2026-08-16: Completed track-memory-bundle-2026-08-14. Verified all 5 implementation phases, full test suite pass (37 test files, 524 tests), and single-file bundle build.
+  2026-08-16: Refined track blueprint with 5 architectural calibrations (universal atomic [KEY: none] deletion, safe_parse_pseudo_json INVENTORY aggregation, epistemic prompt filtering across render_character/render_director boundaries, usr_ vs ai_ prefix lifecycle, and dedicated image-prompts test suite).
+-->

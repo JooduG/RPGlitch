@@ -6,7 +6,7 @@
 
 import { detox_prose, NARRATIVE_STYLES } from "@data";
 import { sanitize } from "@platform";
-import { CLOTHING_KEYS, collapse_history, escape_xml, safe_parse_pseudo_json, strip_cognition_blocks } from "@utils";
+import { AGGREGATE_KEYS, CLEAR_TOKENS, CLOTHING_KEYS, collapse_history, escape_xml, safe_parse_pseudo_json, strip_cognition_blocks } from "@utils";
 import MarkdownIt from "markdown-it";
 
 const markdown = new MarkdownIt({
@@ -369,22 +369,46 @@ export const merge_prose_into_field = (current_field_value, new_prose) => {
   // Apply structured key updates in sequence to respect hierarchy
   for (const { key, val } of key_updates) {
     let target_key = key;
+    const is_clear_token = CLEAR_TOKENS.has(val.toLowerCase());
 
-    // Clothing override protocol: if CLOTHING or specific items are None/Bare/Naked/Off/Removed, strip them from present state
-    const is_bare_val = ["none", "bare", "naked", "off", "removed", "disrobed"].includes(val.toLowerCase());
-
-    if (key === "CLOTHING" && is_bare_val) {
-      for (const ck of CLOTHING_KEYS) {
-        if (parsed[ck]) {
-          delete parsed[ck];
-        }
-      }
-      parsed["CLOTHING"] = val;
+    // Wildcard purge: [CLOTHING: none] strips every clothing key at once.
+    if (key === "CLOTHING" && is_clear_token) {
+      for (const ck of CLOTHING_KEYS) delete parsed[ck];
       continue;
     }
 
-    if (CLOTHING_KEYS.includes(key) && is_bare_val) {
+    if (CLOTHING_KEYS.includes(key) && is_clear_token) {
       delete parsed[key];
+      continue;
+    }
+
+    // Universal atomic clearing: [KEY: none/bare/naked/off/removed/disrobed/
+    // healed/cleared/normal] deletes the key, preventing stale clutter.
+    if (is_clear_token) {
+      delete parsed[key];
+      continue;
+    }
+
+    // Multi-item aggregation: repeated INVENTORY/STASH directives merge into a
+    // single normalized list instead of clobbering the existing collection.
+    if (AGGREGATE_KEYS.has(key)) {
+      const incoming = val
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      const existing = parsed[key];
+      const list = Array.isArray(existing)
+        ? existing
+        : existing
+          ? String(existing)
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean)
+          : [];
+      for (const item of incoming) {
+        if (item && !list.includes(item)) list.push(item);
+      }
+      parsed[key] = list;
       continue;
     }
 
@@ -412,7 +436,7 @@ export const merge_prose_into_field = (current_field_value, new_prose) => {
   }
 
   let lines = Object.entries(parsed)
-    .map(([k, v]) => `[${k}: ${String(v).replace(/[[\]]/g, "")}]`)
+    .map(([k, v]) => `[${k}: ${String(Array.isArray(v) ? v.join(", ") : v).replace(/[[\]]/g, "")}]`)
     .join(" ");
 
   if (lines.length > MAX_FIELD_CHARS) {
