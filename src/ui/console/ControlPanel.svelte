@@ -37,7 +37,7 @@
 
           <!-- DECK B: STORYBOARD (Contextual) -->
           {#if app.view === "storyboard"}
-            <Accordion label="Storyboard" content_class="flex flex-col gap-6">
+            <Accordion label="Storyboard" content_class="flex flex-col gap-4">
               <div class="w-full">
                 <TextField is_edit={true} placeholder="Optional Prologue Instructions" bind:value={app.prologue} />
               </div>

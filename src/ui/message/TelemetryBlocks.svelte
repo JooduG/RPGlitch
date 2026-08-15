@@ -10,7 +10,7 @@
 </script>
 
 {#if entity_blocks.length > 0}
-  <div class="flex flex-col gap-6">
+  <div class="flex flex-col gap-4">
     {#each entity_blocks as block (block.key)}
       <div class="flex flex-col gap-2">
         <header class="text-xs font-bold tracking-widest text-(--color-dev-accent) uppercase">
@@ -37,7 +37,7 @@
                     {/if}
                   </div>
                   <div class="flex flex-col items-end gap-0.5">
-                    <div class="flex min-w-16 items-center justify-end gap-1.5 font-mono text-xs">
+                    <div class="flex min-w-16 items-center justify-end gap-2 font-mono text-xs">
                       <span class="text-slate-50">{delta.has_delta ? get_pct(delta.new_value) : get_pct(delta.value)}</span>
                       {#if delta.has_delta}
                         <span class={delta.diff > 0 ? "text-(--color-dev-accent)" : "text-slate-500"}>

@@ -30,6 +30,8 @@
   /** @type {HTMLElement | undefined} */
   let info_container_el = $state();
   let previous_scroll_top = $state(0);
+  /** Export chooser (edit-mode footer) — picks V2 Card or native RPGlitch JSON. */
+  let show_export_modal = $state(false);
 
   // --- DEVMODE LIVE TELEMETRY SYNC ---
   $effect(() => {
@@ -356,7 +358,9 @@
       target.closest(".dropdown-portal-wrapper") ||
       target.closest(".tooltip-portal") ||
       target.closest("[data-modal-variant='lightbox']") ||
-      target.closest("[data-modal-backdrop='lightbox']")
+      target.closest("[data-modal-backdrop='lightbox']") ||
+      target.closest("[data-modal-variant='bare']") ||
+      target.closest("[data-modal-backdrop='bare']")
     )
       return;
     if (target.closest("[data-backdrop='mini']") || target.closest(".root.mini")) return;
@@ -432,6 +436,50 @@
   />
 
   <Modal
+    variant="bare"
+    bind:open={show_export_modal}
+    z_index="1000"
+    class="relative w-[clamp(24rem,92vw,38rem)] rounded-2xl bg-glass-elevated p-4 shadow-[0_16px_48px_rgba(0,0,0,0.8)] [backdrop-filter:var(--blur-mist)] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-(--noise-url) before:opacity-10 before:mix-blend-overlay before:content-['']"
+    on_close={() => {
+      show_export_modal = false;
+    }}
+  >
+    <div class="flex flex-col gap-4 font-sans">
+      <div class="flex flex-col gap-4 text-left">
+        <h5 class="m-0 text-xs font-bold tracking-widest text-slate-300 uppercase">
+          Export {entity_type === "fractal" ? "Fractal" : "Character"}
+        </h5>
+        <p class="m-0 text-xs leading-relaxed text-slate-400">
+          V2 Card is the standard character format for other apps (Tavern, Chub, Janitor). Keep in mind: some RPGlitch data — memories, vectors,
+          seeds, styling — is lost when exporting as V2 Card. RPGlitch JSON is a full-fidelity backup.
+        </p>
+      </div>
+      <div class="flex gap-4">
+        <Button
+          variant="secondary"
+          class="flex-1 justify-center"
+          onclick={() => {
+            export_entity_card();
+            show_export_modal = false;
+          }}
+        >
+          V2 Card (.json)
+        </Button>
+        <Button
+          variant="primary"
+          class="flex-1 justify-center"
+          onclick={() => {
+            export_entity_json();
+            show_export_modal = false;
+          }}
+        >
+          RPGlitch JSON (.json)
+        </Button>
+      </div>
+    </div>
+  </Modal>
+
+  <Modal
     variant="profile"
     on_close={() => {
       if (profile_state.is_editing) {
@@ -471,7 +519,7 @@
           {#if entity_type === "fractal" && !app.viewport.mobile}
             {@const is_default_style = !profile_state.char.narrative_style || profile_state.char.narrative_style === "default"}
             {@const is_default_visual = !profile_state.char.visual_style || profile_state.char.visual_style === "none"}
-            <div class="absolute right-8 -bottom-16 z-30 flex flex-col items-end gap-3">
+            <div class="absolute right-8 -bottom-16 z-30 flex flex-col items-end gap-2">
               {#if profile_state.is_editing || !is_default_style}
                 <Dropdown
                   bind:value={profile_state.char.narrative_style}
@@ -538,7 +586,7 @@
             {@const active_style = NARRATIVE_STYLES[profile_state.char.narrative_style] || NARRATIVE_STYLES.default}
             {@const is_default_style = !profile_state.char.narrative_style || profile_state.char.narrative_style === "default"}
             {#if profile_state.is_editing || !is_default_style}
-              <div class="mt-2 flex w-full flex-col gap-1">
+              <div class="mt-2 flex w-full flex-col gap-2">
                 <span class="text-[10px] font-bold tracking-widest text-slate-400 uppercase"> Narrative Style </span>
                 {#if profile_state.is_editing}
                   <div class="relative flex w-full max-w-sm rounded-md">
@@ -563,7 +611,7 @@
             {@const active_vstyle = VISUAL_STYLES[profile_state.char.visual_style] || VISUAL_STYLES.none}
             {@const is_default_vstyle = !profile_state.char.visual_style || profile_state.char.visual_style === "none"}
             {#if profile_state.is_editing || !is_default_vstyle}
-              <div class="mt-2 flex w-full flex-col gap-1">
+              <div class="mt-2 flex w-full flex-col gap-2">
                 <span class="text-[10px] font-bold tracking-widest text-slate-400 uppercase"> Visual Style (Story Exclusive) </span>
                 {#if profile_state.is_editing}
                   <div class="relative flex w-full max-w-sm rounded-md">
@@ -608,26 +656,14 @@
                 {/if}
               </Button>
               <Button
-                variant="invisible"
-                size="small"
+                variant="primary"
                 actions={[tooltip]}
-                aria-label="Save Entity (.json) — standalone RPGlitch backup"
+                aria-label={`Export ${entity_type === "fractal" ? "Fractal" : "Character"} (V2 Card or RPGlitch JSON)`}
                 disabled={profile_state.is_saving}
-                onclick={export_entity_json}
-                class="touch-target-coarse text-slate-400! hover:text-slate-50! hover:brightness-125"
+                onclick={() => (show_export_modal = true)}
+                class="touch-target-coarse"
               >
-                Save Entity (.json)
-              </Button>
-              <Button
-                variant="invisible"
-                size="small"
-                actions={[tooltip]}
-                aria-label="Save as Character Card V2 (.json) — Tavern / Chub / Janitor"
-                disabled={profile_state.is_saving}
-                onclick={export_entity_card}
-                class="touch-target-coarse text-slate-400! hover:text-slate-50! hover:brightness-125"
-              >
-                V2 Card
+                Export {entity_type === "fractal" ? "Fractal" : "Character"}
               </Button>
               <Button
                 variant="danger"
@@ -880,9 +916,9 @@
     {/each}
 
     {#if entity_type !== "fractal"}
-      <div class="col-start-2 mt-0 flex w-full flex-col items-center gap-1.5 py-1">
+      <div class="col-start-2 mt-0 flex w-full flex-col items-center gap-2 py-1">
         <Label for="perspective-toggle" class="justify-center" disabled={!profile_state.is_editing}>Perspective</Label>
-        <div class="flex w-full items-center justify-center gap-3">
+        <div class="flex w-full items-center justify-center gap-2">
           <Button
             variant="bare"
             class="{profile_state.is_editing ? 'cursor-pointer' : 'cursor-default'} text-xs font-medium transition-colors select-none {profile_state
@@ -937,7 +973,7 @@
   {#each nodes as part, i (i)}
     {#if part.is_var}
       <span
-        class="mx-0.5 inline-flex flex-wrap items-center gap-1 rounded border border-dashed border-(--signature-color)/25 bg-(--signature-color)/5 px-1.5 py-0.5 font-mono text-[11px] text-slate-300"
+        class="mx-0.5 inline-flex flex-wrap items-center gap-2 rounded border border-dashed border-(--signature-color)/25 bg-(--signature-color)/5 px-1.5 py-0.5 font-mono text-[11px] text-slate-300"
       >
         <span class="mr-0.5 text-[9px] font-bold text-(--signature-color) opacity-70">⌥</span>
         {#each part.choices as choiceNodes, idx (idx)}

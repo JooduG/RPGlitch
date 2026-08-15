@@ -37,7 +37,7 @@
   /** @type {{ entity?: any, class?: string, layout?: "storymode" | "prologue" | "profile" | "default", which?: "both" | "narrative" | "visual", tooltip?: string }} */
   let {
     entity = undefined,
-    class: className = "flex w-full justify-center gap-1.5",
+    class: className = "flex w-full justify-center gap-2",
     layout = "default",
     which = "both",
     tooltip: tooltip_text = undefined,

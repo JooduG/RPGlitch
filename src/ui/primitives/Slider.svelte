@@ -158,7 +158,7 @@
     relative
     flex
     cursor-pointer
-    {horizontal ? 'flex-1 flex-row items-center justify-between gap-4 py-1' : 'w-full flex-col justify-center gap-1'}
+    {horizontal ? 'flex-1 flex-row items-center justify-between gap-4 py-1' : 'w-full flex-col justify-center gap-2'}
 
     {is_disabled || busy
     ? `

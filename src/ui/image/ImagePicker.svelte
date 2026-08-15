@@ -151,7 +151,7 @@
                     </div>
                   {:else if image_picker.candidates.length < 2}
                     <div class="flex flex-col items-center gap-4" in:fade={{ duration: 200 }}>
-                      <div class="flex gap-1.5">
+                      <div class="flex gap-2">
                         <div class="h-3 w-3 animate-pulse rounded-full bg-white/60" style="animation-delay: 0ms"></div>
                         <div class="h-3 w-3 animate-pulse rounded-full bg-white/60" style="animation-delay: 150ms"></div>
                         <div class="h-3 w-3 animate-pulse rounded-full bg-white/60" style="animation-delay: 300ms"></div>
@@ -214,7 +214,7 @@
                     </div>
 
                     {#if image_picker.selected_index === null}
-                      <div class="flex flex-wrap items-center justify-center gap-3" in:fade={{ duration: 300 }}>
+                      <div class="flex flex-wrap items-center justify-center gap-2" in:fade={{ duration: 300 }}>
                         <span class="font-mono text-sm tracking-widest text-slate-400 uppercase">Choose One or</span>
                         <Button
                           variant="bare"

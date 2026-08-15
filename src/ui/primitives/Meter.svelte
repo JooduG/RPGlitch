@@ -120,7 +120,7 @@
       w-full
       items-center
       justify-center
-      gap-1
+      gap-2
     "
   >
     {#if is_editing}

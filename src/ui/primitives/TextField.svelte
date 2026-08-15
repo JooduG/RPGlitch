@@ -290,7 +290,7 @@
           {@render status()}
         </div>
       {/if}
-      <div class="ml-auto flex h-full shrink-0 items-center gap-1">
+      <div class="ml-auto flex h-full shrink-0 items-center gap-2">
         {#if is_edit}
           <div class="mr-1 flex items-center gap-0.5" in:fade={{ duration: 150 }}>
             <Button

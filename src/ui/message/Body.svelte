@@ -87,7 +87,7 @@
       {#if has_display_text}
         <Typewriter target_html={display_text} bind:is_finished={is_typing_finished} />
       {:else if busy}
-        <div class="flex items-center gap-1 p-2 opacity-60 {is_fractal ? 'justify-center' : ''}">
+        <div class="flex items-center gap-2 p-2 opacity-60 {is_fractal ? 'justify-center' : ''}">
           <div class="h-1.5 w-1.5 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 0ms"></div>
           <div class="h-1.5 w-1.5 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 150ms"></div>
           <div class="h-1.5 w-1.5 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 300ms"></div>
@@ -96,7 +96,7 @@
     {:else if has_display_text}
       <div class="display-text-container" style="display: contents" use:safe_html={display_text}></div>
     {:else if busy}
-      <div class="flex items-center gap-1 p-2 opacity-60 {is_fractal ? 'justify-center' : ''}">
+      <div class="flex items-center gap-2 p-2 opacity-60 {is_fractal ? 'justify-center' : ''}">
         <div class="h-1.5 w-1.5 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 0ms"></div>
         <div class="h-1.5 w-1.5 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 150ms"></div>
         <div class="h-1.5 w-1.5 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 300ms"></div>

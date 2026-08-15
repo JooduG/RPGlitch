@@ -36,7 +36,7 @@
   });
 </script>
 
-<div class="flex w-full flex-col gap-1 {className}" {style}>
+<div class="flex w-full flex-col gap-2 {className}" {style}>
   {#if label}
     <Label id={label_id} class="w-full justify-between font-mono">
       <span>{label}</span>

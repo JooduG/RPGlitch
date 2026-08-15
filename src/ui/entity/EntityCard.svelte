@@ -590,9 +590,9 @@
   {#if type === "fractal" && variant === "panel" && app.view !== "storymode"}
     <div
       data-card-badge
-      class="pointer-events-none absolute top-[clamp(0.25rem,4cqi,0.5rem)] left-[clamp(0.25rem,4cqi,0.5rem)] z-50 flex flex-col gap-1.5"
+      class="pointer-events-none absolute top-[clamp(0.25rem,4cqi,0.5rem)] left-[clamp(0.25rem,4cqi,0.5rem)] z-50 flex flex-col gap-2"
     >
-      <StyleBadge {entity} class="flex flex-col gap-1.5" />
+      <StyleBadge {entity} class="flex flex-col gap-2" />
     </div>
   {/if}
 </div>

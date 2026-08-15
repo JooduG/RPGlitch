@@ -128,7 +128,7 @@
       z-10
       flex
       flex-col
-      gap-1
+      gap-2
       pl-2
     "
   >
@@ -198,7 +198,7 @@
         z-20
         flex
         items-center
-        gap-1
+        gap-2
       "
     >
       {#if onrename && !is_editing_title}

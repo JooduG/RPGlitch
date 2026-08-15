@@ -23,7 +23,7 @@
   <div class="flex min-w-0 items-center">
     <Toggle label="NOTIFICATIONS" bind:value={Audio.notifications_enabled} />
   </div>
-  <div class="flex min-w-0 flex-wrap items-center gap-3">
+  <div class="flex min-w-0 flex-wrap items-center gap-2">
     <Button
       variant="bare"
       onclick={toggle_mute}

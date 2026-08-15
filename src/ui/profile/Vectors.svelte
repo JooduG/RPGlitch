@@ -109,7 +109,7 @@
           {@const title = derive_vector_title(item.content, 60)}
           <Button
             variant="bare"
-            class="my-auto flex max-w-full min-w-0 items-center gap-1.5 truncate text-left focus:outline-none"
+            class="my-auto flex max-w-full min-w-0 items-center gap-2 truncate text-left focus:outline-none"
             onclick={(e) => {
               e.stopPropagation();
               toggle_expand(item_key);
@@ -138,7 +138,7 @@
               flex
               h-full
               items-center
-              gap-1.5
+              gap-2
               select-none
             "
           >
@@ -148,7 +148,7 @@
                   flex
                   cursor-default
                   items-center
-                  gap-1
+                  gap-2
                   rounded-sm
                   border
                   border-white/10

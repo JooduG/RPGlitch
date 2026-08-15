@@ -117,7 +117,7 @@
 
 {#if is_consolidating && !app.streaming.active}
   <span
-    class="flex shrink-0 items-center gap-1.5 text-[10px] font-bold tracking-widest text-slate-400 uppercase"
+    class="flex shrink-0 items-center gap-2 text-[10px] font-bold tracking-widest text-slate-400 uppercase"
     use:tooltip={"Storing this turn into memory… send resumes momentarily."}
   >
     <span class="size-2 animate-pulse rounded-full bg-electric-cyan"></span>
