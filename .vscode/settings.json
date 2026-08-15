@@ -1,10 +1,7 @@
 {
   "css.validate": false,
   "html.validate.styles": false,
-  "stylelint.validate": [
-    "css",
-    "svelte"
-  ],
+  "stylelint.validate": ["css", "svelte"],
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
   "files.eol": "\n",
@@ -12,9 +9,7 @@
     "source.fixAll.eslint": "always",
     "source.fixAll.stylelint": "always"
   },
-  "typescript.preferences.autoImportFileExcludePatterns": [
-    "**/.gemini/**"
-  ],
+  "typescript.preferences.autoImportFileExcludePatterns": ["**/.gemini/**"],
   "markdown.validate.enabled": true,
   "markdown.validate.referenceLinks.enabled": "ignore",
   "markdown.validate.ignoredLinks": [

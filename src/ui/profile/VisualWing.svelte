@@ -5,7 +5,7 @@
    * Manages signature colors, generation prompts, and image modifiers.
    * Part of the RPGlitch UI.
    */
-  import { Button, TextField, Toggle, NumberField, Dropdown, tooltip, Label } from "@primitives";
+  import { Button, SourceField, TextField, Toggle, NumberField, Dropdown, tooltip, Label } from "@primitives";
   import { strip_cognition_blocks } from "@intelligence";
   import { aesthetic_resolver, get_signature_label, PALETTE, PALETTE_VARS, SIGNATURE_COLORS } from "@media";
   import { app } from "@state";
@@ -113,9 +113,9 @@
     profile_state.busy_fields.add("visual-prompt");
 
     try {
-      if (!has_prompt_text) {
+      if (!has_prompt_text && !prompt_value) {
         profile_state.char.modifiers.prompt = aesthetic_resolver.extract(profile_state.char);
-      } else {
+      } else if (has_prompt_text) {
         const result = await app.visual.enhance(profile_state.char.modifiers.prompt, profile_state.char.type, profile_state.char);
         if (result) {
           let positive = result.prompt || "";
@@ -147,16 +147,12 @@
   }
 
   /**
-   * Triggers image generation when a prompt exists, or opens the upload dialog
-   * as a fallback for direct uploads.
+   * Triggers AI image generation for the current prompt. URL-fetch and upload
+   * routes now live in the SourceField portrait field, so this is generation only.
    */
   async function handle_generate() {
     if (profile_state.busy_fields.has("visual-prompt")) return;
-
-    if (!has_prompt_text) {
-      await handle_upload_portrait();
-      return;
-    }
+    if (!has_prompt_text) return;
 
     profile_state.busy_fields.add("visual-prompt");
     app.log(`[VisualWing] Generating... Prompt: ${prompt_value}`, "system");
@@ -190,23 +186,15 @@
   }
 
   /**
-   * Handles manual image upload via Perchance upload plugin.
+   * Handles ingestion results from the portrait SourceField: images become the
+   * entity portrait (persisted), failures surface in the console log.
+   * @param {{kind: string, data_url?: string, url?: string, name?: string, message?: string}} info
    */
-  async function handle_upload_portrait() {
-    if (profile_state.busy_fields.has("visual-prompt")) return;
-    profile_state.busy_fields.add("visual-prompt");
-    app.log("[VisualWing] Triggering manual image upload...", "system");
-
-    try {
-      const data_url = await app.visual.upload();
-      if (data_url) {
-        await profile_state.setImage(data_url);
-        app.log("[VisualWing] Image upload succeeded and state persisted.", "system");
-      }
-    } catch (err) {
-      app.log(`Upload failed: ${/** @type {Error} */ (err).message}`, "error");
-    } finally {
-      profile_state.busy_fields.delete("visual-prompt");
+  function handle_source_field(info) {
+    if (info.kind === "image" && info.data_url) {
+      profile_state.setImage(info.data_url);
+    } else if (info.kind === "error") {
+      app.log(`Image failed: ${info.message || "Unknown error"}`, "error");
     }
   }
 
@@ -317,16 +305,19 @@
     </div>
   </div>
 
-  <TextField
-    data-active={profile_state.active_field?.key === "visual-prompt" ? true : undefined}
-    is_edit={profile_state.is_editing}
-    busy={is_prompt_busy}
+  <SourceField
+    mode="image"
     bind:value={profile_state.char.modifiers.prompt}
-    placeholder="Image prompt or URL..."
     disabled={!profile_state.is_editing || is_prompt_busy}
+    is_edit={profile_state.is_editing}
+    placeholder="Image prompt, URL, or drop/paste an image here..."
+    size="sm"
+    field_class=""
     signature_color="var(--color-frozen)"
+    data-active={profile_state.active_field?.key === "visual-prompt" ? true : undefined}
     oninput={() => (profile_state._user_mutated = true)}
     onfocus={() => profile_state.is_editing && (profile_state.active_field = { key: "visual-prompt", label: "Image Prompt" })}
+    on_source={handle_source_field}
   >
     {#snippet status()}
       <div class="flex items-center gap-2">
@@ -445,17 +436,17 @@
             {/if}
           </Button>
 
-          <Button
-            variant="invisible"
-            size="small"
-            square
-            aria-label={has_prompt_text ? "Generate Image" : "Upload Portrait"}
-            actions={[tooltip]}
-            onclick={handle_generate}
-            onmousedown={prevent_default}
-            disabled={!profile_state.is_editing || is_prompt_busy}
-          >
-            {#if has_prompt_text}
+          {#if has_prompt_text}
+            <Button
+              variant="invisible"
+              size="small"
+              square
+              aria-label="Generate Image"
+              actions={[tooltip]}
+              onclick={handle_generate}
+              onmousedown={prevent_default}
+              disabled={is_creative_disabled}
+            >
               <svg
                 viewBox="0 0 24 24"
                 class="
@@ -466,24 +457,12 @@
                 <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" stroke="currentColor"></path>
                 <circle cx="12" cy="13" r="4" stroke="currentColor"></circle>
               </svg>
-            {:else}
-              <svg
-                viewBox="0 0 24 24"
-                class="
-                size-icon-small
-              "
-                fill="none"
-              >
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor"></path>
-                <polyline points="17 8 12 3 7 8" stroke="currentColor"></polyline>
-                <line x1="12" y1="3" x2="12" y2="15" stroke="currentColor"></line>
-              </svg>
-            {/if}
-          </Button>
+            </Button>
+          {/if}
         </div>
       {/if}
     {/snippet}
-  </TextField>
+  </SourceField>
 
   <TextField
     data-active={profile_state.active_field?.key === "visual-negative-prompt" ? true : undefined}

@@ -4,6 +4,7 @@ export { default as DataBox } from "./DataBox.svelte";
 export { default as Dropdown } from "./Dropdown.svelte";
 export { default as Modal } from "./Modal.svelte";
 export { default as ScrollArea } from "./ScrollArea.svelte";
+export { default as SourceField } from "./SourceField.svelte";
 export { default as Skeleton } from "./Skeleton.svelte";
 export { default as Slider } from "./Slider.svelte";
 export { default as TextField } from "./TextField.svelte";

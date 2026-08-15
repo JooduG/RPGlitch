@@ -1,6 +1,5 @@
 <script>
-  import { Button, Modal, Toggle } from "@primitives";
-  import SourceField from "./SourceField.svelte";
+  import { Button, Modal, SourceField, Toggle } from "@primitives";
   import { app, runtime, simulation_state } from "@state";
   import { parse_profile_json, prompt_builder, temporal_engine } from "@intelligence";
   import { create_new, detect_card_format, normalize, parse_character_card } from "@data";
@@ -227,7 +226,7 @@
   bind:open
   variant="bare"
   z_index="1000"
-  class="relative w-[clamp(26rem,92vw,44rem)] max-w-2xl rounded-2xl bg-glass-elevated p-6 shadow-[0_16px_48px_rgba(0,0,0,0.8)] [backdrop-filter:var(--blur-mist)] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-(--noise-url) before:opacity-10 before:mix-blend-overlay before:content-['']"
+  class="relative w-[clamp(26rem,92vw,44rem)] max-w-2xl rounded-2xl bg-glass-elevated p-4 shadow-[0_16px_48px_rgba(0,0,0,0.8)] [backdrop-filter:var(--blur-mist)] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-(--noise-url) before:opacity-10 before:mix-blend-overlay before:content-['']"
   busy={is_loading}
   on_close={() => {
     open = false;
@@ -236,16 +235,16 @@
     error_message = "";
   }}
 >
-  <div class="flex h-full flex-col gap-6 font-sans">
+  <div class="flex h-full flex-col gap-4 font-sans">
     <div class="flex items-center justify-between">
       <h5 class="m-0 text-xs font-bold tracking-widest text-slate-300 uppercase">Import Entity</h5>
-      <div class="flex items-center gap-6 font-mono text-xs text-slate-300">
+      <div class="flex items-center gap-4 font-mono text-xs text-slate-300">
         <Toggle label="Character" bind:value={import_character} disabled={is_loading} />
         <Toggle label="Fractal" bind:value={import_fractal} disabled={is_loading} />
       </div>
     </div>
 
-    <div class="flex flex-1 flex-col gap-4">
+    <div class="flex flex-1 flex-col">
       {#if error_message}
         <div class="rounded-xl border border-red-500/20 bg-red-500/10 p-3.5 text-xs text-red-400">
           {error_message}
@@ -255,7 +254,7 @@
       <SourceField bind:value={raw_text} bind:image_data type={fetch_type} disabled={is_loading} on_source={handle_source} />
     </div>
 
-    <div class="flex items-center justify-between pt-2">
+    <div class="flex items-center justify-between">
       <span class="text-[10px] text-slate-500 italic"> JSON cards bypass the AI sorter; raw text is schema-sorted by the AI. </span>
 
       <Button variant="primary" size="small" onclick={handle_import} disabled={is_loading || (!import_character && !import_fractal)}>
