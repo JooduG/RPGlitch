@@ -44,14 +44,6 @@ import { app } from "./app.svelte.js";
  */
 
 /**
- * @typedef {Object} EntityState
- * @property {SimulationEntity} character
- * @property {SimulationEntity | null} active_user
- * @property {SimulationEntity | null} active_ai
- * @property {SimulationEntity} active_fractal
- */
-
-/**
  *
  */
 function create_runtime_store() {
@@ -255,47 +247,6 @@ function create_runtime_store() {
       return simulation_story.by_id[simulation_story_id] ?? simulation_story.by_id[coerce_story_key(simulation_story_id)] ?? null;
     },
 
-    // --- VECTOR API ---
-
-    /**
-     * @param {string} text
-     * @param {string} [role]
-     * @param {boolean} [is_vanguard]
-     */
-    add_vector: (text, role = "AI", is_vanguard = false) => {
-      const entity = api._get_entity_by_role(role);
-      if (!entity) return;
-      const line = String(text || "").trim();
-      if (!line) return;
-      // FUTURE is a consolidated prose field (not a vector pool) — append a line.
-      const existing = String(entity.future || "").trim();
-      entity.future = existing ? (is_vanguard ? `${line}\n${existing}` : `${existing}\n${line}`) : line;
-    },
-    /**
-     * @param {string} [role]
-     */
-    complete_vector: (role = "AI") => {
-      const entity = api._get_entity_by_role(role);
-      if (!entity) return;
-      // FUTURE is a consolidated prose field — "completing" it drops the most
-      // recent agenda line (the forge rewrites the rest on the next cycle).
-      const lines = String(entity.future || "")
-        .split("\n")
-        .map((l) => l.trim())
-        .filter(Boolean);
-      lines.pop();
-      entity.future = lines.join("\n");
-    },
-    /**
-     * @param {string} role
-     * @returns {SimulationEntity | null}
-     */
-    _get_entity_by_role: (role) => {
-      if (role === "AI") return active_ai_state;
-      if (role === "USER") return active_user_state;
-      if (role === "FRACTAL") return active_fractal_state;
-      return null;
-    },
     // --- DATA SYNC ---
     /**
      * Synchronizes the runtime state with the database.

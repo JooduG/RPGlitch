@@ -33,88 +33,42 @@ function base_entity(id, name, type, extra = {}) {
   };
 }
 
-describe("Narrative Vector System", () => {
-  beforeEach(() => {
-    runtime.init_effects();
-    // Reset state before each test
+describe("State Synchronization", () => {
+  it("should synchronize app-level selected entities on debug inject", () => {
+    const mock_user = {
+      id: "user-1",
+      name: "User One",
+      eternal: { non_physical: "", physical: "" },
+      present: { non_physical: "", physical: "" },
+      future: [],
+      dynamics: { chaos: 50, openness: 50, intensity: 50, affinity: 50 },
+    };
+    const mock_ai = {
+      id: "ai-1",
+      name: "AI One",
+      eternal: { non_physical: "", physical: "" },
+      present: { non_physical: "", physical: "" },
+      future: [],
+      dynamics: { chaos: 50, openness: 50, intensity: 50, affinity: 50 },
+    };
+    const mock_fractal = {
+      id: "fractal-1",
+      name: "Fractal One",
+      eternal: { non_physical: "", physical: "" },
+      present: { non_physical: "", physical: "" },
+      future: [],
+      dynamics: { velocity: 50, entropy: 50 },
+    };
+
     runtime._debug_inject({
-      fractal: /** @type {any} */ ({ id: "test-fractal", active: true, future: "" }),
+      user: mock_user,
+      ai: mock_ai,
+      fractal: mock_fractal,
     });
-  });
 
-  afterEach(() => {
-    runtime.teardown_effects();
-  });
-
-  it("should initialize with an empty future agenda", () => {
-    // FUTURE is a consolidated prose field, not a vector pool.
-    expect(runtime.active_fractal?.future).toEqual("");
-  });
-
-  it("should append agenda lines to the future field", () => {
-    runtime.add_vector("Find the key.", "FRACTAL");
-    expect(runtime.active_fractal?.future).toBe("Find the key.");
-
-    runtime.add_vector("Explore the cave.", "FRACTAL");
-    expect(runtime.active_fractal?.future).toBe("Find the key.\nExplore the cave.");
-  });
-
-  it("should prepend a vanguard agenda line", () => {
-    runtime.add_vector("Background Task", "FRACTAL");
-    runtime.add_vector("Urgent Task", "FRACTAL", true); // is_vanguard = true
-    expect(runtime.active_fractal?.future).toBe("Urgent Task\nBackground Task");
-  });
-
-  it("should complete the newest agenda line (drop it)", () => {
-    runtime.add_vector("Task A", "FRACTAL");
-    runtime.add_vector("Task B", "FRACTAL");
-    expect(runtime.active_fractal?.future).toBe("Task A\nTask B");
-    runtime.complete_vector("FRACTAL");
-    expect(runtime.active_fractal?.future).toBe("Task A");
-  });
-
-  it("should handle complete_vector on an empty future field safely", () => {
-    runtime.complete_vector("FRACTAL");
-    expect(runtime.active_fractal?.future).toEqual("");
-  });
-
-  describe("State Synchronization", () => {
-    it("should synchronize app-level selected entities on debug inject", () => {
-      const mock_user = {
-        id: "user-1",
-        name: "User One",
-        eternal: { non_physical: "", physical: "" },
-        present: { non_physical: "", physical: "" },
-        future: [],
-        dynamics: { chaos: 50, openness: 50, intensity: 50, affinity: 50 },
-      };
-      const mock_ai = {
-        id: "ai-1",
-        name: "AI One",
-        eternal: { non_physical: "", physical: "" },
-        present: { non_physical: "", physical: "" },
-        future: [],
-        dynamics: { chaos: 50, openness: 50, intensity: 50, affinity: 50 },
-      };
-      const mock_fractal = {
-        id: "fractal-1",
-        name: "Fractal One",
-        eternal: { non_physical: "", physical: "" },
-        present: { non_physical: "", physical: "" },
-        future: [],
-        dynamics: { velocity: 50, entropy: 50 },
-      };
-
-      runtime._debug_inject({
-        user: mock_user,
-        ai: mock_ai,
-        fractal: mock_fractal,
-      });
-
-      expect(app.selected_user).toEqual(mock_user);
-      expect(app.selected_ai).toEqual(mock_ai);
-      expect(app.selected_fractal).toEqual(mock_fractal);
-    });
+    expect(app.selected_user).toEqual(mock_user);
+    expect(app.selected_ai).toEqual(mock_ai);
+    expect(app.selected_fractal).toEqual(mock_fractal);
   });
 });
 
