@@ -6,7 +6,14 @@
  * Synthesizes simulation state, entities, and memories into XML system schemas.
  */
 import { ind, prompt_escape, state_bridge, escape_xml, physical_to_xml } from "@utils";
-import { NARRATIVE_STYLES, PROTOCOL_LIBRARY, build_available_keywords_xml, build_somatic_directives_block, get_style_keywords, GLOBAL_TRIGGERS } from "@data";
+import {
+  NARRATIVE_STYLES,
+  PROTOCOL_LIBRARY,
+  build_available_keywords_xml,
+  build_somatic_directives_block,
+  get_style_keywords,
+  GLOBAL_TRIGGERS,
+} from "@data";
 import { DYNAMICS_META } from "./dynamics.js";
 import { ENTITY_CATALOG, ENTITY_FRAGMENTS } from "@data";
 import { clean_xml, collapse_history, strip_cognition_blocks } from "./parser.js";
@@ -269,8 +276,10 @@ function non_verbal_environmental_hint(input) {
   if (!input?.trim()) return "";
   const has_dialogue = /["'“”‘’]/.test(input);
   if (has_dialogue) return "";
-  const spatial_verbs = /\b(step|walk|enter|approach|study|examine|press|watch|observe|descend|ascend|peer|reach|touch|grip|lean|kneel|stand|wait|listen|smell|scan|sweep|climb|move|circle|bend|follow|open|close|hold|stare|gaze|rest|push|pull|turn|edge|halt|pause|trail|settle|pause|linger)\b/i;
-  const spatial_nouns = /\b(door|gate|wall|room|hall|cave|forest|vault|stair|passage|corridor|window|floor|ceiling|rock|stone|water|river|bridge|tower|street|alley|field|sky|wind|rain|shadow|light|threshold|lock|mechanism|gear|wheel|conduit|tunnel|arch|column|altar|seal|cylinder|crevice|spillway|belly|deeps|mouth|chamber|alcove|ledge|ledge|court|yard|keep)\b/i;
+  const spatial_verbs =
+    /\b(step|walk|enter|approach|study|examine|press|watch|observe|descend|ascend|peer|reach|touch|grip|lean|kneel|stand|wait|listen|smell|scan|sweep|climb|move|circle|bend|follow|open|close|hold|stare|gaze|rest|push|pull|turn|edge|halt|pause|trail|settle|pause|linger)\b/i;
+  const spatial_nouns =
+    /\b(door|gate|wall|room|hall|cave|forest|vault|stair|passage|corridor|window|floor|ceiling|rock|stone|water|river|bridge|tower|street|alley|field|sky|wind|rain|shadow|light|threshold|lock|mechanism|gear|wheel|conduit|tunnel|arch|column|altar|seal|cylinder|crevice|spillway|belly|deeps|mouth|chamber|alcove|ledge|ledge|court|yard|keep)\b/i;
   if (!spatial_verbs.test(input) && !spatial_nouns.test(input)) return "";
   return `<USER_ACTION_NOTE>This turn is a non-verbal, environmental action. Strongly consider setting "speaker" to "fractal" so the world itself narrates the scene — unless the AI character should react directly.</USER_ACTION_NOTE>`;
 }
@@ -319,7 +328,9 @@ function render_scene_roster_xml(entities = {}, npc_entities = [], in_scene_ids 
   for (const n of npc_entities || []) {
     if (!(in_scene_ids || []).includes(String(n.id))) continue;
     const tier = Number(n.role_tier) || 1;
-    rows.push(`- ${escape_xml(n.name)} (id: ${escape_xml(String(n.id))}) [Tier ${tier} / ${_tier_label(tier)}] (Openness: ${Number(n.dynamics?.openness) || 50})`);
+    rows.push(
+      `- ${escape_xml(n.name)} (id: ${escape_xml(String(n.id))}) [Tier ${tier} / ${_tier_label(tier)}] (Openness: ${Number(n.dynamics?.openness) || 50})`,
+    );
   }
   return rows.length ? `<SCENE_ROSTER>\n${rows.join("\n")}\n</SCENE_ROSTER>` : "";
 }
@@ -361,7 +372,11 @@ const EPISTEMIC_ROSTER_RULES_XML = `<EPISTEMIC_RULES>
  * room, the relational web, and the epistemic rules that govern it.
  */
 function render_current_story_state_xml(entities = {}, npc_entities = [], in_scene_ids = []) {
-  const body = [render_scene_roster_xml(entities, npc_entities, in_scene_ids), render_relational_mesh_xml(entities, npc_entities), EPISTEMIC_ROSTER_RULES_XML]
+  const body = [
+    render_scene_roster_xml(entities, npc_entities, in_scene_ids),
+    render_relational_mesh_xml(entities, npc_entities),
+    EPISTEMIC_ROSTER_RULES_XML,
+  ]
     .filter(Boolean)
     .join("\n");
   return body ? `<CURRENT_STORY_STATE>\n${body}\n</CURRENT_STORY_STATE>` : "";
@@ -472,7 +487,18 @@ function build_ai_future_xml(entity, _scoring_context = "", entities = {}) {
   return `    <INTENT>${ind(prompt_builder.parse_macros(text, entity, entities), 6)}</INTENT>`;
 }
 
-function render_character({ round, entities, input, compressed_snapshot, meta, render_accessors, ghostwrite = false, director_data, npc_entities = [], in_scene_ids = [] }) {
+function render_character({
+  round,
+  entities,
+  input,
+  compressed_snapshot,
+  meta,
+  render_accessors,
+  ghostwrite = false,
+  director_data,
+  npc_entities = [],
+  in_scene_ids = [],
+}) {
   const pov_protocol = resolve_pov_protocol(entities?.AI);
   const has_user_action = !!input?.trim();
 
@@ -605,7 +631,17 @@ ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
  * own fragments, memories (with the in-scene 1.3x salience boost), the live
  * stage roster, and the relational mesh.
  */
-function render_npc_character({ round, entities = {}, npc, input, compressed_snapshot, render_accessors, director_data, npc_entities = [], in_scene_ids = [] }) {
+function render_npc_character({
+  round,
+  entities = {},
+  npc,
+  input,
+  compressed_snapshot,
+  render_accessors,
+  director_data,
+  npc_entities = [],
+  in_scene_ids = [],
+}) {
   const npc_name = escape_xml(npc?.name || "NPC");
   const user_name = escape_xml(entities?.USER?.name || "User");
   const ai_name = escape_xml(entities?.AI?.name || "the protagonist");
@@ -744,7 +780,10 @@ function render_ghostwriter({ entities, input = "" }) {
   return rendered;
 }
 
-function build_narrator(mode, { entities, render_accessors, compressed_snapshot, round = null, input = null, director_data = null, npc_entities = [], in_scene_ids = [] }) {
+function build_narrator(
+  mode,
+  { entities, render_accessors, compressed_snapshot, round = null, input = null, director_data = null, npc_entities = [], in_scene_ids = [] },
+) {
   const task_text =
     mode === "prologue"
       ? `${PROTOCOL_LIBRARY.SCENE.PROLOGUE}\n    Input: ${escape_xml(input?.trim() || "The scene begins.")}`
@@ -1040,15 +1079,11 @@ const render_builder = {
       _context: scoring_context,
       past: (ref, options = {}) => {
         const entity = resolve(ref);
-        const formatted = temporal_engine.format(
-          vector_pool(entity),
-          scoring_context,
-          {
-            offset: 0,
-            max_chars: 1500,
-            ...options,
-          },
-        );
+        const formatted = temporal_engine.format(vector_pool(entity), scoring_context, {
+          offset: 0,
+          max_chars: 1500,
+          ...options,
+        });
         return prompt_builder.parse_macros(formatted, entity, entities);
       },
       future: (ref) => {

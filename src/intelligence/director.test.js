@@ -133,7 +133,13 @@ describe("normalize_promotions", () => {
   });
 
   it("clamps tiers to the 2|3 range and strips prefixes", () => {
-    expect(normalize_promotions([{ id: "npc:elias", tier: 3 }, { id: "mira", tier: 4 }, { id: "nobody", tier: 1 }])).toEqual([
+    expect(
+      normalize_promotions([
+        { id: "npc:elias", tier: 3 },
+        { id: "mira", tier: 4 },
+        { id: "nobody", tier: 1 },
+      ]),
+    ).toEqual([
       { id: "elias", tier: 3 },
       { id: "mira", tier: 3 },
       { id: "nobody", tier: 2 },

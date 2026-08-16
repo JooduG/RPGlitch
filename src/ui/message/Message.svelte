@@ -178,9 +178,11 @@
       if (n?.name) roster.push({ name: n.name, voice_id: resolve_voice_uri(n.voice?.name || n.voice_register || ""), is_narrator: false });
     }
     const fractal = runtime.active_fractal || app.selected_fractal;
-    if (fractal?.name) roster.push({ name: fractal.name, voice_id: resolve_voice_uri(fractal.voice?.name || fractal.voice_register || ""), is_narrator: true });
+    if (fractal?.name)
+      roster.push({ name: fractal.name, voice_id: resolve_voice_uri(fractal.voice?.name || fractal.voice_register || ""), is_narrator: true });
     const companion = runtime.active_ai || app.selected_ai;
-    if (companion?.name) roster.push({ name: companion.name, voice_id: resolve_voice_uri(companion.voice?.name || companion.voice_register || ""), is_narrator: false });
+    if (companion?.name)
+      roster.push({ name: companion.name, voice_id: resolve_voice_uri(companion.voice?.name || companion.voice_register || ""), is_narrator: false });
 
     Audio.voice.speak_with_voices(clean_markdown, roster, {
       narrator_voice: resolve_voice_uri(fractal?.voice?.name || fractal?.voice_register || ""),

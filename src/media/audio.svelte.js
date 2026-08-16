@@ -251,12 +251,22 @@ export function infer_voice_for_chunk(chunk, roster = [], narrator_voice = "", d
   const leading = new RegExp(`^([A-Za-z][A-Za-z' -]{1,40})(?:\\s+(?:${DIALOGUE_VERBS})\\s*|:\\s*)`).exec(text);
   let name = trailing ? trailing[2] : leading ? leading[1] : "";
   if (name) {
-    const norm = name.replace(/[^A-Za-z' -]/g, "").trim().toLowerCase();
+    const norm = name
+      .replace(/[^A-Za-z' -]/g, "")
+      .trim()
+      .toLowerCase();
     const match = (roster || []).find((r) => r.name && r.name.toLowerCase() === norm);
     if (match?.voice_id) return match.voice_id;
   }
   if (!has_quote) {
-    const narrator = (roster || []).find((r) => r.is_narrator || /^bm_/.test(String(r.voice_id || "")) || String(r.name || "").toLowerCase().includes("narrator"));
+    const narrator = (roster || []).find(
+      (r) =>
+        r.is_narrator ||
+        /^bm_/.test(String(r.voice_id || "")) ||
+        String(r.name || "")
+          .toLowerCase()
+          .includes("narrator"),
+    );
     if (narrator?.voice_id) return narrator.voice_id;
     if (narrator_voice) return narrator_voice;
   }

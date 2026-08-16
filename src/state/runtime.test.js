@@ -292,7 +292,10 @@ describe("runtime world-cast hydration (track-npc-expansion)", () => {
   });
 
   it("persists stage moves through the in_scene_npc_ids setter (Stage Spotlight)", async () => {
-    const { story_id } = await seed_story_with_npcs([{ id: "npc-elias", name: "Elias" }, { id: "npc-mira", name: "Mira" }]);
+    const { story_id } = await seed_story_with_npcs([
+      { id: "npc-elias", name: "Elias" },
+      { id: "npc-mira", name: "Mira" },
+    ]);
     mock_checkpoint.load_session_checkpoint.mockReturnValue({ story_id: String(story_id), round: 3, phase: "idle" });
     await runtime.sync();
 

@@ -1,11 +1,12 @@
 /**
  * src/data/definitions/narrative-styles.js
  * 📖 NARRATIVE STYLE SYSTEM — narrative voice presets (authors, directors, etc.)
- * for prose generation. All prompt directives (global baseline pacing & author triggers)
- * live in this single file as unified JS triggers: `{ id, when, directive }`.
+ * for prose generation. Author-specific prompt directives live in this single
+ * file as unified JS triggers: `{ id, when, directive }`. The global baseline
+ * pacing triggers live in ./triggers.js.
  */
 
-import { GLOBAL_TRIGGERS } from "./somatic-triggers.js";
+import { GLOBAL_TRIGGERS } from "./triggers.js";
 
 /** @type {Record<string, NarrativeStyle>} */
 export const NARRATIVE_STYLES = {

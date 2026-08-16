@@ -74,7 +74,7 @@
 <!-- Stage Spotlight roster bar: who is in the room right now. -->
 {#if in_scene_npcs.length > 0}
   <div class="flex w-full flex-wrap items-center justify-center gap-2 px-4 pt-2">
-    <span class="text-[10px] font-semibold uppercase tracking-widest opacity-60">In Scene</span>
+    <span class="text-[10px] font-semibold tracking-widest uppercase opacity-60">In Scene</span>
     {#each in_scene_npcs as npc (npc.id)}
       <button
         class="rounded-full border border-(--signature-color)/40 bg-(--signature-color)/10 px-3 py-1 text-xs font-medium text-(--signature-color) transition-all hover:brightness-125 focus:outline-none"

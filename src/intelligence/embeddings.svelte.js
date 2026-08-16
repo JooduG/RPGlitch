@@ -173,7 +173,6 @@ export async function embed(text) {
   }
 }
 
-
 /**
  * Embeds a vector's directive and stores the embedding on the vector object.
  * Accepts a live Float32Array or the persisted plain-array form, upgrading

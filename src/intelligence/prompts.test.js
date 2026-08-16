@@ -1138,15 +1138,19 @@ describe("World Cast & Stage Spotlight prompt blocks (track-npc-expansion)", () 
   });
   const base_snapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} } };
   const npc_entities = [
-    { id: "npc-elias", name: "Elias", role_tier: 2, description: "The archivist of the under-city.", relationships: ["Elias → Viper: wary of her past"], dynamics: { openness: 45 } },
+    {
+      id: "npc-elias",
+      name: "Elias",
+      role_tier: 2,
+      description: "The archivist of the under-city.",
+      relationships: ["Elias → Viper: wary of her past"],
+      dynamics: { openness: 45 },
+    },
     { id: "npc-mira", name: "Mira", role_tier: 1, description: "A fixer with connections." },
   ];
 
   it("render_director() emits the compact WORLD_CAST with tier + stage presence tags", () => {
-    const result = prompt_builder.build_director_prompt(
-      { ...base_payload(), npc_entities, in_scene_ids: ["npc-elias"] },
-      base_snapshot,
-    );
+    const result = prompt_builder.build_director_prompt({ ...base_payload(), npc_entities, in_scene_ids: ["npc-elias"] }, base_snapshot);
 
     expect(result.system).toContain("<WORLD_CAST>");
     expect(result.system).toContain("Elias (id: npc-elias)");
@@ -1158,10 +1162,7 @@ describe("World Cast & Stage Spotlight prompt blocks (track-npc-expansion)", () 
   });
 
   it("render_director() emits the scene roster, relational mesh, and governance laws", () => {
-    const result = prompt_builder.build_director_prompt(
-      { ...base_payload(), npc_entities, in_scene_ids: ["npc-elias"] },
-      base_snapshot,
-    );
+    const result = prompt_builder.build_director_prompt({ ...base_payload(), npc_entities, in_scene_ids: ["npc-elias"] }, base_snapshot);
 
     expect(result.system).toContain("<SCENE_ROSTER>");
     expect(result.system).toContain("(Openness: 45)");
@@ -1176,7 +1177,7 @@ describe("World Cast & Stage Spotlight prompt blocks (track-npc-expansion)", () 
     const result = prompt_builder.build_director_prompt(base_payload(), base_snapshot);
     expect(result.task).toContain("in_scene_change");
     expect(result.task).toContain("promotions");
-    expect(result.task).toContain('npc:<id>');
+    expect(result.task).toContain("npc:<id>");
   });
 
   it("render_director() emits no cast rows when the world cast is empty", () => {
@@ -1188,11 +1189,7 @@ describe("World Cast & Stage Spotlight prompt blocks (track-npc-expansion)", () 
   });
 
   it("render_character() includes CURRENT_STORY_STATE (roster + mesh + epistemic rules) in the task snapshot", () => {
-    const result = prompt_builder.build_character_prompt(
-      { ...base_payload(), npc_entities, in_scene_ids: ["npc-elias"] },
-      base_snapshot,
-      {},
-    );
+    const result = prompt_builder.build_character_prompt({ ...base_payload(), npc_entities, in_scene_ids: ["npc-elias"] }, base_snapshot, {});
 
     expect(result.task).toContain("<CURRENT_STORY_STATE>");
     expect(result.task).toContain("<SCENE_ROSTER>");

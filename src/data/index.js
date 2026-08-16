@@ -28,6 +28,6 @@ export {
   render_somatic_directives_xml,
   build_somatic_directives_block,
   build_available_keywords_xml,
-} from "./definitions/somatic-triggers.js";
+} from "./definitions/triggers.js";
 export { VISUAL_STYLES } from "./definitions/visual-styles.js";
 export { ENTITY_FRAGMENTS, ENTITY_CATALOG, PROFILE_SECTIONS_BY_TYPE, build_profile_sections } from "./definitions/fragments.js";

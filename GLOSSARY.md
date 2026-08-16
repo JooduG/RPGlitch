@@ -100,7 +100,7 @@ A character entity flagged `is_wanderer: true` that is not bound to a single Fra
 
 ### Stage Spotlight Model & Dynamics Stasis
 
-> ✅ **IMPLEMENTED (2026-08-16, track-npc-expansion).** `runtime.in_scene_npc_ids` + `snapshot_in_scene_npc_ids` drive the Stage Spotlight; the Director moves NPCs on/off stage via `in_scene_change`, off-screen NPCs get no dynamics evaluation, and in-scene NPC memories get a 1.3x RAG salience boost. Note: NPC dynamics are currently frozen (never settled) in both states; only on-stage *speech delegation* and memory salience are active.
+> ✅ **IMPLEMENTED (2026-08-16, track-npc-expansion).** `runtime.in_scene_npc_ids` + `snapshot_in_scene_npc_ids` drive the Stage Spotlight; the Director moves NPCs on/off stage via `in_scene_change`, off-screen NPCs get no dynamics evaluation, and in-scene NPC memories get a 1.3x RAG salience boost. Note: NPC dynamics are currently frozen (never settled) in both states; only on-stage _speech delegation_ and memory salience are active.
 
 - **On-Stage (`runtime.in_scene_npc_ids`)**: Entities physically in the room. The Director actively updates their dynamics and delegates speech turns.
 - **Off-Screen (Stasis)**: Characters outside the scene freeze in stasis with zero token or computation overhead.
@@ -204,7 +204,7 @@ Memory retrieval algorithm scoring past vectors by composite relevance:
 $$\text{Score} = \text{Cosine Similarity} \times \text{Weight} \times \text{Provenance Boost} \times \text{In-Scene Boost} \times \text{Recency Decay}$$
 
 - **`usr_` Provenance Multiplier**: **1.5x boost** for user/lore authored canon memories.
-- **In-Scene Spotlight Multiplier**: **1.3x boost** for characters currently present in the room — *not implemented* (spec from the archived NPC Expansion track; `compute_relevance()` in `temporal.js` has no in-scene boost).
+- **In-Scene Spotlight Multiplier**: **1.3x boost** for characters currently present in the room — _not implemented_ (spec from the archived NPC Expansion track; `compute_relevance()` in `temporal.js` has no in-scene boost).
 
 ### Memory Provenance & Forge-Skip
 

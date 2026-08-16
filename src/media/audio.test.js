@@ -4,7 +4,16 @@
  */
 import { describe, expect, it } from "vitest";
 import { premade } from "@data";
-import { CADENCE_RATES, VOICE_CADENCES, get_cadence_rate, infer_voice_for_chunk, resolve_voice_name, resolve_voice_uri, split_speech_by_speaker, split_speech_sentences } from "./audio.svelte.js";
+import {
+  CADENCE_RATES,
+  VOICE_CADENCES,
+  get_cadence_rate,
+  infer_voice_for_chunk,
+  resolve_voice_name,
+  resolve_voice_uri,
+  split_speech_by_speaker,
+  split_speech_sentences,
+} from "./audio.svelte.js";
 
 describe("Audio & Voice Configurations", () => {
   it("assigns valid voice configurations to all premade fractals", () => {

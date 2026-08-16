@@ -4,7 +4,6 @@
  * and the DYNAMICS_SIGNALS prompt-directive registry.
  */
 
-
 /**
  * @typedef {Object} AxisMeta
  * @property {string} label - UI display label

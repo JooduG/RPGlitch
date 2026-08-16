@@ -25,4 +25,11 @@ export {
 } from "./image-prompts.js";
 export { visual_engine, VisualEngine } from "./visual.svelte.js";
 export { IMAGE_TRIGGER, DEFAULT_IMAGE_TIER, evaluate_image_trigger, resolve_image_trigger } from "./image-trigger.js";
-export { fire_image_trigger, count_pending_ghosts, sweep_stale_ghosts, mark_placeholder_failed, _image_gen_queue, IMAGE_RESOLVE_TIMEOUT_MS } from "./image-queue.js";
+export {
+  fire_image_trigger,
+  count_pending_ghosts,
+  sweep_stale_ghosts,
+  mark_placeholder_failed,
+  _image_gen_queue,
+  IMAGE_RESOLVE_TIMEOUT_MS,
+} from "./image-queue.js";

@@ -10,13 +10,17 @@
 import { db, entities, stories, detox_prose } from "@data";
 import { generate_uuid as generateUUID, create_job_queue, state_bridge } from "@utils";
 import { visual_engine, resolve_image_trigger, fire_image_trigger, sweep_stale_ghosts, IMAGE_RESOLVE_TIMEOUT_MS } from "@media";
-import {
-  strip_cognition_blocks,
-} from "./parser.js";
+import { strip_cognition_blocks } from "./parser.js";
 import { llm_service, looks_truncated, security, raw_to_text, raw_stop_reason } from "@platform";
 import { context_builder } from "./context.js";
 import { dynamics_engine, compute_deltas } from "./dynamics.js";
-import { normalize_director_data, parse_director_json, resolve_speaker_engine, synthesize_director_fallback, scrub_state_mutations } from "./director.js";
+import {
+  normalize_director_data,
+  parse_director_json,
+  resolve_speaker_engine,
+  synthesize_director_fallback,
+  scrub_state_mutations,
+} from "./director.js";
 import { prompt_builder, render_terse_director_task } from "./prompts.js";
 import { build_update_entry, build_retrieval } from "./telemetry.js";
 import { prune, temporal_engine } from "./temporal.js";
@@ -30,7 +34,6 @@ import { prune, temporal_engine } from "./temporal.js";
 // concurrently and are isolated from the critical narrative path: a failing
 // worker rejects only its own promise and can never stall story playback.
 const director_background_queue = create_job_queue({ max_concurrency: 2 });
-
 
 /** Completion directive appended to the character prompt when a reply was truncated. */
 const TRUNCATION_COMPLETE_NOTE =
@@ -154,10 +157,6 @@ function validate_and_repair_response(response) {
   return result;
 }
 
-
-
-
-
 export const gamemaster = {
   /**
    * CAPTURE DYNAMICS DELTA
@@ -230,7 +229,6 @@ export const gamemaster = {
       );
     }
   },
-
 
   /**
    * 🧹 EPILOGUE PRESENCE CHECK

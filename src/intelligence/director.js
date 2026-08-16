@@ -55,8 +55,7 @@ export function normalize_director_data(payload) {
   // stripped) falls back to any previously-preserved npc_id instead of
   // clobbering it with the literal "npc" string.
   const raw_speaker = typeof base.speaker === "string" ? base.speaker : "";
-  const npc_id =
-    speaker === "npc" ? (raw_speaker.includes(":") ? strip_npc_id(raw_speaker) : base.npc_id || "") : "";
+  const npc_id = speaker === "npc" ? (raw_speaker.includes(":") ? strip_npc_id(raw_speaker) : base.npc_id || "") : "";
   return {
     ...base,
     speaker,

@@ -5,7 +5,14 @@
  * scoring, caps, eviction, consolidation, and the read paths that surface them.
  */
 
-import { cosine_similarity, deserialize_embedding, escape_unescaped_json_quotes, generate_uuid as _uuid, merge_prose_into_field, state_bridge } from "@utils";
+import {
+  cosine_similarity,
+  deserialize_embedding,
+  escape_unescaped_json_quotes,
+  generate_uuid as _uuid,
+  merge_prose_into_field,
+  state_bridge,
+} from "@utils";
 import { llm_service } from "@platform";
 import { ensure_embedding, score_by_semantics, embed, is_ready } from "./embeddings.svelte.js";
 import { extract_json_block } from "./parser.js";
@@ -461,7 +468,6 @@ export async function format_async(vectors, input, options = {}) {
     })
     .join("\n");
 }
-
 
 /** Parses an llm_service forge response into a memory JSON object, or null. */
 function parse_forge_response(response) {
@@ -928,13 +934,11 @@ if (typeof window !== "undefined") {
  */
 export function prune(vectors) {
   if (!Array.isArray(vectors)) return [];
-  return vectors
-    .slice(0, 3)
-    .map((v) => ({
-      id: v.id,
-      content: v.content || v.directive || v.text || v.summary || "",
-      emotional_weight: v.emotional_weight ?? 5,
-      type: "past",
-      meta: v.meta || {},
-    }));
+  return vectors.slice(0, 3).map((v) => ({
+    id: v.id,
+    content: v.content || v.directive || v.text || v.summary || "",
+    emotional_weight: v.emotional_weight ?? 5,
+    type: "past",
+    meta: v.meta || {},
+  }));
 }

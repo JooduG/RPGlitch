@@ -32,7 +32,7 @@
      `promotions` (tier 2 = recurring, tier 3 = major co-star; never invent ids
      absent from <WORLD_CAST>).
    - New `render_npc_character` / `prompt_builder.build_npc_prompt(payload, npc,
-     snapshot, director_data)`: a third-person supporting-character persona with
+snapshot, director_data)`: a third-person supporting-character persona with
      the NPC's own fragments/memories (scored with `in_scene: true` for the 1.3x
      boost), the live roster, and explicit "never resolve the overarching quest".
 
@@ -41,7 +41,7 @@
      exit} with npc: prefix stripping), `normalize_promotions` (tier clamped to
      2|3), `strip_npc_id`; `normalize_director_data` now normalizes both fields.
    - src/intelligence/temporal.js: `TEMPORAL_SCORING.IN_SCENE_SALIENCE_BOOST =
-     1.3`; `score(vectors, in_scene)` / `score_async(..., in_scene)` /
+1.3`; `score(vectors, in_scene)` / `score_async(..., in_scene)` /
      `format`/`format_async` (`options.in_scene`) apply the boost to memories of
      entities physically present in the room.
    - src/intelligence/kernel.js: after Director normalization, `_apply_in_scene_change`
@@ -70,64 +70,68 @@
    - src/ui/Storymode.svelte: "In Scene" chip row (click → `app.open_profile(npc)`).
 
 TESTS ADDED / UPDATED (all 8 live in src/, run via `npm run verify`)
+
 - normalizer.test.js: role_tier tiers + defaults, is_wanderer coercion,
-     relationships sanitize/cap/limit.
+  relationships sanitize/cap/limit.
 - repository.test.js: update_cast dedupe/clean/null, npc_ids in list(), default [].
 - director-schema.test.js: strip_npc_id, normalize_in_scene_change,
-     normalize_promotions clamping/aliases, extended normalize_director_data.
+  normalize_promotions clamping/aliases, extended normalize_director_data.
 - temporal.test.js: fixed the now-removed 2nd-arg `score(entries, "Iron kiss")`
-     call; added the 1.3x in-scene boost test + constant range check.
+  call; added the 1.3x in-scene boost test + constant range check.
 - prompts.test.js: WORLD_CAST/SCENE_ROSTER/RELATIONAL_MESH/convergence/epistemic
-     blocks, director task schema mentions, CURRENT_STORY_STATE in character task,
-     build_npc_prompt third-person persona.
+  blocks, director task schema mentions, CURRENT_STORY_STATE in character task,
+  build_npc_prompt third-person persona.
 - kernel.test.js: _resolve_npc_entity,_apply_in_scene_change,_apply_promotions,
-     spawn_npc genesis, execute_turn NPC delegation (build_npc_prompt, npc role log,
-     streaming_entity_id) + unknown-NPC fallback. (Adds a targeted `@data` mock.)
+  spawn_npc genesis, execute_turn NPC delegation (build_npc_prompt, npc role log,
+  streaming_entity_id) + unknown-NPC fallback. (Adds a targeted `@data` mock.)
 - runtime.test.js: sync() world-cast hydration (all on-stage), clear on empty,
-     save/update/delete cast maintenance, in_scene setter dedupe.
+  save/update/delete cast maintenance, in_scene setter dedupe.
 - audio.test.js: infer_voice_for_chunk attribution (trailing/leading/colon/
-     narrator/default), split_speech_by_speaker segmentation + empty input.
+  narrator/default), split_speech_by_speaker segmentation + empty input.
 
 VERIFICATION
+
 - All edited JS files pass esbuild syntax checks (23/23; the 3 .svelte files are
-     verified by the repo's own svelte-check/vite build).
+  verified by the repo's own svelte-check/vite build).
 - Prompt render paths (render_director/render_character/build_npc_prompt) verified
-     by executing the real functions with stubbed data deps — all assertions pass.
+  by executing the real functions with stubbed data deps — all assertions pass.
 - director-schema normalization verified by direct execution.
 - audio attribution logic verified by direct execution (leading regex hardened to
-     accept `Elias: "…"` colon form).
+  accept `Elias: "…"` colon form).
 - repository.update_cast hardened so `null` entries don't become the literal
-     string "null"; director-schema promotions clamp tier 4 → 3 (was 2).
+  string "null"; director-schema promotions clamp tier 4 → 3 (was 2).
 - Live preview currently runs the previously built bundle (compiled into
-     index.html), so browser verification of this round's code requires the rebuild
-     step below. The page itself loads clean (no engine errors).
+  index.html), so browser verification of this round's code requires the rebuild
+  step below. The page itself loads clean (no engine errors).
 
 DEPLOY
+
 - Apply the changed files to your repo (the src/ + tests below), run
-     `npm run verify` (lint/audit/test) then `npm run deploy:prepare`, and paste the
-     new dist/index.html into the Perchance editor as usual.
+  `npm run verify` (lint/audit/test) then `npm run deploy:prepare`, and paste the
+  new dist/index.html into the Perchance editor as usual.
 - After verifying in the editor, use the Director's `in_scene_change`/`promotions`
-     fields and call `gamemaster.spawn_npc({ name: "...", role_tier: 2 })` to seed
-     cast (optionally wire a "New NPC" button in the UI later).
+  fields and call `gamemaster.spawn_npc({ name: "...", role_tier: 2 })` to seed
+  cast (optionally wire a "New NPC" button in the UI later).
 
 TEST-FAILURE FIX ROUND (2026-08-16, 6 failures → 0)
+
 - audio.svelte.js: the trailing-attribution regex was built from a template
-     literal with unescaped `\b`/`\s` (backspace + literal "s"), so `"…," said
-     Elias.` never matched and fell through to the default voice. Escaped both
-     (`\\b`, `\\s+`) and widened the name group to `[A-Za-z]` so lowercase
-     attributions (`"…," said elias.`) resolve case-insensitively.
+  literal with unescaped `\b`/`\s` (backspace + literal "s"), so `"…," said
+   Elias.` never matched and fell through to the default voice. Escaped both
+  (`\\b`, `\\s+`) and widened the name group to `[A-Za-z]` so lowercase
+  attributions (`"…," said elias.`) resolve case-insensitively.
 - prompts.test.js: build_npc_prompt test now supplies AI/USER `present` state
-     so the `<AI_CHARACTER>`/`<USER_PERSONA>` snapshot blocks survive clean_xml's
-     empty-tag pruning.
+  so the `<AI_CHARACTER>`/`<USER_PERSONA>` snapshot blocks survive clean_xml's
+  empty-tag pruning.
 - director-schema.js: `normalize_director_data` now preserves the delegated
-     NPC's id as `npc_id` (`npc:ben1` → `ben1`) instead of collapsing it to a
-     bare `"npc"` that the kernel couldn't resolve. Idempotent under the kernel's
-     defensive re-normalization (a colon-less `"npc"` speaker keeps any prior
-     `npc_id`).
+  NPC's id as `npc_id` (`npc:ben1` → `ben1`) instead of collapsing it to a
+  bare `"npc"` that the kernel couldn't resolve. Idempotent under the kernel's
+  defensive re-normalization (a colon-less `"npc"` speaker keeps any prior
+  `npc_id`).
 - kernel.js: execute_turn resolves the delegated NPC via `director_data.npc_id`
-     so `speaker:"npc:ben1"` actually routes to build_npc_prompt instead of
-     falling back to the AI character.
+  so `speaker:"npc:ben1"` actually routes to build_npc_prompt instead of
+  falling back to the AI character.
 - kernel.test.js: the NPC world-cast describe block lacked a `beforeEach`,
-     so mock call history leaked between tests (the promotions-skip assertion saw
-     the previous test's upsert call). Added a clearing beforeEach that also
-     resets the runtime NPC state.
+  so mock call history leaked between tests (the promotions-skip assertion saw
+  the previous test's upsert call). Added a clearing beforeEach that also
+  resets the runtime NPC state.

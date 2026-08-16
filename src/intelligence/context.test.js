@@ -123,5 +123,4 @@ describe("context_builder", () => {
       expect(duration).toBeLessThan(100); // Robust 100ms performance gate
     });
   });
-
 });

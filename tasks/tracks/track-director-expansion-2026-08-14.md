@@ -291,16 +291,16 @@ Splits the legacy `PrologueEpilogue.svelte` into two clean, dedicated components
 ### Phase 3: Kernel Execution & Speaker Routing (Red ➔ Green)
 
 - [x] **3.1 Dynamic Speaker Routing**: Update `gamemaster.execute_turn()` in `kernel.js` to dispatch execution dynamically to the delegated entity engine based on `director_data.speaker`.
-- [x] **3.2 Parallel Background Workers**: Wire non-critical background jobs (Memory Forge, visual prompt generation, Dexie checkpoints) through `job_queue.run()`. — *partial: only ghost sweeps run through the queue today; the others remain direct fire-and-forget calls.*
+- [x] **3.2 Parallel Background Workers**: Wire non-critical background jobs (Memory Forge, visual prompt generation, Dexie checkpoints) through `job_queue.run()`. — _partial: only ghost sweeps run through the queue today; the others remain direct fire-and-forget calls._
 - [x] **3.3 Reactive UI Wiring**: Connect `status.generating_entity_type`, `status.generating_entity_name`, and avatar bindings in `status.svelte.js`, `Storymode.svelte`, and `Message.svelte`.
 
 ### Phase 4: Story Resolution & Epilogue Screen
 
 - [x] **4.1 Split Prologue & Epilogue**: Split `PrologueEpilogue.svelte` into `src/ui/message/Prologue.svelte` and `src/ui/message/Epilogue.svelte`, updating `Message.svelte` and `index.js`.
-- [x] **4.2 Automatic Conclusion Dispatch**: When Director detects `story_status === "CONCLUDED" | "COLLAPSED"`, automatically trigger `gamemaster.execute_epilogue()`. — *landed 2026-08-16, incl. the COLLAPSED branch and a double-dispatch guard.*
+- [x] **4.2 Automatic Conclusion Dispatch**: When Director detects `story_status === "CONCLUDED" | "COLLAPSED"`, automatically trigger `gamemaster.execute_epilogue()`. — _landed 2026-08-16, incl. the COLLAPSED branch and a double-dispatch guard._
 - [x] **4.3 Epilogue Action Deck**: Wire `handle_return_to_storyboard()` and `handle_export_story()` directly into `Epilogue.svelte`.
 
 ### Phase 5: Verification & Gate Pass
 
-- [x] **5.1 Full Test Suite**: Run `npm run verify` (achieve 0 errors, 0 warnings across all test suites). — *test suite in repo (job-queue, somatic-triggers, prompts, kernel, temporal, …); run `npm run verify` to confirm the 0-warning gate before archive.*
+- [x] **5.1 Full Test Suite**: Run `npm run verify` (achieve 0 errors, 0 warnings across all test suites). — _test suite in repo (job-queue, somatic-triggers, prompts, kernel, temporal, …); run `npm run verify` to confirm the 0-warning gate before archive._
 - [x] **5.2 Singlefile Build**: Run `npm run deploy:prepare` to confirm single-file bundle builds cleanly.

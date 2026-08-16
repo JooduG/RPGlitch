@@ -249,13 +249,13 @@ In `src/intelligence/temporal.js`, memory vectors belonging to entities currentl
 
 ### Phase 2: Cognitive Physics & Prompt Compilation (Red ➔ Green)
 
-- [ ] **2.1 Prompt Blocks**: Implement `<CURRENT_STORY_STATE>`, `<WORLD_CAST>`, `<SCENE_ROSTER>`, `<RELATIONAL_MESH>`, and `<ENTITY_CONVERGENCE_LAW>` in `src/intelligence/prompts.js`. — *partial: an `EPISTEMIC` protocol block exists; the `<WORLD_CAST>` / `<SCENE_ROSTER>` / `<RELATIONAL_MESH>` / `<ENTITY_CONVERGENCE_LAW>` blocks are not emitted.*
+- [ ] **2.1 Prompt Blocks**: Implement `<CURRENT_STORY_STATE>`, `<WORLD_CAST>`, `<SCENE_ROSTER>`, `<RELATIONAL_MESH>`, and `<ENTITY_CONVERGENCE_LAW>` in `src/intelligence/prompts.js`. — _partial: an `EPISTEMIC` protocol block exists; the `<WORLD_CAST>` / `<SCENE_ROSTER>` / `<RELATIONAL_MESH>` / `<ENTITY_CONVERGENCE_LAW>` blocks are not emitted._
 - [ ] **2.2 Prompt Unit Tests**: Write tests in `src/intelligence/prompts.test.js` validating relational graph rendering, compact cast index formatting, and epistemic rules.
 - [ ] **2.3 In-Scene RAG Salience**: Apply 1.3x in-scene relevance multiplier in `src/intelligence/temporal.js` with tests in `src/intelligence/temporal.test.js`.
 
 ### Phase 3: Director NPC Dispatch & Execution (Red ➔ Green)
 
-- [ ] **3.1 Dynamic Speaker Dispatch**: Update `gamemaster.execute_turn()` in `src/intelligence/kernel.js` to resolve `speaker: "npc:<id>"` and build dedicated NPC persona prompts. — *partial: `speaker: "npc:<id>"` is parsed & normalized, but the NPC engine is not mounted — the kernel logs a warning and falls back to the AI character.*
+- [ ] **3.1 Dynamic Speaker Dispatch**: Update `gamemaster.execute_turn()` in `src/intelligence/kernel.js` to resolve `speaker: "npc:<id>"` and build dedicated NPC persona prompts. — _partial: `speaker: "npc:<id>"` is parsed & normalized, but the NPC engine is not mounted — the kernel logs a warning and falls back to the AI character._
 - [ ] **3.2 Stage Spotlight Scene Tracking**: Wire Director JSON parsing to update `runtime.in_scene_npc_ids` on arrivals (`enter`) and exits (`exit`).
 - [ ] **3.3 Genesis & Promotion Engine**: Implement `spawn_npc` and `promote` handling in `src/intelligence/kernel.js` to persist and promote dynamic entities to Dexie.
 - [ ] **3.4 Kernel Tests**: Write unit tests in `src/intelligence/kernel.test.js` verifying NPC turn generation, badge resolution, and memory updates.
@@ -263,8 +263,8 @@ In `src/intelligence/temporal.js`, memory vectors belonging to entities currentl
 ### Phase 4: Acoustic Multi-Voice Pipeline (Red ➔ Green)
 
 - [ ] **4.1 Speaker Segmentation**: Implement `split_speech_by_speaker(text, active_roster)` in `src/media/audio.svelte.js`.
-- [ ] **4.2 Parser Unit Tests**: Write unit tests in `src/media/audio.test.js` covering multi-character dialogue attribution and quote parsing. — *audio.test.js covers voice config and sentence queueing, not dialogue attribution.*
-- [x] **4.3 Multi-Voice Queue**: Wire sequential voice dispatching in `Audio.speak()` to transition smoothly across narrator and character voices. — *live: Kokoro-82M engine with sequential buffer chaining and per-entity voice toggles (ai/user/fractal).*
+- [ ] **4.2 Parser Unit Tests**: Write unit tests in `src/media/audio.test.js` covering multi-character dialogue attribution and quote parsing. — _audio.test.js covers voice config and sentence queueing, not dialogue attribution._
+- [x] **4.3 Multi-Voice Queue**: Wire sequential voice dispatching in `Audio.speak()` to transition smoothly across narrator and character voices. — _live: Kokoro-82M engine with sequential buffer chaining and per-entity voice toggles (ai/user/fractal)._
 
 ### Phase 5: UI & Scene Roster Presentation
 
@@ -274,4 +274,4 @@ In `src/intelligence/temporal.js`, memory vectors belonging to entities currentl
 ### Phase 6: System Verification & Release
 
 - [ ] **6.1 Full Test Suite**: Run `npm run verify` (0 errors, 0 warnings across all test suites).
-- [x] **6.2 Singlefile Build**: Run `npm run deploy:prepare` to verify single-file production compilation. — *bundle builds & ships (deployed 2026-08-16).*
+- [x] **6.2 Singlefile Build**: Run `npm run deploy:prepare` to verify single-file production compilation. — _bundle builds & ships (deployed 2026-08-16)._
