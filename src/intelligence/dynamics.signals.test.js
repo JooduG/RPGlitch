@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { evaluate_dynamics_signals } from "./prompts.js";
+import { evaluate_dynamics_signals } from "./dynamics.js";
 import { NARRATIVE_STYLES } from "@data";
 
 describe("evaluate_dynamics_signals (Unified Signals & Triggers Engine)", () => {
