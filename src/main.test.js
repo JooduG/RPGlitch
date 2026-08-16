@@ -1,11 +1,22 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-vi.mock("@state/app.svelte.js", () => ({
-  app: {
+const { _mock_app, _mock_runtime } = vi.hoisted(() => ({
+  _mock_app: {
     log: vi.fn(),
     init: vi.fn(),
     settings: { dev_mode: false },
   },
+  _mock_runtime: {
+    sync: vi.fn(),
+    is_ready: false,
+  },
+}));
+
+vi.mock("@state", () => ({
+  app: _mock_app,
+  runtime: _mock_runtime,
+  simulation_state: {},
+  simulation_log: {},
 }));
 
 vi.mock("@media/audio.svelte.js", () => ({
@@ -28,16 +39,7 @@ vi.mock("@data/repository.js", () => ({
   seed_premades: vi.fn(),
 }));
 
-// Mock the state bridge so boot.js can access app/runtime without importing @state
-const _mock_app = {
-  log: vi.fn(),
-  init: vi.fn(),
-  settings: { dev_mode: false },
-};
-const _mock_runtime = {
-  sync: vi.fn(),
-  is_ready: false,
-};
+// Mock the state bridge so main.js/boot can access app/runtime without pulling real @state
 vi.mock("@utils", async (importOriginal) => {
   const actual = await importOriginal();
   return {
@@ -54,14 +56,12 @@ vi.mock("@utils", async (importOriginal) => {
 });
 
 import * as repository from "@data";
-import { app_bootstrap, reset_bootstrap_guard } from "@engine/boot.js";
-vi.mock("@state/runtime.svelte.js", () => ({
-  runtime: _mock_runtime,
-}));
+import { app_bootstrap, reset_bootstrap_guard } from "./main.js";
+
 vi.mock("svelte", () => ({
   mount: vi.fn(),
 }));
-vi.mock("../App.svelte", () => ({
+vi.mock("@/App.svelte", () => ({
   default: {},
 }));
 describe("app_bootstrap", () => {

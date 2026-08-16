@@ -301,16 +301,16 @@ Interactive auxiliary drawers that slide open alongside the entity profile card:
 Strict architectural law enforcing unidirectional downward imports across the 6 project layers:
 
 ```text
-[src/ui] ➔ [src/state] ➔ [src/engine] ➔ [src/intelligence] ➔ [src/data] ➔ [src/platform]
+[src/ui] ➔ [src/state] ➔ [src/intelligence] ➔ [src/data] ➔ [src/platform]
 ```
 
-- Lower layers **MUST NEVER** import from higher layers (e.g. `engine` never imports from `ui` or `state`).
+- Lower layers **MUST NEVER** import from higher layers (e.g. `state` never imports from `ui`).
 
 ### Repository Directory Map
 
 - **`src/ui/`**: Atomic Svelte 5 components (Message, Entity, Profile, Console, Storyboard).
-- **`src/state/`**: Reactive Runes state stores (`app.svelte.js`, `runtime.svelte.js`, `status.svelte.js`, `log.svelte.js`).
-- **`src/engine/`**: Core simulation physics, lifecycle heartbeat, and turn orchestration. Pure JS.
+- **`src/state/`**: Reactive Runes state stores (`app.svelte.js`, `runtime.svelte.js`, `status.svelte.js`, `log.svelte.js`) plus the ChronoEngine turn driver (`chrono.svelte.js`).
+- **`src/intelligence/`**: AI Kernel, prompts, and LLM orchestration.
 - **`src/intelligence/`**: AI Kernel, prompt compiler, vector embeddings, dynamics evaluator, temporal engine.
 - **`src/data/`**: Persistence layer, IndexedDB (Dexie schemas), entity normalizers, definitions catalogs.
 - **`src/media/`**: Audio synthesizer, design tokens, image prompt compiler, CSS styles.

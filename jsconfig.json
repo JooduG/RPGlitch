@@ -17,8 +17,6 @@
       "@utils/*": ["src/utils/*"],
       "@data": ["src/data/index.js"],
       "@data/*": ["src/data/*"],
-      "@engine": ["src/engine/index.js"],
-      "@engine/*": ["src/engine/*"],
       "@intelligence": ["src/intelligence/index.js"],
       "@intelligence/*": ["src/intelligence/*"],
       "@media": ["src/media/index.js"],

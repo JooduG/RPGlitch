@@ -100,7 +100,6 @@ src:
     # WARNING: Do NOT manually edit design.css!
     # It is auto-generated via src/media/tokens.js from the source of truth: DESIGN.md
     design.css: src/media/design.css
-  engine: src/engine/
   intelligence: src/intelligence/
   platform: src/platform/
   ui:

@@ -83,7 +83,7 @@ L1_ABSOLUTE (User Agency) > L2_CRITICAL (Character/Temporal Truth) > L3_HIGH (Pl
 
 - **Restraint**: Simulation AI **MUST NOT** use a narrator voice and **MUST NEVER** control the user persona.
 - **Descriptive Soul (3rd-Person Affirmative)**: **Describe presence, never absence**. Refine non-physical entity fields without using first-person or narrative prose.
-- **Outcome Evaluation**: Before drafting prose, **compare intended user actions against physical state mutations in [Engine](./src/engine)** to preserve causality.
+- **Outcome Evaluation**: Before drafting prose, **compare intended user actions against physical state mutations in [ChronoEngine](./src/state/chrono.svelte.js)** to preserve causality.
 - **Atmospheric Signaling**: **Keep internal mechanics invisible in output**. Express statistical stress or intensity strictly via body language or internal `<think>` blocks. Use the [Simulation](./.agents/skills/simulation/SKILL.md) skill to bridge mechanics and prose.
 
 #### Multi-Channel Communication
@@ -148,14 +148,13 @@ RPGlitch is a **Local-First Reactive Monolith (PWA)** built for the Perchance if
 ### 3. Layer Boundaries & Import Hierarchy
 
 ```text
-[src/ui] ➔ [src/state] ➔ [src/engine] ➔ [src/intelligence] ➔ [src/data] ➔ [src/platform]
+[src/ui] ➔ [src/state] ➔ [src/intelligence] ➔ [src/data] ➔ [src/platform]
 ```
 
 #### Structural Glossary
 
 - **`src/ui/`**: Expression layer (Atomic Svelte components). Renders DOM, captures input, subscribes to state.
-- **`src/state/`**: Reactive nervous system (`app.svelte.js`, `runtime.svelte.js`, `status.svelte.js`). Owns all Runes.
-- **`src/engine/`**: Physical logic layer (`boot.js`, `DynamicsEngine`). Handles rounds, turns, sanitization, and physics. Pure JS.
+- **`src/state/`**: Reactive nervous system (`app.svelte.js`, `runtime.svelte.js`, `status.svelte.js`, `chrono.svelte.js`). Owns all Runes and the turn driver.
 - **`src/intelligence/`**: AI Kernel (Prompts, Context Broker, LLM streams).
 - **`src/data/`**: Persistence layer. Manages Dexie.js schemas and repositories.
 - **`src/media/`**: Sensory assets, visual parameters, and Kokoro-82M Neural TTS.
@@ -166,14 +165,13 @@ RPGlitch is a **Local-First Reactive Monolith (PWA)** built for the Perchance if
 **Allowed Downward Imports**:
 
 - `src/ui/` may import from any layer.
-- `src/state/` may import from `engine`, `intelligence`, `data`, `platform`, `media`, `utils`.
-- `src/engine/` may import from `intelligence`, `data`, `platform`, `media`, `utils`.
+- `src/state/` may import from `intelligence`, `data`, `platform`, `media`, `utils`.
 - `src/data/` may import from `platform`, `utils`.
 
 **Forbidden Upward Imports**:
 
 - Lower-level layers **MUST NEVER** import from higher-level layers.
-- `src/engine/`, `src/data/`, and `src/platform/` **MUST NEVER** import from `src/ui/` or `src/state/**`.
+- `src/intelligence/`, `src/data/`, `src/media/`, `src/utils/`, and `src/platform/` **MUST NEVER** import from `src/ui/` or `src/state/**`.
 - `src/state/` **MUST NEVER** import from `src/ui/**`.
 
 ---
@@ -196,7 +194,7 @@ RPGlitch is a **Local-First Reactive Monolith (PWA)** built for the Perchance if
 - **`load`**: Pulling static data from persistence (`src/data/`) into memory (`src/state/`) without running physics.
 - **`sync`**: Reconciling reactive state with IndexedDB before generating turns.
 - **`refresh`**: Triggering an imperative recalculation when `$derived` runes are insufficient.
-- **`boot`**: Global application startup sequence (`src/engine/boot.js`).
+- **`boot`**: Global application startup sequence (`src/main.js`).
 
 ---
 

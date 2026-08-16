@@ -1,7 +1,7 @@
 <script>
   import { tick } from "svelte";
   import { Button, tooltip } from "@primitives";
-  import { chrono_engine } from "@engine";
+  import { chrono_engine } from "@state";
   import { gamemaster } from "@intelligence";
   import { stab } from "@motion";
   import { app, simulation_state } from "@state";

@@ -2,7 +2,7 @@
 // Manages the strict turn-based progression of the simulation.
 import { session_driver } from "@data";
 import { gamemaster } from "@intelligence";
-import { state_bridge } from "@utils"; // Engine cannot import from @state — use bridge
+import { state_bridge } from "@utils";
 
 export class ChronoEngine {
   error = $state(null);
@@ -152,7 +152,7 @@ export class ChronoEngine {
    * @param {any} fractal
    * @returns {Promise<{causality: {result: string; constraint?: string;};}>}
    */
-  async _run_causality_shield(input, character, fractal) {
+  async _run_causality_shield(_input, _character, _fractal) {
     return {
       causality: { result: "success" },
     };

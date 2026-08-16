@@ -5,7 +5,7 @@
   import Message from "./Message.svelte";
   import UndoToast from "./UndoToast.svelte";
   import { Audio } from "@media/audio.svelte.js";
-  import { chrono_engine } from "@engine";
+  import { chrono_engine } from "@state";
   import { app, simulation_state } from "@state";
   import { motion, item_in, update_card_scrub, clear_card_location } from "@motion";
 

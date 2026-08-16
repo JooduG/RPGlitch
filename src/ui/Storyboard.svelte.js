@@ -60,7 +60,7 @@ export function claimed_entity_lock(selected, claimed_ids) {
 
 import { pick_random } from "@utils";
 import { stories, VISUAL_STYLES, NARRATIVE_STYLES } from "@data";
-import { chrono_engine } from "@engine";
+import { chrono_engine } from "@state";
 import { get_signature_color } from "@media";
 import { motion, fly_card_in, fly_card_out, capture_storyboard_flight, fly_storyboard_cards_into_prologue } from "@motion";
 import { app, simulation_log } from "@state";

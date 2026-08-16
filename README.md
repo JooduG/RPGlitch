@@ -55,7 +55,7 @@ The system architecture prioritizes offline-first resilience and agentic automat
 
 ### Folder Structure
 
-- `src/engine/` : Logic and Round Orchestration.
+- `src/main.js` : Entry point — composition root + `app_bootstrap` boot sequence.
 - `src/intelligence/` : AI Kernel and Narrative Processing.
 - `src/platform/` : Environment integrations.
 - `src/data/` : Database, Repository, and Persistence.

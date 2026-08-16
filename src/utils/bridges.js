@@ -81,7 +81,7 @@ export const stream_bridge = {
 };
 
 /**
- * Story-version bridge — lets the @data/@engine layers notify the UI that the
+ * Story-version bridge — lets the @data layer notify the UI that the
  * story archive changed without importing from @state directly (downward
  * import rule). The state layer registers a bump callback at module load.
  */

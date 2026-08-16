@@ -11,7 +11,6 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
       "@platform": path.resolve(__dirname, "./src/platform"),
       "@intelligence": path.resolve(__dirname, "./src/intelligence"),
-      "@engine": path.resolve(__dirname, "./src/engine"),
       "@data": path.resolve(__dirname, "./src/data"),
       "@state": path.resolve(__dirname, "./src/state"),
       "@media": path.resolve(__dirname, "./src/media"),
