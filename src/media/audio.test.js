@@ -13,7 +13,7 @@ import {
   resolve_voice_uri,
   split_speech_by_speaker,
   split_speech_sentences,
-} from "./audio.svelte.js";
+} from "./speech.js";
 
 describe("Audio & Voice Configurations", () => {
   it("assigns valid voice configurations to all premade fractals", () => {

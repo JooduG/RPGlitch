@@ -1,4 +1,5 @@
-export { Audio, VoiceEngine, CADENCE_RATES, VOICE_CADENCES, get_cadence_rate, resolve_voice_uri, resolve_voice_name } from "./audio.svelte.js";
+export { Audio, VoiceEngine } from "./audio.svelte.js";
+export { CADENCE_RATES, VOICE_CADENCES, get_cadence_rate, resolve_voice_uri, resolve_voice_name } from "./speech.js";
 export {
   get_signature_color,
   get_deterministic_color,
