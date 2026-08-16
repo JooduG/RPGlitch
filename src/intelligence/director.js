@@ -1,3 +1,5 @@
+import { detox_prose } from "@data";
+
 /**
  * src/intelligence/director-schema.js
  * 📐 DIRECTOR PAYLOAD NORMALIZATION
@@ -124,4 +126,115 @@ export function normalize_promotions(raw) {
       return { id, tier: /** @type {2 | 3} */ (clamped) };
     })
     .filter((p) => p.id);
+}
+
+/**
+ * 🧠 INTELLIGENCE KERNEL (GameMaster)
+ * Terse replacement for the Director task — used on the retry after a truncated
+ * JSON so the model emits a complete, minimal payload.
+ * @returns {string}
+ */
+export function terse_director_task() {
+  return `
+<TASK>
+  Return a single, COMPLETE, VALID JSON object. It MUST fit in under 700 characters.
+  - Omit "_thought_process" entirely, or keep it to one clause of a few words.
+  - Omit "directive" entirely.
+  - Set "speaker": "ai" (or "fractal" only if the world itself should narrate this turn).
+  - Set "keywords": [] (or up to 2 from <AVAILABLE_KEYWORDS>).
+  - Set "story_status": "IN_PROGRESS" (use "CONCLUDED"/"COLLAPSED" ONLY at a true quest resolution).
+  - For each entity, include only NON-EMPTY mutations:
+      "state_append": { "physical": "", "non_physical": "<one short clause>" }
+      "vector_append": [] (or a SINGLE item)
+      "vector_resolve": []
+      "dynamics_deltas": { small integers }
+  - Set "trigger_image": "false".
+  Output ONLY the JSON. No markdown fences, no prose, no trailing commas.
+  End with a closing "}". A small complete object beats a large cut-off one.
+</TASK>
+  `.trim();
+}
+
+/** Extracts a single short sentence (≤160 chars) from a blob of text. */
+export function first_sentence(text) {
+  const clean = String(text || "")
+    .replace(/<think>[\s\S]*?<\/think>/gi, "")
+    .replace(/<\/?think>/gi, "")
+    .replace(/```/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (!clean) return "";
+  const m = clean.match(/^[^.!?]{1,160}[.!?]?/);
+  const sentence = (m ? m[0] : clean.slice(0, 160)).trim();
+  return sentence;
+}
+
+/**
+ * MINIMAL-MUTATION FALLBACK — when the Director JSON could not be parsed even
+ * after a terse retry, synthesize just enough mutations that entity memory and
+ * dynamics never freeze for a whole turn. Prevents the present/future stall that
+ * occurred whenever the Director fell back to raw prose.
+ * @param {any} prev_data - the failed parse result (may be undefined).
+ * @param {string} input - the user's current input.
+ * @param {any} bridge - the state bridge (for runtime entities).
+ * @returns {any}
+ */
+export function synthesize_director_fallback(prev_data, input, bridge) {
+  const monologue = String(prev_data?.internal_monologue || input || "").trim();
+  const fallback = {
+    _parse_error: true,
+    internal_monologue: monologue || "The scene continues.",
+    trigger_image: "false",
+    speaker: "ai",
+    keywords: [],
+    story_status: "IN_PROGRESS",
+  };
+  const ai = bridge?.runtime?.active_ai;
+  const user = bridge?.runtime?.active_user;
+  const fractal = bridge?.runtime?.active_fractal;
+  if (ai) {
+    fallback.AI_CHARACTER = {
+      state_append: { physical: "", non_physical: first_sentence(monologue) || "Reacts to the turn's events." },
+      vector_append: [],
+      vector_resolve: [],
+    };
+  }
+  if (user) {
+    fallback.USER_PERSONA = {
+      state_append: { physical: "", non_physical: first_sentence(input) || "" },
+      vector_append: [],
+      vector_resolve: [],
+    };
+  }
+  if (fractal) {
+    fallback.FRACTAL = {
+      state_append: { physical: "", non_physical: "" },
+      vector_append: [{ content: `${fractal.name || "The environment"} shifts with the turn's events.`, type: "past", emotional_weight: 3 }],
+      vector_resolve: [],
+    };
+  }
+  return fallback;
+}
+
+/**
+ * Scrubs banned somatic idioms out of Director state mutations before they are
+ * applied, so clichéd phrases never seed prompt history for future turns
+ * (the "Director crutch echo" loop).
+ * @param {any} mutations
+ * @returns {any}
+ */
+export function scrub_state_mutations(mutations) {
+  if (!mutations || typeof mutations !== "object") return mutations;
+  for (const key of ["AI_CHARACTER", "USER_PERSONA", "FRACTAL"]) {
+    const m = mutations[key];
+    if (m?.state_append && typeof m.state_append === "object") {
+      if (typeof m.state_append.physical === "string" && m.state_append.physical.trim()) {
+        m.state_append.physical = detox_prose(m.state_append.physical, "plain");
+      }
+      if (typeof m.state_append.non_physical === "string" && m.state_append.non_physical.trim()) {
+        m.state_append.non_physical = detox_prose(m.state_append.non_physical, "plain");
+      }
+    }
+  }
+  return mutations;
 }

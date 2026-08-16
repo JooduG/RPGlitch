@@ -10,7 +10,8 @@ import {
 } from "./temporal.js";
 import { llm_service } from "@platform";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cosine_similarity, embed } from "@intelligence/embeddings.svelte.js";
+import { embed } from "@intelligence/embeddings.svelte.js";
+import { cosine_similarity } from "@utils";
 
 // Mock dependencies
 vi.mock("@platform/transport.js", () => ({
@@ -39,10 +40,17 @@ vi.mock("@intelligence/embeddings.svelte.js", () => ({
   }),
   ensure_embeddings: vi.fn(async () => {}),
   score_by_semantics: vi.fn(async (vectors) => vectors.map((v) => ({ vector: v, similarity: 0 }))),
-  cosine_similarity: vi.fn(() => 0.5),
   embed: vi.fn(async () => new Float32Array(384)),
   is_ready: vi.fn(() => false),
 }));
+
+vi.mock("@utils", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    cosine_similarity: vi.fn(() => 0.5),
+  };
+});
 
 describe("temporal_engine", () => {
   beforeEach(() => {

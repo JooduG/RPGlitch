@@ -7,7 +7,7 @@ import {
   strip_npc_id,
   resolve_speaker_engine,
   STORY_STATUS_VALUES,
-} from "./director-schema.js";
+} from "./director.js";
 
 describe("normalize_speaker", () => {
   it("maps ai variants to ai", () => {

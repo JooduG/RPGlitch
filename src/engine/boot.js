@@ -1,10 +1,10 @@
 import { seed_premades, set_versionchange_quiesce } from "@data";
-import { Audio } from "@media";
+import { Audio, sweep_stale_ghosts } from "@media";
 import { state_bridge } from "@utils";
 import App from "@/App.svelte";
 import { sanitize_to_fragment } from "@platform";
 import { mount } from "svelte";
-import { embeddings_engine, gamemaster, reconcile_vector_caps } from "@intelligence";
+import { embeddings_engine, reconcile_vector_caps } from "@intelligence";
 import { save_session_checkpoint } from "./session.js";
 
 let has_initialized = false;
@@ -62,7 +62,7 @@ export const app_bootstrap = {
       if (runtime.story_id) {
         try {
           await state_bridge.simulation_log?.refresh?.();
-          await gamemaster?.purge_stale_ghosts?.();
+          await sweep_stale_ghosts?.();
           await state_bridge.app?.load_entities?.();
           state_bridge.app.stories_version++;
           state_bridge.app?.set_view?.("storymode");

@@ -15,6 +15,22 @@
 export const clamp = (n, min = 0, max = 100) => Math.min(max, Math.max(min, Number(n) || 0));
 
 /**
+ * Computes cosine similarity between two embedding vectors.
+ * Since embeddings are normalised (unit vectors), this is just a dot product.
+ * @param {Float32Array|number[]} a
+ * @param {Float32Array|number[]} b
+ * @returns {number} -1 to 1
+ */
+export function cosine_similarity(a, b) {
+  if (!a || !b || a.length !== b.length) return 0;
+  let dot = 0;
+  for (let i = 0; i < a.length; i++) {
+    dot += a[i] * b[i];
+  }
+  return dot;
+}
+
+/**
  * Generates a standard UUID v4.
  * @returns {string}
  */

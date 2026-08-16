@@ -1,12 +1,11 @@
 import { context_builder } from "./context.js";
 import { dynamics_engine } from "./dynamics.js";
-import { evaluate_image_trigger } from "@media";
-import { _image_gen_queue, gamemaster } from "./kernel.js";
+import { gamemaster } from "./kernel.js";
 import { prompt_builder } from "./prompts.js";
 import { temporal_engine } from "./temporal.js";
 import { llm_service } from "@platform";
 import { session_driver } from "@engine";
-import { visual_engine } from "@media";
+import { visual_engine, _image_gen_queue, fire_image_trigger, sweep_stale_ghosts, resolve_image_trigger } from "@media";
 import { entities, stories } from "@data";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -47,7 +46,7 @@ const _mock_app = {
   is_ready: true,
   selected_count: 3,
   streaming: {
-    active: false,
+    triggered: false,
     content: "",
     node_id: null,
     role: "ai",
@@ -109,20 +108,52 @@ vi.mock("@engine/session.svelte.js", () => ({
   },
 }));
 
+vi.mock("../media/visual.svelte.js", () => ({
+  visual_engine: {
+    visualize: vi.fn().mockResolvedValue({ imageUrl: "https://img.test/auto.png", refinedPrompt: "Auto scene", metadata: {} }),
+    generate: vi.fn(),
+    enhance: vi.fn(),
+    generate_candidates: vi.fn(),
+    upload: vi.fn(),
+  },
+}));
+
+vi.mock("@media/visual.svelte.js", () => ({
+  visual_engine: {
+    visualize: vi.fn().mockResolvedValue({ imageUrl: "https://img.test/auto.png", refinedPrompt: "Auto scene", metadata: {} }),
+    generate: vi.fn(),
+    enhance: vi.fn(),
+    generate_candidates: vi.fn(),
+    upload: vi.fn(),
+  },
+  VisualEngine: vi.fn(),
+}));
+
 vi.mock("@media", async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
-    visual_engine: {
-      visualize: vi.fn().mockResolvedValue({ imageUrl: "https://img.test/auto.png", refinedPrompt: "Auto scene", metadata: {} }),
-      generate: vi.fn(),
-      enhance: vi.fn(),
-      generate_candidates: vi.fn(),
-      upload: vi.fn(),
-    },
-    evaluate_image_trigger: vi.fn().mockReturnValue({
-      triggered: false,
-      signals: { band_entry: null, displacement: 0, displacement_threshold: 60 },
+    resolve_image_trigger: vi.fn().mockImplementation((params) => {
+      if (params?.director_data?.trigger_image) {
+        return {
+          active: true,
+          tier: "story_scene",
+          source: "director",
+          signals: {},
+          deltas: [],
+          next_auto_round: params.turn_round,
+          director_explicit: true,
+        };
+      }
+      return {
+        active: false,
+        signals: { band_entry: null, displacement: 0, displacement_threshold: 60 },
+        tier: "story_scene",
+        deltas: [],
+        next_auto_round: null,
+        director_explicit: false,
+        source: "dynamics",
+      };
     }),
     IMAGE_TRIGGER: actual.IMAGE_TRIGGER,
   };
@@ -173,14 +204,18 @@ vi.mock("@intelligence/temporal.js", async (importOriginal) => {
   };
 });
 
-vi.mock("@intelligence/dynamics.js", () => ({
-  dynamics_engine: {
-    settle_physics: vi.fn().mockImplementation((dynamics) => {
-      if (dynamics) dynamics.intensity = 60; // Mutate to verify change
-    }),
-    _get_baselines: vi.fn().mockReturnValue({}),
-  },
-}));
+vi.mock("@intelligence/dynamics.js", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    dynamics_engine: {
+      settle_physics: vi.fn().mockImplementation((dynamics) => {
+        if (dynamics) dynamics.intensity = 60; // Mutate to verify change
+      }),
+      _get_baselines: vi.fn().mockReturnValue({}),
+    },
+  };
+});
 
 vi.mock("@data", async (importOriginal) => {
   const actual = await importOriginal();
@@ -957,11 +992,13 @@ describe("gamemaster (Intelligence Kernel)", () => {
     });
 
     it("Source A: fires an auto-trigger when the dynamics gate triggers, honoring the shared cooldown state", async () => {
-      vi.mocked(evaluate_image_trigger).mockReturnValue({
-        triggered: true,
-        signals: { band_entry: { axis: "intensity", from: 50, to: 88, band: "high" }, displacement: 38, displacement_threshold: 60 },
+      vi.mocked(resolve_image_trigger).mockReturnValue({
+        active: true,
         tier: "story_scene",
-        deltas: [{ axis: "intensity", from: 50, to: 88, delta: 38 }],
+        source: "dynamics",
+        signals: { band_entry: { axis: "intensity", from: 50, to: 88, band: "high" }, displacement: 38, displacement_threshold: 60 },
+        next_auto_round: 1,
+        director_explicit: false,
       });
       vi.mocked(llm_service.generate)
         .mockResolvedValueOnce(JSON.stringify({ mutations: { AI_CHARACTER: {} } }))
@@ -969,7 +1006,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
 
       const result = await gamemaster.execute_turn("story-123", { input: "Hello", role: "ai" });
 
-      expect(evaluate_image_trigger).toHaveBeenCalled();
+      expect(resolve_image_trigger).toHaveBeenCalled();
       expect(result.meta.image_trigger).toBe(true);
       expect(result.meta.image_tier).toBe("story_scene");
       expect(result.meta.image_source).toBe("dynamics");
@@ -984,11 +1021,13 @@ describe("gamemaster (Intelligence Kernel)", () => {
     });
 
     it("Source A: suppresses the auto-trigger while the shared cooldown is active", async () => {
-      vi.mocked(evaluate_image_trigger).mockReturnValue({
-        triggered: true,
+      vi.mocked(resolve_image_trigger).mockReturnValue({
+        active: false,
+        tier: null,
+        source: null,
         signals: { band_entry: { axis: "intensity", from: 50, to: 88, band: "high" }, displacement: 38, displacement_threshold: 60 },
-        tier: "story_scene",
-        deltas: [],
+        next_auto_round: null,
+        director_explicit: false,
       });
       _mock_runtime.last_auto_image_round = 2; // round 1 < 2 + 3 → cooldown not elapsed
       vi.mocked(llm_service.generate)
@@ -1004,11 +1043,13 @@ describe("gamemaster (Intelligence Kernel)", () => {
     });
 
     it("Source B: a director explicit trigger is suppressed while the shared cooldown is active", async () => {
-      vi.mocked(evaluate_image_trigger).mockReturnValue({
-        triggered: false,
+      vi.mocked(resolve_image_trigger).mockReturnValue({
+        active: false,
+        tier: null,
+        source: null,
         signals: { band_entry: null, displacement: 0, displacement_threshold: 60 },
-        tier: "story_scene",
-        deltas: [],
+        next_auto_round: null,
+        director_explicit: true,
       });
       _mock_runtime.last_auto_image_round = 2; // round 1 < 2 + 3 → cooldown not elapsed
       vi.mocked(llm_service.generate)
@@ -1024,11 +1065,13 @@ describe("gamemaster (Intelligence Kernel)", () => {
     });
 
     it("Source B: a director explicit trigger fires once the shared cooldown has elapsed and resets the timer", async () => {
-      vi.mocked(evaluate_image_trigger).mockReturnValue({
-        triggered: false,
-        signals: { band_entry: null, displacement: 0, displacement_threshold: 60 },
+      vi.mocked(resolve_image_trigger).mockReturnValue({
+        active: true,
         tier: "story_scene",
-        deltas: [],
+        source: "director",
+        signals: { band_entry: null, displacement: 0, displacement_threshold: 60 },
+        next_auto_round: 5,
+        director_explicit: true,
       });
       _mock_runtime.round = 5;
       _mock_runtime.last_auto_image_round = 2; // 5 >= 2 + 3 → cooldown elapsed
@@ -1046,11 +1089,13 @@ describe("gamemaster (Intelligence Kernel)", () => {
     });
 
     it("Source B: director can supply an explicit 4-tier target string", async () => {
-      vi.mocked(evaluate_image_trigger).mockReturnValue({
-        triggered: false,
+      vi.mocked(resolve_image_trigger).mockReturnValue({
+        active: true,
+        tier: "story_entities",
+        source: "director",
         signals: { band_entry: null, displacement: 0, displacement_threshold: 60 },
-        tier: "story_scene",
-        deltas: [],
+        next_auto_round: 5,
+        director_explicit: true,
       });
       vi.mocked(llm_service.generate)
         .mockResolvedValueOnce(JSON.stringify({ trigger_image: "story_entities", mutations: { AI_CHARACTER: {} } }))
@@ -1064,11 +1109,13 @@ describe("gamemaster (Intelligence Kernel)", () => {
     });
 
     it("resolves the placeholder attachment when the background generation completes", async () => {
-      vi.mocked(evaluate_image_trigger).mockReturnValue({
-        triggered: true,
-        signals: { band_entry: null, displacement: 70, displacement_threshold: 60 },
+      vi.mocked(resolve_image_trigger).mockReturnValue({
+        active: true,
         tier: "story_scene",
-        deltas: [],
+        source: "dynamics",
+        signals: { band_entry: null, displacement: 70, displacement_threshold: 60 },
+        next_auto_round: 1,
+        director_explicit: false,
       });
       vi.mocked(visual_engine.visualize).mockResolvedValue({
         imageUrl: "https://img.test/beat.png",
@@ -1087,11 +1134,13 @@ describe("gamemaster (Intelligence Kernel)", () => {
     });
 
     it("does not fire when neither source triggers", async () => {
-      vi.mocked(evaluate_image_trigger).mockReturnValue({
-        triggered: false,
+      vi.mocked(resolve_image_trigger).mockReturnValue({
+        active: false,
+        tier: null,
+        source: null,
         signals: { band_entry: null, displacement: 0, displacement_threshold: 60 },
-        tier: "story_scene",
-        deltas: [],
+        next_auto_round: null,
+        director_explicit: false,
       });
       vi.mocked(llm_service.generate)
         .mockResolvedValueOnce(JSON.stringify({ mutations: { AI_CHARACTER: {} } }))
@@ -1110,11 +1159,13 @@ describe("gamemaster (Intelligence Kernel)", () => {
     });
 
     it("treats the -1 sentinel as an open cooldown gate so round-0 auto-triggers are allowed", async () => {
-      vi.mocked(evaluate_image_trigger).mockReturnValue({
-        triggered: true,
-        signals: { band_entry: { axis: "intensity", from: 50, to: 88, band: "high" }, displacement: 38, displacement_threshold: 60 },
+      vi.mocked(resolve_image_trigger).mockReturnValue({
+        active: true,
         tier: "story_character",
-        deltas: [],
+        source: "dynamics",
+        signals: { band_entry: { axis: "intensity", from: 50, to: 88, band: "high" }, displacement: 38, displacement_threshold: 60 },
+        next_auto_round: 0,
+        director_explicit: false,
       });
       _mock_runtime.round = 0;
       _mock_runtime.last_auto_image_round = -1;
@@ -1130,11 +1181,13 @@ describe("gamemaster (Intelligence Kernel)", () => {
     });
 
     it("a real round-0 trigger does not permanently open the cooldown gate", async () => {
-      vi.mocked(evaluate_image_trigger).mockReturnValue({
-        triggered: true,
+      vi.mocked(resolve_image_trigger).mockReturnValue({
+        active: false,
+        tier: null,
+        source: null,
         signals: { band_entry: { axis: "intensity", from: 50, to: 88, band: "high" }, displacement: 38, displacement_threshold: 60 },
-        tier: "story_character",
-        deltas: [],
+        next_auto_round: null,
+        director_explicit: false,
       });
       _mock_runtime.round = 1;
       _mock_runtime.last_auto_image_round = 0; // a real round-0 (prologue) trigger
@@ -1159,14 +1212,14 @@ describe("gamemaster (Intelligence Kernel)", () => {
 
       // Fire one more beat than the queue capacity (5); the oldest must be evicted and deleted.
       for (let i = 0; i <= 5; i++) {
-        await gamemaster.fire_image_trigger("story_scene", { source: "dynamics" });
+        await fire_image_trigger("story_scene", { source: "dynamics" });
       }
 
       await vi.waitFor(() => expect(session_driver.delete_log_entry).toHaveBeenCalledWith("img-1"));
       expect(_image_gen_queue.length).toBeLessThanOrEqual(5);
     });
 
-    it("purge_stale_ghosts deletes empty-text failed/stale ghosts and marks stale unfailed ones", async () => {
+    it("sweep_stale_ghosts deletes empty-text failed/stale ghosts and marks stale unfailed ones", async () => {
       _mock_runtime.story_id = "story-123";
       const now = Date.now();
       const ghost_age = 2 * 60 * 1000;
@@ -1178,7 +1231,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
         { id: "resolved", text: "Done.", created_at: now, attachments: [{ src: "https://img.test/x.png", metadata: {} }] },
       ]);
 
-      await gamemaster.purge_stale_ghosts();
+      await sweep_stale_ghosts();
 
       expect(session_driver.delete_log_entry).toHaveBeenCalledWith("ghost-failed");
       expect(session_driver.delete_log_entry).toHaveBeenCalledWith("ghost-stale");

@@ -9,31 +9,24 @@
 
 import { db, entities, stories, detox_prose } from "@data";
 import { generate_uuid as generateUUID, create_job_queue, state_bridge } from "@utils";
-import { visual_engine, evaluate_image_trigger, IMAGE_TRIGGER } from "@media";
+import { visual_engine, resolve_image_trigger, fire_image_trigger, sweep_stale_ghosts, IMAGE_RESOLVE_TIMEOUT_MS } from "@media";
 import {
-  escape_unescaped_json_quotes,
-  extract_json_block,
-  parse_think_block,
+  parse_director_json,
   raw_stop_reason,
   raw_to_text,
   strip_cognition_blocks,
 } from "./parser.js";
 import { llm_service, looks_truncated, security } from "@platform";
 import { context_builder } from "./context.js";
-import { dynamics_engine } from "./dynamics.js";
-import { normalize_director_data, resolve_speaker_engine } from "./director-schema.js";
+import { dynamics_engine, compute_deltas } from "./dynamics.js";
+import { normalize_director_data, resolve_speaker_engine, terse_director_task, synthesize_director_fallback, scrub_state_mutations } from "./director.js";
 import { prompt_builder } from "./prompts.js";
+import { build_update_entry, build_retrieval } from "./telemetry.js";
 import { prune, temporal_engine } from "./temporal.js";
 
 /**
  * @typedef {import('@engine/kernel.js').GenerationOptions} GenerationOptions
  */
-
-// 🖼️ Image beat queue — bounds concurrent background image generations.
-// When the queue reaches capacity the oldest beat is dropped and its placeholder
-// is marked failed so evicted beats never leave permanent `src: null` ghost cards.
-const IMAGE_GEN_QUEUE_CAPACITY = 5;
-export const _image_gen_queue = [];
 
 // 🔀 Director background job queue — parallel auxiliary workers (ghost sweeps
 // now; Memory Forge / visual synthesis / Dexie checkpoint sync later) execute
@@ -41,295 +34,6 @@ export const _image_gen_queue = [];
 // worker rejects only its own promise and can never stall story playback.
 const director_background_queue = create_job_queue({ max_concurrency: 2 });
 
-// Ghost-card hard cap: at most this many unresolved (src:null) placeholders may
-// exist in the log at once. Beyond it, new triggers are refused until resolution
-// or the age-based sweep clears some — a permanent hard bound on ghost images.
-const IMAGE_PLACEHOLDER_HARD_CAP = 5;
-const IMAGE_RESOLVE_TIMEOUT_MS = 120000;
-const IMAGE_GHOST_MAX_AGE_MS = 2 * 60 * 1000;
-
-/**
- * Counts unresolved image placeholders (src:null, not already marked failed) in
- * the current story's log.
- * @returns {Promise<number>}
- */
-async function count_pending_ghosts() {
-  try {
-    const story_id = state_bridge.runtime.story_id;
-    if (!story_id) return 0;
-    const entries = await state_bridge.session_driver.load_log(story_id);
-    let count = 0;
-    for (const entry of entries) {
-      const atts = entry?.attachments || [];
-      for (const a of atts) {
-        if (a && a.src == null && !a.metadata?.failed) count++;
-      }
-    }
-    return count;
-  } catch (_err) {
-    return 0;
-  }
-}
-
-/**
- * Marks any placeholder older than IMAGE_GHOST_MAX_AGE_MS as failed and deletes
- * standalone empty-text ghost rows so hung or timed-out generations never linger.
- * @returns {Promise<void>}
- */
-async function sweep_stale_ghosts() {
-  try {
-    const story_id = state_bridge.runtime.story_id;
-    if (!story_id) return;
-    const entries = await state_bridge.session_driver.load_log(story_id);
-    const now = Date.now();
-    for (const entry of entries) {
-      const atts = entry?.attachments || [];
-      for (let i = 0; i < atts.length; i++) {
-        const a = atts[i];
-        if (a && a.src == null) {
-          const is_failed = a.metadata?.failed === true || a.metadata?.image_ghost_swept === true;
-          const is_stale = now - (entry.created_at || 0) > IMAGE_GHOST_MAX_AGE_MS;
-          const is_empty_text = !entry.text || !entry.text.trim();
-          if (is_empty_text && (is_failed || is_stale)) {
-            await state_bridge.session_driver.delete_log_entry(entry.id);
-            state_bridge.simulation_log?.remove?.(entry.id);
-          } else if (is_stale && !is_failed) {
-            await state_bridge.session_driver.update_log_attachment(entry.id, i, {
-              src: null,
-              metadata: {
-                ...(a.metadata || {}),
-                failed: true,
-                image_ghost_swept: true,
-                error: "Image beat timed out before it could resolve.",
-              },
-            });
-          }
-        }
-      }
-    }
-  } catch (_err) {
-    /* sweep must never break the trigger path */
-  }
-}
-
-/**
- * Marks a logged placeholder attachment as failed so it never lingers as a
- * permanent `src: null` ghost card in the chat log.
- * @param {string | number} id
- * @param {Record<string, any>} [metadata]
- * @returns {Promise<void>}
- */
-async function mark_placeholder_failed(id, metadata = {}) {
-  if (!id) return;
-  try {
-    const key = isNaN(Number(id)) ? id : Number(id);
-    let has_text = false;
-    const feed_match = state_bridge.simulation_log?.feed?.find((m) => m.id === key || m.id === id || String(m.id) === String(id));
-    if (feed_match && feed_match.text && feed_match.text.trim()) {
-      has_text = true;
-    } else {
-      try {
-        const db_entries = await state_bridge.session_driver.load_log(state_bridge.runtime?.story_id);
-        const match = db_entries?.find((m) => m.id === key || m.id === id || String(m.id) === String(id));
-        if (match && match.text && match.text.trim()) has_text = true;
-      } catch (_) {
-        /* ignore error during db lookup fallback */
-      }
-    }
-
-    if (has_text) {
-      await state_bridge.session_driver.update_log_attachment(id, 0, {
-        src: null,
-        metadata: { ...metadata, failed: true, error: "Image beat was dropped before it could resolve." },
-      });
-      return;
-    }
-    // For standalone image placeholders (empty or whitespace text), delete entry completely so no ghost row lingers
-    await state_bridge.session_driver.delete_log_entry(id);
-    state_bridge.simulation_log?.remove?.(key);
-    state_bridge.simulation_log?.remove?.(id);
-  } catch (err) {
-    console.warn("[GameMaster] Failed to mark image placeholder as failed:", err);
-  }
-}
-
-function _remove_from_image_gen_queue(id) {
-  const idx = _image_gen_queue.findIndex((entry) => entry.id === id);
-  if (idx !== -1) _image_gen_queue.splice(idx, 1);
-}
-
-/**
- * Helper to extract Director's JSON from a raw string.
- * @param {string} raw_text
- * @returns {any}
- */
-function parse_director_json(raw_text) {
-  if (!raw_text || !raw_text.trim()) return null;
-
-  const json_string = extract_json_block(raw_text);
-  if (!json_string) {
-    const stripped = raw_text.replace(/```json\n?|```/g, "").trim();
-    console.warn("[GameMaster] Director JSON missing brackets, falling back to raw prose.");
-    state_bridge.app.log("[GameMaster] Director JSON missing brackets — using raw prose fallback", "warn");
-    const extracted_think = parse_think_block(stripped).think;
-    return normalize_director_data({ internal_monologue: extracted_think || stripped, _parse_error: true });
-  }
-
-  const cleaned_json = escape_unescaped_json_quotes(json_string);
-  const sanitized_json = cleaned_json.replace(/:\s*\+([0-9]+(?:\.[0-9]+)?)/g, ": $1");
-
-  try {
-    const payload = JSON.parse(sanitized_json);
-    if (payload.prose) {
-      delete payload.prose;
-    }
-    return normalize_director_data(payload);
-  } catch (parse_err) {
-    console.warn("[GameMaster] Director JSON invalid, falling back to raw prose:", parse_err);
-    const stripped = raw_text.replace(/```json\n?|```/g, "").trim();
-    const extracted_think = parse_think_block(stripped).think;
-    return normalize_director_data({ internal_monologue: extracted_think || stripped, _parse_error: true });
-  }
-}
-
-/**
- * Resolves whether an image beat should trigger (Dual-source: Dynamics Gate + LLM Director)
- * subject to shared cooldown gating.
- * @param {Object} params
- * @param {any} params.snapshot - Current entity dynamics snapshot
- * @param {any} params.prev_dynamics - Previous dynamics state
- * @param {any} params.director_data - Parsed Director output
- * @param {number} params.turn_round - Active round number
- * @param {number} params.last_auto - Last round an image was auto-triggered
- * @returns {{ active: boolean, tier: string|null, source: 'director'|'dynamics'|null, signals: any, next_auto_round: number|null }}
- */
-function _resolve_image_trigger({ snapshot, prev_dynamics, director_data, turn_round, last_auto }) {
-  const image_trigger_eval = evaluate_image_trigger({ ai: snapshot?.ai?.dynamics, fractal: snapshot?.fractal?.dynamics }, prev_dynamics, {
-    band_high: IMAGE_TRIGGER.band_high,
-    band_low: IMAGE_TRIGGER.band_low,
-    displacement_threshold: IMAGE_TRIGGER.displacement_threshold,
-    default_tier: IMAGE_TRIGGER.default_tier,
-  });
-
-  const cooldown_elapsed = last_auto < 0 || turn_round >= last_auto + IMAGE_TRIGGER.cooldown_rounds;
-
-  let auto_image_trigger = null;
-  let next_auto_round = null;
-  if (image_trigger_eval.triggered && cooldown_elapsed) {
-    auto_image_trigger = { tier: image_trigger_eval.tier, source: "dynamics" };
-    next_auto_round = turn_round;
-  }
-
-  const raw_trigger = typeof director_data.trigger_image === "string" ? director_data.trigger_image.trim() : director_data.trigger_image;
-  const tier_from_string = typeof raw_trigger === "string" && IMAGE_TRIGGER.tiers.includes(raw_trigger) ? raw_trigger : null;
-  const tier_from_pref =
-    typeof director_data.image_tier === "string" && IMAGE_TRIGGER.tiers.includes(director_data.image_tier) ? director_data.image_tier : null;
-  const director_explicit = raw_trigger === true || raw_trigger === "true" || tier_from_string !== null;
-  const director_allowed = director_explicit && cooldown_elapsed;
-  if (director_allowed) {
-    next_auto_round = turn_round;
-  }
-
-  const active = director_allowed || auto_image_trigger !== null;
-  const tier = tier_from_string || (director_explicit ? tier_from_pref || IMAGE_TRIGGER.default_tier : auto_image_trigger?.tier || null) || null;
-  const source = active ? (director_explicit ? "director" : "dynamics") : null;
-
-  return {
-    active,
-    tier: active ? tier : null,
-    source,
-    signals: image_trigger_eval.signals,
-    next_auto_round,
-    director_explicit,
-  };
-}
-
-/**
- * Terse replacement for the Director task — used on the retry after a truncated
- * JSON so the model emits a complete, minimal payload.
- * @returns {string}
- */
-function terse_director_task() {
-  return `
-<TASK>
-  Return a single, COMPLETE, VALID JSON object. It MUST fit in under 700 characters.
-  - Omit "_thought_process" entirely, or keep it to one clause of a few words.
-  - Omit "directive" entirely.
-  - Set "speaker": "ai" (or "fractal" only if the world itself should narrate this turn).
-  - Set "keywords": [] (or up to 2 from <AVAILABLE_KEYWORDS>).
-  - Set "story_status": "IN_PROGRESS" (use "CONCLUDED"/"COLLAPSED" ONLY at a true quest resolution).
-  - For each entity, include only NON-EMPTY mutations:
-      "state_append": { "physical": "", "non_physical": "<one short clause>" }
-      "vector_append": [] (or a SINGLE item)
-      "vector_resolve": []
-      "dynamics_deltas": { small integers }
-  - Set "trigger_image": "false".
-  Output ONLY the JSON. No markdown fences, no prose, no trailing commas.
-  End with a closing "}". A small complete object beats a large cut-off one.
-</TASK>
-  `.trim();
-}
-
-/** Extracts a single short sentence (≤160 chars) from a blob of text. */
-function first_sentence(text) {
-  const clean = String(text || "")
-    .replace(/<think>[\s\S]*?<\/think>/gi, "")
-    .replace(/<\/?think>/gi, "")
-    .replace(/```/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
-  if (!clean) return "";
-  const m = clean.match(/^[^.!?]{1,160}[.!?]?/);
-  const sentence = (m ? m[0] : clean.slice(0, 160)).trim();
-  return sentence;
-}
-
-/**
- * MINIMAL-MUTATION FALLBACK — when the Director JSON could not be parsed even
- * after a terse retry, synthesize just enough mutations that entity memory and
- * dynamics never freeze for a whole turn. Prevents the present/future stall that
- * occurred whenever the Director fell back to raw prose.
- * @param {any} prev_data - the failed parse result (may be undefined).
- * @param {string} input - the user's current input.
- * @param {any} bridge - the state bridge (for runtime entities).
- * @returns {any}
- */
-function synthesize_director_fallback(prev_data, input, bridge) {
-  const monologue = String(prev_data?.internal_monologue || input || "").trim();
-  const fallback = {
-    _parse_error: true,
-    internal_monologue: monologue || "The scene continues.",
-    trigger_image: "false",
-    speaker: "ai",
-    keywords: [],
-    story_status: "IN_PROGRESS",
-  };
-  const ai = bridge?.runtime?.active_ai;
-  const user = bridge?.runtime?.active_user;
-  const fractal = bridge?.runtime?.active_fractal;
-  if (ai) {
-    fallback.AI_CHARACTER = {
-      state_append: { physical: "", non_physical: first_sentence(monologue) || "Reacts to the turn's events." },
-      vector_append: [],
-      vector_resolve: [],
-    };
-  }
-  if (user) {
-    fallback.USER_PERSONA = {
-      state_append: { physical: "", non_physical: first_sentence(input) || "" },
-      vector_append: [],
-      vector_resolve: [],
-    };
-  }
-  if (fractal) {
-    fallback.FRACTAL = {
-      state_append: { physical: "", non_physical: "" },
-      vector_append: [{ content: `${fractal.name || "The environment"} shifts with the turn's events.`, type: "past", emotional_weight: 3 }],
-      vector_resolve: [],
-    };
-  }
-  return fallback;
-}
 
 /** Completion directive appended to the character prompt when a reply was truncated. */
 const TRUNCATION_COMPLETE_NOTE =
@@ -453,136 +157,9 @@ function validate_and_repair_response(response) {
   return result;
 }
 
-/**
- * Computes dynamics deltas for a single target (ai or fractal) and appends to accumulators.
- * @param {string} target
- * @param {Record<string, number>} dynamics
- * @param {any} runtime_target
- * @param {any[]} deltas
- * @param {string[]} log_strings
- */
-function compute_deltas(target, dynamics, runtime_target, deltas, log_strings) {
-  Object.entries(dynamics).forEach(([axis, val]) => {
-    const old_value = /** @type {any} */ (runtime_target)?.[axis] ?? 50;
-    const diff = val - old_value;
-    if (diff !== 0) {
-      deltas.push({ axis, target, old_value, new_value: val, diff });
 
-      const capitalized_axis = axis.charAt(0).toUpperCase() + axis.slice(1);
-      log_strings.push(`${capitalized_axis} ${diff > 0 ? "+" : ""}${diff}`);
-    }
-  });
-}
 
-/**
- * Builds one entity's normalized `updates` block for telemetry. Director fields
- * are aligned into the display shape: `present_mutations.{physical,non_physical}`
- * and `eternal_mutations.{physical,non_physical}` (from `state_append` and
- * `foundation_consolidated`), `vector_append` items keep `content`/`type`
- * but their `weight` becomes `emotional_weight`, `vector_resolve` → `vectors.resolved`,
- * `dynamics_deltas` is dropped (the computed `dynamics` array already carries old/new/diff per
- * axis). Returns null when the entity carries no content so the dump stays lean.
- * @param {string|null} name
- * @param {any} mutations
- * @param {any[]} dynamics
- * @param {any[]} retrieval
- * @returns {any}
- */
-function build_update_entry(name, mutations, dynamics, retrieval) {
-  const entry = {};
-  if (name) entry.name = name;
 
-  const pres = mutations?.state_append || {};
-  entry.present_mutations = {
-    physical: pres.physical || "",
-    non_physical: pres.non_physical || "",
-  };
-
-  const eternal = mutations?.foundation_consolidated || {};
-  entry.eternal_mutations = {
-    physical: eternal.physical || "",
-    non_physical: eternal.non_physical || "",
-  };
-
-  const resolve_list = Array.isArray(mutations?.vector_resolve) ? mutations.vector_resolve : [];
-  const new_list = Array.isArray(mutations?.vector_append) ? mutations.vector_append : [];
-
-  entry.vectors = {
-    resolved: resolve_list,
-    new: new_list.map((v) => {
-      const copy = { ...(v || {}) };
-      copy.content = (copy.content || copy.directive || "").trim();
-      delete copy.directive;
-      copy.emotional_weight = copy.emotional_weight ?? copy.weight ?? 5;
-      delete copy.weight;
-      return copy;
-    }),
-  };
-  if (retrieval?.length) entry.vectors.retrieval = retrieval;
-  if (dynamics?.length) entry.dynamics = dynamics;
-
-  const has_content =
-    (dynamics?.length || 0) > 0 ||
-    entry.present_mutations.physical.trim() ||
-    entry.present_mutations.non_physical.trim() ||
-    entry.eternal_mutations.physical.trim() ||
-    entry.eternal_mutations.non_physical.trim() ||
-    entry.vectors.resolved.length > 0 ||
-    entry.vectors.new.length > 0 ||
-    (entry.vectors.retrieval?.length || 0) > 0;
-  return has_content ? entry : null;
-}
-
-/**
- * Normalizes scored retrieval vectors into the telemetry shape: single vectors
- * array, sorted by `_relevance` descending, internal embedding/scoring fields
- * stripped so the raw-meta dump stays readable (embeddings are 384-dim
- * Float32Arrays that JSON.stringify would expand into thousands of keys).
- * @param {any} vectors
- * @returns {any[]}
- */
-function build_retrieval(vectors) {
-  const clean = (v) => {
-    if (!v || typeof v !== "object") return null;
-    const copy = { ...v };
-    delete copy._embedding;
-    delete copy._semantic_score;
-    delete copy._recency_factor;
-    copy.type = copy.type || "past";
-    copy.content = (copy.content || copy.directive || "").trim();
-    delete copy.directive;
-    copy.emotional_weight = copy.emotional_weight ?? copy.weight ?? 5;
-    delete copy.weight;
-    return copy;
-  };
-  return (Array.isArray(vectors) ? vectors : [])
-    .map(clean)
-    .filter(Boolean)
-    .sort((a, b) => (b._relevance ?? -Infinity) - (a._relevance ?? -Infinity));
-}
-
-/**
- * Scrubs banned somatic idioms out of Director state mutations before they are
- * applied, so clichéd phrases never seed prompt history for future turns
- * (the "Director crutch echo" loop).
- * @param {any} mutations
- * @returns {any}
- */
-function scrub_state_mutations(mutations) {
-  if (!mutations || typeof mutations !== "object") return mutations;
-  for (const key of ["AI_CHARACTER", "USER_PERSONA", "FRACTAL"]) {
-    const m = mutations[key];
-    if (m?.state_append && typeof m.state_append === "object") {
-      if (typeof m.state_append.physical === "string" && m.state_append.physical.trim()) {
-        m.state_append.physical = detox_prose(m.state_append.physical, "plain");
-      }
-      if (typeof m.state_append.non_physical === "string" && m.state_append.non_physical.trim()) {
-        m.state_append.non_physical = detox_prose(m.state_append.non_physical, "plain");
-      }
-    }
-  }
-  return mutations;
-}
 
 export const gamemaster = {
   /**
@@ -657,94 +234,6 @@ export const gamemaster = {
     }
   },
 
-  /**
-   * 🖼️ FIRE IMAGE TRIGGER
-   * Logs a placeholder attachment immediately, then kicks off background image generation
-   * against the resolved 4-tier target. Fire-and-forget: the narrative turn is never blocked
-   * on image latency; the UI fills the placeholder when the generation resolves.
-   * @param {string} tier - One of the 4-tier targets (story_entities | story_character | solo_entity | story_scene).
-   * @param {{ explicit?: boolean, source?: string, prompt?: string }} [options]
-   * @returns {Promise<void>}
-   */
-  async fire_image_trigger(tier, options = {}) {
-    const { explicit = false, source = "dynamics", prompt = "" } = options;
-    if (!tier || !IMAGE_TRIGGER.tiers.includes(tier)) return;
-
-    const runtime_state = state_bridge.runtime;
-    const visual_prompt = String(prompt || "").trim() || "A significant narrative moment unfolds.";
-    const fractal_name = runtime_state.active_fractal?.name || "Fractal";
-
-    try {
-      // Ghost hard cap: refuse new beats once too many placeholders are already
-      // unresolved, and sweep stale ones first so recovered placeholders count.
-      await sweep_stale_ghosts();
-      const pending = await count_pending_ghosts();
-      if (pending >= IMAGE_PLACEHOLDER_HARD_CAP) {
-        state_bridge.app.log(
-          `[Image Trigger] Skipped ${tier} — ${pending} unresolved image beats pending (hard cap ${IMAGE_PLACEHOLDER_HARD_CAP}).`,
-          "warn",
-        );
-        return;
-      }
-
-      const placeholder_metadata = { mode: tier, image_source: source, image_explicit: explicit };
-      const placeholder_entry = await state_bridge.session_driver.log_message("", "fractal", fractal_name, {
-        turn_type: "SYSTEM_TURN",
-        attachments: [{ src: null, metadata: placeholder_metadata }],
-      });
-      if (!placeholder_entry?.id) return;
-
-      // Bounded image beat queue: when at capacity, drop the oldest beat and mark
-      // its placeholder failed so evicted beats don't linger as src:null ghosts.
-      _image_gen_queue.push({ id: placeholder_entry.id, tier, source, metadata: placeholder_metadata });
-      if (_image_gen_queue.length > IMAGE_GEN_QUEUE_CAPACITY) {
-        const evicted = _image_gen_queue.shift();
-        if (evicted?.id) await mark_placeholder_failed(evicted.id, evicted.metadata);
-      }
-
-      const resolve_placeholder = async () => {
-        try {
-          const result = await Promise.race([
-            visual_engine.visualize(runtime_state.story_id, visual_prompt, tier, { silent: true }),
-            new Promise((_, reject) => setTimeout(() => reject(new Error("IMAGE_RESOLVE_TIMEOUT")), IMAGE_RESOLVE_TIMEOUT_MS)),
-          ]);
-          _remove_from_image_gen_queue(placeholder_entry.id);
-          if (result?.imageUrl) {
-            await state_bridge.session_driver.update_log_attachment(placeholder_entry.id, 0, {
-              src: result.imageUrl,
-              metadata: { mode: tier, image_source: source, ...result.metadata, prompt: result.refinedPrompt },
-            });
-          } else {
-            await mark_placeholder_failed(placeholder_entry.id, placeholder_metadata);
-            state_bridge.app.log(`[Image Trigger] ${tier} generation returned no image.`, "warn");
-          }
-        } catch (err) {
-          _remove_from_image_gen_queue(placeholder_entry.id);
-          await mark_placeholder_failed(placeholder_entry.id, placeholder_metadata);
-          throw err;
-        }
-      };
-
-      resolve_placeholder().catch((err) => {
-        console.error(`[GameMaster] Image trigger (${tier}) failed:`, err);
-        state_bridge.app.log(`[Image Trigger] ${tier} failed: ${err.message || err}`, "error");
-      });
-    } catch (err) {
-      console.error("[GameMaster] Image trigger placeholder logging failed:", err);
-    }
-  },
-
-  /**
-   * 🧹 PURGE STALE GHOSTS
-   * Runs the unresolved-image sweep against the active story's log. Exposed as a
-   * public method so boot/story-open can clean leftover ghost placeholders even
-   * when no new image trigger ever fires — otherwise they'd linger until the next
-   * beat. Mirrors the internal sweep fire_image_trigger runs before each trigger.
-   * @returns {Promise<void>}
-   */
-  async purge_stale_ghosts() {
-    await sweep_stale_ghosts();
-  },
 
   /**
    * 🧹 EPILOGUE PRESENCE CHECK
@@ -1144,7 +633,7 @@ export const gamemaster = {
       // Source B: LLM Director explicit trigger (trigger_image true or a 4-tier string).
       const turn_round = state_bridge.runtime.round || 0;
       const last_auto = state_bridge.runtime.last_auto_image_round ?? -1;
-      const resolved_image = _resolve_image_trigger({
+      const resolved_image = resolve_image_trigger({
         snapshot,
         prev_dynamics,
         director_data,
@@ -1181,7 +670,7 @@ export const gamemaster = {
             trigger_prompt = strip_cognition_blocks(last_beat.content).slice(0, 700);
           }
         }
-        await this.fire_image_trigger(image_tier, {
+        await fire_image_trigger(image_tier, {
           explicit: resolved_image.director_explicit,
           source: final_meta.image_source,
           prompt: trigger_prompt,

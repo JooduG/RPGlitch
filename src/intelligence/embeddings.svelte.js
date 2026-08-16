@@ -5,7 +5,7 @@
  * Embeds text into 384-dim float arrays; cosine similarity for semantic retrieval.
  */
 
-import { deserialize_embedding, onnx_mutex, mark_ort_ready } from "@utils";
+import { deserialize_embedding, onnx_mutex, mark_ort_ready, cosine_similarity } from "@utils";
 
 let _pipeline = null;
 let _loading = null;
@@ -173,21 +173,6 @@ export async function embed(text) {
   }
 }
 
-/**
- * Computes cosine similarity between two embedding vectors.
- * Since embeddings are normalised (unit vectors), this is just a dot product.
- * @param {Float32Array} a
- * @param {Float32Array} b
- * @returns {number} -1 to 1
- */
-export function cosine_similarity(a, b) {
-  if (!a || !b || a.length !== b.length) return 0;
-  let dot = 0;
-  for (let i = 0; i < a.length; i++) {
-    dot += a[i] * b[i];
-  }
-  return dot;
-}
 
 /**
  * Embeds a vector's directive and stores the embedding on the vector object.
@@ -261,7 +246,7 @@ export function is_ready() {
 
 export const embeddings_engine = {
   embed,
-  cosine_similarity,
+
   ensure_embedding,
   ensure_embeddings,
   score_by_semantics,

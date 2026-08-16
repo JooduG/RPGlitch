@@ -6,7 +6,8 @@
 
 import { generate_uuid as _uuid, state_bridge, deserialize_embedding } from "@utils";
 import { llm_service } from "@platform";
-import { ensure_embedding, score_by_semantics, cosine_similarity, embed, is_ready } from "./embeddings.svelte.js";
+import { ensure_embedding, score_by_semantics, embed, is_ready } from "./embeddings.svelte.js";
+import { cosine_similarity } from "@utils";
 import { extract_json_block, merge_prose_into_field, escape_unescaped_json_quotes } from "./parser.js";
 import { prompt_builder } from "./prompts.js";
 

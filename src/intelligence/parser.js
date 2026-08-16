@@ -6,8 +6,9 @@
 
 import { detox_prose, NARRATIVE_STYLES } from "@data";
 import { sanitize } from "@platform";
-import { AGGREGATE_KEYS, CLEAR_TOKENS, CLOTHING_KEYS, collapse_history, escape_xml, safe_parse_pseudo_json, strip_cognition_blocks } from "@utils";
+import { AGGREGATE_KEYS, CLEAR_TOKENS, CLOTHING_KEYS, collapse_history, escape_xml, safe_parse_pseudo_json, strip_cognition_blocks, state_bridge } from "@utils";
 import MarkdownIt from "markdown-it";
+import { normalize_director_data } from "./director.js";
 
 const markdown = new MarkdownIt({
   html: false,
@@ -483,4 +484,38 @@ export function raw_to_text(raw) {
 export function raw_stop_reason(raw) {
   if (raw && typeof raw === "object" && !(raw instanceof String)) return "";
   return raw && typeof raw === "object" && raw.stopReason ? String(raw.stopReason) : "";
+}
+
+/**
+ * Helper to extract Director's JSON from a raw string.
+ * @param {string} raw_text
+ * @returns {any}
+ */
+export function parse_director_json(raw_text) {
+  if (!raw_text || !raw_text.trim()) return null;
+
+  const json_string = extract_json_block(raw_text);
+  if (!json_string) {
+    const stripped = raw_text.replace(/```json\n?|```/g, "").trim();
+    console.warn("[GameMaster] Director JSON missing brackets, falling back to raw prose.");
+    state_bridge.app.log("[GameMaster] Director JSON missing brackets — using raw prose fallback", "warn");
+    const extracted_think = parse_think_block(stripped).think;
+    return normalize_director_data({ internal_monologue: extracted_think || stripped, _parse_error: true });
+  }
+
+  const cleaned_json = escape_unescaped_json_quotes(json_string);
+  const sanitized_json = cleaned_json.replace(/:\s*\+([0-9]+(?:\.[0-9]+)?)/g, ": $1");
+
+  try {
+    const payload = JSON.parse(sanitized_json);
+    if (payload.prose) {
+      delete payload.prose;
+    }
+    return normalize_director_data(payload);
+  } catch (parse_err) {
+    console.warn("[GameMaster] Director JSON invalid, falling back to raw prose:", parse_err);
+    const stripped = raw_text.replace(/```json\n?|```/g, "").trim();
+    const extracted_think = parse_think_block(stripped).think;
+    return normalize_director_data({ internal_monologue: extracted_think || stripped, _parse_error: true });
+  }
 }
