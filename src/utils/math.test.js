@@ -51,7 +51,7 @@ describe("math and crypto utilities", () => {
     it("should reject out-of-range draws (rejection sampling, no modulo bias)", () => {
       const limit = 10;
       const max_valid = 0x100000000 - (0x100000000 % limit); // 4294967290
-      const draws = [0xffffffff, 3]; // first draw is >= max_valid → redrawn
+      const draws = [max_valid, 3]; // first draw is exactly the reject threshold → redrawn
       let i = 0;
       const real = globalThis.crypto.getRandomValues;
       globalThis.crypto.getRandomValues = (/** @type {Uint32Array} */ arr) => {
