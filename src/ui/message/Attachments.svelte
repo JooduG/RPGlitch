@@ -42,7 +42,49 @@
     }
     return get_resolution(mode);
   }
+
+  /**
+   * Builds the preview payload for an attachment, wiring the regenerate handler
+   * when the attachment carries an image-generation prompt.
+   * @param {any} attachment
+   * @param {string} preview_id
+   * @param {number} attach_idx
+   * @param {string} preview_signature
+   * @returns {any}
+   */
+  function build_preview_options(attachment, preview_id, attach_idx, preview_signature) {
+    const preview_options = typeof attachment === "string" ? { src: attachment, metadata: {} } : { ...attachment };
+    if (!preview_options.metadata) preview_options.metadata = {};
+    preview_options.signature_color = preview_signature;
+    if (preview_options.metadata?.prompt && preview_id && app.regenerate_image_handler) {
+      preview_options.on_regenerate = () => {
+        app.regenerate_image_handler({
+          prompt: preview_options.metadata.prompt,
+          negative_prompt: preview_options.metadata.negative_prompt,
+          mode: preview_options.metadata.mode || "character",
+          log_id: preview_id,
+          attach_idx,
+          signature_color: preview_signature,
+          regenerate_count: preview_options.metadata.regenerate_count || 0,
+        });
+      };
+    }
+    return preview_options;
+  }
 </script>
+
+{#snippet loading_cell(container_style)}
+  <div
+    class="relative flex flex-col items-center justify-center gap-4 overflow-hidden rounded-lg border border-(--signature-color,slate-600)/30 bg-neutral-900/50"
+    style={container_style}
+  >
+    <div class="flex gap-2">
+      <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 0ms"></div>
+      <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 150ms"></div>
+      <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 300ms"></div>
+    </div>
+  </div>
+{/snippet}
 
 {#if attachments.length > 0}
   <div class="flex justify-center {has_display_text || (should_use_typewriter && (has_display_text || busy)) ? 'mt-4' : ''}">
@@ -95,16 +137,7 @@
           </div>
         </Button>
       {:else if image_picker.isRegenerating(regenerate_key)}
-        <div
-          class="relative flex flex-col items-center justify-center gap-4 overflow-hidden rounded-lg border border-(--signature-color,slate-600)/30 bg-neutral-900/50"
-          style={container_style}
-        >
-          <div class="flex gap-2">
-            <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 0ms"></div>
-            <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 150ms"></div>
-            <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 300ms"></div>
-          </div>
-        </div>
+        {@render loading_cell(container_style)}
       {:else if src}
         <Button
           variant="bare"
@@ -121,25 +154,7 @@
             duration-200
             hover:brightness-110
           "
-          onclick={() => {
-            const preview_options = typeof attachment === "string" ? { src: attachment, metadata: {} } : { ...attachment };
-            if (!preview_options.metadata) preview_options.metadata = {};
-            preview_options.signature_color = signature_color;
-            if (preview_options.metadata?.prompt && id && app.regenerate_image_handler) {
-              preview_options.on_regenerate = () => {
-                app.regenerate_image_handler({
-                  prompt: preview_options.metadata.prompt,
-                  negative_prompt: preview_options.metadata.negative_prompt,
-                  mode: preview_options.metadata.mode || "character",
-                  log_id: id,
-                  attach_idx,
-                  signature_color,
-                  regenerate_count: preview_options.metadata.regenerate_count || 0,
-                });
-              };
-            }
-            app.open_image_preview(preview_options);
-          }}
+          onclick={() => app.open_image_preview(build_preview_options(attachment, id, attach_idx, signature_color))}
           aria-label="View Attachment"
         >
           <img
@@ -157,16 +172,7 @@
           />
         </Button>
       {:else}
-        <div
-          class="relative flex flex-col items-center justify-center gap-4 overflow-hidden rounded-lg border border-(--signature-color,slate-600)/30 bg-neutral-900/50"
-          style={container_style}
-        >
-          <div class="flex gap-2">
-            <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 0ms"></div>
-            <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 150ms"></div>
-            <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 300ms"></div>
-          </div>
-        </div>
+        {@render loading_cell(container_style)}
       {/if}
     {/each}
   </div>

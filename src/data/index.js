@@ -19,7 +19,7 @@ export {
   serialize_entity_for_export,
 } from "./normalizer.js";
 export { detox_prose, resolve_voice_register } from "./definitions/detox-rules.js";
-export { detect_card_format, parse_character_card, serialize_character_card, serialize_rpglitch_entity } from "./cards.js";
+export { detect_card_format, extract_card_from_png, parse_character_card, serialize_character_card, serialize_rpglitch_entity } from "./cards.js";
 export { premade } from "./definitions/premades.js";
 export { NARRATIVE_STYLES, get_style_keywords } from "./definitions/narrative-styles.js";
 export {

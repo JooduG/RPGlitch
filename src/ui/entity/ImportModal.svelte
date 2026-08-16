@@ -1,9 +1,8 @@
 <script>
   import { Button, Modal, SourceField, Toggle } from "@primitives";
   import { app, runtime, simulation_state } from "@state";
-  import { parse_profile_json, prompt_builder, temporal_engine } from "@intelligence";
+  import { apply_profile_to_entity, sort_into_profile } from "@intelligence";
   import { create_new, detect_card_format, normalize, parse_character_card } from "@data";
-  import { llm_service } from "@platform";
   import { generate_uuid } from "@utils";
 
   let { open = $bindable(false), target_type: _target_type = "character" } = $props();
@@ -48,71 +47,11 @@
   }
 
   // ---------------------------------------------------------------------------
-  // IMPORT ORCHESTRATION
+  // IMPORT STRATEGIES
+  // Structured payloads (native JSON / Character Card) decode through the card
+  // codec; raw prose runs through the LLM profile sorter. Both produce the same
+  // flat profile, applied to a fresh entity by apply_profile_to_entity.
   // ---------------------------------------------------------------------------
-  /**
-   * Applies a flat sorted profile (from the LLM sorter or a Character Card) onto
-   * a freshly created entity, mapping flat keys onto the nested Twin-Cylinder schema.
-   * @param {any} entity
-   * @param {Object} profile
-   */
-  function apply_profile(entity, profile) {
-    if (!profile || typeof profile !== "object") return entity;
-    const FLAT_LEAF_MAP = {
-      appearance: "eternal.physical",
-      personality: "eternal.non_physical",
-      current_look: "present.physical",
-      state_of_mind: "present.non_physical",
-    };
-    for (const [key, val] of Object.entries(profile)) {
-      if (key === "profile_picture" || key === "image" || key === "id" || key === "type") continue;
-
-      if (key === "past") {
-        if (Array.isArray(val)) {
-          const new_vectors = val
-            .map((text_str) => {
-              const vector_str = typeof text_str === "string" ? text_str : text_str.content || text_str.directive || JSON.stringify(text_str);
-              if (!vector_str || !String(vector_str).trim()) return null;
-              return {
-                ...temporal_engine.create(vector_str, key),
-                id: `usr_${generate_uuid()}`,
-                emotional_weight: 5,
-              };
-            })
-            .filter(Boolean);
-          entity.past = [...(entity.past || []), ...new_vectors];
-        }
-      } else if (key === "future" && typeof val === "string") {
-        // FUTURE is a prose field — import the flat text.
-        entity.future = val.trim();
-      } else if (key === "tags" && Array.isArray(val)) {
-        entity.tags = val
-          .map((t) => String(t).trim())
-          .filter(Boolean)
-          .slice(0, 30);
-      } else if (typeof val === "object" && !Array.isArray(val)) {
-        for (const [sub_key, subVal] of Object.entries(val)) {
-          if (typeof subVal === "string") {
-            if (!entity[key]) entity[key] = {};
-            entity[key][sub_key] = subVal;
-          }
-        }
-      } else if (typeof val === "string") {
-        // Map flat LLM keys to nested DB schema
-        if (FLAT_LEAF_MAP[key]) {
-          const [main_key, sub_key] = FLAT_LEAF_MAP[key].split(".");
-          if (!entity[main_key]) entity[main_key] = {};
-          entity[main_key][sub_key] = val;
-        } else if (key === "name") {
-          entity.name = val.trim().slice(0, 80);
-        } else {
-          entity[key] = val;
-        }
-      }
-    }
-    return entity;
-  }
-
   /**
    * Imports a native RPGlitch entity JSON (re-id + normalize + save).
    * @param {'character' | 'fractal'} type
@@ -136,7 +75,7 @@
     const flat = parse_character_card(parsed);
     const entity = create_new(type);
     if (image_data) entity.profile_picture = image_data;
-    apply_profile(entity, flat);
+    apply_profile_to_entity(entity, flat);
     await runtime.save_entity(type, entity);
   }
 
@@ -146,13 +85,11 @@
    * @param {string} raw
    */
   async function import_from_llm(type, raw) {
-    const payload = prompt_builder.build_profile_sorting_prompt(raw, type, { ingestion: true });
-    const result = await llm_service.enhance(payload);
-    const profile = parse_profile_json(result);
+    const profile = await sort_into_profile(raw, type);
     if (!profile) return; // Lenient: LLM failed to sort — import silently skipped.
     const entity = create_new(type);
     if (image_data) entity.profile_picture = image_data;
-    apply_profile(entity, profile);
+    apply_profile_to_entity(entity, profile);
     await runtime.save_entity(type, entity);
   }
 

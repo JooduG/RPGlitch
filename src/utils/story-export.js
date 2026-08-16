@@ -3,6 +3,9 @@
  * 📚 STORY MARKDOWN ENGINE
  * Compiles a story record + its simulation log into a clean, portable .md
  * transcript for archival. Pure + deterministic; no DOM, no imports beyond @utils.
+ *
+ * The outtake half of the content pipeline: entities leave via @data/cards.js,
+ * stories leave via this module.
  */
 
 import { format_datetime, strip_cognition_blocks } from "./text.js";
@@ -10,13 +13,18 @@ import { format_datetime, strip_cognition_blocks } from "./text.js";
 /** Roles rendered as narrator blockquotes (world/scene-setting prose). */
 const NARRATOR_ROLES = new Set(["prologue", "fractal", "narrator", "epilogue"]);
 
+// =============================================================
+// BEAT FORMATTING
+// =============================================================
+
 /**
  * Formats a raw log entry into a markdown beat. Returns null for empty entries.
  *  - narrator roles   -> blockquote
  *  - system telemetry -> italic note
  *  - user/character   -> **Name:** prose
  * @param {any} entry
- * @returns {string|null}
+ * @param {Object} [options]
+ * @returns {string | null}
  */
 export function format_story_beat(entry, options = {}) {
   if (!entry || typeof entry !== "object") return null;
@@ -36,6 +44,10 @@ export function format_story_beat(entry, options = {}) {
   const label = role === "user" ? name || "You" : name || "Unknown";
   return `**${label}:** ${text.replace(/\n+/g, " ")}`;
 }
+
+// =============================================================
+// DOCUMENT COMPILATION
+// =============================================================
 
 /**
  * Compiles a story record and its simulation-log entries into a clean markdown
@@ -70,6 +82,10 @@ export function export_story_markdown(story = {}, entries = [], options = {}) {
   }
   return lines.join("\n").trim() + "\n";
 }
+
+// =============================================================
+// FILENAME BUILDING
+// =============================================================
 
 /**
  * Builds the download filename for a story export: story-{slug}-{YYYY-MM-DD}.md

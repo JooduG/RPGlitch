@@ -15,9 +15,11 @@
  *   restricted to an explicit allow-list.
  * - Fetches a page as clean, budgeted plain text (for the ingestion pipeline)
  *   or as an image data URL (for avatars), binary-safe.
+ * - blob_to_data_url is the shared binary→data-URL primitive reused by the
+ *   UI ingestion field for locally dropped/selected files.
  */
 
-import { html_to_plain_text, INGESTION_CHAR_LIMIT, INGESTION_WORD_LIMIT } from "@utils";
+import { html_to_plain_text, INGESTION_CHAR_LIMIT, INGESTION_LORE_LIMIT } from "@utils";
 
 /**
  * Resolves the super-fetch-plugin engine (window.fetch_web / pluginFetchWeb /
@@ -71,11 +73,13 @@ async function blob_from_response(response) {
 }
 
 /**
- * Converts a Blob into a base64 data URL.
+ * Converts a Blob (or File) into a base64 data URL.
+ * Shared by fetch_web (image responses) and the UI ingestion field
+ * (locally dropped/selected images).
  * @param {Blob} blob
  * @returns {Promise<string>}
  */
-function blob_to_data_url(blob) {
+export function blob_to_data_url(blob) {
   return new Promise((resolve, reject) => {
     const reader = new globalThis.FileReader();
     reader.onload = (event) => resolve(/** @type {string} */ (event.target?.result));
@@ -134,7 +138,7 @@ export const validate_url = (raw_url, options = {}) => {
  */
 export const fetch_web = async (raw_url, options = {}) => {
   const url = validate_url(raw_url, options);
-  const budget = options.max_chars || (options.type === "fractal" || options.type === "world" ? INGESTION_WORD_LIMIT : INGESTION_CHAR_LIMIT);
+  const budget = options.max_chars || (options.type === "fractal" || options.type === "world" ? INGESTION_LORE_LIMIT : INGESTION_CHAR_LIMIT);
 
   const engine = get_super_fetch_engine();
   if (!engine) {

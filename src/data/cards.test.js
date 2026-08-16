@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { create_new, detect_card_format, normalize, parse_character_card, serialize_character_card, serialize_rpglitch_entity } from "@data";
+import {
+  create_new,
+  detect_card_format,
+  extract_card_from_png,
+  normalize,
+  parse_character_card,
+  serialize_character_card,
+  serialize_rpglitch_entity,
+} from "@data";
 
 const V2_CARD = {
   spec: "chara_card_v2",
@@ -139,5 +147,71 @@ describe("serialize_rpglitch_entity", () => {
     expect(reimported.type).toBe("fractal");
     expect(reimported.present.physical).toBe("Black salt harbor.");
     expect(reimported.id).not.toBe(entity.id);
+  });
+});
+
+describe("extract_card_from_png", () => {
+  /** Builds a minimal PNG whose `chara` tEXt chunk holds a base64 JSON card. */
+  function fake_png_with_chara(json_text) {
+    const png_chunk = (type, data) => {
+      const out = new Uint8Array(12 + data.length);
+      const dv = new DataView(out.buffer);
+      dv.setUint32(0, data.length, false);
+      for (let i = 0; i < 4; i++) out[4 + i] = type.charCodeAt(i);
+      out.set(data, 8);
+      return out;
+    };
+    const concat = (parts) => {
+      const out = new Uint8Array(parts.reduce((n, p) => n + p.length, 0));
+      let off = 0;
+      for (const p of parts) {
+        out.set(p, off);
+        off += p.length;
+      }
+      return out;
+    };
+    const signature = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+    const ihdr = png_chunk("IHDR", new TextEncoder().encode("x".repeat(13)));
+    const tex = png_chunk("tEXt", new TextEncoder().encode(`chara\0${btoa(json_text)}`));
+    return concat([signature, ihdr, tex, png_chunk("IEND", new Uint8Array(0))]);
+  }
+
+  it("extracts the embedded chara JSON from a PNG card", () => {
+    const json = JSON.stringify({ spec: "chara_card_v2", data: { name: "Vael" } });
+    expect(extract_card_from_png(fake_png_with_chara(json))).toBe(json);
+  });
+
+  it("accepts ArrayBuffer input", () => {
+    const json = JSON.stringify({ name: "Reina" });
+    const buffer = fake_png_with_chara(json);
+    expect(extract_card_from_png(buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength))).toBe(json);
+  });
+
+  it("returns null when the PNG carries no chara chunk", () => {
+    const signature = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+    const png_chunk = (type, data) => {
+      const out = new Uint8Array(12 + data.length);
+      const dv = new DataView(out.buffer);
+      dv.setUint32(0, data.length, false);
+      for (let i = 0; i < 4; i++) out[4 + i] = type.charCodeAt(i);
+      out.set(data, 8);
+      return out;
+    };
+    const concat = (parts) => {
+      const out = new Uint8Array(parts.reduce((n, p) => n + p.length, 0));
+      let off = 0;
+      for (const p of parts) {
+        out.set(p, off);
+        off += p.length;
+      }
+      return out;
+    };
+    const no_card = concat([signature, png_chunk("IHDR", new TextEncoder().encode("x".repeat(13))), png_chunk("IEND", new Uint8Array(0))]);
+    expect(extract_card_from_png(no_card)).toBeNull();
+  });
+
+  it("returns null for empty or tiny buffers", () => {
+    expect(extract_card_from_png(new Uint8Array(0))).toBeNull();
+    expect(extract_card_from_png(new Uint8Array([1, 2, 3]))).toBeNull();
   });
 });

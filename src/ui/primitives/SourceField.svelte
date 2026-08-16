@@ -9,9 +9,14 @@
    * `mode="image"` narrows it to portraits: every source is treated as an image
    * (drop, paste, browse, URL fetch) and the result is reported via
    * `on_source({kind:"image", data_url})`.
+   *
+   * The heavy lifting is delegated: URLs go through @platform web-fetch, PNG
+   * card decoding through @data/cards.js, file/image reading through the shared
+   * @platform blob_to_data_url. This component only routes sources.
    */
   import { Button, TextField, tooltip } from "@primitives";
-  import { fetch_web, validate_image } from "@platform";
+  import { blob_to_data_url, fetch_web, validate_image } from "@platform";
+  import { extract_card_from_png } from "@data";
 
   let {
     value = $bindable(""),
@@ -58,12 +63,7 @@
    */
   async function image_file_to_data_url(file) {
     await validate_image(file);
-    return new Promise((resolve, reject) => {
-      const reader = new globalThis.FileReader();
-      reader.onload = (event) => resolve(/** @type {string} */ (event.target?.result) || null);
-      reader.onerror = (err) => reject(err);
-      reader.readAsDataURL(file);
-    });
+    return blob_to_data_url(file);
   }
 
   /**
@@ -141,32 +141,11 @@
       image_data = data_url;
 
       if (file.name.toLowerCase().endsWith(".png")) {
-        const array_buffer = await file.arrayBuffer();
-        const buffer = new Uint8Array(array_buffer);
-        let offset = 8;
-        let found_text = false;
-        while (offset < buffer.length) {
-          const length = new DataView(buffer.buffer).getUint32(offset, false);
-          const type_str = String.fromCharCode(...buffer.slice(offset + 4, offset + 8));
-
-          if (type_str === "tEXt") {
-            const chunk_data = buffer.slice(offset + 8, offset + 8 + length);
-            const null_idx = chunk_data.indexOf(0);
-            if (null_idx !== -1) {
-              const keyword = String.fromCharCode(...chunk_data.slice(0, null_idx));
-              if (keyword === "chara") {
-                const base64_data = String.fromCharCode(...chunk_data.slice(null_idx + 1));
-                const text = atob(base64_data);
-                fetched_text = text;
-                value = text;
-                found_text = true;
-                break;
-              }
-            }
-          }
-          offset += 12 + length;
-        }
-        if (!found_text) {
+        const text = extract_card_from_png(await file.arrayBuffer());
+        if (text) {
+          fetched_text = text;
+          value = text;
+        } else {
           on_source({ kind: "error", message: "No character data found inside PNG. The image was loaded, but you must manually paste the prompt." });
         }
       }

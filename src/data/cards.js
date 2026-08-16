@@ -2,10 +2,18 @@
  * src/data/cards.js
  * 🃏 CHARACTER CARD CODEC — AI RP Card V2/V3 interoperability
  *
- * Imports & exports the standard Character Card format used by Tavern, Chub,
- * and Janitor (spec "chara_card_v2" / "chara_card_v3") alongside native
- * RPGlitch entity JSON. Card JSON is always converted to/from the flat profile
- * shape the LLM sorter emits, so the ImportModal mapping stays single-source.
+ * The single place that translates between RPGlitch entities and the standard
+ * Character Card formats used by Tavern, Chub, and Janitor ("chara_card_v2" /
+ * "chara_card_v3"), plus native RPGlitch entity JSON and PNG-embedded cards.
+ *
+ * CARD FORMATS
+ *   1. Standard Character Card JSON   (.json) — `spec` + `data.*` fields.
+ *   2. Character Card PNG             (.png)  — an image whose `chara` tEXt
+ *                                              chunk holds a base64 JSON card.
+ *   3. Native RPGlitch entity JSON    (.json) — full Twin-Cylinder schema.
+ *
+ * Every decoding path funnels into the same flat profile shape the LLM sorter
+ * emits, so the import layer always maps one shape onto an entity:
  *
  *   data.name              <-> entity.name
  *   data.description       <-> entity.eternal.physical   (appearance)
@@ -13,9 +21,17 @@
  *   data.first_mes         <-> entity.present.non_physical
  *   data.scenario          <-> entity.future
  *   data.tags              <-> entity.tags
+ *
+ * (Applying that flat profile onto a fresh entity is the intelligence layer's
+ * job — see apply_profile_to_entity in @intelligence/profile.js. This codec
+ * owns only the card <-> flat translation.)
  */
 
 import { normalize, serialize_entity_for_export } from "./normalizer.js";
+
+// =============================================================
+// 1. FORMAT DETECTION
+// =============================================================
 
 /**
  * Detects the format of a parsed import payload.
@@ -35,9 +51,13 @@ export function detect_card_format(json) {
   return "unknown";
 }
 
+// =============================================================
+// 2. DECODE — card payloads → flat profile shape
+// =============================================================
+
 /**
  * Converts a standard Character Card V2/V3 payload into the flat profile shape
- * the LLM sorter emits (finalize_import applies it to an entity directly).
+ * the LLM sorter emits (apply_profile_to_entity applies it to an entity).
  * Missing keys are simply omitted — the import layer synthesizes defaults.
  * @param {any} json
  * @returns {Object}
@@ -70,6 +90,39 @@ export function parse_character_card(json) {
   }
   return flat;
 }
+
+/**
+ * Extracts the JSON card embedded in a Character Card PNG (the `chara` keyword
+ * inside a `tEXt` chunk). Returns the raw JSON text, or null when the PNG
+ * carries no card data.
+ * @param {ArrayBuffer | Uint8Array} buffer
+ * @returns {string | null}
+ */
+export function extract_card_from_png(buffer) {
+  const bytes = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer);
+  let offset = 8; // skip PNG signature
+  while (offset < bytes.length) {
+    const length = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).getUint32(offset, false);
+    const type_str = String.fromCharCode(...bytes.slice(offset + 4, offset + 8));
+    if (type_str === "tEXt") {
+      const chunk_data = bytes.slice(offset + 8, offset + 8 + length);
+      const null_idx = chunk_data.indexOf(0);
+      if (null_idx !== -1) {
+        const keyword = String.fromCharCode(...chunk_data.slice(0, null_idx));
+        if (keyword === "chara") {
+          const base64_data = String.fromCharCode(...chunk_data.slice(null_idx + 1));
+          return atob(base64_data);
+        }
+      }
+    }
+    offset += 12 + length;
+  }
+  return null;
+}
+
+// =============================================================
+// 3. ENCODE — entities → card payloads
+// =============================================================
 
 /**
  * Serializes an RPGlitch entity into a standard Character Card V2 payload.

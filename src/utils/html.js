@@ -6,17 +6,19 @@
  * clipping. Pure + deterministic; consumed by the @platform web-fetch
  * ingestion pipeline.
  */
+
 /**
- * Web ingestion budget (characters) applied to fetched page text. Character
- * imports clip here; fractal/world imports use INGESTION_WORD_LIMIT.
+ * Web ingestion budget (characters) applied to fetched page text for
+ * character imports. Larger lore (fractal/world) imports use
+ * INGESTION_LORE_LIMIT.
  */
 export const INGESTION_CHAR_LIMIT = 8000;
 
 /**
- * Web ingestion budget (characters) applied to fetched page text for fractal
- * (world/setting) imports — larger, since lore pages need more room.
+ * Web ingestion budget (characters) applied to fetched page text for
+ * fractal/world (lore) imports — larger, since world-lore pages need more room.
  */
-export const INGESTION_WORD_LIMIT = 10000;
+export const INGESTION_LORE_LIMIT = 10000;
 
 /** Element tags treated as block boundaries when extracting text from HTML. */
 const BLOCK_LEVEL_TAGS = new Set([
@@ -69,6 +71,12 @@ const NOISE_SELECTORS = [
   "nav",
   "aside",
 ];
+
+/**
+ * Compiled matcher for whole noise-subtree removal in the regex fallback —
+ * built once from NOISE_SELECTORS instead of re-joining on every call.
+ */
+const NOISE_TAG_REGEX = new RegExp(`<(?:${NOISE_SELECTORS.join("|")})\\b[^>]*>[\\s\\S]*?</(?:${NOISE_SELECTORS.join("|")})>`, "gi");
 
 /**
  * Decodes the most common HTML entities into plain text characters.
@@ -133,7 +141,7 @@ function _dom_to_text(root) {
  */
 function _regex_html_to_text(html) {
   return html
-    .replace(new RegExp(`<(?:${NOISE_SELECTORS.join("|")})\\b[^>]*>[\\s\\S]*?</(?:${NOISE_SELECTORS.join("|")})>`, "gi"), " ")
+    .replace(NOISE_TAG_REGEX, " ")
     .replace(/<br\s*\/?>/gi, "\n")
     .replace(/<hr\s*\/?>/gi, "\n")
     .replace(/<\/(p|div|li|blockquote|h[1-6]|tr|pre|table|ul|ol|dl|dd|dt|section|article|figure|figcaption)>/gi, "\n")
