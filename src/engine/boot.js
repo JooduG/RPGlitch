@@ -5,7 +5,7 @@ import App from "@/App.svelte";
 import { sanitize_to_fragment } from "@platform";
 import { mount } from "svelte";
 import { embeddings_engine, reconcile_vector_caps } from "@intelligence";
-import { save_session_checkpoint } from "./session.js";
+import { save_session_checkpoint } from "@platform";
 
 let has_initialized = false;
 

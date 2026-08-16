@@ -26,7 +26,13 @@ import { build_update_entry, build_retrieval } from "./telemetry.js";
 import { prune, temporal_engine } from "./temporal.js";
 
 /**
- * @typedef {import('@engine/kernel.js').GenerationOptions} GenerationOptions
+ * @typedef {Object} GenerationOptions
+ * @property {string} [input] - User input that triggered the turn.
+ * @property {string} [role] - Role label for the generation phase (ai/fractal/...).
+ * @property {any} [shield_context] - Causality shield result from the previous turn.
+ * @property {AbortSignal} [signal] - Abort signal for streaming/background work.
+ * @property {boolean} [is_retry] - Whether this is a regeneration retry.
+ * @property {boolean} [is_continue] - Whether this is a continue-in-place turn.
  */
 
 // 🔀 Director background job queue — parallel auxiliary workers (ghost sweeps

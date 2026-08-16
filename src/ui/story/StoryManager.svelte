@@ -2,7 +2,7 @@
   import { Dialog } from "@primitives";
   import StoryCard from "./StoryCard.svelte";
   import { db, stories } from "@data";
-  import { session_driver } from "@engine";
+  import { session_driver } from "@data";
   import { item_in } from "@motion";
   import { app, runtime, simulation_log, simulation_state } from "@state";
   import { build_story_export_filename, download_text_file, export_story_markdown } from "@utils";

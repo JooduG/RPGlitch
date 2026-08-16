@@ -82,7 +82,8 @@ if (typeof window !== "undefined") {
 // without importing @state directly — that preserves the downward import rule
 // (engine MUST NOT import from state). Must run before app_bootstrap.init().
 import { app, runtime, simulation_state, simulation_log } from "@state";
-import { app_bootstrap, session_driver } from "@engine";
+import { app_bootstrap } from "@engine";
+import { session_driver } from "@data";
 import { register_state_accessors, register_stream_handlers } from "@utils";
 
 register_state_accessors({ app, runtime, simulation_state, simulation_log, session_driver });

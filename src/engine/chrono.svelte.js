@@ -1,6 +1,6 @@
 // ⏳ CHRONO: The Heartbeat of Time
 // Manages the strict turn-based progression of the simulation.
-import { session_driver } from "./session.svelte.js";
+import { session_driver } from "@data";
 import { gamemaster } from "@intelligence";
 import { security } from "@platform";
 import { state_bridge } from "@utils"; // Engine cannot import from @state — use bridge
@@ -142,13 +142,6 @@ export class ChronoEngine {
   async update_log_attachment(id, attachment_index, new_attachment) {
     await session_driver.update_log_attachment(id, attachment_index, new_attachment);
   }
-
-  /**
-   * 🧪 DEBUG: Inject AI Message
-   * @param {string} text
-   * @param {string} character_name
-   * @param {string} role
-   */
 
   /**
    * ADVANCE TURN

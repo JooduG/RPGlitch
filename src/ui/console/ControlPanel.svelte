@@ -5,7 +5,7 @@
    * when the gear is toggled: Audio, Storyboard, Storymode, Library, Advanced.
    */
   import { Accordion, Button, ScrollArea, TextField } from "@primitives";
-  import { session_driver } from "@engine";
+  import { session_driver } from "@data";
   import { app, simulation_state } from "@state";
   import { StoryManager } from "@story";
   import AudioControls from "./AudioControls.svelte";

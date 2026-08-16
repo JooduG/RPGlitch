@@ -4,7 +4,7 @@ import { gamemaster } from "./kernel.js";
 import { prompt_builder } from "./prompts.js";
 import { temporal_engine } from "./temporal.js";
 import { llm_service } from "@platform";
-import { session_driver } from "@engine";
+import { session_driver } from "@data";
 import { visual_engine, _image_gen_queue, fire_image_trigger, sweep_stale_ghosts, resolve_image_trigger } from "@media";
 import { entities, stories } from "@data";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -102,7 +102,7 @@ vi.mock("@platform/transport.js", () => ({
   }),
 }));
 
-vi.mock("@engine/session.svelte.js", () => ({
+vi.mock("@data/sessions.svelte.js", () => ({
   session_driver: {
     load_log: vi.fn().mockResolvedValue([]),
     log_message: vi.fn().mockResolvedValue({ id: "img-1" }),

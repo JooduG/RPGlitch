@@ -6,7 +6,7 @@
    */
   import { Button, StyleBadge } from "@primitives";
   import { EntityCard } from "@entity";
-  import { session_driver } from "@engine";
+  import { session_driver } from "@data";
   import { app, runtime, simulation_log } from "@state";
   import { db } from "@data";
   import { export_story_markdown, download_text_file } from "@utils";

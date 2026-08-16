@@ -1,4 +1,4 @@
-import { session_driver } from "@engine";
+import { session_driver } from "@data";
 import { runtime } from "./runtime.svelte.js";
 /**
  * @typedef {Object} LogEntry

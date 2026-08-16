@@ -1,10 +1,13 @@
-import { db } from "@data";
-import { SESSION_ID_KEY } from "./session.js";
+import { db } from "./db.js";
+import { SESSION_ID_KEY } from "@platform";
 import { state_bridge, stories_bridge } from "@utils";
 
 /**
  * SESSION (Simulation & Gamemaster)
  * Handles persistence and state for the active story.
+ * All data access for sessions/logs lives here (alongside repository.js);
+ * reactive state writes go through the @utils state_bridge so @data never
+ * imports @state — the bridge is populated by main.js's composition root.
  */
 
 /** @type {string | null} */

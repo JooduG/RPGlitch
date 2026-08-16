@@ -20,7 +20,7 @@ vi.mock("@platform/transport.js", () => ({
   },
 }));
 
-vi.mock("@engine/session.svelte.js", () => ({
+vi.mock("@data/sessions.svelte.js", () => ({
   session_driver: {
     log_system_entry: vi.fn(),
     require_active: vi.fn(() => "test-story-id"),

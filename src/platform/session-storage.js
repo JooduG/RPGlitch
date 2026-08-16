@@ -1,5 +1,5 @@
 /**
- * src/engine/session.js
+ * src/platform/session-storage.js
  * 🧭 SESSION CHECKPOINT — Reload-safe session restoration.
  * When IndexedDB is mid-upgrade (Dexie versionchange) or otherwise blocked,
  * the active session pointer cannot be written to the DB. This module stashes

@@ -65,7 +65,7 @@ vi.mock("@utils", async (importOriginal) => {
 });
 
 // Mock session_driver to avoid pulling in Dexie during context tests
-vi.mock("@engine/session.svelte.js", () => ({
+vi.mock("@data/sessions.svelte.js", () => ({
   session_driver: {
     log_system_entry: vi.fn(),
   },
