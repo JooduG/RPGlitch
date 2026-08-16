@@ -50,7 +50,11 @@ export const generate_uuid = () => {
 };
 
 /**
- * Generates a secure random seed up to a specified limit.
+ * Generates a uniform secure random seed in [0, limit).
+ * Uses rejection sampling so every result is exactly equally likely — the
+ * naive `draw % limit` is biased toward low buckets for non-power-of-two
+ * limits. For limit > 2^32 the draw range is already smaller than the
+ * modulus, so plain modulo is unbiased there.
  * @param {number} [limit=1000000]
  * @returns {number}
  */
@@ -58,9 +62,19 @@ export const generate_secure_seed = (limit = 1000000) => {
   if (!globalThis.crypto?.getRandomValues) {
     throw new Error("crypto.getRandomValues is not available in this environment. Ensure you are in a secure context (HTTPS).");
   }
+  const lim = Math.max(1, Math.floor(Number(limit) || 1));
   const array = new Uint32Array(1);
-  globalThis.crypto.getRandomValues(array);
-  return array[0] % limit;
+  if (lim > 0x100000000) {
+    globalThis.crypto.getRandomValues(array);
+    return array[0] % lim;
+  }
+  const max_valid = 0x100000000 - (0x100000000 % lim);
+  let value;
+  do {
+    globalThis.crypto.getRandomValues(array);
+    value = array[0];
+  } while (value >= max_valid);
+  return value % lim;
 };
 
 /**
