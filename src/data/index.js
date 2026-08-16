@@ -5,7 +5,7 @@
 // Being last, it was `undefined` when fragments.js/image-prompts.js read it during the cycle.
 export { PROTOCOL_LIBRARY } from "./definitions/protocols.js";
 export { seed_premades, stories, entities, coerce_story_key } from "./repository.js";
-export { session_driver } from "./sessions.svelte.js";
+export { session_driver, SESSION_ID_KEY } from "./sessions.svelte.js";
 export { db, init, set_versionchange_quiesce } from "./db.js";
 export {
   ENTITY_TEMPLATES,

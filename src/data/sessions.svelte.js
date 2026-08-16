@@ -1,6 +1,8 @@
 import { db } from "./db.js";
-import { SESSION_ID_KEY } from "@platform";
 import { state_bridge, stories_bridge } from "@utils";
+
+/** Durable IndexedDB key for the active-session pointer (kv_settings). */
+export const SESSION_ID_KEY = "active_session_id";
 
 /**
  * SESSION (Simulation & Gamemaster)

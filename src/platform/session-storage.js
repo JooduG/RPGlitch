@@ -8,7 +8,6 @@
  * The boot path restores from the checkpoint before falling back to kv_settings.
  */
 
-export const SESSION_ID_KEY = "active_session_id";
 const CHECKPOINT_KEY = "rpglitch.session_checkpoint";
 
 /** @type {{ story_id: string | null, round: number, phase: string } | null} */
