@@ -1,7 +1,12 @@
-import { spawnSync } from "child_process";
+import { spawnSync, spawn } from "child_process";
 import os from "os";
 import path from "path";
 import fs from "fs";
+
+// npm is a .cmd batch shim on Windows, which can only be launched via a shell.
+// Use shell:true WITH A SINGLE STRING command (never an args array): that is
+// the only form that both launches reliably cross-platform and avoids Node's
+// DEP0190 "args with shell" deprecation.
 
 // Tool mappings relative to home directory
 const TOOL_PATHS = {
@@ -32,7 +37,7 @@ const absolutePath = path.join(homeDir, relativePath);
 
 if (fs.existsSync(absolutePath)) {
   // If the global tool exists, run it transparently
-  const result = spawnSync("node", [absolutePath, ...toolArgs], { stdio: "inherit", shell: true });
+  const result = spawnSync("node", [absolutePath, ...toolArgs], { stdio: "inherit" });
   process.exit(result.status ?? 0);
 } else {
   // If the global tool does not exist (e.g. in CI or on another machine),
@@ -56,11 +61,11 @@ if (fs.existsSync(absolutePath)) {
 
     if (isParallel) {
       console.log(`[Tool-Bridge] Concurrently running local commands in parallel: ${commands.join(", ")}`);
-      const { spawn } = await import("child_process");
       const promises = commands.map((cmd) => {
         return new Promise((resolve, reject) => {
           console.log(`>> [Tool-Bridge] Spawning (parallel): npm run ${cmd}`);
-          const child = spawn("npm", ["run", cmd], { stdio: "inherit", shell: true });
+          const child = spawn("npm run " + cmd, { stdio: "inherit", shell: true });
+          child.on("error", (err) => reject(new Error(`Failed to spawn "npm run ${cmd}": ${err.message}`)));
           child.on("close", (code) => {
             if (code === 0) resolve();
             else reject(new Error(`Command "npm run ${cmd}" failed with code ${code}`));
@@ -81,7 +86,7 @@ if (fs.existsSync(absolutePath)) {
 
       for (const cmd of commands) {
         console.log(`\n>> [Tool-Bridge] Executing: npm run ${cmd}`);
-        const result = spawnSync("npm", ["run", cmd], { stdio: "inherit", shell: true });
+        const result = spawnSync("npm run " + cmd, { stdio: "inherit", shell: true });
 
         if (result.status !== 0) {
           console.error(`\n[Tool-Bridge] Command "npm run ${cmd}" failed with code ${result.status}. Aborting execution.`);

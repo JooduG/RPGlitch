@@ -4,35 +4,11 @@
  * Enforces the strict "Twin-Cylinder" data structure across the app.
  * ZERO BACKWARDS COMPATIBILITY.
  */
-import { pick_random, generate_uuid } from "@utils";
+import { pick_random, generate_uuid, SIGNATURE_COLORS } from "@utils";
 import { security } from "@platform";
 
 const sanitize_html = (/** @type {any} */ val) => security.sanitize(val);
 const STORAGE_VERSION = 3;
-
-/**
- * Valid signature color keys.
- * This is the canonical list for data-layer validation. The media layer's
- * SIGNATURE_COLORS is derived from the same PALETTE and must stay in sync.
- * Kept locally to avoid a forbidden data→media import.
- */
-const _signature_colors = [
-  "Adrenaline Pink",
-  "Crimson Red",
-  "Deep Indigo",
-  "Electric Cyan",
-  "Emerald Green",
-  "Forest Green",
-  "Lemon Yellow",
-  "Proud Purple",
-  "Pumpkin Amber",
-  "Rusty Orange",
-  "Scientific Teal",
-  "Soft Rose",
-  "Space Blue",
-  "Toxic Green",
-  "Twilight Violet",
-];
 
 /**
  * 🐣 ENTITY TEMPLATES
@@ -93,7 +69,7 @@ export const ENTITY_TEMPLATES = {
  * Utility to safely access the palette for a random signature key.
  */
 export const get_random_signature_key = () => {
-  return pick_random(_signature_colors);
+  return pick_random(SIGNATURE_COLORS);
 };
 
 /**
@@ -160,7 +136,7 @@ export const normalize = (base = {}) => {
     type: type,
     signature_color: (() => {
       const parsed = sanitize_html(String(signature_color)).trim();
-      return _signature_colors.includes(parsed) ? parsed : get_random_signature_key();
+      return SIGNATURE_COLORS.includes(parsed) ? parsed : get_random_signature_key();
     })(),
     profile_picture: sanitize_html(String(profile_picture)).trim(),
     narrative_style: sanitize_html(String(narrative_style)).trim(),

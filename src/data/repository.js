@@ -10,7 +10,7 @@
  * @property {number} [is_concluded] - Truthy once the story has been ended (epilogue delivered).
  */
 import { db } from "./db.js";
-import { normalize } from "./normalizer.js";
+import { normalize, format_premade } from "./normalizer.js";
 import { premade } from "./definitions/premades.js";
 import { serialize_embedding, deserialize_embedding, generate_uuid, stories_bridge } from "@utils";
 
@@ -39,10 +39,11 @@ export const seed_premades = async () => {
       // Check by ID or origin_id to prevent duplicates of factory stock
       const has_child = existing_ids.has(bp.id);
       if (!has_child) {
-        // Trust the Normalizer to handle flattening and type-aware dynamics
-        const normalized = normalize(bp);
+        // format_premade stamps the premade storage shape (is_premade/version);
+        // the seed layer adds the table key and creation timestamps on top.
+        const formatted = format_premade(bp, bp.type);
         to_add.push({
-          ...normalized,
+          ...formatted,
           id: bp.id,
           origin_id: bp.id,
           is_snapshot: 0,
@@ -189,12 +190,12 @@ export const entities = {
 // ============================================================================
 /**
  * The stories table uses numeric auto-increment keys, but session persistence
- * stores the ID as a string. Prevents silent lookup failures (mirrors the
- * coerce_story_key helper in the runtime state).
+ * and URL routing may store the ID as a string. Prevents silent lookup
+ * failures. Canonical source — the state layer imports this via @data.
  * @param {string | number} id
  * @returns {string | number}
  */
-const coerce_story_key = (id) => {
+export const coerce_story_key = (id) => {
   if (typeof id === "string" && /^\d+$/.test(id)) return Number(id);
   return id;
 };

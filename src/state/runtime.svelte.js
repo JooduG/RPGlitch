@@ -1,4 +1,4 @@
-import { db, entities } from "@data";
+import { db, entities, coerce_story_key } from "@data";
 import { SESSION_ID_KEY, load_session_checkpoint, clear_session_checkpoint, session_driver } from "@engine";
 import { app } from "./app.svelte.js";
 // We split the large state object into cohesive internal modules:
@@ -69,18 +69,6 @@ import { app } from "./app.svelte.js";
  *
  */
 function create_runtime_store() {
-  /**
-   * Coerces a story_id to match the Dexie `++id` auto-increment integer key type.
-   * The stories table uses numeric auto-increment keys, but session persistence
-   * and URL routing may store the ID as a string. This prevents silent lookup failures.
-   * @param {string | number | null} id
-   * @returns {string | number | null}
-   */
-  const coerce_story_key = (id) => {
-    if (typeof id === "string" && /^\d+$/.test(id)) return Number(id);
-    return id;
-  };
-
   /** @type {SimulationEntity} */
   let character_state = $state({
     id: null,

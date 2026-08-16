@@ -117,7 +117,7 @@ TEST-FAILURE FIX ROUND (2026-08-16, 6 failures → 0)
 
 - audio.svelte.js: the trailing-attribution regex was built from a template
   literal with unescaped `\b`/`\s` (backspace + literal "s"), so `"…," said
-   Elias.` never matched and fell through to the default voice. Escaped both
+ Elias.` never matched and fell through to the default voice. Escaped both
   (`\\b`, `\\s+`) and widened the name group to `[A-Za-z]` so lowercase
   attributions (`"…," said elias.`) resolve case-insensitively.
 - prompts.test.js: build_npc_prompt test now supplies AI/USER `present` state

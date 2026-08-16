@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { detox_prose } from "./detox-rules.js";
+import { detox_prose, resolve_voice_register } from "./detox-rules.js";
+import { NARRATIVE_STYLES } from "./narrative-styles.js";
 
 describe("detox_prose()", () => {
   it("strips purple prose idioms and cliché words cleanly", () => {
@@ -36,5 +37,30 @@ describe("detox_prose()", () => {
     expect(detox_prose("A metallic tang flooded his mouth.")).not.toMatch(/metallic tang/i);
     expect(detox_prose("The air carried a metallic tang.")).not.toMatch(/tang/i);
     expect(detox_prose("Metallic tang on the tongue.")).not.toMatch(/metallic/i);
+  });
+});
+
+describe("resolve_voice_register hierarchy", () => {
+  it("should prioritize character voice_register over narrative style", () => {
+    const entity = { voice_register: "plain" };
+    const style = NARRATIVE_STYLES.edgar_allan_poe.id; // poe defaults to ornate
+    expect(resolve_voice_register(entity, style)).toBe("plain");
+  });
+
+  it("should prioritize character ornate register over plain narrative style", () => {
+    const entity = { voice_register: "ornate" };
+    const style = NARRATIVE_STYLES.cormac_mccarthy.id; // mccarthy defaults to plain
+    expect(resolve_voice_register(entity, style)).toBe("ornate");
+  });
+
+  it("should fall back to narrative style register when character voice_register is empty", () => {
+    const entity = { voice_register: "" };
+    expect(resolve_voice_register(entity, NARRATIVE_STYLES.edgar_allan_poe.id)).toBe("ornate");
+    expect(resolve_voice_register(entity, NARRATIVE_STYLES.cormac_mccarthy.id)).toBe("plain");
+  });
+
+  it("should default to plain when neither character nor narrative style has a voice register", () => {
+    expect(resolve_voice_register(null, null)).toBe("plain");
+    expect(resolve_voice_register({}, "default")).toBe("plain");
   });
 });

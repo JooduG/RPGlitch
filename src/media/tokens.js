@@ -165,27 +165,14 @@ export const PALETTE_VARS = {
 };
 // --- END AUTO-GENERATED TOKENS ---
 
+import { SIGNATURE_COLORS } from "@utils";
+
 /**
- * Filtered registry of vibrant colors suitable for entity signatures.
- * Excludes backgrounds, neutrals, and non-vibrant utility colors.
+ * Signature color names — the canonical list lives in @utils so the data
+ * layer's normalizer validation and this media layer share one source and
+ * can never drift. Hex values stay in PALETTE above.
  */
-export const SIGNATURE_COLORS = Object.keys(PALETTE).filter(
-  (key) =>
-    !key.startsWith("Background") &&
-    ![
-      "Chalk",
-      "Frisk",
-      "Frozen",
-      "Gunmetal",
-      "Pure White",
-      "Void Black",
-      "Glass Peak",
-      "Glass Elevated",
-      "Signature Color",
-      "Swatch Color",
-      "Glass Sunken",
-    ].includes(key),
-);
+export { SIGNATURE_COLORS };
 
 /************************************************************************************
  * [LEVEL 1: LOGIC & PARSERS]

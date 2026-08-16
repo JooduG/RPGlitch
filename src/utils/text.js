@@ -596,7 +596,7 @@ export const merge_prose_into_field = (current_field_value, new_prose) => {
   }
 
   let lines = Object.entries(parsed)
-    .map(([k, v]) => `[${k}: ${String(Array.isArray(v) ? v.join(", ") : v).replace(/[\[\]]/g, "")}]`)
+    .map(([k, v]) => `[${k}: ${String(Array.isArray(v) ? v.join(", ") : v).replace(/[[]]/g, "")}]`)
     .join(" ");
 
   if (lines.length > MAX_FIELD_CHARS) {
