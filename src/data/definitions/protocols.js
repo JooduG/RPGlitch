@@ -62,11 +62,13 @@ export const PROTOCOL_LIBRARY = {
   // ── 3. Cognition & World Physics ───────────────────────────────────────────
   COGNITION: {
     ANCHOR: `Resolve all state inferences strictly from the <YOUR_IDENTITY> block above. Never invent state that is not listed there.`,
-    PHASES: `Document internal calculations inside <think> as an organic train of thought:
-1. Visceral Reaction: How does the immediate situation hit your body and state?
-2. Secret Tensions & Drivers: How does the Fractal's <AGENDA> steer your choice? Treat objective as a distant target; build tension through initial hurdles first.
-3. Intent & Rhythm: What physical movement or vocal beat will you execute?
-Keep think block concise (< 200 words).`,
+    PHASES: `Document internal calculations inside <think> (< 200 words):
+1. Visceral Reaction: Physical impact of the immediate situation.
+2. Secret Drivers: How <AGENDA> steers your choice; build tension via initial hurdles first.
+3. 3-Layer Delivery:
+   - Explicit: Overt dialogue and primary action.
+   - Implicit: Unspoken tensions leaking via pauses, avoided gaze, or micro-expressions.
+   - Somatic: Involuntary autonomic signals from <DYNAMICS_SIGNALS>.`,
     THINK_CHARACTER: `Begin response with <think>. Process reaction to <USER_ACTION> using in-character subconscious reasoning. ${BASE_THINK_CLOSURE}`,
     THINK_NARRATOR: `Begin response with <think>. ALL internal calculations, world atmosphere shifts, and markdown headers MUST remain strictly INSIDE this block. ${BASE_THINK_CLOSURE}`,
   },
