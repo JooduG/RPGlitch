@@ -160,4 +160,53 @@ describe("normalizer.js", () => {
       expect(key).not.toBe("default");
     });
   });
+
+  describe("world-cast tier fields (role_tier / is_wanderer / relationships)", () => {
+    it("defaults to tier 1 background when absent or invalid", () => {
+      expect(normalize({}).role_tier).toBe(1);
+      expect(normalize({ role_tier: 99 }).role_tier).toBe(1);
+      expect(normalize({ role_tier: "banana" }).role_tier).toBe(1);
+    });
+
+    it("preserves tier 2 (recurring) and tier 3 (major)", () => {
+      expect(normalize({ role_tier: 2 }).role_tier).toBe(2);
+      expect(normalize({ role_tier: 3 }).role_tier).toBe(3);
+    });
+
+    it("coerces is_wanderer to a boolean", () => {
+      expect(normalize({}).is_wanderer).toBe(false);
+      expect(normalize({ is_wanderer: true }).is_wanderer).toBe(true);
+      expect(normalize({ is_wanderer: "yes" }).is_wanderer).toBe(true);
+      expect(normalize({ is_wanderer: 0 }).is_wanderer).toBe(false);
+    });
+
+    it("sanitizes, trims, caps (240 chars each / 40 items) and dedupes not — relationships array", () => {
+      const long_rel = "[Mira] → [Elias]: " + "devoted ".repeat(60);
+      const input = {
+        relationships: [`[Mira] → [Elias]: allies `, long_rel, "", null, 42, `[Elias] → [Mira]: wary`],
+      };
+      const result = normalize(input);
+      expect(result.relationships).toHaveLength(4);
+      expect(result.relationships[0]).toBe("[Mira] → [Elias]: allies");
+      expect(result.relationships[0]).not.toMatch(/\s$/);
+      // 240 content chars + the "…" truncation marker = 241 max.
+      expect(result.relationships.every((r) => r.length <= 241)).toBe(true);
+    });
+
+    it("caps the relationships array at 40 entries", () => {
+      const many = Array.from({ length: 50 }, (_, i) => `[A${i}] → [B${i}]: contact`);
+      expect(normalize({ relationships: many }).relationships).toHaveLength(40);
+    });
+
+    it("defaults relationships to an empty array", () => {
+      expect(normalize({}).relationships).toEqual([]);
+      expect(normalize({ relationships: "not-an-array" }).relationships).toEqual([]);
+    });
+
+    it("seeds the tier fields from templates", () => {
+      expect(ENTITY_TEMPLATES.character.role_tier).toBe(1);
+      expect(ENTITY_TEMPLATES.character.is_wanderer).toBe(false);
+      expect(ENTITY_TEMPLATES.character.relationships).toEqual([]);
+    });
+  });
 });

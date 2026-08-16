@@ -178,3 +178,74 @@ describe("story entity claims", () => {
     expect(await db.stories.get(id)).toBeUndefined();
   });
 });
+
+describe("stories.update_cast & world-cast npc_ids", () => {
+  beforeEach(async () => {
+    try {
+      const { db } = await import("./db.js");
+      db.close();
+    } catch (err) {
+      void err;
+    }
+    vi.resetModules();
+    const Dexie = (await import("dexie")).default;
+    await Dexie.delete("rpglitch");
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+  }, 15000);
+
+  afterEach(async () => {
+    try {
+      const { db } = await import("./db.js");
+      db.close();
+    } catch (err) {
+      void err;
+    }
+    vi.restoreAllMocks();
+  });
+
+  it("dedupes, trims, and persists the story's world-cast roster", async () => {
+    const { db, init } = await import("./db.js");
+    await init();
+    const { stories } = await import("./repository.js");
+
+    const id = await db.stories.add({ title: "Cast", ai_id: "c1", user_id: "c2", fractal_id: "f1", round: 1, created_at: 1, updated_at: 1 });
+
+    await stories.update_cast(String(id), ["npc-elias", "  npc-elias ", "", "npc-mira", null, "npc-mira"]);
+    const record = await stories.get(id);
+    expect(record.npc_ids).toEqual(["npc-elias", "npc-mira"]);
+  });
+
+  it("coerces a non-array roster to an empty cast", async () => {
+    const { db, init } = await import("./db.js");
+    await init();
+    const { stories } = await import("./repository.js");
+
+    const id = await db.stories.add({ title: "Empty", ai_id: "c1", user_id: "c2", fractal_id: "f1", round: 1, created_at: 1, updated_at: 1 });
+    await stories.update_cast(String(id), null);
+    expect((await stories.get(id)).npc_ids).toEqual([]);
+  });
+
+  it("includes npc_ids in stories.list()", async () => {
+    const { db, init } = await import("./db.js");
+    await init();
+    const { stories } = await import("./repository.js");
+
+    const id = await db.stories.add({ title: "Listed", ai_id: "c1", user_id: "c2", fractal_id: "f1", round: 1, created_at: 1, updated_at: 1 });
+    await stories.update_cast(String(id), ["npc-elias", "npc-mira"]);
+
+    const list = await stories.list();
+    const row = list.find((s) => s.id === id);
+    expect(row.npc_ids).toEqual(["npc-elias", "npc-mira"]);
+  });
+
+  it("defaults npc_ids to [] for stories without a cast", async () => {
+    const { db, init } = await import("./db.js");
+    await init();
+    const { stories } = await import("./repository.js");
+
+    await db.stories.add({ title: "Lonely", ai_id: "c1", user_id: "c2", fractal_id: "f1", round: 1, created_at: 1, updated_at: 1 });
+    const list = await stories.list();
+    expect(list[0].npc_ids).toEqual([]);
+  });
+});

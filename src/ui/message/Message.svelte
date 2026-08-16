@@ -67,6 +67,7 @@
   // --- DERIVATIONS & RECONCILIATIONS ---
   let is_user = $derived(sender === "user");
   let is_ai = $derived(sender === "ai");
+  let is_npc = $derived(sender === "npc");
   let is_fractal = $derived(sender === "fractal");
   let is_telemetry = $derived(
     sender === "system" &&
@@ -78,11 +79,13 @@
       ? runtime.active_user || app.selected_user
       : is_ai
         ? runtime.active_ai || app.selected_ai
-        : is_fractal
-          ? runtime.active_fractal && runtime.active_fractal.id !== "active_fractal"
-            ? runtime.active_fractal
-            : app.selected_fractal || runtime.active_fractal
-          : null,
+        : is_npc
+          ? Object.values(runtime.active_npcs || {}).find((n) => String(n.name) === character_name) || null
+          : is_fractal
+            ? runtime.active_fractal && runtime.active_fractal.id !== "active_fractal"
+              ? runtime.active_fractal
+              : app.selected_fractal || runtime.active_fractal
+            : null,
   );
 
   let signature_color = $derived(get_signature_color(entity, sender === "system" ? "var(--color-slate-600)" : "var(--color-slate-700)"));
@@ -152,7 +155,9 @@
   }
 
   /**
-   * Orchestrates audio speech synthesis sequences matching character audio profile configurations.
+   * Orchestrates multi-voice speech synthesis: segments the turn by dialogue
+   * attribution (narrator voice for prose, roster voices for quoted lines) and
+   * queues each chunk with its own Kokoro voice.
    * @returns {void}
    */
   function handle_speak() {
@@ -163,11 +168,24 @@
     if (entity && entity.voice) {
       const v_id = entity.voice.name || entity.voice.uri;
       Audio.voice.selected_voice = resolve_voice_uri(v_id);
-      const dyn_val = is_user ? 50 : is_ai ? (entity.dynamics?.intensity ?? 50) : (entity.dynamics?.velocity ?? 50);
+      const dyn_val = is_user ? 50 : is_ai || is_npc ? (entity.dynamics?.intensity ?? 50) : (entity.dynamics?.velocity ?? 50);
       Audio.voice.rate = get_cadence_rate(entity.voice.cadence, dyn_val);
     }
 
-    Audio.voice.speak(clean_markdown, true, true);
+    const roster = [];
+    for (const n of Object.values(runtime.active_npcs || {})) {
+      if (n?.name) roster.push({ name: n.name, voice_id: resolve_voice_uri(n.voice?.name || n.voice_register || ""), is_narrator: false });
+    }
+    const fractal = runtime.active_fractal || app.selected_fractal;
+    if (fractal?.name) roster.push({ name: fractal.name, voice_id: resolve_voice_uri(fractal.voice?.name || fractal.voice_register || ""), is_narrator: true });
+    const companion = runtime.active_ai || app.selected_ai;
+    if (companion?.name) roster.push({ name: companion.name, voice_id: resolve_voice_uri(companion.voice?.name || companion.voice_register || ""), is_narrator: false });
+
+    Audio.voice.speak_with_voices(clean_markdown, roster, {
+      narrator_voice: resolve_voice_uri(fractal?.voice?.name || fractal?.voice_register || ""),
+      default_voice: Audio.voice.selected_voice,
+      force: true,
+    });
   }
 
   $effect(() => {
@@ -210,7 +228,7 @@
       p-4
       transition-all
       duration-200
-      {is_user ? 'justify-end pr-column-unit' : is_ai ? 'justify-start pl-column-unit' : 'justify-center'}
+      {is_user ? 'justify-end pr-column-unit' : is_ai || is_npc ? 'justify-start pl-column-unit' : 'justify-center'}
     "
   >
     <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
@@ -269,7 +287,7 @@
         entity_name={entity?.name || character_name || (is_fractal ? "Fractal" : sender)}
         {time_label}
         {is_editing}
-        {is_ai}
+        is_ai={is_ai || is_npc}
         {is_last}
         {id}
         clean_markdown_available={!!clean_markdown}

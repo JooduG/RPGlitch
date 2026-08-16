@@ -763,6 +763,117 @@ export const gamemaster = {
   },
 
   /**
+   * NPC WORLD-CAST HELPERS (track-npc-expansion)
+   * ---------------------------------------------------------------------------
+   */
+
+  /**
+   * Resolves a delegated NPC by id (bare or `npc:<id>`) or by case-insensitive
+   * name against the runtime world cast.
+   * @param {any} bridge
+   * @param {string} npc_id
+   * @returns {any | null}
+   */
+  _resolve_npc_entity(bridge, npc_id) {
+    if (!npc_id) return null;
+    const npcs = bridge.runtime?.active_npcs || {};
+    if (npcs[npc_id]) return npcs[npc_id];
+    const by_name = Object.values(npcs).find((n) => String(n?.name || "").toLowerCase() === npc_id.toLowerCase());
+    return by_name || null;
+  },
+
+  /**
+   * Applies the Director's Stage Spotlight choreography (enter/exit) to
+   * runtime.in_scene_npc_ids. Returns true when the stage changed.
+   * @param {any} bridge
+   * @param {{ enter?: string[], exit?: string[] } | null} change
+   * @returns {Promise<boolean>}
+   */
+  async _apply_in_scene_change(bridge, change) {
+    if (!change || typeof change !== "object") return false;
+    const current = new Set(bridge.runtime?.in_scene_npc_ids || []);
+    let changed = false;
+    for (const id of change.enter || []) {
+      if (id && !current.has(id)) {
+        current.add(id);
+        changed = true;
+      }
+    }
+    for (const id of change.exit || []) {
+      if (current.delete(id)) changed = true;
+    }
+    if (changed && bridge.runtime) {
+      bridge.runtime.in_scene_npc_ids = [...current];
+    }
+    return changed;
+  },
+
+  /**
+   * Persists Director promotions (tier 2/3) for recurring/major NPCs so the
+   * entity's role_tier survives reloads.
+   * @param {any} bridge
+   * @param {Array<{ id: string, tier: number }>} promotions
+   */
+  async _apply_promotions(bridge, promotions) {
+    for (const p of promotions || []) {
+      const id = String(p?.id || "");
+      if (!id) continue;
+      const npcs = bridge.runtime?.active_npcs || {};
+      const npc = npcs[id];
+      if (!npc) continue;
+      const target_tier = Math.max(2, Math.min(3, Number(p?.tier) || 2));
+      if (Number(npc.role_tier) >= target_tier) continue;
+      try {
+        const updated = await entities.upsert("character", { ...npc, role_tier: target_tier });
+        bridge.runtime.active_npcs = { ...npcs, [id]: updated };
+        bridge.app.log(`[GameMaster] NPC "${npc.name}" promoted to tier ${target_tier}.`, "system");
+      } catch (err) {
+        bridge.app.log(`[GameMaster] NPC promotion failed: ${err?.message || err}`, "warn");
+      }
+    }
+  },
+
+  /**
+   * Genesis — spawns a new world-cast NPC (Tier 1 by default), persists it to
+   * Dexie, registers it on the active story, and puts it on-stage.
+   * @param {any} bridge
+   * @param {{ name: string, description?: string, role_tier?: number, relationships?: string[], voice_register?: string }} [draft]
+   * @returns {Promise<any | null>}
+   */
+  async spawn_npc(bridge, draft = {}) {
+    const name = String(draft?.name || "").trim();
+    if (!name) return null;
+    const entity = await entities.upsert("character", {
+      name,
+      description: String(draft?.description || "").trim(),
+      role_tier: Math.max(1, Math.min(3, Number(draft?.role_tier) || 1)),
+      relationships: Array.isArray(draft?.relationships) ? draft.relationships : [],
+      voice_register: draft?.voice_register || "",
+      is_wanderer: false,
+    });
+    const story_id = bridge.runtime?.story_id;
+    if (story_id && story_id !== "debug") {
+      try {
+        const story = await stories.get(story_id);
+        const npc_ids = [...new Set([...(story?.npc_ids || []), entity.id])];
+        if (npc_ids.length !== (story?.npc_ids || []).length) {
+          await stories.update_cast(story_id, npc_ids);
+        }
+      } catch (err) {
+        bridge.app.log(`[GameMaster] Failed to register NPC on the story: ${err?.message || err}`, "warn");
+      }
+    }
+    const npcs = { ...(bridge.runtime?.active_npcs || {}) };
+    npcs[entity.id] = entity;
+    if (bridge.runtime) {
+      bridge.runtime.active_npcs = npcs;
+      bridge.runtime.in_scene_npc_ids = [...new Set([...(bridge.runtime.in_scene_npc_ids || []), entity.id])];
+    }
+    bridge.app?.log(`[GameMaster] World cast expanded: ${name}.`, "system");
+    return entity;
+  },
+
+  /**
    * EXECUTE TURN
    * The primary simulation loop for a narrative turn.
    * @param {string} story_id
@@ -905,6 +1016,14 @@ export const gamemaster = {
       // always in canonical form before any routing decisions are made.
       director_data = normalize_director_data(director_data);
 
+      // 3.5. STAGE SPOTLIGHT — apply the Director's scene choreography (enter/
+      // exit) and tier promotions BEFORE mutations so NPC salience, the roster,
+      // and the speaker engine all reflect this turn's stage.
+      await this._apply_in_scene_change(state_bridge, director_data.in_scene_change);
+      if (Array.isArray(director_data.promotions) && director_data.promotions.length) {
+        await this._apply_promotions(state_bridge, director_data.promotions);
+      }
+
       // 4.1 Apply State Mutations (Director-scrubbed so clichéd somatic idioms
       // never seed prompt history for future turns)
       const entity_mutations = scrub_state_mutations(director_data.mutations || director_data);
@@ -965,23 +1084,30 @@ export const gamemaster = {
 
       // 4.4. ACTIVE SPEAKER RESOLUTION — the Director delegates execution to the
       // AI_CHARACTER (default), the FRACTAL world engine (build_narrator), or a
-      // forward-compat NPC target. The delegated identity drives the reactive
-      // "thinking" state so the UI badge/avatar mirrors whoever is speaking.
+      // delegated NPC (build_npc_prompt over the in-scene world cast). The
+      // delegated identity drives the reactive "thinking" state so the UI
+      // badge/avatar mirrors whoever is speaking.
       const speaker = director_data.speaker || "ai";
       const speaker_engine = resolve_speaker_engine(speaker);
+      let npc_entity = null;
       if (speaker_engine === "npc") {
-        state_bridge.app.log(
-          "[GameMaster] Director delegated the turn to an NPC, but the NPC engine is not mounted yet — falling back to the AI character.",
-          "warn",
-        );
+        const npc_id = director_data.npc_id || String(speaker).replace(/^npc:/i, "");
+        npc_entity = this._resolve_npc_entity(state_bridge, npc_id);
+        if (!npc_entity) {
+          state_bridge.app.log(
+            `[GameMaster] Director delegated the turn to "${speaker}" but that NPC is not in the world cast — falling back to the AI character.`,
+            "warn",
+          );
+        }
       }
       const uses_narrator_engine = speaker_engine === "narrator";
       const generation_role = uses_narrator_engine ? "fractal" : "ai";
-      const generation_entity = uses_narrator_engine ? state_bridge.runtime.active_fractal : state_bridge.runtime.active_ai;
-      const generation_name = generation_entity?.name || (uses_narrator_engine ? "Fractal" : "AI");
+      const generation_entity = npc_entity || (uses_narrator_engine ? state_bridge.runtime.active_fractal : state_bridge.runtime.active_ai);
+      const generation_name = generation_entity?.name || (npc_entity ? "NPC" : uses_narrator_engine ? "Fractal" : "AI");
+      state_bridge.runtime.streaming_entity_id = npc_entity ? npc_entity.id : null;
       state_bridge.simulation_state?.start_generation?.(generation_role);
       state_bridge.simulation_state?.set_generating_entity?.({
-        type: uses_narrator_engine ? "fractal" : speaker_engine === "npc" ? "npc" : "ai",
+        type: npc_entity ? "npc" : uses_narrator_engine ? "fractal" : "ai",
         name: generation_name,
         avatar: generation_entity?.profile_picture || null,
         color: generation_entity?.signature_color || null,
@@ -990,7 +1116,9 @@ export const gamemaster = {
       // 4.5. PHYSICS SYNC & TELEMETRY
       const character_prompt = uses_narrator_engine
         ? prompt_builder.build_scene_narrator_prompt(payload, snapshot, director_data)
-        : prompt_builder.build_character_prompt(payload, snapshot, director_data);
+        : npc_entity
+          ? prompt_builder.build_npc_prompt(payload, npc_entity, snapshot, director_data)
+          : prompt_builder.build_character_prompt(payload, snapshot, director_data);
       const meta = character_prompt.meta;
 
       let final_meta = { ...meta };
@@ -1145,6 +1273,9 @@ export const gamemaster = {
 
       // 7. PERSISTENCE: Save the result
       const character_name = generation_name;
+      // NPC turns persist under the "npc" role so the feed renders them with the
+      // NPC's own identity/color (and so the LLM context maps them to "model").
+      const log_role = npc_entity ? "npc" : generation_role;
 
       if (validation_result.violated) {
         final_meta.sino_logic_violation = true;
@@ -1155,12 +1286,14 @@ export const gamemaster = {
       // database log and exported .md transcripts match the display layer.
       const persisted_text = detox_prose(validation_result.text, "plain");
 
-      await state_bridge.session_driver.log_message(persisted_text, generation_role, character_name, {
+      await state_bridge.session_driver.log_message(persisted_text, log_role, character_name, {
         turn_type: "AI_TURN",
         meta: {
           id: node_id,
           round: state_bridge.runtime.round,
           sino_logic_violation: final_meta.sino_logic_violation,
+          speaker_type: npc_entity ? "npc" : undefined,
+          entity_id: npc_entity ? npc_entity.id : undefined,
         },
       });
 

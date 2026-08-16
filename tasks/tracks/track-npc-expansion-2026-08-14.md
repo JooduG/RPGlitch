@@ -29,9 +29,8 @@
 
 ## 1. Entity Hierarchy & World Roster Architecture
 
-> ⚠️ **ARCHIVED 2026-08-16 — NOT IMPLEMENTED.** The multi-NPC ecosystem was never built; this track is archived as a blueprint.
-> Shipped fragments: **(4.3)** the Kokoro-82M multi-voice engine with sequential queue and per-entity voice toggles; **(partial 3.1)** `speaker: "npc:<id>"` protocol + schema normalization — but the kernel NPC engine is NOT mounted; it logs a warning and falls back to the AI character; **(partial 2.1)** an `EPISTEMIC` protocol block. `premades.js` is the selectable companion/fractal storyboard catalog, not a 3-tier NPC hierarchy.
-> Missing entirely: `role_tier` / 3-tier model, `in_scene_npc_ids` / stage spotlight & stasis, `<WORLD_CAST>` / `<SCENE_ROSTER>` / `<RELATIONAL_MESH>` / `<ENTITY_CONVERGENCE_LAW>` blocks, `relationships` vectors + Profile UI, `is_wanderer`, the 1.3x in-scene RAG salience, the genesis/promotion ladder, and `split_speech_by_speaker` dialogue attribution.
+> ✅ **IMPLEMENTED 2026-08-16.** The multi-NPC living-world ecosystem is shipped: the 3-tier world roster (`role_tier`), Stage Spotlight (`in_scene_npc_ids` + Director `in_scene_change` choreography), compact `<WORLD_CAST>` signatures + `<ENTITY_CONVERGENCE_LAW>`, the `<RELATIONAL_MESH>` + `relationships` vectors + `is_wanderer`, Epistemic Horizon rules (`<EPISTEMIC_RULES>` / `<CURRENT_STORY_STATE>`), the 1.3x in-scene RAG salience boost, the genesis/promotion ladder (`gamemaster.spawn_npc`, Director `promotions`), Director NPC delegation (`speaker: "npc:<id>"` → `build_npc_prompt`, third-person POV), and multi-voice Kokoro via `split_speech_by_speaker` + `speak_with_voices` (roster-based attribution, narrator fallback).
+> Deliberate scope decisions: **(1)** genesis is manual — the app calls `gamemaster.spawn_npc` to add cast; the Director never mints new ids, it only reuses `<WORLD_CAST>` entries (per the Entity Convergence Law); **(2)** streaming live-sentence TTS (`queue_stream_sentence`) still uses the single `selected_voice`, while finished-turn narration goes through the per-sentence multi-voice `speak_with_voices` pipeline; **(3)** all story NPCs start ON-STAGE after `sync()` — the Director moves them off via `in_scene_change.exit`.
 
 To maintain lean context windows and zero-friction client-side performance, entities operate across three distinct operational tiers:
 

@@ -3,7 +3,8 @@
    * src/ui/Storymode.svelte
    * Displays the continuous message feed (AI, user, fractal roles).
    */
-  import { app, simulation_log, simulation_state } from "@state";
+  import { app, simulation_log, simulation_state, runtime } from "@state";
+  import { get_signature_color } from "@media";
   import { Feed } from "@message";
 
   // --- STATE ---
@@ -64,6 +65,27 @@
     }
     return list;
   });
+
+  // Stage Spotlight roster — in-scene NPCs displayed as clickable chips (opens
+  // the NPC's read-only profile).
+  let in_scene_npcs = $derived((runtime.in_scene_npc_ids || []).map((id) => runtime.active_npcs?.[id]).filter(Boolean));
 </script>
+
+<!-- Stage Spotlight roster bar: who is in the room right now. -->
+{#if in_scene_npcs.length > 0}
+  <div class="flex w-full flex-wrap items-center justify-center gap-2 px-4 pt-2">
+    <span class="text-[10px] font-semibold uppercase tracking-widest opacity-60">In Scene</span>
+    {#each in_scene_npcs as npc (npc.id)}
+      <button
+        class="rounded-full border border-(--signature-color)/40 bg-(--signature-color)/10 px-3 py-1 text-xs font-medium text-(--signature-color) transition-all hover:brightness-125 focus:outline-none"
+        style:--signature-color={get_signature_color(npc)}
+        onclick={() => app.open_profile(npc)}
+        type="button"
+      >
+        {npc.name}
+      </button>
+    {/each}
+  </div>
+{/if}
 
 <Feed {visible_feed} {card_actions} />

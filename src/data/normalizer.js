@@ -65,6 +65,9 @@ export const ENTITY_TEMPLATES = {
     visual_style: "none",
     pov: "1st_person",
     voice_register: "",
+    role_tier: 1,
+    is_wanderer: false,
+    relationships: [],
   },
   fractal: {
     name: "New Fractal",
@@ -82,6 +85,7 @@ export const ENTITY_TEMPLATES = {
     visual_style: "none",
     pov: "3rd_person",
     voice_register: "",
+    relationships: [],
   },
 };
 
@@ -125,6 +129,9 @@ export const normalize = (base = {}) => {
     visual_style = "",
     pov = "",
     voice_register = "",
+    role_tier,
+    is_wanderer,
+    relationships,
   } = base;
 
   const norm_is_premade = is_premade ?? 0;
@@ -172,6 +179,21 @@ export const normalize = (base = {}) => {
       return parsed === "ornate" || parsed === "plain" ? parsed : "";
     })(),
     tags: (Array.isArray(tags) ? tags : []).map((s) => (s != null ? sanitize_html(String(s).trim()) : "")).filter(Boolean),
+
+    // --- NPC WORLD-CAST TIERS (Track 2) ---
+    // role_tier: 1 Background (ephemeral) · 2 Recurring (persistent) · 3 Major (full memory).
+    // is_wanderer: characters not bound to a single Fractal.
+    // relationships: plain-text directed vectors "[Source] → [Target]: [Dynamic]".
+    role_tier: (() => {
+      const tier = Number(role_tier);
+      return tier === 2 || tier === 3 ? tier : 1;
+    })(),
+    is_wanderer: !!is_wanderer,
+    relationships: (Array.isArray(relationships) ? relationships : [])
+      .map((r) => (r != null ? sanitize_html(String(r)).trim() : ""))
+      .filter(Boolean)
+      .map((r) => (r.length > 240 ? `${r.slice(0, 240).trim()}…` : r))
+      .slice(0, 40),
 
     // --- TEMPORAL HYBRID 6 (PURGED: appearance, identity, outfit, status) ---
     eternal: {

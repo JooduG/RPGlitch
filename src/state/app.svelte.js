@@ -564,14 +564,17 @@ export class AppStore {
         ? "user"
         : clean_role.includes("fractal")
           ? "fractal"
-          : clean_role.includes("ai") || clean_role.includes("character") || clean_role === "model"
-            ? "ai"
-            : null;
+          : clean_role.includes("npc")
+            ? "npc"
+            : clean_role.includes("ai") || clean_role.includes("character") || clean_role === "model"
+              ? "ai"
+              : null;
 
       let entity = null;
       if (norm_role === "ai") entity = runtime.active_ai;
       else if (norm_role === "user") entity = runtime.active_user;
       else if (norm_role === "fractal") entity = runtime.active_fractal;
+      else if (norm_role === "npc") entity = runtime.active_npcs?.[runtime.streaming_entity_id] || null;
 
       if (entity && entity.voice) {
         const v_id = entity.voice.name || entity.voice.uri;

@@ -87,6 +87,10 @@ export const context_builder = {
       const pool = resolve_vector_pool(data);
       if (pool.length) all_vectors.push(...pool);
     });
+    for (const raw of Object.values(state_bridge.runtime?.snapshot_npcs ?? {})) {
+      const pool = resolve_vector_pool(raw);
+      if (pool.length) all_vectors.push(...pool);
+    }
     if (all_vectors.length) {
       await Promise.race([ensure_embeddings(all_vectors).catch(() => {}), new Promise((resolve) => setTimeout(resolve, 30000))]);
     }
@@ -154,12 +158,38 @@ export const context_builder = {
       };
     });
 
+    // 1.5. NPC WORLD CAST — hydrate the story's secondary characters into
+    // compact entities for the Director's <WORLD_CAST>/<SCENE_ROSTER>, the
+    // relational mesh, and the NPC speaker engine.
+    const npc_map = state_bridge.runtime?.snapshot_npcs ?? {};
+    const in_scene_ids = state_bridge.runtime?.snapshot_in_scene_npc_ids ?? [];
+    const npc_entities = Object.values(npc_map).map((raw) => ({
+      id: raw.id,
+      name: raw.name || raw.id,
+      type: "character",
+      eternal: { physical: raw.eternal?.physical || "", non_physical: raw.eternal?.non_physical || "" },
+      present: { physical: raw.present?.physical || "", non_physical: raw.present?.non_physical || "" },
+      memories: resolve_vector_pool(raw),
+      dynamics: raw.dynamics,
+      dynamics_baseline: raw.dynamics_baseline,
+      future: raw.future || "",
+      relationships: Array.isArray(raw.relationships) ? raw.relationships : [],
+      role_tier: Number(raw.role_tier) || 1,
+      is_wanderer: !!raw.is_wanderer,
+      voice: raw.voice,
+      voice_register: raw.voice_register,
+      profile_picture: raw.profile_picture,
+      signature_color: raw.signature_color,
+    }));
+
     // 2. Build Unified Payload
     return {
       input,
       type,
       round,
       entities,
+      npc_entities,
+      in_scene_ids,
       view_id: "global",
       raw_messages: simulation_log,
       meta: {

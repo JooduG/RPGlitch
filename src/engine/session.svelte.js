@@ -88,6 +88,7 @@ export const session_driver = {
           narrative_style,
         },
       },
+      npc_ids: Array.isArray(selection.npc_ids) ? selection.npc_ids : [],
       created_at: Date.now(),
       updated_at: Date.now(),
       round: 0,

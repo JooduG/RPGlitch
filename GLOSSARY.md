@@ -76,7 +76,7 @@ The four-quadrant state architecture defining every entity:
 
 ### The 3-Tier Entity Hierarchy
 
-> ⚠️ **SPEC — NOT IMPLEMENTED.** Proposed in the archived NPC Expansion track (2026-08-16). The engine has no `role_tier` field and no tiered entity model; every entity is persisted with the full 4-quadrant memory.
+> ✅ **IMPLEMENTED (2026-08-16, track-npc-expansion).** `role_tier` (1 Background · 2 Recurring · 3 Major) lives on every character entity via `normalize()`; the ladder is driven by Director `promotions` and `gamemaster.spawn_npc` genesis.
 
 1. **Tier 1 (Background)**: Ephemeral, in-stream text mentions. Zero IndexedDB storage; immediate atmospheric presence.
 2. **Tier 2 (Recurring)**: Persistent IndexedDB contacts. Retains relational strings, dynamic axes (`openness`, `affinity`), and plot history.
@@ -84,7 +84,7 @@ The four-quadrant state architecture defining every entity:
 
 ### Universal Relational Graph
 
-> ⚠️ **SPEC — NOT IMPLEMENTED.** No `relationships` field exists in the entity schema, and no `<WORLD_CAST>` / `<RELATIONAL_MESH>` prompt blocks are emitted.
+> ✅ **IMPLEMENTED (2026-08-16, track-npc-expansion).** `relationships: string[]` is a normalized entity field (≤40 vectors, 240 chars each), and the `<RELATIONAL_MESH>` prompt block renders it for the trio and every world NPC.
 
 Plain-text directed relationship vectors (`"[Source] → [Target]: [Relational dynamic]"`) that unify interpersonal dynamics, world affiliations, and faction standings without rigid foreign keys:
 
@@ -94,13 +94,13 @@ Plain-text directed relationship vectors (`"[Source] → [Target]: [Relational d
 
 ### Wanderer (`is_wanderer`)
 
-> ⚠️ **SPEC — NOT IMPLEMENTED.** No `is_wanderer` field exists in the codebase.
+> ✅ **IMPLEMENTED (2026-08-16, track-npc-expansion).** `is_wanderer: boolean` is normalized on every character entity (default false).
 
 A character entity flagged `is_wanderer: true` that is not bound to a single Fractal and can appear across multiple compatible worlds.
 
 ### Stage Spotlight Model & Dynamics Stasis
 
-> ⚠️ **SPEC — NOT IMPLEMENTED.** `runtime.in_scene_npc_ids` does not exist; all active dynamics are evaluated every turn and there is no off-screen stasis.
+> ✅ **IMPLEMENTED (2026-08-16, track-npc-expansion).** `runtime.in_scene_npc_ids` + `snapshot_in_scene_npc_ids` drive the Stage Spotlight; the Director moves NPCs on/off stage via `in_scene_change`, off-screen NPCs get no dynamics evaluation, and in-scene NPC memories get a 1.3x RAG salience boost. Note: NPC dynamics are currently frozen (never settled) in both states; only on-stage *speech delegation* and memory salience are active.
 
 - **On-Stage (`runtime.in_scene_npc_ids`)**: Entities physically in the room. The Director actively updates their dynamics and delegates speech turns.
 - **Off-Screen (Stasis)**: Characters outside the scene freeze in stasis with zero token or computation overhead.
@@ -143,13 +143,13 @@ The omniscient analytical engine that executes prior to narrative prose generati
 
 ### Active Trio Exclusion Filter
 
-> ⚠️ **SPEC — NOT IMPLEMENTED.** There is no `<WORLD_CAST>` block, so there is no roster to exclude from; the active protagonist/companion are simply never minted as secondary entities.
+> ✅ **IMPLEMENTED (2026-08-16, track-npc-expansion).** `render_world_cast_xml` excludes the active trio (`active_user` / `active_ai` / `active_fractal` ids) from `<WORLD_CAST>` while `render_scene_roster_xml` still lists them on stage.
 
 A code-level guarantee that strictly excludes the active Protagonist (`active_user`) and Companion (`active_ai`) from `<WORLD_CAST>`, ensuring the player is never treated as a secondary stranger entering the room.
 
 ### Entity Convergence Law
 
-> ⚠️ **SPEC — NOT IMPLEMENTED.** No `<WORLD_CAST>` / convergence block exists in the prompt library.
+> ✅ **IMPLEMENTED (2026-08-16, track-npc-expansion).** `<ENTITY_CONVERGENCE_LAW>` is emitted into the Director system prompt alongside `<WORLD_CAST>`, instructing it to reuse existing cast members before minting new ones.
 
 A directorial protocol instructing the AI to inspect `<WORLD_CAST>` before minting new entities, reusing existing doctors, guards, and merchants rather than hallucinating duplicate characters.
 

@@ -58,6 +58,7 @@ export function normalize_role(role) {
   if (str.includes("ai") || str.includes("character") || str === "model") return "ai";
   if (str.includes("user")) return "user";
   if (str.includes("fractal")) return "fractal";
+  if (str.includes("npc")) return "ai"; // NPC speech rides the companion voice toggle
   return null;
 }
 
@@ -223,6 +224,66 @@ export function split_speech_sentences(text) {
 
   const segments = extract_styled_segments(text);
   return { sentences, committed, tail: text.slice(committed).trim(), segments };
+}
+
+/**
+ * Dialogue-attribution verbs used to bind a quoted line to a speaker.
+ */
+const DIALOGUE_VERBS =
+  "said|says|whispered|muttered|murmured|snapped|hissed|growled|shouted|called|cried|asked|replied|answered|echoed|noted|mused|added|quipped|scoffed|declared|observed|reminded|teased|ventured|began|concluded|insisted|offered|pressed|wondered|sighed|chuckled|laughed|soothed|warned";
+
+/**
+ * Infers a Kokoro voice id for a single speech chunk by matching dialogue
+ * attribution ("said Elias", "Benedict whispered", "Name: ...") against the
+ * active roster. Unquoted prose → the narrator voice; quoted dialogue without
+ * an attributable roster member → the default (companion) voice.
+ * @param {string} chunk
+ * @param {Array<{ name?: string, voice_id?: string }>} roster
+ * @param {string} [narrator_voice]
+ * @param {string} [default_voice]
+ * @returns {string}
+ */
+export function infer_voice_for_chunk(chunk, roster = [], narrator_voice = "", default_voice = "am_adam") {
+  if (!chunk) return default_voice;
+  const text = String(chunk).trim();
+  const has_quote = /["'“”‘’]/.test(text);
+  const trailing = new RegExp(`\\b(${DIALOGUE_VERBS})\\s+([A-Za-z][A-Za-z' -]{1,40})[.,!?\u2026]*$`).exec(text);
+  const leading = new RegExp(`^([A-Za-z][A-Za-z' -]{1,40})(?:\\s+(?:${DIALOGUE_VERBS})\\s*|:\\s*)`).exec(text);
+  let name = trailing ? trailing[2] : leading ? leading[1] : "";
+  if (name) {
+    const norm = name.replace(/[^A-Za-z' -]/g, "").trim().toLowerCase();
+    const match = (roster || []).find((r) => r.name && r.name.toLowerCase() === norm);
+    if (match?.voice_id) return match.voice_id;
+  }
+  if (!has_quote) {
+    const narrator = (roster || []).find((r) => r.is_narrator || /^bm_/.test(String(r.voice_id || "")) || String(r.name || "").toLowerCase().includes("narrator"));
+    if (narrator?.voice_id) return narrator.voice_id;
+    if (narrator_voice) return narrator_voice;
+  }
+  return default_voice;
+}
+
+/**
+ * Segments a turn of streaming prose by speaker attribution and assigns a
+ * voice id to each sentence chunk. Unquoted narration falls to the narrator
+ * voice; attributed dialogue falls to the matching roster voice; unattributed
+ * dialogue falls to the default (companion) voice.
+ * @param {string} text
+ * @param {Array<{ name?: string, voice_id?: string, is_narrator?: boolean }>} [active_roster]
+ * @param {{ narrator_voice?: string, default_voice?: string }} [options]
+ * @returns {Array<{ text: string, voice_id: string }>}
+ */
+export function split_speech_by_speaker(text, active_roster = [], options = {}) {
+  if (!text) return [];
+  const roster = (Array.isArray(active_roster) ? active_roster : []).filter((r) => r && (r.name || r.voice_id));
+  const { sentences } = split_speech_sentences(String(text));
+  return (sentences || [])
+    .map((s) => String(s).trim())
+    .filter(Boolean)
+    .map((s) => ({
+      text: s,
+      voice_id: infer_voice_for_chunk(s, roster, options.narrator_voice || "", options.default_voice || "am_adam"),
+    }));
 }
 
 /** Kokoro voice definitions (sorted: male voices first, then female voices, alphabetical by name within group). */
@@ -557,14 +618,55 @@ export class VoiceEngine {
     const { sentences, tail } = split_speech_sentences(speech_ready_text);
     const chunks = tail ? [...sentences, tail] : sentences;
 
+    this.#enqueue_chunks(chunks.map((text) => ({ text, voice_id: this.selected_voice })));
+  }
+
+  /**
+   * Multi-voice pipeline (track-npc-expansion 4.1/4.3): segments a turn by
+   * dialogue speaker attribution and queues each chunk with its own voice.
+   * @param {string} text
+   * @param {Array<{ name?: string, voice_id?: string, is_narrator?: boolean }>} active_roster
+   * @param {{ clearQueue?: boolean, force?: boolean, narrator_voice?: string, default_voice?: string }} [options]
+   */
+  speak_with_voices(text, active_roster = [], { clearQueue = true, force = false, narrator_voice = "", default_voice = "" } = {}) {
+    if (!text) return;
+    if (!this.enabled && !force) return;
+
+    if (clearQueue) {
+      const pending_message_id = this.active_message_id;
+      this.stop();
+      this.active_message_id = pending_message_id;
+      this.#stream_stopped = false;
+    }
+
+    const speech_ready_text = strip_cognition_blocks(text)
+      .replace(/[*_#`~]/g, "")
+      .replace(/\[\[(.*?)\]\]/g, "$1")
+      .replace(/<[^>]*>/g, "")
+      .trim();
+
+    if (!speech_ready_text) return;
+
+    const chunks = split_speech_by_speaker(speech_ready_text, active_roster, {
+      narrator_voice: narrator_voice || this.selected_voice,
+      default_voice: default_voice || this.selected_voice,
+    });
+
+    this.#enqueue_chunks(chunks);
+  }
+
+  /** @param {Array<{ text: string, voice_id: string }>} chunks */
+  #enqueue_chunks(chunks) {
     for (const chunk of chunks) {
-      if (this.#queue.length > 0 && this.#queue[this.#queue.length - 1].text === chunk) {
+      const text = String(chunk.text || "").trim();
+      if (!text) continue;
+      if (this.#queue.length > 0 && this.#queue[this.#queue.length - 1].text === text) {
         continue;
       }
 
       this.#queue.push({
-        text: chunk,
-        voice_id: this.selected_voice,
+        text,
+        voice_id: chunk.voice_id || this.selected_voice,
         message_id: this.active_message_id,
       });
     }

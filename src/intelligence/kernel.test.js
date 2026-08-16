@@ -7,7 +7,7 @@ import { temporal_engine } from "./temporal.js";
 import { llm_service } from "@platform";
 import { session_driver } from "@engine";
 import { visual_engine } from "@media";
-import { stories } from "@data";
+import { entities, stories } from "@data";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const _mock_runtime = {
@@ -16,6 +16,9 @@ const _mock_runtime = {
   active_ai: { name: "Viper" },
   active_fractal: { name: "Void" },
   active_user: null,
+  active_npcs: {},
+  in_scene_npc_ids: [],
+  streaming_entity_id: null,
   round: 1,
   turn_type: "USER_TURN",
   structural_errors: 0,
@@ -73,6 +76,11 @@ vi.mock("@intelligence/prompts.js", () => ({
     build_prologue: vi.fn(),
     build_director_prompt: vi.fn(),
     build_character_prompt: vi.fn(),
+    build_npc_prompt: vi.fn(() => ({
+      system: "NPC_PROMPT",
+      task: "NPC_TASK",
+      meta: { ai: {}, fractal: {}, role: "npc", entity_id: null },
+    })),
     build_epilogue: vi.fn(),
     render_history: vi.fn(),
     render_protocols: vi.fn(),
@@ -174,6 +182,25 @@ vi.mock("@intelligence/dynamics.js", () => ({
   },
 }));
 
+vi.mock("@data", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    entities: {
+      upsert: vi.fn(async (type, entity) => entity),
+      update: vi.fn(async () => 1),
+      remove: vi.fn(async () => 1),
+      get: vi.fn(async () => null),
+    },
+    stories: {
+      ...actual.stories,
+      get: vi.fn(async () => null),
+      update_cast: vi.fn(async () => 1),
+      conclude: vi.fn(async () => 1),
+    },
+  };
+});
+
 vi.mock("./director-schema.js", async (importOriginal) => {
   const actual = await importOriginal();
   return { ...actual };
@@ -190,6 +217,9 @@ describe("gamemaster (Intelligence Kernel)", () => {
     // from earlier tests (e.g. execute_prologue sets round 0 / last_auto 0).
     _mock_runtime.round = 1;
     _mock_runtime.last_auto_image_round = -1;
+    _mock_runtime.active_npcs = {};
+    _mock_runtime.in_scene_npc_ids = [];
+    _mock_runtime.streaming_entity_id = null;
   });
 
   describe("capture_dynamics_delta()", () => {
@@ -1161,5 +1191,160 @@ describe("gamemaster (Intelligence Kernel)", () => {
         expect.objectContaining({ metadata: expect.objectContaining({ failed: true, image_ghost_swept: true }) }),
       );
     });
+  });
+});
+
+describe("NPC world cast (track-npc-expansion)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    _mock_runtime.active_npcs = {};
+    _mock_runtime.in_scene_npc_ids = [];
+    _mock_runtime.streaming_entity_id = null;
+    _mock_runtime.story_id = null;
+  });
+
+  it("_resolve_npc_entity() resolves by id and by case-insensitive name", () => {
+    _mock_runtime.active_npcs = { ben1: { id: "ben1", name: "Benedict" } };
+
+    expect(gamemaster._resolve_npc_entity({ runtime: _mock_runtime }, "ben1")?.id).toBe("ben1");
+    expect(gamemaster._resolve_npc_entity({ runtime: _mock_runtime }, "benedict")?.id).toBe("ben1");
+    expect(gamemaster._resolve_npc_entity({ runtime: _mock_runtime }, "nobody")).toBeNull();
+    expect(gamemaster._resolve_npc_entity({ runtime: _mock_runtime }, "")).toBeNull();
+  });
+
+  it("_apply_in_scene_change() moves NPCs on/off stage via the Director choreography", async () => {
+    _mock_runtime.active_npcs = { a: { id: "a", name: "A" }, b: { id: "b", name: "B" } };
+    _mock_runtime.in_scene_npc_ids = ["a", "b"];
+
+    const changed = await gamemaster._apply_in_scene_change({ runtime: _mock_runtime }, { enter: ["c", "a"], exit: ["b"] });
+    expect(changed).toBe(true);
+    expect(_mock_runtime.in_scene_npc_ids.sort()).toEqual(["a", "c"]);
+  });
+
+  it("_apply_in_scene_change() is a no-op when the stage is unchanged", async () => {
+    _mock_runtime.in_scene_npc_ids = ["a"];
+    const changed = await gamemaster._apply_in_scene_change({ runtime: _mock_runtime }, { enter: ["a"] });
+    expect(changed).toBe(false);
+    expect(_mock_runtime.in_scene_npc_ids).toEqual(["a"]);
+
+    const noop = await gamemaster._apply_in_scene_change({ runtime: _mock_runtime }, null);
+    expect(noop).toBe(false);
+  });
+
+  it("_apply_promotions() persists tier bumps via entities.upsert and updates the world cast", async () => {
+    _mock_runtime.active_npcs = { ben1: { id: "ben1", name: "Benedict", role_tier: 1 } };
+    vi.mocked(entities.upsert).mockImplementation(async (type, entity) => entity);
+
+    await gamemaster._apply_promotions({ runtime: _mock_runtime, app: _mock_app }, [{ id: "ben1", tier: 3 }]);
+
+    expect(entities.upsert).toHaveBeenCalledWith("character", expect.objectContaining({ id: "ben1", role_tier: 3 }));
+    expect(_mock_runtime.active_npcs.ben1.role_tier).toBe(3);
+  });
+
+  it("_apply_promotions() skips promotions that would not raise the tier", async () => {
+    _mock_runtime.active_npcs = { ben1: { id: "ben1", name: "Benedict", role_tier: 3 } };
+    await gamemaster._apply_promotions({ runtime: _mock_runtime, app: _mock_app }, [{ id: "ben1", tier: 2 }]);
+    expect(entities.upsert).not.toHaveBeenCalled();
+  });
+
+  it("spawn_npc() genesis: persists, registers on the story, and puts the NPC on-stage", async () => {
+    vi.mocked(entities.upsert).mockImplementation(async (type, entity) => ({ ...entity, id: "npc-mira-1", type: "character" }));
+    vi.mocked(stories.get).mockResolvedValue({ id: 7, npc_ids: ["ben1"] });
+    _mock_runtime.story_id = 7;
+    _mock_runtime.active_npcs = { ben1: { id: "ben1", name: "Benedict" } };
+    _mock_runtime.in_scene_npc_ids = ["ben1"];
+
+    const npc = await gamemaster.spawn_npc({ runtime: _mock_runtime, app: _mock_app }, { name: "Mira", description: "A fixer.", role_tier: 2 });
+
+    expect(npc.name).toBe("Mira");
+    expect(npc.role_tier).toBe(2);
+    expect(entities.upsert).toHaveBeenCalledWith("character", expect.objectContaining({ name: "Mira", role_tier: 2 }));
+    expect(stories.update_cast).toHaveBeenCalledWith(7, ["ben1", "npc-mira-1"]);
+    expect(_mock_runtime.active_npcs["npc-mira-1"].name).toBe("Mira");
+    expect(_mock_runtime.in_scene_npc_ids).toEqual(["ben1", "npc-mira-1"]);
+  });
+
+  it("spawn_npc() requires a name and clamps the tier to 1-3", async () => {
+    vi.mocked(entities.upsert).mockImplementation(async (type, entity) => ({ ...entity, id: "npc-x", type: "character" }));
+
+    expect(await gamemaster.spawn_npc({ runtime: _mock_runtime, app: _mock_app }, { name: "  " })).toBeNull();
+    expect(await gamemaster.spawn_npc({ runtime: _mock_runtime, app: _mock_app }, {})).toBeNull();
+
+    await gamemaster.spawn_npc({ runtime: _mock_runtime, app: _mock_app }, { name: "Sorel", role_tier: 99 });
+    expect(entities.upsert).toHaveBeenCalledWith("character", expect.objectContaining({ name: "Sorel", role_tier: 3 }));
+  });
+
+  it("execute_turn() delegates the turn to a world-cast NPC when the Director names one", async () => {
+    const mock_payload = {
+      input: "Who guards the gate?",
+      type: "simulation",
+      round: 1,
+      entities: { AI: { name: "Viper" }, USER: { name: "Ghost" }, FRACTAL: { name: "Void" } },
+      view_id: "global",
+      simulation_log: "",
+      raw_messages: [],
+      meta: { timestamp: new Date().toISOString() },
+    };
+    _mock_runtime.active_npcs = { ben1: { id: "ben1", name: "Benedict", role_tier: 2 } };
+
+    vi.mocked(context_builder.build_context).mockResolvedValue(mock_payload);
+    vi.mocked(prompt_builder.build_director_prompt).mockReturnValue({ system: "D", task: "T" });
+    vi.mocked(prompt_builder.build_npc_prompt).mockReturnValue({
+      system: "NPC_PROMPT",
+      task: "NPC_TASK",
+      meta: { ai: {}, fractal: {}, role: "npc", entity_id: "ben1" },
+    });
+    vi.mocked(llm_service.generate)
+      .mockResolvedValueOnce('{"story_status":"IN_PROGRESS","speaker":"npc:ben1","keywords":[],"directive":"","trigger_image":"false"}')
+      .mockResolvedValueOnce("I guard the gate. None pass without the Warden's seal.");
+
+    const result = await gamemaster.execute_turn("story-123", { input: "Who guards the gate?", role: "ai" });
+
+    expect(prompt_builder.build_npc_prompt).toHaveBeenCalledWith(
+      mock_payload,
+      expect.objectContaining({ id: "ben1", name: "Benedict" }),
+      expect.anything(),
+      expect.objectContaining({ speaker: "npc" }),
+    );
+    expect(prompt_builder.build_character_prompt).not.toHaveBeenCalled();
+    expect(_mock_runtime.streaming_entity_id).toBe("ben1");
+    expect(result.response).toBe("I guard the gate. None pass without the Warden's seal.");
+    expect(session_driver.log_message).toHaveBeenCalledWith(
+      "I guard the gate. None pass without the Warden's seal.",
+      "npc",
+      "Benedict",
+      expect.objectContaining({ meta: expect.objectContaining({ speaker_type: "npc", entity_id: "ben1" }) }),
+    );
+  });
+
+  it("execute_turn() falls back to the AI character when the Director names an unknown NPC", async () => {
+    const mock_payload = {
+      input: "Hello",
+      type: "simulation",
+      round: 1,
+      entities: { AI: { name: "Viper" }, USER: { name: "Ghost" }, FRACTAL: { name: "Void" } },
+      view_id: "global",
+      simulation_log: "",
+      raw_messages: [],
+      meta: { timestamp: new Date().toISOString() },
+    };
+
+    vi.mocked(context_builder.build_context).mockResolvedValue(mock_payload);
+    vi.mocked(prompt_builder.build_director_prompt).mockReturnValue({ system: "D", task: "T" });
+    vi.mocked(prompt_builder.build_character_prompt).mockReturnValue({
+      system: "C",
+      task: "T",
+      meta: { ai: {}, fractal: {}, flags: [], vectors: [] },
+    });
+    vi.mocked(llm_service.generate)
+      .mockResolvedValueOnce('{"story_status":"IN_PROGRESS","speaker":"npc:ghost-unknown","keywords":[],"directive":"","trigger_image":"false"}')
+      .mockResolvedValueOnce("Identified.");
+
+    const result = await gamemaster.execute_turn("story-123", { input: "Hello", role: "ai" });
+
+    expect(prompt_builder.build_character_prompt).toHaveBeenCalled();
+    expect(prompt_builder.build_npc_prompt).not.toHaveBeenCalled();
+    expect(_mock_runtime.streaming_entity_id).toBeNull();
+    expect(result.response).toBe("Identified.");
   });
 });

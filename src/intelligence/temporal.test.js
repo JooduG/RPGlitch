@@ -166,10 +166,25 @@ describe("temporal_engine", () => {
         },
       ];
 
-      const scored = temporal_engine.score(entries, "Iron kiss");
+      const scored = temporal_engine.score(entries);
 
       // emotional_weight (5) × recency (1.0) = 5
       expect(scored[0]._relevance).toBe(5);
+    });
+
+    it("applies the 1.3x in-scene salience boost to on-stage memories (Stage Spotlight)", () => {
+      const base = {
+        timestamp: Date.now(),
+        content: "A",
+        type: "past",
+        emotional_weight: 5,
+        meta: {},
+      };
+      const off_scene = temporal_engine.score([{ ...base, id: "off" }])[0];
+      const on_scene = temporal_engine.score([{ ...base, id: "on" }], true)[0];
+      expect(on_scene._relevance).toBeCloseTo(off_scene._relevance * TEMPORAL_SCORING.IN_SCENE_SALIENCE_BOOST, 6);
+      // Off-scene NPCs must never outrank an identical on-stage memory.
+      expect(on_scene._relevance).toBeGreaterThan(off_scene._relevance);
     });
 
     it("exposes recalibration constants with sane ranges", () => {
@@ -178,6 +193,7 @@ describe("temporal_engine", () => {
       expect(TEMPORAL_SCORING.RECENCY_FLOOR).toBeLessThan(1);
       expect(TEMPORAL_SCORING.DECAY_SOFTEN).toBeGreaterThan(0);
       expect(TEMPORAL_SCORING.DECAY_SOFTEN).toBeLessThanOrEqual(1);
+      expect(TEMPORAL_SCORING.IN_SCENE_SALIENCE_BOOST).toBeGreaterThan(1);
     });
 
     it("lets an old-but-relevant memory outrank a fresh-but-irrelevant one", async () => {

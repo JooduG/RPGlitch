@@ -108,6 +108,17 @@ function create_runtime_store() {
   let active_ai_state = $state(null);
   /** @type {SimulationEntity | null} */
   let active_fractal_state = $state(null);
+  // NPC WORLD CAST — secondary characters scoped to the active story.
+  // `active_npcs` maps id → hydrated entity; `in_scene_npc_ids` is the Stage
+  // Spotlight (which NPCs are physically present, driving 1.3x memory salience).
+  /** @type {Record<string, any>} */
+  let active_npcs_state = $state({});
+  /** @type {string[]} */
+  let in_scene_npc_ids_state = $state([]);
+  // Identity of the entity whose turn is streaming right now (NPC id for
+  // speaker-delegated turns; read by app.start_stream for voice routing).
+  /** @type {string | null} */
+  let streaming_entity_id_state = $state(null);
 
   let simulation_is_ready = $state(false);
   /** @type {string | null} */
@@ -188,6 +199,31 @@ function create_runtime_store() {
         USER: $state.snapshot(active_user_state),
         FRACTAL: $state.snapshot(active_fractal_state),
       };
+    },
+    /** Non-reactive snapshots of the NPC world cast + stage spotlight. */
+    get snapshot_npcs() {
+      return Object.fromEntries(Object.entries(active_npcs_state).map(([id, e]) => [id, $state.snapshot(e)]));
+    },
+    get snapshot_in_scene_npc_ids() {
+      return [...in_scene_npc_ids_state];
+    },
+    get active_npcs() {
+      return active_npcs_state;
+    },
+    set active_npcs(val) {
+      active_npcs_state = val || {};
+    },
+    get in_scene_npc_ids() {
+      return in_scene_npc_ids_state;
+    },
+    set in_scene_npc_ids(val) {
+      in_scene_npc_ids_state = Array.isArray(val) ? [...new Set(val.map((x) => String(x)))] : [];
+    },
+    get streaming_entity_id() {
+      return streaming_entity_id_state;
+    },
+    set streaming_entity_id(val) {
+      streaming_entity_id_state = val;
     },
     get ai() {
       return ai_physics;
@@ -391,6 +427,20 @@ function create_runtime_store() {
           active_fractal_state.dynamics_baseline = { ...story.entity_snapshots.fractal.dynamics };
         }
 
+        // NPC WORLD CAST — hydrate the story's secondary characters so the
+        // Director's <WORLD_CAST>/<SCENE_ROSTER> and the NPC speaker engine can
+        // reference them. All cast members start ON-STAGE; the Director moves
+        // them off via `in_scene_change.exit` each turn.
+        const npc_ids = Array.isArray(story.npc_ids) ? story.npc_ids : [];
+        if (npc_ids.length) {
+          const npc_list = (await Promise.all(npc_ids.map((nid) => entities.get("character", nid)))).filter(Boolean);
+          active_npcs_state = Object.fromEntries(npc_list.map((n) => [String(n.id), n]));
+          in_scene_npc_ids_state = npc_list.map((n) => String(n.id));
+        } else {
+          active_npcs_state = {};
+          in_scene_npc_ids_state = [];
+        }
+
         // Synchronize app selections for UI consistency in storymode
         app.selected_ai = active_ai_state;
         app.selected_user = active_user_state;
@@ -450,6 +500,9 @@ function create_runtime_store() {
         if (active_fractal_state?.id === entity.id) {
           Object.assign(active_fractal_state, entity);
         }
+        if (active_npcs_state[entity.id]) {
+          active_npcs_state[entity.id] = entity;
+        }
       } catch (err) {
         console.error("[Data] Entity Save Failed:", err);
         throw err;
@@ -476,6 +529,9 @@ function create_runtime_store() {
           targets.forEach((t) => {
             if (t && t.id === id) Object.assign(t, payload);
           });
+          if (active_npcs_state[id]) {
+            active_npcs_state[id] = { ...active_npcs_state[id], ...payload };
+          }
         }
       } catch (err) {
         console.error(`[Data] Update Entity (${type}) Failed:`, err);
@@ -507,6 +563,12 @@ function create_runtime_store() {
           }
         } else {
           if (active_fractal_state?.id === id) active_fractal_state = null;
+        }
+        if (active_npcs_state[id]) {
+          const next_npcs = { ...active_npcs_state };
+          delete next_npcs[id];
+          active_npcs_state = next_npcs;
+          in_scene_npc_ids_state = in_scene_npc_ids_state.filter((x) => x !== String(id));
         }
       } catch (err) {
         console.error("[Data] Entity Delete Failed:", err);

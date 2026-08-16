@@ -2,6 +2,7 @@
  * src/intelligence/prompts.js
  * 🧠 INTELLIGENCE KERNEL PROMPT SYNTHESIZER
  * Centralized assembly line for the Intelligence Kernel.
+ * (track-npc-expansion: world cast, stage spotlight, NPC persona prompts)
  * Synthesizes simulation state, entities, and memories into XML system schemas.
  */
 import { ind, prompt_escape, state_bridge, escape_xml, physical_to_xml } from "@utils";
@@ -25,9 +26,11 @@ const protocols_cache = new Map();
 
 const DIRECTOR_JSON_SCHEMA = `{
   "_thought_process": "<ONE short sentence: the key state change this turn>",
-  "speaker": "'ai' (the AI_CHARACTER speaks) | 'fractal' (the FRACTAL world narrates the scene) | 'npc:<id>' (an in-scene NPC) — default 'ai'",
+  "speaker": "'ai' (the AI_CHARACTER speaks) | 'fractal' (the FRACTAL world narrates the scene) | 'npc:<id>' (an in-scene NPC from <WORLD_CAST>) — default 'ai'",
   "keywords": "1-2 keywords chosen from <AVAILABLE_KEYWORDS> matching the emotional undercurrent (or [])",
   "story_status": "'IN_PROGRESS' | 'CONCLUDED' (overarching story quest won) | 'COLLAPSED' (quest lost irrevocably) — default 'IN_PROGRESS'",
+  "in_scene_change": { "enter": ["npc:<id>"], "exit": ["npc:<id>"] },
+  "promotions": [ { "id": "npc:<id>", "tier": 2 } ],
   "directive": "<Optional in-character stage direction for the AI_CHARACTER (under 30 words, or empty string). Never reveal hidden agendas as fact.>",
   "AI_CHARACTER": {
     "state_append": {
@@ -203,12 +206,104 @@ function non_verbal_environmental_hint(input) {
   return `<USER_ACTION_NOTE>This turn is a non-verbal, environmental action. Strongly consider setting "speaker" to "fractal" so the world itself narrates the scene — unless the AI character should react directly.</USER_ACTION_NOTE>`;
 }
 
+// ===========================================================================
+// NPC WORLD-CAST PROMPT BLOCKS (track-npc-expansion)
+// ===========================================================================
+
+/** Compact one-line cast summary (~25 tokens per signature). */
+const _cast_summary = (npc) => {
+  const desc = String(npc?.description || npc?.eternal?.non_physical || npc?.present?.non_physical || "")
+    .replace(/\s+/g, " ")
+    .trim();
+  return desc.length > 130 ? `${desc.slice(0, 130).trim()}…` : desc;
+};
+
+const _tier_label = (tier) => (tier === 3 ? "Major" : tier === 2 ? "Recurring" : "Background");
+
+/**
+ * Renders the compact cast index — every non-trio world entity as a 1-line
+ * signature, tagged with its tier and stage presence.
+ * @param {any[]} [npc_entities]
+ * @param {string[]} [in_scene_ids]
+ * @param {any[]} [active_trio_ids]
+ */
+function render_world_cast_xml(npc_entities = [], in_scene_ids = [], active_trio_ids = []) {
+  const trio = new Set((active_trio_ids || []).filter(Boolean).map(String));
+  const cast = (npc_entities || []).filter((n) => n && !trio.has(String(n.id)));
+  if (!cast.length) return "";
+  const rows = cast.map((n) => {
+    const tier = Number(n.role_tier) || 1;
+    const presence = (in_scene_ids || []).includes(String(n.id)) ? "In-Scene" : "Off-Screen (Stasis)";
+    return `- ${escape_xml(n.name)} (id: ${escape_xml(String(n.id))}): ${escape_xml(_cast_summary(n))} [${_tier_label(tier)}] [${presence}]`;
+  });
+  return `<WORLD_CAST>\n${rows.join("\n")}\n</WORLD_CAST>`;
+}
+
+/**
+ * Renders the stage roster — the active trio plus every in-scene NPC with its
+ * tier and openness (the credulity axis for the Naivety Prior).
+ */
+function render_scene_roster_xml(entities = {}, npc_entities = [], in_scene_ids = []) {
+  const rows = [];
+  if (entities?.AI?.name) rows.push(`- ${escape_xml(entities.AI.name)}: Primary Companion (In-Scene)`);
+  if (entities?.USER?.name) rows.push(`- ${escape_xml(entities.USER.name)}: Protagonist (In-Scene)`);
+  for (const n of npc_entities || []) {
+    if (!(in_scene_ids || []).includes(String(n.id))) continue;
+    const tier = Number(n.role_tier) || 1;
+    rows.push(`- ${escape_xml(n.name)} (id: ${escape_xml(String(n.id))}) [Tier ${tier} / ${_tier_label(tier)}] (Openness: ${Number(n.dynamics?.openness) || 50})`);
+  }
+  return rows.length ? `<SCENE_ROSTER>\n${rows.join("\n")}\n</SCENE_ROSTER>` : "";
+}
+
+/**
+ * Renders the flat relational mesh — directed "[Source] → [Target]: [Dynamic]"
+ * vectors gathered from the trio and every world NPC.
+ */
+function render_relational_mesh_xml(entities = {}, npc_entities = []) {
+  const rels = [];
+  const push = (e) => {
+    if (!e?.name) return;
+    for (const r of Array.isArray(e?.relationships) ? e.relationships : []) {
+      const clean = String(r || "").trim();
+      if (clean) rels.push(`- ${escape_xml(clean)}`);
+    }
+  };
+  push(entities?.AI);
+  push(entities?.USER);
+  push(entities?.FRACTAL);
+  for (const n of npc_entities || []) push(n);
+  return rels.length ? `<RELATIONAL_MESH>\n${rels.join("\n")}\n</RELATIONAL_MESH>` : "";
+}
+
+const ENTITY_CONVERGENCE_LAW_XML = `<ENTITY_CONVERGENCE_LAW>
+1. Always inspect <WORLD_CAST> before introducing any secondary character.
+2. If an existing cast member matches the role or location (medical, black market, security), you MUST use that existing entity rather than inventing a duplicate.
+3. Only introduce a brand-new nameless character if no existing cast member is remotely applicable.
+</ENTITY_CONVERGENCE_LAW>`;
+
+const EPISTEMIC_ROSTER_RULES_XML = `<EPISTEMIC_RULES>
+1. Entities only perceive spoken dialogue, visible actions, and physical items in the room.
+2. Private player thoughts, unseen inventory, and off-screen events are NULL DATA.
+3. Knowledge travels strictly along physical conduits (sight, hearing, writing) — zero telepathy.
+</EPISTEMIC_RULES>`;
+
+/**
+ * The <CURRENT_STORY_STATE> block shared by storyteller prompts: who is in the
+ * room, the relational web, and the epistemic rules that govern it.
+ */
+function render_current_story_state_xml(entities = {}, npc_entities = [], in_scene_ids = []) {
+  const body = [render_scene_roster_xml(entities, npc_entities, in_scene_ids), render_relational_mesh_xml(entities, npc_entities), EPISTEMIC_ROSTER_RULES_XML]
+    .filter(Boolean)
+    .join("\n");
+  return body ? `<CURRENT_STORY_STATE>\n${body}\n</CURRENT_STORY_STATE>` : "";
+}
+
 /**
  * Director prompt compiler (Shot 1).
  * @param {any} params
  * @returns {{ system: string, task: string }}
  */
-function render_director({ round, entities, input, render_accessors, compressed_snapshot, raw_messages }) {
+function render_director({ round, entities, input, render_accessors, compressed_snapshot, raw_messages, npc_entities = [], in_scene_ids = [] }) {
   const protocols = [
     "FORMATS.JSON_ONLY",
     "AGENCY.FICTIONAL_LICENSE",
@@ -268,6 +363,11 @@ function render_director({ round, entities, input, render_accessors, compressed_
   <PROTOCOLS>
     ${ind(prompt_builder.render_protocols(protocols), 4)}
   </PROTOCOLS>
+  ${render_world_cast_xml(npc_entities, in_scene_ids, [entities?.AI?.id, entities?.USER?.id, entities?.FRACTAL?.id])}
+  ${render_scene_roster_xml(entities, npc_entities, in_scene_ids)}
+  ${render_relational_mesh_xml(entities, npc_entities)}
+  ${ENTITY_CONVERGENCE_LAW_XML}
+  ${EPISTEMIC_ROSTER_RULES_XML}
 </SYSTEM>
   `).trim();
 
@@ -283,7 +383,9 @@ ${(() => {
 })()}
 <TASK>
     Evaluate state mutations caused by ${input?.trim() ? "<USER_ACTION>" : "the current situation"}.
-    Decide the active speaker: "ai" (the AI_CHARACTER speaks), "fractal" (the FRACTAL world narrates the scene), or "npc:<id>" (a specific in-scene NPC). Default "ai".
+    Decide the active speaker: "ai" (the AI_CHARACTER speaks), "fractal" (the FRACTAL world narrates the scene), or "npc:<id>" (a specific in-scene NPC from <WORLD_CAST>). Default "ai".
+    Track the Stage Spotlight: when an NPC enters or leaves the room, move it with "in_scene_change" ("enter"/"exit" accept ids with or without the "npc:" prefix; leave both empty unless the stage changes).
+    Promote recurring NPCs: when an NPC's role becomes sustained or consequential, list it in "promotions" (tier 2 = recurring contact, tier 3 = major co-star with full memory) — but never invent ids absent from <WORLD_CAST>.
     ${non_verbal_environmental_hint(input)}
     Evaluate whether the overarching story quest reached victory (story_status "CONCLUDED") or irrevocable tragedy ("COLLAPSED"); otherwise keep "IN_PROGRESS".
     Record your reasoning inside "_thought_process" and return a single valid JSON object following this exact schema:
@@ -301,7 +403,7 @@ function build_ai_future_xml(entity, _scoring_context = "", entities = {}) {
   return `    <INTENT>${ind(prompt_builder.parse_macros(text, entity, entities), 6)}</INTENT>`;
 }
 
-function render_character({ round, entities, input, compressed_snapshot, meta, render_accessors, ghostwrite = false, director_data }) {
+function render_character({ round, entities, input, compressed_snapshot, meta, render_accessors, ghostwrite = false, director_data, npc_entities = [], in_scene_ids = [] }) {
   const pov_protocol = resolve_pov_protocol(entities?.AI);
   const has_user_action = !!input?.trim();
 
@@ -396,6 +498,7 @@ You are ${escape_xml(entities?.AI?.name || "AI")} in an active scene with ${esca
   </FRACTAL>`.trim()
       : ""
   }
+  ${render_current_story_state_xml(entities, npc_entities, in_scene_ids)}
 </SNAPSHOT>
 <ROUND>${escape_xml(String(round))}</ROUND>
 ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
@@ -422,6 +525,110 @@ ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
     } Stay fully in character. Honor all active <PROTOCOLS>.
     ${PROTOCOL_LIBRARY.HYGIENE.RESPONSE_LENGTH}
   </TASK>
+  `).trim();
+
+  return { system, task };
+}
+
+/**
+ * NPC persona prompt — the dedicated speaker engine for `speaker: "npc:<id>"`
+ * turns. Mirrors render_character but the identity is the delegated NPC: its
+ * own fragments, memories (with the in-scene 1.3x salience boost), the live
+ * stage roster, and the relational mesh.
+ */
+function render_npc_character({ round, entities = {}, npc, input, compressed_snapshot, render_accessors, director_data, npc_entities = [], in_scene_ids = [] }) {
+  const npc_name = escape_xml(npc?.name || "NPC");
+  const user_name = escape_xml(entities?.USER?.name || "User");
+  const ai_name = escape_xml(entities?.AI?.name || "the protagonist");
+  const fractal_name = escape_xml(entities?.FRACTAL?.name || "the environment");
+  const has_user_action = !!input?.trim();
+
+  const director_note = director_data?.directive?.trim()
+    ? `<DIRECTOR_NOTE>
+      ${ind(escape_xml(director_data.directive.trim()), 6)}
+      Treat this as an unseen stage direction: weave it into your behavior subtly and in character. Never mention the note, never break the scene.
+    </DIRECTOR_NOTE>
+    `
+    : "";
+  const somatic_directives_xml = build_somatic_directives_block(director_data?.keywords || []);
+
+  const protocols = [
+    "COGNITION.PHASES",
+    "AGENCY.PRESENT_TENSE",
+    "HYGIENE.PROSE",
+    ...(has_user_action ? ["AGENCY.USER_BOUNDARIES", "AGENCY.YES_AND"] : []),
+    "AGENCY.MOMENTUM",
+    "HYGIENE.MARKDOWN",
+    "AGENCY.INITIATIVE",
+    "HYGIENE.CONCISENESS",
+    "HYGIENE.BANNED_TROPES",
+    "HYGIENE.PROSE_STRUCTURE",
+    "AGENCY.FICTIONAL_LICENSE",
+  ]
+    .filter(Boolean)
+    .join(", ");
+
+  const system = clean_xml(`
+<SYSTEM role="${npc_name}">${render_narrative_style_xml(compressed_snapshot?.ai?.dynamics, compressed_snapshot?.fractal?.dynamics)}
+You are ${npc_name}, a supporting character in an active scene with ${user_name} and ${ai_name} inside ${fractal_name}.
+  ${ind(build_dynamics_legend(), 2)}
+  <YOUR_IDENTITY name="${npc_name}">
+    <PERSONALITY>${render_field_value(npc?.eternal?.non_physical, npc, entities)}</PERSONALITY>
+    <PERMANENT_APPEARANCE>${render_field_value(npc?.eternal?.physical, npc, entities)}</PERMANENT_APPEARANCE>
+  </YOUR_IDENTITY>
+  <USER_PERSONA name="${user_name}">
+    <PERSONALITY>${render_field_value(entities?.USER?.eternal?.non_physical, entities?.USER, entities)}</PERSONALITY>
+    <PERMANENT_APPEARANCE>${render_field_value(entities?.USER?.eternal?.physical, entities?.USER, entities)}</PERMANENT_APPEARANCE>
+  </USER_PERSONA>
+  ${
+    entities?.FRACTAL
+      ? `
+  <FRACTAL name="${escape_xml(entities.FRACTAL.name)}">
+    <METAPHYSICAL_TRUTHS>${render_field_value(entities.FRACTAL.eternal?.non_physical, entities.FRACTAL, entities)}</METAPHYSICAL_TRUTHS>
+    <ENVIRONMENT>${render_field_value(entities.FRACTAL.eternal?.physical, entities.FRACTAL, entities)}</ENVIRONMENT>
+  </FRACTAL>`.trim()
+      : ""
+  }
+  <PROTOCOLS>
+    ${ind(prompt_builder.render_protocols(protocols), 4)}
+  </PROTOCOLS>
+</SYSTEM>
+  `).trim();
+
+  const task = clean_xml(`
+<SNAPSHOT>
+  <YOUR_IDENTITY name="${npc_name}"${format_dynamics_attrs(npc?.dynamics)}>
+    <STATE_OF_MIND>${ind(render_field_value(npc?.present?.non_physical, npc, entities), 6)}</STATE_OF_MIND>
+    <CURRENT_LOOK>${ind(render_field_value(npc?.present?.physical, npc, entities), 6)}</CURRENT_LOOK>
+    <INTENT>${ind(render_accessors?.future(npc, { vector_text: true }), 6)}</INTENT>
+    <MEMORIES>${ind(render_accessors?.past(npc, { vector_text: true, in_scene: true }), 6)}</MEMORIES>
+  </YOUR_IDENTITY>
+  <AI_CHARACTER name="${ai_name}">
+    <STATE_OF_MIND>${render_field_value(entities?.AI?.present?.non_physical, entities?.AI, entities)}</STATE_OF_MIND>
+  </AI_CHARACTER>
+  <USER_PERSONA name="${user_name}">
+    <STATE_OF_MIND>${render_field_value(entities?.USER?.present?.non_physical, entities?.USER, entities)}</STATE_OF_MIND>
+    <CURRENT_LOOK>${render_field_value(entities?.USER?.present?.physical, entities?.USER, entities)}</CURRENT_LOOK>
+  </USER_PERSONA>
+  ${render_current_story_state_xml(entities, npc_entities, in_scene_ids)}
+</SNAPSHOT>
+<ROUND>${escape_xml(String(round))}</ROUND>
+${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
+<TASK>
+    ${director_note}
+    ${somatic_directives_xml ? `${somatic_directives_xml}\n    ` : ""}
+    <THINK_FORMAT>
+    ${PROTOCOL_LIBRARY.COGNITION.THINK_CHARACTER}
+    </THINK_FORMAT>
+    <EPISTEMIC_PHYSICS>
+      ${ind(PROTOCOL_LIBRARY.EPISTEMIC_PHYSICS.RULES, 6)}
+    </EPISTEMIC_PHYSICS>
+    ${build_signals_xml(npc?.dynamics, compressed_snapshot?.fractal?.dynamics, { style: NARRATIVE_STYLES[resolve_active_style_key()] })}
+    <POV_DIRECTIVE>
+      ${PROTOCOL_LIBRARY.POV.THIRD_PERSON}
+    </POV_DIRECTIVE>
+    Respond strictly as ${npc_name} — a supporting character. Own only your own voice, actions, and perspective: never speak for <USER_PERSONA> or the AI character, and never resolve the overarching story quest on your own. Write third-person limited, present tense, and end on a natural beat.
+</TASK>
   `).trim();
 
   return { system, task };
@@ -468,7 +675,7 @@ function render_ghostwriter({ entities, input = "" }) {
   return rendered;
 }
 
-function build_narrator(mode, { entities, render_accessors, compressed_snapshot, round = null, input = null, director_data = null }) {
+function build_narrator(mode, { entities, render_accessors, compressed_snapshot, round = null, input = null, director_data = null, npc_entities = [], in_scene_ids = [] }) {
   const task_text =
     mode === "prologue"
       ? `${PROTOCOL_LIBRARY.SCENE.PROLOGUE}\n    Input: ${escape_xml(input?.trim() || "The scene begins.")}`
@@ -528,6 +735,7 @@ ${round != null ? `<ROUND>${escape_xml(String(round))}</ROUND>\n` : ""}${input?.
     ${task_text}
     ${build_signals_xml({}, compressed_snapshot?.fractal?.dynamics)}
     ${somatic_directives_xml ? `${somatic_directives_xml}\n    ` : ""}
+    ${render_current_story_state_xml(entities, npc_entities, in_scene_ids)}
     <POV_DIRECTIVE>${PROTOCOL_LIBRARY.POV.NARRATOR}</POV_DIRECTIVE>
   </TASK>
   `).trim();
@@ -849,7 +1057,7 @@ export const prompt_builder = {
         ai: snapshot.ai?.dynamics,
         fractal: snapshot.fractal?.dynamics,
         flags: snapshot.flags,
-        memories: temporal_engine.score(payload.entities?.AI?.memories || [], render_accessors._context).slice(0, 5),
+        memories: temporal_engine.score(payload.entities?.AI?.memories || []).slice(0, 5),
       },
     };
   },
@@ -868,7 +1076,38 @@ export const prompt_builder = {
         ai: snapshot.ai?.dynamics,
         fractal: snapshot.fractal?.dynamics,
         flags: snapshot.flags,
-        memories: temporal_engine.score(payload.entities?.FRACTAL?.memories || [], render_accessors._context).slice(0, 5),
+        memories: temporal_engine.score(payload.entities?.FRACTAL?.memories || []).slice(0, 5),
+      },
+    };
+  },
+  /**
+   * Dedicated NPC speaker prompt for `speaker: "npc:<id>"` turns. Builds the
+   * persona over the delegated NPC (with its own memories scored in-scene),
+   * plus the live stage roster and relational mesh.
+   * @param {any} payload
+   * @param {any} npc - Hydrated NPC entity from the world cast.
+   * @param {any} snapshot
+   * @param {any} director_data
+   */
+  build_npc_prompt(payload, npc, snapshot, director_data) {
+    const entities = { ...(payload.entities || {}), [npc.id]: npc };
+    const render_accessors = prompt_builder.create_render_accessors(entities, payload.input, payload.raw_messages);
+    const rendered = render_npc_character({
+      ...payload,
+      entities,
+      npc,
+      render_accessors,
+      compressed_snapshot: snapshot,
+      director_data,
+    });
+    return {
+      system: prompt_builder.clean_prompt_text(rendered.system),
+      task: prompt_builder.clean_prompt_text(rendered.task),
+      meta: {
+        ai: snapshot.ai?.dynamics,
+        fractal: snapshot.fractal?.dynamics,
+        role: "npc",
+        entity_id: npc?.id,
       },
     };
   },

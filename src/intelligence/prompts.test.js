@@ -1124,3 +1124,116 @@ describe("prompt_builder (Refactored)", () => {
     });
   });
 });
+
+describe("World Cast & Stage Spotlight prompt blocks (track-npc-expansion)", () => {
+  const base_payload = () => ({
+    round: 2,
+    entities: {
+      AI: { id: "ai-1", name: "Viper" },
+      USER: { id: "u-1", name: "Ghost" },
+      FRACTAL: { id: "f-1", name: "Void" },
+    },
+    simulation_log: [],
+    input: "Hello",
+  });
+  const base_snapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} } };
+  const npc_entities = [
+    { id: "npc-elias", name: "Elias", role_tier: 2, description: "The archivist of the under-city.", relationships: ["Elias → Viper: wary of her past"], dynamics: { openness: 45 } },
+    { id: "npc-mira", name: "Mira", role_tier: 1, description: "A fixer with connections." },
+  ];
+
+  it("render_director() emits the compact WORLD_CAST with tier + stage presence tags", () => {
+    const result = prompt_builder.build_director_prompt(
+      { ...base_payload(), npc_entities, in_scene_ids: ["npc-elias"] },
+      base_snapshot,
+    );
+
+    expect(result.system).toContain("<WORLD_CAST>");
+    expect(result.system).toContain("Elias (id: npc-elias)");
+    expect(result.system).toContain("Mira (id: npc-mira)");
+    expect(result.system).toContain("[Recurring]");
+    expect(result.system).toContain("[Background]");
+    expect(result.system).toContain("In-Scene");
+    expect(result.system).toContain("Off-Screen (Stasis)");
+  });
+
+  it("render_director() emits the scene roster, relational mesh, and governance laws", () => {
+    const result = prompt_builder.build_director_prompt(
+      { ...base_payload(), npc_entities, in_scene_ids: ["npc-elias"] },
+      base_snapshot,
+    );
+
+    expect(result.system).toContain("<SCENE_ROSTER>");
+    expect(result.system).toContain("(Openness: 45)");
+    expect(result.system).toContain("<RELATIONAL_MESH>");
+    expect(result.system).toContain("Elias → Viper: wary of her past");
+    expect(result.system).toContain("<ENTITY_CONVERGENCE_LAW>");
+    expect(result.system).toContain("existing cast member");
+    expect(result.system).toContain("<EPISTEMIC_RULES>");
+  });
+
+  it("render_director() task teaches the Stage Spotlight schema (in_scene_change / promotions / npc speaker)", () => {
+    const result = prompt_builder.build_director_prompt(base_payload(), base_snapshot);
+    expect(result.task).toContain("in_scene_change");
+    expect(result.task).toContain("promotions");
+    expect(result.task).toContain('npc:<id>');
+  });
+
+  it("render_director() emits no cast rows when the world cast is empty", () => {
+    const result = prompt_builder.build_director_prompt(base_payload(), base_snapshot);
+    // The trio roster still renders (AI/USER/FRACTAL are always on stage), but
+    // no NPC cast rows and no stage-presence markers should appear.
+    expect(result.system).not.toContain("(id:");
+    expect(result.system).not.toContain("Off-Screen (Stasis)");
+  });
+
+  it("render_character() includes CURRENT_STORY_STATE (roster + mesh + epistemic rules) in the task snapshot", () => {
+    const result = prompt_builder.build_character_prompt(
+      { ...base_payload(), npc_entities, in_scene_ids: ["npc-elias"] },
+      base_snapshot,
+      {},
+    );
+
+    expect(result.task).toContain("<CURRENT_STORY_STATE>");
+    expect(result.task).toContain("<SCENE_ROSTER>");
+    expect(result.task).toContain("Elias (id: npc-elias)");
+    expect(result.task).toContain("<RELATIONAL_MESH>");
+    expect(result.task).toContain("Elias → Viper: wary of her past");
+    expect(result.task).toContain("<EPISTEMIC_RULES>");
+  });
+
+  it("build_npc_prompt() builds a third-person supporting-character persona over the delegated NPC", () => {
+    const npc = {
+      id: "npc-mira",
+      name: "Mira",
+      eternal: { non_physical: "A quick-witted fixer.", physical: "Tattooed arms." },
+      present: { non_physical: "Calm, watchful.", physical: "Holding a wrench." },
+      future: "Trade favors with Viper.",
+      past: [{ directive: "Mira's debt to the Warden" }],
+      dynamics: { openness: 70 },
+    };
+    const result = prompt_builder.build_npc_prompt(
+      {
+        ...base_payload(),
+        entities: {
+          AI: { id: "ai-1", name: "Viper", present: { non_physical: "Wary, coiled to strike." } },
+          USER: { id: "u-1", name: "Ghost", present: { non_physical: "Counting the Warden's patrol." } },
+          FRACTAL: { id: "f-1", name: "Void" },
+        },
+      },
+      npc,
+      base_snapshot,
+      { directive: "", keywords: [] },
+    );
+
+    expect(result.system).toContain('<SYSTEM role="Mira">');
+    expect(result.system).toContain("A quick-witted fixer.");
+    expect(result.task).toContain("Calm, watchful.");
+    expect(result.task).toContain("Holding a wrench.");
+    expect(result.task).toContain("Mira's debt to the Warden");
+    expect(result.task).toContain("supporting character");
+    expect(result.task).toContain("<AI_CHARACTER");
+    expect(result.meta.role).toBe("npc");
+    expect(result.meta.entity_id).toBe("npc-mira");
+  });
+});

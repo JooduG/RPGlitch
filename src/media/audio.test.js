@@ -4,7 +4,7 @@
  */
 import { describe, expect, it } from "vitest";
 import { premade } from "@data";
-import { CADENCE_RATES, VOICE_CADENCES, get_cadence_rate, resolve_voice_name, resolve_voice_uri, split_speech_sentences } from "./audio.svelte.js";
+import { CADENCE_RATES, VOICE_CADENCES, get_cadence_rate, infer_voice_for_chunk, resolve_voice_name, resolve_voice_uri, split_speech_by_speaker, split_speech_sentences } from "./audio.svelte.js";
 
 describe("Audio & Voice Configurations", () => {
   it("assigns valid voice configurations to all premade fractals", () => {
@@ -146,5 +146,70 @@ describe("Audio & Voice Configurations", () => {
     expect(() => Audio.destroy()).not.toThrow();
     expect(() => Audio.teardown()).not.toThrow();
     expect(Audio.voice.is_speaking).toBe(false);
+  });
+});
+
+describe("infer_voice_for_chunk (multi-voice NPC speech)", () => {
+  const roster = [
+    { name: "Elias", voice_id: "am_liam" },
+    { name: "Mira", voice_id: "af_kore" },
+    { name: "Narrator", voice_id: "am_adam", is_narrator: true },
+  ];
+
+  it("resolves trailing dialogue attribution ('...said Elias.') to the roster voice", () => {
+    expect(infer_voice_for_chunk(`"We'll need a key," said Elias.`, roster)).toBe("am_liam");
+    expect(infer_voice_for_chunk(`"hi," whispered Mira`, roster)).toBe("af_kore");
+  });
+
+  it("resolves leading attribution ('Elias said ...' and 'Elias: ...') to the roster voice", () => {
+    expect(infer_voice_for_chunk(`Elias said, "hi there."`, roster)).toBe("am_liam");
+    expect(infer_voice_for_chunk(`Elias: The lock is old.`, roster)).toBe("am_liam");
+    expect(infer_voice_for_chunk(`Mira: done.`, roster)).toBe("af_kore");
+  });
+
+  it("matches roster names case-insensitively and tolerates punctuation noise", () => {
+    expect(infer_voice_for_chunk(`"please," said elias.`, roster)).toBe("am_liam");
+    expect(infer_voice_for_chunk(`"no," said MIRA!`, roster)).toBe("af_kore");
+  });
+
+  it("routes unquoted narration to the narrator voice / narrator_voice option", () => {
+    expect(infer_voice_for_chunk(`The wind howled through the alley.`, roster)).toBe("am_adam");
+    expect(infer_voice_for_chunk(`A door creaked open.`, [], "am_echo")).toBe("am_echo");
+  });
+
+  it("falls back to the default voice for quoted dialogue without an attributable roster member", () => {
+    expect(infer_voice_for_chunk(`"I want to go home," she said quietly.`, roster)).toBe("am_adam");
+    expect(infer_voice_for_chunk(`"hello?"`, roster, "am_echo")).toBe("am_adam");
+  });
+
+  it("degrades empty chunks to the default voice", () => {
+    expect(infer_voice_for_chunk("", roster)).toBe("am_adam");
+    expect(infer_voice_for_chunk(null, roster)).toBe("am_adam");
+  });
+});
+
+describe("split_speech_by_speaker (multi-voice streaming segments)", () => {
+  const roster = [
+    { name: "Elias", voice_id: "am_liam" },
+    { name: "Narrator", voice_id: "am_adam", is_narrator: true },
+  ];
+
+  it("assigns each sentence its own voice based on attribution", () => {
+    const out = split_speech_by_speaker(`"Careful," said Elias. The floorboards groaned. "Who's there?"`, roster);
+    expect(out).toHaveLength(3);
+    expect(out[0]).toEqual({ text: `"Careful," said Elias.`, voice_id: "am_liam" });
+    expect(out[1]).toEqual({ text: "The floorboards groaned.", voice_id: "am_adam" });
+    expect(out[2].voice_id).toBe("am_adam");
+  });
+
+  it("keeps quoted dialogue atomic within a sentence chunk", () => {
+    const out = split_speech_by_speaker(`"Run!" he shouted.`, roster);
+    expect(out).toEqual([{ text: `"Run!" he shouted.`, voice_id: "am_adam" }]);
+  });
+
+  it("returns an empty array for empty or whitespace input", () => {
+    expect(split_speech_by_speaker("", roster)).toEqual([]);
+    expect(split_speech_by_speaker("   ", roster)).toEqual([]);
+    expect(split_speech_by_speaker(null, roster)).toEqual([]);
   });
 });

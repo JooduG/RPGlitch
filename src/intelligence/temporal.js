@@ -68,6 +68,7 @@ export const TEMPORAL_SCORING = {
   SEMANTIC_GAIN: 3,
   RECENCY_FLOOR: 0.5,
   DECAY_SOFTEN: 0.5,
+  IN_SCENE_SALIENCE_BOOST: 1.3,
 };
 
 // FUTURE is a prose field now, so the forge may only emit "past" (memory) or
@@ -112,9 +113,9 @@ function recency_factor(v, current_round) {
   return Math.pow(1 / (1 + Math.log10(estimated_turns + 1)), decay_exponent);
 }
 
-function compute_relevance(v, semantic_similarity, current_round) {
+function compute_relevance(v, semantic_similarity, current_round, in_scene = false) {
   const weight = v.emotional_weight ?? 5;
-  const { SEMANTIC_GAIN, RECENCY_FLOOR, DECAY_SOFTEN } = TEMPORAL_SCORING;
+  const { SEMANTIC_GAIN, RECENCY_FLOOR, DECAY_SOFTEN, IN_SCENE_SALIENCE_BOOST } = TEMPORAL_SCORING;
   const semantic = Math.max(0, Math.min(1, semantic_similarity || 0));
   const raw_recency = recency_factor(v, current_round);
   const recency = Math.max(RECENCY_FLOOR, Math.pow(raw_recency, DECAY_SOFTEN));
@@ -123,10 +124,13 @@ function compute_relevance(v, semantic_similarity, current_round) {
   // session memories — core backstory anchors must stay near the top of the
   // character's <MEMORIES> block.
   const pinned_boost = v.id?.startsWith("usr_") || is_origin(v) ? 1.5 : 1.0;
-  return weight * (1 + SEMANTIC_GAIN * semantic) * recency * pinned_boost;
+  // Stage Spotlight salience: entities physically present in the room recall
+  // with sharper fidelity (+30%) — in-scene NPCs, not the off-screen cast.
+  const in_scene_boost = in_scene ? IN_SCENE_SALIENCE_BOOST : 1.0;
+  return weight * (1 + SEMANTIC_GAIN * semantic) * recency * pinned_boost * in_scene_boost;
 }
 
-export function score(vectors) {
+export function score(vectors, in_scene = false) {
   if (!Array.isArray(vectors) || !vectors.length) return [];
 
   const has_embeddings = vectors.some((v) => v._embedding && v._embedding.length);
@@ -136,7 +140,7 @@ export function score(vectors) {
     if (has_embeddings && v._embedding && _context_embedding) {
       semantic = cosine_similarity(_context_embedding, v._embedding);
     }
-    const relevance = compute_relevance(v, semantic, _current_round);
+    const relevance = compute_relevance(v, semantic, _current_round, in_scene);
     return { ...v, _relevance: relevance };
   });
 
@@ -167,7 +171,7 @@ export function set_round(round) {
   _current_round = round || 0;
 }
 
-export async function score_async(vectors, input, current_round) {
+export async function score_async(vectors, input, current_round, in_scene = false) {
   if (!Array.isArray(vectors) || !vectors.length) return [];
   if (current_round !== undefined) _current_round = current_round;
 
@@ -177,7 +181,7 @@ export async function score_async(vectors, input, current_round) {
 
   const scored = semantic_scores.map(({ vector: v, similarity }) => {
     v._similarity = similarity;
-    v._relevance = compute_relevance(v, similarity, _current_round);
+    v._relevance = compute_relevance(v, similarity, _current_round, in_scene);
     return { ...v, _relevance: v._relevance, _similarity: similarity };
   });
 
@@ -392,7 +396,7 @@ export function format(vectors, input, options = {}) {
   const max_chars = options.max_chars || 1500;
   const offset = options.offset || 0;
 
-  const ranked = score(vectors, input).slice(offset);
+  const ranked = score(vectors, options.in_scene).slice(offset);
 
   let running_chars = 0;
   const selected = [];
@@ -427,7 +431,7 @@ export async function format_async(vectors, input, options = {}) {
   const max_chars = options.max_chars || 1500;
   const offset = options.offset || 0;
 
-  const ranked = is_ready() ? await score_async(vectors, input) : score(vectors, input);
+  const ranked = is_ready() ? await score_async(vectors, input, undefined, options.in_scene) : score(vectors, options.in_scene);
   const sliced = ranked.slice(offset);
 
   let running_chars = 0;

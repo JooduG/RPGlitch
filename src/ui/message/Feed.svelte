@@ -222,7 +222,7 @@
   }
 
   function map_role(role) {
-    if (role === "ai" || role === "user" || role === "fractal" || role === "system") return role;
+    if (role === "ai" || role === "user" || role === "fractal" || role === "system" || role === "npc") return role;
     return "ai";
   }
 </script>
@@ -248,7 +248,7 @@
             p-4
             transition-all
             duration-200
-            {entry.role === 'user' ? 'justify-end pr-column-unit' : entry.role === 'ai' ? 'justify-start pl-column-unit' : 'justify-center'}
+            {entry.role === 'user' ? 'justify-end pr-column-unit' : entry.role === 'ai' || entry.role === 'npc' ? 'justify-start pl-column-unit' : 'justify-center'}
           "
           in:item_in={{ duration: 200 }}
         >

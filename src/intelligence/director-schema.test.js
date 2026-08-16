@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { normalize_director_data, normalize_speaker, resolve_speaker_engine, STORY_STATUS_VALUES } from "./director-schema.js";
+import {
+  normalize_director_data,
+  normalize_speaker,
+  normalize_in_scene_change,
+  normalize_promotions,
+  strip_npc_id,
+  resolve_speaker_engine,
+  STORY_STATUS_VALUES,
+} from "./director-schema.js";
 
 describe("normalize_speaker", () => {
   it("maps ai variants to ai", () => {
@@ -45,6 +53,8 @@ describe("normalize_director_data", () => {
     expect(normalized.speaker).toBe("fractal");
     expect(normalized.keywords).toEqual(["shame", "stoic_pain"]);
     expect(normalized.story_status).toBe("CONCLUDED");
+    expect(normalized.in_scene_change).toEqual({ enter: [], exit: [] });
+    expect(normalized.promotions).toEqual([]);
   });
 
   it("caps keywords at 2 and filters non-strings/empties", () => {
@@ -79,5 +89,80 @@ describe("resolve_speaker_engine", () => {
     expect(resolve_speaker_engine("fractal")).toBe("narrator");
     expect(resolve_speaker_engine("npc")).toBe("npc");
     expect(resolve_speaker_engine()).toBe("character");
+  });
+});
+
+describe("strip_npc_id", () => {
+  it("strips the npc: prefix from ids", () => {
+    expect(strip_npc_id("npc:lord-benedict")).toBe("lord-benedict");
+    expect(strip_npc_id("NPC:123")).toBe("123");
+  });
+
+  it("leaves bare ids untouched and rejects non-strings", () => {
+    expect(strip_npc_id("lord-benedict")).toBe("lord-benedict");
+    expect(strip_npc_id(null)).toBe("");
+    expect(strip_npc_id(42)).toBe("");
+    expect(strip_npc_id(undefined)).toBe("");
+  });
+});
+
+describe("normalize_in_scene_change", () => {
+  it("cleans enter/exit lists and strips npc: prefixes", () => {
+    expect(
+      normalize_in_scene_change({
+        enter: ["npc:elias", "  ", null, "mira"],
+        exit: ["NPC:old-guard", 42],
+      }),
+    ).toEqual({ enter: ["elias", "mira"], exit: ["old-guard"] });
+  });
+
+  it("returns empty lists for missing or malformed payloads", () => {
+    expect(normalize_in_scene_change(undefined)).toEqual({ enter: [], exit: [] });
+    expect(normalize_in_scene_change(null)).toEqual({ enter: [], exit: [] });
+    expect(normalize_in_scene_change("raw")).toEqual({ enter: [], exit: [] });
+    expect(normalize_in_scene_change({ enter: "not-an-array" })).toEqual({ enter: [], exit: [] });
+  });
+});
+
+describe("normalize_promotions", () => {
+  it("coerces bare-string entries to tier 2", () => {
+    expect(normalize_promotions(["npc:elias", "mira"])).toEqual([
+      { id: "elias", tier: 2 },
+      { id: "mira", tier: 2 },
+    ]);
+  });
+
+  it("clamps tiers to the 2|3 range and strips prefixes", () => {
+    expect(normalize_promotions([{ id: "npc:elias", tier: 3 }, { id: "mira", tier: 4 }, { id: "nobody", tier: 1 }])).toEqual([
+      { id: "elias", tier: 3 },
+      { id: "mira", tier: 3 },
+      { id: "nobody", tier: 2 },
+    ]);
+  });
+
+  it("accepts npc_id aliases and filters entries without ids", () => {
+    expect(normalize_promotions([{ npc_id: "NPC:sorel", tier: 2 }, { tier: 3 }, null, "  "])).toEqual([{ id: "sorel", tier: 2 }]);
+  });
+
+  it("returns [] for non-array input", () => {
+    expect(normalize_promotions(undefined)).toEqual([]);
+    expect(normalize_promotions({ id: "elias", tier: 3 })).toEqual([]);
+  });
+});
+
+describe("normalize_director_data (Stage Spotlight)", () => {
+  it("passes through a fully-formed in_scene_change and promotions", () => {
+    const normalized = normalize_director_data({
+      in_scene_change: { enter: ["npc:elias"], exit: ["npc:old-guard"] },
+      promotions: [{ id: "npc:elias", tier: 3 }],
+    });
+    expect(normalized.in_scene_change).toEqual({ enter: ["elias"], exit: ["old-guard"] });
+    expect(normalized.promotions).toEqual([{ id: "elias", tier: 3 }]);
+  });
+
+  it("defaults both stage fields when absent", () => {
+    const normalized = normalize_director_data({});
+    expect(normalized.in_scene_change).toEqual({ enter: [], exit: [] });
+    expect(normalized.promotions).toEqual([]);
   });
 });

@@ -55,6 +55,11 @@ db.version(12).stores({
 db.version(13).stores({
   entities: "id, name, description, profile_picture, signature_color, created_at, updated_at, tags, type",
 });
+// v14: NPC World Cast — index story `npc_ids` (multiEntry) so a story's
+// secondary-character roster can be queried directly.
+db.version(14).stores({
+  stories: "++id, title, ai_id, user_id, fractal_id, round, created_at, updated_at, *npc_ids",
+});
 /** @type {(() => void) | null} */
 let _versionchange_quiesce = null;
 let _versionchange_pending = false;

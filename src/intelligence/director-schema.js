@@ -44,11 +44,23 @@ export function normalize_director_data(payload) {
         .slice(0, 2)
     : [];
   const story_status = STORY_STATUS_VALUES.includes(base.story_status) ? base.story_status : "IN_PROGRESS";
+  const speaker = normalize_speaker(base.speaker);
+  // Preserve the delegated NPC's id (`npc:ben1` → `ben1`) so the kernel can
+  // resolve the entity after speaker normalization collapses it to "npc".
+  // Idempotent under re-normalization: a bare "npc" speaker (colon already
+  // stripped) falls back to any previously-preserved npc_id instead of
+  // clobbering it with the literal "npc" string.
+  const raw_speaker = typeof base.speaker === "string" ? base.speaker : "";
+  const npc_id =
+    speaker === "npc" ? (raw_speaker.includes(":") ? strip_npc_id(raw_speaker) : base.npc_id || "") : "";
   return {
     ...base,
-    speaker: normalize_speaker(base.speaker),
+    speaker,
+    npc_id,
     keywords,
     story_status,
+    in_scene_change: normalize_in_scene_change(base.in_scene_change),
+    promotions: normalize_promotions(base.promotions),
   };
 }
 
@@ -61,4 +73,55 @@ export function resolve_speaker_engine(speaker = "ai") {
   if (speaker === "fractal") return "narrator";
   if (speaker === "npc") return "npc";
   return "character";
+}
+
+/**
+ * Strips the `npc:` prefix so a delegated speaker or cast id always resolves
+ * to a bare entity id.
+ * @param {any} id
+ * @returns {string}
+ */
+export function strip_npc_id(id) {
+  if (typeof id !== "string") return "";
+  return id.replace(/^npc:/i, "").trim();
+}
+
+/**
+ * Cleans an array of NPC ids (enter/exit lists).
+ * @param {any} list
+ * @returns {string[]}
+ */
+function clean_npc_list(list) {
+  return (Array.isArray(list) ? list : []).map(strip_npc_id).filter(Boolean);
+}
+
+/**
+ * Normalizes the Director's Stage Spotlight choreography.
+ * @param {any} raw
+ * @returns {{ enter: string[], exit: string[] }}
+ */
+export function normalize_in_scene_change(raw) {
+  const base = raw && typeof raw === "object" ? raw : {};
+  return { enter: clean_npc_list(base.enter), exit: clean_npc_list(base.exit) };
+}
+
+/**
+ * Normalizes Director promotions (genesis tier bumps) to a canonical list of
+ * `{ id, tier }` (tier clamped to 2|3 — tier 1 is the ephemeral default).
+ * @param {any} raw
+ * @returns {Array<{ id: string, tier: 2 | 3 }>}
+ */
+export function normalize_promotions(raw) {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .map((p) => {
+      if (typeof p === "string") return { id: strip_npc_id(p), tier: 2 };
+      const id = strip_npc_id(p?.id ?? p?.npc_id);
+      const tier = Number(p?.tier);
+      // Clamp to the canonical 2|3 range: anything at-or-below tier 1 (the
+      // ephemeral default) promotes to recurring; anything above 3 caps at major.
+      const clamped = Number.isFinite(tier) ? Math.max(2, Math.min(3, Math.round(tier))) : 2;
+      return { id, tier: /** @type {2 | 3} */ (clamped) };
+    })
+    .filter((p) => p.id);
 }

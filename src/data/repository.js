@@ -249,6 +249,7 @@ export const stories = {
             fractal_profile_picture: fractal?.profile_picture || "",
             fractal_name: fractal?.name || "The Void",
             signature_color: fractal?.signature_color || "default",
+            npc_ids: Array.isArray(story.npc_ids) ? story.npc_ids : [],
           });
         }
       }
@@ -263,6 +264,18 @@ export const stories = {
   /** @param {any} id @param {any} changes */
   update: async (id, changes) => {
     const result = await db.stories.update(coerce_story_key(id), changes);
+    stories_bridge.bump();
+    return result;
+  },
+  /**
+   * Replaces a story's world-cast roster (NPC ids). Deduplicates and coerces to
+   * clean string ids so the multiEntry index stays tidy.
+   * @param {string | number} id
+   * @param {string[]} npc_ids
+   */
+  update_cast: async (id, npc_ids) => {
+    const clean = Array.isArray(npc_ids) ? [...new Set(npc_ids.map((x) => (x == null ? "" : String(x).trim())).filter(Boolean))] : [];
+    const result = await db.stories.update(coerce_story_key(id), { npc_ids: clean });
     stories_bridge.bump();
     return result;
   },
