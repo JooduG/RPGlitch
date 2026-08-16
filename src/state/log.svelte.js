@@ -21,7 +21,6 @@ class SimulationLogStore {
   feed = $state([]);
   /** @type {Set<string|number>} */
   _id_set = new Set();
-  constructor() {}
   /**
    * Synchronize with persistence.
    */
@@ -69,20 +68,24 @@ class SimulationLogStore {
   }
 
   /**
-   * Delete a log entry by ID (persisted).
+   * Delete a log entry by ID: persists via session_driver and removes it from
+   * the in-memory feed so the UI stays consistent without a refresh.
    * @param {string} id
    */
   async delete_entry(id) {
     await session_driver.delete_log_entry(id);
+    this.remove(id);
   }
 
   /**
-   * Edit a log entry's text by ID (persisted).
+   * Edit a log entry's text by ID: persists via session_driver and mirrors the
+   * change into the in-memory feed so the UI stays consistent without a refresh.
    * @param {string} id
    * @param {string} new_text
    */
   async edit_entry(id, new_text) {
     await session_driver.edit_log_entry(id, new_text);
+    this.update(id, { text: new_text });
   }
 }
 export const simulation_log = new SimulationLogStore();

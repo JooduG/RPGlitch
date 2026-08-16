@@ -20,7 +20,6 @@ import { prompt_builder } from "./prompts.js";
 
 /**
  * @typedef {import('@state/runtime.svelte.js').SimulationEntity} SimulationEntity
- * @typedef {import('@state/runtime.svelte.js').SimulationState} SimulationState
  * @typedef {import('@data/sessions.svelte.js').session_driver} SessionDriver
  * @typedef {typeof import('@data/db.js').db} Database
  * @typedef {import('@data/repository.js').entities} EntityRepository

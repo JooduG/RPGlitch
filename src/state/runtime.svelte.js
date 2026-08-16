@@ -3,11 +3,10 @@ import { load_session_checkpoint, clear_session_checkpoint } from "@platform";
 import { app } from "./app.svelte.js";
 // We split the large state object into cohesive internal modules:
 // 1. Entities (character, active_user, active_ai, active_fractal)
-// 2. Story / Narrative (story, story_id, simulation_log, turn, ready)
+// 2. Story / Narrative (story, story_id, turn, ready)
 // 3. Physics / Dynamics (ai_physics, fractal_physics)
 /**
  * @typedef {import('@intelligence/temporal.js').TemporalVector} TemporalVector
- * @typedef {import('./log.svelte.js').LogEntry} LogEntry
  */
 
 /**
@@ -50,19 +49,6 @@ import { app } from "./app.svelte.js";
  * @property {SimulationEntity | null} active_user
  * @property {SimulationEntity | null} active_ai
  * @property {SimulationEntity} active_fractal
- */
-
-/**
- * @typedef {Object} SimulationState
- * @property {boolean} is_ready
- * @property {string | null} story_id
- * @property {Object} story
- * @property {Record<string, any>} story.by_id
- * @property {string | null} story.active_id
- * @property {Object} simulation_log
- * @property {Record<string, LogEntry[]>} simulation_log.by_story_id
- * @property {number} round
- * @property {string} turn_type
  */
 
 /**
@@ -113,8 +99,6 @@ function create_runtime_store() {
   let simulation_story_id = $state(null);
   /** @type {{ by_id: Record<string, any>, active_id: string | null }} */
   let simulation_story = $state({ by_id: {}, active_id: null });
-  /** @type {{ by_story_id: Record<string, LogEntry[]> }} */
-  let simulation_log_data = $state({ by_story_id: {} });
   let simulation_round = $state(0);
   let simulation_turn_type = $state("USER_TURN"); // USER_TURN, AI_TURN, SYSTEM_TURN
   // [R5] Dynamics Snapshots (Live Physics)
@@ -234,9 +218,6 @@ function create_runtime_store() {
       }
     },
 
-    get simulation_log() {
-      return simulation_log_data;
-    },
     get story_id() {
       return simulation_story_id;
     },
@@ -289,22 +270,6 @@ function create_runtime_store() {
       // FUTURE is a consolidated prose field (not a vector pool) — append a line.
       const existing = String(entity.future || "").trim();
       entity.future = existing ? (is_vanguard ? `${line}\n${existing}` : `${existing}\n${line}`) : line;
-    },
-    /**
-     * @param {string} content
-     * @param {boolean} [is_user]
-     */
-    log_turn: (content, is_user = false) => {
-      const story_id = simulation_story_id || "debug";
-      if (!simulation_log_data.by_story_id[story_id]) {
-        simulation_log_data.by_story_id[story_id] = [];
-      }
-      simulation_log_data.by_story_id[story_id].push({
-        role: is_user ? "user" : "assistant",
-        text: content,
-        character_name: is_user ? active_user_state?.name || "User" : active_ai_state?.name || "AI",
-        created_at: Date.now(),
-      });
     },
     /**
      * @param {string} [role]
