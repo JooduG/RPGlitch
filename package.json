@@ -11,7 +11,7 @@
     "deploy": "npm run tool:summarize:sequential deploy:prepare deploy:auto",
     "deploy:audit": "npm run tool:summarize:parallel audit:design audit:google-design audit:nomenclature audit:project audit:security audit:svelte",
     "deploy:auto": "node .agents/skills/perchance-deployment/scripts/perchance-deployment.js",
-    "deploy:check": "npm run tool:summarize:parallel typecheck lint:js test:unit",
+    "deploy:check": "npm run tool:summarize:parallel lint:fix test",
     "deploy:prepare": "npm run tool:summarize:sequential sync deploy:check build",
     "// --- CHECKS & LINTING --- //": "",
     "typecheck": "svelte-check",

@@ -16,8 +16,8 @@ import {
 import { llm_service, looks_truncated, security, raw_to_text, raw_stop_reason } from "@platform";
 import { context_builder } from "./context.js";
 import { dynamics_engine, compute_deltas } from "./dynamics.js";
-import { normalize_director_data, parse_director_json, resolve_speaker_engine, terse_director_task, synthesize_director_fallback, scrub_state_mutations } from "./director.js";
-import { prompt_builder } from "./prompts.js";
+import { normalize_director_data, parse_director_json, resolve_speaker_engine, synthesize_director_fallback, scrub_state_mutations } from "./director.js";
+import { prompt_builder, render_terse_director_task } from "./prompts.js";
 import { build_update_entry, build_retrieval } from "./telemetry.js";
 import { prune, temporal_engine } from "./temporal.js";
 
@@ -446,7 +446,7 @@ export const gamemaster = {
             return await llm_service.generate(
               {
                 system: director_prompt.system,
-                task: terse ? terse_director_task() : director_prompt.task,
+                task: terse ? render_terse_director_task() : director_prompt.task,
                 messages: [],
                 role: "system",
                 node_id: node_id + "-director",

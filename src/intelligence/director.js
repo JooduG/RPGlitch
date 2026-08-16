@@ -1,5 +1,5 @@
 import { detox_prose } from "@data";
-import { escape_unescaped_json_quotes, state_bridge } from "@utils";
+import { escape_unescaped_json_quotes, first_sentence, state_bridge } from "@utils";
 import { extract_json_block, parse_think_block } from "./parser.js";
 
 /**
@@ -128,46 +128,6 @@ export function normalize_promotions(raw) {
       return { id, tier: /** @type {2 | 3} */ (clamped) };
     })
     .filter((p) => p.id);
-}
-
-/**
- * 🧠 INTELLIGENCE KERNEL (GameMaster)
- * Terse replacement for the Director task — used on the retry after a truncated
- * JSON so the model emits a complete, minimal payload.
- * @returns {string}
- */
-export function terse_director_task() {
-  return `
-<TASK>
-  Return a single, COMPLETE, VALID JSON object. It MUST fit in under 700 characters.
-  - Omit "_thought_process" entirely, or keep it to one clause of a few words.
-  - Omit "directive" entirely.
-  - Set "speaker": "ai" (or "fractal" only if the world itself should narrate this turn).
-  - Set "keywords": [] (or up to 2 from <AVAILABLE_KEYWORDS>).
-  - Set "story_status": "IN_PROGRESS" (use "CONCLUDED"/"COLLAPSED" ONLY at a true quest resolution).
-  - For each entity, include only NON-EMPTY mutations:
-      "state_append": { "physical": "", "non_physical": "<one short clause>" }
-      "vector_append": [] (or a SINGLE item)
-      "dynamics_deltas": { small integers }
-  - Set "trigger_image": "false".
-  Output ONLY the JSON. No markdown fences, no prose, no trailing commas.
-  End with a closing "}". A small complete object beats a large cut-off one.
-</TASK>
-  `.trim();
-}
-
-/** Extracts a single short sentence (≤160 chars) from a blob of text. */
-export function first_sentence(text) {
-  const clean = String(text || "")
-    .replace(/<think>[\s\S]*?<\/think>/gi, "")
-    .replace(/<\/?think>/gi, "")
-    .replace(/```/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
-  if (!clean) return "";
-  const m = clean.match(/^[^.!?]{1,160}[.!?]?/);
-  const sentence = (m ? m[0] : clean.slice(0, 160)).trim();
-  return sentence;
 }
 
 /**
