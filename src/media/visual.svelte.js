@@ -389,12 +389,10 @@ export class VisualEngine {
     const is_selfie = targetType === "selfie";
 
     const subject = options.subject || (targetType === "user" ? "user" : targetType === "fractal" ? "fractal" : "ai");
-    const target_id = subject === "user" ? story.user_id : subject === "fractal" ? story.fractal_id : story.ai_id;
 
     if (!silent) {
       state_bridge.simulation_state.start_typing(
         tier === "story_scene" || tier === "story_entities" ? "fractal" : subject === "user" ? "user" : "ai",
-        target_id,
       );
     }
 

@@ -13,7 +13,8 @@ import { embeddings_engine } from "@intelligence";
 import { runtime } from "./runtime.svelte.js";
 import { streaming as streaming_store } from "./streaming.svelte.js";
 import { telemetry_store } from "./telemetry.svelte.js";
-import { simulation_state, ui_state, install_freeze_watchdog } from "./status.svelte.js";
+import { simulation_state, ui_state } from "./status.svelte.js";
+import { install_freeze_watchdog } from "./freeze-watchdog.js";
 
 /**
  * Image preview bridge: The state layer cannot import from @primitives (UI layer).
@@ -29,9 +30,29 @@ export function register_image_preview_handlers(open, close) {
 const close_image_preview = () => _image_preview_bridge.close?.();
 const open_image_preview = (src, caption = "") => _image_preview_bridge.open?.(src, caption);
 
-/** @typedef {import('./status.svelte.js').AppSettings} AppSettings */
-/** @typedef {import('./status.svelte.js').CardHandState} CardHandState */
-/** @typedef {import('./status.svelte.js').SimulationControl} SimulationControl */
+/**
+ * @typedef {Object} AppSettings
+ * @property {boolean} sound - Whether audio feedback and notification sounds are enabled.
+ * @property {boolean} call_mode - Toggles the immersive 'Call' UI overlay for focus.
+ * @property {boolean} stream_text - Toggles the character text streaming/typing animation.
+ * @property {boolean} auto_scroll - Toggles automatic log scrolling to the bottom of the stack.
+ * @property {boolean} dev_mode - Enables the Telemetry HUD and system debug overrides.
+ * @property {boolean} dev_grid_visible - Toggles the visual chess grid overlay.
+ * @property {string} [narrative_style] - The active narrative writing style profile in the session.
+ * @property {string} [visual_style] - The global default visual style for image generation. Defaults to "photo".
+ */
+
+/**
+ * @typedef {Object} CardHandState
+ * @property {boolean} open - Whether the card hand is currently visible.
+ * @property {'ai' | 'user' | 'fractal' | null} type - The target category for entity selection.
+ * @property {number} regenerate_count - The number of times the current selection pool has been shuffled.
+ */
+
+/**
+ * @typedef {Object} SimulationControl
+ * @property {boolean} loading - STASIS: True when the Chrono Engine is processing a turn.
+ */
 
 /************************************************************************************
  * [SECTION: STATE DEFINITIONS]
