@@ -6,12 +6,14 @@
  */
 import { flushSync } from "svelte";
 import { SvelteSet } from "svelte/reactivity";
-import { generate_uuid, resolve_px, stories_bridge, guarded_transition } from "@utils";
+import { resolve_px, stories_bridge, guarded_transition } from "@utils";
 import { db, entities, stories, normalize } from "@data";
-import { visual_engine, get_signature_color, Audio, get_cadence_rate, resolve_voice_uri } from "@media";
+import { visual_engine, get_signature_color, Audio } from "@media";
 import { embeddings_engine } from "@intelligence";
 import { runtime } from "./runtime.svelte.js";
-import { simulation_state, ui_state } from "./status.svelte.js";
+import { streaming as streaming_store } from "./streaming.svelte.js";
+import { telemetry_store } from "./telemetry.svelte.js";
+import { simulation_state, ui_state, install_freeze_watchdog } from "./status.svelte.js";
 
 /**
  * Image preview bridge: The state layer cannot import from @primitives (UI layer).
@@ -30,43 +32,12 @@ const open_image_preview = (src, caption = "") => _image_preview_bridge.open?.(s
 /** @typedef {import('./status.svelte.js').AppSettings} AppSettings */
 /** @typedef {import('./status.svelte.js').CardHandState} CardHandState */
 /** @typedef {import('./status.svelte.js').SimulationControl} SimulationControl */
-/** @typedef {import('./status.svelte.js').FateSystem} FateSystem */
 
 /************************************************************************************
  * [SECTION: STATE DEFINITIONS]
  * ----------------------------------------------------------------------------------
  * Core reactive state for the application.
  ************************************************************************************/
-// Static formatter to avoid 'new Date()' mutable instance warnings in reactive contexts
-const log_time_formatter = new Intl.DateTimeFormat("sv-SE", {
-  hour: "2-digit",
-  minute: "2-digit",
-  second: "2-digit",
-});
-class StreamingState {
-  /** @type {boolean} */
-  active = $state(false);
-  /** @type {string} */
-  content = $state("");
-  /** @type {string | null} */
-  node_id = $state(null);
-  /** @type {"ai" | "user" | "fractal" | "system" | null} */
-  role = $state("ai");
-  /** @type {AbortController | null} */
-  abort_controller = $state(null);
-  /** @type {boolean} */
-  errored = $state(false);
-  /** @type {string | null} */
-  errored_node_id = $state(null);
-
-  get text() {
-    return this.content;
-  }
-  set text(val) {
-    this.content = val;
-  }
-}
-
 /**
  *
  */
@@ -137,12 +108,6 @@ export class AppStore {
       ui_state.set_loading(val);
     },
   };
-  /** @type {FateSystem} */
-  fate = $state({
-    active: false,
-    hand: [],
-    selected: null,
-  });
   // --- UI TENSION (Reactive Intensity) ---
   get tension() {
     return simulation_state.phase === "generating" || simulation_state.phase === "locked" ? 1 : 0;
@@ -242,48 +207,17 @@ export class AppStore {
   /**
    * @type {any[]}
    */
-  logs = $state([]);
+  get logs() {
+    return telemetry_store.logs;
+  }
+  set logs(v) {
+    telemetry_store.logs = v;
+  }
   /**
-   * Records a system event.
-   * Uses Intl.format(Date.now()) to satisfy ESLint prefer-svelte-reactivity.
+   * Records a system event. Delegates to the telemetry store.
    * @param {string} message
    */
-  log(message, type = "system") {
-    // Burst dedupe: an identical message arriving within ~2.5s of the previous
-    // one is a duplicate (e.g. a re-entrant boot banner), not a legitimately
-    // repeated event — real repeats (e.g. consecutive "Generation complete.")
-    // are always more than a few seconds apart.
-    const prev = this.logs[0];
-    if (prev && prev.message === message && Date.now() - (prev.created_at || 0) < 2500) return;
-
-    const entry = {
-      id: generate_uuid(),
-      timestamp: log_time_formatter.format(Date.now()),
-      created_at: Date.now(),
-      message,
-      type, // 'system' | 'ai' | 'db' | 'error'
-    };
-    this.logs.unshift(entry);
-    if (this.logs.length > 100) this.logs.pop();
-
-    // Persist the telemetry log (capped, debounced) so DevMode history survives
-    // reloads instead of being wiped with the session.
-    if (typeof db?.kv_settings !== "undefined") {
-      clearTimeout(this._log_persist_timer);
-      this._log_persist_timer = setTimeout(async () => {
-        try {
-          await db.kv_settings.put({ key: "rpg_telemetry_logs", value: $state.snapshot(this.logs).slice(0, 100) });
-        } catch (_persistErr) {
-          /* telemetry persistence must never break the app */
-        }
-      }, 800);
-    }
-
-    // Emit to console when dev_mode is active
-    if (this.settings?.dev_mode) {
-      console.info("[Engine]", `[Telemetry:${type.toUpperCase()}] ${message}`);
-    }
-  }
+  log = (message, type = "system") => telemetry_store.log(message, type);
   /************************************************************************************
    * [SECTION: LIFECYCLE & PERSISTENCE]
    * ----------------------------------------------------------------------------------
@@ -411,7 +345,7 @@ export class AppStore {
       console.error("[AppStore] Failed to load lobby entities:", e);
     }
   }
-  streaming = new StreamingState();
+  streaming = streaming_store;
   /************************************************************************************
    * [SECTION: UI ACTIONS]
    * ----------------------------------------------------------------------------------
@@ -541,82 +475,14 @@ export class AppStore {
     this.settings.dev_mode = !this.settings.dev_mode;
     this.save_settings();
   };
-  // STREAMING CONTROL
-  /**
-   * @param {string | null} id
-   * @param {"ai" | "user" | "fractal" | "system" | null} role
-   */
-  start_stream = (id, role = "ai") => {
-    this.streaming.active = true;
-    this.streaming.content = "";
-    this.streaming.text = "";
-    this.streaming.node_id = id;
-    this.streaming.role = role;
-    this.streaming.errored = false;
-    this.streaming.errored_node_id = null;
-
-    Audio.voice.reset_stream();
-    Audio.voice.active_message_id = id;
-
-    if (role && role !== "system") {
-      const clean_role = String(role).toLowerCase();
-      const norm_role = clean_role.includes("user")
-        ? "user"
-        : clean_role.includes("fractal")
-          ? "fractal"
-          : clean_role.includes("npc")
-            ? "npc"
-            : clean_role.includes("ai") || clean_role.includes("character") || clean_role === "model"
-              ? "ai"
-              : null;
-
-      let entity = null;
-      if (norm_role === "ai") entity = runtime.active_ai;
-      else if (norm_role === "user") entity = runtime.active_user;
-      else if (norm_role === "fractal") entity = runtime.active_fractal;
-      else if (norm_role === "npc") entity = runtime.active_npcs?.[runtime.streaming_entity_id] || null;
-
-      if (entity && entity.voice) {
-        const v_id = entity.voice.name || entity.voice.uri;
-        Audio.voice.selected_voice = resolve_voice_uri(v_id);
-        const dyn_val = norm_role === "user" ? 50 : norm_role === "ai" ? (entity.dynamics?.intensity ?? 50) : (entity.dynamics?.velocity ?? 50);
-        Audio.voice.rate = get_cadence_rate(entity.voice.cadence, dyn_val);
-      }
-    }
-  };
-  update_stream = (/** @type {string} */ chunk) => {
-    this.streaming.content += chunk;
-    this.streaming.text = this.streaming.content;
-
-    if (Audio.is_role_enabled(this.streaming.role)) {
-      Audio.voice.queue_stream_sentence(this.streaming.content);
-    }
-  };
-  end_stream = () => {
-    if (this.streaming.active && Audio.is_role_enabled(this.streaming.role)) {
-      Audio.voice.flush_stream_remainder(this.streaming.content);
-    }
-
-    this.streaming.active = false;
-    this.streaming.content = "";
-    this.streaming.text = "";
-    this.streaming.node_id = null;
-    this.streaming.role = "ai";
-    Audio.voice.reset_stream();
-  };
-  signal_stream_error = (node_id) => {
-    this.streaming.errored = true;
-    this.streaming.errored_node_id = node_id;
-  };
-  trigger_interrupt = () => {
-    if (this.streaming.abort_controller) {
-      try {
-        this.streaming.abort_controller.abort();
-      } catch (e) {
-        console.error("[AppStore] Failed to abort streaming:", e);
-      }
-    }
-  };
+  // STREAMING CONTROL — delegates to the streaming store (streaming.svelte.js)
+  // so the engine + UI keep one stable API while the implementation lives with
+  // its audio/role orchestration next to the state it manages.
+  start_stream = (id, role = "ai") => streaming_store.start_stream(id, role);
+  update_stream = (chunk) => streaming_store.update_stream(chunk);
+  end_stream = () => streaming_store.end_stream();
+  signal_stream_error = (node_id) => streaming_store.signal_stream_error(node_id);
+  trigger_interrupt = () => streaming_store.trigger_interrupt();
   open_image_preview = (/** @type {any} */ src, caption = "") => {
     open_image_preview(src, caption);
   };
@@ -632,130 +498,6 @@ export class AppStore {
     this.view = "storymode";
   };
 }
-/**
- * 🧊 FREEZE WATCHDOG (composer-freeze recovery)
- * The composer can only die if the simulation state machine gets stuck
- * (phase generating/locked or intent_active stuck true) with no live turn.
- * Two tiers:
- *   - Tier 1 (fast & safe): busy/locked with NO active stream for 90s → force unlock.
- *   - Tier 2 (broad): busy/locked for 5 min regardless of streaming, with no
- *     streaming progress (content growing / heartbeat) → abort + force unlock.
- * A live stream with growing content extends the window, so slow-but-healthy
- * generations are never interrupted.
- */
-let _freeze_watchdog_started = false;
-const FREEZE_WATCHDOG_INTERVAL_MS = 15000;
-const FREEZE_WATCHDOG_IDLE_GRACE_MS = 90000;
-const FREEZE_WATCHDOG_MAX_MS = 5 * 60 * 1000;
-// Idle-phase consolidation (phase==="idle" while intent_active) runs a separate,
-// generous LLM forge that can legitimately take minutes — it must never trip the
-// tier-1 no-stream error path. Guard it with its own longer window.
-const FREEZE_WATCHDOG_CONSOLIDATE_GRACE_MS = 4 * 60 * 1000;
-
-function install_freeze_watchdog() {
-  if (_freeze_watchdog_started || typeof window === "undefined") return;
-  _freeze_watchdog_started = true;
-
-  /** @type {number} */
-  let stuck_since = 0;
-  let last_stream_len = 0;
-
-  const force_recover = (reason) => {
-    console.warn("[Watchdog] Detected frozen simulation state — force-recovering.", {
-      reason,
-      phase: simulation_state.phase,
-      intent_active: simulation_state.intent_active,
-      loading: app.simulation.loading,
-      streaming_active: app.streaming.active,
-    });
-    app.log(`[Watchdog] ${reason} — force-recovering the simulation.`, "error");
-    try {
-      simulation_state.complete();
-      simulation_state.unlock();
-      simulation_state.set_intent_active(false);
-    } catch (_err) {
-      /* state store never throws */
-    }
-    app.simulation.loading = false;
-    app.end_stream();
-    app.streaming.active = false;
-    app.streaming.content = "";
-    app.streaming.node_id = null;
-    if (app.streaming.abort_controller) {
-      try {
-        app.streaming.abort_controller.abort();
-      } catch (_err) {
-        /* already aborted */
-      }
-      app.streaming.abort_controller = null;
-    }
-  };
-
-  setInterval(() => {
-    const phase = simulation_state.phase;
-    const intent_active = simulation_state.intent_active;
-    const generating = phase === "generating";
-    const locked = phase === "locked";
-    const consolidating = phase === "idle" && intent_active;
-    const streaming_active = app.streaming.active;
-    const stream_len = app.streaming.content?.length ?? 0;
-
-    // The watchdog only arms on the phases it can actually diagnose. A plain
-    // idle phase (no generation in flight) is healthy even if a stale intent
-    // flag is stuck on — arming there caused the tier-1 false positives that
-    // interrupted legitimate post-turn consolidation. Idle+intent gets its own
-    // generous consolidation window below instead.
-    const stuck = generating || locked || consolidating;
-    if (!stuck) {
-      stuck_since = 0;
-      last_stream_len = stream_len;
-      return;
-    }
-
-    if (stuck_since === 0) {
-      stuck_since = Date.now();
-      last_stream_len = stream_len;
-      return;
-    }
-
-    const elapsed = Date.now() - stuck_since;
-    const stream_grew = stream_len > last_stream_len;
-    last_stream_len = stream_len;
-
-    if (generating || locked) {
-      if (!streaming_active && elapsed >= FREEZE_WATCHDOG_IDLE_GRACE_MS) {
-        force_recover(`Simulation stuck ${Math.round(elapsed / 1000)}s with no stream`);
-        stuck_since = 0;
-        return;
-      }
-      if (elapsed >= FREEZE_WATCHDOG_MAX_MS && !stream_grew) {
-        force_recover(`Simulation stuck ${Math.round(elapsed / 1000)}s with no progress`);
-        stuck_since = 0;
-        return;
-      }
-      return;
-    }
-
-    // Consolidation window: LLM forges are slow and silent by design. If one
-    // overruns, release the intent lock with a warning instead of a full
-    // force-recovery (the forge is guarded against double-consolidation, so the
-    // only real failure mode is the lock being held too long).
-    if (elapsed >= FREEZE_WATCHDOG_CONSOLIDATE_GRACE_MS) {
-      console.warn(`[Watchdog] Post-turn consolidation overran ${Math.round(elapsed / 1000)}s — releasing intent lock.`, {
-        phase,
-        intent_active,
-      });
-      app.log(`[Watchdog] Post-turn consolidation overran ${Math.round(elapsed / 1000)}s — releasing intent lock.`, "warn");
-      try {
-        simulation_state.set_intent_active(false);
-      } catch (_err) {
-        /* state store never throws */
-      }
-      stuck_since = 0;
-    }
-  }, FREEZE_WATCHDOG_INTERVAL_MS);
-}
-
 export const app = new AppStore();
 stories_bridge.register_bump(() => {
   app.stories_version++;
