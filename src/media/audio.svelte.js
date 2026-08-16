@@ -4,7 +4,7 @@
  * The sensory cortex for all things sonic. Handles sound effects,
  * notifications, and text-to-speech with Svelte 5 reactivity.
  */
-import { get_rpg_list, state_bridge, strip_cognition_blocks, onnx_mutex, wait_ort_ready } from "@utils";
+import { state_bridge, strip_cognition_blocks, onnx_mutex, wait_ort_ready } from "@utils";
 import { db } from "@data";
 
 import {
@@ -21,6 +21,31 @@ const STORAGE_KEY = "rpglitch_audio_settings";
 
 const PREGENERATE_BUDGET = 3;
 const AUDIO_CACHE_MAX = 64;
+
+/**
+ * Reads the Perchance "sounds" list from window.lists.
+ * Handles both raw arrays and stringified JSON arrays.
+ * @returns {string[]}
+ */
+function get_sound_list() {
+  const key = "sounds";
+  const global_lists = typeof window !== "undefined" && /** @type {any} */ (window).lists ? /** @type {any} */ (window).lists : null;
+  if (!global_lists || !global_lists[key]) return [];
+  let list = global_lists[key];
+  if (Array.isArray(list) && typeof list[0] === "string" && list[0].startsWith("[")) {
+    if (list[0].length > 65536) {
+      console.warn(`[AudioEngine] get_sound_list: JSON string for key '${key}' exceeds 64KB safety limit.`);
+      return [];
+    }
+    try {
+      return JSON.parse(list[0]);
+    } catch (e) {
+      console.warn(`[AudioEngine] get_sound_list: Failed to parse JSON for key '${key}'.`, e);
+      return list;
+    }
+  }
+  return Array.isArray(list) ? list : [];
+}
 
 /************************************************************************************
  * [SECTION: VOICE ENGINE]
@@ -1019,7 +1044,7 @@ class AudioEffectsEngine {
     this.#last_played = now;
 
     let url = null;
-    const sound_list = get_rpg_list("sounds");
+    const sound_list = get_sound_list();
     if (sound_list.length > 0) {
       const entry = sound_list.find((/** @type {any} */ s) => typeof s === "string" && s.startsWith(key + "="));
       if (entry) url = entry.split("=").slice(1).join("=").trim();

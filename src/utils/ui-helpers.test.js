@@ -1,12 +1,4 @@
-import {
-  generate_secure_seed as generateSecureSeed,
-  generate_uuid as generateUUID,
-  guarded_transition,
-  resolve_ms,
-  resolve_number,
-  resolve_px,
-  resolve_string,
-} from "@utils";
+import { guarded_transition, resolve_ms, resolve_number, resolve_px, resolve_string } from "@utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("dom utilities", () => {
@@ -267,79 +259,6 @@ describe("dom utilities", () => {
 });
 
 describe("helpers", () => {
-  describe("generateSecureSeed", () => {
-    it("should return a number within the specified limit", () => {
-      const limit = 1000;
-      for (let i = 0; i < 100; i++) {
-        const seed = generateSecureSeed(limit);
-        expect(seed).toBeGreaterThanOrEqual(0);
-        expect(seed).toBeLessThan(limit);
-        expect(Number.isInteger(seed)).toBe(true);
-      }
-    });
-
-    it("should throw an error if crypto.getRandomValues is not available", () => {
-      const original_crypto = globalThis.crypto;
-      Object.defineProperty(globalThis, "crypto", {
-        value: { ...original_crypto, getRandomValues: undefined },
-        configurable: true,
-      });
-      expect(() => generateSecureSeed()).toThrow(/crypto.getRandomValues is not available/);
-      Object.defineProperty(globalThis, "crypto", {
-        value: original_crypto,
-        configurable: true,
-      });
-    });
-
-    it("should use crypto.getRandomValues", () => {
-      const original_crypto = globalThis.crypto;
-      const mock_get_random_values = vi.fn((arr) => {
-        arr[0] = 123456;
-        return arr;
-      });
-      Object.defineProperty(globalThis, "crypto", {
-        value: { ...original_crypto, getRandomValues: mock_get_random_values },
-        configurable: true,
-      });
-
-      const seed = generateSecureSeed(100);
-      expect(mock_get_random_values).toHaveBeenCalled();
-      expect(seed).toBe(123456 % 100);
-
-      Object.defineProperty(globalThis, "crypto", {
-        value: original_crypto,
-        configurable: true,
-      });
-    });
-  });
-
-  describe("generateUUID", () => {
-    it("should return a valid UUID string", () => {
-      const uuid = generateUUID();
-      // Basic UUID v4 regex
-      expect(uuid).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
-    });
-    it("should return different UUIDs on subsequent calls", () => {
-      const uuid1 = generateUUID();
-      const uuid2 = generateUUID();
-      expect(uuid1).not.toBe(uuid2);
-    });
-    it("should throw an error if crypto.randomUUID is not available", () => {
-      const original_crypto = globalThis.crypto;
-      // Mock an environment where crypto.randomUUID is missing
-      Object.defineProperty(globalThis, "crypto", {
-        value: { ...original_crypto, randomUUID: undefined },
-        configurable: true,
-      });
-      expect(() => generateUUID()).toThrow(/crypto.randomUUID is not available/);
-      // Restore the original crypto object
-      Object.defineProperty(globalThis, "crypto", {
-        value: original_crypto,
-        configurable: true,
-      });
-    });
-  });
-
   describe("guarded_transition", () => {
     describe("when document.startViewTransition is NOT available", () => {
       it("calls the callback synchronously without animation", () => {

@@ -1,7 +1,7 @@
 /**
  * src/utils/ui-helpers.js
  * 🛠️ UI & CSS RESOLUTION HELPERS
- * Standardized methods for resolving/measuring CSS values and handling Perchance lists.
+ * Standardized methods for resolving/measuring CSS values, browser downloads, and view transitions.
  */
 
 /**
@@ -277,27 +277,6 @@ export function resolve_string(value, fallback = "", context = null) {
  * @param {string} key
  * @returns {any[]}
  */
-export const get_rpg_list = (key) => {
-  const global_lists = typeof window !== "undefined" && /** @type {any} */ (window).lists ? /** @type {any} */ (window).lists : null;
-  if (global_lists && global_lists[key]) {
-    let list = global_lists[key];
-    if (Array.isArray(list) && typeof list[0] === "string" && list[0].startsWith("[")) {
-      if (list[0].length > 65536) {
-        console.warn(`[Helpers] get_rpg_list: JSON string for key '${key}' exceeds 64KB safety limit.`);
-        return [];
-      }
-      try {
-        return JSON.parse(list[0]);
-      } catch (e) {
-        console.warn(`[Helpers] get_rpg_list: Failed to parse JSON for key '${key}'.`, e);
-        return list;
-      }
-    }
-    return Array.isArray(list) ? list : [];
-  }
-  return [];
-};
-
 /**
  * Triggers a browser download of a Blob or string payload.
  * No-op (returns false) outside the DOM.
@@ -306,7 +285,7 @@ export const get_rpg_list = (key) => {
  * @param {string} [mime]
  * @returns {boolean}
  */
-export const download_blob = (filename, content, mime = "application/octet-stream") => {
+const download_blob = (filename, content, mime = "application/octet-stream") => {
   if (typeof document === "undefined") return false;
   const blob = content instanceof Blob ? content : new Blob([content], { type: mime });
   const url = URL.createObjectURL(blob);
