@@ -6,7 +6,7 @@
    */
   import { Accordion, DataBox } from "@primitives";
   import { runtime } from "@state";
-  import { process_entity_blocks, resolve_entity_name } from "@intelligence";
+  import { process_entity_blocks, resolve_entity_name } from "./telemetry.js";
   import TelemetryBlocks from "./TelemetryBlocks.svelte";
   import TelemetryVector from "./TelemetryVector.svelte";
 

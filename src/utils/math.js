@@ -15,6 +15,14 @@
 export const clamp = (n, min = 0, max = 100) => Math.min(max, Math.max(min, Number(n) || 0));
 
 /**
+ * Rounds a value to a percentage clamped to 0-100, defaulting to 50 for
+ * falsy input (dynamics meter display).
+ * @param {number} val
+ * @returns {number}
+ */
+export const get_pct = (val) => Math.max(0, Math.min(100, Math.round(val || 50)));
+
+/**
  * Computes cosine similarity between two embedding vectors.
  * Since embeddings are normalised (unit vectors), this is just a dot product.
  * @param {Float32Array|number[]} a

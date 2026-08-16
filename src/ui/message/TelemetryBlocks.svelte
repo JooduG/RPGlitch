@@ -1,5 +1,6 @@
 <script>
-  import { get_pct, vector_label } from "@intelligence";
+  import { get_pct } from "@utils";
+  import { vector_label } from "./telemetry.js";
 
   /**
    * @typedef {Object} Props

@@ -1,5 +1,5 @@
 <script>
-  import { vector_label } from "@intelligence";
+  import { vector_label } from "./telemetry.js";
 
   /**
    * @typedef {Object} Props
