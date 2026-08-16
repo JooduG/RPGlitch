@@ -5,14 +5,14 @@ skills:
   global_dir: C:/Users/johng/.gemini/config/skills
 
   orchestration_and_governance:
-    master-skill-router: C:/Users/johng/.gemini/config/skills/master-dispatcher/SKILL.md
-    swarm: .agents/skills/swarm/SKILL.md
-    legislative: C:/Users/johng/.gemini/config/skills/legislative/SKILL.md
-    security: C:/Users/johng/.gemini/config/skills/security/SKILL.md
-    simulation: .agents/skills/simulation/SKILL.md
-    context: C:/Users/johng/.gemini/config/skills/context/SKILL.md
     planning: C:/Users/johng/.gemini/config/skills/planning/SKILL.md
+    provenance: C:/Users/johng/.gemini/config/skills/provenance/SKILL.md
+    context: C:/Users/johng/.gemini/config/skills/context/SKILL.md
+    security: C:/Users/johng/.gemini/config/skills/security/SKILL.md
     developer-database: C:/Users/johng/.gemini/config/skills/developer-database/SKILL.md
+    skill-writing: C:/Users/johng/.gemini/config/skills/skill-writing/SKILL.md
+    simulation: .agents/skills/simulation/SKILL.md
+    swarm: .agents/skills/swarm/SKILL.md
 
   core_web_languages:
     javascript: C:/Users/johng/.gemini/config/skills/javascript/SKILL.md
@@ -20,6 +20,13 @@ skills:
     html: C:/Users/johng/.gemini/config/skills/html/SKILL.md
     modern-web-guidance: C:/Users/johng/.gemini/config/skills/modern-web-guidance/SKILL.md
     svelte: C:/Users/johng/.gemini/config/skills/svelte/SKILL.md
+
+  general_languages:
+    python: C:/Users/johng/.gemini/config/skills/python/SKILL.md
+    cpp: C:/Users/johng/.gemini/config/skills/cpp/SKILL.md
+    csharp: C:/Users/johng/.gemini/config/skills/csharp/SKILL.md
+    dart: C:/Users/johng/.gemini/config/skills/dart/SKILL.md
+    go: C:/Users/johng/.gemini/config/skills/go/SKILL.md
 
   engineering_and_architecture:
     api: C:/Users/johng/.gemini/config/skills/api/SKILL.md
@@ -29,18 +36,20 @@ skills:
   design_and_sensory:
     design: .agents/skills/design/SKILL.md
     audio: .agents/skills/audio/SKILL.md
-    perchance-plugin-image: C:/Users/johng/.gemini/config/skills/image/SKILL.md
-    perchance-plugin-text: C:/Users/johng/.gemini/config/skills/text/SKILL.md
+
+  perchance_plugins:
+    image: C:/Users/johng/.gemini/config/skills/image/SKILL.md
+    text: C:/Users/johng/.gemini/config/skills/text/SKILL.md
 
   verification_and_qa:
     test: C:/Users/johng/.gemini/config/skills/test/SKILL.md
     debug: C:/Users/johng/.gemini/config/skills/debug/SKILL.md
     devtools: C:/Users/johng/.gemini/config/skills/devtools/SKILL.md
     review: C:/Users/johng/.gemini/config/skills/review/SKILL.md
-    provenance: C:/Users/johng/.gemini/config/skills/provenance/SKILL.md
 
-  delivery_and_workflow:
+  delivery_and_operations:
     perchance-deployment: .agents/skills/perchance-deployment/SKILL.md
+    local-scripts: .agents/skills/local-scripts/SKILL.md
     git: C:/Users/johng/.gemini/config/skills/git/SKILL.md
 
 # ⚡ Workflows (Standard Operating Procedures)
@@ -48,7 +57,7 @@ workflows:
   global_dir: C:/Users/johng/.gemini/config/global_workflows
 
   core_lifecycle:
-    00-status: C:/Users/johng/.gemini/config/global_workflows/00-status.md
+    00-startup: C:/Users/johng/.gemini/config/global_workflows/00-startup.md
     01-plan: C:/Users/johng/.gemini/config/global_workflows/01-plan.md
     02-implement: C:/Users/johng/.gemini/config/global_workflows/02-implement.md
     03-review: C:/Users/johng/.gemini/config/global_workflows/03-review.md
@@ -75,7 +84,6 @@ legislative:
   design_system: DESIGN.md
   memory:
     future: tasks/FUTURE.md
-    eternal: tasks/ETERNAL.md
     past: C:/Users/johng/.gemini/antigravity-ide/archive/
     present:
       current: tasks/PRESENT.md
@@ -95,15 +103,15 @@ src:
   intelligence: src/intelligence/
   platform: src/platform/
   ui:
-    actions: src/ui/actions/
-    atoms: src/ui/atoms/
-    components: src/ui/components/
-    molecules: src/ui/molecules/
+    console: src/ui/console/
+    entity: src/ui/entity/
+    image: src/ui/image/
+    message: src/ui/message/
     motion: src/ui/motion/
-    organisms: src/ui/organisms/
+    primitives: src/ui/primitives/
+    profile: src/ui/profile/
+    story: src/ui/story/
   data: src/data/
   state: src/state/
   media: src/media/
-  # Note: The majority of unit tests are colocated next to the files they test.
-  # The src/tests/ folder is strictly for minor utilities and global test setup.
-  tests: src/tests/
+  utils: src/utils/

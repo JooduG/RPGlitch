@@ -101,10 +101,19 @@ A simulation requires entities (Characters and Fractals) to execute a narrative.
 - **Swapping**: Design state transitions so ending a story and loading a new one is seamless.
 - **Management**: Manage active entities via the profile modal in edit mode.
 - **The Four Entity Fragments**:
-- **Eternal**: Baseline physical features and core essence.
-- **Present**: Immediate physical conditions and active processing states.
-- **Past (Memories)**: Historical anchors, critical precedents, and session memories stored in the `past` vector array (retrieved via vector RAG).
-- **Future (Standing Agenda)**: Active trajectory, impending intent, and standing agenda stored as a single consolidated prose field (rewritten wholesale by the Memory Forge each cycle).
+  - **Eternal**: Baseline physical features and core essence.
+  - **Present**: Immediate physical conditions and active processing states. Governed by Pseudo-JSON bracket parameters (`[KEY: VALUE]`):
+    - _Direct Overwrites_: `[SHIRT: sweater]` replaces `SHIRT` cleanly without string duplication.
+    - _Universal Atomic Clearing_: `[KEY: none]`, `[KEY: bare]`, `[KEY: naked]`, `[KEY: off]`, `[KEY: removed]`, `[KEY: disrobed]`, `[KEY: healed]`, `[KEY: cleared]`, `[KEY: normal]` deletes that specific key. `[CLOTHING: none]` wildcard-purges all clothing keys.
+    - _Multi-Item Aggregation_: Repeated `[INVENTORY: ...]` / `[STASH: ...]` brackets merge into an aggregated array.
+    - _Undress / Redress Lifecycle_: Undressing stashes garments in `[INVENTORY: ...]`; redressing reads items back from inventory without hallucination.
+  - **Past (Memories)**: Historical anchors and session memories stored in the `past` vector array (retrieved via vector RAG):
+    - _ID Provenance & Forge-Skip_: `usr_` prefixed memories (user/lore authored) are origin-protected (`is_origin`), immune to Memory Forge eviction/compression, and receive a $1.5\times$ relevance multiplier in `compute_relevance()`. `ai_` session memories roll with a cap of 20 (`PAST_VECTOR_CAP = 20`).
+    - _Bound Limits_: Maximum 200 total vectors per entity; $\le 220$ characters per entry. Deduplication uses $>60\%$ word overlap and $>0.92$ cosine similarity.
+  - **Future (Standing Agenda)**: Active trajectory, impending intent, and standing agenda stored as a single consolidated prose field (rewritten wholesale by the Memory Forge each cycle).
+- **Dual Filter Engine**:
+  - _Visual Prompt Filter_: `INVENTORY`, `STASH`, `SECRET`, `PLAN`, and `STATUS` are strictly stripped from image generation prompts (`build_aesthetic_map` & `strip_visual_excluded`).
+  - _Epistemic Prompt Filter_: `[SECRET: ...]` and `[PLAN: ...]` of the User are stripped across the Epistemic Wall in `render_character()` to prevent AI telepathy, while remaining fully visible in `render_director()`.
 
 ---
 
@@ -195,7 +204,7 @@ RPGlitch is a **Local-First Reactive Monolith (PWA)** built for the Perchance if
 
 **4-Step Implementation Loop**:
 
-1. **Anchor Tasks**: **Verify `./tasks/FUTURE.md` is initialized and linked to `./tasks/ETERNAL.md**`.
+1. **Anchor Tasks**: **Verify `./tasks/FUTURE.md` is initialized and aligned with `./GEMINI.md` and `./tasks/PRESENT.md`**.
 2. **Wire State**: Connect Svelte 5 Runes and expose safe global bridges via `window.exposed`.
 3. **Apply Styling**: Implement rules from `./DESIGN.md`.
 4. **Anchor Persistence**: Bind dynamic changes to Dexie.js repositories.

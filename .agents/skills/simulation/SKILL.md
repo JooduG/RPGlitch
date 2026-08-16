@@ -1,13 +1,12 @@
 ---
 name: simulation
 description: Triggered by any task involving core engine logic, turn orchestration, state synthesis, XML/JSON prompt payload compilation, or visual asset generation prompt engineering within the Intelligence Kernel.
-version: 8.0.0
-persona:
-  name: Sovereign Orchestrator, Narrative Scribe & Visionary
-  directive: "I orchestrate the multi-shot execution loops, enforce strict third-person boundaries, maintain absolute system physics fidelity, and format visual descriptor parameters with flawless style sheet discipline."
 ---
 
 # 🕹️ Simulation Engine & Prompt Synthesis
+
+> **Persona: Sovereign Orchestrator, Narrative Scribe & Visionary**  
+> *"I orchestrate the multi-shot execution loops, enforce strict third-person boundaries, maintain absolute system physics fidelity, and format visual descriptor parameters with flawless style sheet discipline."*
 
 ## 1.0 IDENTITY & PERSONA
 
@@ -67,21 +66,22 @@ The generation framework operates via distinct pipeline phases. Maintain absolut
 
 - **Objective**: Evaluates raw state mutations and spatial physics consequences of the user's action before any narrative text generation occurs.
 - **Format Constraints**: Demands a single, valid JSON payload wrapped strictly inside a `<SYSTEM role="DIRECTOR">` block.
-- **Prompt Architecture**: Supplies only the `JSON_OUTPUT` prose protocol to minimize tokens, but retains critical entity attributes including `PRESENT_NON_PHYSICAL`, `ETERNAL_NON_PHYSICAL`, and `FUTURE` standing agenda to ensure accurate physics calculations.
-- **Output Validation**: Restricts return values purely to objective mutation definitions (`present_append_physical`, `new_vectors`, numerical `dynamics_deltas`). Absolutely no narrative prose or dialogue allowed at this stage.
+- **Prompt Architecture**: Supplies the `JSON_OUTPUT` and `PRESENT.EMISSION` protocols to enforce Pseudo-JSON `[KEY: VALUE]` bracket state mutations, retaining critical entity attributes including `PRESENT_NON_PHYSICAL`, `ETERNAL_NON_PHYSICAL`, and `FUTURE` standing agenda to ensure accurate physics calculations.
+- **Output Validation**: Restricts return values purely to objective mutation definitions (`present_append_physical`, `new_vectors`, numerical `dynamics_deltas`). Supports direct overwrites, multi-item `[INVENTORY: ...]` aggregation, universal clearing via `[KEY: none/bare/etc]`, and zero-hallucination clothing-to-inventory undress/redress lifecycles.
 
 ### Shot 2: The Actor Pipeline (`render_character`)
 
 - **Objective**: Generates the in-character prose response using localized sensory filters.
-- **Prompt Architecture (Prefix Caching)**: The prompt payload is strictly bifurcated to maximize LLM prefix caching.
+- **Prompt Architecture (Prefix Caching & Epistemic Filter)**: The prompt payload is strictly bifurcated to maximize LLM prefix caching.
   - **`<SYSTEM>`**: A completely static prefix containing eternal identity, narrative style, epistemic physics, and protocols. This achieves a ~100% cache hit rate between turns.
   - **`<FRACTAL_FEED>`**: A volatile suffix appended at the end containing dynamic sliders (`intensity`, `chaos`), `present` state, `past` vector memories, and `future` standing agenda.
+  - **Epistemic Wall**: The User's `[SECRET: ...]` and `[PLAN: ...]` are stripped from `USER_PERSONA` in character prompts, preventing telepathic metagaming.
 - **Format Constraints**: Leverages a dual-layer strategy. It mandates an explicit `<think>` block containing the four-stage cognition sequence, which MUST be explicitly terminated with a closing `</think>` tag before generating exactly two paragraphs of novel-style prose.
 
 ### Shot 3: The Asset Pipeline (`render_visual`)
 
 - **Objective**: Manifests high-contrast, environment-locked graphic items directly matching active status parameters.
-- **Format Constraints**: Assembles clean token strings completely stripped of sentence filler. Forces output aspect-ratio boundaries directly to standard resolution values: `512x512`, `512x768`, `768x512`, or `768x768`.
+- **Format Constraints**: Assembles clean token strings completely stripped of sentence filler. Automatically strips `INVENTORY`, `STASH`, `SECRET`, `PLAN`, and `STATUS` from prompt inputs so carried items are never rendered on the body. Forces output aspect-ratio boundaries directly to standard resolution values: `512x512`, `512x768`, `768x512`, or `768x768`.
 
 ---
 
@@ -93,12 +93,13 @@ Every operational directive compiled inside `PROTOCOL_LIBRARY` must be treated a
 - `COGNITION`: Drives the four distinct planning spaces chronologically (`Phase 1: Baseline`, `Phase 2: Signal`, `Phase 3: Probability`, `Phase 4: State`) inside the thinking wrapper.
 - `HYGIENE`: Strips out clock stamps, loop counters, round labels, and suppresses the legacy "Echo" dialogue pattern.
 - `DATA_HYGIENE`: Enforces compressed brevity, returning structural parameter attributes while entirely dropping roleplay blocks.
-- `AFFIRMATIVE`: Forces description design patterns into active reality frameworks (what _is_, rather than what _is not_).
-- `MOMENTUM`: Demands that prose termination points drop a live hooks (challenges, sensory tension, physical trajectories) to prevent scene stagnation.
-- `MARKDOWN_FORMAT`: Mandates the creative partitioning of prose (_italics_ for reflections/tension, **bold** for structural concepts/intense actions, "quotes" for dialogue).
+- `PRESENT_EMISSION`: Governs Pseudo-JSON state emissions (`[KEY: VALUE]`), atomic clearing, inventory aggregation, and clothing-to-inventory lifecycles.
+- `AFFIRMATIVE`: Forces description design patterns into active reality frameworks (what *is*, rather than what *is not*).
+- `MOMENTUM`: Demands that prose termination points drop live hooks (challenges, sensory tension, physical trajectories) to prevent scene stagnation.
+- `MARKDOWN_FORMAT`: Mandates the creative partitioning of prose (*italics* for reflections/tension, **bold** for structural concepts/intense actions, "quotes" for dialogue).
 - `CINEMATIC_METAPHOR`: Confines structural directions to thematic framing; literal camera terminology is completely banned from appearing in visible prose.
 - `YES_AND`: Requires the model to treat user action variables as unassailable structural truth.
-- `VISUAL_ISOLATION`: Strips out abstract terms, formatting modifiers, and backstories before sending tokens to the image generation array.
+- `VISUAL_ISOLATION`: Strips out abstract terms, formatting modifiers, inventory items, and backstories before sending tokens to the image generation array.
 
 ---
 
@@ -107,9 +108,10 @@ Every operational directive compiled inside `PROTOCOL_LIBRARY` must be treated a
 When formatting character prompt vectors, enforce realistic biological constraints:
 
 1. **Sensory Horizons**: The AI entity's perception ends abruptly at its localized physical barrier. Omniscient tracking is prohibited.
-2. **Null Processing**: Unvoiced thoughts or latent structural properties belonging to alternative personas are treated as dead code.
+2. **Null Processing & Epistemic Wall**: Unvoiced thoughts, user secrets (`[SECRET: ...]`), and latent plans (`[PLAN: ...]`) belonging to alternative personas are filtered out.
 3. **Somatic Calibration**: Suppress broad, repetitive archetype clichés (e.g., continuous proximity shifts, generic physical adjectives). Prioritize distinct interactions with nearby static objects.
 4. **Descriptive Sovereignty**: Entity field enhancement must feature pure third-person affirmative continuous flow blocks. Physical fields are strictly reserved for visual pipeline optimization; non-physical fields drive narrative behavior rules.
+5. **Memory Provenance**: User/lore memories are stamped `usr_` and origin-protected (`is_origin`), bypassing Memory Forge consolidation and gaining a $1.5\times$ relevance multiplier. Rolling session memories are stamped `ai_` and capped at 20 (`PAST_VECTOR_CAP = 20`), respecting the 200 record ceiling.
 
 ---
 
