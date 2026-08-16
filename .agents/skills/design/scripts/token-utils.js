@@ -12,6 +12,7 @@ export const PATHS = {
   designMd: process.env.DESIGN_MD_PATH || path.resolve(__dirname, "../../../../DESIGN.md"),
   designCss: process.env.CSS_PATH || path.resolve(__dirname, "../../../../src/media/design.css"),
   jsBridge: process.env.JS_BRIDGE_PATH || path.resolve(__dirname, "../../../../src/media/tokens.js"),
+  signatureColors: process.env.SIGNATURE_COLORS_PATH || path.resolve(__dirname, "../../../../src/data/definitions/signature-colors.js"),
 };
 
 export const AUTHORITATIVE_CATEGORIES = ["colors", "typography", "rounded", "spacing", "components"];

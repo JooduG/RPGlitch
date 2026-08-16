@@ -1,21 +1,20 @@
 import fs from "fs";
 import yaml from "js-yaml";
-import { execSync } from "child_process";
 import { PATHS, AUTHORITATIVE_CATEGORIES, getCategory } from "./token-utils.js";
 
 /**
- * Runs Prettier over the generated design artifacts.
- * Skipped automatically during test runs via VITEST env flag.
+ * Shared header for every generated artifact. It must always state where the
+ * file came from so nobody is tempted to edit a generated file by hand.
+ * @param {string} rel_path - Workspace-relative path of the generated file.
+ * @returns {string}
  */
-function runFormatter() {
-  if (process.env.NODE_ENV === "test" || process.env.VITEST) return;
-  try {
-    execSync(`npx prettier --write "${PATHS.designCss}" "${PATHS.jsBridge}"`, {
-      stdio: "ignore",
-    });
-  } catch {
-    console.warn("⚠️ Formatting skip encountered.");
-  }
+function generatedHeader(rel_path) {
+  return `/* ============================================================================
+ * [GENERATED] ${rel_path}
+ * DO NOT EDIT DIRECTLY — this file is generated from DESIGN.md by
+ * .agents/skills/design/scripts/sync-css.js (npm run sync:css).
+ * Hand edits are overwritten on the next sync. Edit DESIGN.md instead.
+ * ============================================================================ */`;
 }
 
 /**
@@ -34,9 +33,10 @@ function parseMarkdownDoc() {
 }
 
 /**
- * Flattens the DESIGN.md YAML frontmatter into a flat per-category token map.
+ * Flattens the DESIGN.md YAML frontmatter into a flat per-category token map,
+ * plus the `signatures` list (the canonical vibrant entity colors).
  * @param {Record<string, unknown>} data - The parsed YAML frontmatter object.
- * @returns {Record<string, Record<string, string>>} Keyed by authoritative category.
+ * @returns {Record<string, Record<string, string> | string[]>} Keyed by authoritative category + signatures.
  */
 function flattenFrontmatter(data) {
   const result = Object.fromEntries(AUTHORITATIVE_CATEGORIES.map((cat) => [cat, {}]));
@@ -50,7 +50,8 @@ function flattenFrontmatter(data) {
     if (!obj || typeof obj !== "object") return;
 
     Object.entries(obj).forEach(([key, value]) => {
-      if (obj === data && ["name", "version", "description"].includes(key)) return;
+      // Top-level frontmatter metadata and the signatures list never become CSS tokens.
+      if (obj === data && ["name", "version", "description", "signatures"].includes(key)) return;
 
       const category = obj === data && AUTHORITATIVE_CATEGORIES.includes(key) ? key : active_category;
 
@@ -67,68 +68,64 @@ function flattenFrontmatter(data) {
     });
   }
   traverse(data);
+
+  const raw_sigs = data.signatures;
+  if (Array.isArray(raw_sigs)) {
+    result.signatures = raw_sigs.filter((s) => typeof s === "string");
+  } else if (raw_sigs && typeof raw_sigs === "object") {
+    result.signatures = Object.keys(raw_sigs);
+  } else {
+    result.signatures = [];
+  }
   return result;
 }
 
 /**
- * Serializes the flat token data into src/media/tokens.js (TOKENS, PALETTE, PALETTE_VARS).
- * @param {Record<string, Record<string, string>>} flat_data - Per-category token map.
+ * Serializes DESIGN.md into src/media/tokens.js (TOKENS) and
+ * src/data/definitions/signature-colors.js (SIGNATURE_COLORS). Both are written
+ * in full — there is no hand-maintained section anymore.
+ * @param {Record<string, Record<string, string> | string[]>} flat_data - Per-category token map.
  */
 function buildJsBridge(flat_data) {
-  const { tokens, palette, palette_vars } = AUTHORITATIVE_CATEGORIES.reduce(
-    (acc, category) => {
-      Object.entries(flat_data[category] || {})
-        .sort()
-        .forEach(([name, value]) => {
-          acc.tokens[name] = value;
-          if (category === "colors" && typeof value === "string" && value.startsWith("#")) {
-            const cleanName = name.startsWith("color-") ? name.slice(6) : name;
-            const label = cleanName
-              .split("-")
-              .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-              .join(" ");
-            acc.palette[label] = value;
-            acc.palette_vars[value] = `var(--${name})`;
-          }
-        });
-      return acc;
-    },
-    { tokens: {}, palette: {}, palette_vars: {} },
-  );
-
-  const new_blocks = `export const TOKENS = ${JSON.stringify(tokens, null, 2)};
-
-export const PALETTE = ${JSON.stringify(palette, null, 2)};
-
-export const PALETTE_VARS = ${JSON.stringify(palette_vars, null, 2)};`;
-
-  if (fs.existsSync(PATHS.jsBridge)) {
-    let content = fs.readFileSync(PATHS.jsBridge, "utf8");
-    const regex = /(\/\/ --- BEGIN AUTO-GENERATED TOKENS ---)[\s\S]*?(\/\/ --- END AUTO-GENERATED TOKENS ---)/;
-    if (regex.test(content)) {
-      content = content.replace(regex, `$1\n${new_blocks}\n$2`);
-      fs.writeFileSync(PATHS.jsBridge, content);
-    } else {
-      console.warn("⚠️ Could not find auto-generated boundaries in tokens.js. Sync skipped for JS bridge.");
+  const tokens = {};
+  for (const category of AUTHORITATIVE_CATEGORIES) {
+    for (const [name, value] of Object.entries(flat_data[category] || {}).sort()) {
+      tokens[name] = value;
     }
-  } else {
-    // Fallback if tokens.js doesn't exist yet
-    const output = `// --- BEGIN AUTO-GENERATED TOKENS ---\n${new_blocks}\n// --- END AUTO-GENERATED TOKENS ---\n`;
-    fs.writeFileSync(PATHS.jsBridge, output);
   }
+
+  const colors = flat_data.colors || {};
+  const signature_names = (flat_data.signatures || [])
+    .map((name) => {
+      if (!(name in colors)) {
+        throw new Error(`[ERROR] signatures lists unknown color token "${name}". Fix DESIGN.md.`);
+      }
+      if (!String(colors[name]).startsWith("#")) {
+        throw new Error(`[ERROR] signature "${name}" must reference a hex color token (got "${colors[name]}"). Fix DESIGN.md.`);
+      }
+      return name
+        .replace(/^color-/, "")
+        .split("-")
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(" ");
+    })
+    .sort();
+
+  const tokens_output = `${generatedHeader("src/media/tokens.js")}\n\nexport const TOKENS = ${JSON.stringify(tokens, null, 2)};\n`;
+  fs.writeFileSync(PATHS.jsBridge, tokens_output);
+
+  const signatures_output = `${generatedHeader("src/data/definitions/signature-colors.js")}\n\nexport const SIGNATURE_COLORS = ${JSON.stringify(signature_names, null, 2)};\n`;
+  fs.writeFileSync(PATHS.signatureColors, signatures_output);
 }
 
 /**
- * Forward sync: reads DESIGN.md frontmatter and writes design.css + tokens.js.
+ * Forward sync: reads DESIGN.md frontmatter and writes design.css + tokens.js + signature-colors.js.
  */
 export function syncToCss() {
   const { data, body } = parseMarkdownDoc();
   const flat_data = flattenFrontmatter(data);
 
-  const css_header = `/* ============================================================================
- * [GENERATED] src/media/design.css
- * DO NOT EDIT DIRECTLY. Sovereign Source: DESIGN.md
- * ============================================================================ */\n\n@import "tailwindcss";\n@source "../";\n\n@theme {`;
+  const css_header = `${generatedHeader("src/media/design.css")}\n\n@import "tailwindcss";\n@source "../";\n\n@theme {`;
 
   const css_properties = AUTHORITATIVE_CATEGORIES.map((category) => {
     const category_header = `  /* --- ${category.toUpperCase()} --- */`;
@@ -147,7 +144,6 @@ export function syncToCss() {
 
   fs.writeFileSync(PATHS.designCss, css_output);
   buildJsBridge(flat_data);
-  runFormatter();
 }
 
 if (process.argv[1] && process.argv[1].replace(/\\/g, "/").endsWith(".agents/skills/design/scripts/sync-css.js")) {

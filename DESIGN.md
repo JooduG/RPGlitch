@@ -31,6 +31,22 @@ colors:
   color-rusty-orange: "#f97316"
   color-twilight-violet: "#c084fc"
   color-void-black: "#000"
+signatures:
+  - color-adrenaline-pink
+  - color-crimson-red
+  - color-deep-indigo
+  - color-electric-cyan
+  - color-emerald-green
+  - color-forest-green
+  - color-lemon-yellow
+  - color-proud-purple
+  - color-pumpkin-amber
+  - color-rusty-orange
+  - color-scientific-teal
+  - color-soft-rose
+  - color-space-blue
+  - color-toxic-green
+  - color-twilight-violet
 typography:
   font-base: '"Inter", sans-serif'
   font-heading: '"Ubuntu", sans-serif'
@@ -83,12 +99,8 @@ components:
   scale-lift: "1.02"
   scale-pulse: "1.05"
   scale-sink: "0.96"
-  shadow-ghost: |-
-    0 var(--spacing-pixel) var(--spacing-pixel)
-    rgb(from var(--color-void-black) r g b / var(--opacity-ghost))
-  shadow-standard: |-
-    0 var(--spacing-unit) calc(var(--spacing-unit) * 4)
-    rgb(from var(--color-void-black) r g b / var(--opacity-whisper))
+  shadow-ghost: 0 var(--spacing-pixel) var(--spacing-pixel) rgb(from var(--color-void-black) r g b / var(--opacity-ghost))
+  shadow-standard: 0 var(--spacing-unit) calc(var(--spacing-unit) * 4) rgb(from var(--color-void-black) r g b / var(--opacity-whisper))
   shadow-ambient: 0 0 calc(var(--spacing-unit) * 5) var(--color-void-black)
   signature-glow: 0 0 calc(var(--spacing-unit) * 4) var(--color-frozen)
   spring-damping-default: "0.8"
@@ -218,9 +230,14 @@ Use the following H2/H3 structure for specific screen prompts to ensure the Stit
 The **Weaver** is the bridge between the Architect's intent and the Engine's reality.
 
 1. **The Source**: All changes start in **DESIGN.md**.
-2. **The Sync**: `npm run sync` triggers the Weaver to generate `design.css` and `tokens.js`.
+2. **The Sync**: `npm run sync` triggers the Weaver to generate `design.css`, `src/media/tokens.js`, and `src/data/definitions/signature-colors.js` from this file.
 3. **The Audit**: `npm run audit:design` (The Warden) ensures 100% compliance across the codebase.
 4. **The Handoff**: Automatic build gate verification secures token compliance prior to deployment.
+
+The `signatures` frontmatter block names the vibrant entity colors that become
+`SIGNATURE_COLORS` — the canonical set of valid entity signature colors. It is
+regenerated into `src/data/definitions/signature-colors.js`; never edit that
+file by hand.
 
 ---
 

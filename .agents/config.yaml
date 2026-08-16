@@ -97,9 +97,12 @@ src:
     index.html: src/index.html
     main.js: src/main.js
     app.svelte: src/App.svelte
-    # WARNING: Do NOT manually edit design.css!
-    # It is auto-generated via src/media/tokens.js from the source of truth: DESIGN.md
+    # WARNING: design.css, tokens.js and data/definitions/signature-colors.js are
+    # GENERATED from DESIGN.md by .agents/skills/design/scripts/sync-css.js.
+    # Never edit them directly — edit DESIGN.md and run `npm run sync:css`.
     design.css: src/media/design.css
+    tokens.js: src/media/tokens.js
+    signature-colors.js: src/data/definitions/signature-colors.js
   intelligence: src/intelligence/
   platform: src/platform/
   ui:

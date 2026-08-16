@@ -19,6 +19,23 @@ vi.mock("@data", () => ({
   VISUAL_STYLES: {
     none: { id: "none", name: "No Visual Style", category: "None", tags: ["none"], visual_engine: "", negative_prompt: "" },
   },
+  SIGNATURE_COLORS: [
+    "Adrenaline Pink",
+    "Crimson Red",
+    "Deep Indigo",
+    "Electric Cyan",
+    "Emerald Green",
+    "Forest Green",
+    "Lemon Yellow",
+    "Proud Purple",
+    "Pumpkin Amber",
+    "Rusty Orange",
+    "Scientific Teal",
+    "Soft Rose",
+    "Space Blue",
+    "Toxic Green",
+    "Twilight Violet",
+  ],
 }));
 
 vi.mock("@platform", () => ({

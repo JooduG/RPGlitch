@@ -2,7 +2,7 @@
  * Unit tests for Tokens and Color Generation logic
  * Ported from legacy entities.test.js
  */
-import { get_signature_color, get_signature_label, get_deterministic_color } from "./tokens.js";
+import { get_signature_color, get_signature_label, get_deterministic_color, SIGNATURE_COLORS, PALETTE } from "./palette.js";
 import { aesthetic_resolver } from "./image-aesthetics.js";
 import { describe, expect, test } from "vitest";
 describe("Tokens Color Generation", () => {
@@ -91,6 +91,20 @@ describe("Tokens Color Generation", () => {
     });
     test("get_signature_label returns safe default for null entity", () => {
       expect(get_signature_label(null)).toBe("Frozen");
+    });
+  });
+
+  describe("Signature palette consistency", () => {
+    test("every signature color name has a hex entry in PALETTE", () => {
+      for (const name of SIGNATURE_COLORS) {
+        expect(PALETTE[name]).toBeTruthy();
+      }
+    });
+
+    test("no signature color resolves to a background or neutral tone", () => {
+      for (const name of SIGNATURE_COLORS) {
+        expect(name).not.toMatch(/background|gradient|chalk|frisk|frozen|glass|gunmetal|white|black/i);
+      }
     });
   });
 

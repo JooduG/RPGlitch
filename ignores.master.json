@@ -29,6 +29,9 @@
     "**/package-lock.json",
     "**/pnpm-lock.yaml",
     "**/public/assets/**",
+    "src/data/definitions/signature-colors.js",
+    "src/media/design.css",
+    "src/media/tokens.js",
     "**/*scribbles**",
     "**/*scrobbles**",
     "**/templates/**",
@@ -56,7 +59,10 @@
       "**/Thumbs.db": true,
       "**/yarn.lock": true,
       "**/src/**/index.js": true,
-      "**/.gemini/config/skills/**/templates": true
+      "**/.gemini/config/skills/**/templates": true,
+      "src/data/definitions/signature-colors.js": true,
+      "src/media/design.css": true,
+      "src/media/tokens.js": true
     }
   }
 }

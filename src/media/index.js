@@ -9,8 +9,8 @@ export {
   SIGNATURE_COLORS,
   PALETTE,
   PALETTE_VARS,
-  TOKENS,
-} from "./tokens.js";
+} from "./palette.js";
+export { TOKENS } from "./tokens.js";
 export { IMAGE_TIERS, DEFAULT_IMAGE_TIER, normalize_image_tier, get_resolution } from "./image-tiers.js";
 export { NEGATIVE_PROMPT, prompt_templates, parse_llm_refine_response, clean_image_prompt } from "./image-prompts.js";
 export {

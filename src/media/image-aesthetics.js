@@ -9,7 +9,7 @@
 
 import { VISUAL_STYLES } from "@data";
 import { CLOTHING_KEYS, safe_parse_pseudo_json, state_bridge } from "@utils";
-import { get_signature_label, PALETTE } from "./tokens.js";
+import { get_signature_label, PALETTE } from "./palette.js";
 
 /**
  * Keys that must NEVER reach an image-generation prompt. Carried/stashed items

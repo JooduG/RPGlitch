@@ -4,7 +4,8 @@
  * Enforces the strict "Twin-Cylinder" data structure across the app.
  * ZERO BACKWARDS COMPATIBILITY.
  */
-import { pick_random, generate_uuid, SIGNATURE_COLORS } from "@utils";
+import { pick_random, generate_uuid } from "@utils";
+import { SIGNATURE_COLORS } from "./definitions/signature-colors.js";
 import { security } from "@platform";
 
 const sanitize_html = (/** @type {any} */ val) => security.sanitize(val);

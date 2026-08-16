@@ -112,7 +112,9 @@ function auditFile(filePath) {
  */
 export function auditCodebaseTokens() {
   const definedMap = parseDefinedTokens();
-  const source_files = getSourceFiles(PATHS.src).filter((file) => file !== PATHS.designCss && file !== PATHS.jsBridge);
+  const source_files = getSourceFiles(PATHS.src).filter(
+    (file) => file !== PATHS.designCss && file !== PATHS.jsBridge && file !== PATHS.signatureColors,
+  );
 
   let total_failures = 0;
 
@@ -152,7 +154,7 @@ export function auditCodebaseTokens() {
  */
 export function findUnusedTokens() {
   const definedMap = parseDefinedTokens();
-  const source_files = getSourceFiles(PATHS.src).filter((f) => f !== PATHS.designCss && f !== PATHS.jsBridge);
+  const source_files = getSourceFiles(PATHS.src).filter((f) => f !== PATHS.designCss && f !== PATHS.jsBridge && f !== PATHS.signatureColors);
 
   const combined_content = source_files.map((f) => fs.readFileSync(f, "utf8")).join("\n");
 
