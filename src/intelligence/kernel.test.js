@@ -7,6 +7,7 @@ import { temporal_engine } from "./temporal.js";
 import { llm_service } from "@platform";
 import { session_driver } from "@engine";
 import { visual_engine } from "@media";
+import { stories } from "@data";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const _mock_runtime = {
@@ -445,6 +446,76 @@ describe("gamemaster (Intelligence Kernel)", () => {
     expect(prompt_builder.build_character_prompt).toHaveBeenCalled();
     expect(llm_service.generate).toHaveBeenCalled();
     expect(result.response).toBe("Identified.");
+  });
+
+  it("execute_turn() auto-dispatches the epilogue when the Director declares CONCLUDED", async () => {
+    const mock_payload = {
+      input: "We did it.",
+      type: "simulation",
+      round: 1,
+      entities: { AI: { name: "Viper" }, USER: { name: "Ghost" }, FRACTAL: { name: "Void" } },
+      view_id: "global",
+      simulation_log: "",
+      raw_messages: [],
+      meta: { timestamp: new Date().toISOString() },
+    };
+
+    vi.mocked(context_builder.build_context).mockResolvedValue(mock_payload);
+    vi.mocked(prompt_builder.build_director_prompt).mockReturnValue({ system: "D", task: "T" });
+    vi.mocked(prompt_builder.build_character_prompt).mockReturnValue({
+      system: "C",
+      task: "T",
+      meta: { ai: {}, fractal: {}, flags: [], vectors: [] },
+    });
+    vi.mocked(prompt_builder.build_epilogue).mockReturnValue({ system: "E", task: "ET" });
+    vi.mocked(session_driver.load_log).mockResolvedValue([]);
+    vi.mocked(llm_service.generate)
+      .mockResolvedValueOnce('{"story_status":"CONCLUDED","speaker":"ai","keywords":[],"directive":"","trigger_image":"false"}')
+      .mockResolvedValueOnce("Final words.")
+      .mockResolvedValueOnce("And so it ends.");
+
+    const conclude_spy = vi.spyOn(stories, "conclude").mockResolvedValue(undefined);
+
+    const result = await gamemaster.execute_turn("story-123", { input: "We did it.", role: "ai" });
+
+    expect(result.response).toBe("Final words.");
+    expect(prompt_builder.build_epilogue).toHaveBeenCalled();
+    expect(session_driver.log_message).toHaveBeenCalledWith(
+      expect.stringContaining("And so it ends."),
+      "fractal",
+      "Void",
+      expect.objectContaining({ meta: expect.objectContaining({ is_epilogue: true }) }),
+    );
+    expect(conclude_spy).toHaveBeenCalledWith("story-123");
+    conclude_spy.mockRestore();
+  });
+
+  it("execute_turn() does not auto-dispatch an epilogue for IN_PROGRESS turns", async () => {
+    const mock_payload = {
+      input: "Hello",
+      type: "simulation",
+      round: 1,
+      entities: { AI: { name: "Viper" }, USER: { name: "Ghost" }, FRACTAL: { name: "Void" } },
+      view_id: "global",
+      simulation_log: "",
+      raw_messages: [],
+      meta: { timestamp: new Date().toISOString() },
+    };
+
+    vi.mocked(context_builder.build_context).mockResolvedValue(mock_payload);
+    vi.mocked(prompt_builder.build_director_prompt).mockReturnValue({ system: "D", task: "T" });
+    vi.mocked(prompt_builder.build_character_prompt).mockReturnValue({
+      system: "C",
+      task: "T",
+      meta: { ai: {}, fractal: {}, flags: [], vectors: [] },
+    });
+    vi.mocked(llm_service.generate)
+      .mockResolvedValueOnce('{"story_status":"IN_PROGRESS","speaker":"ai","keywords":[],"directive":"","trigger_image":"false"}')
+      .mockResolvedValueOnce("Identified.");
+
+    await gamemaster.execute_turn("story-123", { input: "Hello", role: "ai" });
+
+    expect(prompt_builder.build_epilogue).not.toHaveBeenCalled();
   });
 
   it("execute_turn() precomputes the semantic context embedding before prompt building", async () => {

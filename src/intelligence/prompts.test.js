@@ -470,6 +470,32 @@ describe("prompt_builder (Refactored)", () => {
       const prologue = prompt_builder.build_prologue(base_payload, base_snapshot);
       expect(prologue.task).not.toContain("<SOMATIC_DIRECTIVES>");
     });
+
+    it("nudges the Director toward fractal narration on non-verbal environmental turns", () => {
+      const env_payload = { ...base_payload, input: "I press my palm flat against the cold iron gate and wait." };
+      const result = prompt_builder.build_director_prompt(env_payload, base_snapshot);
+      expect(result.task).toContain("<USER_ACTION_NOTE>");
+      expect(result.task).toContain('"speaker" to "fractal"');
+      expect(result.system).toContain("SPEAKER_ROUTING");
+    });
+
+    it("does not nudge fractal narration when the user turn contains dialogue", () => {
+      const dialogue_payload = { ...base_payload, input: '"Open the gate, Benedict."' };
+      const result = prompt_builder.build_director_prompt(dialogue_payload, base_snapshot);
+      expect(result.task).not.toContain("<USER_ACTION_NOTE>");
+    });
+
+    it("includes the pacing-calibration guidance in the character task", () => {
+      const result = prompt_builder.build_character_prompt(base_payload, base_snapshot, {});
+      expect(result.task).toContain("Roughly match the length and energy of the user's message");
+      expect(result.task).not.toContain("roughly 2 paragraphs");
+    });
+
+    it("no longer requires literal bracket hooks in the scene-continuation protocol", () => {
+      const result = prompt_builder.build_scene_narrator_prompt(base_payload, base_snapshot, {});
+      expect(result.task).toContain("dominant hook");
+      expect(result.task).not.toContain("[Statement]");
+    });
   });
 
   describe("Integration: XML Block Verification", () => {

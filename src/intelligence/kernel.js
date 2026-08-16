@@ -7,7 +7,7 @@
  * Transport Layer (llm_service) into a single execution pipeline.
  */
 
-import { db, entities } from "@data";
+import { db, entities, stories, detox_prose } from "@data";
 import { generate_uuid as generateUUID, create_job_queue, state_bridge } from "@utils";
 import { visual_engine, evaluate_image_trigger, IMAGE_TRIGGER } from "@media";
 import {
@@ -561,6 +561,29 @@ function build_retrieval(vectors) {
     .sort((a, b) => (b._relevance ?? -Infinity) - (a._relevance ?? -Infinity));
 }
 
+/**
+ * Scrubs banned somatic idioms out of Director state mutations before they are
+ * applied, so clichéd phrases never seed prompt history for future turns
+ * (the "Director crutch echo" loop).
+ * @param {any} mutations
+ * @returns {any}
+ */
+function scrub_state_mutations(mutations) {
+  if (!mutations || typeof mutations !== "object") return mutations;
+  for (const key of ["AI_CHARACTER", "USER_PERSONA", "FRACTAL"]) {
+    const m = mutations[key];
+    if (m?.state_append && typeof m.state_append === "object") {
+      if (typeof m.state_append.physical === "string" && m.state_append.physical.trim()) {
+        m.state_append.physical = detox_prose(m.state_append.physical, "plain");
+      }
+      if (typeof m.state_append.non_physical === "string" && m.state_append.non_physical.trim()) {
+        m.state_append.non_physical = detox_prose(m.state_append.non_physical, "plain");
+      }
+    }
+  }
+  return mutations;
+}
+
 export const gamemaster = {
   /**
    * CAPTURE DYNAMICS DELTA
@@ -724,6 +747,22 @@ export const gamemaster = {
   },
 
   /**
+   * 🧹 EPILOGUE PRESENCE CHECK
+   * Returns whether the story's log already contains an epilogue entry, so the
+   * auto-dispatch hook and manual END STORY both no-op after conclusion.
+   * @param {string|number} story_id
+   * @returns {Promise<boolean>}
+   */
+  async _has_epilogue(story_id) {
+    try {
+      const entries = await state_bridge.session_driver.load_log(story_id);
+      return entries.some((e) => e?.meta?.is_epilogue === true);
+    } catch (_err) {
+      return false;
+    }
+  },
+
+  /**
    * EXECUTE TURN
    * The primary simulation loop for a narrative turn.
    * @param {string} story_id
@@ -866,8 +905,9 @@ export const gamemaster = {
       // always in canonical form before any routing decisions are made.
       director_data = normalize_director_data(director_data);
 
-      // 4.1 Apply State Mutations
-      const entity_mutations = director_data.mutations || director_data;
+      // 4.1 Apply State Mutations (Director-scrubbed so clichéd somatic idioms
+      // never seed prompt history for future turns)
+      const entity_mutations = scrub_state_mutations(director_data.mutations || director_data);
 
       if (entity_mutations.AI_CHARACTER && state_bridge.runtime.active_ai) {
         temporal_engine.apply_state_mutations(state_bridge.runtime.active_ai, entity_mutations.AI_CHARACTER, state_bridge.session_driver);
@@ -1111,7 +1151,11 @@ export const gamemaster = {
       }
       final_meta.structural_errors = state_bridge.runtime.structural_errors;
 
-      await state_bridge.session_driver.log_message(validation_result.text, generation_role, character_name, {
+      // Write-time detox: scrub banned tropes from the stored payload so the
+      // database log and exported .md transcripts match the display layer.
+      const persisted_text = detox_prose(validation_result.text, "plain");
+
+      await state_bridge.session_driver.log_message(persisted_text, generation_role, character_name, {
         turn_type: "AI_TURN",
         meta: {
           id: node_id,
@@ -1131,7 +1175,23 @@ export const gamemaster = {
       state_bridge.simulation_state.phase = "idle";
 
       await temporal_engine.consolidate(state_bridge.session_driver, db, entities, state_bridge.runtime, state_bridge.app);
-      return { response: validation_result.text, meta: final_meta };
+
+      // 8.5. AUTO-DISPATCH EPILOGUE — the Director declared the quest resolved
+      // (victory or irrevocable collapse). Deliver the epilogue and mark the
+      // story concluded without needing the manual END STORY button.
+      const story_status = director_data?.story_status;
+      if (story_status === "CONCLUDED" || story_status === "COLLAPSED") {
+        try {
+          if (!(await this._has_epilogue(story_id))) {
+            state_bridge.app.log(`[GameMaster] Director marked the story ${story_status} — auto-dispatching epilogue.`, "system");
+            await this.execute_epilogue(story_id);
+            await stories.conclude(story_id);
+          }
+        } catch (err) {
+          state_bridge.app.log(`[GameMaster] Auto-epilogue failed: ${err.message || err}`, "error");
+        }
+      }
+      return { response: persisted_text, meta: final_meta };
     } finally {
       state_bridge.app.busy = false;
       state_bridge.app.end_stream();
@@ -1276,6 +1336,10 @@ export const gamemaster = {
    * @returns {Promise<string | null>}
    */
   async execute_epilogue(story_id) {
+    if (await this._has_epilogue(story_id)) {
+      state_bridge.app.log("[GameMaster] Epilogue already present — skipping duplicate dispatch.", "system");
+      return null;
+    }
     const clean_entities = state_bridge.runtime.snapshot_entities;
     const current_dynamics = {
       ai: state_bridge.runtime.ai || { intensity: 50, openness: 50, chaos: 50, affinity: 50 },
@@ -1320,7 +1384,7 @@ export const gamemaster = {
       }
     }
 
-    await state_bridge.session_driver.log_message(response, "fractal", fractal_name, {
+    await state_bridge.session_driver.log_message(detox_prose(response, "plain"), "fractal", fractal_name, {
       turn_type: "SYSTEM_TURN",
       meta: {
         id: node_id,

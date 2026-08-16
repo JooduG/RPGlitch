@@ -31,4 +31,10 @@ describe("detox_prose()", () => {
     expect(detox_prose("He leaned in the doorway, watching her.")).toContain("leaned in the doorway");
     expect(detox_prose("The room was devoid of light.")).toContain("devoid of");
   });
+
+  it("scrubs the secondary sensory crutch 'metallic tang' (near-miss from the stress test)", () => {
+    expect(detox_prose("A metallic tang flooded his mouth.")).not.toMatch(/metallic tang/i);
+    expect(detox_prose("The air carried a metallic tang.")).not.toMatch(/tang/i);
+    expect(detox_prose("Metallic tang on the tongue.")).not.toMatch(/metallic/i);
+  });
 });

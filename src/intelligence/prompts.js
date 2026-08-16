@@ -186,6 +186,24 @@ function format_dynamics_attrs(dynObj) {
 }
 
 /**
+ * Detects a non-verbal, environmental user turn — no quoted dialogue, with
+ * spatial/locational focus — and returns a hint nudging the Director to route
+ * the beat to the fractal narrator. Returns "" for dialogue-heavy or
+ * character-facing turns.
+ * @param {string|null|undefined} input
+ * @returns {string}
+ */
+function non_verbal_environmental_hint(input) {
+  if (!input?.trim()) return "";
+  const has_dialogue = /["'“”‘’]/.test(input);
+  if (has_dialogue) return "";
+  const spatial_verbs = /\b(step|walk|enter|approach|study|examine|press|watch|observe|descend|ascend|peer|reach|touch|grip|lean|kneel|stand|wait|listen|smell|scan|sweep|climb|move|circle|bend|follow|open|close|hold|stare|gaze|rest|push|pull|turn|edge|halt|pause|trail|settle|pause|linger)\b/i;
+  const spatial_nouns = /\b(door|gate|wall|room|hall|cave|forest|vault|stair|passage|corridor|window|floor|ceiling|rock|stone|water|river|bridge|tower|street|alley|field|sky|wind|rain|shadow|light|threshold|lock|mechanism|gear|wheel|conduit|tunnel|arch|column|altar|seal|cylinder|crevice|spillway|belly|deeps|mouth|chamber|alcove|ledge|ledge|court|yard|keep)\b/i;
+  if (!spatial_verbs.test(input) && !spatial_nouns.test(input)) return "";
+  return `<USER_ACTION_NOTE>This turn is a non-verbal, environmental action. Strongly consider setting "speaker" to "fractal" so the world itself narrates the scene — unless the AI character should react directly.</USER_ACTION_NOTE>`;
+}
+
+/**
  * Director prompt compiler (Shot 1).
  * @param {any} params
  * @returns {{ system: string, task: string }}
@@ -196,6 +214,7 @@ function render_director({ round, entities, input, render_accessors, compressed_
     "AGENCY.FICTIONAL_LICENSE",
     "DIRECTOR.CONTINUITY",
     "DIRECTOR.PLOT_DRIVE",
+    "DIRECTOR.SPEAKER_ROUTING",
     "DIRECTOR.IMAGE_TRIGGERS",
     "PRESENT.EMISSION",
   ]
@@ -265,6 +284,7 @@ ${(() => {
 <TASK>
     Evaluate state mutations caused by ${input?.trim() ? "<USER_ACTION>" : "the current situation"}.
     Decide the active speaker: "ai" (the AI_CHARACTER speaks), "fractal" (the FRACTAL world narrates the scene), or "npc:<id>" (a specific in-scene NPC). Default "ai".
+    ${non_verbal_environmental_hint(input)}
     Evaluate whether the overarching story quest reached victory (story_status "CONCLUDED") or irrevocable tragedy ("COLLAPSED"); otherwise keep "IN_PROGRESS".
     Record your reasoning inside "_thought_process" and return a single valid JSON object following this exact schema:
     ${DIRECTOR_JSON_SCHEMA}

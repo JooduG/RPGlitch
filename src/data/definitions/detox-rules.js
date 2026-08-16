@@ -456,6 +456,15 @@ export const DETOX_RULES = [
     },
   },
   {
+    regex: /\bmetallic\s+tang\b/gi,
+    replace: {
+      plain: ["sharp metal bite", "raw iron taste", "hard copper edge"],
+      ornate: ["a bitter metallic resonance", "an iron aftertaste on the tongue"],
+      raw: ["flat iron bite", "grit of old blood and rust"],
+      clinical: ["ferrous gustatory sensation", "metallic taste"],
+    },
+  },
+  {
     regex: /\bphantom\s+(itch|ache|pain)\b/gi,
     replace: {
       plain: ["deep ache", "dull throbbing", "lingering tension"],
