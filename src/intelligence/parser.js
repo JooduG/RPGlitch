@@ -13,6 +13,32 @@
 import { collapse_history, escape_xml, safe_parse_pseudo_json, strip_cognition_blocks } from "@utils";
 
 /**
+ * Evaluates if a given text should be refused based on safety or policy rules.
+ * Detects common LLM refusal phrasing in generated output.
+ * @param {string} text
+ * @returns {boolean}
+ */
+export const check_refusal = (text) => {
+  if (!text) return false;
+  const lower = String(text).toLowerCase();
+  const REFUSAL_TRIGGERS = [
+    "i cannot generate",
+    "i can't generate",
+    "i'm unable to assist",
+    "i am unable to assist",
+    "as an ai",
+    "as a language model",
+    "i'm sorry, but i can",
+    "i can't help with that",
+    "i cannot help with that",
+    "i'm not able to provide",
+    "i am not able to provide",
+    "i cannot create content that",
+  ];
+  return REFUSAL_TRIGGERS.some((trigger) => lower.includes(trigger));
+};
+
+/**
  * Extracts <think> blocks from text.
  * Handles partial tags during streaming and merges multiple blocks cleanly.
  * @param {string|null|undefined} text

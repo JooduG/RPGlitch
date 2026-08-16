@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { fetch_web, sanitize_llm } from "./transport.js";
+import { fetch_web, sanitize_llm, validate_url } from "./transport.js";
 
 vi.mock("@utils", async (importOriginal) => {
   const actual = await importOriginal();
@@ -133,5 +133,36 @@ describe("fetch_web", () => {
   it("rejects non-image responses in as_image mode", async () => {
     stub_fetch_web(vi.fn(async () => ({ ok: true, status: 200, blob: async () => new Blob(["<html>"], { type: "text/html" }) })));
     await expect(fetch_web("https://example.com/page", { as_image: true })).rejects.toThrow(/not an image/);
+  });
+});
+
+describe("validate_url", () => {
+  it("accepts https URLs and normalizes them", () => {
+    expect(validate_url("https://example.com/wiki/Vael")).toBe("https://example.com/wiki/Vael");
+  });
+
+  it("rejects non-https schemes by default", () => {
+    expect(() => validate_url("http://example.com")).toThrow(/Blocked URL scheme "http:"/);
+    expect(() => validate_url("javascript:alert(1)")).toThrow(/Blocked URL scheme "javascript:"/);
+    expect(() => validate_url("data:text/html,hi")).toThrow(/Blocked URL scheme "data:"/);
+    expect(() => validate_url("file:///etc/passwd")).toThrow(/Blocked URL scheme "file:"/);
+  });
+
+  it("allows http when explicitly requested", () => {
+    expect(validate_url("http://example.com", { allow_http: true })).toBe("http://example.com/");
+  });
+
+  it("rejects malformed and empty URLs", () => {
+    expect(() => validate_url("")).toThrow(/URL is required/);
+    expect(() => validate_url("   ")).toThrow(/URL is required/);
+    expect(() => validate_url("not a url")).toThrow(/Invalid URL/);
+    expect(() => validate_url(null)).toThrow(/URL is required/);
+  });
+
+  it("enforces an optional host allow-list", () => {
+    const options = { allowed_hosts: ["fandom.com", "wiki.org"] };
+    expect(validate_url("https://character.fandom.com/wiki/Vael", options)).toContain("fandom.com");
+    expect(() => validate_url("https://evil.example.com/page", options)).toThrow(/not on the allowed list/);
+    expect(() => validate_url("https://notfandom.com/x", options)).toThrow(/not on the allowed list/);
   });
 });

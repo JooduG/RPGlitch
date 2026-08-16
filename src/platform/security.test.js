@@ -212,35 +212,4 @@ describe("validation.js", () => {
       await expect(security.validate_image(file)).rejects.toThrow(/Security verification failed/);
     });
   });
-
-  describe("validate_url()", () => {
-    test("accepts https URLs and normalizes them", () => {
-      expect(security.validate_url("https://example.com/wiki/Vael")).toBe("https://example.com/wiki/Vael");
-    });
-
-    test("rejects non-https schemes by default", () => {
-      expect(() => security.validate_url("http://example.com")).toThrow(/Blocked URL scheme "http:"/);
-      expect(() => security.validate_url("javascript:alert(1)")).toThrow(/Blocked URL scheme "javascript:"/);
-      expect(() => security.validate_url("data:text/html,hi")).toThrow(/Blocked URL scheme "data:"/);
-      expect(() => security.validate_url("file:///etc/passwd")).toThrow(/Blocked URL scheme "file:"/);
-    });
-
-    test("allows http when explicitly requested", () => {
-      expect(security.validate_url("http://example.com", { allow_http: true })).toBe("http://example.com/");
-    });
-
-    test("rejects malformed and empty URLs", () => {
-      expect(() => security.validate_url("")).toThrow(/URL is required/);
-      expect(() => security.validate_url("   ")).toThrow(/URL is required/);
-      expect(() => security.validate_url("not a url")).toThrow(/Invalid URL/);
-      expect(() => security.validate_url(null)).toThrow(/URL is required/);
-    });
-
-    test("enforces an optional host allow-list", () => {
-      const options = { allowed_hosts: ["fandom.com", "wiki.org"] };
-      expect(security.validate_url("https://character.fandom.com/wiki/Vael", options)).toContain("fandom.com");
-      expect(() => security.validate_url("https://evil.example.com/page", options)).toThrow(/not on the allowed list/);
-      expect(() => security.validate_url("https://notfandom.com/x", options)).toThrow(/not on the allowed list/);
-    });
-  });
 });

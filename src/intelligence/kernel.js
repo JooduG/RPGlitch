@@ -10,8 +10,8 @@
 import { db, entities, stories, detox_prose } from "@data";
 import { generate_uuid as generateUUID, create_job_queue, state_bridge } from "@utils";
 import { visual_engine, resolve_image_trigger, fire_image_trigger, sweep_stale_ghosts, IMAGE_RESOLVE_TIMEOUT_MS } from "@media";
-import { strip_cognition_blocks } from "./parser.js";
-import { llm_service, looks_truncated, security, raw_to_text, raw_stop_reason } from "@platform";
+import { strip_cognition_blocks, check_refusal } from "./parser.js";
+import { llm_service, looks_truncated, raw_to_text, raw_stop_reason } from "@platform";
 import { context_builder } from "./context.js";
 import { dynamics_engine, compute_deltas } from "./dynamics.js";
 import {
@@ -102,7 +102,7 @@ function strip_unmatched_think_closures(text) {
 function validate_and_repair_response(response) {
   const result = { text: response || "", violated: false, refused: false, structural_repair: false };
 
-  if (security.check_refusal(response)) {
+  if (check_refusal(response)) {
     result.refused = true;
     return result;
   }

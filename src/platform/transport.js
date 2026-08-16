@@ -18,7 +18,6 @@
  */
 
 import { collapse_history, escape_xml, html_to_plain_text, INGESTION_CHAR_LIMIT, INGESTION_WORD_LIMIT, stream_bridge } from "@utils";
-import { validate_url } from "./security.js";
 
 /************************************************************************************
  * [SECTION: SANITIZATION]
@@ -233,6 +232,44 @@ function blob_to_data_url(blob) {
     reader.readAsDataURL(blob);
   });
 }
+
+/**
+ * Validates a web URL for ingestion (fetch_web).
+ * Zero-Trust: only https (optionally http) schemes pass; the host may be
+ * restricted to an explicit allow-list; opaque schemes (javascript:, data:,
+ * file:) are rejected outright. Returns the normalized canonical URL.
+ * @param {string} raw_url
+ * @param {{ allow_http?: boolean, allowed_hosts?: string[] }} [options]
+ * @returns {string}
+ */
+export const validate_url = (raw_url, options = {}) => {
+  if (typeof raw_url !== "string" || !raw_url.trim()) {
+    throw new Error("A URL is required.");
+  }
+  const trimmed = raw_url.trim();
+  let parsed;
+  try {
+    parsed = new URL(trimmed);
+  } catch (_e) {
+    throw new Error(`Invalid URL "${trimmed.slice(0, 80)}". Enter a full web address, e.g. https://example.com/wiki/Page`, { cause: _e });
+  }
+  const scheme = parsed.protocol.toLowerCase().replace(":", "");
+  const allowed = options.allow_http ? ["https", "http"] : ["https"];
+  if (!allowed.includes(scheme)) {
+    throw new Error(`Blocked URL scheme "${scheme}:". Only ${allowed.join(" and ")} pages are supported.`);
+  }
+  if (Array.isArray(options.allowed_hosts) && options.allowed_hosts.length > 0) {
+    const host = parsed.hostname.toLowerCase();
+    const allowed_host = options.allowed_hosts.some((h) => {
+      const hh = String(h).toLowerCase().replace(/^\./, "");
+      return hh && (host === hh || host.endsWith(`.${hh}`));
+    });
+    if (!allowed_host) {
+      throw new Error(`Host "${parsed.hostname}" is not on the allowed list for ingestion.`);
+    }
+  }
+  return parsed.href;
+};
 
 /**
  * Fetches a web resource for ingestion.

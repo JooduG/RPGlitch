@@ -2,7 +2,6 @@
 // Manages the strict turn-based progression of the simulation.
 import { session_driver } from "@data";
 import { gamemaster } from "@intelligence";
-import { security } from "@platform";
 import { state_bridge } from "@utils"; // Engine cannot import from @state — use bridge
 
 export class ChronoEngine {
@@ -144,6 +143,22 @@ export class ChronoEngine {
   }
 
   /**
+   * 🛡️ CAUSALITY SHIELD (Physics Scan)
+   * Evaluates if an action is possible within the current simulation context.
+   * Currently a pass-through placeholder for future causality logic — the turn
+   * loop treats a "failure" result as a system-imposed constraint on the action.
+   * @param {string} input
+   * @param {any} character
+   * @param {any} fractal
+   * @returns {Promise<{causality: {result: string; constraint?: string;};}>}
+   */
+  async _run_causality_shield(input, character, fractal) {
+    return {
+      causality: { result: "success" },
+    };
+  }
+
+  /**
    * ADVANCE TURN
    * The ONLY way time moves forward.
    * 1. Locks UI (Loading)
@@ -178,7 +193,7 @@ export class ChronoEngine {
       // We pass the current runtime character context to the Shield
       if (input && state_bridge.runtime.character) {
         // Pass Fractal State for Causality Checks
-        shield_context = await security.process(input, state_bridge.runtime.character, state_bridge.runtime.active_fractal || {});
+        shield_context = await this._run_causality_shield(input, state_bridge.runtime.character, state_bridge.runtime.active_fractal || {});
         // 🛑 CAUSALITY CHECK
         if (shield_context && shield_context.causality && shield_context.causality.result === "failure") {
           state_bridge.app.log(`Causality Violation: ${shield_context.causality.constraint}`, "error");

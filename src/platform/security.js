@@ -1,7 +1,7 @@
 import DOMPurify from "dompurify";
 
 /**
- * src/core/security.js
+ * src/platform/security.js
  * 🛡️ SECURITY: The Shield
  * Zero-Trust enforcement and data sanitization.
  */
@@ -25,72 +25,6 @@ export const sanitize_to_fragment = (dirty) => {
 export const escape_html = (str) => {
   if (str === null || str === undefined) return "";
   return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-};
-/**
- * Evaluates if a given text should be refused based on safety or policy rules.
- * Currently a pass-through placeholder that always returns false.
- * @returns {boolean}
- */
-/**
- * Validates a web URL for ingestion (fetch_web).
- * Zero-Trust: only https (optionally http) schemes pass; the host may be
- * restricted to an explicit allow-list; opaque schemes (javascript:, data:,
- * file:) are rejected outright. Returns the normalized canonical URL.
- * @param {string} raw_url
- * @param {{ allow_http?: boolean, allowed_hosts?: string[] }} [options]
- * @returns {string}
- */
-export const validate_url = (raw_url, options = {}) => {
-  if (typeof raw_url !== "string" || !raw_url.trim()) {
-    throw new Error("A URL is required.");
-  }
-  const trimmed = raw_url.trim();
-  let parsed;
-  try {
-    parsed = new URL(trimmed);
-  } catch (_e) {
-    throw new Error(`Invalid URL "${trimmed.slice(0, 80)}". Enter a full web address, e.g. https://example.com/wiki/Page`, { cause: _e });
-  }
-  const scheme = parsed.protocol.toLowerCase().replace(":", "");
-  const allowed = options.allow_http ? ["https", "http"] : ["https"];
-  if (!allowed.includes(scheme)) {
-    throw new Error(`Blocked URL scheme "${scheme}:". Only ${allowed.join(" and ")} pages are supported.`);
-  }
-  if (Array.isArray(options.allowed_hosts) && options.allowed_hosts.length > 0) {
-    const host = parsed.hostname.toLowerCase();
-    const allowed_host = options.allowed_hosts.some((h) => {
-      const hh = String(h).toLowerCase().replace(/^\./, "");
-      return hh && (host === hh || host.endsWith(`.${hh}`));
-    });
-    if (!allowed_host) {
-      throw new Error(`Host "${parsed.hostname}" is not on the allowed list for ingestion.`);
-    }
-  }
-  return parsed.href;
-};
-/**
- * Evaluates if a given text should be refused based on safety or policy rules.
- * Currently a pass-through placeholder that always returns false.
- * @returns {boolean}
- */
-export const check_refusal = (text) => {
-  if (!text) return false;
-  const lower = String(text).toLowerCase();
-  const REFUSAL_TRIGGERS = [
-    "i cannot generate",
-    "i can't generate",
-    "i'm unable to assist",
-    "i am unable to assist",
-    "as an ai",
-    "as a language model",
-    "i'm sorry, but i can",
-    "i can't help with that",
-    "i cannot help with that",
-    "i'm not able to provide",
-    "i am not able to provide",
-    "i cannot create content that",
-  ];
-  return REFUSAL_TRIGGERS.some((trigger) => lower.includes(trigger));
 };
 /**
  * Validates an image file for size, type, and magic numbers.
@@ -150,23 +84,7 @@ export const security = {
   sanitize_to_fragment,
   escape: escape_html,
   escape_html,
-  check_refusal,
   validate_image,
-  validate_url,
-  /**
-   * 🛡️ PROCESS (Causality & Physics Scan)
-   * Evaluates if an action is possible within the current simulation context.
-   * Currently a pass-through placeholder for future logic.
-   * @param {string} _input
-   * @param {any} _character
-   * @param {any} _fractal
-   * @returns {Promise<{causality: {result: string;constraint?: string;};}>}
-   */
-  process: async (_input, _character, _fractal) => {
-    return {
-      causality: { result: "success" },
-    };
-  },
 };
 export { escape_html as escape };
 export default {

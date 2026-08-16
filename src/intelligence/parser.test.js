@@ -1,4 +1,4 @@
-import { clean_image_prompts, escape_xml, strip_cognition_blocks, parse_think_block, safe_parse_pseudo_json } from "./parser.js";
+import { clean_image_prompts, escape_xml, strip_cognition_blocks, parse_think_block, safe_parse_pseudo_json, check_refusal } from "./parser.js";
 import { parse_message, wrap_dialogue } from "../ui/message/render.js";
 import { escape_unescaped_json_quotes, merge_prose_into_field } from "@utils";
 import { describe, expect, it } from "vitest";
@@ -408,5 +408,29 @@ describe("merge_prose_into_field", () => {
     const current = "[SHIRT: tank top] [PANTS: cargo pants] [HELD: gun]";
     const merged = merge_prose_into_field(current, "[CLOTHING: none]");
     expect(merged).toBe("[HELD: gun]");
+  });
+});
+
+describe("check_refusal", () => {
+  it("flags common refusal phrasings", () => {
+    expect(check_refusal("I cannot generate that content.")).toBe(true);
+    expect(check_refusal("I'm sorry, but I can't help with that.")).toBe(true);
+    expect(check_refusal("As an AI, I am unable to assist with this.")).toBe(true);
+    expect(check_refusal("I'm not able to provide explicit details.")).toBe(true);
+  });
+
+  it("allows normal story prose", () => {
+    expect(check_refusal("The sword gleamed in the pale moonlight.")).toBe(false);
+    expect(check_refusal("She asked the AI how to fix the engine.")).toBe(false);
+  });
+
+  it("is case-insensitive", () => {
+    expect(check_refusal("I CANNOT GENERATE this.")).toBe(true);
+  });
+
+  it("returns false for empty or non-string input", () => {
+    expect(check_refusal("")).toBe(false);
+    expect(check_refusal(undefined)).toBe(false);
+    expect(check_refusal(null)).toBe(false);
   });
 });
