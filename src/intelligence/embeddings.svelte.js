@@ -5,7 +5,7 @@
  * Embeds text into 384-dim float arrays; cosine similarity for semantic retrieval.
  */
 
-import { deserialize_embedding, onnx_mutex, mark_ort_ready, cosine_similarity } from "@utils";
+import { deserialize_embedding, EMBEDDING_DIM, onnx_mutex, mark_ort_ready, cosine_similarity } from "@utils";
 
 let _pipeline = null;
 let _loading = null;
@@ -115,6 +115,22 @@ let _cache_hits = 0;
 let _cache_misses = 0;
 
 /**
+ * Validates the model's raw output tensor and converts it to a Float32Array.
+ * Refuses vectors whose dimension differs from EMBEDDING_DIM so a swapped
+ * model can never silently poison the persistence layer's dimension guard.
+ * @param {{ data: ArrayLike<number> }} output
+ * @returns {Float32Array | null}
+ */
+function to_embedding(output) {
+  const embedding = new Float32Array(output?.data);
+  if (embedding.length !== EMBEDDING_DIM) {
+    console.warn(`[Embeddings] Model output dimension ${embedding.length} != expected ${EMBEDDING_DIM} — refusing embedding.`);
+    return null;
+  }
+  return embedding;
+}
+
+/**
  * Embeds a text string into a normalised Float32Array.
  * Cached by text content with a bounded true-LRU policy: hits refresh the
  * key's recency; overflow evicts the least-recently-used entry.
@@ -143,7 +159,8 @@ export async function embed(text) {
     // embed runs synchronously on the main thread (worker-unavailable fallback).
     await new Promise((resolve) => setTimeout(resolve, 0));
     const output = await onnx_mutex.run(() => pipe(text, { pooling: "mean", normalize: true }));
-    const embedding = new Float32Array(output.data);
+    const embedding = to_embedding(output);
+    if (!embedding) return null;
 
     if (_embedding_cache.size >= _max_cache) {
       const lru_key = _embedding_cache.keys().next().value;
@@ -159,7 +176,8 @@ export async function embed(text) {
       const pipe = await get_pipeline();
       await new Promise((resolve) => setTimeout(resolve, 0));
       const output = await onnx_mutex.run(() => pipe(text, { pooling: "mean", normalize: true }));
-      const embedding = new Float32Array(output.data);
+      const embedding = to_embedding(output);
+      if (!embedding) return null;
       if (_embedding_cache.size >= _max_cache) {
         const lru_key = _embedding_cache.keys().next().value;
         _embedding_cache.delete(lru_key);

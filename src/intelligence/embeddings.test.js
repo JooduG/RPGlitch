@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { embeddings_engine, embed, ensure_embedding, EMBEDDING_CACHE_MAX } from "./embeddings.svelte.js";
-
-const EMBED_DIM = 384;
+import { EMBEDDING_DIM } from "../utils/embedding-serialization.js";
 
 /**
  * Deterministic fake pipeline: maps text → a unit-ish Float32Array via hashing.
@@ -9,7 +8,7 @@ const EMBED_DIM = 384;
  * @returns {{ data: Float32Array }}
  */
 function fake_pipeline(text) {
-  const arr = new Float32Array(EMBED_DIM);
+  const arr = new Float32Array(EMBEDDING_DIM);
   let h = 7;
   for (let i = 0; i < text.length; i++) h = (h * 31 + text.charCodeAt(i)) | 0;
   arr[0] = 1 + (h % 1000) / 1000;
@@ -75,10 +74,10 @@ describe("embeddings LRU cache", () => {
   });
 
   it("upgrades a persisted plain-array embedding via ensure_embedding", async () => {
-    const vector = { content: "lore", _embedding: Array.from({ length: EMBED_DIM }, (_, i) => i % 10) };
+    const vector = { content: "lore", _embedding: Array.from({ length: EMBEDDING_DIM }, (_, i) => i % 10) };
     const emb = await ensure_embedding(vector);
     expect(emb).toBeInstanceOf(Float32Array);
-    expect(emb.length).toBe(EMBED_DIM);
+    expect(emb.length).toBe(EMBEDDING_DIM);
     expect(vector._embedding).toBe(emb);
   });
 

@@ -7,7 +7,10 @@
  * read so cold loads can reuse persisted embeddings instead of re-inferring.
  */
 
-const EMBEDDING_DIM = 384;
+/** The canonical embedding dimension produced by the model and enforced on
+ * persisted vectors. Single source of truth shared by the @data round-trips
+ * and the @intelligence embedder's output guard. */
+export const EMBEDDING_DIM = 384;
 
 /**
  * Serializes an embedding into a JSON-safe form (number[]).
