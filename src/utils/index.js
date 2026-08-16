@@ -9,6 +9,7 @@ export * from "./ui-helpers.js";
 export * from "./field-path.js";
 export * from "./markdown.js";
 export * from "./math.js";
+export * from "./onnx.js";
 export * from "./xml.js";
 export * from "./bridges.js";
 export * from "./text.js";
