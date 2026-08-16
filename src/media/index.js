@@ -11,26 +11,25 @@ export {
   PALETTE_VARS,
   TOKENS,
 } from "./tokens.js";
+export { IMAGE_TIERS, DEFAULT_IMAGE_TIER, normalize_image_tier, get_resolution } from "./image-tiers.js";
+export { NEGATIVE_PROMPT, prompt_templates, parse_llm_refine_response, clean_image_prompt } from "./image-prompts.js";
 export {
-  NEGATIVE_PROMPT,
-  IMAGE_TIERS,
-  normalize_image_tier,
   aesthetic_resolver,
-  prompt_templates,
-  get_resolution,
   flatten_physical,
+  strip_visual_excluded,
+  VISUAL_EXCLUDED_KEYS,
   resolve_portrait_visual_style_key,
   resolve_story_visual_style_key,
   parse_visual_engine,
   resolve_visual_engine_tokens,
-} from "./image-prompts.js";
+} from "./image-aesthetics.js";
 export { visual_engine, VisualEngine } from "./visual.svelte.js";
-export { IMAGE_TRIGGER, DEFAULT_IMAGE_TIER, evaluate_image_trigger, resolve_image_trigger } from "./image-trigger.js";
+export { IMAGE_TRIGGER, evaluate_image_trigger, resolve_image_trigger } from "./image-trigger.js";
 export {
-  fire_image_trigger,
+  spawn_image_beat,
   count_pending_ghosts,
   sweep_stale_ghosts,
   mark_placeholder_failed,
   _image_gen_queue,
   IMAGE_RESOLVE_TIMEOUT_MS,
-} from "./image-queue.js";
+} from "./image-beats.js";

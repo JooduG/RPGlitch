@@ -9,7 +9,7 @@
 
 import { db, entities, stories, detox_prose } from "@data";
 import { generate_uuid as generateUUID, create_job_queue, state_bridge } from "@utils";
-import { visual_engine, resolve_image_trigger, fire_image_trigger, sweep_stale_ghosts, IMAGE_RESOLVE_TIMEOUT_MS } from "@media";
+import { visual_engine, resolve_image_trigger, spawn_image_beat, sweep_stale_ghosts, IMAGE_RESOLVE_TIMEOUT_MS } from "@media";
 import { strip_cognition_blocks, check_refusal } from "./parser.js";
 import { llm_service, looks_truncated, raw_to_text, raw_stop_reason } from "@platform";
 import { context_builder } from "./context.js";
@@ -671,7 +671,7 @@ export const gamemaster = {
             trigger_prompt = strip_cognition_blocks(last_beat.content).slice(0, 700);
           }
         }
-        await fire_image_trigger(image_tier, {
+        await spawn_image_beat(image_tier, {
           explicit: resolved_image.director_explicit,
           source: final_meta.image_source,
           prompt: trigger_prompt,

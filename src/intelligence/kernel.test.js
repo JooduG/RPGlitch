@@ -5,7 +5,7 @@ import { prompt_builder } from "./prompts.js";
 import { temporal_engine } from "./temporal.js";
 import { llm_service } from "@platform";
 import { session_driver } from "@data";
-import { visual_engine, _image_gen_queue, fire_image_trigger, sweep_stale_ghosts, resolve_image_trigger } from "@media";
+import { visual_engine, _image_gen_queue, spawn_image_beat, sweep_stale_ghosts, resolve_image_trigger } from "@media";
 import { entities, stories } from "@data";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -1215,7 +1215,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
 
       // Fire one more beat than the queue capacity (5); the oldest must be evicted and deleted.
       for (let i = 0; i <= 5; i++) {
-        await fire_image_trigger("story_scene", { source: "dynamics" });
+        await spawn_image_beat("story_scene", { source: "dynamics" });
       }
 
       await vi.waitFor(() => expect(session_driver.delete_log_entry).toHaveBeenCalledWith("img-1"));

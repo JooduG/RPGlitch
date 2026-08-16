@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { build_aesthetic_map, strip_visual_excluded, VISUAL_EXCLUDED_KEYS, aesthetic_resolver } from "./image-prompts.js";
+import { clean_image_prompt, parse_llm_refine_response } from "./image-prompts.js";
+import { aesthetic_resolver, build_aesthetic_map, strip_visual_excluded, VISUAL_EXCLUDED_KEYS } from "./image-aesthetics.js";
 
 vi.mock("@data", () => ({
   db: {
@@ -99,5 +100,31 @@ describe("strip_visual_excluded", () => {
     for (const key of ["INVENTORY", "STASH", "SECRET", "PLAN", "STATUS"]) {
       expect(VISUAL_EXCLUDED_KEYS.has(key)).toBe(true);
     }
+  });
+});
+
+describe("parse_llm_refine_response", () => {
+  it("extracts prompt and negative_prompt from JSON payloads wrapped in prose", () => {
+    const raw = 'Here you go: {"prompt": "A moody portrait", "negative_prompt": "blurry"}';
+    expect(parse_llm_refine_response(raw)).toEqual({ prompt: "A moody portrait", negative_prompt: "blurry" });
+  });
+
+  it("returns null for non-JSON or empty input", () => {
+    expect(parse_llm_refine_response("just prose")).toBeNull();
+    expect(parse_llm_refine_response(null)).toBeNull();
+    expect(parse_llm_refine_response("")).toBeNull();
+  });
+});
+
+describe("clean_image_prompt", () => {
+  it("un-wraps an embedded JSON prompt field and drops scaffolding", () => {
+    const out = clean_image_prompt('{"prompt": "A cat in a neon alley", "negative_prompt": "dog"}');
+    expect(out).toContain("A cat in a neon alley");
+    expect(out).not.toContain("negative_prompt");
+    expect(out).not.toContain("{");
+  });
+
+  it("passes plain prose through", () => {
+    expect(clean_image_prompt("A quiet street at dusk.")).toBe("A quiet street at dusk.");
   });
 });

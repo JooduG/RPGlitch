@@ -1,14 +1,11 @@
 /**
  * @file src/media/image-trigger.js
  * 🖼️ IMAGE TRIGGER ENGINE
- * Dual-source automatic image generation (pure-JS dynamics gate + LLM director).
- * Bridges numeric simulation physics with explicit LLM intent.
+ * Decides WHEN an image beat fires: pure-JS dynamics gate + LLM director
+ * intent, gated by a shared cooldown. Pure — no reactivity or state.
  */
 
-import { IMAGE_TIERS } from "./image-prompts.js";
-
-/** The unified 4-Tier Image Taxonomy for Director visual generation */
-export const DEFAULT_IMAGE_TIER = "story_scene";
+import { DEFAULT_IMAGE_TIER, IMAGE_TIERS } from "./image-tiers.js";
 
 /**
  * 🖼️ IMAGE TRIGGER ENGINE CONFIG

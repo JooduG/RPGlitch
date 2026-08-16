@@ -76,7 +76,7 @@
       }
 
       // SAFETY NET: If enhance() returned a full JSON blob instead of just the prompt field,
-      // extract the prompt field from it. This happens when _parseRefineResponse fails to peel the JSON.
+      // extract the prompt field from it. This happens when parse_llm_refine_response fails to peel the JSON.
       if (final_prompt.trim().startsWith("{")) {
         try {
           const parsed = JSON.parse(final_prompt.trim());

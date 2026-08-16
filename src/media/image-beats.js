@@ -1,5 +1,13 @@
+/**
+ * src/media/image-beats.js
+ * 🖼️ IMAGE BEATS — PLACEHOLDER & GENERATION LIFECYCLE
+ * A "beat" is one queued image generation bound to a log placeholder. This
+ * module spawns beats, bounds concurrency, and keeps the chat log honest:
+ * every placeholder resolves to a real image or is marked failed, and stale
+ * ghosts are swept.
+ */
 import { visual_engine } from "./visual.svelte.js";
-import { IMAGE_TRIGGER } from "./image-trigger.js";
+import { IMAGE_TIERS } from "./image-tiers.js";
 import { state_bridge } from "@utils";
 
 // 🖼️ Image beat queue — bounds concurrent background image generations.
@@ -126,17 +134,17 @@ export function _remove_from_image_gen_queue(id) {
 }
 
 /**
- * 🖼️ FIRE IMAGE TRIGGER
- * Logs a placeholder attachment immediately, then kicks off background image generation
- * against the resolved 4-tier target. Fire-and-forget: the narrative turn is never blocked
+ * 🖼️ SPAWN IMAGE BEAT
+ * Executes a resolved trigger decision: logs a placeholder attachment immediately,
+ * then kicks off background image generation against the resolved 4-tier target. Fire-and-forget: the narrative turn is never blocked
  * on image latency; the UI fills the placeholder when the generation resolves.
  * @param {string} tier - One of the 4-tier targets (story_entities | story_character | solo_entity | story_scene).
  * @param {{ explicit?: boolean, source?: string, prompt?: string }} [options]
  * @returns {Promise<void>}
  */
-export async function fire_image_trigger(tier, options = {}) {
+export async function spawn_image_beat(tier, options = {}) {
   const { explicit = false, source = "dynamics", prompt = "" } = options;
-  if (!tier || !IMAGE_TRIGGER.tiers.includes(tier)) return;
+  if (!tier || !IMAGE_TIERS.includes(tier)) return;
 
   const runtime_state = state_bridge.runtime;
   const visual_prompt = String(prompt || "").trim() || "A significant narrative moment unfolds.";

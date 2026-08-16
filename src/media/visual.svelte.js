@@ -4,19 +4,17 @@
  * The sensory cortex orchestrator. Fully optimized with engine caching and localized JSON peeling.
  */
 
-import { db, detox_prose, entities, VISUAL_STYLES } from "@data";
+import { db, entities, VISUAL_STYLES } from "@data";
 import { generate_secure_seed as generateSecureSeed, strip_cognition_blocks, state_bridge } from "@utils";
-import { llm_service, sanitize_llm } from "@platform";
+import { llm_service } from "@platform";
+import { get_resolution, normalize_image_tier } from "./image-tiers.js";
 import {
   aesthetic_resolver,
-  get_resolution,
-  NEGATIVE_PROMPT,
-  normalize_image_tier,
-  prompt_templates,
   resolve_portrait_visual_style_key,
   resolve_story_visual_style_key,
   resolve_visual_engine_tokens,
-} from "./image-prompts.js";
+} from "./image-aesthetics.js";
+import { clean_image_prompt, NEGATIVE_PROMPT, parse_llm_refine_response, prompt_templates } from "./image-prompts.js";
 import { CircuitBreaker, ExponentialBackoffRetryer } from "@utils";
 
 // Global cache for the Perchance text-to-image engine function to eliminate runtime lookup overhead
@@ -334,10 +332,10 @@ export class VisualEngine {
           const result = await llm_service.generate({ system, messages: [] }, { silent: true });
           if (!result) throw new Error("Prompt enhancement failed - no content.");
 
-          const parsed = this._parseRefineResponse(result);
+          const parsed = parse_llm_refine_response(result);
           if (parsed) return parsed;
 
-          const clean_prompt = this._cleanPrompt(result);
+          const clean_prompt = clean_image_prompt(result);
           return clean_prompt ? { prompt: clean_prompt, negative_prompt: "" } : null;
         },
         (attempt) => {
@@ -465,17 +463,17 @@ export class VisualEngine {
         }
       }
 
-      const parsed_json = this._parseRefineResponse(refined);
+      const parsed_json = parse_llm_refine_response(refined);
       let clean_prompt;
       let extracted_negative = null;
 
       if (parsed_json) {
-        clean_prompt = this._cleanPrompt(strip_cognition_blocks(parsed_json.prompt));
+        clean_prompt = clean_image_prompt(strip_cognition_blocks(parsed_json.prompt));
         extracted_negative = parsed_json.negative_prompt || null;
       } else {
         const match = refined?.match(/<image_prompt[^>]*>([\s\S]*?)<\/image_prompt>/i);
         const extracted = match?.[1] || refined || "";
-        clean_prompt = this._cleanPrompt(strip_cognition_blocks(extracted));
+        clean_prompt = clean_image_prompt(strip_cognition_blocks(extracted));
       }
 
       if ((!clean_prompt || clean_prompt.length < 10) && (tier === "story_scene" || tier === "story_entities")) {
@@ -622,109 +620,6 @@ export class VisualEngine {
     return data_url;
   }
 
-  /**
-   * Triggers manual file upload via Zero-Trust image checks with automatic canvas compression.
-   * Downscales large images (up to 25MB) to max 1024px to prevent IndexedDB storage exhaustion.
-   * @param {Object} [options]
-   * @param {number} [options.max_dimension=1024]
-   * @param {number} [options.quality=0.85]
-   * @returns {Promise<string | null>}
-   */
-  async upload(options = {}) {
-    const max_dimension = options.max_dimension || 1024;
-    const quality = options.quality || 0.85;
-
-    try {
-      return new Promise((resolve) => {
-        const input = document.createElement("input");
-        input.type = "file";
-        input.accept = "image/jpeg,image/png,image/webp,image/gif,image/avif";
-
-        input.onchange = async (e) => {
-          const file = /** @type {HTMLInputElement} */ (e.target).files?.[0];
-          if (!file) {
-            resolve(null);
-            return;
-          }
-
-          try {
-            const { validate_image } = await import("@platform/security.js");
-            await validate_image(file, { max_size: 25 * 1024 * 1024 });
-
-            const reader = new globalThis.FileReader();
-            reader.onload = (event) => {
-              const raw_data_url = /** @type {string} */ (event.target?.result);
-              if (!raw_data_url) {
-                resolve(null);
-                return;
-              }
-
-              // Create HTML Image element for canvas compression
-              const img = new Image();
-              img.onload = () => {
-                try {
-                  let width = img.width;
-                  let height = img.height;
-
-                  if (width > max_dimension || height > max_dimension) {
-                    if (width > height) {
-                      height = Math.round((height * max_dimension) / width);
-                      width = max_dimension;
-                    } else {
-                      width = Math.round((width * max_dimension) / height);
-                      height = max_dimension;
-                    }
-                  }
-
-                  const canvas = document.createElement("canvas");
-                  canvas.width = width;
-                  canvas.height = height;
-                  const ctx = canvas.getContext("2d");
-                  if (!ctx) {
-                    resolve(raw_data_url);
-                    return;
-                  }
-
-                  ctx.drawImage(img, 0, 0, width, height);
-                  const compressed_data_url = canvas.toDataURL("image/webp", quality);
-                  resolve(compressed_data_url || raw_data_url);
-                } catch (canvasErr) {
-                  console.warn("[VisualEngine] Canvas compression fallback:", canvasErr);
-                  resolve(raw_data_url);
-                }
-              };
-              img.onerror = (imgErr) => {
-                console.error("[VisualEngine] Image loading error:", imgErr);
-                resolve(raw_data_url);
-              };
-              img.src = raw_data_url;
-            };
-            reader.onerror = (err) => {
-              console.error("[VisualEngine] Local FileReader error:", err);
-              if (state_bridge.app) state_bridge.app.log("Upload failed: Could not read file.", "error");
-              resolve(null);
-            };
-            reader.readAsDataURL(file);
-          } catch (err) {
-            const msg = /** @type {Error} */ (err).message || String(err);
-            console.error("[VisualEngine] Security validation failed:", msg);
-            if (state_bridge.app) state_bridge.app.log(`Upload failed: ${msg}`, "error");
-            resolve(null);
-          }
-        };
-
-        input.oncancel = () => {
-          resolve(null);
-        };
-
-        input.click();
-      });
-    } catch (err) {
-      console.error("[VisualEngine] Local fallback initialisation failure:", err);
-      return null;
-    }
-  }
-
   // --- Private Helpers ---
 
   /**
@@ -762,56 +657,6 @@ export class VisualEngine {
   async _cacheImage(id, data, type = "character") {
     await db.entities.update(id, { profile_picture: data, updated_at: Date.now() });
     await state_bridge.runtime.update_entity(type, id, { profile_picture: data });
-  }
-
-  /**
-   * Localized JSON isolation peeler to separate incoming text streams.
-   * @param {string} raw
-   * @returns {{ prompt: string, negative_prompt: string } | null}
-   */
-  _parseRefineResponse(raw) {
-    if (!raw || typeof raw !== "string") return null;
-
-    const start = raw.indexOf("{");
-    const end = raw.lastIndexOf("}");
-
-    if (start !== -1 && end !== -1 && end > start) {
-      try {
-        const parsed = JSON.parse(raw.slice(start, end + 1));
-        if (parsed && typeof parsed.prompt === "string") {
-          return {
-            prompt: parsed.prompt.trim(),
-            negative_prompt: typeof parsed.negative_prompt === "string" ? parsed.negative_prompt.trim() : "",
-          };
-        }
-      } catch (parseErr) {
-        console.warn(
-          "[VisualEngine._parseRefineResponse] JSON.parse failed:",
-          parseErr.message,
-          "raw slice:",
-          raw.slice(start, Math.min(start + 200, end + 1)),
-        );
-      }
-    }
-    return null;
-  }
-
-  /**
-   * @param {string} raw
-   * @returns {string}
-   */
-  _cleanPrompt(raw) {
-    if (typeof raw !== "string") return raw;
-    let cleaned = sanitize_llm(strip_cognition_blocks(raw));
-    if (cleaned.includes("{")) {
-      const prompt_match = cleaned.match(/"prompt"\s*:\s*"((?:[^"\\]|\\.)*)"/i);
-      if (prompt_match && prompt_match[1]) {
-        cleaned = prompt_match[1].replace(/\\"/g, '"').replace(/\\n/g, "\n");
-      } else {
-        cleaned = cleaned.replace(/[{}]/g, "");
-      }
-    }
-    return detox_prose(cleaned);
   }
 }
 
