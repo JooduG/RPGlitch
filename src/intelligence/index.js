@@ -5,7 +5,6 @@ export {
   clean_xml,
   clean_image_prompts,
   clean_text,
-  escape_xml,
   extract_json_block,
   parse_profile_json,
   parse_think_block,

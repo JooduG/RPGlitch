@@ -1,6 +1,6 @@
-import { clean_image_prompts, escape_xml, strip_cognition_blocks, parse_think_block, safe_parse_pseudo_json, check_refusal } from "./parser.js";
+import { clean_image_prompts, strip_cognition_blocks, parse_think_block, safe_parse_pseudo_json, check_refusal } from "./parser.js";
 import { parse_message, wrap_dialogue } from "../ui/message/render.js";
-import { escape_unescaped_json_quotes, merge_prose_into_field } from "@utils";
+import { escape_unescaped_json_quotes, escape_xml, merge_prose_into_field } from "@utils";
 import { describe, expect, it } from "vitest";
 
 describe("strip_cognition_blocks", () => {

@@ -10,7 +10,7 @@
  * prose field merging + register resolution live in @utils/text.js and @data.
  */
 
-import { collapse_history, escape_xml, safe_parse_pseudo_json, strip_cognition_blocks } from "@utils";
+import { collapse_history, safe_parse_pseudo_json, strip_cognition_blocks } from "@utils";
 
 /**
  * Evaluates if a given text should be refused based on safety or policy rules.
@@ -164,13 +164,6 @@ export function clean_image_prompts(text) {
 
   return result;
 }
-
-/**
- * Escapes characters for safe use in XML.
- * @param {string|null|undefined} str
- * @returns {string}
- */
-export { escape_xml };
 
 /**
  * Text sanitization for prompt safety.
