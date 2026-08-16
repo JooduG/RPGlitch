@@ -12,7 +12,7 @@
  * are aligned into the display shape: `present_mutations.{physical,non_physical}`
  * and `eternal_mutations.{physical,non_physical}` (from `state_append` and
  * `foundation_consolidated`), `vector_append` items keep `content`/`type`
- * but their `weight` becomes `emotional_weight`, `vector_resolve` → `vectors.resolved`,
+ * but their `weight` becomes `emotional_weight`,
  * `dynamics_deltas` is dropped (the computed `dynamics` array already carries old/new/diff per
  * axis). Returns null when the entity carries no content so the dump stays lean.
  * @param {string|null} name
@@ -37,11 +37,9 @@ export function build_update_entry(name, mutations, dynamics, retrieval) {
     non_physical: eternal.non_physical || "",
   };
 
-  const resolve_list = Array.isArray(mutations?.vector_resolve) ? mutations.vector_resolve : [];
   const new_list = Array.isArray(mutations?.vector_append) ? mutations.vector_append : [];
 
   entry.vectors = {
-    resolved: resolve_list,
     new: new_list.map((v) => {
       const copy = { ...(v || {}) };
       copy.content = (copy.content || copy.directive || "").trim();
@@ -60,7 +58,6 @@ export function build_update_entry(name, mutations, dynamics, retrieval) {
     entry.present_mutations.non_physical.trim() ||
     entry.eternal_mutations.physical.trim() ||
     entry.eternal_mutations.non_physical.trim() ||
-    entry.vectors.resolved.length > 0 ||
     entry.vectors.new.length > 0 ||
     (entry.vectors.retrieval?.length || 0) > 0;
   return has_content ? entry : null;

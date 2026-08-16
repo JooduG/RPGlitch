@@ -308,57 +308,19 @@ describe("temporal_engine", () => {
     });
   });
 
-  describe("resolve", () => {
-    it("re-applies a resolved past anchor with its outcome memory", () => {
-      const entity = /** @type {any} */ ({
-        past: [
-          {
-            id: "v1",
-            timestamp: 100,
-            content: "Goal",
-            type: "past",
-            emotional_weight: 5,
-            meta: {},
-          },
-        ],
-      });
-
-      temporal_engine.resolve(entity, "v1", "SUCCESS", null, "success", "Completed the goal.");
-
-      expect(entity.past).toHaveLength(1);
-      expect(entity.past[0].content).toBe("Completed the goal.");
-      expect(entity.past[0].type).toBe("past");
-      expect(entity.past[0].meta.outcome).toBe("success");
-    });
-  });
-
   describe("apply_state_mutations", () => {
-    it("appends to state_append and resolves a past anchor", () => {
+    it("appends to state_append", () => {
       const entity = /** @type {any} */ ({
         present: { physical: "", non_physical: "Initial state." },
-        past: [
-          {
-            id: "v1",
-            timestamp: 100,
-            content: "Goal",
-            type: "past",
-            emotional_weight: 5,
-            tags: [],
-            meta: {},
-          },
-        ],
       });
 
       const mutations = {
         state_append: { non_physical: "Now they are angry." },
-        vector_resolve: [{ id: "v1", resolution_summary: "Resolved via anger" }],
       };
 
       const result = temporal_engine.apply_state_mutations(entity, mutations);
       expect(result).toBe(true);
       expect(entity.present.non_physical).toBe("Initial state.\nNow they are angry.");
-      expect(entity.past).toHaveLength(1);
-      expect(entity.past[0].type).toBe("past");
     });
 
     it("returns false if mutations object is empty or invalid", () => {
@@ -772,17 +734,17 @@ describe("prune", () => {
     expect(prune("not an array")).toEqual([]);
   });
 
-  it("filters out future vectors and takes up to 3 past vectors", () => {
+  it("caps the pool to 3 past vectors", () => {
     const vectors = [
       { id: "1", content: "Memory 1", type: "past", emotional_weight: 7 },
-      { id: "2", content: "Agenda 1", type: "future" },
-      { id: "3", content: "Memory 2", type: "past", emotional_weight: 8 },
-      { id: "4", content: "Memory 3", type: "past", emotional_weight: 9 },
-      { id: "5", content: "Memory 4", type: "past", emotional_weight: 10 },
+      { id: "2", content: "Memory 2", type: "past", emotional_weight: 8 },
+      { id: "3", content: "Memory 3", type: "past", emotional_weight: 9 },
+      { id: "4", content: "Memory 4", type: "past", emotional_weight: 10 },
+      { id: "5", content: "Memory 5", type: "past", emotional_weight: 11 },
     ];
     const result = prune(vectors);
     expect(result).toHaveLength(3);
-    expect(result.map((v) => v.id)).toEqual(["1", "3", "4"]);
+    expect(result.map((v) => v.id)).toEqual(["1", "2", "3"]);
     expect(result[0].type).toBe("past");
   });
 });

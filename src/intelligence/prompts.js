@@ -935,7 +935,7 @@ function render_enhancement_field_context(entity, field_id, content = "", entity
   }
 
   if (field_id === "past") {
-    const vectors = resolve_vector_pool(entity).filter((v) => v?.type !== "future");
+    const vectors = resolve_vector_pool(entity);
     const text = vectors.length ? temporal_engine.format(vectors, content || "", { max_chars: 1500 }) : "";
     const tag = entity?.type === "fractal" || entity_type === "fractal" ? "HISTORY" : entity?.type === "user" ? "BACKSTORY" : "MEMORIES";
     return clean_xml(`
@@ -1041,7 +1041,7 @@ const render_builder = {
       past: (ref, options = {}) => {
         const entity = resolve(ref);
         const formatted = temporal_engine.format(
-          vector_pool(entity).filter((v) => v?.type !== "future"),
+          vector_pool(entity),
           scoring_context,
           {
             offset: 0,
@@ -1333,7 +1333,6 @@ export function render_terse_director_task() {
   - For each entity, include only NON-EMPTY mutations:
       "state_append": { "physical": "", "non_physical": "<one short clause>" }
       "vector_append": [] (or a SINGLE item)
-      "vector_resolve": []
       "dynamics_deltas": { small integers }
   - Set "trigger_image": "false".
   Output ONLY the JSON. No markdown fences, no prose, no trailing commas.

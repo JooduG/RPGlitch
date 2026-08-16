@@ -148,7 +148,6 @@ export function terse_director_task() {
   - For each entity, include only NON-EMPTY mutations:
       "state_append": { "physical": "", "non_physical": "<one short clause>" }
       "vector_append": [] (or a SINGLE item)
-      "vector_resolve": []
       "dynamics_deltas": { small integers }
   - Set "trigger_image": "false".
   Output ONLY the JSON. No markdown fences, no prose, no trailing commas.
@@ -198,21 +197,18 @@ export function synthesize_director_fallback(prev_data, input, bridge) {
     fallback.AI_CHARACTER = {
       state_append: { physical: "", non_physical: first_sentence(monologue) || "Reacts to the turn's events." },
       vector_append: [],
-      vector_resolve: [],
     };
   }
   if (user) {
     fallback.USER_PERSONA = {
       state_append: { physical: "", non_physical: first_sentence(input) || "" },
       vector_append: [],
-      vector_resolve: [],
     };
   }
   if (fractal) {
     fallback.FRACTAL = {
       state_append: { physical: "", non_physical: "" },
       vector_append: [{ content: `${fractal.name || "The environment"} shifts with the turn's events.`, type: "past", emotional_weight: 3 }],
-      vector_resolve: [],
     };
   }
   return fallback;

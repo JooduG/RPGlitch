@@ -283,7 +283,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
               name: "Viper",
               present_mutations: { physical: "", non_physical: "" },
               eternal_mutations: { physical: "", non_physical: "" },
-              vectors: { resolved: [], new: [] },
+              vectors: { new: [] },
               dynamics: expect.arrayContaining([
                 expect.objectContaining({
                   axis: "intensity",
@@ -312,7 +312,6 @@ describe("gamemaster (Intelligence Kernel)", () => {
           AI_CHARACTER: {
             state_append: { physical: "torn coat", non_physical: "quiet fury" },
             dynamics_deltas: { intensity: 10 },
-            vector_resolve: [{ id: "v-old", resolution_summary: "Resolved" }],
             vector_append: [{ content: "A vow to the storm", type: "future", weight: 5 }],
             foundation_consolidated: { physical: "scar", non_physical: "" },
           },
@@ -344,7 +343,6 @@ describe("gamemaster (Intelligence Kernel)", () => {
               present_mutations: { physical: "torn coat", non_physical: "quiet fury" },
               eternal_mutations: { physical: "scar", non_physical: "" },
               vectors: expect.objectContaining({
-                resolved: [{ id: "v-old", resolution_summary: "Resolved" }],
                 new: [{ content: "A vow to the storm", type: "future", emotional_weight: 5 }],
                 retrieval: [
                   { id: "v2", content: "goal", type: "future", emotional_weight: 9, _relevance: 8.1 },

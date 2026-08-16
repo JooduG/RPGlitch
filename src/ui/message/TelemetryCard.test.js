@@ -15,7 +15,6 @@ describe("TelemetryCard Telemetry Logic", () => {
           },
           eternal_mutations: { physical: "", non_physical: "" },
           vectors: {
-            resolved: [],
             new: [{ id: "valerius-f3", content: "Corner Glitch against the sterile walls.", type: "future", emotional_weight: 8 }],
             retrieval: [
               { id: "valerius-p1", content: "He was exiled from the Ashenweald court.", type: "past", emotional_weight: 10, _relevance: 10.9 },
@@ -29,7 +28,7 @@ describe("TelemetryCard Telemetry Logic", () => {
         USER_PERSONA: {
           name: "Glitch",
           present_mutations: { physical: "[EXPRESSION: wide-eyed realization]", non_physical: "His heart hammers against his ribs." },
-          vectors: { resolved: [], new: [{ content: "Attempt to hack the blast doors open.", type: "future", emotional_weight: 6 }] },
+          vectors: { new: [{ content: "Attempt to hack the blast doors open.", type: "future", emotional_weight: 6 }] },
         },
       },
     };
@@ -60,7 +59,7 @@ describe("TelemetryCard Telemetry Logic", () => {
         FRACTAL: {
           name: "Project Tartarus",
           present_mutations: { physical: "[ALARM: red strobe]", non_physical: "" },
-          vectors: { resolved: [], new: [{ content: "A pheromone gas leaks into the corridor.", type: "future", emotional_weight: 7 }] },
+          vectors: { new: [{ content: "A pheromone gas leaks into the corridor.", type: "future", emotional_weight: 7 }] },
         },
       },
     };
@@ -80,7 +79,7 @@ describe("TelemetryCard Telemetry Logic", () => {
           name: "Project Tartarus",
           present_mutations: { physical: "", non_physical: "" },
           eternal_mutations: { physical: "[SCAR: rune-etched sigil]", non_physical: "The machine now speaks in a fractured dialect." },
-          vectors: { resolved: [], new: [] },
+          vectors: { new: [] },
         },
       },
     };
@@ -101,7 +100,6 @@ describe("TelemetryCard Telemetry Logic", () => {
           name: "Lord Benedict Silvers",
           present_mutations: { physical: "", non_physical: "" },
           vectors: {
-            resolved: [],
             new: [{ id: "valerius-f3", content: "Corner Glitch against the sterile walls.", type: "future", emotional_weight: 8 }],
           },
         },
@@ -120,7 +118,6 @@ describe("TelemetryCard Telemetry Logic", () => {
           name: "Lord Benedict Silvers",
           present_mutations: { physical: "", non_physical: "" },
           vectors: {
-            resolved: [],
             new: [],
             retrieval: [
               { id: "valerius-p1", content: "He was exiled from the Ashenweald court.", type: "past", emotional_weight: 10, _relevance: 10.9 },
@@ -143,7 +140,7 @@ describe("TelemetryCard Telemetry Logic", () => {
     const meta = {
       type: "DYNAMICS_DELTA",
       updates: {
-        AI_CHARACTER: { name: "Vesper", present_mutations: { physical: "", non_physical: "" }, vectors: { resolved: [], new: [] } },
+        AI_CHARACTER: { name: "Vesper", present_mutations: { physical: "", non_physical: "" }, vectors: { new: [] } },
         FRACTAL: { name: "Orb" },
       },
     };
@@ -158,7 +155,7 @@ describe("TelemetryCard Telemetry Logic", () => {
         AI_CHARACTER: {
           name: "Vesper",
           present_mutations: { physical: "", non_physical: "" },
-          vectors: { resolved: [], new: [] },
+          vectors: { new: [] },
           dynamics: [{ axis: "openness", old_value: 42, new_value: 38, diff: -4 }],
         },
       },

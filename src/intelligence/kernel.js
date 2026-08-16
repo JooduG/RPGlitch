@@ -515,7 +515,7 @@ export const gamemaster = {
       const entity_mutations = scrub_state_mutations(director_data.mutations || director_data);
 
       if (entity_mutations.AI_CHARACTER && state_bridge.runtime.active_ai) {
-        temporal_engine.apply_state_mutations(state_bridge.runtime.active_ai, entity_mutations.AI_CHARACTER, state_bridge.session_driver);
+        temporal_engine.apply_state_mutations(state_bridge.runtime.active_ai, entity_mutations.AI_CHARACTER);
         if (entity_mutations.AI_CHARACTER.dynamics_deltas) {
           if (!snapshot.ai) snapshot.ai = {};
           if (!snapshot.ai.dynamics) snapshot.ai.dynamics = { ...state_bridge.runtime.ai };
@@ -531,11 +531,11 @@ export const gamemaster = {
       }
 
       if (entity_mutations.USER_PERSONA && state_bridge.runtime.active_user) {
-        temporal_engine.apply_state_mutations(state_bridge.runtime.active_user, entity_mutations.USER_PERSONA, state_bridge.session_driver);
+        temporal_engine.apply_state_mutations(state_bridge.runtime.active_user, entity_mutations.USER_PERSONA);
       }
 
       if (entity_mutations.FRACTAL && state_bridge.runtime.active_fractal) {
-        temporal_engine.apply_state_mutations(state_bridge.runtime.active_fractal, entity_mutations.FRACTAL, state_bridge.session_driver);
+        temporal_engine.apply_state_mutations(state_bridge.runtime.active_fractal, entity_mutations.FRACTAL);
         if (entity_mutations.FRACTAL.dynamics_deltas) {
           if (!snapshot.fractal) snapshot.fractal = {};
           if (!snapshot.fractal.dynamics) snapshot.fractal.dynamics = { ...state_bridge.runtime.fractal };
