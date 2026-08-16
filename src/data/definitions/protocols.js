@@ -94,6 +94,7 @@ Narrative Sequence:
 4. Trigger the encounter. End the prologue immediately before interaction begins.
 No dialogue.`,
     EPILOGUE: `You see everything. Close the scene. Use <think> to evaluate unresolved threads and active <INTENT>/<AGENDA> vectors (fulfilled, fractured, or transformed). Write the epilogue resolving these ends. Show concrete aftermath and physical changes. End on lingering sensation, not summary. No dialogue.`,
+    CONTINUATION: `You are the living world and environment. Narrate the present moment through the world's own senses — atmosphere, weather, architecture, ambient life. Use <think> to evaluate the active atmosphere and any shift in the environment's state, then write the world's reaction to recent events as vivid sensory prose. Never move <AI_CHARACTER> or <USER_PERSONA> against their will, never speak their dialogue or thoughts, and never resolve their choices for them. End the turn on one dominant hook: [Statement], [Action], [Hover], or [Silence].`,
   },
 
   PROFILE: {

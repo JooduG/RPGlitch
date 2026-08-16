@@ -35,6 +35,9 @@
   });
 
   let active_turn_name = $derived.by(() => {
+    // Director delegation identity (AI / Fractal / NPC) beats the static
+    // selection whenever the Director hands the turn to a different entity.
+    if (simulation_state.generating_entity_name) return simulation_state.generating_entity_name;
     if (active_turn_role === "ai") return app.selected_ai?.name;
     if (active_turn_role === "fractal") return app.selected_fractal?.name;
     return "";

@@ -19,7 +19,15 @@ export {
 } from "./normalizer.js";
 export { detect_card_format, parse_character_card, serialize_character_card, serialize_rpglitch_entity } from "./cards.js";
 export { premade } from "./definitions/premades.js";
-export { NARRATIVE_STYLES, GLOBAL_TRIGGERS } from "./definitions/narrative-styles.js";
+export { NARRATIVE_STYLES, GLOBAL_TRIGGERS, get_style_keywords } from "./definitions/narrative-styles.js";
+export {
+  SOMATIC_REGISTRY,
+  STYLE_MOTIF_REGISTRY,
+  resolve_somatic_directives,
+  render_somatic_directives_xml,
+  build_somatic_directives_block,
+  build_available_keywords_xml,
+} from "./definitions/somatic-triggers.js";
 export { VISUAL_STYLES } from "./definitions/visual-styles.js";
 export {
   ENTITY_FRAGMENTS,

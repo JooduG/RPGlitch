@@ -400,6 +400,78 @@ describe("prompt_builder (Refactored)", () => {
     });
   });
 
+  describe("Director Track: Expanded Schema, Keywords & Somatic Directives", () => {
+    const base_payload = {
+      round: 1,
+      entities: {
+        AI: {
+          name: "Viper",
+          present: { non_physical: "Volatile" },
+          eternal: { non_physical: "Static" },
+          past: [],
+          future: "Future Goal",
+        },
+        USER: { name: "Ghost", present: {}, eternal: {}, past: [], future: "" },
+        FRACTAL: {
+          name: "Void",
+          present: { non_physical: "Void Present" },
+          eternal: { non_physical: "Void Eternal" },
+          past: [],
+          future: "",
+        },
+      },
+      simulation_log: [],
+      input: "Hello",
+    };
+    const base_snapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} } };
+
+    it("exposes <AVAILABLE_KEYWORDS> listing the 12 static archetypes in the Director prompt", () => {
+      const result = prompt_builder.build_director_prompt(base_payload, base_snapshot);
+      expect(result.system).toContain("<AVAILABLE_KEYWORDS>");
+      for (const kw of ["shame", "fear", "betrayal", "abandonment", "grief", "dysregulation"]) {
+        expect(result.system).toContain(kw);
+      }
+    });
+
+    it("exposes the expanded schema fields (speaker, keywords, story_status) in the Director task", () => {
+      const result = prompt_builder.build_director_prompt(base_payload, base_snapshot);
+      expect(result.task).toContain('"speaker"');
+      expect(result.task).toContain('"keywords"');
+      expect(result.task).toContain('"story_status"');
+      expect(result.task).toContain("CONCLUDED");
+      expect(result.task).toContain("COLLAPSED");
+    });
+
+    it("injects <SOMATIC_DIRECTIVES> into the character prompt when the Director selects keywords", () => {
+      const result = prompt_builder.build_character_prompt(base_payload, base_snapshot, {
+        keywords: ["shame", "stoic_pain"],
+      });
+      expect(result.task).toContain("<SOMATIC_DIRECTIVES>");
+      expect(result.task).toContain("- shame: Weave involuntary physical shame tells");
+      expect(result.task).toContain("- stoic_pain: Mask pain behind curt declarative statements");
+    });
+
+    it("omits <SOMATIC_DIRECTIVES> when the Director selects no keywords", () => {
+      const result = prompt_builder.build_character_prompt(base_payload, base_snapshot, { keywords: [] });
+      expect(result.task).not.toContain("<SOMATIC_DIRECTIVES>");
+    });
+
+    it("builds the scene-narrator prompt for a delegated fractal speaker", () => {
+      const result = prompt_builder.build_scene_narrator_prompt(base_payload, base_snapshot, {
+        keywords: ["dysregulation"],
+      });
+      expect(result.system).toContain('<SYSTEM role="Void"');
+      expect(result.task).toContain("living world and environment");
+      expect(result.task).toContain("<SOMATIC_DIRECTIVES>");
+      expect(result.task).toContain("Cognitive overload");
+    });
+
+    it("leaves prologue/epilogue bookends free of somatic directives", () => {
+      const prologue = prompt_builder.build_prologue(base_payload, base_snapshot);
+      expect(prologue.task).not.toContain("<SOMATIC_DIRECTIVES>");
+    });
+  });
+
   describe("Integration: XML Block Verification", () => {
     it("build_prologue() correctly integrates all core XML blocks", () => {
       const payload = {

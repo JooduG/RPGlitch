@@ -203,17 +203,16 @@ Active narrative styles export contextual motifs (e.g. Hemingway contributes `st
 └────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### 5.2 Epilogue & "The End" Screen Component (`src/ui/story/StoryConcluded.svelte`)
+### 5.2 Epilogue & "The End" Component (`src/ui/message/Epilogue.svelte`)
 
-Reworks the legacy inline epilogue cards and manual console button into a dedicated, high-aesthetic conclusion screen:
+Splits the legacy `PrologueEpilogue.svelte` into two clean, dedicated components: `src/ui/message/Prologue.svelte` for the opening story flight, and `src/ui/message/Epilogue.svelte` for the story conclusion:
 
 1. **Atmospheric Header**: Cursive title in `Satisfy` font with glowing signature drop-shadow and an outcome badge (`✨ STORY CONCLUDED` / `💀 STORY COLLAPSED` / `📜 THE END`).
 2. **The Chronicle Summary**: The AI-synthesized epilogue capturing the climax, unresolved echoes, and final consequences of the trio's choices.
-3. **The Entity Trio**: Displays the final state of the User, AI Character, and Fractal (showing final inventory, non-physical states, and lifetime forged memory counts).
+3. **The Final Entity Trio**: Displays the final state of the User, AI Character, and Fractal (showing final inventory, non-physical states, and lifetime forged memory counts).
 4. **Action Deck**:
    - **Return to Storyboard**: Closes story session, unlocks entity claims, and navigates to `app.set_view("storyboard")`.
    - **Export Story**: Triggers instant download of the clean markdown novel transcript (`export_story_markdown`).
-   - **Review Chronicle**: Toggles view between the conclusion card and the continuous historical message feed in read-only mode.
 
 ---
 
@@ -289,11 +288,11 @@ Reworks the legacy inline epilogue cards and manual console button into a dedica
 - [ ] **3.2 Parallel Background Workers**: Wire non-critical background jobs (Memory Forge, visual prompt generation, Dexie checkpoints) through `job_queue.run()`.
 - [ ] **3.3 Reactive UI Wiring**: Connect `status.generating_entity_type`, `status.generating_entity_name`, and avatar bindings in `status.svelte.js`, `Storymode.svelte`, and `Message.svelte`.
 
-### Phase 4: Story Resolution & "The End" Screen
+### Phase 4: Story Resolution & Epilogue Screen
 
-- [ ] **4.1 Automatic Conclusion Dispatch**: When Director detects `story_status === "CONCLUDED" | "COLLAPSED"`, automatically trigger `gamemaster.execute_epilogue()`.
-- [ ] **4.2 "The End" Conclusion Component**: Build `src/ui/story/StoryConcluded.svelte` displaying the cursive title, outcome badge, chronicle text, final entity trio, journey statistics, and action buttons (`Return to Storyboard`, `Export Story`, `Review Chronicle`).
-- [ ] **4.3 Storymode Mounting & State**: Mount `StoryConcluded.svelte` in `Storymode.svelte` when `runtime.active_story?.is_concluded` is true, replacing the input bar with the conclusion deck while preserving read-only feed browsing.
+- [x] **4.1 Split Prologue & Epilogue**: Split `PrologueEpilogue.svelte` into `src/ui/message/Prologue.svelte` and `src/ui/message/Epilogue.svelte`, updating `Message.svelte` and `index.js`.
+- [ ] **4.2 Automatic Conclusion Dispatch**: When Director detects `story_status === "CONCLUDED" | "COLLAPSED"`, automatically trigger `gamemaster.execute_epilogue()`.
+- [x] **4.3 Epilogue Action Deck**: Wire `handle_return_to_storyboard()` and `handle_export_story()` directly into `Epilogue.svelte`.
 
 ### Phase 5: Verification & Gate Pass
 

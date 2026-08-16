@@ -8,12 +8,13 @@
  */
 
 import { db, entities, prune } from "@data";
-import { generate_uuid as generateUUID, state_bridge } from "@utils";
+import { generate_uuid as generateUUID, create_job_queue, state_bridge } from "@utils";
 import { visual_engine } from "@media";
 import { llm_service, looks_truncated, security } from "@platform";
 import { context_builder } from "./context.svelte.js";
 import { dynamics_engine, evaluate_image_trigger, IMAGE_TRIGGER } from "./dynamics.js";
 import { escape_unescaped_json_quotes, extract_json_block, parse_think_block, strip_cognition_blocks } from "./parser.js";
+import { normalize_director_data, resolve_speaker_engine } from "./director-schema.js";
 import { prompt_builder } from "./prompts.js";
 import { temporal_engine } from "./temporal.js";
 
@@ -26,6 +27,12 @@ import { temporal_engine } from "./temporal.js";
 // is marked failed so evicted beats never leave permanent `src: null` ghost cards.
 const IMAGE_GEN_QUEUE_CAPACITY = 5;
 export const _image_gen_queue = [];
+
+// 🔀 Director background job queue — parallel auxiliary workers (ghost sweeps
+// now; Memory Forge / visual synthesis / Dexie checkpoint sync later) execute
+// concurrently and are isolated from the critical narrative path: a failing
+// worker rejects only its own promise and can never stall story playback.
+const director_background_queue = create_job_queue({ max_concurrency: 2 });
 
 // Ghost-card hard cap: at most this many unresolved (src:null) placeholders may
 // exist in the log at once. Beyond it, new triggers are refused until resolution
@@ -158,7 +165,7 @@ function parse_director_json(raw_text) {
     console.warn("[GameMaster] Director JSON missing brackets, falling back to raw prose.");
     state_bridge.app.log("[GameMaster] Director JSON missing brackets — using raw prose fallback", "warn");
     const extracted_think = parse_think_block(stripped).think;
-    return { internal_monologue: extracted_think || stripped, _parse_error: true };
+    return normalize_director_data({ internal_monologue: extracted_think || stripped, _parse_error: true });
   }
 
   const cleaned_json = escape_unescaped_json_quotes(json_string);
@@ -169,12 +176,12 @@ function parse_director_json(raw_text) {
     if (payload.prose) {
       delete payload.prose;
     }
-    return payload;
+    return normalize_director_data(payload);
   } catch (parse_err) {
     console.warn("[GameMaster] Director JSON invalid, falling back to raw prose:", parse_err);
     const stripped = raw_text.replace(/```json\n?|```/g, "").trim();
     const extracted_think = parse_think_block(stripped).think;
-    return { internal_monologue: extracted_think || stripped, _parse_error: true };
+    return normalize_director_data({ internal_monologue: extracted_think || stripped, _parse_error: true });
   }
 }
 
@@ -265,7 +272,10 @@ function terse_director_task() {
 <TASK>
   Return a single, COMPLETE, VALID JSON object. It MUST fit in under 700 characters.
   - Omit "_thought_process" entirely, or keep it to one clause of a few words.
-  - Omit the "directive" key entirely.
+  - Omit "directive" entirely.
+  - Set "speaker": "ai" (or "fractal" only if the world itself should narrate this turn).
+  - Set "keywords": [] (or up to 2 from <AVAILABLE_KEYWORDS>).
+  - Set "story_status": "IN_PROGRESS" (use "CONCLUDED"/"COLLAPSED" ONLY at a true quest resolution).
   - For each entity, include only NON-EMPTY mutations:
       "state_append": { "physical": "", "non_physical": "<one short clause>" }
       "vector_append": [] (or a SINGLE item)
@@ -308,6 +318,9 @@ function synthesize_director_fallback(prev_data, input, bridge) {
     _parse_error: true,
     internal_monologue: monologue || "The scene continues.",
     trigger_image: "false",
+    speaker: "ai",
+    keywords: [],
+    story_status: "IN_PROGRESS",
   };
   const ai = bridge?.runtime?.active_ai;
   const user = bridge?.runtime?.active_user;
@@ -867,6 +880,9 @@ export const gamemaster = {
         state_bridge.app.log("[GameMaster] Director degraded — applying minimal-mutation fallback.", "warn");
         director_data = synthesize_director_fallback(director_data, input, state_bridge);
       }
+      // Defensive re-normalization: guarantees speaker/keywords/story_status are
+      // always in canonical form before any routing decisions are made.
+      director_data = normalize_director_data(director_data);
 
       // 4.1 Apply State Mutations
       const entity_mutations = director_data.mutations || director_data;
@@ -925,8 +941,34 @@ export const gamemaster = {
         fractal_delta_axes,
       );
 
+      // 4.4. ACTIVE SPEAKER RESOLUTION — the Director delegates execution to the
+      // AI_CHARACTER (default), the FRACTAL world engine (build_narrator), or a
+      // forward-compat NPC target. The delegated identity drives the reactive
+      // "thinking" state so the UI badge/avatar mirrors whoever is speaking.
+      const speaker = director_data.speaker || "ai";
+      const speaker_engine = resolve_speaker_engine(speaker);
+      if (speaker_engine === "npc") {
+        state_bridge.app.log(
+          "[GameMaster] Director delegated the turn to an NPC, but the NPC engine is not mounted yet — falling back to the AI character.",
+          "warn",
+        );
+      }
+      const uses_narrator_engine = speaker_engine === "narrator";
+      const generation_role = uses_narrator_engine ? "fractal" : "ai";
+      const generation_entity = uses_narrator_engine ? state_bridge.runtime.active_fractal : state_bridge.runtime.active_ai;
+      const generation_name = generation_entity?.name || (uses_narrator_engine ? "Fractal" : "AI");
+      state_bridge.simulation_state?.start_generation?.(generation_role);
+      state_bridge.simulation_state?.set_generating_entity?.({
+        type: uses_narrator_engine ? "fractal" : speaker_engine === "npc" ? "npc" : "ai",
+        name: generation_name,
+        avatar: generation_entity?.profile_picture || null,
+        color: generation_entity?.signature_color || null,
+      });
+
       // 4.5. PHYSICS SYNC & TELEMETRY
-      const character_prompt = prompt_builder.build_character_prompt(payload, snapshot, director_data);
+      const character_prompt = uses_narrator_engine
+        ? prompt_builder.build_scene_narrator_prompt(payload, snapshot, director_data)
+        : prompt_builder.build_character_prompt(payload, snapshot, director_data);
       const meta = character_prompt.meta;
 
       let final_meta = { ...meta };
@@ -1027,7 +1069,7 @@ export const gamemaster = {
             system: character_prompt.system,
             task,
             messages: simulation_log,
-            role,
+            role: generation_role,
             node_id: node_id,
           },
           {
@@ -1066,8 +1108,7 @@ export const gamemaster = {
           state_bridge.app.streaming.text = director_monologue || "";
           validation_result = await this.execute_with_retry(() => make_character_try(TRUNCATION_COMPLETE_NOTE), 1, 500);
           if (looks_truncated(validation_result.text)) {
-            const speaker = role === "ai" ? state_bridge.runtime.active_ai?.name || "AI" : state_bridge.runtime.active_fractal?.name || "Fractal";
-            validation_result.text = force_close_response(validation_result.text, speaker);
+            validation_result.text = force_close_response(validation_result.text, generation_name);
             validation_result.structural_repair = true;
           }
         }
@@ -1081,14 +1122,14 @@ export const gamemaster = {
       }
 
       // 7. PERSISTENCE: Save the result
-      const character_name = role === "ai" ? state_bridge.runtime.active_ai?.name || "AI" : state_bridge.runtime.active_fractal?.name || "Fractal";
+      const character_name = generation_name;
 
       if (validation_result.violated) {
         final_meta.sino_logic_violation = true;
       }
       final_meta.structural_errors = state_bridge.runtime.structural_errors;
 
-      await state_bridge.session_driver.log_message(validation_result.text, role, character_name, {
+      await state_bridge.session_driver.log_message(validation_result.text, generation_role, character_name, {
         turn_type: "AI_TURN",
         meta: {
           id: node_id,
@@ -1102,6 +1143,7 @@ export const gamemaster = {
 
       state_bridge.app.end_stream();
       state_bridge.simulation_state.complete();
+      state_bridge.simulation_state?.clear_generating_entity?.();
 
       state_bridge.app.busy = false;
       state_bridge.simulation_state.phase = "idle";
@@ -1114,7 +1156,9 @@ export const gamemaster = {
       if (state_bridge.simulation_state) {
         state_bridge.simulation_state.phase = "idle";
       }
-      sweep_stale_ghosts().catch(() => {});
+      // Ghost sweeps are a background maintenance chore: run them through the
+      // parallel job queue so they never add latency or failure to the turn.
+      director_background_queue.run(() => sweep_stale_ghosts()).catch(() => {});
     }
   },
 

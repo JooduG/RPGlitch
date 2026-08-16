@@ -29,7 +29,7 @@ The codebase is fully synchronized, hardened, and green with **0 errors, 0 warni
 
 ### Active & Upcoming Tracks
 
-- [ ] `track-director-expansion-2026-08-14`: Harden and expand Director turn pipeline (Async Job Queue, Fractal Turn Delegation, Dual Somatic/Trauma Injections, Input Pacing Calibration, Masking vs Somatic Leakage, and 23-Style Registry Catalog).
+- [ ] `track-director-expansion-2026-08-14`: Harden and expand Director turn pipeline (Async Job Queue, Fractal Turn Delegation, Dual Somatic/Trauma Injections, Input Pacing Calibration, Masking vs Somatic Leakage, and 23-Style Registry Catalog). _Milestone 1 (Phases 1-2 + Phase 3 core routing) implemented 2026-08-16; remaining: Phase 3 UI avatar/halo polish, Phase 4 "The End" screen, Phase 5 verification gate._
 - [ ] `track-npc-expansion-2026-08-14`: Multi-NPC Roster & Scene Presence (3-tier memory hierarchy, relational graph strings, naivety prior, epistemic horizon, protagonist syndrome filter, and multi-voice Kokoro TTS).
 
 ### Recent Completed Tracks
@@ -49,6 +49,7 @@ _(All earlier completed tracks from June–July 2026 are cataloged in the [Perma
 > _Full historical logs from 2026-06 to 2026-08-16 are archived in [archive/2026-08/2026-08-16-tasks-PRESENT-pulse-archive.md](file:///C:/Users/johng/.gemini/antigravity-ide/archive/2026-08/2026-08-16-tasks-PRESENT-pulse-archive.md)._
 
 | Reference (ISO 8601) | Task | Skill Invoked | Outcome |
+| 2026-08-16 07:10 | Implemented Director Track Milestone 1 (Orchestration Core): `job-queue.js` concurrency engine (parallel workers, latest-pending overwrite, error isolation) wired into kernel ghost sweeps; 12-archetype `somatic-triggers.js` + 23-style motif registry; expanded Director schema (`speaker`, `keywords`, `story_status`) with `<AVAILABLE_KEYWORDS>` pool; `<SOMATIC_DIRECTIVES>` injection into character + new Fractal scene-narrator prompts; normalized speaker delegation & reactive generating-entity thinking state. Added 3 test suites (job-queue, somatic-triggers, director-schema) + expanded prompts tests. Runs to run locally: `npm run verify` + `npm run deploy:prepare`. | `/02-implement`, `tdd` | 🔶 In Progress |
 | 2026-08-16 06:02 | Fixed story markdown export ghost-row crash & purged system telemetry/round markers for pure narrative flow; hardened image placeholder ghost sweeper with 2-minute timeout & auto-sweep on turn completion; standardized Memory Forge past vector prompt to strict 3rd-person named entity phrasing. Verified across 38 test suites (526 unit + 3 design tests passing). | `/02-implement`, `tdd` | ✅ Completed |
 | 2026-08-16 05:46 | Executed `/00-startup`: primed Developer Database vector memory, audited and moved root transients to `tmp/`, formatted configs, validated unidirectional layer hierarchy, and verified test suite baseline (37 test suites, 525 unit tests + 3 design tests passing, 0 errors, 0 warnings). | `/00-startup` | ✅ Ready |
 | 2026-08-16 04:06 | Executed `/00-startup`: primed Developer Database vector memory, validated unidirectional layer hierarchy, formatted lint targets, and verified test suite baseline (37 test suites, 524 unit tests + 3 design tests passing, 0 errors, 0 warnings). | `/00-startup` | ✅ Ready |

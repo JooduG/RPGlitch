@@ -13,7 +13,8 @@
   import Header from "./Header.svelte";
   import Body from "./Body.svelte";
   import Attachments from "./Attachments.svelte";
-  import PrologueEpilogue from "./PrologueEpilogue.svelte";
+  import Prologue from "./Prologue.svelte";
+  import Epilogue from "./Epilogue.svelte";
 
   /**
    * @typedef {Object} Props
@@ -284,8 +285,10 @@
 
       <!-- CARD BODY -->
       <div class="relative p-4">
-        {#if meta?.is_prologue || meta?.is_epilogue}
-          <PrologueEpilogue {card_actions} is_prologue={meta?.is_prologue} />
+        {#if meta?.is_prologue}
+          <Prologue {card_actions} />
+        {:else if meta?.is_epilogue}
+          <Epilogue {card_actions} status={meta?.conclusion_status || meta?.story_status || "CONCLUDED"} />
         {/if}
 
         <Body

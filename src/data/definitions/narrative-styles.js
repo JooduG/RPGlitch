@@ -136,6 +136,7 @@ export const NARRATIVE_STYLES = {
 
   anais_nin: {
     id: "anais_nin",
+    keywords: ["sensual_submersion"],
     name: "Anaïs Nin",
     portrait: "https://user.uploads.dev/file/ac255c9a8af91d5082b0063f2b686a71.png",
     description:
@@ -181,6 +182,7 @@ export const NARRATIVE_STYLES = {
 
   anna_zaires: {
     id: "anna_zaires",
+    keywords: ["captive_control"],
     name: "Anna Zaires",
     portrait: "https://user.uploads.dev/file/9da5e7dafb89e544ddbbe5df22fb25dc.png",
     description: "Dark psychological prose centered on captivity, obsession, rationalized control, and intense psychological dependence.",
@@ -215,6 +217,7 @@ export const NARRATIVE_STYLES = {
 
   bernardo_bertolucci: {
     id: "bernardo_bertolucci",
+    keywords: ["decaying_opulence"],
     name: "Bernardo Bertolucci",
     portrait: "https://user.uploads.dev/file/9a6c0d6bcc8e8f04e20eb99eb40cf83e.png",
     description:
@@ -245,6 +248,7 @@ export const NARRATIVE_STYLES = {
 
   cara_mckenna: {
     id: "cara_mckenna",
+    keywords: ["tactile_grounding"],
     name: "Cara McKenna",
     portrait: "https://user.uploads.dev/file/f9636773932371f0b697841be8a6471d.png",
     description: "Gritty, realistic prose focused on raw vulnerability, working-class realism, and physical touch.",
@@ -284,6 +288,7 @@ export const NARRATIVE_STYLES = {
 
   cormac_mccarthy: {
     id: "cormac_mccarthy",
+    keywords: ["blunt_fatalism"],
     name: "Cormac McCarthy",
     portrait: "https://user.uploads.dev/file/d765a99e806b05f27cc8ba497ddf9ebe.png",
     description: "A brutalist, stark narrative style using polysyndeton, omitted punctuation, and an objective, unvarnished gaze.",
@@ -313,6 +318,7 @@ export const NARRATIVE_STYLES = {
 
   david_lynch: {
     id: "david_lynch",
+    keywords: ["uncanny_hum"],
     name: "David Lynch",
     portrait: "https://user.uploads.dev/file/2948ac605cb8679e03e44010a28256a8.png",
     description: "A surreal narrative style governed by nightmare logic, auditory dread, temporal distortions, and uncanny mystery.",
@@ -342,6 +348,7 @@ export const NARRATIVE_STYLES = {
 
   edgar_allan_poe: {
     id: "edgar_allan_poe",
+    keywords: ["escalating_dread"],
     name: "Edgar Allan Poe",
     portrait: "https://user.uploads.dev/file/3f38ae76ab4ec4ec95012e9a55e7871d.png",
     description: "Gothic horror driven by an unreliable narrator tracking paranoia, guilt, and psychological decay.",
@@ -381,6 +388,7 @@ export const NARRATIVE_STYLES = {
 
   george_rr_martin: {
     id: "george_rr_martin",
+    keywords: ["court_paranoia", "bitter_confrontation"],
     name: "George R.R. Martin",
     portrait: "https://user.uploads.dev/file/75f11a255ea7017021f92c9ac3daa55d.png",
     description: "Grounded, multi-layered prose tracking political intrigue, moral compromise, and physical consequences.",
@@ -405,6 +413,7 @@ export const NARRATIVE_STYLES = {
 
   haruki_murakami: {
     id: "haruki_murakami",
+    keywords: ["quiet_detachment"],
     name: "Haruki Murakami",
     portrait: "https://user.uploads.dev/file/c6653cbd9c08962581583549307a67a2.png",
     description: "Detached, melancholic style blending domestic routines with sudden magical realism and vinyl records.",
@@ -429,6 +438,7 @@ export const NARRATIVE_STYLES = {
 
   hd_carlton: {
     id: "hd_carlton",
+    keywords: ["predatory_tension"],
     name: "H.D. Carlton",
     portrait: "https://user.uploads.dev/file/29fc25684e26e5c40d9b178b56e868d7.png",
     description: "Atmospheric dark romance combining gothic threat, stalker dynamics, and mafia-tier power imbalances.",
@@ -463,6 +473,7 @@ export const NARRATIVE_STYLES = {
 
   hp_lovecraft: {
     id: "hp_lovecraft",
+    keywords: ["cosmic_insignificance"],
     name: "H.P. Lovecraft",
     portrait: "https://user.uploads.dev/file/564941049ebb9e821caead0017d7423d.png",
     description: "Dense, clinical narrative tracing intellectual breakdown when confronted by cosmic forces.",
@@ -492,6 +503,7 @@ export const NARRATIVE_STYLES = {
 
   jane_austen: {
     id: "jane_austen",
+    keywords: ["ironic_decorum"],
     name: "Jane Austen",
     portrait: "https://user.uploads.dev/file/c29b56aff50893999a69d6f2d2def874.png",
     description: "Witty, ironic Free Indirect Discourse observing propriety, conversational subtext, and social economics.",
@@ -531,6 +543,7 @@ export const NARRATIVE_STYLES = {
 
   jrr_tolkien: {
     id: "jrr_tolkien",
+    keywords: ["elegiac_light"],
     name: "J.R.R. Tolkien",
     portrait: "https://user.uploads.dev/file/7a08520c84f425fd1572decead2f7880.png",
     description: "Earnest, elevated, archaic prose rich in mythic lore, duty, hope, and environmental reflection.",
@@ -570,6 +583,7 @@ export const NARRATIVE_STYLES = {
 
   lee_child: {
     id: "lee_child",
+    keywords: ["tactical_geometry"],
     name: "Lee Child",
     portrait: "https://user.uploads.dev/file/68023c8a82d6e00c7de8047e09ee7764.png",
     description: "Terse, declarative, staccato prose stripped of figurative language. Built on spatial physics and momentum.",
@@ -594,6 +608,7 @@ export const NARRATIVE_STYLES = {
 
   penelope_douglas: {
     id: "penelope_douglas",
+    keywords: ["battlefield_vulnerability"],
     name: "Penelope Douglas",
     portrait: "https://user.uploads.dev/file/4711670ee787d7e40515def6b211a28f.png",
     description: "High-energy contemporary prose packed with confrontational angst, bully dynamics, sharp banter, and real-time emotional spirals.",
@@ -623,6 +638,7 @@ export const NARRATIVE_STYLES = {
 
   philip_k_dick: {
     id: "philip_k_dick",
+    keywords: ["ontological_doubt"],
     name: "Philip K. Dick",
     portrait: "https://user.uploads.dev/file/223d14a8846614174325de0f76b11444.png",
     description: "Ontologically unstable narrative style driven by paranoia, identity shifts, and simulation glitches.",
@@ -652,6 +668,7 @@ export const NARRATIVE_STYLES = {
 
   sally_rooney: {
     id: "sally_rooney",
+    keywords: ["numb_precision"],
     name: "Sally Rooney",
     portrait: "https://user.uploads.dev/file/da37829ce26ec85c9c065da0358246ad.png",
     description:
@@ -682,6 +699,7 @@ export const NARRATIVE_STYLES = {
 
   samuel_delany: {
     id: "samuel_delany",
+    keywords: ["anatomical_philosophy"],
     name: "Samuel R. Delany",
     portrait: "https://user.uploads.dev/file/9b2f6375f89ff73e3696f8c085b03fb7.png",
     description:
@@ -707,6 +725,7 @@ export const NARRATIVE_STYLES = {
 
   stephen_king: {
     id: "stephen_king",
+    keywords: ["folksy_dread"],
     name: "Stephen King",
     portrait: "https://user.uploads.dev/file/371dfa7b61691bb424816e3f633f1208.png",
     description: "Grounded blue-collar realism punctured by plainspoken horror, regional colloquialisms, internal italics, and visceral dread.",
@@ -741,6 +760,7 @@ export const NARRATIVE_STYLES = {
 
   william_gibson: {
     id: "william_gibson",
+    keywords: ["high_tech_low_life", "flickering_neon_data"],
     name: "William Gibson",
     portrait: "https://user.uploads.dev/file/0eb908cd997da8d32fd7625077baab49.png",
     description: "Dense, detached neon-noir prose saturated with technical jargon, neologisms, and cybernetic metaphors.",
@@ -765,6 +785,7 @@ export const NARRATIVE_STYLES = {
 
   ernest_hemingway: {
     id: "ernest_hemingway",
+    keywords: ["stoic_pain", "iceberg_subtext"],
     name: "Ernest Hemingway",
     portrait: "",
     description:
@@ -802,6 +823,7 @@ export const NARRATIVE_STYLES = {
 
   joe_abercrombie: {
     id: "joe_abercrombie",
+    keywords: ["grim_bathos"],
     name: "Joe Abercrombie",
     portrait: "",
     description:
@@ -837,6 +859,7 @@ export const NARRATIVE_STYLES = {
 
   arthur_morgan: {
     id: "arthur_morgan",
+    keywords: ["outlaw_fatigue"],
     name: "Arthur Morgan",
     portrait: "",
     description:
@@ -871,3 +894,16 @@ export const NARRATIVE_STYLES = {
     ],
   },
 };
+
+/**
+ * Returns the dynamic style-motif keywords a narrative style contributes to the
+ * Director's <AVAILABLE_KEYWORDS> pool. Empty array for default/unknown keys.
+ * @param {string} [style_key]
+ * @returns {string[]}
+ */
+export function get_style_keywords(style_key = "") {
+  if (!style_key) return [];
+  const style = NARRATIVE_STYLES[style_key];
+  if (!style) return [];
+  return Array.isArray(style.keywords) ? style.keywords.filter((k) => typeof k === "string" && k.trim()) : [];
+}

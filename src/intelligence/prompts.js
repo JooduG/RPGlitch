@@ -5,7 +5,7 @@
  * Synthesizes simulation state, entities, and memories into XML system schemas.
  */
 import { ind, prompt_escape, state_bridge, escape_xml, physical_to_xml } from "@utils";
-import { NARRATIVE_STYLES, PROTOCOL_LIBRARY } from "@data";
+import { NARRATIVE_STYLES, PROTOCOL_LIBRARY, build_available_keywords_xml, build_somatic_directives_block, get_style_keywords } from "@data";
 import { DYNAMICS_META, build_signals_xml } from "./dynamics.js";
 import { ENTITY_CATALOG, ENTITY_FRAGMENTS } from "@data";
 import { clean_xml, collapse_history, strip_cognition_blocks } from "./parser.js";
@@ -25,6 +25,9 @@ const protocols_cache = new Map();
 
 const DIRECTOR_JSON_SCHEMA = `{
   "_thought_process": "<ONE short sentence: the key state change this turn>",
+  "speaker": "'ai' (the AI_CHARACTER speaks) | 'fractal' (the FRACTAL world narrates the scene) | 'npc:<id>' (an in-scene NPC) — default 'ai'",
+  "keywords": "1-2 keywords chosen from <AVAILABLE_KEYWORDS> matching the emotional undercurrent (or [])",
+  "story_status": "'IN_PROGRESS' | 'CONCLUDED' (overarching story quest won) | 'COLLAPSED' (quest lost irrevocably) — default 'IN_PROGRESS'",
   "directive": "<Optional in-character stage direction for the AI_CHARACTER (under 30 words, or empty string). Never reveal hidden agendas as fact.>",
   "AI_CHARACTER": {
     "state_append": {
@@ -199,12 +202,18 @@ function render_director({ round, entities, input, render_accessors, compressed_
     .filter(Boolean)
     .join(", ");
   const dynamics_legend = build_dynamics_legend();
+  const active_style_keywords = get_style_keywords(resolve_active_style_key());
 
   const system = clean_xml(`
 <SYSTEM role="DIRECTOR">
   You are the Director — the unseen intelligence orchestrating the mechanical state of the simulation.
   
   ${ind(dynamics_legend, 2)}
+
+  <AVAILABLE_KEYWORDS>
+    ${build_available_keywords_xml(active_style_keywords)}
+    Select 1-2 of these when the turn carries a matching emotional undercurrent (or none when neutral). Never invent keywords outside this list.
+  </AVAILABLE_KEYWORDS>
 
   <ACTIVE_CHARACTERS>
     <AI_CHARACTER name="${escape_xml(entities?.AI?.name || "AI")}"${format_dynamics_attrs(compressed_snapshot?.ai?.dynamics)}>
@@ -255,6 +264,8 @@ ${(() => {
 })()}
 <TASK>
     Evaluate state mutations caused by ${input?.trim() ? "<USER_ACTION>" : "the current situation"}.
+    Decide the active speaker: "ai" (the AI_CHARACTER speaks), "fractal" (the FRACTAL world narrates the scene), or "npc:<id>" (a specific in-scene NPC). Default "ai".
+    Evaluate whether the overarching story quest reached victory (story_status "CONCLUDED") or irrevocable tragedy ("COLLAPSED"); otherwise keep "IN_PROGRESS".
     Record your reasoning inside "_thought_process" and return a single valid JSON object following this exact schema:
     ${DIRECTOR_JSON_SCHEMA}
     Obey all active <PROTOCOLS>. Keep output under 800 characters and return strictly JSON.
@@ -281,6 +292,10 @@ function render_character({ round, entities, input, compressed_snapshot, meta, r
     </DIRECTOR_NOTE>
     `
     : "";
+
+  // Director-selected somatic/trauma keywords resolve into deterministic
+  // physical tells — the "mask vs. leakage" layer of the behavioral protocol.
+  const somatic_directives_xml = build_somatic_directives_block(director_data?.keywords || []);
 
   const protocols = [
     "COGNITION.PHASES",
@@ -366,6 +381,7 @@ You are ${escape_xml(entities?.AI?.name || "AI")} in an active scene with ${esca
 ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
 <TASK>
     ${director_note}
+    ${somatic_directives_xml ? `${somatic_directives_xml}\n    ` : ""}
     <THINK_FORMAT>
     ${PROTOCOL_LIBRARY.COGNITION.THINK_CHARACTER}
     </THINK_FORMAT>
@@ -432,12 +448,17 @@ function render_ghostwriter({ entities, input = "" }) {
   return rendered;
 }
 
-function build_narrator(mode, { entities, render_accessors, compressed_snapshot, round = null, input = null }) {
+function build_narrator(mode, { entities, render_accessors, compressed_snapshot, round = null, input = null, director_data = null }) {
   const task_text =
     mode === "prologue"
       ? `${PROTOCOL_LIBRARY.SCENE.PROLOGUE}\n    Input: ${escape_xml(input?.trim() || "The scene begins.")}`
-      : PROTOCOL_LIBRARY.SCENE.EPILOGUE;
+      : mode === "scene"
+        ? `${PROTOCOL_LIBRARY.SCENE.CONTINUATION}\n    Input: ${escape_xml(input?.trim() || "The scene continues.")}`
+        : PROTOCOL_LIBRARY.SCENE.EPILOGUE;
   const fractal_name = entities?.FRACTAL?.name || "Environment";
+  // World narration can carry somatic keywords too (environmental tells), but
+  // scene bookends (prologue/epilogue) never receive them.
+  const somatic_directives_xml = mode === "scene" ? build_somatic_directives_block(director_data?.keywords || []) : "";
 
   const system = clean_xml(`
 <SYSTEM role="${escape_xml(fractal_name)}" mode="${mode.toUpperCase()}">${render_narrative_style_xml()}
@@ -486,6 +507,7 @@ ${round != null ? `<ROUND>${escape_xml(String(round))}</ROUND>\n` : ""}${input?.
     </THINK_FORMAT>
     ${task_text}
     ${build_signals_xml({}, compressed_snapshot?.fractal?.dynamics)}
+    ${somatic_directives_xml ? `${somatic_directives_xml}\n    ` : ""}
     <POV_DIRECTIVE>${PROTOCOL_LIBRARY.POV.NARRATOR}</POV_DIRECTIVE>
   </TASK>
   `).trim();
@@ -808,6 +830,25 @@ export const prompt_builder = {
         fractal: snapshot.fractal?.dynamics,
         flags: snapshot.flags,
         memories: temporal_engine.score(payload.entities?.AI?.memories || [], render_accessors._context).slice(0, 5),
+      },
+    };
+  },
+  build_scene_narrator_prompt(payload, snapshot, director_data) {
+    const render_accessors = prompt_builder.create_render_accessors(payload.entities, payload.input, payload.raw_messages);
+    const rendered = build_narrator("scene", {
+      ...payload,
+      render_accessors,
+      compressed_snapshot: snapshot,
+      director_data,
+    });
+    return {
+      system: prompt_builder.clean_prompt_text(rendered.system),
+      task: prompt_builder.clean_prompt_text(rendered.task),
+      meta: {
+        ai: snapshot.ai?.dynamics,
+        fractal: snapshot.fractal?.dynamics,
+        flags: snapshot.flags,
+        memories: temporal_engine.score(payload.entities?.FRACTAL?.memories || [], render_accessors._context).slice(0, 5),
       },
     };
   },
