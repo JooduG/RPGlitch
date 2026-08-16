@@ -18,6 +18,8 @@ const log_time_formatter = new Intl.DateTimeFormat("sv-SE", {
 class TelemetryStore {
   /** @type {any[]} */
   logs = $state([]);
+  /** @type {ReturnType<typeof setTimeout> | null} */
+  _log_persist_timer = null;
 
   /**
    * Records a system event.
@@ -59,6 +61,29 @@ class TelemetryStore {
     if (state_bridge.app?.settings?.dev_mode) {
       console.info("[Engine]", `[Telemetry:${type.toUpperCase()}] ${message}`);
     }
+  }
+
+  /**
+   * Hydrates the persisted DevMode telemetry log so history survives reloads.
+   * Called once from app.init() at bootstrap.
+   */
+  async hydrate() {
+    if (typeof db?.kv_settings === "undefined") return;
+    try {
+      const stored = await db.kv_settings.get("rpg_telemetry_logs");
+      if (stored?.value && Array.isArray(stored.value) && stored.value.length > 0) {
+        this.logs = $state.snapshot(stored.value).slice(0, 100);
+      }
+    } catch (e) {
+      console.error("[Security] Telemetry Log Hydration Failed:", e);
+    }
+  }
+
+  /**
+   * Clears the in-memory telemetry log. Test/utility isolation hook.
+   */
+  clear() {
+    this.logs = [];
   }
 }
 

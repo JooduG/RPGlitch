@@ -231,9 +231,6 @@ export class AppStore {
   get logs() {
     return telemetry_store.logs;
   }
-  set logs(v) {
-    telemetry_store.logs = v;
-  }
   /**
    * Records a system event. Delegates to the telemetry store.
    * @param {string} message
@@ -264,14 +261,7 @@ export class AppStore {
     }
 
     // Hydrate the persisted DevMode telemetry log so history survives reloads.
-    try {
-      const stored = await db.kv_settings.get("rpg_telemetry_logs");
-      if (stored?.value && Array.isArray(stored.value) && stored.value.length > 0) {
-        this.logs = $state.snapshot(stored.value).slice(0, 100);
-      }
-    } catch (e) {
-      console.error("[Security] Telemetry Log Hydration Failed:", e);
-    }
+    await telemetry_store.hydrate();
 
     // Freeze watchdog: never let a stuck state machine leave the composer dead.
     install_freeze_watchdog();
