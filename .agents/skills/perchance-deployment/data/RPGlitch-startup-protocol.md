@@ -3,7 +3,8 @@
 > **System Designation**: Sovereign AI Roleplay Engine  
 > **Core Architecture**: Svelte 5 Runes + Vite 8 (Single-File Production Bundle)  
 > **Target Deployment**: Perchance (`perchance.org`)  
-> **Source Repository**: `JooduG/RPGlitch`  
+> **Source Repository**: `https://github.com/JooduG/RPGlitch`  
+> **Global Instructions & System Rules**: `https://github.com/JooduG/gemini`  
 > **Protocol Audience**: External AI Engineering Agents & Collaborators
 
 ---
@@ -15,7 +16,7 @@ External AI agents executing tasks on this repository operate without direct acc
 1. 📥 **Repository & Context Alignment**
    - Treat the workspace `src/` as the single source of truth.
    - Always reference relative repository paths (e.g., `src/engine/session.js`, `tasks/PRESENT.md`). Never invent or reference machine-specific absolute file paths.
-   - Ground all architectural decisions in the active conventions established in `GEMINI.md`, `DESIGN.md`, and this specification.
+   - Ground all architectural decisions in the active conventions established in `GEMINI.md`, `DESIGN.md`, this specification, and global instructions in `https://github.com/JooduG/gemini`.
 
 2. 📜 **Shell & Template Protection**
    - The shell host `index.html` at the project root is hand-maintained between sessions.
