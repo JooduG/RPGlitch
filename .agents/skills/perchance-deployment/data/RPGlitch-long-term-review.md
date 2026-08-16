@@ -2,7 +2,7 @@
 
 ## Objective
 
-Simulate a live end-to-end test session of **25 to 30 turns** within RPGlitch. Act simultaneously as a realistic human user inside the chat payload and an unforgiving narrative auditor behind the scenes. Focus **exclusively on narrative content, character dynamics, prose quality, slimmed-down detox compliance, unified dynamics signal telemetry, sovereign name resonance, and engine bug verification**. Evaluate how the AI character and Director react to physical contradictions, trauma triggers, moral dilemmas, unprompted initiative tests, mid-session reloads, and post-climax transitions.
+Simulate a live end-to-end test session of **25 to 30 turns** within RPGlitch. Act simultaneously as a realistic human user inside the chat payload and an unforgiving narrative auditor behind the scenes. Focus **exclusively on narrative content, character dynamics, prose quality, detox engine compliance, unified dynamics signal telemetry, sovereign name resonance, memory provenance, epistemic physics, and engine bug verification**. Evaluate how the AI character and Director react to physical contradictions, trauma triggers, moral dilemmas, unprompted initiative tests, mid-session reloads, and post-climax transitions.
 
 ---
 
@@ -41,20 +41,24 @@ Simulate a live end-to-end test session of **25 to 30 turns** within RPGlitch. A
 
 7. 📌 **Long-Horizon Fact Precision Callback Probe (Turn 5 ➔ Turn 22)**:
    - _Action_: Plant a specific codename, serial number, or secondary NPC detail in Turn 5 (e.g., `VX-4412 cobalt spike` or dispatcher `Marta`). Reference it implicitly in Turn 22.
-   - _Audit Gate_: Verify whether the Memory Forge retains concrete plot facts (names, serial numbers, locations) alongside emotional affect, and confirm the AI character correctly recognizes and integrates the callback 17 turns later.
+   - _Audit Gate_: Verify whether the Memory Forge retains concrete plot facts (names, serial numbers, locations) alongside emotional affect, and confirm the AI character correctly recognizes and integrates the callback 17 turns later. Confirm `usr_` origin memories receive forge-skip protection and a 1.5x relevance boost.
 
-8. 🌅 **Climax Peak & Post-Climax Resolution Transition Probe (Turn 24 ➔ Turn 28)**:
+8. 🧱 **Epistemic Wall & Telepathy Barrier Probe (Turn 7 & Turn 21)**:
+   - _Action_: Set private `[SECRET: ...]` or `[PLAN: ...]` tags in user character present state.
+   - _Audit Gate_: Confirm that user private tags are stripped across the Epistemic Wall in `render_character()` so the AI character never hallucinates telepathic knowledge, while remaining fully visible to the omniscient Director in `render_director()`.
+
+9. 🌅 **Climax Peak & Post-Climax Resolution Transition Probe (Turn 24 ➔ Turn 28)**:
    - _Action_: Drive the story past its climactic resolution (e.g., completing the main vault heist or escaping the facility) into the quiet aftermath.
-   - _Audit Gate_: Confirm the AI character's voice transitions naturally from high-intensity crisis into reflective aftermath. Confirm the Fractal standing agenda updates from active threat to post-climax aftermath.
+   - _Audit Gate_: Confirm the AI character's voice transitions naturally from high-intensity crisis into reflective aftermath. Confirm the Fractal standing agenda (`future_consolidated`) updates from active threat to post-climax aftermath.
 
-9. 👑 **Sovereign Name & Lore Resonance Audit (Every Turn)**:
-   - _Action_: Audit all responses for seamless integration of new sovereign names (**Lord Benedict Silvers**, **Prince Julien**, **Dr. Elias Tariq**, **Hank 'Rust' Brawley**, **Ytic'avon** underbelly). Confirm 0 residual occurrences of purged legacy names (_Valerius_, _Vance_, _Silas_, _Voss_, _Caelum_).
+10. 👑 **Sovereign Name & Lore Resonance Audit (Every Turn)**:
+    - _Action_: Audit all responses for seamless integration of sovereign names (**Lord Benedict Silvers**, **Prince Julien**, **Dr. Elias Tariq**, **Hank 'Rust' Brawley**, **Ytic'avon** underbelly). Confirm 0 residual occurrences of purged legacy names (_Valerius_, _Vance_, _Silas_, _Voss_, _Caelum_).
 
 ---
 
 ## Part 2: Feature Telemetry & Tactical Verification Focus Areas
 
-Alongside narrative edge-case probing, collect empirical telemetry on these 6 core engine bug fixes and feature systems:
+Alongside narrative edge-case probing, collect empirical telemetry on these core engine feature systems:
 
 1. 🧼 **Slimmed-Down Detox Engine Performance & Trope Scrubbing**:
    - _Target_: Audit the slimmed-down `detox-rules.js` engine (3-item `plain` allocations, 2-item `ornate`/`raw`/`clinical` allocations, deterministic FNV-1a hashing). Verify 0% occurrence of banned tropes and secondary crutches (`static`, `shadows`, `phantom itch/ache`, `hit like a physical blow`), confirming fast, lightweight execution with zero trope leakage.
@@ -62,11 +66,15 @@ Alongside narrative edge-case probing, collect empirical telemetry on these 6 co
    - _Target_: Confirm that `evaluate_dynamics_signals()` evaluates baseline global signals (`GLOBAL_TRIGGERS`) and author style `triggers` in one clean pass, rendering a single `<DYNAMICS_SIGNALS>` block. Confirm non-exclusive triggers fire smoothly for complex composite moods without prompt noise.
 3. 🔓 **Zero Post-Turn Phase Lock (UI Stasis Verification)**:
    - _Target_: Verify 0 instances of UI stasis or phase lockup (`simulation_state` stuck in `"locked"` phase). The composer input box must unlock immediately after turn generation and memory saving across all 30 rounds.
-4. 🎯 **Standing Agenda (`intent_consolidated`) Refresh & Eviction**:
-   - _Target_: Audit every Memory Forge cycle (R3, R7, R11, R15, R19, R23, R27). Confirm `intent_consolidated` updates on **100% of forge cycles** (via primary LLM output or fallback synthesis), and that completed objectives are evicted when plot milestones are reached.
-5. 👻 **Zero-Byte Ghost Row Cleanup on Image Timeouts**:
-   - _Target_: Track all visual triggers. Confirm that any timed-out or dropped image beats leave **0 empty ghost rows** (`attachments: [{src: null, failed: true}]`) in `simulation_log`.
-6. 💾 **IndexedDB Dynamics Persistence & State Restoration**:
+4. 🎯 **Standing Agenda (`future_consolidated`) Refresh & Eviction**:
+   - _Target_: Audit every Memory Forge cycle (R3, R7, R11, R15, R19, R23, R27). Confirm `future_consolidated` updates on **100% of forge cycles** (via primary LLM output or fallback synthesis), and that completed objectives are evicted when plot milestones are reached.
+5. 🧬 **Vector Memory Provenance & Forge-Skip Protection**:
+   - _Target_: Verify that user-authored / canon memories prefixed with `usr_` are origin-protected (`is_origin = true`), immune to Memory Forge eviction/compression, and boosted by a 1.5x relevance multiplier in `compute_relevance()`. Confirm rolling session `ai_` memory vectors stay bounded within the 20-item cap (`PAST_VECTOR_CAP = 20`).
+6. 🧽 **Universal Atomic Key Clearing & Wardrobe Lifecycle**:
+   - _Target_: Verify that present state pseudo-JSON directives (`[KEY: none]`, `[KEY: bare]`, `[CLOTHING: none]`) cleanly delete keys from `present.physical`, while undressing stashes garments in `[INVENTORY: ...]` and redressing reads them back without hallucination.
+7. 🖼️ **Visual Filter & Ghost Row Cleanup**:
+   - _Target_: Confirm `INVENTORY`, `STASH`, `SECRET`, `PLAN`, and `STATUS` are strictly stripped from Perchance T2I image prompts. Confirm timed-out or dropped image beats leave **0 empty ghost rows** in `simulation_log`.
+8. 💾 **IndexedDB Dynamics Persistence & State Restoration**:
    - _Target_: Verify that live physics deltas (`chaos`, `intensity`, `openness`, `affinity`) are persisted back to IndexedDB entity records after every turn, guaranteeing 100% physics continuity across reloads.
 
 ---
@@ -77,9 +85,9 @@ Run the test for **25 to 30 full conversational turns without skipping or summar
 
 ### Telemetry & Narrative Audit Table (Update after every turn)
 
-| Rnd | User Hook & Edge Probe | AI Reply (Len / Register / Detox Pass) | Director Intent & Standing Agenda (`intent_consolidated`) | Image Trigger (Source / Tier / Result) | Active Dynamics & Signals (`<DYNAMICS_SIGNALS>`) | Narrative Continuity & Tic Audit |
-| --- | ---------------------- | -------------------------------------- | --------------------------------------------------------- | -------------------------------------- | ------------------------------------------------ | -------------------------------- |
-| 0   | Prologue start         | 1400ch (GRRM/Delany style)             | Set baseline standing agenda                              | Auto / story_scene / OK                | Baseline                                         | Tone locked, zero AI-isms        |
+| Rnd | User Hook & Edge Probe | AI Reply (Len / Register / Detox Pass) | Director Intent & Standing Agenda (`future_consolidated`) | Image Trigger (Source / Tier / Result) | Active Dynamics & Signals (`<DYNAMICS_SIGNALS>`) | Narrative Continuity & Memory Audit |
+| --- | ---------------------- | -------------------------------------- | --------------------------------------------------------- | -------------------------------------- | ------------------------------------------------ | ----------------------------------- |
+| 0   | Prologue start         | 1400ch (GRRM/Delany style)             | Set baseline standing agenda                              | Auto / story_scene / OK                | Baseline                                         | Tone locked, zero AI-isms           |
 
 ### 📦 Comprehensive Session JSON Trace Artifact Directive
 
@@ -91,7 +99,7 @@ In addition to updating the markdown table above, **you MUST dump and attach a c
   ```json
   {
     "meta": {
-      "timestamp": "2026-08-13T18:15:00Z",
+      "timestamp": "2026-08-16T04:12:00Z",
       "total_turns": 28,
       "scenario": "Gothic Baseline / Sovereign Test",
       "entities": ["Lord Benedict Silvers", "Julien", "Ashenweald"]
@@ -134,59 +142,68 @@ After completing all 25–30 rounds, aggregate your findings into a comprehensiv
 - [ ] **Physical Causality & Boundary Enforcement**: AI character correctly enforced environmental physics and spatial logic when tested with impossible user actions.
 - [ ] **Emotional Vulnerability & Register Depth**: AI character expressed genuine vulnerability without instantly deflecting back to campy bravado.
 - [ ] **Factual Retention & Long-Horizon Recall**: 15+ turn fact round-trip (codenames, items, NPCs) accurately retrieved and integrated into dialogue.
+- [ ] **Memory Provenance & Forge-Skip**: `usr_` pinned origin memories survived intact with 1.5x relevance boost; rolling session memory capped at 20.
+- [ ] **Epistemic Wall Integrity**: User `[SECRET:]` and `[PLAN:]` tags completely blocked from AI character context without telepathic leaks.
 - [ ] **Mid-Session State Reload Continuity**: Mid-session reload (Turn 15) restored state cleanly with zero physics loss or UI lockup.
 - [ ] **Post-Climax Resolution Transition**: Smooth voice and world transition from climactic peak into quiet aftermath.
-- [ ] **Standing Agenda (`intent_consolidated`) Refresh**: Agenda refreshed on 100% of forge cycles without goal starvation or stale objectives.
-- [ ] **Visual Trigger Telemetry & Ghost Row Cleanup**: 0-byte ghost rows 100% prevented on image timeouts; clean tier distribution.
+- [ ] **Standing Agenda (`future_consolidated`) Refresh**: Agenda refreshed on 100% of forge cycles without goal starvation or stale objectives.
+- [ ] **Visual Filter & Ghost Row Cleanup**: Excluded parameters stripped from image prompts; 0-byte ghost rows 100% prevented on image timeouts.
 - [ ] **Sovereign Vocabulary Compliance**: 100% sovereign name compliance (**Benedict Silvers**, **Julien**, **Elias Tariq**, **Hank 'Rust' Brawley**, **Ytic'avon**).
 
 ### 2. Targeted Feature Performance Audits
 
-- **Slimmed-Down Detox Audit**: Analysis of raw vs scrubbed LLM outputs under the new allocation limits (3-item `plain`, 2-item `ornate`/`raw`/`clinical`).
+- **Slimmed-Down Detox Audit**: Analysis of raw vs scrubbed LLM outputs under the allocation limits (3-item `plain`, 2-item `ornate`/`raw`/`clinical`).
 - **Unified Dynamics Signal Telemetry**: Audit of active `<DYNAMICS_SIGNALS>` blocks across all 6 axes (`intensity`, `chaos`, `openness`, `affinity`, `velocity`, `entropy`) and multi-trigger non-exclusive style evaluations.
-- **Standing Agenda Eviction Report**: Breakdown of how `intent_consolidated` evolved across all forge cycles.
+- **Standing Agenda Eviction Report**: Breakdown of how `future_consolidated` evolved across all forge cycles.
+- **Memory Provenance Audit**: Verification of `usr_` origin protection, cosine similarity deduplication (>0.92), and 200-vector ceiling bounds.
+- **Epistemic Wall Audit**: Verification that private user intentions remained hidden from Character perception while visible to Director.
 - **Visual Trigger Telemetry**: Total triggers fired, tier distribution, cooldown enforcement, and timeout cleanup.
 - **Physics Persistence & Reload Report**: Evaluation of IndexedDB physics updates and mid-session reload continuity.
 
-### 3. Director & Fractal World Steering Evaluation
-
-Analysis of how the Director instruction set used environmental atmosphere and world agendas to steer scene tension without overriding character agency.
-
 ---
 
-## Part 5: Recent Engineering Updates Audit & Efficacy Assessment (2-Hour Velocity Review)
+## Part 5: Recent Engineering Updates Audit & Efficacy Assessment
 
-> **Audit Anchor**: 2026-08-13 18:13 CEST  
-> **Evaluated Commits**: `06fd89342` ➔ `5ac8465f9` ➔ `4677075f5`  
-> **Status**: ✅ **100% SUCCESSFUL & VERIFIED**
+> **Audit Anchor**: 2026-08-16 04:12 CEST  
+> **Evaluated Tracks**: `track-memory-bundle-2026-08-14` ➔ `track-import-export-2026-08-14` ➔ `track-codebase-improvements-2026-08-13`  
+> **Status**: ✅ **100% SUCCESSFUL & VERIFIED (524 Unit Tests + 3 Design Tests Passing)**
 
-### 1. Key Engineering Interventions (Last 2 Hours)
+### 1. Key Engineering Interventions & Feature Bundles
 
-1. **Simulation Audit Harness & Pipeline Verification (`4677075f5`)**:
-   - Created standalone execution harness in `.agents/skills/simulation/scripts/simulation-audit.js` and Vitest suite `simulation-audit.test.js`.
-   - Verified automated prompt generation, prefix-cache verification, and pipeline assertion checks.
-   - Enforced 100% clean test execution across all 34 test files (443 unit & design tests).
+1. **Canon Chronicle & Memory Bundle (`track-memory-bundle-2026-08-14`)**:
+   - Added `usr_` ID prefix provenance for user/lore authored past memories with forge-skip protection (`is_origin`) and 1.5x relevance multiplier.
+   - Enforced 200 total vector ceiling guard per entity and <= 220 character truncation ceiling.
+   - Implemented Universal Atomic Key Clearing (`[KEY: none]`, `[KEY: bare]`, `[KEY: naked]`, etc.) and `[CLOTHING: none]` wildcard purge.
+   - Implemented multi-item inventory aggregation (`[INVENTORY: ...]` / `[STASH: ...]`) and undress/redress lifecycle.
+   - Implemented Epistemic Wall (`[SECRET:]` / `[PLAN:]` stripping in `render_character()`) and Visual Filter (`strip_visual_excluded` in `optics.js`).
 
-2. **Intelligence Parser Engine & Protocol Field Normalization (`5ac8465f9`)**:
-   - Consolidated pseudo-JSON extraction in `src/intelligence/parser.js`.
-   - Mapped legacy/flat LLM fields (`personality_*`, `state_*`, `objective_*`) seamlessly back to nested DB schemas (`eternal.*`, `present.*`, `future`).
-   - Cleaned up `ImportModal.svelte` and `Profile.svelte.js` to handle both flat and nested key mutations without data loss.
+2. **Universal Data Portability & Card Codec (`track-import-export-2026-08-14`)**:
+   - Built 3-in-1 Import Modal (`ImportModal.svelte`): Web URL proxy scraping via `superFetch`, native JSON import/export, and Character Card V2/V3 codec (`cards.js`).
+   - Implemented Story Markdown transcript compiler (`story-export.js`) from Story Library.
+   - Enabled edit-mode standalone Profile export directly from Profile view.
 
-3. **Temporal Engine & Entity Fragment Alignment (`06fd89342`)**:
-   - Refactored `render_entity_memory_context` in `src/intelligence/prompts.js` to dynamically map XML tags according to entity type:
-     - **Character**: `<PERMANENT_APPEARANCE>`, `<PERSONALITY>`, `<CURRENT_LOOK>`, `<STATE_OF_MIND>`, `<MEMORIES>`, `<INTENT>`.
-     - **User Persona**: `<PERMANENT_APPEARANCE>`, `<PERSONALITY>`, `<CURRENT_LOOK>`, `<STATE_OF_MIND>`, `<BACKSTORY>`, `<AGENDA>`.
-     - **Fractal**: `<ENVIRONMENT>`, `<METAPHYSICAL_TRUTHS>`, `<ACTIVE_ATMOSPHERE>`, `<CURRENT_STATE>`, `<HISTORY>`, `<AGENDA>`.
-   - Updated `MEMORY_FORGE` protocol in `src/data/definitions/protocols.js` to enforce non-empty `future` standing agenda updates for `FRACTAL` entities on every forge run, introducing the **Stale Goal Eviction Law**.
+3. **Architectural Improvements & Decoupling (`track-codebase-improvements-2026-08-13`)**:
+   - Decoupled layer boundaries in `src/intelligence/kernel.js`.
+   - Extracted `resolve_image_trigger` helper in `optics.js`.
+   - Implemented explicit `teardown()` method in `AudioEngine` (`audio.svelte.js`).
+   - Pruned public export surfaces across 6 core modules.
+
+4. **Simulation Audit Harness & Protocol Field Normalization**:
+   - Automated prompt generation, prefix-cache verification, and pipeline assertion checks via `npm run audit:simulation`.
+   - Enforced 100% clean test execution across all 37 test files (524 unit tests + 3 design tests).
 
 ---
 
 ### 2. Successfulness & Efficacy Matrix
 
-| Subsystem / Directive          | Expected Outcome                                                                                                      | Empirical Verification Result                                                                                                                                                                                                                        | Status  |
-| :----------------------------- | :-------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------ |
-| **Fractal Future Progression** | Prevent Fractal standing agenda stagnation across forge cycles.                                                       | Enforced non-empty `future` generation and Stale Goal Eviction Law in `MEMORY_FORGE` protocol (`protocols.js`). Tested & passing.                                                                                                                    | ✅ PASS |
-| **Dynamic XML Schema Tagging** | Render entity-appropriate XML tags in prompts without tag collision or prose leaks.                                   | Distinct tag sets (`<METAPHYSICAL_TRUTHS>`, `<ENVIRONMENT>`, `<AGENDA>`, `<HISTORY>` for Fractals vs `<PERSONALITY>`, `<PERMANENT_APPEARANCE>`, `<INTENT>`, `<MEMORIES>` for Characters) verified in `prompts.test.js` & `simulation-audit.test.js`. | ✅ PASS |
-| **Flat-to-Nested Mapping**     | Support flat LLM output keys (`personality_physical`, `state_non_physical`) cleanly in profile state & import modals. | Key normalization verified in `ImportModal.svelte`, `Profile.svelte.js`, and `normalizer.js`. 0 data loss across imports.                                                                                                                            | ✅ PASS |
-| **Singlefile Build Pipeline**  | Ensure singlefile bundle compiles cleanly with 0 lints/warnings.                                                      | `npm run deploy:prepare` built `dist/index.html` (1,274.07 kB inline) with 0 errors and 0 warnings.                                                                                                                                                  | ✅ PASS |
-| **Simulation Test Harness**    | Automated audit script for prompt hydration, epistemic physics, and payload checks.                                   | `npm run audit:simulation` executes cleanly; synthetic reports generated to `tmp/audit_report.md`.                                                                                                                                                   | ✅ PASS |
+| Subsystem / Directive          | Expected Outcome                                                                                                              | Empirical Verification Result                                                                                                           | Status  |
+| :----------------------------- | :---------------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------- | :------ |
+| **Canon Chronicle & Memory**   | Retain exact user/lore facts in `past` vectors with forge-skip protection and 1.5x relevance boost.                           | `usr_` provenance, forge-skip, 200-vector ceiling guard, and 1.5x boost verified in `temporal.test.js` & `repository.test.js`.          | ✅ PASS |
+| **Epistemic Wall**             | Strip User `[SECRET:]` and `[PLAN:]` tags from Character context to eliminate AI telepathy while keeping Director omniscient. | `strip_epistemic_tags` verified in `prompts.test.js` and `prompts.js`. Character receives sanitized view; Director receives 100% state. | ✅ PASS |
+| **Universal Atomic Clearing**  | Cleanly delete pseudo-JSON keys when set to `none`, `bare`, `cleared`, `off`, `naked`, etc.                                   | Atomic removal and `[CLOTHING: none]` wildcard purge verified in `parser.test.js` & `normalizer.test.js`.                               | ✅ PASS |
+| **Multi-Item Inventory**       | Merge repeated `[INVENTORY: ...]` / `[STASH: ...]` brackets into aggregated arrays.                                           | Aggregation & deduplication verified in `parser.test.js`. Undress/redress cycle confirmed.                                              | ✅ PASS |
+| **Visual Filter**              | Strip `INVENTORY`, `STASH`, `SECRET`, `PLAN`, `STATUS` from Perchance T2I image prompts.                                      | Parameter exclusion verified in `image-prompts.test.js` & `optics.js`.                                                                  | ✅ PASS |
+| **Character Card V2/V3 Codec** | Bidirectional import/export interoperability with Tavern/Chub/Janitor character cards.                                        | Codec detection, conversion, and serialization verified in `cards.test.js`.                                                             | ✅ PASS |
+| **Story Markdown Export**      | Export full conversational story logs into formatted Markdown files.                                                          | Transcript generation and file download trigger verified in `story-export.test.js`.                                                     | ✅ PASS |
+| **Singlefile Build Pipeline**  | Compile single-file bundle cleanly with 0 lints/warnings in ~12 seconds.                                                      | `npm run deploy:prepare` compiles `dist/index.html` inline with 0 errors and 0 warnings.                                                | ✅ PASS |
+| **Simulation Test Harness**    | Automated audit script for prompt hydration, epistemic physics, and payload checks.                                           | `npm run audit:simulation` executes cleanly; 524 unit tests + 3 design tests passing across 37 test files.                              | ✅ PASS |
