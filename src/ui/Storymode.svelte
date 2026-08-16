@@ -54,7 +54,7 @@
       if (!list.some((entry) => entry.id === active_id)) {
         list.push({
           id: active_id,
-          text: app.streaming.text ?? app.streaming.content ?? "",
+          text: app.streaming.content ?? "",
           role: active_turn_role ?? "ai",
           character_name: active_turn_name ?? "",
           created_at: Date.now(),

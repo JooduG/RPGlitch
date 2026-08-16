@@ -132,7 +132,6 @@ register_stream_handlers({
   start: (id, role) => app.start_stream(id, role),
   update: (chunk) => app.update_stream(chunk),
   end: () => app.end_stream(),
-  error: (node_id) => app.signal_stream_error(node_id),
   is_active: () => app.streaming.active,
 });
 

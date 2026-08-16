@@ -251,7 +251,8 @@ export function install_begin_flight_effect() {
   $effect(() => {
     const _pending = app.begin_story_pending;
     if (!_pending) return;
-    const has_prologue_entry = simulation_log.feed.some((entry) => entry.meta?.is_prologue) && app.streaming.active && app.streaming.text.length > 0;
+    const has_prologue_entry =
+      simulation_log.feed.some((entry) => entry.meta?.is_prologue) && app.streaming.active && app.streaming.content.length > 0;
     if (!has_prologue_entry || begin_flight_started) return;
     begin_flight_started = true;
     // Capture BEFORE the flip — the storyboard unmounts on the view change.

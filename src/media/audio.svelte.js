@@ -4,10 +4,18 @@
  * The sensory cortex for all things sonic. Handles sound effects,
  * notifications, and text-to-speech with Svelte 5 reactivity.
  */
-import { get_rpg_list, strip_cognition_blocks, onnx_mutex, wait_ort_ready } from "@utils";
+import { get_rpg_list, state_bridge, strip_cognition_blocks, onnx_mutex, wait_ort_ready } from "@utils";
 import { db } from "@data";
 
-import { KOKORO_VOICES, normalize_role, resolve_voice_name, resolve_voice_uri, split_speech_by_speaker, split_speech_sentences } from "./speech.js";
+import {
+  KOKORO_VOICES,
+  get_cadence_rate,
+  normalize_role,
+  resolve_voice_name,
+  resolve_voice_uri,
+  split_speech_by_speaker,
+  split_speech_sentences,
+} from "./speech.js";
 
 const STORAGE_KEY = "rpglitch_audio_settings";
 
@@ -725,6 +733,46 @@ export class VoiceEngine {
     this.#stream_stopped = false;
     this.spoken_character_cursor = 0;
     this.#next_play_time = 0;
+  }
+
+  /**
+   * Prepares the voice engine for a new streaming turn: resets stream
+   * bookkeeping, binds the stream's message id, and routes the speaking
+   * role's voice (entity → selected voice + cadence-scaled rate). Role
+   * normalization keeps "npc" distinct so NPC speech can resolve a voice
+   * from the live NPC roster; unvoiced/system roles keep the previous voice.
+   * @param {string | null | undefined} role
+   * @param {string | null | number} id
+   */
+  apply_stream_role(role, id) {
+    this.reset_stream();
+    this.active_message_id = id;
+    if (!role || role === "system") return;
+
+    const clean_role = String(role).toLowerCase();
+    const norm_role = clean_role.includes("user")
+      ? "user"
+      : clean_role.includes("fractal")
+        ? "fractal"
+        : clean_role.includes("npc")
+          ? "npc"
+          : clean_role.includes("ai") || clean_role.includes("character") || clean_role === "model"
+            ? "ai"
+            : null;
+
+    const runtime = state_bridge.runtime;
+    let entity = null;
+    if (norm_role === "ai") entity = runtime?.active_ai;
+    else if (norm_role === "user") entity = runtime?.active_user;
+    else if (norm_role === "fractal") entity = runtime?.active_fractal;
+    else if (norm_role === "npc") entity = runtime?.active_npcs?.[runtime?.streaming_entity_id] || null;
+
+    if (entity && entity.voice) {
+      const v_id = entity.voice.name || entity.voice.uri;
+      this.selected_voice = resolve_voice_uri(v_id);
+      const dyn_val = norm_role === "user" ? 50 : norm_role === "ai" ? (entity.dynamics?.intensity ?? 50) : (entity.dynamics?.velocity ?? 50);
+      this.rate = get_cadence_rate(entity.voice.cadence, dyn_val);
+    }
   }
 
   queue_stream_sentence(current_raw_text) {

@@ -39,7 +39,6 @@ const _mock_app = {
   start_stream: vi.fn(),
   update_stream: vi.fn(),
   end_stream: vi.fn(),
-  signal_stream_error: vi.fn(),
   prologue: "",
   busy: false,
   models_ready: true,
@@ -51,9 +50,6 @@ const _mock_app = {
     node_id: null,
     role: "ai",
     abort_controller: null,
-    text: "",
-    errored: false,
-    errored_node_id: null,
   },
 };
 

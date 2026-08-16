@@ -96,7 +96,7 @@
   let active_style = $derived(runtime.active_fractal?.narrative_style || "");
   let register = $derived(resolve_voice_register(entity, active_style));
   let is_streaming_target = $derived(!!(app.streaming.active && (app.streaming.node_id === id || (meta?.id && app.streaming.node_id === meta.id))));
-  let active_text = $derived(is_streaming_target ? app.streaming.text : text);
+  let active_text = $derived(is_streaming_target ? app.streaming.content : text);
   let parsed = $derived(parse_message(active_text, register));
   let display_text = $derived(parsed.displayText);
   let think_block = $derived(parsed.think);

@@ -502,7 +502,6 @@ export class AppStore {
   start_stream = (id, role = "ai") => streaming_store.start_stream(id, role);
   update_stream = (chunk) => streaming_store.update_stream(chunk);
   end_stream = () => streaming_store.end_stream();
-  signal_stream_error = (node_id) => streaming_store.signal_stream_error(node_id);
   trigger_interrupt = () => streaming_store.trigger_interrupt();
   open_image_preview = (/** @type {any} */ src, caption = "") => {
     open_image_preview(src, caption);

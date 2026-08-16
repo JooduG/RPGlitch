@@ -691,7 +691,6 @@ export const gamemaster = {
 
       if (director_monologue) {
         state_bridge.app.streaming.content = director_monologue;
-        state_bridge.app.streaming.text = director_monologue;
         if (typeof llm_options.onToken === "function") {
           llm_options.onToken(director_monologue);
         }
@@ -726,7 +725,6 @@ export const gamemaster = {
         const v_result = validate_and_repair_response(full_text);
         if (v_result.refused) {
           state_bridge.app.streaming.content = "";
-          state_bridge.app.streaming.text = "";
           throw new Error("AI_REFUSAL_DETECTED");
         }
         return v_result;
@@ -745,7 +743,6 @@ export const gamemaster = {
         if (prose_only && prose_only.length >= TRUNCATION_MIN_PROSE) {
           state_bridge.app.log("[GameMaster] Reply truncated — regenerating with completion directive...", "warn");
           state_bridge.app.streaming.content = director_monologue || "";
-          state_bridge.app.streaming.text = director_monologue || "";
           validation_result = await this.execute_with_retry(() => make_character_try(TRUNCATION_COMPLETE_NOTE), 1, 500);
           if (looks_truncated(validation_result.text)) {
             validation_result.text = force_close_response(validation_result.text, generation_name);
@@ -935,7 +932,6 @@ export const gamemaster = {
       // and the character pass streams into it since stream_bridge.is_active() is true.
       state_bridge.app.streaming.active = true;
       state_bridge.app.streaming.content = "";
-      state_bridge.app.streaming.text = "";
       state_bridge.app.streaming.node_id = null;
       state_bridge.app.streaming.role = "ai";
 
@@ -1072,8 +1068,7 @@ export const gamemaster = {
       state_bridge.app.log(`[GameMaster] Connection issue. Retrying in ${delay}ms... (${retries} attempts left)`, "warn");
 
       if (state_bridge.app.streaming.active) {
-        state_bridge.app.streaming.content = "";
-        state_bridge.app.streaming.text = "_Network interrupted... Retrying connection..._";
+        state_bridge.app.streaming.content = "_Network interrupted... Retrying connection..._";
       }
 
       await new Promise((resolve) => setTimeout(resolve, delay));
