@@ -53,18 +53,17 @@ export const state_bridge = {
   },
 };
 
-/** @type {{ start: Function|null, update: Function|null, end: Function|null, error: Function|null, is_active: Function|null }} */
-const _handlers = { start: null, update: null, end: null, error: null, is_active: null };
+/** @type {{ start: Function|null, update: Function|null, end: Function|null, is_active: Function|null }} */
+const _handlers = { start: null, update: null, end: null, is_active: null };
 
 /**
  * Registers streaming handlers. Called once by the state layer at boot.
- * @param {{ start: Function, update: Function, end: Function, error: Function, is_active: Function }} handlers
+ * @param {{ start: Function, update: Function, end: Function, is_active: Function }} handlers
  */
 export function register_stream_handlers(handlers) {
   _handlers.start = handlers.start;
   _handlers.update = handlers.update;
   _handlers.end = handlers.end;
-  _handlers.error = handlers.error;
   _handlers.is_active = handlers.is_active;
 }
 
@@ -77,7 +76,6 @@ export const stream_bridge = {
   start: (node_id, role) => _handlers.start?.(node_id, role),
   update: (chunk) => _handlers.update?.(chunk),
   end: () => _handlers.end?.(),
-  error: (node_id) => _handlers.error?.(node_id),
 };
 
 /**

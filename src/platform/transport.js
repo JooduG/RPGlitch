@@ -332,7 +332,6 @@ export const llm_service = {
       return result;
     } catch (err) {
       if (!options.silent) {
-        stream_bridge.error(payload.node_id);
         stream_bridge.end(); // Always end stream on error to prevent locking
       }
       if (options.silent) {
