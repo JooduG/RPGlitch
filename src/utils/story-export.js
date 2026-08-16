@@ -5,7 +5,7 @@
  * transcript for archival. Pure + deterministic; no DOM, no imports beyond @utils.
  */
 
-import { strip_cognition_blocks } from "./text.js";
+import { format_datetime, strip_cognition_blocks } from "./text.js";
 
 /** Roles rendered as narrator blockquotes (world/scene-setting prose). */
 const NARRATOR_ROLES = new Set(["prologue", "fractal", "narrator", "epilogue"]);
@@ -38,23 +38,6 @@ export function format_story_beat(entry, options = {}) {
 }
 
 /**
- * Formats a timestamp as YYYY-MM-DD HH:mm (Swedish/ISO-adjacent, matches the
- * app's story-card display).
- * @param {number | string | Date | null | undefined} ts
- * @returns {string}
- */
-function format_timestamp(ts) {
-  if (!ts) return "---";
-  return new Date(ts).toLocaleString("sv-SE", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-/**
  * Compiles a story record and its simulation-log entries into a clean markdown
  * document formatted as pure dialogue and world narrative.
  * @param {Object} story
@@ -77,7 +60,7 @@ export function export_story_markdown(story = {}, entries = [], options = {}) {
   lines.push(`# ${title}`);
   lines.push("");
   lines.push(
-    `> **State:** ${is_concluded ? "Concluded" : "Active"} · **Last played:** ${format_timestamp(story.last_played ?? story.updated_at)} · **Beats:** ${formatted_beats.length}`,
+    `> **State:** ${is_concluded ? "Concluded" : "Active"} · **Last played:** ${format_datetime(story.last_played ?? story.updated_at)} · **Beats:** ${formatted_beats.length}`,
   );
   lines.push("");
 

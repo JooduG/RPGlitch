@@ -7,6 +7,7 @@
    */
   import { Accordion, DataBox, Meter } from "@primitives";
   import { DYNAMICS_META } from "@intelligence";
+  import { format_datetime } from "@utils";
 
   /**
    * @typedef {Object} Props
@@ -15,21 +16,6 @@
 
   /** @type {Props} */
   let { profile_state } = $props();
-
-  /**
-   * Formats timestamps to a standard Swedish/ISO-adjacent format.
-   * @param {string | number | null} ts
-   */
-  function format_timestamp(ts) {
-    if (!ts) return "---";
-    return new Date(ts).toLocaleString("sv-SE", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  }
 
   /**
    * Dynamically computes which dynamics are available on the current character.
@@ -108,7 +94,7 @@
           opacity-60
         ">Born:</span
       >
-      <span class="text-slate-50">{format_timestamp(profile_state.char.created_at)}</span>
+      <span class="text-slate-50">{format_datetime(profile_state.char.created_at)}</span>
     </div>
     <div
       class="
@@ -127,7 +113,7 @@
           opacity-60
         ">Sync:</span
       >
-      <span class="text-slate-50">{format_timestamp(profile_state.char.updated_at)}</span>
+      <span class="text-slate-50">{format_datetime(profile_state.char.updated_at)}</span>
     </div>
   </footer>
 </section>

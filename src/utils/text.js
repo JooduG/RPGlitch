@@ -470,6 +470,26 @@ export function format_key_as_label(key) {
 }
 
 /**
+ * Formats a timestamp as YYYY-MM-DD HH:mm (sv-SE locale, comma separator
+ * stripped for a clean clock-style readout). Shared by the story card, the
+ * dev console, and the markdown story export.
+ * @param {number | string | Date | null | undefined} ts
+ * @returns {string}
+ */
+export function format_datetime(ts) {
+  if (!ts) return "---";
+  return new Date(ts)
+    .toLocaleString("sv-SE", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+    .replace(",", "");
+}
+
+/**
  * Merges raw prose into an existing field (either pseudo-JSON or plain text)
  * and reserializes it securely without destructive appends.
  * @param {string} current_field_value

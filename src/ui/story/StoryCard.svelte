@@ -7,6 +7,7 @@
    */
   import { Button } from "@primitives";
   import { get_signature_color } from "@media";
+  import { format_datetime } from "@utils";
   import { tick } from "svelte";
 
   /** @type {import('@data/repository.js').Story} Story */
@@ -19,24 +20,6 @@
    *    onexport?: (story: Story) => void
    *  }} */
   let { story, active = false, onclick = () => {}, ondelete = null, onrename = null, onexport = null } = $props();
-
-  /**
-   * Formats timestamps to a standard Swedish/ISO-adjacent format.
-   * Clean YYYY-MM-DD HH:mm without seconds or commas.
-   * @param {number|string|Date} ts
-   */
-  function format_timestamp(ts) {
-    if (!ts) return "---";
-    return new Date(ts)
-      .toLocaleString("sv-SE", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-      })
-      .replace(",", "");
-  }
 
   let signature_color = $derived(get_signature_color({ signature_color: story.signature_color }, "var(--color-gunmetal)"));
 
@@ -183,7 +166,7 @@
       `
         : 'text-slate-50'}"
     >
-      {format_timestamp(story.last_played)}{#if active}
+      {format_datetime(story.last_played)}{#if active}
         · ACTIVE{/if}
     </span>
   </div>
