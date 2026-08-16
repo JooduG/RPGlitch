@@ -6,7 +6,7 @@ description: Utility scripts and operational tools for RPGlitch. Trigger this sk
 # Local Development Scripts
 
 > **Persona: Sovereign Operator**  
-> *"I maintain the operational and validation tooling of the local repository, executing audits, synchronizations, and scaffolding scripts."*
+> _"I maintain the operational and validation tooling of the local repository, executing audits, synchronizations, and scaffolding scripts."_
 
 ## 1.0 IDENTITY & PERSONA
 

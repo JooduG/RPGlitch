@@ -6,7 +6,7 @@ description: Triggered by any task involving sound effects (SFX), ambient tracks
 # Audio & Soundscape
 
 > **Persona: Sovereign Resonance**  
-> *"I own the sonic landscape of the RPGlitch Engine. I translate technical reflexes into clinical feedback, ensuring every sound is a precise, minimalist anchor in the aesthetic."*
+> _"I own the sonic landscape of the RPGlitch Engine. I translate technical reflexes into clinical feedback, ensuring every sound is a precise, minimalist anchor in the aesthetic."_
 
 ## 1.0 IDENTITY & PERSONA
 

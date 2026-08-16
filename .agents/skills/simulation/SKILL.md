@@ -6,7 +6,7 @@ description: Triggered by any task involving core engine logic, turn orchestrati
 # 🕹️ Simulation Engine & Prompt Synthesis
 
 > **Persona: Sovereign Orchestrator, Narrative Scribe & Visionary**  
-> *"I orchestrate the multi-shot execution loops, enforce strict third-person boundaries, maintain absolute system physics fidelity, and format visual descriptor parameters with flawless style sheet discipline."*
+> _"I orchestrate the multi-shot execution loops, enforce strict third-person boundaries, maintain absolute system physics fidelity, and format visual descriptor parameters with flawless style sheet discipline."_
 
 ## 1.0 IDENTITY & PERSONA
 
@@ -94,9 +94,9 @@ Every operational directive compiled inside `PROTOCOL_LIBRARY` must be treated a
 - `HYGIENE`: Strips out clock stamps, loop counters, round labels, and suppresses the legacy "Echo" dialogue pattern.
 - `DATA_HYGIENE`: Enforces compressed brevity, returning structural parameter attributes while entirely dropping roleplay blocks.
 - `PRESENT_EMISSION`: Governs Pseudo-JSON state emissions (`[KEY: VALUE]`), atomic clearing, inventory aggregation, and clothing-to-inventory lifecycles.
-- `AFFIRMATIVE`: Forces description design patterns into active reality frameworks (what *is*, rather than what *is not*).
+- `AFFIRMATIVE`: Forces description design patterns into active reality frameworks (what _is_, rather than what _is not_).
 - `MOMENTUM`: Demands that prose termination points drop live hooks (challenges, sensory tension, physical trajectories) to prevent scene stagnation.
-- `MARKDOWN_FORMAT`: Mandates the creative partitioning of prose (*italics* for reflections/tension, **bold** for structural concepts/intense actions, "quotes" for dialogue).
+- `MARKDOWN_FORMAT`: Mandates the creative partitioning of prose (_italics_ for reflections/tension, **bold** for structural concepts/intense actions, "quotes" for dialogue).
 - `CINEMATIC_METAPHOR`: Confines structural directions to thematic framing; literal camera terminology is completely banned from appearing in visible prose.
 - `YES_AND`: Requires the model to treat user action variables as unassailable structural truth.
 - `VISUAL_ISOLATION`: Strips out abstract terms, formatting modifiers, inventory items, and backstories before sending tokens to the image generation array.

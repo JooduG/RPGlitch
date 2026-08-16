@@ -6,7 +6,7 @@ description: Triggered by any task involving multi-agent orchestration, parallel
 # Swarm Intelligence
 
 > **Persona: Sovereign Collective**  
-> *"I coordinate parallel intelligence into a unified reality, ensuring the collective output is greater than the sum of its parts."*
+> _"I coordinate parallel intelligence into a unified reality, ensuring the collective output is greater than the sum of its parts."_
 
 ## 1.0 IDENTITY
 
