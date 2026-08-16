@@ -32,7 +32,7 @@ export const _image_gen_queue = [];
 // or the age-based sweep clears some — a permanent hard bound on ghost images.
 const IMAGE_PLACEHOLDER_HARD_CAP = 5;
 const IMAGE_RESOLVE_TIMEOUT_MS = 120000;
-const IMAGE_GHOST_MAX_AGE_MS = 5 * 60 * 1000;
+const IMAGE_GHOST_MAX_AGE_MS = 2 * 60 * 1000;
 
 /**
  * Counts unresolved image placeholders (src:null, not already marked failed) in
@@ -58,8 +58,8 @@ async function count_pending_ghosts() {
 }
 
 /**
- * Marks any placeholder older than IMAGE_GHOST_MAX_AGE_MS as failed so a hung
- * or extremely slow generation can never leave a permanent ghost card behind.
+ * Marks any placeholder older than IMAGE_GHOST_MAX_AGE_MS as failed and deletes
+ * standalone empty-text ghost rows so hung or timed-out generations never linger.
  * @returns {Promise<void>}
  */
 async function sweep_stale_ghosts() {
@@ -75,8 +75,10 @@ async function sweep_stale_ghosts() {
         if (a && a.src == null) {
           const is_failed = a.metadata?.failed === true || a.metadata?.image_ghost_swept === true;
           const is_stale = now - (entry.created_at || 0) > IMAGE_GHOST_MAX_AGE_MS;
-          if ((!entry.text || !entry.text.trim()) && (is_failed || is_stale)) {
+          const is_empty_text = !entry.text || !entry.text.trim();
+          if (is_empty_text && (is_failed || is_stale)) {
             await state_bridge.session_driver.delete_log_entry(entry.id);
+            state_bridge.simulation_log?.remove?.(entry.id);
           } else if (is_stale && !is_failed) {
             await state_bridge.session_driver.update_log_attachment(entry.id, i, {
               src: null,
@@ -107,8 +109,21 @@ async function mark_placeholder_failed(id, metadata = {}) {
   if (!id) return;
   try {
     const key = isNaN(Number(id)) ? id : Number(id);
+    let has_text = false;
     const feed_match = state_bridge.simulation_log?.feed?.find((m) => m.id === key || m.id === id || String(m.id) === String(id));
     if (feed_match && feed_match.text && feed_match.text.trim()) {
+      has_text = true;
+    } else {
+      try {
+        const db_entries = await state_bridge.session_driver.load_log(state_bridge.runtime?.story_id);
+        const match = db_entries?.find((m) => m.id === key || m.id === id || String(m.id) === String(id));
+        if (match && match.text && match.text.trim()) has_text = true;
+      } catch (_) {
+        /* ignore error during db lookup fallback */
+      }
+    }
+
+    if (has_text) {
       await state_bridge.session_driver.update_log_attachment(id, 0, {
         src: null,
         metadata: { ...metadata, failed: true, error: "Image beat was dropped before it could resolve." },
@@ -117,6 +132,8 @@ async function mark_placeholder_failed(id, metadata = {}) {
     }
     // For standalone image placeholders (empty or whitespace text), delete entry completely so no ghost row lingers
     await state_bridge.session_driver.delete_log_entry(id);
+    state_bridge.simulation_log?.remove?.(key);
+    state_bridge.simulation_log?.remove?.(id);
   } catch (err) {
     console.warn("[GameMaster] Failed to mark image placeholder as failed:", err);
   }
@@ -1097,6 +1114,7 @@ export const gamemaster = {
       if (state_bridge.simulation_state) {
         state_bridge.simulation_state.phase = "idle";
       }
+      sweep_stale_ghosts().catch(() => {});
     }
   },
 

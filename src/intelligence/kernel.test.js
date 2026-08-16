@@ -1059,7 +1059,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
     it("purge_stale_ghosts deletes empty-text failed/stale ghosts and marks stale unfailed ones", async () => {
       _mock_runtime.story_id = "story-123";
       const now = Date.now();
-      const ghost_age = 5 * 60 * 1000;
+      const ghost_age = 2 * 60 * 1000;
       session_driver.load_log.mockResolvedValue([
         { id: "ghost-failed", text: "", created_at: now, attachments: [{ src: null, metadata: { failed: true, image_ghost_swept: true } }] },
         { id: "ghost-stale", text: "", created_at: now - ghost_age - 1, attachments: [{ src: null, metadata: {} }] },

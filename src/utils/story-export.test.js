@@ -21,8 +21,14 @@ describe("format_story_beat", () => {
     expect(format_story_beat({ role: "fractal", text: "Dusk settles." })).toBe("> Dusk settles.");
   });
 
-  it("renders system telemetry as an italic note", () => {
-    expect(format_story_beat({ role: "system", text: "Vector Resolved: +2 affinity" })).toBe("_Vector Resolved: +2 affinity_");
+  it("renders system telemetry as an italic note when include_system is true", () => {
+    expect(format_story_beat({ role: "system", text: "Vector Resolved: +2 affinity" }, { include_system: true })).toBe(
+      "_Vector Resolved: +2 affinity_",
+    );
+  });
+
+  it("omits system telemetry by default to preserve pure story immersion", () => {
+    expect(format_story_beat({ role: "system", text: "Vector Resolved: +2 affinity" })).toBe(null);
   });
 
   it("strips cognition blocks from beat text", () => {
@@ -52,33 +58,32 @@ describe("export_story_markdown", () => {
     expect(md).toContain("**Beats:** 0");
   });
 
-  it("counts beats and rounds from the log", () => {
+  it("counts and emits clean narrative beats from the log", () => {
     const entries = [
       { role: "prologue", text: "Open.", round: 0 },
       { role: "user", text: "Hello.", round: 1 },
       { role: "assistant", character_name: "Vael", text: "Hi.", round: 1 },
+      { role: "system", text: "Intensity +2 | Openness -2", round: 1 },
     ];
     const md = export_story_markdown(story, entries);
     expect(md).toContain("**Beats:** 3");
-    expect(md).toContain("**Rounds:** 2");
-    expect(md).toContain("## Round 1");
+    expect(md).toContain("> Open.");
+    expect(md).toContain("**You:** Hello.");
+    expect(md).toContain("**Vael:** Hi.");
+    expect(md).not.toContain("Intensity +2");
   });
 
-  it("groups beats under round headers", () => {
+  it("does not crash on ghost/empty-text placeholder rows and filters them out", () => {
     const entries = [
       { role: "user", text: "One.", round: 1 },
+      { role: "fractal", text: "", attachments: [{ src: null, metadata: {} }] },
       { role: "assistant", character_name: "Vael", text: "Two.", round: 1 },
-      { role: "user", text: "Three.", round: 2 },
     ];
+    expect(() => export_story_markdown(story, entries)).not.toThrow();
     const md = export_story_markdown(story, entries);
-    expect(md).toContain("## Round 1");
-    expect(md).toContain("## Round 2");
-    const round1_index = md.indexOf("## Round 1");
-    const round2_index = md.indexOf("## Round 2");
-    expect(md.indexOf("One.")).toBeGreaterThan(round1_index);
-    expect(md.indexOf("Two.")).toBeGreaterThan(round1_index);
-    expect(md.indexOf("One.")).toBeLessThan(round2_index);
-    expect(md.indexOf("Three.")).toBeGreaterThan(round2_index);
+    expect(md).toContain("**Beats:** 2");
+    expect(md).toContain("**You:** One.");
+    expect(md).toContain("**Vael:** Two.");
   });
 
   it("marks concluded stories", () => {

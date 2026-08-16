@@ -18,15 +18,17 @@ const NARRATOR_ROLES = new Set(["prologue", "fractal", "narrator", "epilogue"]);
  * @param {any} entry
  * @returns {string|null}
  */
-export function format_story_beat(entry) {
+export function format_story_beat(entry, options = {}) {
   if (!entry || typeof entry !== "object") return null;
   const raw_text = entry.text ?? entry.content ?? "";
   if (typeof raw_text !== "string" || !raw_text.trim()) return null;
 
+  const role = String(entry.role || "").toLowerCase();
+  if (role === "system" && !options.include_system) return null;
+
   const text = strip_cognition_blocks(raw_text).trim();
   if (!text) return null;
 
-  const role = String(entry.role || "").toLowerCase();
   if (NARRATOR_ROLES.has(role)) return `> ${text.replace(/\n+/g, "\n> ")}`;
   if (role === "system") return `_${text.replace(/\n+/g, " ")}_`;
 
@@ -53,39 +55,33 @@ function format_timestamp(ts) {
 }
 
 /**
- * Compiles a story record and its simulation-log entries into a markdown
- * document. Groups beats by round when the log carries round numbers.
+ * Compiles a story record and its simulation-log entries into a clean markdown
+ * document formatted as pure dialogue and world narrative.
  * @param {Object} story
  * @param {any[]} [entries]
+ * @param {Object} [options]
  * @returns {string}
  */
-export function export_story_markdown(story = {}, entries = []) {
+export function export_story_markdown(story = {}, entries = [], options = {}) {
   const title = String(story.title || "Untitled Fragment");
   const is_concluded = story.state === "concluded" || !!story.is_concluded;
   const log = Array.isArray(entries) ? entries : [];
-  const beats = log.filter((e) => typeof (e?.text ?? e?.content) === "string" && (e.text || e.content).trim()).length;
-  const rounds = new Set(log.filter((e) => e?.round != null).map((e) => e.round));
+
+  const formatted_beats = [];
+  for (const entry of log) {
+    const beat = format_story_beat(entry, options);
+    if (beat) formatted_beats.push(beat);
+  }
 
   const lines = [];
   lines.push(`# ${title}`);
   lines.push("");
   lines.push(
-    `> **State:** ${is_concluded ? "Concluded" : "Active"} · **Last played:** ${format_timestamp(story.last_played ?? story.updated_at)} · **Beats:** ${beats} · **Rounds:** ${rounds.size}`,
+    `> **State:** ${is_concluded ? "Concluded" : "Active"} · **Last played:** ${format_timestamp(story.last_played ?? story.updated_at)} · **Beats:** ${formatted_beats.length}`,
   );
   lines.push("");
 
-  let last_round = null;
-  for (const entry of log) {
-    const beat = format_story_beat(entry);
-    if (!beat) continue;
-
-    const round = entry.round ?? null;
-    if (round != null && round !== last_round) {
-      if (last_round !== null) lines.push("---", "");
-      lines.push(`## Round ${round}`);
-      lines.push("");
-      last_round = round;
-    }
+  for (const beat of formatted_beats) {
     lines.push(beat);
     lines.push("");
   }
