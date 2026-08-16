@@ -76,6 +76,43 @@ if (typeof window !== "undefined") {
   };
 }
 
+// Belt-and-suspenders: also silence the Perchance engine's own frame errors
+// ("Symbol", "numActualScriptLines") that surface from the sandbox iframe.
+if (typeof window !== "undefined") {
+  window.addEventListener(
+    "error",
+    (e) => {
+      try {
+        const msg = e.message ? String(e.message) : "";
+        if (msg.includes("Symbol") || msg.includes("numActualScriptLines")) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      } catch {
+        // Fallback for objects that cannot be converted to string, such as raw symbols
+      }
+    },
+    true,
+  );
+
+  window.addEventListener(
+    "unhandledrejection",
+    (e) => {
+      try {
+        const reason = e.reason;
+        const msg = reason && typeof reason === "object" && reason.message ? String(reason.message) : reason ? String(reason) : "";
+        if (msg.includes("Symbol") || msg.includes("numActualScriptLines")) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      } catch {
+        // Fallback for unconvertible reasons
+      }
+    },
+    true,
+  );
+}
+
 // 🚀 BOOTSTRAP
 // Composition root: publish the state layer's accessors and stream handlers into
 // the @utils bridges (state_bridge / stream_bridge) so non-@state modules

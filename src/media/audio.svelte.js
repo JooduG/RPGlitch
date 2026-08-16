@@ -9,42 +9,6 @@ import { db } from "@data";
 
 const STORAGE_KEY = "rpglitch_audio_settings";
 
-// Global Sandbox Interceptor: Deployed at the threshold to silence Perchance engine frame conflicts
-if (typeof window !== "undefined") {
-  window.addEventListener(
-    "error",
-    (e) => {
-      try {
-        const msg = e.message ? String(e.message) : "";
-        if (msg.includes("Symbol") || msg.includes("numActualScriptLines")) {
-          e.preventDefault();
-          e.stopPropagation();
-        }
-      } catch {
-        // Fallback for objects that cannot be converted to string, such as raw symbols
-      }
-    },
-    true,
-  );
-
-  window.addEventListener(
-    "unhandledrejection",
-    (e) => {
-      try {
-        const reason = e.reason;
-        const msg = reason && typeof reason === "object" && reason.message ? String(reason.message) : reason ? String(reason) : "";
-        if (msg.includes("Symbol") || msg.includes("numActualScriptLines")) {
-          e.preventDefault();
-          e.stopPropagation();
-        }
-      } catch {
-        // Fallback for unconvertible reasons
-      }
-    },
-    true,
-  );
-}
-
 /**
  * Normalizes input entity role names to internal keys: "ai", "user", "fractal".
  * Handles AI_CHARACTER, USER_PERSONA, FRACTAL, model, etc.
