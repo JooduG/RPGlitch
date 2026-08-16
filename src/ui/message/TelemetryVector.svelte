@@ -1,5 +1,5 @@
 <script>
-  import { vector_label } from "./telemetry.js";
+  import { vector_label } from "./telemetry-format.js";
 
   /**
    * @typedef {Object} Props

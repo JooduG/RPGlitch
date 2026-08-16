@@ -1,10 +1,10 @@
 import { app } from "./app.svelte.js";
-import { telemetry_store } from "./telemetry.svelte.js";
+import { dev_log } from "./dev-log.svelte.js";
 import { beforeEach, describe, expect, it } from "vitest";
 describe("AppStore Telemetry", () => {
   beforeEach(() => {
     // Clear logs before each test
-    telemetry_store.clear();
+    dev_log.clear();
   });
   it("generates a secure UUID for logs", () => {
     app.log("test security message", "system");

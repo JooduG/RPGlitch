@@ -1,10 +1,13 @@
 /**
  * src/intelligence/telemetry.js
- * 📡 KERNEL TELEMETRY PAYLOAD BUILDERS
+ * 📡 PER-TURN TELEMETRY PAYLOAD BUILDERS
  * Pure construction of the raw `updates` telemetry entries the kernel logs
  * after each turn (Director mutations → normalized display entries, retrieval
- * vectors scrubbed for the raw-meta dump). The message-feed UI renders these
- * via @ui/message/telemetry.js, which owns the display-side normalization.
+ * vectors scrubbed for the raw-meta dump).
+ *
+ * FLOW: kernel builds the payload here → the message feed formats it for
+ * display (@ui/message/telemetry-format.js) → TelemetryCard renders it. The
+ * DevMode event log is a separate, simpler stream (@state/dev-log.svelte.js).
  */
 
 /**

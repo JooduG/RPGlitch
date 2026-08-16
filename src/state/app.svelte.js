@@ -12,7 +12,7 @@ import { visual_engine, get_signature_color, Audio } from "@media";
 import { embeddings_engine } from "@intelligence";
 import { runtime } from "./runtime.svelte.js";
 import { streaming as streaming_store } from "./streaming.svelte.js";
-import { telemetry_store } from "./telemetry.svelte.js";
+import { dev_log } from "./dev-log.svelte.js";
 import { simulation_state, ui_state } from "./status.svelte.js";
 import { install_freeze_watchdog } from "./freeze-watchdog.js";
 
@@ -229,13 +229,13 @@ export class AppStore {
    * @type {any[]}
    */
   get logs() {
-    return telemetry_store.logs;
+    return dev_log.entries;
   }
   /**
    * Records a system event. Delegates to the telemetry store.
    * @param {string} message
    */
-  log = (message, type = "system") => telemetry_store.log(message, type);
+  log = (message, type = "system") => dev_log.log(message, type);
   /************************************************************************************
    * [SECTION: LIFECYCLE & PERSISTENCE]
    * ----------------------------------------------------------------------------------
@@ -261,7 +261,7 @@ export class AppStore {
     }
 
     // Hydrate the persisted DevMode telemetry log so history survives reloads.
-    await telemetry_store.hydrate();
+    await dev_log.hydrate();
 
     // Freeze watchdog: never let a stuck state machine leave the composer dead.
     install_freeze_watchdog();
