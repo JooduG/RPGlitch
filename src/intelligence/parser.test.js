@@ -3,14 +3,11 @@ import {
   escape_xml,
   strip_cognition_blocks,
   parse_think_block,
-  parse_message,
-  resolve_voice_register,
-  wrap_dialogue,
-  escape_unescaped_json_quotes,
   safe_parse_pseudo_json,
-  merge_prose_into_field,
 } from "./parser.js";
-import { NARRATIVE_STYLES } from "@data";
+import { parse_message, wrap_dialogue } from "../ui/message/render.js";
+import { NARRATIVE_STYLES, resolve_voice_register } from "@data";
+import { escape_unescaped_json_quotes, merge_prose_into_field } from "@utils";
 import { describe, expect, it } from "vitest";
 
 describe("strip_cognition_blocks", () => {

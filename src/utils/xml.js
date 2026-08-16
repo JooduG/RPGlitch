@@ -3,7 +3,7 @@
  * 📋 XML UTILITIES
  * Pure, stateless XML escaping + physical-state → XML prompt-block rendering.
  * escape_xml/prompt_escape: ZERO dependencies on any architectural layer.
- * physical_to_xml/CLOTHING_KEYS: shared by @intelligence/prompts.js, @intelligence/parser.js
+ * physical_to_xml/CLOTHING_KEYS: shared by @intelligence/prompts.js, @utils/text.js
  * and @media/image-prompts.js (top shared layer, so media can use it without a cycle).
  */
 import { safe_parse_pseudo_json } from "./text.js";
@@ -64,7 +64,7 @@ export function physical_to_xml(raw, tagName) {
 
 /**
  * Canonical clothing tag keys — shared by the clothing-override protocol in
- * both merge_prose_into_field (@intelligence/parser.js) and the visual
+ * both merge_prose_into_field (@utils/text.js) and the visual
  * aesthetic map (@media/image-prompts.js).
  */
 export const CLOTHING_KEYS = [

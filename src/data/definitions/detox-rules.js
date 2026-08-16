@@ -15,6 +15,7 @@
  */
 
 import { match_case, stable_pick } from "@utils";
+import { NARRATIVE_STYLES } from "./narrative-styles.js";
 
 const VALID_REGISTERS = new Set(["plain", "ornate", "raw", "clinical"]);
 
@@ -1100,4 +1101,25 @@ function pick_replacement(match, pool, exact_voice = "plain", fallback_voice = "
 
   const rep = match_case(match, stable_pick(active_list, match, offset));
   return prefix ? `${prefix} ${rep}` : suffix ? `${rep} ${suffix}` : rep;
+}
+
+/**
+ * Resolves the prose detox register based on entity and narrative style hierarchy.
+ * Priority: Entity Voice Register > Narrative Style Voice Register > "plain" (default)
+ * @param {object|null} [entity] - Active character/user entity
+ * @param {string|object|null} [narrative_style] - Active narrative style ID or style object
+ * @returns {"plain"|"ornate"|"raw"|"clinical"}
+ */
+export function resolve_voice_register(entity = null, narrative_style = null) {
+  if (entity?.voice_register && VALID_REGISTERS.has(entity.voice_register)) {
+    return entity.voice_register;
+  }
+
+  const styleObj = typeof narrative_style === "string" ? NARRATIVE_STYLES[narrative_style] : narrative_style;
+
+  if (styleObj?.voice_register && VALID_REGISTERS.has(styleObj.voice_register)) {
+    return styleObj.voice_register;
+  }
+
+  return "plain";
 }

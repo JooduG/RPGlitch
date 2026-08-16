@@ -11,15 +11,12 @@ import { db, entities, stories, detox_prose } from "@data";
 import { generate_uuid as generateUUID, create_job_queue, state_bridge } from "@utils";
 import { visual_engine, resolve_image_trigger, fire_image_trigger, sweep_stale_ghosts, IMAGE_RESOLVE_TIMEOUT_MS } from "@media";
 import {
-  parse_director_json,
-  raw_stop_reason,
-  raw_to_text,
   strip_cognition_blocks,
 } from "./parser.js";
-import { llm_service, looks_truncated, security } from "@platform";
+import { llm_service, looks_truncated, security, raw_to_text, raw_stop_reason } from "@platform";
 import { context_builder } from "./context.js";
 import { dynamics_engine, compute_deltas } from "./dynamics.js";
-import { normalize_director_data, resolve_speaker_engine, terse_director_task, synthesize_director_fallback, scrub_state_mutations } from "./director.js";
+import { normalize_director_data, parse_director_json, resolve_speaker_engine, terse_director_task, synthesize_director_fallback, scrub_state_mutations } from "./director.js";
 import { prompt_builder } from "./prompts.js";
 import { build_update_entry, build_retrieval } from "./telemetry.js";
 import { prune, temporal_engine } from "./temporal.js";

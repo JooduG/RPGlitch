@@ -7,12 +7,9 @@ export {
   clean_text,
   escape_xml,
   extract_json_block,
-  parse_message,
   parse_profile_json,
   parse_think_block,
-  resolve_voice_register,
   strip_cognition_blocks,
-  wrap_dialogue,
   safe_parse_pseudo_json,
 } from "./parser.js";
 export { prompt_builder, PROTOCOL_LIBRARY } from "./prompts.js";

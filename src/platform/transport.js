@@ -55,6 +55,31 @@ export function looks_truncated(text) {
 }
 
 /**
+ * Normalizes an llm_service raw result (primitive string or String object with
+ * `.text`/`.generatedText`/`.stopReason`) into plain text.
+ * @param {any} raw
+ * @returns {string}
+ */
+export function raw_to_text(raw) {
+  if (typeof raw === "string") return raw.trim();
+  if (raw && typeof raw === "object") {
+    return String(raw.generatedText ?? raw.text ?? "").trim();
+  }
+  return String(raw ?? "").trim();
+}
+
+/**
+ * Returns the Director's reason for a truncated/failed output, if the transport
+ * surfaced one (server stop reason attached to the raw String object).
+ * @param {any} raw
+ * @returns {string}
+ */
+export function raw_stop_reason(raw) {
+  if (raw && typeof raw === "object" && !(raw instanceof String)) return "";
+  return raw && typeof raw === "object" && raw.stopReason ? String(raw.stopReason) : "";
+}
+
+/**
  * Strips code fences, outer quotes, and common conversational filler from LLM output.
  * @param {string} text
  * @returns {string}

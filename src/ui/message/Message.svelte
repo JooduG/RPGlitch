@@ -6,7 +6,8 @@
    * attachments, and the prologue/epilogue entity trio. Standard: Pure Svelte 5
    * layout primitives, fully decoupled event chains, and deterministic metrics.
    */
-  import { parse_message, resolve_voice_register } from "@intelligence";
+  import { parse_message } from "./render.js";
+  import { resolve_voice_register } from "@data";
   import { Audio, get_cadence_rate, resolve_voice_uri, get_signature_color } from "@media";
   import { app, runtime } from "@state";
   import TelemetryCard from "./TelemetryCard.svelte";

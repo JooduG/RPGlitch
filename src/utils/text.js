@@ -2,8 +2,11 @@
  * src/utils/text.js
  * 📝 TEXT UTILITIES
  * Pure, stateless text formatting helpers.
- * ZERO dependencies on any architectural layer.
+ * ZERO dependencies on any architectural layer — the only intra-layer import is
+ * CLOTHING_KEYS from ./xml.js (used by merge_prose_into_field).
  */
+
+import { CLOTHING_KEYS } from "./xml.js";
 
 /**
  * Strips cognition blocks (<think>...</think>) from text.
@@ -36,7 +39,7 @@ export function strip_cognition_blocks(text) {
  * Universal atomic-clearing tokens — emitting [KEY: one of these] deletes KEY
  * from the present-state dictionary (e.g. [HELD: none], [INJURY: healed],
  * [STATUS: normal], [SECRET: cleared]). Shared by safe_parse_pseudo_json
- * (@utils) and merge_prose_into_field (@intelligence).
+ * (@utils) and merge_prose_into_field (@utils/text.js).
  */
 export const CLEAR_TOKENS = new Set(["none", "bare", "naked", "off", "removed", "disrobed", "healed", "cleared", "normal"]);
 
@@ -464,4 +467,155 @@ export function format_key_as_label(key) {
     .split("_")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
+}
+
+/**
+ * Merges raw prose into an existing field (either pseudo-JSON or plain text)
+ * and reserializes it securely without destructive appends.
+ * @param {string} current_field_value
+ * @param {string} new_prose
+ * @returns {string}
+ */
+export const merge_prose_into_field = (current_field_value, new_prose) => {
+  if (!new_prose || !new_prose.trim()) return current_field_value || "";
+
+  const MAX_FIELD_CHARS = 2000;
+  const parsed = safe_parse_pseudo_json(current_field_value);
+  const clean_new_prose = new_prose.trim();
+
+  // Plain prose field (no structured keys, or raw-prose sentinel from safe_parse_pseudo_json)
+  if (!parsed || parsed.__raw_prose__ || Object.keys(parsed).length === 0) {
+    const existing = (current_field_value || "").trim();
+    let result = !existing ? clean_new_prose : `${existing}\n${clean_new_prose}`;
+    if (result.length > MAX_FIELD_CHARS) {
+      result = result.substring(result.length - MAX_FIELD_CHARS);
+    }
+    return result;
+  }
+
+  // 1. Extract bracketed [KEY: Value] directives first
+  const bracketed_regex = /\[([A-Z_ ]{3,25}):\s*([\s\S]*?)\]/g;
+  let remaining_prose = clean_new_prose;
+  let match;
+  const key_updates = [];
+
+  while ((match = bracketed_regex.exec(clean_new_prose)) !== null) {
+    const full_match = match[0];
+    const raw_key = match[1].toUpperCase().replace(/\s+/g, "_");
+    const raw_val = match[2].trim();
+    if (raw_val) {
+      key_updates.push({ key: raw_key, val: raw_val });
+      remaining_prose = remaining_prose.replace(full_match, "").trim();
+    }
+  }
+
+  // 2. Extract unbracketed KEY: Value segments if any
+  const unbracketed_regex = /(?:^|,\s*|\s*)([A-Z_]{3,15}):\s*([^,[\]]+(?:\s+[^,[\]]+)*)/g;
+  while ((match = unbracketed_regex.exec(remaining_prose)) !== null) {
+    const full_match = match[0];
+    const raw_key = match[1].toUpperCase();
+    const raw_val = match[2].trim();
+    if (raw_val) {
+      key_updates.push({ key: raw_key, val: raw_val });
+      remaining_prose = remaining_prose.replace(full_match, "").trim();
+    }
+  }
+
+  remaining_prose = remaining_prose
+    .replace(/^[\s,;[\]]+|[\s,;[\]]+$/g, "")
+    .replace(/,\s*,+/g, ",")
+    .trim();
+
+  // Apply structured key updates in sequence to respect hierarchy
+  for (const { key, val } of key_updates) {
+    let target_key = key;
+    const is_clear_token = CLEAR_TOKENS.has(val.toLowerCase());
+
+    // Wildcard purge: [CLOTHING: none] strips every clothing key at once.
+    if (key === "CLOTHING" && is_clear_token) {
+      for (const ck of CLOTHING_KEYS) delete parsed[ck];
+      continue;
+    }
+
+    if (CLOTHING_KEYS.includes(key) && is_clear_token) {
+      delete parsed[key];
+      continue;
+    }
+
+    // Universal atomic clearing: [KEY: none/bare/naked/off/removed/disrobed/
+    // healed/cleared/normal] deletes the key, preventing stale clutter.
+    if (is_clear_token) {
+      delete parsed[key];
+      continue;
+    }
+
+    // Multi-item aggregation: repeated INVENTORY/STASH directives merge into a
+    // single normalized list instead of clobbering the existing collection.
+    if (AGGREGATE_KEYS.has(key)) {
+      const incoming = val
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      const existing = parsed[key];
+      const list = Array.isArray(existing)
+        ? existing
+        : existing
+          ? String(existing)
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean)
+          : [];
+      for (const item of incoming) {
+        if (item && !list.includes(item)) list.push(item);
+      }
+      parsed[key] = list;
+      continue;
+    }
+
+    if (key === "CLOTHING" && parsed.SHIRT) target_key = "SHIRT";
+    if (key === "SHIRT" && parsed.CLOTHING) target_key = "CLOTHING";
+    parsed[target_key] = val;
+  }
+
+  // Append any remaining unstructured prose to CONDITION
+  if (remaining_prose) {
+    const cond_key = parsed.CONDITION ? "CONDITION" : parsed.condition ? "condition" : "CONDITION";
+    if (parsed[cond_key]) {
+      const clean_existing = parsed[cond_key].replace(/^[\s,]+|[\s,]+$/g, "").replace(/,\s*,+/g, ", ");
+      parsed[cond_key] = `${clean_existing}, ${remaining_prose}`;
+    } else {
+      parsed[cond_key] = remaining_prose;
+    }
+  }
+
+  // Clean up double commas inside all values of parsed
+  for (const k in parsed) {
+    if (typeof parsed[k] === "string") {
+      parsed[k] = parsed[k].replace(/^[\s,]+|[\s,]+$/g, "").replace(/,\s*,+/g, ", ");
+    }
+  }
+
+  let lines = Object.entries(parsed)
+    .map(([k, v]) => `[${k}: ${String(Array.isArray(v) ? v.join(", ") : v).replace(/[\[\]]/g, "")}]`)
+    .join(" ");
+
+  if (lines.length > MAX_FIELD_CHARS) {
+    lines = lines.substring(lines.length - MAX_FIELD_CHARS);
+  }
+
+  return lines;
+};
+
+/**
+ * Replaces unescaped interior double-quotes with backslashed equivalents (\")
+ * inside JSON string values.
+ * @param {string} json_string
+ * @returns {string}
+ */
+export function escape_unescaped_json_quotes(json_string) {
+  if (typeof json_string !== "string") return json_string;
+  return json_string.replace(/:\s*"([\s\S]*?)"(?=,\s*"[^"]+"\s*:|\s*\}|\s*\]|$)/g, (match, value) => {
+    const escaped_value = value.replace(/(?<!\\)"/g, '\\"');
+    return `: "${escaped_value}"`;
+  });
 }

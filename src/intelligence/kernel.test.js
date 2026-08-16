@@ -95,6 +95,13 @@ vi.mock("@platform/transport.js", () => ({
   },
   sanitize_llm: vi.fn((text) => text),
   looks_truncated: vi.fn(() => false),
+  raw_to_text: vi.fn((raw) =>
+    typeof raw === "string" ? raw.trim() : String(raw?.generatedText ?? raw?.text ?? "").trim(),
+  ),
+  raw_stop_reason: vi.fn((raw) => {
+    if (raw && typeof raw === "object" && !(raw instanceof String)) return "";
+    return raw?.stopReason ? String(raw.stopReason) : "";
+  }),
 }));
 
 vi.mock("@engine/session.svelte.js", () => ({
@@ -236,7 +243,7 @@ vi.mock("@data", async (importOriginal) => {
   };
 });
 
-vi.mock("./director-schema.js", async (importOriginal) => {
+vi.mock("./director.js", async (importOriginal) => {
   const actual = await importOriginal();
   return { ...actual };
 });
