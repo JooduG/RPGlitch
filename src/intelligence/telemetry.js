@@ -90,3 +90,23 @@ export function build_retrieval(vectors) {
     .filter(Boolean)
     .sort((a, b) => (b._relevance ?? -Infinity) - (a._relevance ?? -Infinity));
 }
+
+/**
+ * Builds the per-turn DevMode summary line: which roles produced how many
+ * messages in the recent feed tail. An empty tail reports that nothing was
+ * recorded so a silently-empty round is visible in the telemetry log.
+ * @param {any[]} feed
+ * @param {number} round
+ * @returns {string}
+ */
+export function build_turn_summary(feed, round) {
+  const tail = (feed || []).slice(-16);
+  const counts = {};
+  for (const m of tail) {
+    if (!m || m.role === "system") continue;
+    const role = m.role === "model" ? "ai" : m.role;
+    counts[role] = (counts[role] || 0) + 1;
+  }
+  const parts = Object.entries(counts).map(([r, n]) => `${r}×${n}`);
+  return `Turn ${round} complete — ${parts.length ? parts.join(", ") : "no messages recorded"}.`;
+}

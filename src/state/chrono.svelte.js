@@ -1,7 +1,7 @@
 // ⏳ CHRONO: The Heartbeat of Time
 // Manages the strict turn-based progression of the simulation.
 import { session_driver } from "@data";
-import { gamemaster } from "@intelligence";
+import { gamemaster, run_causality_shield, build_turn_summary } from "@intelligence";
 import { state_bridge } from "@utils";
 
 export class ChronoEngine {
@@ -116,49 +116,6 @@ export class ChronoEngine {
   }
 
   /**
-   * Delete a log entry by ID
-   * @param {string} id
-   */
-  async delete_log_entry(id) {
-    await session_driver.delete_log_entry(id);
-  }
-
-  /**
-   * Edit a log entry by ID
-   * @param {string} id
-   * @param {string} new_text
-   */
-  async edit_log_entry(id, new_text) {
-    await session_driver.edit_log_entry(id, new_text);
-  }
-
-  /**
-   * Update an attachment in a log entry by ID
-   * @param {string} id
-   * @param {number} attachment_index
-   * @param {any} new_attachment
-   */
-  async update_log_attachment(id, attachment_index, new_attachment) {
-    await session_driver.update_log_attachment(id, attachment_index, new_attachment);
-  }
-
-  /**
-   * 🛡️ CAUSALITY SHIELD (Physics Scan)
-   * Evaluates if an action is possible within the current simulation context.
-   * Currently a pass-through placeholder for future causality logic — the turn
-   * loop treats a "failure" result as a system-imposed constraint on the action.
-   * @param {string} input
-   * @param {any} character
-   * @param {any} fractal
-   * @returns {Promise<{causality: {result: string; constraint?: string;};}>}
-   */
-  async _run_causality_shield(_input, _character, _fractal) {
-    return {
-      causality: { result: "success" },
-    };
-  }
-
-  /**
    * ADVANCE TURN
    * The ONLY way time moves forward.
    * 1. Locks UI (Loading)
@@ -193,7 +150,7 @@ export class ChronoEngine {
       // We pass the current runtime character context to the Shield
       if (input && state_bridge.runtime.character) {
         // Pass Fractal State for Causality Checks
-        shield_context = await this._run_causality_shield(input, state_bridge.runtime.character, state_bridge.runtime.active_fractal || {});
+        shield_context = await run_causality_shield(input, state_bridge.runtime.character, state_bridge.runtime.active_fractal || {});
         // 🛑 CAUSALITY CHECK
         if (shield_context && shield_context.causality && shield_context.causality.result === "failure") {
           state_bridge.app.log(`Causality Violation: ${shield_context.causality.constraint}`, "error");
@@ -248,18 +205,7 @@ export class ChronoEngine {
           state_bridge.app.log("Generation complete.", "system");
           try {
             // Per-turn telemetry summary: what the round actually produced.
-            const tail = (state_bridge.simulation_log?.feed || []).slice(-16);
-            const counts = {};
-            for (const m of tail) {
-              if (!m || m.role === "system") continue;
-              const role = m.role === "model" ? "ai" : m.role;
-              counts[role] = (counts[role] || 0) + 1;
-            }
-            const parts = Object.entries(counts).map(([r, n]) => `${r}×${n}`);
-            state_bridge.app.log(
-              `Turn ${state_bridge.runtime.round} complete — ${parts.length ? parts.join(", ") : "no messages recorded"}.`,
-              "system",
-            );
+            state_bridge.app.log(build_turn_summary(state_bridge.simulation_log?.feed || [], state_bridge.runtime.round), "system");
           } catch (_err) {
             /* telemetry must never break the turn */
           }

@@ -6,7 +6,7 @@
   import UndoToast from "./UndoToast.svelte";
   import { Audio } from "@media/audio.svelte.js";
   import { chrono_engine } from "@state";
-  import { app, simulation_state } from "@state";
+  import { app, simulation_state, simulation_log } from "@state";
   import { motion, item_in, update_card_scrub, clear_card_location } from "@motion";
 
   /**
@@ -194,7 +194,7 @@
       const copy = { ...pending_deletes };
       delete copy[id];
       pending_deletes = copy;
-      await chrono_engine.delete_log_entry(String(id));
+      await simulation_log.delete_entry(String(id));
     }, UNDO_DELETE_WINDOW_MS);
     pending_deletes = {
       ...pending_deletes,
@@ -217,7 +217,7 @@
   }
 
   async function handle_save_edit(id, updated_text) {
-    await chrono_engine.edit_log_entry(id.toString(), updated_text);
+    await simulation_log.edit_entry(id.toString(), updated_text);
     editing_index = null;
   }
 

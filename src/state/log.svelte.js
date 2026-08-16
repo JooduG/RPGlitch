@@ -67,5 +67,22 @@ class SimulationLogStore {
       if (removed_id != null) this._id_set.delete(removed_id);
     }
   }
+
+  /**
+   * Delete a log entry by ID (persisted).
+   * @param {string} id
+   */
+  async delete_entry(id) {
+    await session_driver.delete_log_entry(id);
+  }
+
+  /**
+   * Edit a log entry's text by ID (persisted).
+   * @param {string} id
+   * @param {string} new_text
+   */
+  async edit_entry(id, new_text) {
+    await session_driver.edit_log_entry(id, new_text);
+  }
 }
 export const simulation_log = new SimulationLogStore();
