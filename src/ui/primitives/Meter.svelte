@@ -7,7 +7,7 @@
    */
   import { Button, tooltip, Label } from "@primitives";
   import { Meter } from "bits-ui";
-  import { clamp } from "@engine";
+  import { clamp } from "@utils";
 
   /**
    * @typedef {Object} Props

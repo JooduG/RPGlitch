@@ -386,3 +386,82 @@ export function truncate_readable(text, max_chars = INGESTION_CHAR_LIMIT, ellips
   slice = slice.replace(/[.,;:\s]+$/, "");
   return slice + ellipsis;
 }
+
+/**
+ * Extracts a single short sentence (≤max_len chars) from a blob of text.
+ * Strips think blocks, markdown fences, and excessive whitespace.
+ * @param {string|null|undefined} text
+ * @param {number} [max_len=160]
+ * @returns {string}
+ */
+export function first_sentence(text, max_len = 160) {
+  const clean = strip_cognition_blocks(text).replace(/```/g, "").replace(/\s+/g, " ").trim();
+  if (!clean) return "";
+  const regex = new RegExp(`^[^.!?]{1,${max_len}}[.!?:;]?`);
+  const m = clean.match(regex);
+  const sentence = (m ? m[0] : clean.slice(0, max_len)).trim();
+  return sentence;
+}
+
+/**
+ * Matches the capitalization of the original string on the replacement string.
+ * If the first character of original is uppercase, capitalizes replacement.
+ * @param {string|null|undefined} original
+ * @param {string|null|undefined} replacement
+ * @returns {string}
+ */
+export function match_case(original, replacement) {
+  if (!original || !replacement) return replacement || "";
+  const first_char = original.charAt(0);
+  const is_uppercase = first_char === first_char.toUpperCase() && first_char !== first_char.toLowerCase();
+  if (is_uppercase) {
+    return replacement.charAt(0).toUpperCase() + replacement.slice(1);
+  }
+  return replacement;
+}
+
+/**
+ * Shared entity name stop words and title prefixes for visual initials calculations
+ * and prefix-aware name formatting breaks.
+ */
+export const NAME_PREFIXES = [
+  "mr",
+  "mrs",
+  "ms",
+  "dr",
+  "prof",
+  "sir",
+  "lady",
+  "lord",
+  "the",
+  "a",
+  "an",
+  "of",
+  "in",
+  "and",
+  "or",
+  "for",
+  "to",
+  "at",
+  "by",
+  "with",
+  "mr.",
+  "mrs.",
+  "ms.",
+  "dr.",
+  "prof.",
+];
+
+/**
+ * Auto-formats object keys into UI labels (e.g. "non_physical" -> "Non-Physical", "future" -> "Future").
+ * @param {string} key
+ * @returns {string}
+ */
+export function format_key_as_label(key) {
+  if (!key || typeof key !== "string") return "";
+  if (key === "non_physical") return "Non-Physical";
+  return key
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}

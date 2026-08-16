@@ -1,5 +1,5 @@
 /**
- * src/data/content-normaliser.js
+ * src/data/normalizer.js
  * 🧪 CONTENT NORMALISATION LOGIC
  * Enforces the strict "Twin-Cylinder" data structure across the app.
  * ZERO BACKWARDS COMPATIBILITY.
@@ -350,5 +350,3 @@ export const serialize_entity_for_export = (entity) => {
   }
   return JSON.parse(JSON.stringify(out));
 };
-
-export { detox_prose } from "./definitions/detox-rules.js";

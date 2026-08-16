@@ -6,8 +6,7 @@
  */
 import { flushSync } from "svelte";
 import { SvelteSet } from "svelte/reactivity";
-import { generate_uuid, resolve_px, stories_bridge } from "@utils";
-import { log as engineLog, guarded_transition } from "@engine";
+import { generate_uuid, resolve_px, stories_bridge, guarded_transition } from "@utils";
 import { db, entities, stories, normalize } from "@data";
 import { visual_engine, get_signature_color, Audio, get_cadence_rate, resolve_voice_uri } from "@media";
 import { embeddings_engine } from "@intelligence";
@@ -280,8 +279,10 @@ export class AppStore {
       }, 800);
     }
 
-    // Call engine-wide logger
-    engineLog(`[Telemetry:${type.toUpperCase()}] ${message}`);
+    // Emit to console when dev_mode is active
+    if (this.settings?.dev_mode) {
+      console.info("[Engine]", `[Telemetry:${type.toUpperCase()}] ${message}`);
+    }
   }
   /************************************************************************************
    * [SECTION: LIFECYCLE & PERSISTENCE]

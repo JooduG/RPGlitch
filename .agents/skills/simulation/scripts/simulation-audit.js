@@ -12,7 +12,7 @@
  *   ACTIVE_GOALS, ATMOSPHERIC_CHANGES, trigger amplification, goal arbitration
  */
 
-import { context_builder } from "../../../../src/intelligence/context.svelte.js";
+import { context_builder } from "../../../../src/intelligence/context.js";
 import { prompt_builder } from "../../../../src/intelligence/prompts.js";
 import { premade } from "../../../../src/data/definitions/premades.js";
 

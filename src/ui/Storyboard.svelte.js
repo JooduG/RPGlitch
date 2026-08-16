@@ -5,7 +5,7 @@
  * begin-story flight, and prologue-landing choreography. Component-sibling
  * state module for Storyboard.svelte.
  */
-import { NAME_PREFIXES } from "@data";
+import { NAME_PREFIXES } from "@utils";
 
 const DEFAULT_STOP_WORDS = new Set(NAME_PREFIXES.map((w) => w.replace(/\.$/, "")));
 

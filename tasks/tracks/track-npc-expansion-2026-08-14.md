@@ -5,7 +5,7 @@
 > 1. **World Roster, 3-Tier Hierarchy & Stage Spotlight**: Support secondary NPCs across a 3-tier memory model (Background, Recurring, Major) scoped to Fractals/Worlds, with the Stage Spotlight model freezing off-screen entity dynamics in stasis to prevent token waste.
 > 2. **Context Window Protection & The Compact Cast Index**: Represent off-screen world entities as ultra-compact 1-line signatures (~25 tokens each) backed by vector RAG pre-fetching and the Entity Convergence Law to prevent duplicate character hallucination.
 > 3. **Flat Relational Mesh & Cognitive Physics**: Maintain lightweight directed relationship vectors (`"[Source] → [Target]: [Relational dynamic]"`) paired with the Naivety Prior / Credulity model (`openness` axis) and strict Epistemic Horizons (Null Data principle).
-> 4. **Director NPC Delegation & In-Scene Memory Salience**: Enable the Director to delegate dialogue execution directly to any active in-scene NPC (`speaker: "npc:<id>"`) with a $1.3\times$ vector RAG relevance boost for entities physically present in the room.
+> 4. **Director NPC Delegation & In-Scene Memory Salience**: Enable the Director to delegate dialogue execution directly to any active in-scene NPC (`speaker: "npc:<id>"`) with a 1.3x vector RAG relevance boost for entities physically present in the room.
 > 5. **Dynamic Multi-Voice Acoustic Pipeline**: Automatically segment streaming narrative text by dialogue speaker attribution to dispatch seamless multi-voice Kokoro-82M neural TTS playback.
 
 ```text
@@ -162,9 +162,9 @@ To eliminate hallucinated duplicate characters (e.g. inventing a new doctor when
 
 Persuasion and claim acceptance are governed by the dynamic `openness` axis:
 
-- **High Openness ($\ge 70$)**: Receptive to plausible claims, rapid social rapport.
-- **Moderate Openness ($40–69$)**: Balanced skepticism; requires logical consistency.
-- **Low Openness ($\le 39$)**: High friction; demands physical proof, suspects deception.
+- **High Openness (>= 70)**: Receptive to plausible claims, rapid social rapport.
+- **Moderate Openness (40–69)**: Balanced skepticism; requires logical consistency.
+- **Low Openness (<= 39)**: High friction; demands physical proof, suspects deception.
 
 ---
 
@@ -212,7 +212,7 @@ Persuasion and claim acceptance are governed by the dynamic `openness` axis:
 
 ### 3.2 In-Scene Vector Memory Salience
 
-In `src/intelligence/temporal.js`, memory vectors belonging to entities currently flagged in `runtime.in_scene_npc_ids` receive an automatic **$1.3\times$ relevance multiplier** in `compute_relevance()`, guaranteeing sharp conversational recall for characters in the room.
+In `src/intelligence/temporal.js`, memory vectors belonging to entities currently flagged in `runtime.in_scene_npc_ids` receive an automatic **1.3x relevance multiplier** in `compute_relevance()`, guaranteeing sharp conversational recall for characters in the room.
 
 ---
 
@@ -248,7 +248,7 @@ In `src/intelligence/temporal.js`, memory vectors belonging to entities currentl
 
 - [ ] **2.1 Prompt Blocks**: Implement `<CURRENT_STORY_STATE>`, `<WORLD_CAST>`, `<SCENE_ROSTER>`, `<RELATIONAL_MESH>`, and `<ENTITY_CONVERGENCE_LAW>` in `src/intelligence/prompts.js`.
 - [ ] **2.2 Prompt Unit Tests**: Write tests in `src/intelligence/prompts.test.js` validating relational graph rendering, compact cast index formatting, and epistemic rules.
-- [ ] **2.3 In-Scene RAG Salience**: Apply $1.3\times$ in-scene relevance multiplier in `src/intelligence/temporal.js` with tests in `src/intelligence/temporal.test.js`.
+- [ ] **2.3 In-Scene RAG Salience**: Apply 1.3x in-scene relevance multiplier in `src/intelligence/temporal.js` with tests in `src/intelligence/temporal.test.js`.
 
 ### Phase 3: Director NPC Dispatch & Execution (Red ➔ Green)
 

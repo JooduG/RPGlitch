@@ -8,6 +8,8 @@
  * update is masked by the arrival of the flying card.
  */
 
+import { clamp } from "@utils";
+
 const GLIDE_EASE = "cubic-bezier(0.25, 1, 0.5, 1)";
 const PICKUP_EASE = "cubic-bezier(0.3, 0.9, 0.4, 1)";
 const EXIT_EASE = "cubic-bezier(0.4, 0, 1, 1)";
@@ -193,10 +195,6 @@ function panel_card(type) {
 }
 function viewport() {
   return document.querySelector("[data-id='storymode-scroll-area'] .scroll-area-viewport");
-}
-
-function clamp(v, lo, hi) {
-  return Math.max(lo, Math.min(hi, v));
 }
 
 // ── SCRUB TRAVEL CONFIG ───────────────────────────────────────────────────

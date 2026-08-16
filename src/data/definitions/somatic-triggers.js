@@ -234,3 +234,119 @@ export function build_available_keywords_xml(active_style_keywords = []) {
   }
   return lines.join("\n");
 }
+
+/** Baseline global dynamics signals that apply across all scenes for all 6 dynamics axes */
+export const GLOBAL_TRIGGERS = [
+  // 📈 INTENSITY (AI Somatics & Pacing)
+  {
+    id: "ADRENALINE",
+    when: (ai) => ai.intensity > 70 && (ai.affinity ?? 50) <= 70,
+    directive:
+      "High-adrenaline pacing. Slow narrative time: expand detail in decisive beats — micro-expressions, split-second thoughts, and immediate sensory physics.",
+  },
+  {
+    id: "SLOW_MOTION",
+    when: (ai) => ai.intensity < 30 && (ai.chaos ?? 50) <= 70,
+    directive: "Pacing slow. Heavy fatigue. Deliberate, languid actions.",
+  },
+
+  // 🌪️ CHAOS (AI Somatics & Perception)
+  {
+    id: "GLITCH",
+    when: (ai) => ai.chaos > 70 && (ai.intensity ?? 50) >= 30,
+    directive: "Reality glitching. Fragmented memory. Non-linear time perception.",
+  },
+  {
+    id: "RECOVERY",
+    when: (ai, fractal) => ai.chaos < 30 && (fractal?.entropy ?? 50) >= 30,
+    directive: "High clarity. Sharp recall. Stable environment.",
+  },
+
+  // 🔓 OPENNESS (AI Somatics & Receptivity)
+  {
+    id: "VULNERABILITY",
+    when: (ai, fractal) => ai.openness > 70 && (fractal?.velocity ?? 50) >= 30,
+    directive: "Emotional exposure. Seeking comfort. Honest admissions.",
+  },
+  {
+    id: "MASKING",
+    when: (ai) => ai.openness < 30 && (ai.affinity ?? 50) >= 30,
+    directive:
+      "Guarded self-containment. Deflects intrusive personal questions with disciplined silence, keeping private history and feelings concealed while avoiding overt hostility.",
+  },
+
+  // 🤝 AFFINITY (AI Somatics & Inter-Entity Bond)
+  {
+    id: "SYNCHRONY",
+    when: (ai) => ai.affinity > 70 && (ai.intensity ?? 50) <= 70,
+    directive: "Mirroring user movement. Intense focus. Deep rapport.",
+  },
+  {
+    id: "DISSONANCE",
+    when: (ai) => ai.affinity < 30 && (ai.openness ?? 50) >= 30,
+    directive: "Interpersonal friction and irritation. Sharp tone, physical boundary defense, and visible exasperation without emotional withdrawal.",
+  },
+
+  // 🚀 VELOCITY (World / Fractal Environmental Pacing)
+  {
+    id: "OVERDRIVE",
+    when: (ai, fractal) => fractal.velocity > 70 && (fractal.entropy ?? 50) <= 70,
+    directive: "Environmental pacing accelerated. Time compressing.",
+  },
+  {
+    id: "STASIS",
+    when: (ai, fractal) => fractal.velocity < 30 && (ai?.openness ?? 50) <= 70,
+    directive: "Environmental stasis. Time stretching.",
+  },
+
+  // 📉 ENTROPY (World / Fractal Structural Reality)
+  {
+    id: "INSTABILITY",
+    when: (ai, fractal) => fractal.entropy > 70 && (fractal.velocity ?? 50) <= 70,
+    directive:
+      "Pathetic fallacy: The environmental geometry is unstable. Weave sensory descriptions of physical glitches, non-linear decay, and structural reality degradation directly into the background texture.",
+  },
+  {
+    id: "STABILITY",
+    when: (ai, fractal) => fractal.entropy < 30 && (ai?.chaos ?? 50) >= 30,
+    directive: "Structural stability. Safe, predictable physics.",
+  },
+
+  // 🛡️ COMPOSITE TRIGGERS (Unique Dual-Axis Resonances)
+  {
+    id: "SUSPICION",
+    when: (ai) => ai.openness < 30 && ai.affinity < 30,
+    directive:
+      "Acute suspicion and estrangement. Guarded deflection and physical boundary defense — actively test the user's motives, question inconsistencies, and maintain vigilant distance.",
+  },
+  {
+    id: "CATACLYSM",
+    when: (ai, fractal) => fractal.velocity > 70 && fractal.entropy > 70,
+    directive:
+      "Accelerated environmental upheaval. Physical structures decaying and tearing apart at breakneck speed with cascading reality glitches and rapid hazards.",
+  },
+  {
+    id: "CONFESSION",
+    when: (ai, fractal) => ai.openness > 70 && fractal.velocity < 30,
+    directive:
+      "Quiet emotional vulnerability. Environmental pacing slows to a crawl as personal defenses drop, inviting honest confessions and unguarded admissions.",
+  },
+  {
+    id: "PASSION",
+    when: (ai) => ai.intensity > 70 && ai.affinity > 70,
+    directive:
+      "High-adrenaline resonance and deep rapport. Expand detail in decisive beats with intense focus, mirroring movement, breathless momentum, and raw connection.",
+  },
+  {
+    id: "TRANCE",
+    when: (ai) => ai.intensity < 30 && ai.chaos > 70,
+    directive:
+      "Lethargic dissociation and perceptual distortion. Heavy physical fatigue and languid actions paired with surreal, fragmented thoughts and reality glitches.",
+  },
+  {
+    id: "HARMONY",
+    when: (ai, fractal) => ai.chaos < 30 && fractal.entropy < 30,
+    directive:
+      "Pristine mental clarity and physical stability. Razor-sharp recall and steady focus grounded in safe, predictable environmental physics.",
+  },
+];

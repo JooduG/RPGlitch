@@ -6,40 +6,8 @@
  * Every field carries a UI label, an AI directive, and an enhancer tag.
  */
 
-/**
- * Shared entity name stop words and title prefixes for visual initials calculations
- * and prefix-aware name formatting breaks.
- */
-export const NAME_PREFIXES = [
-  "mr",
-  "mrs",
-  "ms",
-  "dr",
-  "prof",
-  "sir",
-  "lady",
-  "lord",
-  "the",
-  "a",
-  "an",
-  "of",
-  "in",
-  "and",
-  "or",
-  "for",
-  "to",
-  "at",
-  "by",
-  "with",
-  "mr.",
-  "mrs.",
-  "ms.",
-  "dr.",
-  "prof.",
-];
-
-/** Shared sorting directive — now sourced from @data/definitions/protocols.js (PROTOCOL_LIBRARY.PROFILE.SCHEMA). */
-import { PROTOCOL_LIBRARY } from "@data";
+import { format_key_as_label } from "@utils";
+import { PROTOCOL_LIBRARY } from "./protocols.js";
 
 /**
  * Canonical taxonomy of all entity fields, grouped by temporal section.
@@ -161,19 +129,6 @@ export const ENTITY_FRAGMENTS = {
  * @property {string} [description] - Human readable description / tooltip text
  * @property {string} [type] - Field type (e.g., "array")
  */
-
-/**
- * Auto-formats object keys into UI labels (e.g. "non_physical" -> "Non-Physical", "future" -> "Future").
- * @param {string} key
- * @returns {string}
- */
-export function format_key_as_label(key) {
-  if (key === "non_physical") return "Non-Physical";
-  return key
-    .split("_")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-}
 
 /**
  * Builds a flat `{ [dotKey]: metadata }` map from the nested ENTITY_FRAGMENTS tree.

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   build_available_keywords_xml,
   build_somatic_directives_block,
+  GLOBAL_TRIGGERS,
   render_somatic_directives_xml,
   resolve_somatic_directives,
   SOMATIC_REGISTRY,
@@ -105,5 +106,19 @@ describe("build_available_keywords_xml", () => {
   it("appends the active style's motifs when provided", () => {
     const xml = build_available_keywords_xml(["stoic_pain", "iceberg_subtext"]);
     expect(xml).toContain("active style: stoic_pain, iceberg_subtext");
+  });
+});
+
+describe("GLOBAL_TRIGGERS", () => {
+  it("contains 18 baseline dynamic signals", () => {
+    expect(GLOBAL_TRIGGERS).toHaveLength(18);
+  });
+
+  it("every global trigger has an id, when function, and directive", () => {
+    for (const trigger of GLOBAL_TRIGGERS) {
+      expect(typeof trigger.id).toBe("string");
+      expect(typeof trigger.when).toBe("function");
+      expect(typeof trigger.directive).toBe("string");
+    }
   });
 });

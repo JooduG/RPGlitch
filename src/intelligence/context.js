@@ -1,9 +1,9 @@
 /**
- * @file src/intelligence/context.svelte.js
+ * @file src/intelligence/context.js
  * 🔌 CONTEXT BUILDER — State Adapter & Document Assembler
  * Hydrates, cleans, and packages raw simulation state into an IntelligencePayload.
  *
- * @typedef {import('@state/state_bridge.runtime.svelte.js').SimulationEntity} SimulationEntity
+ * @typedef {import('@state/runtime.svelte.js').SimulationEntity} SimulationEntity
  *
  * @typedef {Object} DataPoint
  * @property {string} text
@@ -17,7 +17,7 @@
  * @property {number} [density_multiplier]
  */
 
-import { state_bridge } from "@utils";
+import { state_bridge, get_value } from "@utils";
 import { ensure_embeddings } from "./embeddings.svelte.js";
 import { ENTITY_CATALOG } from "@data";
 import { clean_text } from "./parser.js";
@@ -26,28 +26,6 @@ import { resolve_vector_pool } from "./temporal.js";
 /************************************************************************************
  * [SECTION: PRIVATE HELPERS]
  ************************************************************************************/
-
-/**
- * Resolves a dot-notation path against a nested object.
- * @param {any} obj
- * @param {string} path
- * @returns {any}
- */
-function get_path_value(obj, path) {
-  const parts = path.split(".");
-  let current = obj;
-  for (let i = 0; i < parts.length; i++) {
-    const part = parts[i];
-    if (current && typeof current === "object") {
-      current = current[part];
-    } else if (typeof current === "string" && i < parts.length - 1) {
-      return current;
-    } else {
-      return "";
-    }
-  }
-  return current || "";
-}
 
 /**
  * Converts entity data into raw statistical data points.
@@ -61,7 +39,7 @@ function to_data_points(entity) {
   Object.entries(ENTITY_CATALOG).forEach(([field_id, metadata]) => {
     if (field_id.startsWith("character.") || field_id.startsWith("fractal.")) return;
 
-    let val = get_path_value(entity, field_id);
+    let val = get_value(entity, field_id);
 
     if (val && typeof val === "string") {
       const is_eternal = metadata.layer_key?.toLowerCase() === "eternal";

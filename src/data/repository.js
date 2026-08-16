@@ -313,26 +313,3 @@ export const stories = {
     return result;
   },
 };
-
-// ============================================================================
-// 4. COMPRESSION (Memory & State Snapshots)
-// ============================================================================
-
-/**
- * Prunes a vectors array for a compact snapshot: up to 3 past-type vectors.
- * Content-only, no directive key. (FUTURE is a prose field now, not a pool.)
- * @param {any[]} vectors
- */
-export function prune(vectors) {
-  if (!Array.isArray(vectors)) return [];
-  return vectors
-    .filter((v) => v?.type !== "future")
-    .slice(0, 3)
-    .map((v) => ({
-      id: v.id,
-      content: v.content || v.directive || v.text || v.summary || "",
-      emotional_weight: v.emotional_weight ?? 5,
-      type: "past",
-      meta: v.meta || {},
-    }));
-}

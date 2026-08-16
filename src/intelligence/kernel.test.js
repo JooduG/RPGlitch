@@ -1,5 +1,6 @@
-import { context_builder } from "./context.svelte.js";
-import { dynamics_engine, evaluate_image_trigger } from "./dynamics.js";
+import { context_builder } from "./context.js";
+import { dynamics_engine } from "./dynamics.js";
+import { evaluate_image_trigger } from "@media";
 import { _image_gen_queue, gamemaster } from "./kernel.js";
 import { prompt_builder } from "./prompts.js";
 import { temporal_engine } from "./temporal.js";
@@ -60,7 +61,7 @@ const _mock_simulation_state = {
 };
 
 // Mock dependencies
-vi.mock("@intelligence/context.svelte.js", () => ({
+vi.mock("@intelligence/context.js", () => ({
   context_builder: {
     build_context: vi.fn(),
   },
@@ -75,7 +76,9 @@ vi.mock("@intelligence/prompts.js", () => ({
     render_history: vi.fn(),
     render_protocols: vi.fn(),
     build_scoring_context: vi.fn(() => "Hello"),
+    build_terse_director_task: vi.fn(() => "<TASK>terse</TASK>"),
   },
+  render_terse_director_task: vi.fn(() => "<TASK>terse</TASK>"),
 }));
 
 vi.mock("@platform/transport.js", () => ({
@@ -97,15 +100,24 @@ vi.mock("@engine/session.svelte.js", () => ({
   },
 }));
 
-vi.mock("@media", () => ({
-  visual_engine: {
-    visualize: vi.fn().mockResolvedValue({ imageUrl: "https://img.test/auto.png", refinedPrompt: "Auto scene", metadata: {} }),
-    generate: vi.fn(),
-    enhance: vi.fn(),
-    generate_candidates: vi.fn(),
-    upload: vi.fn(),
-  },
-}));
+vi.mock("@media", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    visual_engine: {
+      visualize: vi.fn().mockResolvedValue({ imageUrl: "https://img.test/auto.png", refinedPrompt: "Auto scene", metadata: {} }),
+      generate: vi.fn(),
+      enhance: vi.fn(),
+      generate_candidates: vi.fn(),
+      upload: vi.fn(),
+    },
+    evaluate_image_trigger: vi.fn().mockReturnValue({
+      triggered: false,
+      signals: { band_entry: null, displacement: 0, displacement_threshold: 60 },
+    }),
+    IMAGE_TRIGGER: actual.IMAGE_TRIGGER,
+  };
+});
 
 vi.mock("@utils", async (importOriginal) => {
   const actual = await importOriginal();
@@ -138,15 +150,19 @@ vi.mock("@utils", async (importOriginal) => {
   };
 });
 
-vi.mock("@intelligence/temporal.js", () => ({
-  temporal_engine: {
-    ensure_momentum: vi.fn(),
-    consolidate: vi.fn(),
-    apply_state_mutations: vi.fn(),
-    set_round: vi.fn(),
-    precompute_context_embedding: vi.fn(async () => {}),
-  },
-}));
+vi.mock("@intelligence/temporal.js", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    temporal_engine: {
+      ensure_momentum: vi.fn(),
+      consolidate: vi.fn(),
+      apply_state_mutations: vi.fn(),
+      set_round: vi.fn(),
+      precompute_context_embedding: vi.fn(async () => {}),
+    },
+  };
+});
 
 vi.mock("@intelligence/dynamics.js", () => ({
   dynamics_engine: {
@@ -155,19 +171,12 @@ vi.mock("@intelligence/dynamics.js", () => ({
     }),
     _get_baselines: vi.fn().mockReturnValue({}),
   },
-  evaluate_image_trigger: vi.fn().mockReturnValue({
-    triggered: false,
-    signals: { band_entry: null, displacement: 0, displacement_threshold: 60 },
-  }),
-  IMAGE_TRIGGER: {
-    band_high: 85,
-    band_low: 15,
-    displacement_threshold: 60,
-    cooldown_rounds: 3,
-    default_tier: "story_scene",
-    tiers: ["story_entities", "story_character", "solo_entity", "story_scene"],
-  },
 }));
+
+vi.mock("./director-schema.js", async (importOriginal) => {
+  const actual = await importOriginal();
+  return { ...actual };
+});
 
 describe("gamemaster (Intelligence Kernel)", () => {
   beforeEach(() => {

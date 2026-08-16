@@ -1,5 +1,5 @@
 import { db } from "@data";
-import { SESSION_ID_KEY } from "./config.js";
+import { SESSION_ID_KEY } from "./session.js";
 import { state_bridge, stories_bridge } from "@utils";
 
 /**

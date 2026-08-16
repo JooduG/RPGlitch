@@ -338,3 +338,57 @@ export const download_text_file = (filename, text, mime = "text/plain;charset=ut
  * @returns {boolean}
  */
 export const download_json_file = (filename, value) => download_blob(filename, JSON.stringify(value, null, 2), "application/json;charset=utf-8");
+
+/** @type {{ active: boolean }} */
+const _transition_state = { active: false };
+
+/**
+ * Safely wraps document.startViewTransition with a single-flight guard.
+ *
+ * If the View Transitions API is unavailable or a transition is already in
+ * progress, the callback executes synchronously (instant DOM update, no
+ * animation, no error).
+ *
+ * @param {() => void | Promise<void>} callback - The DOM mutation to animate.
+ * @param {{ className?: string }} [options] - Optional configuration for the transition.
+ * @returns {Promise<any>}
+ */
+export function guarded_transition(callback, options = {}) {
+  // Graceful fallback: no API or already active → run synchronously, no error
+  if (typeof document === "undefined" || !document.startViewTransition || _transition_state.active) {
+    callback();
+    return Promise.resolve();
+  }
+
+  _transition_state.active = true;
+
+  if (options.className) {
+    document.documentElement.classList.add(options.className);
+  }
+
+  const transition = document.startViewTransition(async () => {
+    try {
+      await callback();
+    } catch (err) {
+      console.error("[TransitionGuard] Callback error during view transition:", err);
+    }
+  });
+
+  // Always release the lock when the transition settles, regardless of outcome.
+  // finished may reject if the browser aborts the transition (AbortError) —
+  // we suppress that too, as it is a normal browser lifecycle event.
+  const done_promise = transition.finished.finally(() => {
+    if (options.className) {
+      document.documentElement.classList.remove(options.className);
+    }
+    _transition_state.active = false;
+  });
+
+  // Suppress any rejection from the transition lifecycle promises
+  // to prevent unhandled promise rejection warnings in the browser console.
+  transition.finished.catch(() => {});
+  transition.ready.catch(() => {});
+  transition.updateCallbackDone.catch(() => {});
+
+  return done_promise;
+}

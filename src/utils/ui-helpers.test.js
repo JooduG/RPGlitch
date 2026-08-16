@@ -1,6 +1,7 @@
 import {
   generate_secure_seed as generateSecureSeed,
   generate_uuid as generateUUID,
+  guarded_transition,
   resolve_ms,
   resolve_number,
   resolve_px,
@@ -335,6 +336,76 @@ describe("helpers", () => {
       Object.defineProperty(globalThis, "crypto", {
         value: original_crypto,
         configurable: true,
+      });
+    });
+  });
+
+  describe("guarded_transition", () => {
+    describe("when document.startViewTransition is NOT available", () => {
+      it("calls the callback synchronously without animation", () => {
+        /** @type {any} */ (document).startViewTransition = undefined;
+        const cb = vi.fn();
+        guarded_transition(cb);
+        expect(cb).toHaveBeenCalledTimes(1);
+      });
+
+      it("does not throw", () => {
+        /** @type {any} */ (document).startViewTransition = undefined;
+        expect(() => guarded_transition(() => {})).not.toThrow();
+      });
+    });
+
+    describe("when document.startViewTransition IS available", () => {
+      /** @type {() => void} */
+      let resolveTransition;
+      /** @type {any} */
+      let transitionMock;
+
+      beforeEach(() => {
+        const finished_promise = new Promise((resolve) => {
+          resolveTransition = /** @type {() => void} */ (resolve);
+        });
+        transitionMock = {
+          ready: Promise.resolve(),
+          finished: finished_promise,
+          updateCallbackDone: Promise.resolve(),
+          skipTransition: vi.fn(),
+          types: [],
+        };
+        /** @type {any} */ (document).startViewTransition = vi.fn((cb) => {
+          Promise.resolve().then(cb);
+          return transitionMock;
+        });
+      });
+
+      afterEach(async () => {
+        resolveTransition?.();
+        await new Promise((r) => setTimeout(r, 0));
+      });
+
+      it("calls document.startViewTransition with the callback", async () => {
+        const cb = vi.fn();
+        guarded_transition(cb);
+        await vi.waitFor(() => expect(cb).toHaveBeenCalledTimes(1));
+        expect(document.startViewTransition).toHaveBeenCalledTimes(1);
+      });
+
+      it("handles concurrency with synchronous fallback until settled", async () => {
+        const cb = vi.fn();
+        guarded_transition(cb);
+
+        const cb2 = vi.fn();
+        guarded_transition(cb2);
+
+        expect(cb2).toHaveBeenCalledTimes(1);
+        expect(document.startViewTransition).toHaveBeenCalledTimes(1);
+
+        resolveTransition();
+        await vi.waitFor(() => {
+          const cb3 = vi.fn();
+          guarded_transition(cb3);
+          expect(document.startViewTransition).toHaveBeenCalledTimes(2);
+        });
       });
     });
   });

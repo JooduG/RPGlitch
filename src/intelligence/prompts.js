@@ -983,7 +983,36 @@ export const prompt_builder = {
   build_ghostwriter(entities, input = "") {
     return render_ghostwriter({ entities, input });
   },
+  build_terse_director_task() {
+    return render_terse_director_task();
+  },
 };
+
+/**
+ * Terse replacement for the Director task — used on the retry after a truncated
+ * JSON so the model emits a complete, minimal payload.
+ * @returns {string}
+ */
+export function render_terse_director_task() {
+  return `
+<TASK>
+  Return a single, COMPLETE, VALID JSON object. It MUST fit in under 700 characters.
+  - Omit "_thought_process" entirely, or keep it to one clause of a few words.
+  - Omit "directive" entirely.
+  - Set "speaker": "ai" (or "fractal" only if the world itself should narrate this turn).
+  - Set "keywords": [] (or up to 2 from <AVAILABLE_KEYWORDS>).
+  - Set "story_status": "IN_PROGRESS" (use "CONCLUDED"/"COLLAPSED" ONLY at a true quest resolution).
+  - For each entity, include only NON-EMPTY mutations:
+      "state_append": { "physical": "", "non_physical": "<one short clause>" }
+      "vector_append": [] (or a SINGLE item)
+      "vector_resolve": []
+      "dynamics_deltas": { small integers }
+  - Set "trigger_image": "false".
+  Output ONLY the JSON. No markdown fences, no prose, no trailing commas.
+  End with a closing "}". A small complete object beats a large cut-off one.
+</TASK>
+  `.trim();
+}
 
 export {
   build_ai_future_xml,

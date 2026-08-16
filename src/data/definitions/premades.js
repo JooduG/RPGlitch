@@ -1,5 +1,5 @@
 /**
- * src/data/premades.js
+ * src/data/definitions/premades.js
  * 📋 Sovereign Archetype Registry — RPGlitch Edition
  */
 

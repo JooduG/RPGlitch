@@ -1,12 +1,4 @@
-import {
-  coerce_temporal_array,
-  create_new,
-  detox_prose,
-  ENTITY_TEMPLATES,
-  format_premade,
-  get_random_signature_key,
-  normalize,
-} from "./normalizer.js";
+import { coerce_temporal_array, create_new, ENTITY_TEMPLATES, format_premade, get_random_signature_key, normalize } from "./normalizer.js";
 import { security } from "@platform";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -17,7 +9,7 @@ vi.mock("@platform/security.js", () => ({
   },
 }));
 
-describe("content-normaliser.js", () => {
+describe("normalizer.js", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Mock crypto idiomatic way
@@ -167,40 +159,5 @@ describe("content-normaliser.js", () => {
       expect(Object.keys(PALETTE)).toContain(key);
       expect(key).not.toBe("default");
     });
-  });
-});
-
-describe("detox_prose()", () => {
-  it("should scrub classic AI tropes", () => {
-    expect(detox_prose("The air tastes of ozone and the room hums.")).not.toMatch(/ozone|hums/i);
-    expect(detox_prose("He murmured softly, a testament to his restraint.")).not.toMatch(/murmur|testament/i);
-    expect(detox_prose("A rich tapestry of emotion, a symphony of breath.")).not.toMatch(/tapestry|symphony/i);
-  });
-
-  it("should scrub Reddit-reported AI-isms", () => {
-    expect(detox_prose("His obsidian eyes stared into the void.")).not.toMatch(/obsidian|void/i);
-    expect(detox_prose("She stood frozen, white knuckles on the rail.")).not.toMatch(/frozen|white knuckles/i);
-    expect(detox_prose("The sky was bruised purple in amber light.")).not.toMatch(/bruised purple|amber light/i);
-    expect(detox_prose("Old parchment rustled; once in a blue moon.")).not.toMatch(/parchment|blue moon/i);
-    expect(detox_prose("Crimson lips, iridescent scales, a spatial disturbance.")).not.toMatch(/crimson|iridescent|spatial disturbance/i);
-    expect(detox_prose("He let out a breath he didn't realize he was holding.")).not.toMatch(/realize.*holding|realized.*holding/i);
-    expect(detox_prose("They were merging their molecules together.")).not.toMatch(/merging their molecules/i);
-  });
-
-  it("should not mangle ordinary prose", () => {
-    const plain = "He smiled and the door swung open. She sighed and looked up.";
-    expect(detox_prose(plain)).toBe(plain);
-  });
-
-  it("should scrub posture tropes like lean in across all verb tenses", () => {
-    expect(detox_prose("He leaned in, whispering softly.")).not.toMatch(/leaned in/i);
-    expect(detox_prose("I lean in to hear what he says.")).not.toMatch(/lean in/i);
-    expect(detox_prose("Silvers leans in, his expression unreadable.")).not.toMatch(/leans in/i);
-    expect(detox_prose("Leaning in, he closed the distance.")).not.toMatch(/leaning in/i);
-  });
-
-  it("should not touch non-cliché usages", () => {
-    expect(detox_prose("He leaned in the doorway, watching her.")).toContain("leaned in the doorway");
-    expect(detox_prose("The room was devoid of light.")).toContain("devoid of");
   });
 });

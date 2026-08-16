@@ -6,6 +6,7 @@ import {
   MAX_TOTAL_VECTORS,
   MAX_VECTOR_CHARS,
   is_origin,
+  prune,
 } from "./temporal.js";
 import { llm_service } from "@platform";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -737,5 +738,27 @@ describe("temporal_engine.consolidate()", () => {
     expect(mock_user.present.physical).toContain("[EXPRESSION: wide eyes, flushed]");
     expect(mock_user.present.physical).toContain("[CONDITION: blindfolded with midnight-blue silk]");
     expect(mock_user.present.non_physical).toBe("Deeply submissive");
+  });
+});
+
+describe("prune", () => {
+  it("returns empty array for invalid inputs", () => {
+    expect(prune(null)).toEqual([]);
+    expect(prune(undefined)).toEqual([]);
+    expect(prune("not an array")).toEqual([]);
+  });
+
+  it("filters out future vectors and takes up to 3 past vectors", () => {
+    const vectors = [
+      { id: "1", content: "Memory 1", type: "past", emotional_weight: 7 },
+      { id: "2", content: "Agenda 1", type: "future" },
+      { id: "3", content: "Memory 2", type: "past", emotional_weight: 8 },
+      { id: "4", content: "Memory 3", type: "past", emotional_weight: 9 },
+      { id: "5", content: "Memory 4", type: "past", emotional_weight: 10 },
+    ];
+    const result = prune(vectors);
+    expect(result).toHaveLength(3);
+    expect(result.map((v) => v.id)).toEqual(["1", "3", "4"]);
+    expect(result[0].type).toBe("past");
   });
 });

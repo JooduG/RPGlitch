@@ -108,8 +108,8 @@ A simulation requires entities (Characters and Fractals) to execute a narrative.
     - _Multi-Item Aggregation_: Repeated `[INVENTORY: ...]` / `[STASH: ...]` brackets merge into an aggregated array.
     - _Undress / Redress Lifecycle_: Undressing stashes garments in `[INVENTORY: ...]`; redressing reads items back from inventory without hallucination.
   - **Past (Memories)**: Historical anchors and session memories stored in the `past` vector array (retrieved via vector RAG):
-    - _ID Provenance & Forge-Skip_: `usr_` prefixed memories (user/lore authored) are origin-protected (`is_origin`), immune to Memory Forge eviction/compression, and receive a $1.5\times$ relevance multiplier in `compute_relevance()`. `ai_` session memories roll with a cap of 20 (`PAST_VECTOR_CAP = 20`).
-    - _Bound Limits_: Maximum 200 total vectors per entity; $\le 220$ characters per entry. Deduplication uses $>60\%$ word overlap and $>0.92$ cosine similarity.
+    - _ID Provenance & Forge-Skip_: `usr_` prefixed memories (user/lore authored) are origin-protected (`is_origin`), immune to Memory Forge eviction/compression, and receive a 1.5x relevance multiplier in `compute_relevance()`. `ai_` session memories roll with a cap of 20 (`PAST_VECTOR_CAP = 20`).
+    - _Bound Limits_: Maximum 200 total vectors per entity; <= 220 characters per entry. Deduplication uses > 60% word overlap and > 0.92 cosine similarity.
   - **Future (Standing Agenda)**: Active trajectory, impending intent, and standing agenda stored as a single consolidated prose field (rewritten wholesale by the Memory Forge each cycle).
 - **Dual Filter Engine**:
   - _Visual Prompt Filter_: `INVENTORY`, `STASH`, `SECRET`, `PLAN`, and `STATUS` are strictly stripped from image generation prompts (`build_aesthetic_map` & `strip_visual_excluded`).
@@ -244,21 +244,21 @@ RPGlitch is a **Local-First Reactive Monolith (PWA)** built for the Perchance if
 
 ### 1. System Lexicon
 
+> [!TIP]
+> **Authoritative Definitions**: The full canonical glossary of simulation physics, entity hierarchies, directorial mechanics, and persistence rules is documented in [GLOSSARY.md](./GLOSSARY.md).
+
 - **RPGlitch**: The core simulation engine and repository.
 - **Swarm**: The tactical engine managing multi-agent token scaling, parallel execution, and the 80% Confidence Gate.
 - **Temporal Engine**: Intelligence module managing the temporal continuum of an entity.
 - **Entity Fragments**: The four-quadrant state architecture (**Eternal**, **Present**, **Past**, **Future**).
-- **Enhancement**: Refining raw entity data into high-fidelity non-physical fragments via 3rd-Person Affirmative law.
-- **Optics**: Physical fragments and image prompts optimized for geometric and texture precision.
 - **Entity**: The fundamental simulation unit—either a `character` or a `fractal`.
 - **Fractal**: A world, setting, or environmental entity.
-- **User Persona**: The human-controlled character entity.
+- **User Persona**: The human-controlled character entity (strictly protected by P1: User Agency).
 - **AI Character**: An agent-controlled character entity.
-- **Profile Readonly**: Lock state preventing user edits to entity data during narrative sequences.
+- **Stage Spotlight**: In-scene presence tracking (`runtime.in_scene_npc_ids`) while off-screen characters freeze in stasis.
+- **Universal Relational Graph**: Plain-text directed vectors (`"[Source] → [Target]: [Dynamic]"`) defining interpersonal bonds and world affiliations.
 - **Simulation Lock**: UI stasis state active while the engine processes a turn.
-- **Devmode**: The local development workspace.
-- **GH CLI (`gh`)**: Primary CLI interface for GitHub issues, PRs, and workflow management.
-- **Lean Agent**: Performance context configured with fewer than 50 active MCP tools to protect window limits.
+- **Full Dictionary**: Consult [GLOSSARY.md](./GLOSSARY.md) for complete entries.
 
 ---
 

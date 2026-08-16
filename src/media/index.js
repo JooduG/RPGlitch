@@ -24,3 +24,4 @@ export {
   resolve_visual_engine_tokens,
 } from "./image-prompts.js";
 export { visual_engine, VisualEngine } from "./visual.svelte.js";
+export { IMAGE_TRIGGER, DEFAULT_IMAGE_TIER, evaluate_image_trigger, resolve_image_trigger } from "./image-trigger.js";

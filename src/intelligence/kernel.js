@@ -7,16 +7,23 @@
  * Transport Layer (llm_service) into a single execution pipeline.
  */
 
-import { db, entities, prune } from "@data";
+import { db, entities } from "@data";
 import { generate_uuid as generateUUID, create_job_queue, state_bridge } from "@utils";
-import { visual_engine } from "@media";
+import { visual_engine, evaluate_image_trigger, IMAGE_TRIGGER } from "@media";
+import {
+  escape_unescaped_json_quotes,
+  extract_json_block,
+  parse_think_block,
+  raw_stop_reason,
+  raw_to_text,
+  strip_cognition_blocks,
+} from "./parser.js";
 import { llm_service, looks_truncated, security } from "@platform";
-import { context_builder } from "./context.svelte.js";
-import { dynamics_engine, evaluate_image_trigger, IMAGE_TRIGGER } from "./dynamics.js";
-import { escape_unescaped_json_quotes, extract_json_block, parse_think_block, strip_cognition_blocks } from "./parser.js";
+import { context_builder } from "./context.js";
+import { dynamics_engine } from "./dynamics.js";
 import { normalize_director_data, resolve_speaker_engine } from "./director-schema.js";
 import { prompt_builder } from "./prompts.js";
-import { temporal_engine } from "./temporal.js";
+import { prune, temporal_engine } from "./temporal.js";
 
 /**
  * @typedef {import('@engine/kernel.js').GenerationOptions} GenerationOptions
@@ -235,31 +242,6 @@ function _resolve_image_trigger({ snapshot, prev_dynamics, director_data, turn_r
     next_auto_round,
     director_explicit,
   };
-}
-
-/**
- * Normalizes an llm_service raw result (primitive string or String object with
- * `.text`/`.generatedText`/`.stopReason`) into plain text.
- * @param {any} raw
- * @returns {string}
- */
-function raw_to_text(raw) {
-  if (typeof raw === "string") return raw.trim();
-  if (raw && typeof raw === "object") {
-    return String(raw.generatedText ?? raw.text ?? "").trim();
-  }
-  return String(raw ?? "").trim();
-}
-
-/**
- * Returns the Director's reason for a truncated/failed output, if the transport
- * surfaced one (server stop reason attached to the raw String object).
- * @param {any} raw
- * @returns {string}
- */
-function raw_stop_reason(raw) {
-  if (raw && typeof raw === "object" && !(raw instanceof String)) return "";
-  return raw && typeof raw === "object" && raw.stopReason ? String(raw.stopReason) : "";
 }
 
 /**

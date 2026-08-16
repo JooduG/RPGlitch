@@ -1,4 +1,4 @@
-import { context_builder } from "./context.svelte.js";
+import { context_builder } from "./context.js";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Hoisted mock variables starting with 'mock' to satisfy Vitest prefix requirement and bypass TDZ
@@ -45,7 +45,7 @@ const _mock_runtime = {
   },
 };
 
-// Mock @utils to provide state_bridge so context.svelte.js can access runtime/app
+// Mock @utils to provide state_bridge so context.js can access runtime/app
 vi.mock("@utils", async (importOriginal) => {
   const actual = await importOriginal();
   return {
@@ -71,7 +71,7 @@ vi.mock("@engine/session.svelte.js", () => ({
   },
 }));
 
-// Mock @intelligence/temporal.js to keep context.svelte.js's resolve_vector_pool
+// Mock @intelligence/temporal.js to keep context.js's resolve_vector_pool
 // real while avoiding side effects; context no longer imports temporal_engine
 // itself (FUTURE is a prose field, so the vector lifecycle is gone).
 vi.mock("@intelligence/temporal.js", async (importOriginal) => {
