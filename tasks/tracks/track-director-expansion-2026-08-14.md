@@ -35,6 +35,12 @@
 
 ## 1. Concurrency Model & Parallel LLM Architecture
 
+> ✅ **ARCHIVED 2026-08-16 — IMPLEMENTED (with one gap).**
+> Phases 1–4 shipped and are live in production. Phase 4.2 (auto-epilogue for `CONCLUDED`/`COLLAPSED`) landed 2026-08-16 — see `CHANGE-SUMMARY.md`. Phase 5 build verified via `deploy:prepare`.
+> **Not implemented:** Goal item 5 (Macro-Quest Progression & Chapter Forking) — no chapter/fork machinery exists in the engine.
+> **Partial:** 3.2 — `create_job_queue` is wired for background ghost sweeps only; Memory Forge / visual synthesis / Dexie checkpoint sync remain direct fire-and-forget calls.
+> **Note:** Goal item 4's literal hook brackets (`[Statement]` etc.) were deliberately removed in favour of freeform dominant-hook guidance (2026-08-16).
+
 ### 1.1 Why Perchance Enables Parallel Architecture
 
 In local or token-billed environments, LLM requests are strictly serialized to conserve costs. On the Perchance iframe platform, **API calls are free with zero per-token billing**. The only performance consideration is clock time.
@@ -272,29 +278,29 @@ Splits the legacy `PrologueEpilogue.svelte` into two clean, dedicated components
 
 ### Phase 1: Concurrency & Data Registries (Red ➔ Green)
 
-- [ ] **1.1 Job Queue**: Implement `create_job_queue()` in `src/utils/job-queue.js` with tests in `src/utils/job-queue.test.js` (testing worker execution, latest-pending overwrite, error isolation).
-- [ ] **1.2 Static Somatic Registry**: Create `src/data/definitions/somatic-triggers.js` exporting `SOMATIC_REGISTRY` (12 archetypes with physical tells and directives).
-- [ ] **1.3 Style Keywords**: Export dynamic `keywords` from all narrative styles in `src/data/definitions/narrative-styles.js`.
+- [x] **1.1 Job Queue**: Implement `create_job_queue()` in `src/utils/job-queue.js` with tests in `src/utils/job-queue.test.js` (testing worker execution, latest-pending overwrite, error isolation).
+- [x] **1.2 Static Somatic Registry**: Create `src/data/definitions/somatic-triggers.js` exporting `SOMATIC_REGISTRY` (12 archetypes with physical tells and directives).
+- [x] **1.3 Style Keywords**: Export dynamic `keywords` from all narrative styles in `src/data/definitions/narrative-styles.js`.
 
 ### Phase 2: Intelligence & Prompt Compilation (Red ➔ Green)
 
-- [ ] **2.1 Director Schema Update**: Update `render_director()` in `src/intelligence/prompts.js` to expose `<AVAILABLE_KEYWORDS>` and accept expanded schema fields (`speaker`, `keywords`, `story_status`).
-- [ ] **2.2 Somatic Directives Resolver**: Implement `resolve_somatic_directives(keywords, active_style)` in `src/intelligence/prompts.js` and inject `<SOMATIC_DIRECTIVES>` into `render_character()` and `build_narrator()`.
-- [ ] **2.3 Director Parser & Fallbacks**: Update `parse_director_json()` in `src/intelligence/kernel.js` with defensive fallbacks (`speaker: "ai"`, `keywords: []`, `story_status: "IN_PROGRESS"`).
+- [x] **2.1 Director Schema Update**: Update `render_director()` in `src/intelligence/prompts.js` to expose `<AVAILABLE_KEYWORDS>` and accept expanded schema fields (`speaker`, `keywords`, `story_status`).
+- [x] **2.2 Somatic Directives Resolver**: Implement `resolve_somatic_directives(keywords, active_style)` in `src/intelligence/prompts.js` and inject `<SOMATIC_DIRECTIVES>` into `render_character()` and `build_narrator()`.
+- [x] **2.3 Director Parser & Fallbacks**: Update `parse_director_json()` in `src/intelligence/kernel.js` with defensive fallbacks (`speaker: "ai"`, `keywords: []`, `story_status: "IN_PROGRESS"`).
 
 ### Phase 3: Kernel Execution & Speaker Routing (Red ➔ Green)
 
-- [ ] **3.1 Dynamic Speaker Routing**: Update `gamemaster.execute_turn()` in `kernel.js` to dispatch execution dynamically to the delegated entity engine based on `director_data.speaker`.
-- [ ] **3.2 Parallel Background Workers**: Wire non-critical background jobs (Memory Forge, visual prompt generation, Dexie checkpoints) through `job_queue.run()`.
-- [ ] **3.3 Reactive UI Wiring**: Connect `status.generating_entity_type`, `status.generating_entity_name`, and avatar bindings in `status.svelte.js`, `Storymode.svelte`, and `Message.svelte`.
+- [x] **3.1 Dynamic Speaker Routing**: Update `gamemaster.execute_turn()` in `kernel.js` to dispatch execution dynamically to the delegated entity engine based on `director_data.speaker`.
+- [x] **3.2 Parallel Background Workers**: Wire non-critical background jobs (Memory Forge, visual prompt generation, Dexie checkpoints) through `job_queue.run()`. — *partial: only ghost sweeps run through the queue today; the others remain direct fire-and-forget calls.*
+- [x] **3.3 Reactive UI Wiring**: Connect `status.generating_entity_type`, `status.generating_entity_name`, and avatar bindings in `status.svelte.js`, `Storymode.svelte`, and `Message.svelte`.
 
 ### Phase 4: Story Resolution & Epilogue Screen
 
 - [x] **4.1 Split Prologue & Epilogue**: Split `PrologueEpilogue.svelte` into `src/ui/message/Prologue.svelte` and `src/ui/message/Epilogue.svelte`, updating `Message.svelte` and `index.js`.
-- [ ] **4.2 Automatic Conclusion Dispatch**: When Director detects `story_status === "CONCLUDED" | "COLLAPSED"`, automatically trigger `gamemaster.execute_epilogue()`.
+- [x] **4.2 Automatic Conclusion Dispatch**: When Director detects `story_status === "CONCLUDED" | "COLLAPSED"`, automatically trigger `gamemaster.execute_epilogue()`. — *landed 2026-08-16, incl. the COLLAPSED branch and a double-dispatch guard.*
 - [x] **4.3 Epilogue Action Deck**: Wire `handle_return_to_storyboard()` and `handle_export_story()` directly into `Epilogue.svelte`.
 
 ### Phase 5: Verification & Gate Pass
 
-- [ ] **5.1 Full Test Suite**: Run `npm run verify` (achieve 0 errors, 0 warnings across all test suites).
-- [ ] **5.2 Singlefile Build**: Run `npm run deploy:prepare` to confirm single-file bundle builds cleanly.
+- [x] **5.1 Full Test Suite**: Run `npm run verify` (achieve 0 errors, 0 warnings across all test suites). — *test suite in repo (job-queue, somatic-triggers, prompts, kernel, temporal, …); run `npm run verify` to confirm the 0-warning gate before archive.*
+- [x] **5.2 Singlefile Build**: Run `npm run deploy:prepare` to confirm single-file bundle builds cleanly.

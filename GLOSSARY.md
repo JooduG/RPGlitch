@@ -76,11 +76,15 @@ The four-quadrant state architecture defining every entity:
 
 ### The 3-Tier Entity Hierarchy
 
+> ⚠️ **SPEC — NOT IMPLEMENTED.** Proposed in the archived NPC Expansion track (2026-08-16). The engine has no `role_tier` field and no tiered entity model; every entity is persisted with the full 4-quadrant memory.
+
 1. **Tier 1 (Background)**: Ephemeral, in-stream text mentions. Zero IndexedDB storage; immediate atmospheric presence.
 2. **Tier 2 (Recurring)**: Persistent IndexedDB contacts. Retains relational strings, dynamic axes (`openness`, `affinity`), and plot history.
 3. **Tier 3 (Major / Co-Star)**: Full 4-quadrant memory, vector RAG recall, standing future agenda, and party co-star status.
 
 ### Universal Relational Graph
+
+> ⚠️ **SPEC — NOT IMPLEMENTED.** No `relationships` field exists in the entity schema, and no `<WORLD_CAST>` / `<RELATIONAL_MESH>` prompt blocks are emitted.
 
 Plain-text directed relationship vectors (`"[Source] → [Target]: [Relational dynamic]"`) that unify interpersonal dynamics, world affiliations, and faction standings without rigid foreign keys:
 
@@ -90,9 +94,13 @@ Plain-text directed relationship vectors (`"[Source] → [Target]: [Relational d
 
 ### Wanderer (`is_wanderer`)
 
+> ⚠️ **SPEC — NOT IMPLEMENTED.** No `is_wanderer` field exists in the codebase.
+
 A character entity flagged `is_wanderer: true` that is not bound to a single Fractal and can appear across multiple compatible worlds.
 
 ### Stage Spotlight Model & Dynamics Stasis
+
+> ⚠️ **SPEC — NOT IMPLEMENTED.** `runtime.in_scene_npc_ids` does not exist; all active dynamics are evaluated every turn and there is no off-screen stasis.
 
 - **On-Stage (`runtime.in_scene_npc_ids`)**: Entities physically in the room. The Director actively updates their dynamics and delegates speech turns.
 - **Off-Screen (Stasis)**: Characters outside the scene freeze in stasis with zero token or computation overhead.
@@ -135,9 +143,13 @@ The omniscient analytical engine that executes prior to narrative prose generati
 
 ### Active Trio Exclusion Filter
 
+> ⚠️ **SPEC — NOT IMPLEMENTED.** There is no `<WORLD_CAST>` block, so there is no roster to exclude from; the active protagonist/companion are simply never minted as secondary entities.
+
 A code-level guarantee that strictly excludes the active Protagonist (`active_user`) and Companion (`active_ai`) from `<WORLD_CAST>`, ensuring the player is never treated as a secondary stranger entering the room.
 
 ### Entity Convergence Law
+
+> ⚠️ **SPEC — NOT IMPLEMENTED.** No `<WORLD_CAST>` / convergence block exists in the prompt library.
 
 A directorial protocol instructing the AI to inspect `<WORLD_CAST>` before minting new entities, reusing existing doctors, guards, and merchants rather than hallucinating duplicate characters.
 
@@ -151,7 +163,15 @@ The psychological tension where a character attempts verbal composure or deflect
 
 ### Decisive Turn Hooks
 
-Mandatory turn conclusions where character responses end on active dramatic tension (`[Statement]`, `[Action]`, `[Hover]`, `[Silence]`), strictly forbidding generic open-ended filler questions (_"What shall we do next?"_).
+Turn endings land on one dominant hook — a decisive statement, a single action, a hovered beat, or a deliberate silence — and strictly forbid generic open-ended filler questions (_"What shall we do next?"_). The literal bracket labels (`[Statement]` / `[Action]` / `[Hover]` / `[Silence]`) were removed on 2026-08-16 in favour of this freeform guidance; the engine emits no structural bracket labels.
+
+### Prop Provenance Law
+
+User-introduced mundane, personal gear (a lighter, knife, rope, coins, tools, keys) is presumed to have been carried all along and is accepted without question. Plot-established items (quest relics, artifacts placed or lost elsewhere, objects in another's possession) can never be conjured into existence: such attempts are treated as in-character bluffs — met with dry humor, irony, or suspicion, and any item that enters the scene is a counterfeit, decoy, or joke, never the genuine article (added 2026-08-16).
+
+### Pacing Calibration
+
+A soft-guideline protocol instructing the storyteller to "roughly match the length and energy of the user's message" (terse line ➔ brief, weighted reply; long message ➔ may expand accordingly). Replaces rigid tier thresholds (2026-08-16).
 
 ### Epistemic Wall
 
@@ -184,7 +204,7 @@ Memory retrieval algorithm scoring past vectors by composite relevance:
 $$\text{Score} = \text{Cosine Similarity} \times \text{Weight} \times \text{Provenance Boost} \times \text{In-Scene Boost} \times \text{Recency Decay}$$
 
 - **`usr_` Provenance Multiplier**: **1.5x boost** for user/lore authored canon memories.
-- **In-Scene Spotlight Multiplier**: **1.3x boost** for characters currently present in the room.
+- **In-Scene Spotlight Multiplier**: **1.3x boost** for characters currently present in the room — *not implemented* (spec from the archived NPC Expansion track; `compute_relevance()` in `temporal.js` has no in-scene boost).
 
 ### Memory Provenance & Forge-Skip
 
@@ -219,6 +239,9 @@ Strictly eliminates banned AI tropes:
 
 - _"taste of copper"_, _"heart hammered against ribs"_, _"destruction as emotion"_ (wall punching).
 - _"phantom itch/ache"_, _"hit like a physical blow"_, _"shadows lengthened"_, _"eyes darkened with something unreadable"_.
+- _"metallic tang"_ (blood/sweat cliché; scrubbed to a raw iron taste, added 2026-08-16).
+
+Detox is enforced **at write time** (2026-08-16): persisted story text, Director `state_append` mutations, and epilogue responses are all scrubbed before they enter the database.
 
 ---
 
@@ -263,7 +286,7 @@ Standardized acoustic voice models assigned to characters and environments (e.g.
 
 ### The Profile Orchestrator (`Profile.svelte`)
 
-The primary modal interface for inspecting and editing entities in view or edit mode. Displays the 4 fragments (Eternal, Present, Past, Future) and the Relationships list.
+The primary modal interface for inspecting and editing entities in view or edit mode. Displays the 4 fragments (Eternal, Present, Past, Future). (The planned Relationships list from the archived NPC Expansion track is not implemented.)
 
 ### The Profile Wings (Flank Drawers)
 
