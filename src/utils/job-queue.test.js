@@ -69,6 +69,40 @@ describe("create_job_queue", () => {
     expect(ran).toEqual(["second"]);
   });
 
+  it("supersedes ALL older queued latest tasks (only the freshest of three runs)", async () => {
+    const q = create_job_queue({ max_concurrency: 1 });
+    const blocker = q.run(async () => {
+      await tick(30);
+    });
+    const ran = [];
+    const first = q.run(
+      async () => {
+        ran.push("first");
+        return "first-result";
+      },
+      { latest: true },
+    );
+    const second = q.run(
+      async () => {
+        ran.push("second");
+        return "second-result";
+      },
+      { latest: true },
+    );
+    const third = q.run(
+      async () => {
+        ran.push("third");
+        return "third-result";
+      },
+      { latest: true },
+    );
+    const [, r1, r2, r3] = await Promise.all([blocker, first, second, third]);
+    expect(r1).toEqual({ superseded: true });
+    expect(r2).toEqual({ superseded: true });
+    expect(r3).toBe("third-result");
+    expect(ran).toEqual(["third"]);
+  });
+
   it("does not supersede plain (non-latest) tasks", async () => {
     const q = create_job_queue({ max_concurrency: 1 });
     const ran = [];

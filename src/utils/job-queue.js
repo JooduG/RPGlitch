@@ -18,8 +18,7 @@
 export function create_job_queue(options = {}) {
   const max_concurrency = Math.max(1, Number(options?.max_concurrency) || 1);
   let active = 0;
-  let sequence = 0;
-  /** @type {{ task: () => Promise<any>, latest: boolean, superseded: boolean, seq: number, resolve: (value: any) => void, reject: (error: any) => void }[]} */
+  /** @type {{ task: () => Promise<any>, latest: boolean, superseded: boolean, resolve: (value: any) => void, reject: (error: any) => void }[]} */
   const waiting = [];
 
   const _cleared = { cleared: true };
@@ -63,15 +62,15 @@ export function create_job_queue(options = {}) {
           task,
           latest: !!opts?.latest,
           superseded: false,
-          seq: ++sequence,
           resolve,
           reject,
         };
         if (job.latest) {
+          // Every still-queued latest task is superseded by this fresher one —
+          // only the newest queued snapshot should ever execute.
           for (let i = waiting.length - 1; i >= 0; i--) {
             if (waiting[i].latest) {
               waiting[i].superseded = true;
-              break;
             }
           }
         }
