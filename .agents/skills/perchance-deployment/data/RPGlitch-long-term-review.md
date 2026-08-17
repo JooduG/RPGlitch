@@ -1,242 +1,192 @@
-# Roleplay & Narrative Content Stress Test Protocol (Character Chemistry, Engine Telemetry & Sovereign Audit)
+# RPGlitch — Dual-Track Implementation Review & Narrative Stress Test Protocol
 
-## Objective
-
-Simulate a live end-to-end test session of **25 to 30 turns** within RPGlitch. Act simultaneously as a realistic human user inside the chat payload and an unforgiving narrative auditor behind the scenes. Focus **exclusively on narrative content, character dynamics, prose quality, detox engine compliance, unified dynamics signal telemetry, sovereign name resonance, memory provenance, epistemic physics, and engine bug verification**. Evaluate how the AI character and Director react to physical contradictions, trauma triggers, moral dilemmas, unprompted initiative tests, mid-session reloads, and post-climax transitions.
-
----
-
-## Part 1: User Persona Protocol & Narrative Edge-Case Probes
-
-### Persona Directive
-
-- **Act like a real human user**: Write brief, natural responses (1–3 sentences). Match character context without over-explaining or mimicking AI enthusiasm.
-- **Never break character inside the chat payload**: All auditing occurs strictly outside the character dialogue.
-
-### Mandatory Narrative Edge-Case Probes
-
-1. 🩹 **Extreme Vulnerability & Trauma Boundary Probe (Turn 4 ➔ Turn 12)**:
-   - _Action_: Expose a deep character trauma, severe physical vulnerability, or admission of fear during dialogue.
-   - _Audit Gate_: Confirm the AI character expresses authentic, non-cliché vulnerability in its register rather than immediately deflecting back to hyped-up banter or campy bravado. Confirm prose avoids somatic tics ("taste of copper", "heart hammers against my ribs", "destruction-as-emotion" wall punching).
-
-2. 🚧 **Physical Contradiction & Impossible Action Probe (Turn 6 & Turn 18)**:
-   - _Action_: Submit a user action that physically violates the environment or character state (e.g., attempting to walk directly through a locked 5-inch titanium blast door, or claiming to pull an item out of thin air that was never introduced).
-   - _Audit Gate_: Audit whether the AI character enforces physical causality and spatial reality (3rd-person affirmative) rather than passively agreeing or breaking environmental immersion.
-
-3. 🎲 **Unprompted AI Initiative & Narrative Driving Probe (Turn 8 & Turn 16)**:
-   - _Action_: Submit an intentionally brief, passive user turn (e.g., _"I lean against the cold conduit and wait."_ or _"I watch the security monitor in silence."_).
-   - _Audit Gate_: Verify whether the AI character takes active narrative initiative (introducing an unexpected complication, offering an in-character choice, or advancing the plot) rather than stalling, repeating the user's line, or waiting passively for the user to drive.
-
-4. ⚡ **Unified Dynamics Signal & Multi-Trigger Stress Probe (Turn 10 & Turn 20)**:
-   - _Action_: Push dynamics sliders across extreme multi-axis boundaries (e.g. `intensity > 70` + `chaos > 70` + high `openness` or custom author style triggers).
-   - _Audit Gate_: Inspect DevConsole Telemetry and prompt inspection. Verify that `GLOBAL_TRIGGERS` (across all 6 axes: `intensity`, `chaos`, `openness`, `affinity`, `velocity`, `entropy`) and active style `triggers` fire in a single unified pass, rendering a single, consolidated `<DYNAMICS_SIGNALS>` XML block without prompt bloat or directive contradictions.
-
-5. ⚖️ **High-Stakes Moral Choice & Sudden Affinity Shift Probe (Turn 14 ➔ Turn 20)**:
-   - _Action_: Introduce a sudden betrayal offer, corporate bribe, or high-stakes moral dilemma (e.g., offering to leave a wounded ally behind or sell out confidential data).
-   - _Audit Gate_: Verify whether the Director & AI character modulate Affinity, Openness, and Intensity in a nuanced, believable arc, avoiding canned generic responses ("I can't let you do that!") or instant unearned forgiveness.
-
-6. 🔄 **Mid-Session State Reload & Physics Continuity Probe (Turn 15)**:
-   - _Action_: Refresh the browser window or re-sync the session payload at Turn 15.
-   - _Audit Gate_: Confirm that `simulation_state` returns cleanly to `"idle"` phase, active `chaos`/`intensity`/`openness`/`affinity` physics sliders retain their live state in IndexedDB (no hard-reset to static baseline), and story turn sequence resumes without corruption.
-
-7. 📌 **Long-Horizon Fact Precision Callback Probe (Turn 5 ➔ Turn 22)**:
-   - _Action_: Plant a specific codename, serial number, or secondary NPC detail in Turn 5 (e.g., `VX-4412 cobalt spike` or dispatcher `Marta`). Reference it implicitly in Turn 22.
-   - _Audit Gate_: Verify whether the Memory Forge retains concrete plot facts (names, serial numbers, locations) alongside emotional affect, and confirm the AI character correctly recognizes and integrates the callback 17 turns later. Confirm `usr_` origin memories receive forge-skip protection and a 1.5x relevance boost.
-
-8. 🧱 **Epistemic Wall & Telepathy Barrier Probe (Turn 7 & Turn 21)**:
-   - _Action_: Set private `[SECRET: ...]` or `[PLAN: ...]` tags in user character present state.
-   - _Audit Gate_: Confirm that user private tags are stripped across the Epistemic Wall in `render_character()` so the AI character never hallucinates telepathic knowledge, while remaining fully visible to the omniscient Director in `render_director()`.
-
-9. 🌅 **Climax Peak, Epilogue Screen & Resolution Transition Probe (Turn 24 ➔ Turn 28)**:
-   - _Action_: Drive the story past its climactic resolution (e.g., completing the main vault heist or escaping the facility) into the quiet aftermath or quest resolution (`story_status: "CONCLUDED"` / `"COLLAPSED"`).
-   - _Audit Gate_: Verify that when the story quest resolves, the engine cleanly presents `Epilogue.svelte` with the cursive title, dynamic outcome badge (`✨ STORY CONCLUDED` / `💀 STORY COLLAPSED` / `📜 THE END`), the final entity trio cards, and the action deck (`Return to Storyboard`, `Export Story (.md)`).
-
-10. 🎭 **Director Speaker Delegation & Multi-Entity Turn Probe (Turn 9 & Turn 19)**:
-    - _Action_: Shift the player focus entirely onto environmental investigation (e.g. examining ancient ruins or facility machinery without speaking to the companion).
-    - _Audit Gate_: Verify the Director delegates the turn to the environment (`speaker: "fractal"`), compiling the scene-narrator prompt (`build_scene_narrator_prompt()`). Verify `simulation_state` dynamically mirrors the Fractal's name, avatar, and color in the generating thinking indicator.
-
-11. 🫀 **Somatic Directives, Masking & Physical Leakage Probe (Turn 11 ➔ Turn 15)**:
-    - _Action_: Confront the AI character with their core trauma, guilt, or secret vulnerability (e.g. questioning Lord Benedict on his disgraced oath).
-    - _Audit Gate_: Inspect the Director prompt payload to verify `<AVAILABLE_KEYWORDS>` selection (`shame`, `stoic_pain`, `betrayal`, etc.) and injection of `<SOMATIC_DIRECTIVES>`. Verify the AI prose demonstrates **Masking vs. Somatic Leakage** (attempting verbal composure while involuntary physical tells betray internal tension) and avoids banned cliché tropes.
-
-12. ⏱️ **Input Pacing Calibration & Decisive Hook Probe (Turn 3, Turn 13, Turn 23)**:
-    - _Action_: Alternate between terse, punchy commands (_"Draw your sword."_) and expansive descriptive prose.
-    - _Audit Gate_: Verify the AI character calibrates response length to match pacing, and concludes every turn with an active dramatic hook (`[Statement]`, `[Action]`, `[Hover]`, `[Silence]`) rather than generic open-ended filler questions (_"What shall we do next?"_).
-
-13. 👑 **Sovereign Name & Lore Resonance Audit (Every Turn)**:
-    - _Action_: Audit all responses for seamless integration of sovereign names (**Lord Benedict Silvers**, **Prince Julien**, **Dr. Elias Tariq**, **Hank 'Rust' Brawley**, **Ytic'avon** underbelly). Confirm 0 residual occurrences of purged legacy names (_Valerius_, _Vance_, _Silas_, _Voss_, _Caelum_).
+> **System Designation**: Sovereign AI Roleplay Engine
+> **Protocol Purpose**: Test the **implementation quality** of the two active tracks — `track-director-expansion-2026-08-14` (Director Expansion) and `track-npc-expansion-2026-08-14` (NPC & Living World) — via two independent passes: **(1)** a static code audit of every track deliverable against its specified contract, and **(2)** a live 25–30 turn narrative stress test probing each feature at runtime.
+> **Audit Anchor**: 2026-08-16 (baseline: 45 test suites / 633 unit tests)
+> **Rules of Evidence**: Every verdict below must cite a file path, symbol, test file, or observed runtime behavior. Do **not** trust the track files' checkboxes — they lag the code (several "partial/unchecked" items are shipped; see Part 3).
 
 ---
 
-## Part 2: Feature Telemetry & Tactical Verification Focus Areas
+## Part 1 — Static Code Audit: `track-director-expansion-2026-08-14`
 
-Alongside narrative edge-case probing, collect empirical telemetry on these core engine feature systems:
+Audit each deliverable against the track blueprint. Fill the **Verdict** column (`PASS` / `PARTIAL` / `FAIL` / `N/A`) with a one-line justification.
 
-1. 🧼 **Slimmed-Down Detox Engine Performance & Trope Scrubbing**:
-   - _Target_: Audit the slimmed-down `detox-rules.js` engine (3-item `plain` allocations, 2-item `ornate`/`raw`/`clinical` allocations, deterministic FNV-1a hashing). Verify 0% occurrence of banned tropes and secondary crutches (`static`, `shadows`, `phantom itch/ache`, `hit like a physical blow`), confirming fast, lightweight execution with zero trope leakage.
-2. ⚡ **Single-Pass Unified Dynamics Signal Engine**:
-   - _Target_: Confirm that `evaluate_dynamics_signals()` evaluates baseline global signals (`GLOBAL_TRIGGERS`) and author style `triggers` in one clean pass, rendering a single `<DYNAMICS_SIGNALS>` block. Confirm non-exclusive triggers fire smoothly for complex composite moods without prompt noise.
-3. 🔓 **Zero Post-Turn Phase Lock (UI Stasis Verification)**:
-   - _Target_: Verify 0 instances of UI stasis or phase lockup (`simulation_state` stuck in `"locked"` phase). The composer input box must unlock immediately after turn generation and memory saving across all 30 rounds.
-4. 🎯 **Standing Agenda (`future_consolidated`) Refresh & Eviction**:
-   - _Target_: Audit every Memory Forge cycle (R3, R7, R11, R15, R19, R23, R27). Confirm `future_consolidated` updates on **100% of forge cycles** (via primary LLM output or fallback synthesis), and that completed objectives are evicted when plot milestones are reached.
-5. 🧬 **Vector Memory Provenance & Forge-Skip Protection**:
-   - _Target_: Verify that user-authored / canon memories prefixed with `usr_` are origin-protected (`is_origin = true`), immune to Memory Forge eviction/compression, and boosted by a 1.5x relevance multiplier in `compute_relevance()`. Confirm rolling session `ai_` memory vectors stay bounded within the 20-item cap (`PAST_VECTOR_CAP = 20`).
-6. 🧽 **Universal Atomic Key Clearing & Wardrobe Lifecycle**:
-   - _Target_: Verify that present state pseudo-JSON directives (`[KEY: none]`, `[KEY: bare]`, `[CLOTHING: none]`) cleanly delete keys from `present.physical`, while undressing stashes garments in `[INVENTORY: ...]` and redressing reads them back without hallucination.
-7. 🖼️ **Visual Filter & Ghost Row Cleanup**:
-   - _Target_: Confirm `INVENTORY`, `STASH`, `SECRET`, `PLAN`, and `STATUS` are strictly stripped from Perchance T2I image prompts. Confirm timed-out or dropped image beats leave **0 empty ghost rows** in `simulation_log`.
-8. 💾 **IndexedDB Dynamics Persistence & State Restoration**:
-   - _Target_: Verify that live physics deltas (`chaos`, `intensity`, `openness`, `affinity`) are persisted back to IndexedDB entity records after every turn, guaranteeing 100% physics continuity across reloads.
-9. 🫀 **Somatic Directives & Involuntary Physical Tells Engine**:
-   - _Target_: Verify Director selects 1–2 keywords from `<AVAILABLE_KEYWORDS>` (12-archetype registry + 23 style motifs) and injects `<SOMATIC_DIRECTIVES>`. Confirm AI character generates involuntary bodily tells and demonstrates Masking vs. Somatic Leakage (verbal composure vs. physical betrayal).
-10. 🎭 **Dynamic Speaker Routing & Multi-Entity Delegation**:
-    - _Target_: Verify Director can delegate turns via `speaker: "ai" | "fractal" | "npc:<id>"`. Confirm Fractal narration uses `build_scene_narrator_prompt()` and UI thinking states update dynamically with active entity's name, avatar, and signature color.
-11. 🚀 **Asynchronous Job Queue Concurrency (`job-queue.js`)**:
-    - _Target_: Verify non-critical background jobs (ghost row sweeps, memory forge, state checkpoints) execute concurrently via `director_background_queue.run()`, isolating errors and eliminating turn latency.
-12. 📜 **Story Resolution & Epilogue Screen (`Epilogue.svelte`)**:
-    - _Target_: Verify that triggering story completion (`story_status: "CONCLUDED"` or `"COLLAPSED"`) displays `Epilogue.svelte` with Satisfy cursive header, outcome badge, final entity trio cards, and action deck (`Return to Storyboard`, `Export Story (.md)`).
+| # | Track Deliverable (spec) | Expected Artifact | Verified Artifact (2026-08-16) | Unit Coverage | Verdict |
+| :- | :---------------------- | :---------------- | :----------------------------- | :------------ | :------ |
+| 1.1 | Parallel job queue (latest-pending overwrite, error isolation, single DB pipeline) | `create_job_queue()` in `src/utils/job-queue.js` | `create_job_queue` exported with `run()` / `is_busy()` / `clear()`; single-runner serialization | `job-queue.test.js` (9 tests: worker execution, latest-pending, error isolation) | |
+| 1.2 | 12-archetype static somatic/trauma registry | `src/data/definitions/somatic-triggers.js` exporting `SOMATIC_REGISTRY` | **Renamed** to `src/data/definitions/triggers.js`; `SOMATIC_REGISTRY` (12 archetypes: shame, fear, vulnerability, betrayal, abandonment, emotional_neglect, defiance, intimacy, grief, dominance, deception, dysregulation) each with `tells` + `directive` | `triggers.test.js` (13 tests) | |
+| 1.3 | Dynamic style keywords/motifs from narrative styles | `keywords` exported from `narrative-styles.js` | `STYLE_MOTIF_REGISTRY` (23 motifs) in `triggers.js`, resolved alongside static archetypes by `resolve_somatic_directives()` | `triggers.test.js` + `prompts.test.js` (`<AVAILABLE_KEYWORDS>` lists the 12 static archetypes) | |
+| 2.1 | Expanded Director JSON schema + `<AVAILABLE_KEYWORDS>` pool | `render_director()` emits `speaker`, `keywords`, `story_status`, mutations | `render_director()` in `src/intelligence/prompts.js` emits the full schema + `<AVAILABLE_KEYWORDS>`; `STORY_STATUS_VALUES = ["IN_PROGRESS", "CONCLUDED", "COLLAPSED"]` | `prompts.test.js` (schema, `<AVAILABLE_KEYWORDS>`, `in_scene_change`, `promotions`, Stage Spotlight schema) | |
+| 2.2 | Somatic directive resolver + injection into character & narrator | `resolve_somatic_directives(keywords, active_style)`; `<SOMATIC_DIRECTIVES>` injected into `render_character()` / `build_narrator()` | `resolve_somatic_directives` + `render_somatic_directives_xml` + `build_somatic_directives_block` in `triggers.js`; injected via `build_somatic_directives_block` into character prompt; **omitted** from prologue/epilogue bookends | `prompts.test.js` (injects when keywords chosen; omits when none; bookends free) | |
+| 2.3 | Director parser + defensive fallbacks | `parse_director_json()` in `kernel.js` | **Moved** to `src/intelligence/director.js`: `parse_director_json`, `normalize_director_data` (defaults: `speaker:"ai"`, `keywords:[]`, `story_status:"IN_PROGRESS"`), `synthesize_director_fallback` (minimal-mutation on unparsable JSON), `scrub_state_mutations` (detox-screens Director state before application) | `director.test.js` (21 tests) + `kernel.test.js` (invalid-JSON fallback keeps entity memory alive) | |
+| 3.1 | Dynamic speaker routing to any entity engine | `execute_turn()` dispatches `ai` / `fractal` / `npc:<id>` | `kernel.execute_turn()` resolves via `normalize_speaker` → `resolve_speaker_engine` (`character` / `narrator` / `npc`); fractal → `prompt_builder.build_scene_narrator_prompt()`; NPC → `build_npc_prompt()`; missing NPC falls back to AI character with a log | `director.test.js`, `prompts.test.js` (scene-narrator prompt), `kernel.test.js` | |
+| 3.2 | Parallel background workers through the queue | Memory Forge / visual synthesis / Dexie checkpoints via `job_queue.run()` | **PARTIAL**: only ghost-row sweeps run through the queue; Memory Forge, visual beats, and checkpoints remain direct fire-and-forget calls | `job-queue.test.js`; kernel comment documents the queue's current scope | |
+| 3.3 | Reactive generating-entity UI state | `status.generating_entity_type/name/avatar/color` bound to UI | `status.svelte.js` exposes `generating_entity_type/name/avatar/color` + `set_generating_entity()` / `clear_generating_entity()` | `runtime.test.js` / UI smoke (Storymode thinking indicator) | |
+| 4.1 | Prologue / Epilogue component split | `Prologue.svelte` + `Epilogue.svelte` replace unified component | Both exist under `src/ui/message/`; `Epilogue.svelte` renders Satisfy cursive header, outcome badge, final entity trio, action deck | `story-export.test.js` (export), UI smoke | |
+| 4.2 | Auto epilogue dispatch on resolution | `story_status === "CONCLUDED" | "COLLAPSED"` triggers `execute_epilogue()` | `kernel.js` auto-dispatch with double-dispatch guard; both branches handled; non-resolution statuses continue | `kernel.test.js` |
+| 4.3 | Epilogue action deck wiring | `handle_return_to_storyboard()` + `handle_export_story()` | Wired in `Epilogue.svelte` (returns to storyboard via `app.set_view`, downloads `.md` via `export_story_markdown`) | UI smoke | |
+| 4.4 | Input pacing calibration + dominant turn hooks | Length matches input rhythm; decisive turn-end hook | Pacing guidance in character TASK; literal `[Statement]/[Action]/[Hover]/[Silence]` brackets **deliberately removed** in favor of freeform dominant-hook guidance | `prompts.test.js` (pacing-calibration guidance present) | |
+| 4.5 | Macro-Quest Progression & Chapter Forking | Fractal `future` milestone check → archive chapter → birth evolved chapter entity | **NOT IMPLEMENTED**. `entity.future` remains a single consolidated prose field; no chapter/fork machinery exists | N/A | |
+
+**Track A static summary** (fill): `__` of 13 deliverables PASS; known gaps: Macro-Quest forking (4.5) unimplemented, background job queue (3.2) partial.
 
 ---
 
-## Part 3: Round-by-Round Narrative & Telemetry Log Protocol
+## Part 2 — Static Code Audit: `track-npc-expansion-2026-08-14`
 
-Run the test for **25 to 30 full conversational turns without skipping or summarizing rounds**.
+| # | Track Deliverable (spec) | Expected Artifact | Verified Artifact (2026-08-16) | Unit Coverage | Verdict |
+| :- | :---------------------- | :---------------- | :----------------------------- | :------------ | :------ |
+| 1.1 | World-roster schema: `role_tier`, `is_wanderer`, `relationships` | `normalizer.js` defaults + validation | `normalize()` supports `role_tier` (defaults to tier 1 when absent/invalid), `is_wanderer`, `relationships: string[]` | `normalizer.test.js` (tier defaults) | |
+| 1.2 | Story schema `npc_ids` | story normalization + repository schema | Story records carry `npc_ids`; runtime world-cast hydration populates `active_npcs` from `npc_ids`, clears when absent | `runtime.test.js` (world-cast hydration suite) | |
+| 1.3 | In-scene roster state + presence badges | `in_scene_npc_ids` reactive set; UI badges | `runtime.in_scene_npc_ids`; `Storymode.svelte` derives `in_scene_npcs` presence list from it | `runtime.test.js` (stage moves persist through the setter) | |
+| 2.1 | Compact cast + relational prompt blocks | `<WORLD_CAST>` (1-line signatures), `<SCENE_ROSTER>`, `<RELATIONAL_MESH>`, `<ENTITY_CONVERGENCE_LAW>`, `<EPISTEMIC_RULES>`, `<CURRENT_STORY_STATE>` | All emitted from `prompts.js` (`build_world_cast_xml` w/ tier+stage tags, scene roster, relational mesh, `ENTITY_CONVERGENCE_LAW_XML`, `EPISTEMIC_ROSTER_RULES_XML`, `CURRENT_STORY_STATE`); active trio excluded from cast | `prompts.test.js` (WORLD_CAST tiers, roster/mesh/governance, CURRENT_STORY_STATE in character task) | |
+| 2.2 | Prompt unit tests for graph rendering, cast index, epistemic rules | tests in `prompts.test.js` | Present (compact WORLD_CAST with tier + stage presence; scene roster; relational mesh; governance laws) | `prompts.test.js` | |
+| 2.3 | In-scene RAG salience 1.3x | `compute_relevance()` in-scene multiplier | `IN_SCENE_SALIENCE_BOOST = 1.3` in `temporal.js`, applied when `in_scene=true` through `score()` / `score_async()` / `format()` | `temporal.test.js` ("applies the 1.3x in-scene salience boost to on-stage memories") | |
+| 3.1 | Director NPC delegation → dedicated NPC persona prompt | `speaker:"npc:<id>"` → `build_npc_prompt` | `normalize_speaker` resolves `npc:<id>`; kernel loads the cast NPC, `build_npc_prompt()` renders third-person limited present-tense persona + gated in-scene `<MEMORIES>`; missing NPC falls back with warning | `director.test.js`, `prompts.test.js` (NPC prompt), `kernel.test.js` | |
+| 3.2 | Stage Spotlight choreography | Director `in_scene_change` enter/exit mutates `in_scene_npc_ids` | `normalize_in_scene_change` (clean `enter`/`exit` lists) + `kernel._apply_in_scene_change` applied before mutations; off-scene NPCs drop to stasis (no dynamics eval) | `director.test.js`, `runtime.test.js`, `kernel.test.js` | |
+| 3.3 | Genesis & promotion engine | `spawn_npc` + Director `promotions` persist to Dexie | `kernel.spawn_npc(bridge, draft)` (manual genesis — Director never mints ids, only reuses `<WORLD_CAST>`); `_apply_promotions` clamps tier to 2/3 and persists; **tier 1 is ephemeral (no DB row)** | `normalizer.test.js`, `kernel.test.js`, `director.test.js` (promotions normalization) | |
+| 4.1 | Speaker attribution parser | `split_speech_by_speaker(text, active_roster)` | Implemented in `src/media/speech.js`; maps quoted dialogue to roster voices, unquoted prose to narrator voice | `audio.test.js` (quoted-span/attribution sentence splitting) | |
+| 4.2 | Multi-voice Kokoro dispatch | sequential per-voice buffer chaining | `Audio.speak_with_voices(text, active_roster)` with sequential chunk chaining + per-entity voice toggles; **streaming live sentences still use single `selected_voice`** (`queue_stream_sentence`) | `audio.test.js` (voice resolution, cadence rates) | |
+| 5.1 | In-scene NPC presence badges | Storymode + Feed render presence | `Storymode.svelte` renders in-scene NPCs via derived list; **Feed-level badge rendering unverified** | UI smoke | |
+| 5.2 | Entity Card / Profile NPC viewing | secondary NPC profile in read/edit mode | `EntityCard.svelte` / `Profile.svelte` structurally support any cast entity; **runtime-unverified for delegated NPCs** | UI smoke | |
 
-### Telemetry & Narrative Audit Table (Update after every turn)
+**Track B static summary** (fill): `__` of 12 deliverables PASS; primary soft spots: multi-voice TTS applies to finished-turn narration only (4.2), Feed badges (5.1) and NPC profile viewing (5.2) unverified at runtime.
 
-| Rnd | User Hook & Edge Probe | Active Speaker & Delegated Entity | AI / World Reply (Len / Somatic Keyword / Detox Pass) | Director Intent, Somatic Directive & Standing Agenda | Image Trigger (Source / Tier / Result) | Active Dynamics & Signals (`<DYNAMICS_SIGNALS>`) | Narrative Continuity & Memory Audit |
-| --- | ---------------------- | --------------------------------- | ----------------------------------------------------- | ---------------------------------------------------- | -------------------------------------- | ------------------------------------------------ | ----------------------------------- |
-| 0   | Prologue start         | System (Prologue.svelte)          | 1400ch (GRRM/Delany style)                            | Set baseline standing agenda                         | Auto / story_scene / OK                | Baseline                                         | Tone locked, zero AI-isms           |
+---
 
-### 📦 Comprehensive Session JSON Trace Artifact Directive
+## Part 3 — Known Gaps & Deliberate Scope Decisions (weighting baseline)
 
-In addition to updating the markdown table above, **you MUST dump and attach a complete, un-truncated raw JSON artifact** of the entire session trace upon test completion.
+These are established before testing so verdicts are fair. Do not report them as regressions unless the test reveals *additional* breakage:
 
-- **Filename Standard**: `tmp/rpglitch-long-term-review-trace-<timestamp>.json` (or attached as an artifact).
-- **Required JSON Schema Structure**:
+1. **Macro-Quest / Chapter Forking (Track A goal 5)** — not implemented; `future` is a single prose standing agenda. The agenda *does* get rewritten each forge cycle and post-climax, so verify refresh, not chapter forking.
+2. **Background job queue coverage (Track A 3.2)** — only ghost-row sweeps route through `create_job_queue`; Memory Forge / visual beats / checkpoints are direct fire-and-forget. Verify the queue's error isolation on sweeps; do not expect forge through the queue.
+3. **Literal hook brackets removed (Track A 4.4)** — `[Statement]`/`[Action]`/`[Hover]`/`[Silence]` were deliberately replaced with freeform dominant-hook guidance. Judge *decisive endings*, not bracket labels.
+4. **NPC genesis is manual (Track B 3.3)** — the app calls `gamemaster.spawn_npc`; the Director only *reuses* `<WORLD_CAST>` ids (Entity Convergence Law). Judge convergence, not auto-minting.
+5. **Story NPCs start on-stage** — after `sync()` all story NPCs are in `in_scene_npc_ids`; the Director moves them off via `in_scene_change.exit`. Judge the choreography, not the initial placement.
+6. **Live-sentence TTS is single-voice** — streaming `queue_stream_sentence` uses `selected_voice`; multi-voice `speak_with_voices` applies to finished-turn narration only.
+7. **Track files are stale** — `track-npc-expansion` checkboxes show most items unchecked/"partial" even though the code ships them, and Track A cites renamed files (`somatic-triggers.js` → `triggers.js`, parser in `kernel.js` → `director.js`). The audit targets **code reality**, not the checklist text.
 
-  ```json
-  {
-    "meta": {
-      "timestamp": "2026-08-16T07:45:00Z",
-      "total_turns": 28,
-      "scenario": "Gothic Baseline / Sovereign Test",
-      "entities": ["Lord Benedict Silvers", "Julien", "Ashenweald"]
-    },
-    "turns": [
-      {
-        "round": 1,
-        "user_action": "...",
-        "ai_response": "...",
-        "director_output": {
-          "_thought_process": "...",
-          "speaker": "ai",
-          "keywords": ["stoic_pain"],
-          "directive": "...",
-          "story_status": "IN_PROGRESS",
-          "mutations": {}
-        },
-        "telemetry": {
-          "generating_entity": { "type": "ai", "name": "Lord Benedict Silvers" },
-          "dynamics_snapshot": {},
-          "signals": [],
-          "image_trigger": {}
-        }
+---
+
+## Part 4 — Runtime Narrative Stress-Test Protocol (25–30 turns)
+
+Act as a realistic human user inside the chat payload (1–3 sentence turns, never break character) and an unforgiving auditor behind the scenes. Probes below are mapped to the two tracks; each carries an explicit **Audit Gate**.
+
+### Track A Probes (Director Expansion)
+
+1. 🎭 **Speaker Delegation — Fractal & NPC (T9, T17)**: Shift focus to pure environmental investigation, then to a secondary NPC present in the scene.
+   - *Gate*: Director emits `speaker:"fractal"` → scene-narrator narration (third-person omniscient, world senses); and `speaker:"npc:<id>"` → the NPC speaks in third-person limited present tense, owning only its own voice. The generating thinking indicator (name / avatar / signature color) switches to the delegated entity each time.
+2. 🫀 **Somatic Directives & Masking vs. Leakage (T11–T15)**: Confront the AI character's core trauma (e.g., question Lord Benedict Silvers on his disgraced oath).
+   - *Gate*: Director payload shows 1–2 `<AVAILABLE_KEYWORDS>` (e.g. `shame`, `deception`) selected and `<SOMATIC_DIRECTIVES>` injected; the prose demonstrates verbal composure contradicted by involuntary physical tells — and zero banned trope leakage (detox pass).
+3. ⏱️ **Input Pacing Calibration & Decisive Hooks (T3, T13, T23)**: Alternate terse commands ("Draw your sword.") and expansive prose; end some turns with passive silence.
+   - *Gate*: Response length mirrors input rhythm; terse input yields staccato structure, silence yields escalated direct probing; every turn closes on a decisive hook (statement / action / hovered beat / deliberate silence), never generic "What shall we do next?"
+4. ⚡ **Background Job Queue Latency (T4, T8, T12, T16)**: Trigger ghost-sweep conditions (drop an image beat) mid-turn and watch telemetry.
+   - *Gate*: Background sweep completes with **zero added turn latency** and **zero UI stasis**; a failed background worker never interrupts the streaming narrative or composer unlock.
+5. 📜 **Auto Epilogue on Resolution (T24–T28)**: Drive the story quest to victory (`CONCLUDED`) — then run a second session to `COLLAPSED`.
+   - *Gate*: The engine auto-dispatches the epilogue exactly once per resolution (no double-dispatch); `Epilogue.svelte` shows Satisfy cursive title, outcome badge (`✨ STORY CONCLUDED` / `💀 STORY COLLAPSED`), final entity trio, and the action deck (`Return to Storyboard`, `Export Story (.md)`).
+
+### Track B Probes (NPC & Living World)
+
+6. 🧩 **Entity Convergence Law (T6, T18)**: Reference a doctor in a clinic scene where Dr. Elias Tariq is in the world cast.
+   - *Gate*: The Director/AI uses the existing cast member — zero invented duplicate doctors; `<WORLD_CAST>` signatures remain compact and the active trio is never listed as a summonable stranger.
+7. 🎪 **Stage Spotlight Enter/Exit & Off-Screen Stasis (T7, T14, T21)**: Move the scene away from an NPC, then return.
+   - *Gate*: `in_scene_change.exit` removes the NPC from `in_scene_npc_ids` (dynamics freeze — no token/compute on off-screen entities); `enter` rehydrates them with in-scene salience; no out-of-nowhere off-screen action.
+8. 🕸️ **Relational Mesh Mutation (T9, T19)**: Engineer a betrayal or rescue.
+   - *Gate*: Director mutates `relationships` strings in the turn pass (`"[Source] → [Target]: [Dynamic]"`); `<RELATIONAL_MESH>` reflects the shift in subsequent prompts; profile Relations section (view + edit) displays the strings with target signature colors.
+9. 🧠 **In-Scene Memory Salience 1.3x (T5 → T20)**: Plant a fact with an on-stage NPC, exit and return, then reference it.
+   - *Gate*: The NPC recalls the on-stage event with sharp fidelity (in-scene boost active); off-screen NPCs remain ignorant of it.
+10. 🛡️ **Naivety Prior & Credulity via `openness` (T10, T22)**: Try to bluff an NPC (claim a forged permit).
+    - *Gate*: High-openness NPC (≥70) accepts plausible claims; low-openness (≤39) demands physical proof / suspects deception. Behavior tracks the `openness` axis.
+11. 🔒 **Epistemic Horizon / Null Data (T8, T18)**: Scheme something privately, then put an NPC in the room.
+    - *Gate*: The NPC acts with **zero knowledge** of anything not transmitted through sight / sound / written word. No telepathy.
+12. 🎤 **Multi-Voice Kokoro Attribution (T11, T20)**: Generate a turn with narrator + AI dialogue + NPC dialogue.
+    - *Gate*: Finished-turn narration attributes quoted dialogue to the correct roster voices (narrator default for prose); sequential audio buffers never overlap.
+
+### Baseline Engine Invariants (regression net — should hold unchanged)
+
+13. 🧱 **Epistemic Wall**: User `[SECRET:]`/`[PLAN:]` stripped in `render_character()`, visible to the Director.
+14. 🧽 **Pseudo-JSON Lifecycle**: `[KEY: none]` clears atomically; `[CLOTHING: none]` purges clothing; undress → `[INVENTORY: ...]`, redress reads back without hallucination.
+15. 🧬 **Memory Provenance**: `usr_` memories forge-skipped + 1.5x boost; `ai_` capped at 20; ≤200 vectors; ≤220 chars; dedup >0.6 overlap / >0.92 cosine.
+16. 🖼️ **Visual Filter & Ghost Rows**: `INVENTORY`/`STASH`/`SECRET`/`PLAN`/`STATUS` stripped from image prompts; timed-out beats leave 0 ghost rows.
+17. 🔄 **Reload Continuity (T15)**: mid-session reload restores `idle` phase, live dynamics from IndexedDB, and turn sequence without corruption.
+18. 🎯 **Standing Agenda Refresh**: `entity.future` rewritten on every forge cycle (every 8 unconsolidated messages); completed objectives evolve post-climax.
+
+---
+
+## Part 5 — Telemetry Collection & Trace Artifact
+
+Maintain a round-by-round audit table for all 25–30 turns:
+
+| Rnd | Probe (Track A/B) | Active Speaker (`ai`/`fractal`/`npc:<id>`) | AI/NPC/World Reply (len / somatic keyword / detox pass) | Director (`keywords` / `story_status` / `in_scene_change` / `promotions`) | Dynamics & Signals | Continuity & Memory Audit | Verdict |
+| --- | ----------------- | ----------------------------------------- | ------------------------------------------------------- | ----------------------------------------------------------------------- | ------------------ | ------------------------- | ------- |
+| 0 | Prologue | System (`Prologue.svelte`) | Baseline tone lock | `IN_PROGRESS` | Baseline | No AI-isms | |
+
+Upon completion, **dump and attach** the raw session trace as `tmp/rpglitch-long-term-review-trace-<timestamp>.json`:
+
+```json
+{
+  "meta": {
+    "timestamp": "2026-08-16T07:45:00Z",
+    "total_turns": 28,
+    "tracks_under_test": ["track-director-expansion-2026-08-14", "track-npc-expansion-2026-08-14"],
+    "entities": ["Lord Benedict Silvers", "Julien", "Ashenweald"]
+  },
+  "turns": [
+    {
+      "round": 9,
+      "user_action": "...",
+      "ai_response": "...",
+      "director_output": {
+        "internal_monologue": "...",
+        "speaker": "npc:elias",
+        "keywords": ["deception"],
+        "story_status": "IN_PROGRESS",
+        "in_scene_change": { "enter": [], "exit": ["char_vane"] },
+        "promotions": [{ "id": "char_elias", "tier": 3 }],
+        "mutations": {}
+      },
+      "telemetry": {
+        "generating_entity": { "type": "npc", "name": "Dr. Elias Tariq" },
+        "dynamics_snapshot": {},
+        "signals": [],
+        "image_trigger": {},
+        "in_scene_npc_ids": ["char_elias"]
       }
-    ]
-  }
-  ```
+    }
+  ]
+}
+```
 
 ---
 
-## Part 4: Overarching Narrative & Engine Quality Evaluation
+## Part 6 — Final Quality Scorecard
 
-After completing all 25–30 rounds, aggregate your findings into a comprehensive Narrative Quality Report (accompanied by the exported Session JSON Trace Artifact):
+### Track A — Director Expansion
 
-### 1. Narrative & Engine Quality Scorecard
+- [ ] **Job Queue**: `create_job_queue` isolates errors and never blocks the turn path (verified runtime, T4/T8/T12/T16).
+- [ ] **Somatic Registry**: 12 archetypes + 23 motifs resolve into deterministic `<SOMATIC_DIRECTIVES>`.
+- [ ] **Director Schema**: `speaker`, `keywords`, `story_status`, `in_scene_change`, `promotions` all normalized with safe fallbacks on garbage JSON.
+- [ ] **Speaker Delegation**: `ai` / `fractal` / `npc:<id>` all execute correctly; UI thinking state tracks the active entity.
+- [ ] **Masking vs. Leakage**: verbal composure vs. involuntary tells demonstrated; detox pass clean.
+- [ ] **Pacing & Hooks**: length mirrors input; every turn ends on a decisive hook.
+- [ ] **Epilogue Flow**: `CONCLUDED`/`COLLAPSED` auto-dispatch exactly once; action deck works.
+- [ ] **Background Parallelism**: ghost sweeps run concurrently with zero turn latency (partial scope accepted per Part 3).
+- [ ] **Known-Gap Confirmation**: Macro-Quest chapter forking absent by design — no false expectations.
 
-- [ ] **Dialogue Realism & Character Voice**: AI register held consistent across all turns; distinct entity voices maintained without blending.
-- [ ] **Descriptive Soul (3rd-Person Affirmative)**: Evaluates physical presence, sensory bridges, and grounding in physical reality.
-- [ ] **Somatic Tells & Directives (`<SOMATIC_DIRECTIVES>`)**: Involuntary physical tells generated based on `<AVAILABLE_KEYWORDS>` selection; clichés and repetitive physical crutches avoided.
-- [ ] **Masking vs. Somatic Leakage**: AI character demonstrates authentic tension between attempted verbal composure and bodily leakage.
-- [ ] **Dynamic Turn Speaker Delegation**: Director dynamically hands active turn execution between AI Companion, Fractal World, and NPCs with seamless UI synchronization.
-- [ ] **Input Pacing Calibration & Decisive Hooks**: Responses calibrate length to user pacing and conclude on decisive tension hooks (`[Statement]`, `[Action]`, `[Hover]`, `[Silence]`).
-- [ ] **Slimmed-Down Detox Engine Compliance**: 0 banned tropes, 0 secondary crutches (`static`, `phantom itch`, `physical blow`), 100% FNV-1a hash stability & zero prose latency.
-- [ ] **Unified Dynamics Signal Architecture**: `GLOBAL_TRIGGERS` (6-axis coverage) + active style `triggers` evaluated in one single pass; single `<DYNAMICS_SIGNALS>` prompt output.
-- [ ] **Narrative Driving & Initiative**: AI character actively initiated plot beats and complications when given passive user prompts.
-- [ ] **Physical Causality & Boundary Enforcement**: AI character correctly enforced environmental physics and spatial logic when tested with impossible user actions.
-- [ ] **Emotional Vulnerability & Register Depth**: AI character expressed genuine vulnerability without instantly deflecting back to campy bravado.
-- [ ] **Factual Retention & Long-Horizon Recall**: 15+ turn fact round-trip (codenames, items, NPCs) accurately retrieved and integrated into dialogue.
-- [ ] **Memory Provenance & Forge-Skip**: `usr_` pinned origin memories survived intact with 1.5x relevance boost; rolling session memory capped at 20.
-- [ ] **Epistemic Wall Integrity**: User `[SECRET:]` and `[PLAN:]` tags completely blocked from AI character context without telepathic leaks.
-- [ ] **Mid-Session State Reload Continuity**: Mid-session reload (Turn 15) restored state cleanly with zero physics loss or UI lockup.
-- [ ] **Epilogue Screen Transition (`Epilogue.svelte`)**: Climactic story conclusion cleanly triggers `Epilogue.svelte` with Satisfy cursive header, outcome badges, final trio cards, and export deck.
-- [ ] **Standing Agenda (`future_consolidated`) Refresh**: Agenda refreshed on 100% of forge cycles without goal starvation or stale objectives.
-- [ ] **Visual Filter & Ghost Row Cleanup**: Excluded parameters stripped from image prompts; 0-byte ghost rows 100% prevented on image timeouts.
-- [ ] **Sovereign Vocabulary Compliance**: 100% sovereign name compliance (**Benedict Silvers**, **Julien**, **Elias Tariq**, **Hank 'Rust' Brawley**, **Ytic'avon**).
+### Track B — NPC & Living World
 
-### 2. Targeted Feature Performance Audits
+- [ ] **Roster Schema**: `role_tier`/`is_wanderer`/`relationships` normalize + persist; story `npc_ids` hydrates the cast.
+- [ ] **Compact Cast & Convergence**: `<WORLD_CAST>` signatures compact; zero duplicate-character hallucination; active trio excluded.
+- [ ] **Stage Spotlight**: enter/exit choreography works; off-screen dynamics freeze.
+- [ ] **Relational Mesh**: Director mutates `relationships`; mesh renders and persists.
+- [ ] **In-Scene Salience**: 1.3x memory boost observable in NPC recall.
+- [ ] **Naivety / Epistemic Horizon**: `openness` gates credulity; NPCs never know off-screen facts.
+- [ ] **NPC Delegation**: `speaker:"npc:<id>"` produces a correct third-person NPC turn.
+- [ ] **Genesis & Promotions**: `spawn_npc` persists; promotions clamp to tier 2/3.
+- [ ] **Multi-Voice TTS**: finished-turn narration attributes voices correctly; live-sentence single-voice scope accepted per Part 3.
+- [ ] **Presence UI**: Storymode in-scene badges render; Feed badges + NPC profile viewing verified (or flagged as unverified).
 
-- **Director Directives & Somatic Audit**: Analysis of Director `<AVAILABLE_KEYWORDS>` selection, somatic tell fidelity, and Masking vs. Leakage dynamics.
-- **Multi-Entity Turn Delegation Audit**: Evaluation of Director `speaker` routing (`ai`, `fractal`, `npc`), scene narrator prompt compilation, and generating UI state synchronization.
-- **Slimmed-Down Detox Audit**: Analysis of raw vs scrubbed LLM outputs under the allocation limits (3-item `plain`, 2-item `ornate`/`raw`/`clinical`).
-- **Unified Dynamics Signal Telemetry**: Audit of active `<DYNAMICS_SIGNALS>` blocks across all 6 axes (`intensity`, `chaos`, `openness`, `affinity`, `velocity`, `entropy`) and multi-trigger non-exclusive style evaluations.
-- **Standing Agenda Eviction Report**: Breakdown of how `future_consolidated` evolved across all forge cycles.
-- **Memory Provenance Audit**: Verification of `usr_` origin protection, cosine similarity deduplication (>0.92), and 200-vector ceiling bounds.
-- **Epistemic Wall Audit**: Verification that private user intentions remained hidden from Character perception while visible to Director.
-- **Visual Trigger Telemetry**: Total triggers fired, tier distribution, cooldown enforcement, and timeout cleanup.
-- **Physics Persistence & Reload Report**: Evaluation of IndexedDB physics updates and mid-session reload continuity.
+### Regression Net (must remain green)
 
----
-
-## Part 5: Recent Engineering Updates Audit & Efficacy Assessment
-
-> **Audit Anchor**: 2026-08-16 07:45 CEST  
-> **Evaluated Tracks**: `track-director-expansion-2026-08-14` ➔ `track-memory-bundle-2026-08-14` ➔ `track-import-export-2026-08-14`  
-> **Status**: ✅ **100% SUCCESSFUL & VERIFIED (562 Unit Tests + 3 Design Tests Passing across 40 Test Suites)**
-
-### 1. Key Engineering Interventions & Feature Bundles
-
-1. **Director Expansion & Dynamic Speaker Pipeline (`track-director-expansion-2026-08-14`)**:
-   - **Parallel Job Queue (`job-queue.js`)**: Single-runner async background worker queue with latest-pending replay and error isolation for background sweeps and forge jobs.
-   - **12-Archetype Somatic & Trauma Registry (`somatic-triggers.js`)**: Static registry defining physical somatic tells, behavioral tells, and directives for 12 trauma archetypes, integrated with 23 dynamic style motifs.
-   - **Expanded Director JSON Schema & Directives Injection (`prompts.js`)**: Added `speaker`, `keywords`, `story_status`, and `<AVAILABLE_KEYWORDS>` pool to Director; injects `<SOMATIC_DIRECTIVES>` into character and fractal storyteller prompts.
-   - **Dynamic Speaker Routing & Scene Narrator (`kernel.js`)**: Routes active speaker turn execution to AI Companion (`render_character`) or Fractal World (`build_scene_narrator_prompt`), dynamically updating `simulation_state.set_generating_entity()`.
-   - **Dedicated Epilogue Screen (`Epilogue.svelte`) & Prologue Split (`Prologue.svelte`)**: Replaced unified component with dedicated `Prologue.svelte` (story opening flight) and `Epilogue.svelte` (cursive Satisfy header, outcome badge, final entity trio, and action deck).
-
-2. **Canon Chronicle & Memory Bundle (`track-memory-bundle-2026-08-14`)**:
-   - Added `usr_` ID prefix provenance for user/lore authored past memories with forge-skip protection (`is_origin`) and 1.5x relevance multiplier.
-   - Enforced 200 total vector ceiling guard per entity and <= 220 character truncation ceiling.
-   - Implemented Universal Atomic Key Clearing (`[KEY: none]`, `[KEY: bare]`, `[KEY: naked]`, etc.) and `[CLOTHING: none]` wildcard purge.
-   - Implemented multi-item inventory aggregation (`[INVENTORY: ...]` / `[STASH: ...]`) and undress/redress lifecycle.
-   - Implemented Epistemic Wall (`[SECRET:]` / `[PLAN:]` stripping in `render_character()`) and Visual Filter (`strip_visual_excluded` in `optics.js`).
-
-3. **Universal Data Portability & Card Codec (`track-import-export-2026-08-14`)**:
-   - Built 3-in-1 Import Modal (`ImportModal.svelte`): Web URL proxy scraping via `superFetch`, native JSON import/export, and Character Card V2/V3 codec (`cards.js`).
-   - Implemented Story Markdown transcript compiler (`story-export.js`) from Story Library.
-   - Enabled edit-mode standalone Profile export directly from Profile view.
-
-4. **Simulation Audit Harness & Protocol Field Normalization**:
-   - Automated prompt generation, prefix-cache verification, and pipeline assertion checks via `npm run audit:simulation`.
-   - Enforced 100% clean test execution across all 40 test files (562 unit tests + 3 design tests).
-
----
-
-### 2. Successfulness & Efficacy Matrix
-
-| Subsystem / Directive          | Expected Outcome                                                                                                              | Empirical Verification Result                                                                                                           | Status  |
-| :----------------------------- | :---------------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------- | :------ |
-| **Director Somatic Engine**    | Inject `<SOMATIC_DIRECTIVES>` based on `<AVAILABLE_KEYWORDS>` selection to drive physical tells & Masking vs Leakage.         | Verified in `somatic-triggers.test.js` & `prompts.test.js`. 12 archetypes and 23 style motifs resolve cleanly into directives.          | ✅ PASS |
-| **Speaker Turn Delegation**    | Route turn execution dynamically to `ai`, `fractal`, or `npc`, updating UI generating state.                                  | Verified in `director-schema.test.js`, `prompts.test.js`, and `kernel.js`. `build_scene_narrator_prompt` compiled on fractal turns.     | ✅ PASS |
-| **Async Job Queue**            | Run background tasks (ghost sweeps, memory forge) in parallel with latest-pending replay and error isolation.                 | Verified in `job-queue.test.js` (8/8 tests passing). Single-runner concurrency and error boundary confirmed.                            | ✅ PASS |
-| **Dedicated Epilogue Screen**  | Display Satisfy cursive header, outcome badge (`CONCLUDED`/`COLLAPSED`), final entity trio, and action deck on story closure. | `Epilogue.svelte` and `Prologue.svelte` split verified. Action deck triggers `clear_active` and `export_story_markdown`.                | ✅ PASS |
-| **Canon Chronicle & Memory**   | Retain exact user/lore facts in `past` vectors with forge-skip protection and 1.5x relevance boost.                           | `usr_` provenance, forge-skip, 200-vector ceiling guard, and 1.5x boost verified in `temporal.test.js` & `repository.test.js`.          | ✅ PASS |
-| **Epistemic Wall**             | Strip User `[SECRET:]` and `[PLAN:]` tags from Character context to eliminate AI telepathy while keeping Director omniscient. | `strip_epistemic_tags` verified in `prompts.test.js` and `prompts.js`. Character receives sanitized view; Director receives 100% state. | ✅ PASS |
-| **Universal Atomic Clearing**  | Cleanly delete pseudo-JSON keys when set to `none`, `bare`, `cleared`, `off`, `naked`, etc.                                   | Atomic removal and `[CLOTHING: none]` wildcard purge verified in `parser.test.js` & `normalizer.test.js`.                               | ✅ PASS |
-| **Multi-Item Inventory**       | Merge repeated `[INVENTORY: ...]` / `[STASH: ...]` brackets into aggregated arrays.                                           | Aggregation & deduplication verified in `parser.test.js`. Undress/redress cycle confirmed.                                              | ✅ PASS |
-| **Visual Filter**              | Strip `INVENTORY`, `STASH`, `SECRET`, `PLAN`, `STATUS` from Perchance T2I image prompts.                                      | Parameter exclusion verified in `image-prompts.test.js` & `optics.js`.                                                                  | ✅ PASS |
-| **Character Card V2/V3 Codec** | Bidirectional import/export interoperability with Tavern/Chub/Janitor character cards.                                        | Codec detection, conversion, and serialization verified in `cards.test.js`.                                                             | ✅ PASS |
-| **Story Markdown Export**      | Export full conversational story logs into formatted Markdown files.                                                          | Transcript generation and file download trigger verified in `story-export.test.js`.                                                     | ✅ PASS |
-| **Singlefile Build Pipeline**  | Compile single-file bundle cleanly with 0 lints/warnings in ~6 seconds.                                                       | `npm run deploy:prepare` compiles `dist/index.html` inline with 0 errors and 0 warnings.                                                | ✅ PASS |
-| **Simulation Test Harness**    | Automated audit script for prompt hydration, epistemic physics, and payload checks.                                           | `npm run audit:simulation` executes cleanly; 562 unit tests + 3 design tests passing across 40 test files.                              | ✅ PASS |
+- [ ] Epistemic Wall, atomic key clearing, vector provenance caps, visual filter, reload continuity, standing-agenda refresh — all hold.
+- [ ] `npm run verify` and `npm run deploy:prepare` complete with 0 errors, 0 warnings (or a recorded exception).
