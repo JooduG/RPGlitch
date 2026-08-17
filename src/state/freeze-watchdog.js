@@ -1,4 +1,4 @@
-import { app } from "./app.svelte.js";
+import { app } from "./app-store.svelte.js";
 import { simulation_state } from "./status.svelte.js";
 
 /************************************************************************************

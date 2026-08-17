@@ -1,6 +1,6 @@
 import { db, entities, coerce_story_key, session_driver, SESSION_ID_KEY } from "@data";
 import { load_session_checkpoint, clear_session_checkpoint } from "@platform";
-import { app } from "./app.svelte.js";
+import { app } from "./app-store.svelte.js";
 // We split the large state object into cohesive internal modules:
 // 1. Entities (character, active_user, active_ai, active_fractal)
 // 2. Story / Narrative (story, story_id, turn, ready)

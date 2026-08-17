@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { apply_profile_to_entity } from "./profile.js";
+import { apply_profile_to_entity } from "./profile-pipeline.js";
 
 describe("apply_profile_to_entity", () => {
   it("maps flat appearance/personality keys onto the Twin-Cylinder leaves", () => {

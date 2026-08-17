@@ -1,6 +1,6 @@
 <script>
   /**
-   * @file src/ui/profile/Header.svelte
+   * @file src/ui/profile/ProfileHeader.svelte
    * 🪐 HIGH-FIDELITY PROFILE TRANSLATION NODE
    * Organism component managing designation titles and context description text blocks.
    * Enforces strict Svelte 5 state machine physics and Nordic styling token regimes.

@@ -1,5 +1,5 @@
 /**
- * src/data/cards.js
+ * src/data/character-cards.js
  * 🃏 CHARACTER CARD CODEC — AI RP Card V2/V3 interoperability
  *
  * The single place that translates between RPGlitch entities and the standard
@@ -23,7 +23,7 @@
  *   data.tags              <-> entity.tags
  *
  * (Applying that flat profile onto a fresh entity is the intelligence layer's
- * job — see apply_profile_to_entity in @intelligence/profile.js. This codec
+ * job — see apply_profile_to_entity in @intelligence/profile-pipeline.js. This codec
  * owns only the card <-> flat translation.)
  */
 

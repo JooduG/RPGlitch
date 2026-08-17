@@ -15,7 +15,7 @@
   import VisualWing from "./VisualWing.svelte";
   import { ProfileState } from "./Profile.svelte.js";
   import Vectors from "./Vectors.svelte";
-  import Header from "./Header.svelte";
+  import ProfileHeader from "./ProfileHeader.svelte";
   import { app, runtime, simulation_state } from "@state";
   import { fade } from "svelte/transition";
   import { NARRATIVE_STYLES, VISUAL_STYLES, PROFILE_SECTIONS_BY_TYPE, serialize_character_card, serialize_rpglitch_entity } from "@data";
@@ -571,7 +571,7 @@
         </div>
 
         <div class={info_container_class} bind:this={info_container_el}>
-          <Header
+          <ProfileHeader
             bind:name={profile_state.char.name}
             bind:description={profile_state.char.description}
             is_editing={profile_state.is_editing}

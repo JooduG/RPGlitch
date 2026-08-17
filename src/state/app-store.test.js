@@ -1,4 +1,4 @@
-import { app } from "./app.svelte.js";
+import { app } from "./app-store.svelte.js";
 import { dev_log } from "./dev-log.svelte.js";
 import { beforeEach, describe, expect, it } from "vitest";
 describe("AppStore Telemetry", () => {

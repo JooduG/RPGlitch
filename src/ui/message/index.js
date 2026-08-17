@@ -1,6 +1,6 @@
 export { default as Feed } from "./Feed.svelte";
 export { default as Message } from "./Message.svelte";
-export { default as Header } from "./Header.svelte";
+export { default as MessageHeader } from "./MessageHeader.svelte";
 export { default as Body } from "./Body.svelte";
 export { default as Attachments } from "./Attachments.svelte";
 export { default as Prologue } from "./Prologue.svelte";

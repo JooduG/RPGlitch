@@ -11,7 +11,7 @@
   import { Audio, get_cadence_rate, resolve_voice_uri, get_signature_color } from "@media";
   import { app, runtime } from "@state";
   import TelemetryCard from "./TelemetryCard.svelte";
-  import Header from "./Header.svelte";
+  import MessageHeader from "./MessageHeader.svelte";
   import Body from "./Body.svelte";
   import Attachments from "./Attachments.svelte";
   import Prologue from "./Prologue.svelte";
@@ -285,7 +285,7 @@
       aria-label="Message Context"
     >
       <!-- HEADER BAR -->
-      <Header
+      <MessageHeader
         {is_extended}
         entity_name={entity?.name || character_name || (is_fractal ? "Fractal" : sender)}
         {time_label}

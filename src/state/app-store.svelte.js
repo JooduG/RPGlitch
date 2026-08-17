@@ -1,5 +1,5 @@
 /**
- * src/state/app.svelte.js
+ * src/state/app-store.svelte.js
  * UI: Interface State (Simulation & Gamemaster)
  * Manages modals, view states, and visual feedback using storyboard/storymode terminology.
  * ZERO NESTING - Flattened Schema only.

@@ -1,6 +1,6 @@
 import "fake-indexeddb/auto";
 import { runtime } from "./runtime.svelte.js";
-import { app } from "./app.svelte.js";
+import { app } from "./app-store.svelte.js";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // hoisted so it's initialized before the mocked @platform/session-storage.js module is

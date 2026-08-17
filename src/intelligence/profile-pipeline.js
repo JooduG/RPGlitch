@@ -1,10 +1,10 @@
 /**
- * src/intelligence/profile.js
+ * src/intelligence/profile-pipeline.js
  * 🧬 PROFILE PIPELINE — LLM sorting + flat-profile application
  *
  * The "shape" step of the content-import pipeline. Raw source prose becomes a
  * flat sorted profile (sort_into_profile); that flat profile — whether it came
- * from the LLM sorter or a Character Card codec (@data/cards.js) — is then
+ * from the LLM sorter or a Character Card codec (@data/character-cards.js) — is then
  * applied onto a fresh Twin-Cylinder entity (apply_profile_to_entity).
  *
  * One shape in, one application function out: the import orchestrator never
