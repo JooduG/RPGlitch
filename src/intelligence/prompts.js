@@ -8,7 +8,7 @@
 import { ind, prompt_escape, state_bridge, escape_xml, physical_to_xml } from "@utils";
 import { NARRATIVE_STYLES, PROTOCOL_LIBRARY, build_available_keywords_xml, build_somatic_directives_block, get_style_keywords } from "@data";
 import { DYNAMICS_META, build_signals_xml } from "./dynamics.js";
-import { ENTITY_CATALOG, ENTITY_FRAGMENTS } from "@data";
+import { ENTITY_CATALOG, ENTITY_FRAGMENTS, TEMPORAL_CONTRACT } from "@data";
 import { clean_xml, collapse_history, strip_cognition_blocks } from "./parser.js";
 import { temporal_engine, resolve_vector_pool } from "./temporal.js";
 
@@ -835,6 +835,8 @@ ${entity_blocks}
     })()}
   </INPUT_HISTORY>
   <TASK>
+    ${ind(TEMPORAL_CONTRACT, 4)}
+
     Compress this history into structured state updates and temporal vectors. Record internal evaluation inside "_thought_process" at the top of the JSON object.
     For each active entity (AI_CHARACTER, USER_PERSONA, FRACTAL):
       - "eternal": Record permanent identity, psychological, or physical changes to baseline form (or empty string).
@@ -861,6 +863,8 @@ ${entity_blocks}
 function render_enhancement_field_context(entity, field_id, content = "", entity_type = "character") {
   if (!entity) return "";
   const [section, sub] = String(field_id || "").split(".");
+  const is_fractal = entity?.type === "fractal" || entity_type === "fractal";
+  const kind = is_fractal ? "fractal" : "character";
 
   if (section && sub && ["eternal", "present"].includes(section)) {
     const FLAT_TAGS = {
@@ -873,28 +877,38 @@ function render_enhancement_field_context(entity, field_id, content = "", entity
         present: { physical: "ACTIVE_ATMOSPHERE", non_physical: "CURRENT_STATE" },
       },
     };
-    const kind = entity?.type === "fractal" || entity_type === "fractal" ? "fractal" : "character";
-    const tag = FLAT_TAGS[kind][section][sub];
-    const raw = entity?.[section]?.[sub];
-    const value =
-      sub === "physical"
-        ? physical_to_xml(raw, "PHYSICAL")
-            .replace(/<PHYSICAL>|<\/PHYSICAL>/g, "")
-            .trim()
-        : escape_xml(String(raw ?? ""));
-    return clean_xml(`
-  <ENTITY_CONTEXT>
-    <${tag}>
-      ${ind(value, 8)}
-    </${tag}>
-  </ENTITY_CONTEXT>
-  `).trim();
+    const block_for = (sec, sub_key) => {
+      const tag = FLAT_TAGS[kind]?.[sec]?.[sub_key];
+      if (!tag) return "";
+      const raw = entity?.[sec]?.[sub_key];
+      const value =
+        sub_key === "physical"
+          ? physical_to_xml(raw, "PHYSICAL")
+              .replace(/<PHYSICAL>|<\/PHYSICAL>/g, "")
+              .trim()
+          : escape_xml(String(raw ?? ""));
+      if (!value) return "";
+      return `<${tag}>\n${ind(value, 8)}\n    </${tag}>`;
+    };
+
+    // Context rule: the field being edited + its same-layer sibling (physical ⇄
+    // non_physical: a bleeding wound has both a visual reality and a mental
+    // toll) + the eternal baseline when editing a present layer (so "shifted
+    // from eternal baseline" is judgeable). Never the whole profile.
+    const blocks = [block_for(section, sub)];
+    const sibling = sub === "physical" ? "non_physical" : "physical";
+    blocks.push(block_for(section, sibling));
+    if (section === "present") blocks.push(block_for("eternal", sub));
+
+    const inner = blocks.filter(Boolean).join("\n    ");
+    if (!inner) return "";
+    return clean_xml(`\n  <ENTITY_CONTEXT>\n    ${inner}\n  </ENTITY_CONTEXT>\n  `).trim();
   }
 
   if (field_id === "past") {
     const vectors = resolve_vector_pool(entity);
     const text = vectors.length ? temporal_engine.format(vectors, content || "", { max_chars: 1500 }) : "";
-    const tag = entity?.type === "fractal" || entity_type === "fractal" ? "HISTORY" : entity?.type === "user" ? "BACKSTORY" : "MEMORIES";
+    const tag = is_fractal ? "HISTORY" : entity?.type === "user" ? "BACKSTORY" : "MEMORIES";
     return clean_xml(`
   <ENTITY_CONTEXT>
     <${tag}>
@@ -906,7 +920,7 @@ function render_enhancement_field_context(entity, field_id, content = "", entity
 
   if (field_id === "future") {
     const text = String(entity?.future || "").trim();
-    const tag = entity?.type === "fractal" || entity_type === "fractal" || entity?.type === "user" ? "AGENDA" : "INTENT";
+    const tag = is_fractal || entity?.type === "user" ? "AGENDA" : "INTENT";
     return clean_xml(`
   <ENTITY_CONTEXT>
     <${tag}>
@@ -926,7 +940,9 @@ function render_enhancement({
   content,
   is_image_field = false,
   is_array_field = false,
+  array_mode = "append_new",
   _field_id = "",
+  layer_key = "",
   entity = null,
   entity_type = "character",
 }) {
@@ -934,8 +950,12 @@ function render_enhancement({
   const format_instruction = is_image_field
     ? PROTOCOL_LIBRARY.FORMATS.ENHANCE_IMAGE
     : is_array_field
-      ? PROTOCOL_LIBRARY.FORMATS.ENHANCE_ARRAY
-      : PROTOCOL_LIBRARY.FORMATS.ENHANCE_PROSE;
+      ? array_mode === "patch_single"
+        ? PROTOCOL_LIBRARY.FORMATS.ENHANCE_ARRAY_SINGLE
+        : PROTOCOL_LIBRARY.FORMATS.ENHANCE_ARRAY
+      : _field_id === "future"
+        ? PROTOCOL_LIBRARY.FORMATS.ENHANCE_AGENDA
+        : PROTOCOL_LIBRARY.FORMATS.ENHANCE_PROSE;
   const macro_instruction = !is_image_field
     ? entity_type === "fractal"
       ? PROTOCOL_LIBRARY.PROFILE.MACROS.FRACTAL
@@ -943,7 +963,7 @@ function render_enhancement({
     : "";
 
   return clean_xml(`
-<SYSTEM role="${escape_xml(enhancer || "GENERAL")}" enhancing="${escape_xml(label || "")}">
+<SYSTEM role="${escape_xml(enhancer || "GENERAL")}" enhancing="${escape_xml(label || "")}" field="${escape_xml(_field_id || "")}">
   <INSTRUCTIONS>
     ${ind(escape_xml(directive), 4)}
 
@@ -953,6 +973,10 @@ function render_enhancement({
   <PROTOCOLS>
     ${ind(prompt_builder.render_protocols(protocols), 4)}
   </PROTOCOLS>
+  <CONTRACT>
+    ${ind(escape_xml(TEMPORAL_CONTRACT), 4)}
+  </CONTRACT>
+  ${layer_key ? `<LAYER>${escape_xml(layer_key)}</LAYER>\n` : ""}
   ${render_enhancement_field_context(entity, _field_id, content, entity_type) || ""}
   <INPUT_CONTENT>
     ${ind(escape_xml(content), 4)}
@@ -966,6 +990,7 @@ function render_profile_sorting(entity_type = "character", options = {}) {
   const protocols = ["HYGIENE.DATA", "HYGIENE.AFFIRMATIVE", "FORMATS.JSON_ONLY"].filter(Boolean).join(", ");
   const sorting_instruction = resolved_type === "fractal" ? PROTOCOL_LIBRARY.PROFILE.SORT_FRACTAL : PROTOCOL_LIBRARY.PROFILE.SORT_CHARACTER;
   const ingestion_directive = options.ingestion ? `\n\n    ${ind(PROTOCOL_LIBRARY.PROFILE.INGESTION_DIRECTIVE, 4)}` : "";
+  const redistribute_directive = options.redistribute ? `\n\n    ${ind(PROTOCOL_LIBRARY.PROFILE.REDISTRIBUTE, 4)}` : "";
 
   return clean_xml(`
 <SYSTEM role="${ENTITY_FRAGMENTS.profile[resolved_type]?.enhancer || "ENHANCER"}" enhancing="Entire Profile">
@@ -974,7 +999,7 @@ function render_profile_sorting(entity_type = "character", options = {}) {
 
     ${ind(escape_xml(PROTOCOL_LIBRARY.POV.THIRD_PERSON), 4)}
 
-    ${ind(sorting_instruction, 4)}${ingestion_directive}
+    ${ind(sorting_instruction, 4)}${ingestion_directive}${redistribute_directive}
   </INSTRUCTIONS>
   <PROTOCOLS>
     ${ind(prompt_builder.render_protocols(protocols), 4)}
@@ -1219,7 +1244,15 @@ export const prompt_builder = {
       messages: [],
     };
   },
-  build_enhancement(field_id, content, entity_name = "", entity_type = "character", is_image_field = false, entity = null) {
+  build_enhancement(
+    field_id,
+    content,
+    entity_name = "",
+    entity_type = "character",
+    is_image_field = false,
+    entity = null,
+    array_mode = "append_new",
+  ) {
     const resolved_type = entity_type === "user" ? "character" : entity_type || "character";
     const meta = ENTITY_CATALOG[`${resolved_type}.${field_id}`] ||
       ENTITY_CATALOG[field_id] || {
@@ -1230,12 +1263,14 @@ export const prompt_builder = {
     return {
       system: render_enhancement({
         content,
-        label: entity_name,
+        label: meta.sublabel || meta.label || entity_name,
         directive: meta.directive,
         enhancer: meta.enhancer,
         is_image_field: is_image_field || field_id.endsWith(".physical"),
         is_array_field,
+        array_mode,
         _field_id: field_id,
+        layer_key: meta.layer_key || "",
         entity,
         entity_type: resolved_type,
       }),

@@ -104,9 +104,9 @@ describe("ProfileState enhance_profile", () => {
     resolveEnhanceFn(`{"name": "Proxy Name Modification", "description": "New description"}`);
     await enhance_call;
 
-    // Verify name was preserved and not overwritten
+    // Verify name was preserved and not overwritten; description is excluded from sorting
     expect(state.char.name).toBe("Test Character");
-    expect(state.char.description).toBe("New description");
+    expect(state.char.description).not.toBe("New description");
 
     // Check that busy_fields are cleared after enhancement
     expect(state.busy_fields.has("eternal.physical")).toBe(false);

@@ -2,8 +2,8 @@
  * @file src/ui/profile/Profile.svelte.js
  * 🧬 PROFILE STATE — Reactive controller for entity editing.
  */
-import { db, normalize } from "@data";
-import { prompt_builder, strip_cognition_blocks, temporal_engine } from "@intelligence";
+import { db, normalize, ENTITY_CATALOG } from "@data";
+import { prompt_builder, strip_cognition_blocks, temporal_engine, parse_profile_json, safe_parse_pseudo_json } from "@intelligence";
 import { llm_service } from "@platform";
 import { app, runtime } from "@state";
 import { generate_uuid, get_value, set_value } from "@utils";
@@ -278,11 +278,16 @@ export class ProfileState {
 
   /**
    * AI-enhanced text generation for a field.
+   * Only catalog fields are enhancable — name, description, and any
+   * non-catalog field are excluded by design.
    * @param {string} key
    * @param {string} value
    */
   async enhance(key, value) {
     if (!value || this.busy_fields.has(key)) return;
+    const type = this.char?.type === "user" ? "character" : this.char?.type || "character";
+    const catalog_meta = ENTITY_CATALOG[`${type}.${key}`] || ENTITY_CATALOG[key];
+    if (!catalog_meta) return;
     this.enhance_field_inner(key, value);
   }
 
@@ -312,19 +317,32 @@ export class ProfileState {
             try {
               const parsed = JSON.parse(json_str.substring(start, end + 1));
               if (Array.isArray(parsed)) {
-                const vectors = parsed.map((v) => {
-                  const content = typeof v === "string" ? v : v.content || v.directive || v.text || "";
-                  return {
-                    ...temporal_engine.create(content, key),
-                    emotional_weight: v.emotional_weight ?? 5,
-                  };
-                });
+                const current_items = this._vectors_of_type(key);
+                const vectors = parsed
+                  .map((v, idx) => {
+                    const content = typeof v === "string" ? v : v.content || v.directive || v.text || "";
+                    if (!content || !String(content).trim()) return null;
+                    const existing = current_items[idx];
+                    const base = existing ? { ...existing, content: String(content).trim() } : temporal_engine.create(content, key);
+                    base.emotional_weight = typeof v.emotional_weight === "number" ? v.emotional_weight : (existing?.emotional_weight ?? 5);
+                    return base;
+                  })
+                  .filter(Boolean);
                 this._set_vectors_of_type(key, vectors);
+                temporal_engine.reconcile_vector_caps(this.char);
                 this._user_mutated = true;
               }
             } catch (e) {
               console.error("Array enhancement JSON parse failed:", e);
             }
+          }
+        } else if (key.endsWith(".physical")) {
+          const normalized = this._normalize_physical_enhancement(key, clean_result, type);
+          if (normalized == null) {
+            console.warn(`[ProfileState] Physical enhancement for ${key} rejected — unparsable or missing mandatory keys. Keeping current value.`);
+          } else {
+            set_value(this.char, key, normalized);
+            this._user_mutated = true;
           }
         } else {
           const final_val =
@@ -346,6 +364,32 @@ export class ProfileState {
   }
 
   /**
+   * Validates and canonicalizes an enhanced physical-state value into bracket
+   * syntax ([KEY: value] one per line). Returns null when the result is
+   * unparsable or drops a mandatory key — the caller then keeps the old value.
+   * @param {string} key
+   * @param {string} result
+   * @param {string} type
+   * @returns {string | null}
+   */
+  _normalize_physical_enhancement(key, result, type) {
+    const parsed = safe_parse_pseudo_json(result);
+    if (!parsed || parsed.__raw_prose__ || Object.keys(parsed).length === 0) return null;
+
+    const entries = Object.entries(parsed);
+    if (entries.length > 15) return null;
+
+    if (key === "eternal.physical" && type === "character") {
+      const present = new Set(entries.map(([k]) => String(k).toUpperCase().replace(/\s+/g, "_")));
+      for (const mandatory of ["GENDER", "AGE", "ETHNICITY"]) {
+        if (!present.has(mandatory)) return null;
+      }
+    }
+
+    return entries.map(([k, v]) => `[${String(k).toUpperCase().replace(/\s+/g, "_")}: ${Array.isArray(v) ? v.join(", ") : String(v)}]`).join(" ");
+  }
+
+  /**
    * AI-enhanced text generation for a specific vector item in an array (e.g. past[0]).
    * @param {string} path - Array path ('past')
    * @param {number} index - Index of item to enhance
@@ -363,7 +407,7 @@ export class ProfileState {
 
     try {
       const type = this.char.type === "user" ? "character" : this.char.type || "character";
-      const payload = prompt_builder.build_enhancement(path, content, this.char.name || "", type, false, this.char);
+      const payload = prompt_builder.build_enhancement(path, content, this.char.name || "", type, false, this.char, "patch_single");
       const result = await llm_service.enhance(payload);
 
       if (result) {
@@ -463,19 +507,15 @@ export class ProfileState {
     this.busy_fields.add("description");
 
     try {
-      const payload = prompt_builder.build_profile_sorting_prompt(this.char, entity_type);
+      const payload = prompt_builder.build_profile_sorting_prompt(this.char, entity_type, { redistribute: true });
       const result = await llm_service.enhance(payload);
 
       if (result) {
-        const clean_json_text = strip_cognition_blocks(result).trim();
-        const start_idx = clean_json_text.indexOf("{");
-        const end_idx = clean_json_text.lastIndexOf("}");
+        const clean_json = parse_profile_json(result);
 
-        if (start_idx >= 0 && end_idx >= 0) {
-          const clean_json = JSON.parse(clean_json_text.substring(start_idx, end_idx + 1));
-
+        if (clean_json) {
           for (let [key, val] of Object.entries(clean_json)) {
-            if (key === "name" || key === "profile_picture" || key === "image" || key === "id" || key === "type") continue;
+            if (key === "name" || key === "description" || key === "profile_picture" || key === "image" || key === "id" || key === "type") continue;
 
             // Map flat LLM keys back to nested DB schema (eternal.physical, etc.)
             const FLAT_LEAF_MAP = {

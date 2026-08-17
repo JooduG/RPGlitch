@@ -38,4 +38,4 @@ export {
   build_available_keywords_xml,
 } from "./definitions/triggers.js";
 export { VISUAL_STYLES } from "./definitions/visual-styles.js";
-export { ENTITY_FRAGMENTS, ENTITY_CATALOG, PROFILE_SECTIONS_BY_TYPE, build_profile_sections } from "./definitions/fragments.js";
+export { ENTITY_FRAGMENTS, ENTITY_CATALOG, TEMPORAL_CONTRACT, PROFILE_SECTIONS_BY_TYPE, build_profile_sections } from "./definitions/fragments.js";

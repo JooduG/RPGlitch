@@ -633,7 +633,7 @@ describe("prompt_builder (Refactored)", () => {
       expect(fractal_result.system).not.toContain("'{{me}}' (self)");
     });
 
-    it("build_enhancement() scopes context to the field in question (no cross-field bleed)", () => {
+    it("build_enhancement() injects the same-layer sibling + eternal baseline (no whole-profile bleed)", () => {
       const entity = {
         eternal: { physical: "Eternal body.", non_physical: "Eternal psyche." },
         present: { physical: "Present outfit.", non_physical: "Present mood." },
@@ -642,10 +642,35 @@ describe("prompt_builder (Refactored)", () => {
       };
       const result = prompt_builder.build_enhancement("present.non_physical", "Present mood.", "Viper", "character", false, entity);
       expect(result.system).toContain("Present mood.");
-      expect(result.system).not.toContain("Eternal psyche.");
-      expect(result.system).not.toContain("Eternal body.");
-      expect(result.system).not.toContain("Old memory anchor");
-      expect(result.system).not.toContain("Impending prophecy");
+      expect(result.system).toContain("Present outfit."); // same-layer sibling
+      expect(result.system).toContain("Eternal psyche."); // eternal baseline for the same sub
+      expect(result.system).not.toContain("Eternal body."); // no cross-sub baseline
+      expect(result.system).not.toContain("Old memory anchor"); // no past bleed
+      expect(result.system).not.toContain("Impending prophecy"); // no future bleed
+    });
+
+    it("build_enhancement() labels the field, layer, and canonical contract", () => {
+      const result = prompt_builder.build_enhancement("eternal.non_physical", "Content", "Viper", "character", false, {
+        eternal: { non_physical: "Current psyche" },
+      });
+      expect(result.system).toContain('enhancing="Personality, Behaviour &amp; Traits"');
+      expect(result.system).toContain("<LAYER>ETERNAL</LAYER>");
+      expect(result.system).toContain('field="eternal.non_physical"');
+      expect(result.system).toContain("TEMPORAL LAYER CONTRACT");
+    });
+
+    it("build_enhancement() uses the agenda format for future and single-array format for patch_single", () => {
+      const future_result = prompt_builder.build_enhancement("future", "Chase the horizon.", "Viper", "character", false, {
+        future: "Chase the horizon.",
+      });
+      expect(future_result.system).toContain("active future tense");
+
+      const single_memory = prompt_builder.build_enhancement("past", "Found the key.", "Viper", "character", false, { past: [] }, "patch_single");
+      expect(single_memory.system).toContain("Rewrite exactly this ONE memory");
+      expect(single_memory.system).not.toContain("Generate 3-5");
+
+      const append_memory = prompt_builder.build_enhancement("past", "Found the key.", "Viper", "character", false, { past: [] });
+      expect(append_memory.system).toContain("Generate 3-5");
     });
 
     it("build_profile_sorting_prompt() injects sorting instructions correctly", () => {

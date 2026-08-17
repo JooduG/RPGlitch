@@ -108,6 +108,7 @@ name (string), description (string), signature_color (string), appearance (strin
 - past / future: Historical anchors vs Active impulses/intent (a single standing objective string).`,
     SORT_CHARACTER: `FOCUS: Extracting data for an individual CHARACTER. Re-contextualize or discard environmental/world text. ${MACROS.CHARACTER}`,
     SORT_FRACTAL: `FOCUS: Extracting data for a FRACTAL (world/environment). Re-contextualize or discard character-specific traits. ${MACROS.FRACTAL}`,
+    REDISTRIBUTE: `REDISTRIBUTE: The source profile may have content in the wrong field. Move each fact to its correct field — e.g. a temporary state written under 'personality' belongs under 'state_of_mind'; a mood written under 'appearance' belongs under 'current_look'. Sort and relocate; do not merely regenerate in place. Never move content into or out of 'description' (internal OOC notes). Preserve the facts; only their location and phrasing may change.`,
     INGESTION_DIRECTIVE: `<INGESTION_DIRECTIVE Authority="L3_HIGH">
   <RULE name="SOURCE_OF_TRUTH">
     Source text details are absolute truth. Map them verbatim into corresponding schema fields.
@@ -205,8 +206,14 @@ PHASE 5: SENSORY & ENVIRONMENTAL GROUNDING
   // ── 6. Formats & System Recovery ───────────────────────────────────────────
   FORMATS: {
     JSON_ONLY: "Return a single JSON object starting with { and ending with }. No preamble, no markdown backticks, no external XML tags.",
-    ENHANCE_IMAGE: 'Return pseudo-JSON property lines: "key": "value", — No outer braces. Commas inside values must have spaces. No code blocks.',
-    ENHANCE_ARRAY: 'Return JSON array of objects: {"content": string, "emotional_weight": integer (1-10)}. Generate 3-5 entries.',
+    ENHANCE_IMAGE:
+      "Return bracketed configuration: [KEY: value] — one bracket per line, no outer braces, no prose outside the brackets, no code blocks.",
+    ENHANCE_ARRAY:
+      'Return a JSON array of objects: {"content": string, "emotional_weight": integer (1-10)}. Generate 3-5 NEW distinct memories. Never duplicate a memory already listed in <ENTITY_CONTEXT>.',
+    ENHANCE_ARRAY_SINGLE:
+      'Rewrite exactly this ONE memory. Return either a JSON array containing a single object {"content": string, "emotional_weight": integer (1-10)} or a plain text string. Never return multiple entries.',
+    ENHANCE_AGENDA:
+      "Rewrite the standing agenda as ONE consolidated block of 2-5 sentences in active future tense: a clear intent, building pressure, or impending event. Distinct from Present. No story scenes, no dialogue, no past observations, no tag lists.",
     ENHANCE_PROSE: "Write dense profile summary in third-person. Describe traits and drivers. NO story scenes, dialogue, or tag lists.",
   },
 

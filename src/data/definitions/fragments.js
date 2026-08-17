@@ -10,6 +10,18 @@ import { format_key_as_label } from "@utils";
 import { PROTOCOL_LIBRARY } from "./protocols.js";
 
 /**
+ * Canonical runtime contract for the four temporal layers. Single source of
+ * truth for what ETERNAL / PRESENT / FUTURE / PAST mean — emitted verbatim
+ * into both the Memory Forge task and every profile enhance prompt so the two
+ * pipelines never drift apart.
+ */
+export const TEMPORAL_CONTRACT = `TEMPORAL LAYER CONTRACT — ETERNAL / PRESENT / FUTURE / PAST
+- ETERNAL: the evolving baseline. Permanent changes (defining events, character arcs, world shifts) update it; temporary state belongs in PRESENT. Explicit user edits to Eternal always win.
+- PRESENT: the volatile delta layer over ETERNAL — what has shifted right now. Rewritten each cycle. True in this moment only.
+- FUTURE: the single standing agenda — one clear intent, building pressure, or impending event driving the next state change. Rewritten each cycle. Active future tense.
+- PAST: anchored memory — settled facts and events. Appended, never rewritten in place.`;
+
+/**
  * Canonical taxonomy of all entity fields, grouped by temporal section.
  */
 export const ENTITY_FRAGMENTS = {
@@ -165,7 +177,9 @@ function build_entity_catalog() {
         };
       });
     } else {
-      const field_keys = Object.keys(section).filter((k) => !["label", "sublabel", "type", "directive", "description", "enhancer"].includes(k));
+      const field_keys = Object.keys(section).filter(
+        (k) => !["label", "sublabel", "type", "directive", "description", "enhancer", "fields"].includes(k),
+      );
       field_keys.forEach((field_key) => {
         const id = `${section_key}.${field_key}`;
         const field = section[field_key];
