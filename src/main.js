@@ -13,6 +13,7 @@ Object.assign(window, { Dexie, DOMPurify });
 // Install runtime error hardening (ResizeObserver loop suppression + Perchance
 // sandbox-frame error silencing) before any app code creates observers.
 install_environment_hardening();
+ensure_theme_tokens();
 
 // 🚀 BOOTSTRAP
 // Composition root: publish the state layer's accessors and stream handlers into
@@ -21,7 +22,7 @@ install_environment_hardening();
 // that preserves the downward import rule. Must run before app_bootstrap.init().
 import { app, runtime, simulation_state, simulation_log } from "@state";
 import { seed_premades, session_driver, set_versionchange_quiesce } from "@data";
-import { Audio, sweep_stale_ghosts } from "@media";
+import { Audio, sweep_stale_ghosts, ensure_theme_tokens } from "@media";
 import { install_environment_hardening, sanitize_to_fragment, save_session_checkpoint } from "@platform";
 import { mount } from "svelte";
 import { embeddings_engine, reconcile_vector_caps } from "@intelligence";

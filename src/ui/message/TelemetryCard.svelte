@@ -11,8 +11,28 @@
   import TelemetryVector from "./TelemetryVector.svelte";
 
   /**
+   * @typedef {Object} TelemetryMeta
+   * @property {string} [type] - The type of telemetry event.
+   * @property {Object} [updates] - Normalized per-entity state updates ({ AI_CHARACTER | USER_PERSONA | FRACTAL: { name, present_mutations, eternal_mutations, vectors, dynamics } }).
+   * @property {string} [thoughts] - Director think content (markdown; leading `##` headings stripped for display).
+   * @property {boolean} [trigger_image] - Whether image generation was triggered this tick.
+   * @property {boolean} [image_trigger] - Whether an image beat fired this tick (dynamics gate OR director).
+   * @property {string} [image_tier] - The active 4-tier image target (story_entities | story_character | solo_entity | story_scene).
+   * @property {string} [image_source] - Which source fired the trigger ("dynamics" | "director").
+   * @property {Object} [image_signals] - Dynamics-gate signal details (band_entry, displacement).
+   * @property {Object} [vectors] - Forged memory vectors for MEMORY_FORMATION events.
+   * @property {string} [target] - Entity key targeted by a MEMORY_FORMATION event.
+   * @property {string} [future] - Rewritten standing trajectory for MEMORY_FORMATION events.
+   * @property {Object} [present] - Consolidated present conditions for MEMORY_FORMATION events.
+   * @property {Object} [eternal] - Consolidated eternal attributes for MEMORY_FORMATION events.
+   * @property {string} [thought_process] - Thought process for MEMORY_FORMATION events.
+   * @property {number} [turns_count] - Turns consolidated by a MEMORY_FORMATION event.
+   * @property {Object} [vector] - Resolved vector detail for VECTOR_RESOLUTION events.
+   * @property {string} [resolution] - Resolution summary for VECTOR_RESOLUTION events.
+   */
+  /**
    * @typedef {Object} Props
-   * @property {import("./telemetry-format.js").TelemetryMeta} [meta={}] - The telemetry metadata object.
+   * @property {TelemetryMeta} [meta={}] - The telemetry metadata object.
    */
 
   /** @type {Props} */

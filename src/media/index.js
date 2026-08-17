@@ -6,6 +6,7 @@ export {
   get_color_name,
   get_signature_label,
   resolve_token,
+  ensure_theme_tokens,
   SIGNATURE_COLORS,
   PALETTE,
   PALETTE_VARS,

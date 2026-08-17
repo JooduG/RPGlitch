@@ -8,27 +8,11 @@
    * @property {(key: string) => string} get_entity_name
    */
   let { entity_blocks, get_entity_name } = $props();
-
-  /**
-   * Builds the four mutation rows (present/eternal × physical/non-physical),
-   * dropping empty ones so only filled rows render.
-   * @param {any} block
-   * @returns {Array<{label: string, value: string}>}
-   */
-  function build_mutation_rows(block) {
-    return [
-      { label: "PRESENT PHYSICAL", value: block.physical },
-      { label: "PRESENT NON\u2011PHYSICAL", value: block.non_physical },
-      { label: "ETERNAL PHYSICAL", value: block.eternal_physical },
-      { label: "ETERNAL NON\u2011PHYSICAL", value: block.eternal_non_physical },
-    ].filter((r) => r.value.trim());
-  }
 </script>
 
 {#if entity_blocks.length > 0}
   <div class="flex flex-col gap-4">
     {#each entity_blocks as block (block.key)}
-      {@const rows = build_mutation_rows(block)}
       <div class="flex flex-col gap-2">
         <header class="text-xs font-bold tracking-widest text-(--color-dev-accent) uppercase">
           {block.name || get_entity_name(block.key)}
@@ -68,16 +52,40 @@
             {/each}
           </div>
         {/if}
-        {#if rows.length > 0 || block.new_vectors.length > 0 || block.retrieval?.length > 0}
+        {#if block.physical.trim() || block.non_physical.trim() || block.eternal_physical.trim() || block.eternal_non_physical.trim() || block.new_vectors.length > 0 || block.retrieval?.length > 0}
           <div class="flex flex-col gap-2 pt-1">
-            {#each rows as row (row.label)}
+            {#if block.physical.trim()}
               <div
                 class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-(--color-dev-accent) bg-black/40 px-3 py-3 text-xs leading-relaxed"
               >
-                <span class="w-24 shrink-0 font-mono text-(--color-dev-accent)">{row.label}</span>
-                <span class="text-slate-50">{row.value}</span>
+                <span class="w-24 shrink-0 font-mono text-(--color-dev-accent)">PRESENT PHYSICAL</span>
+                <span class="text-slate-50">{block.physical}</span>
               </div>
-            {/each}
+            {/if}
+            {#if block.non_physical.trim()}
+              <div
+                class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-(--color-dev-accent) bg-black/40 px-3 py-3 text-xs leading-relaxed"
+              >
+                <span class="w-24 shrink-0 font-mono text-(--color-dev-accent)">PRESENT NON&#8209;PHYSICAL</span>
+                <span class="text-slate-50">{block.non_physical}</span>
+              </div>
+            {/if}
+            {#if block.eternal_physical.trim()}
+              <div
+                class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-(--color-dev-accent) bg-black/40 px-3 py-3 text-xs leading-relaxed"
+              >
+                <span class="w-24 shrink-0 font-mono text-(--color-dev-accent)">ETERNAL PHYSICAL</span>
+                <span class="text-slate-50">{block.eternal_physical}</span>
+              </div>
+            {/if}
+            {#if block.eternal_non_physical.trim()}
+              <div
+                class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-(--color-dev-accent) bg-black/40 px-3 py-3 text-xs leading-relaxed"
+              >
+                <span class="w-24 shrink-0 font-mono text-(--color-dev-accent)">ETERNAL NON&#8209;PHYSICAL</span>
+                <span class="text-slate-50">{block.eternal_non_physical}</span>
+              </div>
+            {/if}
             {#if block.new_vectors.length > 0}
               <div class="flex flex-col gap-2 pt-1">
                 {#each block.new_vectors as nv, i (i)}

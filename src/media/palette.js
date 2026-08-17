@@ -156,3 +156,22 @@ export function get_signature_color(entity, fallback = "var(--color-frozen)") {
   const seed = [entity.name || "", ...(entity.tags || [])].filter(Boolean).join(",");
   return get_deterministic_color(seed || entity.id || "default");
 }
+
+/**
+ * Ensures every design token in TOKENS is declared as a CSS custom property on
+ * :root at runtime. The generated design.css normally ships these, but if a
+ * stale build artifact ever drops some, this self-heals from the always-complete
+ * TOKENS map so signature colors and theme tokens can never render hollow.
+ */
+export function ensure_theme_tokens() {
+  if (typeof document === "undefined" || typeof getComputedStyle !== "function") return;
+  const root = document.documentElement;
+  if (!root) return;
+  for (const [name, value] of Object.entries(TOKENS)) {
+    if (typeof value !== "string" || value === "") continue;
+    const css_var = `--${name}`;
+    if (getComputedStyle(root).getPropertyValue(css_var).trim() === "") {
+      root.style.setProperty(css_var, value);
+    }
+  }
+}
