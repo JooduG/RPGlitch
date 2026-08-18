@@ -274,23 +274,47 @@ export const gamemaster = {
 
   /**
    * Applies the Director's Stage Spotlight choreography (enter/exit) to
-   * runtime.in_scene_npc_ids. Returns true when the stage changed.
+   * runtime.in_scene_npc_ids. Ids are matched directly, then by case-insensitive
+   * display name against the world cast (the model occasionally emits names
+   * like "Dr. Elias Tariq" instead of "npc:<id>" — absorb it, never no-op).
+   * Returns true when the stage changed.
    * @param {any} bridge
    * @param {{ enter?: string[], exit?: string[] } | null} change
    * @returns {Promise<boolean>}
    */
   async _apply_in_scene_change(bridge, change) {
     if (!change || typeof change !== "object") return false;
+    const npcs = bridge.runtime?.active_npcs || {};
+    const resolve_id = (raw, { id_like = false } = {}) => {
+      if (!raw) return null;
+      const id = String(raw).trim();
+      if (!id) return null;
+      if (npcs[id]) return id;
+      const by_name = Object.values(npcs).find(
+        (n) =>
+          String(n?.name || "")
+            .trim()
+            .toLowerCase() === id.toLowerCase(),
+      );
+      if (by_name) return by_name.id;
+      // Bare id tokens the Director sends for freshly-choreographed NPCs may not
+      // be in the cast yet — accept single-token ids as-is so enter/exit chaining
+      // can stage them. Multi-word names stay strict (must match the cast).
+      if (id_like && /^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(id)) return id;
+      return null;
+    };
     const current = new Set(bridge.runtime?.in_scene_npc_ids || []);
     let changed = false;
     for (const id of change.enter || []) {
-      if (id && !current.has(id)) {
-        current.add(id);
+      const resolved = resolve_id(id, { id_like: true });
+      if (resolved && !current.has(resolved)) {
+        current.add(resolved);
         changed = true;
       }
     }
     for (const id of change.exit || []) {
-      if (current.delete(id)) changed = true;
+      const resolved = resolve_id(id);
+      if (resolved && current.delete(resolved)) changed = true;
     }
     if (changed && bridge.runtime) {
       bridge.runtime.in_scene_npc_ids = [...current];
@@ -319,6 +343,129 @@ export const gamemaster = {
         bridge.app.log(`[GameMaster] NPC "${npc.name}" promoted to tier ${target_tier}.`, "system");
       } catch (err) {
         bridge.app.log(`[GameMaster] NPC promotion failed: ${err?.message || err}`, "warn");
+      }
+    }
+  },
+
+  /**
+   * Applies the Director's relational-web mutations — directed
+   * `[Source] → [Target]: [Dynamic]` edges resolved against the active trio and
+   * world cast (by id or case-insensitive name). Existing edges to the same
+   * target are replaced; the list is capped. Persisted via entity upsert so the
+   * <RELATIONAL_MESH> and the Profile Relations section stay current.
+   * @param {any} bridge
+   * @param {string[]} rels
+   */
+  async _apply_relationships(bridge, rels) {
+    const edges = Array.isArray(rels) ? rels : [];
+    if (!edges.length) return;
+
+    const targets = new Map();
+    const register = (e) => {
+      if (e?.id) targets.set(String(e.id), e);
+    };
+    register(bridge.runtime?.active_ai);
+    register(bridge.runtime?.active_user);
+    register(bridge.runtime?.active_fractal);
+    for (const n of Object.values(bridge.runtime?.active_npcs || {})) register(n);
+
+    const by_name = new Map();
+    for (const e of targets.values())
+      by_name.set(
+        String(e.name || "")
+          .trim()
+          .toLowerCase(),
+        e,
+      );
+    const find = (raw) => {
+      const key = String(raw || "").trim();
+      if (!key) return null;
+      return targets.get(key) || by_name.get(key.toLowerCase()) || null;
+    };
+
+    const dirty = new Set();
+    for (const edge of edges) {
+      const m = String(edge).match(/^\s*(.+?)\s*(?:→|->|—>\s*)\s*(.+?)\s*:\s*(.+)$/);
+      if (!m) continue;
+      const [, src_raw, tgt_raw, dyn] = m;
+      const source = find(src_raw.trim());
+      if (!source) continue;
+      const clean_edge = `${src_raw.trim()} → ${tgt_raw.trim()}: ${dyn.trim()}`.slice(0, 160);
+      const list = Array.isArray(source.relationships) ? source.relationships.slice() : [];
+      const target_key = tgt_raw.trim().toLowerCase();
+      const idx = list.findIndex((r) => {
+        const before_colon = String(r).split(":")[0];
+        const has_arrow = /→|->|—>/i.test(before_colon);
+        const target_name = has_arrow
+          ? before_colon
+              .split(/→|->|—>/i)
+              .pop()
+              .trim()
+              .toLowerCase()
+          : before_colon.trim().toLowerCase();
+        return target_name && (target_name === target_key || target_key.includes(target_name) || target_name.includes(target_key));
+      });
+      if (idx >= 0) list[idx] = clean_edge;
+      else list.unshift(clean_edge);
+      source.relationships = list.slice(0, 12);
+      dirty.add(source);
+    }
+
+    for (const source of dirty) {
+      try {
+        const source_type = source.type === "fractal" ? "fractal" : "character";
+        const updated = await entities.upsert(source_type, { ...source, relationships: source.relationships });
+        const type = source.type === "fractal" ? "fractal" : "character";
+        if (type === "fractal" && bridge.runtime?.active_fractal?.id === source.id) bridge.runtime.active_fractal = updated;
+        else if (type === "character") {
+          if (bridge.runtime?.active_ai?.id === source.id) bridge.runtime.active_ai = updated;
+          else if (bridge.runtime?.active_user?.id === source.id) bridge.runtime.active_user = updated;
+          else if (bridge.runtime?.active_npcs?.[source.id]) bridge.runtime.active_npcs = { ...bridge.runtime.active_npcs, [source.id]: updated };
+        }
+        bridge.app.log(`[GameMaster] Relational web updated: ${source.name}.`, "system");
+      } catch (err) {
+        bridge.app.log(`[GameMaster] Relationship update failed: ${err?.message || err}`, "warn");
+      }
+    }
+  },
+
+  /**
+   * Applies Director genesis requests — spawns brand-new recurring NPCs the
+   * model explicitly requested (track-npc-expansion 3.3 production path).
+   * Convergence guard: a name already in the cast is never duplicated.
+   * @param {any} bridge
+   * @param {Array<{ name: string, description?: string, role_tier?: number, voice_register?: string }>} genesis
+   */
+  async _apply_genesis(bridge, genesis) {
+    for (const g of genesis || []) {
+      if (!g?.name) continue;
+      const cast = [
+        bridge.runtime?.active_ai,
+        bridge.runtime?.active_user,
+        bridge.runtime?.active_fractal,
+        ...Object.values(bridge.runtime?.active_npcs || {}),
+      ].filter(Boolean);
+      if (
+        cast.some(
+          (e) =>
+            String(e.name || "")
+              .trim()
+              .toLowerCase() === String(g.name).toLowerCase(),
+        )
+      ) {
+        bridge.app?.log(`[GameMaster] Genesis "${g.name}" already in cast — convergence guard.`, "warn");
+        continue;
+      }
+      try {
+        const npc = await this.spawn_npc(bridge, {
+          name: g.name,
+          description: g.description,
+          role_tier: g.role_tier,
+          voice_register: g.voice_register,
+        });
+        if (npc) bridge.app.log(`[GameMaster] ✨ Genesis: ${npc.name} entered the world.`, "system");
+      } catch (err) {
+        bridge.app.log(`[GameMaster] Genesis failed for "${g.name}": ${err?.message || err}`, "error");
       }
     }
   },
@@ -512,6 +659,12 @@ export const gamemaster = {
       await this._apply_in_scene_change(state_bridge, director_data.in_scene_change);
       if (Array.isArray(director_data.promotions) && director_data.promotions.length) {
         await this._apply_promotions(state_bridge, director_data.promotions);
+      }
+      if (Array.isArray(director_data.relationships) && director_data.relationships.length) {
+        await this._apply_relationships(state_bridge, director_data.relationships);
+      }
+      if (Array.isArray(director_data.genesis) && director_data.genesis.length) {
+        await this._apply_genesis(state_bridge, director_data.genesis);
       }
 
       // 4.1 Apply State Mutations (Director-scrubbed so clichéd somatic idioms
@@ -794,17 +947,23 @@ export const gamemaster = {
       state_bridge.app.busy = false;
       state_bridge.simulation_state.phase = "idle";
 
-      await temporal_engine.consolidate(state_bridge.session_driver, db, entities, state_bridge.runtime, state_bridge.app);
+      // 8.5a. CONSOLIDATION — skip the LLM forge when the story just resolved:
+      // the epilogue turn has nothing durable left to remember, and keeping the
+      // intent lock off the heavy consolidation path avoids end-of-story stalls.
+      const resolved_status = director_data?.story_status;
+      await temporal_engine.consolidate(state_bridge.session_driver, db, entities, state_bridge.runtime, state_bridge.app, {
+        skip_forge: resolved_status === "CONCLUDED" || resolved_status === "COLLAPSED",
+      });
 
       // 8.5. AUTO-DISPATCH EPILOGUE — the Director declared the quest resolved
       // (victory or irrevocable collapse). Deliver the epilogue and mark the
       // story concluded without needing the manual END STORY button.
-      const story_status = director_data?.story_status;
+      const story_status = resolved_status;
       if (story_status === "CONCLUDED" || story_status === "COLLAPSED") {
         try {
           if (!(await this._has_epilogue(story_id))) {
             state_bridge.app.log(`[GameMaster] Director marked the story ${story_status} — auto-dispatching epilogue.`, "system");
-            await this.execute_epilogue(story_id);
+            await this.execute_epilogue(story_id, story_status);
             await stories.conclude(story_id);
           }
         } catch (err) {
@@ -952,9 +1111,10 @@ export const gamemaster = {
    * EXECUTE EPILOGUE
    * Final summary or conclusion for a story.
    * @param {string} story_id
+   * @param {"CONCLUDED" | "COLLAPSED" | string} [conclusion_status="CONCLUDED"]
    * @returns {Promise<string | null>}
    */
-  async execute_epilogue(story_id) {
+  async execute_epilogue(story_id, conclusion_status = "CONCLUDED") {
     if (await this._has_epilogue(story_id)) {
       state_bridge.app.log("[GameMaster] Epilogue already present — skipping duplicate dispatch.", "system");
       return null;
@@ -1008,6 +1168,11 @@ export const gamemaster = {
       meta: {
         id: node_id,
         is_epilogue: true,
+        // Conclusion status drives the Epilogue badge (✨ CONCLUDED / 💀 COLLAPSED)
+        // — Message.svelte reads `meta.conclusion_status` first, so stamp it
+        // here rather than letting the UI default to "CONCLUDED".
+        conclusion_status,
+        story_status: conclusion_status,
       },
       attachments: epilogue_attachments,
     });

@@ -800,20 +800,59 @@ export class VoiceEngine {
     }
   }
 
-  queue_stream_sentence(current_raw_text) {
+  /**
+   * Builds the live-stream roster from the current world cast (NPCs + fractal
+   * narrator + companion), so quoted dialogue during streaming can be handed to
+   * each speaker's Kokoro voice — mirroring the finished-turn attribution.
+   * @returns {Array<{ name: string, voice_id: string, is_narrator: boolean }>}
+   */
+  #stream_roster() {
+    const runtime = state_bridge?.runtime;
+    if (!runtime) return [];
+    const roster = [];
+    for (const n of Object.values(runtime.active_npcs || {})) {
+      if (n?.name) roster.push({ name: n.name, voice_id: resolve_voice_uri(n.voice?.name || n.voice_register || ""), is_narrator: false });
+    }
+    const fractal = runtime.active_fractal;
+    if (fractal?.name)
+      roster.push({ name: fractal.name, voice_id: resolve_voice_uri(fractal.voice?.name || fractal.voice_register || ""), is_narrator: true });
+    const companion = runtime.active_ai;
+    if (companion?.name)
+      roster.push({ name: companion.name, voice_id: resolve_voice_uri(companion.voice?.name || companion.voice_register || ""), is_narrator: false });
+    return roster;
+  }
+
+  /**
+   * Streams live turn text sentence-by-sentence. Each committed sentence is
+   * attributed against the roster (quoted dialogue → speaker voice, prose →
+   * narrator/default voice) instead of always using the single selected voice.
+   * @param {string} current_raw_text
+   * @param {Array<{ name?: string, voice_id?: string, is_narrator?: boolean }>} [active_roster]
+   */
+  queue_stream_sentence(current_raw_text, active_roster = []) {
     if (this.#stream_stopped) return;
     const sanitized_stream_track = current_raw_text.replace(/<think>[\s\S]*?<\/think>/gi, "").replace(/<think>[\s\S]*/gi, "");
     const fresh_buffer = sanitized_stream_track.slice(this.spoken_character_cursor);
 
     const { sentences, committed } = split_speech_sentences(fresh_buffer);
+    const roster = Array.isArray(active_roster) && active_roster.length ? active_roster : this.#stream_roster();
+    const prep = (s) =>
+      strip_cognition_blocks(s)
+        .replace(/[*_#`~]/g, "")
+        .replace(/\[\[(.*?)\]\]/g, "$1")
+        .replace(/<[^>]*>/g, "")
+        .trim();
 
     for (const clean_sentence of sentences) {
-      if (clean_sentence) {
-        try {
-          this.speak(clean_sentence, false);
-        } catch (tts_err) {
-          console.warn("[VoiceEngine] TTS speak error during streaming:", tts_err);
-        }
+      if (!clean_sentence) continue;
+      try {
+        const chunks = split_speech_by_speaker(prep(clean_sentence), roster, {
+          narrator_voice: this.selected_voice,
+          default_voice: this.selected_voice,
+        });
+        if (chunks.length) this.#enqueue_chunks(chunks);
+      } catch (tts_err) {
+        console.warn("[VoiceEngine] TTS speak error during streaming:", tts_err);
       }
     }
 
@@ -827,7 +866,11 @@ export class VoiceEngine {
     const clean_remainder = strip_cognition_blocks(remaining_text).trim();
 
     if (clean_remainder) {
-      this.speak(clean_remainder, false);
+      const chunks = split_speech_by_speaker(clean_remainder, this.#stream_roster(), {
+        narrator_voice: this.selected_voice,
+        default_voice: this.selected_voice,
+      });
+      if (chunks.length) this.#enqueue_chunks(chunks);
     }
   }
 }

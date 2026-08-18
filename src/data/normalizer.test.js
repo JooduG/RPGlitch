@@ -208,5 +208,47 @@ describe("normalizer.js", () => {
       expect(ENTITY_TEMPLATES.character.is_wanderer).toBe(false);
       expect(ENTITY_TEMPLATES.character.relationships).toEqual([]);
     });
+
+    it("preserves well-formed chapter archives", () => {
+      const result = normalize({
+        chapters: [
+          {
+            id: "ch_1",
+            title: "The crypt",
+            summary: "Descended into the crypt.",
+            agenda: "Find the relic",
+            status: "closed",
+            created_at: 100,
+            closed_at: 200,
+          },
+          { id: "ch_2", title: "The city burns", summary: "Rallied the refugees.", status: "open", created_at: 300 },
+        ],
+      });
+      expect(result.chapters).toHaveLength(2);
+      expect(result.chapters[0].status).toBe("closed");
+      expect(result.chapters[1].status).toBe("open");
+      expect(result.chapters[1].created_at).toBe(300);
+    });
+
+    it("normalizes invalid chapter entries and defaults bad statuses to closed", () => {
+      const result = normalize({ chapters: [null, "junk", { title: "  ", status: "bogus" }, 42] });
+      expect(result.chapters).toHaveLength(1);
+      expect(result.chapters[0].title).toBe("Untitled chapter");
+      expect(result.chapters[0].status).toBe("closed");
+    });
+
+    it("caps the chapter archive at the newest 12 entries", () => {
+      const many = Array.from({ length: 15 }, (_, i) => ({ id: `ch_${i}`, title: `Chapter ${i}`, status: "closed" }));
+      const result = normalize({ chapters: many });
+      expect(result.chapters).toHaveLength(12);
+      expect(result.chapters[0].id).toBe("ch_3");
+    });
+
+    it("defaults chapters to an empty array", () => {
+      expect(normalize({}).chapters).toEqual([]);
+      expect(normalize({ chapters: "not-an-array" }).chapters).toEqual([]);
+      expect(ENTITY_TEMPLATES.character.chapters).toEqual([]);
+      expect(ENTITY_TEMPLATES.fractal.chapters).toEqual([]);
+    });
   });
 });

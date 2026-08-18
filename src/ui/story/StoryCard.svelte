@@ -159,14 +159,20 @@
       class="
       text-xs
 
-      {active
+      {story.state === 'concluded'
         ? `
         font-bold
-        text-(--signature-color)
+        text-amber-400
       `
-        : 'text-slate-50'}"
+        : active
+          ? `
+          font-bold
+          text-(--signature-color)
+        `
+          : 'text-slate-50'}"
     >
-      {format_datetime(story.last_played)}{#if active}
+      {format_datetime(story.last_played)}{#if story.state === "concluded"}
+        · CONCLUDED{:else if active}
         · ACTIVE{/if}
     </span>
   </div>

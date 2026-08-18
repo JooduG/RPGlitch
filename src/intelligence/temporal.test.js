@@ -7,6 +7,7 @@ import {
   MAX_VECTOR_CHARS,
   is_origin,
   prune,
+  archive_chapter,
 } from "./temporal.js";
 import { llm_service } from "@platform";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -746,5 +747,79 @@ describe("prune", () => {
     expect(result).toHaveLength(3);
     expect(result.map((v) => v.id)).toEqual(["1", "2", "3"]);
     expect(result[0].type).toBe("past");
+  });
+});
+
+describe("temporal_engine.consolidate() skip_forge", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("returns early before loading history when skip_forge is set", async () => {
+    const mock_session = {
+      require_active: vi.fn(() => "story-1"),
+      load_log: vi.fn(async () => [{ id: 1, role: "user", text: "t1" }]),
+      log_system_entry: vi.fn(),
+    };
+    const mock_db = { simulation_log: { bulkPut: vi.fn() } };
+    const mock_app = { log: vi.fn() };
+
+    await temporal_engine.consolidate(mock_session, mock_db, {}, {}, mock_app, { skip_forge: true });
+
+    expect(mock_session.require_active).toHaveBeenCalled();
+    expect(mock_session.load_log).not.toHaveBeenCalled();
+    expect(mock_db.simulation_log.bulkPut).not.toHaveBeenCalled();
+    expect(llm_service.generate).not.toHaveBeenCalled();
+  });
+
+  it("forges normally when skip_forge is absent", async () => {
+    const mock_session = {
+      require_active: vi.fn(() => "story-1"),
+      load_log: vi.fn(async () => [{ id: 1, role: "user", text: "t1" }]),
+      log_system_entry: vi.fn(),
+    };
+    const mock_db = { simulation_log: { bulkPut: vi.fn() } };
+    const mock_app = { log: vi.fn() };
+    llm_service.generate.mockResolvedValue(
+      JSON.stringify({
+        _thought_process: "nothing to see",
+        AI_CHARACTER: { present: { physical: "", non_physical: "" }, future: "New agenda", past: [] },
+      }),
+    );
+
+    await temporal_engine.consolidate(mock_session, mock_db, {}, {}, mock_app);
+
+    expect(mock_session.load_log).toHaveBeenCalled();
+  });
+});
+
+describe("archive_chapter (Chapter Forking)", () => {
+  it("returns false when the rewritten agenda shares most vocabulary (no milestone)", () => {
+    const entity = { future: "A long standing objective to find the relic.", chapters: [] };
+    const result = archive_chapter(entity, "A long standing objective to find the relic.", "A long standing objective to find the relic again.");
+    expect(result).toBe(false);
+    expect(entity.chapters).toEqual([]);
+  });
+
+  it("closes the open chapter and opens a fresh one on milestone crossing", () => {
+    const entity = {
+      future: "Recover the relic from the crypt.",
+      chapters: [{ id: "ch_1", title: "The crypt", status: "open" }],
+    };
+    expect(archive_chapter(entity, "Recover the relic from the crypt.", "The city burns; rally the refugees north.")).toBe(true);
+    expect(entity.chapters).toHaveLength(2);
+    expect(entity.chapters[0].status).toBe("closed");
+    expect(entity.chapters[1].status).toBe("open");
+    expect(entity.chapters[1].id).toMatch(/^ch_/);
+    expect(entity.chapters[1].title).toMatch(/^The city burns/);
+  });
+
+  it("caps the chapter archive at 12 entries", () => {
+    const entity = {
+      future: "Old agenda text.",
+      chapters: Array.from({ length: 12 }, (_, i) => ({ id: `ch_${i}`, title: `Chapter ${i}`, status: "closed" })),
+    };
+    archive_chapter(entity, "The tower falls at dusk.", "Seas part and islands burn.");
+    expect(entity.chapters).toHaveLength(12);
   });
 });

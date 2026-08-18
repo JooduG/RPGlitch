@@ -49,7 +49,7 @@
             <Accordion label="Storymode" content_class="flex flex-row flex-wrap items-center gap-4">
               <Button
                 label="Return to Storyboard"
-                variant="secondary"
+                variant="primary"
                 size="small"
                 onclick={async () => {
                   await session_driver.clear_active();

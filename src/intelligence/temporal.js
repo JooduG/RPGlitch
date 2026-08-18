@@ -752,6 +752,62 @@ export function apply_state_mutations(entity, mutations) {
   return changed;
 }
 
+/**
+ * Pure determinism — decides whether a forge rewrite crossed a chapter boundary:
+ * the old standing agenda and the new one share less than ~45% of their
+ * vocabulary (excluding tiny stopwords). Equal text never triggers a boundary.
+ * @param {string} old_future
+ * @param {string} new_future
+ * @returns {boolean}
+ */
+function chapter_milestone_crossed(old_future, new_future) {
+  if (!old_future || !new_future || old_future === new_future) return false;
+  const words = (s) =>
+    new Set(
+      String(s)
+        .toLowerCase()
+        .split(/[^a-z']+/)
+        .filter((w) => w.length > 3),
+    );
+  const old_words = words(old_future);
+  const new_words = words(new_future);
+  if (!old_words.size || !new_words.size) return false;
+  const overlap = [...old_words].filter((w) => new_words.has(w)).length / old_words.size;
+  return overlap < 0.45;
+}
+
+/**
+ * Macro-Quest chapter forking (track-director-expansion 4.5): when a forge cycle
+ * rewrites the standing agenda past a milestone, close the current chapter and
+ * open a fresh one. The archive lives on the entity (`chapters`) and is shown
+ * to the Memory Forge as <CHAPTER_HISTORY> so future consolidations never
+ * pretend an archived objective is still pending.
+ * @param {any} entity
+ * @param {string} old_future
+ * @param {string} new_future
+ * @returns {boolean}
+ */
+export function archive_chapter(entity, old_future, new_future) {
+  if (!entity || !chapter_milestone_crossed(old_future, new_future)) return false;
+  if (!Array.isArray(entity.chapters)) entity.chapters = [];
+  const prev_open = entity.chapters.find((c) => c?.status === "open");
+  if (prev_open) {
+    prev_open.status = "closed";
+    prev_open.closed_at = Date.now();
+  }
+  const title = String(new_future).split(/[.!?]/)[0].trim().slice(0, 60) || "New chapter";
+  entity.chapters.push({
+    id: `ch_${_uuid()}`,
+    title,
+    summary: String(new_future).slice(0, 400),
+    agenda: String(new_future).slice(0, 600),
+    status: "open",
+    created_at: Date.now(),
+  });
+  if (entity.chapters.length > 12) entity.chapters = entity.chapters.slice(-12);
+  return true;
+}
+
 export const temporal_engine = {
   create,
   score,
@@ -767,12 +823,19 @@ export const temporal_engine = {
   precompute_context_embedding,
   _is_consolidating: false,
 
-  consolidate: async (session, db, entities, runtime, app) => {
+  consolidate: async (session, db, entities, runtime, app, options = {}) => {
     if (temporal_engine._is_consolidating) return;
     temporal_engine._is_consolidating = true;
 
     try {
       const story_id = session.require_active();
+
+      // SKIP_FORGE — when a turn resolves the story (CONCLUDED/COLLAPSED) the
+      // post-turn forge is pure cost: nothing durable remains to remember. Keeps
+      // the epilogue turn off the heavy consolidation path (the 255s watchdog
+      // overrun seen at collapse in the field).
+      if (options.skip_forge) return;
+
       const messages = await session.load_log(story_id);
       const unconsolidated = messages.filter((m) => !m.meta?.consolidated && m.role !== "system");
 
@@ -875,8 +938,13 @@ export const temporal_engine = {
               }
             }
             if (typeof rewritten !== "string" || !rewritten.trim()) continue;
+            const old_future = typeof entity.future === "string" ? entity.future : "";
             entity.future = rewritten.trim();
-            await runtime.update_entity(type, entity.id, { future: entity.future });
+            const chapter_forked = archive_chapter(entity, old_future, entity.future);
+            await runtime.update_entity(type, entity.id, { future: entity.future, ...(chapter_forked ? { chapters: entity.chapters } : {}) });
+            if (chapter_forked) {
+              app.log(`[TemporalEngine] 📜 Chapter archived for ${entity.name || key} — milestone crossed.`, "system");
+            }
           }
 
           for (const { key, entity } of entity_targets) {

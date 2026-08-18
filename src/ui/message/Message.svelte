@@ -309,7 +309,7 @@
         {#if meta?.is_prologue}
           <Prologue {card_actions} />
         {:else if meta?.is_epilogue}
-          <Epilogue {card_actions} status={meta?.conclusion_status || meta?.story_status || "CONCLUDED"} />
+          <Epilogue {card_actions} />
         {/if}
 
         <Body

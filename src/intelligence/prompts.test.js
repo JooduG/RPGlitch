@@ -442,6 +442,14 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.task).toContain("COLLAPSED");
     });
 
+    it("exposes the relational-mesh and genesis schema fields in the Director task", () => {
+      const result = prompt_builder.build_director_prompt(base_payload, base_snapshot);
+      expect(result.task).toContain('"relationships"');
+      expect(result.task).toContain("Source → Target");
+      expect(result.task).toContain('"genesis"');
+      expect(result.task).toContain("brand-new recurring NPC");
+    });
+
     it("injects <SOMATIC_DIRECTIVES> into the character prompt when the Director selects keywords", () => {
       const result = prompt_builder.build_character_prompt(base_payload, base_snapshot, {
         keywords: ["shame", "stoic_pain"],
@@ -485,10 +493,28 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.task).not.toContain("<USER_ACTION_NOTE>");
     });
 
-    it("includes the pacing-calibration guidance in the character task", () => {
+    it("injects the input-rhythm pacing directive into the character task", () => {
       const result = prompt_builder.build_character_prompt(base_payload, base_snapshot, {});
-      expect(result.task).toContain("Roughly match the length and energy of the user's message");
+      expect(result.task).toContain("INPUT RHYTHM");
       expect(result.task).not.toContain("roughly 2 paragraphs");
+    });
+
+    it("classifies terse/expansive input into distinct pacing directives", () => {
+      const terse = prompt_builder.build_character_prompt({ ...base_payload, input: "Where is the vault?" }, base_snapshot, {});
+      expect(terse.task).toContain("INPUT RHYTHM: terse");
+
+      const expansive = prompt_builder.build_character_prompt({ ...base_payload, input: "w".repeat(320) }, base_snapshot, {});
+      expect(expansive.task).toContain("INPUT RHYTHM: expansive");
+
+      const moderate = prompt_builder.build_character_prompt(
+        { ...base_payload, input: "A solid paragraph of deliberate action with several beats and weight to it." },
+        base_snapshot,
+        {},
+      );
+      expect(moderate.task).toContain("INPUT RHYTHM: moderate");
+
+      const silent = prompt_builder.build_character_prompt({ ...base_payload, input: "" }, base_snapshot, {});
+      expect(silent.task).toContain("INPUT RHYTHM: no prompt");
     });
 
     it("no longer requires literal bracket hooks in the scene-continuation protocol", () => {

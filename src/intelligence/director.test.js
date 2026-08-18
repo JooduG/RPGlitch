@@ -4,6 +4,8 @@ import {
   normalize_speaker,
   normalize_in_scene_change,
   normalize_promotions,
+  normalize_relationships,
+  normalize_genesis,
   strip_npc_id,
   resolve_speaker_engine,
   STORY_STATUS_VALUES,
@@ -170,5 +172,75 @@ describe("normalize_director_data (Stage Spotlight)", () => {
     const normalized = normalize_director_data({});
     expect(normalized.in_scene_change).toEqual({ enter: [], exit: [] });
     expect(normalized.promotions).toEqual([]);
+  });
+});
+
+describe("normalize_relationships (Relational Mesh)", () => {
+  it("keeps directed edges regardless of arrow spelling", () => {
+    expect(normalize_relationships(["Viper → Mira: alliance", "Mira -> Sorel: rivalry", "Sorel —> Viper: debt"])).toEqual([
+      "Viper → Mira: alliance",
+      "Mira -> Sorel: rivalry",
+      "Sorel —> Viper: debt",
+    ]);
+  });
+
+  it("drops undirected prose, non-strings, and empties", () => {
+    expect(normalize_relationships(["Viper and Mira trust each other", "", null, 42])).toEqual([]);
+  });
+
+  it("caps the edge count at 6 and clamps each edge to 160 chars", () => {
+    const seven = Array.from({ length: 7 }, (_, i) => `Viper → Mira: edge number ${i}`);
+    expect(normalize_relationships(seven)).toHaveLength(6);
+    const long = ["Viper → Mira: " + "x".repeat(400)];
+    expect(normalize_relationships(long)[0].length).toBeLessThanOrEqual(160);
+  });
+
+  it("returns [] for non-array input", () => {
+    expect(normalize_relationships(undefined)).toEqual([]);
+    expect(normalize_relationships("Viper → Mira: alliance")).toEqual([]);
+    expect(normalize_relationships({ 0: "Viper → Mira: alliance" })).toEqual([]);
+  });
+});
+
+describe("normalize_genesis (World-Cast Expansion)", () => {
+  it("mints sanitized genesis drafts with a clamped tier", () => {
+    expect(normalize_genesis([{ name: "  Mira  ", description: "A scarred courier", role_tier: 9 }])).toEqual([
+      { name: "Mira", description: "A scarred courier", role_tier: 3, voice_register: "" },
+    ]);
+  });
+
+  it("requires a non-empty name and caps entries at 2", () => {
+    const three = [{ name: "A" }, { name: "" }, { name: "B" }, { name: "C" }];
+    const out = normalize_genesis(three);
+    expect(out.map((g) => g.name)).toEqual(["A", "B"]);
+  });
+
+  it("caps description and voice_register length, defaults tier to 1", () => {
+    const out = normalize_genesis([{ name: "D", description: "y".repeat(500), role_tier: "nope" }]);
+    expect(out[0].description.length).toBeLessThanOrEqual(240);
+    expect(out[0].role_tier).toBe(1);
+  });
+
+  it("returns [] for non-array input", () => {
+    expect(normalize_genesis(undefined)).toEqual([]);
+    expect(normalize_genesis({ name: "Mira" })).toEqual([]);
+    expect(normalize_genesis([null, 42])).toEqual([]);
+  });
+});
+
+describe("normalize_director_data (Relational Mesh + Genesis pass-through)", () => {
+  it("normalizes relationships and genesis alongside the stage fields", () => {
+    const normalized = normalize_director_data({
+      relationships: ["Viper → Mira: alliance", "plain prose"],
+      genesis: [{ name: "Mira", role_tier: 2 }, { role_tier: 3 }],
+    });
+    expect(normalized.relationships).toEqual(["Viper → Mira: alliance"]);
+    expect(normalized.genesis).toEqual([{ name: "Mira", description: "", role_tier: 2, voice_register: "" }]);
+  });
+
+  it("defaults relationships and genesis when absent", () => {
+    const normalized = normalize_director_data({});
+    expect(normalized.relationships).toEqual([]);
+    expect(normalized.genesis).toEqual([]);
   });
 });

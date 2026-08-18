@@ -64,7 +64,62 @@ export function normalize_director_data(payload) {
     story_status,
     in_scene_change: normalize_in_scene_change(base.in_scene_change),
     promotions: normalize_promotions(base.promotions),
+    relationships: normalize_relationships(base.relationships),
+    genesis: normalize_genesis(base.genesis),
   };
+}
+
+/**
+ * Normalizes the Director's relational-web mutations — directed
+ * `[Source] → [Target]: [Dynamic]` edges. Only string edges carrying a
+ * direction marker survive; count and length are capped defensively so a
+ * runaway payload can never bloat an entity's relationships array.
+ * @param {any} raw
+ * @returns {string[]}
+ */
+export function normalize_relationships(raw) {
+  if (!Array.isArray(raw)) return [];
+  const out = [];
+  for (const r of raw) {
+    if (typeof r !== "string") continue;
+    const clean = r.trim().replace(/\s+/g, " ");
+    if (!clean || !/→|->|—\s*>/i.test(clean)) continue;
+    out.push(clean.slice(0, 160));
+    if (out.length >= 6) break;
+  }
+  return out;
+}
+
+/**
+ * Normalizes Director genesis requests — brand-new recurring NPCs the kernel
+ * should spawn. Ids are NEVER minted here (the kernel assigns them); names and
+ * descriptions are sanitized and capped so the model cannot inject junk.
+ * @param {any} raw
+ * @returns {Array<{ name: string, description: string, role_tier: number, voice_register: string }>}
+ */
+export function normalize_genesis(raw) {
+  if (!Array.isArray(raw)) return [];
+  const out = [];
+  for (const g of raw) {
+    const base = g && typeof g === "object" ? g : {};
+    const name = String(base.name || "")
+      .trim()
+      .slice(0, 60);
+    if (!name) continue;
+    const tier = Number(base.role_tier);
+    out.push({
+      name,
+      description: String(base.description || "")
+        .trim()
+        .slice(0, 240),
+      role_tier: Number.isFinite(tier) ? Math.max(1, Math.min(3, Math.round(tier))) : 1,
+      voice_register: String(base.voice_register || "")
+        .trim()
+        .slice(0, 40),
+    });
+    if (out.length >= 2) break;
+  }
+  return out;
 }
 
 /**

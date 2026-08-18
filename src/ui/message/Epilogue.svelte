@@ -2,71 +2,19 @@
   /**
    * @file src/ui/message/Epilogue.svelte
    * 📜 THE END / STORY CONCLUDED SCREEN
-   * Culminating story summary header, final entity trio, outcome badge, and action deck.
+   * Culminating story summary header, final entity trio, and outcome badges.
    */
-  import { Button, StyleBadge } from "@primitives";
+  import { StyleBadge } from "@primitives";
   import { EntityCard } from "@entity";
-  import { session_driver } from "@data";
-  import { app, runtime, simulation_log } from "@state";
-  import { db } from "@data";
-  import { export_story_markdown, download_text_file } from "@utils";
+  import { app, runtime } from "@state";
 
   let {
     /** @type {{ ai: any[], user: any[], fractal: any[] }} */
     card_actions = { ai: [], user: [], fractal: [] },
-    status = "CONCLUDED", // 'CONCLUDED' | 'COLLAPSED' | 'EPILOGUE'
   } = $props();
-
-  let is_exporting = $state(false);
-
-  async function handle_return_to_storyboard() {
-    await session_driver.clear_active();
-    await app.load_entities();
-    app.set_view("storyboard");
-  }
-
-  async function handle_export_story() {
-    if (is_exporting || !runtime.story_id) return;
-    is_exporting = true;
-    try {
-      const story = runtime.active_story || (await db.stories.get(runtime.story_id));
-      const entries = [...simulation_log.feed];
-      const md = export_story_markdown(story, entries);
-      const filename = `${(story?.title || "story").toLowerCase().replace(/[^a-z0-9]+/g, "-")}-transcript.md`;
-      download_text_file(filename, md, "text/markdown;charset=utf-8");
-    } catch (e) {
-      console.error("[Export Story Error]", e);
-      app.log(`Export failed: ${e.message || e}`, "error");
-    } finally {
-      is_exporting = false;
-    }
-  }
 </script>
 
-<div class="my-6 flex flex-col items-center gap-4 rounded-xl border border-white/10 bg-black/40 p-6 text-center backdrop-blur-md" data-msg-epilogue>
-  <!-- OUTCOME BADGE -->
-  <div class="flex items-center gap-2">
-    {#if status === "COLLAPSED"}
-      <span
-        class="rounded-full border border-red-500/40 bg-red-950/60 px-3 py-1 text-xs font-semibold tracking-wider text-red-300 uppercase shadow-[0_0_12px_rgba(239,68,68,0.3)]"
-      >
-        💀 Story Collapsed
-      </span>
-    {:else if status === "CONCLUDED"}
-      <span
-        class="rounded-full border border-amber-400/40 bg-amber-950/60 px-3 py-1 text-xs font-semibold tracking-wider text-amber-300 uppercase shadow-[0_0_12px_rgba(251,191,36,0.3)]"
-      >
-        ✨ Story Concluded
-      </span>
-    {:else}
-      <span
-        class="rounded-full border border-cyan-400/40 bg-cyan-950/60 px-3 py-1 text-xs font-semibold tracking-wider text-cyan-300 uppercase shadow-[0_0_12px_rgba(34,211,238,0.3)]"
-      >
-        📜 The End
-      </span>
-    {/if}
-  </div>
-
+<div class="flex flex-col items-center gap-4 text-center" data-msg-epilogue>
   <!-- CURSIVE STORY TITLE -->
   {#if app.story_title}
     <h2 class="text-center text-[clamp(1.5rem,3.2vw,2.6rem)] font-normal text-balance" style="font-family: Satisfy, cursive;">
@@ -135,11 +83,5 @@
         />
       </div>
     {/if}
-  </div>
-
-  <!-- ACTION DECK -->
-  <div class="mt-4 flex flex-wrap items-center justify-center gap-4">
-    <Button label="Return to Storyboard" variant="secondary" size="medium" onclick={handle_return_to_storyboard} />
-    <Button label="Export Story (.md)" variant="primary" size="medium" loading={is_exporting} onclick={handle_export_story} />
   </div>
 </div>

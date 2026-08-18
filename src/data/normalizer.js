@@ -45,6 +45,7 @@ export const ENTITY_TEMPLATES = {
     role_tier: 1,
     is_wanderer: false,
     relationships: [],
+    chapters: [],
   },
   fractal: {
     name: "New Fractal",
@@ -63,6 +64,7 @@ export const ENTITY_TEMPLATES = {
     pov: "3rd_person",
     voice_register: "",
     relationships: [],
+    chapters: [],
   },
 };
 
@@ -109,6 +111,7 @@ export const normalize = (base = {}) => {
     role_tier,
     is_wanderer,
     relationships,
+    chapters,
   } = base;
 
   const norm_is_premade = is_premade ?? 0;
@@ -171,6 +174,35 @@ export const normalize = (base = {}) => {
       .filter(Boolean)
       .map((r) => (r.length > 240 ? `${r.slice(0, 240).trim()}…` : r))
       .slice(0, 40),
+
+    // --- MACRO-QUEST CHAPTER ARCHIVE (Track Director 4.5) ---
+    // Closed/open chapter boundaries detected by the Memory Forge. Pure
+    // informational archive — never rendered into the live prompt directly,
+    // only into <CHAPTER_HISTORY> for the forge and profile readers.
+    chapters: (Array.isArray(chapters) ? chapters : [])
+      .map((c) => {
+        if (!c || typeof c !== "object") return null;
+        const title = sanitize_html(String(c.title || ""))
+          .trim()
+          .slice(0, 80);
+        return {
+          id: sanitize_html(String(c.id || ""))
+            .trim()
+            .slice(0, 40),
+          title: title || "Untitled chapter",
+          summary: sanitize_html(String(c.summary || ""))
+            .trim()
+            .slice(0, 400),
+          agenda: sanitize_html(String(c.agenda || ""))
+            .trim()
+            .slice(0, 600),
+          status: c.status === "open" || c.status === "closed" ? c.status : "closed",
+          created_at: Number(c.created_at) || 0,
+          closed_at: c.closed_at ? Number(c.closed_at) || 0 : 0,
+        };
+      })
+      .filter(Boolean)
+      .slice(-12),
 
     // --- TEMPORAL HYBRID 6 (PURGED: appearance, identity, outfit, status) ---
     eternal: {

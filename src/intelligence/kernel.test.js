@@ -7,6 +7,7 @@ import { llm_service } from "@platform";
 import { session_driver } from "@data";
 import { visual_engine, _image_gen_queue, spawn_image_beat, sweep_stale_ghosts, resolve_image_trigger } from "@media";
 import { entities, stories } from "@data";
+import { state_bridge } from "@utils";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const _mock_runtime = {
@@ -1398,5 +1399,137 @@ describe("NPC world cast (track-npc-expansion)", () => {
     expect(prompt_builder.build_npc_prompt).not.toHaveBeenCalled();
     expect(_mock_runtime.streaming_entity_id).toBeNull();
     expect(result.response).toBe("Identified.");
+  });
+});
+
+describe("_apply_in_scene_change (in-scene name tolerance)", () => {
+  beforeEach(() => {
+    _mock_runtime.active_npcs = { npc1: { id: "npc1", name: "Lord Benedict" } };
+    _mock_runtime.in_scene_npc_ids = [];
+  });
+
+  it("resolves raw cast names (case-insensitive) as well as bare ids", async () => {
+    await gamemaster._apply_in_scene_change(state_bridge, { enter: ["lord benedict"] });
+    expect(_mock_runtime.in_scene_npc_ids).toContain("npc1");
+
+    await gamemaster._apply_in_scene_change(state_bridge, { exit: ["LORD BENEDICT"] });
+    expect(_mock_runtime.in_scene_npc_ids).not.toContain("npc1");
+  });
+
+  it("still resolves bare ids directly", async () => {
+    await gamemaster._apply_in_scene_change(state_bridge, { enter: ["npc1"] });
+    expect(_mock_runtime.in_scene_npc_ids).toContain("npc1");
+  });
+
+  it("ignores unknown names without mutating the roster", async () => {
+    const changed = await gamemaster._apply_in_scene_change(state_bridge, { enter: ["Nobody Here"] });
+    expect(changed).toBe(false);
+    expect(_mock_runtime.in_scene_npc_ids).toEqual([]);
+  });
+});
+
+describe("_apply_relationships (Relational Mesh)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    _mock_runtime.active_ai = { id: "ai-1", name: "Viper", type: "character", relationships: [] };
+    _mock_runtime.active_user = { id: "user-1", name: "Ghost", type: "character", relationships: [] };
+    _mock_runtime.active_fractal = { id: "fx-1", name: "Void", type: "fractal", relationships: [] };
+    _mock_runtime.active_npcs = { npc1: { id: "npc1", name: "Mira", type: "character", relationships: [] } };
+  });
+
+  it("resolves sources by case-insensitive name and persists edges", async () => {
+    await gamemaster._apply_relationships(state_bridge, ["Viper → Mira: alliance"]);
+    expect(_mock_runtime.active_ai.relationships).toContain("Viper → Mira: alliance");
+    expect(entities.upsert).toHaveBeenCalledWith("character", expect.objectContaining({ id: "ai-1", relationships: ["Viper → Mira: alliance"] }));
+  });
+
+  it("resolves sources by id and replaces existing edges to the same target", async () => {
+    _mock_runtime.active_ai.relationships = ["Viper → Mira: alliance"];
+    await gamemaster._apply_relationships(state_bridge, ["ai-1 → Mira: rivalry"]);
+    expect(_mock_runtime.active_ai.relationships).toEqual(["ai-1 → Mira: rivalry"]);
+  });
+
+  it("caps the edge list at 12", async () => {
+    const rels = Array.from({ length: 15 }, (_, i) => `Viper → Target${i}: edge ${i}`);
+    await gamemaster._apply_relationships(state_bridge, rels);
+    expect(_mock_runtime.active_ai.relationships.length).toBeLessThanOrEqual(12);
+  });
+
+  it("skips edges whose source resolves to nobody", async () => {
+    await gamemaster._apply_relationships(state_bridge, ["Unknown → Mira: debt"]);
+    expect(entities.upsert).not.toHaveBeenCalled();
+  });
+
+  it("writes fractal edges through the fractal upsert path", async () => {
+    await gamemaster._apply_relationships(state_bridge, ["Void → Viper: looming danger"]);
+    expect(entities.upsert).toHaveBeenCalledWith("fractal", expect.objectContaining({ id: "fx-1", relationships: ["Void → Viper: looming danger"] }));
+    expect(_mock_runtime.active_fractal.relationships).toContain("Void → Viper: looming danger");
+  });
+});
+
+describe("_apply_genesis (World-Cast Expansion)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    _mock_runtime.active_ai = { id: "ai-1", name: "Viper", type: "character" };
+    _mock_runtime.active_user = { id: "user-1", name: "Ghost", type: "character" };
+    _mock_runtime.active_fractal = { id: "fx-1", name: "Void", type: "fractal" };
+    _mock_runtime.active_npcs = {};
+    _mock_runtime.in_scene_npc_ids = [];
+    _mock_runtime.story_id = null;
+  });
+
+  it("spawns a new NPC and registers it on-stage", async () => {
+    await gamemaster._apply_genesis(state_bridge, [{ name: "Mira", role_tier: 3, description: "A scarred courier", voice_register: "plain" }]);
+    const spawned = Object.values(_mock_runtime.active_npcs);
+    expect(spawned).toHaveLength(1);
+    expect(spawned[0].name).toBe("Mira");
+    expect(spawned[0].role_tier).toBe(3);
+    expect(_mock_runtime.in_scene_npc_ids).toContain(spawned[0].id);
+    expect(_mock_app.log).toHaveBeenCalledWith(expect.stringContaining("Genesis"), "system");
+  });
+
+  it("applies the convergence guard for cast names already present (case-insensitive)", async () => {
+    await gamemaster._apply_genesis(state_bridge, [{ name: "viper" }]);
+    expect(Object.keys(_mock_runtime.active_npcs)).toHaveLength(0);
+    expect(_mock_app.log).toHaveBeenCalledWith(expect.stringContaining("convergence guard"), "warn");
+  });
+
+  it("silently skips drafts without a name", async () => {
+    await gamemaster._apply_genesis(state_bridge, [{ role_tier: 3 }, null, { name: "" }]);
+    expect(Object.keys(_mock_runtime.active_npcs)).toHaveLength(0);
+    expect(entities.upsert).not.toHaveBeenCalled();
+  });
+});
+
+describe("execute_epilogue (conclusion badge)", () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+    vi.mocked(prompt_builder.build_epilogue).mockReturnValue({ system: "E", task: "T" });
+    vi.mocked(llm_service.generate).mockResolvedValue("The city exhales. Embers settle. It is over.");
+    vi.mocked(session_driver.load_log).mockResolvedValue([]);
+    vi.mocked(session_driver.log_message).mockResolvedValue({ id: "img-1" });
+  });
+
+  it("stamps conclusion_status and story_status on the epilogue meta", async () => {
+    await gamemaster.execute_epilogue("story-1", "COLLAPSED");
+    expect(session_driver.log_message).toHaveBeenCalledWith(
+      expect.any(String),
+      "fractal",
+      expect.any(String),
+      expect.objectContaining({
+        meta: expect.objectContaining({
+          is_epilogue: true,
+          conclusion_status: "COLLAPSED",
+          story_status: "COLLAPSED",
+        }),
+      }),
+    );
+  });
+
+  it("defaults the conclusion to CONCLUDED", async () => {
+    await gamemaster.execute_epilogue("story-1");
+    const call = vi.mocked(session_driver.log_message).mock.calls.at(-1);
+    expect(call[3].meta.conclusion_status).toBe("CONCLUDED");
+    expect(call[3].meta.story_status).toBe("CONCLUDED");
   });
 });

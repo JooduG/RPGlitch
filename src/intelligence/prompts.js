@@ -31,6 +31,8 @@ const DIRECTOR_JSON_SCHEMA = `{
   "story_status": "'IN_PROGRESS' | 'CONCLUDED' (overarching story quest won) | 'COLLAPSED' (quest lost irrevocably) — default 'IN_PROGRESS'",
   "in_scene_change": { "enter": ["npc:<id>"], "exit": ["npc:<id>"] },
   "promotions": [ { "id": "npc:<id>", "tier": 2 } ],
+  "relationships": "[Optional: relational edges that CHANGED this turn, as 'Source → Target: dynamic' (betrayal, rescue, alliance, rivalry, debt). Names MUST match <WORLD_CAST>/<SCENE_ROSTER> exactly. Omit when the web is unchanged.]",
+  "genesis": "[Optional: request a brand-new recurring NPC only when NO <WORLD_CAST> member fits the role — { "name": "...", "description": "..." }, max 2. Never for an existing cast member.]",
   "directive": "<Optional in-character stage direction for the AI_CHARACTER (under 30 words, or empty string). Never reveal hidden agendas as fact.>",
   "AI_CHARACTER": {
     "state_append": {
@@ -307,6 +309,56 @@ function render_current_story_state_xml(entities = {}, npc_entities = [], in_sce
 }
 
 /**
+ * Input-rhythm calibration (track-director-expansion 4.4): classifies the user's
+ * message and returns an explicit length/energy directive so reply length
+ * mirrors input rhythm (terse → staccato, silent → escalated probing,
+ * expansive → matching breadth). Deterministic — no model calls.
+ * @param {string|null} input
+ * @returns {string}
+ */
+function build_pacing_directive(input) {
+  const text = String(input || "").trim();
+  if (!text) {
+    return "INPUT RHYTHM: no prompt — advance the situation with one brief, deliberate beat.";
+  }
+  const chars = text.length;
+  const words = text.split(/\s+/).filter(Boolean).length;
+  if (chars >= 300 || words >= 60) {
+    return "INPUT RHYTHM: expansive. You may expand to match the message's breadth, but still close on one decisive hook.";
+  }
+  const has_action =
+    /\b(?:draw|grab|gripp?|take|push|pull|run|walk|strike|slam|open|step|slip|raise|turn|leap|dash|kneel|reach|press|set|lower|climb|swing|draws|grabs|steps|raises|turns|opens|says|whispers|shouts|nods|shakes|stands|sits|takes|pulls|pushes)\b/i.test(
+      text,
+    );
+  const is_question = /\?\s*$/.test(text);
+  const is_silence = !has_action && !is_question && words <= 12;
+  if (chars <= 40 || words <= 8) {
+    if (is_silence) {
+      return "INPUT RHYTHM: passive silence. Do not stall — escalate with a direct probe (a pointed question, a challenge, or an unexpected development) in one or two taut sentences.";
+    }
+    return "INPUT RHYTHM: terse. Match it — a brief, weighted reply of one to three sharp beats (short sentences, a single decisive action or line). Do not pad.";
+  }
+  return "INPUT RHYTHM: moderate. A reply of a few sentences — long enough for substance, short enough to keep the scene moving.";
+}
+
+/**
+ * Renders an entity's closed-chapter history (track-director-expansion 4.5) so
+ * the Memory Forge can recognize milestone boundaries and the standing agenda
+ * never pretends an archived objective is still pending.
+ * @param {any} entity
+ * @returns {string}
+ */
+function render_chapter_history_xml(entity) {
+  const chapters = Array.isArray(entity?.chapters) ? entity.chapters : [];
+  const closed = chapters.filter((c) => c?.status === "closed");
+  if (!closed.length) return "";
+  const rows = closed
+    .slice(-6)
+    .map((c) => `- Chapter ${escape_xml(String(c.title || "Untitled"))}: ${escape_xml(String(c.summary || "").slice(0, 220))}`);
+  return `<CHAPTER_HISTORY>\n${rows.join("\n")}\n</CHAPTER_HISTORY>`;
+}
+
+/**
  * Director prompt compiler (Shot 1).
  * @param {any} params
  * @returns {{ system: string, task: string }}
@@ -394,6 +446,8 @@ ${(() => {
     Decide the active speaker: "ai" (the AI_CHARACTER speaks), "fractal" (the FRACTAL world narrates the scene), or "npc:<id>" (a specific in-scene NPC from <WORLD_CAST>). Default "ai".
     Track the Stage Spotlight: when an NPC enters or leaves the room, move it with "in_scene_change" ("enter"/"exit" accept ids with or without the "npc:" prefix; leave both empty unless the stage changes).
     Promote recurring NPCs: when an NPC's role becomes sustained or consequential, list it in "promotions" (tier 2 = recurring contact, tier 3 = major co-star with full memory) — but never invent ids absent from <WORLD_CAST>.
+    Update the relational web: when a bond between two entities meaningfully shifts (betrayal, rescue, alliance, rivalry, debt), list it in "relationships" as a directed edge "Source → Target: dynamic" using the EXACT names from <WORLD_CAST>/<SCENE_ROSTER>; omit the field entirely when the web is unchanged.
+    Genesis: when an entirely NEW recurring character enters the world and NO <WORLD_CAST> member fits the role, request it in "genesis" (name + one-line description; max 2 per turn). Never request an entity that is already in <WORLD_CAST>.
     ${non_verbal_environmental_hint(input)}
     Evaluate whether the overarching story quest reached victory (story_status "CONCLUDED") or irrevocable tragedy ("COLLAPSED"); otherwise keep "IN_PROGRESS".
     Record your reasoning inside "_thought_process" and return a single valid JSON object following this exact schema:
@@ -536,7 +590,7 @@ ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
           ? "Execute your reaction against <USER_ACTION>."
           : "Continue the scene, reacting to the current situation."
     } Stay fully in character. Honor all active <PROTOCOLS>.
-    ${PROTOCOL_LIBRARY.HYGIENE.RESPONSE_LENGTH}
+    ${build_pacing_directive(input)}
   </TASK>
   `).trim();
 
@@ -651,6 +705,7 @@ ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
       ${PROTOCOL_LIBRARY.POV.THIRD_PERSON}
     </POV_DIRECTIVE>
     Respond strictly as ${npc_name} — a supporting character. Own only your own voice, actions, and perspective: never speak for <USER_PERSONA> or the AI character, and never resolve the overarching story quest on your own. Write third-person limited, present tense, and end on a natural beat.
+    ${build_pacing_directive(input)}
 </TASK>
   `).trim();
 
@@ -821,6 +876,18 @@ function render_memory({ entities, history }) {
   <ENTITY_CONTEXT>
 ${entity_blocks}
   </ENTITY_CONTEXT>
+  <CHAPTER_HISTORY>
+    ${(() => {
+      const blocks = ["AI_CHARACTER", "USER_PERSONA", "FRACTAL"]
+        .filter((key) => entities?.[key])
+        .map((key) => {
+          const xml = render_chapter_history_xml(entities[key]);
+          return xml ? `<ENTITY name="${escape_xml(entities[key].name || key)}">\n${ind(xml, 2)}\n</ENTITY>` : "";
+        })
+        .filter(Boolean);
+      return blocks.length ? blocks.join("\n") : "No chapters archived yet.";
+    })()}
+  </CHAPTER_HISTORY>
   <INPUT_HISTORY>
     ${(() => {
       // Downsample the slice so the model has room to emit a complete (untruncated)
@@ -841,7 +908,7 @@ ${entity_blocks}
     For each active entity (AI_CHARACTER, USER_PERSONA, FRACTAL):
       - "eternal": Record permanent identity, psychological, or physical changes to baseline form (or empty string).
       - "present": Rewrite clean, updated current look (physical) and state of mind (non_physical), discarding expired temporary deltas. MANDATORY FOR CURRENT LOOK: You MUST retain physical attire/clothing (e.g. [CLOTHING: flight suit], [SHIRT: cargo jacket]) and active equipment/implants/containers (e.g. [EQUIPMENT: scrap-tech arm, bio-tank]) unless explicitly destroyed or disrobed.
-      - "future": Rewrite the entity's standing agenda as ONE clean block of 2-5 sentences (active future tense). Read the entity's current <INTENT> (AI_CHARACTER) or <AGENDA> (USER_PERSONA/FRACTAL) text above; CRITICAL STALE GOAL EVICTION LAW: If a physical milestone (e.g. escaping, unlocking, exiting, arriving, recovering an item, resolving a threat, breaking a curse) or standing agenda objective was FULFILLED, COMPLETED, or ELAPSED in recent turns, you MUST EVICT IT completely (and record what actually happened as a "past" vector instead), sharpen whatever still matters, and fold in at most one genuinely new impending intent. NEVER retain an in-progress statement of an already resolved action (e.g. never say "will use the key to exit the vault" if they have already exited the vault). This field is REQUIRED for every active entity this batch — never omit it. For FRACTAL entities, you MUST rewrite the standing agenda so world events and environmental prophecies advance; do not leave the world agenda unchanged. When an event resolves a prophecy or threat, that agenda item must be dropped and REPLACED by its aftermath — a resolved "eclipse in 3 days" must become the post-eclipse state, never remain verbatim.
+      - "future": Rewrite the entity's standing agenda as ONE clean block of 2-5 sentences (active future tense). Read the entity's current <INTENT> (AI_CHARACTER) or <AGENDA> (USER_PERSONA/FRACTAL) text above; CRITICAL STALE GOAL EVICTION LAW: If a physical milestone (e.g. escaping, unlocking, exiting, arriving, recovering an item, resolving a threat, breaking a curse) or standing agenda objective was FULFILLED, COMPLETED, or ELAPSED in recent turns, you MUST EVICT IT completely (and record what actually happened as a "past" vector instead), sharpen whatever still matters, and fold in at most one genuinely new impending intent. NEVER retain an in-progress statement of an already resolved action (e.g. never say "will use the key to exit the vault" if they have already exited the vault). CHAPTER BOUNDARY LAW: when a major milestone concluded this batch (a quest won, a location departed, a prophecy fulfilled), treat it as a chapter boundary — the next 'future' agenda MUST move past it (to the aftermath / new objective) rather than restating the resolved goal. This field is REQUIRED for every active entity this batch — never omit it. For FRACTAL entities, you MUST rewrite the standing agenda so world events and environmental prophecies advance; do not leave the world agenda unchanged. When an event resolves a prophecy or threat, that agenda item must be dropped and REPLACED by its aftermath — a resolved "eclipse in 3 days" must become the post-eclipse state, never remain verbatim.
       - "past": Add settled historical anchors (memories) written in concise, factual 3rd-person using explicit entity names (e.g. "Julien retrieved the cobalt spike from beneath the throne"). Never use 1st-person pronouns ("I", "my", "we"); always use the entity's explicit name for unambiguous semantic recall. A "past" vector is a concrete event or fact that already happened and must be remembered. No future items: the agenda lives in "future". HIGH THRESHOLD FOR FRACTAL: For FRACTAL entities, past vectors are strictly restricted to MAJOR structural shifts or cataclysmic chapter transitions (e.g. facility destruction). Do NOT record minor room breaches, vent entries, or security alarms as past vectors for the Fractal — leave past as an EMPTY LIST [] for standard turns.
     FACT RETENTION (mandatory — facts outrank feelings):
       - Concrete facts MUST survive: proper nouns (names, places, organizations, facilities, rooms), numbers (years, counts, floor levels, prices), named objects (files, devices, blueprints, vats), cause/effect chains, and promises or agreements.
