@@ -55,19 +55,19 @@ const MEMORY_JSON_SCHEMA = `{
   "_thought_process": "<one short sentence>",
   "AI_CHARACTER": {
     "eternal": { "physical": "Permanent appearance change or empty string", "non_physical": "Permanent personality shift or empty string" },
-    "present": { "physical": "Clean updated current conditions (or empty if unchanged)", "non_physical": "Clean updated state of mind (or empty if unchanged)" },
+    "present": { "physical": "Clean updated current conditions (or empty if unchanged)", "non_physical": "1-3 sentences of evocative present-tense state of mind, matching the existing field's register — never key/value fragments, never empty" },
     "future": "REQUIRED: the standing agenda rewritten from this history (intent, prophecy, looming threat, impulse) as 2-5 sentences of active future tense — must differ from the old agenda whenever events changed it; never echo it verbatim",
     "past": [ { "content": "ONLY if a durable fact emerged worth keeping (EMPTY LIST otherwise; AT MOST 1 ITEM)", "type": "past", "emotional_weight": 5 } ]
   },
   "USER_PERSONA": {
     "eternal": { "physical": "", "non_physical": "" },
-    "present": { "physical": "", "non_physical": "" },
+    "present": { "physical": "", "non_physical": "1-3 sentences of evocative present-tense state of mind, matching the existing field's register — never key/value fragments, never empty" },
     "future": "REQUIRED: the standing agenda rewritten from this history (2-5 sentences, active future tense) — drop goals this history fulfilled, refresh the rest; never echo the old text verbatim",
     "past": [ { "content": "ONLY if a durable fact emerged worth keeping (EMPTY LIST otherwise; AT MOST 1 ITEM)", "type": "past", "emotional_weight": 5 } ]
   },
   "FRACTAL": {
     "eternal": { "physical": "", "non_physical": "" },
-    "present": { "physical": "", "non_physical": "" },
+    "present": { "physical": "", "non_physical": "1-3 sentences of evocative present-tense world state, matching the existing field's register — never key/value fragments, never empty" },
     "future": "REQUIRED: the world standing agenda — environmental prophecy, looming threat, or impulse — rewritten from this history (2-5 sentences, active future tense). Resolved threats/prophecies MUST be dropped and replaced by their aftermath; never leave the world agenda unchanged and never echo the old text verbatim",
     "past": [ { "content": "ONLY if a durable fact/environmental shift emerged (EMPTY LIST otherwise; AT MOST 1 ITEM)", "type": "past", "emotional_weight": 5 } ]
   }
@@ -907,7 +907,7 @@ ${entity_blocks}
     Compress this history into structured state updates and temporal vectors. Record internal evaluation inside "_thought_process" at the top of the JSON object.
     For each active entity (AI_CHARACTER, USER_PERSONA, FRACTAL):
       - "eternal": Record permanent identity, psychological, or physical changes to baseline form (or empty string).
-      - "present": Rewrite clean, updated current look (physical) and state of mind (non_physical), discarding expired temporary deltas. MANDATORY FOR CURRENT LOOK: You MUST retain physical attire/clothing (e.g. [CLOTHING: flight suit], [SHIRT: cargo jacket]) and active equipment/implants/containers (e.g. [EQUIPMENT: scrap-tech arm, bio-tank]) unless explicitly destroyed or disrobed.
+      - "present": Rewrite clean, updated current look (physical) and state of mind (non_physical), discarding expired temporary deltas. MANDATORY FOR CURRENT LOOK: You MUST retain physical attire/clothing (e.g. [CLOTHING: flight suit], [SHIRT: cargo jacket]) and active equipment/implants/containers (e.g. [EQUIPMENT: scrap-tech arm, bio-tank]) unless explicitly destroyed or disrobed. STATE OF MIND RULES (present.non_physical): its CONTENT must reflect the current situation after this batch of turns — if the situation changed, the state of mind MUST change accordingly; return the existing text verbatim ONLY when the situation is materially unchanged. Its FORM must match the existing field: 1-3 sentences of evocative present-tense prose in the same register and detail level — never key/value fragments (e.g. "[SENSATION: ...]") and NEVER empty; if the existing value is a key/value fragment or empty, upgrade it to proper prose instead.
       - "future": Rewrite the entity's standing agenda as ONE clean block of 2-5 sentences (active future tense). Read the entity's current <INTENT> (AI_CHARACTER) or <AGENDA> (USER_PERSONA/FRACTAL) text above; CRITICAL STALE GOAL EVICTION LAW: If a physical milestone (e.g. escaping, unlocking, exiting, arriving, recovering an item, resolving a threat, breaking a curse) or standing agenda objective was FULFILLED, COMPLETED, or ELAPSED in recent turns, you MUST EVICT IT completely (and record what actually happened as a "past" vector instead), sharpen whatever still matters, and fold in at most one genuinely new impending intent. NEVER retain an in-progress statement of an already resolved action (e.g. never say "will use the key to exit the vault" if they have already exited the vault). CHAPTER BOUNDARY LAW: when a major milestone concluded this batch (a quest won, a location departed, a prophecy fulfilled), treat it as a chapter boundary — the next 'future' agenda MUST move past it (to the aftermath / new objective) rather than restating the resolved goal. This field is REQUIRED for every active entity this batch — never omit it. For FRACTAL entities, you MUST rewrite the standing agenda so world events and environmental prophecies advance; do not leave the world agenda unchanged. When an event resolves a prophecy or threat, that agenda item must be dropped and REPLACED by its aftermath — a resolved "eclipse in 3 days" must become the post-eclipse state, never remain verbatim.
       - "past": Add settled historical anchors (memories) written in concise, factual 3rd-person using explicit entity names (e.g. "Julien retrieved the cobalt spike from beneath the throne"). Never use 1st-person pronouns ("I", "my", "we"); always use the entity's explicit name for unambiguous semantic recall. A "past" vector is a concrete event or fact that already happened and must be remembered. No future items: the agenda lives in "future". HIGH THRESHOLD FOR FRACTAL: For FRACTAL entities, past vectors are strictly restricted to MAJOR structural shifts or cataclysmic chapter transitions (e.g. facility destruction). Do NOT record minor room breaches, vent entries, or security alarms as past vectors for the Fractal — leave past as an EMPTY LIST [] for standard turns.
     FACT RETENTION (mandatory — facts outrank feelings):
@@ -918,7 +918,7 @@ ${entity_blocks}
       - When in doubt about whether a fact will matter later, retain it. Missing facts corrupt long-form continuity.
     CRITICAL OUTPUT CONSTRAINT (failure to obey will corrupt memory):
       - Output ONLY the JSON object. No code fences, no prose, no trailing commas.
-      - Keep the ENTIRE JSON under 1800 characters. Omit any truly unchanged optional field; "_thought_process" must be one short clause. Never omit "future" for an active entity — if you must cut something to fit, cut eternal/present extras or past vector entries first.
+      - Keep the ENTIRE JSON under 2600 characters. Omit any truly unchanged optional field; "_thought_process" must be one short clause. Never omit "future" for an active entity — if you must cut something to fit, cut past vector entries first; never starve "present" prose to save space.
       - Never truncate — a complete smaller JSON beats a large cut-off one. If you run out of room, drop past vector entries before dropping the closing brace.
     Output strict JSON matching this schema:
     ${MEMORY_JSON_SCHEMA}
