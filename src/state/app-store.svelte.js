@@ -84,6 +84,13 @@ export class AppStore {
   selected_user = $state(null);
   /** @type {any | null} */
   selected_fractal = $state(null);
+  /**
+   * Storyboard selections stashed right before a story is inspected, so the
+   * story's cast (which hijacks the slots during runtime.sync) can be released
+   * on return without wiping the user's own pre-selections.
+   * @type {{ ai: any | null, user: any | null, fractal: any | null } | null}
+   */
+  stashed_storyboard_selection = $state(null);
   /** True while the begin-story flight into the prologue is pending. */
   begin_story_pending = $state(false);
   /** Suppresses card-slot view-transition morphs during the begin-story flip. */
@@ -323,6 +330,33 @@ export class AppStore {
     this.viewport.is_touch = window.ontouchstart !== undefined || navigator.maxTouchPoints > 0;
   }
   /**
+   * Stashes the current storyboard slot selections so they survive a story
+   * inspection round-trip. Call right BEFORE loading/inspecting a story, since
+   * runtime.sync hijacks the slots with the story's cast.
+   */
+  stash_storyboard_selection() {
+    this.stashed_storyboard_selection = {
+      ai: this.selected_ai,
+      user: this.selected_user,
+      fractal: this.selected_fractal,
+    };
+  }
+
+  /**
+   * Returns the storyboard slots to their pre-inspection selections, or clears
+   * them if nothing was stashed (e.g. the story was opened from a fresh
+   * storyboard, or a brand-new story was begun). One-shot — the stash is
+   * consumed so it never leaks across stories.
+   */
+  restore_storyboard_selection() {
+    const stashed = this.stashed_storyboard_selection;
+    this.selected_ai = stashed?.ai ?? null;
+    this.selected_user = stashed?.user ?? null;
+    this.selected_fractal = stashed?.fractal ?? null;
+    this.stashed_storyboard_selection = null;
+  }
+
+  /**
    * Unselects any storyboard slots whose entities are currently claimed by active stories.
    */
   clean_claimed_selections() {
@@ -367,6 +401,9 @@ export class AppStore {
   };
   set_view = (/** @type {string} */ view) => {
     if (view === "storyboard") {
+      // Release the inspected story's cast back out of the storyboard slots
+      // (restoring any user pre-selections stashed before inspection).
+      this.restore_storyboard_selection();
       this.clean_claimed_selections();
     }
     guarded_transition(

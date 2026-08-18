@@ -16,6 +16,9 @@
 
   async function load_story(id) {
     app.log(`Control Panel: Loading Story [${id}]`, "system");
+    // Keep the user's storyboard pre-selections so "return to storyboard"
+    // doesn't leave the story's cast sitting in the slots.
+    app.stash_storyboard_selection();
     await session_driver.set_active(String(id));
     await runtime.sync(String(id));
     await simulation_log.refresh();
