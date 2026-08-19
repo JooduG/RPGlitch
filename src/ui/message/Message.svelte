@@ -372,7 +372,7 @@
             group/badge
             relative
             [isolation:isolate]
-            aspect-square
+            aspect-3/4
             w-[clamp(4.25rem,6cqi,5.5rem)]
             [transform:translateZ(0)]
             cursor-pointer
@@ -391,7 +391,11 @@
           "
           aria-label="{is_fractal ? 'Fractal' : 'Character'} Menu"
         >
-          <ProfilePicture {entity} alt="" class="rounded-[inherit] [&_img]:rounded-[inherit] [&_img]:object-top" />
+          <ProfilePicture
+            {entity}
+            alt=""
+            class="h-full w-full rounded-[inherit] [&_img]:h-full [&_img]:w-full [&_img]:rounded-[inherit] [&_img]:object-cover [&_img]:object-top"
+          />
           <div
             aria-hidden="true"
             class="pointer-events-none absolute inset-0 rounded-[inherit] opacity-20 transition-opacity duration-200 group-hover/badge:opacity-0"
@@ -520,7 +524,7 @@
             group/badge
             relative
             [isolation:isolate]
-            aspect-square
+            aspect-3/4
             w-[clamp(4.25rem,6cqi,5.5rem)]
             [transform:translateZ(0)]
             cursor-pointer
@@ -539,7 +543,11 @@
           "
           aria-label="User Persona Menu"
         >
-          <ProfilePicture {entity} alt="" class="rounded-[inherit] [&_img]:rounded-[inherit] [&_img]:object-top" />
+          <ProfilePicture
+            {entity}
+            alt=""
+            class="h-full w-full rounded-[inherit] [&_img]:h-full [&_img]:w-full [&_img]:rounded-[inherit] [&_img]:object-cover [&_img]:object-top"
+          />
           <div
             aria-hidden="true"
             class="pointer-events-none absolute inset-0 rounded-[inherit] opacity-20 transition-opacity duration-200 group-hover/badge:opacity-0"
