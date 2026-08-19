@@ -421,7 +421,7 @@
       {#if !app.entities_loaded}
         <Skeleton variant="card" width="100%" height="100%" />
       {:else if app.view === "storymode"}
-        <!-- Layout test: side cards hidden in storymode -->
+        <!-- Side cards are hidden in storymode — the feed owns the center stage. -->
       {:else}
         <div class="flex h-full w-full items-center justify-center" data-slot-type="ai">
           <EntityCard
@@ -482,7 +482,7 @@
       {:else}
         {@const entity = app.selected_user || runtime.active_user}
         {#if app.view === "storymode"}
-          <!-- Layout test: user side card and style badge hidden in storymode -->
+          <!-- User side card hidden in storymode — persona lives in the feed controls. -->
         {:else}
           <div class="flex h-full w-full items-center justify-center" data-slot-type="user" data-panel-card="user">
             <EntityCard

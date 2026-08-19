@@ -1,6 +1,5 @@
 export { default as Backdrop } from "./Backdrop.svelte";
 export { default as Button } from "./Button.svelte";
-export { default as CastBadge } from "./CastBadge.svelte";
 export { default as DataBox } from "./DataBox.svelte";
 export { default as Dropdown } from "./Dropdown.svelte";
 export { default as Modal } from "./Modal.svelte";

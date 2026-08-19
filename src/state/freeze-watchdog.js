@@ -73,6 +73,11 @@ export function install_freeze_watchdog() {
   let stuck_since = 0;
   let last_stream_len = 0;
   let last_chunk_ts = 0;
+  // True once any stream has begun this session. At boot the phase can sit in
+  // "locked" (chrono system lock) while the embeddings/TTS models download and
+  // initialize — a healthy-but-slow cold start, not a freeze. Tier-1 must not
+  // arm on it, so it only fires once the sim has actually started a turn.
+  let ever_streamed = false;
 
   setInterval(() => {
     const phase = simulation_state.phase;
@@ -81,6 +86,7 @@ export function install_freeze_watchdog() {
     const locked = phase === "locked";
     const consolidating = phase === "idle" && intent_active;
     const streaming_active = app.streaming.active;
+    if (streaming_active) ever_streamed = true;
     const stream_len = app.streaming.content?.length ?? 0;
 
     // The watchdog only arms on the phases it can actually diagnose. A plain
@@ -88,7 +94,7 @@ export function install_freeze_watchdog() {
     // flag is stuck on — arming there caused the tier-1 false positives that
     // interrupted legitimate post-turn consolidation. Idle+intent gets its own
     // generous consolidation window below instead.
-    const stuck = generating || locked || consolidating;
+    const stuck = (generating || locked || consolidating) && (intent_active || ever_streamed);
     if (!stuck) {
       stuck_since = 0;
       last_stream_len = stream_len;
