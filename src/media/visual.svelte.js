@@ -110,17 +110,11 @@ export class VisualEngine {
       let effective_type = options.type || options.mode || "character";
 
       // 1. Resolve Target & Prompt
-      const is_uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(target);
-
-      if (typeof target === "string" && !is_uuid) {
-        final_prompt = target.trim();
-      } else if (typeof target === "string") {
-        entity_id = target;
-        const entity = await this._resolveEntity(entity_id);
-
+      if (options._entity && typeof options._entity === "object") {
+        entity_id = options._entity.id || (typeof target === "string" ? target : null);
+        const entity = options._entity;
         const has_physical = entity.eternal?.physical || entity.present?.physical;
         if (!entity.modifiers?.prompt && !has_physical) {
-          console.warn(`[VisualEngine] Bare-name fallback for entity "${entity.name}". No physical attributes defined.`);
           const tags = Array.isArray(entity.tags) ? entity.tags.join(", ") : "";
           const non_physical = [entity.eternal?.non_physical, entity.present?.non_physical]
             .filter(Boolean)
@@ -131,11 +125,40 @@ export class VisualEngine {
         } else {
           final_prompt = entity.modifiers?.prompt || aesthetic_resolver.flatten(entity) || entity.name;
         }
-
         effective_type = entity.type || "character";
-        if (!options._entity) options._entity = entity;
         if (!options.negative_prompt && entity.modifiers?.negative_prompt) {
           options.negative_prompt = entity.modifiers.negative_prompt;
+        }
+      } else if (typeof target === "string") {
+        const is_uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(target);
+        const found_entity =
+          is_uuid || target.startsWith("npc-") || target.startsWith("char-") || target.startsWith("fractal-")
+            ? await this._resolveEntity(target)
+            : null;
+
+        if (found_entity && (found_entity.id || found_entity.name !== "Unknown")) {
+          entity_id = target;
+          const entity = found_entity;
+          const has_physical = entity.eternal?.physical || entity.present?.physical;
+          if (!entity.modifiers?.prompt && !has_physical) {
+            console.warn(`[VisualEngine] Bare-name fallback for entity "${entity.name}". No physical attributes defined.`);
+            const tags = Array.isArray(entity.tags) ? entity.tags.join(", ") : "";
+            const non_physical = [entity.eternal?.non_physical, entity.present?.non_physical]
+              .filter(Boolean)
+              .map((s) => String(s).slice(0, 150))
+              .join(", ");
+            const fallback_features = [tags, non_physical].filter(Boolean).join(", ");
+            final_prompt = `${entity.name}${fallback_features ? `, ${fallback_features}` : ""}, ${aesthetic_resolver.flatten(entity)}`;
+          } else {
+            final_prompt = entity.modifiers?.prompt || aesthetic_resolver.flatten(entity) || entity.name;
+          }
+          effective_type = entity.type || "character";
+          if (!options._entity) options._entity = entity;
+          if (!options.negative_prompt && entity.modifiers?.negative_prompt) {
+            options.negative_prompt = entity.modifiers.negative_prompt;
+          }
+        } else {
+          final_prompt = target.trim();
         }
       } else {
         final_prompt = String(target);

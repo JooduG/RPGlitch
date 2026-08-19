@@ -391,7 +391,7 @@
             rounded-xl
             border
             border-solid
-            border-[rgba(255,255,255,0.15)]
+            border-(--signature-color,rgba(255,255,255,0.25))
             bg-black/60
             p-0
             shadow-[0_4px_20px_rgba(0,0,0,0.5)]

@@ -156,7 +156,11 @@
         <StoryboardBar />
       {:else if story_locked}
         <div class="flex w-full flex-col items-center gap-2">
-          <span class="text-[10px] font-bold tracking-widest text-amber-300/90 uppercase">✨ Story Concluded</span>
+          {#if app.conclusion_status === "COLLAPSED"}
+            <span class="text-[10px] font-bold tracking-widest text-rose-400/90 uppercase">💀 Story Collapsed</span>
+          {:else}
+            <span class="text-[10px] font-bold tracking-widest text-amber-300/90 uppercase">✨ Story Concluded</span>
+          {/if}
           <div class="flex w-full items-center justify-center gap-2">
             <Button
               label="Return to Storyboard"

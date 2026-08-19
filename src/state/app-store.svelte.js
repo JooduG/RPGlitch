@@ -157,6 +157,10 @@ export class AppStore {
   stories_version = $state(0);
   /** @type {((ctx: any) => void) | null} */
   regenerate_image_handler = $state(null);
+  /** Resolution status of the active story ('CONCLUDED' | 'COLLAPSED' | null). */
+  get conclusion_status() {
+    return runtime.active_story?.conclusion_status || null;
+  }
   // --- SENSORY ENGINES ---
   get visual() {
     return visual_engine;

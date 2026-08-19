@@ -587,7 +587,30 @@ export async function forge_memory(entity_targets, history_slice) {
       forged.memories[key] = [];
       const pending_embeds = [];
 
-      for (const raw of raw_vectors) {
+      // If the target is an NPC and the forge JSON did not emit a specific block,
+      // extract NPC-relevant facts from the shared slice so NPCs accumulate past vectors.
+      let vectors_source = raw_vectors;
+      if (!vectors_source.length && key.startsWith("NPC_")) {
+        const npc_name = String(entity_targets.find((t) => t.key === key)?.entity?.name || "").toLowerCase();
+        const npc_facts = (Array.isArray(history_slice) ? history_slice : [])
+          .filter((m) => {
+            const txt = String(m?.text ?? m?.content ?? "").toLowerCase();
+            const char = String(m?.character_name || "").toLowerCase();
+            return npc_name && (txt.includes(npc_name) || char === npc_name);
+          })
+          .map((m) => {
+            const speaker = m.character_name || (m.role === "ai" ? "AI" : m.role === "user" ? "User" : "Environment");
+            return `${speaker}: ${String(m.text ?? m.content ?? "")
+              .replace(/<think>[\s\S]*?<\/think>/gi, "")
+              .trim()
+              .slice(0, 180)}`;
+          });
+        if (npc_facts.length) {
+          vectors_source = [{ content: npc_facts.slice(-2).join(" | "), type: "past", emotional_weight: 5 }];
+        }
+      }
+
+      for (const raw of vectors_source) {
         if (!raw || typeof raw !== "object") continue;
         const content = String(raw.content ?? raw.directive ?? "").trim();
         if (!content) continue;
@@ -844,10 +867,14 @@ export const temporal_engine = {
 
         app.log(`[TemporalEngine] Forging ${slice.length} turns into Historical Archive...`, "system");
 
+        const in_scene_ids = new Set((runtime.snapshot_in_scene_npc_ids || runtime.in_scene_npc_ids || []).map(String));
+        const active_npcs = Object.values(runtime.active_npcs || {}).filter((npc) => npc && in_scene_ids.has(String(npc.id)));
+
         const entity_targets = [
           { key: "AI_CHARACTER", type: "character", entity: runtime.active_ai },
           { key: "USER_PERSONA", type: "character", entity: runtime.active_user },
           { key: "FRACTAL", type: "fractal", entity: runtime.active_fractal },
+          ...active_npcs.map((npc) => ({ key: `NPC_${npc.id}`, type: "character", entity: npc, is_npc: true })),
         ].filter((t) => t.entity);
 
         const forged = await forge_memory(entity_targets, slice);

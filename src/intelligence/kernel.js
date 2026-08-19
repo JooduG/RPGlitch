@@ -287,7 +287,7 @@ export const gamemaster = {
     const npcs = bridge.runtime?.active_npcs || {};
     const resolve_id = (raw, { id_like = false } = {}) => {
       if (!raw) return null;
-      const id = String(raw).trim();
+      const id = String(raw).trim().replace(/^npc:/i, "");
       if (!id) return null;
       if (npcs[id]) return id;
       const by_name = Object.values(npcs).find(
@@ -297,6 +297,8 @@ export const gamemaster = {
             .toLowerCase() === id.toLowerCase(),
       );
       if (by_name) return by_name.id;
+      // If resolving an exit, also check if the raw token is currently in the scene
+      if (current.has(id)) return id;
       // Bare id tokens the Director sends for freshly-choreographed NPCs may not
       // be in the cast yet — accept single-token ids as-is so enter/exit chaining
       // can stage them. Multi-word names stay strict (must match the cast).
@@ -482,9 +484,18 @@ export const gamemaster = {
     const name = String(draft?.name || "").trim();
     if (!name) return null;
     const raw_color = String(draft?.signature_color || "").trim();
+    const desc = String(draft?.description || "").trim();
     const entity = await entities.upsert("character", {
       name,
-      description: String(draft?.description || "").trim(),
+      description: desc,
+      eternal: {
+        physical: desc,
+        non_physical: "",
+      },
+      present: {
+        physical: desc,
+        non_physical: "",
+      },
       role_tier: Math.max(1, Math.min(3, Number(draft?.role_tier) || 1)),
       relationships: Array.isArray(draft?.relationships) ? draft.relationships : [],
       voice_register: draft?.voice_register || "",
@@ -498,7 +509,7 @@ export const gamemaster = {
     // the portrait lands (or gracefully if the image service fails).
     if (typeof visual_engine?.generate === "function" && typeof window !== "undefined") {
       try {
-        const portrait_promise = visual_engine.generate(entity.id, { mode: "solo_entity", resolution: "512x512" });
+        const portrait_promise = visual_engine.generate(entity.id, { mode: "solo_entity", resolution: "512x512", _entity: entity });
         if (portrait_promise && typeof portrait_promise.catch === "function") {
           portrait_promise.catch((err) => bridge.app?.log(`[GameMaster] Portrait generation for "${name}" failed: ${err?.message || err}`, "warn"));
         }
