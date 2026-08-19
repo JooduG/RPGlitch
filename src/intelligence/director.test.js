@@ -205,8 +205,18 @@ describe("normalize_relationships (Relational Mesh)", () => {
 describe("normalize_genesis (World-Cast Expansion)", () => {
   it("mints sanitized genesis drafts with a clamped tier", () => {
     expect(normalize_genesis([{ name: "  Mira  ", description: "A scarred courier", role_tier: 9 }])).toEqual([
-      { name: "Mira", description: "A scarred courier", role_tier: 3, voice_register: "" },
+      { name: "Mira", description: "A scarred courier", role_tier: 3, voice_register: "", signature_color: "" },
     ]);
+  });
+
+  it("passes an exact registry signature_color through and drops invalid ones", () => {
+    const out = normalize_genesis([
+      { name: "Mira", signature_color: "Proud Purple" },
+      { name: "Zed", signature_color: "not-a-registry-color" },
+    ]);
+    expect(out[0].signature_color).toBe("Proud Purple");
+    expect(out[1].signature_color).toBe("");
+    expect(normalize_genesis([{ name: "Quell", signature_color: "Deep Indigo" }])[0].signature_color).toBe("Deep Indigo");
   });
 
   it("requires a non-empty name and caps entries at 2", () => {
@@ -235,7 +245,7 @@ describe("normalize_director_data (Relational Mesh + Genesis pass-through)", () 
       genesis: [{ name: "Mira", role_tier: 2 }, { role_tier: 3 }],
     });
     expect(normalized.relationships).toEqual(["Viper → Mira: alliance"]);
-    expect(normalized.genesis).toEqual([{ name: "Mira", description: "", role_tier: 2, voice_register: "" }]);
+    expect(normalized.genesis).toEqual([{ name: "Mira", description: "", role_tier: 2, voice_register: "", signature_color: "" }]);
   });
 
   it("defaults relationships and genesis when absent", () => {

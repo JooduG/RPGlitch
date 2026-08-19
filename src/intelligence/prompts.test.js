@@ -450,6 +450,17 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.task).toContain("brand-new recurring NPC");
     });
 
+    it("exposes <AVAILABLE_SIGNATURE_COLORS> and wires it into the genesis schema", () => {
+      const result = prompt_builder.build_director_prompt(base_payload, base_snapshot);
+      expect(result.system).toContain("<AVAILABLE_SIGNATURE_COLORS>");
+      for (const color of ["Adrenaline Pink", "Proud Purple", "Twilight Violet"]) {
+        expect(result.system).toContain(`- ${color}`);
+      }
+      // Genesis drafts must name a color from the registry, not invent one.
+      expect(result.task).toContain("signature_color");
+      expect(result.task).toContain("<AVAILABLE_SIGNATURE_COLORS>");
+    });
+
     it("injects <SOMATIC_DIRECTIVES> into the character prompt when the Director selects keywords", () => {
       const result = prompt_builder.build_character_prompt(base_payload, base_snapshot, {
         keywords: ["shame", "stoic_pain"],

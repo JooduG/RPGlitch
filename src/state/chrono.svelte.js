@@ -86,8 +86,12 @@ export class ChronoEngine {
    * @param {string} text
    */
   async send(text) {
-    if (state_bridge.app.simulation.loading || state_bridge.simulation_state.intent_active || !text.trim()) return;
+    // Returns false when the send was rejected (composer busy / intent locked /
+    // empty text) so the caller can restore or queue the message — a rejected
+    // send must never silently eat the user's text.
+    if (state_bridge.app.simulation.loading || state_bridge.simulation_state.intent_active || !text.trim()) return false;
     await this.advance_turn(text);
+    return true;
   }
 
   /**

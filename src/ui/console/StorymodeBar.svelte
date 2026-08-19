@@ -4,7 +4,7 @@
   import { chrono_engine } from "@state";
   import { gamemaster } from "@intelligence";
   import { stab } from "@motion";
-  import { app, simulation_state } from "@state";
+  import { app, simulation_state, force_recover_simulation } from "@state";
 
   // eslint-disable-next-line no-useless-assignment
   let { is_focused = $bindable(false) } = $props();
@@ -13,9 +13,16 @@
   /** @type {HTMLTextAreaElement | undefined} */
   let textarea = $state();
   let is_ghostwriting = $state(false);
+  /** Messages typed while the composer is busy — sent the moment it's free. */
+  let pending = $state([]);
 
   let is_locked = $derived(simulation_state.busy);
   let is_consolidating = $derived(simulation_state.is_consolidating);
+  // Mirrors chrono_engine.send()'s own gate so the button state and the send
+  // gate can never disagree (previously the button enabled while sends were
+  // being silently rejected).
+  let send_blocked = $derived(is_locked || app.simulation.loading || app.control_panel_open);
+  let pending_count = $derived(pending.length);
 
   $effect(() => {
     // Snapshot the request count synchronously so it's the only reactive dep here.
@@ -61,9 +68,21 @@
     textarea.style.height = `${textarea.scrollHeight}px`;
   }
 
+  async function send_or_restore(text) {
+    try {
+      const accepted = await chrono_engine.send(text);
+      // A rejected send must never eat the user's message: put the text back so
+      // it can be re-sent or queued. (Nothing is ever silently dropped.)
+      if (!accepted) value = text;
+    } catch (e) {
+      console.error("Failed to send message:", e);
+      value = text;
+    }
+  }
+
   async function handle_send() {
     const text = value.trim();
-    if (!text || is_locked) return;
+    if (!text) return;
 
     value = "";
 
@@ -71,12 +90,20 @@
     await tick();
     adjust_height();
 
-    try {
-      await chrono_engine.send(text);
-    } catch (e) {
-      console.error("Failed to send message:", e);
+    if (send_blocked) {
+      pending.push(text);
+      return;
     }
+    await send_or_restore(text);
   }
+
+  // Auto-send queued messages the moment the composer is free again. Runs as
+  // fire-and-forget so sends never block a flush.
+  $effect(() => {
+    if (send_blocked || pending.length === 0) return;
+    const text = pending.shift();
+    if (text != null) send_or_restore(text);
+  });
 
   function handle_keydown(e) {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -115,7 +142,17 @@
   aria-label="Input message"
 ></textarea>
 
-{#if is_consolidating && !app.streaming.active}
+{#if pending_count > 0}
+  <span
+    class="flex shrink-0 items-center gap-2 text-[10px] font-bold tracking-widest text-amber-300 uppercase"
+    use:tooltip={pending_count > 1
+      ? `${pending_count} messages queued — they send when the current turn finishes.`
+      : "Message queued — it sends when the current turn finishes."}
+  >
+    <span class="size-2 animate-pulse rounded-full bg-amber-400"></span>
+    {pending_count > 1 ? `${pending_count} queued` : "Queued"}
+  </span>
+{:else if is_consolidating && !app.streaming.active}
   <span
     class="flex shrink-0 items-center gap-2 text-[10px] font-bold tracking-widest text-slate-400 uppercase"
     use:tooltip={"Storing this turn into memory… send resumes momentarily."}
@@ -138,11 +175,23 @@
       <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11H7v-2h10v2z" />
     </svg>
   </Button>
+{:else if is_locked || app.simulation.loading}
+  <Button
+    variant="invisible"
+    onclick={() => force_recover_simulation("Manual unstick from composer")}
+    aria-label="Unstick Simulation"
+    actions={[tooltip]}
+    class="touch-target-coarse text-amber-400 transition-colors hover:bg-transparent! hover:text-amber-300!"
+  >
+    <svg class="block size-icon-medium" viewBox="0 0 24 24">
+      <path fill="currentColor" d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />
+    </svg>
+  </Button>
 {:else}
   <Button
     variant="invisible"
     onclick={handle_send}
-    disabled={!value.trim() || is_locked || app.control_panel_open}
+    disabled={!value.trim() || send_blocked}
     aria-label="Send Message"
     actions={[stab, tooltip]}
     class="touch-target-coarse"

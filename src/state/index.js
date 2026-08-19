@@ -5,3 +5,4 @@ export { simulation_log } from "./log.svelte.js";
 export { chrono_engine } from "./chrono.svelte.js";
 export { streaming } from "./streaming.svelte.js";
 export { dev_log } from "./dev-log.svelte.js";
+export { force_recover_simulation } from "./freeze-watchdog.js";

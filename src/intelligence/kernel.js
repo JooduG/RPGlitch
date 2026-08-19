@@ -35,10 +35,10 @@ import { prune, temporal_engine } from "./temporal.js";
  * @property {boolean} [is_continue] - Whether this is a continue-in-place turn.
  */
 
-// 🔀 Director background job queue — parallel auxiliary workers (ghost sweeps
-// now; Memory Forge / visual synthesis / Dexie checkpoint sync later) execute
-// concurrently and are isolated from the critical narrative path: a failing
-// worker rejects only its own promise and can never stall story playback.
+// 🔀 Director background job queue — parallel auxiliary workers (ghost sweeps,
+// Memory Forge consolidation) execute concurrently and are isolated from the
+// critical narrative path: a failing worker rejects only its own promise and
+// can never stall story playback.
 const director_background_queue = create_job_queue({ max_concurrency: 2 });
 
 /** Completion directive appended to the character prompt when a reply was truncated. */
@@ -462,6 +462,7 @@ export const gamemaster = {
           description: g.description,
           role_tier: g.role_tier,
           voice_register: g.voice_register,
+          signature_color: g.signature_color,
         });
         if (npc) bridge.app.log(`[GameMaster] ✨ Genesis: ${npc.name} entered the world.`, "system");
       } catch (err) {
@@ -474,12 +475,13 @@ export const gamemaster = {
    * Genesis — spawns a new world-cast NPC (Tier 1 by default), persists it to
    * Dexie, registers it on the active story, and puts it on-stage.
    * @param {any} bridge
-   * @param {{ name: string, description?: string, role_tier?: number, relationships?: string[], voice_register?: string }} [draft]
+   * @param {{ name: string, description?: string, role_tier?: number, relationships?: string[], voice_register?: string, signature_color?: string }} [draft]
    * @returns {Promise<any | null>}
    */
   async spawn_npc(bridge, draft = {}) {
     const name = String(draft?.name || "").trim();
     if (!name) return null;
+    const raw_color = String(draft?.signature_color || "").trim();
     const entity = await entities.upsert("character", {
       name,
       description: String(draft?.description || "").trim(),
@@ -487,7 +489,23 @@ export const gamemaster = {
       relationships: Array.isArray(draft?.relationships) ? draft.relationships : [],
       voice_register: draft?.voice_register || "",
       is_wanderer: false,
+      // The Director picks the NPC's signature color at genesis; the entity
+      // normalizer falls back to a random registry color if absent/invalid.
+      signature_color: raw_color || undefined,
     });
+    // Genesis portrait — fire-and-forget so it never adds turn latency. Small
+    // square (512x512) keeps generation quick; the badge renders initials until
+    // the portrait lands (or gracefully if the image service fails).
+    if (typeof visual_engine?.generate === "function" && typeof window !== "undefined") {
+      try {
+        const portrait_promise = visual_engine.generate(entity.id, { mode: "solo_entity", resolution: "512x512" });
+        if (portrait_promise && typeof portrait_promise.catch === "function") {
+          portrait_promise.catch((err) => bridge.app?.log(`[GameMaster] Portrait generation for "${name}" failed: ${err?.message || err}`, "warn"));
+        }
+      } catch (_err) {
+        /* portrait failure must never break genesis */
+      }
+    }
     const story_id = bridge.runtime?.story_id;
     if (story_id && story_id !== "debug") {
       try {
@@ -928,6 +946,9 @@ export const gamemaster = {
 
       await state_bridge.session_driver.log_message(persisted_text, log_role, character_name, {
         turn_type: "AI_TURN",
+        // Explicit story binding: delayed async writes must never stamp the
+        // currently-active story after a session switch.
+        story_id,
         meta: {
           id: node_id,
           round: state_bridge.runtime.round,
@@ -947,13 +968,28 @@ export const gamemaster = {
       state_bridge.app.busy = false;
       state_bridge.simulation_state.phase = "idle";
 
-      // 8.5a. CONSOLIDATION — skip the LLM forge when the story just resolved:
-      // the epilogue turn has nothing durable left to remember, and keeping the
-      // intent lock off the heavy consolidation path avoids end-of-story stalls.
+      // 8.5a. CONSOLIDATION — memory forging is background work: it must never
+      // hold the intent lock or delay the composer past stream-end. Enqueue it
+      // on the parallel job queue (latest-pending supersedes stale forges; a
+      // job whose turn has already been superseded by a new round is skipped —
+      // the next turn enqueues a fresh forge that covers all unconsolidated
+      // messages). The LLM forge is still skipped when the story just resolved.
       const resolved_status = director_data?.story_status;
-      await temporal_engine.consolidate(state_bridge.session_driver, db, entities, state_bridge.runtime, state_bridge.app, {
-        skip_forge: resolved_status === "CONCLUDED" || resolved_status === "COLLAPSED",
-      });
+      const forge_round = state_bridge.runtime.round;
+      director_background_queue
+        .run(
+          async () => {
+            if (state_bridge.runtime.round !== forge_round) return { skipped: true };
+            await temporal_engine.consolidate(state_bridge.session_driver, db, entities, state_bridge.runtime, state_bridge.app, {
+              skip_forge: resolved_status === "CONCLUDED" || resolved_status === "COLLAPSED",
+            });
+            return { skipped: false };
+          },
+          { latest: true },
+        )
+        .catch((err) => {
+          state_bridge.app?.log(`[GameMaster] Background consolidation failed: ${err?.message || err}`, "error");
+        });
 
       // 8.5. AUTO-DISPATCH EPILOGUE — the Director declared the quest resolved
       // (victory or irrevocable collapse). Deliver the epilogue and mark the
@@ -1014,6 +1050,7 @@ export const gamemaster = {
       // Log placeholder message BEFORE streaming begins so the feed entry exists.
       await state_bridge.session_driver.log_message("", "fractal", fractal_name, {
         turn_type: "SYSTEM_TURN",
+        story_id,
         meta: {
           id: node_id,
           round: 0,
@@ -1165,6 +1202,9 @@ export const gamemaster = {
 
     await state_bridge.session_driver.log_message(detox_prose(response, "plain"), "fractal", fractal_name, {
       turn_type: "SYSTEM_TURN",
+      // Explicit story binding — the delayed epilogue write must not land in a
+      // newly-switched active story (cross-story epilogue contamination).
+      story_id,
       meta: {
         id: node_id,
         is_epilogue: true,

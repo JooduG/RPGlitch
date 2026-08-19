@@ -29,7 +29,11 @@
   // A story is concluded once its log carries the epilogue entry (the app's
   // semantic conclusion marker) — covers manual END STORY, Director-declared
   // conclusions, and reloads of a concluded story, not just the lock phase.
-  let story_concluded = $derived(simulation_log.feed.some((e) => e?.meta?.is_epilogue));
+  // Scoped to the ACTIVE story: an epilogue written by another story's delayed
+  // write must never lock this one (cross-story epilogue contamination).
+  let story_concluded = $derived(
+    simulation_log.feed.some((e) => e?.meta?.is_epilogue && (e.story_id === undefined || String(e.story_id) === String(runtime.story_id))),
+  );
   let story_locked = $derived(simulation_state.phase === "locked" || story_concluded);
   let signature_color = $derived(get_signature_color(runtime.active_user || app.selected_user, "var(--color-gunmetal)"));
 

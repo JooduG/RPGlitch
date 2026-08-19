@@ -206,11 +206,13 @@ export const session_driver = {
    * @param {string} [turn_type]
    * @param {any} [meta]
    */
-  log_message: async function (text, role, character_name, { turn_type = "USER_TURN", meta = {}, attachments = [] } = {}) {
-    const story_id = session_driver.require_active();
+  log_message: async function (text, role, character_name, { turn_type = "USER_TURN", meta = {}, attachments = [], story_id = null } = {}) {
+    // Explicit story binding: delayed async writes must never stamp the
+    // currently-active story after a session switch.
+    const effective_story_id = story_id ?? session_driver.require_active();
     /** @type {any} */
     const entry = {
-      story_id,
+      story_id: effective_story_id,
       role,
       type: "text",
       character_name,
@@ -255,10 +257,10 @@ export const session_driver = {
    * @param {string} [role]
    * @param {any} [meta]
    */
-  log_system_entry: async function (text, role = "system", meta = {}) {
-    const story_id = session_driver.require_active();
+  log_system_entry: async function (text, role = "system", meta = {}, story_id = null) {
+    const effective_story_id = story_id ?? session_driver.require_active();
     const entry = {
-      story_id,
+      story_id: effective_story_id,
       role,
       type: "text",
       text,

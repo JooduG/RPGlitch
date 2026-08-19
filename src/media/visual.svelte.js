@@ -212,7 +212,7 @@ export class VisualEngine {
             );
             const effective_negative_prompt = deduplicated_neg_tokens.join(", ");
             const effective_seed = options.seed ?? generateSecureSeed();
-            const effective_resolution = `${res.width}x${res.height}`;
+            const effective_resolution = options.resolution ?? `${res.width}x${res.height}`;
             // The TIER baseline is authoritative (character shots 9, story scenes 7).
             // A per-style guidance_scale may nudge guidance only within ±2 of that
             // baseline, so the tier always governs and shots never hit extreme values.

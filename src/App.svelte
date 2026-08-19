@@ -7,7 +7,7 @@
    * EntityCards and Console are mounted ONCE here and never destroyed
    * during view transitions, enabling true View Transition API morphing.
    */
-  import { Skeleton, Tooltip, StyleBadge } from "@primitives";
+  import { Skeleton, Tooltip, StyleBadge, CastBadge } from "@primitives";
   import {
     ImagePicker,
     ImagePreview,
@@ -32,6 +32,21 @@
 
   let fractal_url = $derived(app.selected_fractal?.profile_picture || "");
   let fractal_opacity = $derived("var(--opacity-muted)");
+
+  // --- NPC WORLD-CAST STAGE (Track B: presence badges) ---
+  // Every story cast NPC renders as a square badge above the AI card; off-stage
+  // (stasis) members are dimmed via the `dimmed` flag. Sorted tier-first so the
+  // most significant NPCs lead the row.
+  let cast_npcs = $derived(
+    Object.values(runtime.active_npcs || {}).sort(
+      (a, b) => (b.role_tier || 1) - (a.role_tier || 1) || String(a.name || "").localeCompare(String(b.name || "")),
+    ),
+  );
+  let in_scene_npc_ids = $derived(runtime.in_scene_npc_ids || []);
+  // Badges shrink as the cast grows so the whole roster fits the stage column:
+  // each badge = (column width − gaps) ÷ count, capped at 4.5rem.
+  let npc_badge_style = (/** @type {number} */ count) =>
+    `width: min(4.5rem, calc((var(--spacing-character-card-width) - var(--spacing-gap-standard) * ${Math.max(0, count - 1)}) / ${Math.max(1, count)}));`;
 
   // --- LIFECYCLE EFFECTS ---
 
@@ -421,6 +436,20 @@
         <div
           class="pointer-events-none flex h-full w-full flex-col items-center justify-center gap-gap-standard transition-transform duration-300 md:translate-x-[calc(var(--spacing-column-unit)*0.5)]"
         >
+          {#if cast_npcs.length}
+            <div class="pointer-events-auto flex w-full items-center justify-center" data-panel-card="npcs">
+              <div class="flex w-full flex-wrap items-center justify-center gap-gap-standard">
+                {#each cast_npcs as npc (npc.id)}
+                  <CastBadge
+                    entity={npc}
+                    dimmed={!in_scene_npc_ids.includes(String(npc.id))}
+                    onclick={() => app.toggle_profile(true, npc)}
+                    style={npc_badge_style(cast_npcs.length)}
+                  />
+                {/each}
+              </div>
+            </div>
+          {/if}
           <div class="pointer-events-auto flex w-full items-center justify-center" data-panel-card="ai">
             <EntityCard
               variant="panel"
@@ -443,13 +472,6 @@
               on_select={() => {
                 if (app.selected_fractal || runtime.active_fractal) app.toggle_profile(true, app.selected_fractal || runtime.active_fractal);
               }}
-            />
-          </div>
-          <div data-panel-style-badge>
-            <StyleBadge
-              entity={app.selected_fractal || runtime.active_fractal}
-              layout="storymode"
-              class="flex w-full justify-center gap-gap-standard"
             />
           </div>
         </div>
@@ -533,6 +555,15 @@
               }
             }}
           />
+        </div>
+        <div class="flex w-full items-center justify-center" data-panel-style-badge>
+          {#if app.view === "storymode"}
+            <StyleBadge
+              entity={app.selected_fractal || runtime.active_fractal}
+              layout="storymode"
+              class="flex w-full justify-center gap-gap-standard"
+            />
+          {/if}
         </div>
       {/if}
     {/snippet}

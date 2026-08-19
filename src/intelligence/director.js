@@ -1,4 +1,4 @@
-import { detox_prose } from "@data";
+import { detox_prose, SIGNATURE_COLORS } from "@data";
 import { escape_unescaped_json_quotes, first_sentence, state_bridge } from "@utils";
 import { extract_json_block, parse_think_block } from "./parser.js";
 
@@ -95,7 +95,7 @@ export function normalize_relationships(raw) {
  * should spawn. Ids are NEVER minted here (the kernel assigns them); names and
  * descriptions are sanitized and capped so the model cannot inject junk.
  * @param {any} raw
- * @returns {Array<{ name: string, description: string, role_tier: number, voice_register: string }>}
+ * @returns {Array<{ name: string, description: string, role_tier: number, voice_register: string, signature_color: string }>}
  */
 export function normalize_genesis(raw) {
   if (!Array.isArray(raw)) return [];
@@ -107,6 +107,7 @@ export function normalize_genesis(raw) {
       .slice(0, 60);
     if (!name) continue;
     const tier = Number(base.role_tier);
+    const color = String(base.signature_color || "").trim();
     out.push({
       name,
       description: String(base.description || "")
@@ -116,6 +117,9 @@ export function normalize_genesis(raw) {
       voice_register: String(base.voice_register || "")
         .trim()
         .slice(0, 40),
+      // Registry-validated: the model must pick an exact signature color from
+      // <AVAILABLE_SIGNATURE_COLORS>, never invent one.
+      signature_color: SIGNATURE_COLORS.includes(color) ? color : "",
     });
     if (out.length >= 2) break;
   }

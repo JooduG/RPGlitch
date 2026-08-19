@@ -6,8 +6,10 @@ import { simulation_state } from "./status.svelte.js";
  * ----------------------------------------------------------------------------------
  * The composer can only die if the simulation state machine gets stuck
  * (phase generating/locked or intent_active stuck true) with no live turn.
- * Two tiers:
+ * Three tiers:
  *   - Tier 1 (fast & safe): busy/locked with NO active stream for 90s → force unlock.
+ *   - Tier 2a (silent stream): an ACTIVE stream with NO new chunk for 90s → the
+ *     generator hung after its first flush → force unlock.
  *   - Tier 2 (broad): busy/locked for 5 min regardless of streaming, with no
  *     streaming progress (content growing / heartbeat) → abort + force unlock.
  * A live stream with growing content extends the window, so slow-but-healthy
@@ -16,11 +18,48 @@ import { simulation_state } from "./status.svelte.js";
 let _freeze_watchdog_started = false;
 const FREEZE_WATCHDOG_INTERVAL_MS = 15000;
 const FREEZE_WATCHDOG_IDLE_GRACE_MS = 90000;
+const FREEZE_WATCHDOG_CHUNK_STALL_MS = 90000;
 const FREEZE_WATCHDOG_MAX_MS = 5 * 60 * 1000;
 // Idle-phase consolidation (phase==="idle" while intent_active) runs a separate,
 // generous LLM forge that can legitimately take minutes — it must never trip the
 // tier-1 no-stream error path. Guard it with its own longer window.
 const FREEZE_WATCHDOG_CONSOLIDATE_GRACE_MS = 4 * 60 * 1000;
+
+/**
+ * Forcefully recovers the simulation from a frozen state. Exported so the
+ * composer's manual "Unstick" button and the watchdog tiers share one recovery
+ * path: unlock the state machine, drop any dead stream, and abort its request.
+ */
+export function force_recover_simulation(reason) {
+  console.warn("[Watchdog] Detected frozen simulation state — force-recovering.", {
+    reason,
+    phase: simulation_state.phase,
+    intent_active: simulation_state.intent_active,
+    loading: app.simulation.loading,
+    streaming_active: app.streaming.active,
+  });
+  app.log(`[Watchdog] ${reason} — force-recovering the simulation.`, "error");
+  try {
+    simulation_state.complete();
+    simulation_state.unlock();
+    simulation_state.set_intent_active(false);
+  } catch (_err) {
+    /* state store never throws */
+  }
+  app.simulation.loading = false;
+  app.end_stream();
+  app.streaming.active = false;
+  app.streaming.content = "";
+  app.streaming.node_id = null;
+  if (app.streaming.abort_controller) {
+    try {
+      app.streaming.abort_controller.abort();
+    } catch (_err) {
+      /* already aborted */
+    }
+    app.streaming.abort_controller = null;
+  }
+}
 
 /**
  * Installs the freeze watchdog. Called once from app.init() so it only runs in
@@ -33,37 +72,7 @@ export function install_freeze_watchdog() {
   /** @type {number} */
   let stuck_since = 0;
   let last_stream_len = 0;
-
-  const force_recover = (reason) => {
-    console.warn("[Watchdog] Detected frozen simulation state — force-recovering.", {
-      reason,
-      phase: simulation_state.phase,
-      intent_active: simulation_state.intent_active,
-      loading: app.simulation.loading,
-      streaming_active: app.streaming.active,
-    });
-    app.log(`[Watchdog] ${reason} — force-recovering the simulation.`, "error");
-    try {
-      simulation_state.complete();
-      simulation_state.unlock();
-      simulation_state.set_intent_active(false);
-    } catch (_err) {
-      /* state store never throws */
-    }
-    app.simulation.loading = false;
-    app.end_stream();
-    app.streaming.active = false;
-    app.streaming.content = "";
-    app.streaming.node_id = null;
-    if (app.streaming.abort_controller) {
-      try {
-        app.streaming.abort_controller.abort();
-      } catch (_err) {
-        /* already aborted */
-      }
-      app.streaming.abort_controller = null;
-    }
-  };
+  let last_chunk_ts = 0;
 
   setInterval(() => {
     const phase = simulation_state.phase;
@@ -83,27 +92,37 @@ export function install_freeze_watchdog() {
     if (!stuck) {
       stuck_since = 0;
       last_stream_len = stream_len;
+      last_chunk_ts = streaming_active ? Date.now() : 0;
       return;
     }
 
     if (stuck_since === 0) {
       stuck_since = Date.now();
       last_stream_len = stream_len;
+      last_chunk_ts = streaming_active ? Date.now() : 0;
       return;
     }
 
     const elapsed = Date.now() - stuck_since;
     const stream_grew = stream_len > last_stream_len;
+    if (stream_grew) last_chunk_ts = Date.now();
     last_stream_len = stream_len;
 
     if (generating || locked) {
       if (!streaming_active && elapsed >= FREEZE_WATCHDOG_IDLE_GRACE_MS) {
-        force_recover(`Simulation stuck ${Math.round(elapsed / 1000)}s with no stream`);
+        force_recover_simulation(`Simulation stuck ${Math.round(elapsed / 1000)}s with no stream`);
+        stuck_since = 0;
+        return;
+      }
+      // Tier 2a: an ACTIVE stream that hasn't produced a chunk in a long time
+      // is dead — the generator hung silently after its first flush.
+      if (streaming_active && last_chunk_ts > 0 && Date.now() - last_chunk_ts >= FREEZE_WATCHDOG_CHUNK_STALL_MS) {
+        force_recover_simulation(`Stream produced no chunks for ${Math.round((Date.now() - last_chunk_ts) / 1000)}s`);
         stuck_since = 0;
         return;
       }
       if (elapsed >= FREEZE_WATCHDOG_MAX_MS && !stream_grew) {
-        force_recover(`Simulation stuck ${Math.round(elapsed / 1000)}s with no progress`);
+        force_recover_simulation(`Simulation stuck ${Math.round(elapsed / 1000)}s with no progress`);
         stuck_since = 0;
         return;
       }

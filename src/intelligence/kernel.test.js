@@ -727,6 +727,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
       expect(result.response).toBe("<think>Analyzing user state</think>");
       expect(session_driver.log_message).toHaveBeenCalledWith("<think>Analyzing user state</think>", expect.any(String), expect.any(String), {
         turn_type: "AI_TURN",
+        story_id: "story-123",
         meta: expect.any(Object),
       });
     });
@@ -746,7 +747,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
         "<think>thought block containing 中文</think> Normal spacing and some  character bleed.",
         expect.any(String),
         expect.any(String),
-        { turn_type: "AI_TURN", meta: expect.objectContaining({ sino_logic_violation: true }) },
+        { turn_type: "AI_TURN", story_id: "story-123", meta: expect.objectContaining({ sino_logic_violation: true }) },
       );
     });
 
@@ -765,7 +766,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
         "No think block here.   Multiple   spaces   remain   intact.",
         expect.any(String),
         expect.any(String),
-        { turn_type: "AI_TURN", meta: expect.not.objectContaining({ sino_logic_violation: true }) },
+        { turn_type: "AI_TURN", story_id: "story-123", meta: expect.not.objectContaining({ sino_logic_violation: true }) },
       );
     });
 
@@ -1327,6 +1328,15 @@ describe("NPC world cast (track-npc-expansion)", () => {
     expect(entities.upsert).toHaveBeenCalledWith("character", expect.objectContaining({ name: "Sorel", role_tier: 3 }));
   });
 
+  it("spawn_npc() forwards the Director's signature_color for the NPC identity", async () => {
+    vi.mocked(entities.upsert).mockImplementation(async (type, entity) => ({ ...entity, id: "npc-hue-1", type: "character" }));
+
+    const npc = await gamemaster.spawn_npc({ runtime: _mock_runtime, app: _mock_app }, { name: "Hue", signature_color: "Proud Purple" });
+
+    expect(npc.signature_color).toBe("Proud Purple");
+    expect(entities.upsert).toHaveBeenCalledWith("character", expect.objectContaining({ name: "Hue", signature_color: "Proud Purple" }));
+  });
+
   it("execute_turn() delegates the turn to a world-cast NPC when the Director names one", async () => {
     const mock_payload = {
       input: "Who guards the gate?",
@@ -1498,6 +1508,14 @@ describe("_apply_genesis (World-Cast Expansion)", () => {
     await gamemaster._apply_genesis(state_bridge, [{ role_tier: 3 }, null, { name: "" }]);
     expect(Object.keys(_mock_runtime.active_npcs)).toHaveLength(0);
     expect(entities.upsert).not.toHaveBeenCalled();
+  });
+
+  it("forwards the Director's signature_color into spawn_npc", async () => {
+    const spawned = vi.spyOn(gamemaster, "spawn_npc").mockResolvedValue({ id: "npc-1", name: "Mira", signature_color: "Emerald Green" });
+
+    await gamemaster._apply_genesis(state_bridge, [{ name: "Mira", description: "A courier.", role_tier: 2, signature_color: "Emerald Green" }]);
+
+    expect(spawned).toHaveBeenCalledWith(state_bridge, expect.objectContaining({ name: "Mira", signature_color: "Emerald Green" }));
   });
 });
 

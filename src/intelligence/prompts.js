@@ -8,7 +8,7 @@
 import { ind, prompt_escape, state_bridge, escape_xml, physical_to_xml } from "@utils";
 import { NARRATIVE_STYLES, PROTOCOL_LIBRARY, build_available_keywords_xml, build_somatic_directives_block, get_style_keywords } from "@data";
 import { DYNAMICS_META, build_signals_xml } from "./dynamics.js";
-import { ENTITY_CATALOG, ENTITY_FRAGMENTS, TEMPORAL_CONTRACT } from "@data";
+import { ENTITY_CATALOG, ENTITY_FRAGMENTS, TEMPORAL_CONTRACT, SIGNATURE_COLORS } from "@data";
 import { clean_xml, collapse_history, strip_cognition_blocks } from "./parser.js";
 import { temporal_engine, resolve_vector_pool } from "./temporal.js";
 
@@ -32,7 +32,7 @@ const DIRECTOR_JSON_SCHEMA = `{
   "in_scene_change": { "enter": ["npc:<id>"], "exit": ["npc:<id>"] },
   "promotions": [ { "id": "npc:<id>", "tier": 2 } ],
   "relationships": "[Optional: relational edges that CHANGED this turn, as 'Source → Target: dynamic' (betrayal, rescue, alliance, rivalry, debt). Names MUST match <WORLD_CAST>/<SCENE_ROSTER> exactly. Omit when the web is unchanged.]",
-  "genesis": "[Optional: request a brand-new recurring NPC only when NO <WORLD_CAST> member fits the role — { "name": "...", "description": "..." }, max 2. Never for an existing cast member.]",
+  "genesis": "[Optional: request a brand-new recurring NPC only when NO <WORLD_CAST> member fits the role — { "name": "...", "description": "...", "signature_color": "one from <AVAILABLE_SIGNATURE_COLORS>" }, max 2. Never for an existing cast member.]",
   "directive": "<Optional in-character stage direction for the AI_CHARACTER (under 30 words, or empty string). Never reveal hidden agendas as fact.>",
   "AI_CHARACTER": {
     "state_append": {
@@ -389,6 +389,11 @@ function render_director({ round, entities, input, render_accessors, compressed_
     Select 1-2 of these when the turn carries a matching emotional undercurrent (or none when neutral). Never invent keywords outside this list.
   </AVAILABLE_KEYWORDS>
 
+  <AVAILABLE_SIGNATURE_COLORS>
+    ${SIGNATURE_COLORS.map((c) => `- ${c}`).join("\n")}
+    Choose an exact name from this list for any new NPC you request in "genesis". Never invent colors outside this list.
+  </AVAILABLE_SIGNATURE_COLORS>
+
   <ACTIVE_CHARACTERS>
     <AI_CHARACTER name="${escape_xml(entities?.AI?.name || "AI")}"${format_dynamics_attrs(compressed_snapshot?.ai?.dynamics)}>
       <PERSONALITY>${render_field_value(entities?.AI?.eternal?.non_physical, entities?.AI, entities)}</PERSONALITY>
@@ -447,7 +452,7 @@ ${(() => {
     Track the Stage Spotlight: when an NPC enters or leaves the room, move it with "in_scene_change" ("enter"/"exit" accept ids with or without the "npc:" prefix; leave both empty unless the stage changes).
     Promote recurring NPCs: when an NPC's role becomes sustained or consequential, list it in "promotions" (tier 2 = recurring contact, tier 3 = major co-star with full memory) — but never invent ids absent from <WORLD_CAST>.
     Update the relational web: when a bond between two entities meaningfully shifts (betrayal, rescue, alliance, rivalry, debt), list it in "relationships" as a directed edge "Source → Target: dynamic" using the EXACT names from <WORLD_CAST>/<SCENE_ROSTER>; omit the field entirely when the web is unchanged.
-    Genesis: when an entirely NEW recurring character enters the world and NO <WORLD_CAST> member fits the role, request it in "genesis" (name + one-line description; max 2 per turn). Never request an entity that is already in <WORLD_CAST>.
+    Genesis: when an entirely NEW recurring character enters the world and NO <WORLD_CAST> member fits the role, request it in "genesis" (name + one-line description + a signature_color chosen EXACTLY from <AVAILABLE_SIGNATURE_COLORS>; max 2 per turn). Never request an entity that is already in <WORLD_CAST>.
     ${non_verbal_environmental_hint(input)}
     Evaluate whether the overarching story quest reached victory (story_status "CONCLUDED") or irrevocable tragedy ("COLLAPSED"); otherwise keep "IN_PROGRESS".
     Record your reasoning inside "_thought_process" and return a single valid JSON object following this exact schema:
