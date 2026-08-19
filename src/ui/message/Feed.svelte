@@ -248,11 +248,7 @@
             p-4
             transition-all
             duration-200
-            {entry.role === 'user'
-            ? 'justify-end pr-column-unit'
-            : entry.role === 'ai' || entry.role === 'npc'
-              ? 'justify-start pl-column-unit'
-              : 'justify-center'}
+            {entry.role === 'user' ? 'justify-end pr-column-unit' : 'justify-start pl-column-unit'}
           "
           in:item_in={{ duration: 200 }}
         >

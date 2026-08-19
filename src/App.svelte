@@ -7,7 +7,7 @@
    * EntityCards and Console are mounted ONCE here and never destroyed
    * during view transitions, enabling true View Transition API morphing.
    */
-  import { Skeleton, Tooltip, StyleBadge, CastBadge } from "@primitives";
+  import { Skeleton, Tooltip } from "@primitives";
   import {
     ImagePicker,
     ImagePreview,
@@ -32,21 +32,6 @@
 
   let fractal_url = $derived(app.selected_fractal?.profile_picture || "");
   let fractal_opacity = $derived("var(--opacity-muted)");
-
-  // --- NPC WORLD-CAST STAGE (Track B: presence badges) ---
-  // Every story cast NPC renders as a square badge above the AI card; off-stage
-  // (stasis) members are dimmed via the `dimmed` flag. Sorted tier-first so the
-  // most significant NPCs lead the row.
-  let cast_npcs = $derived(
-    Object.values(runtime.active_npcs || {}).sort(
-      (a, b) => (b.role_tier || 1) - (a.role_tier || 1) || String(a.name || "").localeCompare(String(b.name || "")),
-    ),
-  );
-  let in_scene_npc_ids = $derived(runtime.in_scene_npc_ids || []);
-  // Badges shrink as the cast grows so the whole roster fits the stage column:
-  // each badge = (column width − gaps) ÷ count, capped at 4.5rem.
-  let npc_badge_style = (/** @type {number} */ count) =>
-    `width: min(4.5rem, calc((var(--spacing-character-card-width) - var(--spacing-gap-standard) * ${Math.max(0, count - 1)}) / ${Math.max(1, count)}));`;
 
   // --- LIFECYCLE EFFECTS ---
 
@@ -326,11 +311,14 @@
       });
     }
 
-    items.push({
-      label: Audio.entity_voice[type] ? "Disable Voice" : "Enable Voice",
-      active: Audio.entity_voice[type],
-      onSelect: () => Audio.toggle_entity_voice(type),
-    });
+    if (type === "ai" || type === "fractal") {
+      const voice_label = Audio.entity_voice.ai ? "Disable AI Voice" : "Enable AI Voice";
+      items.push({
+        label: voice_label,
+        active: Audio.entity_voice.ai,
+        onSelect: () => Audio.toggle_entity_voice("ai"),
+      });
+    }
 
     if (in_storymode) {
       items.push({ separator: true });
@@ -433,48 +421,7 @@
       {#if !app.entities_loaded}
         <Skeleton variant="card" width="100%" height="100%" />
       {:else if app.view === "storymode"}
-        <div
-          class="pointer-events-none flex h-full w-full flex-col items-center justify-center gap-gap-standard transition-transform duration-300 md:translate-x-[calc(var(--spacing-column-unit)*0.5)]"
-        >
-          {#if cast_npcs.length}
-            <div class="pointer-events-auto flex w-full items-center justify-center" data-panel-card="npcs">
-              <div class="flex w-full flex-wrap items-center justify-center gap-gap-standard">
-                {#each cast_npcs as npc (npc.id)}
-                  <CastBadge
-                    entity={npc}
-                    dimmed={!in_scene_npc_ids.includes(String(npc.id))}
-                    onclick={() => app.toggle_profile(true, npc)}
-                    style={npc_badge_style(cast_npcs.length)}
-                  />
-                {/each}
-              </div>
-            </div>
-          {/if}
-          <div class="pointer-events-auto flex w-full items-center justify-center" data-panel-card="ai">
-            <EntityCard
-              variant="panel"
-              type="ai"
-              entity={app.selected_ai || runtime.active_ai}
-              role_label="AI Character"
-              actions={ai_actions}
-              on_select={() => {
-                if (app.selected_ai || runtime.active_ai) app.toggle_profile(true, app.selected_ai || runtime.active_ai);
-              }}
-            />
-          </div>
-          <div class="pointer-events-auto flex w-full items-center justify-center" data-panel-card="fractal">
-            <EntityCard
-              variant="panel"
-              type="fractal"
-              entity={app.selected_fractal || runtime.active_fractal}
-              role_label="Fractal"
-              actions={fractal_actions}
-              on_select={() => {
-                if (app.selected_fractal || runtime.active_fractal) app.toggle_profile(true, app.selected_fractal || runtime.active_fractal);
-              }}
-            />
-          </div>
-        </div>
+        <!-- Layout test: side cards hidden in storymode -->
       {:else}
         <div class="flex h-full w-full items-center justify-center" data-slot-type="ai">
           <EntityCard
@@ -534,37 +481,26 @@
         <Skeleton variant="card" width="100%" height="100%" />
       {:else}
         {@const entity = app.selected_user || runtime.active_user}
-        <div
-          class="flex h-full w-full items-center justify-center {app.view === 'storymode'
-            ? 'transition-transform duration-300 md:translate-x-[calc(-0.5*var(--spacing-column-unit))]'
-            : ''}"
-          data-slot-type="user"
-          data-panel-card="user"
-        >
-          <EntityCard
-            variant={app.view === "storymode" ? "panel" : entity ? "panel" : "slot"}
-            type="user"
-            {entity}
-            role_label="User Persona"
-            actions={user_actions}
-            on_select={() => {
-              if (entity) {
-                app.toggle_profile(true, entity);
-              } else if (app.view === "storyboard") {
-                app.open_card_hand("user");
-              }
-            }}
-          />
-        </div>
-        <div class="flex w-full items-center justify-center" data-panel-style-badge>
-          {#if app.view === "storymode"}
-            <StyleBadge
-              entity={app.selected_fractal || runtime.active_fractal}
-              layout="storymode"
-              class="flex w-full justify-center gap-gap-standard"
+        {#if app.view === "storymode"}
+          <!-- Layout test: user side card and style badge hidden in storymode -->
+        {:else}
+          <div class="flex h-full w-full items-center justify-center" data-slot-type="user" data-panel-card="user">
+            <EntityCard
+              variant={entity ? "panel" : "slot"}
+              type="user"
+              {entity}
+              role_label="User Persona"
+              actions={user_actions}
+              on_select={() => {
+                if (entity) {
+                  app.toggle_profile(true, entity);
+                } else if (app.view === "storyboard") {
+                  app.open_card_hand("user");
+                }
+              }}
             />
-          {/if}
-        </div>
+          </div>
+        {/if}
       {/if}
     {/snippet}
 

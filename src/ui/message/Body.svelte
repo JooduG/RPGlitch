@@ -79,7 +79,6 @@
       [&_strong]:[text-shadow:0_0_8px_color-mix(in_srgb,var(--signature-color,var(--color-slate-400)),transparent_85%)]
 
       {is_fractal ? 'text-center' : ''}
-      {meta?.is_prologue || meta?.is_epilogue ? '' : ''}
     "
     style={!should_use_typewriter ? "content-visibility: auto;" : ""}
   >

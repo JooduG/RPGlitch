@@ -171,104 +171,22 @@ export function fly_card_out(source_el, to_rect, options = {}) {
   setTimeout(() => clone.remove(), duration_ms + fade_delay + fade_ms + 60);
 }
 
-// ── SCROLL-LINKED CARD MIGRATION (merged from card-migration.svelte.js) ──────────────
-/**
- * @file src/ui/entity/EntityCard.svelte.js (merged from motion/card-migration.svelte.js)
- * 🎞 SCROLL-LINKED ENTITY CARD MIGRATION
- * The story's three entity cards are scrubbed by the scroll wheel: while the
- * prologue message is in view they sit inside it, and scrolling carries them
- * in lockstep toward the side panels (and back), pausing wherever the scroll
- * pauses. A fixed scrub layer carries art-only clones along the interpolated
- * path; the real cards are only shown at the endpoints (p=0 → prologue,
- * p=1 → panels) so they stay fully interactive once docked. Also hosts the
- * begin-story flight that carries the storyboard cards into the prologue.
- */
 import { motion } from "@motion/engine.svelte.js";
 
 const CARD_TYPES = ["ai", "fractal", "user"];
+let _begin_flight_running = false;
 
+// ── STATIC CARD LOCATION ──────────────────────────────────────────────────
+/**
+ * Ensures cards and badges in the prologue message remain displayed in place.
+ */
 function msg_card(type) {
   return document.querySelector(`[data-msg-prologue] [data-msg-card="${type}"] [data-card-root]`);
 }
 function panel_card(type) {
   return document.querySelector(`[data-panel-card="${type}"] [data-card-root]`);
 }
-function viewport() {
-  return document.querySelector("[data-id='storymode-scroll-area'] .scroll-area-viewport");
-}
 
-// ── SCRUB TRAVEL CONFIG ───────────────────────────────────────────────────
-// Path modes for the card/badge migration. Toggle live from the console with
-// `window.SCRUB_MODE` or via the `?scrub=` URL param (default "arc"):
-//   "arc"      — cards hold high over the message while sliding out, then drop
-//                into the panels at the end (up-and-over curve, off the text).
-//   "side"     — cards slide out sideways through the bubble edges first, then
-//                lower into the panels.
-//   "straight" — the original straight-line lerp.
-let _url_scrub_mode = null;
-function scrub_mode() {
-  const w = window.SCRUB_MODE;
-  if (w === "arc" || w === "side" || w === "straight") return w;
-  if (_url_scrub_mode === null) _url_scrub_mode = new URLSearchParams(location.search).get("scrub");
-  return _url_scrub_mode === "side" || _url_scrub_mode === "straight" ? _url_scrub_mode : "arc";
-}
-
-// The dynamic prologue title drops down to sit right above the first paragraph,
-// parking by the halfway point of the scrub. Toggle with
-// `window.NO_TITLE_GLIDE = true` or `?title=off`.
-let _url_title_glide = null;
-function title_glide_enabled() {
-  if (window.NO_TITLE_GLIDE) return false;
-  if (_url_title_glide === null) _url_title_glide = new URLSearchParams(location.search).get("title") !== "off";
-  return _url_title_glide;
-}
-
-// Front-loaded ease: most of the travel happens in the first part of the
-// scroll so the cards clear the text quickly.
-function ease_front(t) {
-  return 1 - Math.pow(1 - t, 1.6);
-}
-
-// Vertical settle is delayed so cards slide sideways before dropping.
-function ease_settle(t) {
-  return clamp((t - 0.35) / 0.65, 0, 1);
-}
-
-function smoothstep(t) {
-  const s = clamp(t, 0, 1);
-  return s * s * (3 - 2 * s);
-}
-
-/** Resolves a travel point for a scrub clone at progress `p`. */
-function travel_point(mode, p, start, end, start_top) {
-  const pe = ease_front(p);
-  const dy = end.top - start_top;
-  let top;
-  if (mode === "straight") {
-    top = start_top + dy * pe;
-  } else if (mode === "side") {
-    top = start_top + dy * ease_settle(p);
-  } else {
-    // arc: hold high over the message, then drop into the panel.
-    const lift = Math.min(120, dy * 0.5);
-    top = start_top + dy * pe - lift * 4 * pe * (1 - pe);
-  }
-  return {
-    left: start.left + (end.left - start.left) * pe,
-    top,
-    width: start.width + (end.width - start.width) * pe,
-    height: start.height + (end.height - start.height) * pe,
-  };
-}
-
-// ── HIDDEN-STATE MECHANISM ────────────────────────────────────────────────
-// Cards (and the fractal style badge) are hidden via a `data-scrub-hidden`
-// attribute enforced with `!important` CSS rather than inline styles. Inline
-// opacity is owned by EntityCard's `style:opacity` binding (e.g. the profile
-// view-transition morph), which would silently wipe a manually-set inline
-// opacity — the cause of "hidden" cards popping back when a profile closes.
-// `!important` beats that binding, and the descendant rule defeats EntityCard's
-// `pointer-events-auto` inner wrapper, so hidden cards are truly unclickable.
 let scrub_style_injected = false;
 
 function ensure_scrub_style() {
@@ -305,18 +223,10 @@ function show_card(el) {
 function hide_panels() {
   for (const type of CARD_TYPES) hide_card(panel_card(type));
 }
-function show_panels() {
-  for (const type of CARD_TYPES) show_card(panel_card(type));
-}
-function hide_msg_cards() {
-  for (const type of CARD_TYPES) hide_card(msg_card(type));
-}
 function show_msg_cards() {
   for (const type of CARD_TYPES) show_card(msg_card(type));
 }
 
-// The fractal's style badge travels with its card: message (under the prologue
-// fractal card) ↔ storymode panel (under the fractal panel).
 function msg_badge() {
   return document.querySelector("[data-msg-prologue] [data-msg-style-badge]");
 }
@@ -325,249 +235,33 @@ function panel_badge() {
 }
 function msg_title() {
   const row = document.querySelector("[data-msg-prologue]");
-  // The dynamic title sits just above the cards row, as a sibling inside the
-  // same message body — not a descendant of the row.
   return row?.parentElement?.querySelector("[data-msg-title]") ?? null;
 }
-function hide_msg_badge() {
-  hide_card(msg_badge());
-}
+
 function show_msg_badge() {
   show_card(msg_badge());
 }
 function hide_panel_badge() {
   hide_card(panel_badge());
 }
-function show_panel_badge() {
-  show_card(panel_badge());
-}
 
-// The prologue's dynamic title drops down to sit right above the first
-// paragraph. Distance = the card row plus its surrounding gaps, measured from
-// layout so it lands flush above the prose.
-function title_distance(row, title) {
-  const rm = parseFloat(getComputedStyle(row).marginBottom) || 0;
-  const tm = parseFloat(getComputedStyle(title).marginBottom) || 0;
-  return row.offsetHeight + rm + tm - 16;
-}
-function place_title(p, row, title) {
-  if (!row || !title || !title_glide_enabled()) return;
-  // Drop alongside the cards/badges from the very start of the scrub, and park
-  // by the halfway point — half the cards' travel time.
-  const t = smoothstep(p / 0.5);
-  if (t <= 0) {
-    title.style.transform = "";
-    return;
-  }
-  title.style.transform = `translateY(${Math.round(title_distance(row, title) * t)}px)`;
-}
 function reset_title(title) {
   if (title) title.style.transform = "";
 }
 
-/** Removes every hidden style and scrub clone (e.g. when storymode unmounts). */
+/** Removes every hidden style and reset positions when storymode unmounts. */
 export function clear_card_location() {
   document.querySelectorAll("[data-card-root], [data-msg-style-badge], [data-panel-style-badge]").forEach(show_card);
   reset_title(msg_title());
-  dispose_scrub_clones();
 }
 
-// ── SCRUB LAYER ────────────────────────────────────────────────────────────
-let scrub_clones = null;
-
-function make_scrub_clone(src) {
-  const clone = src.cloneNode(true);
-  clone.setAttribute("data-scrub-clone", "true");
-  clone.setAttribute("aria-hidden", "true");
-  clone.style.position = "fixed";
-  clone.style.margin = "0";
-  clone.style.zIndex = "9997";
-  clone.style.pointerEvents = "none";
-  clone.style.transition = "none";
-  clone.style.opacity = "";
-  clone.style.left = "0";
-  clone.style.top = "0";
-  clone.style.width = "0";
-  clone.style.height = "0";
-  clone.style.willChange = "left, top, width, height";
-  clone.style.removeProperty("view-transition-name");
-  clone.removeAttribute("data-scrub-hidden");
-  clone.removeAttribute("data-scrub-prev-tabindex");
-  strip_card_text(clone);
-  document.body.appendChild(clone);
-  // Mid-scroll clicking: route the click to the real card so the SAME context
-  // menu opens (anchored at the cursor). The clone itself has no handlers.
-  clone.addEventListener("click", (e) => {
-    if (!src?.isConnected) return;
-    src.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, view: window, clientX: e.clientX, clientY: e.clientY }));
-  });
-  return clone;
-}
-
-function dispose_scrub_clones() {
-  if (scrub_badge_clone) {
-    scrub_badge_clone.remove();
-    scrub_badge_clone = null;
-  }
-  if (!scrub_clones) return;
-  for (const type of CARD_TYPES) {
-    if (scrub_clones[type]) scrub_clones[type].remove();
-  }
-  scrub_clones = null;
-}
-
-let scrub_badge_clone = null;
-
-/** Fixed-position art-only clone of the fractal style badge strip. */
-function make_badge_scrub_clone(src) {
-  const clone = src.cloneNode(true);
-  clone.setAttribute("data-scrub-clone", "true");
-  clone.setAttribute("aria-hidden", "true");
-  clone.style.position = "fixed";
-  clone.style.margin = "0";
-  clone.style.zIndex = "9996";
-  clone.style.pointerEvents = "none";
-  clone.style.transition = "none";
-  clone.style.opacity = "";
-  clone.style.left = "0";
-  clone.style.top = "0";
-  clone.style.width = "0";
-  clone.style.height = "0";
-  clone.style.willChange = "left, top, width, height";
-  clone.style.removeProperty("view-transition-name");
-  clone.removeAttribute("data-scrub-hidden");
-  clone.removeAttribute("data-scrub-prev-tabindex");
-  document.body.appendChild(clone);
-  return clone;
-}
-
-/** Positions the badge scrub clone along the same p as the cards. */
-function place_badge_clone(p, shift, rest) {
-  const src = msg_badge();
-  const dst = panel_badge();
-  if (!scrub_badge_clone || !src || !dst) return;
-  const start = rect_of(src);
-  const end = rect_of(dst);
-  const start_top = start.top - shift + rest;
-  const pt = travel_point(scrub_mode(), p, start, end, start_top);
-  scrub_badge_clone.style.left = `${pt.left}px`;
-  scrub_badge_clone.style.top = `${pt.top}px`;
-  scrub_badge_clone.style.width = `${pt.width}px`;
-  scrub_badge_clone.style.height = `${pt.height}px`;
-}
-
-let begin_flight_running = false;
-
-/**
- * Recomputes the scroll-scrub and re-renders card visibility + the scrub
- * layer. Cheap enough to run every scroll frame (rAF-throttled by callers).
- * @param {{ pending?: boolean }} [ctx] - pending=true while the begin-story flight is running
- */
-export function update_card_scrub({ pending = false } = {}) {
-  const vp = viewport();
-  if (!vp) return;
-
-  // While the begin-story flight is running the prologue cards are managed by
-  // the flight (hidden until each card lands); only keep the panels stowed.
-  if (pending || begin_flight_running) {
-    hide_panels();
-    hide_panel_badge();
-    dispose_scrub_clones();
-    reset_title(msg_title());
-    return;
-  }
-
-  const row = document.querySelector("[data-msg-prologue]");
-  let p, rest;
-  if (!row) {
-    p = 1;
-    rest = 0;
-  } else {
-    const vp_rect = vp.getBoundingClientRect();
-    const shift = row.getBoundingClientRect().top - vp_rect.top;
-    // `rest` = the row's offset within the scroll content (constant while
-    // scrolling). The migration is anchored to it, so it begins the moment the
-    // prologue starts scrolling up from its resting position — not only once
-    // the row reaches the top of the viewport.
-    rest = shift + vp.scrollTop;
-    const window_px = Math.max(row.offsetHeight * 0.6, vp_rect.height * 0.45);
-    p = clamp(-(shift - rest) / window_px, 0, 1);
-  }
-
-  const title = msg_title();
-  place_title(p, row, title);
-
-  if (motion.is_reduced) {
-    if (p > 0.5) {
-      show_panels();
-      hide_msg_cards();
-      show_panel_badge();
-      hide_msg_badge();
-    } else {
-      show_msg_cards();
-      hide_panels();
-      show_msg_badge();
-      hide_panel_badge();
-    }
-    dispose_scrub_clones();
-    return;
-  }
-
-  if (p <= 0) {
-    show_msg_cards();
-    hide_panels();
-    show_msg_badge();
-    hide_panel_badge();
-    dispose_scrub_clones();
-    return;
-  }
-  if (p >= 1) {
-    show_panels();
-    hide_msg_cards();
-    show_panel_badge();
-    hide_msg_badge();
-    dispose_scrub_clones();
-    return;
-  }
-
-  // 0 < p < 1 — the cards travel with the scroll wheel.
-  hide_msg_cards();
+export function update_card_scrub() {
+  // Static prologue view: cards, badges, and title remain in their natural resting place throughout scrolling.
+  show_msg_cards();
   hide_panels();
-  hide_msg_badge();
+  show_msg_badge();
   hide_panel_badge();
-  if (!scrub_clones) {
-    scrub_clones = {};
-    for (const type of CARD_TYPES) {
-      const src = msg_card(type);
-      scrub_clones[type] = src ? make_scrub_clone(src) : null;
-    }
-  }
-  if (!scrub_badge_clone) {
-    const bsrc = msg_badge();
-    scrub_badge_clone = bsrc ? make_badge_scrub_clone(bsrc) : null;
-  }
-  const vp_rect = vp.getBoundingClientRect();
-  const shift = row.getBoundingClientRect().top - vp_rect.top;
-  for (const type of CARD_TYPES) {
-    const clone = scrub_clones[type];
-    const src_card = msg_card(type);
-    const dst_card = panel_card(type);
-    if (!clone || !src_card || !dst_card) continue;
-    const start = rect_of(src_card);
-    const end = rect_of(dst_card);
-    // Origin pinned to where the card sat at its resting position, so the
-    // cards visibly detach from the bubble the moment it starts scrolling.
-    const start_top = start.top - shift + rest;
-    // Cover-style travel: lerp the box rect directly (left/top/width/height).
-    // The card's images are object-cover, so the sides crop as the card grows
-    // or shrinks instead of stretching the art like a non-uniform scale would.
-    const pt = travel_point(scrub_mode(), p, start, end, start_top);
-    clone.style.left = `${pt.left}px`;
-    clone.style.top = `${pt.top}px`;
-    clone.style.width = `${pt.width}px`;
-    clone.style.height = `${pt.height}px`;
-  }
-  place_badge_clone(p, shift, rest);
+  reset_title(msg_title());
 }
 
 // ── BEGIN-STORY FLIGHT ─────────────────────────────────────────────────────
@@ -669,7 +363,7 @@ function cover_flight(source_el, from_rect, to_rect, options = {}) {
  */
 export async function fly_storyboard_cards_into_prologue(assets, dst_rects = {}) {
   if (motion.is_reduced || !assets) return;
-  begin_flight_running = true;
+  _begin_flight_running = true;
   CARD_TYPES.forEach((type) => {
     const clone_src = assets.clones[type];
     const from_rect = assets.rects[type];
@@ -723,5 +417,5 @@ export async function fly_storyboard_cards_into_prologue(assets, dst_rects = {})
   }
 
   await Promise.all(jobs);
-  begin_flight_running = false;
+  _begin_flight_running = false;
 }

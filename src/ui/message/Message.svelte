@@ -8,7 +8,10 @@
    */
   import { parse_message } from "./render.js";
   import { resolve_voice_register } from "@data";
+  import { Button } from "@primitives";
   import { Audio, get_cadence_rate, resolve_voice_uri, get_signature_color } from "@media";
+  import { ProfilePicture } from "@image";
+  import { claim_menu, get_menu_epoch } from "../entity/ContextMenu.svelte.js";
   import { app, runtime } from "@state";
   import TelemetryCard from "./TelemetryCard.svelte";
   import MessageHeader from "./MessageHeader.svelte";
@@ -191,6 +194,118 @@
     });
   }
 
+  // --- CONTEXT MENU RUNES ---
+  let menu_open = $state(false);
+  let menu_x = $state(0);
+  let menu_y = $state(0);
+  let my_menu_epoch = 0;
+
+  function portal_to_body(node) {
+    document.body.appendChild(node);
+    return {
+      destroy() {
+        node.remove();
+      },
+    };
+  }
+
+  let badge_actions = $derived.by(() => {
+    if (is_user) return card_actions.user;
+    if (is_ai) return card_actions.ai;
+    if (is_npc && entity) {
+      const items = [{ label: "Profile", onSelect: () => app.toggle_profile(true, entity) }];
+
+      if (entity?.profile_picture) {
+        items.push({
+          label: "Profile Picture",
+          onSelect: () =>
+            app.open_image_preview({
+              src: entity.profile_picture,
+              metadata: entity.modifiers
+                ? {
+                    prompt: entity.modifiers.prompt,
+                    negative_prompt: entity.modifiers.negative_prompt,
+                    seed: entity.modifiers.last_generated_seed,
+                  }
+                : null,
+            }),
+        });
+      }
+
+      items.push({
+        label: Audio.entity_voice.ai ? "Disable AI Voice" : "Enable AI Voice",
+        active: Audio.entity_voice.ai,
+        onSelect: () => Audio.toggle_entity_voice("ai"),
+      });
+
+      items.push({ separator: true });
+      items.push({
+        label: "Generate NPC Picture",
+        onSelect: () => {
+          if (app.regenerate_image_handler) {
+            app.regenerate_image_handler({
+              prompt: `A cinematic shot of ${entity.name || "the NPC"} situated within the active setting`,
+              mode: "story_character",
+              log_id: id,
+              attach_idx: 0,
+              signature_color,
+            });
+          }
+        },
+      });
+
+      return items;
+    }
+    if (is_fractal) return card_actions.fractal;
+    return [];
+  });
+
+  function open_menu_at(x, y) {
+    my_menu_epoch = claim_menu();
+    menu_x = x;
+    menu_y = y;
+    menu_open = true;
+
+    requestAnimationFrame(() => {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const width = 160;
+      const height = (badge_actions.length || 1) * 36;
+      if (menu_x + width > vw) menu_x = vw - width;
+      if (menu_y + height > vh) menu_y = vh - height;
+      if (menu_x < 0) menu_x = 0;
+      if (menu_y < 0) menu_y = 0;
+    });
+  }
+
+  // Close this menu when another card/badge claims the menu epoch
+  $effect(() => {
+    const current = get_menu_epoch();
+    if (menu_open && current !== my_menu_epoch) {
+      menu_open = false;
+    }
+  });
+
+  function handle_badge_click(e) {
+    e.stopPropagation();
+    if (!entity) return;
+    if (badge_actions && badge_actions.length) {
+      open_menu_at(e.clientX, e.clientY);
+    } else {
+      app.toggle_profile(true, entity);
+    }
+  }
+
+  function handle_item_click(e, item) {
+    e.stopPropagation();
+    menu_open = false;
+    if (item.onSelect) item.onSelect();
+  }
+
+  function close_menu() {
+    menu_open = false;
+  }
+
   $effect(() => {
     if (is_editing) {
       local_text = clean_markdown;
@@ -228,12 +343,64 @@
       relative
       flex
       w-full
+      items-start
       p-4
       transition-all
       duration-200
       {is_user ? 'justify-end pr-column-unit' : is_ai || is_npc ? 'justify-start pl-column-unit' : 'justify-center'}
     "
   >
+    {#if (is_ai || is_npc || is_fractal) && entity && !meta?.is_prologue && !meta?.is_epilogue}
+      <div
+        class="
+          absolute
+          top-1/2
+          left-0
+          flex
+          w-(--spacing-column-unit)
+          -translate-y-1/2
+          items-center
+          justify-center
+          select-none
+        "
+        style="--signature-color: {signature_color};"
+      >
+        <button
+          type="button"
+          onclick={handle_badge_click}
+          class="
+            group/badge
+            relative
+            [isolation:isolate]
+            aspect-square
+            w-[clamp(4.25rem,6cqi,5.5rem)]
+            [transform:translateZ(0)]
+            cursor-pointer
+            overflow-hidden
+            rounded-xl
+            border
+            border-solid
+            border-(--signature-color)
+            bg-black/60
+            shadow-[0_4px_20px_rgba(0,0,0,0.5)]
+            transition-all
+            duration-200
+            hover:scale-105
+            hover:shadow-[0_0_16px_var(--signature-color)]
+            focus-visible:outline-none
+          "
+          aria-label="{is_fractal ? 'Fractal' : 'Character'} Menu"
+        >
+          <ProfilePicture {entity} alt="" class="rounded-[inherit] [&_img]:rounded-[inherit] [&_img]:object-top" />
+          <div
+            aria-hidden="true"
+            class="pointer-events-none absolute inset-0 rounded-[inherit] opacity-20 transition-opacity duration-200 group-hover/badge:opacity-0"
+            style="background-color: {signature_color}; mix-blend-mode: color;"
+          ></div>
+        </button>
+      </div>
+    {/if}
+
     <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
     <div
       class="
@@ -330,6 +497,97 @@
         <Attachments {attachments} {id} {signature_color} {is_fractal} {has_display_text} {busy} {should_use_typewriter} />
       </div>
     </div>
+
+    {#if is_user && entity && !meta?.is_prologue && !meta?.is_epilogue}
+      <div
+        class="
+          absolute
+          top-1/2
+          right-0
+          flex
+          w-(--spacing-column-unit)
+          -translate-y-1/2
+          items-center
+          justify-center
+          select-none
+        "
+        style="--signature-color: {signature_color};"
+      >
+        <button
+          type="button"
+          onclick={handle_badge_click}
+          class="
+            group/badge
+            relative
+            [isolation:isolate]
+            aspect-square
+            w-[clamp(4.25rem,6cqi,5.5rem)]
+            [transform:translateZ(0)]
+            cursor-pointer
+            overflow-hidden
+            rounded-xl
+            border
+            border-solid
+            border-(--signature-color)
+            bg-black/60
+            shadow-[0_4px_20px_rgba(0,0,0,0.5)]
+            transition-all
+            duration-200
+            hover:scale-105
+            hover:shadow-[0_0_16px_var(--signature-color)]
+            focus-visible:outline-none
+          "
+          aria-label="User Persona Menu"
+        >
+          <ProfilePicture {entity} alt="" class="rounded-[inherit] [&_img]:rounded-[inherit] [&_img]:object-top" />
+          <div
+            aria-hidden="true"
+            class="pointer-events-none absolute inset-0 rounded-[inherit] opacity-20 transition-opacity duration-200 group-hover/badge:opacity-0"
+            style="background-color: {signature_color}; mix-blend-mode: color;"
+          ></div>
+        </button>
+      </div>
+    {/if}
+  </div>
+{/if}
+
+<svelte:window onclick={close_menu} onkeydown={(e) => e.key === "Escape" && close_menu()} />
+
+{#if menu_open}
+  <div
+    use:portal_to_body
+    class="fixed z-9999 min-w-40 overflow-hidden rounded-standard bg-glass-elevated shadow-(--shadow-standard) [backdrop-filter:var(--blur-mist)] outline-none
+      before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-(--noise-url) before:opacity-10 before:mix-blend-overlay"
+    style="left:{menu_x}px;top:{menu_y}px"
+    role="menu"
+    tabindex="-1"
+    onclick={(e) => e.stopPropagation()}
+    onkeydown={(e) => e.key === "Escape" && close_menu()}
+  >
+    {#each badge_actions as item, i (i)}
+      {#if item.separator}
+        <div class="block h-px bg-current opacity-20"></div>
+      {:else}
+        <Button
+          variant="bare"
+          class="
+            flex h-9 w-full cursor-default items-center gap-2 px-2.5 text-xs font-bold tracking-widest text-slate-200 uppercase transition-colors duration-150 outline-none select-none hover:bg-(--signature-color,var(--color-slate-50))/10 hover:text-white
+            {item.danger ? 'text-red-400/80 hover:text-red-400' : ''}
+            {item.active ? 'text-(--signature-color,var(--color-slate-50))' : ''}
+          "
+          disabled={item.disabled}
+          onclick={(e) => handle_item_click(e, item)}
+          role="menuitem"
+        >
+          {#if item.active}
+            <span
+              class="size-1.5 shrink-0 rounded-full bg-(--signature-color,var(--color-slate-50)) shadow-[0_0_4px_var(--signature-color,var(--color-slate-50))]"
+            ></span>
+          {/if}
+          {item.label}
+        </Button>
+      {/if}
+    {/each}
   </div>
 {/if}
 

@@ -18,8 +18,8 @@ export function normalize_role(role) {
   if (str === "system") return null;
   if (str.includes("ai") || str.includes("character") || str === "model") return "ai";
   if (str.includes("user")) return "user";
-  if (str.includes("fractal")) return "fractal";
-  if (str.includes("npc")) return "ai"; // NPC speech rides the companion voice toggle
+  if (str.includes("fractal")) return "ai"; // Fractal narration rides the unified AI voice toggle
+  if (str.includes("npc")) return "ai"; // NPC speech rides the unified AI voice toggle
   return null;
 }
 
