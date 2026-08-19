@@ -9,6 +9,7 @@
   import { image_picker, open_picker } from "@image";
   import { get_resolution } from "@media";
   import { app } from "@state";
+  import { simulation_log } from "../../state/log.svelte.js";
 
   let {
     /** @type {any[]} */
@@ -56,6 +57,11 @@
     const preview_options = typeof attachment === "string" ? { src: attachment, metadata: {} } : { ...attachment };
     if (!preview_options.metadata) preview_options.metadata = {};
     preview_options.signature_color = preview_signature;
+    if (preview_id) {
+      preview_options.on_delete = () => {
+        simulation_log.delete_entry(String(preview_id));
+      };
+    }
     if (preview_options.metadata?.prompt && preview_id && app.regenerate_image_handler) {
       preview_options.on_regenerate = () => {
         app.regenerate_image_handler({

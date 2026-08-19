@@ -46,7 +46,7 @@
         ? "col-start-1 col-end-2 row-start-2 h-full items-center bg-[radial-gradient(circle_at_top_center,var(--color-slate-700),var(--color-void-black))]"
         : "relative inset-auto col-start-1 col-end-7 row-start-6 row-end-12 h-full items-center justify-center"
       : mode === "storymode"
-        ? `col-start-1 col-end-3 row-start-1 row-end-13 h-full ${align_class}`
+        ? `col-start-1 col-end-2 row-start-1 row-end-13 h-full ${align_class}`
         : `col-start-2 col-end-4 row-start-3 row-end-11 h-full ${align_class}`,
   );
 
@@ -57,7 +57,7 @@
         ? "inset-auto col-span-full row-3 h-full items-center overflow-hidden"
         : "relative inset-auto col-start-1 col-end-13 row-start-3 row-end-6 h-full items-center justify-center"
       : mode === "storymode"
-        ? `col-start-3 col-end-11 row-start-1 row-end-13 h-full ${align_class}`
+        ? `col-start-2 col-end-12 row-start-1 row-end-13 h-full ${align_class}`
         : `col-start-4 col-end-10 row-start-3 row-end-11 h-full ${align_class}`,
   );
   let center_pe = $derived(mode === "storymode" ? "" : "pointer-events-none");
@@ -69,7 +69,7 @@
         ? "col-start-2 col-end-3 row-start-2 h-full items-center"
         : "relative inset-auto col-start-7 col-end-13 row-start-6 row-end-12 h-full items-center justify-center"
       : mode === "storymode"
-        ? `col-start-11 col-end-13 row-start-1 row-end-13 h-full ${align_class}`
+        ? `col-start-12 col-end-13 row-start-1 row-end-13 h-full ${align_class}`
         : `col-start-10 col-end-12 row-start-3 row-end-11 h-full ${align_class}`,
   );
 

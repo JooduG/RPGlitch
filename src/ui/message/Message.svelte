@@ -312,11 +312,9 @@
     }
   });
 
-  $effect(() => {
-    if (is_streaming_target) {
-      was_streaming = true;
-    }
-  });
+  let is_image_only = $derived(
+    attachments.length > 0 && !has_display_text && !think_block && !meta?.is_prologue && !meta?.is_epilogue && !is_editing && !meta?.type && !busy,
+  );
 </script>
 
 {#if is_telemetry}
@@ -337,6 +335,12 @@
       </div>
     </div>
   {/if}
+{:else if is_image_only}
+  <div class="relative flex w-full items-center justify-center p-4">
+    <div class="w-[calc(var(--spacing-column-unit)*5)] max-w-full">
+      <Attachments {attachments} {id} {signature_color} {is_fractal} {has_display_text} {busy} {should_use_typewriter} />
+    </div>
+  </div>
 {:else}
   <div
     class="
@@ -347,7 +351,11 @@
       p-4
       transition-all
       duration-200
-      {is_user ? 'justify-end pr-column-unit' : is_ai || is_npc ? 'justify-start pl-column-unit' : 'justify-center'}
+      {is_user
+      ? 'justify-end pr-[calc(var(--spacing-column-unit)*2)]'
+      : is_ai || is_npc
+        ? 'justify-start pl-[calc(var(--spacing-column-unit)*2)]'
+        : 'justify-center'}
     "
   >
     {#if (is_ai || is_npc || is_fractal) && entity && !meta?.is_prologue && !meta?.is_epilogue}
@@ -355,12 +363,14 @@
         class="
           absolute
           top-1/2
-          left-0
+          left-[calc(var(--spacing-column-unit)*0.5)]
+          m-0
           flex
           w-(--spacing-column-unit)
           -translate-y-1/2
           items-center
           justify-center
+          p-0
           select-none
         "
         style="--signature-color: {signature_color};"
@@ -372,21 +382,25 @@
             group/badge
             relative
             [isolation:isolate]
+            m-0
             aspect-3/4
-            w-[clamp(4.25rem,6cqi,5.5rem)]
+            w-(--spacing-column-unit)
             [transform:translateZ(0)]
             cursor-pointer
             overflow-hidden
             rounded-xl
             border
             border-solid
-            border-(--signature-color)
+            border-[rgba(255,255,255,0.15)]
             bg-black/60
+            p-0
             shadow-[0_4px_20px_rgba(0,0,0,0.5)]
             transition-all
-            duration-200
-            hover:scale-105
-            hover:shadow-[0_0_16px_var(--signature-color)]
+            duration-300
+            ease-out
+            hover:scale-[1.02]
+            hover:border-(--signature-color)
+            hover:shadow-[0_0_calc(var(--spacing-unit)*4)_color-mix(in_srgb,var(--signature-color)_20%,transparent)]
             focus-visible:outline-none
           "
           aria-label="{is_fractal ? 'Fractal' : 'Character'} Menu"
@@ -507,12 +521,14 @@
         class="
           absolute
           top-1/2
-          right-0
+          right-[calc(var(--spacing-column-unit)*0.5)]
+          m-0
           flex
           w-(--spacing-column-unit)
           -translate-y-1/2
           items-center
           justify-center
+          p-0
           select-none
         "
         style="--signature-color: {signature_color};"
@@ -524,21 +540,25 @@
             group/badge
             relative
             [isolation:isolate]
+            m-0
             aspect-3/4
-            w-[clamp(4.25rem,6cqi,5.5rem)]
+            w-(--spacing-column-unit)
             [transform:translateZ(0)]
             cursor-pointer
             overflow-hidden
             rounded-xl
             border
             border-solid
-            border-(--signature-color)
+            border-[rgba(255,255,255,0.15)]
             bg-black/60
+            p-0
             shadow-[0_4px_20px_rgba(0,0,0,0.5)]
             transition-all
-            duration-200
-            hover:scale-105
-            hover:shadow-[0_0_16px_var(--signature-color)]
+            duration-300
+            ease-out
+            hover:scale-[1.02]
+            hover:border-(--signature-color)
+            hover:shadow-[0_0_calc(var(--spacing-unit)*4)_color-mix(in_srgb,var(--signature-color)_20%,transparent)]
             focus-visible:outline-none
           "
           aria-label="User Persona Menu"

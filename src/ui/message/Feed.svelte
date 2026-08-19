@@ -302,6 +302,10 @@
 </div>
 
 <style>
+  :global([data-id="storymode-scroll-area"]) {
+    overflow-x: visible !important;
+  }
+
   :global([data-id="storymode-scroll-area"] > [data-orientation="vertical"]) {
     position: fixed !important;
     right: 0 !important;

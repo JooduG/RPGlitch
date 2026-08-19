@@ -4,7 +4,7 @@
    * Managed via Svelte 5 Global Module State.
    */
 
-  /** @type {{ active: boolean, src: string | null, canvas: HTMLCanvasElement | null, caption: string, metadata: any, on_regenerate: Function | null, signature_color: string | null }} */
+  /** @type {{ active: boolean, src: string | null, canvas: HTMLCanvasElement | null, caption: string, metadata: any, on_regenerate: Function | null, on_delete: Function | null, signature_color: string | null }} */
   let state = $state({
     active: false,
     src: null,
@@ -12,6 +12,7 @@
     caption: "",
     metadata: null,
     on_regenerate: null,
+    on_delete: null,
     signature_color: null,
   });
 
@@ -34,6 +35,9 @@
     get on_regenerate() {
       return state.on_regenerate;
     },
+    get on_delete() {
+      return state.on_delete;
+    },
     get signature_color() {
       return state.signature_color;
     },
@@ -47,6 +51,7 @@
       state.canvas = null;
       state.metadata = null;
       state.on_regenerate = null;
+      state.on_delete = null;
       state.signature_color = null;
     } else if (options) {
       state.src = options.src || null;
@@ -54,6 +59,7 @@
       state.caption = options.caption || caption || "";
       state.metadata = options.metadata || null;
       state.on_regenerate = typeof options.on_regenerate === "function" ? options.on_regenerate : null;
+      state.on_delete = typeof options.on_delete === "function" ? options.on_delete : null;
       state.signature_color = options.signature_color || null;
     }
   };
@@ -289,6 +295,7 @@
         {/if}
 
         <div class="mt-auto grid shrink-0 grid-cols-2 gap-4">
+          <!-- Row 1: Seed & Regenerate -->
           {#if state.metadata.seed !== undefined && state.metadata.seed !== null}
             <NumberField
               value={state.metadata.seed}
@@ -318,6 +325,46 @@
             </Button>
           {/if}
 
+          <!-- Row 2: Download & Delete -->
+          <Button variant="secondary" class="col-start-1 row-start-2 h-12! w-full!" onclick={handle_download}>
+            <svg viewBox="0 0 24 24" class="mr-0 h-4 w-4 fill-none stroke-current">
+              <path
+                d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              ></path>
+              <polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></line>
+            </svg>
+            Download
+          </Button>
+
+          {#if state.on_delete}
+            <Button
+              variant="danger"
+              class="col-start-2 row-start-2 h-12! w-full!"
+              onclick={() => {
+                const fn = state.on_delete;
+                close_image_preview();
+                fn();
+              }}
+            >
+              <svg viewBox="0 0 24 24" class="mr-1.5 h-4 w-4 fill-none stroke-current">
+                <path
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                  stroke="currentColor"
+                  stroke-width="1.75"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></path>
+              </svg>
+              Delete
+            </Button>
+          {/if}
+
+          <!-- Row 3: Use as Profile Picture -->
           <Dropdown
             items={profile_options}
             label="Use as Profile Picture"
@@ -325,7 +372,7 @@
             matchWidth
             disabled={profile_options.every((o) => o.disabled)}
             onchange={handle_use_as_profile}
-            class="col-start-1 row-start-2 h-12! w-full!"
+            class="col-span-2 row-start-3 h-12! w-full!"
           >
             {#snippet trigger_content()}
               <span class="flex w-full items-center justify-center gap-2 truncate text-[0.8125rem] font-semibold">
@@ -346,21 +393,6 @@
               </span>
             {/snippet}
           </Dropdown>
-
-          <Button variant="secondary" class="col-start-2 row-start-2 h-12! w-full!" onclick={handle_download}>
-            <svg viewBox="0 0 24 24" class="mr-0 h-4 w-4 fill-none stroke-current">
-              <path
-                d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              ></path>
-              <polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></polyline>
-              <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></line>
-            </svg>
-            Download
-          </Button>
         </div>
       </div>
     </div>
