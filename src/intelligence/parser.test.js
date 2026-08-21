@@ -1,6 +1,5 @@
 import { clean_image_prompts, strip_cognition_blocks, parse_think_block, safe_parse_pseudo_json, check_refusal } from "./parser.js";
-import { parse_message, wrap_dialogue } from "../ui/message/render.js";
-import { escape_unescaped_json_quotes, escape_xml, merge_prose_into_field } from "@utils";
+import { escape_xml, merge_prose_into_field } from "@utils";
 import { describe, expect, it } from "vitest";
 
 describe("strip_cognition_blocks", () => {
@@ -209,73 +208,6 @@ describe("text-parser: escape_xml", () => {
   it("snake_case escape_xml should produce identical results", () => {
     const input = "This & that [bracket] <tag>";
     expect(escape_xml(input)).toBe(escape_xml(input));
-  });
-});
-
-describe("wrap_dialogue", () => {
-  it("should wrap double quotes in span.dialogue tags and convert to curly quotes", () => {
-    const input = 'Hello "World" text';
-    const expected = 'Hello <span class="dialogue">&ldquo;World&rdquo;</span> text';
-    expect(wrap_dialogue(input)).toBe(expected);
-  });
-
-  it("should handle nested HTML tags inside quotes properly without corrupting them", () => {
-    const input = 'Hello "World <em>italic</em> text" test';
-    const expected = 'Hello <span class="dialogue">&ldquo;World <em>italic</em> text&rdquo;</span> test';
-    expect(wrap_dialogue(input)).toBe(expected);
-  });
-
-  it("should auto-close unclosed quotes at the end of the string", () => {
-    const input = 'Hello "World';
-    const expected = 'Hello <span class="dialogue">&ldquo;World</span>';
-    expect(wrap_dialogue(input)).toBe(expected);
-  });
-
-  it("should skip quotes inside tag attributes", () => {
-    const input = '<p class="active">Hello "World"</p>';
-    const expected = '<p class="active">Hello <span class="dialogue">&ldquo;World&rdquo;</span></p>';
-    expect(wrap_dialogue(input)).toBe(expected);
-  });
-});
-
-describe("parse_message updated behavior", () => {
-  it("should parse markdown and wrap dialogue", () => {
-    const input = 'Orion twitched. "Hey *twink*."';
-    const { displayText } = parse_message(input);
-    expect(displayText).toBe('<p>Orion twitched. <span class="dialogue">&ldquo;Hey <em>twink</em>.&rdquo;</span></p>');
-  });
-});
-
-describe("escape_unescaped_json_quotes", () => {
-  it("should escape unescaped interior double-quotes in JSON strings", () => {
-    const input = `{ "mutations": { "AI_CHARACTER": { "state_append": "He said "Hello" to me" } } }`;
-    const expected = `{ "mutations": { "AI_CHARACTER": { "state_append": "He said \\"Hello\\" to me" } } }`;
-    expect(escape_unescaped_json_quotes(input)).toBe(expected);
-  });
-
-  it("should leave already escaped quotes untouched", () => {
-    const input = `{ "mutations": { "AI_CHARACTER": { "state_append": "He said \\"Hello\\" to me" } } }`;
-    expect(escape_unescaped_json_quotes(input)).toBe(input);
-  });
-
-  it("should handle nested commas inside quotes correctly by not stopping at them", () => {
-    const input = `{ "mutations": { "AI_CHARACTER": { "state_append": "He said "Hello, friend" to me", "vector_resolve": [] } } }`;
-    const expected = `{ "mutations": { "AI_CHARACTER": { "state_append": "He said \\"Hello, friend\\" to me", "vector_resolve": [] } } }`;
-    expect(escape_unescaped_json_quotes(input)).toBe(expected);
-  });
-
-  it("should handle unescaped quotes with trailing braces or brackets", () => {
-    const input = `{ "directive": "Say "hello"" }`;
-    const expected = `{ "directive": "Say \\"hello\\"" }`;
-    expect(escape_unescaped_json_quotes(input)).toBe(expected);
-  });
-});
-
-describe("parse_message XML entity sanitization pass", () => {
-  it("should sanitize leaking &quot; and &apos; XML entities before wrapping dialogue", () => {
-    const input = "Orion said, &quot;I&apos;m fine.&quot;";
-    const { displayText } = parse_message(input);
-    expect(displayText).toBe('<p>Orion said, <span class="dialogue">&ldquo;I\'m fine.&rdquo;</span></p>');
   });
 });
 

@@ -452,3 +452,55 @@ export function escape_unescaped_json_quotes(json_string) {
     return `: "${escaped_value}"`;
   });
 }
+
+/**
+ * @typedef {Object} ParsedRelationalVector
+ * @property {string} source_name
+ * @property {string} target_name
+ * @property {string} dynamic
+ * @property {string} raw
+ */
+
+/**
+ * Parses a directed relational vector string: "[Source] → [Target]: [Dynamic]".
+ * Tolerates various arrow notations (→, ->, —, =>).
+ * @param {string|null|undefined} vector_str
+ * @returns {ParsedRelationalVector | null}
+ */
+export function parse_relational_vector(vector_str) {
+  if (!vector_str || typeof vector_str !== "string") return null;
+  const raw = vector_str.trim();
+  if (!raw) return null;
+
+  // Match: Source → Target: Dynamic (or Source -> Target: Dynamic)
+  const match = raw.match(/^([^\n→—\-=>:]+?)\s*(?:→|->|—>|=>|—)\s*([^\n:]+?)(?:\s*:\s*([\s\S]*))?$/);
+  if (!match) return null;
+
+  const source_name = (match[1] || "").trim();
+  const target_name = (match[2] || "").trim();
+  const dynamic = (match[3] || "").trim();
+
+  if (!source_name || !target_name) return null;
+
+  return {
+    source_name,
+    target_name,
+    dynamic,
+    raw,
+  };
+}
+
+/**
+ * Formats a canonical directed relational vector string.
+ * @param {string} source_name
+ * @param {string} target_name
+ * @param {string} [dynamic=""]
+ * @returns {string}
+ */
+export function format_relational_vector(source_name, target_name, dynamic = "") {
+  const src = (source_name || "").trim();
+  const tgt = (target_name || "").trim();
+  const dyn = (dynamic || "").trim();
+  if (!src || !tgt) return "";
+  return dyn ? `${src} → ${tgt}: ${dyn}` : `${src} → ${tgt}`;
+}

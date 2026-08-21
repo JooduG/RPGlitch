@@ -14,6 +14,7 @@
   import { entities, premade } from "@data";
   import { get_signature_color } from "@media";
   import { Button, TextField, tooltip } from "@primitives";
+  import { parse_relational_vector, format_relational_vector } from "@utils";
 
   /**
    * @typedef {Object} Props
@@ -41,20 +42,17 @@
 
   // Load all known characters and fractals to resolve incoming relationships and satellite entity profiles
   $effect(() => {
-    let active = true;
-    (async () => {
-      try {
-        const [chars, fractals] = await Promise.all([entities.list("character").catch(() => []), entities.list("fractal").catch(() => [])]);
-        if (active) {
-          all_entities = [...chars, ...fractals];
+    Promise.all([entities.list("character"), entities.list("fractal")]).then(([chars, fracs]) => {
+      const combined = [...chars, ...fracs];
+      // Merge with premades so uninstantiated premades can still be clicked / mapped
+      const seen_ids = new Set(combined.map((e) => e.id));
+      for (const p of premade?.entities || []) {
+        if (!seen_ids.has(p.id)) {
+          combined.push(p);
         }
-      } catch (_e) {
-        // Fallback gracefully
       }
-    })();
-    return () => {
-      active = false;
-    };
+      all_entities = combined;
+    });
   });
 
   /**
@@ -67,35 +65,22 @@
       .toLowerCase();
   }
 
-  // Parse raw edge "Source → Target: Dynamic"
-  function parse_edge(raw_str) {
-    const str = String(raw_str || "").trim();
-    const m = str.match(/^\s*(.+?)\s*(?:→|->|—>\s*)\s*(.+?)\s*:\s*(.+)$/);
-    if (!m) return null;
-    return {
-      raw: str,
-      source_name: m[1].trim(),
-      target_name: m[2].trim(),
-      dynamic: m[3].trim(),
-    };
-  }
-
   function find_matched_entity(target_name) {
     if (!target_name) return null;
     const n = norm(target_name);
     // 1. Exact match in all_entities
     const exact = all_entities.find((e) => norm(e.name) === n);
     if (exact) return exact;
-    // 2. Substring/prefix match in all_entities (e.g. "Silvers" -> "Lord Benedict Silvers")
-    const sub = all_entities.find((e) => {
+    // 2. Word-boundary or token match in all_entities
+    const token_match = all_entities.find((e) => {
       const en = norm(e.name);
-      return en.includes(n) || n.includes(en);
+      return en === n || en.split(/\s+/).includes(n) || n.split(/\s+/).includes(en);
     });
-    if (sub) return sub;
+    if (token_match) return token_match;
     // 3. Match in premade catalog
     const pm = (premade?.entities || []).find((e) => {
       const en = norm(e.name);
-      return en === n || en.includes(n) || n.includes(en);
+      return en === n || en.split(/\s+/).includes(n) || n.split(/\s+/).includes(en);
     });
     if (pm) return pm;
     return { name: target_name };
@@ -110,7 +95,7 @@
     // A. Outgoing edges (stored directly on entity.relationships)
     const outgoing_raw = Array.isArray(entity.relationships) ? entity.relationships : [];
     for (const r of outgoing_raw) {
-      const parsed = parse_edge(r);
+      const parsed = parse_relational_vector(r);
       if (parsed) {
         edges.push({
           ...parsed,
@@ -126,8 +111,8 @@
       if (norm(other.name) === current_name) continue;
       const other_rels = Array.isArray(other.relationships) ? other.relationships : [];
       for (const r of other_rels) {
-        const parsed = parse_edge(r);
-        if (parsed && (norm(parsed.target_name) === current_name || current_name.includes(norm(parsed.target_name)))) {
+        const parsed = parse_relational_vector(r);
+        if (parsed && norm(parsed.target_name) === current_name) {
           edges.push({
             ...parsed,
             is_outgoing: false,
@@ -254,10 +239,16 @@
     if (!new_target_name.trim() || !new_dynamic.trim() || !entity?.name) return;
     const clean_target = new_target_name.trim();
     const clean_dyn = new_dynamic.trim();
-    const new_vector = `${entity.name} → ${clean_target}: ${clean_dyn}`;
+    const new_vector = format_relational_vector(entity.name, clean_target, clean_dyn);
 
     const existing = Array.isArray(entity.relationships) ? entity.relationships.slice() : [];
-    const next_rels = [new_vector, ...existing.filter((r) => !norm(r).startsWith(norm(`${entity.name} → ${clean_target}`)))].slice(0, 12);
+    const next_rels = [
+      new_vector,
+      ...existing.filter((r) => {
+        const parsed = parse_relational_vector(r);
+        return !parsed || norm(parsed.target_name) !== norm(clean_target);
+      }),
+    ].slice(0, 12);
 
     entity.relationships = next_rels;
     on_update_relationships(next_rels);
@@ -458,7 +449,7 @@
 {#if is_editing && entity?.relationships && entity.relationships.length > 0}
   <div class="flex w-full flex-col gap-4" style="--accent-color: {center_color}">
     {#each entity.relationships as rel, i (i)}
-      {@const parsed = parse_edge(rel)}
+      {@const parsed = parse_relational_vector(rel)}
       {@const current_target = parsed ? parsed.target_name : ""}
       {@const current_dynamic = parsed ? parsed.dynamic : rel}
       <div class="animate-[slide-down-item_400ms_cubic-bezier(0.23,1,0.32,1)_forwards]">
@@ -471,7 +462,7 @@
           oninput={(e) => {
             const next_dyn = e.currentTarget.value;
             const target = parsed?.target_name || "Unknown";
-            const next_rel = `${entity.name} → ${target}: ${next_dyn}`;
+            const next_rel = format_relational_vector(entity.name, target, next_dyn);
             const next_rels = entity.relationships.slice();
             next_rels[i] = next_rel;
             entity.relationships = next_rels;
@@ -485,7 +476,7 @@
                 onchange={(e) => {
                   const new_target = e.currentTarget.value;
                   const dyn = parsed?.dynamic || "";
-                  const next_rel = `${entity.name} → ${new_target}: ${dyn}`;
+                  const next_rel = format_relational_vector(entity.name, new_target, dyn);
                   const next_rels = entity.relationships.slice();
                   next_rels[i] = next_rel;
                   entity.relationships = next_rels;

@@ -1,5 +1,5 @@
 import { db } from "./db.js";
-import { state_bridge, stories_bridge } from "@utils";
+import { parse_relational_vector, state_bridge, stories_bridge } from "@utils";
 
 /** Durable IndexedDB key for the active-session pointer (kv_settings). */
 export const SESSION_ID_KEY = "active_session_id";
@@ -79,8 +79,8 @@ export const session_driver = {
     const narrative_style = selection.narrative_style || selection.fractal?.narrative_style || fractal_entity?.narrative_style;
 
     // Auto-seed story.npc_ids with characters connected to the Fractal (plus trans-fractal Wanderers)
-    const initial_npc_ids = new Set(Array.isArray(selection.npc_ids) ? selection.npc_ids.map(String) : []);
     const excluded_ids = new Set([String(selection.ai_id), String(selection.user_id)].filter(Boolean));
+    const initial_npc_ids = new Set(Array.isArray(selection.npc_ids) ? selection.npc_ids.map(String).filter((id) => !excluded_ids.has(id)) : []);
 
     try {
       const all_chars = await db.entities
@@ -104,8 +104,8 @@ export const session_driver = {
         const fractal_rels = Array.isArray(fractal_entity?.relationships) ? fractal_entity.relationships : [];
         const char_name = (char.name || "").trim().toLowerCase();
         const has_fractal_bond = fractal_rels.some((r) => {
-          const m = String(r).match(/^\s*(.+?)\s*(?:→|->|—>\s*)\s*(.+?)\s*:/);
-          return m && m[2].trim().toLowerCase() === char_name;
+          const parsed = parse_relational_vector(r);
+          return parsed && parsed.target_name.toLowerCase() === char_name;
         });
         if (has_fractal_bond) {
           initial_npc_ids.add(char_id);
@@ -115,15 +115,15 @@ export const session_driver = {
         // 3. Check if Character has outgoing relationship to this Fractal
         const char_rels = Array.isArray(char.relationships) ? char.relationships : [];
         const has_char_to_fractal_bond = char_rels.some((r) => {
-          const m = String(r).match(/^\s*(.+?)\s*(?:→|->|—>\s*)\s*(.+?)\s*:/);
-          return m && fractal_name && m[2].trim().toLowerCase() === fractal_name;
+          const parsed = parse_relational_vector(r);
+          return parsed && fractal_name && parsed.target_name.toLowerCase() === fractal_name;
         });
         if (has_char_to_fractal_bond) {
           initial_npc_ids.add(char_id);
         }
       }
-    } catch (_err) {
-      // Fallback gracefully to explicit selection
+    } catch (err) {
+      console.warn("[Session] Auto-seeding fractal roster failed, falling back to selection:", err);
     }
 
     const id = await db.stories.add({
