@@ -29,18 +29,14 @@ The codebase is fully synchronized, hardened, and green with **0 errors, 0 warni
 
 ### Active & Upcoming Tracks
 
-_No active track currently staged. Select next track or run `/01-plan`._
+- _No active track currently staged. Select next track or run `/01-plan`._
 
 ### Recent Completed Tracks
 
+- [x] `track-relational-constellation-ui-2026-08-21`: Radial Relational Constellation UI & Premade Wanderers (Interactive SVG radial map, signature colored directional arrows, bidirectional curved offsets, hover tooltips, click-to-open profile navigation, wanderer premades Hank and Glitch).
 - [x] `track-genesis-rich-synthesis-2026-08-21`: Rich Character Creation on Genesis & `<ROSTER>` Harmonization (Synchronous profile-sorting on genesis, Twin-Cylinder schema normalization, background portrait trigger, setting-agnostic `<ROSTER>` renaming).
 - [x] `track-npc-expansion-2026-08-14`: Multi-NPC living-world ecosystem (3-tier world roster, Stage Spotlight `in_scene_npc_ids` + Director choreography, compact `<ROSTER>` signatures, relational mesh, Epistemic Horizon rules, 1.3x in-scene RAG boost, Director NPC delegation, and multi-voice Kokoro TTS). Archived to `archive/2026-08/2026-08-21-track-npc-expansion.md`.
 - [x] `track-director-expansion-2026-08-14`: Director turn pipeline (async job queue concurrency engine, 12-archetype somatic registry + 23-style motif catalog, Director schema expansion, somatic directives injection, normalized speaker delegation & reactive generating-entity thinking state, auto-epilogue dispatch for concluded/collapsed stories). Archived to `archive/2026-08/2026-08-21-track-director-expansion.md`.
-- [x] `track-memory-bundle-2026-08-14`: Canon Chronicle for exact fact persistence in `entity.past` with forge-skip protection, `usr_` ID prefix, universal atomic key clearing, multi-item inventory aggregation, and visual/epistemic filters.
-- [x] `track-import-export-2026-08-14`: Comprehensive data portability (Wiki/Fandom URL ingestion via superFetch proxy, standalone entity JSON export/import, Story Markdown compilation, and Character Card V2/V3 codec).
-- [x] `track-codebase-improvements-2026-08-13`: Architectural optimizations across `src/` (Layer boundary decoupling in `kernel.js`, `resolve_image_trigger` helper extraction, `AudioEngine` teardown method, and export surface pruning across 6 files).
-- [x] `track-remediate-stress-test-feedback-2026-08-13`: Remediate 4 approved stress-test review findings (Ghost Row Purge on failed/timed-out image placeholders, Memory Forge Stale-Goal Eviction Law reinforcement, Director Physical Causality Law enforcement, and Present Physical Wardrobe/Equipment Preservation).
-- [x] `remediate-stress-test-issues-2026-08-12`: Remediate 7 stress-test issues from `long-term-review-4` (Fractal future standing agenda stagnation, session_driver reload sync, ONNX WASM embed recovery, Director terse thought formatting, reply length allocation, and telemetry logging completeness).
 
 _(All earlier completed tracks from June–July 2026 are cataloged in the [Permanent Archive Vault](file:///C:/Users/johng/.gemini/antigravity-ide/archive/))_
 

@@ -266,17 +266,41 @@ function render_scene_roster_xml(entities = {}, npc_entities = [], in_scene_ids 
 
 /**
  * Renders the flat relational mesh — directed "[Source] → [Target]: [Dynamic]"
- * vectors gathered from the trio and every world NPC.
+ * vectors gathered from the entities.
+ * When perspective_entity is provided (e.g. AI Character or NPC), it scopes
+ * the mesh to that entity's subjective perspective (their own outgoing bonds
+ * and incoming bonds directed at them from the world/environment, but never
+ * private outgoing bonds of third parties like USER_PERSONA).
+ * @param {any} [entities]
+ * @param {any[]} [npc_entities]
+ * @param {any} [perspective_entity]
  */
-function render_relational_mesh_xml(entities = {}, npc_entities = []) {
+function render_relational_mesh_xml(entities = {}, npc_entities = [], perspective_entity = null) {
   const rels = [];
+  const perspective_name = perspective_entity?.name ? String(perspective_entity.name).toLowerCase().trim() : null;
+
   const push = (e) => {
     if (!e?.name) return;
     for (const r of Array.isArray(e?.relationships) ? e.relationships : []) {
       const clean = String(r || "").trim();
-      if (clean) rels.push(`- ${escape_xml(clean)}`);
+      if (!clean) continue;
+      if (perspective_name) {
+        // Epistemic Law: An entity only knows their OWN outgoing feelings/relations
+        // and public environment/fractal dynamics. They CANNOT read what other entities privately feel about them.
+        const is_from_me = clean.toLowerCase().startsWith(`${perspective_name} →`) || clean.toLowerCase().startsWith(`${perspective_name}->`);
+        const is_fractal =
+          entities?.FRACTAL?.name &&
+          (clean.toLowerCase().startsWith(`${String(entities.FRACTAL.name).toLowerCase()} →`) ||
+            clean.toLowerCase().startsWith(`${String(entities.FRACTAL.name).toLowerCase()}->`));
+        if (is_from_me || is_fractal) {
+          rels.push(`- ${escape_xml(clean)}`);
+        }
+      } else {
+        rels.push(`- ${escape_xml(clean)}`);
+      }
     }
   };
+
   push(entities?.AI);
   push(entities?.USER);
   push(entities?.FRACTAL);
@@ -299,11 +323,15 @@ const EPISTEMIC_ROSTER_RULES_XML = `<EPISTEMIC_RULES>
 /**
  * The <CURRENT_STORY_STATE> block shared by storyteller prompts: who is in the
  * room, the relational web, and the epistemic rules that govern it.
+ * @param {any} [entities]
+ * @param {any[]} [npc_entities]
+ * @param {string[]} [in_scene_ids]
+ * @param {any} [perspective_entity]
  */
-function render_current_story_state_xml(entities = {}, npc_entities = [], in_scene_ids = []) {
+function render_current_story_state_xml(entities = {}, npc_entities = [], in_scene_ids = [], perspective_entity = null) {
   const body = [
     render_scene_roster_xml(entities, npc_entities, in_scene_ids),
-    render_relational_mesh_xml(entities, npc_entities),
+    render_relational_mesh_xml(entities, npc_entities, perspective_entity),
     EPISTEMIC_ROSTER_RULES_XML,
   ]
     .filter(Boolean)
@@ -615,7 +643,7 @@ function render_character({
   </FRACTAL>`.trim()
       : ""
   }
-  ${render_current_story_state_xml(entities, npc_entities, in_scene_ids)}
+  ${render_current_story_state_xml(entities, npc_entities, in_scene_ids, entities?.AI)}
 </SNAPSHOT>
 <ROUND>${escape_xml(String(round))}</ROUND>
 ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
@@ -729,7 +757,7 @@ function render_npc_character({
     <STATE_OF_MIND>${render_field_value(entities?.USER?.present?.non_physical, entities?.USER, entities)}</STATE_OF_MIND>
     <CURRENT_LOOK>${render_field_value(entities?.USER?.present?.physical, entities?.USER, entities)}</CURRENT_LOOK>
   </USER_PERSONA>
-  ${render_current_story_state_xml(entities, npc_entities, in_scene_ids)}
+  ${render_current_story_state_xml(entities, npc_entities, in_scene_ids, npc)}
 </SNAPSHOT>
 <ROUND>${escape_xml(String(round))}</ROUND>
 ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}

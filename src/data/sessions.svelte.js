@@ -78,6 +78,54 @@ export const session_driver = {
     const visual_style = selection.visual_style || selection.fractal?.visual_style || fractal_entity?.visual_style;
     const narrative_style = selection.narrative_style || selection.fractal?.narrative_style || fractal_entity?.narrative_style;
 
+    // Auto-seed story.npc_ids with characters connected to the Fractal (plus trans-fractal Wanderers)
+    const initial_npc_ids = new Set(Array.isArray(selection.npc_ids) ? selection.npc_ids.map(String) : []);
+    const excluded_ids = new Set([String(selection.ai_id), String(selection.user_id)].filter(Boolean));
+
+    try {
+      const all_chars = await db.entities
+        .where("type")
+        .equals("character")
+        .toArray()
+        .catch(() => []);
+      const fractal_name = (fractal_entity?.name || "").trim().toLowerCase();
+
+      for (const char of all_chars) {
+        const char_id = String(char.id);
+        if (excluded_ids.has(char_id)) continue;
+
+        // 1. Check if Character is a Wanderer
+        if (char.is_wanderer) {
+          initial_npc_ids.add(char_id);
+          continue;
+        }
+
+        // 2. Check if Fractal has outgoing relationship to this Character
+        const fractal_rels = Array.isArray(fractal_entity?.relationships) ? fractal_entity.relationships : [];
+        const char_name = (char.name || "").trim().toLowerCase();
+        const has_fractal_bond = fractal_rels.some((r) => {
+          const m = String(r).match(/^\s*(.+?)\s*(?:→|->|—>\s*)\s*(.+?)\s*:/);
+          return m && m[2].trim().toLowerCase() === char_name;
+        });
+        if (has_fractal_bond) {
+          initial_npc_ids.add(char_id);
+          continue;
+        }
+
+        // 3. Check if Character has outgoing relationship to this Fractal
+        const char_rels = Array.isArray(char.relationships) ? char.relationships : [];
+        const has_char_to_fractal_bond = char_rels.some((r) => {
+          const m = String(r).match(/^\s*(.+?)\s*(?:→|->|—>\s*)\s*(.+?)\s*:/);
+          return m && fractal_name && m[2].trim().toLowerCase() === fractal_name;
+        });
+        if (has_char_to_fractal_bond) {
+          initial_npc_ids.add(char_id);
+        }
+      }
+    } catch (_err) {
+      // Fallback gracefully to explicit selection
+    }
+
     const id = await db.stories.add({
       title: selection.story_title || "New Story",
       ai_id: selection.ai_id,
@@ -93,7 +141,7 @@ export const session_driver = {
           narrative_style,
         },
       },
-      npc_ids: Array.isArray(selection.npc_ids) ? selection.npc_ids : [],
+      npc_ids: Array.from(initial_npc_ids),
       created_at: Date.now(),
       updated_at: Date.now(),
       round: 0,

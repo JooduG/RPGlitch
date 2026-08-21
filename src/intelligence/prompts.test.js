@@ -1250,14 +1250,31 @@ describe("World Cast & Stage Spotlight prompt blocks (track-npc-expansion)", () 
     expect(result.system).not.toContain("Off-Screen (Stasis)");
   });
 
-  it("render_character() includes CURRENT_STORY_STATE (roster + mesh + epistemic rules) in the task snapshot", () => {
-    const result = prompt_builder.build_character_prompt({ ...base_payload(), npc_entities, in_scene_ids: ["npc-elias"] }, base_snapshot, {});
+  it("render_character() includes CURRENT_STORY_STATE scoped to the AI's perspective across the Epistemic Wall", () => {
+    const custom_payload = {
+      ...base_payload(),
+      entities: {
+        AI: { id: "ai-1", name: "Viper", relationships: ["Viper → Ghost: fond of his clumsy charm", "Viper → Elias: respects his intellect"] },
+        USER: { id: "u-1", name: "Ghost", relationships: ["Ghost → Viper: thinks she is dangerous and scary", "Ghost → Boss: secretly hates him"] },
+        FRACTAL: { id: "f-1", name: "The Citadel", relationships: ["The Citadel → Viper: surveillance tracking"] },
+      },
+      npc_entities,
+      in_scene_ids: ["npc-elias"],
+    };
+    const result = prompt_builder.build_character_prompt(custom_payload, base_snapshot, {});
 
     expect(result.task).toContain("<CURRENT_STORY_STATE>");
     expect(result.task).toContain("<SCENE_ROSTER>");
-    expect(result.task).toContain("Elias (id: npc-elias)");
     expect(result.task).toContain("<RELATIONAL_MESH>");
-    expect(result.task).toContain("Elias → Viper: wary of her past");
+    // Sees own outgoing bonds
+    expect(result.task).toContain("Viper → Ghost: fond of his clumsy charm");
+    expect(result.task).toContain("Viper → Elias: respects his intellect");
+    // Sees world/environment bond from the setting
+    expect(result.task).toContain("The Citadel → Viper: surveillance tracking");
+    // DOES NOT see third-party private feelings of other characters or the User!
+    expect(result.task).not.toContain("Ghost → Boss: secretly hates him");
+    expect(result.task).not.toContain("Ghost → Viper: thinks she is dangerous and scary");
+    expect(result.task).not.toContain("Elias → Viper: wary of her past");
     expect(result.task).toContain("<EPISTEMIC_RULES>");
   });
 

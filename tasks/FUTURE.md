@@ -1,25 +1,26 @@
-# 🚀 Implementation Blueprint — `track-genesis-rich-synthesis-2026-08-21`
+# 🚀 Implementation Blueprint — `track-relational-constellation-ui-2026-08-21`
 
-> **Track Goal**: Upgrade the NPC Genesis turn pipeline from minimal draft placeholders to fully realized Twin-Cylinder character entities using the standardized character creation LLM pipeline, while unifying cast terminology to `<ROSTER>`.
+> **Track Goal**: Build an interactive radial constellation visualization for entity relationships at the bottom of the Profile view with signature-colored directional SVG arrows, interactive tooltips, and profile navigation, while marking Hank and Glitch as trans-fractal wanderers.
 >
-> 1. **Nomenclature Harmonization**: Rename `<WORLD_CAST>` to `<ROSTER>` / `render_roster_xml()` across all prompt assembly and test assertions.
-> 2. **Rich Character Synthesis on Genesis**: When the Director outputs a `genesis` draft, execute the rich character creation prompt (`sort_into_profile()`) contextualized with recent scene events.
-> 3. **Twin-Cylinder Normalization & Immediate Sensory Trigger**: Map the synthesized profile onto the nested schema via `apply_profile_to_entity()` and fire background portrait generation via `visual_engine.generate()` using the rich physical bracket descriptions.
-> 4. **Resilient Fallback**: Automatically fall back to the Director's raw draft if LLM sorting fails or times out.
+> 1. **Premade Wanderers**: Update `src/data/definitions/premades.js` setting `is_wanderer: true` on `rust` and `glitch`.
+> 2. **Radial Relational Constellation Component**: Create `src/ui/profile/RelationalGraph.svelte` supporting incoming & outgoing edges, radial trigonometry, signature color arrows, curved offset paths for bidirectional links, interactive tooltips, and click-to-open entity switching.
+> 3. **Profile Integration**: Mount the constellation at the bottom of `src/ui/profile/Profile.svelte`.
+> 4. **TDD & Verification**: Create unit tests in `src/ui/profile/RelationalGraph.test.js`, run `npm run verify` and `npm run deploy:prepare`.
 
 ---
 
 ## 1. Tactical Tasks
 
-- [x] `task-1`: **RED Test Suite — `<ROSTER>` Renaming & Rich Genesis Pipeline**: Write failing tests in `prompts.test.js` and `kernel.test.js` covering `<ROSTER>` schema generation, rich Genesis profile synthesis, and fallback behavior.
-- [x] `task-2`: **GREEN Implementation — Prompts & Protocols**: Update `prompts.js` and `protocols.js` to replace `<WORLD_CAST>` with `<ROSTER>`, updating `DIRECTOR_JSON_SCHEMA`, `ENTITY_CONVERGENCE_LAW_XML`, and task descriptions.
-- [x] `task-3`: **GREEN Implementation — Intelligence Kernel Genesis Expansion**: Update `_apply_genesis()` and `spawn_npc()` in `kernel.js` to build rich character profiles using `sort_into_profile()`, normalize via `apply_profile_to_entity()`, persist to Dexie, and dispatch portrait generation.
-- [x] `task-4`: **REFACTOR & Verification Baseline**: Run unit test suites, `npm run verify`, and `npm run deploy:prepare` to guarantee 0 regressions and a clean production build.
+- [x] `task-1`: **RED Test Suite — Wanderers & Relational Graph**: Write failing tests in `premades.test.js` (or `normalizer.test.js`) and `RelationalGraph.test.js` validating wanderer premade flags, edge harvesting, and SVG geometric properties.
+- [x] `task-2`: **GREEN Implementation — Premade Wanderers**: Update `premades.js` setting `is_wanderer: true` on `rust` and `glitch`.
+- [x] `task-3`: **GREEN Implementation — RelationalGraph.svelte**: Create `RelationalGraph.svelte` with radial layout, dual-directional arrow calculations, signature color markers, glassmorphism tooltips, and entity navigation callbacks.
+- [x] `task-4`: **GREEN Implementation — Profile Integration**: Embed `RelationalGraph` into `Profile.svelte` with reactive entity binding and edit-mode edge editing.
+- [x] `task-5`: **REFACTOR & Verification Baseline**: Run full verification suite `npm run verify` and production build `npm run deploy:prepare`.
 
 ---
 
 ## 2. Verification Gate
 
-- Unit Tests: `npx vitest run src/intelligence/prompts.test.js src/intelligence/kernel.test.js src/state/runtime.test.js`
+- Unit Tests: `npx vitest run src/ui/profile/RelationalGraph.test.js src/data/normalizer.test.js`
 - Full Verify: `npm run verify`
 - Production Build: `npm run deploy:prepare`

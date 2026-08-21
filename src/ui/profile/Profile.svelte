@@ -16,6 +16,7 @@
   import { ProfileState } from "./Profile.svelte.js";
   import Vectors from "./Vectors.svelte";
   import ProfileHeader from "./ProfileHeader.svelte";
+  import RelationalGraph from "./RelationalGraph.svelte";
   import { app, runtime, simulation_state } from "@state";
   import { fade } from "svelte/transition";
   import { NARRATIVE_STYLES, VISUAL_STYLES, PROFILE_SECTIONS_BY_TYPE, serialize_character_card, serialize_rpglitch_entity } from "@data";
@@ -32,6 +33,8 @@
   let previous_scroll_top = $state(0);
   /** Export chooser (edit-mode footer) — picks V2 Card or native RPGlitch JSON. */
   let show_export_modal = $state(false);
+  /** Toggle add form for relationships */
+  let show_rel_add_form = $state(false);
 
   // --- DEVMODE LIVE TELEMETRY SYNC ---
   $effect(() => {
@@ -41,6 +44,13 @@
       if (live_entity?.dynamics && profile_state.char.dynamics) {
         Object.assign(profile_state.char.dynamics, live_entity.dynamics);
       }
+    }
+  });
+
+  // --- REACTIVE SYNC FOR ENTITY SWAPS ---
+  $effect(() => {
+    if (app.editing_entity && profile_state.char?.id !== app.editing_entity.id) {
+      profile_state.sync();
     }
   });
 
@@ -914,6 +924,57 @@
         {/each}
       </div>
     {/each}
+
+    <!-- RADIAL RELATIONAL CONSTELLATION GRAPH (Vertical Rotated Headline Grid) -->
+    <div
+      class={get_section_class()}
+      style:border-color={app.viewport.mobile ? "color-mix(in srgb, var(--signature-color) 30%, transparent)" : undefined}
+      data-section="relationships"
+      onclick={() => {
+        if (profile_state.is_editing) {
+          show_rel_add_form = !show_rel_add_form;
+        }
+      }}
+      onmouseenter={() => (profile_state.hovered_section = "relationships")}
+      onmouseleave={() => (profile_state.hovered_section = null)}
+      role="presentation"
+    >
+      <div class="relative flex w-full flex-col items-center" style={get_inner_section_style("relationships")}>
+        <h6
+          class="relative m-0 flex items-center justify-center text-center tracking-widest uppercase transition-colors duration-300"
+          style="color: var(--signature-color); text-shadow: none;"
+        >
+          {#if profile_state.is_editing && profile_state.hovered_section === "relationships"}
+            <span
+              class="pointer-events-none absolute -top-5 left-1/2 -translate-x-1/2 font-mono text-base tracking-widest text-white"
+              style:animation="add-hint-fade var(--motion-elastic) forwards">+</span
+            >
+          {/if}
+          <span
+            class={get_label_span_class()}
+            style:text-orientation={app.viewport.mobile ? undefined : "mixed"}
+            style:writing-mode={app.viewport.mobile ? undefined : "vertical-rl"}>Relationships</span
+          >
+        </h6>
+      </div>
+    </div>
+
+    <div class="relative flex h-full w-full min-w-0 flex-col items-stretch justify-stretch">
+      <RelationalGraph
+        entity={profile_state.char}
+        is_editing={profile_state.is_editing}
+        bind:show_add_form={show_rel_add_form}
+        on_select_entity={(selected) => {
+          if (selected) {
+            app.open_profile(selected);
+          }
+        }}
+        on_update_relationships={(next_rels) => {
+          profile_state.char.relationships = next_rels;
+          profile_state._user_mutated = true;
+        }}
+      />
+    </div>
 
     {#if entity_type !== "fractal"}
       <div class="col-start-2 mt-0 flex w-full flex-col items-center gap-2 py-1">

@@ -44,6 +44,12 @@ export const premade = {
         },
       ],
 
+      relationships: [
+        "Orion the Pink Protector → Nova City: primary protector and vibrant fitness idol",
+        "Orion the Pink Protector → Glitch: playful superhero vs hacker rivalry",
+        "Orion the Pink Protector → Lord Benedict Silvers: oblivious brand sponsorship puppet",
+      ],
+
       future:
         "He actively pursues a high-visibility viral rescue scenario where the men he saves openly praise his herculean frame on a live broadcast while he holds a maximum-flex pose and drops atrocious puns — and he secretly dreams the stream cuts to a certain hacker finally admitting he watches every upload.",
     },
@@ -55,6 +61,7 @@ export const premade = {
       description:
         "Bratty cyan-haired twunk hacker who sneaks up from the Nova City underground to pull chaotic shenanigans in the high-end districts.",
       type: "character",
+      is_wanderer: true,
       signature_color: "Electric Cyan",
       visual_style: "cyberpunk",
       voice: { name: "Cyber Handler", cadence: "rapid" },
@@ -82,6 +89,13 @@ export const premade = {
           emotional_weight: 10,
           meta: { origin: true },
         },
+      ],
+
+      relationships: [
+        "Glitch → Nova City: underground home base and rogue playground",
+        "Glitch → Orion the Pink Protector: teasing flirtatious provocation",
+        "Glitch → Dr. Elias Tariq: containment breach hacker sabotage",
+        "Glitch → Project Tartarus: infiltrated orbital mainframe target",
       ],
 
       future:
@@ -132,6 +146,15 @@ export const premade = {
         },
       ],
 
+      relationships: [
+        "Lord Benedict Silvers → Orion the Pink Protector: corporate sponsorship marketing puppet and sculpted prize",
+        "Lord Benedict Silvers → Julien the Banished Prince: hypnotic conditioning and shared exile origin",
+        "Lord Benedict Silvers → Hank 'Rust' Brawley: underground arena arms client and explosive supplier",
+        "Lord Benedict Silvers → Beast: prized gladiatorial combat asset",
+        "Lord Benedict Silvers → Ashenweald: ancient aristocratic high court birthplace and site of exile",
+        "Lord Benedict Silvers → Nova City: corporate syndicate headquarters and arena empire",
+      ],
+
       future:
         "He plans to isolate a highly resistant, aggressive target within his current environment, break their defiant spirit using a tailored cocktail of ancient gaze suggestion and lavish pampering, and condition them into a permanent, highly receptive, obedient follower.\nHe aims to expand his corporate dominance into deep-space operations by securing control of Project Tartarus's experimental biological pipelines, utilizing Hank 'Rust' Brawley as a go-between to acquire their volatile prototype assets.",
     },
@@ -142,6 +165,7 @@ export const premade = {
       profile_picture: "https://user.uploads.dev/file/148448ccc86f6c5e708edfee6356c40f.jpg",
       description: "Grizzled honky-tonk weapons specialist, scrap-merchant and scrapyard genius with a crude, aggressive, zero-filter attitude.",
       type: "character",
+      is_wanderer: true,
       signature_color: "Rusty Orange",
       visual_style: "graphic_print",
       voice: { name: "Grizzled Veteran", cadence: "drawl" },
@@ -169,6 +193,12 @@ export const premade = {
           emotional_weight: 9,
           meta: { origin: true },
         },
+      ],
+
+      relationships: [
+        "Hank 'Rust' Brawley → Dr. Elias Tariq: bootlegged hydraulic tech supplier and uneasy trade pipeline",
+        "Hank 'Rust' Brawley → Lord Benedict Silvers: heavy pyrotechnic weapons dealer",
+        "Hank 'Rust' Brawley → Nova City: Ytic'avon black-market scrap supplier",
       ],
 
       future:
@@ -211,6 +241,12 @@ export const premade = {
         },
       ],
 
+      relationships: [
+        "Dr. Elias Tariq → Beast: creator, growth architect, and escaped laboratory specimen",
+        "Dr. Elias Tariq → Hank 'Rust' Brawley: black-market biotech customer",
+        "Dr. Elias Tariq → Project Tartarus: personal orbital research station and sandbox",
+      ],
+
       future:
         "He plans to secure a highly resistant, hyper-masculine subject and subject them to an intensive chemical pipeline, aggressively inflating their muscle mass and dissolving their cognitive defenses until they are transformed into his perfect, adoring, muscle-bound creation.",
     },
@@ -251,6 +287,11 @@ export const premade = {
         },
       ],
 
+      relationships: [
+        "Julien the Banished Prince → Lord Benedict Silvers: lingering longing for authoritative submission",
+        "Julien the Banished Prince → Ashenweald: disgraced royal homeland and site of banishment",
+      ],
+
       future:
         "He desperately longs to find a powerful, commanding guardian who will permanently claim his obedience, dress him in revealing, delicate luxury, and provide the absolute authoritative structure his psyche craves.",
     },
@@ -288,6 +329,13 @@ export const premade = {
           emotional_weight: 8,
           meta: { origin: true },
         },
+      ],
+
+      relationships: [
+        "Beast → Dr. Elias Tariq: deep-seated feral resentment and escaped laboratory experiment",
+        "Beast → Lord Benedict Silvers: underground fighting contract client",
+        "Beast → Project Tartarus: birthplace and prison laboratory",
+        "Beast → Nova City: Ytic'avon fighting ring territory",
       ],
 
       future:
@@ -333,6 +381,13 @@ export const premade = {
         },
       ],
 
+      relationships: [
+        "Nova City → Orion the Pink Protector: beloved celebrity hero and fitness idol",
+        "Nova City → Glitch: underground folk hero and fugitive hacker",
+        "Nova City → Lord Benedict Silvers: financial syndicate and arena owner",
+        "Nova City → Beast: subterranean Ytic'avon fighting circuit champion",
+      ],
+
       future:
         "The metropolis is rapidly approaching the 'Eternal Pride Eclipse' — a celestial alignment expected to trigger an absolute security breach across the upper-tier plazas. The immediate mandate is to extract the classified Silvers Syndicate financial ledgers before midnight; failure or premature alarm will seal off the transit grids, permanently trapping everyone down in the Ytic'avon underbelly.",
     },
@@ -373,6 +428,11 @@ export const premade = {
         },
       ],
 
+      relationships: [
+        "Ashenweald → Julien the Banished Prince: exiled crown prince and origin of the royal desire curse",
+        "Ashenweald → Lord Benedict Silvers: banished ancient high-elf court noble",
+      ],
+
       future:
         "The sentient forest actively shifts its blackened canopy to entangle any travelers attempting to reach the high-elf marble throne room at its heart. Survival hinges on navigating the luminescent fog and breaching the royal gates before the forest's whispering, inhibition-shredding curse erodes all memory and permanently binds everyone to the woods.",
     },
@@ -411,6 +471,12 @@ export const premade = {
           emotional_weight: 10,
           meta: { origin: true },
         },
+      ],
+
+      relationships: [
+        "Project Tartarus → Dr. Elias Tariq: chief biochemical research director and sandbox owner",
+        "Project Tartarus → Beast: escaped primary combat prototype",
+        "Project Tartarus → Glitch: mainframe infiltrator and containment saboteur",
       ],
 
       future:
