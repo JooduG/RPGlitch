@@ -480,7 +480,7 @@ describe("prompt_builder (Refactored)", () => {
         keywords: ["dysregulation"],
       });
       expect(result.system).toContain('<ROLE name="Void" mode="SCENE">');
-      expect(result.task).toContain("living world and environment");
+      expect(result.task).toContain("You are the Fractal itself, narrating the scene");
       expect(result.task).toContain("<SOMATIC_DIRECTIVES>");
       expect(result.task).toContain("Cognitive overload");
     });
@@ -1211,10 +1211,10 @@ describe("World Cast & Stage Spotlight prompt blocks (track-npc-expansion)", () 
     { id: "npc-mira", name: "Mira", role_tier: 1, description: "A fixer with connections." },
   ];
 
-  it("render_director() emits the compact WORLD_CAST with tier + stage presence tags", () => {
+  it("render_director() emits the compact ROSTER with tier + stage presence tags", () => {
     const result = prompt_builder.build_director_prompt({ ...base_payload(), npc_entities, in_scene_ids: ["npc-elias"] }, base_snapshot);
 
-    expect(result.system).toContain("<WORLD_CAST>");
+    expect(result.system).toContain("<ROSTER>");
     expect(result.system).toContain("Elias (id: npc-elias)");
     expect(result.system).toContain("Mira (id: npc-mira)");
     expect(result.system).toContain("[Recurring]");
@@ -1242,7 +1242,7 @@ describe("World Cast & Stage Spotlight prompt blocks (track-npc-expansion)", () 
     expect(result.task).toContain("npc:<id>");
   });
 
-  it("render_director() emits no cast rows when the world cast is empty", () => {
+  it("render_director() emits no cast rows when the roster is empty", () => {
     const result = prompt_builder.build_director_prompt(base_payload(), base_snapshot);
     // The trio roster still renders (AI/USER/FRACTAL are always on stage), but
     // no NPC cast rows and no stage-presence markers should appear.

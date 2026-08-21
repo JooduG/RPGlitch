@@ -83,6 +83,7 @@ vi.mock("@intelligence/prompts.js", () => ({
     render_protocols: vi.fn(),
     build_scoring_context: vi.fn(() => "Hello"),
     build_terse_director_task: vi.fn(() => "<TASK>terse</TASK>"),
+    build_profile_sorting_prompt: vi.fn(() => ({ system: "SYS", messages: [] })),
   },
   render_terse_director_task: vi.fn(() => "<TASK>terse</TASK>"),
 }));
@@ -90,6 +91,7 @@ vi.mock("@intelligence/prompts.js", () => ({
 vi.mock("@platform/transport.js", () => ({
   llm_service: {
     generate: vi.fn(),
+    enhance: vi.fn(),
   },
   sanitize_llm: vi.fn((text) => text),
   looks_truncated: vi.fn(() => false),
@@ -203,6 +205,7 @@ vi.mock("@intelligence/temporal.js", async (importOriginal) => {
       apply_state_mutations: vi.fn(),
       set_round: vi.fn(),
       precompute_context_embedding: vi.fn(async () => {}),
+      create: vi.fn((content, type) => ({ content, type: type || "past", timestamp: Date.now() })),
     },
   };
 });
@@ -1336,6 +1339,39 @@ describe("NPC world cast (track-npc-expansion)", () => {
 
     expect(npc.signature_color).toBe("Proud Purple");
     expect(entities.upsert).toHaveBeenCalledWith("character", expect.objectContaining({ name: "Hue", signature_color: "Proud Purple" }));
+  });
+
+  it("spawn_npc() synthesizes rich Twin-Cylinder profile when LLM enhances the draft", async () => {
+    vi.mocked(llm_service.enhance).mockResolvedValueOnce(
+      JSON.stringify({
+        name: "Kaelen",
+        description: "A seasoned archivist.",
+        signature_color: "Electric Cyan",
+        appearance: "[GENDER: male]\n[AGE: 38]\n[HAIR: silver]\n[EYES: grey]",
+        personality: "Methodical, reserved, sharp-tongued.",
+        current_look: "[CLOTHING: faded scholar robes]",
+        state_of_mind: "Cautiously observing the newcomers.",
+        future: "Will preserve the restricted records at all costs.",
+        past: ["Surfaced from the lower archive with the black ledger."],
+      }),
+    );
+    vi.mocked(entities.upsert).mockImplementation(async (type, entity) => ({ ...entity, id: "npc-kaelen-1", type: "character" }));
+
+    const npc = await gamemaster.spawn_npc(
+      { runtime: _mock_runtime, app: _mock_app },
+      { name: "Kaelen", description: "An archivist with silver hair.", signature_color: "Electric Cyan" },
+    );
+
+    expect(npc.name).toBe("Kaelen");
+    expect(npc.signature_color).toBe("Electric Cyan");
+    expect(npc.eternal.physical).toContain("[GENDER: male]");
+    expect(npc.eternal.non_physical).toBe("Methodical, reserved, sharp-tongued.");
+    expect(npc.present.physical).toContain("[CLOTHING: faded scholar robes]");
+    expect(npc.present.non_physical).toBe("Cautiously observing the newcomers.");
+    expect(npc.future).toBe("Will preserve the restricted records at all costs.");
+    expect(npc.past[0].content).toBe("Surfaced from the lower archive with the black ledger.");
+    expect(npc.past[0].id).toMatch(/^usr_/);
+    expect(visual_engine.generate).toHaveBeenCalledWith("npc-kaelen-1", expect.objectContaining({ mode: "solo_entity" }));
   });
 
   it("execute_turn() delegates the turn to a world-cast NPC when the Director names one", async () => {

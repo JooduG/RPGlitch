@@ -29,13 +29,13 @@ const SYSTEM_HEAD_CACHE_CAP = 16;
 
 const DIRECTOR_JSON_SCHEMA = `{
   "_thought_process": "<ONE short sentence: the key state change this turn>",
-  "speaker": "'ai' (the AI_CHARACTER speaks) | 'fractal' (the FRACTAL world narrates the scene) | 'npc:<id>' (an in-scene NPC from <WORLD_CAST>) — default 'ai'",
+  "speaker": "'ai' (the AI_CHARACTER speaks) | 'fractal' (the FRACTAL narrates the scene/setting) | 'npc:<id>' (an in-scene NPC from <ROSTER>) — default 'ai'",
   "keywords": "1-2 keywords chosen from <AVAILABLE_KEYWORDS> matching the emotional undercurrent (or [])",
   "story_status": "'IN_PROGRESS' | 'CONCLUDED' (overarching story quest won) | 'COLLAPSED' (quest lost irrevocably) — default 'IN_PROGRESS'",
   "in_scene_change": { "enter": ["npc:<id>"], "exit": ["npc:<id>"] },
   "promotions": [ { "id": "npc:<id>", "tier": 2 } ],
-  "relationships": "[Optional: relational edges that CHANGED this turn, as 'Source → Target: dynamic' (betrayal, rescue, alliance, rivalry, debt). Names MUST match <WORLD_CAST>/<SCENE_ROSTER> exactly. Omit when the web is unchanged.]",
-  "genesis": "[Optional: request a brand-new recurring NPC only when NO <WORLD_CAST> member fits the role — { "name": "...", "description": "...", "signature_color": "one from <AVAILABLE_SIGNATURE_COLORS>" }, max 2. Never for an existing cast member.]",
+  "relationships": "[Optional: relational edges that CHANGED this turn, as 'Source → Target: dynamic' (betrayal, rescue, alliance, rivalry, debt). Names MUST match <ROSTER>/<SCENE_ROSTER> exactly. Omit when the web is unchanged.]",
+  "genesis": "[Optional: request a brand-new recurring NPC only when NO <ROSTER> member fits the role — { "name": "...", "description": "...", "signature_color": "one from <AVAILABLE_SIGNATURE_COLORS>" }, max 2. Never for an existing cast member.]",
   "directive": "<Optional in-character stage direction for the AI_CHARACTER (under 30 words, or empty string). Never reveal hidden agendas as fact.>",
   "AI_CHARACTER": {
     "state_append": {
@@ -70,9 +70,9 @@ const MEMORY_JSON_SCHEMA = `{
   },
   "FRACTAL": {
     "eternal": { "physical": "", "non_physical": "" },
-    "present": { "physical": "", "non_physical": "1-3 sentences of evocative present-tense world state, matching the existing field's register — never key/value fragments, never empty" },
-    "future": "REQUIRED: the world standing agenda — environmental prophecy, looming threat, or impulse — rewritten from this history (2-5 sentences, active future tense). Resolved threats/prophecies MUST be dropped and replaced by their aftermath; never leave the world agenda unchanged and never echo the old text verbatim",
-    "past": [ { "content": "ONLY if a durable fact/environmental shift emerged (EMPTY LIST otherwise; AT MOST 1 ITEM)", "type": "past", "emotional_weight": 5 } ]
+    "present": { "physical": "", "non_physical": "1-3 sentences of evocative present-tense fractal/scene state, matching the existing field's register — never key/value fragments, never empty" },
+    "future": "REQUIRED: the fractal standing agenda — environmental prophecy, scene shift, or looming impulse — rewritten from this history (2-5 sentences, active future tense). Resolved shifts/prophecies MUST be dropped and replaced by their aftermath; never leave the fractal agenda unchanged and never echo the old text verbatim",
+    "past": [ { "content": "ONLY if a durable fact/setting shift emerged (EMPTY LIST otherwise; AT MOST 1 ITEM)", "type": "past", "emotional_weight": 5 } ]
   }
 }`;
 
@@ -210,7 +210,7 @@ function non_verbal_environmental_hint(input) {
   const spatial_nouns =
     /\b(door|gate|wall|room|hall|cave|forest|vault|stair|passage|corridor|window|floor|ceiling|rock|stone|water|river|bridge|tower|street|alley|field|sky|wind|rain|shadow|light|threshold|lock|mechanism|gear|wheel|conduit|tunnel|arch|column|altar|seal|cylinder|crevice|spillway|belly|deeps|mouth|chamber|alcove|ledge|ledge|court|yard|keep)\b/i;
   if (!spatial_verbs.test(input) && !spatial_nouns.test(input)) return "";
-  return `<USER_ACTION_NOTE>This turn is a non-verbal, environmental action. Strongly consider setting "speaker" to "fractal" so the world itself narrates the scene — unless the AI character should react directly.</USER_ACTION_NOTE>`;
+  return `<USER_ACTION_NOTE>This turn is a non-verbal, environmental action. Strongly consider setting "speaker" to "fractal" so the scene/setting itself narrates the moment — unless the AI character should react directly.</USER_ACTION_NOTE>`;
 }
 
 // ===========================================================================
@@ -228,13 +228,13 @@ const _cast_summary = (npc) => {
 const _tier_label = (tier) => (tier === 3 ? "Major" : tier === 2 ? "Recurring" : "Background");
 
 /**
- * Renders the compact cast index — every non-trio world entity as a 1-line
+ * Renders the compact roster index — every non-trio entity as a 1-line
  * signature, tagged with its tier and stage presence.
  * @param {any[]} [npc_entities]
  * @param {string[]} [in_scene_ids]
  * @param {any[]} [active_trio_ids]
  */
-function render_world_cast_xml(npc_entities = [], in_scene_ids = [], active_trio_ids = []) {
+function render_roster_xml(npc_entities = [], in_scene_ids = [], active_trio_ids = []) {
   const trio = new Set((active_trio_ids || []).filter(Boolean).map(String));
   const cast = (npc_entities || []).filter((n) => n && !trio.has(String(n.id)));
   if (!cast.length) return "";
@@ -243,7 +243,7 @@ function render_world_cast_xml(npc_entities = [], in_scene_ids = [], active_trio
     const presence = (in_scene_ids || []).includes(String(n.id)) ? "In-Scene" : "Off-Screen (Stasis)";
     return `- ${escape_xml(n.name)} (id: ${escape_xml(String(n.id))}): ${escape_xml(_cast_summary(n))} [${_tier_label(tier)}] [${presence}]`;
   });
-  return `<WORLD_CAST>\n${rows.join("\n")}\n</WORLD_CAST>`;
+  return `<ROSTER>\n${rows.join("\n")}\n</ROSTER>`;
 }
 
 /**
@@ -285,7 +285,7 @@ function render_relational_mesh_xml(entities = {}, npc_entities = []) {
 }
 
 const ENTITY_CONVERGENCE_LAW_XML = `<ENTITY_CONVERGENCE_LAW>
-1. Always inspect <WORLD_CAST> before introducing any secondary character.
+1. Always inspect <ROSTER> before introducing any secondary character.
 2. If an existing cast member matches the role or location (medical, black market, security), you MUST use that existing entity rather than inventing a duplicate.
 3. Only introduce a brand-new nameless character if no existing cast member is remotely applicable.
 </ENTITY_CONVERGENCE_LAW>`;
@@ -403,7 +403,7 @@ function render_system_head(entities = {}) {
     }
     ${
       entities?.FRACTAL
-        ? `    <FRACTAL name="${escape_xml(entities.FRACTAL.name || "the world")}">
+        ? `    <FRACTAL name="${escape_xml(entities.FRACTAL.name || "the setting")}">
       <METAPHYSICAL_TRUTHS>${render_field_value(entities.FRACTAL.eternal?.non_physical, entities.FRACTAL, entities)}</METAPHYSICAL_TRUTHS>
       <ENVIRONMENT>${render_field_value(entities.FRACTAL.eternal?.physical, entities.FRACTAL, entities)}</ENVIRONMENT>
     </FRACTAL>`
@@ -485,7 +485,7 @@ function render_director({ round, entities, input, render_accessors, compressed_
   <PROTOCOLS>
     ${ind(prompt_builder.render_protocols(protocols), 4)}
   </PROTOCOLS>
-  ${render_world_cast_xml(npc_entities, in_scene_ids, [entities?.AI?.id, entities?.USER?.id, entities?.FRACTAL?.id])}
+  ${render_roster_xml(npc_entities, in_scene_ids, [entities?.AI?.id, entities?.USER?.id, entities?.FRACTAL?.id])}
   ${render_scene_roster_xml(entities, npc_entities, in_scene_ids)}
   ${render_relational_mesh_xml(entities, npc_entities)}
   ${ENTITY_CONVERGENCE_LAW_XML}
@@ -505,11 +505,11 @@ ${(() => {
 })()}
 <TASK>
     Evaluate state mutations caused by ${input?.trim() ? "<USER_ACTION>" : "the current situation"}.
-    Decide the active speaker: "ai" (the AI_CHARACTER speaks), "fractal" (the FRACTAL world narrates the scene), or "npc:<id>" (a specific in-scene NPC from <WORLD_CAST>). Default "ai".
+    Decide the active speaker: "ai" (the AI_CHARACTER speaks), "fractal" (the FRACTAL narrates the scene/setting), or "npc:<id>" (a specific in-scene NPC from <ROSTER>). Default "ai".
     Track the Stage Spotlight: when an NPC enters or leaves the room, move it with "in_scene_change" ("enter"/"exit" accept ids with or without the "npc:" prefix; leave both empty unless the stage changes).
-    Promote recurring NPCs: when an NPC's role becomes sustained or consequential, list it in "promotions" (tier 2 = recurring contact, tier 3 = major co-star with full memory) — but never invent ids absent from <WORLD_CAST>.
-    Update the relational web: when a bond between two entities meaningfully shifts (betrayal, rescue, alliance, rivalry, debt), list it in "relationships" as a directed edge "Source → Target: dynamic" using the EXACT names from <WORLD_CAST>/<SCENE_ROSTER>; omit the field entirely when the web is unchanged.
-    Genesis: when an entirely NEW recurring character enters the world and NO <WORLD_CAST> member fits the role, request it in "genesis" (name + one-line description + a signature_color chosen EXACTLY from <AVAILABLE_SIGNATURE_COLORS>; max 2 per turn). Never request an entity that is already in <WORLD_CAST>.
+    Promote recurring NPCs: when an NPC's role becomes sustained or consequential, list it in "promotions" (tier 2 = recurring contact, tier 3 = major co-star with full memory) — but never invent ids absent from <ROSTER>.
+    Update the relational web: when a bond between two entities meaningfully shifts (betrayal, rescue, alliance, rivalry, debt), list it in "relationships" as a directed edge "Source → Target: dynamic" using the EXACT names from <ROSTER>/<SCENE_ROSTER>; omit the field entirely when the web is unchanged.
+    Genesis: when an entirely NEW recurring character enters the scene and NO <ROSTER> member fits the role, request it in "genesis" (name + one-line description + a signature_color chosen EXACTLY from <AVAILABLE_SIGNATURE_COLORS>; max 2 per turn). Never request an entity that is already in <ROSTER>.
     ${non_verbal_environmental_hint(input)}
     Evaluate whether the overarching story quest reached victory (story_status "CONCLUDED") or irrevocable tragedy ("COLLAPSED"); otherwise keep "IN_PROGRESS".
     Record your reasoning inside "_thought_process" and return a single valid JSON object following this exact schema:
@@ -578,8 +578,8 @@ function render_character({
 
   const system = `${render_system_head(entities)}\n${clean_xml(`
   <ROLE name="${escape_xml(entities?.AI?.name || "AI")}">
-    You are ${escape_xml(entities?.AI?.name || "AI")} in an active scene with ${escape_xml(entities?.USER?.name || "User")} inside ${escape_xml(entities?.FRACTAL?.name || "the environment")}.
-    Your eternal identity, personality, and permanent appearance are declared above in the CAST block; the World's metaphysical truths and environment are there as well.
+    You are ${escape_xml(entities?.AI?.name || "AI")} in an active scene with ${escape_xml(entities?.USER?.name || "User")} inside ${escape_xml(entities?.FRACTAL?.name || "the setting")}.
+    Your eternal identity, personality, and permanent appearance are declared above in the CAST block; the Fractal's metaphysical truths and environment are there as well.
   </ROLE>
   <USER_PERSONA name="${escape_xml(entities?.USER?.name || "User")}">
     <PERSONALITY>${user_field(entities?.USER?.eternal?.non_physical)}</PERSONALITY>
@@ -698,7 +698,7 @@ function render_npc_character({
   const system = `${render_system_head(entities)}\n${clean_xml(`
   <ROLE name="${npc_name}">
     You are ${npc_name}, a supporting character in an active scene with ${user_name} and ${ai_name} inside ${fractal_name}.
-    Your own identity is declared below; the protagonist, user, and world baselines are declared above in the CAST block.
+    Your own identity is declared below; the protagonist, user, and fractal baselines are declared above in the CAST block.
   </ROLE>
   <YOUR_IDENTITY name="${npc_name}">
     <PERSONALITY>${render_field_value(npc?.eternal?.non_physical, npc, entities)}</PERSONALITY>
@@ -812,7 +812,7 @@ function build_narrator(
 
   const system = `${render_system_head(entities)}\n${clean_xml(`
   <ROLE name="${escape_xml(fractal_name)}" mode="${mode.toUpperCase()}">
-    You are ${escape_xml(fractal_name)}, the World itself, narrating the scene. Your eternal truths and environment are declared above in the CAST block.
+    You are ${escape_xml(fractal_name)}, the Fractal itself, narrating the scene. Your eternal truths and environment are declared above in the CAST block.
   </ROLE>
   <YOUR_IDENTITY name="${escape_xml(fractal_name)}"${format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics)}>
     <CURRENT_STATE>${render_field_value(entities?.FRACTAL?.present?.non_physical, entities?.FRACTAL, entities)}</CURRENT_STATE>
@@ -947,7 +947,7 @@ ${entity_blocks}
     For each active entity (AI_CHARACTER, USER_PERSONA, FRACTAL):
       - "eternal": Record permanent identity, psychological, or physical changes to baseline form (or empty string).
       - "present": Rewrite clean, updated current look (physical) and state of mind (non_physical), discarding expired temporary deltas. MANDATORY FOR CURRENT LOOK: You MUST retain physical attire/clothing (e.g. [CLOTHING: flight suit], [SHIRT: cargo jacket]) and active equipment/implants/containers (e.g. [EQUIPMENT: scrap-tech arm, bio-tank]) unless explicitly destroyed or disrobed. STATE OF MIND RULES (present.non_physical): its CONTENT must reflect the current situation after this batch of turns — if the situation changed, the state of mind MUST change accordingly; return the existing text verbatim ONLY when the situation is materially unchanged. Its FORM must match the existing field: 1-3 sentences of evocative present-tense prose in the same register and detail level — never key/value fragments (e.g. "[SENSATION: ...]") and NEVER empty; if the existing value is a key/value fragment or empty, upgrade it to proper prose instead.
-      - "future": Rewrite the entity's standing agenda as ONE clean block of 2-5 sentences (active future tense). Read the entity's current <INTENT> (AI_CHARACTER) or <AGENDA> (USER_PERSONA/FRACTAL) text above; CRITICAL STALE GOAL EVICTION LAW: If a physical milestone (e.g. escaping, unlocking, exiting, arriving, recovering an item, resolving a threat, breaking a curse) or standing agenda objective was FULFILLED, COMPLETED, or ELAPSED in recent turns, you MUST EVICT IT completely (and record what actually happened as a "past" vector instead), sharpen whatever still matters, and fold in at most one genuinely new impending intent. NEVER retain an in-progress statement of an already resolved action (e.g. never say "will use the key to exit the vault" if they have already exited the vault). CHAPTER BOUNDARY LAW: when a major milestone concluded this batch (a quest won, a location departed, a prophecy fulfilled), treat it as a chapter boundary — the next 'future' agenda MUST move past it (to the aftermath / new objective) rather than restating the resolved goal. This field is REQUIRED for every active entity this batch — never omit it. For FRACTAL entities, you MUST rewrite the standing agenda so world events and environmental prophecies advance; do not leave the world agenda unchanged. When an event resolves a prophecy or threat, that agenda item must be dropped and REPLACED by its aftermath — a resolved "eclipse in 3 days" must become the post-eclipse state, never remain verbatim.
+      - "future": Rewrite the entity's standing agenda as ONE clean block of 2-5 sentences (active future tense). Read the entity's current <INTENT> (AI_CHARACTER) or <AGENDA> (USER_PERSONA/FRACTAL) text above; CRITICAL STALE GOAL EVICTION LAW: If a physical milestone (e.g. escaping, unlocking, exiting, arriving, recovering an item, resolving a threat, breaking a curse) or standing agenda objective was FULFILLED, COMPLETED, or ELAPSED in recent turns, you MUST EVICT IT completely (and record what actually happened as a "past" vector instead), sharpen whatever still matters, and fold in at most one genuinely new impending intent. NEVER retain an in-progress statement of an already resolved action (e.g. never say "will use the key to exit the vault" if they have already exited the vault). CHAPTER BOUNDARY LAW: when a major milestone concluded this batch (a quest won, a location departed, a prophecy fulfilled), treat it as a chapter boundary — the next 'future' agenda MUST move past it (to the aftermath / new objective) rather than restating the resolved goal. This field is REQUIRED for every active entity this batch — never omit it. For FRACTAL entities, you MUST rewrite the standing agenda so scene events and environmental prophecies advance; do not leave the fractal agenda unchanged. When an event resolves a prophecy or threat, that agenda item must be dropped and REPLACED by its aftermath — a resolved "eclipse in 3 days" must become the post-eclipse state, never remain verbatim.
       - "past": Add settled historical anchors (memories) written in concise, factual 3rd-person using explicit entity names (e.g. "Julien retrieved the cobalt spike from beneath the throne"). Never use 1st-person pronouns ("I", "my", "we"); always use the entity's explicit name for unambiguous semantic recall. A "past" vector is a concrete event or fact that already happened and must be remembered. No future items: the agenda lives in "future". HIGH THRESHOLD FOR FRACTAL: For FRACTAL entities, past vectors are strictly restricted to MAJOR structural shifts or cataclysmic chapter transitions (e.g. facility destruction). Do NOT record minor room breaches, vent entries, or security alarms as past vectors for the Fractal — leave past as an EMPTY LIST [] for standard turns.
     FACT RETENTION (mandatory — facts outrank feelings):
       - Concrete facts MUST survive: proper nouns (names, places, organizations, facilities, rooms), numbers (years, counts, floor levels, prices), named objects (files, devices, blueprints, vats), cause/effect chains, and promises or agreements.
@@ -1421,7 +1421,7 @@ export function render_terse_director_task() {
   Return a single, COMPLETE, VALID JSON object. It MUST fit in under 700 characters.
   - Omit "_thought_process" entirely, or keep it to one clause of a few words.
   - Omit "directive" entirely.
-  - Set "speaker": "ai" (or "fractal" only if the world itself should narrate this turn).
+  - Set "speaker": "ai" (or "fractal" only if the fractal/scene itself should narrate this turn).
   - Set "keywords": [] (or up to 2 from <AVAILABLE_KEYWORDS>).
   - Set "story_status": "IN_PROGRESS" (use "CONCLUDED"/"COLLAPSED" ONLY at a true quest resolution).
   - For each entity, include only NON-EMPTY mutations:

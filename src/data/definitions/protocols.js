@@ -56,10 +56,10 @@ export const PROTOCOL_LIBRARY = {
     THIRD_PERSON:
       "CRITICAL POV MANDATE: Write strictly in third-person limited ('he', 'she', 'they', or entity name). NEVER use first-person pronouns for narrative prose.",
     NARRATOR:
-      "CRITICAL MANDATE: You are the <FRACTAL> (world/narrator). Write strictly in third-person omniscient narrator POV. NEVER write in first-person.",
+      "CRITICAL MANDATE: You are the <FRACTAL> (scene/setting narrator). Write strictly in third-person omniscient narrator POV. NEVER write in first-person.",
   },
 
-  // ── 3. Cognition & World Physics ───────────────────────────────────────────
+  // ── 3. Cognition & Scene Physics ───────────────────────────────────────────
   COGNITION: {
     ANCHOR: `Resolve all state inferences strictly from the <YOUR_IDENTITY> block above. Never invent state that is not listed there.`,
     PHASES: `Document internal calculations inside <think> (< 200 words):
@@ -70,7 +70,7 @@ export const PROTOCOL_LIBRARY = {
    - Implicit: Unspoken tensions leaking via pauses, avoided gaze, or micro-expressions.
    - Somatic: Involuntary autonomic signals from <DYNAMICS_SIGNALS>.`,
     THINK_CHARACTER: `Begin response with <think>. Process reaction to <USER_ACTION> using in-character subconscious reasoning. ${BASE_THINK_CLOSURE}`,
-    THINK_NARRATOR: `Begin response with <think>. ALL internal calculations, world atmosphere shifts, and markdown headers MUST remain strictly INSIDE this block. ${BASE_THINK_CLOSURE}`,
+    THINK_NARRATOR: `Begin response with <think>. ALL internal calculations, scene/atmosphere shifts, and markdown headers MUST remain strictly INSIDE this block. ${BASE_THINK_CLOSURE}`,
   },
 
   EPISTEMIC_PHYSICS: {
@@ -94,7 +94,7 @@ Narrative Sequence:
 4. Trigger the encounter. End the prologue immediately before interaction begins.
 No dialogue.`,
     EPILOGUE: `You see everything. Close the scene. Use <think> to evaluate unresolved threads and active <INTENT>/<AGENDA> vectors (fulfilled, fractured, or transformed). Write the epilogue resolving these ends. Show concrete aftermath and physical changes. End on lingering sensation, not summary. No dialogue.`,
-    CONTINUATION: `You are the living world and environment. Narrate the present moment through the world's own senses — atmosphere, weather, architecture, ambient life. Use <think> to evaluate the active atmosphere and any shift in the environment's state, then write the world's reaction to recent events as vivid sensory prose. Never move <AI_CHARACTER> or <USER_PERSONA> against their will, never speak their dialogue or thoughts, and never resolve their choices for them. End the turn on one dominant hook — a decisive statement, a single action, a hovered beat, or a deliberate silence. No structural bracket labels.`,
+    CONTINUATION: `You are the Fractal itself, narrating the scene. Narrate the present moment through the setting's own atmosphere, sensory textures, ambient physics, and environmental shifts. Use <think> to evaluate the active atmosphere and any shift in the Fractal's state, then write the scene's reaction to recent events as vivid sensory prose. Never move <AI_CHARACTER> or <USER_PERSONA> against their will, never speak their dialogue or thoughts, and never resolve their choices for them. End the turn on one dominant hook — a decisive statement, a single action, a hovered beat, or a deliberate silence. No structural bracket labels.`,
   },
 
   PROFILE: {
@@ -106,8 +106,8 @@ name (string), description (string), signature_color (string), appearance (strin
 - appearance / personality: Permanent form vs Core philosophy.
 - current_look / state_of_mind: Temporary visual features vs Current mood/mental state.
 - past / future: Historical anchors vs Active impulses/intent (a single standing objective string).`,
-    SORT_CHARACTER: `FOCUS: Extracting data for an individual CHARACTER. Re-contextualize or discard environmental/world text. ${MACROS.CHARACTER}`,
-    SORT_FRACTAL: `FOCUS: Extracting data for a FRACTAL (world/environment). Re-contextualize or discard character-specific traits. ${MACROS.FRACTAL}`,
+    SORT_CHARACTER: `FOCUS: Extracting data for an individual CHARACTER. Re-contextualize or discard environmental/setting text. ${MACROS.CHARACTER}`,
+    SORT_FRACTAL: `FOCUS: Extracting data for a FRACTAL (scene/setting/environment). Re-contextualize or discard character-specific traits. ${MACROS.FRACTAL}`,
     REDISTRIBUTE: `REDISTRIBUTE: The source profile may have content in the wrong field. Move each fact to its correct field — e.g. a temporary state written under 'personality' belongs under 'state_of_mind'; a mood written under 'appearance' belongs under 'current_look'. Sort and relocate; do not merely regenerate in place. Never move content into or out of 'description' (internal OOC notes). Preserve the facts; only their location and phrasing may change.`,
     INGESTION_DIRECTIVE: `<INGESTION_DIRECTIVE Authority="L3_HIGH">
   <RULE name="SOURCE_OF_TRUTH">
@@ -139,7 +139,7 @@ VECTOR RESTRAINT: Mint new vectors ONLY for meaningful story shifts. Max 5 new v
 OUTPUT CONSTRAINT: Output ONLY valid JSON under 800 characters. No markdown code fences, no prose.`,
     PLOT_DRIVE: `Treat the active Fractal's <AGENDA> as a long-term scenario horizon. Evaluate whether <USER_ACTION> advances, complicates, or risks this objective. CRITICAL PACING LAW: Do NOT rush to accomplish or resolve the standing objective in early turns. Cue subtle, incremental developments and initial obstacles in "directive" that build tension gradually over time, preserving narrative momentum. PASSIVE USER TURN LAW: When <USER_ACTION> contains no action verbs or questions (e.g. passive waiting or silence), use "directive" to introduce an unexpected environmental complication, obstacle, or in-character choice. Never let the scene stall into dead-air passive waiting.`,
     IMAGE_TRIGGERS: `Set "trigger_image" to false unless the moment demands a visual. Target strings: "story_entities" (group), "story_character" (solo focus), "solo_entity" (portrait), "story_scene" (environment).`,
-    SPEAKER_ROUTING: `Choose the active speaker to match the turn's energy. Default to "ai" (the AI_CHARACTER reacts to the user). Choose "fractal" when the user's action is non-verbal and environmental — no quoted dialogue, and the focus is on exploring, observing, or interacting with the world itself (architecture, weather, objects, atmosphere, locations) rather than engaging the character. Choose "npc:<id>" for a specific in-scene NPC. A long unbroken stretch of "ai" turns is itself a reason to hand a purely environmental beat to "fractal".`,
+    SPEAKER_ROUTING: `Choose the active speaker to match the turn's energy. Default to "ai" (the AI_CHARACTER reacts to the user). Choose "fractal" when the user's action is non-verbal and environmental — no quoted dialogue, and the focus is on exploring, observing, or interacting with the scene itself (architecture, weather, objects, atmosphere, locations) rather than engaging the character. Choose "npc:<id>" for a specific in-scene NPC. A long unbroken stretch of "ai" turns is itself a reason to hand a purely environmental beat to "fractal".`,
   },
 
   // ── 4b. Present State Emission (Pseudo-JSON lifecycle) ─────────────────────

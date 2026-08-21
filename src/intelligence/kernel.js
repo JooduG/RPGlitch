@@ -22,6 +22,7 @@ import {
   scrub_state_mutations,
 } from "./director.js";
 import { prompt_builder, render_terse_director_task } from "./prompts.js";
+import { sort_into_profile, apply_profile_to_entity } from "./profile-pipeline.js";
 import { build_update_entry, build_retrieval } from "./telemetry.js";
 import { prune, temporal_engine } from "./temporal.js";
 
@@ -459,14 +460,23 @@ export const gamemaster = {
         continue;
       }
       try {
+        const scene_context = [
+          bridge.runtime?.active_fractal?.name ? `Setting: ${bridge.runtime.active_fractal.name}` : "",
+          bridge.runtime?.active_fractal?.present?.physical || "",
+          bridge.runtime?.active_fractal?.present?.non_physical || "",
+        ]
+          .filter(Boolean)
+          .join(" — ");
+
         const npc = await this.spawn_npc(bridge, {
           name: g.name,
           description: g.description,
           role_tier: g.role_tier,
           voice_register: g.voice_register,
           signature_color: g.signature_color,
+          scene_context,
         });
-        if (npc) bridge.app.log(`[GameMaster] ✨ Genesis: ${npc.name} entered the world.`, "system");
+        if (npc) bridge.app.log(`[GameMaster] ✨ Genesis: ${npc.name} entered the scene.`, "system");
       } catch (err) {
         bridge.app.log(`[GameMaster] Genesis failed for "${g.name}": ${err?.message || err}`, "error");
       }
@@ -474,10 +484,12 @@ export const gamemaster = {
   },
 
   /**
-   * Genesis — spawns a new world-cast NPC (Tier 1 by default), persists it to
+   * Genesis — spawns a new roster NPC (Tier 1 by default), persists it to
    * Dexie, registers it on the active story, and puts it on-stage.
+   * Runs synchronous character creation synthesis using `sort_into_profile` with
+   * scene context, with a resilient fallback to the raw draft.
    * @param {any} bridge
-   * @param {{ name: string, description?: string, role_tier?: number, relationships?: string[], voice_register?: string, signature_color?: string }} [draft]
+   * @param {{ name: string, description?: string, role_tier?: number, relationships?: string[], voice_register?: string, signature_color?: string, scene_context?: string }} [draft]
    * @returns {Promise<any | null>}
    */
   async spawn_npc(bridge, draft = {}) {
@@ -485,7 +497,10 @@ export const gamemaster = {
     if (!name) return null;
     const raw_color = String(draft?.signature_color || "").trim();
     const desc = String(draft?.description || "").trim();
-    const entity = await entities.upsert("character", {
+    const scene_context = String(draft?.scene_context || "").trim();
+
+    // 1. Base entity shell
+    let entity = {
       name,
       description: desc,
       eternal: {
@@ -500,16 +515,39 @@ export const gamemaster = {
       relationships: Array.isArray(draft?.relationships) ? draft.relationships : [],
       voice_register: draft?.voice_register || "",
       is_wanderer: false,
-      // The Director picks the NPC's signature color at genesis; the entity
-      // normalizer falls back to a random registry color if absent/invalid.
       signature_color: raw_color || undefined,
-    });
-    // Genesis portrait — fire-and-forget so it never adds turn latency. Small
-    // square (512x512) keeps generation quick; the badge renders initials until
-    // the portrait lands (or gracefully if the image service fails).
+    };
+
+    // 2. Rich Character Profile Synthesis (same pipeline as import)
+    try {
+      const synthesis_source = [
+        `Character Name: ${name}`,
+        desc ? `Core Concept: ${desc}` : "",
+        raw_color ? `Signature Color: ${raw_color}` : "",
+        scene_context ? `Scene Context & Atmosphere: ${scene_context}` : "",
+      ]
+        .filter(Boolean)
+        .join("\n");
+
+      const rich_profile = await sort_into_profile(synthesis_source, "character");
+      if (rich_profile && typeof rich_profile === "object") {
+        entity = apply_profile_to_entity(entity, rich_profile);
+      }
+    } catch (err) {
+      bridge.app?.log(`[GameMaster] Genesis rich synthesis failed for "${name}", using raw draft: ${err?.message || err}`, "warn");
+    }
+
+    // Ensure signature color and name are firmly grounded
+    if (name) entity.name = name;
+    if (raw_color) entity.signature_color = raw_color;
+    entity.role_tier = Math.max(1, Math.min(3, Number(draft?.role_tier) || entity.role_tier || 1));
+
+    const saved_entity = await entities.upsert("character", entity);
+
+    // 3. Genesis portrait — fire-and-forget in background using rich physical description
     if (typeof visual_engine?.generate === "function" && typeof window !== "undefined") {
       try {
-        const portrait_promise = visual_engine.generate(entity.id, { mode: "solo_entity", resolution: "512x512", _entity: entity });
+        const portrait_promise = visual_engine.generate(saved_entity.id, { mode: "solo_entity", resolution: "512x512", _entity: saved_entity });
         if (portrait_promise && typeof portrait_promise.catch === "function") {
           portrait_promise.catch((err) => bridge.app?.log(`[GameMaster] Portrait generation for "${name}" failed: ${err?.message || err}`, "warn"));
         }
@@ -517,11 +555,13 @@ export const gamemaster = {
         /* portrait failure must never break genesis */
       }
     }
+
+    // 4. Register on active story
     const story_id = bridge.runtime?.story_id;
     if (story_id && story_id !== "debug") {
       try {
         const story = await stories.get(story_id);
-        const npc_ids = [...new Set([...(story?.npc_ids || []), entity.id])];
+        const npc_ids = [...new Set([...(story?.npc_ids || []), saved_entity.id])];
         if (npc_ids.length !== (story?.npc_ids || []).length) {
           await stories.update_cast(story_id, npc_ids);
         }
@@ -529,14 +569,16 @@ export const gamemaster = {
         bridge.app.log(`[GameMaster] Failed to register NPC on the story: ${err?.message || err}`, "warn");
       }
     }
+
+    // 5. Hydrate into active runtime state & stage spotlight
     const npcs = { ...(bridge.runtime?.active_npcs || {}) };
-    npcs[entity.id] = entity;
+    npcs[saved_entity.id] = saved_entity;
     if (bridge.runtime) {
       bridge.runtime.active_npcs = npcs;
-      bridge.runtime.in_scene_npc_ids = [...new Set([...(bridge.runtime.in_scene_npc_ids || []), entity.id])];
+      bridge.runtime.in_scene_npc_ids = [...new Set([...(bridge.runtime.in_scene_npc_ids || []), saved_entity.id])];
     }
-    bridge.app?.log(`[GameMaster] World cast expanded: ${name}.`, "system");
-    return entity;
+    bridge.app?.log(`[GameMaster] Roster expanded: ${name}.`, "system");
+    return saved_entity;
   },
 
   /**
