@@ -1,7 +1,7 @@
 # 🚀 Implementation Blueprint (Standby)
 
 > **Status**: Idle / Ready for Planning  
-> **Last Completed Track**: `track-memory-bundle-2026-08-14` (Archived: `archive/2026-08/2026-08-16-track-memory-bundle.md`)  
+> **Last Completed Track**: `track-prune-dead-code-2026-08-21` (Pruned dead re-exports across `@data`, `@media`, and `@primitives` barrels; normalized `main.js` mount target).  
 > **Next Pending Tracks**:
 >
 > 1. `track-director-expansion-2026-08-14`: Harden and expand Director turn pipeline (Async Job Queue, Fractal Turn Delegation, Dual Somatic/Trauma Injections, Input Pacing Calibration, Masking vs Somatic Leakage, and 23-Style Registry Catalog).

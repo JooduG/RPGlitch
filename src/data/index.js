@@ -7,17 +7,8 @@ export { PROTOCOL_LIBRARY } from "./definitions/protocols.js";
 export { SIGNATURE_COLORS } from "./definitions/signature-colors.js";
 export { seed_premades, stories, entities, coerce_story_key } from "./repository.js";
 export { session_driver, SESSION_ID_KEY } from "./sessions.svelte.js";
-export { db, init, set_versionchange_quiesce } from "./db.js";
-export {
-  ENTITY_TEMPLATES,
-  get_random_signature_key,
-  normalize,
-  coerce_temporal_array,
-  coerce_temporal_vectors,
-  create_new,
-  format_premade,
-  serialize_entity_for_export,
-} from "./normalizer.js";
+export { db, set_versionchange_quiesce } from "./db.js";
+export { normalize, create_new, format_premade, serialize_entity_for_export } from "./normalizer.js";
 export { detox_prose, resolve_voice_register } from "./definitions/detox-rules.js";
 export {
   detect_card_format,
@@ -28,14 +19,6 @@ export {
 } from "./character-cards.js";
 export { premade } from "./definitions/premades.js";
 export { NARRATIVE_STYLES, get_style_keywords } from "./definitions/narrative-styles.js";
-export {
-  GLOBAL_TRIGGERS,
-  SOMATIC_REGISTRY,
-  STYLE_MOTIF_REGISTRY,
-  resolve_somatic_directives,
-  render_somatic_directives_xml,
-  build_somatic_directives_block,
-  build_available_keywords_xml,
-} from "./definitions/triggers.js";
+export { GLOBAL_TRIGGERS, build_somatic_directives_block, build_available_keywords_xml } from "./definitions/triggers.js";
 export { VISUAL_STYLES } from "./definitions/visual-styles.js";
-export { ENTITY_FRAGMENTS, ENTITY_CATALOG, TEMPORAL_CONTRACT, PROFILE_SECTIONS_BY_TYPE, build_profile_sections } from "./definitions/fragments.js";
+export { ENTITY_FRAGMENTS, ENTITY_CATALOG, TEMPORAL_CONTRACT, PROFILE_SECTIONS_BY_TYPE } from "./definitions/fragments.js";

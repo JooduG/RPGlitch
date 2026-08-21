@@ -128,7 +128,7 @@ export const app_bootstrap = {
 
       // 5. Mount Svelte App
       mount(App, {
-        target: document.getElementById("main-app-container") || document.body,
+        target: document.body,
       });
 
       // 6. Tear down boot illusion
