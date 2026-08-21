@@ -198,7 +198,7 @@ describe("prompt_builder (Refactored)", () => {
     it("build_prologue() injects core XML tags into simulation prompts", () => {
       const result = prompt_builder.build_prologue(mock_payload, mock_snapshot);
       expect(result.system).toContain("<SYSTEM");
-      expect(result.system).toContain('<YOUR_IDENTITY name="Viper">');
+      expect(result.system).toContain('<AI_CHARACTER name="Viper">');
       expect(result.task).toContain("<POV_DIRECTIVE>");
       expect(result.task).toContain("Write strictly in first-person");
       expect(result.task).not.toContain("undefined");
@@ -228,7 +228,7 @@ describe("prompt_builder (Refactored)", () => {
 
     it("build_epilogue() returns valid fractal system prompt", () => {
       const result = prompt_builder.build_epilogue();
-      expect(result.system).toContain('role="FRACTAL"');
+      expect(result.system).toContain('<ROLE name="FRACTAL" mode="EPILOGUE">');
     });
 
     it("build_memory_prompt() renders entity-specific forge contexts and Stale Goal Eviction Law", () => {
@@ -302,7 +302,7 @@ describe("prompt_builder (Refactored)", () => {
 
       const result = prompt_builder.build_character_prompt(payload, snapshot, {});
 
-      expect(result.system).toContain('<SYSTEM role="Viper">');
+      expect(result.system).toContain('<ROLE name="Viper">');
       expect(result.system).toContain("Static Eternal");
       expect(result.system).not.toContain("Volatile Present");
       expect(result.system).not.toContain("Volatile Past");
@@ -479,7 +479,7 @@ describe("prompt_builder (Refactored)", () => {
       const result = prompt_builder.build_scene_narrator_prompt(base_payload, base_snapshot, {
         keywords: ["dysregulation"],
       });
-      expect(result.system).toContain('<SYSTEM role="Void"');
+      expect(result.system).toContain('<ROLE name="Void" mode="SCENE">');
       expect(result.task).toContain("living world and environment");
       expect(result.task).toContain("<SOMATIC_DIRECTIVES>");
       expect(result.task).toContain("Cognitive overload");
@@ -574,8 +574,8 @@ describe("prompt_builder (Refactored)", () => {
 
       const result = prompt_builder.build_prologue(payload, snapshot);
 
-      expect(result.system).toContain('<SYSTEM role="Viper">');
-      expect(result.system).toContain('<YOUR_IDENTITY name="Viper">');
+      expect(result.system).toContain('<ROLE name="Viper">');
+      expect(result.system).toContain('<AI_CHARACTER name="Viper">');
       expect(result.task).toContain('<YOUR_IDENTITY name="Viper" intensity="50" openness="60">');
       expect(result.task).toContain("<MEMORIES>");
       expect(result.system).not.toContain("<DIRECTION>");
@@ -639,7 +639,7 @@ describe("prompt_builder (Refactored)", () => {
 
       const result = prompt_builder.build_epilogue(entities, dynamics, recent_history);
 
-      expect(result.system).toContain('<SYSTEM role="Void" mode="EPILOGUE">');
+      expect(result.system).toContain('<ROLE name="Void" mode="EPILOGUE">');
       expect(result.system).toContain('<YOUR_IDENTITY name="Void" velocity="85" entropy="90">');
       expect(result.system).toContain("<ACTIVE_CHARACTERS>");
       expect(result.system).toContain('<AI_CHARACTER name="Viper"');
@@ -938,21 +938,21 @@ describe("prompt_builder (Refactored)", () => {
 
     it("compiles inverse identity/persona prompts when input is empty", () => {
       const { system, task } = render_ghostwriter({ entities, input: "" });
-      expect(system).toContain('YOUR_IDENTITY name="Rafael Orion"');
+      expect(system).toContain('<AI_CHARACTER name="Rafael Orion">');
       expect(system).toContain('USER_PERSONA name="Glitch"');
       expect(task).toContain("Draft a compelling");
     });
 
     it("compiles enhancement directive when draft input is provided", () => {
       const { system, task } = render_ghostwriter({ entities, input: "I step forward and grin." });
-      expect(system).toContain('YOUR_IDENTITY name="Rafael Orion"');
+      expect(system).toContain('<AI_CHARACTER name="Rafael Orion">');
       expect(task).toContain("I step forward and grin.");
       expect(task).toContain("Enhance");
     });
 
     it("swaps the user and AI data through the character protocol", () => {
       const { system, task } = render_ghostwriter({ entities, input: "" });
-      const user_block = system.slice(system.indexOf('YOUR_IDENTITY name="Rafael Orion"'), system.indexOf("</YOUR_IDENTITY>"));
+      const user_block = system.slice(system.indexOf('<AI_CHARACTER name="Rafael Orion">'), system.indexOf("</AI_CHARACTER>"));
       expect(user_block).toContain("Heroic himbo");
       const ai_block = system.slice(system.indexOf('<USER_PERSONA name="Glitch"'), system.indexOf("</USER_PERSONA>"));
       expect(ai_block).toContain("Cyan-haired hacker");
@@ -1285,7 +1285,7 @@ describe("World Cast & Stage Spotlight prompt blocks (track-npc-expansion)", () 
       { directive: "", keywords: [] },
     );
 
-    expect(result.system).toContain('<SYSTEM role="Mira">');
+    expect(result.system).toContain('<ROLE name="Mira">');
     expect(result.system).toContain("A quick-witted fixer.");
     expect(result.task).toContain("Calm, watchful.");
     expect(result.task).toContain("Holding a wrench.");
@@ -1294,5 +1294,95 @@ describe("World Cast & Stage Spotlight prompt blocks (track-npc-expansion)", () 
     expect(result.task).toContain("<AI_CHARACTER");
     expect(result.meta.role).toBe("npc");
     expect(result.meta.entity_id).toBe("npc-mira");
+  });
+});
+
+describe("Shared SYSTEM head (byte-identical prefix for the turn loop)", () => {
+  const make_payload = () => ({
+    round: 3,
+    entities: {
+      AI: {
+        id: "ai-1",
+        name: "Viper",
+        eternal: { non_physical: "Static Eternal", physical: "Tall, scarred." },
+        present: { non_physical: "Volatile Present" },
+        past: [{ directive: "Volatile Past" }],
+        future: "Volatile Future",
+      },
+      USER: {
+        id: "u-1",
+        name: "Ghost",
+        eternal: { non_physical: "User Eternal" },
+        present: { non_physical: "User Present" },
+        past: [],
+        future: "",
+      },
+      FRACTAL: {
+        id: "f-1",
+        name: "Void",
+        eternal: { non_physical: "Void Eternal", physical: "Endless dark." },
+        present: { non_physical: "Void Present" },
+        past: [],
+        future: "",
+      },
+    },
+    simulation_log: [],
+    input: "Check the console.",
+  });
+  const snapshot = { ai: { dynamics: { intensity: 50 } }, fractal: { dynamics: {} }, flags: {} };
+  const npc = { id: "npc-mira", name: "Mira", eternal: { non_physical: "A quick-witted fixer." }, present: { non_physical: "Calm." } };
+
+  const head_of = (system) => system.slice(0, system.indexOf("<ROLE"));
+
+  it("emits a byte-identical <SYSTEM> head across director / character / narrator / npc prompts", () => {
+    const director = prompt_builder.build_director_prompt(make_payload(), snapshot).system;
+    const character = prompt_builder.build_character_prompt(make_payload(), snapshot, {}).system;
+    const narrator = prompt_builder.build_scene_narrator_prompt(make_payload(), snapshot, {}).system;
+    const npc_prompt = prompt_builder.build_npc_prompt(make_payload(), npc, snapshot, {}).system;
+
+    const head = head_of(director);
+    expect(head).toBe(head_of(character));
+    expect(head).toBe(head_of(narrator));
+    expect(head).toBe(head_of(npc_prompt));
+
+    expect(head).toContain("<CAST>");
+    expect(head).toContain('<AI_CHARACTER name="Viper">');
+    expect(head).toContain('<FRACTAL name="Void">');
+    expect(head).toContain("<DYNAMICS_LEGEND>");
+    expect(head).toContain("Static Eternal");
+    expect(head).toContain("Void Eternal");
+  });
+
+  it("keeps the epistemic wall and volatile state OUT of the shared head", () => {
+    const head = head_of(prompt_builder.build_character_prompt(make_payload(), snapshot, {}).system);
+    expect(head).not.toContain("<USER_PERSONA");
+    expect(head).not.toContain("User Eternal");
+    expect(head).not.toContain("Volatile Present");
+    expect(head).not.toContain("Volatile Past");
+    expect(head).not.toContain("Volatile Future");
+    expect(head).not.toContain('intensity="50"');
+  });
+
+  it("re-renders the head when an eternal baseline changes, but not when present state changes", () => {
+    const before = head_of(prompt_builder.build_character_prompt(make_payload(), snapshot, {}).system);
+
+    const mutated_present = make_payload();
+    mutated_present.entities.AI.present.non_physical = "Brand new mood";
+    const same = head_of(prompt_builder.build_character_prompt(mutated_present, snapshot, {}).system);
+    expect(same).toBe(before);
+
+    const mutated_eternal = make_payload();
+    mutated_eternal.entities.AI.eternal.non_physical = "A rewritten soul";
+    const changed = head_of(prompt_builder.build_character_prompt(mutated_eternal, snapshot, {}).system);
+    expect(changed).not.toBe(before);
+    expect(changed).toContain("A rewritten soul");
+  });
+
+  it("omits the FRACTAL row from the head when the world entity is absent", () => {
+    const payload = make_payload();
+    payload.entities.FRACTAL = undefined;
+    const head = head_of(prompt_builder.build_character_prompt(payload, snapshot, {}).system);
+    expect(head).not.toContain("<FRACTAL");
+    expect(head).toContain("<CAST>");
   });
 });

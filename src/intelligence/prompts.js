@@ -21,6 +21,9 @@ export { PROTOCOL_LIBRARY };
 let cached_dynamics_legend = null;
 /** @type {Map<string, string>} */
 const protocols_cache = new Map();
+/** @type {Map<string, string>} */
+const system_head_cache = new Map();
+const SYSTEM_HEAD_CACHE_CAP = 16;
 
 // --- JSON Schema Templates ---
 
@@ -358,6 +361,65 @@ function render_chapter_history_xml(entity) {
   return `<CHAPTER_HISTORY>\n${rows.join("\n")}\n</CHAPTER_HISTORY>`;
 }
 
+// ---------------------------------------------------------------------------
+// Shared SYSTEM head — the byte-identical prefix of every turn-loop prompt.
+// ---------------------------------------------------------------------------
+// The turn loop emits several DIFFERENT prompts per turn (director -> character
+// -> director -> ...) and LLM providers prefix-cache on byte-identical request
+// prefixes, so a head shared by ALL roles is a cache hit on EVERY turn, not
+// just every same-role turn. Only eternal-static content that every role may
+// safely see lives here: the dynamics legend, the narrative style, and the
+// eternal baselines of the AI character and the world (FRACTAL).
+//
+// ⚠️ EPISTEMIC WALL — the USER's eternal profile is deliberately NOT shared:
+// render_character() strips [SECRET:]/[PLAN:] from it while the Director/NPC/
+// narrator render it verbatim, so no single rendering is safe for every role.
+// Each prompt still renders its own user block in its role-specific tail.
+//
+// ⚠️ CACHE INVARIANT — every input this function reads MUST be reflected in
+// _system_head_key(). If you add content to the head, extend the key.
+
+const _eternal_fp = (entity) => (entity ? [entity.id || "", entity.name || "", JSON.stringify(entity.eternal || {})].join("|") : "∅");
+
+const _system_head_key = (entities) => `${_eternal_fp(entities?.AI)}||${_eternal_fp(entities?.FRACTAL)}||style=${resolve_active_style_key()}`;
+
+function render_system_head(entities = {}) {
+  const key = _system_head_key(entities);
+  const hit = system_head_cache.get(key);
+  if (hit !== undefined) return hit;
+
+  const head = clean_xml(`
+<SYSTEM>
+  ${ind(build_dynamics_legend(), 2)}
+  ${render_narrative_style_xml()}
+  <CAST>
+    ${
+      entities?.AI
+        ? `    <AI_CHARACTER name="${escape_xml(entities.AI.name || "AI")}">
+      <PERSONALITY>${render_field_value(entities.AI.eternal?.non_physical, entities.AI, entities)}</PERSONALITY>
+      <PERMANENT_APPEARANCE>${render_field_value(entities.AI.eternal?.physical, entities.AI, entities)}</PERMANENT_APPEARANCE>
+    </AI_CHARACTER>`
+        : ""
+    }
+    ${
+      entities?.FRACTAL
+        ? `    <FRACTAL name="${escape_xml(entities.FRACTAL.name || "the world")}">
+      <METAPHYSICAL_TRUTHS>${render_field_value(entities.FRACTAL.eternal?.non_physical, entities.FRACTAL, entities)}</METAPHYSICAL_TRUTHS>
+      <ENVIRONMENT>${render_field_value(entities.FRACTAL.eternal?.physical, entities.FRACTAL, entities)}</ENVIRONMENT>
+    </FRACTAL>`
+        : ""
+    }
+  </CAST>
+  `).trim();
+
+  system_head_cache.set(key, head);
+  if (system_head_cache.size > SYSTEM_HEAD_CACHE_CAP) {
+    const oldest = system_head_cache.keys().next().value;
+    system_head_cache.delete(oldest);
+  }
+  return head;
+}
+
 /**
  * Director prompt compiler (Shot 1).
  * @param {any} params
@@ -375,14 +437,13 @@ function render_director({ round, entities, input, render_accessors, compressed_
   ]
     .filter(Boolean)
     .join(", ");
-  const dynamics_legend = build_dynamics_legend();
   const active_style_keywords = get_style_keywords(resolve_active_style_key());
 
-  const system = clean_xml(`
-<SYSTEM role="DIRECTOR">
-  You are the Director — the unseen intelligence orchestrating the mechanical state of the simulation.
-  
-  ${ind(dynamics_legend, 2)}
+  const system = `${render_system_head(entities)}\n${clean_xml(`
+  <ROLE name="DIRECTOR">
+    You are the Director — the unseen intelligence orchestrating the mechanical state of the simulation.
+    The eternal baselines of the active cast are declared above in the CAST block.
+  </ROLE>
 
   <AVAILABLE_KEYWORDS>
     ${build_available_keywords_xml(active_style_keywords)}
@@ -396,9 +457,7 @@ function render_director({ round, entities, input, render_accessors, compressed_
 
   <ACTIVE_CHARACTERS>
     <AI_CHARACTER name="${escape_xml(entities?.AI?.name || "AI")}"${format_dynamics_attrs(compressed_snapshot?.ai?.dynamics)}>
-      <PERSONALITY>${render_field_value(entities?.AI?.eternal?.non_physical, entities?.AI, entities)}</PERSONALITY>
       <STATE_OF_MIND>${ind(render_field_value(entities?.AI?.present?.non_physical, entities?.AI, entities), 8)}</STATE_OF_MIND>
-      <PERMANENT_APPEARANCE>${render_field_value(entities?.AI?.eternal?.physical, entities?.AI, entities)}</PERMANENT_APPEARANCE>
       <CURRENT_LOOK>${ind(render_field_value(entities?.AI?.present?.physical, entities?.AI, entities), 8)}</CURRENT_LOOK>
       <INTENT>${ind(render_accessors.future(entities?.AI, { vector_text: true }), 8)}</INTENT>
       <MEMORIES>${ind(render_accessors.past(entities?.AI, { vector_text: true }), 8)}</MEMORIES>
@@ -416,9 +475,7 @@ function render_director({ round, entities, input, render_accessors, compressed_
     entities?.FRACTAL
       ? `
   <FRACTAL name="${escape_xml(entities.FRACTAL.name)}"${format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics)}>
-    <METAPHYSICAL_TRUTHS>${render_field_value(entities.FRACTAL.eternal?.non_physical, entities.FRACTAL, entities)}</METAPHYSICAL_TRUTHS>
     <CURRENT_STATE>${render_field_value(entities.FRACTAL.present?.non_physical, entities.FRACTAL, entities)}</CURRENT_STATE>
-    <ENVIRONMENT>${render_field_value(entities.FRACTAL.eternal?.physical, entities.FRACTAL, entities)}</ENVIRONMENT>
     <ACTIVE_ATMOSPHERE>${render_field_value(entities.FRACTAL.present?.physical, entities.FRACTAL, entities)}</ACTIVE_ATMOSPHERE>
     <AGENDA>${ind(render_accessors.future(entities.FRACTAL, { vector_text: true }), 6)}</AGENDA>
     <HISTORY>${ind(render_accessors.past(entities.FRACTAL, { vector_text: true }), 6)}</HISTORY>
@@ -434,7 +491,7 @@ function render_director({ round, entities, input, render_accessors, compressed_
   ${ENTITY_CONVERGENCE_LAW_XML}
   ${EPISTEMIC_ROSTER_RULES_XML}
 </SYSTEM>
-  `).trim();
+  `).trim()}`;
 
   const task = clean_xml(`
 <ROUND>${escape_xml(String(round))}</ROUND>
@@ -519,32 +576,20 @@ function render_character({
   // brackets to &#91;/&#93;) can't hide the tags from the wall regex.
   const user_field = (text) => render_field_value(strip_epistemic_tags(text), entities?.USER, entities);
 
-  const system = clean_xml(`
-<SYSTEM role="${escape_xml(entities?.AI?.name || "AI")}">${render_narrative_style_xml(compressed_snapshot?.ai?.dynamics, compressed_snapshot?.fractal?.dynamics)}
-You are ${escape_xml(entities?.AI?.name || "AI")} in an active scene with ${escape_xml(entities?.USER?.name || "User")} inside ${escape_xml(entities?.FRACTAL?.name || "the environment")}.
-  ${ind(build_dynamics_legend(), 2)}
-  <YOUR_IDENTITY name="${escape_xml(entities?.AI?.name || "AI")}">
-    <PERSONALITY>${render_field_value(entities?.AI?.eternal?.non_physical, entities?.AI, entities)}</PERSONALITY>
-    <PERMANENT_APPEARANCE>${render_field_value(entities?.AI?.eternal?.physical, entities?.AI, entities)}</PERMANENT_APPEARANCE>
-  </YOUR_IDENTITY>
+  const system = `${render_system_head(entities)}\n${clean_xml(`
+  <ROLE name="${escape_xml(entities?.AI?.name || "AI")}">
+    You are ${escape_xml(entities?.AI?.name || "AI")} in an active scene with ${escape_xml(entities?.USER?.name || "User")} inside ${escape_xml(entities?.FRACTAL?.name || "the environment")}.
+    Your eternal identity, personality, and permanent appearance are declared above in the CAST block; the World's metaphysical truths and environment are there as well.
+  </ROLE>
   <USER_PERSONA name="${escape_xml(entities?.USER?.name || "User")}">
     <PERSONALITY>${user_field(entities?.USER?.eternal?.non_physical)}</PERSONALITY>
     <PERMANENT_APPEARANCE>${user_field(entities?.USER?.eternal?.physical)}</PERMANENT_APPEARANCE>
   </USER_PERSONA>
-  ${
-    entities?.FRACTAL
-      ? `
-  <FRACTAL name="${escape_xml(entities.FRACTAL.name)}">
-    <METAPHYSICAL_TRUTHS>${render_field_value(entities.FRACTAL.eternal?.non_physical, entities.FRACTAL, entities)}</METAPHYSICAL_TRUTHS>
-    <ENVIRONMENT>${render_field_value(entities.FRACTAL.eternal?.physical, entities.FRACTAL, entities)}</ENVIRONMENT>
-  </FRACTAL>`.trim()
-      : ""
-  }
   <PROTOCOLS>
     ${ind(prompt_builder.render_protocols(protocols), 4)}
   </PROTOCOLS>
 </SYSTEM>
-  `).trim();
+  `).trim()}`;
 
   const task = clean_xml(`
 <SNAPSHOT>
@@ -650,10 +695,11 @@ function render_npc_character({
     .filter(Boolean)
     .join(", ");
 
-  const system = clean_xml(`
-<SYSTEM role="${npc_name}">${render_narrative_style_xml(compressed_snapshot?.ai?.dynamics, compressed_snapshot?.fractal?.dynamics)}
-You are ${npc_name}, a supporting character in an active scene with ${user_name} and ${ai_name} inside ${fractal_name}.
-  ${ind(build_dynamics_legend(), 2)}
+  const system = `${render_system_head(entities)}\n${clean_xml(`
+  <ROLE name="${npc_name}">
+    You are ${npc_name}, a supporting character in an active scene with ${user_name} and ${ai_name} inside ${fractal_name}.
+    Your own identity is declared below; the protagonist, user, and world baselines are declared above in the CAST block.
+  </ROLE>
   <YOUR_IDENTITY name="${npc_name}">
     <PERSONALITY>${render_field_value(npc?.eternal?.non_physical, npc, entities)}</PERSONALITY>
     <PERMANENT_APPEARANCE>${render_field_value(npc?.eternal?.physical, npc, entities)}</PERMANENT_APPEARANCE>
@@ -662,20 +708,11 @@ You are ${npc_name}, a supporting character in an active scene with ${user_name}
     <PERSONALITY>${render_field_value(entities?.USER?.eternal?.non_physical, entities?.USER, entities)}</PERSONALITY>
     <PERMANENT_APPEARANCE>${render_field_value(entities?.USER?.eternal?.physical, entities?.USER, entities)}</PERMANENT_APPEARANCE>
   </USER_PERSONA>
-  ${
-    entities?.FRACTAL
-      ? `
-  <FRACTAL name="${escape_xml(entities.FRACTAL.name)}">
-    <METAPHYSICAL_TRUTHS>${render_field_value(entities.FRACTAL.eternal?.non_physical, entities.FRACTAL, entities)}</METAPHYSICAL_TRUTHS>
-    <ENVIRONMENT>${render_field_value(entities.FRACTAL.eternal?.physical, entities.FRACTAL, entities)}</ENVIRONMENT>
-  </FRACTAL>`.trim()
-      : ""
-  }
   <PROTOCOLS>
     ${ind(prompt_builder.render_protocols(protocols), 4)}
   </PROTOCOLS>
 </SYSTEM>
-  `).trim();
+  `).trim()}`;
 
   const task = clean_xml(`
 <SNAPSHOT>
@@ -773,22 +810,19 @@ function build_narrator(
   // scene bookends (prologue/epilogue) never receive them.
   const somatic_directives_xml = mode === "scene" ? build_somatic_directives_block(director_data?.keywords || []) : "";
 
-  const system = clean_xml(`
-<SYSTEM role="${escape_xml(fractal_name)}" mode="${mode.toUpperCase()}">${render_narrative_style_xml()}
-  ${ind(build_dynamics_legend(), 2)}
+  const system = `${render_system_head(entities)}\n${clean_xml(`
+  <ROLE name="${escape_xml(fractal_name)}" mode="${mode.toUpperCase()}">
+    You are ${escape_xml(fractal_name)}, the World itself, narrating the scene. Your eternal truths and environment are declared above in the CAST block.
+  </ROLE>
   <YOUR_IDENTITY name="${escape_xml(fractal_name)}"${format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics)}>
-    <METAPHYSICAL_TRUTHS>${render_field_value(entities?.FRACTAL?.eternal?.non_physical, entities?.FRACTAL, entities)}</METAPHYSICAL_TRUTHS>
     <CURRENT_STATE>${render_field_value(entities?.FRACTAL?.present?.non_physical, entities?.FRACTAL, entities)}</CURRENT_STATE>
-    <ENVIRONMENT>${render_field_value(entities?.FRACTAL?.eternal?.physical, entities?.FRACTAL, entities)}</ENVIRONMENT>
     <ACTIVE_ATMOSPHERE>${render_field_value(entities?.FRACTAL?.present?.physical, entities?.FRACTAL, entities)}</ACTIVE_ATMOSPHERE>
     <AGENDA>${ind(render_accessors?.future(entities?.FRACTAL, { vector_text: true }), 6)}</AGENDA>
     <HISTORY>${ind(render_accessors?.past(entities?.FRACTAL, { vector_text: true }), 6)}</HISTORY>
   </YOUR_IDENTITY>
   <ACTIVE_CHARACTERS>
     <AI_CHARACTER name="${escape_xml(entities?.AI?.name || "AI")}"${format_dynamics_attrs(compressed_snapshot?.ai?.dynamics)}>
-      <PERSONALITY>${render_field_value(entities?.AI?.eternal?.non_physical, entities?.AI, entities)}</PERSONALITY>
       <STATE_OF_MIND>${render_field_value(entities?.AI?.present?.non_physical, entities?.AI, entities)}</STATE_OF_MIND>
-      <PERMANENT_APPEARANCE>${render_field_value(entities?.AI?.eternal?.physical, entities?.AI, entities)}</PERMANENT_APPEARANCE>
       <CURRENT_LOOK>${render_field_value(entities?.AI?.present?.physical, entities?.AI, entities)}</CURRENT_LOOK>
       <INTENT>${ind(render_accessors?.future(entities?.AI, { vector_text: true }), 8)}</INTENT>
       <MEMORIES>${ind(render_accessors?.past(entities?.AI, { vector_text: true }), 8)}</MEMORIES>
@@ -806,7 +840,7 @@ function build_narrator(
     ${ind(prompt_builder.render_protocols("COGNITION.ANCHOR, COGNITION.PHASES, AGENCY.PRESENT_TENSE, HYGIENE.PROSE, AGENCY.MOMENTUM, HYGIENE.MARKDOWN, HYGIENE.BANNED_TROPES, HYGIENE.PROSE_STRUCTURE, AGENCY.FICTIONAL_LICENSE"), 4)}
   </PROTOCOLS>
 </SYSTEM>
-  `).trim();
+  `).trim()}`;
 
   // Narrator (prologue/epilogue) is the WORLD speaking, not the character:
   // pass no ai dynamics so character-somatic signals (global ai-domain triggers
