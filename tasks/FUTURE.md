@@ -2,7 +2,7 @@
 
 > **Track Goal**: _[One-sentence clear summary of the active engineering goal]_  
 > **Workflow**: `[e.g., /01-plan -> /02-implement]`  
-> **Status**: `[IDLE / READY TO PLAN]`  
+> **Status**: `[IDLE / READY TO PLAN]`
 
 ---
 
