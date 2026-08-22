@@ -16,3 +16,32 @@ describe("AppStore Telemetry", () => {
     expect(entry.id).toMatch(uuid_regex);
   });
 });
+
+describe("AppStore Selection Cleaning", () => {
+  it("cleans claimed entity selections when in storyboard view", () => {
+    app.view = "storyboard";
+    app.claimed_entity_ids.clear();
+    app.claimed_entity_ids.add("ai-claimed");
+    app.selected_ai = { id: "ai-claimed", name: "Glitch" };
+    app.selected_user = { id: "user-free", name: "Orion" };
+
+    app.clean_claimed_selections();
+
+    expect(app.selected_ai).toBeNull();
+    expect(app.selected_user).not.toBeNull();
+    expect(app.selected_user?.name).toBe("Orion");
+  });
+
+  it("does not wipe selections when view is not storyboard unless forced", () => {
+    app.view = "storymode";
+    app.claimed_entity_ids.clear();
+    app.claimed_entity_ids.add("ai-claimed");
+    app.selected_ai = { id: "ai-claimed", name: "Glitch" };
+
+    app.clean_claimed_selections();
+    expect(app.selected_ai).not.toBeNull();
+
+    app.clean_claimed_selections(true);
+    expect(app.selected_ai).toBeNull();
+  });
+});

@@ -362,10 +362,11 @@ export class AppStore {
 
   /**
    * Unselects any storyboard slots whose entities are currently claimed by active stories.
-   * Scoped strictly to storyboard lobby view so that active storymode sessions are never stripped.
+   * Scoped to storyboard lobby view so that active storymode sessions are never stripped during play.
+   * @param {boolean} [force=false]
    */
-  clean_claimed_selections() {
-    if (this.view !== "storyboard") return;
+  clean_claimed_selections(force = false) {
+    if (!force && this.view !== "storyboard") return;
     if (this.selected_ai?.id != null && this.claimed_entity_ids.has(String(this.selected_ai.id))) {
       this.selected_ai = null;
     }
@@ -405,12 +406,11 @@ export class AppStore {
   toggle_control_panel = () => {
     this.control_panel_open = !this.control_panel_open;
   };
-  set_view = (/** @type {string} */ view) => {
+  set_view = async (/** @type {string} */ view) => {
     if (view === "storyboard") {
-      // Release the inspected story's cast back out of the storyboard slots
-      // (restoring any user pre-selections stashed before inspection).
       this.restore_storyboard_selection();
-      this.clean_claimed_selections();
+      await this.load_entities();
+      this.clean_claimed_selections(true);
     }
     guarded_transition(
       () => {
