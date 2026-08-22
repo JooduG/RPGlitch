@@ -83,16 +83,19 @@
     const label_map = { ai: "AI", user: "User", fractal: "Fractal" };
     const turn_map = { ai: "AI_TURN", user: "USER_TURN", fractal: "SYSTEM_TURN" };
     const entity = entity_map[subject];
+    /** @type {{ id?: string|number } | null} */
+    let placeholder_entry = null;
+    let target_mode = "";
     try {
       simulation_state.role = subject;
       simulation_state.start_generation(subject);
 
-      const target_mode = kind || (subject === "fractal" ? "story_scene" : "story_character");
+      target_mode = kind || (subject === "fractal" ? "story_scene" : "story_character");
 
       // Log placeholder message immediately with null src attachment
-      const placeholder_entry = await session_driver.log_message("", subject, entity?.name || label_map[subject], {
+      placeholder_entry = await session_driver.log_message("", subject, entity?.name || label_map[subject], {
         turn_type: turn_map[subject],
-        attachments: [{ src: null, metadata: { mode: target_mode } }],
+        attachments: [{ src: null, metadata: { mode: target_mode, prompt } }],
       });
 
       const result = await visual_engine.visualize(runtime.story_id, prompt, kind, { subject });
@@ -103,10 +106,20 @@
           metadata: { mode: target_mode, ...result.metadata, prompt: result.refinedPrompt },
         });
       } else if (!result?.imageUrl) {
+        await session_driver.update_log_attachment(placeholder_entry.id, 0, {
+          src: null,
+          metadata: { mode: target_mode, prompt, failed: true, error: "Image generation returned no image" },
+        });
         app.log(`${label_map[subject] || subject} image generation failed. Please try again.`, "error");
       }
     } catch (err) {
       console.error(`[Photo Error: ${subject}]`, err);
+      if (placeholder_entry?.id) {
+        await session_driver.update_log_attachment(placeholder_entry.id, 0, {
+          src: null,
+          metadata: { mode: target_mode, prompt, failed: true, error: err?.message || "Image generation failed" },
+        });
+      }
       app.log(`Image generation failed: ${err.message || err}`, "error");
     } finally {
       simulation_state.complete();
@@ -116,21 +129,20 @@
   /** Group shot helper — logs placeholder immediately, then fills in the image */
   async function take_group_photo() {
     if (is_locked) return;
+    /** @type {{ id?: string|number } | null} */
+    let placeholder_entry = null;
     try {
       simulation_state.role = "fractal";
       simulation_state.start_generation("fractal");
       const fractal = runtime.active_fractal || app.selected_fractal;
+      const group_prompt = "A scene featuring both the AI character and the user persona together";
 
-      const placeholder_entry = await session_driver.log_message("", "fractal", fractal?.name || "Scene", {
+      placeholder_entry = await session_driver.log_message("", "fractal", fractal?.name || "Scene", {
         turn_type: "SYSTEM_TURN",
-        attachments: [{ src: null, metadata: { mode: "story_entities" } }],
+        attachments: [{ src: null, metadata: { mode: "story_entities", prompt: group_prompt } }],
       });
 
-      const result = await visual_engine.visualize(
-        runtime.story_id,
-        "A scene featuring both the AI character and the user persona together",
-        "story_entities",
-      );
+      const result = await visual_engine.visualize(runtime.story_id, group_prompt, "story_entities");
 
       if (result?.imageUrl && placeholder_entry?.id) {
         await session_driver.update_log_attachment(placeholder_entry.id, 0, {
@@ -138,10 +150,20 @@
           metadata: { ...result.metadata, prompt: result.refinedPrompt },
         });
       } else if (!result?.imageUrl) {
+        await session_driver.update_log_attachment(placeholder_entry.id, 0, {
+          src: null,
+          metadata: { mode: "story_entities", prompt: group_prompt, failed: true, error: "Image generation returned no image" },
+        });
         app.log("Story Image generation failed. Please try again.", "error");
       }
     } catch (err) {
       console.error("[Story Image Error]", err);
+      if (placeholder_entry?.id) {
+        await session_driver.update_log_attachment(placeholder_entry.id, 0, {
+          src: null,
+          metadata: { mode: "story_entities", failed: true, error: err?.message || "Image generation failed" },
+        });
+      }
       app.log(`Story Image failed: ${err.message || err}`, "error");
     } finally {
       simulation_state.complete();

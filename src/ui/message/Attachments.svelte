@@ -101,6 +101,8 @@
       {@const box_h = 480}
       {@const box_w = Math.round((box_h * res.width) / res.height)}
       {@const container_style = `height: ${box_h}px; width: ${box_w}px; max-width: 100%; max-height: 60vh; aspect-ratio: ${res.width} / ${res.height};`}
+      {@const preview_options = build_preview_options(attachment, id, attach_idx, signature_color)}
+      {@const is_failed = typeof attachment === "object" && attachment !== null && Boolean(attachment?.metadata?.failed)}
       {#if image_picker.hasError(regenerate_key)}
         <div class="flex flex-col items-center justify-center gap-2 rounded-lg bg-red-900/20 p-4" style={container_style}>
           <p class="text-center text-sm text-red-400">{image_picker.error}</p>
@@ -144,6 +146,43 @@
         </Button>
       {:else if image_picker.isRegenerating(regenerate_key)}
         {@render loading_cell(container_style)}
+      {:else if is_failed}
+        <div
+          class="relative flex flex-col items-center justify-center gap-2 overflow-hidden rounded-lg border border-red-900/50 bg-red-950/25 p-4"
+          style={container_style}
+        >
+          <svg
+            viewBox="0 0 24 24"
+            class="h-8 w-8 fill-none stroke-2 text-red-400/80 [stroke-linecap:round] [stroke-linejoin:round]"
+            aria-hidden="true"
+          >
+            <path d="M12 3 L21 21 H3 Z" />
+            <line x1="12" y1="9" x2="12" y2="14" />
+            <line x1="12" y1="17.5" x2="12.01" y2="17.5" />
+          </svg>
+          <p class="text-center text-xs font-medium text-red-300">Image generation failed</p>
+          <p class="text-center text-[10px] text-red-400/70">The image service timed out. Retry or remove.</p>
+          <div class="flex items-center gap-2">
+            {#if preview_options.on_regenerate}
+              <Button
+                variant="bare"
+                onclick={preview_options.on_regenerate}
+                class="rounded-md border border-red-400/40 bg-red-950/40 px-3 py-1 text-[11px] font-medium text-red-200 transition-colors hover:border-red-300/70 hover:text-white"
+              >
+                Retry
+              </Button>
+            {/if}
+            {#if id}
+              <Button
+                variant="bare"
+                onclick={() => simulation_log.delete_entry(String(id))}
+                class="rounded-md border border-red-400/30 px-3 py-1 text-[11px] font-medium text-red-200/70 transition-colors hover:border-red-300/60 hover:text-white"
+              >
+                Remove
+              </Button>
+            {/if}
+          </div>
+        </div>
       {:else if src}
         <Button
           variant="bare"
@@ -160,7 +199,7 @@
             duration-200
             hover:brightness-110
           "
-          onclick={() => app.open_image_preview(build_preview_options(attachment, id, attach_idx, signature_color))}
+          onclick={() => app.open_image_preview(preview_options)}
           aria-label="View Attachment"
         >
           <img
