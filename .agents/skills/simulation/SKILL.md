@@ -150,3 +150,22 @@ Before signing off on any prompt architecture refactor or rendering modification
 - [ ] Image generation strings verified as compiled entirely from physical field definitions (`eternal.physical` and `present.physical`).
 - [ ] Image registries updated instantly upon completion to eliminate orphaned resource instances.
 - [ ] **Simulation Audit Confirmed**: Unit tests verify flawless data and visual prompt parameter compilation inside `tmp/audit_report.md`.
+
+---
+
+## 11.0 SUGGESTION BLUEPRINT REGISTRY (`data/`)
+
+The `.agents/skills/simulation/data/` directory contains 12 atomic architectural specifications and future proposal blueprints:
+
+1. **Prompt Architecture:** [`suggestion-anex-prompt-architecture.md`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/simulation/data/suggestion-anex-prompt-architecture.md) — Top-to-bottom prompt layout, bracket mutation tags, and the Epistemic Wall.
+2. **Prose Quality & Anti-Slop:** [`suggestion-lexical-anti-slop.md`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/simulation/data/suggestion-lexical-anti-slop.md) — Token-locking traps, negation paradox, master replacement matrix, and author voice locks.
+3. **Multi-Modal Generation:** [`suggestion-multimodal-prompting.md`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/simulation/data/suggestion-multimodal-prompting.md) — 4-Pillars image prompting and cinematic video motion logic.
+4. **Dynamic Somatics:** [`suggestion-attachment-somatic-engine.md`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/simulation/data/suggestion-attachment-somatic-engine.md) — The 4 dynamic axes (`chaos`, `intensity`, `openness`, `affinity`) and attachment archetypes.
+5. **Bayesian Cognition:** [`suggestion-bayesian-cognitive-engine.md`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/simulation/data/suggestion-bayesian-cognitive-engine.md) — Epistemic uncertainty, belief updating ($P(H|E)$), and tripartite memory tiers.
+6. **Gambit & Skill Checks:** [`suggestion-gambit-resolution-engine.md`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/simulation/data/suggestion-gambit-resolution-engine.md) — D20 point-in-time checks, 21-target Blackjack state machine, and 1d100 chaos seeds.
+7. **Fate Branching:** [`suggestion-tarot-fate-branching.md`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/simulation/data/suggestion-tarot-fate-branching.md) — Climax scene triad of paths (High / Low / Middle) and 10-archetype catalog.
+8. **Tragic Epilogues:** [`suggestion-collapsed-epilogue-engine.md`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/simulation/data/suggestion-collapsed-epilogue-engine.md) — `COLLAPSED` narrative tragedy protocol, visual styling, and state rewind.
+9. **Platform Sandbox:** [`suggestion-perchance-runtime-sandbox.md`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/simulation/data/suggestion-perchance-runtime-sandbox.md) — Two-panel sandbox architecture, 3-step exposure pattern, and `oc` event API.
+10. **Context & Token Budgets:** [`suggestion-token-budget-benchmarks.md`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/simulation/data/suggestion-token-budget-benchmarks.md) — Token allocations, syntax efficiency benchmarks, and middle-out memory summarization.
+11. **Kinetic Choreography:** [`suggestion-kinetic-state-choreography.md`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/simulation/data/suggestion-kinetic-state-choreography.md) — Unified `<TypingDots />` primitive, feed stream states, and console shimmer sweeps.
+12. **Style Entities & Cards:** [`suggestion-style-entities-cards.md`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/simulation/data/suggestion-style-entities-cards.md) — Composable narrative and visual style cards stored as first-class entities.
