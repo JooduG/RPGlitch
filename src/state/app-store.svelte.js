@@ -362,8 +362,10 @@ export class AppStore {
 
   /**
    * Unselects any storyboard slots whose entities are currently claimed by active stories.
+   * Scoped strictly to storyboard lobby view so that active storymode sessions are never stripped.
    */
   clean_claimed_selections() {
+    if (this.view !== "storyboard") return;
     if (this.selected_ai?.id != null && this.claimed_entity_ids.has(String(this.selected_ai.id))) {
       this.selected_ai = null;
     }

@@ -30,7 +30,8 @@
 
   // --- DERIVED RUNES ---
 
-  let fractal_url = $derived(app.selected_fractal?.profile_picture || "");
+  let active_fractal = $derived(runtime.active_fractal || app.selected_fractal);
+  let fractal_url = $derived(active_fractal?.profile_picture || "");
   let fractal_opacity = $derived("var(--opacity-muted)");
 
   // --- LIFECYCLE EFFECTS ---
