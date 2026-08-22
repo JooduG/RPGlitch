@@ -473,7 +473,8 @@ export function parse_relational_vector(vector_str) {
   if (!raw) return null;
 
   // Match: Source → Target: Dynamic (or Source -> Target: Dynamic)
-  const match = raw.match(/^([^\n→—\-=>:]+?)\s*(?:→|->|—>|=>|—)\s*([^\n:]+?)(?:\s*:\s*([\s\S]*))?$/);
+  // Allows hyphens in source/target names (e.g. "Nova-City", "K-9") while detecting arrows (→, ->, —>, =>, —)
+  const match = raw.match(/^([^\n→—=>:]+?)\s*(?:→|->|—>|=>|—)\s*([^\n:]+?)(?:\s*:\s*([\s\S]*))?$/);
   if (!match) return null;
 
   const source_name = (match[1] || "").trim();

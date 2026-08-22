@@ -5,7 +5,7 @@
  * (track-npc-expansion: world cast, stage spotlight, NPC persona prompts)
  * Synthesizes simulation state, entities, and memories into XML system schemas.
  */
-import { ind, prompt_escape, state_bridge, escape_xml, physical_to_xml } from "@utils";
+import { ind, prompt_escape, state_bridge, escape_xml, physical_to_xml, parse_relational_vector } from "@utils";
 import { NARRATIVE_STYLES, PROTOCOL_LIBRARY, build_available_keywords_xml, build_somatic_directives_block, get_style_keywords } from "@data";
 import { DYNAMICS_META, build_signals_xml } from "./dynamics.js";
 import { ENTITY_CATALOG, ENTITY_FRAGMENTS, TEMPORAL_CONTRACT, SIGNATURE_COLORS } from "@data";
@@ -278,25 +278,25 @@ function render_scene_roster_xml(entities = {}, npc_entities = [], in_scene_ids 
 function render_relational_mesh_xml(entities = {}, npc_entities = [], perspective_entity = null) {
   const rels = [];
   const perspective_name = perspective_entity?.name ? String(perspective_entity.name).toLowerCase().trim() : null;
+  const fractal_name = entities?.FRACTAL?.name ? String(entities.FRACTAL.name).toLowerCase().trim() : null;
 
   const push = (e) => {
     if (!e?.name) return;
     for (const r of Array.isArray(e?.relationships) ? e.relationships : []) {
-      const clean = String(r || "").trim();
-      if (!clean) continue;
+      const parsed = parse_relational_vector(r);
+      if (!parsed) continue;
+
       if (perspective_name) {
         // Epistemic Law: An entity only knows their OWN outgoing feelings/relations
         // and public environment/fractal dynamics. They CANNOT read what other entities privately feel about them.
-        const is_from_me = clean.toLowerCase().startsWith(`${perspective_name} →`) || clean.toLowerCase().startsWith(`${perspective_name}->`);
-        const is_fractal =
-          entities?.FRACTAL?.name &&
-          (clean.toLowerCase().startsWith(`${String(entities.FRACTAL.name).toLowerCase()} →`) ||
-            clean.toLowerCase().startsWith(`${String(entities.FRACTAL.name).toLowerCase()}->`));
+        const src = parsed.source_name.toLowerCase();
+        const is_from_me = src === perspective_name;
+        const is_fractal = fractal_name && src === fractal_name;
         if (is_from_me || is_fractal) {
-          rels.push(`- ${escape_xml(clean)}`);
+          rels.push(`- ${escape_xml(parsed.raw)}`);
         }
       } else {
-        rels.push(`- ${escape_xml(clean)}`);
+        rels.push(`- ${escape_xml(parsed.raw)}`);
       }
     }
   };

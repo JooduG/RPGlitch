@@ -65,6 +65,14 @@ describe("parse_relational_vector & format_relational_vector", () => {
       dynamic: "containment breach hacker sabotage",
       raw: "Glitch -> Dr. Elias Tariq: containment breach hacker sabotage",
     });
+
+    const v3 = parse_relational_vector("K-9 → Nova-City: defense patrol unit");
+    expect(v3).toEqual({
+      source_name: "K-9",
+      target_name: "Nova-City",
+      dynamic: "defense patrol unit",
+      raw: "K-9 → Nova-City: defense patrol unit",
+    });
   });
 
   it("handles vectors with no dynamic description", () => {
