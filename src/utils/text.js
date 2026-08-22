@@ -505,3 +505,62 @@ export function format_relational_vector(source_name, target_name, dynamic = "")
   if (!src || !tgt) return "";
   return dyn ? `${src} → ${tgt}: ${dyn}` : `${src} → ${tgt}`;
 }
+
+/**
+ * Decomposes a flat story title into styled title parts matching active entities.
+ * Highlights AI, User, and Fractal names with their signature colors.
+ * @param {string} title
+ * @param {{ ai?: any, user?: any, fractal?: any, get_color?: (e: any) => string }} entities
+ * @returns {Array<{text: string, color?: string}>}
+ */
+export function decompose_story_title(title, entities = {}) {
+  if (!title || typeof title !== "string") return [{ text: "" }];
+  const clean = title.trim();
+  if (!clean) return [{ text: "" }];
+
+  const { ai, user, fractal, get_color = () => "" } = entities;
+  const matches = [];
+
+  if (ai?.name) {
+    const idx = clean.indexOf(ai.name);
+    if (idx !== -1) {
+      matches.push({ name: ai.name, color: get_color(ai), start: idx, end: idx + ai.name.length });
+    }
+  }
+  if (user?.name && (!ai?.name || user.name !== ai.name)) {
+    const idx = clean.indexOf(user.name);
+    if (idx !== -1) {
+      matches.push({ name: user.name, color: get_color(user), start: idx, end: idx + user.name.length });
+    }
+  }
+  if (fractal?.name) {
+    const idx = clean.indexOf(fractal.name);
+    if (idx !== -1) {
+      matches.push({ name: fractal.name, color: get_color(fractal), start: idx, end: idx + fractal.name.length });
+    }
+  }
+
+  if (matches.length === 0) {
+    return [{ text: clean }];
+  }
+
+  // Sort by starting position
+  matches.sort((a, b) => a.start - b.start);
+
+  const parts = [];
+  let cursor = 0;
+  for (const m of matches) {
+    if (m.start > cursor) {
+      parts.push({ text: clean.slice(cursor, m.start) });
+    }
+    if (m.start >= cursor) {
+      parts.push({ text: m.name, color: m.color });
+      cursor = m.end;
+    }
+  }
+  if (cursor < clean.length) {
+    parts.push({ text: clean.slice(cursor) });
+  }
+
+  return parts;
+}

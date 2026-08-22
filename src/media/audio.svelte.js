@@ -7,15 +7,7 @@
 import { state_bridge, strip_cognition_blocks, onnx_mutex, wait_ort_ready } from "@utils";
 import { db } from "@data";
 
-import {
-  KOKORO_VOICES,
-  get_cadence_rate,
-  normalize_role,
-  resolve_voice_name,
-  resolve_voice_uri,
-  split_speech_by_speaker,
-  split_speech_sentences,
-} from "./speech.js";
+import { KOKORO_VOICES, get_cadence_rate, normalize_role, resolve_voice_name, resolve_voice_uri, split_speech_sentences } from "./speech.js";
 
 const STORAGE_KEY = "rpglitch_audio_settings";
 
@@ -353,40 +345,6 @@ export class VoiceEngine {
     const chunks = tail ? [...sentences, tail] : sentences;
 
     this.#enqueue_chunks(chunks.map((text) => ({ text, voice_id: this.selected_voice })));
-  }
-
-  /**
-   * Multi-voice pipeline (track-npc-expansion 4.1/4.3): segments a turn by
-   * dialogue speaker attribution and queues each chunk with its own voice.
-   * @param {string} text
-   * @param {Array<{ name?: string, voice_id?: string, is_narrator?: boolean }>} active_roster
-   * @param {{ clearQueue?: boolean, force?: boolean, narrator_voice?: string, default_voice?: string }} [options]
-   */
-  speak_with_voices(text, active_roster = [], { clearQueue = true, force = false, narrator_voice = "", default_voice = "" } = {}) {
-    if (!text) return;
-    if (!this.enabled && !force) return;
-
-    if (clearQueue) {
-      const pending_message_id = this.active_message_id;
-      this.stop();
-      this.active_message_id = pending_message_id;
-      this.#stream_stopped = false;
-    }
-
-    const speech_ready_text = strip_cognition_blocks(text)
-      .replace(/[*_#`~]/g, "")
-      .replace(/\[\[(.*?)\]\]/g, "$1")
-      .replace(/<[^>]*>/g, "")
-      .trim();
-
-    if (!speech_ready_text) return;
-
-    const chunks = split_speech_by_speaker(speech_ready_text, active_roster, {
-      narrator_voice: narrator_voice || this.selected_voice,
-      default_voice: default_voice || this.selected_voice,
-    });
-
-    this.#enqueue_chunks(chunks);
   }
 
   /** @param {Array<{ text: string, voice_id: string }>} chunks */
@@ -801,41 +759,17 @@ export class VoiceEngine {
   }
 
   /**
-   * Builds the live-stream roster from the current world cast (NPCs + fractal
-   * narrator + companion), so quoted dialogue during streaming can be handed to
-   * each speaker's Kokoro voice — mirroring the finished-turn attribution.
-   * @returns {Array<{ name: string, voice_id: string, is_narrator: boolean }>}
-   */
-  #stream_roster() {
-    const runtime = state_bridge?.runtime;
-    if (!runtime) return [];
-    const roster = [];
-    for (const n of Object.values(runtime.active_npcs || {})) {
-      if (n?.name) roster.push({ name: n.name, voice_id: resolve_voice_uri(n.voice?.name || n.voice_register || ""), is_narrator: false });
-    }
-    const fractal = runtime.active_fractal;
-    if (fractal?.name)
-      roster.push({ name: fractal.name, voice_id: resolve_voice_uri(fractal.voice?.name || fractal.voice_register || ""), is_narrator: true });
-    const companion = runtime.active_ai;
-    if (companion?.name)
-      roster.push({ name: companion.name, voice_id: resolve_voice_uri(companion.voice?.name || companion.voice_register || ""), is_narrator: false });
-    return roster;
-  }
-
-  /**
-   * Streams live turn text sentence-by-sentence. Each committed sentence is
-   * attributed against the roster (quoted dialogue → speaker voice, prose →
-   * narrator/default voice) instead of always using the single selected voice.
+   * Streams live turn text sentence-by-sentence, always using the streaming
+   * role's voice (set by apply_stream_role) for every chunk — the whole message
+   * stays in the sender's voice.
    * @param {string} current_raw_text
-   * @param {Array<{ name?: string, voice_id?: string, is_narrator?: boolean }>} [active_roster]
    */
-  queue_stream_sentence(current_raw_text, active_roster = []) {
+  queue_stream_sentence(current_raw_text) {
     if (this.#stream_stopped) return;
     const sanitized_stream_track = current_raw_text.replace(/<think>[\s\S]*?<\/think>/gi, "").replace(/<think>[\s\S]*/gi, "");
     const fresh_buffer = sanitized_stream_track.slice(this.spoken_character_cursor);
 
     const { sentences, committed } = split_speech_sentences(fresh_buffer);
-    const roster = Array.isArray(active_roster) && active_roster.length ? active_roster : this.#stream_roster();
     const prep = (s) =>
       strip_cognition_blocks(s)
         .replace(/[*_#`~]/g, "")
@@ -846,11 +780,8 @@ export class VoiceEngine {
     for (const clean_sentence of sentences) {
       if (!clean_sentence) continue;
       try {
-        const chunks = split_speech_by_speaker(prep(clean_sentence), roster, {
-          narrator_voice: this.selected_voice,
-          default_voice: this.selected_voice,
-        });
-        if (chunks.length) this.#enqueue_chunks(chunks);
+        const clean_text = prep(clean_sentence);
+        if (clean_text) this.#enqueue_chunks([{ text: clean_text, voice_id: this.selected_voice }]);
       } catch (tts_err) {
         console.warn("[VoiceEngine] TTS speak error during streaming:", tts_err);
       }
@@ -866,11 +797,7 @@ export class VoiceEngine {
     const clean_remainder = strip_cognition_blocks(remaining_text).trim();
 
     if (clean_remainder) {
-      const chunks = split_speech_by_speaker(clean_remainder, this.#stream_roster(), {
-        narrator_voice: this.selected_voice,
-        default_voice: this.selected_voice,
-      });
-      if (chunks.length) this.#enqueue_chunks(chunks);
+      this.#enqueue_chunks([{ text: clean_remainder, voice_id: this.selected_voice }]);
     }
   }
 }

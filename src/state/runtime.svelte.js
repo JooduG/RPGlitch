@@ -1,5 +1,7 @@
 import { db, entities, coerce_story_key, session_driver, SESSION_ID_KEY } from "@data";
 import { load_session_checkpoint, clear_session_checkpoint } from "@platform";
+import { decompose_story_title } from "@utils";
+import { get_signature_color } from "@media";
 import { app } from "./app-store.svelte.js";
 // We split the large state object into cohesive internal modules:
 // 1. Entities (character, active_user, active_ai, active_fractal)
@@ -349,6 +351,17 @@ function create_runtime_store() {
         app.selected_ai = active_ai_state;
         app.selected_user = active_user_state;
         app.selected_fractal = active_fractal_state;
+
+        // Hydrate the persisted story title so browser reloads retain the original title exactly
+        if (story.title) {
+          app.story_title = story.title;
+          app.story_title_parts = decompose_story_title(story.title, {
+            ai: active_ai_state,
+            user: active_user_state,
+            fractal: active_fractal_state,
+            get_color: get_signature_color,
+          });
+        }
 
         // Store the story object in the by_id map so active_story getter works.
         // Key with the coerced numeric key to match how DB stores it.

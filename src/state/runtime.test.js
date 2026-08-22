@@ -75,6 +75,8 @@ describe("State Synchronization", () => {
 describe("runtime.sync checkpoint restore", () => {
   /** @type {any} */
   let runtime;
+  /** @type {any} */
+  let app;
 
   beforeEach(async () => {
     vi.resetModules();
@@ -85,6 +87,7 @@ describe("runtime.sync checkpoint restore", () => {
     vi.spyOn(console, "warn").mockImplementation(() => {});
     vi.spyOn(console, "error").mockImplementation(() => {});
     ({ runtime } = await import("./runtime.svelte.js"));
+    ({ app } = await import("./app-store.svelte.js"));
   }, 30000);
 
   afterEach(() => {
@@ -122,8 +125,9 @@ describe("runtime.sync checkpoint restore", () => {
     expect(mock_checkpoint.clear_session_checkpoint).toHaveBeenCalled();
   });
 
-  it("falls back to kv_settings when no checkpoint exists", async () => {
+  it("falls back to kv_settings when no checkpoint exists and hydrates story title", async () => {
     const { db, story_id } = await seed_story(3);
+    await db.stories.update(story_id, { title: "Chronicles of Silas & You in Nova City" });
     await db.kv_settings.put({ key: "active_session_id", value: String(story_id) });
 
     await runtime.sync();
@@ -131,6 +135,9 @@ describe("runtime.sync checkpoint restore", () => {
     expect(runtime.story_id).toBe(String(story_id));
     expect(runtime.round).toBe(3);
     expect(runtime.is_ready).toBe(true);
+    expect(app.story_title).toBe("Chronicles of Silas & You in Nova City");
+    expect(app.story_title_parts.length).toBeGreaterThan(1);
+    expect(app.story_title_parts.some((p) => p.text === "Silas")).toBe(true);
   });
 
   it("keeps the persisted story round when the checkpoint round is not newer", async () => {

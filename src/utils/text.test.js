@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  decompose_story_title,
   escape_unescaped_json_quotes,
   format_key_as_label,
   format_relational_vector,
@@ -120,5 +121,37 @@ describe("escape_unescaped_json_quotes", () => {
     const input = `{ "directive": "Say "hello"" }`;
     const expected = `{ "directive": "Say \\"hello\\"" }`;
     expect(escape_unescaped_json_quotes(input)).toBe(expected);
+  });
+});
+
+describe("decompose_story_title", () => {
+  it("decomposes standard title into colored entity segments", () => {
+    const entities = {
+      ai: { name: "Glitch" },
+      user: { name: "Orion" },
+      fractal: { name: "Nova City" },
+      get_color: (e) => (e.name === "Glitch" ? "#00ffcc" : e.name === "Orion" ? "#ff66cc" : "#6699ff"),
+    };
+    const title = "Chronicles of Glitch & Orion in Nova City";
+    const parts = decompose_story_title(title, entities);
+    expect(parts).toEqual([
+      { text: "Chronicles of " },
+      { text: "Glitch", color: "#00ffcc" },
+      { text: " & " },
+      { text: "Orion", color: "#ff66cc" },
+      { text: " in " },
+      { text: "Nova City", color: "#6699ff" },
+    ]);
+  });
+
+  it("handles custom arbitrary titles gracefully", () => {
+    const title = "Custom Dark Fantasy Epic";
+    const parts = decompose_story_title(title, {});
+    expect(parts).toEqual([{ text: "Custom Dark Fantasy Epic" }]);
+  });
+
+  it("handles null or empty title gracefully", () => {
+    expect(decompose_story_title(null)).toEqual([{ text: "" }]);
+    expect(decompose_story_title("")).toEqual([{ text: "" }]);
   });
 });

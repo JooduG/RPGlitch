@@ -159,9 +159,8 @@
   }
 
   /**
-   * Orchestrates multi-voice speech synthesis: segments the turn by dialogue
-   * attribution (narrator voice for prose, roster voices for quoted lines) and
-   * queues each chunk with its own Kokoro voice.
+   * Speaks the entire message in the sender's voice (selected_voice set above
+   * from the entity's voice profile) — no per-line voice switching.
    * @returns {void}
    */
   function handle_speak() {
@@ -176,22 +175,7 @@
       Audio.voice.rate = get_cadence_rate(entity.voice.cadence, dyn_val);
     }
 
-    const roster = [];
-    for (const n of Object.values(runtime.active_npcs || {})) {
-      if (n?.name) roster.push({ name: n.name, voice_id: resolve_voice_uri(n.voice?.name || n.voice_register || ""), is_narrator: false });
-    }
-    const fractal = runtime.active_fractal || app.selected_fractal;
-    if (fractal?.name)
-      roster.push({ name: fractal.name, voice_id: resolve_voice_uri(fractal.voice?.name || fractal.voice_register || ""), is_narrator: true });
-    const companion = runtime.active_ai || app.selected_ai;
-    if (companion?.name)
-      roster.push({ name: companion.name, voice_id: resolve_voice_uri(companion.voice?.name || companion.voice_register || ""), is_narrator: false });
-
-    Audio.voice.speak_with_voices(clean_markdown, roster, {
-      narrator_voice: resolve_voice_uri(fractal?.voice?.name || fractal?.voice_register || ""),
-      default_voice: Audio.voice.selected_voice,
-      force: true,
-    });
+    Audio.voice.speak(clean_markdown, true, true);
   }
 
   // --- CONTEXT MENU RUNES ---
