@@ -107,3 +107,4 @@ Both interfaces drive the same underlying swarm lifecycle. Consult the `/swarm` 
 
 - [Sovereign Rules & Foundations](GEMINI.md)
 - [Design System](DESIGN.md)
+- [Canonical Glossary & System Lexicon](GLOSSARY.md)

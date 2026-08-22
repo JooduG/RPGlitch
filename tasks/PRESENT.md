@@ -1,14 +1,14 @@
 # 🛰️ Present (The State)
 
 > **Role**: Active Mission Board, Feature Maturity & System State  
-> **Last Synchronized**: 2026-08-16  
+> **Last Synchronized**: 2026-08-22  
 > **Historical Archive**: [archive/2026-08/2026-08-16-tasks-PRESENT-pulse-archive.md](file:///C:/Users/johng/.gemini/antigravity-ide/archive/2026-08/2026-08-16-tasks-PRESENT-pulse-archive.md)
 
 ---
 
 ## 1.0 Feature Maturity & Active State
 
-The codebase is fully synchronized, hardened, and green with **0 errors, 0 warnings, and 524 passing unit/design tests across 37 test files**.
+The codebase is fully synchronized, hardened, and green with **0 errors, 0 warnings, and 688 passing unit/design tests across 47 test files**.
 
 | Feature Domain       | State     | Operational Status & Invariants                                                                |
 | :------------------- | :-------- | :--------------------------------------------------------------------------------------------- |
@@ -33,7 +33,7 @@ The codebase is fully synchronized, hardened, and green with **0 errors, 0 warni
 
 ### Recent Completed Tracks
 
-- [x] `track-relational-constellation-ui-2026-08-21`: Radial Relational Constellation UI & Premade Wanderers (Interactive SVG radial map, signature colored directional arrows, bidirectional curved offsets, hover tooltips, click-to-open profile navigation, wanderer premades Hank and Glitch).
+- [x] `track-relational-constellation-ui-2026-08-21`: Radial Relational Constellation UI & Premade Wanderers (Interactive SVG radial map, signature colored directional arrows, bidirectional curved offsets, hover tooltips, click-to-open profile navigation, wanderer premades Hank and Glitch). Archived to `C:\Users\johng\.gemini\antigravity-ide\archive\2026-08-21-track-relational-constellation-ui.md`.
 - [x] `track-genesis-rich-synthesis-2026-08-21`: Rich Character Creation on Genesis & `<ROSTER>` Harmonization (Synchronous profile-sorting on genesis, Twin-Cylinder schema normalization, background portrait trigger, setting-agnostic `<ROSTER>` renaming).
 - [x] `track-npc-expansion-2026-08-14`: Multi-NPC living-world ecosystem (3-tier world roster, Stage Spotlight `in_scene_npc_ids` + Director choreography, compact `<ROSTER>` signatures, relational mesh, Epistemic Horizon rules, 1.3x in-scene RAG boost, Director NPC delegation, and multi-voice Kokoro TTS). Archived to `archive/2026-08/2026-08-21-track-npc-expansion.md`.
 - [x] `track-director-expansion-2026-08-14`: Director turn pipeline (async job queue concurrency engine, 12-archetype somatic registry + 23-style motif catalog, Director schema expansion, somatic directives injection, normalized speaker delegation & reactive generating-entity thinking state, auto-epilogue dispatch for concluded/collapsed stories). Archived to `archive/2026-08/2026-08-21-track-director-expansion.md`.
@@ -46,23 +46,13 @@ _(All earlier completed tracks from June–July 2026 are cataloged in the [Perma
 
 > _Full historical logs from 2026-06 to 2026-08-16 are archived in [archive/2026-08/2026-08-16-tasks-PRESENT-pulse-archive.md](file:///C:/Users/johng/.gemini/antigravity-ide/archive/2026-08/2026-08-16-tasks-PRESENT-pulse-archive.md)._
 
+| Timestamp | Task / Operational Summary | Workflow / Skills | Outcome |
+| :--- | :--- | :--- | :--- |
+| 2026-08-22 23:50 | Deconstructed, audited, and consolidated all simulation proposals into 6 domain-atomic blueprints in `.agents/skills/simulation/data/`: `suggestion-cognitive-psychology-engine`, `suggestion-context-token-architecture`, `suggestion-stochastic-resolution-mechanics`, `suggestion-lexical-anti-slop`, `suggestion-tragedy-and-epilogue-engine`, and `suggestion-multimodal-style-architecture`. Purged all already-implemented codebase redundancies and duplicate boilerplate; updated `SKILL.md` registry. Cleaned workspace `tmp/` and archived completed tracks. Verified all 47 test suites / 688 unit tests passing with 0 errors. | `/deconstruct`, `simulation` | ✅ Completed |
 | 2026-08-21 21:15 | Completed codebase review cleanups: pruned dead re-exports across `@data`, `@media`, and `@primitives` barrels; corrected `main.js` mount target to `document.body`; verified `markdown.js` and `Storyboard.svelte.js` component integrations. All 45 test suites / 675 tests passing, 0 lint errors, clean singlefile production build. | `/02-implement`, `javascript` | ✅ Completed |
 | 2026-08-19 21:30 | Fixed NPC genesis portrait prompt generation (populated physical description onto character entity + robust entity ID resolution in `visual.svelte.js`); restored signature color border `border-(--signature-color)` to message speaker badge button in `Message.svelte`. 45 test suites / 671 tests passing, 0 lint errors. | `/02-implement`, `design` | ✅ Completed |
 | 2026-08-19 21:17 | Remediated 3 review findings: (1) Added in-scene NPC memory consolidation so secondary cast members accumulate past vectors in `temporal.js`; (2) Sanitized phantom stage ID leaks and prefix normalization in `kernel.js`; (3) Added dynamic story conclusion badge in `Console.svelte` (`✨ Story Concluded` vs `💀 Story Collapsed`). Verified across 45 test suites (671 unit tests + 3 design tests passing, 0 lint errors). | `/02-implement`, `tdd` | ✅ Completed |
-| 2026-08-16 07:10 | Implemented Director Track Milestone 1 (Orchestration Core): `job-queue.js` concurrency engine (parallel workers, latest-pending overwrite, error isolation) wired into kernel ghost sweeps; 12-archetype `somatic-triggers.js` + 23-style motif registry; expanded Director schema (`speaker`, `keywords`, `story_status`) with `<AVAILABLE_KEYWORDS>` pool; `<SOMATIC_DIRECTIVES>` injection into character + new Fractal scene-narrator prompts; normalized speaker delegation & reactive generating-entity thinking state. Added 3 test suites (job-queue, somatic-triggers, director-schema) + expanded prompts tests. Runs to run locally: `npm run verify` + `npm run deploy:prepare`. | `/02-implement`, `tdd` | 🔶 In Progress |
-| 2026-08-16 06:02 | Fixed story markdown export ghost-row crash & purged system telemetry/round markers for pure narrative flow; hardened image placeholder ghost sweeper with 2-minute timeout & auto-sweep on turn completion; standardized Memory Forge past vector prompt to strict 3rd-person named entity phrasing. Verified across 38 test suites (526 unit + 3 design tests passing). | `/02-implement`, `tdd` | ✅ Completed |
-| 2026-08-16 05:46 | Executed `/00-startup`: primed Developer Database vector memory, audited and moved root transients to `tmp/`, formatted configs, validated unidirectional layer hierarchy, and verified test suite baseline (37 test suites, 525 unit tests + 3 design tests passing, 0 errors, 0 warnings). | `/00-startup` | ✅ Ready |
-| 2026-08-16 04:06 | Executed `/00-startup`: primed Developer Database vector memory, validated unidirectional layer hierarchy, formatted lint targets, and verified test suite baseline (37 test suites, 524 unit tests + 3 design tests passing, 0 errors, 0 warnings). | `/00-startup` | ✅ Ready |
-| 2026-08-16 03:10 | Retired `tasks/ETERNAL.md` to permanent archive; modernized `planning/SKILL.md` with streamlined 2-file task architecture, Universal Track File Architecture, and standard `archive/YYYY-MM/` path; synchronized `GEMINI.md` task anchoring rules. | `planning`, `/01-plan` | ✅ Completed |
-| 2026-08-16 01:55 | Completed and archived track-memory-bundle-2026-08-14: Unify active PRESENT state via Pseudo-JSON taxonomies, multi-item inventory aggregation, universal atomic key clearing, visual/epistemic filters, and PAST pinned memories with `usr_` prefix protection, 220-char truncation, 200 total ceiling guard, and 1.5x relevance boost. | `tdd`, `/02-implement` | ✅ Completed |
-| 2026-08-15 23:00 | Completed and archived track-import-export-2026-08-14: Inbound Web URL ingestion via superFetch proxy with schema/host sanitization & plain-text budgets, 3-in-1 ImportModal (Web/File/Text), Character Card V2/V3 codec & JSON export, Story Markdown transcript compilation from Library, and edit-mode Profile export. | `tdd`, `/02-implement` | ✅ Completed |
-| 2026-08-15 22:55 | Executed `/00-startup`: primed Developer Database vector memory, validated unidirectional layer hierarchy, formatted lint targets, and verified test suite baseline (36 test suites, 497 unit & design tests passing, 0 errors). | `/00-startup` | ✅ Ready |
-| 2026-08-14 03:25 | Fix UndoToast chassis dimensions, card offset padding, and Svelte 5 reactive `pending_deletes` state. | `/02-implement`, `svelte` | ✅ Completed |
-| 2026-08-14 03:12 | Add informative Memory Formation cards (standing trajectory, state, anchors), YES_AND physical validation, and jockstrap optics specificity. | `/02-implement` | ✅ Completed |
-| 2026-08-14 02:29 | Enforce lexical fidelity in Director state mutations and wire in-scene fractal grounding for story_character. | `/02-implement` | ✅ Completed |
-| 2026-08-14 02:02 | Fix detox-rules.js regex gap for bare and 3rd person singular 'lean in' / 'leans in'. | `/02-implement` | ✅ Completed |
-| 2026-08-13 21:10 | Execute approved codebase architectural improvements across `src/` (Areas A-E). | `/02-implement` | ✅ Completed |
-| 2026-08-12 12:10 | Initialized track `remediate-stress-test-issues-2026-08-12` to fix 7 issues identified in `long-term-review-4` (Fractal future standing agenda stagnation, `session_driver._active_id` reload sync, ONNX WASM embed error recovery, Director terse thought formatting, reply length allocation, and telemetry logging parity). | `javascript`, `svelte`, `tdd` | ✅ Completed |
+| 2026-08-16 07:10 | Implemented Director Track Milestone 1 (Orchestration Core): `job-queue.js` concurrency engine (parallel workers, latest-pending overwrite, error isolation) wired into kernel ghost sweeps; 12-archetype `triggers.js` + 23-style motif registry; expanded Director schema (`speaker`, `keywords`, `story_status`) with `<AVAILABLE_KEYWORDS>` pool; `<SOMATIC_DIRECTIVES>` injection into character + new Fractal scene-narrator prompts. | `/02-implement`, `tdd` | ✅ Completed |
 
 ---
 
@@ -70,7 +60,7 @@ _(All earlier completed tracks from June–July 2026 are cataloged in the [Perma
 
 <!-- BACKLOG_START -->
 
-Last Swept: 2026-08-16 03:10
+Last Swept: 2026-08-22 23:53
 
 No active AI debt found.
 <!-- BACKLOG_END -->
