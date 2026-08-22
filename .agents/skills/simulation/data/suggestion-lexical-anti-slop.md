@@ -1,25 +1,26 @@
 # Suggestion: Lexical Engineering & Anti-Slop Protocols
 
 > **Status:** Architectural Proposal / Backlog Reference  
-> **Domain:** Prose Quality, Slop Suppression & Author Stylistic Locks  
-> **Scope:** Token-Lock Loops, Negation Paradox, Anatomical Replacement Matrix, and 5-Point Anti-Gravity Audit  
+> **Domain:** Prose Quality, Slop Suppression & Behavioral Drift Control  
+> **Scope:** Token-Locking Traps, Negation Paradox, Somatic Replacement Matrix, and 5-Point Anti-Gravity Audit  
 
 ---
 
 ## 1. Executive Summary
 
-Conversational LLMs naturally gravitate toward generic, melodramatic "assistant tone" and repetitive prose tropes. This document defines the **Lexical Engineering & Anti-Slop Architecture**:
-1. **Autoregressive Token-Locking Mitigation:** Prevents repetitive phrase cascades.
-2. **The Negation Paradox:** Replaces failed negative bans with positive operational mandates.
-3. **Master Replacement Matrix:** Translates clichéd tropes into visceral somatic/behavioral physics.
-4. **Author Stylistic Profiles:** Locks output prose to proven literary models.
-5. **The 5-Point "Anti-Gravity" Audit:** Diagnostic scan performed before output emission.
+While RPGlitch has implemented author DNA profiles ([`src/data/definitions/narrative-styles.js`](file:///c:/Users/johng/source/repos/RPGlitch/src/data/definitions/narrative-styles.js)) and basic negative trope bans, LLM outputs still suffer from two core failure modes:
+1. **The Negation Paradox:** Negative bans (*"Do not write X"*) inadvertently prime the attention window to generate X.
+2. **Behavioral Gravity Wells:** Natural drift toward assistant cheerfulness, interview-style dialogue, and rushed pacing.
+
+This specification formalizes **unimplemented anti-slop architectures**:
+1. **Master Anatomical & Behavioral Replacement Matrix:** Replaces negative string bans with positive operational mandates.
+2. **The 5-Point "Anti-Gravity" Diagnostic Scan:** Enforces behavioral drift detection before prose emission.
 
 ---
 
 ## 2. Autoregressive Loops & The Token-Locking Trap
 
-Transformer architectures operate via autoregressive next-token prediction. When a distinctive word or phrase (e.g., _"whispered," "smirked," "rich tapestry"_) enters the context window, its probability distribution spikes for every subsequent attention pass.
+Transformer architectures operate via autoregressive next-token prediction. When a distinctive word or phrase (e.g., *"whispered," "smirked," "rich tapestry"*) enters the context window, its probability distribution spikes for every subsequent attention pass.
 
 ```text
 [Model Outputs Token: "tapestry"] ──► Appended to Chat Context
@@ -37,11 +38,11 @@ Transformer architectures operate via autoregressive next-token prediction. When
 
 ## 3. The Negation Paradox: The "Mrs. Henderson" & "Bergamot" Effect
 
-LLMs process semantic tokens before evaluating logical negation operators.
+LLMs process semantic tokens before evaluating logical negation operators:
 
-- **The Failure:** Providing a negative prompt such as _"Do not mention Mrs. Henderson"_ or _"Avoid describing the smell of bergamot"_ heavily attends to the high-entropy noun tokens (`Mrs. Henderson`, `bergamot`).
-- **The Result:** The model features the banned concept anyway (e.g., introducing a _"Mrs. Henderson"_ or describing a _"bergamot-free lotion"_).
-- **The Rule:** **Never use negative bans.** Replace them with explicit, positive operational mandates specifying what _must_ occur instead.
+- **The Failure:** Providing a negative prompt such as *"Do not mention Mrs. Henderson"* or *"Avoid describing the smell of bergamot"* heavily attends to the high-entropy noun tokens (`Mrs. Henderson`, `bergamot`).
+- **The Result:** The model features the banned concept anyway (e.g., introducing a *"Mrs. Henderson"* or describing a *"bergamot-free lotion"*).
+- **The Rule:** **Never use negative bans.** Replace them with explicit, positive operational mandates specifying what *must* occur instead.
 
 ---
 
@@ -49,44 +50,18 @@ LLMs process semantic tokens before evaluating logical negation operators.
 
 | Banned Generic Trope | Generative Root | Mandatory Behavioral & Somatic Replacement |
 | :--- | :--- | :--- |
-| _"A shiver ran down their spine."_ | Sensation default | **Cold sweat along the nape; erector pili contraction; sharp clavicular shudder.** |
-| _"An unspoken understanding passed between them."_ | Relationship shortcut | **A held 2-second gaze; a measured chin dip; synchronized exhalations.** |
-| _"A predatory growl / feral grin."_ | Melodramatic combat cliches | **Jaw locked tight; incisors exposed; fixed, unblinking fixation.** |
-| _"Her words hit him like a physical blow."_ | Abstract impact | **Diaphragm locking; sudden loss of breath; an involuntary half-step back.** |
-| _"Smell of ozone, sulfur, and brimstone."_ | High-fantasy cliché | **Scent of damp concrete, hot copper wire, wet wool, or stagnant sump water.** |
-| _"Whitening knuckles / clenching fists."_ | Tension shortcut | **Fingers contracting until tendons stand in relief along the back of the hand.** |
-| _"A dance of push and pull / Rich tapestry."_ | Narrative summary | **A sequence of transactional compromises, tactical retreats, and physical boundaries.** |
-| _"You're a menace / insufferable, you know that?"_ | Generic rom-com banter | **Skeptical silence, a slow physical turn away, or a blunt change of subject.** |
+| *"A shiver ran down their spine."* | Sensation default | **Cold sweat along the nape; erector pili contraction; sharp clavicular shudder.** |
+| *"An unspoken understanding passed between them."* | Relationship shortcut | **A held 2-second gaze; a measured chin dip; synchronized exhalations.** |
+| *"A predatory growl / feral grin."* | Melodramatic combat cliches | **Jaw locked tight; incisors exposed; fixed, unblinking fixation.** |
+| *"Her words hit him like a physical blow."* | Abstract impact | **Diaphragm locking; sudden loss of breath; an involuntary half-step back.** |
+| *"Smell of ozone, sulfur, and brimstone."* | High-fantasy cliché | **Scent of damp concrete, hot copper wire, wet wool, or stagnant sump water.** |
+| *"Whitening knuckles / clenching fists."* | Tension shortcut | **Fingers contracting until tendons stand in relief along the back of the hand.** |
+| *"A dance of push and pull / Rich tapestry."* | Narrative summary | **A sequence of transactional compromises, tactical retreats, and physical boundaries.** |
+| *"You're a menace / insufferable, you know that?"* | Generic rom-com banter | **Skeptical silence, a slow physical turn away, or a blunt change of subject.** |
 
 ---
 
-## 5. Author Stylistic Profiles & Voice-Lock Matrix
-
-Anchor output prose to proven literary blueprints to suppress the generic conversational tone:
-
-```text
-Profile           Perspective    Sensory Hierarchy     Rhythm & Aesthetic Directives
-┌──────────────┐  ┌───────────┐  ┌──────────────────┐  ┌───────────────────────────────────────────────┐
-│ Abercrombie  │  │ Deep 3rd  │  │ Sight > Scent >  │  │ Gritty, bathos-heavy, physical fatigue,       │
-│              │  │ Limited   │  │ Sound            │  │ cynical realism, unromanticized violence.     │
-├──────────────┤  ├───────────┤  ├──────────────────┤  ├───────────────────────────────────────────────┤
-│ Gibson       │  │ Detached  │  │ Sight > Sound >  │  │ Technical precision, high jargon density,     │
-│              │  │ 3rd       │  │ Touch            │  │ cold neon chiaroscuro, urban alienation.      │
-├──────────────┤  ├───────────┤  ├──────────────────┤  ├───────────────────────────────────────────────┤
-│ Nin          │  │ 1st       │  │ Touch > Scent >  │  │ Visceral, psychological, boundary-breaking,   │
-│              │  │ Person    │  │ Sight            │  │ heavy tactile friction, identity fluidity.    │
-├──────────────┤  ├───────────┤  ├──────────────────┤  ├───────────────────────────────────────────────┤
-│ Austen       │  │ Free      │  │ Sight > Sound >  │  │ High lexical irony, social leverage, sharp    │
-│              │  │ Indirect  │  │ Touch            │  │ subtext, transactional decorum, sharp wit.    │
-├──────────────┤  ├───────────┤  ├──────────────────┤  ├───────────────────────────────────────────────┤
-│ Child        │  │ Close     │  │ Sight > Sound >  │  │ Staccato, kinetic geometry, mechanical threat │
-│              │  │ 3rd       │  │ Touch            │  │ assessment, immediate leverage calculations.  │
-└──────────────┘  └───────────┘  └──────────────────┘  └───────────────────────────────────────────────┘
-```
-
----
-
-## 6. The 5-Point "Anti-Gravity" Behavioral Drift Audit
+## 5. The 5-Point "Anti-Gravity" Behavioral Drift Audit
 
 ```text
                               [BEFORE-EACH-RESPONSE SCAN]
