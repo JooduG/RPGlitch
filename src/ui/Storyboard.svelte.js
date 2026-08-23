@@ -215,7 +215,6 @@ export const storyboard = {
       app.log(`"${locked.name || "Entity"}" is claimed by an active story — end or delete that story first.`, "error");
       return;
     }
-    motion.intensity = 0.4;
     await chrono_engine.start({
       ai: app.selected_ai,
       user: app.selected_user,

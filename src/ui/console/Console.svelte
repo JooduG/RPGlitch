@@ -11,7 +11,7 @@
   import { click_outside } from "@ui";
   import { Backdrop, Button } from "@primitives";
   import { Shimmer } from "@motion";
-  import { session_driver, db } from "@data";
+  import { session_driver, stories } from "@data";
   import { gamemaster } from "@intelligence";
   import { get_signature_color } from "@media";
   import { app, runtime, simulation_log, simulation_state } from "@state";
@@ -66,6 +66,7 @@
       simulation_state.phase = "idle";
       app.conclusion_status = null;
       if (runtime.story_id) {
+        await stories.update(runtime.story_id, { is_concluded: 0, conclusion_status: null });
         await session_driver.set_active(runtime.story_id);
       }
       app.log("Story rewound — you can continue chatting.", "system");
@@ -83,8 +84,10 @@
     try {
       const story_id = runtime.story_id;
       if (!story_id) return;
-      const md = await export_story_markdown(story_id, db);
-      const title = runtime.active_story?.title || "story";
+      const story_record = (await stories.get(story_id)) || runtime.active_story || {};
+      const entries = await session_driver.load_log(story_id);
+      const md = export_story_markdown(story_record, entries);
+      const title = story_record.title || runtime.active_story?.title || "story";
       const filename = `${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-export.md`;
       download_text_file(filename, md);
       app.log("Story exported as Markdown.", "system");
@@ -102,6 +105,10 @@
     try {
       app.control_panel_open = false;
       await gamemaster.execute_epilogue(runtime.story_id);
+      if (runtime.story_id) {
+        await stories.conclude(runtime.story_id);
+        await app.load_entities();
+      }
     } catch (err) {
       console.error("[End Story Error]", err);
       app.log(`Failed to end story: ${err.message || err}`, "error");

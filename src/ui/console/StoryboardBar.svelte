@@ -24,7 +24,7 @@
     }
     const interval = setInterval(() => {
       phrase_index = (phrase_index + 1) % PROLOGUE_PHRASES.length;
-    }, 1800);
+    }, 2800);
     return () => clearInterval(interval);
   });
 
