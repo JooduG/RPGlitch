@@ -30,7 +30,11 @@
     cursor_style = "line",
     is_finished = $bindable(false),
   } = $props();
+
   let _is_finished = $state(is_finished);
+  $effect(() => {
+    is_finished = _is_finished;
+  });
 
   // --- UNIFIED REACTIVE TRACKERS ---
   let current_char_index = $state(0);

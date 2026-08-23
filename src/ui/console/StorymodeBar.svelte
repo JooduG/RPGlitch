@@ -35,7 +35,15 @@
       is_ghostwriting = true;
       app.is_ghostwriting = true;
       try {
-        const draft = await gamemaster.execute_ghostwriter(value);
+        value = ""; // clear previous value for live drafting
+        const draft = await gamemaster.execute_ghostwriter(value, null, (chunk, is_full_replace) => {
+          if (is_full_replace) {
+            value = chunk;
+          } else {
+            value += chunk;
+          }
+          adjust_height();
+        });
         if (draft) {
           value = draft;
           await tick();
@@ -137,7 +145,7 @@
   oninput={adjust_height}
   onfocus={() => (is_focused = true)}
   onblur={() => (is_focused = false)}
-  placeholder=""
+  placeholder={app.simulation.loading || is_ghostwriting ? "" : "Type a message..."}
   rows="1"
   disabled={app.control_panel_open || is_ghostwriting}
   aria-label="Input message"

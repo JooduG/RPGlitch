@@ -1287,7 +1287,7 @@ export const gamemaster = {
    * @param {AbortSignal} [signal]
    * @returns {Promise<string>}
    */
-  async execute_ghostwriter(input_text = "", signal = null) {
+  async execute_ghostwriter(input_text = "", signal = null, on_token = null) {
     const story_id = state_bridge.runtime.story_id;
     const raw_messages = story_id ? await state_bridge.session_driver.load_log(story_id) : [];
     const simulation_log = raw_messages
@@ -1300,6 +1300,9 @@ export const gamemaster = {
     const payload = await context_builder.build_context(input_text || "", "simulation", simulation_log);
     const ghost_prompt = prompt_builder.build_ghostwriter(payload.entities, input_text);
 
+    let full_accumulated = "";
+    let inside_think = false;
+
     const result = await llm_service.generate(
       {
         system: ghost_prompt.system,
@@ -1307,7 +1310,25 @@ export const gamemaster = {
         messages: [],
         role: "user",
       },
-      { silent: true, signal },
+      {
+        silent: true,
+        signal,
+        onToken: (chunk) => {
+          full_accumulated += chunk;
+          if (typeof on_token === "function") {
+            // Strip out <think> blocks in real time
+            if (full_accumulated.includes("<think>")) {
+              inside_think = !full_accumulated.includes("</think>");
+              if (!inside_think) {
+                const cleaned = strip_cognition_blocks(full_accumulated).trimStart();
+                on_token(cleaned, true); // replace full content
+              }
+            } else {
+              on_token(chunk, false); // append chunk
+            }
+          }
+        },
+      },
     );
 
     const clean_result = strip_cognition_blocks(typeof result === "string" ? result : result?.text || "").trim();

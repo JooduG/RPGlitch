@@ -1,6 +1,8 @@
 <script>
   import { get_pct } from "@utils";
   import { vector_label } from "./telemetry-format.js";
+  import { parse_message } from "./render.js";
+  import { safe_html } from "@ui";
 
   /**
    * @typedef {Object} Props
@@ -8,6 +10,11 @@
    * @property {(key: string) => string} get_entity_name
    */
   let { entity_blocks, get_entity_name } = $props();
+
+  const render_text = (txt) => {
+    if (!txt) return "";
+    return parse_message(txt).displayText;
+  };
 </script>
 
 {#if entity_blocks.length > 0}
@@ -59,7 +66,7 @@
                 class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-(--color-dev-accent) bg-black/40 px-3 py-3 text-xs leading-relaxed"
               >
                 <span class="w-24 shrink-0 font-mono text-(--color-dev-accent)">PRESENT PHYSICAL</span>
-                <span class="text-slate-50">{block.physical}</span>
+                <span class="text-slate-50" use:safe_html={render_text(block.physical)}></span>
               </div>
             {/if}
             {#if block.non_physical.trim()}
@@ -67,7 +74,7 @@
                 class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-(--color-dev-accent) bg-black/40 px-3 py-3 text-xs leading-relaxed"
               >
                 <span class="w-24 shrink-0 font-mono text-(--color-dev-accent)">PRESENT NON&#8209;PHYSICAL</span>
-                <span class="text-slate-50">{block.non_physical}</span>
+                <span class="text-slate-50" use:safe_html={render_text(block.non_physical)}></span>
               </div>
             {/if}
             {#if block.eternal_physical.trim()}
@@ -75,7 +82,7 @@
                 class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-(--color-dev-accent) bg-black/40 px-3 py-3 text-xs leading-relaxed"
               >
                 <span class="w-24 shrink-0 font-mono text-(--color-dev-accent)">ETERNAL PHYSICAL</span>
-                <span class="text-slate-50">{block.eternal_physical}</span>
+                <span class="text-slate-50" use:safe_html={render_text(block.eternal_physical)}></span>
               </div>
             {/if}
             {#if block.eternal_non_physical.trim()}
@@ -83,7 +90,7 @@
                 class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-(--color-dev-accent) bg-black/40 px-3 py-3 text-xs leading-relaxed"
               >
                 <span class="w-24 shrink-0 font-mono text-(--color-dev-accent)">ETERNAL NON&#8209;PHYSICAL</span>
-                <span class="text-slate-50">{block.eternal_non_physical}</span>
+                <span class="text-slate-50" use:safe_html={render_text(block.eternal_non_physical)}></span>
               </div>
             {/if}
             {#if block.new_vectors.length > 0}
@@ -95,7 +102,7 @@
                     <div class="flex flex-wrap items-center gap-2">
                       <span class="w-24 shrink-0 font-mono text-(--color-dev-accent) uppercase">{vector_label(nv.type, "future")}</span>
                     </div>
-                    <span class="line-clamp-2 overflow-hidden text-ellipsis text-slate-50">{nv.content}</span>
+                    <span class="line-clamp-2 overflow-hidden text-ellipsis text-slate-50" use:safe_html={render_text(nv.content)}></span>
                   </div>
                 {/each}
               </div>
@@ -107,7 +114,7 @@
                     <div class="flex flex-wrap items-center gap-2">
                       <span class="w-24 shrink-0 font-mono text-slate-500 uppercase">{vector_label(rv.type, "past")}</span>
                     </div>
-                    <span class="line-clamp-2 overflow-hidden text-ellipsis text-slate-50">{rv.content}</span>
+                    <span class="line-clamp-2 overflow-hidden text-ellipsis text-slate-50" use:safe_html={render_text(rv.content)}></span>
                   </div>
                 {/each}
               </div>

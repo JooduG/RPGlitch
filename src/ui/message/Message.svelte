@@ -112,6 +112,17 @@
     }
   });
 
+  // When typewriter finishes animating after being an active stream target, trigger notification sound
+  let has_played_notification = false;
+  $effect(() => {
+    if (was_streaming && is_typing_finished && !has_played_notification) {
+      has_played_notification = true;
+      if (sender === "ai" || sender === "fractal") {
+        Audio?.play?.("notification");
+      }
+    }
+  });
+
   // If another message becomes the active stream target while this message is still typing, force-finish this typewriter animation
   $effect(() => {
     if (app.streaming.active && !is_streaming_target && was_streaming && !is_typing_finished) {

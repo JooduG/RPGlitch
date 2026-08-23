@@ -686,13 +686,13 @@ async function fallback_consolidate(entity_targets, slice, runtime, session) {
     for (const { key, type, entity } of entity_targets) {
       if (!entity) continue;
       const entity_name = String(entity.name || key).toLowerCase();
-      // Filter slice facts relevant to this entity or use the unified scene summary
+      // Filter slice facts relevant to this entity
       const relevant = (Array.isArray(slice) ? slice : [])
         .filter((m) => m && (m.role === "ai" || m.role === "fractal" || m.role === "user"))
         .filter((m) => {
           const txt = String(m.text ?? m.content ?? "").toLowerCase();
           const speaker = String(m.character_name || "").toLowerCase();
-          return speaker === entity_name || txt.includes(entity_name);
+          return speaker === entity_name || (entity_name.length > 2 && txt.includes(entity_name));
         })
         .map((m) => {
           const speaker = m.character_name || (m.role === "ai" ? "AI" : m.role === "user" ? "User" : "Environment");
@@ -703,6 +703,9 @@ async function fallback_consolidate(entity_targets, slice, runtime, session) {
             .slice(0, 180)}`;
         })
         .join(" | ");
+
+      // If an NPC or entity had zero involvement or mentions in this batch, skip minting a past vector
+      if (!relevant && key.startsWith("NPC_")) continue;
 
       const content = relevant ? relevant.slice(0, 250) : facts ? facts.slice(0, 250) : `${entity.name || key} carries the recent events forward.`;
 
