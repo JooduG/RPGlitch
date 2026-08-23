@@ -377,10 +377,11 @@ function eternal_field_dedup(existing, incoming) {
  * caps from the tail so the identity opening is never overwritten by pollution.
  */
 function merge_eternal_field(current_field_value, new_prose) {
-  if (!new_prose || !new_prose.trim()) return current_field_value || "";
+  const incoming = String(new_prose || "").trim();
+  if (!incoming) return current_field_value || "";
   const existing = String(current_field_value || "").trim();
-  if (existing && eternal_field_dedup(existing, new_prose)) return existing;
-  const combined = existing ? `${existing}\n${new_prose.trim()}` : new_prose.trim();
+  if (existing && eternal_field_dedup(existing, incoming)) return existing;
+  const combined = existing ? `${existing}\n${incoming}` : incoming;
   return combined.length > ETERNAL_MAX_CHARS ? combined.slice(0, ETERNAL_MAX_CHARS) : combined;
 }
 
@@ -684,7 +685,27 @@ async function fallback_consolidate(entity_targets, slice, runtime, session) {
 
     for (const { key, type, entity } of entity_targets) {
       if (!entity) continue;
-      const content = facts ? `Past: ${facts.slice(0, 500)}` : `${entity.name || key} carries the last events forward.`;
+      const entity_name = String(entity.name || key).toLowerCase();
+      // Filter slice facts relevant to this entity or use the unified scene summary
+      const relevant = (Array.isArray(slice) ? slice : [])
+        .filter((m) => m && (m.role === "ai" || m.role === "fractal" || m.role === "user"))
+        .filter((m) => {
+          const txt = String(m.text ?? m.content ?? "").toLowerCase();
+          const speaker = String(m.character_name || "").toLowerCase();
+          return speaker === entity_name || txt.includes(entity_name);
+        })
+        .map((m) => {
+          const speaker = m.character_name || (m.role === "ai" ? "AI" : m.role === "user" ? "User" : "Environment");
+          return `${speaker}: ${String(m.text ?? m.content ?? "")
+            .replace(/<think>[\s\S]*?<\/think>/gi, "")
+            .replace(/\s+/g, " ")
+            .trim()
+            .slice(0, 180)}`;
+        })
+        .join(" | ");
+
+      const content = relevant ? relevant.slice(0, 250) : facts ? facts.slice(0, 250) : `${entity.name || key} carries the recent events forward.`;
+
       const vector = create(content, "past", 5);
       ensure_unique_vector_id(entity, vector);
       append_past_vector(entity, vector);
@@ -710,15 +731,15 @@ export function apply_state_mutations(entity, mutations) {
   if (!entity || !mutations || typeof mutations !== "object") return false;
   let changed = false;
 
-  const pres_phys = mutations.state_append?.physical || "";
-  if (pres_phys.trim()) {
+  const pres_phys = String(mutations.state_append?.physical || "").trim();
+  if (pres_phys) {
     if (!entity.present) entity.present = { physical: "", non_physical: "" };
     entity.present.physical = merge_prose_into_field(entity.present.physical, pres_phys);
     changed = true;
   }
 
-  const pres_non_phys = mutations.state_append?.non_physical || "";
-  if (pres_non_phys.trim()) {
+  const pres_non_phys = String(mutations.state_append?.non_physical || "").trim();
+  if (pres_non_phys) {
     if (!entity.present) entity.present = { physical: "", non_physical: "" };
     entity.present.non_physical = cap_present_prose(merge_prose_into_field(entity.present.non_physical, pres_non_phys));
     changed = true;
@@ -727,7 +748,8 @@ export function apply_state_mutations(entity, mutations) {
   const new_list = Array.isArray(mutations.past) ? mutations.past : [];
   if (new_list.length > 0) {
     new_list.forEach((v) => {
-      const payload = (v.content || v.directive || "").trim();
+      if (!v || typeof v !== "object") return;
+      const payload = String(v.content || v.directive || "").trim();
       if (!payload) return;
       // FUTURE is prose now — every appended vector is a past anchor.
       const new_vector = create(payload, "past", v.emotional_weight ?? 5);
@@ -747,13 +769,15 @@ export function apply_state_mutations(entity, mutations) {
   }
 
   const eternal_muts = mutations.eternal;
-  if (eternal_muts && entity.eternal) {
-    if (eternal_muts.physical?.trim()) {
-      entity.eternal.physical = merge_eternal_field(entity.eternal.physical, eternal_muts.physical);
+  if (eternal_muts && typeof eternal_muts === "object" && entity.eternal) {
+    const e_phys = String(eternal_muts.physical || "").trim();
+    if (e_phys) {
+      entity.eternal.physical = merge_eternal_field(entity.eternal.physical, e_phys);
       changed = true;
     }
-    if (eternal_muts.non_physical?.trim()) {
-      entity.eternal.non_physical = merge_eternal_field(entity.eternal.non_physical, eternal_muts.non_physical);
+    const e_non_phys = String(eternal_muts.non_physical || "").trim();
+    if (e_non_phys) {
+      entity.eternal.non_physical = merge_eternal_field(entity.eternal.non_physical, e_non_phys);
       changed = true;
     }
   }

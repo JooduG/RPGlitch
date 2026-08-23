@@ -152,6 +152,7 @@ export class AppStore {
     visual_style: "none",
   });
   ghostwrite_request = $state(0);
+  is_ghostwriting = $state(false);
   /** Bumped whenever the story archive changes (create/update/conclude/delete)
    * so the Library can refresh even while the control panel stays open. */
   stories_version = $state(0);

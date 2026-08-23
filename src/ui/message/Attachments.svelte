@@ -59,19 +59,19 @@
     preview_options.signature_color = preview_signature;
     if (preview_id) {
       preview_options.on_delete = () => {
-        simulation_log.delete_entry(String(preview_id));
+        simulation_log.delete_attachment(String(preview_id), attach_idx);
       };
     }
-    if (preview_options.metadata?.prompt && preview_id && app.regenerate_image_handler) {
+    if (preview_id && app.regenerate_image_handler) {
       preview_options.on_regenerate = () => {
         app.regenerate_image_handler({
-          prompt: preview_options.metadata.prompt,
-          negative_prompt: preview_options.metadata.negative_prompt,
-          mode: preview_options.metadata.mode || "character",
+          prompt: preview_options.metadata?.prompt || "A cinematic scene portrait",
+          negative_prompt: preview_options.metadata?.negative_prompt,
+          mode: preview_options.metadata?.mode || (is_fractal ? "landscape" : "character"),
           log_id: preview_id,
           attach_idx,
           signature_color: preview_signature,
-          regenerate_count: preview_options.metadata.regenerate_count || 0,
+          regenerate_count: preview_options.metadata?.regenerate_count || 0,
         });
       };
     }
@@ -171,7 +171,7 @@
             {#if id}
               <Button
                 variant="bare"
-                onclick={() => simulation_log.delete_entry(String(id))}
+                onclick={() => simulation_log.delete_attachment(String(id), attach_idx)}
                 class="rounded-md border border-red-400/30 px-3 py-1 text-[11px] font-medium text-red-200/70 transition-colors hover:border-red-300/60 hover:text-white"
               >
                 Remove

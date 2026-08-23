@@ -8,7 +8,7 @@
    */
   import { parse_message } from "./render.js";
   import { resolve_voice_register } from "@data";
-  import { Button } from "@primitives";
+  import { Button, TypingDots } from "@primitives";
   import { Audio, get_cadence_rate, resolve_voice_uri, get_signature_color } from "@media";
   import { ProfilePicture } from "@image";
   import { claim_menu, get_menu_epoch } from "../entity/ContextMenu.svelte.js";
@@ -319,6 +319,11 @@
       </div>
     </div>
   {/if}
+{:else if sender === "system" && busy && !has_display_text}
+  <!-- Director / System Thinking Indicator (Raw Ellipses) -->
+  <div class="relative flex w-full items-center justify-center p-4">
+    <TypingDots size="sm" color="bg-(--color-dev-accent)" />
+  </div>
 {:else if is_image_only}
   <div class="relative flex w-full items-center justify-center p-4">
     <div class="w-[calc(var(--spacing-column-unit)*5)] max-w-full">

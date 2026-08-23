@@ -33,6 +33,7 @@
     (async () => {
       if (is_locked) return;
       is_ghostwriting = true;
+      app.is_ghostwriting = true;
       try {
         const draft = await gamemaster.execute_ghostwriter(value);
         if (draft) {
@@ -45,6 +46,7 @@
         app.log(`Ghostwriter failed: ${e.message || e}`, "error");
       } finally {
         is_ghostwriting = false;
+        app.is_ghostwriting = false;
       }
     })();
   });
@@ -135,7 +137,7 @@
   oninput={adjust_height}
   onfocus={() => (is_focused = true)}
   onblur={() => (is_focused = false)}
-  placeholder="Type a message..."
+  placeholder=""
   rows="1"
   disabled={app.control_panel_open || is_ghostwriting}
   aria-label="Input message"

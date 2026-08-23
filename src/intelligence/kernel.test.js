@@ -59,6 +59,8 @@ const _mock_simulation_state = {
   phase: "idle",
   start_generation: vi.fn(),
   complete: vi.fn(),
+  set_generating_entity: vi.fn(),
+  clear_generating_entity: vi.fn(),
 };
 
 // Mock dependencies
@@ -921,7 +923,6 @@ describe("gamemaster (Intelligence Kernel)", () => {
 
       const payload = session_driver.log_system_entry.mock.calls[0][2];
       expect(payload.trigger_image).toBe(true);
-      expect(payload.thoughts).toContain("**Reasoning:**");
       expect(payload.thoughts).toContain("The room is a trap and the doors are sealed.");
       expect(payload.updates.AI_CHARACTER.vectors.new[0].content).toBe("corner Glitch against the sterile walls.");
     });
@@ -938,7 +939,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
 
       const result = await gamemaster.execute_turn("story-123", { input: "Hello", role: "ai" });
 
-      expect(result.response).toContain("<think>\n**Reasoning:** The door seals shut behind them.\n</think>");
+      expect(result.response).toContain("<think>\nThe door seals shut behind them.\n</think>");
       expect(result.response).toContain("<think>The character steadies itself.</think>");
       expect(result.response).toContain("It moves deeper.");
     });

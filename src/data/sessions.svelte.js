@@ -245,6 +245,38 @@ export const session_driver = {
       state_bridge.simulation_log.update(id, { attachments: plain_entry.attachments });
     }
   },
+  /**
+   * Remove an attachment from a log entry (or delete entry if it was image-only with no text/meta)
+   * @param {string | number} id
+   * @param {number} attachment_index
+   */
+  delete_log_attachment: async function (id, attachment_index) {
+    const numeric_key = isNaN(Number(id)) ? null : Number(id);
+    let entry = numeric_key ? await db.simulation_log.get(numeric_key) : null;
+    if (!entry) {
+      const feed_match = state_bridge.simulation_log?.feed?.find((m) => m.id === id || m.meta?.id === id || String(m.id) === String(id));
+      if (feed_match) {
+        entry = await db.simulation_log.get(feed_match.id);
+      }
+    }
+    if (!entry) {
+      entry = await db.simulation_log.filter((m) => m.meta?.id === id).first();
+    }
+    if (entry && Array.isArray(entry.attachments)) {
+      entry.attachments.splice(attachment_index, 1);
+      const is_empty_image_bubble =
+        !entry.text?.trim() && !entry.meta?.is_prologue && !entry.meta?.is_epilogue && (!entry.attachments || entry.attachments.length === 0);
+      if (is_empty_image_bubble) {
+        const key = entry.id != null ? entry.id : isNaN(Number(id)) ? id : Number(id);
+        await db.simulation_log.delete(key);
+        state_bridge.simulation_log.remove(key);
+      } else {
+        const plain_entry = $state.snapshot(entry);
+        await db.simulation_log.put(plain_entry);
+        state_bridge.simulation_log.update(id, { attachments: plain_entry.attachments });
+      }
+    }
+  },
 
   /**
    * Add a message to the simulation log

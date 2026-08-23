@@ -78,6 +78,15 @@ class SimulationLogStore {
   }
 
   /**
+   * Delete a specific attachment from a log entry.
+   * @param {string} id
+   * @param {number} attachment_index
+   */
+  async delete_attachment(id, attachment_index) {
+    await session_driver.delete_log_attachment(id, attachment_index);
+  }
+
+  /**
    * Edit a log entry's text by ID: persists via session_driver and mirrors the
    * change into the in-memory feed so the UI stays consistent without a refresh.
    * @param {string} id

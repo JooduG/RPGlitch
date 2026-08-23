@@ -176,7 +176,7 @@
     style:width={!app.control_panel_open && story_locked ? "fit-content" : null}
     data-testid="unified-console"
   >
-    {#if app.simulation.loading}
+    {#if app.simulation.loading || app.is_ghostwriting}
       <div class="pointer-events-none absolute inset-0 z-30 overflow-hidden rounded-[inherit]" aria-hidden="true">
         <div class="console-shimmer h-full w-full"></div>
       </div>

@@ -589,11 +589,17 @@ export const gamemaster = {
    * @returns {Promise<{ response: string, meta: any }>}
    */
   async execute_turn(story_id, options = {}) {
-    const { input = "", role = "ai", ...llm_options } = options;
+    const { input = "", role: _role = "ai", ...llm_options } = options;
     state_bridge.app.busy = true;
 
     try {
-      state_bridge.simulation_state.start_generation(role);
+      state_bridge.simulation_state?.start_generation?.("system");
+      state_bridge.simulation_state?.set_generating_entity?.({
+        type: "system",
+        name: "Director",
+        avatar: null,
+        color: "var(--color-frozen)",
+      });
       state_bridge.runtime.story_id = story_id;
       const node_id = generateUUID();
 
@@ -849,7 +855,7 @@ export const gamemaster = {
       if (director_data.intent) think_sections.push(`**Intent:** ${clean_think(director_data.intent)}`);
       if (director_data.somatic_tells) think_sections.push(`**Somatic Tells:** ${clean_think(director_data.somatic_tells)}`);
       if (director_data.dialogue_direction) think_sections.push(`**Dialogue Direction:** ${clean_think(director_data.dialogue_direction)}`);
-      if (director_data._thought_process) think_sections.push(`**Reasoning:** ${clean_think(director_data._thought_process)}`);
+      if (director_data._thought_process) think_sections.push(clean_think(director_data._thought_process));
       const think_content = think_sections.join("\n\n");
       if (think_content) final_meta.thoughts = think_content;
 
@@ -914,7 +920,8 @@ export const gamemaster = {
       const director_monologue = think_content ? `<think>\n${think_content}\n</think>\n\n` : "";
 
       if (director_monologue) {
-        state_bridge.app.streaming.content = director_monologue;
+        state_bridge.app.start_stream(node_id, generation_role);
+        state_bridge.app.update_stream(director_monologue);
         if (typeof llm_options.onToken === "function") {
           llm_options.onToken(director_monologue);
         }
