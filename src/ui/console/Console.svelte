@@ -142,9 +142,9 @@
   "
 >
   <div
-    use:click_outside={() => {
+    use:click_outside={(e) => {
       if (!app.control_panel_open) return;
-      const target = document.activeElement;
+      const target = /** @type {HTMLElement|null} */ (e?.target || document.activeElement);
       if (target?.closest?.(".custom-dropdown-panel") || target?.closest?.(".modal-backdrop") || target?.closest?.("[role='dialog']")) {
         return;
       }

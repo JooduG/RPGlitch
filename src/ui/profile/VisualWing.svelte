@@ -325,7 +325,7 @@
     {#snippet status()}
       <div class="flex items-center gap-2">
         <span class="font-mono text-[0.625rem] tracking-widest text-slate-50 uppercase">Positive Prompt</span>
-        {#if app.visual.error || app.visual.is_offline || app.visual.attempts > 0}
+        {#if app.visual.error || app.visual.is_offline || (app.visual.is_loading && app.visual.attempts > 0)}
           <div
             class="
               flex
