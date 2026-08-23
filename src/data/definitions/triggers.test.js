@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   build_available_keywords_xml,
   build_somatic_directives_block,
+  evaluate_automatic_somatics,
   GLOBAL_TRIGGERS,
   render_somatic_directives_xml,
   resolve_somatic_directives,
@@ -106,6 +107,49 @@ describe("build_available_keywords_xml", () => {
   it("appends the active style's motifs when provided", () => {
     const xml = build_available_keywords_xml(["stoic_pain", "iceberg_subtext"]);
     expect(xml).toContain("active style: stoic_pain, iceberg_subtext");
+  });
+});
+
+describe("evaluate_automatic_somatics", () => {
+  it("resolves fear when intensity is high (>=75) and affinity is moderate/low", () => {
+    const somatics = evaluate_automatic_somatics({ intensity: 80, affinity: 40 });
+    expect(somatics).toContain("fear");
+  });
+
+  it("resolves dysregulation on extreme chaos (>=75)", () => {
+    const somatics = evaluate_automatic_somatics({ chaos: 85 });
+    expect(somatics).toContain("dysregulation");
+  });
+
+  it("resolves betrayal on low openness (<=25) and low affinity (<=40)", () => {
+    const somatics = evaluate_automatic_somatics({ openness: 20, affinity: 30 });
+    expect(somatics).toContain("betrayal");
+  });
+
+  it("resolves intimacy on high affinity (>=75) and high openness (>=60)", () => {
+    const somatics = evaluate_automatic_somatics({ affinity: 80, openness: 70 });
+    expect(somatics).toContain("intimacy");
+  });
+
+  it("prioritizes manual Director keywords over automatic ones", () => {
+    const somatics = evaluate_automatic_somatics({ intensity: 90 }, ["grief"]);
+    expect(somatics[0]).toBe("grief");
+  });
+
+  it("clamps results to max_directives (default: 2)", () => {
+    const somatics = evaluate_automatic_somatics({ intensity: 90, chaos: 90, openness: 10, affinity: 10 });
+    expect(somatics.length).toBeLessThanOrEqual(2);
+  });
+
+  it("returns empty array for neutral dynamics without manual keywords", () => {
+    const somatics = evaluate_automatic_somatics({ intensity: 50, chaos: 50, openness: 50, affinity: 50 });
+    expect(somatics).toEqual([]);
+  });
+
+  it("build_somatic_directives_block renders XML automatically from dynamics", () => {
+    const xml = build_somatic_directives_block([], { intensity: 85, affinity: 30 });
+    expect(xml).toContain("<SOMATIC_DIRECTIVES>");
+    expect(xml).toContain("- fear:");
   });
 });
 

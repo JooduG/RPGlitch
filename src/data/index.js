@@ -19,6 +19,12 @@ export {
 } from "./character-cards.js";
 export { premade } from "./definitions/premades.js";
 export { NARRATIVE_STYLES, get_style_keywords } from "./definitions/narrative-styles.js";
-export { GLOBAL_TRIGGERS, build_somatic_directives_block, build_available_keywords_xml } from "./definitions/triggers.js";
+export {
+  GLOBAL_TRIGGERS,
+  DYNAMIC_SOMATIC_RULES,
+  evaluate_automatic_somatics,
+  build_somatic_directives_block,
+  build_available_keywords_xml,
+} from "./definitions/triggers.js";
 export { VISUAL_STYLES } from "./definitions/visual-styles.js";
 export { ENTITY_FRAGMENTS, ENTITY_CATALOG, TEMPORAL_CONTRACT, PROFILE_SECTIONS_BY_TYPE } from "./definitions/fragments.js";

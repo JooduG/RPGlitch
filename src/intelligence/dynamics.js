@@ -4,7 +4,8 @@
  * and the DYNAMICS_SIGNALS prompt-directive registry.
  */
 
-import { GLOBAL_TRIGGERS } from "@data";
+import { GLOBAL_TRIGGERS, evaluate_automatic_somatics } from "@data";
+export { evaluate_automatic_somatics };
 
 /**
  * @typedef {Object} AxisMeta

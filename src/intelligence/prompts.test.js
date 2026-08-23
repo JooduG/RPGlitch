@@ -316,6 +316,35 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.task).toContain("Volatile Past");
       expect(result.task).toContain('intensity="50"');
     });
+
+    it("automatically injects somatic directives when character dynamics cross thresholds", () => {
+      const payload = {
+        round: 1,
+        entities: {
+          AI: {
+            name: "Viper",
+            present: { non_physical: "Volatile Present" },
+            eternal: { non_physical: "Static Eternal" },
+            past: [],
+            future: "",
+            dynamics: { intensity: 85, affinity: 30 },
+          },
+          USER: { name: "Ghost", present: {}, eternal: {}, past: [], future: "" },
+          FRACTAL: { name: "Void", present: {}, eternal: {}, past: [], future: "" },
+        },
+        simulation_log: [],
+        input: "Run!",
+      };
+      const snapshot = {
+        ai: { dynamics: { intensity: 85, affinity: 30 } },
+        fractal: { dynamics: { entropy: 10 } },
+        flags: {},
+      };
+
+      const result = prompt_builder.build_character_prompt(payload, snapshot, {});
+      expect(result.task).toContain("<SOMATIC_DIRECTIVES>");
+      expect(result.task).toContain("- fear: Physical freeze/flight response");
+    });
   });
 
   describe("Shot 1 (Director) Protocol & Token Compaction", () => {

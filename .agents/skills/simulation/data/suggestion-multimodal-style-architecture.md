@@ -1,8 +1,8 @@
-# Suggestion: Sensory Media, Composable Style Entities & Platform Motion
+# Suggestion: Sensory Media, Composable Style Entities & Photographic Framing
 
 > **Status:** Architectural Proposal / Backlog Reference  
-> **Domain:** Sensory Layer, Generative Video, Modular Style Entities & Platform Integration  
-> **Scope:** Composable Style Cards (Dexie), Text-to-Video Cinematic Motion, Declarative DSL Pools, `oc` Event Pipeline, Unified `<TypingDots />` Primitive  
+> **Domain:** Sensory Layer, Image Generation Optics, Modular Style Entities & Platform Integration  
+> **Scope:** Composable Style Cards (Dexie), Cinematic Framing Optics for Image Synthesis, Declarative DSL Pools, `oc` Event Pipeline  
 
 ---
 
@@ -10,8 +10,8 @@
 
 This specification formalizes sensory and platform architecture across three interconnected tiers:
 1. **Composable Style Entities:** Elevating narrative prose presets and visual optics into first-class editable cards stored in IndexedDB.
-2. **Generative Video Motion Logic:** Standardizing prompt syntax for camera movement modes and reference-frame delta motion.
-3. **Platform Integration & Motion Primitives:** Left-Panel declarative DSL loot pools, the `oc` OpenCharacter event bridge, and a consolidated `<TypingDots />` primitive.
+2. **Cinematic Framing & Perspective Optics:** Standardizing photographic perspective directives and scene delta framing for image synthesis.
+3. **Platform Integration:** Left-Panel declarative DSL loot pools and the `oc` OpenCharacter event bridge.
 
 ---
 
@@ -49,25 +49,25 @@ Users can drag-and-drop or hot-swap style cards from the Storyboard deck, enabli
 
 ---
 
-## 3. Text-to-Video Cinematic Motion Directives
+## 3. Cinematic Framing & Perspective Optics for Image Synthesis
 
-Structure all video generation prompts using this standardized format:
+Standardize photographic framing modes in `image-prompts.js` to dynamically calibrate camera perspective against scene intensity and role:
 
 ```text
-[Camera Movement]: [Establishing Scene Action]. [Environmental Physics & Secondary Motion].
+[Camera Perspective / Framing], [Subject Physical State & Expression], [Atmospheric Lighting & Environment Physics], [Style Optics Tokens]
 ```
 
-### Camera Movement Modes
+### Photographic Framing Modes
 
-| Movement Mode | Pacing & Tension | Best Suited Scenarios |
+| Framing Mode | Camera Perspective & Scale | Best Suited Narrative Scenarios |
 | :--- | :--- | :--- |
-| **`Handheld Tracking`** | Fast, reactive, physical shake, ground-level perspective. | Action sequences, physical escapes, sudden panic, high `chaos`. |
-| **`Slow Dolly / Push-In`** | Measured, creeping approach toward subject's face/hands. | Intimate dialogue, high `intensity` confrontations, revelations. |
-| **`Floating Drone / Crane`** | Smooth, sweeping aerial movement establishing scale. | Fractal scene transitions, prologue establishers, epilogues. |
-| **`Static Locked-Off`** | Zero camera translation; only internal subject motion. | Deliberate tension, surveillance perspectives, frozen confrontations. |
+| **`Intimate Close-Up`** | Tight facial crop, shallow depth of field, sharp focus on eyes/expression. | High `intensity`, intimate dialogue, secret reveals, emotional breaks. |
+| **`Medium Action / Torso`** | Waist-up framing capturing hands, stance, wardrobe details, and immediate props. | Dialogue beats, physical interaction, tension, inventory usage. |
+| **`Wide Environmental`** | Full silhouette in deep architectural space, sweeping environmental scale. | Prologues, fractal transitions, world exploration, epilogues. |
+| **`Dutch / Low-Angle`** | Tilted horizon or steep upward angle emphasizing scale, imposition, and disorientation. | High `chaos`, combat encounters, physical danger, impending collapse. |
 
-### Reference-Frame Delta Motion Prompting
-When animating an existing generated frame, describe **only motion, particle, and lighting changes** without re-describing static clothing or facial features.
+### Scene Delta Prompting
+When generating sequential image turns of the same entity or setting, keep baseline physical identity (`eternal.physical`) consistent and inject **only state deltas**: active expressions, clothing damage/alterations (`present.physical`), lighting shifts, and immediate environmental hazards.
 
 ---
 
@@ -126,37 +126,3 @@ window.executeUIAction = function (encodedAction) {
   });
 };
 ```
-
----
-
-## 6. The Unified `<TypingDots />` Primitive & Dead Code Cleanup
-
-### Component Specification (`src/ui/primitives/TypingDots.svelte`)
-
-```svelte
-<script>
-  /**
-   * Unified Loading / Busy Dots Primitive
-   * @type {{ size?: 'sm' | 'md' | 'lg', color?: string, class?: string }}
-   */
-  let { size = 'md', color = 'bg-(--signature-color,white)', class: extra_class = '' } = $props();
-
-  const size_map = {
-    sm: 'h-1.5 w-1.5 gap-1',
-    md: 'h-2 w-2 gap-1.5',
-    lg: 'h-3 w-3 gap-2'
-  };
-</script>
-
-<div class="flex items-center justify-center {size_map[size]} {extra_class}" role="status" aria-label="Loading">
-  <span class="{size_map[size].split(' ')[0]} {size_map[size].split(' ')[1]} {color} rounded-full animate-pulse motion-reduce:animate-none"></span>
-  <span class="{size_map[size].split(' ')[0]} {size_map[size].split(' ')[1]} {color} rounded-full animate-pulse [animation-delay:150ms] motion-reduce:animate-none"></span>
-  <span class="{size_map[size].split(' ')[0]} {size_map[size].split(' ')[1]} {color} rounded-full animate-pulse [animation-delay:300ms] motion-reduce:animate-none"></span>
-</div>
-```
-
-### Consolidation & Cleanup Targets
-1. Replace 4 hardcoded inline pulsing-dot implementations in `Body.svelte:88-102`, `Attachments.svelte:87-92`, `ImagePicker.svelte:153-159`, and `StorymodeBar.svelte:145-154`.
-2. Delete dead `@keyframes scan` in `src/ui/message/Message.svelte:607-615`.
-3. Delete unused `@keyframes blink` in `src/ui/message/Typewriter.svelte`.
-4. Add `motion-reduce:animate-none` across all pulsing/shimmer keyframes for WCAG accessibility.

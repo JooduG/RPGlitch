@@ -595,9 +595,12 @@ function render_character({
     `
     : "";
 
-  // Director-selected somatic/trauma keywords resolve into deterministic
-  // physical tells — the "mask vs. leakage" layer of the behavioral protocol.
-  const somatic_directives_xml = build_somatic_directives_block(director_data?.keywords || []);
+  // Director-selected somatic/trauma keywords combined with deterministic
+  // dynamic-axis thresholds resolve into physical tells.
+  const somatic_directives_xml = build_somatic_directives_block(
+    director_data?.keywords || [],
+    compressed_snapshot?.ai?.dynamics || entities?.AI?.dynamics || {},
+  );
 
   const protocols = [
     "COGNITION.PHASES",
@@ -730,7 +733,7 @@ function render_npc_character({
     </DIRECTOR_NOTE>
     `
     : "";
-  const somatic_directives_xml = build_somatic_directives_block(director_data?.keywords || []);
+  const somatic_directives_xml = build_somatic_directives_block(director_data?.keywords || [], npc?.dynamics || {});
 
   const protocols = [
     "COGNITION.PHASES",

@@ -212,12 +212,144 @@ export function render_somatic_directives_xml(resolved = []) {
 }
 
 /**
- * Convenience one-call builder: resolve + render in a single step.
- * @param {string[]} [keywords]
+ * Deterministic threshold mapping from emotional dynamics axes to somatic archetype keys.
+ * Each rule provides an archetype id, an activation predicate over entity dynamics, and a priority score.
+ */
+export const DYNAMIC_SOMATIC_RULES = [
+  // Intensity thresholds
+  {
+    id: "fear",
+    when: (d) => (d.intensity ?? 50) >= 75 && (d.affinity ?? 50) <= 60,
+    priority: 85,
+  },
+  {
+    id: "dysregulation",
+    when: (d) => (d.chaos ?? 50) >= 75 || ((d.intensity ?? 50) >= 80 && (d.chaos ?? 50) >= 60),
+    priority: 80,
+  },
+  {
+    id: "emotional_neglect",
+    when: (d) => (d.intensity ?? 50) <= 25 && (d.openness ?? 50) <= 35,
+    priority: 75,
+  },
+  // Openness & Defense thresholds
+  {
+    id: "betrayal",
+    when: (d) => (d.openness ?? 50) <= 25 && (d.affinity ?? 50) <= 40,
+    priority: 80,
+  },
+  {
+    id: "defiance",
+    when: (d) => (d.openness ?? 50) <= 30 && (d.intensity ?? 50) >= 60,
+    priority: 70,
+  },
+  {
+    id: "vulnerability",
+    when: (d) => (d.openness ?? 50) >= 75 && (d.affinity ?? 50) >= 50,
+    priority: 75,
+  },
+  // Affinity & Intimacy thresholds
+  {
+    id: "intimacy",
+    when: (d) => (d.affinity ?? 50) >= 75 && (d.openness ?? 50) >= 60,
+    priority: 80,
+  },
+  {
+    id: "grief",
+    when: (d) => (d.intensity ?? 50) <= 35 && (d.affinity ?? 50) >= 65 && (d.chaos ?? 50) <= 40,
+    priority: 70,
+  },
+  {
+    id: "shame",
+    when: (d) => (d.openness ?? 50) <= 35 && (d.intensity ?? 50) >= 60 && (d.affinity ?? 50) >= 45,
+    priority: 65,
+  },
+];
+
+/**
+ * Deterministically evaluates an entity's dynamic state against somatic threshold rules
+ * and merges the result with any manual Director keywords.
+ * Manual Director keywords take top precedence.
+ * Clamps result to `max_directives` (default: 2) to maintain strict token economy.
+ *
+ * @param {Record<string, number>} [dynamics={}] - Entity's active dynamics (intensity, chaos, openness, affinity)
+ * @param {string[]} [manual_keywords=[]] - Explicit keywords chosen by Director
+ * @param {number} [max_directives=2] - Maximum number of resolved somatic keywords
+ * @returns {string[]} Deduplicated list of keyword ids
+ */
+export function evaluate_automatic_somatics(dynamics = {}, manual_keywords = [], max_directives = 2) {
+  const result = [];
+  const seen = new Set();
+
+  // 1. Manual Director keywords take absolute first priority
+  if (Array.isArray(manual_keywords)) {
+    for (const k of manual_keywords) {
+      if (typeof k === "string" && k.trim() && !seen.has(k.trim())) {
+        const cleaned = k.trim();
+        seen.add(cleaned);
+        result.push(cleaned);
+        if (result.length >= max_directives) return result;
+      }
+    }
+  }
+
+  if (!dynamics || typeof dynamics !== "object") {
+    return result;
+  }
+
+  // 2. Evaluate active threshold rules sorted by priority
+  const candidates = [];
+  for (const rule of DYNAMIC_SOMATIC_RULES) {
+    if (seen.has(rule.id)) continue;
+    try {
+      if (typeof rule.when === "function" && rule.when(dynamics)) {
+        candidates.push(rule);
+      }
+    } catch (_err) {
+      /* ignore evaluate error */
+    }
+  }
+
+  candidates.sort((a, b) => (b.priority || 0) - (a.priority || 0));
+
+  for (const c of candidates) {
+    if (!seen.has(c.id)) {
+      seen.add(c.id);
+      result.push(c.id);
+      if (result.length >= max_directives) break;
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Convenience one-call builder: resolves manual keywords and/or automatic dynamics,
+ * then renders the deterministic XML block.
+ *
+ * @param {string[]|Record<string, any>} [keywords_or_dynamics=[]]
+ * @param {string[]|Record<string, any>} [maybe_keywords=[]]
  * @returns {string}
  */
-export function build_somatic_directives_block(keywords = []) {
-  return render_somatic_directives_xml(resolve_somatic_directives(keywords));
+export function build_somatic_directives_block(keywords_or_dynamics = [], maybe_keywords = []) {
+  let keywords = [];
+  let dynamics = null;
+
+  if (Array.isArray(keywords_or_dynamics)) {
+    keywords = keywords_or_dynamics;
+    if (maybe_keywords && typeof maybe_keywords === "object" && !Array.isArray(maybe_keywords)) {
+      dynamics = maybe_keywords;
+    }
+  } else if (keywords_or_dynamics && typeof keywords_or_dynamics === "object") {
+    dynamics = keywords_or_dynamics;
+    if (Array.isArray(maybe_keywords)) {
+      keywords = maybe_keywords;
+    }
+  }
+
+  const resolved_keywords = dynamics ? evaluate_automatic_somatics(dynamics, keywords) : keywords;
+
+  return render_somatic_directives_xml(resolve_somatic_directives(resolved_keywords));
 }
 
 /**

@@ -91,6 +91,11 @@ describe("export_story_markdown", () => {
     expect(md).toContain("**State:** Concluded");
   });
 
+  it("marks collapsed stories with tragic ending state", () => {
+    const md = export_story_markdown({ ...story, conclusion_status: "COLLAPSED" }, []);
+    expect(md).toContain("**State:** Collapsed (Tragic Ending)");
+  });
+
   it("handles missing entries gracefully", () => {
     expect(export_story_markdown(story, null)).toContain("# The Black Tide");
   });

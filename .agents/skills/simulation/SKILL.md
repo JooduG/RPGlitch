@@ -155,11 +155,16 @@ Before signing off on any prompt architecture refactor or rendering modification
 
 ## 11.0 SUGGESTION BLUEPRINT REGISTRY (`data/`)
 
-The `.agents/skills/simulation/data/` directory contains 6 consolidated, domain-atomic architectural specifications and future proposal blueprints:
+The `.agents/skills/simulation/data/` directory houses active domain-atomic architectural specifications and proposal blueprints:
 
-1. **Cognitive Psychology & Somatics:** [`suggestion-cognitive-psychology-engine.md`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/simulation/data/suggestion-cognitive-psychology-engine.md) — Mathematical Bayesian belief updating ($P(H|E)$), 3-tier confidence intervals, 4 attachment style schemas, automated axis-threshold somatics, and DynamicsHUD.
-2. **Context Token Architecture:** [`suggestion-context-token-architecture.md`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/simulation/data/suggestion-context-token-architecture.md) — 8,192 token budget allocation matrix, syntax density benchmarks, multi-turn attention degradation defense, dynamic recency pinning, and hierarchical middle-out trees.
-3. **Stochastic Resolution Mechanics:** [`suggestion-stochastic-resolution-mechanics.md`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/simulation/data/suggestion-stochastic-resolution-mechanics.md) — Micro D20 stat checks with partial success, Macro Gambit 21-target Blackjack state machine, 1d100 chaos entropy, Tarot Fate Triad of Paths, and `<choices>` XML payloads.
-4. **Prose Quality & Anti-Slop:** [`suggestion-lexical-anti-slop.md`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/simulation/data/suggestion-lexical-anti-slop.md) — Autoregressive token-locking cascades, negation paradox, master anatomical/behavioral replacement matrix, and 5-point Anti-Gravity cognitive scan.
-5. **Tragedy & Epilogue Engine:** [`suggestion-tragedy-and-epilogue-engine.md`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/simulation/data/suggestion-tragedy-and-epilogue-engine.md) — `SCENE.COLLAPSE` fatalistic narrative protocol, tragedy visual styling in `Epilogue.svelte`, pre-collapse confirmation hooks, and state snapshot rewind/retry.
-6. **Sensory Media & Style Architecture:** [`suggestion-multimodal-style-architecture.md`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/simulation/data/suggestion-multimodal-style-architecture.md) — Composable first-class style cards in Dexie, text-to-video cinematic camera logic, declarative DSL loot pools, `oc` event API, and unified `<TypingDots />` primitive.
+### Active Blueprints
+
+1. **Attachment Style Archetypes:** [`suggestion-attachment-style-archetypes.md`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/simulation/data/suggestion-attachment-style-archetypes.md) — 4 attachment schemas (`secure`, `anxious`, `dismissive`, `fearful_avoidant`), threat response behaviors, defense mechanisms, and recovery curves.
+2. **Stochastic Resolution Mechanics:** [`suggestion-stochastic-resolution-mechanics.md`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/simulation/data/suggestion-stochastic-resolution-mechanics.md) — Micro D20 stat checks with partial success, Macro Gambit 21-target Blackjack state machine, 1d100 chaos entropy, Tarot Fate Triad of Paths, and `<choices>` XML payloads.
+3. **Sensory Media & Style Architecture:** [`suggestion-multimodal-style-architecture.md`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/simulation/data/suggestion-multimodal-style-architecture.md) — Composable first-class style cards in Dexie, cinematic photographic framing optics for image synthesis, declarative DSL loot pools, and `oc` event API.
+
+### Completed & Archived Blueprints
+
+- `suggestion-tragedy-and-epilogue-engine.md` $\rightarrow$ `archive/2026-08-23-suggestion-tragedy-and-epilogue-engine.md` (`SCENE.COLLAPSE`, Rewind / "Keep Chatting", tragic export styling).
+- `suggestion-lexical-anti-slop.md` $\rightarrow$ `archive/2026-08-23-suggestion-lexical-anti-slop.md` (Negation paradox resolution, 5-gravity `ANTIGRAVITY.AUDIT` positive operational mandates).
+- `suggestion-context-token-architecture.md` $\rightarrow$ `archive/2026-08-23-suggestion-context-token-architecture.md` (`build_recency_anchor`, Timeless Fact Extraction Rules, bracket density architecture).

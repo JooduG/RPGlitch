@@ -59,7 +59,9 @@ export function format_story_beat(entry, options = {}) {
  */
 export function export_story_markdown(story = {}, entries = [], options = {}) {
   const title = String(story.title || "Untitled Fragment");
-  const is_concluded = story.state === "concluded" || !!story.is_concluded;
+  const is_collapsed = story.conclusion_status === "COLLAPSED" || story.state === "collapsed";
+  const is_concluded = is_collapsed || story.state === "concluded" || !!story.is_concluded;
+  const state_label = is_collapsed ? "Collapsed (Tragic Ending)" : is_concluded ? "Concluded" : "Active";
   const log = Array.isArray(entries) ? entries : [];
 
   const formatted_beats = [];
@@ -72,7 +74,7 @@ export function export_story_markdown(story = {}, entries = [], options = {}) {
   lines.push(`# ${title}`);
   lines.push("");
   lines.push(
-    `> **State:** ${is_concluded ? "Concluded" : "Active"} · **Last played:** ${format_datetime(story.last_played ?? story.updated_at)} · **Beats:** ${formatted_beats.length}`,
+    `> **State:** ${state_label} · **Last played:** ${format_datetime(story.last_played ?? story.updated_at)} · **Beats:** ${formatted_beats.length}`,
   );
   lines.push("");
 
