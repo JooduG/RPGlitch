@@ -239,6 +239,8 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.system).toContain("For each active entity");
       expect(result.system).toContain("CRITICAL STALE GOAL EVICTION LAW");
       expect(result.system).toContain("NEVER retain an in-progress statement of an already resolved action");
+      expect(result.system).toContain("TIMELESS FACT RULES");
+      expect(result.system).toContain("Zero transient states");
       expect(result.system).toContain('"type": "past"');
       expect(result.system).not.toContain('"tags"');
     });
