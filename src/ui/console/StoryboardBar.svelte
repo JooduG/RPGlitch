@@ -21,7 +21,7 @@
   <ProgressBar value={app.models_progress} class="flex-1" />
 {:else}
   <Button
-    class="group touch-target-coarse"
+    class="group touch-target-coarse flex-1"
     data-ready={ready_to_begin}
     variant="invisible"
     busy={!ready_to_begin || app.simulation.loading}
@@ -30,14 +30,14 @@
     actions={[pulse]}
   >
     <h6
-      class="m-0 tracking-widest transition-all duration-300 {ready_to_begin
+      class="m-0 text-[clamp(0.65rem,1.2vw,0.875rem)] tracking-widest whitespace-nowrap transition-all duration-300 {ready_to_begin
         ? 'group-hover:scale-105 group-hover:brightness-125'
         : 'text-slate-400 opacity-80'}"
       style={ready_to_begin
         ? "color: var(--color-emerald-green); text-shadow: 0 0 0.5rem color-mix(in srgb, var(--color-emerald-green) 25%, transparent);"
         : undefined}
     >
-      {app.simulation.loading ? "Generating Prologue..." : label_text}
+      {label_text}
     </h6>
   </Button>
 {/if}
@@ -49,7 +49,7 @@
   disabled={app.control_panel_open || app.simulation.loading}
   onclick={() => storyboard.shuffle()}
   actions={[shimmy, tooltip]}
-  class="touch-target-coarse"
+  class="touch-target-coarse shrink-0"
 >
   <svg viewBox="0 0 24 24" class="block size-icon-medium">
     <path

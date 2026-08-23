@@ -45,19 +45,22 @@
 
   let visible_feed = $derived.by(() => {
     let list = [...simulation_log.feed];
+    // Director/system messages are purely internal background processes
     if (!app.settings.dev_mode) {
       list = list.filter((entry) => entry.role !== "system");
     }
     if (is_active_turn && app.streaming.active) {
       const active_id = app.streaming.node_id ?? "temp";
-      if (!list.some((entry) => entry.id === active_id)) {
+      // Never render a transient system/director card in the UI stream
+      const stream_role = simulation_state.generating_entity_type ?? active_turn_role ?? "ai";
+      if (stream_role !== "system" && !list.some((entry) => entry.id === active_id)) {
         list.push({
           id: active_id,
           text: app.streaming.content ?? "",
           // Director delegation identity: the busy bubble renders under the
           // delegated entity's role so Message.svelte resolves its signature
           // color (NPC → cast color, fractal → world color), not the AI's.
-          role: simulation_state.generating_entity_type ?? active_turn_role ?? "ai",
+          role: stream_role,
           character_name: active_turn_name ?? "",
           created_at: Date.now(),
           busy: true,

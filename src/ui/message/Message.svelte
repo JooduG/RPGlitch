@@ -8,7 +8,7 @@
    */
   import { parse_message } from "./render.js";
   import { resolve_voice_register } from "@data";
-  import { Button, TypingDots } from "@primitives";
+  import { Button } from "@primitives";
   import { Audio, get_cadence_rate, resolve_voice_uri, get_signature_color } from "@media";
   import { ProfilePicture } from "@image";
   import { claim_menu, get_menu_epoch } from "../entity/ContextMenu.svelte.js";
@@ -117,15 +117,17 @@
   $effect(() => {
     if (was_streaming && is_typing_finished && !has_played_notification) {
       has_played_notification = true;
-      if (sender === "ai" || sender === "fractal") {
+      if ((sender === "ai" || sender === "fractal") && has_display_text) {
         Audio?.play?.("notification");
       }
     }
   });
 
   // If another message becomes the active stream target while this message is still typing, force-finish this typewriter animation
+  // without triggering a spurious chime
   $effect(() => {
     if (app.streaming.active && !is_streaming_target && was_streaming && !is_typing_finished) {
+      has_played_notification = true; // Mark as handled to avoid premature chime on interruption
       is_typing_finished = true;
     }
   });
@@ -330,11 +332,8 @@
       </div>
     </div>
   {/if}
-{:else if sender === "system" && busy && !has_display_text}
-  <!-- Director / System Thinking Indicator (Raw Ellipses) -->
-  <div class="relative flex w-full items-center justify-center p-4">
-    <TypingDots size="sm" color="bg-(--color-dev-accent)" />
-  </div>
+{:else if sender === "system" && !app.settings.dev_mode}
+  <!-- System / Director messages are purely internal background data and never render in normal mode -->
 {:else if is_image_only}
   <div class="relative flex w-full items-center justify-center p-4">
     <div class="w-[calc(var(--spacing-column-unit)*5)] max-w-full">
@@ -549,7 +548,7 @@
             rounded-xl
             border
             border-solid
-            border-[rgba(255,255,255,0.15)]
+            border-(--signature-color,rgba(255,255,255,0.25))
             bg-black/60
             p-0
             shadow-[0_4px_20px_rgba(0,0,0,0.5)]

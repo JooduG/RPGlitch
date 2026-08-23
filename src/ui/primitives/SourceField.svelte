@@ -24,6 +24,7 @@
     type = "character",
     mode = "import", // "import" | "image"
     disabled = false,
+    busy = false,
     is_edit = true,
     placeholder = "Paste a URL, drop a .json / .png card or image, or type source text...",
     size = "md",
@@ -252,7 +253,7 @@
       {placeholder}
       {signature_color}
       disabled={dropzone_disabled}
-      busy={is_fetching}
+      busy={busy || is_fetching}
       class={field_class}
       {oninput}
       {onfocus}

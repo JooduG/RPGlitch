@@ -10,6 +10,7 @@
    * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
    */
   import { Button, ScrollArea, tooltip } from "@primitives";
+  import { Shimmer } from "@motion";
   import { parse_markdown } from "@utils";
   import { auto_resize, use_actions } from "@ui";
   import { fade, slide } from "svelte/transition";
@@ -210,7 +211,7 @@
       before:bg-[linear-gradient(to_bottom,var(--color-dev-accent),color-mix(in_srgb,var(--color-dev-accent),transparent_60%)_30%,transparent_80%)]
       before:opacity-100
     `}
-    {is_disabled || busy
+    {is_disabled
     ? `
       cursor-not-allowed
       opacity-30
@@ -219,8 +220,6 @@
     {busy
     ? `
       cursor-wait
-      brightness-90
-      grayscale-50
       *:pointer-events-none
     `
     : ''}
@@ -250,6 +249,7 @@
       flex-nowrap
       items-center
       justify-between
+      overflow-hidden
       rounded-t-xl
       bg-(--color-dev-accent)
       px-3
@@ -262,27 +262,7 @@
     "
   >
     {#if busy}
-      <div
-        class="
-          pointer-events-none
-          absolute
-          inset-0
-          z-30
-          overflow-hidden
-          rounded-t-xl
-        "
-      >
-        <div
-          data-shimmer
-          class="
-            h-full
-            w-1/2
-            bg-[linear-gradient(90deg,transparent_0%,rgba(255,255,255,0.95)_50%,transparent_100%)]
-            opacity-100
-            drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]
-          "
-        ></div>
-      </div>
+      <Shimmer color={signature_color || "var(--color-electric-cyan)"} class={collapsed ? "rounded-xl" : "rounded-t-xl"} />
     {/if}
     {#if is_expanded}
       {#if status}
@@ -494,19 +474,5 @@
       opacity: var(--opacity-solid);
       transform: scale(1);
     }
-  }
-
-  @keyframes header-shimmer {
-    0% {
-      transform: translateX(-100%);
-    }
-
-    100% {
-      transform: translateX(250%);
-    }
-  }
-
-  [data-shimmer] {
-    animation: header-shimmer 1s linear infinite !important;
   }
 </style>

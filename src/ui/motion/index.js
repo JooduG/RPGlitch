@@ -17,3 +17,4 @@ export {
 } from "../entity/EntityCard.svelte.js";
 export { typewriter } from "./Typewriter.svelte.js";
 export { default as Typewriter } from "./Typewriter.svelte";
+export { default as Shimmer } from "./Shimmer.svelte";

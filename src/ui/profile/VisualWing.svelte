@@ -155,6 +155,7 @@
     if (!has_prompt_text) return;
 
     profile_state.busy_fields.add("visual-prompt");
+    profile_state.busy_fields.add("generating-image");
     app.log(`[VisualWing] Generating... Prompt: ${prompt_value}`, "system");
 
     try {
@@ -182,6 +183,7 @@
       app.log(`Generation failed: ${/** @type {Error} */ (err).message}`, "error");
     } finally {
       profile_state.busy_fields.delete("visual-prompt");
+      profile_state.busy_fields.delete("generating-image");
     }
   }
 
@@ -309,6 +311,7 @@
     mode="image"
     bind:value={profile_state.char.modifiers.prompt}
     disabled={!profile_state.is_editing || is_prompt_busy}
+    busy={is_prompt_busy}
     is_edit={profile_state.is_editing}
     placeholder="Image prompt, URL, or drop/paste an image here..."
     size="sm"

@@ -6,6 +6,7 @@
    * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
    */
   import { use_actions } from "@ui";
+  import { Shimmer } from "@motion";
 
   let {
     // Design
@@ -14,6 +15,7 @@
     height = "auto",
     aspect_ratio = "auto",
     class: className = "",
+    color = "rgba(255, 255, 255, 0.4)",
 
     // Slots/Snippets
     actions = [],
@@ -47,28 +49,12 @@
     bg-zinc-900/40
     backdrop-blur-sm
 
-    after:pointer-events-none
-    after:absolute
-    after:inset-0
-    after:z-10
-    after:-translate-x-full
-    after:animate-[shimmer_2s_ease-in-out_infinite]
-    after:bg-[linear-gradient(90deg,transparent_0%,rgba(255,255,255,0.08)_30%,rgba(255,255,255,0.18)_50%,rgba(255,255,255,0.08)_70%,transparent_100%)]
-    after:blur-md
-    after:content-['']
-
     {variant_class}
     {className}"
   style:width
   style:height
   style:aspect-ratio={aspect_ratio}
   use:use_actions={actions}
-></div>
-
-<style>
-  @keyframes shimmer {
-    100% {
-      transform: translateX(100%);
-    }
-  }
-</style>
+>
+  <Shimmer {color} />
+</div>

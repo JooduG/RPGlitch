@@ -7,6 +7,7 @@
   import { auto_resize, click_outside } from "@ui";
   import { download_json_file, safe_parse_pseudo_json } from "@utils";
   import { Button, Modal, TextField, Toggle, tooltip, Dropdown, Label, StyleBadge } from "@primitives";
+  import { Shimmer } from "@motion";
   import { ProfilePicture } from "@image";
   import { get_signature_color } from "@media";
   import { Dialog } from "@primitives";
@@ -520,10 +521,17 @@
         <div class={avatar_container_class + " relative"}>
           <Button
             variant="bare"
-            class={[profile_pic_wrapper_class, "flex appearance-none items-center justify-center p-0 outline-none", "cursor-default"]}
+            class={[
+              profile_pic_wrapper_class,
+              "relative flex appearance-none items-center justify-center overflow-hidden p-0 outline-none",
+              "cursor-default",
+            ]}
             style="border-color: color-mix(in srgb, var(--signature-color) 30%, transparent); background: transparent;"
             disabled
           >
+            {#if profile_state.busy_fields.has("generating-image")}
+              <Shimmer color={signature_color || "var(--color-electric-cyan)"} class="rounded-[inherit]" />
+            {/if}
             <ProfilePicture entity={profile_state.char} contain={true} landscape={entity_type !== "character"} />
           </Button>
           {#if entity_type === "fractal" && !app.viewport.mobile}
@@ -835,8 +843,11 @@
                   {#if field.sublabel || field.label}
                     <header
                       style="position: relative; top: 0; z-index: 10; display: flex !important; align-items: center !important; justify-content: space-between !important; border-radius: 0.75rem; background-color: var(--color-dev-accent) !important; padding: 0.175rem 0.75rem; opacity: 1 !important; min-height: 1.5rem !important; height: auto !important; --color-dev-accent: {signature_color};"
-                      class="w-full"
+                      class="relative w-full overflow-hidden"
                     >
+                      {#if profile_state.busy_fields.has(field.key)}
+                        <Shimmer color={signature_color || "var(--color-amber-gold, #f59e0b)"} class="rounded-[inherit]" />
+                      {/if}
                       <div
                         style="margin-right: 0.5rem; display: flex !important; align-items: center !important; flex: 1 1 0% !important; min-width: 0; overflow: hidden;"
                       >

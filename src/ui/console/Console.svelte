@@ -10,9 +10,8 @@
    */
   import { click_outside } from "@ui";
   import { Backdrop, Button } from "@primitives";
-  import { stories } from "@data";
-  import { session_driver } from "@data";
-  import { db, coerce_story_key } from "@data";
+  import { Shimmer } from "@motion";
+  import { session_driver, db } from "@data";
   import { gamemaster } from "@intelligence";
   import { get_signature_color } from "@media";
   import { app, runtime, simulation_log, simulation_state } from "@state";
@@ -25,6 +24,7 @@
 
   // --- STORYMODE CONSOLE STATE ---
   let is_focused = $state(false);
+  let has_text = $state(false);
 
   // A story is concluded once its log carries the epilogue entry (the app's
   // semantic conclusion marker) — covers manual END STORY, Director-declared
@@ -61,86 +61,84 @@
         (e) => e?.meta?.is_epilogue && (e.story_id === undefined || String(e.story_id) === String(runtime.story_id)),
       );
       for (const ep of epilogues) {
-        const id = ep.id ?? ep.meta?.id;
-        if (id != null) await simulation_log.delete_entry(id);
+        if (ep?.id != null) await simulation_log.delete_entry(String(ep.id));
       }
-      const active = runtime.active_story;
-      if (active) {
-        active.conclusion_status = null;
-        await db.stories.update(coerce_story_key(runtime.story_id), { is_concluded: 0, conclusion_status: null });
+      simulation_state.phase = "idle";
+      app.conclusion_status = null;
+      if (runtime.story_id) {
+        await session_driver.set_active(runtime.story_id);
       }
-      simulation_state.unlock();
-      app.log("[Story] Rewound — epilogue removed, story continues.", "system");
-    } catch (e) {
-      console.error("[Rewind Error]", e);
-      app.log(`Rewind failed: ${e.message || e}`, "error");
+      app.log("Story rewound — you can continue chatting.", "system");
+    } catch (err) {
+      console.error("[Rewind Error]", err);
+      app.log(`Rewind failed: ${err.message || err}`, "error");
     } finally {
       is_rewinding = false;
     }
   }
 
-  async function handle_end_story() {
-    if (is_ending_story || !runtime.story_id) return;
-    is_ending_story = true;
-    try {
-      await gamemaster.execute_epilogue(runtime.story_id, "CONCLUDED");
-      // Conclude the story so its entities are released back to the lobby and
-      // the story card reports "concluded".
-      await stories.conclude(runtime.story_id);
-      await app.load_entities();
-      simulation_state.lock();
-    } catch (e) {
-      console.error("[End Story Error]", e);
-      app.log(`End Story failed: ${e.message || e}`, "error");
-    } finally {
-      is_ending_story = false;
-    }
-  }
-
   async function handle_export_story() {
-    if (is_exporting || !runtime.story_id) return;
+    if (is_exporting) return;
     is_exporting = true;
     try {
-      const story = runtime.active_story || (await db.stories.get(runtime.story_id));
-      const entries = [...simulation_log.feed];
-      const md = export_story_markdown(story, entries);
-      const filename = `${(story?.title || "story").toLowerCase().replace(/[^a-z0-9]+/g, "-")}-transcript.md`;
-      download_text_file(filename, md, "text/markdown;charset=utf-8");
-    } catch (e) {
-      console.error("[Export Story Error]", e);
-      app.log(`Export failed: ${e.message || e}`, "error");
+      const story_id = runtime.story_id;
+      if (!story_id) return;
+      const md = await export_story_markdown(story_id, db);
+      const title = runtime.active_story?.title || "story";
+      const filename = `${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-export.md`;
+      download_text_file(filename, md);
+      app.log("Story exported as Markdown.", "system");
+    } catch (err) {
+      console.error("[Export Error]", err);
+      app.log(`Export failed: ${err.message || err}`, "error");
     } finally {
       is_exporting = false;
     }
   }
 
-  function handle_window_keydown(e) {
-    if (e.key === "Escape" && app.control_panel_open) {
-      e.preventDefault();
+  async function handle_end_story() {
+    if (is_ending_story) return;
+    is_ending_story = true;
+    try {
       app.control_panel_open = false;
+      await gamemaster.execute_epilogue(runtime.story_id);
+    } catch (err) {
+      console.error("[End Story Error]", err);
+      app.log(`Failed to end story: ${err.message || err}`, "error");
+    } finally {
+      is_ending_story = false;
     }
   }
 </script>
 
-<svelte:window onkeydown={handle_window_keydown} />
+<svelte:window
+  onkeydown={(e) => {
+    if (e.key === "Escape" && app.control_panel_open) {
+      app.control_panel_open = false;
+    }
+  }}
+/>
 
-<div class="pointer-events-none relative flex h-full w-full justify-center {app.control_panel_open ? 'z-50' : 'z-10'}">
-  {#if app.control_panel_open}
-    <Backdrop layer="console" onclick={() => (app.control_panel_open = false)} />
-  {/if}
+{#if app.control_panel_open}
+  <Backdrop layer="console" onclick={() => (app.control_panel_open = false)} />
+{/if}
 
+<div
+  class="
+    pointer-events-none
+    relative
+    z-50
+    flex
+    w-full
+    items-center
+    justify-center
+  "
+>
   <div
-    use:click_outside={(event) => {
-      const target = event?.target;
-      if (
-        target instanceof Element &&
-        (target.closest(".menu") ||
-          target.closest("[data-dropdown-menu]") ||
-          target.closest(".dropdown-portal-wrapper") ||
-          target.closest(".tooltip-portal") ||
-          target.closest("[data-backdrop]") ||
-          target.closest("[data-modal-variant]"))
-      ) {
+    use:click_outside={() => {
+      if (!app.control_panel_open) return;
+      const target = document.activeElement;
+      if (target?.closest?.(".custom-dropdown-panel") || target?.closest?.(".modal-backdrop") || target?.closest?.("[role='dialog']")) {
         return;
       }
       app.control_panel_open = false;
@@ -161,7 +159,7 @@
       {app.control_panel_open
       ? 'absolute bottom-0 w-full rounded-none p-4 md:w-[calc(var(--spacing-column-unit)*5)] md:rounded-[calc(var(--spacing-row-unit)*0.5)]'
       : 'relative h-auto w-full rounded-none px-4 py-2 md:absolute md:bottom-0 md:h-auto md:min-h-[calc(var(--spacing-row-unit)*0.5)] md:rounded-[calc(var(--spacing-row-unit)*0.5)]'}
-    {!app.control_panel_open && is_focused && app.view === 'storymode'
+    {!app.control_panel_open && has_text && app.view === 'storymode'
       ? `
       border-(--signature-color,var(--color-slate-600))
       shadow-[0_0_calc(var(--spacing-unit)*4)_color-mix(in_srgb,var(--signature-color,var(--color-slate-600))_30%,transparent)]
@@ -176,10 +174,8 @@
     style:width={!app.control_panel_open && story_locked ? "fit-content" : null}
     data-testid="unified-console"
   >
-    {#if (app.simulation.loading && runtime.round === 0) || app.is_ghostwriting}
-      <div class="pointer-events-none absolute inset-0 z-30 overflow-hidden rounded-[inherit]" aria-hidden="true">
-        <div class="console-shimmer h-full w-full"></div>
-      </div>
+    {#if app.simulation.loading || app.is_ghostwriting || (simulation_state.busy && app.control_panel_open)}
+      <Shimmer />
     {/if}
 
     {#if app.control_panel_open || !story_locked}
@@ -203,6 +199,7 @@
               variant="primary"
               size="small"
               onclick={async () => {
+                app.control_panel_open = false;
                 await session_driver.clear_active();
                 app.set_view("storyboard");
               }}
@@ -220,39 +217,13 @@
       {:else}
         <SettingsButton variant={app.control_panel_open ? "secondary" : "invisible"} />
 
-        <StorymodeBar bind:is_focused />
+        <StorymodeBar bind:is_focused bind:has_text />
       {/if}
     </div>
   </div>
 </div>
 
 <style>
-  /* Prologue-writing shimmer — a light band sweeps the console left-to-right
-     while loading (reading/progress direction). Animated via background-position
-     (NOT transform): the console carries a view-transition-name, and transform
-     keyframe animations freeze on view-transition-captured elements. */
-  .console-shimmer {
-    position: absolute;
-    background: linear-gradient(115deg, transparent 42%, color-mix(in srgb, var(--color-electric-cyan) 10%, transparent) 50%, transparent 58%);
-    background-size: 250% 100%;
-    animation: console-shimmer-sweep 2.4s linear infinite;
-  }
-
-  @keyframes console-shimmer-sweep {
-    0% {
-      background-position: 100% 0;
-    }
-
-    100% {
-      background-position: -150% 0;
-    }
-  }
-
-  /* Concluded bar shrinks to fit its centered action buttons — implemented
-     as an inline style (style:width) rather than a Tailwind class, because
-     no width utility is guaranteed to exist in every prebuilt CSS vault, and
-     a custom class trips better-tailwindcss/no-unknown-classes. */
-
   /* Shuffle deal reveal — flying clones are art-only (strip_card_text); the
      landed cards fade their text/badges back in after arrival. */
   :global(.deal-reveal [data-card-text]),

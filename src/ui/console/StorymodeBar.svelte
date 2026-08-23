@@ -4,12 +4,15 @@
   import { chrono_engine } from "@state";
   import { gamemaster } from "@intelligence";
   import { stab } from "@motion";
-  import { app, simulation_state, force_recover_simulation } from "@state";
+  import { app, runtime, simulation_state, force_recover_simulation } from "@state";
 
   // eslint-disable-next-line no-useless-assignment
-  let { is_focused = $bindable(false) } = $props();
+  let { is_focused = $bindable(false), has_text = $bindable(false) } = $props();
 
   let value = $state("");
+  $effect(() => {
+    has_text = value.length > 0;
+  });
   /** @type {HTMLTextAreaElement | undefined} */
   let textarea = $state();
   let is_ghostwriting = $state(false);
@@ -145,7 +148,7 @@
   oninput={adjust_height}
   onfocus={() => (is_focused = true)}
   onblur={() => (is_focused = false)}
-  placeholder={app.simulation.loading || is_ghostwriting ? "" : "Type a message..."}
+  placeholder={app.control_panel_open ? "" : is_ghostwriting ? "Ghostwriting..." : "Type a message..."}
   rows="1"
   disabled={app.control_panel_open || is_ghostwriting}
   aria-label="Input message"
@@ -163,7 +166,7 @@
   </span>
 {/if}
 
-{#if app.streaming.active}
+{#if app.streaming.active && runtime.round > 0}
   <Button
     variant="invisible"
     disabled={app.control_panel_open}
@@ -176,7 +179,7 @@
       <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11H7v-2h10v2z" />
     </svg>
   </Button>
-{:else if is_locked || app.simulation.loading}
+{:else if is_locked || app.simulation.loading || app.streaming.active}
   <Button
     variant="invisible"
     onclick={() => force_recover_simulation("Manual unstick from composer")}

@@ -408,6 +408,7 @@ export class AppStore {
     this.control_panel_open = !this.control_panel_open;
   };
   set_view = async (/** @type {string} */ view) => {
+    this.control_panel_open = false;
     if (view === "storyboard") {
       this.restore_storyboard_selection();
       await this.load_entities();

@@ -80,8 +80,8 @@
         ? "relative inset-auto col-span-full row-4 h-auto items-center"
         : "relative inset-auto col-start-1 col-end-13 row-start-12 h-full items-end justify-center"
       : mode === "storymode"
-        ? "col-start-1 col-end-13 row-start-11 h-row-unit items-start self-stretch"
-        : "col-start-2 col-end-12 row-start-10 h-row-unit items-end self-stretch",
+        ? "col-start-1 col-end-13 row-start-12 h-row-unit items-start self-stretch"
+        : "col-start-2 col-end-12 row-start-11 h-row-unit items-center self-stretch",
   );
 </script>
 

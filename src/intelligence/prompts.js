@@ -556,7 +556,7 @@ ${(() => {
 })()}
 <TASK>
     Evaluate state mutations caused by ${input?.trim() ? "<USER_ACTION>" : "the current situation"}.
-    Decide the active speaker: "ai" (the AI_CHARACTER speaks), "fractal" (the FRACTAL narrates the scene/setting), or "npc:<id>" (a specific in-scene NPC from <ROSTER>). Default "ai".
+    Decide the active speaker: "ai" (the AI_CHARACTER speaks), "fractal" (the FRACTAL narrates the scene/setting), or "npc:<id>" (a specific in-scene NPC from <ROSTER>). Default "ai".${Number(round) <= 1 ? ' IMPORTANT: Round 1 directly follows the Fractal prologue, so the active speaker MUST be "ai" (the AI_CHARACTER) to establish dialogue/character presence.' : ""}
     Track the Stage Spotlight: when an NPC enters or leaves the room, move it with "in_scene_change" ("enter"/"exit" accept ids with or without the "npc:" prefix; leave both empty unless the stage changes).
     Promote recurring NPCs: when an NPC's role becomes sustained or consequential, list it in "promotions" (tier 2 = recurring contact, tier 3 = major co-star with full memory) — but never invent ids absent from <ROSTER>.
     Update the relational web: when a bond between two entities meaningfully shifts (betrayal, rescue, alliance, rivalry, debt), list it in "relationships" as a directed edge "Source → Target: dynamic" using the EXACT names from <ROSTER>/<SCENE_ROSTER>; omit the field entirely when the web is unchanged.

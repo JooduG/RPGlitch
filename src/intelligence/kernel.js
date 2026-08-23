@@ -807,7 +807,10 @@ export const gamemaster = {
       // delegated NPC (build_npc_prompt over the in-scene world cast). The
       // delegated identity drives the reactive "thinking" state so the UI
       // badge/avatar mirrors whoever is speaking.
-      const speaker = director_data.speaker || "ai";
+      // In Round 1 (first turn after prologue), the speaker is guaranteed to be AI unless an explicit NPC was chosen.
+      const current_turn_round = state_bridge.runtime.round || 0;
+      const raw_speaker = director_data.speaker || "ai";
+      const speaker = current_turn_round <= 1 && raw_speaker === "fractal" ? "ai" : raw_speaker;
       const speaker_engine = resolve_speaker_engine(speaker);
       let npc_entity = null;
       if (speaker_engine === "npc") {
@@ -1316,14 +1319,15 @@ export const gamemaster = {
         onToken: (chunk) => {
           full_accumulated += chunk;
           if (typeof on_token === "function") {
-            // Strip out <think> blocks in real time
-            if (full_accumulated.includes("<think>")) {
+            // Strip out <think> blocks in real time and silence initial tag start tokens
+            const starts_tag = full_accumulated.trimStart().startsWith("<");
+            if (starts_tag || full_accumulated.includes("<think>")) {
               inside_think = !full_accumulated.includes("</think>");
               if (!inside_think) {
                 const cleaned = strip_cognition_blocks(full_accumulated).trimStart();
-                on_token(cleaned, true); // replace full content
+                if (cleaned) on_token(cleaned, true); // replace full content
               }
-            } else {
+            } else if (!inside_think) {
               on_token(chunk, false); // append chunk
             }
           }
