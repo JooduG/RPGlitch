@@ -373,6 +373,29 @@ function build_pacing_directive(input) {
 }
 
 /**
+ * Recency Anchor — a short behavioral lock re-injected at the BOTTOM of the
+ * prompt, the region the attention window most strongly weights at generation time.
+ * It re-asserts the three invariants that decay fastest in a long window:
+ * temperament (not softness), the epistemic horizon (only what this scene showed),
+ * and pacing (don't rush). Kept tiny (~1-2 sentences) so it stays "pinned".
+ * @param {any} snapshot - compressed world snapshot (for the emotional stance)
+ * @param {string} [input] - current user action / scene beat
+ * @returns {string}
+ */
+function build_recency_anchor(snapshot, input) {
+  const stance = snapshot?.ai?.dynamics
+    ? Object.entries(snapshot.ai.dynamics)
+        .filter(([, v]) => typeof v === "number")
+        .filter(([k]) => k === "affinity" || k === "intensity")
+        .map(([k, v]) => `${k}=${Math.round(v)}`)
+        .join(", ")
+    : "";
+  const scene_hook = String(input || "").trim() ? "Act on what this exact beat shows you." : "Push the situation forward on your own terms.";
+  const body = `Hold your temperament; do not soften into pleasantness. Know only what this scene has shown you. Do not rush the tension.${stance ? ` (${escape_xml(stance)})` : ""} ${scene_hook}`;
+  return `<RECENCY_ANCHOR>\n    ${body}\n  </RECENCY_ANCHOR>`;
+}
+
+/**
  * Renders an entity's closed-chapter history (track-director-expansion 4.5) so
  * the Memory Forge can recognize milestone boundaries and the standing agenda
  * never pretends an archived objective is still pending.
@@ -587,6 +610,7 @@ function render_character({
     "HYGIENE.CONCISENESS",
     "HYGIENE.BANNED_TROPES",
     "HYGIENE.PROSE_STRUCTURE",
+    "ANTIGRAVITY.AUDIT",
     "AGENCY.FICTIONAL_LICENSE",
     meta?.is_opening_turn || (Array.isArray(compressed_snapshot?.flags) && compressed_snapshot.flags.includes("FIRST_CONTACT"))
       ? "AGENCY.FIRST_CONTACT"
@@ -669,6 +693,7 @@ ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
           : "Continue the scene, reacting to the current situation."
     } Stay fully in character. Honor all active <PROTOCOLS>.
     ${build_pacing_directive(input)}
+    ${build_recency_anchor(compressed_snapshot, input)}
   </TASK>
   `).trim();
 
@@ -718,6 +743,7 @@ function render_npc_character({
     "HYGIENE.CONCISENESS",
     "HYGIENE.BANNED_TROPES",
     "HYGIENE.PROSE_STRUCTURE",
+    "ANTIGRAVITY.AUDIT",
     "AGENCY.FICTIONAL_LICENSE",
   ]
     .filter(Boolean)
@@ -825,14 +851,26 @@ function render_ghostwriter({ entities, input = "" }) {
 
 function build_narrator(
   mode,
-  { entities, render_accessors, compressed_snapshot, round = null, input = null, director_data = null, npc_entities = [], in_scene_ids = [] },
+  {
+    entities,
+    render_accessors,
+    compressed_snapshot,
+    round = null,
+    input = null,
+    director_data = null,
+    npc_entities = [],
+    in_scene_ids = [],
+    conclusion_status = "CONCLUDED",
+  },
 ) {
   const task_text =
     mode === "prologue"
       ? `${PROTOCOL_LIBRARY.SCENE.PROLOGUE}\n    Input: ${escape_xml(input?.trim() || "The scene begins.")}`
       : mode === "scene"
         ? `${PROTOCOL_LIBRARY.SCENE.CONTINUATION}\n    Input: ${escape_xml(input?.trim() || "The scene continues.")}`
-        : PROTOCOL_LIBRARY.SCENE.EPILOGUE;
+        : conclusion_status === "COLLAPSED"
+          ? PROTOCOL_LIBRARY.SCENE.COLLAPSE
+          : PROTOCOL_LIBRARY.SCENE.EPILOGUE;
   const fractal_name = entities?.FRACTAL?.name || "Environment";
   // World narration can carry somatic keywords too (environmental tells), but
   // scene bookends (prologue/epilogue) never receive them.
@@ -1352,7 +1390,7 @@ export const prompt_builder = {
           .trim()
       : "";
   },
-  build_epilogue(entities, dynamics, recent_history = []) {
+  build_epilogue(entities, dynamics, recent_history = [], conclusion_status = "CONCLUDED") {
     const safe_entities = {
       AI: entities?.AI || { name: "AI", present: {}, eternal: {} },
       USER: entities?.USER || { name: "USER", present: {}, eternal: {} },
@@ -1365,6 +1403,7 @@ export const prompt_builder = {
         ai: { dynamics: dynamics?.ai },
         fractal: { dynamics: dynamics?.fractal },
       },
+      conclusion_status,
     });
     return {
       system: prompt_builder.clean_prompt_text(rendered.system),

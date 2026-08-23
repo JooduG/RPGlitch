@@ -37,7 +37,7 @@
         ? "color: var(--color-emerald-green); text-shadow: 0 0 0.5rem color-mix(in srgb, var(--color-emerald-green) 25%, transparent);"
         : undefined}
     >
-      {app.simulation.loading ? "WRITING PROLOGUE…" : label_text}
+      {app.simulation.loading ? "Generating Prologue..." : label_text}
     </h6>
   </Button>
 {/if}

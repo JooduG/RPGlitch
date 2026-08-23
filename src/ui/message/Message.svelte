@@ -602,15 +602,3 @@
     {/each}
   </div>
 {/if}
-
-<style>
-  @keyframes scan {
-    from {
-      transform: translateX(-100%) skewX(-20deg);
-    }
-
-    to {
-      transform: translateX(100%) skewX(-20deg);
-    }
-  }
-</style>

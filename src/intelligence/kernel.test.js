@@ -681,6 +681,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
         fractal: expect.objectContaining({ entropy: 50 }),
       }),
       expect.any(Array),
+      "CONCLUDED",
     );
     expect(llm_service.generate).toHaveBeenCalled();
     expect(result).toBe("And so it ends.");

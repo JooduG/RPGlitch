@@ -1217,7 +1217,7 @@ export const gamemaster = {
     const raw_messages = await state_bridge.session_driver.load_log(story_id);
     const recent_history = raw_messages.slice(-10);
 
-    const { system, task } = prompt_builder.build_epilogue(clean_entities, current_dynamics, recent_history);
+    const { system, task } = prompt_builder.build_epilogue(clean_entities, current_dynamics, recent_history, conclusion_status);
     if (!system) return null;
 
     state_bridge.app.log("[GameMaster] Generating epilogue...", "system");

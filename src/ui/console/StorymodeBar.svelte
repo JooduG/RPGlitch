@@ -17,7 +17,6 @@
   let pending = $state([]);
 
   let is_locked = $derived(simulation_state.busy);
-  let is_consolidating = $derived(simulation_state.is_consolidating);
   // Mirrors chrono_engine.send()'s own gate so the button state and the send
   // gate can never disagree (previously the button enabled while sends were
   // being silently rejected).
@@ -151,14 +150,6 @@
   >
     <span class="size-2 animate-pulse rounded-full bg-amber-400"></span>
     {pending_count > 1 ? `${pending_count} queued` : "Queued"}
-  </span>
-{:else if is_consolidating && !app.streaming.active}
-  <span
-    class="flex shrink-0 items-center gap-2 text-[10px] font-bold tracking-widest text-slate-400 uppercase"
-    use:tooltip={"Storing this turn into memory… send resumes momentarily."}
-  >
-    <span class="size-2 animate-pulse rounded-full bg-electric-cyan"></span>
-    Processing memory
   </span>
 {/if}
 

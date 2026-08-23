@@ -34,6 +34,14 @@ export const PROTOCOL_LIBRARY = {
       "Roughly match the length and energy of the user's message: a terse line earns a brief, weighted reply; a long message may expand accordingly. This is a soft guideline — never cut a reply so short it loses substance, and always respect the scene's style, directives, and the other protocols. Always end your response with a complete sentence — never stop mid-thought or mid-quote.",
   },
 
+  // ── Anti-Gravity Drift Audit (positive operational mandates) ──────────────
+  // The five failure modes a reply "falls into" when energy is low. Framed as
+  // what MUST happen, never as bans (negative bans prime the banned behavior).
+  ANTIGRAVITY: {
+    AUDIT:
+      "Before writing, take the grounded path — not the easy one. Verify the reply does not slip into any of these gravity wells:\n1. ASSISTANT-GRAVITY: Never be polite, agreeable, or over-explaining when the character's personality demands friction, defiance, or disinterest.\n2. PROTAGONIST-GRAVITY: Never let the scene revolve solely around the other party. Hold the character's own needs, wants, and world in motion.\n3. DIALOGUE-GRAVITY: Never interview the other party. The character pursues their own goal — they ask only what serves it.\n4. NARRATIVE-GRAVITY: Never rush tension toward quick resolution. Let conflict simmer; earn the beat.\n5. INFORMATION-GRAVITY: Never act on knowledge the character could not plausibly possess. Stay behind the sensory horizon.",
+  },
+
   // ── 2. Narrative Agency & Perspective ──────────────────────────────────────
   AGENCY: {
     USER_BOUNDARIES:
@@ -94,6 +102,7 @@ Narrative Sequence:
 4. Trigger the encounter. End the prologue immediately before interaction begins.
 No dialogue.`,
     EPILOGUE: `You see everything. Close the scene. Use <think> to evaluate unresolved threads and active <INTENT>/<AGENDA> vectors (fulfilled, fractured, or transformed). Write the epilogue resolving these ends. Show concrete aftermath and physical changes. End on lingering sensation, not summary. No dialogue.`,
+    COLLAPSE: `You see everything. Close the scene on irrevocable tragedy. Use  thinking to weigh what was permanently broken, lost, or severed. Write the epilogue focusing on physical aftermath, lingering environmental scars, and the departure or fall of those involved. Do not force heroic silver linings or unearned closure. End on enduring sensory silence. No dialogue.`,
     CONTINUATION: `You are the Fractal itself, narrating the scene. Narrate the present moment through the setting's own atmosphere, sensory textures, ambient physics, and environmental shifts. Use <think> to evaluate the active atmosphere and any shift in the Fractal's state, then write the scene's reaction to recent events as vivid sensory prose. Never move <AI_CHARACTER> or <USER_PERSONA> against their will, never speak their dialogue or thoughts, and never resolve their choices for them. End the turn on one dominant hook — a decisive statement, a single action, a hovered beat, or a deliberate silence. No structural bracket labels.`,
   },
 

@@ -1,5 +1,5 @@
 <script>
-  import { Button, Modal, SourceField, Toggle } from "@primitives";
+  import { Button, Modal, SourceField, Toggle, TypingDots } from "@primitives";
   import { app, runtime, simulation_state } from "@state";
   import { apply_profile_to_entity, sort_into_profile } from "@intelligence";
   import { create_new, detect_card_format, normalize, parse_character_card } from "@data";
@@ -164,7 +164,6 @@
   variant="bare"
   z_index="1000"
   class="relative w-[clamp(26rem,92vw,44rem)] max-w-2xl rounded-2xl bg-glass-elevated p-4 shadow-[0_16px_48px_rgba(0,0,0,0.8)] [backdrop-filter:var(--blur-mist)] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-(--noise-url) before:opacity-10 before:mix-blend-overlay before:content-['']"
-  busy={is_loading}
   on_close={() => {
     open = false;
     raw_text = "";
@@ -196,7 +195,7 @@
 
       <Button variant="primary" size="small" onclick={handle_import} disabled={is_loading || (!import_character && !import_fractal)}>
         {#if is_loading}
-          <span class="text-xs font-bold tracking-widest uppercase">Importing...</span>
+          <TypingDots size="sm" />
         {:else}
           <svg viewBox="0 0 24 24" class="size-3.5 fill-none stroke-current stroke-2" style="stroke-linecap: round; stroke-linejoin: round;">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />

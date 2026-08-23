@@ -12,7 +12,7 @@
   import { Backdrop, Button } from "@primitives";
   import { stories } from "@data";
   import { session_driver } from "@data";
-  import { db } from "@data";
+  import { db, coerce_story_key } from "@data";
   import { gamemaster } from "@intelligence";
   import { get_signature_color } from "@media";
   import { app, runtime, simulation_log, simulation_state } from "@state";
@@ -42,6 +42,42 @@
 
   let is_ending_story = $state(false);
   let is_exporting = $state(false);
+  let is_rewinding = $state(false);
+
+  /**
+   * REWIND / "KEEP CHATTING" — the rewind path for a concluded or collapsed
+   * story. Lifts the story back to life: removes every epilogue entry for the
+   * active story (persisted + in-memory), clears the conclusion status so the
+   * 💀/✨ badge and lock release, and re-activates the story so its entities
+   * stay claimed in the lobby. The user can then keep chatting instead of being
+   * forced to conclude. Both positive (CONCLUDED) and negative (COLLAPSED) ends
+   * offer this — a story collapsing does not have to be the final word.
+   */
+  async function handle_rewind() {
+    if (is_rewinding || !runtime.story_id) return;
+    is_rewinding = true;
+    try {
+      const epilogues = simulation_log.feed.filter(
+        (e) => e?.meta?.is_epilogue && (e.story_id === undefined || String(e.story_id) === String(runtime.story_id)),
+      );
+      for (const ep of epilogues) {
+        const id = ep.id ?? ep.meta?.id;
+        if (id != null) await simulation_log.delete_entry(id);
+      }
+      const active = runtime.active_story;
+      if (active) {
+        active.conclusion_status = null;
+        await db.stories.update(coerce_story_key(runtime.story_id), { is_concluded: 0, conclusion_status: null });
+      }
+      simulation_state.unlock();
+      app.log("[Story] Rewound — epilogue removed, story continues.", "system");
+    } catch (e) {
+      console.error("[Rewind Error]", e);
+      app.log(`Rewind failed: ${e.message || e}`, "error");
+    } finally {
+      is_rewinding = false;
+    }
+  }
 
   async function handle_end_story() {
     if (is_ending_story || !runtime.story_id) return;
@@ -172,6 +208,13 @@
               }}
             />
             <Button label="Export Story" variant="primary" size="small" loading={is_exporting} onclick={handle_export_story} />
+            <Button
+              label={is_rewinding ? "Rewinding…" : "⟲ Keep Chatting"}
+              variant="secondary"
+              size="small"
+              loading={is_rewinding}
+              onclick={handle_rewind}
+            />
           </div>
         </div>
       {:else}

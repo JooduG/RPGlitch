@@ -5,7 +5,7 @@
    * Renders the attachment strip with the four regenerate-flow states:
    * error / candidates-ready ("Click to select") / regenerating / preview.
    */
-  import { Button } from "@primitives";
+  import { Button, TypingDots } from "@primitives";
   import { image_picker, open_picker } from "@image";
   import { get_resolution } from "@media";
   import { app } from "@state";
@@ -84,11 +84,7 @@
     class="relative flex flex-col items-center justify-center gap-4 overflow-hidden rounded-lg border border-(--signature-color,slate-600)/30 bg-neutral-900/50"
     style={container_style}
   >
-    <div class="flex gap-2">
-      <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 0ms"></div>
-      <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 150ms"></div>
-      <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 300ms"></div>
-    </div>
+    <TypingDots size="md" />
   </div>
 {/snippet}
 
