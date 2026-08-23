@@ -1320,8 +1320,8 @@ export const gamemaster = {
           full_accumulated += chunk;
           if (typeof on_token === "function") {
             // Strip out <think> blocks in real time and silence initial tag start tokens
-            const starts_tag = full_accumulated.trimStart().startsWith("<");
-            if (starts_tag || full_accumulated.includes("<think>")) {
+            const starts_think = full_accumulated.trimStart().startsWith("<think") || full_accumulated.trimStart() === "<";
+            if (starts_think || full_accumulated.includes("<think>")) {
               inside_think = !full_accumulated.includes("</think>");
               if (!inside_think) {
                 const cleaned = strip_cognition_blocks(full_accumulated).trimStart();
