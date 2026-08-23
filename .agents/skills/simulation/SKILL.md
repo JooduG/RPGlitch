@@ -159,9 +159,12 @@ The `.agents/skills/simulation/data/` directory houses active domain-atomic arch
 
 ### Active Blueprints
 
-1. **Attachment Style Archetypes:** [`suggestion-attachment-style-archetypes.md`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/simulation/data/suggestion-attachment-style-archetypes.md) — 4 attachment schemas (`secure`, `anxious`, `dismissive`, `fearful_avoidant`), threat response behaviors, defense mechanisms, and recovery curves.
-2. **Stochastic Resolution Mechanics:** [`suggestion-stochastic-resolution-mechanics.md`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/simulation/data/suggestion-stochastic-resolution-mechanics.md) — Micro D20 stat checks with partial success, Macro Gambit 21-target Blackjack state machine, 1d100 chaos entropy, Tarot Fate Triad of Paths, and `<choices>` XML payloads.
-3. **Sensory Media & Style Architecture:** [`suggestion-multimodal-style-architecture.md`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/simulation/data/suggestion-multimodal-style-architecture.md) — Composable first-class style cards in Dexie, cinematic photographic framing optics for image synthesis, declarative DSL loot pools, and `oc` event API.
+1. **Attachment Style Archetypes:** [`suggestion-attachment-style-archetypes.md`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/simulation/data/suggestion-attachment-style-archetypes.md) — 4 attachment schemas (`secure`, `anxious`, `dismissive`, `fearful_avoidant`), threat responses, defense mechanisms, and recovery curves.
+2. **Composable Style Entities:** [`suggestion-composable-style-entities.md`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/simulation/data/suggestion-composable-style-entities.md) — First-class editable `StyleCard` entities in Dexie.js, hot-swappable narrative and visual styles from the Storyboard deck.
+3. **Cinematic Photographic Framing:** [`suggestion-cinematic-photographic-framing.md`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/simulation/data/suggestion-cinematic-photographic-framing.md) — Photographic perspective directives (close-up, medium, wide, dutch), intensity-based camera triggers, and visual delta prompting.
+4. **D20 Micro-Resolution Engine:** [`suggestion-d20-stat-resolution.md`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/simulation/data/suggestion-d20-stat-resolution.md) — Pure functional `evaluate_stat_check`, DC difficulty ladder, and success-with-a-cost partial thresholds.
+5. **Climax Fate Branching & Choices:** [`suggestion-fate-branching-choices.md`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/simulation/data/suggestion-fate-branching-choices.md) — Triad of Fate Paths (High, Middle, Low), Director `<choices>` XML format, and interactive action chips.
+6. **Gambit 21 Push-Your-Luck Engine:** [`suggestion-gambit-blackjack-engine.md`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/simulation/data/suggestion-gambit-blackjack-engine.md) — Multi-turn Blackjack macro state machine (target 21) for sustained encounter pacing.
 
 ### Completed & Archived Blueprints
 

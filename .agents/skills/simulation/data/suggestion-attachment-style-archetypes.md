@@ -1,22 +1,20 @@
-# Suggestion: Attachment Style Archetypes & Relational Dynamics
+# Suggestion: Attachment Style Archetypes & Relational Trajectories
 
-> **Status:** Parked / Backlog Proposal  
-> **Domain:** Agent Relational Trajectories, Epistemic Threat Recovery & Character Personas  
-> **Scope:** 4 Attachment Schemas (`secure`, `anxious`, `dismissive`, `fearful_avoidant`), Behavioral Threat Responses, Defense Mechanisms, Recovery Curves  
-
----
-
-## 1. Executive Summary
-
-Realistic character embodiment in long-running simulations benefits from distinct relational dynamics when trust, vulnerability, or conflict escalate. While immediate physical tells are handled by `evaluate_automatic_somatics`, characters lack an explicit model for how they process interpersonal threat and relational recovery over extended arcs.
-
-This specification proposes adding an optional `attachment_style` property to the `Entity` schema, providing deterministic behavioral rules, defense mechanisms, and recovery curves under relational stress.
+> **Status:** Backlog Proposal  
+> **Domain:** Entity Schemas, Relational Epistemology & Interpersonal Dynamics  
+> **Scope:** 4 Attachment Schemas (`secure`, `anxious`, `dismissive`, `fearful_avoidant`), Threat Reactions, Defense Mechanisms, Recovery Curves  
 
 ---
 
-## 2. Attachment Style Archetypes (Entity Schema Proposal)
+## 1. Core Thesis
 
-Add an optional `attachment_style` property to the `Entity` schema:
+While RPGlitch evaluates momentary physical tells via `evaluate_automatic_somatics`, entities lack an explicit model for processing interpersonal threat and emotional recovery over multi-turn scenes. 
+
+Adding an explicit `attachment_style` to character entities establishes predictable emotional gravity, authentic friction, and calibrated relationship trajectories.
+
+---
+
+## 2. Entity Schema Extension
 
 ```javascript
 /**
@@ -24,24 +22,28 @@ Add an optional `attachment_style` property to the `Entity` schema:
  */
 ```
 
+### Schema Integration Points
+- **`src/data/definitions/fragments.js`**: Add `attachment_style` to `ENTITY_FRAGMENTS.ETERNAL.NON_PHYSICAL` metadata schema.
+- **`src/data/normalizer.js`**: Default fallback (`"secure"` for baseline, or `undefined` for unassigned).
+
 ---
 
 ## 3. Archetype Behavioral Matrix & Threat Responses
 
 | Attachment Style | Relational Threat Reaction | Defense Mechanism | Recovery Curve |
 | :--- | :--- | :--- | :--- |
-| **`secure`** | Direct verbal boundary setting, proportional friction. | Seeks collaborative clarification without panic. | Fast equilibrium restore after turn resolution. |
-| **`anxious`** | Hyper-vigilance, reassurance-seeking, verbal over-explaining. | Clings or raises emotional stakes to force engagement. | Requires explicit affirmation to lower `chaos` and `intensity`. |
-| **`dismissive`** | Cold emotional detachment, intellectualization, silence. | Physical/spatial withdrawal; lowers `openness` to 0. | Restores baseline slowly only when left unpressured. |
-| **`fearful_avoidant`** | Volatile oscillation between desperate proximity and hostility. | Severe somatic friction (tremors, sudden flight, lash-outs). | Highly volatile recovery; prone to relational relapse. |
+| **`secure`** | Direct boundary assertion; proportional friction without panic. | Seeks collaborative clarification and objective truth. | **Fast Equilibrium**: Restores baseline stability within 1 turn. |
+| **`anxious`** | Hyper-vigilance, reassurance-seeking, verbal over-explaining. | Clings or raises emotional stakes to force engagement. | **Affirmation-Dependent**: Requires positive validation to lower `chaos`/`intensity`. |
+| **`dismissive`** | Cold emotional detachment, intellectualization, silence. | Physical/spatial withdrawal; drops `openness` toward 0. | **Slow Latency**: Recovers baseline only when left unpressured. |
+| **`fearful_avoidant`** | Volatile oscillation between desperate proximity and hostility. | Severe somatic friction (tremors, abrupt flight, lash-outs). | **Volatile Relapse**: Prone to re-triggering under perceived rejection. |
 
 ---
 
-## 4. Integration Blueprint (When Unparked)
+## 4. Prompt Synthesis & Dynamics Integration
 
-1. **Entity Schema (`fragments.js` & `normalizer.js`)**:
-   - Add optional `attachment_style` enum field to entity defaults.
-2. **Director / Personality Alignment (`prompts.js`)**:
-   - When present, inject archetype behavioral expectations into persona prompt generation or Director evaluation guidelines.
+1. **Director Evaluation (`prompts.js`)**:
+   - In `render_director`, provide character attachment styles to steer relational delta suggestions.
+2. **Character Expression (`render_character`)**:
+   - When an entity's `attachment_style` is defined, inject its behavioral defense rule into `<TASK>` as an implicit behavioral anchor.
 3. **Dynamics Settlement (`dynamics.js`)**:
-   - Use recovery curve speeds to weight friction/relaxation during physics settlement turns.
+   - Use recovery curve weights during `settle_physics` to govern how quickly `intensity` and `chaos` return toward resting baseline.
