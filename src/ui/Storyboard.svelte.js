@@ -208,18 +208,6 @@ export const storyboard = {
   async begin() {
     // Reset the begin-flight latch so a fresh begin can orchestrate again.
     begin_flight_started = false;
-    if (app.settings.dev_mode) {
-      app.log("Lobby Bypass Triggered (DEV_MODE)", "system");
-      const selection = {
-        ai: app.selected_ai || { id: "dev_ai", name: "Dev AI" },
-        user: app.selected_user || { id: "dev_user", name: "Dev User" },
-        fractal: app.selected_fractal || { id: "dev_fractal", name: "Dev Fractal" },
-      };
-      motion.intensity = 0.4;
-      await chrono_engine.start(selection);
-      await app.load_entities();
-      return;
-    }
     if (!app.selected_ai || !app.selected_user || !app.selected_fractal) return;
     const claimed = await stories.active_entity_ids();
     const locked = claimed_entity_lock([app.selected_ai, app.selected_user, app.selected_fractal], claimed);

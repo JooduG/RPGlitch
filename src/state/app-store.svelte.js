@@ -232,7 +232,7 @@ export class AppStore {
     return Math.min(99, Math.round((emb_prog + voice_prog) / 2));
   }
   get is_ready() {
-    return this.settings.dev_mode || (this.selected_ai !== null && this.selected_user !== null && this.selected_fractal !== null);
+    return this.selected_ai !== null && this.selected_user !== null && this.selected_fractal !== null;
   }
 
   // --- TELEMETRY (DevMode HUD) ---
