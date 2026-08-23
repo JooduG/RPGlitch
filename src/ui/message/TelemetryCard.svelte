@@ -57,7 +57,7 @@
     <div class="rounded-sm border border-(--color-dev-accent)/20 bg-(--color-dev-accent)/5 p-4 [backdrop-filter:var(--blur-mist)]">
       <div class="flex items-center gap-2">
         <div class="h-2 w-2 animate-pulse rounded-full bg-(--color-dev-accent) shadow-[0_0_8px_var(--color-dev-accent)]"></div>
-        <span class="text-sm font-bold tracking-widest text-(--color-dev-accent) uppercase">Story Initiated</span>
+        <span class="text-sm font-bold tracking-widest text-(--color-dev-accent) uppercase">Simulation Initiated</span>
       </div>
       <p class="mt-2 font-mono text-xs text-slate-300">The simulation engine has anchored a new narrative sequence.</p>
     </div>

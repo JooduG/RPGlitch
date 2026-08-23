@@ -1,7 +1,7 @@
 <script>
-  import { DataBox, TextField, TypingDots } from "@primitives";
+  import { DataBox, TextField } from "@primitives";
   import TelemetryCard from "./TelemetryCard.svelte";
-  import { Typewriter } from "@motion";
+  import { Shimmer, Typewriter } from "@motion";
   import { safe_html } from "@ui";
   import { app } from "@state";
 
@@ -84,14 +84,18 @@
   >
     {#if should_use_typewriter}
       {#if has_display_text}
-        <Typewriter target_html={display_text} bind:is_finished={is_typing_finished} />
+        <Typewriter target_html={display_text} bind:is_finished={is_typing_finished} show_cursor={true} cursor_style="block" />
       {:else if busy}
-        <TypingDots size="sm" class="p-2 opacity-60" />
+        <div class="relative h-6 w-24 overflow-hidden rounded">
+          <Shimmer color={signature_color || "var(--color-electric-cyan)"} />
+        </div>
       {/if}
     {:else if has_display_text}
       <div class="display-text-container" style="display: contents" use:safe_html={display_text}></div>
     {:else if busy}
-      <TypingDots size="sm" class="p-2 opacity-60" />
+      <div class="relative h-6 w-24 overflow-hidden rounded">
+        <Shimmer color={signature_color || "var(--color-electric-cyan)"} />
+      </div>
     {/if}
   </div>
 {/if}

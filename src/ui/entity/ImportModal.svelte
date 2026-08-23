@@ -1,5 +1,5 @@
 <script>
-  import { Button, Modal, SourceField, Toggle, TypingDots } from "@primitives";
+  import { Button, Modal, SourceField, Toggle } from "@primitives";
   import { app, runtime, simulation_state } from "@state";
   import { apply_profile_to_entity, sort_into_profile } from "@intelligence";
   import { create_new, detect_card_format, normalize, parse_character_card } from "@data";
@@ -193,17 +193,19 @@
     <div class="flex items-center justify-between">
       <span class="text-[10px] text-slate-500 italic"> JSON cards bypass the AI sorter; raw text is schema-sorted by the AI. </span>
 
-      <Button variant="primary" size="small" onclick={handle_import} disabled={is_loading || (!import_character && !import_fractal)}>
-        {#if is_loading}
-          <TypingDots size="sm" />
-        {:else}
-          <svg viewBox="0 0 24 24" class="size-3.5 fill-none stroke-current stroke-2" style="stroke-linecap: round; stroke-linejoin: round;">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-            <polyline points="7 10 12 15 17 10" />
-            <line x1="12" y1="15" x2="12" y2="3" />
-          </svg>
-          <span class="text-xs font-bold tracking-widest uppercase">Import Entity</span>
-        {/if}
+      <Button
+        variant="primary"
+        size="small"
+        onclick={handle_import}
+        busy={is_loading}
+        disabled={is_loading || (!import_character && !import_fractal)}
+      >
+        <svg viewBox="0 0 24 24" class="size-3.5 fill-none stroke-current stroke-2" style="stroke-linecap: round; stroke-linejoin: round;">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="7 10 12 15 17 10" />
+          <line x1="12" y1="15" x2="12" y2="3" />
+        </svg>
+        <span class="text-xs font-bold tracking-widest uppercase">Import Entity</span>
       </Button>
     </div>
   </div>

@@ -16,7 +16,7 @@
   let { color = "var(--color-electric-cyan)", class: className = "" } = $props();
 </script>
 
-<div class="pointer-events-none absolute inset-0 z-30 overflow-hidden rounded-[inherit] opacity-50 {className}" aria-hidden="true">
+<div class="pointer-events-none absolute inset-0 z-30 overflow-hidden rounded-[inherit] opacity-35 {className}" aria-hidden="true">
   <div
     data-shimmer-sweep
     class="absolute inset-0 h-full w-full"

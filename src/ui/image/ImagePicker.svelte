@@ -16,7 +16,8 @@
     get_persisted_meta,
   } from "./ImagePicker.svelte.js";
   import { visual_engine, get_resolution } from "@media";
-  import { Backdrop, Button, TypingDots } from "@primitives";
+  import { Backdrop, Button } from "@primitives";
+  import { Shimmer } from "@motion";
   import { Dialog } from "bits-ui";
   import { fade } from "svelte/transition";
 
@@ -150,8 +151,8 @@
                       </div>
                     </div>
                   {:else if image_picker.candidates.length < 2}
-                    <div class="flex flex-col items-center gap-4" in:fade={{ duration: 200 }}>
-                      <TypingDots size="lg" color="bg-white/60" />
+                    <div class="relative h-64 w-48 overflow-hidden rounded-xl border border-white/10 bg-neutral-900/50" in:fade={{ duration: 200 }}>
+                      <Shimmer />
                     </div>
                   {:else if image_picker.candidates.length >= 2}
                     <!-- POLAROID CARD GRID -->

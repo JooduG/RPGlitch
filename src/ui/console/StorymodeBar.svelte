@@ -1,6 +1,6 @@
 <script>
   import { tick } from "svelte";
-  import { Button, tooltip } from "@primitives";
+  import { Button, Indicator, tooltip } from "@primitives";
   import { chrono_engine } from "@state";
   import { gamemaster } from "@intelligence";
   import { stab } from "@motion";
@@ -138,7 +138,9 @@
     text-base
     text-inherit
     outline-none
+    placeholder:font-normal
     placeholder:text-slate-400
+    placeholder:italic
     placeholder:opacity-60
     disabled:cursor-wait
     disabled:opacity-30
@@ -161,7 +163,7 @@
       ? `${pending_count} messages queued — they send when the current turn finishes.`
       : "Message queued — it sends when the current turn finishes."}
   >
-    <span class="size-2 animate-pulse rounded-full bg-amber-400"></span>
+    <Indicator color="bg-amber-400" size="sm" />
     {pending_count > 1 ? `${pending_count} queued` : "Queued"}
   </span>
 {/if}

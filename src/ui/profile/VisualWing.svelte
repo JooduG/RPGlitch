@@ -156,7 +156,7 @@
 
     profile_state.busy_fields.add("visual-prompt");
     profile_state.busy_fields.add("generating-image");
-    app.log(`[VisualWing] Generating... Prompt: ${prompt_value}`, "system");
+    app.log(`[VisualWing] Painting... Prompt: ${prompt_value}`, "system");
 
     try {
       // Profile pictures route through the `solo_entity` tier: an isolated portrait
@@ -325,7 +325,7 @@
     {#snippet status()}
       <div class="flex items-center gap-2">
         <span class="font-mono text-[0.625rem] tracking-widest text-slate-50 uppercase">Positive Prompt</span>
-        {#if is_prompt_busy || app.visual.error || app.visual.is_offline}
+        {#if app.visual.error || app.visual.is_offline || app.visual.attempts > 0}
           <div
             class="
               flex

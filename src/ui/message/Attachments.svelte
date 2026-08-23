@@ -5,7 +5,8 @@
    * Renders the attachment strip with the four regenerate-flow states:
    * error / candidates-ready ("Click to select") / regenerating / preview.
    */
-  import { Button, TypingDots } from "@primitives";
+  import { Button } from "@primitives";
+  import { Shimmer } from "@motion";
   import { image_picker, open_picker } from "@image";
   import { get_resolution } from "@media";
   import { app } from "@state";
@@ -84,7 +85,7 @@
     class="relative flex flex-col items-center justify-center gap-4 overflow-hidden rounded-lg border border-(--signature-color,slate-600)/30 bg-neutral-900/50"
     style={container_style}
   >
-    <TypingDots size="md" />
+    <Shimmer color="var(--signature-color,var(--color-electric-cyan))" />
   </div>
 {/snippet}
 

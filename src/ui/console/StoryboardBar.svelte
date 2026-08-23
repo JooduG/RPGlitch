@@ -12,7 +12,25 @@
 
   let models_ready = $derived(app.models_ready);
   let ready_to_begin = $derived(app.is_ready && models_ready);
-  let label_text = $derived(ready_to_begin ? "BEGIN STORY" : `SELECT ENTITIES (${app.selected_count}/3)`);
+
+  const PROLOGUE_PHRASES = ["INITIALIZING SIMULATION...", "SETTING THE STAGE...", "ONCE UPON A TIMING...", "WRITING PROLOGUE..."];
+
+  let phrase_index = $state(0);
+
+  $effect(() => {
+    if (!app.simulation.loading) {
+      phrase_index = 0;
+      return;
+    }
+    const interval = setInterval(() => {
+      phrase_index = (phrase_index + 1) % PROLOGUE_PHRASES.length;
+    }, 1800);
+    return () => clearInterval(interval);
+  });
+
+  let label_text = $derived(
+    app.simulation.loading ? PROLOGUE_PHRASES[phrase_index] : ready_to_begin ? "BEGIN STORY" : `SELECT ENTITIES (${app.selected_count}/3)`,
+  );
 </script>
 
 <SettingsButton variant={app.control_panel_open ? "secondary" : "invisible"} testid="settings-button" />

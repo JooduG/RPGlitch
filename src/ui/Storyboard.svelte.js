@@ -225,23 +225,35 @@ export const storyboard = {
   },
 };
 
+import { parse_message } from "./message/render.js";
+
 /**
  * Installs the begin-story flight watcher. Must be called once during
  * Console.svelte's component init (it registers a runes effect, so it needs
  * the component's effect context).
  *
- * chrono.start now leaves the storyboard VISIBLE while the prologue
- * generates (no empty viewport). The moment the real prologue entry lands in
- * the feed, we capture the storyboard cards, flip to storymode, and fly the
- * cards from the storyboard into the prologue message.
+ * chrono.start leaves the storyboard VISIBLE while the prologue
+ * generates. The moment the typewriter actually begins animating visible
+ * narrative text (after thinking/setup blocks resolve), we capture the
+ * storyboard cards, flip to storymode, and fly the cards into the prologue.
  */
 export function install_begin_flight_effect() {
   $effect(() => {
     const _pending = app.begin_story_pending;
     if (!_pending) return;
-    const has_prologue_entry =
-      simulation_log.feed.some((entry) => entry.meta?.is_prologue) && app.streaming.active && app.streaming.content.length > 0;
+    const has_prologue_entry = simulation_log.feed.some((entry) => entry.meta?.is_prologue);
     if (!has_prologue_entry || begin_flight_started) return;
+
+    // Check if the stream has actual visible prose ready for the typewriter to animate
+    if (app.streaming.active && app.streaming.content) {
+      const parsed = parse_message(app.streaming.content);
+      const visible_text = (parsed.displayText || "").replace(/<[^>]+>/g, "").trim();
+      // Only initiate flight when visible text has emerged from the stream
+      if (!visible_text) return;
+    } else {
+      return;
+    }
+
     begin_flight_started = true;
     // Capture BEFORE the flip — the storyboard unmounts on the view change.
     const assets = capture_storyboard_flight();

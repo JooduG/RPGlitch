@@ -18,4 +18,4 @@ export { default as StyleBadge } from "./StyleBadge.svelte";
 export { default as Label } from "./Label.svelte";
 export { default as GlassWrapper } from "./GlassWrapper.svelte";
 export { default as Dialog } from "./Dialog.svelte";
-export { default as TypingDots } from "./TypingDots.svelte";
+export { default as Indicator } from "./Indicator.svelte";
