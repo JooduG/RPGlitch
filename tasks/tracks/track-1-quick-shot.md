@@ -102,20 +102,20 @@ GENESIS ROUND (When Director sets next_action: "GENESIS"):
 
 ### Phase 1: High-Resolution Quick Shot Instrumentation & Mutex Setup
 
-- [ ] `task-1.1`: **`RED`** Write unit tests in `src/intelligence/kernel.test.js` asserting director timing capture on `runtime.last_director_ms` and `runtime.director_ms_pool` (ring buffer).
-- [ ] `task-1.2`: **`GREEN`** Implement high-res timing in `src/intelligence/kernel.js` around the quick shot and retries; expose rolling p50/p95 in `runtime.svelte.js`.
-- [ ] `task-1.3`: **`GREEN`** Create lightweight `generation_mutex` in `src/state/runtime.svelte.js` to coordinate foreground vs background LLM calls.
+- [x] `task-1.1`: **`RED`** Write unit tests in `src/intelligence/kernel.test.js` asserting director timing capture on `runtime.last_director_ms` and `runtime.director_ms_pool` (ring buffer).
+- [x] `task-1.2`: **`GREEN`** Implement high-res timing in `src/intelligence/kernel.js` around the quick shot and retries; expose rolling p50/p95 in `runtime.svelte.js`.
+- [x] `task-1.3`: **`GREEN`** Create lightweight `generation_mutex` in `src/state/runtime.svelte.js` to coordinate foreground vs background LLM calls.
 
 ### Phase 2: Quick Shot Schema Streamlining (`next_action`, `keywords` 1-3, `directors_note`)
 
-- [ ] `task-2.1`: **`RED`** Add unit tests in `src/intelligence/director.test.js` asserting normalization of `next_action`, `keywords` (1–3 items), `directors_note` (1–3 lines), and `dynamics_deltas`.
-- [ ] `task-2.2`: **`GREEN`** Update `src/intelligence/prompts.js` to remove `<AVAILABLE_SIGNATURE_COLORS>` from the Director prompt, wire `directors_note` instructions (1–3 lines), and support 1–3 keywords from `<AVAILABLE_KEYWORDS>`.
-- [ ] `task-2.3`: **`GREEN`** Update `src/intelligence/director.js` normalizer for unified `next_action` routing (`speaker`, `genesis`, `epilogue`).
+- [x] `task-2.1`: **`RED`** Add unit tests in `src/intelligence/director.test.js` asserting normalization of `next_action`, `keywords` (1–3 items), `directors_note` (1–3 lines), and `dynamics_deltas`.
+- [x] `task-2.2`: **`GREEN`** Update `src/intelligence/prompts.js` to remove `<AVAILABLE_SIGNATURE_COLORS>` from the Director prompt, wire `directors_note` instructions (1–3 lines), and support 1–3 keywords from `<AVAILABLE_KEYWORDS>`.
+- [x] `task-2.3`: **`GREEN`** Update `src/intelligence/director.js` normalizer for unified `next_action` routing (`speaker`, `genesis`, `epilogue`).
 
 ### Phase 3: Genesis Inline Branch & Back Shot Pipeline Setup
 
-- [ ] `task-3.1`: **`RED`** Add test verifying `_apply_genesis` executes synchronously when `next_action === "GENESIS"` (passing signature color palette to genesis prompt) before speaker compilation.
-- [ ] `task-3.2`: **`GREEN`** Wire persistence offloading and round-freshness hooks for the Back Shot stream in `src/intelligence/kernel.js`.
+- [x] `task-3.1`: **`RED`** Add test verifying `_apply_genesis` executes synchronously when `next_action === "GENESIS"` (passing signature color palette to genesis prompt) before speaker compilation.
+- [x] `task-3.2`: **`GREEN`** Wire persistence offloading and round-freshness hooks for the Back Shot stream in `src/intelligence/kernel.js`.
 
 ---
 

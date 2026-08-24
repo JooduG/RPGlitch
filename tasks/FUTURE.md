@@ -9,22 +9,22 @@
 
 ## 1. Tactical Tasks
 
-### Phase 1: High-Resolution Quick Shot Instrumentation & Mutex Setup
+### Phase 1: Director Latency Instrumentation & Generation Mutex
 
-- [ ] `task-1.1`: **`RED`** Write unit tests in `src/intelligence/kernel.test.js` asserting director timing capture on `runtime.last_director_ms` and `runtime.director_ms_pool` (ring buffer).
-- [ ] `task-1.2`: **`GREEN`** Implement high-res timing in `src/intelligence/kernel.js` around the quick shot and retries; expose rolling p50/p95 in `runtime.svelte.js`.
-- [ ] `task-1.3`: **`GREEN`** Create lightweight `generation_mutex` in `src/state/runtime.svelte.js` to coordinate foreground vs background LLM calls.
+- [x] `task-1.1`: **`RED`** Unit tests in `src/state/runtime.test.js` asserting Director latency recording (`last_director_ms`, `director_ms_pool`, `director_p50_ms`, `director_p95_ms`) and `generation_mutex` state.
+- [x] `task-1.2`: **`GREEN`** Implement high-resolution timer (`performance.now()`) around Director LLM call in `src/intelligence/kernel.js` and record duration into `runtime.svelte.js` rolling ring buffer.
+- [x] `task-1.3`: **`GREEN`** Expose `generation_mutex` in `src/state/runtime.svelte.js` allowing foreground streams to preempt/yield background tasks.
 
-### Phase 2: Quick Shot Schema Streamlining (`next_action`, `keywords` 1-3, `directors_note`)
+### Phase 2: Streamlined Quick Shot Schema & Prompt Pruning
 
-- [ ] `task-2.1`: **`RED`** Add unit tests in `src/intelligence/director.test.js` asserting normalization of `next_action`, `keywords` (1–3 items), `directors_note` (1–3 lines), and `dynamics_deltas`.
-- [ ] `task-2.2`: **`GREEN`** Update `src/intelligence/prompts.js` to remove `<AVAILABLE_SIGNATURE_COLORS>` from the Director prompt, wire `directors_note` instructions (1–3 lines), and support 1–3 keywords from `<AVAILABLE_KEYWORDS>`.
-- [ ] `task-2.3`: **`GREEN`** Update `src/intelligence/director.js` normalizer for unified `next_action` routing (`speaker`, `genesis`, `epilogue`).
+- [x] `task-2.1`: **`RED`** Unit tests in `src/intelligence/prompts.test.js` & `src/intelligence/director.test.js` verifying the 4-field schema (`next_action`, `keywords` 1–3, `directors_note` 1–3 lines, `dynamics_deltas`), stripping `<AVAILABLE_SIGNATURE_COLORS>` from the Director prompt, and testing normalizers.
+- [x] `task-2.2`: **`GREEN`** Update `DIRECTOR_JSON_SCHEMA` in `src/intelligence/prompts.js` to the streamlined 4-field payload and prune `<AVAILABLE_SIGNATURE_COLORS>`.
+- [x] `task-2.3`: **`GREEN`** Update `src/intelligence/director.js` to normalize `next_action`, cap `keywords` at 3, sanitize `directors_note` to 1–3 lines, and strip legacy promotion/relationship fields.
 
 ### Phase 3: Genesis Inline Branch & Back Shot Pipeline Setup
 
-- [ ] `task-3.1`: **`RED`** Add test verifying `_apply_genesis` executes synchronously when `next_action === "GENESIS"` (passing signature color palette to genesis prompt) before speaker compilation.
-- [ ] `task-3.2`: **`GREEN`** Wire persistence offloading and round-freshness hooks for the Back Shot stream in `src/intelligence/kernel.js`.
+- [x] `task-3.1`: **`RED`** Add test verifying `_apply_genesis` executes synchronously when `next_action === "GENESIS"` (passing signature color palette to genesis prompt) before speaker compilation.
+- [x] `task-3.2`: **`GREEN`** Wire persistence offloading and round-freshness hooks for the Back Shot stream in `src/intelligence/kernel.js`.
 
 ---
 

@@ -13,9 +13,33 @@ import { extract_json_block, parse_think_block } from "./parser.js";
 
 export const STORY_STATUS_VALUES = ["IN_PROGRESS", "CONCLUDED", "COLLAPSED"];
 
+export const NEXT_ACTION_VALUES = ["AI_CHARACTER", "FRACTAL", "GENESIS", "EPILOGUE_CONCLUDED", "EPILOGUE_COLLAPSED"];
+
 const SPEAKER_AI_ALIASES = ["ai", "ai_character", "character", "companion"];
 const SPEAKER_FRACTAL_ALIASES = ["fractal", "world", "narrator", "environment", "scene"];
 const SPEAKER_NPC_PATTERN = /^npc(?::[^\s]+)?$/i;
+
+/**
+ * Normalizes a Director `next_action` into its canonical enum or NPC target.
+ * Unknown values gracefully fall back to "AI_CHARACTER".
+ * @param {any} raw
+ * @returns {string}
+ */
+export function normalize_next_action(raw) {
+  if (typeof raw !== "string") return "AI_CHARACTER";
+  const trimmed = raw.trim();
+  const upper = trimmed.toUpperCase();
+  const lower = trimmed.toLowerCase();
+
+  if (SPEAKER_AI_ALIASES.includes(lower) || upper === "AI_CHARACTER") return "AI_CHARACTER";
+  if (SPEAKER_FRACTAL_ALIASES.includes(lower) || upper === "FRACTAL") return "FRACTAL";
+  if (upper === "GENESIS") return "GENESIS";
+  if (upper === "EPILOGUE_CONCLUDED") return "EPILOGUE_CONCLUDED";
+  if (upper === "EPILOGUE_COLLAPSED") return "EPILOGUE_COLLAPSED";
+  if (SPEAKER_NPC_PATTERN.test(trimmed)) return trimmed;
+
+  return "AI_CHARACTER";
+}
 
 /**
  * Coerces a raw Director `speaker` value into the canonical delegation target.
@@ -34,8 +58,23 @@ export function normalize_speaker(raw) {
 }
 
 /**
+ * Sanitizes director's note to 1-3 lines string.
+ * @param {any} raw
+ * @returns {string}
+ */
+export function normalize_directors_note(raw) {
+  if (typeof raw !== "string") return "";
+  const lines = raw
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .slice(0, 3);
+  return lines.join("\n").slice(0, 300);
+}
+
+/**
  * Normalizes an entire Director payload with defensive fallbacks for every
- * new schema field. Idempotent and safe on null/non-object input.
+ * schema field. Idempotent and safe on null/non-object input.
  * @param {any} payload
  * @returns {any}
  */
@@ -45,28 +84,43 @@ export function normalize_director_data(payload) {
     ? base.keywords
         .filter((k) => typeof k === "string" && k.trim())
         .map((k) => k.trim())
-        .slice(0, 2)
+        .slice(0, 3)
     : [];
-  const story_status = STORY_STATUS_VALUES.includes(base.story_status) ? base.story_status : "IN_PROGRESS";
-  const speaker = normalize_speaker(base.speaker);
-  // Preserve the delegated NPC's id (`npc:ben1` → `ben1`) so the kernel can
-  // resolve the entity after speaker normalization collapses it to "npc".
-  // Idempotent under re-normalization: a bare "npc" speaker (colon already
-  // stripped) falls back to any previously-preserved npc_id instead of
-  // clobbering it with the literal "npc" string.
-  const raw_speaker = typeof base.speaker === "string" ? base.speaker : "";
-  const npc_id = speaker === "npc" ? (raw_speaker.includes(":") ? strip_npc_id(raw_speaker) : base.npc_id || "") : "";
-  return {
+
+  const raw_action = base.next_action || base.speaker;
+  const next_action = normalize_next_action(raw_action);
+  const speaker = next_action.startsWith("npc") ? "npc" : next_action === "FRACTAL" ? "fractal" : "ai";
+  const npc_id = speaker === "npc" ? strip_npc_id(next_action) : "";
+
+  const story_status =
+    next_action === "EPILOGUE_CONCLUDED"
+      ? "CONCLUDED"
+      : next_action === "EPILOGUE_COLLAPSED"
+        ? "COLLAPSED"
+        : STORY_STATUS_VALUES.includes(base.story_status)
+          ? base.story_status
+          : "IN_PROGRESS";
+
+  const directors_note = normalize_directors_note(base.directors_note || base.directive);
+
+  const result = {
     ...base,
+    next_action,
     speaker,
     npc_id,
     keywords,
+    directors_note,
     story_status,
     in_scene_change: normalize_in_scene_change(base.in_scene_change),
-    promotions: normalize_promotions(base.promotions),
-    relationships: normalize_relationships(base.relationships),
-    genesis: normalize_genesis(base.genesis),
+    dynamics_deltas: base.dynamics_deltas || {},
   };
+
+  // Strip legacy fields from Track 1 schema output
+  delete result.promotions;
+  delete result.relationships;
+  delete result.genesis;
+
+  return result;
 }
 
 /**

@@ -106,6 +106,16 @@ function create_runtime_store() {
   // with the sentinel or the cooldown gate stays permanently open.
   let last_auto_image_round = $state(-1);
 
+  // ⚡ Director Quick Shot Telemetry (Rolling Latency Ring Buffer)
+  let last_director_ms = $state(0);
+  /** @type {number[]} */
+  let director_ms_pool = $state([]);
+  const DIRECTOR_MS_POOL_CAP = 50;
+
+  // 🔒 Generation Mutex (Coordinates foreground streams vs background workers)
+  let is_foreground_generating = $state(false);
+  let is_background_generating = $state(false);
+
   /** @type {(() => void) | null} */
   let runtime_cleanup = null;
 
@@ -242,6 +252,60 @@ function create_runtime_store() {
     },
     set last_auto_image_round(val) {
       last_auto_image_round = val;
+    },
+
+    // ⚡ Director Quick Shot Telemetry
+    get last_director_ms() {
+      return last_director_ms;
+    },
+    get director_ms_pool() {
+      return director_ms_pool;
+    },
+    get director_p50_ms() {
+      if (!director_ms_pool.length) return 0;
+      const sorted = [...director_ms_pool].sort((a, b) => a - b);
+      return sorted[Math.floor(sorted.length * 0.5)] || 0;
+    },
+    get director_p95_ms() {
+      if (!director_ms_pool.length) return 0;
+      const sorted = [...director_ms_pool].sort((a, b) => a - b);
+      return sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * 0.95))] || 0;
+    },
+    /**
+     * Records a director execution latency sample into the rolling ring buffer.
+     * @param {number} ms
+     */
+    record_director_latency(ms) {
+      const valid = Math.max(0, Number(ms) || 0);
+      last_director_ms = valid;
+      const next = [...director_ms_pool, valid];
+      if (next.length > DIRECTOR_MS_POOL_CAP) {
+        next.shift();
+      }
+      director_ms_pool = next;
+    },
+
+    // 🔒 Generation Mutex (Coordinates foreground streams vs background workers)
+    get is_foreground_generating() {
+      return is_foreground_generating;
+    },
+    get is_background_generating() {
+      return is_background_generating;
+    },
+    acquire_foreground_generation() {
+      is_foreground_generating = true;
+    },
+    release_foreground_generation() {
+      is_foreground_generating = false;
+    },
+    acquire_background_generation() {
+      is_background_generating = true;
+    },
+    release_background_generation() {
+      is_background_generating = false;
+    },
+    can_start_background_generation() {
+      return !is_foreground_generating;
     },
     get active_story() {
       if (!simulation_story_id) return null;

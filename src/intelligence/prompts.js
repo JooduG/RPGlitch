@@ -8,7 +8,7 @@
 import { ind, prompt_escape, state_bridge, escape_xml, physical_to_xml, parse_relational_vector } from "@utils";
 import { NARRATIVE_STYLES, PROTOCOL_LIBRARY, build_available_keywords_xml, build_somatic_directives_block, get_style_keywords } from "@data";
 import { DYNAMICS_META, build_signals_xml } from "./dynamics.js";
-import { ENTITY_CATALOG, ENTITY_FRAGMENTS, TEMPORAL_CONTRACT, SIGNATURE_COLORS } from "@data";
+import { ENTITY_CATALOG, ENTITY_FRAGMENTS, TEMPORAL_CONTRACT } from "@data";
 import { clean_xml, collapse_history, strip_cognition_blocks } from "./parser.js";
 import { temporal_engine, resolve_vector_pool } from "./temporal.js";
 
@@ -28,30 +28,12 @@ const SYSTEM_HEAD_CACHE_CAP = 16;
 // --- JSON Schema Templates ---
 
 const DIRECTOR_JSON_SCHEMA = `{
-  "_thought_process": "<ONE short sentence: the key state change this turn>",
-  "speaker": "'ai' (the AI_CHARACTER speaks) | 'fractal' (the FRACTAL narrates the scene/setting) | 'npc:<id>' (an in-scene NPC from <ROSTER>) — default 'ai'",
-  "keywords": "1-2 keywords chosen from <AVAILABLE_KEYWORDS> matching the emotional undercurrent (or [])",
-  "story_status": "'IN_PROGRESS' | 'CONCLUDED' (overarching story quest won) | 'COLLAPSED' (quest lost irrevocably) — default 'IN_PROGRESS'",
-  "in_scene_change": { "enter": ["npc:<id>"], "exit": ["npc:<id>"] },
-  "promotions": [ { "id": "npc:<id>", "tier": 2 } ],
-  "relationships": "[Optional: relational edges that CHANGED this turn, as 'Source → Target: dynamic' (betrayal, rescue, alliance, rivalry, debt). Names MUST match <ROSTER>/<SCENE_ROSTER> exactly. Omit when the web is unchanged.]",
-  "genesis": "[Optional: request a brand-new recurring NPC only when NO <ROSTER> member fits the role — { "name": "...", "description": "...", "signature_color": "one from <AVAILABLE_SIGNATURE_COLORS>" }, max 2. Never for an existing cast member.]",
-  "directive": "<Optional in-character stage direction for the AI_CHARACTER (under 30 words, or empty string). Never reveal hidden agendas as fact.>",
-  "AI_CHARACTER": {
-    "state_append": {
-      "physical": "New physical changes (e.g. bleeding, or explicit clothing updates like [SHIRT: none]), or empty string.",
-      "non_physical": "Immediate internal shifts or emotional reactions, or empty string."
-    },
-    "dynamics_deltas": { "chaos": 0, "intensity": 0, "openness": 0, "affinity": 0 }
-  },
-  "USER_PERSONA": {
-    "state_append": { "physical": "", "non_physical": "" }
-  },
-  "FRACTAL": {
-    "state_append": { "physical": "", "non_physical": "" },
-    "dynamics_deltas": { "entropy": 0, "velocity": 0 }
-  },
-  "trigger_image": "false"
+  "_thought_process": "<ONE short sentence: tactical intent & state delta>",
+  "next_action": "'AI_CHARACTER' (AI speaks) | 'FRACTAL' (Fractal narrates) | 'npc:<id>' (in-scene NPC speaks) | 'GENESIS' (mint brand-new NPC) | 'EPILOGUE_CONCLUDED' (quest won) | 'EPILOGUE_COLLAPSED' (quest lost)",
+  "keywords": "1-3 keywords from <AVAILABLE_KEYWORDS> (e.g. ['vulnerability', 'cinematic_shot']) or []",
+  "directors_note": "1-3 lines of unseen acting/staging directives for the speaker",
+  "dynamics_deltas": { "chaos": 0, "intensity": 0, "openness": 0, "affinity": 0 },
+  "in_scene_change": { "enter": ["npc:<id>"], "exit": ["npc:<id>"] }
 }`;
 
 const MEMORY_JSON_SCHEMA = `{
@@ -498,13 +480,8 @@ function render_director({ round, entities, input, render_accessors, compressed_
 
   <AVAILABLE_KEYWORDS>
     ${build_available_keywords_xml(active_style_keywords)}
-    Select 1-2 of these when the turn carries a matching emotional undercurrent (or none when neutral). Never invent keywords outside this list.
+    Select 1-3 of these when the turn carries a matching emotional undercurrent or visual beat (or [] when neutral). Never invent keywords outside this list.
   </AVAILABLE_KEYWORDS>
-
-  <AVAILABLE_SIGNATURE_COLORS>
-    ${SIGNATURE_COLORS.map((c) => `- ${c}`).join("\n")}
-    Choose an exact name from this list for any new NPC you request in "genesis". Never invent colors outside this list.
-  </AVAILABLE_SIGNATURE_COLORS>
 
   <ACTIVE_CHARACTERS>
     <AI_CHARACTER name="${escape_xml(entities?.AI?.name || "AI")}"${format_dynamics_attrs(compressed_snapshot?.ai?.dynamics)}>
@@ -556,16 +533,15 @@ ${(() => {
 })()}
 <TASK>
     Evaluate state mutations caused by ${input?.trim() ? "<USER_ACTION>" : "the current situation"}.
-    Decide the active speaker: "ai" (the AI_CHARACTER speaks), "fractal" (the FRACTAL narrates the scene/setting), or "npc:<id>" (a specific in-scene NPC from <ROSTER>). Default "ai".${Number(round) <= 1 ? ' IMPORTANT: Round 1 directly follows the Fractal prologue, so the active speaker MUST be "ai" (the AI_CHARACTER) to establish dialogue/character presence.' : ""}
+    Decide "next_action": "AI_CHARACTER" (AI speaks), "FRACTAL" (Fractal scene-narrator speaks), "npc:<id>" (in-scene NPC speaks), "GENESIS" (mint a new NPC), "EPILOGUE_CONCLUDED" (quest victory), or "EPILOGUE_COLLAPSED" (quest loss). Default "AI_CHARACTER".${Number(round) <= 1 ? ' IMPORTANT: Round 1 directly follows the Fractal prologue, so next_action MUST be "AI_CHARACTER".' : ""}
+    Select 1-3 "keywords" from <AVAILABLE_KEYWORDS> matching the emotional tension or visual beats (or [] when neutral).
+    Provide 1-3 lines of "directors_note" as unseen acting/staging guidance for the speaker.
+    Output physics shifts in "dynamics_deltas" (e.g. {"intensity": 10, "openness": -5}).
     Track the Stage Spotlight: when an NPC enters or leaves the room, move it with "in_scene_change" ("enter"/"exit" accept ids with or without the "npc:" prefix; leave both empty unless the stage changes).
-    Promote recurring NPCs: when an NPC's role becomes sustained or consequential, list it in "promotions" (tier 2 = recurring contact, tier 3 = major co-star with full memory) — but never invent ids absent from <ROSTER>.
-    Update the relational web: when a bond between two entities meaningfully shifts (betrayal, rescue, alliance, rivalry, debt), list it in "relationships" as a directed edge "Source → Target: dynamic" using the EXACT names from <ROSTER>/<SCENE_ROSTER>; omit the field entirely when the web is unchanged.
-    Genesis: when an entirely NEW recurring character enters the scene and NO <ROSTER> member fits the role, request it in "genesis" (name + one-line description + a signature_color chosen EXACTLY from <AVAILABLE_SIGNATURE_COLORS>; max 2 per turn). Never request an entity that is already in <ROSTER>.
     ${non_verbal_environmental_hint(input)}
-    Evaluate whether the overarching story quest reached victory (story_status "CONCLUDED") or irrevocable tragedy ("COLLAPSED"); otherwise keep "IN_PROGRESS".
     Record your reasoning inside "_thought_process" and return a single valid JSON object following this exact schema:
     ${DIRECTOR_JSON_SCHEMA}
-    Obey all active <PROTOCOLS>. Keep output under 800 characters and return strictly JSON.
+    Obey all active <PROTOCOLS>. Keep output under 400 characters and return strictly JSON.
 </TASK>
   `).trim();
 
@@ -587,9 +563,10 @@ function render_character({
   const pov_protocol = resolve_pov_protocol(entities?.AI);
   const has_user_action = !!input?.trim();
 
-  const director_note = director_data?.directive?.trim()
+  const raw_note = (director_data?.directors_note || director_data?.directive || "").trim();
+  const director_note = raw_note
     ? `<DIRECTOR_NOTE>
-      ${ind(escape_xml(director_data.directive.trim()), 6)}
+      ${ind(escape_xml(raw_note), 6)}
       Treat this as an unseen stage direction: weave it into your behavior subtly and in character. Never mention the note, never break the scene, and never present an hidden agenda as known fact.
     </DIRECTOR_NOTE>
     `

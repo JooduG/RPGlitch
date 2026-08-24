@@ -11,6 +11,50 @@ import {
   STORY_STATUS_VALUES,
 } from "./director.js";
 
+describe("normalize_director_quick_shot (Track 1 Schema)", () => {
+  it("normalizes next_action correctly for AI, Fractal, NPC, Genesis, and Epilogues", () => {
+    expect(normalize_director_data({ next_action: "AI_CHARACTER" }).next_action).toBe("AI_CHARACTER");
+    expect(normalize_director_data({ next_action: "ai" }).next_action).toBe("AI_CHARACTER");
+    expect(normalize_director_data({ next_action: "fractal" }).next_action).toBe("FRACTAL");
+    expect(normalize_director_data({ next_action: "FRACTAL" }).next_action).toBe("FRACTAL");
+    expect(normalize_director_data({ next_action: "npc:mira" }).next_action).toBe("npc:mira");
+    expect(normalize_director_data({ next_action: "GENESIS" }).next_action).toBe("GENESIS");
+    expect(normalize_director_data({ next_action: "genesis" }).next_action).toBe("GENESIS");
+    expect(normalize_director_data({ next_action: "EPILOGUE_CONCLUDED" }).next_action).toBe("EPILOGUE_CONCLUDED");
+    expect(normalize_director_data({ next_action: "EPILOGUE_COLLAPSED" }).next_action).toBe("EPILOGUE_COLLAPSED");
+
+    // Unknown or empty falls back to AI_CHARACTER
+    expect(normalize_director_data({ next_action: "unknown_void" }).next_action).toBe("AI_CHARACTER");
+    expect(normalize_director_data({}).next_action).toBe("AI_CHARACTER");
+  });
+
+  it("caps keywords to 1-3 elements and preserves valid tags", () => {
+    const data = normalize_director_data({
+      keywords: ["vulnerability", "defiance", "cinematic_shot", "extra_tag"],
+    });
+    expect(data.keywords).toEqual(["vulnerability", "defiance", "cinematic_shot"]);
+  });
+
+  it("sanitizes directors_note to 1-3 lines string", () => {
+    const data = normalize_director_data({
+      directors_note: "Line 1: Glance over.\nLine 2: Lower voice.\nLine 3: Step back.\nLine 4: Ignored line.",
+    });
+    expect(data.directors_note.split("\n").length).toBeLessThanOrEqual(3);
+    expect(data.directors_note).toContain("Line 1: Glance over.");
+  });
+
+  it("omits legacy promotions and relationships from director quick shot output", () => {
+    const data = normalize_director_data({
+      next_action: "AI_CHARACTER",
+      keywords: ["vulnerability"],
+      directors_note: "Speak softly.",
+      dynamics_deltas: { intensity: 10 },
+    });
+    expect(data.promotions).toBeUndefined();
+    expect(data.relationships).toBeUndefined();
+  });
+});
+
 describe("normalize_speaker", () => {
   it("maps ai variants to ai", () => {
     for (const raw of ["ai", "AI", "AI_CHARACTER", "character", "ai_character", "  ai  "]) {
@@ -56,12 +100,11 @@ describe("normalize_director_data", () => {
     expect(normalized.keywords).toEqual(["shame", "stoic_pain"]);
     expect(normalized.story_status).toBe("CONCLUDED");
     expect(normalized.in_scene_change).toEqual({ enter: [], exit: [] });
-    expect(normalized.promotions).toEqual([]);
   });
 
-  it("caps keywords at 2 and filters non-strings/empties", () => {
+  it("caps keywords at 3 and filters non-strings/empties", () => {
     const normalized = normalize_director_data({ keywords: ["shame", "  ", "fear", null, "grief", 42, "betrayal"] });
-    expect(normalized.keywords).toEqual(["shame", "fear"]);
+    expect(normalized.keywords).toEqual(["shame", "fear", "grief"]);
   });
 
   it("drops out-of-range story_status values to IN_PROGRESS", () => {
@@ -159,19 +202,16 @@ describe("normalize_promotions", () => {
 });
 
 describe("normalize_director_data (Stage Spotlight)", () => {
-  it("passes through a fully-formed in_scene_change and promotions", () => {
+  it("passes through a fully-formed in_scene_change", () => {
     const normalized = normalize_director_data({
       in_scene_change: { enter: ["npc:elias"], exit: ["npc:old-guard"] },
-      promotions: [{ id: "npc:elias", tier: 3 }],
     });
     expect(normalized.in_scene_change).toEqual({ enter: ["elias"], exit: ["old-guard"] });
-    expect(normalized.promotions).toEqual([{ id: "elias", tier: 3 }]);
   });
 
   it("defaults both stage fields when absent", () => {
     const normalized = normalize_director_data({});
     expect(normalized.in_scene_change).toEqual({ enter: [], exit: [] });
-    expect(normalized.promotions).toEqual([]);
   });
 });
 
@@ -235,22 +275,5 @@ describe("normalize_genesis (World-Cast Expansion)", () => {
     expect(normalize_genesis(undefined)).toEqual([]);
     expect(normalize_genesis({ name: "Mira" })).toEqual([]);
     expect(normalize_genesis([null, 42])).toEqual([]);
-  });
-});
-
-describe("normalize_director_data (Relational Mesh + Genesis pass-through)", () => {
-  it("normalizes relationships and genesis alongside the stage fields", () => {
-    const normalized = normalize_director_data({
-      relationships: ["Viper → Mira: alliance", "plain prose"],
-      genesis: [{ name: "Mira", role_tier: 2 }, { role_tier: 3 }],
-    });
-    expect(normalized.relationships).toEqual(["Viper → Mira: alliance"]);
-    expect(normalized.genesis).toEqual([{ name: "Mira", description: "", role_tier: 2, voice_register: "", signature_color: "" }]);
-  });
-
-  it("defaults relationships and genesis when absent", () => {
-    const normalized = normalize_director_data({});
-    expect(normalized.relationships).toEqual([]);
-    expect(normalized.genesis).toEqual([]);
   });
 });

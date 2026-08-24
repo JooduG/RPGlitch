@@ -267,4 +267,54 @@ describe("runtime world-cast hydration (track-npc-expansion)", () => {
     runtime.in_scene_npc_ids = ["npc-mira", "npc-mira", "npc-elias"];
     expect(runtime.in_scene_npc_ids).toEqual(["npc-mira", "npc-elias"]);
   });
+
+  describe("Director Quick Shot Telemetry & Generation Mutex", () => {
+    it("records director execution latency into last_director_ms and a rolling pool", () => {
+      expect(runtime.last_director_ms).toBe(0);
+      expect(runtime.director_ms_pool).toEqual([]);
+      expect(runtime.director_p50_ms).toBe(0);
+      expect(runtime.director_p95_ms).toBe(0);
+
+      runtime.record_director_latency(250);
+      expect(runtime.last_director_ms).toBe(250);
+      expect(runtime.director_ms_pool).toEqual([250]);
+      expect(runtime.director_p50_ms).toBe(250);
+      expect(runtime.director_p95_ms).toBe(250);
+
+      // Record several samples
+      const samples = [100, 200, 300, 400, 500];
+      samples.forEach((ms) => runtime.record_director_latency(ms));
+      expect(runtime.last_director_ms).toBe(500);
+      expect(runtime.director_ms_pool.length).toBe(6);
+      expect(runtime.director_p50_ms).toBeGreaterThanOrEqual(250);
+      expect(runtime.director_p95_ms).toBeGreaterThanOrEqual(400);
+    });
+
+    it("coordinates generation_mutex between foreground and background operations", () => {
+      expect(runtime.is_foreground_generating).toBe(false);
+      expect(runtime.is_background_generating).toBe(false);
+
+      runtime.acquire_foreground_generation();
+      expect(runtime.is_foreground_generating).toBe(true);
+
+      // Background attempt yields or is marked blocked
+      expect(runtime.can_start_background_generation()).toBe(false);
+
+      runtime.release_foreground_generation();
+      expect(runtime.is_foreground_generating).toBe(false);
+      expect(runtime.can_start_background_generation()).toBe(true);
+
+      runtime.acquire_background_generation();
+      expect(runtime.is_background_generating).toBe(true);
+
+      // Foreground takes precedence and forces background yield
+      runtime.acquire_foreground_generation();
+      expect(runtime.is_foreground_generating).toBe(true);
+
+      runtime.release_foreground_generation();
+      runtime.release_background_generation();
+      expect(runtime.is_foreground_generating).toBe(false);
+      expect(runtime.is_background_generating).toBe(false);
+    });
+  });
 });

@@ -425,8 +425,8 @@ describe("prompt_builder (Refactored)", () => {
       const snapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} } };
 
       const result = prompt_builder.build_director_prompt(payload, snapshot);
-      expect(result.task).toContain('"directive"');
-      expect(result.task).toContain("stage direction");
+      expect(result.task).toContain('"directors_note"');
+      expect(result.task).toContain("unseen acting/staging guidance");
       expect(result.system).toContain("PHYSICAL CAUSALITY LAW");
     });
   });
@@ -464,32 +464,18 @@ describe("prompt_builder (Refactored)", () => {
       }
     });
 
-    it("exposes the expanded schema fields (speaker, keywords, story_status) in the Director task", () => {
+    it("exposes the next_action, keywords, and directors_note schema fields in the Director task", () => {
       const result = prompt_builder.build_director_prompt(base_payload, base_snapshot);
-      expect(result.task).toContain('"speaker"');
+      expect(result.task).toContain('"next_action"');
       expect(result.task).toContain('"keywords"');
-      expect(result.task).toContain('"story_status"');
-      expect(result.task).toContain("CONCLUDED");
-      expect(result.task).toContain("COLLAPSED");
+      expect(result.task).toContain('"directors_note"');
+      expect(result.task).toContain("EPILOGUE_CONCLUDED");
+      expect(result.task).toContain("EPILOGUE_COLLAPSED");
     });
 
-    it("exposes the relational-mesh and genesis schema fields in the Director task", () => {
+    it("verifies <AVAILABLE_SIGNATURE_COLORS> is stripped from Director prompt", () => {
       const result = prompt_builder.build_director_prompt(base_payload, base_snapshot);
-      expect(result.task).toContain('"relationships"');
-      expect(result.task).toContain("Source → Target");
-      expect(result.task).toContain('"genesis"');
-      expect(result.task).toContain("brand-new recurring NPC");
-    });
-
-    it("exposes <AVAILABLE_SIGNATURE_COLORS> and wires it into the genesis schema", () => {
-      const result = prompt_builder.build_director_prompt(base_payload, base_snapshot);
-      expect(result.system).toContain("<AVAILABLE_SIGNATURE_COLORS>");
-      for (const color of ["Adrenaline Pink", "Proud Purple", "Twilight Violet"]) {
-        expect(result.system).toContain(`- ${color}`);
-      }
-      // Genesis drafts must name a color from the registry, not invent one.
-      expect(result.task).toContain("signature_color");
-      expect(result.task).toContain("<AVAILABLE_SIGNATURE_COLORS>");
+      expect(result.system).not.toContain("<AVAILABLE_SIGNATURE_COLORS>");
     });
 
     it("injects <SOMATIC_DIRECTIVES> into the character prompt when the Director selects keywords", () => {
@@ -1266,10 +1252,9 @@ describe("World Cast & Stage Spotlight prompt blocks (track-npc-expansion)", () 
     expect(result.system).toContain("<EPISTEMIC_RULES>");
   });
 
-  it("render_director() task teaches the Stage Spotlight schema (in_scene_change / promotions / npc speaker)", () => {
+  it("render_director() task teaches the Stage Spotlight schema (in_scene_change / npc next_action)", () => {
     const result = prompt_builder.build_director_prompt(base_payload(), base_snapshot);
     expect(result.task).toContain("in_scene_change");
-    expect(result.task).toContain("promotions");
     expect(result.task).toContain("npc:<id>");
   });
 

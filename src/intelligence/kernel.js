@@ -14,13 +14,7 @@ import { strip_cognition_blocks, check_refusal } from "./parser.js";
 import { llm_service, looks_truncated, raw_to_text, raw_stop_reason } from "@platform";
 import { context_builder } from "./context.js";
 import { dynamics_engine, compute_deltas } from "./dynamics.js";
-import {
-  normalize_director_data,
-  parse_director_json,
-  resolve_speaker_engine,
-  synthesize_director_fallback,
-  scrub_state_mutations,
-} from "./director.js";
+import { normalize_director_data, parse_director_json, synthesize_director_fallback } from "./director.js";
 import { prompt_builder, render_terse_director_task } from "./prompts.js";
 import { sort_into_profile, apply_profile_to_entity } from "./profile-pipeline.js";
 import { build_update_entry, build_retrieval } from "./telemetry.js";
@@ -658,6 +652,7 @@ export const gamemaster = {
         );
       };
 
+      const director_start_time = performance.now();
       const director_raw = await director_call(false);
       let director_text = raw_to_text(director_raw);
       let director_data = parse_director_json(director_text) || {};
@@ -684,6 +679,11 @@ export const gamemaster = {
         }
       }
 
+      const director_duration_ms = Math.round(performance.now() - director_start_time);
+      if (typeof state_bridge.runtime?.record_director_latency === "function") {
+        state_bridge.runtime.record_director_latency(director_duration_ms);
+      }
+
       // MINIMAL-MUTATION FALLBACK — if the Director STILL failed to produce a
       // valid payload, synthesize enough mutations that memory & dynamics never
       // freeze for this turn (the pre-fix behavior that caused the 6-round stalls).
@@ -696,57 +696,52 @@ export const gamemaster = {
       director_data = normalize_director_data(director_data);
 
       // 3.5. STAGE SPOTLIGHT — apply the Director's scene choreography (enter/
-      // exit) and tier promotions BEFORE mutations so NPC salience, the roster,
-      // and the speaker engine all reflect this turn's stage.
+      // exit) BEFORE mutations so NPC salience, the roster, and the speaker
+      // engine all reflect this turn's stage.
       await this._apply_in_scene_change(state_bridge, director_data.in_scene_change);
-      if (Array.isArray(director_data.promotions) && director_data.promotions.length) {
-        await this._apply_promotions(state_bridge, director_data.promotions);
-      }
-      if (Array.isArray(director_data.relationships) && director_data.relationships.length) {
-        await this._apply_relationships(state_bridge, director_data.relationships);
-      }
-      if (Array.isArray(director_data.genesis) && director_data.genesis.length) {
-        await this._apply_genesis(state_bridge, director_data.genesis);
-      }
 
-      // 4.1 Apply State Mutations (Director-scrubbed so clichéd somatic idioms
-      // never seed prompt history for future turns)
-      const entity_mutations = scrub_state_mutations(director_data.mutations || director_data);
+      // 3.6. GENESIS DISPATCH (When next_action === 'GENESIS')
+      let genesis_spawned_npc = null;
+      if (director_data.next_action === "GENESIS") {
+        state_bridge.app.log("[GameMaster] ✨ Genesis triggered by Director Quick Shot. Synthesizing new character...", "system");
+        try {
+          const scene_context = [
+            state_bridge.runtime?.active_fractal?.name ? `Setting: ${state_bridge.runtime.active_fractal.name}` : "",
+            state_bridge.runtime?.active_fractal?.present?.physical || "",
+            state_bridge.runtime?.active_fractal?.present?.non_physical || "",
+          ]
+            .filter(Boolean)
+            .join(" — ");
 
-      if (entity_mutations.AI_CHARACTER && state_bridge.runtime.active_ai) {
-        temporal_engine.apply_state_mutations(state_bridge.runtime.active_ai, entity_mutations.AI_CHARACTER);
-        if (entity_mutations.AI_CHARACTER.dynamics_deltas) {
-          if (!snapshot.ai) snapshot.ai = {};
-          if (!snapshot.ai.dynamics) snapshot.ai.dynamics = { ...state_bridge.runtime.ai };
-          Object.entries(entity_mutations.AI_CHARACTER.dynamics_deltas).forEach(([k, delta]) => {
-            const val = Number(delta);
-            if (!isNaN(val)) {
-              ai_delta_axes.add(k);
-              const current = snapshot.ai.dynamics[k] || 50;
-              snapshot.ai.dynamics[k] = Math.max(1, Math.min(100, current + val));
-            }
+          const genesis_name = director_data._thought_process
+            ? director_data._thought_process
+                .slice(0, 30)
+                .replace(/[^a-zA-Z0-9 ]/g, "")
+                .trim() || "Stranger"
+            : "Stranger";
+
+          genesis_spawned_npc = await this.spawn_npc(state_bridge, {
+            name: genesis_name,
+            description: director_data.directors_note || "A mysterious figure appearing in the scene.",
+            scene_context,
           });
+        } catch (err) {
+          state_bridge.app.log(`[GameMaster] Genesis synthesis error: ${err?.message || err}`, "warn");
         }
       }
 
-      if (entity_mutations.USER_PERSONA && state_bridge.runtime.active_user) {
-        temporal_engine.apply_state_mutations(state_bridge.runtime.active_user, entity_mutations.USER_PERSONA);
-      }
-
-      if (entity_mutations.FRACTAL && state_bridge.runtime.active_fractal) {
-        temporal_engine.apply_state_mutations(state_bridge.runtime.active_fractal, entity_mutations.FRACTAL);
-        if (entity_mutations.FRACTAL.dynamics_deltas) {
-          if (!snapshot.fractal) snapshot.fractal = {};
-          if (!snapshot.fractal.dynamics) snapshot.fractal.dynamics = { ...state_bridge.runtime.fractal };
-          Object.entries(entity_mutations.FRACTAL.dynamics_deltas).forEach(([k, delta]) => {
-            const val = Number(delta);
-            if (!isNaN(val)) {
-              fractal_delta_axes.add(k);
-              const current = snapshot.fractal.dynamics[k] || 50;
-              snapshot.fractal.dynamics[k] = Math.max(1, Math.min(100, current + val));
-            }
-          });
-        }
+      // 4.1 Apply Dynamics Deltas
+      if (director_data.dynamics_deltas && state_bridge.runtime.active_ai) {
+        if (!snapshot.ai) snapshot.ai = {};
+        if (!snapshot.ai.dynamics) snapshot.ai.dynamics = { ...state_bridge.runtime.ai };
+        Object.entries(director_data.dynamics_deltas).forEach(([k, delta]) => {
+          const val = Number(delta);
+          if (!isNaN(val)) {
+            ai_delta_axes.add(k);
+            const current = snapshot.ai.dynamics[k] || 50;
+            snapshot.ai.dynamics[k] = Math.max(1, Math.min(100, current + val));
+          }
+        });
       }
 
       // 4.2. GRAVITY SETTLEMENT — after the Director's explicit deltas, so axes it
@@ -767,28 +762,28 @@ export const gamemaster = {
         fractal_delta_axes,
       );
 
-      // 4.4. ACTIVE SPEAKER RESOLUTION — the Director delegates execution to the
-      // AI_CHARACTER (default), the FRACTAL world engine (build_narrator), or a
-      // delegated NPC (build_npc_prompt over the in-scene world cast). The
-      // delegated identity drives the reactive "thinking" state so the UI
-      // badge/avatar mirrors whoever is speaking.
-      // In Round 1 (first turn after prologue), the speaker is guaranteed to be AI unless an explicit NPC was chosen.
+      // 4.4. ACTIVE SPEAKER RESOLUTION — derived directly from next_action
       const current_turn_round = state_bridge.runtime.round || 0;
-      const raw_speaker = director_data.speaker || "ai";
-      const speaker = current_turn_round <= 1 && raw_speaker === "fractal" ? "ai" : raw_speaker;
-      const speaker_engine = resolve_speaker_engine(speaker);
+      let target_action = director_data.next_action || "AI_CHARACTER";
+      if (current_turn_round <= 1 && target_action === "FRACTAL") {
+        target_action = "AI_CHARACTER";
+      }
+
       let npc_entity = null;
-      if (speaker_engine === "npc") {
-        const npc_id = director_data.npc_id || String(speaker).replace(/^npc:/i, "");
+      let uses_narrator_engine = false;
+
+      if (target_action === "GENESIS" && genesis_spawned_npc) {
+        npc_entity = genesis_spawned_npc;
+      } else if (target_action === "FRACTAL") {
+        uses_narrator_engine = true;
+      } else if (target_action.startsWith("npc")) {
+        const npc_id = director_data.npc_id || target_action.replace(/^npc:/i, "");
         npc_entity = this._resolve_npc_entity(state_bridge, npc_id);
         if (!npc_entity) {
-          state_bridge.app.log(
-            `[GameMaster] Director delegated the turn to "${speaker}" but that NPC is not in the world cast — falling back to the AI character.`,
-            "warn",
-          );
+          state_bridge.app.log(`[GameMaster] Director delegated to "${target_action}" but NPC not found — falling back to AI character.`, "warn");
         }
       }
-      const uses_narrator_engine = speaker_engine === "narrator";
+
       const generation_role = uses_narrator_engine ? "fractal" : "ai";
       const generation_entity = npc_entity || (uses_narrator_engine ? state_bridge.runtime.active_fractal : state_bridge.runtime.active_ai);
       const generation_name = generation_entity?.name || (npc_entity ? "NPC" : uses_narrator_engine ? "Fractal" : "AI");
@@ -812,7 +807,7 @@ export const gamemaster = {
       let final_meta = { ...meta };
       final_meta.ai = snapshot.ai?.dynamics;
       final_meta.fractal = snapshot.fractal?.dynamics;
-      final_meta.mutations = entity_mutations;
+      final_meta.mutations = director_data.dynamics_deltas || {};
 
       const clean_think = (t) =>
         String(t || "")

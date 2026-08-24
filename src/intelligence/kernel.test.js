@@ -541,7 +541,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
     vi.mocked(prompt_builder.build_epilogue).mockReturnValue({ system: "E", task: "ET" });
     vi.mocked(session_driver.load_log).mockResolvedValue([]);
     vi.mocked(llm_service.generate)
-      .mockResolvedValueOnce('{"story_status":"CONCLUDED","speaker":"ai","keywords":[],"directive":"","trigger_image":"false"}')
+      .mockResolvedValueOnce('{"next_action":"EPILOGUE_CONCLUDED","keywords":[],"directors_note":"","dynamics_deltas":{}}')
       .mockResolvedValueOnce("Final words.")
       .mockResolvedValueOnce("And so it ends.");
 
@@ -587,6 +587,37 @@ describe("gamemaster (Intelligence Kernel)", () => {
     await gamemaster.execute_turn("story-123", { input: "Hello", role: "ai" });
 
     expect(prompt_builder.build_epilogue).not.toHaveBeenCalled();
+  });
+
+  it("execute_turn() records Director execution latency on runtime", async () => {
+    const mock_payload = {
+      input: "Hello",
+      type: "simulation",
+      round: 1,
+      entities: { AI: { name: "Viper" }, USER: { name: "Ghost" }, FRACTAL: { name: "Void" } },
+      view_id: "global",
+      simulation_log: "",
+      raw_messages: [],
+      meta: { timestamp: new Date().toISOString() },
+    };
+
+    const record_spy = vi.fn();
+    state_bridge.runtime.record_director_latency = record_spy;
+
+    vi.mocked(context_builder.build_context).mockResolvedValue(mock_payload);
+    vi.mocked(prompt_builder.build_director_prompt).mockReturnValue({ system: "D", task: "T" });
+    vi.mocked(prompt_builder.build_character_prompt).mockReturnValue({
+      system: "C",
+      task: "T",
+      meta: { ai: {}, fractal: {}, flags: [], vectors: [] },
+    });
+    vi.mocked(llm_service.generate)
+      .mockResolvedValueOnce('{"story_status":"IN_PROGRESS","speaker":"ai","keywords":[],"directive":"","trigger_image":"false"}')
+      .mockResolvedValueOnce("Identified.");
+
+    await gamemaster.execute_turn("story-123", { input: "Hello", role: "ai" });
+
+    expect(record_spy).toHaveBeenCalledWith(expect.any(Number));
   });
 
   it("execute_turn() precomputes the semantic context embedding before prompt building", async () => {
@@ -892,11 +923,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
           JSON.stringify({
             _thought_process: "The room is a trap and the doors are sealed.",
             trigger_image: true,
-            mutations: {
-              AI_CHARACTER: {
-                vector_append: [{ content: " corner Glitch against the sterile walls.", type: "future", weight: 8 }],
-              },
-            },
+            dynamics_deltas: { intensity: 10 },
           }),
         )
         .mockResolvedValueOnce("Identified.");
@@ -906,7 +933,6 @@ describe("gamemaster (Intelligence Kernel)", () => {
       const payload = session_driver.log_system_entry.mock.calls[0][2];
       expect(payload.trigger_image).toBe(true);
       expect(payload.thoughts).toContain("The room is a trap and the doors are sealed.");
-      expect(payload.updates.AI_CHARACTER.vectors.new[0].content).toBe("corner Glitch against the sterile walls.");
     });
 
     it("streams the director's _thought_process as its own think block and preserves the character's own think block", async () => {
@@ -1358,6 +1384,43 @@ describe("NPC world cast (track-npc-expansion)", () => {
     expect(visual_engine.generate).toHaveBeenCalledWith("npc-kaelen-1", expect.objectContaining({ mode: "solo_entity" }));
   });
 
+  it("execute_turn() synthesizes a new character inline and speaks as them when next_action is GENESIS", async () => {
+    const mock_payload = {
+      input: "A stranger steps out from the shadows.",
+      type: "simulation",
+      round: 2,
+      entities: { AI: { name: "Viper" }, USER: { name: "Ghost" }, FRACTAL: { name: "Void" } },
+      view_id: "global",
+      simulation_log: "",
+      raw_messages: [],
+      meta: { timestamp: new Date().toISOString() },
+    };
+
+    vi.mocked(context_builder.build_context).mockResolvedValue(mock_payload);
+    vi.mocked(prompt_builder.build_director_prompt).mockReturnValue({ system: "D", task: "T" });
+    vi.mocked(prompt_builder.build_npc_prompt).mockReturnValue({
+      system: "GENESIS_NPC_PROMPT",
+      task: "GENESIS_NPC_TASK",
+      meta: { ai: {}, fractal: {}, role: "npc", entity_id: "npc-stranger-1" },
+    });
+    vi.mocked(entities.upsert).mockImplementation(async (type, entity) => ({ ...entity, id: "npc-stranger-1", type: "character" }));
+    vi.mocked(stories.get).mockResolvedValue({ id: "story-123", npc_ids: [] });
+
+    vi.mocked(llm_service.generate)
+      .mockResolvedValueOnce(
+        '{"next_action":"GENESIS","keywords":["defiance"],"directors_note":"Approach slowly from the mist.","dynamics_deltas":{}}',
+      )
+      .mockResolvedValueOnce("Who goes there?");
+
+    const spawn_spy = vi.spyOn(gamemaster, "spawn_npc");
+
+    const result = await gamemaster.execute_turn("story-123", { input: "A stranger steps out.", role: "ai" });
+
+    expect(spawn_spy).toHaveBeenCalled();
+    expect(result.response).toBe("Who goes there?");
+    spawn_spy.mockRestore();
+  });
+
   it("execute_turn() delegates the turn to a world-cast NPC when the Director names one", async () => {
     const mock_payload = {
       input: "Who guards the gate?",
@@ -1379,7 +1442,7 @@ describe("NPC world cast (track-npc-expansion)", () => {
       meta: { ai: {}, fractal: {}, role: "npc", entity_id: "ben1" },
     });
     vi.mocked(llm_service.generate)
-      .mockResolvedValueOnce('{"story_status":"IN_PROGRESS","speaker":"npc:ben1","keywords":[],"directive":"","trigger_image":"false"}')
+      .mockResolvedValueOnce('{"next_action":"npc:ben1","keywords":[],"directors_note":"","dynamics_deltas":{}}')
       .mockResolvedValueOnce("I guard the gate. None pass without the Warden's seal.");
 
     const result = await gamemaster.execute_turn("story-123", { input: "Who guards the gate?", role: "ai" });
