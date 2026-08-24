@@ -453,6 +453,7 @@ function render_director({ round, entities, input, render_accessors, compressed_
     "DIRECTOR.CONTINUITY",
     "DIRECTOR.PLOT_DRIVE",
     "DIRECTOR.SPEAKER_ROUTING",
+    "DIRECTOR.TERMINATION",
     "DIRECTOR.IMAGE_TRIGGERS",
     "PRESENT.EMISSION",
   ]
@@ -521,7 +522,7 @@ ${(() => {
 })()}
 <TASK>
     Evaluate state mutations caused by ${input?.trim() ? "<USER_ACTION>" : "the current situation"}.
-    Decide "next_action": "AI_CHARACTER" (AI speaks), "FRACTAL" (Fractal scene-narrator speaks), "npc:<id>" (in-scene NPC speaks), "GENESIS" (mint a new NPC), "EPILOGUE_CONCLUDED" (quest victory), or "EPILOGUE_COLLAPSED" (quest loss). Default "AI_CHARACTER".${Number(round) <= 1 ? ' IMPORTANT: Round 1 directly follows the Fractal prologue, so next_action MUST be "AI_CHARACTER".' : ""}
+    Decide "next_action": "AI_CHARACTER" (AI speaks), "FRACTAL" (Fractal scene-narrator speaks), "npc:<id>" (in-scene NPC speaks), "GENESIS" (mint a new NPC), "EPILOGUE_CONCLUDED" (quest victory/resolution), or "EPILOGUE_COLLAPSED" (fatal defeat, irreversible ruin, terminal entropy >= 85, or protagonist flatline). Default "AI_CHARACTER".${Number(round) <= 1 ? ' IMPORTANT: Round 1 directly follows the Fractal prologue, so next_action MUST be "AI_CHARACTER".' : ""}
     Select 1-3 "keywords" from <AVAILABLE_KEYWORDS> matching the emotional tension or visual beats (or [] when neutral).
     Provide 1-3 lines of "directors_note" as unseen acting/staging guidance for the speaker.
     Output physics shifts in "dynamics_deltas" (e.g. {"intensity": 10, "openness": -5}).

@@ -34,8 +34,8 @@ export function normalize_next_action(raw) {
   if (SPEAKER_AI_ALIASES.includes(lower) || upper === "AI_CHARACTER") return "AI_CHARACTER";
   if (SPEAKER_FRACTAL_ALIASES.includes(lower) || upper === "FRACTAL") return "FRACTAL";
   if (upper === "GENESIS") return "GENESIS";
-  if (upper === "EPILOGUE_CONCLUDED") return "EPILOGUE_CONCLUDED";
-  if (upper === "EPILOGUE_COLLAPSED") return "EPILOGUE_COLLAPSED";
+  if (upper === "EPILOGUE_CONCLUDED" || lower === "concluded") return "EPILOGUE_CONCLUDED";
+  if (upper === "EPILOGUE_COLLAPSED" || lower === "collapsed") return "EPILOGUE_COLLAPSED";
   if (SPEAKER_NPC_PATTERN.test(trimmed)) return trimmed;
 
   return "AI_CHARACTER";

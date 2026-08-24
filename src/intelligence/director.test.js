@@ -22,6 +22,8 @@ describe("normalize_director_quick_shot (Track 1 Schema)", () => {
     expect(normalize_director_data({ next_action: "genesis" }).next_action).toBe("GENESIS");
     expect(normalize_director_data({ next_action: "EPILOGUE_CONCLUDED" }).next_action).toBe("EPILOGUE_CONCLUDED");
     expect(normalize_director_data({ next_action: "EPILOGUE_COLLAPSED" }).next_action).toBe("EPILOGUE_COLLAPSED");
+    expect(normalize_director_data({ next_action: "collapsed" }).next_action).toBe("EPILOGUE_COLLAPSED");
+    expect(normalize_director_data({ next_action: "concluded" }).next_action).toBe("EPILOGUE_CONCLUDED");
 
     // Unknown or empty falls back to AI_CHARACTER
     expect(normalize_director_data({ next_action: "unknown_void" }).next_action).toBe("AI_CHARACTER");

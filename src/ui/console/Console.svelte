@@ -64,7 +64,6 @@
         if (ep?.id != null) await simulation_log.delete_entry(String(ep.id));
       }
       simulation_state.phase = "idle";
-      app.conclusion_status = null;
       if (runtime.story_id) {
         await stories.update(runtime.story_id, { is_concluded: 0, conclusion_status: null });
         await session_driver.set_active(runtime.story_id);

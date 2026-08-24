@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { process_entity_blocks, resolve_entity_name, vector_label } from "./telemetry-format.js";
+import { get_telemetry_label, process_entity_blocks, resolve_entity_name, vector_label } from "./telemetry-format.js";
 
 describe("TelemetryCard Telemetry Logic", () => {
   test("reads the updates shape into per-entity blocks (dynamics + present_mutations + new vectors)", () => {
@@ -242,5 +242,26 @@ describe("TelemetryCard Telemetry Logic", () => {
       { source: "Viper", target: "Ghost", dynamic: "cautious trust" },
       { source: "Viper", target: "Dr. Elias", dynamic: "covert hostility" },
     ]);
+  });
+
+  test("computes dynamic telemetry card titles (Back Shot and Quick Shot)", () => {
+    const runtime = {
+      active_ai: { name: "Lord Benedict Silvers" },
+      active_user: { name: "Glitch" },
+      active_fractal: { name: "Project Tartarus" },
+    };
+
+    // Back shot with turn count
+    expect(get_telemetry_label({ type: "MEMORY_FORMATION", target: "AI_CHARACTER", turns_count: 2 }, runtime)).toBe(
+      "Lord Benedict Silvers — Back Shot from 2 turns",
+    );
+
+    // Back shot without turn count
+    expect(get_telemetry_label({ type: "MEMORY_FORMATION", target: "user" }, runtime)).toBe("Glitch — Back Shot");
+
+    // Default simulation update / Quick Shot
+    expect(get_telemetry_label({ type: "DYNAMICS_DELTA" }, runtime)).toBe("Quick Shot");
+
+    expect(get_telemetry_label({}, runtime)).toBe("Quick Shot");
   });
 });

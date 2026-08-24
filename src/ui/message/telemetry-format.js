@@ -16,7 +16,7 @@ const ENTITY_KEYS = {
  * Resolves a telemetry entity key to its display name — the runtime's active
  * entity when available, otherwise a static label. Unknown keys pass through.
  * @param {string} key
- * @param {{ active_ai?: any, active_user?: any, active_fractal?: any }} [runtime]
+ * @param {{ active_ai?: any, active_user?: any, active_fractal?: any, active_npcs?: Record<string, any> }} [runtime]
  * @returns {string}
  */
 export function resolve_entity_name(key, runtime) {
@@ -29,7 +29,29 @@ export function resolve_entity_name(key, runtime) {
     fractal: () => runtime?.active_fractal?.name || "FRACTAL",
   };
   const resolver = map[key];
-  return resolver ? resolver() : String(key ?? "");
+  if (resolver) return resolver();
+  if (runtime?.active_npcs?.[key]?.name) {
+    return runtime.active_npcs[key].name;
+  }
+  return String(key ?? "");
+}
+
+/**
+ * Derives the title label for a telemetry card based on event type and metadata.
+ * @param {any} meta
+ * @param {{ active_ai?: any, active_user?: any, active_fractal?: any, active_npcs?: Record<string, any> }} [runtime]
+ * @returns {string}
+ */
+export function get_telemetry_label(meta, runtime) {
+  if (meta?.type === "MEMORY_FORMATION") {
+    const name = resolve_entity_name(meta.target, runtime);
+    const turns = meta.turns_count ? ` from ${meta.turns_count} turns` : "";
+    return `${name} — Back Shot${turns}`;
+  }
+  if (meta?.type === "VECTOR_RESOLUTION") {
+    return "Memory Vector Resolved";
+  }
+  return "Quick Shot";
 }
 
 /**

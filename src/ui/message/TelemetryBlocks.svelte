@@ -60,70 +60,59 @@
           </div>
         {/if}
         {#if block.physical.trim() || block.non_physical.trim() || block.eternal_physical.trim() || block.eternal_non_physical.trim() || block.new_vectors.length > 0 || block.retrieval?.length > 0}
-          <div class="flex flex-col gap-2 pt-1">
-            {#if block.physical.trim()}
-              <div
-                class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-(--color-dev-accent) bg-black/40 px-3 py-3 text-xs leading-relaxed"
-              >
-                <span class="w-24 shrink-0 font-mono text-(--color-dev-accent)">PRESENT PHYSICAL</span>
-                <span class="text-slate-50" use:safe_html={render_text(block.physical)}></span>
-              </div>
-            {/if}
-            {#if block.non_physical.trim()}
-              <div
-                class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-(--color-dev-accent) bg-black/40 px-3 py-3 text-xs leading-relaxed"
-              >
-                <span class="w-24 shrink-0 font-mono text-(--color-dev-accent)">PRESENT NON&#8209;PHYSICAL</span>
-                <span class="text-slate-50" use:safe_html={render_text(block.non_physical)}></span>
-              </div>
-            {/if}
+          <div class="flex flex-col gap-1.5 pt-1">
+            <!-- 1. ETERNAL -->
             {#if block.eternal_physical.trim()}
-              <div
-                class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-(--color-dev-accent) bg-black/40 px-3 py-3 text-xs leading-relaxed"
-              >
-                <span class="w-24 shrink-0 font-mono text-(--color-dev-accent)">ETERNAL PHYSICAL</span>
-                <span class="text-slate-50" use:safe_html={render_text(block.eternal_physical)}></span>
+              <div class="flex gap-4 rounded-sm border-l-2 border-l-(--color-dev-accent) bg-black/40 px-3 py-2 font-mono text-xs leading-relaxed">
+                <span class="w-28 shrink-0 text-(--color-dev-accent) uppercase">ETERNAL PHYSICAL</span>
+                <span class="text-slate-200" use:safe_html={render_text(block.eternal_physical)}></span>
               </div>
             {/if}
             {#if block.eternal_non_physical.trim()}
-              <div
-                class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-(--color-dev-accent) bg-black/40 px-3 py-3 text-xs leading-relaxed"
-              >
-                <span class="w-24 shrink-0 font-mono text-(--color-dev-accent)">ETERNAL NON&#8209;PHYSICAL</span>
-                <span class="text-slate-50" use:safe_html={render_text(block.eternal_non_physical)}></span>
+              <div class="flex gap-4 rounded-sm border-l-2 border-l-(--color-dev-accent) bg-black/40 px-3 py-2 font-mono text-xs leading-relaxed">
+                <span class="w-28 shrink-0 text-(--color-dev-accent) uppercase">ETERNAL NON&#8209;PHYSICAL</span>
+                <span class="text-slate-200" use:safe_html={render_text(block.eternal_non_physical)}></span>
               </div>
             {/if}
+
+            <!-- 2. PRESENT -->
+            {#if block.physical.trim()}
+              <div class="flex gap-4 rounded-sm border-l-2 border-l-(--color-dev-accent) bg-black/40 px-3 py-2 font-mono text-xs leading-relaxed">
+                <span class="w-28 shrink-0 text-(--color-dev-accent) uppercase">PRESENT PHYSICAL</span>
+                <span class="text-slate-200" use:safe_html={render_text(block.physical)}></span>
+              </div>
+            {/if}
+            {#if block.non_physical.trim()}
+              <div class="flex gap-4 rounded-sm border-l-2 border-l-(--color-dev-accent) bg-black/40 px-3 py-2 font-mono text-xs leading-relaxed">
+                <span class="w-28 shrink-0 text-(--color-dev-accent) uppercase">PRESENT NON&#8209;PHYSICAL</span>
+                <span class="text-slate-200" use:safe_html={render_text(block.non_physical)}></span>
+              </div>
+            {/if}
+
+            <!-- 3. FUTURE -->
             {#if block.new_vectors.length > 0}
-              <div class="flex flex-col gap-2 pt-1">
-                {#each block.new_vectors as nv, i (i)}
-                  <div
-                    class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-(--color-dev-accent) bg-black/40 px-3 py-3 text-xs leading-relaxed"
-                  >
-                    <div class="flex flex-wrap items-center gap-2">
-                      <span class="w-24 shrink-0 font-mono text-(--color-dev-accent) uppercase">{vector_label(nv.type, "future")}</span>
-                    </div>
-                    <span class="line-clamp-2 overflow-hidden text-ellipsis text-slate-50" use:safe_html={render_text(nv.content)}></span>
-                  </div>
-                {/each}
-              </div>
+              {#each block.new_vectors as nv, i (i)}
+                <div class="flex gap-4 rounded-sm border-l-2 border-l-(--color-dev-accent) bg-black/40 px-3 py-2 font-mono text-xs leading-relaxed">
+                  <span class="w-28 shrink-0 text-(--color-dev-accent) uppercase">{vector_label(nv.type, "future")}</span>
+                  <span class="line-clamp-2 overflow-hidden text-ellipsis text-slate-200" use:safe_html={render_text(nv.content)}></span>
+                </div>
+              {/each}
             {/if}
+
+            <!-- 4. PAST -->
             {#if block.retrieval?.length > 0}
-              <div class="flex flex-col gap-2 pt-1">
-                {#each block.retrieval as rv (rv.id || rv.content)}
-                  <div class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-slate-500 bg-black/20 px-3 py-3 text-xs leading-relaxed">
-                    <div class="flex flex-wrap items-center gap-2">
-                      <span class="w-24 shrink-0 font-mono text-slate-500 uppercase">{vector_label(rv.type, "past")}</span>
-                    </div>
-                    <span class="line-clamp-2 overflow-hidden text-ellipsis text-slate-50" use:safe_html={render_text(rv.content)}></span>
-                  </div>
-                {/each}
-              </div>
+              {#each block.retrieval as rv (rv.id || rv.content)}
+                <div class="flex gap-4 rounded-sm border-l-2 border-l-slate-500 bg-black/20 px-3 py-2 font-mono text-xs leading-relaxed">
+                  <span class="w-28 shrink-0 text-slate-400 uppercase">{vector_label(rv.type, "past")}</span>
+                  <span class="line-clamp-2 overflow-hidden text-ellipsis text-slate-300" use:safe_html={render_text(rv.content)}></span>
+                </div>
+              {/each}
             {/if}
           </div>
         {/if}
         {#if block.relationships?.length > 0}
           <div class="flex flex-col gap-1.5 pt-1">
-            <header class="font-mono text-[10px] font-bold tracking-widest text-(--color-dev-accent) uppercase">Relational Mutations</header>
+            <header class="font-mono text-[10px] font-bold tracking-widest text-(--color-dev-accent) uppercase">RELATIONAL MUTATIONS</header>
             <div class="flex flex-col gap-1">
               {#each block.relationships as rel, i (i)}
                 <div class="flex items-center gap-2 font-mono text-xs text-slate-300">

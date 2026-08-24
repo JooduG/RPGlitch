@@ -6,7 +6,7 @@
    */
   import { Accordion, DataBox } from "@primitives";
   import { runtime } from "@state";
-  import { process_entity_blocks, resolve_entity_name } from "./telemetry-format.js";
+  import { get_telemetry_label, process_entity_blocks, resolve_entity_name } from "./telemetry-format.js";
   import TelemetryBlocks from "./TelemetryBlocks.svelte";
   import TelemetryVector from "./TelemetryVector.svelte";
 
@@ -42,6 +42,8 @@
 
   let entity_blocks = $derived(process_entity_blocks(meta));
 
+  let card_label = $derived(get_telemetry_label(meta, runtime));
+
   const get_entity_name = (key) => {
     return resolve_entity_name(key, runtime);
   };
@@ -62,11 +64,7 @@
       <p class="mt-2 font-mono text-xs text-slate-300">The simulation engine has anchored a new narrative sequence.</p>
     </div>
   {:else}
-    <DataBox
-      label={meta.type === "MEMORY_FORMATION" ? "Memory Forged" : meta.type === "DYNAMICS_DELTA" ? "System Update" : "Simulation Telemetry"}
-      height="auto"
-      isResonating={meta.type === "MEMORY_FORMATION" || meta.type === "VECTOR_RESOLUTION"}
-    >
+    <DataBox label={card_label} height="auto" isResonating={meta.type === "MEMORY_FORMATION" || meta.type === "VECTOR_RESOLUTION"}>
       <div
         class="
         flex
@@ -80,37 +78,30 @@
           <!-- [S] DEFAULT SIMULATION TELEMETRY -->
 
           {#if meta.trigger_image === true || meta.image_trigger === true}
-            <div class="flex items-center gap-2 rounded-sm border border-(--color-dev-accent)/40 bg-(--color-dev-accent)/10 px-3 py-2">
-              <span class="h-2 w-2 animate-pulse rounded-full bg-(--color-dev-accent) shadow-[0_0_8px_var(--color-dev-accent)]"></span>
-              <span class="font-mono text-xs font-bold tracking-widest text-(--color-dev-accent) uppercase">Trigger Image</span>
+            <div class="flex flex-wrap items-center gap-2 rounded-sm border border-(--color-dev-accent)/20 bg-black/40 px-3 py-2 text-xs">
+              <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-(--color-dev-accent) shadow-[0_0_6px_var(--color-dev-accent)]"></span>
+              <span class="font-mono font-bold tracking-widest text-(--color-dev-accent) uppercase">Trigger Image</span>
               {#if meta.image_tier}
                 <span
-                  class="rounded-sm bg-(--color-dev-accent)/20 px-1.5 py-0.5 font-mono text-[10px] font-bold tracking-widest text-(--color-dev-accent) uppercase"
+                  class="rounded-sm bg-(--color-dev-accent)/15 px-1.5 py-0.5 font-mono text-[10px] font-bold tracking-widest text-(--color-dev-accent) uppercase"
                 >
                   {meta.image_tier}
                 </span>
               {/if}
               {#if meta.image_source}
-                <span class="font-mono text-[10px] tracking-widest text-(--color-dev-accent)/60 uppercase">{meta.image_source}</span>
+                <span class="font-mono text-[10px] tracking-widest text-slate-400 uppercase">({meta.image_source})</span>
               {/if}
-            </div>
-          {/if}
-
-          {#if meta.image_signals?.band_entry}
-            <div class="flex items-center gap-2 rounded-sm border border-(--color-dev-accent)/30 bg-black/30 px-3 py-1.5">
-              <span class="font-mono text-[10px] font-bold tracking-widest text-(--color-dev-accent)/70 uppercase">Band Entry</span>
-              <span class="font-mono text-[10px] text-slate-400">
-                {meta.image_signals.band_entry.axis}
-                {meta.image_signals.band_entry.from} → {meta.image_signals.band_entry.to}
-                ({meta.image_signals.band_entry.band})
-              </span>
-            </div>
-          {/if}
-
-          {#if (meta.image_signals?.displacement || 0) > 0 && (meta.image_signals?.displacement || 0) >= (meta.image_signals?.displacement_threshold || 60)}
-            <div class="flex items-center gap-2 rounded-sm border border-(--color-dev-accent)/30 bg-black/30 px-3 py-1.5">
-              <span class="font-mono text-[10px] font-bold tracking-widest text-(--color-dev-accent)/70 uppercase">Displacement</span>
-              <span class="font-mono text-[10px] text-slate-400">{meta.image_signals.displacement}/{meta.image_signals.displacement_threshold}</span>
+              {#if meta.image_signals?.band_entry}
+                <span class="font-mono text-[10px] text-slate-400">
+                  · Band: {meta.image_signals.band_entry.axis}
+                  {meta.image_signals.band_entry.from} → {meta.image_signals.band_entry.to} ({meta.image_signals.band_entry.band})
+                </span>
+              {/if}
+              {#if (meta.image_signals?.displacement || 0) > 0 && (meta.image_signals?.displacement || 0) >= (meta.image_signals?.displacement_threshold || 60)}
+                <span class="font-mono text-[10px] text-slate-400">
+                  · Displacement: {meta.image_signals.displacement}/{meta.image_signals.displacement_threshold}
+                </span>
+              {/if}
             </div>
           {/if}
 

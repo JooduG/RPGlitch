@@ -41,7 +41,7 @@
 
   function handle_primary_click() {
     if (has_active_story) {
-      app.view = "story";
+      app.set_view("storymode");
       return;
     }
     storyboard.begin();
