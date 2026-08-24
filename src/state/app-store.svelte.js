@@ -73,6 +73,8 @@ export class AppStore {
   transitioning_profile = $state(false);
   /** @type {string | null} */
   transition_target_id = $state(null);
+  /** @type {string | number | null} Active pinned message header id */
+  pinned_message_id = $state(null);
   viewport = $state({
     mobile: false,
     is_touch: false,

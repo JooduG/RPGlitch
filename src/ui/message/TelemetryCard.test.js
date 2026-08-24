@@ -206,4 +206,41 @@ describe("TelemetryCard Telemetry Logic", () => {
     expect(meta.memories).toEqual([]);
     expect(meta.turns_count).toBe(8);
   });
+
+  test("processes single-entity forged telemetry with relational text vectors (Track 4)", () => {
+    const meta = {
+      type: "DYNAMICS_DELTA",
+      forged_entity: "ai",
+      relationships: [
+        { source: "Viper", target: "Ghost", dynamic: "cautious trust" },
+        { source: "Viper", target: "Dr. Elias", dynamic: "covert hostility" },
+      ],
+      updates: {
+        AI_CHARACTER: {
+          name: "Viper",
+          dynamics: [
+            { axis: "intensity", old_value: 50, new_value: 65, diff: 15 },
+            { axis: "affinity", old_value: 40, new_value: 45, diff: 5 },
+          ],
+          vectors: {
+            new: [{ id: "mem-1", content: "Ghost showed unexpected bravery.", type: "past", emotional_weight: 8 }],
+          },
+        },
+      },
+    };
+
+    const blocks = process_entity_blocks(meta);
+    expect(blocks.length).toBe(1);
+    expect(blocks[0].key).toBe("ai");
+    expect(blocks[0].name).toBe("Viper");
+    expect(blocks[0].dynamics).toEqual([
+      { axis: "intensity", value: 65, old_value: 50, new_value: 65, diff: 15, has_delta: true },
+      { axis: "affinity", value: 45, old_value: 40, new_value: 45, diff: 5, has_delta: true },
+    ]);
+    expect(blocks[0].new_vectors).toEqual([{ id: "mem-1", content: "Ghost showed unexpected bravery.", type: "past", weight: 8 }]);
+    expect(meta.relationships).toEqual([
+      { source: "Viper", target: "Ghost", dynamic: "cautious trust" },
+      { source: "Viper", target: "Dr. Elias", dynamic: "covert hostility" },
+    ]);
+  });
 });

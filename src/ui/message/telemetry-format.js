@@ -90,8 +90,22 @@ export function process_entity_blocks(meta) {
     const eternal_physical = raw.eternal_mutations?.physical ?? "";
     const eternal_non_physical = raw.eternal_mutations?.non_physical ?? "";
     const has_mods = !!eternal_physical || !!eternal_non_physical;
+    const relationships = Array.isArray(raw.relationships)
+      ? raw.relationships
+      : Array.isArray(meta?.relationships) && (meta.forged_entity === block_key || meta.target === key)
+        ? meta.relationships
+        : [];
 
-    if (!dynamics.length && !new_vectors.length && !retrieval.length && !physical && !non_physical && !eternal_physical && !eternal_non_physical) {
+    if (
+      !dynamics.length &&
+      !new_vectors.length &&
+      !retrieval.length &&
+      !physical &&
+      !non_physical &&
+      !eternal_physical &&
+      !eternal_non_physical &&
+      !relationships.length
+    ) {
       continue;
     }
 
@@ -105,6 +119,7 @@ export function process_entity_blocks(meta) {
       dynamics,
       new_vectors,
       retrieval,
+      relationships,
       has_mods,
     });
   }

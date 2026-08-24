@@ -93,8 +93,8 @@
   );
 
   let signature_color = $derived(get_signature_color(entity, sender === "system" ? "var(--color-slate-600)" : "var(--color-slate-700)"));
-
-  let is_extended = $derived(is_focused || is_editing);
+  let is_pinned = $derived(app.pinned_message_id != null && String(app.pinned_message_id) === String(id));
+  let is_extended = $derived(is_pinned || is_focused || is_editing);
 
   let active_style = $derived(runtime.active_fractal?.narrative_style || "");
   let register = $derived(resolve_voice_register(entity, active_style));
@@ -144,6 +144,22 @@
   );
 
   // --- ACTIONS & UTILITIES ---
+
+  /**
+   * Toggles message header pinned status.
+   * @param {MouseEvent} e
+   */
+  function handle_message_click(e) {
+    const target = /** @type {HTMLElement | null} */ (e.target);
+    if (target?.closest("button, input, textarea, a, select, [role='button']")) {
+      return;
+    }
+    if (app.pinned_message_id === id) {
+      app.pinned_message_id = null;
+    } else {
+      app.pinned_message_id = id;
+    }
+  }
 
   /**
    * Focus activation event pipeline handler.
@@ -419,6 +435,8 @@
     {/if}
 
     <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
     <div
       class="
         group
@@ -463,6 +481,7 @@
       "
       style="--signature-color: {signature_color};"
       tabindex="0"
+      onclick={handle_message_click}
       onfocusin={handle_focus}
       onfocusout={handle_focus_out}
       role="region"

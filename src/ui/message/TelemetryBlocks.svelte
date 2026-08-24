@@ -121,6 +121,19 @@
             {/if}
           </div>
         {/if}
+        {#if block.relationships?.length > 0}
+          <div class="flex flex-col gap-1.5 pt-1">
+            <header class="font-mono text-[10px] font-bold tracking-widest text-(--color-dev-accent) uppercase">Relational Mutations</header>
+            <div class="flex flex-col gap-1">
+              {#each block.relationships as rel, i (i)}
+                <div class="flex items-center gap-2 font-mono text-xs text-slate-300">
+                  <span class="text-(--color-dev-accent)">{rel.source || "Entity"} → {rel.target || "Target"}:</span>
+                  <span class="text-slate-100">{rel.dynamic || rel.content || ""}</span>
+                </div>
+              {/each}
+            </div>
+          </div>
+        {/if}
       </div>
     {/each}
   </div>

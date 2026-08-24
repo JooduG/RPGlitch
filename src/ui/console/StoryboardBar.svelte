@@ -6,12 +6,13 @@
    */
   import { Button, ProgressBar, tooltip } from "@primitives";
   import { pulse, shimmy } from "@motion";
-  import { app } from "@state";
+  import { app, runtime } from "@state";
   import { storyboard } from "@ui";
   import SettingsButton from "./SettingsButton.svelte";
 
   let models_ready = $derived(app.models_ready);
-  let ready_to_begin = $derived(app.is_ready && models_ready);
+  let has_active_story = $derived(Boolean(runtime.story_id));
+  let ready_to_begin = $derived(has_active_story || (app.is_ready && models_ready));
 
   const PROLOGUE_PHRASES = ["INITIALIZING SIMULATION...", "SETTING THE STAGE...", "ONCE UPON A TIMING...", "WRITING PROLOGUE..."];
 
@@ -29,13 +30,27 @@
   });
 
   let label_text = $derived(
-    app.simulation.loading ? PROLOGUE_PHRASES[phrase_index] : ready_to_begin ? "BEGIN STORY" : `SELECT ENTITIES (${app.selected_count}/3)`,
+    app.simulation.loading
+      ? PROLOGUE_PHRASES[phrase_index]
+      : has_active_story
+        ? "ENTER STORYMODE"
+        : ready_to_begin
+          ? "BEGIN STORY"
+          : `SELECT ENTITIES (${app.selected_count}/3)`,
   );
+
+  function handle_primary_click() {
+    if (has_active_story) {
+      app.view = "story";
+      return;
+    }
+    storyboard.begin();
+  }
 </script>
 
 <SettingsButton variant={app.control_panel_open ? "secondary" : "invisible"} testid="settings-button" />
 
-{#if !models_ready}
+{#if !models_ready && !has_active_story}
   <ProgressBar value={app.models_progress} class="flex-1" />
 {:else}
   <Button
@@ -44,7 +59,7 @@
     variant="invisible"
     busy={!ready_to_begin || app.simulation.loading}
     disabled={app.control_panel_open}
-    onclick={storyboard.begin}
+    onclick={handle_primary_click}
     actions={[pulse]}
   >
     <h6
