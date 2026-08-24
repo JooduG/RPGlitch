@@ -231,16 +231,15 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.system).toContain('<ROLE name="FRACTAL" mode="EPILOGUE">');
     });
 
-    it("build_memory_prompt() renders entity-specific forge contexts and Stale Goal Eviction Law", () => {
-      const result = prompt_builder.build_memory_prompt({ AI_CHARACTER: { name: "Viper" }, FRACTAL: { name: "Void" } }, []);
-      expect(result.system).toContain('<SYSTEM role="MEMORY_FORGE">');
+    it("build_memory_prompt() renders entity-specific forge contexts and single-entity Back Shot schema", () => {
+      const result = prompt_builder.build_memory_prompt({ AI_CHARACTER: { name: "Viper" }, FRACTAL: { name: "Void" } }, [], {
+        target_key: "AI_CHARACTER",
+      });
+      expect(result.system).toContain('<SYSTEM role="BACK_SHOT_FORGE" target="AI_CHARACTER" name="Viper">');
       expect(result.system).toContain('name="Viper"');
       expect(result.system).toContain('name="Void"');
-      expect(result.system).toContain("For each active entity");
-      expect(result.system).toContain("CRITICAL STALE GOAL EVICTION LAW");
-      expect(result.system).toContain("NEVER retain an in-progress statement of an already resolved action");
-      expect(result.system).toContain("TIMELESS FACT RULES");
-      expect(result.system).toContain("Zero transient states");
+      expect(result.system).toContain("Analyze recent history specifically for TARGET ENTITY");
+      expect(result.system).toContain('"relationships":');
       expect(result.system).toContain('"type": "past"');
       expect(result.system).not.toContain('"tags"');
     });

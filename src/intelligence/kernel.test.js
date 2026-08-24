@@ -1299,22 +1299,6 @@ describe("NPC world cast (track-npc-expansion)", () => {
     expect(noop).toBe(false);
   });
 
-  it("_apply_promotions() persists tier bumps via entities.upsert and updates the world cast", async () => {
-    _mock_runtime.active_npcs = { ben1: { id: "ben1", name: "Benedict", role_tier: 1 } };
-    vi.mocked(entities.upsert).mockImplementation(async (type, entity) => entity);
-
-    await gamemaster._apply_promotions({ runtime: _mock_runtime, app: _mock_app }, [{ id: "ben1", tier: 3 }]);
-
-    expect(entities.upsert).toHaveBeenCalledWith("character", expect.objectContaining({ id: "ben1", role_tier: 3 }));
-    expect(_mock_runtime.active_npcs.ben1.role_tier).toBe(3);
-  });
-
-  it("_apply_promotions() skips promotions that would not raise the tier", async () => {
-    _mock_runtime.active_npcs = { ben1: { id: "ben1", name: "Benedict", role_tier: 3 } };
-    await gamemaster._apply_promotions({ runtime: _mock_runtime, app: _mock_app }, [{ id: "ben1", tier: 2 }]);
-    expect(entities.upsert).not.toHaveBeenCalled();
-  });
-
   it("spawn_npc() genesis: persists, registers on the story, and puts the NPC on-stage", async () => {
     vi.mocked(entities.upsert).mockImplementation(async (type, entity) => ({ ...entity, id: "npc-mira-1", type: "character" }));
     vi.mocked(stories.get).mockResolvedValue({ id: 7, npc_ids: ["ben1"] });

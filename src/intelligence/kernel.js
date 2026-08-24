@@ -285,31 +285,6 @@ export const gamemaster = {
   },
 
   /**
-   * Persists Director promotions (tier 2/3) for recurring/major NPCs so the
-   * entity's role_tier survives reloads.
-   * @param {any} bridge
-   * @param {Array<{ id: string, tier: number }>} promotions
-   */
-  async _apply_promotions(bridge, promotions) {
-    for (const p of promotions || []) {
-      const id = String(p?.id || "");
-      if (!id) continue;
-      const npcs = bridge.runtime?.active_npcs || {};
-      const npc = npcs[id];
-      if (!npc) continue;
-      const target_tier = Math.max(2, Math.min(3, Number(p?.tier) || 2));
-      if (Number(npc.role_tier) >= target_tier) continue;
-      try {
-        const updated = await entities.upsert("character", { ...npc, role_tier: target_tier });
-        bridge.runtime.active_npcs = { ...npcs, [id]: updated };
-        bridge.app.log(`[GameMaster] NPC "${npc.name}" promoted to tier ${target_tier}.`, "system");
-      } catch (err) {
-        bridge.app.log(`[GameMaster] NPC promotion failed: ${err?.message || err}`, "warn");
-      }
-    }
-  },
-
-  /**
    * Applies the Director's relational-web mutations — directed
    * `[Source] → [Target]: [Dynamic]` edges resolved against the active trio and
    * world cast (by id or case-insensitive name). Existing edges to the same

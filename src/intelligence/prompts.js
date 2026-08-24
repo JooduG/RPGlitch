@@ -36,26 +36,14 @@ const DIRECTOR_JSON_SCHEMA = `{
   "in_scene_change": { "enter": ["npc:<id>"], "exit": ["npc:<id>"] }
 }`;
 
-const MEMORY_JSON_SCHEMA = `{
-  "_thought_process": "<one short sentence>",
-  "AI_CHARACTER": {
-    "eternal": { "physical": "Permanent appearance change or empty string", "non_physical": "Permanent personality shift or empty string" },
-    "present": { "physical": "Clean updated current conditions (or empty if unchanged)", "non_physical": "1-3 sentences of evocative present-tense state of mind, matching the existing field's register — never key/value fragments, never empty" },
-    "future": "REQUIRED: the standing agenda rewritten from this history (intent, prophecy, looming threat, impulse) as 2-5 sentences of active future tense — must differ from the old agenda whenever events changed it; never echo it verbatim",
-    "past": [ { "content": "ONLY if a durable fact emerged worth keeping (EMPTY LIST otherwise; AT MOST 1 ITEM)", "type": "past", "emotional_weight": 5 } ]
-  },
-  "USER_PERSONA": {
-    "eternal": { "physical": "", "non_physical": "" },
-    "present": { "physical": "", "non_physical": "1-3 sentences of evocative present-tense state of mind, matching the existing field's register — never key/value fragments, never empty" },
-    "future": "REQUIRED: the standing agenda rewritten from this history (2-5 sentences, active future tense) — drop goals this history fulfilled, refresh the rest; never echo the old text verbatim",
-    "past": [ { "content": "ONLY if a durable fact emerged worth keeping (EMPTY LIST otherwise; AT MOST 1 ITEM)", "type": "past", "emotional_weight": 5 } ]
-  },
-  "FRACTAL": {
-    "eternal": { "physical": "", "non_physical": "" },
-    "present": { "physical": "", "non_physical": "1-3 sentences of evocative present-tense fractal/scene state, matching the existing field's register — never key/value fragments, never empty" },
-    "future": "REQUIRED: the fractal standing agenda — environmental prophecy, scene shift, or looming impulse — rewritten from this history (2-5 sentences, active future tense). Resolved shifts/prophecies MUST be dropped and replaced by their aftermath; never leave the fractal agenda unchanged and never echo the old text verbatim",
-    "past": [ { "content": "ONLY if a durable fact/setting shift emerged (EMPTY LIST otherwise; AT MOST 1 ITEM)", "type": "past", "emotional_weight": 5 } ]
-  }
+const BACK_SHOT_JSON_SCHEMA = `{
+  "_thought_process": "<one short sentence analyzing recent events for target entity>",
+  "target": "'AI_CHARACTER' | 'USER_PERSONA' | 'FRACTAL' | 'NPC_<id>'",
+  "eternal": { "physical": "Permanent baseline appearance change or empty string", "non_physical": "Permanent personality shift or empty string" },
+  "present": { "physical": "Clean updated current conditions (or empty string if unchanged)", "non_physical": "1-3 sentences of evocative present-tense state of mind matching the entity's register" },
+  "future": "2-5 sentences of active future tense standing agenda rewritten from recent events",
+  "past": [ { "content": "Durable fact emerged worth keeping (empty list if none)", "type": "past", "emotional_weight": 5 } ],
+  "relationships": ["Source → Target: dynamic description"]
 }`;
 
 /**
@@ -947,37 +935,32 @@ function render_entity_memory_context(key, entity) {
   `).trim();
 }
 
-function render_memory({ entities, history }) {
-  const entity_blocks = ["AI_CHARACTER", "USER_PERSONA", "FRACTAL"]
-    .filter((key) => entities?.[key])
-    .map((key) => render_entity_memory_context(key, entities[key]))
-    .join("\n");
+function render_memory({ target_entity, target_key = "AI_CHARACTER", other_entities = {}, history = [] }) {
+  const target_name = target_entity?.name || target_key;
+  const target_xml = render_entity_memory_context(target_key, target_entity);
+
+  const other_blocks = Object.entries(other_entities)
+    .filter(([k, e]) => e && k !== target_key)
+    .map(([k, e]) => {
+      const summary = e.present?.non_physical || e.eternal?.non_physical || "Active in scene";
+      return `  <OTHER_ENTITY name="${escape_xml(e.name || k)}" role="${escape_xml(k)}">\n    <SUMMARY>${escape_xml(summary)}</SUMMARY>\n  </OTHER_ENTITY>`;
+    });
+
+  const scene_cast_xml = other_blocks.length ? `  <SCENE_CAST>\n${other_blocks.join("\n")}\n  </SCENE_CAST>\n` : "";
+
+  const chapter_xml = target_entity ? render_chapter_history_xml(target_entity) : "";
 
   return clean_xml(`
-<SYSTEM role="MEMORY_FORGE">
+<SYSTEM role="BACK_SHOT_FORGE" target="${escape_xml(target_key)}" name="${escape_xml(target_name)}">
   <PROTOCOLS>
     ${ind(prompt_builder.render_protocols("HYGIENE.DATA, HYGIENE.AFFIRMATIVE, AGENCY.PRESENT_TENSE, PRESENT.EMISSION"), 4)}
   </PROTOCOLS>
-  <ENTITY_CONTEXT>
-${entity_blocks}
-  </ENTITY_CONTEXT>
-  <CHAPTER_HISTORY>
+  <TARGET_ENTITY_CONTEXT>
+${target_xml}
+  </TARGET_ENTITY_CONTEXT>
+${scene_cast_xml}${chapter_xml ? `  <CHAPTER_HISTORY>\n${ind(chapter_xml, 4)}\n  </CHAPTER_HISTORY>\n` : ""}  <INPUT_HISTORY>
     ${(() => {
-      const blocks = ["AI_CHARACTER", "USER_PERSONA", "FRACTAL"]
-        .filter((key) => entities?.[key])
-        .map((key) => {
-          const xml = render_chapter_history_xml(entities[key]);
-          return xml ? `<ENTITY name="${escape_xml(entities[key].name || key)}">\n${ind(xml, 2)}\n</ENTITY>` : "";
-        })
-        .filter(Boolean);
-      return blocks.length ? blocks.join("\n") : "No chapters archived yet.";
-    })()}
-  </CHAPTER_HISTORY>
-  <INPUT_HISTORY>
-    ${(() => {
-      // Downsample the slice so the model has room to emit a complete (untruncated)
-      // consolidation JSON: keep the last 6 entries, each trimmed to ~400 chars.
-      const rows = Array.isArray(history) ? history.slice(-6) : [];
+      const rows = Array.isArray(history) ? history.slice(-8) : [];
       const compact = rows.map((m) => ({
         role: m?.role || "",
         character_name: m?.character_name || "",
@@ -989,24 +972,17 @@ ${entity_blocks}
   <TASK>
     ${ind(TEMPORAL_CONTRACT, 4)}
 
-    Compress this history into structured state updates and temporal vectors. Record internal evaluation inside "_thought_process" at the top of the JSON object.
-    For each active entity (AI_CHARACTER, USER_PERSONA, FRACTAL):
+    Analyze recent history specifically for TARGET ENTITY "${escape_xml(target_name)}" (${escape_xml(target_key)}). Record internal evaluation in "_thought_process".
+    Return a single JSON object with updates for this entity:
+      - "target": "${escape_xml(target_key)}"
       - "eternal": Record permanent identity, psychological, or physical changes to baseline form (or empty string).
-      - "present": Rewrite clean, updated current look (physical) and state of mind (non_physical), discarding expired temporary deltas. MANDATORY FOR CURRENT LOOK: You MUST retain physical attire/clothing (e.g. [CLOTHING: flight suit], [SHIRT: cargo jacket]) and active equipment/implants/containers (e.g. [EQUIPMENT: scrap-tech arm, bio-tank]) unless explicitly destroyed or disrobed. STATE OF MIND RULES (present.non_physical): its CONTENT must reflect the current situation after this batch of turns — if the situation changed, the state of mind MUST change accordingly; return the existing text verbatim ONLY when the situation is materially unchanged. Its FORM must match the existing field: 1-3 sentences of evocative present-tense prose in the same register and detail level — never key/value fragments (e.g. "[SENSATION: ...]") and NEVER empty; if the existing value is a key/value fragment or empty, upgrade it to proper prose instead.
-      - "future": Rewrite the entity's standing agenda as ONE clean block of 2-5 sentences (active future tense). Read the entity's current <INTENT> (AI_CHARACTER) or <AGENDA> (USER_PERSONA/FRACTAL) text above; CRITICAL STALE GOAL EVICTION LAW: If a physical milestone (e.g. escaping, unlocking, exiting, arriving, recovering an item, resolving a threat, breaking a curse) or standing agenda objective was FULFILLED, COMPLETED, or ELAPSED in recent turns, you MUST EVICT IT completely (and record what actually happened as a "past" vector instead), sharpen whatever still matters, and fold in at most one genuinely new impending intent. NEVER retain an in-progress statement of an already resolved action (e.g. never say "will use the key to exit the vault" if they have already exited the vault). CHAPTER BOUNDARY LAW: when a major milestone concluded this batch (a quest won, a location departed, a prophecy fulfilled), treat it as a chapter boundary — the next 'future' agenda MUST move past it (to the aftermath / new objective) rather than restating the resolved goal. This field is REQUIRED for every active entity this batch — never omit it. For FRACTAL entities, you MUST rewrite the standing agenda so scene events and environmental prophecies advance; do not leave the fractal agenda unchanged. When an event resolves a prophecy or threat, that agenda item must be dropped and REPLACED by its aftermath — a resolved "eclipse in 3 days" must become the post-eclipse state, never remain verbatim.
-      - "past": Add settled historical anchors (memories) written in concise, factual 3rd-person using explicit entity names (e.g. "Julien retrieved the cobalt spike from beneath the throne"). TIMELESS FACT RULES: (1) Zero pronouns — never use 1st-person ("I", "we") OR 3rd-person pronouns ("he", "she", "they", "it"); always use explicit proper nouns / entity names for unambiguous semantic recall. (2) Zero transient states — never record temporary moods, passing physical fatigue, or momentary sensations in "past" (e.g. "Kaelen traded the lower filter keys" ✓ / "Kaelen is tired" ✗; transient states belong strictly in present.non_physical). A "past" vector is a concrete event, decision, or persistent fact that already happened and must be permanently remembered. No future items: the agenda lives in "future". HIGH THRESHOLD FOR FRACTAL: For FRACTAL entities, past vectors are strictly restricted to MAJOR structural shifts or cataclysmic chapter transitions (e.g. facility destruction). Do NOT record minor room breaches, vent entries, or security alarms as past vectors for the Fractal — leave past as an EMPTY LIST [] for standard turns.
-    FACT RETENTION (mandatory — facts outrank feelings):
-      - Concrete facts MUST survive: proper nouns (names, places, organizations, facilities, rooms), numbers (years, counts, floor levels, prices), named objects (files, devices, blueprints, vats), cause/effect chains, and promises or agreements.
-      - Relational breaches & broken commitments: Exposed lies, discovered secrets, broken promises, or sudden betrayals MUST be encoded as concrete "past" vectors so that relationship shifts remain permanently anchored in memory.
-      - Encode settled facts as "past" vectors even when they carry no emotion — a dry, factual anchor beats an eloquent omission. The current emotional color is secondary and may be dropped; the facts may not.
-      - Shared mission facts (contract terms, meeting codes, agreed meeting places, deadlines, and the plan the AI character is part of) must ALSO be encoded as AI_CHARACTER "past" vectors — the character remembers the job, not just the feelings.
-      - When in doubt about whether a fact will matter later, retain it. Missing facts corrupt long-form continuity.
-    CRITICAL OUTPUT CONSTRAINT (failure to obey will corrupt memory):
-      - Output ONLY the JSON object. No code fences, no prose, no trailing commas.
-      - Keep the ENTIRE JSON under 2600 characters. Omit any truly unchanged optional field; "_thought_process" must be one short clause. Never omit "future" for an active entity — if you must cut something to fit, cut past vector entries first; never starve "present" prose to save space.
-      - Never truncate — a complete smaller JSON beats a large cut-off one. If you run out of room, drop past vector entries before dropping the closing brace.
+      - "present": Rewrite clean, updated current look (physical) and state of mind (non_physical). RETAIN physical attire/clothing.
+      - "future": Rewrite standing agenda as 2-5 sentences (active future tense). Evict completed milestones; refresh active focus.
+      - "past": Durable settled facts emerged worth keeping as memories (or empty list []). No transient moods.
+      - "relationships": Outward relationship edges originating from ${escape_xml(target_name)} in format "[Source] → [Target]: [Dynamic]" (e.g. "${escape_xml(target_name)} → Other: dynamic").
+
     Output strict JSON matching this schema:
-    ${MEMORY_JSON_SCHEMA}
+    ${BACK_SHOT_JSON_SCHEMA}
   </TASK>
 </SYSTEM>
   `).trim();
@@ -1391,9 +1367,24 @@ export const prompt_builder = {
       messages: [],
     };
   },
-  build_memory_prompt(entities, history) {
+  build_memory_prompt(entities_or_target, history = [], options = {}) {
+    let target_entity = options.target_entity || null;
+    let target_key = options.target_key || "AI_CHARACTER";
+    let other_entities = options.other_entities && Object.keys(options.other_entities).length ? { ...options.other_entities } : {};
+
+    if (entities_or_target && typeof entities_or_target === "object") {
+      if (entities_or_target.AI_CHARACTER || entities_or_target.USER_PERSONA || entities_or_target.FRACTAL) {
+        if (!target_entity) target_entity = entities_or_target[target_key] || entities_or_target.AI_CHARACTER;
+        if (!Object.keys(other_entities).length) {
+          other_entities = { ...entities_or_target };
+        }
+      } else if (!target_entity) {
+        target_entity = entities_or_target;
+      }
+    }
+
     return {
-      system: render_memory({ entities, history }),
+      system: render_memory({ target_entity, target_key, other_entities, history }),
       messages: [],
     };
   },

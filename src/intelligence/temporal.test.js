@@ -12,7 +12,7 @@ import {
 import { llm_service } from "@platform";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { embed } from "@intelligence/embeddings.svelte.js";
-import { cosine_similarity } from "@utils";
+import { cosine_similarity, state_bridge } from "@utils";
 
 // Mock dependencies
 vi.mock("@platform/transport.js", () => ({
@@ -606,19 +606,35 @@ describe("temporal_engine", () => {
         /** @type {any} */ (mock_entities),
         /** @type {any} */ (mock_runtime),
         /** @type {any} */ (mock_app),
+        { target_key: "AI_CHARACTER" },
       );
 
       expect(ai.past).toHaveLength(1);
       expect(ai.past[0].content).toContain("Viper");
 
-      // The USER's "future"-typed append is demoted to a past anchor — the
-      // agenda now lives in the consolidated future prose field.
+      // Test second pass for USER_PERSONA
+      vi.mocked(llm_service.generate).mockResolvedValueOnce(
+        JSON.stringify({
+          _thought_process: "Ghost consolidation",
+          target: "USER_PERSONA",
+          present: { physical: "", non_physical: "" },
+          future: "",
+          past: [{ content: "Ghost plans to confront the warden.", type: "future", emotional_weight: 4 }],
+        }),
+      );
+
+      await temporal_engine.consolidate(
+        /** @type {any} */ (mock_session),
+        /** @type {any} */ (mock_db),
+        /** @type {any} */ (mock_entities),
+        /** @type {any} */ (mock_runtime),
+        /** @type {any} */ (mock_app),
+        { target_key: "USER_PERSONA" },
+      );
+
       expect(user.future).toBe("");
       expect(user.past).toHaveLength(1);
       expect(user.past[0].content).toContain("confront");
-
-      expect(fractal.present.non_physical).toContain("blackout");
-      expect(fractal.past || []).toHaveLength(0);
 
       expect(mock_session.log_system_entry).toHaveBeenCalled();
       expect(mock_db.simulation_log.bulkPut).toHaveBeenCalled();
@@ -697,28 +713,24 @@ describe("temporal_engine.consolidate()", () => {
     const mock_runtime = {
       active_ai: mock_ai,
       active_user: mock_user,
-      active_fractal: null,
       update_entity: vi.fn(),
     };
     const mock_app = { log: vi.fn() };
     const mock_db = { simulation_log: { bulkPut: vi.fn() } };
-
-    // Forge response provides condition/expression updates without repeating full robes/thong
     llm_service.generate.mockResolvedValue(
       JSON.stringify({
         _thought_process: "Consolidating state.",
-        USER_PERSONA: {
-          present: {
-            physical: "[EXPRESSION: wide eyes, flushed] [CONDITION: blindfolded with midnight-blue silk]",
-            non_physical: "Deeply submissive",
-          },
-          future: "New intent",
-          past: [],
+        target: "USER_PERSONA",
+        present: {
+          physical: "[EXPRESSION: wide eyes, flushed] [CONDITION: blindfolded with midnight-blue silk]",
+          non_physical: "Deeply submissive",
         },
+        future: "New intent",
+        past: [],
       }),
     );
 
-    await temporal_engine.consolidate(mock_session, mock_db, {}, mock_runtime, mock_app);
+    await temporal_engine.consolidate(mock_session, mock_db, {}, mock_runtime, mock_app, { target_key: "USER_PERSONA" });
 
     expect(mock_user.present.physical).toContain("[ROBES: sheer high-elven scholarly robes]");
     expect(mock_user.present.physical).toContain("[APPAREL: minimalist coral-rose silk thong]");
@@ -780,14 +792,21 @@ describe("temporal_engine.consolidate() skip_forge", () => {
     };
     const mock_db = { simulation_log: { bulkPut: vi.fn() } };
     const mock_app = { log: vi.fn() };
+    const mock_runtime = {
+      active_ai: { id: "ai-1", name: "Viper", type: "character", past: [] },
+      update_entity: vi.fn(),
+    };
     llm_service.generate.mockResolvedValue(
       JSON.stringify({
         _thought_process: "nothing to see",
-        AI_CHARACTER: { present: { physical: "", non_physical: "" }, future: "New agenda", past: [] },
+        target: "AI_CHARACTER",
+        present: { physical: "", non_physical: "" },
+        future: "New agenda",
+        past: [],
       }),
     );
 
-    await temporal_engine.consolidate(mock_session, mock_db, {}, {}, mock_app);
+    await temporal_engine.consolidate(mock_session, mock_db, {}, mock_runtime, mock_app);
 
     expect(mock_session.load_log).toHaveBeenCalled();
   });
@@ -821,5 +840,127 @@ describe("archive_chapter (Chapter Forking)", () => {
     };
     archive_chapter(entity, "The tower falls at dusk.", "Seas part and islands burn.");
     expect(entity.chapters).toHaveLength(12);
+  });
+});
+
+describe("temporal_engine per-entity consolidation progress tracking (Track 2 Phase 1)", () => {
+  it("tracks unconsolidated messages per-entity and sets per-entity consolidation markers on messages", async () => {
+    const mock_messages = [
+      { id: 1, role: "user", text: "Hello", meta: {} },
+      { id: 2, role: "ai", text: "Greetings.", meta: {} },
+    ];
+    const mock_session = {
+      require_active: vi.fn(() => "story-1"),
+      load_log: vi.fn(async () => mock_messages),
+      log_system_entry: vi.fn(),
+    };
+    const mock_db = { simulation_log: { bulkPut: vi.fn() } };
+    const mock_runtime = {
+      active_ai: { id: "ai-1", name: "Viper", type: "character", past: [] },
+      active_user: { id: "user-1", name: "Ghost", type: "character", past: [] },
+      active_fractal: { id: "fractal-1", name: "Void", type: "fractal", past: [] },
+      update_entity: vi.fn(),
+    };
+    const mock_app = { log: vi.fn() };
+
+    llm_service.generate.mockResolvedValue(
+      JSON.stringify({
+        _thought_process: "Consolidating Viper.",
+        target: "AI_CHARACTER",
+        present: { physical: "", non_physical: "Observing carefully." },
+        future: "Maintain vigilance over the perimeters.",
+        past: [{ content: "Viper established guard duty.", type: "past", emotional_weight: 5 }],
+      }),
+    );
+
+    await temporal_engine.consolidate(mock_session, mock_db, {}, mock_runtime, mock_app, { target_key: "AI_CHARACTER" });
+
+    expect(mock_db.simulation_log.bulkPut).toHaveBeenCalled();
+    const updated_slice = mock_db.simulation_log.bulkPut.mock.calls[0][0];
+    expect(updated_slice[0].meta.forged_entities).toContain("AI_CHARACTER");
+  });
+
+  it("rotates targets across AI -> USER -> FRACTAL -> NPCs in round-robin and auto-advances empty targets", async () => {
+    const mock_messages = [
+      { id: 1, role: "user", text: "Hello", meta: { forged_entities: ["AI_CHARACTER"] } },
+      { id: 2, role: "ai", text: "Greetings.", meta: { forged_entities: ["AI_CHARACTER"] } },
+    ];
+    const mock_session = {
+      require_active: vi.fn(() => "story-1"),
+      load_log: vi.fn(async () => mock_messages),
+      log_system_entry: vi.fn(),
+    };
+    const mock_db = { simulation_log: { bulkPut: vi.fn() } };
+    const mock_runtime = {
+      active_ai: { id: "ai-1", name: "Viper", type: "character", past: [] },
+      active_user: { id: "user-1", name: "Ghost", type: "character", past: [] },
+      active_fractal: { id: "fractal-1", name: "Void", type: "fractal", past: [] },
+      update_entity: vi.fn(),
+    };
+    const mock_app = { log: vi.fn() };
+
+    llm_service.generate.mockResolvedValue(
+      JSON.stringify({
+        _thought_process: "Ghost consolidation.",
+        target: "USER_PERSONA",
+        present: { physical: "", non_physical: "Observing." },
+        future: "Continue scouting.",
+        past: [],
+      }),
+    );
+
+    // AI_CHARACTER has 0 unconsolidated messages (both have ["AI_CHARACTER"]).
+    // Auto-advancement should skip AI_CHARACTER and select USER_PERSONA!
+    await temporal_engine.consolidate(mock_session, mock_db, {}, mock_runtime, mock_app);
+
+    expect(mock_db.simulation_log.bulkPut).toHaveBeenCalled();
+    const updated = mock_db.simulation_log.bulkPut.mock.calls[0][0];
+    expect(updated[0].meta.forged_entities).toContain("USER_PERSONA");
+  });
+
+  it("extracts and applies relationship edges from Back Shot Forge payload", async () => {
+    const mock_messages = [{ id: 1, role: "user", text: "Turn 1", meta: {} }];
+    const mock_session = {
+      require_active: vi.fn(() => "story-1"),
+      load_log: vi.fn(async () => mock_messages),
+      log_system_entry: vi.fn(),
+    };
+    const mock_db = { simulation_log: { bulkPut: vi.fn() } };
+    const mock_runtime = {
+      active_ai: { id: "ai-1", name: "Viper", type: "character", past: [], relationships: [] },
+      active_user: { id: "user-1", name: "Ghost", type: "character", past: [], relationships: [] },
+      update_entity: vi.fn(),
+    };
+    const mock_app = { log: vi.fn() };
+
+    llm_service.generate.mockResolvedValue(
+      JSON.stringify({
+        _thought_process: "Relational update.",
+        target: "AI_CHARACTER",
+        present: { physical: "", non_physical: "" },
+        future: "",
+        past: [],
+        relationships: ["Viper → Ghost: Growing mutual respect under fire"],
+      }),
+    );
+
+    const mock_kernel = {
+      _apply_relationships: vi.fn(async (bridge, rels) => {
+        bridge.runtime.active_ai.relationships = rels;
+      }),
+    };
+    const prev_kernel = state_bridge.kernel;
+    state_bridge.kernel = mock_kernel;
+
+    try {
+      await temporal_engine.consolidate(mock_session, mock_db, {}, mock_runtime, mock_app, { target_key: "AI_CHARACTER" });
+
+      expect(mock_kernel._apply_relationships).toHaveBeenCalledWith(expect.objectContaining({ runtime: mock_runtime, app: mock_app }), [
+        "Viper → Ghost: Growing mutual respect under fire",
+      ]);
+      expect(mock_runtime.active_ai.relationships).toContain("Viper → Ghost: Growing mutual respect under fire");
+    } finally {
+      state_bridge.kernel = prev_kernel;
+    }
   });
 });

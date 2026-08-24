@@ -99,8 +99,11 @@ m.meta.consolidated = { AI_CHARACTER: true, USER_PERSONA: false, FRACTAL: false 
 
 ### 3.4 Non-Blocking Execution & Mutex Integration
 
-- Coordinate with Track 1's generation mutex: if the player submits an action while a Back Shot is in-flight, the Back Shot yields gracefully without blocking the new turn.
-- Maintain `{ latest: true }` round-freshness skips.
+- Coordinate with Track 1's generation mutex (`runtime.generation_mutex`):
+  - Before starting the Back Shot, check `runtime.can_start_background_generation()`.
+  - When the player submits a new action while a Back Shot is in-flight, the foreground acquires the generation mutex.
+  - **Authoritative Preemption**: The in-flight Back Shot checks mutex state and round freshness; if preempted or stale, its generated payload is **discarded immediately without committing mutations to Dexie**. A fresh Back Shot will run next round.
+- **Lore Memory Rule**: Origin-protected `usr_` vectors are immune to eviction/consolidation; dynamic session `ai_` vectors roll within `PAST_VECTOR_CAP = 20`; the consolidated `future` standing agenda is rewritten wholesale.
 - Retain `skip_forge` on `CONCLUDED` / `COLLAPSED` stories and fallback consolidation per entity.
 
 ---
@@ -109,20 +112,20 @@ m.meta.consolidated = { AI_CHARACTER: true, USER_PERSONA: false, FRACTAL: false 
 
 ### Phase 1: Per-Entity Progress Tracking & Legacy Promotion Purge
 
-- [ ] `task-1.1`: **`RED`** Write unit tests in `src/intelligence/temporal.test.js` asserting per-entity consolidation markers (`forged_entities` / per-entity object map) instead of global slice boolean.
-- [ ] `task-1.2`: **`GREEN`** Update consolidation slicer in `src/intelligence/temporal.js` to track per-entity unconsolidated message indices.
-- [ ] `task-1.3`: **`GREEN`** Purge legacy `promotions` schema and methods from `kernel.js`, `prompts.js`, and `director.js`.
+- [x] `task-1.1`: **`RED`** Write unit tests in `src/intelligence/temporal.test.js` asserting per-entity consolidation markers (`forged_entities` / per-entity object map) instead of global slice boolean.
+- [x] `task-1.2`: **`GREEN`** Update consolidation slicer in `src/intelligence/temporal.js` to track per-entity unconsolidated message indices.
+- [x] `task-1.3`: **`GREEN`** Purge legacy `promotions` schema, `role_tier` references, and methods from `kernel.js`, `prompts.js`, and `director.js`.
 
 ### Phase 2: Round-Robin Scheduler & Single-Entity Back Shot Compilation
 
-- [ ] `task-2.1`: **`RED`** Add unit tests verifying rotation progression: $\text{AI} \rightarrow \text{User} \rightarrow \text{Fractal} \rightarrow \text{NPC}_n \rightarrow \text{Repeat}$, with cursor skip on inactive entities.
-- [ ] `task-2.2`: **`GREEN`** Implement `back_shot_cursor` rotation and single-entity focused prompt in `src/intelligence/temporal.js` supporting memory and outward relational vectors.
-- [ ] `task-2.3`: **`GREEN`** Integrate with Track 1 generation mutex to guarantee zero contention with live foreground character streams.
+- [x] `task-2.1`: **`RED`** Add unit tests verifying rotation progression: $\text{AI} \rightarrow \text{User} \rightarrow \text{Fractal} \rightarrow \text{NPC}_n \rightarrow \text{Repeat}$, with cursor auto-advancement across inactive entities (0 unconsolidated messages).
+- [x] `task-2.2`: **`GREEN`** Implement `back_shot_cursor` rotation and single-entity focused prompt in `src/intelligence/temporal.js` supporting memory and outward relational vectors.
+- [x] `task-2.3`: **`GREEN`** Integrate with Track 1 generation mutex to guarantee zero contention with live foreground character streams and immediate discard on preemption.
 
 ### Phase 3: Single-Entity Output Formatting & Invariant Verification
 
-- [ ] `task-3.1`: **`RED`** Test that single-entity `MEMORY_FORMATION` entries preserve clean formatting for `memories`, `future`, `present`, `eternal`, and `relationships`.
-- [ ] `task-3.2`: **`GREEN`** Verify `skip_forge` on concluded stories and fallback consolidation per entity.
+- [x] `task-3.1`: **`RED`** Test that single-entity `MEMORY_FORMATION` entries preserve clean formatting for `memories`, `future`, `present`, `eternal`, and outward `relationships` vectors.
+- [x] `task-3.2`: **`GREEN`** Verify `skip_forge` on concluded stories and fallback consolidation per entity.
 
 ---
 
@@ -138,9 +141,9 @@ m.meta.consolidated = { AI_CHARACTER: true, USER_PERSONA: false, FRACTAL: false 
 
 ## 6. Verification Gate & Acceptance Criteria
 
-- [ ] Round-robin cursor progresses smoothly turn by turn ($\text{AI} \rightarrow \text{User} \rightarrow \text{Fractal} \rightarrow \text{NPC}_n$).
-- [ ] Mutex verification: Back Shot yields immediately to incoming user actions.
-- [ ] Relational mesh updates execute smoothly for the active entity.
-- [ ] Zero watchdog post-turn consolidation timeouts.
-- [ ] Automated tests: `npm run test:unit` passing with 0 regressions.
-- [ ] Production build: `npm run build`
+- [x] Round-robin cursor progresses smoothly turn by turn ($\text{AI} \rightarrow \text{User} \rightarrow \text{Fractal} \rightarrow \text{NPC}_n$), skipping entities with 0 new unconsolidated messages.
+- [x] Mutex verification: Back Shot yields immediately to incoming user actions and discards uncommitted mutations cleanly.
+- [x] Relational mesh updates execute smoothly for the active entity.
+- [x] Zero watchdog post-turn consolidation timeouts.
+- [x] Automated tests: `npm run test:unit` passing with 0 regressions.
+- [x] Production build: `npm run build`

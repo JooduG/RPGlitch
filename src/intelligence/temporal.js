@@ -525,17 +525,24 @@ function parse_forge_response(response) {
 
 const FORGE_EMBED_BUDGET_MS = 45000;
 
-export async function forge_memory(entity_targets, history_slice) {
+export async function forge_memory(entity_targets, history_slice, options = {}) {
   if (!Array.isArray(entity_targets) || entity_targets.length === 0) return null;
   try {
-    const entities = {
-      AI_CHARACTER: entity_targets.find((t) => t.key === "AI_CHARACTER")?.entity || null,
-      USER_PERSONA: entity_targets.find((t) => t.key === "USER_PERSONA")?.entity || null,
-      FRACTAL: entity_targets.find((t) => t.key === "FRACTAL")?.entity || null,
-    };
+    const target_key = options.target_key || entity_targets[0]?.key || "AI_CHARACTER";
+    const target_item = entity_targets.find((t) => t.key === target_key) || entity_targets[0];
+    const target_entity = target_item?.entity || null;
+
+    const other_entities = {};
+    for (const t of entity_targets) {
+      if (t.key !== target_key && t.entity) other_entities[t.key] = t.entity;
+    }
 
     const attempt = async () => {
-      const payload = prompt_builder.build_memory_prompt(entities, history_slice);
+      const payload = prompt_builder.build_memory_prompt(target_entity, history_slice, {
+        target_entity,
+        target_key,
+        other_entities,
+      });
       const response = await llm_service.generate(payload, {
         json: true,
         silent: true,
@@ -546,72 +553,46 @@ export async function forge_memory(entity_targets, history_slice) {
 
     let memory = await attempt();
     if (!memory) {
-      // Terse retry: the prompt builder compresses the history on rebuild, so a
-      // second call usually emits a complete payload.
       console.warn("[TemporalEngine] Memory forge returned no JSON — retrying once.");
       memory = await attempt();
     }
     if (!memory) return null;
 
     const forged = {
+      _thought_process: memory?._thought_process || "",
+      target: memory?.target || target_key,
       memories: {},
-      present: memory?.present || {},
-      eternal: memory?.eternal || {},
+      present: {},
+      eternal: {},
       future: {},
+      relationships: Array.isArray(memory?.relationships) ? memory.relationships : [],
     };
 
+    // Support both single-target format and multi-target format
     for (const { key } of entity_targets) {
-      const entity_block = memory?.[key] && typeof memory[key] === "object" ? memory[key] : {};
+      let entity_block = memory?.[key] && typeof memory[key] === "object" ? memory[key] : null;
+      if (!entity_block && (memory?.target === key || key === target_key)) {
+        entity_block = memory;
+      }
+      if (!entity_block) continue;
 
-      // FUTURE is a single consolidated prose field, mirroring present:
-      // the forge rewrites the standing agenda wholesale, dropping fulfilled or
-      // abandoned goals and keeping/adding what still matters.
-      if (entity_block.future) {
-        const intent = entity_block.future;
-        if (typeof intent === "string") {
-          forged.future[key] = intent.trim();
-        }
+      if (entity_block.future && typeof entity_block.future === "string") {
+        forged.future[key] = entity_block.future.trim();
       }
 
-      const pres = entity_block.present;
-      if (pres && typeof pres === "object") {
-        forged.present[key] = pres;
+      if (entity_block.present && typeof entity_block.present === "object") {
+        forged.present[key] = entity_block.present;
       }
 
-      const et = entity_block.eternal;
-      if (et && typeof et === "object") {
-        forged.eternal[key] = et;
+      if (entity_block.eternal && typeof entity_block.eternal === "object") {
+        forged.eternal[key] = entity_block.eternal;
       }
 
       const raw_vectors = Array.isArray(entity_block.past) ? entity_block.past : [];
-
       forged.memories[key] = [];
       const pending_embeds = [];
 
-      // If the target is an NPC and the forge JSON did not emit a specific block,
-      // extract NPC-relevant facts from the shared slice so NPCs accumulate past vectors.
-      let vectors_source = raw_vectors;
-      if (!vectors_source.length && key.startsWith("NPC_")) {
-        const npc_name = String(entity_targets.find((t) => t.key === key)?.entity?.name || "").toLowerCase();
-        const npc_facts = (Array.isArray(history_slice) ? history_slice : [])
-          .filter((m) => {
-            const txt = String(m?.text ?? m?.content ?? "").toLowerCase();
-            const char = String(m?.character_name || "").toLowerCase();
-            return npc_name && (txt.includes(npc_name) || char === npc_name);
-          })
-          .map((m) => {
-            const speaker = m.character_name || (m.role === "ai" ? "AI" : m.role === "user" ? "User" : "Environment");
-            return `${speaker}: ${String(m.text ?? m.content ?? "")
-              .replace(/<think>[\s\S]*?<\/think>/gi, "")
-              .trim()
-              .slice(0, 180)}`;
-          });
-        if (npc_facts.length) {
-          vectors_source = [{ content: npc_facts.slice(-2).join(" | "), type: "past", emotional_weight: 5 }];
-        }
-      }
-
-      for (const raw of vectors_source) {
+      for (const raw of raw_vectors) {
         if (!raw || typeof raw !== "object") continue;
         const content = String(raw.content ?? raw.directive ?? "").trim();
         if (!content) continue;
@@ -632,12 +613,6 @@ export async function forge_memory(entity_targets, history_slice) {
         forged.memories[key].push(vector);
       }
 
-      // Embed every new vector in parallel, but never let ONNX/wasm inference
-      // stall the post-turn consolidation indefinitely (it can be slow on the
-      // main thread, and a stuck intent-lock froze the UI for 300s+ in the
-      // field). Vectors that miss the budget still append — they simply score 0
-      // semantically and fall back to lexical ranking; build_context re-embeds
-      // with its own bounded race.
       if (pending_embeds.length) {
         await Promise.race([
           Promise.allSettled(pending_embeds.map((v) => ensure_embedding(v))),
@@ -650,8 +625,9 @@ export async function forge_memory(entity_targets, history_slice) {
     const has_present = Object.keys(forged.present).length > 0;
     const has_eternal = Object.keys(forged.eternal).length > 0;
     const has_future = Object.keys(forged.future).length > 0;
+    const has_rels = forged.relationships.length > 0;
 
-    if (!has_memories && !has_present && !has_eternal && !has_future) return null;
+    if (!has_memories && !has_present && !has_eternal && !has_future && !has_rels) return null;
 
     return forged;
   } catch (err) {
@@ -882,152 +858,163 @@ export const temporal_engine = {
 
       // SKIP_FORGE — when a turn resolves the story (CONCLUDED/COLLAPSED) the
       // post-turn forge is pure cost: nothing durable remains to remember. Keeps
-      // the epilogue turn off the heavy consolidation path (the 255s watchdog
-      // overrun seen at collapse in the field).
+      // the epilogue turn off the heavy consolidation path.
       if (options.skip_forge) return;
 
+      const in_scene_ids = new Set((runtime.snapshot_in_scene_npc_ids || runtime.in_scene_npc_ids || []).map(String));
+      const active_npcs = Object.values(runtime.active_npcs || {}).filter((npc) => npc && in_scene_ids.has(String(npc.id)));
+
+      const entity_targets = [
+        { key: "AI_CHARACTER", type: "character", entity: runtime.active_ai },
+        { key: "USER_PERSONA", type: "character", entity: runtime.active_user },
+        { key: "FRACTAL", type: "fractal", entity: runtime.active_fractal },
+        ...active_npcs.map((npc) => ({ key: `NPC_${npc.id}`, type: "character", entity: npc, is_npc: true })),
+      ].filter((t) => t.entity);
+
+      if (!entity_targets.length) return;
+
       const messages = await session.load_log(story_id);
-      const unconsolidated = messages.filter((m) => !m.meta?.consolidated && m.role !== "system");
 
-      if (unconsolidated.length >= 8) {
-        const slice = unconsolidated.slice(0, 8);
+      // Determine round-robin target key or honor explicit options.target_key
+      let target_key = options.target_key || null;
+      let target_item = null;
+      let unconsolidated_slice = [];
 
-        app.log(`[TemporalEngine] Forging ${slice.length} turns into Historical Archive...`, "system");
-
-        const in_scene_ids = new Set((runtime.snapshot_in_scene_npc_ids || runtime.in_scene_npc_ids || []).map(String));
-        const active_npcs = Object.values(runtime.active_npcs || {}).filter((npc) => npc && in_scene_ids.has(String(npc.id)));
-
-        const entity_targets = [
-          { key: "AI_CHARACTER", type: "character", entity: runtime.active_ai },
-          { key: "USER_PERSONA", type: "character", entity: runtime.active_user },
-          { key: "FRACTAL", type: "fractal", entity: runtime.active_fractal },
-          ...active_npcs.map((npc) => ({ key: `NPC_${npc.id}`, type: "character", entity: npc, is_npc: true })),
-        ].filter((t) => t.entity);
-
-        const forged = await forge_memory(entity_targets, slice);
-        if (forged) {
-          for (const { key, type, entity } of entity_targets) {
-            const memories = forged.memories?.[key] || [];
-            for (const memory of memories) {
-              if (memory.type === "present") {
-                if (!entity.present) entity.present = { physical: "", non_physical: "" };
-                entity.present.non_physical = cap_present_prose(
-                  merge_prose_into_field(entity.present.non_physical, memory.content || memory.directive || ""),
-                );
-                await runtime.update_entity(type, entity.id, { present: entity.present });
-              } else {
-                ensure_unique_vector_id(entity, memory);
-                append_past_vector(entity, memory);
-                await runtime.update_entity(type, entity.id, { past: entity.past });
-              }
-            }
+      if (target_key) {
+        target_item = entity_targets.find((t) => t.key === target_key) || entity_targets[0];
+        target_key = target_item.key;
+        unconsolidated_slice = messages.filter((m) => {
+          if (m.role === "system") return false;
+          const forged = m.meta?.forged_entities || (m.meta?.consolidated ? entity_targets.map((t) => t.key) : []);
+          return !forged.includes(target_key);
+        });
+      } else {
+        // Round-robin traversal: find the next target starting from cursor that has unconsolidated messages
+        const cursor_index = Number(runtime.back_shot_cursor || 0) % entity_targets.length;
+        for (let i = 0; i < entity_targets.length; i++) {
+          const check_idx = (cursor_index + i) % entity_targets.length;
+          const candidate = entity_targets[check_idx];
+          const uncons = messages.filter((m) => {
+            if (m.role === "system") return false;
+            const forged = m.meta?.forged_entities || (m.meta?.consolidated ? entity_targets.map((t) => t.key) : []);
+            return !forged.includes(candidate.key);
+          });
+          if (uncons.length > 0 || i === entity_targets.length - 1) {
+            target_item = candidate;
+            target_key = candidate.key;
+            unconsolidated_slice = uncons;
+            // Advance cursor to next index for following round
+            runtime.back_shot_cursor = (check_idx + 1) % entity_targets.length;
+            break;
           }
-
-          if (forged.present) {
-            const summaries = forged.present;
-            for (const { key, type, entity } of entity_targets) {
-              const summary = summaries[key];
-              if (summary && typeof summary === "object") {
-                if (!entity.present) entity.present = { physical: "", non_physical: "" };
-                if (summary.physical !== undefined && summary.physical.trim()) {
-                  entity.present.physical = merge_prose_into_field(entity.present.physical, summary.physical);
-                }
-                if (summary.non_physical !== undefined && summary.non_physical.trim()) {
-                  entity.present.non_physical = summary.non_physical;
-                }
-              } else {
-                // No fresh replacement this batch: decay the accumulated prose so
-                // stale snapshots (conflicting locations/situations) can't pile up.
-                if (entity.present && entity.present.non_physical) {
-                  entity.present.non_physical = cap_present_prose(entity.present.non_physical);
-                }
-              }
-              await runtime.update_entity(type, entity.id, { present: entity.present });
-            }
-          }
-
-          if (forged.eternal) {
-            const e_muts = forged.eternal;
-            for (const { key, type, entity } of entity_targets) {
-              const e_mut = e_muts[key];
-              if (!e_mut || typeof e_mut !== "object") continue;
-              if (!entity.eternal) entity.eternal = { physical: "", non_physical: "" };
-              let eternal_changed = false;
-              if (e_mut.physical?.trim()) {
-                entity.eternal.physical = merge_eternal_field(entity.eternal.physical, e_mut.physical);
-                eternal_changed = true;
-              }
-              if (e_mut.non_physical?.trim()) {
-                entity.eternal.non_physical = merge_eternal_field(entity.eternal.non_physical, e_mut.non_physical);
-                eternal_changed = true;
-              }
-              if (eternal_changed) {
-                await runtime.update_entity(type, entity.id, { eternal: entity.eternal });
-                const primary_vector = forged.memories?.[key]?.[0];
-                if (primary_vector && primary_vector.type !== "present" && !primary_vector.meta?.eternal_shift) {
-                  primary_vector.meta = { ...(primary_vector.meta || {}), eternal_shift: true };
-                  await runtime.update_entity(type, entity.id, { past: entity.past, future: entity.future });
-                }
-              }
-            }
-          }
-
-          // INTENT CONSOLIDATION — the forge rewrites each entity's standing
-          // agenda prose wholesale (mirroring present): fulfilled
-          // or abandoned goals fall away, still-relevant ones are refreshed, and
-          // new intents are folded in as one clean block.
-          for (const { key, type, entity } of entity_targets) {
-            let rewritten = forged.future?.[key];
-            if (!rewritten || typeof rewritten !== "string" || !rewritten.trim()) {
-              const present_summary = forged.present?.[key] || "";
-              if (present_summary && entity?.future) {
-                const clean_summary = String(present_summary)
-                  .replace(/<[^>]+>/g, "")
-                  .trim()
-                  .slice(0, 120);
-                const lead_sentence = entity.future.split(".")[0];
-                rewritten = `${lead_sentence}. Active focus: ${clean_summary}.`;
-              } else if (entity?.future) {
-                rewritten = entity.future;
-              }
-            }
-            if (typeof rewritten !== "string" || !rewritten.trim()) continue;
-            const old_future = typeof entity.future === "string" ? entity.future : "";
-            entity.future = rewritten.trim();
-            const chapter_forked = archive_chapter(entity, old_future, entity.future);
-            await runtime.update_entity(type, entity.id, { future: entity.future, ...(chapter_forked ? { chapters: entity.chapters } : {}) });
-            if (chapter_forked) {
-              app.log(`[TemporalEngine] 📜 Chapter archived for ${entity.name || key} — milestone crossed.`, "system");
-            }
-          }
-
-          for (const { key, entity } of entity_targets) {
-            const memories = forged.memories?.[key] || [];
-            const text = memories.length ? memories.map((v) => v.content || v.directive || "").join(" | ") : "State consolidated.";
-            await session.log_system_entry(`Memory Forged (${key}): ${text.substring(0, 50)}...`, "system", {
-              type: "MEMORY_FORMATION",
-              target: key,
-              memories,
-              vectors: memories,
-              future: entity?.future || forged.future?.[key] || "",
-              present: entity?.present || forged.present?.[key] || null,
-              eternal: forged.eternal?.[key] || null,
-              thought_process: forged._thought_process || "",
-              turns_count: slice.length,
-            });
-          }
-        } else {
-          // LLM forge failed both attempts — derive past vectors deterministically
-          // so memory and the formation card still advance.
-          await fallback_consolidate(entity_targets, slice, runtime, session);
         }
-
-        for (const msg of slice) {
-          msg.meta = { ...msg.meta, consolidated: true };
-        }
-        await db.simulation_log.bulkPut(slice);
-        state_bridge.simulation_log?.refresh();
       }
+
+      if (!target_item || unconsolidated_slice.length === 0) return;
+
+      // Slice up to 8 messages for this entity's Back Shot
+      const slice = unconsolidated_slice.slice(0, 8);
+      const entity = target_item.entity;
+      const type = target_item.type;
+
+      app.log?.(`[TemporalEngine] ⏳ Back Shot forging for ${entity.name || target_key} (${slice.length} turns)...`, "system");
+
+      const forged = await forge_memory(entity_targets, slice, { target_key });
+      if (forged) {
+        const memories = forged.memories?.[target_key] || [];
+        for (const memory of memories) {
+          if (memory.type === "present") {
+            if (!entity.present) entity.present = { physical: "", non_physical: "" };
+            entity.present.non_physical = cap_present_prose(
+              merge_prose_into_field(entity.present.non_physical, memory.content || memory.directive || ""),
+            );
+            await runtime.update_entity(type, entity.id, { present: entity.present });
+          } else {
+            ensure_unique_vector_id(entity, memory);
+            append_past_vector(entity, memory);
+            await runtime.update_entity(type, entity.id, { past: entity.past });
+          }
+        }
+
+        const summary = forged.present?.[target_key];
+        if (summary && typeof summary === "object") {
+          if (!entity.present) entity.present = { physical: "", non_physical: "" };
+          if (summary.physical !== undefined && summary.physical.trim()) {
+            entity.present.physical = merge_prose_into_field(entity.present.physical, summary.physical);
+          }
+          if (summary.non_physical !== undefined && summary.non_physical.trim()) {
+            entity.present.non_physical = summary.non_physical;
+          }
+          await runtime.update_entity(type, entity.id, { present: entity.present });
+        }
+
+        const e_mut = forged.eternal?.[target_key];
+        if (e_mut && typeof e_mut === "object") {
+          if (!entity.eternal) entity.eternal = { physical: "", non_physical: "" };
+          let eternal_changed = false;
+          if (e_mut.physical?.trim()) {
+            entity.eternal.physical = merge_eternal_field(entity.eternal.physical, e_mut.physical);
+            eternal_changed = true;
+          }
+          if (e_mut.non_physical?.trim()) {
+            entity.eternal.non_physical = merge_eternal_field(entity.eternal.non_physical, e_mut.non_physical);
+            eternal_changed = true;
+          }
+          if (eternal_changed) {
+            await runtime.update_entity(type, entity.id, { eternal: entity.eternal });
+          }
+        }
+
+        let rewritten = forged.future?.[target_key];
+        if (typeof rewritten === "string" && rewritten.trim()) {
+          const old_future = typeof entity.future === "string" ? entity.future : "";
+          entity.future = rewritten.trim();
+          const chapter_forked = archive_chapter(entity, old_future, entity.future);
+          await runtime.update_entity(type, entity.id, { future: entity.future, ...(chapter_forked ? { chapters: entity.chapters } : {}) });
+          if (chapter_forked) {
+            app.log?.(`[TemporalEngine] 📜 Chapter archived for ${entity.name || target_key} — milestone crossed.`, "system");
+          }
+        }
+
+        // Apply outward relational vectors if present
+        if (Array.isArray(forged.relationships) && forged.relationships.length > 0 && state_bridge.kernel?._apply_relationships) {
+          await state_bridge.kernel._apply_relationships({ runtime, app }, forged.relationships);
+        }
+
+        const text = memories.length ? memories.map((v) => v.content || v.directive || "").join(" | ") : "State consolidated.";
+        await session.log_system_entry(`Memory Forged (${target_key}): ${text.substring(0, 50)}...`, "system", {
+          type: "MEMORY_FORMATION",
+          target: target_key,
+          memories,
+          vectors: memories,
+          future: entity?.future || forged.future?.[target_key] || "",
+          present: entity?.present || forged.present?.[target_key] || null,
+          eternal: forged.eternal?.[target_key] || null,
+          thought_process: forged._thought_process || "",
+          relationships: forged.relationships || [],
+          turns_count: slice.length,
+        });
+      } else {
+        await fallback_consolidate([target_item], slice, runtime, session);
+      }
+
+      // Mark per-entity progress on the slice
+      for (const msg of slice) {
+        const prev_forged = Array.isArray(msg.meta?.forged_entities)
+          ? msg.meta.forged_entities
+          : msg.meta?.consolidated
+            ? entity_targets.map((t) => t.key)
+            : [];
+        const next_forged = Array.from(new Set([...prev_forged, target_key]));
+        const all_forged = entity_targets.every((t) => next_forged.includes(t.key));
+        msg.meta = {
+          ...msg.meta,
+          forged_entities: next_forged,
+          consolidated: all_forged,
+        };
+      }
+      await db.simulation_log.bulkPut(slice);
+      state_bridge.simulation_log?.refresh();
     } catch (err) {
       console.error("[TemporalEngine] Consolidation forge failed:", err);
     } finally {
