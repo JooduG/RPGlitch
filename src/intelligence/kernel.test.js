@@ -24,6 +24,8 @@ const _mock_runtime = {
   turn_type: "USER_TURN",
   structural_errors: 0,
   story_id: null,
+  last_director_beat_round: -1,
+  last_dynamics_beat_round: -1,
   last_auto_image_round: -1,
   add_vector: vi.fn(),
   get snapshot_entities() {
@@ -148,6 +150,8 @@ vi.mock("@media", async (importOriginal) => {
           source: "director",
           signals: {},
           deltas: [],
+          next_director_round: params.turn_round,
+          next_dynamics_round: null,
           next_auto_round: params.turn_round,
           director_explicit: true,
         };
@@ -157,6 +161,8 @@ vi.mock("@media", async (importOriginal) => {
         signals: { band_entry: null, displacement: 0, displacement_threshold: 60 },
         tier: "story_scene",
         deltas: [],
+        next_director_round: null,
+        next_dynamics_round: null,
         next_auto_round: null,
         director_explicit: false,
         source: "dynamics",
@@ -259,6 +265,8 @@ describe("gamemaster (Intelligence Kernel)", () => {
     // starts from the open-gate sentinel (-1) instead of inheriting mutations
     // from earlier tests (e.g. execute_prologue sets round 0 / last_auto 0).
     _mock_runtime.round = 1;
+    _mock_runtime.last_director_beat_round = -1;
+    _mock_runtime.last_dynamics_beat_round = -1;
     _mock_runtime.last_auto_image_round = -1;
     _mock_runtime.active_npcs = {};
     _mock_runtime.in_scene_npc_ids = [];
@@ -1012,6 +1020,8 @@ describe("gamemaster (Intelligence Kernel)", () => {
         tier: "story_scene",
         source: "dynamics",
         signals: { band_entry: { axis: "intensity", from: 50, to: 88, band: "high" }, displacement: 38, displacement_threshold: 60 },
+        next_director_round: null,
+        next_dynamics_round: 1,
         next_auto_round: 1,
         director_explicit: false,
       });
@@ -1026,6 +1036,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
       expect(result.meta.image_tier).toBe("story_scene");
       expect(result.meta.image_source).toBe("dynamics");
       expect(_mock_runtime.last_auto_image_round).toBe(1);
+      expect(_mock_runtime.last_dynamics_beat_round).toBe(1);
       // Placeholder attachment logged immediately
       const placeholder_call = session_driver.log_message.mock.calls.find((c) => c[3]?.attachments?.[0]?.src === null);
       expect(placeholder_call).toBeDefined();
@@ -1041,6 +1052,8 @@ describe("gamemaster (Intelligence Kernel)", () => {
         tier: null,
         source: null,
         signals: { band_entry: { axis: "intensity", from: 50, to: 88, band: "high" }, displacement: 38, displacement_threshold: 60 },
+        next_director_round: null,
+        next_dynamics_round: null,
         next_auto_round: null,
         director_explicit: false,
       });
@@ -1063,6 +1076,8 @@ describe("gamemaster (Intelligence Kernel)", () => {
         tier: null,
         source: null,
         signals: { band_entry: null, displacement: 0, displacement_threshold: 60 },
+        next_director_round: null,
+        next_dynamics_round: null,
         next_auto_round: null,
         director_explicit: true,
       });
@@ -1085,6 +1100,8 @@ describe("gamemaster (Intelligence Kernel)", () => {
         tier: "story_scene",
         source: "director",
         signals: { band_entry: null, displacement: 0, displacement_threshold: 60 },
+        next_director_round: 5,
+        next_dynamics_round: null,
         next_auto_round: 5,
         director_explicit: true,
       });
@@ -1100,6 +1117,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
       expect(result.meta.image_source).toBe("director");
       expect(result.meta.image_tier).toBe("story_scene");
       expect(_mock_runtime.last_auto_image_round).toBe(5);
+      expect(_mock_runtime.last_director_beat_round).toBe(5);
       await vi.waitFor(() => expect(visual_engine.visualize).toHaveBeenCalled());
     });
 
@@ -1109,6 +1127,8 @@ describe("gamemaster (Intelligence Kernel)", () => {
         tier: "story_entities",
         source: "director",
         signals: { band_entry: null, displacement: 0, displacement_threshold: 60 },
+        next_director_round: 5,
+        next_dynamics_round: null,
         next_auto_round: 5,
         director_explicit: true,
       });
@@ -1179,6 +1199,8 @@ describe("gamemaster (Intelligence Kernel)", () => {
         tier: "story_character",
         source: "dynamics",
         signals: { band_entry: { axis: "intensity", from: 50, to: 88, band: "high" }, displacement: 38, displacement_threshold: 60 },
+        next_director_round: null,
+        next_dynamics_round: 0,
         next_auto_round: 0,
         director_explicit: false,
       });
@@ -1193,6 +1215,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
       expect(result.meta.image_trigger).toBe(true);
       expect(result.meta.image_tier).toBe("story_character");
       expect(_mock_runtime.last_auto_image_round).toBe(0);
+      expect(_mock_runtime.last_dynamics_beat_round).toBe(0);
     });
 
     it("a real round-0 trigger does not permanently open the cooldown gate", async () => {
@@ -1201,6 +1224,8 @@ describe("gamemaster (Intelligence Kernel)", () => {
         tier: null,
         source: null,
         signals: { band_entry: { axis: "intensity", from: 50, to: 88, band: "high" }, displacement: 38, displacement_threshold: 60 },
+        next_director_round: null,
+        next_dynamics_round: null,
         next_auto_round: null,
         director_explicit: false,
       });

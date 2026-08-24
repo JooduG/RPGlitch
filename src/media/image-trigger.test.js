@@ -50,8 +50,83 @@ describe("evaluate_image_trigger (Pure-JS Dynamics Gate)", () => {
   });
 });
 
-describe("resolve_image_trigger (Dual-Source & Cooldown Orchestration)", () => {
-  it("resolves dynamics trigger when cooldown has elapsed", () => {
+describe("resolve_image_trigger (Dual-Source & Decoupled Cooldown Orchestration)", () => {
+  it("resolves dynamics trigger when dynamics cooldown has elapsed", () => {
+    const snapshot = { ai: { dynamics: { intensity: 90 } } };
+    const prev_dynamics = { ai: { intensity: 50 } };
+    const res = resolve_image_trigger({
+      snapshot,
+      prev_dynamics,
+      director_data: {},
+      turn_round: 4,
+      last_director_beat_round: -1,
+      last_dynamics_beat_round: 0,
+    });
+
+    expect(res.active).toBe(true);
+    expect(res.tier).toBe("story_character");
+    expect(res.source).toBe("dynamics");
+    expect(res.next_dynamics_round).toBe(4);
+    expect(res.next_director_round).toBeNull();
+  });
+
+  it("suppresses dynamics trigger when dynamics cooldown is active (3 rounds)", () => {
+    const snapshot = { ai: { dynamics: { intensity: 90 } } };
+    const prev_dynamics = { ai: { intensity: 50 } };
+    const res = resolve_image_trigger({
+      snapshot,
+      prev_dynamics,
+      director_data: {},
+      turn_round: 2,
+      last_director_beat_round: -1,
+      last_dynamics_beat_round: 1, // 2 < 1 + 3
+    });
+
+    expect(res.active).toBe(false);
+    expect(res.tier).toBeNull();
+  });
+
+  it("allows director explicit trigger on 2-round cooldown even if dynamics is on 3-round cooldown", () => {
+    const snapshot = { ai: { dynamics: { intensity: 50 } } };
+    const prev_dynamics = { ai: { intensity: 50 } };
+    const res = resolve_image_trigger({
+      snapshot,
+      prev_dynamics,
+      director_data: { trigger_image: "story_entities" },
+      turn_round: 3,
+      last_director_beat_round: 1, // 3 >= 1 + 2 (director cooldown 2 elapsed!)
+      last_dynamics_beat_round: 2, // dynamics on cooldown (3 < 2 + 3)
+    });
+
+    expect(res.active).toBe(true);
+    expect(res.tier).toBe("story_entities");
+    expect(res.source).toBe("director");
+    expect(res.director_explicit).toBe(true);
+    expect(res.next_director_round).toBe(3);
+    expect(res.next_dynamics_round).toBeNull();
+  });
+
+  it("enforces Priority 1 (Director) over Priority 2 (Dynamics) in same round without advancing dynamics timer", () => {
+    const snapshot = { ai: { dynamics: { intensity: 95 } } };
+    const prev_dynamics = { ai: { intensity: 40 } }; // dynamics trigger qualified!
+    const res = resolve_image_trigger({
+      snapshot,
+      prev_dynamics,
+      director_data: { trigger_image: "story_scene" },
+      turn_round: 5,
+      last_director_beat_round: 2,
+      last_dynamics_beat_round: 1,
+    });
+
+    // Both qualified, but Director wins
+    expect(res.active).toBe(true);
+    expect(res.tier).toBe("story_scene");
+    expect(res.source).toBe("director");
+    expect(res.next_director_round).toBe(5);
+    expect(res.next_dynamics_round).toBeNull(); // Dynamics timer NOT consumed!
+  });
+
+  it("supports backwards-compatible fallback if last_auto single timestamp is provided", () => {
     const snapshot = { ai: { dynamics: { intensity: 90 } } };
     const prev_dynamics = { ai: { intensity: 50 } };
     const res = resolve_image_trigger({
@@ -63,41 +138,6 @@ describe("resolve_image_trigger (Dual-Source & Cooldown Orchestration)", () => {
     });
 
     expect(res.active).toBe(true);
-    expect(res.tier).toBe("story_character");
     expect(res.source).toBe("dynamics");
-    expect(res.next_auto_round).toBe(4);
-  });
-
-  it("suppresses dynamics trigger when cooldown is active", () => {
-    const snapshot = { ai: { dynamics: { intensity: 90 } } };
-    const prev_dynamics = { ai: { intensity: 50 } };
-    const res = resolve_image_trigger({
-      snapshot,
-      prev_dynamics,
-      director_data: {},
-      turn_round: 2,
-      last_auto: 1, // 2 < 1 + 3
-    });
-
-    expect(res.active).toBe(false);
-    expect(res.tier).toBeNull();
-  });
-
-  it("allows director explicit trigger with custom tier when cooldown elapsed", () => {
-    const snapshot = { ai: { dynamics: { intensity: 50 } } };
-    const prev_dynamics = { ai: { intensity: 50 } };
-    const res = resolve_image_trigger({
-      snapshot,
-      prev_dynamics,
-      director_data: { trigger_image: "story_entities" },
-      turn_round: 5,
-      last_auto: 2,
-    });
-
-    expect(res.active).toBe(true);
-    expect(res.tier).toBe("story_entities");
-    expect(res.source).toBe("director");
-    expect(res.director_explicit).toBe(true);
-    expect(res.next_auto_round).toBe(5);
   });
 });

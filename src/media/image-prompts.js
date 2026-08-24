@@ -117,6 +117,31 @@ export const prompt_templates = {
         break;
     }
 
+    // 🎬 Cinematic Photographic Framing Modes
+    const ai_dyn = active_ai?.dynamics || {};
+    const intensity = Number(ai_dyn.intensity ?? 50);
+    const chaos = Number(ai_dyn.chaos ?? 50);
+    const affinity = Number(ai_dyn.affinity ?? 50);
+
+    let framing_mode = "Medium Action";
+    let framing_tokens = "medium shot, waist-up framing, dynamic posture, clear wardrobe & prop details";
+
+    if (tier === "story_scene") {
+      framing_mode = "Wide Environmental";
+      framing_tokens = "wide-angle environmental shot, deep spatial composition, atmospheric scale, full silhouette";
+    } else if (chaos >= 75) {
+      framing_mode = "Dutch / Low-Angle";
+      framing_tokens = "dutch angle composition, low-angle perspective, imposing scale, dramatic lighting contrast";
+    } else if (intensity >= 75 || affinity >= 75) {
+      framing_mode = "Intimate Close-Up";
+      framing_tokens = "tight close-up portrait, shallow depth of field, sharp focus on eyes, macro expression detail";
+    } else if (tier === "solo_entity") {
+      framing_mode = "Medium Action";
+      framing_tokens = "medium portrait framing, waist-up composition, distinctive wardrobe, signature atmospheric backdrop";
+    }
+
+    const framing_block = `\n<CINEMATIC_FRAMING mode="${framing_mode}">\n  ${framing_tokens}\n</CINEMATIC_FRAMING>`;
+
     return `
 <SYSTEM role="SENSORY_CORTEX_V5">
 ${visual_engine_block}
@@ -131,6 +156,7 @@ Convert narrative intent into a structured image prompt payload depicting ${subj
 Input Intent: "${prompt_escape(detox_prose(rawIntent))}"
 </INSTRUCTIONS>
 ${ctxBlock}
+${framing_block}
 
 JSON STRUCTURE:
 {

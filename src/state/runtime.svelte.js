@@ -100,10 +100,12 @@ function create_runtime_store() {
   let ai_physics = $state(null);
   /** @type {EntityDynamics | null} */
   let fractal_physics = $state(null);
-  // 🖼️ Image Trigger Engine: round of the last auto-triggered image beat.
-  // Shared cooldown state between the pure-JS dynamics gate and the LLM director.
-  // -1 = never triggered sentinel; real round-0 (prologue) triggers must not collide
-  // with the sentinel or the cooldown gate stays permanently open.
+  // 🖼️ Decoupled Image Trigger Cooldowns
+  // Director-explicit beats: 2-round cooldown
+  let last_director_beat_round = $state(-1);
+  // Physics / dynamics displacement & band crossings: 3-round cooldown
+  let last_dynamics_beat_round = $state(-1);
+  // Backwards-compatible alias / fallback
   let last_auto_image_round = $state(-1);
 
   // ⚡ Director Quick Shot Telemetry (Rolling Latency Ring Buffer)
@@ -246,6 +248,18 @@ function create_runtime_store() {
     },
     set turn_type(val) {
       simulation_turn_type = val;
+    },
+    get last_director_beat_round() {
+      return last_director_beat_round;
+    },
+    set last_director_beat_round(val) {
+      last_director_beat_round = val;
+    },
+    get last_dynamics_beat_round() {
+      return last_dynamics_beat_round;
+    },
+    set last_dynamics_beat_round(val) {
+      last_dynamics_beat_round = val;
     },
     get last_auto_image_round() {
       return last_auto_image_round;

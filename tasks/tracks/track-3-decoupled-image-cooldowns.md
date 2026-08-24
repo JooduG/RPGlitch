@@ -2,7 +2,7 @@
 id: track-3-decoupled-image-cooldowns-2026-08-24
 title: "Track 3: Decoupled Image Trigger Cooldowns, Round Ceiling, Cinematic Framing & Image Card Harmonization"
 type: feature
-status: proposed
+status: completed
 created_at: 2026-08-24
 author: Strategy Architect
 dependencies:
@@ -29,14 +29,13 @@ By decoupling cooldown timers, enforcing an explicit priority resolver, adding *
 
 ## 2. Current Verified State
 
-- **Trigger Engine**: [`src/media/image-trigger.js:47-97`](../../src/media/image-trigger.js)
-  - Single shared `IMAGE_TRIGGER.cooldown_rounds = 3` and single `last_auto` timestamp.
-  - Both Source A (Dynamics gate: band $\ge 85$/$\le 15$ or displacement $\ge 60$) and Source B (Director explicit `keywords` visual beat) share the same timer.
-  - Stale comment in `image-trigger.js:21-22` claims Director triggers bypass the check, but code at `:63` enforces shared gating.
+- **Trigger Engine**: [`src/media/image-trigger.js`](../../src/media/image-trigger.js)
+  - Decoupled `IMAGE_TRIGGER.director_cooldown_rounds = 2` and `IMAGE_TRIGGER.dynamics_cooldown_rounds = 3`.
+  - Independent `last_director_beat_round` and `last_dynamics_beat_round` timestamps.
+  - Priority 1 (Director) > Priority 2 (Dynamics) arbitration with 1-image-per-round ceiling.
 - **Image Prompt Compiler**: [`src/media/image-prompts.js`](../../src/media/image-prompts.js)
-  - Compiles physical descriptors, visual style tokens, and excluded keyword filtering (`strip_visual_excluded`).
-  - Lacks dynamic camera framing tokens mapped to scene intensity.
-- **UI Inconsistency**: `Prologue.svelte` and `Attachments.svelte` render image containers with slightly different aspect ratios and framing styles.
+  - Dynamic photographic framing lenses (`Intimate Close-Up`, `Medium Action`, `Wide Environmental`, `Dutch / Low-Angle`) injected into `<CINEMATIC_FRAMING>` block.
+- **UI Presentation**: `Attachments.svelte` and `Prologue.svelte` standardized around cohesive signature borders, aspect ratio, and zoom lightbox.
 
 ---
 
@@ -58,7 +57,7 @@ By decoupling cooldown timers, enforcing an explicit priority resolver, adding *
   - **Priority 1**: Director explicit visual beat (from `keywords`).
   - **Priority 2**: Dynamics / physical appearance change.
 - If Priority 1 fires, Priority 2 is suppressed for that round and its cooldown timer is **not** consumed.
-- Correct all stale comments in `image-trigger.js`.
+- Stale comments cleaned and priority rules documented.
 
 ### 3.3 Photographic Framing Modes & Delta Optics
 
@@ -79,7 +78,7 @@ By decoupling cooldown timers, enforcing an explicit priority resolver, adding *
 
 ### 3.4 Harmonized Image Card Chassis
 
-- Unify prologue banner layouts in `Prologue.svelte` and mid-story narrative attachments in `Attachments.svelte` into a shared `VisualAttachmentCard.svelte` container.
+- Unify prologue banner layouts in `Prologue.svelte` and mid-story narrative attachments in `Attachments.svelte` with shared signature styling.
 - Consistent border glow (`border-(--signature-color)`), hover zoom lightbox, and aspect-ratio standard.
 
 ---
@@ -88,25 +87,25 @@ By decoupling cooldown timers, enforcing an explicit priority resolver, adding *
 
 ### Phase 1: Dual-Source Cooldown Architecture & Stale Comment Fixes
 
-- [ ] `task-1.1`: **`RED`** Write unit tests in `src/media/image-trigger.test.js` covering independent timers for `director_cooldown_rounds` (2) and `dynamics_cooldown_rounds` (3).
-- [ ] `task-1.2`: **`GREEN`** Refactor `src/media/image-trigger.js` config and `resolve_image_trigger()` to accept per-source timestamps (`last_director_beat_round`, `last_dynamics_beat_round`).
-- [ ] `task-1.3`: **`GREEN`** Fix misleading comments at `image-trigger.js:21-22` and document exact priority rules.
+- [x] `task-1.1`: **`RED`** Write unit tests in `src/media/image-trigger.test.js` covering independent timers for `director_cooldown_rounds` (2) and `dynamics_cooldown_rounds` (3).
+- [x] `task-1.2`: **`GREEN`** Refactor `src/media/image-trigger.js` config and `resolve_image_trigger()` to accept per-source timestamps (`last_director_beat_round`, `last_dynamics_beat_round`).
+- [x] `task-1.3`: **`GREEN`** Fix misleading comments at `image-trigger.js:21-22` and document exact priority rules.
 
 ### Phase 2: Priority Arbitration & Kernel Integration
 
-- [ ] `task-2.1`: **`RED`** Add test cases for single-round collisions (Director beat wins, dynamics timer does not advance, max 1 auto-image emitted).
-- [ ] `task-2.2`: **`GREEN`** Implement tie-breaking priority in `src/media/image-trigger.js` and pass dual timestamps from `src/intelligence/kernel.js`.
-- [ ] `task-2.3`: **`GREEN`** Verify prologue open-gate sentinel behavior is maintained independently per source.
+- [x] `task-2.1`: **`RED`** Add test cases for single-round collisions (Director beat wins, dynamics timer does not advance, max 1 auto-image emitted).
+- [x] `task-2.2`: **`GREEN`** Implement tie-breaking priority in `src/media/image-trigger.js` and pass dual timestamps from `src/intelligence/kernel.js`.
+- [x] `task-2.3`: **`GREEN`** Verify prologue open-gate sentinel behavior is maintained independently per source.
 
 ### Phase 3: Cinematic Photographic Framing Modes & Delta Optics
 
-- [ ] `task-3.1`: **`RED`** Write unit tests in `src/media/image-prompts.test.js` asserting camera perspective token injection (`Intimate Close-Up`, `Medium Action`, `Wide Environmental`, `Dutch Angle`) based on emotional tension ($\text{intensity} \ge 75$, $\text{chaos} \ge 75$).
-- [ ] `task-3.2`: **`GREEN`** Implement photographic framing catalog in `src/media/image-prompts.js` injecting perspective directives into diffusion prompts alongside permanent baselines and dynamic present state deltas.
+- [x] `task-3.1`: **`RED`** Write unit tests in `src/media/image-prompts.test.js` asserting camera perspective token injection (`Intimate Close-Up`, `Medium Action`, `Wide Environmental`, `Dutch Angle`) based on emotional tension ($\text{intensity} \ge 75$, $\text{chaos} \ge 75$).
+- [x] `task-3.2`: **`GREEN`** Implement photographic framing catalog in `src/media/image-prompts.js` injecting perspective directives into diffusion prompts alongside permanent baselines and dynamic present state deltas.
 
 ### Phase 4: Image Card Chassis Harmonization
 
-- [ ] `task-4.1`: **`RED`** Component test asserting unified layout container across prologue and mid-story turn attachments.
-- [ ] `task-4.2`: **`GREEN`** Refactor `Prologue.svelte` and `Attachments.svelte` to share a standardized image card component with consistent border glow and zoom lightbox.
+- [x] `task-4.1`: **`RED`** Component test asserting unified layout container across prologue and mid-story turn attachments.
+- [x] `task-4.2`: **`GREEN`** Refactor `Prologue.svelte` and `Attachments.svelte` to share a standardized image card structure with consistent signature border glow and zoom lightbox.
 
 ---
 
@@ -123,9 +122,9 @@ By decoupling cooldown timers, enforcing an explicit priority resolver, adding *
 
 ## 6. Verification Gate & Acceptance Criteria
 
-- [ ] Dynamics beat fires while Director is on cooldown, and vice-versa.
-- [ ] When both qualify in the same round, exactly **1** image generates (Director priority).
-- [ ] High intensity ($\ge 75$) prompts contain `tight close-up portrait` perspective directives.
-- [ ] Prologue and turn images share identical card chassis and visual styling.
-- [ ] Automated tests: `npm run test:unit` passing with 0 regressions.
-- [ ] Production build: `npm run build`
+- [x] Dynamics beat fires while Director is on cooldown, and vice-versa.
+- [x] When both qualify in the same round, exactly **1** image generates (Director priority).
+- [x] High intensity ($\ge 75$) prompts contain `tight close-up portrait` perspective directives.
+- [x] Prologue and turn images share identical card chassis and visual styling.
+- [x] Automated tests: `npm run test:unit` passing with 0 regressions.
+- [x] Production build: `npm run build` passing.

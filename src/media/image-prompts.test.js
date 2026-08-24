@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { clean_image_prompt, parse_llm_refine_response } from "./image-prompts.js";
+import { clean_image_prompt, parse_llm_refine_response, prompt_templates } from "./image-prompts.js";
 import { aesthetic_resolver, build_aesthetic_map, strip_visual_excluded, VISUAL_EXCLUDED_KEYS } from "./image-aesthetics.js";
 
 vi.mock("@data", () => ({
@@ -130,6 +130,70 @@ describe("parse_llm_refine_response", () => {
     expect(parse_llm_refine_response("just prose")).toBeNull();
     expect(parse_llm_refine_response(null)).toBeNull();
     expect(parse_llm_refine_response("")).toBeNull();
+  });
+});
+
+describe("prompt_templates.BUILDER with Cinematic Framing Lenses", () => {
+  it("injects 'Intimate Close-Up' lens when intensity is >= 75", () => {
+    const prompt = prompt_templates.BUILDER("story_character", "Viper whispers a secret.", {
+      ai: {
+        name: "Viper",
+        type: "character",
+        dynamics: { intensity: 80, chaos: 40, affinity: 50 },
+        eternal: { physical: "[EYES: emerald]" },
+      },
+    });
+
+    expect(prompt).toContain("<CINEMATIC_FRAMING");
+    expect(prompt).toContain("tight close-up portrait, shallow depth of field, sharp focus on eyes");
+  });
+
+  it("injects 'Intimate Close-Up' lens when affinity is >= 75", () => {
+    const prompt = prompt_templates.BUILDER("story_character", "A tender glance.", {
+      ai: {
+        name: "Viper",
+        type: "character",
+        dynamics: { intensity: 50, chaos: 40, affinity: 85 },
+      },
+    });
+
+    expect(prompt).toContain("<CINEMATIC_FRAMING");
+    expect(prompt).toContain("tight close-up portrait, shallow depth of field, sharp focus on eyes");
+  });
+
+  it("injects 'Dutch / Low-Angle' lens when chaos is >= 75", () => {
+    const prompt = prompt_templates.BUILDER("story_character", "The city explodes into rebellion.", {
+      ai: {
+        name: "Viper",
+        type: "character",
+        dynamics: { intensity: 50, chaos: 90, affinity: 50 },
+      },
+    });
+
+    expect(prompt).toContain("<CINEMATIC_FRAMING");
+    expect(prompt).toContain("dutch angle composition, low-angle perspective, imposing scale, dramatic lighting contrast");
+  });
+
+  it("defaults to 'Medium Action' lens for standard narrative moments", () => {
+    const prompt = prompt_templates.BUILDER("story_character", "Viper inspects her gear.", {
+      ai: {
+        name: "Viper",
+        type: "character",
+        dynamics: { intensity: 50, chaos: 50, affinity: 50 },
+      },
+    });
+
+    expect(prompt).toContain("<CINEMATIC_FRAMING");
+    expect(prompt).toContain("medium shot, waist-up framing, dynamic posture, clear wardrobe");
+  });
+
+  it("uses 'Wide Environmental' for story_scene tier", () => {
+    const prompt = prompt_templates.BUILDER("story_scene", "The neon bazaar stretches into fog.", {
+      fractal: { name: "Neon Bazaar", type: "fractal" },
+    });
+
+    expect(prompt).toContain("<CINEMATIC_FRAMING");
+    expect(prompt).toContain("wide-angle environmental shot, deep spatial composition, atmospheric scale");
   });
 });
 

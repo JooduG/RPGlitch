@@ -10,7 +10,7 @@ import { DEFAULT_IMAGE_TIER, IMAGE_TIERS } from "./image-tiers.js";
 /**
  * 🖼️ IMAGE TRIGGER ENGINE CONFIG
  * Dual-source automatic image generation (pure-JS dynamics gate + LLM director),
- * sharing a single cooldown state.
+ * with decoupled cooldowns and strict Priority 1 (Director) > Priority 2 (Dynamics) arbitration.
  */
 export const IMAGE_TRIGGER = {
   // Source A — Pure-JS Dynamics Gate thresholds (Signal B band entry)
@@ -18,9 +18,11 @@ export const IMAGE_TRIGGER = {
   band_low: 15,
   // Source A — Signal A: sum of |Δaxis| across all six axes
   displacement_threshold: 60,
-  // Shared cooldown: rounds to wait after any auto-trigger before the next one.
-  // Director-explicit triggers bypass the check but reset this timer.
-  cooldown_rounds: 3,
+  // Decoupled cooldowns:
+  // Director-explicit narrative beats: 2 rounds
+  director_cooldown_rounds: 2,
+  // Physics / dynamics displacement & band crossings: 3 rounds
+  dynamics_cooldown_rounds: 3,
   // Default tier for dynamics-gate triggers.
   default_tier: DEFAULT_IMAGE_TIER,
   // The unified 4-Tier Image Taxonomy.
@@ -29,52 +31,77 @@ export const IMAGE_TRIGGER = {
 
 /**
  * Resolves whether an image beat should trigger (Dual-source: Dynamics Gate + LLM Director)
- * subject to shared cooldown gating.
+ * with independent cooldown timers, Priority 1 (Director) arbitration, and a 1-image-per-round ceiling.
  * @param {Object} params
  * @param {any} params.snapshot - Current entity dynamics snapshot
  * @param {any} params.prev_dynamics - Previous dynamics state
  * @param {any} params.director_data - Parsed Director output
  * @param {number} params.turn_round - Active round number
- * @param {number} params.last_auto - Last round an image was auto-triggered
- * @returns {{ active: boolean, tier: string|null, source: 'director'|'dynamics'|null, signals: any, next_auto_round: number|null, director_explicit: boolean }}
+ * @param {number} [params.last_director_beat_round] - Last round Director triggered an image
+ * @param {number} [params.last_dynamics_beat_round] - Last round Dynamics triggered an image
+ * @param {number} [params.last_auto] - Backwards-compatible single cooldown timestamp fallback
+ * @returns {{ active: boolean, tier: string|null, source: 'director'|'dynamics'|null, signals: any, next_director_round: number|null, next_dynamics_round: number|null, director_explicit: boolean }}
  */
-export function resolve_image_trigger({ snapshot, prev_dynamics, director_data, turn_round, last_auto }) {
+export function resolve_image_trigger({
+  snapshot,
+  prev_dynamics,
+  director_data,
+  turn_round,
+  last_director_beat_round,
+  last_dynamics_beat_round,
+  last_auto,
+}) {
+  const dir_last = Number.isInteger(last_director_beat_round) ? last_director_beat_round : (last_auto ?? -1);
+  const dyn_last = Number.isInteger(last_dynamics_beat_round) ? last_dynamics_beat_round : (last_auto ?? -1);
+
+  const director_cooldown_elapsed = dir_last < 0 || turn_round >= dir_last + IMAGE_TRIGGER.director_cooldown_rounds;
+  const dynamics_cooldown_elapsed = dyn_last < 0 || turn_round >= dyn_last + IMAGE_TRIGGER.dynamics_cooldown_rounds;
+
+  // 1. Evaluate Director Explicit Beat (Priority 1)
+  const raw_trigger = typeof director_data?.trigger_image === "string" ? director_data.trigger_image.trim() : director_data?.trigger_image;
+  const tier_from_string = typeof raw_trigger === "string" && IMAGE_TRIGGER.tiers.includes(raw_trigger) ? raw_trigger : null;
+  const tier_from_pref =
+    typeof director_data?.image_tier === "string" && IMAGE_TRIGGER.tiers.includes(director_data.image_tier) ? director_data.image_tier : null;
+  const director_explicit = raw_trigger === true || raw_trigger === "true" || tier_from_string !== null;
+  const director_qualifies = director_explicit && director_cooldown_elapsed;
+
+  // 2. Evaluate Pure-JS Dynamics Gate (Priority 2)
   const image_trigger_eval = evaluate_image_trigger({ ai: snapshot?.ai?.dynamics, fractal: snapshot?.fractal?.dynamics }, prev_dynamics, {
     band_high: IMAGE_TRIGGER.band_high,
     band_low: IMAGE_TRIGGER.band_low,
     displacement_threshold: IMAGE_TRIGGER.displacement_threshold,
     default_tier: IMAGE_TRIGGER.default_tier,
   });
+  const dynamics_qualifies = image_trigger_eval.triggered && dynamics_cooldown_elapsed;
 
-  const cooldown_elapsed = last_auto < 0 || turn_round >= last_auto + IMAGE_TRIGGER.cooldown_rounds;
+  // 3. Priority Arbitration & 1-Image-Per-Round Ceiling
+  let active = false;
+  let tier = null;
+  let source = null;
+  let next_director_round = null;
+  let next_dynamics_round = null;
 
-  let auto_image_trigger = null;
-  let next_auto_round = null;
-  if (image_trigger_eval.triggered && cooldown_elapsed) {
-    auto_image_trigger = { tier: image_trigger_eval.tier, source: "dynamics" };
-    next_auto_round = turn_round;
+  if (director_qualifies) {
+    // Priority 1 wins — dynamics timer is NOT consumed
+    active = true;
+    source = "director";
+    tier = tier_from_string || tier_from_pref || IMAGE_TRIGGER.default_tier;
+    next_director_round = turn_round;
+  } else if (dynamics_qualifies) {
+    // Priority 2 triggers
+    active = true;
+    source = "dynamics";
+    tier = image_trigger_eval.tier || IMAGE_TRIGGER.default_tier;
+    next_dynamics_round = turn_round;
   }
-
-  const raw_trigger = typeof director_data?.trigger_image === "string" ? director_data.trigger_image.trim() : director_data?.trigger_image;
-  const tier_from_string = typeof raw_trigger === "string" && IMAGE_TRIGGER.tiers.includes(raw_trigger) ? raw_trigger : null;
-  const tier_from_pref =
-    typeof director_data?.image_tier === "string" && IMAGE_TRIGGER.tiers.includes(director_data.image_tier) ? director_data.image_tier : null;
-  const director_explicit = raw_trigger === true || raw_trigger === "true" || tier_from_string !== null;
-  const director_allowed = director_explicit && cooldown_elapsed;
-  if (director_allowed) {
-    next_auto_round = turn_round;
-  }
-
-  const active = director_allowed || auto_image_trigger !== null;
-  const tier = tier_from_string || (director_explicit ? tier_from_pref || IMAGE_TRIGGER.default_tier : auto_image_trigger?.tier || null) || null;
-  const source = active ? (director_explicit ? "director" : "dynamics") : null;
 
   return {
     active,
-    tier: active ? tier : null,
+    tier,
     source,
     signals: image_trigger_eval.signals,
-    next_auto_round,
+    next_director_round,
+    next_dynamics_round,
     director_explicit,
   };
 }

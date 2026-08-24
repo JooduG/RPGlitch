@@ -797,21 +797,29 @@ export const gamemaster = {
       const think_content = think_sections.join("\n\n");
       if (think_content) final_meta.thoughts = think_content;
 
-      // 4.6 IMAGE TRIGGER ENGINE — Dual-Source & Shared Cooldown
-      // Source A: pure-JS dynamics gate (band entry + displacement sum), no LLM call.
-      // Source B: LLM Director explicit trigger (trigger_image true or a 4-tier string).
+      // 4.6 IMAGE TRIGGER ENGINE — Decoupled Dual-Source Cooldown & Priority Arbitration
+      // Source A: pure-JS dynamics gate (band entry + displacement sum, 3-round cooldown).
+      // Source B: LLM Director explicit trigger (trigger_image / keywords visual beat, 2-round cooldown).
+      // Priority 1 (Director) > Priority 2 (Dynamics), 1 image per round ceiling.
       const turn_round = state_bridge.runtime.round || 0;
-      const last_auto = state_bridge.runtime.last_auto_image_round ?? -1;
+      const last_director_beat_round = state_bridge.runtime.last_director_beat_round ?? -1;
+      const last_dynamics_beat_round = state_bridge.runtime.last_dynamics_beat_round ?? -1;
       const resolved_image = resolve_image_trigger({
         snapshot,
         prev_dynamics,
         director_data,
         turn_round,
-        last_auto,
+        last_director_beat_round,
+        last_dynamics_beat_round,
       });
 
-      if (resolved_image.next_auto_round !== null) {
-        state_bridge.runtime.last_auto_image_round = resolved_image.next_auto_round;
+      if (resolved_image.next_director_round !== null) {
+        state_bridge.runtime.last_director_beat_round = resolved_image.next_director_round;
+        state_bridge.runtime.last_auto_image_round = resolved_image.next_director_round;
+      }
+      if (resolved_image.next_dynamics_round !== null) {
+        state_bridge.runtime.last_dynamics_beat_round = resolved_image.next_dynamics_round;
+        state_bridge.runtime.last_auto_image_round = resolved_image.next_dynamics_round;
       }
 
       final_meta.trigger_image = resolved_image.active;
@@ -1037,8 +1045,10 @@ export const gamemaster = {
 
       state_bridge.runtime.round = 0;
       state_bridge.runtime.turn_type = "SYSTEM_TURN";
-      // The prologue's own image (dispatched below) opens the shared cooldown, so
+      // The prologue's own image (dispatched below) opens the decoupled cooldowns, so
       // the opening turn's dynamics gate can't immediately fire a second image at round 0.
+      state_bridge.runtime.last_director_beat_round = 0;
+      state_bridge.runtime.last_dynamics_beat_round = 0;
       state_bridge.runtime.last_auto_image_round = 0;
 
       // Log placeholder message BEFORE streaming begins so the feed entry exists.
