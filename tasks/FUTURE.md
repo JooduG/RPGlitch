@@ -3,7 +3,7 @@
 > **Track Goal**: Minimize perceived turn latency ($\le 300\text{ms}$ p50) by consolidating Director dispatch into a fast 4-field **Director Quick Shot** (`next_action`, `keywords`, `directors_note`, `dynamics_deltas`) and offloading relational/promotion/memory persistence to the rolling **Back Shot**.  
 > **Workflow**: `/01-plan -> /02-implement`  
 > **Status**: `[~] ACTIVE`  
-> **Track Spec**: [tracks/track-1-fast-foreground-director.md](tracks/track-1-quick-shot.md)
+> **Track Spec**: [tracks/track-1-quick-shot.md](tracks/track-1-quick-shot.md)
 
 ---
 

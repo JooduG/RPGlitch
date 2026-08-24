@@ -11,7 +11,7 @@ dependencies: []
 ## Track 1 — Director Quick Shot, Unified Next Action & Latency Instrumentation
 
 > **Goal**: Minimize perceived turn latency from player action to first token stream ($\le 300\text{ms}$ p50 quick shot) by consolidating Director dispatch into a unified `next_action`, moving signature colors to Genesis, expanding `keywords` (1–3 somatic/visual triggers), upgrading `directors_note` (1–3 lines), and offloading all relational/promotion/state persistence to the rolling **Back Shot**.  
-> **Economic Context**: Perchance LLM calls are free. We optimize for perceived foreground snappiness and non-blocking concurrency.  
+> **Economic Context**: Perchance LLM calls are free. We optimize for perceived foreground snappiness and non-blocking concurrency.
 
 ---
 
@@ -19,13 +19,13 @@ dependencies: []
 
 The user-perceived cost of a turn equals the time from hitting **Send** to the character prose finishing.
 
-The Director is strictly on the critical path: its output (`next_action`, `keywords`, `dynamics_deltas`, `directors_note`) must land *before* the character prompt is built, because the prose depends on somatic tells from [`src/data/definitions/triggers.js`](../../src/data/definitions/triggers.js) and the reactive in-scene NPC roster.
+The Director is strictly on the critical path: its output (`next_action`, `keywords`, `dynamics_deltas`, `directors_note`) must land _before_ the character prompt is built, because the prose depends on somatic tells from [`src/data/definitions/triggers.js`](../../src/data/definitions/triggers.js) and the reactive in-scene NPC roster.
 
 ### Turn Execution Models
 
 ```text
 NORMAL ROUND (95% of rounds):
-[1. Director Quick Shot] (Fast 4-Field JSON) ──► [2. Foreground Character Stream] (Glitch/NPC) 
+[1. Director Quick Shot] (Fast 4-Field JSON) ──► [2. Foreground Character Stream] (Glitch/NPC)
                                                         │
                                                         └──► [3. Back Shot Stream] (Single-Entity Rolling Worker)
 
@@ -59,6 +59,7 @@ GENESIS ROUND (When Director sets next_action: "GENESIS"):
 ## 3. Deep-Dive Technical Design
 
 ### 3.1 High-Resolution Director Instrumentation
+
 - Wrap the director call (and retries) with high-resolution timers.
 - Write `runtime.last_director_ms` and a rolling ring buffer `runtime.director_ms_pool` (~50 samples) for p50/p95 metrics.
 - Surface metrics in `TelemetryCard.svelte` and dev mode.
@@ -74,13 +75,13 @@ GENESIS ROUND (When Director sets next_action: "GENESIS"):
 }
 ```
 
-- **`next_action`** *(Unified Router Key)*:
+- **`next_action`** _(Unified Router Key)_:
   - `"AI_CHARACTER"`, `"NPC_<ID>"`, `"USER_PERSONA"`, `"FRACTAL"` $\rightarrow$ Delegates active speaker.
   - `"GENESIS"` $\rightarrow$ Diverts to foreground Genesis Rich Synthesis.
   - `"EPILOGUE_CONCLUDED"`, `"EPILOGUE_COLLAPSED"` $\rightarrow$ Triggers epilogue conclusion state.
-- **`keywords`** *(1–3 items)*:
+- **`keywords`** _(1–3 items)_:
   - Combines somatic archetypes (`shame`, `vulnerability`, `fear`) and visual triggers (`cinematic_shot`, `portrait_focus`).
-- **`directors_note`** *(1–3 lines)*:
+- **`directors_note`** _(1–3 lines)_:
   - 1–3 lines of evocative somatic acting instructions, subtext, or staging directives for the upcoming speaker.
 - **`dynamics_deltas`**:
   - Physics slider nudges.
@@ -91,6 +92,7 @@ GENESIS ROUND (When Director sets next_action: "GENESIS"):
   - Vector Lore Consolidation (`past`, `future`, `eternal`, `present`)
 
 ### 3.3 Deferred Persistence Pipeline & Mutex
+
 - Coordinate with Track 2's Back Shot worker: if the user sends an action while the Back Shot is in-flight, the Back Shot pauses gracefully.
 - **Keep `_apply_in_scene_change` and Genesis creation synchronous** to maintain character prompt roster integrity.
 
@@ -99,22 +101,26 @@ GENESIS ROUND (When Director sets next_action: "GENESIS"):
 ## 4. Tactical Blueprint & Phasing
 
 ### Phase 1: High-Resolution Quick Shot Instrumentation & Mutex Setup
+
 - [ ] `task-1.1`: **`RED`** Write unit tests in `src/intelligence/kernel.test.js` asserting director timing capture on `runtime.last_director_ms` and `runtime.director_ms_pool` (ring buffer).
 - [ ] `task-1.2`: **`GREEN`** Implement high-res timing in `src/intelligence/kernel.js` around the quick shot and retries; expose rolling p50/p95 in `runtime.svelte.js`.
 - [ ] `task-1.3`: **`GREEN`** Create lightweight `generation_mutex` in `src/state/runtime.svelte.js` to coordinate foreground vs background LLM calls.
 
 ### Phase 2: Quick Shot Schema Streamlining (`next_action`, `keywords` 1-3, `directors_note`)
+
 - [ ] `task-2.1`: **`RED`** Add unit tests in `src/intelligence/director.test.js` asserting normalization of `next_action`, `keywords` (1–3 items), `directors_note` (1–3 lines), and `dynamics_deltas`.
 - [ ] `task-2.2`: **`GREEN`** Update `src/intelligence/prompts.js` to remove `<AVAILABLE_SIGNATURE_COLORS>` from the Director prompt, wire `directors_note` instructions (1–3 lines), and support 1–3 keywords from `<AVAILABLE_KEYWORDS>`.
 - [ ] `task-2.3`: **`GREEN`** Update `src/intelligence/director.js` normalizer for unified `next_action` routing (`speaker`, `genesis`, `epilogue`).
 
 ### Phase 3: Genesis Inline Branch & Back Shot Pipeline Setup
+
 - [ ] `task-3.1`: **`RED`** Add test verifying `_apply_genesis` executes synchronously when `next_action === "GENESIS"` (passing signature color palette to genesis prompt) before speaker compilation.
 - [ ] `task-3.2`: **`GREEN`** Wire persistence offloading and round-freshness hooks for the Back Shot stream in `src/intelligence/kernel.js`.
 
 ---
 
 ## 5. File Changes
+
 - [`src/intelligence/kernel.js`](../../src/intelligence/kernel.js) — Timing instrumentation, `next_action` routing, genesis branch routing, mutex lifecycle.
 - [`src/intelligence/prompts.js`](../../src/intelligence/prompts.js) — Purge signature colors from Director quick shot, update `directors_note` and `keywords` instructions, add color palette to genesis prompt.
 - [`src/intelligence/director.js`](../../src/intelligence/director.js) — Normalizer for `next_action`, `directors_note`, and `keywords`.
@@ -124,6 +130,7 @@ GENESIS ROUND (When Director sets next_action: "GENESIS"):
 ---
 
 ## 6. Verification Gate & Acceptance Criteria
+
 - [ ] Normal round p50 director quick shot $\le 300\text{ms}$, p95 $\le 600\text{ms}$ (measured from active instrumentation).
 - [ ] Director prompt tokens reduced by $\ge 150$ tokens per turn (signature color removal).
 - [ ] Genesis rounds successfully synthesize new NPC schema + signature color and pass it directly to the foreground character stream.
