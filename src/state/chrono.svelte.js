@@ -1,7 +1,7 @@
 // ⏳ CHRONO: The Heartbeat of Time
 // Manages the strict turn-based progression of the simulation.
 import { session_driver } from "@data";
-import { gamemaster, run_causality_shield, build_turn_summary } from "@intelligence";
+import { gamemaster, build_turn_summary } from "@intelligence";
 import { state_bridge } from "@utils";
 
 export class ChronoEngine {
@@ -143,43 +143,10 @@ export class ChronoEngine {
     state_bridge.simulation_state.set_intent_active(true); // Exact sub-millisecond Intent Lock
     state_bridge.app.simulation.loading = true;
     state_bridge.simulation_state.lock(); // Phase 1: System Lock
-    state_bridge.app.log("Shield scanning causality and physics...", "system");
 
-    /** @type {any} */
-    let shield_context = null;
     let final_input = input;
 
-    try {
-      // 2. OBSERVATION: Process Input & Physics (Shield)
-      // We pass the current runtime character context to the Shield
-      if (input && state_bridge.runtime.character) {
-        // Pass Fractal State for Causality Checks
-        shield_context = await run_causality_shield(input, state_bridge.runtime.character, state_bridge.runtime.active_fractal || {});
-        // 🛑 CAUSALITY CHECK
-        if (shield_context && shield_context.causality && shield_context.causality.result === "failure") {
-          state_bridge.app.log(`Causality Violation: ${shield_context.causality.constraint}`, "error");
-          // We override the 'Action' to be a System Constraint.
-          // This forces the AI to narrate the failure instead of the action.
-          final_input = `[SYSTEM]: The user attempted '${input}' but failed because: "${shield_context.causality.constraint}". Describe this failed attempt briefly and dryly.`;
-        }
-      }
-    } catch (err) {
-      const error = /** @type {any} */ (err);
-      state_bridge.app.log(`Time Fracture during Shield: ${error.message}`, "error");
-      console.error("[Chrono] 💥 Shield Failure:", error);
-      state_bridge.simulation_log.add({
-        id: `err-${Date.now()}`,
-        role: "system",
-        text: `Simulation Error: ${error.message || "Shield Scan Failure"}`,
-        timestamp: Date.now(),
-      });
-      state_bridge.app.simulation.loading = false;
-      state_bridge.simulation_state.unlock();
-      state_bridge.simulation_state.set_intent_active(false); // Release Intent Lock
-      return;
-    }
-
-    // 3. SYNTHESIS: Generate Narrative (Engine) - Runs in background, non-blocking
+    // 2. SYNTHESIS: Generate Narrative (Engine) - Runs in background, non-blocking
     if (!options.is_retry && !options.is_continue) {
       state_bridge.runtime.round = Number(state_bridge.runtime.round || 0) + 1;
     }
@@ -208,7 +175,6 @@ export class ChronoEngine {
         });
         try {
           await gamemaster.execute_turn(story_id, {
-            shield_context,
             input: final_input ?? undefined,
             signal: controller.signal,
           });
@@ -228,11 +194,11 @@ export class ChronoEngine {
           state_bridge.app.end_stream();
         }
 
-        // 4. PAST: Commit to Memory (Echo) - Timeline Safety Lock
+        // 3. PAST: Commit to Memory (Echo) - Timeline Safety Lock
         state_bridge.simulation_state.lock(); // Phase 3: Database Lock (Post-Generation)
         state_bridge.app.log("Recording memory...", "db");
 
-        // 5. ANCHOR: Persist the timeline
+        // 4. ANCHOR: Persist the timeline
         await state_bridge.runtime.save(state_bridge.runtime.round);
         state_bridge.simulation_state.unlock();
       } catch (err) {
@@ -262,7 +228,6 @@ export class ChronoEngine {
                     state_bridge.app.log("Detected orphaned turn — retrying generation once...", "warn");
                     state_bridge.simulation_state.start_generation(options.role || "ai");
                     await gamemaster.execute_turn(story_id, {
-                      shield_context,
                       input: final_input,
                       signal: controller.signal,
                     });

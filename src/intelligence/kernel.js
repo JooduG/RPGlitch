@@ -30,7 +30,6 @@ import { prune, temporal_engine } from "./temporal.js";
  * @typedef {Object} GenerationOptions
  * @property {string} [input] - User input that triggered the turn.
  * @property {string} [role] - Role label for the generation phase (ai/fractal/...).
- * @property {any} [shield_context] - Causality shield result from the previous turn.
  * @property {AbortSignal} [signal] - Abort signal for streaming/background work.
  * @property {boolean} [is_retry] - Whether this is a regeneration retry.
  * @property {boolean} [is_continue] - Whether this is a continue-in-place turn.
@@ -95,13 +94,12 @@ function strip_unmatched_think_closures(text) {
 
 /**
  * Synchronous post-turn validation and repair layer.
- * Automatically closes truncated `<think>` blocks and strips Chinese characters from narrative prose
- * without removing spaces or corrupting sentence formatting.
+ * Automatically closes truncated `<think>` blocks.
  * @param {string} response
- * @returns {{ text: string; violated: boolean; refused: boolean; structural_repair: boolean }}
+ * @returns {{ text: string; refused: boolean; structural_repair: boolean }}
  */
 function validate_and_repair_response(response) {
-  const result = { text: response || "", violated: false, refused: false, structural_repair: false };
+  const result = { text: response || "", refused: false, structural_repair: false };
 
   if (check_refusal(response)) {
     result.refused = true;
@@ -111,7 +109,7 @@ function validate_and_repair_response(response) {
   try {
     let text = result.text;
 
-    // 1. Tag Closure Pass
+    // Tag Closure Pass
     const think_openers = (text.match(/<think>/gi) || []).length;
     const think_closers = (text.match(/<\/think>/gi) || []).length;
     if (think_openers > think_closers) {
@@ -123,43 +121,10 @@ function validate_and_repair_response(response) {
       result.structural_repair = true;
     }
 
-    // 2. Chinese Bleed Parsing: Isolate narrative prose from think blocks
-    const split_regex = /(<\/think>|<think>)/i;
-    const segments = text.split(split_regex);
-
-    let in_think_block = false;
-    const processed_segments = segments.map((segment) => {
-      const lower = segment.toLowerCase();
-      if (lower === "<think>") {
-        in_think_block = true;
-        return segment;
-      }
-      if (lower === "</think>") {
-        in_think_block = false;
-        return segment;
-      }
-
-      if (in_think_block) {
-        return segment;
-      }
-
-      const chinese_range = /[\u4e00-\u9fa5]/g;
-      if (chinese_range.test(segment)) {
-        result.violated = true;
-        return segment.replace(chinese_range, "");
-      }
-      return segment;
-    });
-
-    if (result.violated) {
-      state_bridge.app.log("SINO_LOGIC bleed intercepted", "warn");
-    }
-
-    result.text = processed_segments.join("");
+    result.text = text;
   } catch (err) {
     console.warn("[GameMaster] Validation check failed:", err);
     result.text = response || "";
-    result.violated = false;
   }
   return result;
 }
@@ -966,7 +931,7 @@ export const gamemaster = {
 
       let validation_result = await this.execute_with_retry(() => make_character_try(null), 2, 1000);
 
-      if (!validation_result.violated && looks_truncated(validation_result.text)) {
+      if (looks_truncated(validation_result.text)) {
         // Only regenerate when narrative prose actually got cut off mid-sentence:
         // a think-only reply is an empty generation, not truncation, and short
         // unpunctuated beats are legitimate narrative endings.
@@ -986,7 +951,7 @@ export const gamemaster = {
       }
 
       // 6.5. POST-GENERATION PIPELINE
-      if (validation_result.violated || validation_result.structural_repair) {
+      if (validation_result.structural_repair) {
         state_bridge.runtime.structural_errors = (state_bridge.runtime.structural_errors || 0) + 1;
       } else {
         state_bridge.runtime.structural_errors = Math.max(0, (state_bridge.runtime.structural_errors || 0) - 1);
@@ -998,9 +963,6 @@ export const gamemaster = {
       // NPC's own identity/color (and so the LLM context maps them to "model").
       const log_role = npc_entity ? "npc" : generation_role;
 
-      if (validation_result.violated) {
-        final_meta.sino_logic_violation = true;
-      }
       final_meta.structural_errors = state_bridge.runtime.structural_errors;
 
       // Write-time detox: scrub banned tropes from the stored payload so the
@@ -1015,7 +977,6 @@ export const gamemaster = {
         meta: {
           id: node_id,
           round: state_bridge.runtime.round,
-          sino_logic_violation: final_meta.sino_logic_violation,
           speaker_type: npc_entity ? "npc" : undefined,
           entity_id: npc_entity ? npc_entity.id : undefined,
         },

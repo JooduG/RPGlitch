@@ -732,29 +732,11 @@ describe("gamemaster (Intelligence Kernel)", () => {
       });
 
       expect(result.response).toBe("<think>Analyzing user state</think>");
-      expect(session_driver.log_message).toHaveBeenCalledWith("<think>Analyzing user state</think>", expect.any(String), expect.any(String), {
-        turn_type: "AI_TURN",
-        story_id: "story-123",
-        meta: expect.any(Object),
-      });
-    });
-
-    it("scrubs Chinese character bleed outside think block but keeps inside characters and spacing intact", async () => {
-      vi.mocked(llm_service.generate)
-        .mockResolvedValueOnce("{}")
-        .mockResolvedValueOnce("<think>thought block containing 中文</think> Normal spacing and some 中文 character bleed.");
-
-      const result = await gamemaster.execute_turn("story-123", {
-        input: "Hello",
-        role: "ai",
-      });
-
-      expect(result.response).toBe("<think>thought block containing 中文</think> Normal spacing and some  character bleed.");
       expect(session_driver.log_message).toHaveBeenCalledWith(
-        "<think>thought block containing 中文</think> Normal spacing and some  character bleed.",
+        "<think>Analyzing user state</think>",
         expect.any(String),
         expect.any(String),
-        { turn_type: "AI_TURN", story_id: "story-123", meta: expect.objectContaining({ sino_logic_violation: true }) },
+        expect.objectContaining({ turn_type: "AI_TURN", story_id: "story-123" }),
       );
     });
 
@@ -773,7 +755,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
         "No think block here.   Multiple   spaces   remain   intact.",
         expect.any(String),
         expect.any(String),
-        { turn_type: "AI_TURN", story_id: "story-123", meta: expect.not.objectContaining({ sino_logic_violation: true }) },
+        expect.objectContaining({ turn_type: "AI_TURN", story_id: "story-123" }),
       );
     });
 

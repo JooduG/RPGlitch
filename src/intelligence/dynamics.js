@@ -151,20 +151,3 @@ export function build_signals_xml(ai_dynamics = {}, fractal_dynamics = {}, optio
   const inner = active.map((s) => `      • ${s.text}`).join("\n");
   return `    <DYNAMICS_SIGNALS>\n${inner}\n    </DYNAMICS_SIGNALS>`;
 }
-
-/**
- * 🛡️ CAUSALITY SHIELD (Physics Scan)
- * Evaluates if an action is possible within the current simulation context.
- * Currently a pass-through placeholder for future causality logic — the turn
- * loop treats a "failure" result as a system-imposed constraint on the action
- * (forcing the AI to narrate the failure instead of the action).
- * @param {string} input
- * @param {any} character
- * @param {any} fractal
- * @returns {Promise<{causality: {result: string; constraint?: string;};}>}
- */
-export async function run_causality_shield(_input, _character, _fractal) {
-  return {
-    causality: { result: "success" },
-  };
-}
