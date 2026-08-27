@@ -161,7 +161,7 @@ export default defineConfig(({ command, mode }) => {
     server: {
       port: 4001,
       strictPort: false,
-      open: true,
+      open: false,
       watch:
         mode === "test"
           ? null
