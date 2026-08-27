@@ -132,7 +132,7 @@ export function auditCodebaseTokens() {
           const token_name = match[1];
           if (!definedMap.has(token_name)) {
             // Exempt local component variables and standard Tailwind variables
-            if (token_name === "--stage-align") continue;
+            if (token_name === "--stage-align" || token_name === "--shimmer-color") continue;
             if (token_name.startsWith("--color-")) continue;
             if (token_name.startsWith("--bits-")) continue;
             if (token_name.startsWith("--state-")) continue;

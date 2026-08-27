@@ -74,13 +74,13 @@ The four-quadrant state architecture defining every entity:
 - **Past (Memories)**: Semantic vector array of episodic memories and historical anchors retrieved via vector RAG.
 - **Future (Standing Agenda)**: Single consolidated prose field representing immediate trajectory, impending intent, and active goals (rewritten by the Memory Forge).
 
-### The 3-Tier Entity Hierarchy
+### The Entity Taxonomy (Binary Model & Rolling Back Shot)
 
-> ✅ **IMPLEMENTED (2026-08-16, track-npc-expansion).** `role_tier` (1 Background · 2 Recurring · 3 Major) lives on every character entity via `normalize()`; the ladder is driven by Director `promotions` and `gamemaster.spawn_npc` genesis.
-
-1. **Tier 1 (Background)**: Ephemeral, in-stream text mentions. Zero IndexedDB storage; immediate atmospheric presence.
-2. **Tier 2 (Recurring)**: Persistent IndexedDB contacts. Retains relational strings, dynamic axes (`openness`, `affinity`), and plot history.
-3. **Tier 3 (Major / Co-Star)**: Full 4-quadrant memory, vector RAG recall, standing future agenda, and party co-star status.
+> ✅ **SUPERSEDED (2026-08-24, Track 2 Back Shot Rolling Worker).** The legacy `role_tier` promotion system was purged in favor of a clean, binary model:
+> 1. **Prose Extras**: Ephemeral background characters mentioned on-the-fly in narrative prose (no DB record).
+> 2. **First-Class Entities**: Once minted via Genesis (`next_action: "GENESIS"`), every character is a full entity with an identity card, signature color, and persistent memory.
+>
+> All first-class entities receive continuous, equal memory deepening via the single-entity round-robin **Back Shot** worker ($\text{AI} \rightarrow \text{User} \rightarrow \text{Fractal} \rightarrow \text{NPC}_n$).
 
 ### Universal Relational Graph
 
