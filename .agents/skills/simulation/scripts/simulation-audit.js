@@ -13,7 +13,7 @@
  */
 
 import { context_builder } from "../../../../src/intelligence/context.js";
-import { prompt_builder } from "../../../../src/intelligence/prompts.js";
+import { prompt_builder } from "../../../../src/intelligence/prompts/builder.js";
 import { premade } from "../../../../src/data/definitions/premades.js";
 
 /**

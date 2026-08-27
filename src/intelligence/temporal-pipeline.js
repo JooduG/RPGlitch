@@ -16,7 +16,7 @@ import {
 import { llm_service } from "@platform";
 import { ensure_embedding, score_by_semantics, embed, is_ready } from "./embeddings.svelte.js";
 import { extract_json_block } from "./parser.js";
-import { prompt_builder } from "./prompts.js";
+import { render_memory } from "./prompts/temporal-prompts.js";
 
 /**
  * @typedef {import('@state/runtime.svelte.js').SimulationEntity} SimulationEntity
@@ -538,11 +538,10 @@ export async function forge_memory(entity_targets, history_slice, options = {}) 
     }
 
     const attempt = async () => {
-      const payload = prompt_builder.build_memory_prompt(target_entity, history_slice, {
-        target_entity,
-        target_key,
-        other_entities,
-      });
+      const payload = {
+        system: render_memory({ target_entity, target_key, other_entities, history: history_slice }),
+        messages: [],
+      };
       const response = await llm_service.generate(payload, {
         json: true,
         silent: true,

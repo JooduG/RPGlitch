@@ -15,10 +15,10 @@ import { llm_service, looks_truncated, raw_to_text, raw_stop_reason } from "@pla
 import { context_builder } from "./context.js";
 import { dynamics_engine, compute_deltas } from "./dynamics.js";
 import { normalize_director_data, parse_director_json, synthesize_director_fallback } from "./director.js";
-import { prompt_builder, render_terse_director_task } from "./prompts.js";
+import { prompt_builder, render_terse_director_task } from "./prompts/builder.js";
 import { sort_into_profile, apply_profile_to_entity } from "./profile-pipeline.js";
 import { build_update_entry, build_retrieval } from "./telemetry.js";
-import { prune, temporal_engine } from "./temporal.js";
+import { prune, temporal_engine } from "./temporal-pipeline.js";
 
 /**
  * @typedef {Object} GenerationOptions

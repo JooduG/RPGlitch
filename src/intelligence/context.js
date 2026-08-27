@@ -21,7 +21,7 @@ import { state_bridge, get_value } from "@utils";
 import { ensure_embeddings } from "./embeddings.svelte.js";
 import { ENTITY_CATALOG } from "@data";
 import { clean_text } from "./parser.js";
-import { resolve_vector_pool } from "./temporal.js";
+import { resolve_vector_pool } from "./temporal-pipeline.js";
 
 /************************************************************************************
  * [SECTION: PRIVATE HELPERS]

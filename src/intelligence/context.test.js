@@ -71,10 +71,9 @@ vi.mock("@data/sessions.svelte.js", () => ({
   },
 }));
 
-// Mock @intelligence/temporal.js to keep context.js's resolve_vector_pool
-// real while avoiding side effects; context no longer imports temporal_engine
-// itself (FUTURE is a prose field, so the vector lifecycle is gone).
-vi.mock("@intelligence/temporal.js", async (importOriginal) => {
+// Mock @intelligence/temporal-pipeline.js to keep context.js's resolve_vector_pool
+// functioning while avoiding full database dependencies
+vi.mock("@intelligence/temporal-pipeline.js", async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,

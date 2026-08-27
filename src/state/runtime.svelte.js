@@ -8,7 +8,7 @@ import { app } from "./app-store.svelte.js";
 // 2. Story / Narrative (story, story_id, turn, ready)
 // 3. Physics / Dynamics (ai_physics, fractal_physics)
 /**
- * @typedef {import('@intelligence/temporal.js').TemporalVector} TemporalVector
+ * @typedef {import('@intelligence/temporal-pipeline.js').TemporalVector} TemporalVector
  */
 
 /**

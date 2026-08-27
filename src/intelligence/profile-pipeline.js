@@ -12,8 +12,8 @@
  */
 
 import { parse_profile_json } from "./parser.js";
-import { prompt_builder } from "./prompts.js";
-import { temporal_engine } from "./temporal.js";
+import { prompt_builder } from "./prompts/builder.js";
+import { temporal_engine } from "./temporal-pipeline.js";
 import { llm_service } from "@platform";
 import { generate_uuid } from "@utils";
 

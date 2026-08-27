@@ -8,7 +8,7 @@ import {
   is_origin,
   prune,
   archive_chapter,
-} from "./temporal.js";
+} from "./temporal-pipeline.js";
 import { llm_service } from "@platform";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { embed } from "@intelligence/embeddings.svelte.js";
@@ -28,7 +28,7 @@ vi.mock("@data/sessions.svelte.js", () => ({
   },
 }));
 
-vi.mock("@intelligence/prompts.js", () => ({
+vi.mock("@intelligence/prompts/builder.js", () => ({
   prompt_builder: {
     build_memory_prompt: vi.fn(() => ({ system: "mock prompt", messages: [] })),
   },

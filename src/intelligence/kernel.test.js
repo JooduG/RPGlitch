@@ -1,8 +1,8 @@
 import { context_builder } from "./context.js";
 import { dynamics_engine } from "./dynamics.js";
 import { gamemaster } from "./kernel.js";
-import { prompt_builder } from "./prompts.js";
-import { temporal_engine } from "./temporal.js";
+import { prompt_builder } from "./prompts/builder.js";
+import { temporal_engine } from "./temporal-pipeline.js";
 import { llm_service } from "@platform";
 import { session_driver } from "@data";
 import { visual_engine, spawn_image_beat, sweep_stale_ghosts, resolve_image_trigger } from "@media";
@@ -72,7 +72,7 @@ vi.mock("@intelligence/context.js", () => ({
   },
 }));
 
-vi.mock("@intelligence/prompts.js", () => ({
+vi.mock("@intelligence/prompts/builder.js", () => ({
   prompt_builder: {
     build_prologue: vi.fn(),
     build_director_prompt: vi.fn(),
@@ -203,7 +203,7 @@ vi.mock("@utils", async (importOriginal) => {
   };
 });
 
-vi.mock("@intelligence/temporal.js", async (importOriginal) => {
+vi.mock("@intelligence/temporal-pipeline.js", async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
