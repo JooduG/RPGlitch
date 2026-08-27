@@ -6,11 +6,10 @@
  * Aggregates all domain prompt builders into a single, cohesive prompt_builder service.
  */
 
-import { PROTOCOL_LIBRARY, ENTITY_CATALOG } from "@data";
+import { ENTITY_CATALOG } from "@data";
 import { temporal_engine } from "../temporal-pipeline.js";
 import { parse_macros, render_protocols, render_builder } from "./shared.js";
 import {
-  DIRECTOR_JSON_SCHEMA,
   render_director,
   render_character,
   render_npc_character,
@@ -18,26 +17,8 @@ import {
   render_terse_director_task,
   build_narrator,
 } from "./story-prompts.js";
-import { BACK_SHOT_JSON_SCHEMA, render_chapter_history_xml, render_entity_memory_context, render_memory } from "./temporal-prompts.js";
-import { render_enhancement_field_context, render_enhancement, render_profile_sorting } from "./profile-prompts.js";
-
-// Re-exports so @intelligence and downstream consumers share the same catalog
-export {
-  PROTOCOL_LIBRARY,
-  DIRECTOR_JSON_SCHEMA,
-  BACK_SHOT_JSON_SCHEMA,
-  render_director,
-  render_character,
-  render_npc_character,
-  render_ghostwriter,
-  render_terse_director_task,
-  render_chapter_history_xml,
-  render_entity_memory_context,
-  render_memory,
-  render_enhancement_field_context,
-  render_enhancement,
-  render_profile_sorting,
-};
+import { render_memory } from "./temporal-prompts.js";
+import { render_enhancement, render_profile_sorting } from "./profile-prompts.js";
 
 export const prompt_builder = {
   parse_macros(text, owner, entities = {}) {

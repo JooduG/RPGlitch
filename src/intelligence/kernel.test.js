@@ -1,6 +1,5 @@
-import { context_builder } from "./context.js";
+import { context_builder, gamemaster } from "./kernel.js";
 import { dynamics_engine } from "./dynamics.js";
-import { gamemaster } from "./kernel.js";
 import { prompt_builder } from "./prompts/builder.js";
 import { temporal_engine } from "./temporal-pipeline.js";
 import { llm_service } from "@platform";
@@ -66,11 +65,6 @@ const _mock_simulation_state = {
 };
 
 // Mock dependencies
-vi.mock("@intelligence/context.js", () => ({
-  context_builder: {
-    build_context: vi.fn(),
-  },
-}));
 
 vi.mock("@intelligence/prompts/builder.js", () => ({
   prompt_builder: {
@@ -271,6 +265,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
     _mock_runtime.active_npcs = {};
     _mock_runtime.in_scene_npc_ids = [];
     _mock_runtime.streaming_entity_id = null;
+    vi.spyOn(context_builder, "build_context");
   });
 
   describe("capture_dynamics_delta()", () => {
