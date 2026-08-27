@@ -6,7 +6,7 @@
    * Part of the RPGlitch UI.
    */
   import { Button, TextField, tooltip } from "@primitives";
-  import { derive_vector_title } from "@utils";
+  import { derive_vector_title } from "@intelligence";
 
   /**
    * @typedef {Object} VectorItem

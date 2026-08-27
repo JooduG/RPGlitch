@@ -10,7 +10,8 @@
  * prose field merging + register resolution live in @utils/text.js and @data.
  */
 
-import { collapse_history, safe_parse_pseudo_json, strip_cognition_blocks } from "@utils";
+import { collapse_history, safe_parse_pseudo_json, strip_cognition_blocks, clean_text, clean_xml, extract_json_block } from "@utils";
+export { clean_text, clean_xml, extract_json_block };
 
 /**
  * Evaluates if a given text should be refused based on safety or policy rules.
@@ -37,6 +38,81 @@ export const check_refusal = (text) => {
   ];
   return REFUSAL_TRIGGERS.some((trigger) => lower.includes(trigger));
 };
+
+/**
+ * Drops `</think>` closing tags that appear while no think block is open.
+ * @param {string} text
+ * @returns {string}
+ */
+export function strip_unmatched_think_closures(text) {
+  if (!text) return text;
+  const segments = text.split(/(<\/think>|<think>)/i);
+  let in_think = false;
+  const kept = [];
+  for (const segment of segments) {
+    if (/^<think>$/i.test(segment)) {
+      in_think = true;
+      kept.push(segment);
+    } else if (/^<\/think>$/i.test(segment)) {
+      if (in_think) {
+        in_think = false;
+        kept.push(segment);
+      }
+    } else {
+      kept.push(segment);
+    }
+  }
+  return kept.join("");
+}
+
+/**
+ * Synchronous post-turn validation and repair layer.
+ * Automatically closes truncated `<think>` blocks.
+ * @param {string} response
+ * @returns {{ text: string; refused: boolean; structural_repair: boolean }}
+ */
+export function validate_and_repair_response(response) {
+  const result = { text: response || "", refused: false, structural_repair: false };
+
+  if (check_refusal(response)) {
+    result.refused = true;
+    return result;
+  }
+
+  try {
+    let text = result.text;
+
+    // Tag Closure Pass
+    const think_openers = (text.match(/<think>/gi) || []).length;
+    const think_closers = (text.match(/<\/think>/gi) || []).length;
+    if (think_openers > think_closers) {
+      text += "</think>";
+      result.structural_repair = true;
+    } else if (think_closers > think_openers) {
+      // Stray re-closures after the think block already closed (e.g. "...prose.</think>").
+      text = strip_unmatched_think_closures(text);
+      result.structural_repair = true;
+    }
+
+    result.text = text;
+  } catch (err) {
+    console.warn("[Parser] Validation check failed:", err);
+    result.text = response || "";
+  }
+  return result;
+}
+
+/**
+ * Closes out a truncated reply in-character so the narrative never ends mid-sentence.
+ * @param {string} text
+ * @param {string} character_name
+ * @returns {string}
+ */
+export function force_close_response(text, character_name) {
+  const t = String(text || "").trimEnd();
+  if (!t) return t;
+  return `${t}\n\n${character_name} goes quiet, the moment settling around ${character_name === "AI" ? "them" : "it"} like dust.`;
+}
 
 /**
  * Extracts <think> blocks from text.
@@ -106,21 +182,6 @@ export function parse_think_block(text) {
 }
 
 /**
- * Extracts the outermost JSON object from a raw LLM response.
- * Strips markdown code fences and isolates the substring between the first "{" and last "}".
- * @param {string} raw
- * @returns {string|null} The extracted JSON string, or null if no braces found.
- */
-export function extract_json_block(raw) {
-  if (!raw) return null;
-  const stripped = raw.replace(/```json\n?|```/g, "").trim();
-  const first_brace = stripped.indexOf("{");
-  const last_brace = stripped.lastIndexOf("}");
-  if (first_brace === -1 || last_brace === -1) return null;
-  return stripped.substring(first_brace, last_brace + 1);
-}
-
-/**
  * Parses a raw LLM profile-sorting response into a structured object.
  * Strips cognition blocks and code fences, isolates the outermost JSON object,
  * and returns null on any failure (no braces, malformed JSON).
@@ -163,40 +224,6 @@ export function clean_image_prompts(text) {
   }
 
   return result;
-}
-
-/**
- * Text sanitization for prompt safety.
- * Removes markdown-like characters and collapses whitespace.
- * @param {string|null|undefined} text
- * @param {number} [limit=500]
- * @returns {string}
- */
-export function clean_text(text, limit = 500) {
-  if (!text) return "";
-  const clean = text
-    .replace(/^#{1,6}\s/gm, "")
-    .replace(/^[>-]\s/gm, "")
-    .replace(/[*_]{1,2}([^*_]+)[*_]{1,2}/g, "$1")
-    .replace(/\s+/g, " ")
-    .trim();
-  return clean.length > limit ? clean.substring(0, limit) + "..." : clean;
-}
-
-/**
- * Recursively cleans empty XML tags from a string.
- * @param {string} str
- * @returns {string}
- */
-export function clean_xml(str) {
-  let prev;
-  let curr = str;
-  do {
-    prev = curr;
-    curr = curr.replace(/^[ \t]*<([A-Z_]+)(?: [^>]*)?>\s*<\/\1>[ \t]*\n/gm, "");
-    curr = curr.replace(/<([A-Z_]+)(?: [^>]*)?>\s*<\/\1>/g, "");
-  } while (prev !== curr);
-  return curr.replace(/\n{3,}/g, "\n");
 }
 
 /**

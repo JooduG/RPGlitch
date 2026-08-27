@@ -1,11 +1,46 @@
 /**
- * src/intelligence/embeddings.svelte.js
- * 🔮 EMBEDDINGS ENGINE — Semantic vector matching via Transformers.js
+ * src/platform/embeddings.svelte.js
+ * 🔮 EMBEDDINGS ENGINE — Semantic vector matching via Transformers.js & Vector Codec
  * Lazy-loads an ONNX sentence-transformer model in the browser via WASM/WebGPU.
  * Embeds text into 384-dim float arrays; cosine similarity for semantic retrieval.
  */
 
-import { deserialize_embedding, EMBEDDING_DIM, onnx_mutex, mark_ort_ready, cosine_similarity } from "@utils";
+import { onnx_mutex, mark_ort_ready, cosine_similarity } from "@utils";
+
+/** The canonical embedding dimension produced by the model and enforced on persisted vectors. */
+export const EMBEDDING_DIM = 384;
+
+/**
+ * Serializes an embedding into a JSON-safe form (number[]).
+ * @param {any} emb
+ * @returns {number[] | null}
+ */
+export function serialize_embedding(emb) {
+  if (!emb) return null;
+  if (Array.isArray(emb)) return emb.length ? emb.slice() : null;
+  if (emb instanceof Float32Array) return Array.from(emb);
+  if (ArrayBuffer.isView(emb)) return Array.from(new Float32Array(emb.buffer, emb.byteOffset, emb.length));
+  return null;
+}
+
+/**
+ * Deserializes a stored embedding back into a Float32Array of EMBEDDING_DIM.
+ * Accepts Float32Array or number[] (the JSON-safe persisted form). Returns
+ * null for missing/corrupt values so callers re-infer.
+ * @param {any} value
+ * @returns {Float32Array | null}
+ */
+export function deserialize_embedding(value) {
+  if (value instanceof Float32Array) return value.length === EMBEDDING_DIM ? value : null;
+  if (Array.isArray(value)) {
+    if (value.length !== EMBEDDING_DIM) return null;
+    for (const n of value) {
+      if (typeof n !== "number" || !Number.isFinite(n)) return null;
+    }
+    return Float32Array.from(value);
+  }
+  return null;
+}
 
 let _pipeline = null;
 let _loading = null;

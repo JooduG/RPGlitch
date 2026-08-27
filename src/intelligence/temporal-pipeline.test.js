@@ -9,9 +9,8 @@ import {
   prune,
   archive_chapter,
 } from "./temporal-pipeline.js";
-import { llm_service } from "@platform";
+import { llm_service, embed } from "@platform";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { embed } from "@intelligence/embeddings.svelte.js";
 import { cosine_similarity, state_bridge } from "@utils";
 
 // Mock dependencies
@@ -34,15 +33,18 @@ vi.mock("@intelligence/prompts/builder.js", () => ({
   },
 }));
 
-vi.mock("@intelligence/embeddings.svelte.js", () => ({
+vi.mock("@platform/embeddings.svelte.js", () => ({
   ensure_embedding: vi.fn(async (v) => {
-    v._embedding = new Float32Array(384);
-    return v._embedding;
+    if (v) v._embedding = new Float32Array(384);
+    return v?._embedding;
   }),
   ensure_embeddings: vi.fn(async () => {}),
   score_by_semantics: vi.fn(async (vectors) => vectors.map((v) => ({ vector: v, similarity: 0 }))),
   embed: vi.fn(async () => new Float32Array(384)),
   is_ready: vi.fn(() => false),
+  serialize_embedding: vi.fn((e) => (e ? Array.from(e) : null)),
+  deserialize_embedding: vi.fn((e) => (e ? (e instanceof Float32Array ? e : Float32Array.from(e)) : null)),
+  EMBEDDING_DIM: 384,
 }));
 
 vi.mock("@utils", async (importOriginal) => {

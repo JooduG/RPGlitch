@@ -92,6 +92,71 @@ export function build_retrieval(vectors) {
 }
 
 /**
+ * CAPTURE DYNAMICS DELTA
+ * Detects changes in entity dynamics and logs a telemetry entry to session_driver.
+ * @param {any} bridge
+ * @param {any} snapshot
+ * @param {any} [meta]
+ */
+export async function capture_dynamics_delta(bridge, snapshot, meta = null) {
+  const { compute_deltas } = await import("./dynamics.js");
+  const deltas = [];
+  const log_strings = [];
+
+  if (snapshot.ai?.dynamics) {
+    compute_deltas("ai", snapshot.ai.dynamics, bridge.runtime.ai, deltas, log_strings);
+    if (bridge.runtime.active_ai?.id) {
+      await bridge.runtime.update_entity("character", bridge.runtime.active_ai.id, {
+        dynamics: { ...snapshot.ai.dynamics },
+      });
+    }
+  }
+
+  if (snapshot.fractal?.dynamics) {
+    compute_deltas("fractal", snapshot.fractal.dynamics, bridge.runtime.fractal, deltas, log_strings);
+    if (bridge.runtime.active_fractal?.id) {
+      await bridge.runtime.update_entity("fractal", bridge.runtime.active_fractal.id, {
+        dynamics: { ...snapshot.fractal.dynamics },
+      });
+    }
+  }
+
+  if (deltas.length > 0 || meta) {
+    const mutations = meta?.mutations || {};
+    const retrieval = build_retrieval(meta?.vectors);
+    const dynamics_for = (target) =>
+      deltas.filter((d) => d.target === target).map(({ axis, old_value, new_value, diff }) => ({ axis, old_value, new_value, diff }));
+
+    const updates = {};
+
+    const ai_entry = build_update_entry(snapshot.ai?.name || bridge.runtime.active_ai?.name, mutations.AI_CHARACTER, dynamics_for("ai"), retrieval);
+    if (ai_entry) updates.AI_CHARACTER = ai_entry;
+
+    const user_entry = build_update_entry(bridge.runtime.active_user?.name, mutations.USER_PERSONA, [], []);
+    if (user_entry) updates.USER_PERSONA = user_entry;
+
+    const fractal_entry = build_update_entry(
+      snapshot.fractal?.name || bridge.runtime.active_fractal?.name,
+      mutations.FRACTAL,
+      dynamics_for("fractal"),
+      [],
+    );
+    if (fractal_entry) updates.FRACTAL = fractal_entry;
+
+    await bridge.session_driver.log_system_entry(log_strings.length > 0 ? log_strings.join(" | ") : "Simulation Telemetry Snapshot", "system", {
+      type: "DYNAMICS_DELTA",
+      trigger_image: meta?.trigger_image === true,
+      ...(meta?.image_trigger ? { image_trigger: meta.image_trigger } : {}),
+      ...(meta?.image_tier ? { image_tier: meta.image_tier } : {}),
+      ...(meta?.image_source ? { image_source: meta.image_source } : {}),
+      ...(meta?.image_signals ? { image_signals: meta.image_signals } : {}),
+      ...(meta?.thoughts ? { thoughts: meta.thoughts } : {}),
+      updates,
+    });
+  }
+}
+
+/**
  * Builds the per-turn DevMode summary line: which roles produced how many
  * messages in the recent feed tail. An empty tail reports that nothing was
  * recorded so a silently-empty round is visible in the telemetry log.
@@ -109,4 +174,29 @@ export function build_turn_summary(feed, round) {
   }
   const parts = Object.entries(counts).map(([r, n]) => `${r}×${n}`);
   return `Turn ${round} complete — ${parts.length ? parts.join(", ") : "no messages recorded"}.`;
+}
+
+/**
+ * Derives a punchy single-line header title from directive text.
+ * @param {string} text - Raw directive text
+ * @param {number} [maxLen=38] - Target maximum length
+ * @returns {string}
+ */
+export function derive_vector_title(text, maxLen = 38) {
+  if (!text || typeof text !== "string") return "";
+  const cleaned = text
+    .trim()
+    .replace(/^["'“”«»]+|["'“”«»]+$/g, "")
+    .replace(/\s+/g, " ");
+
+  if (!cleaned) return "";
+
+  if (cleaned.length <= maxLen) {
+    return cleaned.replace(/[.,;:]+$/, "");
+  }
+
+  const sub = cleaned.slice(0, maxLen);
+  const last_space = sub.lastIndexOf(" ");
+  const truncated = last_space > 15 ? sub.slice(0, last_space) : sub;
+  return truncated.replace(/[.,;:]+$/, "") + "…";
 }

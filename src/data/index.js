@@ -27,4 +27,5 @@ export {
   build_available_keywords_xml,
 } from "./definitions/triggers.js";
 export { VISUAL_STYLES } from "./definitions/visual-styles.js";
+export { DYNAMICS_META } from "./definitions/dynamics.js";
 export { ENTITY_FRAGMENTS, ENTITY_CATALOG, TEMPORAL_CONTRACT, PROFILE_SECTIONS_BY_TYPE } from "./definitions/fragments.js";

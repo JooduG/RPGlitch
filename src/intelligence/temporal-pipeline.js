@@ -5,17 +5,10 @@
  * scoring, caps, eviction, consolidation, and the read paths that surface them.
  */
 
-import {
-  cosine_similarity,
-  deserialize_embedding,
-  escape_unescaped_json_quotes,
-  generate_uuid as _uuid,
-  merge_prose_into_field,
-  state_bridge,
-} from "@utils";
-import { llm_service } from "@platform";
-import { ensure_embedding, score_by_semantics, embed, is_ready } from "./embeddings.svelte.js";
+import { cosine_similarity, escape_unescaped_json_quotes, generate_uuid as _uuid, state_bridge } from "@utils";
+import { llm_service, ensure_embedding, score_by_semantics, embed, is_ready, deserialize_embedding } from "@platform";
 import { extract_json_block } from "./parser.js";
+import { merge_prose_into_field } from "./payload.js";
 import { render_memory } from "./prompts/temporal-prompts.js";
 
 /**

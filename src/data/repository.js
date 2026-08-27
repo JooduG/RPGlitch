@@ -12,7 +12,8 @@
 import { db } from "./db.js";
 import { normalize, format_premade } from "./normalizer.js";
 import { premade } from "./definitions/premades.js";
-import { serialize_embedding, deserialize_embedding, generate_uuid, stories_bridge } from "@utils";
+import { generate_uuid, stories_bridge } from "@utils";
+import { serialize_embedding, deserialize_embedding } from "@platform";
 
 const error = console.error;
 const premade_entity_map = new Map((premade?.entities || []).map((e) => [e.id, e]));

@@ -9,7 +9,7 @@ import { SvelteSet } from "svelte/reactivity";
 import { resolve_px, stories_bridge, guarded_transition } from "@utils";
 import { db, entities, stories, normalize } from "@data";
 import { visual_engine, get_signature_color, Audio } from "@media";
-import { embeddings_engine } from "@intelligence";
+import { embeddings_engine } from "@platform";
 import { runtime } from "./runtime.svelte.js";
 import { streaming as streaming_store } from "./streaming.svelte.js";
 import { dev_log } from "./dev-log.svelte.js";

@@ -1,5 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
+  render_director,
   normalize_director_data,
   normalize_speaker,
   normalize_in_scene_change,
@@ -10,6 +11,99 @@ import {
   resolve_speaker_engine,
   STORY_STATUS_VALUES,
 } from "./director.js";
+
+const _mock_app = {
+  settings: { narrative_style: "default" },
+};
+
+vi.mock("@utils", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    state_bridge: {
+      get app() {
+        return _mock_app;
+      },
+      get runtime() {
+        return { active_fractal: null };
+      },
+    },
+  };
+});
+
+describe("Director Quick Shot Prompt (render_director)", () => {
+  const base_payload = () => ({
+    round: 1,
+    entities: {
+      AI: {
+        name: "Viper",
+        present: { non_physical: "Volatile Present" },
+        eternal: { non_physical: "Static Eternal" },
+        past: [{ directive: "Viper past 1" }],
+        future: "Viper future 1",
+      },
+      USER: {
+        name: "Ghost",
+        present: { non_physical: "Ghost Present" },
+        eternal: { non_physical: "Ghost Eternal" },
+        past: [{ directive: "Ghost past 1" }],
+        future: "Ghost future 1",
+      },
+      FRACTAL: {
+        name: "Void",
+        present: { non_physical: "Void Present" },
+        eternal: { non_physical: "Void Eternal" },
+        past: [{ directive: "Void past 1" }],
+        future: "Void future 1",
+      },
+    },
+    simulation_log: [],
+    input: "Check the door.",
+  });
+
+  const base_snapshot = {
+    ai: { dynamics: { intensity: 50, openness: 60 } },
+    fractal: { dynamics: { entropy: 10 } },
+    flags: {},
+  };
+
+  it("exposes <AVAILABLE_KEYWORDS> and JSON schema keys", () => {
+    const result = render_director({ ...base_payload(), compressed_snapshot: base_snapshot });
+    expect(result.system).toContain("<AVAILABLE_KEYWORDS>");
+    expect(result.system).toContain("shame");
+    expect(result.system).toContain("betrayal");
+    expect(result.task).toContain('"next_action"');
+    expect(result.task).toContain('"keywords"');
+    expect(result.task).toContain('"directors_note"');
+    expect(result.task).toContain("EPILOGUE_CONCLUDED");
+  });
+
+  it("includes PAST state for all active entities in the Director prompt", () => {
+    const result = render_director({ ...base_payload(), compressed_snapshot: base_snapshot });
+    expect(result.system).toContain("<MEMORIES>");
+    expect(result.system).toContain("Viper past 1");
+    expect(result.system).toContain("Ghost past 1");
+    expect(result.system).toContain("Void past 1");
+  });
+
+  it("nudges Director toward fractal narration on non-verbal environmental turns", () => {
+    const env_payload = { ...base_payload(), input: "I press my palm flat against the cold iron gate and wait.", compressed_snapshot: base_snapshot };
+    const result = render_director(env_payload);
+    expect(result.task).toContain("<USER_ACTION_NOTE>");
+    expect(result.task).toContain('"speaker" to "fractal"');
+    expect(result.system).toContain("SPEAKER_ROUTING");
+  });
+
+  it("emits compact ROSTER and SCENE_ROSTER when NPCs are present", () => {
+    const npc_entities = [{ id: "npc-elias", name: "Elias", role_tier: 2, description: "Archivist", relationships: ["Elias → Viper: wary"] }];
+    const result = render_director({ ...base_payload(), npc_entities, in_scene_ids: ["npc-elias"], compressed_snapshot: base_snapshot });
+    expect(result.system).toContain("<ROSTER>");
+    expect(result.system).toContain("Elias (id: npc-elias)");
+    expect(result.system).toContain("In-Scene");
+    expect(result.system).toContain("<SCENE_ROSTER>");
+    expect(result.system).toContain("<RELATIONAL_MESH>");
+  });
+});
 
 describe("normalize_director_quick_shot (Track 1 Schema)", () => {
   it("normalizes next_action correctly for AI, Fractal, NPC, Genesis, and Epilogues", () => {

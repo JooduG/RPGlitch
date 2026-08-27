@@ -1,5 +1,6 @@
 import { clean_image_prompts, strip_cognition_blocks, parse_think_block, safe_parse_pseudo_json, check_refusal } from "./parser.js";
-import { escape_xml, merge_prose_into_field } from "@utils";
+import { merge_prose_into_field } from "./payload.js";
+import { escape_xml } from "@utils";
 import { describe, expect, it } from "vitest";
 
 describe("strip_cognition_blocks", () => {

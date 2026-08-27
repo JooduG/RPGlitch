@@ -4,7 +4,7 @@
  */
 
 import { describe, expect, it, vi } from "vitest";
-import { render_director, render_character, render_npc_character, render_ghostwriter, build_narrator } from "./story-prompts.js";
+import { render_character, render_npc_character, render_ghostwriter, build_narrator } from "./story-prompts.js";
 
 const _mock_app = {
   settings: { narrative_style: "default" },
@@ -60,45 +60,6 @@ describe("Story Prompts (story-prompts.js)", () => {
     fractal: { dynamics: { entropy: 10 } },
     flags: {},
   };
-
-  describe("Director Quick Shot Prompt (render_director)", () => {
-    it("exposes <AVAILABLE_KEYWORDS> and JSON schema keys", () => {
-      const result = render_director(base_payload(), base_snapshot);
-      expect(result.system).toContain("<AVAILABLE_KEYWORDS>");
-      expect(result.system).toContain("shame");
-      expect(result.system).toContain("betrayal");
-      expect(result.task).toContain('"next_action"');
-      expect(result.task).toContain('"keywords"');
-      expect(result.task).toContain('"directors_note"');
-      expect(result.task).toContain("EPILOGUE_CONCLUDED");
-    });
-
-    it("includes PAST state for all active entities in the Director prompt", () => {
-      const result = render_director(base_payload(), base_snapshot);
-      expect(result.system).toContain("<MEMORIES>");
-      expect(result.system).toContain("Viper past 1");
-      expect(result.system).toContain("Ghost past 1");
-      expect(result.system).toContain("Void past 1");
-    });
-
-    it("nudges Director toward fractal narration on non-verbal environmental turns", () => {
-      const env_payload = { ...base_payload(), input: "I press my palm flat against the cold iron gate and wait." };
-      const result = render_director(env_payload, base_snapshot);
-      expect(result.task).toContain("<USER_ACTION_NOTE>");
-      expect(result.task).toContain('"speaker" to "fractal"');
-      expect(result.system).toContain("SPEAKER_ROUTING");
-    });
-
-    it("emits compact ROSTER and SCENE_ROSTER when NPCs are present", () => {
-      const npc_entities = [{ id: "npc-elias", name: "Elias", role_tier: 2, description: "Archivist", relationships: ["Elias → Viper: wary"] }];
-      const result = render_director({ ...base_payload(), npc_entities, in_scene_ids: ["npc-elias"] }, base_snapshot);
-      expect(result.system).toContain("<ROSTER>");
-      expect(result.system).toContain("Elias (id: npc-elias)");
-      expect(result.system).toContain("In-Scene");
-      expect(result.system).toContain("<SCENE_ROSTER>");
-      expect(result.system).toContain("<RELATIONAL_MESH>");
-    });
-  });
 
   describe("Character Prompt (render_character)", () => {
     it("separates static SYSTEM from volatile SNAPSHOT", () => {

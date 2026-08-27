@@ -23,9 +23,9 @@ ensure_theme_tokens();
 import { app, runtime, simulation_state, simulation_log } from "@state";
 import { seed_premades, session_driver, set_versionchange_quiesce } from "@data";
 import { Audio, sweep_stale_ghosts, ensure_theme_tokens } from "@media";
-import { install_environment_hardening, sanitize_to_fragment, save_session_checkpoint } from "@platform";
+import { install_environment_hardening, sanitize_to_fragment, save_session_checkpoint, embeddings_engine } from "@platform";
 import { mount } from "svelte";
-import { embeddings_engine, reconcile_vector_caps } from "@intelligence";
+import { reconcile_vector_caps } from "@intelligence";
 import App from "@/App.svelte";
 import { register_state_accessors, register_stream_handlers, state_bridge } from "@utils";
 

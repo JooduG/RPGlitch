@@ -1,6 +1,27 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { embeddings_engine, embed, ensure_embedding, EMBEDDING_CACHE_MAX } from "./embeddings.svelte.js";
-import { EMBEDDING_DIM } from "../utils/embedding-serialization.js";
+import {
+  embeddings_engine,
+  embed,
+  ensure_embedding,
+  EMBEDDING_CACHE_MAX,
+  EMBEDDING_DIM,
+  serialize_embedding,
+  deserialize_embedding,
+} from "./embeddings.svelte.js";
+
+describe("embedding serialization", () => {
+  it("round-trips Float32Array to number[] and back", () => {
+    const raw = new Float32Array(EMBEDDING_DIM);
+    raw[0] = 0.42;
+    const serialized = serialize_embedding(raw);
+    expect(Array.isArray(serialized)).toBe(true);
+    expect(serialized?.length).toBe(EMBEDDING_DIM);
+
+    const deserialized = deserialize_embedding(serialized);
+    expect(deserialized instanceof Float32Array).toBe(true);
+    expect(deserialized?.[0]).toBeCloseTo(0.42);
+  });
+});
 
 /**
  * Deterministic fake pipeline: maps text → a unit-ish Float32Array via hashing.

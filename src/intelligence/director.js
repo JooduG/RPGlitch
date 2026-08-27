@@ -1,15 +1,164 @@
-import { detox_prose, SIGNATURE_COLORS } from "@data";
-import { escape_unescaped_json_quotes, first_sentence, state_bridge } from "@utils";
-import { extract_json_block, parse_think_block } from "./parser.js";
+import { detox_prose, SIGNATURE_COLORS, build_available_keywords_xml, get_style_keywords } from "@data";
+import { escape_unescaped_json_quotes, first_sentence, state_bridge, ind, escape_xml } from "@utils";
+import { extract_json_block, parse_think_block, clean_xml, strip_cognition_blocks } from "./parser.js";
+import {
+  render_system_head,
+  render_field_value,
+  format_dynamics_attrs,
+  resolve_active_style_key,
+  render_roster_xml,
+  render_scene_roster_xml,
+  render_relational_mesh_xml,
+  ENTITY_CONVERGENCE_LAW_XML,
+  EPISTEMIC_ROSTER_RULES_XML,
+  non_verbal_environmental_hint,
+  render_protocols,
+  render_builder,
+} from "./prompts/shared.js";
 
 /**
  * src/intelligence/director.js
- * 📐 DIRECTOR PAYLOAD NORMALIZATION
- * Pure, dependency-free defensive fallbacks for the expanded Director JSON
- * schema (Phase 2.3 of the director track): speaker delegation, keyword
- * selection, and story-status tracking. Kept separate from kernel.js so the
- * fallback logic is unit-testable in isolation.
+ * 📐 DIRECTOR ORCHESTRATION & PAYLOAD NORMALIZATION
+ * Complete Director domain module:
+ * - Director Prompt Compilation (render_director, render_terse_director_task)
+ * - Schema & Enum Definitions (DIRECTOR_JSON_SCHEMA, NEXT_ACTION_VALUES, STORY_STATUS_VALUES)
+ * - Defensive payload normalization & fallback synthesis (parse_director_json, synthesize_director_fallback)
  */
+
+export const DIRECTOR_JSON_SCHEMA = `{
+  "_thought_process": "<ONE short sentence: tactical intent & state delta>",
+  "next_action": "'AI_CHARACTER' (AI speaks) | 'FRACTAL' (Fractal narrates) | 'npc:<id>' (in-scene NPC speaks) | 'GENESIS' (mint brand-new NPC) | 'EPILOGUE_CONCLUDED' (quest won) | 'EPILOGUE_COLLAPSED' (quest lost)",
+  "keywords": "1-3 keywords from <AVAILABLE_KEYWORDS> (e.g. ['vulnerability', 'cinematic_shot']) or []",
+  "directors_note": "1-3 lines of unseen acting/staging directives for the speaker",
+  "dynamics_deltas": { "chaos": 0, "intensity": 0, "openness": 0, "affinity": 0 },
+  "in_scene_change": { "enter": ["npc:<id>"], "exit": ["npc:<id>"] }
+}`;
+
+/**
+ * Director prompt compiler (Shot 1).
+ * @param {any} params
+ * @returns {{ system: string, task: string }}
+ */
+export function render_director({
+  round,
+  entities,
+  input,
+  render_accessors = null,
+  compressed_snapshot,
+  raw_messages,
+  npc_entities = [],
+  in_scene_ids = [],
+}) {
+  const accessors = render_accessors || render_builder.create_render_accessors(entities, input, raw_messages);
+  const protocols = [
+    "FORMATS.JSON_ONLY",
+    "AGENCY.FICTIONAL_LICENSE",
+    "DIRECTOR.CONTINUITY",
+    "DIRECTOR.PLOT_DRIVE",
+    "DIRECTOR.SPEAKER_ROUTING",
+    "DIRECTOR.TERMINATION",
+    "DIRECTOR.IMAGE_TRIGGERS",
+    "PRESENT.EMISSION",
+  ]
+    .filter(Boolean)
+    .join(", ");
+  const active_style_keywords = get_style_keywords(resolve_active_style_key());
+
+  const system = `${render_system_head(entities)}\n${clean_xml(`
+  <ROLE name="DIRECTOR">
+    You are the Director — the unseen intelligence orchestrating the mechanical state of the simulation.
+    The eternal baselines of the active cast are declared above in the CAST block.
+  </ROLE>
+
+  <AVAILABLE_KEYWORDS>
+    ${build_available_keywords_xml(active_style_keywords)}
+    Select 1-3 of these when the turn carries a matching emotional undercurrent or visual beat (or [] when neutral). Never invent keywords outside this list.
+  </AVAILABLE_KEYWORDS>
+
+  <ACTIVE_CHARACTERS>
+    <AI_CHARACTER name="${escape_xml(entities?.AI?.name || "AI")}"${format_dynamics_attrs(compressed_snapshot?.ai?.dynamics)}>
+      <STATE_OF_MIND>${ind(render_field_value(entities?.AI?.present?.non_physical, entities?.AI, entities), 8)}</STATE_OF_MIND>
+      <CURRENT_LOOK>${ind(render_field_value(entities?.AI?.present?.physical, entities?.AI, entities), 8)}</CURRENT_LOOK>
+      <INTENT>${ind(accessors.future(entities?.AI, { vector_text: true }), 8)}</INTENT>
+      <MEMORIES>${ind(accessors.past(entities?.AI, { vector_text: true }), 8)}</MEMORIES>
+    </AI_CHARACTER>
+    <USER_PERSONA name="${escape_xml(entities?.USER?.name || "User")}">
+      <PERSONALITY>${render_field_value(entities?.USER?.eternal?.non_physical, entities?.USER, entities)}</PERSONALITY>
+      <STATE_OF_MIND>${ind(render_field_value(entities?.USER?.present?.non_physical, entities?.USER, entities), 8)}</STATE_OF_MIND>
+      <PERMANENT_APPEARANCE>${render_field_value(entities?.USER?.eternal?.physical, entities?.USER, entities)}</PERMANENT_APPEARANCE>
+      <CURRENT_LOOK>${ind(render_field_value(entities?.USER?.present?.physical, entities?.USER, entities), 8)}</CURRENT_LOOK>
+      <AGENDA>${ind(accessors.future(entities?.USER, { vector_text: true }), 8)}</AGENDA>
+      <BACKSTORY>${ind(accessors.past(entities?.USER, { vector_text: true }), 8)}</BACKSTORY>
+    </USER_PERSONA>
+  </ACTIVE_CHARACTERS>
+  ${
+    entities?.FRACTAL
+      ? `
+  <FRACTAL name="${escape_xml(entities.FRACTAL.name)}"${format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics)}>
+    <CURRENT_STATE>${render_field_value(entities.FRACTAL.present?.non_physical, entities.FRACTAL, entities)}</CURRENT_STATE>
+    <ACTIVE_ATMOSPHERE>${render_field_value(entities.FRACTAL.present?.physical, entities.FRACTAL, entities)}</ACTIVE_ATMOSPHERE>
+    <AGENDA>${ind(accessors.future(entities.FRACTAL, { vector_text: true }), 6)}</AGENDA>
+    <HISTORY>${ind(accessors.past(entities.FRACTAL, { vector_text: true }), 6)}</HISTORY>
+  </FRACTAL>`.trim()
+      : ""
+  }
+  <PROTOCOLS>
+    ${ind(render_protocols(protocols), 4)}
+  </PROTOCOLS>
+  ${render_roster_xml(npc_entities, in_scene_ids, [entities?.AI?.id, entities?.USER?.id, entities?.FRACTAL?.id])}
+  ${render_scene_roster_xml(entities, npc_entities, in_scene_ids)}
+  ${render_relational_mesh_xml(entities, npc_entities)}
+  ${ENTITY_CONVERGENCE_LAW_XML}
+  ${EPISTEMIC_ROSTER_RULES_XML}
+</SYSTEM>
+  `).trim()}`;
+
+  const task = clean_xml(`
+<ROUND>${escape_xml(String(round))}</ROUND>
+${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
+${(() => {
+  const last_ai = (raw_messages || []).filter((m) => m.role === "model").slice(-1)[0];
+  if (!last_ai) return "";
+  const text = strip_cognition_blocks(last_ai.content || last_ai.text || "").trim();
+  if (!text) return "";
+  return `<AI_CHARACTER_LAST_TURN>${ind(text, 2)}</AI_CHARACTER_LAST_TURN>`;
+})()}
+<TASK>
+    Evaluate state mutations caused by ${input?.trim() ? "<USER_ACTION>" : "the current situation"}.
+    Decide "next_action": "AI_CHARACTER" (AI speaks), "FRACTAL" (Fractal scene-narrator speaks), "npc:<id>" (in-scene NPC speaks), "GENESIS" (mint a new NPC), "EPILOGUE_CONCLUDED" (quest victory/resolution), or "EPILOGUE_COLLAPSED" (fatal defeat, irreversible ruin, terminal entropy >= 85, or protagonist flatline). Default "AI_CHARACTER".${Number(round) <= 1 ? ' IMPORTANT: Round 1 directly follows the Fractal prologue, so next_action MUST be "AI_CHARACTER".' : ""}
+    Select 1-3 "keywords" from <AVAILABLE_KEYWORDS> matching the emotional tension or visual beats (or [] when neutral).
+    Provide 1-3 lines of "directors_note" as unseen acting/staging guidance for the speaker.
+    Output physics shifts in "dynamics_deltas" (e.g. {"intensity": 10, "openness": -5}).
+    Track the Stage Spotlight: when an NPC enters or leaves the room, move it with "in_scene_change" ("enter"/"exit" accept ids with or without the "npc:" prefix; leave both empty unless the stage changes).
+    ${non_verbal_environmental_hint(input)}
+    Record your reasoning inside "_thought_process" and return a single valid JSON object following this exact schema:
+    ${DIRECTOR_JSON_SCHEMA}
+    Obey all active <PROTOCOLS>. Keep output under 400 characters and return strictly JSON.
+</TASK>
+  `).trim();
+
+  return { system, task };
+}
+
+/**
+ * Terse replacement for the Director task — used on retry after truncated JSON.
+ * @returns {string}
+ */
+export function render_terse_director_task() {
+  return `
+<TASK>
+  Return a single, COMPLETE, VALID JSON object under 400 characters:
+  - "_thought_process": "<tactical intent>"
+  - "next_action": "AI_CHARACTER" | "FRACTAL" | "npc:<id>" | "GENESIS" | "EPILOGUE_CONCLUDED" | "EPILOGUE_COLLAPSED"
+  - "keywords": []
+  - "directors_note": "<1 line staging directive>"
+  - "dynamics_deltas": { "chaos": 0, "intensity": 0, "openness": 0, "affinity": 0 }
+  - "in_scene_change": { "enter": [], "exit": [] }
+  Output strictly JSON matching this schema:
+  ${DIRECTOR_JSON_SCHEMA}
+</TASK>
+  `.trim();
+}
 
 export const STORY_STATUS_VALUES = ["IN_PROGRESS", "CONCLUDED", "COLLAPSED"];
 

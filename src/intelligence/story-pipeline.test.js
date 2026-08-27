@@ -1,4 +1,5 @@
-import { context_builder, gamemaster } from "./kernel.js";
+import { gamemaster } from "./story-pipeline.js";
+import { context_builder } from "./payload.js";
 import { dynamics_engine } from "./dynamics.js";
 import { prompt_builder } from "./prompts/builder.js";
 import { temporal_engine } from "./temporal-pipeline.js";

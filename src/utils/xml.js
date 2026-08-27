@@ -96,3 +96,21 @@ export const CLOTHING_KEYS = [
   "EQUIPMENT",
   "GEAR",
 ];
+
+/**
+ * Strips whitespace and cleans empty lines from XML-like template strings.
+ * @param {string} xml
+ * @returns {string}
+ */
+export function clean_xml(xml) {
+  if (!xml) return "";
+  return xml
+    .split("\n")
+    .map((line) => line.trimEnd())
+    .filter((line, i, arr) => {
+      // Remove blank lines at the start or end
+      if ((i === 0 || i === arr.length - 1) && !line.trim()) return false;
+      return true;
+    })
+    .join("\n");
+}

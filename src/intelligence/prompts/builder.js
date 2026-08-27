@@ -9,14 +9,8 @@
 import { ENTITY_CATALOG } from "@data";
 import { temporal_engine } from "../temporal-pipeline.js";
 import { parse_macros, render_protocols, render_builder } from "./shared.js";
-import {
-  render_director,
-  render_character,
-  render_npc_character,
-  render_ghostwriter,
-  render_terse_director_task,
-  build_narrator,
-} from "./story-prompts.js";
+import { render_director, render_terse_director_task } from "../director.js";
+import { render_character, render_npc_character, render_ghostwriter, build_narrator } from "./story-prompts.js";
 import { render_memory } from "./temporal-prompts.js";
 import { render_enhancement, render_profile_sorting } from "./profile-prompts.js";
 
