@@ -77,6 +77,7 @@ The four-quadrant state architecture defining every entity:
 ### The Entity Taxonomy (Binary Model & Rolling Back Shot)
 
 > ✅ **SUPERSEDED (2026-08-24, Track 2 Back Shot Rolling Worker).** The legacy `role_tier` promotion system was purged in favor of a clean, binary model:
+>
 > 1. **Prose Extras**: Ephemeral background characters mentioned on-the-fly in narrative prose (no DB record).
 > 2. **First-Class Entities**: Once minted via Genesis (`next_action: "GENESIS"`), every character is a full entity with an identity card, signature color, and persistent memory.
 >
