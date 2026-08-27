@@ -152,10 +152,13 @@ declare global {
 
 declare module "dexie" {
   interface Dexie {
-    stories: Table<JsonMap, string>;
-    messages: Table<JsonMap, string>;
+    stories: Table<JsonMap, number>;
+    simulation_log: Table<JsonMap, number>;
     entities: Table<JsonMap, string>;
-    settings: Table<JsonMap, string>;
+    sessions: Table<JsonMap, number>;
+    kv_settings: Table<JsonMap, string>;
+    audio_prefs: Table<JsonMap, string>;
+    settings?: Table<JsonMap, string>;
   }
 }
 
