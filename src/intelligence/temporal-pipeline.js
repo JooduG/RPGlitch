@@ -5,9 +5,8 @@
  * Owns the entity temporal state across all four quadrants:
  * 1. Vector Pool Access & Creation (resolve_vector_pool, create, prune)
  * 2. Relevance Scoring & Context Embeddings (score, score_async, precompute_context_embedding)
- * 3. Memory Eviction & Caps (reconcile_vector_caps, append_past_vector, is_origin)
- * 4. State Mutations & Chapter Archival (apply_state_mutations, archive_chapter)
- * 5. Memory Forge & Consolidation Engine (forge_memory, temporal_engine.consolidate)
+ * 3. Vector Math & Dynamic Retrieval (format, score, score_async, score_by_semantics)
+ * 5. Temporal Engine Service Instance
  */
 
 import {
@@ -704,9 +703,9 @@ export async function forge_memory(entity_targets, history_slice, options = {}) 
 async function fallback_consolidate(entity_targets, slice, runtime, session) {
   try {
     const facts = (Array.isArray(slice) ? slice : [])
-      .filter((m) => m && (m.role === "ai" || m.role === "fractal" || m.role === "user"))
+      .filter((m) => m && (m.role === "ai" || m.role === "fractal" || m.role === "user" || m.role === "npc"))
       .map((m) => {
-        const speaker = m.character_name || (m.role === "ai" ? "AI" : m.role === "user" ? "User" : "Environment");
+        const speaker = m.character_name || (m.role === "ai" ? "AI" : m.role === "user" ? "User" : m.role === "npc" ? "NPC" : "Environment");
         return `${speaker}: ${String(m.text ?? m.content ?? "")
           .replace(/<think>[\s\S]*?<\/think>/gi, "")
           .replace(/\s+/g, " ")
@@ -719,14 +718,14 @@ async function fallback_consolidate(entity_targets, slice, runtime, session) {
       if (!entity) continue;
       const entity_name = String(entity.name || key).toLowerCase();
       const relevant = (Array.isArray(slice) ? slice : [])
-        .filter((m) => m && (m.role === "ai" || m.role === "fractal" || m.role === "user"))
+        .filter((m) => m && (m.role === "ai" || m.role === "fractal" || m.role === "user" || m.role === "npc"))
         .filter((m) => {
           const txt = String(m.text ?? m.content ?? "").toLowerCase();
           const speaker = String(m.character_name || "").toLowerCase();
           return speaker === entity_name || (entity_name.length > 2 && txt.includes(entity_name));
         })
         .map((m) => {
-          const speaker = m.character_name || (m.role === "ai" ? "AI" : m.role === "user" ? "User" : "Environment");
+          const speaker = m.character_name || (m.role === "ai" ? "AI" : m.role === "user" ? "User" : m.role === "npc" ? "NPC" : "Environment");
           return `${speaker}: ${String(m.text ?? m.content ?? "")
             .replace(/<think>[\s\S]*?<\/think>/gi, "")
             .replace(/\s+/g, " ")

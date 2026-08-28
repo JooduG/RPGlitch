@@ -209,7 +209,6 @@ vi.mock("@intelligence/temporal-pipeline.js", async (importOriginal) => {
     temporal_engine: {
       ensure_momentum: vi.fn(),
       consolidate: vi.fn(),
-      apply_state_mutations: vi.fn(),
       set_round: vi.fn(),
       precompute_context_embedding: vi.fn(async () => {}),
       create: vi.fn((content, type) => ({ content, type: type || "past", timestamp: Date.now() })),
@@ -1412,13 +1411,29 @@ describe("NPC world cast (track-npc-expansion)", () => {
 
     vi.mocked(llm_service.generate)
       .mockResolvedValueOnce(
-        '{"next_action":"GENESIS","keywords":["defiance"],"directors_note":"Approach slowly from the mist.","dynamics_deltas":{}}',
+        '{"next_action":"GENESIS","genesis":{"name":"Kaelen","description":"A hooded scout.","speaking_style":"lyrical","signature_color":"#38bdf8"},"keywords":["defiance"],"directors_note":"Approach slowly from the mist.","dynamics_deltas":{"intensity":10},"fractal_dynamics_deltas":{"velocity":5,"entropy":-5}}',
       )
       .mockResolvedValueOnce("Who goes there?");
 
     const result = await gamemaster.execute_turn("story-123", { input: "A stranger steps out.", role: "ai" });
 
     expect(result.response).toBe("Who goes there?");
+    expect(_mock_runtime.active_npcs["npc-stranger-1"].name).toBe("Kaelen");
+    expect(_mock_runtime.active_npcs["npc-stranger-1"].speaking_style).toBe("lyrical");
+    expect(physics_engine.apply_dynamics_gravity).toHaveBeenCalledWith(
+      expect.objectContaining({ intensity: 60 }),
+      expect.anything(),
+      expect.anything(),
+      expect.anything(),
+      expect.any(Set),
+    );
+    expect(physics_engine.apply_dynamics_gravity).toHaveBeenCalledWith(
+      expect.objectContaining({ velocity: 55, entropy: 45 }),
+      expect.anything(),
+      expect.anything(),
+      expect.anything(),
+      expect.any(Set),
+    );
   });
 
   it("execute_turn() delegates the turn to a world-cast NPC when the Director names one", async () => {

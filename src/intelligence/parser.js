@@ -191,7 +191,7 @@ export function parse_think_block(text) {
 export function force_close_response(text, character_name) {
   const t = String(text || "").trimEnd();
   if (!t) return t;
-  return `${t}\n\n${character_name} goes quiet, the moment settling around ${character_name === "AI" ? "them" : "it"} like dust.`;
+  return `${t}\n\n${character_name} goes quiet, the moment settling around them like dust.`;
 }
 
 // ── 4. Profile JSON Extraction ────────────────────────────────────────────────

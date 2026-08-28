@@ -12,7 +12,7 @@
  */
 
 import { db, entities, stories, detox_prose } from "@data";
-import { generate_uuid, create_job_queue, state_bridge, strip_cognition_blocks } from "@utils";
+import { generate_uuid, create_job_queue, state_bridge, strip_cognition_blocks, resolve_speaking_style } from "@utils";
 import { visual_engine, resolve_image_trigger, spawn_image_beat, sweep_stale_ghosts, IMAGE_RESOLVE_TIMEOUT_MS } from "@media";
 import { validate_and_repair_response, force_close_response } from "./parser.js";
 import { llm_service, looks_truncated, raw_to_text, raw_stop_reason } from "@platform";
@@ -474,7 +474,8 @@ export const gamemaster = {
 
       final_meta.structural_errors = state_bridge.runtime.structural_errors;
 
-      const persisted_text = detox_prose(validation_result.text, "casual");
+      const speaker_style = resolve_speaking_style(generation_entity);
+      const persisted_text = detox_prose(validation_result.text, speaker_style);
 
       await state_bridge.session_driver.log_message(persisted_text, log_role, character_name, {
         turn_type: "AI_TURN",
@@ -711,7 +712,7 @@ export const gamemaster = {
       }
     }
 
-    await state_bridge.session_driver.log_message(detox_prose(response, "plain"), "fractal", fractal_name, {
+    await state_bridge.session_driver.log_message(detox_prose(response, "casual"), "fractal", fractal_name, {
       turn_type: "SYSTEM_TURN",
       story_id,
       meta: {
