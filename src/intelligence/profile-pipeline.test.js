@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { apply_profile_to_entity } from "./profile-pipeline.js";
 
 describe("apply_profile_to_entity", () => {
@@ -55,5 +55,18 @@ describe("apply_profile_to_entity", () => {
     expect(entity.name).toBe("Vael");
     expect(apply_profile_to_entity(entity, null)).toBe(entity);
     expect(apply_profile_to_entity(entity, "nope")).toBe(entity);
+  });
+});
+
+describe("structure_profile", () => {
+  it("structures raw prose via enhance and parses JSON output", async () => {
+    const { structure_profile } = await import("./profile-pipeline.js");
+    const { llm_service } = await import("@platform");
+    const spy = vi.spyOn(llm_service, "enhance").mockResolvedValue('{"name":"Kael","appearance":"Tall and cloaked."}');
+
+    const result = await structure_profile("Raw character description of Kael...", "character");
+    expect(spy).toHaveBeenCalled();
+    expect(result).toEqual({ name: "Kael", appearance: "Tall and cloaked." });
+    spy.mockRestore();
   });
 });

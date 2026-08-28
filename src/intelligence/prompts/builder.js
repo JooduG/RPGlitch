@@ -106,7 +106,7 @@ function pack_prompt(rendered, meta = {}, messages = []) {
     system: clean_prompt_text(rendered?.system),
     task: clean_prompt_text(rendered?.task),
     ...(Object.keys(meta).length > 0 ? { meta } : {}),
-    ...(messages.length > 0 || Array.isArray(messages) ? { messages } : {}),
+    ...(Array.isArray(messages) && messages.length > 0 ? { messages } : {}),
   };
 }
 

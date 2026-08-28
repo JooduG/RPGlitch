@@ -977,7 +977,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
 
       // Director prose attempt → terse JSON retry → character pass.
       expect(call_count).toBe(3);
-      expect(result.response).toBe("<think>\n**Cognition:** Orion looks angry and the room is dark\n</think>\n\nCharacter response text");
+      expect(result.response).toBe("<think>\nOrion looks angry and the room is dark\n</think>\n\nCharacter response text");
     });
   });
 
@@ -1448,7 +1448,7 @@ describe("NPC world cast (track-npc-expansion)", () => {
       meta: { timestamp: new Date().toISOString() },
     };
     _mock_runtime.round = 2;
-    _mock_runtime.active_npcs = { ben1: { id: "ben1", name: "Benedict", role_tier: 2 } };
+    _mock_runtime.active_npcs = { ben1: { id: "ben1", name: "Benedict" } };
 
     vi.mocked(context_builder.build_context).mockResolvedValue(mock_payload);
     vi.mocked(prompt_builder.build_director).mockReturnValue({ system: "D", task: "T" });
@@ -1478,6 +1478,37 @@ describe("NPC world cast (track-npc-expansion)", () => {
       "Benedict",
       expect.objectContaining({ meta: expect.objectContaining({ speaker_type: "npc", entity_id: "ben1" }) }),
     );
+  });
+
+  it("coerces non-AI actions to AI_CHARACTER on round <= 1", async () => {
+    const mock_payload = {
+      input: "First contact.",
+      type: "simulation",
+      round: 1,
+      entities: { AI: { name: "Viper" }, USER: { name: "Ghost" }, FRACTAL: { name: "Void" } },
+      view_id: "global",
+      simulation_log: "",
+      raw_messages: [],
+      meta: { timestamp: new Date().toISOString() },
+    };
+    _mock_runtime.round = 1;
+    _mock_runtime.active_npcs = { ben1: { id: "ben1", name: "Benedict" } };
+
+    vi.mocked(context_builder.build_context).mockResolvedValue(mock_payload);
+    vi.mocked(prompt_builder.build_director).mockReturnValue({ system: "D", task: "T" });
+    vi.mocked(prompt_builder.build_character).mockReturnValue({
+      system: "AI_PROMPT",
+      task: "AI_TASK",
+      meta: { ai: {}, fractal: {}, role: "ai" },
+    });
+    vi.mocked(llm_service.generate)
+      .mockResolvedValueOnce('{"next_action":"npc:ben1","keywords":[],"directors_note":"","dynamics_deltas":{}}')
+      .mockResolvedValueOnce("Viper responds instead.");
+
+    const result = await gamemaster.execute_turn("story-123", { input: "First contact.", role: "ai" });
+
+    expect(prompt_builder.build_character).toHaveBeenCalled();
+    expect(result.response).toBe("Viper responds instead.");
   });
 
   it("execute_turn() falls back to the AI character when the Director names an unknown NPC", async () => {

@@ -173,40 +173,19 @@ export function normalize_director_data(payload) {
  * @param {any} bridge
  * @returns {any}
  */
-export function synthesize_director_fallback(prev_data, input, bridge) {
-  const monologue = String(prev_data?.internal_monologue || input || "").trim();
-  const fallback = {
+export function synthesize_director_fallback(prev_data, input, _bridge) {
+  const thought = String(prev_data?._thought_process || prev_data?.internal_monologue || input || "The scene continues.").trim();
+  return {
     _parse_error: true,
-    internal_monologue: monologue || "The scene continues.",
-    trigger_image: "false",
-    speaker: "ai",
+    _thought_process: thought,
+    next_action: "AI_CHARACTER",
     keywords: [],
+    directors_note: "Continue the scene with grounded immersion and physical causality.",
+    dynamics_deltas: {},
+    fractal_dynamics_deltas: {},
+    in_scene_change: { enter: [], exit: [] },
     story_status: "IN_PROGRESS",
   };
-
-  const ai = bridge?.runtime?.active_ai;
-  const user = bridge?.runtime?.active_user;
-  const fractal = bridge?.runtime?.active_fractal;
-
-  if (ai) {
-    fallback.AI_CHARACTER = {
-      state_append: { physical: "", non_physical: first_sentence(monologue) || "Reacts to the turn's events." },
-      vector_append: [],
-    };
-  }
-  if (user) {
-    fallback.USER_PERSONA = {
-      state_append: { physical: "", non_physical: first_sentence(input) || "" },
-      vector_append: [],
-    };
-  }
-  if (fractal) {
-    fallback.FRACTAL = {
-      state_append: { physical: "", non_physical: "" },
-      vector_append: [{ content: `${fractal.name || "The environment"} shifts with the turn's events.`, type: "past", emotional_weight: 3 }],
-    };
-  }
-  return fallback;
 }
 
 // ── 5. Safe JSON Extraction & Output Parser ───────────────────────────────────

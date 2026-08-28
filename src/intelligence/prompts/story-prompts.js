@@ -107,8 +107,9 @@ export function build_pacing_directive(input) {
  * @returns {string}
  */
 export function build_recency_anchor(snapshot, input) {
-  const stance = snapshot?.ai?.dynamics
-    ? Object.entries(snapshot.ai.dynamics)
+  const dynamics = snapshot?.ai?.dynamics || snapshot?.dynamics || (typeof snapshot === "object" && !snapshot?.ai ? snapshot : null);
+  const stance = dynamics
+    ? Object.entries(dynamics)
         .filter(([, v]) => typeof v === "number")
         .filter(([k]) => k === "affinity" || k === "intensity")
         .map(([k, v]) => `${k}=${Math.round(v)}`)
