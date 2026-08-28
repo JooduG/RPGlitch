@@ -86,7 +86,7 @@ describe("Prompt Builder Facade (builder.js)", () => {
     const result = prompt_builder.build_prologue(mock_payload, mock_snapshot);
     expect(result.system).toContain("<SYSTEM");
     expect(result.system).toContain('<AI_CHARACTER name="Viper">');
-    expect(result.task).toContain("<POV_DIRECTIVE>");
+    expect(result.system).toContain("<POV_DIRECTIVE>");
   });
 
   it("build_epilogue() delegates correctly to story prompts", () => {
@@ -98,7 +98,7 @@ describe("Prompt Builder Facade (builder.js)", () => {
     const result = prompt_builder.build_memory({ AI_CHARACTER: { name: "Viper" }, FRACTAL: { name: "Void" } }, [], {
       target_key: "AI_CHARACTER",
     });
-    expect(result.system).toContain('<SYSTEM role="BACK_SHOT_FORGE" target="AI_CHARACTER" name="Viper">');
+    expect(result.system).toContain('<SYSTEM role="MEMORY_FORGE" target="AI_CHARACTER" name="Viper">');
   });
 
   it("build_profile_sorting() delegates correctly to profile prompts", () => {

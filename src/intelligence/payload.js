@@ -34,16 +34,19 @@ import { resolve_vector_pool } from "./temporal-pipeline.js";
  */
 export function to_data_points(entity) {
   if (!entity) return [];
+  const entity_type = entity.type === "user" ? "character" : entity.type || "character";
+  const prefix = `${entity_type}.`;
   /** @type {DataPoint[]} */
   const list = [];
-  Object.entries(PROFILE_FIELD_CATALOG).forEach(([field_id, metadata]) => {
-    if (field_id.startsWith("character.") || field_id.startsWith("fractal.")) return;
 
-    let val = get_value(entity, field_id);
+  Object.entries(PROFILE_FIELD_CATALOG).forEach(([field_id, metadata]) => {
+    if (!field_id.startsWith(prefix)) return;
+    const path = metadata.path;
+    let val = get_value(entity, path);
 
     if (val && typeof val === "string") {
       const is_eternal = metadata.layer_key?.toLowerCase() === "eternal";
-      const is_physical = field_id.endsWith(".physical");
+      const is_physical = path.endsWith(".physical");
       list.push({
         text: clean_text(val, 2000),
         type: is_physical ? "Physical" : (metadata.label ?? "unknown"),

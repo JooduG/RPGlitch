@@ -13,20 +13,13 @@ import { visual_engine, resolve_image_trigger, spawn_image_beat, sweep_stale_gho
 import { strip_cognition_blocks, validate_and_repair_response, force_close_response } from "./parser.js";
 import { llm_service, looks_truncated, raw_to_text, raw_stop_reason } from "@platform";
 import { physics_engine } from "./physics.js";
-import {
-  normalize_director_data,
-  parse_director_json,
-  synthesize_director_fallback,
-  resolve_npc_entity,
-  apply_in_scene_change,
-  apply_relationships,
-} from "./director.js";
+import { normalize_director_data, parse_director_json, synthesize_director_fallback, resolve_npc_entity, apply_in_scene_change } from "./director.js";
 import { render_terse_director_task } from "./prompts/director-prompts.js";
 import { prompt_builder } from "./prompts/builder.js";
 import { capture_dynamics_delta } from "./telemetry.js";
 import { prune, temporal_engine } from "./temporal-pipeline.js";
 import { context_builder } from "./payload.js";
-import { apply_genesis, spawn_npc } from "./profile-pipeline.js";
+import { spawn_npc } from "./profile-pipeline.js";
 
 /**
  * @typedef {Object} GenerationOptions
@@ -56,16 +49,6 @@ const TRUNCATION_COMPLETE_NOTE =
 const TRUNCATION_MIN_PROSE = 40;
 
 export const gamemaster = {
-  // Re-export stage helpers on gamemaster for backward-compatibility with tests/callers
-  _resolve_npc_entity: (bridge, id) => resolve_npc_entity(bridge, id),
-  _apply_in_scene_change: (bridge, change) => apply_in_scene_change(bridge, change),
-  _apply_relationships: (bridge, rels) => apply_relationships(bridge, rels),
-  _apply_genesis: function (bridge, genesis) {
-    return apply_genesis(bridge, genesis, (b, draft) => this.spawn_npc(b, draft));
-  },
-  spawn_npc: (bridge, draft) => spawn_npc(bridge, draft),
-  capture_dynamics_delta: (snapshot, meta) => capture_dynamics_delta(state_bridge, snapshot, meta),
-
   // Epilogue presence check
   async _has_epilogue(story_id) {
     try {
@@ -234,7 +217,7 @@ export const gamemaster = {
       // 3.5. STAGE SPOTLIGHT — apply the Director's scene choreography (enter/
       // exit) BEFORE mutations so NPC salience, the roster, and the speaker
       // engine all reflect this turn's stage.
-      await this._apply_in_scene_change(state_bridge, director_data.in_scene_change);
+      await apply_in_scene_change(state_bridge, director_data.in_scene_change);
 
       // 3.6. GENESIS DISPATCH (When next_action === 'GENESIS')
       let genesis_spawned_npc = null;
@@ -256,7 +239,7 @@ export const gamemaster = {
                 .trim() || "Stranger"
             : "Stranger";
 
-          genesis_spawned_npc = await this.spawn_npc(state_bridge, {
+          genesis_spawned_npc = await spawn_npc(state_bridge, {
             name: genesis_name,
             description: director_data.directors_note || "A mysterious figure appearing in the scene.",
             scene_context,
@@ -314,7 +297,7 @@ export const gamemaster = {
         uses_narrator_engine = true;
       } else if (target_action.startsWith("npc")) {
         const npc_id = director_data.npc_id || target_action.replace(/^npc:/i, "");
-        npc_entity = this._resolve_npc_entity(state_bridge, npc_id);
+        npc_entity = resolve_npc_entity(state_bridge, npc_id);
         if (!npc_entity) {
           state_bridge.app.log(`[GameMaster] Director delegated to "${target_action}" but NPC not found — falling back to AI character.`, "warn");
         }
@@ -376,11 +359,9 @@ export const gamemaster = {
 
       if (resolved_image.next_director_round !== null) {
         state_bridge.runtime.last_director_beat_round = resolved_image.next_director_round;
-        state_bridge.runtime.last_auto_image_round = resolved_image.next_director_round;
       }
       if (resolved_image.next_dynamics_round !== null) {
         state_bridge.runtime.last_dynamics_beat_round = resolved_image.next_dynamics_round;
-        state_bridge.runtime.last_auto_image_round = resolved_image.next_dynamics_round;
       }
 
       final_meta.trigger_image = resolved_image.active;
@@ -415,7 +396,7 @@ export const gamemaster = {
         });
       }
 
-      await this.capture_dynamics_delta(snapshot, final_meta);
+      await capture_dynamics_delta(state_bridge, snapshot, final_meta);
 
       state_bridge.runtime.ai = snapshot.ai?.dynamics;
       state_bridge.runtime.fractal = snapshot.fractal?.dynamics;
@@ -610,7 +591,6 @@ export const gamemaster = {
       // the opening turn's dynamics gate can't immediately fire a second image at round 0.
       state_bridge.runtime.last_director_beat_round = 0;
       state_bridge.runtime.last_dynamics_beat_round = 0;
-      state_bridge.runtime.last_auto_image_round = 0;
 
       // Log placeholder message BEFORE streaming begins so the feed entry exists.
       await state_bridge.session_driver.log_message("", "fractal", fractal_name, {

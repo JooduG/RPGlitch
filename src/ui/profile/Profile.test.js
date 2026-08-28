@@ -54,7 +54,7 @@ describe("ProfileState setImage", () => {
     vi.clearAllMocks();
   });
 
-  it("should update profile_picture and image properties, and trigger persistence with defensive trimming", async () => {
+  it("should update profile_picture property and trigger persistence with defensive trimming", async () => {
     const state = new ProfileState();
     const mock_data_url = "  data:image/png;base64,trimmed123 \n ";
 
@@ -62,7 +62,6 @@ describe("ProfileState setImage", () => {
 
     // Assert state update and defensive trim edge-case guard
     expect(state.char.profile_picture).toBe("data:image/png;base64,trimmed123");
-    expect(state.char.image).toBe("data:image/png;base64,trimmed123");
 
     // Assert persistence
     const { db } = await import("@data/db.js");

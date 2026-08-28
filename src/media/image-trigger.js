@@ -39,20 +39,11 @@ export const IMAGE_TRIGGER = {
  * @param {number} params.turn_round - Active round number
  * @param {number} [params.last_director_beat_round] - Last round Director triggered an image
  * @param {number} [params.last_dynamics_beat_round] - Last round Dynamics triggered an image
- * @param {number} [params.last_auto] - Backwards-compatible single cooldown timestamp fallback
  * @returns {{ active: boolean, tier: string|null, source: 'director'|'dynamics'|null, signals: any, next_director_round: number|null, next_dynamics_round: number|null, director_explicit: boolean }}
  */
-export function resolve_image_trigger({
-  snapshot,
-  prev_dynamics,
-  director_data,
-  turn_round,
-  last_director_beat_round,
-  last_dynamics_beat_round,
-  last_auto,
-}) {
-  const dir_last = Number.isInteger(last_director_beat_round) ? last_director_beat_round : (last_auto ?? -1);
-  const dyn_last = Number.isInteger(last_dynamics_beat_round) ? last_dynamics_beat_round : (last_auto ?? -1);
+export function resolve_image_trigger({ snapshot, prev_dynamics, director_data, turn_round, last_director_beat_round, last_dynamics_beat_round }) {
+  const dir_last = Number.isInteger(last_director_beat_round) ? last_director_beat_round : -1;
+  const dyn_last = Number.isInteger(last_dynamics_beat_round) ? last_dynamics_beat_round : -1;
 
   const director_cooldown_elapsed = dir_last < 0 || turn_round >= dir_last + IMAGE_TRIGGER.director_cooldown_rounds;
   const dynamics_cooldown_elapsed = dyn_last < 0 || turn_round >= dyn_last + IMAGE_TRIGGER.dynamics_cooldown_rounds;

@@ -36,16 +36,16 @@ export function render_environmental_hint(input) {
 
 // ── 1. Canonical Quick Shot Director Schema & Protocols ───────────────────────
 
-export const DIRECTOR_JSON_SCHEMA = `{
+export const DIRECTOR_PROTOCOLS = {
+  SCHEMA: `{
   "_thought_process": "<ONE short sentence: tactical intent & state delta>",
   "next_action": "'AI_CHARACTER' (AI speaks) | 'FRACTAL' (Fractal narrates) | 'npc:<id>' (in-scene NPC speaks) | 'GENESIS' (mint brand-new NPC) | 'EPILOGUE_CONCLUDED' (quest won) | 'EPILOGUE_COLLAPSED' (quest lost)",
   "keywords": "1-3 keywords from <AVAILABLE_KEYWORDS> (e.g. ['vulnerability', 'cinematic_shot']) or []",
   "directors_note": "1-3 lines of unseen acting/staging directives for the speaker",
   "dynamics_deltas": { "chaos": 0, "intensity": 0, "openness": 0, "affinity": 0 },
   "in_scene_change": { "enter": ["npc:<id>"], "exit": ["npc:<id>"] }
-}`;
+}`,
 
-export const DIRECTOR_PROTOCOLS = {
   CONTINUITY_AND_CAUSALITY: `SECRET AGENDAS: <INTENT>/<AGENDA> vectors encode private ambitions. Weave entity vectors indirectly into atmosphere/obstacles. Never present another entity's hidden agenda as known fact to the AI character.
 PHYSICAL CAUSALITY: Enforce strict physical causality and environmental integrity. If <USER_ACTION> attempts an impossible physical feat (e.g. walking through locked solid barriers without established magic, or materializing unearned items from thin air), do NOT passively allow the violation. Flag it in "directors_note" as a physical obstacle or contradiction for the character to confront in-character.
 PROP PROVENANCE: Everyday items (lighter, knife, rope, coins, flask, keys) are presumed present — accept them without question. Never accept items carrying major plot significance or contradicting reality (quest artifacts located elsewhere): treat them as bluffs/counterfeits in "directors_note".
@@ -67,7 +67,7 @@ PASSIVE USER TURN LAW: When <USER_ACTION> contains no action verbs or questions 
   TERMINATION: `STORY RESOLUTION & TERMINAL COLLAPSE LAW:
 - Quest Victory: When the overarching narrative conflict is decisively won or concluded happily, emit next_action: "EPILOGUE_CONCLUDED".
 - Tragic Collapse: When irreversible catastrophe, total systemic failure, or protagonist death occurs (fatal wound, terminal entropy >= 85, destruction of setting), emit next_action: "EPILOGUE_COLLAPSED".
-- Output Constraint: Output strictly valid JSON matching ${DIRECTOR_JSON_SCHEMA}. Under 400 characters. No markdown code fences.`,
+- Output Constraint: Output strictly valid JSON. Under 400 characters. No markdown code fences.`,
 };
 
 // ── 2. Director Prompt Compiler (Shot 1) ──────────────────────────────────────
@@ -164,7 +164,7 @@ ${last_ai_text ? `<AI_CHARACTER_LAST_TURN>${ind(last_ai_text, 2)}</AI_CHARACTER_
     Track the Stage Spotlight: when an NPC enters or leaves the room, move it with "in_scene_change".
     ${render_environmental_hint(input)}
     Record your reasoning inside "_thought_process" and return a single valid JSON object following this exact schema:
-    ${DIRECTOR_JSON_SCHEMA}
+    ${DIRECTOR_PROTOCOLS.SCHEMA}
     Obey all active <PROTOCOLS>. Keep output under 400 characters and return strictly JSON.
 </TASK>
   `).trim();
@@ -182,7 +182,7 @@ export function render_terse_director_task() {
   return `
 <TASK>
   Return a single, COMPLETE, VALID JSON object under 400 characters matching this schema:
-  ${DIRECTOR_JSON_SCHEMA}
+  ${DIRECTOR_PROTOCOLS.SCHEMA}
 </TASK>
   `.trim();
 }

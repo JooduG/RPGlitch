@@ -105,8 +105,6 @@ function create_runtime_store() {
   let last_director_beat_round = $state(-1);
   // Physics / dynamics displacement & band crossings: 3-round cooldown
   let last_dynamics_beat_round = $state(-1);
-  // Backwards-compatible alias / fallback
-  let last_auto_image_round = $state(-1);
 
   // ⚡ Director Quick Shot Telemetry (Rolling Latency Ring Buffer)
   let last_director_ms = $state(0);
@@ -260,12 +258,6 @@ function create_runtime_store() {
     },
     set last_dynamics_beat_round(val) {
       last_dynamics_beat_round = val;
-    },
-    get last_auto_image_round() {
-      return last_auto_image_round;
-    },
-    set last_auto_image_round(val) {
-      last_auto_image_round = val;
     },
 
     // ⚡ Director Quick Shot Telemetry

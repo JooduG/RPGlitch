@@ -804,13 +804,7 @@
         {#each section.fields as field (field.key)}
           <div class="relative flex h-full w-full min-w-0 flex-col items-stretch justify-stretch gap-2">
             {#if field.type === "array"}
-              <Vectors
-                state={profile_state}
-                path={field.key}
-                sublabel={field.sublabel || field.label}
-                description={field.description}
-                {signature_color}
-              />
+              <Vectors state={profile_state} path={field.key} sublabel={field.label} description={field.description} {signature_color} />
             {:else}
               {@const field_id = `field-${field.key.replace(".", "-")}`}
               {@const raw = profile_state.get_safe_value(field.key) || ""}
@@ -830,12 +824,12 @@
                 return null;
               })()}
 
-              {#if field.label}
+              {#if field.column_label}
                 <Label
                   class="justify-center drop-shadow-md"
                   style="color: var(--signature-color);"
                   disabled={!profile_state.is_editing}
-                  for={field_id}>{field.label}</Label
+                  for={field_id}>{field.column_label}</Label
                 >
               {/if}
 
@@ -844,11 +838,11 @@
                   id={field_id}
                   class="relative flex h-full min-h-20 w-full flex-col overflow-hidden rounded-xl border border-transparent transition-all duration-300"
                   role="region"
-                  aria-label={field.sublabel || field.label}
+                  aria-label={field.label}
                   use:auto_resize={{ sync_id: section.label }}
                   data-sync-id={section.label}
                 >
-                  {#if field.sublabel || field.label}
+                  {#if field.label}
                     <header
                       style="position: relative; top: 0; z-index: 10; display: flex !important; align-items: center !important; justify-content: space-between !important; border-radius: 0.75rem; background-color: var(--color-dev-accent) !important; padding: 0.175rem 0.75rem; opacity: 1 !important; min-height: 1.5rem !important; height: auto !important; --color-dev-accent: {signature_color};"
                       class="relative w-full overflow-hidden"
@@ -862,7 +856,7 @@
                         <span
                           class="block max-w-full cursor-default truncate font-sans text-xs font-normal tracking-normal whitespace-nowrap text-white opacity-90"
                           use:tooltip
-                          aria-label={field.description}>{field.sublabel || field.label}</span
+                          aria-label={field.description}>{field.label}</span
                         >
                       </div>
                     </header>
@@ -905,11 +899,11 @@
                   onfocus={() => profile_state.set_active_field(field.key, field.label || section.label)}
                 >
                   {#snippet status()}
-                    {#if field.sublabel}
+                    {#if field.label}
                       <span
                         class="block max-w-full cursor-default truncate font-sans text-xs font-normal tracking-normal whitespace-nowrap text-white opacity-80"
                         use:tooltip
-                        aria-label={field.description}>{field.sublabel}</span
+                        aria-label={field.description}>{field.label}</span
                       >
                     {/if}
                   {/snippet}

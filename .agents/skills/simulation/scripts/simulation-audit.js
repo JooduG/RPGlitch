@@ -109,8 +109,8 @@ export const SimulationAudit = {
     };
 
     // 3. PHASE 3: SYNTHESIS (Prompt Construction)
-    const director_prompt = prompt_builder.build_director_prompt(payload, snapshot);
-    const character_prompt = prompt_builder.build_character_prompt(payload, snapshot, null);
+    const director_prompt = prompt_builder.build_director(payload, snapshot);
+    const character_prompt = prompt_builder.build_character(payload, snapshot, null);
 
     // 4. PHASE 4: VERIFICATION (Pipeline Feature Audit)
     const verification = this.verify_pipeline(director_prompt, character_prompt);

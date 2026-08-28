@@ -13,7 +13,7 @@ describe("Profile Prompts (profile-prompts.js)", () => {
         eternal: { physical: '{"eyeColor": "blue", "hair": "black"}' },
       };
       const result = render_enhancement({
-        _field_id: "eternal.physical",
+        field_id: "eternal.physical",
         content: "Content",
         label: "Appearance",
         directive: "Enhance look.",
@@ -27,7 +27,7 @@ describe("Profile Prompts (profile-prompts.js)", () => {
 
     it("injects MACRO_PROTOCOL correctly for characters vs fractals", () => {
       const char_result = render_enhancement({
-        _field_id: "eternal.non_physical",
+        field_id: "eternal.non_physical",
         content: "Content",
         label: "Personality",
         directive: "Enhance.",
@@ -37,7 +37,7 @@ describe("Profile Prompts (profile-prompts.js)", () => {
       expect(char_result).not.toContain("'{{user}}' (user persona), '{{char}}' (AI character)");
 
       const fractal_result = render_enhancement({
-        _field_id: "eternal.non_physical",
+        field_id: "eternal.non_physical",
         content: "Content",
         label: "Lore",
         directive: "Enhance.",
@@ -55,7 +55,7 @@ describe("Profile Prompts (profile-prompts.js)", () => {
         future: "Impending prophecy",
       };
       const result = render_enhancement({
-        _field_id: "present.non_physical",
+        field_id: "present.non_physical",
         content: "Present mood.",
         label: "Mood",
         directive: "Enhance.",
@@ -72,7 +72,7 @@ describe("Profile Prompts (profile-prompts.js)", () => {
 
     it("labels the field, layer, and canonical contract", () => {
       const result = render_enhancement({
-        _field_id: "eternal.non_physical",
+        field_id: "eternal.non_physical",
         content: "Content",
         label: "Personality, Behaviour & Traits",
         directive: "Enhance.",
@@ -87,7 +87,7 @@ describe("Profile Prompts (profile-prompts.js)", () => {
 
     it("uses the agenda format for future and single-array format for patch_single", () => {
       const future_result = render_enhancement({
-        _field_id: "future",
+        field_id: "future",
         content: "Chase the horizon.",
         label: "Agenda",
         directive: "Enhance.",
@@ -96,7 +96,7 @@ describe("Profile Prompts (profile-prompts.js)", () => {
       expect(future_result).toContain("active future tense");
 
       const single_memory = render_enhancement({
-        _field_id: "past",
+        field_id: "past",
         content: "Found the key.",
         label: "Memory",
         directive: "Enhance.",
@@ -107,7 +107,7 @@ describe("Profile Prompts (profile-prompts.js)", () => {
       expect(single_memory).not.toContain("Generate 3-5");
 
       const append_memory = render_enhancement({
-        _field_id: "past",
+        field_id: "past",
         content: "Found the key.",
         label: "Memory",
         directive: "Enhance.",

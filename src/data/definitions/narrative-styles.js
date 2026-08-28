@@ -918,7 +918,8 @@ export function get_narrative_style(style_key = "default") {
  * @returns {string[]}
  */
 export function get_style_keywords(style_key = "") {
-  return NARRATIVE_STYLES[style_key]?.keywords || [];
+  const keywords = NARRATIVE_STYLES[style_key]?.keywords;
+  return keywords ? [...keywords] : [];
 }
 
 /**

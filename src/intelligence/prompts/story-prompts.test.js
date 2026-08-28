@@ -4,31 +4,41 @@
  */
 
 import { describe, expect, it, vi } from "vitest";
-import { render_character, render_npc_character, render_ghostwriter, build_narrator } from "./story-prompts.js";
+import { render_story_prose, render_ghostwriter } from "./story-prompts.js";
+import { system_head_cache } from "./shared.js";
 
 const _mock_app = {
   settings: { narrative_style: "default" },
 };
 
-vi.mock("@utils", async (importOriginal) => {
+vi.mock("@data", async (importOriginal) => {
   const actual = await importOriginal();
-  const mock_state_bridge = {
-    get app() {
-      return _mock_app;
-    },
-    get runtime() {
-      return { active_fractal: null };
-    },
-  };
   return {
     ...actual,
-    state_bridge: mock_state_bridge,
-    resolve_style: (explicit, key, registry, fallback = "") => {
-      if (explicit && explicit !== "default" && explicit !== "" && registry?.[explicit]) return explicit;
-      const app_val = _mock_app.settings?.[key];
-      if (app_val && app_val !== "default" && registry?.[app_val]) return app_val;
-      return fallback;
+    resolve_active_style_key: () => _mock_app.settings.narrative_style,
+    render_narrative_style_xml: (style_key = _mock_app.settings.narrative_style) =>
+      style_key === "anna_zaires" ? '<NARRATIVE_STYLE narrator="anna_zaires">' : "",
+    get_narrative_style: (key) =>
+      key === "anna_zaires"
+        ? {
+            author: "anna_zaires",
+            rules: ["High tension", "First person immediate"],
+            motifs: {
+              stoic_pain: { directive: "Mask pain behind curt declarative statements." },
+            },
+          }
+        : null,
+    STYLE_MOTIF_REGISTRY: {
+      ...actual.STYLE_MOTIF_REGISTRY,
+      stoic_pain: { directive: "Mask pain behind curt declarative statements." },
     },
+  };
+});
+
+vi.mock("@utils", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
   };
 });
 
@@ -37,28 +47,30 @@ describe("Story Prompts (story-prompts.js)", () => {
     round: 1,
     entities: {
       AI: {
+        id: "ai-1",
         name: "Viper",
-        present: { non_physical: "Volatile Present" },
-        eternal: { non_physical: "Static Eternal" },
-        past: [{ directive: "Viper past 1" }],
+        eternal: { non_physical: "Static Eternal", physical: "Cybernetic eye" },
+        present: { non_physical: "Volatile Present", physical: "Black jacket" },
         future: "Viper future 1",
+        past: [{ directive: "Viper past 1" }],
       },
       USER: {
+        id: "user-1",
         name: "Ghost",
-        present: { non_physical: "Ghost Present" },
-        eternal: { non_physical: "Ghost Eternal" },
-        past: [{ directive: "Ghost past 1" }],
+        eternal: { non_physical: "Ghost Eternal", physical: "Hooded cloak" },
+        present: { non_physical: "Ghost Present", physical: "Combat boots" },
         future: "Ghost future 1",
+        past: [{ directive: "Ghost past 1" }],
       },
       FRACTAL: {
+        id: "fractal-1",
         name: "Void",
-        present: { non_physical: "Void Present" },
-        eternal: { non_physical: "Void Eternal" },
-        past: [{ directive: "Void past 1" }],
+        eternal: { non_physical: "Void Eternal", physical: "Starry expanse" },
+        present: { non_physical: "Void Present", physical: "Cosmic dust" },
         future: "Void future 1",
+        past: [{ directive: "Void past 1" }],
       },
     },
-    simulation_log: [],
     input: "Check the door.",
   });
 
@@ -68,9 +80,10 @@ describe("Story Prompts (story-prompts.js)", () => {
     flags: {},
   };
 
-  describe("Character Prompt (render_character)", () => {
+  describe("Character Prompt (render_story_prose mode: character)", () => {
     it("separates static SYSTEM from volatile SNAPSHOT", () => {
-      const result = render_character({
+      const result = render_story_prose({
+        mode: "character",
         ...base_payload(),
         compressed_snapshot: base_snapshot,
       });
@@ -85,7 +98,8 @@ describe("Story Prompts (story-prompts.js)", () => {
     });
 
     it("injects somatic directives when keywords or high intensity are selected", () => {
-      const result = render_character({
+      const result = render_story_prose({
+        mode: "character",
         ...base_payload(),
         compressed_snapshot: base_snapshot,
         director_data: { keywords: ["shame", "stoic_pain"] },
@@ -98,7 +112,8 @@ describe("Story Prompts (story-prompts.js)", () => {
     it("strips user's SECRET and PLAN across the Epistemic Wall", () => {
       const payload = base_payload();
       payload.entities.USER.present.non_physical = "[SECRET: hidden stolen cipher] [PLAN: run away]";
-      const result = render_character({
+      const result = render_story_prose({
+        mode: "character",
         ...payload,
         compressed_snapshot: base_snapshot,
       });
@@ -107,7 +122,8 @@ describe("Story Prompts (story-prompts.js)", () => {
     });
 
     it("withholds USER_PERSONA future intent from the character", () => {
-      const result = render_character({
+      const result = render_story_prose({
+        mode: "character",
         ...base_payload(),
         compressed_snapshot: base_snapshot,
       });
@@ -115,17 +131,20 @@ describe("Story Prompts (story-prompts.js)", () => {
     });
 
     it("renders author style when narrative_style setting is active", () => {
+      system_head_cache.clear();
       _mock_app.settings.narrative_style = "anna_zaires";
-      const result = render_character({
+      const result = render_story_prose({
+        mode: "character",
         ...base_payload(),
         compressed_snapshot: base_snapshot,
       });
       expect(result.system).toContain('<NARRATIVE_STYLE narrator="anna_zaires">');
       _mock_app.settings.narrative_style = "default";
+      system_head_cache.clear();
     });
   });
 
-  describe("Supporting NPC Character Prompt (render_npc_character)", () => {
+  describe("Supporting NPC Character Prompt (render_story_prose with speaker)", () => {
     it("builds a third-person persona for delegated NPCs", () => {
       const npc = {
         id: "npc-mira",
@@ -136,10 +155,11 @@ describe("Story Prompts (story-prompts.js)", () => {
         past: [{ directive: "Old debt" }],
       };
       const payload = base_payload();
-      const result = render_npc_character({
+      const result = render_story_prose({
+        mode: "character",
         ...payload,
         entities: { ...payload.entities, [npc.id]: npc },
-        npc,
+        speaker: npc,
         compressed_snapshot: base_snapshot,
         director_data: { directive: "", keywords: [] },
       });
@@ -152,9 +172,10 @@ describe("Story Prompts (story-prompts.js)", () => {
     });
   });
 
-  describe("Scene Narrator Prompt (build_narrator)", () => {
+  describe("Scene Narrator Prompt (render_story_prose mode: scene / prologue)", () => {
     it("builds fractal scene narration prompt", () => {
-      const result = build_narrator("scene", {
+      const result = render_story_prose({
+        mode: "scene",
         ...base_payload(),
         compressed_snapshot: base_snapshot,
         director_data: { keywords: ["dysregulation"] },
@@ -165,12 +186,14 @@ describe("Story Prompts (story-prompts.js)", () => {
     });
 
     it("builds prologue narration prompt", () => {
-      const result = build_narrator("prologue", {
+      const result = render_story_prose({
+        mode: "prologue",
         ...base_payload(),
+        input: "",
         compressed_snapshot: base_snapshot,
       });
       expect(result.system).toContain('mode="PROLOGUE"');
-      expect(result.system).toContain("<ACTIVE_CHARACTERS>");
+      expect(result.task).toContain("The scene begins.");
     });
   });
 
@@ -185,8 +208,8 @@ describe("Story Prompts (story-prompts.js)", () => {
       const { system, task } = render_ghostwriter({ entities, input: "" });
       expect(system).toContain('<AI_CHARACTER name="Rafael Orion">');
       expect(system).toContain('USER_PERSONA name="Glitch"');
+      expect(system).toContain("<THINK_FORMAT>");
       expect(task).toContain("Draft a compelling");
-      expect(task).toContain("<THINK_FORMAT>");
     });
 
     it("compiles enhancement directive when draft input is provided", () => {

@@ -215,6 +215,5 @@ export function build_available_keywords_xml(active_style_keywords = []) {
 
 /**
  * CHANGELOG
- * - 2026-08-28: Streamlined somatic prompt compilation by inlining render_somatic_directives_xml
- *   directly into build_somatic_directives_block.
+ * - 2026-08-28: Streamlined somatic prompt compilation into unified build_somatic_directives_xml and build_available_keywords_xml functions.
  */

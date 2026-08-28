@@ -12,7 +12,7 @@ import { collapse_history } from "../parser.js";
 import { temporal_engine, resolve_vector_pool } from "../temporal-pipeline.js";
 import { parse_macros, render_protocols } from "./shared.js";
 import { render_director, render_terse_director_task } from "./director-prompts.js";
-import { render_character, render_npc_character, render_ghostwriter, build_narrator } from "./story-prompts.js";
+import { render_story_prose, render_ghostwriter } from "./story-prompts.js";
 import { render_memory } from "./temporal-prompts.js";
 import { render_enhancement, render_profile_sorting } from "./profile-prompts.js";
 
@@ -165,7 +165,8 @@ export const prompt_builder = {
    */
   build_character(payload, snapshot = {}, director_data = {}) {
     const render_accessors = resolve_accessors(payload);
-    const rendered = render_character({
+    const rendered = render_story_prose({
+      mode: "character",
       ...payload,
       render_accessors,
       compressed_snapshot: snapshot,
@@ -187,7 +188,8 @@ export const prompt_builder = {
    */
   build_scene_narrator(payload, snapshot = {}, director_data = {}) {
     const render_accessors = resolve_accessors(payload);
-    const rendered = build_narrator("scene", {
+    const rendered = render_story_prose({
+      mode: "scene",
       ...payload,
       render_accessors,
       compressed_snapshot: snapshot,
@@ -211,10 +213,11 @@ export const prompt_builder = {
   build_npc(payload, npc, snapshot = {}, director_data = {}) {
     const entities = { ...(payload.entities || {}), [npc.id]: npc };
     const render_accessors = resolve_accessors(payload, entities);
-    const rendered = render_npc_character({
+    const rendered = render_story_prose({
+      mode: "character",
       ...payload,
       entities,
-      npc,
+      speaker: npc,
       render_accessors,
       compressed_snapshot: snapshot,
       director_data,
@@ -236,7 +239,8 @@ export const prompt_builder = {
   build_prologue(payload, snapshot = {}) {
     if (payload.type === "prologue") {
       const render_accessors = resolve_accessors(payload);
-      const rendered = build_narrator("prologue", {
+      const rendered = render_story_prose({
+        mode: "prologue",
         ...payload,
         render_accessors,
         compressed_snapshot: snapshot,
@@ -260,7 +264,8 @@ export const prompt_builder = {
       FRACTAL: entities?.FRACTAL || { name: "FRACTAL", present: {}, eternal: {} },
     };
 
-    const rendered = build_narrator("epilogue", {
+    const rendered = render_story_prose({
+      mode: "epilogue",
       entities: safe_entities,
       render_accessors: render_builder.create_render_accessors(safe_entities, "", recent_history),
       compressed_snapshot: {
@@ -314,17 +319,16 @@ export const prompt_builder = {
     array_mode = "append_new",
   ) {
     const resolved_type = entity_type === "user" ? "character" : entity_type || "character";
-    const meta = PROFILE_FIELD_CATALOG[`${resolved_type}.${field_id}`] ||
-      PROFILE_FIELD_CATALOG[field_id] || {
-        directive: "Expand and enrich the fragment.",
-        enhancer: "GENERAL",
-      };
+    const meta = PROFILE_FIELD_CATALOG[`${resolved_type}.${field_id}`] || {
+      directive: "Expand and enrich the fragment.",
+      enhancer: "GENERAL",
+    };
 
     const is_array_field = meta.type === "array";
     return {
       system: render_enhancement({
         content,
-        label: meta.sublabel || meta.label || entity_name,
+        label: meta.label || entity_name,
         directive: meta.directive,
         enhancer: meta.enhancer,
         is_image_field: is_image_field || field_id.endsWith(".physical"),

@@ -282,7 +282,8 @@ export const system_head_cache = new Map();
 export const SYSTEM_HEAD_CACHE_CAP = 16;
 
 const _eternal_fp = (entity) => (entity ? [entity.id || "", entity.name || "", JSON.stringify(entity.eternal || {})].join("|") : "∅");
-const _system_head_key = (entities) => `${_eternal_fp(entities?.AI)}||${_eternal_fp(entities?.FRACTAL)}||style=${resolve_active_style_key()}`;
+const _system_head_key = (entities) =>
+  `${_eternal_fp(entities?.AI)}||${_eternal_fp(entities?.USER)}||${_eternal_fp(entities?.FRACTAL)}||style=${resolve_active_style_key()}`;
 
 /**
  * Shared SYSTEM head — the byte-identical prefix of every turn-loop prompt.
@@ -305,6 +306,14 @@ export function render_system_head(entities = {}) {
       <PERSONALITY>${render_field_value(entities.AI.eternal?.non_physical, entities.AI, entities)}</PERSONALITY>
       <PERMANENT_APPEARANCE>${render_field_value(entities.AI.eternal?.physical, entities.AI, entities)}</PERMANENT_APPEARANCE>
     </AI_CHARACTER>`
+        : ""
+    }
+    ${
+      entities?.USER
+        ? `    <USER_PERSONA name="${escape_xml(entities.USER.name || "User")}">
+      <PERSONALITY>${render_field_value(strip_epistemic_tags(entities.USER.eternal?.non_physical), entities.USER, entities)}</PERSONALITY>
+      <PERMANENT_APPEARANCE>${render_field_value(strip_epistemic_tags(entities.USER.eternal?.physical), entities.USER, entities)}</PERMANENT_APPEARANCE>
+    </USER_PERSONA>`
         : ""
     }
     ${

@@ -11,15 +11,13 @@
 import { ind, escape_xml, physical_to_xml, clean_xml } from "@utils";
 import { PROFILE_FIELDS } from "@data";
 import { temporal_engine, resolve_vector_pool } from "../temporal-pipeline.js";
-import { TEMPORAL_CONTRACT } from "./temporal-prompts.js";
+import { TEMPORAL_PROTOCOLS } from "./temporal-prompts.js";
 import { render_protocols, PROTOCOL_LIBRARY } from "./shared.js";
 
-// ── 1. Profile Schemas & Directives ──────────────────────────────────────────
+// ── 1. Profile Protocols & Directives ─────────────────────────────────────────
 
-/**
- * Flat JSON schema for raw text sorting and ingestion.
- */
-export const PROFILE_SCHEMA = `Extract and sort raw text into a flat JSON object with keys:
+export const PROFILE_PROTOCOLS = {
+  SCHEMA: `Extract and sort raw text into a flat JSON object with keys:
 name (string), description (string), signature_color (string), appearance (string), personality (string), current_look (string), state_of_mind (string), past (array of strings → become memory vectors), future (string).
 
 - description: HUMAN EYES ONLY. Internal notes/OOC info.
@@ -28,24 +26,24 @@ name (string), description (string), signature_color (string), appearance (strin
 - current_look / state_of_mind: Temporary visual features vs Current mood/mental state.
 - past / future: Historical anchors vs Active impulses/intent (a single standing objective string).
 
-Return a single JSON object starting with { and ending with }. No preamble, no markdown backticks, no external XML tags.`;
+Return a single JSON object starting with { and ending with }. No preamble, no markdown backticks, no external XML tags.`,
 
-export const PROFILE_FORMATS = {
-  ARRAY_APPEND:
-    'Return a JSON array of objects: {"content": string, "emotional_weight": integer (1-10)}. Generate 3-5 NEW distinct memories. Never duplicate a memory already listed in <ENTITY_CONTEXT>.',
-  ARRAY_SINGLE:
-    'Rewrite exactly this ONE memory. Return either a JSON array containing a single object {"content": string, "emotional_weight": integer (1-10)} or a plain text string. Never return multiple entries.',
-};
+  FORMATS: {
+    ARRAY_APPEND:
+      'Return a JSON array of objects: {"content": string, "emotional_weight": integer (1-10)}. Generate 3-5 NEW distinct memories. Never duplicate a memory already listed in <ENTITY_CONTEXT>.',
+    ARRAY_SINGLE:
+      'Rewrite exactly this ONE memory. Return either a JSON array containing a single object {"content": string, "emotional_weight": integer (1-10)} or a plain text string. Never return multiple entries.',
+  },
 
-export const PROFILE_MACROS = {
-  CHARACTER: "Use placeholder macros for entities: '{{me}}' (self), '{{you}}' (user persona), '{{fractal}}' (setting). Never hardcode names.",
-  FRACTAL:
-    "Use placeholder macros for entities: '{{user}}' (user persona), '{{char}}' (AI character), '{{fractal}}' (setting). Never hardcode names.",
-};
+  MACROS: {
+    CHARACTER: "Use placeholder macros for entities: '{{me}}' (self), '{{you}}' (user persona), '{{fractal}}' (setting). Never hardcode names.",
+    FRACTAL:
+      "Use placeholder macros for entities: '{{user}}' (user persona), '{{char}}' (AI character), '{{fractal}}' (setting). Never hardcode names.",
+  },
 
-const REDISTRIBUTE_DIRECTIVE = `REDISTRIBUTE: The source profile may have content in the wrong field. Move each fact to its correct field — e.g. a temporary state written under 'personality' belongs under 'state_of_mind'; a mood written under 'appearance' belongs under 'current_look'. Sort and relocate; do not merely regenerate in place. Never move content into or out of 'description' (internal OOC notes). Preserve the facts; only their location and phrasing may change.`;
-
-const INGESTION_DIRECTIVE = `<INGESTION_DIRECTIVE Authority="L3_HIGH">
+  SORTING: {
+    REDISTRIBUTE: `REDISTRIBUTE: The source profile may have content in the wrong field. Move each fact to its correct field — e.g. a temporary state written under 'personality' belongs under 'state_of_mind'; a mood written under 'appearance' belongs under 'current_look'. Sort and relocate; do not merely regenerate in place. Never move content into or out of 'description' (internal OOC notes). Preserve the facts; only their location and phrasing may change.`,
+    INGESTION: `<INGESTION_DIRECTIVE Authority="L3_HIGH">
   <RULE name="SOURCE_OF_TRUTH">
     Source text details are absolute truth. Map them verbatim into corresponding schema fields.
   </RULE>
@@ -54,7 +52,9 @@ const INGESTION_DIRECTIVE = `<INGESTION_DIRECTIVE Authority="L3_HIGH">
     - Synthesize a vivid, lore-consistent default.
     - NEVER emit null, undefined, or empty string values.
   </RULE>
-</INGESTION_DIRECTIVE>`;
+</INGESTION_DIRECTIVE>`,
+  },
+};
 
 // ── 2. Field Context Compiler ────────────────────────────────────────────────
 
@@ -74,7 +74,8 @@ export function render_enhancement_field_context(entity, field_id, content = "",
 
   if (section && sub && ["eternal", "present"].includes(section)) {
     const block_for = (sec, sub_key) => {
-      const tag = PROFILE_FIELDS[sec]?.[sub_key]?.[kind]?.tag;
+      const field_def = PROFILE_FIELDS[sec]?.[sub_key]?.[kind];
+      const tag = field_def?.label ? field_def.label.toUpperCase().replace(/\s+/g, "_") : "";
       if (!tag) return "";
       const raw = entity?.[sec]?.[sub_key];
       const value =
@@ -97,29 +98,16 @@ export function render_enhancement_field_context(entity, field_id, content = "",
     return clean_xml(`\n  <ENTITY_CONTEXT>\n    ${inner}\n  </ENTITY_CONTEXT>\n  `).trim();
   }
 
-  if (field_id === "past") {
-    const vectors = resolve_vector_pool(entity);
-    const text = vectors.length ? temporal_engine.format(vectors, content || "", { max_chars: 1500 }) : "";
-    const tag = is_fractal ? "HISTORY" : entity?.type === "user" ? "BACKSTORY" : "MEMORIES";
-    return clean_xml(`
-  <ENTITY_CONTEXT>
-    <${tag}>
-      ${ind(escape_xml(text), 6)}
-    </${tag}>
-  </ENTITY_CONTEXT>
-  `).trim();
-  }
-
-  if (field_id === "future") {
-    const text = String(entity?.future || "").trim();
-    const tag = is_fractal || entity?.type === "user" ? "AGENDA" : "INTENT";
-    return clean_xml(`
-  <ENTITY_CONTEXT>
-    <${tag}>
-      ${ind(escape_xml(text), 6)}
-    </${tag}>
-  </ENTITY_CONTEXT>
-  `).trim();
+  if (field_id === "past" || field_id === "future") {
+    const is_past = field_id === "past";
+    const tag = is_past ? PROFILE_FIELDS.past.label.toUpperCase() : "AGENDA";
+    const text = is_past
+      ? resolve_vector_pool(entity).length
+        ? temporal_engine.format(resolve_vector_pool(entity), content || "", { max_chars: 1500 })
+        : ""
+      : String(entity?.future || "").trim();
+    if (!text) return "";
+    return clean_xml(`\n  <ENTITY_CONTEXT>\n    <${tag}>\n      ${ind(escape_xml(text), 6)}\n    </${tag}>\n  </ENTITY_CONTEXT>\n  `).trim();
   }
 
   return "";
@@ -152,17 +140,23 @@ export function render_enhancement({
   is_array_field = false,
   array_mode = "append_new",
   field_id = "",
-  _field_id = "",
   layer_key = "",
   entity = null,
   entity_type = "character",
 }) {
-  const active_field_id = field_id || _field_id || "";
-  const format_instruction = is_array_field ? (array_mode === "patch_single" ? PROFILE_FORMATS.ARRAY_SINGLE : PROFILE_FORMATS.ARRAY_APPEND) : "";
-  const macro_instruction = !is_image_field ? (entity_type === "fractal" ? PROFILE_MACROS.FRACTAL : PROFILE_MACROS.CHARACTER) : "";
+  const format_instruction = is_array_field
+    ? array_mode === "patch_single"
+      ? PROFILE_PROTOCOLS.FORMATS.ARRAY_SINGLE
+      : PROFILE_PROTOCOLS.FORMATS.ARRAY_APPEND
+    : "";
+  const macro_instruction = !is_image_field
+    ? entity_type === "fractal"
+      ? PROFILE_PROTOCOLS.MACROS.FRACTAL
+      : PROFILE_PROTOCOLS.MACROS.CHARACTER
+    : "";
 
   return clean_xml(`
-<SYSTEM role="${escape_xml(enhancer || "GENERAL")}" enhancing="${escape_xml(label || "")}" field="${escape_xml(active_field_id)}">
+<SYSTEM role="${escape_xml(enhancer || "GENERAL")}" enhancing="${escape_xml(label || "")}" field="${escape_xml(field_id)}">
   <INSTRUCTIONS>
     ${ind(escape_xml(directive), 4)}
     ${format_instruction ? `\n\n    ${ind(format_instruction, 4)}` : ""}
@@ -172,10 +166,10 @@ export function render_enhancement({
     ${ind(render_protocols("HYGIENE.DATA"), 4)}
   </PROTOCOLS>
   <CONTRACT>
-    ${ind(escape_xml(TEMPORAL_CONTRACT), 4)}
+    ${ind(escape_xml(TEMPORAL_PROTOCOLS.CONTRACT), 4)}
   </CONTRACT>
   ${layer_key ? `<LAYER>${escape_xml(layer_key)}</LAYER>\n` : ""}
-  ${render_enhancement_field_context(entity, active_field_id, content, entity_type) || ""}
+  ${render_enhancement_field_context(entity, field_id, content, entity_type) || ""}
   <INPUT_CONTENT>
     ${ind(escape_xml(content), 4)}
   </INPUT_CONTENT>
@@ -193,15 +187,15 @@ export function render_profile_sorting(entity_type = "character", options = {}) 
   const resolved_type = entity_type === "user" ? "character" : entity_type || "character";
   const focus_directive =
     resolved_type === "fractal"
-      ? `FOCUS: Extracting data for a FRACTAL (scene/setting/environment). Re-contextualize or discard character-specific traits. ${PROFILE_MACROS.FRACTAL}`
-      : `FOCUS: Extracting data for an individual CHARACTER. Re-contextualize or discard environmental/setting text. ${PROFILE_MACROS.CHARACTER}`;
-  const ingestion_str = options.ingestion ? `\n\n    ${ind(INGESTION_DIRECTIVE, 4)}` : "";
-  const redistribute_str = options.redistribute ? `\n\n    ${ind(REDISTRIBUTE_DIRECTIVE, 4)}` : "";
+      ? `FOCUS: Extracting data for a FRACTAL (scene/setting/environment). Re-contextualize or discard character-specific traits. ${PROFILE_PROTOCOLS.MACROS.FRACTAL}`
+      : `FOCUS: Extracting data for an individual CHARACTER. Re-contextualize or discard environmental/setting text. ${PROFILE_PROTOCOLS.MACROS.CHARACTER}`;
+  const ingestion_str = options.ingestion ? `\n\n    ${ind(PROFILE_PROTOCOLS.SORTING.INGESTION, 4)}` : "";
+  const redistribute_str = options.redistribute ? `\n\n    ${ind(PROFILE_PROTOCOLS.SORTING.REDISTRIBUTE, 4)}` : "";
 
   return clean_xml(`
 <SYSTEM role="NARRATIVE_STRUCTURER" enhancing="Entire Profile">
   <INSTRUCTIONS>
-    ${ind(escape_xml(PROFILE_SCHEMA), 4)}
+    ${ind(escape_xml(PROFILE_PROTOCOLS.SCHEMA), 4)}
 
     ${ind(escape_xml(PROTOCOL_LIBRARY.POV.THIRD_PERSON), 4)}
 

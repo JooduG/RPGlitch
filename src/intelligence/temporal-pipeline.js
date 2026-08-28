@@ -1,5 +1,5 @@
 /**
- * @file src/intelligence/temporal.js
+ * @file src/intelligence/temporal-pipeline.js
  * ⏳ TEMPORAL ENGINE — Memory & Agenda
  * Owns the past vector pool (memories) plus the forged prose agenda (future):
  * scoring, caps, eviction, consolidation, and the read paths that surface them.
@@ -10,6 +10,7 @@ import { llm_service, ensure_embedding, score_by_semantics, embed, is_ready, des
 import { extract_json_block } from "./parser.js";
 import { merge_prose_into_field } from "./payload.js";
 import { render_memory } from "./prompts/temporal-prompts.js";
+import { apply_relationships } from "./director.js";
 
 /**
  * @typedef {import('@state/runtime.svelte.js').SimulationEntity} SimulationEntity
@@ -969,8 +970,8 @@ export const temporal_engine = {
         }
 
         // Apply outward relational vectors if present
-        if (Array.isArray(forged.relationships) && forged.relationships.length > 0 && state_bridge.kernel?._apply_relationships) {
-          await state_bridge.kernel._apply_relationships({ runtime, app }, forged.relationships);
+        if (Array.isArray(forged.relationships) && forged.relationships.length > 0) {
+          await apply_relationships({ runtime, app }, forged.relationships);
         }
 
         const text = memories.length ? memories.map((v) => v.content || v.directive || "").join(" | ") : "State consolidated.";

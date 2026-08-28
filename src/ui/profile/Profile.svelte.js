@@ -286,7 +286,7 @@ export class ProfileState {
   async enhance(key, value) {
     if (!value || this.busy_fields.has(key)) return;
     const type = this.char?.type === "user" ? "character" : this.char?.type || "character";
-    const catalog_meta = PROFILE_FIELD_CATALOG[`${type}.${key}`] || PROFILE_FIELD_CATALOG[key];
+    const catalog_meta = PROFILE_FIELD_CATALOG[`${type}.${key}`];
     if (!catalog_meta) return;
     this.enhance_field_inner(key, value);
   }
@@ -642,7 +642,6 @@ export class ProfileState {
     if (!this.char || typeof data_url !== "string") return;
     const clean_url = data_url.trim();
     this.char.profile_picture = clean_url;
-    this.char.image = clean_url; // Fallback support
 
     const id = this.char.id;
     if (id) {

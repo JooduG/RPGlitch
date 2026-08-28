@@ -11,7 +11,7 @@ import {
 } from "./temporal-pipeline.js";
 import { llm_service, embed } from "@platform";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cosine_similarity, state_bridge } from "@utils";
+import { cosine_similarity } from "@utils";
 
 // Mock dependencies
 vi.mock("@platform/transport.js", () => ({
@@ -946,23 +946,8 @@ describe("temporal_engine per-entity consolidation progress tracking (Track 2 Ph
       }),
     );
 
-    const mock_kernel = {
-      _apply_relationships: vi.fn(async (bridge, rels) => {
-        bridge.runtime.active_ai.relationships = rels;
-      }),
-    };
-    const prev_kernel = state_bridge.kernel;
-    state_bridge.kernel = mock_kernel;
+    await temporal_engine.consolidate(mock_session, mock_db, {}, mock_runtime, mock_app, { target_key: "AI_CHARACTER" });
 
-    try {
-      await temporal_engine.consolidate(mock_session, mock_db, {}, mock_runtime, mock_app, { target_key: "AI_CHARACTER" });
-
-      expect(mock_kernel._apply_relationships).toHaveBeenCalledWith(expect.objectContaining({ runtime: mock_runtime, app: mock_app }), [
-        "Viper → Ghost: Growing mutual respect under fire",
-      ]);
-      expect(mock_runtime.active_ai.relationships).toContain("Viper → Ghost: Growing mutual respect under fire");
-    } finally {
-      state_bridge.kernel = prev_kernel;
-    }
+    expect(mock_runtime.active_ai.relationships).toContain("Viper → Ghost: Growing mutual respect under fire");
   });
 });

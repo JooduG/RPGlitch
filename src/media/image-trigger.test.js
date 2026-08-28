@@ -126,7 +126,7 @@ describe("resolve_image_trigger (Dual-Source & Decoupled Cooldown Orchestration)
     expect(res.next_dynamics_round).toBeNull(); // Dynamics timer NOT consumed!
   });
 
-  it("supports backwards-compatible fallback if last_auto single timestamp is provided", () => {
+  it("enforces dynamics cooldown with explicit last_dynamics_beat_round", () => {
     const snapshot = { ai: { dynamics: { intensity: 90 } } };
     const prev_dynamics = { ai: { intensity: 50 } };
     const res = resolve_image_trigger({
@@ -134,7 +134,7 @@ describe("resolve_image_trigger (Dual-Source & Decoupled Cooldown Orchestration)
       prev_dynamics,
       director_data: {},
       turn_round: 4,
-      last_auto: 0,
+      last_dynamics_beat_round: 0,
     });
 
     expect(res.active).toBe(true);

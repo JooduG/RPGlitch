@@ -4,7 +4,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { render_memory, render_chapter_history_xml, render_entity_memory_context, BACK_SHOT_JSON_SCHEMA } from "./temporal-prompts.js";
+import { render_memory, render_chapter_history_xml, render_entity_memory_context, TEMPORAL_PROTOCOLS } from "./temporal-prompts.js";
 
 describe("Memory Forge & Back Shot Prompts (memory-prompts.js)", () => {
   const mock_entities = {
@@ -23,14 +23,14 @@ describe("Memory Forge & Back Shot Prompts (memory-prompts.js)", () => {
     },
   };
 
-  it("exposes valid BACK_SHOT_JSON_SCHEMA", () => {
-    expect(BACK_SHOT_JSON_SCHEMA).toContain('"_thought_process"');
-    expect(BACK_SHOT_JSON_SCHEMA).toContain('"target"');
-    expect(BACK_SHOT_JSON_SCHEMA).toContain('"eternal"');
-    expect(BACK_SHOT_JSON_SCHEMA).toContain('"present"');
-    expect(BACK_SHOT_JSON_SCHEMA).toContain('"future"');
-    expect(BACK_SHOT_JSON_SCHEMA).toContain('"past"');
-    expect(BACK_SHOT_JSON_SCHEMA).toContain('"relationships"');
+  it("exposes valid TEMPORAL_PROTOCOLS.SCHEMA", () => {
+    expect(TEMPORAL_PROTOCOLS.SCHEMA).toContain('"_thought_process"');
+    expect(TEMPORAL_PROTOCOLS.SCHEMA).toContain('"target"');
+    expect(TEMPORAL_PROTOCOLS.SCHEMA).toContain('"eternal"');
+    expect(TEMPORAL_PROTOCOLS.SCHEMA).toContain('"present"');
+    expect(TEMPORAL_PROTOCOLS.SCHEMA).toContain('"future"');
+    expect(TEMPORAL_PROTOCOLS.SCHEMA).toContain('"past"');
+    expect(TEMPORAL_PROTOCOLS.SCHEMA).toContain('"relationships"');
   });
 
   it("render_chapter_history_xml() formats closed chapters into XML block", () => {
@@ -44,7 +44,7 @@ describe("Memory Forge & Back Shot Prompts (memory-prompts.js)", () => {
     expect(xml).toContain('<AI_CHARACTER name="Viper">');
     expect(xml).toContain("<PERSONALITY>Protective</PERSONALITY>");
     expect(xml).toContain("<STATE_OF_MIND>Wary</STATE_OF_MIND>");
-    expect(xml).toContain("<INTENT>Reach the perimeter.</INTENT>");
+    expect(xml).toContain("<AGENDA>Reach the perimeter.</AGENDA>");
   });
 
   it("render_memory() compiles single-entity Back Shot prompt correctly", () => {
@@ -56,7 +56,7 @@ describe("Memory Forge & Back Shot Prompts (memory-prompts.js)", () => {
       history,
     });
 
-    expect(prompt).toContain('<SYSTEM role="BACK_SHOT_FORGE" target="AI_CHARACTER" name="Viper">');
+    expect(prompt).toContain('<SYSTEM role="MEMORY_FORGE" target="AI_CHARACTER" name="Viper">');
     expect(prompt).toContain("<SCENE_CAST>");
     expect(prompt).toContain('name="Ghost"');
     expect(prompt).toContain("<INPUT_HISTORY>");

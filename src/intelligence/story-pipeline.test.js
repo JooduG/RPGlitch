@@ -3,6 +3,10 @@ import { context_builder } from "./payload.js";
 import { physics_engine } from "./physics.js";
 import { prompt_builder } from "./prompts/builder.js";
 import { temporal_engine } from "./temporal-pipeline.js";
+import { resolve_npc_entity, apply_in_scene_change, apply_relationships } from "./director.js";
+import { apply_genesis, spawn_npc } from "./profile-pipeline.js";
+import { capture_dynamics_delta } from "./telemetry.js";
+import * as telemetry from "./telemetry.js";
 import { llm_service } from "@platform";
 import { session_driver } from "@data";
 import { visual_engine, spawn_image_beat, sweep_stale_ghosts, resolve_image_trigger } from "@media";
@@ -26,7 +30,6 @@ const _mock_runtime = {
   story_id: null,
   last_director_beat_round: -1,
   last_dynamics_beat_round: -1,
-  last_auto_image_round: -1,
   add_vector: vi.fn(),
   get snapshot_entities() {
     return {
@@ -277,7 +280,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
         fractal: { dynamics: { entropy: 40 } }, // -10 from runtime
       };
 
-      await gamemaster.capture_dynamics_delta(snapshot);
+      await capture_dynamics_delta(state_bridge, snapshot);
 
       expect(session_driver.log_system_entry).toHaveBeenCalledWith(
         expect.stringContaining("Intensity +10"),
@@ -337,7 +340,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
         ],
       };
 
-      await gamemaster.capture_dynamics_delta(snapshot, meta);
+      await capture_dynamics_delta(state_bridge, snapshot, meta);
 
       expect(session_driver.log_system_entry).toHaveBeenCalledWith(
         expect.stringContaining("Intensity +10"),
@@ -376,7 +379,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
         },
       };
 
-      await gamemaster.capture_dynamics_delta(snapshot, meta);
+      await capture_dynamics_delta(state_bridge, snapshot, meta);
 
       expect(session_driver.log_system_entry).toHaveBeenCalledWith(
         expect.any(String),
@@ -413,7 +416,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
         },
       };
 
-      await gamemaster.capture_dynamics_delta(snapshot, meta);
+      await capture_dynamics_delta(state_bridge, snapshot, meta);
 
       expect(session_driver.log_system_entry).toHaveBeenCalledWith(
         expect.any(String),
@@ -445,7 +448,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
         ],
       };
 
-      await gamemaster.capture_dynamics_delta(snapshot, meta);
+      await capture_dynamics_delta(state_bridge, snapshot, meta);
 
       expect(session_driver.log_system_entry).toHaveBeenCalledWith(
         expect.any(String),
@@ -472,7 +475,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
         fractal: { dynamics: { entropy: 50 } },
       };
 
-      await gamemaster.capture_dynamics_delta(snapshot);
+      await capture_dynamics_delta(state_bridge, snapshot);
 
       expect(session_driver.log_system_entry).not.toHaveBeenCalled();
     });
@@ -696,7 +699,8 @@ describe("gamemaster (Intelligence Kernel)", () => {
     );
     // The prologue's own image opens the shared cooldown so the opening turn can't
     // immediately fire a second image at round 0.
-    expect(_mock_runtime.last_auto_image_round).toBe(0);
+    expect(_mock_runtime.last_director_beat_round).toBe(0);
+    expect(_mock_runtime.last_dynamics_beat_round).toBe(0);
 
     _mock_app.prologue = "";
   });
@@ -888,7 +892,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
     });
 
     it("triggers capture_dynamics_delta exactly once per execution turn sequence", async () => {
-      const telemetry_spy = vi.spyOn(gamemaster, "capture_dynamics_delta");
+      const telemetry_spy = vi.spyOn(telemetry, "capture_dynamics_delta");
       vi.mocked(llm_service.generate).mockResolvedValue("Clean output response");
 
       await gamemaster.execute_turn("story-123", {
@@ -1006,7 +1010,8 @@ describe("gamemaster (Intelligence Kernel)", () => {
       _mock_runtime.ai = { intensity: 50 };
       _mock_runtime.fractal = { entropy: 50 };
       _mock_runtime.round = 1;
-      _mock_runtime.last_auto_image_round = -1;
+      _mock_runtime.last_director_beat_round = -1;
+      _mock_runtime.last_dynamics_beat_round = -1;
       _image_gen_queue.length = 0;
       vi.clearAllMocks();
     });
@@ -1032,7 +1037,6 @@ describe("gamemaster (Intelligence Kernel)", () => {
       expect(result.meta.image_trigger).toBe(true);
       expect(result.meta.image_tier).toBe("story_scene");
       expect(result.meta.image_source).toBe("dynamics");
-      expect(_mock_runtime.last_auto_image_round).toBe(1);
       expect(_mock_runtime.last_dynamics_beat_round).toBe(1);
       // Placeholder attachment logged immediately
       const placeholder_call = session_driver.log_message.mock.calls.find((c) => c[3]?.attachments?.[0]?.src === null);
@@ -1054,7 +1058,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
         next_auto_round: null,
         director_explicit: false,
       });
-      _mock_runtime.last_auto_image_round = 2; // round 1 < 2 + 3 → cooldown not elapsed
+      _mock_runtime.last_dynamics_beat_round = 2; // round 1 < 2 + 3 → cooldown not elapsed
       vi.mocked(llm_service.generate)
         .mockResolvedValueOnce(JSON.stringify({ mutations: { AI_CHARACTER: {} } }))
         .mockResolvedValueOnce("Identified.");
@@ -1064,7 +1068,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
       expect(result.meta.image_trigger).toBe(false);
       expect(result.meta.image_tier).toBeNull();
       expect(visual_engine.visualize).not.toHaveBeenCalled();
-      expect(_mock_runtime.last_auto_image_round).toBe(2);
+      expect(_mock_runtime.last_dynamics_beat_round).toBe(2);
     });
 
     it("Source B: a director explicit trigger is suppressed while the shared cooldown is active", async () => {
@@ -1078,7 +1082,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
         next_auto_round: null,
         director_explicit: true,
       });
-      _mock_runtime.last_auto_image_round = 2; // round 1 < 2 + 3 → cooldown not elapsed
+      _mock_runtime.last_director_beat_round = 2; // round 1 < 2 + 3 → cooldown not elapsed
       vi.mocked(llm_service.generate)
         .mockResolvedValueOnce(JSON.stringify({ trigger_image: true, mutations: { AI_CHARACTER: {} } }))
         .mockResolvedValueOnce("Identified.");
@@ -1088,7 +1092,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
       expect(result.meta.image_trigger).toBe(false);
       expect(result.meta.image_tier).toBeNull();
       expect(visual_engine.visualize).not.toHaveBeenCalled();
-      expect(_mock_runtime.last_auto_image_round).toBe(2);
+      expect(_mock_runtime.last_director_beat_round).toBe(2);
     });
 
     it("Source B: a director explicit trigger fires once the shared cooldown has elapsed and resets the timer", async () => {
@@ -1103,7 +1107,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
         director_explicit: true,
       });
       _mock_runtime.round = 5;
-      _mock_runtime.last_auto_image_round = 2; // 5 >= 2 + 3 → cooldown elapsed
+      _mock_runtime.last_director_beat_round = 2; // 5 >= 2 + 3 → cooldown elapsed
       vi.mocked(llm_service.generate)
         .mockResolvedValueOnce(JSON.stringify({ trigger_image: true, mutations: { AI_CHARACTER: {} } }))
         .mockResolvedValueOnce("Identified.");
@@ -1113,7 +1117,6 @@ describe("gamemaster (Intelligence Kernel)", () => {
       expect(result.meta.image_trigger).toBe(true);
       expect(result.meta.image_source).toBe("director");
       expect(result.meta.image_tier).toBe("story_scene");
-      expect(_mock_runtime.last_auto_image_round).toBe(5);
       expect(_mock_runtime.last_director_beat_round).toBe(5);
       await vi.waitFor(() => expect(visual_engine.visualize).toHaveBeenCalled());
     });
@@ -1202,7 +1205,8 @@ describe("gamemaster (Intelligence Kernel)", () => {
         director_explicit: false,
       });
       _mock_runtime.round = 0;
-      _mock_runtime.last_auto_image_round = -1;
+      _mock_runtime.last_director_beat_round = -1;
+      _mock_runtime.last_dynamics_beat_round = -1;
       vi.mocked(llm_service.generate)
         .mockResolvedValueOnce(JSON.stringify({ mutations: { AI_CHARACTER: {} } }))
         .mockResolvedValueOnce("Identified.");
@@ -1211,7 +1215,6 @@ describe("gamemaster (Intelligence Kernel)", () => {
 
       expect(result.meta.image_trigger).toBe(true);
       expect(result.meta.image_tier).toBe("story_character");
-      expect(_mock_runtime.last_auto_image_round).toBe(0);
       expect(_mock_runtime.last_dynamics_beat_round).toBe(0);
     });
 
@@ -1227,7 +1230,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
         director_explicit: false,
       });
       _mock_runtime.round = 1;
-      _mock_runtime.last_auto_image_round = 0; // a real round-0 (prologue) trigger
+      _mock_runtime.last_dynamics_beat_round = 0; // a real round-0 (prologue) trigger
       vi.mocked(llm_service.generate)
         .mockResolvedValueOnce(JSON.stringify({ mutations: { AI_CHARACTER: {} } }))
         .mockResolvedValueOnce("Identified.");
@@ -1237,7 +1240,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
       // round 1 < 0 + 3 → cooldown still active; the gate must NOT treat 0 as "never triggered".
       expect(result.meta.image_trigger).toBe(false);
       expect(visual_engine.visualize).not.toHaveBeenCalled();
-      expect(_mock_runtime.last_auto_image_round).toBe(0);
+      expect(_mock_runtime.last_dynamics_beat_round).toBe(0);
     });
 
     it("marks the oldest beat's placeholder failed when the image queue overflows", async () => {
@@ -1296,28 +1299,28 @@ describe("NPC world cast (track-npc-expansion)", () => {
   it("_resolve_npc_entity() resolves by id and by case-insensitive name", () => {
     _mock_runtime.active_npcs = { ben1: { id: "ben1", name: "Benedict" } };
 
-    expect(gamemaster._resolve_npc_entity({ runtime: _mock_runtime }, "ben1")?.id).toBe("ben1");
-    expect(gamemaster._resolve_npc_entity({ runtime: _mock_runtime }, "benedict")?.id).toBe("ben1");
-    expect(gamemaster._resolve_npc_entity({ runtime: _mock_runtime }, "nobody")).toBeNull();
-    expect(gamemaster._resolve_npc_entity({ runtime: _mock_runtime }, "")).toBeNull();
+    expect(resolve_npc_entity({ runtime: _mock_runtime }, "ben1")?.id).toBe("ben1");
+    expect(resolve_npc_entity({ runtime: _mock_runtime }, "benedict")?.id).toBe("ben1");
+    expect(resolve_npc_entity({ runtime: _mock_runtime }, "nobody")).toBeNull();
+    expect(resolve_npc_entity({ runtime: _mock_runtime }, "")).toBeNull();
   });
 
   it("_apply_in_scene_change() moves NPCs on/off stage via the Director choreography", async () => {
     _mock_runtime.active_npcs = { a: { id: "a", name: "A" }, b: { id: "b", name: "B" } };
     _mock_runtime.in_scene_npc_ids = ["a", "b"];
 
-    const changed = await gamemaster._apply_in_scene_change({ runtime: _mock_runtime }, { enter: ["c", "a"], exit: ["b"] });
+    const changed = await apply_in_scene_change({ runtime: _mock_runtime }, { enter: ["c", "a"], exit: ["b"] });
     expect(changed).toBe(true);
     expect(_mock_runtime.in_scene_npc_ids.sort()).toEqual(["a", "c"]);
   });
 
   it("_apply_in_scene_change() is a no-op when the stage is unchanged", async () => {
     _mock_runtime.in_scene_npc_ids = ["a"];
-    const changed = await gamemaster._apply_in_scene_change({ runtime: _mock_runtime }, { enter: ["a"] });
+    const changed = await apply_in_scene_change({ runtime: _mock_runtime }, { enter: ["a"] });
     expect(changed).toBe(false);
     expect(_mock_runtime.in_scene_npc_ids).toEqual(["a"]);
 
-    const noop = await gamemaster._apply_in_scene_change({ runtime: _mock_runtime }, null);
+    const noop = await apply_in_scene_change({ runtime: _mock_runtime }, null);
     expect(noop).toBe(false);
   });
 
@@ -1328,7 +1331,7 @@ describe("NPC world cast (track-npc-expansion)", () => {
     _mock_runtime.active_npcs = { ben1: { id: "ben1", name: "Benedict" } };
     _mock_runtime.in_scene_npc_ids = ["ben1"];
 
-    const npc = await gamemaster.spawn_npc({ runtime: _mock_runtime, app: _mock_app }, { name: "Mira", description: "A fixer.", role_tier: 2 });
+    const npc = await spawn_npc({ runtime: _mock_runtime, app: _mock_app }, { name: "Mira", description: "A fixer.", role_tier: 2 });
 
     expect(npc.name).toBe("Mira");
     expect(npc.role_tier).toBe(2);
@@ -1341,17 +1344,17 @@ describe("NPC world cast (track-npc-expansion)", () => {
   it("spawn_npc() requires a name and clamps the tier to 1-3", async () => {
     vi.mocked(entities.upsert).mockImplementation(async (type, entity) => ({ ...entity, id: "npc-x", type: "character" }));
 
-    expect(await gamemaster.spawn_npc({ runtime: _mock_runtime, app: _mock_app }, { name: "  " })).toBeNull();
-    expect(await gamemaster.spawn_npc({ runtime: _mock_runtime, app: _mock_app }, {})).toBeNull();
+    expect(await spawn_npc({ runtime: _mock_runtime, app: _mock_app }, { name: "  " })).toBeNull();
+    expect(await spawn_npc({ runtime: _mock_runtime, app: _mock_app }, {})).toBeNull();
 
-    await gamemaster.spawn_npc({ runtime: _mock_runtime, app: _mock_app }, { name: "Sorel", role_tier: 99 });
+    await spawn_npc({ runtime: _mock_runtime, app: _mock_app }, { name: "Sorel", role_tier: 99 });
     expect(entities.upsert).toHaveBeenCalledWith("character", expect.objectContaining({ name: "Sorel", role_tier: 3 }));
   });
 
   it("spawn_npc() forwards the Director's signature_color for the NPC identity", async () => {
     vi.mocked(entities.upsert).mockImplementation(async (type, entity) => ({ ...entity, id: "npc-hue-1", type: "character" }));
 
-    const npc = await gamemaster.spawn_npc({ runtime: _mock_runtime, app: _mock_app }, { name: "Hue", signature_color: "Proud Purple" });
+    const npc = await spawn_npc({ runtime: _mock_runtime, app: _mock_app }, { name: "Hue", signature_color: "Proud Purple" });
 
     expect(npc.signature_color).toBe("Proud Purple");
     expect(entities.upsert).toHaveBeenCalledWith("character", expect.objectContaining({ name: "Hue", signature_color: "Proud Purple" }));
@@ -1373,7 +1376,7 @@ describe("NPC world cast (track-npc-expansion)", () => {
     );
     vi.mocked(entities.upsert).mockImplementation(async (type, entity) => ({ ...entity, id: "npc-kaelen-1", type: "character" }));
 
-    const npc = await gamemaster.spawn_npc(
+    const npc = await spawn_npc(
       { runtime: _mock_runtime, app: _mock_app },
       { name: "Kaelen", description: "An archivist with silver hair.", signature_color: "Electric Cyan" },
     );
@@ -1418,13 +1421,9 @@ describe("NPC world cast (track-npc-expansion)", () => {
       )
       .mockResolvedValueOnce("Who goes there?");
 
-    const spawn_spy = vi.spyOn(gamemaster, "spawn_npc");
-
     const result = await gamemaster.execute_turn("story-123", { input: "A stranger steps out.", role: "ai" });
 
-    expect(spawn_spy).toHaveBeenCalled();
     expect(result.response).toBe("Who goes there?");
-    spawn_spy.mockRestore();
   });
 
   it("execute_turn() delegates the turn to a world-cast NPC when the Director names one", async () => {
@@ -1502,33 +1501,33 @@ describe("NPC world cast (track-npc-expansion)", () => {
   });
 });
 
-describe("_apply_in_scene_change (in-scene name tolerance)", () => {
+describe("apply_in_scene_change (in-scene name tolerance)", () => {
   beforeEach(() => {
     _mock_runtime.active_npcs = { npc1: { id: "npc1", name: "Lord Benedict" } };
     _mock_runtime.in_scene_npc_ids = [];
   });
 
   it("resolves raw cast names (case-insensitive) as well as bare ids", async () => {
-    await gamemaster._apply_in_scene_change(state_bridge, { enter: ["lord benedict"] });
+    await apply_in_scene_change(state_bridge, { enter: ["lord benedict"] });
     expect(_mock_runtime.in_scene_npc_ids).toContain("npc1");
 
-    await gamemaster._apply_in_scene_change(state_bridge, { exit: ["LORD BENEDICT"] });
+    await apply_in_scene_change(state_bridge, { exit: ["LORD BENEDICT"] });
     expect(_mock_runtime.in_scene_npc_ids).not.toContain("npc1");
   });
 
   it("still resolves bare ids directly", async () => {
-    await gamemaster._apply_in_scene_change(state_bridge, { enter: ["npc1"] });
+    await apply_in_scene_change(state_bridge, { enter: ["npc1"] });
     expect(_mock_runtime.in_scene_npc_ids).toContain("npc1");
   });
 
   it("ignores unknown names without mutating the roster", async () => {
-    const changed = await gamemaster._apply_in_scene_change(state_bridge, { enter: ["Nobody Here"] });
+    const changed = await apply_in_scene_change(state_bridge, { enter: ["Nobody Here"] });
     expect(changed).toBe(false);
     expect(_mock_runtime.in_scene_npc_ids).toEqual([]);
   });
 });
 
-describe("_apply_relationships (Relational Mesh)", () => {
+describe("apply_relationships (Relational Mesh)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     _mock_runtime.active_ai = { id: "ai-1", name: "Viper", type: "character", relationships: [] };
@@ -1538,36 +1537,36 @@ describe("_apply_relationships (Relational Mesh)", () => {
   });
 
   it("resolves sources by case-insensitive name and persists edges", async () => {
-    await gamemaster._apply_relationships(state_bridge, ["Viper → Mira: alliance"]);
+    await apply_relationships(state_bridge, ["Viper → Mira: alliance"]);
     expect(_mock_runtime.active_ai.relationships).toContain("Viper → Mira: alliance");
     expect(entities.upsert).toHaveBeenCalledWith("character", expect.objectContaining({ id: "ai-1", relationships: ["Viper → Mira: alliance"] }));
   });
 
   it("resolves sources by id and replaces existing edges to the same target", async () => {
     _mock_runtime.active_ai.relationships = ["Viper → Mira: alliance"];
-    await gamemaster._apply_relationships(state_bridge, ["ai-1 → Mira: rivalry"]);
+    await apply_relationships(state_bridge, ["ai-1 → Mira: rivalry"]);
     expect(_mock_runtime.active_ai.relationships).toEqual(["ai-1 → Mira: rivalry"]);
   });
 
   it("caps the edge list at 12", async () => {
     const rels = Array.from({ length: 15 }, (_, i) => `Viper → Target${i}: edge ${i}`);
-    await gamemaster._apply_relationships(state_bridge, rels);
+    await apply_relationships(state_bridge, rels);
     expect(_mock_runtime.active_ai.relationships.length).toBeLessThanOrEqual(12);
   });
 
   it("skips edges whose source resolves to nobody", async () => {
-    await gamemaster._apply_relationships(state_bridge, ["Unknown → Mira: debt"]);
+    await apply_relationships(state_bridge, ["Unknown → Mira: debt"]);
     expect(entities.upsert).not.toHaveBeenCalled();
   });
 
   it("writes fractal edges through the fractal upsert path", async () => {
-    await gamemaster._apply_relationships(state_bridge, ["Void → Viper: looming danger"]);
+    await apply_relationships(state_bridge, ["Void → Viper: looming danger"]);
     expect(entities.upsert).toHaveBeenCalledWith("fractal", expect.objectContaining({ id: "fx-1", relationships: ["Void → Viper: looming danger"] }));
     expect(_mock_runtime.active_fractal.relationships).toContain("Void → Viper: looming danger");
   });
 });
 
-describe("_apply_genesis (World-Cast Expansion)", () => {
+describe("apply_genesis (World-Cast Expansion)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     _mock_runtime.active_ai = { id: "ai-1", name: "Viper", type: "character" };
@@ -1579,7 +1578,7 @@ describe("_apply_genesis (World-Cast Expansion)", () => {
   });
 
   it("spawns a new NPC and registers it on-stage", async () => {
-    await gamemaster._apply_genesis(state_bridge, [{ name: "Mira", role_tier: 3, description: "A scarred courier", voice_register: "plain" }]);
+    await apply_genesis(state_bridge, [{ name: "Mira", role_tier: 3, description: "A scarred courier", voice_register: "plain" }], spawn_npc);
     const spawned = Object.values(_mock_runtime.active_npcs);
     expect(spawned).toHaveLength(1);
     expect(spawned[0].name).toBe("Mira");
@@ -1589,23 +1588,23 @@ describe("_apply_genesis (World-Cast Expansion)", () => {
   });
 
   it("applies the convergence guard for cast names already present (case-insensitive)", async () => {
-    await gamemaster._apply_genesis(state_bridge, [{ name: "viper" }]);
+    await apply_genesis(state_bridge, [{ name: "viper" }], spawn_npc);
     expect(Object.keys(_mock_runtime.active_npcs)).toHaveLength(0);
     expect(_mock_app.log).toHaveBeenCalledWith(expect.stringContaining("convergence guard"), "warn");
   });
 
   it("silently skips drafts without a name", async () => {
-    await gamemaster._apply_genesis(state_bridge, [{ role_tier: 3 }, null, { name: "" }]);
+    await apply_genesis(state_bridge, [{ role_tier: 3 }, null, { name: "" }], spawn_npc);
     expect(Object.keys(_mock_runtime.active_npcs)).toHaveLength(0);
     expect(entities.upsert).not.toHaveBeenCalled();
   });
 
   it("forwards the Director's signature_color into spawn_npc", async () => {
-    const spawned = vi.spyOn(gamemaster, "spawn_npc").mockResolvedValue({ id: "npc-1", name: "Mira", signature_color: "Emerald Green" });
+    const mock_spawn = vi.fn().mockResolvedValue({ id: "npc-1", name: "Mira", signature_color: "Emerald Green" });
 
-    await gamemaster._apply_genesis(state_bridge, [{ name: "Mira", description: "A courier.", role_tier: 2, signature_color: "Emerald Green" }]);
+    await apply_genesis(state_bridge, [{ name: "Mira", description: "A courier.", role_tier: 2, signature_color: "Emerald Green" }], mock_spawn);
 
-    expect(spawned).toHaveBeenCalledWith(state_bridge, expect.objectContaining({ name: "Mira", signature_color: "Emerald Green" }));
+    expect(mock_spawn).toHaveBeenCalledWith(state_bridge, expect.objectContaining({ name: "Mira", signature_color: "Emerald Green" }));
   });
 });
 

@@ -140,9 +140,9 @@ describe("Shared Prompt Utilities (shared.js)", () => {
 
   describe("Pacing Directive & Epistemic Tags", () => {
     it("classifies terse vs expansive vs silent input correctly", () => {
-      expect(build_pacing_directive("")).toContain("INPUT RHYTHM: no prompt");
-      expect(build_pacing_directive("Where is the vault?")).toContain("INPUT RHYTHM: terse");
-      expect(build_pacing_directive("w".repeat(320))).toContain("INPUT RHYTHM: expansive");
+      expect(build_pacing_directive("")).toContain("PACING: no prompt");
+      expect(build_pacing_directive("Where is the vault?")).toContain("PACING: terse");
+      expect(build_pacing_directive("w".repeat(320))).toContain("PACING: expansive");
     });
 
     it("strips [SECRET:] and [PLAN:] tags cleanly", () => {

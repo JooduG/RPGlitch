@@ -1,30 +1,30 @@
 /**
  * src/intelligence/prompts/temporal-prompts.js
- * ⏳ TEMPORAL PROMPTS — Memory Forge & Back Shot Schema
+ * ⏳ TEMPORAL PROMPTS — Memory Forge & State Extraction
  *
- * Dedicated prompt generator for the Temporal Engine (Back Shot Forge):
- * compiles single-entity memory extraction prompts and JSON schemas. (BACK_SHOT_JSON_SCHEMA)
+ * Dedicated prompt generator for the Temporal Engine (Memory Forge):
+ * compiles single-entity memory extraction prompts and JSON schemas.
+ * - Temporal Contract Definition (TEMPORAL_CONTRACT)
+ * - Back Shot JSON Schema (BACK_SHOT_JSON_SCHEMA)
  * - Chapter History XML (render_chapter_history_xml)
  * - Entity Memory Context (render_entity_memory_context)
- * - Back Shot Forge Compiler (render_memory / build_memory_prompt)
+ * - Memory Forge Compiler (render_memory)
  */
 
 import { ind, escape_xml, physical_to_xml, clean_xml } from "@utils";
+import { PROFILE_FIELDS } from "@data";
 import { render_protocols } from "./shared.js";
 
-/**
- * Canonical runtime contract for the four temporal layers. Single source of
- * truth for what ETERNAL / PRESENT / FUTURE / PAST mean — emitted verbatim
- * into both the Memory Forge task and every profile enhance prompt so the two
- * pipelines never drift apart.
- */
-export const TEMPORAL_CONTRACT = `TEMPORAL LAYER CONTRACT — ETERNAL / PRESENT / FUTURE / PAST
+// ── 1. Temporal Contract & Schema Definitions ─────────────────────────────────
+
+export const TEMPORAL_PROTOCOLS = {
+  CONTRACT: `TEMPORAL LAYER CONTRACT — ETERNAL / PRESENT / FUTURE / PAST
 - ETERNAL: Permanent baseline identity, personality traits, and physical form. Permanent narrative transformations update it; transient states belong in PRESENT. Explicit user edits always override.
 - PRESENT: Immediate volatile state. "physical" holds active attire, injuries, and held props via bracketed state tags ([KEY: VALUE]); "non_physical" holds immediate mindset and emotional state. True only in this moment.
 - FUTURE: Single consolidated standing agenda — impending intent, immediate objective, or unresolved tension driving the character forward. Written in active future tense.
-- PAST: Settled historical anchors and durable facts. Append new consequential events only; never record transient moods.`;
+- PAST: Settled historical anchors and durable facts. Append new consequential events only; never record transient moods.`,
 
-export const BACK_SHOT_JSON_SCHEMA = `{
+  SCHEMA: `{
   "_thought_process": "<one short sentence analyzing recent events for target entity>",
   "target": "'AI_CHARACTER' | 'USER_PERSONA' | 'FRACTAL' | 'NPC_<id>'",
   "eternal": { "physical": "Permanent baseline appearance change or empty string", "non_physical": "Permanent personality shift or empty string" },
@@ -32,7 +32,27 @@ export const BACK_SHOT_JSON_SCHEMA = `{
   "future": "2-5 sentences of active future tense standing agenda rewritten from recent events",
   "past": [ { "content": "Durable fact emerged worth keeping (empty list if none)", "type": "past", "emotional_weight": 5 } ],
   "relationships": ["Source → Target: dynamic description"]
-}`;
+}`,
+};
+
+// ── 2. Context & History Helper Formatters ────────────────────────────────────
+
+/**
+ * Formats recent dialogue / turn history for LLM prompt ingestion.
+ * @param {Array<any>} [history]
+ * @param {number} [max_turns=8]
+ * @param {number} [max_chars=400]
+ * @returns {string}
+ */
+export function format_recent_history(history = [], max_turns = 8, max_chars = 400) {
+  const rows = Array.isArray(history) ? history.slice(-max_turns) : [];
+  const compact = rows.map((m) => ({
+    role: m?.role || "",
+    character_name: m?.character_name || "",
+    text: String(m?.text ?? m?.content ?? "").slice(0, max_chars),
+  }));
+  return JSON.stringify(compact, null, 2).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
 
 /**
  * Renders an entity's closed-chapter history so the Memory Forge can
@@ -60,43 +80,51 @@ export function render_entity_memory_context(key, entity) {
   if (!entity) return "";
   const name = escape_xml(entity?.name || key);
   const is_fractal = key === "FRACTAL";
-  const is_user = key === "USER_PERSONA";
-  const T = {
-    personality: is_fractal ? "METAPHYSICAL_TRUTHS" : "PERSONALITY",
-    state_of_mind: is_fractal ? "CURRENT_STATE" : "STATE_OF_MIND",
-    appearance: is_fractal ? "ENVIRONMENT" : "PERMANENT_APPEARANCE",
-    current_look: is_fractal ? "ACTIVE_ATMOSPHERE" : "CURRENT_LOOK",
-    future: is_fractal || is_user ? "AGENDA" : "INTENT",
-  };
+  const kind = is_fractal ? "fractal" : "character";
+
+  const get_tag = (sec, sub) => PROFILE_FIELDS[sec]?.[sub]?.[kind]?.label?.toUpperCase()?.replace(/\s+/g, "_") || "";
+
+  const tag_personality = get_tag("eternal", "non_physical");
+  const tag_state_of_mind = get_tag("present", "non_physical");
+  const tag_appearance = get_tag("eternal", "physical");
+  const tag_current_look = get_tag("present", "physical");
+  const tag_future = "AGENDA";
+
   return clean_xml(`
   <${key} name="${name}">
     <NAME>${name}</NAME>
-    <${T.personality}>${escape_xml(entity?.eternal?.non_physical || "")}</${T.personality}>
-    <${T.state_of_mind}>${escape_xml(entity?.present?.non_physical || "")}</${T.state_of_mind}>
-    <${T.appearance}>
+    <${tag_personality}>${escape_xml(entity?.eternal?.non_physical || "")}</${tag_personality}>
+    <${tag_state_of_mind}>${escape_xml(entity?.present?.non_physical || "")}</${tag_state_of_mind}>
+    <${tag_appearance}>
       ${ind(
         physical_to_xml(entity?.eternal?.physical, "PHYSICAL")
           .replace(/<PHYSICAL>|<\/PHYSICAL>/g, "")
           .trim(),
         6,
       )}
-    </${T.appearance}>
-    <${T.current_look}>
+    </${tag_appearance}>
+    <${tag_current_look}>
       ${ind(
         physical_to_xml(entity?.present?.physical, "PHYSICAL")
           .replace(/<PHYSICAL>|<\/PHYSICAL>/g, "")
           .trim(),
         6,
       )}
-    </${T.current_look}>
-    <${T.future}>${escape_xml(String(entity?.future || "").trim())}</${T.future}>
+    </${tag_current_look}>
+    <${tag_future}>${escape_xml(String(entity?.future || "").trim())}</${tag_future}>
   </${key}>
   `).trim();
 }
 
+// ── 3. Memory Forge Compiler ──────────────────────────────────────────────────
+
 /**
- * Back Shot Forge prompt compiler.
- * @param {any} params
+ * Memory Forge prompt compiler.
+ * @param {Object} params
+ * @param {any} params.target_entity
+ * @param {string} [params.target_key="AI_CHARACTER"]
+ * @param {Record<string, any>} [params.other_entities={}]
+ * @param {Array<any>} [params.history=[]]
  * @returns {string}
  */
 export function render_memory({ target_entity, target_key = "AI_CHARACTER", other_entities = {}, history = [] }) {
@@ -114,7 +142,7 @@ export function render_memory({ target_entity, target_key = "AI_CHARACTER", othe
   const chapter_xml = target_entity ? render_chapter_history_xml(target_entity) : "";
 
   return clean_xml(`
-<SYSTEM role="BACK_SHOT_FORGE" target="${escape_xml(target_key)}" name="${escape_xml(target_name)}">
+<SYSTEM role="MEMORY_FORGE" target="${escape_xml(target_key)}" name="${escape_xml(target_name)}">
   <PROTOCOLS>
     ${ind(render_protocols("HYGIENE.DATA, AGENCY.PRESENT_TENSE, HYGIENE.STATE_EMISSION"), 4)}
   </PROTOCOLS>
@@ -122,31 +150,22 @@ export function render_memory({ target_entity, target_key = "AI_CHARACTER", othe
 ${target_xml}
   </TARGET_ENTITY_CONTEXT>
 ${scene_cast_xml}${chapter_xml ? `  <CHAPTER_HISTORY>\n${ind(chapter_xml, 4)}\n  </CHAPTER_HISTORY>\n` : ""}  <INPUT_HISTORY>
-    ${(() => {
-      const rows = Array.isArray(history) ? history.slice(-8) : [];
-      const compact = rows.map((m) => ({
-        role: m?.role || "",
-        character_name: m?.character_name || "",
-        text: String(m?.text ?? m?.content ?? "").slice(0, 400),
-      }));
-      return JSON.stringify(compact, null, 2).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    })()}
+    ${format_recent_history(history)}
   </INPUT_HISTORY>
   <TASK>
-    ${ind(TEMPORAL_CONTRACT, 4)}
+    ${ind(TEMPORAL_PROTOCOLS.CONTRACT, 4)}
 
     Analyze recent history specifically for TARGET ENTITY "${escape_xml(target_name)}" (${escape_xml(target_key)}). Record internal evaluation in "_thought_process".
-    Return a single JSON object with updates for this entity:
-      - "target": "${escape_xml(target_key)}"
-      - "eternal": Record permanent identity, psychological, or physical changes to baseline form (or empty string).
-      - "present": Rewrite clean, updated current look (physical) and state of mind (non_physical). RETAIN physical attire/clothing.
-      - "future": Rewrite standing agenda as 2-5 sentences (active future tense). Evict completed milestones; refresh active focus.
-      - "past": Durable settled facts emerged worth keeping as memories (or empty list []). No transient moods.
-      - "relationships": Outward relationship edges originating from ${escape_xml(target_name)} in format "[Source] → [Target]: [Dynamic]" (e.g. "${escape_xml(target_name)} → Other: dynamic").
+    Extract state mutations and outward relationships ("${escape_xml(target_name)} → [Target]: [Dynamic]") strictly adhering to the contract.
 
     Output strict JSON matching this schema:
-    ${BACK_SHOT_JSON_SCHEMA}
+    ${TEMPORAL_PROTOCOLS.SCHEMA}
   </TASK>
 </SYSTEM>
   `).trim();
 }
+
+/**
+ * CHANGELOG
+ * - 2026-08-28: Ground-up deconstruct & refactor: extracted format_recent_history helper, bound entity context tags directly to PROFILE_FIELDS, and streamlined Memory Forge compiler.
+ */
