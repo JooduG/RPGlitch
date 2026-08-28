@@ -94,20 +94,21 @@ describe("Prompt Builder Facade (builder.js)", () => {
     expect(result.system).toContain('<ROLE name="Void" mode="EPILOGUE">');
   });
 
-  it("build_memory_prompt() delegates correctly to memory prompts", () => {
-    const result = prompt_builder.build_memory_prompt({ AI_CHARACTER: { name: "Viper" }, FRACTAL: { name: "Void" } }, [], {
+  it("build_memory() delegates correctly to memory prompts", () => {
+    const result = prompt_builder.build_memory({ AI_CHARACTER: { name: "Viper" }, FRACTAL: { name: "Void" } }, [], {
       target_key: "AI_CHARACTER",
     });
     expect(result.system).toContain('<SYSTEM role="BACK_SHOT_FORGE" target="AI_CHARACTER" name="Viper">');
   });
 
-  it("build_enhancement() delegates correctly to profile prompts", () => {
-    const result = prompt_builder.build_enhancement("eternal.physical", "Content", "Viper", "character");
-    expect(result.system).toContain('enhancing="Body &amp; Form"');
+  it("build_profile_sorting() delegates correctly to profile prompts", () => {
+    const result = prompt_builder.build_profile_sorting("Raw text", "character");
+    expect(result.system).toContain('role="NARRATIVE_STRUCTURER"');
+    expect(result.messages[0].text).toBe("Raw text");
   });
 
-  it("build_profile_sorting_prompt() delegates correctly to profile prompts", () => {
-    const result = prompt_builder.build_profile_sorting_prompt("Raw text", "character");
-    expect(result.system).toContain("FOCUS: Extracting data for an individual CHARACTER");
+  it("build_enhancement() delegates correctly to profile prompts", () => {
+    const result = prompt_builder.build_enhancement("eternal.physical", "Content", "Viper", "character");
+    expect(result.system).toContain('enhancing="Permanent Appearance"');
   });
 });

@@ -2,7 +2,7 @@
  * @file src/ui/profile/Profile.svelte.js
  * 🧬 PROFILE STATE — Reactive controller for entity editing.
  */
-import { db, normalize, PROFILE_FIELD_CATALOG } from "@data";
+import { db, normalize, PROFILE_FIELD_CATALOG, FLAT_LEAF_MAP } from "@data";
 import { prompt_builder, strip_cognition_blocks, temporal_engine, parse_profile_json, safe_parse_pseudo_json } from "@intelligence";
 import { llm_service } from "@platform";
 import { app, runtime } from "@state";
@@ -507,7 +507,7 @@ export class ProfileState {
     this.busy_fields.add("description");
 
     try {
-      const payload = prompt_builder.build_profile_sorting_prompt(this.char, entity_type, { redistribute: true });
+      const payload = prompt_builder.build_profile_sorting(this.char, entity_type, { redistribute: true });
       const result = await llm_service.enhance(payload);
 
       if (result) {
@@ -517,13 +517,6 @@ export class ProfileState {
           for (let [key, val] of Object.entries(clean_json)) {
             if (key === "name" || key === "description" || key === "profile_picture" || key === "image" || key === "id" || key === "type") continue;
 
-            // Map flat LLM keys back to nested DB schema (eternal.physical, etc.)
-            const FLAT_LEAF_MAP = {
-              appearance: "eternal.physical",
-              personality: "eternal.non_physical",
-              current_look: "present.physical",
-              state_of_mind: "present.non_physical",
-            };
             if (FLAT_LEAF_MAP[key]) key = FLAT_LEAF_MAP[key];
 
             if (key === "past") {

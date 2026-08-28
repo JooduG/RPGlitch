@@ -7,8 +7,8 @@
  * lines (extract) or descriptive sentences (flatten). Pure — no reactivity.
  */
 
-import { VISUAL_STYLES } from "@data";
-import { CLOTHING_KEYS, safe_parse_pseudo_json, state_bridge } from "@utils";
+import { VISUAL_STYLES, resolve_portrait_visual_style_key } from "@data";
+import { CLOTHING_KEYS, safe_parse_pseudo_json } from "@utils";
 import { get_signature_label, PALETTE } from "./palette.js";
 
 /**
@@ -26,31 +26,6 @@ export function strip_visual_excluded(raw) {
     .filter(([k]) => !VISUAL_EXCLUDED_KEYS.has(k))
     .map(([k, v]) => `[${k}: ${Array.isArray(v) ? v.join(", ") : String(v).replace(/[[\]]/g, "")}]`);
   return kept.join(" ");
-}
-
-export function resolve_portrait_visual_style_key(entity = {}) {
-  const entity_style = entity?.visual_style;
-  if (entity_style && entity_style !== "default" && entity_style !== "" && VISUAL_STYLES[entity_style]) {
-    return entity_style;
-  }
-  const app_style = state_bridge.app ? state_bridge.app.settings?.visual_style : null;
-  if (app_style && app_style !== "default" && VISUAL_STYLES[app_style]) {
-    return app_style;
-  }
-  return "none";
-}
-
-export function resolve_story_visual_style_key(fractal) {
-  const fractal_style =
-    fractal?.visual_style || state_bridge.runtime?.active_fractal?.visual_style || state_bridge.app?.selected_fractal?.visual_style;
-  if (fractal_style && fractal_style !== "default" && fractal_style !== "" && VISUAL_STYLES[fractal_style]) {
-    return fractal_style;
-  }
-  const app_style = state_bridge.app?.settings?.visual_style ?? null;
-  if (app_style && app_style !== "default" && VISUAL_STYLES[app_style]) {
-    return app_style;
-  }
-  return "none";
 }
 
 export function parse_visual_engine(engineXml = "") {

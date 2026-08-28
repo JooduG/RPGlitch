@@ -12,6 +12,19 @@ export {
   serialize_rpglitch_entity,
 } from "./character-cards.js";
 export { premade } from "./definitions/premades.js";
-export { NARRATIVE_STYLES, STYLE_MOTIF_REGISTRY, get_style_keywords } from "./definitions/narrative-styles.js";
-export { VISUAL_STYLES } from "./definitions/visual-styles.js";
-export { PROFILE_FIELDS, PROFILE_FIELD_CATALOG, PROFILE_SECTIONS_BY_TYPE } from "./definitions/profile-fields.js";
+export {
+  NARRATIVE_STYLES,
+  STYLE_MOTIF_REGISTRY,
+  get_narrative_style,
+  get_style_keywords,
+  resolve_active_style_key,
+  render_narrative_style_xml,
+} from "./definitions/narrative-styles.js";
+export { VISUAL_STYLES, get_visual_style, resolve_portrait_visual_style_key, resolve_story_visual_style_key } from "./definitions/visual-styles.js";
+export {
+  PROFILE_FIELDS,
+  PROFILE_FIELD_CATALOG,
+  PROFILE_SECTIONS_BY_TYPE,
+  FLAT_LEAF_MAP,
+  build_profile_sections,
+} from "./definitions/profile-fields.js";

@@ -8,16 +8,11 @@
  * image-tiers.js.
  */
 
-import { VISUAL_STYLES, detox_prose } from "@data";
+import { VISUAL_STYLES, resolve_portrait_visual_style_key, resolve_story_visual_style_key, detox_prose } from "@data";
 import { escape_xml, physical_to_xml, prompt_escape, strip_cognition_blocks } from "@utils";
 import { sanitize_llm } from "@platform";
 import { normalize_image_tier } from "./image-tiers.js";
-import {
-  resolve_portrait_visual_style_key,
-  resolve_story_visual_style_key,
-  resolve_visual_engine_tokens,
-  strip_visual_excluded,
-} from "./image-aesthetics.js";
+import { resolve_visual_engine_tokens, strip_visual_excluded } from "./image-aesthetics.js";
 
 /**
  * Modern concise fallback negative prompt optimized for T5-XXL text streams.

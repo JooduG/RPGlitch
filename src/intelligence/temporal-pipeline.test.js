@@ -29,7 +29,7 @@ vi.mock("@data/sessions.svelte.js", () => ({
 
 vi.mock("@intelligence/prompts/builder.js", () => ({
   prompt_builder: {
-    build_memory_prompt: vi.fn(() => ({ system: "mock prompt", messages: [] })),
+    build_memory: vi.fn(() => ({ system: "mock prompt", messages: [] })),
   },
 }));
 

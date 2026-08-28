@@ -4,16 +4,11 @@
  * The sensory cortex orchestrator. Fully optimized with engine caching and localized JSON peeling.
  */
 
-import { db, entities, VISUAL_STYLES } from "@data";
+import { db, entities, VISUAL_STYLES, resolve_portrait_visual_style_key, resolve_story_visual_style_key } from "@data";
 import { generate_secure_seed as generateSecureSeed, strip_cognition_blocks, state_bridge } from "@utils";
 import { llm_service } from "@platform";
 import { get_resolution, normalize_image_tier } from "./image-tiers.js";
-import {
-  aesthetic_resolver,
-  resolve_portrait_visual_style_key,
-  resolve_story_visual_style_key,
-  resolve_visual_engine_tokens,
-} from "./image-aesthetics.js";
+import { aesthetic_resolver, resolve_visual_engine_tokens } from "./image-aesthetics.js";
 import { clean_image_prompt, NEGATIVE_PROMPT, parse_llm_refine_response, prompt_templates } from "./image-prompts.js";
 import { CircuitBreaker, ExponentialBackoffRetryer } from "@utils";
 

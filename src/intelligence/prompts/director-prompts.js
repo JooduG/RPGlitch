@@ -9,20 +9,12 @@
  * - render_terse_director_task (Fast-path recovery task on retry)
  */
 
-import { get_style_keywords } from "@data";
+import { get_style_keywords, resolve_active_style_key } from "@data";
 import { ind, escape_xml, clean_xml } from "@utils";
 import { build_available_keywords_xml, format_dynamics_attrs } from "./physics-prompts.js";
 import { strip_cognition_blocks } from "../parser.js";
 import { render_builder } from "./builder.js";
-import {
-  render_system_head,
-  render_field_value,
-  resolve_active_style_key,
-  render_roster_xml,
-  render_scene_roster_xml,
-  render_relational_mesh_xml,
-  render_protocols,
-} from "./shared.js";
+import { render_system_head, render_field_value, render_director_cast_xml, render_protocols } from "./shared.js";
 
 /**
  * Detects a non-verbal, environmental user turn — no quoted dialogue, with
@@ -31,7 +23,7 @@ import {
  * @param {string|null|undefined} input
  * @returns {string}
  */
-export function non_verbal_environmental_hint(input) {
+export function render_environmental_hint(input) {
   if (!input?.trim()) return "";
   if (/["'“”‘’]/.test(input)) return "";
   const spatial_verbs =
@@ -152,9 +144,7 @@ export function render_director({
   <PROTOCOLS>
     ${ind(full_protocols, 4)}
   </PROTOCOLS>
-  ${render_roster_xml(npc_entities, in_scene_ids, [entities?.AI?.id, entities?.USER?.id, entities?.FRACTAL?.id])}
-  ${render_scene_roster_xml(entities, npc_entities, in_scene_ids)}
-  ${render_relational_mesh_xml(entities, npc_entities)}
+  ${render_director_cast_xml({ entities, npc_entities, in_scene_ids })}
 </SYSTEM>
   `).trim()}`;
 
@@ -172,7 +162,7 @@ ${last_ai_text ? `<AI_CHARACTER_LAST_TURN>${ind(last_ai_text, 2)}</AI_CHARACTER_
     Provide 1-3 lines of "directors_note" as unseen acting/staging guidance for the speaker.
     Output physics shifts in "dynamics_deltas" (e.g. {"intensity": 10, "openness": -5}).
     Track the Stage Spotlight: when an NPC enters or leaves the room, move it with "in_scene_change".
-    ${non_verbal_environmental_hint(input)}
+    ${render_environmental_hint(input)}
     Record your reasoning inside "_thought_process" and return a single valid JSON object following this exact schema:
     ${DIRECTOR_JSON_SCHEMA}
     Obey all active <PROTOCOLS>. Keep output under 400 characters and return strictly JSON.

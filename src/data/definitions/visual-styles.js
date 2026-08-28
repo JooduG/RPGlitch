@@ -11,6 +11,8 @@
  * - No "default" tags (reserved sentinel).
  */
 
+import { state_bridge, resolve_style } from "@utils";
+
 // ── 1. Type Definitions ───────────────────────────────────────────────────────
 
 /**
@@ -567,6 +569,36 @@ export const VISUAL_STYLES = {
     negative_prompt: "medieval, natural, realistic, documentary, watercolor, oil painting, historical, classical oil portrait",
   }),
 };
+
+// ── 4. Style Accessors & Resolvers ─────────────────────────────────────────────
+
+/**
+ * Returns a VisualStyle record by key with safe fallback to `none`.
+ * @param {string} [style_key]
+ * @returns {VisualStyle}
+ */
+export function get_visual_style(style_key = "none") {
+  return VISUAL_STYLES[style_key] || VISUAL_STYLES.none;
+}
+
+/**
+ * Resolves the active visual style key for a character/entity portrait.
+ * @param {any} [entity]
+ * @returns {string}
+ */
+export function resolve_portrait_visual_style_key(entity = {}) {
+  return resolve_style(entity?.visual_style, "visual_style", VISUAL_STYLES, "none");
+}
+
+/**
+ * Resolves the active visual style key for story/scene generation from a fractal or app setting.
+ * @param {any} [fractal]
+ * @returns {string}
+ */
+export function resolve_story_visual_style_key(fractal) {
+  const explicit = fractal?.visual_style || state_bridge.runtime?.active_fractal?.visual_style || state_bridge.app?.selected_fractal?.visual_style;
+  return resolve_style(explicit, "visual_style", VISUAL_STYLES, "none");
+}
 
 /**
  * CHANGELOG

@@ -70,9 +70,10 @@ const _mock_simulation_state = {
 vi.mock("@intelligence/prompts/builder.js", () => ({
   prompt_builder: {
     build_prologue: vi.fn(),
-    build_director_prompt: vi.fn(),
-    build_character_prompt: vi.fn(),
-    build_npc_prompt: vi.fn(() => ({
+    build_director: vi.fn(),
+    build_character: vi.fn(),
+    build_scene_narrator: vi.fn(),
+    build_npc: vi.fn(() => ({
       system: "NPC_PROMPT",
       task: "NPC_TASK",
       meta: { ai: {}, fractal: {}, role: "npc", entity_id: null },
@@ -82,7 +83,7 @@ vi.mock("@intelligence/prompts/builder.js", () => ({
     render_protocols: vi.fn(),
     build_scoring_context: vi.fn(() => "Hello"),
     build_terse_director_task: vi.fn(() => "<TASK>terse</TASK>"),
-    build_profile_sorting_prompt: vi.fn(() => ({ system: "SYS", messages: [] })),
+    build_profile_sorting: vi.fn(() => ({ system: "SYS", messages: [] })),
   },
   render_terse_director_task: vi.fn(() => "<TASK>terse</TASK>"),
 }));
@@ -495,11 +496,11 @@ describe("gamemaster (Intelligence Kernel)", () => {
     };
 
     vi.mocked(context_builder.build_context).mockResolvedValue(mock_payload);
-    vi.mocked(prompt_builder.build_director_prompt).mockReturnValue({
+    vi.mocked(prompt_builder.build_director).mockReturnValue({
       system: "DIRECTOR_PROMPT",
       task: "DIRECTOR_TASK",
     });
-    vi.mocked(prompt_builder.build_character_prompt).mockReturnValue({
+    vi.mocked(prompt_builder.build_character).mockReturnValue({
       system: "CHARACTER_PROMPT",
       task: "CHARACTER_TASK",
       meta: {
@@ -517,8 +518,8 @@ describe("gamemaster (Intelligence Kernel)", () => {
     });
 
     expect(context_builder.build_context).toHaveBeenCalled();
-    expect(prompt_builder.build_director_prompt).toHaveBeenCalled();
-    expect(prompt_builder.build_character_prompt).toHaveBeenCalled();
+    expect(prompt_builder.build_director).toHaveBeenCalled();
+    expect(prompt_builder.build_character).toHaveBeenCalled();
     expect(llm_service.generate).toHaveBeenCalled();
     expect(result.response).toBe("Identified.");
   });
@@ -536,8 +537,8 @@ describe("gamemaster (Intelligence Kernel)", () => {
     };
 
     vi.mocked(context_builder.build_context).mockResolvedValue(mock_payload);
-    vi.mocked(prompt_builder.build_director_prompt).mockReturnValue({ system: "D", task: "T" });
-    vi.mocked(prompt_builder.build_character_prompt).mockReturnValue({
+    vi.mocked(prompt_builder.build_director).mockReturnValue({ system: "D", task: "T" });
+    vi.mocked(prompt_builder.build_character).mockReturnValue({
       system: "C",
       task: "T",
       meta: { ai: {}, fractal: {}, flags: [], vectors: [] },
@@ -578,8 +579,8 @@ describe("gamemaster (Intelligence Kernel)", () => {
     };
 
     vi.mocked(context_builder.build_context).mockResolvedValue(mock_payload);
-    vi.mocked(prompt_builder.build_director_prompt).mockReturnValue({ system: "D", task: "T" });
-    vi.mocked(prompt_builder.build_character_prompt).mockReturnValue({
+    vi.mocked(prompt_builder.build_director).mockReturnValue({ system: "D", task: "T" });
+    vi.mocked(prompt_builder.build_character).mockReturnValue({
       system: "C",
       task: "T",
       meta: { ai: {}, fractal: {}, flags: [], vectors: [] },
@@ -609,8 +610,8 @@ describe("gamemaster (Intelligence Kernel)", () => {
     state_bridge.runtime.record_director_latency = record_spy;
 
     vi.mocked(context_builder.build_context).mockResolvedValue(mock_payload);
-    vi.mocked(prompt_builder.build_director_prompt).mockReturnValue({ system: "D", task: "T" });
-    vi.mocked(prompt_builder.build_character_prompt).mockReturnValue({
+    vi.mocked(prompt_builder.build_director).mockReturnValue({ system: "D", task: "T" });
+    vi.mocked(prompt_builder.build_character).mockReturnValue({
       system: "C",
       task: "T",
       meta: { ai: {}, fractal: {}, flags: [], vectors: [] },
@@ -642,8 +643,8 @@ describe("gamemaster (Intelligence Kernel)", () => {
 
     vi.mocked(session_driver.load_log).mockResolvedValue([{ role: "model", content: "Last line of context" }]);
     vi.mocked(context_builder.build_context).mockResolvedValue(mock_payload);
-    vi.mocked(prompt_builder.build_director_prompt).mockReturnValue({ system: "D", task: "T" });
-    vi.mocked(prompt_builder.build_character_prompt).mockReturnValue({
+    vi.mocked(prompt_builder.build_director).mockReturnValue({ system: "D", task: "T" });
+    vi.mocked(prompt_builder.build_character).mockReturnValue({
       system: "C",
       task: "T",
       meta: { ai: {}, fractal: {}, flags: [], vectors: [] },
@@ -678,8 +679,8 @@ describe("gamemaster (Intelligence Kernel)", () => {
 
     vi.mocked(context_builder.build_context).mockResolvedValue(mock_payload);
     vi.mocked(prompt_builder.build_prologue).mockReturnValue({ system: "PROLOGUE_SYSTEM", task: "PROLOGUE_TASK" });
-    vi.mocked(prompt_builder.build_director_prompt).mockReturnValue({ system: "D", task: "T" });
-    vi.mocked(prompt_builder.build_character_prompt).mockReturnValue({
+    vi.mocked(prompt_builder.build_director).mockReturnValue({ system: "D", task: "T" });
+    vi.mocked(prompt_builder.build_character).mockReturnValue({
       system: "C",
       task: "T",
       meta: { ai: {}, fractal: {}, flags: [], vectors: [] },
@@ -742,11 +743,11 @@ describe("gamemaster (Intelligence Kernel)", () => {
 
     beforeEach(() => {
       vi.mocked(context_builder.build_context).mockResolvedValue(mock_payload);
-      vi.mocked(prompt_builder.build_director_prompt).mockReturnValue({
+      vi.mocked(prompt_builder.build_director).mockReturnValue({
         system: "DIRECTOR_PROMPT",
         task: "DIRECTOR_TASK",
       });
-      vi.mocked(prompt_builder.build_character_prompt).mockReturnValue({
+      vi.mocked(prompt_builder.build_character).mockReturnValue({
         system: "CHARACTER_PROMPT",
         task: "CHARACTER_TASK",
         meta: {
@@ -855,11 +856,11 @@ describe("gamemaster (Intelligence Kernel)", () => {
 
     beforeEach(() => {
       vi.mocked(context_builder.build_context).mockResolvedValue(mock_payload);
-      vi.mocked(prompt_builder.build_director_prompt).mockReturnValue({
+      vi.mocked(prompt_builder.build_director).mockReturnValue({
         system: "DIRECTOR_PROMPT",
         task: "DIRECTOR_TASK",
       });
-      vi.mocked(prompt_builder.build_character_prompt).mockReturnValue({
+      vi.mocked(prompt_builder.build_character).mockReturnValue({
         system: "CHARACTER_PROMPT",
         task: "CHARACTER_TASK",
         meta: {
@@ -996,8 +997,8 @@ describe("gamemaster (Intelligence Kernel)", () => {
 
     beforeEach(() => {
       vi.mocked(context_builder.build_context).mockResolvedValue(mock_payload);
-      vi.mocked(prompt_builder.build_director_prompt).mockReturnValue({ system: "D", task: "T" });
-      vi.mocked(prompt_builder.build_character_prompt).mockReturnValue({
+      vi.mocked(prompt_builder.build_director).mockReturnValue({ system: "D", task: "T" });
+      vi.mocked(prompt_builder.build_character).mockReturnValue({
         system: "C",
         task: "T",
         meta: { ai: {}, fractal: {}, flags: [], vectors: [] },
@@ -1402,8 +1403,8 @@ describe("NPC world cast (track-npc-expansion)", () => {
     };
 
     vi.mocked(context_builder.build_context).mockResolvedValue(mock_payload);
-    vi.mocked(prompt_builder.build_director_prompt).mockReturnValue({ system: "D", task: "T" });
-    vi.mocked(prompt_builder.build_npc_prompt).mockReturnValue({
+    vi.mocked(prompt_builder.build_director).mockReturnValue({ system: "D", task: "T" });
+    vi.mocked(prompt_builder.build_npc).mockReturnValue({
       system: "GENESIS_NPC_PROMPT",
       task: "GENESIS_NPC_TASK",
       meta: { ai: {}, fractal: {}, role: "npc", entity_id: "npc-stranger-1" },
@@ -1440,8 +1441,8 @@ describe("NPC world cast (track-npc-expansion)", () => {
     _mock_runtime.active_npcs = { ben1: { id: "ben1", name: "Benedict", role_tier: 2 } };
 
     vi.mocked(context_builder.build_context).mockResolvedValue(mock_payload);
-    vi.mocked(prompt_builder.build_director_prompt).mockReturnValue({ system: "D", task: "T" });
-    vi.mocked(prompt_builder.build_npc_prompt).mockReturnValue({
+    vi.mocked(prompt_builder.build_director).mockReturnValue({ system: "D", task: "T" });
+    vi.mocked(prompt_builder.build_npc).mockReturnValue({
       system: "NPC_PROMPT",
       task: "NPC_TASK",
       meta: { ai: {}, fractal: {}, role: "npc", entity_id: "ben1" },
@@ -1452,13 +1453,13 @@ describe("NPC world cast (track-npc-expansion)", () => {
 
     const result = await gamemaster.execute_turn("story-123", { input: "Who guards the gate?", role: "ai" });
 
-    expect(prompt_builder.build_npc_prompt).toHaveBeenCalledWith(
+    expect(prompt_builder.build_npc).toHaveBeenCalledWith(
       mock_payload,
       expect.objectContaining({ id: "ben1", name: "Benedict" }),
       expect.anything(),
       expect.objectContaining({ speaker: "npc" }),
     );
-    expect(prompt_builder.build_character_prompt).not.toHaveBeenCalled();
+    expect(prompt_builder.build_character).not.toHaveBeenCalled();
     expect(_mock_runtime.streaming_entity_id).toBe("ben1");
     expect(result.response).toBe("I guard the gate. None pass without the Warden's seal.");
     expect(session_driver.log_message).toHaveBeenCalledWith(
@@ -1482,8 +1483,8 @@ describe("NPC world cast (track-npc-expansion)", () => {
     };
 
     vi.mocked(context_builder.build_context).mockResolvedValue(mock_payload);
-    vi.mocked(prompt_builder.build_director_prompt).mockReturnValue({ system: "D", task: "T" });
-    vi.mocked(prompt_builder.build_character_prompt).mockReturnValue({
+    vi.mocked(prompt_builder.build_director).mockReturnValue({ system: "D", task: "T" });
+    vi.mocked(prompt_builder.build_character).mockReturnValue({
       system: "C",
       task: "T",
       meta: { ai: {}, fractal: {}, flags: [], vectors: [] },
@@ -1494,8 +1495,8 @@ describe("NPC world cast (track-npc-expansion)", () => {
 
     const result = await gamemaster.execute_turn("story-123", { input: "Hello", role: "ai" });
 
-    expect(prompt_builder.build_character_prompt).toHaveBeenCalled();
-    expect(prompt_builder.build_npc_prompt).not.toHaveBeenCalled();
+    expect(prompt_builder.build_character).toHaveBeenCalled();
+    expect(prompt_builder.build_npc).not.toHaveBeenCalled();
     expect(_mock_runtime.streaming_entity_id).toBeNull();
     expect(result.response).toBe("Identified.");
   });

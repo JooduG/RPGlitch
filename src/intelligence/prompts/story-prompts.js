@@ -10,14 +10,12 @@
  */
 
 import { ind, escape_xml, clean_xml } from "@utils";
-import { NARRATIVE_STYLES } from "@data";
-import { build_somatic_directives_block, format_dynamics_attrs } from "./physics-prompts.js";
-import { build_signals_xml } from "../physics.js";
+import { get_narrative_style, resolve_active_style_key } from "@data";
+import { build_somatic_directives_xml, format_dynamics_attrs, build_signals_xml } from "./physics-prompts.js";
 import { render_builder } from "./builder.js";
 import {
   render_system_head,
   render_field_value,
-  resolve_active_style_key,
   strip_epistemic_tags,
   render_current_story_state_xml,
   render_protocols,
@@ -45,15 +43,6 @@ No dialogue.`,
   EPILOGUE: `You see everything. Close the scene. Use <think> to evaluate unresolved threads and active <INTENT>/<AGENDA> vectors (fulfilled, fractured, or transformed). Write the epilogue resolving these ends. Show concrete aftermath and physical changes. End on lingering sensation, not summary. No dialogue.`,
   COLLAPSE: `You see everything. Close the scene on irrevocable tragedy. Use thinking to weigh what was permanently broken, lost, or severed. Write the epilogue focusing on physical aftermath, lingering environmental scars, and the departure or fall of those involved. Do not force heroic silver linings or unearned closure. End on enduring sensory silence. No dialogue.`,
   CONTINUATION: `You are the Fractal itself, narrating the scene. Narrate the present moment through the setting's own atmosphere, sensory textures, ambient physics, and environmental shifts. Use <think> to evaluate the active atmosphere and any shift in the Fractal's state, then write the scene's reaction to recent events as vivid sensory prose. Never move <AI_CHARACTER> or <USER_PERSONA> against their will, never speak their dialogue or thoughts, and never resolve their choices for them. End the turn on one dominant hook — a decisive statement, a single action, a hovered beat, or a deliberate silence. No structural bracket labels.`,
-};
-
-const POV_DIRECTIVES = {
-  FIRST_PERSON:
-    "CRITICAL POV MANDATE: Write strictly in first-person ('I', 'me', 'my'). Describe actions and sensations through your own eyes. NEVER use third-person or your character name.",
-  THIRD_PERSON:
-    "CRITICAL POV MANDATE: Write strictly in third-person limited ('he', 'she', 'they', or entity name). NEVER use first-person pronouns for narrative prose.",
-  NARRATOR:
-    "CRITICAL MANDATE: You are the <FRACTAL> (scene/setting narrator). Write strictly in third-person omniscient narrator POV. NEVER write in first-person.",
 };
 
 export const STABILITY_DIRECTIVES = {
@@ -144,7 +133,7 @@ export function render_character({
     `
     : "";
 
-  const somatic_directives_xml = build_somatic_directives_block(
+  const somatic_directives_xml = build_somatic_directives_xml(
     director_data?.keywords || [],
     compressed_snapshot?.ai?.dynamics || entities?.AI?.dynamics || {},
   );
@@ -227,9 +216,9 @@ ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
     <EPISTEMIC_PHYSICS>
       ${ind(PROTOCOL_LIBRARY.COGNITION.EPISTEMIC_PHYSICS, 6)}
     </EPISTEMIC_PHYSICS>
-    ${build_signals_xml(compressed_snapshot?.ai?.dynamics, compressed_snapshot?.fractal?.dynamics, { style: NARRATIVE_STYLES[resolve_active_style_key()] })}
+    ${build_signals_xml(compressed_snapshot?.ai?.dynamics, compressed_snapshot?.fractal?.dynamics, { style: get_narrative_style(resolve_active_style_key()) })}
     <POV_DIRECTIVE>
-      ${POV_DIRECTIVES[pov_protocol.split(".")[1] || "FIRST_PERSON"]}
+      ${PROTOCOL_LIBRARY.POV[pov_protocol.split(".")[1] || "FIRST_PERSON"]}
     </POV_DIRECTIVE>
     ${
       ghostwrite
@@ -275,7 +264,7 @@ export function render_npc_character({
     </DIRECTOR_NOTE>
     `
     : "";
-  const somatic_directives_xml = build_somatic_directives_block(director_data?.keywords || [], npc?.dynamics || {});
+  const somatic_directives_xml = build_somatic_directives_xml(director_data?.keywords || [], npc?.dynamics || {});
 
   const protocols = [
     "AGENCY.PRESENT_TENSE",
@@ -340,9 +329,9 @@ ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
     <EPISTEMIC_PHYSICS>
       ${ind(PROTOCOL_LIBRARY.COGNITION.EPISTEMIC_PHYSICS, 6)}
     </EPISTEMIC_PHYSICS>
-    ${build_signals_xml(npc?.dynamics, compressed_snapshot?.fractal?.dynamics, { style: NARRATIVE_STYLES[resolve_active_style_key()] })}
+    ${build_signals_xml(npc?.dynamics, compressed_snapshot?.fractal?.dynamics, { style: get_narrative_style(resolve_active_style_key()) })}
     <POV_DIRECTIVE>
-      ${POV_DIRECTIVES.THIRD_PERSON}
+      ${PROTOCOL_LIBRARY.POV.THIRD_PERSON}
     </POV_DIRECTIVE>
     Respond strictly as ${npc_name} — a supporting character. Own only your own voice, actions, and perspective: never speak for <USER_PERSONA> or the AI character, and never resolve the overarching story quest on your own. Write third-person limited, present tense, and end on a natural beat.
     ${build_pacing_directive(input)}
@@ -421,7 +410,7 @@ export function build_narrator(
           ? SCENE_TEMPLATES.COLLAPSE
           : SCENE_TEMPLATES.EPILOGUE;
   const fractal_name = entities?.FRACTAL?.name || "The Fractal";
-  const somatic_directives_xml = mode === "scene" ? build_somatic_directives_block(director_data?.keywords || []) : "";
+  const somatic_directives_xml = mode === "scene" ? build_somatic_directives_xml(director_data?.keywords || []) : "";
 
   const system = `${render_system_head(entities)}\n${clean_xml(`
   <ROLE name="${escape_xml(fractal_name)}" mode="${mode.toUpperCase()}">
@@ -466,7 +455,7 @@ ${round != null ? `<ROUND>${escape_xml(String(round))}</ROUND>\n` : ""}${input?.
     ${build_signals_xml({}, compressed_snapshot?.fractal?.dynamics)}
     ${somatic_directives_xml ? `${somatic_directives_xml}\n    ` : ""}
     ${render_current_story_state_xml(entities, npc_entities, in_scene_ids)}
-    <POV_DIRECTIVE>${POV_DIRECTIVES.NARRATOR}</POV_DIRECTIVE>
+    <POV_DIRECTIVE>${PROTOCOL_LIBRARY.POV.NARRATOR}</POV_DIRECTIVE>
   </TASK>
   `).trim();
 

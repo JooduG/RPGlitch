@@ -161,7 +161,7 @@ export const gamemaster = {
 
       // 4. DIRECTOR PASS (Shot 1)
       state_bridge.app.log("[GameMaster] Context hydrated. Physics resolved. Entering DIRECTOR_TURN...", "system");
-      const director_prompt = prompt_builder.build_director_prompt(payload, snapshot);
+      const director_prompt = prompt_builder.build_director(payload, snapshot);
 
       const director_call = async (terse = false) => {
         return await this.execute_with_retry(
@@ -334,10 +334,10 @@ export const gamemaster = {
 
       // 4.5. PHYSICS SYNC & TELEMETRY
       const character_prompt = uses_narrator_engine
-        ? prompt_builder.build_scene_narrator_prompt(payload, snapshot, director_data)
+        ? prompt_builder.build_scene_narrator(payload, snapshot, director_data)
         : npc_entity
-          ? prompt_builder.build_npc_prompt(payload, npc_entity, snapshot, director_data)
-          : prompt_builder.build_character_prompt(payload, snapshot, director_data);
+          ? prompt_builder.build_npc(payload, npc_entity, snapshot, director_data)
+          : prompt_builder.build_character(payload, snapshot, director_data);
       const meta = character_prompt.meta;
 
       let final_meta = { ...meta };

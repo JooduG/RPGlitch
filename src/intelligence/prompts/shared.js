@@ -6,8 +6,8 @@
  * roster/mesh XML compilers, and the core PROTOCOL_LIBRARY.
  */
 
-import { ind, prompt_escape, state_bridge, escape_xml, parse_relational_vector, clean_xml } from "@utils";
-import { NARRATIVE_STYLES } from "@data";
+import { ind, prompt_escape, escape_xml, parse_relational_vector, clean_xml } from "@utils";
+import { resolve_active_style_key, render_narrative_style_xml } from "@data";
 import { build_dynamics_legend } from "./physics-prompts.js";
 
 // ── 1. Consolidated Protocol Library ──────────────────────────────────────────
@@ -60,10 +60,18 @@ ${BASE_THINK_CLOSURE}`,
 3. Spatial Integrity: Maintain physical boundaries. Avoid unprovoked proximity encroachment or constant posture tagging.
 4. Concrete Interaction: Prioritize localized object interactions over repetitive physical gestures.
 5. Emotion Mapping: Express emotion strictly through observable micro-actions, physical choices, and tone shifts.
-6. Action Dynamics: Avoid formulaic action beats. Favor varied physical descriptions.
-7. Somatic Grounding: Every emotional shift must surface in prose as a concrete physical sensation — never abstract declarations.
-8. Environmental Persistence: Maintain continuity of lingering physical conditions rather than letting environment vanish when focus shifts.
-9. Procedural Skill: If the character possesses a skill, describe the technique and muscle memory, not just the outcome.`,
+6. Environmental Persistence: Maintain continuity of lingering physical conditions rather than letting environment vanish when focus shifts.
+7. Procedural Skill: If the character possesses a skill, describe the technique and muscle memory, not just the outcome.`,
+  },
+
+  // ── 1.4 Perspective & Point of View (POV) ──────────────────────────────────
+  POV: {
+    FIRST_PERSON:
+      "CRITICAL POV MANDATE: Write strictly in first-person ('I', 'me', 'my'). Describe actions and sensations through your own eyes. NEVER use third-person or your character name.",
+    THIRD_PERSON:
+      "CRITICAL POV MANDATE: Write strictly in third-person limited ('he', 'she', 'they', or entity name). NEVER use first-person pronouns for narrative prose.",
+    NARRATOR:
+      "CRITICAL MANDATE: You are the <FRACTAL> (scene/setting narrator). Write strictly in third-person omniscient narrator POV. NEVER write in first-person.",
   },
 };
 
@@ -164,45 +172,7 @@ export function strip_epistemic_tags(text) {
     .trim();
 }
 
-// ── 4. Narrative Styles & POV ─────────────────────────────────────────────────
-
-/**
- * Resolves the active narrative style key from fractal or app settings.
- * Returns "" if no valid style is active.
- * @returns {string}
- */
-export function resolve_active_style_key() {
-  const style_key =
-    state_bridge.runtime?.active_fractal?.narrative_style && state_bridge.runtime?.active_fractal.narrative_style !== "default"
-      ? state_bridge.runtime?.active_fractal.narrative_style
-      : state_bridge.app?.settings?.narrative_style;
-  if (!style_key || style_key === "default" || !NARRATIVE_STYLES[style_key]) return "";
-  return style_key;
-}
-
-/**
- * Renders the active narrative style XML block.
- * @returns {string}
- */
-export function render_narrative_style_xml() {
-  const style_key = resolve_active_style_key();
-  if (!style_key) return "";
-
-  const style_def = NARRATIVE_STYLES[style_key];
-  if (!style_def) return "";
-
-  const narrator_attr = `narrator="${escape_xml(style_key)}"`;
-  const desc_xml = style_def.description ? `\n    <DESCRIPTION>${escape_xml(style_def.description)}</DESCRIPTION>` : "";
-  const themes_xml =
-    style_def.tags && style_def.tags.length > 0
-      ? `\n    <DEFINING_CHARACTERISTICS>${escape_xml(style_def.tags.join(", "))}</DEFINING_CHARACTERISTICS>`
-      : "";
-  const base_engine = style_def.narrative_engine ? `\n    ${ind(style_def.narrative_engine, 4).trim()}` : "";
-
-  return `\n  <NARRATIVE_STYLE ${narrator_attr}>${desc_xml}${themes_xml}${base_engine}\n  </NARRATIVE_STYLE>`;
-}
-
-// ── 5. Roster, Mesh & Epistemic XML Blocks ────────────────────────────────────
+// ── 4. Roster, Mesh & Epistemic XML Blocks ────────────────────────────────────
 
 const _cast_summary = (npc) => {
   const desc = String(npc?.description || npc?.eternal?.non_physical || npc?.present?.non_physical || "")
@@ -213,14 +183,7 @@ const _cast_summary = (npc) => {
 
 const _tier_label = (tier) => (tier === 3 ? "Major" : tier === 2 ? "Recurring" : "Background");
 
-/**
- * Renders the compact roster index.
- * @param {any[]} [npc_entities]
- * @param {string[]} [in_scene_ids]
- * @param {any[]} [active_trio_ids]
- * @returns {string}
- */
-export function render_roster_xml(npc_entities = [], in_scene_ids = [], active_trio_ids = []) {
+function _render_roster_xml(npc_entities = [], in_scene_ids = [], active_trio_ids = []) {
   const trio = new Set((active_trio_ids || []).filter(Boolean).map(String));
   const cast = (npc_entities || []).filter((n) => n && !trio.has(String(n.id)));
   if (!cast.length) return "";
@@ -232,14 +195,7 @@ export function render_roster_xml(npc_entities = [], in_scene_ids = [], active_t
   return `<ROSTER>\n${rows.join("\n")}\n</ROSTER>`;
 }
 
-/**
- * Renders the stage roster.
- * @param {any} [entities]
- * @param {any[]} [npc_entities]
- * @param {string[]} [in_scene_ids]
- * @returns {string}
- */
-export function render_scene_roster_xml(entities = {}, npc_entities = [], in_scene_ids = []) {
+function _render_scene_roster_xml(entities = {}, npc_entities = [], in_scene_ids = []) {
   const rows = [];
   if (entities?.AI?.name) rows.push(`- ${escape_xml(entities.AI.name)}: Primary Companion (In-Scene)`);
   if (entities?.USER?.name) rows.push(`- ${escape_xml(entities.USER.name)}: Protagonist (In-Scene)`);
@@ -253,14 +209,7 @@ export function render_scene_roster_xml(entities = {}, npc_entities = [], in_sce
   return rows.length ? `<SCENE_ROSTER>\n${rows.join("\n")}\n</SCENE_ROSTER>` : "";
 }
 
-/**
- * Renders the flat relational mesh.
- * @param {any} [entities]
- * @param {any[]} [npc_entities]
- * @param {any} [perspective_entity]
- * @returns {string}
- */
-export function render_relational_mesh_xml(entities = {}, npc_entities = [], perspective_entity = null) {
+function _render_relational_mesh_xml(entities = {}, npc_entities = [], perspective_entity = null) {
   const rels = [];
   const perspective_name = perspective_entity?.name ? String(perspective_entity.name).toLowerCase().trim() : null;
   const fractal_name = entities?.FRACTAL?.name ? String(entities.FRACTAL.name).toLowerCase().trim() : null;
@@ -290,6 +239,25 @@ export function render_relational_mesh_xml(entities = {}, npc_entities = [], per
 }
 
 /**
+ * Renders the unified cast, stage roster, and relational mesh XML for the Director.
+ * @param {Object} params
+ * @param {any} [params.entities]
+ * @param {any[]} [params.npc_entities]
+ * @param {string[]} [params.in_scene_ids]
+ * @returns {string}
+ */
+export function render_director_cast_xml({ entities = {}, npc_entities = [], in_scene_ids = [] } = {}) {
+  const active_trio_ids = [entities?.AI?.id, entities?.USER?.id, entities?.FRACTAL?.id];
+  return [
+    _render_roster_xml(npc_entities, in_scene_ids, active_trio_ids),
+    _render_scene_roster_xml(entities, npc_entities, in_scene_ids),
+    _render_relational_mesh_xml(entities, npc_entities),
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
+/**
  * The <CURRENT_STORY_STATE> block shared by storyteller prompts.
  * @param {any} [entities]
  * @param {any[]} [npc_entities]
@@ -299,8 +267,8 @@ export function render_relational_mesh_xml(entities = {}, npc_entities = [], per
  */
 export function render_current_story_state_xml(entities = {}, npc_entities = [], in_scene_ids = [], perspective_entity = null) {
   const body = [
-    render_scene_roster_xml(entities, npc_entities, in_scene_ids),
-    render_relational_mesh_xml(entities, npc_entities, perspective_entity),
+    _render_scene_roster_xml(entities, npc_entities, in_scene_ids),
+    _render_relational_mesh_xml(entities, npc_entities, perspective_entity),
     `<EPISTEMIC_RULES>\n${ind(PROTOCOL_LIBRARY.COGNITION.EPISTEMIC_PHYSICS, 2)}\n</EPISTEMIC_RULES>`,
   ]
     .filter(Boolean)

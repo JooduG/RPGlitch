@@ -1,7 +1,12 @@
 /**
  * src/intelligence/physics.js
- * ⚙️ PHYSICS ENGINE — Physics slider metadata, 6-axis global triggers,
- * settlement calculations, and the DYNAMICS_SIGNALS evaluator.
+ * ⚙️ PHYSICS ENGINE — 6-Axis Dynamics simulation, gravity settlement,
+ * mathematical delta computation, and unified signals evaluator.
+ *
+ * Core Laws:
+ * - Pure data & math calculations only — zero prompt XML strings.
+ * - Settle physics pulls volatile dynamics toward baselines with randomized gravity.
+ * - Single-pass evaluation of global triggers and active narrative style triggers.
  */
 
 // ── 1. Dynamics Metadata ──────────────────────────────────────────────────────
@@ -143,7 +148,60 @@ export const GLOBAL_TRIGGERS = [
   },
 ];
 
-// ── 3. Physics Engine (Settlement & Gravity) ──────────────────────────────────
+// ── 3. Dynamic Somatic Threshold Rules ────────────────────────────────────────
+
+/**
+ * Deterministic threshold mapping from emotional dynamics axes to somatic archetype keys.
+ */
+export const DYNAMIC_SOMATIC_RULES = [
+  {
+    id: "fear",
+    when: (d) => (d.intensity ?? 50) >= 75 && (d.affinity ?? 50) <= 60,
+    priority: 85,
+  },
+  {
+    id: "dysregulation",
+    when: (d) => (d.chaos ?? 50) >= 75 || ((d.intensity ?? 50) >= 80 && (d.chaos ?? 50) >= 60),
+    priority: 80,
+  },
+  {
+    id: "emotional_neglect",
+    when: (d) => (d.intensity ?? 50) <= 25 && (d.openness ?? 50) <= 35,
+    priority: 75,
+  },
+  {
+    id: "betrayal",
+    when: (d) => (d.openness ?? 50) <= 25 && (d.affinity ?? 50) <= 40,
+    priority: 80,
+  },
+  {
+    id: "defiance",
+    when: (d) => (d.openness ?? 50) <= 30 && (d.intensity ?? 50) >= 60,
+    priority: 70,
+  },
+  {
+    id: "vulnerability",
+    when: (d) => (d.openness ?? 50) >= 75 && (d.affinity ?? 50) >= 50,
+    priority: 75,
+  },
+  {
+    id: "intimacy",
+    when: (d) => (d.affinity ?? 50) >= 75 && (d.openness ?? 50) >= 60,
+    priority: 80,
+  },
+  {
+    id: "grief",
+    when: (d) => (d.intensity ?? 50) <= 35 && (d.affinity ?? 50) >= 65 && (d.chaos ?? 50) <= 40,
+    priority: 70,
+  },
+  {
+    id: "shame",
+    when: (d) => (d.openness ?? 50) <= 35 && (d.intensity ?? 50) >= 60 && (d.affinity ?? 50) >= 45,
+    priority: 65,
+  },
+];
+
+// ── 4. Physics Engine (Settlement & Gravity) ──────────────────────────────────
 
 export const physics_engine = {
   /**
@@ -161,15 +219,15 @@ export const physics_engine = {
     // 1. Gravity Pull & Settlement (Clamp to 0-100 bounds)
     const variance = (active_entropy / 100) * 0.05;
 
-    Object.keys(dynamics).forEach((axis) => {
-      if (skip_axes && skip_axes.has(axis)) return;
+    for (const axis of Object.keys(dynamics)) {
+      if (skip_axes && skip_axes.has(axis)) continue;
       const target = baselines[axis] ?? 50;
       const randomized_gravity = base_gravity + (Math.random() * 2 - 1) * variance;
       const applied_gravity = Math.max(0, Math.min(1, randomized_gravity)); // Clamp [0, 1]
 
       const next_val = dynamics[axis] + (target - dynamics[axis]) * applied_gravity;
       dynamics[axis] = Math.max(0, Math.min(100, Math.round(next_val)));
-    });
+    }
   },
 
   /**
@@ -181,7 +239,7 @@ export const physics_engine = {
   },
 };
 
-// ── 4. Delta Computation & Signal Evaluator ───────────────────────────────────
+// ── 5. Delta Computation & Signal Evaluator ───────────────────────────────────
 
 /**
  * Computes dynamics deltas for a single target (ai or fractal) and appends to accumulators.
@@ -192,7 +250,7 @@ export const physics_engine = {
  * @param {string[]} log_strings
  */
 export function compute_deltas(target, dynamics, runtime_target, deltas, log_strings) {
-  Object.entries(dynamics).forEach(([axis, val]) => {
+  for (const [axis, val] of Object.entries(dynamics || {})) {
     const old_value = /** @type {any} */ (runtime_target)?.[axis] ?? 50;
     const diff = val - old_value;
     if (diff !== 0) {
@@ -201,7 +259,7 @@ export function compute_deltas(target, dynamics, runtime_target, deltas, log_str
       const capitalized_axis = axis.charAt(0).toUpperCase() + axis.slice(1);
       log_strings.push(`${capitalized_axis} ${diff > 0 ? "+" : ""}${diff}`);
     }
-  });
+  }
 }
 
 /**
@@ -260,21 +318,58 @@ export function evaluate_physics_signals(ai_dynamics = {}, fractal_dynamics = {}
 }
 
 /**
- * Renders the active narrative signals as a <DYNAMICS_SIGNALS> XML block.
- * @param {Record<string, number>} [ai_dynamics]
- * @param {Record<string, number>} [fractal_dynamics]
- * @param {{ style?: object }} [options]
- * @returns {string} XML block string, or "" when no signals are active.
+ * Evaluates entity dynamics against somatic threshold rules and merges with manual keywords.
+ * @param {Record<string, number>} [dynamics={}]
+ * @param {string[]} [manual_keywords=[]]
+ * @param {number} [max_directives=2]
+ * @returns {string[]}
  */
-export function build_signals_xml(ai_dynamics = {}, fractal_dynamics = {}, options = {}) {
-  const active = evaluate_physics_signals(ai_dynamics, fractal_dynamics, options?.style);
-  if (active.length === 0) return "";
-  const inner = active.map((s) => `      • ${s.text}`).join("\n");
-  return `    <DYNAMICS_SIGNALS>\n${inner}\n    </DYNAMICS_SIGNALS>`;
+export function evaluate_automatic_somatics(dynamics = {}, manual_keywords = [], max_directives = 2) {
+  const result = [];
+  const seen = new Set();
+
+  if (Array.isArray(manual_keywords)) {
+    for (const k of manual_keywords) {
+      if (typeof k === "string" && k.trim() && !seen.has(k.trim())) {
+        const cleaned = k.trim();
+        seen.add(cleaned);
+        result.push(cleaned);
+        if (result.length >= max_directives) return result;
+      }
+    }
+  }
+
+  if (!dynamics || typeof dynamics !== "object") return result;
+
+  const candidates = [];
+  for (const rule of DYNAMIC_SOMATIC_RULES) {
+    if (seen.has(rule.id)) continue;
+    try {
+      if (typeof rule.when === "function" && rule.when(dynamics)) {
+        candidates.push(rule);
+      }
+    } catch (_err) {
+      /* ignore */
+    }
+  }
+
+  candidates.sort((a, b) => (b.priority || 0) - (a.priority || 0));
+
+  for (const c of candidates) {
+    if (!seen.has(c.id)) {
+      seen.add(c.id);
+      result.push(c.id);
+      if (result.length >= max_directives) break;
+    }
+  }
+
+  return result;
 }
 
 /**
  * CHANGELOG
- * - 2026-08-28: Consolidated GLOBAL_TRIGGERS directly into physics.js alongside DYNAMICS_META,
- *   eliminating cross-module coupling with narrative-styles.js.
+ * - 2026-08-28: Reconstructed physics.js as a pure calculation and signal evaluation engine:
+ *   1. Relocated prompt XML rendering (build_signals_xml) to physics-prompts.js.
+ *   2. Co-located DYNAMIC_SOMATIC_RULES and evaluate_automatic_somatics directly in physics.js.
+ *   3. Replaced imperative .forEach loops with performant for...of iterators.
  */

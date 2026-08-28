@@ -7,7 +7,11 @@
  * - NARRATIVE_STYLES: Declarative author voice presets & narrative engines
  * - STYLE_MOTIF_REGISTRY: Dynamic style-motif keyword registry auto-aggregated from styles
  * - get_style_keywords: Accessor resolving dynamic keyword sets for the Director
+ * - resolve_active_style_key: Resolves active style key from fractal/app state
+ * - render_narrative_style_xml: Compiles active style XML block
  */
+
+import { state_bridge, ind, escape_xml, resolve_style } from "@utils";
 
 // ── 1. Type Definitions ───────────────────────────────────────────────────────
 
@@ -82,6 +86,14 @@ function define_style(def) {
 </NARRATIVE_ENGINE>`
     : "";
 
+  let xml = "";
+  if (def.id && def.id !== "default") {
+    const desc_xml = def.description ? `\n    <DESCRIPTION>${escape_xml(def.description)}</DESCRIPTION>` : "";
+    const themes_xml = def.tags?.length ? `\n    <DEFINING_CHARACTERISTICS>${escape_xml(def.tags.join(", "))}</DEFINING_CHARACTERISTICS>` : "";
+    const engine_xml = narrative_engine ? `\n    ${ind(narrative_engine, 4).trim()}` : "";
+    xml = `\n  <NARRATIVE_STYLE narrator="${escape_xml(def.id)}">${desc_xml}${themes_xml}${engine_xml}\n  </NARRATIVE_STYLE>`;
+  }
+
   return {
     id: def.id,
     name: def.name,
@@ -92,6 +104,7 @@ function define_style(def) {
     keywords,
     motifs: def.motifs || {},
     narrative_engine,
+    xml,
     triggers: def.triggers || [],
   };
 }
@@ -882,14 +895,21 @@ export const NARRATIVE_STYLES = {
  * Maps motif keyword -> { directive: string }.
  * @type {Record<string, { directive: string }>}
  */
-export const STYLE_MOTIF_REGISTRY = Object.values(NARRATIVE_STYLES).reduce((acc, style) => {
-  if (style.motifs && typeof style.motifs === "object") {
-    for (const [key, directive] of Object.entries(style.motifs)) {
-      acc[key] = { directive };
-    }
+export const STYLE_MOTIF_REGISTRY = {};
+for (const style of Object.values(NARRATIVE_STYLES)) {
+  for (const [key, directive] of Object.entries(style.motifs || {})) {
+    STYLE_MOTIF_REGISTRY[key] = { directive };
   }
-  return acc;
-}, /** @type {Record<string, { directive: string }>} */ ({}));
+}
+
+/**
+ * Returns a NarrativeStyle record by key with safe fallback to `default`.
+ * @param {string} [style_key]
+ * @returns {NarrativeStyle}
+ */
+export function get_narrative_style(style_key = "default") {
+  return NARRATIVE_STYLES[style_key] || NARRATIVE_STYLES.default;
+}
 
 /**
  * Returns the dynamic style-motif keywords a narrative style contributes to the
@@ -898,10 +918,25 @@ export const STYLE_MOTIF_REGISTRY = Object.values(NARRATIVE_STYLES).reduce((acc,
  * @returns {string[]}
  */
 export function get_style_keywords(style_key = "") {
-  if (!style_key) return [];
-  const style = NARRATIVE_STYLES[style_key];
-  if (!style || !Array.isArray(style.keywords)) return [];
-  return style.keywords.filter((k) => typeof k === "string" && Boolean(k.trim()));
+  return NARRATIVE_STYLES[style_key]?.keywords || [];
+}
+
+/**
+ * Resolves the active narrative style key from fractal or app settings.
+ * Returns "" if no valid style is active.
+ * @returns {string}
+ */
+export function resolve_active_style_key() {
+  return resolve_style(state_bridge.runtime?.active_fractal?.narrative_style, "narrative_style", NARRATIVE_STYLES, "");
+}
+
+/**
+ * Renders the pre-compiled narrative style XML block.
+ * @param {string} [style_key] - Optional pre-resolved style key
+ * @returns {string}
+ */
+export function render_narrative_style_xml(style_key = resolve_active_style_key()) {
+  return NARRATIVE_STYLES[style_key]?.xml || "";
 }
 
 /**

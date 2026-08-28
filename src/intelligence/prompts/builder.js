@@ -143,7 +143,7 @@ export const prompt_builder = {
    * @param {any} payload
    * @param {any} snapshot
    */
-  build_director_prompt(payload, snapshot = {}) {
+  build_director(payload, snapshot = {}) {
     const render_accessors = resolve_accessors(payload);
     const rendered = render_director({
       ...payload,
@@ -163,7 +163,7 @@ export const prompt_builder = {
    * @param {any} snapshot
    * @param {any} [director_data]
    */
-  build_character_prompt(payload, snapshot = {}, director_data = {}) {
+  build_character(payload, snapshot = {}, director_data = {}) {
     const render_accessors = resolve_accessors(payload);
     const rendered = render_character({
       ...payload,
@@ -185,7 +185,7 @@ export const prompt_builder = {
    * @param {any} snapshot
    * @param {any} [director_data]
    */
-  build_scene_narrator_prompt(payload, snapshot = {}, director_data = {}) {
+  build_scene_narrator(payload, snapshot = {}, director_data = {}) {
     const render_accessors = resolve_accessors(payload);
     const rendered = build_narrator("scene", {
       ...payload,
@@ -208,7 +208,7 @@ export const prompt_builder = {
    * @param {any} snapshot
    * @param {any} [director_data]
    */
-  build_npc_prompt(payload, npc, snapshot = {}, director_data = {}) {
+  build_npc(payload, npc, snapshot = {}, director_data = {}) {
     const entities = { ...(payload.entities || {}), [npc.id]: npc };
     const render_accessors = resolve_accessors(payload, entities);
     const rendered = render_npc_character({
@@ -243,7 +243,7 @@ export const prompt_builder = {
       });
       return pack_prompt(rendered);
     }
-    return prompt_builder.build_character_prompt(payload, snapshot, {});
+    return prompt_builder.build_character(payload, snapshot, {});
   },
 
   /**
@@ -279,7 +279,7 @@ export const prompt_builder = {
    * @param {any[]} [history]
    * @param {any} [options]
    */
-  build_memory_prompt(entities_or_target, history = [], options = {}) {
+  build_memory(entities_or_target, history = [], options = {}) {
     let target_entity = options.target_entity || null;
     let target_key = options.target_key || "AI_CHARACTER";
     let other_entities = options.other_entities && Object.keys(options.other_entities).length ? { ...options.other_entities } : {};
@@ -330,7 +330,7 @@ export const prompt_builder = {
         is_image_field: is_image_field || field_id.endsWith(".physical"),
         is_array_field,
         array_mode,
-        _field_id: field_id,
+        field_id,
         layer_key: meta.layer_key || "",
         entity,
         entity_type: resolved_type,
@@ -341,17 +341,17 @@ export const prompt_builder = {
 
   /**
    * Builds the character card ingestion and profile extraction prompt.
-   * @param {any} inputData
+   * @param {any} input_data
    * @param {string} [entity_type]
    * @param {any} [options]
    */
-  build_profile_sorting_prompt(inputData, entity_type = "character", options = {}) {
+  build_profile_sorting(input_data, entity_type = "character", options = {}) {
     return {
       system: render_profile_sorting(entity_type, options),
       messages: [
         {
           role: "user",
-          text: typeof inputData === "string" ? inputData : JSON.stringify(inputData, null, 2),
+          text: typeof input_data === "string" ? input_data : JSON.stringify(input_data, null, 2),
         },
       ],
     };

@@ -21,5 +21,6 @@ export {
 export { prompt_builder } from "./prompts/builder.js";
 export { temporal_engine, resolve_vector_pool, reconcile_vector_caps, prune } from "./temporal-pipeline.js";
 export { apply_profile_to_entity, sort_into_profile, apply_genesis, spawn_npc } from "./profile-pipeline.js";
-export { physics_engine, DYNAMICS_META, GLOBAL_TRIGGERS, evaluate_physics_signals, build_signals_xml } from "./physics.js";
+export { physics_engine, DYNAMICS_META, GLOBAL_TRIGGERS, evaluate_physics_signals } from "./physics.js";
+export { build_signals_xml, build_dynamics_legend, format_dynamics_attrs, build_somatic_directives_xml } from "./prompts/physics-prompts.js";
 export { build_update_entry, build_retrieval, build_turn_summary, derive_vector_title } from "./telemetry.js";

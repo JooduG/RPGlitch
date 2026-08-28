@@ -15,16 +15,8 @@ import { parse_profile_json } from "./parser.js";
 import { prompt_builder } from "./prompts/builder.js";
 import { temporal_engine } from "./temporal-pipeline.js";
 import { llm_service } from "@platform";
-import { entities } from "@data";
+import { entities, FLAT_LEAF_MAP } from "@data";
 import { generate_uuid, state_bridge } from "@utils";
-
-/** Flat profile keys that map onto a nested Twin-Cylinder leaf. */
-export const FLAT_LEAF_MAP = {
-  appearance: "eternal.physical",
-  personality: "eternal.non_physical",
-  current_look: "present.physical",
-  state_of_mind: "present.non_physical",
-};
 
 /**
  * Runs the LLM ingestion sorter over raw prose and returns the flat sorted
@@ -35,7 +27,7 @@ export const FLAT_LEAF_MAP = {
  * @returns {Promise<Object | null>}
  */
 export async function sort_into_profile(raw, type) {
-  const payload = prompt_builder.build_profile_sorting_prompt(raw, type, { ingestion: true });
+  const payload = prompt_builder.build_profile_sorting(raw, type, { ingestion: true });
   const result = await llm_service.enhance(payload);
   return parse_profile_json(result);
 }

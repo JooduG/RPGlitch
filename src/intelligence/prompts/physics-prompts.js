@@ -2,18 +2,19 @@
  * src/intelligence/prompts/physics-prompts.js
  * 🫀 SOMATIC & PHYSICS PROMPT DIRECTIVES
  *
- * Prompt directive catalog for somatic tells and emotional undercurrents:
+ * Prompt XML compilers for dynamics and somatic tells:
  * - SOMATIC_REGISTRY (12 universal static physical archetypes)
- * - STYLE_MOTIF_REGISTRY (imported from @data)
- * - DYNAMIC_SOMATIC_RULES & evaluate_automatic_somatics (threshold resolver)
- * - build_dynamics_legend & format_dynamics_attrs (Dynamics parameter XML compilers)
- * - build_somatic_directives_block (<SOMATIC_DIRECTIVES> XML compiler)
- * - build_available_keywords_xml (<AVAILABLE_KEYWORDS> XML compiler)
+ * - build_dynamics_legend (<DYNAMICS_LEGEND> XML compiler)
+ * - format_dynamics_attrs (Dynamics parameter XML attributes)
+ * - build_signals_xml (<DYNAMICS_SIGNALS> XML compiler)
+ * - resolve_somatic_directives (Resolves keywords against static and style-motif registries)
+ * - build_somatic_directives_xml (<SOMATIC_DIRECTIVES> XML compiler)
+ * - build_available_keywords_xml (<AVAILABLE_KEYWORDS> XML compiler for Director)
  */
 
 import { STYLE_MOTIF_REGISTRY } from "@data";
 import { escape_xml } from "@utils";
-import { DYNAMICS_META } from "../physics.js";
+import { DYNAMICS_META, evaluate_automatic_somatics, evaluate_physics_signals } from "../physics.js";
 
 // ── 1. Static Archetypes Registry ─────────────────────────────────────────────
 
@@ -96,7 +97,10 @@ export const SOMATIC_REGISTRY = [
   },
 ];
 
-// ── 2. Dynamics XML Builders ──────────────────────────────────────────────────
+/** Fast O(1) archetype lookup map */
+const SOMATIC_MAP = new Map(SOMATIC_REGISTRY.map((entry) => [entry.id, entry]));
+
+// ── 2. Dynamics XML Compilers ─────────────────────────────────────────────────
 
 /** @type {string | null} */
 let cached_dynamics_legend = null;
@@ -128,31 +132,45 @@ ${definitions}
 }
 
 /**
- * Compiles dynamic system parameter keys into inline attributes.
- * @param {Record<string, number>} [dynObj]
+ * Compiles dynamic system parameter keys into inline XML attributes.
+ * @param {Record<string, number>} [dynamics]
  * @returns {string}
  */
-export function format_dynamics_attrs(dynObj) {
-  if (!dynObj) return "";
-  const attrs = Object.entries(dynObj)
+export function format_dynamics_attrs(dynamics) {
+  if (!dynamics || typeof dynamics !== "object") return "";
+  const attrs = Object.entries(dynamics)
     .map(([k, v]) => `${escape_xml(k)}="${Math.round(v)}"`)
     .join(" ");
   return attrs ? ` ${attrs}` : "";
 }
 
-// ── 3. Somatic Directive Resolvers ───────────────────────────────────────────
+/**
+ * Renders the active narrative signals as a <DYNAMICS_SIGNALS> XML block.
+ * @param {Record<string, number>} [ai_dynamics]
+ * @param {Record<string, number>} [fractal_dynamics]
+ * @param {{ style?: object }} [options]
+ * @returns {string} XML block string, or "" when no signals are active.
+ */
+export function build_signals_xml(ai_dynamics = {}, fractal_dynamics = {}, options = {}) {
+  const active = evaluate_physics_signals(ai_dynamics, fractal_dynamics, options?.style);
+  if (active.length === 0) return "";
+  const inner = active.map((s) => `      • ${s.text}`).join("\n");
+  return `    <DYNAMICS_SIGNALS>\n${inner}\n    </DYNAMICS_SIGNALS>`;
+}
+
+// ── 3. Somatic Directive Compilers ───────────────────────────────────────────
 
 /**
  * Resolves a list of chosen keywords against the static archetype registry and
- * the style-motif registry.
+ * the style-motif registry with O(1) efficiency.
  * @param {string[]} [keywords]
  * @returns {{ id: string, tells?: string, directive: string }[]}
  */
 export function resolve_somatic_directives(keywords = []) {
   const resolved = [];
-  for (const keyword of keywords) {
+  for (const keyword of keywords || []) {
     if (!keyword || typeof keyword !== "string") continue;
-    const static_def = SOMATIC_REGISTRY.find((entry) => entry.id === keyword);
+    const static_def = SOMATIC_MAP.get(keyword);
     if (static_def) {
       resolved.push({ id: static_def.id, tells: static_def.tells, directive: static_def.directive });
       continue;
@@ -164,141 +182,20 @@ export function resolve_somatic_directives(keywords = []) {
 }
 
 /**
- * Renders the resolved keyword definitions as a deterministic XML block for
- * prompt injection.
- * @param {{ id: string, directive: string }[]} [resolved]
+ * Compiles dynamic somatic directives into a formatted <SOMATIC_DIRECTIVES> XML block.
+ * Resolves thresholds from dynamics and manual keywords in a single linear pass.
+ *
+ * @param {string[]} [keywords=[]]
+ * @param {Record<string, number>|null} [dynamics=null]
  * @returns {string}
  */
-export function render_somatic_directives_xml(resolved = []) {
-  if (!Array.isArray(resolved) || resolved.length === 0) return "";
+export function build_somatic_directives_xml(keywords = [], dynamics = null) {
+  const resolved_keywords = dynamics ? evaluate_automatic_somatics(dynamics, keywords) : keywords;
+  const resolved = resolve_somatic_directives(resolved_keywords);
+  if (resolved.length === 0) return "";
+
   const items = resolved.map((entry) => `- ${entry.id}: ${entry.directive}`).join("\n");
   return `\n<SOMATIC_DIRECTIVES>\n${items}\n</SOMATIC_DIRECTIVES>`;
-}
-
-/**
- * Deterministic threshold mapping from emotional dynamics axes to somatic archetype keys.
- */
-export const DYNAMIC_SOMATIC_RULES = [
-  {
-    id: "fear",
-    when: (d) => (d.intensity ?? 50) >= 75 && (d.affinity ?? 50) <= 60,
-    priority: 85,
-  },
-  {
-    id: "dysregulation",
-    when: (d) => (d.chaos ?? 50) >= 75 || ((d.intensity ?? 50) >= 80 && (d.chaos ?? 50) >= 60),
-    priority: 80,
-  },
-  {
-    id: "emotional_neglect",
-    when: (d) => (d.intensity ?? 50) <= 25 && (d.openness ?? 50) <= 35,
-    priority: 75,
-  },
-  {
-    id: "betrayal",
-    when: (d) => (d.openness ?? 50) <= 25 && (d.affinity ?? 50) <= 40,
-    priority: 80,
-  },
-  {
-    id: "defiance",
-    when: (d) => (d.openness ?? 50) <= 30 && (d.intensity ?? 50) >= 60,
-    priority: 70,
-  },
-  {
-    id: "vulnerability",
-    when: (d) => (d.openness ?? 50) >= 75 && (d.affinity ?? 50) >= 50,
-    priority: 75,
-  },
-  {
-    id: "intimacy",
-    when: (d) => (d.affinity ?? 50) >= 75 && (d.openness ?? 50) >= 60,
-    priority: 80,
-  },
-  {
-    id: "grief",
-    when: (d) => (d.intensity ?? 50) <= 35 && (d.affinity ?? 50) >= 65 && (d.chaos ?? 50) <= 40,
-    priority: 70,
-  },
-  {
-    id: "shame",
-    when: (d) => (d.openness ?? 50) <= 35 && (d.intensity ?? 50) >= 60 && (d.affinity ?? 50) >= 45,
-    priority: 65,
-  },
-];
-
-/**
- * Evaluates entity dynamics against somatic threshold rules and merges with manual keywords.
- * @param {Record<string, number>} [dynamics={}]
- * @param {string[]} [manual_keywords=[]]
- * @param {number} [max_directives=2]
- * @returns {string[]}
- */
-export function evaluate_automatic_somatics(dynamics = {}, manual_keywords = [], max_directives = 2) {
-  const result = [];
-  const seen = new Set();
-
-  if (Array.isArray(manual_keywords)) {
-    for (const k of manual_keywords) {
-      if (typeof k === "string" && k.trim() && !seen.has(k.trim())) {
-        const cleaned = k.trim();
-        seen.add(cleaned);
-        result.push(cleaned);
-        if (result.length >= max_directives) return result;
-      }
-    }
-  }
-
-  if (!dynamics || typeof dynamics !== "object") return result;
-
-  const candidates = [];
-  for (const rule of DYNAMIC_SOMATIC_RULES) {
-    if (seen.has(rule.id)) continue;
-    try {
-      if (typeof rule.when === "function" && rule.when(dynamics)) {
-        candidates.push(rule);
-      }
-    } catch (_err) {
-      /* ignore */
-    }
-  }
-
-  candidates.sort((a, b) => (b.priority || 0) - (a.priority || 0));
-
-  for (const c of candidates) {
-    if (!seen.has(c.id)) {
-      seen.add(c.id);
-      result.push(c.id);
-      if (result.length >= max_directives) break;
-    }
-  }
-
-  return result;
-}
-
-/**
- * Convenience builder: resolves keywords/dynamics into XML block.
- * @param {string[]|Record<string, any>} [keywords_or_dynamics=[]]
- * @param {string[]|Record<string, any>} [maybe_keywords=[]]
- * @returns {string}
- */
-export function build_somatic_directives_block(keywords_or_dynamics = [], maybe_keywords = []) {
-  let keywords = [];
-  let dynamics = null;
-
-  if (Array.isArray(keywords_or_dynamics)) {
-    keywords = keywords_or_dynamics;
-    if (maybe_keywords && typeof maybe_keywords === "object" && !Array.isArray(maybe_keywords)) {
-      dynamics = maybe_keywords;
-    }
-  } else if (keywords_or_dynamics && typeof keywords_or_dynamics === "object") {
-    dynamics = keywords_or_dynamics;
-    if (Array.isArray(maybe_keywords)) {
-      keywords = maybe_keywords;
-    }
-  }
-
-  const resolved_keywords = dynamics ? evaluate_automatic_somatics(dynamics, keywords) : keywords;
-  return render_somatic_directives_xml(resolve_somatic_directives(resolved_keywords));
 }
 
 /**
@@ -318,5 +215,6 @@ export function build_available_keywords_xml(active_style_keywords = []) {
 
 /**
  * CHANGELOG
- * - 2026-08-28: Consolidated build_dynamics_legend and format_dynamics_attrs into physics-prompts.js.
+ * - 2026-08-28: Streamlined somatic prompt compilation by inlining render_somatic_directives_xml
+ *   directly into build_somatic_directives_block.
  */

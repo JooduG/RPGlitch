@@ -25,6 +25,7 @@ We bridge creative prose and mechanical truth through three distinct layers:
 - **Meaningful Interactions**: Favor intuitive actions over explicit controls (e.g., clicking a slot triggers character selection).
 - **Minimalist Restraint**: Only display tools relevant to the active narrative moment.
 - **Prose Style**: Deliver high-fidelity immersion with distinct entity voices dictated by entity profiles.
+- **P4: Zero Backwards Compatibility (Pre-Beta Purity)**: **Never write backwards-compatible fallbacks, legacy aliases, deprecated wrappers, or schema shims**. Backwards compatibility at this stage is a symptom of technical debt and degraded code quality. When an abstraction, key, or format changes, refactor all downstream consumers and prune dead code immediately. We prioritize a pristine, minimal, and uncompromising codebase/database over maintaining legacy ballast.
 
 ---
 

@@ -20,7 +20,15 @@
   import RelationalGraph from "./RelationalGraph.svelte";
   import { app, runtime, simulation_state } from "@state";
   import { fade } from "svelte/transition";
-  import { NARRATIVE_STYLES, VISUAL_STYLES, PROFILE_SECTIONS_BY_TYPE, serialize_character_card, serialize_rpglitch_entity } from "@data";
+  import {
+    NARRATIVE_STYLES,
+    VISUAL_STYLES,
+    get_narrative_style,
+    get_visual_style,
+    PROFILE_SECTIONS_BY_TYPE,
+    serialize_character_card,
+    serialize_rpglitch_entity,
+  } from "@data";
 
   /** @type {{ entity_type?: "character" | "fractal" }} */
   let { entity_type = "character" } = $props();
@@ -601,7 +609,7 @@
           />
 
           {#if entity_type === "fractal" && app.viewport.mobile}
-            {@const active_style = NARRATIVE_STYLES[profile_state.char.narrative_style] || NARRATIVE_STYLES.default}
+            {@const active_style = get_narrative_style(profile_state.char.narrative_style)}
             {@const is_default_style = !profile_state.char.narrative_style || profile_state.char.narrative_style === "default"}
             {#if profile_state.is_editing || !is_default_style}
               <div class="mt-2 flex w-full flex-col gap-2">
@@ -626,7 +634,7 @@
           {/if}
 
           {#if entity_type === "fractal" && app.viewport.mobile}
-            {@const active_vstyle = VISUAL_STYLES[profile_state.char.visual_style] || VISUAL_STYLES.none}
+            {@const active_vstyle = get_visual_style(profile_state.char.visual_style)}
             {@const is_default_vstyle = !profile_state.char.visual_style || profile_state.char.visual_style === "none"}
             {#if profile_state.is_editing || !is_default_vstyle}
               <div class="mt-2 flex w-full flex-col gap-2">

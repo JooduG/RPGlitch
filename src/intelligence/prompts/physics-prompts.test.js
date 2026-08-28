@@ -1,14 +1,7 @@
 import { describe, expect, it } from "vitest";
-import {
-  build_available_keywords_xml,
-  build_somatic_directives_block,
-  evaluate_automatic_somatics,
-  render_somatic_directives_xml,
-  resolve_somatic_directives,
-  SOMATIC_REGISTRY,
-} from "./physics-prompts.js";
+import { build_available_keywords_xml, build_somatic_directives_xml, resolve_somatic_directives, SOMATIC_REGISTRY } from "./physics-prompts.js";
 import { STYLE_MOTIF_REGISTRY } from "@data";
-import { GLOBAL_TRIGGERS } from "../physics.js";
+import { GLOBAL_TRIGGERS, evaluate_automatic_somatics } from "../physics.js";
 
 describe("SOMATIC_REGISTRY", () => {
   it("contains exactly the 12 universal archetypes", () => {
@@ -73,25 +66,13 @@ describe("resolve_somatic_directives", () => {
   });
 });
 
-describe("render_somatic_directives_xml", () => {
-  it("renders a deterministic XML block", () => {
-    const xml = render_somatic_directives_xml(resolve_somatic_directives(["shame", "stoic_pain"]));
-    expect(xml).toContain("<SOMATIC_DIRECTIVES>");
-    expect(xml).toContain("</SOMATIC_DIRECTIVES>");
-    expect(xml).toContain("- shame: Weave involuntary physical shame tells");
-    expect(xml).toContain("- stoic_pain: Mask pain behind curt declarative statements");
-  });
-
-  it("returns an empty string when nothing resolves", () => {
-    expect(render_somatic_directives_xml([])).toBe("");
-  });
-});
-
-describe("build_somatic_directives_block", () => {
+describe("build_somatic_directives_xml", () => {
   it("one-call resolve+render", () => {
-    expect(build_somatic_directives_block(["fear"])).toContain("Physical freeze/flight response");
-    expect(build_somatic_directives_block(["fear"])).toContain("<SOMATIC_DIRECTIVES>");
-    expect(build_somatic_directives_block(["nope"])).toBe("");
+    expect(build_somatic_directives_xml(["fear"])).toContain("Physical freeze/flight response");
+    expect(build_somatic_directives_xml(["fear"])).toContain("<SOMATIC_DIRECTIVES>");
+    expect(build_somatic_directives_xml(["fear", "stoic_pain"])).toContain("- stoic_pain: Mask pain behind curt declarative statements");
+    expect(build_somatic_directives_xml(["nope"])).toBe("");
+    expect(build_somatic_directives_xml([])).toBe("");
   });
 });
 
@@ -146,8 +127,8 @@ describe("evaluate_automatic_somatics", () => {
     expect(somatics).toEqual([]);
   });
 
-  it("build_somatic_directives_block renders XML automatically from dynamics", () => {
-    const xml = build_somatic_directives_block([], { intensity: 85, affinity: 30 });
+  it("build_somatic_directives_xml renders XML automatically from dynamics", () => {
+    const xml = build_somatic_directives_xml([], { intensity: 85, affinity: 30 });
     expect(xml).toContain("<SOMATIC_DIRECTIVES>");
     expect(xml).toContain("- fear:");
   });

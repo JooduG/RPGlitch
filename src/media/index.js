@@ -17,8 +17,6 @@ export {
   flatten_physical,
   strip_visual_excluded,
   VISUAL_EXCLUDED_KEYS,
-  resolve_portrait_visual_style_key,
-  resolve_story_visual_style_key,
   parse_visual_engine,
   resolve_visual_engine_tokens,
 } from "./image-aesthetics.js";

@@ -12,15 +12,22 @@ const _mock_app = {
 
 vi.mock("@utils", async (importOriginal) => {
   const actual = await importOriginal();
+  const mock_state_bridge = {
+    get app() {
+      return _mock_app;
+    },
+    get runtime() {
+      return { active_fractal: null };
+    },
+  };
   return {
     ...actual,
-    state_bridge: {
-      get app() {
-        return _mock_app;
-      },
-      get runtime() {
-        return { active_fractal: null };
-      },
+    state_bridge: mock_state_bridge,
+    resolve_style: (explicit, key, registry, fallback = "") => {
+      if (explicit && explicit !== "default" && explicit !== "" && registry?.[explicit]) return explicit;
+      const app_val = _mock_app.settings?.[key];
+      if (app_val && app_val !== "default" && registry?.[app_val]) return app_val;
+      return fallback;
     },
   };
 });

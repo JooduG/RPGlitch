@@ -15,7 +15,7 @@
  */
 
 import { match_case, stable_pick } from "@utils";
-import { NARRATIVE_STYLES } from "./narrative-styles.js";
+import { get_narrative_style } from "./narrative-styles.js";
 
 const VALID_REGISTERS = new Set(["plain", "ornate", "raw", "clinical"]);
 
@@ -1025,7 +1025,7 @@ export function resolve_voice_register(entity = null, narrative_style = null) {
     return entity.voice_register;
   }
 
-  const styleObj = typeof narrative_style === "string" ? NARRATIVE_STYLES[narrative_style] : narrative_style;
+  const styleObj = typeof narrative_style === "string" ? get_narrative_style(narrative_style) : narrative_style;
 
   if (styleObj?.voice_register && VALID_REGISTERS.has(styleObj.voice_register)) {
     return styleObj.voice_register;
