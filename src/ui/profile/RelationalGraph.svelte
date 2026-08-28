@@ -341,8 +341,8 @@
             class="relative flex h-14 w-14 items-center justify-center rounded-full border-2 bg-slate-900 shadow-xl transition-transform duration-300 hover:scale-105"
             style="border-color: {center_color}; box-shadow: 0 0 20px {center_color}33;"
           >
-            {#if entity?.profile_picture || entity?.image}
-              <img src={entity.profile_picture || entity.image} alt={entity.name} class="h-full w-full rounded-full object-cover" />
+            {#if entity?.profile_picture}
+              <img src={entity.profile_picture} alt={entity.name} class="h-full w-full rounded-full object-cover" />
             {:else}
               <span class="text-xs font-bold text-slate-200 uppercase">
                 {(entity?.name || "?").slice(0, 2)}
@@ -374,8 +374,8 @@
               class="group relative flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border-2 bg-slate-900 shadow-lg transition-all duration-300 hover:scale-115"
               style="border-color: {sat_color}; box-shadow: 0 0 12px {sat_color}22;"
             >
-              {#if sat_entity?.profile_picture || sat_entity?.image}
-                <img src={sat_entity.profile_picture || sat_entity.image} alt={node.item.name} class="h-full w-full rounded-full object-cover" />
+              {#if sat_entity?.profile_picture}
+                <img src={sat_entity.profile_picture} alt={node.item.name} class="h-full w-full rounded-full object-cover" />
               {:else}
                 <span class="text-[10px] font-bold text-slate-300 uppercase">
                   {node.item.name.slice(0, 2)}

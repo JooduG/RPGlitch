@@ -262,11 +262,10 @@ describe("gamemaster (Intelligence Kernel)", () => {
     _mock_runtime.structural_errors = 0;
     // Cooldown state is now authoritative for BOTH image sources, so every test
     // starts from the open-gate sentinel (-1) instead of inheriting mutations
-    // from earlier tests (e.g. execute_prologue sets round 0 / last_auto 0).
+    // from earlier tests.
     _mock_runtime.round = 1;
     _mock_runtime.last_director_beat_round = -1;
     _mock_runtime.last_dynamics_beat_round = -1;
-    _mock_runtime.last_auto_image_round = -1;
     _mock_runtime.active_npcs = {};
     _mock_runtime.in_scene_npc_ids = [];
     _mock_runtime.streaming_entity_id = null;

@@ -4,8 +4,8 @@
  *
  * Dedicated prompt generator for the Temporal Engine (Memory Forge):
  * compiles single-entity memory extraction prompts and JSON schemas.
- * - Temporal Contract Definition (TEMPORAL_CONTRACT)
- * - Back Shot JSON Schema (BACK_SHOT_JSON_SCHEMA)
+ * - Temporal Contract Definition (TEMPORAL_PROTOCOLS.CONTRACT)
+ * - Memory Forge JSON Schema (TEMPORAL_PROTOCOLS.SCHEMA)
  * - Chapter History XML (render_chapter_history_xml)
  * - Entity Memory Context (render_entity_memory_context)
  * - Memory Forge Compiler (render_memory)

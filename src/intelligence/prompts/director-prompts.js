@@ -3,7 +3,7 @@
  * 📐 DIRECTOR PROMPTS — Quick Shot Prompt Compiler & Schema
  *
  * Dedicated prompt generator for the Quick Shot Director:
- * - DIRECTOR_JSON_SCHEMA (canonical schema definition)
+ * - DIRECTOR_PROTOCOLS.SCHEMA (canonical schema definition)
  * - DIRECTOR_PROTOCOLS (director-specific operational laws)
  * - render_director (Director system & task prompt compiler)
  * - render_terse_director_task (Fast-path recovery task on retry)
