@@ -12,13 +12,21 @@ import { generate_uuid as generateUUID, create_job_queue, state_bridge } from "@
 import { visual_engine, resolve_image_trigger, spawn_image_beat, sweep_stale_ghosts, IMAGE_RESOLVE_TIMEOUT_MS } from "@media";
 import { strip_cognition_blocks, validate_and_repair_response, force_close_response } from "./parser.js";
 import { llm_service, looks_truncated, raw_to_text, raw_stop_reason } from "@platform";
-import { dynamics_engine } from "./dynamics.js";
-import { normalize_director_data, parse_director_json, synthesize_director_fallback, render_terse_director_task } from "./director.js";
+import { physics_engine } from "./physics.js";
+import {
+  normalize_director_data,
+  parse_director_json,
+  synthesize_director_fallback,
+  resolve_npc_entity,
+  apply_in_scene_change,
+  apply_relationships,
+} from "./director.js";
+import { render_terse_director_task } from "./prompts/director-prompts.js";
 import { prompt_builder } from "./prompts/builder.js";
 import { capture_dynamics_delta } from "./telemetry.js";
 import { prune, temporal_engine } from "./temporal-pipeline.js";
 import { context_builder } from "./payload.js";
-import { resolve_npc_entity, apply_in_scene_change, apply_relationships, apply_genesis, spawn_npc } from "./cast.js";
+import { apply_genesis, spawn_npc } from "./profile-pipeline.js";
 
 /**
  * @typedef {Object} GenerationOptions
@@ -275,16 +283,16 @@ export const gamemaster = {
       // 4.2. GRAVITY SETTLEMENT — after the Director's explicit deltas, so axes it
       // calibrated this turn (including deliberate 0s) are authoritative. Untouched
       // axes still drift gently toward their baselines to prevent runaway drift.
-      dynamics_engine.settle_physics(
+      physics_engine.settle_physics(
         snapshot.ai.dynamics,
-        dynamics_engine._get_baselines(payload.entities.AI),
+        physics_engine._get_baselines(payload.entities.AI),
         snapshot.fractal.dynamics?.entropy || 50,
         0.1,
         ai_delta_axes,
       );
-      dynamics_engine.settle_physics(
+      physics_engine.settle_physics(
         snapshot.fractal.dynamics,
-        dynamics_engine._get_baselines(payload.entities.FRACTAL),
+        physics_engine._get_baselines(payload.entities.FRACTAL),
         snapshot.fractal.dynamics?.entropy || 50,
         0.1,
         fractal_delta_axes,

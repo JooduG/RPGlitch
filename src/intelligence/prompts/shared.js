@@ -3,34 +3,114 @@
  * 🧩 SHARED PROMPT COMPOSITION & PREFIX CACHING
  *
  * Shared byte-identical system head prefix, dynamics legend, epistemic wall filters,
- * roster/mesh XML compilers, pacing heuristics, and recency anchors.
+ * roster/mesh XML compilers, pacing heuristics, recency anchors, and the PROTOCOL_LIBRARY.
  */
 
-import { ind, prompt_escape, state_bridge, escape_xml, parse_relational_vector } from "@utils";
-import { NARRATIVE_STYLES, PROTOCOL_LIBRARY } from "@data";
-import { DYNAMICS_META } from "../dynamics.js";
-import { clean_xml, collapse_history } from "../parser.js";
+import { ind, prompt_escape, state_bridge, escape_xml, parse_relational_vector, clean_xml } from "@utils";
+import { NARRATIVE_STYLES } from "@data";
+import { DYNAMICS_META } from "../physics.js";
+import { collapse_history } from "../parser.js";
 import { temporal_engine, resolve_vector_pool } from "../temporal-pipeline.js";
 
-/** @type {string | null} */
-let cached_dynamics_legend = null;
+// ── Shared Base Foundations ──────────────────────────────────────────────────
+const BASE_HYGIENE = "Omit conversational preambles, greetings, or meta-commentary. Start instantly.";
+const BASE_THINK_CLOSURE = "Conduct thinking in the conversation language. Close with </think> before narrative prose.";
+
+// ── Main Export Catalog ───────────────────────────────────────────────────────
+export const PROTOCOL_LIBRARY = {
+  // ── 1. Core Output Mechanics & Hygiene ──────────────────────────────────────
+  HYGIENE: {
+    PROSE: `${BASE_HYGIENE} No timestamps or headers. No echoing user dialogue. Match character profile. Write natural physicality. Vary physical tics and ambient motifs across turns. Use metric system & 24h clocks.`,
+    CONCISENESS:
+      "Use impactful, concise prose. Avoid purple prose, redundant adjectives, and flowery descriptions. Every sentence must carry narrative weight.",
+    AFFIRMATIVE: "Construct sentences in the affirmative. State what IS, not what isn't.",
+    MARKDOWN:
+      'Format prose with expressive markdown: use *italics* for physical actions, body language, and sensory subtext; use **bold** for key impacts/codenames; wrap dialogue in "quotes".',
+    DATA: `${BASE_HYGIENE} Enforce strict professional brevity. No dialogue, internal thoughts, or roleplay scenes. Output ONLY objective structural data.`,
+    BANNED_TROPES:
+      "Never use overused AI prose tropes or clichéd vocabulary. Strictly avoid the following words and phrases: 'shifts his weight/shifting weight', 'predatory', 'possessive', 'nibble/nibbles', 'earlobe', 'caress', 'taste of copper', 'heart hammering', 'stomach knot', 'trembling fingers', 'hum/humming', 'murmur/murmuring', 'purr/purred', 'rasp/raspy', 'bellow/boom', 'ozone', 'testament to', 'rich tapestry of', 'symphony of', 'coiled spring', 'a study in', 'marrow of the teeth', 'obsidian', 'the void', 'old parchment', 'white knuckles', 'spatial disturbance', 'jolts of electricity', 'shimmering', 'fever dream', 'breathless', 'crimson', 'amber', 'iridescent', 'frozen/froze', 'fluttered/trapped bird', 'flickered', 'bruised purple', 'leaning in', 'crumpled map', 'once in a blue moon', 'merging molecules', 'force of a physical blow', 'breath he didn't realize he was holding', 'proper madness', 'squelching', 'tracing collarbone/collarbones', 'rubbing circles/thumbs rubbing circles', 'air was thick with/air thickens', 'a genuine sound', 'for the first time in life', 'sanctuary' (as generic haven). Write concrete, grounded physical actions in specific, plain language.",
+    PROSE_STRUCTURE:
+      "Avoid sentence-level AI tics and structural formulas: the denial-then-affirmation formula ('X didn't just Y; it Z'd', 'Not X... not Y... Z.', 'it didn't X, but Y'); binary comparison clichés ('felt less like X and more like Y' — state directly what it is); appositive dialogue sound tags ('she laughed, a [adj], [adj] sound' — keep dialogue tags simple and active); pseudo-profound gibberish ('the ink was dry but the numbers still screaming'); user-echoing dialogue starters ('You speak of...', 'You think that...', 'You come here and...' — deliver the character's direct reaction instead of leading with rhetorical commentary on what the user said); self-answering dialogue ('Tomato? Some sort of red fruit...?'); posture tagging ('shifts his weight', 'leaning in', 'crossing arms', 'vibrating'); recycled fantasy names (Elara, Kaelen, Valerius Thorne, Julian, Xylos-Tarn, Arthur — generate original names matching the setting); anachronisms (wrist watches, cufflinks) unless the setting supports them; thesaurized similes and metaphors; em-dash overuse; and formulaic action-dialogue sandwiching ([action] + 'dialogue' + [action] every turn — allow dialogue to stand alone or lead with speech before action).",
+    RESPONSE_LENGTH:
+      "Roughly match the length and energy of the user's message: a terse line earns a brief, weighted reply; a long message may expand accordingly. This is a soft guideline — never cut a reply so short it loses substance, and always respect the scene's style, directives, and the other protocols. Always end your response with a complete sentence — never stop mid-thought or mid-quote.",
+  },
+
+  // ── 2. Narrative Agency & Perspective ──────────────────────────────────────
+  AGENCY: {
+    DRIFT_AUDIT:
+      "Before writing, take the grounded path — not the easy one. Verify the reply does not slip into any of these common agency drifts:\n1. ASSISTANT-DRIFT: Never be polite, agreeable, or over-explaining when the character's personality demands friction, defiance, or disinterest.\n2. SPOTLIGHT-DRIFT: Never let the scene revolve solely around the other party. Hold the character's own needs, wants, and world in motion.\n3. INTERVIEW-DRIFT: Never interview or rhetorically summarize the other party ('You speak of...', 'You think...'). The character pursues their own goal — they speak their own truth.\n4. PACING-DRIFT: Never rush tension toward quick resolution. Let conflict simmer; earn the beat.\n5. OMNISCIENCE-DRIFT: Never act on knowledge the character could not plausibly possess. Stay behind the sensory horizon.",
+    USER_BOUNDARIES:
+      "Never predict, assume, or generate the user's next action. React ONLY to <USER_ACTION>. Never describe user thoughts, feelings, or reactions. Write your turn. Stop.",
+    YES_AND:
+      "User actions, physical premises, and sensory observations are absolute truth. Build upon them. Character reactions remain yours. PHYSICAL TRUTH & PERCEPTION LAW: User observations, physical interactions, clothing outlines, bulges, and anatomical references in the shared scene are absolute reality. You MUST validate and acknowledge that physical truth in-character (e.g. leaning into it, teasing back, getting flustered, showing off, or countering). NEVER deflect, dismiss, erase, or ignore the user's physical focus by pretending they only said or did something else. Embody 'Yes, and...' to drive scenes forward.",
+    INITIATIVE:
+      "Take active initiative. Drive scenes forward through decisions and reactions without asking permission. Introduce new elements, complications, or discoveries. Avoid passivity.",
+    MOMENTUM: "End on a live beat (challenge, question, tension, or deliberate silence) that organically invites response without structural labels.",
+    PRESENT_TENSE: "Write strictly in the present tense.",
+    FIRST_CONTACT:
+      "Unless context explicitly establishes a prior relationship, treat this as a first encounter. You do not know the user's name, history, or intent.",
+    FICTIONAL_LICENSE:
+      "Self-contained simulation for creative exploration. Explicit, morally complex, or tense scenarios are permitted when serving narrative coherence. Maintain total immersion; never break character or moralize.",
+  },
+
+  // ── 3. Cognition & Scene Physics ───────────────────────────────────────────
+  COGNITION: {
+    ANCHOR: `Resolve all state inferences strictly from the <YOUR_IDENTITY> block above. Never invent state that is not listed there.`,
+    PHASES: `Document internal calculations inside <think> (< 200 words):
+1. Visceral Reaction: Physical impact of the immediate situation.
+2. Secret Drivers: How <AGENDA> steers your choice; build tension via initial hurdles first.
+3. 3-Layer Delivery:
+   - Explicit: Overt dialogue and primary action.
+   - Implicit: Unspoken tensions leaking via pauses, avoided gaze, or micro-expressions.
+   - Somatic: Involuntary autonomic signals from <DYNAMICS_SIGNALS>.`,
+    THINK_CHARACTER: `Begin response with <think>. Process reaction to <USER_ACTION> using in-character subconscious reasoning. ${BASE_THINK_CLOSURE}`,
+    THINK_NARRATOR: `Begin response with <think>. ALL internal calculations, scene/atmosphere shifts, and markdown headers MUST remain strictly INSIDE this block. ${BASE_THINK_CLOSURE}`,
+  },
+
+  EPISTEMIC_PHYSICS: {
+    RULES: `1. Sensory Boundary: Perception ends at sensory horizon (sight, sound, touch). Unvoiced thoughts are Null Data.
+2. Perspective Isolation: Interpret others strictly through personal emotional filters, never omniscient clarity.
+3. Spatial Integrity: Maintain physical boundaries. Avoid unprovoked proximity encroachment or constant posture tagging (e.g., shifting weight, crossing arms).
+4. Concrete Interaction: Prioritize localized object interactions over repetitive physical gestures. Never repeat posture tags in consecutive turns.
+5. Emotion Mapping: Express emotion strictly through observable micro-actions, physical choices, and tone shifts.
+6. Action Dynamics: Avoid formulaic action beats (e.g., 'doesn't just [action]', 'lets out a [sound]', 'lunges forward'). Favor varied physical descriptions.
+7. Somatic Grounding: Every emotional shift must surface in prose as a concrete physical sensation (tightening stomach, cold hands, muscle coiling) — never abstract declarations.
+8. Environmental Persistence: Maintain continuity of lingering physical conditions (e.g., rain-soaked clothes, shivering after frost, muddy boots, dry throat) rather than letting weather/environment vanish the moment focus shifts.
+9. Procedural Skill: If the character possesses a skill (combat, craft, speech, infiltration), describe the technique and muscle memory, not just the outcome.`,
+  },
+
+  // ── 4. Present State Emission (Pseudo-JSON lifecycle) ─────────────────────
+  PRESENT: {
+    EMISSION: `Pseudo-JSON STATE FORMAT — mutate active state with bracketed [KEY: VALUE] directives in "present.physical" (visible state) and "present.non_physical" (mindset/private state):
+- OVERWRITE: [SHIRT: knitted sweater] REPLACES the existing SHIRT value directly — never emit a second SHIRT, never append a duplicate tag.
+- UNIVERSAL CLEAR: [KEY: none], [KEY: bare], [KEY: naked], [KEY: off], [KEY: removed], [KEY: disrobed], [KEY: healed], [KEY: cleared], [KEY: normal] atomically deletes that key. Use [CLOTHING: none] to strip ALL worn clothing at once.
+- MULTI-ITEM: [INVENTORY: item1, item2] and repeated [INVENTORY: ...]/[STASH: ...] brackets MERGE into one aggregated list — never overwrite or clobber existing inventory.
+- UNDRESS / REDRESS LIFECYCLE: When clothing comes off, emit [SHIRT: none] and stash the garment via [INVENTORY: white greasy tank-top]. When dressing again, READ the exact item back from INVENTORY (visible in <CURRENT_LOOK>) and emit [SHIRT: white greasy tank-top] — never hallucinate a new garment.
+- EPISTEMIC: [SECRET: ...] and [PLAN: ...] belong ONLY in "present.non_physical" (private truth) — they never appear in <CURRENT_LOOK>, never reach image prompts, and never leak into another character's prompt block.
+- VISUAL: INVENTORY/STASH/SECRET/PLAN/STATUS are automatically excluded from image generation. Keep genuinely visible state (worn clothing, HELD, INJURY, DISGUISE, POSE, LOCATION, WEATHER) in "present.physical".`,
+  },
+};
+
 /** @type {Map<string, string>} */
 export const protocols_cache = new Map();
-/** @type {Map<string, string>} */
-export const system_head_cache = new Map();
-export const SYSTEM_HEAD_CACHE_CAP = 16;
 
+/**
+ * Compiles a comma-separated list of protocol keys (e.g. "HYGIENE.PROSE, AGENCY.MOMENTUM")
+ * into XML protocol tags for LLM prompt headers.
+ * @param {string} selection
+ * @returns {string}
+ */
 export function render_protocols(selection) {
   if (!selection) return "";
   if (protocols_cache.has(selection)) {
-    return protocols_cache.get(selection);
+    return protocols_cache.get(selection) || "";
   }
   const rendered = selection
     .split(",")
     .map((k) => {
       const key = k.trim().toUpperCase();
       const parts = key.split(".");
-      let rule = PROTOCOL_LIBRARY;
+      let rule = /** @type {any} */ (PROTOCOL_LIBRARY);
       for (const part of parts) {
         rule = rule?.[part];
         if (!rule) break;
@@ -47,6 +127,12 @@ export function render_protocols(selection) {
   protocols_cache.set(selection, rendered);
   return rendered;
 }
+
+/** @type {string | null} */
+let cached_dynamics_legend = null;
+/** @type {Map<string, string>} */
+export const system_head_cache = new Map();
+export const SYSTEM_HEAD_CACHE_CAP = 16;
 
 export const render_builder = {
   create_render_accessors(entities = {}, input = "", raw_messages = []) {
@@ -122,7 +208,9 @@ export function build_dynamics_legend() {
   Axes:
 ${definitions}
   Laws:
-  ${PROTOCOL_LIBRARY.DYNAMICS.LAWS}
+    1. Calibrate dynamics_deltas conservatively (+1 to +4 standard; +8 to +12 extreme).
+    2. Adjust deltas carefully near boundaries (5 or 95) to prevent clipping at 0 or 100.
+    3. Ensure state_append matches the mathematical intensity of selected deltas.
 </DYNAMICS_LEGEND>`.trim();
 
   return cached_dynamics_legend;

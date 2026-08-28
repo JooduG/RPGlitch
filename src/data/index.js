@@ -1,9 +1,3 @@
-// PROTOCOL_LIBRARY must be re-exported FIRST: the @data barrel participates in a
-// cyclic import graph (@data -> normalizer -> @platform -> @intelligence -> kernel
-// -> @media -> optics -> @data), and under vitest's transformed-module semantics an
-// export is only readable once its re-export statement in this file has executed.
-// Being last, it was `undefined` when fragments.js/image-prompts.js read it during the cycle.
-export { PROTOCOL_LIBRARY } from "./definitions/protocols.js";
 export { SIGNATURE_COLORS } from "./definitions/signature-colors.js";
 export { seed_premades, stories, entities, coerce_story_key } from "./repository.js";
 export { session_driver, SESSION_ID_KEY } from "./sessions.svelte.js";
@@ -18,14 +12,6 @@ export {
   serialize_rpglitch_entity,
 } from "./character-cards.js";
 export { premade } from "./definitions/premades.js";
-export { NARRATIVE_STYLES, get_style_keywords } from "./definitions/narrative-styles.js";
-export {
-  GLOBAL_TRIGGERS,
-  DYNAMIC_SOMATIC_RULES,
-  evaluate_automatic_somatics,
-  build_somatic_directives_block,
-  build_available_keywords_xml,
-} from "./definitions/triggers.js";
+export { NARRATIVE_STYLES, GLOBAL_TRIGGERS, STYLE_MOTIF_REGISTRY, get_style_keywords } from "./definitions/narrative-styles.js";
 export { VISUAL_STYLES } from "./definitions/visual-styles.js";
-export { DYNAMICS_META } from "./definitions/dynamics.js";
-export { ENTITY_FRAGMENTS, ENTITY_CATALOG, TEMPORAL_CONTRACT, PROFILE_SECTIONS_BY_TYPE } from "./definitions/fragments.js";
+export { PROFILE_FIELDS, PROFILE_FIELD_CATALOG, PROFILE_SECTIONS_BY_TYPE } from "./definitions/profile-fields.js";

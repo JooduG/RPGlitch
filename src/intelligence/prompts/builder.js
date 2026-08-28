@@ -6,10 +6,10 @@
  * Aggregates all domain prompt builders into a single, cohesive prompt_builder service.
  */
 
-import { ENTITY_CATALOG } from "@data";
+import { PROFILE_FIELD_CATALOG } from "@data";
 import { temporal_engine } from "../temporal-pipeline.js";
 import { parse_macros, render_protocols, render_builder } from "./shared.js";
-import { render_director, render_terse_director_task } from "../director.js";
+import { render_director, render_terse_director_task } from "./director-prompts.js";
 import { render_character, render_npc_character, render_ghostwriter, build_narrator } from "./story-prompts.js";
 import { render_memory } from "./temporal-prompts.js";
 import { render_enhancement, render_profile_sorting } from "./profile-prompts.js";
@@ -182,8 +182,8 @@ export const prompt_builder = {
     array_mode = "append_new",
   ) {
     const resolved_type = entity_type === "user" ? "character" : entity_type || "character";
-    const meta = ENTITY_CATALOG[`${resolved_type}.${field_id}`] ||
-      ENTITY_CATALOG[field_id] || {
+    const meta = PROFILE_FIELD_CATALOG[`${resolved_type}.${field_id}`] ||
+      PROFILE_FIELD_CATALOG[field_id] || {
         directive: "Expand and enrich the fragment.",
         enhancer: "GENERAL",
       };

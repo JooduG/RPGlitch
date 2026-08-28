@@ -10,10 +10,10 @@
  * - Fractal / Scene Narrator (build_narrator, prologue, epilogue)
  */
 
-import { ind, escape_xml } from "@utils";
-import { NARRATIVE_STYLES, PROTOCOL_LIBRARY, build_somatic_directives_block } from "@data";
-import { clean_xml } from "../parser.js";
-import { build_signals_xml } from "../dynamics.js";
+import { ind, escape_xml, clean_xml } from "@utils";
+import { NARRATIVE_STYLES } from "@data";
+import { build_somatic_directives_block } from "./physics-prompts.js";
+import { build_signals_xml } from "../physics.js";
 import {
   render_system_head,
   render_field_value,
@@ -23,10 +23,37 @@ import {
   strip_epistemic_tags,
   render_current_story_state_xml,
   build_pacing_directive,
-  build_recency_anchor,
   render_protocols,
   render_builder,
+  PROTOCOL_LIBRARY,
 } from "./shared.js";
+
+const SCENE_TEMPLATES = {
+  PROLOGUE: `You see everything. Open the scene. Use <think> to establish: What does this Fractal demand? What brought <AI_CHARACTER> and <USER_PERSONA> here? Unless context explicitly states otherwise, treat as strangers.
+Narrative Sequence:
+1. Present the Fractal atmosphere and current state.
+2. Place <USER_PERSONA> inside, connecting them via their profile thread.
+3. Place <AI_CHARACTER> inside and establish their current action.
+4. Trigger the encounter. End the prologue immediately before interaction begins.
+No dialogue.`,
+  EPILOGUE: `You see everything. Close the scene. Use <think> to evaluate unresolved threads and active <INTENT>/<AGENDA> vectors (fulfilled, fractured, or transformed). Write the epilogue resolving these ends. Show concrete aftermath and physical changes. End on lingering sensation, not summary. No dialogue.`,
+  COLLAPSE: `You see everything. Close the scene on irrevocable tragedy. Use thinking to weigh what was permanently broken, lost, or severed. Write the epilogue focusing on physical aftermath, lingering environmental scars, and the departure or fall of those involved. Do not force heroic silver linings or unearned closure. End on enduring sensory silence. No dialogue.`,
+  CONTINUATION: `You are the Fractal itself, narrating the scene. Narrate the present moment through the setting's own atmosphere, sensory textures, ambient physics, and environmental shifts. Use <think> to evaluate the active atmosphere and any shift in the Fractal's state, then write the scene's reaction to recent events as vivid sensory prose. Never move <AI_CHARACTER> or <USER_PERSONA> against their will, never speak their dialogue or thoughts, and never resolve their choices for them. End the turn on one dominant hook — a decisive statement, a single action, a hovered beat, or a deliberate silence. No structural bracket labels.`,
+};
+
+const POV_DIRECTIVES = {
+  FIRST_PERSON:
+    "CRITICAL POV MANDATE: Write strictly in first-person ('I', 'me', 'my'). Describe actions and sensations through your own eyes. NEVER use third-person or your character name.",
+  THIRD_PERSON:
+    "CRITICAL POV MANDATE: Write strictly in third-person limited ('he', 'she', 'they', or entity name). NEVER use first-person pronouns for narrative prose.",
+  NARRATOR:
+    "CRITICAL MANDATE: You are the <FRACTAL> (scene/setting narrator). Write strictly in third-person omniscient narrator POV. NEVER write in first-person.",
+};
+
+export const STABILITY_DIRECTIVES = {
+  WARNING: "WARNING: Structural drift detected. Maintain disciplined XML closures and clean markdown boundaries.",
+  CRITICAL: "CRITICAL: Structural collapse. Re-anchor immediately. Every XML tag must close cleanly.",
+};
 
 /**
  * Character prompt compiler (Shot 2).
@@ -74,7 +101,7 @@ export function render_character({
     "HYGIENE.CONCISENESS",
     "HYGIENE.BANNED_TROPES",
     "HYGIENE.PROSE_STRUCTURE",
-    "ANTIGRAVITY.AUDIT",
+    "AGENCY.DRIFT_AUDIT",
     "AGENCY.FICTIONAL_LICENSE",
     meta?.is_opening_turn || (Array.isArray(compressed_snapshot?.flags) && compressed_snapshot.flags.includes("FIRST_CONTACT"))
       ? "AGENCY.FIRST_CONTACT"
@@ -83,7 +110,7 @@ export function render_character({
     .filter(Boolean)
     .join(", ");
   const stability_lock_content =
-    meta?.structural_errors >= 3 ? PROTOCOL_LIBRARY.STABILITY.CRITICAL : meta?.structural_errors >= 1 ? PROTOCOL_LIBRARY.STABILITY.WARNING : "";
+    meta?.structural_errors >= 3 ? STABILITY_DIRECTIVES.CRITICAL : meta?.structural_errors >= 1 ? STABILITY_DIRECTIVES.WARNING : "";
 
   const user_field = (text) => render_field_value(strip_epistemic_tags(text), entities?.USER, entities);
 
@@ -142,18 +169,17 @@ ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
     </EPISTEMIC_PHYSICS>
     ${build_signals_xml(compressed_snapshot?.ai?.dynamics, compressed_snapshot?.fractal?.dynamics, { style: NARRATIVE_STYLES[resolve_active_style_key()] })}
     <POV_DIRECTIVE>
-      ${PROTOCOL_LIBRARY.POV[pov_protocol.split(".")[1] || "FIRST_PERSON"]}
+      ${POV_DIRECTIVES[pov_protocol.split(".")[1] || "FIRST_PERSON"]}
     </POV_DIRECTIVE>
     ${
       ghostwrite
         ? "Follow the <GHOSTWRITE> directive below to complete your turn."
         : has_user_action
-          ? "Execute your reaction against <USER_ACTION>."
-          : "Continue the scene, reacting to the current situation."
-    } Stay fully in character. Honor all active <PROTOCOLS>.
-    ${build_pacing_directive(input)}
-    ${build_recency_anchor(compressed_snapshot, input)}
-  </TASK>
+          ? `Respond to <USER_ACTION> in character.
+    ${build_pacing_directive(input)}`
+          : "Take initiative to open or advance the scene organically."
+    }
+</TASK>
   `).trim();
 
   return { system, task };
@@ -168,16 +194,17 @@ export function render_npc_character({
   npc,
   input,
   compressed_snapshot,
+  _meta,
   render_accessors = null,
   director_data,
   npc_entities = [],
   in_scene_ids = [],
 }) {
-  const accessors = render_accessors || render_builder.create_render_accessors({ ...entities, [npc?.id]: npc }, input);
+  const accessors = render_accessors || render_builder.create_render_accessors(entities, input);
   const npc_name = escape_xml(npc?.name || "NPC");
   const user_name = escape_xml(entities?.USER?.name || "User");
-  const ai_name = escape_xml(entities?.AI?.name || "the protagonist");
-  const fractal_name = escape_xml(entities?.FRACTAL?.name || "the environment");
+  const ai_name = escape_xml(entities?.AI?.name || "Protagonist");
+  const fractal_name = escape_xml(entities?.FRACTAL?.name || "the setting");
   const has_user_action = !!input?.trim();
 
   const director_note = director_data?.directive?.trim()
@@ -200,7 +227,7 @@ export function render_npc_character({
     "HYGIENE.CONCISENESS",
     "HYGIENE.BANNED_TROPES",
     "HYGIENE.PROSE_STRUCTURE",
-    "ANTIGRAVITY.AUDIT",
+    "AGENCY.DRIFT_AUDIT",
     "AGENCY.FICTIONAL_LICENSE",
   ]
     .filter(Boolean)
@@ -230,12 +257,15 @@ export function render_npc_character({
   <YOUR_IDENTITY name="${npc_name}"${format_dynamics_attrs(npc?.dynamics)}>
     <STATE_OF_MIND>${ind(render_field_value(npc?.present?.non_physical, npc, entities), 6)}</STATE_OF_MIND>
     <CURRENT_LOOK>${ind(render_field_value(npc?.present?.physical, npc, entities), 6)}</CURRENT_LOOK>
-    <INTENT>${ind(accessors?.future(npc, { vector_text: true }), 6)}</INTENT>
-    <MEMORIES>${ind(accessors?.past(npc, { vector_text: true, in_scene: true }), 6)}</MEMORIES>
+    <INTENT>${ind(accessors.future(npc, { vector_text: true }), 6)}</INTENT>
+    <MEMORIES>${ind(accessors.past(npc, { vector_text: true }), 6)}</MEMORIES>
   </YOUR_IDENTITY>
-  <AI_CHARACTER name="${ai_name}">
+  <PROTAGONIST name="${ai_name}"${format_dynamics_attrs(compressed_snapshot?.ai?.dynamics)}>
     <STATE_OF_MIND>${render_field_value(entities?.AI?.present?.non_physical, entities?.AI, entities)}</STATE_OF_MIND>
-  </AI_CHARACTER>
+    <CURRENT_LOOK>${render_field_value(entities?.AI?.present?.physical, entities?.AI, entities)}</CURRENT_LOOK>
+    <INTENT>${ind(accessors.future(entities?.AI, { vector_text: true }), 6)}</INTENT>
+    <MEMORIES>${ind(accessors.past(entities?.AI, { vector_text: true }), 6)}</MEMORIES>
+  </PROTAGONIST>
   <USER_PERSONA name="${user_name}">
     <STATE_OF_MIND>${render_field_value(entities?.USER?.present?.non_physical, entities?.USER, entities)}</STATE_OF_MIND>
     <CURRENT_LOOK>${render_field_value(entities?.USER?.present?.physical, entities?.USER, entities)}</CURRENT_LOOK>
@@ -255,7 +285,7 @@ ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
     </EPISTEMIC_PHYSICS>
     ${build_signals_xml(npc?.dynamics, compressed_snapshot?.fractal?.dynamics, { style: NARRATIVE_STYLES[resolve_active_style_key()] })}
     <POV_DIRECTIVE>
-      ${PROTOCOL_LIBRARY.POV.THIRD_PERSON}
+      ${POV_DIRECTIVES.THIRD_PERSON}
     </POV_DIRECTIVE>
     Respond strictly as ${npc_name} — a supporting character. Own only your own voice, actions, and perspective: never speak for <USER_PERSONA> or the AI character, and never resolve the overarching story quest on your own. Write third-person limited, present tense, and end on a natural beat.
     ${build_pacing_directive(input)}
@@ -298,12 +328,10 @@ export function render_ghostwriter({ entities, input = "" }) {
     : `Draft a compelling, in-character next action or vocal response for ${escape_xml(user_name)} in response to ${escape_xml(ai_name)}.`;
 
   rendered.task += clean_xml(`
-<GHOSTWRITE>
-    ${draft_directive}
-    Write strictly from ${escape_xml(user_name)}'s perspective and voice: only their physical actions, dialogue, sensations, and internal states.
-    Do not write dialogue, actions, or thoughts for ${escape_xml(ai_name)}. Also do not write their body language, expressions, or reactions — never narrate how the other character looks or feels in response to you.
-    Output only the raw text — no preamble, no meta-commentary, no XML wrappers.
-</GHOSTWRITE>
+    <GHOSTWRITE>
+      ${draft_directive}
+      Match the tone of the scene. Output ONLY in-character prose/dialogue suitable for the player's turn. No meta preamble, no out-of-character commentary.
+    </GHOSTWRITE>
   `);
 
   return rendered;
@@ -313,7 +341,7 @@ export function render_ghostwriter({ entities, input = "" }) {
  * Fractal / Scene Narrator compiler for scene continuation, prologue, and epilogue.
  */
 export function build_narrator(
-  mode,
+  mode = "scene",
   {
     entities,
     render_accessors,
@@ -328,12 +356,12 @@ export function build_narrator(
 ) {
   const task_text =
     mode === "prologue"
-      ? `${PROTOCOL_LIBRARY.SCENE.PROLOGUE}\n    Input: ${escape_xml(input?.trim() || "The scene begins.")}`
+      ? `${SCENE_TEMPLATES.PROLOGUE}\n    Input: ${escape_xml(input?.trim() || "The scene begins.")}`
       : mode === "scene"
-        ? `${PROTOCOL_LIBRARY.SCENE.CONTINUATION}\n    Input: ${escape_xml(input?.trim() || "The scene continues.")}`
+        ? `${SCENE_TEMPLATES.CONTINUATION}\n    Input: ${escape_xml(input?.trim() || "The scene continues.")}`
         : conclusion_status === "COLLAPSED"
-          ? PROTOCOL_LIBRARY.SCENE.COLLAPSE
-          : PROTOCOL_LIBRARY.SCENE.EPILOGUE;
+          ? SCENE_TEMPLATES.COLLAPSE
+          : SCENE_TEMPLATES.EPILOGUE;
   const fractal_name = entities?.FRACTAL?.name || "Environment";
   const somatic_directives_xml = mode === "scene" ? build_somatic_directives_block(director_data?.keywords || []) : "";
 
@@ -379,7 +407,7 @@ ${round != null ? `<ROUND>${escape_xml(String(round))}</ROUND>\n` : ""}${input?.
     ${build_signals_xml({}, compressed_snapshot?.fractal?.dynamics)}
     ${somatic_directives_xml ? `${somatic_directives_xml}\n    ` : ""}
     ${render_current_story_state_xml(entities, npc_entities, in_scene_ids)}
-    <POV_DIRECTIVE>${PROTOCOL_LIBRARY.POV.NARRATOR}</POV_DIRECTIVE>
+    <POV_DIRECTIVE>${POV_DIRECTIVES.NARRATOR}</POV_DIRECTIVE>
   </TASK>
   `).trim();
 

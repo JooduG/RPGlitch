@@ -9,10 +9,20 @@
  * - Back Shot Forge Compiler (render_memory / build_memory_prompt)
  */
 
-import { ind, escape_xml, physical_to_xml } from "@utils";
-import { TEMPORAL_CONTRACT } from "@data";
-import { clean_xml } from "../parser.js";
+import { ind, escape_xml, physical_to_xml, clean_xml } from "@utils";
 import { render_protocols } from "./shared.js";
+
+/**
+ * Canonical runtime contract for the four temporal layers. Single source of
+ * truth for what ETERNAL / PRESENT / FUTURE / PAST mean — emitted verbatim
+ * into both the Memory Forge task and every profile enhance prompt so the two
+ * pipelines never drift apart.
+ */
+export const TEMPORAL_CONTRACT = `TEMPORAL LAYER CONTRACT — ETERNAL / PRESENT / FUTURE / PAST
+- ETERNAL: the evolving baseline. Permanent changes (defining events, character arcs, world shifts) update it; temporary state belongs in PRESENT. Explicit user edits to Eternal always win.
+- PRESENT: the volatile delta layer over ETERNAL — what has shifted right now. Rewritten each cycle. True in this moment only.
+- FUTURE: the single standing agenda — one clear intent, building pressure, or impending event driving the next state change. Rewritten each cycle. Active future tense.
+- PAST: anchored memory — settled facts and events. Appended, never rewritten in place.`;
 
 export const BACK_SHOT_JSON_SCHEMA = `{
   "_thought_process": "<one short sentence analyzing recent events for target entity>",

@@ -4,8 +4,15 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { PROTOCOL_LIBRARY } from "@data";
-import { parse_macros, render_protocols, render_builder, render_system_head, strip_epistemic_tags, build_pacing_directive } from "./shared.js";
+import {
+  PROTOCOL_LIBRARY,
+  parse_macros,
+  render_protocols,
+  render_builder,
+  render_system_head,
+  strip_epistemic_tags,
+  build_pacing_directive,
+} from "./shared.js";
 
 describe("Shared Prompt Utilities (shared.js)", () => {
   describe("Static Helpers & History Rendering", () => {

@@ -8,7 +8,7 @@
  * image-tiers.js.
  */
 
-import { PROTOCOL_LIBRARY, VISUAL_STYLES, detox_prose } from "@data";
+import { VISUAL_STYLES, detox_prose } from "@data";
 import { escape_xml, physical_to_xml, prompt_escape, strip_cognition_blocks } from "@utils";
 import { sanitize_llm } from "@platform";
 import { normalize_image_tier } from "./image-tiers.js";
@@ -22,12 +22,42 @@ import {
 /**
  * Modern concise fallback negative prompt optimized for T5-XXL text streams.
  * Avoids legacy SD 1.5 word-salad tags that cause lexical contamination in FLUX.
- * Sourced from PROTOCOL_LIBRARY.OPTICS.NEGATIVE_PROMPT.
  */
-export const NEGATIVE_PROMPT = PROTOCOL_LIBRARY.OPTICS.NEGATIVE_PROMPT;
+export const NEGATIVE_PROMPT = "blurry, low resolution, compressed artifacts, watermark, bad anatomy, distorted features";
 
-// Protocol constants now sourced from @data/definitions/protocols.js (PROTOCOL_LIBRARY)
-const JSON_OUTPUT_PROTOCOL = PROTOCOL_LIBRARY.FORMATS.JSON_ONLY;
+const JSON_OUTPUT_PROTOCOL =
+  "Return a single JSON object starting with { and ending with }. No preamble, no markdown backticks, no external XML tags.";
+
+export const OPTICS_BUILDER_PROTOCOL = `EXECUTE VISUAL SYNTHESIS IN 5 ORDERED PHASES:
+
+PHASE 1: EXECUTION & OUTPUT STRUCTURE
+- Formulate composition strategy inside "_thought_process" key first.
+- Output final image prompt inside "prompt" as continuous, fluid prose.
+- Output negative tokens inside "negative_prompt". Enforce KEYWORD_INTEGRITY — quality buzzwords ('masterpiece', '8K', 'ultra HD', 'photorealistic', 'digital art') are forbidden in BOTH "prompt" and "negative_prompt". Ground outputs using physical optics and real-world materials.
+- Enforce FLUX_T5_WEIGHTING — NEVER emit bracket weight math ('(x:1.3)', '((x))', '[x:0.4]'): FLUX/T5 reads words, not weights. Emphasize via descriptors, varied rephrasing, and attenuation phrasing ('faint', 'subtle touch of', 'barely visible in the distance').
+- Enforce POSITIVE_FRAMING — describe what IS physically in frame ('a softly moonlit glade' rather than 'no harsh sunlight'); keep the negative_prompt limited to global quality artifacts.
+
+PHASE 2: SUBJECT & SPATIAL FRAMING (FIRST SENTENCE PRIORITY)
+- FIRST SENTENCE MANDATE: Always place main entities and active physical interactions in the VERY FIRST sentence.
+- Spatial Geometry: Strictly enforce camera angles, elevations (e.g., balconies), lighting positions, and distance.
+- Prologue Priority: In prologue mode, the primary active scene message overrides static lore. Render what is happening NOW.
+
+PHASE 3: CHARACTER SPECIFICATION & OVERRIDES
+- Explicit Identifiers: Always explicitly state gender and physical identifiers (e.g., "a handsome young male high-elf man").
+- Animal/Creature Disambiguation: Never use bare animal/creature proper names (e.g., "Beast"). Translate to explicit physical traits (e.g., "a massive grey-green male orc warrior").
+- Feature Weighting: Dedicate maximum descriptive effort to unique features (scars, glowing eyes, horns); keep common traits brief. Reinforce key subjects through varied rephrasing across clauses rather than numeric weights.
+- Lexical Register Preservation: Preserve the specific visceral, crude, or raw vocabulary from the participant's action and character state (e.g. 'cock', 'shaft', 'bulge', 'thong', 'pecs', 'grease-stained') rather than sanitizing into sterile or clinical synonyms ('genitals', 'undergarment'). Diffusion models and T5 text encoders have vastly different training distributions and aesthetic associations for crude/visceral terms versus clinical terms.
+- Garment Anatomy & Underwear Specificity: When rendering specialized or revealing garments (e.g., jockstraps, thongs, harnesses), explicitly specify their physical mechanics and bare skin exposure in natural prose. For a jockstrap, describe: 'wearing an athletic jockstrap featuring a supportive front pouch, open sides and back with bare exposed butt cheeks, and dual wide elastic straps circling under the glutes/thighs'. For thongs, describe: 'a narrow string back leaving the rear completely bare'. Never allow jockstraps to collapse into generic briefs or full-coverage shorts.
+- Alternation Resolution: If an input attribute contains Perchance alternation syntax '{Option A|Option B}', resolve it to exactly ONE option consistent with the current narrative; never blend options and never echo the braces or pipe.
+- Dynamic State Override: Follow a strict bottom-up hierarchy where the most recent (bottom-most) physical condition update ALWAYS overrides preceding static tags like <SHIRT> or <JACKET>. If a conflicting state appears later (e.g. 'no clothes' then later 'shirt: white'), the most recent/latest state wins.
+
+PHASE 4: STYLE & MEDIUM DISCIPLINE
+- Medium Authority: Directives in <VISUAL_ENGINE> (e.g., oil painting, pixel art, charcoal) dictate absolute style. Strip out conflicting photorealistic terms.
+- Palette Strictness: Strict medium palettes (monochrome, sepia, cyanotype) override conflicting color terms.
+
+PHASE 5: SENSORY & ENVIRONMENTAL GROUNDING
+- Ground scenes through real-world light sources, physical textures, and concrete environmental geometry rather than abstract concepts.
+- Typography & Signage (OPTIONAL): Render on-screen text ONLY when the scene itself calls for it — signs, graffiti, titles, or UI that are part of the subject matter. Never add text artificially. When text IS present, spell it out exactly and specify placement, font, and color (e.g. "OPEN" in glowing red neon, centered above the doors) — never invent, garble, or approximate lettering, and never output generic placeholders like "text" or "sign".`;
 
 /**
  * Authoritative prompt templates optimized for modern generative diffusion pipelines.
@@ -146,7 +176,7 @@ export const prompt_templates = {
 <SYSTEM role="SENSORY_CORTEX_V5">
 ${visual_engine_block}
 <PROTOCOL>
-${PROTOCOL_LIBRARY.OPTICS.BUILDER_PROTOCOL}
+${OPTICS_BUILDER_PROTOCOL}
 ${is_selfie ? '\nPHASE 6: SELFIE MODE EXTENSION\n- Generate a short, in-character social media caption inside "caption".' : ""}
 </PROTOCOL>
 <TARGET>${tier}</TARGET>

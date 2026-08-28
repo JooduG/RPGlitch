@@ -14,6 +14,14 @@ describe("detox_prose()", () => {
     expect(detox_prose("Crimson lips, iridescent scales, a spatial disturbance.")).not.toMatch(/crimson|iridescent|spatial disturbance/i);
     expect(detox_prose("He let out a breath he didn't realize he was holding.")).not.toMatch(/realize.*holding|realized.*holding/i);
     expect(detox_prose("They were merging their molecules together.")).not.toMatch(/merging their molecules/i);
+    expect(detox_prose("His thumb rubbed small circles on her wrist as he traced the line of her collarbone.")).not.toMatch(
+      /rubbed.*circles|collarbone/i,
+    );
+    expect(detox_prose("Her heart fluttered in her chest like a trapped bird.")).not.toMatch(/trapped bird/i);
+    expect(detox_prose("The air was thick with smoke, and then the air thickened.")).not.toMatch(/air was thick with|air thickened/i);
+    expect(detox_prose("She laughed, a genuine sound.")).not.toMatch(/a genuine sound/i);
+    expect(detox_prose("For the first time in his life, he smiled.")).not.toMatch(/for the first time in his life/i);
+    expect(detox_prose("It felt less like a sanctuary and more like a prison.")).toBe("It felt like a prison.");
   });
 
   it("preserves grounded plain text without modifying it", () => {

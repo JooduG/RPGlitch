@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
+import { render_director } from "./prompts/director-prompts.js";
 import {
-  render_director,
   normalize_director_data,
   normalize_speaker,
   normalize_in_scene_change,

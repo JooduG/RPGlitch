@@ -1,13 +1,28 @@
 /**
- * src/intelligence/dynamics.js
- * ⚙️ DYNAMICS ENGINE — Physics engine slider metadata, settlement calculations,
+ * src/intelligence/physics.js
+ * ⚙️ PHYSICS ENGINE — Physics slider metadata, settlement calculations,
  * and the DYNAMICS_SIGNALS prompt-directive registry.
  */
 
-import { GLOBAL_TRIGGERS, evaluate_automatic_somatics, DYNAMICS_META } from "@data";
-export { evaluate_automatic_somatics, DYNAMICS_META };
+import { GLOBAL_TRIGGERS } from "@data";
 
-export const dynamics_engine = {
+/**
+ * 6 core dynamics axes: 4 somatic (character) and 2 environmental (fractal).
+ * @type {Record<string, { label: string, desc: string }>}
+ */
+export const DYNAMICS_META = {
+  // Character (Somatic) axes
+  chaos: { label: "Chaos", desc: "Randomness vs Control" },
+  intensity: { label: "Intensity", desc: "Internal Energy / Adrenaline" },
+  openness: { label: "Openness", desc: "Receptivity vs Guardedness" },
+  affinity: { label: "Affinity", desc: "Inter-Entity Bond / Empathy" },
+
+  // Fractal (Environmental) axes
+  velocity: { label: "Velocity", desc: "Environmental Pacing / Speed" },
+  entropy: { label: "Entropy", desc: "Structural Reality / Weirdness" },
+};
+
+export const physics_engine = {
   /**
    * Evaluates and settles physics (Gravity & Clamping).
    * Used after the Director applies explicit state mutations to settle the physics before the next turn.
@@ -73,7 +88,7 @@ export function compute_deltas(target, dynamics, runtime_target, deltas, log_str
  * @param {object|null} [style=null]
  * @returns {Array<{ id: string, text: string }>}
  */
-export function evaluate_dynamics_signals(ai_dynamics = {}, fractal_dynamics = {}, style = null) {
+export function evaluate_physics_signals(ai_dynamics = {}, fractal_dynamics = {}, style = null) {
   let ai = ai_dynamics || {};
   let fractal = fractal_dynamics || {};
   let active_style = style;
@@ -127,7 +142,7 @@ export function evaluate_dynamics_signals(ai_dynamics = {}, fractal_dynamics = {
  * @returns {string} XML block string, or "" when no signals are active.
  */
 export function build_signals_xml(ai_dynamics = {}, fractal_dynamics = {}, options = {}) {
-  const active = evaluate_dynamics_signals(ai_dynamics, fractal_dynamics, options?.style);
+  const active = evaluate_physics_signals(ai_dynamics, fractal_dynamics, options?.style);
   if (active.length === 0) return "";
   const inner = active.map((s) => `      • ${s.text}`).join("\n");
   return `    <DYNAMICS_SIGNALS>\n${inner}\n    </DYNAMICS_SIGNALS>`;

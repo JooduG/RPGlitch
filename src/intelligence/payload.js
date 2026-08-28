@@ -6,8 +6,8 @@
  * for consumption by the Story Pipeline, Director, and Prompt Builders.
  */
 
-import { state_bridge, get_value, safe_parse_pseudo_json } from "@utils";
-import { ENTITY_CATALOG } from "@data";
+import { state_bridge, get_value, safe_parse_pseudo_json, CLOTHING_KEYS, CLEAR_TOKENS, AGGREGATE_KEYS } from "@utils";
+import { PROFILE_FIELD_CATALOG } from "@data";
 import { ensure_embeddings } from "@platform";
 import { clean_text } from "./parser.js";
 import { resolve_vector_pool } from "./temporal-pipeline.js";
@@ -36,7 +36,7 @@ export function to_data_points(entity) {
   if (!entity) return [];
   /** @type {DataPoint[]} */
   const list = [];
-  Object.entries(ENTITY_CATALOG).forEach(([field_id, metadata]) => {
+  Object.entries(PROFILE_FIELD_CATALOG).forEach(([field_id, metadata]) => {
     if (field_id.startsWith("character.") || field_id.startsWith("fractal.")) return;
 
     let val = get_value(entity, field_id);
@@ -196,46 +196,6 @@ export const context_builder = {
     };
   },
 };
-
-/**
- * Universal atomic-clearing tokens — emitting [KEY: one of these] deletes KEY
- * from the present-state dictionary (e.g. [HELD: none], [INJURY: healed],
- * [STATUS: normal], [SECRET: cleared]).
- */
-const CLEAR_TOKENS = new Set(["none", "bare", "naked", "off", "removed", "disrobed", "healed", "cleared", "normal"]);
-
-/** Keys whose repeated brackets aggregate into a single multi-item list. */
-const AGGREGATE_KEYS = new Set(["INVENTORY", "STASH"]);
-
-const CLOTHING_KEYS = [
-  "SHIRT",
-  "PANTS",
-  "SUIT",
-  "JACKET",
-  "DRESS",
-  "SKIRT",
-  "COAT",
-  "SHOES",
-  "BOOTS",
-  "GLOVES",
-  "HAT",
-  "ARMOR",
-  "ROBE",
-  "ROBES",
-  "APPAREL",
-  "UNDERWEAR",
-  "OUTFIT",
-  "CLOTHING",
-  "CLOAK",
-  "BOTTOMS",
-  "TOPS",
-  "ACCESSORIES",
-  "HARNESS",
-  "SCRUBS",
-  "HARDWARE",
-  "EQUIPMENT",
-  "GEAR",
-];
 
 /**
  * Pure simulation function that merges newly emitted [KEY: VALUE] bracket directives

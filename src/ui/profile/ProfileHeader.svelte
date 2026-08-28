@@ -7,7 +7,7 @@
    */
 
   import { auto_resize } from "@ui";
-  import { ENTITY_FRAGMENTS } from "@data";
+  import { PROFILE_FIELDS } from "@data";
   import { GlassWrapper } from "@primitives";
 
   // --- PROP MATRIX BOUNDARIES ---
@@ -146,7 +146,7 @@
           hover:[&::-webkit-scrollbar-thumb]:bg-[color-mix(in_srgb,var(--signature-color)_60%,var(--color-frisk))]
           [&::-webkit-scrollbar-track]:bg-transparent
         "
-        placeholder={ENTITY_FRAGMENTS.description}
+        placeholder={PROFILE_FIELDS.description}
         bind:value={description}
         use:auto_resize
         onfocus={() => on_focus_field("description", "Description")}

@@ -1,42 +1,23 @@
 /**
- * src/data/definitions/fragments.js
- * 📋 ENTITY TAXONOMY — One True Source of Truth for Entity Fields.
+ * src/data/definitions/profile-fields.js
+ * 📋 PROFILE FIELDS & TAXONOMY — Single Source of Truth for Entity Fields.
  *
- * Defines the canonical schema for all entity fields across the simulation.
- * Every field carries a UI label, an AI directive, and an enhancer tag.
+ * Defines the canonical schema for all character and fractal fields across the simulation:
+ * - Canonical Field Taxonomy & Enhancer Roles (PROFILE_FIELDS)
+ * - Field Catalog & Flat Metadata Registry (PROFILE_FIELD_CATALOG)
+ * - Profile Studio UI Layout Sections (PROFILE_SECTIONS_BY_TYPE)
  */
 
 import { format_key_as_label } from "@utils";
-import { PROTOCOL_LIBRARY } from "./protocols.js";
 
-/**
- * Canonical runtime contract for the four temporal layers. Single source of
- * truth for what ETERNAL / PRESENT / FUTURE / PAST mean — emitted verbatim
- * into both the Memory Forge task and every profile enhance prompt so the two
- * pipelines never drift apart.
- */
-export const TEMPORAL_CONTRACT = `TEMPORAL LAYER CONTRACT — ETERNAL / PRESENT / FUTURE / PAST
-- ETERNAL: the evolving baseline. Permanent changes (defining events, character arcs, world shifts) update it; temporary state belongs in PRESENT. Explicit user edits to Eternal always win.
-- PRESENT: the volatile delta layer over ETERNAL — what has shifted right now. Rewritten each cycle. True in this moment only.
-- FUTURE: the single standing agenda — one clear intent, building pressure, or impending event driving the next state change. Rewritten each cycle. Active future tense.
-- PAST: anchored memory — settled facts and events. Appended, never rewritten in place.`;
+// ── 1. Canonical Field Taxonomy ───────────────────────────────────────────────
 
 /**
  * Canonical taxonomy of all entity fields, grouped by temporal section.
  */
-export const ENTITY_FRAGMENTS = {
+export const PROFILE_FIELDS = {
   name: "Name",
   description: "Summary of the entity's vibe and role (Human eyes only — never used in simulation).",
-  profile: {
-    character: {
-      enhancer: "NARRATIVE_STRUCTURER",
-      directive: PROTOCOL_LIBRARY.PROFILE.SCHEMA,
-    },
-    fractal: {
-      enhancer: "NARRATIVE_STRUCTURER",
-      directive: PROTOCOL_LIBRARY.PROFILE.SCHEMA,
-    },
-  },
   eternal: {
     non_physical: {
       character: {
@@ -130,6 +111,8 @@ export const ENTITY_FRAGMENTS = {
   },
 };
 
+// ── 2. Derived Metadata & UI Models ──────────────────────────────────────────
+
 /**
  * @typedef {Object} CatalogEntry
  * @property {string} id - Dot-notation key, e.g. "eternal.non_physical"
@@ -143,97 +126,49 @@ export const ENTITY_FRAGMENTS = {
  */
 
 /**
- * Builds a flat `{ [dotKey]: metadata }` map from the nested ENTITY_FRAGMENTS tree.
- * Each entry is enriched with ID and section metadata.
+ * Builds a flat `{ [dotKey]: metadata }` map from the nested PROFILE_FIELDS tree.
+ * Each entry is enriched with ID and section metadata for both polymorphic entity types.
+ * @param {Record<string, any>} fields
  * @returns {Record<string, CatalogEntry>} Flat catalog keyed by dot-notation field ID.
  */
-function build_entity_catalog() {
+function build_field_catalog(fields) {
   /** @type {Record<string, any>} */
   const catalog = {};
-  Object.entries(ENTITY_FRAGMENTS).forEach(([section_key, sectionObj]) => {
+  const types = ["character", "fractal"];
+
+  Object.entries(fields).forEach(([section_key, sectionObj]) => {
     if (typeof sectionObj === "string" || sectionObj === null || section_key === "profile") return;
     const section = /** @type {any} */ (sectionObj);
+    const section_label = format_key_as_label(section_key);
+    const layer_key = section_key.toUpperCase();
 
-    if (section.fields && section.type !== "array") {
-      Object.entries(section.fields).forEach(([field_key, field]) => {
-        const id = `${section_key}.${field_key}`;
-        const metadata = typeof field === "string" ? { description: field } : field;
-
-        ["character", "fractal"].forEach((type) => {
-          const type_key = `${type}.${id}`;
-          catalog[type_key] = {
-            ...metadata,
-            id: type_key,
-            section_label: format_key_as_label(section_key),
-            layer_key: section_key.toUpperCase(),
-          };
-        });
-
-        catalog[id] = {
-          ...metadata,
-          id,
-          section_label: format_key_as_label(section_key),
-          layer_key: section_key.toUpperCase(),
-        };
+    if (section.type === "array" || section.directive) {
+      // Single-leaf section (e.g., future, past)
+      types.forEach((type) => {
+        catalog[`${type}.${section_key}`] = { ...section, id: `${type}.${section_key}`, section_label, layer_key };
       });
+      catalog[section_key] = { ...section, id: section_key, section_label, layer_key };
     } else {
-      const field_keys = Object.keys(section).filter(
-        (k) => !["label", "sublabel", "type", "directive", "description", "enhancer", "fields"].includes(k),
-      );
-      field_keys.forEach((field_key) => {
+      // Multi-leaf section (e.g., eternal, present)
+      Object.entries(section).forEach(([field_key, fieldVal]) => {
         const id = `${section_key}.${field_key}`;
-        const field = section[field_key];
-
-        ["character", "fractal"].forEach((type) => {
-          const leaf = field[type] || field;
-          const type_key = `${type}.${id}`;
-          catalog[type_key] = {
-            ...leaf,
-            id: type_key,
-            section_label: format_key_as_label(section_key),
-            layer_key: section_key.toUpperCase(),
-          };
+        types.forEach((type) => {
+          const leaf = fieldVal[type] || fieldVal;
+          catalog[`${type}.${id}`] = { ...leaf, id: `${type}.${id}`, section_label, layer_key };
         });
-
-        const leaf_default = field.character || field;
-        catalog[id] = {
-          ...leaf_default,
-          id,
-          section_label: format_key_as_label(section_key),
-          layer_key: section_key.toUpperCase(),
-        };
+        catalog[id] = { ...(fieldVal.character || fieldVal), id, section_label, layer_key };
       });
-    }
-
-    const has_fields =
-      section.fields || Object.keys(section).some((k) => !["label", "sublabel", "type", "directive", "description", "enhancer"].includes(k));
-    if (!has_fields || section.type === "array") {
-      ["character", "fractal"].forEach((type) => {
-        const type_key = `${type}.${section_key}`;
-        catalog[type_key] = {
-          ...section,
-          id: type_key,
-          section_label: format_key_as_label(section_key),
-          layer_key: section_key.toUpperCase(),
-        };
-      });
-
-      catalog[section_key] = {
-        ...section,
-        id: section_key,
-        section_label: format_key_as_label(section_key),
-        layer_key: section_key.toUpperCase(),
-      };
     }
   });
+
   return catalog;
 }
 
 /**
  * Flat registry of all entity fields, keyed by dot-notation ID.
- * Used by `intelligence_broker.js` to iterate fields and resolve entity data.
+ * Used by intelligence and UI layers to look up field rules and enhancer roles.
  */
-export const ENTITY_CATALOG = build_entity_catalog();
+export const PROFILE_FIELD_CATALOG = build_field_catalog(PROFILE_FIELDS);
 
 /**
  * Builds the profile sections layout dynamically based on entity type.
@@ -244,7 +179,7 @@ export const ENTITY_CATALOG = build_entity_catalog();
 export function build_profile_sections(entity_type = "character") {
   const resolved_type = entity_type === "user" ? "character" : entity_type || "character";
 
-  return Object.entries(ENTITY_FRAGMENTS)
+  return Object.entries(PROFILE_FIELDS)
     .filter(([sectionKey, section]) => typeof section !== "string" && section !== null && sectionKey !== "profile")
     .map(([sectionKey, sectionObj]) => {
       const section = /** @type {any} */ (sectionObj);
@@ -288,7 +223,7 @@ export function build_profile_sections(entity_type = "character") {
 }
 
 /**
- * Twin-Cylinder dynamic profile sections map.
+ * Dynamic profile sections map for Profile modal tabs.
  */
 export const PROFILE_SECTIONS_BY_TYPE = {
   character: build_profile_sections("character"),

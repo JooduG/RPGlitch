@@ -2,7 +2,7 @@
  * @file src/ui/profile/Profile.svelte.js
  * 🧬 PROFILE STATE — Reactive controller for entity editing.
  */
-import { db, normalize, ENTITY_CATALOG } from "@data";
+import { db, normalize, PROFILE_FIELD_CATALOG } from "@data";
 import { prompt_builder, strip_cognition_blocks, temporal_engine, parse_profile_json, safe_parse_pseudo_json } from "@intelligence";
 import { llm_service } from "@platform";
 import { app, runtime } from "@state";
@@ -286,7 +286,7 @@ export class ProfileState {
   async enhance(key, value) {
     if (!value || this.busy_fields.has(key)) return;
     const type = this.char?.type === "user" ? "character" : this.char?.type || "character";
-    const catalog_meta = ENTITY_CATALOG[`${type}.${key}`] || ENTITY_CATALOG[key];
+    const catalog_meta = PROFILE_FIELD_CATALOG[`${type}.${key}`] || PROFILE_FIELD_CATALOG[key];
     if (!catalog_meta) return;
     this.enhance_field_inner(key, value);
   }

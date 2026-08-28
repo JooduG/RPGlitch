@@ -1,6 +1,6 @@
 import { gamemaster } from "./story-pipeline.js";
 import { context_builder } from "./payload.js";
-import { dynamics_engine } from "./dynamics.js";
+import { physics_engine } from "./physics.js";
 import { prompt_builder } from "./prompts/builder.js";
 import { temporal_engine } from "./temporal-pipeline.js";
 import { llm_service } from "@platform";
@@ -213,11 +213,11 @@ vi.mock("@intelligence/temporal-pipeline.js", async (importOriginal) => {
   };
 });
 
-vi.mock("@intelligence/dynamics.js", async (importOriginal) => {
+vi.mock("./physics.js", async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
-    dynamics_engine: {
+    physics_engine: {
       settle_physics: vi.fn().mockImplementation((dynamics) => {
         if (dynamics) dynamics.intensity = 60; // Mutate to verify change
       }),
@@ -874,7 +874,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
     });
 
     it("does not simulate physics a second time after generation", async () => {
-      vi.mocked(dynamics_engine.settle_physics).mockClear();
+      vi.mocked(physics_engine.settle_physics).mockClear();
       vi.mocked(llm_service.generate).mockResolvedValue("<think>Analyzing user state");
 
       await gamemaster.execute_turn("story-123", {
@@ -883,7 +883,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
       });
 
       // Settle physics is called exactly twice (once for AI, once for Fractal)
-      expect(dynamics_engine.settle_physics).toHaveBeenCalledTimes(2);
+      expect(physics_engine.settle_physics).toHaveBeenCalledTimes(2);
     });
 
     it("triggers capture_dynamics_delta exactly once per execution turn sequence", async () => {

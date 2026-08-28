@@ -1002,6 +1002,69 @@ export const DETOX_RULES = [
       clinical: ["moving in slow circular patterns", "tracing repetitive motions"],
     },
   },
+  {
+    regex: /\b(?:thumbs?\s+)?rubb(?:ed|ing|s)?\s+(?:small\s+|gentle\s+|idle\s+|lazy\s+)?circles\s+(?:against|on|over|into)\b/gi,
+    replace: {
+      plain: ["moving fingers lightly across", "pressing gently against", "massaging"],
+      ornate: ["tracing soft loops over", "letting the touch wander across"],
+      raw: ["rubbing against", "pressing into"],
+      clinical: ["applying circular friction to", "moving across the surface of"],
+    },
+  },
+  {
+    regex: /\btrac(?:ed|ing|es|e)\s+the\s+line\s+of\s+(?:his|her|their|the)\s+collarbone\b/gi,
+    replace: {
+      plain: ["looking down toward the neck", "glancing toward the throat", "looking over them"],
+      ornate: ["letting the gaze drift down the throat", "following the contour of the neck"],
+      raw: ["staring down at their neck", "looking them over"],
+      clinical: ["directing gaze along the clavicle", "observing the upper torso"],
+    },
+  },
+  {
+    regex: /\b(?:like\s+a\s+)?trapped\s+bird\b/gi,
+    replace: {
+      plain: ["wildly", "hard and fast", "without rhythm"],
+      ornate: ["like something seeking escape", "in erratic, frantic beats"],
+      raw: ["slamming hard", "hammering violently"],
+      clinical: ["arrhythmically", "with rapid irregular contractions"],
+    },
+  },
+  {
+    regex: /\b(?:the\s+)?air\s+(?:was|is|grew|became|hung)\s+(?:thick|heavy)\s+with\b/gi,
+    replace: {
+      plain: ["the room carried", "the space was filled with", "there was a lot of"],
+      ornate: ["the atmosphere was laden with", "the silence carried the weight of"],
+      raw: ["the place reeked of", "the air was packed with"],
+      clinical: ["the environment contained high concentrations of", "the atmosphere held noticeable"],
+    },
+  },
+  {
+    regex: /\bthe\s+air\s+thicken(?:ed|ing|s)?\b/gi,
+    replace: {
+      plain: ["the room grew quiet", "the tension rose", "things went still"],
+      ornate: ["silence settled heavily over the room", "the atmosphere tightened"],
+      raw: ["the tension spiked", "the room locked up tight"],
+      clinical: ["ambient tension increased", "environmental stillness deepened"],
+    },
+  },
+  {
+    regex: /\ba\s+genuine\s+sound\b/gi,
+    replace: {
+      plain: ["a real laugh", "sounded honest", "without pretense"],
+      ornate: ["a sound warm with unforced ease", "a clear, unfeigned note"],
+      raw: ["a real laugh", "actually sounded real"],
+      clinical: ["an unforced vocalization", "an authentic acoustic response"],
+    },
+  },
+  {
+    regex: /\bfor\s+the\s+first\s+time\s+in\s+(?:his|her|their|my)\s+life\b/gi,
+    replace: {
+      plain: ["finally", "suddenly", "for once"],
+      ornate: ["as if waking for the first time", "with sudden, unaccustomed clarity"],
+      raw: ["for once in a damn long time", "finally"],
+      clinical: ["for the first recorded instance", "unprecedentedly"],
+    },
+  },
 ];
 
 /**
@@ -1053,6 +1116,16 @@ export function detox_prose(raw_text, register = "plain") {
   clean_text = clean_text.replace(
     /\b([A-Z][a-z0-9_-]+)\?\s*What(?:'s| is)\s+that,\s+some\s+sort\s+of\s+[^?]+\?\s*/gi,
     (match, word) => `${word}... `,
+  );
+
+  // 3. Binary Comparison Cliché:
+  // "felt less like a sanctuary and more like a cage" -> "felt like a cage"
+  clean_text = clean_text.replace(
+    /\b(felt|was|seemed)\s+less\s+like\s+([^,;.]+?)\s+and\s+more\s+like\s+([^,;.!?]+)/gi,
+    (match, verb, first_noun, second_noun) => {
+      if (!verb || !second_noun) return match;
+      return `${verb} like ${second_noun.trim()}`;
+    },
   );
 
   return clean_text;

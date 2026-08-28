@@ -3,12 +3,11 @@ import {
   build_available_keywords_xml,
   build_somatic_directives_block,
   evaluate_automatic_somatics,
-  GLOBAL_TRIGGERS,
   render_somatic_directives_xml,
   resolve_somatic_directives,
   SOMATIC_REGISTRY,
-  STYLE_MOTIF_REGISTRY,
-} from "./triggers.js";
+} from "./physics-prompts.js";
+import { GLOBAL_TRIGGERS, STYLE_MOTIF_REGISTRY } from "@data";
 
 describe("SOMATIC_REGISTRY", () => {
   it("contains exactly the 12 universal archetypes", () => {

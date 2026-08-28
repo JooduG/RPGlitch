@@ -99,7 +99,7 @@ export function build_retrieval(vectors) {
  * @param {any} [meta]
  */
 export async function capture_dynamics_delta(bridge, snapshot, meta = null) {
-  const { compute_deltas } = await import("./dynamics.js");
+  const { compute_deltas } = await import("./physics.js");
   const deltas = [];
   const log_strings = [];
 

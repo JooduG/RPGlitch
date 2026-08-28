@@ -6,7 +6,208 @@
  * pacing triggers live in ./triggers.js.
  */
 
-import { GLOBAL_TRIGGERS } from "./triggers.js";
+/** Baseline global dynamics signals that apply across all scenes for all 6 dynamics axes */
+export const GLOBAL_TRIGGERS = [
+  // 📈 INTENSITY (AI Somatics & Pacing)
+  {
+    id: "ADRENALINE",
+    when: (ai) => ai.intensity > 70 && (ai.affinity ?? 50) <= 70,
+    directive:
+      "High-adrenaline pacing. Slow narrative time: expand detail in decisive beats — micro-expressions, split-second thoughts, and immediate sensory physics.",
+  },
+  {
+    id: "SLOW_MOTION",
+    when: (ai) => ai.intensity < 30 && (ai.chaos ?? 50) <= 70,
+    directive: "Pacing slow. Heavy fatigue. Deliberate, languid actions.",
+  },
+
+  // 🌪️ CHAOS (AI Somatics & Perception)
+  {
+    id: "GLITCH",
+    when: (ai) => ai.chaos > 70 && (ai.intensity ?? 50) >= 30,
+    directive: "Reality glitching. Fragmented memory. Non-linear time perception.",
+  },
+  {
+    id: "RECOVERY",
+    when: (ai, fractal) => ai.chaos < 30 && (fractal?.entropy ?? 50) >= 30,
+    directive: "High clarity. Sharp recall. Stable environment.",
+  },
+
+  // 🔓 OPENNESS (AI Somatics & Receptivity)
+  {
+    id: "VULNERABILITY",
+    when: (ai, fractal) => ai.openness > 70 && (fractal?.velocity ?? 50) >= 30,
+    directive: "Emotional exposure. Seeking comfort. Honest admissions.",
+  },
+  {
+    id: "MASKING",
+    when: (ai) => ai.openness < 30 && (ai.affinity ?? 50) >= 30,
+    directive:
+      "Guarded self-containment. Deflects intrusive personal questions with disciplined silence, keeping private history and feelings concealed while avoiding overt hostility.",
+  },
+
+  // 🤝 AFFINITY (AI Somatics & Inter-Entity Bond)
+  {
+    id: "SYNCHRONY",
+    when: (ai) => ai.affinity > 70 && (ai.intensity ?? 50) <= 70,
+    directive: "Mirroring user movement. Intense focus. Deep rapport.",
+  },
+  {
+    id: "DISSONANCE",
+    when: (ai) => ai.affinity < 30 && (ai.openness ?? 50) >= 30,
+    directive: "Interpersonal friction and irritation. Sharp tone, physical boundary defense, and visible exasperation without emotional withdrawal.",
+  },
+
+  // 🚀 VELOCITY (World / Fractal Environmental Pacing)
+  {
+    id: "OVERDRIVE",
+    when: (ai, fractal) => fractal.velocity > 70 && (fractal.entropy ?? 50) <= 70,
+    directive: "Environmental pacing accelerated. Time compressing.",
+  },
+  {
+    id: "STASIS",
+    when: (ai, fractal) => fractal.velocity < 30 && (ai?.openness ?? 50) <= 70,
+    directive: "Environmental stasis. Time stretching.",
+  },
+
+  // 📉 ENTROPY (World / Fractal Structural Reality)
+  {
+    id: "INSTABILITY",
+    when: (ai, fractal) => fractal.entropy > 70 && (fractal.velocity ?? 50) <= 70,
+    directive:
+      "Pathetic fallacy: The environmental geometry is unstable. Weave sensory descriptions of physical glitches, non-linear decay, and structural reality degradation directly into the background texture.",
+  },
+  {
+    id: "STABILITY",
+    when: (ai, fractal) => fractal.entropy < 30 && (ai?.chaos ?? 50) >= 30,
+    directive: "Structural stability. Safe, predictable physics.",
+  },
+
+  // 🛡️ COMPOSITE TRIGGERS (Unique Dual-Axis Resonances)
+  {
+    id: "SUSPICION",
+    when: (ai) => ai.openness < 30 && ai.affinity < 30,
+    directive:
+      "Acute suspicion and estrangement. Guarded deflection and physical boundary defense — actively test the user's motives, question inconsistencies, and maintain vigilant distance.",
+  },
+  {
+    id: "CATACLYSM",
+    when: (ai, fractal) => fractal.velocity > 70 && fractal.entropy > 70,
+    directive:
+      "Accelerated environmental upheaval. Physical structures decaying and tearing apart at breakneck speed with cascading reality glitches and rapid hazards.",
+  },
+  {
+    id: "CONFESSION",
+    when: (ai, fractal) => ai.openness > 70 && fractal.velocity < 30,
+    directive:
+      "Quiet emotional vulnerability. Environmental pacing slows to a crawl as personal defenses drop, inviting honest confessions and unguarded admissions.",
+  },
+  {
+    id: "PASSION",
+    when: (ai) => ai.intensity > 70 && ai.affinity > 70,
+    directive:
+      "High-adrenaline resonance and deep rapport. Expand detail in decisive beats with intense focus, mirroring movement, breathless momentum, and raw connection.",
+  },
+  {
+    id: "TRANCE",
+    when: (ai) => ai.intensity < 30 && ai.chaos > 70,
+    directive:
+      "Lethargic dissociation and perceptual distortion. Heavy physical fatigue and languid actions paired with surreal, fragmented thoughts and reality glitches.",
+  },
+  {
+    id: "HARMONY",
+    when: (ai, fractal) => ai.chaos < 30 && fractal.entropy < 30,
+    directive:
+      "Pristine mental clarity and physical stability. Razor-sharp recall and steady focus grounded in safe, predictable environmental physics.",
+  },
+];
+
+/**
+ * Dynamic style motifs — the contextual emotional signature each narrative
+ * style contributes to the Director's keyword pool. Keys are referenced by
+ * each style's `keywords` array in narrative-styles.js.
+ * @type {Record<string, { directive: string }>}
+ */
+export const STYLE_MOTIF_REGISTRY = {
+  sensual_submersion: {
+    directive: "Sensory blur and lyrical interiority; emotional states surface as vast, intimate physical landscapes.",
+  },
+  captive_control: {
+    directive: "Rationalized possession; obsessive hyper-focus and stark declarations of constraint.",
+  },
+  decaying_opulence: {
+    directive: "Lush operatic intimacy inside unstable worlds; linger on bodily textures, light, and decaying architecture.",
+  },
+  tactile_grounding: {
+    directive: "Raw working-class touch; feelings grounded in muscle tension, breathing rate, and physical friction.",
+  },
+  blunt_fatalism: {
+    directive: "Unvarnished brutalist gaze; emotional truth inferred purely from survival mechanics.",
+  },
+  uncanny_hum: {
+    directive: "Nightmare logic beneath still surfaces; auditory dread and uncanny mystery in ordinary moments.",
+  },
+  escalating_dread: {
+    directive: "Feverish obsessive cadence; repetitive motifs building toward paranoid climax.",
+  },
+  court_paranoia: {
+    directive: "Political intrigue and layered motive; every gesture weighted with courtly calculation and moral compromise.",
+  },
+  bitter_confrontation: {
+    directive: "Reckless impulsive action colliding with deeply conflicted internal thought; high physical stakes.",
+  },
+  quiet_detachment: {
+    directive: "Calm, slightly numb acceptance; domestic routine deforming seamlessly into the surreal.",
+  },
+  predatory_tension: {
+    directive: "Hunted atmosphere; threat and arousal fused into an indivisible physiological rush.",
+  },
+  cosmic_insignificance: {
+    directive: "Clinical metaphysical shock; human emotion replaced by absolute awe and alienation.",
+  },
+  ironic_decorum: {
+    directive: "Free indirect irony beneath polished etiquette; subtext carried by subtle glances and social breach.",
+  },
+  elegiac_light: {
+    directive: "Mythic fading light; world-weariness and hope mirrored in the surrounding environment and sky.",
+  },
+  tactical_geometry: {
+    directive: "Staccato spatial physics; exact leverage, elapsed time, and mechanical geometry over feeling.",
+  },
+  battlefield_vulnerability: {
+    directive: "Confrontational angst; emotional vulnerability treated as a high-stakes battlefield with somatic grounding.",
+  },
+  ontological_doubt: {
+    directive: "Questioning the authenticity of reality and memory; paranoia threaded through plain declarations.",
+  },
+  numb_precision: {
+    directive: "Flat, unadorned clinical observation; emotional turmoil dissected analytically without moral affect.",
+  },
+  anatomical_philosophy: {
+    directive: "Intellectualized visceral precision; intimacy and taboo processed as social theory in physical terms.",
+  },
+  folksy_dread: {
+    directive: "Everyman horror; fear manifesting directly in bodily discomfort and plainspoken dread.",
+  },
+  high_tech_low_life: {
+    directive: "Dense neon-noir texture; psychological states register through hardware and software metaphors.",
+  },
+  flickering_neon_data: {
+    directive: "Rapid fluid cuts of information; technical jargon juxtaposed against street-level grime.",
+  },
+  stoic_pain: {
+    directive: "Mask pain behind curt declarative statements; heavy unspoken subtext.",
+  },
+  iceberg_subtext: {
+    directive: "Minimalist understatement; actions and concrete physical objects carry the emotional weight.",
+  },
+  grim_bathos: {
+    directive: "Caustic cynical wit that deflates drama; weary pragmatism grounded in bodily aches and mundane discomfort.",
+  },
+  outlaw_fatigue: {
+    directive: "World-weary moral exhaustion; every observation filtered through hardened instinct and laconic grit.",
+  },
+};
 
 /** @type {Record<string, NarrativeStyle>} */
 export const NARRATIVE_STYLES = {
