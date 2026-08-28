@@ -1573,7 +1573,7 @@ describe("apply_genesis (World-Cast Expansion)", () => {
   });
 
   it("spawns a new character and registers it on-stage", async () => {
-    await execute_genesis(state_bridge, [{ name: "Mira", description: "A scarred courier", voice_register: "plain" }], spawn_character);
+    await execute_genesis(state_bridge, [{ name: "Mira", description: "A scarred courier", speaking_style: "casual" }], spawn_character);
     const spawned = Object.values(_mock_runtime.active_npcs);
     expect(spawned).toHaveLength(1);
     expect(spawned[0].name).toBe("Mira");

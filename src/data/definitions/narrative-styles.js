@@ -46,7 +46,7 @@ import { state_bridge, ind, escape_xml, resolve_style } from "@utils";
  * @property {string} name
  * @property {string} [portrait]
  * @property {string} description
- * @property {"plain" | "ornate" | "raw" | "clinical" | "visceral"} voice_register
+ * @property {"casual" | "lyrical" | "primal" | "clinical"} speaking_style
  * @property {string[]} tags
  * @property {string} narrative_engine
  * @property {string[]} [keywords]
@@ -65,7 +65,7 @@ import { state_bridge, ind, escape_xml, resolve_style } from "@utils";
  * @param {string} def.name
  * @param {string} [def.portrait]
  * @param {string} def.description
- * @param {"plain" | "ornate" | "raw" | "clinical" | "visceral"} def.voice_register
+ * @param {"casual" | "lyrical" | "primal" | "clinical"} def.speaking_style
  * @param {string[]} def.tags
  * @param {StyleDNA} [def.dna]
  * @param {Record<string, string>} [def.motifs]
@@ -99,7 +99,7 @@ function define_style(def) {
     name: def.name,
     portrait: def.portrait || "",
     description: def.description,
-    voice_register: def.voice_register,
+    speaking_style: def.speaking_style,
     tags: def.tags,
     keywords,
     motifs: def.motifs || {},
@@ -118,7 +118,7 @@ export const NARRATIVE_STYLES = {
     name: "No Narrative Style",
     portrait: "https://user.uploads.dev/file/f968b744a4afde6ab81c0e751dc5e972.png",
     description: "Standard system instructions without author style overlay.",
-    voice_register: "plain",
+    speaking_style: "casual",
     tags: ["default", "neutral", "standard"],
   }),
 
@@ -128,7 +128,7 @@ export const NARRATIVE_STYLES = {
     portrait: "https://user.uploads.dev/file/ac255c9a8af91d5082b0063f2b686a71.png",
     description:
       "Lyrical, poetic, and intensely sensual prose that is deeply introspective and psychoanalytic, drawing heavily on dreams and subconscious thought.",
-    voice_register: "ornate",
+    speaking_style: "lyrical",
     tags: ["author", "erotica", "queer_desire", "psychoanalysis", "dreams_vs_reality"],
     motifs: {
       sensual_submersion: "Sensory blur and lyrical interiority; emotional states surface as vast, intimate physical landscapes.",
@@ -173,7 +173,7 @@ export const NARRATIVE_STYLES = {
     name: "Anna Zaires",
     portrait: "https://user.uploads.dev/file/9da5e7dafb89e544ddbbe5df22fb25dc.png",
     description: "Dark psychological prose centered on captivity, obsession, rationalized control, and intense psychological dependence.",
-    voice_register: "raw",
+    speaking_style: "primal",
     tags: ["author", "captivity", "psychological", "dark_romance", "possession"],
     motifs: {
       captive_control: "Rationalized possession; obsessive hyper-focus and stark declarations of constraint.",
@@ -210,7 +210,7 @@ export const NARRATIVE_STYLES = {
     portrait: "https://user.uploads.dev/file/9a6c0d6bcc8e8f04e20eb99eb40cf83e.png",
     description:
       "Lush, operatic prose framing physical intimacy as rebellion inside unstable worlds. Lingers unflinchingly on bodily textures, light, and decaying architecture.",
-    voice_register: "ornate",
+    speaking_style: "lyrical",
     tags: ["director", "psychological", "erotica", "political_rebellion", "decaying_beauty"],
     motifs: {
       decaying_opulence: "Lush operatic intimacy inside unstable worlds; linger on bodily textures, light, and decaying architecture.",
@@ -240,7 +240,7 @@ export const NARRATIVE_STYLES = {
     name: "Cara McKenna",
     portrait: "https://user.uploads.dev/file/f9636773932371f0b697841be8a6471d.png",
     description: "Gritty, realistic prose focused on raw vulnerability, working-class realism, and physical touch.",
-    voice_register: "plain",
+    speaking_style: "casual",
     tags: ["author", "contemporary", "working_class", "raw_vulnerability", "tactile_realism"],
     motifs: {
       tactile_grounding: "Raw working-class touch; feelings grounded in muscle tension, breathing rate, and physical friction.",
@@ -280,7 +280,7 @@ export const NARRATIVE_STYLES = {
     name: "Cormac McCarthy",
     portrait: "https://user.uploads.dev/file/d765a99e806b05f27cc8ba497ddf9ebe.png",
     description: "A brutalist, stark narrative style using polysyndeton, omitted punctuation, and an objective, unvarnished gaze.",
-    voice_register: "plain",
+    speaking_style: "casual",
     tags: ["author", "brutalist", "existential", "minimalist_punctuation", "gothic_western"],
     motifs: {
       blunt_fatalism: "Unvarnished brutalist gaze; emotional truth inferred purely from survival mechanics.",
@@ -310,7 +310,7 @@ export const NARRATIVE_STYLES = {
     name: "David Lynch",
     portrait: "https://user.uploads.dev/file/2948ac605cb8679e03e44010a28256a8.png",
     description: "A surreal narrative style governed by nightmare logic, auditory dread, temporal distortions, and uncanny mystery.",
-    voice_register: "clinical",
+    speaking_style: "clinical",
     tags: ["director", "surrealism", "nightmare_logic", "uncanny", "neo_noir"],
     motifs: {
       uncanny_hum: "Nightmare logic beneath still surfaces; auditory dread and uncanny mystery in ordinary moments.",
@@ -340,7 +340,7 @@ export const NARRATIVE_STYLES = {
     name: "Edgar Allan Poe",
     portrait: "https://user.uploads.dev/file/3f38ae76ab4ec4ec95012e9a55e7871d.png",
     description: "Gothic horror driven by an unreliable narrator tracking paranoia, guilt, and psychological decay.",
-    voice_register: "ornate",
+    speaking_style: "lyrical",
     tags: ["author", "gothic", "horror", "madness", "paranoia", "mortality"],
     motifs: {
       escalating_dread: "Feverish obsessive cadence; repetitive motifs building toward paranoid climax.",
@@ -380,7 +380,7 @@ export const NARRATIVE_STYLES = {
     name: "George R.R. Martin",
     portrait: "https://user.uploads.dev/file/75f11a255ea7017021f92c9ac3daa55d.png",
     description: "Grounded, multi-layered prose tracking political intrigue, moral compromise, and physical consequences.",
-    voice_register: "plain",
+    speaking_style: "casual",
     tags: ["author", "fantasy", "political_intrigue", "moral_ambiguity", "cost_of_power"],
     motifs: {
       court_paranoia: "Political intrigue and layered motive; every gesture weighted with courtly calculation and moral compromise.",
@@ -406,7 +406,7 @@ export const NARRATIVE_STYLES = {
     name: "Haruki Murakami",
     portrait: "https://user.uploads.dev/file/c6653cbd9c08962581583549307a67a2.png",
     description: "Detached, melancholic style blending domestic routines with sudden magical realism and vinyl records.",
-    voice_register: "clinical",
+    speaking_style: "clinical",
     tags: ["author", "magical_realism", "surrealism", "existential", "melancholy"],
     motifs: {
       quiet_detachment: "Calm, slightly numb acceptance; domestic routine deforming seamlessly into the surreal.",
@@ -431,7 +431,7 @@ export const NARRATIVE_STYLES = {
     name: "H.D. Carlton",
     portrait: "https://user.uploads.dev/file/29fc25684e26e5c40d9b178b56e868d7.png",
     description: "Atmospheric dark romance combining gothic threat, stalker dynamics, and mafia-tier power imbalances.",
-    voice_register: "raw",
+    speaking_style: "primal",
     tags: ["author", "dark_romance", "stalker", "mafia", "obsession", "gothic"],
     motifs: {
       predatory_tension: "Hunted atmosphere; threat and arousal fused into an indivisible physiological rush.",
@@ -466,7 +466,7 @@ export const NARRATIVE_STYLES = {
     name: "H.P. Lovecraft",
     portrait: "https://user.uploads.dev/file/564941049ebb9e821caead0017d7423d.png",
     description: "Dense, clinical narrative tracing intellectual breakdown when confronted by cosmic forces.",
-    voice_register: "ornate",
+    speaking_style: "lyrical",
     tags: ["author", "cosmic_horror", "gothic", "madness", "alienation"],
     motifs: {
       cosmic_insignificance: "Clinical metaphysical shock; human emotion replaced by absolute awe and alienation.",
@@ -496,7 +496,7 @@ export const NARRATIVE_STYLES = {
     name: "Jane Austen",
     portrait: "https://user.uploads.dev/file/c29b56aff50893999a69d6f2d2def874.png",
     description: "Witty, ironic Free Indirect Discourse observing propriety, conversational subtext, and social economics.",
-    voice_register: "ornate",
+    speaking_style: "lyrical",
     tags: ["author", "romance", "historical", "satire", "social_propriety"],
     motifs: {
       ironic_decorum: "Free indirect irony beneath polished etiquette; subtext carried by subtle glances and social breach.",
@@ -536,7 +536,7 @@ export const NARRATIVE_STYLES = {
     name: "J.R.R. Tolkien",
     portrait: "https://user.uploads.dev/file/7a08520c84f425fd1572decead2f7880.png",
     description: "Earnest, elevated, archaic prose rich in mythic lore, duty, hope, and environmental reflection.",
-    voice_register: "ornate",
+    speaking_style: "lyrical",
     tags: ["author", "fantasy", "mythic", "history_and_lineage", "duty"],
     motifs: {
       elegiac_light: "Mythic fading light; world-weariness and hope mirrored in the surrounding environment and sky.",
@@ -576,7 +576,7 @@ export const NARRATIVE_STYLES = {
     name: "Lee Child",
     portrait: "https://user.uploads.dev/file/68023c8a82d6e00c7de8047e09ee7764.png",
     description: "Terse, declarative, staccato prose stripped of figurative language. Built on spatial physics and momentum.",
-    voice_register: "clinical",
+    speaking_style: "clinical",
     tags: ["author", "crime", "action", "tactical_minimalism", "procedural_efficiency"],
     motifs: {
       tactical_geometry: "Staccato spatial physics; exact leverage, elapsed time, and mechanical geometry over feeling.",
@@ -601,7 +601,7 @@ export const NARRATIVE_STYLES = {
     name: "Penelope Douglas",
     portrait: "https://user.uploads.dev/file/4711670ee787d7e40515def6b211a28f.png",
     description: "High-energy contemporary prose packed with confrontational angst, bully dynamics, sharp banter, and real-time emotional spirals.",
-    voice_register: "raw",
+    speaking_style: "primal",
     tags: ["contemporary", "enemies_to_lovers", "angst", "banter", "power_dynamics"],
     motifs: {
       battlefield_vulnerability: "Confrontational angst; emotional vulnerability treated as a high-stakes battlefield with somatic grounding.",
@@ -631,7 +631,7 @@ export const NARRATIVE_STYLES = {
     name: "Philip K. Dick",
     portrait: "https://user.uploads.dev/file/223d14a8846614174325de0f76b11444.png",
     description: "Ontologically unstable narrative style driven by paranoia, identity shifts, and simulation glitches.",
-    voice_register: "clinical",
+    speaking_style: "clinical",
     tags: ["author", "sci_fi", "paranoia", "simulation_theory", "identity_crisis"],
     motifs: {
       ontological_doubt: "Questioning the authenticity of reality and memory; paranoia threaded through plain declarations.",
@@ -662,7 +662,7 @@ export const NARRATIVE_STYLES = {
     portrait: "https://user.uploads.dev/file/da37829ce26ec85c9c065da0358246ad.png",
     description:
       "Flat, unadorned prose stripped of quotation marks. Focuses on interpersonal power dynamics, intellectualized feelings, alienation, and class friction.",
-    voice_register: "clinical",
+    speaking_style: "clinical",
     tags: ["minimalism", "clinical", "contemporary", "unpunctuated", "transgressive"],
     motifs: {
       numb_precision: "Flat, unadorned clinical observation; emotional turmoil dissected analytically without moral affect.",
@@ -693,7 +693,7 @@ export const NARRATIVE_STYLES = {
     portrait: "https://user.uploads.dev/file/9b2f6375f89ff73e3696f8c085b03fb7.png",
     description:
       "Intellectualized, visceral queer erotica combining precise bodily mechanics with philosophy, structural linguistics, and urban decay.",
-    voice_register: "ornate",
+    speaking_style: "lyrical",
     tags: ["author", "queer_erotica", "transgressive", "philosophical", "visceral_detail"],
     motifs: {
       anatomical_philosophy: "Intellectualized visceral precision; intimacy and taboo processed as social theory in physical terms.",
@@ -718,7 +718,7 @@ export const NARRATIVE_STYLES = {
     name: "Stephen King",
     portrait: "https://user.uploads.dev/file/371dfa7b61691bb424816e3f633f1208.png",
     description: "Grounded blue-collar realism punctured by plainspoken horror, regional colloquialisms, internal italics, and visceral dread.",
-    voice_register: "plain",
+    speaking_style: "casual",
     tags: ["author", "horror", "everyman", "folksy_dread", "visceral"],
     motifs: {
       folksy_dread: "Everyman horror; fear manifesting directly in bodily discomfort and plainspoken dread.",
@@ -753,7 +753,7 @@ export const NARRATIVE_STYLES = {
     name: "William Gibson",
     portrait: "https://user.uploads.dev/file/0eb908cd997da8d32fd7625077baab49.png",
     description: "Dense, detached neon-noir prose saturated with technical jargon, neologisms, and cybernetic metaphors.",
-    voice_register: "clinical",
+    speaking_style: "clinical",
     tags: ["author", "sci_fi", "cyberpunk", "technology_as_body", "alienation"],
     motifs: {
       high_tech_low_life: "Dense neon-noir texture; psychological states register through hardware and software metaphors.",
@@ -780,7 +780,7 @@ export const NARRATIVE_STYLES = {
     portrait: "",
     description:
       "Sparse, unadorned prose driven by the 'Iceberg Theory'—short declarative sentences, zero flowery adverbs, and immense emotional subtext beneath stoic physical action.",
-    voice_register: "plain",
+    speaking_style: "casual",
     tags: ["author", "hardboiled", "minimalism", "iceberg_theory", "stoicism", "subtext"],
     motifs: {
       stoic_pain: "Mask pain behind curt declarative statements; heavy unspoken subtext.",
@@ -819,7 +819,7 @@ export const NARRATIVE_STYLES = {
     portrait: "",
     description:
       "Grimdark, cynical, and sharply comedic prose characterized by earthy wit, physical discomfort, raw brutality, and intentional bathos that deflates heroism.",
-    voice_register: "raw",
+    speaking_style: "primal",
     tags: ["author", "grimdark", "cynicism", "bathos", "visceral_combat", "dark_humor"],
     motifs: {
       grim_bathos: "Caustic cynical wit that deflates drama; weary pragmatism grounded in bodily aches and mundane discomfort.",
@@ -856,7 +856,7 @@ export const NARRATIVE_STYLES = {
     portrait: "",
     description:
       "World-weary, visceral outlaw narrative filtering every observation through moral fatigue, laconic grit, and heavy sensory metaphors.",
-    voice_register: "visceral",
+    speaking_style: "primal",
     tags: ["character", "outlaw", "visceral_pulp", "outlaw_grit", "moral_fatigue", "red_dead"],
     motifs: {
       outlaw_fatigue: "World-weary moral exhaustion; every observation filtered through hardened instinct and laconic grit.",
@@ -895,12 +895,13 @@ export const NARRATIVE_STYLES = {
  * Maps motif keyword -> { directive: string }.
  * @type {Record<string, { directive: string }>}
  */
-export const STYLE_MOTIF_REGISTRY = {};
+const _motifs = {};
 for (const style of Object.values(NARRATIVE_STYLES)) {
   for (const [key, directive] of Object.entries(style.motifs || {})) {
-    STYLE_MOTIF_REGISTRY[key] = { directive };
+    _motifs[key] = { directive };
   }
 }
+export const STYLE_MOTIF_REGISTRY = Object.freeze(_motifs);
 
 /**
  * Returns a NarrativeStyle record by key with safe fallback to `default`.

@@ -35,13 +35,17 @@ export const session_driver = {
    */
   set_active: async function (id) {
     _active_id = id;
-    state_bridge.runtime.story_id = id;
+    if (state_bridge.runtime) {
+      state_bridge.runtime.story_id = id;
+    }
     if (typeof window !== "undefined") {
       await db.kv_settings.put({ key: SESSION_ID_KEY, value: id });
       // also log to history
       await db.sessions.add({ session_id: id, timestamp: Date.now() });
     }
-    await state_bridge.simulation_log.refresh();
+    if (state_bridge.simulation_log?.refresh) {
+      await state_bridge.simulation_log.refresh();
+    }
   },
 
   /**
@@ -162,7 +166,9 @@ export const session_driver = {
       created_at: Date.now(),
     };
     entry.id = await db.simulation_log.add(entry);
-    state_bridge.simulation_log.add(entry);
+    if (state_bridge.simulation_log?.add) {
+      state_bridge.simulation_log.add(entry);
+    }
 
     return story_id;
   },

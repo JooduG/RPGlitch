@@ -95,22 +95,3 @@ export const stories_bridge = {
     _bump_stories_version?.();
   },
 };
-
-/**
- * Resolves an active style key across an explicit entity/fractal override and global app settings.
- * @param {string | undefined} explicit_style - Style from entity/fractal/card
- * @param {string} app_setting_key - Key in app.settings (e.g. "narrative_style" | "visual_style")
- * @param {Record<string, any>} registry - Registry dictionary (e.g. NARRATIVE_STYLES | VISUAL_STYLES)
- * @param {string} [fallback=""] - Fallback key when no style active
- * @returns {string}
- */
-export function resolve_style(explicit_style, app_setting_key, registry, fallback = "") {
-  if (explicit_style && explicit_style !== "default" && explicit_style !== "" && registry?.[explicit_style]) {
-    return explicit_style;
-  }
-  const app_style = state_bridge.app?.settings?.[app_setting_key];
-  if (app_style && app_style !== "default" && registry?.[app_style]) {
-    return app_style;
-  }
-  return fallback;
-}

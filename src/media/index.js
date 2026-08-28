@@ -7,7 +7,7 @@ export {
   resolve_voice_uri,
   resolve_voice_name,
   split_speech_by_speaker,
-} from "./speech.js";
+} from "./voice.js";
 export { get_signature_color, get_signature_label, ensure_theme_tokens, SIGNATURE_COLORS, PALETTE, PALETTE_VARS } from "./palette.js";
 export { TOKENS } from "./tokens.js";
 export { IMAGE_TIERS, DEFAULT_IMAGE_TIER, normalize_image_tier, get_resolution } from "./image-tiers.js";

@@ -7,7 +7,7 @@
 import { state_bridge, strip_cognition_blocks, onnx_mutex, wait_ort_ready } from "@utils";
 import { db } from "@data";
 
-import { KOKORO_VOICES, get_cadence_rate, normalize_role, resolve_voice_name, resolve_voice_uri, split_speech_sentences } from "./speech.js";
+import { KOKORO_VOICES, get_cadence_rate, normalize_role, resolve_voice_name, resolve_voice_uri, split_speech_sentences } from "./voice.js";
 
 const STORAGE_KEY = "rpglitch_audio_settings";
 

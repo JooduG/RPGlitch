@@ -248,4 +248,15 @@ describe("stories.update_cast & world-cast npc_ids", () => {
     const list = await stories.list();
     expect(list[0].npc_ids).toEqual([]);
   });
+
+  it("normalizes premades fetched via fallback when not yet saved in DB", async () => {
+    const { entities } = await import("./repository.js");
+    const loaded = await entities.get("character", "orion");
+    expect(loaded).toBeDefined();
+    expect(loaded.id).toBe("orion");
+    expect(loaded.type).toBe("character");
+    expect(loaded.modifiers).toBeDefined();
+    expect(loaded.modifiers.flipped).toBe(false);
+    expect(loaded.chapters).toEqual([]);
+  });
 });

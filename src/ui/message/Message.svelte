@@ -7,7 +7,7 @@
    * layout primitives, fully decoupled event chains, and deterministic metrics.
    */
   import { parse_message } from "./render.js";
-  import { resolve_voice_register } from "@data";
+  import { resolve_speaking_style } from "@data";
   import { Button } from "@primitives";
   import { Audio, get_cadence_rate, resolve_voice_uri, get_signature_color } from "@media";
   import { ProfilePicture } from "@image";
@@ -97,10 +97,10 @@
   let is_extended = $derived(is_pinned || is_focused || is_editing);
 
   let active_style = $derived(runtime.active_fractal?.narrative_style || "");
-  let register = $derived(resolve_voice_register(entity, active_style));
+  let speaking_style = $derived(resolve_speaking_style(entity, active_style));
   let is_streaming_target = $derived(!!(app.streaming.active && (app.streaming.node_id === id || (meta?.id && app.streaming.node_id === meta.id))));
   let active_text = $derived(is_streaming_target ? app.streaming.content : text);
-  let parsed = $derived(parse_message(active_text, register));
+  let parsed = $derived(parse_message(active_text, speaking_style));
   let display_text = $derived(parsed.displayText);
   let think_block = $derived(parsed.think);
   let should_use_typewriter = $derived(is_streaming_target || (was_streaming && !is_typing_finished));

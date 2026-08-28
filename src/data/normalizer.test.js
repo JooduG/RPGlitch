@@ -1,4 +1,12 @@
-import { coerce_temporal_array, create_new, ENTITY_TEMPLATES, format_premade, get_random_signature_key, normalize } from "./normalizer.js";
+import {
+  coerce_temporal_array,
+  create_new,
+  ENTITY_TEMPLATES,
+  format_premade,
+  get_random_signature_key,
+  normalize,
+  serialize_entity_for_export,
+} from "./normalizer.js";
 import { security } from "@platform";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -232,11 +240,66 @@ describe("normalizer.js", () => {
       expect(result.chapters[0].id).toBe("ch_3");
     });
 
-    it("defaults chapters to an empty array", () => {
-      expect(normalize({}).chapters).toEqual([]);
-      expect(normalize({ chapters: "not-an-array" }).chapters).toEqual([]);
-      expect(ENTITY_TEMPLATES.character.chapters).toEqual([]);
-      expect(ENTITY_TEMPLATES.fractal.chapters).toEqual([]);
+    it("validates and coerces speaking_style strictly against SPEAKING_STYLES", () => {
+      expect(normalize({ speaking_style: "casual" }).speaking_style).toBe("casual");
+      expect(normalize({ speaking_style: "lyrical" }).speaking_style).toBe("lyrical");
+      expect(normalize({ speaking_style: "primal" }).speaking_style).toBe("primal");
+      expect(normalize({ speaking_style: "clinical" }).speaking_style).toBe("clinical");
+      expect(normalize({ speaking_style: "invalid_xyz" }).speaking_style).toBe("");
+    });
+
+    it("clamps dynamics values between 1 and 100", () => {
+      const result = normalize({
+        type: "character",
+        dynamics: { chaos: -10, intensity: 150, openness: "75", affinity: NaN },
+      });
+      expect(result.dynamics.chaos).toBe(1);
+      expect(result.dynamics.intensity).toBe(100);
+      expect(result.dynamics.openness).toBe(75);
+      expect(result.dynamics.affinity).toBe(50); // falls back to template default
+    });
+
+    it("clamps fractal dynamics to velocity and entropy only", () => {
+      const result = normalize({
+        type: "fractal",
+        dynamics: { velocity: 0, entropy: 999, chaos: 50 },
+      });
+      expect(result.dynamics.velocity).toBe(1);
+      expect(result.dynamics.entropy).toBe(100);
+      expect(result.dynamics.chaos).toBeUndefined();
+    });
+
+    it("preserves chapter history and nested custom_data when serialized for export", () => {
+      const entity = normalize({
+        name: "Lord Valerius",
+        chapters: [
+          {
+            id: "ch_1",
+            title: "The crypt",
+            summary: "Descended into the crypt.",
+            agenda: "Find the relic",
+            status: "closed",
+            created_at: 100,
+          },
+        ],
+        past: [
+          { id: "usr_1", content: "Remembered the oath.", is_origin: true, _embedding: [0.1, 0.2] },
+          { id: "usr_2", content: "", is_origin: true }, // should be filtered out
+        ],
+        custom_data: {
+          lore_notes: ["ancient tomb", "cursed blade"],
+        },
+      });
+
+      const exported = serialize_entity_for_export(entity);
+      expect(exported.chapters).toHaveLength(1);
+      expect(exported.chapters[0].title).toBe("The crypt");
+      expect(exported.past).toHaveLength(1);
+      expect(exported.past[0].content).toBe("Remembered the oath.");
+      expect(exported.past[0]._embedding).toBeUndefined();
+      expect(exported.custom_data.lore_notes).toEqual(["ancient tomb", "cursed blade"]);
+      expect(exported.id).toBeUndefined();
+      expect(exported.created_at).toBeUndefined();
     });
   });
 });

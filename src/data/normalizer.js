@@ -6,10 +6,10 @@
  */
 import { pick_random, generate_uuid } from "@utils";
 import { SIGNATURE_COLORS } from "./definitions/signature-colors.js";
+import { is_valid_speaking_style } from "./definitions/speaking-styles.js";
 import { security } from "@platform";
 
 const sanitize_html = (/** @type {any} */ val) => security.sanitize(val);
-const STORAGE_VERSION = 3;
 
 /**
  * 🐣 ENTITY TEMPLATES
@@ -41,7 +41,7 @@ export const ENTITY_TEMPLATES = {
     future: "",
     visual_style: "none",
     pov: "1st_person",
-    voice_register: "",
+    speaking_style: "",
     is_wanderer: false,
     relationships: [],
     chapters: [],
@@ -61,7 +61,8 @@ export const ENTITY_TEMPLATES = {
     narrative_style: "",
     visual_style: "none",
     pov: "3rd_person",
-    voice_register: "",
+    speaking_style: "",
+    is_wanderer: false,
     relationships: [],
     chapters: [],
   },
@@ -106,7 +107,7 @@ export const normalize = (base = {}) => {
     narrative_style = "",
     visual_style = "",
     pov = "",
-    voice_register = "",
+    speaking_style = "",
     is_wanderer,
     relationships,
     chapters,
@@ -135,7 +136,7 @@ export const normalize = (base = {}) => {
       return clean.length > 80 ? clean.slice(0, 80).trim() : clean;
     })(),
     description: sanitize_html(description).trim(),
-    type: type,
+    type: type === "fractal" ? "fractal" : "character",
     signature_color: (() => {
       const parsed = sanitize_html(String(signature_color)).trim();
       return SIGNATURE_COLORS.includes(parsed) ? parsed : get_random_signature_key();
@@ -152,11 +153,14 @@ export const normalize = (base = {}) => {
       if (parsed === "1st_person" || parsed === "3rd_person") return parsed;
       return type === "fractal" ? "3rd_person" : "1st_person";
     })(),
-    voice_register: (() => {
-      const parsed = sanitize_html(String(voice_register || "")).trim();
-      return parsed === "ornate" || parsed === "plain" ? parsed : "";
+    speaking_style: (() => {
+      const parsed = sanitize_html(String(speaking_style || "")).trim();
+      return is_valid_speaking_style(parsed) ? parsed : "";
     })(),
-    tags: (Array.isArray(tags) ? tags : []).map((s) => (s != null ? sanitize_html(String(s).trim()) : "")).filter(Boolean),
+    tags: (Array.isArray(tags) ? tags : [])
+      .map((s) => (s != null ? sanitize_html(String(s).trim()) : ""))
+      .filter(Boolean)
+      .slice(0, 30),
 
     // --- NPC WORLD-CAST (Relationships & Wandering) ---
     // is_wanderer: characters not bound to a single Fractal.
@@ -221,10 +225,17 @@ export const normalize = (base = {}) => {
 
     // --- DYNAMICS (Physics Sliders) ---
     dynamics: (() => {
-      if (dynamics && Object.keys(dynamics).length > 0) return { ...dynamics };
-      // Seed from type-template on birth
-      const template = /** @type {any} */ (ENTITY_TEMPLATES)[type];
-      return template?.dynamics ? { ...template.dynamics } : {};
+      const resolved_type = type === "fractal" ? "fractal" : "character";
+      const template = ENTITY_TEMPLATES[resolved_type];
+      const valid_axes = Object.keys(template.dynamics);
+      const out = {};
+      const source = dynamics && typeof dynamics === "object" ? dynamics : template.dynamics;
+      for (const axis of valid_axes) {
+        const raw_val = source[axis];
+        const num = Number(raw_val);
+        out[axis] = Number.isFinite(num) ? Math.max(1, Math.min(100, Math.round(num))) : template.dynamics[axis];
+      }
+      return out;
     })(),
 
     // --- VOICE ---
@@ -258,72 +269,84 @@ export function coerce_temporal_array(val) {
 
 /**
  * Coerces raw temporal data (strings or objects) into proper TemporalVector-shaped objects.
- * Strings are wrapped into canonical vector objects; object items pass through untouched.
- * `type` is always "past".
+ * Guarantees that every item has id, content, and is_origin.
+ * Strips obsolete scalar memory fields (lore_anchor, world_truth, session_memory).
  * @param {any} val
  * @returns {any[]}
  */
 export function coerce_temporal_vectors(val) {
-  if (!Array.isArray(val)) return coerce_temporal_array(val);
+  if (!Array.isArray(val)) return [];
   return val
     .map((item) => {
-      if (item && typeof item === "object") return item;
-      const text = typeof item === "string" ? item.trim() : "";
-      if (!text) return null;
-      return {
-        id: `usr_${generate_uuid()}`,
-        timestamp: Date.now(),
-        content: text,
-        directive: text,
-        type: "past",
-        emotional_weight: 5,
-        meta: {},
-      };
+      if (typeof item === "string" && item.trim().length > 0) {
+        return {
+          id: generate_uuid("usr_"),
+          content: sanitize_html(item).trim(),
+          is_origin: true,
+          directive: "",
+          significance: 50,
+          created_round: 0,
+        };
+      }
+      if (item && typeof item === "object" && typeof item.content === "string" && item.content.trim().length > 0) {
+        const is_usr = String(item.id || "").startsWith("usr_");
+        return {
+          id: String(item.id || generate_uuid("usr_")),
+          content: sanitize_html(item.content).trim(),
+          is_origin: item.is_origin !== undefined ? !!item.is_origin : is_usr,
+          directive: sanitize_html(item.directive || "").trim(),
+          significance: typeof item.significance === "number" ? Math.max(1, Math.min(100, item.significance)) : 50,
+          created_round: typeof item.created_round === "number" ? item.created_round : 0,
+          ...(item._embedding ? { _embedding: item._embedding } : {}),
+        };
+      }
+      return null;
     })
     .filter(Boolean);
 }
 
 /**
- * 🏘️ THE FACTORY
- * Creates a brand new, fully normalized entity with a RANDOM signature color.
- * @param {string} type
- * @param {any} overrides
+ * Formats a premade definition into a runtime entity shape.
+ * @param {any} premade
+ * @param {string} [type]
+ */
+export const format_premade = (premade, type) => {
+  return normalize({
+    ...premade,
+    ...(type ? { type } : {}),
+    is_premade: true,
+    is_custom: false,
+  });
+};
+
+/**
+ * Creates a brand new, empty, pristine entity populated with correct template structure.
+ * @param {'character'|'fractal'} [type='character']
+ * @param {any} [overrides={}]
  */
 export const create_new = (type = "character", overrides = {}) => {
-  const template = /** @type {any} */ (ENTITY_TEMPLATES)[type] || ENTITY_TEMPLATES.character;
-  const new_entity = {
+  const resolved_type = type === "fractal" ? "fractal" : "character";
+  const template = ENTITY_TEMPLATES[resolved_type];
+  const now = Date.now();
+  return normalize({
     ...template,
     ...overrides,
-    signature_color: get_random_signature_key(), // Random color on birth
-    created_at: Date.now(),
-    updated_at: Date.now(),
-    id: generate_uuid(),
-  };
-  return normalize(new_entity);
+    type: resolved_type,
+    id: overrides?.id || generate_uuid(resolved_type === "character" ? "char_" : "world_"),
+    created_at: overrides?.created_at ?? now,
+    updated_at: overrides?.updated_at ?? now,
+    origin_id: overrides?.origin_id ?? null,
+    is_premade: false,
+    is_custom: true,
+    signature_color: overrides?.signature_color || get_random_signature_key(),
+  });
 };
 
 /**
- * Formats a premade entity for storage injection.
+ * Strips private IDs and database metadata from an entity before JSON export.
+ * Preserves structured arrays (chapters, custom_data) while scrubbing transient keys and embeddings.
  * @param {any} entity
- * @param {string} type
- */
-export const format_premade = (entity, type) => {
-  return {
-    ...normalize(entity),
-    type: type,
-    is_premade: 1,
-    version: STORAGE_VERSION,
-    updated_at: 0,
-  };
-};
-
-/**
- * Serializes an entity into a standalone, re-importable export payload.
- * Strips internal transient database fields (ids, version stamps, premade
- * flags) and drops `_embedding` blobs from memory vectors so the file stays
- * portable and human-readable. Re-import normalizes defaults on the way in.
- * @param {any} entity
- * @returns {any}
+ * @returns {Object}
  */
 export const serialize_entity_for_export = (entity) => {
   if (!entity || typeof entity !== "object") return {};
@@ -339,20 +362,25 @@ export const serialize_entity_for_export = (entity) => {
     "dynamics_baseline",
   ]);
 
-  /** @param {any} value */
-  const clone_clean = (value) => {
+  /**
+   * @param {any} value
+   * @param {string} [parent_key]
+   */
+  const clone_clean = (value, parent_key = "") => {
     if (Array.isArray(value)) {
       return value
         .map((item) => {
           if (item && typeof item === "object") {
             const copy = { ...item };
             delete copy._embedding;
-            return copy;
+            return clone_clean(copy, parent_key);
           }
           return item;
         })
         .filter((item) => {
-          if (item && typeof item === "object") return !!(item.content || item.directive)?.trim();
+          if (parent_key === "past" && item && typeof item === "object") {
+            return !!(item.content || item.directive)?.trim();
+          }
           return true;
         });
     }
@@ -360,7 +388,7 @@ export const serialize_entity_for_export = (entity) => {
       const out = {};
       for (const [k, v] of Object.entries(value)) {
         if (k === "_embedding") continue;
-        out[k] = clone_clean(v);
+        out[k] = clone_clean(v, k);
       }
       return out;
     }
@@ -370,7 +398,7 @@ export const serialize_entity_for_export = (entity) => {
   const out = {};
   for (const [key, value] of Object.entries(entity)) {
     if (TRANSIENT_KEYS.has(key)) continue;
-    out[key] = clone_clean(value);
+    out[key] = clone_clean(value, key);
   }
   return JSON.parse(JSON.stringify(out));
 };

@@ -1,6 +1,6 @@
 /**
- * src/media/speech.js
- * [**] SPEECH PIPELINE
+ * src/media/voice.js
+ * 🎙️ VOICE PIPELINE
  * Pure, reactivity-free helpers for the TTS pipeline: quote-aware sentence
  * splitting, dialogue-speaker attribution, typographic emphasis parsing,
  * cadence rates, the Kokoro voice catalog, and entity-role normalization.

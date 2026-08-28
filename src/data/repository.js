@@ -111,7 +111,10 @@ export const entities = {
   async get(type, id) {
     try {
       let item = await db.entities.get(id);
-      if (!item) item = premade_entity_map.get(id);
+      if (!item) {
+        const raw_premade = premade_entity_map.get(id);
+        if (raw_premade) item = normalize(raw_premade);
+      }
       if (!item || item.type !== type) return null;
       let out = _map_vector_embeddings(item, deserialize_embedding);
       return out;

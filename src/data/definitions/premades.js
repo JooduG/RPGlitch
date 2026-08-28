@@ -18,7 +18,7 @@ export const premade = {
       signature_color: "Adrenaline Pink",
       visual_style: "pulp",
       voice: { name: "Theatrical Showman", cadence: "brisk" },
-      voice_register: "plain",
+      speaking_style: "casual",
       dynamics: { chaos: 57, intensity: 56, openness: 60, affinity: 58 },
       eternal: {
         physical:
@@ -65,7 +65,7 @@ export const premade = {
       signature_color: "Electric Cyan",
       visual_style: "cyberpunk",
       voice: { name: "Cyber Handler", cadence: "rapid" },
-      voice_register: "plain",
+      speaking_style: "casual",
       dynamics: { chaos: 52, intensity: 44, openness: 48, affinity: 56 },
       eternal: {
         physical:
@@ -112,7 +112,7 @@ export const premade = {
       signature_color: "Crimson Red",
       visual_style: "oil",
       voice: { name: "Aristocratic Benefactor", cadence: "measured" },
-      voice_register: "ornate",
+      speaking_style: "lyrical",
       dynamics: { chaos: 46, intensity: 58, openness: 42, affinity: 54 },
       eternal: {
         physical:
@@ -169,7 +169,7 @@ export const premade = {
       signature_color: "Rusty Orange",
       visual_style: "graphic_print",
       voice: { name: "Grizzled Veteran", cadence: "drawl" },
-      voice_register: "raw",
+      speaking_style: "primal",
       dynamics: { chaos: 60, intensity: 60, openness: 43, affinity: 56 },
       eternal: {
         physical:
@@ -215,7 +215,7 @@ export const premade = {
       signature_color: "Scientific Teal",
       visual_style: "pixar",
       voice: { name: "Refined Scholar", cadence: "measured" },
-      voice_register: "clinical",
+      speaking_style: "clinical",
       dynamics: { chaos: 57, intensity: 45, openness: 54, affinity: 60 },
       eternal: {
         physical:
@@ -261,7 +261,7 @@ export const premade = {
       signature_color: "Soft Rose",
       visual_style: "water",
       voice: { name: "Gentle Devotee", cadence: "drawl" },
-      voice_register: "ornate",
+      speaking_style: "lyrical",
       dynamics: { chaos: 40, intensity: 40, openness: 60, affinity: 60 },
       eternal: {
         physical:
@@ -305,7 +305,7 @@ export const premade = {
       signature_color: "Toxic Green",
       visual_style: "fashion",
       voice: { name: "Low-Resonance Shadow", cadence: "drawl" },
-      voice_register: "raw",
+      speaking_style: "primal",
       dynamics: { chaos: 58, intensity: 60, openness: 42, affinity: 44 },
       eternal: {
         physical:

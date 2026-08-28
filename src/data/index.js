@@ -3,7 +3,8 @@ export { seed_premades, stories, entities, coerce_story_key } from "./repository
 export { session_driver, SESSION_ID_KEY } from "./sessions.svelte.js";
 export { db, set_versionchange_quiesce } from "./db.js";
 export { normalize, create_new, format_premade, serialize_entity_for_export } from "./normalizer.js";
-export { detox_prose, resolve_voice_register } from "./definitions/detox-rules.js";
+export { SPEAKING_STYLES, VALID_SPEAKING_STYLES, is_valid_speaking_style, SPEAKING_STYLE_RULES } from "./definitions/speaking-styles.js";
+export { detox_prose, resolve_speaking_style, resolve_style } from "@utils";
 export {
   detect_card_format,
   extract_card_from_png,

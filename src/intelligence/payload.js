@@ -185,7 +185,7 @@ export const context_builder = {
       relationships: Array.isArray(raw.relationships) ? raw.relationships : [],
       is_wanderer: !!raw.is_wanderer,
       voice: raw.voice,
-      voice_register: raw.voice_register,
+      speaking_style: raw.speaking_style,
       profile_picture: raw.profile_picture,
       signature_color: raw.signature_color,
     }));

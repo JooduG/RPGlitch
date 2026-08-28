@@ -104,7 +104,7 @@ export function apply_profile_to_entity(entity, profile) {
  * registers it on the active story cast, and puts it on-stage.
  *
  * @param {any} bridge
- * @param {{ name: string, description?: string, relationships?: string[], voice_register?: string, signature_color?: string, scene_context?: string }} [draft]
+ * @param {{ name: string, description?: string, relationships?: string[], speaking_style?: string, signature_color?: string, scene_context?: string }} [draft]
  * @returns {Promise<any | null>}
  */
 export async function spawn_character(bridge, draft = {}) {
@@ -132,7 +132,7 @@ export async function spawn_character(bridge, draft = {}) {
     dynamics: { intensity: 50, openness: 50, chaos: 50, affinity: 50 },
     dynamics_baseline: { intensity: 50, openness: 50, chaos: 50, affinity: 50 },
     relationships: Array.isArray(draft?.relationships) ? draft.relationships : [],
-    voice_register: draft?.voice_register || "low_curt",
+    speaking_style: draft?.speaking_style || "casual",
     is_wanderer: false,
     signature_color: raw_color || undefined,
   };
@@ -206,7 +206,7 @@ export async function spawn_character(bridge, draft = {}) {
  * Executes Director genesis requests — spawns recurring characters into the active story.
  *
  * @param {any} bridge
- * @param {Array<{ name: string, description?: string, voice_register?: string, signature_color?: string }>} genesis
+ * @param {Array<{ name: string, description?: string, speaking_style?: string, signature_color?: string }>} genesis
  * @param {(bridge: any, draft: any) => Promise<any>} [spawner_fn=spawn_character]
  */
 export async function execute_genesis(bridge, genesis, spawner_fn = spawn_character) {
@@ -245,7 +245,7 @@ export async function execute_genesis(bridge, genesis, spawner_fn = spawn_charac
       spawner_fn(bridge, {
         name: g.name,
         description: g.description,
-        voice_register: g.voice_register,
+        speaking_style: g.speaking_style,
         signature_color: g.signature_color,
         scene_context,
       })

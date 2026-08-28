@@ -160,7 +160,7 @@ export const SimulationAudit = {
     check("character:system_lacks_PRESENT", !character.system.includes("<PRESENT>"));
 
     // Epistemic Physics rules
-    check("character:task_has_EPISTEMIC_PHYSICS", character.task.includes("<EPISTEMIC_PHYSICS>"));
+    check("character:task_has_EPISTEMIC_PHYSICS", character.task.includes("<EPISTEMIC_RULES>") || character.task.includes("<EPISTEMIC_PHYSICS>"));
     check("character:task_has_sensory_horizon_rule", character.task.includes("sensory horizon"));
     check("character:task_has_null_data_rule", character.task.includes("Null Data"));
 

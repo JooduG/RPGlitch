@@ -235,7 +235,7 @@ export const gamemaster = {
             name: parsed_genesis?.name || genesis_name,
             description: parsed_genesis?.description || director_data.directors_note || "A mysterious figure appearing in the scene.",
             signature_color: parsed_genesis?.signature_color || "",
-            voice_register: parsed_genesis?.voice_register || "",
+            speaking_style: parsed_genesis?.speaking_style || "",
             scene_context,
           });
         } catch (err) {
