@@ -64,10 +64,9 @@ The generation framework operates via distinct pipeline phases. Maintain absolut
 
 ### Shot 1: The Director Pipeline (`render_director`)
 
-- **Objective**: Evaluates raw state mutations and spatial physics consequences of the user's action before any narrative text generation occurs.
-- **Format Constraints**: Demands a single, valid JSON payload wrapped strictly inside a `<SYSTEM role="DIRECTOR">` block.
-- **Prompt Architecture**: Supplies the `JSON_OUTPUT` and `PRESENT.EMISSION` protocols to enforce Pseudo-JSON `[KEY: VALUE]` bracket state mutations, retaining critical entity attributes including `PRESENT_NON_PHYSICAL`, `ETERNAL_NON_PHYSICAL`, and `FUTURE` standing agenda to ensure accurate physics calculations.
-- **Output Validation**: Restricts return values purely to objective mutation definitions (`present_append_physical`, `new_vectors`, numerical `dynamics_deltas`). Supports direct overwrites, multi-item `[INVENTORY: ...]` aggregation, universal clearing via `[KEY: none/bare/etc]`, and zero-hallucination clothing-to-inventory undress/redress lifecycles.
+- **Objective**: Evaluates turn staging, acting directives, dynamics shifts, and cast choreography before any narrative text generation occurs.
+- **Format Constraints**: Demands a single, valid JSON payload matching `DIRECTOR_PROTOCOLS.SCHEMA` without markdown code fences.
+- **Output Schema**: Strictly limited to immediate staging parameters: `next_action`, `directors_note`, `dynamics_deltas`, `fractal_dynamics_deltas`, `in_scene_change`, and `genesis`. Long-term present condition merging and eternal memory distillation are deferred to the Memory Forge.
 
 ### Shot 2: The Actor Pipeline (`render_character`)
 
