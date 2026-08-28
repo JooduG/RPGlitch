@@ -4,7 +4,7 @@ import { physics_engine } from "./physics.js";
 import { prompt_builder } from "./prompts/builder.js";
 import { temporal_engine } from "./temporal-pipeline.js";
 import { resolve_npc_entity, apply_in_scene_change, apply_relationships } from "./director.js";
-import { execute_genesis, spawn_character } from "./profile-pipeline.js";
+import { spawn_character } from "./profile-pipeline.js";
 import { capture_dynamics_delta } from "./telemetry.js";
 import * as telemetry from "./telemetry.js";
 import { llm_service } from "@platform";
@@ -1425,13 +1425,14 @@ describe("NPC world cast (track-npc-expansion)", () => {
     const mock_payload = {
       input: "Who guards the gate?",
       type: "simulation",
-      round: 1,
+      round: 2,
       entities: { AI: { name: "Viper" }, USER: { name: "Ghost" }, FRACTAL: { name: "Void" } },
       view_id: "global",
       simulation_log: "",
       raw_messages: [],
       meta: { timestamp: new Date().toISOString() },
     };
+    _mock_runtime.round = 2;
     _mock_runtime.active_npcs = { ben1: { id: "ben1", name: "Benedict", role_tier: 2 } };
 
     vi.mocked(context_builder.build_context).mockResolvedValue(mock_payload);
@@ -1561,7 +1562,7 @@ describe("apply_relationships (Relational Mesh)", () => {
   });
 });
 
-describe("apply_genesis (World-Cast Expansion)", () => {
+describe("spawn_character (World-Cast Expansion)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     _mock_runtime.active_ai = { id: "ai-1", name: "Viper", type: "character" };
@@ -1573,32 +1574,25 @@ describe("apply_genesis (World-Cast Expansion)", () => {
   });
 
   it("spawns a new character and registers it on-stage", async () => {
-    await execute_genesis(state_bridge, [{ name: "Mira", description: "A scarred courier", speaking_style: "casual" }], spawn_character);
+    const npc = await spawn_character(state_bridge, { name: "Mira", description: "A scarred courier", speaking_style: "casual" });
+    expect(npc).toBeDefined();
+    expect(npc.name).toBe("Mira");
     const spawned = Object.values(_mock_runtime.active_npcs);
     expect(spawned).toHaveLength(1);
-    expect(spawned[0].name).toBe("Mira");
-    expect(_mock_runtime.in_scene_npc_ids).toContain(spawned[0].id);
-    expect(_mock_app.log).toHaveBeenCalledWith(expect.stringContaining("Genesis"), "system");
+    expect(_mock_runtime.in_scene_npc_ids).toContain(npc.id);
+    expect(_mock_app.log).toHaveBeenCalledWith(expect.stringContaining("Roster expanded"), "system");
   });
 
-  it("applies the convergence guard for cast names already present (case-insensitive)", async () => {
-    await execute_genesis(state_bridge, [{ name: "viper" }], spawn_character);
-    expect(Object.keys(_mock_runtime.active_npcs)).toHaveLength(0);
-    expect(_mock_app.log).toHaveBeenCalledWith(expect.stringContaining("convergence guard"), "warn");
-  });
+  it("forwards signature_color and speaking_style into the spawned entity", async () => {
+    const npc = await spawn_character(state_bridge, {
+      name: "Mira",
+      description: "A courier.",
+      signature_color: "Emerald Green",
+      speaking_style: "lyrical",
+    });
 
-  it("silently skips drafts without a name", async () => {
-    await execute_genesis(state_bridge, [null, { name: "" }], spawn_character);
-    expect(Object.keys(_mock_runtime.active_npcs)).toHaveLength(0);
-    expect(entities.upsert).not.toHaveBeenCalled();
-  });
-
-  it("forwards the Director's signature_color into spawn_character", async () => {
-    const mock_spawn = vi.fn().mockResolvedValue({ id: "npc-1", name: "Mira", signature_color: "Emerald Green" });
-
-    await execute_genesis(state_bridge, [{ name: "Mira", description: "A courier.", signature_color: "Emerald Green" }], mock_spawn);
-
-    expect(mock_spawn).toHaveBeenCalledWith(state_bridge, expect.objectContaining({ name: "Mira", signature_color: "Emerald Green" }));
+    expect(npc.signature_color).toBe("Emerald Green");
+    expect(npc.speaking_style).toBe("lyrical");
   });
 });
 

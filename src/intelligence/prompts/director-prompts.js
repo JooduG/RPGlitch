@@ -26,7 +26,7 @@ export function render_environmental_hint(input) {
   if (!input?.trim()) return "";
   if (/["'“”‘’]/.test(input)) return "";
   const spatial_verbs =
-    /\b(step|walk|enter|approach|study|examine|press|watch|observe|descend|ascend|peer|reach|touch|grip|lean|kneel|stand|wait|listen|smell|scan|sweep|climb|move|circle|bend|follow|open|close|hold|stare|gaze|rest|push|pull|turn|edge|halt|pause|trail|settle|pause|linger)\b/i;
+    /\b(step|walk|enter|approach|study|examine|press|watch|observe|descend|ascend|peer|reach|kneel|stand|wait|listen|smell|scan|sweep|climb|move|circle|bend|follow|open|close|stare|gaze|rest|push|pull|turn|edge|halt|trail|settle|pause|linger)\b/i;
   const spatial_nouns =
     /\b(door|gate|wall|room|hall|cave|forest|vault|stair|passage|corridor|window|floor|ceiling|rock|stone|water|river|bridge|tower|street|alley|field|sky|wind|rain|shadow|light|threshold|lock|mechanism|gear|wheel|conduit|tunnel|arch|column|altar|seal|cylinder|crevice|spillway|belly|deeps|mouth|chamber|alcove|ledge|court|yard|keep)\b/i;
   if (!spatial_verbs.test(input) && !spatial_nouns.test(input)) return "";
@@ -42,7 +42,9 @@ export const DIRECTOR_PROTOCOLS = {
   "keywords": "1-3 keywords from <AVAILABLE_KEYWORDS> (e.g. ['vulnerability', 'cinematic_shot']) or []",
   "directors_note": "1-3 lines of unseen acting/staging directives for the speaker",
   "dynamics_deltas": { "chaos": 0, "intensity": 0, "openness": 0, "affinity": 0 },
-  "in_scene_change": { "enter": ["npc:<id>"], "exit": ["npc:<id>"] }
+  "fractal_dynamics_deltas": { "velocity": 0, "entropy": 0 },
+  "in_scene_change": { "enter": ["npc:<id>"], "exit": ["npc:<id>"] },
+  "genesis": { "name": "<Character Name>", "description": "<1-2 sentence core persona>", "signature_color": "<Optional signature color>", "speaking_style": "casual" }
 }`,
 
   CONTINUITY_AND_CAUSALITY: `SECRET AGENDAS: <INTENT>/<AGENDA> vectors encode private ambitions. Weave entity vectors indirectly into atmosphere/obstacles. Never present another entity's hidden agenda as known fact to the AI character.

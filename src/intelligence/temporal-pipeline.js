@@ -500,79 +500,6 @@ function cap_present_prose(current_field_value) {
   return lines.slice(-PRESENT_MAX_SEGMENTS).join("\n");
 }
 
-/** Applies Director turn mutations onto an entity. */
-export function apply_state_mutations(entity, mutations) {
-  if (!entity || !mutations || typeof mutations !== "object") return false;
-  let changed = false;
-
-  const pres_phys = String(mutations.state_append?.physical || "").trim();
-  if (pres_phys) {
-    if (!entity.present) entity.present = { physical: "", non_physical: "" };
-    entity.present.physical = merge_prose_into_field(entity.present.physical, pres_phys);
-    changed = true;
-  }
-
-  const pres_non_phys = String(mutations.state_append?.non_physical || "").trim();
-  if (pres_non_phys) {
-    if (!entity.present) entity.present = { physical: "", non_physical: "" };
-    entity.present.non_physical = cap_present_prose(merge_prose_into_field(entity.present.non_physical, pres_non_phys));
-    changed = true;
-  }
-
-  const new_list = Array.isArray(mutations.past) ? mutations.past : [];
-  if (new_list.length > 0) {
-    new_list.forEach((v) => {
-      if (!v || typeof v !== "object") return;
-      const payload = String(v.content || v.directive || "").trim();
-      if (!payload) return;
-
-      const new_vector = create(payload, "past", v.emotional_weight ?? 5);
-      ensure_unique_vector_id(entity, new_vector);
-      v.id = new_vector.id;
-      ensure_embedding(new_vector)
-        .then(() => {
-          if (entity?.id) {
-            const type = entity.type === "fractal" ? "fractal" : "character";
-            state_bridge.runtime?.update_entity?.(type, entity.id, { past: entity.past })?.catch(() => {});
-          }
-        })
-        .catch(() => {});
-      append_past_vector(entity, new_vector);
-      changed = true;
-    });
-  }
-
-  const eternal_muts = mutations.eternal;
-  if (eternal_muts && typeof eternal_muts === "object" && entity.eternal) {
-    const e_phys = String(eternal_muts.physical || "").trim();
-    if (e_phys) {
-      entity.eternal.physical = merge_eternal_field(entity.eternal.physical, e_phys);
-      changed = true;
-    }
-    const e_non_phys = String(eternal_muts.non_physical || "").trim();
-    if (e_non_phys) {
-      entity.eternal.non_physical = merge_eternal_field(entity.eternal.non_physical, e_non_phys);
-      changed = true;
-    }
-  }
-
-  if (changed && entity.id) {
-    const type = entity.type === "fractal" ? "fractal" : "character";
-    state_bridge.runtime
-      ?.update_entity?.(type, entity.id, {
-        present: entity.present,
-        past: entity.past,
-        future: entity.future,
-        eternal: entity.eternal,
-      })
-      ?.catch((err) => {
-        state_bridge.app?.log?.(`[TemporalEngine] Failed to flush present state to DB: ${err?.message || err}`, "warn");
-      });
-  }
-
-  return changed;
-}
-
 /** Decides whether a forge rewrite crossed a chapter milestone (<45% vocabulary overlap). */
 function has_crossed_chapter_milestone(old_future, new_future) {
   if (!old_future || !new_future || old_future === new_future) return false;
@@ -839,7 +766,6 @@ export const temporal_engine = {
   format,
   format_async,
   forge_memory,
-  apply_state_mutations,
   append_past_vector,
   reconcile_vector_caps,
   ensure_unique_vector_id,

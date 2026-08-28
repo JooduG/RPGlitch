@@ -311,67 +311,6 @@ describe("temporal_engine", () => {
     });
   });
 
-  describe("apply_state_mutations", () => {
-    it("appends to state_append", () => {
-      const entity = /** @type {any} */ ({
-        present: { physical: "", non_physical: "Initial state." },
-      });
-
-      const mutations = {
-        state_append: { non_physical: "Now they are angry." },
-      };
-
-      const result = temporal_engine.apply_state_mutations(entity, mutations);
-      expect(result).toBe(true);
-      expect(entity.present.non_physical).toBe("Initial state.\nNow they are angry.");
-    });
-
-    it("returns false if mutations object is empty or invalid", () => {
-      const entity = /** @type {any} */ ({ present: { non_physical: "" } });
-      const result = temporal_engine.apply_state_mutations(entity, null);
-      expect(result).toBe(false);
-    });
-
-    it("passes category through from Director past: (all become past anchors)", () => {
-      const entity = /** @type {any} */ ({ present: { physical: "", non_physical: "" }, past: [] });
-      const mutations = {
-        past: [
-          { content: "Avenge the fallen", category: "goal", tags: ["vengeance"] },
-          { content: "Storm approaches", category: "threat" },
-        ],
-      };
-      temporal_engine.apply_state_mutations(entity, mutations);
-      expect(entity.past).toHaveLength(2);
-    });
-
-    it("applies state_append state mutations", () => {
-      const entity = /** @type {any} */ ({
-        present: { physical: "", non_physical: "Calm." },
-        future: "",
-      });
-
-      const mutations = { state_append: { non_physical: "She smiles." } };
-
-      temporal_engine.apply_state_mutations(entity, mutations);
-
-      expect(entity.present.non_physical).toBe("Calm.\nShe smiles.");
-    });
-
-    it("skips amplification when evidence is null or has no _amplifiedTell", () => {
-      const entity = /** @type {any} */ ({
-        present: { physical: "", non_physical: "Calm." },
-        future: "",
-      });
-
-      const mutations = { state_append: { non_physical: "She reacts." } };
-
-      temporal_engine.apply_state_mutations(entity, mutations, null, null);
-      expect(entity.present.non_physical).not.toContain("The old wound stirs");
-
-      temporal_engine.apply_state_mutations({ ...entity, present: { physical: "", non_physical: "Calm." } }, mutations, null, { confidence: 0.5 });
-    });
-  });
-
   describe("format", () => {
     it("labels past entries based on emotional weight thresholds", () => {
       const past = [

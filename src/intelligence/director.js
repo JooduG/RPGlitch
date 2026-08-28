@@ -23,8 +23,6 @@ import { parse_think_block } from "./parser.js";
 
 export const STORY_STATUS_VALUES = ["IN_PROGRESS", "CONCLUDED", "COLLAPSED"];
 
-export const NEXT_ACTION_VALUES = ["AI_CHARACTER", "FRACTAL", "GENESIS", "EPILOGUE_CONCLUDED", "EPILOGUE_COLLAPSED"];
-
 const SPEAKER_AI_ALIASES = new Set(["ai", "ai_character", "character", "companion"]);
 const SPEAKER_FRACTAL_ALIASES = new Set(["fractal", "world", "narrator", "environment", "scene"]);
 const SPEAKER_NPC_PATTERN = /^npc(?::[^\s]+)?$/i;

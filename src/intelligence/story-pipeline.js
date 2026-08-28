@@ -222,20 +222,14 @@ export const gamemaster = {
             .filter(Boolean)
             .join(" — ");
 
-          const genesis_name = director_data._thought_process
-            ? director_data._thought_process
-                .slice(0, 30)
-                .replace(/[^a-zA-Z0-9 ]/g, "")
-                .trim() || "Stranger"
-            : "Stranger";
-
-          const parsed_genesis = typeof director_data.genesis === "object" ? director_data.genesis : null;
+          const parsed_genesis = typeof director_data.genesis === "object" && director_data.genesis !== null ? director_data.genesis : null;
+          const genesis_name = parsed_genesis?.name?.trim() || "Mysterious Stranger";
 
           genesis_spawned_npc = await spawn_character(state_bridge, {
-            name: parsed_genesis?.name || genesis_name,
+            name: genesis_name,
             description: parsed_genesis?.description || director_data.directors_note || "A mysterious figure appearing in the scene.",
             signature_color: parsed_genesis?.signature_color || "",
-            speaking_style: parsed_genesis?.speaking_style || "",
+            speaking_style: parsed_genesis?.speaking_style || "casual",
             scene_context,
           });
         } catch (err) {
@@ -243,7 +237,7 @@ export const gamemaster = {
         }
       }
 
-      // 4.1 Apply Dynamics Deltas
+      // 4.1 Apply Dynamics Deltas (AI & Fractal)
       if (director_data.dynamics_deltas && state_bridge.runtime.active_ai) {
         if (!snapshot.ai) snapshot.ai = {};
         if (!snapshot.ai.dynamics) snapshot.ai.dynamics = { ...state_bridge.runtime.ai };
@@ -253,6 +247,19 @@ export const gamemaster = {
             ai_delta_axes.add(k);
             const current = snapshot.ai.dynamics[k] || 50;
             snapshot.ai.dynamics[k] = Math.max(1, Math.min(100, current + val));
+          }
+        });
+      }
+
+      if (director_data.fractal_dynamics_deltas && state_bridge.runtime.active_fractal) {
+        if (!snapshot.fractal) snapshot.fractal = {};
+        if (!snapshot.fractal.dynamics) snapshot.fractal.dynamics = { ...state_bridge.runtime.fractal };
+        Object.entries(director_data.fractal_dynamics_deltas).forEach(([k, delta]) => {
+          const val = Number(delta);
+          if (!isNaN(val)) {
+            fractal_delta_axes.add(k);
+            const current = snapshot.fractal.dynamics[k] || 50;
+            snapshot.fractal.dynamics[k] = Math.max(1, Math.min(100, current + val));
           }
         });
       }
@@ -276,7 +283,7 @@ export const gamemaster = {
       // 4.4. ACTIVE SPEAKER RESOLUTION
       const current_turn_round = state_bridge.runtime.round || 0;
       let target_action = director_data.next_action || "AI_CHARACTER";
-      if (current_turn_round <= 1 && target_action === "FRACTAL") {
+      if (current_turn_round <= 1 && target_action !== "AI_CHARACTER") {
         target_action = "AI_CHARACTER";
       }
 
@@ -318,7 +325,10 @@ export const gamemaster = {
       let final_meta = { ...meta };
       final_meta.ai = snapshot.ai?.dynamics;
       final_meta.fractal = snapshot.fractal?.dynamics;
-      final_meta.mutations = director_data.dynamics_deltas || {};
+      final_meta.mutations = {
+        AI_CHARACTER: director_data.dynamics_deltas || {},
+        FRACTAL: director_data.fractal_dynamics_deltas || {},
+      };
 
       const clean_think = (t) =>
         String(t || "")
@@ -464,7 +474,7 @@ export const gamemaster = {
 
       final_meta.structural_errors = state_bridge.runtime.structural_errors;
 
-      const persisted_text = detox_prose(validation_result.text, "plain");
+      const persisted_text = detox_prose(validation_result.text, "casual");
 
       await state_bridge.session_driver.log_message(persisted_text, log_role, character_name, {
         turn_type: "AI_TURN",
@@ -481,7 +491,7 @@ export const gamemaster = {
       state_bridge.runtime.turn_type = "USER_TURN";
 
       state_bridge.app.end_stream();
-      state_bridge.simulation_state.complete();
+      state_bridge.simulation_state?.complete?.();
       state_bridge.simulation_state?.clear_generating_entity?.();
 
       state_bridge.app.busy = false;
