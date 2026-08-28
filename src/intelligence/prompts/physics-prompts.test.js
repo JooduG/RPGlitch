@@ -7,7 +7,8 @@ import {
   resolve_somatic_directives,
   SOMATIC_REGISTRY,
 } from "./physics-prompts.js";
-import { GLOBAL_TRIGGERS, STYLE_MOTIF_REGISTRY } from "@data";
+import { STYLE_MOTIF_REGISTRY } from "@data";
+import { GLOBAL_TRIGGERS } from "../physics.js";
 
 describe("SOMATIC_REGISTRY", () => {
   it("contains exactly the 12 universal archetypes", () => {

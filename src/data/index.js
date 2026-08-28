@@ -12,6 +12,6 @@ export {
   serialize_rpglitch_entity,
 } from "./character-cards.js";
 export { premade } from "./definitions/premades.js";
-export { NARRATIVE_STYLES, GLOBAL_TRIGGERS, STYLE_MOTIF_REGISTRY, get_style_keywords } from "./definitions/narrative-styles.js";
+export { NARRATIVE_STYLES, STYLE_MOTIF_REGISTRY, get_style_keywords } from "./definitions/narrative-styles.js";
 export { VISUAL_STYLES } from "./definitions/visual-styles.js";
 export { PROFILE_FIELDS, PROFILE_FIELD_CATALOG, PROFILE_SECTIONS_BY_TYPE } from "./definitions/profile-fields.js";

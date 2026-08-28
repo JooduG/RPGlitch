@@ -125,14 +125,13 @@ export async function apply_genesis(bridge, genesis, spawner_fn = spawn_npc) {
     .join(" — ");
 
   const existing_names = new Set(
-    [
-      bridge.runtime?.active_ai,
-      bridge.runtime?.active_user,
-      bridge.runtime?.active_fractal,
-      ...Object.values(bridge.runtime?.active_npcs || {}),
-    ]
+    [bridge.runtime?.active_ai, bridge.runtime?.active_user, bridge.runtime?.active_fractal, ...Object.values(bridge.runtime?.active_npcs || {})]
       .filter(Boolean)
-      .map((e) => String(e.name || "").trim().toLowerCase()),
+      .map((e) =>
+        String(e.name || "")
+          .trim()
+          .toLowerCase(),
+      ),
   );
 
   const spawn_tasks = [];
