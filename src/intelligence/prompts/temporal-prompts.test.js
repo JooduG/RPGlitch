@@ -1,12 +1,12 @@
 /**
  * src/intelligence/prompts/temporal-prompts.test.js
- * ⏳ UNIT TESTS: TEMPORAL PROMPTS (MEMORY FORGE & BACK SHOT PROMPT COMPILER)
+ * ⏳ UNIT TESTS: TEMPORAL PROMPTS (MEMORY FORGE COMPILER)
  */
 
 import { describe, expect, it } from "vitest";
 import { render_memory, render_chapter_history_xml, render_entity_memory_context, TEMPORAL_PROTOCOLS } from "./temporal-prompts.js";
 
-describe("Memory Forge & Back Shot Prompts (memory-prompts.js)", () => {
+describe("Memory Forge Prompts (temporal-prompts.js)", () => {
   const mock_entities = {
     AI_CHARACTER: {
       name: "Viper",

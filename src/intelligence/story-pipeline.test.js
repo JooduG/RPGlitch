@@ -4,7 +4,7 @@ import { physics_engine } from "./physics.js";
 import { prompt_builder } from "./prompts/builder.js";
 import { temporal_engine } from "./temporal-pipeline.js";
 import { resolve_npc_entity, apply_in_scene_change, apply_relationships } from "./director.js";
-import { apply_genesis, spawn_npc } from "./profile-pipeline.js";
+import { execute_genesis, spawn_character } from "./profile-pipeline.js";
 import { capture_dynamics_delta } from "./telemetry.js";
 import * as telemetry from "./telemetry.js";
 import { llm_service } from "@platform";
@@ -222,10 +222,10 @@ vi.mock("./physics.js", async (importOriginal) => {
   return {
     ...actual,
     physics_engine: {
-      settle_physics: vi.fn().mockImplementation((dynamics) => {
+      apply_dynamics_gravity: vi.fn().mockImplementation((dynamics) => {
         if (dynamics) dynamics.intensity = 60; // Mutate to verify change
       }),
-      _get_baselines: vi.fn().mockReturnValue({}),
+      extract_entity_dynamics_baselines: vi.fn().mockReturnValue({}),
     },
   };
 });
@@ -878,7 +878,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
     });
 
     it("does not simulate physics a second time after generation", async () => {
-      vi.mocked(physics_engine.settle_physics).mockClear();
+      vi.mocked(physics_engine.apply_dynamics_gravity).mockClear();
       vi.mocked(llm_service.generate).mockResolvedValue("<think>Analyzing user state");
 
       await gamemaster.execute_turn("story-123", {
@@ -886,8 +886,8 @@ describe("gamemaster (Intelligence Kernel)", () => {
         role: "ai",
       });
 
-      // Settle physics is called exactly twice (once for AI, once for Fractal)
-      expect(physics_engine.settle_physics).toHaveBeenCalledTimes(2);
+      // Gravity settlement is called exactly twice (once for AI, once for Fractal)
+      expect(physics_engine.apply_dynamics_gravity).toHaveBeenCalledTimes(2);
     });
 
     it("triggers capture_dynamics_delta exactly once per execution turn sequence", async () => {
@@ -1323,43 +1323,39 @@ describe("NPC world cast (track-npc-expansion)", () => {
     expect(noop).toBe(false);
   });
 
-  it("spawn_npc() genesis: persists, registers on the story, and puts the NPC on-stage", async () => {
+  it("spawn_character() genesis: persists, registers on the story, and puts the character on-stage", async () => {
     vi.mocked(entities.upsert).mockImplementation(async (type, entity) => ({ ...entity, id: "npc-mira-1", type: "character" }));
     vi.mocked(stories.get).mockResolvedValue({ id: 7, npc_ids: ["ben1"] });
     _mock_runtime.story_id = 7;
     _mock_runtime.active_npcs = { ben1: { id: "ben1", name: "Benedict" } };
     _mock_runtime.in_scene_npc_ids = ["ben1"];
 
-    const npc = await spawn_npc({ runtime: _mock_runtime, app: _mock_app }, { name: "Mira", description: "A fixer.", role_tier: 2 });
+    const npc = await spawn_character({ runtime: _mock_runtime, app: _mock_app }, { name: "Mira", description: "A fixer." });
 
     expect(npc.name).toBe("Mira");
-    expect(npc.role_tier).toBe(2);
-    expect(entities.upsert).toHaveBeenCalledWith("character", expect.objectContaining({ name: "Mira", role_tier: 2 }));
+    expect(entities.upsert).toHaveBeenCalledWith("character", expect.objectContaining({ name: "Mira" }));
     expect(stories.update_cast).toHaveBeenCalledWith(7, ["ben1", "npc-mira-1"]);
     expect(_mock_runtime.active_npcs["npc-mira-1"].name).toBe("Mira");
     expect(_mock_runtime.in_scene_npc_ids).toEqual(["ben1", "npc-mira-1"]);
   });
 
-  it("spawn_npc() requires a name and clamps the tier to 1-3", async () => {
+  it("spawn_character() requires a name", async () => {
     vi.mocked(entities.upsert).mockImplementation(async (type, entity) => ({ ...entity, id: "npc-x", type: "character" }));
 
-    expect(await spawn_npc({ runtime: _mock_runtime, app: _mock_app }, { name: "  " })).toBeNull();
-    expect(await spawn_npc({ runtime: _mock_runtime, app: _mock_app }, {})).toBeNull();
-
-    await spawn_npc({ runtime: _mock_runtime, app: _mock_app }, { name: "Sorel", role_tier: 99 });
-    expect(entities.upsert).toHaveBeenCalledWith("character", expect.objectContaining({ name: "Sorel", role_tier: 3 }));
+    expect(await spawn_character({ runtime: _mock_runtime, app: _mock_app }, { name: "  " })).toBeNull();
+    expect(await spawn_character({ runtime: _mock_runtime, app: _mock_app }, {})).toBeNull();
   });
 
-  it("spawn_npc() forwards the Director's signature_color for the NPC identity", async () => {
+  it("spawn_character() forwards the Director's signature_color for the character identity", async () => {
     vi.mocked(entities.upsert).mockImplementation(async (type, entity) => ({ ...entity, id: "npc-hue-1", type: "character" }));
 
-    const npc = await spawn_npc({ runtime: _mock_runtime, app: _mock_app }, { name: "Hue", signature_color: "Proud Purple" });
+    const npc = await spawn_character({ runtime: _mock_runtime, app: _mock_app }, { name: "Hue", signature_color: "Proud Purple" });
 
     expect(npc.signature_color).toBe("Proud Purple");
     expect(entities.upsert).toHaveBeenCalledWith("character", expect.objectContaining({ name: "Hue", signature_color: "Proud Purple" }));
   });
 
-  it("spawn_npc() synthesizes rich Twin-Cylinder profile when LLM enhances the draft", async () => {
+  it("spawn_character() synthesizes rich Twin-Cylinder profile when LLM enhances the draft", async () => {
     vi.mocked(llm_service.enhance).mockResolvedValueOnce(
       JSON.stringify({
         name: "Kaelen",
@@ -1375,7 +1371,7 @@ describe("NPC world cast (track-npc-expansion)", () => {
     );
     vi.mocked(entities.upsert).mockImplementation(async (type, entity) => ({ ...entity, id: "npc-kaelen-1", type: "character" }));
 
-    const npc = await spawn_npc(
+    const npc = await spawn_character(
       { runtime: _mock_runtime, app: _mock_app },
       { name: "Kaelen", description: "An archivist with silver hair.", signature_color: "Electric Cyan" },
     );
@@ -1576,32 +1572,31 @@ describe("apply_genesis (World-Cast Expansion)", () => {
     _mock_runtime.story_id = null;
   });
 
-  it("spawns a new NPC and registers it on-stage", async () => {
-    await apply_genesis(state_bridge, [{ name: "Mira", role_tier: 3, description: "A scarred courier", voice_register: "plain" }], spawn_npc);
+  it("spawns a new character and registers it on-stage", async () => {
+    await execute_genesis(state_bridge, [{ name: "Mira", description: "A scarred courier", voice_register: "plain" }], spawn_character);
     const spawned = Object.values(_mock_runtime.active_npcs);
     expect(spawned).toHaveLength(1);
     expect(spawned[0].name).toBe("Mira");
-    expect(spawned[0].role_tier).toBe(3);
     expect(_mock_runtime.in_scene_npc_ids).toContain(spawned[0].id);
     expect(_mock_app.log).toHaveBeenCalledWith(expect.stringContaining("Genesis"), "system");
   });
 
   it("applies the convergence guard for cast names already present (case-insensitive)", async () => {
-    await apply_genesis(state_bridge, [{ name: "viper" }], spawn_npc);
+    await execute_genesis(state_bridge, [{ name: "viper" }], spawn_character);
     expect(Object.keys(_mock_runtime.active_npcs)).toHaveLength(0);
     expect(_mock_app.log).toHaveBeenCalledWith(expect.stringContaining("convergence guard"), "warn");
   });
 
   it("silently skips drafts without a name", async () => {
-    await apply_genesis(state_bridge, [{ role_tier: 3 }, null, { name: "" }], spawn_npc);
+    await execute_genesis(state_bridge, [null, { name: "" }], spawn_character);
     expect(Object.keys(_mock_runtime.active_npcs)).toHaveLength(0);
     expect(entities.upsert).not.toHaveBeenCalled();
   });
 
-  it("forwards the Director's signature_color into spawn_npc", async () => {
+  it("forwards the Director's signature_color into spawn_character", async () => {
     const mock_spawn = vi.fn().mockResolvedValue({ id: "npc-1", name: "Mira", signature_color: "Emerald Green" });
 
-    await apply_genesis(state_bridge, [{ name: "Mira", description: "A courier.", role_tier: 2, signature_color: "Emerald Green" }], mock_spawn);
+    await execute_genesis(state_bridge, [{ name: "Mira", description: "A courier.", signature_color: "Emerald Green" }], mock_spawn);
 
     expect(mock_spawn).toHaveBeenCalledWith(state_bridge, expect.objectContaining({ name: "Mira", signature_color: "Emerald Green" }));
   });

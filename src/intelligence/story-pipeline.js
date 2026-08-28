@@ -1,16 +1,20 @@
 /**
- * @file src/intelligence/kernel.js
- * -----------------------------------------------------------------------------
- * gamemaster — The Intelligence Kernel Coordinator
- * -----------------------------------------------------------------------------
- * Unifies the Intelligence Kernel (Broker, Dynamics, Builder) and the
- * Transport Layer (llm_service) into a single execution pipeline.
+ * src/intelligence/story-pipeline.js
+ * 🎬 STORY PIPELINE — Intelligence Kernel Turn Coordinator
+ *
+ * Unifies the Intelligence Kernel (Context Broker, Dynamics, Prompt Builder) and the
+ * Transport Layer (llm_service) into a single execution pipeline for simulation turns:
+ * 1. Pipeline Constants & Auxiliary Queues
+ * 2. Narrative Turn Orchestration (execute_turn)
+ * 3. Story Lifecycles (execute_prologue, execute_epilogue)
+ * 4. Persona Ghostwriter (execute_ghostwriter)
+ * 5. Network Retry & Resilience (execute_with_retry)
  */
 
 import { db, entities, stories, detox_prose } from "@data";
-import { generate_uuid as generateUUID, create_job_queue, state_bridge } from "@utils";
+import { generate_uuid, create_job_queue, state_bridge, strip_cognition_blocks } from "@utils";
 import { visual_engine, resolve_image_trigger, spawn_image_beat, sweep_stale_ghosts, IMAGE_RESOLVE_TIMEOUT_MS } from "@media";
-import { strip_cognition_blocks, validate_and_repair_response, force_close_response } from "./parser.js";
+import { validate_and_repair_response, force_close_response } from "./parser.js";
 import { llm_service, looks_truncated, raw_to_text, raw_stop_reason } from "@platform";
 import { physics_engine } from "./physics.js";
 import { normalize_director_data, parse_director_json, synthesize_director_fallback, resolve_npc_entity, apply_in_scene_change } from "./director.js";
@@ -19,7 +23,7 @@ import { prompt_builder } from "./prompts/builder.js";
 import { capture_dynamics_delta } from "./telemetry.js";
 import { prune, temporal_engine } from "./temporal-pipeline.js";
 import { context_builder } from "./payload.js";
-import { spawn_npc } from "./profile-pipeline.js";
+import { spawn_character } from "./profile-pipeline.js";
 
 /**
  * @typedef {Object} GenerationOptions
@@ -28,28 +32,29 @@ import { spawn_npc } from "./profile-pipeline.js";
  * @property {AbortSignal} [signal] - Abort signal for streaming/background work.
  * @property {boolean} [is_retry] - Whether this is a regeneration retry.
  * @property {boolean} [is_continue] - Whether this is a continue-in-place turn.
+ * @property {boolean} [is_opening_turn] - Whether this is the first turn right after prologue.
  */
 
-// 🔀 Director background job queue — parallel auxiliary workers (ghost sweeps,
-// Memory Forge consolidation) execute concurrently and are isolated from the
-// critical narrative path: a failing worker rejects only its own promise and
-// can never stall story playback.
+// ── 1. Pipeline Constants & Auxiliary Queues ──────────────────────────────────
+
+/** Background queue for non-blocking post-turn tasks (consolidation, ghost sweeps). */
 const director_background_queue = create_job_queue({ max_concurrency: 2 });
 
-/** Completion directive appended to the character prompt when a reply was truncated. */
+/** Completion directive appended to prompt when reply was cut off by token limit. */
 const TRUNCATION_COMPLETE_NOTE =
   "\n\nIMPORTANT: Your previous reply was cut off mid-sentence. Finish this response IMMEDIATELY: do not repeat any earlier text, do not rehash events, just bring the current moment to a natural close with a complete sentence, then stop.";
 
-/**
- * Minimum narrative length (beyond think blocks) before a missing sentence-ending
- * punctuation is treated as a genuine mid-sentence cutoff. Short unpunctuated
- * beats ("She nods", "Wait") are legitimate endings; real token-budget
- * truncations are always long, rambling replies cut mid-flow.
- */
+/** Minimum narrative prose length before missing punctuation is treated as cut-off. */
 const TRUNCATION_MIN_PROSE = 40;
 
+// ── 2. Narrative Turn Orchestration ───────────────────────────────────────────
+
 export const gamemaster = {
-  // Epilogue presence check
+  /**
+   * Epilogue presence check.
+   * @param {string} story_id
+   * @returns {Promise<boolean>}
+   */
   async _has_epilogue(story_id) {
     try {
       const entries = await state_bridge.session_driver.load_log(story_id);
@@ -61,9 +66,12 @@ export const gamemaster = {
 
   /**
    * EXECUTE TURN
-   * The primary simulation loop for a narrative turn.
+   * The primary simulation loop for a narrative turn:
+   * Shot 1: Director Evaluation & Scene Choreography
+   * Shot 2: Storyteller (Character / NPC / Scene Narrator) Generation
+   *
    * @param {string} story_id
-   * @param {GenerationOptions} [options]
+   * @param {GenerationOptions} [options={}]
    * @returns {Promise<{ response: string, meta: any }>}
    */
   async execute_turn(story_id, options = {}) {
@@ -79,7 +87,7 @@ export const gamemaster = {
         color: "var(--color-frozen)",
       });
       state_bridge.runtime.story_id = story_id;
-      const node_id = generateUUID();
+      const node_id = generate_uuid();
 
       // 1. CHRONO: Round management
       temporal_engine.ensure_momentum(state_bridge.runtime, state_bridge.app);
@@ -109,14 +117,10 @@ export const gamemaster = {
 
       const scoring_context = prompt_builder.build_scoring_context(input, simulation_log);
       if (scoring_context) {
-        // Best-effort precompute with a strict budget: embeddings for scoring are a
-        // nice-to-have, and a slow/synchronous embed must never delay the turn.
         await Promise.race([temporal_engine.precompute_context_embedding(scoring_context), new Promise((resolve) => setTimeout(resolve, 1500))]);
       }
 
       // 3. SIMULATION: Evaluate world physics snapshot prior to generation
-      // Pre-turn dynamics snapshot — the baseline for the image trigger engine's
-      // displacement & band-entry gate (step 4.6). Captured before settlement mutates the copy.
       const prev_dynamics = {
         ai: { ...(state_bridge.runtime.ai || {}) },
         fractal: { ...(state_bridge.runtime.fractal || {}) },
@@ -128,9 +132,6 @@ export const gamemaster = {
         flags: [],
       };
 
-      // Director-delta axes are collected during 4.1 and exempted from the gravity
-      // settle afterwards, so a Director-calibrated axis (including a deliberate 0)
-      // is authoritative for that turn instead of being overwritten by baseline drift.
       /** @type {Set<string>} */
       const ai_delta_axes = new Set();
       /** @type {Set<string>} */
@@ -155,7 +156,7 @@ export const gamemaster = {
                 task: terse ? render_terse_director_task() : director_prompt.task,
                 messages: [],
                 role: "system",
-                node_id: node_id + "-director",
+                node_id: `${node_id}-director`,
               },
               {
                 ...llm_options,
@@ -176,11 +177,7 @@ export const gamemaster = {
       let director_text = raw_to_text(director_raw);
       let director_data = parse_director_json(director_text) || {};
 
-      // TRUNCATION RETRY — a cut-off JSON silently drops every mutation. Retry
-      // once with a terse directive so the payload fits the output budget and
-      // closes cleanly. (A successful parse is kept even if the server's stop
-      // reason was "length" — the object is complete, only optional fields may
-      // have been dropped.)
+      // Truncation recovery
       if (director_data._parse_error) {
         const reason = raw_stop_reason(director_raw);
         state_bridge.app.log(`[GameMaster] Director JSON truncated${reason ? ` (${reason})` : ""} — retrying with terse directive...`, "warn");
@@ -203,23 +200,16 @@ export const gamemaster = {
         state_bridge.runtime.record_director_latency(director_duration_ms);
       }
 
-      // MINIMAL-MUTATION FALLBACK — if the Director STILL failed to produce a
-      // valid payload, synthesize enough mutations that memory & dynamics never
-      // freeze for this turn (the pre-fix behavior that caused the 6-round stalls).
       if (!director_data || director_data._parse_error) {
         state_bridge.app.log("[GameMaster] Director degraded — applying minimal-mutation fallback.", "warn");
         director_data = synthesize_director_fallback(director_data, input, state_bridge);
       }
-      // Defensive re-normalization: guarantees speaker/keywords/story_status are
-      // always in canonical form before any routing decisions are made.
       director_data = normalize_director_data(director_data);
 
-      // 3.5. STAGE SPOTLIGHT — apply the Director's scene choreography (enter/
-      // exit) BEFORE mutations so NPC salience, the roster, and the speaker
-      // engine all reflect this turn's stage.
+      // 3.5. STAGE SPOTLIGHT
       await apply_in_scene_change(state_bridge, director_data.in_scene_change);
 
-      // 3.6. GENESIS DISPATCH (When next_action === 'GENESIS')
+      // 3.6. GENESIS DISPATCH
       let genesis_spawned_npc = null;
       if (director_data.next_action === "GENESIS") {
         state_bridge.app.log("[GameMaster] ✨ Genesis triggered by Director Quick Shot. Synthesizing new character...", "system");
@@ -239,9 +229,13 @@ export const gamemaster = {
                 .trim() || "Stranger"
             : "Stranger";
 
-          genesis_spawned_npc = await spawn_npc(state_bridge, {
-            name: genesis_name,
-            description: director_data.directors_note || "A mysterious figure appearing in the scene.",
+          const parsed_genesis = typeof director_data.genesis === "object" ? director_data.genesis : null;
+
+          genesis_spawned_npc = await spawn_character(state_bridge, {
+            name: parsed_genesis?.name || genesis_name,
+            description: parsed_genesis?.description || director_data.directors_note || "A mysterious figure appearing in the scene.",
+            signature_color: parsed_genesis?.signature_color || "",
+            voice_register: parsed_genesis?.voice_register || "",
             scene_context,
           });
         } catch (err) {
@@ -263,25 +257,23 @@ export const gamemaster = {
         });
       }
 
-      // 4.2. GRAVITY SETTLEMENT — after the Director's explicit deltas, so axes it
-      // calibrated this turn (including deliberate 0s) are authoritative. Untouched
-      // axes still drift gently toward their baselines to prevent runaway drift.
-      physics_engine.settle_physics(
+      // 4.2. GRAVITY SETTLEMENT
+      physics_engine.apply_dynamics_gravity(
         snapshot.ai.dynamics,
-        physics_engine._get_baselines(payload.entities.AI),
+        physics_engine.extract_entity_dynamics_baselines(payload.entities.AI),
         snapshot.fractal.dynamics?.entropy || 50,
         0.1,
         ai_delta_axes,
       );
-      physics_engine.settle_physics(
+      physics_engine.apply_dynamics_gravity(
         snapshot.fractal.dynamics,
-        physics_engine._get_baselines(payload.entities.FRACTAL),
+        physics_engine.extract_entity_dynamics_baselines(payload.entities.FRACTAL),
         snapshot.fractal.dynamics?.entropy || 50,
         0.1,
         fractal_delta_axes,
       );
 
-      // 4.4. ACTIVE SPEAKER RESOLUTION — derived directly from next_action
+      // 4.4. ACTIVE SPEAKER RESOLUTION
       const current_turn_round = state_bridge.runtime.round || 0;
       let target_action = director_data.next_action || "AI_CHARACTER";
       if (current_turn_round <= 1 && target_action === "FRACTAL") {
@@ -289,12 +281,12 @@ export const gamemaster = {
       }
 
       let npc_entity = null;
-      let uses_narrator_engine = false;
+      let is_using_narrator_engine = false;
 
       if (target_action === "GENESIS" && genesis_spawned_npc) {
         npc_entity = genesis_spawned_npc;
       } else if (target_action === "FRACTAL") {
-        uses_narrator_engine = true;
+        is_using_narrator_engine = true;
       } else if (target_action.startsWith("npc")) {
         const npc_id = director_data.npc_id || target_action.replace(/^npc:/i, "");
         npc_entity = resolve_npc_entity(state_bridge, npc_id);
@@ -303,20 +295,20 @@ export const gamemaster = {
         }
       }
 
-      const generation_role = uses_narrator_engine ? "fractal" : "ai";
-      const generation_entity = npc_entity || (uses_narrator_engine ? state_bridge.runtime.active_fractal : state_bridge.runtime.active_ai);
-      const generation_name = generation_entity?.name || (npc_entity ? "NPC" : uses_narrator_engine ? "Fractal" : "AI");
+      const generation_role = is_using_narrator_engine ? "fractal" : "ai";
+      const generation_entity = npc_entity || (is_using_narrator_engine ? state_bridge.runtime.active_fractal : state_bridge.runtime.active_ai);
+      const generation_name = generation_entity?.name || (npc_entity ? "NPC" : is_using_narrator_engine ? "Fractal" : "AI");
       state_bridge.runtime.streaming_entity_id = npc_entity ? npc_entity.id : null;
       state_bridge.simulation_state?.start_generation?.(generation_role);
       state_bridge.simulation_state?.set_generating_entity?.({
-        type: npc_entity ? "npc" : uses_narrator_engine ? "fractal" : "ai",
+        type: npc_entity ? "npc" : is_using_narrator_engine ? "fractal" : "ai",
         name: generation_name,
         avatar: generation_entity?.profile_picture || null,
         color: generation_entity?.signature_color || null,
       });
 
       // 4.5. PHYSICS SYNC & TELEMETRY
-      const character_prompt = uses_narrator_engine
+      const character_prompt = is_using_narrator_engine
         ? prompt_builder.build_scene_narrator(payload, snapshot, director_data)
         : npc_entity
           ? prompt_builder.build_npc(payload, npc_entity, snapshot, director_data)
@@ -341,10 +333,7 @@ export const gamemaster = {
       const think_content = think_sections.join("\n\n");
       if (think_content) final_meta.thoughts = think_content;
 
-      // 4.6 IMAGE TRIGGER ENGINE — Decoupled Dual-Source Cooldown & Priority Arbitration
-      // Source A: pure-JS dynamics gate (band entry + displacement sum, 3-round cooldown).
-      // Source B: LLM Director explicit trigger (trigger_image / keywords visual beat, 2-round cooldown).
-      // Priority 1 (Director) > Priority 2 (Dynamics), 1 image per round ceiling.
+      // 4.6 IMAGE TRIGGER ENGINE
       const turn_round = state_bridge.runtime.round || 0;
       const last_director_beat_round = state_bridge.runtime.last_director_beat_round ?? -1;
       const last_dynamics_beat_round = state_bridge.runtime.last_dynamics_beat_round ?? -1;
@@ -372,18 +361,15 @@ export const gamemaster = {
         final_meta.image_signals = resolved_image.signals;
       }
 
-      const image_trigger_active = resolved_image.active;
+      const is_image_trigger_active = resolved_image.active;
       const image_tier = resolved_image.tier;
 
-      if (image_trigger_active && image_tier) {
+      if (is_image_trigger_active && image_tier) {
         let trigger_prompt = [input, clean_think(director_data._thought_process), clean_think(director_data.directive)]
           .filter(Boolean)
           .join(" ")
           .trim();
         if (!trigger_prompt) {
-          // No in-turn context to draw from (e.g. an opening turn with a silent Director):
-          // anchor the visual on the most recent narrative beat so the image LLM is never
-          // handed the generic placeholder string.
           const last_beat = [...simulation_log].reverse().find((m) => m.role === "fractal" || m.role === "model");
           if (last_beat?.content) {
             trigger_prompt = strip_cognition_blocks(last_beat.content).slice(0, 700);
@@ -415,9 +401,7 @@ export const gamemaster = {
         }
       }
 
-      // 6. GENERATION: Call the model with retry logic. If a reply comes back
-      // truncated (cut off mid-sentence by the token budget), re-run once with a
-      // completion directive so the narrative never ends abruptly.
+      // 6. GENERATION: Character pass with completion retry
       const make_character_try = async (completion_note) => {
         const { onToken, json, signal, silent, raw } = llm_options;
 
@@ -442,7 +426,7 @@ export const gamemaster = {
         const full_text = (director_monologue || "") + (generated_text || "");
 
         const v_result = validate_and_repair_response(full_text);
-        if (v_result.refused) {
+        if (v_result.is_refused) {
           state_bridge.app.streaming.content = "";
           throw new Error("AI_REFUSAL_DETECTED");
         }
@@ -452,9 +436,6 @@ export const gamemaster = {
       let validation_result = await this.execute_with_retry(() => make_character_try(null), 2, 1000);
 
       if (looks_truncated(validation_result.text)) {
-        // Only regenerate when narrative prose actually got cut off mid-sentence:
-        // a think-only reply is an empty generation, not truncation, and short
-        // unpunctuated beats are legitimate narrative endings.
         const prose_only = String(validation_result.text)
           .replace(/<think>[\s\S]*?<\/think>/gi, "")
           .replace(/<\/?think>/gi, "")
@@ -465,13 +446,13 @@ export const gamemaster = {
           validation_result = await this.execute_with_retry(() => make_character_try(TRUNCATION_COMPLETE_NOTE), 1, 500);
           if (looks_truncated(validation_result.text)) {
             validation_result.text = force_close_response(validation_result.text, generation_name);
-            validation_result.structural_repair = true;
+            validation_result.has_structural_repair = true;
           }
         }
       }
 
       // 6.5. POST-GENERATION PIPELINE
-      if (validation_result.structural_repair) {
+      if (validation_result.has_structural_repair) {
         state_bridge.runtime.structural_errors = (state_bridge.runtime.structural_errors || 0) + 1;
       } else {
         state_bridge.runtime.structural_errors = Math.max(0, (state_bridge.runtime.structural_errors || 0) - 1);
@@ -479,20 +460,14 @@ export const gamemaster = {
 
       // 7. PERSISTENCE: Save the result
       const character_name = generation_name;
-      // NPC turns persist under the "npc" role so the feed renders them with the
-      // NPC's own identity/color (and so the LLM context maps them to "model").
       const log_role = npc_entity ? "npc" : generation_role;
 
       final_meta.structural_errors = state_bridge.runtime.structural_errors;
 
-      // Write-time detox: scrub banned tropes from the stored payload so the
-      // database log and exported .md transcripts match the display layer.
       const persisted_text = detox_prose(validation_result.text, "plain");
 
       await state_bridge.session_driver.log_message(persisted_text, log_role, character_name, {
         turn_type: "AI_TURN",
-        // Explicit story binding: delayed async writes must never stamp the
-        // currently-active story after a session switch.
         story_id,
         meta: {
           id: node_id,
@@ -512,12 +487,7 @@ export const gamemaster = {
       state_bridge.app.busy = false;
       state_bridge.simulation_state.phase = "idle";
 
-      // 8.5a. CONSOLIDATION — memory forging is background work: it must never
-      // hold the intent lock or delay the composer past stream-end. Enqueue it
-      // on the parallel job queue (latest-pending supersedes stale forges; a
-      // job whose turn has already been superseded by a new round is skipped —
-      // the next turn enqueues a fresh forge that covers all unconsolidated
-      // messages). The LLM forge is still skipped when the story just resolved.
+      // 8.5a. CONSOLIDATION
       const resolved_status = director_data?.story_status;
       const forge_round = state_bridge.runtime.round;
       director_background_queue
@@ -535,9 +505,7 @@ export const gamemaster = {
           state_bridge.app?.log(`[GameMaster] Background consolidation failed: ${err?.message || err}`, "error");
         });
 
-      // 8.5. AUTO-DISPATCH EPILOGUE — the Director declared the quest resolved
-      // (victory or irrevocable collapse). Deliver the epilogue and mark the
-      // story concluded without needing the manual END STORY button.
+      // 8.5. AUTO-DISPATCH EPILOGUE
       const story_status = resolved_status;
       if (story_status === "CONCLUDED" || story_status === "COLLAPSED") {
         try {
@@ -557,11 +525,11 @@ export const gamemaster = {
       if (state_bridge.simulation_state) {
         state_bridge.simulation_state.phase = "idle";
       }
-      // Ghost sweeps are a background maintenance chore: run them through the
-      // parallel job queue so they never add latency or failure to the turn.
       director_background_queue.run(() => sweep_stale_ghosts()).catch(() => {});
     }
   },
+
+  // ── 3. Story Lifecycles ─────────────────────────────────────────────────────
 
   /**
    * EXECUTE PROLOGUE
@@ -574,25 +542,20 @@ export const gamemaster = {
     try {
       const prologue_input = state_bridge.app.prologue || "";
       const payload = await context_builder.build_context(prologue_input, "prologue");
-      // Semantic RAG: precompute the context embedding from the prologue's own
-      // input so the narrator's PAST/FUTURE ranking (sync format → score) is
-      // scored against the scene the user requested, not pure weight×recency.
+
       await Promise.race([temporal_engine.precompute_context_embedding(prologue_input), new Promise((resolve) => setTimeout(resolve, 1500))]);
       const result = prompt_builder.build_prologue(payload, {});
       if (!result.system) return null;
 
       state_bridge.app.log("[GameMaster] Generating prologue...", "system");
-      const node_id = generateUUID();
+      const node_id = generate_uuid();
       const fractal_name = state_bridge.runtime.active_fractal?.name || "Fractal Entity";
 
       state_bridge.runtime.round = 0;
       state_bridge.runtime.turn_type = "SYSTEM_TURN";
-      // The prologue's own image (dispatched below) opens the decoupled cooldowns, so
-      // the opening turn's dynamics gate can't immediately fire a second image at round 0.
       state_bridge.runtime.last_director_beat_round = 0;
       state_bridge.runtime.last_dynamics_beat_round = 0;
 
-      // Log placeholder message BEFORE streaming begins so the feed entry exists.
       await state_bridge.session_driver.log_message("", "fractal", fractal_name, {
         turn_type: "SYSTEM_TURN",
         story_id,
@@ -622,7 +585,6 @@ export const gamemaster = {
 
       state_bridge.app.end_stream();
 
-      // Attach the image placeholder ONLY after text streaming finishes so the card pops up post-stream
       await state_bridge.session_driver.update_log_attachment(node_id, 0, { src: null, metadata: { mode: "story_entities" } });
 
       const image_promise = visual_engine
@@ -646,8 +608,6 @@ export const gamemaster = {
               }),
             new Promise((resolve) =>
               setTimeout(async () => {
-                // Mark the placeholder failed ONLY if it is still unresolved — never
-                // clobber an image that resolved in the meantime.
                 try {
                   const key = isNaN(Number(node_id)) ? node_id : Number(node_id);
                   const entry = await db.simulation_log.get(key);
@@ -659,7 +619,7 @@ export const gamemaster = {
                     });
                   }
                 } catch (_err) {
-                  /* guard must never break the prologue */
+                  /* guard must never break prologue */
                 }
                 resolve();
               }, IMAGE_RESOLVE_TIMEOUT_MS),
@@ -667,10 +627,6 @@ export const gamemaster = {
           ])
         : Promise.resolve();
 
-      // Prime the streaming cursor so the busy placeholder renders during the opening
-      // turn's director phase (end_stream() above left streaming inactive; a regular
-      // turn gets this from advance_turn). node_id stays null → the "temp" placeholder,
-      // and the character pass streams into it since stream_bridge.is_active() is true.
       state_bridge.app.streaming.active = true;
       state_bridge.app.streaming.content = "";
       state_bridge.app.streaming.node_id = null;
@@ -713,7 +669,7 @@ export const gamemaster = {
     if (!system) return null;
 
     state_bridge.app.log("[GameMaster] Generating epilogue...", "system");
-    const node_id = generateUUID();
+    const node_id = generate_uuid();
     const fractal_name = state_bridge.runtime.active_fractal?.name || "Fractal Entity";
 
     const response = await this.execute_with_retry(async () => {
@@ -747,15 +703,10 @@ export const gamemaster = {
 
     await state_bridge.session_driver.log_message(detox_prose(response, "plain"), "fractal", fractal_name, {
       turn_type: "SYSTEM_TURN",
-      // Explicit story binding — the delayed epilogue write must not land in a
-      // newly-switched active story (cross-story epilogue contamination).
       story_id,
       meta: {
         id: node_id,
         is_epilogue: true,
-        // Conclusion status drives the Epilogue badge (✨ CONCLUDED / 💀 COLLAPSED)
-        // — Message.svelte reads `meta.conclusion_status` first, so stamp it
-        // here rather than letting the UI default to "CONCLUDED".
         conclusion_status,
         story_status: conclusion_status,
       },
@@ -765,11 +716,14 @@ export const gamemaster = {
     return response;
   },
 
+  // ── 4. Persona Ghostwriter ──────────────────────────────────────────────────
+
   /**
    * EXECUTE GHOSTWRITER
    * Compiles and executes a Ghostwriter prompt on behalf of the User Persona.
    * @param {string} [input_text=""]
-   * @param {AbortSignal} [signal]
+   * @param {AbortSignal|null} [signal=null]
+   * @param {Function|null} [on_token=null]
    * @returns {Promise<string>}
    */
   async execute_ghostwriter(input_text = "", signal = null, on_token = null) {
@@ -786,7 +740,7 @@ export const gamemaster = {
     const ghost_prompt = prompt_builder.build_ghostwriter(payload.entities, input_text);
 
     let full_accumulated = "";
-    let inside_think = false;
+    let is_inside_think = false;
 
     const result = await llm_service.generate(
       {
@@ -801,16 +755,15 @@ export const gamemaster = {
         onToken: (chunk) => {
           full_accumulated += chunk;
           if (typeof on_token === "function") {
-            // Strip out <think> blocks in real time and silence initial tag start tokens
             const starts_think = full_accumulated.trimStart().startsWith("<think") || full_accumulated.trimStart() === "<";
             if (starts_think || full_accumulated.includes("<think>")) {
-              inside_think = !full_accumulated.includes("</think>");
-              if (!inside_think) {
+              is_inside_think = !full_accumulated.includes("</think>");
+              if (!is_inside_think) {
                 const cleaned = strip_cognition_blocks(full_accumulated).trimStart();
-                if (cleaned) on_token(cleaned, true); // replace full content
+                if (cleaned) on_token(cleaned, true);
               }
-            } else if (!inside_think) {
-              on_token(chunk, false); // append chunk
+            } else if (!is_inside_think) {
+              on_token(chunk, false);
             }
           }
         },
@@ -820,6 +773,8 @@ export const gamemaster = {
     const clean_result = strip_cognition_blocks(typeof result === "string" ? result : result?.text || "").trim();
     return clean_result;
   },
+
+  // ── 5. Network Retry & Resilience ───────────────────────────────────────────
 
   /**
    * Wraps an async function in exponential backoff retry logic.
@@ -832,7 +787,6 @@ export const gamemaster = {
     try {
       return await fn();
     } catch (error) {
-      // Never retry user-initiated interrupts — let them bubble up immediately.
       const is_abort =
         error?.name === "AbortError" || error?.message?.includes("aborted") || String(error) === "Error: Generation aborted by caller.";
       if (is_abort) throw error;
@@ -850,3 +804,8 @@ export const gamemaster = {
     }
   },
 };
+
+/**
+ * CHANGELOG
+ * - 2026-08-28: Reconstructed story-pipeline.js with 5 clean numbered sections, updated header path, and standard JSDoc typings.
+ */

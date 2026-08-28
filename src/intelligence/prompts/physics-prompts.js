@@ -14,7 +14,7 @@
 
 import { STYLE_MOTIF_REGISTRY } from "@data";
 import { escape_xml } from "@utils";
-import { DYNAMICS_META, evaluate_automatic_somatics, evaluate_physics_signals } from "../physics.js";
+import { DYNAMICS_AXES, resolve_non_verbal_reactions, evaluate_dynamics_signals } from "../physics.js";
 
 // ── 1. Static Archetypes Registry ─────────────────────────────────────────────
 
@@ -111,9 +111,9 @@ let cached_dynamics_legend = null;
  */
 export function build_dynamics_legend() {
   if (cached_dynamics_legend !== null) return cached_dynamics_legend;
-  if (!DYNAMICS_META) return "";
+  if (!DYNAMICS_AXES) return "";
 
-  const definitions = Object.entries(DYNAMICS_META)
+  const definitions = Object.entries(DYNAMICS_AXES)
     .map(([key, meta]) => `    - ${key} (${meta.label}): ${meta.desc}`)
     .join("\n");
 
@@ -152,7 +152,7 @@ export function format_dynamics_attrs(dynamics) {
  * @returns {string} XML block string, or "" when no signals are active.
  */
 export function build_signals_xml(ai_dynamics = {}, fractal_dynamics = {}, options = {}) {
-  const active = evaluate_physics_signals(ai_dynamics, fractal_dynamics, options?.style);
+  const active = evaluate_dynamics_signals(ai_dynamics, fractal_dynamics, options?.style);
   if (active.length === 0) return "";
   const inner = active.map((s) => `      • ${s.text}`).join("\n");
   return `    <DYNAMICS_SIGNALS>\n${inner}\n    </DYNAMICS_SIGNALS>`;
@@ -190,7 +190,7 @@ export function resolve_somatic_directives(keywords = []) {
  * @returns {string}
  */
 export function build_somatic_directives_xml(keywords = [], dynamics = null) {
-  const resolved_keywords = dynamics ? evaluate_automatic_somatics(dynamics, keywords) : keywords;
+  const resolved_keywords = dynamics ? resolve_non_verbal_reactions(dynamics, keywords) : keywords;
   const resolved = resolve_somatic_directives(resolved_keywords);
   if (resolved.length === 0) return "";
 

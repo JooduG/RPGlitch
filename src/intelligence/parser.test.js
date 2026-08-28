@@ -1,6 +1,5 @@
-import { clean_image_prompts, strip_cognition_blocks, parse_think_block, safe_parse_pseudo_json, check_refusal } from "./parser.js";
-import { merge_prose_into_field } from "./payload.js";
-import { escape_xml } from "@utils";
+import { clean_image_prompts, parse_think_block, is_refusal_response } from "./parser.js";
+import { escape_xml, strip_cognition_blocks, safe_parse_pseudo_json, merge_prose_into_field } from "@utils";
 import { describe, expect, it } from "vitest";
 
 describe("strip_cognition_blocks", () => {
@@ -344,26 +343,26 @@ describe("merge_prose_into_field", () => {
   });
 });
 
-describe("check_refusal", () => {
+describe("is_refusal_response", () => {
   it("flags common refusal phrasings", () => {
-    expect(check_refusal("I cannot generate that content.")).toBe(true);
-    expect(check_refusal("I'm sorry, but I can't help with that.")).toBe(true);
-    expect(check_refusal("As an AI, I am unable to assist with this.")).toBe(true);
-    expect(check_refusal("I'm not able to provide explicit details.")).toBe(true);
+    expect(is_refusal_response("I cannot generate that content.")).toBe(true);
+    expect(is_refusal_response("I'm sorry, but I can't help with that.")).toBe(true);
+    expect(is_refusal_response("As an AI, I am unable to assist with this.")).toBe(true);
+    expect(is_refusal_response("I'm not able to provide explicit details.")).toBe(true);
   });
 
   it("allows normal story prose", () => {
-    expect(check_refusal("The sword gleamed in the pale moonlight.")).toBe(false);
-    expect(check_refusal("She asked the AI how to fix the engine.")).toBe(false);
+    expect(is_refusal_response("The sword gleamed in the pale moonlight.")).toBe(false);
+    expect(is_refusal_response("She asked the AI how to fix the engine.")).toBe(false);
   });
 
   it("is case-insensitive", () => {
-    expect(check_refusal("I CANNOT GENERATE this.")).toBe(true);
+    expect(is_refusal_response("I CANNOT GENERATE this.")).toBe(true);
   });
 
   it("returns false for empty or non-string input", () => {
-    expect(check_refusal("")).toBe(false);
-    expect(check_refusal(undefined)).toBe(false);
-    expect(check_refusal(null)).toBe(false);
+    expect(is_refusal_response("")).toBe(false);
+    expect(is_refusal_response(undefined)).toBe(false);
+    expect(is_refusal_response(null)).toBe(false);
   });
 });

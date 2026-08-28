@@ -1,8 +1,8 @@
 /**
  * src/intelligence/prompts/story-prompts.js
- * 🎭 STORYTELLING TURN PROMPTS
+ * 🎭 SHOT 2 (STORY PROSE) PROMPTS — Storytelling Turn Compilers
  *
- * Prompts for the core simulation turn loop:
+ * Dedicated prompt generator for Shot 2 (Story Prose / Entity Turn):
  * - Unified Story Prose Compiler (render_story_prose)
  * - Ghostwriter Player Turn (render_ghostwriter)
  */

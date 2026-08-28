@@ -920,7 +920,7 @@ describe("temporal_engine per-entity consolidation progress tracking (Track 2 Ph
     expect(updated[0].meta.forged_entities).toContain("USER_PERSONA");
   });
 
-  it("extracts and applies relationship edges from Back Shot Forge payload", async () => {
+  it("extracts and applies relationship edges from Memory Forge payload", async () => {
     const mock_messages = [{ id: 1, role: "user", text: "Turn 1", meta: {} }];
     const mock_session = {
       require_active: vi.fn(() => "story-1"),

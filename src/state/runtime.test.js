@@ -211,7 +211,7 @@ describe("runtime world-cast hydration (track-npc-expansion)", () => {
 
   it("hydrates the story's NPCs into active_npcs and puts everyone on-stage", async () => {
     const { story_id } = await seed_story_with_npcs([
-      { id: "npc-elias", name: "Elias", role_tier: 2 },
+      { id: "npc-elias", name: "Elias" },
       { id: "npc-mira", name: "Mira" },
     ]);
     mock_checkpoint.load_session_checkpoint.mockReturnValue({ story_id: String(story_id), round: 3, phase: "idle" });
@@ -220,7 +220,6 @@ describe("runtime world-cast hydration (track-npc-expansion)", () => {
 
     expect(Object.keys(runtime.active_npcs).sort()).toEqual(["npc-elias", "npc-mira"]);
     expect(runtime.active_npcs["npc-elias"].name).toBe("Elias");
-    expect(runtime.active_npcs["npc-elias"].role_tier).toBe(2);
     expect(runtime.snapshot_npcs["npc-mira"].name).toBe("Mira");
     expect(runtime.in_scene_npc_ids).toEqual(expect.arrayContaining(["npc-elias", "npc-mira"]));
     expect([...runtime.snapshot_in_scene_npc_ids].sort()).toEqual(["npc-elias", "npc-mira"]);
@@ -241,8 +240,8 @@ describe("runtime world-cast hydration (track-npc-expansion)", () => {
     mock_checkpoint.load_session_checkpoint.mockReturnValue({ story_id: String(story_id), round: 3, phase: "idle" });
     await runtime.sync();
 
-    await runtime.update_entity("character", "npc-elias", { role_tier: 3 });
-    expect(runtime.active_npcs["npc-elias"].role_tier).toBe(3);
+    await runtime.update_entity("character", "npc-elias", { name: "Elias Updated" });
+    expect(runtime.active_npcs["npc-elias"].name).toBe("Elias Updated");
 
     await runtime.save_entity("character", { ...runtime.active_npcs["npc-elias"], name: "Elias II" });
     expect(runtime.active_npcs["npc-elias"].name).toBe("Elias II");

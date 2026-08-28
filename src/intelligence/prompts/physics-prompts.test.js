@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { build_available_keywords_xml, build_somatic_directives_xml, resolve_somatic_directives, SOMATIC_REGISTRY } from "./physics-prompts.js";
 import { STYLE_MOTIF_REGISTRY } from "@data";
-import { GLOBAL_TRIGGERS, evaluate_automatic_somatics } from "../physics.js";
+import { GLOBAL_TRIGGERS, resolve_non_verbal_reactions } from "../physics.js";
 
 describe("SOMATIC_REGISTRY", () => {
   it("contains exactly the 12 universal archetypes", () => {
@@ -91,40 +91,40 @@ describe("build_available_keywords_xml", () => {
   });
 });
 
-describe("evaluate_automatic_somatics", () => {
+describe("resolve_non_verbal_reactions", () => {
   it("resolves fear when intensity is high (>=75) and affinity is moderate/low", () => {
-    const somatics = evaluate_automatic_somatics({ intensity: 80, affinity: 40 });
-    expect(somatics).toContain("fear");
+    const reactions = resolve_non_verbal_reactions({ intensity: 80, affinity: 40 });
+    expect(reactions).toContain("fear");
   });
 
   it("resolves dysregulation on extreme chaos (>=75)", () => {
-    const somatics = evaluate_automatic_somatics({ chaos: 85 });
-    expect(somatics).toContain("dysregulation");
+    const reactions = resolve_non_verbal_reactions({ chaos: 85 });
+    expect(reactions).toContain("dysregulation");
   });
 
   it("resolves betrayal on low openness (<=25) and low affinity (<=40)", () => {
-    const somatics = evaluate_automatic_somatics({ openness: 20, affinity: 30 });
-    expect(somatics).toContain("betrayal");
+    const reactions = resolve_non_verbal_reactions({ openness: 20, affinity: 30 });
+    expect(reactions).toContain("betrayal");
   });
 
   it("resolves intimacy on high affinity (>=75) and high openness (>=60)", () => {
-    const somatics = evaluate_automatic_somatics({ affinity: 80, openness: 70 });
-    expect(somatics).toContain("intimacy");
+    const reactions = resolve_non_verbal_reactions({ affinity: 80, openness: 70 });
+    expect(reactions).toContain("intimacy");
   });
 
   it("prioritizes manual Director keywords over automatic ones", () => {
-    const somatics = evaluate_automatic_somatics({ intensity: 90 }, ["grief"]);
-    expect(somatics[0]).toBe("grief");
+    const reactions = resolve_non_verbal_reactions({ intensity: 90 }, ["grief"]);
+    expect(reactions[0]).toBe("grief");
   });
 
   it("clamps results to max_directives (default: 2)", () => {
-    const somatics = evaluate_automatic_somatics({ intensity: 90, chaos: 90, openness: 10, affinity: 10 });
-    expect(somatics.length).toBeLessThanOrEqual(2);
+    const reactions = resolve_non_verbal_reactions({ intensity: 90, chaos: 90, openness: 10, affinity: 10 });
+    expect(reactions.length).toBeLessThanOrEqual(2);
   });
 
   it("returns empty array for neutral dynamics without manual keywords", () => {
-    const somatics = evaluate_automatic_somatics({ intensity: 50, chaos: 50, openness: 50, affinity: 50 });
-    expect(somatics).toEqual([]);
+    const reactions = resolve_non_verbal_reactions({ intensity: 50, chaos: 50, openness: 50, affinity: 50 });
+    expect(reactions).toEqual([]);
   });
 
   it("build_somatic_directives_xml renders XML automatically from dynamics", () => {

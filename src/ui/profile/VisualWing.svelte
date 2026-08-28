@@ -6,7 +6,7 @@
    * Part of the RPGlitch UI.
    */
   import { Button, SourceField, TextField, Toggle, NumberField, Dropdown, tooltip, Label } from "@primitives";
-  import { strip_cognition_blocks } from "@intelligence";
+  import { strip_cognition_blocks } from "@utils";
   import { aesthetic_resolver, get_signature_label, PALETTE, PALETTE_VARS, SIGNATURE_COLORS } from "@media";
   import { app } from "@state";
   import { VISUAL_STYLES } from "@data";

@@ -161,18 +161,7 @@ describe("normalizer.js", () => {
     });
   });
 
-  describe("world-cast tier fields (role_tier / is_wanderer / relationships)", () => {
-    it("defaults to tier 1 background when absent or invalid", () => {
-      expect(normalize({}).role_tier).toBe(1);
-      expect(normalize({ role_tier: 99 }).role_tier).toBe(1);
-      expect(normalize({ role_tier: "banana" }).role_tier).toBe(1);
-    });
-
-    it("preserves tier 2 (recurring) and tier 3 (major)", () => {
-      expect(normalize({ role_tier: 2 }).role_tier).toBe(2);
-      expect(normalize({ role_tier: 3 }).role_tier).toBe(3);
-    });
-
+  describe("world-cast fields (is_wanderer / relationships)", () => {
     it("coerces is_wanderer to a boolean", () => {
       expect(normalize({}).is_wanderer).toBe(false);
       expect(normalize({ is_wanderer: true }).is_wanderer).toBe(true);
@@ -203,8 +192,7 @@ describe("normalizer.js", () => {
       expect(normalize({ relationships: "not-an-array" }).relationships).toEqual([]);
     });
 
-    it("seeds the tier fields from templates", () => {
-      expect(ENTITY_TEMPLATES.character.role_tier).toBe(1);
+    it("seeds the world-cast fields from templates", () => {
       expect(ENTITY_TEMPLATES.character.is_wanderer).toBe(false);
       expect(ENTITY_TEMPLATES.character.relationships).toEqual([]);
     });

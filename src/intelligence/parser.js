@@ -1,17 +1,39 @@
 /**
- * @file src/intelligence/parser.js
- * 📋 PARSER — Raw LLM output → structured data.
- * Handles: Think blocks, Image prompts, Pseudo-JSON, XML sanitization, and
- * Markdown-free text cleaning.
+ * src/intelligence/parser.js
+ * 📋 PARSER DOMAIN MODULE — Raw LLM Output Sanitization & Structured Extraction.
  *
- * Purity: only pure parsing lives here. Rendering concerns live in
- * @ui/message/render.js (parse_message/wrap_dialogue); Director JSON extraction
- * lives in ./director.js; raw transport unwrapping lives in @platform/transport.js;
- * prose field merging + register resolution live in @utils/text.js and @data.
+ * Provides pure, synchronous parsing and repair algorithms for raw LLM text streams:
+ * 1. Refusal & Safety Guardrails
+ * 2. Think Block Parsing & Tag Repair
+ * 3. Narrative Response Completion
+ * 4. Profile JSON Extraction
+ * 5. Sensory & Image Prompt Cleaning
+ *
+ * Purity Mandate:
+ * - Stateless, deterministic functions only.
+ * - Rendering concerns live in @ui/message/render.js.
+ * - Director-specific JSON extraction lives in ./director.js.
+ * - Raw network unwrapping lives in @platform/transport.js.
  */
 
-import { collapse_history, safe_parse_pseudo_json, strip_cognition_blocks, clean_text, clean_xml, extract_json_block } from "@utils";
-export { clean_text, clean_xml, extract_json_block };
+import { extract_json_block, strip_cognition_blocks } from "@utils";
+
+// ── 1. Refusal & Safety Guardrails ────────────────────────────────────────────
+
+const REFUSAL_TRIGGERS = [
+  "i cannot generate",
+  "i can't generate",
+  "i'm unable to assist",
+  "i am unable to assist",
+  "as an ai",
+  "as a language model",
+  "i'm sorry, but i can",
+  "i can't help with that",
+  "i cannot help with that",
+  "i'm not able to provide",
+  "i am not able to provide",
+  "i cannot create content that",
+];
 
 /**
  * Evaluates if a given text should be refused based on safety or policy rules.
@@ -19,25 +41,13 @@ export { clean_text, clean_xml, extract_json_block };
  * @param {string} text
  * @returns {boolean}
  */
-export const check_refusal = (text) => {
+export function is_refusal_response(text) {
   if (!text) return false;
   const lower = String(text).toLowerCase();
-  const REFUSAL_TRIGGERS = [
-    "i cannot generate",
-    "i can't generate",
-    "i'm unable to assist",
-    "i am unable to assist",
-    "as an ai",
-    "as a language model",
-    "i'm sorry, but i can",
-    "i can't help with that",
-    "i cannot help with that",
-    "i'm not able to provide",
-    "i am not able to provide",
-    "i cannot create content that",
-  ];
   return REFUSAL_TRIGGERS.some((trigger) => lower.includes(trigger));
-};
+}
+
+// ── 2. Think Block Parsing & Tag Repair ───────────────────────────────────────
 
 /**
  * Drops `</think>` closing tags that appear while no think block is open.
@@ -47,51 +57,51 @@ export const check_refusal = (text) => {
 export function strip_unmatched_think_closures(text) {
   if (!text) return text;
   const segments = text.split(/(<\/think>|<think>)/i);
-  let in_think = false;
+  let is_in_think = false;
   const kept = [];
+
   for (const segment of segments) {
     if (/^<think>$/i.test(segment)) {
-      in_think = true;
+      is_in_think = true;
       kept.push(segment);
     } else if (/^<\/think>$/i.test(segment)) {
-      if (in_think) {
-        in_think = false;
+      if (is_in_think) {
+        is_in_think = false;
         kept.push(segment);
       }
     } else {
       kept.push(segment);
     }
   }
+
   return kept.join("");
 }
 
 /**
  * Synchronous post-turn validation and repair layer.
- * Automatically closes truncated `<think>` blocks.
+ * Automatically closes truncated `<think>` blocks or strips stray re-closures.
  * @param {string} response
- * @returns {{ text: string; refused: boolean; structural_repair: boolean }}
+ * @returns {{ text: string, is_refused: boolean, has_structural_repair: boolean }}
  */
 export function validate_and_repair_response(response) {
-  const result = { text: response || "", refused: false, structural_repair: false };
+  const result = { text: response || "", is_refused: false, has_structural_repair: false };
 
-  if (check_refusal(response)) {
-    result.refused = true;
+  if (is_refusal_response(response)) {
+    result.is_refused = true;
     return result;
   }
 
   try {
     let text = result.text;
-
-    // Tag Closure Pass
     const think_openers = (text.match(/<think>/gi) || []).length;
     const think_closers = (text.match(/<\/think>/gi) || []).length;
+
     if (think_openers > think_closers) {
       text += "</think>";
-      result.structural_repair = true;
+      result.has_structural_repair = true;
     } else if (think_closers > think_openers) {
-      // Stray re-closures after the think block already closed (e.g. "...prose.</think>").
       text = strip_unmatched_think_closures(text);
-      result.structural_repair = true;
+      result.has_structural_repair = true;
     }
 
     result.text = text;
@@ -99,19 +109,8 @@ export function validate_and_repair_response(response) {
     console.warn("[Parser] Validation check failed:", err);
     result.text = response || "";
   }
-  return result;
-}
 
-/**
- * Closes out a truncated reply in-character so the narrative never ends mid-sentence.
- * @param {string} text
- * @param {string} character_name
- * @returns {string}
- */
-export function force_close_response(text, character_name) {
-  const t = String(text || "").trimEnd();
-  if (!t) return t;
-  return `${t}\n\n${character_name} goes quiet, the moment settling around ${character_name === "AI" ? "them" : "it"} like dust.`;
+  return result;
 }
 
 /**
@@ -181,6 +180,22 @@ export function parse_think_block(text) {
   };
 }
 
+// ── 3. Narrative Response Completion ──────────────────────────────────────────
+
+/**
+ * Closes out a truncated reply in-character so the narrative never ends mid-sentence.
+ * @param {string} text
+ * @param {string} character_name
+ * @returns {string}
+ */
+export function force_close_response(text, character_name) {
+  const t = String(text || "").trimEnd();
+  if (!t) return t;
+  return `${t}\n\n${character_name} goes quiet, the moment settling around ${character_name === "AI" ? "them" : "it"} like dust.`;
+}
+
+// ── 4. Profile JSON Extraction ────────────────────────────────────────────────
+
 /**
  * Parses a raw LLM profile-sorting response into a structured object.
  * Strips cognition blocks and code fences, isolates the outermost JSON object,
@@ -198,8 +213,10 @@ export function parse_profile_json(raw) {
   }
 }
 
+// ── 5. Sensory & Image Prompt Cleaning ────────────────────────────────────────
+
 /**
- * Removes <image_prompt> tags and Markdown images from text.
+ * Removes <image_prompt> tags, <image> tags, and Markdown images from text.
  * @param {string|null|undefined} text
  * @returns {string}
  */
@@ -227,25 +244,6 @@ export function clean_image_prompts(text) {
 }
 
 /**
- * High-fidelity parser that extracts pseudo-JSON configurations.
- * @param {string} raw
- * @returns {Record<string, string>}
+ * CHANGELOG
+ * - 2026-08-28: Ground-up deconstruct & refactor: structured into 5 pure domain sections, verified streaming think tag parsing, JSDoc coverage, and purged backwards-compatible re-exports.
  */
-export { safe_parse_pseudo_json };
-
-/**
- * Cognition-block stripper — canonical implementation lives in @utils/text.js
- * and is re-exported here so @intelligence consumers keep a stable import path.
- * @param {string|null|undefined} text
- * @returns {string}
- */
-export { strip_cognition_blocks };
-
-/**
- * Conversation-history collapsing — canonical implementation lives in @utils/text.js
- * and is re-exported here so @intelligence consumers keep a stable import path.
- * @param {Array<{role: string, content?: string, text?: string, character_name?: string}>} messages
- * @param {{separator?: string, stripBoldQuotes?: boolean}} [options]
- * @returns {Array<{role: string, name: string, content: string}>}
- */
-export { collapse_history };

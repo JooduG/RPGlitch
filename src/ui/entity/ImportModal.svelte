@@ -1,7 +1,7 @@
 <script>
   import { Button, Modal, SourceField, Toggle } from "@primitives";
   import { app, runtime, simulation_state } from "@state";
-  import { apply_profile_to_entity, sort_into_profile } from "@intelligence";
+  import { apply_profile_to_entity, structure_profile } from "@intelligence";
   import { create_new, detect_card_format, normalize, parse_character_card } from "@data";
   import { generate_uuid } from "@utils";
 
@@ -85,7 +85,7 @@
    * @param {string} raw
    */
   async function import_from_llm(type, raw) {
-    const profile = await sort_into_profile(raw, type);
+    const profile = await structure_profile(raw, type);
     if (!profile) return; // Lenient: LLM failed to sort — import silently skipped.
     const entity = create_new(type);
     if (image_data) entity.profile_picture = image_data;

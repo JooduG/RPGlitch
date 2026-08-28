@@ -6,7 +6,7 @@
    * Part of the RPGlitch UI.
    */
   import { Accordion, DataBox, Meter } from "@primitives";
-  import { DYNAMICS_META } from "@intelligence";
+  import { DYNAMICS_AXES } from "@intelligence";
   import { format_datetime } from "@utils";
 
   /**
@@ -28,8 +28,8 @@
         list.push({
           source: "dynamics",
           key: key,
-          label: DYNAMICS_META[key]?.label || key.charAt(0).toUpperCase() + key.slice(1),
-          desc: DYNAMICS_META[key]?.desc || "Metric",
+          label: DYNAMICS_AXES[key]?.label || key.charAt(0).toUpperCase() + key.slice(1),
+          desc: DYNAMICS_AXES[key]?.desc || "Metric",
         });
       }
     }

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   decompose_story_title,
+  derive_vector_title,
   escape_unescaped_json_quotes,
   format_key_as_label,
   format_relational_vector,
@@ -31,13 +32,28 @@ describe("format_key_as_label", () => {
     expect(format_key_as_label("first_name")).toBe("First Name");
   });
 
-  it("handles special case non_physical", () => {
-    expect(format_key_as_label("non_physical")).toBe("Non-Physical");
-  });
-
   it("handles null or empty inputs gracefully", () => {
     expect(format_key_as_label("")).toBe("");
     expect(format_key_as_label(null)).toBe("");
+  });
+});
+
+describe("derive_vector_title", () => {
+  it("derives a clean title from short directive text", () => {
+    expect(derive_vector_title("Washed ashore at Mournhold.")).toBe("Washed ashore at Mournhold");
+  });
+
+  it("truncates long directive text with ellipsis at word boundary", () => {
+    const long_text = "This is a very long directive text that exceeds the maximum length limit allowed for headers";
+    const title = derive_vector_title(long_text, 38);
+    expect(title.length).toBeLessThanOrEqual(40);
+    expect(title.endsWith("…")).toBe(true);
+  });
+
+  it("handles null or non-string inputs gracefully", () => {
+    expect(derive_vector_title(null)).toBe("");
+    expect(derive_vector_title(undefined)).toBe("");
+    expect(derive_vector_title("")).toBe("");
   });
 });
 

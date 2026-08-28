@@ -4,11 +4,20 @@
  *
  * Normalizes Director outputs, extracts quick-shot JSON schemas defensively,
  * applies Stage Spotlight choreography, and reconciles the Relational Mesh.
+ *
+ * Architecture:
+ * 1. Constants & Value Maps
+ * 2. Action & Speaker Normalizers
+ * 3. Quick Shot Payload Normalizer
+ * 4. Fallback Synthesizer
+ * 5. Safe JSON Extraction & Output Parser
+ * 6. Stage Spotlight Choreography & NPC Resolution
+ * 7. Relational Mesh Actuator
  */
 
 import { entities } from "@data";
-import { escape_unescaped_json_quotes, first_sentence, state_bridge } from "@utils";
-import { extract_json_block, parse_think_block } from "./parser.js";
+import { escape_unescaped_json_quotes, extract_json_block, first_sentence, state_bridge } from "@utils";
+import { parse_think_block } from "./parser.js";
 
 // ── 1. Constants & Value Maps ─────────────────────────────────────────────────
 
@@ -69,18 +78,7 @@ export function normalize_speaker(raw) {
 }
 
 /**
- * Maps a normalized speaker target onto the engine that executes the turn.
- * @param {"ai" | "fractal" | "npc"} [speaker]
- * @returns {"character" | "narrator" | "npc"}
- */
-export function resolve_speaker_engine(speaker = "ai") {
-  if (speaker === "fractal") return "narrator";
-  if (speaker === "npc") return "npc";
-  return "character";
-}
-
-/**
- * Sanitizes director's note to 1-3 lines string.
+ * Sanitizes director's note to a clean 1-3 line string.
  * @param {any} raw
  * @returns {string}
  */
@@ -216,7 +214,8 @@ export function synthesize_director_fallback(prev_data, input, bridge) {
 // ── 5. Safe JSON Extraction & Output Parser ───────────────────────────────────
 
 /**
- * Helper to extract Director's JSON from a raw string.
+ * Extracts and sanitizes the Director's JSON payload from raw LLM output.
+ * Falls back to raw prose parsing if bracketed JSON is missing or malformed.
  * @param {string} raw_text
  * @returns {any}
  */
@@ -247,7 +246,7 @@ export function parse_director_json(raw_text) {
   }
 }
 
-// ── 6. Stage Spotlight & Relational Mesh Actuators ────────────────────────────
+// ── 6. Stage Spotlight Choreography & NPC Resolution ──────────────────────────
 
 /**
  * Normalizes an actor identifier (e.g. "npc:elias" -> "elias") and resolves it
@@ -317,8 +316,10 @@ export async function apply_in_scene_change(bridge, change) {
   return changed;
 }
 
+// ── 7. Relational Mesh Actuator ───────────────────────────────────────────────
+
 /**
- * Applies the Director's relational-web mutations.
+ * Applies the Director's relational-web mutations across all participating entities.
  * @param {any} bridge
  * @param {string[]} rels
  */
@@ -399,6 +400,5 @@ export async function apply_relationships(bridge, rels) {
 
 /**
  * CHANGELOG
- * - 2026-08-28: Streamlined director.js by purging dead state scrubbers and orphaned promotion/genesis normalizers,
- *   consolidating Stage Spotlight choreography and Relational Mesh actuators into clean, modular routines.
+ * - 2026-08-28: Ground-up deconstruct & refactor: normalized action and speaker resolution, defensive JSON extraction, Stage Spotlight choreography, and unified Relational Mesh persistence.
  */

@@ -6,7 +6,6 @@ import {
   normalize_in_scene_change,
   normalize_relationships,
   strip_npc_id,
-  resolve_speaker_engine,
   STORY_STATUS_VALUES,
 } from "./director.js";
 
@@ -93,7 +92,7 @@ describe("Director Quick Shot Prompt (render_director)", () => {
   });
 
   it("emits compact ROSTER and SCENE_ROSTER when NPCs are present", () => {
-    const npc_entities = [{ id: "npc-elias", name: "Elias", role_tier: 2, description: "Archivist", relationships: ["Elias → Viper: wary"] }];
+    const npc_entities = [{ id: "npc-elias", name: "Elias", description: "Archivist", relationships: ["Elias → Viper: wary"] }];
     const result = render_director({ ...base_payload(), npc_entities, in_scene_ids: ["npc-elias"], compressed_snapshot: base_snapshot });
     expect(result.system).toContain("<ROSTER>");
     expect(result.system).toContain("Elias (id: npc-elias)");
@@ -208,15 +207,6 @@ describe("normalize_director_data", () => {
     for (const status of STORY_STATUS_VALUES) {
       expect(STORY_STATUS_VALUES).toContain(status);
     }
-  });
-});
-
-describe("resolve_speaker_engine", () => {
-  it("maps ai → character, fractal → narrator, npc → npc", () => {
-    expect(resolve_speaker_engine("ai")).toBe("character");
-    expect(resolve_speaker_engine("fractal")).toBe("narrator");
-    expect(resolve_speaker_engine("npc")).toBe("npc");
-    expect(resolve_speaker_engine()).toBe("character");
   });
 });
 

@@ -1,21 +1,27 @@
 /**
  * src/intelligence/physics.js
- * ⚙️ PHYSICS ENGINE — 6-Axis Dynamics simulation, gravity settlement,
- * mathematical delta computation, and unified signals evaluator.
+ * ⚙️ PHYSICS DOMAIN MODULE — 6-Axis Dynamics Engine & Signal Evaluator
+ *
+ * Simulates the psychological and environmental physics of RPGlitch:
+ * 1. Dynamics Axis Metadata (DYNAMICS_META)
+ * 2. Global Dynamics Triggers (GLOBAL_TRIGGERS)
+ * 3. Dynamic Somatic Archetype Rules (DYNAMIC_SOMATIC_RULES)
+ * 4. Physics Engine & Gravity Settlement (physics_engine)
+ * 5. Delta Computation & Signal Evaluators (compute_deltas, evaluate_physics_signals, evaluate_automatic_somatics)
  *
  * Core Laws:
- * - Pure data & math calculations only — zero prompt XML strings.
- * - Settle physics pulls volatile dynamics toward baselines with randomized gravity.
- * - Single-pass evaluation of global triggers and active narrative style triggers.
+ * - Pure data, math calculations, and signal predicates only.
+ * - Zero prompt XML string construction (XML prompts live in ./prompts/physics-prompts.js).
+ * - Settle physics pulls volatile dynamics toward baselines with randomized entropy gravity.
  */
 
-// ── 1. Dynamics Metadata ──────────────────────────────────────────────────────
+// ── 1. Dynamics Axes ──────────────────────────────────────────────────────────
 
 /**
  * 6 core dynamics axes: 4 somatic (character) and 2 environmental (fractal).
  * @type {Record<string, { label: string, desc: string }>}
  */
-export const DYNAMICS_META = {
+export const DYNAMICS_AXES = {
   // Character (Somatic) axes
   chaos: { label: "Chaos", desc: "Randomness vs Control" },
   intensity: { label: "Intensity", desc: "Internal Energy / Adrenaline" },
@@ -148,12 +154,12 @@ export const GLOBAL_TRIGGERS = [
   },
 ];
 
-// ── 3. Dynamic Somatic Threshold Rules ────────────────────────────────────────
+// ── 3. Dynamic Non-Verbal Reaction Rules ─────────────────────────────────────
 
 /**
- * Deterministic threshold mapping from emotional dynamics axes to somatic archetype keys.
+ * Deterministic threshold mapping from emotional dynamics axes to non-verbal reaction archetype keys.
  */
-export const DYNAMIC_SOMATIC_RULES = [
+export const DYNAMIC_NON_VERBAL_RULES = [
   {
     id: "fear",
     when: (d) => (d.intensity ?? 50) >= 75 && (d.affinity ?? 50) <= 60,
@@ -205,25 +211,24 @@ export const DYNAMIC_SOMATIC_RULES = [
 
 export const physics_engine = {
   /**
-   * Evaluates and settles physics (Gravity & Clamping).
-   * Used after the Director applies explicit state mutations to settle the physics before the next turn.
+   * Applies gravitational decay pulling volatile dynamics toward baselines with randomized entropy gravity.
+   *
    * @param {Record<string, number>} dynamics - The current dynamics state for an entity
    * @param {Record<string, number>} [baselines={}] - The baseline gravitational centers
    * @param {number} [active_entropy=50] - The current world entropy (0-100)
-   * @param {number} [base_gravity=0.1] - The baseline gravity strength (e.g. 0.1)
-   * @param {Set<string>|null} [skip_axes=null] - Axes the Director explicitly calibrated this turn; they are exempt from gravity so its deltas stay authoritative.
+   * @param {number} [base_gravity=0.1] - The baseline gravity strength
+   * @param {Set<string>|null} [skip_axes=null] - Axes explicitly calibrated this turn (exempt from gravity)
    */
-  settle_physics(dynamics, baselines = {}, active_entropy = 50, base_gravity = 0.1, skip_axes = null) {
+  apply_dynamics_gravity(dynamics, baselines = {}, active_entropy = 50, base_gravity = 0.1, skip_axes = null) {
     if (!dynamics || typeof dynamics !== "object") return;
 
-    // 1. Gravity Pull & Settlement (Clamp to 0-100 bounds)
     const variance = (active_entropy / 100) * 0.05;
 
     for (const axis of Object.keys(dynamics)) {
       if (skip_axes && skip_axes.has(axis)) continue;
       const target = baselines[axis] ?? 50;
       const randomized_gravity = base_gravity + (Math.random() * 2 - 1) * variance;
-      const applied_gravity = Math.max(0, Math.min(1, randomized_gravity)); // Clamp [0, 1]
+      const applied_gravity = Math.max(0, Math.min(1, randomized_gravity));
 
       const next_val = dynamics[axis] + (target - dynamics[axis]) * applied_gravity;
       dynamics[axis] = Math.max(0, Math.min(100, Math.round(next_val)));
@@ -231,10 +236,11 @@ export const physics_engine = {
   },
 
   /**
-   * @param {any} entity - The entity to extract baselines from.
-   * @returns {Record<string, number>} The entity's baseline dynamics.
+   * Extracts baseline dynamics from an entity.
+   * @param {any} entity
+   * @returns {Record<string, number>}
    */
-  _get_baselines(entity) {
+  extract_entity_dynamics_baselines(entity) {
     return entity?.dynamics_baseline || {};
   },
 };
@@ -242,20 +248,19 @@ export const physics_engine = {
 // ── 5. Delta Computation & Signal Evaluator ───────────────────────────────────
 
 /**
- * Computes dynamics deltas for a single target (ai or fractal) and appends to accumulators.
+ * Computes dynamics deltas between turns for telemetry recording.
  * @param {string} target
  * @param {Record<string, number>} dynamics
  * @param {any} runtime_target
  * @param {any[]} deltas
  * @param {string[]} log_strings
  */
-export function compute_deltas(target, dynamics, runtime_target, deltas, log_strings) {
+export function compute_dynamics_deltas(target, dynamics, runtime_target, deltas, log_strings) {
   for (const [axis, val] of Object.entries(dynamics || {})) {
     const old_value = /** @type {any} */ (runtime_target)?.[axis] ?? 50;
     const diff = val - old_value;
     if (diff !== 0) {
       deltas.push({ axis, target, old_value, new_value: val, diff });
-
       const capitalized_axis = axis.charAt(0).toUpperCase() + axis.slice(1);
       log_strings.push(`${capitalized_axis} ${diff > 0 ? "+" : ""}${diff}`);
     }
@@ -263,15 +268,15 @@ export function compute_deltas(target, dynamics, runtime_target, deltas, log_str
 }
 
 /**
- * Evaluates active physics signals and style triggers for current dynamics.
- * Single-pass evaluator for both baseline global signals and narrative style triggers.
+ * Evaluates active narrative dynamics signals and style triggers for current dynamics state.
+ * Single-pass evaluator for both baseline global signals and active narrative style triggers.
  *
  * @param {Record<string, number>|{ ai_dynamics?: Record<string, number>, fractal_dynamics?: Record<string, number>, style?: object }} [ai_dynamics={}]
  * @param {Record<string, number>} [fractal_dynamics={}]
  * @param {object|null} [style=null]
  * @returns {Array<{ id: string, text: string }>}
  */
-export function evaluate_physics_signals(ai_dynamics = {}, fractal_dynamics = {}, style = null) {
+export function evaluate_dynamics_signals(ai_dynamics = {}, fractal_dynamics = {}, style = null) {
   let ai = ai_dynamics || {};
   let fractal = fractal_dynamics || {};
   let active_style = style;
@@ -295,7 +300,7 @@ export function evaluate_physics_signals(ai_dynamics = {}, fractal_dynamics = {}
           active.push({ id: trigger.id, text: trigger.directive });
         }
       } catch (_err) {
-        /* ignore error */
+        /* Ignore predicate error */
       }
     }
   }
@@ -308,7 +313,7 @@ export function evaluate_physics_signals(ai_dynamics = {}, fractal_dynamics = {}
             active.push({ id: trigger.id, text: trigger.directive });
           }
         } catch (_err) {
-          /* ignore error */
+          /* Ignore predicate error */
         }
       }
     }
@@ -318,13 +323,13 @@ export function evaluate_physics_signals(ai_dynamics = {}, fractal_dynamics = {}
 }
 
 /**
- * Evaluates entity dynamics against somatic threshold rules and merges with manual keywords.
+ * Evaluates entity dynamics against dynamic non-verbal reaction rules and merges with manual keywords.
  * @param {Record<string, number>} [dynamics={}]
  * @param {string[]} [manual_keywords=[]]
  * @param {number} [max_directives=2]
  * @returns {string[]}
  */
-export function evaluate_automatic_somatics(dynamics = {}, manual_keywords = [], max_directives = 2) {
+export function resolve_non_verbal_reactions(dynamics = {}, manual_keywords = [], max_directives = 2) {
   const result = [];
   const seen = new Set();
 
@@ -342,14 +347,14 @@ export function evaluate_automatic_somatics(dynamics = {}, manual_keywords = [],
   if (!dynamics || typeof dynamics !== "object") return result;
 
   const candidates = [];
-  for (const rule of DYNAMIC_SOMATIC_RULES) {
+  for (const rule of DYNAMIC_NON_VERBAL_RULES) {
     if (seen.has(rule.id)) continue;
     try {
       if (typeof rule.when === "function" && rule.when(dynamics)) {
         candidates.push(rule);
       }
     } catch (_err) {
-      /* ignore */
+      /* Ignore predicate error */
     }
   }
 
@@ -368,8 +373,5 @@ export function evaluate_automatic_somatics(dynamics = {}, manual_keywords = [],
 
 /**
  * CHANGELOG
- * - 2026-08-28: Reconstructed physics.js as a pure calculation and signal evaluation engine:
- *   1. Relocated prompt XML rendering (build_signals_xml) to physics-prompts.js.
- *   2. Co-located DYNAMIC_SOMATIC_RULES and evaluate_automatic_somatics directly in physics.js.
- *   3. Replaced imperative .forEach loops with performant for...of iterators.
+ * - 2026-08-28: Harmonized dynamics nomenclature: DYNAMIC_NON_VERBAL_RULES, extract_entity_dynamics_baselines, compute_dynamics_deltas, evaluate_dynamics_signals, and apply_dynamics_gravity.
  */

@@ -1,27 +1,27 @@
 /**
  * src/intelligence/telemetry.js
  * 📡 KERNEL TELEMETRY PAYLOAD BUILDERS
- * Pure construction of the raw `updates` telemetry entries the kernel logs
- * after each turn (Director mutations → normalized display entries, retrieval
- * vectors scrubbed for the raw-meta dump). The message-feed UI renders these
- * via @ui/message/telemetry.js, which owns the display-side normalization.
+ *
+ * Provides pure construction and formatting of telemetry entries logged after each turn:
+ * 1. Telemetry Payload Formatters (build_update_entry, build_retrieval)
+ * 2. Dynamics Delta Capture (capture_dynamics_delta)
+ * 3. DevMode Turn Summary (build_turn_summary)
  */
 
+import { compute_dynamics_deltas } from "./physics.js";
+
+// ── 1. Telemetry Payload Formatters ───────────────────────────────────────────
+
 /**
- * Builds one entity's normalized `updates` block for telemetry. Director fields
- * are aligned into the display shape: `present_mutations.{physical,non_physical}`
- * and `eternal_mutations.{physical,non_physical}` (from `state_append` and
- * `foundation_consolidated`), `vector_append` items keep `content`/`type`
- * but their `weight` becomes `emotional_weight`,
- * `dynamics_deltas` is dropped (the computed `dynamics` array already carries old/new/diff per
- * axis). Returns null when the entity carries no content so the dump stays lean.
- * @param {string|null} name
- * @param {any} mutations
- * @param {any[]} dynamics
- * @param {any[]} retrieval
- * @returns {any}
+ * Builds one entity's normalized `updates` block for telemetry.
+ *
+ * @param {string|null} name - Entity display name
+ * @param {any} mutations - Mutation object containing state_append, foundation_consolidated, vector_append
+ * @param {any[]} [dynamics=[]] - Dynamics diffs array [{ axis, old_value, new_value, diff }]
+ * @param {any[]} [retrieval=[]] - Cleaned retrieval vectors
+ * @returns {Record<string, any>|null}
  */
-export function build_update_entry(name, mutations, dynamics, retrieval) {
+export function build_update_entry(name, mutations, dynamics = [], retrieval = []) {
   const entry = {};
   if (name) entry.name = name;
 
@@ -49,29 +49,30 @@ export function build_update_entry(name, mutations, dynamics, retrieval) {
       return copy;
     }),
   };
+
   if (retrieval?.length) entry.vectors.retrieval = retrieval;
   if (dynamics?.length) entry.dynamics = dynamics;
 
   const has_content =
     (dynamics?.length || 0) > 0 ||
-    entry.present_mutations.physical.trim() ||
-    entry.present_mutations.non_physical.trim() ||
-    entry.eternal_mutations.physical.trim() ||
-    entry.eternal_mutations.non_physical.trim() ||
+    Boolean(entry.present_mutations.physical.trim()) ||
+    Boolean(entry.present_mutations.non_physical.trim()) ||
+    Boolean(entry.eternal_mutations.physical.trim()) ||
+    Boolean(entry.eternal_mutations.non_physical.trim()) ||
     entry.vectors.new.length > 0 ||
     (entry.vectors.retrieval?.length || 0) > 0;
+
   return has_content ? entry : null;
 }
 
 /**
- * Normalizes scored retrieval vectors into the telemetry shape: single vectors
- * array, sorted by `_relevance` descending, internal embedding/scoring fields
- * stripped so the raw-meta dump stays readable (embeddings are 384-dim
- * Float32Arrays that JSON.stringify would expand into thousands of keys).
- * @param {any} vectors
+ * Normalizes scored retrieval vectors into the telemetry shape:
+ * sorted by `_relevance` descending with high-dimensional embedding arrays stripped.
+ *
+ * @param {any[]} [vectors=[]] - Array of scored vector records
  * @returns {any[]}
  */
-export function build_retrieval(vectors) {
+export function build_retrieval(vectors = []) {
   const clean = (v) => {
     if (!v || typeof v !== "object") return null;
     const copy = { ...v };
@@ -85,26 +86,28 @@ export function build_retrieval(vectors) {
     delete copy.weight;
     return copy;
   };
+
   return (Array.isArray(vectors) ? vectors : [])
     .map(clean)
     .filter(Boolean)
     .sort((a, b) => (b._relevance ?? -Infinity) - (a._relevance ?? -Infinity));
 }
 
+// ── 2. Dynamics Delta Capture ─────────────────────────────────────────────────
+
 /**
- * CAPTURE DYNAMICS DELTA
- * Detects changes in entity dynamics and logs a telemetry entry to session_driver.
- * @param {any} bridge
- * @param {any} snapshot
- * @param {any} [meta]
+ * Detects changes in entity dynamics, updates reactive state, and logs a telemetry snapshot.
+ *
+ * @param {any} bridge - Application state bridge
+ * @param {any} snapshot - Current turn entity snapshots
+ * @param {any} [meta=null] - Additional telemetry metadata
  */
 export async function capture_dynamics_delta(bridge, snapshot, meta = null) {
-  const { compute_deltas } = await import("./physics.js");
   const deltas = [];
   const log_strings = [];
 
   if (snapshot.ai?.dynamics) {
-    compute_deltas("ai", snapshot.ai.dynamics, bridge.runtime.ai, deltas, log_strings);
+    compute_dynamics_deltas("ai", snapshot.ai.dynamics, bridge.runtime.ai, deltas, log_strings);
     if (bridge.runtime.active_ai?.id) {
       await bridge.runtime.update_entity("character", bridge.runtime.active_ai.id, {
         dynamics: { ...snapshot.ai.dynamics },
@@ -113,7 +116,7 @@ export async function capture_dynamics_delta(bridge, snapshot, meta = null) {
   }
 
   if (snapshot.fractal?.dynamics) {
-    compute_deltas("fractal", snapshot.fractal.dynamics, bridge.runtime.fractal, deltas, log_strings);
+    compute_dynamics_deltas("fractal", snapshot.fractal.dynamics, bridge.runtime.fractal, deltas, log_strings);
     if (bridge.runtime.active_fractal?.id) {
       await bridge.runtime.update_entity("fractal", bridge.runtime.active_fractal.id, {
         dynamics: { ...snapshot.fractal.dynamics },
@@ -156,12 +159,13 @@ export async function capture_dynamics_delta(bridge, snapshot, meta = null) {
   }
 }
 
+// ── 3. DevMode Turn Summary ───────────────────────────────────────────────────
+
 /**
- * Builds the per-turn DevMode summary line: which roles produced how many
- * messages in the recent feed tail. An empty tail reports that nothing was
- * recorded so a silently-empty round is visible in the telemetry log.
- * @param {any[]} feed
- * @param {number} round
+ * Builds the per-turn DevMode summary line: which roles produced how many messages.
+ *
+ * @param {any[]} feed - Recent feed array
+ * @param {number} round - Current round index
  * @returns {string}
  */
 export function build_turn_summary(feed, round) {
@@ -177,26 +181,6 @@ export function build_turn_summary(feed, round) {
 }
 
 /**
- * Derives a punchy single-line header title from directive text.
- * @param {string} text - Raw directive text
- * @param {number} [maxLen=38] - Target maximum length
- * @returns {string}
+ * CHANGELOG
+ * - 2026-08-28: Reconstructed telemetry.js with clean sectioning, top-level compute_dynamics_deltas import, and full JSDoc typings.
  */
-export function derive_vector_title(text, maxLen = 38) {
-  if (!text || typeof text !== "string") return "";
-  const cleaned = text
-    .trim()
-    .replace(/^["'“”«»]+|["'“”«»]+$/g, "")
-    .replace(/\s+/g, " ");
-
-  if (!cleaned) return "";
-
-  if (cleaned.length <= maxLen) {
-    return cleaned.replace(/[.,;:]+$/, "");
-  }
-
-  const sub = cleaned.slice(0, maxLen);
-  const last_space = sub.lastIndexOf(" ");
-  const truncated = last_space > 15 ? sub.slice(0, last_space) : sub;
-  return truncated.replace(/[.,;:]+$/, "") + "…";
-}

@@ -181,16 +181,13 @@ const _cast_summary = (npc) => {
   return desc.length > 130 ? `${desc.slice(0, 130).trim()}…` : desc;
 };
 
-const _tier_label = (tier) => (tier === 3 ? "Major" : tier === 2 ? "Recurring" : "Background");
-
 function _render_roster_xml(npc_entities = [], in_scene_ids = [], active_trio_ids = []) {
   const trio = new Set((active_trio_ids || []).filter(Boolean).map(String));
   const cast = (npc_entities || []).filter((n) => n && !trio.has(String(n.id)));
   if (!cast.length) return "";
   const rows = cast.map((n) => {
-    const tier = Number(n.role_tier) || 1;
     const presence = (in_scene_ids || []).includes(String(n.id)) ? "In-Scene" : "Off-Screen (Stasis)";
-    return `- ${escape_xml(n.name)} (id: ${escape_xml(String(n.id))}): ${escape_xml(_cast_summary(n))} [${_tier_label(tier)}] [${presence}]`;
+    return `- ${escape_xml(n.name)} (id: ${escape_xml(String(n.id))}): ${escape_xml(_cast_summary(n))} [${presence}]`;
   });
   return `<ROSTER>\n${rows.join("\n")}\n</ROSTER>`;
 }
@@ -201,10 +198,7 @@ function _render_scene_roster_xml(entities = {}, npc_entities = [], in_scene_ids
   if (entities?.USER?.name) rows.push(`- ${escape_xml(entities.USER.name)}: Protagonist (In-Scene)`);
   for (const n of npc_entities || []) {
     if (!(in_scene_ids || []).includes(String(n.id))) continue;
-    const tier = Number(n.role_tier) || 1;
-    rows.push(
-      `- ${escape_xml(n.name)} (id: ${escape_xml(String(n.id))}) [Tier ${tier} / ${_tier_label(tier)}] (Openness: ${Number(n.dynamics?.openness) || 50})`,
-    );
+    rows.push(`- ${escape_xml(n.name)} (id: ${escape_xml(String(n.id))}) (Openness: ${Number(n.dynamics?.openness) || 50})`);
   }
   return rows.length ? `<SCENE_ROSTER>\n${rows.join("\n")}\n</SCENE_ROSTER>` : "";
 }

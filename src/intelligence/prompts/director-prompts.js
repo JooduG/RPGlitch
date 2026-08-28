@@ -1,8 +1,8 @@
 /**
  * src/intelligence/prompts/director-prompts.js
- * 📐 DIRECTOR PROMPTS — Quick Shot Prompt Compiler & Schema
+ * 📐 SHOT 1 (DIRECTOR) PROMPTS — Quick Shot Prompt Compiler & Schema
  *
- * Dedicated prompt generator for the Quick Shot Director:
+ * Dedicated prompt generator for Shot 1 (Director):
  * - DIRECTOR_PROTOCOLS.SCHEMA (canonical schema definition)
  * - DIRECTOR_PROTOCOLS (director-specific operational laws)
  * - render_director (Director system & task prompt compiler)
@@ -10,9 +10,8 @@
  */
 
 import { get_style_keywords, resolve_active_style_key } from "@data";
-import { ind, escape_xml, clean_xml } from "@utils";
+import { ind, escape_xml, clean_xml, strip_cognition_blocks } from "@utils";
 import { build_available_keywords_xml, format_dynamics_attrs } from "./physics-prompts.js";
-import { strip_cognition_blocks } from "../parser.js";
 import { render_builder } from "./builder.js";
 import { render_system_head, render_field_value, render_director_cast_xml, render_protocols } from "./shared.js";
 

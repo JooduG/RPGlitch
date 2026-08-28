@@ -1025,10 +1025,10 @@ export function resolve_voice_register(entity = null, narrative_style = null) {
     return entity.voice_register;
   }
 
-  const styleObj = typeof narrative_style === "string" ? get_narrative_style(narrative_style) : narrative_style;
+  const style_obj = typeof narrative_style === "string" ? get_narrative_style(narrative_style) : narrative_style;
 
-  if (styleObj?.voice_register && VALID_REGISTERS.has(styleObj.voice_register)) {
-    return styleObj.voice_register;
+  if (style_obj?.voice_register && VALID_REGISTERS.has(style_obj.voice_register)) {
+    return style_obj.voice_register;
   }
 
   return "plain";
