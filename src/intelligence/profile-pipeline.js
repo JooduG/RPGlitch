@@ -113,46 +113,60 @@ export function apply_profile_to_entity(entity, profile) {
  * @param {(bridge: any, draft: any) => Promise<any>} [spawner_fn]
  */
 export async function apply_genesis(bridge, genesis, spawner_fn = spawn_npc) {
-  for (const g of genesis || []) {
-    if (!g?.name) continue;
-    const cast = [
+  const items = Array.isArray(genesis) ? genesis : [];
+  if (!items.length) return;
+
+  const scene_context = [
+    bridge.runtime?.active_fractal?.name ? `Setting: ${bridge.runtime.active_fractal.name}` : "",
+    bridge.runtime?.active_fractal?.present?.physical || "",
+    bridge.runtime?.active_fractal?.present?.non_physical || "",
+  ]
+    .filter(Boolean)
+    .join(" — ");
+
+  const existing_names = new Set(
+    [
       bridge.runtime?.active_ai,
       bridge.runtime?.active_user,
       bridge.runtime?.active_fractal,
       ...Object.values(bridge.runtime?.active_npcs || {}),
-    ].filter(Boolean);
-    if (
-      cast.some(
-        (e) =>
-          String(e.name || "")
-            .trim()
-            .toLowerCase() === String(g.name).toLowerCase(),
-      )
-    ) {
+    ]
+      .filter(Boolean)
+      .map((e) => String(e.name || "").trim().toLowerCase()),
+  );
+
+  const spawn_tasks = [];
+  for (const g of items) {
+    if (!g?.name) continue;
+    const norm_name = String(g.name).trim().toLowerCase();
+    if (existing_names.has(norm_name)) {
       state_bridge.app?.log(`[GameMaster] Genesis "${g.name}" already in cast — convergence guard.`, "warn");
       continue;
     }
-    try {
-      const scene_context = [
-        bridge.runtime?.active_fractal?.name ? `Setting: ${bridge.runtime.active_fractal.name}` : "",
-        bridge.runtime?.active_fractal?.present?.physical || "",
-        bridge.runtime?.active_fractal?.present?.non_physical || "",
-      ]
-        .filter(Boolean)
-        .join(" — ");
+    existing_names.add(norm_name);
 
-      const npc = await spawner_fn(bridge, {
+    spawn_tasks.push(
+      spawner_fn(bridge, {
         name: g.name,
         description: g.description,
         role_tier: g.role_tier,
         voice_register: g.voice_register,
         signature_color: g.signature_color,
         scene_context,
-      });
-      if (npc) state_bridge.app?.log(`[GameMaster] ✨ Genesis: ${npc.name} entered the scene.`, "system");
-    } catch (err) {
-      state_bridge.app?.log(`[GameMaster] Genesis failed for "${g.name}": ${err?.message || err}`, "error");
-    }
+      })
+        .then((npc) => {
+          if (npc) state_bridge.app?.log(`[GameMaster] ✨ Genesis: ${npc.name} entered the scene.`, "system");
+          return npc;
+        })
+        .catch((err) => {
+          state_bridge.app?.log(`[GameMaster] Genesis failed for "${g.name}": ${err?.message || err}`, "error");
+          return null;
+        }),
+    );
+  }
+
+  if (spawn_tasks.length) {
+    await Promise.allSettled(spawn_tasks);
   }
 }
 
