@@ -88,7 +88,7 @@ export const PROFILE_FIELDS = {
     },
   },
   future: {
-    label: "Standing Agenda",
+    label: "Agenda",
     description:
       "The entity's active trajectory or standing agenda: clear intent, building pressure, or impending event driving the next state change.",
     directive:
