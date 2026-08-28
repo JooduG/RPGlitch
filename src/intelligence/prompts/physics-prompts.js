@@ -6,11 +6,16 @@
  * - SOMATIC_REGISTRY (12 universal static physical archetypes)
  * - STYLE_MOTIF_REGISTRY (imported from @data)
  * - DYNAMIC_SOMATIC_RULES & evaluate_automatic_somatics (threshold resolver)
+ * - build_dynamics_legend & format_dynamics_attrs (Dynamics parameter XML compilers)
  * - build_somatic_directives_block (<SOMATIC_DIRECTIVES> XML compiler)
  * - build_available_keywords_xml (<AVAILABLE_KEYWORDS> XML compiler)
  */
 
 import { STYLE_MOTIF_REGISTRY } from "@data";
+import { escape_xml } from "@utils";
+import { DYNAMICS_META } from "../physics.js";
+
+// ── 1. Static Archetypes Registry ─────────────────────────────────────────────
 
 /**
  * 12 universal static somatic & trauma archetypes.
@@ -91,10 +96,55 @@ export const SOMATIC_REGISTRY = [
   },
 ];
 
+// ── 2. Dynamics XML Builders ──────────────────────────────────────────────────
+
+/** @type {string | null} */
+let cached_dynamics_legend = null;
+
+/**
+ * Builds a dynamic rule guide explaining all simulation sliders to the LLM.
+ * @returns {string}
+ */
+export function build_dynamics_legend() {
+  if (cached_dynamics_legend !== null) return cached_dynamics_legend;
+  if (!DYNAMICS_META) return "";
+
+  const definitions = Object.entries(DYNAMICS_META)
+    .map(([key, meta]) => `    - ${key} (${meta.label}): ${meta.desc}`)
+    .join("\n");
+
+  cached_dynamics_legend = `
+<DYNAMICS_LEGEND>
+  Scale: 0 (minimum) to 100 (maximum)
+  Axes:
+${definitions}
+  Laws:
+    1. Calibrate dynamics_deltas conservatively (+1 to +4 standard; +8 to +12 extreme).
+    2. Adjust deltas carefully near boundaries (5 or 95) to prevent clipping at 0 or 100.
+    3. Ensure state_append matches the mathematical intensity of selected deltas.
+</DYNAMICS_LEGEND>`.trim();
+
+  return cached_dynamics_legend;
+}
+
+/**
+ * Compiles dynamic system parameter keys into inline attributes.
+ * @param {Record<string, number>} [dynObj]
+ * @returns {string}
+ */
+export function format_dynamics_attrs(dynObj) {
+  if (!dynObj) return "";
+  const attrs = Object.entries(dynObj)
+    .map(([k, v]) => `${escape_xml(k)}="${Math.round(v)}"`)
+    .join(" ");
+  return attrs ? ` ${attrs}` : "";
+}
+
+// ── 3. Somatic Directive Resolvers ───────────────────────────────────────────
+
 /**
  * Resolves a list of chosen keywords against the static archetype registry and
- * the style-motif registry. Unknown keywords are silently dropped so a wayward
- * Director payload can never corrupt the prompt.
+ * the style-motif registry.
  * @param {string[]} [keywords]
  * @returns {{ id: string, tells?: string, directive: string }[]}
  */
@@ -115,7 +165,7 @@ export function resolve_somatic_directives(keywords = []) {
 
 /**
  * Renders the resolved keyword definitions as a deterministic XML block for
- * prompt injection. Returns an empty string when nothing resolved.
+ * prompt injection.
  * @param {{ id: string, directive: string }[]} [resolved]
  * @returns {string}
  */
@@ -127,10 +177,8 @@ export function render_somatic_directives_xml(resolved = []) {
 
 /**
  * Deterministic threshold mapping from emotional dynamics axes to somatic archetype keys.
- * Each rule provides an archetype id, an activation predicate over entity dynamics, and a priority score.
  */
 export const DYNAMIC_SOMATIC_RULES = [
-  // Intensity thresholds
   {
     id: "fear",
     when: (d) => (d.intensity ?? 50) >= 75 && (d.affinity ?? 50) <= 60,
@@ -146,7 +194,6 @@ export const DYNAMIC_SOMATIC_RULES = [
     when: (d) => (d.intensity ?? 50) <= 25 && (d.openness ?? 50) <= 35,
     priority: 75,
   },
-  // Openness & Defense thresholds
   {
     id: "betrayal",
     when: (d) => (d.openness ?? 50) <= 25 && (d.affinity ?? 50) <= 40,
@@ -162,7 +209,6 @@ export const DYNAMIC_SOMATIC_RULES = [
     when: (d) => (d.openness ?? 50) >= 75 && (d.affinity ?? 50) >= 50,
     priority: 75,
   },
-  // Affinity & Intimacy thresholds
   {
     id: "intimacy",
     when: (d) => (d.affinity ?? 50) >= 75 && (d.openness ?? 50) >= 60,
@@ -181,21 +227,16 @@ export const DYNAMIC_SOMATIC_RULES = [
 ];
 
 /**
- * Deterministically evaluates an entity's dynamic state against somatic threshold rules
- * and merges the result with any manual Director keywords.
- * Manual Director keywords take top precedence.
- * Clamps result to `max_directives` (default: 2) to maintain strict token economy.
- *
- * @param {Record<string, number>} [dynamics={}] - Entity's active dynamics (intensity, chaos, openness, affinity)
- * @param {string[]} [manual_keywords=[]] - Explicit keywords chosen by Director
- * @param {number} [max_directives=2] - Maximum number of resolved somatic keywords
- * @returns {string[]} Deduplicated list of keyword ids
+ * Evaluates entity dynamics against somatic threshold rules and merges with manual keywords.
+ * @param {Record<string, number>} [dynamics={}]
+ * @param {string[]} [manual_keywords=[]]
+ * @param {number} [max_directives=2]
+ * @returns {string[]}
  */
 export function evaluate_automatic_somatics(dynamics = {}, manual_keywords = [], max_directives = 2) {
   const result = [];
   const seen = new Set();
 
-  // 1. Manual Director keywords take absolute first priority
   if (Array.isArray(manual_keywords)) {
     for (const k of manual_keywords) {
       if (typeof k === "string" && k.trim() && !seen.has(k.trim())) {
@@ -207,11 +248,8 @@ export function evaluate_automatic_somatics(dynamics = {}, manual_keywords = [],
     }
   }
 
-  if (!dynamics || typeof dynamics !== "object") {
-    return result;
-  }
+  if (!dynamics || typeof dynamics !== "object") return result;
 
-  // 2. Evaluate active threshold rules sorted by priority
   const candidates = [];
   for (const rule of DYNAMIC_SOMATIC_RULES) {
     if (seen.has(rule.id)) continue;
@@ -220,7 +258,7 @@ export function evaluate_automatic_somatics(dynamics = {}, manual_keywords = [],
         candidates.push(rule);
       }
     } catch (_err) {
-      /* ignore evaluate error */
+      /* ignore */
     }
   }
 
@@ -238,9 +276,7 @@ export function evaluate_automatic_somatics(dynamics = {}, manual_keywords = [],
 }
 
 /**
- * Convenience one-call builder: resolves manual keywords and/or automatic dynamics,
- * then renders the deterministic XML block.
- *
+ * Convenience builder: resolves keywords/dynamics into XML block.
  * @param {string[]|Record<string, any>} [keywords_or_dynamics=[]]
  * @param {string[]|Record<string, any>} [maybe_keywords=[]]
  * @returns {string}
@@ -262,13 +298,11 @@ export function build_somatic_directives_block(keywords_or_dynamics = [], maybe_
   }
 
   const resolved_keywords = dynamics ? evaluate_automatic_somatics(dynamics, keywords) : keywords;
-
   return render_somatic_directives_xml(resolve_somatic_directives(resolved_keywords));
 }
 
 /**
- * Builds the <AVAILABLE_KEYWORDS> listing shown to the Director: the 12 static
- * archetypes always, plus the active narrative style's motifs.
+ * Builds <AVAILABLE_KEYWORDS> listing for the Director.
  * @param {string[]} [active_style_keywords]
  * @returns {string}
  */
@@ -281,3 +315,8 @@ export function build_available_keywords_xml(active_style_keywords = []) {
   }
   return lines.join("\n");
 }
+
+/**
+ * CHANGELOG
+ * - 2026-08-28: Consolidated build_dynamics_legend and format_dynamics_attrs into physics-prompts.js.
+ */

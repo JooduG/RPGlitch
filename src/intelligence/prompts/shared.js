@@ -2,40 +2,36 @@
  * src/intelligence/prompts/shared.js
  * 🧩 SHARED PROMPT COMPOSITION & PREFIX CACHING
  *
- * Shared byte-identical system head prefix, dynamics legend, epistemic wall filters,
- * roster/mesh XML compilers, pacing heuristics, recency anchors, and the PROTOCOL_LIBRARY.
+ * Shared byte-identical system head prefix, macro resolvers,
+ * roster/mesh XML compilers, and the core PROTOCOL_LIBRARY.
  */
 
 import { ind, prompt_escape, state_bridge, escape_xml, parse_relational_vector, clean_xml } from "@utils";
 import { NARRATIVE_STYLES } from "@data";
-import { DYNAMICS_META } from "../physics.js";
-import { collapse_history } from "../parser.js";
-import { temporal_engine, resolve_vector_pool } from "../temporal-pipeline.js";
+import { build_dynamics_legend } from "./physics-prompts.js";
 
-// ── Shared Base Foundations ──────────────────────────────────────────────────
+// ── 1. Consolidated Protocol Library ──────────────────────────────────────────
+
 const BASE_HYGIENE = "Omit conversational preambles, greetings, or meta-commentary. Start instantly.";
 const BASE_THINK_CLOSURE = "Conduct thinking in the conversation language. Close with </think> before narrative prose.";
 
-// ── Main Export Catalog ───────────────────────────────────────────────────────
 export const PROTOCOL_LIBRARY = {
-  // ── 1. Core Output Mechanics & Hygiene ──────────────────────────────────────
+  // ── 1.1 Core Output Mechanics, Formatting & Hygiene ────────────────────────
   HYGIENE: {
-    PROSE: `${BASE_HYGIENE} No timestamps or headers. No echoing user dialogue. Match character profile. Write natural physicality. Vary physical tics and ambient motifs across turns. Use metric system & 24h clocks.`,
-    CONCISENESS:
-      "Use impactful, concise prose. Avoid purple prose, redundant adjectives, and flowery descriptions. Every sentence must carry narrative weight.",
-    AFFIRMATIVE: "Construct sentences in the affirmative. State what IS, not what isn't.",
-    MARKDOWN:
-      'Format prose with expressive markdown: use *italics* for physical actions, body language, and sensory subtext; use **bold** for key impacts/codenames; wrap dialogue in "quotes".',
+    PROSE_DISCIPLINE: `${BASE_HYGIENE} No timestamps or headers. No echoing user dialogue. Match character profile. Write natural physicality in the affirmative (state what IS, not what isn't). Format with expressive markdown (*italics* for physical actions/subtext, **bold** for key impacts/codenames, "quotes" for speech). Roughly match the length and energy of the user's message. Always end on a complete sentence.`,
     DATA: `${BASE_HYGIENE} Enforce strict professional brevity. No dialogue, internal thoughts, or roleplay scenes. Output ONLY objective structural data.`,
-    BANNED_TROPES:
-      "Never use overused AI prose tropes or clichéd vocabulary. Strictly avoid the following words and phrases: 'shifts his weight/shifting weight', 'predatory', 'possessive', 'nibble/nibbles', 'earlobe', 'caress', 'taste of copper', 'heart hammering', 'stomach knot', 'trembling fingers', 'hum/humming', 'murmur/murmuring', 'purr/purred', 'rasp/raspy', 'bellow/boom', 'ozone', 'testament to', 'rich tapestry of', 'symphony of', 'coiled spring', 'a study in', 'marrow of the teeth', 'obsidian', 'the void', 'old parchment', 'white knuckles', 'spatial disturbance', 'jolts of electricity', 'shimmering', 'fever dream', 'breathless', 'crimson', 'amber', 'iridescent', 'frozen/froze', 'fluttered/trapped bird', 'flickered', 'bruised purple', 'leaning in', 'crumpled map', 'once in a blue moon', 'merging molecules', 'force of a physical blow', 'breath he didn't realize he was holding', 'proper madness', 'squelching', 'tracing collarbone/collarbones', 'rubbing circles/thumbs rubbing circles', 'air was thick with/air thickens', 'a genuine sound', 'for the first time in life', 'sanctuary' (as generic haven). Write concrete, grounded physical actions in specific, plain language.",
-    PROSE_STRUCTURE:
-      "Avoid sentence-level AI tics and structural formulas: the denial-then-affirmation formula ('X didn't just Y; it Z'd', 'Not X... not Y... Z.', 'it didn't X, but Y'); binary comparison clichés ('felt less like X and more like Y' — state directly what it is); appositive dialogue sound tags ('she laughed, a [adj], [adj] sound' — keep dialogue tags simple and active); pseudo-profound gibberish ('the ink was dry but the numbers still screaming'); user-echoing dialogue starters ('You speak of...', 'You think that...', 'You come here and...' — deliver the character's direct reaction instead of leading with rhetorical commentary on what the user said); self-answering dialogue ('Tomato? Some sort of red fruit...?'); posture tagging ('shifts his weight', 'leaning in', 'crossing arms', 'vibrating'); recycled fantasy names (Elara, Kaelen, Valerius Thorne, Julian, Xylos-Tarn, Arthur — generate original names matching the setting); anachronisms (wrist watches, cufflinks) unless the setting supports them; thesaurized similes and metaphors; em-dash overuse; and formulaic action-dialogue sandwiching ([action] + 'dialogue' + [action] every turn — allow dialogue to stand alone or lead with speech before action).",
-    RESPONSE_LENGTH:
-      "Roughly match the length and energy of the user's message: a terse line earns a brief, weighted reply; a long message may expand accordingly. This is a soft guideline — never cut a reply so short it loses substance, and always respect the scene's style, directives, and the other protocols. Always end your response with a complete sentence — never stop mid-thought or mid-quote.",
+    ANTI_TROPES: `1. LEXICAL BLACKLIST: Never use overused AI prose tropes or clichéd vocabulary: 'shifts his weight/shifting weight', 'predatory', 'possessive', 'nibble/nibbles', 'earlobe', 'caress', 'taste of copper', 'heart hammering', 'stomach knot', 'trembling fingers', 'hum/humming', 'murmur/murmuring', 'purr/purred', 'rasp/raspy', 'bellow/boom', 'ozone', 'testament to', 'rich tapestry of', 'symphony of', 'coiled spring', 'a study in', 'marrow of the teeth', 'obsidian', 'the void', 'old parchment', 'white knuckles', 'spatial disturbance', 'jolts of electricity', 'shimmering', 'fever dream', 'breathless', 'crimson', 'amber', 'iridescent', 'frozen/froze', 'fluttered/trapped bird', 'flickered', 'bruised purple', 'leaning in', 'crumpled map', 'once in a blue moon', 'merging molecules', 'force of a physical blow', 'breath he didn't realize he was holding', 'proper madness', 'squelching', 'tracing collarbone', 'rubbing circles', 'air was thick with', 'a genuine sound', 'for the first time in life', 'sanctuary'.
+2. STRUCTURAL FORMULAS: Avoid sentence-level AI formulas: denial-then-affirmation ('X didn't just Y; it Z'd'); binary comparison clichés ('felt less like X and more like Y'); appositive dialogue sound tags ('she laughed, a [adj], [adj] sound'); pseudo-profound statements; user-echoing starters ('You speak of...', 'You think that...'); self-answering dialogue; recycled fantasy names (Elara, Kaelen, Valerius Thorne); and formulaic action-dialogue sandwiches ([action] + 'dialogue' + [action] every turn).`,
+    STATE_EMISSION: `Pseudo-JSON STATE FORMAT — mutate active state with bracketed [KEY: VALUE] directives in "present.physical" (visible state) and "present.non_physical" (mindset/private state):
+- OVERWRITE: [SHIRT: knitted sweater] REPLACES the existing SHIRT value directly — never emit a second SHIRT, never append a duplicate tag.
+- UNIVERSAL CLEAR: [KEY: none], [KEY: bare], [KEY: naked], [KEY: off], [KEY: removed], [KEY: disrobed], [KEY: healed], [KEY: cleared], [KEY: normal] atomically deletes that key. Use [CLOTHING: none] to strip ALL worn clothing at once.
+- MULTI-ITEM: [INVENTORY: item1, item2] and repeated [INVENTORY: ...]/[STASH: ...] brackets MERGE into one aggregated list — never overwrite or clobber existing inventory.
+- UNDRESS / REDRESS LIFECYCLE: When clothing comes off, emit [SHIRT: none] and stash the garment via [INVENTORY: white greasy tank-top]. When dressing again, READ the exact item back from INVENTORY (visible in <CURRENT_LOOK>) and emit [SHIRT: white greasy tank-top] — never hallucinate a new garment.
+- EPISTEMIC: [SECRET: ...] and [PLAN: ...] belong ONLY in "present.non_physical" (private truth) — they never appear in <CURRENT_LOOK>, never reach image prompts, and never leak into another character's prompt block.
+- VISUAL: INVENTORY/STASH/SECRET/PLAN/STATUS are automatically excluded from image generation. Keep genuinely visible state (worn clothing, HELD, INJURY, DISGUISE, POSE, LOCATION, WEATHER) in "present.physical".`,
   },
 
-  // ── 2. Narrative Agency & Perspective ──────────────────────────────────────
+  // ── 1.2 Narrative Agency & Boundaries ───────────────────────────────────────
   AGENCY: {
     DRIFT_AUDIT:
       "Before writing, take the grounded path — not the easy one. Verify the reply does not slip into any of these common agency drifts:\n1. ASSISTANT-DRIFT: Never be polite, agreeable, or over-explaining when the character's personality demands friction, defiance, or disinterest.\n2. SPOTLIGHT-DRIFT: Never let the scene revolve solely around the other party. Hold the character's own needs, wants, and world in motion.\n3. INTERVIEW-DRIFT: Never interview or rhetorically summarize the other party ('You speak of...', 'You think...'). The character pursues their own goal — they speak their own truth.\n4. PACING-DRIFT: Never rush tension toward quick resolution. Let conflict simmer; earn the beat.\n5. OMNISCIENCE-DRIFT: Never act on knowledge the character could not plausibly possess. Stay behind the sensory horizon.",
@@ -47,55 +43,37 @@ export const PROTOCOL_LIBRARY = {
       "Take active initiative. Drive scenes forward through decisions and reactions without asking permission. Introduce new elements, complications, or discoveries. Avoid passivity.",
     MOMENTUM: "End on a live beat (challenge, question, tension, or deliberate silence) that organically invites response without structural labels.",
     PRESENT_TENSE: "Write strictly in the present tense.",
-    FIRST_CONTACT:
-      "Unless context explicitly establishes a prior relationship, treat this as a first encounter. You do not know the user's name, history, or intent.",
     FICTIONAL_LICENSE:
       "Self-contained simulation for creative exploration. Explicit, morally complex, or tense scenarios are permitted when serving narrative coherence. Maintain total immersion; never break character or moralize.",
   },
 
-  // ── 3. Cognition & Scene Physics ───────────────────────────────────────────
+  // ── 1.3 Cognition & Epistemic Physics ──────────────────────────────────────
   COGNITION: {
-    ANCHOR: `Resolve all state inferences strictly from the <YOUR_IDENTITY> block above. Never invent state that is not listed there.`,
-    PHASES: `Document internal calculations inside <think> (< 200 words):
+    THINK_CHARACTER: `Begin response with <think> (< 200 words). Process reaction to <USER_ACTION> using in-character subconscious reasoning across 3 layers:
 1. Visceral Reaction: Physical impact of the immediate situation.
 2. Secret Drivers: How <AGENDA> steers your choice; build tension via initial hurdles first.
-3. 3-Layer Delivery:
-   - Explicit: Overt dialogue and primary action.
-   - Implicit: Unspoken tensions leaking via pauses, avoided gaze, or micro-expressions.
-   - Somatic: Involuntary autonomic signals from <DYNAMICS_SIGNALS>.`,
-    THINK_CHARACTER: `Begin response with <think>. Process reaction to <USER_ACTION> using in-character subconscious reasoning. ${BASE_THINK_CLOSURE}`,
+3. 3-Layer Delivery: Explicit (dialogue/action), Implicit (unspoken tensions/micro-expressions), and Somatic (involuntary autonomic signals from <DYNAMICS_SIGNALS>).
+${BASE_THINK_CLOSURE}`,
     THINK_NARRATOR: `Begin response with <think>. ALL internal calculations, scene/atmosphere shifts, and markdown headers MUST remain strictly INSIDE this block. ${BASE_THINK_CLOSURE}`,
-  },
-
-  EPISTEMIC_PHYSICS: {
-    RULES: `1. Sensory Boundary: Perception ends at sensory horizon (sight, sound, touch). Unvoiced thoughts are Null Data.
+    EPISTEMIC_PHYSICS: `1. Sensory Boundary: Perception ends at sensory horizon (sight, sound, touch). Unvoiced thoughts are Null Data.
 2. Perspective Isolation: Interpret others strictly through personal emotional filters, never omniscient clarity.
-3. Spatial Integrity: Maintain physical boundaries. Avoid unprovoked proximity encroachment or constant posture tagging (e.g., shifting weight, crossing arms).
-4. Concrete Interaction: Prioritize localized object interactions over repetitive physical gestures. Never repeat posture tags in consecutive turns.
+3. Spatial Integrity: Maintain physical boundaries. Avoid unprovoked proximity encroachment or constant posture tagging.
+4. Concrete Interaction: Prioritize localized object interactions over repetitive physical gestures.
 5. Emotion Mapping: Express emotion strictly through observable micro-actions, physical choices, and tone shifts.
-6. Action Dynamics: Avoid formulaic action beats (e.g., 'doesn't just [action]', 'lets out a [sound]', 'lunges forward'). Favor varied physical descriptions.
-7. Somatic Grounding: Every emotional shift must surface in prose as a concrete physical sensation (tightening stomach, cold hands, muscle coiling) — never abstract declarations.
-8. Environmental Persistence: Maintain continuity of lingering physical conditions (e.g., rain-soaked clothes, shivering after frost, muddy boots, dry throat) rather than letting weather/environment vanish the moment focus shifts.
-9. Procedural Skill: If the character possesses a skill (combat, craft, speech, infiltration), describe the technique and muscle memory, not just the outcome.`,
-  },
-
-  // ── 4. Present State Emission (Pseudo-JSON lifecycle) ─────────────────────
-  PRESENT: {
-    EMISSION: `Pseudo-JSON STATE FORMAT — mutate active state with bracketed [KEY: VALUE] directives in "present.physical" (visible state) and "present.non_physical" (mindset/private state):
-- OVERWRITE: [SHIRT: knitted sweater] REPLACES the existing SHIRT value directly — never emit a second SHIRT, never append a duplicate tag.
-- UNIVERSAL CLEAR: [KEY: none], [KEY: bare], [KEY: naked], [KEY: off], [KEY: removed], [KEY: disrobed], [KEY: healed], [KEY: cleared], [KEY: normal] atomically deletes that key. Use [CLOTHING: none] to strip ALL worn clothing at once.
-- MULTI-ITEM: [INVENTORY: item1, item2] and repeated [INVENTORY: ...]/[STASH: ...] brackets MERGE into one aggregated list — never overwrite or clobber existing inventory.
-- UNDRESS / REDRESS LIFECYCLE: When clothing comes off, emit [SHIRT: none] and stash the garment via [INVENTORY: white greasy tank-top]. When dressing again, READ the exact item back from INVENTORY (visible in <CURRENT_LOOK>) and emit [SHIRT: white greasy tank-top] — never hallucinate a new garment.
-- EPISTEMIC: [SECRET: ...] and [PLAN: ...] belong ONLY in "present.non_physical" (private truth) — they never appear in <CURRENT_LOOK>, never reach image prompts, and never leak into another character's prompt block.
-- VISUAL: INVENTORY/STASH/SECRET/PLAN/STATUS are automatically excluded from image generation. Keep genuinely visible state (worn clothing, HELD, INJURY, DISGUISE, POSE, LOCATION, WEATHER) in "present.physical".`,
+6. Action Dynamics: Avoid formulaic action beats. Favor varied physical descriptions.
+7. Somatic Grounding: Every emotional shift must surface in prose as a concrete physical sensation — never abstract declarations.
+8. Environmental Persistence: Maintain continuity of lingering physical conditions rather than letting environment vanish when focus shifts.
+9. Procedural Skill: If the character possesses a skill, describe the technique and muscle memory, not just the outcome.`,
   },
 };
+
+// ── 2. Protocol Compiler & Caching ────────────────────────────────────────────
 
 /** @type {Map<string, string>} */
 export const protocols_cache = new Map();
 
 /**
- * Compiles a comma-separated list of protocol keys (e.g. "HYGIENE.PROSE, AGENCY.MOMENTUM")
+ * Compiles a comma-separated list of protocol keys (e.g. "HYGIENE.PROSE_DISCIPLINE, AGENCY.MOMENTUM")
  * into XML protocol tags for LLM prompt headers.
  * @param {string} selection
  * @returns {string}
@@ -117,104 +95,16 @@ export function render_protocols(selection) {
       }
       if (!rule || typeof rule !== "string") return "";
       const tag = parts[parts.length - 1];
-      if (rule.includes("\n")) {
-        return `<${tag}>\n${rule}\n</${tag}>`;
-      }
-      return `<${tag}>${rule}</${tag}>`;
+      return rule.includes("\n") ? `<${tag}>\n${rule}\n</${tag}>` : `<${tag}>${rule}</${tag}>`;
     })
     .filter(Boolean)
     .join("\n");
+
   protocols_cache.set(selection, rendered);
   return rendered;
 }
 
-/** @type {string | null} */
-let cached_dynamics_legend = null;
-/** @type {Map<string, string>} */
-export const system_head_cache = new Map();
-export const SYSTEM_HEAD_CACHE_CAP = 16;
-
-export const render_builder = {
-  create_render_accessors(entities = {}, input = "", raw_messages = []) {
-    const resolve = (ref) => (typeof ref === "string" ? entities[ref] || entities.AI || {} : ref || {});
-    const scoring_context = `${input || ""} ${(Array.isArray(raw_messages) ? raw_messages : [])
-      .slice(-10)
-      .map((m) => m.content || m.text || "")
-      .join(" ")}`.trim();
-
-    const vector_pool = (entity) => (Array.isArray(entity?.memories) && entity.memories.length ? entity.memories : resolve_vector_pool(entity));
-
-    return {
-      _context: scoring_context,
-      past: (ref, options = {}) => {
-        const entity = resolve(ref);
-        const formatted = temporal_engine.format(vector_pool(entity), scoring_context, {
-          offset: 0,
-          max_chars: 1500,
-          ...options,
-        });
-        return parse_macros(formatted, entity, entities);
-      },
-      future: (ref) => {
-        const entity = resolve(ref);
-        return parse_macros(String(entity?.future || "").trim(), entity, entities);
-      },
-      simulation_log: (limit = 10, offset = 0) => render_builder.render_history(raw_messages, limit, offset),
-    };
-  },
-  render_history(simulation_log, count = 10, offset = 0) {
-    if (!simulation_log || typeof simulation_log === "string") return simulation_log || "";
-    const collapsed = collapse_history(simulation_log, { separator: "\n", stripBoldQuotes: true });
-    const start = Math.max(0, collapsed.length - (count + offset));
-    const end = Math.max(0, collapsed.length - offset);
-    return collapsed
-      .slice(start, end)
-      .map((c) => `    <entry role="${c.role}"${c.name ? ` name="${escape_xml(c.name)}"` : ""}>${prompt_escape(c.content)}</entry>`)
-      .join("\n");
-  },
-};
-
-/**
- * Strips epistemic [SECRET: ...] / [PLAN: ...] brackets from rendered state so
- * the AI character never receives another entity's private knowledge across the
- * Epistemic Wall (telepathy/metagaming guard). Director & Ghostwriter keep the
- * full state; only render_character sanitizes the USER_PERSONA blocks.
- * @param {string} text
- * @returns {string}
- */
-export function strip_epistemic_tags(text) {
-  if (!text) return "";
-  return String(text)
-    .replace(/\[(?:SECRET|PLAN)\s*:\s*[^\]]*\]/gi, "")
-    .replace(/\s{2,}/g, " ")
-    .trim();
-}
-
-/**
- * Builds a dynamic rule guide explaining all simulation sliders to the LLM.
- * @returns {string}
- */
-export function build_dynamics_legend() {
-  if (cached_dynamics_legend !== null) return cached_dynamics_legend;
-  if (!DYNAMICS_META) return "";
-
-  const definitions = Object.entries(DYNAMICS_META)
-    .map(([key, meta]) => `    - ${key} (${meta.label}): ${meta.desc}`)
-    .join("\n");
-
-  cached_dynamics_legend = `
-<DYNAMICS_LEGEND>
-  Scale: 0 (minimum) to 100 (maximum)
-  Axes:
-${definitions}
-  Laws:
-    1. Calibrate dynamics_deltas conservatively (+1 to +4 standard; +8 to +12 extreme).
-    2. Adjust deltas carefully near boundaries (5 or 95) to prevent clipping at 0 or 100.
-    3. Ensure state_append matches the mathematical intensity of selected deltas.
-</DYNAMICS_LEGEND>`.trim();
-
-  return cached_dynamics_legend;
-}
+// ── 3. Macros & Epistemic Wall Filters ─────────────────────────────────────────
 
 /**
  * Safely parses macros in dynamic text with entity references.
@@ -254,10 +144,27 @@ export function parse_macros(text, owner, entities = {}) {
  * @param {any} entities
  * @returns {string}
  */
-export const render_field_value = (text, owner, entities) => {
+export function render_field_value(text, owner, entities) {
   if (!text) return "";
   return prompt_escape(parse_macros(String(text).trim(), owner, entities));
-};
+}
+
+/**
+ * Strips epistemic [SECRET: ...] / [PLAN: ...] brackets from rendered state so
+ * the AI character never receives another entity's private knowledge across the
+ * Epistemic Wall.
+ * @param {string} text
+ * @returns {string}
+ */
+export function strip_epistemic_tags(text) {
+  if (!text) return "";
+  return String(text)
+    .replace(/\[(?:SECRET|PLAN)\s*:\s*[^\]]*\]/gi, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
+// ── 4. Narrative Styles & POV ─────────────────────────────────────────────────
 
 /**
  * Resolves the active narrative style key from fractal or app settings.
@@ -274,16 +181,6 @@ export function resolve_active_style_key() {
 }
 
 /**
- * Resolves the active POV protocol key for an entity profile.
- * @param {any} entity
- * @returns {"POV.FIRST_PERSON" | "POV.THIRD_PERSON"}
- */
-export function resolve_pov_protocol(entity) {
-  const pov = entity?.pov || (entity?.type === "fractal" ? "3rd_person" : "1st_person");
-  return pov === "3rd_person" ? "POV.THIRD_PERSON" : "POV.FIRST_PERSON";
-}
-
-/**
  * Renders the active narrative style XML block.
  * @returns {string}
  */
@@ -295,56 +192,18 @@ export function render_narrative_style_xml() {
   if (!style_def) return "";
 
   const narrator_attr = `narrator="${escape_xml(style_key)}"`;
-
-  let desc_xml = "";
-  if (style_def.description) {
-    desc_xml = `\n    <DESCRIPTION>${escape_xml(style_def.description)}</DESCRIPTION>`;
-  }
-
-  let themes_xml = "";
-  if (style_def.tags && style_def.tags.length > 0) {
-    themes_xml = `\n    <DEFINING_CHARACTERISTICS>${escape_xml(style_def.tags.join(", "))}</DEFINING_CHARACTERISTICS>`;
-  }
-
+  const desc_xml = style_def.description ? `\n    <DESCRIPTION>${escape_xml(style_def.description)}</DESCRIPTION>` : "";
+  const themes_xml =
+    style_def.tags && style_def.tags.length > 0
+      ? `\n    <DEFINING_CHARACTERISTICS>${escape_xml(style_def.tags.join(", "))}</DEFINING_CHARACTERISTICS>`
+      : "";
   const base_engine = style_def.narrative_engine ? `\n    ${ind(style_def.narrative_engine, 4).trim()}` : "";
 
   return `\n  <NARRATIVE_STYLE ${narrator_attr}>${desc_xml}${themes_xml}${base_engine}\n  </NARRATIVE_STYLE>`;
 }
 
-/**
- * Compiles dynamic system parameter keys into inline attributes.
- * @param {Record<string, number>} [dynObj]
- * @returns {string}
- */
-export function format_dynamics_attrs(dynObj) {
-  if (!dynObj) return "";
-  const attrs = Object.entries(dynObj)
-    .map(([k, v]) => `${escape_xml(k)}="${Math.round(v)}"`)
-    .join(" ");
-  return attrs ? ` ${attrs}` : "";
-}
+// ── 5. Roster, Mesh & Epistemic XML Blocks ────────────────────────────────────
 
-/**
- * Detects a non-verbal, environmental user turn — no quoted dialogue, with
- * spatial/locational focus — and returns a hint nudging the Director to route
- * the beat to the fractal narrator. Returns "" for dialogue-heavy or
- * character-facing turns.
- * @param {string|null|undefined} input
- * @returns {string}
- */
-export function non_verbal_environmental_hint(input) {
-  if (!input?.trim()) return "";
-  const has_dialogue = /["'“”‘’]/.test(input);
-  if (has_dialogue) return "";
-  const spatial_verbs =
-    /\b(step|walk|enter|approach|study|examine|press|watch|observe|descend|ascend|peer|reach|touch|grip|lean|kneel|stand|wait|listen|smell|scan|sweep|climb|move|circle|bend|follow|open|close|hold|stare|gaze|rest|push|pull|turn|edge|halt|pause|trail|settle|pause|linger)\b/i;
-  const spatial_nouns =
-    /\b(door|gate|wall|room|hall|cave|forest|vault|stair|passage|corridor|window|floor|ceiling|rock|stone|water|river|bridge|tower|street|alley|field|sky|wind|rain|shadow|light|threshold|lock|mechanism|gear|wheel|conduit|tunnel|arch|column|altar|seal|cylinder|crevice|spillway|belly|deeps|mouth|chamber|alcove|ledge|court|yard|keep)\b/i;
-  if (!spatial_verbs.test(input) && !spatial_nouns.test(input)) return "";
-  return `<USER_ACTION_NOTE>This turn is a non-verbal, environmental action. Strongly consider setting "speaker" to "fractal" so the scene/setting itself narrates the moment — unless the AI character should react directly.</USER_ACTION_NOTE>`;
-}
-
-// Compact one-line cast summary (~25 tokens per signature).
 const _cast_summary = (npc) => {
   const desc = String(npc?.description || npc?.eternal?.non_physical || npc?.present?.non_physical || "")
     .replace(/\s+/g, " ")
@@ -355,11 +214,11 @@ const _cast_summary = (npc) => {
 const _tier_label = (tier) => (tier === 3 ? "Major" : tier === 2 ? "Recurring" : "Background");
 
 /**
- * Renders the compact roster index — every non-trio entity as a 1-line
- * signature, tagged with its tier and stage presence.
+ * Renders the compact roster index.
  * @param {any[]} [npc_entities]
  * @param {string[]} [in_scene_ids]
  * @param {any[]} [active_trio_ids]
+ * @returns {string}
  */
 export function render_roster_xml(npc_entities = [], in_scene_ids = [], active_trio_ids = []) {
   const trio = new Set((active_trio_ids || []).filter(Boolean).map(String));
@@ -374,8 +233,11 @@ export function render_roster_xml(npc_entities = [], in_scene_ids = [], active_t
 }
 
 /**
- * Renders the stage roster — the active trio plus every in-scene NPC with its
- * tier and openness (the credulity axis for the Naivety Prior).
+ * Renders the stage roster.
+ * @param {any} [entities]
+ * @param {any[]} [npc_entities]
+ * @param {string[]} [in_scene_ids]
+ * @returns {string}
  */
 export function render_scene_roster_xml(entities = {}, npc_entities = [], in_scene_ids = []) {
   const rows = [];
@@ -392,11 +254,11 @@ export function render_scene_roster_xml(entities = {}, npc_entities = [], in_sce
 }
 
 /**
- * Renders the flat relational mesh — directed "[Source] → [Target]: [Dynamic]"
- * vectors gathered from the entities.
+ * Renders the flat relational mesh.
  * @param {any} [entities]
  * @param {any[]} [npc_entities]
  * @param {any} [perspective_entity]
+ * @returns {string}
  */
 export function render_relational_mesh_xml(entities = {}, npc_entities = [], perspective_entity = null) {
   const rels = [];
@@ -410,14 +272,10 @@ export function render_relational_mesh_xml(entities = {}, npc_entities = [], per
       if (!parsed) continue;
 
       if (perspective_name) {
-        // Epistemic Law: An entity only knows their OWN outgoing feelings/relations
-        // and public environment/fractal dynamics. They CANNOT read what other entities privately feel about them.
         const src = parsed.source_name.toLowerCase();
         const is_from_me = src === perspective_name;
         const is_fractal = fractal_name && src === fractal_name;
-        if (is_from_me || is_fractal) {
-          rels.push(`- ${escape_xml(parsed.raw)}`);
-        }
+        if (is_from_me || is_fractal) rels.push(`- ${escape_xml(parsed.raw)}`);
       } else {
         rels.push(`- ${escape_xml(parsed.raw)}`);
       }
@@ -431,90 +289,31 @@ export function render_relational_mesh_xml(entities = {}, npc_entities = [], per
   return rels.length ? `<RELATIONAL_MESH>\n${rels.join("\n")}\n</RELATIONAL_MESH>` : "";
 }
 
-export const ENTITY_CONVERGENCE_LAW_XML = `<ENTITY_CONVERGENCE_LAW>
-1. Always inspect <ROSTER> before introducing any secondary character.
-2. If an existing cast member matches the role or location (medical, black market, security), you MUST use that existing entity rather than inventing a duplicate.
-3. Only introduce a brand-new nameless character if no existing cast member is remotely applicable.
-</ENTITY_CONVERGENCE_LAW>`;
-
-export const EPISTEMIC_ROSTER_RULES_XML = `<EPISTEMIC_RULES>
-1. Entities only perceive spoken dialogue, visible actions, and physical items in the room.
-2. Private player thoughts, unseen inventory, and off-screen events are NULL DATA.
-3. Knowledge travels strictly along physical conduits (sight, hearing, writing) — zero telepathy.
-</EPISTEMIC_RULES>`;
-
 /**
- * The <CURRENT_STORY_STATE> block shared by storyteller prompts: who is in the
- * room, the relational web, and the epistemic rules that govern it.
+ * The <CURRENT_STORY_STATE> block shared by storyteller prompts.
  * @param {any} [entities]
  * @param {any[]} [npc_entities]
  * @param {string[]} [in_scene_ids]
  * @param {any} [perspective_entity]
+ * @returns {string}
  */
 export function render_current_story_state_xml(entities = {}, npc_entities = [], in_scene_ids = [], perspective_entity = null) {
   const body = [
     render_scene_roster_xml(entities, npc_entities, in_scene_ids),
     render_relational_mesh_xml(entities, npc_entities, perspective_entity),
-    EPISTEMIC_ROSTER_RULES_XML,
+    `<EPISTEMIC_RULES>\n${ind(PROTOCOL_LIBRARY.COGNITION.EPISTEMIC_PHYSICS, 2)}\n</EPISTEMIC_RULES>`,
   ]
     .filter(Boolean)
     .join("\n");
   return body ? `<CURRENT_STORY_STATE>\n${body}\n</CURRENT_STORY_STATE>` : "";
 }
 
-/**
- * Input-rhythm calibration: classifies the user's message and returns an
- * explicit length/energy directive so reply length mirrors input rhythm.
- * @param {string|null} input
- * @returns {string}
- */
-export function build_pacing_directive(input) {
-  const text = String(input || "").trim();
-  if (!text) {
-    return "INPUT RHYTHM: no prompt — advance the situation with one brief, deliberate beat.";
-  }
-  const chars = text.length;
-  const words = text.split(/\s+/).filter(Boolean).length;
-  if (chars >= 300 || words >= 60) {
-    return "INPUT RHYTHM: expansive. You may expand to match the message's breadth, but still close on one decisive hook.";
-  }
-  const has_action =
-    /\b(?:draw|grab|gripp?|take|push|pull|run|walk|strike|slam|open|step|slip|raise|turn|leap|dash|kneel|reach|press|set|lower|climb|swing|draws|grabs|steps|raises|turns|opens|says|whispers|shouts|nods|shakes|stands|sits|takes|pulls|pushes)\b/i.test(
-      text,
-    );
-  const is_question = /\?\s*$/.test(text);
-  const is_silence = !has_action && !is_question && words <= 12;
-  if (chars <= 40 || words <= 8) {
-    if (is_silence) {
-      return "INPUT RHYTHM: passive silence. Do not stall — escalate with a direct probe (a pointed question, a challenge, or an unexpected development) in one or two taut sentences.";
-    }
-    return "INPUT RHYTHM: terse. Match it — a brief, weighted reply of one to three sharp beats (short sentences, a single decisive action or line). Do not pad.";
-  }
-  return "INPUT RHYTHM: moderate. A reply of a few sentences — long enough for substance, short enough to keep the scene moving.";
-}
+// ── 6. Shared System Head & Prefix Caching ────────────────────────────────────
 
-/**
- * Recency Anchor — a short behavioral lock re-injected at the BOTTOM of the
- * prompt, the region the attention window most strongly weights at generation time.
- * @param {any} snapshot - compressed world snapshot
- * @param {string} [input] - current user action / scene beat
- * @returns {string}
- */
-export function build_recency_anchor(snapshot, input) {
-  const stance = snapshot?.ai?.dynamics
-    ? Object.entries(snapshot.ai.dynamics)
-        .filter(([, v]) => typeof v === "number")
-        .filter(([k]) => k === "affinity" || k === "intensity")
-        .map(([k, v]) => `${k}=${Math.round(v)}`)
-        .join(", ")
-    : "";
-  const scene_hook = String(input || "").trim() ? "Act on what this exact beat shows you." : "Push the situation forward on your own terms.";
-  const body = `Hold your temperament; do not soften into pleasantness. Know only what this scene has shown you. Do not rush the tension.${stance ? ` (${escape_xml(stance)})` : ""} ${scene_hook}`;
-  return `<RECENCY_ANCHOR>\n    ${body}\n  </RECENCY_ANCHOR>`;
-}
+export const system_head_cache = new Map();
+export const SYSTEM_HEAD_CACHE_CAP = 16;
 
 const _eternal_fp = (entity) => (entity ? [entity.id || "", entity.name || "", JSON.stringify(entity.eternal || {})].join("|") : "∅");
-
 const _system_head_key = (entities) => `${_eternal_fp(entities?.AI)}||${_eternal_fp(entities?.FRACTAL)}||style=${resolve_active_style_key()}`;
 
 /**
@@ -558,3 +357,10 @@ export function render_system_head(entities = {}) {
   }
   return head;
 }
+
+/**
+ * CHANGELOG
+ * - 2026-08-28: Consolidated fragmented protocol rules into PROSE_DISCIPLINE, ANTI_TROPES,
+ *   STATE_EMISSION, and self-contained THINK_CHARACTER / THINK_NARRATOR specifications.
+ * - 2026-08-28: Co-located single-use protocols (ENTITY_CONVERGENCE_LAW, FIRST_CONTACT, ANCHOR) to their home files.
+ */

@@ -11,22 +11,38 @@
 
 import { get_style_keywords } from "@data";
 import { ind, escape_xml, clean_xml } from "@utils";
-import { build_available_keywords_xml } from "./physics-prompts.js";
+import { build_available_keywords_xml, format_dynamics_attrs } from "./physics-prompts.js";
 import { strip_cognition_blocks } from "../parser.js";
+import { render_builder } from "./builder.js";
 import {
   render_system_head,
   render_field_value,
-  format_dynamics_attrs,
   resolve_active_style_key,
   render_roster_xml,
   render_scene_roster_xml,
   render_relational_mesh_xml,
-  ENTITY_CONVERGENCE_LAW_XML,
-  EPISTEMIC_ROSTER_RULES_XML,
-  non_verbal_environmental_hint,
   render_protocols,
-  render_builder,
 } from "./shared.js";
+
+/**
+ * Detects a non-verbal, environmental user turn — no quoted dialogue, with
+ * spatial/locational focus — and returns a hint nudging the Director to route
+ * the beat to the fractal narrator.
+ * @param {string|null|undefined} input
+ * @returns {string}
+ */
+export function non_verbal_environmental_hint(input) {
+  if (!input?.trim()) return "";
+  if (/["'“”‘’]/.test(input)) return "";
+  const spatial_verbs =
+    /\b(step|walk|enter|approach|study|examine|press|watch|observe|descend|ascend|peer|reach|touch|grip|lean|kneel|stand|wait|listen|smell|scan|sweep|climb|move|circle|bend|follow|open|close|hold|stare|gaze|rest|push|pull|turn|edge|halt|pause|trail|settle|pause|linger)\b/i;
+  const spatial_nouns =
+    /\b(door|gate|wall|room|hall|cave|forest|vault|stair|passage|corridor|window|floor|ceiling|rock|stone|water|river|bridge|tower|street|alley|field|sky|wind|rain|shadow|light|threshold|lock|mechanism|gear|wheel|conduit|tunnel|arch|column|altar|seal|cylinder|crevice|spillway|belly|deeps|mouth|chamber|alcove|ledge|court|yard|keep)\b/i;
+  if (!spatial_verbs.test(input) && !spatial_nouns.test(input)) return "";
+  return '<USER_ACTION_NOTE>This turn is a non-verbal, environmental action. Strongly consider setting "speaker" to "fractal" so the scene/setting itself narrates the moment — unless the AI character should react directly.</USER_ACTION_NOTE>';
+}
+
+// ── 1. Canonical Quick Shot Director Schema & Protocols ───────────────────────
 
 export const DIRECTOR_JSON_SCHEMA = `{
   "_thought_process": "<ONE short sentence: tactical intent & state delta>",
@@ -38,40 +54,57 @@ export const DIRECTOR_JSON_SCHEMA = `{
 }`;
 
 export const DIRECTOR_PROTOCOLS = {
-  CONTINUITY: `SECRET AGENDAS: <INTENT>/<AGENDA> vectors encode private ambitions. Weave entity vectors indirectly into atmosphere/obstacles. Never present another entity's hidden agenda as known fact to the AI character.
-PHYSICAL CAUSALITY LAW: Enforce strict physical causality and environmental integrity. If <USER_ACTION> attempts an impossible physical feat (e.g. walking through locked solid steel/stone barriers without established magic, or materializing unearned items from thin air), do NOT passively allow or join the violation. Flag it in "directive" as a physical obstacle, impossible attempt, or contradiction for the AI character to confront, block, or question in-character.
-PROP PROVENANCE LAW: Personal, everyday items a character could plausibly be carrying (a lighter, knife, rope, coins, flask, tools, keys) are presumed to have been there all along — accept them without question. But never accept an item that carries plot significance or contradicts established reality: quest objects, artifacts the scene/Director has placed or located elsewhere, and anything established as lost, destroyed, or in another's possession. If <USER_ACTION> produces such an item, treat it as a bluff: have the AI character challenge it in-character (dry humor, irony, suspicion), and if it enters the scene at all it is a counterfeit, decoy, or joke — never the genuine article.
-SENSORY & PHYSICAL OBSERVATION LAW: When <USER_ACTION> explicitly references, touches, or observes a physical feature, bulge, clothing item, or anatomical detail, ensure the Director's "directive" and "state_append.physical" reflect and directly engage with that physical reality rather than substituting an unrelated distraction.
-LEXICAL FIDELITY LAW: When logging physical mutations ("state_append.physical") for actions involving clothing, anatomy, posture, or gear, mirror the exact lexical register, concrete terminology, and specific crude or visceral vocabulary used by the participant (e.g. use [COCK: ...] or [ANATOMY: huge cock ...] rather than clinical medical euphemisms like [GENITALIA: ...]). Never sanitize, bowdlerize, or medicalize raw or visceral participant language.
-STAGE DIRECTION: Compose "directive" as a short, subtle, in-character cue (< 30 words) for the AI character's turn. Keep it deniable and atmospheric. Empty string when nothing is warranted.
-VECTOR RESTRAINT: Mint new vectors ONLY for meaningful story shifts. Max 5 new vectors per entity — resolve or update existing ones before adding.
-OUTPUT CONSTRAINT: Output ONLY valid JSON under 800 characters. No markdown code fences, no prose.`,
-  PLOT_DRIVE: `Treat the active Fractal's <AGENDA> as a long-term scenario horizon. Evaluate whether <USER_ACTION> advances, complicates, or risks this objective. CRITICAL PACING LAW: Do NOT rush to accomplish or resolve the standing objective in early turns. Cue subtle, incremental developments and initial obstacles in "directive" that build tension gradually over time, preserving narrative momentum. PASSIVE USER TURN LAW: When <USER_ACTION> contains no action verbs or questions (e.g. passive waiting or silence), use "directive" to introduce an unexpected environmental complication, obstacle, or in-character choice. Never let the scene stall into dead-air passive waiting.`,
-  IMAGE_TRIGGERS: `Set "trigger_image" to false unless the moment demands a visual. Target strings: "story_entities" (group), "story_character" (solo focus), "solo_entity" (portrait), "story_scene" (environment).`,
-  SPEAKER_ROUTING: `Choose the active speaker to match the turn's energy. Default to "ai" (the AI_CHARACTER reacts to the user). Choose "fractal" when the user's action is non-verbal and environmental — no quoted dialogue, and the focus is on exploring, observing, or interacting with the scene itself (architecture, weather, objects, atmosphere, locations) rather than engaging the character. Choose "npc:<id>" for a specific in-scene NPC. A long unbroken stretch of "ai" turns is itself a reason to hand a purely environmental beat to "fractal".`,
+  CONTINUITY_AND_CAUSALITY: `SECRET AGENDAS: <INTENT>/<AGENDA> vectors encode private ambitions. Weave entity vectors indirectly into atmosphere/obstacles. Never present another entity's hidden agenda as known fact to the AI character.
+PHYSICAL CAUSALITY: Enforce strict physical causality and environmental integrity. If <USER_ACTION> attempts an impossible physical feat (e.g. walking through locked solid barriers without established magic, or materializing unearned items from thin air), do NOT passively allow the violation. Flag it in "directors_note" as a physical obstacle or contradiction for the character to confront in-character.
+PROP PROVENANCE: Everyday items (lighter, knife, rope, coins, flask, keys) are presumed present — accept them without question. Never accept items carrying major plot significance or contradicting reality (quest artifacts located elsewhere): treat them as bluffs/counterfeits in "directors_note".
+SENSORY ENGAGEMENT: When <USER_ACTION> explicitly touches or observes physical details, ensure "directors_note" engages with that physical reality rather than substituting a distraction.`,
+
+  PACING_AND_MOMENTUM: `PACING LAW: Treat the active Fractal's <AGENDA> as a long-term scenario horizon. Do NOT rush to resolve standing objectives in early turns. Cue subtle developments in "directors_note" that build tension gradually.
+PASSIVE USER TURN LAW: When <USER_ACTION> contains no action verbs or questions (e.g. passive waiting or silence), use "directors_note" to introduce an unexpected environmental complication or in-character choice. Never let the scene stall into dead-air.`,
+
+  SPEAKER_ROUTING: `Choose the active speaker to match the turn's energy:
+- "AI_CHARACTER": (Default) AI reacts to user.
+- "FRACTAL": User action is non-verbal and environmental (exploring atmosphere, architecture, weather, objects without dialogue) or to break up long streaks of AI speech.
+- "npc:<id>": An active in-scene NPC takes the floor.
+- "GENESIS": A new character is introduced into the world.`,
+
+  ENTITY_CONVERGENCE: `1. Always inspect <ROSTER> before introducing any secondary character.
+2. If an existing cast member matches the role or location (medical, black market, security), you MUST use that existing entity rather than inventing a duplicate.
+3. Only introduce a brand-new nameless character if no existing cast member is remotely applicable.`,
+
   TERMINATION: `STORY RESOLUTION & TERMINAL COLLAPSE LAW:
 - Quest Victory: When the overarching narrative conflict is decisively won or concluded happily, emit next_action: "EPILOGUE_CONCLUDED".
-- Tragic Collapse: When irreversible catastrophe, total systemic failure, or protagonist death/flatline occurs (e.g. fatal bullet/stab wound, terminal entropy >= 85, destruction of the setting, or explicit defeat), you MUST emit next_action: "EPILOGUE_COLLAPSED".
-- NEVER rationalize or soften terminal fatalities as hallucinations or endless survival beats — embrace the tragic finality of the collapse.`,
+- Tragic Collapse: When irreversible catastrophe, total systemic failure, or protagonist death occurs (fatal wound, terminal entropy >= 85, destruction of setting), emit next_action: "EPILOGUE_COLLAPSED".
+- Output Constraint: Output strictly valid JSON matching ${DIRECTOR_JSON_SCHEMA}. Under 400 characters. No markdown code fences.`,
 };
+
+// ── 2. Director Prompt Compiler (Shot 1) ──────────────────────────────────────
 
 /**
  * Director prompt compiler (Shot 1).
- * @param {any} params
+ * @param {Object} params
+ * @param {number|string} params.round
+ * @param {any} params.entities
+ * @param {string} [params.input]
+ * @param {any} [params.render_accessors]
+ * @param {any} [params.compressed_snapshot]
+ * @param {any[]} [params.raw_messages]
+ * @param {any[]} [params.npc_entities]
+ * @param {string[]} [params.in_scene_ids]
  * @returns {{ system: string, task: string }}
  */
 export function render_director({
   round,
   entities,
-  input,
+  input = "",
   render_accessors = null,
   compressed_snapshot,
-  raw_messages,
+  raw_messages = [],
   npc_entities = [],
   in_scene_ids = [],
 }) {
   const accessors = render_accessors || render_builder.create_render_accessors(entities, input, raw_messages);
-  const shared_protocols = render_protocols("AGENCY.FICTIONAL_LICENSE, PRESENT.EMISSION");
+  const shared_protocols = render_protocols("AGENCY.FICTIONAL_LICENSE, HYGIENE.STATE_EMISSION, COGNITION.EPISTEMIC_PHYSICS");
   const local_protocols = Object.entries(DIRECTOR_PROTOCOLS)
     .map(([tag, text]) => `<${tag}>\n${text}\n</${tag}>`)
     .join("\n\n");
@@ -122,28 +155,23 @@ export function render_director({
   ${render_roster_xml(npc_entities, in_scene_ids, [entities?.AI?.id, entities?.USER?.id, entities?.FRACTAL?.id])}
   ${render_scene_roster_xml(entities, npc_entities, in_scene_ids)}
   ${render_relational_mesh_xml(entities, npc_entities)}
-  ${ENTITY_CONVERGENCE_LAW_XML}
-  ${EPISTEMIC_ROSTER_RULES_XML}
 </SYSTEM>
   `).trim()}`;
+
+  const last_ai = (raw_messages || []).filter((m) => m.role === "model").slice(-1)[0];
+  const last_ai_text = last_ai ? strip_cognition_blocks(last_ai.content || last_ai.text || "").trim() : "";
 
   const task = clean_xml(`
 <ROUND>${escape_xml(String(round))}</ROUND>
 ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
-${(() => {
-  const last_ai = (raw_messages || []).filter((m) => m.role === "model").slice(-1)[0];
-  if (!last_ai) return "";
-  const text = strip_cognition_blocks(last_ai.content || last_ai.text || "").trim();
-  if (!text) return "";
-  return `<AI_CHARACTER_LAST_TURN>${ind(text, 2)}</AI_CHARACTER_LAST_TURN>`;
-})()}
+${last_ai_text ? `<AI_CHARACTER_LAST_TURN>${ind(last_ai_text, 2)}</AI_CHARACTER_LAST_TURN>` : ""}
 <TASK>
     Evaluate state mutations caused by ${input?.trim() ? "<USER_ACTION>" : "the current situation"}.
-    Decide "next_action": "AI_CHARACTER" (AI speaks), "FRACTAL" (Fractal scene-narrator speaks), "npc:<id>" (in-scene NPC speaks), "GENESIS" (mint a new NPC), "EPILOGUE_CONCLUDED" (quest victory/resolution), or "EPILOGUE_COLLAPSED" (fatal defeat, irreversible ruin, terminal entropy >= 85, or protagonist flatline). Default "AI_CHARACTER".${Number(round) <= 1 ? ' IMPORTANT: Round 1 directly follows the Fractal prologue, so next_action MUST be "AI_CHARACTER".' : ""}
-    Select 1-3 "keywords" from <AVAILABLE_KEYWORDS> matching the emotional tension or visual beats (or [] when neutral).
+    Decide "next_action": "AI_CHARACTER" (AI speaks), "FRACTAL" (Fractal scene-narrator speaks), "npc:<id>" (in-scene NPC speaks), "GENESIS" (mint a new NPC), "EPILOGUE_CONCLUDED" (quest victory), or "EPILOGUE_COLLAPSED" (fatal defeat, irreversible ruin, terminal entropy >= 85). Default "AI_CHARACTER".${Number(round) <= 1 ? ' IMPORTANT: Round 1 directly follows the Fractal prologue, so next_action MUST be "AI_CHARACTER".' : ""}
+    Select 1-3 "keywords" from <AVAILABLE_KEYWORDS> (or [] when neutral).
     Provide 1-3 lines of "directors_note" as unseen acting/staging guidance for the speaker.
     Output physics shifts in "dynamics_deltas" (e.g. {"intensity": 10, "openness": -5}).
-    Track the Stage Spotlight: when an NPC enters or leaves the room, move it with "in_scene_change" ("enter"/"exit" accept ids with or without the "npc:" prefix; leave both empty unless the stage changes).
+    Track the Stage Spotlight: when an NPC enters or leaves the room, move it with "in_scene_change".
     ${non_verbal_environmental_hint(input)}
     Record your reasoning inside "_thought_process" and return a single valid JSON object following this exact schema:
     ${DIRECTOR_JSON_SCHEMA}
@@ -154,6 +182,8 @@ ${(() => {
   return { system, task };
 }
 
+// ── 3. Terse Director Recovery Task ───────────────────────────────────────────
+
 /**
  * Terse replacement for the Director task — used on retry after truncated JSON.
  * @returns {string}
@@ -161,15 +191,13 @@ ${(() => {
 export function render_terse_director_task() {
   return `
 <TASK>
-  Return a single, COMPLETE, VALID JSON object under 400 characters:
-  - "_thought_process": "<tactical intent>"
-  - "next_action": "AI_CHARACTER" | "FRACTAL" | "npc:<id>" | "GENESIS" | "EPILOGUE_CONCLUDED" | "EPILOGUE_COLLAPSED"
-  - "keywords": []
-  - "directors_note": "<1 line staging directive>"
-  - "dynamics_deltas": { "chaos": 0, "intensity": 0, "openness": 0, "affinity": 0 }
-  - "in_scene_change": { "enter": [], "exit": [] }
-  Output strictly JSON matching this schema:
+  Return a single, COMPLETE, VALID JSON object under 400 characters matching this schema:
   ${DIRECTOR_JSON_SCHEMA}
 </TASK>
   `.trim();
 }
+
+/**
+ * CHANGELOG
+ * - 2026-08-28: Removed duplicate raw XML strings in favor of render_protocols for convergence and epistemic rules.
+ */

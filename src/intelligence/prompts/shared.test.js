@@ -4,15 +4,9 @@
  */
 
 import { describe, expect, it } from "vitest";
-import {
-  PROTOCOL_LIBRARY,
-  parse_macros,
-  render_protocols,
-  render_builder,
-  render_system_head,
-  strip_epistemic_tags,
-  build_pacing_directive,
-} from "./shared.js";
+import { PROTOCOL_LIBRARY, parse_macros, render_protocols, render_system_head, strip_epistemic_tags } from "./shared.js";
+import { render_builder } from "./builder.js";
+import { build_pacing_directive } from "./story-prompts.js";
 
 describe("Shared Prompt Utilities (shared.js)", () => {
   describe("Static Helpers & History Rendering", () => {
@@ -61,24 +55,24 @@ describe("Shared Prompt Utilities (shared.js)", () => {
     });
 
     it("render_protocols() should return XML-tagged protocols", () => {
-      const out = render_protocols("AGENCY.MOMENTUM, HYGIENE.PROSE");
+      const out = render_protocols("AGENCY.MOMENTUM, HYGIENE.PROSE_DISCIPLINE");
       expect(out).toContain("<MOMENTUM>End on a live beat");
       expect(out).toContain("without structural labels.</MOMENTUM>");
-      expect(out).toContain("<PROSE>Omit conversational preambles");
-      expect(out).toContain("24h clocks.</PROSE>");
+      expect(out).toContain("<PROSE_DISCIPLINE>Omit conversational preambles");
+      expect(out).toContain("Always end on a complete sentence.</PROSE_DISCIPLINE>");
     });
   });
 
   describe("Protocol Library Consolidation", () => {
     it("should ensure core protocols are compacted and deduplicated", () => {
-      expect(PROTOCOL_LIBRARY.HYGIENE.PROSE.length).toBeLessThan(300);
-      expect(PROTOCOL_LIBRARY.COGNITION.PHASES.length).toBeLessThan(500);
+      expect(PROTOCOL_LIBRARY.HYGIENE.PROSE_DISCIPLINE.length).toBeLessThan(500);
+      expect(PROTOCOL_LIBRARY.COGNITION.THINK_CHARACTER.length).toBeLessThan(600);
       expect(PROTOCOL_LIBRARY.AGENCY.USER_BOUNDARIES.length).toBeLessThan(200);
       expect(PROTOCOL_LIBRARY.AGENCY.MOMENTUM.length).toBeLessThan(250);
-      expect(PROTOCOL_LIBRARY.HYGIENE.MARKDOWN.length).toBeLessThan(200);
+      expect(PROTOCOL_LIBRARY.HYGIENE.ANTI_TROPES.length).toBeGreaterThan(500);
 
       const base_hygiene = "Omit conversational preambles, greetings, or meta-commentary. Start instantly.";
-      expect(PROTOCOL_LIBRARY.HYGIENE.PROSE).toContain(base_hygiene);
+      expect(PROTOCOL_LIBRARY.HYGIENE.PROSE_DISCIPLINE).toContain(base_hygiene);
       expect(PROTOCOL_LIBRARY.HYGIENE.DATA).toContain(base_hygiene);
     });
   });

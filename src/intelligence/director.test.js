@@ -4,9 +4,7 @@ import {
   normalize_director_data,
   normalize_speaker,
   normalize_in_scene_change,
-  normalize_promotions,
   normalize_relationships,
-  normalize_genesis,
   strip_npc_id,
   resolve_speaker_engine,
   STORY_STATUS_VALUES,
@@ -138,17 +136,6 @@ describe("normalize_director_quick_shot (Track 1 Schema)", () => {
     expect(data.directors_note.split("\n").length).toBeLessThanOrEqual(3);
     expect(data.directors_note).toContain("Line 1: Glance over.");
   });
-
-  it("omits legacy promotions and relationships from director quick shot output", () => {
-    const data = normalize_director_data({
-      next_action: "AI_CHARACTER",
-      keywords: ["vulnerability"],
-      directors_note: "Speak softly.",
-      dynamics_deltas: { intensity: 10 },
-    });
-    expect(data.promotions).toBeUndefined();
-    expect(data.relationships).toBeUndefined();
-  });
 });
 
 describe("normalize_speaker", () => {
@@ -265,38 +252,6 @@ describe("normalize_in_scene_change", () => {
   });
 });
 
-describe("normalize_promotions", () => {
-  it("coerces bare-string entries to tier 2", () => {
-    expect(normalize_promotions(["npc:elias", "mira"])).toEqual([
-      { id: "elias", tier: 2 },
-      { id: "mira", tier: 2 },
-    ]);
-  });
-
-  it("clamps tiers to the 2|3 range and strips prefixes", () => {
-    expect(
-      normalize_promotions([
-        { id: "npc:elias", tier: 3 },
-        { id: "mira", tier: 4 },
-        { id: "nobody", tier: 1 },
-      ]),
-    ).toEqual([
-      { id: "elias", tier: 3 },
-      { id: "mira", tier: 3 },
-      { id: "nobody", tier: 2 },
-    ]);
-  });
-
-  it("accepts npc_id aliases and filters entries without ids", () => {
-    expect(normalize_promotions([{ npc_id: "NPC:sorel", tier: 2 }, { tier: 3 }, null, "  "])).toEqual([{ id: "sorel", tier: 2 }]);
-  });
-
-  it("returns [] for non-array input", () => {
-    expect(normalize_promotions(undefined)).toEqual([]);
-    expect(normalize_promotions({ id: "elias", tier: 3 })).toEqual([]);
-  });
-});
-
 describe("normalize_director_data (Stage Spotlight)", () => {
   it("passes through a fully-formed in_scene_change", () => {
     const normalized = normalize_director_data({
@@ -335,41 +290,5 @@ describe("normalize_relationships (Relational Mesh)", () => {
     expect(normalize_relationships(undefined)).toEqual([]);
     expect(normalize_relationships("Viper → Mira: alliance")).toEqual([]);
     expect(normalize_relationships({ 0: "Viper → Mira: alliance" })).toEqual([]);
-  });
-});
-
-describe("normalize_genesis (World-Cast Expansion)", () => {
-  it("mints sanitized genesis drafts with a clamped tier", () => {
-    expect(normalize_genesis([{ name: "  Mira  ", description: "A scarred courier", role_tier: 9 }])).toEqual([
-      { name: "Mira", description: "A scarred courier", role_tier: 3, voice_register: "", signature_color: "" },
-    ]);
-  });
-
-  it("passes an exact registry signature_color through and drops invalid ones", () => {
-    const out = normalize_genesis([
-      { name: "Mira", signature_color: "Proud Purple" },
-      { name: "Zed", signature_color: "not-a-registry-color" },
-    ]);
-    expect(out[0].signature_color).toBe("Proud Purple");
-    expect(out[1].signature_color).toBe("");
-    expect(normalize_genesis([{ name: "Quell", signature_color: "Deep Indigo" }])[0].signature_color).toBe("Deep Indigo");
-  });
-
-  it("requires a non-empty name and caps entries at 2", () => {
-    const three = [{ name: "A" }, { name: "" }, { name: "B" }, { name: "C" }];
-    const out = normalize_genesis(three);
-    expect(out.map((g) => g.name)).toEqual(["A", "B"]);
-  });
-
-  it("caps description and voice_register length, defaults tier to 1", () => {
-    const out = normalize_genesis([{ name: "D", description: "y".repeat(500), role_tier: "nope" }]);
-    expect(out[0].description.length).toBeLessThanOrEqual(240);
-    expect(out[0].role_tier).toBe(1);
-  });
-
-  it("returns [] for non-array input", () => {
-    expect(normalize_genesis(undefined)).toEqual([]);
-    expect(normalize_genesis({ name: "Mira" })).toEqual([]);
-    expect(normalize_genesis([null, 42])).toEqual([]);
   });
 });

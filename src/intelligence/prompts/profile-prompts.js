@@ -158,7 +158,7 @@ export function render_enhancement({
   entity = null,
   entity_type = "character",
 }) {
-  const protocols = ["HYGIENE.DATA", "HYGIENE.AFFIRMATIVE"].filter(Boolean).join(", ");
+  const protocols = ["HYGIENE.DATA"].filter(Boolean).join(", ");
   const format_instruction = is_image_field
     ? PROFILE_FORMATS.ENHANCE_IMAGE
     : is_array_field
@@ -201,7 +201,7 @@ export function render_enhancement({
  */
 export function render_profile_sorting(entity_type = "character", options = {}) {
   const resolved_type = entity_type === "user" ? "character" : entity_type || "character";
-  const protocols = ["HYGIENE.DATA", "HYGIENE.AFFIRMATIVE"].filter(Boolean).join(", ");
+  const protocols = ["HYGIENE.DATA"].filter(Boolean).join(", ");
   const sorting_instruction = resolved_type === "fractal" ? SORT_FRACTAL : SORT_CHARACTER;
   const ingestion_str = options.ingestion ? `\n\n    ${ind(INGESTION_DIRECTIVE, 4)}` : "";
   const redistribute_str = options.redistribute ? `\n\n    ${ind(REDISTRIBUTE_DIRECTIVE, 4)}` : "";

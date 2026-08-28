@@ -3,7 +3,6 @@
  * 🎭 STORYTELLING TURN PROMPTS
  *
  * Prompts for the core simulation turn loop:
- * - Director Quick Shot (render_director)
  * - AI Character Turn (render_character)
  * - Stage NPC Speaker Turn (render_npc_character)
  * - Ghostwriter Player Turn (render_ghostwriter)
@@ -12,21 +11,28 @@
 
 import { ind, escape_xml, clean_xml } from "@utils";
 import { NARRATIVE_STYLES } from "@data";
-import { build_somatic_directives_block } from "./physics-prompts.js";
+import { build_somatic_directives_block, format_dynamics_attrs } from "./physics-prompts.js";
 import { build_signals_xml } from "../physics.js";
+import { render_builder } from "./builder.js";
 import {
   render_system_head,
   render_field_value,
-  format_dynamics_attrs,
   resolve_active_style_key,
-  resolve_pov_protocol,
   strip_epistemic_tags,
   render_current_story_state_xml,
-  build_pacing_directive,
   render_protocols,
-  render_builder,
   PROTOCOL_LIBRARY,
 } from "./shared.js";
+
+/**
+ * Resolves the active POV protocol key for an entity profile.
+ * @param {any} entity
+ * @returns {"POV.FIRST_PERSON" | "POV.THIRD_PERSON"}
+ */
+export function resolve_pov_protocol(entity) {
+  const pov = entity?.pov || (entity?.type === "fractal" ? "3rd_person" : "1st_person");
+  return pov === "3rd_person" ? "POV.THIRD_PERSON" : "POV.FIRST_PERSON";
+}
 
 const SCENE_TEMPLATES = {
   PROLOGUE: `You see everything. Open the scene. Use <think> to establish: What does this Fractal demand? What brought <AI_CHARACTER> and <USER_PERSONA> here? Unless context explicitly states otherwise, treat as strangers.
@@ -54,6 +60,36 @@ export const STABILITY_DIRECTIVES = {
   WARNING: "WARNING: Structural drift detected. Maintain disciplined XML closures and clean markdown boundaries.",
   CRITICAL: "CRITICAL: Structural collapse. Re-anchor immediately. Every XML tag must close cleanly.",
 };
+
+/**
+ * Input-rhythm calibration: classifies user message and returns length/energy directive.
+ * @param {string|null} input
+ * @returns {string}
+ */
+export function build_pacing_directive(input) {
+  const text = String(input || "").trim();
+  if (!text) return "INPUT RHYTHM: no prompt — advance the situation with one brief, deliberate beat.";
+
+  const chars = text.length;
+  const words = text.split(/\s+/).filter(Boolean).length;
+  if (chars >= 300 || words >= 60) {
+    return "INPUT RHYTHM: expansive. You may expand to match the message's breadth, but still close on one decisive hook.";
+  }
+
+  const has_action =
+    /\b(?:draw|grab|gripp?|take|push|pull|run|walk|strike|slam|open|step|slip|raise|turn|leap|dash|kneel|reach|press|set|lower|climb|swing|draws|grabs|steps|raises|turns|opens|says|whispers|shouts|nods|shakes|stands|sits|takes|pulls|pushes)\b/i.test(
+      text,
+    );
+  const is_question = /\?\s*$/.test(text);
+  const is_silence = !has_action && !is_question && words <= 12;
+  if (chars <= 40 || words <= 8) {
+    if (is_silence) {
+      return "INPUT RHYTHM: passive silence. Do not stall — escalate with a direct probe (a pointed question, a challenge, or an unexpected development) in one or two taut sentences.";
+    }
+    return "INPUT RHYTHM: terse. Match it — a brief, weighted reply of one to three sharp beats (short sentences, a single decisive action or line). Do not pad.";
+  }
+  return "INPUT RHYTHM: moderate. A reply of a few sentences — long enough for substance, short enough to keep the scene moving.";
+}
 
 /**
  * Character prompt compiler (Shot 2).
@@ -90,22 +126,18 @@ export function render_character({
     compressed_snapshot?.ai?.dynamics || entities?.AI?.dynamics || {},
   );
 
+  const is_first_contact =
+    meta?.is_opening_turn || (Array.isArray(compressed_snapshot?.flags) && compressed_snapshot.flags.includes("FIRST_CONTACT"));
+
   const protocols = [
-    "COGNITION.PHASES",
     "AGENCY.PRESENT_TENSE",
-    "HYGIENE.PROSE",
+    "HYGIENE.PROSE_DISCIPLINE",
     ...(has_user_action ? ["AGENCY.USER_BOUNDARIES", "AGENCY.YES_AND"] : []),
     "AGENCY.MOMENTUM",
-    "HYGIENE.MARKDOWN",
     "AGENCY.INITIATIVE",
-    "HYGIENE.CONCISENESS",
-    "HYGIENE.BANNED_TROPES",
-    "HYGIENE.PROSE_STRUCTURE",
+    "HYGIENE.ANTI_TROPES",
     "AGENCY.DRIFT_AUDIT",
     "AGENCY.FICTIONAL_LICENSE",
-    meta?.is_opening_turn || (Array.isArray(compressed_snapshot?.flags) && compressed_snapshot.flags.includes("FIRST_CONTACT"))
-      ? "AGENCY.FIRST_CONTACT"
-      : "",
   ]
     .filter(Boolean)
     .join(", ");
@@ -113,6 +145,11 @@ export function render_character({
     meta?.structural_errors >= 3 ? STABILITY_DIRECTIVES.CRITICAL : meta?.structural_errors >= 1 ? STABILITY_DIRECTIVES.WARNING : "";
 
   const user_field = (text) => render_field_value(strip_epistemic_tags(text), entities?.USER, entities);
+
+  const rendered_protocols = render_protocols(protocols);
+  const full_protocols = is_first_contact
+    ? `${rendered_protocols}\n<FIRST_CONTACT>Unless context explicitly establishes a prior relationship, treat this as a first encounter. You do not know the user's name, history, or intent.</FIRST_CONTACT>`
+    : rendered_protocols;
 
   const system = `${render_system_head(entities)}\n${clean_xml(`
   <ROLE name="${escape_xml(entities?.AI?.name || "AI")}">
@@ -124,7 +161,7 @@ export function render_character({
     <PERMANENT_APPEARANCE>${user_field(entities?.USER?.eternal?.physical)}</PERMANENT_APPEARANCE>
   </USER_PERSONA>
   <PROTOCOLS>
-    ${ind(render_protocols(protocols), 4)}
+    ${ind(full_protocols, 4)}
   </PROTOCOLS>
 </SYSTEM>
   `).trim()}`;
@@ -165,7 +202,7 @@ ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
     </THINK_FORMAT>
     ${stability_lock_content ? `<STABILITY_LOCK>${stability_lock_content}</STABILITY_LOCK>\n    ` : ""}
     <EPISTEMIC_PHYSICS>
-      ${ind(PROTOCOL_LIBRARY.EPISTEMIC_PHYSICS.RULES, 6)}
+      ${ind(PROTOCOL_LIBRARY.COGNITION.EPISTEMIC_PHYSICS, 6)}
     </EPISTEMIC_PHYSICS>
     ${build_signals_xml(compressed_snapshot?.ai?.dynamics, compressed_snapshot?.fractal?.dynamics, { style: NARRATIVE_STYLES[resolve_active_style_key()] })}
     <POV_DIRECTIVE>
@@ -217,16 +254,12 @@ export function render_npc_character({
   const somatic_directives_xml = build_somatic_directives_block(director_data?.keywords || [], npc?.dynamics || {});
 
   const protocols = [
-    "COGNITION.PHASES",
     "AGENCY.PRESENT_TENSE",
-    "HYGIENE.PROSE",
+    "HYGIENE.PROSE_DISCIPLINE",
     ...(has_user_action ? ["AGENCY.USER_BOUNDARIES", "AGENCY.YES_AND"] : []),
     "AGENCY.MOMENTUM",
-    "HYGIENE.MARKDOWN",
     "AGENCY.INITIATIVE",
-    "HYGIENE.CONCISENESS",
-    "HYGIENE.BANNED_TROPES",
-    "HYGIENE.PROSE_STRUCTURE",
+    "HYGIENE.ANTI_TROPES",
     "AGENCY.DRIFT_AUDIT",
     "AGENCY.FICTIONAL_LICENSE",
   ]
@@ -281,7 +314,7 @@ ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
     ${PROTOCOL_LIBRARY.COGNITION.THINK_CHARACTER}
     </THINK_FORMAT>
     <EPISTEMIC_PHYSICS>
-      ${ind(PROTOCOL_LIBRARY.EPISTEMIC_PHYSICS.RULES, 6)}
+      ${ind(PROTOCOL_LIBRARY.COGNITION.EPISTEMIC_PHYSICS, 6)}
     </EPISTEMIC_PHYSICS>
     ${build_signals_xml(npc?.dynamics, compressed_snapshot?.fractal?.dynamics, { style: NARRATIVE_STYLES[resolve_active_style_key()] })}
     <POV_DIRECTIVE>
@@ -362,7 +395,7 @@ export function build_narrator(
         : conclusion_status === "COLLAPSED"
           ? SCENE_TEMPLATES.COLLAPSE
           : SCENE_TEMPLATES.EPILOGUE;
-  const fractal_name = entities?.FRACTAL?.name || "Environment";
+  const fractal_name = entities?.FRACTAL?.name || "The Fractal";
   const somatic_directives_xml = mode === "scene" ? build_somatic_directives_block(director_data?.keywords || []) : "";
 
   const system = `${render_system_head(entities)}\n${clean_xml(`
@@ -392,7 +425,8 @@ export function build_narrator(
     </USER_PERSONA>
   </ACTIVE_CHARACTERS>
   <PROTOCOLS>
-    ${ind(render_protocols("COGNITION.ANCHOR, COGNITION.PHASES, AGENCY.PRESENT_TENSE, HYGIENE.PROSE, AGENCY.MOMENTUM, HYGIENE.MARKDOWN, HYGIENE.BANNED_TROPES, HYGIENE.PROSE_STRUCTURE, AGENCY.FICTIONAL_LICENSE"), 4)}
+    <ANCHOR>Resolve all state inferences strictly from the <YOUR_IDENTITY> block above. Never invent state that is not listed there.</ANCHOR>
+    ${ind(render_protocols("AGENCY.PRESENT_TENSE, HYGIENE.PROSE_DISCIPLINE, AGENCY.MOMENTUM, HYGIENE.ANTI_TROPES, AGENCY.FICTIONAL_LICENSE"), 4)}
   </PROTOCOLS>
 </SYSTEM>
   `).trim()}`;
@@ -413,3 +447,8 @@ ${round != null ? `<ROUND>${escape_xml(String(round))}</ROUND>\n` : ""}${input?.
 
   return { system, task };
 }
+
+/**
+ * CHANGELOG
+ * - 2026-08-28: Updated imports to consume render_builder from builder.js and dynamics formatters from physics-prompts.js.
+ */

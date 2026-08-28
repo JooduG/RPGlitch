@@ -19,10 +19,10 @@ import { render_protocols } from "./shared.js";
  * pipelines never drift apart.
  */
 export const TEMPORAL_CONTRACT = `TEMPORAL LAYER CONTRACT — ETERNAL / PRESENT / FUTURE / PAST
-- ETERNAL: the evolving baseline. Permanent changes (defining events, character arcs, world shifts) update it; temporary state belongs in PRESENT. Explicit user edits to Eternal always win.
-- PRESENT: the volatile delta layer over ETERNAL — what has shifted right now. Rewritten each cycle. True in this moment only.
-- FUTURE: the single standing agenda — one clear intent, building pressure, or impending event driving the next state change. Rewritten each cycle. Active future tense.
-- PAST: anchored memory — settled facts and events. Appended, never rewritten in place.`;
+- ETERNAL: Permanent baseline identity, personality traits, and physical form. Permanent narrative transformations update it; transient states belong in PRESENT. Explicit user edits always override.
+- PRESENT: Immediate volatile state. "physical" holds active attire, injuries, and held props via bracketed state tags ([KEY: VALUE]); "non_physical" holds immediate mindset and emotional state. True only in this moment.
+- FUTURE: Single consolidated standing agenda — impending intent, immediate objective, or unresolved tension driving the character forward. Written in active future tense.
+- PAST: Settled historical anchors and durable facts. Append new consequential events only; never record transient moods.`;
 
 export const BACK_SHOT_JSON_SCHEMA = `{
   "_thought_process": "<one short sentence analyzing recent events for target entity>",
@@ -116,7 +116,7 @@ export function render_memory({ target_entity, target_key = "AI_CHARACTER", othe
   return clean_xml(`
 <SYSTEM role="BACK_SHOT_FORGE" target="${escape_xml(target_key)}" name="${escape_xml(target_name)}">
   <PROTOCOLS>
-    ${ind(render_protocols("HYGIENE.DATA, HYGIENE.AFFIRMATIVE, AGENCY.PRESENT_TENSE, PRESENT.EMISSION"), 4)}
+    ${ind(render_protocols("HYGIENE.DATA, AGENCY.PRESENT_TENSE, HYGIENE.STATE_EMISSION"), 4)}
   </PROTOCOLS>
   <TARGET_ENTITY_CONTEXT>
 ${target_xml}
