@@ -68,7 +68,7 @@ describe("embeddings LRU cache", () => {
     await embed("D");
     await embed("E"); // overflow → evicts B (least recently used)
 
-    const stats = embeddings_engine.cacheStats();
+    const stats = embeddings_engine.cache_stats();
     expect(stats.size).toBe(4);
 
     // A survived (refreshed) → cached instance returned
@@ -83,7 +83,7 @@ describe("embeddings LRU cache", () => {
     await embed("alpha");
     await embed("alpha");
     await embed("beta");
-    const stats = embeddings_engine.cacheStats();
+    const stats = embeddings_engine.cache_stats();
     expect(stats.hits).toBe(1);
     expect(stats.misses).toBe(2);
   });
@@ -91,7 +91,7 @@ describe("embeddings LRU cache", () => {
   it("exposes the configured maximum cache size", () => {
     embeddings_engine._debug_reset_cache();
     expect(EMBEDDING_CACHE_MAX).toBe(1500);
-    expect(embeddings_engine.cacheStats().max).toBe(1500);
+    expect(embeddings_engine.cache_stats().max).toBe(1500);
   });
 
   it("upgrades a persisted plain-array embedding via ensure_embedding", async () => {

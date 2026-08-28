@@ -9,8 +9,7 @@
   import { Shimmer } from "@motion";
   import { image_picker, open_picker } from "@image";
   import { get_resolution } from "@media";
-  import { app } from "@state";
-  import { simulation_log } from "../../state/log.svelte.js";
+  import { app, simulation_log } from "@state";
 
   let {
     /** @type {any[]} */

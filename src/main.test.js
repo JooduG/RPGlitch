@@ -29,11 +29,15 @@ vi.mock("@media/audio.svelte.js", () => ({
   },
 }));
 
-vi.mock("@intelligence", () => ({
-  embeddings_engine: {
-    load_model: vi.fn().mockResolvedValue(),
-  },
-}));
+vi.mock("@platform", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    embeddings_engine: {
+      load_model: vi.fn().mockResolvedValue(),
+    },
+  };
+});
 
 vi.mock("@data/repository.js", () => ({
   seed_premades: vi.fn(),

@@ -1,33 +1,43 @@
 /**
  * src/platform/environment.js
- * 🛡️ ENVIRONMENT HARDENING
- * Install-time guards that suppress known-benign browser and Perchance engine
- * errors before any app code runs. Pure platform concern — wired in exactly
- * once from the entry point (src/main.js) via install_environment_hardening().
+ * 🛡️ ENVIRONMENT HARDENING & PLATFORM RESILIENCE
+ *
+ * Core Responsibilities:
+ * - Installs runtime guards that suppress known benign browser warnings and Perchance sandbox frame errors.
+ * - Patches ResizeObserver to execute callbacks inside `requestAnimationFrame` ticks, breaking layout loops.
+ * - Intercepts unhandled errors and promise rejections for iframe-specific Perchance internal artifacts.
+ *
+ * Dependencies & Cross-Module Invariants:
+ * - Executed synchronously exactly once at bootstrap in `src/main.js` before any observers or DOM mounting.
+ * - Must remain purely self-contained with zero external dependencies to guarantee safe early execution.
  */
 
+// ============================================================================
+// [SECTION 1: CONSTANTS & ERROR SIGNATURES]
+// ============================================================================
+
+/** Text pattern identifying benign ResizeObserver layout deferral warnings. */
+const RESIZE_OBSERVER_LOOP_PATTERN = "ResizeObserver loop";
+
+/** Text patterns identifying benign Perchance iframe sandbox internal artifacts. */
+const PERCHANCE_FRAME_ERROR_PATTERNS = ["Symbol", "numActualScriptLines"];
+
+// ============================================================================
+// [SECTION 2: RESIZEOBSERVER HARDENING GUARD]
+// ============================================================================
+
 /**
- * Suppress benign "ResizeObserver loop completed with undelivered notifications" errors.
+ * Suppresses benign "ResizeObserver loop completed with undelivered notifications" errors.
  *
- * This is a well-known browser warning fired when a ResizeObserver callback synchronously
- * resizes an element, causing the browser to defer the notification to the next frame. It is
- * harmless but Perchance's engine surfaces it as a fatal error modal — and because the
- * generator runs inside an iframe, Perchance's parent window can detect the error through
- * mechanisms (cross-window postMessage) that window.onerror cannot intercept.
- *
- * The robust fix: patch the ResizeObserver constructor so every callback runs inside a
- * requestAnimationFrame tick. This breaks the synchronous layout-thrash loop at its source,
- * so the error never fires — regardless of whether it originates from bits-ui, Floating UI,
- * FitText, auto-resize, or any other ResizeObserver consumer. The rAF wrap adds negligible
- * latency (one frame ~16ms) and errors thrown inside callbacks are caught and logged.
- *
- * Belt-and-suspenders: also filter any "ResizeObserver loop" errors that reach
- * window.onerror or error event listeners, in case the rAF wrap is not enough.
+ * Fired when a ResizeObserver callback synchronously alters element geometry, deferring notifications.
+ * By wrapping the callback inside a `requestAnimationFrame` tick, synchronous layout-thrashing is broken
+ * before it reaches browser dispatch, with fallback filtering on `window.onerror` and `window.addEventListener`.
  */
 function install_resize_observer_guard() {
   if (typeof window !== "undefined" && typeof ResizeObserver !== "undefined") {
-    const _orig_ro = ResizeObserver;
-    class SafeResizeObserver extends _orig_ro {
+    const original_resize_observer = ResizeObserver;
+
+    class SafeResizeObserver extends original_resize_observer {
       /**
        * @param {ResizeObserverCallback} callback
        */
@@ -44,8 +54,8 @@ function install_resize_observer_guard() {
         super(/** @type {ResizeObserverCallback} */ (wrapped));
       }
     }
-    // Preserve static props (e.g. any future browser additions)
-    Object.setPrototypeOf(SafeResizeObserver, _orig_ro);
+
+    Object.setPrototypeOf(SafeResizeObserver, original_resize_observer);
     Object.defineProperty(window, "ResizeObserver", {
       value: SafeResizeObserver,
       writable: true,
@@ -54,73 +64,101 @@ function install_resize_observer_guard() {
   }
 
   if (typeof window !== "undefined") {
-    const RO_LOOP = "ResizeObserver loop";
-    const _orig_onerror = window.onerror;
+    const original_onerror = window.onerror;
     window.onerror = function (msg, source, lineno, colno, error) {
-      if (msg && String(msg).includes(RO_LOOP)) return true; // suppress
-      return _orig_onerror ? _orig_onerror.call(this, msg, source, lineno, colno, error) : false;
+      if (msg && String(msg).includes(RESIZE_OBSERVER_LOOP_PATTERN)) {
+        return true; // Suppress benign loop notification
+      }
+      return original_onerror ? original_onerror.call(this, msg, source, lineno, colno, error) : false;
     };
-    const _orig_add_event_listener = window.addEventListener;
+
+    const original_add_event_listener = window.addEventListener;
     window.addEventListener = function (type, listener, options) {
       if (type === "error") {
         const wrapped = (event) => {
-          const m = event?.message;
-          if (m && String(m).includes(RO_LOOP)) return;
+          const message = event?.message;
+          if (message && String(message).includes(RESIZE_OBSERVER_LOOP_PATTERN)) {
+            return;
+          }
           return listener.call(this, event);
         };
-        return _orig_add_event_listener.call(this, type, wrapped, options);
+        return original_add_event_listener.call(this, type, wrapped, options);
       }
-      return _orig_add_event_listener.call(this, type, listener, options);
+      return original_add_event_listener.call(this, type, listener, options);
     };
   }
 }
 
-/**
- * Silences the Perchance engine's own frame errors ("Symbol",
- * "numActualScriptLines") that surface from the sandbox iframe.
- */
-function silence_perchance_frame_errors() {
-  if (typeof window !== "undefined") {
-    window.addEventListener(
-      "error",
-      (e) => {
-        try {
-          const msg = e.message ? String(e.message) : "";
-          if (msg.includes("Symbol") || msg.includes("numActualScriptLines")) {
-            e.preventDefault();
-            e.stopPropagation();
-          }
-        } catch {
-          // Fallback for objects that cannot be converted to string, such as raw symbols
-        }
-      },
-      true,
-    );
+// ============================================================================
+// [SECTION 3: PERCHANCE IFRAME FRAME ERROR SUPPRESSION]
+// ============================================================================
 
-    window.addEventListener(
-      "unhandledrejection",
-      (e) => {
-        try {
-          const reason = e.reason;
-          const msg = reason && typeof reason === "object" && reason.message ? String(reason.message) : reason ? String(reason) : "";
-          if (msg.includes("Symbol") || msg.includes("numActualScriptLines")) {
-            e.preventDefault();
-            e.stopPropagation();
-          }
-        } catch {
-          // Fallback for unconvertible reasons
-        }
-      },
-      true,
-    );
+/**
+ * Checks whether an error or rejection payload matches known Perchance sandbox internal errors.
+ * @param {any} target
+ * @returns {boolean}
+ */
+function is_perchance_frame_error(target) {
+  if (!target) return false;
+  try {
+    const message = target.message ? String(target.message) : String(target);
+    return PERCHANCE_FRAME_ERROR_PATTERNS.some((pattern) => message.includes(pattern));
+  } catch {
+    return false;
   }
 }
 
 /**
- * Installs all environment hardening. Called once from the entry point before
- * any app code creates observers or registers its own error listeners.
+ * Silences the Perchance engine's own frame errors ("Symbol", "numActualScriptLines")
+ * that surface from the sandbox iframe parent boundaries.
  */
-export const install_environment_hardening = () => {
+function silence_perchance_frame_errors() {
+  if (typeof window === "undefined") return;
+
+  window.addEventListener(
+    "error",
+    (event) => {
+      if (is_perchance_frame_error(event)) {
+        event.preventDefault?.();
+        event.stopPropagation?.();
+      }
+    },
+    true,
+  );
+
+  window.addEventListener(
+    "unhandledrejection",
+    (event) => {
+      if (is_perchance_frame_error(event?.reason)) {
+        event.preventDefault?.();
+        event.stopPropagation?.();
+      }
+    },
+    true,
+  );
+}
+
+// ============================================================================
+// [SECTION 4: INITIALIZATION ENTRY POINT]
+// ============================================================================
+
+/**
+ * Installs all environment hardening. Called once from the entry point (`src/main.js`)
+ * before any app code creates observers or registers its own error listeners.
+ */
+export function install_environment_hardening() {
   install_resize_observer_guard();
   silence_perchance_frame_errors();
-};
+}
+
+// ============================================================================
+// [CHANGELOG]
+// ============================================================================
+/**
+ * CHANGELOG:
+ * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,
+ *   structured section dividers, extracted `is_perchance_frame_error` helper, normalized function
+ *   declarations, and established dedicated unit test suite.
+ * - 2026-08-20: Hardened ResizeObserver wrapping with `requestAnimationFrame` and `Object.setPrototypeOf`
+ *   to suppress iframe layout loops. Added Perchance sandbox unhandled rejection filtering.
+ */

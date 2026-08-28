@@ -16,7 +16,7 @@
  */
 
 import { entities } from "@data";
-import { escape_unescaped_json_quotes, extract_json_block, first_sentence, state_bridge } from "@utils";
+import { escape_unescaped_json_quotes, extract_json_block, state_bridge } from "@utils";
 import { parse_think_block } from "./parser.js";
 
 // ── 1. Constants & Value Maps ─────────────────────────────────────────────────

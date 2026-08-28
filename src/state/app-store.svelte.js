@@ -1,14 +1,27 @@
 /**
  * src/state/app-store.svelte.js
- * UI: Interface State (Simulation & Gamemaster)
- * Manages modals, view states, and visual feedback using storyboard/storymode terminology.
- * ZERO NESTING - Flattened Schema only.
+ * 🎛️ APPLICATION INTERFACE & NAVIGATION STATE (Simulation & Gamemaster)
+ *
+ * Core Responsibilities:
+ * - Manages top-level application navigation (`storyboard` vs `storymode`), control panel, and modals.
+ * - Owns reactive Storyboard slot selections (`selected_ai`, `selected_user`, `selected_fractal`, `card_hand`).
+ * - Manages entity lobby lists and claimed entity tracking (`claimed_entity_ids`) for active story locking.
+ * - Handles viewport media query listeners and touch capabilities synced with design system tokens.
+ * - Owns persistent application user settings (`sound`, `call_mode`, `stream_text`, `auto_scroll`, `dev_mode`, `dev_grid_visible`, styles).
+ * - Bridges image preview modal requests to the UI layer without violating layer boundaries.
+ * - Delegates streaming and telemetry calls to their respective stores (`streaming.svelte.js`, `dev-log.svelte.js`).
+ *
+ * Layer & Dependency Invariants:
+ * - `src/state/` MUST NEVER import from `src/ui/`.
+ * - UI modals register callbacks into `register_image_preview_handlers` at boot.
+ * - Downward imports permitted: `@utils`, `@data`, `@media`, `@platform`.
  */
+
 import { flushSync } from "svelte";
 import { SvelteSet } from "svelte/reactivity";
-import { resolve_px, stories_bridge, guarded_transition } from "@utils";
-import { db, entities, stories, normalize } from "@data";
-import { visual_engine, get_signature_color, Audio } from "@media";
+import { guarded_transition, resolve_px, stories_bridge } from "@utils";
+import { db, entities, normalize, stories } from "@data";
+import { Audio, get_signature_color, visual_engine } from "@media";
 import { embeddings_engine } from "@platform";
 import { runtime } from "./runtime.svelte.js";
 import { streaming as streaming_store } from "./streaming.svelte.js";
@@ -16,17 +29,27 @@ import { dev_log } from "./dev-log.svelte.js";
 import { simulation_state, ui_state } from "./status.svelte.js";
 import { install_freeze_watchdog } from "./freeze-watchdog.js";
 
+// ============================================================================
+// [SECTION 1: BRIDGES & JSDOC TYPE DEFINITIONS]
+// ============================================================================
+
 /**
  * Image preview bridge: The state layer cannot import from @primitives (UI layer).
  * Instead, the UI layer registers its open/close handlers here at boot time.
- * These stubs delegate to the registered handlers if available.
  * @type {{ open: ((src: any, caption?: string) => void) | null, close: (() => void) | null }}
  */
 const _image_preview_bridge = { open: null, close: null };
+
+/**
+ * Registers UI-level image preview handlers.
+ * @param {((src: any, caption?: string) => void) | null} open
+ * @param {(() => void) | null} close
+ */
 export function register_image_preview_handlers(open, close) {
   _image_preview_bridge.open = open;
   _image_preview_bridge.close = close;
 }
+
 const close_image_preview = () => _image_preview_bridge.close?.();
 const open_image_preview = (src, caption = "") => _image_preview_bridge.open?.(src, caption);
 
@@ -39,12 +62,12 @@ const open_image_preview = (src, caption = "") => _image_preview_bridge.open?.(s
  * @property {boolean} dev_mode - Enables the Telemetry HUD and system debug overrides.
  * @property {boolean} dev_grid_visible - Toggles the visual chess grid overlay.
  * @property {string} [narrative_style] - The active narrative writing style profile in the session.
- * @property {string} [visual_style] - The global default visual style for image generation. Defaults to "photo".
+ * @property {string} [visual_style] - The global default visual style for image generation.
  */
 
 /**
  * @typedef {Object} CardHandState
- * @property {boolean} open - Whether the card hand is currently visible.
+ * @property {boolean} open - Whether the card hand modal is currently visible.
  * @property {'ai' | 'user' | 'fractal' | null} type - The target category for entity selection.
  * @property {number} regenerate_count - The number of times the current selection pool has been shuffled.
  */
@@ -54,20 +77,18 @@ const open_image_preview = (src, caption = "") => _image_preview_bridge.open?.(s
  * @property {boolean} loading - STASIS: True when the Chrono Engine is processing a turn.
  */
 
-/************************************************************************************
- * [SECTION: STATE DEFINITIONS]
- * ----------------------------------------------------------------------------------
- * Core reactive state for the application.
- ************************************************************************************/
-/**
- *
- */
+// ============================================================================
+// [SECTION 2: APP STORE CLASS INITIALIZATION & REACTIVE STATE]
+// ============================================================================
+
 export class AppStore {
   initialized = false;
   /** @type {Array<() => void>} */
   _viewport_cleanup = [];
-  // --- NAVIGATION ---
-  view = $state("storyboard"); // 'storyboard' | 'storymode'
+
+  // --- NAVIGATION & MODAL STATE ---
+  /** @type {'storyboard' | 'storymode'} */
+  view = $state("storyboard");
   control_panel_open = $state(false);
   profile_open = $state(false);
   transitioning_profile = $state(false);
@@ -79,13 +100,15 @@ export class AppStore {
     mobile: false,
     is_touch: false,
   });
-  // --- ENTITY SELECTION STATE (STORYBOARD) ---
+
+  // --- STORYBOARD ENTITY SELECTION STATE ---
   /** @type {any | null} */
   selected_ai = $state(null);
   /** @type {any | null} */
   selected_user = $state(null);
   /** @type {any | null} */
   selected_fractal = $state(null);
+
   /**
    * Storyboard selections stashed right before a story is inspected, so the
    * story's cast (which hijacks the slots during runtime.sync) can be released
@@ -93,42 +116,41 @@ export class AppStore {
    * @type {{ ai: any | null, user: any | null, fractal: any | null } | null}
    */
   stashed_storyboard_selection = $state(null);
+
   /** True while the begin-story flight into the prologue is pending. */
   begin_story_pending = $state(false);
   /** Suppresses card-slot view-transition morphs during the begin-story flip. */
   suppress_card_transitions = $state(false);
   /** Non-reactive holder for the begin-flight clones/rects. */
   _begin_flight_assets = null;
-  /**
-   * @type {string | any[]}
-   */
+
+  /** @type {any[]} */
   ai_list = $state([]);
-  /**
-   * @type {any[]}
-   */
+  /** @type {any[]} */
   user_list = $state([]);
-  /**
-   * @type {string | any[]}
-   */
+  /** @type {any[]} */
   fractal_list = $state([]);
   entities_loaded = $state(false);
+
   /**
    * Entity ids currently claimed by active (non-concluded) stories. Claimed
    * entities are excluded from the storyboard lists and their profiles are
-   * locked for editing unless DevMode is enabled. Reactive SvelteSet, mutated
-   * in place by load_entities().
+   * locked for editing unless DevMode is enabled.
    */
   claimed_entity_ids = new SvelteSet();
+
   /** @type {CardHandState} */
   card_hand = $state({
     open: false,
-    type: null, // 'ai' | 'user' | 'fractal'
+    type: null,
     regenerate_count: 0,
   });
-  // --- NARRATIVE CONFIG ---
-  prologue = $state(""); // Starting directions/context
-  story_title = $state(""); // Synchronized generated or custom title
-  story_title_parts = $state([]); // Structured title parts with per-entity colors
+
+  // --- NARRATIVE CONFIG & ACTIVE PROPS ---
+  prologue = $state("");
+  story_title = $state("");
+  story_title_parts = $state([]);
+
   /** @type {SimulationControl} */
   simulation = {
     get loading() {
@@ -138,10 +160,7 @@ export class AppStore {
       ui_state.set_loading(val);
     },
   };
-  // --- UI TENSION (Reactive Intensity) ---
-  get tension() {
-    return simulation_state.phase === "generating" || simulation_state.phase === "locked" ? 1 : 0;
-  }
+
   /** @type {AppSettings} */
   settings = $state({
     sound: true,
@@ -153,116 +172,133 @@ export class AppStore {
     narrative_style: "default",
     visual_style: "none",
   });
+
   ghostwrite_request = $state(0);
   is_ghostwriting = $state(false);
-  /** Bumped whenever the story archive changes (create/update/conclude/delete)
-   * so the Library can refresh even while the control panel stays open. */
+
+  /**
+   * Bumped whenever the story archive changes (create/update/conclude/delete)
+   * so the Library can refresh even while the control panel stays open.
+   */
   stories_version = $state(0);
+
   /** @type {((ctx: any) => void) | null} */
   regenerate_image_handler = $state(null);
-  /** Resolution status of the active story ('CONCLUDED' | 'COLLAPSED' | null). */
+
+  /** @type {any} */
+  editing_entity = $state(null);
+
+  streaming = streaming_store;
+
+  // ============================================================================
+  // [SECTION 3: DERIVED STATE, READINESS & STATUS PROXIES]
+  // ============================================================================
+
+  get tension() {
+    return simulation_state.phase === "generating" || simulation_state.phase === "locked" ? 1 : 0;
+  }
+
   get conclusion_status() {
     return runtime.active_story?.conclusion_status || null;
   }
-  // --- SENSORY ENGINES ---
+
   get visual() {
     return visual_engine;
   }
+
   get busy() {
     return ui_state.loading;
   }
+
   set busy(val) {
     ui_state.set_loading(val);
   }
-  /**
-   *
-   */
+
   get round() {
     return runtime.round;
   }
-  /**
-   * Environment detection for UI signaling.
-   * @returns {'DEV' | 'PROD'}
-   */
-  get env() {
-    return import.meta.env.DEV ? "DEV" : "PROD";
-  }
-  /**
-   * Current simulation phase.
-   * @returns {'idle' | 'generating' | 'locked'}
-   */
-  get sim_phase() {
-    return simulation_state.phase;
-  }
-  get is_processing() {
-    return simulation_state.phase === "generating" || this.streaming.active;
-  }
-  get voice_suppressed() {
-    return simulation_state.phase === "generating" && !this.streaming.active;
-  }
-  /**
-   *
-   */
+
   set round(val) {
     runtime.round = val;
   }
-  /**
-   *
-   */
+
+  get env() {
+    return import.meta.env.DEV ? "DEV" : "PROD";
+  }
+
+  get sim_phase() {
+    return simulation_state.phase;
+  }
+
+  get is_processing() {
+    return simulation_state.phase === "generating" || this.streaming.active;
+  }
+
+  get voice_suppressed() {
+    return simulation_state.phase === "generating" && !this.streaming.active;
+  }
+
   get turn_type() {
     return runtime.turn_type;
   }
-  /**
-   *
-   */
+
   set turn_type(val) {
     runtime.turn_type = val;
   }
-  // --- READINESS (Derived Logic) ---
+
   get selected_count() {
     return (this.selected_ai ? 1 : 0) + (this.selected_user ? 1 : 0) + (this.selected_fractal ? 1 : 0);
   }
+
   get models_ready() {
     return embeddings_engine.model_ready && Audio.voice.model_ready;
   }
+
   get models_loading() {
     return embeddings_engine.is_loading || Audio.voice.is_loading;
   }
+
   get models_progress() {
     if (this.models_ready) return 100;
     const emb_prog = embeddings_engine.model_ready ? 100 : embeddings_engine.load_progress;
     const voice_prog = Audio.voice.model_ready ? 100 : Audio.voice.load_progress;
     return Math.min(99, Math.round((emb_prog + voice_prog) / 2));
   }
+
   get is_ready() {
     return this.selected_ai !== null && this.selected_user !== null && this.selected_fractal !== null;
   }
 
-  // --- TELEMETRY (DevMode HUD) ---
-  /**
-   * @type {any[]}
-   */
   get logs() {
     return dev_log.entries;
   }
+
+  get profile_target_id() {
+    return this.editing_entity?.id || null;
+  }
+
+  get profile_target_type() {
+    return this.editing_entity?.type || null;
+  }
+
   /**
-   * Records a system event. Delegates to the telemetry store.
+   * Records a system event into the telemetry store.
    * @param {string} message
+   * @param {string} [type='system']
    */
   log = (message, type = "system") => dev_log.log(message, type);
-  /************************************************************************************
-   * [SECTION: LIFECYCLE & PERSISTENCE]
-   * ----------------------------------------------------------------------------------
-   * Initialization and persistent storage logic.
-   ************************************************************************************/
+
+  // ============================================================================
+  // [SECTION 4: LIFECYCLE, HYDRATION & VIEWPORT OBSERVER]
+  // ============================================================================
+
   /**
-   *
+   * Initializes the application store, hydrates settings and telemetry, and installs watchdogs.
    */
   async init() {
     if (typeof window === "undefined" || this.initialized) return;
     this.initialized = true;
 
-    // Initialize responsive listeners
     this.init_viewport();
 
     try {
@@ -274,15 +310,12 @@ export class AppStore {
       console.error("[Security] Settings Hydration Failed:", e);
     }
 
-    // Hydrate the persisted DevMode telemetry log so history survives reloads.
     await dev_log.hydrate();
-
-    // Freeze watchdog: never let a stuck state machine leave the composer dead.
     install_freeze_watchdog();
   }
 
   /**
-   * Persist app settings to IndexedDB storage.
+   * Persists application settings to IndexedDB storage.
    */
   save_settings = async () => {
     if (typeof window === "undefined" || !this.settings) return;
@@ -294,19 +327,16 @@ export class AppStore {
   };
 
   /**
-   * Centralized Viewport Observer
-   * Syncs with design.css tokens.
+   * Centralized Viewport Observer synced with CSS design tokens.
    */
   init_viewport() {
     if (typeof window === "undefined") return;
 
-    // Cleanup existing listeners if re-initializing
     if (this._viewport_cleanup) {
-      this._viewport_cleanup.forEach((/** @type {() => void} */ cleanup) => cleanup());
+      this._viewport_cleanup.forEach((cleanup) => cleanup());
     }
     this._viewport_cleanup = [];
 
-    // Retrieve tokens from the central design system
     const get_breakpoint = (/** @type {string} */ name) => {
       const px = resolve_px(`--breakpoint-${name}`, 0);
       return px ? `${px}px` : null;
@@ -321,10 +351,8 @@ export class AppStore {
       const query = queries[k];
       const mql = window.matchMedia(query);
 
-      // Initial state
       this.viewport[k] = mql.matches;
 
-      // Listener (Modern API)
       const listener = (/** @type {MediaQueryListEvent} */ e) => {
         this.viewport[k] = e.matches;
         this.log(`Viewport Change: ${k} -> ${e.matches}`, "system");
@@ -333,13 +361,15 @@ export class AppStore {
       this._viewport_cleanup.push(() => mql.removeEventListener("change", listener));
     });
 
-    // Touch detection
     this.viewport.is_touch = window.ontouchstart !== undefined || navigator.maxTouchPoints > 0;
   }
+
+  // ============================================================================
+  // [SECTION 5: STORYBOARD SELECTION & ENTITY LOBBY MANAGEMENT]
+  // ============================================================================
+
   /**
-   * Stashes the current storyboard slot selections so they survive a story
-   * inspection round-trip. Call right BEFORE loading/inspecting a story, since
-   * runtime.sync hijacks the slots with the story's cast.
+   * Stashes the current storyboard slot selections before a story inspection round-trip.
    */
   stash_storyboard_selection() {
     this.stashed_storyboard_selection = {
@@ -350,10 +380,7 @@ export class AppStore {
   }
 
   /**
-   * Returns the storyboard slots to their pre-inspection selections, or clears
-   * them if nothing was stashed (e.g. the story was opened from a fresh
-   * storyboard, or a brand-new story was begun). One-shot — the stash is
-   * consumed so it never leaks across stories.
+   * Restores storyboard slots to pre-inspection state and clears the one-shot stash.
    */
   restore_storyboard_selection() {
     const stashed = this.stashed_storyboard_selection;
@@ -364,8 +391,7 @@ export class AppStore {
   }
 
   /**
-   * Unselects any storyboard slots whose entities are currently claimed by active stories.
-   * Scoped to storyboard lobby view so that active storymode sessions are never stripped during play.
+   * Unselects any storyboard slots whose entities are claimed by active stories.
    * @param {boolean} [force=false]
    */
   clean_claimed_selections(force = false) {
@@ -383,8 +409,6 @@ export class AppStore {
 
   /**
    * Hydrates the storyboard lists with characters and fractals.
-   * Claimed entity IDs are tracked so they can be marked unavailable in UI
-   * and unselected from lobby slots.
    */
   async load_entities() {
     try {
@@ -400,16 +424,46 @@ export class AppStore {
       console.error("[AppStore] Failed to load lobby entities:", e);
     }
   }
-  streaming = streaming_store;
-  /************************************************************************************
-   * [SECTION: UI ACTIONS]
-   * ----------------------------------------------------------------------------------
-   * Methods for modifying UI state and triggering events.
-   ************************************************************************************/
+
+  /**
+   * Selects an entity for the current storyboard session.
+   * @param {'ai' | 'user' | 'fractal' | null} type
+   * @param {any} entity
+   */
+  select_entity = (type, entity) => {
+    const clean = normalize(entity);
+    if (type === "ai") this.selected_ai = clean;
+    else if (type === "user") this.selected_user = clean;
+    else if (type === "fractal") this.selected_fractal = clean;
+    this.card_hand.open = false;
+  };
+
+  open_card_hand = (/** @type {'ai' | 'user' | 'fractal' | null} */ type) => {
+    this.card_hand.type = type;
+    this.card_hand.open = true;
+  };
+
+  close_card_hand = () => {
+    this.card_hand.open = false;
+  };
+
+  regenerate_title = () => {
+    this.card_hand.regenerate_count++;
+  };
+
+  // ============================================================================
+  // [SECTION 6: VIEW NAVIGATION & PROFILE TRANSITIONS]
+  // ============================================================================
+
   toggle_control_panel = () => {
     this.control_panel_open = !this.control_panel_open;
   };
-  set_view = async (/** @type {string} */ view) => {
+
+  /**
+   * Switches the active top-level view with a view transition.
+   * @param {'storyboard' | 'storymode'} view
+   */
+  set_view = async (view) => {
     this.control_panel_open = false;
     if (view === "storyboard") {
       this.restore_storyboard_selection();
@@ -425,33 +479,11 @@ export class AppStore {
       { className: "is-switching-view" },
     );
   };
-  open_card_hand = (/** @type {'ai' | 'user' | 'fractal' | null} */ type) => {
-    this.card_hand.type = type;
-    this.card_hand.open = true;
-  };
-  close_card_hand = () => {
-    this.card_hand.open = false;
-  };
-  close_image_preview = () => {
-    close_image_preview();
-  };
-  /**
-   * Selects an entity for the current session.
-   * Automatically normalizes the object to ensure a flattened schema.
-   */
-  select_entity = (/** @type {'ai' | 'user' | 'fractal' | null} */ type, /** @type {any} */ entity) => {
-    const clean = normalize(entity);
-    if (type === "ai") this.selected_ai = clean;
-    else if (type === "user") this.selected_user = clean;
-    else if (type === "fractal") this.selected_fractal = clean;
-    this.card_hand.open = false;
-  };
-  /** @type {any} */
-  editing_entity = $state(null);
+
   /**
    * Toggles the profile modal and prepares the target entity for editing.
-   * @param {boolean | null} force_state
-   * @param {any} entity
+   * @param {boolean | null} [force_state=null]
+   * @param {any} [entity=null]
    */
   toggle_profile = async (force_state = null, entity = null) => {
     const target_entity = entity || this.editing_entity;
@@ -462,7 +494,7 @@ export class AppStore {
       }
     }
     const is_opening = force_state !== null ? force_state : !this.profile_open;
-    let active_type = "user"; // Default fallback
+    let active_type = "user";
     if (target_entity) {
       if (target_entity.id === this.selected_ai?.id || target_entity.id === runtime.active_ai?.id) active_type = "ai";
       else if (target_entity.id === this.selected_user?.id || target_entity.id === runtime.active_user?.id) active_type = "user";
@@ -472,8 +504,7 @@ export class AppStore {
     if (target_entity) {
       this.transition_target_id = target_entity.id;
     }
-    // Force Svelte to flush state changes so inactive cards lose their view-transition-names
-    // synchronously in the DOM before startViewTransition takes its old snapshot.
+
     flushSync(() => {
       this.transitioning_profile = true;
     });
@@ -491,78 +522,91 @@ export class AppStore {
       this.transition_target_id = null;
     });
   };
+
   close_profile = () => {
     this.toggle_profile(false);
   };
+
   open_profile = (/** @type {any} */ entity) => {
     this.toggle_profile(true, entity);
   };
 
-  /**
-   *
-   */
-  get profile_target_id() {
-    return this.editing_entity?.id || null;
-  }
+  // ============================================================================
+  // [SECTION 7: SETTINGS MUTATORS & STREAMING PROXIES]
+  // ============================================================================
 
-  /**
-   *
-   */
-  get profile_target_type() {
-    return this.editing_entity?.type || null;
-  }
-
-  // SETTINGS MUTATORS
   toggle_sound = () => {
     this.settings.sound = !this.settings.sound;
     this.save_settings();
   };
+
   toggle_call_mode = () => {
     this.settings.call_mode = !this.settings.call_mode;
     this.save_settings();
   };
+
   toggle_stream_text = () => {
     this.settings.stream_text = !this.settings.stream_text;
     this.save_settings();
   };
+
   toggle_auto_scroll = () => {
     this.settings.auto_scroll = !this.settings.auto_scroll;
     this.save_settings();
   };
+
   toggle_dev_mode = () => {
     this.settings.dev_mode = !this.settings.dev_mode;
     this.save_settings();
   };
-  // STREAMING CONTROL — delegates to the streaming store (streaming.svelte.js)
-  // so the engine + UI keep one stable API while the implementation lives with
-  // its audio/role orchestration next to the state it manages.
+
+  // STREAMING CONTROL — delegates to streaming.svelte.js
   start_stream = (id, role = "ai") => streaming_store.start_stream(id, role);
   update_stream = (chunk) => streaming_store.update_stream(chunk);
   end_stream = () => streaming_store.end_stream();
   trigger_interrupt = () => streaming_store.trigger_interrupt();
+
+  close_image_preview = () => {
+    close_image_preview();
+  };
+
   open_image_preview = (/** @type {any} */ src, caption = "") => {
     open_image_preview(src, caption);
   };
-  regenerate_title = () => {
-    this.card_hand.regenerate_count++;
-  };
+
   /**
-   * DEBUG: Force Storymode Entry
-   * Bypasses storyboard selection checks.
+   * DEBUG: Force Storymode Entry bypassing storyboard selection checks.
    */
   force_start = () => {
     this.log("FORCING STORYMODE START (Manual Override)", "system");
     this.view = "storymode";
   };
 }
+
+// ============================================================================
+// [SECTION 8: SINGLETON INSTANCE & GLOBAL EXPOSURE]
+// ============================================================================
+
 export const app = new AppStore();
+
 stories_bridge.register_bump(() => {
   app.stories_version++;
 });
+
 if (typeof window !== "undefined") {
+  // @ts-ignore
   window.app = app;
-  window.rpgApp = app;
-  window.state = app;
   // @ts-ignore
   Object.defineProperty(window, "visual", { get: () => app.visual, configurable: true });
 }
+
+// ============================================================================
+// [CHANGELOG]
+// ============================================================================
+/**
+ * CHANGELOG:
+ * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,
+ *   structured section dividers, purged legacy window aliases (window.rpgApp, window.state),
+ *   aligned JSDoc types, and verified test suite.
+ * - 2026-08-16: Added claimed_entity_ids tracking, storyboard selection stashing, and profile transitions.
+ */

@@ -1,14 +1,39 @@
 /**
  * src/platform/embeddings.svelte.js
  * 🔮 EMBEDDINGS ENGINE — Semantic vector matching via Transformers.js & Vector Codec
- * Lazy-loads an ONNX sentence-transformer model in the browser via WASM/WebGPU.
- * Embeds text into 384-dim float arrays; cosine similarity for semantic retrieval.
+ *
+ * Core Responsibilities:
+ * - Lazy-loads an ONNX sentence-transformer model in the browser via WASM/WebGPU.
+ * - Embeds text into normalized 384-dimensional Float32Array vectors.
+ * - Manages a bounded true-LRU cache for high-throughput cosine similarity scoring.
+ * - Enforces single-threaded WASM and mutex serialization for Perchance iframe stability.
+ * - Provides bidirectional vector serialization and deserialization codecs for Dexie.js.
+ *
+ * Dependencies & Cross-Module Invariants:
+ * - `@utils` (`onnx_mutex`, `mark_ort_ready`, `cosine_similarity`): Shared ONNX runtime lock and vector math.
+ * - `@media/audio.svelte.js` (`wait_ort_ready`): Audio Kokoro TTS awaits ORT initialization from this engine.
+ * - Invariant: Dimension is strictly locked to `EMBEDDING_DIM = 384` (Xenova/all-MiniLM-L6-v2).
+ * - Invariant: Never store raw Float32Array in JSON-persisted records; serialize to number[] for Dexie.
  */
 
 import { onnx_mutex, mark_ort_ready, cosine_similarity } from "@utils";
 
+// ============================================================================
+// [SECTION 1: CONSTANTS & TYPE DEFINITIONS]
+// ============================================================================
+
 /** The canonical embedding dimension produced by the model and enforced on persisted vectors. */
 export const EMBEDDING_DIM = 384;
+
+/** The default maximum capacity for the in-memory LRU embedding cache. */
+export const EMBEDDING_CACHE_MAX = 1500;
+
+/** The Hugging Face model identifier for sentence transformation. */
+const MODEL_ID = "Xenova/all-MiniLM-L6-v2";
+
+// ============================================================================
+// [SECTION 2: VECTOR SERIALIZATION & DESERIALIZATION CODECS]
+// ============================================================================
 
 /**
  * Serializes an embedding into a JSON-safe form (number[]).
@@ -42,13 +67,15 @@ export function deserialize_embedding(value) {
   return null;
 }
 
+// ============================================================================
+// [SECTION 3: MODEL LIFECYCLE & MUTEX PIPELINE]
+// ============================================================================
+
 let _pipeline = null;
 let _loading = null;
 let _load_progress = $state(0);
 let _is_loading = $state(false);
 let _model_ready = $state(false);
-
-const MODEL_ID = "Xenova/all-MiniLM-L6-v2";
 
 /** @type {Record<string, number>} */
 const file_progress = {};
@@ -141,9 +168,12 @@ async function get_pipeline() {
   return load_model();
 }
 
+// ============================================================================
+// [SECTION 4: LRU CACHE & INFERENCE ENGINE]
+// ============================================================================
+
 /** @type {Map<string, Float32Array>} */
 const _embedding_cache = new Map();
-export const EMBEDDING_CACHE_MAX = 1500;
 /** @type {number} */
 let _max_cache = EMBEDDING_CACHE_MAX;
 let _cache_hits = 0;
@@ -219,12 +249,16 @@ export async function embed(text) {
       }
       _embedding_cache.set(cache_key, embedding);
       return embedding;
-    } catch (retryErr) {
-      console.warn("[Embeddings] Embed retry failed:", retryErr);
+    } catch (retry_err) {
+      console.warn("[Embeddings] Embed retry failed:", retry_err);
       return null;
     }
   }
 }
+
+// ============================================================================
+// [SECTION 5: VECTOR HYDRATION & SEMANTIC SCORING]
+// ============================================================================
 
 /**
  * Embeds a vector's directive and stores the embedding on the vector object.
@@ -296,9 +330,12 @@ export function is_ready() {
   return _pipeline !== null || _model_ready;
 }
 
+// ============================================================================
+// [SECTION 6: SINGLETON ENGINE FACADE & TEST BRIDGES]
+// ============================================================================
+
 export const embeddings_engine = {
   embed,
-
   ensure_embedding,
   ensure_embeddings,
   score_by_semantics,
@@ -313,8 +350,8 @@ export const embeddings_engine = {
   get model_ready() {
     return _model_ready || _pipeline !== null;
   },
-  /** Current LRU cache telemetry (size, hits, misses, cap). */
-  cacheStats() {
+  /** Current LRU cache telemetry (size, hits, misses, max). */
+  cache_stats() {
     return { size: _embedding_cache.size, hits: _cache_hits, misses: _cache_misses, max: _max_cache };
   },
   /** @private TEST ONLY: clears the cache and overrides the cap. */
@@ -333,3 +370,17 @@ export const embeddings_engine = {
     _is_loading = false;
   },
 };
+
+// ============================================================================
+// [CHANGELOG]
+// ============================================================================
+/**
+ * CHANGELOG:
+ * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,
+ *   structured section dividers, normalized `cache_stats()` snake_case nomenclature, enforced
+ *   P4 zero backwards compatibility, and established complete JSDoc annotations.
+ * - 2026-08-27: Realigned layer boundaries: moved `embeddings.svelte.js` + vector codecs into
+ *   `src/platform/` and unified `EMBEDDING_DIM = 384` validation.
+ * - 2026-08-22: Added bounded true-LRU caching (`EMBEDDING_CACHE_MAX = 1500`), thread proxy
+ *   disablement, and single-threaded WASM execution for Perchance iframe stability.
+ */

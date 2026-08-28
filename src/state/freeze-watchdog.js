@@ -1,34 +1,45 @@
+/**
+ * src/state/freeze-watchdog.js
+ * 🧊 SIMULATION FREEZE WATCHDOG & EMERGENCY RECOVERY
+ *
+ * Core Responsibilities:
+ * - Monitors the simulation state machine and streaming lifecycle for hung or deadlocked states.
+ * - Enforces a 3-tier diagnostic recovery policy:
+ *     - Tier 1 (No Stream): Generating/Locked for 90s with NO active stream → Force Recovery.
+ *     - Tier 2a (Silent Stall): Active stream with NO new chunks received for 90s → Force Recovery.
+ *     - Tier 2 (Broad Timeout): Generating/Locked for 5 minutes without content progress → Abort + Force Recovery.
+ *     - Tier 3 (Consolidation Grace): Idle phase with intent lock active for >4 minutes → Releases intent lock.
+ * - Provides unified `force_recover_simulation(reason)` endpoint shared by automatic watchdog tiers
+ *   and the manual UI "Unstick" trigger in `StorymodeBar.svelte`.
+ *
+ * Dependencies & Cross-Module Invariants:
+ * - `app-store.svelte.js` (`app`): AbortController access, streaming reset, loading flag reset, and logging.
+ * - `status.svelte.js` (`simulation_state`): State machine unlocking, complete signal, and intent release.
+ */
+
 import { app } from "./app-store.svelte.js";
 import { simulation_state } from "./status.svelte.js";
 
-/************************************************************************************
- * 🧊 FREEZE WATCHDOG (composer-freeze recovery)
- * ----------------------------------------------------------------------------------
- * The composer can only die if the simulation state machine gets stuck
- * (phase generating/locked or intent_active stuck true) with no live turn.
- * Three tiers:
- *   - Tier 1 (fast & safe): busy/locked with NO active stream for 90s → force unlock.
- *   - Tier 2a (silent stream): an ACTIVE stream with NO new chunk for 90s → the
- *     generator hung after its first flush → force unlock.
- *   - Tier 2 (broad): busy/locked for 5 min regardless of streaming, with no
- *     streaming progress (content growing / heartbeat) → abort + force unlock.
- * A live stream with growing content extends the window, so slow-but-healthy
- * generations are never interrupted.
- ************************************************************************************/
+// ============================================================================
+// [SECTION 1: CONSTANTS & RECOVERY THRESHOLDS]
+// ============================================================================
+
+export const FREEZE_WATCHDOG_INTERVAL_MS = 15000;
+export const FREEZE_WATCHDOG_IDLE_GRACE_MS = 90000;
+export const FREEZE_WATCHDOG_CHUNK_STALL_MS = 90000;
+export const FREEZE_WATCHDOG_MAX_MS = 5 * 60 * 1000;
+export const FREEZE_WATCHDOG_CONSOLIDATE_GRACE_MS = 4 * 60 * 1000;
+
 let _freeze_watchdog_started = false;
-const FREEZE_WATCHDOG_INTERVAL_MS = 15000;
-const FREEZE_WATCHDOG_IDLE_GRACE_MS = 90000;
-const FREEZE_WATCHDOG_CHUNK_STALL_MS = 90000;
-const FREEZE_WATCHDOG_MAX_MS = 5 * 60 * 1000;
-// Idle-phase consolidation (phase==="idle" while intent_active) runs a separate,
-// generous LLM forge that can legitimately take minutes — it must never trip the
-// tier-1 no-stream error path. Guard it with its own longer window.
-const FREEZE_WATCHDOG_CONSOLIDATE_GRACE_MS = 4 * 60 * 1000;
+
+// ============================================================================
+// [SECTION 2: FORCE RECOVERY ENGINE]
+// ============================================================================
 
 /**
- * Forcefully recovers the simulation from a frozen state. Exported so the
- * composer's manual "Unstick" button and the watchdog tiers share one recovery
- * path: unlock the state machine, drop any dead stream, and abort its request.
+ * Forcefully recovers the simulation state machine from a frozen or hung condition.
+ * Unlocks the state machine, clears dead streams, aborts active requests, and resets loading flags.
+ * @param {string} reason - Human-readable diagnostic description of why recovery was triggered.
  */
 export function force_recover_simulation(reason) {
   console.warn("[Watchdog] Detected frozen simulation state — force-recovering.", {
@@ -38,62 +49,63 @@ export function force_recover_simulation(reason) {
     loading: app.simulation.loading,
     streaming_active: app.streaming.active,
   });
+
   app.log(`[Watchdog] ${reason} — force-recovering the simulation.`, "error");
+
   try {
     simulation_state.complete();
     simulation_state.unlock();
     simulation_state.set_intent_active(false);
-  } catch (_err) {
-    /* state store never throws */
+  } catch {
+    /* Status state store never throws */
   }
+
   app.simulation.loading = false;
   app.end_stream();
   app.streaming.active = false;
   app.streaming.content = "";
   app.streaming.node_id = null;
+
   if (app.streaming.abort_controller) {
     try {
       app.streaming.abort_controller.abort();
-    } catch (_err) {
-      /* already aborted */
+    } catch {
+      /* Request already aborted */
     }
     app.streaming.abort_controller = null;
   }
 }
 
+// ============================================================================
+// [SECTION 3: FREEZE WATCHDOG TIMER & DIAGNOSTICS]
+// ============================================================================
+
 /**
- * Installs the freeze watchdog. Called once from app.init() so it only runs in
- * the browser after the real bootstrap, never in tests or SSR.
+ * Installs the background freeze watchdog timer.
+ * Invoked once during app boot (`app.init()`).
+ * @returns {number | null} Timer interval identifier, or null in non-browser environments.
  */
 export function install_freeze_watchdog() {
-  if (_freeze_watchdog_started || typeof window === "undefined") return;
+  if (_freeze_watchdog_started || typeof window === "undefined") return null;
   _freeze_watchdog_started = true;
 
   /** @type {number} */
   let stuck_since = 0;
   let last_stream_len = 0;
   let last_chunk_ts = 0;
-  // True once any stream has begun this session. At boot the phase can sit in
-  // "locked" (chrono system lock) while the embeddings/TTS models download and
-  // initialize — a healthy-but-slow cold start, not a freeze. Tier-1 must not
-  // arm on it, so it only fires once the sim has actually started a turn.
   let ever_streamed = false;
 
-  setInterval(() => {
+  const timer_id = window.setInterval(() => {
     const phase = simulation_state.phase;
     const intent_active = simulation_state.intent_active;
     const generating = phase === "generating";
     const locked = phase === "locked";
     const consolidating = phase === "idle" && intent_active;
     const streaming_active = app.streaming.active;
+
     if (streaming_active) ever_streamed = true;
     const stream_len = app.streaming.content?.length ?? 0;
 
-    // The watchdog only arms on the phases it can actually diagnose. A plain
-    // idle phase (no generation in flight) is healthy even if a stale intent
-    // flag is stuck on — arming there caused the tier-1 false positives that
-    // interrupted legitimate post-turn consolidation. Idle+intent gets its own
-    // generous consolidation window below instead.
     const stuck = (generating || locked || consolidating) && (intent_active || ever_streamed);
     if (!stuck) {
       stuck_since = 0;
@@ -115,18 +127,21 @@ export function install_freeze_watchdog() {
     last_stream_len = stream_len;
 
     if (generating || locked) {
+      // Tier 1: Generating/Locked with NO stream after idle grace
       if (!streaming_active && elapsed >= FREEZE_WATCHDOG_IDLE_GRACE_MS) {
         force_recover_simulation(`Simulation stuck ${Math.round(elapsed / 1000)}s with no stream`);
         stuck_since = 0;
         return;
       }
-      // Tier 2a: an ACTIVE stream that hasn't produced a chunk in a long time
-      // is dead — the generator hung silently after its first flush.
+
+      // Tier 2a: Active stream stalled with no chunks
       if (streaming_active && last_chunk_ts > 0 && Date.now() - last_chunk_ts >= FREEZE_WATCHDOG_CHUNK_STALL_MS) {
         force_recover_simulation(`Stream produced no chunks for ${Math.round((Date.now() - last_chunk_ts) / 1000)}s`);
         stuck_since = 0;
         return;
       }
+
+      // Tier 2: Broad max timeout without content progression
       if (elapsed >= FREEZE_WATCHDOG_MAX_MS && !stream_grew) {
         force_recover_simulation(`Simulation stuck ${Math.round(elapsed / 1000)}s with no progress`);
         stuck_since = 0;
@@ -135,22 +150,30 @@ export function install_freeze_watchdog() {
       return;
     }
 
-    // Consolidation window: LLM forges are slow and silent by design. If one
-    // overruns, release the intent lock with a warning instead of a full
-    // force-recovery (the forge is guarded against double-consolidation, so the
-    // only real failure mode is the lock being held too long).
+    // Tier 3: Memory consolidation overrun grace
     if (elapsed >= FREEZE_WATCHDOG_CONSOLIDATE_GRACE_MS) {
-      console.warn(`[Watchdog] Post-turn consolidation overran ${Math.round(elapsed / 1000)}s — releasing intent lock.`, {
-        phase,
-        intent_active,
-      });
+      console.warn(`[Watchdog] Post-turn consolidation overran ${Math.round(elapsed / 1000)}s — releasing intent lock.`, { phase, intent_active });
       app.log(`[Watchdog] Post-turn consolidation overran ${Math.round(elapsed / 1000)}s — releasing intent lock.`, "warn");
+
       try {
         simulation_state.set_intent_active(false);
-      } catch (_err) {
-        /* state store never throws */
+      } catch {
+        /* State store never throws */
       }
       stuck_since = 0;
     }
   }, FREEZE_WATCHDOG_INTERVAL_MS);
+
+  return timer_id;
 }
+
+// ============================================================================
+// [CHANGELOG]
+// ============================================================================
+/**
+ * CHANGELOG:
+ * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,
+ *   structured section dividers, exported constants for testing, added JSDoc documentation,
+ *   and verified test suite.
+ * - 2026-08-16: Added 3-tier freeze watchdog with chunk stall detection and consolidation grace.
+ */

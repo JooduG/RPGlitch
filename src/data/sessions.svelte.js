@@ -1,46 +1,61 @@
-import { db } from "./db.js";
+/**
+ * src/data/sessions.svelte.js
+ * 📜 SESSION DRIVER & SIMULATION LOG DATA ACCESS
+ *
+ * Manages active session pointers (`active_session_id`), story initialization,
+ * and CRUD operations for the simulation log. All reactive state writes pass
+ * through `@utils/state_bridge` so the persistence layer maintains clean
+ * downward unidirectional layer boundaries without importing `@state`.
+ *
+ * DOMAINS:
+ *   1. Session Pointer Management (`active_id`, `set_active`, `clear_active`, `restore_active`, `require_active`)
+ *   2. Story Session Creation (`create_from_selection`)
+ *   3. Simulation Log CRUD (`log_message`, `log_system_entry`, `load_log`, `edit_log_entry`, `delete_log_entry`, `update_log_attachment`, `delete_log_attachment`, `regenerate`)
+ */
+
 import { parse_relational_vector, state_bridge, stories_bridge } from "@utils";
+import { db } from "./db.js";
 
 /** Durable IndexedDB key for the active-session pointer (kv_settings). */
 export const SESSION_ID_KEY = "active_session_id";
 
-/**
- * SESSION (Simulation & Gamemaster)
- * Handles persistence and state for the active story.
- * All data access for sessions/logs lives here (alongside repository.js);
- * reactive state writes go through the @utils state_bridge so @data never
- * imports @state — the bridge is populated by main.js's composition root.
- */
-
 /** @type {string | null} */
 let _active_id = null;
 
+// ============================================================================
+// SESSION DRIVER
+// ============================================================================
+
 export const session_driver = {
+  /**
+   * The currently active story session ID in memory.
+   * @returns {string | null}
+   */
   get active_id() {
     return _active_id;
   },
 
   /**
-   * Get the active story ID or throw.
+   * Returns the active story ID or throws if none is active.
    * @returns {string}
    */
-  require_active: function () {
-    if (!_active_id) throw new Error("No active session found.");
+  require_active() {
+    if (!_active_id) throw new Error("[Session] No active session found.");
     return _active_id;
   },
 
   /**
-   * Set active session ID and persist it.
+   * Sets the active session ID and persists it to IndexedDB kv_settings and history.
    * @param {string} id
+   * @returns {Promise<void>}
    */
-  set_active: async function (id) {
+  async set_active(id) {
     _active_id = id;
     if (state_bridge.runtime) {
       state_bridge.runtime.story_id = id;
     }
     if (typeof window !== "undefined") {
       await db.kv_settings.put({ key: SESSION_ID_KEY, value: id });
-      // also log to history
       await db.sessions.add({ session_id: id, timestamp: Date.now() });
     }
     if (state_bridge.simulation_log?.refresh) {
@@ -49,40 +64,43 @@ export const session_driver = {
   },
 
   /**
-   * Restore active session ID without redundant persistence writes (e.g. on app reload sync).
+   * Restores active session ID in memory without redundant DB writes (used during sync).
    * @param {string} id
    */
-  restore_active: function (id) {
+  restore_active(id) {
     _active_id = id;
   },
 
   /**
-   * Clear active session state.
+   * Clears active session state and resets runtime counters.
+   * @returns {Promise<void>}
    */
-  clear_active: async function () {
+  async clear_active() {
     _active_id = null;
-    state_bridge.simulation_state.unlock();
-    state_bridge.runtime.story_id = null;
-    state_bridge.runtime.round = 0;
+    state_bridge.simulation_state?.unlock?.();
+    if (state_bridge.runtime) {
+      state_bridge.runtime.story_id = null;
+      state_bridge.runtime.round = 0;
+    }
     if (typeof window !== "undefined") {
       await db.kv_settings.put({ key: SESSION_ID_KEY, value: null });
     }
-    await state_bridge.simulation_log.refresh();
+    await state_bridge.simulation_log?.refresh?.();
   },
 
   /**
-   * Create a new session entry from a character/fractal selection
-   * @param {any} selection
+   * Creates a new story record from a character/fractal storyboard selection,
+   * auto-seeding the cast roster with connected NPCs and Wanderers.
+   * @param {Record<string, any>} selection
    * @returns {Promise<string>}
    */
-  create_from_selection: async function (selection) {
+  async create_from_selection(selection) {
     const ai_entity = selection.ai_id ? await db.entities.get(selection.ai_id) : null;
     const fractal_entity = selection.fractal_id ? await db.entities.get(selection.fractal_id) : null;
 
     const visual_style = selection.visual_style || selection.fractal?.visual_style || fractal_entity?.visual_style;
     const narrative_style = selection.narrative_style || selection.fractal?.narrative_style || fractal_entity?.narrative_style;
 
-    // Auto-seed story.npc_ids with characters connected to the Fractal (plus trans-fractal Wanderers)
     const excluded_ids = new Set([String(selection.ai_id), String(selection.user_id)].filter(Boolean));
     const initial_npc_ids = new Set(Array.isArray(selection.npc_ids) ? selection.npc_ids.map(String).filter((id) => !excluded_ids.has(id)) : []);
 
@@ -150,11 +168,12 @@ export const session_driver = {
       updated_at: Date.now(),
       round: 0,
     });
-    const story_id = id.toString();
+
+    const story_id = String(id);
     stories_bridge.bump();
     await session_driver.set_active(story_id);
 
-    // Initial system entry
+    // Initial system entry for story start
     const entry = {
       story_id,
       role: "system",
@@ -174,45 +193,48 @@ export const session_driver = {
   },
 
   /**
-   * Send user input (Log it)
+   * Logs a user turn message in the simulation log.
    * @param {string} text
-   * @returns {Promise<void>}
+   * @returns {Promise<any>}
    */
-  send: async function (text) {
-    const character_name = state_bridge.runtime.active_user?.name || "User";
+  async send(text) {
+    const character_name = state_bridge.runtime?.active_user?.name || "User";
     return await this.log_message(text, "user", character_name, { turn_type: "USER_TURN" });
   },
 
   /**
-   * Remove last turn to allow regeneration
+   * Removes trailing turns back to the last user message to allow regeneration.
+   * @returns {Promise<void>}
    */
-  regenerate: async function () {
+  async regenerate() {
     const story_id = session_driver.require_active();
     const logs = await db.simulation_log.where("story_id").equals(story_id).sortBy("created_at");
     for (let i = logs.length - 1; i >= 0; i--) {
       const entry = logs[i];
       if (entry.role === "user") break;
       await db.simulation_log.delete(entry.id);
-      state_bridge.simulation_log.remove(entry.id);
+      state_bridge.simulation_log?.remove?.(entry.id);
     }
   },
 
   /**
-   * Delete a log entry
+   * Deletes a single simulation log entry by ID.
    * @param {string | number} id
+   * @returns {Promise<void>}
    */
-  delete_log_entry: async function (id) {
+  async delete_log_entry(id) {
     const key = isNaN(Number(id)) ? id : Number(id);
     await db.simulation_log.delete(key);
-    state_bridge.simulation_log.remove(key);
+    state_bridge.simulation_log?.remove?.(key);
   },
 
   /**
-   * Edit a log entry
+   * Updates text for an existing simulation log entry.
    * @param {string | number} id
    * @param {string} new_text
+   * @returns {Promise<void>}
    */
-  edit_log_entry: async function (id, new_text) {
+  async edit_log_entry(id, new_text) {
     let key = isNaN(Number(id)) ? id : Number(id);
     let entry = await db.simulation_log.get(key);
     if (!entry) {
@@ -220,16 +242,17 @@ export const session_driver = {
       if (match) key = match.id;
     }
     await db.simulation_log.update(key, { text: new_text });
-    state_bridge.simulation_log.update(id, { text: new_text });
+    state_bridge.simulation_log?.update?.(id, { text: new_text });
   },
 
   /**
-   * Update an attachment in a log entry
+   * Updates an attachment at a specific index in a log entry.
    * @param {string | number} id
    * @param {number} attachment_index
-   * @param {any} new_attachment
+   * @param {Record<string, any>} new_attachment
+   * @returns {Promise<void>}
    */
-  update_log_attachment: async function (id, attachment_index, new_attachment) {
+  async update_log_attachment(id, attachment_index, new_attachment) {
     const numeric_key = isNaN(Number(id)) ? null : Number(id);
     let entry = numeric_key ? await db.simulation_log.get(numeric_key) : null;
     if (!entry) {
@@ -248,15 +271,17 @@ export const session_driver = {
       entry.attachments[attachment_index] = $state.snapshot(new_attachment);
       const plain_entry = $state.snapshot(entry);
       await db.simulation_log.put(plain_entry);
-      state_bridge.simulation_log.update(id, { attachments: plain_entry.attachments });
+      state_bridge.simulation_log?.update?.(id, { attachments: plain_entry.attachments });
     }
   },
+
   /**
-   * Remove an attachment from a log entry (or delete entry if it was image-only with no text/meta)
+   * Removes an attachment from a log entry (or deletes the entry if it becomes empty).
    * @param {string | number} id
    * @param {number} attachment_index
+   * @returns {Promise<void>}
    */
-  delete_log_attachment: async function (id, attachment_index) {
+  async delete_log_attachment(id, attachment_index) {
     const numeric_key = isNaN(Number(id)) ? null : Number(id);
     let entry = numeric_key ? await db.simulation_log.get(numeric_key) : null;
     if (!entry) {
@@ -275,26 +300,28 @@ export const session_driver = {
       if (is_empty_image_bubble) {
         const key = entry.id != null ? entry.id : isNaN(Number(id)) ? id : Number(id);
         await db.simulation_log.delete(key);
-        state_bridge.simulation_log.remove(key);
+        state_bridge.simulation_log?.remove?.(key);
       } else {
         const plain_entry = $state.snapshot(entry);
         await db.simulation_log.put(plain_entry);
-        state_bridge.simulation_log.update(id, { attachments: plain_entry.attachments });
+        state_bridge.simulation_log?.update?.(id, { attachments: plain_entry.attachments });
       }
     }
   },
 
   /**
-   * Add a message to the simulation log
+   * Adds a narrative message to the simulation log with snapshot-safe metadata.
    * @param {string} text
    * @param {string} role
    * @param {string} character_name
-   * @param {string} [turn_type]
-   * @param {any} [meta]
+   * @param {Object} [options]
+   * @param {string} [options.turn_type]
+   * @param {Record<string, any>} [options.meta]
+   * @param {any[]} [options.attachments]
+   * @param {string|number|null} [options.story_id]
+   * @returns {Promise<Record<string, any>>}
    */
-  log_message: async function (text, role, character_name, { turn_type = "USER_TURN", meta = {}, attachments = [], story_id = null } = {}) {
-    // Explicit story binding: delayed async writes must never stamp the
-    // currently-active story after a session switch.
+  async log_message(text, role, character_name, { turn_type = "USER_TURN", meta = {}, attachments = [], story_id = null } = {}) {
     const effective_story_id = story_id ?? session_driver.require_active();
     /** @type {any} */
     const entry = {
@@ -302,9 +329,8 @@ export const session_driver = {
       role,
       type: "text",
       character_name,
-      text,
       turn_type,
-      round: state_bridge.runtime.round,
+      round: state_bridge.runtime?.round ?? 0,
       meta: $state.snapshot(meta),
       created_at: Date.now(),
     };
@@ -317,16 +343,16 @@ export const session_driver = {
     } else {
       entry.id = await db.simulation_log.add(entry);
     }
-    state_bridge.simulation_log.add(entry);
+    state_bridge.simulation_log?.add?.(entry);
     return entry;
   },
 
   /**
-   * Fetch history for a story.
-   * @param {string} story_id
+   * Fetches the full simulation log history for a given story.
+   * @param {string|number} story_id
    * @returns {Promise<any[]>}
    */
-  load_log: async function (story_id) {
+  async load_log(story_id) {
     if (!story_id) return [];
     const str_id = String(story_id);
     const num_id = Number(story_id);
@@ -338,12 +364,14 @@ export const session_driver = {
   },
 
   /**
-   * Add a system/telemetry log entry
+   * Appends a system telemetry or status entry into the log.
    * @param {string} text
-   * @param {string} [role]
-   * @param {any} [meta]
+   * @param {string} [role='system']
+   * @param {Record<string, any>} [meta={}]
+   * @param {string|number|null} [story_id=null]
+   * @returns {Promise<void>}
    */
-  log_system_entry: async function (text, role = "system", meta = {}, story_id = null) {
+  async log_system_entry(text, role = "system", meta = {}, story_id = null) {
     const effective_story_id = story_id ?? session_driver.require_active();
     const entry = {
       story_id: effective_story_id,
@@ -351,11 +379,11 @@ export const session_driver = {
       type: "text",
       text,
       turn_type: "SYSTEM_TURN",
-      round: state_bridge.runtime.round,
+      round: state_bridge.runtime?.round ?? 0,
       meta: $state.snapshot(meta),
       created_at: Date.now(),
     };
     entry.id = await db.simulation_log.add(entry);
-    state_bridge.simulation_log.add(entry);
+    state_bridge.simulation_log?.add?.(entry);
   },
 };

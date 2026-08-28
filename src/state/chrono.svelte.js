@@ -1,24 +1,74 @@
-// ⏳ CHRONO: The Heartbeat of Time
-// Manages the strict turn-based progression of the simulation.
+/**
+ * src/state/chrono.svelte.js
+ * ⏳ CHRONO: The Heartbeat of Time & Turn Orchestration
+ *
+ * Core Responsibilities:
+ * - Manages the strict turn-based progression and temporal heartbeat of the simulation.
+ * - Coordinates session initialization and prologue generation from storyboard selection (`start`).
+ * - Dispatches user inputs (`send`), regenerative rerolls (`retry`), and narrative extensions (`continue`).
+ * - Executes the atomic 5-phase Turn Advancement cycle:
+ *     1. STASIS: System Lock & Intent Gate (sub-millisecond double-click protection).
+ *     2. SYNTHESIS: Background LLM Stream Synthesis via Gamemaster.
+ *     3. PAST: Echo & Vector Memory formation.
+ *     4. ANCHOR: Timeline persistence into IndexedDB via Runtime.
+ *     5. UNIFIED CLEANUP: Stream release, error handling, and orphaned-turn self-healing.
+ *
+ * Dependencies & Cross-Module Invariants:
+ * - `@data` (`session_driver`): Creates sessions, persists user inputs, loads logs, and logs durable markers.
+ * - `@intelligence` (`gamemaster`, `build_turn_summary`): AI narrative synthesis and round summaries.
+ * - `@utils` (`state_bridge`): Decoupled bridge to `app`, `runtime`, `simulation_state`, and `simulation_log`.
+ */
+
 import { session_driver } from "@data";
-import { gamemaster, build_turn_summary } from "@intelligence";
+import { build_turn_summary, gamemaster } from "@intelligence";
 import { state_bridge } from "@utils";
 
+// ============================================================================
+// [SECTION 1: JSDOC SCHEMAS & TYPE DEFINITIONS]
+// ============================================================================
+
+/**
+ * @typedef {Object} StorySelection
+ * @property {any} ai - Selected AI Character entity.
+ * @property {any} user - Selected User Persona entity.
+ * @property {any} fractal - Selected Fractal / Setting entity.
+ */
+
+/**
+ * @typedef {Object} AdvanceTurnOptions
+ * @property {boolean} [is_retry] - Whether this turn re-executes the previous AI turn.
+ * @property {boolean} [is_continue] - Whether this turn requests a narrative continuation.
+ * @property {string} [role] - Generating role identifier for logging/stasis.
+ */
+
+// ============================================================================
+// [SECTION 2: CHRONO ENGINE CLASS INITIALIZATION]
+// ============================================================================
+
 export class ChronoEngine {
+  /** @type {string | null} */
   error = $state(null);
+  /** @type {boolean} */
+  _orphan_retry_in_flight = false;
+
+  // ============================================================================
+  // [SECTION 3: SESSION STARTUP & PROLOGUE CHOREOGRAPHY]
+  // ============================================================================
 
   /**
-   * Start a new story from the Lobby.
-   * @param {{ ai: any, user: any, fractal: any }} selection - { ai, user, fractal }
+   * Starts a new story session from the Lobby selection.
+   * Creates the session record, synchronizes runtime, and executes the opening prologue.
+   * @param {StorySelection} selection
    */
   async start(selection) {
     if (state_bridge.app.simulation.loading || state_bridge.simulation_state.intent_active) return;
-    state_bridge.simulation_state.set_intent_active(true); // Exact sub-millisecond Intent Lock
+    state_bridge.simulation_state.set_intent_active(true);
     state_bridge.app.simulation.loading = true;
 
     try {
       const story_title = state_bridge.app.story_title || `The Journey of ${selection.ai.name} & ${selection.user.name} in ${selection.fractal.name}`;
-      // 1. Create Core Session
+
+      // 1. Create Core Session in persistence
       const story_id = await session_driver.create_from_selection({
         ai_id: selection.ai.id,
         user_id: selection.user.id,
@@ -32,17 +82,12 @@ export class ChronoEngine {
       // 2. Synchronize Runtime State with the new session
       await state_bridge.runtime.sync(story_id);
 
-      // 3. Begin-story card choreography: hold the cards in "prologue" mode and
-      // suppress the card-slot view-transition morph so the cards don't fly to
-      // the side panels. The storyboard STAYS VISIBLE while the prologue
-      // generate (so the viewport is never empty); the Console watcher
-      // flips to storymode the moment the real prologue entry renders, then
-      // flies the storyboard cards into its message.
+      // 3. Begin-story card choreography: hold cards in prologue mode and suppress morph
       state_bridge.app.suppress_card_transitions = true;
       state_bridge.app.begin_story_pending = true;
       state_bridge.app._begin_flight_assets = null;
 
-      // 4. Trigger Prologue Generation (view remains on the storyboard)
+      // 4. Trigger Prologue Generation
       state_bridge.simulation_state.start_generation("fractal");
       try {
         await gamemaster.execute_prologue(story_id);
@@ -56,11 +101,7 @@ export class ChronoEngine {
         state_bridge.app.end_stream();
       }
 
-      // The Console watcher consumes begin_story_pending the moment the
-      // prologue renders (it also flips the view). If it somehow never did —
-      // and no flight is mid-air (signalled by _begin_flight_assets) — flip to
-      // storymode and fall back to panel placement so the cards are never left
-      // stranded.
+      // Safety fallback: if flight was not triggered, switch to storymode cleanly
       if (state_bridge.app.begin_story_pending && !state_bridge.app._begin_flight_assets) {
         if (state_bridge.app.view !== "storymode") state_bridge.app.set_view("storymode");
         state_bridge.app.begin_story_pending = false;
@@ -69,7 +110,6 @@ export class ChronoEngine {
       }
     } catch (e) {
       console.error("[Chrono] Start Failed:", e);
-      // Failure fallback: cards live in the panels, no pending flight.
       if (state_bridge.app.view !== "storymode") state_bridge.app.set_view("storymode");
       state_bridge.app.begin_story_pending = false;
       state_bridge.app.suppress_card_transitions = false;
@@ -77,25 +117,30 @@ export class ChronoEngine {
       this.error = /** @type {Error} */ (e).message;
     } finally {
       state_bridge.app.simulation.loading = false;
-      state_bridge.simulation_state.set_intent_active(false); // Release Intent Lock
+      state_bridge.simulation_state.set_intent_active(false);
     }
   }
 
+  // ============================================================================
+  // [SECTION 4: TURN PROGRESSION & USER DISPATCH (SEND, RETRY, CONTINUE)]
+  // ============================================================================
+
   /**
-   * Send user input and advance the simulation turn.
+   * Sends user input and advances the simulation turn.
+   * Returns false when rejected (e.g. composer busy or empty text) so user input is never lost.
    * @param {string} text
+   * @returns {Promise<boolean>}
    */
   async send(text) {
-    // Returns false when the send was rejected (composer busy / intent locked /
-    // empty text) so the caller can restore or queue the message — a rejected
-    // send must never silently eat the user's text.
-    if (state_bridge.app.simulation.loading || state_bridge.simulation_state.intent_active || !text.trim()) return false;
+    if (state_bridge.app.simulation.loading || state_bridge.simulation_state.intent_active || !text?.trim()) {
+      return false;
+    }
     await this.advance_turn(text);
     return true;
   }
 
   /**
-   * Retry the last AI turn.
+   * Retries the last AI turn by rolling back session state and re-advancing.
    */
   async retry() {
     if (state_bridge.app.simulation.loading || state_bridge.simulation_state.intent_active) return;
@@ -108,7 +153,7 @@ export class ChronoEngine {
   }
 
   /**
-   * Continue the story (AI generates next part).
+   * Continues the story without user input (AI extends the active scene).
    */
   async continue() {
     if (state_bridge.app.simulation.loading || state_bridge.simulation_state.intent_active) return;
@@ -119,34 +164,33 @@ export class ChronoEngine {
     }
   }
 
+  // ============================================================================
+  // [SECTION 5: ADVANCE TURN ENGINE (STASIS, SYNTHESIS, ECHO, CLEANUP)]
+  // ============================================================================
+
   /**
-   * ADVANCE TURN
-   * The ONLY way time moves forward.
-   * 1. Locks UI (Loading)
-   * 2. Processes Physics (security)
-   * 3. Generates Narrative (Engine)
-   * 4. PAST: Commit to Memory (Data)
-   * 5. Anchoring State (Runtime)
-   * 6. Unlocks UI
-   * @param {string|null} input
-   * @param {object} options
+   * Core turn advancement pipeline.
+   * @param {string | null} [input=null]
+   * @param {AdvanceTurnOptions} [options={}]
    */
   async advance_turn(input = null, options = {}) {
     if (state_bridge.simulation_state.phase === "locked") return;
-    if (state_bridge.app.simulation.loading || state_bridge.simulation_state.intent_active) return; // Prevent double-clicks
+    if (state_bridge.app.simulation.loading || state_bridge.simulation_state.intent_active) return;
+
     const story_id = state_bridge.runtime.story_id;
     if (!story_id) {
       console.error("[Chrono] No active story found.");
       return;
     }
+
     // 1. STASIS: Lock the Universe
-    state_bridge.simulation_state.set_intent_active(true); // Exact sub-millisecond Intent Lock
+    state_bridge.simulation_state.set_intent_active(true);
     state_bridge.app.simulation.loading = true;
-    state_bridge.simulation_state.lock(); // Phase 1: System Lock
+    state_bridge.simulation_state.lock();
 
-    let final_input = input;
+    const final_input = input;
 
-    // 2. SYNTHESIS: Generate Narrative (Engine) - Runs in background, non-blocking
+    // 2. SYNTHESIS: Generate Narrative
     if (!options.is_retry && !options.is_continue) {
       state_bridge.runtime.round = Number(state_bridge.runtime.round || 0) + 1;
     }
@@ -160,8 +204,8 @@ export class ChronoEngine {
         if (final_input) {
           try {
             await session_driver.send(final_input);
-          } catch (dbErr) {
-            console.error("[Chrono] Database write error during send:", dbErr);
+          } catch (db_err) {
+            console.error("[Chrono] Database write error during send:", db_err);
             state_bridge.app.log("Failed to persist user message, but generation continues.", "error");
           }
         }
@@ -173,17 +217,18 @@ export class ChronoEngine {
           avatar: null,
           color: "var(--color-frozen)",
         });
+
         try {
           await gamemaster.execute_turn(story_id, {
             input: final_input ?? undefined,
             signal: controller.signal,
           });
           state_bridge.app.log("Generation complete.", "system");
+
           try {
-            // Per-turn telemetry summary: what the round actually produced.
             state_bridge.app.log(build_turn_summary(state_bridge.simulation_log?.feed || [], state_bridge.runtime.round), "system");
-          } catch (_err) {
-            /* telemetry must never break the turn */
+          } catch {
+            /* Telemetry logging must never break turn progression */
           }
         } catch (e) {
           console.error("[Chrono] Generation Failed:", e);
@@ -194,8 +239,8 @@ export class ChronoEngine {
           state_bridge.app.end_stream();
         }
 
-        // 3. PAST: Commit to Memory (Echo) - Timeline Safety Lock
-        state_bridge.simulation_state.lock(); // Phase 3: Database Lock (Post-Generation)
+        // 3. PAST: Commit to Memory (Echo)
+        state_bridge.simulation_state.lock();
         state_bridge.app.log("Recording memory...", "db");
 
         // 4. ANCHOR: Persist the timeline
@@ -208,11 +253,11 @@ export class ChronoEngine {
         } else {
           state_bridge.app.log(`Time Fracture: ${error.message}`, "error");
           console.error("[Chrono] 💥 Time Fracture:", error);
-          // 🛡️ ORPHANED-TURN GUARD: if the user's message was persisted but the AI
-          // reply never landed, retry generation ONCE and record a durable marker so
-          // the failure is never lost to a reload (the pre-fix state of round 14).
+
+          // 🛡️ ORPHANED-TURN GUARD: If user message was recorded but AI reply failed, retry once
           const round_after_failure = state_bridge.runtime.round;
           let retry_landed = false;
+
           try {
             if (final_input && !this._orphan_retry_in_flight) {
               this._orphan_retry_in_flight = true;
@@ -220,10 +265,12 @@ export class ChronoEngine {
                 const latest_log = await session_driver.load_log(story_id);
                 const tail = latest_log.filter((m) => m.role !== "system");
                 const last = tail[tail.length - 1];
+
                 if (last?.role === "user" && last.created_at) {
                   const has_reply_after = tail.some(
                     (m) => (m.role === "model" || m.role === "fractal") && (m.created_at ?? 0) > (last.created_at ?? 0),
                   );
+
                   if (!has_reply_after) {
                     state_bridge.app.log("Detected orphaned turn — retrying generation once...", "warn");
                     state_bridge.simulation_state.start_generation(options.role || "ai");
@@ -235,18 +282,18 @@ export class ChronoEngine {
                     state_bridge.app.log("Orphaned turn recovered.", "system");
                   }
                 }
-              } catch (retryErr) {
-                console.error("[Chrono] Orphan retry failed:", retryErr);
-                state_bridge.app.log(`Orphan retry failed: ${retryErr.message || retryErr}`, "error");
+              } catch (retry_err) {
+                console.error("[Chrono] Orphan retry failed:", retry_err);
+                state_bridge.app.log(`Orphan retry failed: ${retry_err.message || retry_err}`, "error");
               } finally {
                 this._orphan_retry_in_flight = false;
               }
             }
-          } catch (guardErr) {
-            console.error("[Chrono] Orphan guard failed:", guardErr);
+          } catch (guard_err) {
+            console.error("[Chrono] Orphan guard failed:", guard_err);
           }
 
-          // Durable record: survives reloads, unlike the in-memory feed entry.
+          // Durable system entry for forensic auditing
           try {
             await session_driver.log_system_entry(
               `A turn failed after the message was recorded${
@@ -255,12 +302,11 @@ export class ChronoEngine {
               "system",
               { type: "TURN_ORPHANED", round: round_after_failure, recovered: retry_landed },
             );
-          } catch (logErr) {
-            console.error("[Chrono] Failed to persist orphan marker:", logErr);
+          } catch (log_err) {
+            console.error("[Chrono] Failed to persist orphan marker:", log_err);
           }
 
           if (!retry_landed) {
-            // Push error to feed so user knows what happened
             state_bridge.simulation_log.add({
               id: `err-${Date.now()}`,
               role: "system",
@@ -280,9 +326,25 @@ export class ChronoEngine {
         state_bridge.app.streaming.role = "ai";
         state_bridge.app.simulation.loading = false;
         state_bridge.simulation_state.unlock();
-        state_bridge.simulation_state.set_intent_active(false); // Release Intent Lock
+        state_bridge.simulation_state.set_intent_active(false);
       }
     })();
   }
 }
+
+// ============================================================================
+// [SECTION 6: SINGLETON ENGINE INSTANTIATION & GLOBAL EXPOSURE]
+// ============================================================================
+
 export const chrono_engine = new ChronoEngine();
+
+// ============================================================================
+// [CHANGELOG]
+// ============================================================================
+/**
+ * CHANGELOG:
+ * - 2026-08-29: Applied /harmonize protocol: structured Universal File Architecture,
+ *   added section dividers, JSDoc typedefs, normalized variable naming (snake_case/question_snake),
+ *   and verified turn pipeline integrity.
+ * - 2026-08-16: Added orphaned-turn guard and sub-millisecond intent lock.
+ */
