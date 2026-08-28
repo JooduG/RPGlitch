@@ -60,8 +60,8 @@ describe("entity embedding persistence", () => {
   });
 
   it("drops corrupt embeddings so callers re-infer", async () => {
-    const { db, init } = await import("./db.js");
-    await init();
+    const { db, init_db } = await import("./db.js");
+    await init_db();
     const { entities } = await import("./repository.js");
     const entity = make_entity("char-bad");
     entity.past = [{ id: "bp1", timestamp: 1, content: "m", type: "past", emotional_weight: 5, meta: {}, _embedding: { 0: "nope" } }];
@@ -73,8 +73,8 @@ describe("entity embedding persistence", () => {
   });
 
   it("stores embeddings as JSON-safe arrays in the database record", async () => {
-    const { db, init } = await import("./db.js");
-    await init();
+    const { db, init_db } = await import("./db.js");
+    await init_db();
     const { entities } = await import("./repository.js");
     const embedding = new Float32Array(384);
     embedding[0] = 0.5;
@@ -116,8 +116,8 @@ describe("story entity claims", () => {
   });
 
   it("claims entity ids from non-concluded stories and frees them on conclude", async () => {
-    const { db, init } = await import("./db.js");
-    await init();
+    const { db, init_db } = await import("./db.js");
+    await init_db();
     const { stories } = await import("./repository.js");
 
     const active = await db.stories.add({ title: "A", ai_id: "c1", user_id: "c2", fractal_id: "f1", round: 3, created_at: 1, updated_at: 1 });
@@ -132,8 +132,8 @@ describe("story entity claims", () => {
   });
 
   it("treats stories with an epilogue log entry as concluded (legacy signal)", async () => {
-    const { db, init } = await import("./db.js");
-    await init();
+    const { db, init_db } = await import("./db.js");
+    await init_db();
     const { stories } = await import("./repository.js");
 
     const id = await db.stories.add({ title: "Legacy", ai_id: "lx", user_id: "ly", fractal_id: "lz", round: 9, created_at: 1, updated_at: 1 });
@@ -147,8 +147,8 @@ describe("story entity claims", () => {
   });
 
   it("coerces string story ids for conclude and get", async () => {
-    const { db, init } = await import("./db.js");
-    await init();
+    const { db, init_db } = await import("./db.js");
+    await init_db();
     const { stories } = await import("./repository.js");
 
     const id = await db.stories.add({ title: "Coerce", ai_id: "x1", user_id: "x2", fractal_id: "x3", round: 1, created_at: 1, updated_at: 1 });
@@ -159,8 +159,8 @@ describe("story entity claims", () => {
   });
 
   it("deletes a story's simulation log regardless of id form (numeric or string)", async () => {
-    const { db, init } = await import("./db.js");
-    await init();
+    const { db, init_db } = await import("./db.js");
+    await init_db();
     const { stories } = await import("./repository.js");
 
     const id = await db.stories.add({ title: "Delete Me", ai_id: "d1", user_id: "d2", fractal_id: "d3", round: 1, created_at: 1, updated_at: 1 });
@@ -205,8 +205,8 @@ describe("stories.update_cast & world-cast npc_ids", () => {
   });
 
   it("dedupes, trims, and persists the story's world-cast roster", async () => {
-    const { db, init } = await import("./db.js");
-    await init();
+    const { db, init_db } = await import("./db.js");
+    await init_db();
     const { stories } = await import("./repository.js");
 
     const id = await db.stories.add({ title: "Cast", ai_id: "c1", user_id: "c2", fractal_id: "f1", round: 1, created_at: 1, updated_at: 1 });
@@ -217,8 +217,8 @@ describe("stories.update_cast & world-cast npc_ids", () => {
   });
 
   it("coerces a non-array roster to an empty cast", async () => {
-    const { db, init } = await import("./db.js");
-    await init();
+    const { db, init_db } = await import("./db.js");
+    await init_db();
     const { stories } = await import("./repository.js");
 
     const id = await db.stories.add({ title: "Empty", ai_id: "c1", user_id: "c2", fractal_id: "f1", round: 1, created_at: 1, updated_at: 1 });
@@ -227,8 +227,8 @@ describe("stories.update_cast & world-cast npc_ids", () => {
   });
 
   it("includes npc_ids in stories.list()", async () => {
-    const { db, init } = await import("./db.js");
-    await init();
+    const { db, init_db } = await import("./db.js");
+    await init_db();
     const { stories } = await import("./repository.js");
 
     const id = await db.stories.add({ title: "Listed", ai_id: "c1", user_id: "c2", fractal_id: "f1", round: 1, created_at: 1, updated_at: 1 });
@@ -240,8 +240,8 @@ describe("stories.update_cast & world-cast npc_ids", () => {
   });
 
   it("defaults npc_ids to [] for stories without a cast", async () => {
-    const { db, init } = await import("./db.js");
-    await init();
+    const { db, init_db } = await import("./db.js");
+    await init_db();
     const { stories } = await import("./repository.js");
 
     await db.stories.add({ title: "Lonely", ai_id: "c1", user_id: "c2", fractal_id: "f1", round: 1, created_at: 1, updated_at: 1 });

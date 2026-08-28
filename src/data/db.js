@@ -1,20 +1,42 @@
+/**
+ * src/data/db.js
+ * 🗄️ INDEXEDDB DATABASE ENGINE (Dexie.js)
+ *
+ * The single source of truth for the local-first IndexedDB schema, version
+ * migrations (v10 -> v14), and connection lifecycle hooks (blocked/versionchange).
+ *
+ * TABLES:
+ *   - entities:       All Character and Fractal records.
+ *   - stories:        Narrative session descriptors and cast rosters (*npc_ids).
+ *   - simulation_log: Turn-by-turn simulation message log.
+ *   - kv_settings:    Key-value application and debug configuration.
+ *   - sessions:       Session tracking timestamps.
+ *   - audio_prefs:    Master audio preferences and volume keys.
+ */
+
 import Dexie from "dexie";
+
 /**
  * @typedef {import('dexie').Table} Table
  */
+
 /**
+ * Typed Dexie Database instance.
  * @type {import('dexie').Dexie & {
  *  entities: Table;
  *  stories: Table;
  *  simulation_log: Table;
- *  settings: Table;
  *  kv_settings: Table;
  *  sessions: Table;
  *  audio_prefs: Table;
  * }}
  */
 const db = /** @type {any} */ (new Dexie("rpglitch"));
-// --- SCHEMA VERSIONS ---
+
+// ============================================================================
+// 1. SCHEMA VERSION REGISTRY
+// ============================================================================
+
 // v10: Baseline schema (entities, stories, simulation_log, kv_settings, sessions, audio_prefs, settings).
 db.version(10).stores({
   entities: "id, name, description, profile_picture, signature_color, created_at, updated_at, tags, type, isChosen",
@@ -25,6 +47,7 @@ db.version(10).stores({
   audio_prefs: "key",
   settings: "id",
 });
+
 // v11: Add `round` to stories; drop unused `settings` store.
 db.version(11)
   .stores({
@@ -44,22 +67,26 @@ db.version(11)
         }
       });
   });
-// v12: Prune `isChosen` index from entities (stability — align indexes with actual queries).
-// --- STABILITY HANDLERS ---
+
+// v12: Prune `isChosen` index from entities (align indexes with actual queries).
 db.version(12).stores({
   entities: "id, name, description, profile_picture, signature_color, created_at, updated_at, tags, type",
 });
-// v13: Drop the `[type+isCustom]` index (isCustom field retired by the Dev wing
-// data-block harmonization). Re-declaring entities is a no-op for existing rows;
-// the index simply stops existing going forward.
+
+// v13: Drop the `[type+isCustom]` index (isCustom field retired by the Dev wing data-block harmonization).
 db.version(13).stores({
   entities: "id, name, description, profile_picture, signature_color, created_at, updated_at, tags, type",
 });
-// v14: NPC World Cast — index story `npc_ids` (multiEntry) so a story's
-// secondary-character roster can be queried directly.
+
+// v14: NPC World Cast — index story `npc_ids` (multiEntry) so a story's secondary-character roster can be queried directly.
 db.version(14).stores({
   stories: "++id, title, ai_id, user_id, fractal_id, round, created_at, updated_at, *npc_ids",
 });
+
+// ============================================================================
+// 2. LIFECYCLE & RESILIENCE HOOKS
+// ============================================================================
+
 /** @type {(() => void) | null} */
 let _versionchange_quiesce = null;
 let _versionchange_pending = false;
@@ -77,6 +104,7 @@ export function set_versionchange_quiesce(fn) {
 db.on("blocked", () => {
   console.warn("[Data] Database is blocked by another tab/version. Please close other instances.");
 });
+
 db.on("versionchange", () => {
   // Guard against reload loops when multiple versionchange events fire.
   if (_versionchange_pending) return;
@@ -87,12 +115,20 @@ db.on("versionchange", () => {
     console.warn("[Data] Versionchange quiesce failed:", err);
   }
   db.close();
-  if (typeof window !== "undefined") window.location.reload();
+  if (typeof window !== "undefined") {
+    window.location.reload();
+  }
 });
+
+// ============================================================================
+// 3. INITIALIZATION & EXPORTS
+// ============================================================================
+
 /**
- * Initializes the database connection.
+ * Initializes and opens the database connection.
+ * @returns {Promise<typeof db>}
  */
-export const init = async () => {
+export async function init_db() {
   try {
     await db.open();
     return db;
@@ -100,6 +136,6 @@ export const init = async () => {
     console.error("[Data] Failed to open database. You may need to manually delete it from browser DevTools.", /** @type {any} */ (err).stack || err);
     throw err;
   }
-};
-// Export the database instance so other modules can use it
+}
+
 export { db };

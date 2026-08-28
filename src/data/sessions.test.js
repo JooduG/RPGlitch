@@ -6,7 +6,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import "fake-indexeddb/auto";
 import Dexie from "dexie";
-import { db, init } from "./db.js";
+import { db, init_db } from "./db.js";
 import { session_driver } from "./sessions.svelte.js";
 
 describe("sessions.svelte.js session_driver", () => {
@@ -17,7 +17,7 @@ describe("sessions.svelte.js session_driver", () => {
       void err;
     }
     await Dexie.delete("rpglitch");
-    await init();
+    await init_db();
   });
 
   afterEach(async () => {

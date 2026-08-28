@@ -52,8 +52,6 @@ declare global {
   function upload(data: unknown, options?: JsonMap): Promise<unknown>;
   function upload(callback: (dataUrl: string | null | undefined) => void): void;
 
-  /** Plugin asset upload alias */
-
   /** Forces a UI tick/update */
   function update(): void;
 
@@ -92,35 +90,7 @@ declare global {
   const DOMPurify: PurifyKernel;
 
   // =========================================================================
-  // [4] ENGINE STATE ARCHITECTURE
-  // =========================================================================
-
-  /** Atomic snapshot of a simulation turn */
-  interface TurnState {
-    id: string;
-    phase: "idle" | "scanning" | "forecasting" | "echoing";
-    turnNumber: number;
-    timestamp: number;
-  }
-
-  /** Global application runtime state */
-  interface AppState {
-    storyMode: "chat" | "grid";
-    theme: string;
-    isBusy: boolean;
-    activeTrackId?: string;
-  }
-
-  /** Fundamental unit of world knowledge */
-  interface LoreAtom {
-    uid: string;
-    content: string;
-    type: "character" | "location" | "event" | "rule";
-    metadata: JsonMap;
-  }
-
-  // =========================================================================
-  // [5] HOST INTEGRATION (WINDOW)
+  // [4] HOST INTEGRATION (WINDOW)
   // =========================================================================
 
   interface Window {
@@ -139,7 +109,6 @@ declare global {
     generate_image: typeof generate_image;
     LISTS: RPGLists;
     pluginGenerateImage: typeof pluginGenerateImage;
-    pluginUpload: typeof pluginUpload;
     oc: PerchanceOC;
     update: typeof update;
     ontouchstart?: unknown;
@@ -147,7 +116,7 @@ declare global {
 }
 
 // =========================================================================
-// [6] DATABASE SCHEMA
+// [5] DATABASE SCHEMA
 // =========================================================================
 
 declare module "dexie" {
@@ -158,7 +127,6 @@ declare module "dexie" {
     sessions: Table<JsonMap, number>;
     kv_settings: Table<JsonMap, string>;
     audio_prefs: Table<JsonMap, string>;
-    settings?: Table<JsonMap, string>;
   }
 }
 

@@ -67,7 +67,7 @@ The system architecture prioritizes offline-first resilience and agentic automat
 
 - **State Management:** IndexedDB via Dexie.js (Single source of truth)
 - **UI Framework:** Svelte 5 (Runes) + Tailwind CSS v4
-- **Voice Engine:** Kokoro-82M Neural TTS (`kokoro-js` via WebGPU/WASM) + Web Speech API fallback
+- **Voice Engine:** Kokoro-82M Neural TTS (`voice.js` via WebGPU/WASM)
 - **Prompt Intelligence:** Bifurcated static prefix caching (`<SYSTEM>`) + ID-keyed history caching
 - **Bundler:** Vite 8
 - **Security:** DOMPurify (XSS prevention)

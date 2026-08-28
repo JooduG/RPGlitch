@@ -66,6 +66,7 @@ workflows:
   utility:
     generate-ideas: C:/Users/johng/.gemini/config/global_workflows/generate-ideas.md
     refactor: C:/Users/johng/.gemini/config/global_workflows/refactor.md
+    harmonize: .agents/workflows/harmonize.md
     revert: C:/Users/johng/.gemini/config/global_workflows/revert.md
     test: C:/Users/johng/.gemini/config/global_workflows/test.md
 

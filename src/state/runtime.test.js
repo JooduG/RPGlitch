@@ -96,8 +96,8 @@ describe("runtime.sync checkpoint restore", () => {
   });
 
   async function seed_story(round = 3) {
-    const { db, init } = await import("@data/db.js");
-    await init();
+    const { db, init_db } = await import("@data/db.js");
+    await init_db();
     await db.entities.put(base_entity("user-1", "You", "character"));
     await db.entities.put(base_entity("ai-1", "Silas", "character"));
     await db.entities.put(base_entity("fractal-1", "Nova City", "fractal"));
@@ -183,8 +183,8 @@ describe("runtime world-cast hydration (track-npc-expansion)", () => {
   });
 
   async function seed_story_with_npcs(npc_entities = []) {
-    const { db, init } = await import("@data/db.js");
-    await init();
+    const { db, init_db } = await import("@data/db.js");
+    await init_db();
     await db.entities.put(base_entity("user-1", "You", "character"));
     await db.entities.put(base_entity("ai-1", "Silas", "character"));
     await db.entities.put(base_entity("fractal-1", "Nova City", "fractal"));

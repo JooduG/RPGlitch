@@ -28,25 +28,26 @@ describe("Database db.js", () => {
     }
   });
 
-  it("should initialize database connection", async () => {
-    const { db, init } = await import("@data/db.js");
+  it("should initialize database connection with init_db", async () => {
+    const { db, init_db } = await import("@data/db.js");
     db_instance = db;
-    await init();
+    const instance = await init_db();
+    expect(instance).toBe(db);
     expect(db.isOpen()).toBe(true);
   });
 
   it("should log a warning when database is blocked", async () => {
-    const { db, init } = await import("@data/db.js");
+    const { db, init_db } = await import("@data/db.js");
     db_instance = db;
-    await init();
+    await init_db();
     db.on("blocked").fire({ oldVersion: 10, newVersion: 11 });
     expect(console_warn_spy).toHaveBeenCalledWith("[Data] Database is blocked by another tab/version. Please close other instances.");
   });
 
   it("should handle versionchange event and close DB/reload window", async () => {
-    const { db, init } = await import("@data/db.js");
+    const { db, init_db } = await import("@data/db.js");
     db_instance = db;
-    await init();
+    await init_db();
     const close_spy = vi.spyOn(db, "close");
     db.on("versionchange").fire({ oldVersion: 10, newVersion: 11 });
     expect(close_spy).toHaveBeenCalled();
@@ -54,9 +55,9 @@ describe("Database db.js", () => {
   });
 
   it("should invoke the registered quiesce hook before versionchange reload", async () => {
-    const { db, init, set_versionchange_quiesce } = await import("@data/db.js");
+    const { db, init_db, set_versionchange_quiesce } = await import("@data/db.js");
     db_instance = db;
-    await init();
+    await init_db();
     const quiesce = vi.fn();
     set_versionchange_quiesce(quiesce);
     const close_spy = vi.spyOn(db, "close");
@@ -67,9 +68,9 @@ describe("Database db.js", () => {
   });
 
   it("should guard against duplicate versionchange reloads", async () => {
-    const { db, init, set_versionchange_quiesce } = await import("@data/db.js");
+    const { db, init_db, set_versionchange_quiesce } = await import("@data/db.js");
     db_instance = db;
-    await init();
+    await init_db();
     const quiesce = vi.fn();
     set_versionchange_quiesce(quiesce);
     db.on("versionchange").fire({ oldVersion: 10, newVersion: 11 });

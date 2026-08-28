@@ -219,20 +219,25 @@ The background consolidation engine running every 4 rounds (R3, R7, R11, R15...)
 
 ---
 
-## 🧼 6. Detox Engine & Anti-Trope Architecture
+## 🧼 6. Detox Engine & Speaking Styles
 
-### Detox Engine (`src/data/definitions/detox-rules.js`)
+### Detox Engine (`src/utils/styles.js`)
 
-A deterministic, lightweight prose sanitization pipeline that cleans AI prose of overused clichés, melodrama crutches, and repetitive tropes using deterministic FNV-1a hashing.
+A deterministic, lightweight prose sanitization pipeline that cleans AI prose of overused clichés, melodrama crutches, and repetitive tropes using deterministic FNV-1a hashing. Enforced at write time: persisted story text and epilogue responses are all scrubbed before they enter the database.
 
-### 4-Tier Allocations
+### Speaking Styles (`src/data/definitions/speaking-styles.js`)
 
-To prevent repetitive vocabulary while preserving natural variety:
+The canonical 4-tier speaking style system:
 
-- **`plain`**: 3 allowed items per allocation tier.
-- **`ornate`**: 2 allowed items per allocation tier.
-- **`raw`**: 2 allowed items per allocation tier.
-- **`clinical`**: 2 allowed items per allocation tier.
+- **`casual`**: (Default) Conversational, grounded, standard vocabulary.
+- **`lyrical`**: Poetic, evocative, atmospheric sentence cadence.
+- **`primal`**: Visceral, guttural, action-oriented, raw phrasing.
+- **`clinical`**: Detached, analytical, precise, unemotional diction.
+
+### Resolution Hierarchy
+
+`resolve_speaking_style()` resolves the active speaking voice:
+$$\text{Entity Speaking Style} > \text{Narrative Style Preset} > \text{"casual" (default)}$$
 
 ### Purged Clichés & Crutches
 
@@ -240,9 +245,7 @@ Strictly eliminates banned AI tropes:
 
 - _"taste of copper"_, _"heart hammered against ribs"_, _"destruction as emotion"_ (wall punching).
 - _"phantom itch/ache"_, _"hit like a physical blow"_, _"shadows lengthened"_, _"eyes darkened with something unreadable"_.
-- _"metallic tang"_ (blood/sweat cliché; scrubbed to a raw iron taste, added 2026-08-16).
-
-Detox is enforced **at write time** (2026-08-16): persisted story text, Director `state_append` mutations, and epilogue responses are all scrubbed before they enter the database.
+- _"metallic tang"_ (blood/sweat cliché; scrubbed to a raw iron taste).
 
 ---
 
@@ -273,9 +276,9 @@ The curated pool of physical and emotional tell triggers presented to the Direct
 
 The Director selects 1–2 keywords per round to dynamically inject targeted `<SOMATIC_DIRECTIVES>` into the active speaker's prompt.
 
-### Kokoro Neural TTS (`src/media/audio.svelte.js`)
+### Kokoro Neural TTS (`src/media/voice.js`)
 
-Client-side ONNX neural text-to-speech engine running Kokoro-82M for real-time multi-voice speech synthesis.
+Client-side ONNX neural text-to-speech engine running Kokoro-82M for real-time multi-voice speech synthesis, sentence segmentation, and cadence rates.
 
 ### Voice Registers
 
@@ -287,7 +290,7 @@ Standardized acoustic voice models assigned to characters and environments (e.g.
 
 ### The Profile Orchestrator (`Profile.svelte`)
 
-The primary modal interface for inspecting and editing entities in view or edit mode. Displays the 4 fragments (Eternal, Present, Past, Future). (The planned Relationships list from the archived NPC Expansion track is not implemented.)
+The primary modal interface for inspecting and editing entities in view or edit mode. Displays the 4 fragments (Eternal, Present, Past, Future).
 
 ### The Profile Wings (Flank Drawers)
 
@@ -310,9 +313,9 @@ Strict architectural law enforcing unidirectional downward imports across the 6 
 ### Repository Directory Map
 
 - **`src/ui/`**: Atomic Svelte 5 components (Message, Entity, Profile, Console, Storyboard).
-- **`src/state/`**: Reactive Runes state stores (`app.svelte.js`, `runtime.svelte.js`, `status.svelte.js`, `log.svelte.js`) plus the ChronoEngine turn driver (`chrono.svelte.js`).
-- **`src/intelligence/`**: AI Kernel, prompt compiler, vector embeddings, dynamics evaluator, temporal engine.
+- **`src/state/`**: Reactive Runes state stores (`app.svelte.js`, `runtime.svelte.js`, `status.svelte.js`, `chrono.svelte.js`).
+- **`src/intelligence/`**: AI Kernel, prompt compiler, dynamics evaluator, director, temporal engine.
 - **`src/data/`**: Persistence layer, IndexedDB (Dexie schemas), entity normalizers, definitions catalogs.
-- **`src/media/`**: Audio synthesizer, design tokens, image prompt compiler, CSS styles.
-- **`src/platform/`**: Perchance iframe bridge, DOMPurify security, HTTP transport.
-- **`src/utils/`**: Pure helper utilities (job queue, crypto, text formatters, story export).
+- **`src/media/`**: Sensory assets, voice synthesizer (`voice.js`), design tokens, image prompt compiler, CSS styles.
+- **`src/platform/`**: Perchance iframe bridge, DOMPurify security, HTTP transport, neural embeddings (`embeddings.svelte.js`).
+- **`src/utils/`**: Pure helper utilities (job queue, crypto, text formatters, styles engine, story export).

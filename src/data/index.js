@@ -1,7 +1,7 @@
 export { SIGNATURE_COLORS } from "./definitions/signature-colors.js";
 export { seed_premades, stories, entities, coerce_story_key } from "./repository.js";
 export { session_driver, SESSION_ID_KEY } from "./sessions.svelte.js";
-export { db, set_versionchange_quiesce } from "./db.js";
+export { db, init_db, set_versionchange_quiesce } from "./db.js";
 export { normalize, create_new, format_premade, serialize_entity_for_export } from "./normalizer.js";
 export { SPEAKING_STYLES, VALID_SPEAKING_STYLES, is_valid_speaking_style, SPEAKING_STYLE_RULES } from "./definitions/speaking-styles.js";
 export { detox_prose, resolve_speaking_style, resolve_style } from "@utils";
@@ -11,7 +11,7 @@ export {
   parse_character_card,
   serialize_character_card,
   serialize_rpglitch_entity,
-} from "./character-cards.js";
+} from "./card-conversion.js";
 export { premade } from "./definitions/premades.js";
 export {
   NARRATIVE_STYLES,

@@ -1,18 +1,34 @@
 /**
  * src/data/normalizer.js
- * 🧪 CONTENT NORMALISATION LOGIC
- * Enforces the strict "Twin-Cylinder" data structure across the app.
- * ZERO BACKWARDS COMPATIBILITY.
+ * 🧪 ENTITY NORMALIZATION & SCHEMA COMPLIANCE ENGINE
+ *
+ * The single source of truth for normalizing, sanitizing, and validating
+ * RPGlitch entity data models (Characters and Fractals) against the Four-Quadrant
+ * schema (Eternal, Present, Past, Future) and physics dynamics constraints.
+ *
+ * EXPORTS:
+ *   - ENTITY_TEMPLATES:           Factory baseline definitions for Characters and Fractals.
+ *   - normalize(base):            Sanitizes and clamps raw object into guaranteed entity schema.
+ *   - create_new(type, overrides): Instantiates a fresh, pristine entity model with ID & timestamps.
+ *   - format_premade(data, type):  Formats catalog premades for database ingestion.
+ *   - coerce_temporal_vectors(val):Normalizes semantic past memory vectors with origin stamps.
+ *   - coerce_temporal_array(val):  Splits raw strings/arrays into clean temporal string lists.
+ *   - serialize_entity_for_export(e): Strips internal database IDs and transient metadata for clean export.
+ *   - get_random_signature_key():  Selects a valid random palette signature color.
  */
-import { pick_random, generate_uuid } from "@utils";
+
+import { generate_uuid, pick_random } from "@utils";
+import { security } from "@platform";
 import { SIGNATURE_COLORS } from "./definitions/signature-colors.js";
 import { is_valid_speaking_style } from "./definitions/speaking-styles.js";
-import { security } from "@platform";
 
 const sanitize_html = (/** @type {any} */ val) => security.sanitize(val);
 
+// ============================================================================
+// 1. FACTORY ENTITY TEMPLATES
+// ============================================================================
+
 /**
- * 🐣 ENTITY TEMPLATES
  * Defines the initial structure for new entities born in the Library.
  * Fields are empty strings so that UI 'placeholder' attributes can work correctly.
  */
@@ -69,18 +85,24 @@ export const ENTITY_TEMPLATES = {
 };
 
 /**
- * Utility to safely access the palette for a random signature key.
+ * Utility to safely select a random signature color from the canonical palette.
+ * @returns {string}
  */
-export const get_random_signature_key = () => {
+export function get_random_signature_key() {
   return pick_random(SIGNATURE_COLORS);
-};
+}
+
+// ============================================================================
+// 2. CORE NORMALIZER ENGINE
+// ============================================================================
 
 /**
- * Main Normalizer
- * Enforces structural integrity and sanitization.
- * @param {any} base
+ * Main Normalizer: Enforces structural integrity, security sanitization,
+ * Four-Quadrant entity fragments, and clamped physics dynamics boundaries.
+ * @param {Record<string, any>} [base={}]
+ * @returns {Record<string, any>}
  */
-export const normalize = (base = {}) => {
+export function normalize(base = {}) {
   const {
     id,
     created_at,
@@ -113,12 +135,15 @@ export const normalize = (base = {}) => {
     chapters,
   } = base;
 
+  const resolved_type = type === "fractal" ? "fractal" : "character";
+  const template = ENTITY_TEMPLATES[resolved_type];
+
   const norm_is_premade = is_premade ?? 0;
   const norm_is_custom = is_custom ?? 0;
   const norm_origin_id = origin_id ?? null;
   const norm_dynamics_baseline = dynamics_baseline instanceof Object ? { ...dynamics_baseline } : null;
 
-  const result = {
+  return {
     // --- CORE METADATA ---
     id: id ?? "",
     created_at: created_at ?? 0,
@@ -136,7 +161,7 @@ export const normalize = (base = {}) => {
       return clean.length > 80 ? clean.slice(0, 80).trim() : clean;
     })(),
     description: sanitize_html(description).trim(),
-    type: type === "fractal" ? "fractal" : "character",
+    type: resolved_type,
     signature_color: (() => {
       const parsed = sanitize_html(String(signature_color)).trim();
       return SIGNATURE_COLORS.includes(parsed) ? parsed : get_random_signature_key();
@@ -145,13 +170,12 @@ export const normalize = (base = {}) => {
     narrative_style: sanitize_html(String(narrative_style)).trim(),
     visual_style: (() => {
       const parsed = sanitize_html(String(visual_style)).trim();
-      if (parsed && parsed !== "default") return parsed;
-      return "none";
+      return parsed && parsed !== "default" ? parsed : "none";
     })(),
     pov: (() => {
       const parsed = sanitize_html(String(pov)).trim();
       if (parsed === "1st_person" || parsed === "3rd_person") return parsed;
-      return type === "fractal" ? "3rd_person" : "1st_person";
+      return resolved_type === "fractal" ? "3rd_person" : "1st_person";
     })(),
     speaking_style: (() => {
       const parsed = sanitize_html(String(speaking_style || "")).trim();
@@ -163,19 +187,14 @@ export const normalize = (base = {}) => {
       .slice(0, 30),
 
     // --- NPC WORLD-CAST (Relationships & Wandering) ---
-    // is_wanderer: characters not bound to a single Fractal.
-    // relationships: plain-text directed vectors "[Source] → [Target]: [Dynamic]".
-    is_wanderer: !!is_wanderer,
+    is_wanderer: Boolean(is_wanderer),
     relationships: (Array.isArray(relationships) ? relationships : [])
       .map((r) => (r != null ? sanitize_html(String(r)).trim() : ""))
       .filter(Boolean)
       .map((r) => (r.length > 240 ? `${r.slice(0, 240).trim()}…` : r))
       .slice(0, 40),
 
-    // --- MACRO-QUEST CHAPTER ARCHIVE (Track Director 4.5) ---
-    // Closed/open chapter boundaries detected by the Memory Forge. Pure
-    // informational archive — never rendered into the live prompt directly,
-    // only into <CHAPTER_HISTORY> for the forge and profile readers.
+    // --- MACRO-QUEST CHAPTER ARCHIVE ---
     chapters: (Array.isArray(chapters) ? chapters : [])
       .map((c) => {
         if (!c || typeof c !== "object") return null;
@@ -201,7 +220,7 @@ export const normalize = (base = {}) => {
       .filter(Boolean)
       .slice(-12),
 
-    // --- TEMPORAL HYBRID 6 (PURGED: appearance, identity, outfit, status) ---
+    // --- FOUR-QUADRANT ENTITY FRAGMENTS ---
     eternal: {
       physical: sanitize_html(eternal?.physical ?? "").trim(),
       non_physical: sanitize_html(eternal?.non_physical ?? "").trim(),
@@ -213,20 +232,18 @@ export const normalize = (base = {}) => {
     past: coerce_temporal_vectors(past),
     future: sanitize_html(typeof future === "string" ? future : "").trim(),
 
-    // --- MODIFIERS (Visual/Aesthetic overrides) ---
+    // --- MODIFIERS (Visual & Generation Overrides) ---
     modifiers: {
       prompt: sanitize_html(modifiers?.prompt ?? "").trim(),
       negative_prompt: sanitize_html(modifiers?.negative_prompt ?? "").trim(),
-      flipped: !!(modifiers?.flipped ?? false),
+      flipped: Boolean(modifiers?.flipped ?? false),
       profile_picture_seed: Number(modifiers?.profile_picture_seed ?? 0),
       last_generated_seed: modifiers?.last_generated_seed ?? null,
       color_name: sanitize_html(modifiers?.color_name ?? "").trim(),
     },
 
-    // --- DYNAMICS (Physics Sliders) ---
+    // --- DYNAMICS (Physics Sliders 1-100) ---
     dynamics: (() => {
-      const resolved_type = type === "fractal" ? "fractal" : "character";
-      const template = ENTITY_TEMPLATES[resolved_type];
       const valid_axes = Object.keys(template.dynamics);
       const out = {};
       const source = dynamics && typeof dynamics === "object" ? dynamics : template.dynamics;
@@ -238,23 +255,24 @@ export const normalize = (base = {}) => {
       return out;
     })(),
 
-    // --- VOICE ---
+    // --- VOICE (Neural TTS Attributes) ---
     voice: {
       name: sanitize_html(voice?.name || "").trim(),
       uri: sanitize_html(voice?.uri || "").trim(),
       cadence: sanitize_html(voice?.cadence || "standard").trim(),
     },
 
-    // --- INTERNAL ---
+    // --- INTERNAL CUSTOM EXTENSIONS ---
     custom_data: custom_data || {},
   };
+}
 
-  return result;
-};
+// ============================================================================
+// 3. TEMPORAL & VECTOR COERCION
+// ============================================================================
 
 /**
  * Coerces a value into a strictly cleaned array of strings.
- * Used for the 'past' memory pool.
  * @param {any} val
  * @returns {string[]}
  */
@@ -269,9 +287,8 @@ export function coerce_temporal_array(val) {
 
 /**
  * Coerces raw temporal data (strings or objects) into proper TemporalVector-shaped objects.
- * Guarantees that every item has id, content, and is_origin.
- * Strips obsolete scalar memory fields (lore_anchor, world_truth, session_memory).
- * @param {any} val
+ * Guarantees that every item has id, content, significance, and origin provenance.
+ * @param {any[]} val
  * @returns {any[]}
  */
 export function coerce_temporal_vectors(val) {
@@ -293,7 +310,7 @@ export function coerce_temporal_vectors(val) {
         return {
           id: String(item.id || generate_uuid("usr_")),
           content: sanitize_html(item.content).trim(),
-          is_origin: item.is_origin !== undefined ? !!item.is_origin : is_usr,
+          is_origin: item.is_origin !== undefined ? Boolean(item.is_origin) : is_usr,
           directive: sanitize_html(item.directive || "").trim(),
           significance: typeof item.significance === "number" ? Math.max(1, Math.min(100, item.significance)) : 50,
           created_round: typeof item.created_round === "number" ? item.created_round : 0,
@@ -305,26 +322,32 @@ export function coerce_temporal_vectors(val) {
     .filter(Boolean);
 }
 
+// ============================================================================
+// 4. FACTORY & SERIALIZATION UTILITIES
+// ============================================================================
+
 /**
- * Formats a premade definition into a runtime entity shape.
- * @param {any} premade
- * @param {string} [type]
+ * Formats a premade catalog definition into a runtime entity shape.
+ * @param {Record<string, any>} premade_data
+ * @param {'character'|'fractal'} [type]
+ * @returns {Record<string, any>}
  */
-export const format_premade = (premade, type) => {
+export function format_premade(premade_data, type) {
   return normalize({
-    ...premade,
+    ...premade_data,
     ...(type ? { type } : {}),
     is_premade: true,
     is_custom: false,
   });
-};
+}
 
 /**
- * Creates a brand new, empty, pristine entity populated with correct template structure.
+ * Creates a brand new, pristine entity populated with correct template structure.
  * @param {'character'|'fractal'} [type='character']
- * @param {any} [overrides={}]
+ * @param {Record<string, any>} [overrides={}]
+ * @returns {Record<string, any>}
  */
-export const create_new = (type = "character", overrides = {}) => {
+export function create_new(type = "character", overrides = {}) {
   const resolved_type = type === "fractal" ? "fractal" : "character";
   const template = ENTITY_TEMPLATES[resolved_type];
   const now = Date.now();
@@ -340,15 +363,15 @@ export const create_new = (type = "character", overrides = {}) => {
     is_custom: true,
     signature_color: overrides?.signature_color || get_random_signature_key(),
   });
-};
+}
 
 /**
  * Strips private IDs and database metadata from an entity before JSON export.
  * Preserves structured arrays (chapters, custom_data) while scrubbing transient keys and embeddings.
- * @param {any} entity
- * @returns {Object}
+ * @param {Record<string, any>} entity
+ * @returns {Record<string, any>}
  */
-export const serialize_entity_for_export = (entity) => {
+export function serialize_entity_for_export(entity) {
   if (!entity || typeof entity !== "object") return {};
   const TRANSIENT_KEYS = new Set([
     "id",
@@ -365,6 +388,7 @@ export const serialize_entity_for_export = (entity) => {
   /**
    * @param {any} value
    * @param {string} [parent_key]
+   * @returns {any}
    */
   const clone_clean = (value, parent_key = "") => {
     if (Array.isArray(value)) {
@@ -379,7 +403,7 @@ export const serialize_entity_for_export = (entity) => {
         })
         .filter((item) => {
           if (parent_key === "past" && item && typeof item === "object") {
-            return !!(item.content || item.directive)?.trim();
+            return Boolean((item.content || item.directive)?.trim());
           }
           return true;
         });
@@ -401,4 +425,4 @@ export const serialize_entity_for_export = (entity) => {
     out[key] = clone_clean(value, key);
   }
   return JSON.parse(JSON.stringify(out));
-};
+}

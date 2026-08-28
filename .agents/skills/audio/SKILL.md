@@ -33,15 +33,15 @@ As the `audio` specialist, you manage the Engine's auditory feedback through the
 
 ## 4.0 OPERATIONAL PROTOCOL
 
-### 1. The Voice Engine (Kokoro-82M Neural TTS)
+### 1. The Voice Engine (Kokoro-82M Neural TTS & `voice.js`)
 
-The core voice logic resides in `src/media/audio.svelte.js`. It exports a singleton `Audio` instance via `@media`.
+The core audio logic resides in `src/media/audio.svelte.js` (Audio effects and master state) complemented by `src/media/voice.js` (pure helpers for sentence segmentation, dialogue speaker attribution, cadence rates, and the Kokoro voice catalog). It exports a singleton `Audio` instance via `@media`.
 
-- **Neural Architecture**: Powered by `kokoro-js` (Transformers.js ONNX community model `Kokoro-82M-v1.0-ONNX`).
-- **Hardware Acceleration**: 100% In-Browser Execution. Detects WebGPU (`fp32` quantization) and falls back to WASM (`q8` quantization).
-- **Voice Catalog**: 27 total voices (12 Male: `am_*`, `bm_*`; 15 Female: `af_*`, `bf_*` with `af_heart` default).
-- **Background Pipeline**: Uses an internal queue (`#queue`) and background pre-generation (`#pregenerateQueue`) to eliminate audio pauses between synthesized segments.
-- **Graceful Fallback**: Automatically degrades to the Web Speech API (`SpeechSynthesis`) if WebGPU/WASM or the model fails to load from CDN.
+- **Neural Architecture**: Powered by Transformers.js ONNX community model `Kokoro-82M-v1.0-ONNX`.
+- **Hardware Acceleration**: 100% In-Browser Execution via WebGPU and WASM fallback.
+- **Voice Catalog**: 28 total voices (13 Male: `am_*`, `bm_*`; 15 Female: `af_*`, `bf_*` with `af_heart` default) exported as `KOKORO_VOICES` from `src/media/voice.js`.
+- **Background Pipeline**: Uses an internal queue and background pre-generation to eliminate audio pauses between synthesized segments.
+- **Pure Helpers (`src/media/voice.js`)**: Handles quote-aware sentence splitting (`split_into_sentences`), dialogue-speaker attribution, typographic emphasis parsing, and speaking rate calculation.
 
 ### 2. TTS Sanitization Pipeline
 

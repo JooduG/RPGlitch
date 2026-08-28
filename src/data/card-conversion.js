@@ -1,6 +1,6 @@
 /**
- * src/data/character-cards.js
- * 🃏 CHARACTER CARD CODEC — AI RP Card V2/V3 interoperability
+ * src/data/card-conversion.js
+ * 🃏 CARD CONVERSION CODEC — AI RP Card V2/V3 interoperability
  *
  * The single place that translates between RPGlitch entities and the standard
  * Character Card formats used by Tavern, Chub, and Janitor ("chara_card_v2" /

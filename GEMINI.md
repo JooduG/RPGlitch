@@ -136,9 +136,8 @@ A simulation requires entities (Characters and Fractals) to execute a narrative.
 RPGlitch is a **Local-First Reactive Monolith (PWA)** built for the Perchance iframe ecosystem.
 
 - **Framework**: Svelte 5 (Runes-only) built via Vite 8 (`vite-plugin-singlefile`).
-- **Environment**: Perchance Two-Panel Paradigm. No Node.js backend. Rely on Just-In-Time (JIT) compilation and ESM CDN imports (`esm.sh`).
 - **Persistence Rules**: **Use Dexie.js (IndexedDB) exclusively for persistence**. `localStorage` is forbidden due to iframe access limits.
-- **Sovereign Modules**: **Consolidate domain logic into single files** (e.g., all memory handling lives in `NarrativeEcho.js`).
+- **Sovereign Modules**: **Consolidate domain logic into domain pipelines** (e.g., temporal engine in `temporal-pipeline.js`, story flow in `story-pipeline.js`).
 - **Audio Protocol**: **Initialize AudioContext strictly during a direct user gesture**. **Always call `.close()` or `.suspend()` when unmounting audio nodes**.
 - **MCP Workspace Ecosystem**:
   - `chrome-devtools`: Headless browser automation, UI testing, console audits, and visual debugging.
