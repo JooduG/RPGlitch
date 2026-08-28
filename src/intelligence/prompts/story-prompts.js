@@ -92,6 +92,29 @@ export function build_pacing_directive(input) {
 }
 
 /**
+ * Recency Anchor — a short behavioral lock re-injected at the BOTTOM of the
+ * prompt, the region the attention window most strongly weights at generation time.
+ * It re-asserts the three invariants that decay fastest in a long window:
+ * temperament (not softness), the epistemic horizon (only what this scene showed),
+ * and pacing (don't rush). Kept tiny (~1-2 sentences) so it stays "pinned".
+ * @param {any} snapshot - compressed world snapshot (for the emotional stance)
+ * @param {string} [input] - current user action / scene beat
+ * @returns {string}
+ */
+export function build_recency_anchor(snapshot, input) {
+  const stance = snapshot?.ai?.dynamics
+    ? Object.entries(snapshot.ai.dynamics)
+        .filter(([, v]) => typeof v === "number")
+        .filter(([k]) => k === "affinity" || k === "intensity")
+        .map(([k, v]) => `${k}=${Math.round(v)}`)
+        .join(", ")
+    : "";
+  const scene_hook = String(input || "").trim() ? "Act on what this exact beat shows you." : "Push the situation forward on your own terms.";
+  const body = `Hold your temperament; do not soften into pleasantness. Know only what this scene has shown you. Do not rush the tension.${stance ? ` (${escape_xml(stance)})` : ""} ${scene_hook}`;
+  return `<RECENCY_ANCHOR>\n    ${body}\n  </RECENCY_ANCHOR>`;
+}
+
+/**
  * Character prompt compiler (Shot 2).
  * @param {any} params
  * @returns {{ system: string, task: string }}
@@ -216,6 +239,7 @@ ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
     ${build_pacing_directive(input)}`
           : "Take initiative to open or advance the scene organically."
     }
+    ${build_recency_anchor(compressed_snapshot, input)}
 </TASK>
   `).trim();
 
@@ -322,6 +346,7 @@ ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
     </POV_DIRECTIVE>
     Respond strictly as ${npc_name} — a supporting character. Own only your own voice, actions, and perspective: never speak for <USER_PERSONA> or the AI character, and never resolve the overarching story quest on your own. Write third-person limited, present tense, and end on a natural beat.
     ${build_pacing_directive(input)}
+    ${build_recency_anchor({ ai: { dynamics: npc?.dynamics } }, input)}
 </TASK>
   `).trim();
 

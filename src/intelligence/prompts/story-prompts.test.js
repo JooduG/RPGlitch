@@ -73,6 +73,8 @@ describe("Story Prompts (story-prompts.js)", () => {
       expect(result.task).toContain("<SNAPSHOT>");
       expect(result.task).toContain("Volatile Present");
       expect(result.task).toContain("Viper past 1");
+      expect(result.task).toContain("<RECENCY_ANCHOR>");
+      expect(result.task).toContain("Hold your temperament; do not soften into pleasantness");
     });
 
     it("injects somatic directives when keywords or high intensity are selected", () => {
