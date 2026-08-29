@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { build_story_export_filename, export_story_markdown, format_story_beat } from "./story-export.js";
+import { build_story_export_filename, export_story_markdown, format_story_beat, NARRATOR_ROLES } from "./story-export.js";
 
 describe("format_story_beat", () => {
   it("renders character dialogue as a bold label + prose", () => {
@@ -18,7 +18,8 @@ describe("format_story_beat", () => {
 
   it("renders narrator roles as blockquotes", () => {
     expect(format_story_beat({ role: "prologue", text: "The sea is black." })).toBe("> The sea is black.");
-    expect(format_story_beat({ role: "fractal", text: "Dusk settles." })).toBe("> Dusk settles.");
+    expect(format_story_beat({ role: "fractal", text: "Dusk settles.\nNight falls." })).toBe("> Dusk settles.\n> Night falls.");
+    expect(format_story_beat({ role: "epilogue", text: "End of tale." })).toBe("> End of tale.");
   });
 
   it("renders system telemetry as an italic note when include_system is true", () => {
@@ -110,5 +111,14 @@ describe("build_story_export_filename", () => {
   it("falls back for untitled stories", () => {
     const name = build_story_export_filename({}, new Date(2026, 0, 1));
     expect(name).toMatch(/^story-story-2026-01-01\.md$/);
+  });
+});
+
+describe("NARRATOR_ROLES", () => {
+  it("exposes expected narrator role names in a frozen Set", () => {
+    expect(NARRATOR_ROLES.has("prologue")).toBe(true);
+    expect(NARRATOR_ROLES.has("fractal")).toBe(true);
+    expect(NARRATOR_ROLES.has("epilogue")).toBe(true);
+    expect(NARRATOR_ROLES.has("narrator")).toBe(true);
   });
 });

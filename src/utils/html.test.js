@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { decode_html_entities, html_to_plain_text, INGESTION_CHAR_LIMIT, INGESTION_LORE_LIMIT, truncate_readable } from "./html.js";
+import {
+  decode_html_entities,
+  html_to_plain_text,
+  INGESTION_CHAR_LIMIT,
+  INGESTION_LORE_LIMIT,
+  BLOCK_LEVEL_TAGS,
+  NOISE_SELECTORS,
+  truncate_readable,
+} from "./html.js";
 
 describe("decode_html_entities", () => {
   it("decodes common named entities", () => {
@@ -11,11 +19,17 @@ describe("decode_html_entities", () => {
   });
 
   it("decodes typographic entities", () => {
-    expect(decode_html_entities("a&nbsp;b &mdash; c &hellip; d")).toBe("a b — c … d");
+    expect(decode_html_entities("a&nbsp;b &mdash; c &hellip; d &ndash; e")).toBe("a b — c … d – e");
   });
 
   it("leaves plain text untouched", () => {
     expect(decode_html_entities("plain text")).toBe("plain text");
+  });
+
+  it("handles non-string or falsy input gracefully", () => {
+    expect(decode_html_entities("")).toBe("");
+    expect(decode_html_entities(null)).toBe("");
+    expect(decode_html_entities(undefined)).toBe("");
   });
 });
 
@@ -66,6 +80,21 @@ describe("html_to_plain_text", () => {
     expect(out.length).toBeLessThanOrEqual(110);
     expect(out.endsWith("…")).toBe(true);
   });
+
+  it("falls back to regex extraction when DOMParser is unavailable", () => {
+    const original_dom_parser = globalThis.DOMParser;
+    try {
+      // @ts-ignore
+      delete globalThis.DOMParser;
+      const html = "<div><h2>Title</h2><p>Paragraph text &amp; details.<script>noise()</script></p></div>";
+      const out = html_to_plain_text(html);
+      expect(out).toContain("Title");
+      expect(out).toContain("Paragraph text & details.");
+      expect(out).not.toContain("noise");
+    } finally {
+      globalThis.DOMParser = original_dom_parser;
+    }
+  });
 });
 
 describe("truncate_readable", () => {
@@ -79,7 +108,6 @@ describe("truncate_readable", () => {
     const out = truncate_readable(text, 18);
     expect(out.endsWith("…")).toBe(true);
     expect(out.length).toBeLessThan(22);
-    // The final word before the ellipsis must be an intact word from the source.
     const last_word = out.replace(/…$/, "").split(" ").pop();
     expect(words).toContain(last_word);
   });
@@ -99,10 +127,17 @@ describe("truncate_readable", () => {
   });
 });
 
-describe("ingestion budgets", () => {
+describe("ingestion budgets & constants", () => {
   it("exposes the documented character and lore limits", () => {
     expect(INGESTION_CHAR_LIMIT).toBe(8000);
     expect(INGESTION_LORE_LIMIT).toBe(10000);
     expect(INGESTION_LORE_LIMIT).toBeGreaterThan(INGESTION_CHAR_LIMIT);
+  });
+
+  it("exposes BLOCK_LEVEL_TAGS and NOISE_SELECTORS sets", () => {
+    expect(BLOCK_LEVEL_TAGS.has("p")).toBe(true);
+    expect(BLOCK_LEVEL_TAGS.has("div")).toBe(true);
+    expect(NOISE_SELECTORS).toContain("script");
+    expect(NOISE_SELECTORS).toContain("style");
   });
 });

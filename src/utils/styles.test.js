@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { detox_prose, resolve_speaking_style, resolve_style } from "./styles.js";
+import { detox_prose, resolve_speaking_style, resolve_style, VALID_SPEAKING_STYLES } from "./styles.js";
 import "../data/definitions/speaking-styles.js";
 import { NARRATIVE_STYLES } from "../data/definitions/narrative-styles.js";
 
@@ -98,5 +98,15 @@ describe("resolve_style()", () => {
     expect(resolve_style("unknown", "visual_style", registry, "none")).toBe("none");
     expect(resolve_style("default", "visual_style", registry, "none")).toBe("none");
     expect(resolve_style("", "visual_style", registry, "none")).toBe("none");
+  });
+});
+
+describe("VALID_SPEAKING_STYLES", () => {
+  it("exposes canonical speaking styles in a frozen Set", () => {
+    expect(VALID_SPEAKING_STYLES.has("casual")).toBe(true);
+    expect(VALID_SPEAKING_STYLES.has("lyrical")).toBe(true);
+    expect(VALID_SPEAKING_STYLES.has("primal")).toBe(true);
+    expect(VALID_SPEAKING_STYLES.has("clinical")).toBe(true);
+    expect(VALID_SPEAKING_STYLES.size).toBe(4);
   });
 });

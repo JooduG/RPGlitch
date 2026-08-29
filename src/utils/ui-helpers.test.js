@@ -1,4 +1,4 @@
-import { guarded_transition, resolve_ms, resolve_number, resolve_px, resolve_string } from "@utils";
+import { download_json_file, download_text_file, guarded_transition, resolve_ms, resolve_number, resolve_px, resolve_string } from "@utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("dom utilities", () => {
@@ -326,6 +326,25 @@ describe("helpers", () => {
           expect(document.startViewTransition).toHaveBeenCalledTimes(2);
         });
       });
+    });
+  });
+
+  describe("download utilities", () => {
+    beforeEach(() => {
+      globalThis.URL.createObjectURL = vi.fn(() => "blob:mock-url");
+      globalThis.URL.revokeObjectURL = vi.fn();
+    });
+
+    it("download_text_file creates blob and triggers anchor click", () => {
+      const res = download_text_file("story.txt", "Chapter 1: The Beginning");
+      expect(res).toBe(true);
+      expect(globalThis.URL.createObjectURL).toHaveBeenCalledTimes(1);
+    });
+
+    it("download_json_file creates serialized json blob", () => {
+      const res = download_json_file("data.json", { id: "test", val: 42 });
+      expect(res).toBe(true);
+      expect(globalThis.URL.createObjectURL).toHaveBeenCalledTimes(1);
     });
   });
 });

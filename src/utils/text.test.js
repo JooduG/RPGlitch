@@ -1,14 +1,190 @@
 import { describe, expect, it } from "vitest";
 import {
+  AGGREGATE_KEYS,
+  clean_text,
+  CLEAR_TOKENS,
+  collapse_history,
   decompose_story_title,
   derive_vector_title,
   escape_unescaped_json_quotes,
+  extract_json_block,
+  first_sentence,
+  format_datetime,
   format_key_as_label,
   format_relational_vector,
+  get_style_initials,
+  ind,
   match_case,
+  merge_prose_into_field,
   NAME_PREFIXES,
   parse_relational_vector,
+  safe_parse_pseudo_json,
+  strip_cognition_blocks,
 } from "./text.js";
+
+describe("strip_cognition_blocks", () => {
+  it("removes think tags and internal monologue from text", () => {
+    expect(strip_cognition_blocks("<think>Planning next turn...</think>Hello world.")).toBe("Hello world.");
+    expect(strip_cognition_blocks("Before <think>secret thought</think> After")).toBe("Before  After");
+  });
+
+  it("handles dangling closing think tags and model artifact prefixes", () => {
+    expect(strip_cognition_blocks("Prose content.</think>")).toBe("Prose content.");
+    expect(strip_cognition_blocks("Mattis. Archetypes: Hero\nReal story begins.")).toBe("Real story begins.");
+  });
+
+  it("handles null or empty inputs", () => {
+    expect(strip_cognition_blocks(null)).toBe("");
+    expect(strip_cognition_blocks("")).toBe("");
+  });
+});
+
+describe("safe_parse_pseudo_json", () => {
+  it("extracts bracketed key value pairs", () => {
+    const parsed = safe_parse_pseudo_json("[SHIRT: leather jacket] [LOCATION: tavern]");
+    expect(parsed).toEqual({
+      SHIRT: "leather jacket",
+      LOCATION: "tavern",
+    });
+  });
+
+  it("applies atomic clearing tokens by deleting the key", () => {
+    const parsed = safe_parse_pseudo_json("[SHIRT: leather jacket] [HELD: none] [INJURY: healed]");
+    expect(parsed).toEqual({
+      SHIRT: "leather jacket",
+    });
+  });
+
+  it("aggregates repeated INVENTORY / STASH entries", () => {
+    const parsed = safe_parse_pseudo_json("[INVENTORY: potion, map] [INVENTORY: dagger]");
+    expect(parsed.INVENTORY).toEqual(["potion", "map", "dagger"]);
+  });
+
+  it("falls back to quoted JSON or raw prose", () => {
+    expect(safe_parse_pseudo_json('"STATUS": "active"')).toEqual({ STATUS: "active" });
+    expect(safe_parse_pseudo_json("Just raw narrative prose.")).toEqual({
+      __raw_prose__: "Just raw narrative prose.",
+    });
+  });
+});
+
+describe("merge_prose_into_field", () => {
+  it("merges new bracket directives into existing structured field", () => {
+    const current = "[SHIRT: tunic] [PANTS: trousers]";
+    const result = merge_prose_into_field(current, "[SHIRT: armored vest] [HELD: sword]");
+    expect(result).toContain("[SHIRT: armored vest]");
+    expect(result).toContain("[PANTS: trousers]");
+    expect(result).toContain("[HELD: sword]");
+  });
+
+  it("clears clothing keys on [CLOTHING: none]", () => {
+    const current = "[SHIRT: tunic] [PANTS: jeans] [BOOTS: leather]";
+    const result = merge_prose_into_field(current, "[CLOTHING: none]");
+    expect(result).not.toContain("SHIRT");
+    expect(result).not.toContain("PANTS");
+    expect(result).not.toContain("BOOTS");
+  });
+
+  it("appends raw prose to existing raw prose fields", () => {
+    const current = "A weathered nomad.";
+    const result = merge_prose_into_field(current, "Carries a bronze locket.");
+    expect(result).toBe("A weathered nomad.\nCarries a bronze locket.");
+  });
+});
+
+describe("ind", () => {
+  it("indents multi-line string content with specified spaces", () => {
+    const text = "line1\nline2\nline3";
+    expect(ind(text, 2)).toBe("line1\n  line2\n  line3");
+  });
+
+  it("returns empty string on empty inputs", () => {
+    expect(ind(null, 2)).toBe("");
+    expect(ind("", 2)).toBe("");
+  });
+});
+
+describe("get_style_initials", () => {
+  it("derives initials from style names", () => {
+    expect(get_style_initials("Cyberpunk Noir")).toBe("CN");
+    expect(get_style_initials("Dark-Gothic-Horror")).toBe("DGH");
+  });
+
+  it("returns fallback question mark on none styles", () => {
+    expect(get_style_initials("No Narrative Style")).toBe("?");
+    expect(get_style_initials("No Visual Style")).toBe("?");
+    expect(get_style_initials("")).toBe("?");
+  });
+});
+
+describe("first_sentence", () => {
+  it("extracts the first sentence within boundary", () => {
+    expect(first_sentence("The sky broke open. Rain poured down.")).toBe("The sky broke open.");
+    expect(first_sentence("A quick alert!")).toBe("A quick alert!");
+  });
+
+  it("returns empty string on empty input", () => {
+    expect(first_sentence(null)).toBe("");
+    expect(first_sentence("")).toBe("");
+  });
+});
+
+describe("clean_text", () => {
+  it("strips markdown characters and collapses whitespace", () => {
+    expect(clean_text("**Bold** and `code` with [links]")).toBe("Bold and code with links");
+  });
+
+  it("respects character limits with ellipsis", () => {
+    expect(clean_text("Long text string that will be trimmed", 10)).toBe("Long text...");
+  });
+});
+
+describe("extract_json_block", () => {
+  it("extracts JSON object substring ignoring markdown fences", () => {
+    const raw = '```json\n{\n  "action": "attack"\n}\n```';
+    expect(extract_json_block(raw)).toBe('{\n  "action": "attack"\n}');
+  });
+
+  it("returns null when no braces exist", () => {
+    expect(extract_json_block("No JSON here")).toBeNull();
+    expect(extract_json_block(null)).toBeNull();
+  });
+});
+
+describe("format_datetime", () => {
+  it("formats epoch timestamps into clean YYYY-MM-DD HH:mm", () => {
+    const d = new Date(2026, 7, 29, 14, 30);
+    expect(format_datetime(d.getTime())).toMatch(/^2026-08-29\s+14:30$/);
+  });
+
+  it("returns fallback dashes on null", () => {
+    expect(format_datetime(null)).toBe("---");
+    expect(format_datetime(undefined)).toBe("---");
+  });
+});
+
+describe("collapse_history", () => {
+  it("groups consecutive messages from the same role and character", () => {
+    const messages = [
+      { role: "user", text: "Hello", character_name: "Orion" },
+      { role: "user", text: "Are you there?", character_name: "Orion" },
+      { role: "assistant", text: "I am here.", character_name: "Glitch" },
+    ];
+    const collapsed = collapse_history(messages);
+    expect(collapsed).toEqual([
+      { role: "USER_PERSONA", name: "Orion", content: "Hello\nAre you there?" },
+      { role: "AI_CHARACTER", name: "Glitch", content: "I am here." },
+    ]);
+  });
+
+  it("ignores system messages in collapsed history", () => {
+    const messages = [
+      { role: "system", text: "Telemetry delta" },
+      { role: "assistant", text: "Welcome.", character_name: "Glitch" },
+    ];
+    expect(collapse_history(messages)).toEqual([{ role: "AI_CHARACTER", name: "Glitch", content: "Welcome." }]);
+  });
+});
 
 describe("match_case", () => {
   it("preserves lowercase if original was lowercase", () => {
@@ -30,6 +206,7 @@ describe("format_key_as_label", () => {
   it("formats snake_case keys into title case labels", () => {
     expect(format_key_as_label("eternal")).toBe("Eternal");
     expect(format_key_as_label("first_name")).toBe("First Name");
+    expect(format_key_as_label("non_physical")).toBe("Non-Physical");
   });
 
   it("handles null or empty inputs gracefully", () => {
@@ -57,11 +234,18 @@ describe("derive_vector_title", () => {
   });
 });
 
-describe("NAME_PREFIXES", () => {
-  it("contains common title prefixes and stop words", () => {
+describe("NAME_PREFIXES, CLEAR_TOKENS, AGGREGATE_KEYS", () => {
+  it("contains common title prefixes and stop words in frozen array", () => {
     expect(NAME_PREFIXES).toContain("dr");
     expect(NAME_PREFIXES).toContain("the");
     expect(NAME_PREFIXES).toContain("mr.");
+  });
+
+  it("exposes canonical clearing and aggregation tokens in frozen Sets", () => {
+    expect(CLEAR_TOKENS.has("none")).toBe(true);
+    expect(CLEAR_TOKENS.has("healed")).toBe(true);
+    expect(AGGREGATE_KEYS.has("INVENTORY")).toBe(true);
+    expect(AGGREGATE_KEYS.has("STASH")).toBe(true);
   });
 });
 
