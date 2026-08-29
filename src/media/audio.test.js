@@ -170,11 +170,46 @@ describe("Audio & Voice Configurations", () => {
   });
 
   it("safely tears down and cleans up resources via destroy()", async () => {
-    const { Audio } = await import("./audio.svelte.js");
+    const { Audio, audio_engine, AudioEngine } = await import("./audio.svelte.js");
     expect(typeof Audio.destroy).toBe("function");
+    expect(audio_engine).toBe(Audio);
+    expect(Audio instanceof AudioEngine).toBe(true);
 
     expect(() => Audio.destroy()).not.toThrow();
     expect(Audio.voice.is_speaking).toBe(false);
+  });
+
+  it("manages master volume clamping and notification flags", async () => {
+    const { Audio } = await import("./audio.svelte.js");
+    Audio.volume = 0.75;
+    expect(Audio.volume).toBe(0.75);
+
+    Audio.volume = 1.5;
+    expect(Audio.volume).toBe(1.0);
+
+    Audio.volume = -0.2;
+    expect(Audio.volume).toBe(0);
+
+    Audio.notifications_enabled = true;
+    expect(Audio.notifications_enabled).toBe(true);
+    Audio.notifications_enabled = false;
+    expect(Audio.notifications_enabled).toBe(false);
+  });
+
+  it("manages per-entity voice toggling and role enablement", async () => {
+    const { Audio } = await import("./audio.svelte.js");
+    Audio.voice_enabled = true;
+    Audio.set_entity_voice("ai", true);
+    expect(Audio.is_role_enabled("ai")).toBe(true);
+
+    const toggled = Audio.toggle_entity_voice("ai");
+    expect(toggled).toBe(false);
+    expect(Audio.is_role_enabled("ai")).toBe(false);
+
+    Audio.set_entity_voice("user", true);
+    expect(Audio.is_role_enabled("user")).toBe(true);
+    expect(Audio.is_role_enabled("system")).toBe(false);
+    expect(Audio.is_role_enabled(null)).toBe(false);
   });
 });
 

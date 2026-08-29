@@ -9,8 +9,8 @@ import { capture_dynamics_delta } from "./telemetry.js";
 import * as telemetry from "./telemetry.js";
 import { llm_service } from "@platform";
 import { session_driver } from "@data";
-import { visual_engine, spawn_image_beat, sweep_stale_ghosts, resolve_image_trigger } from "@media";
-import { _image_gen_queue } from "@media/image-beats.js";
+import { visual_engine, spawn_image_beat, sweep_stale_ghosts, resolve_image_trigger, reset_image_generation_queue } from "@media";
+import { _image_generation_queue } from "@media/image-beats.js";
 import { entities, stories } from "@data";
 import { state_bridge } from "@utils";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -1010,7 +1010,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
       _mock_runtime.round = 1;
       _mock_runtime.last_director_beat_round = -1;
       _mock_runtime.last_dynamics_beat_round = -1;
-      _image_gen_queue.length = 0;
+      reset_image_generation_queue();
       vi.clearAllMocks();
     });
 
@@ -1246,7 +1246,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
       // Keep beats pending so the queue fills to capacity instead of resolving immediately.
       visual_engine.visualize.mockReturnValue(new Promise(() => {}));
       // Deterministic start: the module-level queue may hold leftovers from earlier tests.
-      _image_gen_queue.splice(0, _image_gen_queue.length);
+      reset_image_generation_queue();
 
       // Fire one more beat than the queue capacity (5); the oldest must be evicted and deleted.
       for (let i = 0; i <= 5; i++) {
@@ -1254,7 +1254,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
       }
 
       await vi.waitFor(() => expect(session_driver.delete_log_entry).toHaveBeenCalledWith("img-1"));
-      expect(_image_gen_queue.length).toBeLessThanOrEqual(5);
+      expect(_image_generation_queue.length).toBeLessThanOrEqual(5);
     });
 
     it("sweep_stale_ghosts deletes empty-text failed/stale ghosts and marks stale unfailed ones", async () => {

@@ -85,11 +85,11 @@ export const prompt_templates = {
     const tier = normalize_image_tier(target_type);
     const is_selfie = variant === "selfie" || target_type === "selfie";
 
-    const active_ai = ai || (entity && entity.type !== "user" && entity.type !== "fractal" ? entity : null);
-    const active_user = user || (entity?.type === "user" ? entity : null);
-    const active_fractal = fractal || (entity?.type === "fractal" ? entity : null);
-    const main_entity = entity || active_ai || active_user;
-    const solo_subject = entity || active_ai || active_user || active_fractal;
+    const active_ai_character = ai || (entity && entity.type !== "user" && entity.type !== "fractal" ? entity : null);
+    const active_user_persona = user || (entity?.type === "user" ? entity : null);
+    const active_fractal_setting = fractal || (entity?.type === "fractal" ? entity : null);
+    const main_entity = entity || active_ai_character || active_user_persona;
+    const solo_subject = entity || active_ai_character || active_user_persona || active_fractal_setting;
 
     let context_block;
     let subject;
@@ -107,24 +107,28 @@ export const prompt_templates = {
       return `<${tag_name} name="${escape_xml(entity_instance.name || "Unknown")}">\n${blocks.join("\n")}\n</${tag_name}>`;
     };
 
-    const ai_block = render_entity("AI_CHARACTER", active_ai);
-    const user_block = render_entity("USER_PERSONA", active_user);
+    const ai_character_block = render_entity("AI_CHARACTER", active_ai_character);
+    const user_persona_block = render_entity("USER_PERSONA", active_user_persona);
 
     const is_story_tier = tier === "story_entities" || tier === "story_character" || tier === "story_scene";
-    const fractal_block =
-      is_story_tier && active_fractal
-        ? render_entity("FRACTAL", active_fractal)
+    const fractal_setting_block =
+      is_story_tier && active_fractal_setting
+        ? render_entity("FRACTAL", active_fractal_setting)
         : is_story_tier && main_entity
           ? `<BACKGROUND_DIRECTIVE>No explicit fractal environment setting is provided. You MUST synthesize an evocative, atmospheric background environment that naturally fits the personality, visual theme, and signature colors of ${prompt_escape(main_entity.name || "the subject")}.</BACKGROUND_DIRECTIVE>`
           : "";
 
     const style_key =
-      tier === "solo_entity" || mode === "enhance" ? resolve_portrait_visual_style_key(solo_subject) : resolve_story_visual_style_key(active_fractal);
-    const style_obj = VISUAL_STYLES[style_key] || VISUAL_STYLES.none;
+      tier === "solo_entity" || mode === "enhance"
+        ? resolve_portrait_visual_style_key(solo_subject)
+        : resolve_story_visual_style_key(active_fractal_setting);
+    const style_definition = VISUAL_STYLES[style_key] || VISUAL_STYLES.none;
     const engine_tokens = resolve_visual_engine_tokens(style_key);
-    const visual_engine_block = style_obj.visual_engine
-      ? `\n<VISUAL_ENGINE style="${escape_xml(style_obj.name || style_key)}">\n${style_obj.visual_engine.replace(/<\/?VISUAL_ENGINE[^>]*>/gi, "").trim()}${
-          Array.isArray(style_obj.tags) && style_obj.tags.length ? `\n<tags>${prompt_escape(style_obj.tags.join(", "))}</tags>` : ""
+    const visual_engine_block = style_definition.visual_engine
+      ? `\n<VISUAL_ENGINE style="${escape_xml(style_definition.name || style_key)}">\n${style_definition.visual_engine.replace(/<\/?VISUAL_ENGINE[^>]*>/gi, "").trim()}${
+          Array.isArray(style_definition.tags) && style_definition.tags.length
+            ? `\n<tags>${prompt_escape(style_definition.tags.join(", "))}</tags>`
+            : ""
         }\n</VISUAL_ENGINE>`
       : "";
 
@@ -137,18 +141,18 @@ export const prompt_templates = {
           "an isolated solo portrait of the subject, self-contained framing drawn entirely from the subject's own identity, appearance, and signature colors";
         break;
       case "story_scene":
-        context_block = `${fractal_block}\n<RESTRICTION>**STRICTLY NO CHARACTERS.** Focus entirely on environmental layout, atmospheric spatial depth, and lighting structures.</RESTRICTION>`;
+        context_block = `${fractal_setting_block}\n<RESTRICTION>**STRICTLY NO CHARACTERS.** Focus entirely on environmental layout, atmospheric spatial depth, and lighting structures.</RESTRICTION>`;
         subject = "a landscape environment or interior layout space capturing the current narrative moment and prose context";
         break;
       case "story_entities":
-        context_block = `<ACTIVE_CHARACTERS>\n${ai_block}\n${user_block}\n</ACTIVE_CHARACTERS>\n${fractal_block}\n<NARRATIVE_CONTEXT>CINEMATIC GROUP SHOT MANDATE: The image MUST literally depict the active narrative scene, featuring BOTH the AI character (${prompt_escape(active_ai?.name || "AI")}) and USER persona (${prompt_escape(active_user?.name || "User")}) engaged together in their exact spatial positions described in INSTRUCTIONS, rendered within the fractal environment. NEVER generate an empty environment/landscape shot.</NARRATIVE_CONTEXT>`;
+        context_block = `<ACTIVE_CHARACTERS>\n${ai_character_block}\n${user_persona_block}\n</ACTIVE_CHARACTERS>\n${fractal_setting_block}\n<NARRATIVE_CONTEXT>CINEMATIC GROUP SHOT MANDATE: The image MUST literally depict the active narrative scene, featuring BOTH the AI character (${prompt_escape(active_ai_character?.name || "AI")}) and USER persona (${prompt_escape(active_user_persona?.name || "User")}) engaged together in their exact spatial positions described in INSTRUCTIONS, rendered within the fractal environment. NEVER generate an empty environment/landscape shot.</NARRATIVE_CONTEXT>`;
         subject = "a cinematic group shot featuring both the AI character and user persona together within the fractal environment";
         break;
       case "story_character":
       default:
-        context_block = `<ACTIVE_CHARACTERS>\n${render_entity(main_entity === active_user || main_entity?.type === "user" ? "USER_PERSONA" : "AI_CHARACTER", main_entity)}\n</ACTIVE_CHARACTERS>\n${fractal_block}${
-          active_fractal
-            ? `\n<NARRATIVE_CONTEXT>CHARACTER IN SCENE MANDATE: The image MUST depict the character (${prompt_escape(main_entity?.name || "Subject")}) situated directly within the active fractal environment (${prompt_escape(active_fractal.name || "Setting")}), integrating the setting's architecture, atmosphere, lighting, and textures into the background and surroundings.</NARRATIVE_CONTEXT>`
+        context_block = `<ACTIVE_CHARACTERS>\n${render_entity(main_entity === active_user_persona || main_entity?.type === "user" ? "USER_PERSONA" : "AI_CHARACTER", main_entity)}\n</ACTIVE_CHARACTERS>\n${fractal_setting_block}${
+          active_fractal_setting
+            ? `\n<NARRATIVE_CONTEXT>CHARACTER IN SCENE MANDATE: The image MUST depict the character (${prompt_escape(main_entity?.name || "Subject")}) situated directly within the active fractal environment (${prompt_escape(active_fractal_setting.name || "Setting")}), integrating the setting's architecture, atmosphere, lighting, and textures into the background and surroundings.</NARRATIVE_CONTEXT>`
             : ""
         }`;
         subject = "a character framed within their environment, emphasizing their presence with an evocative background setting";
@@ -156,7 +160,7 @@ export const prompt_templates = {
     }
 
     // --- Cinematic Framing Analysis ---
-    const ai_dynamics = active_ai?.dynamics || {};
+    const ai_dynamics = active_ai_character?.dynamics || {};
     const intensity = Number(ai_dynamics.intensity ?? 50);
     const chaos = Number(ai_dynamics.chaos ?? 50);
     const affinity = Number(ai_dynamics.affinity ?? 50);
@@ -273,6 +277,7 @@ export function clean_image_prompt(raw) {
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-08-29: Harmonized via /harmonize protocol: purged abbreviated identifiers (style_obj -> style_definition, active_ai -> active_ai_character, active_user -> active_user_persona, active_fractal -> active_fractal_setting, ai_block -> ai_character_block, user_block -> user_persona_block, fractal_block -> fractal_setting_block), validated Universal File Architecture, and verified zero backwards-compatibility debt.
  * - 2026-08-29: Harmonized nomenclature in accordance with GEMINI.md lexical standards:
  *   converted prompt_templates methods to snake_case (build_prompt, enhance_prompt),
  *   renamed parse_llm_refine_response -> parse_llm_image_prompt_response,

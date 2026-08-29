@@ -2,11 +2,23 @@
  * @file src/media/tokens.test.js
  * Unit tests for Design Tokens, Palette Resolution, and Color Generation logic.
  */
-import { get_signature_color, get_signature_label, get_deterministic_color, SIGNATURE_COLORS, PALETTE } from "./palette.js";
+import {
+  get_signature_color,
+  get_signature_label,
+  get_deterministic_color,
+  resolve_token,
+  get_color_name,
+  ensure_theme_tokens,
+  SIGNATURE_COLORS,
+  PALETTE,
+  PALETTE_VARS,
+} from "./palette.js";
 import { aesthetic_resolver } from "./image-aesthetics.js";
 import { describe, expect, test } from "vitest";
+
 describe("Tokens Color Generation", () => {
   const get_signature = (/** @type {any} */ e) => get_signature_color(e);
+
   describe("Modern entities with signature_color", () => {
     test("returns hex value for entity with signature_color", () => {
       const entity = { signature_color: "Electric Cyan" };
@@ -24,6 +36,7 @@ describe("Tokens Color Generation", () => {
       expect(result).toBe("var(--color-emerald-green)");
     });
   });
+
   describe("Deterministic color generation fallback", () => {
     test.each([
       { case: "entity with name only", entity: { name: "Aether Blade" } },
@@ -75,6 +88,7 @@ describe("Tokens Color Generation", () => {
       }
     });
   });
+
   describe("Edge cases and robustness", () => {
     test.each([
       { case: "undefined entity", input: undefined },
@@ -92,6 +106,10 @@ describe("Tokens Color Generation", () => {
     test("get_signature_label returns safe default for null entity", () => {
       expect(get_signature_label(null)).toBe("Frozen");
     });
+    test("get_signature_label resolves custom and hex colors", () => {
+      expect(get_signature_label("Electric Cyan")).toBe("Electric Cyan");
+      expect(get_signature_label({ signature_color: "var(--color-electric-cyan)" })).toBe("Electric Cyan");
+    });
   });
 
   describe("Signature palette consistency", () => {
@@ -105,6 +123,31 @@ describe("Tokens Color Generation", () => {
       for (const name of SIGNATURE_COLORS) {
         expect(name).not.toMatch(/background|gradient|chalk|frisk|frozen|glass|gunmetal|white|black/i);
       }
+    });
+  });
+
+  describe("Token & Color Resolution Helpers", () => {
+    test("resolve_token handles null, CSS variable strings, and hex mappings", () => {
+      expect(resolve_token(null)).toBeNull();
+      expect(resolve_token(undefined)).toBeNull();
+      expect(resolve_token("var(--color-neon-cyan)")).toBe("var(--color-neon-cyan)");
+      const sample_hex = PALETTE["Electric Cyan"];
+      expect(sample_hex).toBeDefined();
+      expect(resolve_token(sample_hex)).toBe(PALETTE_VARS[sample_hex]);
+      expect(resolve_token("#123456")).toBeNull();
+    });
+
+    test("get_color_name maps hex and CSS variable expressions back to title", () => {
+      expect(get_color_name("")).toBe("");
+      expect(get_color_name(null)).toBe("");
+      const cyan_hex = PALETTE["Electric Cyan"];
+      expect(cyan_hex).toBeDefined();
+      expect(get_color_name(cyan_hex)).toBe("Electric Cyan");
+      expect(get_color_name(PALETTE_VARS[cyan_hex])).toBe("Electric Cyan");
+    });
+
+    test("ensure_theme_tokens executes safely in Node/DOM environments", () => {
+      expect(() => ensure_theme_tokens()).not.toThrow();
     });
   });
 

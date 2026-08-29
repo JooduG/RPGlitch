@@ -61,13 +61,13 @@ const CHARACTER_DOMAIN_ENTITIES = Object.freeze(new Set(["ai", "user"]));
 
 /**
  * Resolves whether an image beat should trigger with independent cooldown timers and Priority 1 arbitration.
- * @param {Object} params
- * @param {any} [params.snapshot] - Current entity dynamics snapshot
- * @param {any} [params.prev_dynamics] - Previous dynamics state
- * @param {any} [params.director_data] - Parsed Director output
- * @param {number} params.turn_round - Active round number
- * @param {number} [params.last_director_beat_round] - Last round Director triggered an image
- * @param {number} [params.last_dynamics_beat_round] - Last round Dynamics triggered an image
+ * @param {object} parameters
+ * @param {any} [parameters.snapshot] - Current entity dynamics snapshot
+ * @param {any} [parameters.prev_dynamics] - Previous dynamics state
+ * @param {any} [parameters.director_data] - Parsed Director output
+ * @param {number} parameters.turn_round - Active round number
+ * @param {number} [parameters.last_director_beat_round] - Last round Director triggered an image
+ * @param {number} [parameters.last_dynamics_beat_round] - Last round Dynamics triggered an image
  * @returns {{
  *   active: boolean,
  *   tier: string | null,
@@ -79,28 +79,28 @@ const CHARACTER_DOMAIN_ENTITIES = Object.freeze(new Set(["ai", "user"]));
  * }}
  */
 export function resolve_image_trigger({ snapshot, prev_dynamics, director_data, turn_round, last_director_beat_round, last_dynamics_beat_round }) {
-  const dir_last = Number.isInteger(last_director_beat_round) ? last_director_beat_round : -1;
-  const dyn_last = Number.isInteger(last_dynamics_beat_round) ? last_dynamics_beat_round : -1;
+  const director_last_round = Number.isInteger(last_director_beat_round) ? last_director_beat_round : -1;
+  const dynamics_last_round = Number.isInteger(last_dynamics_beat_round) ? last_dynamics_beat_round : -1;
 
-  const director_cooldown_elapsed = dir_last < 0 || turn_round >= dir_last + IMAGE_TRIGGER.director_cooldown_rounds;
-  const dynamics_cooldown_elapsed = dyn_last < 0 || turn_round >= dyn_last + IMAGE_TRIGGER.dynamics_cooldown_rounds;
+  const director_cooldown_elapsed = director_last_round < 0 || turn_round >= director_last_round + IMAGE_TRIGGER.director_cooldown_rounds;
+  const dynamics_cooldown_elapsed = dynamics_last_round < 0 || turn_round >= dynamics_last_round + IMAGE_TRIGGER.dynamics_cooldown_rounds;
 
   // 1. Evaluate Director Explicit Beat (Priority 1)
   const raw_trigger = typeof director_data?.trigger_image === "string" ? director_data.trigger_image.trim() : director_data?.trigger_image;
   const tier_from_string = typeof raw_trigger === "string" && IMAGE_TRIGGER.tiers.includes(raw_trigger) ? raw_trigger : null;
-  const tier_from_pref =
+  const tier_from_preference =
     typeof director_data?.image_tier === "string" && IMAGE_TRIGGER.tiers.includes(director_data.image_tier) ? director_data.image_tier : null;
   const director_explicit = raw_trigger === true || raw_trigger === "true" || tier_from_string !== null;
   const director_qualifies = director_explicit && director_cooldown_elapsed;
 
   // 2. Evaluate Pure-JS Dynamics Gate (Priority 2)
-  const image_trigger_eval = evaluate_image_trigger({ ai: snapshot?.ai?.dynamics, fractal: snapshot?.fractal?.dynamics }, prev_dynamics, {
+  const image_trigger_evaluation = evaluate_image_trigger({ ai: snapshot?.ai?.dynamics, fractal: snapshot?.fractal?.dynamics }, prev_dynamics, {
     band_high: IMAGE_TRIGGER.band_high,
     band_low: IMAGE_TRIGGER.band_low,
     displacement_threshold: IMAGE_TRIGGER.displacement_threshold,
     default_tier: IMAGE_TRIGGER.default_tier,
   });
-  const dynamics_qualifies = image_trigger_eval.triggered && dynamics_cooldown_elapsed;
+  const dynamics_qualifies = image_trigger_evaluation.triggered && dynamics_cooldown_elapsed;
 
   // 3. Priority Arbitration & 1-Image-Per-Round Ceiling
   let active = false;
@@ -112,12 +112,12 @@ export function resolve_image_trigger({ snapshot, prev_dynamics, director_data, 
   if (director_qualifies) {
     active = true;
     source = "director";
-    tier = tier_from_string || tier_from_pref || IMAGE_TRIGGER.default_tier;
+    tier = tier_from_string || tier_from_preference || IMAGE_TRIGGER.default_tier;
     next_director_round = turn_round;
   } else if (dynamics_qualifies) {
     active = true;
     source = "dynamics";
-    tier = image_trigger_eval.tier || IMAGE_TRIGGER.default_tier;
+    tier = image_trigger_evaluation.tier || IMAGE_TRIGGER.default_tier;
     next_dynamics_round = turn_round;
   }
 
@@ -125,7 +125,7 @@ export function resolve_image_trigger({ snapshot, prev_dynamics, director_data, 
     active,
     tier,
     source,
-    signals: image_trigger_eval.signals,
+    signals: image_trigger_evaluation.signals,
     next_director_round,
     next_dynamics_round,
     director_explicit,
@@ -182,14 +182,14 @@ export function evaluate_image_trigger(current = {}, previous = {}, options = {}
     let to_entity = null;
 
     for (const entity of entities_set) {
-      const p = (previous || {})[entity] || {};
-      const c = (current || {})[entity] || {};
-      if (from === null && Number.isFinite(p[axis])) {
-        from = p[axis];
+      const previous_entity_dynamics = (previous || {})[entity] || {};
+      const current_entity_dynamics = (current || {})[entity] || {};
+      if (from === null && Number.isFinite(previous_entity_dynamics[axis])) {
+        from = previous_entity_dynamics[axis];
         from_entity = entity;
       }
-      if (to === null && Number.isFinite(c[axis])) {
-        to = c[axis];
+      if (to === null && Number.isFinite(current_entity_dynamics[axis])) {
+        to = current_entity_dynamics[axis];
         to_entity = entity;
       }
     }
@@ -235,8 +235,6 @@ export function evaluate_image_trigger(current = {}, previous = {}, options = {}
 // ============================================================================
 /**
  * CHANGELOG:
- * - 2026-08-29: Applied ground-up /refactor protocol: added Universal File Architecture header block,
- *   structured 3 explicit section dividers, sealed IMAGE_TRIGGER and CHARACTER_DOMAIN_ENTITIES with Object.freeze,
- *   standardized loop parameter identifiers (entities_set, entry), and verified unit test suite.
+ * - 2026-08-29: Applied /harmonize protocol: purged shorthand variable names (dir_last -> director_last_round, dyn_last -> dynamics_last_round, p -> previous_entity_dynamics, c -> current_entity_dynamics, tier_from_pref -> tier_from_preference), verified full anti-abbreviation compliance, enforced frozen configuration schemas, and audited against unit test suite.
  * - 2026-08-28: Implemented decoupled cooldowns for Director vs Dynamics triggers and Priority 1 arbitration.
  */

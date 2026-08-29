@@ -4,11 +4,11 @@ import {
   sweep_stale_ghosts,
   mark_placeholder_failed,
   spawn_image_beat,
-  _image_gen_queue,
-  _remove_from_image_gen_queue,
-  get_image_gen_queue,
-  reset_image_gen_queue,
-  IMAGE_GEN_QUEUE_CAPACITY,
+  _image_generation_queue,
+  _remove_from_image_generation_queue,
+  get_image_generation_queue,
+  reset_image_generation_queue,
+  IMAGE_GENERATION_QUEUE_CAPACITY,
   IMAGE_PLACEHOLDER_HARD_CAP,
   IMAGE_GHOST_MAX_AGE_MS,
   IMAGE_RESOLVE_TIMEOUT_MS,
@@ -18,39 +18,39 @@ import { visual_engine } from "./visual.svelte.js";
 
 describe("image-beats (Media Layer Placeholder & Generation Lifecycle)", () => {
   beforeEach(() => {
-    reset_image_gen_queue();
+    reset_image_generation_queue();
     reset_bridges_for_testing();
     vi.restoreAllMocks();
   });
 
   describe("constants & queue bounds", () => {
     it("exposes expected capacity bounds and timeouts", () => {
-      expect(IMAGE_GEN_QUEUE_CAPACITY).toBe(5);
+      expect(IMAGE_GENERATION_QUEUE_CAPACITY).toBe(5);
       expect(IMAGE_PLACEHOLDER_HARD_CAP).toBe(5);
       expect(IMAGE_GHOST_MAX_AGE_MS).toBe(120000);
       expect(IMAGE_RESOLVE_TIMEOUT_MS).toBe(120000);
     });
 
-    it("get_image_gen_queue returns shallow snapshot and reset_image_gen_queue clears it", () => {
-      _image_gen_queue.push({ id: 101, tier: "story_scene", source: "dynamics", metadata: {} });
-      const snap = get_image_gen_queue();
+    it("get_image_generation_queue returns shallow snapshot and reset_image_generation_queue clears it", () => {
+      _image_generation_queue.push({ id: 101, tier: "story_scene", source: "dynamics", metadata: {} });
+      const snap = get_image_generation_queue();
       expect(snap).toHaveLength(1);
       expect(snap[0].id).toBe(101);
 
-      reset_image_gen_queue();
-      expect(get_image_gen_queue()).toHaveLength(0);
+      reset_image_generation_queue();
+      expect(get_image_generation_queue()).toHaveLength(0);
     });
 
-    it("_remove_from_image_gen_queue removes entry by id", () => {
-      _image_gen_queue.push({ id: 101, tier: "story_scene", source: "dynamics", metadata: {} });
-      _image_gen_queue.push({ id: 102, tier: "story_character", source: "director", metadata: {} });
+    it("_remove_from_image_generation_queue removes entry by id", () => {
+      _image_generation_queue.push({ id: 101, tier: "story_scene", source: "dynamics", metadata: {} });
+      _image_generation_queue.push({ id: 102, tier: "story_character", source: "director", metadata: {} });
 
-      _remove_from_image_gen_queue(101);
-      expect(_image_gen_queue.length).toBe(1);
-      expect(_image_gen_queue[0].id).toBe(102);
+      _remove_from_image_generation_queue(101);
+      expect(_image_generation_queue.length).toBe(1);
+      expect(_image_generation_queue[0].id).toBe(102);
 
-      _remove_from_image_gen_queue(999); // no-op
-      expect(_image_gen_queue.length).toBe(1);
+      _remove_from_image_generation_queue(999); // no-op
+      expect(_image_generation_queue.length).toBe(1);
     });
   });
 

@@ -1,4 +1,4 @@
-export { Audio, VoiceEngine, AUDIO_STORAGE_KEY } from "./audio.svelte.js";
+export { Audio, audio_engine, AudioEngine, VoiceEngine, AUDIO_STORAGE_KEY } from "./audio.svelte.js";
 export {
   KOKORO_VOICES,
   CADENCE_RATES,
@@ -26,4 +26,10 @@ export {
 } from "./image-aesthetics.js";
 export { visual_engine, VisualEngine } from "./visual.svelte.js";
 export { resolve_image_trigger } from "./image-trigger.js";
-export { spawn_image_beat, sweep_stale_ghosts, get_image_gen_queue, reset_image_gen_queue, IMAGE_RESOLVE_TIMEOUT_MS } from "./image-beats.js";
+export {
+  spawn_image_beat,
+  sweep_stale_ghosts,
+  get_image_generation_queue,
+  reset_image_generation_queue,
+  IMAGE_RESOLVE_TIMEOUT_MS,
+} from "./image-beats.js";
