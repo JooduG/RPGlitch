@@ -38,6 +38,7 @@ export {
   parse_macros,
   render_display_macros,
   resolve_display_macro_segments,
+  UNRESOLVED_LABELS,
   strip_profile_wrappers,
   unwrap_enhancement_text,
 } from "./prompts/shared.js";

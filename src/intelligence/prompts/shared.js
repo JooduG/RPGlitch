@@ -153,23 +153,39 @@ export function parse_macros(text, owner, entities = {}) {
 export const UNRESOLVED_YOU_LABEL = "scene partner";
 
 /**
+ * Friendly unresolved label for every KNOWN macro token. Each maps to a natural
+ * muted label used when the entity it references isn't present in the display
+ * context — so no known macro ever falls back to a raw `⟨token⟩` placeholder.
+ * (Unknown/custom tokens still do, since their meaning is unknown. `me` is
+ * special-cased in the resolver because its fallback depends on the owner's
+ * type — see {@link resolve_display_macro_segments}.)
+ */
+export const UNRESOLVED_LABELS = {
+  user: UNRESOLVED_YOU_LABEL,
+  you: UNRESOLVED_YOU_LABEL,
+  fractal: "the world",
+  char: "the protagonist",
+};
+
+/**
  * Resolves macros for HUMAN-facing display (readonly profiles, story cards)
  * into structural segments the UI can render with entity signature colors.
  *
  * Unlike `parse_macros` — which keeps unresolved tokens verbatim because LLM
  * prompts need the macro placeholder — display rendering resolves known macros
  * to entity names ('{{me}}' → the viewed entity's name) and renders anything
- * unresolvable as a visible placeholder, so the reader never sees raw
- * `{{...}}` syntax. Edit-mode fields keep the raw macros; this is only for
- * readonly presentation.
+ * unresolvable as a natural muted label (or a `⟨token⟩` placeholder for
+ * unknown tokens), so the reader never sees raw `{{...}}` syntax. Edit-mode
+ * fields keep the raw macros; this is only for readonly presentation.
  *
  * Each segment is `{ text, macro, entity }`:
  * - Plain text: `macro: null`, `entity: null`.
  * - Resolved macro: `macro` = lowercased token, `entity` = the referenced
  *   entity (so the UI can color it by signature color), `text` = its name.
- * - `{{you}}` / `{{user}}` with no user persona: `entity: null`,
- *   `text` = `UNRESOLVED_YOU_LABEL` (a natural muted label instead of a raw
- *   placeholder).
+ * - Known macro whose entity is absent: `entity: null`, `text` = a natural
+ *   muted label from {@link UNRESOLVED_LABELS} — `{{you}}`/`{{user}}` → "scene
+ *   partner", `{{fractal}}` → "the world", `{{char}}` → "the protagonist",
+ *   `{{me}}` with an unnamed owner → "this character" / "this world" (by type).
  * - Unknown token: `entity: null`, `text` = `⟨token⟩`.
  * @param {string} text
  * @param {any} owner - The entity whose fields are being displayed ('{{me}}' resolves to its name).
@@ -196,22 +212,34 @@ export function resolve_display_macro_segments(text, owner, entities = {}) {
     const token = m[1].toLowerCase().trim();
     let label = null;
     let entity = null;
-    if (token === "me" && me_name) {
-      label = me_name;
-      entity = owner;
-    } else if (token === "char" && ai_name) {
-      label = ai_name;
-      entity = entities.AI;
+    if (token === "me") {
+      if (me_name) {
+        label = me_name;
+        entity = owner;
+      } else if (owner) {
+        label = owner.type === "fractal" ? "this world" : "this character";
+      }
+    } else if (token === "char") {
+      if (ai_name) {
+        label = ai_name;
+        entity = entities.AI;
+      } else {
+        label = UNRESOLVED_LABELS.char;
+      }
     } else if (token === "user" || token === "you") {
       if (user_name) {
         label = user_name;
         entity = entities.USER;
       } else {
-        label = UNRESOLVED_YOU_LABEL;
+        label = UNRESOLVED_LABELS[token];
       }
-    } else if (token === "fractal" && fractal_name) {
-      label = fractal_name;
-      entity = entities.FRACTAL;
+    } else if (token === "fractal") {
+      if (fractal_name) {
+        label = fractal_name;
+        entity = entities.FRACTAL;
+      } else {
+        label = UNRESOLVED_LABELS.fractal;
+      }
     }
     if (label === null) label = placeholder(token);
     segments.push({ text: label, macro: token, entity });

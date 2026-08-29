@@ -154,6 +154,19 @@ describe("Shared Prompt Utilities (shared.js)", () => {
       expect(render_display_macros("{{you}} vs {{me}}", mock_entities.AI, {})).toBe("scene partner vs Viper");
     });
 
+    it("emits friendly muted labels for every known macro when its entity is absent", () => {
+      expect(render_display_macros("Welcome to {{fractal}}.", mock_entities.AI, {})).toBe("Welcome to the world.");
+      expect(render_display_macros("{{char}} waits.", mock_entities.AI, {})).toBe("the protagonist waits.");
+      expect(render_display_macros("In {{fractal}}, {{char}} and {{you}} meet.", mock_entities.AI, {})).toBe(
+        "In the world, the protagonist and scene partner meet.",
+      );
+    });
+
+    it("emits a friendly label for {{me}} when the owner has no name", () => {
+      expect(render_display_macros("I am {{me}}.", { name: "" }, mock_entities)).toBe("I am this character.");
+      expect(render_display_macros("Here, {{me}} endures.", { name: "  ", type: "fractal" }, mock_entities)).toBe("Here, this world endures.");
+    });
+
     it("emits placeholders when the owning entity is missing", () => {
       expect(render_display_macros("{{me}}", null, mock_entities)).toBe(`\u27e8me\u27e9`);
       expect(render_display_macros("", mock_entities.AI, mock_entities)).toBe("");
@@ -187,6 +200,19 @@ describe("Shared Prompt Utilities (shared.js)", () => {
     it("marks unresolved {{you}} with null entity so the UI can mute it", () => {
       const segs = resolve_display_macro_segments("Talk to {{you}}.", pink_ai, {});
       expect(segs[1]).toEqual({ text: "scene partner", macro: "you", entity: null });
+    });
+
+    it("marks every absent known macro with null entity and its friendly label", () => {
+      const segs = resolve_display_macro_segments("In {{fractal}}, {{char}} meets {{me}}.", { name: "", type: "character" }, {});
+      expect(segs).toEqual([
+        { text: "In ", macro: null, entity: null },
+        { text: "the world", macro: "fractal", entity: null },
+        { text: ", ", macro: null, entity: null },
+        { text: "the protagonist", macro: "char", entity: null },
+        { text: " meets ", macro: null, entity: null },
+        { text: "this character", macro: "me", entity: null },
+        { text: ".", macro: null, entity: null },
+      ]);
     });
 
     it("marks unknown macros with null entity and a placeholder label", () => {
