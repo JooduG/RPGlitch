@@ -1,5 +1,5 @@
 <script>
-  import { get_pct } from "@utils";
+  import { get_percentage } from "@utils";
   import { vector_label } from "./telemetry-format.js";
   import { parse_message } from "./render.js";
   import { safe_html } from "@ui";
@@ -27,8 +27,10 @@
         {#if block.dynamics.length > 0}
           <div class="grid grid-cols-2 gap-4">
             {#each block.dynamics as delta (delta.axis)}
-              {@const fill_width = delta.has_delta ? Math.min(get_pct(delta.old_value), get_pct(delta.new_value)) : get_pct(delta.value)}
-              {@const delta_width = delta.has_delta ? Math.abs(get_pct(delta.new_value) - get_pct(delta.old_value)) : 0}
+              {@const fill_width = delta.has_delta
+                ? Math.min(get_percentage(delta.old_value), get_percentage(delta.new_value))
+                : get_percentage(delta.value)}
+              {@const delta_width = delta.has_delta ? Math.abs(get_percentage(delta.new_value) - get_percentage(delta.old_value)) : 0}
               <div class="flex items-center justify-between gap-4">
                 <span class="min-w-20 text-xs text-slate-400 lowercase">{delta.axis}</span>
                 <div class="flex flex-1 items-center gap-4">
@@ -46,7 +48,7 @@
                   </div>
                   <div class="flex flex-col items-end gap-0.5">
                     <div class="flex min-w-16 items-center justify-end gap-2 font-mono text-xs">
-                      <span class="text-slate-50">{delta.has_delta ? get_pct(delta.new_value) : get_pct(delta.value)}</span>
+                      <span class="text-slate-50">{delta.has_delta ? get_percentage(delta.new_value) : get_percentage(delta.value)}</span>
                       {#if delta.has_delta}
                         <span class={delta.diff > 0 ? "text-(--color-dev-accent)" : "text-slate-500"}>
                           ({delta.diff > 0 ? "+" : ""}{delta.diff})

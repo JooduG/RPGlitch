@@ -49,7 +49,9 @@ export const PALETTE = Object.freeze(
  * Map of Hex value -> CSS variable string (e.g. { "#00f0ff": "var(--color-neon-cyan)" }).
  * @type {Readonly<Record<string, string>>}
  */
-export const PALETTE_VARS = Object.freeze(Object.fromEntries(color_entries.map(([name, value]) => [value, `var(--${name})`])));
+export const PALETTE_CSS_VARIABLES = Object.freeze(Object.fromEntries(color_entries.map(([name, value]) => [value, `var(--${name})`])));
+
+export const PALETTE_VARIABLES = PALETTE_CSS_VARIABLES;
 
 export { SIGNATURE_COLORS };
 
@@ -78,7 +80,7 @@ function hash_string(input_string) {
 export function resolve_token(color) {
   if (!color) return null;
   if (color.startsWith("var(")) return color;
-  return PALETTE_VARS[color] || null;
+  return PALETTE_CSS_VARIABLES[color] || null;
 }
 
 /**
@@ -108,7 +110,7 @@ export function get_color_name(color_value) {
 
   // 2. Resolve token first if it's a var() expression
   if (color_value.startsWith("var(")) {
-    const matched_hex_value = Object.entries(PALETTE_VARS).find(([, value]) => value === color_value)?.[0];
+    const matched_hex_value = Object.entries(PALETTE_CSS_VARIABLES).find(([, value]) => value === color_value)?.[0];
     if (matched_hex_value) return get_color_name(matched_hex_value);
   }
 

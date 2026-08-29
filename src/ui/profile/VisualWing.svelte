@@ -7,7 +7,7 @@
    */
   import { Button, SourceField, TextField, Toggle, NumberField, Dropdown, tooltip, Label } from "@primitives";
   import { strip_cognition_blocks } from "@utils";
-  import { aesthetic_resolver, get_signature_label, PALETTE, PALETTE_VARS, SIGNATURE_COLORS } from "@media";
+  import { aesthetic_resolver, get_signature_label, PALETTE, PALETTE_CSS_VARIABLES, SIGNATURE_COLORS } from "@media";
   import { app } from "@state";
   import { VISUAL_STYLES } from "@data";
 
@@ -232,7 +232,7 @@
   "
     >
       {#each SPECTRUM_COLORS as [name, hex] (name)}
-        {@const color = PALETTE_VARS[/** @type {keyof typeof PALETTE_VARS} */ (hex)] || hex}
+        {@const color = PALETTE_CSS_VARIABLES[/** @type {keyof typeof PALETTE_CSS_VARIABLES} */ (hex)] || hex}
         <div
           class="
           relative

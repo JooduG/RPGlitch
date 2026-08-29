@@ -854,7 +854,10 @@ export const gamemaster = {
   },
 };
 
+export const story_pipeline = gamemaster;
+
 /**
  * CHANGELOG
+ * - 2026-08-29: Exported canonical story_pipeline alias alongside gamemaster (/harmonize).
  * - 2026-08-28: Reconstructed story-pipeline.js with 5 clean numbered sections, updated header path, and standard JSDoc typings.
  */

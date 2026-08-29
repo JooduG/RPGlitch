@@ -11,7 +11,8 @@ import {
   ensure_theme_tokens,
   SIGNATURE_COLORS,
   PALETTE,
-  PALETTE_VARS,
+  PALETTE_CSS_VARIABLES,
+  PALETTE_VARIABLES,
 } from "./palette.js";
 import { aesthetic_resolver } from "./image-aesthetics.js";
 import { describe, expect, test } from "vitest";
@@ -133,7 +134,8 @@ describe("Tokens Color Generation", () => {
       expect(resolve_token("var(--color-neon-cyan)")).toBe("var(--color-neon-cyan)");
       const sample_hex = PALETTE["Electric Cyan"];
       expect(sample_hex).toBeDefined();
-      expect(resolve_token(sample_hex)).toBe(PALETTE_VARS[sample_hex]);
+      expect(resolve_token(sample_hex)).toBe(PALETTE_CSS_VARIABLES[sample_hex]);
+      expect(resolve_token(sample_hex)).toBe(PALETTE_VARIABLES[sample_hex]);
       expect(resolve_token("#123456")).toBeNull();
     });
 
@@ -143,7 +145,7 @@ describe("Tokens Color Generation", () => {
       const cyan_hex = PALETTE["Electric Cyan"];
       expect(cyan_hex).toBeDefined();
       expect(get_color_name(cyan_hex)).toBe("Electric Cyan");
-      expect(get_color_name(PALETTE_VARS[cyan_hex])).toBe("Electric Cyan");
+      expect(get_color_name(PALETTE_CSS_VARIABLES[cyan_hex])).toBe("Electric Cyan");
     });
 
     test("ensure_theme_tokens executes safely in Node/DOM environments", () => {

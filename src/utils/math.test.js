@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   clamp,
-  get_pct,
+  get_percentage,
   cosine_similarity,
   generate_uuid,
   generate_secure_seed,
@@ -35,19 +35,19 @@ describe("math and crypto utilities", () => {
     });
   });
 
-  describe("get_pct", () => {
+  describe("get_percentage", () => {
     it("normalizes numbers to integers within [0, 100]", () => {
-      expect(get_pct(75.4)).toBe(75);
-      expect(get_pct(75.6)).toBe(76);
-      expect(get_pct(150)).toBe(100);
-      expect(get_pct(-20)).toBe(0);
+      expect(get_percentage(75.4)).toBe(75);
+      expect(get_percentage(75.6)).toBe(76);
+      expect(get_percentage(150)).toBe(100);
+      expect(get_percentage(-20)).toBe(0);
     });
 
     it("defaults to 50 for falsy or NaN values", () => {
-      expect(get_pct(null)).toBe(50);
-      expect(get_pct(undefined)).toBe(50);
-      expect(get_pct(NaN)).toBe(50);
-      expect(get_pct(0)).toBe(50);
+      expect(get_percentage(null)).toBe(50);
+      expect(get_percentage(undefined)).toBe(50);
+      expect(get_percentage(NaN)).toBe(50);
+      expect(get_percentage(0)).toBe(50);
     });
   });
 

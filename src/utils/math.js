@@ -34,7 +34,7 @@ export function clamp(value, min = 0, max = 100) {
  * @param {number | unknown} value - Input score or percentage.
  * @returns {number} Integer between 0 and 100.
  */
-export function get_pct(value) {
+export function get_percentage(value) {
   const num = Number(value || 50);
   const safe_num = Number.isNaN(num) ? 50 : num;
   return Math.max(0, Math.min(100, Math.round(safe_num)));

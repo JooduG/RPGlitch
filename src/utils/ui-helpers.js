@@ -73,25 +73,25 @@ function try_direct_var_resolve(trimmed, context) {
 }
 
 /** @type {HTMLElement | null} */
-let shared_measure_el = null;
+let shared_measurement_element = null;
 
 /**
  * Ensures the shared measurement element exists in the DOM and is parented correctly.
  * @param {HTMLElement | null} [context=null] - Optional element context for parenting.
  * @returns {HTMLElement | null}
  */
-function get_measure_el(context = null) {
+function get_measurement_element(context = null) {
   if (typeof document === "undefined") return null;
 
-  if (!shared_measure_el) {
-    shared_measure_el = document.createElement("div");
-    shared_measure_el.id = "shared-measure-el";
-    shared_measure_el.style.position = "absolute";
-    shared_measure_el.style.visibility = "hidden";
-    shared_measure_el.style.pointerEvents = "none";
-    shared_measure_el.style.zIndex = "-9999";
-    shared_measure_el.style.display = "flex";
-    document.body.appendChild(shared_measure_el);
+  if (!shared_measurement_element) {
+    shared_measurement_element = document.createElement("div");
+    shared_measurement_element.id = "shared-measure-el";
+    shared_measurement_element.style.position = "absolute";
+    shared_measurement_element.style.visibility = "hidden";
+    shared_measurement_element.style.pointerEvents = "none";
+    shared_measurement_element.style.zIndex = "-9999";
+    shared_measurement_element.style.display = "flex";
+    document.body.appendChild(shared_measurement_element);
   }
 
   const can_accept_children =
@@ -99,11 +99,11 @@ function get_measure_el(context = null) {
     context.nodeType === 1 &&
     !/^(area|base|br|col|embed|hr|img|input|keygen|link|meta|param|source|track|wbr|textarea|template|svg)$/i.test(context.tagName);
   const target_parent = can_accept_children ? context : document.body;
-  if (shared_measure_el.parentElement !== target_parent) {
-    target_parent.appendChild(shared_measure_el);
+  if (shared_measurement_element.parentElement !== target_parent) {
+    target_parent.appendChild(shared_measurement_element);
   }
 
-  return shared_measure_el;
+  return shared_measurement_element;
 }
 
 /**
@@ -114,19 +114,19 @@ function get_measure_el(context = null) {
  * @param {HTMLElement | null} context
  * @returns {HTMLElement | null}
  */
-function prepare_measure(value, prop, sentinel, context) {
-  const el = get_measure_el(context);
-  if (!el) return null;
+function prepare_measurement_element(value, prop, sentinel, context) {
+  const measurement_element = get_measurement_element(context);
+  if (!measurement_element) return null;
 
   const css_value = get_css_value(value);
-  if (typeof el.dataset !== "undefined") {
-    el.dataset.resolveValue = css_value;
+  if (typeof measurement_element.dataset !== "undefined") {
+    measurement_element.dataset.resolveValue = css_value;
   }
 
   // 1. Proxy resolution to detect valid vs invalid variables (handles 0 vs undefined)
-  el.style.setProperty("--proxy", "SENTINEL");
-  el.style.setProperty("--proxy", css_value);
-  const resolved = window.getComputedStyle(el).getPropertyValue("--proxy").trim();
+  measurement_element.style.setProperty("--proxy", "SENTINEL");
+  measurement_element.style.setProperty("--proxy", css_value);
+  const resolved = window.getComputedStyle(measurement_element).getPropertyValue("--proxy").trim();
 
   // If it stayed at SENTINEL, the browser rejected the value.
   // If it became empty string, it was a var() that resolved to nothing.
@@ -135,10 +135,10 @@ function prepare_measure(value, prop, sentinel, context) {
   }
 
   // 2. Set actual property for unit resolution (e.g. rem -> px)
-  /** @type {any} */ (el.style)[prop] = sentinel;
-  /** @type {any} */ (el.style)[prop] = css_value;
+  /** @type {any} */ (measurement_element.style)[prop] = sentinel;
+  /** @type {any} */ (measurement_element.style)[prop] = css_value;
 
-  return el;
+  return measurement_element;
 }
 
 /**
@@ -172,9 +172,9 @@ function resolve_css(value, fallback, context, spec) {
   }
 
   // 3. Browser Resolution (Measurement Element)
-  const el = prepare_measure(trimmed, spec.prop, spec.sentinel, context);
-  if (el) {
-    const style = window.getComputedStyle(el);
+  const measurement_element = prepare_measurement_element(trimmed, spec.prop, spec.sentinel, context);
+  if (measurement_element) {
+    const style = window.getComputedStyle(measurement_element);
     const computed = spec.prop.startsWith("--") ? style.getPropertyValue(spec.prop).trim() : /** @type {any} */ (style)[spec.prop];
 
     if (typeof computed === "string") {
