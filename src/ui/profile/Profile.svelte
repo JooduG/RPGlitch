@@ -19,7 +19,8 @@
   import ProfileHeader from "./ProfileHeader.svelte";
   import RelationalGraph from "./RelationalGraph.svelte";
   import { app, runtime, simulation_state } from "@state";
-  import { render_display_macros } from "@intelligence";
+  import { resolve_display_macro_segments } from "@intelligence";
+  import MacroText from "./MacroText.svelte";
   import { fade } from "svelte/transition";
   import {
     NARRATIVE_STYLES,
@@ -883,7 +884,7 @@
                                 >{k}</span
                               >
                               <span class="text-left text-xs leading-normal text-slate-200">
-                                {@render RenderFormattedValue(render_display_macros(String(v), profile_state.char, display_entities))}
+                                {@render RenderFormattedValue(String(v))}
                               </span>
                             </div>
                           {/if}
@@ -900,7 +901,8 @@
                   sync_id={section.label}
                   {signature_color}
                   placeholder={field.description}
-                  value={profile_state.is_editing ? raw : render_display_macros(raw, profile_state.char, display_entities)}
+                  value={raw}
+                  inline_snippet={inline_macro_text}
                   oninput={(e) => profile_state.set_field_value(field.key, e.target.value)}
                   busy={profile_state.busy_fields.has(field.key)}
                   onfocus={() => profile_state.set_active_field(field.key, field.label || section.label)}
@@ -1073,7 +1075,17 @@
 {/snippet}
 
 {#snippet RenderFormattedValue(val_str)}
-  {@render RenderChoiceNodes(parse_variants(val_str))}
+  {#each resolve_display_macro_segments(val_str, profile_state.char, display_entities) as seg, si (si)}
+    {#if seg.macro}
+      <MacroText segment={seg} />
+    {:else}
+      {@render RenderChoiceNodes(parse_variants(seg.text))}
+    {/if}
+  {/each}
+{/snippet}
+
+{#snippet inline_macro_text(text)}
+  <MacroText {text} owner={profile_state.char} entities={display_entities} />
 {/snippet}
 
 <style>

@@ -11,6 +11,7 @@ import {
   render_system_head,
   strip_epistemic_tags,
   render_display_macros,
+  resolve_display_macro_segments,
   strip_profile_wrappers,
   unwrap_enhancement_text,
 } from "./shared.js";
@@ -141,20 +142,61 @@ describe("Shared Prompt Utilities (shared.js)", () => {
       expect(render_display_macros("{{ME}}", mock_entities.AI, mock_entities)).toBe("Viper");
     });
 
-    it("emits a visible placeholder for unresolved macros instead of the raw token", () => {
+    it("emits a visible placeholder for unknown macros instead of the raw token", () => {
       const out = render_display_macros("Grip the {{unknown}} tight.", mock_entities.AI, mock_entities);
       expect(out).toBe(`Grip the \u27e8unknown\u27e9 tight.`);
       expect(out).not.toContain("{{");
     });
 
-    it("emits placeholders when the owning entity or entities are missing", () => {
-      expect(render_display_macros("{{me}} vs {{you}}", mock_entities.AI, {})).toBe(`Viper vs \u27e8you\u27e9`);
+    it("emits a friendly muted label for unresolved {{you}}/{{user}}", () => {
+      expect(render_display_macros("Talk to {{you}} now.", mock_entities.AI, {})).toBe("Talk to scene partner now.");
+      expect(render_display_macros("{{user}} awaits.", mock_entities.AI, {})).toBe("scene partner awaits.");
+      expect(render_display_macros("{{you}} vs {{me}}", mock_entities.AI, {})).toBe("scene partner vs Viper");
+    });
+
+    it("emits placeholders when the owning entity is missing", () => {
       expect(render_display_macros("{{me}}", null, mock_entities)).toBe(`\u27e8me\u27e9`);
       expect(render_display_macros("", mock_entities.AI, mock_entities)).toBe("");
     });
 
     it("leaves plain prose untouched", () => {
       expect(render_display_macros("A quiet night in the archive.", mock_entities.AI, mock_entities)).toBe("A quiet night in the archive.");
+    });
+  });
+
+  describe("Display Macro Segments (resolve_display_macro_segments)", () => {
+    const pink_ai = { name: "Viper", signature_color: "Adrenaline Pink" };
+    const mock_entities = { AI: pink_ai, USER: { name: "Ghost", signature_color: "Electric Cyan" }, FRACTAL: { name: "Void" } };
+
+    it("splits text into plain and macro segments carrying the resolved entity", () => {
+      const segs = resolve_display_macro_segments("Hi {{me}}, I see {{char}}.", pink_ai, mock_entities);
+      expect(segs).toEqual([
+        { text: "Hi ", macro: null, entity: null },
+        { text: "Viper", macro: "me", entity: pink_ai },
+        { text: ", I see ", macro: null, entity: null },
+        { text: "Viper", macro: "char", entity: pink_ai },
+        { text: ".", macro: null, entity: null },
+      ]);
+    });
+
+    it("resolves {{you}} to the USER entity for color", () => {
+      const segs = resolve_display_macro_segments("You are {{you}}.", pink_ai, mock_entities);
+      expect(segs[1]).toEqual({ text: "Ghost", macro: "you", entity: mock_entities.USER });
+    });
+
+    it("marks unresolved {{you}} with null entity so the UI can mute it", () => {
+      const segs = resolve_display_macro_segments("Talk to {{you}}.", pink_ai, {});
+      expect(segs[1]).toEqual({ text: "scene partner", macro: "you", entity: null });
+    });
+
+    it("marks unknown macros with null entity and a placeholder label", () => {
+      const segs = resolve_display_macro_segments("The {{glimmer}} shines.", pink_ai, mock_entities);
+      expect(segs[1]).toEqual({ text: `\u27e8glimmer\u27e9`, macro: "glimmer", entity: null });
+    });
+
+    it("returns [] for empty input", () => {
+      expect(resolve_display_macro_segments("", pink_ai, mock_entities)).toEqual([]);
+      expect(resolve_display_macro_segments(null, pink_ai, mock_entities)).toEqual([]);
     });
   });
 

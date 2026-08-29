@@ -41,6 +41,7 @@
     // Snippets
     header_actions = null,
     status = null,
+    inline_snippet = null,
     actions = [],
 
     oninput = undefined,
@@ -164,6 +165,14 @@
     }
   });
 </script>
+
+{#snippet token_content(content)}
+  {#if inline_snippet}
+    {@render inline_snippet(content)}
+  {:else}
+    {content}
+  {/if}
+{/snippet}
 
 <div
   class="
@@ -401,20 +410,20 @@
                 <p class="m-0 mb-2 last:mb-0">
                   {#each p as token, tIdx (tIdx)}
                     {#if token.type === "text"}
-                      {token.content}
+                      {@render token_content(token.content)}
                     {:else if token.type === "strong"}
                       <strong
                         class="
                           font-bold
                           text-(--color-dev-accent)
-                        ">{token.content}</strong
+                        ">{@render token_content(token.content)}</strong
                       >
                     {:else if token.type === "em"}
                       <em
                         class="
                           italic
                           opacity-30
-                        ">{token.content}</em
+                        ">{@render token_content(token.content)}</em
                       >
                     {:else if token.type === "strong-em"}
                       <strong
@@ -426,11 +435,11 @@
                           class="
                             italic
                             opacity-30
-                          ">{token.content}</em
+                          ">{@render token_content(token.content)}</em
                         ></strong
                       >
                     {:else if token.type === "quote"}
-                      <span class="text-[1.05em]">"{token.content}"</span>
+                      <span class="text-[1.05em]">"{@render token_content(token.content)}"</span>
                     {/if}
                   {/each}
                 </p>

@@ -12,7 +12,7 @@
   import { get_signature_color } from "@media";
   import { motion } from "@motion";
   import { app, runtime } from "@state";
-  import { render_display_macros } from "@intelligence";
+  import MacroText from "../profile/MacroText.svelte";
   import { flushSync } from "svelte";
   import { claim_menu, get_menu_epoch, claim_morph_epoch, get_morph_epoch } from "./ContextMenu.svelte.js";
 
@@ -589,7 +589,11 @@
           `
           : ''}"
       >
-        {entity?.description ? render_display_macros(entity.description, entity, display_entities) : "No description provided."}
+        {#if entity?.description}
+          <MacroText text={entity.description} owner={entity} entities={display_entities} />
+        {:else}
+          No description provided.
+        {/if}
       </p>
     {/if}
   </div>

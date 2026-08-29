@@ -146,7 +146,15 @@ export function parse_macros(text, owner, entities = {}) {
 }
 
 /**
- * Resolves macros for HUMAN-facing display (readonly profiles, story cards).
+ * Friendly label used when `{{you}}` / `{{user}}` appears in a readonly display
+ * but no user persona exists to resolve it to. Muted (frozen-colored) so it
+ * reads naturally without drawing attention.
+ */
+export const UNRESOLVED_YOU_LABEL = "scene partner";
+
+/**
+ * Resolves macros for HUMAN-facing display (readonly profiles, story cards)
+ * into structural segments the UI can render with entity signature colors.
  *
  * Unlike `parse_macros` — which keeps unresolved tokens verbatim because LLM
  * prompts need the macro placeholder — display rendering resolves known macros
@@ -154,6 +162,72 @@ export function parse_macros(text, owner, entities = {}) {
  * unresolvable as a visible placeholder, so the reader never sees raw
  * `{{...}}` syntax. Edit-mode fields keep the raw macros; this is only for
  * readonly presentation.
+ *
+ * Each segment is `{ text, macro, entity }`:
+ * - Plain text: `macro: null`, `entity: null`.
+ * - Resolved macro: `macro` = lowercased token, `entity` = the referenced
+ *   entity (so the UI can color it by signature color), `text` = its name.
+ * - `{{you}}` / `{{user}}` with no user persona: `entity: null`,
+ *   `text` = `UNRESOLVED_YOU_LABEL` (a natural muted label instead of a raw
+ *   placeholder).
+ * - Unknown token: `entity: null`, `text` = `⟨token⟩`.
+ * @param {string} text
+ * @param {any} owner - The entity whose fields are being displayed ('{{me}}' resolves to its name).
+ * @param {{ AI?: any, USER?: any, FRACTAL?: any }} [entities]
+ * @returns {Array<{ text: string, macro: string|null, entity: any|null }>}
+ */
+export function resolve_display_macro_segments(text, owner, entities = {}) {
+  if (!text) return [];
+  const me_name = owner?.name?.trim() || "";
+  const ai_name = entities.AI?.name?.trim() || "";
+  const user_name = entities.USER?.name?.trim() || "";
+  const fractal_name = entities.FRACTAL?.name?.trim() || "";
+  const placeholder = (token) => `\u27e8${token}\u27e9`;
+
+  const segments = [];
+  const source = String(text);
+  let last = 0;
+  const re = /\{\{(.*?)\}\}/g;
+  let m;
+  while ((m = re.exec(source)) !== null) {
+    if (m.index > last) {
+      segments.push({ text: source.slice(last, m.index), macro: null, entity: null });
+    }
+    const token = m[1].toLowerCase().trim();
+    let label = null;
+    let entity = null;
+    if (token === "me" && me_name) {
+      label = me_name;
+      entity = owner;
+    } else if (token === "char" && ai_name) {
+      label = ai_name;
+      entity = entities.AI;
+    } else if (token === "user" || token === "you") {
+      if (user_name) {
+        label = user_name;
+        entity = entities.USER;
+      } else {
+        label = UNRESOLVED_YOU_LABEL;
+      }
+    } else if (token === "fractal" && fractal_name) {
+      label = fractal_name;
+      entity = entities.FRACTAL;
+    }
+    if (label === null) label = placeholder(token);
+    segments.push({ text: label, macro: token, entity });
+    last = m.index + m[0].length;
+  }
+  if (last < source.length) {
+    segments.push({ text: source.slice(last), macro: null, entity: null });
+  }
+  return segments;
+}
+
+/**
+ * Resolves macros for HUMAN-facing display to a plain string (names in place
+ * of tokens, friendly labels / ⟨placeholders⟩ for anything unresolvable).
+ * Plain-text convenience over {@link resolve_display_macro_segments} — use the
+ * segment form when the UI needs per-entity signature colors.
  * @param {string} text
  * @param {any} owner - The entity whose fields are being displayed ('{{me}}' resolves to its name).
  * @param {{ AI?: any, USER?: any, FRACTAL?: any }} [entities]
@@ -161,20 +235,9 @@ export function parse_macros(text, owner, entities = {}) {
  */
 export function render_display_macros(text, owner, entities = {}) {
   if (!text) return "";
-  const me_name = owner?.name?.trim() || "";
-  const ai_name = entities.AI?.name?.trim() || "";
-  const user_name = entities.USER?.name?.trim() || "";
-  const fractal_name = entities.FRACTAL?.name?.trim() || "";
-  const placeholder = (token) => `\u27e8${token}\u27e9`;
-
-  return String(text).replace(/\{\{(.*?)\}\}/g, (match, macro) => {
-    const token = macro.toLowerCase().trim();
-    if (token === "me") return me_name || placeholder("me");
-    if (token === "char") return ai_name || placeholder("char");
-    if (token === "user" || token === "you") return user_name || placeholder("you");
-    if (token === "fractal") return fractal_name || placeholder("fractal");
-    return placeholder(token);
-  });
+  return resolve_display_macro_segments(text, owner, entities)
+    .map((s) => s.text)
+    .join("");
 }
 
 /**
