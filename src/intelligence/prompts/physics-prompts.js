@@ -125,7 +125,7 @@ ${definitions}
   Laws:
     1. Calibrate dynamics_deltas conservatively (+1 to +4 standard; +8 to +12 extreme).
     2. Adjust deltas carefully near boundaries (5 or 95) to prevent clipping at 0 or 100.
-    3. Ensure state_append matches the mathematical intensity of selected deltas.
+    3. Calibrate dynamics_deltas to reflect the psychological and environmental shift of the turn.
 </DYNAMICS_LEGEND>`.trim();
 
   return cached_dynamics_legend;

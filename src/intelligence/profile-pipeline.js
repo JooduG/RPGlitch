@@ -6,7 +6,7 @@
  * 1. Content Ingestion & Shape Pipeline (structure_profile, apply_profile_to_entity):
  *    - Ingests raw source text, structures into flat profiles via LLM.
  *    - Maps flat profile keys onto the nested Twin-Cylinder entity schema.
- * 2. Character Genesis & Active Cast Spawning (execute_genesis, spawn_character):
+ * 2. Character Genesis & Active Cast Spawning (spawn_character):
  *    - Processes Director genesis requests and synthesizes recurring characters.
  *    - Persists new characters to Dexie DB, adds them to the story cast, and registers them on-stage.
  */

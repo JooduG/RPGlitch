@@ -160,7 +160,9 @@ export function normalize_director_data(payload) {
     directors_note,
     story_status,
     in_scene_change: normalize_in_scene_change(base.in_scene_change),
-    dynamics_deltas: base.dynamics_deltas || {},
+    dynamics_deltas: base.dynamics_deltas || base.mutations?.AI_CHARACTER?.dynamics_deltas || {},
+    fractal_dynamics_deltas: base.fractal_dynamics_deltas || base.mutations?.FRACTAL?.fractal_dynamics_deltas || {},
+    mutations: base.mutations || {},
   };
 }
 

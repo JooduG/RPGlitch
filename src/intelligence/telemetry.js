@@ -27,14 +27,14 @@ export function build_update_entry(name, mutations, dynamics = [], retrieval = [
 
   const pres = mutations?.state_append || {};
   entry.present_mutations = {
-    physical: pres.physical || "",
-    non_physical: pres.non_physical || "",
+    physical: typeof pres === "string" ? pres : pres.physical || "",
+    non_physical: typeof pres === "string" ? "" : pres.non_physical || "",
   };
 
-  const eternal = mutations?.foundation_consolidated || {};
+  const eternal = mutations?.foundation_consolidated || mutations?.eternal || {};
   entry.eternal_mutations = {
-    physical: eternal.physical || "",
-    non_physical: eternal.non_physical || "",
+    physical: typeof eternal === "string" ? eternal : eternal.physical || "",
+    non_physical: typeof eternal === "string" ? "" : eternal.non_physical || "",
   };
 
   const new_list = Array.isArray(mutations?.vector_append) ? mutations.vector_append : [];

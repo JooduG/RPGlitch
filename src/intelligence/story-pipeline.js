@@ -325,9 +325,23 @@ export const gamemaster = {
       let final_meta = { ...meta };
       final_meta.ai = snapshot.ai?.dynamics;
       final_meta.fractal = snapshot.fractal?.dynamics;
+
+      const director_mutations = director_data.mutations || {};
       final_meta.mutations = {
-        AI_CHARACTER: director_data.dynamics_deltas || {},
-        FRACTAL: director_data.fractal_dynamics_deltas || {},
+        AI_CHARACTER: {
+          ...(director_mutations.AI_CHARACTER || {}),
+          ...(director_data.state_append ? { state_append: director_data.state_append } : {}),
+          ...(director_data.vector_append ? { vector_append: director_data.vector_append } : {}),
+          ...(director_data.foundation_consolidated ? { foundation_consolidated: director_data.foundation_consolidated } : {}),
+          dynamics_deltas: director_data.dynamics_deltas || {},
+        },
+        USER_PERSONA: {
+          ...(director_mutations.USER_PERSONA || {}),
+        },
+        FRACTAL: {
+          ...(director_mutations.FRACTAL || {}),
+          fractal_dynamics_deltas: director_data.fractal_dynamics_deltas || {},
+        },
       };
 
       const clean_think = (t) =>
@@ -356,23 +370,23 @@ export const gamemaster = {
         last_dynamics_beat_round,
       });
 
-      if (resolved_image.next_director_round !== null) {
+      if (resolved_image?.next_director_round !== null && resolved_image?.next_director_round !== undefined) {
         state_bridge.runtime.last_director_beat_round = resolved_image.next_director_round;
       }
-      if (resolved_image.next_dynamics_round !== null) {
+      if (resolved_image?.next_dynamics_round !== null && resolved_image?.next_dynamics_round !== undefined) {
         state_bridge.runtime.last_dynamics_beat_round = resolved_image.next_dynamics_round;
       }
 
-      final_meta.trigger_image = resolved_image.active;
-      final_meta.image_trigger = resolved_image.active;
-      final_meta.image_tier = resolved_image.tier;
-      if (resolved_image.active) {
+      final_meta.trigger_image = Boolean(resolved_image?.active);
+      final_meta.image_trigger = Boolean(resolved_image?.active);
+      final_meta.image_tier = resolved_image?.tier;
+      if (resolved_image?.active) {
         final_meta.image_source = resolved_image.source;
         final_meta.image_signals = resolved_image.signals;
       }
 
-      const is_image_trigger_active = resolved_image.active;
-      const image_tier = resolved_image.tier;
+      const is_image_trigger_active = Boolean(resolved_image?.active);
+      const image_tier = resolved_image?.tier;
 
       if (is_image_trigger_active && image_tier) {
         let trigger_prompt = [input, clean_think(director_data._thought_process), clean_think(director_data.directive)]
@@ -712,7 +726,12 @@ export const gamemaster = {
       }
     }
 
-    await state_bridge.session_driver.log_message(detox_prose(response, "casual"), "fractal", fractal_name, {
+    const fractal_entity = state_bridge.runtime.active_fractal;
+    const narrative_style = state_bridge.app?.settings?.narrative_style;
+    const speaking_style = resolve_speaking_style(fractal_entity, narrative_style);
+    const cleaned_prose = detox_prose(response, speaking_style);
+
+    await state_bridge.session_driver.log_message(cleaned_prose, "fractal", fractal_name, {
       turn_type: "SYSTEM_TURN",
       story_id,
       meta: {
@@ -802,10 +821,21 @@ export const gamemaster = {
         error?.name === "AbortError" || error?.message?.includes("aborted") || String(error) === "Error: Generation aborted by caller.";
       if (is_abort) throw error;
       if (retries === 0) throw error;
-      state_bridge.app.log(`[GameMaster] Connection issue. Retrying in ${delay}ms... (${retries} attempts left)`, "warn");
+
+      const is_refusal = error?.is_refused || error?.message?.includes("refusal") || error?.message?.includes("guardrail");
+      if (is_refusal) {
+        state_bridge.app.log(
+          `[GameMaster] Model refusal / content guardrail triggered. Retrying in ${delay}ms... (${retries} attempts left)`,
+          "warn",
+        );
+      } else {
+        state_bridge.app.log(`[GameMaster] Connection issue. Retrying in ${delay}ms... (${retries} attempts left)`, "warn");
+      }
 
       if (state_bridge.app.streaming.active) {
-        state_bridge.app.streaming.content = "_Network interrupted... Retrying connection..._";
+        state_bridge.app.streaming.content = is_refusal
+          ? "_Content recalibration in progress... Retrying..._"
+          : "_Network interrupted... Retrying connection..._";
       }
 
       await new Promise((resolve) => setTimeout(resolve, delay));

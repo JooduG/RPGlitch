@@ -345,7 +345,7 @@ ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
     ${stability_lock_content ? `<STABILITY_LOCK>${stability_lock_content}</STABILITY_LOCK>\n    ` : ""}
     ${build_signals_xml(speaker_dynamics, compressed_snapshot?.fractal?.dynamics, { style: get_narrative_style(resolve_active_style_key()) })}
     ${action_directive}
-    ${is_narrator ? "" : build_recency_anchor({ ai: { dynamics: speaker_dynamics } }, input)}
+    ${is_narrator ? "" : build_recency_anchor({ dynamics: speaker_dynamics }, input)}
 </TASK>
   `).trim();
 

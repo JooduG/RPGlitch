@@ -1673,4 +1673,107 @@ describe("execute_epilogue (conclusion badge)", () => {
     expect(call[3].meta.conclusion_status).toBe("CONCLUDED");
     expect(call[3].meta.story_status).toBe("CONCLUDED");
   });
+
+  it("detoxes epilogue prose according to the active speaker speaking style", async () => {
+    _mock_runtime.active_fractal = { name: "Void", speaking_style: "clinical" };
+    vi.mocked(llm_service.generate).mockResolvedValue("The air tasted of ozone and silence descended.");
+
+    await gamemaster.execute_epilogue("story-1", "CONCLUDED");
+    const call = vi.mocked(session_driver.log_message).mock.calls.at(-1);
+    expect(call[0]).not.toMatch(/ozone/i);
+  });
+});
+
+describe("director mutations telemetry integration (Bug 2 verification)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    _mock_runtime.ai = { intensity: 50, chaos: 30 };
+    _mock_runtime.fractal = { entropy: 40 };
+    _mock_runtime.active_ai = { name: "Viper", id: "ai-1" };
+    _mock_runtime.active_user = { name: "Ghost", id: "usr-1" };
+    _mock_runtime.active_fractal = { name: "Void", id: "frac-1" };
+    _mock_runtime.story_id = "story-123";
+
+    vi.mocked(session_driver.load_log).mockResolvedValue([]);
+    vi.mocked(prompt_builder.build_director).mockReturnValue({ system: "DIR_SYS", task: "DIR_TASK" });
+    vi.mocked(prompt_builder.build_character).mockReturnValue({
+      system: "CHAR_SYS",
+      task: "CHAR_TASK",
+      meta: { ai: {}, fractal: {}, role: "ai", entity_id: null },
+    });
+  });
+
+  it("drives director mutations through execute_turn to capture_dynamics_delta and updates payload in production shape", async () => {
+    vi.mocked(llm_service.generate)
+      .mockResolvedValueOnce(
+        JSON.stringify({
+          _thought_process: "Tension escalating rapidly.",
+          next_action: "AI_CHARACTER",
+          keywords: ["vulnerability"],
+          directors_note: "Hold your ground.",
+          dynamics_deltas: { intensity: 10, chaos: 5 },
+          fractal_dynamics_deltas: { entropy: 8 },
+          state_append: { physical: "burned sleeves", non_physical: "tense breathing" },
+          vector_append: [{ content: "Investigate reactor core", type: "future", weight: 7 }],
+          mutations: {
+            USER_PERSONA: {
+              state_append: { physical: "dusty cloak", non_physical: "elevated pulse" },
+              vector_append: [{ content: "Shield Viper from debris", type: "future", weight: 8 }],
+            },
+          },
+        }),
+      )
+      .mockResolvedValueOnce("We need to move now.");
+
+    await gamemaster.execute_turn("story-123", { input: "I step into the hallway.", role: "ai" });
+
+    expect(session_driver.log_system_entry).toHaveBeenCalledTimes(1);
+    const [, , payload] = session_driver.log_system_entry.mock.calls[0];
+    expect(payload.type).toBe("DYNAMICS_DELTA");
+    expect(payload.updates).toBeDefined();
+
+    // Verify AI Character updates block
+    expect(payload.updates.AI_CHARACTER).toBeDefined();
+    expect(payload.updates.AI_CHARACTER.name).toBe("Viper");
+    expect(payload.updates.AI_CHARACTER.present_mutations).toEqual({
+      physical: "burned sleeves",
+      non_physical: "tense breathing",
+    });
+    expect(payload.updates.AI_CHARACTER.vectors.new).toEqual([expect.objectContaining({ content: "Investigate reactor core", emotional_weight: 7 })]);
+
+    // Verify User Persona updates block
+    expect(payload.updates.USER_PERSONA).toBeDefined();
+    expect(payload.updates.USER_PERSONA.name).toBe("Ghost");
+    expect(payload.updates.USER_PERSONA.present_mutations).toEqual({
+      physical: "dusty cloak",
+      non_physical: "elevated pulse",
+    });
+    expect(payload.updates.USER_PERSONA.vectors.new).toEqual([expect.objectContaining({ content: "Shield Viper from debris", emotional_weight: 8 })]);
+
+    // Verify Fractal updates block
+    expect(payload.updates.FRACTAL).toBeDefined();
+    expect(payload.updates.FRACTAL.name).toBe("Void");
+  });
+});
+
+describe("execute_with_retry resilience diagnostics", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("logs distinct warn messages for model refusals vs network connection failures", async () => {
+    const refusal_err = new Error("AI guardrail refusal triggered");
+    refusal_err.is_refused = true;
+
+    let attempts = 0;
+    const fn_refusal = vi.fn(async () => {
+      attempts++;
+      if (attempts === 1) throw refusal_err;
+      return "Success after recalibration";
+    });
+
+    const res = await gamemaster.execute_with_retry(fn_refusal, 1, 10);
+    expect(res).toBe("Success after recalibration");
+    expect(_mock_app.log).toHaveBeenCalledWith(expect.stringContaining("Model refusal / content guardrail triggered"), "warn");
+  });
 });
