@@ -11,8 +11,21 @@ description: 4-Step File Harmonization Protocol — (1) Boundaries/Relocation, (
 ## 📋 The Harmonization Pipeline
 
 ```text
-[Step 1: Move & Boundary Audit] ➔ [Step 2: Ground-Up /refactor] ➔ [Step 3: Rename & Nomenclature Alignment] ➔ [Step 4: Debt & P4 Compatibility Purge]
+[Step 0: Pre-Flight Plan & Verification Gate] ➔ [Step 1: Move & Boundary Audit] ➔ [Step 2: Ground-Up /refactor] ➔ [Step 3: Rename & Nomenclature Alignment] ➔ [Step 4: Debt & P4 Compatibility Purge]
 ```
+
+---
+
+### Step 0: Pre-Flight Plan & User Verification Gate
+
+**Goal**: Inspect the target file, diagnose issues across all dimensions, and present a concise bulletpoint plan to the user before making any code modifications.
+
+1. **Perform Initial File Audit**:
+   - Inspect the target file and its downstream callers/tests to identify boundary bleeds, refactoring targets, naming discrepancies, and dead code/debt.
+2. **Present Short Bulletpoint Plan**:
+   - Outline the proposed changes in a concise bulletpoint plan covering each stage (Relocation, Refactor, Renaming, Debt/P4 purge).
+3. **Wait for Verification**:
+   - **STOP immediately after presenting the plan and wait for the user's explicit verification and approval before implementing any changes**.
 
 ---
 
@@ -55,9 +68,10 @@ description: 4-Step File Harmonization Protocol — (1) Boundaries/Relocation, (
 1. **Constitutional Lexical Standards ([GEMINI.md](file:///c:/Users/johng/.gemini/GEMINI.md))**:
    - **`kebab-case`**: Folders & files (e.g., `card-conversion.js`, `story-pipeline.js`, `simulation-engine/`).
    - **`PascalCase`**: Svelte components (e.g., `StoryPanel.svelte`, `TelemetryCard.svelte`).
-   - **`snake_case`**: Variables, parameters, functions, and process state (e.g., `init_db()`, `current_char`, `resolve_speaking_style()`).
+   - **`snake_case`**: Variables, parameters, functions, and process state (e.g., `init_db()`, `current_character`, `resolve_speaking_style()`).
    - **`question_snake`**: Booleans (e.g., `is_active`, `has_token`, `is_wanderer`, `can_stream`).
    - **`SCREAMING_SNAKE`**: Constants & globals (e.g., `MAX_ENTROPY`, `SPEAKING_STYLES`, `SIGNATURE_COLORS`).
+   - **Full-Name & Anti-Abbreviation Mandate**: **Strictly avoid abbreviations, truncated stems, and clipped names**. Always prefer the actual, full descriptive word (e.g., `developer` instead of `dev`, `configuration` instead of `config`, `parameters` instead of `params`, `temporary` instead of `tmp`, `character` instead of `char`, `application` instead of `app`, `repository` instead of `repo`, `generation` instead of `gen`, `element` instead of `el`, `button` instead of `btn`, `message` instead of `msg`, `context` instead of `ctx`, `previous` instead of `prev`, `reference` instead of `ref`, `document` instead of `doc`, `destination` instead of `dest`). Exceptions are strictly reserved for standard platform primitives/acronyms (`id`, `html`, `css`, `ui`, `url`, `tts`, `db`).
    - **Localization**: Metric/SI units, Swedish Date Standard (YYYY-MM-DD HH:MM), Europe/Stockholm timezone (GMT+2 CEST).
 2. **Descriptive Verbs & Intent Alignment**:
    - Replace generic shorthand verbs (`init`, `handle`, `process`, `data`, `item`) with descriptive, unambiguous domain terms (`init_db`, `parse_character_card`, `set_versionchange_quiesce`).

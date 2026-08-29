@@ -166,7 +166,15 @@ export async function spawn_character(bridge, draft = {}) {
   const { visual_engine } = await import("@media");
   if (typeof visual_engine?.generate === "function" && typeof window !== "undefined") {
     try {
-      const portrait_promise = visual_engine.generate(saved_entity.id, { mode: "solo_entity", resolution: "512x512", _entity: saved_entity });
+      const portrait_promise = visual_engine
+        .generate(saved_entity.id, { mode: "solo_entity", resolution: "512x512", _entity: saved_entity })
+        .then(async (img_url) => {
+          if (img_url && saved_entity.id) {
+            const data_url = typeof img_url === "object" && img_url?.url ? img_url.url : img_url;
+            await entities.update("character", saved_entity.id, { profile_picture: data_url });
+            await state_bridge.runtime?.update_entity?.("character", saved_entity.id, { profile_picture: data_url });
+          }
+        });
       if (portrait_promise && typeof portrait_promise.catch === "function") {
         portrait_promise.catch((err) =>
           state_bridge.app?.log(`[GameMaster] Portrait generation for "${name}" failed: ${err?.message || err}`, "warn"),

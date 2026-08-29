@@ -6,6 +6,8 @@ import {
   spawn_image_beat,
   _image_gen_queue,
   _remove_from_image_gen_queue,
+  get_image_gen_queue,
+  reset_image_gen_queue,
   IMAGE_GEN_QUEUE_CAPACITY,
   IMAGE_PLACEHOLDER_HARD_CAP,
   IMAGE_GHOST_MAX_AGE_MS,
@@ -16,7 +18,7 @@ import { visual_engine } from "./visual.svelte.js";
 
 describe("image-beats (Media Layer Placeholder & Generation Lifecycle)", () => {
   beforeEach(() => {
-    _image_gen_queue.length = 0;
+    reset_image_gen_queue();
     reset_bridges_for_testing();
     vi.restoreAllMocks();
   });
@@ -27,6 +29,16 @@ describe("image-beats (Media Layer Placeholder & Generation Lifecycle)", () => {
       expect(IMAGE_PLACEHOLDER_HARD_CAP).toBe(5);
       expect(IMAGE_GHOST_MAX_AGE_MS).toBe(120000);
       expect(IMAGE_RESOLVE_TIMEOUT_MS).toBe(120000);
+    });
+
+    it("get_image_gen_queue returns shallow snapshot and reset_image_gen_queue clears it", () => {
+      _image_gen_queue.push({ id: 101, tier: "story_scene", source: "dynamics", metadata: {} });
+      const snap = get_image_gen_queue();
+      expect(snap).toHaveLength(1);
+      expect(snap[0].id).toBe(101);
+
+      reset_image_gen_queue();
+      expect(get_image_gen_queue()).toHaveLength(0);
     });
 
     it("_remove_from_image_gen_queue removes entry by id", () => {

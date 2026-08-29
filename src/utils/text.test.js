@@ -18,9 +18,29 @@ import {
   merge_prose_into_field,
   NAME_PREFIXES,
   parse_relational_vector,
+  safe_parse_json,
   safe_parse_pseudo_json,
   strip_cognition_blocks,
 } from "./text.js";
+
+describe("safe_parse_json", () => {
+  it("extracts embedded JSON object from surrounding text", () => {
+    const raw = `Here is your prompt: {"prompt": "cyberpunk alley", "negative_prompt": "blurry"} Hope you like it!`;
+    expect(safe_parse_json(raw)).toEqual({ prompt: "cyberpunk alley", negative_prompt: "blurry" });
+  });
+
+  it("extracts embedded JSON array from surrounding text", () => {
+    const raw = `Available targets: ["solo_entity", "story_scene"]`;
+    expect(safe_parse_json(raw)).toEqual(["solo_entity", "story_scene"]);
+  });
+
+  it("returns null for non-JSON or invalid input", () => {
+    expect(safe_parse_json("just text")).toBeNull();
+    expect(safe_parse_json("")).toBeNull();
+    expect(safe_parse_json(null)).toBeNull();
+    expect(safe_parse_json("{ broken json ")).toBeNull();
+  });
+});
 
 describe("strip_cognition_blocks", () => {
   it("removes think tags and internal monologue from text", () => {

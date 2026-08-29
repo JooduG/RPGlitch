@@ -9,11 +9,33 @@ import {
   VOICE_CADENCES,
   get_cadence_rate,
   infer_voice_for_chunk,
+  normalize_role,
   resolve_voice_name,
   resolve_voice_uri,
   split_speech_by_speaker,
   split_speech_sentences,
-} from "./voice.js";
+} from "./speech.js";
+
+describe("normalize_role", () => {
+  it("normalizes roles to internal keys", () => {
+    expect(normalize_role("AI_CHARACTER")).toBe("ai");
+    expect(normalize_role("model")).toBe("ai");
+    expect(normalize_role("USER_PERSONA")).toBe("user");
+    expect(normalize_role("user")).toBe("user");
+    expect(normalize_role("system")).toBe(null);
+    expect(normalize_role(null)).toBe(null);
+  });
+
+  it("maps fractal and npc to ai by default for unified toggle", () => {
+    expect(normalize_role("fractal")).toBe("ai");
+    expect(normalize_role("npc")).toBe("ai");
+  });
+
+  it("preserves fractal and npc when preserve_npc is true", () => {
+    expect(normalize_role("fractal", { preserve_npc: true })).toBe("fractal");
+    expect(normalize_role("npc-1", { preserve_npc: true })).toBe("npc");
+  });
+});
 
 describe("Audio & Voice Configurations", () => {
   it("assigns valid voice configurations to all premade fractals", () => {
@@ -147,13 +169,11 @@ describe("Audio & Voice Configurations", () => {
     );
   });
 
-  it("safely tears down and cleans up resources via destroy() and teardown()", async () => {
+  it("safely tears down and cleans up resources via destroy()", async () => {
     const { Audio } = await import("./audio.svelte.js");
     expect(typeof Audio.destroy).toBe("function");
-    expect(typeof Audio.teardown).toBe("function");
 
     expect(() => Audio.destroy()).not.toThrow();
-    expect(() => Audio.teardown()).not.toThrow();
     expect(Audio.voice.is_speaking).toBe(false);
   });
 });

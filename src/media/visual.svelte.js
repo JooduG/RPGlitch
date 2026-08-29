@@ -1,23 +1,40 @@
 /**
- * src/media/visual.svelte.js
- * 🎨 VISUAL ENGINE (Reactive Class)
- * The sensory cortex orchestrator. Fully optimized with engine caching and localized JSON peeling.
+ * @file src/media/visual.svelte.js
+ * 🎨 SENSORY CORTEX — VISUAL ENGINE & RENDERING PIPELINE
+ *
+ * Core Responsibilities:
+ * 1. Image Generation Infrastructure & Resilience (`VisualEngine.generate`):
+ *    - Connects to the host Perchance text-to-image engine across iframe boundaries.
+ *    - Guarantees reliability via `CircuitBreaker` and `ExponentialBackoffRetryer`.
+ *    - Injects positive and negative visual engine tokens, resolution bounds, and tier guidance scales.
+ * 2. Visual Prompt Enhancement & Extraction (`enhance`):
+ *    - Refines loose natural language inputs into structured visual prompt tokens via LLM.
+ * 3. Multi-Tier Narrative Visualization (`visualize`):
+ *    - Orchestrates story-level visual events (story_scene, solo_entity, story_character, story_entities, selfie).
+ *    - Extracts prompts and captions from LLM `BUILDER` templates and falls back to deterministic flattening on timeout.
+ * 4. Multi-Candidate Generation (`generate_candidates`):
+ *    - Concurrent multi-seed candidate image generation for profile avatars and storyboards.
+ *
+ * Purity: Svelte 5 Rune-driven state class (`is_loading`, `error`, `attempts`, `is_offline`).
  */
 
 import { db, entities, VISUAL_STYLES, resolve_portrait_visual_style_key, resolve_story_visual_style_key } from "@data";
-import { generate_secure_seed as generateSecureSeed, strip_cognition_blocks, state_bridge } from "@utils";
+import { generate_secure_seed, strip_cognition_blocks, state_bridge, CircuitBreaker, ExponentialBackoffRetryer } from "@utils";
 import { llm_service } from "@platform";
-import { get_resolution, normalize_image_tier } from "./image-tiers.js";
+import { get_resolution, get_tier_guidance_scale, normalize_image_tier } from "./image-tiers.js";
 import { aesthetic_resolver, resolve_visual_engine_tokens } from "./image-aesthetics.js";
-import { clean_image_prompt, NEGATIVE_PROMPT, parse_llm_refine_response, prompt_templates } from "./image-prompts.js";
-import { CircuitBreaker, ExponentialBackoffRetryer } from "@utils";
+import { clean_image_prompt, NEGATIVE_PROMPT, parse_llm_image_prompt_response, prompt_templates } from "./image-prompts.js";
 
-// Global cache for the Perchance text-to-image engine function to eliminate runtime lookup overhead
+// ============================================================================
+// [SECTION 1: HOST ENGINE DISCOVERY & CACHE]
+// ============================================================================
+
+/** @type {Function | null} */
 let cached_image_engine = null;
 
 /**
- * Lazily searches and caches the hosted Perchance text-to-image plugin infrastructure.
- * Safely insulates cross-origin boundary lookups to prevent Same-Origin Policy crashes.
+ * Searches and caches the Perchance host text-to-image plugin infrastructure.
+ * Insulates cross-origin boundary lookups behind safe try/catch guards.
  * @returns {Function | null}
  */
 function find_image_engine() {
@@ -27,7 +44,7 @@ function find_image_engine() {
   }
   if (typeof window === "undefined") return null;
 
-  // 1. Check local frame scope immediately
+  // 1. Check local frame scope
   if (typeof window.pluginGenerateImage === "function") {
     cached_image_engine = window.pluginGenerateImage;
     return cached_image_engine;
@@ -37,7 +54,7 @@ function find_image_engine() {
     return cached_image_engine;
   }
 
-  // 2. Insulate cross-origin parent lookups behind a secure fence
+  // 2. Insulate cross-origin parent frame lookup
   try {
     if (typeof window.parent !== "undefined") {
       if (typeof window.parent.pluginGenerateImage === "function") {
@@ -49,15 +66,19 @@ function find_image_engine() {
         return cached_image_engine;
       }
     }
-  } catch (_) {
-    // Quietly swallow cross-origin access exceptions if parent frame is sandboxed away
+  } catch {
+    /* Swallow cross-origin sandboxed access restrictions */
   }
 
   return null;
 }
 
+// ============================================================================
+// [SECTION 2: VISUAL ENGINE CLASS & GENERATION PIPELINE]
+// ============================================================================
+
 export class VisualEngine {
-  // --- Reactive State (Svelte 5 Runes) ---
+  // --- Reactive Svelte 5 State Runes ---
   is_loading = $state(false);
   /** @type {string | null} */
   error = $state(null);
@@ -79,9 +100,9 @@ export class VisualEngine {
 
   /**
    * Primary high-level generation pipeline.
-   * Handles character resolution, prompt optimization, and resilient generation.
+   * Resolves target entities, prompt modifiers, and resilient text-to-image execution.
    * @param {string} target
-   * @param {any} [options]
+   * @param {Record<string, any>} [options={}]
    * @returns {Promise<any>}
    */
   async generate(target, options = {}) {
@@ -89,10 +110,7 @@ export class VisualEngine {
     this.error = null;
     this.attempts = 0;
 
-    // Auto-recover circuit breaker for user-initiated requests.
-    // Image generation is always explicitly triggered by the user, so we
-    // should never permanently block them — just let the retryer handle
-    // transient failures.
+    // Auto-recover circuit breaker for user-initiated requests
     if (this.breaker.isOpen) {
       this.breaker.state = "HALF_OPEN";
       this.breaker.successCount = 0;
@@ -101,12 +119,10 @@ export class VisualEngine {
 
     try {
       let final_prompt = "";
-      let entity_id = null;
       let effective_type = options.type || options.mode || "character";
 
       // 1. Resolve Target & Prompt
       if (options._entity && typeof options._entity === "object") {
-        entity_id = options._entity.id || (typeof target === "string" ? target : null);
         const entity = options._entity;
         const has_physical = entity.eternal?.physical || entity.present?.physical;
         if (!entity.modifiers?.prompt && !has_physical) {
@@ -128,11 +144,10 @@ export class VisualEngine {
         const is_uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(target);
         const found_entity =
           is_uuid || target.startsWith("npc-") || target.startsWith("char-") || target.startsWith("fractal-")
-            ? await this._resolveEntity(target)
+            ? await this.resolve_entity(target)
             : null;
 
         if (found_entity && (found_entity.id || found_entity.name !== "Unknown")) {
-          entity_id = target;
           const entity = found_entity;
           const has_physical = entity.eternal?.physical || entity.present?.physical;
           if (!entity.modifiers?.prompt && !has_physical) {
@@ -188,16 +203,14 @@ export class VisualEngine {
 
             const res = get_resolution(options.mode);
             const base_negative_prompt = options.negative_prompt?.trim() || "";
-            // If _entity is provided AND we're in solo_entity mode (profile editor / pfp),
-            // use the entity's own visual style. Otherwise (story tiers via visualize) use
-            // the story resolver (fractal's active style).
+
             const style_key =
               options._entity && normalize_image_tier(options.mode || "") === "solo_entity"
                 ? resolve_portrait_visual_style_key(options._entity)
                 : resolve_story_visual_style_key(options._fractal || options.fractal);
             const vs_tokens = resolve_visual_engine_tokens(style_key);
 
-            // Inject positive style tokens into the prompt if available
+            // Inject positive style tokens into prompt
             const vs_positive = [vs_tokens.medium, vs_tokens.palette, vs_tokens.camera || vs_tokens.composition, vs_tokens.texture]
               .filter(Boolean)
               .join(", ");
@@ -213,7 +226,7 @@ export class VisualEngine {
                   ? "story_scene"
                   : "story_character",
             );
-            // story_scene is environmental; every other tier depicts one or more characters.
+
             const is_character_shot = tier_for_shot !== "story_scene";
             const char_neg_tokens = is_character_shot
               ? "empty background, landscape without characters, scenery only, no humans, empty environment"
@@ -229,12 +242,10 @@ export class VisualEngine {
               ),
             );
             const effective_negative_prompt = deduplicated_neg_tokens.join(", ");
-            const effective_seed = options.seed ?? generateSecureSeed();
+            const effective_seed = options.seed ?? generate_secure_seed();
             const effective_resolution = options.resolution ?? `${res.width}x${res.height}`;
-            // The TIER baseline is authoritative (character shots 9, story scenes 7).
-            // A per-style guidance_scale may nudge guidance only within ±2 of that
-            // baseline, so the tier always governs and shots never hit extreme values.
-            const tier_guidance_baseline = is_character_shot ? 9 : 7;
+
+            const tier_guidance_baseline = get_tier_guidance_scale(tier_for_shot);
             const style_guidance = VISUAL_STYLES[style_key]?.guidance_scale;
             const effective_guidance_scale =
               options.guidanceScale ??
@@ -250,9 +261,9 @@ export class VisualEngine {
               guidanceScale: effective_guidance_scale,
             });
 
-            let timeoutId;
+            let timeout_id;
             const timeout_promise = new Promise((_, reject) => {
-              timeoutId = setTimeout(() => reject(new Error("Image generation timed out")), 120000);
+              timeout_id = setTimeout(() => reject(new Error("Image generation timed out")), 120000);
             });
             timeout_promise.catch(() => {});
 
@@ -305,7 +316,7 @@ export class VisualEngine {
               }
               return data;
             } finally {
-              clearTimeout(timeoutId);
+              clearTimeout(timeout_id);
             }
           },
           (attempt) => {
@@ -315,13 +326,7 @@ export class VisualEngine {
         );
       });
 
-      // 3. Persistence & State Sync
       this.is_offline = this.breaker.isOpen;
-
-      if (result && entity_id && !options.noCache) {
-        await this._cacheImage(entity_id, result, effective_type === "user" ? "character" : effective_type);
-      }
-
       return result;
     } catch (err) {
       const error = /** @type {Error} */ (err);
@@ -335,22 +340,21 @@ export class VisualEngine {
   }
 
   /**
-   * Refines raw text into structured { prompt, negative_prompt } visual tokens.
+   * Refines raw text into structured visual tokens via LLM.
    * @param {string} text
-   * @param {string} [type]
-   * @param {any} [entity]
+   * @param {string} [type="character"]
+   * @param {any} [entity=null]
    * @returns {Promise<{ prompt: string, negative_prompt: string } | null>}
    */
   async enhance(text, type = "character", entity = null) {
     return await this.breaker.execute(async () => {
       return await this.retryer.retry(
         async () => {
-          const system = prompt_templates.ENHANCE(text, type, entity);
-
+          const system = prompt_templates.enhance_prompt(text, type, entity);
           const result = await llm_service.generate({ system, messages: [] }, { silent: true });
           if (!result) throw new Error("Prompt enhancement failed - no content.");
 
-          const parsed = parse_llm_refine_response(result);
+          const parsed = parse_llm_image_prompt_response(result);
           if (parsed) return parsed;
 
           const clean_prompt = clean_image_prompt(result);
@@ -364,29 +368,25 @@ export class VisualEngine {
   }
 
   /**
-   * Comprehensive visualization for narrative events.
-   * @param {string} storyId
-   * @param {string} visualPrompt
-   * @param {any} [targetType]
-   * @param {any} [options]
-   * @returns {Promise<{ imageUrl: any, refinedPrompt: string | null, caption: string | null, metadata?: any }>}
+   * Visualizes a narrative story beat across canonical 4-tier routing.
+   * @param {string | number} story_id
+   * @param {string} visual_prompt
+   * @param {string} [target_type]
+   * @param {Record<string, any>} [options={}]
+   * @returns {Promise<{ imageUrl: string | null, refinedPrompt: string | null, caption: string | null, metadata?: any }>}
    */
-  async visualize(storyId, visualPrompt, targetType, options = {}) {
+  async visualize(story_id, visual_prompt, target_type, options = {}) {
     const { silent = false } = options;
     let story = null;
 
-    // Defensive: strip cognition blocks from any narrative text passed as visual prompt.
-    // Prologue/epilogue responses contain <think> blocks that must not leak into the image LLM system prompt.
-    if (typeof visualPrompt === "string") {
-      visualPrompt = strip_cognition_blocks(visualPrompt);
-    }
+    let sanitized_prompt = typeof visual_prompt === "string" ? strip_cognition_blocks(visual_prompt) : "";
 
-    if (storyId) {
-      const db_key = typeof storyId === "string" && /^\d+$/.test(storyId) ? Number(storyId) : storyId;
+    if (story_id) {
+      const db_key = typeof story_id === "string" && /^\d+$/.test(story_id) ? Number(story_id) : story_id;
       try {
         story = await db.stories.get(db_key);
-      } catch (_) {
-        /* ignore */
+      } catch {
+        /* db lookup fallback */
       }
     }
     if (!story && state_bridge.runtime.active_story) {
@@ -400,13 +400,9 @@ export class VisualEngine {
       };
     }
 
-    // Unified 4-Tier Image Taxonomy routing. targetType is a canonical tier;
-    // subject (the entity whose perspective the image is taken from) may be
-    // supplied separately via options.
-    const tier = normalize_image_tier(targetType);
-    const is_selfie = targetType === "selfie";
-
-    const subject = options.subject || (targetType === "user" ? "user" : targetType === "fractal" ? "fractal" : "ai");
+    const tier = normalize_image_tier(target_type);
+    const is_selfie = target_type === "selfie";
+    const subject = options.subject || (target_type === "user" ? "user" : target_type === "fractal" ? "fractal" : "ai");
 
     if (!silent) {
       state_bridge.simulation_state.start_typing(
@@ -415,28 +411,20 @@ export class VisualEngine {
     }
 
     try {
-      // FIX #1: Prefer live runtime entities (already mutated by Director) over
-      // stale Dexie DB reads. _resolveEntity() only loads the last-persisted snapshot
-      // and will miss mutations that haven't been flushed to the DB yet.
       const runtime = state_bridge.runtime;
-      const ai = (runtime?.active_ai?.id === story.ai_id && runtime.active_ai) || (await this._resolveEntity(story.ai_id));
-      const user = (runtime?.active_user?.id === story.user_id && runtime.active_user) || (await this._resolveEntity(story.user_id));
-      const fractal = (runtime?.active_fractal?.id === story.fractal_id && runtime.active_fractal) || (await this._resolveEntity(story.fractal_id));
+      const ai = (runtime?.active_ai?.id === story.ai_id && runtime.active_ai) || (await this.resolve_entity(story.ai_id));
+      const user = (runtime?.active_user?.id === story.user_id && runtime.active_user) || (await this.resolve_entity(story.user_id));
+      const fractal = (runtime?.active_fractal?.id === story.fractal_id && runtime.active_fractal) || (await this.resolve_entity(story.fractal_id));
 
       const solo_or_char_entity = subject === "user" ? user : subject === "fractal" ? fractal : ai;
 
-      // Tier-based LLM refinement policy:
-      //  - selfie: always LLM (its caption is produced by the LLM)
-      //  - story_entities: always LLM (multi-character composition needs planning)
-      //  - solo_entity: quick path — deterministic flattening, no LLM round-trip
-      //  - story_character / story_scene: defer to the active style's llm_refine flag
       const style_key_for_llm =
         tier === "solo_entity" ? resolve_portrait_visual_style_key(solo_or_char_entity) : resolve_story_visual_style_key(fractal);
       const use_llm = is_selfie || tier === "story_entities" || (tier !== "solo_entity" && (VISUAL_STYLES[style_key_for_llm]?.llm_refine ?? true));
 
       let refined = null;
       if (use_llm) {
-        const system = prompt_templates.BUILDER(tier, visualPrompt, {
+        const system = prompt_templates.build_prompt(tier, sanitized_prompt, {
           ai,
           user,
           fractal,
@@ -449,8 +437,8 @@ export class VisualEngine {
         try {
           const extraction_timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("LLM prompt extraction timed out")), 90000));
           refined = await Promise.race([llm_service.generate({ system, messages: [] }, { silent: true }), extraction_timeout]);
-        } catch (extractErr) {
-          console.warn("[VisualEngine] visualize: LLM prompt extraction failed, using fallback:", extractErr.message);
+        } catch (extract_err) {
+          console.warn("[VisualEngine] visualize: LLM prompt extraction failed, using fallback:", /** @type {Error} */ (extract_err).message);
         }
       }
 
@@ -470,7 +458,7 @@ export class VisualEngine {
                 : ai;
         const fallback_desc = aesthetic_resolver.flatten(fallback_entity);
         const fallback_name = fallback_entity?.name || tier;
-        const short_intent = visualPrompt && visualPrompt.length < 200 ? visualPrompt : "";
+        const short_intent = sanitized_prompt && sanitized_prompt.length < 200 ? sanitized_prompt : "";
         if (tier === "story_character" && fractal) {
           const fractal_desc = aesthetic_resolver.flatten(fractal);
           refined = `<image_prompt>${short_intent ? `${short_intent}, ` : ""}${fallback_name}, ${fallback_desc || "detailed character"}, situated within ${fractal.name || "the setting"}, ${fractal_desc || "atmospheric environment, dramatic lighting"}</image_prompt>`;
@@ -479,7 +467,7 @@ export class VisualEngine {
         }
       }
 
-      const parsed_json = parse_llm_refine_response(refined);
+      const parsed_json = parse_llm_image_prompt_response(refined);
       let clean_prompt;
       let extracted_negative = null;
 
@@ -536,10 +524,9 @@ export class VisualEngine {
   }
 
   /**
-   * Generates N image candidates concurrently with the same prompt but different seeds.
-   * Retries failures until at least `min_success` candidates succeed.
-   * @param {string} prompt - The (already refined) image prompt.
-   * @param {{ mode?: string, negative_prompt?: string, count?: number, min_success?: number, resolution?: string }} options
+   * Generates N image candidates concurrently with the same prompt and distinct seeds.
+   * @param {string} prompt - Refined image prompt.
+   * @param {{ mode?: string, negative_prompt?: string, count?: number, min_success?: number, resolution?: string }} [options={}]
    * @returns {Promise<Array<{ url: string, metadata: any }>>}
    */
   async generate_candidates(prompt, options = {}) {
@@ -554,7 +541,6 @@ export class VisualEngine {
     /** @type {Array<{ url: string, metadata: any } | null>} */
     const results = new Array(count).fill(null);
 
-    // Fire all generations concurrently
     const attempts = [];
     for (let i = 0; i < count; i++) {
       attempts.push(
@@ -571,7 +557,6 @@ export class VisualEngine {
       if (s.payload) results[s.index] = s.payload;
     }
 
-    // Retry failures until we have at least min_success
     const get_success_count = () => results.filter((r) => r !== null).length;
     let retry_round = 0;
     while (get_success_count() < min_success && retry_round < 3) {
@@ -592,9 +577,9 @@ export class VisualEngine {
   }
 
   /**
-   * Generates an aesthetic SVG data URL for local dev & mock testing when image plugin is missing.
+   * Synthesizes an SVG preview data URL for dev and unit test environments when the host plugin is absent.
    * @param {string} prompt
-   * @param {any} [options]
+   * @param {Record<string, any>} [options={}]
    * @returns {any}
    */
   _mock_generate(prompt, options = {}) {
@@ -639,9 +624,7 @@ export class VisualEngine {
   // --- Private Helpers ---
 
   /**
-   * Builds a compact recent-narrative digest for the BUILDER <HISTORY> block.
-   * Mirrors narrative context without importing @intelligence (would create a
-   * @media -> @intelligence import cycle).
+   * Builds a compact recent-narrative history for the prompt builder.
    * @param {number} [max_entries=2]
    * @param {number} [max_chars=200]
    * @returns {string}
@@ -657,24 +640,30 @@ export class VisualEngine {
   }
 
   /**
-   * @param {string} id
+   * Resolves an entity record by ID from IndexedDB entities table.
+   * @param {string | null | undefined} id
    * @returns {Promise<any>}
    */
-  async _resolveEntity(id) {
+  async resolve_entity(id) {
     if (!id) return { name: "Unknown", description: "" };
     return (await entities.get("character", id)) || (await entities.get("fractal", id)) || { name: "Unknown", description: "" };
   }
-
-  /**
-   * @param {string} id
-   * @param {any} data
-   * @param {'character' | 'fractal' | 'story'} type
-   */
-  async _cacheImage(id, data, type = "character") {
-    await db.entities.update(id, { profile_picture: data, updated_at: Date.now() });
-    await state_bridge.runtime.update_entity(type, id, { profile_picture: data });
-  }
 }
 
-// Export a singleton instance for global state persistence
+// ============================================================================
+// [SECTION 3: SINGLETON FACADE EXPORT]
+// ============================================================================
+
 export const visual_engine = new VisualEngine();
+
+// ============================================================================
+// [CHANGELOG]
+// ============================================================================
+/**
+ * CHANGELOG:
+ * - 2026-08-29: Applied ground-up /refactor protocol: added Universal File Architecture header block,
+ *   structured 3 explicit section dividers, converted _resolveEntity to snake_case resolve_entity,
+ *   standardized camelCase parameters and local variables (generate_secure_seed, timeout_id),
+ *   and verified unit test suite.
+ * - 2026-08-28: Integrated CircuitBreaker and ExponentialBackoffRetryer resilient generation.
+ */

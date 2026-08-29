@@ -1,6 +1,6 @@
 /**
- * Unit tests for Tokens and Color Generation logic
- * Ported from legacy entities.test.js
+ * @file src/media/tokens.test.js
+ * Unit tests for Design Tokens, Palette Resolution, and Color Generation logic.
  */
 import { get_signature_color, get_signature_label, get_deterministic_color, SIGNATURE_COLORS, PALETTE } from "./palette.js";
 import { aesthetic_resolver } from "./image-aesthetics.js";

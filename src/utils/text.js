@@ -242,6 +242,39 @@ export const safe_parse_pseudo_json = (raw) => {
 };
 
 /**
+ * Safely parses the first JSON object or array contained within raw text/prose.
+ * Returns the parsed payload or null if no valid JSON is found.
+ * @param {string | null | undefined} raw - Input string potentially containing JSON.
+ * @returns {any | null} Parsed object/array or null.
+ */
+export function safe_parse_json(raw) {
+  if (!raw || typeof raw !== "string") return null;
+
+  const start = raw.indexOf("{");
+  const end = raw.lastIndexOf("}");
+
+  if (start !== -1 && end !== -1 && end > start) {
+    try {
+      return JSON.parse(raw.slice(start, end + 1));
+    } catch (_) {
+      // Continue to array check or return null
+    }
+  }
+
+  const arr_start = raw.indexOf("[");
+  const arr_end = raw.lastIndexOf("]");
+  if (arr_start !== -1 && arr_end !== -1 && arr_end > arr_start) {
+    try {
+      return JSON.parse(raw.slice(arr_start, arr_end + 1));
+    } catch (_) {
+      return null;
+    }
+  }
+
+  return null;
+}
+
+/**
  * Pure simulation function that merges newly emitted [KEY: VALUE] bracket directives
  * into an entity's present physical/non-physical state field.
  * @param {string | null | undefined} current_field_value - Current field string.
@@ -652,11 +685,47 @@ export function decompose_story_title(title, entities = {}) {
   return parts;
 }
 
+/**
+ * Normalizes spacing after commas (e.g. "a,b,c" -> "a, b, c").
+ * @param {string} str
+ * @returns {string}
+ */
+export const normalize_comma_spacing = (str) => str.replace(/,([^\s])/g, ", $1");
+
+/**
+ * Deterministically flattens raw physical state strings or bracket pseudo-JSON
+ * into continuous, comma-spaced descriptive sentences.
+ * @param {string | null | undefined} raw - Raw state prose or pseudo-JSON string.
+ * @returns {string} Flattened descriptive prose.
+ */
+export function flatten_physical(raw) {
+  if (!raw) return "";
+  const parsed = safe_parse_pseudo_json(raw);
+
+  if (parsed.__raw_prose__) {
+    return normalize_comma_spacing(parsed.__raw_prose__);
+  }
+
+  if (Object.keys(parsed).length > 0) {
+    const clauses = Object.entries(parsed)
+      .map(([k, v]) => {
+        const val_str = Array.isArray(v) ? v.join(", ") : String(v).trim();
+        if (!val_str) return "";
+        return `${k.replace(/_/g, " ")}: ${val_str}`;
+      })
+      .filter(Boolean);
+    return normalize_comma_spacing(clauses.join(". "));
+  }
+
+  return normalize_comma_spacing(String(raw).trim());
+}
+
 // ============================================================================
 // [CHANGELOG]
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-08-29: Added flatten_physical and normalize_comma_spacing text formatting helpers.
  * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,
  *   structured 5 clear section dividers, exported frozen collections (CLEAR_TOKENS, AGGREGATE_KEYS,
  *   NAME_PREFIXES), added comprehensive JSDoc schemas, and verified 100% test pass.

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { clean_image_prompt, parse_llm_refine_response, prompt_templates } from "./image-prompts.js";
+import { clean_image_prompt, parse_llm_image_prompt_response, prompt_templates } from "./image-prompts.js";
 import { aesthetic_resolver, build_aesthetic_map, strip_visual_excluded, VISUAL_EXCLUDED_KEYS } from "./image-aesthetics.js";
 
 vi.mock("@data", () => ({
@@ -115,22 +115,22 @@ describe("strip_visual_excluded", () => {
   });
 });
 
-describe("parse_llm_refine_response", () => {
+describe("parse_llm_image_prompt_response", () => {
   it("extracts prompt and negative_prompt from JSON payloads wrapped in prose", () => {
     const raw = 'Here you go: {"prompt": "A moody portrait", "negative_prompt": "blurry"}';
-    expect(parse_llm_refine_response(raw)).toEqual({ prompt: "A moody portrait", negative_prompt: "blurry" });
+    expect(parse_llm_image_prompt_response(raw)).toEqual({ prompt: "A moody portrait", negative_prompt: "blurry" });
   });
 
   it("returns null for non-JSON or empty input", () => {
-    expect(parse_llm_refine_response("just prose")).toBeNull();
-    expect(parse_llm_refine_response(null)).toBeNull();
-    expect(parse_llm_refine_response("")).toBeNull();
+    expect(parse_llm_image_prompt_response("just prose")).toBeNull();
+    expect(parse_llm_image_prompt_response(null)).toBeNull();
+    expect(parse_llm_image_prompt_response("")).toBeNull();
   });
 });
 
-describe("prompt_templates.BUILDER with Cinematic Framing Lenses", () => {
+describe("prompt_templates.build_prompt with Cinematic Framing Lenses", () => {
   it("injects 'Intimate Close-Up' lens when intensity is >= 75", () => {
-    const prompt = prompt_templates.BUILDER("story_character", "Viper whispers a secret.", {
+    const prompt = prompt_templates.build_prompt("story_character", "Viper whispers a secret.", {
       ai: {
         name: "Viper",
         type: "character",
@@ -144,7 +144,7 @@ describe("prompt_templates.BUILDER with Cinematic Framing Lenses", () => {
   });
 
   it("injects 'Intimate Close-Up' lens when affinity is >= 75", () => {
-    const prompt = prompt_templates.BUILDER("story_character", "A tender glance.", {
+    const prompt = prompt_templates.build_prompt("story_character", "A tender glance.", {
       ai: {
         name: "Viper",
         type: "character",
@@ -157,7 +157,7 @@ describe("prompt_templates.BUILDER with Cinematic Framing Lenses", () => {
   });
 
   it("injects 'Dutch / Low-Angle' lens when chaos is >= 75", () => {
-    const prompt = prompt_templates.BUILDER("story_character", "The city explodes into rebellion.", {
+    const prompt = prompt_templates.build_prompt("story_character", "The city explodes into rebellion.", {
       ai: {
         name: "Viper",
         type: "character",
@@ -170,7 +170,7 @@ describe("prompt_templates.BUILDER with Cinematic Framing Lenses", () => {
   });
 
   it("defaults to 'Medium Action' lens for standard narrative moments", () => {
-    const prompt = prompt_templates.BUILDER("story_character", "Viper inspects her gear.", {
+    const prompt = prompt_templates.build_prompt("story_character", "Viper inspects her gear.", {
       ai: {
         name: "Viper",
         type: "character",
@@ -183,7 +183,7 @@ describe("prompt_templates.BUILDER with Cinematic Framing Lenses", () => {
   });
 
   it("uses 'Wide Environmental' for story_scene tier", () => {
-    const prompt = prompt_templates.BUILDER("story_scene", "The neon bazaar stretches into fog.", {
+    const prompt = prompt_templates.build_prompt("story_scene", "The neon bazaar stretches into fog.", {
       fractal: { name: "Neon Bazaar", type: "fractal" },
     });
 

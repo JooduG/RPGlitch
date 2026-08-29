@@ -156,11 +156,36 @@ export function clean_xml(xml) {
     .join("\n");
 }
 
+/**
+ * Parses structured tokens (<medium>, <palette>, <camera>, <composition>, <texture>, <negative_prompt>)
+ * out of a <VISUAL_ENGINE> XML block.
+ * @param {string} [engineXml=""]
+ * @returns {{ medium: string, palette: string, camera: string, composition: string, texture: string, negative_prompt: string }}
+ */
+export function parse_visual_engine(engineXml = "") {
+  const result = { medium: "", palette: "", camera: "", composition: "", texture: "", negative_prompt: "" };
+  if (!engineXml) return result;
+
+  const extract_tag = (tag) => {
+    const match = engineXml.match(new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`, "i"));
+    return match ? match[1].trim() : "";
+  };
+
+  result.medium = extract_tag("medium");
+  result.palette = extract_tag("palette");
+  result.camera = extract_tag("camera");
+  result.composition = extract_tag("composition");
+  result.texture = extract_tag("texture");
+  result.negative_prompt = extract_tag("negative_prompt");
+  return result;
+}
+
 // ============================================================================
 // [CHANGELOG]
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-08-29: Added parse_visual_engine for structured <VISUAL_ENGINE> XML parsing.
  * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,
  *   structured 4 clear section dividers, exported frozen CLOTHING_KEYS array, added comprehensive
  *   JSDoc schemas, and created unit test suite xml.test.js.

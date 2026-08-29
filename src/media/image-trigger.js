@@ -1,45 +1,82 @@
 /**
  * @file src/media/image-trigger.js
- * 🖼️ IMAGE TRIGGER ENGINE
- * Decides WHEN an image beat fires: pure-JS dynamics gate + LLM director
- * intent, gated by a shared cooldown. Pure — no reactivity or state.
+ * 🖼️ SENSORY CORTEX — IMAGE TRIGGER DECISION ENGINE
+ *
+ * Core Responsibilities:
+ * 1. Dual-Source Trigger Arbitration (`resolve_image_trigger`):
+ *    - Source A: Pure-JS physical dynamics displacement & extreme band crossings.
+ *    - Source B: LLM Director narrative beat requests (`trigger_image`).
+ *    - Strict Priority 1 (Director) > Priority 2 (Dynamics) arbitration with 1-image-per-round ceiling.
+ * 2. Decoupled Cooldown Enforcers:
+ *    - Independent cooldowns: 2 rounds for Director-explicit beats, 3 rounds for physics dynamics.
+ * 3. Pure-JS Dynamics Evaluation (`evaluate_image_trigger`):
+ *    - Signal A: Total displacement sum across all axes (`displacement_threshold = 60`).
+ *    - Signal B: Band entry transitions into extreme ranges (`<= 15` or `>= 85`).
+ *
+ * Purity: 100% pure deterministic logic. Zero side effects, zero Svelte runes.
  */
 
 import { DEFAULT_IMAGE_TIER, IMAGE_TIERS } from "./image-tiers.js";
 
-/**
- * 🖼️ IMAGE TRIGGER ENGINE CONFIG
- * Dual-source automatic image generation (pure-JS dynamics gate + LLM director),
- * with decoupled cooldowns and strict Priority 1 (Director) > Priority 2 (Dynamics) arbitration.
- */
-export const IMAGE_TRIGGER = {
-  // Source A — Pure-JS Dynamics Gate thresholds (Signal B band entry)
-  band_high: 85,
-  band_low: 15,
-  // Source A — Signal A: sum of |Δaxis| across all six axes
-  displacement_threshold: 60,
-  // Decoupled cooldowns:
-  // Director-explicit narrative beats: 2 rounds
-  director_cooldown_rounds: 2,
-  // Physics / dynamics displacement & band crossings: 3 rounds
-  dynamics_cooldown_rounds: 3,
-  // Default tier for dynamics-gate triggers.
-  default_tier: DEFAULT_IMAGE_TIER,
-  // The unified 4-Tier Image Taxonomy.
-  tiers: IMAGE_TIERS,
-};
+// ============================================================================
+// [SECTION 1: TRIGGER ENGINE CONFIGURATION & CONSTANTS]
+// ============================================================================
 
 /**
- * Resolves whether an image beat should trigger (Dual-source: Dynamics Gate + LLM Director)
- * with independent cooldown timers, Priority 1 (Director) arbitration, and a 1-image-per-round ceiling.
+ * Image Trigger Engine configuration thresholds and cooldown parameters.
+ * @type {Readonly<{
+ *   band_high: number,
+ *   band_low: number,
+ *   displacement_threshold: number,
+ *   director_cooldown_rounds: number,
+ *   dynamics_cooldown_rounds: number,
+ *   default_tier: string,
+ *   tiers: ReadonlyArray<string>
+ * }>}
+ */
+export const IMAGE_TRIGGER = Object.freeze({
+  // Source A — Pure-JS Dynamics Gate thresholds (Signal B extreme band entry)
+  band_high: 85,
+  band_low: 15,
+  // Source A — Signal A: sum of |Δaxis| across all axes
+  displacement_threshold: 60,
+  // Decoupled cooldowns:
+  director_cooldown_rounds: 2,
+  dynamics_cooldown_rounds: 3,
+  // Default tier for dynamics-gate triggers
+  default_tier: DEFAULT_IMAGE_TIER,
+  // The unified 4-Tier Image Taxonomy
+  tiers: IMAGE_TIERS,
+});
+
+/**
+ * Entity identifiers that belong to character domain for tier precedence resolution.
+ * @type {ReadonlySet<string>}
+ */
+const CHARACTER_DOMAIN_ENTITIES = Object.freeze(new Set(["ai", "user"]));
+
+// ============================================================================
+// [SECTION 2: DUAL-SOURCE ARBITRATION PIPELINE]
+// ============================================================================
+
+/**
+ * Resolves whether an image beat should trigger with independent cooldown timers and Priority 1 arbitration.
  * @param {Object} params
- * @param {any} params.snapshot - Current entity dynamics snapshot
- * @param {any} params.prev_dynamics - Previous dynamics state
- * @param {any} params.director_data - Parsed Director output
+ * @param {any} [params.snapshot] - Current entity dynamics snapshot
+ * @param {any} [params.prev_dynamics] - Previous dynamics state
+ * @param {any} [params.director_data] - Parsed Director output
  * @param {number} params.turn_round - Active round number
  * @param {number} [params.last_director_beat_round] - Last round Director triggered an image
  * @param {number} [params.last_dynamics_beat_round] - Last round Dynamics triggered an image
- * @returns {{ active: boolean, tier: string|null, source: 'director'|'dynamics'|null, signals: any, next_director_round: number|null, next_dynamics_round: number|null, director_explicit: boolean }}
+ * @returns {{
+ *   active: boolean,
+ *   tier: string | null,
+ *   source: "director" | "dynamics" | null,
+ *   signals: any,
+ *   next_director_round: number | null,
+ *   next_dynamics_round: number | null,
+ *   director_explicit: boolean
+ * }}
  */
 export function resolve_image_trigger({ snapshot, prev_dynamics, director_data, turn_round, last_director_beat_round, last_dynamics_beat_round }) {
   const dir_last = Number.isInteger(last_director_beat_round) ? last_director_beat_round : -1;
@@ -73,13 +110,11 @@ export function resolve_image_trigger({ snapshot, prev_dynamics, director_data, 
   let next_dynamics_round = null;
 
   if (director_qualifies) {
-    // Priority 1 wins — dynamics timer is NOT consumed
     active = true;
     source = "director";
     tier = tier_from_string || tier_from_pref || IMAGE_TRIGGER.default_tier;
     next_director_round = turn_round;
   } else if (dynamics_qualifies) {
-    // Priority 2 triggers
     active = true;
     source = "dynamics";
     tier = image_trigger_eval.tier || IMAGE_TRIGGER.default_tier;
@@ -97,27 +132,29 @@ export function resolve_image_trigger({ snapshot, prev_dynamics, director_data, 
   };
 }
 
+// ============================================================================
+// [SECTION 3: PURE-JS DYNAMICS GATE EVALUATOR]
+// ============================================================================
+
 /**
- * 🖼️ EVALUATE IMAGE TRIGGER — Source A: Pure-JS Dynamics Gate.
- *
- * Runs deterministically (no LLM call) after director settlement to decide whether
- * an automatic image beat should fire this round.
- *
- * Signals:
- *  - Signal B (Band Entry): any axis ENTERS an extreme band (>= band_high or <= band_low).
- *    Transitioning INTO the band triggers (82 -> 88, 18 -> 12). Leaving the band
- *    (88 -> 74) or moving within the band (76 -> 74) never triggers.
- *  - Signal A (Movement Displacement): the sum of |Δaxis| across all six axes
- *    exceeds `displacement_threshold`.
- *
- * @param {Record<string, Record<string, number>>} current - Post-director-settlement dynamics, keyed by entity (`ai` / `fractal`), each an axis map.
- * @param {Record<string, Record<string, number>>} previous - Pre-turn dynamics (last settled state), same nested shape.
- * @param {object} [options]
+ * Runs deterministically to evaluate physics dynamics shifts (Signal A: displacement, Signal B: extreme band entry).
+ * @param {Record<string, Record<string, number>>} [current={}]
+ * @param {Record<string, Record<string, number>>} [previous={}]
+ * @param {object} [options={}]
  * @param {number} [options.band_high=85]
  * @param {number} [options.band_low=15]
  * @param {number} [options.displacement_threshold=60]
  * @param {string} [options.default_tier="story_scene"]
- * @returns {{ triggered: boolean, signals: { band_entry: { axis: string, from: number, to: number, band: "high"|"low" } | null, displacement: number, displacement_threshold: number }, tier: string, deltas: Array<{ axis: string, from: number, to: number, delta: number }> }}
+ * @returns {{
+ *   triggered: boolean,
+ *   signals: {
+ *     band_entry: { axis: string, from: number, to: number, band: "high" | "low" } | null,
+ *     displacement: number,
+ *     displacement_threshold: number
+ *   },
+ *   tier: string,
+ *   deltas: Array<{ axis: string, from: number, to: number, delta: number, entity?: string }>
+ * }}
  */
 export function evaluate_image_trigger(current = {}, previous = {}, options = {}) {
   const band_high = options.band_high ?? 85;
@@ -125,15 +162,12 @@ export function evaluate_image_trigger(current = {}, previous = {}, options = {}
   const displacement_threshold = options.displacement_threshold ?? 60;
   const default_tier = options.default_tier ?? DEFAULT_IMAGE_TIER;
 
-  // Entity keys that belong to the character domain (portraits) rather than the
-  // environmental domain (scenes). Used to break multi-axis band-entry ties.
-  const CHARACTER_DOMAIN_ENTITIES = new Set(["ai", "user"]);
-
-  const entities = new Set([...Object.keys(current || {}), ...Object.keys(previous || {})]);
+  const entities_set = new Set([...Object.keys(current || {}), ...Object.keys(previous || {})]);
   const axis_names = new Set();
-  for (const ent of entities) {
-    for (const axis of Object.keys((current || {})[ent] || {})) axis_names.add(axis);
-    for (const axis of Object.keys((previous || {})[ent] || {})) axis_names.add(axis);
+
+  for (const entity of entities_set) {
+    for (const axis of Object.keys((current || {})[entity] || {})) axis_names.add(axis);
+    for (const axis of Object.keys((previous || {})[entity] || {})) axis_names.add(axis);
   }
 
   const deltas = [];
@@ -146,20 +180,21 @@ export function evaluate_image_trigger(current = {}, previous = {}, options = {}
     let to = null;
     let from_entity = null;
     let to_entity = null;
-    for (const ent of entities) {
-      const p = (previous || {})[ent] || {};
-      const c = (current || {})[ent] || {};
+
+    for (const entity of entities_set) {
+      const p = (previous || {})[entity] || {};
+      const c = (current || {})[entity] || {};
       if (from === null && Number.isFinite(p[axis])) {
         from = p[axis];
-        from_entity = ent;
+        from_entity = entity;
       }
       if (to === null && Number.isFinite(c[axis])) {
         to = c[axis];
-        to_entity = ent;
+        to_entity = entity;
       }
     }
-    // Guard against NaN poisoning: any non-finite axis value is skipped entirely
-    // so it can't corrupt the displacement sum or band-entry math.
+
+    // Guard against NaN poisoning
     if (!Number.isFinite(from) || !Number.isFinite(to)) continue;
 
     const delta = Math.round((to - from) * 10) / 10;
@@ -179,10 +214,8 @@ export function evaluate_image_trigger(current = {}, previous = {}, options = {}
   displacement = Math.round(displacement * 10) / 10;
   const triggered = band_entry !== null || displacement >= displacement_threshold;
 
-  // Tier precedence when multiple axes cross extreme bands in one turn:
-  // character-domain entries (story_character) win over environmental (story_scene);
-  // plain displacement triggers fall through to the configured default tier.
-  const character_band_entry = band_entries.find((be) => CHARACTER_DOMAIN_ENTITIES.has(be.entity));
+  // Tier precedence: character-domain entries win over environmental scenes
+  const character_band_entry = band_entries.find((entry) => CHARACTER_DOMAIN_ENTITIES.has(entry.entity));
   const tier = character_band_entry ? "story_character" : band_entries.length > 0 ? "story_scene" : default_tier;
 
   return {
@@ -196,3 +229,14 @@ export function evaluate_image_trigger(current = {}, previous = {}, options = {}
     deltas,
   };
 }
+
+// ============================================================================
+// [CHANGELOG]
+// ============================================================================
+/**
+ * CHANGELOG:
+ * - 2026-08-29: Applied ground-up /refactor protocol: added Universal File Architecture header block,
+ *   structured 3 explicit section dividers, sealed IMAGE_TRIGGER and CHARACTER_DOMAIN_ENTITIES with Object.freeze,
+ *   standardized loop parameter identifiers (entities_set, entry), and verified unit test suite.
+ * - 2026-08-28: Implemented decoupled cooldowns for Director vs Dynamics triggers and Priority 1 arbitration.
+ */
