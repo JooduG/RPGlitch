@@ -3,7 +3,7 @@
  * 🧬 PROFILE STATE — Reactive controller for entity editing.
  */
 import { db, normalize, PROFILE_FIELD_CATALOG, FLAT_LEAF_MAP } from "@data";
-import { prompt_builder, temporal_engine, parse_profile_json } from "@intelligence";
+import { prompt_builder, temporal_engine, parse_profile_json, strip_profile_wrappers } from "@intelligence";
 import { llm_service } from "@platform";
 import { app, runtime } from "@state";
 import { generate_uuid, get_value, set_value, strip_cognition_blocks, safe_parse_pseudo_json } from "@utils";
@@ -304,7 +304,7 @@ export class ProfileState {
       const payload = prompt_builder.build_enhancement(key, value, this.char.name || "", type, false, this.char);
       const result = await llm_service.enhance(payload);
       if (result) {
-        const clean_result = strip_cognition_blocks(result).trim();
+        const clean_result = strip_profile_wrappers(strip_cognition_blocks(result).trim());
 
         // Array fields (past) return JSON arrays of vector objects; all other
         // fields (including the prose FUTURE field) return plain text.
@@ -411,7 +411,7 @@ export class ProfileState {
       const result = await llm_service.enhance(payload);
 
       if (result) {
-        let clean_result = strip_cognition_blocks(result).trim();
+        let clean_result = strip_profile_wrappers(strip_cognition_blocks(result).trim());
         let json_str = clean_result.replace(/```json\n?|```/g, "").trim();
 
         const start_arr = json_str.indexOf("[");
@@ -524,8 +524,9 @@ export class ProfileState {
                 const current_vectors = this._vectors_of_type(key);
                 const new_vectors = val.map((text_str, idx) => {
                   const existing = current_vectors[idx] || {};
-                  const vector_str =
-                    typeof text_str === "string" ? text_str : text_str.content || text_str.directive || text_str.text || JSON.stringify(text_str);
+                  const vector_str = strip_profile_wrappers(
+                    typeof text_str === "string" ? text_str : text_str.content || text_str.directive || text_str.text || JSON.stringify(text_str),
+                  ).trim();
                   const base_vector = temporal_engine.create(vector_str, key);
                   // Keep the original vector's provenance id when enhancing an
                   // existing memory; otherwise the engine's ai_ stamp stands.
@@ -537,15 +538,15 @@ export class ProfileState {
               }
             } else if (key === "future" && typeof val === "string") {
               // FUTURE is a prose field — flat string value lands directly.
-              set_value(this.char, "future", val);
+              set_value(this.char, "future", strip_profile_wrappers(val));
             } else if (typeof val === "object" && !Array.isArray(val)) {
               for (const [sub_key, subVal] of Object.entries(val)) {
                 if (typeof subVal === "string") {
-                  set_value(this.char, `${key}.${sub_key}`, subVal);
+                  set_value(this.char, `${key}.${sub_key}`, strip_profile_wrappers(subVal));
                 }
               }
             } else if (typeof val === "string") {
-              set_value(this.char, key, val);
+              set_value(this.char, key, strip_profile_wrappers(val));
             }
           }
           this._user_mutated = true;

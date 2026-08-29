@@ -11,9 +11,16 @@
   import { guarded_transition } from "@utils";
   import { get_signature_color } from "@media";
   import { motion } from "@motion";
-  import { app } from "@state";
+  import { app, runtime } from "@state";
+  import { render_display_macros } from "@intelligence";
   import { flushSync } from "svelte";
   import { claim_menu, get_menu_epoch, claim_morph_epoch, get_morph_epoch } from "./ContextMenu.svelte.js";
+
+  const display_entities = $derived({
+    AI: runtime.active_ai || app.selected_ai,
+    USER: runtime.active_user || app.selected_user,
+    FRACTAL: runtime.active_fractal || app.selected_fractal,
+  });
 
   /**
    * @typedef {Object} Props
@@ -582,7 +589,7 @@
           `
           : ''}"
       >
-        {entity?.description || "No description provided."}
+        {entity?.description ? render_display_macros(entity.description, entity, display_entities) : "No description provided."}
       </p>
     {/if}
   </div>

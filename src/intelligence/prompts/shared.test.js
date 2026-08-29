@@ -4,7 +4,15 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { PROTOCOL_LIBRARY, parse_macros, render_protocols, render_system_head, strip_epistemic_tags } from "./shared.js";
+import {
+  PROTOCOL_LIBRARY,
+  parse_macros,
+  render_protocols,
+  render_system_head,
+  strip_epistemic_tags,
+  render_display_macros,
+  strip_profile_wrappers,
+} from "./shared.js";
 import { render_builder } from "./builder.js";
 import { build_pacing_directive } from "./story-prompts.js";
 
@@ -112,6 +120,72 @@ describe("Shared Prompt Utilities (shared.js)", () => {
       const alt = "Fallback {{me}}, AI is {{char}}, User is {{user}}.";
       const alt_result = parse_macros(alt, mock_entities.FRACTAL, mock_entities);
       expect(alt_result).toBe("Fallback Void, AI is Viper, User is Ghost.");
+    });
+  });
+
+  describe("Display Macro Rendering (render_display_macros)", () => {
+    const mock_entities = {
+      AI: { name: "Viper" },
+      USER: { name: "Ghost" },
+      FRACTAL: { name: "Void" },
+    };
+
+    it("resolves known macros to display names", () => {
+      expect(render_display_macros("I am {{me}}, you are {{you}}.", mock_entities.AI, mock_entities)).toBe("I am Viper, you are Ghost.");
+      expect(render_display_macros("Welcome to {{fractal}}.", mock_entities.AI, mock_entities)).toBe("Welcome to Void.");
+      expect(render_display_macros("In {{fractal}}, {{char}} waits.", mock_entities.FRACTAL, mock_entities)).toBe("In Void, Viper waits.");
+    });
+
+    it("is case-insensitive", () => {
+      expect(render_display_macros("{{ME}}", mock_entities.AI, mock_entities)).toBe("Viper");
+    });
+
+    it("emits a visible placeholder for unresolved macros instead of the raw token", () => {
+      const out = render_display_macros("Grip the {{unknown}} tight.", mock_entities.AI, mock_entities);
+      expect(out).toBe(`Grip the \u27e8unknown\u27e9 tight.`);
+      expect(out).not.toContain("{{");
+    });
+
+    it("emits placeholders when the owning entity or entities are missing", () => {
+      expect(render_display_macros("{{me}} vs {{you}}", mock_entities.AI, {})).toBe(`Viper vs \u27e8you\u27e9`);
+      expect(render_display_macros("{{me}}", null, mock_entities)).toBe(`\u27e8me\u27e9`);
+      expect(render_display_macros("", mock_entities.AI, mock_entities)).toBe("");
+    });
+
+    it("leaves plain prose untouched", () => {
+      expect(render_display_macros("A quiet night in the archive.", mock_entities.AI, mock_entities)).toBe("A quiet night in the archive.");
+    });
+  });
+
+  describe("Profile Wrapper Stripping (strip_profile_wrappers)", () => {
+    it("removes structural XML tags the model echoed into a field value", () => {
+      const raw = "<ETERNAL><NON_PHYSICAL>The world is a machine of consequence.</NON_PHYSICAL></ETERNAL>";
+      expect(strip_profile_wrappers(raw)).toBe("The world is a machine of consequence.");
+    });
+
+    it("removes a leading markdown-bold field-key header", () => {
+      const raw = "**PRESENT.NON_PHYSICAL** She is restless tonight.";
+      expect(strip_profile_wrappers(raw)).toBe("She is restless tonight.");
+    });
+
+    it("removes self-closing and attribute-bearing wrapper tags", () => {
+      const raw = 'Some prose <LAYER eternal="physical" /> and more <ENTITY_CONTEXT label="x">tail</ENTITY_CONTEXT>';
+      const out = strip_profile_wrappers(raw);
+      expect(out).not.toContain("<LAYER");
+      expect(out).not.toContain("<ENTITY_CONTEXT");
+      expect(out).toContain("Some prose");
+      expect(out).toContain("tail");
+    });
+
+    it("leaves ordinary prose untouched", () => {
+      const raw = "She traces the seam of the old world.";
+      expect(strip_profile_wrappers(raw)).toBe("She traces the seam of the old world.");
+    });
+
+    it("handles nullish and empty input", () => {
+      expect(strip_profile_wrappers(null)).toBe("");
+      expect(strip_profile_wrappers(undefined)).toBe("");
+      expect(strip_profile_wrappers("")).toBe("");
     });
   });
 

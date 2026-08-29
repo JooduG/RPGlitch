@@ -26,7 +26,9 @@ name (string), description (string), signature_color (string), appearance (strin
 - current_look / state_of_mind: Temporary visual features vs Current mood/mental state.
 - past / future: Historical anchors vs Active impulses/intent (a single standing objective string).
 
-Return a single JSON object starting with { and ending with }. No preamble, no markdown backticks, no external XML tags.`,
+Return a single JSON object starting with { and ending with }. No preamble, no markdown backticks, no external XML tags.
+
+- Field values are CLEAN PROSE ONLY: never embed XML tags (e.g. <ETERNAL>, <NON_PHYSICAL>), markdown-bold labels (e.g. **PRESENT.NON_PHYSICAL**), or structural headers inside any value.`,
 
   FORMATS: {
     ARRAY_APPEND:
@@ -42,7 +44,12 @@ Return a single JSON object starting with { and ending with }. No preamble, no m
   },
 
   SORTING: {
-    REDISTRIBUTE: `REDISTRIBUTE: The source profile may have content in the wrong field. Move each fact to its correct field — e.g. a temporary state written under 'personality' belongs under 'state_of_mind'; a mood written under 'appearance' belongs under 'current_look'. Sort and relocate; do not merely regenerate in place. Never move content into or out of 'description' (internal OOC notes). Preserve the facts; only their location and phrasing may change.`,
+    OUTPUT_RULES: `OUTPUT RULES:
+- Emit ONLY the requested JSON structure or field content. No preamble, no commentary.
+- Never echo XML tags (e.g. <ETERNAL>, <NON_PHYSICAL>, <ENTITY_CONTEXT>, <PAST>) into your output.
+- Never wrap values in markdown-bold labels (e.g. **PRESENT.NON_PHYSICAL**), backticks, or headers.
+- Values contain clean prose only — pure text and valid JSON, nothing else.`,
+    REDISTRIBUTE: `REDISTRIBUTE: The source profile may have content in the wrong field. Move each fact to its correct field — e.g. a temporary state written under 'personality' belongs under 'state_of_mind'; a mood written under 'appearance' belongs under 'current_look'. Sort and relocate; do not merely regenerate in place. Never move content into or out of 'description' (internal OOC notes). Preserve the facts; only their location and phrasing may change. Strip any XML tags, markdown-bold field labels, or structural headers from values — they contain only clean prose.`,
     INGESTION: `<INGESTION_DIRECTIVE Authority="L3_HIGH">
   <RULE name="SOURCE_OF_TRUTH">
     Source text details are absolute truth. Map them verbatim into corresponding schema fields.
@@ -154,6 +161,7 @@ export function render_enhancement({
       ? PROFILE_PROTOCOLS.MACROS.FRACTAL
       : PROFILE_PROTOCOLS.MACROS.CHARACTER
     : "";
+  const output_rules = PROFILE_PROTOCOLS.SORTING.OUTPUT_RULES;
 
   return clean_xml(`
 <SYSTEM role="${escape_xml(enhancer || "GENERAL")}" enhancing="${escape_xml(label || "")}" field="${escape_xml(field_id)}">
@@ -161,6 +169,7 @@ export function render_enhancement({
     ${ind(escape_xml(directive), 4)}
     ${format_instruction ? `\n\n    ${ind(format_instruction, 4)}` : ""}
     ${macro_instruction ? `\n\n    ${ind(macro_instruction, 4)}` : ""}
+    ${output_rules ? `\n\n    ${ind(output_rules, 4)}` : ""}
   </INSTRUCTIONS>
   <PROTOCOLS>
     ${ind(render_protocols("HYGIENE.DATA"), 4)}
@@ -191,6 +200,7 @@ export function render_profile_sorting(entity_type = "character", options = {}) 
       : `FOCUS: Extracting data for an individual CHARACTER. Re-contextualize or discard environmental/setting text. ${PROFILE_PROTOCOLS.MACROS.CHARACTER}`;
   const ingestion_str = options.ingestion ? `\n\n    ${ind(PROFILE_PROTOCOLS.SORTING.INGESTION, 4)}` : "";
   const redistribute_str = options.redistribute ? `\n\n    ${ind(PROFILE_PROTOCOLS.SORTING.REDISTRIBUTE, 4)}` : "";
+  const output_rules_str = `\n\n    ${ind(PROFILE_PROTOCOLS.SORTING.OUTPUT_RULES, 4)}`;
 
   return clean_xml(`
 <SYSTEM role="NARRATIVE_STRUCTURER" enhancing="Entire Profile">
@@ -199,7 +209,7 @@ export function render_profile_sorting(entity_type = "character", options = {}) 
 
     ${ind(escape_xml(PROTOCOL_LIBRARY.POV.THIRD_PERSON), 4)}
 
-    ${ind(focus_directive, 4)}${ingestion_str}${redistribute_str}
+    ${ind(focus_directive, 4)}${ingestion_str}${redistribute_str}${output_rules_str}
   </INSTRUCTIONS>
   <PROTOCOLS>
     ${ind(render_protocols("HYGIENE.DATA"), 4)}

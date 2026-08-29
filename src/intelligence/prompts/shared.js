@@ -146,6 +146,59 @@ export function parse_macros(text, owner, entities = {}) {
 }
 
 /**
+ * Resolves macros for HUMAN-facing display (readonly profiles, story cards).
+ *
+ * Unlike `parse_macros` — which keeps unresolved tokens verbatim because LLM
+ * prompts need the macro placeholder — display rendering resolves known macros
+ * to entity names ('{{me}}' → the viewed entity's name) and renders anything
+ * unresolvable as a visible placeholder, so the reader never sees raw
+ * `{{...}}` syntax. Edit-mode fields keep the raw macros; this is only for
+ * readonly presentation.
+ * @param {string} text
+ * @param {any} owner - The entity whose fields are being displayed ('{{me}}' resolves to its name).
+ * @param {{ AI?: any, USER?: any, FRACTAL?: any }} [entities]
+ * @returns {string}
+ */
+export function render_display_macros(text, owner, entities = {}) {
+  if (!text) return "";
+  const me_name = owner?.name?.trim() || "";
+  const ai_name = entities.AI?.name?.trim() || "";
+  const user_name = entities.USER?.name?.trim() || "";
+  const fractal_name = entities.FRACTAL?.name?.trim() || "";
+  const placeholder = (token) => `\u27e8${token}\u27e9`;
+
+  return String(text).replace(/\{\{(.*?)\}\}/g, (match, macro) => {
+    const token = macro.toLowerCase().trim();
+    if (token === "me") return me_name || placeholder("me");
+    if (token === "char") return ai_name || placeholder("char");
+    if (token === "user" || token === "you") return user_name || placeholder("you");
+    if (token === "fractal") return fractal_name || placeholder("fractal");
+    return placeholder(token);
+  });
+}
+
+/**
+ * Strips structural XML tags and leading markdown-bold field-key headers that
+ * LLMs occasionally echo from enhancement prompts into profile field values
+ * (e.g. `<ETERNAL><NON_PHYSICAL>` or `**PRESENT.NON_PHYSICAL**`). Only the
+ * known structural tag set is removed — ordinary prose is left untouched.
+ * @param {string | null | undefined} text
+ * @returns {string}
+ */
+const PROFILE_WRAPPER_TAGS =
+  /<\/?(?:ENTITY_CONTEXT|INPUT_CONTENT|SYSTEM|INSTRUCTIONS|PROTOCOLS|CONTRACT|LAYER|ETERNAL|PRESENT|PHYSICAL|NON_PHYSICAL|PERSONALITY|STATE_OF_MIND|CURRENT_LOOK|APPEARANCE|AGENDA|PAST|FUTURE|MEMORY|DESCRIPTION|RELATIONSHIPS?)\b[^>]*>/gi;
+
+export function strip_profile_wrappers(text) {
+  if (!text) return "";
+  return String(text)
+    .replace(PROFILE_WRAPPER_TAGS, "")
+    .replace(/^\s*\*\*[^*]+\*\*\s*/, "")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+/**
  * Safely evaluates, parses, and escapes an entity fragment value.
  * @param {any} text
  * @param {any} owner

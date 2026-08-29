@@ -19,6 +19,7 @@
   import ProfileHeader from "./ProfileHeader.svelte";
   import RelationalGraph from "./RelationalGraph.svelte";
   import { app, runtime, simulation_state } from "@state";
+  import { render_display_macros } from "@intelligence";
   import { fade } from "svelte/transition";
   import {
     NARRATIVE_STYLES,
@@ -65,6 +66,12 @@
 
   // --- DERIVED ---
   const signature_color = $derived(get_signature_color(profile_state.char, "var(--color-gunmetal)"));
+
+  const display_entities = $derived({
+    AI: runtime.active_ai || app.selected_ai,
+    USER: runtime.active_user || app.selected_user,
+    FRACTAL: runtime.active_fractal || app.selected_fractal,
+  });
 
   const author_options = Object.values(NARRATIVE_STYLES)
     .sort((a, b) => {
@@ -876,7 +883,7 @@
                                 >{k}</span
                               >
                               <span class="text-left text-xs leading-normal text-slate-200">
-                                {@render RenderFormattedValue(String(v))}
+                                {@render RenderFormattedValue(render_display_macros(String(v), profile_state.char, display_entities))}
                               </span>
                             </div>
                           {/if}
@@ -893,7 +900,7 @@
                   sync_id={section.label}
                   {signature_color}
                   placeholder={field.description}
-                  value={raw}
+                  value={profile_state.is_editing ? raw : render_display_macros(raw, profile_state.char, display_entities)}
                   oninput={(e) => profile_state.set_field_value(field.key, e.target.value)}
                   busy={profile_state.busy_fields.has(field.key)}
                   onfocus={() => profile_state.set_active_field(field.key, field.label || section.label)}
