@@ -72,8 +72,7 @@ describe("Director Quick Shot Prompt (render_director)", () => {
     expect(result.task).toContain('"next_action"');
     expect(result.task).toContain('"keywords"');
     expect(result.task).toContain('"directors_note"');
-    expect(result.task).toContain('"state_append"');
-    expect(result.task).toContain('"vector_append"');
+    expect(result.task).toContain('"dynamics_deltas"');
     expect(result.task).toContain('"fractal_dynamics_deltas"');
     expect(result.task).toContain("EPILOGUE_CONCLUDED");
   });

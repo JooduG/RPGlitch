@@ -175,8 +175,8 @@ export const gamemaster = {
             }
             return res;
           },
-          2,
-          1000,
+          1,
+          500,
         );
       };
 
