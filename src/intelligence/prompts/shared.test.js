@@ -12,6 +12,7 @@ import {
   strip_epistemic_tags,
   render_display_macros,
   strip_profile_wrappers,
+  unwrap_enhancement_text,
 } from "./shared.js";
 import { render_builder } from "./builder.js";
 import { build_pacing_directive } from "./story-prompts.js";
@@ -186,6 +187,56 @@ describe("Shared Prompt Utilities (shared.js)", () => {
       expect(strip_profile_wrappers(null)).toBe("");
       expect(strip_profile_wrappers(undefined)).toBe("");
       expect(strip_profile_wrappers("")).toBe("");
+    });
+  });
+
+  describe("Enhancement Value Unwrapping (unwrap_enhancement_text)", () => {
+    it("unwraps a fenced nested JSON object to the innermost string", () => {
+      const raw =
+        '```json\n{\n  "eternal": {\n    "non_physical": "Driven by a dual devotion to altruistic heroism and physical perfection, {{me}} operates with earnest energy."\n  }\n}\n```';
+      const out = unwrap_enhancement_text(raw, "eternal.non_physical");
+      expect(out).toBe("Driven by a dual devotion to altruistic heroism and physical perfection, {{me}} operates with earnest energy.");
+    });
+
+    it("prefers the field_id key path when multiple sections exist", () => {
+      const raw = '{"present": {"non_physical": "Present prose here."}, "eternal": {"non_physical": "Eternal prose here."}}';
+      expect(unwrap_enhancement_text(raw, "eternal.non_physical")).toBe("Eternal prose here.");
+      expect(unwrap_enhancement_text(raw, "present.non_physical")).toBe("Present prose here.");
+    });
+
+    it("falls back to the longest string leaf for sub-key objects", () => {
+      const raw = JSON.stringify({
+        present: {
+          non_physical: {
+            immediate_emotional_pressure: "High-energy euphoria from public validation.",
+            active_mental_focus: "Maintaining a heroic public image while scanning the scene.",
+            present_behavioral_drivers: "Performative masculinity and the desire for continued attention.",
+          },
+        },
+      });
+      const out = unwrap_enhancement_text(raw, "present.non_physical");
+      expect(out).toBe("Performative masculinity and the desire for continued attention.");
+    });
+
+    it("strips XML tags and fences together", () => {
+      const raw = '<PERSONALITY>```json\n{"non_physical": "Clean after all the wrappers."}\n```</PERSONALITY>';
+      expect(unwrap_enhancement_text(raw, "non_physical")).toBe("Clean after all the wrappers.");
+    });
+
+    it("passes plain prose through untouched", () => {
+      const prose = "He hides a deep fear of being rejected for his true, non-superhero self.";
+      expect(unwrap_enhancement_text(prose, "eternal.non_physical")).toBe(prose);
+    });
+
+    it("returns clean prose when the JSON is unparsable", () => {
+      const raw = "Some prose with an unmatched { brace inside.";
+      expect(unwrap_enhancement_text(raw, "eternal.non_physical")).toBe("Some prose with an unmatched { brace inside.");
+    });
+
+    it("handles nullish and empty input", () => {
+      expect(unwrap_enhancement_text(null)).toBe("");
+      expect(unwrap_enhancement_text(undefined)).toBe("");
+      expect(unwrap_enhancement_text("")).toBe("");
     });
   });
 

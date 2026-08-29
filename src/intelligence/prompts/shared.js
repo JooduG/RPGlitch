@@ -199,6 +199,86 @@ export function strip_profile_wrappers(text) {
 }
 
 /**
+ * Collects non-empty string leaves from a parsed JSON value.
+ * @param {any} value
+ * @param {string[]} [into]
+ * @returns {string[]}
+ */
+function collect_json_strings(value, into = []) {
+  if (typeof value === "string") {
+    const t = value.trim();
+    if (t) into.push(t);
+  } else if (Array.isArray(value)) {
+    for (const item of value) collect_json_strings(item, into);
+  } else if (value && typeof value === "object") {
+    for (const k of Object.keys(value)) collect_json_strings(value[k], into);
+  }
+  return into;
+}
+
+/**
+ * Descends a parsed JSON value along the dotted key path of a field id
+ * (e.g. "present.non_physical" → value["present"]["non_physical"]).
+ * @param {any} value
+ * @param {string} field_id
+ * @returns {any} The value at that path, or undefined.
+ */
+function descend_json_path(value, field_id) {
+  const parts = String(field_id || "")
+    .split(".")
+    .filter(Boolean);
+  let cur = value;
+  for (const part of parts) {
+    if (cur && typeof cur === "object" && part in cur) cur = cur[part];
+    else return undefined;
+  }
+  return cur;
+}
+
+/**
+ * Normalizes a single-field enhancement response into clean field content:
+ * strips code fences, XML wrapper tags, and leading markdown-bold headers;
+ * if the model wrapped the value in a JSON object (e.g.
+ * `{"eternal":{"non_physical":"..."}}`), unwraps to the innermost string,
+ * preferring the key path matching `field_id` and otherwise the longest leaf.
+ * @param {string | null | undefined} text
+ * @param {string} [field_id] - e.g. "present.non_physical" to prefer that path.
+ * @returns {string}
+ */
+export function unwrap_enhancement_text(text, field_id = "") {
+  if (!text) return "";
+  const cleaned = strip_profile_wrappers(
+    String(text)
+      .replace(/```json\b|```/gi, "")
+      .trim(),
+  );
+  if (!cleaned) return "";
+
+  const brace_at = cleaned.indexOf("{");
+  const bracket_at = cleaned.indexOf("[");
+  const has_object = brace_at !== -1 && (bracket_at === -1 || brace_at < bracket_at);
+  if (has_object) {
+    const last_brace = cleaned.lastIndexOf("}");
+    if (last_brace > brace_at) {
+      const block = cleaned.substring(brace_at, last_brace + 1);
+      try {
+        const parsed = JSON.parse(block);
+        if (parsed && typeof parsed === "object") {
+          const preferred = descend_json_path(parsed, field_id);
+          const candidates = collect_json_strings(preferred !== undefined ? preferred : parsed);
+          if (candidates.length) {
+            return candidates.sort((a, b) => b.length - a.length)[0];
+          }
+        }
+      } catch (_e) {
+        // not parseable JSON — fall through to cleaned prose
+      }
+    }
+  }
+  return cleaned;
+}
+
+/**
  * Safely evaluates, parses, and escapes an entity fragment value.
  * @param {any} text
  * @param {any} owner

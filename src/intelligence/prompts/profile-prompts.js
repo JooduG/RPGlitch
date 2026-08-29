@@ -44,11 +44,6 @@ Return a single JSON object starting with { and ending with }. No preamble, no m
   },
 
   SORTING: {
-    OUTPUT_RULES: `OUTPUT RULES:
-- Emit ONLY the requested JSON structure or field content. No preamble, no commentary.
-- Never echo XML tags (e.g. <ETERNAL>, <NON_PHYSICAL>, <ENTITY_CONTEXT>, <PAST>) into your output.
-- Never wrap values in markdown-bold labels (e.g. **PRESENT.NON_PHYSICAL**), backticks, or headers.
-- Values contain clean prose only — pure text and valid JSON, nothing else.`,
     REDISTRIBUTE: `REDISTRIBUTE: The source profile may have content in the wrong field. Move each fact to its correct field — e.g. a temporary state written under 'personality' belongs under 'state_of_mind'; a mood written under 'appearance' belongs under 'current_look'. Sort and relocate; do not merely regenerate in place. Never move content into or out of 'description' (internal OOC notes). Preserve the facts; only their location and phrasing may change. Strip any XML tags, markdown-bold field labels, or structural headers from values — they contain only clean prose.`,
     INGESTION: `<INGESTION_DIRECTIVE Authority="L3_HIGH">
   <RULE name="SOURCE_OF_TRUTH">
@@ -60,6 +55,24 @@ Return a single JSON object starting with { and ending with }. No preamble, no m
     - NEVER emit null, undefined, or empty string values.
   </RULE>
 </INGESTION_DIRECTIVE>`,
+  },
+
+  OUTPUT_RULES: {
+    PROSE: `OUTPUT RULES:
+- Emit ONLY the field content, as plain prose. No preamble, no commentary.
+- Do NOT wrap it in JSON, code fences (e.g. \`\`\`json), XML tags (e.g. <ETERNAL>, <NON_PHYSICAL>), markdown-bold labels (e.g. **PRESENT.NON_PHYSICAL**), backticks, or headers.
+- No keys, no labels, no scaffolding — just the text itself.`,
+    JSON_ARRAY: `OUTPUT RULES:
+- Emit ONLY the requested JSON array. No preamble, no commentary.
+- Do NOT wrap it in code fences (e.g. \`\`\`json), XML tags, or markdown.
+- Return valid JSON only.`,
+    BRACKETS: `OUTPUT RULES:
+- Emit ONLY the bracketed [KEY: value] configuration, one bracket per line.
+- Do NOT wrap it in JSON, code fences (e.g. \`\`\`json), XML tags, markdown-bold labels, or headers.`,
+    JSON_OBJECT: `OUTPUT RULES:
+- Emit ONLY the requested JSON object, starting with { and ending with }. No preamble, no commentary.
+- Do NOT wrap it in code fences (e.g. \`\`\`json), XML tags, or markdown.
+- Return valid JSON only.`,
   },
 };
 
@@ -161,7 +174,11 @@ export function render_enhancement({
       ? PROFILE_PROTOCOLS.MACROS.FRACTAL
       : PROFILE_PROTOCOLS.MACROS.CHARACTER
     : "";
-  const output_rules = PROFILE_PROTOCOLS.SORTING.OUTPUT_RULES;
+  const output_rules = is_array_field
+    ? PROFILE_PROTOCOLS.OUTPUT_RULES.JSON_ARRAY
+    : field_id.endsWith(".physical") || is_image_field
+      ? PROFILE_PROTOCOLS.OUTPUT_RULES.BRACKETS
+      : PROFILE_PROTOCOLS.OUTPUT_RULES.PROSE;
 
   return clean_xml(`
 <SYSTEM role="${escape_xml(enhancer || "GENERAL")}" enhancing="${escape_xml(label || "")}" field="${escape_xml(field_id)}">
@@ -200,7 +217,7 @@ export function render_profile_sorting(entity_type = "character", options = {}) 
       : `FOCUS: Extracting data for an individual CHARACTER. Re-contextualize or discard environmental/setting text. ${PROFILE_PROTOCOLS.MACROS.CHARACTER}`;
   const ingestion_str = options.ingestion ? `\n\n    ${ind(PROFILE_PROTOCOLS.SORTING.INGESTION, 4)}` : "";
   const redistribute_str = options.redistribute ? `\n\n    ${ind(PROFILE_PROTOCOLS.SORTING.REDISTRIBUTE, 4)}` : "";
-  const output_rules_str = `\n\n    ${ind(PROFILE_PROTOCOLS.SORTING.OUTPUT_RULES, 4)}`;
+  const output_rules_str = `\n\n    ${ind(PROFILE_PROTOCOLS.OUTPUT_RULES.JSON_OBJECT, 4)}`;
 
   return clean_xml(`
 <SYSTEM role="NARRATIVE_STRUCTURER" enhancing="Entire Profile">

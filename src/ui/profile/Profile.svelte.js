@@ -3,7 +3,7 @@
  * 🧬 PROFILE STATE — Reactive controller for entity editing.
  */
 import { db, normalize, PROFILE_FIELD_CATALOG, FLAT_LEAF_MAP } from "@data";
-import { prompt_builder, temporal_engine, parse_profile_json, strip_profile_wrappers } from "@intelligence";
+import { prompt_builder, temporal_engine, parse_profile_json, strip_profile_wrappers, unwrap_enhancement_text } from "@intelligence";
 import { llm_service } from "@platform";
 import { app, runtime } from "@state";
 import { generate_uuid, get_value, set_value, strip_cognition_blocks, safe_parse_pseudo_json } from "@utils";
@@ -337,7 +337,7 @@ export class ProfileState {
             }
           }
         } else if (key.endsWith(".physical")) {
-          const normalized = this._normalize_physical_enhancement(key, clean_result, type);
+          const normalized = this._normalize_physical_enhancement(key, unwrap_enhancement_text(clean_result, key), type);
           if (normalized == null) {
             console.warn(`[ProfileState] Physical enhancement for ${key} rejected — unparsable or missing mandatory keys. Keeping current value.`);
           } else {
@@ -351,7 +351,7 @@ export class ProfileState {
                   .replace(/[\r\n]+/g, " ")
                   .trim()
                   .slice(0, 80)
-              : clean_result;
+              : unwrap_enhancement_text(clean_result, key);
           set_value(this.char, key, final_val);
           this._user_mutated = true;
         }
