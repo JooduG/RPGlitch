@@ -11,6 +11,11 @@
  *   1. Session Pointer Management (`active_id`, `set_active`, `clear_active`, `restore_active`, `require_active`)
  *   2. Story Session Creation (`create_from_selection`)
  *   3. Simulation Log CRUD (`log_message`, `log_system_entry`, `load_log`, `edit_log_entry`, `delete_log_entry`, `update_log_attachment`, `delete_log_attachment`, `regenerate`)
+ *
+ * RULES FOR MODIFICATION:
+ *   - Never import directly from `src/state` or `src/ui`. Use `state_bridge` or `stories_bridge`.
+ *   - Use `$state.snapshot()` before persisting plain objects to IndexedDB via Dexie.
+ *   - Adhere strictly to P4: Zero Backwards Compatibility and full descriptive naming.
  */
 
 import { parse_relational_vector, state_bridge, stories_bridge } from "@utils";
@@ -105,47 +110,47 @@ export const session_driver = {
     const initial_npc_ids = new Set(Array.isArray(selection.npc_ids) ? selection.npc_ids.map(String).filter((id) => !excluded_ids.has(id)) : []);
 
     try {
-      const all_chars = await db.entities
+      const all_characters = await db.entities
         .where("type")
         .equals("character")
         .toArray()
         .catch(() => []);
       const fractal_name = (fractal_entity?.name || "").trim().toLowerCase();
 
-      for (const char of all_chars) {
-        const char_id = String(char.id);
-        if (excluded_ids.has(char_id)) continue;
+      for (const character of all_characters) {
+        const character_id = String(character.id);
+        if (excluded_ids.has(character_id)) continue;
 
         // 1. Check if Character is a Wanderer
-        if (char.is_wanderer) {
-          initial_npc_ids.add(char_id);
+        if (character.is_wanderer) {
+          initial_npc_ids.add(character_id);
           continue;
         }
 
         // 2. Check if Fractal has outgoing relationship to this Character
-        const fractal_rels = Array.isArray(fractal_entity?.relationships) ? fractal_entity.relationships : [];
-        const char_name = (char.name || "").trim().toLowerCase();
-        const has_fractal_bond = fractal_rels.some((r) => {
-          const parsed = parse_relational_vector(r);
-          return parsed && parsed.target_name.toLowerCase() === char_name;
+        const fractal_relationships = Array.isArray(fractal_entity?.relationships) ? fractal_entity.relationships : [];
+        const character_name = (character.name || "").trim().toLowerCase();
+        const has_fractal_bond = fractal_relationships.some((rel) => {
+          const parsed = parse_relational_vector(rel);
+          return parsed && parsed.target_name.toLowerCase() === character_name;
         });
         if (has_fractal_bond) {
-          initial_npc_ids.add(char_id);
+          initial_npc_ids.add(character_id);
           continue;
         }
 
         // 3. Check if Character has outgoing relationship to this Fractal
-        const char_rels = Array.isArray(char.relationships) ? char.relationships : [];
-        const has_char_to_fractal_bond = char_rels.some((r) => {
-          const parsed = parse_relational_vector(r);
+        const character_relationships = Array.isArray(character.relationships) ? character.relationships : [];
+        const has_character_to_fractal_bond = character_relationships.some((rel) => {
+          const parsed = parse_relational_vector(rel);
           return parsed && fractal_name && parsed.target_name.toLowerCase() === fractal_name;
         });
-        if (has_char_to_fractal_bond) {
-          initial_npc_ids.add(char_id);
+        if (has_character_to_fractal_bond) {
+          initial_npc_ids.add(character_id);
         }
       }
-    } catch (err) {
-      console.warn("[Session] Auto-seeding fractal roster failed, falling back to selection:", err);
+    } catch (error) {
+      console.warn("[Session] Auto-seeding fractal roster failed, falling back to selection:", error);
     }
 
     const id = await db.stories.add({
@@ -328,6 +333,7 @@ export const session_driver = {
       story_id: effective_story_id,
       role,
       type: "text",
+      text,
       character_name,
       turn_type,
       round: state_bridge.runtime?.round ?? 0,
@@ -354,13 +360,13 @@ export const session_driver = {
    */
   async load_log(story_id) {
     if (!story_id) return [];
-    const str_id = String(story_id);
-    const num_id = Number(story_id);
-    let msgs = await db.simulation_log.where("story_id").equals(str_id).sortBy("created_at");
-    if (msgs.length === 0 && !isNaN(num_id)) {
-      msgs = await db.simulation_log.where("story_id").equals(num_id).sortBy("created_at");
+    const string_id = String(story_id);
+    const numeric_id = Number(story_id);
+    let messages = await db.simulation_log.where("story_id").equals(string_id).sortBy("created_at");
+    if (messages.length === 0 && !isNaN(numeric_id)) {
+      messages = await db.simulation_log.where("story_id").equals(numeric_id).sortBy("created_at");
     }
-    return msgs;
+    return messages;
   },
 
   /**
@@ -387,3 +393,13 @@ export const session_driver = {
     state_bridge.simulation_log?.add?.(entry);
   },
 };
+
+// ============================================================================
+// CHANGELOG
+// ============================================================================
+/**
+ * CHANGELOG
+ * - 2026-08-29: Harmonized sessions.svelte.js to adhere strictly to constitutional
+ *   lexical standards (unabbreviated naming, full descriptive variables), added
+ *   instructional header block, standard dividers, and changelog footer.
+ */

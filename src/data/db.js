@@ -1,8 +1,10 @@
 /**
+ * ============================================================================
  * src/data/db.js
  * 🗄️ INDEXEDDB DATABASE ENGINE (Dexie.js)
+ * ============================================================================
  *
- * The single source of truth for the local-first IndexedDB schema, version
+ * Single source of truth for the local-first IndexedDB schema, version
  * migrations (v10 -> v14), and connection lifecycle hooks (blocked/versionchange).
  *
  * TABLES:
@@ -12,6 +14,15 @@
  *   - kv_settings:    Key-value application and debug configuration.
  *   - sessions:       Session tracking timestamps.
  *   - audio_prefs:    Master audio preferences and volume keys.
+ *
+ * RULES FOR MODIFICATION:
+ *   - Retain Dexie schema version migrations (v10-v14) to avoid breaking existing databases.
+ *   - Multi-entry indexes like *npc_ids must be declared with an asterisk prefix.
+ *   - Do not import UI or reactive state layers into this persistence file.
+ *
+ * DEPENDENCIES:
+ *   - dexie
+ * ============================================================================
  */
 
 import Dexie from "dexie";
@@ -54,8 +65,8 @@ db.version(11)
     stories: "++id, title, ai_id, user_id, fractal_id, round, created_at, updated_at",
     settings: null,
   })
-  .upgrade(async (trans) => {
-    return await trans
+  .upgrade(async (transaction) => {
+    return await transaction
       .table("stories")
       .toCollection()
       .modify((story) => {
@@ -73,7 +84,7 @@ db.version(12).stores({
   entities: "id, name, description, profile_picture, signature_color, created_at, updated_at, tags, type",
 });
 
-// v13: Drop the `[type+isCustom]` index (isCustom field retired by the Dev wing data-block harmonization).
+// v13: Drop the `[type+isCustom]` index (isCustom field retired by data-block harmonization).
 db.version(13).stores({
   entities: "id, name, description, profile_picture, signature_color, created_at, updated_at, tags, type",
 });
@@ -89,30 +100,30 @@ db.version(14).stores({
 
 /** @type {(() => void) | null} */
 let _versionchange_quiesce = null;
-let _versionchange_pending = false;
+let _is_versionchange_pending = false;
 
 /**
  * Registers a quiesce callback invoked just before a versionchange reload.
- * The app uses it to stash a reload-safe session checkpoint — IndexedDB is
+ * The application uses it to stash a reload-safe session checkpoint — IndexedDB is
  * mid-upgrade at that point, so no DB writes are possible.
- * @param {(() => void) | null} fn
+ * @param {(() => void) | null} quiesce_callback
  */
-export function set_versionchange_quiesce(fn) {
-  _versionchange_quiesce = fn;
+export function set_versionchange_quiesce(quiesce_callback) {
+  _versionchange_quiesce = quiesce_callback;
 }
 
 db.on("blocked", () => {
-  console.warn("[Data] Database is blocked by another tab/version. Please close other instances.");
+  console.warn("[Database] Database is blocked by another tab/version. Please close other instances.");
 });
 
 db.on("versionchange", () => {
   // Guard against reload loops when multiple versionchange events fire.
-  if (_versionchange_pending) return;
-  _versionchange_pending = true;
+  if (_is_versionchange_pending) return;
+  _is_versionchange_pending = true;
   try {
     _versionchange_quiesce?.();
-  } catch (err) {
-    console.warn("[Data] Versionchange quiesce failed:", err);
+  } catch (error) {
+    console.warn("[Database] Versionchange quiesce failed:", error);
   }
   db.close();
   if (typeof window !== "undefined") {
@@ -132,10 +143,20 @@ export async function init_db() {
   try {
     await db.open();
     return db;
-  } catch (err) {
-    console.error("[Data] Failed to open database. You may need to manually delete it from browser DevTools.", /** @type {any} */ (err).stack || err);
-    throw err;
+  } catch (error) {
+    console.error(
+      "[Database] Failed to open database. You may need to manually delete it from browser DevTools.",
+      /** @type {any} */ (error).stack || error,
+    );
+    throw error;
   }
 }
 
 export { db };
+
+// ============================================================================
+// CHANGELOG
+// ============================================================================
+/**
+ * 2026-08-29: Harmonized module structure, updated nomenclature (quiesce_callback, transaction, error, _is_versionchange_pending), added Universal File Architecture header and changelog blocks.
+ */

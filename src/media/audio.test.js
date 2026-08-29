@@ -3,7 +3,7 @@
  * Unit tests verifying audio engine and premade voice configurations.
  */
 import { describe, expect, it } from "vitest";
-import { premade } from "@data";
+import { PREMADE_FRACTALS } from "@data";
 import {
   CADENCE_RATES,
   VOICE_CADENCES,
@@ -39,10 +39,9 @@ describe("normalize_role", () => {
 
 describe("Audio & Voice Configurations", () => {
   it("assigns valid voice configurations to all premade fractals", () => {
-    const fractals = premade.entities.filter((e) => e.type === "fractal");
-    expect(fractals.length).toBeGreaterThan(0);
+    expect(PREMADE_FRACTALS.length).toBeGreaterThan(0);
 
-    fractals.forEach((fractal) => {
+    PREMADE_FRACTALS.forEach((fractal) => {
       expect(fractal.voice).toBeDefined();
       expect(typeof (fractal.voice.name || fractal.voice.uri)).toBe("string");
       expect(typeof fractal.voice.cadence).toBe("string");
@@ -50,8 +49,7 @@ describe("Audio & Voice Configurations", () => {
   });
 
   it("resolves every premade voice name to a real catalog voice", () => {
-    const fractals = premade.entities.filter((e) => e.type === "fractal");
-    for (const fractal of fractals) {
+    for (const fractal of PREMADE_FRACTALS) {
       const uri = resolve_voice_uri(fractal.voice.name || fractal.voice.uri);
       expect(uri).not.toBe("");
       const round_trip = resolve_voice_name(uri);
@@ -88,8 +86,7 @@ describe("Audio & Voice Configurations", () => {
   });
 
   it("assigns only valid cadences to all premade fractals", () => {
-    const fractals = premade.entities.filter((e) => e.type === "fractal");
-    for (const fractal of fractals) {
+    for (const fractal of PREMADE_FRACTALS) {
       expect(VOICE_CADENCES.some((c) => c.id === fractal.voice.cadence)).toBe(true);
     }
   });

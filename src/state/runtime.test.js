@@ -1,6 +1,6 @@
 import "fake-indexeddb/auto";
 import { runtime } from "./runtime.svelte.js";
-import { app } from "./app-store.svelte.js";
+import { app } from "./interface.svelte.js";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // hoisted so it's initialized before the mocked @platform/session-storage.js module is
@@ -87,7 +87,7 @@ describe("runtime.sync checkpoint restore", () => {
     vi.spyOn(console, "warn").mockImplementation(() => {});
     vi.spyOn(console, "error").mockImplementation(() => {});
     ({ runtime } = await import("./runtime.svelte.js"));
-    ({ app } = await import("./app-store.svelte.js"));
+    ({ app } = await import("./interface.svelte.js"));
   }, 30000);
 
   afterEach(() => {

@@ -1,20 +1,40 @@
 /**
+ * ============================================================================
  * src/data/normalizer.js
  * 🧪 ENTITY NORMALIZATION & SCHEMA COMPLIANCE ENGINE
+ * ============================================================================
  *
- * The single source of truth for normalizing, sanitizing, and validating
- * RPGlitch entity data models (Characters and Fractals) against the Four-Quadrant
- * schema (Eternal, Present, Past, Future) and physics dynamics constraints.
+ * Single source of truth for normalizing, sanitizing, and validating RPGlitch
+ * entity data models (Characters and Fractals) against the Four-Quadrant schema:
+ *   - Eternal:  Baseline physical and non-physical identity facts.
+ *   - Present:  Active, momentary physical states and psychological condition.
+ *   - Past:     Semantic memory vectors (RAG anchors with origin provenance).
+ *   - Future:   Impending standing agenda and active trajectory prose.
+ *
+ * RESPONSIBILITIES:
+ *   1. Enforce strict type constraints, string bounds, and HTML sanitization.
+ *   2. Clamp physics dynamics sliders to the canonical [1, 100] integer scale.
+ *   3. Enforce World-Cast relationship graph bounds (<=40 links, <=240 chars).
+ *   4. Format and cap macro-quest chapter archives (<=12 chapters).
+ *   5. Produce pristine factory entity instances with typed UUID prefixes.
+ *   6. Scrub transient database IDs and internal embeddings for clean exports.
  *
  * EXPORTS:
- *   - ENTITY_TEMPLATES:           Factory baseline definitions for Characters and Fractals.
- *   - normalize(base):            Sanitizes and clamps raw object into guaranteed entity schema.
- *   - create_new(type, overrides): Instantiates a fresh, pristine entity model with ID & timestamps.
- *   - format_premade(data, type):  Formats catalog premades for database ingestion.
- *   - coerce_temporal_vectors(val):Normalizes semantic past memory vectors with origin stamps.
- *   - coerce_temporal_array(val):  Splits raw strings/arrays into clean temporal string lists.
- *   - serialize_entity_for_export(e): Strips internal database IDs and transient metadata for clean export.
- *   - get_random_signature_key():  Selects a valid random palette signature color.
+ *   - ENTITY_TEMPLATES:                 Baseline blueprints for Characters and Fractals.
+ *   - normalize(base):                  Normalizes raw objects into guaranteed entity schema.
+ *   - create_new(type, overrides):       Instantiates a fresh entity with timestamps and UUID.
+ *   - format_premade(data, type):        Formats catalog premades for database storage.
+ *   - coerce_temporal_vectors(value):   Normalizes memory vector objects with origin stamps.
+ *   - coerce_temporal_array(value):     Parses raw strings/arrays into clean string lists.
+ *   - serialize_entity_for_export(ent): Strips transient database fields for export.
+ *   - get_random_signature_key():        Selects a random palette signature color.
+ *
+ * DEPENDENCIES:
+ *   - `@utils`: generate_uuid, pick_random
+ *   - `@platform`: security.sanitize
+ *   - `./definitions/signature-colors.js`: SIGNATURE_COLORS
+ *   - `./definitions/speaking-styles.js`: is_valid_speaking_style
+ * ============================================================================
  */
 
 import { generate_uuid, pick_random } from "@utils";
@@ -22,15 +42,15 @@ import { security } from "@platform";
 import { SIGNATURE_COLORS } from "./definitions/signature-colors.js";
 import { is_valid_speaking_style } from "./definitions/speaking-styles.js";
 
-const sanitize_html = (/** @type {any} */ val) => security.sanitize(val);
+const sanitize_html = (/** @type {any} */ value) => security.sanitize(value);
 
 // ============================================================================
 // 1. FACTORY ENTITY TEMPLATES
 // ============================================================================
 
 /**
- * Defines the initial structure for new entities born in the Library.
- * Fields are empty strings so that UI 'placeholder' attributes can work correctly.
+ * Baseline factory definitions for entities created in the Library.
+ * Fields initialize to empty strings so UI placeholder attributes render properly.
  */
 export const ENTITY_TEMPLATES = {
   character: {
@@ -93,7 +113,141 @@ export function get_random_signature_key() {
 }
 
 // ============================================================================
-// 2. CORE NORMALIZER ENGINE
+// 2. EXTRACTION & FIELD NORMALIZATION HELPERS
+// ============================================================================
+
+/**
+ * Normalizes entity name with sanitization, single-line flattening, and length capping.
+ * @param {any} raw_name
+ * @returns {string}
+ */
+function normalize_name(raw_name) {
+  const sanitized_text = sanitize_html(raw_name || "")
+    .replace(/[\r\n]+/g, " ")
+    .trim();
+  return sanitized_text.length > 80 ? sanitized_text.slice(0, 80).trim() : sanitized_text;
+}
+
+/**
+ * Resolves and validates a signature color against the palette.
+ * @param {any} raw_color
+ * @returns {string}
+ */
+function normalize_signature_color(raw_color) {
+  const parsed_color = sanitize_html(String(raw_color || "")).trim();
+  return SIGNATURE_COLORS.includes(parsed_color) ? parsed_color : get_random_signature_key();
+}
+
+/**
+ * Resolves visual style preset string.
+ * @param {any} raw_style
+ * @returns {string}
+ */
+function normalize_visual_style(raw_style) {
+  const parsed_style = sanitize_html(String(raw_style || "")).trim();
+  return parsed_style && parsed_style !== "default" ? parsed_style : "none";
+}
+
+/**
+ * Resolves entity narrative point of view.
+ * @param {any} raw_pov
+ * @param {'character'|'fractal'} resolved_type
+ * @returns {string}
+ */
+function normalize_point_of_view(raw_pov, resolved_type) {
+  const parsed_pov = sanitize_html(String(raw_pov || "")).trim();
+  if (parsed_pov === "1st_person" || parsed_pov === "3rd_person") return parsed_pov;
+  return resolved_type === "fractal" ? "3rd_person" : "1st_person";
+}
+
+/**
+ * Validates speaking style against canonical registry.
+ * @param {any} raw_speaking_style
+ * @returns {string}
+ */
+function normalize_speaking_style(raw_speaking_style) {
+  const parsed_style = sanitize_html(String(raw_speaking_style || "")).trim();
+  return is_valid_speaking_style(parsed_style) ? parsed_style : "";
+}
+
+/**
+ * Normalizes tag strings array.
+ * @param {any} raw_tags
+ * @returns {string[]}
+ */
+function normalize_tags(raw_tags) {
+  return (Array.isArray(raw_tags) ? raw_tags : [])
+    .map((tag) => (tag != null ? sanitize_html(String(tag).trim()) : ""))
+    .filter(Boolean)
+    .slice(0, 30);
+}
+
+/**
+ * Normalizes entity relationships array.
+ * @param {any} raw_relationships
+ * @returns {string[]}
+ */
+function normalize_relationships(raw_relationships) {
+  return (Array.isArray(raw_relationships) ? raw_relationships : [])
+    .map((relationship) => (relationship != null ? sanitize_html(String(relationship)).trim() : ""))
+    .filter(Boolean)
+    .map((relationship) => (relationship.length > 240 ? `${relationship.slice(0, 240).trim()}…` : relationship))
+    .slice(0, 40);
+}
+
+/**
+ * Normalizes chapter archive entries.
+ * @param {any} raw_chapters
+ * @returns {Array<{id: string, title: string, summary: string, agenda: string, status: 'open'|'closed', created_at: number, closed_at: number}>}
+ */
+function normalize_chapters(raw_chapters) {
+  return (Array.isArray(raw_chapters) ? raw_chapters : [])
+    .map((chapter) => {
+      if (!chapter || typeof chapter !== "object") return null;
+      const title = sanitize_html(String(chapter.title || ""))
+        .trim()
+        .slice(0, 80);
+      return {
+        id: sanitize_html(String(chapter.id || ""))
+          .trim()
+          .slice(0, 40),
+        title: title || "Untitled chapter",
+        summary: sanitize_html(String(chapter.summary || ""))
+          .trim()
+          .slice(0, 400),
+        agenda: sanitize_html(String(chapter.agenda || ""))
+          .trim()
+          .slice(0, 600),
+        status: chapter.status === "open" || chapter.status === "closed" ? chapter.status : "closed",
+        created_at: Number(chapter.created_at) || 0,
+        closed_at: chapter.closed_at ? Number(chapter.closed_at) || 0 : 0,
+      };
+    })
+    .filter(Boolean)
+    .slice(-12);
+}
+
+/**
+ * Clamps and structures physics dynamics according to entity template axes.
+ * @param {any} raw_dynamics
+ * @param {Record<string, number>} template_dynamics
+ * @returns {Record<string, number>}
+ */
+function normalize_dynamics(raw_dynamics, template_dynamics) {
+  const valid_axes = Object.keys(template_dynamics);
+  const normalized_dynamics = {};
+  const source_dynamics = raw_dynamics && typeof raw_dynamics === "object" ? raw_dynamics : template_dynamics;
+
+  for (const axis of valid_axes) {
+    const raw_value = source_dynamics[axis];
+    const numeric_value = Number(raw_value);
+    normalized_dynamics[axis] = Number.isFinite(numeric_value) ? Math.max(1, Math.min(100, Math.round(numeric_value))) : template_dynamics[axis];
+  }
+  return normalized_dynamics;
+}
+
+// ============================================================================
+// 3. CORE NORMALIZER ENGINE
 // ============================================================================
 
 /**
@@ -138,87 +292,39 @@ export function normalize(base = {}) {
   const resolved_type = type === "fractal" ? "fractal" : "character";
   const template = ENTITY_TEMPLATES[resolved_type];
 
-  const norm_is_premade = is_premade ?? 0;
-  const norm_is_custom = is_custom ?? 0;
-  const norm_origin_id = origin_id ?? null;
-  const norm_dynamics_baseline = dynamics_baseline instanceof Object ? { ...dynamics_baseline } : null;
+  const is_premade_normalized = is_premade ?? 0;
+  const is_custom_normalized = is_custom ?? 0;
+  const origin_id_normalized = origin_id ?? null;
+  const dynamics_baseline_normalized = dynamics_baseline instanceof Object ? { ...dynamics_baseline } : null;
 
   return {
     // --- CORE METADATA ---
     id: id ?? "",
     created_at: created_at ?? 0,
     updated_at: updated_at ?? 0,
-    origin_id: norm_origin_id,
-    is_premade: norm_is_premade,
-    is_custom: norm_is_custom,
+    origin_id: origin_id_normalized,
+    is_premade: is_premade_normalized,
+    is_custom: is_custom_normalized,
     version: version ?? 0,
-    dynamics_baseline: norm_dynamics_baseline,
+    dynamics_baseline: dynamics_baseline_normalized,
 
-    name: (() => {
-      const clean = sanitize_html(name)
-        .replace(/[\r\n]+/g, " ")
-        .trim();
-      return clean.length > 80 ? clean.slice(0, 80).trim() : clean;
-    })(),
+    name: normalize_name(name),
     description: sanitize_html(description).trim(),
     type: resolved_type,
-    signature_color: (() => {
-      const parsed = sanitize_html(String(signature_color)).trim();
-      return SIGNATURE_COLORS.includes(parsed) ? parsed : get_random_signature_key();
-    })(),
-    profile_picture: sanitize_html(String(profile_picture)).trim(),
-    narrative_style: sanitize_html(String(narrative_style)).trim(),
-    visual_style: (() => {
-      const parsed = sanitize_html(String(visual_style)).trim();
-      return parsed && parsed !== "default" ? parsed : "none";
-    })(),
-    pov: (() => {
-      const parsed = sanitize_html(String(pov)).trim();
-      if (parsed === "1st_person" || parsed === "3rd_person") return parsed;
-      return resolved_type === "fractal" ? "3rd_person" : "1st_person";
-    })(),
-    speaking_style: (() => {
-      const parsed = sanitize_html(String(speaking_style || "")).trim();
-      return is_valid_speaking_style(parsed) ? parsed : "";
-    })(),
-    tags: (Array.isArray(tags) ? tags : [])
-      .map((s) => (s != null ? sanitize_html(String(s).trim()) : ""))
-      .filter(Boolean)
-      .slice(0, 30),
+    signature_color: normalize_signature_color(signature_color),
+    profile_picture: sanitize_html(String(profile_picture || "")).trim(),
+    narrative_style: sanitize_html(String(narrative_style || "")).trim(),
+    visual_style: normalize_visual_style(visual_style),
+    pov: normalize_point_of_view(pov, resolved_type),
+    speaking_style: normalize_speaking_style(speaking_style),
+    tags: normalize_tags(tags),
 
     // --- NPC WORLD-CAST (Relationships & Wandering) ---
     is_wanderer: Boolean(is_wanderer),
-    relationships: (Array.isArray(relationships) ? relationships : [])
-      .map((r) => (r != null ? sanitize_html(String(r)).trim() : ""))
-      .filter(Boolean)
-      .map((r) => (r.length > 240 ? `${r.slice(0, 240).trim()}…` : r))
-      .slice(0, 40),
+    relationships: normalize_relationships(relationships),
 
     // --- MACRO-QUEST CHAPTER ARCHIVE ---
-    chapters: (Array.isArray(chapters) ? chapters : [])
-      .map((c) => {
-        if (!c || typeof c !== "object") return null;
-        const title = sanitize_html(String(c.title || ""))
-          .trim()
-          .slice(0, 80);
-        return {
-          id: sanitize_html(String(c.id || ""))
-            .trim()
-            .slice(0, 40),
-          title: title || "Untitled chapter",
-          summary: sanitize_html(String(c.summary || ""))
-            .trim()
-            .slice(0, 400),
-          agenda: sanitize_html(String(c.agenda || ""))
-            .trim()
-            .slice(0, 600),
-          status: c.status === "open" || c.status === "closed" ? c.status : "closed",
-          created_at: Number(c.created_at) || 0,
-          closed_at: c.closed_at ? Number(c.closed_at) || 0 : 0,
-        };
-      })
-      .filter(Boolean)
-      .slice(-12),
+    chapters: normalize_chapters(chapters),
 
     // --- FOUR-QUADRANT ENTITY FRAGMENTS ---
     eternal: {
@@ -243,17 +349,7 @@ export function normalize(base = {}) {
     },
 
     // --- DYNAMICS (Physics Sliders 1-100) ---
-    dynamics: (() => {
-      const valid_axes = Object.keys(template.dynamics);
-      const out = {};
-      const source = dynamics && typeof dynamics === "object" ? dynamics : template.dynamics;
-      for (const axis of valid_axes) {
-        const raw_val = source[axis];
-        const num = Number(raw_val);
-        out[axis] = Number.isFinite(num) ? Math.max(1, Math.min(100, Math.round(num))) : template.dynamics[axis];
-      }
-      return out;
-    })(),
+    dynamics: normalize_dynamics(dynamics, template.dynamics),
 
     // --- VOICE (Neural TTS Attributes) ---
     voice: {
@@ -268,32 +364,32 @@ export function normalize(base = {}) {
 }
 
 // ============================================================================
-// 3. TEMPORAL & VECTOR COERCION
+// 4. TEMPORAL & VECTOR COERCION
 // ============================================================================
 
 /**
  * Coerces a value into a strictly cleaned array of strings.
- * @param {any} val
+ * @param {any} value
  * @returns {string[]}
  */
-export function coerce_temporal_array(val) {
-  if (Array.isArray(val)) return val;
-  if (typeof val !== "string") return [];
-  return val
+export function coerce_temporal_array(value) {
+  if (Array.isArray(value)) return value;
+  if (typeof value !== "string") return [];
+  return value
     .split("\n")
-    .map((v) => v.trim())
-    .filter((v) => v.length > 0);
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
 }
 
 /**
  * Coerces raw temporal data (strings or objects) into proper TemporalVector-shaped objects.
  * Guarantees that every item has id, content, significance, and origin provenance.
- * @param {any[]} val
+ * @param {any[]} value
  * @returns {any[]}
  */
-export function coerce_temporal_vectors(val) {
-  if (!Array.isArray(val)) return [];
-  return val
+export function coerce_temporal_vectors(value) {
+  if (!Array.isArray(value)) return [];
+  return value
     .map((item) => {
       if (typeof item === "string" && item.trim().length > 0) {
         return {
@@ -306,11 +402,11 @@ export function coerce_temporal_vectors(val) {
         };
       }
       if (item && typeof item === "object" && typeof item.content === "string" && item.content.trim().length > 0) {
-        const is_usr = String(item.id || "").startsWith("usr_");
+        const is_user_origin = String(item.id || "").startsWith("usr_");
         return {
           id: String(item.id || generate_uuid("usr_")),
           content: sanitize_html(item.content).trim(),
-          is_origin: item.is_origin !== undefined ? Boolean(item.is_origin) : is_usr,
+          is_origin: item.is_origin !== undefined ? Boolean(item.is_origin) : is_user_origin,
           directive: sanitize_html(item.directive || "").trim(),
           significance: typeof item.significance === "number" ? Math.max(1, Math.min(100, item.significance)) : 50,
           created_round: typeof item.created_round === "number" ? item.created_round : 0,
@@ -323,7 +419,7 @@ export function coerce_temporal_vectors(val) {
 }
 
 // ============================================================================
-// 4. FACTORY & SERIALIZATION UTILITIES
+// 5. FACTORY & SERIALIZATION UTILITIES
 // ============================================================================
 
 /**
@@ -368,11 +464,11 @@ export function create_new(type = "character", overrides = {}) {
 /**
  * Strips private IDs and database metadata from an entity before JSON export.
  * Preserves structured arrays (chapters, custom_data) while scrubbing transient keys and embeddings.
- * @param {Record<string, any>} entity
+ * @param {Record<string, any>} target_entity
  * @returns {Record<string, any>}
  */
-export function serialize_entity_for_export(entity) {
-  if (!entity || typeof entity !== "object") return {};
+export function serialize_entity_for_export(target_entity) {
+  if (!target_entity || typeof target_entity !== "object") return {};
   const TRANSIENT_KEYS = new Set([
     "id",
     "created_at",
@@ -386,6 +482,7 @@ export function serialize_entity_for_export(entity) {
   ]);
 
   /**
+   * Recursively clones structures while removing transient keys and vector embeddings.
    * @param {any} value
    * @param {string} [parent_key]
    * @returns {any}
@@ -409,20 +506,32 @@ export function serialize_entity_for_export(entity) {
         });
     }
     if (value && typeof value === "object") {
-      const out = {};
-      for (const [k, v] of Object.entries(value)) {
-        if (k === "_embedding") continue;
-        out[k] = clone_clean(v, k);
+      const sanitized_object = {};
+      for (const [key, prop_value] of Object.entries(value)) {
+        if (key === "_embedding") continue;
+        sanitized_object[key] = clone_clean(prop_value, key);
       }
-      return out;
+      return sanitized_object;
     }
     return value;
   };
 
-  const out = {};
-  for (const [key, value] of Object.entries(entity)) {
+  const sanitized_export = {};
+  for (const [key, value] of Object.entries(target_entity)) {
     if (TRANSIENT_KEYS.has(key)) continue;
-    out[key] = clone_clean(value, key);
+    sanitized_export[key] = clone_clean(value, key);
   }
-  return JSON.parse(JSON.stringify(out));
+  return JSON.parse(JSON.stringify(sanitized_export));
 }
+
+// ============================================================================
+// CHANGELOG
+// ============================================================================
+/**
+ * 2026-08-29: Harmonized module structure under /harmonize protocol:
+ *   - Enforced Universal File Architecture with instructional header, structured dividers, and changelog.
+ *   - Refactored inline IIFE property assignments into modular, well-typed normalization helpers.
+ *   - Aligned parameter names and variables with Anti-Abbreviation mandate (`target_entity`, `is_user_origin`, `normalized_dynamics`).
+ *   - Preserved Four-Quadrant schema, chapter archives, relationship graph bounds, and RAG vector provenance.
+ * 2026-08-28: Clamped entity dynamics (1-100), unified speaking style validation, and fixed serialize_entity_for_export chapter history preservation.
+ */

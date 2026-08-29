@@ -18,14 +18,17 @@
  * - `@platform`: `load_session_checkpoint`, `clear_session_checkpoint`.
  * - `@utils`: `decompose_story_title`.
  * - `@media`: `get_signature_color`.
- * - `./app-store.svelte.js`: `app` (selection synchronization, story title decomposition).
+ * - `./interface.svelte.js`: `app` (selection synchronization, story title decomposition).
+ * - `./status.svelte.js`: `simulation_state` (phase updates during stasis and reset).
+ *
+ * ============================================================================
  */
 
 import { db, entities, coerce_story_key, session_driver, SESSION_ID_KEY } from "@data";
 import { load_session_checkpoint, clear_session_checkpoint } from "@platform";
 import { decompose_story_title } from "@utils";
 import { get_signature_color } from "@media";
-import { app } from "./app-store.svelte.js";
+import { app } from "./interface.svelte.js";
 
 // ============================================================================
 // [SECTION 1: JSDOC SCHEMAS & TYPE DEFINITIONS]

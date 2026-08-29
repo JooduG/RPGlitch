@@ -1,6 +1,10 @@
 /**
- * src/platform/embeddings.svelte.js
- * 🔮 EMBEDDINGS ENGINE — Semantic vector matching via Transformers.js & Vector Codec
+ * ============================================================================
+ * RPGlitch Platform Layer: Neural Semantic Embeddings Engine
+ * ============================================================================
+ *
+ * @file src/platform/embeddings.svelte.js
+ * @description Semantic vector matching via Transformers.js & ONNX vector codec.
  *
  * Core Responsibilities:
  * - Lazy-loads an ONNX sentence-transformer model in the browser via WASM/WebGPU.
@@ -8,18 +12,21 @@
  * - Manages a bounded true-LRU cache for high-throughput cosine similarity scoring.
  * - Enforces single-threaded WASM and mutex serialization for Perchance iframe stability.
  * - Provides bidirectional vector serialization and deserialization codecs for Dexie.js.
+ * - Tracks reactive model loading progress via Svelte 5 runes ($state).
  *
  * Dependencies & Cross-Module Invariants:
  * - `@utils` (`onnx_mutex`, `mark_ort_ready`, `cosine_similarity`): Shared ONNX runtime lock and vector math.
- * - `@media/audio.svelte.js` (`wait_ort_ready`): Audio Kokoro TTS awaits ORT initialization from this engine.
+ * - `@media/voice.js` (`wait_ort_ready`): Audio Kokoro TTS awaits ORT initialization from this engine.
  * - Invariant: Dimension is strictly locked to `EMBEDDING_DIM = 384` (Xenova/all-MiniLM-L6-v2).
  * - Invariant: Never store raw Float32Array in JSON-persisted records; serialize to number[] for Dexie.
+ *
+ * ============================================================================
  */
 
 import { onnx_mutex, mark_ort_ready, cosine_similarity } from "@utils";
 
 // ============================================================================
-// [SECTION 1: CONSTANTS & TYPE DEFINITIONS]
+// Constants & Configurations
 // ============================================================================
 
 /** The canonical embedding dimension produced by the model and enforced on persisted vectors. */
@@ -32,19 +39,21 @@ export const EMBEDDING_CACHE_MAX = 1500;
 const MODEL_ID = "Xenova/all-MiniLM-L6-v2";
 
 // ============================================================================
-// [SECTION 2: VECTOR SERIALIZATION & DESERIALIZATION CODECS]
+// Vector Serialization & Deserialization Codecs
 // ============================================================================
 
 /**
  * Serializes an embedding into a JSON-safe form (number[]).
- * @param {any} emb
+ * @param {ArrayBufferView | ArrayLike<number> | null | undefined} raw_embedding
  * @returns {number[] | null}
  */
-export function serialize_embedding(emb) {
-  if (!emb) return null;
-  if (Array.isArray(emb)) return emb.length ? emb.slice() : null;
-  if (emb instanceof Float32Array) return Array.from(emb);
-  if (ArrayBuffer.isView(emb)) return Array.from(new Float32Array(emb.buffer, emb.byteOffset, emb.length));
+export function serialize_embedding(raw_embedding) {
+  if (!raw_embedding) return null;
+  if (Array.isArray(raw_embedding)) return raw_embedding.length ? raw_embedding.slice() : null;
+  if (raw_embedding instanceof Float32Array) return Array.from(raw_embedding);
+  if (ArrayBuffer.isView(raw_embedding)) {
+    return Array.from(new Float32Array(raw_embedding.buffer, raw_embedding.byteOffset, raw_embedding.length));
+  }
   return null;
 }
 
@@ -52,23 +61,25 @@ export function serialize_embedding(emb) {
  * Deserializes a stored embedding back into a Float32Array of EMBEDDING_DIM.
  * Accepts Float32Array or number[] (the JSON-safe persisted form). Returns
  * null for missing/corrupt values so callers re-infer.
- * @param {any} value
+ * @param {unknown} stored_embedding
  * @returns {Float32Array | null}
  */
-export function deserialize_embedding(value) {
-  if (value instanceof Float32Array) return value.length === EMBEDDING_DIM ? value : null;
-  if (Array.isArray(value)) {
-    if (value.length !== EMBEDDING_DIM) return null;
-    for (const n of value) {
-      if (typeof n !== "number" || !Number.isFinite(n)) return null;
+export function deserialize_embedding(stored_embedding) {
+  if (stored_embedding instanceof Float32Array) {
+    return stored_embedding.length === EMBEDDING_DIM ? stored_embedding : null;
+  }
+  if (Array.isArray(stored_embedding)) {
+    if (stored_embedding.length !== EMBEDDING_DIM) return null;
+    for (const element of stored_embedding) {
+      if (typeof element !== "number" || !Number.isFinite(element)) return null;
     }
-    return Float32Array.from(value);
+    return Float32Array.from(stored_embedding);
   }
   return null;
 }
 
 // ============================================================================
-// [SECTION 3: MODEL LIFECYCLE & MUTEX PIPELINE]
+// Model Lifecycle & Mutex Pipeline
 // ============================================================================
 
 let _pipeline = null;
@@ -117,20 +128,20 @@ export async function load_model() {
           transformers.env.backends.onnx.wasm.proxy = false;
           transformers.env.backends.onnx.wasm.numThreads = 1;
         }
-      } catch (err) {
-        console.warn("[Embeddings] ONNX env setup:", err);
+      } catch (error) {
+        console.warn("[Embeddings] ONNX environment setup warning:", error);
       }
       mark_ort_ready();
 
       _pipeline = await onnx_mutex.run(() =>
         transformers.pipeline("feature-extraction", MODEL_ID, {
-          progress_callback: (/** @type {any} */ data) => {
-            if (data && (data.status === "progress" || data.status === "download")) {
-              if (data.file && typeof data.progress === "number") {
-                file_progress[data.file] = data.progress;
+          progress_callback: (/** @type {any} */ progress_data) => {
+            if (progress_data && (progress_data.status === "progress" || progress_data.status === "download")) {
+              if (progress_data.file && typeof progress_data.progress === "number") {
+                file_progress[progress_data.file] = progress_data.progress;
                 const values = Object.values(file_progress);
-                const avg = values.reduce((a, b) => a + b, 0) / values.length;
-                _load_progress = Math.round(avg);
+                const average_progress = values.reduce((acc, curr) => acc + curr, 0) / values.length;
+                _load_progress = Math.round(average_progress);
               }
             }
           },
@@ -139,12 +150,12 @@ export async function load_model() {
       _load_progress = 100;
       _model_ready = true;
       return _pipeline;
-    } catch (err) {
-      console.error("[Embeddings] Failed to load model:", err);
+    } catch (error) {
+      console.error("[Embeddings] Failed to load model:", error);
       _model_ready = false;
       _load_progress = 0;
       _pipeline = null;
-      throw err;
+      throw error;
     } finally {
       _is_loading = false;
     }
@@ -169,7 +180,7 @@ async function get_pipeline() {
 }
 
 // ============================================================================
-// [SECTION 4: LRU CACHE & INFERENCE ENGINE]
+// LRU Cache & Inference Engine
 // ============================================================================
 
 /** @type {Map<string, Float32Array>} */
@@ -219,11 +230,11 @@ export async function embed(text) {
 
   _cache_misses++;
   try {
-    const pipe = await get_pipeline();
+    const pipeline = await get_pipeline();
     // Yield one frame before inference so the UI can repaint even when the
     // embed runs synchronously on the main thread (worker-unavailable fallback).
     await new Promise((resolve) => setTimeout(resolve, 0));
-    const output = await onnx_mutex.run(() => pipe(text, { pooling: "mean", normalize: true }));
+    const output = await onnx_mutex.run(() => pipeline(text, { pooling: "mean", normalize: true }));
     const embedding = to_embedding(output);
     if (!embedding) return null;
 
@@ -233,14 +244,14 @@ export async function embed(text) {
     }
     _embedding_cache.set(cache_key, embedding);
     return embedding;
-  } catch (err) {
-    console.warn("[Embeddings] Embed failed for text, clearing pipeline for retry:", text.substring(0, 60), err);
+  } catch (error) {
+    console.warn("[Embeddings] Embed failed for text, clearing pipeline for retry:", text.substring(0, 60), error);
     _pipeline = null;
     _model_ready = false;
     try {
-      const pipe = await get_pipeline();
+      const pipeline = await get_pipeline();
       await new Promise((resolve) => setTimeout(resolve, 0));
-      const output = await onnx_mutex.run(() => pipe(text, { pooling: "mean", normalize: true }));
+      const output = await onnx_mutex.run(() => pipeline(text, { pooling: "mean", normalize: true }));
       const embedding = to_embedding(output);
       if (!embedding) return null;
       if (_embedding_cache.size >= _max_cache) {
@@ -249,15 +260,15 @@ export async function embed(text) {
       }
       _embedding_cache.set(cache_key, embedding);
       return embedding;
-    } catch (retry_err) {
-      console.warn("[Embeddings] Embed retry failed:", retry_err);
+    } catch (retry_error) {
+      console.warn("[Embeddings] Embed retry failed:", retry_error);
       return null;
     }
   }
 }
 
 // ============================================================================
-// [SECTION 5: VECTOR HYDRATION & SEMANTIC SCORING]
+// Vector Hydration & Semantic Scoring
 // ============================================================================
 
 /**
@@ -273,10 +284,10 @@ export async function ensure_embedding(vector) {
   const text = vector.content || vector.text || "";
   if (!text) return null;
 
-  const existing = deserialize_embedding(vector._embedding);
-  if (existing) {
-    vector._embedding = existing;
-    return existing;
+  const existing_embedding = deserialize_embedding(vector._embedding);
+  if (existing_embedding) {
+    vector._embedding = existing_embedding;
+    return existing_embedding;
   }
   delete vector._embedding;
 
@@ -294,7 +305,7 @@ export async function ensure_embedding(vector) {
  */
 export async function ensure_embeddings(vectors) {
   if (!Array.isArray(vectors)) return;
-  await Promise.all(vectors.map((v) => ensure_embedding(v)));
+  await Promise.all(vectors.map((vector) => ensure_embedding(vector)));
 }
 
 /**
@@ -309,17 +320,17 @@ export async function score_by_semantics(vectors, context_text) {
   const context_embedding = await embed(context_text);
   if (!context_embedding) return [];
 
-  const scored = [];
-  for (const v of vectors) {
-    const emb = await ensure_embedding(v);
-    if (!emb) {
-      scored.push({ vector: v, similarity: 0 });
+  const scored_vectors = [];
+  for (const vector of vectors) {
+    const vector_embedding = await ensure_embedding(vector);
+    if (!vector_embedding) {
+      scored_vectors.push({ vector, similarity: 0 });
       continue;
     }
-    scored.push({ vector: v, similarity: cosine_similarity(context_embedding, emb) });
+    scored_vectors.push({ vector, similarity: cosine_similarity(context_embedding, vector_embedding) });
   }
 
-  return scored;
+  return scored_vectors;
 }
 
 /**
@@ -331,7 +342,7 @@ export function is_ready() {
 }
 
 // ============================================================================
-// [SECTION 6: SINGLETON ENGINE FACADE & TEST BRIDGES]
+// Singleton Engine Facade & Test Bridges
 // ============================================================================
 
 export const embeddings_engine = {
@@ -354,33 +365,27 @@ export const embeddings_engine = {
   cache_stats() {
     return { size: _embedding_cache.size, hits: _cache_hits, misses: _cache_misses, max: _max_cache };
   },
-  /** @private TEST ONLY: clears the cache and overrides the cap. */
-  _debug_reset_cache(cap = EMBEDDING_CACHE_MAX) {
+  /** @private TEST ONLY: clears the cache and overrides the capacity. */
+  _debug_reset_cache(capacity = EMBEDDING_CACHE_MAX) {
     _embedding_cache.clear();
     _cache_hits = 0;
     _cache_misses = 0;
-    _max_cache = cap;
+    _max_cache = capacity;
   },
-  /** @private TEST ONLY: injects a fake pipeline (fn(text, opts) → {data}). */
-  _debug_set_pipeline(fn) {
-    _debug_pipeline_fn = typeof fn === "function" ? fn : null;
+  /** @private TEST ONLY: injects a fake pipeline (pipeline_function(text, options) → {data}). */
+  _debug_set_pipeline(pipeline_function) {
+    _debug_pipeline_fn = typeof pipeline_function === "function" ? pipeline_function : null;
     _pipeline = _debug_pipeline_fn;
-    _model_ready = typeof fn === "function";
+    _model_ready = typeof pipeline_function === "function";
     _loading = null;
     _is_loading = false;
   },
 };
 
-// ============================================================================
-// [CHANGELOG]
-// ============================================================================
 /**
  * CHANGELOG:
- * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,
- *   structured section dividers, normalized `cache_stats()` snake_case nomenclature, enforced
- *   P4 zero backwards compatibility, and established complete JSDoc annotations.
- * - 2026-08-27: Realigned layer boundaries: moved `embeddings.svelte.js` + vector codecs into
- *   `src/platform/` and unified `EMBEDDING_DIM = 384` validation.
- * - 2026-08-22: Added bounded true-LRU caching (`EMBEDDING_CACHE_MAX = 1500`), thread proxy
- *   disablement, and single-threaded WASM execution for Perchance iframe stability.
+ * - 2026-08-29: Applied /harmonize protocol: purged shorthand variable abbreviations (`emb` → `raw_embedding`, `v` → `vector`), aligned JSDoc annotations, and validated Svelte 5 runes reactivity.
+ * - 2026-08-29: Added Universal File Architecture header block, structured section dividers, normalized `cache_stats()` snake_case nomenclature, enforced P4 zero backwards compatibility.
+ * - 2026-08-27: Realigned layer boundaries: moved `embeddings.svelte.js` + vector codecs into `src/platform/` and unified `EMBEDDING_DIM = 384` validation.
+ * - 2026-08-22: Added bounded true-LRU caching (`EMBEDDING_CACHE_MAX = 1500`), thread proxy disablement, and single-threaded WASM execution for Perchance iframe stability.
  */

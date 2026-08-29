@@ -17,7 +17,7 @@ vi.mock("@platform", () => ({
 }));
 
 // Mock imports
-vi.mock("@state/app-store.svelte.js", () => ({
+vi.mock("@state/interface.svelte.js", () => ({
   app: {
     editing_entity: null,
     load_entities: vi.fn(),
@@ -125,7 +125,7 @@ describe("ProfileState story editing lock", () => {
   });
 
   it("blocks start_editing while the entity is claimed by an active story", async () => {
-    const { app } = await import("@state/app-store.svelte.js");
+    const { app } = await import("@state/interface.svelte.js");
     app.settings.dev_mode = false;
     app.claimed_entity_ids.has = vi.fn(() => true);
 
@@ -138,7 +138,7 @@ describe("ProfileState story editing lock", () => {
   });
 
   it("allows editing when the entity is unclaimed", async () => {
-    const { app } = await import("@state/app-store.svelte.js");
+    const { app } = await import("@state/interface.svelte.js");
     app.settings.dev_mode = false;
     app.claimed_entity_ids.has = vi.fn(() => false);
 
@@ -150,7 +150,7 @@ describe("ProfileState story editing lock", () => {
   });
 
   it("bypasses the lock when DevMode is enabled", async () => {
-    const { app } = await import("@state/app-store.svelte.js");
+    const { app } = await import("@state/interface.svelte.js");
     app.settings.dev_mode = true;
     app.claimed_entity_ids.has = vi.fn(() => true);
 

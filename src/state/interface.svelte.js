@@ -1,20 +1,28 @@
 /**
- * src/state/app-store.svelte.js
- * 🎛️ APPLICATION INTERFACE & NAVIGATION STATE (Simulation & Gamemaster)
+ * ============================================================================
+ * RPGlitch State Layer: Application Interface & Navigation Store
+ * ============================================================================
+ *
+ * @file src/state/interface.svelte.js
+ * @description Central interface and UI interaction store managing top-level
+ * navigation (storyboard vs storymode), control panel, modal overlays, storyboard
+ * entity slot selection, responsive viewport observers, and persistent settings.
  *
  * Core Responsibilities:
  * - Manages top-level application navigation (`storyboard` vs `storymode`), control panel, and modals.
  * - Owns reactive Storyboard slot selections (`selected_ai`, `selected_user`, `selected_fractal`, `card_hand`).
  * - Manages entity lobby lists and claimed entity tracking (`claimed_entity_ids`) for active story locking.
  * - Handles viewport media query listeners and touch capabilities synced with design system tokens.
- * - Owns persistent application user settings (`sound`, `call_mode`, `stream_text`, `auto_scroll`, `dev_mode`, `dev_grid_visible`, styles).
+ * - Owns persistent application user settings (`sound`, `call_mode`, `stream_text`, `auto_scroll`, `developer_mode`, `dev_grid_visible`, styles).
  * - Bridges image preview modal requests to the UI layer without violating layer boundaries.
- * - Delegates streaming and telemetry calls to their respective stores (`streaming.svelte.js`, `dev-log.svelte.js`).
+ * - Delegates streaming and telemetry calls to their respective stores (`streaming.svelte.js`, `developer-log.svelte.js`).
  *
  * Layer & Dependency Invariants:
  * - `src/state/` MUST NEVER import from `src/ui/`.
  * - UI modals register callbacks into `register_image_preview_handlers` at boot.
  * - Downward imports permitted: `@utils`, `@data`, `@media`, `@platform`.
+ *
+ * ============================================================================
  */
 
 import { flushSync } from "svelte";
@@ -25,12 +33,12 @@ import { Audio, get_signature_color, visual_engine } from "@media";
 import { embeddings_engine } from "@platform";
 import { runtime } from "./runtime.svelte.js";
 import { streaming as streaming_store } from "./streaming.svelte.js";
-import { dev_log } from "./dev-log.svelte.js";
+import { developer_log } from "./developer-log.svelte.js";
 import { simulation_state, ui_state } from "./status.svelte.js";
 import { install_freeze_watchdog } from "./freeze-watchdog.js";
 
 // ============================================================================
-// [SECTION 1: BRIDGES & JSDOC TYPE DEFINITIONS]
+// Bridges & JSDoc Type Definitions
 // ============================================================================
 
 /**
@@ -78,10 +86,10 @@ const open_image_preview = (src, caption = "") => _image_preview_bridge.open?.(s
  */
 
 // ============================================================================
-// [SECTION 2: APP STORE CLASS INITIALIZATION & REACTIVE STATE]
+// Interface Store Class Initialization & Reactive State
 // ============================================================================
 
-export class AppStore {
+export class InterfaceStore {
   initialized = false;
   /** @type {Array<() => void>} */
   _viewport_cleanup = [];
@@ -191,7 +199,7 @@ export class AppStore {
   streaming = streaming_store;
 
   // ============================================================================
-  // [SECTION 3: DERIVED STATE, READINESS & STATUS PROXIES]
+  // Derived State, Readiness & Status Proxies
   // ============================================================================
 
   get tension() {
@@ -270,7 +278,7 @@ export class AppStore {
   }
 
   get logs() {
-    return dev_log.entries;
+    return developer_log.entries;
   }
 
   get profile_target_id() {
@@ -286,10 +294,10 @@ export class AppStore {
    * @param {string} message
    * @param {string} [type='system']
    */
-  log = (message, type = "system") => dev_log.log(message, type);
+  log = (message, type = "system") => developer_log.log(message, type);
 
   // ============================================================================
-  // [SECTION 4: LIFECYCLE, HYDRATION & VIEWPORT OBSERVER]
+  // Lifecycle, Hydration & Viewport Observer
   // ============================================================================
 
   /**
@@ -310,7 +318,7 @@ export class AppStore {
       console.error("[Security] Settings Hydration Failed:", e);
     }
 
-    await dev_log.hydrate();
+    await developer_log.hydrate();
     install_freeze_watchdog();
   }
 
@@ -365,7 +373,7 @@ export class AppStore {
   }
 
   // ============================================================================
-  // [SECTION 5: STORYBOARD SELECTION & ENTITY LOBBY MANAGEMENT]
+  // Storyboard Selection & Entity Lobby Management
   // ============================================================================
 
   /**
@@ -421,7 +429,7 @@ export class AppStore {
       this.entities_loaded = true;
       this.clean_claimed_selections();
     } catch (e) {
-      console.error("[AppStore] Failed to load lobby entities:", e);
+      console.error("[InterfaceStore] Failed to load lobby entities:", e);
     }
   }
 
@@ -452,7 +460,7 @@ export class AppStore {
   };
 
   // ============================================================================
-  // [SECTION 6: VIEW NAVIGATION & PROFILE TRANSITIONS]
+  // View Navigation & Profile Transitions
   // ============================================================================
 
   toggle_control_panel = () => {
@@ -532,7 +540,7 @@ export class AppStore {
   };
 
   // ============================================================================
-  // [SECTION 7: SETTINGS MUTATORS & STREAMING PROXIES]
+  // Settings Mutators & Streaming Proxies
   // ============================================================================
 
   toggle_sound = () => {
@@ -584,10 +592,11 @@ export class AppStore {
 }
 
 // ============================================================================
-// [SECTION 8: SINGLETON INSTANCE & GLOBAL EXPOSURE]
+// Singleton Instance & Global Exposure
 // ============================================================================
 
-export const app = new AppStore();
+export const app = new InterfaceStore();
+export const app_interface = app;
 
 stories_bridge.register_bump(() => {
   app.stories_version++;
@@ -600,11 +609,9 @@ if (typeof window !== "undefined") {
   Object.defineProperty(window, "visual", { get: () => app.visual, configurable: true });
 }
 
-// ============================================================================
-// [CHANGELOG]
-// ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-08-29: Renamed from app-store.svelte.js to interface.svelte.js to eliminate name collision with App.svelte and legacy -store suffix (/harmonize).
  * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,
  *   structured section dividers, purged legacy window aliases (window.rpgApp, window.state),
  *   aligned JSDoc types, and verified test suite.

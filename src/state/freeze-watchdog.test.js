@@ -7,7 +7,7 @@ import {
   FREEZE_WATCHDOG_INTERVAL_MS,
   FREEZE_WATCHDOG_MAX_MS,
 } from "./freeze-watchdog.js";
-import { app } from "./app-store.svelte.js";
+import { app } from "./interface.svelte.js";
 import { simulation_state } from "./status.svelte.js";
 
 describe("freeze-watchdog", () => {

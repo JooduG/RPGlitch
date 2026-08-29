@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { VISUAL_STYLES } from "./visual-styles.js";
+import { VISUAL_STYLES, get_visual_style, resolve_portrait_visual_style_key, resolve_story_visual_style_key } from "./visual-styles.js";
 import { parse_visual_engine } from "@utils";
 
 describe("VISUAL_STYLES Preset Registry", () => {
@@ -69,5 +69,20 @@ describe("VISUAL_STYLES Preset Registry", () => {
       expect(parsed.palette.length).toBeGreaterThan(0);
       expect(parsed.texture.length).toBeGreaterThan(0);
     }
+  });
+
+  it("retrieves visual style via get_visual_style with fallback to none", () => {
+    expect(get_visual_style("cyberpunk").id).toBe("cyberpunk");
+    expect(get_visual_style("non_existent_key").id).toBe("none");
+    expect(get_visual_style().id).toBe("none");
+  });
+
+  it("resolves portrait and story visual style keys correctly", () => {
+    expect(resolve_portrait_visual_style_key({ visual_style: "anime" })).toBe("anime");
+    expect(resolve_portrait_visual_style_key({ visual_style: "invalid_key" })).toBe("none");
+    expect(resolve_portrait_visual_style_key({})).toBe("none");
+
+    expect(resolve_story_visual_style_key({ visual_style: "noir" })).toBe("noir");
+    expect(resolve_story_visual_style_key(null)).toBe("none");
   });
 });

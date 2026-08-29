@@ -5,7 +5,15 @@
  * Defines the canonical schema for all character and fractal fields across the simulation:
  * - Canonical Field Taxonomy & Enhancer Roles (PROFILE_FIELDS)
  * - Field Catalog & Flat Metadata Registry (PROFILE_FIELD_CATALOG)
+ * - Dynamic Flat Leaf Map for Ingestion (FLAT_LEAF_MAP)
  * - Profile Studio UI Layout Sections (PROFILE_SECTIONS_BY_TYPE)
+ *
+ * Dependencies:
+ * - format_key_as_label from @utils
+ *
+ * Rules:
+ * - Pure data definition and layout mapping. No UI or state mutations.
+ * - Always maintain symmetrical field structures for character and fractal entity models.
  */
 
 import { format_key_as_label } from "@utils";
@@ -122,6 +130,25 @@ export const PROFILE_FIELDS = {
  */
 
 /**
+ * @typedef {Object} ProfileFieldItem
+ * @property {string} key - Dot-notation field key (e.g., "eternal.non_physical")
+ * @property {string} label - Canonical field display label
+ * @property {string|null} column_label - Sub-column label if multi-column section
+ * @property {string} description - Explanatory tooltip or description
+ * @property {string} directive - AI generation directive
+ * @property {string|undefined} enhancer - Semantic enhancer role identifier
+ * @property {string|undefined} type - Field data type
+ * @property {boolean} [is_physical] - Indicates physical image prompt rendering field
+ */
+
+/**
+ * @typedef {Object} ProfileSection
+ * @property {string} id - Section identifier key
+ * @property {string} label - Formatted section label
+ * @property {ProfileFieldItem[]} fields - Array of field items in section
+ */
+
+/**
  * Traverses PROFILE_FIELDS once to build both the flat polymorphic catalog and leaf key map.
  * @param {Record<string, any>} fields
  * @returns {{ catalog: Record<string, CatalogEntry>, leaf_map: Record<string, string> }}
@@ -133,18 +160,25 @@ function build_profile_catalog(fields) {
   const leaf_map = {
     appearance: "eternal.physical",
   };
-  const types = ["character", "fractal"];
+  const entity_types = ["character", "fractal"];
 
-  Object.entries(fields).forEach(([section_key, section_obj]) => {
-    if (typeof section_obj === "string" || section_obj === null || section_key === "profile") return;
-    const section = /** @type {any} */ (section_obj);
+  Object.entries(fields).forEach(([section_key, section_record]) => {
+    if (typeof section_record === "string" || section_record === null || section_key === "profile") return;
+    const section = /** @type {any} */ (section_record);
     const section_label = format_key_as_label(section_key);
     const layer_key = section_key.toUpperCase();
 
     if (section.type === "array" || section.directive) {
       const tag = section.label ? section.label.toUpperCase().replace(/\s+/g, "_") : section_key.toUpperCase();
-      types.forEach((type) => {
-        catalog[`${type}.${section_key}`] = { ...section, id: `${type}.${section_key}`, path: section_key, tag, section_label, layer_key };
+      entity_types.forEach((entity_type) => {
+        catalog[`${entity_type}.${section_key}`] = {
+          ...section,
+          id: `${entity_type}.${section_key}`,
+          path: section_key,
+          tag,
+          section_label,
+          layer_key,
+        };
       });
       leaf_map[section_key] = section_key;
       if (section.label) {
@@ -152,12 +186,19 @@ function build_profile_catalog(fields) {
         leaf_map[tag.toLowerCase()] = section_key;
       }
     } else {
-      Object.entries(section).forEach(([field_key, field_val]) => {
+      Object.entries(section).forEach(([field_key, field_value]) => {
         const path = `${section_key}.${field_key}`;
-        types.forEach((type) => {
-          const leaf = field_val[type] || field_val;
+        entity_types.forEach((entity_type) => {
+          const leaf = field_value[entity_type] || field_value;
           const tag = leaf.label ? leaf.label.toUpperCase().replace(/\s+/g, "_") : field_key.toUpperCase();
-          catalog[`${type}.${path}`] = { ...leaf, id: `${type}.${path}`, path, tag, section_label, layer_key };
+          catalog[`${entity_type}.${path}`] = {
+            ...leaf,
+            id: `${entity_type}.${path}`,
+            path,
+            tag,
+            section_label,
+            layer_key,
+          };
           if (leaf?.label) {
             leaf_map[leaf.label.toLowerCase().replace(/\s+/g, "_")] = path;
             leaf_map[tag.toLowerCase()] = path;
@@ -182,6 +223,8 @@ export const PROFILE_FIELD_CATALOG = catalog;
  */
 export const FLAT_LEAF_MAP = leaf_map;
 
+// ── 3. Profile Section Layout Model ──────────────────────────────────────────
+
 /**
  * Dynamic profile sections map for Profile modal tabs.
  */
@@ -193,21 +236,22 @@ export const PROFILE_SECTIONS_BY_TYPE = {
 /**
  * Builds the profile sections layout dynamically based on entity type.
  * @param {string} [entity_type]
+ * @returns {ProfileSection[]}
  */
 export function build_profile_sections(entity_type = "character") {
-  const resolved_type = entity_type === "user" ? "character" : entity_type || "character";
+  const resolved_entity_type = entity_type === "user" ? "character" : entity_type || "character";
 
   return Object.entries(PROFILE_FIELDS)
     .filter(([section_key, section]) => typeof section !== "string" && section !== null && section_key !== "profile")
-    .map(([section_key, section_obj]) => {
-      const section = /** @type {any} */ (section_obj);
-      const field_keys = Object.keys(section).filter((k) => !["label", "type", "directive", "description", "enhancer"].includes(k));
+    .map(([section_key, section_record]) => {
+      const section = /** @type {any} */ (section_record);
+      const field_keys = Object.keys(section).filter((key) => !["label", "type", "directive", "description", "enhancer"].includes(key));
 
       const fields =
         field_keys.length > 0 && section.type !== "array"
           ? field_keys.map((field_key) => {
               const field = section[field_key];
-              const leaf = field[resolved_type] || field;
+              const leaf = field[resolved_entity_type] || field;
               return {
                 key: `${section_key}.${field_key}`,
                 label: leaf.label || format_key_as_label(field_key),
@@ -237,3 +281,8 @@ export function build_profile_sections(entity_type = "character") {
       };
     });
 }
+
+/**
+ * CHANGELOG:
+ * - 2026-08-29: Harmonized profile-fields module — enforced full-name variable nomenclature, enriched JSDoc types, and aligned universal file architecture.
+ */

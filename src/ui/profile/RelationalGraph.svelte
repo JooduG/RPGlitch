@@ -11,7 +11,7 @@
   - Navigation: Clicking a satellite node triggers on_select_entity(entity).
 -->
 <script>
-  import { entities, premade } from "@data";
+  import { entities, PREMADE_ENTITIES } from "@data";
   import { get_signature_color } from "@media";
   import { Button, TextField, tooltip } from "@primitives";
   import { parse_relational_vector, format_relational_vector } from "@utils";
@@ -46,7 +46,7 @@
       const combined = [...chars, ...fracs];
       // Merge with premades so uninstantiated premades can still be clicked / mapped
       const seen_ids = new Set(combined.map((e) => e.id));
-      for (const p of premade?.entities || []) {
+      for (const p of PREMADE_ENTITIES) {
         if (!seen_ids.has(p.id)) {
           combined.push(p);
         }
@@ -78,7 +78,7 @@
     });
     if (token_match) return token_match;
     // 3. Match in premade catalog
-    const pm = (premade?.entities || []).find((e) => {
+    const pm = PREMADE_ENTITIES.find((e) => {
       const en = norm(e.name);
       return en === n || en.split(/\s+/).includes(n) || n.split(/\s+/).includes(en);
     });

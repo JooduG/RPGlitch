@@ -1,19 +1,29 @@
 /**
  * src/data/definitions/narrative-styles.js
- * 📖 NARRATIVE STYLE SYSTEM — declarative narrative voice presets (authors, directors, genres)
- * for prose generation.
+ * ============================================================================
+ * 📖 NARRATIVE STYLE SYSTEM — Declarative Author, Director & Genre Presets
+ * ============================================================================
  *
  * Single source of truth for:
  * - NARRATIVE_STYLES: Declarative author voice presets & narrative engines
  * - STYLE_MOTIF_REGISTRY: Dynamic style-motif keyword registry auto-aggregated from styles
- * - get_style_keywords: Accessor resolving dynamic keyword sets for the Director
- * - resolve_active_style_key: Resolves active style key from fractal/app state
- * - render_narrative_style_xml: Compiles active style XML block
+ * - get_narrative_style: Retrieves a style record by identifier with safe fallback
+ * - get_style_keywords: Resolves dynamic keyword sets contributed by an active style
+ * - resolve_active_style_key: Resolves the active style key from fractal or application state
+ * - render_narrative_style_xml: Compiles the pre-computed active style XML block
+ *
+ * Architecture & Modification Rules:
+ * - Pure data definition module importing downward strictly from `@utils`.
+ * - All style entries must specify a valid speaking_style ("casual" | "lyrical" | "primal" | "clinical").
+ * - Dynamic motifs are co-located with their author definitions and auto-aggregated into `STYLE_MOTIF_REGISTRY`.
+ * ============================================================================
  */
 
 import { state_bridge, ind, escape_xml, resolve_style } from "@utils";
 
-// ── 1. Type Definitions ───────────────────────────────────────────────────────
+// ============================================================================
+// 1. Type Definitions
+// ============================================================================
 
 /**
  * @typedef {Object} DynamicsState
@@ -28,7 +38,7 @@ import { state_bridge, ind, escape_xml, resolve_style } from "@utils";
 /**
  * @typedef {Object} StyleTrigger
  * @property {string} id
- * @property {(ai: DynamicsState, fractal?: DynamicsState | null) => boolean} when
+ * @property {(character_dynamics?: DynamicsState | null, fractal_dynamics?: DynamicsState | null) => boolean} when
  * @property {string} directive
  */
 
@@ -51,68 +61,75 @@ import { state_bridge, ind, escape_xml, resolve_style } from "@utils";
  * @property {string} narrative_engine
  * @property {string[]} [keywords]
  * @property {Record<string, string>} [motifs]
+ * @property {string} xml
  * @property {StyleTrigger[]} triggers
  */
 
-// ── 2. Declarative Style Compiler ─────────────────────────────────────────────
+// ============================================================================
+// 2. Declarative Style Compiler
+// ============================================================================
 
 /**
  * Factory creating a compiled, fully validated NarrativeStyle record.
  * Automatically formats `dna` into standard XML <NARRATIVE_ENGINE> format.
  *
- * @param {Object} def
- * @param {string} def.id
- * @param {string} def.name
- * @param {string} [def.portrait]
- * @param {string} def.description
- * @param {"casual" | "lyrical" | "primal" | "clinical"} def.speaking_style
- * @param {string[]} def.tags
- * @param {StyleDNA} [def.dna]
- * @param {Record<string, string>} [def.motifs]
- * @param {StyleTrigger[]} [def.triggers]
+ * @param {Object} style_definition
+ * @param {string} style_definition.id
+ * @param {string} style_definition.name
+ * @param {string} [style_definition.portrait]
+ * @param {string} style_definition.description
+ * @param {"casual" | "lyrical" | "primal" | "clinical"} style_definition.speaking_style
+ * @param {string[]} style_definition.tags
+ * @param {StyleDNA} [style_definition.dna]
+ * @param {Record<string, string>} [style_definition.motifs]
+ * @param {StyleTrigger[]} [style_definition.triggers]
  * @returns {NarrativeStyle}
  */
-function define_style(def) {
-  const keywords = def.motifs ? Object.keys(def.motifs) : [];
+function define_style(style_definition) {
+  const keywords = style_definition.motifs ? Object.keys(style_definition.motifs) : [];
 
-  const narrative_engine = def.dna
+  const narrative_engine = style_definition.dna
     ? `<NARRATIVE_ENGINE>
 <dna>
-<internal_ratio>${def.dna.internal_ratio.toFixed(2)}</internal_ratio>
-<sentence_rhythm>${def.dna.rhythm}</sentence_rhythm>
-<sensory_order>${def.dna.sensory}</sensory_order>
-<emotion_grounding>${def.dna.grounding}</emotion_grounding>
+<internal_ratio>${style_definition.dna.internal_ratio.toFixed(2)}</internal_ratio>
+<sentence_rhythm>${style_definition.dna.rhythm}</sentence_rhythm>
+<sensory_order>${style_definition.dna.sensory}</sensory_order>
+<emotion_grounding>${style_definition.dna.grounding}</emotion_grounding>
 </dna>
 </NARRATIVE_ENGINE>`
     : "";
 
   let xml = "";
-  if (def.id && def.id !== "default") {
-    const desc_xml = def.description ? `\n    <DESCRIPTION>${escape_xml(def.description)}</DESCRIPTION>` : "";
-    const themes_xml = def.tags?.length ? `\n    <DEFINING_CHARACTERISTICS>${escape_xml(def.tags.join(", "))}</DEFINING_CHARACTERISTICS>` : "";
-    const engine_xml = narrative_engine ? `\n    ${ind(narrative_engine, 4).trim()}` : "";
-    xml = `\n  <NARRATIVE_STYLE narrator="${escape_xml(def.id)}">${desc_xml}${themes_xml}${engine_xml}\n  </NARRATIVE_STYLE>`;
+  if (style_definition.id && style_definition.id !== "default") {
+    const description_xml = style_definition.description ? `\n    <DESCRIPTION>${escape_xml(style_definition.description)}</DESCRIPTION>` : "";
+    const tags_xml = style_definition.tags?.length
+      ? `\n    <DEFINING_CHARACTERISTICS>${escape_xml(style_definition.tags.join(", "))}</DEFINING_CHARACTERISTICS>`
+      : "";
+    const narrative_engine_xml = narrative_engine ? `\n    ${ind(narrative_engine, 4).trim()}` : "";
+    xml = `\n  <NARRATIVE_STYLE narrator="${escape_xml(style_definition.id)}">${description_xml}${tags_xml}${narrative_engine_xml}\n  </NARRATIVE_STYLE>`;
   }
 
   return {
-    id: def.id,
-    name: def.name,
-    portrait: def.portrait || "",
-    description: def.description,
-    speaking_style: def.speaking_style,
-    tags: def.tags,
+    id: style_definition.id,
+    name: style_definition.name,
+    portrait: style_definition.portrait || "",
+    description: style_definition.description,
+    speaking_style: style_definition.speaking_style,
+    tags: style_definition.tags,
     keywords,
-    motifs: def.motifs || {},
+    motifs: style_definition.motifs || {},
     narrative_engine,
     xml,
-    triggers: def.triggers || [],
+    triggers: style_definition.triggers || [],
   };
 }
 
-// ── 3. Narrative Style Presets Catalog ─────────────────────────────────────────
+// ============================================================================
+// 3. Narrative Style Presets Catalog
+// ============================================================================
 
-/** @type {Record<string, NarrativeStyle>} */
-export const NARRATIVE_STYLES = {
+/** @type {Readonly<Record<string, NarrativeStyle>>} */
+export const NARRATIVE_STYLES = Object.freeze({
   default: define_style({
     id: "default",
     name: "No Narrative Style",
@@ -142,27 +159,27 @@ export const NARRATIVE_STYLES = {
     triggers: [
       {
         id: "ANAIS_NIN_LYRICAL",
-        when: (ai) => (ai?.intensity ?? 50) > 60 && (ai?.affinity ?? 50) > 60,
+        when: (character_dynamics) => (character_dynamics?.intensity ?? 50) > 60 && (character_dynamics?.affinity ?? 50) > 60,
         directive: "Amplify lyrical, metaphorical prose and intensify sensory blur.",
       },
       {
         id: "ANAIS_NIN_DREAMLIKE",
-        when: (ai) => (ai?.intensity ?? 50) < 40 && (ai?.openness ?? 50) < 40,
+        when: (character_dynamics) => (character_dynamics?.intensity ?? 50) < 40 && (character_dynamics?.openness ?? 50) < 40,
         directive: "Fragment the prose rhythm into dreamlike, distant observations.",
       },
       {
         id: "ANAIS_NIN_SURREAL",
-        when: (ai) => (ai?.openness ?? 50) > 70 && (ai?.intensity ?? 50) > 60,
+        when: (character_dynamics) => (character_dynamics?.openness ?? 50) > 70 && (character_dynamics?.intensity ?? 50) > 60,
         directive: "Infuse prose with vibrant, surreal imagery focused on light and color.",
       },
       {
         id: "ANAIS_NIN_SUBMERSION",
-        when: (ai) => (ai?.intensity ?? 50) < 50 && (ai?.openness ?? 50) < 50,
+        when: (character_dynamics) => (character_dynamics?.intensity ?? 50) < 50 && (character_dynamics?.openness ?? 50) < 50,
         directive: "Surfacing themes of submersion, currents, and drowning.",
       },
       {
         id: "ANAIS_NIN_DISGUISES",
-        when: (ai) => (ai?.openness ?? 50) < 30 && (ai?.affinity ?? 50) < 40,
+        when: (character_dynamics) => (character_dynamics?.openness ?? 50) < 30 && (character_dynamics?.affinity ?? 50) < 40,
         directive: "Highlighting masks, disguises, and hidden identity.",
       },
     ],
@@ -188,17 +205,17 @@ export const NARRATIVE_STYLES = {
     triggers: [
       {
         id: "ANNA_ZAIRES_CONFLICTED",
-        when: (ai) => (ai?.intensity ?? 50) > 60 && (ai?.affinity ?? 50) > 60,
+        when: (character_dynamics) => (character_dynamics?.intensity ?? 50) > 60 && (character_dynamics?.affinity ?? 50) > 60,
         directive: "Render internal monologue as highly conflicted and self-questioning, with graphic, unsparing physical detail.",
       },
       {
         id: "ANNA_ZAIRES_OWNERSHIP",
-        when: (ai) => (ai?.intensity ?? 50) > 60,
+        when: (character_dynamics) => (character_dynamics?.intensity ?? 50) > 60,
         directive: "Emphasize physical symbols of possession and total control.",
       },
       {
         id: "ANNA_ZAIRES_NO_RETURN",
-        when: (ai) => (ai?.chaos ?? 50) > 60,
+        when: (character_dynamics) => (character_dynamics?.chaos ?? 50) > 60,
         directive: "Focus on irrevocable choices and psychological points of no return.",
       },
     ],
@@ -224,12 +241,12 @@ export const NARRATIVE_STYLES = {
     triggers: [
       {
         id: "BERTOLUCCI_SENSUAL",
-        when: (ai) => (ai?.intensity ?? 50) > 70 && (ai?.affinity ?? 50) > 60,
+        when: (character_dynamics) => (character_dynamics?.intensity ?? 50) > 70 && (character_dynamics?.affinity ?? 50) > 60,
         directive: "Render prose as deeply sensual and unflinching, lingering on skin textures and ambient light.",
       },
       {
         id: "BERTOLUCCI_DECAY",
-        when: (ai) => (ai?.intensity ?? 50) < 30 || (ai?.chaos ?? 50) > 80,
+        when: (character_dynamics) => (character_dynamics?.intensity ?? 50) < 30 || (character_dynamics?.chaos ?? 50) > 80,
         directive: "Shift tone into melancholic reflections focused on architectural decay and passing time.",
       },
     ],
@@ -254,22 +271,22 @@ export const NARRATIVE_STYLES = {
     triggers: [
       {
         id: "CARA_MCKENNA_LOOPING",
-        when: (ai) => (ai?.chaos ?? 50) > 60 && (ai?.intensity ?? 50) > 60,
+        when: (character_dynamics) => (character_dynamics?.chaos ?? 50) > 60 && (character_dynamics?.intensity ?? 50) > 60,
         directive: "Fragment sentence structure into looping, hyper-focused auditory impressions.",
       },
       {
         id: "CARA_MCKENNA_TACTILE",
-        when: (ai) => (ai?.affinity ?? 50) > 60 && (ai?.openness ?? 50) > 60,
+        when: (character_dynamics) => (character_dynamics?.affinity ?? 50) > 60 && (character_dynamics?.openness ?? 50) > 60,
         directive: "Enrich tactile and sensory details, grounding intimacy in physical touch and scent.",
       },
       {
         id: "CARA_MCKENNA_SKIN",
-        when: (ai) => (ai?.affinity ?? 50) > 50,
+        when: (character_dynamics) => (character_dynamics?.affinity ?? 50) > 50,
         directive: "Notice intimate skin scents and immediate physical warmth.",
       },
       {
         id: "CARA_MCKENNA_SILENCE",
-        when: (ai) => (ai?.chaos ?? 50) < 30,
+        when: (character_dynamics) => (character_dynamics?.chaos ?? 50) < 30,
         directive: "Draw out heavy, grounded shared silence between characters.",
       },
     ],
@@ -294,12 +311,12 @@ export const NARRATIVE_STYLES = {
     triggers: [
       {
         id: "MCCARTHY_BRUTAL",
-        when: (ai) => (ai?.intensity ?? 50) > 70,
+        when: (character_dynamics) => (character_dynamics?.intensity ?? 50) > 70,
         directive: "Strip punctuation, omit quotes, and deliver relentless, brutal, clinical declarations.",
       },
       {
         id: "MCCARTHY_FATALISM",
-        when: (ai) => (ai?.chaos ?? 50) > 60,
+        when: (character_dynamics) => (character_dynamics?.chaos ?? 50) > 60,
         directive: "Remove quotation marks, keep dialogue terse and fragmented, and deepen bleak fatalism.",
       },
     ],
@@ -324,12 +341,12 @@ export const NARRATIVE_STYLES = {
     triggers: [
       {
         id: "LYNCH_DISTORTION",
-        when: (ai) => (ai?.chaos ?? 50) > 70,
+        when: (character_dynamics) => (character_dynamics?.chaos ?? 50) > 70,
         directive: "Distort sensory details into unsettling industrial vibrations and fragmented nightmare logic.",
       },
       {
         id: "LYNCH_INDUSTRIAL_HUM",
-        when: (ai) => (ai?.chaos ?? 50) > 50,
+        when: (character_dynamics) => (character_dynamics?.chaos ?? 50) > 50,
         directive: "Incorporate low industrial hums and subterranean electrical vibrations.",
       },
     ],
@@ -354,22 +371,22 @@ export const NARRATIVE_STYLES = {
     triggers: [
       {
         id: "POE_MANIC_OBSESSION",
-        when: (ai) => (ai?.intensity ?? 50) > 60 && (ai?.chaos ?? 50) > 60,
+        when: (character_dynamics) => (character_dynamics?.intensity ?? 50) > 60 && (character_dynamics?.chaos ?? 50) > 60,
         directive: "Accelerate rhythm into repetitive, manic multi-clausal sentences of paranoid obsession.",
       },
       {
         id: "POE_DECAY",
-        when: (ai) => (ai?.openness ?? 50) < 30,
+        when: (character_dynamics) => (character_dynamics?.openness ?? 50) < 30,
         directive: "Deepen self-flagellating internal monologue and focus on physical decay and rot.",
       },
       {
         id: "POE_BEATING_HEART",
-        when: (ai) => (ai?.intensity ?? 50) > 70,
+        when: (character_dynamics) => (character_dynamics?.intensity ?? 50) > 70,
         directive: "Surfacing rhythmic, thumping pulses and auditory hyperacusis.",
       },
       {
         id: "POE_WATCHING_EYE",
-        when: (ai) => (ai?.chaos ?? 50) > 50,
+        when: (character_dynamics) => (character_dynamics?.chaos ?? 50) > 50,
         directive: "Emphasize fixed, unblinking eyes and paranoid gaze.",
       },
     ],
@@ -395,7 +412,7 @@ export const NARRATIVE_STYLES = {
     triggers: [
       {
         id: "GRRM_RECKLESS",
-        when: (ai) => (ai?.chaos ?? 50) > 70,
+        when: (character_dynamics) => (character_dynamics?.chaos ?? 50) > 70,
         directive: "Render character actions as impulsive and reckless while internal thoughts remain deeply conflicted.",
       },
     ],
@@ -420,7 +437,7 @@ export const NARRATIVE_STYLES = {
     triggers: [
       {
         id: "MURAKAMI_DOMESTIC_SURREAL",
-        when: (ai) => (ai?.chaos ?? 50) > 60 && (ai?.intensity ?? 50) < 40,
+        when: (character_dynamics) => (character_dynamics?.chaos ?? 50) > 60 && (character_dynamics?.intensity ?? 50) < 40,
         directive: "Blend casual domestic observations seamlessly with surreal, dreamlike phenomena.",
       },
     ],
@@ -445,17 +462,17 @@ export const NARRATIVE_STYLES = {
     triggers: [
       {
         id: "HD_CARLTON_PARANOID",
-        when: (ai) => (ai?.intensity ?? 50) > 70 && (ai?.openness ?? 50) < 30,
+        when: (character_dynamics) => (character_dynamics?.intensity ?? 50) > 70 && (character_dynamics?.openness ?? 50) < 30,
         directive: "Make internal voice hyper-vigilant and paranoid, delivering visceral, high-stakes prose.",
       },
       {
         id: "HD_CARLTON_PHYSIOLOGICAL",
-        when: (ai) => (ai?.intensity ?? 50) > 70 && (ai?.affinity ?? 50) > 50,
+        when: (character_dynamics) => (character_dynamics?.intensity ?? 50) > 70 && (character_dynamics?.affinity ?? 50) > 50,
         directive: "Frame intense arousal and violence as indivisible, breathless physiological rush.",
       },
       {
         id: "HD_CARLTON_MIND_GAMES",
-        when: (ai) => (ai?.intensity ?? 50) > 60,
+        when: (character_dynamics) => (character_dynamics?.intensity ?? 50) > 60,
         directive: "Incorporate psychological mind games and high-tension tests of obedience.",
       },
     ],
@@ -480,12 +497,12 @@ export const NARRATIVE_STYLES = {
     triggers: [
       {
         id: "LOVECRAFT_COSMIC_TERROR",
-        when: (ai) => (ai?.intensity ?? 50) > 80 && (ai?.chaos ?? 50) > 70,
+        when: (character_dynamics) => (character_dynamics?.intensity ?? 50) > 80 && (character_dynamics?.chaos ?? 50) > 70,
         directive: "Escalate academic reportage into frantic, adjective-heavy fragments of cosmic terror.",
       },
       {
         id: "LOVECRAFT_OCEANIC_ROT",
-        when: (ai) => (ai?.chaos ?? 50) > 50,
+        when: (character_dynamics) => (character_dynamics?.chaos ?? 50) > 50,
         directive: "Evoke ancient dampness and fetid oceanic decay.",
       },
     ],
@@ -510,22 +527,22 @@ export const NARRATIVE_STYLES = {
     triggers: [
       {
         id: "AUSTEN_SHARP_IRONY",
-        when: (ai) => (ai?.intensity ?? 50) > 60 && (ai?.chaos ?? 50) > 60,
+        when: (character_dynamics) => (character_dynamics?.intensity ?? 50) > 60 && (character_dynamics?.chaos ?? 50) > 60,
         directive: "Sharpen authorial irony as internal social calculations turn frantic beneath polished etiquette.",
       },
       {
         id: "AUSTEN_QUIET_PLEASANTRY",
-        when: (ai) => (ai?.openness ?? 50) < 40,
+        when: (character_dynamics) => (character_dynamics?.openness ?? 50) < 40,
         directive: "Restrict dialogue to quiet, cautious pleasantries while focusing on subtle glances.",
       },
       {
         id: "AUSTEN_PLAYFUL_WIT",
-        when: (ai) => (ai?.openness ?? 50) > 70,
+        when: (character_dynamics) => (character_dynamics?.openness ?? 50) > 70,
         directive: "Lighten tone into warm, sincere prose with playful conversational wit.",
       },
       {
         id: "AUSTEN_IMPROPER_GLANCE",
-        when: (ai) => (ai?.intensity ?? 50) > 50,
+        when: (character_dynamics) => (character_dynamics?.intensity ?? 50) > 50,
         directive: "Highlight brief, charged breaches of social decorum.",
       },
     ],
@@ -550,22 +567,22 @@ export const NARRATIVE_STYLES = {
     triggers: [
       {
         id: "TOLKIEN_ELEGIAC",
-        when: (ai) => (ai?.intensity ?? 50) < 30 && (ai?.chaos ?? 50) > 70,
+        when: (character_dynamics) => (character_dynamics?.intensity ?? 50) < 30 && (character_dynamics?.chaos ?? 50) > 70,
         directive: "Adopt an elegiac tone focused on world-weariness, ancient history, and fading light.",
       },
       {
         id: "TOLKIEN_HYMNAL",
-        when: (ai) => (ai?.openness ?? 50) > 80,
+        when: (character_dynamics) => (character_dynamics?.openness ?? 50) > 80,
         directive: "Elevate prose into hymnal cadence focused on natural beauty and enduring light.",
       },
       {
         id: "TOLKIEN_PORTENTOUS",
-        when: (ai) => (ai?.intensity ?? 50) > 60,
+        when: (character_dynamics) => (character_dynamics?.intensity ?? 50) > 60,
         directive: "Deepen sentence cadence into heavy, portentous reflections on shadow and corruption.",
       },
       {
         id: "TOLKIEN_FADING_LIGHT",
-        when: (ai) => (ai?.intensity ?? 50) < 40,
+        when: (character_dynamics) => (character_dynamics?.intensity ?? 50) < 40,
         directive: "Focus on fading starlight and twilight horizons.",
       },
     ],
@@ -590,7 +607,7 @@ export const NARRATIVE_STYLES = {
     triggers: [
       {
         id: "LEE_CHILD_TACTICAL_CLOCK",
-        when: (ai) => (ai?.intensity ?? 50) > 50,
+        when: (character_dynamics) => (character_dynamics?.intensity ?? 50) > 50,
         directive: "Track exact elapsed seconds, physical leverage, and tactical geometry.",
       },
     ],
@@ -615,12 +632,12 @@ export const NARRATIVE_STYLES = {
     triggers: [
       {
         id: "PENELOPE_ANGST",
-        when: (ai) => (ai?.intensity ?? 50) > 80 && (ai?.chaos ?? 50) > 60,
+        when: (character_dynamics) => (character_dynamics?.intensity ?? 50) > 80 && (character_dynamics?.chaos ?? 50) > 60,
         directive: "Deliver cutting, confrontational dialogue while internal thoughts spiral into aggressive justification.",
       },
       {
         id: "PENELOPE_SOMATIC_HEAT",
-        when: (ai) => (ai?.intensity ?? 50) > 70 && (ai?.affinity ?? 50) > 50,
+        when: (character_dynamics) => (character_dynamics?.intensity ?? 50) > 70 && (character_dynamics?.affinity ?? 50) > 50,
         directive: "Accelerate prose rhythm into breathless focus on body heat and immediate somatic reactions.",
       },
     ],
@@ -645,12 +662,12 @@ export const NARRATIVE_STYLES = {
     triggers: [
       {
         id: "PKD_PARANOID_DISSOCIATION",
-        when: (ai) => (ai?.chaos ?? 50) > 70,
+        when: (character_dynamics) => (character_dynamics?.chaos ?? 50) > 70,
         directive: "Make internal monologue paranoid and dissociated, questioning whether reality or memory is authentic.",
       },
       {
         id: "PKD_CONSPIRACY_FIXATION",
-        when: (ai) => (ai?.openness ?? 50) < 20,
+        when: (character_dynamics) => (character_dynamics?.openness ?? 50) < 20,
         directive: "Hyper-fixate internal thoughts on conspiracy, tracking defensive conversational maneuvers.",
       },
     ],
@@ -676,12 +693,12 @@ export const NARRATIVE_STYLES = {
     triggers: [
       {
         id: "ROONEY_MONOTONE_NUMBNESS",
-        when: (ai) => (ai?.intensity ?? 50) > 70 && (ai?.chaos ?? 50) > 70,
+        when: (character_dynamics) => (character_dynamics?.intensity ?? 50) > 70 && (character_dynamics?.chaos ?? 50) > 70,
         directive: "Flatten syntax into stark, unadorned monotone declarations of emotional numbness.",
       },
       {
         id: "ROONEY_UNCOMFORTABLE_SILENCE",
-        when: (ai) => (ai?.intensity ?? 50) > 50,
+        when: (character_dynamics) => (character_dynamics?.intensity ?? 50) > 50,
         directive: "Linger on uncomfortably quiet pauses and unsaid interpersonal subtext.",
       },
     ],
@@ -707,7 +724,7 @@ export const NARRATIVE_STYLES = {
     triggers: [
       {
         id: "DELANY_VISCERAL_ANATOMY",
-        when: (ai) => (ai?.intensity ?? 50) > 70 && (ai?.openness ?? 50) > 60,
+        when: (character_dynamics) => (character_dynamics?.intensity ?? 50) > 70 && (character_dynamics?.openness ?? 50) > 60,
         directive: "Render bodily touch and anatomical details with dense, visceral, non-judgmental precision.",
       },
     ],
@@ -732,17 +749,17 @@ export const NARRATIVE_STYLES = {
     triggers: [
       {
         id: "KING_BODY_HORROR",
-        when: (ai) => (ai?.intensity ?? 50) > 60 && (ai?.openness ?? 50) < 40,
+        when: (character_dynamics) => (character_dynamics?.intensity ?? 50) > 60 && (character_dynamics?.openness ?? 50) < 40,
         directive: "Incorporate blue-collar body horror metaphors and visceral physiological discomfort.",
       },
       {
         id: "KING_INTERNAL_OUTBURST",
-        when: (ai) => (ai?.chaos ?? 50) > 60,
+        when: (character_dynamics) => (character_dynamics?.chaos ?? 50) > 60,
         directive: "Break sentence structure into run-on cadence punctuated by italicized internal outbursts.",
       },
       {
         id: "KING_BODILY_DISCOMFORT",
-        when: (ai) => (ai?.intensity ?? 50) > 70,
+        when: (character_dynamics) => (character_dynamics?.intensity ?? 50) > 70,
         directive: "Ground panic in raw bodily discomfort (cold sweat, sour stomach).",
       },
     ],
@@ -768,7 +785,7 @@ export const NARRATIVE_STYLES = {
     triggers: [
       {
         id: "GIBSON_CYBERNETIC_JITTER",
-        when: (ai) => (ai?.intensity ?? 50) > 70 && (ai?.chaos ?? 50) > 70,
+        when: (character_dynamics) => (character_dynamics?.intensity ?? 50) > 70 && (character_dynamics?.chaos ?? 50) > 70,
         directive: "Deliver rapid, jittery, information-dense prose saturated with technical jargon and hardware metaphors.",
       },
     ],
@@ -795,18 +812,18 @@ export const NARRATIVE_STYLES = {
     triggers: [
       {
         id: "HEMINGWAY_STOIC_ENDURANCE",
-        when: (ai) => (ai?.intensity ?? 50) > 70 && (ai?.openness ?? 50) < 40,
+        when: (character_dynamics) => (character_dynamics?.intensity ?? 50) > 70 && (character_dynamics?.openness ?? 50) < 40,
         directive:
           "Curt, stripped-down sentences. Emphasize physical stamina and quiet endurance while burying vulnerable emotions beneath unyielding silence.",
       },
       {
         id: "HEMINGWAY_RAW_SUBTEXT",
-        when: (ai) => (ai?.affinity ?? 50) > 60 && (ai?.intensity ?? 50) < 50,
+        when: (character_dynamics) => (character_dynamics?.affinity ?? 50) > 60 && (character_dynamics?.intensity ?? 50) < 50,
         directive: "Minimalist, understated dialogue with heavy unspoken subtext. Actions and physical presence speak louder than words.",
       },
       {
         id: "HEMINGWAY_CONCRETE_REALISM",
-        when: (ai) => (ai?.chaos ?? 50) > 60,
+        when: (character_dynamics) => (character_dynamics?.chaos ?? 50) > 60,
         directive:
           "Anchor tension in concrete sensory objects—cold glasses, aching joints, the stark glare of light—without decorative embellishments.",
       },
@@ -834,17 +851,17 @@ export const NARRATIVE_STYLES = {
     triggers: [
       {
         id: "ABERCROMBIE_BATHOS",
-        when: (ai) => (ai?.intensity ?? 50) > 60 && (ai?.chaos ?? 50) > 50,
+        when: (character_dynamics) => (character_dynamics?.intensity ?? 50) > 60 && (character_dynamics?.chaos ?? 50) > 50,
         directive: "Undercut dramatic or solemn moments with sharp bathos, caustic internal wit, and gritty physical discomforts.",
       },
       {
         id: "ABERCROMBIE_BRUTAL_PRAGMATISM",
-        when: (ai) => (ai?.openness ?? 50) < 40,
+        when: (character_dynamics) => (character_dynamics?.openness ?? 50) < 40,
         directive: "Express hardened cynicism and weary self-preservation; avoid moralizing or romanticized heroics.",
       },
       {
         id: "ABERCROMBIE_BODILY_MISERY",
-        when: (ai) => (ai?.intensity ?? 50) > 70,
+        when: (character_dynamics) => (character_dynamics?.intensity ?? 50) > 70,
         directive: "Hyper-focus on visceral physical wear-and-tear—throbbing wounds, cold rain soaking through boots, stiffness in the joints.",
       },
     ],
@@ -870,38 +887,42 @@ export const NARRATIVE_STYLES = {
     triggers: [
       {
         id: "ARTHUR_MORGAN_DEEP_LENS",
-        when: (ai) => (ai?.intensity ?? 50) > 60 && (ai?.openness ?? 50) < 50,
+        when: (character_dynamics) => (character_dynamics?.intensity ?? 50) > 60 && (character_dynamics?.openness ?? 50) < 50,
         directive:
           "Filter all physical observations through the character's moral fatigue, sizing up threats and reading motives with jaded instincts.",
       },
       {
         id: "ARTHUR_MORGAN_LACONIC_PULP",
-        when: (ai) => (ai?.intensity ?? 50) > 70,
+        when: (character_dynamics) => (character_dynamics?.intensity ?? 50) > 70,
         directive: "Deliver terse, sharp dialogue backed by visceral sensory metaphors—smell of spent powder, rasping breath, burning tobacco.",
       },
       {
         id: "ARTHUR_MORGAN_CRACKED_DEFENSES",
-        when: (ai) => (ai?.openness ?? 50) > 60 && (ai?.affinity ?? 50) > 50,
+        when: (character_dynamics) => (character_dynamics?.openness ?? 50) > 60 && (character_dynamics?.affinity ?? 50) > 50,
         directive: "Allow cracked defenses and quiet, grudging admissions beneath a gruff, guarded exterior.",
       },
     ],
   }),
-};
+});
 
-// ── 4. Style Motifs Aggregator & Helper Accessors ──────────────────────────────
+// ============================================================================
+// 4. Style Motifs Aggregator & Helper Accessors
+// ============================================================================
 
 /**
  * Dynamic style motifs dictionary auto-aggregated from all narrative styles.
  * Maps motif keyword -> { directive: string }.
  * @type {Record<string, { directive: string }>}
  */
-const _motifs = {};
+const aggregated_motifs = {};
 for (const style of Object.values(NARRATIVE_STYLES)) {
   for (const [key, directive] of Object.entries(style.motifs || {})) {
-    _motifs[key] = { directive };
+    aggregated_motifs[key] = { directive };
   }
 }
-export const STYLE_MOTIF_REGISTRY = Object.freeze(_motifs);
+
+/** @type {Readonly<Record<string, { directive: string }>>} */
+export const STYLE_MOTIF_REGISTRY = Object.freeze(aggregated_motifs);
 
 /**
  * Returns a NarrativeStyle record by key with safe fallback to `default`.
@@ -924,7 +945,7 @@ export function get_style_keywords(style_key = "") {
 }
 
 /**
- * Resolves the active narrative style key from fractal or app settings.
+ * Resolves the active narrative style key from fractal or application settings.
  * Returns "" if no valid style is active.
  * @returns {string}
  */
@@ -941,11 +962,18 @@ export function render_narrative_style_xml(style_key = resolve_active_style_key(
   return NARRATIVE_STYLES[style_key]?.xml || "";
 }
 
+// ============================================================================
+// CHANGELOG
+// ============================================================================
 /**
- * CHANGELOG
  * - 2026-08-28: Option A Deconstruction & Declarative Rebuild:
  *   1. Replaced repetitive hardcoded XML strings with declarative `dna` objects and a compiler `define_style()`.
  *   2. Co-located style motifs directly within each author definition (`motifs: { ... }`).
  *   3. Auto-aggregated `STYLE_MOTIF_REGISTRY` dynamically from all styles, ensuring zero redundancy.
  *   4. File reduced by ~300 lines of boilerplate while maintaining 100% backward compatibility.
+ * - 2026-08-29: 4-Step Harmonization Protocol (/harmonize):
+ *   1. Cleaned layer boundaries, documentation comments, and JSDoc typedef definitions.
+ *   2. Standardized section dividers (`// ============================================================================`).
+ *   3. Enforced anti-abbreviation mandate (`style_definition`, `description_xml`, `tags_xml`, `narrative_engine_xml`, `aggregated_motifs`, `character_dynamics`).
+ *   4. Applied `Object.freeze` on `NARRATIVE_STYLES` for immutability.
  */

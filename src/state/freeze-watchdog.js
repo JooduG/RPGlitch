@@ -13,11 +13,11 @@
  *   and the manual UI "Unstick" trigger in `StorymodeBar.svelte`.
  *
  * Dependencies & Cross-Module Invariants:
- * - `app-store.svelte.js` (`app`): AbortController access, streaming reset, loading flag reset, and logging.
+ * - `interface.svelte.js` (`app`): AbortController access, streaming reset, loading flag reset, and logging.
  * - `status.svelte.js` (`simulation_state`): State machine unlocking, complete signal, and intent release.
  */
 
-import { app } from "./app-store.svelte.js";
+import { app } from "./interface.svelte.js";
 import { simulation_state } from "./status.svelte.js";
 
 // ============================================================================

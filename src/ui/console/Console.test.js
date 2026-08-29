@@ -4,7 +4,7 @@
  */
 import { describe, expect, it } from "vitest";
 
-import { app } from "@state/app-store.svelte.js";
+import { app } from "@state/interface.svelte.js";
 
 describe("Console & Settings State", () => {
   it("keeps dev_grid_visible decoupled from dev_mode (independent toggles)", async () => {

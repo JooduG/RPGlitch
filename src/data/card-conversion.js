@@ -1,164 +1,251 @@
 /**
- * src/data/card-conversion.js
- * 🃏 CARD CONVERSION CODEC — AI RP Card V2/V3 interoperability
+ * ============================================================================
+ * RPGlitch — Card Conversion Codec
+ * ============================================================================
  *
- * The single place that translates between RPGlitch entities and the standard
- * Character Card formats used by Tavern, Chub, and Janitor ("chara_card_v2" /
- * "chara_card_v3"), plus native RPGlitch entity JSON and PNG-embedded cards.
+ * OVERVIEW:
+ * Translates between native RPGlitch entities and third-party AI Roleplay
+ * character card formats (Tavern / Chub / Janitor "chara_card_v2" & "chara_card_v3"),
+ * as well as embedded PNG character cards (`chara` tEXt chunk encoding).
  *
- * CARD FORMATS
- *   1. Standard Character Card JSON   (.json) — `spec` + `data.*` fields.
- *   2. Character Card PNG             (.png)  — an image whose `chara` tEXt
- *                                              chunk holds a base64 JSON card.
- *   3. Native RPGlitch entity JSON    (.json) — full Twin-Cylinder schema.
+ * SUPPORTED FORMATS:
+ * 1. Standard Character Card JSON (.json) — Spec definition + `data.*` payload.
+ * 2. Character Card PNG           (.png)  — PNG holding base64 JSON in `chara` chunk.
+ * 3. Native RPGlitch Entity JSON  (.json) — Full normalized entity schema.
  *
- * Every decoding path funnels into the same flat profile shape the LLM sorter
- * emits, so the import layer always maps one shape onto an entity:
+ * MAPPING CONCORDANCE:
+ * - data.name              <-> entity.name
+ * - data.description       <-> entity.eternal.physical
+ * - data.personality       <-> entity.eternal.non_physical
+ * - data.first_mes         <-> entity.present.non_physical
+ * - data.scenario          <-> entity.future
+ * - data.tags              <-> entity.tags
+ * - data.creator_notes     <-> entity.description
  *
- *   data.name              <-> entity.name
- *   data.description       <-> entity.eternal.physical   (appearance)
- *   data.personality       <-> entity.eternal.non_physical
- *   data.first_mes         <-> entity.present.non_physical
- *   data.scenario          <-> entity.future
- *   data.tags              <-> entity.tags
- *
- * (Applying that flat profile onto a fresh entity is the intelligence layer's
- * job — see apply_profile_to_entity in @intelligence/profile-pipeline.js. This codec
- * owns only the card <-> flat translation.)
+ * RULES:
+ * - Pure codec logic only. State persistence and entity lifecycle live in stores/pipelines.
+ * - Adheres strictly to GEMINI.md naming standards (anti-abbreviation mandate).
+ * ============================================================================
  */
 
 import { normalize, serialize_entity_for_export } from "./normalizer.js";
 
-// =============================================================
+// ============================================================================
 // 1. FORMAT DETECTION
-// =============================================================
+// ============================================================================
 
 /**
  * Detects the format of a parsed import payload.
- * @param {any} json
- * @returns {'v2' | 'rpglitch' | 'unknown'}
+ *
+ * @param {unknown} payload_json - Parsed JSON object to evaluate.
+ * @returns {"v2" | "rpglitch" | "unknown"} Recognized format descriptor.
  */
-export function detect_card_format(json) {
-  if (!json || typeof json !== "object" || Array.isArray(json)) return "unknown";
-  if (json.spec === "chara_card_v2" || json.spec === "chara_card_v3") return "v2";
-  if (json.data && typeof json.data === "object" && !Array.isArray(json.data)) {
-    const data = json.data;
-    if (data.name !== undefined || data.first_mes !== undefined || data.personality !== undefined || data.scenario !== undefined) {
+export function detect_card_format(payload_json) {
+  if (!payload_json || typeof payload_json !== "object" || Array.isArray(payload_json)) {
+    return "unknown";
+  }
+
+  const candidate = /** @type {Record<string, any>} */ (payload_json);
+
+  if (candidate.spec === "chara_card_v2" || candidate.spec === "chara_card_v3") {
+    return "v2";
+  }
+
+  if (candidate.data && typeof candidate.data === "object" && !Array.isArray(candidate.data)) {
+    const card_data = candidate.data;
+    if (
+      card_data.name !== undefined ||
+      card_data.first_mes !== undefined ||
+      card_data.personality !== undefined ||
+      card_data.scenario !== undefined
+    ) {
       return "v2";
     }
   }
-  if (json.eternal || json.present || json.dynamics) return "rpglitch";
+
+  if (candidate.eternal || candidate.present || candidate.dynamics) {
+    return "rpglitch";
+  }
+
   return "unknown";
 }
 
-// =============================================================
-// 2. DECODE — card payloads → flat profile shape
-// =============================================================
+// ============================================================================
+// 2. DECODE — Card Payloads -> Flat Profile Shape
+// ============================================================================
 
 /**
- * Converts a standard Character Card V2/V3 payload into the flat profile shape
- * the LLM sorter emits (apply_profile_to_entity applies it to an entity).
- * Missing keys are simply omitted — the import layer synthesizes defaults.
- * @param {any} json
- * @returns {Object}
+ * Converts a standard Character Card V2/V3 payload into a flat profile shape.
+ * Missing keys are omitted to allow the entity factory to generate defaults.
+ *
+ * @param {unknown} payload_json - Raw decoded card JSON object.
+ * @returns {Record<string, any>} Flat profile object ready for entity application.
  */
-export function parse_character_card(json) {
-  const data = json?.data && typeof json.data === "object" ? json.data : {};
-  const flat = {};
-  const str = (v) => (typeof v === "string" ? v.trim() : "");
+export function parse_character_card(payload_json) {
+  const candidate =
+    payload_json && typeof payload_json === "object" && !Array.isArray(payload_json) ? /** @type {Record<string, any>} */ (payload_json) : null;
 
-  const name = str(data.name);
-  if (name) flat.name = name;
+  const card_data = candidate?.data && typeof candidate.data === "object" && !Array.isArray(candidate.data) ? candidate.data : {};
 
-  // Standard cards fold appearance + personality into `description`; the
-  // dedicated `personality` line maps to the non-physical pole.
-  const description = str(data.description);
-  if (description) flat.appearance = description;
-  const personality = str(data.personality);
-  if (personality) flat.personality = personality;
+  /** @type {Record<string, any>} */
+  const flat_profile = {};
 
-  const first_mes = str(data.first_mes);
-  if (first_mes) flat.current_look = first_mes;
-  const scenario = str(data.scenario);
-  if (scenario) flat.future = scenario;
+  /**
+   * Helper to safely trim and sanitize string fields.
+   * @param {unknown} value
+   * @returns {string}
+   */
+  const sanitize_text = (value) => (typeof value === "string" ? value.trim() : "");
 
-  const creator_notes = str(data.creator_notes);
-  if (creator_notes) flat.description = creator_notes;
-
-  if (Array.isArray(data.tags)) {
-    flat.tags = data.tags.map((t) => String(t).trim()).filter(Boolean);
+  const character_name = sanitize_text(card_data.name);
+  if (character_name) {
+    flat_profile.name = character_name;
   }
-  return flat;
+
+  const description = sanitize_text(card_data.description);
+  if (description) {
+    flat_profile.appearance = description;
+  }
+
+  const personality = sanitize_text(card_data.personality);
+  if (personality) {
+    flat_profile.personality = personality;
+  }
+
+  const first_message = sanitize_text(card_data.first_mes);
+  if (first_message) {
+    flat_profile.current_look = first_message;
+  }
+
+  const scenario = sanitize_text(card_data.scenario);
+  if (scenario) {
+    flat_profile.future = scenario;
+  }
+
+  const creator_notes = sanitize_text(card_data.creator_notes);
+  if (creator_notes) {
+    flat_profile.description = creator_notes;
+  }
+
+  if (Array.isArray(card_data.tags)) {
+    flat_profile.tags = card_data.tags.map((tag_item) => String(tag_item).trim()).filter((tag_item) => tag_item.length > 0);
+  }
+
+  return flat_profile;
 }
 
 /**
- * Extracts the JSON card embedded in a Character Card PNG (the `chara` keyword
- * inside a `tEXt` chunk). Returns the raw JSON text, or null when the PNG
- * carries no card data.
- * @param {ArrayBuffer | Uint8Array} buffer
- * @returns {string | null}
+ * Extracts the JSON card payload embedded inside a Character Card PNG image.
+ * Looks for the `chara` keyword within standard `tEXt` chunks.
+ *
+ * @param {ArrayBuffer | Uint8Array} binary_buffer - Raw binary data of the PNG file.
+ * @returns {string | null} Decoded JSON string if present, or null.
  */
-export function extract_card_from_png(buffer) {
-  const bytes = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer);
-  let offset = 8; // skip PNG signature
-  while (offset < bytes.length) {
-    const length = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).getUint32(offset, false);
-    const type_str = String.fromCharCode(...bytes.slice(offset + 4, offset + 8));
-    if (type_str === "tEXt") {
-      const chunk_data = bytes.slice(offset + 8, offset + 8 + length);
-      const null_idx = chunk_data.indexOf(0);
-      if (null_idx !== -1) {
-        const keyword = String.fromCharCode(...chunk_data.slice(0, null_idx));
-        if (keyword === "chara") {
-          const base64_data = String.fromCharCode(...chunk_data.slice(null_idx + 1));
-          return atob(base64_data);
+export function extract_card_from_png(binary_buffer) {
+  if (!binary_buffer) {
+    return null;
+  }
+
+  const byte_array = binary_buffer instanceof Uint8Array ? binary_buffer : new Uint8Array(binary_buffer);
+
+  if (byte_array.length < 8) {
+    return null;
+  }
+
+  let byte_offset = 8; // Skip standard 8-byte PNG header signature
+
+  while (byte_offset + 12 <= byte_array.length) {
+    const data_view = new DataView(byte_array.buffer, byte_array.byteOffset, byte_array.byteLength);
+
+    const chunk_length = data_view.getUint32(byte_offset, false);
+    const chunk_type = String.fromCharCode(
+      byte_array[byte_offset + 4],
+      byte_array[byte_offset + 5],
+      byte_array[byte_offset + 6],
+      byte_array[byte_offset + 7],
+    );
+
+    if (chunk_type === "tEXt") {
+      const chunk_data_start = byte_offset + 8;
+      const chunk_data_end = chunk_data_start + chunk_length;
+
+      if (chunk_data_end <= byte_array.length) {
+        const chunk_data = byte_array.slice(chunk_data_start, chunk_data_end);
+        const null_separator_index = chunk_data.indexOf(0);
+
+        if (null_separator_index !== -1) {
+          const keyword = String.fromCharCode(...chunk_data.slice(0, null_separator_index));
+
+          if (keyword === "chara") {
+            const base64_payload = String.fromCharCode(...chunk_data.slice(null_separator_index + 1));
+            try {
+              return atob(base64_payload);
+            } catch {
+              return null;
+            }
+          }
         }
       }
     }
-    offset += 12 + length;
+
+    byte_offset += 12 + chunk_length;
   }
+
   return null;
 }
 
-// =============================================================
-// 3. ENCODE — entities → card payloads
-// =============================================================
+// ============================================================================
+// 3. ENCODE — Entities -> Card Payloads
+// ============================================================================
 
 /**
  * Serializes an RPGlitch entity into a standard Character Card V2 payload.
- * `description` composes both eternal poles (physical + non-physical) so the
- * card survives in Tavern/Chub/Janitor; `personality` keeps the philosophy.
- * @param {any} entity
- * @returns {Object}
+ *
+ * @param {Record<string, any> | null | undefined} entity - RPGlitch entity object.
+ * @returns {Record<string, any>} Serialized Character Card V2 JSON object.
  */
 export function serialize_character_card(entity) {
-  const e = entity || {};
-  const physical = String(e.eternal?.physical || "").trim();
-  const non_physical = String(e.eternal?.non_physical || "").trim();
-  const description = [physical, non_physical].filter(Boolean).join("\n\n");
+  const target_entity = entity || {};
+  const physical_description = String(target_entity.eternal?.physical || "").trim();
+  const non_physical_personality = String(target_entity.eternal?.non_physical || "").trim();
+
+  const combined_description = [physical_description, non_physical_personality].filter((part) => part.length > 0).join("\n\n");
 
   return {
     spec: "chara_card_v2",
     spec_version: "2.0",
     data: {
-      name: String(e.name || "Unnamed").trim(),
-      description,
-      personality: non_physical,
-      scenario: String(e.future || "").trim(),
-      first_mes: String(e.present?.non_physical || "").trim(),
+      name: String(target_entity.name || "Unnamed").trim(),
+      description: combined_description,
+      personality: non_physical_personality,
+      scenario: String(target_entity.future || "").trim(),
+      first_mes: String(target_entity.present?.non_physical || "").trim(),
       mes_example: "",
-      creator_notes: String(e.description || "").trim(),
+      creator_notes: String(target_entity.description || "").trim(),
       character_version: "1.0",
       alternate_greetings: [],
-      tags: Array.isArray(e.tags) ? e.tags.map(String) : [],
+      tags: Array.isArray(target_entity.tags) ? target_entity.tags.map(String) : [],
       extensions: {},
     },
   };
 }
 
 /**
- * Serializes an RPGlitch entity into the native standalone JSON export.
- * @param {any} entity
- * @returns {Object}
+ * Serializes an RPGlitch entity into native standalone normalized JSON format.
+ *
+ * @param {Record<string, any> | null | undefined} entity - RPGlitch entity object.
+ * @returns {Record<string, any>} Export-ready sanitized entity object.
  */
-export const serialize_rpglitch_entity = (entity) => serialize_entity_for_export(normalize(entity));
+export function serialize_rpglitch_entity(entity) {
+  return serialize_entity_for_export(normalize(entity));
+}
+
+// ============================================================================
+// CHANGELOG
+// ============================================================================
+/**
+ * CHANGELOG:
+ * - 2026-08-29: Harmonized module structure, added formal Universal Header,
+ *   organized dividers, full anti-abbreviation compliance, robust PNG chunk
+ *   bounds handling and atob try/catch guard.
+ */

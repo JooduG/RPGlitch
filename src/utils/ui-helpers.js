@@ -13,7 +13,7 @@
  *   `document.startViewTransition()`, with synchronous fallback when transitions are active or unsupported.
  *
  * Consumed by:
- * - `src/state/app-store.svelte.js` (View transition navigation & layout measuring).
+ * - `src/state/interface.svelte.js` (View transition navigation & layout measuring).
  * - `src/ui/entity/EntityCard.svelte` (Transition animations).
  * - `src/ui/story/StoryManager.svelte` (Story export downloads).
  */

@@ -1,7 +1,12 @@
 /**
  * src/data/definitions/visual-styles.js
- * 🎨 VISUAL STYLE SYSTEM — Aesthetic Engine presets for image generation.
- * Optimized for FLUX.1 (Rectified Flow) and T5-XXL text encoders.
+ * ============================================================================
+ * 🎨 VISUAL STYLE SYSTEM — Aesthetic Engine Presets for Image Generation
+ * ============================================================================
+ *
+ * Provides curated visual style presets optimized for FLUX.1 (Rectified Flow)
+ * and T5-XXL text encoders. Each style encapsulates a declarative aesthetic
+ * signature formatted into standard XML <VISUAL_ENGINE> prompt blocks.
  *
  * SCHEMA CONVENTIONS:
  * - Exactly one of <camera> OR <composition> per style (never both, never neither).
@@ -13,7 +18,9 @@
 
 import { state_bridge, resolve_style } from "@utils";
 
-// ── 1. Type Definitions ───────────────────────────────────────────────────────
+// ============================================================================
+// 1. TYPE DEFINITIONS
+// ============================================================================
 
 /**
  * @typedef {Object} VisualStyleEngine
@@ -27,8 +34,8 @@ import { state_bridge, resolve_style } from "@utils";
 /**
  * @typedef {Object} VisualStyle
  * @property {string} id - Unique identifier matching the registry key
- * @property {string} name - Display title shown in UI dropdowns
- * @property {string} category - Grouping label for UI organization
+ * @property {string} name - Display title shown in user interface dropdowns
+ * @property {string} category - Grouping label for user interface organization
  * @property {string} portrait - Preview thumbnail asset path
  * @property {string} description - Detailed aesthetic summary for tooltips
  * @property {string[]} tags - Visual descriptor keywords injected into generation
@@ -42,50 +49,54 @@ import { state_bridge, resolve_style } from "@utils";
  *   clamped to within ±2 of the tier baseline (character 9 / scene 7).
  */
 
-// ── 2. Declarative Visual Style Compiler ──────────────────────────────────────
+// ============================================================================
+// 2. DECLARATIVE VISUAL STYLE COMPILER
+// ============================================================================
 
 /**
  * Factory creating a compiled, fully validated VisualStyle record.
  * Automatically formats `engine` into standard XML <VISUAL_ENGINE> format.
  *
- * @param {Object} def
- * @param {string} def.id
- * @param {string} def.name
- * @param {string} def.category
- * @param {string} [def.portrait]
- * @param {string} def.description
- * @param {string[]} def.tags
- * @param {VisualStyleEngine} [def.engine]
- * @param {string} [def.negative_prompt]
- * @param {boolean} [def.llm_refine]
- * @param {number} [def.guidance_scale]
+ * @param {Object} definition - Declarative visual style definition configuration
+ * @param {string} definition.id - Unique identifier
+ * @param {string} definition.name - Display name
+ * @param {string} definition.category - Category heading
+ * @param {string} [definition.portrait] - Preview thumbnail URL or asset path
+ * @param {string} definition.description - Aesthetic summary
+ * @param {string[]} definition.tags - Style tags
+ * @param {VisualStyleEngine} [definition.engine] - Declarative prompt components
+ * @param {string} [definition.negative_prompt] - Style-specific negative exclusions
+ * @param {boolean} [definition.llm_refine] - Whether LLM prompt refinement is allowed
+ * @param {number} [definition.guidance_scale] - Optional guidance scale recommendation
  * @returns {VisualStyle}
  */
-function define_visual_style(def) {
-  const visual_engine = def.engine
+function define_visual_style(definition) {
+  const visual_engine = definition.engine
     ? `<VISUAL_ENGINE>
-<medium>${def.engine.medium}</medium>
-<palette>${def.engine.palette}</palette>
-${def.engine.camera ? `<camera>${def.engine.camera}</camera>` : `<composition>${def.engine.composition}</composition>`}
-<texture>${def.engine.texture}</texture>
+<medium>${definition.engine.medium}</medium>
+<palette>${definition.engine.palette}</palette>
+${definition.engine.camera ? `<camera>${definition.engine.camera}</camera>` : `<composition>${definition.engine.composition}</composition>`}
+<texture>${definition.engine.texture}</texture>
 </VISUAL_ENGINE>`
     : "";
 
   return {
-    id: def.id,
-    name: def.name,
-    category: def.category,
-    portrait: def.portrait || "",
-    description: def.description,
-    tags: def.tags,
-    llm_refine: def.llm_refine ?? true,
-    ...(def.guidance_scale !== undefined ? { guidance_scale: def.guidance_scale } : {}),
+    id: definition.id,
+    name: definition.name,
+    category: definition.category,
+    portrait: definition.portrait || "",
+    description: definition.description,
+    tags: definition.tags,
+    llm_refine: definition.llm_refine ?? true,
+    ...(definition.guidance_scale !== undefined ? { guidance_scale: definition.guidance_scale } : {}),
     visual_engine,
-    negative_prompt: def.negative_prompt || "",
+    negative_prompt: definition.negative_prompt || "",
   };
 }
 
-// ── 3. Visual Style Presets Catalog ───────────────────────────────────────────
+// ============================================================================
+// 3. VISUAL STYLE PRESETS CATALOG
+// ============================================================================
 
 /** @type {Record<string, VisualStyle>} */
 export const VISUAL_STYLES = {
@@ -570,11 +581,14 @@ export const VISUAL_STYLES = {
   }),
 };
 
-// ── 4. Style Accessors & Resolvers ─────────────────────────────────────────────
+// ============================================================================
+// 4. STYLE ACCESSORS & RESOLVERS
+// ============================================================================
 
 /**
  * Returns a VisualStyle record by key with safe fallback to `none`.
- * @param {string} [style_key]
+ *
+ * @param {string} [style_key="none"] - Target visual style identifier key
  * @returns {VisualStyle}
  */
 export function get_visual_style(style_key = "none") {
@@ -583,17 +597,19 @@ export function get_visual_style(style_key = "none") {
 
 /**
  * Resolves the active visual style key for a character/entity portrait.
- * @param {any} [entity]
- * @returns {string}
+ *
+ * @param {any} [entity={}] - Character or entity record
+ * @returns {string} Resolved visual style key
  */
 export function resolve_portrait_visual_style_key(entity = {}) {
   return resolve_style(entity?.visual_style, "visual_style", VISUAL_STYLES, "none");
 }
 
 /**
- * Resolves the active visual style key for story/scene generation from a fractal or app setting.
- * @param {any} [fractal]
- * @returns {string}
+ * Resolves the active visual style key for story/scene generation from a fractal or application setting.
+ *
+ * @param {any} [fractal] - Active fractal record or null
+ * @returns {string} Resolved visual style key
  */
 export function resolve_story_visual_style_key(fractal) {
   const explicit = fractal?.visual_style || state_bridge.runtime?.active_fractal?.visual_style || state_bridge.app?.selected_fractal?.visual_style;
@@ -602,6 +618,9 @@ export function resolve_story_visual_style_key(fractal) {
 
 /**
  * CHANGELOG
+ * ============================================================================
+ * - 2026-08-29: Harmonized visual-styles.js with full descriptive parameters, standardized
+ *   section dividers, enhanced JSDoc headers, and complete test assertions.
  * - 2026-08-28: Refactored visual-styles.js with declarative `define_visual_style` compiler helper,
  *   typed VisualStyleEngine interface, and automated <camera>/<composition> XML formatting.
  */

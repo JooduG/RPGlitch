@@ -26,10 +26,10 @@ describe("profile-fields.js schema invariants", () => {
   });
 
   it("ensures PROFILE_FIELD_CATALOG contains valid directives and enhancers", () => {
-    for (const meta of Object.values(PROFILE_FIELD_CATALOG)) {
-      expect(typeof meta.label).toBe("string");
-      expect(typeof (meta.directive || "")).toBe("string");
-      expect(typeof (meta.enhancer || "")).toBe("string");
+    for (const metadata of Object.values(PROFILE_FIELD_CATALOG)) {
+      expect(typeof metadata.label).toBe("string");
+      expect(typeof (metadata.directive || "")).toBe("string");
+      expect(typeof (metadata.enhancer || "")).toBe("string");
     }
   });
 
@@ -40,17 +40,17 @@ describe("profile-fields.js schema invariants", () => {
     expect(character_sections.length).toBeGreaterThan(0);
     expect(fractal_sections.length).toBeGreaterThan(0);
 
-    const char_eternal = character_sections.find((s) => s.id === "eternal");
-    const frac_eternal = fractal_sections.find((s) => s.id === "eternal");
+    const character_eternal = character_sections.find((section) => section.id === "eternal");
+    const fractal_eternal = fractal_sections.find((section) => section.id === "eternal");
 
-    expect(char_eternal).toBeDefined();
-    expect(frac_eternal).toBeDefined();
+    expect(character_eternal).toBeDefined();
+    expect(fractal_eternal).toBeDefined();
 
-    const char_personality = char_eternal.fields.find((f) => f.key === "eternal.non_physical");
-    const frac_metaphysics = frac_eternal.fields.find((f) => f.key === "eternal.non_physical");
+    const character_personality = character_eternal.fields.find((field) => field.key === "eternal.non_physical");
+    const fractal_metaphysics = fractal_eternal.fields.find((field) => field.key === "eternal.non_physical");
 
-    expect(char_personality.label).toBe("Personality");
-    expect(frac_metaphysics.label).toBe("Metaphysical Truths");
+    expect(character_personality.label).toBe("Personality");
+    expect(fractal_metaphysics.label).toBe("Metaphysical Truths");
   });
 
   it("verifies PROFILE_SECTIONS_BY_TYPE cached maps match builder output", () => {
