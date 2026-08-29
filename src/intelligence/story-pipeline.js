@@ -148,12 +148,13 @@ export const gamemaster = {
       const director_prompt = prompt_builder.build_director(payload, snapshot);
 
       const director_call = async (terse = false) => {
+        let is_terse_attempt = terse;
         return await this.execute_with_retry(
           async () => {
-            return await llm_service.generate(
+            const res = await llm_service.generate(
               {
                 system: director_prompt.system,
-                task: terse ? render_terse_director_task() : director_prompt.task,
+                task: is_terse_attempt ? render_terse_director_task() : director_prompt.task,
                 messages: [],
                 role: "system",
                 node_id: `${node_id}-director`,
@@ -166,6 +167,13 @@ export const gamemaster = {
                 onToken: null,
               },
             );
+            const text = raw_to_text(res);
+            const check = validate_and_repair_response(text);
+            if (check.is_refused) {
+              is_terse_attempt = true;
+              throw new Error("AI_REFUSAL_DETECTED");
+            }
+            return res;
           },
           2,
           1000,

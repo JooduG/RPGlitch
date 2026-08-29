@@ -43,6 +43,8 @@ export const DIRECTOR_PROTOCOLS = {
   "directors_note": "1-3 lines of unseen acting/staging directives for the speaker",
   "dynamics_deltas": { "chaos": 0, "intensity": 0, "openness": 0, "affinity": 0 },
   "fractal_dynamics_deltas": { "velocity": 0, "entropy": 0 },
+  "state_append": { "physical": "<optional new physical appearance/injury/apparel>", "non_physical": "<optional new emotional condition/state>" },
+  "vector_append": [{ "content": "<optional memory/trajectory directive>", "type": "past|future", "weight": 5 }],
   "in_scene_change": { "enter": ["npc:<id>"], "exit": ["npc:<id>"] },
   "genesis": { "name": "<Character Name>", "description": "<1-2 sentence core persona>", "signature_color": "<Optional signature color>", "speaking_style": "casual" }
 }`,
@@ -161,7 +163,8 @@ ${last_ai_text ? `<AI_CHARACTER_LAST_TURN>${ind(last_ai_text, 2)}</AI_CHARACTER_
     Decide "next_action": "AI_CHARACTER" (AI speaks), "FRACTAL" (Fractal scene-narrator speaks), "npc:<id>" (in-scene NPC speaks), "GENESIS" (mint a new NPC), "EPILOGUE_CONCLUDED" (quest victory), or "EPILOGUE_COLLAPSED" (fatal defeat, irreversible ruin, terminal entropy >= 85). Default "AI_CHARACTER".${Number(round) <= 1 ? ' IMPORTANT: Round 1 directly follows the Fractal prologue, so next_action MUST be "AI_CHARACTER".' : ""}
     Select 1-3 "keywords" from <AVAILABLE_KEYWORDS> (or [] when neutral).
     Provide 1-3 lines of "directors_note" as unseen acting/staging guidance for the speaker.
-    Output physics shifts in "dynamics_deltas" (e.g. {"intensity": 10, "openness": -5}).
+    Output physics shifts in "dynamics_deltas" (e.g. {"intensity": 10, "openness": -5}) and "fractal_dynamics_deltas".
+    When physical damage, wardrobe change, or psychological conditions occur, emit "state_append" (or nested "mutations"). When a concrete memory or future agenda forms, emit "vector_append".
     Track the Stage Spotlight: when an NPC enters or leaves the room, move it with "in_scene_change".
     ${render_environmental_hint(input)}
     Record your reasoning inside "_thought_process" and return a single valid JSON object following this exact schema:

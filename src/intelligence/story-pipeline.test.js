@@ -1776,4 +1776,34 @@ describe("execute_with_retry resilience diagnostics", () => {
     expect(res).toBe("Success after recalibration");
     expect(_mock_app.log).toHaveBeenCalledWith(expect.stringContaining("Model refusal / content guardrail triggered"), "warn");
   });
+
+  it("recovers from Director refusal by retrying with the terse director task", async () => {
+    let call_count = 0;
+    const tasks_received = [];
+
+    vi.mocked(llm_service.generate).mockImplementation(async (payload) => {
+      call_count++;
+      tasks_received.push(payload.task);
+      if (call_count === 1) {
+        // Director turn 1: Model refusal trigger phrase
+        return "I cannot fulfill this request as an AI safety precaution.";
+      }
+      if (call_count === 2) {
+        // Director turn 2 (terse retry): Valid director JSON
+        return JSON.stringify({
+          _thought_process: "Recovered via terse prompt.",
+          next_action: "AI_CHARACTER",
+          dynamics_deltas: { intensity: 5 },
+        });
+      }
+      // Character pass
+      return "The path is clear.";
+    });
+
+    const result = await gamemaster.execute_turn("story-123", { input: "Advance cautiously.", role: "ai" });
+    expect(result.response).toContain("The path is clear.");
+    expect(call_count).toBe(3);
+    // First call received standard director task; second call received terse recovery task
+    expect(tasks_received[1]).toContain("Return a single, COMPLETE, VALID JSON object");
+  });
 });
