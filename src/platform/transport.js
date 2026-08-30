@@ -262,7 +262,7 @@ export const llm_service = {
       };
 
       // 3. Connect streaming to the app layer
-      if (!options.silent) {
+      if (!options.silent && !stream_bridge.is_active()) {
         const role = payload.role || "ai";
         stream_bridge.start(payload.node_id || "temp", role);
       }
