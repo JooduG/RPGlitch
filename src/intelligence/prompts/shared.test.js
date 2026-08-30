@@ -123,6 +123,27 @@ describe("Shared Prompt Utilities (shared.js)", () => {
       const alt_result = parse_macros(alt, mock_entities.FRACTAL, mock_entities);
       expect(alt_result).toBe("Fallback Void, AI is Viper, User is Ghost.");
     });
+
+    it("parse_macros() should treat a character-typed owner matching the USER id as the user persona", () => {
+      const user_owner = { id: "user-1", name: "Ghost", type: "character" };
+      const entities = {
+        AI: { id: "ai-1", name: "Viper" },
+        USER: { id: "user-1", name: "Ghost" },
+        FRACTAL: { name: "Void" },
+      };
+      expect(parse_macros("I am {{me}}, you are {{you}}.", user_owner, entities)).toBe("I am Ghost, you are Viper.");
+      expect(parse_macros("You are {{char}}.", user_owner, entities)).toBe("You are Viper.");
+    });
+
+    it("parse_macros() should keep an AI character with a distinct id on the default perspective", () => {
+      const ai_owner = { id: "ai-1", name: "Viper", type: "character" };
+      const entities = {
+        AI: { id: "ai-1", name: "Viper" },
+        USER: { id: "user-1", name: "Ghost" },
+        FRACTAL: { name: "Void" },
+      };
+      expect(parse_macros("I am {{me}}, you are {{you}}.", ai_owner, entities)).toBe("I am Viper, you are Ghost.");
+    });
   });
 
   describe("Display Macro Rendering (render_display_macros)", () => {
@@ -158,6 +179,21 @@ describe("Shared Prompt Utilities (shared.js)", () => {
       const user_owner = { name: "Ghost", type: "user" };
       expect(render_display_macros("I am {{me}}, you are {{you}}.", user_owner, {})).toBe("I am Ghost, you are the ai character.");
       expect(render_display_macros("You are {{you}}.", user_owner, { AI: { name: "Viper" } })).toBe("You are Viper.");
+    });
+
+    it("recognizes the user persona by id even when it is stored as a character-typed entity", () => {
+      const user_owner = { id: "user-1", name: "Ghost", type: "character" };
+      const entities = { AI: { id: "ai-1", name: "Viper" }, USER: { id: "user-1", name: "Ghost" } };
+      expect(render_display_macros("I am {{me}}, you are {{you}}.", user_owner, entities)).toBe("I am Ghost, you are Viper.");
+      expect(render_display_macros("You are {{you}}.", user_owner, { AI: { name: "Viper" }, USER: { id: "user-1", name: "Ghost" } })).toBe(
+        "You are Viper.",
+      );
+    });
+
+    it("keeps an AI character (distinct id) on the AI's perspective even when character-typed", () => {
+      const ai_owner = { id: "ai-1", name: "Viper", type: "character" };
+      const entities = { AI: { id: "ai-1", name: "Viper" }, USER: { id: "user-1", name: "Ghost" } };
+      expect(render_display_macros("I am {{me}}, you are {{you}}.", ai_owner, entities)).toBe("I am Viper, you are Ghost.");
     });
 
     it("resolves unresolved {{you}} to both parties from the fractal's perspective", () => {
@@ -210,6 +246,16 @@ describe("Shared Prompt Utilities (shared.js)", () => {
     it("resolves {{you}} to the USER entity for color", () => {
       const segs = resolve_display_macro_segments("You are {{you}}.", pink_ai, mock_entities);
       expect(segs[1]).toEqual({ text: "Ghost", macro: "you", entity: mock_entities.USER });
+    });
+
+    it("resolves {{you}} to the AI entity when the user persona's profile is displayed", () => {
+      const user_owner = { id: "user-1", name: "Ghost", type: "character" };
+      const entities = {
+        AI: { id: "ai-1", name: "Viper", signature_color: "Adrenaline Pink" },
+        USER: { id: "user-1", name: "Ghost", signature_color: "Electric Cyan" },
+      };
+      const segs = resolve_display_macro_segments("You are {{you}}.", user_owner, entities);
+      expect(segs[1]).toEqual({ text: "Viper", macro: "you", entity: entities.AI });
     });
 
     it("marks unresolved {{you}} with null entity so the UI can mute it", () => {

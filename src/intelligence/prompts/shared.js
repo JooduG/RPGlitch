@@ -127,17 +127,19 @@ export function parse_macros(text, owner, entities = {}) {
   const user_name = entities.USER?.name || "User";
   const fractal_name = entities.FRACTAL?.name || "Fractal";
 
+  const perspective = _resolve_owner_perspective(owner, entities);
+
   return text.replace(/\{\{(.*?)\}\}/g, (match, macro) => {
     const token = macro.toLowerCase().trim();
-    if (owner === entities.AI) {
+    if (perspective === "ai") {
       const map = { me: ai_name, char: ai_name, you: user_name, user: user_name, fractal: fractal_name };
       return map[token] ?? match;
     }
-    if (owner === entities.USER) {
+    if (perspective === "user") {
       const map = { me: user_name, user: user_name, you: ai_name, char: ai_name, fractal: fractal_name };
       return map[token] ?? match;
     }
-    if (owner === entities.FRACTAL) {
+    if (perspective === "fractal") {
       const map = { fractal: fractal_name, me: fractal_name, you: `${ai_name} and ${user_name}`, char: ai_name, user: user_name };
       return map[token] ?? match;
     }
@@ -172,6 +174,70 @@ export const UNRESOLVED_LABELS = {
 };
 
 /**
+ * True when two entity references point at the same entity: either the exact
+ * same object, or (for normalized copies — the common production shape, where
+ * the user persona is persisted as a character-typed entity) matching ids.
+ * @param {any} a
+ * @param {any} b
+ * @returns {boolean}
+ */
+function _entity_ids_match(a, b) {
+  if (!a || !b) return false;
+  if (a === b) return true;
+  const a_id = a.id;
+  const b_id = b.id;
+  return !!(a_id && b_id && String(a_id) === String(b_id));
+}
+
+/**
+ * True when `owner` is the user persona. Recognized three ways: the exact
+ * `entities.USER` reference, an explicit `type === "user"` (mock/dev entities),
+ * or a matching id with `entities.USER` — user personas are persisted as
+ * character-typed entities in the database, so type alone cannot distinguish
+ * them from AI characters.
+ * @param {any} owner
+ * @param {{ USER?: any }} [entities]
+ * @returns {boolean}
+ */
+function _owner_is_user_persona(owner, entities = {}) {
+  if (!owner) return false;
+  if (owner.type === "user") return true;
+  return _entity_ids_match(owner, entities?.USER);
+}
+
+/**
+ * True when `owner` is the fractal: the exact `entities.FRACTAL` reference, an
+ * explicit `type === "fractal"`, or a matching id with `entities.FRACTAL`.
+ * @param {any} owner
+ * @param {{ FRACTAL?: any }} [entities]
+ * @returns {boolean}
+ */
+function _owner_is_fractal(owner, entities = {}) {
+  if (!owner) return false;
+  if (owner.type === "fractal") return true;
+  return _entity_ids_match(owner, entities?.FRACTAL);
+}
+
+/**
+ * Classifies `owner` into its macro perspective: "user" (the user persona),
+ * "ai" (the primary companion — any character that isn't the user persona or
+ * the fractal), or "fractal" (the scene/setting narrator). Resolved by id/type
+ * as well as object identity, so normalized entity copies (distinct objects
+ * with matching ids) classify identically to the entities themselves.
+ * @param {any} owner
+ * @param {{ AI?: any, USER?: any, FRACTAL?: any }} [entities]
+ * @returns {"user"|"ai"|"fractal"|null}
+ */
+function _resolve_owner_perspective(owner, entities = {}) {
+  if (!owner) return null;
+  if (_owner_is_user_persona(owner, entities)) return "user";
+  if (_entity_ids_match(owner, entities?.AI)) return "ai";
+  if (_owner_is_fractal(owner, entities)) return "fractal";
+  if (owner.type === "character") return "ai";
+  return null;
+}
+
+/**
  * Resolves `{{you}}` from the viewing owner's perspective — "you" is always the
  * OTHER party (mirrors {@link parse_macros}): the user persona when viewing an
  * AI character's profile, the AI character when viewing the user persona's, and
@@ -183,11 +249,12 @@ export const UNRESOLVED_LABELS = {
 function _resolve_you_target(owner, entities = {}) {
   const ai_name = entities.AI?.name?.trim() || "";
   const user_name = entities.USER?.name?.trim() || "";
-  if (owner?.type === "user") {
+  const perspective = _resolve_owner_perspective(owner, entities);
+  if (perspective === "user") {
     if (ai_name) return { label: ai_name, entity: entities.AI };
     return { label: UNRESOLVED_LABELS.char, entity: null };
   }
-  if (owner?.type === "fractal") {
+  if (perspective === "fractal") {
     const parties = [ai_name ? ai_name : UNRESOLVED_LABELS.char, user_name ? user_name : UNRESOLVED_LABELS.user];
     return { label: parties.join(" and "), entity: null };
   }
