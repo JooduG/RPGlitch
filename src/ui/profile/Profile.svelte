@@ -360,7 +360,7 @@
   $effect(() => {
     if (profile_state.is_editing) {
       const mark_mutated = () => {
-        profile_state._user_mutated = true;
+        profile_state.mark_mutated();
       };
       window.addEventListener("input", mark_mutated, { capture: true });
       window.addEventListener("change", mark_mutated, { capture: true });
@@ -593,7 +593,7 @@
                   variant="bare"
                   class="block cursor-pointer p-0 outline-none data-disabled:cursor-default"
                   trigger_style="width: 8.5rem; height: 8.5rem;"
-                  onchange={() => (profile_state._user_mutated = true)}
+                  onchange={() => profile_state.mark_mutated()}
                 >
                   {#snippet trigger_content({ selected_item })}
                     <StyleBadge entity={profile_state.char} layout="profile" which="visual" class="h-full w-full" tooltip={selected_item?.tooltip} />
@@ -655,7 +655,7 @@
                       label="Select Visual Style"
                       uppercase={false}
                       matchWidth={true}
-                      onchange={() => (profile_state._user_mutated = true)}
+                      onchange={() => profile_state.mark_mutated()}
                     />
                   </div>
                 {:else}
@@ -993,7 +993,7 @@
         }}
         on_update_relationships={(next_rels) => {
           profile_state.char.relationships = next_rels;
-          profile_state._user_mutated = true;
+          profile_state.mark_mutated();
         }}
       />
     </div>
@@ -1012,7 +1012,7 @@
             onclick={() => {
               if (profile_state.is_editing) {
                 profile_state.char.pov = "1st_person";
-                profile_state._user_mutated = true;
+                profile_state.mark_mutated();
               }
             }}
           >
@@ -1027,7 +1027,7 @@
             style="--signature-color: {signature_color};"
             onchange={() => {
               profile_state.char.pov = profile_state.char.pov === "3rd_person" ? "1st_person" : "3rd_person";
-              profile_state._user_mutated = true;
+              profile_state.mark_mutated();
             }}
           />
           <Button
@@ -1040,7 +1040,7 @@
             onclick={() => {
               if (profile_state.is_editing) {
                 profile_state.char.pov = "3rd_person";
-                profile_state._user_mutated = true;
+                profile_state.mark_mutated();
               }
             }}
           >

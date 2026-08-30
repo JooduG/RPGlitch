@@ -30,6 +30,19 @@ export class ProfileState {
    */
   _user_mutated = $state(false);
 
+  /**
+   * Marks the workspace as dirtied by the user. The write is deferred out of the
+   * current (possibly reactive) pass: `change`/`input` events that the browser
+   * dispatches synchronously while Svelte tears down DOM (e.g. removing a focused
+   * field when the profile closes) would otherwise trigger Svelte's
+   * `state_unsafe_mutation` check.
+   */
+  mark_mutated() {
+    queueMicrotask(() => {
+      this._user_mutated = true;
+    });
+  }
+
   /** * Pending entity-swap held back by the dirty guard (see sync()). */
   _pending_swap = null;
   /** * True while the user is asked whether to discard in-flight edits. */

@@ -291,7 +291,7 @@
           dropdownWidth="w-80"
           align="start"
           disabled={!profile_state.is_editing}
-          onchange={() => (profile_state._user_mutated = true)}
+          onchange={() => profile_state.mark_mutated()}
         />
       </div>
       <div class="flex h-full w-full flex-col justify-end gap-2">
@@ -299,7 +299,7 @@
           id="seed-input"
           bind:value={profile_state.char.modifiers.profile_picture_seed}
           disabled={!profile_state.is_editing || is_prompt_busy}
-          oninput={() => (profile_state._user_mutated = true)}
+          oninput={() => profile_state.mark_mutated()}
           placeholder="Seed"
           class="min-h-12 w-full"
         />
@@ -318,7 +318,7 @@
     field_class=""
     signature_color="var(--color-frozen)"
     data-active={profile_state.active_field?.key === "visual-prompt" ? true : undefined}
-    oninput={() => (profile_state._user_mutated = true)}
+    oninput={() => profile_state.mark_mutated()}
     onfocus={() => profile_state.is_editing && (profile_state.active_field = { key: "visual-prompt", label: "Image Prompt" })}
     on_source={handle_source_field}
   >
@@ -475,7 +475,7 @@
     placeholder="Negative prompt (avoid these)..."
     disabled={!profile_state.is_editing || is_prompt_busy}
     signature_color="var(--color-frozen)"
-    oninput={() => (profile_state._user_mutated = true)}
+    oninput={() => profile_state.mark_mutated()}
     onfocus={() => profile_state.is_editing && (profile_state.active_field = { key: "visual-negative-prompt", label: "Negative Prompt" })}
   >
     {#snippet status()}
@@ -490,7 +490,7 @@
         label="Flip Image"
         bind:value={profile_state.char.modifiers.flipped}
         disabled={!profile_state.is_editing}
-        onchange={() => (profile_state._user_mutated = true)}
+        onchange={() => profile_state.mark_mutated()}
       />
     </div>
   </div>
