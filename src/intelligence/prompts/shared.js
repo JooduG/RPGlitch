@@ -147,25 +147,53 @@ export function parse_macros(text, owner, entities = {}) {
 
 /**
  * Friendly label used when `{{you}}` / `{{user}}` appears in a readonly display
- * but no user persona exists to resolve it to. Muted (frozen-colored) so it
- * reads naturally without drawing attention.
+ * but no user persona exists to resolve it to, viewed from the AI character's
+ * (or an unknown owner's) perspective — there "you" is the user persona. Muted
+ * (frozen-colored) so it reads naturally without drawing attention. When the
+ * owning profile is the user persona (or the fractal), "you" flips to the other
+ * party — see {@link _resolve_you_target}.
  */
-export const UNRESOLVED_YOU_LABEL = "scene partner";
+export const UNRESOLVED_YOU_LABEL = "the user persona";
 
 /**
  * Friendly unresolved label for every KNOWN macro token. Each maps to a natural
  * muted label used when the entity it references isn't present in the display
  * context — so no known macro ever falls back to a raw `⟨token⟩` placeholder.
- * (Unknown/custom tokens still do, since their meaning is unknown. `me` is
- * special-cased in the resolver because its fallback depends on the owner's
- * type — see {@link resolve_display_macro_segments}.)
+ * (Unknown/custom tokens still do, since their meaning is unknown. `me` and
+ * `you` are special-cased in the resolver — `me` because its fallback depends
+ * on the owner's type, `you` because its target flips with the owner's
+ * perspective — see {@link resolve_display_macro_segments}.)
  */
 export const UNRESOLVED_LABELS = {
   user: UNRESOLVED_YOU_LABEL,
   you: UNRESOLVED_YOU_LABEL,
-  fractal: "the world",
-  char: "the protagonist",
+  fractal: "the fractal",
+  char: "the ai character",
 };
+
+/**
+ * Resolves `{{you}}` from the viewing owner's perspective — "you" is always the
+ * OTHER party (mirrors {@link parse_macros}): the user persona when viewing an
+ * AI character's profile, the AI character when viewing the user persona's, and
+ * both parties when viewing the fractal's.
+ * @param {any} owner - The entity whose profile/description is being displayed.
+ * @param {{ AI?: any, USER?: any, FRACTAL?: any }} [entities]
+ * @returns {{ label: string, entity: any|null }}
+ */
+function _resolve_you_target(owner, entities = {}) {
+  const ai_name = entities.AI?.name?.trim() || "";
+  const user_name = entities.USER?.name?.trim() || "";
+  if (owner?.type === "user") {
+    if (ai_name) return { label: ai_name, entity: entities.AI };
+    return { label: UNRESOLVED_LABELS.char, entity: null };
+  }
+  if (owner?.type === "fractal") {
+    const parties = [ai_name ? ai_name : UNRESOLVED_LABELS.char, user_name ? user_name : UNRESOLVED_LABELS.user];
+    return { label: parties.join(" and "), entity: null };
+  }
+  if (user_name) return { label: user_name, entity: entities.USER };
+  return { label: UNRESOLVED_LABELS.you, entity: null };
+}
 
 /**
  * Resolves macros for HUMAN-facing display (readonly profiles, story cards)
@@ -183,9 +211,12 @@ export const UNRESOLVED_LABELS = {
  * - Resolved macro: `macro` = lowercased token, `entity` = the referenced
  *   entity (so the UI can color it by signature color), `text` = its name.
  * - Known macro whose entity is absent: `entity: null`, `text` = a natural
- *   muted label from {@link UNRESOLVED_LABELS} — `{{you}}`/`{{user}}` → "scene
- *   partner", `{{fractal}}` → "the world", `{{char}}` → "the protagonist",
- *   `{{me}}` with an unnamed owner → "this character" / "this world" (by type).
+ *   muted label from {@link UNRESOLVED_LABELS} — `{{user}}` → "the user
+ *   persona", `{{fractal}}` → "the fractal", `{{char}}` → "the ai character",
+ *   `{{you}}` → flips with the owner's perspective: "the user persona" from an
+ *   AI character's profile, "the ai character" from the user persona's, and
+ *   "the ai character and the user persona" from the fractal's; `{{me}}` with
+ *   an unnamed owner → "this character" / "this fractal" (by type).
  * - Unknown token: `entity: null`, `text` = `⟨token⟩`.
  * @param {string} text
  * @param {any} owner - The entity whose fields are being displayed ('{{me}}' resolves to its name).
@@ -217,7 +248,7 @@ export function resolve_display_macro_segments(text, owner, entities = {}) {
         label = me_name;
         entity = owner;
       } else if (owner) {
-        label = owner.type === "fractal" ? "this world" : "this character";
+        label = owner.type === "fractal" ? "this fractal" : "this character";
       }
     } else if (token === "char") {
       if (ai_name) {
@@ -226,13 +257,17 @@ export function resolve_display_macro_segments(text, owner, entities = {}) {
       } else {
         label = UNRESOLVED_LABELS.char;
       }
-    } else if (token === "user" || token === "you") {
+    } else if (token === "user") {
       if (user_name) {
         label = user_name;
         entity = entities.USER;
       } else {
-        label = UNRESOLVED_LABELS[token];
+        label = UNRESOLVED_LABELS.user;
       }
+    } else if (token === "you") {
+      const you_target = _resolve_you_target(owner, entities);
+      label = you_target.label;
+      entity = you_target.entity;
     } else if (token === "fractal") {
       if (fractal_name) {
         label = fractal_name;
