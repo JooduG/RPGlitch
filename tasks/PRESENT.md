@@ -1,8 +1,15 @@
-# 🛰️ Present (The State)
+---
+id: present-mission-board
+role: mission-board
+status: active
+last_synchronized: 2026-09-05
+references:
+  - archive/2026-08/2026-08-16-tasks-PRESENT-pulse-archive.md
+  - GEMINI.md
+  - DESIGN.md
+---
 
-> **Role**: Active Mission Board, Feature Maturity & System State  
-> **Last Synchronized**: 2026-08-22  
-> **Historical Archive**: [archive/2026-08/2026-08-16-tasks-PRESENT-pulse-archive.md](file:///C:/Users/johng/.gemini/antigravity-ide/archive/2026-08/2026-08-16-tasks-PRESENT-pulse-archive.md)
+# 🛰️ Present (The State)
 
 ---
 

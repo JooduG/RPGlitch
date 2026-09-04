@@ -1,17 +1,16 @@
-<!--
-  tasks/FUTURE.md
-  🎯 ACTIVE IMPLEMENTATION BLUEPRINT (Mirror of Active Track)
-
-  Track ID: track-generation-flow-and-storyboard-guards-2026-09-05
-  Dependencies: tasks/PRESENT.md, tasks/tracks/track-generation-flow-and-storyboard-guards-2026-09-05.md, scribbles.md, DESIGN.md
-  Status: [~] Active
--->
+---
+id: track-generation-flow-and-storyboard-guards-2026-09-05
+role: active-blueprint
+status: active
+last_synchronized: 2026-09-05
+references:
+  - tasks/tracks/track-generation-flow-and-storyboard-guards-2026-09-05.md
+  - scribbles.md
+  - tasks/PRESENT.md
+  - DESIGN.md
+---
 
 # 🎯 Active Track Implementation Plan: Generation Flow, Speaker Avatar Thinking Indicators & Storyboard Active Session Guards
-
-**Track ID**: `track-generation-flow-and-storyboard-guards-2026-09-05`  
-**Dependencies**: `tasks/PRESENT.md`, `scribbles.md`, `DESIGN.md`  
-**Status**: `[~]` Active
 
 ---
 

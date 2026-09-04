@@ -1,27 +1,17 @@
-<!--
-  tasks/tracks/track-generation-flow-and-storyboard-guards-2026-09-05.md
-  🎯 ACTIVE TRACK SPECIFICATION & IMPLEMENTATION BLUEPRINT
-
-  Track ID: track-generation-flow-and-storyboard-guards-2026-09-05
-  Dependencies: tasks/PRESENT.md, scribbles.md, DESIGN.md, GEMINI.md
-  Classification: Feature & UX Architecture Hardening
-  Status: [~] Active
-
-  Rules & Modification Guidelines:
-  - Universal File Architecture: Instructional header block, high-level vision, bite-sized checklist, changelog footer.
-  - Svelte 5 Sovereignty: Runes exclusively ($state, $derived, $effect, {@render}). Never use legacy Svelte syntax.
-  - TDD Mandate: Red-Green-Refactor cycle required for state and orchestrator changes before touching UI.
-  - P4 Zero Backwards-Compatibility: Never add legacy shims or aliases. Refactor consumers directly.
--->
+---
+id: track-generation-flow-and-storyboard-guards-2026-09-05
+role: active-track
+status: active
+last_synchronized: 2026-09-05
+classification: feature-and-ux-architecture
+references:
+  - scribbles.md
+  - tasks/PRESENT.md
+  - DESIGN.md
+  - GEMINI.md
+---
 
 # 🎯 Track: Generation Flow, Speaker Avatar Thinking Indicators & Storyboard Active Session Guards
-
-**Track ID**: `track-generation-flow-and-storyboard-guards-2026-09-05`  
-**Temporal Anchor**: `2026-09-05`  
-**Classification**: Feature & UX Architecture  
-**Status**: `[~]` Active  
-
----
 
 ## 1.0 Vision & High-Level Architecture
 
