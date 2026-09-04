@@ -41,7 +41,7 @@
     "tmp/**/*"
   ],
   "geminiignore": ["!**/*.env", "!**/*.git/**", "!**/*scribbles**", "!**/templates/**", "!**/test-results/**", "!**/tmp/**", "!tmp/**/*"],
-  "gitignore": ["!**/*rpglitch-left-panel.txt", "!**/templates/**", "**/.jules/**", "act_output.log", "gha-creds-*.json"],
+  "gitignore": ["!.env.example", "!**/*rpglitch-left-panel.txt", "!**/templates/**", "**/.jules/**", "act_output.log", "gha-creds-*.json"],
   "linters": {
     "eslint": [],
     "htmlhint": ["**/*.svelte"],

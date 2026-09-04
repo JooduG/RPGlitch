@@ -36,6 +36,7 @@ src/media/tokens.js
 **/yarn.lock
 **/tmp/**
 tmp/**/*
+!.env.example
 !**/*rpglitch-left-panel.txt
 !**/templates/**
 **/.jules/**
