@@ -7,20 +7,8 @@ last_synchronized: 2026-09-05
 
 # 🛰️ Mission State
 
-## 1.0 🪐 Eternal: Invariants & Feature Maturity
-
-The codebase is fully synchronized, hardened, and green with **0 errors, 0 warnings, and 688 passing unit/design tests across 47 test files**.
-
-| Feature Domain       | State     | Operational Status & Invariants                                                                |
-| :------------------- | :-------- | :--------------------------------------------------------------------------------------------- |
-| **Storymode UI**     | Sovereign | Fully modular Svelte 5 runes, responsive layout, bits-ui primitives, zero DOM-read state.      |
-| **Simulation Loop**  | Sovereign | 5-Step loop (Input ➔ Sanity ➔ Execution ➔ Persistence ➔ Expression) with stasis locks.         |
-| **Entity State**     | Sovereign | 4 fragments: Eternal, Present (Pseudo-JSON brackets), Past (Vector RAG), Future (Prose).       |
-| **Memory Engine**    | Sovereign | `usr_` pinned origin memories (forge-skip, 1.5x boost), rolling session past vectors (20 cap). |
-| **Epistemic Wall**   | Sovereign | User `[SECRET:]` / `[PLAN:]` stripped in `render_character()` to eliminate AI telepathy.       |
-| **Visual Filters**   | Sovereign | `INVENTORY`, `STASH`, `SECRET`, `PLAN`, `STATUS` stripped from image generation prompts.       |
-| **Data Portability** | Sovereign | 3-in-1 Import Modal (Web/File/Text), Character Card V2/V3 codec, Story Markdown export.        |
-| **Audio Engine**     | Sovereign | User-gesture initialized AudioContext, Kokoro-82M neural TTS, explicit teardown methods.       |
+## 1.0 🪐 Eternal: Sovereign Specifications
+- Core architecture, simulation physics, and design tokens are codified in [`GEMINI.md`](../GEMINI.md) and [`DESIGN.md`](../DESIGN.md).
 
 ---
 
