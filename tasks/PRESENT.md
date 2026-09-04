@@ -29,7 +29,7 @@ The codebase is fully synchronized, hardened, and green with **0 errors, 0 warni
 
 ### Active & Upcoming Tracks
 
-- [~] `track-generation-flow-and-storyboard-guards-2026-09-04`: Generation Flow, Speaker Avatar Thinking Indicators & Storyboard Active Session Guards (`tasks/FUTURE.md`)
+- [ ] `track-generation-flow-and-storyboard-guards-2026-09-04`: Generation Flow, Speaker Avatar Thinking Indicators & Storyboard Active Session Guards (`tasks/FUTURE.md` draft)
 
 ### Recent Completed Tracks
 
