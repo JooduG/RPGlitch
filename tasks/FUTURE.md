@@ -1,7 +1,7 @@
 ---
-id: track-generation-flow-and-storyboard-guards-2026-09-05
-role: active-blueprint
-status: active
+name: future-blueprint
+description: Active implementation blueprint and execution checklist for the currently running track
+active_track: track-generation-flow-and-storyboard-guards-2026-09-05
 last_synchronized: 2026-09-05
 references:
   - tasks/tracks/track-generation-flow-and-storyboard-guards-2026-09-05.md
@@ -11,8 +11,6 @@ references:
 ---
 
 # 🎯 Active Track Implementation Plan: Generation Flow, Speaker Avatar Thinking Indicators & Storyboard Active Session Guards
-
----
 
 ## 1. Goal & Architectural Overview
 

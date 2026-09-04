@@ -1,6 +1,6 @@
 ---
-id: present-mission-board
-role: mission-board
+name: present-mission-board
+description: Active mission board, roadmap, feature maturity, and pulse history log
 status: active
 last_synchronized: 2026-09-05
 references:
@@ -10,8 +10,6 @@ references:
 ---
 
 # 🛰️ Present (The State)
-
----
 
 ## 1.0 Feature Maturity & Active State
 

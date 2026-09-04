@@ -1,9 +1,8 @@
 ---
-id: track-generation-flow-and-storyboard-guards-2026-09-05
-role: active-track
+name: track-generation-flow-and-storyboard-guards-2026-09-05
+description: Generation flow lifecycle, speaker thinking indicators, storyboard active story guards, and shimmer harmonization
 status: active
 last_synchronized: 2026-09-05
-classification: feature-and-ux-architecture
 references:
   - scribbles.md
   - tasks/PRESENT.md
