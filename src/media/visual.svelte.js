@@ -87,14 +87,14 @@ export class VisualEngine {
 
   constructor() {
     this.retryer = new ExponentialBackoffRetryer({
-      maxAttempts: 3,
-      initialDelay: 1000,
-      maxDelay: 10000,
+      max_attempts: 3,
+      initial_delay: 1000,
+      max_delay: 10000,
     });
     this.breaker = new CircuitBreaker({
-      failureThreshold: 3,
-      successThreshold: 2,
-      recoveryTimeout: 30000,
+      failure_threshold: 3,
+      success_threshold: 2,
+      recovery_timeout: 30000,
     });
   }
 
