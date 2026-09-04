@@ -206,8 +206,10 @@ export function force_close_response(text, character_name) {
  */
 export function extract_and_repair_json(raw, fallback = null) {
   if (!raw || typeof raw !== "string") return fallback;
-  const stripped = strip_cognition_blocks(raw).replace(/```json\n?|```/g, "").trim();
-  
+  const stripped = strip_cognition_blocks(raw)
+    .replace(/```json\n?|```/g, "")
+    .trim();
+
   // Find outermost curly brace or square bracket
   const first_curly = stripped.indexOf("{");
   const last_curly = stripped.lastIndexOf("}");

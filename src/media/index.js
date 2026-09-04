@@ -41,14 +41,7 @@ export {
 // Visual Color Palettes & Signature Tokens
 // ============================================================================
 
-export {
-  get_signature_color,
-  get_signature_label,
-  ensure_theme_tokens,
-  SIGNATURE_COLORS,
-  PALETTE,
-  PALETTE_CSS_VARIABLES,
-} from "./palette.js";
+export { get_signature_color, get_signature_label, ensure_theme_tokens, SIGNATURE_COLORS, PALETTE, PALETTE_CSS_VARIABLES } from "./palette.js";
 
 export { TOKENS } from "./tokens.js";
 

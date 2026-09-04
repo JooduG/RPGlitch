@@ -250,7 +250,7 @@ export class ChronoEngine {
         } else {
           state_bridge.app.log(`Time Fracture: ${error.message}`, "error");
           console.error("[Chrono] 💥 Time Fracture:", error);
-          
+
           state_bridge.runtime.round = previous_round;
 
           // 🛡️ ORPHANED-TURN GUARD: If user message was recorded but AI reply failed, retry once

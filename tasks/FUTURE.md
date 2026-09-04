@@ -2,7 +2,7 @@
 
 **Track ID**: `track-generation-flow-and-storyboard-guards-2026-09-04`  
 **Dependencies**: `tasks/PRESENT.md`, `scribbles.md`, `DESIGN.md`  
-**Status**: `[~]` In Progress  
+**Status**: `[~]` In Progress
 
 ---
 

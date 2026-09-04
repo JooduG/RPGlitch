@@ -370,7 +370,7 @@ describe("is_refusal_response", () => {
 describe("extract_and_repair_json", () => {
   it("extracts clean JSON objects and arrays", () => {
     expect(extract_and_repair_json('```json\n{"status":"ok"}\n```')).toEqual({ status: "ok" });
-    expect(extract_and_repair_json('[1, 2, 3]')).toEqual([1, 2, 3]);
+    expect(extract_and_repair_json("[1, 2, 3]")).toEqual([1, 2, 3]);
   });
 
   it("repairs unescaped inner double quotes in values", () => {
