@@ -257,7 +257,6 @@ RPGlitch is a **Local-First Reactive Monolith (PWA)** built for the Perchance if
 > **Authoritative Definitions**: The full canonical glossary of simulation physics, entity hierarchies, directorial mechanics, and persistence rules is documented in [GLOSSARY.md](./GLOSSARY.md).
 
 - **RPGlitch**: The core simulation engine and repository.
-- **Swarm**: The tactical engine managing multi-agent token scaling, parallel execution, and the 80% Confidence Gate.
 - **Temporal Engine**: Intelligence module managing the temporal continuum of an entity.
 - **Entity Fragments**: The four-quadrant state architecture (**Eternal**, **Present**, **Past**, **Future**).
 - **Entity**: The fundamental simulation unit—either a `character` or a `fractal`.

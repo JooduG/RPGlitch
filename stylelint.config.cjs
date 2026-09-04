@@ -2,8 +2,8 @@ const master = require("./ignores.master.json");
 
 /** @type {import('stylelint').Config} */
 module.exports = {
-  // One source of truth for ignore globs
-  ignoreFiles: master.stylelintIgnore || [],
+  // One source of truth for ignore globs (complemented by .stylelintignore)
+  ignoreFiles: master.linters?.stylelint || [],
   extends: ["stylelint-config-standard-scss", "stylelint-config-html/svelte", "stylelint-prettier/recommended"],
   overrides: [
     {

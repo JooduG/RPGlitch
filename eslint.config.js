@@ -27,7 +27,6 @@ export default defineConfig([
       "**/.git/**",
       "**/cache/**",
       "**/.next/**",
-      "**/.playwright-auth/**",
       "**/*ignore",
       "**/.turbo/**",
       "**/Thumbs.db",

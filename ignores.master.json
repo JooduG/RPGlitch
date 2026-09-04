@@ -13,7 +13,6 @@
     "**/.git/**",
     "**/cache/**",
     "**/.next/**",
-    "**/.playwright-auth/**",
     "**/*ignore",
     "**/.turbo/**",
     "**/Thumbs.db",
@@ -41,7 +40,7 @@
     "tmp/**/*"
   ],
   "geminiignore": ["!**/*.env", "!**/*.git/**", "!**/*scribbles**", "!**/templates/**", "!**/test-results/**", "!**/tmp/**", "!tmp/**/*"],
-  "gitignore": ["!.env.example", "!**/*rpglitch-left-panel.txt", "!**/templates/**", "**/.jules/**", "act_output.log", "gha-creds-*.json"],
+  "gitignore": ["!.env.example", "!**/*rpglitch-left-panel.txt", "!**/templates/**", "act_output.log", "gha-creds-*.json"],
   "linters": {
     "eslint": [],
     "htmlhint": ["**/*.svelte"],
@@ -52,7 +51,6 @@
   "vscode": {
     "files.exclude": {
       "**/.DS_Store": true,
-      "**/.playwright-auth/**": true,
       "**/bun.lockb": true,
       "**/node_modules/**": true,
       "**/pnpm-lock.yaml": true,
@@ -64,5 +62,22 @@
       "src/media/design.css": true,
       "src/media/tokens.js": true
     }
+  },
+  "jsconfig": {
+    "exclude": [
+      "**/.git/**",
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/coverage/**",
+      "**/archive/**",
+      "**/tmp/**",
+      "tmp/**/*",
+      "test-results/**",
+      ".secrets",
+      "**/*.lock"
+    ]
+  },
+  "vitest": {
+    "exclude": ["**/node_modules/**", "**/dist/**", "**/.git/**", "**/tmp/**", "**/archive/**"]
   }
 }

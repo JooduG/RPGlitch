@@ -89,6 +89,40 @@ export function syncIgnores() {
     console.log("✅ Synced .vscode/settings.json");
   }
 
+  // --- 1d. jsconfig.json ---
+  const jsconfigPath = path.join(ROOT_DIR, "jsconfig.json");
+  if (fs.existsSync(jsconfigPath) && master.jsconfig?.exclude) {
+    try {
+      const jsconfig = JSON.parse(fs.readFileSync(jsconfigPath, "utf8"));
+      jsconfig.exclude = master.jsconfig.exclude;
+      fs.writeFileSync(jsconfigPath, JSON.stringify(jsconfig, null, 2) + "\n");
+      console.log("✅ Synced jsconfig.json");
+    } catch (err) {
+      console.warn(`⚠️ Could not sync jsconfig.json: ${err.message}`);
+    }
+  }
+
+  // --- 1e. Vitest Config (vitest.config.js) ---
+  const vitestPath = path.join(ROOT_DIR, "vitest.config.js");
+  if (fs.existsSync(vitestPath) && master.vitest?.exclude) {
+    let content = fs.readFileSync(vitestPath, "utf8");
+    const start = "// @agent:ignore-start";
+    const end = "// @agent:ignore-end";
+    const si = content.indexOf(start);
+    const ei = content.indexOf(end);
+
+    if (si !== -1 && ei !== -1) {
+      const newContent =
+        content.slice(0, si + start.length) +
+        "\n    exclude: " +
+        JSON.stringify(master.vitest.exclude, null, 2).replace(/\n/g, "\n    ") +
+        ",\n    " +
+        content.slice(ei);
+      fs.writeFileSync(vitestPath, newContent);
+      console.log("✅ Synced vitest.config.js");
+    }
+  }
+
   console.log("\n================================================================================\n");
 }
 

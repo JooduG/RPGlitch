@@ -10,7 +10,6 @@
 **/.git/**
 **/cache/**
 **/.next/**
-**/.playwright-auth/**
 **/*ignore
 **/.turbo/**
 **/Thumbs.db
@@ -39,6 +38,5 @@ tmp/**/*
 !.env.example
 !**/*rpglitch-left-panel.txt
 !**/templates/**
-**/.jules/**
 act_output.log
 gha-creds-*.json
