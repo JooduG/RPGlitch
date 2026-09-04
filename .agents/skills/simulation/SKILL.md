@@ -152,18 +152,17 @@ Before signing off on any prompt architecture refactor or rendering modification
 
 ---
 
-## 11.0 SUGGESTION BLUEPRINT REGISTRY (`data/`)
+## 11.0 SUGGESTION BLUEPRINT REGISTRY (`references/`)
 
-The `.agents/skills/simulation/data/` directory houses active domain-atomic architectural specifications and proposal blueprints:
+The `.agents/skills/simulation/references/` directory houses active domain-atomic architectural specifications and proposal blueprints:
 
 ### Active Blueprints
 
-1. **Attachment Style Archetypes:** [`suggestion-attachment-style-archetypes.md`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/simulation/data/suggestion-attachment-style-archetypes.md) — 4 attachment schemas (`secure`, `anxious`, `dismissive`, `fearful_avoidant`), threat responses, defense mechanisms, and recovery curves.
-2. **Composable Style Entities:** [`suggestion-composable-style-entities.md`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/simulation/data/suggestion-composable-style-entities.md) — First-class editable `StyleCard` entities in Dexie.js, hot-swappable narrative and visual styles from the Storyboard deck.
-3. **Cinematic Photographic Framing:** [`suggestion-cinematic-photographic-framing.md`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/simulation/data/suggestion-cinematic-photographic-framing.md) — Photographic perspective directives (close-up, medium, wide, dutch), intensity-based camera triggers, and visual delta prompting.
-4. **D20 Micro-Resolution Engine:** [`suggestion-d20-stat-resolution.md`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/simulation/data/suggestion-d20-stat-resolution.md) — Pure functional `evaluate_stat_check`, DC difficulty ladder, and success-with-a-cost partial thresholds.
-5. **Climax Fate Branching & Choices:** [`suggestion-fate-branching-choices.md`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/simulation/data/suggestion-fate-branching-choices.md) — Triad of Fate Paths (High, Middle, Low), Director `<choices>` XML format, and interactive action chips.
-6. **Gambit 21 Push-Your-Luck Engine:** [`suggestion-gambit-blackjack-engine.md`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/simulation/data/suggestion-gambit-blackjack-engine.md) — Multi-turn Blackjack macro state machine (target 21) for sustained encounter pacing.
+1. **Attachment Style Archetypes:** [`suggestion-attachment-style-archetypes.md`](./references/suggestion-attachment-style-archetypes.md) — 4 attachment schemas (`secure`, `anxious`, `dismissive`, `fearful_avoidant`), threat responses, defense mechanisms, and recovery curves.
+2. **Composable Style Entities:** [`suggestion-composable-style-entities.md`](./references/suggestion-composable-style-entities.md) — First-class editable `StyleCard` entities in Dexie.js, hot-swappable narrative and visual styles from the Storyboard deck.
+3. **D20 Micro-Resolution Engine:** [`suggestion-d20-stat-resolution.md`](./references/suggestion-d20-stat-resolution.md) — Pure functional `evaluate_stat_check`, DC difficulty ladder, and success-with-a-cost partial thresholds.
+4. **Climax Fate Branching & Choices:** [`suggestion-fate-branching-choices.md`](./references/suggestion-fate-branching-choices.md) — Triad of Fate Paths (High, Middle, Low), Director `<choices>` XML format, and interactive action chips.
+5. **Gambit 21 Push-Your-Luck Engine:** [`suggestion-gambit-blackjack-engine.md`](./references/suggestion-gambit-blackjack-engine.md) — Multi-turn Blackjack macro state machine (target 21) for sustained encounter pacing.
 
 ### Completed & Archived Blueprints
 

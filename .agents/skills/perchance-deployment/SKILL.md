@@ -49,7 +49,7 @@ For significant changes, fan out specialized sub-agents to verify the artifact f
 - **`security-auditor`**: Focus on auth, sanitization, and secrets.
 - **`test-engineer`**: Focus on coverage gaps and regression tests.
 
-Merge these findings into a single Go/No-Go decision. This is distinct from the `swarm` builder pattern, which is for implementation, not review.
+Merge these findings into a single Go/No-Go decision.
 
 ### 3. The Perchance Bridge
 

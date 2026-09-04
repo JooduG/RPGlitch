@@ -276,4 +276,4 @@ RPGlitch is a **Local-First Reactive Monolith (PWA)** built for the Perchance if
 > **CRITICAL DISTINCTION**:
 >
 > - **Application Memory** (Temporal Engine, Dexie.js, RPGlitch State): Consult the [Simulation](./.agents/skills/simulation/SKILL.md) skill.
-> - **Development Data** (Pinecone, Supabase, Agent Context): Consult the global Developer Database skill.
+> - **Development Data** (Pinecone, Supabase, Agent Context): Consult the global [Developer Database](file:///c:/Users/johng/.gemini/config/skills/developer-database/SKILL.md) skill.

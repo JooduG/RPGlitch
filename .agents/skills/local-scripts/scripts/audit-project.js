@@ -262,7 +262,7 @@ const auditSkill = (skillName, silent = false) => {
     });
 
     // 2. Structural Exclusivity
-    const allowedSubfolders = ["scripts", "assets", "templates", "data"];
+    const allowedSubfolders = ["scripts", "assets", "templates", "data", "references", "rules"];
     const currentSubfolders = fs.readdirSync(skillPath).filter((f) => {
       const stat = safeStatSync(path.join(skillPath, f));
       return stat && stat.isDirectory();

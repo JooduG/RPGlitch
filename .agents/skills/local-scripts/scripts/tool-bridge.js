@@ -10,11 +10,11 @@ import fs from "fs";
 
 // Tool mappings relative to home directory
 const TOOL_PATHS = {
-  summarize: ".gemini/config/skills/master-dispatcher/scripts/summarize.js",
+  summarize: ".gemini/config/skills/planning/scripts/summarize.js",
   knowledge: ".gemini/config/skills/developer-database/scripts/developer-database.js",
   "ingest-web": ".gemini/config/skills/developer-database/scripts/ingest-web.js",
-  "sync-backlog": ".gemini/config/skills/legislative/scripts/sync-backlog.js",
-  "forge-skill": ".gemini/config/skills/legislative/scripts/forge-skill.js",
+  "sync-backlog": ".gemini/config/skills/planning/scripts/sync-backlog.js",
+  "forge-skill": ".gemini/config/skills/skill-writing/scripts/forge-skill.js",
 };
 
 const args = process.argv.slice(2);
