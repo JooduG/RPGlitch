@@ -213,7 +213,7 @@ RPGlitch is a **Local-First Reactive Monolith (PWA)** built for the Perchance if
 
 **4-Step Implementation Loop**:
 
-1. **Anchor Tasks**: **Verify `./tasks/FUTURE.md` is initialized and aligned with `./GEMINI.md` and `./tasks/PRESENT.md`**.
+1. **Anchor Tasks**: **Verify the active track specification in `./tasks/future/<track>.md` is initialized and aligned with `./GEMINI.md` and `./tasks/PRESENT.md`**.
 2. **Wire State**: Connect Svelte 5 Runes and expose safe global bridges via `window.exposed`.
 3. **Apply Styling**: Implement rules from `./DESIGN.md`.
 4. **Anchor Persistence**: Bind dynamic changes to Dexie.js repositories.
@@ -222,7 +222,7 @@ RPGlitch is a **Local-First Reactive Monolith (PWA)** built for the Perchance if
 
 - **Relative Resolution**: **Always use relative paths for internal references** (e.g., `./tasks/PRESENT.md`).
 - **Absolute Grounding**: **Map all code claims to specific file paths and line numbers**.
-- **Archival Standard**: Upon track completion, move the track specification from `tasks/future/<track>.md` to `archive/YYYY-MM/<date>-<track>.md`. `archive/` is the exclusive historical repository for retired blueprints.
+- **Archival Standard**: Upon track completion, move the track specification from `tasks/future/<track>.md` to `archive/YYYY-MM/<date>-<track>.md` (or `C:\Users\johng\.gemini\antigravity-ide\archive\YYYY-MM/`). `archive/` is the exclusive historical repository for retired blueprints.
 
 ---
 
