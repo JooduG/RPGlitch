@@ -1,0 +1,122 @@
+{
+  "destructive-command-guard": {
+    "PreToolUse": [
+      {
+        "matcher": "run_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .agents/skills/local-scripts/scripts/hook-guard-commands.js",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
+  "sequential-thinking-gate": {
+    "PreToolUse": [
+      {
+        "matcher": "write_to_file|replace_file_content|multi_replace_file_content",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .agents/skills/local-scripts/scripts/hook-sequential-thinking-gate.js",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
+  "waldzell-mcp-router": {
+    "PreToolUse": [
+      {
+        "matcher": "call_mcp_tool",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .agents/skills/local-scripts/scripts/hook-waldzell-router.js",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
+  "svelte-autofixer-reminder": {
+    "PreInvocation": [
+      {
+        "type": "command",
+        "command": "node .agents/skills/local-scripts/scripts/hook-svelte-pre-invocation.js",
+        "timeout": 10
+      }
+    ]
+  },
+  "svelte-autofixer-gate": {
+    "Stop": [
+      {
+        "type": "command",
+        "command": "node .agents/skills/local-scripts/scripts/hook-svelte-stop-gate.js",
+        "timeout": 15
+      }
+    ]
+  },
+  "planning-handoff-gate": {
+    "Stop": [
+      {
+        "type": "command",
+        "command": "node .agents/skills/local-scripts/scripts/hook-planning-handoff.js",
+        "timeout": 15
+      }
+    ]
+  },
+  "file-architecture-gate": {
+    "PreToolUse": [
+      {
+        "matcher": "write_to_file",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .agents/skills/local-scripts/scripts/hook-file-architecture-gate.js",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
+  "grep-truncation-breaker": {
+    "PostToolUse": [
+      {
+        "matcher": "grep_search",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .agents/skills/local-scripts/scripts/hook-grep-truncation.js",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
+  "strike-circuit-breaker": {
+    "PostToolUse": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .agents/skills/local-scripts/scripts/hook-circuit-breaker.js",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
+  "workspace-hygiene-gate": {
+    "Stop": [
+      {
+        "type": "command",
+        "command": "node .agents/skills/local-scripts/scripts/hook-stop-hygiene.js",
+        "timeout": 15
+      }
+    ]
+  }
+}
