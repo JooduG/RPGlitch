@@ -1,7 +1,7 @@
 ---
 name: present
 description: Active mission board, roadmap, feature maturity, and pulse history log
-status: active
+active_track: track-generation-flow-and-storyboard-guards
 last_synchronized: 2026-09-05
 references:
   - archive/2026-08/2026-08-16-tasks-PRESENT-pulse-archive.md
@@ -9,9 +9,9 @@ references:
   - DESIGN.md
 ---
 
-# 🛰️ Present (The State)
+# 🛰️ Mission State
 
-## 1.0 Feature Maturity & Active State
+## 1.0 🪐 Eternal: Invariants & Feature Maturity
 
 The codebase is fully synchronized, hardened, and green with **0 errors, 0 warnings, and 688 passing unit/design tests across 47 test files**.
 
@@ -28,7 +28,7 @@ The codebase is fully synchronized, hardened, and green with **0 errors, 0 warni
 
 ---
 
-## 2.0 🎯 Present: Active Track & Implementation Blueprint
+## 2.0 ⚡ Present: Active Track & Implementation Blueprint
 
 > **Active Track**: [`tasks/future/track-generation-flow-and-storyboard-guards.md`](file:///c:/Users/johng/source/repos/RPGlitch/tasks/future/track-generation-flow-and-storyboard-guards.md)  
 > **Status**: `[~]` In Progress
@@ -65,14 +65,16 @@ The codebase is fully synchronized, hardened, and green with **0 errors, 0 warni
 ### Active & Queued Tracks
 - [~] `track-generation-flow-and-storyboard-guards`: Generation Flow, Speaker Avatar Thinking Indicators & Storyboard Active Session Guards ([tasks/future/track-generation-flow-and-storyboard-guards.md](file:///c:/Users/johng/source/repos/RPGlitch/tasks/future/track-generation-flow-and-storyboard-guards.md))
 
-### Recent Completed Tracks
+---
+
+## 4.0 📜 Past: Completed Tracks & Pulse History
+
+### Recently Completed Tracks
 - [x] `track-intelligence-and-prompts-hardening-2026-08-28`: Intelligence & Prompts Seam Hardening — Fractal Dynamics Deltas, Telemetry Envelope Alignment, Structured Genesis Schema, P4 Dead Code Pruning, and Payload/Telemetry Test Suites ([archive/2026-08/2026-08-28-track-intelligence-and-prompts-hardening.md](file:///C:/Users/johng/.gemini/antigravity-ide/archive/2026-08/2026-08-28-track-intelligence-and-prompts-hardening.md))
 - [x] `track-data-definitions-hardening-2026-08-28`: Data & Definitions Hardening, Speaking Style Canonicalization, Chapters Export Preservation & Test Coverage — Canonical `SPEAKING_STYLES` (`casual`, `lyrical`, `primal`, `clinical`) in `speaking-styles.js`, fixed `serialize_entity_for_export` chapters preservation, normalized premade fallbacks in `repository.js`, dynamics 1-100 clamping, frozen `STYLE_MOTIF_REGISTRY`, and expanded unit test coverage across `profile-fields.js` and `sessions.svelte.js` auto-roster.
 - [x] `track-4-ui-ux-harmonization-2026-08-24`: UI/UX Harmonization, Single-Entity Telemetry Databox, Message Header Pin & Story Navigation ([archive/2026-08/2026-08-24-track-4-ui-ux-harmonization.md](file:///C:/Users/johng/.gemini/antigravity-ide/archive/2026-08/2026-08-24-track-4-ui-ux-harmonization.md)) — Single-entity forged databox in pure terminal cyan (`var(--color-dev-accent)`) with dynamics deltas and relational text vectors, click-to-pin message header & action toolbar interaction model via `app.pinned_message_id`, dynamic `"ENTER STORYMODE"` bottom bar resume button on Storyboard, and interactive failed image cards with `[Retry]` and `[Dismiss]`.
 
----
-
-## 4.0 🧠 Past: Pulse (History)
+### Pulse History Log
 
 > _Full historical logs from 2026-06 to 2026-08-16 are archived in [archive/2026-08/2026-08-16-tasks-PRESENT-pulse-archive.md](file:///C:/Users/johng/source/repos/RPGlitch/tasks/PRESENT.md)._
 
@@ -170,16 +172,9 @@ The codebase is fully synchronized, hardened, and green with **0 errors, 0 warni
 
 ---
 
-## 4.0 🧹 Backlog (Automated)
+---
 
-<!-- BACKLOG_START -->
-
-Last Swept: 2026-08-22 23:53
-
-No active AI debt found.
-<!-- BACKLOG_END -->
-
-## 🧹 Backlog (Automated)
+## 5.0 🧹 Backlog (Automated)
 
 <!-- BACKLOG_START -->
 
@@ -187,3 +182,4 @@ Last Swept: 2026-09-04 22:38
 
 No active AI debt found.
 <!-- BACKLOG_END -->
+
