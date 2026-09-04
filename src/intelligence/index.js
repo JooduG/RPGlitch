@@ -27,7 +27,7 @@ export { gamemaster, story_pipeline } from "./story-pipeline.js";
 // Response Parsing, Repair & Cognition Filters
 // ============================================================================
 
-export { parse_profile_json, parse_think_block, validate_and_repair_response, is_refusal_response } from "./parser.js";
+export { extract_and_repair_json, parse_profile_json, parse_think_block, validate_and_repair_response, is_refusal_response } from "./parser.js";
 
 // ============================================================================
 // Prompt Compilation & Template Generators

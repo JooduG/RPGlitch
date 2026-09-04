@@ -596,7 +596,6 @@ export class InterfaceStore {
 // ============================================================================
 
 export const app = new InterfaceStore();
-export const app_interface = app;
 
 stories_bridge.register_bump(() => {
   app.stories_version++;

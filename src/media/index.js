@@ -48,7 +48,6 @@ export {
   SIGNATURE_COLORS,
   PALETTE,
   PALETTE_CSS_VARIABLES,
-  PALETTE_VARIABLES,
 } from "./palette.js";
 
 export { TOKENS } from "./tokens.js";

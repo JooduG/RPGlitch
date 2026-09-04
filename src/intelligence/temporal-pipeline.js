@@ -11,8 +11,6 @@
 
 import {
   cosine_similarity,
-  escape_unescaped_json_quotes,
-  extract_json_block,
   generate_uuid as generate_unique_id,
   merge_prose_into_field,
   state_bridge,
@@ -20,6 +18,7 @@ import {
 import { llm_service, ensure_embedding, score_by_semantics, embed, is_ready, deserialize_embedding } from "@platform";
 import { render_memory } from "./prompts/temporal-prompts.js";
 import { apply_relationships } from "./director.js";
+import { extract_and_repair_json } from "./parser.js";
 
 /**
  * @typedef {import('@state/runtime.svelte.js').SimulationEntity} SimulationEntity
@@ -556,36 +555,12 @@ function parse_forge_response(response) {
     return null;
   }
 
-  const json_string = extract_json_block(raw_text);
-  if (!json_string) return null;
-
-  const try_parse = (s) => {
-    try {
-      return JSON.parse(s);
-    } catch {
-      return undefined;
-    }
-  };
-
-  const direct = try_parse(json_string);
-  if (direct !== undefined) return direct;
-
-  const repair_chain = [
-    (s) => escape_unescaped_json_quotes(s),
-    (s) => s.replace(/([{,[]\s*)([A-Za-z_][A-Za-z0-9_]*)(\s*:)/g, '$1"$2"$3'),
-    (s) => s.replace(/([{,]\s*)[^"{}[\],]+?(?="[A-Za-z_][^"]*"\s*:)/g, "$1"),
-    (s) => s.replace(/,\s*(?=\s*[}\]])/g, ""),
-  ];
-
-  for (const repair of repair_chain) {
-    const repaired = repair(json_string);
-    if (repaired === json_string) continue;
-    const parsed = try_parse(repaired);
-    if (parsed !== undefined) return parsed;
+  const parsed = extract_and_repair_json(raw_text, null);
+  if (!parsed) {
+    state_bridge.app?.log?.("[TemporalEngine] Malformed JSON in memory forge: repair chain exhausted.", "warn");
+    return null;
   }
-
-  state_bridge.app?.log?.("[TemporalEngine] Malformed JSON in memory forge: repair chain exhausted.", "warn");
-  return null;
+  return parsed;
 }
 
 /** Synthesizes memories and rewrites agenda for target entities using the LLM. */

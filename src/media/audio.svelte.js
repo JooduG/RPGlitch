@@ -863,6 +863,8 @@ export class VoiceEngine {
 // [SECTION 3: SOUND EFFECTS ENGINE]
 // ============================================================================
 
+const SOUND_CACHE_MAX = 32;
+
 /**
  * Manages UI sound effects and audio buffer caching.
  */
@@ -1014,6 +1016,10 @@ class AudioEffectsEngine {
                 const decode_promise = audio_context.decodeAudioData(raw_array_buffer, resolve, reject);
                 if (decode_promise) decode_promise.then(resolve).catch(reject);
               });
+              if (this.#sound_buffer_cache.size >= SOUND_CACHE_MAX) {
+                const oldest_key = this.#sound_buffer_cache.keys().next().value;
+                if (oldest_key) this.#sound_buffer_cache.delete(oldest_key);
+              }
               this.#sound_buffer_cache.set(sound_key, decoded_buffer);
               return decoded_buffer;
             } finally {

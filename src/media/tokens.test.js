@@ -12,7 +12,6 @@ import {
   SIGNATURE_COLORS,
   PALETTE,
   PALETTE_CSS_VARIABLES,
-  PALETTE_VARIABLES,
 } from "./palette.js";
 import { aesthetic_resolver } from "./image-aesthetics.js";
 import { describe, expect, test } from "vitest";
@@ -135,7 +134,6 @@ describe("Tokens Color Generation", () => {
       const sample_hex = PALETTE["Electric Cyan"];
       expect(sample_hex).toBeDefined();
       expect(resolve_token(sample_hex)).toBe(PALETTE_CSS_VARIABLES[sample_hex]);
-      expect(resolve_token(sample_hex)).toBe(PALETTE_VARIABLES[sample_hex]);
       expect(resolve_token("#123456")).toBeNull();
     });
 

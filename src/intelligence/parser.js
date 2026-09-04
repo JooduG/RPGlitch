@@ -16,7 +16,7 @@
  * - Raw network unwrapping lives in @platform/transport.js.
  */
 
-import { extract_json_block, strip_cognition_blocks } from "@utils";
+import { escape_unescaped_json_quotes, strip_cognition_blocks } from "@utils";
 
 // ── 1. Refusal & Safety Guardrails ────────────────────────────────────────────
 
@@ -194,7 +194,65 @@ export function force_close_response(text, character_name) {
   return `${t}\n\n${character_name} goes quiet, the moment settling around them like dust.`;
 }
 
-// ── 4. Profile JSON Extraction ────────────────────────────────────────────────
+// ── 4. Structured JSON Extraction & Repair ───────────────────────────────────
+
+/**
+ * Attempts to extract and parse a JSON object or array from raw text, applying
+ * an aggressive repair chain for common LLM syntax defects (unescaped quotes, unquoted keys,
+ * trailing commas, and numeric unary plus prefixes).
+ * @param {string} raw
+ * @param {any} [fallback=null]
+ * @returns {any}
+ */
+export function extract_and_repair_json(raw, fallback = null) {
+  if (!raw || typeof raw !== "string") return fallback;
+  const stripped = strip_cognition_blocks(raw).replace(/```json\n?|```/g, "").trim();
+  
+  // Find outermost curly brace or square bracket
+  const first_curly = stripped.indexOf("{");
+  const last_curly = stripped.lastIndexOf("}");
+  const first_square = stripped.indexOf("[");
+  const last_square = stripped.lastIndexOf("]");
+
+  let json_string = null;
+  if (first_curly !== -1 && last_curly !== -1 && (first_square === -1 || first_curly < first_square)) {
+    json_string = stripped.substring(first_curly, last_curly + 1);
+  } else if (first_square !== -1 && last_square !== -1) {
+    json_string = stripped.substring(first_square, last_square + 1);
+  } else if (first_curly !== -1 && last_curly !== -1) {
+    json_string = stripped.substring(first_curly, last_curly + 1);
+  }
+
+  if (!json_string) return fallback;
+
+  const try_parse = (s) => {
+    try {
+      return JSON.parse(s);
+    } catch {
+      return undefined;
+    }
+  };
+
+  const direct = try_parse(json_string);
+  if (direct !== undefined) return direct;
+
+  const repairs = [
+    (s) => s.replace(/([{,]\s*)([A-Za-z0-9_$-]+)\s*:/g, '$1"$2":'),
+    (s) => escape_unescaped_json_quotes(s),
+    (s) => s.replace(/:\s*\+([0-9]+(?:\.[0-9]+)?)/g, ": $1"),
+    (s) => s.replace(/([{,]\s*)[^"{}[\],]+?(?="[A-Za-z_][^"]*"\s*:)/g, "$1"),
+    (s) => s.replace(/,\s*(?=\s*[}\]])/g, ""),
+  ];
+
+  let cumulative = json_string;
+  for (const repair of repairs) {
+    cumulative = repair(cumulative);
+    const parsed = try_parse(cumulative);
+    if (parsed !== undefined) return parsed;
+  }
+
+  return fallback;
+}
 
 /**
  * Parses a raw LLM profile-sorting response into a structured object.
@@ -204,13 +262,7 @@ export function force_close_response(text, character_name) {
  * @returns {Object|null}
  */
 export function parse_profile_json(raw) {
-  const block = extract_json_block(strip_cognition_blocks(String(raw ?? "")));
-  if (!block) return null;
-  try {
-    return JSON.parse(block);
-  } catch (_e) {
-    return null;
-  }
+  return extract_and_repair_json(raw, null);
 }
 
 // ── 5. Sensory & Image Prompt Cleaning ────────────────────────────────────────

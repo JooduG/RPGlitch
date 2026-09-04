@@ -20,7 +20,7 @@
 // Application Interface & Navigation Store
 // ============================================================================
 
-export { app, app_interface, register_image_preview_handlers } from "./interface.svelte.js";
+export { app, register_image_preview_handlers } from "./interface.svelte.js";
 
 // ============================================================================
 // Simulation Runtime & Entity Chronology

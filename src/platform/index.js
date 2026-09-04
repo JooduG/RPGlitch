@@ -33,7 +33,7 @@ export { fetch_web, validate_url, blob_to_data_url } from "./web-fetch.js";
 // DOMPurify Security & Content Sanitization
 // ============================================================================
 
-export { sanitize_to_fragment, security, sanitize, escape_html, escape, validate_image } from "./security.js";
+export { sanitize_to_fragment, security, sanitize, escape_html, validate_image } from "./security.js";
 
 // ============================================================================
 // Browser Environment Hardening

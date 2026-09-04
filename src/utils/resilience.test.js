@@ -59,7 +59,6 @@ describe("CircuitBreaker", () => {
   it("should start in CLOSED state and expose state getters", () => {
     expect(breaker.state).toBe("CLOSED");
     expect(breaker.is_closed).toBe(true);
-    expect(breaker.isClosed).toBe(true);
     expect(breaker.is_open).toBe(false);
     expect(breaker.is_half_open).toBe(false);
   });
@@ -72,7 +71,6 @@ describe("CircuitBreaker", () => {
 
     expect(breaker.state).toBe("OPEN");
     expect(breaker.is_open).toBe(true);
-    expect(breaker.isOpen).toBe(true);
     await expect(breaker.execute(fn)).rejects.toThrow("Circuit breaker is OPEN");
   });
 

@@ -158,6 +158,9 @@ export class ChronoEngine {
   async continue() {
     if (state_bridge.app.simulation.loading || state_bridge.simulation_state.intent_active) return;
     try {
+      if (!state_bridge.simulation_log?.feed?.length && typeof state_bridge.simulation_log?.refresh === "function") {
+        await state_bridge.simulation_log.refresh();
+      }
       await this.advance_turn(null, { is_continue: true });
     } catch (e) {
       this.error = /** @type {Error} */ (e).message;
@@ -169,30 +172,24 @@ export class ChronoEngine {
   // ============================================================================
 
   /**
-   * Core turn advancement pipeline.
-   * @param {string | null} [input=null]
+   * Advances the simulation by executing an atomic turn cycle.
+   * @param {string | null} input
    * @param {AdvanceTurnOptions} [options={}]
    */
-  async advance_turn(input = null, options = {}) {
-    if (state_bridge.simulation_state.phase === "locked") return;
-    if (state_bridge.app.simulation.loading || state_bridge.simulation_state.intent_active) return;
-
+  async advance_turn(input, options = {}) {
     const story_id = state_bridge.runtime.story_id;
-    if (!story_id) {
-      console.error("[Chrono] No active story found.");
-      return;
-    }
+    if (!story_id) return;
 
-    // 1. STASIS: Lock the Universe
+    // 1. STASIS: System Lock & Double-Click Gate
     state_bridge.simulation_state.set_intent_active(true);
     state_bridge.app.simulation.loading = true;
-    state_bridge.simulation_state.lock();
 
+    const previous_round = Number(state_bridge.runtime.round || 0);
     const final_input = input;
 
     // 2. SYNTHESIS: Generate Narrative
     if (!options.is_retry && !options.is_continue) {
-      state_bridge.runtime.round = Number(state_bridge.runtime.round || 0) + 1;
+      state_bridge.runtime.round = previous_round + 1;
     }
     state_bridge.app.log(`LLM synthesizing turn ${state_bridge.runtime.round}...`, "ai");
     const controller = new AbortController();
@@ -253,6 +250,8 @@ export class ChronoEngine {
         } else {
           state_bridge.app.log(`Time Fracture: ${error.message}`, "error");
           console.error("[Chrono] 💥 Time Fracture:", error);
+          
+          state_bridge.runtime.round = previous_round;
 
           // 🛡️ ORPHANED-TURN GUARD: If user message was recorded but AI reply failed, retry once
           const round_after_failure = state_bridge.runtime.round;

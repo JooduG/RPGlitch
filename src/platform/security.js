@@ -144,12 +144,9 @@ export async function validate_image(file, options = {}) {
 export const security = {
   sanitize,
   sanitize_to_fragment,
-  escape: escape_html,
   escape_html,
   validate_image,
 };
-
-export { escape_html as escape };
 
 // ============================================================================
 // [CHANGELOG]

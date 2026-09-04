@@ -247,6 +247,7 @@ export async function embed(text) {
   } catch (error) {
     console.warn("[Embeddings] Embed failed for text, clearing pipeline for retry:", text.substring(0, 60), error);
     _pipeline = null;
+    _loading = null;
     _model_ready = false;
     try {
       const pipeline = await get_pipeline();

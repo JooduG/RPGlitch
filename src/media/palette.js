@@ -51,8 +51,6 @@ export const PALETTE = Object.freeze(
  */
 export const PALETTE_CSS_VARIABLES = Object.freeze(Object.fromEntries(color_entries.map(([name, value]) => [value, `var(--${name})`])));
 
-export const PALETTE_VARIABLES = PALETTE_CSS_VARIABLES;
-
 export { SIGNATURE_COLORS };
 
 // ============================================================================

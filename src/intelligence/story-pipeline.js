@@ -11,8 +11,8 @@
  * 5. Network Retry & Resilience (execute_with_retry)
  */
 
-import { db, entities, stories, detox_prose } from "@data";
-import { generate_uuid, create_job_queue, state_bridge, strip_cognition_blocks, resolve_speaking_style } from "@utils";
+import { db, entities, stories } from "@data";
+import { generate_uuid, create_job_queue, state_bridge, strip_cognition_blocks, resolve_speaking_style, detox_prose } from "@utils";
 import { visual_engine, resolve_image_trigger, spawn_image_beat, sweep_stale_ghosts, IMAGE_RESOLVE_TIMEOUT_MS } from "@media";
 import { validate_and_repair_response, force_close_response } from "./parser.js";
 import { llm_service, looks_truncated, raw_to_text, raw_stop_reason } from "@platform";
@@ -37,8 +37,11 @@ import { spawn_character } from "./profile-pipeline.js";
 
 // ── 1. Pipeline Constants & Auxiliary Queues ──────────────────────────────────
 
-/** Background queue for non-blocking post-turn tasks (consolidation, ghost sweeps). */
-const director_background_queue = create_job_queue({ max_concurrency: 2 });
+/**
+ * Background queue for non-blocking post-turn tasks (consolidation, ghost sweeps).
+ * Bound to concurrency 1 to prevent overlapping Memory Forge write races on entity vectors in IndexedDB.
+ */
+const director_background_queue = create_job_queue({ max_concurrency: 1 });
 
 /** Completion directive appended to prompt when reply was cut off by token limit. */
 const TRUNCATION_COMPLETE_NOTE =
@@ -189,17 +192,21 @@ export const gamemaster = {
       if (director_data._parse_error) {
         const reason = raw_stop_reason(director_raw);
         state_bridge.app.log(`[GameMaster] Director JSON truncated${reason ? ` (${reason})` : ""} — retrying with terse directive...`, "warn");
-        const terse_raw = await director_call(true);
-        const terse_text = raw_to_text(terse_raw);
-        const retry_data = parse_director_json(terse_text) || {};
-        if (!retry_data._parse_error) {
-          if (!retry_data._thought_process && director_data?._thought_process) {
-            retry_data._thought_process = director_data._thought_process;
+        try {
+          const terse_raw = await director_call(true);
+          const terse_text = raw_to_text(terse_raw);
+          const retry_data = parse_director_json(terse_text) || {};
+          if (!retry_data._parse_error) {
+            if (!retry_data._thought_process && director_data?._thought_process) {
+              retry_data._thought_process = director_data._thought_process;
+            }
+            if (!retry_data._thought_process) {
+              retry_data._thought_process = "High tension turn evaluation completed.";
+            }
+            director_data = retry_data;
           }
-          if (!retry_data._thought_process) {
-            retry_data._thought_process = "High tension turn evaluation completed.";
-          }
-          director_data = retry_data;
+        } catch (terse_error) {
+          state_bridge.app.log(`[GameMaster] Terse Director retry failed: ${terse_error?.message || terse_error}`, "warn");
         }
       }
 

@@ -154,12 +154,17 @@ export async function mark_placeholder_failed(id, metadata = {}) {
     const key = isNaN(Number(id)) ? id : Number(id);
     let has_narrative_text = false;
 
-    const feed_match = state_bridge.simulation_log?.feed?.find((entry) => entry.id === key || entry.id === id || String(entry.id) === String(id));
+    const current_story_id = state_bridge.runtime?.story_id;
+    const feed_match = state_bridge.simulation_log?.feed?.find(
+      (entry) =>
+        (!entry.story_id || !current_story_id || entry.story_id === current_story_id) &&
+        (entry.id === key || entry.id === id || String(entry.id) === String(id)),
+    );
     if (feed_match && feed_match.text && feed_match.text.trim()) {
       has_narrative_text = true;
     } else {
       try {
-        const database_entries = await state_bridge.session_driver.load_log(state_bridge.runtime?.story_id);
+        const database_entries = await state_bridge.session_driver.load_log(current_story_id);
         const match = database_entries?.find((entry) => entry.id === key || entry.id === id || String(entry.id) === String(id));
         if (match && match.text && match.text.trim()) has_narrative_text = true;
       } catch {

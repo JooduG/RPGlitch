@@ -111,13 +111,9 @@ export {
 
 export { SIGNATURE_COLORS } from "./definitions/signature-colors.js";
 
-// ============================================================================
-// Style & Prose Resolution Proxies
-// ============================================================================
-
-export { detox_prose, resolve_speaking_style, resolve_style } from "@utils";
-
 /**
  * CHANGELOG:
+ * - 2026-09-04: Purged `@utils` proxy re-exports (`detox_prose`, `resolve_speaking_style`, `resolve_style`)
+ *   to preserve strict layer boundaries; callers import utility codecs directly from `@utils`.
  * - 2026-08-29: Structured into canonical functional sections with universal header/footer architecture (/harmonize).
  */

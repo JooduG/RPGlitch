@@ -9,7 +9,7 @@
 
 import MarkdownIt from "markdown-it";
 import { clean_image_prompts, parse_think_block } from "../../intelligence/parser.js";
-import { detox_prose } from "@data";
+import { detox_prose } from "@utils";
 import { sanitize } from "@platform";
 
 const markdown = new MarkdownIt({

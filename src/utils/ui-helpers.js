@@ -94,12 +94,13 @@ function get_measurement_element(context = null) {
     document.body.appendChild(shared_measurement_element);
   }
 
+  const is_context_connected = context && context.nodeType === 1 && (context.isConnected ?? true);
   const can_accept_children =
-    context &&
-    context.nodeType === 1 &&
+    is_context_connected &&
     !/^(area|base|br|col|embed|hr|img|input|keygen|link|meta|param|source|track|wbr|textarea|template|svg)$/i.test(context.tagName);
   const target_parent = can_accept_children ? context : document.body;
-  if (shared_measurement_element.parentElement !== target_parent) {
+
+  if (shared_measurement_element.parentElement !== target_parent || !(shared_measurement_element.isConnected ?? true)) {
     target_parent.appendChild(shared_measurement_element);
   }
 

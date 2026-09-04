@@ -300,33 +300,33 @@ export function merge_prose_into_field(current_field_value, new_prose) {
 
   // 1. Extract bracketed [KEY: Value] directives first
   const bracketed_regex = /\[([A-Z_ ]{3,25}):\s*([\s\S]*?)\]/g;
-  let remaining_prose = clean_new_prose;
   let match;
   const key_updates = [];
 
   while ((match = bracketed_regex.exec(clean_new_prose)) !== null) {
-    const full_match = match[0];
     const raw_key = match[1].toUpperCase().replace(/\s+/g, "_");
     const raw_val = match[2].trim();
     if (raw_val) {
       key_updates.push({ key: raw_key, val: raw_val });
-      remaining_prose = remaining_prose.replace(full_match, "").trim();
     }
   }
+
+  // Strip all bracketed directives cleanly in one pass to prevent string mutation drift
+  let remaining_prose = clean_new_prose.replace(bracketed_regex, "").trim();
 
   // 2. Extract unbracketed KEY: Value segments if any
   const unbracketed_regex = /(?:^|,\s*|\s*)([A-Z_]{3,15}):\s*([^,[\]]+(?:\s+[^,[\]]+)*)/g;
   while ((match = unbracketed_regex.exec(remaining_prose)) !== null) {
-    const full_match = match[0];
     const raw_key = match[1].toUpperCase();
     const raw_val = match[2].trim();
     if (raw_val) {
       key_updates.push({ key: raw_key, val: raw_val });
-      remaining_prose = remaining_prose.replace(full_match, "").trim();
     }
   }
 
+  // Strip all unbracketed directives cleanly in one pass
   remaining_prose = remaining_prose
+    .replace(unbracketed_regex, "")
     .replace(/^[\s,;[\]]+|[\s,;[\]]+$/g, "")
     .replace(/,\s*,+/g, ",")
     .trim();

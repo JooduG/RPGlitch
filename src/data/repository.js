@@ -28,7 +28,8 @@ import { PREMADE_ENTITIES, PREMADE_ENTITY_MAP } from "./definitions/premade-enti
 
 // ============================================================================
 // 1. DATA SEEDING (The Entity Foundry)
-// ============================================================================
+// Module-scoped concurrency guard preventing overlapping seed operations.
+let _is_seeding_active = false;
 
 /**
  * Seeds the database with premade entities if they do not already exist.
@@ -36,9 +37,8 @@ import { PREMADE_ENTITIES, PREMADE_ENTITY_MAP } from "./definitions/premade-enti
  * @returns {Promise<void>}
  */
 export async function seed_premades() {
-  const global_scope = /** @type {any} */ (globalThis);
-  if (typeof globalThis !== "undefined" && global_scope._seeding) return;
-  if (typeof globalThis !== "undefined") global_scope._seeding = true;
+  if (_is_seeding_active) return;
+  _is_seeding_active = true;
 
   try {
     const existing_records = await db.entities.toArray();
@@ -70,9 +70,7 @@ export async function seed_premades() {
   } catch (error) {
     console.error("[Repository] Foundry Error: Failed to seed premades:", error);
   } finally {
-    if (typeof globalThis !== "undefined") {
-      /** @type {any} */ (globalThis)._seeding = false;
-    }
+    _is_seeding_active = false;
   }
 }
 
@@ -379,6 +377,7 @@ export const stories = {
 // CHANGELOG
 // ============================================================================
 /**
+ * 2026-09-04: Converted `_seeding` guard from globalThis to module-scoped `_is_seeding_active` with robust finally reset.
  * 2026-08-29: Harmonized `src/data/repository.js` via `/harmonize`:
  *   - Structured Universal File Architecture with instructional header, 4 domain dividers, and changelog footer.
  *   - Enforced Full-Name & Anti-Abbreviation Mandate across all identifiers (e.g. `global_scope`, `existing_records`,

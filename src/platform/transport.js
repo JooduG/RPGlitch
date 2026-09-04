@@ -279,6 +279,12 @@ export const llm_service = {
       };
 
       // 4. Execute generation with AbortSignal bridge to plugin `.stop()`
+      if (options.signal?.aborted) {
+        const err = new Error("Generation aborted by caller.");
+        err.name = "AbortError";
+        throw err;
+      }
+
       let result;
       let abort_listener = null;
 

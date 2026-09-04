@@ -7,7 +7,7 @@
    * layout primitives, fully decoupled event chains, and deterministic metrics.
    */
   import { parse_message } from "./render.js";
-  import { resolve_speaking_style } from "@data";
+  import { resolve_speaking_style } from "@utils";
   import { Button } from "@primitives";
   import { Audio, get_cadence_rate, resolve_voice_uri, get_signature_color } from "@media";
   import { ProfilePicture } from "@image";

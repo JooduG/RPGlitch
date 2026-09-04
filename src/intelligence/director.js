@@ -16,8 +16,8 @@
  */
 
 import { entities } from "@data";
-import { escape_unescaped_json_quotes, extract_json_block, state_bridge } from "@utils";
-import { parse_think_block } from "./parser.js";
+import { extract_json_block, state_bridge } from "@utils";
+import { extract_and_repair_json, parse_think_block } from "./parser.js";
 
 // ── 1. Constants & Value Maps ─────────────────────────────────────────────────
 
@@ -201,28 +201,23 @@ export function synthesize_director_fallback(prev_data, input, _bridge) {
 export function parse_director_json(raw_text) {
   if (!raw_text || !raw_text.trim()) return null;
 
+  const parsed = extract_and_repair_json(raw_text, null);
+  if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+    if (parsed.prose) delete parsed.prose;
+    return normalize_director_data(parsed);
+  }
+
   const json_string = extract_json_block(raw_text);
   if (!json_string) {
-    const stripped = raw_text.replace(/```json\n?|```/g, "").trim();
     console.warn("[GameMaster] Director JSON missing brackets, falling back to raw prose.");
     state_bridge.app.log("[GameMaster] Director JSON missing brackets — using raw prose fallback", "warn");
-    const extracted_think = parse_think_block(stripped).think;
-    return normalize_director_data({ internal_monologue: extracted_think || stripped, _parse_error: true });
+  } else {
+    console.warn("[GameMaster] Director JSON invalid, falling back to raw prose.");
   }
 
-  const cleaned_json = escape_unescaped_json_quotes(json_string);
-  const sanitized_json = cleaned_json.replace(/:\s*\+([0-9]+(?:\.[0-9]+)?)/g, ": $1");
-
-  try {
-    const payload = JSON.parse(sanitized_json);
-    if (payload.prose) delete payload.prose;
-    return normalize_director_data(payload);
-  } catch (parse_err) {
-    console.warn("[GameMaster] Director JSON invalid, falling back to raw prose:", parse_err);
-    const stripped = raw_text.replace(/```json\n?|```/g, "").trim();
-    const extracted_think = parse_think_block(stripped).think;
-    return normalize_director_data({ internal_monologue: extracted_think || stripped, _parse_error: true });
-  }
+  const stripped = raw_text.replace(/```json\n?|```/g, "").trim();
+  const extracted_think = parse_think_block(stripped).think;
+  return normalize_director_data({ internal_monologue: extracted_think || stripped, _parse_error: true });
 }
 
 // ── 6. Stage Spotlight Choreography & NPC Resolution ──────────────────────────

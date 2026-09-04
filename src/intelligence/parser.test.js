@@ -1,4 +1,4 @@
-import { clean_image_prompts, parse_think_block, is_refusal_response } from "./parser.js";
+import { clean_image_prompts, parse_think_block, is_refusal_response, extract_and_repair_json } from "./parser.js";
 import { escape_xml, strip_cognition_blocks, safe_parse_pseudo_json, merge_prose_into_field } from "@utils";
 import { describe, expect, it } from "vitest";
 
@@ -364,5 +364,35 @@ describe("is_refusal_response", () => {
     expect(is_refusal_response("")).toBe(false);
     expect(is_refusal_response(undefined)).toBe(false);
     expect(is_refusal_response(null)).toBe(false);
+  });
+});
+
+describe("extract_and_repair_json", () => {
+  it("extracts clean JSON objects and arrays", () => {
+    expect(extract_and_repair_json('```json\n{"status":"ok"}\n```')).toEqual({ status: "ok" });
+    expect(extract_and_repair_json('[1, 2, 3]')).toEqual([1, 2, 3]);
+  });
+
+  it("repairs unescaped inner double quotes in values", () => {
+    const raw = '{"thought": "He said "hello" to her", "speaker": "ai"}';
+    const parsed = extract_and_repair_json(raw);
+    expect(parsed?.speaker).toBe("ai");
+  });
+
+  it("repairs unary plus on numbers and trailing commas", () => {
+    const raw = '{"tension": +1.5, "items": ["a", "b",],}';
+    const parsed = extract_and_repair_json(raw);
+    expect(parsed).toEqual({ tension: 1.5, items: ["a", "b"] });
+  });
+
+  it("repairs unquoted object keys", () => {
+    const raw = '{status: "active", next_action: "AI_CHARACTER"}';
+    const parsed = extract_and_repair_json(raw);
+    expect(parsed).toEqual({ status: "active", next_action: "AI_CHARACTER" });
+  });
+
+  it("returns fallback for non-json or unrepairable input", () => {
+    expect(extract_and_repair_json("Just raw narrative prose without braces", null)).toBeNull();
+    expect(extract_and_repair_json("", { fallback: true })).toEqual({ fallback: true });
   });
 });

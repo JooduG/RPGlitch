@@ -24,23 +24,16 @@
 /**
  * @typedef {Object} RetryOptions
  * @property {number} [max_attempts=3] - Maximum execution attempts before throwing.
- * @property {number} [maxAttempts=3] - Alias for max_attempts.
  * @property {number} [initial_delay=1000] - Initial backoff delay in milliseconds.
- * @property {number} [initialDelay=1000] - Alias for initial_delay.
  * @property {number} [max_delay=10000] - Maximum backoff delay cap in milliseconds.
- * @property {number} [maxDelay=10000] - Alias for max_delay.
  */
 
 /**
  * @typedef {Object} CircuitBreakerOptions
  * @property {number} [failure_threshold=3] - Consecutive failures needed to trip breaker OPEN.
- * @property {number} [failureThreshold=3] - Alias for failure_threshold.
  * @property {number} [success_threshold=2] - Consecutive successes in HALF_OPEN to reset to CLOSED.
- * @property {number} [successThreshold=2] - Alias for success_threshold.
  * @property {number} [recovery_timeout=30000] - Duration in ms before OPEN breaker transitions to HALF_OPEN.
- * @property {number} [recoveryTimeout=30000] - Alias for recovery_timeout.
  * @property {number} [max_concurrent=3] - Maximum parallel in-flight executions.
- * @property {number} [maxConcurrent=3] - Alias for max_concurrent.
  */
 
 // ============================================================================
@@ -55,9 +48,9 @@ export class ExponentialBackoffRetryer {
    * @param {RetryOptions} [options={}]
    */
   constructor(options = {}) {
-    this.max_attempts = options.max_attempts ?? options.maxAttempts ?? 3;
-    this.initial_delay = options.initial_delay ?? options.initialDelay ?? 1000;
-    this.max_delay = options.max_delay ?? options.maxDelay ?? 10000;
+    this.max_attempts = options.max_attempts ?? 3;
+    this.initial_delay = options.initial_delay ?? 1000;
+    this.max_delay = options.max_delay ?? 10000;
   }
 
   /**
@@ -112,10 +105,10 @@ export class CircuitBreaker {
    * @param {CircuitBreakerOptions} [options={}]
    */
   constructor(options = {}) {
-    this.failure_threshold = options.failure_threshold ?? options.failureThreshold ?? 3;
-    this.success_threshold = options.success_threshold ?? options.successThreshold ?? 2;
-    this.recovery_timeout = options.recovery_timeout ?? options.recoveryTimeout ?? 30000;
-    this.max_concurrent = options.max_concurrent ?? options.maxConcurrent ?? 3;
+    this.failure_threshold = options.failure_threshold ?? 3;
+    this.success_threshold = options.success_threshold ?? 2;
+    this.recovery_timeout = options.recovery_timeout ?? 30000;
+    this.max_concurrent = options.max_concurrent ?? 3;
   }
 
   /** @returns {CircuitBreakerState} Current breaker state. */
@@ -127,27 +120,15 @@ export class CircuitBreaker {
   get is_closed() {
     return this.#state === "CLOSED";
   }
-  /** @returns {boolean} Alias for is_closed. */
-  get isClosed() {
-    return this.is_closed;
-  }
 
   /** @returns {boolean} True if the breaker is OPEN (tripped). */
   get is_open() {
     return this.#state === "OPEN";
   }
-  /** @returns {boolean} Alias for is_open. */
-  get isOpen() {
-    return this.is_open;
-  }
 
   /** @returns {boolean} True if the breaker is HALF_OPEN (probing recovery). */
   get is_half_open() {
     return this.#state === "HALF_OPEN";
-  }
-  /** @returns {boolean} Alias for is_half_open. */
-  get isHalfOpen() {
-    return this.is_half_open;
   }
 
   /** @returns {number} Number of active in-flight executions. */

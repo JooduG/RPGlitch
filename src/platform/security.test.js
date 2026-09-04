@@ -49,19 +49,19 @@ describe("validation.js", () => {
     });
   });
 
-  describe("escape()", () => {
+  describe("escape_html()", () => {
     test("escapes HTML special characters including quotes", () => {
       const input = "<b>Hello</b> \"World\" & 'Peace'";
-      const output = security.escape(input);
+      const output = security.escape_html(input);
       expect(output).toBe("&lt;b&gt;Hello&lt;/b&gt; &quot;World&quot; &amp; &#39;Peace&#39;");
     });
 
     test("handles non-string inputs", () => {
-      expect(security.escape(123)).toBe("123");
-      expect(security.escape(0)).toBe("0");
-      expect(security.escape(true)).toBe("true");
-      expect(security.escape(null)).toBe("");
-      expect(security.escape(undefined)).toBe("");
+      expect(security.escape_html(123)).toBe("123");
+      expect(security.escape_html(0)).toBe("0");
+      expect(security.escape_html(true)).toBe("true");
+      expect(security.escape_html(null)).toBe("");
+      expect(security.escape_html(undefined)).toBe("");
     });
   });
 

@@ -111,11 +111,11 @@ export class VisualEngine {
     this.attempts = 0;
 
     // Auto-recover circuit breaker for user-initiated requests
-    if (this.breaker.isOpen) {
+    if (this.breaker.is_open) {
       this.breaker.state = "HALF_OPEN";
       this.breaker.successCount = 0;
     }
-    this.is_offline = this.breaker.isOpen;
+    this.is_offline = this.breaker.is_open;
 
     try {
       let final_prompt = "";
@@ -333,12 +333,12 @@ export class VisualEngine {
         );
       });
 
-      this.is_offline = this.breaker.isOpen;
+      this.is_offline = this.breaker.is_open;
       return result;
     } catch (error_instance) {
       const error = /** @type {Error} */ (error_instance);
       this.error = error.message;
-      this.is_offline = this.breaker.isOpen;
+      this.is_offline = this.breaker.is_open;
       console.error("[VisualEngine] Service Failure:", error);
       throw error;
     } finally {

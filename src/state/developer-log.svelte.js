@@ -20,6 +20,7 @@
  */
 
 import { db } from "@data";
+import { generate_uuid } from "@utils";
 
 // ============================================================================
 // Constants & Identifier Generator
@@ -28,21 +29,7 @@ import { db } from "@data";
 export const DEVELOPER_TELEMETRY_STORAGE_KEY = "dev_telemetry";
 export const MAX_DEVELOPER_LOG_ENTRIES = 500;
 
-/**
- * Generates an RFC-4122 compliant UUID.
- * Uses native crypto.randomUUID when available, with a pseudo-random fallback.
- * @returns {string}
- */
-export function generate_uuid() {
-  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
-    return crypto.randomUUID();
-  }
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (character) => {
-    const random_value = (Math.random() * 16) | 0;
-    const value = character === "x" ? random_value : (random_value & 0x3) | 0x8;
-    return value.toString(16);
-  });
-}
+export { generate_uuid };
 
 // ============================================================================
 // JSDoc Schemas & Type Definitions
