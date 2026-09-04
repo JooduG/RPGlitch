@@ -7,23 +7,24 @@ last_synchronized: 2026-09-05
 
 # 🛰️ Mission State
 
-## 1.0 🪐 Eternal: Sovereign Specifications
+## 🪐 Eternal
 - Core architecture, simulation physics, and design tokens are codified in [`GEMINI.md`](../GEMINI.md) and [`DESIGN.md`](../DESIGN.md).
 
 ---
 
-## 2.0 ⚡ Present: Active Track
-- **Active Specification**: [`tasks/future/track-generation-flow-and-storyboard-guards.md`](file:///c:/Users/johng/source/repos/RPGlitch/tasks/future/track-generation-flow-and-storyboard-guards.md)
+## ⚡ Present
+- **Active Track**: [`tasks/future/track-generation-flow-and-storyboard-guards.md`](file:///c:/Users/johng/source/repos/RPGlitch/tasks/future/track-generation-flow-and-storyboard-guards.md)
 - **Active Vector**: Phase 1 — Test-Driven Red Suite (`status.test.js`, `chrono.test.js`)
 
 ---
 
-## 3.0 🚀 Future: Roadmap & Upcoming Tracks
-- [~] `track-generation-flow-and-storyboard-guards`: Generation Flow, Speaker Avatar Thinking Indicators & Storyboard Active Session Guards ([tasks/future/track-generation-flow-and-storyboard-guards.md](file:///c:/Users/johng/source/repos/RPGlitch/tasks/future/track-generation-flow-and-storyboard-guards.md))
+## 🚀 Future
+- [ ] `track-image-shimmer-refinement`
+- [ ] `track-field-history-inspector`
 
 ---
 
-## 4.0 📜 Past: Pulse History Log
+## 📜 Past
 
 > _Full historical logs from 2026-06 to 2026-08-16 are archived in [archive/2026-08/2026-08-16-tasks-PRESENT-pulse-archive.md](file:///C:/Users/johng/source/repos/RPGlitch/tasks/PRESENT.md)._
 
@@ -121,9 +122,7 @@ last_synchronized: 2026-09-05
 
 ---
 
----
-
-## 5.0 🧹 Backlog (Automated)
+## 🧹 Backlog (Automated)
 
 <!-- BACKLOG_START -->
 
