@@ -22,7 +22,6 @@
 **/mcp.json
 **/node_modules/**
 **/out/**
-**/package-lock.json
 **/pnpm-lock.yaml
 **/public/assets/**
 src/data/definitions/signature-colors.js
@@ -36,6 +35,7 @@ src/media/tokens.js
 **/tmp/**
 tmp/**/*
 !.env.example
+!package-lock.json
 !**/*rpglitch-left-panel.txt
 !**/templates/**
 act_output.log

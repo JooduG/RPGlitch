@@ -39,7 +39,6 @@ export default defineConfig([
       "**/mcp.json",
       "**/node_modules/**",
       "**/out/**",
-      "**/package-lock.json",
       "**/pnpm-lock.yaml",
       "**/public/assets/**",
       "src/data/definitions/signature-colors.js",
