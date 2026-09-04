@@ -45,14 +45,39 @@ The following operational scripts are located in `.agents/skills/local-scripts/s
 
 ---
 
-## 5.0 MANDATORY DIRECTIVES & QUALITY GATE
+## 5.0 ANTIGRAVITY LIFECYCLE HOOKS
 
-- **Direct Execution**: Always use the terminal `run_command` tool to execute these scripts.
-- **Root Directory Context**: Execute scripts from the project root directory.
+The workspace registers automated agent lifecycle hooks in [`.agents/hooks.json`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/hooks.json) to enforce runtime behavioral laws from [GEMINI.md](file:///c:/Users/johng/source/repos/RPGlitch/GEMINI.md). Hook implementations reside in `.agents/skills/local-scripts/scripts/`:
+
+| Hook Identifier                 | Lifecycle Event | Target / Matcher                         | Script                                                                                                                                                   | Enforced Rule & Behavior                                                                                                                                                                                                                     |
+| :------------------------------ | :-------------- | :--------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`destructive-command-guard`** | `PreToolUse`    | `run_command`                            | [`hook-guard-commands.js`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/local-scripts/scripts/hook-guard-commands.js)                     | 3-tier command gate: **DENY** destructive commands (`git reset --hard`, force cleans, un-scoped recursive `rm`), **ASK** sensitive operations (`git push --force`, `branch -D`, `stash drop`, `npm install`), and **ALLOW** safe operations. |
+| **`sequential-thinking-gate`**  | `PreToolUse`    | `write_to_file\|replace_file_content...` | [`hook-sequential-thinking-gate.js`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/local-scripts/scripts/hook-sequential-thinking-gate.js) | Enforces running `sequentialthinking_tools` before multi-file edits across `src/` or thrashing loops (2+ consecutive edits on the same file). Single-file edits pass without overhead.                                                       |
+| **`waldzell-mcp-router`**       | `PreToolUse`    | `call_mcp_tool`                          | [`hook-waldzell-router.js`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/local-scripts/scripts/hook-waldzell-router.js)                   | Intercepts calls to `waldzell-clear-thought` and reroutes specialized operations to dedicated Waldzell servers; injects workspace `available_tools` into `sequentialthinking_tools`.                                                         |
+| **`file-architecture-gate`**    | `PreToolUse`    | `write_to_file`                          | [`hook-file-architecture-gate.js`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/local-scripts/scripts/hook-file-architecture-gate.js)     | Enforces Universal File Architecture (GEMINI.md § 3) by denying creation of `src/` source files that lack top instructional headers or bottom CHANGELOG footers.                                                                             |
+| **`grep-truncation-breaker`**   | `PostToolUse`   | `grep_search`                            | [`hook-grep-truncation.js`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/local-scripts/scripts/hook-grep-truncation.js)                   | Enforces Phase 4.4 Exhaustive Search by alerting the agent whenever `grep_search` results hit the 50-match cap or contain truncation warnings.                                                                                               |
+| **`strike-circuit-breaker`**    | `PostToolUse`   | `.*`                                     | [`hook-circuit-breaker.js`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/local-scripts/scripts/hook-circuit-breaker.js)                   | Enforces Phase 5.2 Circuit Breaker by tracking consecutive failures in `tmp/.tool-failures.json` and mandating `waldzell-metacognitive-monitoring` after 3 consecutive tool failures.                                                        |
+| **`svelte-autofixer-reminder`** | `PreInvocation` | (All)                                    | [`hook-svelte-pre-invocation.js`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/local-scripts/scripts/hook-svelte-pre-invocation.js)       | Injects an ephemeral reminder when `.svelte` components are in active context.                                                                                                                                                               |
+| **`svelte-autofixer-gate`**     | `Stop`          | (All)                                    | [`hook-svelte-stop-gate.js`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/local-scripts/scripts/hook-svelte-stop-gate.js)                 | Blocks turn completion if `.svelte` files were modified without executing `svelte-autofixer`.                                                                                                                                                |
+| **`planning-handoff-gate`**     | `Stop`          | (All)                                    | [`hook-planning-handoff.js`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/local-scripts/scripts/hook-planning-handoff.js)                 | Blocks turn completion if `src/` production files were modified without synchronizing the pulse log in `tasks/PRESENT.md`.                                                                                                                   |
+| **`workspace-hygiene-gate`**    | `Stop`          | (All)                                    | [`hook-stop-hygiene.js`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/local-scripts/scripts/hook-stop-hygiene.js)                         | Enforces Workspace Hygiene by blocking turn completion if transient files (`.tmp`, `.log`, `scratch_*`) exist in repository root.                                                                                                            |
+
+### Working Directory Standard for Hooks
+
+The Antigravity lifecycle runner sets the working directory to the directory containing `hooks.json` (i.e. `.agents/`). Therefore, command paths inside `hooks.json` must be written relative to `.agents/` (e.g., `node skills/local-scripts/scripts/hook-...js`).
 
 ---
 
-## 6.0 VERIFICATION (Definition of Done)
+## 6.0 MANDATORY DIRECTIVES & QUALITY GATE
+
+- **Direct Execution**: Always use the terminal `run_command` tool to execute operational scripts.
+- **Root Directory Context**: Execute scripts from the project root directory.
+- **Hook Idempotence**: Hook scripts must execute synchronously, fail gracefully on stdin EOF, and return valid JSON to stdout.
+
+---
+
+## 7.0 VERIFICATION (Definition of Done)
 
 - [ ] Scripts executed with expected zero-exit codes.
 - [ ] Required side effects (file changes, token syncs) verified in the workspace.
+- [ ] Lifecycle hooks pass stdin/stdout contract validation without unhandled exceptions.

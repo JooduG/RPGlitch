@@ -34,11 +34,14 @@ function read_stdin_payload() {
  * @param {string} file_path Target file path.
  * @returns {string} Normalized relative path.
  */
-function to_relative_path(file_path) {
-  const cwd = process.cwd().replace(/\\/g, "/");
+function to_relative_path(file_path, workspace_root) {
+  let root = (workspace_root || process.cwd()).replace(/\\/g, "/");
+  if (root.endsWith("/.agents") || root.endsWith(".agents")) {
+    root = root.replace(/\/\.agents$/, "").replace(/\.agents$/, "");
+  }
   const normalized = file_path.replace(/\\/g, "/");
-  if (normalized.startsWith(cwd + "/")) {
-    return normalized.slice(cwd.length + 1);
+  if (normalized.startsWith(root + "/")) {
+    return normalized.slice(root.length + 1);
   }
   return normalized;
 }
@@ -57,7 +60,8 @@ function run() {
     return;
   }
 
-  const relative_target = to_relative_path(target_file);
+  const workspace_root = payload?.workspacePaths?.[0] || "";
+  const relative_target = to_relative_path(target_file, workspace_root);
 
   // Only source files and tests trigger this gate (ignore scribbles, logs, tmp)
   if (!relative_target.startsWith("src/") && !relative_target.startsWith(".agents/skills/")) {
@@ -120,10 +124,26 @@ function run() {
     return;
   }
 
-  // Condition 1: Multi-File Edit (already edited another file and now editing this one)
+  // Condition 1: High-Risk Core Engine Logic (requires sequential thinking on 1st edit)
+  const is_high_risk_engine_file =
+    relative_target.startsWith("src/intelligence/") ||
+    relative_target === "src/state/chrono.svelte.js" ||
+    relative_target === "src/state/status.svelte.js" ||
+    relative_target === "src/data/repository.js";
+
+  if (is_high_risk_engine_file) {
+    const response = {
+      decision: "deny",
+      reason: `High-Risk Engine Gate: "${relative_target}" is a core simulation/intelligence engine file. Structural modifications to prompt compilers, chrono state, or data persistence require sequential thinking. Run \`call_mcp_tool\` for \`mcp-sequentialthinking-tools\` (\`sequentialthinking_tools\`) to record your step-by-step reasoning and plan before editing.`,
+    };
+    process.stdout.write(JSON.stringify(response) + "\n");
+    return;
+  }
+
+  // Condition 2: Multi-File Edit (already edited another file and now editing this one)
   const is_multi_file_attempt = files_edited_in_turn.size > 0 && !files_edited_in_turn.has(relative_target);
 
-  // Condition 2: Thrashing / Repeating Edit (returning to modify the same file 2nd or 3rd time)
+  // Condition 3: Thrashing / Repeating Edit (returning to modify the same file 2nd or 3rd time)
   const is_consecutive_thrashing = consecutive_edits_on_target >= 1;
 
   if (is_multi_file_attempt) {
@@ -154,6 +174,7 @@ run();
 /**
  * CHANGELOG
  * -------------------------------------------------------------------------------------------------
+ * 2026-09-04: Added immediate trigger on high-risk engine files (src/intelligence/**, chrono, status, repository).
  * 2026-09-04: Updated to Multi-File trigger + Thrashing (consecutive edits on same file) trigger.
  * 2026-09-04: Initial creation of PreToolUse sequential thinking gate.
  */

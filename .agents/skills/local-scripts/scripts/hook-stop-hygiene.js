@@ -9,6 +9,7 @@
  */
 
 import fs from "fs";
+import path from "path";
 
 /**
  * Reads JSON payload from stdin synchronously.
@@ -29,8 +30,13 @@ function read_stdin_payload() {
  * Main hook execution.
  */
 function run() {
-  const _payload = read_stdin_payload();
-  const root_directory = process.cwd();
+  const payload = read_stdin_payload();
+  const root_directory =
+    payload?.workspacePaths && payload.workspacePaths[0]
+      ? payload.workspacePaths[0]
+      : process.cwd().endsWith(".agents")
+        ? path.resolve(process.cwd(), "..")
+        : process.cwd();
 
   // Forbidden transient artifacts in root per GEMINI.md Workspace Hygiene
   const forbidden_root_patterns = [/\.tmp$/i, /\.log$/i, /^scratch_/i, /^test_out/i, /^temp_/i];
