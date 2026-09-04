@@ -7,11 +7,6 @@ last_synchronized: 2026-09-05
 
 # 🛰️ Mission State
 
-## 🪐 Eternal
-- Core architecture, simulation physics, and design tokens are codified in [`GEMINI.md`](../GEMINI.md) and [`DESIGN.md`](../DESIGN.md).
-
----
-
 ## ⚡ Present
 - **Active Track**: [`tasks/future/track-generation-flow-and-storyboard-guards.md`](file:///c:/Users/johng/source/repos/RPGlitch/tasks/future/track-generation-flow-and-storyboard-guards.md)
 - **Active Vector**: Phase 1 — Test-Driven Red Suite (`status.test.js`, `chrono.test.js`)
@@ -19,8 +14,7 @@ last_synchronized: 2026-09-05
 ---
 
 ## 🚀 Future
-- [ ] `track-image-shimmer-refinement`
-- [ ] `track-field-history-inspector`
+*No queued tracks — next track will be planned upon completion of the active track.*
 
 ---
 
