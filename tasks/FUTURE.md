@@ -1,8 +1,17 @@
+<!--
+  tasks/FUTURE.md
+  🎯 ACTIVE IMPLEMENTATION BLUEPRINT (Mirror of Active Track)
+
+  Track ID: track-generation-flow-and-storyboard-guards-2026-09-05
+  Dependencies: tasks/PRESENT.md, tasks/tracks/track-generation-flow-and-storyboard-guards-2026-09-05.md, scribbles.md, DESIGN.md
+  Status: [~] Active
+-->
+
 # 🎯 Active Track Implementation Plan: Generation Flow, Speaker Avatar Thinking Indicators & Storyboard Active Session Guards
 
-**Track ID**: `track-generation-flow-and-storyboard-guards-2026-09-04`  
+**Track ID**: `track-generation-flow-and-storyboard-guards-2026-09-05`  
 **Dependencies**: `tasks/PRESENT.md`, `scribbles.md`, `DESIGN.md`  
-**Status**: `[~]` In Progress
+**Status**: `[~]` Active
 
 ---
 
@@ -31,30 +40,37 @@ Implement the generation lifecycle sequence and storyboard session guards captur
 
 ## 2. Tactical Phases
 
-### Phase 1: State Store & Lifecycle Telemetry (`simulation_state` & `chrono_engine`)
+### Phase 1: Test-Driven Red Suite (State & Lifecycle Contracts)
 
-- [ ] `task-1.1`: Extend `simulation_state` in `src/state/status.svelte.js` with fine-grained stage flags (`director_thinking`, `speaker_thinking`, `speaker_selected`) and clean transition methods (`start_director_stage()`, `set_delegated_speaker()`, `start_stream_stage()`, `finish_turn()`).
-- [ ] `task-1.2`: Wire stage transitions inside `src/state/chrono.svelte.js` and `src/intelligence/story-pipeline.js` so Director quick shot start/finish transitions cleanly to delegated speaker attribution before streaming.
+- [ ] `task-1.1`: Extend `src/state/status.test.js` with failing unit tests covering fine-grained generation stages: `director_thinking`, `speaker_thinking`, `start_director_stage()`, `set_delegated_speaker()`, `start_stream_stage()`, and state resets on `complete()`.
+- [ ] `task-1.2`: Extend `src/state/chrono.test.js` with tests verifying state transitions from Director Quick Shot initiation to speaker delegation and stream completion.
 
-### Phase 2: Feed & Message Speaker Thinking Indicator UI
+### Phase 2: Simulation State Machine Hardening (GREEN)
 
-- [ ] `task-2.1`: Build or adapt a dedicated pending generation slot in `src/ui/message/Feed.svelte` that renders when `simulation_state.busy` and streaming content is not yet committed.
-- [ ] `task-2.2`: Render the speaker avatar in the left gutter with a signature-color kinetic thinking indicator (subtle pulse / radar shimmer) during `speaker_thinking`.
-- [ ] `task-2.3`: Transition smoothly from the thinking indicator to the active message chassis when streaming begins, ensuring completion chime fires when typewriter finishes.
+- [ ] `task-2.1`: Update `src/state/status.svelte.js` to add private runes `#director_thinking` and `#speaker_thinking` with getters/setters, lifecycle methods (`start_director_stage`, `set_delegated_speaker`, `start_stream_stage`, `complete`), and derived helper properties.
+- [ ] `task-2.2`: Wire stage transitions in `src/state/chrono.svelte.js` and `src/intelligence/story-pipeline.js` ensuring `set_delegated_speaker` is called as soon as Director Quick Shot finishes and before streaming begins.
 
-### Phase 3: Storyboard Active Story Guard Dialog
+### Phase 3: Feed & Speaker Thinking Indicator UI (GREEN)
 
-- [ ] `task-3.1`: In `src/ui/console/StoryboardBar.svelte` and `src/ui/storyboard.svelte.js`, implement the Active Story Guard dialog when `has_active_story` and the user triggers "BEGIN STORY" with a new entity selection.
-- [ ] `task-3.2`: Provide clear actions: "Resume Story", "Conclude & Start New", and "Cancel".
+- [ ] `task-3.1`: Create or integrate a pending turn indicator slot in `src/ui/message/Feed.svelte` that activates during `simulation_state.busy` when streaming content is not yet committed to `visible_feed`.
+- [ ] `task-3.2`: Render the Director thinking shimmer when `simulation_state.director_thinking`.
+- [ ] `task-3.3`: Render the speaker portrait in the left gutter when `simulation_state.generating_entity` is populated, with kinetic signature-color thinking indicator animation.
+- [ ] `task-3.4`: Transition into `Message.svelte` chassis when typewriter streaming starts, ensuring completion chime triggers on typewriter finish.
 
-### Phase 4: Shimmer & Motion Tuning
+### Phase 4: Storyboard Active Story Guard Dialog (GREEN)
 
-- [ ] `task-4.1`: Soften the image generation shimmer in `src/ui/motion/Shimmer.svelte` and attachment preview cards (taming aggressive contrast/opacity).
-- [ ] `task-4.2`: Run static analysis, design audits, and test suites (`npm run verify`).
+- [ ] `task-4.1`: Add unit tests for active story guard logic in `src/ui/storyboard.test.js` or `src/ui/Storyboard.svelte.test.js`.
+- [ ] `task-4.2`: Update `src/ui/console/StoryboardBar.svelte` and `src/ui/storyboard.svelte.js` to trigger a confirmation Dialog when attempting to begin a story while `has_active_story` is true.
+- [ ] `task-4.3`: Implement the 3 actions: Resume Story, Conclude & Start New, and Cancel.
+
+### Phase 5: Shimmer Harmonization & Verification
+
+- [ ] `task-5.1`: Tune `src/ui/motion/Shimmer.svelte` gradient opacity and animation timing to soften harsh visual sweep.
+- [ ] `task-5.2`: Run full test suite (`npm run verify`), ensure 0 linter errors, 0 Svelte diagnostics, and clean single-file production build (`npm run build`).
 
 ---
 
 ## 3. Resource & Risk Estimate
 
-- **Estimated Files to Modify**: ~7 (`status.svelte.js`, `chrono.svelte.js`, `Feed.svelte`, `Message.svelte`, `StoryboardBar.svelte`, `storyboard.svelte.js`, `Shimmer.svelte`)
+- **Estimated Files to Modify**: ~7 (`status.svelte.js`, `status.test.js`, `chrono.svelte.js`, `Feed.svelte`, `Message.svelte`, `StoryboardBar.svelte`, `storyboard.svelte.js`, `Shimmer.svelte`)
 - **Estimated Tests**: Unit tests for status lifecycle transitions and storyboard guard conditions.

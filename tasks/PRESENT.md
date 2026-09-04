@@ -29,7 +29,7 @@ The codebase is fully synchronized, hardened, and green with **0 errors, 0 warni
 
 ### Active & Upcoming Tracks
 
-- [ ] `track-generation-flow-and-storyboard-guards-2026-09-04`: Generation Flow, Speaker Avatar Thinking Indicators & Storyboard Active Session Guards (`tasks/FUTURE.md` draft)
+- [~] `track-generation-flow-and-storyboard-guards-2026-09-05`: Generation Flow, Speaker Avatar Thinking Indicators & Storyboard Active Session Guards ([tasks/tracks/track-generation-flow-and-storyboard-guards-2026-09-05.md](file:///c:/Users/johng/source/repos/RPGlitch/tasks/tracks/track-generation-flow-and-storyboard-guards-2026-09-05.md))
 
 ### Recent Completed Tracks
 
@@ -42,6 +42,8 @@ The codebase is fully synchronized, hardened, and green with **0 errors, 0 warni
 ## 3.0 🧠 Pulse (History)
 
 > _Full historical logs from 2026-06 to 2026-08-16 are archived in [archive/2026-08/2026-08-16-tasks-PRESENT-pulse-archive.md](file:///C:/Users/johng/source/repos/RPGlitch/tasks/PRESENT.md)._
+
+| 2026-09-05 00:25 | Initialized Track `track-generation-flow-and-storyboard-guards-2026-09-05` via `/01-plan`: created dedicated track specification file `tasks/tracks/track-generation-flow-and-storyboard-guards-2026-09-05.md` adhering to Universal File Architecture, defining 5-stage generation lifecycle, speaker thinking indicators, storyboard active story guard dialog, and shimmer harmonization per `scribbles.md`. Synchronized roadmap and blueprint in `tasks/PRESENT.md` and `tasks/FUTURE.md`. | `/01-plan`, `planning` | 🔄 In Progress |
 
 | 2026-09-04 23:51 | Aligned Test Nomenclature and Fixed Linter in `hooks.test.js`: renamed test script to canonical `hooks.test.js`, eliminated unused variable initialization, resolved forbidden `var` abbreviation in changelog, and verified 100% clean passes on `npm run lint:js`, `npm run audit:nomenclature` (292 items), and `npm run test:hooks` (9/9 tests passing). | `/02-implement`, `agy-customizations` | ✅ Completed |
 
