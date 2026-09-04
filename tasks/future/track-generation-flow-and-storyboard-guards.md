@@ -3,11 +3,7 @@ name: track-generation-flow-and-storyboard-guards
 description: Generation flow lifecycle, speaker thinking indicators, storyboard active story guards, and shimmer harmonization
 status: active
 last_synchronized: 2026-09-05
-references:
-  - scribbles.md
-  - tasks/PRESENT.md
-  - DESIGN.md
-  - GEMINI.md
+references: scribbles.md
 ---
 
 # 🎯 Track: Generation Flow, Speaker Avatar Thinking Indicators & Storyboard Active Session Guards
@@ -111,8 +107,6 @@ sequenceDiagram
 ### Phase 5: Shimmer Harmonization & Verification
 - [ ] `task-5.1`: Tune `src/ui/motion/Shimmer.svelte` gradient opacity and animation timing to soften harsh visual sweep.
 - [ ] `task-5.2`: Run full test suite (`npm run verify`), ensure 0 linter errors, 0 Svelte diagnostics, and clean single-file production build (`npm run build`).
-
----
 
 <!-- CHANGELOG
   - 2026-09-05: Initialized track file adhering to Universal File Architecture, defining 5-stage generation lifecycle, speaker thinking indicators, storyboard active story guard dialog, and shimmer harmonization per scribbles.md.

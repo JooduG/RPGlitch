@@ -11,6 +11,13 @@ last_synchronized: 2026-09-05
 - **Active Track**: [`tasks/future/track-generation-flow-and-storyboard-guards.md`](file:///c:/Users/johng/source/repos/RPGlitch/tasks/future/track-generation-flow-and-storyboard-guards.md)
 - **Active Vector**: Phase 1 — Test-Driven Red Suite (`status.test.js`, `chrono.test.js`)
 
+### 🧹 Backlog (Automated)
+<!-- BACKLOG_START -->
+Last Swept: 2026-09-04 22:38
+
+No active AI debt found.
+<!-- BACKLOG_END -->
+
 ---
 
 ## 🚀 Future
@@ -20,7 +27,7 @@ last_synchronized: 2026-09-05
 
 ## 📜 Past
 
-> _Full historical logs from 2026-06 to 2026-08-16 are archived in [archive/2026-08/2026-08-16-tasks-PRESENT-pulse-archive.md](file:///C:/Users/johng/source/repos/RPGlitch/tasks/PRESENT.md)._
+> *Full historical logs from 2026-06 to 2026-08-16 are archived in [archive/2026-08/2026-08-16-tasks-PRESENT-pulse-archive.md](file:///C:/Users/johng/source/repos/RPGlitch/tasks/PRESENT.md).*
 
 | 2026-09-05 00:25 | Initialized Track `track-generation-flow-and-storyboard-guards-2026-09-05` via `/01-plan`: created dedicated track specification file `tasks/tracks/track-generation-flow-and-storyboard-guards-2026-09-05.md` adhering to Universal File Architecture, defining 5-stage generation lifecycle, speaker thinking indicators, storyboard active story guard dialog, and shimmer harmonization per `scribbles.md`. Synchronized roadmap and blueprint in `tasks/PRESENT.md` and `tasks/FUTURE.md`. | `/01-plan`, `planning` | 🔄 In Progress |
 
@@ -114,13 +121,3 @@ last_synchronized: 2026-09-05
 | 2026-08-19 21:30 | Fixed NPC genesis portrait prompt generation (populated physical description onto character entity + robust entity ID resolution in `visual.svelte.js`); restored signature color border `border-(--signature-color)` to message speaker badge button in `Message.svelte`. 45 test suites / 671 tests passing, 0 lint errors. | `/02-implement`, `design` | ✅ Completed |
 | 2026-08-19 21:17 | Remediated 3 review findings: (1) Added in-scene NPC memory consolidation so secondary cast members accumulate past vectors in `temporal.js`; (2) Sanitized phantom stage ID leaks and prefix normalization in `kernel.js`; (3) Added dynamic story conclusion badge in `Console.svelte` (`✨ Story Concluded` vs `💀 Story Collapsed`). Verified across 45 test suites (671 unit tests + 3 design tests passing, 0 lint errors). | `/02-implement`, `tdd` | ✅ Completed |
 
----
-
-## 🧹 Backlog (Automated)
-
-<!-- BACKLOG_START -->
-
-Last Swept: 2026-09-04 22:38
-
-No active AI debt found.
-<!-- BACKLOG_END -->
