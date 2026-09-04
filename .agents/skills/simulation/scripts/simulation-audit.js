@@ -14,7 +14,7 @@
 
 import { context_builder } from "../../../../src/intelligence/payload.js";
 import { prompt_builder } from "../../../../src/intelligence/prompts/builder.js";
-import { premade } from "../../../../src/data/definitions/premades.js";
+import { premade } from "../../../../src/data/definitions/premade-entities.js";
 
 /**
  * Enriches a vector with category and triggers fields if missing.
