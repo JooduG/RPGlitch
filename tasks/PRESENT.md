@@ -9,12 +9,12 @@ last_synchronized: 2026-09-05
 
 ## ⚡ Present
 
-- **Active Track**: [`tasks/future/track-generation-flow-and-storyboard-guards.md`](./tasks/future/track-generation-flow-and-storyboard-guards.md)
+- **Active Track**: [`tasks/future/track-generation-flow-and-storyboard-guards.md`](./future/track-generation-flow-and-storyboard-guards.md)
 - **Active Task**: Phase 1 — Test-Driven Red Suite (`status.test.js`, `chrono.test.js`)
 
 ### 🩺 System & Session Readiness
 
-- **Active Baton**: [`scribbles.md`](./scribbles.md) (Director & Speaker thinking indicators, active story guard modal, shimmer sync).
+- **Active Baton**: [`scribbles.md`](../scribbles.md) (Director & Speaker thinking indicators, active story guard modal, shimmer sync).
 - **Environmental Health**: Git branch `main` (clean working tree, hook contracts passing 11/11 via `npm run test:hooks`, 0 lint errors).
 - **Sovereign Constraints**: Svelte 5 Runes only (`$state`, `$derived`, `$effect`), single-file bundle distribution (`vite-plugin-singlefile`), P4 Zero Backwards Compatibility (pre-beta purity).
 - **Last Startup Verification**: 2026-09-05 04:49 (via `/continue`, QA residuals resolved).
@@ -36,7 +36,7 @@ _No queued tracks — next track will be planned upon completion of the active t
 
 ## 📜 Past
 
-> _Forensic pulse log is strictly limited to the **10 most recent entries** (rolling buffer: when adding 1 at the top, prune 1 from the bottom). Historical entries are archived in [`archive/2026-09/2026-09-05-tasks-PRESENT-pulse-archive.md`](./archive/2026-09/2026-09-05-tasks-PRESENT-pulse-archive.md) and [`archive/2026-08/2026-08-29-tasks-PRESENT-pulse-archive.md`](./archive/2026-08/2026-08-29-tasks-PRESENT-pulse-archive.md)._
+> _Forensic pulse log is strictly limited to the **10 most recent entries** (rolling buffer: when adding 1 at the top, prune 1 from the bottom). Historical entries are archived in [`archive/2026-09/2026-09-05-tasks-PRESENT-pulse-archive.md`](../archive/2026-09/2026-09-05-tasks-PRESENT-pulse-archive.md) and [`archive/2026-08/2026-08-29-tasks-PRESENT-pulse-archive.md`](../archive/2026-08/2026-08-29-tasks-PRESENT-pulse-archive.md)._
 
 | Date / Timestamp | Summary of Changes | Workflows / Skills | Status |
 | 2026-09-05 07:11 | QA-2026-09-05 Final Remediation (B1, C2, GEMINI.md): (B1) Purged all machine-specific absolute file URIs (`c:/Users/johng/...`) across `.agents/skills/simulation/SKILL.md` (9 links converted to repo-relative `./src/...`), RPGlitch `GEMINI.md` (lines 225, 280), `tasks/PRESENT.md` (lines 12, 17, 39 converted to relative), global `GEMINI.md` (archive path), `generate-ideas.md`, `git/SKILL.md`, `skill-writing/SKILL.md`, and dynamicized project paths with `os.homedir()` in `developer-database.js`. (C2) Purged RPGlitch-specific skills from §2.3 Cognitive Routing Map in `~/.gemini/GEMINI.md`; removed `"in RPGlitch"` aside from `00-startup.md` line 115 and genericized sovereign constraints declaration. (Minor) Corrected `app.svelte.js` phantom references to `interface.svelte.js` in RPGlitch `GEMINI.md`. Verified 100% clean passes on `npm run test:hooks` (11/11 contract tests passing) and `npm run audit` (6/6 parallel suites passing). | `/implement`, `local-scripts` | ✅ Completed |
