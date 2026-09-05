@@ -141,8 +141,8 @@ export const prompt_templates = {
           "an isolated solo portrait of the subject, self-contained framing drawn entirely from the subject's own identity, appearance, and signature colors";
         break;
       case "story_scene":
-        context_block = `${fractal_setting_block}\n<RESTRICTION>**STRICTLY NO CHARACTERS.** Focus entirely on environmental layout, atmospheric spatial depth, and lighting structures.</RESTRICTION>`;
-        subject = "a landscape environment or interior layout space capturing the current narrative moment and prose context";
+        context_block = `${fractal_setting_block}\n<ENVIRONMENTAL_SCALING>**AFFIRMATIVE ENVIRONMENTAL SCALE.** Focus completely on vast landscape architecture, atmospheric density, weather effects, and physical spatial structures.</ENVIRONMENTAL_SCALING>`;
+        subject = "an expansive landscape environment, architecture, or interior space capturing environmental depth and natural forces";
         break;
       case "story_entities":
         context_block = `<ACTIVE_CHARACTERS>\n${ai_character_block}\n${user_persona_block}\n</ACTIVE_CHARACTERS>\n${fractal_setting_block}`;
@@ -186,7 +186,7 @@ export const prompt_templates = {
           ? `\n  Character In Scene: Depict ${prompt_escape(main_entity?.name || "Subject")} situated directly within ${prompt_escape(active_fractal_setting.name || "Setting")}.`
           : "";
 
-    const framing_block = `\n<CINEMATIC_FRAMING mode="${framing_mode}">\n  ${framing_tokens}\n</CINEMATIC_FRAMING>\n<CINEMATOGRAPHY mode="${framing_mode}">\n  ${framing_tokens}${narrative_context_desc}${visual_staging_directive}\n</CINEMATOGRAPHY>`;
+    const framing_block = `\n<CINEMATOGRAPHY mode="${framing_mode}">\n  ${framing_tokens}${narrative_context_desc}${visual_staging_directive}\n</CINEMATOGRAPHY>`;
 
     return `
 <SYSTEM role="SENSORY_CORTEX_V5">

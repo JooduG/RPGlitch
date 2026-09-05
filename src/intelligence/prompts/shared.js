@@ -484,6 +484,24 @@ export function render_field_value(text, owner, entities) {
 }
 
 /**
+ * Extracts the content of any [PLAN: ...] brackets from state text.
+ * @param {string|null|undefined} text
+ * @returns {string}
+ */
+export function extract_plan_from_state(text) {
+  if (!text) return "";
+  const plans = [];
+  const regex = /\[PLAN\s*:\s*([^\]]*)\]/gi;
+  let match;
+  while ((match = regex.exec(String(text))) !== null) {
+    if (match[1] && match[1].trim()) {
+      plans.push(match[1].trim());
+    }
+  }
+  return plans.join("; ");
+}
+
+/**
  * Strips epistemic [SECRET: ...] / [PLAN: ...] brackets from rendered state so
  * the AI character never receives another entity's private knowledge across the
  * Epistemic Wall.

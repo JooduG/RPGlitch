@@ -200,7 +200,7 @@ export async function mark_placeholder_failed(id, metadata = {}) {
  * @returns {Promise<void>}
  */
 export async function spawn_image_beat(tier, options = {}) {
-  const { explicit = false, source = "dynamics", prompt = "" } = options;
+  const { explicit = false, source = "dynamics", prompt = "", visual_staging = "" } = options;
   if (!tier || !IMAGE_TIERS.includes(tier)) return;
 
   const runtime_state = state_bridge.runtime;
@@ -236,7 +236,7 @@ export async function spawn_image_beat(tier, options = {}) {
     const resolve_placeholder = async () => {
       try {
         const result = await Promise.race([
-          visual_engine.visualize(runtime_state.story_id, visual_prompt, tier, { silent: true }),
+          visual_engine.visualize(runtime_state.story_id, visual_prompt, tier, { silent: true, visual_staging }),
           new Promise((_, reject) => setTimeout(() => reject(new Error("IMAGE_RESOLVE_TIMEOUT")), IMAGE_RESOLVE_TIMEOUT_MS)),
         ]);
 

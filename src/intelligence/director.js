@@ -150,6 +150,7 @@ export function normalize_director_data(payload) {
           : "IN_PROGRESS";
 
   const directors_note = normalize_directors_note(base.directors_note || base.directive);
+  const visual_staging = typeof base.visual_staging === "string" ? base.visual_staging.trim() : "";
 
   return {
     ...base,
@@ -158,10 +159,10 @@ export function normalize_director_data(payload) {
     npc_id,
     keywords,
     directors_note,
+    visual_staging,
     story_status,
     in_scene_change: normalize_in_scene_change(base.in_scene_change),
     dynamics_deltas: base.dynamics_deltas || base.mutations?.AI_CHARACTER?.dynamics_deltas || {},
-    fractal_dynamics_deltas: base.fractal_dynamics_deltas || base.mutations?.FRACTAL?.fractal_dynamics_deltas || {},
     mutations: base.mutations || {},
   };
 }
@@ -183,8 +184,8 @@ export function synthesize_director_fallback(prev_data, input, _bridge) {
     next_action: "AI_CHARACTER",
     keywords: [],
     directors_note: "Continue the scene with grounded immersion and physical causality.",
+    visual_staging: "",
     dynamics_deltas: {},
-    fractal_dynamics_deltas: {},
     in_scene_change: { enter: [], exit: [] },
     story_status: "IN_PROGRESS",
   };

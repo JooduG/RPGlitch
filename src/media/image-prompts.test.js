@@ -139,7 +139,7 @@ describe("prompt_templates.build_prompt with Cinematic Framing Lenses", () => {
       },
     });
 
-    expect(prompt).toContain("<CINEMATIC_FRAMING");
+    expect(prompt).toContain("<CINEMATOGRAPHY");
     expect(prompt).toContain("tight close-up portrait, shallow depth of field, sharp focus on eyes");
   });
 
@@ -152,7 +152,7 @@ describe("prompt_templates.build_prompt with Cinematic Framing Lenses", () => {
       },
     });
 
-    expect(prompt).toContain("<CINEMATIC_FRAMING");
+    expect(prompt).toContain("<CINEMATOGRAPHY");
     expect(prompt).toContain("tight close-up portrait, shallow depth of field, sharp focus on eyes");
   });
 
@@ -165,7 +165,7 @@ describe("prompt_templates.build_prompt with Cinematic Framing Lenses", () => {
       },
     });
 
-    expect(prompt).toContain("<CINEMATIC_FRAMING");
+    expect(prompt).toContain("<CINEMATOGRAPHY");
     expect(prompt).toContain("dutch angle composition, low-angle perspective, imposing scale, dramatic lighting contrast");
   });
 
@@ -178,7 +178,7 @@ describe("prompt_templates.build_prompt with Cinematic Framing Lenses", () => {
       },
     });
 
-    expect(prompt).toContain("<CINEMATIC_FRAMING");
+    expect(prompt).toContain("<CINEMATOGRAPHY");
     expect(prompt).toContain("medium shot, waist-up framing, dynamic posture, clear wardrobe");
   });
 
@@ -187,7 +187,7 @@ describe("prompt_templates.build_prompt with Cinematic Framing Lenses", () => {
       fractal: { name: "Neon Bazaar", type: "fractal" },
     });
 
-    expect(prompt).toContain("<CINEMATIC_FRAMING");
+    expect(prompt).toContain("<CINEMATOGRAPHY");
     expect(prompt).toContain("wide-angle environmental shot, deep spatial composition, atmospheric scale");
   });
 });
@@ -221,6 +221,16 @@ describe("Sensory Cortex Refinements (task-1.4)", () => {
     });
     expect(prompt).toContain("<CINEMATOGRAPHY");
     expect(prompt).toContain("Low camera angle looking up at the smoking barrel.");
+    expect(prompt).not.toContain("<CINEMATIC_FRAMING");
     expect(prompt).not.toContain("Prologue Priority");
+  });
+
+  it("story_scene prompt uses affirmative environmental scaling without negative human triggers", () => {
+    const prompt = prompt_templates.build_prompt("story_scene", "The glaciers crack in the valley.", {
+      fractal: { name: "Frost Valley" },
+    });
+    expect(prompt).toContain("<ENVIRONMENTAL_SCALING>");
+    expect(prompt).toContain("AFFIRMATIVE ENVIRONMENTAL SCALE");
+    expect(prompt).not.toContain("NO CHARACTERS");
   });
 });

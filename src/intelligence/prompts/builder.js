@@ -9,7 +9,7 @@
 import { PROFILE_FIELD_CATALOG } from "@data";
 import { escape_xml, prompt_escape, collapse_history } from "@utils";
 import { temporal_engine, resolve_vector_pool } from "../temporal-pipeline.js";
-import { parse_macros, render_protocols } from "./shared.js";
+import { parse_macros, render_protocols, extract_plan_from_state } from "./shared.js";
 import { render_director, render_terse_director_task } from "./director-prompts.js";
 import { render_story_prose, render_ghostwriter } from "./story-prompts.js";
 import { render_memory } from "./temporal-prompts.js";
@@ -44,7 +44,10 @@ export const render_builder = {
       },
       future: (ref) => {
         const entity = resolve(ref);
-        return parse_macros(String(entity?.future || "").trim(), entity, entities);
+        const raw_future = String(entity?.future || "").trim();
+        const extracted_plan = extract_plan_from_state(entity?.present?.non_physical);
+        const combined_future = [raw_future, extracted_plan ? `Active Plan: ${extracted_plan}` : ""].filter(Boolean).join("\n");
+        return parse_macros(combined_future.trim(), entity, entities);
       },
       simulation_log: (limit = 10, offset = 0) => render_builder.render_history(raw_messages, limit, offset),
     };

@@ -13,7 +13,7 @@ import { get_style_keywords, resolve_active_style_key } from "@data";
 import { ind, escape_xml, clean_xml, strip_cognition_blocks } from "@utils";
 import { build_available_keywords_xml, format_dynamics_attrs } from "./physics-prompts.js";
 import { render_builder } from "./builder.js";
-import { render_system_head, render_field_value, render_director_cast_xml, render_protocols } from "./shared.js";
+import { render_system_head, render_field_value, render_director_cast_xml, render_protocols, render_optional_tag } from "./shared.js";
 
 /**
  * Detects a non-verbal, environmental user turn — no quoted dialogue, with
@@ -42,6 +42,7 @@ export const DIRECTOR_PROTOCOLS = {
   "keywords": "1-3 keywords from <AVAILABLE_KEYWORDS> (e.g. ['vulnerability', 'cinematic_shot']) or []",
   "directors_note": "1-3 lines of unseen acting/staging directives for the speaker",
   "dynamics_deltas": { "chaos": 0, "intensity": 0, "openness": 0, "affinity": 0, "velocity": 0, "entropy": 0 },
+  "visual_staging": "<optional: 1 line camera & lighting directive ONLY if triggering a scene image shift, else omit>",
   "in_scene_change": { "enter": ["npc:<id>"], "exit": ["npc:<id>"] },
   "genesis": { "name": "<Character Name>", "description": "<1-2 sentence core persona>" }
 }`,
@@ -108,16 +109,16 @@ export function render_director({
     <AI_CHARACTER name="${escape_xml(entities?.AI?.name || "AI")}"${format_dynamics_attrs(compressed_snapshot?.ai?.dynamics)}>
       <STATE_OF_MIND>${ind(render_field_value(entities?.AI?.present?.non_physical, entities?.AI, entities), 8)}</STATE_OF_MIND>
       <CURRENT_LOOK>${ind(render_field_value(entities?.AI?.present?.physical, entities?.AI, entities), 8)}</CURRENT_LOOK>
-      <INTENT>${ind(accessors.future(entities?.AI, { vector_text: true }), 8)}</INTENT>
-      <MEMORIES>${ind(accessors.past(entities?.AI, { vector_text: true }), 8)}</MEMORIES>
+      ${render_optional_tag("INTENT", ind(accessors.future(entities?.AI, { vector_text: true }), 8))}
+      ${render_optional_tag("MEMORIES", ind(accessors.past(entities?.AI, { vector_text: true }), 8))}
     </AI_CHARACTER>
     <USER_PERSONA name="${escape_xml(entities?.USER?.name || "User")}">
       <PERSONALITY>${render_field_value(entities?.USER?.eternal?.non_physical, entities?.USER, entities)}</PERSONALITY>
       <STATE_OF_MIND>${ind(render_field_value(entities?.USER?.present?.non_physical, entities?.USER, entities), 8)}</STATE_OF_MIND>
       <PERMANENT_APPEARANCE>${render_field_value(entities?.USER?.eternal?.physical, entities?.USER, entities)}</PERMANENT_APPEARANCE>
       <CURRENT_LOOK>${ind(render_field_value(entities?.USER?.present?.physical, entities?.USER, entities), 8)}</CURRENT_LOOK>
-      <AGENDA>${ind(accessors.future(entities?.USER, { vector_text: true }), 8)}</AGENDA>
-      <BACKSTORY>${ind(accessors.past(entities?.USER, { vector_text: true }), 8)}</BACKSTORY>
+      ${render_optional_tag("AGENDA", ind(accessors.future(entities?.USER, { vector_text: true }), 8))}
+      ${render_optional_tag("BACKSTORY", ind(accessors.past(entities?.USER, { vector_text: true }), 8))}
     </USER_PERSONA>
   </ACTIVE_CHARACTERS>
   ${
@@ -126,8 +127,8 @@ export function render_director({
   <FRACTAL name="${escape_xml(entities.FRACTAL.name)}"${format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics)}>
     <CURRENT_STATE>${render_field_value(entities.FRACTAL.present?.non_physical, entities.FRACTAL, entities)}</CURRENT_STATE>
     <ACTIVE_ATMOSPHERE>${render_field_value(entities.FRACTAL.present?.physical, entities.FRACTAL, entities)}</ACTIVE_ATMOSPHERE>
-    <AGENDA>${ind(accessors.future(entities.FRACTAL, { vector_text: true }), 6)}</AGENDA>
-    <HISTORY>${ind(accessors.past(entities.FRACTAL, { vector_text: true }), 6)}</HISTORY>
+    ${render_optional_tag("AGENDA", ind(accessors.future(entities.FRACTAL, { vector_text: true }), 6))}
+    ${render_optional_tag("HISTORY", ind(accessors.past(entities.FRACTAL, { vector_text: true }), 6))}
   </FRACTAL>`.trim()
       : ""
   }
@@ -150,7 +151,7 @@ ${last_ai_text ? `<AI_CHARACTER_LAST_TURN>${ind(last_ai_text, 2)}</AI_CHARACTER_
     Decide "next_action": "AI_CHARACTER" (AI speaks), "FRACTAL" (Fractal scene-narrator speaks), "npc:<id>" (in-scene NPC speaks), "GENESIS" (mint a new NPC), "EPILOGUE_CONCLUDED" (quest victory), or "EPILOGUE_COLLAPSED" (fatal defeat, irreversible ruin, terminal entropy >= 85). Default "AI_CHARACTER".${Number(round) <= 1 ? ' IMPORTANT: Round 1 directly follows the Fractal prologue, so next_action MUST be "AI_CHARACTER".' : ""}
     Select 1-3 "keywords" from <AVAILABLE_KEYWORDS> (or [] when neutral).
     Provide 1-3 lines of "directors_note" as unseen acting/staging guidance for the speaker.
-    Output physics shifts in "dynamics_deltas" (e.g. {"intensity": 10, "openness": -5}) and "fractal_dynamics_deltas".
+    Output physics shifts in "dynamics_deltas" (e.g. {"intensity": 10, "openness": -5, "entropy": 5}). When triggering a visual scene shift, provide optional "visual_staging".
     Track the Stage Spotlight: when an NPC enters or leaves the room, move it with "in_scene_change".
     ${render_environmental_hint(input)}
     Record your reasoning inside "_thought_process" and return a single valid JSON object following this exact schema:

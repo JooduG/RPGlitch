@@ -73,7 +73,7 @@ describe("Director Quick Shot Prompt (render_director)", () => {
     expect(result.task).toContain('"keywords"');
     expect(result.task).toContain('"directors_note"');
     expect(result.task).toContain('"dynamics_deltas"');
-    expect(result.task).toContain('"fractal_dynamics_deltas"');
+    expect(result.task).toContain('"visual_staging"');
     expect(result.task).toContain("EPILOGUE_CONCLUDED");
   });
 
@@ -203,6 +203,16 @@ describe("normalize_director_data", () => {
       expect(normalized.keywords).toEqual([]);
       expect(normalized.story_status).toBe("IN_PROGRESS");
     }
+  });
+
+  it("normalizes visual_staging and dynamics_deltas without fractal_dynamics_deltas", () => {
+    const normalized = normalize_director_data({
+      visual_staging: "  Low angle shot with harsh backlighting  ",
+      dynamics_deltas: { intensity: 10, entropy: 5 },
+    });
+    expect(normalized.visual_staging).toBe("Low angle shot with harsh backlighting");
+    expect(normalized.dynamics_deltas).toEqual({ intensity: 10, entropy: 5 });
+    expect(normalized.fractal_dynamics_deltas).toBeUndefined();
   });
 
   it("accepts only the canonical story-status enum", () => {

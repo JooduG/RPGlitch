@@ -14,7 +14,8 @@ import { render_builder } from "./builder.js";
 import {
   render_system_head,
   render_field_value,
-  strip_epistemic_tags,
+  strip_epistemic_secrets,
+  render_optional_tag,
   render_current_story_state_xml,
   render_protocols,
   PROTOCOL_LIBRARY,
@@ -222,8 +223,6 @@ export function render_story_prose({
   const stability_lock_content =
     meta?.structural_errors >= 3 ? STORY_PROTOCOLS.STABILITY.CRITICAL : meta?.structural_errors >= 1 ? STORY_PROTOCOLS.STABILITY.WARNING : "";
 
-  const user_field = (text) => render_field_value(strip_epistemic_tags(text), entities?.USER, entities);
-
   const protocols_xml = is_narrator
     ? clean_xml(`
     <THINK_FORMAT>
@@ -273,10 +272,10 @@ export function render_story_prose({
     is_npc && entities?.AI
       ? `
   <PROTAGONIST name="${escape_xml(entities.AI.name || "Protagonist")}"${format_dynamics_attrs(compressed_snapshot?.ai?.dynamics)}>
-    <STATE_OF_MIND>${render_field_value(entities.AI.present?.non_physical, entities.AI, entities)}</STATE_OF_MIND>
+    <STATE_OF_MIND>${render_field_value(strip_epistemic_secrets(entities.AI.present?.non_physical, false), entities.AI, entities)}</STATE_OF_MIND>
     <CURRENT_LOOK>${render_field_value(entities.AI.present?.physical, entities.AI, entities)}</CURRENT_LOOK>
-    <INTENT>${ind(accessors.future(entities.AI, { vector_text: true }), 6)}</INTENT>
-    <MEMORIES>${ind(accessors.past(entities.AI, { vector_text: true }), 6)}</MEMORIES>
+    ${render_optional_tag("INTENT", ind(accessors.future(entities.AI, { vector_text: true }), 6))}
+    ${render_optional_tag("MEMORIES", ind(accessors.past(entities.AI, { vector_text: true }), 6))}
   </PROTAGONIST>`.trim()
       : "";
 
@@ -284,10 +283,10 @@ export function render_story_prose({
     is_narrator && entities?.AI
       ? `
   <AI_CHARACTER name="${escape_xml(entities.AI.name || "AI")}"${format_dynamics_attrs(compressed_snapshot?.ai?.dynamics)}>
-    <STATE_OF_MIND>${render_field_value(entities.AI.present?.non_physical, entities.AI, entities)}</STATE_OF_MIND>
+    <STATE_OF_MIND>${render_field_value(strip_epistemic_secrets(entities.AI.present?.non_physical, false), entities.AI, entities)}</STATE_OF_MIND>
     <CURRENT_LOOK>${render_field_value(entities.AI.present?.physical, entities.AI, entities)}</CURRENT_LOOK>
-    <INTENT>${ind(accessors.future(entities.AI, { vector_text: true }), 6)}</INTENT>
-    <MEMORIES>${ind(accessors.past(entities.AI, { vector_text: true }), 6)}</MEMORIES>
+    ${render_optional_tag("INTENT", ind(accessors.future(entities.AI, { vector_text: true }), 6))}
+    ${render_optional_tag("MEMORIES", ind(accessors.past(entities.AI, { vector_text: true }), 6))}
   </AI_CHARACTER>`.trim()
       : "";
 
@@ -313,16 +312,16 @@ export function render_story_prose({
   const task = clean_xml(`
 <SNAPSHOT>
   <YOUR_IDENTITY name="${speaker_name}"${format_dynamics_attrs(speaker_dynamics)}>
-    <STATE_OF_MIND>${ind(render_field_value(active_speaker?.present?.non_physical, active_speaker, entities), 6)}</STATE_OF_MIND>
+    <STATE_OF_MIND>${ind(render_field_value(strip_epistemic_secrets(active_speaker?.present?.non_physical, true), active_speaker, entities), 6)}</STATE_OF_MIND>
     <CURRENT_LOOK>${ind(render_field_value(active_speaker?.present?.physical, active_speaker, entities), 6)}</CURRENT_LOOK>
-    <INTENT>${ind(accessors.future(active_speaker, { vector_text: true }), 6)}</INTENT>
-    <MEMORIES>${ind(accessors.past(active_speaker, { vector_text: true }), 6)}</MEMORIES>
+    ${render_optional_tag("INTENT", ind(accessors.future(active_speaker, { vector_text: true }), 6))}
+    ${render_optional_tag("MEMORIES", ind(accessors.past(active_speaker, { vector_text: true }), 6))}
   </YOUR_IDENTITY>
   ${is_narrator ? ai_snapshot_for_narrator : co_protagonist_snapshot}
   <USER_PERSONA name="${user_name}">
-    <STATE_OF_MIND>${ind(user_field(entities?.USER?.present?.non_physical), 6)}</STATE_OF_MIND>
-    <CURRENT_LOOK>${ind(user_field(entities?.USER?.present?.physical), 6)}</CURRENT_LOOK>
-    <BACKSTORY>${ind(strip_epistemic_tags(accessors.past(entities?.USER, { vector_text: true })), 6)}</BACKSTORY>
+    <STATE_OF_MIND>${ind(render_field_value(strip_epistemic_secrets(entities?.USER?.present?.non_physical, false), entities?.USER, entities), 6)}</STATE_OF_MIND>
+    <CURRENT_LOOK>${ind(render_field_value(strip_epistemic_secrets(entities?.USER?.present?.physical, false), entities?.USER, entities), 6)}</CURRENT_LOOK>
+    ${render_optional_tag("BACKSTORY", ind(strip_epistemic_secrets(accessors.past(entities?.USER, { vector_text: true }), false), 6))}
   </USER_PERSONA>
   ${
     !is_narrator && entities?.FRACTAL
@@ -330,8 +329,8 @@ export function render_story_prose({
   <FRACTAL name="${escape_xml(entities.FRACTAL.name)}"${format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics)}>
     <CURRENT_STATE>${render_field_value(entities.FRACTAL.present?.non_physical, entities.FRACTAL, entities)}</CURRENT_STATE>
     <ACTIVE_ATMOSPHERE>${render_field_value(entities.FRACTAL.present?.physical, entities.FRACTAL, entities)}</ACTIVE_ATMOSPHERE>
-    <AGENDA>${ind(accessors.future(entities.FRACTAL, { vector_text: true }), 6)}</AGENDA>
-    <HISTORY>${ind(accessors.past(entities.FRACTAL, { vector_text: true }), 6)}</HISTORY>
+    ${render_optional_tag("AGENDA", ind(accessors.future(entities.FRACTAL, { vector_text: true }), 6))}
+    ${render_optional_tag("HISTORY", ind(accessors.past(entities.FRACTAL, { vector_text: true }), 6))}
   </FRACTAL>`
       : ""
   }

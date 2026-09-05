@@ -265,5 +265,30 @@ describe("Story Prompts (story-prompts.js)", () => {
       expect(result.task).toContain("environmental aftermath");
       expect(result.task).toContain("without forcing player physical surrender");
     });
+
+    it("omits empty XML shells and migrates [PLAN: ...] into entity future agenda", () => {
+      const payload = base_payload();
+      payload.entities.AI.present.non_physical = "Analytical. [PLAN: Secure the core] [SECRET: Double agent]";
+      payload.entities.AI.future = "Maintain operational cover";
+      payload.entities.AI.past = []; // Empty memories
+      payload.entities.FRACTAL.future = ""; // Empty agenda
+      payload.entities.FRACTAL.past = []; // Empty history
+
+      const result = render_story_prose({
+        mode: "character",
+        ...payload,
+        compressed_snapshot: base_snapshot,
+      });
+
+      // Active AI character is speaker (owner) -> retains secret in their own block
+      expect(result.task).toContain("Double agent");
+      // [PLAN: Secure the core] extracted into future/INTENT
+      expect(result.task).toContain("<INTENT>Maintain operational cover");
+      expect(result.task).toContain("Active Plan: Secure the core</INTENT>");
+      // Empty MEMORIES, AGENDA, and HISTORY omitted via render_optional_tag
+      expect(result.task).not.toContain("<MEMORIES></MEMORIES>");
+      expect(result.task).not.toContain("<AGENDA></AGENDA>");
+      expect(result.task).not.toContain("<HISTORY></HISTORY>");
+    });
   });
 });

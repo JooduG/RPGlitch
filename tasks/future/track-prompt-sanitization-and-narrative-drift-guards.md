@@ -145,16 +145,16 @@ sequenceDiagram
 
 ### Phase 2: Prompt Sanitizer, Epistemic Boundary & Unified Roster (GREEN)
 
-- [x] `task-2.1`: Implement `strip_epistemic_secrets(state_text, is_owner)` in `src/intelligence/prompts/shared.js` and move `[PLAN]` to `future`.
-- [x] `task-2.2`: Implement `render_optional_tag(tag_name, content)` in `src/intelligence/prompts/shared.js` and `builder.js` to purge empty XML shells.
+- [x] `task-2.1`: Implement `strip_epistemic_secrets(state_text, is_owner)` across all prompts and extract `[PLAN]` into `future`.
+- [x] `task-2.2`: Wire `render_optional_tag(tag_name, content)` in `story-prompts.js`, `director-prompts.js`, and `builder.js` to purge empty XML shells.
 - [x] `task-2.3`: Merge `<SPEAKER_ROUTING>`, `<ENTITY_CONVERGENCE>`, and `<ROSTER>` into the unified Director `<ROSTER>` block in `src/intelligence/prompts/director-prompts.js`, strip mechanical telemetry, and scope `<RELATIONAL_MESH>`.
 - [x] `task-2.4`: Standardize XML tag serialization for character/fractal states and strip `<dna>` wrapper from narrative style templates.
 
 ### Phase 3: Telemetry, Opening Sequence & Continuum Caretaker (GREEN)
 
-- [x] `task-3.1`: Fix Prologue sequence in `src/intelligence/story-pipeline.js` ensuring Fractal Prologue commits fully before auto-chaining Director Reflex and AI Character.
+- [x] `task-3.1`: Fix Prologue sequence in `src/intelligence/story-pipeline.js` ensuring Fractal Prologue commits fully before auto-chaining Director Reflex and AI Character, with end-to-end integration test.
 - [x] `task-3.2`: Update history formatting to strip `<think>...</think>` blocks for prompt construction while storing them in the message record, and serialize semantic `<turn number="..." speaker="...">` tags.
-- [x] `task-3.3`: Rename system role to `CONTINUUM_CARETAKER` and flatten `dynamics_deltas` to include all 6 axes.
+- [x] `task-3.3`: Completely purge `fractal_dynamics_deltas` across prompt schema, director normalization, story pipeline, and test suites in favor of unified 6-axis `dynamics_deltas`.
 - [x] `task-3.4`: Refactor ghostwrite prompt assembly in `src/intelligence/prompts/story-prompts.js` to fold into `<TASK>`.
 
 ### Phase 4: Anti-Trope Governance & Sensory Cortex Refinement (GREEN)
@@ -163,7 +163,7 @@ sequenceDiagram
 - [x] `task-4.2`: Update `<DRIFT_AUDIT>` rules with affirmative phrasing and enforce quotes-for-speaking-style vs prose-for-narrative-style.
 - [x] `task-4.3`: Update aspect ratio defaults in image generation calls: map Fractal profiles and scene group shots to canonical `story_scene` (`768x512`).
 - [x] `task-4.4`: Update Fractal enhancer prompt to affirmative environmental scaling without negative human triggers.
-- [x] `task-4.5`: Wire Director `"visual_staging"` into Sensory Cortex, align `<keywords>` tag nomenclature, merge staging into `<CINEMATOGRAPHY>`, and purge `Prologue Priority`.
+- [x] `task-4.5`: Wire Director `"visual_staging"` into Sensory Cortex, align `<keywords>` tag nomenclature, merge staging into `<CINEMATOGRAPHY>`, and purge duplicate `<CINEMATIC_FRAMING>`.
 - [x] `task-4.6`: Soften image shimmer contrast and sweep speed in `src/ui/motion/Shimmer.svelte`.
 
 ### Phase 5: Verification & Quality Gate

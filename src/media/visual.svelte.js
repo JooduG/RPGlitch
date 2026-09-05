@@ -437,6 +437,7 @@ export class VisualEngine {
           fractal,
           entity: tier === "solo_entity" || tier === "story_character" ? solo_or_character_entity : undefined,
           variant: is_selfie ? "selfie" : options?.variant,
+          visual_staging: options?.visual_staging || "",
           history: this._build_visual_history(),
           mode: "visualize",
         });

@@ -253,30 +253,31 @@ export const gamemaster = {
       }
 
       // 4.1 Apply Dynamics Deltas (AI & Fractal)
-      if (director_data.dynamics_deltas && state_bridge.runtime.active_ai) {
-        if (!snapshot.ai) snapshot.ai = {};
-        if (!snapshot.ai.dynamics) snapshot.ai.dynamics = { ...state_bridge.runtime.ai };
-        Object.entries(director_data.dynamics_deltas).forEach(([k, delta]) => {
-          const val = Number(delta);
-          if (!isNaN(val)) {
-            ai_delta_axes.add(k);
-            const current = snapshot.ai.dynamics[k] || 50;
-            snapshot.ai.dynamics[k] = Math.max(1, Math.min(100, current + val));
-          }
-        });
-      }
-
-      if (director_data.fractal_dynamics_deltas && state_bridge.runtime.active_fractal) {
-        if (!snapshot.fractal) snapshot.fractal = {};
-        if (!snapshot.fractal.dynamics) snapshot.fractal.dynamics = { ...state_bridge.runtime.fractal };
-        Object.entries(director_data.fractal_dynamics_deltas).forEach(([k, delta]) => {
-          const val = Number(delta);
-          if (!isNaN(val)) {
-            fractal_delta_axes.add(k);
-            const current = snapshot.fractal.dynamics[k] || 50;
-            snapshot.fractal.dynamics[k] = Math.max(1, Math.min(100, current + val));
-          }
-        });
+      if (director_data.dynamics_deltas) {
+        if (state_bridge.runtime.active_ai) {
+          if (!snapshot.ai) snapshot.ai = {};
+          if (!snapshot.ai.dynamics) snapshot.ai.dynamics = { ...state_bridge.runtime.ai };
+          Object.entries(director_data.dynamics_deltas).forEach(([k, delta]) => {
+            const val = Number(delta);
+            if (!isNaN(val)) {
+              ai_delta_axes.add(k);
+              const current = snapshot.ai.dynamics[k] || 50;
+              snapshot.ai.dynamics[k] = Math.max(1, Math.min(100, current + val));
+            }
+          });
+        }
+        if (state_bridge.runtime.active_fractal) {
+          if (!snapshot.fractal) snapshot.fractal = {};
+          if (!snapshot.fractal.dynamics) snapshot.fractal.dynamics = { ...state_bridge.runtime.fractal };
+          Object.entries(director_data.dynamics_deltas).forEach(([k, delta]) => {
+            const val = Number(delta);
+            if (!isNaN(val)) {
+              fractal_delta_axes.add(k);
+              const current = snapshot.fractal.dynamics[k] || 50;
+              snapshot.fractal.dynamics[k] = Math.max(1, Math.min(100, current + val));
+            }
+          });
+        }
       }
 
       // 4.2. GRAVITY SETTLEMENT
@@ -355,7 +356,7 @@ export const gamemaster = {
         },
         FRACTAL: {
           ...(director_mutations.FRACTAL || {}),
-          fractal_dynamics_deltas: director_data.fractal_dynamics_deltas || {},
+          dynamics_deltas: director_data.dynamics_deltas || {},
         },
       };
 
@@ -418,6 +419,7 @@ export const gamemaster = {
           explicit: resolved_image.director_explicit,
           source: final_meta.image_source,
           prompt: trigger_prompt,
+          visual_staging: director_data.visual_staging || "",
         });
       }
 

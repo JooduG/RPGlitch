@@ -116,8 +116,8 @@ vi.mock("@data/sessions.svelte.js", () => ({
   },
 }));
 
-vi.mock("../media/visual.svelte.js", () => ({
-  visual_engine: {
+const { _mock_visual_engine } = vi.hoisted(() => ({
+  _mock_visual_engine: {
     visualize: vi.fn().mockResolvedValue({ imageUrl: "https://img.test/auto.png", refinedPrompt: "Auto scene", metadata: {} }),
     generate: vi.fn(),
     enhance: vi.fn(),
@@ -126,14 +126,13 @@ vi.mock("../media/visual.svelte.js", () => ({
   },
 }));
 
+vi.mock("../media/visual.svelte.js", () => ({
+  visual_engine: _mock_visual_engine,
+  VisualEngine: vi.fn(),
+}));
+
 vi.mock("@media/visual.svelte.js", () => ({
-  visual_engine: {
-    visualize: vi.fn().mockResolvedValue({ imageUrl: "https://img.test/auto.png", refinedPrompt: "Auto scene", metadata: {} }),
-    generate: vi.fn(),
-    enhance: vi.fn(),
-    generate_candidates: vi.fn(),
-    upload: vi.fn(),
-  },
+  visual_engine: _mock_visual_engine,
   VisualEngine: vi.fn(),
 }));
 
@@ -141,6 +140,7 @@ vi.mock("@media", async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
+    visual_engine: _mock_visual_engine,
     resolve_image_trigger: vi.fn().mockImplementation((params) => {
       if (params?.director_data?.trigger_image) {
         return {
@@ -1043,7 +1043,10 @@ describe("gamemaster (Intelligence Kernel)", () => {
       expect(placeholder_call[3].attachments[0].metadata.mode).toBe("story_scene");
       // Background generation fired against the tier (not awaited)
       await vi.waitFor(() => expect(visual_engine.visualize).toHaveBeenCalled());
-      expect(visual_engine.visualize).toHaveBeenCalledWith("story-123", expect.stringContaining("Hello"), "story_scene", { silent: true });
+      expect(visual_engine.visualize).toHaveBeenCalledWith("story-123", expect.stringContaining("Hello"), "story_scene", {
+        silent: true,
+        visual_staging: "",
+      });
     });
 
     it("Source A: suppresses the auto-trigger while the shared cooldown is active", async () => {
@@ -1412,7 +1415,7 @@ describe("NPC world cast (track-npc-expansion)", () => {
 
     vi.mocked(llm_service.generate)
       .mockResolvedValueOnce(
-        '{"next_action":"GENESIS","genesis":{"name":"Kaelen","description":"A hooded scout.","speaking_style":"lyrical","signature_color":"#38bdf8"},"keywords":["defiance"],"directors_note":"Approach slowly from the mist.","dynamics_deltas":{"intensity":10},"fractal_dynamics_deltas":{"velocity":5,"entropy":-5}}',
+        '{"next_action":"GENESIS","genesis":{"name":"Kaelen","description":"A hooded scout.","speaking_style":"lyrical","signature_color":"#38bdf8"},"keywords":["defiance"],"directors_note":"Approach slowly from the mist.","dynamics_deltas":{"intensity":10,"velocity":5,"entropy":-5}}',
       )
       .mockResolvedValueOnce("Who goes there?");
 
@@ -1712,8 +1715,7 @@ describe("director mutations telemetry integration (Bug 2 verification)", () => 
           next_action: "AI_CHARACTER",
           keywords: ["vulnerability"],
           directors_note: "Hold your ground.",
-          dynamics_deltas: { intensity: 10, chaos: 5 },
-          fractal_dynamics_deltas: { entropy: 8 },
+          dynamics_deltas: { intensity: 10, chaos: 5, entropy: 8 },
           state_append: { physical: "burned sleeves", non_physical: "tense breathing" },
           vector_append: [{ content: "Investigate reactor core", type: "future", weight: 7 }],
           mutations: {
@@ -1808,9 +1810,72 @@ describe("execute_with_retry resilience diagnostics", () => {
     expect(tasks_received[1]).toContain("Return a single, COMPLETE, VALID JSON object");
   });
 
-  describe("Automatic Story Opening Sequence & Continuum Caretaker (task-1.2)", () => {
+  describe("Opening Sequence Orchestration (task-1.2)", () => {
     it("prologue execution commits its feed record and triggers auto-chaining without stream collision", async () => {
-      expect(typeof gamemaster.execute_story_opening).toBe("function");
+      vi.mocked(prompt_builder.build_prologue).mockReturnValue({
+        system: "PROLOGUE_SYSTEM",
+        task: "PROLOGUE_TASK",
+      });
+      vi.mocked(prompt_builder.build_director).mockReturnValue({
+        system: "DIRECTOR_SYSTEM",
+        task: "DIRECTOR_TASK",
+      });
+      vi.mocked(prompt_builder.build_character).mockReturnValue({
+        system: "CHARACTER_SYSTEM",
+        task: "CHARACTER_TASK",
+        meta: { ai: {}, fractal: {}, role: "ai" },
+      });
+
+      vi.mocked(visual_engine.visualize).mockResolvedValue({
+        imageUrl: "https://img.test/prologue.png",
+        refinedPrompt: "Prologue atmosphere",
+        metadata: {},
+      });
+
+      const logged_entries = [];
+      const edited_entries = [];
+
+      vi.mocked(session_driver.log_message).mockImplementation(async (text, role, name, options) => {
+        const id = `node-${logged_entries.length + 1}`;
+        logged_entries.push({ id, text, role, name, options });
+        return { id };
+      });
+
+      vi.mocked(session_driver.edit_log_entry).mockImplementation(async (id, text) => {
+        edited_entries.push({ id, text });
+        return {};
+      });
+
+      vi.mocked(llm_service.generate).mockImplementation(async ({ role }) => {
+        if (role === "fractal") {
+          return "The sub-zero facility hums in deep stasis.";
+        }
+        if (role === "system") {
+          return JSON.stringify({
+            _thought_process: "Prologue complete. First AI reaction triggered.",
+            next_action: "AI_CHARACTER",
+            keywords: ["vulnerability"],
+            directors_note: "Step into the mist.",
+            dynamics_deltas: { intensity: 10 },
+          });
+        }
+        // AI character
+        return "I can feel the temperature dropping.";
+      });
+
+      const result = await gamemaster.execute_story_opening("story-123");
+
+      // 1. Verify Prologue (Round 0) was logged and committed to Dexie
+      expect(logged_entries.some((e) => e.role === "fractal" && e.options?.meta?.is_prologue === true)).toBe(true);
+      expect(edited_entries.some((e) => e.text === "The sub-zero facility hums in deep stasis.")).toBe(true);
+
+      // 2. Verify auto-chained turn completed cleanly
+      expect(result.response).toContain("I can feel the temperature dropping.");
+      expect(result.response).toContain("Prologue complete. First AI reaction triggered.");
+
+      // 3. Verify stream cleanup after opening
+      expect(_mock_app.busy).toBe(false);
+      expect(_mock_simulation_state.phase).toBe("idle");
     });
   });
 });
