@@ -97,6 +97,17 @@ describe("Story Prompts (story-prompts.js)", () => {
       expect(result.task).toContain("Hold your temperament; do not soften into pleasantness");
     });
 
+    it("injects live dynamics values into the task <CURRENT_STORY_STATE>", () => {
+      const result = render_story_prose({
+        mode: "character",
+        ...base_payload(),
+        compressed_snapshot: base_snapshot,
+      });
+      expect(result.task).toContain("<DYNAMICS>");
+      expect(result.task).toContain("intensity (Intensity): Internal Energy / Adrenaline [current: 50]");
+      expect(result.task).toContain("openness (Openness): Receptivity vs Guardedness [current: 60]");
+    });
+
     it("injects somatic directives when keywords or high intensity are selected", () => {
       const result = render_story_prose({
         mode: "character",

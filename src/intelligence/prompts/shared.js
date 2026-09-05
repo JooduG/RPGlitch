@@ -765,13 +765,15 @@ export function render_director_cast_xml({ entities = {}, npc_entities = [], in_
  * @param {any[]} [npc_entities]
  * @param {string[]} [in_scene_ids]
  * @param {any} [perspective_entity]
+ * @param {Record<string, number>} [live_dynamics] - Current dynamics values merged into a <DYNAMICS> block when non-empty.
  * @returns {string}
  */
-export function render_current_story_state_xml(entities = {}, npc_entities = [], in_scene_ids = [], perspective_entity = null) {
+export function render_current_story_state_xml(entities = {}, npc_entities = [], in_scene_ids = [], perspective_entity = null, live_dynamics = null) {
   const body = [
     _render_scene_roster_xml(entities, npc_entities, in_scene_ids),
     _render_relational_mesh_xml(entities, npc_entities, perspective_entity, in_scene_ids),
     `<EPISTEMIC_RULES>\n${ind(PROTOCOL_LIBRARY.COGNITION.EPISTEMIC_PHYSICS, 2)}\n</EPISTEMIC_RULES>`,
+    live_dynamics && typeof live_dynamics === "object" && Object.keys(live_dynamics).length ? render_dynamics_block(live_dynamics) : "",
   ]
     .filter(Boolean)
     .join("\n");

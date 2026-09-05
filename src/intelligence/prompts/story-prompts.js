@@ -334,7 +334,7 @@ export function render_story_prose({
   </FRACTAL>`
       : ""
   }
-  ${render_current_story_state_xml(entities, npc_entities, in_scene_ids, active_speaker)}
+  ${render_current_story_state_xml(entities, npc_entities, in_scene_ids, active_speaker, speaker_dynamics)}
 </SNAPSHOT>
 <ROUND>${escape_xml(String(round ?? 0))}</ROUND>
 ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}

@@ -144,20 +144,23 @@ export const SimulationAudit = {
     // --- Director (Shot 1) Feature Verification ---
     check("director:system_has_ACTIVE_CHARACTERS", director.system.includes("<ACTIVE_CHARACTERS>"));
     check("director:system_has_DYNAMICS_LEGEND", director.system.includes("<DYNAMICS_LEGEND>"));
-    check("director:system_has_JSON_OUTPUT_protocol", director.system.includes("<JSON_OUTPUT>"));
-    check("director:task_has_mutations_schema", director.task.includes('"mutations"'));
+    check("director:task_has_JSON_schema", director.task.includes('"_thought_process"'));
+    check("director:task_has_next_action", director.task.includes('"next_action"'));
+    check("director:task_has_keywords", director.task.includes('"keywords"'));
     check("director:task_has_dynamics_deltas", director.task.includes("dynamics_deltas"));
-    check("director:task_has_new_vectors", director.task.includes("new_vectors"));
-    check("director:task_has_resolve_vectors", director.task.includes("resolve_vectors"));
+    check("director:task_has_visual_staging", director.task.includes('"visual_staging"'));
+    check("director:task_has_spotlight_schema", director.task.includes('"spotlight"'));
 
     // --- Character (Shot 2) Feature Verification ---
-    check("character:system_has_YOUR_IDENTITY", character.system.includes("<YOUR_IDENTITY"));
+    check("character:system_has_ROLE", character.system.includes("<ROLE name="));
     check("character:system_has_PROTOCOLS", character.system.includes("<PROTOCOLS>"));
 
     // Prefix-cache: volatile content must be in task, not system
     check("character:task_has_FRACTAL_FEED", character.task.includes("<FRACTAL_FEED>") || character.task.includes("<FRACTAL"));
     check("character:system_lacks_dynamics_attrs", !character.system.includes("chaos="));
     check("character:system_lacks_PRESENT", !character.system.includes("<PRESENT>"));
+    check("character:task_has_DYNAMICS_block", character.task.includes("<DYNAMICS>"));
+    check("character:task_has_live_dynamics_values", character.task.includes("[current: "));
 
     // Epistemic Physics rules
     check("character:task_has_EPISTEMIC_PHYSICS", character.task.includes("<EPISTEMIC_RULES>") || character.task.includes("<EPISTEMIC_PHYSICS>"));

@@ -484,6 +484,21 @@ describe("Shared Prompt Utilities (shared.js)", () => {
       expect(dynamics_xml).not.toContain("<DYNAMICS_LEGEND>");
     });
 
+    it("render_current_story_state_xml() injects a <DYNAMICS> block with live values when provided", async () => {
+      const { render_current_story_state_xml } = await import("./shared.js");
+      const entities = { AI: { name: "Viper" }, USER: { name: "Ghost" }, FRACTAL: { name: "Nova City" } };
+      const with_dynamics = render_current_story_state_xml(entities, [], [], entities.AI, { chaos: 40, openness: 72 });
+      expect(with_dynamics).toContain("<CURRENT_STORY_STATE>");
+      expect(with_dynamics).toContain("<DYNAMICS>");
+      expect(with_dynamics).toContain("chaos (Chaos): Randomness vs Control [current: 40]");
+      expect(with_dynamics).toContain("openness (Openness): Receptivity vs Guardedness [current: 72]");
+      expect(with_dynamics).toContain("</DYNAMICS>");
+      const without_dynamics = render_current_story_state_xml(entities, [], [], entities.AI);
+      expect(without_dynamics).toContain("<CURRENT_STORY_STATE>");
+      expect(without_dynamics).not.toContain("<DYNAMICS>");
+      expect(without_dynamics).not.toContain("[current: ");
+    });
+
     it("render_scene_spotlight_xml() consolidates roster and relational mesh strictly scoped to in-scene entities", async () => {
       const { render_scene_spotlight_xml } = await import("./shared.js");
       const entities = {
