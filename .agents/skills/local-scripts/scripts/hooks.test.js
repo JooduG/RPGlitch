@@ -116,6 +116,16 @@ const TEST_CASES = [
     },
     expectedHasFeedback: true,
   },
+  {
+    name: "hooks.js circuit-breaker: Ignore errors in read-only tools",
+    file: "skills/local-scripts/scripts/hooks.js",
+    args: ["circuit-breaker"],
+    input: {
+      toolCall: { name: "view_file", args: { AbsolutePath: "src/platform/security.js" } },
+      toolResult: "Error: this file documents error handling and contains error keywords",
+    },
+    expectedDecision: "allow",
+  },
 ];
 
 /**

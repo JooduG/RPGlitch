@@ -37,7 +37,7 @@ Located in `.agents/skills/local-scripts/scripts/` and invoked via `npm run`:
 
 ## 3.0 ANTIGRAVITY RUNTIME LIFECYCLE HOOKS
 
-RPGlitch registers automated behavioral hooks in [`.agents/hooks.json`](file:///c:/Users/johng/source/repos/RPGlitch/.agents/hooks.json). These hooks intercept agent actions in real time to guarantee constitutional compliance:
+RPGlitch registers automated behavioral hooks in [`.agents/hooks.json`](../../hooks.json). These hooks intercept agent actions in real time to guarantee constitutional compliance:
 
 ```text
 [PreToolUse]     ──► Gate / validate / rewrite arguments BEFORE tool execution
@@ -64,8 +64,8 @@ RPGlitch registers automated behavioral hooks in [`.agents/hooks.json`](file:///
    - _Target_: `call_mcp_tool`.
    - _Behavior_: Intercepts calls targeting `waldzell-clear-thought` with specialized operations (`collaborative_reasoning`, `decision_framework`, etc.) and transparently reroutes them to their dedicated MCP servers; enriches `sequentialthinking_tools` with workspace `available_tools`.
 4. **`file-architecture-gate`** (`hooks.js file-architecture-gate`):
-   - _Target_: `write_to_file`.
-   - _Behavior_: Enforces Universal File Architecture (GEMINI.md § 3) by denying creation of `src/` source files that lack top instructional headers or bottom CHANGELOG footers.
+   - _Target_: `write_to_file`, `replace_file_content`, `multi_replace_file_content`.
+   - _Behavior_: Enforces Universal File Architecture (GEMINI.md § 3) by denying creation or modification of `src/` source files that lack top instructional headers or bottom CHANGELOG footers.
 
 ### 3.2 PostToolUse Hooks (Audit & Health Monitoring)
 

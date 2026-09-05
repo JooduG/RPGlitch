@@ -89,8 +89,6 @@ export function resolve_repo_root(payload) {
 // 1. CONSTANTS & WORKSPACE REGISTRIES
 // =================================================================================================
 
-const STATE_FILE = path.resolve("tmp/.tool-failures.json");
-
 const DEFAULT_WORKSPACE_TOOLS = Object.freeze([
   "run_command",
   "view_file",
@@ -229,7 +227,9 @@ export function handle_sequential_thinking_gate(payload) {
 
   try {
     const raw_transcript = fs.readFileSync(transcript_path, "utf-8");
-    const lines = raw_transcript.trim().split("\n");
+    const all_lines = raw_transcript.trim().split("\n");
+    // Optimize performance: slice trailing 60 lines (last turn) to avoid O(transcript) scan
+    const lines = all_lines.slice(-60);
 
     for (let i = lines.length - 1; i >= 0; i--) {
       const line = lines[i];
@@ -288,17 +288,18 @@ export function handle_sequential_thinking_gate(payload) {
 
   if (is_multi_file_attempt) {
     const other_files = Array.from(files_edited_in_turn).join(", ");
+    // Soften to ask with feedback so agent is never hard-locked if MCP is unavailable
     send_hook_response({
-      decision: "deny",
-      reason: `Multi-File Cognitive Gate: You previously modified (${other_files}) and are now modifying "${relative_target}". Cross-file changes require structured reasoning. Run \`call_mcp_tool\` for \`mcp-sequentialthinking-tools\` (\`sequentialthinking_tools\`) to record your step plan before editing multiple files.`,
+      decision: "ask",
+      reason: `Multi-File Cognitive Reminder: You previously modified (${other_files}) and are now modifying "${relative_target}". Cross-file changes benefit from structured reasoning via \`mcp-sequentialthinking-tools\`. Please confirm or record step plan before editing multiple files.`,
     });
     return;
   }
 
   if (is_consecutive_thrashing) {
     send_hook_response({
-      decision: "deny",
-      reason: `Thrashing Prevention Gate: You are editing "${relative_target}" for the ${consecutive_edits_on_target + 1}th time in this turn. Repeated edits to the same file indicate unexpected complications or a loop. Run \`call_mcp_tool\` for \`mcp-sequentialthinking-tools\` (\`sequentialthinking_tools\`) to step back, re-evaluate assumptions, and state your plan before editing again.`,
+      decision: "ask",
+      reason: `Thrashing Prevention Reminder: You are editing "${relative_target}" for the ${consecutive_edits_on_target + 1}th time in this turn. Repeated edits to the same file indicate potential looping. Please confirm and state your plan before editing again.`,
     });
     return;
   }
@@ -338,7 +339,8 @@ export function handle_waldzell_router(payload) {
       }
     }
 
-    if (server_name !== tool_args.ServerName || target_tool !== tool_args.ToolName || inner_args !== tool_args.Arguments) {
+    const args_changed = JSON.stringify(inner_args) !== JSON.stringify(tool_args.Arguments);
+    if (server_name !== tool_args.ServerName || target_tool !== tool_args.ToolName || args_changed) {
       send_hook_response({
         decision: "allow",
         overwrite: {
@@ -446,13 +448,28 @@ export function handle_grep_truncation(payload) {
 export function handle_circuit_breaker(payload) {
   const tool_name = payload?.toolCall?.name || payload?.tool_name || "";
   const tool_result = payload?.toolResult || payload?.result || "";
+  const state_file = path.join(resolve_repo_root(payload), "tmp", ".tool-failures.json");
 
   if (tool_name === "call_mcp_tool" && payload?.toolCall?.args?.ServerName === "waldzell-metacognitive-monitoring") {
     try {
-      if (fs.existsSync(STATE_FILE)) fs.unlinkSync(STATE_FILE);
+      if (fs.existsSync(state_file)) fs.unlinkSync(state_file);
     } catch {
       // Ignore filesystem cleanup errors
     }
+    send_hook_response({ decision: "allow" });
+    return;
+  }
+
+  // Exempt read-only exploration tools from tripping the circuit breaker
+  const read_only_tools = new Set([
+    "view_file",
+    "grep_search",
+    "read_url_content",
+    "list_dir",
+    "read_resource",
+    "list_resources",
+  ]);
+  if (read_only_tools.has(tool_name)) {
     send_hook_response({ decision: "allow" });
     return;
   }
@@ -463,8 +480,8 @@ export function handle_circuit_breaker(payload) {
 
   let count = 0;
   try {
-    if (fs.existsSync(STATE_FILE)) {
-      count = JSON.parse(fs.readFileSync(STATE_FILE, "utf-8")).consecutive_failures || 0;
+    if (fs.existsSync(state_file)) {
+      count = JSON.parse(fs.readFileSync(state_file, "utf-8")).consecutive_failures || 0;
     }
   } catch {
     count = 0;
@@ -473,9 +490,9 @@ export function handle_circuit_breaker(payload) {
   if (has_error) {
     count += 1;
     try {
-      const dir = path.dirname(STATE_FILE);
+      const dir = path.dirname(state_file);
       if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-      fs.writeFileSync(STATE_FILE, JSON.stringify({ consecutive_failures: count, updated_at: new Date().toISOString() }));
+      fs.writeFileSync(state_file, JSON.stringify({ consecutive_failures: count, updated_at: new Date().toISOString() }));
     } catch {
       // Ignore write errors
     }
@@ -495,7 +512,7 @@ export function handle_circuit_breaker(payload) {
     }
   } else if (count > 0) {
     try {
-      if (fs.existsSync(STATE_FILE)) fs.unlinkSync(STATE_FILE);
+      if (fs.existsSync(state_file)) fs.unlinkSync(state_file);
     } catch {
       // Ignore cleanup error
     }
@@ -558,7 +575,9 @@ export function handle_svelte_stop_gate(payload) {
 
   try {
     const raw_transcript = fs.readFileSync(transcript_path, "utf-8");
-    const lines = raw_transcript.trim().split("\n");
+    const all_lines = raw_transcript.trim().split("\n");
+    // Optimize performance: slice trailing 60 lines (last turn) to avoid O(transcript) scan
+    const lines = all_lines.slice(-60);
 
     for (let i = lines.length - 1; i >= 0; i--) {
       const line = lines[i];
@@ -732,4 +751,5 @@ run();
  * CHANGELOG
  * -------------------------------------------------------------------------------------------------
  * 2026-09-05: Initial creation of consolidated hooks.js dispatcher unifying all 10 Antigravity hooks.
+ * 2026-09-05: Fixed circuit breaker false positives (exempted read-only tools, dynamically resolved tmp/.tool-failures.json), optimized transcript parsing (sliced last 60 lines), softened sequential thinking gate on multi-file/repeat edits to ask, and added deep structural equality comparison in handle_waldzell_router.
  */
