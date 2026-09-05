@@ -71,6 +71,7 @@ npm run deploy:auto
 
 - **Verification Protocol**: You must run the quality gate (`npm run deploy:prepare`) and wait for the tests/linting to pass before executing the bridge (`npm run deploy:auto`).
 - **Rollback Readiness**: Always be prepared to revert to a previous Commit-SHA if the automated bridge deployment fails.
+- **Unified Release Protocol**: For git packaging, semantic tagging, and remote synchronization, follow [release-protocol.md](./references/release-protocol.md).
 
 ---
 
@@ -80,3 +81,9 @@ npm run deploy:auto
 - [ ] Environment secrets correspond to the live production shard.
 - [ ] Automated Bridge reports "Saved Successfully".
 - [ ] Production build is optimized (Bundle size check).
+
+---
+
+## 7.0 REFERENCE GUIDES
+
+- [Unified 5-Stage Release Protocol](./references/release-protocol.md): Pre-flight verification, asset hardening, git packaging, semantic tagging, and mission board handoff.
