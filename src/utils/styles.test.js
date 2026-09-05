@@ -23,6 +23,9 @@ describe("detox_prose() with speaking styles", () => {
     expect(detox_prose("She laughed, a genuine sound.")).not.toMatch(/a genuine sound/i);
     expect(detox_prose("For the first time in his life, he smiled.")).not.toMatch(/for the first time in his life/i);
     expect(detox_prose("It felt less like a sanctuary and more like a prison.")).toBe("It felt like a prison.");
+    expect(detox_prose("He shifted his weight nervously and caressed her hand as boots squelched in the mud.")).not.toMatch(
+      /shifted.*weight|caressed|squelched/i,
+    );
   });
 
   it("preserves grounded plain text without modifying it", () => {

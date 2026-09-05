@@ -51,7 +51,7 @@ function create_speaking_rule(pattern, replacement_dictionary, options = {}) {
 // 2. Vocal & Dialogue Delivery Rules
 // ============================================================================
 
-export const VOCAL_RULES = [
+const VOCAL_RULES_LIST = [
   create_speaking_rule(/\bmurmur(ed|ing|s)?\b/gi, {
     ed: {
       casual: ["said it quietly", "kept his voice low", "spoke half to himself"],
@@ -167,7 +167,7 @@ export const VOCAL_RULES = [
 // 3. Sound, Vibration & Motion Rules
 // ============================================================================
 
-export const SOUND_RULES = [
+const SOUND_RULES_LIST = [
   create_speaking_rule(/\bhum(med|ming|s)?\b/gi, {
     med: {
       casual: ["droned steadily", "throbbed low", "reverberated through the walls"],
@@ -295,7 +295,7 @@ export const SOUND_RULES = [
 // 4. Sensory, Bodily & Environmental Clichés
 // ============================================================================
 
-export const SENSORY_RULES = [
+const SENSORY_RULES_LIST = [
   create_speaking_rule(/\b(taste|tastes|tasted|tasting)\s+(of|like)\s+(a\s+)?(copper|metal|iron|pennies)\b/gi, {
     casual: ["raw, metallic edge", "sharp tang", "bitter bite in the mouth"],
     lyrical: ["a harsh, metallic resonance", "a bitter tang on the tongue"],
@@ -380,12 +380,15 @@ export const SENSORY_RULES = [
     clinical: ["phantom sensation", "neurological echo"],
   }),
 
-  create_speaking_rule(/\b(is|was|felt|hits|hit|strikes|landed|slams|slamming)?\s*(like\s+a\s+)?physical\s+blow\b/gi, {
-    casual: ["landed with sudden force", "carried real weight", "hit like a heavy punch"],
-    lyrical: ["struck with visceral force", "landed with devastating clarity"],
-    primal: ["hit like a fist", "landed hard"],
-    clinical: ["produced high impact force", "registered as acute shock"],
-  }),
+  create_speaking_rule(
+    /\b(?:(?:is|was|felt|hits|hit|strikes|landed|slams|slamming)?\s*(?:like\s+a\s+)?|(?:the\s+)?force\s+of\s+a\s+)?physical\s+blow\b/gi,
+    {
+      casual: ["landed with sudden force", "carried real weight", "hit like a heavy punch"],
+      lyrical: ["struck with visceral force", "landed with devastating clarity"],
+      primal: ["hit like a fist", "landed hard"],
+      clinical: ["produced high impact force", "registered as acute shock"],
+    },
+  ),
 
   create_speaking_rule(/\bshivering\s+shadows?\b/gi, {
     casual: ["dark shadows", "shifting shadows", "moving shadows"],
@@ -420,7 +423,7 @@ export const SENSORY_RULES = [
 // 5. Abstract Metaphors & Literary Tropes
 // ============================================================================
 
-export const METAPHOR_RULES = [
+const METAPHOR_RULES_LIST = [
   create_speaking_rule(
     /\b(is|was|stands?|stood)\s+a\s+testament\s+to\b/gi,
     {
@@ -501,7 +504,7 @@ export const METAPHOR_RULES = [
 // 6. Purple Prose & Community Tropes
 // ============================================================================
 
-export const COMMUNITY_RULES = [
+const COMMUNITY_RULES_LIST = [
   create_speaking_rule(/\bobsidian\b/gi, {
     casual: ["black glass", "glossy black", "deep black"],
     lyrical: ["polished black", "glass-dark"],
@@ -686,13 +689,6 @@ export const COMMUNITY_RULES = [
     },
   }),
 
-  create_speaking_rule(/\bphysical\s+blow\b/gi, {
-    casual: ["real blow", "hard hit", "solid impact"],
-    lyrical: ["a blow with real weight behind it", "an impact that actually landed"],
-    primal: ["a real hit", "a blow that actually hurt"],
-    clinical: ["mechanical force", "real impact force"],
-  }),
-
   create_speaking_rule(
     /\b(he|she|they|i|we)\s+(didn'?t|hadn'?t)\s+(even\s+)?realiz\w*\s+(he|she|they|i|we)\s+(was|were)\s+holding\b/gi,
     (match, pronoun) => pronoun + "'d been holding",
@@ -727,10 +723,30 @@ export const COMMUNITY_RULES = [
   }),
 
   create_speaking_rule(/\bshift(s|ed|ing)?\s+(his|her|their|my|your)?\s*weight\b/gi, {
-    casual: ["adjusting posture", "stepping back slightly", "bracing feet"],
-    lyrical: ["readjusting footing", "shifting stance against the floor"],
-    primal: ["bracing feet", "shifting stance"],
-    clinical: ["adjusting posture", "rebalancing center of gravity"],
+    ed: {
+      casual: ["adjusted posture", "stepped back slightly", "braced feet"],
+      lyrical: ["readjusted footing", "shifted stance against the floor"],
+      primal: ["braced feet", "shifted stance"],
+      clinical: ["adjusted posture", "rebalanced center of gravity"],
+    },
+    ing: {
+      casual: ["adjusting posture", "stepping back slightly", "bracing feet"],
+      lyrical: ["readjusting footing", "shifting stance against the floor"],
+      primal: ["bracing feet", "shifting stance"],
+      clinical: ["adjusting posture", "rebalancing center of gravity"],
+    },
+    s: {
+      casual: ["adjusts posture", "steps back slightly", "braces feet"],
+      lyrical: ["readjusts footing", "shifts stance against the floor"],
+      primal: ["braces feet", "shifts stance"],
+      clinical: ["adjusts posture", "rebalances center of gravity"],
+    },
+    "": {
+      casual: ["adjust posture", "step back slightly", "brace feet"],
+      lyrical: ["readjust footing", "shift stance against the floor"],
+      primal: ["brace feet", "shift stance"],
+      clinical: ["adjust posture", "rebalance center of gravity"],
+    },
   }),
 
   create_speaking_rule(/\bpredatory\b/gi, {
@@ -762,10 +778,36 @@ export const COMMUNITY_RULES = [
   }),
 
   create_speaking_rule(/\bcaress(es|ed|ing)?\b/gi, {
-    casual: ["touching softly", "brushing against", "tracing a line along"],
-    lyrical: ["tracing a slow line over", "letting fingers glide across"],
-    primal: ["sliding hands over", "rubbing along"],
-    clinical: ["applying light tactile pressure to", "tracing a linear path across"],
+    ed: {
+      casual: ["touched softly", "brushed against", "traced a line along"],
+      lyrical: ["traced a slow line over", "let fingers glide across"],
+      primal: ["slid hands over", "rubbed along"],
+      clinical: ["applied light tactile pressure to", "traced a linear path across"],
+    },
+    ing: {
+      casual: ["touching softly", "brushing against", "tracing a line along"],
+      lyrical: ["tracing a slow line over", "letting fingers glide across"],
+      primal: ["sliding hands over", "rubbing along"],
+      clinical: ["applying light tactile pressure to", "tracing a linear path across"],
+    },
+    es: {
+      casual: ["touches softly", "brushes against", "traces a line along"],
+      lyrical: ["traces a slow line over", "lets fingers glide across"],
+      primal: ["slides hands over", "rubs along"],
+      clinical: ["applies light tactile pressure to", "traces a linear path across"],
+    },
+    s: {
+      casual: ["touches softly", "brushes against", "traces a line along"],
+      lyrical: ["traces a slow line over", "lets fingers glide across"],
+      primal: ["slides hands over", "rubs along"],
+      clinical: ["applies light tactile pressure to", "traces a linear path across"],
+    },
+    "": {
+      casual: ["touch softly", "brush against", "trace a line along"],
+      lyrical: ["trace a slow line over", "let fingers glide across"],
+      primal: ["slide hands over", "rub along"],
+      clinical: ["apply light tactile pressure to", "trace a linear path across"],
+    },
   }),
 
   create_speaking_rule(/\bnostril(s)?\s+(flared|filled)\b/gi, {
@@ -773,13 +815,6 @@ export const COMMUNITY_RULES = [
     lyrical: ["drawing the scent deep into the lungs", "taking in a sharp, sudden breath"],
     primal: ["sucking in air", "taking a deep breath"],
     clinical: ["nasal inhalation expanding", "taking a deep breath"],
-  }),
-
-  create_speaking_rule(/\bspatial\s+disturbance(s)?\b/gi, {
-    casual: ["movement in the air", "shattering silence", "sudden ripple"],
-    lyrical: ["a sudden pulse through the room", "a sharp break in the atmosphere"],
-    primal: ["hard shockwave", "sudden rattle"],
-    clinical: ["environmental perturbation", "atmospheric pressure shift"],
   }),
 
   create_speaking_rule(/\bproper\s+madness\b/gi, {
@@ -790,17 +825,24 @@ export const COMMUNITY_RULES = [
   }),
 
   create_speaking_rule(/\bsquelch(ing|ed)?\b/gi, {
-    casual: ["squishing", "sloshing", "churning underfoot"],
-    lyrical: ["sloshing heavily through liquid", "yielding wetly underfoot"],
-    primal: ["squishing loudly", "splashing through muck"],
-    clinical: ["displacing fluid saturated media", "yielding wetly under pressure"],
-  }),
-
-  create_speaking_rule(/\bforce\s+of\s+a\s+physical\s+blow\b/gi, {
-    casual: ["sudden impact", "hard realization", "heavy hit"],
-    lyrical: ["a shock that landed like a physical weight", "an impact that rattled the frame"],
-    primal: ["hard hit", "punch to the gut"],
-    clinical: ["significant psychological impact", "abrupt cognitive disruption"],
+    ed: {
+      casual: ["squished", "sloshed", "churned underfoot"],
+      lyrical: ["sloshed heavily through liquid", "yielded wetly underfoot"],
+      primal: ["squished loudly", "splashed through muck"],
+      clinical: ["displaced fluid-saturated media", "yielded wetly under pressure"],
+    },
+    ing: {
+      casual: ["squishing", "sloshing", "churning underfoot"],
+      lyrical: ["sloshing heavily through liquid", "yielding wetly underfoot"],
+      primal: ["squishing loudly", "splashing through muck"],
+      clinical: ["displacing fluid-saturated media", "yielding wetly under pressure"],
+    },
+    "": {
+      casual: ["squish", "slosh", "churn underfoot"],
+      lyrical: ["slosh heavily through liquid", "yield wetly underfoot"],
+      primal: ["squish loudly", "splash through muck"],
+      clinical: ["displace fluid-saturated media", "yield wetly under pressure"],
+    },
   }),
 
   create_speaking_rule(/\btracing lazy circles\b/gi, {
@@ -864,7 +906,13 @@ export const COMMUNITY_RULES = [
 // 7. Consolidated Speaking Style Rules Registry & Registration
 // ============================================================================
 
-export const SPEAKING_STYLE_RULES = [...VOCAL_RULES, ...SOUND_RULES, ...SENSORY_RULES, ...METAPHOR_RULES, ...COMMUNITY_RULES];
+export const VOCAL_RULES = Object.freeze(VOCAL_RULES_LIST);
+export const SOUND_RULES = Object.freeze(SOUND_RULES_LIST);
+export const SENSORY_RULES = Object.freeze(SENSORY_RULES_LIST);
+export const METAPHOR_RULES = Object.freeze(METAPHOR_RULES_LIST);
+export const COMMUNITY_RULES = Object.freeze(COMMUNITY_RULES_LIST);
+
+export const SPEAKING_STYLE_RULES = Object.freeze([...VOCAL_RULES, ...SOUND_RULES, ...SENSORY_RULES, ...METAPHOR_RULES, ...COMMUNITY_RULES]);
 
 // Dynamically register canonical rules with the styles detox engine
 register_speaking_rules(SPEAKING_STYLE_RULES);
@@ -874,7 +922,7 @@ register_speaking_rules(SPEAKING_STYLE_RULES);
 // ============================================================================
 
 export const SPEAKING_STYLES = Object.freeze(["casual", "lyrical", "primal", "clinical"]);
-export const VALID_SPEAKING_STYLES = new Set(SPEAKING_STYLES);
+export const VALID_SPEAKING_STYLES = Object.freeze(new Set(SPEAKING_STYLES));
 
 /**
  * Validates whether a given candidate string is a supported speaking style.
@@ -889,6 +937,11 @@ export function is_valid_speaking_style(candidate_style) {
 /**
  * ============================================================================
  * CHANGELOG:
+ * - 2026-09-06: Harmonized rule registries and detox conjugation: (1) Added full
+ *   grammatical inflection dictionaries (ed, ing, s, "") for shift weight, caress,
+ *   and squelch; (2) Unified and consolidated duplicate physical blow and spatial
+ *   disturbance rules; (3) Object.freeze on all exported rule collections; (4) Froze
+ *   VALID_SPEAKING_STYLES lookup set.
  * - 2026-08-29: Harmonized speaking-styles.js with full Universal File Architecture,
  *   standardized section dividers, anti-abbreviation parameter compliance, and
  *   clean downward import grouping.

@@ -50,12 +50,18 @@ describe("speaking-styles taxonomy", () => {
   it("exports comprehensive SPEAKING_STYLE_RULES and categorical subsets", () => {
     expect(Array.isArray(SPEAKING_STYLE_RULES)).toBe(true);
     expect(SPEAKING_STYLE_RULES.length).toBeGreaterThan(40);
+    expect(Object.isFrozen(SPEAKING_STYLE_RULES)).toBe(true);
 
     expect(Array.isArray(VOCAL_RULES)).toBe(true);
+    expect(Object.isFrozen(VOCAL_RULES)).toBe(true);
     expect(Array.isArray(SOUND_RULES)).toBe(true);
+    expect(Object.isFrozen(SOUND_RULES)).toBe(true);
     expect(Array.isArray(SENSORY_RULES)).toBe(true);
+    expect(Object.isFrozen(SENSORY_RULES)).toBe(true);
     expect(Array.isArray(METAPHOR_RULES)).toBe(true);
+    expect(Object.isFrozen(METAPHOR_RULES)).toBe(true);
     expect(Array.isArray(COMMUNITY_RULES)).toBe(true);
+    expect(Object.isFrozen(COMMUNITY_RULES)).toBe(true);
 
     const total_subsets_count = VOCAL_RULES.length + SOUND_RULES.length + SENSORY_RULES.length + METAPHOR_RULES.length + COMMUNITY_RULES.length;
 
