@@ -206,11 +206,11 @@ describe("clean_image_prompt", () => {
 });
 
 describe("Sensory Cortex Refinements (task-1.4)", () => {
-  it("Sensory Cortex template uses <AVAILABLE_KEYWORDS> instead of legacy <tags> or <VISUAL_ENGINE>", () => {
+  it("Sensory Cortex template uses <APPLICABLE_KEYWORDS> instead of legacy <tags> or <VISUAL_ENGINE>", () => {
     const prompt = prompt_templates.build_prompt("story_scene", "The fog rolls in.", {
       fractal: { name: "Mist" },
     });
-    expect(prompt).toContain("<AVAILABLE_KEYWORDS>");
+    expect(prompt).toContain("<APPLICABLE_KEYWORDS>");
     expect(prompt).not.toContain("<VISUAL_ENGINE");
     expect(prompt).not.toContain("<tags>");
   });
@@ -245,14 +245,14 @@ describe("Sensory Cortex Refinements (task-1.4)", () => {
       expect(prompt).not.toContain('Input Intent: "Viper draws her weapon."');
     });
 
-    it("unifies visual style directives into protocol phases and AVAILABLE_KEYWORDS, eliminating VISUAL_ENGINE", () => {
+    it("unifies visual style directives into protocol phases and APPLICABLE_KEYWORDS, eliminating VISUAL_ENGINE", () => {
       const prompt = prompt_templates.build_prompt("story_scene", "The neon rain falls.", {
         fractal: { name: "Nova City" },
       });
       // Legacy separate VISUAL_ENGINE block must be eliminated
       expect(prompt).not.toContain("<VISUAL_ENGINE");
-      // Phase 1 must contain AVAILABLE_KEYWORDS
-      expect(prompt).toContain("<AVAILABLE_KEYWORDS>");
+      // Phase 1 must contain APPLICABLE_KEYWORDS
+      expect(prompt).toContain("<APPLICABLE_KEYWORDS>");
     });
   });
 });

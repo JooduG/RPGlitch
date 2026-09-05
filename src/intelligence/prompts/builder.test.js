@@ -109,6 +109,6 @@ describe("Prompt Builder Facade (builder.js)", () => {
 
   it("build_enhancement() delegates correctly to profile prompts", () => {
     const result = prompt_builder.build_enhancement("eternal.physical", "Content", "Viper", "character");
-    expect(result.system).toContain('enhancing="Permanent Appearance"');
+    expect(result.system).toContain('enhancing="Physical Appearance"');
   });
 });

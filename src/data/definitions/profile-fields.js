@@ -45,7 +45,7 @@ export const PROFILE_FIELDS = {
     },
     physical: {
       character: {
-        label: "Permanent Appearance",
+        label: "Physical Appearance",
         description: "Permanent biometric features for image generation (gender, age, ethnicity, build, face, eyes, hair, height).",
         directive:
           "Permanent physical features for image generation. Return bracketed configuration: [KEY: value] — one bracket per line, no outer braces, no prose outside the brackets. No clothing, expressions, or poses. Mandatory keys: [GENDER: ...], [AGE: ...], [ETHNICITY: ...]. Optional keys: [BUILD: ...], [FACE: ...], [EYES: ...], [SKIN: ...], [HAIR: ...], [EARS: ...], [DENTAL_FEATURES: ...], [HEIGHT: ...]. Visible body details and identifying skin accents/scars only — no traits, skills, gear, or morality. Max 15 lines.",
@@ -159,6 +159,13 @@ function build_profile_catalog(fields) {
   /** @type {Record<string, string>} */
   const leaf_map = {
     appearance: "eternal.physical",
+    personality: "eternal.non_physical",
+    current_look: "present.physical",
+    state_of_mind: "present.non_physical",
+    environment: "eternal.physical",
+    active_atmosphere: "present.physical",
+    current_state: "present.non_physical",
+    metaphysical_truths: "eternal.non_physical",
   };
   const entity_types = ["character", "fractal"];
 
@@ -216,22 +223,22 @@ const { catalog, leaf_map } = build_profile_catalog(PROFILE_FIELDS);
 /**
  * Flat registry of all entity fields, keyed by dot-notation ID.
  */
-export const PROFILE_FIELD_CATALOG = catalog;
+export const PROFILE_FIELD_CATALOG = Object.freeze(catalog);
 
 /**
  * Dynamic flat LLM / card ingestion keys to nested Twin-Cylinder schema paths.
  */
-export const FLAT_LEAF_MAP = leaf_map;
+export const FLAT_LEAF_MAP = Object.freeze(leaf_map);
 
 // ── 3. Profile Section Layout Model ──────────────────────────────────────────
 
 /**
  * Dynamic profile sections map for Profile modal tabs.
  */
-export const PROFILE_SECTIONS_BY_TYPE = {
-  character: build_profile_sections("character"),
-  fractal: build_profile_sections("fractal"),
-};
+export const PROFILE_SECTIONS_BY_TYPE = Object.freeze({
+  character: Object.freeze(build_profile_sections("character")),
+  fractal: Object.freeze(build_profile_sections("fractal")),
+});
 
 /**
  * Builds the profile sections layout dynamically based on entity type.
@@ -245,11 +252,12 @@ export function build_profile_sections(entity_type = "character") {
     .filter(([section_key, section]) => typeof section !== "string" && section !== null && section_key !== "profile")
     .map(([section_key, section_record]) => {
       const section = /** @type {any} */ (section_record);
-      const field_keys = Object.keys(section).filter((key) => !["label", "type", "directive", "description", "enhancer"].includes(key));
+      const is_composite_section = Boolean(section && typeof section === "object" && ("physical" in section || "non_physical" in section));
 
-      const fields =
-        field_keys.length > 0 && section.type !== "array"
-          ? field_keys.map((field_key) => {
+      const fields = is_composite_section
+        ? ["physical", "non_physical"]
+            .filter((field_key) => field_key in section)
+            .map((field_key) => {
               const field = section[field_key];
               const leaf = field[resolved_entity_type] || field;
               return {
@@ -263,17 +271,17 @@ export function build_profile_sections(entity_type = "character") {
                 is_physical: field_key === "physical",
               };
             })
-          : [
-              {
-                key: section_key,
-                label: section.label || format_key_as_label(section_key),
-                column_label: null,
-                description: section.description || section.directive || "",
-                directive: section.directive || "",
-                enhancer: section.enhancer,
-                type: section.type,
-              },
-            ];
+        : [
+            {
+              key: section_key,
+              label: section.label || format_key_as_label(section_key),
+              column_label: null,
+              description: section.description || section.directive || "",
+              directive: section.directive || "",
+              enhancer: section.enhancer,
+              type: section.type,
+            },
+          ];
       return {
         id: section_key,
         label: format_key_as_label(section_key),
@@ -285,4 +293,9 @@ export function build_profile_sections(entity_type = "character") {
 /**
  * CHANGELOG:
  * - 2026-08-29: Harmonized profile-fields module — enforced full-name variable nomenclature, enriched JSDoc types, and aligned universal file architecture.
+ * - 2026-09-06: Standardized field taxonomy:
+ *   (1) Renamed character eternal.physical label from "Permanent Appearance" to "Physical Appearance";
+ *   (2) Pruned legacy `appearance` alias from FLAT_LEAF_MAP per P4 Zero Backwards Compatibility;
+ *   (3) Hardened section detection in build_profile_sections using explicit composite checks;
+ *   (4) Object.freeze exported collections (PROFILE_FIELD_CATALOG, FLAT_LEAF_MAP, PROFILE_SECTIONS_BY_TYPE).
  */

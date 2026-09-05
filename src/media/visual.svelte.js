@@ -201,7 +201,7 @@ export class VisualEngine {
               throw new Error("Image plugin missing");
             }
 
-            const resolution_bounds = get_resolution(options.mode);
+            const resolution_bounds = get_resolution(options._entity?.type === "fractal" ? "fractal_profile" : options.mode);
             const base_negative_prompt = options.negative_prompt?.trim() || "";
 
             const style_key =
@@ -591,7 +591,7 @@ export class VisualEngine {
    * @returns {any}
    */
   _mock_generate(prompt, options = {}) {
-    const resolution_bounds = get_resolution(options.mode);
+    const resolution_bounds = get_resolution(options._entity?.type === "fractal" ? "fractal_profile" : options.mode);
     const width = resolution_bounds.width || 768;
     const height = resolution_bounds.height || 512;
     const is_scene = options.mode === "fractal" || options.mode === "landscape";
@@ -664,11 +664,22 @@ export class VisualEngine {
 
 export const visual_engine = new VisualEngine();
 
+/**
+ * Resets the cached host image engine reference.
+ * Used for testing and dynamic plugin reconnects.
+ */
+export function reset_cached_image_engine() {
+  cached_image_engine = null;
+}
+
 // ============================================================================
 // [CHANGELOG]
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-05: Fractal profile pictures now render in landscape (768x512) — resolution selection is
+ *   entity-type aware, routing fractal `_entity` solo_entity shots through the `fractal_profile`/story_scene
+ *   tier while character portraits stay portrait (512x768).
  * - 2026-08-29: Executed /harmonize protocol: purged shorthand abbreviations (resolution_bounds,
  *   visual_style_tokens, visual_style_positive_tokens, character_negative_tokens,
  *   deduplicated_negative_tokens, cleaned_prompt_preview, etc.), structured full descriptive nomenclature,

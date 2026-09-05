@@ -57,8 +57,8 @@ No dialogue.`,
       "Treat this as an unseen stage direction: weave it into your behavior subtly and in character. Never mention the note, never break the scene, and never present a hidden agenda as known fact.",
     NPC_BOUNDARY: (name) =>
       `Respond strictly as ${name} — a supporting character. Own only your own voice, actions, and perspective: never speak for <USER_PERSONA> or the AI character, and never resolve the overarching story quest on your own. Write third-person limited, present tense, and end on a natural beat.`,
-    NARRATOR_ANCHOR: "Resolve all state inferences strictly from the <YOUR_IDENTITY> block above. Never invent state that is not listed there.",
-    INITIATIVE: "Take initiative to open or advance the scene organically.",
+    INITIATIVE:
+      "Take active initiative to open or advance the scene. Drive events forward through decisions and reactions without waiting for permission.",
   },
 
   GHOSTWRITE: {
@@ -302,7 +302,7 @@ export function render_story_prose({
       : ghostwrite
         ? `${draft_directive}\n    ${STORY_PROTOCOLS.GHOSTWRITE.META}`
         : has_user_action
-          ? `Respond to <USER_ACTION> in character.\n    ${build_pacing_directive(input)}`
+          ? `Advance the scene in response to <USER_ACTION>.\n    ${build_pacing_directive(input)}`
           : STORY_PROTOCOLS.DIRECTIVES.INITIATIVE;
 
   const task = clean_xml(`

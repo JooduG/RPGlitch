@@ -75,8 +75,8 @@ describe("premade-entities registry", () => {
       expect(Array.isArray(character.past)).toBe(true);
       for (const memory of character.past) {
         expect(memory.id).toBeTruthy();
+        expect(memory.id.startsWith("usr_")).toBe(true);
         expect(memory.content).toBeTruthy();
-        expect(memory.meta?.origin).toBe(true);
       }
     }
   });
@@ -113,8 +113,8 @@ describe("premade-entities registry", () => {
       expect(Array.isArray(fractal.past)).toBe(true);
       for (const memory of fractal.past) {
         expect(memory.id).toBeTruthy();
+        expect(memory.id.startsWith("usr_")).toBe(true);
         expect(memory.content).toBeTruthy();
-        expect(memory.meta?.origin).toBe(true);
       }
     }
   });

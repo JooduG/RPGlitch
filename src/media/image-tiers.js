@@ -93,6 +93,8 @@ export function get_tier_guidance_scale(mode) {
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-05: `fractal_profile` tier now consumed by VisualEngine for fractal profile pictures
+ *   (landscape 768x512 via story_scene) — previously only the alias mapping existed.
  * - 2026-08-29: Verified 4-step /harmonize protocol: confirmed pristine layer boundaries, deeply frozen taxonomy tables, 100% pure deterministic resolvers, strict full-name nomenclature compliance, zero dead shims, and 10/10 passing tests.
  * - 2026-08-29: Applied ground-up /refactor protocol: added Universal File Architecture header block,
  *   structured 2 explicit section dividers, sealed IMAGE_TIERS and TIER_RESOLUTIONS tables,

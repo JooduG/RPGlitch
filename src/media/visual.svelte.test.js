@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { VisualEngine } from "./visual.svelte.js";
+import { VisualEngine, reset_cached_image_engine } from "./visual.svelte.js";
 import { llm_service } from "@platform";
 
 vi.mock("@data", () => ({
@@ -109,5 +109,37 @@ describe("VisualEngine.visualize — solo_entity _entity propagation", () => {
     const [, generate_options] = engine.generate.mock.calls[0];
     expect(generate_options.mode).toBe("story_scene");
     expect(generate_options).not.toHaveProperty("_entity");
+  });
+});
+
+describe("VisualEngine.generate — fractal profile pictures render in landscape", () => {
+  let engine;
+
+  beforeEach(() => {
+    reset_cached_image_engine();
+    engine = new VisualEngine();
+    window.generate_image = vi.fn().mockResolvedValue({ dataUrl: "data:image/png;base64,AA==" });
+  });
+
+  it("requests landscape 768x512 for a fractal solo_entity profile picture", async () => {
+    await engine.generate("a neon-soaked alley at night", {
+      mode: "solo_entity",
+      _entity: { id: "fx-9", name: "Void", type: "fractal", modifiers: { prompt: "a neon-soaked alley at night" } },
+      returnPayload: true,
+    });
+
+    expect(window.generate_image).toHaveBeenCalledTimes(1);
+    expect(window.generate_image).toHaveBeenCalledWith(expect.objectContaining({ resolution: "768x512" }));
+  });
+
+  it("keeps portrait 512x768 for a character solo_entity profile picture", async () => {
+    await engine.generate("a brooding solo portrait", {
+      mode: "solo_entity",
+      _entity: { id: "ai-1", name: "Viper", type: "character", modifiers: { prompt: "a brooding solo portrait" } },
+      returnPayload: true,
+    });
+
+    expect(window.generate_image).toHaveBeenCalledTimes(1);
+    expect(window.generate_image).toHaveBeenCalledWith(expect.objectContaining({ resolution: "512x768" }));
   });
 });

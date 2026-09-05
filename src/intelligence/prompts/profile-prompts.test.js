@@ -20,7 +20,7 @@ describe("Profile Prompts (profile-prompts.js)", () => {
         enhancer: "AESTHETICS",
         entity,
       });
-      expect(result).toContain("<PERMANENT_APPEARANCE>");
+      expect(result).toContain("<PHYSICAL_APPEARANCE>");
       expect(result).toContain("<eyeColor>blue</eyeColor>");
       expect(result).toContain("<hair>black</hair>");
     });

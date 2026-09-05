@@ -50,7 +50,6 @@ export const PROTOCOL_LIBRARY = {
       "Perceive physical contours, silhouettes, revealing attire, fit, and exposed skin naturally during neutral and tense beats alike without waiting for overt triggers.",
     SOMATIC_PHYSICALITY:
       "Render physical trauma, strain, impact, and injury consequences with visceral, concrete detail. Physical trauma has lasting momentum and does not instantly resolve.",
-    GENRE_FRAMING: "Ground scene causality, tone, atmospheric weight, and behavioral consequences strictly in the active narrative genre.",
   },
 
   // ── 1.3 Cognition & Epistemic Physics ──────────────────────────────────────

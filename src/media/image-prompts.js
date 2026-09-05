@@ -71,54 +71,60 @@ export function build_optics_builder_protocol(style_definition = {}, engine_toke
       : [];
   const valid_keywords = keyword_list.filter(Boolean);
   const keywords_str = valid_keywords.length ? valid_keywords.join(", ") : "cinematic, atmospheric";
-  const available_keywords_xml = `<AVAILABLE_KEYWORDS>\n${prompt_escape(keywords_str)}\n</AVAILABLE_KEYWORDS>`;
+  const available_keywords_xml = `<APPLICABLE_KEYWORDS>Integrate some of the following keywords:\n${prompt_escape(keywords_str)}\n</APPLICABLE_KEYWORDS>`;
 
   const camera_or_composition = engine_tokens.camera
-    ? `<camera>${escape_xml(engine_tokens.camera)}</camera>`
+    ? `<CAMERA>Technical specifications: ${escape_xml(engine_tokens.camera)}</CAMERA>`
     : engine_tokens.composition
-      ? `<composition>${escape_xml(engine_tokens.composition)}</composition>`
+      ? `<COMPOSITION>${escape_xml(engine_tokens.composition)}</COMPOSITION>`
       : "";
 
-  const medium_palette_xml = [
-    engine_tokens.medium ? `<medium>${escape_xml(engine_tokens.medium)}</medium>` : "",
-    engine_tokens.palette ? `<palette>${escape_xml(engine_tokens.palette)}</palette>` : "",
-  ]
-    .filter(Boolean)
-    .join("\n");
+  const medium_xml = engine_tokens.medium
+    ? `\n<MEDIUM>Specified artistic medium dictates absolute style; strip out conflicting terms: ${escape_xml(engine_tokens.medium)}</MEDIUM>`
+    : "";
+  const palette_xml = engine_tokens.palette
+    ? `\n<PALETTE>Strict palette overrides conflicting color terms: ${escape_xml(engine_tokens.palette)}</PALETTE>`
+    : "";
 
-  const texture_xml = engine_tokens.texture ? `<texture>${escape_xml(engine_tokens.texture)}</texture>` : "";
+  const texture_xml = engine_tokens.texture ? `<TEXTURES>Include textures such as: ${escape_xml(engine_tokens.texture)}</TEXTURES>` : "";
 
-  return `EXECUTE VISUAL SYNTHESIS IN 5 ORDERED PHASES:
+  return `<VISUAL_SYNTHESIS>
 
-PHASE 1: EXECUTION & OUTPUT STRUCTURE
-- Formulate composition strategy inside "_thought_process" key first.
-- Output final image prompt inside "prompt" as continuous, fluid prose.
-- Output negative tokens inside "negative_prompt". Enforce KEYWORD_INTEGRITY — quality buzzwords ('masterpiece', '8K', 'ultra HD', 'photorealistic', 'digital art') are forbidden in BOTH "prompt" and "negative_prompt". Ground outputs using physical optics and real-world materials.
-- Enforce FLUX_T5_WEIGHTING — NEVER emit bracket weight math ('(x:1.3)', '((x))', '[x:0.4]'): FLUX/T5 reads words, not weights. Emphasize via descriptors, varied rephrasing, and attenuation phrasing ('faint', 'subtle touch of', 'barely visible in the distance').
-- Enforce POSITIVE_FRAMING — describe what IS physically in frame ('a softly moonlit glade' rather than 'no harsh sunlight'); keep the negative_prompt limited to global quality artifacts.
+<PHASE_1 task="EXECUTION_&_OUTPUT_STRUCTURE">
+<THOUGHT_PROCESS>Formulate composition strategy inside "_thought_process" key first.</THOUGHT_PROCESS>
+<PROMPT_PROSE>Output final image prompt inside "prompt" as continuous, fluid prose.</PROMPT_PROSE>
+<NEGATIVE_PROMPT>Output negative tokens inside "negative_prompt". Enforce KEYWORD_INTEGRITY — quality buzzwords ('masterpiece', '8K', 'ultra HD', 'photorealistic', 'digital art') are forbidden in BOTH "prompt" and "negative_prompt". Ground outputs using physical optics and real-world materials.</NEGATIVE_PROMPT>
+<WEIGHTING_FORBIDDEN>Enforce FLUX_T5_WEIGHTING — NEVER emit bracket weight math ('(x:1.3)', '((x))', '[x:0.4]'): FLUX/T5 reads words, not weights. Emphasize via descriptors, varied rephrasing, and attenuation phrasing ('faint', 'subtle touch of', 'barely visible in the distance').</WEIGHTING_FORBIDDEN>
+<POSITIVE_FRAMING>Describe what IS physically in frame ('a softly moonlit glade' rather than 'no harsh sunlight'); keep the negative_prompt limited to global quality artifacts.</POSITIVE_FRAMING>
 ${available_keywords_xml}
+</PHASE_1>
 
-PHASE 2: SUBJECT & SPATIAL FRAMING (FIRST SENTENCE PRIORITY)
-- FIRST SENTENCE MANDATE: Always place main entities and active physical interactions in the VERY FIRST sentence.
-- Spatial Geometry: Strictly enforce camera angles, elevations (e.g., balconies), lighting positions, and distance.
-- Direct Depiction: Render what is happening in the active scene moment.${camera_or_composition ? `\n${camera_or_composition}` : ""}
+<PHASE_2 task="SPATIAL_FRAMING">
+<FIRST_SENTENCE_MANDATE>Always place main entities and active physical interactions in the VERY FIRST sentence.</FIRST_SENTENCE_MANDATE>
+<SPATIAL_GEOMETRY>Strictly enforce camera angles, elevations (e.g., balconies), lighting positions, and distance.</SPATIAL_GEOMETRY>
+<DIRECT_DEPICTION>Render what is happening in the active scene moment.</DIRECT_DEPICTION>${camera_or_composition ? `\n${camera_or_composition}` : ""}
+</PHASE_2>
 
-PHASE 3: CHARACTER SPECIFICATION & OVERRIDES
-- Explicit Identifiers: Always explicitly state gender and physical identifiers (e.g., "a handsome young male high-elf man").
-- Animal/Creature Disambiguation: Never use bare animal/creature proper names (e.g., "Beast"). Translate to explicit physical traits (e.g., "a massive grey-green male orc warrior").
-- Feature Weighting: Dedicate maximum descriptive effort to unique features (scars, glowing eyes, horns); keep common traits brief. Reinforce key subjects through varied rephrasing across clauses rather than numeric weights.
-- Lexical Register Preservation: Preserve the specific visceral, crude, or raw vocabulary from the participant's action and character state (e.g. 'cock', 'shaft', 'bulge', 'thong', 'pecs', 'grease-stained') rather than sanitizing into sterile or clinical synonyms ('genitals', 'undergarment'). Diffusion models and T5 text encoders have vastly different training distributions and aesthetic associations for crude/visceral terms versus clinical terms.
-- Garment Anatomy & Underwear Specificity: When rendering specialized or revealing garments (e.g., jockstraps, thongs, harnesses), explicitly specify their physical mechanics and bare skin exposure in natural prose. For a jockstrap, describe: 'wearing an athletic jockstrap featuring a supportive front pouch, open sides and back with bare exposed butt cheeks, and dual wide elastic straps circling under the glutes/thighs'. For thongs, describe: 'a narrow string back leaving the rear completely bare'. Never allow jockstraps to collapse into generic briefs or full-coverage shorts.
-- Alternation Resolution: If an input attribute contains Perchance alternation syntax '{Option A|Option B}', resolve it to exactly ONE option consistent with the current narrative; never blend options and never echo the braces or pipe.
-- Dynamic State Override: Follow a strict bottom-up hierarchy where the most recent (bottom-most) physical condition update ALWAYS overrides preceding static tags like <SHIRT> or <JACKET>. If a conflicting state appears later (e.g. 'no clothes' then later 'shirt: white'), the most recent/latest state wins.
+<PHASE_3 task="CHARACTER_SPECIFICATION">
+<IDENTIFIERS>Always explicitly state gender and physical identifiers (e.g., "a handsome young male high-elf man").</IDENTIFIERS>
+<CREATURE_DISAMBIGUATION>Never use bare animal/creature proper names (e.g., "Beast"). Translate to explicit physical traits (e.g., "a massive grey-green male orc warrior").</CREATURE_DISAMBIGUATION>
+<FEATURE_WEIGHTING>Dedicate maximum descriptive effort to distinguishing features (scars, glowing eyes, horns); keep common traits brief. Reinforce key subjects through varied rephrasing across clauses rather than numeric weights.</FEATURE_WEIGHTING>
+<LEXICAL_PRESERVATION>Preserve the specific visceral, crude, or raw vocabulary from the participant's action and character state (e.g. 'cock', 'shaft', 'bulge', 'thong', 'pecs', 'grease-stained') rather than sanitizing into sterile or clinical synonyms ('genitals', 'undergarment'). Diffusion models and T5 text encoders have vastly different training distributions and aesthetic associations for crude/visceral terms versus clinical terms.</LEXICAL_PRESERVATION>
+<GARMENT_ANATOMY>When rendering specialized or revealing garments (e.g., jockstraps, thongs, harnesses), explicitly specify their physical mechanics and bare skin exposure in natural prose. For a jockstrap, describe: 'wearing an athletic jockstrap featuring a supportive front pouch, open sides and back with bare exposed butt cheeks, and dual wide elastic straps circling under the glutes/thighs'. For thongs, describe: 'a narrow string back leaving the rear completely bare'. Never allow jockstraps to collapse into generic briefs or full-coverage shorts.</GARMENT_ANATOMY>
+<ALTERNATION_RESOLUTION>If an input attribute contains Perchance alternation syntax '{Option A|Option B}', resolve it to exactly ONE option consistent with the current narrative; never blend options and never echo the braces or pipe.</ALTERNATION_RESOLUTION>
+<DYNAMIC_OVERRIDES>Follow a strict bottom-up hierarchy where the most recent (bottom-most) physical condition update ALWAYS overrides preceding static tags like <SHIRT> or <JACKET>. If a conflicting state appears later (e.g. 'no clothes' then later 'shirt: white'), the most recent/latest state wins.</DYNAMIC_OVERRIDES>
+</PHASE_3>
 
-PHASE 4: STYLE & MEDIUM DISCIPLINE
-- Medium Authority: Specified artistic medium (e.g., oil painting, pixel art, charcoal) dictates absolute style. Strip out conflicting photorealistic terms.
-- Palette Strictness: Strict medium palettes (monochrome, sepia, cyanotype) override conflicting color terms.${medium_palette_xml ? `\n${medium_palette_xml}` : ""}
+<PHASE_4 task="STYLE_DISCIPLINE">
+<STYLE_AUTHORITY>Harmonize optical rendering with designated aesthetic style and medium constraints.</STYLE_AUTHORITY>${medium_xml}${palette_xml}
+</PHASE_4>
 
-PHASE 5: SENSORY & ENVIRONMENTAL GROUNDING
-- Ground scenes with tangible environmental light fixtures (e.g., flickering cathode tubes, wet pavement reflections, harsh key lamps) and tactile physical surfaces.
-- Typography & Signage (OPTIONAL): Render on-screen text ONLY when the scene itself calls for it — signs, graffiti, titles, or UI that are part of the subject matter. Never add text artificially. When text IS present, spell it out exactly and specify placement, font, and color (e.g. "OPEN" in glowing red neon, centered above the doors) — never invent, garble, or approximate lettering, and never output generic placeholders like "text" or "sign".${texture_xml ? `\n${texture_xml}` : ""}`;
+<PHASE_5 task="SENSORY_GROUNDING">
+<ENVIRONMENTAL_GROUNDING>Ground scenes with tangible environmental light fixtures (e.g., flickering cathode tubes, wet pavement reflections, harsh key lamps) and tactile physical surfaces.</ENVIRONMENTAL_GROUNDING>
+<TYPOGRAPHY>Render on-screen text ONLY when the scene itself calls for it — signs, graffiti, titles, or UI that are part of the subject matter. Never add text artificially. When text IS present, spell it out exactly and specify placement, font, and color (e.g. "OPEN" in glowing red neon, centered above the doors) — never invent, garble, or approximate lettering, and never output generic placeholders like "text" or "sign".</TYPOGRAPHY>${texture_xml ? `\n${texture_xml}` : ""}
+</PHASE_5>
+
+</VISUAL_SYNTHESIS>`;
 }
 
 export const OPTICS_BUILDER_PROTOCOL = build_optics_builder_protocol();
@@ -242,7 +248,7 @@ export const prompt_templates = {
     const history_xml = format_sensory_history(history);
 
     return `
-<SYSTEM role="SENSORY_CORTEX_V5">
+<SYSTEM role="SENSORY_CORTEX">
 <PROTOCOL>
 ${protocol_text}
 ${is_selfie ? '\nPHASE 6: SELFIE MODE EXTENSION\n- Generate a short, in-character social media caption inside "caption".' : ""}

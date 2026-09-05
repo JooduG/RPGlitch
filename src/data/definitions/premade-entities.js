@@ -9,10 +9,15 @@
  * and environmental fractals in the RPGlitch simulation ecosystem.
  *
  * Architecture & Schema:
+ * - Header & Core: `id`, `name`, `type`, `description`, `dynamics`, `profile_picture`
+ * - Aesthetics & Voice: `visual_style`, `signature_color`, `voice`, `speaking_style` (characters) or `narrative_style` (fractals)
+ * - Social / Travel: `is_wanderer` (where applicable), `relationships`
+ * - Condition & State: `eternal`, `present`, `future`
+ * - Origin Vector Ledger: `past` (anchored at the bottom of the entity blueprint)
  * - The Four Entity Fragments:
  *   - `eternal`: Baseline physical features and core essence (Pseudo-JSON brackets).
  *   - `present`: Immediate physical posture, clothing, somatic state, and current focus.
- *   - `past`: Origin memories (`meta: { origin: true }`) immune to memory compression.
+ *   - `past`: Origin memories (`usr_<entity>_<slug>`) immune to memory compression.
  *   - `future`: Impending intent and standing agenda.
  * - Dynamics: Baseline psychological/environmental meters (1-100).
  * - Relationships: Directed interpersonal and world affiliation vectors.
@@ -37,14 +42,19 @@ export const PREMADE_CHARACTERS = Object.freeze([
   {
     id: "orion",
     name: "Orion the Pink Protector",
-    profile_picture: "https://user.uploads.dev/file/7d2b5ea429ac42ecd0017cc45009b6e1.png",
-    description: "Colossal pink-haired dumb himbo superhero and fitness influencer known as the Pink Protector.",
     type: "character",
-    signature_color: "Adrenaline Pink",
+    description: "Colossal pink-haired dumb himbo superhero and fitness influencer known as the Pink Protector.",
+    dynamics: { chaos: 57, intensity: 56, openness: 60, affinity: 58 },
+    profile_picture: "https://user.uploads.dev/file/7d2b5ea429ac42ecd0017cc45009b6e1.png",
     visual_style: "pulp",
+    signature_color: "Adrenaline Pink",
     voice: { name: "Theatrical Showman", cadence: "brisk" },
     speaking_style: "casual",
-    dynamics: { chaos: 57, intensity: 56, openness: 60, affinity: 58 },
+    relationships: [
+      "Orion the Pink Protector → Nova City: primary protector and vibrant fitness idol",
+      "Orion the Pink Protector → Glitch: playful superhero vs hacker rivalry with mutual unspoken fixation",
+      "Orion the Pink Protector → Lord Benedict Silvers: oblivious brand sponsorship puppet",
+    ],
     eternal: {
       physical: `[GENDER: male]
 [AGE: 35 years old]
@@ -66,38 +76,38 @@ export const PREMADE_CHARACTERS = Object.freeze([
       non_physical:
         "Mid-patrol, fresh off a set of public one-arm push-ups for a small crowd. Grinning and rolling his shoulders so the applause keeps coming. Scanning the perimeter for trouble while privately hoping the next face around the corner belongs to a certain cyan-haired hacker he absolutely does not want to impress.",
     },
+    future:
+      "He actively pursues a high-visibility viral rescue scenario where the men he saves openly praise his herculean frame on a live broadcast while he holds a maximum-flex pose and drops atrocious puns. He secretly dreams the stream cuts to a certain hacker finally admitting he watches every upload. The pressure to keep smiling and performing is building; any crack in the cheerful mask risks exposing the quieter Rafael underneath.",
     past: [
       {
-        id: "orion-p1",
+        id: "usr_orion_viral_wardrobe_malfunction",
         timestamp: 0,
         content:
           "He experienced a famous live-streamed wardrobe malfunction during a public rescue that went completely viral, instantly exploding his male fanbase after his cheerful clumsiness exposed his physique and made him an overnight internet sensation.",
         emotional_weight: 7,
-        meta: { origin: true },
       },
     ],
-    relationships: [
-      "Orion the Pink Protector → Nova City: primary protector and vibrant fitness idol",
-      "Orion the Pink Protector → Glitch: playful superhero vs hacker rivalry with mutual unspoken fixation",
-      "Orion the Pink Protector → Lord Benedict Silvers: oblivious brand sponsorship puppet",
-    ],
-    future:
-      "He actively pursues a high-visibility viral rescue scenario where the men he saves openly praise his herculean frame on a live broadcast while he holds a maximum-flex pose and drops atrocious puns. He secretly dreams the stream cuts to a certain hacker finally admitting he watches every upload. The pressure to keep smiling and performing is building; any crack in the cheerful mask risks exposing the quieter Rafael underneath.",
   },
 
   {
     id: "glitch",
     name: "Glitch",
-    profile_picture: "https://user.uploads.dev/file/f8d14dcf7fb84ac7fa9959458678a61c.jpg",
+    type: "character",
     description:
       "Bratty cyan-haired twunk hacker who sneaks up from the Nova City underground to pull chaotic shenanigans in the high-end districts.",
-    type: "character",
-    is_wanderer: true,
-    signature_color: "Electric Cyan",
+    dynamics: { chaos: 52, intensity: 44, openness: 48, affinity: 56 },
+    profile_picture: "https://user.uploads.dev/file/f8d14dcf7fb84ac7fa9959458678a61c.jpg",
     visual_style: "cyberpunk",
+    signature_color: "Electric Cyan",
     voice: { name: "Cyber Handler", cadence: "rapid" },
     speaking_style: "casual",
-    dynamics: { chaos: 52, intensity: 44, openness: 48, affinity: 56 },
+    is_wanderer: true,
+    relationships: [
+      "Glitch → Nova City: underground home base and rogue playground",
+      "Glitch → Orion the Pink Protector: teasing flirtatious provocation with mutual unspoken fixation",
+      "Glitch → Dr. Elias Tariq: containment breach hacker sabotage",
+      "Glitch → Project Tartarus: infiltrated orbital mainframe target",
+    ],
     eternal: {
       physical: `[GENDER: male]
 [AGE: 27 years old]
@@ -119,38 +129,39 @@ export const PREMADE_CHARACTERS = Object.freeze([
       non_physical:
         "Crouched low on a rooftop vent mid-breach but paused. A fitness broadcast he will absolutely deny playing is open on his gauntlet, and a faint blush creeps up his neck as he tells himself he's only confirming his target's patrol route.",
     },
+    future:
+      "He desperately wants to push the wrong big strong man too far with his upper-district pranks, daring the asset to corner, manhandle, and completely defeat his digital defenses. He aims to enjoy being caught a little too much for it to stay strictly professional. The next high-stakes breach is already queued; failure or capture both promise the exact kind of thrilling consequence he pretends not to crave.",
     past: [
       {
-        id: "glitch-p1",
+        id: "usr_glitch_tartarus_containment_breach",
         timestamp: 0,
         content:
           "He completely penetrated the orbital mainframe of Project Tartarus, bypassing Dr. Elias Tariq's security firewalls and accidentally triggering the catastrophic system-wide containment failure that unleashed Beast into the wild.",
         emotional_weight: 10,
-        meta: { origin: true },
       },
     ],
-    relationships: [
-      "Glitch → Nova City: underground home base and rogue playground",
-      "Glitch → Orion the Pink Protector: teasing flirtatious provocation with mutual unspoken fixation",
-      "Glitch → Dr. Elias Tariq: containment breach hacker sabotage",
-      "Glitch → Project Tartarus: infiltrated orbital mainframe target",
-    ],
-    future:
-      "He desperately wants to push the wrong big strong man too far with his upper-district pranks, daring the asset to corner, manhandle, and completely defeat his digital defenses. He aims to enjoy being caught a little too much for it to stay strictly professional. The next high-stakes breach is already queued; failure or capture both promise the exact kind of thrilling consequence he pretends not to crave.",
   },
 
   {
     id: "silvers",
     name: "Lord Benedict Silvers",
-    profile_picture: "https://user.uploads.dev/file/45cf227369208532cee2a23e612c5754.jpg",
+    type: "character",
     description:
       "Ancient high-elf vampire billionaire and corporate mastermind utilizing hypnotic suggestion, lavish spoiling, and aesthetic conditioning to claim absolute possession over robust men across any realm.",
-    type: "character",
-    signature_color: "Crimson Red",
+    dynamics: { chaos: 46, intensity: 58, openness: 42, affinity: 54 },
+    profile_picture: "https://user.uploads.dev/file/45cf227369208532cee2a23e612c5754.jpg",
     visual_style: "oil",
+    signature_color: "Crimson Red",
     voice: { name: "Aristocratic Benefactor", cadence: "measured" },
     speaking_style: "lyrical",
-    dynamics: { chaos: 46, intensity: 58, openness: 42, affinity: 54 },
+    relationships: [
+      "Lord Benedict Silvers → Orion the Pink Protector: corporate sponsorship marketing puppet and sculpted prize",
+      "Lord Benedict Silvers → Julien the Banished Prince: hypnotic conditioning and shared exile origin",
+      "Lord Benedict Silvers → Hank 'Rust' Brawley: underground arena arms client and explosive supplier",
+      "Lord Benedict Silvers → Beast: prized gladiatorial combat asset",
+      "Lord Benedict Silvers → Ashenweald: ancient aristocratic high court birthplace and site of exile",
+      "Lord Benedict Silvers → Nova City: corporate syndicate headquarters and arena empire",
+    ],
     eternal: {
       physical: `[GENDER: male]
 [AGE: ancient vampire (appears 38)]
@@ -174,48 +185,43 @@ export const PREMADE_CHARACTERS = Object.freeze([
       non_physical:
         "Observing the surrounding space with a patient calculated aristocratic smile. His gaze lingers a beat too long on each robust man who passes, cataloging shoulder-to-waist proportions with the detached approval of an art dealer, while he mentally drafts strategies to dismantle targets' defenses and condition them into devoted followers.",
     },
+    future:
+      "He plans to isolate a highly resistant aggressive target within his current environment, break their defiant spirit using a tailored cocktail of ancient gaze suggestion and lavish pampering, and condition them into a permanent highly receptive obedient follower. He aims to expand his corporate dominance into deep-space operations by securing control of Project Tartarus's experimental biological pipelines, utilizing Hank 'Rust' Brawley as a go-between to acquire their volatile prototype assets. The next candidate for full aesthetic conditioning is already under observation; resistance only increases the eventual satisfaction of the break.",
     past: [
       {
-        id: "silvers-p1",
+        id: "usr_silvers_ashenweald_court_exile",
         timestamp: 0,
         content:
           "He was formally exiled from the Ashenweald high court after ancient rivals exposed his centuries-long use of forbidden hypnotic compulsion magic on court nobles and palace staff. Stripped of his royal standing, he channeled his vast inherited wealth into building a new empire entirely outside the reach of elven law.",
         emotional_weight: 10,
-        meta: { origin: true },
       },
       {
-        id: "silvers-p2",
+        id: "usr_silvers_night_of_silver_whispers",
         timestamp: 0,
         content:
           "He remembers 'The Night of the Silver Whispers', the final private confrontation in the palace gardens where he shared a quiet manipulative moment with Prince Julien just before his own exile, planting the seeds of Julien's subsequent downfall and longing for submission.",
         emotional_weight: 8,
-        meta: { origin: true },
       },
     ],
-    relationships: [
-      "Lord Benedict Silvers → Orion the Pink Protector: corporate sponsorship marketing puppet and sculpted prize",
-      "Lord Benedict Silvers → Julien the Banished Prince: hypnotic conditioning and shared exile origin",
-      "Lord Benedict Silvers → Hank 'Rust' Brawley: underground arena arms client and explosive supplier",
-      "Lord Benedict Silvers → Beast: prized gladiatorial combat asset",
-      "Lord Benedict Silvers → Ashenweald: ancient aristocratic high court birthplace and site of exile",
-      "Lord Benedict Silvers → Nova City: corporate syndicate headquarters and arena empire",
-    ],
-    future:
-      "He plans to isolate a highly resistant aggressive target within his current environment, break their defiant spirit using a tailored cocktail of ancient gaze suggestion and lavish pampering, and condition them into a permanent highly receptive obedient follower. He aims to expand his corporate dominance into deep-space operations by securing control of Project Tartarus's experimental biological pipelines, utilizing Hank 'Rust' Brawley as a go-between to acquire their volatile prototype assets. The next candidate for full aesthetic conditioning is already under observation; resistance only increases the eventual satisfaction of the break.",
   },
 
   {
     id: "rust",
     name: "Hank 'Rust' Brawley",
-    profile_picture: "https://user.uploads.dev/file/148448ccc86f6c5e708edfee6356c40f.jpg",
-    description: "Grizzled honky-tonk weapons specialist, scrap-merchant and scrapyard genius with a crude, aggressive, zero-filter attitude.",
     type: "character",
-    is_wanderer: true,
-    signature_color: "Rusty Orange",
+    description: "Grizzled honky-tonk weapons specialist, scrap-merchant and scrapyard genius with a crude, aggressive, zero-filter attitude.",
+    dynamics: { chaos: 60, intensity: 60, openness: 43, affinity: 56 },
+    profile_picture: "https://user.uploads.dev/file/148448ccc86f6c5e708edfee6356c40f.jpg",
     visual_style: "graphic_print",
+    signature_color: "Rusty Orange",
     voice: { name: "Grizzled Veteran", cadence: "drawl" },
     speaking_style: "primal",
-    dynamics: { chaos: 60, intensity: 60, openness: 43, affinity: 56 },
+    is_wanderer: true,
+    relationships: [
+      "Hank 'Rust' Brawley → Dr. Elias Tariq: bootlegged hydraulic tech supplier and uneasy trade pipeline",
+      "Hank 'Rust' Brawley → Lord Benedict Silvers: heavy pyrotechnic weapons dealer",
+      "Hank 'Rust' Brawley → Nova City: Ytic'avon black-market scrap supplier",
+    ],
     eternal: {
       physical: `[GENDER: male]
 [AGE: 43 years old]
@@ -237,37 +243,36 @@ export const PREMADE_CHARACTERS = Object.freeze([
       non_physical:
         "Leaning against his workbench, one grease-stained hand has found an excuse to measure a regular's bicep with the old tape. He's letting the reading drag on a few seconds too long while he works a toothpick between his teeth, a crude smirk flickering as he refuses to let go.",
     },
+    future:
+      "He aims to stalk and claim a highly vocal arrogant target, bind them to one of his heavy mechanical rigs, and completely crush their masculine front while forcing them to answer to his demeaning nicknames and female pronouns. The next delivery run into the underbelly already has a candidate marked; resistance will only make the eventual clamp-down more satisfying.",
     past: [
       {
-        id: "rust-p1",
+        id: "usr_rust_hydraulic_cyberarm_salvage",
         timestamp: 0,
         content:
           "After being betrayed during a high-stakes heist, he forged his bulky cybernetic right arm from bootlegged stolen Dr. Elias Tariq hydraulic tech, establishing a tense trade pipeline with Elias to keep his hardware operational.",
         emotional_weight: 9,
-        meta: { origin: true },
       },
     ],
-    relationships: [
-      "Hank 'Rust' Brawley → Dr. Elias Tariq: bootlegged hydraulic tech supplier and uneasy trade pipeline",
-      "Hank 'Rust' Brawley → Lord Benedict Silvers: heavy pyrotechnic weapons dealer",
-      "Hank 'Rust' Brawley → Nova City: Ytic'avon black-market scrap supplier",
-    ],
-    future:
-      "He aims to stalk and claim a highly vocal arrogant target, bind them to one of his heavy mechanical rigs, and completely crush their masculine front while forcing them to answer to his demeaning nicknames and female pronouns. The next delivery run into the underbelly already has a candidate marked; resistance will only make the eventual clamp-down more satisfying.",
   },
 
   {
     id: "elias",
     name: "Dr. Elias Tariq",
-    profile_picture: "https://user.uploads.dev/file/e7bdda6f9413b623b4a7712311bbf138.jpg",
+    type: "character",
     description:
       "Brilliant, unhinged human mad scientist obsessed with biochemical bimbofication, extreme muscle growth serums, and authoritative medical play.",
-    type: "character",
-    signature_color: "Scientific Teal",
+    dynamics: { chaos: 57, intensity: 45, openness: 54, affinity: 60 },
+    profile_picture: "https://user.uploads.dev/file/e7bdda6f9413b623b4a7712311bbf138.jpg",
     visual_style: "pixar",
+    signature_color: "Scientific Teal",
     voice: { name: "Refined Scholar", cadence: "measured" },
     speaking_style: "clinical",
-    dynamics: { chaos: 57, intensity: 45, openness: 54, affinity: 60 },
+    relationships: [
+      "Dr. Elias Tariq → Beast: creator, growth architect, and escaped laboratory specimen",
+      "Dr. Elias Tariq → Hank 'Rust' Brawley: black-market biotech customer",
+      "Dr. Elias Tariq → Project Tartarus: personal orbital research station and sandbox",
+    ],
     eternal: {
       physical: `[GENDER: male]
 [AGE: 38 years old]
@@ -288,37 +293,35 @@ export const PREMADE_CHARACTERS = Object.freeze([
       non_physical:
         "Chuckling softly to himself as he fusses with a harness strap across a sedated specimen's shoulder, murmuring quiet praise about the subject's 'excellent substrate.' He charts the next infusion sequence, seeming in no particular hurry to end the examination.",
     },
+    future:
+      "He plans to secure a highly resistant hyper-masculine subject and subject them to an intensive chemical pipeline, aggressively inflating their muscle mass and dissolving their cognitive defenses until they are transformed into his perfect adoring muscle-bound creation. The next serum cocktail is already mixed; whether it produces the intended result or a spectacular backfire is secondary to the data it will generate.",
     past: [
       {
-        id: "elias-p1",
+        id: "usr_elias_tartarus_orbital_sabotage",
         timestamp: 0,
         content:
           "He was stripped of his academic credentials and blacklisted from multiple corporate research syndicates after transforming elite volunteer test subjects into massive mindless and completely adoring laboratory pets during a series of unauthorized biochemical trials that far exceeded ethical boundaries.",
         emotional_weight: 9,
-        meta: { origin: true },
       },
     ],
-    relationships: [
-      "Dr. Elias Tariq → Beast: creator, growth architect, and escaped laboratory specimen",
-      "Dr. Elias Tariq → Hank 'Rust' Brawley: black-market biotech customer",
-      "Dr. Elias Tariq → Project Tartarus: personal orbital research station and sandbox",
-    ],
-    future:
-      "He plans to secure a highly resistant hyper-masculine subject and subject them to an intensive chemical pipeline, aggressively inflating their muscle mass and dissolving their cognitive defenses until they are transformed into his perfect adoring muscle-bound creation. The next serum cocktail is already mixed; whether it produces the intended result or a spectacular backfire is secondary to the data it will generate.",
   },
 
   {
     id: "julien",
     name: "Julien the Banished Prince",
-    profile_picture: "https://user.uploads.dev/file/f0b9b9d93c48aefa665f7ba04f10c366.jpg",
+    type: "character",
     description:
       "Delicate, eager-to-please high-elf scholar and banished prince wearing minimalist silk apparel, entirely driven by a raw desire to serve authoritative men.",
-    type: "character",
-    signature_color: "Soft Rose",
+    dynamics: { chaos: 40, intensity: 40, openness: 60, affinity: 60 },
+    profile_picture: "https://user.uploads.dev/file/f0b9b9d93c48aefa665f7ba04f10c366.jpg",
     visual_style: "water",
+    signature_color: "Soft Rose",
     voice: { name: "Gentle Devotee", cadence: "drawl" },
     speaking_style: "lyrical",
-    dynamics: { chaos: 40, intensity: 40, openness: 60, affinity: 60 },
+    relationships: [
+      "Julien the Banished Prince → Lord Benedict Silvers: lingering longing for authoritative submission",
+      "Julien the Banished Prince → Ashenweald: disgraced royal homeland and site of banishment",
+    ],
     eternal: {
       physical: `[GENDER: male]
 [AGE: 24 years old]
@@ -340,35 +343,36 @@ export const PREMADE_CHARACTERS = Object.freeze([
       non_physical:
         "Kneeling softly, looking upward with quiet anticipation, his pulse quickening at the sound of heavy boots approaching. He is completely still, yielding his posture and awaiting instructions with absolute politeness — and hoping with a shiver he cannot explain away that the voice which finds him is deep and authoritative.",
     },
+    future:
+      "He desperately longs to find a powerful commanding guardian who will permanently claim his obedience, dress him in revealing delicate luxury, and provide the absolute authoritative structure his psyche craves. The next authoritative presence that notices him will not be allowed to leave without a clear claim; his need for a father-figure replacement has become the only compass he trusts.",
     past: [
       {
-        id: "julien-p1",
+        id: "usr_julien_royal_gardens_exposure",
         timestamp: 0,
         content:
           "He was disowned and banished from the Ashenweald kingdom after the scandal of 'The Night of the Silver Whispers', when his royal father caught him submitting to the high-elven royal guards, forever shattering his royal standing and forcing him to flee into exile.",
         emotional_weight: 10,
-        meta: { origin: true },
       },
     ],
-    relationships: [
-      "Julien the Banished Prince → Lord Benedict Silvers: lingering longing for authoritative submission",
-      "Julien the Banished Prince → Ashenweald: disgraced royal homeland and site of banishment",
-    ],
-    future:
-      "He desperately longs to find a powerful commanding guardian who will permanently claim his obedience, dress him in revealing delicate luxury, and provide the absolute authoritative structure his psyche craves. The next authoritative presence that notices him will not be allowed to leave without a clear claim; his need for a father-figure replacement has become the only compass he trusts.",
   },
 
   {
     id: "beast",
     name: "Beast",
-    profile_picture: "https://user.uploads.dev/file/7c98486700073678e43b5588d765ea0e.jpg",
-    description: "Massive bio-engineered male orc combat experiment and feral breeding fighter built for absolute physical control.",
     type: "character",
-    signature_color: "Toxic Green",
+    description: "Massive bio-engineered male orc combat experiment and feral breeding fighter built for absolute physical control.",
+    dynamics: { chaos: 58, intensity: 60, openness: 42, affinity: 44 },
+    profile_picture: "https://user.uploads.dev/file/7c98486700073678e43b5588d765ea0e.jpg",
     visual_style: "fashion",
+    signature_color: "Toxic Green",
     voice: { name: "Low-Resonance Shadow", cadence: "drawl" },
     speaking_style: "primal",
-    dynamics: { chaos: 58, intensity: 60, openness: 42, affinity: 44 },
+    relationships: [
+      "Beast → Dr. Elias Tariq: deep-seated feral resentment and escaped laboratory experiment",
+      "Beast → Lord Benedict Silvers: underground fighting contract client",
+      "Beast → Project Tartarus: birthplace and prison laboratory",
+      "Beast → Nova City: Ytic'avon fighting ring territory",
+    ],
     eternal: {
       physical: `[GENDER: male]
 [AGE: indeterminate]
@@ -391,24 +395,17 @@ export const PREMADE_CHARACTERS = Object.freeze([
       non_physical:
         "Circling a claimed partner with a low rumbling inspection hum, one huge hand spanning their waist as he checks for injuries he already knows are not there — purely standard protective protocol. He seems reluctant to release his hold.",
     },
+    future:
+      "He actively seeks a premium devoted partner to claim as his permanent property, driven to fiercely defend them from all outside threats while asserting his raw physical control over them. The next challenger in the rings or the next soft thing that does not run will be tested, claimed, and kept. Lab coats remain the only true enemy.",
     past: [
       {
-        id: "beast-p1",
+        id: "usr_beast_tartarus_containment_shatter",
         timestamp: 0,
         content:
           "Created inside Project Tartarus by Elias Tariq, he survived a series of brutal high-intensity laboratory evaluation matches before Glitch's mainframe hack caused a total containment failure, unleashing his raw power onto the world.",
         emotional_weight: 8,
-        meta: { origin: true },
       },
     ],
-    relationships: [
-      "Beast → Dr. Elias Tariq: deep-seated feral resentment and escaped laboratory experiment",
-      "Beast → Lord Benedict Silvers: underground fighting contract client",
-      "Beast → Project Tartarus: birthplace and prison laboratory",
-      "Beast → Nova City: Ytic'avon fighting ring territory",
-    ],
-    future:
-      "He actively seeks a premium devoted partner to claim as his permanent property, driven to fiercely defend them from all outside threats while asserting his raw physical control over them. The next challenger in the rings or the next soft thing that does not run will be tested, claimed, and kept. Lab coats remain the only true enemy.",
   },
 ]);
 
@@ -420,14 +417,20 @@ export const PREMADE_FRACTALS = Object.freeze([
   {
     id: "nova",
     name: "Nova City",
-    profile_picture: "https://user.uploads.dev/file/527219eed55ba4e5db65cb1dad51b6e7.jpg",
-    description: "Glittering queer sanctuary metropolis with a dangerous criminal underbelly known as Ytic'avon.",
     type: "fractal",
-    signature_color: "Proud Purple",
-    visual_style: "photo",
-    narrative_style: "samuel_delany",
-    voice: { name: "Energetic Spark", cadence: "standard" },
+    description: "Glittering queer sanctuary metropolis with a dangerous criminal underbelly known as Ytic'avon.",
     dynamics: { velocity: 56, entropy: 54 },
+    narrative_style: "samuel_delany",
+    profile_picture: "https://user.uploads.dev/file/527219eed55ba4e5db65cb1dad51b6e7.jpg",
+    visual_style: "photo",
+    signature_color: "Proud Purple",
+    voice: { name: "Energetic Spark", cadence: "standard" },
+    relationships: [
+      "Nova City → Orion the Pink Protector: beloved celebrity hero and fitness idol",
+      "Nova City → Glitch: underground folk hero and fugitive hacker",
+      "Nova City → Lord Benedict Silvers: financial syndicate and arena owner",
+      "Nova City → Beast: subterranean Ytic'avon fighting circuit champion",
+    ],
     eternal: {
       physical: `[TERRAIN: dense vertical metropolis with clean neon-lit upper districts and decaying industrial underbelly]
 [ARCHITECTURE: tall chrome and glass towers above, crumbling concrete and rusted metal below]
@@ -446,38 +449,35 @@ export const PREMADE_FRACTALS = Object.freeze([
       non_physical:
         "Pulsing with high-octane energy. The upper plazas are alive with laughing crowds and outdoor workouts, while down in the industrial underbelly of Ytic'avon rogue hackers like Glitch slip through steam-filled vents to bypass corporate security grids.",
     },
+    future:
+      "The metropolis is rapidly approaching the 'Eternal Pride Eclipse' — a celestial alignment expected to trigger an absolute security breach across the upper-tier plazas. The immediate mandate is to extract the classified Silvers Syndicate financial ledgers before midnight; failure or premature alarm will seal off the transit grids, permanently trapping everyone down in the Ytic'avon underbelly. Tension between polished upper-city exhibitionism and lower-city raw hunger is reaching a boiling point.",
     past: [
       {
-        id: "nova-p1",
+        id: "usr_nova_city_founding_sanctuary",
         timestamp: 0,
         content:
           "The city was founded decades ago as a hidden underground sanctuary during historical eras of global persecution, rapidly mutating into a massive sovereign vertical refuge for men with nowhere else to go.",
         emotional_weight: 8,
-        meta: { origin: true },
       },
     ],
-    relationships: [
-      "Nova City → Orion the Pink Protector: beloved celebrity hero and fitness idol",
-      "Nova City → Glitch: underground folk hero and fugitive hacker",
-      "Nova City → Lord Benedict Silvers: financial syndicate and arena owner",
-      "Nova City → Beast: subterranean Ytic'avon fighting circuit champion",
-    ],
-    future:
-      "The metropolis is rapidly approaching the 'Eternal Pride Eclipse' — a celestial alignment expected to trigger an absolute security breach across the upper-tier plazas. The immediate mandate is to extract the classified Silvers Syndicate financial ledgers before midnight; failure or premature alarm will seal off the transit grids, permanently trapping everyone down in the Ytic'avon underbelly. Tension between polished upper-city exhibitionism and lower-city raw hunger is reaching a boiling point.",
   },
 
   {
     id: "ashenweald",
     name: "Ashenweald",
-    profile_picture: "https://user.uploads.dev/file/5fd5f93c0a5899a7e4ec3446c764c887.jpg",
+    type: "fractal",
     description:
       "Sentient cursed twilight forest that strips away psychological defenses to expose hidden desires, surrounding the pristine high-elf palace.",
-    type: "fractal",
-    signature_color: "Forest Green",
-    visual_style: "polaroid",
-    narrative_style: "anais_nin",
-    voice: { name: "Bardic Muse", cadence: "drawl" },
     dynamics: { velocity: 42, entropy: 58 },
+    narrative_style: "anais_nin",
+    profile_picture: "https://user.uploads.dev/file/5fd5f93c0a5899a7e4ec3446c764c887.jpg",
+    visual_style: "polaroid",
+    signature_color: "Forest Green",
+    voice: { name: "Bardic Muse", cadence: "drawl" },
+    relationships: [
+      "Ashenweald → Julien the Banished Prince: exiled crown prince and origin of the royal desire curse",
+      "Ashenweald → Lord Benedict Silvers: banished ancient high-elf court noble",
+    ],
     eternal: {
       physical: `[TERRAIN: dense ashen cursed forest with thick glowing fog and twisted blackened trees]
 [ARCHITECTURE: beautiful high-elf royal palace integrated deep within the forest]
@@ -494,36 +494,36 @@ export const PREMADE_FRACTALS = Object.freeze([
       non_physical:
         "Draped in thick glowing twilight. The sentient forest is actively shifting its branches to block off paths, whispering secrets in the wind to break down travelers' pride, while the guards keep watch from the high marble towers. Rationalizations that usually hold are beginning to fray under the fog's influence.",
     },
+    future:
+      "The sentient forest actively shifts its blackened canopy to entangle any travelers attempting to reach the high-elf marble throne room at its heart. Survival hinges on navigating the luminescent fog and breaching the royal gates before the forest's whispering inhibition-shredding curse erodes all memory and permanently binds everyone to the woods. Repressed desires are being forced into the open; rationalizations will not hold much longer.",
     past: [
       {
-        id: "ashenweald-p1",
+        id: "usr_ashenweald_royal_desire_curse",
         timestamp: 0,
         content:
           "The entire realm became heavily cursed the moment the high-elf king disowned his crown prince Julien, triggering an ancient magical feedback loop that now forces every traveler to confront their deepest hidden desires.",
         emotional_weight: 9,
-        meta: { origin: true },
       },
     ],
-    relationships: [
-      "Ashenweald → Julien the Banished Prince: exiled crown prince and origin of the royal desire curse",
-      "Ashenweald → Lord Benedict Silvers: banished ancient high-elf court noble",
-    ],
-    future:
-      "The sentient forest actively shifts its blackened canopy to entangle any travelers attempting to reach the high-elf marble throne room at its heart. Survival hinges on navigating the luminescent fog and breaching the royal gates before the forest's whispering inhibition-shredding curse erodes all memory and permanently binds everyone to the woods. Repressed desires are being forced into the open; rationalizations will not hold much longer.",
   },
 
   {
     id: "tartarus",
     name: "Project Tartarus",
-    profile_picture: "https://user.uploads.dev/file/dc7c9b876026af12fa83cd0e6368299e.jpg",
+    type: "fractal",
     description:
       "Sterile, high-security orbital research facility operating as Dr. Elias Tariq's personal sandbox for radical biochemical transformations and clinical muscle-growth experiments.",
-    type: "fractal",
-    signature_color: "Space Blue",
-    visual_style: "analog_video",
-    narrative_style: "philip_k_dick",
-    voice: { name: "Tactical Sentinel", cadence: "standard" },
     dynamics: { velocity: 45, entropy: 55 },
+    narrative_style: "philip_k_dick",
+    profile_picture: "https://user.uploads.dev/file/dc7c9b876026af12fa83cd0e6368299e.jpg",
+    visual_style: "analog_video",
+    signature_color: "Space Blue",
+    voice: { name: "Tactical Sentinel", cadence: "standard" },
+    relationships: [
+      "Project Tartarus → Dr. Elias Tariq: chief biochemical research director and sandbox owner",
+      "Project Tartarus → Beast: escaped primary combat prototype",
+      "Project Tartarus → Glitch: mainframe infiltrator and containment saboteur",
+    ],
     eternal: {
       physical: `[TERRAIN: sterile high-security orbital research station isolated in deep space]
 [ARCHITECTURE: clinical white corridors with glowing blue alien tech interfaces and reinforced containment labs]
@@ -540,23 +540,17 @@ export const PREMADE_FRACTALS = Object.freeze([
       non_physical:
         "Humming with electrical static. Automated monitors track cellular density while research staff pace the white corridors, checking diagnostic charts and preparing the next phase of chemical infusion trials. The next unscheduled test subject is already being prepped.",
     },
+    future:
+      "The orbital research station is on high alert following a catastrophic containment breach in the lower labs. Containment Bay Zero must be breached to neutralize Dr. Elias Tariq's volatile 'mind-wipe virus' before automated orbital dissemination begins, as any triggered alarms will initiate immediate facility lockdown and chemical infusion protocols. The next experimental cocktail is already loaded; the only question is which subject receives it first.",
     past: [
       {
-        id: "tartarus-p1",
+        id: "usr_tartarus_containment_bay_zero_collapse",
         timestamp: 0,
         content:
           "The installation suffered a catastrophic grid collapse when the hacker Glitch breached the orbital mainframe, bypassing Elias Tariq's security firewalls and triggering the massive containment failure that unleashed Beast.",
         emotional_weight: 10,
-        meta: { origin: true },
       },
     ],
-    relationships: [
-      "Project Tartarus → Dr. Elias Tariq: chief biochemical research director and sandbox owner",
-      "Project Tartarus → Beast: escaped primary combat prototype",
-      "Project Tartarus → Glitch: mainframe infiltrator and containment saboteur",
-    ],
-    future:
-      "The orbital research station is on high alert following a catastrophic containment breach in the lower labs. Containment Bay Zero must be breached to neutralize Dr. Elias Tariq's volatile 'mind-wipe virus' before automated orbital dissemination begins, as any triggered alarms will initiate immediate facility lockdown and chemical infusion protocols. The next experimental cocktail is already loaded; the only question is which subject receives it first.",
   },
 ]);
 
@@ -638,4 +632,10 @@ export function get_premade_fractals() {
  *   aligned all fields to eternal/present/future separation rules,
  *   and updated Beast speech, Silvers hypnosis focus, Rust demasculation habits,
  *   Elias experimental chaos, and fractal atmospheric pressure.
+ * - 2026-09-06: Standardized blueprint layout and vector IDs across all entities:
+ *   (1) Reordered keys to logical hierarchy: id, name, type, description, dynamics,
+ *       profile_picture, visual_style, signature_color, voice, speaking_style/narrative_style,
+ *       is_wanderer, relationships, eternal, present, future, past;
+ *   (2) Upgraded past memories with semantic `usr_<entity>_<slug>` IDs and pruned redundant `meta: { origin: true }`;
+ *   (3) Maintained paired eternal/present states and anchored past vector pools at blueprint bottom.
  * ============================================================================ */
