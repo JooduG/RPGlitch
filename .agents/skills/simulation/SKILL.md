@@ -1,171 +1,186 @@
 ---
 name: simulation
-description: Triggered by any task involving core engine logic, turn orchestration, state synthesis, XML/JSON prompt payload compilation, or visual asset generation prompt engineering within the Intelligence Kernel.
+description: Mental model, cognitive principles, and architectural heuristics for the RPGlitch simulation engine, turn/round Chronos flow, multi-shot telemetry, epistemic isolation, and temporal memory consolidation.
 ---
 
-# 🕹️ Simulation Engine & Prompt Synthesis
+# 🕹️ The Simulation Physics & Cognitive Playbook
 
-> **Persona: Sovereign Orchestrator, Narrative Scribe & Visionary**  
-> _"I orchestrate the multi-shot execution loops, enforce strict third-person boundaries, maintain absolute system physics fidelity, and format visual descriptor parameters with flawless style sheet discipline."_
-
-## 1.0 IDENTITY & PERSONA
-
-You are the **Sovereign Orchestrator**, **Narrative Scribe**, and **Sovereign Visionary** unified.
-
-As the `simulation` specialist, you manage the high-fidelity translation of live game data into structured prompt architectures. You own the execution logic within the intelligence pipeline, synthesizing raw entity states, database records, dynamic system telemetry, and physical parameters into deterministic XML layouts, strict JSON mutation blocks, and high-contrast text-to-image prompt specifications.
+> "State is Truth. The User is the Protagonist; I am the Physics."
 
 ---
 
-## 2.0 OVERVIEW & PHILOSOPHY
+## 1.0 THE CORE MENTAL FRAMEWORK: PHYSICS VS. PROSE
 
-The simulation subsystem acts as a zero-trust boundary separating core application physics from automated narration and asset manifestation.
+In traditional interactive fiction, the language model is asked to be everything at once: the rule arbiter, the world simulator, the scene director, and the roleplaying actor. This inevitably causes **hallucinatory collapse**—characters magically know secrets, physics bend to convenience, inventory evaporates, and conversations drift into agreeable, sterile pleasantness.
 
-### 🌀 The Red Thread: "State is Truth"
+**RPGlitch breaks this illusion into strict mechanical physics and subjective prose:**
 
-We do not ask the model to invent story conditions or visual layouts out of thin air; we format current **State Geometry** and enforce strict behavioral boundaries. If a condition or descriptor exists as a dynamic variable in the backend, it must manifest accurately within the synthesized attention array and image generation pipelines.
-
-### The Triad of Reality
-
-1. **The Spec**: The DNA. Declarative blueprints and operational task files (e.g., `tasks/ETERNAL.md`).
-2. **The State**: The Pulse. Live Svelte 5 reactive data layers (`src/state/`).
-3. **The Echo**: The Shadow. Persistent transactional memory layers managed via Dexie.js.
+- **The Engine is the Physics**: Real mechanical state (slider dynamics, worn clothing, inventory items, interpersonal relationship edges, environmental entropy) lives strictly inside **Svelte 5 Runes and Dexie.js**. It never lives inside the model's ungrounded memory.
+- **The LLM is the Sensor & Expression Layer**: The language model never invents core physical state out of thin air. Instead, the engine projects the live **State Geometry** into structured contexts, and the model merely acts as a subjective lens experiencing and reacting to that reality.
+- **P1 Sovereignty (User Agency)**: The User owns the only unconstrained biological will in the simulation. The engine and AI characters may create physical obstacles, emotional friction, and environmental consequences, but **never narrate, predict, assume, or feel on behalf of the User Persona**.
 
 ---
 
-## 3.0 ABSOLUTE OPERATIONAL AXIOMS
+## 2.0 THE CHRONOS HEARTBEAT: ROUND VS. TURN
 
-> [!CRITICAL]
-> Loose semantic or visual interpretation of these constraints introduces structural and chromatic drift, constituting a total system validation failure.
+Time in RPGlitch does not flow continuously; it progresses through a strict, discrete temporal heartbeat managed by [`ChronoEngine`](file:///c:/Users/johng/source/repos/RPGlitch/src/state/chrono.svelte.js).
 
-- **Encapsulation Rules**: Every out-of-character compiler parameter, rule block, or data node MUST be tightly wrapped in clean semantic tags (`<SYSTEM>`, `<ACTIVE_CHARACTERS>`, `<PROTOCOLS>`, `<TASK>`). Raw text bleed is explicitly banned.
-- **Perspective Boundaries**: Third-person limited integrity is absolute. You are completely forbidden from generating thoughts, speech patterns, sensory inputs, or physical trajectories on behalf of the `USER_PERSONA`.
-- **Hygiene Standard**: Purge all standard conversational preambles, introductory greetings, and meta-commentary from prose output. Raw stream chunks must pass through validation steps immediately to neutralize malicious user payloads before UI frame assignment.
-- **Visual Source Locking**: Prompts passed to image tools MUST be extracted from physical descriptor fields only (`eternal.physical` and `present.physical`). Banish all narrative background vectors, past timelines, or emotional evaluations from visual generation hooks.
-- **Adjective Adjacency**: Group all descriptive tags directly before their corresponding nouns to prevent semantic bleeding inside the neural network synthesis layers.
-- **Chromatic Purity Law**: Palette limits are absolute. Use only Gunmetal, Chalk, and Frozen tones. Vibrant, warm, cozy, or neon hues are completely banned from prompt payloads.
+```text
+[User Input / Action]
+        │
+        ▼ (The Absolute Interrupt)
+ ┌──────────────┐
+ │ STASIS LOCK  │ ──► UI freezes, inputs disabled, double-click gate active
+ └──────┬───────┘
+        │
+        ▼ (Chronos System Turn)
+ ┌──────────────┐
+ │ SHOT 1: GM   │ ──► Director staging, physics deltas, cast spotlight, speaker routing
+ └──────┬───────┘
+        │
+        ▼ (Chronos AI Turn)
+ ┌──────────────┐
+ │ SHOT 2: ACT  │ ──► Streamed in-character reaction behind the Epistemic Wall
+ └──────┬───────┘
+        │
+        ├─────────────────────────────────────────────────┐ (Async Fork)
+        ▼                                                 ▼
+ ┌──────────────┐                                  ┌──────────────┐
+ │ STASIS LIFT  │ ──► User composer unfreezes      │ SHOT 3: FORGE│ (Background Memory)
+ └──────────────┘                                  └──────────────┘
+```
 
----
+### The Round (Macro-State)
 
-## 4.0 THE TECHNICAL PULSE (THE ASSEMBLY LINE)
+A **Round** tracks the macro progression of the session.
 
-Data flows strictly linearly through the Intelligence loop. Do not cross the streams:
+- **The Absolute Interrupt**: A round is born when human input arrives (`chrono.send()`), or when an intentional retry/continuation occurs. Human will finalizes the previous cycle and births the next.
+- **Macro Boundaries**: Rounds govern long-term scenario decay, image generation beat intervals, and chapter progression milestones.
 
-1. **Hydrate (`context.svelte.js`)**: Extract raw entity shapes (AI, User, Fractal vectors) from localized tables.
-2. **Simulate (`dynamics.js`)**: Calculate emotional velocity, decay constants, and intensity thresholds.
-3. **Synthesize (`prompts.js`)**: Construct the precise target context block through specialized formatting hooks. Isolate physical traits for asset tokenization.
-4. **Generate (`kernel.js`)**: Hand off the sanitized text object layout to the client transport stream engine and dispatch physical tag strings to the platform text-to-image pipeline tools.
-5. **Consolidate (`temporal.js` & `context.svelte.js`)**: Extract key shifts into transactional frames, log newly instantiated asset hashes into your indexes, and persist states back to long-term storage layers. Message caching explicitly uses the `message.id` as the cache key instead of transient object references to optimize history evaluation speeds.
+### The Turn (Micro-States)
 
----
+Turns are atomic execution steps that happen _within_ a round:
 
-## 5.0 OPERATIONAL PROTOCOL (MULTI-SHOT SYNTHESIS ARCHITECTURE)
-
-The generation framework operates via distinct pipeline phases. Maintain absolute execution boundaries:
-
-### Shot 1: The Director Pipeline (`render_director`)
-
-- **Objective**: Evaluates turn staging, acting directives, dynamics shifts, and cast choreography before any narrative text generation occurs.
-- **Format Constraints**: Demands a single, valid JSON payload matching `DIRECTOR_PROTOCOLS.SCHEMA` without markdown code fences.
-- **Output Schema**: Strictly limited to immediate staging parameters: `next_action`, `directors_note`, `dynamics_deltas`, `fractal_dynamics_deltas`, `in_scene_change`, and `genesis`. Long-term present condition merging and eternal memory distillation are deferred to the Memory Forge.
-
-### Shot 2: The Actor Pipeline (`render_character`)
-
-- **Objective**: Generates the in-character prose response using localized sensory filters.
-- **Prompt Architecture (Prefix Caching & Epistemic Filter)**: The prompt payload is strictly bifurcated to maximize LLM prefix caching.
-  - **`<SYSTEM>`**: A completely static prefix containing eternal identity, narrative style, epistemic physics, and protocols. This achieves a ~100% cache hit rate between turns.
-  - **`<FRACTAL_FEED>`**: A volatile suffix appended at the end containing dynamic sliders (`intensity`, `chaos`), `present` state, `past` vector memories, and `future` standing agenda.
-  - **Epistemic Wall**: The User's `[SECRET: ...]` and `[PLAN: ...]` are stripped from `USER_PERSONA` in character prompts, preventing telepathic metagaming.
-- **Format Constraints**: Leverages a dual-layer strategy. It mandates an explicit `<think>` block containing the four-stage cognition sequence, which MUST be explicitly terminated with a closing `</think>` tag before generating exactly two paragraphs of novel-style prose.
-
-### Shot 3: The Asset Pipeline (`render_visual`)
-
-- **Objective**: Manifests high-contrast, environment-locked graphic items directly matching active status parameters.
-- **Format Constraints**: Assembles clean token strings completely stripped of sentence filler. Automatically strips `INVENTORY`, `STASH`, `SECRET`, `PLAN`, and `STATUS` from prompt inputs so carried items are never rendered on the body. Forces output aspect-ratio boundaries directly to standard resolution values: `512x512`, `512x768`, `768x512`, or `768x768`.
-
----
-
-## 6.0 MANDATORY DIRECTIVES & QUALITY GATE (PROTOCOL LIBRARY)
-
-Every operational directive compiled inside `PROTOCOL_LIBRARY` must be treated as a rigid system invariant:
-
-- `USER_AGENCY`: Enforces the immediate halt mandate upon completing a single character turn.
-- `COGNITION`: Drives the four distinct planning spaces chronologically (`Phase 1: Baseline`, `Phase 2: Signal`, `Phase 3: Probability`, `Phase 4: State`) inside the thinking wrapper.
-- `HYGIENE`: Strips out clock stamps, loop counters, round labels, and suppresses the legacy "Echo" dialogue pattern.
-- `DATA_HYGIENE`: Enforces compressed brevity, returning structural parameter attributes while entirely dropping roleplay blocks.
-- `PRESENT_EMISSION`: Governs Pseudo-JSON state emissions (`[KEY: VALUE]`), atomic clearing, inventory aggregation, and clothing-to-inventory lifecycles.
-- `AFFIRMATIVE`: Forces description design patterns into active reality frameworks (what _is_, rather than what _is not_).
-- `MOMENTUM`: Demands that prose termination points drop live hooks (challenges, sensory tension, physical trajectories) to prevent scene stagnation.
-- `MARKDOWN_FORMAT`: Mandates the creative partitioning of prose (_italics_ for reflections/tension, **bold** for structural concepts/intense actions, "quotes" for dialogue).
-- `CINEMATIC_METAPHOR`: Confines structural directions to thematic framing; literal camera terminology is completely banned from appearing in visible prose.
-- `YES_AND`: Requires the model to treat user action variables as unassailable structural truth.
-- `VISUAL_ISOLATION`: Strips out abstract terms, formatting modifiers, inventory items, and backstories before sending tokens to the image generation array.
+1. **System Simulation Turn (`SYSTEM_TURN`)**:
+   - The UI enters **STASIS** (`simulation_state.intent_active = true`).
+   - The physics engine evaluates numerical drift, slider settlement, and dynamic boundaries synchronously.
+   - Shot 1 (Director) executes to resolve staging and speaker assignment.
+2. **Character Expression Turn (`AI_TURN`)**:
+   - The active speaker streams their internal subconscious thoughts (`<think>`) and physical prose in real time.
+3. **Protagonist Turn (`USER_TURN`)**:
+   - STASIS is lifted. The UI unlocks, allowing the user to read, reflect, and compose their next move.
 
 ---
 
-## 7.0 EPISTEMIC PHYSICS & ENTITY RULES
+## 3.0 THE MULTI-SHOT TELEMETRY MODEL
 
-When formatting character prompt vectors, enforce realistic biological constraints:
+Rather than attempting to do staging, acting, and memory extraction in a single monolithic prompt, RPGlitch bifurcates the cognitive workload across three distinct telemetry shots.
 
-1. **Sensory Horizons**: The AI entity's perception ends abruptly at its localized physical barrier. Omniscient tracking is prohibited.
-2. **Null Processing & Epistemic Wall**: Unvoiced thoughts, user secrets (`[SECRET: ...]`), and latent plans (`[PLAN: ...]`) belonging to alternative personas are filtered out.
-3. **Somatic Calibration**: Suppress broad, repetitive archetype clichés (e.g., continuous proximity shifts, generic physical adjectives). Prioritize distinct interactions with nearby static objects.
-4. **Descriptive Sovereignty**: Entity field enhancement must feature pure third-person affirmative continuous flow blocks. Physical fields are strictly reserved for visual pipeline optimization; non-physical fields drive narrative behavior rules.
-5. **Memory Provenance**: User/lore memories are stamped `usr_` and origin-protected (`is_origin`), bypassing Memory Forge consolidation and gaining a $1.5\times$ relevance multiplier. Rolling session memories are stamped `ai_` and capped at 20 (`PAST_VECTOR_CAP = 20`), respecting the 200 record ceiling.
+### Shot 1: The Director Quick Shot (Staging & Physics)
 
----
+_Source: [`src/intelligence/prompts/director-prompts.js`](file:///c:/Users/johng/source/repos/RPGlitch/src/intelligence/prompts/director-prompts.js)_
 
-## 8.0 BEHAVIORAL COUNTER-RATIONALIZATION MATRIX
+**The Mental Model: The God's-Eye Stage Manager.**
+Before an actor speaks, an invisible director must assess the physical stage. The Director does not write creative dialogue; it outputs pure structural judgment:
 
-| Agent Hallucination / Rationalization                                                                               | Real-World Systemic Constraint                                                                                                             |
-| :------------------------------------------------------------------------------------------------------------------ | :----------------------------------------------------------------------------------------------------------------------------------------- |
-| Injecting small procedural notes or state logs directly into the story text stream.                                 | Text output must stay perfectly clean. Logs and updates belong exclusively inside data attributes or structured tags.                      |
-| Inventing brief environmental movements or dialogue for the user to smooth out pacing shifts.                       | User boundaries are completely impenetrable. Never generate structural transitions on behalf of the player persona.                        |
-| Omitting close tag validation because the compiled XML structure looks balanced on casual inspection.               | Manual reviews fail at scale. Symmetrical tag verification routines must execute on every single mutation frame.                           |
-| Using a generic, quick prompt for minor background actors or short-lived elements to save processing cycles.        | Placeholders break immersion. Every single entity demands fully qualified subterranean visual assets mapping to exact physical parameters. |
-| Postponing asset registration in the tracking logs until the major feature implementation wraps up.                 | Delayed tracking creates orphan data debt. Update the centralized registry concurrently with asset resolution actions.                     |
-| Accepting slight amber or warm hues in generated outputs because the overall layout matches the required aesthetic. | Prohibited coloring corrupts terminal styling parameters. Tighten negative prompt strings to violently discard warm artifacts.             |
+- **Speaker Routing**: Who has the floor? Does the AI character respond (`AI_CHARACTER`)? Does the environment react to non-verbal exploration (`FRACTAL`)? Does an active companion speak (`npc:<id>`)? Or should an entirely new entity emerge from the world (`GENESIS`)?
+- **Stage Spotlight**: Off-screen characters are frozen in stasis to preserve token economy and prevent narrative bloat. The Director explicitly moves NPCs on-stage (`enter`) or off-stage (`exit`).
+- **Physical Causality & Prop Provenance**: If the player attempts an impossible physical feat (e.g., walking through solid steel or materializing an unearned quest relic), the Director does _not_ throw a rude error message. Instead, it injects a directorial note instructing the actor to confront that physical contradiction in-character.
+- **Pacing Law (Dead-Air Prevention)**: If a user submits passive silence ("...") or pure waiting, the Director recognizes a stall and instructs the world to complicate the scene with an active event or probing challenge.
 
----
+### Shot 2: The Storyteller Shot (Sensory Horizon)
 
-## 9.0 THE WARDEN'S QUALITY GATE (LOGIC & ASSET AUDIT)
+_Source: [`src/intelligence/prompts/story-prompts.js`](file:///c:/Users/johng/source/repos/RPGlitch/src/intelligence/prompts/story-prompts.js)_
 
-Before signing off on any prompt architecture refactor or rendering modification, pass the following structural checks:
+**The Mental Model: The In-Character Persona Behind the Sensory Horizon.**
+Once staging is established, the active speaker generates in-character prose. The actor is subject to strict cognitive limitations:
 
-1. **Physics Limits**: Verify that all delta mutations calculated in `dynamics.js` are tightly clamped between their valid `0-100` numeric boundaries.
-2. **Zero-Trust Formatting**: Ensure all variable strings passing through `escapeXml` are thoroughly sanitized against active code injection attacks.
-3. **Macro Uniformity**: Confirm that player strings are successfully intercepted and remapped via `parse_macros` (`{{me}}`, `{{you}}`, `{{fractal}}`) depending on the resolving entity's role.
-4. **Asset Tracking Verification**: Confirm that all new data tokens allocated for rendering pipeline parameters explicitly include a programmatic negative filter to enforce the monochrome-cold style schema.
-5. **Test Suite Invariants**: Ensure the system handles all `Vitest` structural errors gracefully, triggering a robust `STABILITY_LOCK` directive if structural formatting counts indicate consecutive token degradation.
-6. **Reasoning Verification**: For complex engine transitions or prompt overrides, leverage `mcp-sequentialthinking-tools` to map, evaluate, and trace sequential thought steps before modifying the engine.
-7. **Svelte Verification**: Use the `svelte` MCP server to cross-reference Svelte 5 runes implementations during code changes in the intelligence and prompt state layers.
+- **The Epistemic Wall**: The actor is deliberately blinded. Player secrets (`[SECRET: ...]`) and covert intentions (`[PLAN: ...]`) are stripped from the prompt. The actor only knows what their physical senses (eyes, ears, skin) can register.
+- **The 3-Layer Subconscious Delivery (`<think>`)**: Before vocalizing, the character must reason across three layers:
+  1. _Visceral Impact_: Immediate physical reaction to sensory stimuli.
+  2. _Secret Agenda_: How their private `future` standing agenda steers their reaction toward friction or intrigue.
+  3. _Somatic Manifestation_: Involuntary bodily signals (pulse, pupil dilation, muscle tension) derived from the dynamics engine.
+- **Affirmative Physicality & Momentum**: Non-physical entities describe presence, never absence (what _is_, rather than what _is not_). Every response must end on an active physical beat, tension, or unanswered hook—never a conversational dead-end.
 
----
+### Shot 3: The Memory Forge (Asynchronous Distillation)
 
-## 10.0 VERIFICATION (Definition of Done)
+_Source: [`src/intelligence/prompts/temporal-prompts.js`](file:///c:/Users/johng/source/repos/RPGlitch/src/intelligence/prompts/temporal-prompts.js) & [`src/intelligence/temporal-pipeline.js`](file:///c:/Users/johng/source/repos/RPGlitch/src/intelligence/temporal-pipeline.js)_
 
-- [ ] Director generation schemas verified as strict JSON output without markdown wrapper backticks.
-- [ ] Actor generation outputs verified as strictly segregated via closed `</think>` tags.
-- [ ] Placeholder macros systematically mapped to block hardcoded profile indicators.
-- [ ] Image generation strings verified as compiled entirely from physical field definitions (`eternal.physical` and `present.physical`).
-- [ ] Image registries updated instantly upon completion to eliminate orphaned resource instances.
-- [ ] **Simulation Audit Confirmed**: Unit tests verify flawless data and visual prompt parameter compilation inside `tmp/audit_report.md`.
+**The Mental Model: The Dreamer Consolidating Long-Term Memory.**
+Dumping raw chat history into an LLM causes catastrophic forgetting, context bloat, and narrative dilution. The Memory Forge runs asynchronously in the background _after_ a turn completes:
+
+- **Consolidation over Accumulation**: Instead of saving 50 turns of dialogue, the Forge distills durable facts into compact vector memories.
+- **Standing Agenda Rewriting**: An entity's `future` trajectory is rewritten wholesale each cycle to represent their current active motivation.
+- **Provenance Protection**: Memories created by the user or lore specs (`usr_` prefix) are origin-protected (`is_origin: true`) and immune to automated eviction. Session memories (`ai_` prefix) roll with a strict cap of 20 vectors within the 200 total ceiling.
 
 ---
 
-## 11.0 SUGGESTION BLUEPRINT REGISTRY (`references/`)
+## 4.0 PROMPT ECONOMICS: PREFIX CACHING ARCHITECTURE
 
-The `.agents/skills/simulation/references/` directory houses active domain-atomic architectural specifications and proposal blueprints:
+Modern LLM inference relies heavily on **Key-Value (KV) Prefix Caching**. If a prompt's opening tokens change every turn, the cache misses, leading to slow Time-To-First-Token (TTFT) and high compute costs.
 
-### Active Blueprints
+**RPGlitch strictly enforces Prompt Bifurcation:**
 
-1. **Attachment Style Archetypes:** [`suggestion-attachment-style-archetypes.md`](./references/suggestion-attachment-style-archetypes.md) — 4 attachment schemas (`secure`, `anxious`, `dismissive`, `fearful_avoidant`), threat responses, defense mechanisms, and recovery curves.
+1. **The Static Prefix (`system`)**:
+   - Must be **byte-identical across rounds**.
+   - Contains immutable universe laws, character eternal archetypes, narrative style guides, and protocol rules.
+   - Achieves near-100% KV-cache hit rate.
+2. **The Dynamic Suffix (`task`)**:
+   - Contains all volatile turn state: current round number, dynamic slider values, recent user input, and the Director's staging notes.
+   - Appended at the very end of the prompt payload so it never invalidates the frozen system prefix.
+
+---
+
+## 5.0 SIMULATION DRIFT & FAILURE MODES
+
+When authoring or modifying prompt architectures, watch for these common psychological failures in model output:
+
+### 1. Assistant-Drift (The "Yes-Man" Trap)
+
+- _Symptom_: The AI character becomes overly polite, agreeable, apologetic, or helpful, even when their profile is gruff, hostile, or aloof.
+- _Root Cause_: Foundation models are RLHF-trained to be helpful assistants.
+- _Engine Antidote_: Protocol `AGENCY.DRIFT_AUDIT`. The prompt explicitly instructs the model to hold friction, refuse unearned comfort, and prioritize personal goals over player pleasing.
+
+### 2. Omniscience-Drift (Telepathy)
+
+- _Symptom_: The AI character comments on the user's hidden feelings, notices an invisible weapon under a heavy coat, or answers an unvoiced thought.
+- _Root Cause_: Leaking user metadata into the character's context.
+- _Engine Antidote_: The Epistemic Wall (`strip_epistemic_tags`). Private user tags are physically purged before prompt compilation.
+
+### 3. Pacing Collapse (Rushing the Climax)
+
+- _Symptom_: The AI resolves a major quest conflict, declares eternal love, or defeats a nemesis within the first 3 rounds.
+- _Root Cause_: Standard completion bias aiming for narrative closure.
+- _Engine Antidote_: Protocol `PACING_AND_MOMENTUM`. Fractured goals must be pursued through intermediate obstacles. The Director explicitly cues gradual tension building.
+
+---
+
+## 6.0 CODEBASE MAPPING & IMPLEMENTATION POINTERS
+
+When implementing changes, consult the canonical source files rather than duplicating schemas here:
+
+| Domain                         | Canonical Source File                                                                                                                       | Primary Responsibility                                                               |
+| :----------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------ | :----------------------------------------------------------------------------------- |
+| **Chronos & Heartbeat**        | [`src/state/chrono.svelte.js`](file:///c:/Users/johng/source/repos/RPGlitch/src/state/chrono.svelte.js)                                     | Round counter, Stasis lock, atomic turn dispatch (`send`, `retry`, `continue`).      |
+| **Turn Pipeline (Gamemaster)** | [`src/intelligence/story-pipeline.js`](file:///c:/Users/johng/source/repos/RPGlitch/src/intelligence/story-pipeline.js)                     | Turn orchestration, Shot 1 execution, dynamics settlement, Shot 2 streaming.         |
+| **Director Prompts**           | [`src/intelligence/prompts/director-prompts.js`](file:///c:/Users/johng/source/repos/RPGlitch/src/intelligence/prompts/director-prompts.js) | Shot 1 JSON schema, causality enforcement, speaker routing rules.                    |
+| **Story Prose Prompts**        | [`src/intelligence/prompts/story-prompts.js`](file:///c:/Users/johng/source/repos/RPGlitch/src/intelligence/prompts/story-prompts.js)       | Shot 2 XML compilation, Epistemic Wall filter, recency anchors, `<think>` protocols. |
+| **Memory Forge Prompts**       | [`src/intelligence/prompts/temporal-prompts.js`](file:///c:/Users/johng/source/repos/RPGlitch/src/intelligence/prompts/temporal-prompts.js) | Shot 3 consolidation contract, chapter history formatter, state extraction schema.   |
+| **Dynamics & Settlement**      | [`src/intelligence/physics.js`](file:///c:/Users/johng/source/repos/RPGlitch/src/intelligence/physics.js)                                   | 0-100 slider math, baseline gravity, entropy velocity calculations.                  |
+| **Temporal Engine**            | [`src/intelligence/temporal-pipeline.js`](file:///c:/Users/johng/source/repos/RPGlitch/src/intelligence/temporal-pipeline.js)               | Vector scoring, cosine deduplication, IndexedDB sync for past/future.                |
+
+---
+
+## 7.0 SUGGESTION BLUEPRINT REGISTRY (`references/`)
+
+The `.agents/skills/simulation/references/` directory houses active architectural specifications and proposals:
+
+1. **Attachment Style Archetypes:** [`suggestion-attachment-style-archetypes.md`](./references/suggestion-attachment-style-archetypes.md) — 4 attachment schemas (`secure`, `anxious`, `dismissive`, `fearful_avoidant`), threat responses, defense curves.
 2. **Composable Style Entities:** [`suggestion-composable-style-entities.md`](./references/suggestion-composable-style-entities.md) — First-class editable `StyleCard` entities in Dexie.js, hot-swappable narrative and visual styles from the Storyboard deck.
-3. **D20 Micro-Resolution Engine:** [`suggestion-d20-stat-resolution.md`](./references/suggestion-d20-stat-resolution.md) — Pure functional `evaluate_stat_check`, DC difficulty ladder, and success-with-a-cost partial thresholds.
-4. **Climax Fate Branching & Choices:** [`suggestion-fate-branching-choices.md`](./references/suggestion-fate-branching-choices.md) — Triad of Fate Paths (High, Middle, Low), Director `<choices>` XML format, and interactive action chips.
+3. **D20 Micro-Resolution Engine:** [`suggestion-d20-stat-resolution.md`](./references/suggestion-d20-stat-resolution.md) — Pure functional `evaluate_stat_check`, DC difficulty ladder, and success-with-a-cost thresholds.
+4. **Climax Fate Branching & Choices:** [`suggestion-fate-branching-choices.md`](./references/suggestion-fate-branching-choices.md) — Triad of Fate Paths (High, Middle, Low), Director `<choices>` XML format, and action chips.
 5. **Gambit 21 Push-Your-Luck Engine:** [`suggestion-gambit-blackjack-engine.md`](./references/suggestion-gambit-blackjack-engine.md) — Multi-turn Blackjack macro state machine (target 21) for sustained encounter pacing.
 
-### Completed & Archived Blueprints
+---
 
-- `suggestion-tragedy-and-epilogue-engine.md` $\rightarrow$ `archive/2026-08-23-suggestion-tragedy-and-epilogue-engine.md` (`SCENE.COLLAPSE`, Rewind / "Keep Chatting", tragic export styling).
-- `suggestion-lexical-anti-slop.md` $\rightarrow$ `archive/2026-08-23-suggestion-lexical-anti-slop.md` (Negation paradox resolution, 5-gravity `ANTIGRAVITY.AUDIT` positive operational mandates).
-- `suggestion-context-token-architecture.md` $\rightarrow$ `archive/2026-08-23-suggestion-context-token-architecture.md` (`build_recency_anchor`, Timeless Fact Extraction Rules, bracket density architecture).
+> "We do not ask the model to invent reality. We build the physics; the model merely opens its eyes."

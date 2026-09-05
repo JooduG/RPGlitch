@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   embeddings_engine,
   embed,
@@ -115,6 +115,7 @@ describe("embeddings LRU cache", () => {
   });
 
   it("resets pipeline and attempts retry when inference throws error", async () => {
+    const warn_spy = vi.spyOn(console, "warn").mockImplementation(() => {});
     let call_count = 0;
     embeddings_engine._debug_set_pipeline(async (text) => {
       call_count++;
@@ -127,5 +128,7 @@ describe("embeddings LRU cache", () => {
     const result = await embed("retry text");
     expect(result).toBeInstanceOf(Float32Array);
     expect(call_count).toBe(2);
+    expect(warn_spy).toHaveBeenCalled();
+    warn_spy.mockRestore();
   });
 });

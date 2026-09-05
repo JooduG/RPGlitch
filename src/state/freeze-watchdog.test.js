@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   force_recover_simulation,
   FREEZE_WATCHDOG_CHUNK_STALL_MS,
@@ -13,6 +13,11 @@ import { simulation_state } from "./status.svelte.js";
 describe("freeze-watchdog", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it("exports calibrated watchdog timing thresholds", () => {

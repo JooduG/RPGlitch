@@ -90,8 +90,16 @@ describe("runtime.sync checkpoint restore", () => {
     ({ app } = await import("./interface.svelte.js"));
   }, 30000);
 
-  afterEach(() => {
+  afterEach(async () => {
     runtime?.teardown_effects?.();
+    try {
+      const { db } = await import("@data/db.js");
+      if (db?.isOpen()) {
+        db.close();
+      }
+    } catch (_error) {
+      // Ignore if db unavailable
+    }
     vi.restoreAllMocks();
   });
 
@@ -177,8 +185,16 @@ describe("runtime world-cast hydration (track-npc-expansion)", () => {
     ({ runtime } = await import("./runtime.svelte.js"));
   }, 30000);
 
-  afterEach(() => {
+  afterEach(async () => {
     runtime?.teardown_effects?.();
+    try {
+      const { db } = await import("@data/db.js");
+      if (db?.isOpen()) {
+        db.close();
+      }
+    } catch (_error) {
+      // Ignore if db unavailable
+    }
     vi.restoreAllMocks();
   });
 

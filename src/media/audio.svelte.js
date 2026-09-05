@@ -931,7 +931,7 @@ class AudioEffectsEngine {
         },
       });
     } catch (save_error) {
-      if (typeof window !== "undefined") {
+      if (typeof window !== "undefined" && save_error?.name !== "DatabaseClosedError") {
         console.error("[AudioEngine] Failed to save settings:", save_error);
       }
     }
@@ -1166,6 +1166,7 @@ export const Audio = audio_engine;
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-05: Suppressed DatabaseClosedError logging in save_settings to prevent test runner teardown clutter.
  * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,
  *   structured 4 explicit section dividers, converted anonymous class singleton into named AudioEngine
  *   class exporting audio_engine & Audio, standardized anti-abbreviation nomenclature across private/public

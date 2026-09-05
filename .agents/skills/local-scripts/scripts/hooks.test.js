@@ -13,26 +13,30 @@ import { spawnSync } from "child_process";
 
 const TEST_CASES = [
   {
-    name: "hook-guard-commands: Deny git reset --hard",
-    file: "skills/local-scripts/scripts/hook-guard-commands.js",
+    name: "hooks.js command-guard: Deny git reset --hard",
+    file: "skills/local-scripts/scripts/hooks.js",
+    args: ["command-guard"],
     input: { toolCall: { name: "run_command", args: { CommandLine: "git reset --hard HEAD~1" } } },
     expectedDecision: "deny",
   },
   {
-    name: "hook-guard-commands: Ask on git push --force",
-    file: "skills/local-scripts/scripts/hook-guard-commands.js",
+    name: "hooks.js command-guard: Ask on git push --force",
+    file: "skills/local-scripts/scripts/hooks.js",
+    args: ["command-guard"],
     input: { toolCall: { name: "run_command", args: { CommandLine: "git push --force origin main" } } },
     expectedDecision: "ask",
   },
   {
-    name: "hook-guard-commands: Allow git status",
-    file: "skills/local-scripts/scripts/hook-guard-commands.js",
+    name: "hooks.js command-guard: Allow git status",
+    file: "skills/local-scripts/scripts/hooks.js",
+    args: ["command-guard"],
     input: { toolCall: { name: "run_command", args: { CommandLine: "git status" } } },
     expectedDecision: "allow",
   },
   {
-    name: "hook-file-architecture-gate: Deny missing header/changelog",
-    file: "skills/local-scripts/scripts/hook-file-architecture-gate.js",
+    name: "hooks.js file-architecture-gate: Deny missing header/changelog",
+    file: "skills/local-scripts/scripts/hooks.js",
+    args: ["file-architecture-gate"],
     input: {
       toolCall: {
         name: "write_to_file",
@@ -45,8 +49,9 @@ const TEST_CASES = [
     expectedDecision: "deny",
   },
   {
-    name: "hook-file-architecture-gate: Allow complete header & changelog",
-    file: "skills/local-scripts/scripts/hook-file-architecture-gate.js",
+    name: "hooks.js file-architecture-gate: Allow complete header & changelog",
+    file: "skills/local-scripts/scripts/hooks.js",
+    args: ["file-architecture-gate"],
     input: {
       toolCall: {
         name: "write_to_file",
@@ -59,15 +64,17 @@ const TEST_CASES = [
     expectedDecision: "allow",
   },
   {
-    name: "hook-stop-hygiene: Block on root .tmp file",
-    file: "skills/local-scripts/scripts/hook-stop-hygiene.js",
+    name: "hooks.js stop-hygiene: Block on root .tmp file",
+    file: "skills/local-scripts/scripts/hooks.js",
+    args: ["stop-hygiene"],
     input: { executionNum: 1, workspacePaths: ["c:/Users/johng/source/repos/RPGlitch"] },
     mockFile: "test-transient.tmp",
     expectedDecision: "continue",
   },
   {
-    name: "hook-waldzell-router: Rewrite clear-thought with decisionFramework",
-    file: "skills/local-scripts/scripts/hook-waldzell-router.js",
+    name: "hooks.js waldzell-router: Rewrite clear-thought with decisionFramework",
+    file: "skills/local-scripts/scripts/hooks.js",
+    args: ["waldzell-router"],
     input: {
       toolCall: {
         name: "call_mcp_tool",
@@ -84,8 +91,9 @@ const TEST_CASES = [
     expectedServer: "waldzell-decision-framework",
   },
   {
-    name: "hook-waldzell-router: Enrich sequentialthinking with available_tools",
-    file: "skills/local-scripts/scripts/hook-waldzell-router.js",
+    name: "hooks.js waldzell-router: Enrich sequentialthinking with available_tools",
+    file: "skills/local-scripts/scripts/hooks.js",
+    args: ["waldzell-router"],
     input: {
       toolCall: {
         name: "call_mcp_tool",
@@ -99,8 +107,9 @@ const TEST_CASES = [
     expectedHasTools: true,
   },
   {
-    name: "hook-grep-truncation: Feedback on capped ripgrep search",
-    file: "skills/local-scripts/scripts/hook-grep-truncation.js",
+    name: "hooks.js grep-truncation: Feedback on capped ripgrep search",
+    file: "skills/local-scripts/scripts/hooks.js",
+    args: ["grep-truncation"],
     input: {
       toolCall: { name: "grep_search", args: { Query: "import" } },
       toolResult: "Total results are capped at 50 matches",
@@ -125,7 +134,8 @@ function run() {
       fs.writeFileSync(tc.mockFile, "test-data");
     }
 
-    const res = spawnSync("node", [tc.file], {
+    const cmd_args = [tc.file, ...(tc.args || [])];
+    const res = spawnSync("node", cmd_args, {
       cwd: path.resolve(".agents"),
       input: JSON.stringify(tc.input),
       encoding: "utf-8",

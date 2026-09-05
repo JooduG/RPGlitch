@@ -41,5 +41,6 @@ export default defineConfig({
     // Test setup hook (Path corrected to .agents)
     setupFiles: [".agents/skills/simulation/scripts/test-setup.js"],
     teardownTimeout: 1000,
+    pool: "forks",
   },
 });

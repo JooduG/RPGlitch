@@ -256,6 +256,7 @@ vi.mock("./director.js", async (importOriginal) => {
 describe("gamemaster (Intelligence Kernel)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.spyOn(console, "warn").mockImplementation(() => {});
     _mock_runtime.ai = { intensity: 50 };
     _mock_runtime.fractal = { entropy: 50 };
     _mock_runtime.structural_errors = 0;

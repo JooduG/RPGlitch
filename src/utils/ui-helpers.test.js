@@ -333,6 +333,11 @@ describe("helpers", () => {
     beforeEach(() => {
       globalThis.URL.createObjectURL = vi.fn(() => "blob:mock-url");
       globalThis.URL.revokeObjectURL = vi.fn();
+      vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
     });
 
     it("download_text_file creates blob and triggers anchor click", () => {

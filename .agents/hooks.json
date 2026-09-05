@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node skills/local-scripts/scripts/hook-guard-commands.js",
+            "command": "node skills/local-scripts/scripts/hooks.js command-guard",
             "timeout": 10
           }
         ]
@@ -20,7 +20,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node skills/local-scripts/scripts/hook-sequential-thinking-gate.js",
+            "command": "node skills/local-scripts/scripts/hooks.js sequential-thinking-gate",
             "timeout": 10
           }
         ]
@@ -34,7 +34,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node skills/local-scripts/scripts/hook-waldzell-router.js",
+            "command": "node skills/local-scripts/scripts/hooks.js waldzell-router",
             "timeout": 10
           }
         ]
@@ -45,7 +45,7 @@
     "PreInvocation": [
       {
         "type": "command",
-        "command": "node skills/local-scripts/scripts/hook-svelte-pre-invocation.js",
+        "command": "node skills/local-scripts/scripts/hooks.js svelte-pre-invocation",
         "timeout": 10
       }
     ]
@@ -54,7 +54,7 @@
     "Stop": [
       {
         "type": "command",
-        "command": "node skills/local-scripts/scripts/hook-svelte-stop-gate.js",
+        "command": "node skills/local-scripts/scripts/hooks.js svelte-stop-gate",
         "timeout": 15
       }
     ]
@@ -63,7 +63,7 @@
     "Stop": [
       {
         "type": "command",
-        "command": "node skills/local-scripts/scripts/hook-planning-handoff.js",
+        "command": "node skills/local-scripts/scripts/hooks.js planning-handoff",
         "timeout": 15
       }
     ]
@@ -75,7 +75,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node skills/local-scripts/scripts/hook-file-architecture-gate.js",
+            "command": "node skills/local-scripts/scripts/hooks.js file-architecture-gate",
             "timeout": 10
           }
         ]
@@ -89,7 +89,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node skills/local-scripts/scripts/hook-grep-truncation.js",
+            "command": "node skills/local-scripts/scripts/hooks.js grep-truncation",
             "timeout": 10
           }
         ]
@@ -103,7 +103,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node skills/local-scripts/scripts/hook-circuit-breaker.js",
+            "command": "node skills/local-scripts/scripts/hooks.js circuit-breaker",
             "timeout": 10
           }
         ]
@@ -114,7 +114,7 @@
     "Stop": [
       {
         "type": "command",
-        "command": "node skills/local-scripts/scripts/hook-stop-hygiene.js",
+        "command": "node skills/local-scripts/scripts/hooks.js stop-hygiene",
         "timeout": 15
       }
     ]

@@ -329,8 +329,10 @@ export class InterfaceStore {
     if (typeof window === "undefined" || !this.settings) return;
     try {
       await db.kv_settings.put({ key: "rpg_settings", value: $state.snapshot(this.settings) });
-    } catch (e) {
-      console.error("[Security] Settings Save Failed:", e);
+    } catch (save_error) {
+      if (save_error?.name !== "DatabaseClosedError") {
+        console.error("[Security] Settings Save Failed:", save_error);
+      }
     }
   };
 
@@ -610,6 +612,7 @@ if (typeof window !== "undefined") {
 
 /**
  * CHANGELOG:
+ * - 2026-09-05: Suppressed DatabaseClosedError logging in save_settings to prevent test runner teardown clutter.
  * - 2026-08-29: Renamed from app-store.svelte.js to interface.svelte.js to eliminate name collision with App.svelte and legacy -store suffix (/harmonize).
  * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,
  *   structured section dividers, purged legacy window aliases (window.rpgApp, window.state),
