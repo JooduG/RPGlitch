@@ -165,7 +165,7 @@ RPGlitch is a **Local-First Reactive Monolith (PWA)** built for the Perchance if
 #### Structural Glossary
 
 - **`src/ui/`**: Expression layer (Atomic Svelte components). Renders DOM, captures input, subscribes to state.
-- **`src/state/`**: Reactive nervous system (`app.svelte.js`, `runtime.svelte.js`, `status.svelte.js`, `chrono.svelte.js`). Owns all Runes and the turn driver.
+- **`src/state/`**: Reactive nervous system (`interface.svelte.js`, `runtime.svelte.js`, `status.svelte.js`, `chrono.svelte.js`). Owns all Runes and the turn driver.
 - **`src/intelligence/`**: AI Kernel (Prompts, Context Broker, LLM streams).
 - **`src/data/`**: Persistence layer. Manages Dexie.js schemas and repositories.
 - **`src/media/`**: Sensory assets, visual parameters, and Kokoro-82M Neural TTS (`voice.js`).
@@ -191,13 +191,13 @@ RPGlitch is a **Local-First Reactive Monolith (PWA)** built for the Perchance if
 
 #### State Ownership Matrix
 
-| State Domain                                          | Owner Store File    | Description & Mutators                                       | Observers      |
-| ----------------------------------------------------- | ------------------- | ------------------------------------------------------------ | -------------- |
-| **Active Entities** (`user`, `ai`, `fractal`)         | `runtime.svelte.js` | Live clones of DB entities. Mutated by `load()` and physics. | `ui`, `engine` |
-| **Chronology** (`round`, `story_id`)                  | `runtime.svelte.js` | Macro heartbeat of the simulation.                           | `ui`, `engine` |
-| **Simulation Phase** (`idle`, `generating`, `locked`) | `status.svelte.js`  | Execution status and UI lock state (STASIS).                 | `ui`, `engine` |
-| **UI Flow & Modals** (`view`, `profile_open`)         | `app.svelte.js`     | Ephemeral layout and view state.                             | `ui`           |
-| **Audio Context**                                     | `src/media/`        | Browser audio state. Requires user gesture initialization.   | `ui`           |
+| State Domain                                          | Owner Store File       | Description & Mutators                                       | Observers      |
+| ----------------------------------------------------- | ---------------------- | ------------------------------------------------------------ | -------------- |
+| **Active Entities** (`user`, `ai`, `fractal`)         | `runtime.svelte.js`    | Live clones of DB entities. Mutated by `load()` and physics. | `ui`, `engine` |
+| **Chronology** (`round`, `story_id`)                  | `runtime.svelte.js`    | Macro heartbeat of the simulation.                           | `ui`, `engine` |
+| **Simulation Phase** (`idle`, `generating`, `locked`) | `status.svelte.js`     | Execution status and UI lock state (STASIS).                 | `ui`, `engine` |
+| **UI Flow & Modals** (`view`, `profile_open`)         | `interface.svelte.js`  | Ephemeral layout and view state.                             | `ui`           |
+| **Audio Context**                                     | `src/media/`           | Browser audio state. Requires user gesture initialization.   | `ui`           |
 
 #### Standardized Lifecycle Verbs
 
@@ -222,7 +222,7 @@ RPGlitch is a **Local-First Reactive Monolith (PWA)** built for the Perchance if
 
 - **Relative Resolution**: **Always use relative paths for internal references** (e.g., `./tasks/PRESENT.md`).
 - **Absolute Grounding**: **Map all code claims to specific file paths and line numbers**.
-- **Archival Standard**: Upon track completion, move the track specification from `tasks/future/<track>.md` to `archive/YYYY-MM/<date>-<track>.md` (or `C:\Users\johng\.gemini\antigravity-ide\archive\YYYY-MM/`). `archive/` is the exclusive historical repository for retired blueprints.
+- **Archival Standard**: Upon track completion, move the track specification from `tasks/future/<track>.md` to `archive/YYYY-MM/<date>-<track>.md`. `archive/` is the exclusive historical repository for retired blueprints.
 
 ---
 
@@ -277,4 +277,4 @@ RPGlitch is a **Local-First Reactive Monolith (PWA)** built for the Perchance if
 > **CRITICAL DISTINCTION**:
 >
 > - **Application Memory** (Temporal Engine, Dexie.js, RPGlitch State): Consult the [Simulation](./.agents/skills/simulation/SKILL.md) skill.
-> - **Development Data** (Pinecone, Supabase, Agent Context): Consult the global [Developer Database](file:///c:/Users/johng/.gemini/config/skills/developer-database/SKILL.md) skill.
+> - **Development Data** (Pinecone, Supabase, Agent Context): Consult the global `developer-database` skill.

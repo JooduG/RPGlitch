@@ -23,7 +23,7 @@ In traditional interactive fiction, the language model is asked to be everything
 
 ## 2.0 THE CHRONOS HEARTBEAT: ROUND VS. TURN
 
-Time in RPGlitch does not flow continuously; it progresses through a strict, discrete temporal heartbeat managed by [`ChronoEngine`](file:///c:/Users/johng/source/repos/RPGlitch/src/state/chrono.svelte.js).
+Time in RPGlitch does not flow continuously; it progresses through a strict, discrete temporal heartbeat managed by [`ChronoEngine`](./src/state/chrono.svelte.js).
 
 ```text
 [User Input / Action]
@@ -78,7 +78,7 @@ Rather than attempting to do staging, acting, and memory extraction in a single 
 
 ### Shot 1: The Director Quick Shot (Staging & Physics)
 
-_Source: [`src/intelligence/prompts/director-prompts.js`](file:///c:/Users/johng/source/repos/RPGlitch/src/intelligence/prompts/director-prompts.js)_
+_Source: [`src/intelligence/prompts/director-prompts.js`](./src/intelligence/prompts/director-prompts.js)_
 
 **The Mental Model: The God's-Eye Stage Manager.**
 Before an actor speaks, an invisible director must assess the physical stage. The Director does not write creative dialogue; it outputs pure structural judgment:
@@ -90,7 +90,7 @@ Before an actor speaks, an invisible director must assess the physical stage. Th
 
 ### Shot 2: The Storyteller Shot (Sensory Horizon)
 
-_Source: [`src/intelligence/prompts/story-prompts.js`](file:///c:/Users/johng/source/repos/RPGlitch/src/intelligence/prompts/story-prompts.js)_
+_Source: [`src/intelligence/prompts/story-prompts.js`](./src/intelligence/prompts/story-prompts.js)_
 
 **The Mental Model: The In-Character Persona Behind the Sensory Horizon.**
 Once staging is established, the active speaker generates in-character prose. The actor is subject to strict cognitive limitations:
@@ -104,7 +104,7 @@ Once staging is established, the active speaker generates in-character prose. Th
 
 ### Shot 3: The Memory Forge (Asynchronous Distillation)
 
-_Source: [`src/intelligence/prompts/temporal-prompts.js`](file:///c:/Users/johng/source/repos/RPGlitch/src/intelligence/prompts/temporal-prompts.js) & [`src/intelligence/temporal-pipeline.js`](file:///c:/Users/johng/source/repos/RPGlitch/src/intelligence/temporal-pipeline.js)_
+_Source: [`src/intelligence/prompts/temporal-prompts.js`](./src/intelligence/prompts/temporal-prompts.js) & [`src/intelligence/temporal-pipeline.js`](./src/intelligence/temporal-pipeline.js)_
 
 **The Mental Model: The Dreamer Consolidating Long-Term Memory.**
 Dumping raw chat history into an LLM causes catastrophic forgetting, context bloat, and narrative dilution. The Memory Forge runs asynchronously in the background _after_ a turn completes:
@@ -159,15 +159,15 @@ When authoring or modifying prompt architectures, watch for these common psychol
 
 When implementing changes, consult the canonical source files rather than duplicating schemas here:
 
-| Domain                         | Canonical Source File                                                                                                                       | Primary Responsibility                                                               |
-| :----------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------ | :----------------------------------------------------------------------------------- |
-| **Chronos & Heartbeat**        | [`src/state/chrono.svelte.js`](file:///c:/Users/johng/source/repos/RPGlitch/src/state/chrono.svelte.js)                                     | Round counter, Stasis lock, atomic turn dispatch (`send`, `retry`, `continue`).      |
-| **Turn Pipeline (Gamemaster)** | [`src/intelligence/story-pipeline.js`](file:///c:/Users/johng/source/repos/RPGlitch/src/intelligence/story-pipeline.js)                     | Turn orchestration, Shot 1 execution, dynamics settlement, Shot 2 streaming.         |
-| **Director Prompts**           | [`src/intelligence/prompts/director-prompts.js`](file:///c:/Users/johng/source/repos/RPGlitch/src/intelligence/prompts/director-prompts.js) | Shot 1 JSON schema, causality enforcement, speaker routing rules.                    |
-| **Story Prose Prompts**        | [`src/intelligence/prompts/story-prompts.js`](file:///c:/Users/johng/source/repos/RPGlitch/src/intelligence/prompts/story-prompts.js)       | Shot 2 XML compilation, Epistemic Wall filter, recency anchors, `<think>` protocols. |
-| **Memory Forge Prompts**       | [`src/intelligence/prompts/temporal-prompts.js`](file:///c:/Users/johng/source/repos/RPGlitch/src/intelligence/prompts/temporal-prompts.js) | Shot 3 consolidation contract, chapter history formatter, state extraction schema.   |
-| **Dynamics & Settlement**      | [`src/intelligence/physics.js`](file:///c:/Users/johng/source/repos/RPGlitch/src/intelligence/physics.js)                                   | 0-100 slider math, baseline gravity, entropy velocity calculations.                  |
-| **Temporal Engine**            | [`src/intelligence/temporal-pipeline.js`](file:///c:/Users/johng/source/repos/RPGlitch/src/intelligence/temporal-pipeline.js)               | Vector scoring, cosine deduplication, IndexedDB sync for past/future.                |
+| Domain                         | Canonical Source File                                                                            | Primary Responsibility                                                               |
+| :----------------------------- | :----------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------- |
+| **Chronos & Heartbeat**        | [`src/state/chrono.svelte.js`](./src/state/chrono.svelte.js)                                     | Round counter, Stasis lock, atomic turn dispatch (`send`, `retry`, `continue`).      |
+| **Turn Pipeline (Gamemaster)** | [`src/intelligence/story-pipeline.js`](./src/intelligence/story-pipeline.js)                     | Turn orchestration, Shot 1 execution, dynamics settlement, Shot 2 streaming.         |
+| **Director Prompts**           | [`src/intelligence/prompts/director-prompts.js`](./src/intelligence/prompts/director-prompts.js) | Shot 1 JSON schema, causality enforcement, speaker routing rules.                    |
+| **Story Prose Prompts**        | [`src/intelligence/prompts/story-prompts.js`](./src/intelligence/prompts/story-prompts.js)       | Shot 2 XML compilation, Epistemic Wall filter, recency anchors, `<think>` protocols. |
+| **Memory Forge Prompts**       | [`src/intelligence/prompts/temporal-prompts.js`](./src/intelligence/prompts/temporal-prompts.js) | Shot 3 consolidation contract, chapter history formatter, state extraction schema.   |
+| **Dynamics & Settlement**      | [`src/intelligence/physics.js`](./src/intelligence/physics.js)                                   | 0-100 slider math, baseline gravity, entropy velocity calculations.                  |
+| **Temporal Engine**            | [`src/intelligence/temporal-pipeline.js`](./src/intelligence/temporal-pipeline.js)               | Vector scoring, cosine deduplication, IndexedDB sync for past/future.                |
 
 ---
 
