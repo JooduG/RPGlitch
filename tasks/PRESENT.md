@@ -17,7 +17,7 @@ last_synchronized: 2026-09-05
 - **Active Baton**: [`scribbles.md`](../scribbles.md) (Director & Speaker thinking indicators, active story guard modal, shimmer sync).
 - **Environmental Health**: Git branch `main` (clean working tree, hook contracts passing 11/11 via `npm run test:hooks`, 0 lint errors).
 - **Sovereign Constraints**: Svelte 5 Runes only (`$state`, `$derived`, `$effect`), single-file bundle distribution (`vite-plugin-singlefile`), P4 Zero Backwards Compatibility (pre-beta purity).
-- **Last Startup Verification**: 2026-09-05 11:47 (via `/startup`, housekeeping verified 2026-09-05 12:04).
+- **Last Startup Verification**: 2026-09-05 14:30 (via `/startup`).
 
 ### 🔍 Detected TODOs
 
@@ -32,7 +32,7 @@ No active AI debt found.
 
 ## 🚀 Future
 
-_No queued tracks — next track will be planned upon completion of the active track._
+- [`tasks/future/track-prompt-sanitization-and-narrative-drift-guards.md`](./future/track-prompt-sanitization-and-narrative-drift-guards.md): Prompt sanitization, epistemic leak prevention, anti-trope hardening, telemetry pruning, and structural prompt optimization based on testing logs.
 
 ---
 
