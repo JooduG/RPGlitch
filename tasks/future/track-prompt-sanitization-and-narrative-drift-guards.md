@@ -1,144 +1,178 @@
 ---
 name: track-prompt-sanitization-and-narrative-drift-guards
-description: Prompt sanitization, epistemic leak prevention, anti-trope hardening, telemetry pruning, and structural prompt optimization based on testing logs.
-status: active
+description: Comprehensive prompt sanitization, epistemic leak prevention, anti-trope hardening, telemetry pruning, and structural prompt optimization based on scrobbles.md logs and scribbles.md analysis.
+status: queued
 last_synchronized: 2026-09-05
 references: scrobbles.md, scribbles.md
 ---
 
-# 🎯 Track: Prompt Sanitization, Epistemic Leak Prevention & Narrative Drift Guards
+# 🎯 Track: Prompt Sanitization, Epistemic Boundary Hardening & Narrative Governance
 
-## 1.0 Vision & Background Analysis
+## 1.0 Unified Vision & Architecture
 
-This track hardens prompt generation, context telemetry, and narrative governance pipelines against structural bloat, epistemic leaks, and subtle narrative drift discovered during Perchance testing.
+This track hardens prompt generation, context telemetry, narrative agency, and visual sensory synthesis based on the comprehensive audit of [`scrobbles.md`](file:///c:/Users/johng/source/repos/RPGlitch/scrobbles.md) and [`scribbles.md`](file:///c:/Users/johng/source/repos/RPGlitch/scribbles.md).
 
-### 1.1 Complete Forensic Analysis from `scrobbles.md`
+### 1.1 Story Opening Sequence Lifecycle
 
-Based on a forensic audit of the testing logs in `scrobbles.md` (spanning Prologue, Round 0, Round 1, Epilogue, Sensory Cortex image synthesis, and Memory Forge stages):
+The story opening sequence follows a strict deterministic, fully automatic chain:
 
-#### A. Narrative Drift & Behavioral Anomalies
-1. **Denial-then-Affirmation Trope Breaches (`"I don't just X, I Y"`)**:
-   - In Round 0 (AI Character turn, lines 637–641), Orion generated:
-     > *"I don't just jump; I launch. I feel the pavement recoil under my heels..."*
-     > *"I don't just step toward him; I invade..."* (Round 1, line 1323)
-   - **Root Cause**: While `<ANTI_TROPES>` explicitly lists denial-then-affirmation in rule 2 (`'X didn't just Y; it Z'd'`), models miss the contraction and present-tense variants (`"I don't just..."`, `"He didn't simply..."`, `"not merely"`). The blacklist needs explicit structural patterns for `"don't just"` / `"didn't just"` / `"not merely"`.
-2. **Epistemic Leaks Across the Fourth Wall (`[SECRET]` & `[PLAN]` in Snapshot State)**:
-   - In Round 1 (Director / Ghostwrite input, lines 856, 1376, 1851):
-     `<STATE_OF_MIND>[SECRET: fears being unloved as Rafael] [PLAN: bait Glitch into a public confrontation] Orion is buzzing with adrenaline...</STATE_OF_MIND>`
-   - **Root Cause**: Orion's private `[SECRET]` and `[PLAN]` were serialized verbatim into the prompt rendered for Glitch's ghostwrite turn and subsequent state snapshots. Even though the protocol states *"Unvoiced thoughts are Null Data"*, the raw string `[SECRET: ...]` leaked across the epistemic barrier into the opposite character's prompt.
-   - **Resolution**: Filter and strip `[SECRET: ...]` and `[PLAN: ...]` tags when rendering `<STATE_OF_MIND>` for any entity other than the entity itself (as mandated by local `GEMINI.md`).
-3. **Character Agency Stealing in Sensory Synthesis / Epilogue**:
-   - In line 138, the Prologue text dictated Orion's internal motive: *"the genuine thrill of a predator who has finally spotted his favorite prey"*, and Orion echoed Glitch's physical proximity before Glitch took an action.
-   - In the Epilogue (lines 1901–1907), the generator resolved the conflict by dictating physical submission (*"Glitch is pinned beneath that mass... held fast by the crushing weight..."*), overriding user agency in an omniscient sweep without an active player choice.
-4. **Tone & Style Clashing (Visceral Erotica vs. Heroic Himbo Puns)**:
-   - Orion's personality is pure golden-retriever superhero puns (*"Stay strong, citizens!"*), but the Samuel Delany narrative style preset (`visceral queer erotica, precise bodily mechanics, urban decay`) dragged his interior dialogue into heavy, predatory, clinical anatomical descriptions (*"shelf of my pectorals"*, *"the friction of skin against skin"*).
-   - This caused Orion to sound like two different characters fighting for control: shouting campy puns one moment, narrating like a transgressive philosophy professor the next.
+```text
+[1. Story Genesis] ➔ [2. Fractal Prologue (TTS & Feed Committed)] ➔ [3. Director Reflex] ➔ [4. AI Character Response (TTS & Feed Committed)] ➔ [5. User Turn Release]
+```
 
-#### B. Undesired To-and-From & Telemetry Waste
-1. **Truncated History Entries in Memory Forge & Sensory Cortex**:
-   - In lines 185–187, 709–724, 1396–1430, and 1956–1963, history entries are truncated mid-sentence with raw XML tokens:
-
-     ```text
-     "text": "&lt;think&gt;\n- Fractal Demand: Nova City requires a contrast between... alternating between civic"
-     ```
-
-   - **Problems**:
-     - Sending `<think>` blocks into subsequent turns wastes hundreds of prompt tokens.
-     - Sending truncated sentences (`"civic"`, `"as a hero, but as "`) trains the LLM on broken syntax and encourages abrupt halts.
-   - **Resolution**: Strip `<think>...</think>` entirely from `CONVERSATION_HISTORY` and `INPUT_HISTORY`. If truncating long messages for context budgeting, truncate at full sentence or paragraph boundaries.
-2. **Redundant XML Double-Nesting in Prompts**:
-   - Prompts contain massive duplication between:
-     - `<CAST>` vs `<ACTIVE_CHARACTERS>` vs `<SNAPSHOT><YOUR_IDENTITY>` vs `<SCENE_ROSTER>`.
-     - Character appearance is repeated up to 3 times in a single prompt (once in `<CAST>`, once in `<ETERNAL>`, once in `<PRESENT>`).
-   - In Perchance where context windows and generation speeds are sensitive, this redundancy costs ~800–1,200 wasted tokens per call.
-3. **Round Progression Inconsistency**:
-   - Notice lines 104, 442, 605, and 883: `<ROUND>0</ROUND>` or `<ROUND></ROUND>` was emitted across multiple turns before finally reaching `<ROUND>1</ROUND>`. This indicates ChronoEngine round advancement was lagging behind intermediate tool calls (Director Quick Shot vs AI Character).
-4. **Ghostwrite Redundant Block Structure**:
-   - In lines 885–894, the prompt contains both `<TASK>` with a reference to `<GHOSTWRITE>`, and then a separate `<GHOSTWRITE>` tag outside `<TASK>`. Folding `<GHOSTWRITE>` directly into `<TASK>` simplifies instruction hierarchy.
-
-#### C. Prompt Formatting & Structural Enhancements
-1. **Clean Up Pseudo-JSON Formatting in State Strings**:
-   - Currently, present state in `<CURRENT_LOOK>` is formatted as:
-     `CLOTHING: white sailor harness, metallic blue short shorts EXPRESSION: cheerful flexing smile POSTURE: dominant power-pose CONDITION: glistening with athletic sweat LOCATION: Nova City Upper Plazas`
-   - Without brackets or linebreaks separating key-value pairs, LLM tokenizers blur keys together (`sweat LOCATION:`, `short shorts EXPRESSION:`).
-   - **Resolution**: Enforce bracketed keys `[KEY: value]` or clear delimiter spacing.
-2. **Purge Unresolved Alternation Syntax (`{A|B}`) Before LLM Ingestion**:
-   - In lines 75, 81, 214, 232, 327, 335, 569, 576:
-     `CLOTHING: {clad in a masculine Sailor Moon-inspired white sailor harness...|wearing a tight white tank top...}`
-   - The engine is passing raw Perchance curly-brace alternation syntax directly into the AI prompt! The LLM is instructed in Phase 3 to *"resolve it to exactly ONE option"*, burdening the model with dice-rolling logic that should happen deterministically on the client before prompt generation.
-3. **Empty XML Tags Cluttering the Context**:
-   - Repeated empty tags across prompts (lines 70–71, 76–77, 82, 328–329, 336–337, 343–344, 570–571, 577, 583–584):
-     `<INTENT></INTENT>`, `<MEMORIES></MEMORIES>`, `<AGENDA></AGENDA>`, `<BACKSTORY></BACKSTORY>`.
-   - **Resolution**: Conditionally omit empty tags in prompt builders rather than emitting empty XML shells.
-4. **Scene Roster / Openness Leakage**:
-   - In lines 89–91, 421–423, 590–592:
-     `- Beast (id: beast) (Openness: 42)`
-     `- Hank 'Rust' Brawley (id: rust) (Openness: 43)`
-   - Exposing internal statistical numbers like `(Openness: 42)` to creative prompts leaks mechanical noise and encourages models to treat entities as stats rather than living personas.
+- **Opening Chain & Commit Gating**: As soon as Fractal Prologue finishes streaming, it fully commits its DOM state, Dexie record, and audio trigger to `visible_feed`, immediately launching the Director Reflex ➔ AI Character Response turn without user friction.
+- **The Overwrite Bug**: In `story-pipeline.js`, the incoming AI Character stream previously started before the Fractal Prologue had finalized its DOM and TTS state. Each step now strictly awaits full message commitment before triggering the next stage.
 
 ---
 
-## 2.0 Architectural Sequence & Data Flow
+## 2.0 Decisions & Structural Agreements
+
+### A. Narrative Agency & Anti-Trope Governance
+
+1. **Denial-then-Affirmation Blacklist**: Explicitly ban first-person present and contraction formulas: `"I don't just [verb]; I [verb]"`, `"didn't just"`, `"not merely"`, `"doesn't simply"`.
+2. **Affirmative Drift Audit Rules**: Rephrase all 5 `<DRIFT_AUDIT>` rules into affirmative expectations; allow natural courtesy for polite/courteous archetypes rather than forcing generic hostility.
+3. **Dialogue Quotes vs. Narrative Prose Separation (Dual Tone Synthesis)**:
+   - In the character prompt, explicitly declare: `"Use the character's speaking style strictly for words within quotation marks; render all surrounding narrative prose and environmental descriptions through the narrative style preset."`
+   - Inside `"quotes"`: Dictated strictly by the character's **Speaking Style & Personality** (e.g., Orion's himbo superhero puns).
+   - Outside quotes: Dictated strictly by the **Narrative Style Preset** (e.g., Delany transgressive/anatomical prose, pacing, and atmosphere).
+4. **Epistemic Fourth-Wall Guards**: Strip `<SECRET>` and `<PLAN>` tags when rendering state across entity boundaries.
+5. **Decouple Plan from Present (P4 Purge / No Legacy Shim)**: Move `[PLAN: ...]` out of `present.non_physical` into `future` (standing agenda); reserve `present.non_physical` strictly for immediate state of mind and active emotions. No legacy fallback shims needed (db reset before test session).
+6. **Epilogue Agency Guard**: Epilogues must depict environmental aftermath and lingering sensation without forcing player physical surrender.
+7. **Lexical Blacklist Refinement**: Strip over-eager banned words (like "bellow/boom" or "rasp") from the global lexical blacklist when they naturally fit character voices; reserve blacklist strictly for structural AI tropes.
+
+### B. Prompt Architecture & De-duplication
+
+1. **XML Tag Standard**: All prompts standardize cleanly on explicit XML tags (`<TAG>value</TAG>`), phasing out ambiguous unbracketed pseudo-JSON. Keep Perchance alternation syntax `{Option A|Option B}` intact as designed.
+2. **Telemetry & Dynamic Values Consolidation**:
+   - Merge `<DYNAMICS_LEGEND>`, current values, and dynamic deltas into a single unified `<DYNAMICS>` block.
+   - Merge `dynamics_deltas` and `fractal_dynamics_deltas` into a single flat JSON object: `{ chaos, intensity, openness, affinity, velocity, entropy }`.
+3. **Turn Identification in System Tags**:
+   - Label system prompts with clean operational slices: e.g. `<SYSTEM role="DIRECTOR" turn="reflex">` or `<SYSTEM role="AI_CHARACTER" turn="response">`.
+4. **Conversation History Schema & Thinking Separation**:
+   - Semantic history tags with turn numbers: `<turn number="X" speaker="Entity Name">...content...</turn>`.
+   - **Collapsible Inspector / Clean Context**: Strip unvoiced `<think>...</think>` blocks regex-cleanly before formatting prompts to save ~300–600 tokens per turn, but preserve `<think>` in Dexie message records (`thinking` column) so the user can inspect internal calculations in the UI if desired.
+5. **Instruction Purity**:
+   - Define directives organically without meta-fluff (`"the eternal blabla declared above"`, `"follow instructions below"`).
+   - Merge ghostwrite instructions directly inside `<TASK>`.
+   - Merge somatic directives, dynamic signals, and recency anchors into a unified `<MOMENTUM>` block.
+   - Merge keyword lists into a single `<KEYWORDS>` block.
+   - Omit empty XML shells (`<INTENT></INTENT>`, `<MEMORIES></MEMORIES>`) via `render_optional_tag`.
+   - Strip redundant `<dna>` wrapper in narrative styles.
+   - Purge redundant `<ANCHOR>` tag (covered by epistemic rules).
+6. **Roster as Speaker Routing Palette**:
+   - Merge `<SPEAKER_ROUTING>`, `<ENTITY_CONVERGENCE>`, `<ROSTER>`, and `<SCENE_ROSTER>` into a single unified `<ROSTER>` block for the Director:
+     - Defines options cleanly: `"AI_CHARACTER"`, `"FRACTAL"`, in-scene NPCs (`"npc:<id>"`), and `"GENESIS"`.
+     - Explicitly instructs using existing candidate NPCs before minting brand-new characters.
+   - Character narrative prompts receive only in-scene participants in `<SCENE_ROSTER>`.
+   - Strip mechanical telemetry `(Openness: XX)` from all narrative rosters.
+   - Scope `<RELATIONAL_MESH>` strictly to active scene participants.
+   - Clean Genesis directive: remove optional signature color and speaking style from Director prompt (confirmed already present in canonical `profile-prompts.js`).
+7. **Continuum Caretaker**: Formally rename background state consolidation role to `CONTINUUM_CARETAKER`.
+
+### C. Sensory Cortex & Visual Refinements
+
+1. **Canonical Landscape Resolution Specs**:
+   - Use the official engine tier resolution `story_scene` (`768x512`, 3:2 landscape) for Fractal profile pictures and narrative scene shots (replacing square `768x768` story entities when in landscape mode).
+2. **Fractal Enhancer Wording**: Use affirmative focus on wide-angle architecture, atmospheric lighting, and weather scale without mentioning humans.
+3. **Director Visual Staging via Separate System Shot**:
+   - The Director evaluates physical/mechanical state and passes an unseen `"visual_staging"` note to the separate Sensory Cortex image generation pipeline.
+4. **Visual Engine Nomenclature**: Change `<tags>` to `<keywords>` in `<VISUAL_ENGINE>` to align with `KEYWORD_INTEGRITY`.
+5. **Lighting & Protocol Simplification**:
+   - Remove generic `"ground scenes in real world light sources"` from Sensory Cortex protocols; let the chosen visual style govern lighting optics.
+   - Purge clunky special-case `Prologue Priority` clause; enforce that all shots depict active narrative moments.
+6. **Cinematography Merge**: Merge `<NARRATIVE_CONTEXT>` and `<CINEMATIC_FRAMING>` into a single unified `<CINEMATOGRAPHY>` block.
+7. **Shimmer Harmonization**: Soften image generation shimmer gradient stops and sweep timing in `Shimmer.svelte`.
+
+---
+
+## 3.0 Architectural Sequence & Data Flow
 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant State as Runtime / Chrono State
-    participant Pipeline as StoryPipeline / TemporalPipeline
-    participant Sanitizer as PromptSanitizer / Shared Prompts
-    participant LLM as Perchance AI Text Plugin
+    actor User
+    participant Chrono as ChronoEngine
+    participant Director as Director Reflex
+    participant Sanitizer as PromptSanitizer
+    participant Character as AI Character Stream
+    participant Sensory as Sensory Cortex (Image)
+    participant Caretaker as Continuum Caretaker
 
-    State->>Pipeline: Assemble Turn Payload
-    Pipeline->>Sanitizer: Raw Entity State & History
-    Note over Sanitizer: 1. Strip [SECRET] & [PLAN] across epistemic boundary<br/>2. Resolve {A|B} alternations deterministically<br/>3. Strip <think> blocks from conversation history<br/>4. Omit empty XML tags (<INTENT>, <MEMORIES>)<br/>5. Strip raw mechanical stats (Openness: XX)
-    Sanitizer-->>Pipeline: Sanitized, Clean XML Payload
-    Pipeline->>LLM: Stream Payload with Enhanced Anti-Tropes
-    LLM-->>Pipeline: Streamed Prose Response
+    Note over Chrono: Automatic Chain: Fractal Prologue -> Director Reflex -> AI Character Response -> User Turn
+    Chrono->>Director: Evaluate Staging & Stasis (<SYSTEM turn="reflex">)
+    Director-->>Chrono: Staging, Speaker Selection (from Unified Roster), Unified Deltas & Visual Staging
+
+    Chrono->>Sanitizer: Raw World State, Roster & History
+    Note over Sanitizer: 1. Strip <SECRET> & <PLAN> across epistemic boundary<br/>2. Strip <think> from prompt (preserve in Dexie) & format <turn number="X" speaker="..."> history<br/>3. Omit empty XML shells & strip (Openness: XX)<br/>4. Provide <SCENE_ROSTER> to Character and Unified <ROSTER> to Director<br/>5. Scope <RELATIONAL_MESH> to active scene<br/>6. Format clean XML tags & move [PLAN] to future
+    Sanitizer-->>Character: Pristine Prompt Payload (Quotes=Speaking Style, Prose=Narrative Style)
+
+    Character-->>Chrono: Stream In-Character Prose
+    Chrono->>Sensory: Synthesize Scene Image (768x512 Landscape, Director Visual Staging)
+    Sensory-->>Chrono: Synthesized Image Payload
+    Chrono->>Caretaker: State Reconciliation (Clean XML & History)
+    Caretaker-->>Chrono: Settled Epistemic Updates
 ```
 
 ---
 
-## 3.0 Implementation Playbook
+## 4.0 Implementation Playbook
 
 ### Phase 1: Test-Driven Red Suite (Unit & Contract Tests)
 
-- [ ] `task-1.1`: Add unit tests in `src/intelligence/prompts/shared.test.js` verifying that:
-  - `[SECRET: ...]` and `[PLAN: ...]` are stripped from `<STATE_OF_MIND>` when rendered for other entities (epistemic boundary test).
-  - Empty XML tags (`<INTENT></INTENT>`, `<MEMORIES></MEMORIES>`, `<AGENDA></AGENDA>`, `<BACKSTORY></BACKSTORY>`) are omitted from output blocks.
-  - Perchance alternation syntax `{Option A|Option B}` is resolved to a single choice before prompt assembly.
-  - Mechanical stat numbers like `(Openness: 42)` are stripped from scene roster rendering.
-- [ ] `task-1.2`: Add unit tests in `src/intelligence/story-pipeline.test.js` and `src/intelligence/temporal-pipeline.test.js` verifying that:
-  - `<think>...</think>` blocks are pruned from `CONVERSATION_HISTORY` and `INPUT_HISTORY`.
-  - History truncation operates cleanly on sentence/paragraph boundaries rather than mid-word.
-  - Ghostwrite prompts merge `<GHOSTWRITE>` directly inside `<TASK>` without redundant outer tags.
-- [ ] `task-1.3`: Add unit tests in `src/intelligence/prompts/story-prompts.test.js` confirming anti-trope blacklist contains explicit patterns for denial-then-affirmation variations (`"I don't just..."`, `"didn't just"`, `"not merely"`).
+- [ ] `task-1.1`: Add unit tests in `src/intelligence/prompts/shared.test.js` verifying:
+  - Epistemic boundary: `<SECRET>` and `<PLAN>` stripped from `<STATE_OF_MIND>` when rendered for opposing entities, and `[PLAN]` moved to `future`.
+  - Empty tag omission: `<INTENT>`, `<MEMORIES>`, `<AGENDA>`, `<BACKSTORY>` omitted when empty via `render_optional_tag`.
+  - Scene roster cleaning: `(Openness: XX)` stripped from `<SCENE_ROSTER>`; only `in_scene` entities rendered for character prompts.
+  - Unified Director `<ROSTER>`: Combines speaker routing candidates, convergence rules, and roster entities into a single clean block.
+  - Relational mesh scoping: Relationships outside active scene entities filtered out.
+  - XML tag formatting across character and fractal state.
+- [ ] `task-1.2`: Add unit tests in `src/intelligence/story-pipeline.test.js` and `src/intelligence/temporal-pipeline.test.js` verifying:
+  - Opening story chain: Fractal Prologue commits to feed before AI Character turn begins automatically.
+  - `<think>...</think>` blocks stripped from history prompts, while preserved in database message records.
+  - History items render as `<turn number="..." speaker="...">`.
+  - Ghostwrite prompt folds instructions cleanly inside `<TASK>`.
+  - Continuum Caretaker naming and flat `dynamics_deltas` schema.
+- [ ] `task-1.3`: Add unit tests in `src/intelligence/prompts/story-prompts.test.js` and `director-prompts.test.js` verifying:
+  - Anti-trope blacklist detects `"I don't just..."`, `"didn't just"`, and `"not merely"`.
+  - All 5 `<DRIFT_AUDIT>` rules use affirmative phrasing.
+  - Speaking style applies to dialogue quotes; narrative style governs surrounding prose.
+  - Epilogue prompts forbid forcing player physical submission.
+  - Director Genesis excludes signature color and speaking style (delegated to profile creation).
+- [ ] `task-1.4`: Add unit tests in `src/media/visual.test.js` or `src/intelligence/sensory.test.js` verifying:
+  - Fractal profile pictures and narrative group shots map to canonical landscape tier `story_scene` (`768x512`).
+  - Director `"visual_staging"` passes into separate Sensory Cortex image prompt builder.
+  - Sensory Cortex uses `<keywords>` instead of `<tags>` in `<VISUAL_ENGINE>`, and `<CINEMATOGRAPHY>` merges narrative context, framing, and purges `Prologue Priority`.
 
-### Phase 2: Prompt Sanitizer & Epistemic Boundary Implementation (GREEN)
+### Phase 2: Prompt Sanitizer, Epistemic Boundary & Unified Roster (GREEN)
 
-- [ ] `task-2.1`: Implement `strip_epistemic_secrets(state_text, is_owner)` in `src/intelligence/prompts/shared.js` to strip `[SECRET: ...]` and `[PLAN: ...]` unless the recipient is the entity itself or the Director.
-- [ ] `task-2.2`: Update XML builder functions in `src/intelligence/prompts/shared.js` and `builder.js` to conditionally omit empty tags (`render_optional_tag(name, content)`).
-- [ ] `task-2.3`: Implement client-side alternation resolver `resolve_alternations(text)` in `src/intelligence/prompts/shared.js` so `{A|B}` is resolved deterministically before sending to LLM.
-- [ ] `task-2.4`: Update `render_scene_roster` in `src/intelligence/prompts/shared.js` to strip internal dynamic state tags (`Openness: XX`) from narrative prompts.
+- [ ] `task-2.1`: Implement `strip_epistemic_secrets(state_text, is_owner)` in `src/intelligence/prompts/shared.js` and move `[PLAN]` to `future`.
+- [ ] `task-2.2`: Implement `render_optional_tag(tag_name, content)` in `src/intelligence/prompts/shared.js` and `builder.js` to purge empty XML shells.
+- [ ] `task-2.3`: Merge `<SPEAKER_ROUTING>`, `<ENTITY_CONVERGENCE>`, and `<ROSTER>` into the unified Director `<ROSTER>` block in `src/intelligence/prompts/director-prompts.js`, strip mechanical telemetry, and scope `<RELATIONAL_MESH>`.
+- [ ] `task-2.4`: Standardize XML tag serialization for character/fractal states and strip `<dna>` wrapper from narrative style templates.
 
-### Phase 3: Telemetry & History Pruning (GREEN)
+### Phase 3: Telemetry, Opening Sequence & Continuum Caretaker (GREEN)
 
-- [ ] `task-3.1`: Update `src/intelligence/story-pipeline.js` to strip `<think>...</think>` blocks when pushing or formatting messages for `CONVERSATION_HISTORY` and `INPUT_HISTORY`.
-- [ ] `task-3.2`: Harden string truncation in `src/intelligence/temporal-pipeline.js` to respect sentence/paragraph boundaries and avoid raw mid-token slices.
-- [ ] `task-3.3`: Refactor ghostwrite prompt generator in `src/intelligence/prompts/story-prompts.js` to fold ghostwrite instructions directly inside `<TASK>`.
+- [ ] `task-3.1`: Fix Prologue sequence in `src/intelligence/story-pipeline.js` ensuring Fractal Prologue commits fully before auto-chaining Director Reflex and AI Character.
+- [ ] `task-3.2`: Update history formatting to strip `<think>...</think>` blocks for prompt construction while storing them in the message record, and serialize semantic `<turn number="..." speaker="...">` tags.
+- [ ] `task-3.3`: Rename system role to `CONTINUUM_CARETAKER` and flatten `dynamics_deltas` to include all 6 axes.
+- [ ] `task-3.4`: Refactor ghostwrite prompt assembly in `src/intelligence/prompts/story-prompts.js` to fold into `<TASK>`.
 
-### Phase 4: Anti-Trope & Narrative Governance Hardening (GREEN)
+### Phase 4: Anti-Trope Governance & Sensory Cortex Refinement (GREEN)
 
-- [ ] `task-4.1`: Expand `<ANTI_TROPES>` in `src/intelligence/prompts/story-prompts.js`, `director-prompts.js`, and `physics-prompts.js` with explicit denial-then-affirmation triggers:
-  - Pattern: `"I don't just [verb]; I [verb]"`, `"didn't just"`, `"not merely"`, `"doesn't simply"`.
-- [ ] `task-4.2`: Refine Epilogue prompt in `src/intelligence/prompts/story-prompts.js` to reinforce user agency, ensuring epilogues respect user boundaries and lingering sensation without forcing total physical submission.
+- [ ] `task-4.1`: Update `<ANTI_TROPES>` in `story-prompts.js`, `director-prompts.js`, and `physics-prompts.js` with explicit denial-then-affirmation formulas and prune natural character words from lexical blacklist.
+- [ ] `task-4.2`: Update `<DRIFT_AUDIT>` rules with affirmative phrasing and enforce quotes-for-speaking-style vs prose-for-narrative-style.
+- [ ] `task-4.3`: Update aspect ratio defaults in image generation calls: map Fractal profiles and scene group shots to canonical `story_scene` (`768x512`).
+- [ ] `task-4.4`: Update Fractal enhancer prompt to affirmative environmental scaling without negative human triggers.
+- [ ] `task-4.5`: Wire Director `"visual_staging"` into Sensory Cortex, align `<keywords>` tag nomenclature, merge staging into `<CINEMATOGRAPHY>`, and purge `Prologue Priority`.
+- [ ] `task-4.6`: Soften image shimmer contrast and sweep speed in `src/ui/motion/Shimmer.svelte`.
 
 ### Phase 5: Verification & Quality Gate
 
-- [ ] `task-5.1`: Execute full test suite `npm run test:unit` and verify all tests pass.
-- [ ] `task-5.2`: Run `npm run test:hooks` to confirm all 11 lifecycle hook contracts pass.
-- [ ] `task-5.3`: Run `npm run audit:hygiene` to ensure zero security, lexical, or legislative violations.
-- [ ] `task-5.4`: Run `npm run build` to verify clean single-file production compilation.
+- [ ] `task-5.1`: Run full unit test suite `npm run test:unit` and ensure 100% pass.
+- [ ] `task-5.2`: Run `npm run test:hooks` to verify all 11 lifecycle hook contracts pass.
+- [ ] `task-5.3`: Run `npm run audit:hygiene` ensuring 0 security, lexical, or legislative violations.
+- [ ] `task-5.4`: Run `npm run build` ensuring clean single-file production compilation.
 
 <!-- CHANGELOG
-  - 2026-09-05: Initialized track file based on comprehensive forensic analysis of scrobbles.md, targeting prompt sanitization, epistemic leak prevention, anti-trope hardening, and telemetry pruning.
+  - 2026-09-05: Concluded /grill-me session: locked in automatic prologue chaining, separate visual staging shots, dual-tone quotes-vs-prose synthesis, P4 plan schema purge without shims, and collapsible thinking storage in Dexie.
 -->

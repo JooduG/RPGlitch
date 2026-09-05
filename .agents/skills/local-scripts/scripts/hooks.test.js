@@ -142,6 +142,52 @@ const TEST_CASES = [
     },
     expectedDecision: "allow",
   },
+  {
+    name: "hooks.js active-track-gate: Auto-demote previous active track when activating another",
+    file: "skills/local-scripts/scripts/hooks.js",
+    args: ["active-track-gate"],
+    input: {
+      toolCall: {
+        name: "replace_file_content",
+        args: {
+          TargetFile: "c:/Users/johng/source/repos/RPGlitch/tasks/future/test-track-beta.md",
+          TargetContent: "status: queued",
+          ReplacementContent: "status: active",
+        },
+      },
+      workspacePaths: ["c:/Users/johng/source/repos/RPGlitch"],
+    },
+    mockFile: "tasks/future/test-track-alpha.md",
+    mockContent: "---\nname: test-track-alpha\ndescription: Test track alpha\nstatus: active\n---\n# Alpha\n",
+    expectedDecision: "allow",
+    expectedHasFeedback: true,
+  },
+  {
+    name: "hooks.js active-track-gate: Allow editing queued track without setting active",
+    file: "skills/local-scripts/scripts/hooks.js",
+    args: ["active-track-gate"],
+    input: {
+      toolCall: {
+        name: "replace_file_content",
+        args: {
+          TargetFile: "c:/Users/johng/source/repos/RPGlitch/tasks/future/test-track-beta.md",
+          TargetContent: "status: queued",
+          ReplacementContent: "status: queued",
+        },
+      },
+      workspacePaths: ["c:/Users/johng/source/repos/RPGlitch"],
+    },
+    expectedDecision: "allow",
+  },
+  {
+    name: "hooks.js planning-handoff: Auto-sync PRESENT.md when cleanly aligned",
+    file: "skills/local-scripts/scripts/hooks.js",
+    args: ["planning-handoff"],
+    input: {
+      workspacePaths: ["c:/Users/johng/source/repos/RPGlitch"],
+    },
+    expectedDecision: "stop",
+  },
 ];
 
 /**
@@ -156,8 +202,12 @@ function run() {
   let failed = 0;
 
   for (const tc of TEST_CASES) {
-    if (tc.mockFile) {
-      fs.writeFileSync(tc.mockFile, "test-data");
+    const repo_root = path.resolve(".agents/..");
+    const mock_abs_path = tc.mockFile ? path.resolve(repo_root, tc.mockFile) : null;
+    if (mock_abs_path) {
+      const parent_dir = path.dirname(mock_abs_path);
+      if (!fs.existsSync(parent_dir)) fs.mkdirSync(parent_dir, { recursive: true });
+      fs.writeFileSync(mock_abs_path, tc.mockContent || "test-data");
     }
 
     const cmd_args = [tc.file, ...(tc.args || [])];
@@ -167,8 +217,8 @@ function run() {
       encoding: "utf-8",
     });
 
-    if (tc.mockFile && fs.existsSync(tc.mockFile)) {
-      fs.unlinkSync(tc.mockFile);
+    if (mock_abs_path && fs.existsSync(mock_abs_path)) {
+      fs.unlinkSync(mock_abs_path);
     }
 
     let parsed_output;
@@ -219,4 +269,6 @@ run();
  * -------------------------------------------------------------------------------------------------
  * 2026-09-04: Created hooks.test.js conforming to test nomenclature standards and resolved unused variable error.
  * 2026-09-05: Added 10th test case (circuit-breaker read-only tool exemption). Reverted file-architecture-gate matcher to write_to_file only; added 11th test case documenting that replace_file_content is explicitly allowed (gate is scoped to file creation, not chunk patches).
+ * 2026-09-05: Added 12th & 13th test cases verifying active-track-gate (denial of multiple active tracks and allowance of non-active edits in tasks/future/).
+ * 2026-09-05: Added 14th test case verifying planning-handoff automatic synchronization of tasks/PRESENT.md with tasks/future/.
  */

@@ -68,6 +68,20 @@
       }
     ]
   },
+  "active-track-gate": {
+    "PreToolUse": [
+      {
+        "matcher": "write_to_file|replace_file_content|multi_replace_file_content",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node skills/local-scripts/scripts/hooks.js active-track-gate",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
   "file-architecture-gate": {
     "PreToolUse": [
       {
