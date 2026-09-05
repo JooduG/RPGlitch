@@ -41,7 +41,7 @@ Execute the Warden and the test suite via `npm run deploy:prepare`.
 
 - **Fail Fast**: Catch lint and type errors locally before they hit CI.
 
-### 2. Parallel Verification (/03-review pattern)
+### 2. Parallel Verification (/review pattern)
 
 For significant changes, fan out specialized sub-agents to verify the artifact from independent perspectives:
 
