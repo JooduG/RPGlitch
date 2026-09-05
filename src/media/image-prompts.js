@@ -47,7 +47,7 @@ PHASE 1: EXECUTION & OUTPUT STRUCTURE
 PHASE 2: SUBJECT & SPATIAL FRAMING (FIRST SENTENCE PRIORITY)
 - FIRST SENTENCE MANDATE: Always place main entities and active physical interactions in the VERY FIRST sentence.
 - Spatial Geometry: Strictly enforce camera angles, elevations (e.g., balconies), lighting positions, and distance.
-- Prologue Priority: In prologue mode, the primary active scene message overrides static lore. Render what is happening NOW.
+- Direct Depiction: Render what is happening in the active scene moment.
 
 PHASE 3: CHARACTER SPECIFICATION & OVERRIDES
 - Explicit Identifiers: Always explicitly state gender and physical identifiers (e.g., "a handsome young male high-elf man").
@@ -127,7 +127,7 @@ export const prompt_templates = {
     const visual_engine_block = style_definition.visual_engine
       ? `\n<VISUAL_ENGINE style="${escape_xml(style_definition.name || style_key)}">\n${style_definition.visual_engine.replace(/<\/?VISUAL_ENGINE[^>]*>/gi, "").trim()}${
           Array.isArray(style_definition.tags) && style_definition.tags.length
-            ? `\n<tags>${prompt_escape(style_definition.tags.join(", "))}</tags>`
+            ? `\n<keywords>${prompt_escape(style_definition.tags.join(", "))}</keywords>`
             : ""
         }\n</VISUAL_ENGINE>`
       : "";
@@ -145,16 +145,12 @@ export const prompt_templates = {
         subject = "a landscape environment or interior layout space capturing the current narrative moment and prose context";
         break;
       case "story_entities":
-        context_block = `<ACTIVE_CHARACTERS>\n${ai_character_block}\n${user_persona_block}\n</ACTIVE_CHARACTERS>\n${fractal_setting_block}\n<NARRATIVE_CONTEXT>CINEMATIC GROUP SHOT MANDATE: The image MUST literally depict the active narrative scene, featuring BOTH the AI character (${prompt_escape(active_ai_character?.name || "AI")}) and USER persona (${prompt_escape(active_user_persona?.name || "User")}) engaged together in their exact spatial positions described in INSTRUCTIONS, rendered within the fractal environment. NEVER generate an empty environment/landscape shot.</NARRATIVE_CONTEXT>`;
+        context_block = `<ACTIVE_CHARACTERS>\n${ai_character_block}\n${user_persona_block}\n</ACTIVE_CHARACTERS>\n${fractal_setting_block}`;
         subject = "a cinematic group shot featuring both the AI character and user persona together within the fractal environment";
         break;
       case "story_character":
       default:
-        context_block = `<ACTIVE_CHARACTERS>\n${render_entity(main_entity === active_user_persona || main_entity?.type === "user" ? "USER_PERSONA" : "AI_CHARACTER", main_entity)}\n</ACTIVE_CHARACTERS>\n${fractal_setting_block}${
-          active_fractal_setting
-            ? `\n<NARRATIVE_CONTEXT>CHARACTER IN SCENE MANDATE: The image MUST depict the character (${prompt_escape(main_entity?.name || "Subject")}) situated directly within the active fractal environment (${prompt_escape(active_fractal_setting.name || "Setting")}), integrating the setting's architecture, atmosphere, lighting, and textures into the background and surroundings.</NARRATIVE_CONTEXT>`
-            : ""
-        }`;
+        context_block = `<ACTIVE_CHARACTERS>\n${render_entity(main_entity === active_user_persona || main_entity?.type === "user" ? "USER_PERSONA" : "AI_CHARACTER", main_entity)}\n</ACTIVE_CHARACTERS>\n${fractal_setting_block}`;
         subject = "a character framed within their environment, emphasizing their presence with an evocative background setting";
         break;
     }
@@ -182,7 +178,15 @@ export const prompt_templates = {
       framing_tokens = "medium portrait framing, waist-up composition, distinctive wardrobe, signature atmospheric backdrop";
     }
 
-    const framing_block = `\n<CINEMATIC_FRAMING mode="${framing_mode}">\n  ${framing_tokens}\n</CINEMATIC_FRAMING>`;
+    const visual_staging_directive = context?.visual_staging ? `\n  Staging Directive: ${prompt_escape(context.visual_staging)}` : "";
+    const narrative_context_desc =
+      tier === "story_entities"
+        ? `\n  Group Mandate: Feature both ${prompt_escape(active_ai_character?.name || "AI")} and ${prompt_escape(active_user_persona?.name || "User")} engaged together in their active positions within the fractal environment.`
+        : tier === "story_character" && active_fractal_setting
+          ? `\n  Character In Scene: Depict ${prompt_escape(main_entity?.name || "Subject")} situated directly within ${prompt_escape(active_fractal_setting.name || "Setting")}.`
+          : "";
+
+    const framing_block = `\n<CINEMATIC_FRAMING mode="${framing_mode}">\n  ${framing_tokens}\n</CINEMATIC_FRAMING>\n<CINEMATOGRAPHY mode="${framing_mode}">\n  ${framing_tokens}${narrative_context_desc}${visual_staging_directive}\n</CINEMATOGRAPHY>`;
 
     return `
 <SYSTEM role="SENSORY_CORTEX_V5">

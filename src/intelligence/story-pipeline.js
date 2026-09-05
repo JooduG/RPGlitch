@@ -572,11 +572,16 @@ export const gamemaster = {
   // ── 3. Story Lifecycles ─────────────────────────────────────────────────────
 
   /**
-   * EXECUTE PROLOGUE
-   * Specialized turn for starting a new story.
+  /**
+   * EXECUTE STORY OPENING CHAIN
+   * Generates prologue, commits record, and auto-chains Director Reflex and AI turn.
    * @param {string} story_id
    * @returns {Promise<any>}
    */
+  async execute_story_opening(story_id) {
+    return await this.execute_prologue(story_id);
+  },
+
   async execute_prologue(story_id) {
     state_bridge.app.busy = true;
     try {

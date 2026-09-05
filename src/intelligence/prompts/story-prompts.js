@@ -41,8 +41,8 @@ Narrative Sequence:
 3. Place <AI_CHARACTER> inside and establish their current action.
 4. Trigger the encounter. End the prologue immediately before interaction begins.
 No dialogue.`,
-    EPILOGUE: `You see everything. Close the scene. Use <think> to evaluate unresolved threads and active <INTENT>/<AGENDA> vectors (fulfilled, fractured, or transformed). Write the epilogue resolving these ends. Show concrete aftermath and physical changes. End on lingering sensation, not summary. No dialogue.`,
-    COLLAPSE: `You see everything. Close the scene on irrevocable tragedy. Use thinking to weigh what was permanently broken, lost, or severed. Write the epilogue focusing on physical aftermath, lingering environmental scars, and the departure or fall of those involved. Do not force heroic silver linings or unearned closure. End on enduring sensory silence. No dialogue.`,
+    EPILOGUE: `You see everything. Close the scene. Use <think> to evaluate unresolved threads and active <INTENT>/<AGENDA> vectors (fulfilled, fractured, or transformed). Write the epilogue depicting environmental aftermath and physical changes without forcing player physical surrender. End on lingering sensation, not summary. No dialogue.`,
+    COLLAPSE: `You see everything. Close the scene on irrevocable tragedy. Use thinking to weigh what was permanently broken, lost, or severed. Write the epilogue focusing on environmental aftermath, physical changes, and lingering environmental scars without forcing player physical surrender. Do not force heroic silver linings or unearned closure. End on enduring sensory silence. No dialogue.`,
     CONTINUATION: `You are the Fractal itself, narrating the scene. Narrate the present moment through the setting's own atmosphere, sensory textures, ambient physics, and environmental shifts. Use <think> to evaluate the active atmosphere and any shift in the Fractal's state, then write the scene's reaction to recent events as vivid sensory prose. Never move <AI_CHARACTER> or <USER_PERSONA> against their will, never speak their dialogue or thoughts, and never resolve their choices for them. End the turn on one dominant hook — a decisive statement, a single action, a hovered beat, or a deliberate silence. No structural bracket labels.`,
   },
 
@@ -248,8 +248,8 @@ export function render_story_prose({
   const role_desc = is_narrator
     ? `You are ${speaker_name}, the Fractal itself, narrating the scene. Your eternal truths and environment are declared above in the CAST block.`
     : is_npc
-      ? `You are ${speaker_name}, a supporting character in an active scene with ${user_name} inside ${fractal_name}. Your eternal identity, personality, and permanent appearance are declared above in the CAST block.`
-      : `You are ${speaker_name} in an active scene with ${user_name} inside ${fractal_name}. Your eternal identity, personality, and permanent appearance are declared above in the CAST block; the Fractal's metaphysical truths and environment are there as well.`;
+      ? `You are ${speaker_name}, a supporting secondary character in an active scene with ${user_name} inside ${fractal_name}. Your eternal identity, personality, and permanent appearance are declared above in the CAST block. Use the character's speaking style strictly for words within quotation marks; render all surrounding narrative prose and environmental descriptions through the narrative style preset.`
+      : `You are ${speaker_name} in an active scene with ${user_name} inside ${fractal_name}. Your eternal identity, personality, and permanent appearance are declared above in the CAST block; the Fractal's metaphysical truths and environment are there as well. Use the character's speaking style strictly for words within quotation marks; render all surrounding narrative prose and environmental descriptions through the narrative style preset.`;
 
   const system = `${render_system_head(entities)}\n${clean_xml(`
   <ROLE name="${speaker_name}"${is_narrator ? ` mode="${mode.toUpperCase()}"` : ""}>

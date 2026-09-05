@@ -8,7 +8,7 @@ describe("director-prompts", () => {
     expect(DIRECTOR_PROTOCOLS.SCHEMA).toContain("next_action");
     expect(DIRECTOR_PROTOCOLS.SCHEMA).toContain("dynamics_deltas");
     expect(DIRECTOR_PROTOCOLS.CONTINUITY_AND_CAUSALITY).toContain("SECRET AGENDAS");
-    expect(DIRECTOR_PROTOCOLS.SPEAKER_ROUTING).toContain("AI_CHARACTER");
+    expect(DIRECTOR_PROTOCOLS.TERMINATION).toContain("STORY RESOLUTION");
   });
 
   describe("render_environmental_hint", () => {
@@ -77,6 +77,44 @@ describe("director-prompts", () => {
       expect(task).toContain("<TASK>");
       expect(task).toContain("VALID JSON object");
       expect(task).toContain(DIRECTOR_PROTOCOLS.SCHEMA);
+    });
+  });
+
+  describe("Director Prompt Hardening & Anti-Trope Specifications (task-1.1 & task-1.3)", () => {
+    it("DIRECTOR_PROTOCOLS.SCHEMA specifies flat dynamics_deltas with all 6 axes and simplified genesis without signature_color/speaking_style", () => {
+      expect(DIRECTOR_PROTOCOLS.SCHEMA).toContain('"chaos"');
+      expect(DIRECTOR_PROTOCOLS.SCHEMA).toContain('"intensity"');
+      expect(DIRECTOR_PROTOCOLS.SCHEMA).toContain('"openness"');
+      expect(DIRECTOR_PROTOCOLS.SCHEMA).toContain('"affinity"');
+      expect(DIRECTOR_PROTOCOLS.SCHEMA).toContain('"velocity"');
+      expect(DIRECTOR_PROTOCOLS.SCHEMA).toContain('"entropy"');
+      // Genesis in director prompt should not duplicate signature_color or speaking_style
+      expect(DIRECTOR_PROTOCOLS.SCHEMA).not.toContain('"signature_color"');
+      expect(DIRECTOR_PROTOCOLS.SCHEMA).not.toContain('"speaking_style"');
+    });
+
+    it("render_director unifies speaker routing, convergence, and roster into a single clean <ROSTER> block", () => {
+      const { system } = render_director({
+        round: 2,
+        entities: {
+          AI: { name: "Sylvia", id: "ai_1" },
+          USER: { name: "Rowan", id: "usr_1" },
+          FRACTAL: { name: "Sub-Zero Vault", id: "fr_1" },
+        },
+        npc_entities: [
+          { id: "npc_doc", name: "Dr. Aris", description: "Chief Medical Officer" },
+          { id: "npc_guard", name: "Sgt. Vance", description: "Security Chief" },
+        ],
+        in_scene_ids: ["npc_doc"],
+      });
+
+      // System should contain the unified ROSTER
+      expect(system).toContain("<ROSTER>");
+      expect(system).toContain("Dr. Aris");
+      expect(system).toContain("Sgt. Vance");
+      // Should not have redundant isolated SPEAKER_ROUTING / ENTITY_CONVERGENCE tags inside PROTOCOLS
+      expect(system).not.toContain("<SPEAKER_ROUTING>");
+      expect(system).not.toContain("<ENTITY_CONVERGENCE>");
     });
   });
 });

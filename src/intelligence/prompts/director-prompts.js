@@ -41,10 +41,9 @@ export const DIRECTOR_PROTOCOLS = {
   "next_action": "'AI_CHARACTER' (AI speaks) | 'FRACTAL' (Fractal narrates) | 'npc:<id>' (in-scene NPC speaks) | 'GENESIS' (mint brand-new NPC) | 'EPILOGUE_CONCLUDED' (quest won) | 'EPILOGUE_COLLAPSED' (quest lost)",
   "keywords": "1-3 keywords from <AVAILABLE_KEYWORDS> (e.g. ['vulnerability', 'cinematic_shot']) or []",
   "directors_note": "1-3 lines of unseen acting/staging directives for the speaker",
-  "dynamics_deltas": { "chaos": 0, "intensity": 0, "openness": 0, "affinity": 0 },
-  "fractal_dynamics_deltas": { "velocity": 0, "entropy": 0 },
+  "dynamics_deltas": { "chaos": 0, "intensity": 0, "openness": 0, "affinity": 0, "velocity": 0, "entropy": 0 },
   "in_scene_change": { "enter": ["npc:<id>"], "exit": ["npc:<id>"] },
-  "genesis": { "name": "<Character Name>", "description": "<1-2 sentence core persona>", "signature_color": "<Optional signature color>", "speaking_style": "casual" }
+  "genesis": { "name": "<Character Name>", "description": "<1-2 sentence core persona>" }
 }`,
 
   CONTINUITY_AND_CAUSALITY: `SECRET AGENDAS: <INTENT>/<AGENDA> vectors encode private ambitions. Weave entity vectors indirectly into atmosphere/obstacles. Never present another entity's hidden agenda as known fact to the AI character.
@@ -54,16 +53,6 @@ SENSORY ENGAGEMENT: When <USER_ACTION> explicitly touches or observes physical d
 
   PACING_AND_MOMENTUM: `PACING LAW: Treat the active Fractal's <AGENDA> as a long-term scenario horizon. Do NOT rush to resolve standing objectives in early turns. Cue subtle developments in "directors_note" that build tension gradually.
 PASSIVE USER TURN LAW: When <USER_ACTION> contains no action verbs or questions (e.g. passive waiting or silence), use "directors_note" to introduce an unexpected environmental complication or in-character choice. Never let the scene stall into dead-air.`,
-
-  SPEAKER_ROUTING: `Choose the active speaker to match the turn's energy:
-- "AI_CHARACTER": (Default) AI reacts to user.
-- "FRACTAL": User action is non-verbal and environmental (exploring atmosphere, architecture, weather, objects without dialogue) or to break up long streaks of AI speech.
-- "npc:<id>": An active in-scene NPC takes the floor.
-- "GENESIS": A new character is introduced into the world.`,
-
-  ENTITY_CONVERGENCE: `1. Always inspect <ROSTER> before introducing any secondary character.
-2. If an existing cast member matches the role or location (medical, black market, security), you MUST use that existing entity rather than inventing a duplicate.
-3. Only introduce a brand-new nameless character if no existing cast member is remotely applicable.`,
 
   TERMINATION: `STORY RESOLUTION & TERMINAL COLLAPSE LAW:
 - Quest Victory: When the overarching narrative conflict is decisively won or concluded happily, emit next_action: "EPILOGUE_CONCLUDED".

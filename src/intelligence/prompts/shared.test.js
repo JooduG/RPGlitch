@@ -20,16 +20,16 @@ import { build_pacing_directive } from "./story-prompts.js";
 
 describe("Shared Prompt Utilities (shared.js)", () => {
   describe("Static Helpers & History Rendering", () => {
-    it("render_history() should map roles correctly", () => {
+    it("render_history() should map roles and speaker names correctly", () => {
       const history = [
         { role: "user", content: "Hello" },
         { role: "assistant", content: "Greetings", character_name: "Viper" },
         { role: "prologue", content: "The scene opens." },
       ];
       const result = render_builder.render_history(history);
-      expect(result).toContain('role="USER_PERSONA"');
-      expect(result).toContain('role="AI_CHARACTER" name="Viper"');
-      expect(result).toContain('role="FRACTAL"');
+      expect(result).toContain('<turn number="1" speaker="User">Hello</turn>');
+      expect(result).toContain('<turn number="2" speaker="Viper">Greetings</turn>');
+      expect(result).toContain('<turn number="3" speaker="Fractal">The scene opens.</turn>');
     });
 
     it("render_history() should strip double asterisks wrapping dialogue", () => {
@@ -48,8 +48,8 @@ describe("Shared Prompt Utilities (shared.js)", () => {
         { role: "assistant", content: "I am ready.", character_name: "Viper" },
       ];
       const result = render_builder.render_history(history, 2);
-      expect(result).toContain('name="Ghost">Hello\nAre you there?</entry>');
-      expect(result).toContain('name="Viper">Greetings\nI am ready.</entry>');
+      expect(result).toContain('speaker="Ghost">Hello\nAre you there?</turn>');
+      expect(result).toContain('speaker="Viper">Greetings\nI am ready.</turn>');
     });
 
     it("render_history() should filter out system messages", () => {
@@ -59,9 +59,25 @@ describe("Shared Prompt Utilities (shared.js)", () => {
         { role: "assistant", content: "Greetings", character_name: "Viper" },
       ];
       const result = render_builder.render_history(history, 2);
-      expect(result).toContain('name="Ghost">Hello</entry>');
-      expect(result).toContain('name="Viper">Greetings</entry>');
+      expect(result).toContain('speaker="Ghost">Hello</turn>');
+      expect(result).toContain('speaker="Viper">Greetings</turn>');
       expect(result).not.toContain("Vector Resolved");
+    });
+
+    it("render_history() formats history entries with semantic <turn number='...' speaker='...'> and strips <think> blocks", () => {
+      const history = [
+        { role: "user", content: "What is your status?", character_name: "Ghost" },
+        {
+          role: "assistant",
+          content: "<think>Processing status report.</think>Systems operational.",
+          character_name: "Viper",
+        },
+      ];
+      const result = render_builder.render_history(history, 2);
+      expect(result).toContain('<turn number="1" speaker="Ghost">What is your status?</turn>');
+      expect(result).toContain('<turn number="2" speaker="Viper">Systems operational.</turn>');
+      expect(result).not.toContain("<think>");
+      expect(result).not.toContain("Processing status report.");
     });
 
     it("render_protocols() should return XML-tagged protocols", () => {
@@ -403,6 +419,44 @@ describe("Shared Prompt Utilities (shared.js)", () => {
       const raw = "Visible text [SECRET: stolen key] more text [PLAN: escape at midnight]";
       const stripped = strip_epistemic_tags(raw);
       expect(stripped).toBe("Visible text more text");
+    });
+  });
+
+  describe("Track Prompt Sanitization & Epistemic Boundary Hardening (task-1.1)", () => {
+    it("strip_epistemic_secrets(state_text, is_owner) preserves secrets for owner but strips for opposing entities", async () => {
+      const { strip_epistemic_secrets } = await import("./shared.js");
+      const text = "Public demeanor. [SECRET: Poison in right pocket] [PLAN: Strike after sunset]";
+      expect(strip_epistemic_secrets(text, true)).toBe(text);
+      expect(strip_epistemic_secrets(text, false)).toBe("Public demeanor.");
+    });
+
+    it("render_optional_tag(tag_name, content) omits empty XML shells", async () => {
+      const { render_optional_tag } = await import("./shared.js");
+      expect(render_optional_tag("INTENT", "")).toBe("");
+      expect(render_optional_tag("INTENT", "   \n  ")).toBe("");
+      expect(render_optional_tag("INTENT", null)).toBe("");
+      expect(render_optional_tag("INTENT", "Survive the night")).toBe("<INTENT>Survive the night</INTENT>");
+    });
+
+    it("_render_scene_roster_xml() strips mechanical (Openness: XX) telemetry", async () => {
+      const { render_director_cast_xml } = await import("./shared.js");
+      const entities = { AI: { name: "Viper" }, USER: { name: "Ghost" } };
+      const npc_entities = [{ id: "npc_1", name: "Barkeep", dynamics: { openness: 75 } }];
+      const cast_xml = render_director_cast_xml({ entities, npc_entities, in_scene_ids: ["npc_1"] });
+      expect(cast_xml).toContain("- Barkeep (id: npc_1)");
+      expect(cast_xml).not.toContain("Openness:");
+    });
+
+    it("_render_relational_mesh_xml() scopes relations strictly to active in-scene entities when perspective is provided", async () => {
+      const { render_current_story_state_xml } = await import("./shared.js");
+      const entities = {
+        AI: { name: "Viper", relationships: ["Viper → Ghost: Distrustful ally", "Viper → OffScreenGuy: Nemesis"] },
+        USER: { name: "Ghost", relationships: ["Ghost → Viper: Mutual respect"] },
+      };
+      const npc_entities = [{ id: "npc_off", name: "OffScreenGuy", relationships: ["OffScreenGuy → Viper: Hunted"] }];
+      const story_state = render_current_story_state_xml(entities, npc_entities, [], entities.AI);
+      expect(story_state).toContain("Viper → Ghost: Distrustful ally");
+      expect(story_state).not.toContain("OffScreenGuy");
     });
   });
 });

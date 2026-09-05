@@ -90,12 +90,10 @@ function define_style(style_definition) {
 
   const narrative_engine = style_definition.dna
     ? `<NARRATIVE_ENGINE>
-<dna>
 <internal_ratio>${style_definition.dna.internal_ratio.toFixed(2)}</internal_ratio>
 <sentence_rhythm>${style_definition.dna.rhythm}</sentence_rhythm>
 <sensory_order>${style_definition.dna.sensory}</sensory_order>
 <emotion_grounding>${style_definition.dna.grounding}</emotion_grounding>
-</dna>
 </NARRATIVE_ENGINE>`
     : "";
 

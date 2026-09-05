@@ -44,7 +44,7 @@ describe("NARRATIVE_STYLES Preset Catalog", () => {
     const styles_with_engine = active_styles.filter(([, style]) => Boolean(style.narrative_engine));
     for (const [, style] of styles_with_engine) {
       expect(style.narrative_engine).toContain("<NARRATIVE_ENGINE>");
-      expect(style.narrative_engine).toContain("<dna>");
+      expect(style.narrative_engine).not.toContain("<dna>");
       expect(style.narrative_engine).toContain("<internal_ratio>");
       expect(style.narrative_engine).toContain("<sentence_rhythm>");
       expect(style.narrative_engine).toContain("<sensory_order>");

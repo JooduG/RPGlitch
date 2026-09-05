@@ -63,7 +63,15 @@ export const render_builder = {
     const end = Math.max(0, collapsed.length - offset);
     return collapsed
       .slice(start, end)
-      .map((c) => `    <entry role="${c.role}"${c.name ? ` name="${escape_xml(c.name)}"` : ""}>${prompt_escape(c.content)}</entry>`)
+      .map((c, idx) => {
+        const turn_num = start + idx + 1;
+        const speaker = c.name || (c.role === "USER_PERSONA" ? "User" : c.role === "FRACTAL" ? "Fractal" : "Character");
+        const clean_content = String(c.content || "")
+          .replace(/<think>[\s\S]*?<\/think>/gi, "")
+          .replace(/<\/?think>/gi, "")
+          .trim();
+        return `    <turn number="${turn_num}" speaker="${escape_xml(speaker)}">${prompt_escape(clean_content)}</turn>`;
+      })
       .join("\n");
   },
 };

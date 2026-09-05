@@ -219,4 +219,51 @@ describe("Story Prompts (story-prompts.js)", () => {
       expect(task).toContain("Enhance");
     });
   });
+
+  describe("Anti-Trope Governance & Dual Tone Synthesis (task-1.3)", () => {
+    it("ANTI_TROPES protocol explicitly bans denial-then-affirmation formulas and prunes character natural words", async () => {
+      const { PROTOCOL_LIBRARY } = await import("./shared.js");
+      const anti_tropes = PROTOCOL_LIBRARY.HYGIENE.ANTI_TROPES;
+      // Formula ban check
+      expect(anti_tropes).toContain("didn't just");
+      expect(anti_tropes).toContain("not merely");
+      expect(anti_tropes).toContain("doesn't simply");
+      // Natural character voice words like bellow/boom/rasp should be pruned from lexical blacklist
+      expect(anti_tropes).not.toContain("'bellow/boom'");
+      expect(anti_tropes).not.toContain("'rasp/raspy'");
+    });
+
+    it("DRIFT_AUDIT protocol uses affirmative phrasing across all 5 checks", async () => {
+      const { PROTOCOL_LIBRARY } = await import("./shared.js");
+      const drift_audit = PROTOCOL_LIBRARY.AGENCY.DRIFT_AUDIT;
+      // Expect affirmative phrasing instead of repeated "Never..."
+      expect(drift_audit).toContain("ASSISTANT-DRIFT:");
+      expect(drift_audit).toContain("SPOTLIGHT-DRIFT:");
+      expect(drift_audit).toContain("INTERVIEW-DRIFT:");
+      expect(drift_audit).toContain("PACING-DRIFT:");
+      expect(drift_audit).toContain("OMNISCIENCE-DRIFT:");
+      expect(drift_audit).not.toContain("Never be polite");
+    });
+
+    it("render_story_prose enforces quotes-for-speaking-style and prose-for-narrative-style", () => {
+      const result = render_story_prose({
+        mode: "character",
+        ...base_payload(),
+        compressed_snapshot: base_snapshot,
+      });
+      expect(result.system).toContain("Use the character's speaking style strictly for words within quotation marks");
+      expect(result.system).toContain("render all surrounding narrative prose and environmental descriptions through the narrative style preset");
+    });
+
+    it("render_story_prose in epilogue mode forbids forcing player physical surrender", () => {
+      const result = render_story_prose({
+        mode: "epilogue",
+        ...base_payload(),
+        epilogue_type: "EPILOGUE_COLLAPSED",
+        compressed_snapshot: base_snapshot,
+      });
+      expect(result.task).toContain("environmental aftermath");
+      expect(result.task).toContain("without forcing player physical surrender");
+    });
+  });
 });

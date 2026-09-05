@@ -204,3 +204,23 @@ describe("clean_image_prompt", () => {
     expect(clean_image_prompt("A quiet street at dusk.")).toBe("A quiet street at dusk.");
   });
 });
+
+describe("Sensory Cortex Refinements (task-1.4)", () => {
+  it("Sensory Cortex template uses <keywords> instead of <tags> in <VISUAL_ENGINE>", () => {
+    const prompt = prompt_templates.build_prompt("story_scene", "The fog rolls in.", {
+      fractal: { name: "Mist" },
+    });
+    expect(prompt).toContain("<VISUAL_ENGINE>");
+    expect(prompt).not.toContain("<tags>");
+  });
+
+  it("merges narrative context and framing into <CINEMATOGRAPHY> and purges Prologue Priority", () => {
+    const prompt = prompt_templates.build_prompt("story_character", "Viper draws her weapon.", {
+      ai: { name: "Viper" },
+      visual_staging: "Low camera angle looking up at the smoking barrel.",
+    });
+    expect(prompt).toContain("<CINEMATOGRAPHY");
+    expect(prompt).toContain("Low camera angle looking up at the smoking barrel.");
+    expect(prompt).not.toContain("Prologue Priority");
+  });
+});

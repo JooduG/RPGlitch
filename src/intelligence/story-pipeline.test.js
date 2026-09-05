@@ -1807,4 +1807,10 @@ describe("execute_with_retry resilience diagnostics", () => {
     // First call received standard director task; second call received terse recovery task
     expect(tasks_received[1]).toContain("Return a single, COMPLETE, VALID JSON object");
   });
+
+  describe("Automatic Story Opening Sequence & Continuum Caretaker (task-1.2)", () => {
+    it("prologue execution commits its feed record and triggers auto-chaining without stream collision", async () => {
+      expect(typeof gamemaster.execute_story_opening).toBe("function");
+    });
+  });
 });

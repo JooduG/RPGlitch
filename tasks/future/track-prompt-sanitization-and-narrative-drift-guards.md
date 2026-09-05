@@ -119,59 +119,59 @@ sequenceDiagram
 
 ### Phase 1: Test-Driven Red Suite (Unit & Contract Tests)
 
-- [ ] `task-1.1`: Add unit tests in `src/intelligence/prompts/shared.test.js` verifying:
+- [x] `task-1.1`: Add unit tests in `src/intelligence/prompts/shared.test.js` verifying:
   - Epistemic boundary: `<SECRET>` and `<PLAN>` stripped from `<STATE_OF_MIND>` when rendered for opposing entities, and `[PLAN]` moved to `future`.
   - Empty tag omission: `<INTENT>`, `<MEMORIES>`, `<AGENDA>`, `<BACKSTORY>` omitted when empty via `render_optional_tag`.
   - Scene roster cleaning: `(Openness: XX)` stripped from `<SCENE_ROSTER>`; only `in_scene` entities rendered for character prompts.
   - Unified Director `<ROSTER>`: Combines speaker routing candidates, convergence rules, and roster entities into a single clean block.
   - Relational mesh scoping: Relationships outside active scene entities filtered out.
   - XML tag formatting across character and fractal state.
-- [ ] `task-1.2`: Add unit tests in `src/intelligence/story-pipeline.test.js` and `src/intelligence/temporal-pipeline.test.js` verifying:
+- [x] `task-1.2`: Add unit tests in `src/intelligence/story-pipeline.test.js` and `src/intelligence/temporal-pipeline.test.js` verifying:
   - Opening story chain: Fractal Prologue commits to feed before AI Character turn begins automatically.
   - `<think>...</think>` blocks stripped from history prompts, while preserved in database message records.
   - History items render as `<turn number="..." speaker="...">`.
   - Ghostwrite prompt folds instructions cleanly inside `<TASK>`.
   - Continuum Caretaker naming and flat `dynamics_deltas` schema.
-- [ ] `task-1.3`: Add unit tests in `src/intelligence/prompts/story-prompts.test.js` and `director-prompts.test.js` verifying:
+- [x] `task-1.3`: Add unit tests in `src/intelligence/prompts/story-prompts.test.js` and `director-prompts.test.js` verifying:
   - Anti-trope blacklist detects `"I don't just..."`, `"didn't just"`, and `"not merely"`.
   - All 5 `<DRIFT_AUDIT>` rules use affirmative phrasing.
   - Speaking style applies to dialogue quotes; narrative style governs surrounding prose.
   - Epilogue prompts forbid forcing player physical submission.
   - Director Genesis excludes signature color and speaking style (delegated to profile creation).
-- [ ] `task-1.4`: Add unit tests in `src/media/visual.test.js` or `src/intelligence/sensory.test.js` verifying:
+- [x] `task-1.4`: Add unit tests in `src/media/visual.test.js` or `src/intelligence/sensory.test.js` verifying:
   - Fractal profile pictures and narrative group shots map to canonical landscape tier `story_scene` (`768x512`).
   - Director `"visual_staging"` passes into separate Sensory Cortex image prompt builder.
   - Sensory Cortex uses `<keywords>` instead of `<tags>` in `<VISUAL_ENGINE>`, and `<CINEMATOGRAPHY>` merges narrative context, framing, and purges `Prologue Priority`.
 
 ### Phase 2: Prompt Sanitizer, Epistemic Boundary & Unified Roster (GREEN)
 
-- [ ] `task-2.1`: Implement `strip_epistemic_secrets(state_text, is_owner)` in `src/intelligence/prompts/shared.js` and move `[PLAN]` to `future`.
-- [ ] `task-2.2`: Implement `render_optional_tag(tag_name, content)` in `src/intelligence/prompts/shared.js` and `builder.js` to purge empty XML shells.
-- [ ] `task-2.3`: Merge `<SPEAKER_ROUTING>`, `<ENTITY_CONVERGENCE>`, and `<ROSTER>` into the unified Director `<ROSTER>` block in `src/intelligence/prompts/director-prompts.js`, strip mechanical telemetry, and scope `<RELATIONAL_MESH>`.
-- [ ] `task-2.4`: Standardize XML tag serialization for character/fractal states and strip `<dna>` wrapper from narrative style templates.
+- [x] `task-2.1`: Implement `strip_epistemic_secrets(state_text, is_owner)` in `src/intelligence/prompts/shared.js` and move `[PLAN]` to `future`.
+- [x] `task-2.2`: Implement `render_optional_tag(tag_name, content)` in `src/intelligence/prompts/shared.js` and `builder.js` to purge empty XML shells.
+- [x] `task-2.3`: Merge `<SPEAKER_ROUTING>`, `<ENTITY_CONVERGENCE>`, and `<ROSTER>` into the unified Director `<ROSTER>` block in `src/intelligence/prompts/director-prompts.js`, strip mechanical telemetry, and scope `<RELATIONAL_MESH>`.
+- [x] `task-2.4`: Standardize XML tag serialization for character/fractal states and strip `<dna>` wrapper from narrative style templates.
 
 ### Phase 3: Telemetry, Opening Sequence & Continuum Caretaker (GREEN)
 
-- [ ] `task-3.1`: Fix Prologue sequence in `src/intelligence/story-pipeline.js` ensuring Fractal Prologue commits fully before auto-chaining Director Reflex and AI Character.
-- [ ] `task-3.2`: Update history formatting to strip `<think>...</think>` blocks for prompt construction while storing them in the message record, and serialize semantic `<turn number="..." speaker="...">` tags.
-- [ ] `task-3.3`: Rename system role to `CONTINUUM_CARETAKER` and flatten `dynamics_deltas` to include all 6 axes.
-- [ ] `task-3.4`: Refactor ghostwrite prompt assembly in `src/intelligence/prompts/story-prompts.js` to fold into `<TASK>`.
+- [x] `task-3.1`: Fix Prologue sequence in `src/intelligence/story-pipeline.js` ensuring Fractal Prologue commits fully before auto-chaining Director Reflex and AI Character.
+- [x] `task-3.2`: Update history formatting to strip `<think>...</think>` blocks for prompt construction while storing them in the message record, and serialize semantic `<turn number="..." speaker="...">` tags.
+- [x] `task-3.3`: Rename system role to `CONTINUUM_CARETAKER` and flatten `dynamics_deltas` to include all 6 axes.
+- [x] `task-3.4`: Refactor ghostwrite prompt assembly in `src/intelligence/prompts/story-prompts.js` to fold into `<TASK>`.
 
 ### Phase 4: Anti-Trope Governance & Sensory Cortex Refinement (GREEN)
 
-- [ ] `task-4.1`: Update `<ANTI_TROPES>` in `story-prompts.js`, `director-prompts.js`, and `physics-prompts.js` with explicit denial-then-affirmation formulas and prune natural character words from lexical blacklist.
-- [ ] `task-4.2`: Update `<DRIFT_AUDIT>` rules with affirmative phrasing and enforce quotes-for-speaking-style vs prose-for-narrative-style.
-- [ ] `task-4.3`: Update aspect ratio defaults in image generation calls: map Fractal profiles and scene group shots to canonical `story_scene` (`768x512`).
-- [ ] `task-4.4`: Update Fractal enhancer prompt to affirmative environmental scaling without negative human triggers.
-- [ ] `task-4.5`: Wire Director `"visual_staging"` into Sensory Cortex, align `<keywords>` tag nomenclature, merge staging into `<CINEMATOGRAPHY>`, and purge `Prologue Priority`.
-- [ ] `task-4.6`: Soften image shimmer contrast and sweep speed in `src/ui/motion/Shimmer.svelte`.
+- [x] `task-4.1`: Update `<ANTI_TROPES>` in `story-prompts.js`, `director-prompts.js`, and `physics-prompts.js` with explicit denial-then-affirmation formulas and prune natural character words from lexical blacklist.
+- [x] `task-4.2`: Update `<DRIFT_AUDIT>` rules with affirmative phrasing and enforce quotes-for-speaking-style vs prose-for-narrative-style.
+- [x] `task-4.3`: Update aspect ratio defaults in image generation calls: map Fractal profiles and scene group shots to canonical `story_scene` (`768x512`).
+- [x] `task-4.4`: Update Fractal enhancer prompt to affirmative environmental scaling without negative human triggers.
+- [x] `task-4.5`: Wire Director `"visual_staging"` into Sensory Cortex, align `<keywords>` tag nomenclature, merge staging into `<CINEMATOGRAPHY>`, and purge `Prologue Priority`.
+- [x] `task-4.6`: Soften image shimmer contrast and sweep speed in `src/ui/motion/Shimmer.svelte`.
 
 ### Phase 5: Verification & Quality Gate
 
-- [ ] `task-5.1`: Run full unit test suite `npm run test:unit` and ensure 100% pass.
-- [ ] `task-5.2`: Run `npm run test:hooks` to verify all 11 lifecycle hook contracts pass.
-- [ ] `task-5.3`: Run `npm run audit:hygiene` ensuring 0 security, lexical, or legislative violations.
-- [ ] `task-5.4`: Run `npm run build` ensuring clean single-file production compilation.
+- [x] `task-5.1`: Run full unit test suite `npm run test:unit` and ensure 100% pass.
+- [x] `task-5.2`: Run `npm run test:hooks` to verify all 14 lifecycle hook contracts pass.
+- [x] `task-5.3`: Run `npm run audit:hygiene` ensuring 0 security, lexical, or legislative violations.
+- [x] `task-5.4`: Run `npm run build` ensuring clean single-file production compilation.
 
 <!-- CHANGELOG
   - 2026-09-05: Concluded /grill-me session: locked in automatic prologue chaining, separate visual staging shots, dual-tone quotes-vs-prose synthesis, P4 plan schema purge without shims, and collapsible thinking storage in Dexie.

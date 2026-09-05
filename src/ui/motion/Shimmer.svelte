@@ -16,16 +16,18 @@
   let { color = "var(--color-electric-cyan)", class: className = "" } = $props();
 </script>
 
-<div class="pointer-events-none absolute inset-0 z-30 overflow-hidden rounded-[inherit] opacity-35 {className}" aria-hidden="true">
+<div class="pointer-events-none absolute inset-0 z-30 overflow-hidden rounded-[inherit] opacity-25 {className}" aria-hidden="true">
   <div
     data-shimmer-sweep
     class="absolute inset-0 h-full w-full"
     style="
       background: linear-gradient(
         115deg,
-        transparent 35%,
-        color-mix(in srgb, var(--shimmer-color, var(--color-electric-cyan)) 75%, white) 50%,
-        transparent 65%
+        transparent 30%,
+        color-mix(in srgb, var(--shimmer-color, var(--color-electric-cyan)) 40%, transparent) 48%,
+        color-mix(in srgb, var(--shimmer-color, var(--color-electric-cyan)) 60%, white) 50%,
+        color-mix(in srgb, var(--shimmer-color, var(--color-electric-cyan)) 40%, transparent) 52%,
+        transparent 70%
       );
       background-size: 250% 100%;
       --shimmer-color: {color};
@@ -35,7 +37,7 @@
 
 <style>
   [data-shimmer-sweep] {
-    animation: shimmer-sweep-anim 2.4s linear infinite;
+    animation: shimmer-sweep-anim 2.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   }
 
   @keyframes shimmer-sweep-anim {

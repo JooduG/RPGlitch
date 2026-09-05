@@ -749,7 +749,7 @@ export function synchronize_mission_board(repo_root) {
         const desc_suffix = t.description ? `: ${t.description}` : "";
         return `- [\`tasks/future/${t.file}\`](./future/${t.file})${desc_suffix}`;
       });
-      const future_body = queued_lines.length > 0 ? queued_lines.join("\n\n") + "\n\n" : "_No queued tracks._\n\n";
+      const future_body = queued_lines.length > 0 ? queued_lines.join("\n\n") + "\n" : "_No queued tracks._\n";
       updated = updated.replace(future_section_pattern, `$1${future_body}$3`);
     }
 

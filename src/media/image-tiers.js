@@ -59,6 +59,9 @@ export function normalize_image_tier(target_type) {
   if (str === "characters" || str === "prologue" || str === "group" || str === "story_entities") {
     return "story_entities";
   }
+  if (str === "fractal_profile") {
+    return "story_scene";
+  }
   if (IMAGE_TIERS.includes(/** @type {any} */ (str))) {
     return /** @type {any} */ (str);
   }

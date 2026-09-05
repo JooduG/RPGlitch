@@ -20,8 +20,8 @@ export const PROTOCOL_LIBRARY = {
   HYGIENE: {
     PROSE_DISCIPLINE: `${BASE_HYGIENE} No timestamps or headers. No echoing user dialogue. Match character profile. Write natural physicality in the affirmative (state what IS, not what isn't). Format with expressive markdown (*italics* for physical actions/subtext, **bold** for key impacts/codenames, "quotes" for speech). Roughly match the length and energy of the user's message. Always end on a complete sentence.`,
     DATA: `${BASE_HYGIENE} Enforce strict professional brevity. No dialogue, internal thoughts, or roleplay scenes. Output ONLY objective structural data.`,
-    ANTI_TROPES: `1. LEXICAL BLACKLIST: Never use overused AI prose tropes or clichéd vocabulary: 'shifts his weight/shifting weight', 'predatory', 'possessive', 'nibble/nibbles', 'earlobe', 'caress', 'taste of copper', 'heart hammering', 'stomach knot', 'trembling fingers', 'hum/humming', 'murmur/murmuring', 'purr/purred', 'rasp/raspy', 'bellow/boom', 'ozone', 'testament to', 'rich tapestry of', 'symphony of', 'coiled spring', 'a study in', 'marrow of the teeth', 'obsidian', 'the void', 'old parchment', 'white knuckles', 'spatial disturbance', 'jolts of electricity', 'shimmering', 'fever dream', 'breathless', 'crimson', 'amber', 'iridescent', 'frozen/froze', 'fluttered/trapped bird', 'flickered', 'bruised purple', 'leaning in', 'crumpled map', 'once in a blue moon', 'merging molecules', 'force of a physical blow', 'breath he didn't realize he was holding', 'proper madness', 'squelching', 'tracing collarbone', 'rubbing circles', 'air was thick with', 'a genuine sound', 'for the first time in life', 'sanctuary'.
-2. STRUCTURAL FORMULAS: Avoid sentence-level AI formulas: denial-then-affirmation ('X didn't just Y; it Z'd'); binary comparison clichés ('felt less like X and more like Y'); appositive dialogue sound tags ('she laughed, a [adj], [adj] sound'); pseudo-profound statements; user-echoing starters ('You speak of...', 'You think that...'); self-answering dialogue; recycled fantasy names (Elara, Kaelen, Valerius Thorne); and formulaic action-dialogue sandwiches ([action] + 'dialogue' + [action] every turn).`,
+    ANTI_TROPES: `1. LEXICAL BLACKLIST: Never use overused AI prose tropes or clichéd vocabulary: 'shifts his weight/shifting weight', 'predatory', 'possessive', 'nibble/nibbles', 'earlobe', 'caress', 'taste of copper', 'heart hammering', 'stomach knot', 'trembling fingers', 'hum/humming', 'murmur/murmuring', 'purr/purred', 'ozone', 'testament to', 'rich tapestry of', 'symphony of', 'coiled spring', 'a study in', 'marrow of the teeth', 'obsidian', 'the void', 'old parchment', 'white knuckles', 'spatial disturbance', 'jolts of electricity', 'shimmering', 'fever dream', 'breathless', 'crimson', 'amber', 'iridescent', 'frozen/froze', 'fluttered/trapped bird', 'flickered', 'bruised purple', 'leaning in', 'crumpled map', 'once in a blue moon', 'merging molecules', 'force of a physical blow', 'breath he didn't realize he was holding', 'proper madness', 'squelching', 'tracing collarbone', 'rubbing circles', 'air was thick with', 'a genuine sound', 'for the first time in life', 'sanctuary'.
+2. STRUCTURAL FORMULAS: Avoid sentence-level AI formulas: denial-then-affirmation ('X didn't just Y; it Z'd', "I don't just [verb]; I [verb]", "didn't just", "not merely", "doesn't simply"); binary comparison clichés ('felt less like X and more like Y'); appositive dialogue sound tags ('she laughed, a [adj], [adj] sound'); pseudo-profound statements; user-echoing starters ('You speak of...', 'You think that...'); self-answering dialogue; recycled fantasy names (Elara, Kaelen, Valerius Thorne); and formulaic action-dialogue sandwiches ([action] + 'dialogue' + [action] every turn).`,
     STATE_EMISSION: `Pseudo-JSON STATE FORMAT — mutate active state with bracketed [KEY: VALUE] directives in "present.physical" (visible state) and "present.non_physical" (mindset/private state):
 - OVERWRITE: [SHIRT: knitted sweater] REPLACES the existing SHIRT value directly — never emit a second SHIRT, never append a duplicate tag.
 - UNIVERSAL CLEAR: [KEY: none], [KEY: bare], [KEY: naked], [KEY: off], [KEY: removed], [KEY: disrobed], [KEY: healed], [KEY: cleared], [KEY: normal] atomically deletes that key. Use [CLOTHING: none] to strip ALL worn clothing at once.
@@ -34,7 +34,7 @@ export const PROTOCOL_LIBRARY = {
   // ── 1.2 Narrative Agency & Boundaries ───────────────────────────────────────
   AGENCY: {
     DRIFT_AUDIT:
-      "Before writing, take the grounded path — not the easy one. Verify the reply does not slip into any of these common agency drifts:\n1. ASSISTANT-DRIFT: Never be polite, agreeable, or over-explaining when the character's personality demands friction, defiance, or disinterest.\n2. SPOTLIGHT-DRIFT: Never let the scene revolve solely around the other party. Hold the character's own needs, wants, and world in motion.\n3. INTERVIEW-DRIFT: Never interview or rhetorically summarize the other party ('You speak of...', 'You think...'). The character pursues their own goal — they speak their own truth.\n4. PACING-DRIFT: Never rush tension toward quick resolution. Let conflict simmer; earn the beat.\n5. OMNISCIENCE-DRIFT: Never act on knowledge the character could not plausibly possess. Stay behind the sensory horizon.",
+      "Before writing, take the grounded path — not the easy one. Verify the reply embodies affirmative agency:\n1. ASSISTANT-DRIFT: Ground character interaction in their authentic personality; express natural friction, defiance, courtesy, or disinterest as their established archetype dictates.\n2. SPOTLIGHT-DRIFT: Keep the character's independent needs, active agenda, and internal world in motion alongside the other party.\n3. INTERVIEW-DRIFT: State your own perspective directly and pursue your goals rather than rhetorically querying or summarizing the other party.\n4. PACING-DRIFT: Maintain situational tension; allow conflict and emotional stakes to build gradually across beats.\n5. OMNISCIENCE-DRIFT: Act strictly on information directly perceived within your sensory horizon.",
     USER_BOUNDARIES:
       "Never predict, assume, or generate the user's next action. React ONLY to <USER_ACTION>. Never describe user thoughts, feelings, or reactions. Write your turn. Stop.",
     YES_AND:
@@ -498,6 +498,31 @@ export function strip_epistemic_tags(text) {
     .trim();
 }
 
+/**
+ * Strips epistemic secrets and plans across entity boundaries.
+ * If is_owner is true, preserves the secrets; if false, strips them completely.
+ * @param {string|null|undefined} state_text
+ * @param {boolean} [is_owner=false]
+ * @returns {string}
+ */
+export function strip_epistemic_secrets(state_text, is_owner = false) {
+  if (!state_text) return "";
+  if (is_owner) return String(state_text);
+  return strip_epistemic_tags(state_text);
+}
+
+/**
+ * Renders an XML tag with the given content only if the content is non-empty.
+ * Omit empty XML shells (<TAG></TAG>) to optimize prompt token budgets.
+ * @param {string} tag_name
+ * @param {string|null|undefined} content
+ * @returns {string}
+ */
+export function render_optional_tag(tag_name, content) {
+  if (!content || !String(content).trim()) return "";
+  return `<${tag_name}>${String(content).trim()}</${tag_name}>`;
+}
+
 // ── 4. Roster, Mesh & Epistemic XML Blocks ────────────────────────────────────
 
 const _cast_summary = (npc) => {
@@ -510,12 +535,23 @@ const _cast_summary = (npc) => {
 function _render_roster_xml(npc_entities = [], in_scene_ids = [], active_trio_ids = []) {
   const trio = new Set((active_trio_ids || []).filter(Boolean).map(String));
   const cast = (npc_entities || []).filter((n) => n && !trio.has(String(n.id)));
-  if (!cast.length) return "";
   const rows = cast.map((n) => {
     const presence = (in_scene_ids || []).includes(String(n.id)) ? "In-Scene" : "Off-Screen (Stasis)";
-    return `- ${escape_xml(n.name)} (id: ${escape_xml(String(n.id))}): ${escape_xml(_cast_summary(n))} [${presence}]`;
+    return `  - ${escape_xml(n.name)} (id: ${escape_xml(String(n.id))}): ${escape_xml(_cast_summary(n))} [${presence}]`;
   });
-  return `<ROSTER>\n${rows.join("\n")}\n</ROSTER>`;
+
+  const candidates_block = rows.length > 0 ? `\n\nCANDIDATE SECONDARY CHARACTERS:\n${rows.join("\n")}` : "";
+
+  return `<ROSTER>
+SPEAKER ROUTING RULES:
+- "AI_CHARACTER": (Default) AI companion reacts to the protagonist.
+- "FRACTAL": User action is non-verbal and environmental (exploring atmosphere, architecture, weather, objects without dialogue) or to break up long streaks of AI speech.
+- "npc:<id>": An active in-scene secondary character takes the floor.
+- "GENESIS": A new character is introduced into the world. Only mint if no existing candidate applies.
+
+CONVERGENCE & CAST LAW:
+Always inspect candidate secondary characters below before minting a duplicate. If an existing cast member matches the required role or location (medical, security, merchant), you MUST use that existing entity rather than inventing a duplicate.${candidates_block}
+</ROSTER>`;
 }
 
 function _render_scene_roster_xml(entities = {}, npc_entities = [], in_scene_ids = []) {
@@ -524,15 +560,26 @@ function _render_scene_roster_xml(entities = {}, npc_entities = [], in_scene_ids
   if (entities?.USER?.name) rows.push(`- ${escape_xml(entities.USER.name)}: Protagonist (In-Scene)`);
   for (const n of npc_entities || []) {
     if (!(in_scene_ids || []).includes(String(n.id))) continue;
-    rows.push(`- ${escape_xml(n.name)} (id: ${escape_xml(String(n.id))}) (Openness: ${Number(n.dynamics?.openness) || 50})`);
+    rows.push(`- ${escape_xml(n.name)} (id: ${escape_xml(String(n.id))})`);
   }
   return rows.length ? `<SCENE_ROSTER>\n${rows.join("\n")}\n</SCENE_ROSTER>` : "";
 }
 
-function _render_relational_mesh_xml(entities = {}, npc_entities = [], perspective_entity = null) {
+function _render_relational_mesh_xml(entities = {}, npc_entities = [], perspective_entity = null, in_scene_ids = []) {
   const rels = [];
   const perspective_name = perspective_entity?.name ? String(perspective_entity.name).toLowerCase().trim() : null;
   const fractal_name = entities?.FRACTAL?.name ? String(entities.FRACTAL.name).toLowerCase().trim() : null;
+
+  // Build the set of active names (in-scene participants + eternal world)
+  const active_names = new Set();
+  if (entities?.AI?.name) active_names.add(String(entities.AI.name).toLowerCase().trim());
+  if (entities?.USER?.name) active_names.add(String(entities.USER.name).toLowerCase().trim());
+  if (entities?.FRACTAL?.name) active_names.add(String(entities.FRACTAL.name).toLowerCase().trim());
+  for (const n of npc_entities || []) {
+    if ((in_scene_ids || []).includes(String(n?.id)) && n?.name) {
+      active_names.add(String(n.name).toLowerCase().trim());
+    }
+  }
 
   const push = (e) => {
     if (!e?.name) return;
@@ -542,9 +589,13 @@ function _render_relational_mesh_xml(entities = {}, npc_entities = [], perspecti
 
       if (perspective_name) {
         const src = parsed.source_name.toLowerCase();
+        const target = parsed.target_name.toLowerCase();
         const is_from_me = src === perspective_name;
         const is_fractal = fractal_name && src === fractal_name;
-        if (is_from_me || is_fractal) rels.push(`- ${escape_xml(parsed.raw)}`);
+        const target_is_active = active_names.has(target);
+        if ((is_from_me || is_fractal) && target_is_active) {
+          rels.push(`- ${escape_xml(parsed.raw)}`);
+        }
       } else {
         rels.push(`- ${escape_xml(parsed.raw)}`);
       }
@@ -571,7 +622,7 @@ export function render_director_cast_xml({ entities = {}, npc_entities = [], in_
   return [
     _render_roster_xml(npc_entities, in_scene_ids, active_trio_ids),
     _render_scene_roster_xml(entities, npc_entities, in_scene_ids),
-    _render_relational_mesh_xml(entities, npc_entities),
+    _render_relational_mesh_xml(entities, npc_entities, null, in_scene_ids),
   ]
     .filter(Boolean)
     .join("\n");
@@ -588,7 +639,7 @@ export function render_director_cast_xml({ entities = {}, npc_entities = [], in_
 export function render_current_story_state_xml(entities = {}, npc_entities = [], in_scene_ids = [], perspective_entity = null) {
   const body = [
     _render_scene_roster_xml(entities, npc_entities, in_scene_ids),
-    _render_relational_mesh_xml(entities, npc_entities, perspective_entity),
+    _render_relational_mesh_xml(entities, npc_entities, perspective_entity, in_scene_ids),
     `<EPISTEMIC_RULES>\n${ind(PROTOCOL_LIBRARY.COGNITION.EPISTEMIC_PHYSICS, 2)}\n</EPISTEMIC_RULES>`,
   ]
     .filter(Boolean)

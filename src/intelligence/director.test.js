@@ -90,7 +90,7 @@ describe("Director Quick Shot Prompt (render_director)", () => {
     const result = render_director(env_payload);
     expect(result.task).toContain("<USER_ACTION_NOTE>");
     expect(result.task).toContain('"speaker" to "fractal"');
-    expect(result.system).toContain("SPEAKER_ROUTING");
+    expect(result.system).toContain("SPEAKER ROUTING RULES");
   });
 
   it("emits compact ROSTER and SCENE_ROSTER when NPCs are present", () => {

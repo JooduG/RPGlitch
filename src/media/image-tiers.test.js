@@ -66,4 +66,11 @@ describe("image-tiers (4-Tier Image Taxonomy)", () => {
       expect(get_tier_guidance_scale("story_scene")).toBe(7);
     });
   });
+
+  describe("Fractal & Narrative Landscape Resolution Mapping (task-1.4)", () => {
+    it("normalizes fractal profile tier and landscape narrative group scenes to story_scene (768x512)", () => {
+      expect(normalize_image_tier("fractal_profile")).toBe("story_scene");
+      expect(get_resolution(normalize_image_tier("fractal_profile"))).toEqual({ width: 768, height: 512 });
+    });
+  });
 });
