@@ -91,7 +91,14 @@ export {
 // Visual Styles & Aesthetic Registries
 // ============================================================================
 
-export { VISUAL_STYLES, get_visual_style, resolve_portrait_visual_style_key, resolve_story_visual_style_key } from "./definitions/visual-styles.js";
+export {
+  VISUAL_STYLES,
+  VALID_VISUAL_STYLES,
+  is_valid_visual_style,
+  get_visual_style,
+  resolve_portrait_visual_style_key,
+  resolve_story_visual_style_key,
+} from "./definitions/visual-styles.js";
 
 // ============================================================================
 // Profile Fields & Attribute Specifications

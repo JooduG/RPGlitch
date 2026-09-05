@@ -9,9 +9,9 @@
  * signature formatted into standard XML <VISUAL_ENGINE> prompt blocks.
  *
  * SCHEMA CONVENTIONS:
- * - Exactly one of <camera> OR <composition> per style (never both, never neither).
- *   <camera>      = Simulated optical lenses (photography, video, macro physical diorama).
- *   <composition> = Non-lens artwork (2D illustration, painting, print, orthographic projection).
+ * - Exactly one of <CAMERA> OR <COMPOSITION> per style (never both, never neither).
+ *   <CAMERA>      = Simulated optical lenses (photography, video, macro physical diorama).
+ *   <COMPOSITION> = Non-lens artwork (2D illustration, painting, print, orthographic projection).
  * - `negative_prompt` lives strictly outside the XML string.
  * - No "default" tags (reserved sentinel).
  */
@@ -35,7 +35,6 @@ import { state_bridge, resolve_style } from "@utils";
  * @typedef {Object} VisualStyle
  * @property {string} id - Unique identifier matching the registry key
  * @property {string} name - Display title shown in user interface dropdowns
- * @property {string} category - Grouping label for user interface organization
  * @property {string} portrait - Preview thumbnail asset path
  * @property {string} description - Detailed aesthetic summary for tooltips
  * @property {string[]} keywords - Visual descriptor keywords injected into generation
@@ -55,12 +54,11 @@ import { state_bridge, resolve_style } from "@utils";
 
 /**
  * Factory creating a compiled, fully validated VisualStyle record.
- * Automatically formats `engine` into standard XML <VISUAL_ENGINE> format.
+ * Automatically formats `engine` into standard XML <VISUAL_ENGINE> format with uppercase tags.
  *
  * @param {Object} definition - Declarative visual style definition configuration
  * @param {string} definition.id - Unique identifier
  * @param {string} definition.name - Display name
- * @param {string} definition.category - Category heading
  * @param {string} [definition.portrait] - Preview thumbnail URL or asset path
  * @param {string} definition.description - Aesthetic summary
  * @param {string[]} definition.keywords - Style tags
@@ -73,17 +71,16 @@ import { state_bridge, resolve_style } from "@utils";
 function define_visual_style(definition) {
   const visual_engine = definition.engine
     ? `<VISUAL_ENGINE>
-<medium>${definition.engine.medium}</medium>
-<palette>${definition.engine.palette}</palette>
-${definition.engine.camera ? `<camera>${definition.engine.camera}</camera>` : `<composition>${definition.engine.composition}</composition>`}
-<texture>${definition.engine.texture}</texture>
+<MEDIUM>${definition.engine.medium}</MEDIUM>
+<PALETTE>${definition.engine.palette}</PALETTE>
+${definition.engine.camera ? `<CAMERA>${definition.engine.camera}</CAMERA>` : `<COMPOSITION>${definition.engine.composition}</COMPOSITION>`}
+<TEXTURE>${definition.engine.texture}</TEXTURE>
 </VISUAL_ENGINE>`
     : "";
 
   return {
     id: definition.id,
     name: definition.name,
-    category: definition.category,
     portrait: definition.portrait || "",
     description: definition.description,
     keywords: definition.keywords,
@@ -99,11 +96,10 @@ ${definition.engine.camera ? `<camera>${definition.engine.camera}</camera>` : `<
 // ============================================================================
 
 /** @type {Record<string, VisualStyle>} */
-export const VISUAL_STYLES = {
+const _VISUAL_STYLES = {
   none: define_visual_style({
     id: "none",
     name: "No Visual Style",
-    category: "None",
     portrait: "https://user.uploads.dev/file/f968b744a4afde6ab81c0e751dc5e972.png",
     description: "Raw prompt generation without any visual style tokens or negative prompts injected.",
     keywords: ["none", "raw", "unmodified"],
@@ -117,7 +113,6 @@ export const VISUAL_STYLES = {
   photo: define_visual_style({
     id: "photo",
     name: "RAW Photography",
-    category: "Photographic & Lens-Captured",
     portrait: "https://user.uploads.dev/file/f3cf9efe77281754064a6629e354d799.png",
     description: "Authentic candid photograph capturing natural everyday lighting, unposed perspectives, and realistic skin micro-textures.",
     keywords: ["photography", "realistic", "candid", "raw", "lifelike", "natural", "snapshot"],
@@ -136,7 +131,6 @@ export const VISUAL_STYLES = {
   fashion: define_visual_style({
     id: "fashion",
     name: "Fashion Magazine",
-    category: "Photographic & Lens-Captured",
     portrait: "https://user.uploads.dev/file/2112636b40fd390a0a7654395f608c59.png",
     description: "Sleek high-fashion editorial aesthetic with opulent metallic tones and dramatic studio rim lighting.",
     keywords: ["fashion", "editorial", "magazine", "vogue", "glamour", "high_fashion"],
@@ -154,7 +148,6 @@ export const VISUAL_STYLES = {
   cinematic: define_visual_style({
     id: "cinematic",
     name: "Cinematic Film",
-    category: "Photographic & Lens-Captured",
     portrait: "https://user.uploads.dev/file/67a672baf7752bf089eea071f15a9ca9.png",
     description: "Atmospheric widescreen cinema shot featuring 35mm anamorphic optics, volumetric light shafts, and crushed shadows.",
     keywords: ["cinematic", "film", "volumetric", "anamorphic", "movie", "dramatic", "shadows"],
@@ -172,7 +165,6 @@ export const VISUAL_STYLES = {
   noir: define_visual_style({
     id: "noir",
     name: "Film Noir",
-    category: "Photographic & Lens-Captured",
     portrait: "https://user.uploads.dev/file/26f37e3915eaabab9248491fc3687f2e.png",
     description:
       "Classic 1940s detective cinema aesthetic featuring high-contrast black and white, hard chiaroscuro shadows, and venetian blinds light.",
@@ -188,28 +180,26 @@ export const VISUAL_STYLES = {
       "color, vibrant, saturated, modern, digital, anime, cartoon, illustration, 3d render, drawing, painting, cel-shaded, vector, cctv, surveillance",
   }),
 
-  polaroid: define_visual_style({
-    id: "polaroid",
-    name: "Polaroid",
-    category: "Photographic & Lens-Captured",
+  vintage: define_visual_style({
+    id: "vintage",
+    name: "Vintage Film",
     portrait: "https://user.uploads.dev/file/c7f758d7f2997cf541d721fb428e77cf.png",
-    description: "Authentic instant Polaroid photo featuring soft optical focus, faded vintage color shifts, and harsh direct flash exposure.",
-    keywords: ["polaroid", "instant_film", "vintage", "retro", "analog", "flash"],
+    description: "Authentic 35mm analog film photo featuring soft optical focus, faded vintage color shifts, and gentle mechanical lens flare.",
+    keywords: ["vintage", "film", "analog", "retro", "35mm", "film_grain"],
     guidance_scale: 9,
     engine: {
-      medium: "photorealistic live-action Polaroid SX-70 instant film photo, vintage flash snapshot",
-      palette: "faded vintage color shifts, muted cyan and magenta tones, harsh direct flash illumination, washed-out shadows",
-      camera: "Polaroid instant camera, fixed focal length, harsh direct flash glare, soft optical focus, edge vignetting",
-      texture: "instant film chemical emulsion bleeding, soft analog grain, glossy photo paper reflection, slight motion blur",
+      medium: "photorealistic live-action 35mm analog film photo, authentic 1970s snapshot, nostalgic vintage capture",
+      palette: "warm faded vintage color shifts, muted golden and amber tones, natural daylight with soft warm cast, slightly crushed warm shadows",
+      camera: "classic vintage 35mm mechanical rangefinder camera, 50mm prime lens, soft optical vignette, gentle authentic lens flare",
+      texture: "authentic organic film grain, soft analog halation around highlights, subtle edge vignetting, natural film emulsion warmth",
     },
     negative_prompt:
-      "crisp 4k, sharp modern lens, professional studio lighting, 3d render, anime, harsh digital sharpness, vector, cgi, monochrome, cartoon, illustration, drawing, painting, cel-shaded",
+      "white border, polaroid frame, instant photo border, polaroid outline, polaroid border, crisp 4k, sharp modern lens, professional studio lighting, 3d render, anime, harsh digital sharpness, vector, cgi, monochrome, cartoon, illustration, drawing, painting, cel-shaded",
   }),
 
   analog_video: define_visual_style({
     id: "analog_video",
     name: "Analog Video",
-    category: "Photographic & Lens-Captured",
     portrait: "https://user.uploads.dev/file/644012b0a426a455889d5a8881d69e72.png",
     description:
       "Uncanny lofi 1990s VHS tape snapshot or high-angle CCTV security camera screen capture with scanlines, tracking glitches, and lens distortion.",
@@ -233,7 +223,6 @@ export const VISUAL_STYLES = {
   anime: define_visual_style({
     id: "anime",
     name: "Anime & Manga",
-    category: "Animation & Stylized Motion",
     portrait: "https://user.uploads.dev/file/293e5b0c1e675dd32d6f0eb968a47e50.png",
     description: "Vibrant cel-shaded Japanese anime & manga art style with clean line work, expressive key framing, and stylized proportions.",
     keywords: ["anime", "manga", "cel_shading", "illustration", "2d", "stylized"],
@@ -250,7 +239,6 @@ export const VISUAL_STYLES = {
   ghibli: define_visual_style({
     id: "ghibli",
     name: "Studio Ghibli",
-    category: "Animation & Stylized Motion",
     portrait: "https://user.uploads.dev/file/4aaf95f0ba916c7498c960abb4ecd87e.png",
     description: "Warm hand-painted animation style with lush scenic landscapes, soft watercolor wash backgrounds, and nostalgic warmth.",
     keywords: ["studio_ghibli", "anime", "hand_painted", "nostalgic", "whimsical"],
@@ -268,7 +256,6 @@ export const VISUAL_STYLES = {
   disney: define_visual_style({
     id: "disney",
     name: "Classic 2D (Disney)",
-    category: "Animation & Stylized Motion",
     portrait: "https://user.uploads.dev/file/ab3d3721f029e356d540c524df0d876d.png",
     description: "Golden-age hand-drawn 2D animation featuring ink-and-paint cels, painterly gouache backgrounds, and fairytale warmth.",
     keywords: ["disney", "2d", "classic_animation", "hand_drawn", "cel_art", "fairytale"],
@@ -286,7 +273,6 @@ export const VISUAL_STYLES = {
   pixar: define_visual_style({
     id: "pixar",
     name: "3D Animation (Pixar)",
-    category: "Animation & Stylized Motion",
     portrait: "https://user.uploads.dev/file/27615c2c471da91f2052c4505a945053.png",
     description:
       "Stylized 3D CGI feature film artwork combining Pixar character warmth, ray-traced global illumination, and Unreal Engine 5 optical depth.",
@@ -308,7 +294,6 @@ export const VISUAL_STYLES = {
   isometric: define_visual_style({
     id: "isometric",
     name: "Isometric Projection",
-    category: "Game & Graphic Render",
     portrait: "https://user.uploads.dev/file/5e3cdfcde02ff1d1d9c2c5f0588dd4ae.png",
     description:
       "Dimension-agnostic orthographic isometric artwork featuring a fixed 45-degree parallel grid perspective, crisp geometric alignment, and clean spatial layout.",
@@ -325,7 +310,6 @@ export const VISUAL_STYLES = {
   pixel: define_visual_style({
     id: "pixel",
     name: "Pixel Art",
-    category: "Game & Graphic Render",
     portrait: "https://user.uploads.dev/file/87f3a245a478d2bdfeb284e5d8a83327.png",
     description: "Retro 16-bit video game sprite aesthetic featuring a limited color palette, crisp blocky pixel grids, and dithered shading.",
     keywords: ["pixel_art", "retro", "16bit", "dithered", "indie_game"],
@@ -346,7 +330,6 @@ export const VISUAL_STYLES = {
   clay: define_visual_style({
     id: "clay",
     name: "Claymation",
-    category: "Miniature & Physical Craft Photography",
     portrait: "https://user.uploads.dev/file/1be495044d258e39e940aa68eaa04c5f.png",
     description: "Tactile stop-motion plasticine animation style with visible thumbprints, miniature set depth, and soft physical lighting.",
     keywords: ["claymation", "stop_motion", "clay", "tactile", "sculpture", "animation"],
@@ -362,7 +345,6 @@ export const VISUAL_STYLES = {
   lego: define_visual_style({
     id: "lego",
     name: "LEGO®",
-    category: "Miniature & Physical Craft Photography",
     portrait: "https://user.uploads.dev/file/120b2c46188fb711a93bc68b9bf1eadc.png",
     description:
       "Simulated physical toy block diorama featuring glossy minifigures and ABS plastic building blocks macro-photographed with tilt-shift depth.",
@@ -381,7 +363,6 @@ export const VISUAL_STYLES = {
   paper: define_visual_style({
     id: "paper",
     name: "Papercraft",
-    category: "Miniature & Physical Craft Photography",
     portrait: "https://user.uploads.dev/file/db3cb7104f2da620eccc08dc5f535988.png",
     description: "Macro-photographed papercraft diorama built from layered, hand-cut card stock with tactile depth and paper-edge shadows.",
     keywords: ["papercraft", "paper", "cut_paper", "diorama", "miniature", "macro_photography", "tactile", "layered"],
@@ -404,7 +385,6 @@ export const VISUAL_STYLES = {
   graphic_print: define_visual_style({
     id: "graphic_print",
     name: "Graphic Print",
-    category: "Comic, Print & Graphic Design",
     portrait: "https://user.uploads.dev/file/861133eb1b50d4e3c957c0e8402ea5f2.png",
     description:
       "Bold graphic novel, pop art screenprint, and risograph poster aesthetic featuring black ink outlines, Ben-Day halftone dots, and spot-color translucent ink bleeds.",
@@ -422,7 +402,6 @@ export const VISUAL_STYLES = {
   wood: define_visual_style({
     id: "wood",
     name: "Ukiyo-e Woodblock Print",
-    category: "Comic, Print & Graphic Design",
     portrait: "https://user.uploads.dev/file/c6978746b0f5ae93937c7890fced148c.png",
     description:
       "Traditional Edo-period Japanese woodblock print featuring organic sumi-e ink contours, flat mineral pigments, and wood grain impressions.",
@@ -439,7 +418,6 @@ export const VISUAL_STYLES = {
   stained: define_visual_style({
     id: "stained",
     name: "Stained Glass",
-    category: "Comic, Print & Graphic Design",
     portrait: "https://user.uploads.dev/file/b24924f2fd7d826540b4f2757dad7767.png",
     description: "Gothic cathedral stained glass artwork with backlit translucent jewel-toned glass panels and dark lead came borders.",
     keywords: ["stained_glass", "gothic", "mosaic", "glass", "backlit", "artisan"],
@@ -459,7 +437,6 @@ export const VISUAL_STYLES = {
   oil: define_visual_style({
     id: "oil",
     name: "Oil Painting",
-    category: "Traditional Painting & Drawing",
     portrait: "https://user.uploads.dev/file/29d4709051646f4e5bffbbd0f34e2048.png",
     description: "Classical fine art oil painting with thick impasto brushwork, layered glazes, rich chiaroscuro, and luminous depth.",
     keywords: ["oil_painting", "classical", "impasto", "traditional", "baroque"],
@@ -476,7 +453,6 @@ export const VISUAL_STYLES = {
   water: define_visual_style({
     id: "water",
     name: "Watercolor",
-    category: "Traditional Painting & Drawing",
     portrait: "https://user.uploads.dev/file/115456547820baafccc89970b7c5fb7a.png",
     description: "Delicate watercolor painting featuring soft wet-on-wet washes, pigment diffusion bleeding, and granulating textures.",
     keywords: ["watercolor", "painting", "organic", "soft", "translucent"],
@@ -493,7 +469,6 @@ export const VISUAL_STYLES = {
   monochrome_sketch: define_visual_style({
     id: "monochrome_sketch",
     name: "Monochrome Sketch",
-    category: "Traditional Painting & Drawing",
     portrait: "https://user.uploads.dev/file/5658673d879658c2dd722fdf1791f688.png",
     description:
       "Detailed monochrome fine-nib ink, smudged charcoal, and heavy graphite pencil study featuring dramatic chiaroscuro and dense crosshatching.",
@@ -510,7 +485,6 @@ export const VISUAL_STYLES = {
   doodle: define_visual_style({
     id: "doodle",
     name: "Notebook Doodle",
-    category: "Traditional Painting & Drawing",
     portrait: "https://user.uploads.dev/file/34dc78c445a2749a4cc1dff08db37033.png",
     description: "Casual ballpoint pen and marker doodles drawn in notebook margins with quirky line art and scribbled shading.",
     keywords: ["doodle", "sketch", "notebook", "scribble", "margin_art", "casual", "hand_drawn"],
@@ -531,7 +505,6 @@ export const VISUAL_STYLES = {
   pulp: define_visual_style({
     id: "pulp",
     name: "Retro Pulp Cover",
-    category: "Retro-Futurism & Digital Subculture",
     portrait: "https://user.uploads.dev/file/a166f0706f17833ab3990b791d9937ab.png",
     description: "Vivid 1950s fantasy and sci-fi paperback book illustration featuring dramatic gouache brushwork and theatrical staging.",
     keywords: ["pulp", "retro", "50s", "paperback", "sci-fi", "gouache"],
@@ -548,7 +521,6 @@ export const VISUAL_STYLES = {
   cyberpunk: define_visual_style({
     id: "cyberpunk",
     name: "Cyberpunk",
-    category: "Retro-Futurism & Digital Subculture",
     portrait: "https://user.uploads.dev/file/643e256027b322312bea15c98e3f937e.png",
     description: "Neon-soaked dystopian aesthetic with wet rain-slicked asphalt, holographic interfaces, and high-tech urban grime.",
     keywords: ["cyberpunk", "neon", "scifi", "dystopian", "chrome"],
@@ -565,7 +537,6 @@ export const VISUAL_STYLES = {
   synthwave: define_visual_style({
     id: "synthwave",
     name: "Synthwave",
-    category: "Retro-Futurism & Digital Subculture",
     portrait: "https://user.uploads.dev/file/f2150b87f7133e099c38bbe384a7eaa1.png",
     description:
       "80s outrun synthwave and 90s vaporwave digital collage blending neon grid horizons, pastel cyan/magenta gradients, and CRT scan lines.",
@@ -580,6 +551,28 @@ export const VISUAL_STYLES = {
     negative_prompt: "medieval, natural, realistic, documentary, watercolor, oil painting, historical, classical oil portrait",
   }),
 };
+
+/**
+ * Immutable visual styles registry.
+ * @type {Readonly<Record<string, VisualStyle>>}
+ */
+export const VISUAL_STYLES = Object.freeze(_VISUAL_STYLES);
+
+/**
+ * Immutable set of all valid visual style identifiers.
+ * @type {Readonly<Set<string>>}
+ */
+export const VALID_VISUAL_STYLES = Object.freeze(new Set(Object.keys(VISUAL_STYLES)));
+
+/**
+ * Validates whether candidate identifier is a recognized visual style key.
+ *
+ * @param {any} candidate_style - Style identifier to test
+ * @returns {boolean} True if candidate is valid
+ */
+export function is_valid_visual_style(candidate_style) {
+  return typeof candidate_style === "string" && VALID_VISUAL_STYLES.has(candidate_style);
+}
 
 // ============================================================================
 // 4. STYLE ACCESSORS & RESOLVERS
@@ -619,6 +612,10 @@ export function resolve_story_visual_style_key(fractal) {
 /**
  * CHANGELOG
  * ============================================================================
+ * - 2026-09-06: Modernized visual-styles.js: (1) Uppercased XML prompt tags (<MEDIUM>, <PALETTE>,
+ *   <CAMERA>/<COMPOSITION>, <TEXTURE>); (2) Reworked "polaroid" into "vintage" ("Vintage Film") with
+ *   negative exclusions against polaroid borders; (3) Pruned unused `category` property across catalog;
+ *   (4) Exported frozen VISUAL_STYLES, VALID_VISUAL_STYLES set, and is_valid_visual_style validator.
  * - 2026-08-29: Harmonized visual-styles.js with full descriptive parameters, standardized
  *   section dividers, enhanced JSDoc headers, and complete test assertions.
  * - 2026-08-28: Refactored visual-styles.js with declarative `define_visual_style` compiler helper,

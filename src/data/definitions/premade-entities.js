@@ -471,7 +471,7 @@ export const PREMADE_FRACTALS = Object.freeze([
     dynamics: { velocity: 42, entropy: 58 },
     narrative_style: "anais_nin",
     profile_picture: "https://user.uploads.dev/file/5fd5f93c0a5899a7e4ec3446c764c887.jpg",
-    visual_style: "polaroid",
+    visual_style: "vintage",
     signature_color: "Forest Green",
     voice: { name: "Bardic Muse", cadence: "drawl" },
     relationships: [

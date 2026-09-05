@@ -10,7 +10,7 @@ vi.mock("@data", () => ({
   detox_prose: (text) => text,
   entities: {},
   VISUAL_STYLES: {
-    none: { id: "none", name: "No Visual Style", category: "None", tags: ["none"], visual_engine: "", negative_prompt: "" },
+    none: { id: "none", name: "No Visual Style", tags: ["none"], visual_engine: "", negative_prompt: "" },
   },
   resolve_portrait_visual_style_key: vi.fn().mockReturnValue("none"),
   resolve_story_visual_style_key: vi.fn().mockReturnValue("none"),
