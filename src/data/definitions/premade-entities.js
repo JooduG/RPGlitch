@@ -440,7 +440,7 @@ export const PREMADE_FRACTALS = Object.freeze([
     },
     present: {
       physical: `[LIGHTING: upper districts ablaze with pulsing violet neon and chrome reflections, the underbelly lit by flickering cathode tubes]
-[WEATHER: warm humid currents rising from the vent shafts, carrying steam and the smell of ozone]
+[WEATHER: warm humid currents rising from the vent shafts, carrying steam and the smell of ionized exhaust]
 [ATMOSPHERE: loud electric flirtatious — crowds of men catcalling and laughing in the open-air fitness lounges while admiring each other's training]
 [EVENTS: rooftop gyms hosting open flex showcases while Ytic'avon's steam-filled alleys run a black-market bidding war]`,
       non_physical:

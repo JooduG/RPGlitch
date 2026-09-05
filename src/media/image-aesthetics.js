@@ -170,9 +170,9 @@ export function build_aesthetic_map(entity = {}) {
   if (engine_tokens.palette) merged_aesthetic_map._visual_style_palette = engine_tokens.palette;
   if (engine_tokens.camera) merged_aesthetic_map._visual_style_camera = engine_tokens.camera;
   if (engine_tokens.composition) merged_aesthetic_map._visual_style_composition = engine_tokens.composition;
-  if (engine_tokens.texture) merged_aesthetic_map._visual_style_texture = engine_tokens.texture;
-  if (visual_style_key && visual_style_key !== "none" && Array.isArray(visual_style_definition.tags) && visual_style_definition.tags.length) {
-    merged_aesthetic_map._visual_style_tags = visual_style_definition.tags.join(", ");
+  const style_keywords = visual_style_definition.keywords || visual_style_definition.tags;
+  if (visual_style_key && visual_style_key !== "none" && Array.isArray(style_keywords) && style_keywords.length) {
+    merged_aesthetic_map._visual_style_tags = style_keywords.join(", ");
   }
 
   if (Array.isArray(entity.tags) && entity.tags.length) {

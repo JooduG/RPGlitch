@@ -35,7 +35,60 @@ export const NEGATIVE_PROMPT = "blurry, low resolution, compressed artifacts, wa
 const JSON_OUTPUT_PROTOCOL =
   "Return a single JSON object starting with { and ending with }. No preamble, no markdown backticks, no external XML tags.";
 
-export const OPTICS_BUILDER_PROTOCOL = `EXECUTE VISUAL SYNTHESIS IN 5 ORDERED PHASES:
+/**
+ * Formats recent narrative history for the sensory cortex, stripping dangling think tags and telemetry lines.
+ * @param {string} [history_text]
+ * @returns {string}
+ */
+export function format_sensory_history(history_text) {
+  if (!history_text || typeof history_text !== "string") return "";
+  const cleaned = strip_cognition_blocks(history_text)
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => {
+      if (!line) return false;
+      if (/^(system|telemetry):\s*(?:chaos|intensity|openness|affinity|velocity|entropy)\s*[+-]\d+/i.test(line)) return false;
+      if (/(?:chaos|intensity|openness|affinity|velocity|entropy)\s*[+-]\d+\s*\|/i.test(line)) return false;
+      return true;
+    })
+    .join("\n")
+    .trim();
+  return cleaned ? `<HISTORY>\n${prompt_escape(cleaned)}\n</HISTORY>\n` : "";
+}
+
+/**
+ * Compiles the 5-phase Optics Builder protocol tailored to the active visual style.
+ * @param {Record<string, any>} [style_definition={}]
+ * @param {Record<string, any>} [engine_tokens={}]
+ * @returns {string}
+ */
+export function build_optics_builder_protocol(style_definition = {}, engine_tokens = {}) {
+  const keywords_raw = style_definition.keywords || style_definition.tags || [];
+  const keyword_list = Array.isArray(keywords_raw)
+    ? keywords_raw
+    : typeof keywords_raw === "string"
+      ? keywords_raw.split(",").map((s) => s.trim())
+      : [];
+  const valid_keywords = keyword_list.filter(Boolean);
+  const keywords_str = valid_keywords.length ? valid_keywords.join(", ") : "cinematic, atmospheric";
+  const available_keywords_xml = `<AVAILABLE_KEYWORDS>\n${prompt_escape(keywords_str)}\n</AVAILABLE_KEYWORDS>`;
+
+  const camera_or_composition = engine_tokens.camera
+    ? `<camera>${escape_xml(engine_tokens.camera)}</camera>`
+    : engine_tokens.composition
+      ? `<composition>${escape_xml(engine_tokens.composition)}</composition>`
+      : "";
+
+  const medium_palette_xml = [
+    engine_tokens.medium ? `<medium>${escape_xml(engine_tokens.medium)}</medium>` : "",
+    engine_tokens.palette ? `<palette>${escape_xml(engine_tokens.palette)}</palette>` : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  const texture_xml = engine_tokens.texture ? `<texture>${escape_xml(engine_tokens.texture)}</texture>` : "";
+
+  return `EXECUTE VISUAL SYNTHESIS IN 5 ORDERED PHASES:
 
 PHASE 1: EXECUTION & OUTPUT STRUCTURE
 - Formulate composition strategy inside "_thought_process" key first.
@@ -43,11 +96,12 @@ PHASE 1: EXECUTION & OUTPUT STRUCTURE
 - Output negative tokens inside "negative_prompt". Enforce KEYWORD_INTEGRITY — quality buzzwords ('masterpiece', '8K', 'ultra HD', 'photorealistic', 'digital art') are forbidden in BOTH "prompt" and "negative_prompt". Ground outputs using physical optics and real-world materials.
 - Enforce FLUX_T5_WEIGHTING — NEVER emit bracket weight math ('(x:1.3)', '((x))', '[x:0.4]'): FLUX/T5 reads words, not weights. Emphasize via descriptors, varied rephrasing, and attenuation phrasing ('faint', 'subtle touch of', 'barely visible in the distance').
 - Enforce POSITIVE_FRAMING — describe what IS physically in frame ('a softly moonlit glade' rather than 'no harsh sunlight'); keep the negative_prompt limited to global quality artifacts.
+${available_keywords_xml}
 
 PHASE 2: SUBJECT & SPATIAL FRAMING (FIRST SENTENCE PRIORITY)
 - FIRST SENTENCE MANDATE: Always place main entities and active physical interactions in the VERY FIRST sentence.
 - Spatial Geometry: Strictly enforce camera angles, elevations (e.g., balconies), lighting positions, and distance.
-- Direct Depiction: Render what is happening in the active scene moment.
+- Direct Depiction: Render what is happening in the active scene moment.${camera_or_composition ? `\n${camera_or_composition}` : ""}
 
 PHASE 3: CHARACTER SPECIFICATION & OVERRIDES
 - Explicit Identifiers: Always explicitly state gender and physical identifiers (e.g., "a handsome young male high-elf man").
@@ -59,12 +113,15 @@ PHASE 3: CHARACTER SPECIFICATION & OVERRIDES
 - Dynamic State Override: Follow a strict bottom-up hierarchy where the most recent (bottom-most) physical condition update ALWAYS overrides preceding static tags like <SHIRT> or <JACKET>. If a conflicting state appears later (e.g. 'no clothes' then later 'shirt: white'), the most recent/latest state wins.
 
 PHASE 4: STYLE & MEDIUM DISCIPLINE
-- Medium Authority: Directives in <VISUAL_ENGINE> (e.g., oil painting, pixel art, charcoal) dictate absolute style. Strip out conflicting photorealistic terms.
-- Palette Strictness: Strict medium palettes (monochrome, sepia, cyanotype) override conflicting color terms.
+- Medium Authority: Specified artistic medium (e.g., oil painting, pixel art, charcoal) dictates absolute style. Strip out conflicting photorealistic terms.
+- Palette Strictness: Strict medium palettes (monochrome, sepia, cyanotype) override conflicting color terms.${medium_palette_xml ? `\n${medium_palette_xml}` : ""}
 
 PHASE 5: SENSORY & ENVIRONMENTAL GROUNDING
-- Ground scenes through real-world light sources, physical textures, and concrete environmental geometry rather than abstract concepts.
-- Typography & Signage (OPTIONAL): Render on-screen text ONLY when the scene itself calls for it — signs, graffiti, titles, or UI that are part of the subject matter. Never add text artificially. When text IS present, spell it out exactly and specify placement, font, and color (e.g. "OPEN" in glowing red neon, centered above the doors) — never invent, garble, or approximate lettering, and never output generic placeholders like "text" or "sign".`;
+- Ground scenes with tangible environmental light fixtures (e.g., flickering cathode tubes, wet pavement reflections, harsh key lamps) and tactile physical surfaces.
+- Typography & Signage (OPTIONAL): Render on-screen text ONLY when the scene itself calls for it — signs, graffiti, titles, or UI that are part of the subject matter. Never add text artificially. When text IS present, spell it out exactly and specify placement, font, and color (e.g. "OPEN" in glowing red neon, centered above the doors) — never invent, garble, or approximate lettering, and never output generic placeholders like "text" or "sign".${texture_xml ? `\n${texture_xml}` : ""}`;
+}
+
+export const OPTICS_BUILDER_PROTOCOL = build_optics_builder_protocol();
 
 // ============================================================================
 // [SECTION 2: PROMPT TEMPLATES (BUILDER & ENHANCE)]
@@ -124,13 +181,7 @@ export const prompt_templates = {
         : resolve_story_visual_style_key(active_fractal_setting);
     const style_definition = VISUAL_STYLES[style_key] || VISUAL_STYLES.none;
     const engine_tokens = resolve_visual_engine_tokens(style_key);
-    const visual_engine_block = style_definition.visual_engine
-      ? `\n<VISUAL_ENGINE style="${escape_xml(style_definition.name || style_key)}">\n${style_definition.visual_engine.replace(/<\/?VISUAL_ENGINE[^>]*>/gi, "").trim()}${
-          Array.isArray(style_definition.tags) && style_definition.tags.length
-            ? `\n<keywords>${prompt_escape(style_definition.tags.join(", "))}</keywords>`
-            : ""
-        }\n</VISUAL_ENGINE>`
-      : "";
+    const protocol_text = build_optics_builder_protocol(style_definition, engine_tokens);
 
     const resolved_negative_prompt = engine_tokens.negative_prompt || NEGATIVE_PROMPT;
 
@@ -188,19 +239,19 @@ export const prompt_templates = {
 
     const framing_block = `\n<CINEMATOGRAPHY mode="${framing_mode}">\n  ${framing_tokens}${narrative_context_desc}${visual_staging_directive}\n</CINEMATOGRAPHY>`;
 
+    const history_xml = format_sensory_history(history);
+
     return `
 <SYSTEM role="SENSORY_CORTEX_V5">
-${visual_engine_block}
 <PROTOCOL>
-${OPTICS_BUILDER_PROTOCOL}
+${protocol_text}
 ${is_selfie ? '\nPHASE 6: SELFIE MODE EXTENSION\n- Generate a short, in-character social media caption inside "caption".' : ""}
 </PROTOCOL>
 <TARGET>${tier}</TARGET>
-<MODE>${mode.toUpperCase()}</MODE>
-${history ? `<HISTORY>\n${prompt_escape(history)}\n</HISTORY>\n` : ""}<INSTRUCTIONS>
+${history_xml}<INSTRUCTIONS>
 Convert narrative intent into a structured image prompt payload depicting ${subject}.
-Input Intent: "${prompt_escape(detox_prose(raw_intent))}"
 </INSTRUCTIONS>
+<INPUT_INTENT>${prompt_escape(detox_prose(raw_intent))}</INPUT_INTENT>
 ${context_block}
 ${framing_block}
 

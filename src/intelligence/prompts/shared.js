@@ -8,6 +8,7 @@
 
 import { ind, prompt_escape, escape_xml, parse_relational_vector, clean_xml } from "@utils";
 import { resolve_active_style_key, render_narrative_style_xml } from "@data";
+import { DYNAMICS_AXES } from "../physics.js";
 import { build_dynamics_legend } from "./physics-prompts.js";
 
 // ── 1. Consolidated Protocol Library ──────────────────────────────────────────
@@ -20,8 +21,8 @@ export const PROTOCOL_LIBRARY = {
   HYGIENE: {
     PROSE_DISCIPLINE: `${BASE_HYGIENE} No timestamps or headers. No echoing user dialogue. Match character profile. Write natural physicality in the affirmative (state what IS, not what isn't). Format with expressive markdown (*italics* for physical actions/subtext, **bold** for key impacts/codenames, "quotes" for speech). Roughly match the length and energy of the user's message. Always end on a complete sentence.`,
     DATA: `${BASE_HYGIENE} Enforce strict professional brevity. No dialogue, internal thoughts, or roleplay scenes. Output ONLY objective structural data.`,
-    ANTI_TROPES: `1. LEXICAL BLACKLIST: Never use overused AI prose tropes or clichéd vocabulary: 'shifts his weight/shifting weight', 'predatory', 'possessive', 'nibble/nibbles', 'earlobe', 'caress', 'taste of copper', 'heart hammering', 'stomach knot', 'trembling fingers', 'hum/humming', 'murmur/murmuring', 'purr/purred', 'ozone', 'testament to', 'rich tapestry of', 'symphony of', 'coiled spring', 'a study in', 'marrow of the teeth', 'obsidian', 'the void', 'old parchment', 'white knuckles', 'spatial disturbance', 'jolts of electricity', 'shimmering', 'fever dream', 'breathless', 'crimson', 'amber', 'iridescent', 'frozen/froze', 'fluttered/trapped bird', 'flickered', 'bruised purple', 'leaning in', 'crumpled map', 'once in a blue moon', 'merging molecules', 'force of a physical blow', 'breath he didn't realize he was holding', 'proper madness', 'squelching', 'tracing collarbone', 'rubbing circles', 'air was thick with', 'a genuine sound', 'for the first time in life', 'sanctuary'.
-2. STRUCTURAL FORMULAS: Avoid sentence-level AI formulas: denial-then-affirmation ('X didn't just Y; it Z'd', "I don't just [verb]; I [verb]", "didn't just", "not merely", "doesn't simply"); binary comparison clichés ('felt less like X and more like Y'); appositive dialogue sound tags ('she laughed, a [adj], [adj] sound'); pseudo-profound statements; user-echoing starters ('You speak of...', 'You think that...'); self-answering dialogue; recycled fantasy names (Elara, Kaelen, Valerius Thorne); and formulaic action-dialogue sandwiches ([action] + 'dialogue' + [action] every turn).`,
+    ANTI_TROPES: `1. STRUCTURAL FORMULAS: Avoid sentence-level AI formulas: denial-then-affirmation ('X didn't just Y; it Z'd', "I don't just [verb]; I [verb]", "didn't just", "not merely", "doesn't simply"); binary comparison clichés ('felt less like X and more like Y'); appositive dialogue sound tags ('she laughed, a [adj], [adj] sound'); pseudo-profound statements; user-echoing starters ('You speak of...', 'You think that...'); self-answering dialogue; recycled fantasy names (Elara, Kaelen, Valerius Thorne); and formulaic action-dialogue sandwiches ([action] + 'dialogue' + [action] every turn).
+2. AFFIRMATIVE PROSE: Render presence, posture, tactile sensation, and movement directly. Describe what characters do, perceive, and feel through concrete action rather than passive summary, clichéd tropes, or artificial dramatic pauses.`,
     STATE_EMISSION: `Pseudo-JSON STATE FORMAT — mutate active state with bracketed [KEY: VALUE] directives in "present.physical" (visible state) and "present.non_physical" (mindset/private state):
 - OVERWRITE: [SHIRT: knitted sweater] REPLACES the existing SHIRT value directly — never emit a second SHIRT, never append a duplicate tag.
 - UNIVERSAL CLEAR: [KEY: none], [KEY: bare], [KEY: naked], [KEY: off], [KEY: removed], [KEY: disrobed], [KEY: healed], [KEY: cleared], [KEY: normal] atomically deletes that key. Use [CLOTHING: none] to strip ALL worn clothing at once.
@@ -44,7 +45,12 @@ export const PROTOCOL_LIBRARY = {
     MOMENTUM: "End on a live beat (challenge, question, tension, or deliberate silence) that organically invites response without structural labels.",
     PRESENT_TENSE: "Write strictly in the present tense.",
     FICTIONAL_LICENSE:
-      "Self-contained simulation for creative exploration. Explicit, morally complex, or tense scenarios are permitted when serving narrative coherence. Maintain total immersion; never break character or moralize.",
+      "Self-contained simulation for creative exploration. Explicit, morally complex, adversarial, or tense scenarios are encouraged and expected when serving narrative coherence. Maintain total immersion; never break character, soften stakes, or moralize.",
+    ORGANIC_GAZE:
+      "Perceive physical contours, silhouettes, revealing attire, fit, and exposed skin naturally during neutral and tense beats alike without waiting for overt triggers.",
+    SOMATIC_PHYSICALITY:
+      "Render physical trauma, strain, impact, and injury consequences with visceral, concrete detail. Physical trauma has lasting momentum and does not instantly resolve.",
+    GENRE_FRAMING: "Ground scene causality, tone, atmospheric weight, and behavioral consequences strictly in the active narrative genre.",
   },
 
   // ── 1.3 Cognition & Epistemic Physics ──────────────────────────────────────
@@ -541,6 +547,33 @@ export function render_optional_tag(tag_name, content) {
   return `<${tag_name}>${String(content).trim()}</${tag_name}>`;
 }
 
+/**
+ * Compiles a unified <DYNAMICS> block merging scale legend, axis definitions,
+ * current live values [current: XX], and calibration laws.
+ * @param {Record<string, number>} [live_dynamics]
+ * @returns {string}
+ */
+export function render_dynamics_block(live_dynamics = {}) {
+  const definitions = Object.entries(DYNAMICS_AXES)
+    .map(([key, meta]) => {
+      const val = live_dynamics?.[key];
+      const curr = val !== undefined && val !== null ? ` [current: ${Math.round(Number(val))}]` : "";
+      return `    - ${key} (${meta.label}): ${meta.desc}${curr}`;
+    })
+    .join("\n");
+
+  return `
+<DYNAMICS>
+  Scale: 0 (minimum) to 100 (maximum)
+  Axes:
+${definitions}
+  Laws:
+    1. Calibrate dynamics_deltas conservatively (+1 to +4 standard; +8 to +12 extreme).
+    2. Adjust deltas carefully near boundaries (5 or 95) to prevent clipping at 0 or 100.
+    3. Calibrate dynamics_deltas to reflect the psychological and environmental shift of the turn.
+</DYNAMICS>`.trim();
+}
+
 // ── 4. Roster, Mesh & Epistemic XML Blocks ────────────────────────────────────
 
 const _cast_summary = (npc) => {
@@ -628,7 +661,94 @@ function _render_relational_mesh_xml(entities = {}, npc_entities = [], perspecti
 }
 
 /**
- * Renders the unified cast, stage roster, and relational mesh XML for the Director.
+ * Renders the unified Stage Spotlight XML block for the Director prompt.
+ * Consolidates active in-scene participants, candidate secondaries (off-screen),
+ * speaker routing rules, convergence laws, and strictly in-scene relational mesh.
+ * @param {Object} [params]
+ * @param {any} [params.entities]
+ * @param {any[]} [params.npc_entities]
+ * @param {string[]} [params.in_scene_ids]
+ * @returns {string}
+ */
+export function render_scene_spotlight_xml({ entities = {}, npc_entities = [], in_scene_ids = [] } = {}) {
+  const active_trio_ids = new Set([entities?.AI?.id, entities?.USER?.id, entities?.FRACTAL?.id].filter(Boolean).map(String));
+  const in_scene_set = new Set((in_scene_ids || []).filter(Boolean).map(String));
+
+  // Build active participant list
+  const active_participants = [];
+  if (entities?.AI?.name) active_participants.push(`- ${escape_xml(entities.AI.name)}: Primary Companion (In-Scene)`);
+  if (entities?.USER?.name) active_participants.push(`- ${escape_xml(entities.USER.name)}: Protagonist (In-Scene)`);
+
+  const candidate_secondaries = [];
+
+  for (const n of npc_entities || []) {
+    if (!n || active_trio_ids.has(String(n.id))) continue;
+    const is_in_scene = in_scene_set.has(String(n.id));
+    const summary = _cast_summary(n);
+    const summary_suffix = summary ? `: ${escape_xml(summary)}` : "";
+    if (is_in_scene) {
+      active_participants.push(`- ${escape_xml(n.name)} (id: ${escape_xml(String(n.id))}) [In-Scene]${summary_suffix}`);
+    } else {
+      candidate_secondaries.push(`- ${escape_xml(n.name)} (id: ${escape_xml(String(n.id))}) [Off-Screen (Stasis)]${summary_suffix}`);
+    }
+  }
+
+  // Build active names set for relational filtering (in-scene participants + fractal)
+  const active_in_scene_names = new Set();
+  if (entities?.AI?.name) active_in_scene_names.add(String(entities.AI.name).toLowerCase().trim());
+  if (entities?.USER?.name) active_in_scene_names.add(String(entities.USER.name).toLowerCase().trim());
+  if (entities?.FRACTAL?.name) active_in_scene_names.add(String(entities.FRACTAL.name).toLowerCase().trim());
+  for (const n of npc_entities || []) {
+    if (in_scene_set.has(String(n?.id)) && n?.name) {
+      active_in_scene_names.add(String(n.name).toLowerCase().trim());
+    }
+  }
+
+  // Extract relational vectors strictly between active in-scene entities
+  const scoped_rels = [];
+  const collect_rels = (e) => {
+    if (!e?.name) return;
+    for (const r of Array.isArray(e?.relationships) ? e.relationships : []) {
+      const parsed = parse_relational_vector(r);
+      if (!parsed) continue;
+      const src = parsed.source_name.toLowerCase().trim();
+      const target = parsed.target_name.toLowerCase().trim();
+      if (active_in_scene_names.has(src) && active_in_scene_names.has(target)) {
+        scoped_rels.push(`- ${escape_xml(parsed.raw)}`);
+      }
+    }
+  };
+
+  collect_rels(entities?.AI);
+  collect_rels(entities?.USER);
+  collect_rels(entities?.FRACTAL);
+  for (const n of npc_entities || []) {
+    if (in_scene_set.has(String(n?.id))) {
+      collect_rels(n);
+    }
+  }
+
+  const candidate_section = candidate_secondaries.length > 0 ? `\n\nCANDIDATE SECONDARY CHARACTERS:\n${candidate_secondaries.join("\n")}` : "";
+
+  const rels_section = scoped_rels.length > 0 ? `\n\nIN-SCENE RELATIONAL MESH:\n${scoped_rels.join("\n")}` : "";
+
+  return `<SCENE_SPOTLIGHT>
+SPEAKER ROUTING RULES:
+- "AI_CHARACTER": (Default) AI companion reacts to the protagonist.
+- "FRACTAL": User action is non-verbal and environmental (exploring atmosphere, architecture, weather, objects without dialogue) or to break up long streaks of AI speech.
+- "npc:<id>": An active in-scene secondary character takes the floor.
+- "GENESIS": A new character is introduced into the world. Only mint if no existing candidate applies.
+
+CONVERGENCE & CAST LAW:
+Always inspect candidate secondary characters below before minting a duplicate. If an existing cast member matches the required role or location (medical, security, merchant), you MUST use that existing entity rather than inventing a duplicate.
+
+ACTIVE IN-SCENE PARTICIPANTS:
+${active_participants.join("\n")}${candidate_section}${rels_section}
+</SCENE_SPOTLIGHT>`;
+}
+
+/**
+ * Renders the unified Stage Spotlight XML for the Director.
  * @param {Object} params
  * @param {any} [params.entities]
  * @param {any[]} [params.npc_entities]
@@ -636,14 +756,7 @@ function _render_relational_mesh_xml(entities = {}, npc_entities = [], perspecti
  * @returns {string}
  */
 export function render_director_cast_xml({ entities = {}, npc_entities = [], in_scene_ids = [] } = {}) {
-  const active_trio_ids = [entities?.AI?.id, entities?.USER?.id, entities?.FRACTAL?.id];
-  return [
-    _render_roster_xml(npc_entities, in_scene_ids, active_trio_ids),
-    _render_scene_roster_xml(entities, npc_entities, in_scene_ids),
-    _render_relational_mesh_xml(entities, npc_entities, null, in_scene_ids),
-  ]
-    .filter(Boolean)
-    .join("\n");
+  return render_scene_spotlight_xml({ entities, npc_entities, in_scene_ids });
 }
 
 /**
@@ -726,6 +839,8 @@ export function render_system_head(entities = {}) {
 
 /**
  * CHANGELOG
+ * - 2026-09-05: Added render_dynamics_block() merging scale legend, axis metadata, and live values.
+ * - 2026-09-05: Consolidated Director cast, stage roster, and relational mesh into render_scene_spotlight_xml() strictly scoped to active scene participants.
  * - 2026-08-28: Consolidated fragmented protocol rules into PROSE_DISCIPLINE, ANTI_TROPES,
  *   STATE_EMISSION, and self-contained THINK_CHARACTER / THINK_NARRATOR specifications.
  * - 2026-08-28: Co-located single-use protocols (ENTITY_CONVERGENCE_LAW, FIRST_CONTACT, ANCHOR) to their home files.

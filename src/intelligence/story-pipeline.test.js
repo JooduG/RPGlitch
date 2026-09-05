@@ -1296,6 +1296,7 @@ describe("NPC world cast (track-npc-expansion)", () => {
     _mock_runtime.in_scene_npc_ids = [];
     _mock_runtime.streaming_entity_id = null;
     _mock_runtime.story_id = null;
+    vi.spyOn(context_builder, "build_context");
   });
 
   it("_resolve_npc_entity() resolves by id and by case-insensitive name", () => {

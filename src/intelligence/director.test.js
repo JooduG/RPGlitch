@@ -93,14 +93,16 @@ describe("Director Quick Shot Prompt (render_director)", () => {
     expect(result.system).toContain("SPEAKER ROUTING RULES");
   });
 
-  it("emits compact ROSTER and SCENE_ROSTER when NPCs are present", () => {
+  it("emits consolidated SCENE_SPOTLIGHT when NPCs are present", () => {
     const npc_entities = [{ id: "npc-elias", name: "Elias", description: "Archivist", relationships: ["Elias → Viper: wary"] }];
     const result = render_director({ ...base_payload(), npc_entities, in_scene_ids: ["npc-elias"], compressed_snapshot: base_snapshot });
-    expect(result.system).toContain("<ROSTER>");
+    expect(result.system).toContain("<SCENE_SPOTLIGHT>");
     expect(result.system).toContain("Elias (id: npc-elias)");
     expect(result.system).toContain("In-Scene");
-    expect(result.system).toContain("<SCENE_ROSTER>");
-    expect(result.system).toContain("<RELATIONAL_MESH>");
+    expect(result.system).toContain("IN-SCENE RELATIONAL MESH");
+    expect(result.system).not.toContain("<ROSTER>");
+    expect(result.system).not.toContain("<SCENE_ROSTER>");
+    expect(result.system).not.toContain("<RELATIONAL_MESH>");
   });
 });
 
@@ -121,6 +123,23 @@ describe("normalize_director_quick_shot (Track 1 Schema)", () => {
     // Unknown or empty falls back to AI_CHARACTER
     expect(normalize_director_data({ next_action: "unknown_void" }).next_action).toBe("AI_CHARACTER");
     expect(normalize_director_data({}).next_action).toBe("AI_CHARACTER");
+
+    // Character proper names clamp to AI_CHARACTER
+    expect(normalize_director_data({ next_action: "Orion the Pink Protector" }).next_action).toBe("AI_CHARACTER");
+    expect(normalize_director_data({ next_action: "Glitch" }).next_action).toBe("AI_CHARACTER");
+    expect(normalize_director_data({ next_action: "Sylvia" }).next_action).toBe("AI_CHARACTER");
+  });
+
+  it("normalizes unified spotlight schema merging enter, exit, and genesis", () => {
+    const data = normalize_director_data({
+      spotlight: {
+        enter: ["npc:doc"],
+        exit: ["npc:guard"],
+        genesis: { name: "New Guard", description: "Fresh recruit" },
+      },
+    });
+    expect(data.in_scene_change).toEqual({ enter: ["doc"], exit: ["guard"] });
+    expect(data.genesis).toEqual({ name: "New Guard", description: "Fresh recruit" });
   });
 
   it("caps keywords to 1-3 elements and preserves valid tags", () => {

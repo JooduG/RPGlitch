@@ -220,6 +220,20 @@ export const session_driver = {
       await db.simulation_log.delete(entry.id);
       state_bridge.simulation_log?.remove?.(entry.id);
     }
+    // Prune any empty text records without attachments
+    const remaining = await db.simulation_log.where("story_id").equals(story_id).toArray();
+    for (const entry of remaining) {
+      if (
+        typeof entry.text === "string" &&
+        !entry.text.trim() &&
+        (!entry.attachments || entry.attachments.length === 0) &&
+        !entry.meta?.is_prologue &&
+        !entry.meta?.is_epilogue
+      ) {
+        await db.simulation_log.delete(entry.id);
+        state_bridge.simulation_log?.remove?.(entry.id);
+      }
+    }
   },
 
   /**
@@ -328,6 +342,11 @@ export const session_driver = {
    */
   async log_message(text, role, character_name, { turn_type = "USER_TURN", meta = {}, attachments = [], story_id = null } = {}) {
     const effective_story_id = story_id ?? session_driver.require_active();
+    const is_empty =
+      typeof text === "string" && !text.trim() && (!attachments || attachments.length === 0) && !meta?.is_prologue && !meta?.is_epilogue;
+    if (is_empty) {
+      return { id: meta?.id || `skip-${Date.now()}`, story_id: effective_story_id, role, text: "", character_name, turn_type, meta };
+    }
     /** @type {any} */
     const entry = {
       story_id: effective_story_id,

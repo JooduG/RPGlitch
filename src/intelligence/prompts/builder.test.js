@@ -98,7 +98,7 @@ describe("Prompt Builder Facade (builder.js)", () => {
     const result = prompt_builder.build_memory({ AI_CHARACTER: { name: "Viper" }, FRACTAL: { name: "Void" } }, [], {
       target_key: "AI_CHARACTER",
     });
-    expect(result.system).toContain('<SYSTEM role="MEMORY_FORGE" target="AI_CHARACTER" name="Viper">');
+    expect(result.system).toContain('<SYSTEM role="CONTINUUM_CARETAKER" target="AI_CHARACTER" name="Viper">');
   });
 
   it("build_profile_sorting() delegates correctly to profile prompts", () => {

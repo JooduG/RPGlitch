@@ -93,7 +93,7 @@ describe("director-prompts", () => {
       expect(DIRECTOR_PROTOCOLS.SCHEMA).not.toContain('"speaking_style"');
     });
 
-    it("render_director unifies speaker routing, convergence, and roster into a single clean <ROSTER> block", () => {
+    it("render_director unifies stage spotlight, convergence, and roster into a single clean <SCENE_SPOTLIGHT> block", () => {
       const { system } = render_director({
         round: 2,
         entities: {
@@ -108,13 +108,22 @@ describe("director-prompts", () => {
         in_scene_ids: ["npc_doc"],
       });
 
-      // System should contain the unified ROSTER
-      expect(system).toContain("<ROSTER>");
+      // System should contain the unified SCENE_SPOTLIGHT
+      expect(system).toContain("<SCENE_SPOTLIGHT>");
       expect(system).toContain("Dr. Aris");
       expect(system).toContain("Sgt. Vance");
       // Should not have redundant isolated SPEAKER_ROUTING / ENTITY_CONVERGENCE tags inside PROTOCOLS
       expect(system).not.toContain("<SPEAKER_ROUTING>");
       expect(system).not.toContain("<ENTITY_CONVERGENCE>");
+    });
+
+    it("DIRECTOR_PROTOCOLS.SCHEMA specifies unified spotlight schema merging in_scene_change and genesis", () => {
+      expect(DIRECTOR_PROTOCOLS.SCHEMA).toContain('"spotlight"');
+      expect(DIRECTOR_PROTOCOLS.SCHEMA).toContain('"enter"');
+      expect(DIRECTOR_PROTOCOLS.SCHEMA).toContain('"exit"');
+      expect(DIRECTOR_PROTOCOLS.SCHEMA).toContain('"genesis"');
+      // Should not have top-level separate in_scene_change key
+      expect(DIRECTOR_PROTOCOLS.SCHEMA).not.toContain('"in_scene_change"');
     });
   });
 });

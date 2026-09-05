@@ -1,7 +1,7 @@
 ---
 name: present
 description: Active mission board, roadmap, feature maturity, and pulse history log
-active_track: track-prompt-sanitization-and-narrative-drift-guards
+active_track: track-prompt-architecture-consolidation-and-detox-remediation
 last_synchronized: 2026-09-05
 ---
 
@@ -9,15 +9,15 @@ last_synchronized: 2026-09-05
 
 ## ⚡ Present
 
-- **Active Track**: [`tasks/future/track-prompt-sanitization-and-narrative-drift-guards.md`](./future/track-prompt-sanitization-and-narrative-drift-guards.md)
-- **Active Task**: QA8 Remediation — Tasks 2.1, 2.2, 3.1, 3.3, 4.4, 4.5 (Epistemic wiring, `[PLAN]` migration, dynamics_deltas purge, visual_staging, duplicate framing tag purge, opening integration test)
+- **Active Track**: [`tasks/future/track-prompt-architecture-consolidation-and-detox-remediation.md`](./future/track-prompt-architecture-consolidation-and-detox-remediation.md)
+- **Active Task**: Phase 1 TDD Red Suite — Tasks 1.1, 1.2, 1.3 (Unified dynamics, scoped spotlight, XML looks, detox scoping, turn reset cleanup)
 
 ### 🩺 System & Session Readiness
 
-- **Active Baton**: [`scribbles.md`](../scribbles.md) (Anti-trope formulas, epistemic boundaries, unified roster, quotes-vs-prose dual synthesis).
-- **Environmental Health**: Git branch `main` (clean working tree, hook contracts passing 14/14 via `npm run test:hooks`, 0 lint errors, 71/71 test suites / 949 tests passing, single-file bundle build passes).
+- **Active Baton**: [`scribbles.md`](../scribbles.md) (Generation lifecycle, speaker portrait thinking pulse, active-story guard modal, flicker & speech interruption fixes).
+- **Environmental Health**: Git branch `main` (clean working tree, hook contracts passing 14/14 via `npm run test:hooks`, 0 lint errors, 71/71 test suites / 952 tests passing, single-file bundle build passes).
 - **Sovereign Constraints**: Svelte 5 Runes only (`$state`, `$derived`, `$effect`), single-file bundle distribution (`vite-plugin-singlefile`), P4 Zero Backwards Compatibility (pre-beta purity).
-- **Last Startup Verification**: 2026-09-05 16:02 (via `/startup`).
+- **Last Startup Verification**: 2026-09-05 19:42 (via `/startup`).
 
 ### 🔍 Detected TODOs
 
@@ -34,7 +34,7 @@ No active AI debt found.
 
 - [`tasks/future/track-generation-flow-and-storyboard-guards.md`](./future/track-generation-flow-and-storyboard-guards.md): Generation flow lifecycle, speaker thinking indicators, storyboard active story guards, and shimmer harmonization
 
-- [`tasks/future/track-prompt-sanitization-and-narrative-drift-guards.md`](./future/track-prompt-sanitization-and-narrative-drift-guards.md): Comprehensive prompt sanitization, epistemic leak prevention, anti-trope hardening, telemetry pruning, and structural prompt optimization based on scrobbles.md logs and scribbles.md analysis.
+- [`tasks/future/track-prompt-architecture-consolidation-and-detox-remediation.md`](./future/track-prompt-architecture-consolidation-and-detox-remediation.md): Consolidate prompt architectures, eliminate lexical blacklist bloat, scope Director spotlight and relational mesh to active scene, fix detox_prose corruption, and resolve turn regeneration desync.
 
 ---
 
@@ -43,6 +43,7 @@ No active AI debt found.
 > _Forensic pulse log is strictly limited to the **10 most recent entries** (rolling buffer: when adding 1 at the top, prune 1 from the bottom). Historical entries are archived in [`C:/Users/johng/.gemini/antigravity-ide/archive/2026-09/2026-09-05-tasks-PRESENT-pulse-archive.md`](file:///C:/Users/johng/.gemini/antigravity-ide/archive/2026-09/2026-09-05-tasks-PRESENT-pulse-archive.md) and [`C:/Users/johng/.gemini/antigravity-ide/archive/2026-08/2026-08-29-tasks-PRESENT-pulse-archive.md`](file:///C:/Users/johng/.gemini/antigravity-ide/archive/2026-08/2026-08-29-tasks-PRESENT-pulse-archive.md)._
 
 | Date / Timestamp | Summary of Changes | Workflows / Skills | Status |
+| 2026-09-05 19:10 | Track Prompt Architecture Consolidation & Detox Remediation Activated: (1) Concluded /grill-me session resolving all 18 console log findings from `scrobbles.md`; (2) Archived completed track `track-prompt-sanitization-and-narrative-drift-guards.md` to global archive `archive/2026-09/`; (3) Created active track blueprint `track-prompt-architecture-consolidation-and-detox-remediation.md` targeting unified dynamics block, scoped `<SCENE_SPOTLIGHT>`, clean XML tag serialization, elimination of 50-word lexical blacklist from prompts, scoped `detox_prose` post-processing (exempting history/telemetry), and turn regeneration cleanup; (4) Synchronized `tasks/PRESENT.md`. | `planning`, `local-scripts` | 🔄 In Progress |
 | 2026-09-05 17:44 | QA8 Prompt Sanitization & Drift Guards Complete (All 8 Items Resolved): (1) Wired `strip_epistemic_secrets` & `render_optional_tag` across live prompt builders (`builder.js`, `story-prompts.js`, `director-prompts.js`); (2) Extracted `[PLAN: ...]` from `present.non_physical` into entity `future` agenda; (3) Strict P4 elimination of `fractal_dynamics_deltas` across director normalization, prompt schemas, and story pipeline in favor of unified 6-axis `dynamics_deltas`; (4) Pruned legacy `CONTINUUM_CARETAKER` rename; (5) Wired optional `"visual_staging"` through Director schema, task prompt, Sensory Cortex, and `spawn_image_beat`; (6) Purged duplicate `<CINEMATIC_FRAMING>` in `image-prompts.js`; (7) Added end-to-end integration test for `execute_story_opening`; (8) Rebuilt Fractal enhancer prompt for affirmative environmental scaling; (9) Resolved all linter warnings. Verified 100% clean passes: 71/71 suites (952 tests) in `npm run test:unit`, 14/14 hook contracts in `npm run test:hooks`, 0 violations across 489 assets in `npm run audit:hygiene`, and single-file bundle build via `npm run deploy:prepare`. | `implement`, `test` | ✅ Completed |
 | 2026-09-05 16:26 | Track Prompt Sanitization & Drift Guards Complete (Phases 1–5): (1) Proved failure via red tests across 7 test suites; (2) Implemented `strip_epistemic_secrets` and `render_optional_tag` in `shared.js`, unified Director `<ROSTER>`, stripped telemetry and `<dna>` wrapper; (3) Added `execute_story_opening(story_id)` in `story-pipeline.js`, serialized semantic `<turn>` tags, stripped `<think>` from history prompts while storing in Dexie, flattened 6-axis `dynamics_deltas`; (4) Enforced anti-trope denial-then-affirmation blacklist, affirmative drift rules, dual-tone synthesis, landscape 3:2 `story_scene` tier, `<keywords>` in sensory engine, and softened `Shimmer.svelte`; (5) Verified 100% clean passes: 71/71 suites (949 tests) in `npm run test:unit`, 14/14 hook contracts in `npm run test:hooks`, 0 violations across 489 assets in `npm run audit:hygiene`, and single-file Perchance bundle in `npm run deploy:prepare`. | `implement`, `test` | ✅ Completed |
 | 2026-09-05 16:04 | Task-1.1 TDD Loop (Track Prompt Sanitization & Epistemic Guards): (1) Fixed `hooks.js` newline injection in `synchronize_mission_board` (resolving MD012 multiple blank lines warning); (2) Created test suite in `shared.test.js` specifying `strip_epistemic_secrets`, `render_optional_tag`, scene roster telemetry stripping, and active in-scene relational mesh scoping; (3) Proved failure via red test suite; (4) Implemented `strip_epistemic_secrets` and `render_optional_tag` in `shared.js`, removed `(Openness: XX)` from `_render_scene_roster_xml`, and scoped `_render_relational_mesh_xml` to active in-scene participants; (5) Verified all 50 tests in `shared.test.js` pass and 14/14 hook contracts pass. | `implement`, `test` | 🔄 In Progress |

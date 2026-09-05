@@ -27,7 +27,7 @@ describe("NARRATIVE_STYLES Preset Catalog", () => {
       expect(typeof style.name).toBe("string");
       expect(style.name.length).toBeGreaterThan(0);
       expect(typeof style.description).toBe("string");
-      expect(Array.isArray(style.tags)).toBe(true);
+      expect(Array.isArray(style.keywords)).toBe(true);
       expect(VALID_SPEAKING_STYLES).toContain(style.speaking_style);
       expect(Array.isArray(style.triggers)).toBe(true);
       expect(typeof style.xml).toBe("string");

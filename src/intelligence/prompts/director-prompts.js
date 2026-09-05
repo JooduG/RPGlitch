@@ -43,8 +43,7 @@ export const DIRECTOR_PROTOCOLS = {
   "directors_note": "1-3 lines of unseen acting/staging directives for the speaker",
   "dynamics_deltas": { "chaos": 0, "intensity": 0, "openness": 0, "affinity": 0, "velocity": 0, "entropy": 0 },
   "visual_staging": "<optional: 1 line camera & lighting directive ONLY if triggering a scene image shift, else omit>",
-  "in_scene_change": { "enter": ["npc:<id>"], "exit": ["npc:<id>"] },
-  "genesis": { "name": "<Character Name>", "description": "<1-2 sentence core persona>" }
+  "spotlight": { "enter": ["npc:<id>"], "exit": ["npc:<id>"], "genesis": { "name": "<Name>", "description": "<desc>" } }
 }`,
 
   CONTINUITY_AND_CAUSALITY: `SECRET AGENDAS: <INTENT>/<AGENDA> vectors encode private ambitions. Weave entity vectors indirectly into atmosphere/obstacles. Never present another entity's hidden agenda as known fact to the AI character.
@@ -152,7 +151,7 @@ ${last_ai_text ? `<AI_CHARACTER_LAST_TURN>${ind(last_ai_text, 2)}</AI_CHARACTER_
     Select 1-3 "keywords" from <AVAILABLE_KEYWORDS> (or [] when neutral).
     Provide 1-3 lines of "directors_note" as unseen acting/staging guidance for the speaker.
     Output physics shifts in "dynamics_deltas" (e.g. {"intensity": 10, "openness": -5, "entropy": 5}). When triggering a visual scene shift, provide optional "visual_staging".
-    Track the Stage Spotlight: when an NPC enters or leaves the room, move it with "in_scene_change".
+    Track the Stage Spotlight: when an NPC enters or leaves the room, or a new NPC arrives, update "spotlight".
     ${render_environmental_hint(input)}
     Record your reasoning inside "_thought_process" and return a single valid JSON object following this exact schema:
     ${DIRECTOR_PROTOCOLS.SCHEMA}
@@ -180,5 +179,6 @@ export function render_terse_director_task() {
 
 /**
  * CHANGELOG
+ * - 2026-09-05: Unified in_scene_change and genesis into spotlight in DIRECTOR_PROTOCOLS.SCHEMA.
  * - 2026-08-28: Removed duplicate raw XML strings in favor of render_protocols for convergence and epistemic rules.
  */

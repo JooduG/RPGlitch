@@ -152,6 +152,19 @@ export function normalize_director_data(payload) {
   const directors_note = normalize_directors_note(base.directors_note || base.directive);
   const visual_staging = typeof base.visual_staging === "string" ? base.visual_staging.trim() : "";
 
+  const spotlight_source = base.spotlight || base.in_scene_change;
+  const in_scene_change = normalize_in_scene_change(spotlight_source);
+  const raw_genesis = base.spotlight?.genesis || base.genesis;
+  const genesis =
+    raw_genesis && typeof raw_genesis === "object"
+      ? {
+          name: String(raw_genesis.name || "").trim(),
+          description: String(raw_genesis.description || "").trim(),
+          ...(raw_genesis.signature_color ? { signature_color: String(raw_genesis.signature_color).trim() } : {}),
+          ...(raw_genesis.speaking_style ? { speaking_style: String(raw_genesis.speaking_style).trim() } : {}),
+        }
+      : undefined;
+
   return {
     ...base,
     next_action,
@@ -161,7 +174,8 @@ export function normalize_director_data(payload) {
     directors_note,
     visual_staging,
     story_status,
-    in_scene_change: normalize_in_scene_change(base.in_scene_change),
+    in_scene_change,
+    ...(genesis ? { genesis } : {}),
     dynamics_deltas: base.dynamics_deltas || base.mutations?.AI_CHARACTER?.dynamics_deltas || {},
     mutations: base.mutations || {},
   };
@@ -375,5 +389,6 @@ export async function apply_relationships(bridge, rels) {
 
 /**
  * CHANGELOG
+ * - 2026-09-05: Added support for unified spotlight schema (enter, exit, genesis) in normalize_director_data.
  * - 2026-08-28: Ground-up deconstruct & refactor: normalized action and speaker resolution, defensive JSON extraction, Stage Spotlight choreography, and unified Relational Mesh persistence.
  */

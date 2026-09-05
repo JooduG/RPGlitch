@@ -508,16 +508,18 @@ export const gamemaster = {
       const speaker_style = resolve_speaking_style(generation_entity);
       const persisted_text = detox_prose(validation_result.text, speaker_style);
 
-      await state_bridge.session_driver.log_message(persisted_text, log_role, character_name, {
-        turn_type: "AI_TURN",
-        story_id,
-        meta: {
-          id: node_id,
-          round: state_bridge.runtime.round,
-          speaker_type: npc_entity ? "npc" : undefined,
-          entity_id: npc_entity ? npc_entity.id : undefined,
-        },
-      });
+      if (persisted_text && persisted_text.trim()) {
+        await state_bridge.session_driver.log_message(persisted_text, log_role, character_name, {
+          turn_type: "AI_TURN",
+          story_id,
+          meta: {
+            id: node_id,
+            round: state_bridge.runtime.round,
+            speaker_type: npc_entity ? "npc" : undefined,
+            entity_id: npc_entity ? npc_entity.id : undefined,
+          },
+        });
+      }
 
       // 8. TRANSITION: Open the window for User
       state_bridge.runtime.turn_type = "USER_TURN";

@@ -153,7 +153,8 @@ export function clean_xml(xml) {
       if ((i === 0 || i === arr.length - 1) && !line.trim()) return false;
       return true;
     })
-    .join("\n");
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n");
 }
 
 /**

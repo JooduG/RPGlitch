@@ -459,4 +459,83 @@ describe("Shared Prompt Utilities (shared.js)", () => {
       expect(story_state).not.toContain("OffScreenGuy");
     });
   });
+
+  describe("Track Prompt Architecture Consolidation (task-1.1)", () => {
+    it("render_dynamics_block() merges scale legend and live attribute values into a single <DYNAMICS> block", async () => {
+      const { render_dynamics_block } = await import("./shared.js");
+      const live_dynamics = {
+        chaos: 45,
+        intensity: 60,
+        openness: 30,
+        affinity: 70,
+        velocity: 55,
+        entropy: 50,
+      };
+      const dynamics_xml = render_dynamics_block(live_dynamics);
+      expect(dynamics_xml).toContain("<DYNAMICS>");
+      expect(dynamics_xml).toContain("Scale: 0 (minimum) to 100 (maximum)");
+      expect(dynamics_xml).toContain("chaos (Chaos): Randomness vs Control [current: 45]");
+      expect(dynamics_xml).toContain("intensity (Intensity): Internal Energy / Adrenaline [current: 60]");
+      expect(dynamics_xml).toContain("openness (Openness): Receptivity vs Guardedness [current: 30]");
+      expect(dynamics_xml).toContain("affinity (Affinity): Inter-Entity Bond / Empathy [current: 70]");
+      expect(dynamics_xml).toContain("velocity (Velocity): Environmental Pacing / Speed [current: 55]");
+      expect(dynamics_xml).toContain("entropy (Entropy): Structural Reality / Weirdness [current: 50]");
+      expect(dynamics_xml).toContain("</DYNAMICS>");
+      expect(dynamics_xml).not.toContain("<DYNAMICS_LEGEND>");
+    });
+
+    it("render_scene_spotlight_xml() consolidates roster and relational mesh strictly scoped to in-scene entities", async () => {
+      const { render_scene_spotlight_xml } = await import("./shared.js");
+      const entities = {
+        AI: { id: "ai_1", name: "Orion the Pink Protector", relationships: ["Orion the Pink Protector → Glitch: Rivalry"] },
+        USER: {
+          id: "usr_1",
+          name: "Glitch",
+          relationships: ["Glitch → Orion the Pink Protector: Attraction", "Glitch → OffScreenHacker: Former ally"],
+        },
+        FRACTAL: { id: "fr_1", name: "Nova City" },
+      };
+      const npc_entities = [
+        {
+          id: "beast",
+          name: "Beast",
+          description: "Bio-engineered weapon",
+          relationships: ["Beast → Orion the Pink Protector: Arena rival", "Beast → Tariq: Escaped creator"],
+        },
+        {
+          id: "silvers",
+          name: "Lord Benedict Silvers",
+          description: "Syndicate boss",
+          relationships: ["Lord Benedict Silvers → Beast: Combat asset", "Lord Benedict Silvers → OffScreenHacker: Secret funder"],
+        },
+      ];
+      // Only 'beast' is currently in scene; 'silvers' is off-screen (stasis)
+      const in_scene_ids = ["beast"];
+
+      const spotlight_xml = render_scene_spotlight_xml({
+        entities,
+        npc_entities,
+        in_scene_ids,
+      });
+
+      expect(spotlight_xml).toContain("<SCENE_SPOTLIGHT>");
+      // Active in-scene entities must be present in roster
+      expect(spotlight_xml).toContain("Orion the Pink Protector: Primary Companion (In-Scene)");
+      expect(spotlight_xml).toContain("Glitch: Protagonist (In-Scene)");
+      expect(spotlight_xml).toContain("Beast (id: beast) [In-Scene]");
+      // Candidate secondary (off-screen) is listed under candidates for convergence
+      expect(spotlight_xml).toContain("Lord Benedict Silvers (id: silvers) [Off-Screen (Stasis)]");
+      // Relational vectors must include ONLY in-scene participant relationships
+      expect(spotlight_xml).toContain("Orion the Pink Protector → Glitch: Rivalry");
+      expect(spotlight_xml).toContain("Glitch → Orion the Pink Protector: Attraction");
+      expect(spotlight_xml).toContain("Beast → Orion the Pink Protector: Arena rival");
+      // Inactive/off-screen relationship targets must be pruned
+      expect(spotlight_xml).not.toContain("OffScreenHacker");
+      expect(spotlight_xml).not.toContain("Tariq");
+      expect(spotlight_xml).toContain("</SCENE_SPOTLIGHT>");
+      expect(spotlight_xml).not.toContain("<ROSTER>");
+      expect(spotlight_xml).not.toContain("<SCENE_ROSTER>");
+      expect(spotlight_xml).not.toContain("<RELATIONAL_MESH>");
+    });
+  });
 });

@@ -137,4 +137,21 @@ describe("sessions.svelte.js session_driver", () => {
     logs = await session_driver.load_log("log_test_story");
     expect(logs.length).toBe(0);
   });
+
+  it("regenerate prunes trailing turns back to user and cleans empty text entries", async () => {
+    await session_driver.set_active("regen_test_story");
+
+    await session_driver.log_message("User prompt 1", "user", "Hero");
+    await session_driver.log_message("AI reply 1", "ai", "Companion");
+    // Empty text log should not even be persisted
+    await session_driver.log_message("", "ai", "Companion");
+
+    let logs = await session_driver.load_log("regen_test_story");
+    expect(logs.length).toBe(2);
+
+    await session_driver.regenerate();
+    logs = await session_driver.load_log("regen_test_story");
+    expect(logs.length).toBe(1);
+    expect(logs[0].text).toBe("User prompt 1");
+  });
 });

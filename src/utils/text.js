@@ -237,6 +237,39 @@ export const safe_parse_pseudo_json = (raw) => {
     if (Object.keys(quoted_extracted).length > 0) return quoted_extracted;
   }
 
+  // Tier 2.5: Process unbracketed uppercase key-value pairs KEY: VALUE (e.g. "CLOTHING: tight tank top EXPRESSION: grin")
+  if (clean_raw.includes(":")) {
+    const unbracketed_regex = /\b([A-Z_]{3,})\s*:\s*([^:]+?)(?=\s+[A-Z_]{3,}\s*:|$)/g;
+    /** @type {Record<string, string | string[]>} */
+    const unbracketed_extracted = {};
+    let match;
+    while ((match = unbracketed_regex.exec(clean_raw)) !== null) {
+      const k = match[1].trim().replace(/\s+/g, "_");
+      const v = match[2].trim();
+      if (k && v) {
+        if (CLEAR_TOKENS.has(v.toLowerCase())) {
+          delete unbracketed_extracted[k];
+          continue;
+        }
+        if (AGGREGATE_KEYS.has(k)) {
+          const items = v
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean);
+          const existing = unbracketed_extracted[k];
+          const list = Array.isArray(existing) ? existing : existing ? [existing] : [];
+          for (const item of items) {
+            if (item && !list.includes(item)) list.push(item);
+          }
+          unbracketed_extracted[k] = list;
+          continue;
+        }
+        unbracketed_extracted[k] = v;
+      }
+    }
+    if (Object.keys(unbracketed_extracted).length > 0) return unbracketed_extracted;
+  }
+
   // Tier 3: No structured keys found — preserve raw prose sentinel.
   return { __raw_prose__: clean_raw };
 };

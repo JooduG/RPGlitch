@@ -52,6 +52,12 @@ describe("detox_prose() with speaking styles", () => {
     const custom = [{ regex: /cyber-glitch/gi, replace: "clean-signal" }];
     expect(detox_prose("Got a cyber-glitch here.", "casual", custom)).toBe("Got a clean-signal here.");
   });
+
+  it("preserves natural character voice vocabulary like booming laugh, bellowed, and hitch", () => {
+    expect(detox_prose("With a booming laugh, he strikes a pose.")).toContain("booming laugh");
+    expect(detox_prose("He bellowed at the top of his lungs.")).toContain("bellowed");
+    expect(detox_prose("There was a hitch in his breath.")).toContain("hitch");
+  });
 });
 
 describe("resolve_speaking_style hierarchy", () => {

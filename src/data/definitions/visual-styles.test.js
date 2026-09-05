@@ -14,8 +14,8 @@ describe("VISUAL_STYLES Preset Registry", () => {
     const lego = VISUAL_STYLES.lego;
     expect(lego.id).toBe("lego");
     expect(lego.name).toContain("LEGO");
-    expect(lego.tags).toContain("lego");
-    expect(lego.tags).toContain("minifigure");
+    expect(lego.keywords).toContain("lego");
+    expect(lego.keywords).toContain("minifigure");
     expect(lego.visual_engine).toContain("minifigure");
     expect(lego.visual_engine).toContain("ABS plastic");
     expect(lego.visual_engine).toContain("studs");
@@ -27,9 +27,9 @@ describe("VISUAL_STYLES Preset Registry", () => {
 
   it("configures analog_video with glitch artifacts and scanline stripes", () => {
     const vhs = VISUAL_STYLES.analog_video;
-    expect(vhs.tags).toContain("scanlines");
-    expect(vhs.tags).toContain("glitch");
-    expect(vhs.tags).toContain("surveillance");
+    expect(vhs.keywords).toContain("scanlines");
+    expect(vhs.keywords).toContain("glitch");
+    expect(vhs.keywords).toContain("surveillance");
     expect(vhs.visual_engine).toContain("horizontal scanline stripes");
     expect(vhs.visual_engine).toContain("VHS tracking glitch lines");
 
@@ -40,9 +40,9 @@ describe("VISUAL_STYLES Preset Registry", () => {
 
   it("configures cinematic with widescreen optics and non-anime negative prompt", () => {
     const cinematic = VISUAL_STYLES.cinematic;
-    expect(cinematic.tags).toContain("cinematic");
-    expect(cinematic.tags).toContain("film");
-    expect(cinematic.tags).toContain("anamorphic");
+    expect(cinematic.keywords).toContain("cinematic");
+    expect(cinematic.keywords).toContain("film");
+    expect(cinematic.keywords).toContain("anamorphic");
     expect(cinematic.visual_engine).toContain("widescreen");
     expect(cinematic.visual_engine).toContain("anamorphic");
     expect(cinematic.negative_prompt).toContain("anime");
@@ -55,7 +55,7 @@ describe("VISUAL_STYLES Preset Registry", () => {
       expect(typeof style.name).toBe("string");
       expect(style.name.length).toBeGreaterThan(0);
       expect(typeof style.description).toBe("string");
-      expect(Array.isArray(style.tags)).toBe(true);
+      expect(Array.isArray(style.keywords)).toBe(true);
     }
   });
 

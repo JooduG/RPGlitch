@@ -4,7 +4,13 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { render_memory, render_chapter_history_xml, render_entity_memory_context, TEMPORAL_PROTOCOLS } from "./temporal-prompts.js";
+import {
+  render_memory,
+  render_chapter_history_xml,
+  render_entity_memory_context,
+  format_recent_history,
+  TEMPORAL_PROTOCOLS,
+} from "./temporal-prompts.js";
 
 describe("Memory Forge Prompts (temporal-prompts.js)", () => {
   const mock_entities = {
@@ -47,6 +53,19 @@ describe("Memory Forge Prompts (temporal-prompts.js)", () => {
     expect(xml).toContain("<AGENDA>Reach the perimeter.</AGENDA>");
   });
 
+  it("format_recent_history filters out empty text messages", () => {
+    const raw_history = [
+      { role: "user", text: "Hello there." },
+      { role: "ai", text: "" },
+      { role: "ai", text: "   " },
+      { role: "ai", text: "Welcome." },
+    ];
+    const formatted = format_recent_history(raw_history);
+    expect(formatted).toContain("Hello there.");
+    expect(formatted).toContain("Welcome.");
+    expect(formatted).not.toMatch(/"text":\s*""/);
+  });
+
   it("render_memory() compiles single-entity Back Shot prompt correctly", () => {
     const history = [{ role: "user", text: "We need to move now." }];
     const prompt = render_memory({
@@ -56,9 +75,10 @@ describe("Memory Forge Prompts (temporal-prompts.js)", () => {
       history,
     });
 
-    expect(prompt).toContain('<SYSTEM role="MEMORY_FORGE" target="AI_CHARACTER" name="Viper">');
+    expect(prompt).toContain('<SYSTEM role="CONTINUUM_CARETAKER" target="AI_CHARACTER" name="Viper">');
     expect(prompt).toContain("<SCENE_CAST>");
-    expect(prompt).toContain('name="Ghost"');
+    expect(prompt).toContain('<IN_SCENE_PARTICIPANT name="Ghost" role="USER_PERSONA">');
+    expect(prompt).not.toContain("<OTHER_ENTITY");
     expect(prompt).toContain("<INPUT_HISTORY>");
     expect(prompt).toContain("We need to move now.");
     expect(prompt).toContain("Analyze recent history specifically for TARGET ENTITY");

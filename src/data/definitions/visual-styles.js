@@ -38,7 +38,7 @@ import { state_bridge, resolve_style } from "@utils";
  * @property {string} category - Grouping label for user interface organization
  * @property {string} portrait - Preview thumbnail asset path
  * @property {string} description - Detailed aesthetic summary for tooltips
- * @property {string[]} tags - Visual descriptor keywords injected into generation
+ * @property {string[]} keywords - Visual descriptor keywords injected into generation
  * @property {string} visual_engine - Injected XML prompt block
  * @property {string} negative_prompt - Style-differentiating negative prompt
  * @property {boolean} [llm_refine] - When false, story tiers using this style skip LLM
@@ -63,7 +63,7 @@ import { state_bridge, resolve_style } from "@utils";
  * @param {string} definition.category - Category heading
  * @param {string} [definition.portrait] - Preview thumbnail URL or asset path
  * @param {string} definition.description - Aesthetic summary
- * @param {string[]} definition.tags - Style tags
+ * @param {string[]} definition.keywords - Style tags
  * @param {VisualStyleEngine} [definition.engine] - Declarative prompt components
  * @param {string} [definition.negative_prompt] - Style-specific negative exclusions
  * @param {boolean} [definition.llm_refine] - Whether LLM prompt refinement is allowed
@@ -86,7 +86,7 @@ ${definition.engine.camera ? `<camera>${definition.engine.camera}</camera>` : `<
     category: definition.category,
     portrait: definition.portrait || "",
     description: definition.description,
-    tags: definition.tags,
+    keywords: definition.keywords,
     llm_refine: definition.llm_refine ?? true,
     ...(definition.guidance_scale !== undefined ? { guidance_scale: definition.guidance_scale } : {}),
     visual_engine,
@@ -106,7 +106,7 @@ export const VISUAL_STYLES = {
     category: "None",
     portrait: "https://user.uploads.dev/file/f968b744a4afde6ab81c0e751dc5e972.png",
     description: "Raw prompt generation without any visual style tokens or negative prompts injected.",
-    tags: ["none", "raw", "unmodified"],
+    keywords: ["none", "raw", "unmodified"],
     llm_refine: false,
   }),
 
@@ -120,7 +120,7 @@ export const VISUAL_STYLES = {
     category: "Photographic & Lens-Captured",
     portrait: "https://user.uploads.dev/file/f3cf9efe77281754064a6629e354d799.png",
     description: "Authentic candid photograph capturing natural everyday lighting, unposed perspectives, and realistic skin micro-textures.",
-    tags: ["photography", "realistic", "candid", "raw", "lifelike", "natural", "snapshot"],
+    keywords: ["photography", "realistic", "candid", "raw", "lifelike", "natural", "snapshot"],
     llm_refine: false,
     guidance_scale: 9,
     engine: {
@@ -139,7 +139,7 @@ export const VISUAL_STYLES = {
     category: "Photographic & Lens-Captured",
     portrait: "https://user.uploads.dev/file/2112636b40fd390a0a7654395f608c59.png",
     description: "Sleek high-fashion editorial aesthetic with opulent metallic tones and dramatic studio rim lighting.",
-    tags: ["fashion", "editorial", "magazine", "vogue", "glamour", "high_fashion"],
+    keywords: ["fashion", "editorial", "magazine", "vogue", "glamour", "high_fashion"],
     guidance_scale: 9,
     engine: {
       medium: "photorealistic live-action high-fashion editorial photography in the style of Vogue magazine cover shoot",
@@ -157,7 +157,7 @@ export const VISUAL_STYLES = {
     category: "Photographic & Lens-Captured",
     portrait: "https://user.uploads.dev/file/67a672baf7752bf089eea071f15a9ca9.png",
     description: "Atmospheric widescreen cinema shot featuring 35mm anamorphic optics, volumetric light shafts, and crushed shadows.",
-    tags: ["cinematic", "film", "volumetric", "anamorphic", "movie", "dramatic", "shadows"],
+    keywords: ["cinematic", "film", "volumetric", "anamorphic", "movie", "dramatic", "shadows"],
     guidance_scale: 8,
     engine: {
       medium: "photorealistic live-action widescreen 35mm cinematic feature film capture",
@@ -176,7 +176,7 @@ export const VISUAL_STYLES = {
     portrait: "https://user.uploads.dev/file/26f37e3915eaabab9248491fc3687f2e.png",
     description:
       "Classic 1940s detective cinema aesthetic featuring high-contrast black and white, hard chiaroscuro shadows, and venetian blinds light.",
-    tags: ["film_noir", "monochrome", "detective", "1940s", "shadows"],
+    keywords: ["film_noir", "monochrome", "detective", "1940s", "shadows"],
     guidance_scale: 8,
     engine: {
       medium: "photorealistic live-action 1940s monochrome cinema frame, silver gelatin film print",
@@ -194,7 +194,7 @@ export const VISUAL_STYLES = {
     category: "Photographic & Lens-Captured",
     portrait: "https://user.uploads.dev/file/c7f758d7f2997cf541d721fb428e77cf.png",
     description: "Authentic instant Polaroid photo featuring soft optical focus, faded vintage color shifts, and harsh direct flash exposure.",
-    tags: ["polaroid", "instant_film", "vintage", "retro", "analog", "flash"],
+    keywords: ["polaroid", "instant_film", "vintage", "retro", "analog", "flash"],
     guidance_scale: 9,
     engine: {
       medium: "photorealistic live-action Polaroid SX-70 instant film photo, vintage flash snapshot",
@@ -213,7 +213,7 @@ export const VISUAL_STYLES = {
     portrait: "https://user.uploads.dev/file/644012b0a426a455889d5a8881d69e72.png",
     description:
       "Uncanny lofi 1990s VHS tape snapshot or high-angle CCTV security camera screen capture with scanlines, tracking glitches, and lens distortion.",
-    tags: ["analog_video", "vhs", "cctv", "found_footage", "surveillance", "glitch", "scanlines", "camcorder", "interlacing"],
+    keywords: ["analog_video", "vhs", "cctv", "found_footage", "surveillance", "glitch", "scanlines", "camcorder", "interlacing"],
     guidance_scale: 8,
     engine: {
       medium: "photorealistic live-action magnetic tape analog horror frame, CCTV security screen capture, low-fi video snapshot",
@@ -236,7 +236,7 @@ export const VISUAL_STYLES = {
     category: "Animation & Stylized Motion",
     portrait: "https://user.uploads.dev/file/293e5b0c1e675dd32d6f0eb968a47e50.png",
     description: "Vibrant cel-shaded Japanese anime & manga art style with clean line work, expressive key framing, and stylized proportions.",
-    tags: ["anime", "manga", "cel_shading", "illustration", "2d", "stylized"],
+    keywords: ["anime", "manga", "cel_shading", "illustration", "2d", "stylized"],
     guidance_scale: 8,
     engine: {
       medium: "Japanese anime and manga cel-shaded 2D illustration keyframe",
@@ -253,7 +253,7 @@ export const VISUAL_STYLES = {
     category: "Animation & Stylized Motion",
     portrait: "https://user.uploads.dev/file/4aaf95f0ba916c7498c960abb4ecd87e.png",
     description: "Warm hand-painted animation style with lush scenic landscapes, soft watercolor wash backgrounds, and nostalgic warmth.",
-    tags: ["studio_ghibli", "anime", "hand_painted", "nostalgic", "whimsical"],
+    keywords: ["studio_ghibli", "anime", "hand_painted", "nostalgic", "whimsical"],
     guidance_scale: 8,
     engine: {
       medium: "Studio Ghibli 2D anime background matte painting art",
@@ -271,7 +271,7 @@ export const VISUAL_STYLES = {
     category: "Animation & Stylized Motion",
     portrait: "https://user.uploads.dev/file/ab3d3721f029e356d540c524df0d876d.png",
     description: "Golden-age hand-drawn 2D animation featuring ink-and-paint cels, painterly gouache backgrounds, and fairytale warmth.",
-    tags: ["disney", "2d", "classic_animation", "hand_drawn", "cel_art", "fairytale"],
+    keywords: ["disney", "2d", "classic_animation", "hand_drawn", "cel_art", "fairytale"],
     guidance_scale: 8,
     engine: {
       medium: "golden age 2d feature animation cel in the style of classic Walt Disney hand-drawn animation",
@@ -290,7 +290,7 @@ export const VISUAL_STYLES = {
     portrait: "https://user.uploads.dev/file/27615c2c471da91f2052c4505a945053.png",
     description:
       "Stylized 3D CGI feature film artwork combining Pixar character warmth, ray-traced global illumination, and Unreal Engine 5 optical depth.",
-    tags: ["cgi", "animation", "3d", "pixar", "unreal_engine", "raytracing", "stylized"],
+    keywords: ["cgi", "animation", "3d", "pixar", "unreal_engine", "raytracing", "stylized"],
     guidance_scale: 8,
     engine: {
       medium: "3d animated feature film digital artwork, high-end CGI scene render in the style of Pixar and Unreal Engine 5",
@@ -312,7 +312,7 @@ export const VISUAL_STYLES = {
     portrait: "https://user.uploads.dev/file/5e3cdfcde02ff1d1d9c2c5f0588dd4ae.png",
     description:
       "Dimension-agnostic orthographic isometric artwork featuring a fixed 45-degree parallel grid perspective, crisp geometric alignment, and clean spatial layout.",
-    tags: ["isometric", "orthographic", "grid", "parallel_projection", "game_art", "diagramatic"],
+    keywords: ["isometric", "orthographic", "grid", "parallel_projection", "game_art", "diagramatic"],
     engine: {
       medium: "orthographic isometric projection artwork, clean grid-aligned spatial illustration",
       palette: "clean vibrant color blocking, soft directional lighting, uniform ambient shadow depth",
@@ -328,7 +328,7 @@ export const VISUAL_STYLES = {
     category: "Game & Graphic Render",
     portrait: "https://user.uploads.dev/file/87f3a245a478d2bdfeb284e5d8a83327.png",
     description: "Retro 16-bit video game sprite aesthetic featuring a limited color palette, crisp blocky pixel grids, and dithered shading.",
-    tags: ["pixel_art", "retro", "16bit", "dithered", "indie_game"],
+    keywords: ["pixel_art", "retro", "16bit", "dithered", "indie_game"],
     guidance_scale: 7,
     engine: {
       medium: "retro pixel art, 16-bit video game sprite",
@@ -349,7 +349,7 @@ export const VISUAL_STYLES = {
     category: "Miniature & Physical Craft Photography",
     portrait: "https://user.uploads.dev/file/1be495044d258e39e940aa68eaa04c5f.png",
     description: "Tactile stop-motion plasticine animation style with visible thumbprints, miniature set depth, and soft physical lighting.",
-    tags: ["claymation", "stop_motion", "clay", "tactile", "sculpture", "animation"],
+    keywords: ["claymation", "stop_motion", "clay", "tactile", "sculpture", "animation"],
     engine: {
       medium: "claymation stop-motion animation capture in the style of Aardman animations, plasticine sculpture",
       palette: "saturated physical clay pigments, soft studio warm spotlighting",
@@ -366,7 +366,7 @@ export const VISUAL_STYLES = {
     portrait: "https://user.uploads.dev/file/120b2c46188fb711a93bc68b9bf1eadc.png",
     description:
       "Simulated physical toy block diorama featuring glossy minifigures and ABS plastic building blocks macro-photographed with tilt-shift depth.",
-    tags: ["lego", "plastic", "brick", "toy", "minifigure", "macro"],
+    keywords: ["lego", "plastic", "brick", "toy", "minifigure", "macro"],
     engine: {
       medium: "plastic toy construction brick artwork, blocky LEGO minifigure character illustration, brick-built macro diorama model",
       palette: "vibrant primary ABS plastic colors, glossy solid minifigure skin tones, rich bold building block tones",
@@ -384,7 +384,7 @@ export const VISUAL_STYLES = {
     category: "Miniature & Physical Craft Photography",
     portrait: "https://user.uploads.dev/file/db3cb7104f2da620eccc08dc5f535988.png",
     description: "Macro-photographed papercraft diorama built from layered, hand-cut card stock with tactile depth and paper-edge shadows.",
-    tags: ["papercraft", "paper", "cut_paper", "diorama", "miniature", "macro_photography", "tactile", "layered"],
+    keywords: ["papercraft", "paper", "cut_paper", "diorama", "miniature", "macro_photography", "tactile", "layered"],
     engine: {
       medium: "macro-photographed papercraft diorama, a tangible miniature set built from layered cut construction paper and card stock",
       palette: "flat saturated construction-paper hues, soft pastel gradient washes between paper layers, warm directional studio spotlighting",
@@ -408,7 +408,7 @@ export const VISUAL_STYLES = {
     portrait: "https://user.uploads.dev/file/861133eb1b50d4e3c957c0e8402ea5f2.png",
     description:
       "Bold graphic novel, pop art screenprint, and risograph poster aesthetic featuring black ink outlines, Ben-Day halftone dots, and spot-color translucent ink bleeds.",
-    tags: ["graphic_print", "comic_book", "pop_art", "risograph", "halftone", "ben_day", "spot_color", "ink"],
+    keywords: ["graphic_print", "comic_book", "pop_art", "risograph", "halftone", "ben_day", "spot_color", "ink"],
     guidance_scale: 8,
     engine: {
       medium: "bold graphic novel illustration, pop art Ben-Day dot screenprint, spot-color risograph poster artwork",
@@ -426,7 +426,7 @@ export const VISUAL_STYLES = {
     portrait: "https://user.uploads.dev/file/c6978746b0f5ae93937c7890fced148c.png",
     description:
       "Traditional Edo-period Japanese woodblock print featuring organic sumi-e ink contours, flat mineral pigments, and wood grain impressions.",
-    tags: ["ukiyo_e", "japanese", "woodblock", "traditional", "print", "hokusai"],
+    keywords: ["ukiyo_e", "japanese", "woodblock", "traditional", "print", "hokusai"],
     engine: {
       medium: "traditional Edo-period ukiyo-e woodblock print in the style of Hokusai",
       palette: "flat mineral pigments, muted earth tones, sumi-e black ink",
@@ -442,7 +442,7 @@ export const VISUAL_STYLES = {
     category: "Comic, Print & Graphic Design",
     portrait: "https://user.uploads.dev/file/b24924f2fd7d826540b4f2757dad7767.png",
     description: "Gothic cathedral stained glass artwork with backlit translucent jewel-toned glass panels and dark lead came borders.",
-    tags: ["stained_glass", "gothic", "mosaic", "glass", "backlit", "artisan"],
+    keywords: ["stained_glass", "gothic", "mosaic", "glass", "backlit", "artisan"],
     engine: {
       medium: "gothic cathedral stained glass window mosaic",
       palette: "luminous backlit jewel-toned translucent glass panels",
@@ -462,7 +462,7 @@ export const VISUAL_STYLES = {
     category: "Traditional Painting & Drawing",
     portrait: "https://user.uploads.dev/file/29d4709051646f4e5bffbbd0f34e2048.png",
     description: "Classical fine art oil painting with thick impasto brushwork, layered glazes, rich chiaroscuro, and luminous depth.",
-    tags: ["oil_painting", "classical", "impasto", "traditional", "baroque"],
+    keywords: ["oil_painting", "classical", "impasto", "traditional", "baroque"],
     guidance_scale: 7,
     engine: {
       medium: "thick impasto oil painting in the style of Michelangelo and Rembrandt, classical fine art masterwork",
@@ -479,7 +479,7 @@ export const VISUAL_STYLES = {
     category: "Traditional Painting & Drawing",
     portrait: "https://user.uploads.dev/file/115456547820baafccc89970b7c5fb7a.png",
     description: "Delicate watercolor painting featuring soft wet-on-wet washes, pigment diffusion bleeding, and granulating textures.",
-    tags: ["watercolor", "painting", "organic", "soft", "translucent"],
+    keywords: ["watercolor", "painting", "organic", "soft", "translucent"],
     guidance_scale: 7,
     engine: {
       medium: "delicate watercolor painting, wet-on-wet technique",
@@ -497,7 +497,7 @@ export const VISUAL_STYLES = {
     portrait: "https://user.uploads.dev/file/5658673d879658c2dd722fdf1791f688.png",
     description:
       "Detailed monochrome fine-nib ink, smudged charcoal, and heavy graphite pencil study featuring dramatic chiaroscuro and dense crosshatching.",
-    tags: ["monochrome_sketch", "ink", "charcoal", "graphite", "line_art", "crosshatching", "drawing"],
+    keywords: ["monochrome_sketch", "ink", "charcoal", "graphite", "line_art", "crosshatching", "drawing"],
     engine: {
       medium: "detailed monochrome ink drawing, smudged charcoal study, gestural graphite and pencil illustration",
       palette: "deep velvety blacks, rich gray tonal gradients, stark white paper highlights, polished black leather sheen",
@@ -513,7 +513,7 @@ export const VISUAL_STYLES = {
     category: "Traditional Painting & Drawing",
     portrait: "https://user.uploads.dev/file/34dc78c445a2749a4cc1dff08db37033.png",
     description: "Casual ballpoint pen and marker doodles drawn in notebook margins with quirky line art and scribbled shading.",
-    tags: ["doodle", "sketch", "notebook", "scribble", "margin_art", "casual", "hand_drawn"],
+    keywords: ["doodle", "sketch", "notebook", "scribble", "margin_art", "casual", "hand_drawn"],
     guidance_scale: 7,
     engine: {
       medium: "raw unedited ballpoint pen sketch on lined notebook paper",
@@ -534,7 +534,7 @@ export const VISUAL_STYLES = {
     category: "Retro-Futurism & Digital Subculture",
     portrait: "https://user.uploads.dev/file/a166f0706f17833ab3990b791d9937ab.png",
     description: "Vivid 1950s fantasy and sci-fi paperback book illustration featuring dramatic gouache brushwork and theatrical staging.",
-    tags: ["pulp", "retro", "50s", "paperback", "sci-fi", "gouache"],
+    keywords: ["pulp", "retro", "50s", "paperback", "sci-fi", "gouache"],
     guidance_scale: 9,
     engine: {
       medium: "1950s pulp magazine cover illustration in the style of Frank Frazetta, vintage paperback gouache painting",
@@ -551,7 +551,7 @@ export const VISUAL_STYLES = {
     category: "Retro-Futurism & Digital Subculture",
     portrait: "https://user.uploads.dev/file/643e256027b322312bea15c98e3f937e.png",
     description: "Neon-soaked dystopian aesthetic with wet rain-slicked asphalt, holographic interfaces, and high-tech urban grime.",
-    tags: ["cyberpunk", "neon", "scifi", "dystopian", "chrome"],
+    keywords: ["cyberpunk", "neon", "scifi", "dystopian", "chrome"],
     guidance_scale: 9,
     engine: {
       medium: "neon cyberpunk dystopian digital concept art matte painting",
@@ -569,7 +569,7 @@ export const VISUAL_STYLES = {
     portrait: "https://user.uploads.dev/file/f2150b87f7133e099c38bbe384a7eaa1.png",
     description:
       "80s outrun synthwave and 90s vaporwave digital collage blending neon grid horizons, pastel cyan/magenta gradients, and CRT scan lines.",
-    tags: ["synthwave", "vaporwave", "retro", "80s", "90s", "neon", "pastel", "glitch"],
+    keywords: ["synthwave", "vaporwave", "retro", "80s", "90s", "neon", "pastel", "glitch"],
     guidance_scale: 8,
     engine: {
       medium: "retro 1980s synthwave digital airbrush art, nostalgic 1990s vaporwave digital 3d collage",

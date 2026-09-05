@@ -7,9 +7,9 @@
  * - Ghostwriter Player Turn (render_ghostwriter)
  */
 
-import { ind, escape_xml, clean_xml } from "@utils";
+import { ind, escape_xml, clean_xml, physical_to_xml } from "@utils";
 import { get_narrative_style, resolve_active_style_key } from "@data";
-import { build_somatic_directives_xml, format_dynamics_attrs, build_signals_xml } from "./physics-prompts.js";
+import { build_somatic_directives_xml, build_signals_xml } from "./physics-prompts.js";
 import { render_builder } from "./builder.js";
 import {
   render_system_head,
@@ -108,16 +108,8 @@ export function build_pacing_directive(input) {
  * @returns {string}
  */
 export function build_recency_anchor(snapshot, input) {
-  const dynamics = snapshot?.ai?.dynamics || snapshot?.dynamics || (typeof snapshot === "object" && !snapshot?.ai ? snapshot : null);
-  const stance = dynamics
-    ? Object.entries(dynamics)
-        .filter(([, v]) => typeof v === "number")
-        .filter(([k]) => k === "affinity" || k === "intensity")
-        .map(([k, v]) => `${k}=${Math.round(v)}`)
-        .join(", ")
-    : "";
   const scene_hook = String(input || "").trim() ? "Act on what this exact beat shows you." : "Push the situation forward on your own terms.";
-  const body = `Hold your temperament; do not soften into pleasantness. Know only what this scene has shown you. Do not rush the tension.${stance ? ` (${escape_xml(stance)})` : ""} ${scene_hook}`;
+  const body = `Hold your temperament; do not soften into pleasantness. Know only what this scene has shown you. Do not rush the tension. ${scene_hook}`;
   return `<RECENCY_ANCHOR>\n    ${body}\n  </RECENCY_ANCHOR>`;
 }
 
@@ -194,6 +186,7 @@ export function render_story_prose({
 
   const speaker_name = escape_xml(active_speaker?.name || (is_narrator ? "The Fractal" : is_npc ? "NPC" : "AI"));
   const user_name = escape_xml(entities?.USER?.name || "User");
+  const ai_name = escape_xml(entities?.AI?.name || "AI Character");
   const fractal_name = escape_xml(entities?.FRACTAL?.name || "the setting");
 
   const raw_note = (director_data?.directors_note || director_data?.directive || "").trim();
@@ -271,9 +264,9 @@ export function render_story_prose({
   const co_protagonist_snapshot =
     is_npc && entities?.AI
       ? `
-  <PROTAGONIST name="${escape_xml(entities.AI.name || "Protagonist")}"${format_dynamics_attrs(compressed_snapshot?.ai?.dynamics)}>
+  <PROTAGONIST name="${escape_xml(entities.AI.name || "Protagonist")}">
     <STATE_OF_MIND>${render_field_value(strip_epistemic_secrets(entities.AI.present?.non_physical, false), entities.AI, entities)}</STATE_OF_MIND>
-    <CURRENT_LOOK>${render_field_value(entities.AI.present?.physical, entities.AI, entities)}</CURRENT_LOOK>
+    ${ind(physical_to_xml(render_field_value(entities.AI.present?.physical, entities.AI, entities), "CURRENT_LOOK"), 4).trim()}
     ${render_optional_tag("INTENT", ind(accessors.future(entities.AI, { vector_text: true }), 6))}
     ${render_optional_tag("MEMORIES", ind(accessors.past(entities.AI, { vector_text: true }), 6))}
   </PROTAGONIST>`.trim()
@@ -282,9 +275,8 @@ export function render_story_prose({
   const ai_snapshot_for_narrator =
     is_narrator && entities?.AI
       ? `
-  <AI_CHARACTER name="${escape_xml(entities.AI.name || "AI")}"${format_dynamics_attrs(compressed_snapshot?.ai?.dynamics)}>
-    <STATE_OF_MIND>${render_field_value(strip_epistemic_secrets(entities.AI.present?.non_physical, false), entities.AI, entities)}</STATE_OF_MIND>
-    <CURRENT_LOOK>${render_field_value(entities.AI.present?.physical, entities.AI, entities)}</CURRENT_LOOK>
+  <AI_CHARACTER name="${escape_xml(entities.AI.name || "AI")}">
+    ${ind(physical_to_xml(render_field_value(entities.AI.present?.physical, entities.AI, entities), "CURRENT_LOOK"), 4).trim()}
     ${render_optional_tag("INTENT", ind(accessors.future(entities.AI, { vector_text: true }), 6))}
     ${render_optional_tag("MEMORIES", ind(accessors.past(entities.AI, { vector_text: true }), 6))}
   </AI_CHARACTER>`.trim()
@@ -299,34 +291,42 @@ export function render_story_prose({
           ? STORY_PROTOCOLS.SCENE_TEMPLATES.COLLAPSE
           : STORY_PROTOCOLS.SCENE_TEMPLATES.EPILOGUE;
 
+  const draft_directive = input?.trim()
+    ? STORY_PROTOCOLS.GHOSTWRITE.ENHANCE(escape_xml(user_name), escape_xml(input.trim()))
+    : STORY_PROTOCOLS.GHOSTWRITE.DRAFT(escape_xml(user_name), escape_xml(ai_name));
+
   const action_directive = is_narrator
     ? narrator_task_text
     : is_npc
       ? `${STORY_PROTOCOLS.DIRECTIVES.NPC_BOUNDARY(speaker_name)}\n    ${build_pacing_directive(input)}`
       : ghostwrite
-        ? "Follow the <GHOSTWRITE> directive below to complete your turn."
+        ? `${draft_directive}\n    ${STORY_PROTOCOLS.GHOSTWRITE.META}`
         : has_user_action
           ? `Respond to <USER_ACTION> in character.\n    ${build_pacing_directive(input)}`
           : STORY_PROTOCOLS.DIRECTIVES.INITIATIVE;
 
   const task = clean_xml(`
 <SNAPSHOT>
-  <YOUR_IDENTITY name="${speaker_name}"${format_dynamics_attrs(speaker_dynamics)}>
-    <STATE_OF_MIND>${ind(render_field_value(strip_epistemic_secrets(active_speaker?.present?.non_physical, true), active_speaker, entities), 6)}</STATE_OF_MIND>
-    <CURRENT_LOOK>${ind(render_field_value(active_speaker?.present?.physical, active_speaker, entities), 6)}</CURRENT_LOOK>
+  <YOUR_IDENTITY name="${speaker_name}">
+    ${
+      is_narrator
+        ? `<ATMOSPHERE>${render_field_value(active_speaker?.present?.physical || active_speaker?.present?.non_physical, active_speaker, entities)}</ATMOSPHERE>`
+        : `<STATE_OF_MIND>${ind(render_field_value(strip_epistemic_secrets(active_speaker?.present?.non_physical, true), active_speaker, entities), 6)}</STATE_OF_MIND>
+    ${ind(physical_to_xml(render_field_value(active_speaker?.present?.physical, active_speaker, entities), "CURRENT_LOOK"), 4).trim()}`
+    }
     ${render_optional_tag("INTENT", ind(accessors.future(active_speaker, { vector_text: true }), 6))}
     ${render_optional_tag("MEMORIES", ind(accessors.past(active_speaker, { vector_text: true }), 6))}
   </YOUR_IDENTITY>
   ${is_narrator ? ai_snapshot_for_narrator : co_protagonist_snapshot}
   <USER_PERSONA name="${user_name}">
-    <STATE_OF_MIND>${ind(render_field_value(strip_epistemic_secrets(entities?.USER?.present?.non_physical, false), entities?.USER, entities), 6)}</STATE_OF_MIND>
-    <CURRENT_LOOK>${ind(render_field_value(strip_epistemic_secrets(entities?.USER?.present?.physical, false), entities?.USER, entities), 6)}</CURRENT_LOOK>
+    ${is_narrator ? "" : `<STATE_OF_MIND>${ind(render_field_value(strip_epistemic_secrets(entities?.USER?.present?.non_physical, false), entities?.USER, entities), 6)}</STATE_OF_MIND>`}
+    ${ind(physical_to_xml(render_field_value(strip_epistemic_secrets(entities?.USER?.present?.physical, false), entities?.USER, entities), "CURRENT_LOOK"), 4).trim()}
     ${render_optional_tag("BACKSTORY", ind(strip_epistemic_secrets(accessors.past(entities?.USER, { vector_text: true }), false), 6))}
   </USER_PERSONA>
   ${
     !is_narrator && entities?.FRACTAL
       ? `
-  <FRACTAL name="${escape_xml(entities.FRACTAL.name)}"${format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics)}>
+  <FRACTAL name="${escape_xml(entities.FRACTAL.name)}">
     <CURRENT_STATE>${render_field_value(entities.FRACTAL.present?.non_physical, entities.FRACTAL, entities)}</CURRENT_STATE>
     <ACTIVE_ATMOSPHERE>${render_field_value(entities.FRACTAL.present?.physical, entities.FRACTAL, entities)}</ACTIVE_ATMOSPHERE>
     ${render_optional_tag("AGENDA", ind(accessors.future(entities.FRACTAL, { vector_text: true }), 6))}
@@ -336,14 +336,10 @@ export function render_story_prose({
   }
   ${render_current_story_state_xml(entities, npc_entities, in_scene_ids, active_speaker)}
 </SNAPSHOT>
-<ROUND>${escape_xml(String(round ?? ""))}</ROUND>
+<ROUND>${escape_xml(String(round ?? 0))}</ROUND>
 ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
-<TASK>
-    ${director_note}
-    ${somatic_directives_xml ? `${somatic_directives_xml}\n    ` : ""}
-    ${stability_lock_content ? `<STABILITY_LOCK>${stability_lock_content}</STABILITY_LOCK>\n    ` : ""}
-    ${build_signals_xml(speaker_dynamics, compressed_snapshot?.fractal?.dynamics, { style: get_narrative_style(resolve_active_style_key()) })}
-    ${action_directive}
+<TASK${ghostwrite ? ' mode="GHOSTWRITE"' : ""}>
+    ${director_note ? `${director_note}\n    ` : ""}${somatic_directives_xml ? `${somatic_directives_xml}\n    ` : ""}${stability_lock_content ? `<STABILITY_LOCK>${stability_lock_content}</STABILITY_LOCK>\n    ` : ""}${ghostwrite ? "" : `${build_signals_xml(speaker_dynamics, compressed_snapshot?.fractal?.dynamics, { style: get_narrative_style(resolve_active_style_key()) })}\n    `}${action_directive}
     ${is_narrator ? "" : build_recency_anchor({ dynamics: speaker_dynamics }, input)}
 </TASK>
   `).trim();
@@ -373,7 +369,7 @@ export function render_ghostwriter({ entities, input = "" }) {
   const render_accessors = render_builder.create_render_accessors(swapped, input || "", []);
   const rendered = render_story_prose({
     mode: "character",
-    round: null,
+    round: 0,
     entities: swapped,
     input,
     compressed_snapshot: {
@@ -385,17 +381,6 @@ export function render_ghostwriter({ entities, input = "" }) {
     render_accessors,
     ghostwrite: true,
   });
-
-  const draft_directive = input?.trim()
-    ? STORY_PROTOCOLS.GHOSTWRITE.ENHANCE(escape_xml(user_name), escape_xml(input.trim()))
-    : STORY_PROTOCOLS.GHOSTWRITE.DRAFT(escape_xml(user_name), escape_xml(ai_name));
-
-  rendered.task += clean_xml(`
-    <GHOSTWRITE>
-      ${draft_directive}
-      ${STORY_PROTOCOLS.GHOSTWRITE.META}
-    </GHOSTWRITE>
-  `);
 
   return rendered;
 }

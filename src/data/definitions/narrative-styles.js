@@ -57,7 +57,7 @@ import { state_bridge, ind, escape_xml, resolve_style } from "@utils";
  * @property {string} [portrait]
  * @property {string} description
  * @property {"casual" | "lyrical" | "primal" | "clinical"} speaking_style
- * @property {string[]} tags
+ * @property {string[]} keywords
  * @property {string} narrative_engine
  * @property {string[]} [keywords]
  * @property {Record<string, string>} [motifs]
@@ -79,7 +79,7 @@ import { state_bridge, ind, escape_xml, resolve_style } from "@utils";
  * @param {string} [style_definition.portrait]
  * @param {string} style_definition.description
  * @param {"casual" | "lyrical" | "primal" | "clinical"} style_definition.speaking_style
- * @param {string[]} style_definition.tags
+ * @param {string[]} style_definition.keywords
  * @param {StyleDNA} [style_definition.dna]
  * @param {Record<string, string>} [style_definition.motifs]
  * @param {StyleTrigger[]} [style_definition.triggers]
@@ -100,11 +100,11 @@ function define_style(style_definition) {
   let xml = "";
   if (style_definition.id && style_definition.id !== "default") {
     const description_xml = style_definition.description ? `\n    <DESCRIPTION>${escape_xml(style_definition.description)}</DESCRIPTION>` : "";
-    const tags_xml = style_definition.tags?.length
-      ? `\n    <DEFINING_CHARACTERISTICS>${escape_xml(style_definition.tags.join(", "))}</DEFINING_CHARACTERISTICS>`
+    const keywords_xml = style_definition.keywords?.length
+      ? `\n    <DEFINING_CHARACTERISTICS>${escape_xml(style_definition.keywords.join(", "))}</DEFINING_CHARACTERISTICS>`
       : "";
     const narrative_engine_xml = narrative_engine ? `\n    ${ind(narrative_engine, 4).trim()}` : "";
-    xml = `\n  <NARRATIVE_STYLE narrator="${escape_xml(style_definition.id)}">${description_xml}${tags_xml}${narrative_engine_xml}\n  </NARRATIVE_STYLE>`;
+    xml = `\n  <NARRATIVE_STYLE narrator="${escape_xml(style_definition.id)}">${description_xml}${keywords_xml}${narrative_engine_xml}\n  </NARRATIVE_STYLE>`;
   }
 
   return {
@@ -113,7 +113,7 @@ function define_style(style_definition) {
     portrait: style_definition.portrait || "",
     description: style_definition.description,
     speaking_style: style_definition.speaking_style,
-    tags: style_definition.tags,
+    tags: style_definition.keywords,
     keywords,
     motifs: style_definition.motifs || {},
     narrative_engine,
@@ -134,7 +134,7 @@ export const NARRATIVE_STYLES = Object.freeze({
     portrait: "https://user.uploads.dev/file/f968b744a4afde6ab81c0e751dc5e972.png",
     description: "Standard system instructions without author style overlay.",
     speaking_style: "casual",
-    tags: ["default", "neutral", "standard"],
+    keywords: ["default", "neutral", "standard"],
   }),
 
   anais_nin: define_style({
@@ -144,7 +144,7 @@ export const NARRATIVE_STYLES = Object.freeze({
     description:
       "Lyrical, poetic, and intensely sensual prose that is deeply introspective and psychoanalytic, drawing heavily on dreams and subconscious thought.",
     speaking_style: "lyrical",
-    tags: ["author", "erotica", "queer_desire", "psychoanalysis", "dreams_vs_reality"],
+    keywords: ["author", "erotica", "queer_desire", "psychoanalysis", "dreams_vs_reality"],
     motifs: {
       sensual_submersion: "Sensory blur and lyrical interiority; emotional states surface as vast, intimate physical landscapes.",
     },
@@ -189,7 +189,7 @@ export const NARRATIVE_STYLES = Object.freeze({
     portrait: "https://user.uploads.dev/file/9da5e7dafb89e544ddbbe5df22fb25dc.png",
     description: "Dark psychological prose centered on captivity, obsession, rationalized control, and intense psychological dependence.",
     speaking_style: "primal",
-    tags: ["author", "captivity", "psychological", "dark_romance", "possession"],
+    keywords: ["author", "captivity", "psychological", "dark_romance", "possession"],
     motifs: {
       captive_control: "Rationalized possession; obsessive hyper-focus and stark declarations of constraint.",
     },
@@ -226,7 +226,7 @@ export const NARRATIVE_STYLES = Object.freeze({
     description:
       "Lush, operatic prose framing physical intimacy as rebellion inside unstable worlds. Lingers unflinchingly on bodily textures, light, and decaying architecture.",
     speaking_style: "lyrical",
-    tags: ["director", "psychological", "erotica", "political_rebellion", "decaying_beauty"],
+    keywords: ["director", "psychological", "erotica", "political_rebellion", "decaying_beauty"],
     motifs: {
       decaying_opulence: "Lush operatic intimacy inside unstable worlds; linger on bodily textures, light, and decaying architecture.",
     },
@@ -256,7 +256,7 @@ export const NARRATIVE_STYLES = Object.freeze({
     portrait: "https://user.uploads.dev/file/f9636773932371f0b697841be8a6471d.png",
     description: "Gritty, realistic prose focused on raw vulnerability, working-class realism, and physical touch.",
     speaking_style: "casual",
-    tags: ["author", "contemporary", "working_class", "raw_vulnerability", "tactile_realism"],
+    keywords: ["author", "contemporary", "working_class", "raw_vulnerability", "tactile_realism"],
     motifs: {
       tactile_grounding: "Raw working-class touch; feelings grounded in muscle tension, breathing rate, and physical friction.",
     },
@@ -296,7 +296,7 @@ export const NARRATIVE_STYLES = Object.freeze({
     portrait: "https://user.uploads.dev/file/d765a99e806b05f27cc8ba497ddf9ebe.png",
     description: "A brutalist, stark narrative style using polysyndeton, omitted punctuation, and an objective, unvarnished gaze.",
     speaking_style: "casual",
-    tags: ["author", "brutalist", "existential", "minimalist_punctuation", "gothic_western"],
+    keywords: ["author", "brutalist", "existential", "minimalist_punctuation", "gothic_western"],
     motifs: {
       blunt_fatalism: "Unvarnished brutalist gaze; emotional truth inferred purely from survival mechanics.",
     },
@@ -326,7 +326,7 @@ export const NARRATIVE_STYLES = Object.freeze({
     portrait: "https://user.uploads.dev/file/2948ac605cb8679e03e44010a28256a8.png",
     description: "A surreal narrative style governed by nightmare logic, auditory dread, temporal distortions, and uncanny mystery.",
     speaking_style: "clinical",
-    tags: ["director", "surrealism", "nightmare_logic", "uncanny", "neo_noir"],
+    keywords: ["director", "surrealism", "nightmare_logic", "uncanny", "neo_noir"],
     motifs: {
       uncanny_hum: "Nightmare logic beneath still surfaces; auditory dread and uncanny mystery in ordinary moments.",
     },
@@ -356,7 +356,7 @@ export const NARRATIVE_STYLES = Object.freeze({
     portrait: "https://user.uploads.dev/file/3f38ae76ab4ec4ec95012e9a55e7871d.png",
     description: "Gothic horror driven by an unreliable narrator tracking paranoia, guilt, and psychological decay.",
     speaking_style: "lyrical",
-    tags: ["author", "gothic", "horror", "madness", "paranoia", "mortality"],
+    keywords: ["author", "gothic", "horror", "madness", "paranoia", "mortality"],
     motifs: {
       escalating_dread: "Feverish obsessive cadence; repetitive motifs building toward paranoid climax.",
     },
@@ -396,7 +396,7 @@ export const NARRATIVE_STYLES = Object.freeze({
     portrait: "https://user.uploads.dev/file/75f11a255ea7017021f92c9ac3daa55d.png",
     description: "Grounded, multi-layered prose tracking political intrigue, moral compromise, and physical consequences.",
     speaking_style: "casual",
-    tags: ["author", "fantasy", "political_intrigue", "moral_ambiguity", "cost_of_power"],
+    keywords: ["author", "fantasy", "political_intrigue", "moral_ambiguity", "cost_of_power"],
     motifs: {
       court_paranoia: "Political intrigue and layered motive; every gesture weighted with courtly calculation and moral compromise.",
       bitter_confrontation: "Reckless impulsive action colliding with deeply conflicted internal thought; high physical stakes.",
@@ -422,7 +422,7 @@ export const NARRATIVE_STYLES = Object.freeze({
     portrait: "https://user.uploads.dev/file/c6653cbd9c08962581583549307a67a2.png",
     description: "Detached, melancholic style blending domestic routines with sudden magical realism and vinyl records.",
     speaking_style: "clinical",
-    tags: ["author", "magical_realism", "surrealism", "existential", "melancholy"],
+    keywords: ["author", "magical_realism", "surrealism", "existential", "melancholy"],
     motifs: {
       quiet_detachment: "Calm, slightly numb acceptance; domestic routine deforming seamlessly into the surreal.",
     },
@@ -447,7 +447,7 @@ export const NARRATIVE_STYLES = Object.freeze({
     portrait: "https://user.uploads.dev/file/29fc25684e26e5c40d9b178b56e868d7.png",
     description: "Atmospheric dark romance combining gothic threat, stalker dynamics, and mafia-tier power imbalances.",
     speaking_style: "primal",
-    tags: ["author", "dark_romance", "stalker", "mafia", "obsession", "gothic"],
+    keywords: ["author", "dark_romance", "stalker", "mafia", "obsession", "gothic"],
     motifs: {
       predatory_tension: "Hunted atmosphere; threat and arousal fused into an indivisible physiological rush.",
     },
@@ -482,14 +482,14 @@ export const NARRATIVE_STYLES = Object.freeze({
     portrait: "https://user.uploads.dev/file/564941049ebb9e821caead0017d7423d.png",
     description: "Dense, clinical narrative tracing intellectual breakdown when confronted by cosmic forces.",
     speaking_style: "lyrical",
-    tags: ["author", "cosmic_horror", "gothic", "madness", "alienation"],
+    keywords: ["author", "cosmic_horror", "gothic", "madness", "alienation"],
     motifs: {
       cosmic_insignificance: "Clinical metaphysical shock; human emotion replaced by absolute awe and alienation.",
     },
     dna: {
       internal_ratio: 0.85,
       rhythm: "Ornate, academic, escalating. Multi-clausal clinical reports breaking into frantic fragments under cosmic dread.",
-      sensory: "Sight (Non-Euclidean Forms) > Sound (Inhuman Chanting/Scraping) > Scent (Fetid/Ozone) > Touch",
+      sensory: "Sight (Non-Euclidean Forms) > Sound (Inhuman Chanting/Scraping) > Scent (Fetid/Static Electricity) > Touch",
       grounding: "Intellectual paralysis. Human emotion is replaced by absolute metaphysical shock.",
     },
     triggers: [
@@ -512,7 +512,7 @@ export const NARRATIVE_STYLES = Object.freeze({
     portrait: "https://user.uploads.dev/file/c29b56aff50893999a69d6f2d2def874.png",
     description: "Witty, ironic Free Indirect Discourse observing propriety, conversational subtext, and social economics.",
     speaking_style: "lyrical",
-    tags: ["author", "romance", "historical", "satire", "social_propriety"],
+    keywords: ["author", "romance", "historical", "satire", "social_propriety"],
     motifs: {
       ironic_decorum: "Free indirect irony beneath polished etiquette; subtext carried by subtle glances and social breach.",
     },
@@ -552,7 +552,7 @@ export const NARRATIVE_STYLES = Object.freeze({
     portrait: "https://user.uploads.dev/file/7a08520c84f425fd1572decead2f7880.png",
     description: "Earnest, elevated, archaic prose rich in mythic lore, duty, hope, and environmental reflection.",
     speaking_style: "lyrical",
-    tags: ["author", "fantasy", "mythic", "history_and_lineage", "duty"],
+    keywords: ["author", "fantasy", "mythic", "history_and_lineage", "duty"],
     motifs: {
       elegiac_light: "Mythic fading light; world-weariness and hope mirrored in the surrounding environment and sky.",
     },
@@ -592,7 +592,7 @@ export const NARRATIVE_STYLES = Object.freeze({
     portrait: "https://user.uploads.dev/file/68023c8a82d6e00c7de8047e09ee7764.png",
     description: "Terse, declarative, staccato prose stripped of figurative language. Built on spatial physics and momentum.",
     speaking_style: "clinical",
-    tags: ["author", "crime", "action", "tactical_minimalism", "procedural_efficiency"],
+    keywords: ["author", "crime", "action", "tactical_minimalism", "procedural_efficiency"],
     motifs: {
       tactical_geometry: "Staccato spatial physics; exact leverage, elapsed time, and mechanical geometry over feeling.",
     },
@@ -617,7 +617,7 @@ export const NARRATIVE_STYLES = Object.freeze({
     portrait: "https://user.uploads.dev/file/4711670ee787d7e40515def6b211a28f.png",
     description: "High-energy contemporary prose packed with confrontational angst, bully dynamics, sharp banter, and real-time emotional spirals.",
     speaking_style: "primal",
-    tags: ["contemporary", "enemies_to_lovers", "angst", "banter", "power_dynamics"],
+    keywords: ["contemporary", "enemies_to_lovers", "angst", "banter", "power_dynamics"],
     motifs: {
       battlefield_vulnerability: "Confrontational angst; emotional vulnerability treated as a high-stakes battlefield with somatic grounding.",
     },
@@ -647,7 +647,7 @@ export const NARRATIVE_STYLES = Object.freeze({
     portrait: "https://user.uploads.dev/file/223d14a8846614174325de0f76b11444.png",
     description: "Ontologically unstable narrative style driven by paranoia, identity shifts, and simulation glitches.",
     speaking_style: "clinical",
-    tags: ["author", "sci_fi", "paranoia", "simulation_theory", "identity_crisis"],
+    keywords: ["author", "sci_fi", "paranoia", "simulation_theory", "identity_crisis"],
     motifs: {
       ontological_doubt: "Questioning the authenticity of reality and memory; paranoia threaded through plain declarations.",
     },
@@ -678,7 +678,7 @@ export const NARRATIVE_STYLES = Object.freeze({
     description:
       "Flat, unadorned prose stripped of quotation marks. Focuses on interpersonal power dynamics, intellectualized feelings, alienation, and class friction.",
     speaking_style: "clinical",
-    tags: ["minimalism", "clinical", "contemporary", "unpunctuated", "transgressive"],
+    keywords: ["minimalism", "clinical", "contemporary", "unpunctuated", "transgressive"],
     motifs: {
       numb_precision: "Flat, unadorned clinical observation; emotional turmoil dissected analytically without moral affect.",
     },
@@ -709,7 +709,7 @@ export const NARRATIVE_STYLES = Object.freeze({
     description:
       "Intellectualized, visceral queer erotica combining precise bodily mechanics with philosophy, structural linguistics, and urban decay.",
     speaking_style: "lyrical",
-    tags: ["author", "queer_erotica", "transgressive", "philosophical", "visceral_detail"],
+    keywords: ["author", "queer_erotica", "transgressive", "philosophical", "visceral_detail"],
     motifs: {
       anatomical_philosophy: "Intellectualized visceral precision; intimacy and taboo processed as social theory in physical terms.",
     },
@@ -734,7 +734,7 @@ export const NARRATIVE_STYLES = Object.freeze({
     portrait: "https://user.uploads.dev/file/371dfa7b61691bb424816e3f633f1208.png",
     description: "Grounded blue-collar realism punctured by plainspoken horror, regional colloquialisms, internal italics, and visceral dread.",
     speaking_style: "casual",
-    tags: ["author", "horror", "everyman", "folksy_dread", "visceral"],
+    keywords: ["author", "horror", "everyman", "folksy_dread", "visceral"],
     motifs: {
       folksy_dread: "Everyman horror; fear manifesting directly in bodily discomfort and plainspoken dread.",
     },
@@ -769,7 +769,7 @@ export const NARRATIVE_STYLES = Object.freeze({
     portrait: "https://user.uploads.dev/file/0eb908cd997da8d32fd7625077baab49.png",
     description: "Dense, detached neon-noir prose saturated with technical jargon, neologisms, and cybernetic metaphors.",
     speaking_style: "clinical",
-    tags: ["author", "sci_fi", "cyberpunk", "technology_as_body", "alienation"],
+    keywords: ["author", "sci_fi", "cyberpunk", "technology_as_body", "alienation"],
     motifs: {
       high_tech_low_life: "Dense neon-noir texture; psychological states register through hardware and software metaphors.",
       flickering_neon_data: "Rapid fluid cuts of information; technical jargon juxtaposed against street-level grime.",
@@ -777,7 +777,7 @@ export const NARRATIVE_STYLES = Object.freeze({
     dna: {
       internal_ratio: 0.3,
       rhythm: "Fast, information-dense, rapid fluid cuts. Technical acronyms juxtaposed against street slang.",
-      sensory: "Sight (Neon/Data Displays) > Sound (Static/Urban Hum) > Touch (Chrome/Plastic) > Scent (Ozone/Pollution)",
+      sensory: "Sight (Neon/Data Displays) > Sound (Static/Urban Hum) > Touch (Chrome/Plastic) > Scent (Ionized Exhaust/Pollution)",
       grounding: "Technological alienation. Psychological states register through hardware and software metaphors.",
     },
     triggers: [
@@ -796,7 +796,7 @@ export const NARRATIVE_STYLES = Object.freeze({
     description:
       "Sparse, unadorned prose driven by the 'Iceberg Theory'—short declarative sentences, zero flowery adverbs, and immense emotional subtext beneath stoic physical action.",
     speaking_style: "casual",
-    tags: ["author", "hardboiled", "minimalism", "iceberg_theory", "stoicism", "subtext"],
+    keywords: ["author", "hardboiled", "minimalism", "iceberg_theory", "stoicism", "subtext"],
     motifs: {
       stoic_pain: "Mask pain behind curt declarative statements; heavy unspoken subtext.",
       iceberg_subtext: "Minimalist understatement; actions and concrete physical objects carry the emotional weight.",
@@ -835,7 +835,7 @@ export const NARRATIVE_STYLES = Object.freeze({
     description:
       "Grimdark, cynical, and sharply comedic prose characterized by earthy wit, physical discomfort, raw brutality, and intentional bathos that deflates heroism.",
     speaking_style: "primal",
-    tags: ["author", "grimdark", "cynicism", "bathos", "visceral_combat", "dark_humor"],
+    keywords: ["author", "grimdark", "cynicism", "bathos", "visceral_combat", "dark_humor"],
     motifs: {
       grim_bathos: "Caustic cynical wit that deflates drama; weary pragmatism grounded in bodily aches and mundane discomfort.",
     },
@@ -872,7 +872,7 @@ export const NARRATIVE_STYLES = Object.freeze({
     description:
       "World-weary, visceral outlaw narrative filtering every observation through moral fatigue, laconic grit, and heavy sensory metaphors.",
     speaking_style: "primal",
-    tags: ["character", "outlaw", "visceral_pulp", "outlaw_grit", "moral_fatigue", "red_dead"],
+    keywords: ["character", "outlaw", "visceral_pulp", "outlaw_grit", "moral_fatigue", "red_dead"],
     motifs: {
       outlaw_fatigue: "World-weary moral exhaustion; every observation filtered through hardened instinct and laconic grit.",
     },
@@ -972,6 +972,6 @@ export function render_narrative_style_xml(style_key = resolve_active_style_key(
  * - 2026-08-29: 4-Step Harmonization Protocol (/harmonize):
  *   1. Cleaned layer boundaries, documentation comments, and JSDoc typedef definitions.
  *   2. Standardized section dividers (`// ============================================================================`).
- *   3. Enforced anti-abbreviation mandate (`style_definition`, `description_xml`, `tags_xml`, `narrative_engine_xml`, `aggregated_motifs`, `character_dynamics`).
+ *   3. Enforced anti-abbreviation mandate (`style_definition`, `description_xml`, `keywords_xml`, `narrative_engine_xml`, `aggregated_motifs`, `character_dynamics`).
  *   4. Applied `Object.freeze` on `NARRATIVE_STYLES` for immutability.
  */

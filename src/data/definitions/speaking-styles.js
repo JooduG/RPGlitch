@@ -140,60 +140,6 @@ export const VOCAL_RULES = [
     clinical: ["strained vocalization", "hoarse audio output"],
   }),
 
-  create_speaking_rule(/\bbellow(ed|ing|s)?\b/gi, {
-    ed: {
-      casual: ["shouted", "roared", "yelled"],
-      lyrical: ["let the sound tear from his chest", "shook the air with his voice"],
-      primal: ["screamed it loud", "roared until his throat hurt"],
-      clinical: ["shouted at maximum volume", "vocalized forcefully"],
-    },
-    ing: {
-      casual: ["shouting", "roaring", "yelling loudly"],
-      lyrical: ["letting the sound rip from his chest", "shaking the air with the volume"],
-      primal: ["screaming loud", "yelling at the top of his lungs"],
-      clinical: ["shouting forcefully", "projecting at high volume"],
-    },
-    s: {
-      casual: ["shouts", "roars", "yells"],
-      lyrical: ["lets the sound tear from his chest", "shakes the air with his voice"],
-      primal: ["screams loud", "roars hard"],
-      clinical: ["shouts", "projects at peak volume"],
-    },
-    "": {
-      casual: ["shout", "roar", "loud cry"],
-      lyrical: ["a sound torn straight from the chest", "a roar that shook the air"],
-      primal: ["screaming shout", "harsh blast of sound"],
-      clinical: ["high-decibel vocalization", "forceful shout"],
-    },
-  }),
-
-  create_speaking_rule(/\bhitch(ed|ing|es)?\b/gi, {
-    ed: {
-      casual: ["seized for a second", "jolted mid-breath", "locked up for a beat"],
-      lyrical: ["snagged on a word that never came", "went still, just for a breath"],
-      primal: ["choked up for a second", "got caught in the throat"],
-      clinical: ["halted briefly", "paused mid-respiration"],
-    },
-    ing: {
-      casual: ["catching short", "snagging on itself", "stalling for a beat"],
-      lyrical: ["the rhythm losing its footing", "something caught between two beats"],
-      primal: ["choking on a breath", "tripping over itself"],
-      clinical: ["experiencing respiratory interruption", "stalling momentarily"],
-    },
-    es: {
-      casual: ["trips for a second", "freezes mid-breath", "falters for a beat"],
-      lyrical: ["stumbles over the same silence every time", "goes still for exactly one breath"],
-      primal: ["chokes up", "stalls abruptly"],
-      clinical: ["halts briefly", "pauses involuntarily"],
-    },
-    "": {
-      casual: ["short break in rhythm", "momentary stop", "small interruption"],
-      lyrical: ["a beat that never quite lands", "a half-second of missing rhythm"],
-      primal: ["hard catch in the throat", "sudden choke"],
-      clinical: ["respiratory pause", "brief interruption"],
-    },
-  }),
-
   create_speaking_rule(/\bbreathless(ly)?\b/gi, {
     ly: {
       casual: ["with no air left", "gasping the words out", "in a rush, out of air"],
@@ -259,33 +205,6 @@ export const SOUND_RULES = [
     },
     { keep_prefix: true },
   ),
-
-  create_speaking_rule(/\bboom(ed|ing|s)?\b/gi, {
-    ed: {
-      casual: ["echoed loudly", "rang out loud", "hit with a thud"],
-      lyrical: ["struck the air like a physical blow", "hit with concussive force"],
-      primal: ["slammed into the silence", "crashed loud and heavy"],
-      clinical: ["produced a high-amplitude echo", "resonated forcefully"],
-    },
-    ing: {
-      casual: ["loud", "deep and loud", "deafening"],
-      lyrical: ["heavy enough to rattle the teeth", "rolling like distant artillery"],
-      primal: ["bone-rattling", "crushing and loud"],
-      clinical: ["high-amplitude", "highly resonant"],
-    },
-    s: {
-      casual: ["echoes loudly", "rings out loud", "hits with a thud"],
-      lyrical: ["strikes the air like a blow", "hits with concussive force"],
-      primal: ["slams hard", "crashes loud"],
-      clinical: ["produces a high-amplitude echo", "resonates heavily"],
-    },
-    "": {
-      casual: ["loud thud", "deep crash", "heavy impact"],
-      lyrical: ["a concussive shock", "a deep, bone-rattling impact"],
-      primal: ["shockwave of sound", "deafening crash"],
-      clinical: ["concussive acoustic event", "high-amplitude sound wave"],
-    },
-  }),
 
   create_speaking_rule(/\bshiver(s|ed|ing)?\b/gi, {
     "": {

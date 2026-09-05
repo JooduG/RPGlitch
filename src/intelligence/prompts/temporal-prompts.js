@@ -46,11 +46,16 @@ export const TEMPORAL_PROTOCOLS = {
  */
 export function format_recent_history(history = [], max_turns = 8, max_chars = 400) {
   const rows = Array.isArray(history) ? history.slice(-max_turns) : [];
-  const compact = rows.map((m) => ({
-    role: m?.role || "",
-    character_name: m?.character_name || "",
-    text: String(m?.text ?? m?.content ?? "").slice(0, max_chars),
-  }));
+  const compact = rows
+    .filter((m) => {
+      const text = String(m?.text ?? m?.content ?? "").trim();
+      return text.length > 0;
+    })
+    .map((m) => ({
+      role: m?.role || "",
+      character_name: m?.character_name || "",
+      text: String(m?.text ?? m?.content ?? "").slice(0, max_chars),
+    }));
   return JSON.stringify(compact, null, 2).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
@@ -135,14 +140,14 @@ export function render_memory({ target_entity, target_key = "AI_CHARACTER", othe
     .filter(([k, e]) => e && k !== target_key)
     .map(([k, e]) => {
       const summary = e.present?.non_physical || e.eternal?.non_physical || "Active in scene";
-      return `  <OTHER_ENTITY name="${escape_xml(e.name || k)}" role="${escape_xml(k)}">\n    <SUMMARY>${escape_xml(summary)}</SUMMARY>\n  </OTHER_ENTITY>`;
+      return `  <IN_SCENE_PARTICIPANT name="${escape_xml(e.name || k)}" role="${escape_xml(k)}">\n    <SUMMARY>${escape_xml(summary)}</SUMMARY>\n  </IN_SCENE_PARTICIPANT>`;
     });
 
   const scene_cast_xml = other_blocks.length ? `  <SCENE_CAST>\n${other_blocks.join("\n")}\n  </SCENE_CAST>\n` : "";
   const chapter_xml = target_entity ? render_chapter_history_xml(target_entity) : "";
 
   return clean_xml(`
-<SYSTEM role="MEMORY_FORGE" target="${escape_xml(target_key)}" name="${escape_xml(target_name)}">
+<SYSTEM role="CONTINUUM_CARETAKER" target="${escape_xml(target_key)}" name="${escape_xml(target_name)}">
   <PROTOCOLS>
     ${ind(render_protocols("HYGIENE.DATA, AGENCY.PRESENT_TENSE, HYGIENE.STATE_EMISSION"), 4)}
   </PROTOCOLS>

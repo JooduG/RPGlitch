@@ -206,11 +206,12 @@ describe("clean_image_prompt", () => {
 });
 
 describe("Sensory Cortex Refinements (task-1.4)", () => {
-  it("Sensory Cortex template uses <keywords> instead of <tags> in <VISUAL_ENGINE>", () => {
+  it("Sensory Cortex template uses <AVAILABLE_KEYWORDS> instead of legacy <tags> or <VISUAL_ENGINE>", () => {
     const prompt = prompt_templates.build_prompt("story_scene", "The fog rolls in.", {
       fractal: { name: "Mist" },
     });
-    expect(prompt).toContain("<VISUAL_ENGINE>");
+    expect(prompt).toContain("<AVAILABLE_KEYWORDS>");
+    expect(prompt).not.toContain("<VISUAL_ENGINE");
     expect(prompt).not.toContain("<tags>");
   });
 
@@ -232,5 +233,26 @@ describe("Sensory Cortex Refinements (task-1.4)", () => {
     expect(prompt).toContain("<ENVIRONMENTAL_SCALING>");
     expect(prompt).toContain("AFFIRMATIVE ENVIRONMENTAL SCALE");
     expect(prompt).not.toContain("NO CHARACTERS");
+  });
+
+  describe("Prompt Architecture Consolidation (task-1.2)", () => {
+    it("wraps raw intent in <INPUT_INTENT> and removes redundant <MODE> tag", () => {
+      const prompt = prompt_templates.build_prompt("story_character", "Viper draws her weapon.", {
+        ai: { name: "Viper" },
+      });
+      expect(prompt).toContain("<INPUT_INTENT>Viper draws her weapon.</INPUT_INTENT>");
+      expect(prompt).not.toContain("<MODE>");
+      expect(prompt).not.toContain('Input Intent: "Viper draws her weapon."');
+    });
+
+    it("unifies visual style directives into protocol phases and AVAILABLE_KEYWORDS, eliminating VISUAL_ENGINE", () => {
+      const prompt = prompt_templates.build_prompt("story_scene", "The neon rain falls.", {
+        fractal: { name: "Nova City" },
+      });
+      // Legacy separate VISUAL_ENGINE block must be eliminated
+      expect(prompt).not.toContain("<VISUAL_ENGINE");
+      // Phase 1 must contain AVAILABLE_KEYWORDS
+      expect(prompt).toContain("<AVAILABLE_KEYWORDS>");
+    });
   });
 });

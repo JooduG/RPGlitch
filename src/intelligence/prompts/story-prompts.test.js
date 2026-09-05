@@ -291,4 +291,65 @@ describe("Story Prompts (story-prompts.js)", () => {
       expect(result.task).not.toContain("<HISTORY></HISTORY>");
     });
   });
+
+  describe("Track Prompt Architecture & Anti-Trope Remediation (task-1.2)", () => {
+    it("Fractals render <ATMOSPHERE> instead of <STATE_OF_MIND> in narrator mode", () => {
+      const result = render_story_prose({
+        mode: "scene",
+        ...base_payload(),
+        compressed_snapshot: base_snapshot,
+      });
+      expect(result.task).toContain("<ATMOSPHERE>");
+      expect(result.task).not.toContain("<STATE_OF_MIND>");
+    });
+
+    it("serializes physical look using clean XML tags instead of pseudo-JSON strings", () => {
+      const payload = base_payload();
+      payload.entities.AI.present.physical = "CLOTHING: tight white tank top EXPRESSION: cheerful flexing smile POSTURE: dominant power-pose";
+      const result = render_story_prose({
+        mode: "character",
+        ...payload,
+        compressed_snapshot: base_snapshot,
+      });
+      expect(result.task).toContain("<CURRENT_LOOK>");
+      expect(result.task).toContain("<CLOTHING>tight white tank top</CLOTHING>");
+      expect(result.task).toContain("<EXPRESSION>cheerful flexing smile</EXPRESSION>");
+      expect(result.task).toContain("<POSTURE>dominant power-pose</POSTURE>");
+      expect(result.task).not.toContain("CLOTHING: tight white tank top");
+    });
+
+    it("Ghostwrite prompt folds instructions cleanly inside <TASK mode='GHOSTWRITE'> without orphan tags or empty round", () => {
+      const { task } = render_ghostwriter({ entities: base_payload().entities, input: "I step into the arena." });
+      expect(task).toContain('<TASK mode="GHOSTWRITE">');
+      expect(task).not.toContain("</TASK>\n<GHOSTWRITE>");
+      expect(task).toContain("<ROUND>0</ROUND>");
+      expect(task).not.toContain("<ROUND></ROUND>");
+      expect(task).not.toContain("\n\n\n");
+    });
+
+    it("recency anchors omit raw numeric dynamics leakage in favor of qualitative tension", () => {
+      const result = render_story_prose({
+        mode: "character",
+        ...base_payload(),
+        compressed_snapshot: {
+          ai: { dynamics: { intensity: 75, affinity: 80 } },
+        },
+      });
+      expect(result.task).toContain("<RECENCY_ANCHOR>");
+      expect(result.task).toContain("Hold your temperament; do not soften into pleasantness");
+      // Must not leak numeric values like (intensity=75, affinity=80)
+      expect(result.task).not.toContain("intensity=");
+      expect(result.task).not.toContain("affinity=");
+    });
+
+    it("PROTOCOL_LIBRARY.HYGIENE.ANTI_TROPES omits the 50-word lexical blacklist", async () => {
+      const { PROTOCOL_LIBRARY } = await import("./shared.js");
+      const anti_tropes = PROTOCOL_LIBRARY.HYGIENE.ANTI_TROPES;
+      expect(anti_tropes).not.toContain("LEXICAL BLACKLIST");
+      expect(anti_tropes).not.toContain("shifts his weight");
+      expect(anti_tropes).not.toContain("predatory");
+      expect(anti_tropes).not.toContain("taste of copper");
+      expect(anti_tropes).toContain("STRUCTURAL FORMULAS");
+    });
+  });
 });
