@@ -191,13 +191,13 @@ RPGlitch is a **Local-First Reactive Monolith (PWA)** built for the Perchance if
 
 #### State Ownership Matrix
 
-| State Domain                                          | Owner Store File       | Description & Mutators                                       | Observers      |
-| ----------------------------------------------------- | ---------------------- | ------------------------------------------------------------ | -------------- |
-| **Active Entities** (`user`, `ai`, `fractal`)         | `runtime.svelte.js`    | Live clones of DB entities. Mutated by `load()` and physics. | `ui`, `engine` |
-| **Chronology** (`round`, `story_id`)                  | `runtime.svelte.js`    | Macro heartbeat of the simulation.                           | `ui`, `engine` |
-| **Simulation Phase** (`idle`, `generating`, `locked`) | `status.svelte.js`     | Execution status and UI lock state (STASIS).                 | `ui`, `engine` |
-| **UI Flow & Modals** (`view`, `profile_open`)         | `interface.svelte.js`  | Ephemeral layout and view state.                             | `ui`           |
-| **Audio Context**                                     | `src/media/`           | Browser audio state. Requires user gesture initialization.   | `ui`           |
+| State Domain                                          | Owner Store File      | Description & Mutators                                       | Observers      |
+| ----------------------------------------------------- | --------------------- | ------------------------------------------------------------ | -------------- |
+| **Active Entities** (`user`, `ai`, `fractal`)         | `runtime.svelte.js`   | Live clones of DB entities. Mutated by `load()` and physics. | `ui`, `engine` |
+| **Chronology** (`round`, `story_id`)                  | `runtime.svelte.js`   | Macro heartbeat of the simulation.                           | `ui`, `engine` |
+| **Simulation Phase** (`idle`, `generating`, `locked`) | `status.svelte.js`    | Execution status and UI lock state (STASIS).                 | `ui`, `engine` |
+| **UI Flow & Modals** (`view`, `profile_open`)         | `interface.svelte.js` | Ephemeral layout and view state.                             | `ui`           |
+| **Audio Context**                                     | `src/media/`          | Browser audio state. Requires user gesture initialization.   | `ui`           |
 
 #### Standardized Lifecycle Verbs
 

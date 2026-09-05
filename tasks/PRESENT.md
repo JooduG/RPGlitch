@@ -20,7 +20,9 @@ last_synchronized: 2026-09-05
 - **Last Startup Verification**: 2026-09-05 04:49 (via `/continue`, QA residuals resolved).
 
 ### 🔍 Detected TODOs
+
 <!-- TODO_SCAN_START -->
+
 Last Scanned: 2026-09-05 07:10
 
 No active AI debt found.
