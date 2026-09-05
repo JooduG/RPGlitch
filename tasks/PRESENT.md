@@ -38,7 +38,7 @@ _No queued tracks — next track will be planned upon completion of the active t
 
 ## 📜 Past
 
-> _Forensic pulse log is strictly limited to the **10 most recent entries** (rolling buffer: when adding 1 at the top, prune 1 from the bottom). Historical entries are archived in [`archive/2026-09/2026-09-05-tasks-PRESENT-pulse-archive.md`](../archive/2026-09/2026-09-05-tasks-PRESENT-pulse-archive.md) and [`archive/2026-08/2026-08-29-tasks-PRESENT-pulse-archive.md`](../archive/2026-08/2026-08-29-tasks-PRESENT-pulse-archive.md)._
+> _Forensic pulse log is strictly limited to the **10 most recent entries** (rolling buffer: when adding 1 at the top, prune 1 from the bottom). Historical entries are archived in [`C:/Users/johng/.gemini/antigravity-ide/archive/2026-09/2026-09-05-tasks-PRESENT-pulse-archive.md`](file:///C:/Users/johng/.gemini/antigravity-ide/archive/2026-09/2026-09-05-tasks-PRESENT-pulse-archive.md) and [`C:/Users/johng/.gemini/antigravity-ide/archive/2026-08/2026-08-29-tasks-PRESENT-pulse-archive.md`](file:///C:/Users/johng/.gemini/antigravity-ide/archive/2026-08/2026-08-29-tasks-PRESENT-pulse-archive.md)._
 
 | Date / Timestamp | Summary of Changes | Workflows / Skills | Status |
 | 2026-09-05 11:51 | QA-2026-09-05 Alignment: Fixed markdown syntax corruptions (§3.4, §4.2, §5.1) and path sovereignty example (`tasks/future/<track>.md`) in `~/.gemini/GEMINI.md`; purged stale `config/global_workflows` path from `developer-database.js`; updated `/03-review` reference to `/review` in `.agents/skills/perchance-deployment/SKILL.md`; reconciled `tasks/PRESENT.md` changelog to record intentional decommissioning of `rare-setup-conductor.md`. Verified clean hook contracts (11/11 passing). | `implement`, `planning` | ✅ Completed |

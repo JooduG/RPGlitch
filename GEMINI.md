@@ -222,7 +222,7 @@ RPGlitch is a **Local-First Reactive Monolith (PWA)** built for the Perchance if
 
 - **Relative Resolution**: **Always use relative paths for internal references** (e.g., `./tasks/PRESENT.md`).
 - **Absolute Grounding**: **Map all code claims to specific file paths and line numbers**.
-- **Archival Standard**: Upon track completion, move the track specification from `tasks/future/<track>.md` to `archive/YYYY-MM/<date>-<track>.md`. `archive/` is the exclusive historical repository for retired blueprints.
+- **Archival Standard**: Upon track completion, move the track specification from `tasks/future/<track>.md` to `C:/Users/johng/.gemini/antigravity-ide/archive/YYYY-MM/<date>-<track>.md`. The global archive (`C:\Users\johng\.gemini\antigravity-ide\archive`) is the sole exclusive historical repository for retired blueprints and logs.
 
 ---
 
