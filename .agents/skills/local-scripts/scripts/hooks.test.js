@@ -126,6 +126,22 @@ const TEST_CASES = [
     },
     expectedDecision: "allow",
   },
+  {
+    name: "hooks.js file-architecture-gate: Allow replace_file_content (scoped to write_to_file only)",
+    file: "skills/local-scripts/scripts/hooks.js",
+    args: ["file-architecture-gate"],
+    input: {
+      toolCall: {
+        name: "replace_file_content",
+        args: {
+          TargetFile: "c:/Users/johng/source/repos/RPGlitch/src/state/runtime.svelte.js",
+          TargetContent: "const old = 1;",
+          ReplacementContent: "const updated = 1;",
+        },
+      },
+    },
+    expectedDecision: "allow",
+  },
 ];
 
 /**
@@ -202,4 +218,5 @@ run();
  * CHANGELOG
  * -------------------------------------------------------------------------------------------------
  * 2026-09-04: Created hooks.test.js conforming to test nomenclature standards and resolved unused variable error.
+ * 2026-09-05: Added 10th test case (circuit-breaker read-only tool exemption). Reverted file-architecture-gate matcher to write_to_file only; added 11th test case documenting that replace_file_content is explicitly allowed (gate is scoped to file creation, not chunk patches).
  */

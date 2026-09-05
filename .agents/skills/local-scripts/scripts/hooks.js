@@ -745,4 +745,5 @@ run();
  * -------------------------------------------------------------------------------------------------
  * 2026-09-05: Initial creation of consolidated hooks.js dispatcher unifying all 10 Antigravity hooks.
  * 2026-09-05: Fixed circuit breaker false positives (exempted read-only tools, dynamically resolved tmp/.tool-failures.json), optimized transcript parsing (sliced last 60 lines), softened sequential thinking gate on multi-file/repeat edits to ask, and added deep structural equality comparison in handle_waldzell_router.
+ * 2026-09-05: A5 clarification — reverted file-architecture-gate to write_to_file only in hooks.json. The handler enforces header/changelog law at file creation time; replace_file_content/multi_replace_file_content operate on existing files in targeted patches and cannot meaningfully enforce full structural blocks.
  */
