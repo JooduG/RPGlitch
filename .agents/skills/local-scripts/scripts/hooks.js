@@ -461,14 +461,7 @@ export function handle_circuit_breaker(payload) {
   }
 
   // Exempt read-only exploration tools from tripping the circuit breaker
-  const read_only_tools = new Set([
-    "view_file",
-    "grep_search",
-    "read_url_content",
-    "list_dir",
-    "read_resource",
-    "list_resources",
-  ]);
+  const read_only_tools = new Set(["view_file", "grep_search", "read_url_content", "list_dir", "read_resource", "list_resources"]);
   if (read_only_tools.has(tool_name)) {
     send_hook_response({ decision: "allow" });
     return;
