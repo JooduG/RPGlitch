@@ -15,6 +15,16 @@ import { build_available_keywords_xml, format_dynamics_attrs } from "./physics-p
 import { render_builder } from "./builder.js";
 import { render_system_head, render_field_value, render_director_cast_xml, render_protocols, render_optional_tag } from "./shared.js";
 
+// ── 0. Lexical & Spatial Recognition Constants ───────────────────────────────
+
+const DIALOGUE_QUOTES_PATTERN = /["'“”‘’]/;
+
+const SPATIAL_VERBS_PATTERN =
+  /\b(step|walk|enter|approach|study|examine|press|watch|observe|descend|ascend|peer|reach|kneel|stand|wait|listen|smell|scan|sweep|climb|move|circle|bend|follow|open|close|stare|gaze|rest|push|pull|turn|edge|halt|trail|settle|pause|linger)\b/i;
+
+const SPATIAL_NOUNS_PATTERN =
+  /\b(door|gate|wall|room|hall|cave|forest|vault|stair|passage|corridor|window|floor|ceiling|rock|stone|water|river|bridge|tower|street|alley|field|sky|wind|rain|shadow|light|threshold|lock|mechanism|gear|wheel|conduit|tunnel|arch|column|altar|seal|cylinder|crevice|spillway|belly|deeps|mouth|chamber|alcove|ledge|court|yard|keep)\b/i;
+
 /**
  * Detects a non-verbal, environmental user turn — no quoted dialogue, with
  * spatial/locational focus — and returns a hint nudging the Director to route
@@ -24,26 +34,22 @@ import { render_system_head, render_field_value, render_director_cast_xml, rende
  */
 export function render_environmental_hint(input) {
   if (!input?.trim()) return "";
-  if (/["'“”‘’]/.test(input)) return "";
-  const spatial_verbs =
-    /\b(step|walk|enter|approach|study|examine|press|watch|observe|descend|ascend|peer|reach|kneel|stand|wait|listen|smell|scan|sweep|climb|move|circle|bend|follow|open|close|stare|gaze|rest|push|pull|turn|edge|halt|trail|settle|pause|linger)\b/i;
-  const spatial_nouns =
-    /\b(door|gate|wall|room|hall|cave|forest|vault|stair|passage|corridor|window|floor|ceiling|rock|stone|water|river|bridge|tower|street|alley|field|sky|wind|rain|shadow|light|threshold|lock|mechanism|gear|wheel|conduit|tunnel|arch|column|altar|seal|cylinder|crevice|spillway|belly|deeps|mouth|chamber|alcove|ledge|court|yard|keep)\b/i;
-  if (!spatial_verbs.test(input) && !spatial_nouns.test(input)) return "";
+  if (DIALOGUE_QUOTES_PATTERN.test(input)) return "";
+  if (!SPATIAL_VERBS_PATTERN.test(input) && !SPATIAL_NOUNS_PATTERN.test(input)) return "";
   return '<USER_ACTION_NOTE>This turn is a non-verbal, environmental action. Strongly consider setting "speaker" to "fractal" so the scene/setting itself narrates the moment — unless the AI character should react directly.</USER_ACTION_NOTE>';
 }
 
 // ── 1. Canonical Quick Shot Director Schema & Protocols ───────────────────────
 
-export const DIRECTOR_PROTOCOLS = {
+export const DIRECTOR_PROTOCOLS = Object.freeze({
   SCHEMA: `{
   "_thought_process": "<ONE short sentence: tactical intent & state delta>",
-  "next_action": "'AI_CHARACTER' (AI speaks) | 'FRACTAL' (Fractal narrates) | 'npc:<id>' (in-scene NPC speaks) | 'GENESIS' (mint brand-new NPC) | 'EPILOGUE_CONCLUDED' (quest won) | 'EPILOGUE_COLLAPSED' (quest lost)",
-  "keywords": "1-3 keywords from <AVAILABLE_KEYWORDS> (e.g. ['vulnerability', 'cinematic_shot']) or []",
-  "directors_note": "1-3 lines of unseen acting/staging directives for the speaker",
+  "next_action": "'AI_CHARACTER' (AI speaks) | 'FRACTAL' (Fractal narrates) | 'npc:<id>' (in-scene NPC speaks) | { \\"genesis\\": { \\"name\\": \\"<Name>\\", \\"description\\": \\"<description>\\" } } (mint brand-new NPC) | 'EPILOGUE_CONCLUDED' (quest won) | 'EPILOGUE_COLLAPSED' (quest lost)",
+  "keywords": ["<1-5 keywords from <AVAILABLE_KEYWORDS> or []>"],
+  "directors_note": "<1-5 lines of unseen acting/staging directives for the next speaker, or empty string>",
   "dynamics_deltas": { "chaos": 0, "intensity": 0, "openness": 0, "affinity": 0, "velocity": 0, "entropy": 0 },
   "visual_staging": "<optional: 1 line camera & lighting directive ONLY if triggering a scene image shift, else omit>",
-  "spotlight": { "enter": ["npc:<id>"], "exit": ["npc:<id>"], "genesis": { "name": "<Name>", "description": "<desc>" } }
+  "spotlight": { "enter": ["npc:<id>"], "exit": ["npc:<id>"] }
 }`,
 
   CONTINUITY_AND_CAUSALITY: `SECRET AGENDAS: <INTENT>/<AGENDA> vectors encode private ambitions. Weave entity vectors indirectly into atmosphere/obstacles. Never present another entity's hidden agenda as known fact to the AI character.
@@ -53,26 +59,22 @@ SENSORY ENGAGEMENT: When <USER_ACTION> explicitly touches or observes physical d
 
   PACING_AND_MOMENTUM: `PACING LAW: Treat the active Fractal's <AGENDA> as a long-term scenario horizon. Do NOT rush to resolve standing objectives in early turns. Cue subtle developments in "directors_note" that build tension gradually.
 PASSIVE USER TURN LAW: When <USER_ACTION> contains no action verbs or questions (e.g. passive waiting or silence), use "directors_note" to introduce an unexpected environmental complication or in-character choice. Never let the scene stall into dead-air.`,
-
-  TERMINATION: `STORY RESOLUTION & TERMINAL COLLAPSE LAW:
-- Quest Victory: When the overarching narrative conflict is decisively won or concluded happily, emit next_action: "EPILOGUE_CONCLUDED".
-- Tragic Collapse: When irreversible catastrophe, total systemic failure, or protagonist death occurs (fatal wound, terminal entropy >= 85, destruction of setting), emit next_action: "EPILOGUE_COLLAPSED".
-- Output Constraint: Output strictly valid JSON. Under 400 characters. No markdown code fences.`,
-};
+});
 
 // ── 2. Director Prompt Compiler (Shot 1) ──────────────────────────────────────
 
 /**
  * Director prompt compiler (Shot 1).
- * @param {Object} params
- * @param {number|string} params.round
- * @param {any} params.entities
- * @param {string} [params.input]
- * @param {any} [params.render_accessors]
- * @param {any} [params.compressed_snapshot]
- * @param {any[]} [params.raw_messages]
- * @param {any[]} [params.npc_entities]
- * @param {string[]} [params.in_scene_ids]
+ * @param {Object} parameters
+ * @param {number|string} parameters.round
+ * @param {any} parameters.entities
+ * @param {string} [parameters.input]
+ * @param {any} [parameters.render_accessors]
+ * @param {any} [parameters.compressed_snapshot]
+ * @param {any[]} [parameters.raw_messages]
+ * @param {any[]} [parameters.simulation_log]
+ * @param {any[]} [parameters.npc_entities]
+ * @param {string[]} [parameters.in_scene_ids]
  * @returns {{ system: string, task: string }}
  */
 export function render_director({
@@ -82,11 +84,13 @@ export function render_director({
   render_accessors = null,
   compressed_snapshot,
   raw_messages = [],
+  simulation_log = [],
   npc_entities = [],
   in_scene_ids = [],
 }) {
-  const accessors = render_accessors || render_builder.create_render_accessors(entities, input, raw_messages);
-  const shared_protocols = render_protocols("AGENCY.FICTIONAL_LICENSE, HYGIENE.STATE_EMISSION, COGNITION.EPISTEMIC_PHYSICS");
+  const active_messages = raw_messages.length > 0 ? raw_messages : simulation_log;
+  const accessors = render_accessors || render_builder.create_render_accessors(entities, input, active_messages);
+  const shared_protocols = render_protocols("HYGIENE.STATE_EMISSION, COGNITION.EPISTEMIC_PHYSICS");
   const local_protocols = Object.entries(DIRECTOR_PROTOCOLS)
     .map(([tag, text]) => `<${tag}>\n${text}\n</${tag}>`)
     .join("\n\n");
@@ -96,12 +100,11 @@ export function render_director({
   const system = `${render_system_head(entities)}\n${clean_xml(`
   <ROLE name="DIRECTOR">
     You are the Director — the unseen intelligence orchestrating the mechanical state of the simulation.
-    The eternal baselines of the active cast are declared above in the CAST block.
   </ROLE>
 
   <AVAILABLE_KEYWORDS>
     ${build_available_keywords_xml(active_style_keywords)}
-    Select 1-3 of these when the turn carries a matching emotional undercurrent or visual beat (or [] when neutral). Never invent keywords outside this list.
+    Select 1-5 of these to instruct the next speaker's emotional micro-expressions, physical tells, and atmospheric tone (or [] when neutral). Never invent keywords outside this list.
   </AVAILABLE_KEYWORDS>
 
   <ACTIVE_CHARACTERS>
@@ -138,24 +141,18 @@ export function render_director({
 </SYSTEM>
   `).trim()}`;
 
-  const last_ai = (raw_messages || []).filter((m) => m.role === "model").slice(-1)[0];
-  const last_ai_text = last_ai ? strip_cognition_blocks(last_ai.content || last_ai.text || "").trim() : "";
+  const last_ai_message = (active_messages || []).filter((message) => message.role === "model").at(-1);
+  const last_ai_text = last_ai_message ? strip_cognition_blocks(last_ai_message.content || last_ai_message.text || "").trim() : "";
 
   const task = clean_xml(`
 <ROUND>${escape_xml(String(round))}</ROUND>
 ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
 ${last_ai_text ? `<AI_CHARACTER_LAST_TURN>${ind(last_ai_text, 2)}</AI_CHARACTER_LAST_TURN>` : ""}
 <TASK>
-    Evaluate state mutations caused by ${input?.trim() ? "<USER_ACTION>" : "the current situation"}.
-    Decide "next_action": "AI_CHARACTER" (AI speaks), "FRACTAL" (Fractal scene-narrator speaks), "npc:<id>" (in-scene NPC speaks), "GENESIS" (mint a new NPC), "EPILOGUE_CONCLUDED" (quest victory), or "EPILOGUE_COLLAPSED" (fatal defeat, irreversible ruin, terminal entropy >= 85). Default "AI_CHARACTER".${Number(round) <= 1 ? ' IMPORTANT: Round 1 directly follows the Fractal prologue, so next_action MUST be "AI_CHARACTER".' : ""}
-    Select 1-3 "keywords" from <AVAILABLE_KEYWORDS> (or [] when neutral).
-    Provide 1-3 lines of "directors_note" as unseen acting/staging guidance for the speaker.
-    Output physics shifts in "dynamics_deltas" (e.g. {"intensity": 10, "openness": -5, "entropy": 5}). When triggering a visual scene shift, provide optional "visual_staging".
-    Track the Stage Spotlight: when an NPC enters or leaves the room, or a new NPC arrives, update "spotlight".
+    Evaluate state mutations caused by ${input?.trim() ? "<USER_ACTION>" : "the current situation"}.${Number(round) <= 1 ? ' Round 1 follows the Fractal prologue, so next_action MUST be "AI_CHARACTER".' : ""}
     ${render_environmental_hint(input)}
-    Record your reasoning inside "_thought_process" and return a single valid JSON object following this exact schema:
+    Return a single, COMPLETE, VALID JSON object under 400 characters matching this schema:
     ${DIRECTOR_PROTOCOLS.SCHEMA}
-    Obey all active <PROTOCOLS>. Keep output under 400 characters and return strictly JSON.
 </TASK>
   `).trim();
 
@@ -179,6 +176,13 @@ export function render_terse_director_task() {
 
 /**
  * CHANGELOG
+ * - 2026-09-06: Refactored prompt compiler per Simulation § 4.2 Structured JSON Schema Design:
+ *   streamlined SCHEMA placeholders (keywords, 1-5 lines directors_note), eliminated redundant _thought_process
+ *   preamble in TASK prompt, and preserved decoupled genesis/spotlight architecture.
+ * - 2026-09-06: Hoisted spatial recognition regexes to module scope; froze DIRECTOR_PROTOCOLS with
+ *   Object.freeze(); unified raw_messages and simulation_log inputs; standardized nomenclature (parameters, message, description);
+ *   pruned duplicate AGENCY.FICTIONAL_LICENSE from render_protocols query; moved genesis out of spotlight to top-level/next_action;
+ *   pruned redundant TERMINATION protocol block; clarified keywords instruction role; cleaned up TASK instruction line.
  * - 2026-09-05: Unified in_scene_change and genesis into spotlight in DIRECTOR_PROTOCOLS.SCHEMA.
  * - 2026-08-28: Removed duplicate raw XML strings in favor of render_protocols for convergence and epistemic rules.
  */

@@ -9,7 +9,7 @@
 
 import { ind, escape_xml, clean_xml, physical_to_xml } from "@utils";
 import { get_narrative_style, resolve_active_style_key } from "@data";
-import { build_somatic_directives_xml, build_signals_xml } from "./physics-prompts.js";
+import { build_somatic_signals_xml } from "./physics-prompts.js";
 import { render_builder } from "./builder.js";
 import {
   render_system_head,
@@ -204,11 +204,17 @@ export function render_story_prose({
       ? active_speaker?.dynamics || {}
       : compressed_snapshot?.ai?.dynamics || entities?.AI?.dynamics || {};
 
-  const somatic_directives_xml = is_narrator
+  const somatic_signals_xml = is_narrator
     ? mode === "scene"
-      ? build_somatic_directives_xml(director_data?.keywords || [])
+      ? build_somatic_signals_xml({}, compressed_snapshot?.fractal?.dynamics || entities?.FRACTAL?.dynamics || {}, {
+          keywords: director_data?.keywords || [],
+          style: get_narrative_style(resolve_active_style_key()),
+        })
       : ""
-    : build_somatic_directives_xml(director_data?.keywords || [], speaker_dynamics);
+    : build_somatic_signals_xml(speaker_dynamics, compressed_snapshot?.fractal?.dynamics || entities?.FRACTAL?.dynamics || {}, {
+        keywords: director_data?.keywords || [],
+        style: ghostwrite ? null : get_narrative_style(resolve_active_style_key()),
+      });
 
   const is_first_contact =
     meta?.is_opening_turn || (Array.isArray(compressed_snapshot?.flags) && compressed_snapshot.flags.includes("FIRST_CONTACT"));
@@ -339,7 +345,7 @@ export function render_story_prose({
 <ROUND>${escape_xml(String(round ?? 0))}</ROUND>
 ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
 <TASK${ghostwrite ? ' mode="GHOSTWRITE"' : ""}>
-    ${director_note ? `${director_note}\n    ` : ""}${somatic_directives_xml ? `${somatic_directives_xml}\n    ` : ""}${stability_lock_content ? `<STABILITY_LOCK>${stability_lock_content}</STABILITY_LOCK>\n    ` : ""}${ghostwrite ? "" : `${build_signals_xml(speaker_dynamics, compressed_snapshot?.fractal?.dynamics, { style: get_narrative_style(resolve_active_style_key()) })}\n    `}${action_directive}
+    ${director_note ? `${director_note}\n    ` : ""}${somatic_signals_xml ? `${somatic_signals_xml}\n    ` : ""}${stability_lock_content ? `<STABILITY_LOCK>${stability_lock_content}</STABILITY_LOCK>\n    ` : ""}${action_directive}
     ${is_narrator ? "" : build_recency_anchor({ dynamics: speaker_dynamics }, input)}
 </TASK>
   `).trim();
@@ -387,5 +393,6 @@ export function render_ghostwriter({ entities, input = "" }) {
 
 /**
  * CHANGELOG
+ * - 2026-09-06: Consolidated somatic directives and dynamics signals into build_somatic_signals_xml (<SOMATIC_SIGNALS>).
  * - 2026-08-28: Ground-up deconstruct & refactor: unified protocol composition, streamlined XML templating across AI/NPC/Narrator engines, and added clear section dividers.
  */

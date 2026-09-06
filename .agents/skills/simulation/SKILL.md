@@ -129,6 +129,17 @@ Modern LLM inference relies heavily on **Key-Value (KV) Prefix Caching**. If a p
    - Contains all volatile turn state: current round number, dynamic slider values, recent user input, and the Director's staging notes.
    - Appended at the very end of the prompt payload so it never invalidates the frozen system prefix.
 
+### 4.2 Structured JSON Schema Design (Contract vs. Intent)
+
+When instructing models to output structured JSON (e.g., Director Quick Shot, Memory Forge):
+
+- **Separate Intent from Contract**:
+  - **Protocols & Task Prose**: Define the "Why" and "How"—causality laws, domain rules, and reasoning criteria.
+  - **Schema Contract**: Defines the "What"—keys, types, concise pipe enums (`'AI_CHARACTER' | 'FRACTAL'`), and compact format/length constraints.
+- **Zero Duplication**: Never recite multi-sentence behavioral instructions inside JSON placeholder strings if they are already declared in the protocols.
+- **Lean Placeholders**: Keep placeholder values purely structural (e.g., `"directors_note": "<1-3 lines of unseen acting/staging directives, or empty string>"`).
+- **Last-Mile Placement**: Place the schema at the bottom of the `<TASK>` prompt directly before generation to leverage recency attention.
+
 ---
 
 ## 5.0 SIMULATION DRIFT & FAILURE MODES

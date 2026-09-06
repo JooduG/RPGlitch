@@ -8,7 +8,7 @@ describe("director-prompts", () => {
     expect(DIRECTOR_PROTOCOLS.SCHEMA).toContain("next_action");
     expect(DIRECTOR_PROTOCOLS.SCHEMA).toContain("dynamics_deltas");
     expect(DIRECTOR_PROTOCOLS.CONTINUITY_AND_CAUSALITY).toContain("SECRET AGENDAS");
-    expect(DIRECTOR_PROTOCOLS.TERMINATION).toContain("STORY RESOLUTION");
+    expect(DIRECTOR_PROTOCOLS.PACING_AND_MOMENTUM).toContain("PACING LAW");
   });
 
   describe("render_environmental_hint", () => {
@@ -117,11 +117,11 @@ describe("director-prompts", () => {
       expect(system).not.toContain("<ENTITY_CONVERGENCE>");
     });
 
-    it("DIRECTOR_PROTOCOLS.SCHEMA specifies unified spotlight schema merging in_scene_change and genesis", () => {
+    it("DIRECTOR_PROTOCOLS.SCHEMA specifies spotlight schema with enter/exit and explicit genesis definition", () => {
       expect(DIRECTOR_PROTOCOLS.SCHEMA).toContain('"spotlight"');
       expect(DIRECTOR_PROTOCOLS.SCHEMA).toContain('"enter"');
       expect(DIRECTOR_PROTOCOLS.SCHEMA).toContain('"exit"');
-      expect(DIRECTOR_PROTOCOLS.SCHEMA).toContain('"genesis"');
+      expect(DIRECTOR_PROTOCOLS.SCHEMA).toContain("genesis");
       // Should not have top-level separate in_scene_change key
       expect(DIRECTOR_PROTOCOLS.SCHEMA).not.toContain('"in_scene_change"');
     });

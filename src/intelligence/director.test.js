@@ -142,6 +142,22 @@ describe("normalize_director_quick_shot (Track 1 Schema)", () => {
     expect(data.genesis).toEqual({ name: "New Guard", description: "Fresh recruit" });
   });
 
+  it("normalizes next_action containing a genesis object", () => {
+    const data = normalize_director_data({
+      next_action: {
+        genesis: { name: "Cipher", description: "A quiet hacker" },
+      },
+      spotlight: {
+        enter: ["npc:doc"],
+        exit: [],
+      },
+    });
+    expect(data.next_action).toBe("GENESIS");
+    expect(data.speaker).toBe("ai");
+    expect(data.genesis).toEqual({ name: "Cipher", description: "A quiet hacker" });
+    expect(data.in_scene_change).toEqual({ enter: ["doc"], exit: [] });
+  });
+
   it("caps keywords to 1-3 elements and preserves valid tags", () => {
     const data = normalize_director_data({
       keywords: ["vulnerability", "defiance", "cinematic_shot", "extra_tag"],
@@ -149,12 +165,14 @@ describe("normalize_director_quick_shot (Track 1 Schema)", () => {
     expect(data.keywords).toEqual(["vulnerability", "defiance", "cinematic_shot"]);
   });
 
-  it("sanitizes directors_note to 1-3 lines string", () => {
+  it("sanitizes directors_note to 1-5 lines string", () => {
     const data = normalize_director_data({
-      directors_note: "Line 1: Glance over.\nLine 2: Lower voice.\nLine 3: Step back.\nLine 4: Ignored line.",
+      directors_note: "Line 1: Glance over.\nLine 2: Lower voice.\nLine 3: Step back.\nLine 4: Hold gaze.\nLine 5: Breathe.\nLine 6: Ignored line.",
     });
-    expect(data.directors_note.split("\n").length).toBeLessThanOrEqual(3);
+    expect(data.directors_note.split("\n").length).toBeLessThanOrEqual(5);
     expect(data.directors_note).toContain("Line 1: Glance over.");
+    expect(data.directors_note).toContain("Line 5: Breathe.");
+    expect(data.directors_note).not.toContain("Line 6: Ignored line.");
   });
 });
 

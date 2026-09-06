@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { build_available_keywords_xml, build_somatic_directives_xml, resolve_somatic_directives, SOMATIC_REGISTRY } from "./physics-prompts.js";
+import {
+  build_available_keywords_xml,
+  build_somatic_signals_xml,
+  render_dynamics_block,
+  resolve_somatic_directives,
+  SOMATIC_REGISTRY,
+} from "./physics-prompts.js";
 import { STYLE_MOTIF_REGISTRY } from "@data";
 import { GLOBAL_TRIGGERS, resolve_non_verbal_reactions } from "../physics.js";
 
@@ -66,28 +72,58 @@ describe("resolve_somatic_directives", () => {
   });
 });
 
-describe("build_somatic_directives_xml", () => {
-  it("one-call resolve+render", () => {
-    expect(build_somatic_directives_xml(["fear"])).toContain("Physical freeze/flight response");
-    expect(build_somatic_directives_xml(["fear"])).toContain("<SOMATIC_DIRECTIVES>");
-    expect(build_somatic_directives_xml(["fear", "stoic_pain"])).toContain("- stoic_pain: Mask pain behind curt declarative statements");
-    expect(build_somatic_directives_xml(["nope"])).toBe("");
-    expect(build_somatic_directives_xml([])).toBe("");
+describe("build_somatic_signals_xml", () => {
+  it("one-call resolve+render merging somatic directives and dynamics signals", () => {
+    const xml = build_somatic_signals_xml({}, {}, { keywords: ["fear"] });
+    expect(xml).toContain("<SOMATIC_SIGNALS>");
+    expect(xml).toContain("• fear: Physical freeze/flight response");
+    expect(xml).toContain("</SOMATIC_SIGNALS>");
+
+    const xml_with_motif = build_somatic_signals_xml({}, {}, { keywords: ["fear", "stoic_pain"] });
+    expect(xml_with_motif).toContain("• stoic_pain: Mask pain behind curt declarative statements");
+
+    expect(build_somatic_signals_xml({}, {}, { keywords: ["nope"] })).toBe("");
+    expect(build_somatic_signals_xml({}, {}, { keywords: [] })).toBe("");
+  });
+
+  it("renders XML automatically from dynamics and evaluates signals", () => {
+    const xml = build_somatic_signals_xml({ intensity: 85, affinity: 30 }, { entropy: 80 });
+    expect(xml).toContain("<SOMATIC_SIGNALS>");
+    expect(xml).toContain("• fear:");
   });
 });
 
 describe("build_available_keywords_xml", () => {
-  it("always lists the 12 static archetypes", () => {
+  it("always lists the 12 static archetypes as a unified flat comma-separated list", () => {
     const xml = build_available_keywords_xml();
-    expect(xml).toContain("static (universal)");
+    expect(xml).not.toContain("static (universal)");
     for (const id of SOMATIC_REGISTRY.map((e) => e.id)) {
       expect(xml).toContain(id);
     }
   });
 
-  it("appends the active style's motifs when provided", () => {
+  it("appends the active style's motifs cleanly in the same flat list", () => {
     const xml = build_available_keywords_xml(["stoic_pain", "iceberg_subtext"]);
-    expect(xml).toContain("active style: stoic_pain, iceberg_subtext");
+    expect(xml).toContain("stoic_pain");
+    expect(xml).toContain("iceberg_subtext");
+    expect(xml).not.toContain("active style:");
+  });
+});
+
+describe("render_dynamics_block", () => {
+  it("renders clean dynamics legend without current values when live_dynamics is null", () => {
+    const block = render_dynamics_block();
+    expect(block).toContain("<DYNAMICS>");
+    expect(block).toContain("Scale: 0 (minimum) to 100 (maximum)");
+    expect(block).not.toContain("[current: ");
+    expect(block).toContain("chaos (Chaos): Randomness vs Control");
+  });
+
+  it("renders dynamics with [current: XX] when live_dynamics is provided", () => {
+    const block = render_dynamics_block({ chaos: 65, intensity: 42 });
+    expect(block).toContain("<DYNAMICS>");
+    expect(block).toContain("chaos (Chaos): Randomness vs Control [current: 65]");
+    expect(block).toContain("intensity (Intensity): Internal Energy / Adrenaline [current: 42]");
   });
 });
 
@@ -125,12 +161,6 @@ describe("resolve_non_verbal_reactions", () => {
   it("returns empty array for neutral dynamics without manual keywords", () => {
     const reactions = resolve_non_verbal_reactions({ intensity: 50, chaos: 50, openness: 50, affinity: 50 });
     expect(reactions).toEqual([]);
-  });
-
-  it("build_somatic_directives_xml renders XML automatically from dynamics", () => {
-    const xml = build_somatic_directives_xml([], { intensity: 85, affinity: 30 });
-    expect(xml).toContain("<SOMATIC_DIRECTIVES>");
-    expect(xml).toContain("- fear:");
   });
 });
 

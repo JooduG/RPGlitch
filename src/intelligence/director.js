@@ -46,6 +46,8 @@ export function strip_npc_id(id) {
  * @returns {string}
  */
 export function normalize_next_action(raw) {
+  if (!raw) return "AI_CHARACTER";
+  if (typeof raw === "object" && raw.genesis) return "GENESIS";
   if (typeof raw !== "string") return "AI_CHARACTER";
   const trimmed = raw.trim();
   const upper = trimmed.toUpperCase();
@@ -76,7 +78,7 @@ export function normalize_speaker(raw) {
 }
 
 /**
- * Sanitizes director's note to a clean 1-3 line string.
+ * Sanitizes director's note to a clean 1-5 line string.
  * @param {any} raw
  * @returns {string}
  */
@@ -86,8 +88,8 @@ export function normalize_directors_note(raw) {
     .split(/\r?\n/)
     .map((l) => l.trim())
     .filter(Boolean)
-    .slice(0, 3);
-  return lines.join("\n").slice(0, 300);
+    .slice(0, 5);
+  return lines.join("\n").slice(0, 500);
 }
 
 /**
@@ -154,7 +156,7 @@ export function normalize_director_data(payload) {
 
   const spotlight_source = base.spotlight || base.in_scene_change;
   const in_scene_change = normalize_in_scene_change(spotlight_source);
-  const raw_genesis = base.spotlight?.genesis || base.genesis;
+  const raw_genesis = base.next_action?.genesis || base.spotlight?.genesis || base.genesis;
   const genesis =
     raw_genesis && typeof raw_genesis === "object"
       ? {
@@ -389,6 +391,7 @@ export async function apply_relationships(bridge, rels) {
 
 /**
  * CHANGELOG
+ * - 2026-09-06: Added support for next_action.genesis objects in normalize_next_action and normalize_director_data.
  * - 2026-09-05: Added support for unified spotlight schema (enter, exit, genesis) in normalize_director_data.
  * - 2026-08-28: Ground-up deconstruct & refactor: normalized action and speaker resolution, defensive JSON extraction, Stage Spotlight choreography, and unified Relational Mesh persistence.
  */

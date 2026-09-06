@@ -252,7 +252,7 @@ export function build_profile_sections(entity_type = "character") {
     .filter(([section_key, section]) => typeof section !== "string" && section !== null && section_key !== "profile")
     .map(([section_key, section_record]) => {
       const section = /** @type {any} */ (section_record);
-      const is_composite_section = Boolean(section && typeof section === "object" && ("physical" in section || "non_physical" in section));
+      const is_composite_section = Boolean(section && (section.physical || section.non_physical));
 
       const fields = is_composite_section
         ? ["physical", "non_physical"]

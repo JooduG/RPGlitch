@@ -90,7 +90,8 @@ export function resolve_image_trigger({ snapshot, prev_dynamics, director_data, 
   const tier_from_string = typeof raw_trigger === "string" && IMAGE_TRIGGER.tiers.includes(raw_trigger) ? raw_trigger : null;
   const tier_from_preference =
     typeof director_data?.image_tier === "string" && IMAGE_TRIGGER.tiers.includes(director_data.image_tier) ? director_data.image_tier : null;
-  const director_explicit = raw_trigger === true || raw_trigger === "true" || tier_from_string !== null;
+  const has_visual_staging = typeof director_data?.visual_staging === "string" && Boolean(director_data.visual_staging.trim());
+  const director_explicit = raw_trigger === true || raw_trigger === "true" || tier_from_string !== null || has_visual_staging;
   const director_qualifies = director_explicit && director_cooldown_elapsed;
 
   // 2. Evaluate Pure-JS Dynamics Gate (Priority 2)
@@ -235,6 +236,7 @@ export function evaluate_image_trigger(current = {}, previous = {}, options = {}
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-06: Added director explicit trigger activation when visual_staging is populated with non-empty directive.
  * - 2026-08-29: Applied /harmonize protocol: purged shorthand variable names (dir_last -> director_last_round, dyn_last -> dynamics_last_round, p -> previous_entity_dynamics, c -> current_entity_dynamics, tier_from_pref -> tier_from_preference), verified full anti-abbreviation compliance, enforced frozen configuration schemas, and audited against unit test suite.
  * - 2026-08-28: Implemented decoupled cooldowns for Director vs Dynamics triggers and Priority 1 arbitration.
  */

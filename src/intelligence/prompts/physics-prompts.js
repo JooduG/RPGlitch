@@ -4,11 +4,10 @@
  *
  * Prompt XML compilers for dynamics and somatic tells:
  * - SOMATIC_REGISTRY (12 universal static physical archetypes)
- * - build_dynamics_legend (<DYNAMICS_LEGEND> XML compiler)
+ * - render_dynamics_block (<DYNAMICS> XML compiler)
  * - format_dynamics_attrs (Dynamics parameter XML attributes)
- * - build_signals_xml (<DYNAMICS_SIGNALS> XML compiler)
+ * - build_somatic_signals_xml (<SOMATIC_SIGNALS> XML compiler)
  * - resolve_somatic_directives (Resolves keywords against static and style-motif registries)
- * - build_somatic_directives_xml (<SOMATIC_DIRECTIVES> XML compiler)
  * - build_available_keywords_xml (<AVAILABLE_KEYWORDS> XML compiler for Director)
  */
 
@@ -106,19 +105,27 @@ const SOMATIC_MAP = new Map(SOMATIC_REGISTRY.map((entry) => [entry.id, entry]));
 let cached_dynamics_legend = null;
 
 /**
- * Builds a dynamic rule guide explaining all simulation sliders to the LLM.
+ * Compiles a unified <DYNAMICS> block merging scale legend, axis definitions,
+ * optional current live values [current: XX], and calibration laws.
+ * @param {Record<string, number>|null} [live_dynamics=null]
  * @returns {string}
  */
-export function build_dynamics_legend() {
-  if (cached_dynamics_legend !== null) return cached_dynamics_legend;
+export function render_dynamics_block(live_dynamics = null) {
+  if (!live_dynamics && cached_dynamics_legend !== null) {
+    return cached_dynamics_legend;
+  }
   if (!DYNAMICS_AXES) return "";
 
   const definitions = Object.entries(DYNAMICS_AXES)
-    .map(([key, meta]) => `    - ${key} (${meta.label}): ${meta.desc}`)
+    .map(([key, meta]) => {
+      const value = live_dynamics?.[key];
+      const current_suffix = value !== undefined && value !== null ? ` [current: ${Math.round(Number(value))}]` : "";
+      return `    - ${key} (${meta.label}): ${meta.desc}${current_suffix}`;
+    })
     .join("\n");
 
-  cached_dynamics_legend = `
-<DYNAMICS_LEGEND>
+  const rendered = `
+<DYNAMICS>
   Scale: 0 (minimum) to 100 (maximum)
   Axes:
 ${definitions}
@@ -126,9 +133,13 @@ ${definitions}
     1. Calibrate dynamics_deltas conservatively (+1 to +4 standard; +8 to +12 extreme).
     2. Adjust deltas carefully near boundaries (5 or 95) to prevent clipping at 0 or 100.
     3. Calibrate dynamics_deltas to reflect the psychological and environmental shift of the turn.
-</DYNAMICS_LEGEND>`.trim();
+</DYNAMICS>`.trim();
 
-  return cached_dynamics_legend;
+  if (!live_dynamics) {
+    cached_dynamics_legend = rendered;
+  }
+
+  return rendered;
 }
 
 /**
@@ -145,17 +156,35 @@ export function format_dynamics_attrs(dynamics) {
 }
 
 /**
- * Renders the active narrative signals as a <DYNAMICS_SIGNALS> XML block.
- * @param {Record<string, number>} [ai_dynamics]
- * @param {Record<string, number>} [fractal_dynamics]
- * @param {{ style?: object }} [options]
- * @returns {string} XML block string, or "" when no signals are active.
+ * Compiles dynamic somatic directives and narrative signals into a single unified <SOMATIC_SIGNALS> XML block.
+ *
+ * @param {Record<string, number>} [ai_dynamics={}] - Active character dynamics
+ * @param {Record<string, number>} [fractal_dynamics={}] - Active fractal/environmental dynamics
+ * @param {{ style?: object, keywords?: string[] }} [options={}] - Narrative style and manual or director keywords
+ * @returns {string} XML block string or "" if no signals or directives are active.
  */
-export function build_signals_xml(ai_dynamics = {}, fractal_dynamics = {}, options = {}) {
-  const active = evaluate_dynamics_signals(ai_dynamics, fractal_dynamics, options?.style);
-  if (active.length === 0) return "";
-  const inner = active.map((s) => `      • ${s.text}`).join("\n");
-  return `    <DYNAMICS_SIGNALS>\n${inner}\n    </DYNAMICS_SIGNALS>`;
+export function build_somatic_signals_xml(ai_dynamics = {}, fractal_dynamics = {}, options = {}) {
+  const bullets = [];
+
+  // 1. Somatic Directives (from keywords or dynamics-based non-verbal reaction thresholds)
+  const manual_keywords = options?.keywords || [];
+  const resolved_keywords =
+    ai_dynamics && Object.keys(ai_dynamics).length ? resolve_non_verbal_reactions(ai_dynamics, manual_keywords) : manual_keywords;
+
+  const resolved_directives = resolve_somatic_directives(resolved_keywords);
+  for (const entry of resolved_directives) {
+    bullets.push(`• ${entry.id}: ${entry.directive}`);
+  }
+
+  // 2. Dynamics Signals (from active thresholds and narrative style)
+  const active_signals = evaluate_dynamics_signals(ai_dynamics, fractal_dynamics, options?.style);
+  for (const signal of active_signals) {
+    bullets.push(`• ${signal.text}`);
+  }
+
+  if (bullets.length === 0) return "";
+  const inner = bullets.map((item) => `      ${item}`).join("\n");
+  return `    <SOMATIC_SIGNALS>\n${inner}\n    </SOMATIC_SIGNALS>`;
 }
 
 // ── 3. Somatic Directive Compilers ───────────────────────────────────────────
@@ -182,38 +211,21 @@ export function resolve_somatic_directives(keywords = []) {
 }
 
 /**
- * Compiles dynamic somatic directives into a formatted <SOMATIC_DIRECTIVES> XML block.
- * Resolves thresholds from dynamics and manual keywords in a single linear pass.
- *
- * @param {string[]} [keywords=[]]
- * @param {Record<string, number>|null} [dynamics=null]
- * @returns {string}
- */
-export function build_somatic_directives_xml(keywords = [], dynamics = null) {
-  const resolved_keywords = dynamics ? resolve_non_verbal_reactions(dynamics, keywords) : keywords;
-  const resolved = resolve_somatic_directives(resolved_keywords);
-  if (resolved.length === 0) return "";
-
-  const items = resolved.map((entry) => `- ${entry.id}: ${entry.directive}`).join("\n");
-  return `\n<SOMATIC_DIRECTIVES>\n${items}\n</SOMATIC_DIRECTIVES>`;
-}
-
-/**
- * Builds <AVAILABLE_KEYWORDS> listing for the Director.
+ * Builds <AVAILABLE_KEYWORDS> listing for the Director as a unified, flat comma-separated list of tags.
  * @param {string[]} [active_style_keywords]
  * @returns {string}
  */
 export function build_available_keywords_xml(active_style_keywords = []) {
-  const static_ids = SOMATIC_REGISTRY.map((entry) => entry.id).join(", ");
-  const lines = [`- static (universal): ${static_ids}`];
+  const static_ids = SOMATIC_REGISTRY.map((entry) => entry.id);
   const motifs = (active_style_keywords || []).filter((k) => typeof k === "string" && k.trim());
-  if (motifs.length > 0) {
-    lines.push(`- active style: ${motifs.join(", ")}`);
-  }
-  return lines.join("\n");
+  const combined = Array.from(new Set([...static_ids, ...motifs]));
+  return combined.join(", ");
 }
 
 /**
  * CHANGELOG
+ * - 2026-09-06: Consolidated build_signals_xml and build_somatic_directives_xml into unified build_somatic_signals_xml (<SOMATIC_SIGNALS>).
+ * - 2026-09-06: Unified build_available_keywords_xml into a single flat comma-separated list of tags.
+ * - 2026-09-06: Relocated render_dynamics_block to physics-prompts.js, replacing build_dynamics_legend.
  * - 2026-08-28: Streamlined somatic prompt compilation into unified build_somatic_directives_xml and build_available_keywords_xml functions.
  */

@@ -8,8 +8,8 @@
 
 import { ind, prompt_escape, escape_xml, parse_relational_vector, clean_xml } from "@utils";
 import { resolve_active_style_key, render_narrative_style_xml } from "@data";
-import { DYNAMICS_AXES } from "../physics.js";
-import { build_dynamics_legend } from "./physics-prompts.js";
+import { render_dynamics_block } from "./physics-prompts.js";
+export { render_dynamics_block };
 
 // ── 1. Consolidated Protocol Library ──────────────────────────────────────────
 
@@ -546,33 +546,6 @@ export function render_optional_tag(tag_name, content) {
   return `<${tag_name}>${String(content).trim()}</${tag_name}>`;
 }
 
-/**
- * Compiles a unified <DYNAMICS> block merging scale legend, axis definitions,
- * current live values [current: XX], and calibration laws.
- * @param {Record<string, number>} [live_dynamics]
- * @returns {string}
- */
-export function render_dynamics_block(live_dynamics = {}) {
-  const definitions = Object.entries(DYNAMICS_AXES)
-    .map(([key, meta]) => {
-      const val = live_dynamics?.[key];
-      const curr = val !== undefined && val !== null ? ` [current: ${Math.round(Number(val))}]` : "";
-      return `    - ${key} (${meta.label}): ${meta.desc}${curr}`;
-    })
-    .join("\n");
-
-  return `
-<DYNAMICS>
-  Scale: 0 (minimum) to 100 (maximum)
-  Axes:
-${definitions}
-  Laws:
-    1. Calibrate dynamics_deltas conservatively (+1 to +4 standard; +8 to +12 extreme).
-    2. Adjust deltas carefully near boundaries (5 or 95) to prevent clipping at 0 or 100.
-    3. Calibrate dynamics_deltas to reflect the psychological and environmental shift of the turn.
-</DYNAMICS>`.trim();
-}
-
 // ── 4. Roster, Mesh & Epistemic XML Blocks ────────────────────────────────────
 
 const _cast_summary = (npc) => {
@@ -800,7 +773,7 @@ export function render_system_head(entities = {}) {
 
   const head = clean_xml(`
 <SYSTEM>
-  ${ind(build_dynamics_legend(), 2)}
+  ${ind(render_dynamics_block(), 2)}
   ${render_narrative_style_xml()}
   <CAST>
     ${
@@ -840,6 +813,7 @@ export function render_system_head(entities = {}) {
 
 /**
  * CHANGELOG
+ * - 2026-09-06: Consolidated render_dynamics_block to physics-prompts.js, re-exporting and using it in render_system_head.
  * - 2026-09-05: Added render_dynamics_block() merging scale legend, axis metadata, and live values.
  * - 2026-09-05: Consolidated Director cast, stage roster, and relational mesh into render_scene_spotlight_xml() strictly scoped to active scene participants.
  * - 2026-08-28: Consolidated fragmented protocol rules into PROSE_DISCIPLINE, ANTI_TROPES,

@@ -108,16 +108,16 @@ describe("Story Prompts (story-prompts.js)", () => {
       expect(result.task).toContain("openness (Openness): Receptivity vs Guardedness [current: 60]");
     });
 
-    it("injects somatic directives when keywords or high intensity are selected", () => {
+    it("injects somatic signals when keywords or high intensity are selected", () => {
       const result = render_story_prose({
         mode: "character",
         ...base_payload(),
         compressed_snapshot: base_snapshot,
         director_data: { keywords: ["shame", "stoic_pain"] },
       });
-      expect(result.task).toContain("<SOMATIC_DIRECTIVES>");
-      expect(result.task).toContain("- shame: Weave involuntary physical shame tells");
-      expect(result.task).toContain("- stoic_pain: Mask pain behind curt declarative statements");
+      expect(result.task).toContain("<SOMATIC_SIGNALS>");
+      expect(result.task).toContain("• shame: Weave involuntary physical shame tells");
+      expect(result.task).toContain("• stoic_pain: Mask pain behind curt declarative statements");
     });
 
     it("strips user's SECRET and PLAN across the Epistemic Wall", () => {
@@ -193,7 +193,7 @@ describe("Story Prompts (story-prompts.js)", () => {
       });
       expect(result.system).toContain('<ROLE name="Void" mode="SCENE">');
       expect(result.task).toContain("You are the Fractal itself, narrating the scene");
-      expect(result.task).toContain("<SOMATIC_DIRECTIVES>");
+      expect(result.task).toContain("<SOMATIC_SIGNALS>");
     });
 
     it("builds prologue narration prompt", () => {

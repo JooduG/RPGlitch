@@ -140,4 +140,38 @@ describe("resolve_image_trigger (Dual-Source & Decoupled Cooldown Orchestration)
     expect(res.active).toBe(true);
     expect(res.source).toBe("dynamics");
   });
+
+  it("triggers director explicit image beat when visual_staging is populated and cooldown elapsed", () => {
+    const snapshot = { ai: { dynamics: { intensity: 50 } } };
+    const prev_dynamics = { ai: { intensity: 50 } };
+    const res = resolve_image_trigger({
+      snapshot,
+      prev_dynamics,
+      director_data: { visual_staging: "Close-up of the shattered seal with cold mist escaping." },
+      turn_round: 3,
+      last_director_beat_round: 1, // 3 >= 1 + 2
+      last_dynamics_beat_round: -1,
+    });
+
+    expect(res.active).toBe(true);
+    expect(res.source).toBe("director");
+    expect(res.director_explicit).toBe(true);
+    expect(res.next_director_round).toBe(3);
+  });
+
+  it("suppresses director explicit visual_staging trigger when director cooldown is active", () => {
+    const snapshot = { ai: { dynamics: { intensity: 50 } } };
+    const prev_dynamics = { ai: { intensity: 50 } };
+    const res = resolve_image_trigger({
+      snapshot,
+      prev_dynamics,
+      director_data: { visual_staging: "Dramatic lighting on the doorway." },
+      turn_round: 2,
+      last_director_beat_round: 1, // 2 < 1 + 2 (cooldown active!)
+      last_dynamics_beat_round: -1,
+    });
+
+    expect(res.active).toBe(false);
+    expect(res.director_explicit).toBe(true);
+  });
 });
