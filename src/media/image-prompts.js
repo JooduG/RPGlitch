@@ -73,7 +73,7 @@ export function build_optics_builder_protocol(style_definition = {}, engine_toke
       : [];
   const valid_keywords = keyword_list.filter(Boolean);
   const keywords_str = valid_keywords.length ? valid_keywords.join(", ") : "cinematic, atmospheric";
-  const style_keywords_xml = `<STYLE_KEYWORDS>Optionally weave 2-4 appropriate keywords from the active style:\n${prompt_escape(keywords_str)}\n</STYLE_KEYWORDS>`;
+  const style_keywords_xml = `<KEYWORD_DIRECTIVES>Integrate 2-4 appropriate keywords from below.\n<AVAILABLE_KEYWORDS>${prompt_escape(keywords_str)}</AVAILABLE_KEYWORDS>\n</KEYWORD_DIRECTIVES>`;
 
   const camera_or_composition = engine_tokens.camera
     ? `<CAMERA>Strict camera framing and optical lens specs: ${escape_xml(engine_tokens.camera)}</CAMERA>`
@@ -97,11 +97,11 @@ export function build_optics_builder_protocol(style_definition = {}, engine_toke
 
   return `<VISUAL_SYNTHESIS>
 
-<PHASE_1 task="Composition Structure Output Schema">
+<PHASE_1 task="COMPOSITION_STRATEGY">
 <COGNITIVE_DIRECTIVE>Formulate composition strategy inside "_thought_process" key first.</COGNITIVE_DIRECTIVE>
 <PROMPT_PROSE>Output final image prompt inside "prompt" as continuous, fluid prose.</PROMPT_PROSE>
 <NEGATIVE_PROMPT>Output negative tokens inside "negative_prompt". Enforce KEYWORD_INTEGRITY — quality buzzwords ('masterpiece', '8K', 'ultra HD', 'photorealistic', 'digital art') are forbidden in BOTH "prompt" and "negative_prompt". Ground outputs using physical optics and real-world materials.</NEGATIVE_PROMPT>
-<WEIGHTING_FORBIDDEN>Enforce FLUX_T5_WEIGHTING — NEVER emit bracket weight math ('(x:1.3)', '((x))', '[x:0.4]'): FLUX/T5 reads words, not weights. Emphasize via descriptors, varied rephrasing, and attenuation phrasing ('faint', 'subtle touch of', 'barely visible in the distance').</WEIGHTING_FORBIDDEN>
+<WEIGHTING_RESTRICTIONS>Enforce FLUX_T5_WEIGHTING — NEVER emit bracket weight math ('(x:1.3)', '((x))', '[x:0.4]'): FLUX/T5 reads words, not weights. Emphasize via descriptors, varied rephrasing, and attenuation phrasing ('faint', 'subtle touch of', 'barely visible in the distance').</WEIGHTING_RESTRICTIONS>
 <AFFIRMATIVE_FRAMING>${PROTOCOL_LIBRARY.HYGIENE.AFFIRMATIVE_FRAMING}</AFFIRMATIVE_FRAMING>
 ${style_keywords_xml}
 </PHASE_1>
@@ -111,7 +111,7 @@ ${style_keywords_xml}
 <SPATIAL_GEOMETRY>Spatial orientation: direct depiction of focal elements, absolute geometry, camera angles, elevations, lighting positions, and depth layers without metaphor or narrative scaffolding.</SPATIAL_GEOMETRY>${camera_or_composition ? `\n${camera_or_composition}` : ""}
 </PHASE_2>
 
-<PHASE_3 task="CHARACTER_SPECIFICATION">
+<PHASE_3 task="SUBJECT_SPECIFICATION">
 <IDENTIFIERS>Always explicitly state gender and physical identifiers (e.g., "a handsome young male high-elf man").</IDENTIFIERS>
 <CREATURE_DISAMBIGUATION>Never use bare animal/creature proper names (e.g., "Beast"). Translate to explicit physical traits (e.g., "a massive grey-green male orc warrior").</CREATURE_DISAMBIGUATION>
 <FEATURE_WEIGHTING>Dedicate maximum descriptive effort to distinguishing features (scars, glowing eyes, horns); keep common traits brief. Reinforce key subjects through varied rephrasing across clauses rather than numeric weights.</FEATURE_WEIGHTING>
@@ -170,7 +170,7 @@ export const prompt_templates = {
         blocks.push(
           physical_to_xml(
             strip_visual_excluded(parse_macros(String(entity_instance.eternal.physical).trim(), entity_instance, macro_entities)),
-            "ETERNAL",
+            "PHYSICAL_APPEARANCE",
           ),
         );
       }
@@ -178,7 +178,7 @@ export const prompt_templates = {
         blocks.push(
           physical_to_xml(
             strip_visual_excluded(parse_macros(String(entity_instance.present.physical).trim(), entity_instance, macro_entities)),
-            "PRESENT",
+            "CURRENT_IMPRESSION",
           ),
         );
       }
@@ -194,7 +194,7 @@ export const prompt_templates = {
       is_story_tier && active_fractal_setting
         ? render_entity("FRACTAL", active_fractal_setting)
         : is_story_tier && main_entity
-          ? `<BACKGROUND_DIRECTIVE>No explicit fractal environment setting is provided. You MUST synthesize an evocative, atmospheric background environment that naturally fits the personality, visual theme, and signature colors of ${prompt_escape(main_entity.name || "the subject")}.</BACKGROUND_DIRECTIVE>`
+          ? `<BACKGROUND_DIRECTIVE>You MUST synthesize an evocative, atmospheric background environment that naturally fits the personality, visual theme, and signature colors of ${prompt_escape(main_entity.name || "the subject")}.</BACKGROUND_DIRECTIVE>`
           : "";
 
     const combined_input_text = `${raw_intent || ""} ${main_entity?.present?.physical || ""} ${main_entity?.eternal?.physical || ""}`;

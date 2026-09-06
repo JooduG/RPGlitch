@@ -10,10 +10,10 @@
  */
 
 import { get_style_keywords, resolve_active_style_key } from "@data";
-import { ind, escape_xml, clean_xml, strip_cognition_blocks, physical_to_xml } from "@utils";
-import { build_available_keywords_xml, format_dynamics_attrs } from "./physics-prompts.js";
+import { ind, escape_xml, clean_xml, strip_cognition_blocks } from "@utils";
+import { build_available_keywords_xml } from "./physics-prompts.js";
 import { render_builder } from "./builder.js";
-import { render_system_head, render_field_value, render_director_cast_xml, render_protocols, render_optional_tag, parse_macros } from "./shared.js";
+import { render_system_head, render_recoupled_cast_body, render_director_cast_xml, render_protocols } from "./shared.js";
 
 // ── 0. Lexical & Spatial Recognition Constants ───────────────────────────────
 
@@ -97,46 +97,26 @@ export function render_director({
   const full_protocols = `${shared_protocols}\n\n${local_protocols}`.trim();
   const active_style_keywords = get_style_keywords(resolve_active_style_key());
 
-  const system = `${render_system_head(entities)}\n${clean_xml(`
-  <ROLE name="DIRECTOR">
-    You are the Director — the unseen intelligence orchestrating the mechanical state of the simulation.
-  </ROLE>
+  const cast_body = render_recoupled_cast_body({
+    entities,
+    accessors,
+    live_dynamics: {
+      ai: compressed_snapshot?.ai?.dynamics,
+      fractal: compressed_snapshot?.fractal?.dynamics,
+    },
+    include_user_future: true,
+  });
 
-  <AVAILABLE_KEYWORDS>
-    ${build_available_keywords_xml(active_style_keywords)}
-    Select 1-5 of these to instruct the next speaker's emotional micro-expressions, physical tells, and atmospheric tone (or [] when neutral). Never invent keywords outside this list.
-  </AVAILABLE_KEYWORDS>
+  const system = `${render_system_head(cast_body)}\n${clean_xml(`
+  <ROLE name="DIRECTOR">You are the Director — the unseen intelligence orchestrating the mechanical state of the simulation.</ROLE>
 
-  <ACTIVE_CHARACTERS>
-    <AI_CHARACTER name="${escape_xml(entities?.AI?.name || "AI")}"${format_dynamics_attrs(compressed_snapshot?.ai?.dynamics)}>
-      <STATE_OF_MIND>${ind(render_field_value(entities?.AI?.present?.non_physical, entities?.AI, entities), 8)}</STATE_OF_MIND>
-      ${ind(physical_to_xml(parse_macros(String(entities?.AI?.present?.physical || "").trim(), entities?.AI, entities), "CURRENT_LOOK"), 6).trim()}
-      ${render_optional_tag("INTENT", ind(accessors.future(entities?.AI, { vector_text: true }), 8))}
-      ${render_optional_tag("MEMORIES", ind(accessors.past(entities?.AI, { vector_text: true }), 8))}
-    </AI_CHARACTER>
-    <USER_PERSONA name="${escape_xml(entities?.USER?.name || "User")}">
-      <PERSONALITY>${render_field_value(entities?.USER?.eternal?.non_physical, entities?.USER, entities)}</PERSONALITY>
-      <STATE_OF_MIND>${ind(render_field_value(entities?.USER?.present?.non_physical, entities?.USER, entities), 8)}</STATE_OF_MIND>
-      <PERMANENT_APPEARANCE>${render_field_value(entities?.USER?.eternal?.physical, entities?.USER, entities)}</PERMANENT_APPEARANCE>
-      ${ind(
-        physical_to_xml(parse_macros(String(entities?.USER?.present?.physical || "").trim(), entities?.USER, entities), "CURRENT_LOOK"),
-        6,
-      ).trim()}
-      ${render_optional_tag("AGENDA", ind(accessors.future(entities?.USER, { vector_text: true }), 8))}
-      ${render_optional_tag("BACKSTORY", ind(accessors.past(entities?.USER, { vector_text: true }), 8))}
-    </USER_PERSONA>
-  </ACTIVE_CHARACTERS>
-  ${
-    entities?.FRACTAL
-      ? `
-  <FRACTAL name="${escape_xml(entities.FRACTAL.name)}"${format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics)}>
-    <CURRENT_STATE>${render_field_value(entities.FRACTAL.present?.non_physical, entities.FRACTAL, entities)}</CURRENT_STATE>
-    <ACTIVE_ATMOSPHERE>${render_field_value(entities.FRACTAL.present?.physical, entities.FRACTAL, entities)}</ACTIVE_ATMOSPHERE>
-    ${render_optional_tag("AGENDA", ind(accessors.future(entities.FRACTAL, { vector_text: true }), 6))}
-    ${render_optional_tag("HISTORY", ind(accessors.past(entities.FRACTAL, { vector_text: true }), 6))}
-  </FRACTAL>`.trim()
-      : ""
-  }
+  <KEYWORD_DIRECTIVES>
+  - Function: Select 1 to 5 keywords below to steer the next speaker's emotional micro-expressions, physical tells, and scene tone.
+  - Neutral state: Emit strictly "[]" if no keywords apply.
+  - Whitelist rule: Strictly select from the dynamic list below. Never alter keywords or generate unlisted terms.
+  <AVAILABLE_KEYWORDS>${build_available_keywords_xml(active_style_keywords)}</AVAILABLE_KEYWORDS>
+  </KEYWORD_DIRECTIVES>
+
   <PROTOCOLS>
     ${ind(full_protocols, 4)}
   </PROTOCOLS>
@@ -179,6 +159,7 @@ export function render_terse_director_task() {
 
 /**
  * CHANGELOG
+ * - 2026-09-06: Deleted the hand-rolled <ACTIVE_CHARACTERS> and <FRACTAL> blocks — the director now uses the single shared render_recoupled_cast_body (from shared.js) inside <CAST>, with include_user_future and live dynamics attrs, so the eternal-only cached cast path and all duplicate character-sheet rendering are gone.
  * - 2026-09-06: Formatted CURRENT_LOOK using physical_to_xml and parse_macros for AI_CHARACTER and USER_PERSONA.
  * - 2026-09-06: Refactored prompt compiler per Simulation § 4.2 Structured JSON Schema Design:
  *   streamlined SCHEMA placeholders (keywords, 1-5 lines directors_note), eliminated redundant _thought_process

@@ -6,21 +6,21 @@
  * roster/mesh XML compilers, and the core PROTOCOL_LIBRARY.
  */
 
-import { ind, prompt_escape, escape_xml, parse_relational_vector, clean_xml } from "@utils";
-import { resolve_active_style_key, render_narrative_style_xml } from "@data";
-import { render_dynamics_block } from "./physics-prompts.js";
+import { ind, prompt_escape, escape_xml, parse_relational_vector, clean_xml, physical_to_xml } from "@utils";
+import { render_narrative_style_xml } from "@data";
+import { render_dynamics_block, format_dynamics_attrs } from "./physics-prompts.js";
 export { render_dynamics_block };
 
 // ── 1. Consolidated Protocol Library ──────────────────────────────────────────
 
-const BASE_HYGIENE = "Omit conversational preambles, greetings, or meta-commentary. Start instantly.";
+const BASE_HYGIENE = "Start immediately. Output zero narrative prose, conversational filler, or meta-commentary.";
 const BASE_THINK_CLOSURE = "Conduct thinking in the conversation language. Close with </think> before narrative prose.";
 
 export const PROTOCOL_LIBRARY = {
   // ── 1.1 Core Output Mechanics, Formatting & Hygiene ────────────────────────
   HYGIENE: {
     PROSE_DISCIPLINE: `${BASE_HYGIENE} No timestamps or headers. No echoing user dialogue. Match character profile. Write natural physicality in the affirmative (state what IS, not what isn't). Format with expressive markdown (*italics* for physical actions/subtext, **bold** for key impacts/codenames, "quotes" for speech). Roughly match the length and energy of the user's message. Always end on a complete sentence.`,
-    DATA: `${BASE_HYGIENE} Enforce strict professional brevity. No dialogue, internal thoughts, or roleplay scenes. Output ONLY objective structural data.`,
+    DATA: `${BASE_HYGIENE} Return strictly raw, unpadded structural data.`,
     ANTI_TROPES: `1. STRUCTURAL FORMULAS: Avoid sentence-level AI formulas: denial-then-affirmation ('X didn't just Y; it Z'd', "I don't just [verb]; I [verb]", "didn't just", "not merely", "doesn't simply"); binary comparison clichés ('felt less like X and more like Y'); appositive dialogue sound tags ('she laughed, a [adj], [adj] sound'); pseudo-profound statements; user-echoing starters ('You speak of...', 'You think that...'); self-answering dialogue; recycled fantasy names (Elara, Kaelen, Valerius Thorne); and formulaic action-dialogue sandwiches ([action] + 'dialogue' + [action] every turn).
 2. AFFIRMATIVE PROSE: Render presence, posture, tactile sensation, and movement directly. Describe what characters do, perceive, and feel through concrete action rather than passive summary, clichéd tropes, or artificial dramatic pauses.`,
     AFFIRMATIVE_FRAMING:
@@ -760,68 +760,131 @@ export function render_current_story_state_xml(entities = {}, npc_entities = [],
   return body ? `<CURRENT_STORY_STATE>\n${body}\n</CURRENT_STORY_STATE>` : "";
 }
 
-// ── 6. Shared System Head & Prefix Caching ────────────────────────────────────
-
-export const system_head_cache = new Map();
-export const SYSTEM_HEAD_CACHE_CAP = 16;
-
-const _eternal_fp = (entity) => (entity ? [entity.id || "", entity.name || "", JSON.stringify(entity.eternal || {})].join("|") : "∅");
-const _system_head_key = (entities) =>
-  `${_eternal_fp(entities?.AI)}||${_eternal_fp(entities?.USER)}||${_eternal_fp(entities?.FRACTAL)}||style=${resolve_active_style_key()}`;
+// ── 6. Shared System Head & CAST Compiler ─────────────────────────────────────
 
 /**
- * Renders the eternal-only CAST body (personality + permanent appearance) used
- * by the default shared head. Entity tags are left unindented; the caller
- * applies a uniform 4-space indent so the head output stays consistently nested.
- * @param {any} entities
+ * Renders the per-entity character-sheet CAST body shared by every prompt:
+ * each entity's eternal + present + future + past clump into one block
+ * (AI_CHARACTER / USER_PERSONA / FRACTAL, plus an <NPC> sheet when delegated).
+ * Entity tags are left unindented; the caller applies a uniform 4-space indent.
+ * @param {Object} [params]
+ * @param {any} [params.entities]
+ * @param {any} [params.active_speaker]
+ * @param {boolean} [params.is_narrator=false]
+ * @param {boolean} [params.is_npc=false]
+ * @param {any} [params.accessors] - Render accessors (future/past) from render_builder.
+ * @param {{ ai?: Record<string, number>, fractal?: Record<string, number> }|null} [params.live_dynamics]
+ *   Live dynamics attached as XML attrs on the AI_CHARACTER/FRACTAL tags (director).
+ * @param {boolean} [params.include_user_future=false]
+ *   Expose the USER's future intent as <AGENDA> (omniscient director only; withheld from characters).
  * @returns {string}
  */
-function _render_eternal_cast_body(entities = {}) {
-  const parts = [];
+export function render_recoupled_cast_body({
+  entities = {},
+  active_speaker = null,
+  is_narrator = false,
+  is_npc = false,
+  accessors = null,
+  live_dynamics = null,
+  include_user_future = false,
+}) {
+  const rows = [];
+
+  const look_row = (entity, { strip = false } = {}) => {
+    const source = strip ? strip_epistemic_secrets(entity?.present?.physical, false) : entity?.present?.physical;
+    const look = physical_to_xml(render_field_value(source, entity, entities), "CURRENT_LOOK");
+    return look && String(look).trim() ? `  ${String(look).trim()}` : "";
+  };
+
+  const optional_row = (tag, content) => {
+    const rendered = render_optional_tag(tag, ind(content, 6));
+    return rendered ? `  ${rendered}` : "";
+  };
+
   if (entities?.AI) {
-    parts.push(`<AI_CHARACTER name="${escape_xml(entities.AI.name || "AI")}">
-  <PERSONALITY>${render_field_value(entities.AI.eternal?.non_physical, entities.AI, entities)}</PERSONALITY>
-  <PERMANENT_APPEARANCE>${render_field_value(entities.AI.eternal?.physical, entities.AI, entities)}</PERMANENT_APPEARANCE>
-</AI_CHARACTER>`);
+    const ai = entities.AI;
+    const attrs = live_dynamics?.ai ? format_dynamics_attrs(live_dynamics.ai) : "";
+    rows.push(`<AI_CHARACTER name="${escape_xml(ai.name || "AI")}"${attrs}>`);
+    rows.push(`  <PERSONALITY>${render_field_value(ai.eternal?.non_physical, ai, entities)}</PERSONALITY>`);
+    rows.push(`  <PERMANENT_APPEARANCE>${render_field_value(ai.eternal?.physical, ai, entities)}</PERMANENT_APPEARANCE>`);
+    if (!is_narrator) {
+      rows.push(`  <STATE_OF_MIND>${render_field_value(strip_epistemic_secrets(ai.present?.non_physical, !is_npc), ai, entities)}</STATE_OF_MIND>`);
+    }
+    const ai_look = look_row(ai);
+    if (ai_look) rows.push(ai_look);
+    rows.push(optional_row("INTENT", accessors?.future(ai, { vector_text: true })));
+    rows.push(optional_row("MEMORIES", accessors?.past(ai, { vector_text: true })));
+    rows.push("</AI_CHARACTER>");
   }
+
   if (entities?.USER) {
-    parts.push(`<USER_PERSONA name="${escape_xml(entities.USER.name || "User")}">
-  <PERSONALITY>${render_field_value(strip_epistemic_tags(entities.USER.eternal?.non_physical), entities.USER, entities)}</PERSONALITY>
-  <PERMANENT_APPEARANCE>${render_field_value(strip_epistemic_tags(entities.USER.eternal?.physical), entities.USER, entities)}</PERMANENT_APPEARANCE>
-</USER_PERSONA>`);
+    const user = entities.USER;
+    rows.push(`<USER_PERSONA name="${escape_xml(user.name || "User")}">`);
+    rows.push(`  <PERSONALITY>${render_field_value(strip_epistemic_tags(user.eternal?.non_physical), user, entities)}</PERSONALITY>`);
+    rows.push(`  <PERMANENT_APPEARANCE>${render_field_value(strip_epistemic_tags(user.eternal?.physical), user, entities)}</PERMANENT_APPEARANCE>`);
+    if (!is_narrator) {
+      rows.push(`  <STATE_OF_MIND>${render_field_value(strip_epistemic_secrets(user.present?.non_physical, false), user, entities)}</STATE_OF_MIND>`);
+    }
+    const user_look = look_row(user, { strip: true });
+    if (user_look) rows.push(user_look);
+    if (include_user_future) {
+      rows.push(optional_row("AGENDA", accessors?.future(user, { vector_text: true })));
+    }
+    rows.push(optional_row("BACKSTORY", strip_epistemic_secrets(accessors?.past(user, { vector_text: true }), false)));
+    rows.push("</USER_PERSONA>");
   }
+
   if (entities?.FRACTAL) {
-    parts.push(`<FRACTAL name="${escape_xml(entities.FRACTAL.name || "the setting")}">
-  <METAPHYSICAL_TRUTHS>${render_field_value(entities.FRACTAL.eternal?.non_physical, entities.FRACTAL, entities)}</METAPHYSICAL_TRUTHS>
-  <ENVIRONMENT>${render_field_value(entities.FRACTAL.eternal?.physical, entities.FRACTAL, entities)}</ENVIRONMENT>
-</FRACTAL>`);
+    const fractal = entities.FRACTAL;
+    const attrs = live_dynamics?.fractal ? format_dynamics_attrs(live_dynamics.fractal) : "";
+    rows.push(`<FRACTAL name="${escape_xml(fractal.name || "the setting")}"${attrs}>`);
+    rows.push(`  <METAPHYSICAL_TRUTHS>${render_field_value(fractal.eternal?.non_physical, fractal, entities)}</METAPHYSICAL_TRUTHS>`);
+    rows.push(`  <ENVIRONMENT>${render_field_value(fractal.eternal?.physical, fractal, entities)}</ENVIRONMENT>`);
+    if (is_narrator) {
+      rows.push(
+        `  <ATMOSPHERE>${render_field_value(active_speaker?.present?.physical || active_speaker?.present?.non_physical, active_speaker, entities)}</ATMOSPHERE>`,
+      );
+      rows.push(optional_row("INTENT", accessors?.future(fractal, { vector_text: true })));
+      rows.push(optional_row("MEMORIES", accessors?.past(fractal, { vector_text: true })));
+    } else {
+      rows.push(`  <CURRENT_STATE>${render_field_value(fractal.present?.non_physical, fractal, entities)}</CURRENT_STATE>`);
+      rows.push(`  <ACTIVE_ATMOSPHERE>${render_field_value(fractal.present?.physical, fractal, entities)}</ACTIVE_ATMOSPHERE>`);
+      rows.push(optional_row("AGENDA", accessors?.future(fractal, { vector_text: true })));
+      rows.push(optional_row("HISTORY", accessors?.past(fractal, { vector_text: true })));
+    }
+    rows.push("</FRACTAL>");
   }
-  return parts.join("\n");
+
+  if (is_npc && active_speaker) {
+    const npc = active_speaker;
+    rows.push(`<NPC name="${escape_xml(npc.name || "NPC")}">`);
+    rows.push(`  <PERSONALITY>${render_field_value(npc.eternal?.non_physical, npc, entities)}</PERSONALITY>`);
+    rows.push(`  <PERMANENT_APPEARANCE>${render_field_value(npc.eternal?.physical, npc, entities)}</PERMANENT_APPEARANCE>`);
+    rows.push(`  <STATE_OF_MIND>${render_field_value(strip_epistemic_secrets(npc.present?.non_physical, true), npc, entities)}</STATE_OF_MIND>`);
+    const npc_look = look_row(npc);
+    if (npc_look) rows.push(npc_look);
+    rows.push(optional_row("INTENT", accessors?.future(npc, { vector_text: true })));
+    rows.push(optional_row("MEMORIES", accessors?.past(npc, { vector_text: true })));
+    rows.push("</NPC>");
+  }
+
+  return rows.filter((row) => String(row).trim() !== "").join("\n");
 }
 
 /**
- * Shared SYSTEM head — the byte-identical prefix of every turn-loop prompt.
- * When `cast_body_override` is provided (a pre-rendered clumped per-entity
- * sheet body), it replaces the eternal-only CAST and bypasses the cache.
- * @param {any} entities
- * @param {string|null} [cast_body_override=null]
+ * Shared SYSTEM head — wraps a pre-rendered CAST body (from
+ * render_recoupled_cast_body) in the common <SYSTEM> scaffold: dynamics legend,
+ * narrative style, and the <CAST> block.
+ * @param {string} [cast_body=""]
  * @returns {string}
  */
-export function render_system_head(entities = {}, cast_body_override = null) {
-  const key = _system_head_key(entities);
-  const use_cache = cast_body_override === null;
-  if (use_cache) {
-    const hit = system_head_cache.get(key);
-    if (hit !== undefined) return hit;
-  }
-
-  const cast_body = use_cache ? _render_eternal_cast_body(entities) : cast_body_override;
+export function render_system_head(cast_body = "") {
   const cast_indented = cast_body
     .split("\n")
     .map((line) => `    ${line}`)
     .join("\n");
 
-  const head = clean_xml(`
+  return clean_xml(`
 <SYSTEM>
   ${ind(render_dynamics_block(), 2)}
   ${render_narrative_style_xml()}
@@ -829,19 +892,11 @@ export function render_system_head(entities = {}, cast_body_override = null) {
 ${cast_indented}
   </CAST>
   `).trim();
-
-  if (use_cache) {
-    system_head_cache.set(key, head);
-    if (system_head_cache.size > SYSTEM_HEAD_CACHE_CAP) {
-      const oldest = system_head_cache.keys().next().value;
-      system_head_cache.delete(oldest);
-    }
-  }
-  return head;
 }
 
 /**
  * CHANGELOG
+ * - 2026-09-06: Removed the eternal-only CAST + prefix-cache path (system_head_cache/_render_eternal_cast_body). render_system_head now takes the single shared CAST body; render_recoupled_cast_body (moved here from story-prompts.js) is the one cast renderer used by storyteller and director.
  * - 2026-09-06: render_system_head now accepts an optional cast_body_override — when provided (recoupled per-entity sheets from story-prompts.js), it replaces the eternal-only CAST body and bypasses the prefix cache; the default eternal-only cached path is unchanged for the director.
  * - 2026-09-06: Consolidated render_dynamics_block to physics-prompts.js, re-exporting and using it in render_system_head.
  * - 2026-09-05: Added render_dynamics_block() merging scale legend, axis metadata, and live values.

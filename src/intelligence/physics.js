@@ -23,14 +23,14 @@
  */
 export const DYNAMICS_AXES = {
   // Character (Somatic) axes
-  chaos: { label: "Chaos", desc: "Randomness vs Control" },
-  intensity: { label: "Intensity", desc: "Internal Energy / Adrenaline" },
-  openness: { label: "Openness", desc: "Receptivity vs Guardedness" },
-  affinity: { label: "Affinity", desc: "Inter-Entity Bond / Empathy" },
+  chaos: { label: "Chaos", desc: "Order vs Volatility" },
+  intensity: { label: "Intensity", desc: "Stillness vs Surge" },
+  openness: { label: "Openness", desc: "Insulation vs Permeability" },
+  affinity: { label: "Affinity", desc: "Isolation vs Coalescence" },
 
   // Fractal (Environmental) axes
-  velocity: { label: "Velocity", desc: "Environmental Pacing / Speed" },
-  entropy: { label: "Entropy", desc: "Structural Reality / Weirdness" },
+  velocity: { label: "Velocity", desc: "Suspension vs Acceleration" },
+  entropy: { label: "Entropy", desc: "Glitching vs Coherence" },
 };
 
 // ── 2. Global Dynamics Triggers ───────────────────────────────────────────────

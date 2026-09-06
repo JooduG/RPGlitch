@@ -148,7 +148,7 @@ export function render_memory({ target_entity, target_key = "AI_CHARACTER", othe
   const chapter_xml = target_entity ? render_chapter_history_xml(target_entity) : "";
 
   return clean_xml(`
-<SYSTEM role="CONTINUUM_CARETAKER" target="${escape_xml(target_key)}" name="${escape_xml(target_name)}">
+<SYSTEM role="CONTINUUM_CARETAKER" target="${escape_xml(target_name)}">
   <PROTOCOLS>
     ${ind(render_protocols("HYGIENE.DATA, AGENCY.PRESENT_TENSE, STATE.PSEUDO_JSON"), 4)}
   </PROTOCOLS>
