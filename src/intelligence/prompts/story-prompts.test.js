@@ -229,6 +229,33 @@ describe("Story Prompts (story-prompts.js)", () => {
       expect(task).toContain("I step forward.");
       expect(task).toContain("Enhance");
     });
+
+    it("resolves stored macros before the perspective swap so swapped state keeps stable identities", () => {
+      const macro_entities = {
+        USER: {
+          id: "user-1",
+          name: "Julien",
+          eternal: { non_physical: "" },
+          present: { non_physical: "Kneeling near {{char}}.", physical: "[ROBES: sheer high-elven robes]" },
+          future: "",
+          past: [],
+        },
+        AI: {
+          id: "ai-1",
+          name: "Beast",
+          eternal: { non_physical: "" },
+          present: { non_physical: "A deep hum in {{char}}'s chest, watching {{user}}.", physical: "[PANTS: torn training shorts]" },
+          future: "",
+          past: [],
+        },
+        FRACTAL: { name: "Project Tartarus" },
+      };
+      const { system, task } = render_ghostwriter({ entities: macro_entities, input: "" });
+      const prompt = system + "\n" + task;
+      expect(prompt).toContain("A deep hum in Beast's chest, watching Julien.");
+      expect(prompt).toContain("Kneeling near Beast.");
+      expect(prompt).not.toContain("A deep hum in Julien's chest");
+    });
   });
 
   describe("Anti-Trope Governance & Dual Tone Synthesis (task-1.3)", () => {

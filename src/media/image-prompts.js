@@ -19,7 +19,7 @@
 import { VISUAL_STYLES, resolve_portrait_visual_style_key, resolve_story_visual_style_key } from "@data";
 import { escape_xml, physical_to_xml, prompt_escape, safe_parse_json, strip_cognition_blocks, detox_prose } from "@utils";
 import { sanitize_llm } from "@platform";
-import { PROTOCOL_LIBRARY } from "../intelligence/prompts/shared.js";
+import { PROTOCOL_LIBRARY, parse_macros } from "../intelligence/prompts/shared.js";
 import { normalize_image_tier } from "./image-tiers.js";
 import { resolve_visual_engine_tokens, strip_visual_excluded } from "./image-aesthetics.js";
 
@@ -158,6 +158,7 @@ export const prompt_templates = {
     const active_fractal_setting = fractal || (entity?.type === "fractal" ? entity : null);
     const main_entity = entity || active_ai_character || active_user_persona;
     const solo_subject = entity || active_ai_character || active_user_persona || active_fractal_setting;
+    const macro_entities = { AI: active_ai_character, USER: active_user_persona, FRACTAL: active_fractal_setting };
 
     let context_block;
     let subject;
@@ -166,10 +167,20 @@ export const prompt_templates = {
       if (!entity_instance) return "";
       const blocks = [];
       if (entity_instance.eternal?.physical) {
-        blocks.push(physical_to_xml(strip_visual_excluded(entity_instance.eternal.physical), "ETERNAL"));
+        blocks.push(
+          physical_to_xml(
+            strip_visual_excluded(parse_macros(String(entity_instance.eternal.physical).trim(), entity_instance, macro_entities)),
+            "ETERNAL",
+          ),
+        );
       }
       if (entity_instance.present?.physical) {
-        blocks.push(physical_to_xml(strip_visual_excluded(entity_instance.present.physical), "PRESENT"));
+        blocks.push(
+          physical_to_xml(
+            strip_visual_excluded(parse_macros(String(entity_instance.present.physical).trim(), entity_instance, macro_entities)),
+            "PRESENT",
+          ),
+        );
       }
       if (!blocks.length) return "";
       return `<${tag_name} name="${escape_xml(entity_instance.name || tag_name)}">\n${blocks.join("\n")}\n</${tag_name}>`;
@@ -343,6 +354,7 @@ export function clean_image_prompt(raw) {
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-04: render_entity now resolves {{...}} macros ({{char}}/{{user}}/{{me}}/{{fractal}}) against each entity's stable identity before compiling PRESENT/ETERNAL blocks, so image prompts never receive raw macro tokens or inverted names.
  * - 2026-09-06: Suppressed empty fallback entity tags in render_entity to avoid generating "Unknown" subjects.
  * - 2026-09-06: Upgraded Optics Builder protocol: affirmative framing, cognitive directive, style keywords, merged spatial geometry, dynamic alternation resolution, and removed outer PROTOCOL wrapper. Fixed fractal recursion and framing.
  * - 2026-08-29: Harmonized via /harmonize protocol: purged abbreviated identifiers (style_obj -> style_definition, active_ai -> active_ai_character, active_user -> active_user_persona, active_fractal -> active_fractal_setting, ai_block -> ai_character_block, user_block -> user_persona_block, fractal_block -> fractal_setting_block), validated Universal File Architecture, and verified zero backwards-compatibility debt.

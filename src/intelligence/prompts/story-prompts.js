@@ -13,6 +13,7 @@ import { build_somatic_signals_xml } from "./physics-prompts.js";
 import { render_builder } from "./builder.js";
 import {
   render_system_head,
+  parse_macros,
   render_field_value,
   strip_epistemic_secrets,
   render_optional_tag,
@@ -361,14 +362,40 @@ ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
  * @param {string} [params.input=""]
  * @returns {{ system: string, task: string }}
  */
+/**
+ * Deep-clones an entity resolving every string field's {{...}} macros from that
+ * entity's own perspective. Used before the ghostwriter's perspective swap so a
+ * companion's stored state never inverts {{char}}/{{user}} references.
+ * @param {any} entity
+ * @param {any} entities
+ * @returns {any}
+ */
+function _resolve_entity_macros(entity, entities) {
+  if (!entity) return entity;
+  const seen = new WeakSet();
+  const expand = (value) => {
+    if (typeof value === "string") return parse_macros(value, entity, entities);
+    if (Array.isArray(value)) return value.map(expand);
+    if (value && typeof value === "object") {
+      if (seen.has(value)) return value;
+      seen.add(value);
+      const out = {};
+      for (const key of Object.keys(value)) out[key] = expand(value[key]);
+      return out;
+    }
+    return value;
+  };
+  return expand(entity);
+}
+
 export function render_ghostwriter({ entities, input = "" }) {
   const user_name = entities?.USER?.name || "User Persona";
   const ai_name = entities?.AI?.name || "AI Character";
 
   const swapped = {
     ...(entities || {}),
-    AI: entities?.USER ? entities.USER : { name: user_name, present: {}, eternal: {}, future: "", past: [] },
-    USER: entities?.AI ? entities.AI : { name: ai_name, present: {}, eternal: {}, future: "", past: [] },
+    AI: entities?.USER ? _resolve_entity_macros(entities.USER, entities) : { name: user_name, present: {}, eternal: {}, future: "", past: [] },
+    USER: entities?.AI ? _resolve_entity_macros(entities.AI, entities) : { name: ai_name, present: {}, eternal: {}, future: "", past: [] },
   };
 
   const render_accessors = render_builder.create_render_accessors(swapped, input || "", []);
@@ -392,6 +419,7 @@ export function render_ghostwriter({ entities, input = "" }) {
 
 /**
  * CHANGELOG
+ * - 2026-09-04: Ghostwriter now resolves stored {{...}} macros against stable identities before its perspective swap, so swapped character state never inverts {{char}}/{{user}} references.
  * - 2026-09-06: Pruned dead <ANCHOR> tag from narrator protocols XML.
  * - 2026-09-06: Consolidated somatic directives and dynamics signals into build_somatic_signals_xml (<SOMATIC_SIGNALS>).
  * - 2026-08-28: Ground-up deconstruct & refactor: unified protocol composition, streamlined XML templating across AI/NPC/Narrator engines, and added clear section dividers.

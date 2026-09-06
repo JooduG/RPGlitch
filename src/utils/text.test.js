@@ -53,6 +53,14 @@ describe("strip_cognition_blocks", () => {
     expect(strip_cognition_blocks("Mattis. Archetypes: Hero\nReal story begins.")).toBe("Real story begins.");
   });
 
+  it("strips leaked DYNAMICS state blocks that leaked into prose", () => {
+    expect(
+      strip_cognition_blocks("<DYNAMICS>\n  Chaos: 60 -> 58 (-2)\n  Intensity: 65 -> 70 (+5)\n</DYNAMICS>\n\nThe white light is too loud."),
+    ).toBe("The white light is too loud.");
+    expect(strip_cognition_blocks("Stray <DYNAMICS> tag here.")).toBe("Stray");
+    expect(strip_cognition_blocks("Stray </DYNAMICS> tag here.")).toBe("Stray  tag here.");
+  });
+
   it("handles null or empty inputs", () => {
     expect(strip_cognition_blocks(null)).toBe("");
     expect(strip_cognition_blocks("")).toBe("");

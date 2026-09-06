@@ -108,7 +108,8 @@ export const NAME_PREFIXES = Object.freeze([
 // ============================================================================
 
 /**
- * Strips cognition blocks (`<think>...</think>`) and model artifacts from prose.
+ * Strips cognition blocks (`<thinking>...</thinking>`), leaked <DYNAMICS> state blocks,
+ * and model artifacts from prose.
  * @param {string | null | undefined} text - Input text.
  * @returns {string} Cleaned prose without internal thoughts.
  */
@@ -116,6 +117,8 @@ export function strip_cognition_blocks(text) {
   if (!text) return "";
   let clean = text.replace(/<think\b[^>]*>[\s\S]*?(?:<\/think\s*>|$)\r?\n?/gi, "");
   clean = clean.replace(/<\/think\s*>/gi, "");
+  clean = clean.replace(/<DYNAMICS\b[^>]*>[\s\S]*?(?:<\/DYNAMICS\s*>|$)\r?\n?/gi, "");
+  clean = clean.replace(/<\/?DYNAMICS\s*>/gi, "");
   for (const pattern of MODEL_ARTIFACT_PATTERNS) {
     clean = clean.replace(pattern, "");
   }
@@ -775,6 +778,8 @@ export function flatten_physical(raw) {
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-04: strip_cognition_blocks now also removes leaked <DYNAMICS> state blocks and
+ *   stray tags, so dynamics telemetry can never pollute stored prose or image prompts.
  * - 2026-08-29: Added flatten_physical and normalize_comma_spacing text formatting helpers.
  * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,
  *   structured 5 clear section dividers, exported frozen collections (CLEAR_TOKENS, AGGREGATE_KEYS,
