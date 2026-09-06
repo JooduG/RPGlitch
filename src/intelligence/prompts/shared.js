@@ -770,57 +770,79 @@ const _system_head_key = (entities) =>
   `${_eternal_fp(entities?.AI)}||${_eternal_fp(entities?.USER)}||${_eternal_fp(entities?.FRACTAL)}||style=${resolve_active_style_key()}`;
 
 /**
- * Shared SYSTEM head — the byte-identical prefix of every turn-loop prompt.
+ * Renders the eternal-only CAST body (personality + permanent appearance) used
+ * by the default shared head. Entity tags are left unindented; the caller
+ * applies a uniform 4-space indent so the head output stays consistently nested.
  * @param {any} entities
  * @returns {string}
  */
-export function render_system_head(entities = {}) {
+function _render_eternal_cast_body(entities = {}) {
+  const parts = [];
+  if (entities?.AI) {
+    parts.push(`<AI_CHARACTER name="${escape_xml(entities.AI.name || "AI")}">
+  <PERSONALITY>${render_field_value(entities.AI.eternal?.non_physical, entities.AI, entities)}</PERSONALITY>
+  <PERMANENT_APPEARANCE>${render_field_value(entities.AI.eternal?.physical, entities.AI, entities)}</PERMANENT_APPEARANCE>
+</AI_CHARACTER>`);
+  }
+  if (entities?.USER) {
+    parts.push(`<USER_PERSONA name="${escape_xml(entities.USER.name || "User")}">
+  <PERSONALITY>${render_field_value(strip_epistemic_tags(entities.USER.eternal?.non_physical), entities.USER, entities)}</PERSONALITY>
+  <PERMANENT_APPEARANCE>${render_field_value(strip_epistemic_tags(entities.USER.eternal?.physical), entities.USER, entities)}</PERMANENT_APPEARANCE>
+</USER_PERSONA>`);
+  }
+  if (entities?.FRACTAL) {
+    parts.push(`<FRACTAL name="${escape_xml(entities.FRACTAL.name || "the setting")}">
+  <METAPHYSICAL_TRUTHS>${render_field_value(entities.FRACTAL.eternal?.non_physical, entities.FRACTAL, entities)}</METAPHYSICAL_TRUTHS>
+  <ENVIRONMENT>${render_field_value(entities.FRACTAL.eternal?.physical, entities.FRACTAL, entities)}</ENVIRONMENT>
+</FRACTAL>`);
+  }
+  return parts.join("\n");
+}
+
+/**
+ * Shared SYSTEM head — the byte-identical prefix of every turn-loop prompt.
+ * When `cast_body_override` is provided (a pre-rendered clumped per-entity
+ * sheet body), it replaces the eternal-only CAST and bypasses the cache.
+ * @param {any} entities
+ * @param {string|null} [cast_body_override=null]
+ * @returns {string}
+ */
+export function render_system_head(entities = {}, cast_body_override = null) {
   const key = _system_head_key(entities);
-  const hit = system_head_cache.get(key);
-  if (hit !== undefined) return hit;
+  const use_cache = cast_body_override === null;
+  if (use_cache) {
+    const hit = system_head_cache.get(key);
+    if (hit !== undefined) return hit;
+  }
+
+  const cast_body = use_cache ? _render_eternal_cast_body(entities) : cast_body_override;
+  const cast_indented = cast_body
+    .split("\n")
+    .map((line) => `    ${line}`)
+    .join("\n");
 
   const head = clean_xml(`
 <SYSTEM>
   ${ind(render_dynamics_block(), 2)}
   ${render_narrative_style_xml()}
   <CAST>
-    ${
-      entities?.AI
-        ? `    <AI_CHARACTER name="${escape_xml(entities.AI.name || "AI")}">
-      <PERSONALITY>${render_field_value(entities.AI.eternal?.non_physical, entities.AI, entities)}</PERSONALITY>
-      <PERMANENT_APPEARANCE>${render_field_value(entities.AI.eternal?.physical, entities.AI, entities)}</PERMANENT_APPEARANCE>
-    </AI_CHARACTER>`
-        : ""
-    }
-    ${
-      entities?.USER
-        ? `    <USER_PERSONA name="${escape_xml(entities.USER.name || "User")}">
-      <PERSONALITY>${render_field_value(strip_epistemic_tags(entities.USER.eternal?.non_physical), entities.USER, entities)}</PERSONALITY>
-      <PERMANENT_APPEARANCE>${render_field_value(strip_epistemic_tags(entities.USER.eternal?.physical), entities.USER, entities)}</PERMANENT_APPEARANCE>
-    </USER_PERSONA>`
-        : ""
-    }
-    ${
-      entities?.FRACTAL
-        ? `    <FRACTAL name="${escape_xml(entities.FRACTAL.name || "the setting")}">
-      <METAPHYSICAL_TRUTHS>${render_field_value(entities.FRACTAL.eternal?.non_physical, entities.FRACTAL, entities)}</METAPHYSICAL_TRUTHS>
-      <ENVIRONMENT>${render_field_value(entities.FRACTAL.eternal?.physical, entities.FRACTAL, entities)}</ENVIRONMENT>
-    </FRACTAL>`
-        : ""
-    }
+${cast_indented}
   </CAST>
   `).trim();
 
-  system_head_cache.set(key, head);
-  if (system_head_cache.size > SYSTEM_HEAD_CACHE_CAP) {
-    const oldest = system_head_cache.keys().next().value;
-    system_head_cache.delete(oldest);
+  if (use_cache) {
+    system_head_cache.set(key, head);
+    if (system_head_cache.size > SYSTEM_HEAD_CACHE_CAP) {
+      const oldest = system_head_cache.keys().next().value;
+      system_head_cache.delete(oldest);
+    }
   }
   return head;
 }
 
 /**
  * CHANGELOG
+ * - 2026-09-06: render_system_head now accepts an optional cast_body_override — when provided (recoupled per-entity sheets from story-prompts.js), it replaces the eternal-only CAST body and bypasses the prefix cache; the default eternal-only cached path is unchanged for the director.
  * - 2026-09-06: Consolidated render_dynamics_block to physics-prompts.js, re-exporting and using it in render_system_head.
  * - 2026-09-05: Added render_dynamics_block() merging scale legend, axis metadata, and live values.
  * - 2026-09-05: Consolidated Director cast, stage roster, and relational mesh into render_scene_spotlight_xml() strictly scoped to active scene participants.

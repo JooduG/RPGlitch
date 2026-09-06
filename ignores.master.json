@@ -31,6 +31,7 @@
     "src/media/design.css",
     "src/media/tokens.js",
     "**/*scribbles**",
+    "**/*scrabbles**",
     "**/*scrobbles**",
     "**/templates/**",
     "**/test-results/**",
@@ -38,7 +39,16 @@
     "**/tmp/**",
     "tmp/**/*"
   ],
-  "geminiignore": ["!**/*.env", "!**/*.git/**", "!**/*scribbles**", "!**/templates/**", "!**/test-results/**", "!**/tmp/**", "!tmp/**/*"],
+  "geminiignore": [
+    "!**/*.env",
+    "!**/*.git/**",
+    "!**/*scribbles**",
+    "!**/*scrabbles**",
+    "!**/templates/**",
+    "!**/test-results/**",
+    "!**/tmp/**",
+    "!tmp/**/*"
+  ],
   "gitignore": ["!.env.example", "!package-lock.json", "!**/*rpglitch-left-panel.txt", "!**/templates/**", "act_output.log", "gha-creds-*.json"],
   "linters": {
     "eslint": [],

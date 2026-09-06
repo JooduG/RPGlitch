@@ -45,6 +45,7 @@ export default defineConfig([
       "src/media/design.css",
       "src/media/tokens.js",
       "**/*scribbles**",
+      "**/*scrabbles**",
       "**/*scrobbles**",
       "**/templates/**",
       "**/test-results/**",

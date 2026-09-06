@@ -28,6 +28,7 @@ src/data/definitions/signature-colors.js
 src/media/design.css
 src/media/tokens.js
 **/*scribbles**
+**/*scrabbles**
 **/*scrobbles**
 **/templates/**
 **/test-results/**

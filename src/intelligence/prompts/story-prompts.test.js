@@ -89,10 +89,15 @@ describe("Story Prompts (story-prompts.js)", () => {
       });
       expect(result.system).toContain('<ROLE name="Viper">');
       expect(result.system).toContain("Static Eternal");
-      expect(result.system).not.toContain("Volatile Present");
+      expect(result.system).toContain('<AI_CHARACTER name="Viper">');
+      expect(result.system).toContain("<STATE_OF_MIND>");
+      expect(result.system).toContain("Volatile Present");
+      expect(result.system).toContain("Viper past 1");
+      expect(result.system).not.toContain("<YOUR_IDENTITY>");
       expect(result.task).toContain("<SNAPSHOT>");
-      expect(result.task).toContain("Volatile Present");
-      expect(result.task).toContain("Viper past 1");
+      expect(result.task).not.toContain("Volatile Present");
+      expect(result.task).not.toContain("Viper past 1");
+      expect(result.task).not.toContain("<STATE_OF_MIND>");
       expect(result.task).toContain("<RECENCY_ANCHOR>");
       expect(result.task).toContain("Hold your temperament; do not soften into pleasantness");
     });
@@ -128,8 +133,8 @@ describe("Story Prompts (story-prompts.js)", () => {
         ...payload,
         compressed_snapshot: base_snapshot,
       });
-      expect(result.task).not.toContain("hidden stolen cipher");
-      expect(result.task).not.toContain("run away");
+      expect(result.system).not.toContain("hidden stolen cipher");
+      expect(result.system).not.toContain("run away");
     });
 
     it("withholds USER_PERSONA future intent from the character", () => {
@@ -139,6 +144,7 @@ describe("Story Prompts (story-prompts.js)", () => {
         compressed_snapshot: base_snapshot,
       });
       expect(result.task).not.toContain("Ghost future 1");
+      expect(result.system).not.toContain("Ghost future 1");
     });
 
     it("renders author style when narrative_style setting is active", () => {
@@ -176,9 +182,9 @@ describe("Story Prompts (story-prompts.js)", () => {
       });
       expect(result.system).toContain('<ROLE name="Mira">');
       expect(result.system).toContain("A fixer.");
-      expect(result.task).toContain("Calm.");
-      expect(result.task).toContain("Holding wrench.");
-      expect(result.task).toContain("Old debt");
+      expect(result.system).toContain("Calm.");
+      expect(result.system).toContain("Holding wrench.");
+      expect(result.system).toContain("Old debt");
       expect(result.task).toContain("supporting character");
     });
   });
@@ -319,14 +325,14 @@ describe("Story Prompts (story-prompts.js)", () => {
       });
 
       // Active AI character is speaker (owner) -> retains secret in their own block
-      expect(result.task).toContain("Double agent");
+      expect(result.system).toContain("Double agent");
       // [PLAN: Secure the core] extracted into future/INTENT
-      expect(result.task).toContain("<INTENT>Maintain operational cover");
-      expect(result.task).toContain("Active Plan: Secure the core</INTENT>");
+      expect(result.system).toContain("<INTENT>Maintain operational cover");
+      expect(result.system).toContain("Active Plan: Secure the core</INTENT>");
       // Empty MEMORIES, AGENDA, and HISTORY omitted via render_optional_tag
-      expect(result.task).not.toContain("<MEMORIES></MEMORIES>");
-      expect(result.task).not.toContain("<AGENDA></AGENDA>");
-      expect(result.task).not.toContain("<HISTORY></HISTORY>");
+      expect(result.system).not.toContain("<MEMORIES></MEMORIES>");
+      expect(result.system).not.toContain("<AGENDA></AGENDA>");
+      expect(result.system).not.toContain("<HISTORY></HISTORY>");
     });
   });
 
@@ -337,7 +343,9 @@ describe("Story Prompts (story-prompts.js)", () => {
         ...base_payload(),
         compressed_snapshot: base_snapshot,
       });
-      expect(result.task).toContain("<ATMOSPHERE>");
+      expect(result.system).toContain("<ATMOSPHERE>");
+      expect(result.system).not.toContain("<STATE_OF_MIND>");
+      expect(result.task).not.toContain("<ATMOSPHERE>");
       expect(result.task).not.toContain("<STATE_OF_MIND>");
     });
 
@@ -349,11 +357,11 @@ describe("Story Prompts (story-prompts.js)", () => {
         ...payload,
         compressed_snapshot: base_snapshot,
       });
-      expect(result.task).toContain("<CURRENT_LOOK>");
-      expect(result.task).toContain("<CLOTHING>tight white tank top</CLOTHING>");
-      expect(result.task).toContain("<EXPRESSION>cheerful flexing smile</EXPRESSION>");
-      expect(result.task).toContain("<POSTURE>dominant power-pose</POSTURE>");
-      expect(result.task).not.toContain("CLOTHING: tight white tank top");
+      expect(result.system).toContain("<CURRENT_LOOK>");
+      expect(result.system).toContain("<CLOTHING>tight white tank top</CLOTHING>");
+      expect(result.system).toContain("<EXPRESSION>cheerful flexing smile</EXPRESSION>");
+      expect(result.system).toContain("<POSTURE>dominant power-pose</POSTURE>");
+      expect(result.system).not.toContain("CLOTHING: tight white tank top");
     });
 
     it("Ghostwrite prompt folds instructions cleanly inside <TASK mode='GHOSTWRITE'> without orphan tags or empty round", () => {

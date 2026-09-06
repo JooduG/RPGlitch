@@ -15,6 +15,7 @@ import {
   render_system_head,
   parse_macros,
   render_field_value,
+  strip_epistemic_tags,
   strip_epistemic_secrets,
   render_optional_tag,
   render_current_story_state_xml,
@@ -162,6 +163,85 @@ function _build_character_protocols(has_user_action, is_first_contact) {
  * @param {string} [params.conclusion_status="CONCLUDED"]
  * @returns {{ system: string, task: string }}
  */
+function render_recoupled_cast_body({ entities = {}, active_speaker = null, is_narrator = false, is_npc = false, accessors = null }) {
+  const rows = [];
+
+  const look_row = (entity, { strip = false } = {}) => {
+    const source = strip ? strip_epistemic_secrets(entity?.present?.physical, false) : entity?.present?.physical;
+    const look = physical_to_xml(render_field_value(source, entity, entities), "CURRENT_LOOK");
+    return look && String(look).trim() ? `  ${String(look).trim()}` : "";
+  };
+
+  const optional_row = (tag, content) => {
+    const rendered = render_optional_tag(tag, ind(content, 6));
+    return rendered ? `  ${rendered}` : "";
+  };
+
+  if (entities?.AI) {
+    const ai = entities.AI;
+    rows.push(`<AI_CHARACTER name="${escape_xml(ai.name || "AI")}">`);
+    rows.push(`  <PERSONALITY>${render_field_value(ai.eternal?.non_physical, ai, entities)}</PERSONALITY>`);
+    rows.push(`  <PERMANENT_APPEARANCE>${render_field_value(ai.eternal?.physical, ai, entities)}</PERMANENT_APPEARANCE>`);
+    if (!is_narrator) {
+      rows.push(`  <STATE_OF_MIND>${render_field_value(strip_epistemic_secrets(ai.present?.non_physical, !is_npc), ai, entities)}</STATE_OF_MIND>`);
+    }
+    const ai_look = look_row(ai);
+    if (ai_look) rows.push(ai_look);
+    rows.push(optional_row("INTENT", accessors?.future(ai, { vector_text: true })));
+    rows.push(optional_row("MEMORIES", accessors?.past(ai, { vector_text: true })));
+    rows.push("</AI_CHARACTER>");
+  }
+
+  if (entities?.USER) {
+    const user = entities.USER;
+    rows.push(`<USER_PERSONA name="${escape_xml(user.name || "User")}">`);
+    rows.push(`  <PERSONALITY>${render_field_value(strip_epistemic_tags(user.eternal?.non_physical), user, entities)}</PERSONALITY>`);
+    rows.push(`  <PERMANENT_APPEARANCE>${render_field_value(strip_epistemic_tags(user.eternal?.physical), user, entities)}</PERMANENT_APPEARANCE>`);
+    if (!is_narrator) {
+      rows.push(`  <STATE_OF_MIND>${render_field_value(strip_epistemic_secrets(user.present?.non_physical, false), user, entities)}</STATE_OF_MIND>`);
+    }
+    const user_look = look_row(user, { strip: true });
+    if (user_look) rows.push(user_look);
+    rows.push(optional_row("BACKSTORY", strip_epistemic_secrets(accessors?.past(user, { vector_text: true }), false)));
+    rows.push("</USER_PERSONA>");
+  }
+
+  if (entities?.FRACTAL) {
+    const fractal = entities.FRACTAL;
+    rows.push(`<FRACTAL name="${escape_xml(fractal.name || "the setting")}">`);
+    rows.push(`  <METAPHYSICAL_TRUTHS>${render_field_value(fractal.eternal?.non_physical, fractal, entities)}</METAPHYSICAL_TRUTHS>`);
+    rows.push(`  <ENVIRONMENT>${render_field_value(fractal.eternal?.physical, fractal, entities)}</ENVIRONMENT>`);
+    if (is_narrator) {
+      rows.push(
+        `  <ATMOSPHERE>${render_field_value(active_speaker?.present?.physical || active_speaker?.present?.non_physical, active_speaker, entities)}</ATMOSPHERE>`,
+      );
+      rows.push(optional_row("INTENT", accessors?.future(fractal, { vector_text: true })));
+      rows.push(optional_row("MEMORIES", accessors?.past(fractal, { vector_text: true })));
+    } else {
+      rows.push(`  <CURRENT_STATE>${render_field_value(fractal.present?.non_physical, fractal, entities)}</CURRENT_STATE>`);
+      rows.push(`  <ACTIVE_ATMOSPHERE>${render_field_value(fractal.present?.physical, fractal, entities)}</ACTIVE_ATMOSPHERE>`);
+      rows.push(optional_row("AGENDA", accessors?.future(fractal, { vector_text: true })));
+      rows.push(optional_row("HISTORY", accessors?.past(fractal, { vector_text: true })));
+    }
+    rows.push("</FRACTAL>");
+  }
+
+  if (is_npc && active_speaker) {
+    const npc = active_speaker;
+    rows.push(`<NPC name="${escape_xml(npc.name || "NPC")}">`);
+    rows.push(`  <PERSONALITY>${render_field_value(npc.eternal?.non_physical, npc, entities)}</PERSONALITY>`);
+    rows.push(`  <PERMANENT_APPEARANCE>${render_field_value(npc.eternal?.physical, npc, entities)}</PERMANENT_APPEARANCE>`);
+    rows.push(`  <STATE_OF_MIND>${render_field_value(strip_epistemic_secrets(npc.present?.non_physical, true), npc, entities)}</STATE_OF_MIND>`);
+    const npc_look = look_row(npc);
+    if (npc_look) rows.push(npc_look);
+    rows.push(optional_row("INTENT", accessors?.future(npc, { vector_text: true })));
+    rows.push(optional_row("MEMORIES", accessors?.past(npc, { vector_text: true })));
+    rows.push("</NPC>");
+  }
+
+  return rows.filter((row) => String(row).trim() !== "").join("\n");
+}
+
 export function render_story_prose({
   mode = "character",
   round = null,
@@ -249,44 +329,17 @@ export function render_story_prose({
       ? `You are ${speaker_name}, a supporting secondary character in an active scene with ${user_name} inside ${fractal_name}. Your eternal identity, personality, and permanent appearance are declared above in the CAST block. Use the character's speaking style strictly for words within quotation marks; render all surrounding narrative prose and environmental descriptions through the narrative style preset.`
       : `You are ${speaker_name} in an active scene with ${user_name} inside ${fractal_name}. Your eternal identity, personality, and permanent appearance are declared above in the CAST block; the Fractal's metaphysical truths and environment are there as well. Use the character's speaking style strictly for words within quotation marks; render all surrounding narrative prose and environmental descriptions through the narrative style preset.`;
 
-  const system = `${render_system_head(entities)}\n${clean_xml(`
+  const cast_body = render_recoupled_cast_body({ entities, active_speaker, is_narrator, is_npc, accessors });
+
+  const system = `${render_system_head(entities, cast_body || null)}\n${clean_xml(`
   <ROLE name="${speaker_name}"${is_narrator ? ` mode="${mode.toUpperCase()}"` : ""}>
     ${role_desc}
   </ROLE>
-  ${
-    is_npc
-      ? `<YOUR_IDENTITY name="${speaker_name}">
-    <PERSONALITY>${render_field_value(active_speaker?.eternal?.non_physical, active_speaker, entities)}</PERSONALITY>
-    <PERMANENT_APPEARANCE>${render_field_value(active_speaker?.eternal?.physical, active_speaker, entities)}</PERMANENT_APPEARANCE>
-  </YOUR_IDENTITY>`
-      : ""
-  }
   <PROTOCOLS>
     ${ind(protocols_xml, 4)}
   </PROTOCOLS>
 </SYSTEM>
   `).trim()}`;
-
-  const co_protagonist_snapshot =
-    is_npc && entities?.AI
-      ? `
-  <PROTAGONIST name="${escape_xml(entities.AI.name || "Protagonist")}">
-    <STATE_OF_MIND>${render_field_value(strip_epistemic_secrets(entities.AI.present?.non_physical, false), entities.AI, entities)}</STATE_OF_MIND>
-    ${ind(physical_to_xml(render_field_value(entities.AI.present?.physical, entities.AI, entities), "CURRENT_LOOK"), 4).trim()}
-    ${render_optional_tag("INTENT", ind(accessors.future(entities.AI, { vector_text: true }), 6))}
-    ${render_optional_tag("MEMORIES", ind(accessors.past(entities.AI, { vector_text: true }), 6))}
-  </PROTAGONIST>`.trim()
-      : "";
-
-  const ai_snapshot_for_narrator =
-    is_narrator && entities?.AI
-      ? `
-  <AI_CHARACTER name="${escape_xml(entities.AI.name || "AI")}">
-    ${ind(physical_to_xml(render_field_value(entities.AI.present?.physical, entities.AI, entities), "CURRENT_LOOK"), 4).trim()}
-    ${render_optional_tag("INTENT", ind(accessors.future(entities.AI, { vector_text: true }), 6))}
-    ${render_optional_tag("MEMORIES", ind(accessors.past(entities.AI, { vector_text: true }), 6))}
-  </AI_CHARACTER>`.trim()
-      : "";
 
   const narrator_task_text =
     mode === "prologue"
@@ -313,33 +366,6 @@ export function render_story_prose({
 
   const task = clean_xml(`
 <SNAPSHOT>
-  <YOUR_IDENTITY name="${speaker_name}">
-    ${
-      is_narrator
-        ? `<ATMOSPHERE>${render_field_value(active_speaker?.present?.physical || active_speaker?.present?.non_physical, active_speaker, entities)}</ATMOSPHERE>`
-        : `<STATE_OF_MIND>${ind(render_field_value(strip_epistemic_secrets(active_speaker?.present?.non_physical, true), active_speaker, entities), 6)}</STATE_OF_MIND>
-    ${ind(physical_to_xml(render_field_value(active_speaker?.present?.physical, active_speaker, entities), "CURRENT_LOOK"), 4).trim()}`
-    }
-    ${render_optional_tag("INTENT", ind(accessors.future(active_speaker, { vector_text: true }), 6))}
-    ${render_optional_tag("MEMORIES", ind(accessors.past(active_speaker, { vector_text: true }), 6))}
-  </YOUR_IDENTITY>
-  ${is_narrator ? ai_snapshot_for_narrator : co_protagonist_snapshot}
-  <USER_PERSONA name="${user_name}">
-    ${is_narrator ? "" : `<STATE_OF_MIND>${ind(render_field_value(strip_epistemic_secrets(entities?.USER?.present?.non_physical, false), entities?.USER, entities), 6)}</STATE_OF_MIND>`}
-    ${ind(physical_to_xml(render_field_value(strip_epistemic_secrets(entities?.USER?.present?.physical, false), entities?.USER, entities), "CURRENT_LOOK"), 4).trim()}
-    ${render_optional_tag("BACKSTORY", ind(strip_epistemic_secrets(accessors.past(entities?.USER, { vector_text: true }), false), 6))}
-  </USER_PERSONA>
-  ${
-    !is_narrator && entities?.FRACTAL
-      ? `
-  <FRACTAL name="${escape_xml(entities.FRACTAL.name)}">
-    <CURRENT_STATE>${render_field_value(entities.FRACTAL.present?.non_physical, entities.FRACTAL, entities)}</CURRENT_STATE>
-    <ACTIVE_ATMOSPHERE>${render_field_value(entities.FRACTAL.present?.physical, entities.FRACTAL, entities)}</ACTIVE_ATMOSPHERE>
-    ${render_optional_tag("AGENDA", ind(accessors.future(entities.FRACTAL, { vector_text: true }), 6))}
-    ${render_optional_tag("HISTORY", ind(accessors.past(entities.FRACTAL, { vector_text: true }), 6))}
-  </FRACTAL>`
-      : ""
-  }
   ${render_current_story_state_xml(entities, npc_entities, in_scene_ids, active_speaker, speaker_dynamics)}
 </SNAPSHOT>
 <ROUND>${escape_xml(String(round ?? 0))}</ROUND>
@@ -419,6 +445,7 @@ export function render_ghostwriter({ entities, input = "" }) {
 
 /**
  * CHANGELOG
+ * - 2026-09-06: Recoupled the prompt layout: each entity's eternal + present + future + past now clump into one per-entity character-sheet block inside <CAST> (render_recoupled_cast_body). The SNAPSHOT shrinks to the relational mesh (<CURRENT_STORY_STATE>) + ROUND/USER_ACTION/TASK. <YOUR_IDENTITY>, PROTAGONIST, and the old split SNAPSHOT blocks are removed.
  * - 2026-09-04: Ghostwriter now resolves stored {{...}} macros against stable identities before its perspective swap, so swapped character state never inverts {{char}}/{{user}} references.
  * - 2026-09-06: Pruned dead <ANCHOR> tag from narrator protocols XML.
  * - 2026-09-06: Consolidated somatic directives and dynamics signals into build_somatic_signals_xml (<SOMATIC_SIGNALS>).
