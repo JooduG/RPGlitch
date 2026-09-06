@@ -19,6 +19,7 @@
 import { VISUAL_STYLES, resolve_portrait_visual_style_key, resolve_story_visual_style_key } from "@data";
 import { escape_xml, physical_to_xml, prompt_escape, safe_parse_json, strip_cognition_blocks, detox_prose } from "@utils";
 import { sanitize_llm } from "@platform";
+import { PROTOCOL_LIBRARY } from "../intelligence/prompts/shared.js";
 import { normalize_image_tier } from "./image-tiers.js";
 import { resolve_visual_engine_tokens, strip_visual_excluded } from "./image-aesthetics.js";
 
@@ -60,9 +61,10 @@ export function format_sensory_history(history_text) {
  * Compiles the 5-phase Optics Builder protocol tailored to the active visual style.
  * @param {Record<string, any>} [style_definition={}]
  * @param {Record<string, any>} [engine_tokens={}]
+ * @param {string} [input_text=""]
  * @returns {string}
  */
-export function build_optics_builder_protocol(style_definition = {}, engine_tokens = {}) {
+export function build_optics_builder_protocol(style_definition = {}, engine_tokens = {}, input_text = "") {
   const keywords_raw = style_definition.keywords || style_definition.tags || [];
   const keyword_list = Array.isArray(keywords_raw)
     ? keywords_raw
@@ -71,12 +73,12 @@ export function build_optics_builder_protocol(style_definition = {}, engine_toke
       : [];
   const valid_keywords = keyword_list.filter(Boolean);
   const keywords_str = valid_keywords.length ? valid_keywords.join(", ") : "cinematic, atmospheric";
-  const available_keywords_xml = `<APPLICABLE_KEYWORDS>Integrate some of the following keywords:\n${prompt_escape(keywords_str)}\n</APPLICABLE_KEYWORDS>`;
+  const style_keywords_xml = `<STYLE_KEYWORDS>Optionally weave 2-4 appropriate keywords from the active style:\n${prompt_escape(keywords_str)}\n</STYLE_KEYWORDS>`;
 
   const camera_or_composition = engine_tokens.camera
-    ? `<CAMERA>Technical specifications: ${escape_xml(engine_tokens.camera)}</CAMERA>`
+    ? `<CAMERA>Strict camera framing and optical lens specs: ${escape_xml(engine_tokens.camera)}</CAMERA>`
     : engine_tokens.composition
-      ? `<COMPOSITION>${escape_xml(engine_tokens.composition)}</COMPOSITION>`
+      ? `<COMPOSITION>Mandatory visual layout and perspective: ${escape_xml(engine_tokens.composition)}</COMPOSITION>`
       : "";
 
   const medium_xml = engine_tokens.medium
@@ -88,21 +90,25 @@ export function build_optics_builder_protocol(style_definition = {}, engine_toke
 
   const texture_xml = engine_tokens.texture ? `<TEXTURES>Include textures such as: ${escape_xml(engine_tokens.texture)}</TEXTURES>` : "";
 
+  const has_alternation = /\{[^{}]+(?:\|[^{}]+)+\}/.test(input_text);
+  const alternation_xml = has_alternation
+    ? "\n<ALTERNATION_RESOLUTION>If an input attribute contains Perchance alternation syntax '{Option A|Option B}', resolve it to exactly ONE option consistent with the current narrative; never blend options and never echo the braces or pipe.</ALTERNATION_RESOLUTION>"
+    : "";
+
   return `<VISUAL_SYNTHESIS>
 
-<PHASE_1 task="EXECUTION_&_OUTPUT_STRUCTURE">
-<THOUGHT_PROCESS>Formulate composition strategy inside "_thought_process" key first.</THOUGHT_PROCESS>
+<PHASE_1 task="Composition Structure Output Schema">
+<COGNITIVE_DIRECTIVE>Formulate composition strategy inside "_thought_process" key first.</COGNITIVE_DIRECTIVE>
 <PROMPT_PROSE>Output final image prompt inside "prompt" as continuous, fluid prose.</PROMPT_PROSE>
 <NEGATIVE_PROMPT>Output negative tokens inside "negative_prompt". Enforce KEYWORD_INTEGRITY — quality buzzwords ('masterpiece', '8K', 'ultra HD', 'photorealistic', 'digital art') are forbidden in BOTH "prompt" and "negative_prompt". Ground outputs using physical optics and real-world materials.</NEGATIVE_PROMPT>
 <WEIGHTING_FORBIDDEN>Enforce FLUX_T5_WEIGHTING — NEVER emit bracket weight math ('(x:1.3)', '((x))', '[x:0.4]'): FLUX/T5 reads words, not weights. Emphasize via descriptors, varied rephrasing, and attenuation phrasing ('faint', 'subtle touch of', 'barely visible in the distance').</WEIGHTING_FORBIDDEN>
-<POSITIVE_FRAMING>Describe what IS physically in frame ('a softly moonlit glade' rather than 'no harsh sunlight'); keep the negative_prompt limited to global quality artifacts.</POSITIVE_FRAMING>
-${available_keywords_xml}
+<AFFIRMATIVE_FRAMING>${PROTOCOL_LIBRARY.HYGIENE.AFFIRMATIVE_FRAMING}</AFFIRMATIVE_FRAMING>
+${style_keywords_xml}
 </PHASE_1>
 
 <PHASE_2 task="SPATIAL_FRAMING">
 <FIRST_SENTENCE_MANDATE>Always place main entities and active physical interactions in the VERY FIRST sentence.</FIRST_SENTENCE_MANDATE>
-<SPATIAL_GEOMETRY>Strictly enforce camera angles, elevations (e.g., balconies), lighting positions, and distance.</SPATIAL_GEOMETRY>
-<DIRECT_DEPICTION>Render what is happening in the active scene moment.</DIRECT_DEPICTION>${camera_or_composition ? `\n${camera_or_composition}` : ""}
+<SPATIAL_GEOMETRY>Spatial orientation: direct depiction of focal elements, absolute geometry, camera angles, elevations, lighting positions, and depth layers without metaphor or narrative scaffolding.</SPATIAL_GEOMETRY>${camera_or_composition ? `\n${camera_or_composition}` : ""}
 </PHASE_2>
 
 <PHASE_3 task="CHARACTER_SPECIFICATION">
@@ -110,8 +116,7 @@ ${available_keywords_xml}
 <CREATURE_DISAMBIGUATION>Never use bare animal/creature proper names (e.g., "Beast"). Translate to explicit physical traits (e.g., "a massive grey-green male orc warrior").</CREATURE_DISAMBIGUATION>
 <FEATURE_WEIGHTING>Dedicate maximum descriptive effort to distinguishing features (scars, glowing eyes, horns); keep common traits brief. Reinforce key subjects through varied rephrasing across clauses rather than numeric weights.</FEATURE_WEIGHTING>
 <LEXICAL_PRESERVATION>Preserve the specific visceral, crude, or raw vocabulary from the participant's action and character state (e.g. 'cock', 'shaft', 'bulge', 'thong', 'pecs', 'grease-stained') rather than sanitizing into sterile or clinical synonyms ('genitals', 'undergarment'). Diffusion models and T5 text encoders have vastly different training distributions and aesthetic associations for crude/visceral terms versus clinical terms.</LEXICAL_PRESERVATION>
-<GARMENT_ANATOMY>When rendering specialized or revealing garments (e.g., jockstraps, thongs, harnesses), explicitly specify their physical mechanics and bare skin exposure in natural prose. For a jockstrap, describe: 'wearing an athletic jockstrap featuring a supportive front pouch, open sides and back with bare exposed butt cheeks, and dual wide elastic straps circling under the glutes/thighs'. For thongs, describe: 'a narrow string back leaving the rear completely bare'. Never allow jockstraps to collapse into generic briefs or full-coverage shorts.</GARMENT_ANATOMY>
-<ALTERNATION_RESOLUTION>If an input attribute contains Perchance alternation syntax '{Option A|Option B}', resolve it to exactly ONE option consistent with the current narrative; never blend options and never echo the braces or pipe.</ALTERNATION_RESOLUTION>
+<GARMENT_ANATOMY>When rendering specialized or revealing garments (e.g., jockstraps, thongs, harnesses), explicitly specify their physical mechanics and bare skin exposure in natural prose. For a jockstrap, describe: 'wearing an athletic jockstrap featuring a supportive front pouch, open sides and back with bare exposed butt cheeks, and dual wide elastic straps circling under the glutes/thighs'. For thongs, describe: 'a narrow string back leaving the rear completely bare'. Never allow jockstraps to collapse into generic briefs or full-coverage shorts.</GARMENT_ANATOMY>${alternation_xml}
 <DYNAMIC_OVERRIDES>Follow a strict bottom-up hierarchy where the most recent (bottom-most) physical condition update ALWAYS overrides preceding static tags like <SHIRT> or <JACKET>. If a conflicting state appears later (e.g. 'no clothes' then later 'shirt: white'), the most recent/latest state wins.</DYNAMIC_OVERRIDES>
 </PHASE_3>
 
@@ -181,13 +186,14 @@ export const prompt_templates = {
           ? `<BACKGROUND_DIRECTIVE>No explicit fractal environment setting is provided. You MUST synthesize an evocative, atmospheric background environment that naturally fits the personality, visual theme, and signature colors of ${prompt_escape(main_entity.name || "the subject")}.</BACKGROUND_DIRECTIVE>`
           : "";
 
+    const combined_input_text = `${raw_intent || ""} ${main_entity?.present?.physical || ""} ${main_entity?.eternal?.physical || ""}`;
     const style_key =
       tier === "solo_entity" || mode === "enhance"
         ? resolve_portrait_visual_style_key(solo_subject)
         : resolve_story_visual_style_key(active_fractal_setting);
     const style_definition = VISUAL_STYLES[style_key] || VISUAL_STYLES.none;
     const engine_tokens = resolve_visual_engine_tokens(style_key);
-    const protocol_text = build_optics_builder_protocol(style_definition, engine_tokens);
+    const protocol_text = build_optics_builder_protocol(style_definition, engine_tokens, combined_input_text);
 
     const resolved_negative_prompt = engine_tokens.negative_prompt || NEGATIVE_PROMPT;
 
@@ -207,12 +213,13 @@ export const prompt_templates = {
         break;
       case "story_character":
       default:
-        context_block = `<ACTIVE_CHARACTERS>\n${render_entity(main_entity === active_user_persona || main_entity?.type === "user" ? "USER_PERSONA" : "AI_CHARACTER", main_entity)}\n</ACTIVE_CHARACTERS>\n${fractal_setting_block}`;
+        context_block = `<ACTIVE_CHARACTERS>\n${render_entity(main_entity === active_user_persona || main_entity?.type === "user" ? "USER_PERSONA" : main_entity?.type === "fractal" ? "FRACTAL" : "AI_CHARACTER", main_entity)}\n</ACTIVE_CHARACTERS>\n${fractal_setting_block}`;
         subject = "a character framed within their environment, emphasizing their presence with an evocative background setting";
         break;
     }
 
     // --- Cinematic Framing Analysis ---
+    const is_fractal_target = tier === "story_scene" || solo_subject?.type === "fractal";
     const ai_dynamics = active_ai_character?.dynamics || {};
     const intensity = Number(ai_dynamics.intensity ?? 50);
     const chaos = Number(ai_dynamics.chaos ?? 50);
@@ -221,7 +228,7 @@ export const prompt_templates = {
     let framing_mode = "Medium Action";
     let framing_tokens = "medium shot, waist-up framing, dynamic posture, clear wardrobe & prop details";
 
-    if (tier === "story_scene") {
+    if (is_fractal_target) {
       framing_mode = "Wide Environmental";
       framing_tokens = "wide-angle environmental shot, deep spatial composition, atmospheric scale, full silhouette";
     } else if (chaos >= 75) {
@@ -239,7 +246,7 @@ export const prompt_templates = {
     const narrative_context_desc =
       tier === "story_entities"
         ? `\n  Group Mandate: Feature both ${prompt_escape(active_ai_character?.name || "AI")} and ${prompt_escape(active_user_persona?.name || "User")} engaged together in their active positions within the fractal environment.`
-        : tier === "story_character" && active_fractal_setting
+        : tier === "story_character" && active_fractal_setting && main_entity?.type !== "fractal" && main_entity !== active_fractal_setting
           ? `\n  Character In Scene: Depict ${prompt_escape(main_entity?.name || "Subject")} situated directly within ${prompt_escape(active_fractal_setting.name || "Setting")}.`
           : "";
 
@@ -249,10 +256,8 @@ export const prompt_templates = {
 
     return `
 <SYSTEM role="SENSORY_CORTEX">
-<PROTOCOL>
 ${protocol_text}
 ${is_selfie ? '\nPHASE 6: SELFIE MODE EXTENSION\n- Generate a short, in-character social media caption inside "caption".' : ""}
-</PROTOCOL>
 <TARGET>${tier}</TARGET>
 ${history_xml}<INSTRUCTIONS>
 Convert narrative intent into a structured image prompt payload depicting ${subject}.
@@ -338,6 +343,7 @@ export function clean_image_prompt(raw) {
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-06: Upgraded Optics Builder protocol: affirmative framing, cognitive directive, style keywords, merged spatial geometry, dynamic alternation resolution, and removed outer PROTOCOL wrapper. Fixed fractal recursion and framing.
  * - 2026-08-29: Harmonized via /harmonize protocol: purged abbreviated identifiers (style_obj -> style_definition, active_ai -> active_ai_character, active_user -> active_user_persona, active_fractal -> active_fractal_setting, ai_block -> ai_character_block, user_block -> user_persona_block, fractal_block -> fractal_setting_block), validated Universal File Architecture, and verified zero backwards-compatibility debt.
  * - 2026-08-29: Harmonized nomenclature in accordance with GEMINI.md lexical standards:
  *   converted prompt_templates methods to snake_case (build_prompt, enhance_prompt),

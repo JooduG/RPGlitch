@@ -255,14 +255,13 @@
       items.push({
         label: "Generate NPC Picture",
         onSelect: () => {
-          if (app.regenerate_image_handler) {
-            app.regenerate_image_handler({
-              prompt: `A cinematic shot of ${entity.name || "the NPC"} situated within the active setting`,
-              mode: "story_character",
-              log_id: id,
-              attach_idx: 0,
-              signature_color,
-            });
+          if (app.take_photo_handler) {
+            app.take_photo_handler(
+              "npc",
+              `A cinematic shot of ${entity.name || "the NPC"} situated within the active setting`,
+              "story_character",
+              entity,
+            );
           }
         },
       });
@@ -636,3 +635,8 @@
     {/each}
   </div>
 {/if}
+
+<!--
+CHANGELOG:
+- 2026-09-06: Fixed "Generate NPC Picture" badge context menu handler to route through app.take_photo_handler with entity payload.
+-->

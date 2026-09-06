@@ -230,7 +230,6 @@ export function render_story_prose({
     <POV_DIRECTIVE>
       ${ind(PROTOCOL_LIBRARY.POV.NARRATOR, 6)}
     </POV_DIRECTIVE>
-    <ANCHOR>${STORY_PROTOCOLS.DIRECTIVES.NARRATOR_ANCHOR}</ANCHOR>
     ${ind(render_protocols("AGENCY.PRESENT_TENSE, HYGIENE.PROSE_DISCIPLINE, AGENCY.MOMENTUM, HYGIENE.ANTI_TROPES, AGENCY.FICTIONAL_LICENSE"), 4)}
   `)
     : clean_xml(`
@@ -393,6 +392,7 @@ export function render_ghostwriter({ entities, input = "" }) {
 
 /**
  * CHANGELOG
+ * - 2026-09-06: Pruned dead <ANCHOR> tag from narrator protocols XML.
  * - 2026-09-06: Consolidated somatic directives and dynamics signals into build_somatic_signals_xml (<SOMATIC_SIGNALS>).
  * - 2026-08-28: Ground-up deconstruct & refactor: unified protocol composition, streamlined XML templating across AI/NPC/Narrator engines, and added clear section dividers.
  */

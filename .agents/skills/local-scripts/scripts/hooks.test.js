@@ -255,14 +255,24 @@ function run() {
   console.log("--------------------------------------------------------------------------------");
 
   if (failed > 0) {
+    if (process.env.VITEST) {
+      throw new Error(`${failed} hook contract test(s) failed.`);
+    }
     process.exit(1);
   } else {
     console.log("✅ RESONANT: All hook contracts align. Proceeding.\n");
-    process.exit(0);
   }
 }
 
-run();
+if (process.env.VITEST) {
+  describe("Antigravity Lifecycle Hooks Contract Suite", () => {
+    it("satisfies all stdin/stdout hook contracts", () => {
+      run();
+    });
+  });
+} else {
+  run();
+}
 
 /**
  * CHANGELOG

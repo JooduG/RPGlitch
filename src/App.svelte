@@ -73,16 +73,18 @@
   const is_locked = $derived(simulation_state.busy);
 
   /** Portrait generation helper — logs a placeholder message immediately, then fills in the image */
-  async function take_photo(subject, prompt, kind) {
+  async function take_photo(subject, prompt, kind, target_entity = null) {
     if (is_locked) return;
     const entity_map = {
       ai: runtime.active_ai || app.selected_ai,
       user: runtime.active_user || app.selected_user,
       fractal: runtime.active_fractal || app.selected_fractal,
     };
-    const label_map = { ai: "AI", user: "User", fractal: "Fractal" };
-    const turn_map = { ai: "AI_TURN", user: "USER_TURN", fractal: "SYSTEM_TURN" };
-    const entity = entity_map[subject];
+    const label_map = { ai: "AI", user: "User", fractal: "Fractal", npc: "NPC" };
+    const turn_map = { ai: "AI_TURN", user: "USER_TURN", fractal: "SYSTEM_TURN", npc: "AI_TURN" };
+    const entity = target_entity || entity_map[subject];
+    const role_label = entity?.name || label_map[subject] || subject;
+    const turn_type = turn_map[subject] || "AI_TURN";
     /** @type {{ id?: string|number } | null} */
     let placeholder_entry = null;
     let target_mode = "";
@@ -93,12 +95,12 @@
       target_mode = kind || (subject === "fractal" ? "story_scene" : "story_character");
 
       // Log placeholder message immediately with null src attachment
-      placeholder_entry = await session_driver.log_message("", subject, entity?.name || label_map[subject], {
-        turn_type: turn_map[subject],
+      placeholder_entry = await session_driver.log_message("", subject, role_label, {
+        turn_type,
         attachments: [{ src: null, metadata: { mode: target_mode, prompt } }],
       });
 
-      const result = await visual_engine.visualize(runtime.story_id, prompt, kind, { subject });
+      const result = await visual_engine.visualize(runtime.story_id, prompt, kind, { subject, entity });
 
       if (result?.imageUrl && placeholder_entry?.id) {
         await session_driver.update_log_attachment(placeholder_entry.id, 0, {
@@ -110,7 +112,7 @@
           src: null,
           metadata: { mode: target_mode, prompt, failed: true, error: "Image generation returned no image" },
         });
-        app.log(`${label_map[subject] || subject} image generation failed. Please try again.`, "error");
+        app.log(`${role_label} image generation failed. Please try again.`, "error");
       }
     } catch (err) {
       console.error(`[Photo Error: ${subject}]`, err);
@@ -256,8 +258,9 @@
     app.ghostwrite_request++;
   }
 
-  // Expose regenerate_image to Message.svelte via the app store
+  // Expose regenerate_image and take_photo to Message.svelte via the app store
   app.regenerate_image_handler = regenerate_image;
+  app.take_photo_handler = take_photo;
 
   /** Mock message — streams a placeholder message for the given entity role (devmode only) */
   async function run_mock(role) {
@@ -566,6 +569,11 @@
     </div>
   </div>
 {/if}
+
+<!--
+CHANGELOG:
+- 2026-09-06: Allowed target_entity in take_photo and bound app.take_photo_handler to support direct NPC portrait generation.
+-->
 
 <style>
   /* ── Core Shell (Ultra-Lean Stage Matrix) ────────────────────── */

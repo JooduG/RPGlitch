@@ -423,7 +423,7 @@ export class VisualEngine {
       const user = (runtime?.active_user?.id === story.user_id && runtime.active_user) || (await this.resolve_entity(story.user_id));
       const fractal = (runtime?.active_fractal?.id === story.fractal_id && runtime.active_fractal) || (await this.resolve_entity(story.fractal_id));
 
-      const solo_or_character_entity = subject === "user" ? user : subject === "fractal" ? fractal : ai;
+      const solo_or_character_entity = options.entity || (subject === "user" ? user : subject === "fractal" ? fractal : ai);
 
       const style_key_for_llm =
         tier === "solo_entity" ? resolve_portrait_visual_style_key(solo_or_character_entity) : resolve_story_visual_style_key(fractal);
@@ -677,6 +677,7 @@ export function reset_cached_image_engine() {
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-06: Allowed explicit options.entity in visualize to support custom characters/NPC portraits.
  * - 2026-09-05: Fractal profile pictures now render in landscape (768x512) — resolution selection is
  *   entity-type aware, routing fractal `_entity` solo_entity shots through the `fractal_profile`/story_scene
  *   tier while character portraits stay portrait (512x768).

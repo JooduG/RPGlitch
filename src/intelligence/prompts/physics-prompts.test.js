@@ -94,18 +94,18 @@ describe("build_somatic_signals_xml", () => {
 });
 
 describe("build_available_keywords_xml", () => {
-  it("always lists the 12 static archetypes as a unified flat comma-separated list", () => {
+  it("always lists the 12 static archetypes as unified bracketed tokens", () => {
     const xml = build_available_keywords_xml();
     expect(xml).not.toContain("static (universal)");
     for (const id of SOMATIC_REGISTRY.map((e) => e.id)) {
-      expect(xml).toContain(id);
+      expect(xml).toContain(`[${id}]`);
     }
   });
 
-  it("appends the active style's motifs cleanly in the same flat list", () => {
+  it("appends the active style's motifs cleanly as bracketed tokens", () => {
     const xml = build_available_keywords_xml(["stoic_pain", "iceberg_subtext"]);
-    expect(xml).toContain("stoic_pain");
-    expect(xml).toContain("iceberg_subtext");
+    expect(xml).toContain("[stoic_pain]");
+    expect(xml).toContain("[iceberg_subtext]");
     expect(xml).not.toContain("active style:");
   });
 });

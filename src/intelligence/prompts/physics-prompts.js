@@ -219,11 +219,12 @@ export function build_available_keywords_xml(active_style_keywords = []) {
   const static_ids = SOMATIC_REGISTRY.map((entry) => entry.id);
   const motifs = (active_style_keywords || []).filter((k) => typeof k === "string" && k.trim());
   const combined = Array.from(new Set([...static_ids, ...motifs]));
-  return combined.join(", ");
+  return combined.map((k) => `[${k}]`).join(" ");
 }
 
 /**
  * CHANGELOG
+ * - 2026-09-06: Formatted build_available_keywords_xml tags as bracketed tokens [keyword] for high-adherence LLM parsing.
  * - 2026-09-06: Consolidated build_signals_xml and build_somatic_directives_xml into unified build_somatic_signals_xml (<SOMATIC_SIGNALS>).
  * - 2026-09-06: Unified build_available_keywords_xml into a single flat comma-separated list of tags.
  * - 2026-09-06: Relocated render_dynamics_block to physics-prompts.js, replacing build_dynamics_legend.

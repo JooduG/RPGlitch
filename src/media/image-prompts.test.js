@@ -206,11 +206,11 @@ describe("clean_image_prompt", () => {
 });
 
 describe("Sensory Cortex Refinements (task-1.4)", () => {
-  it("Sensory Cortex template uses <APPLICABLE_KEYWORDS> instead of legacy <tags> or <VISUAL_ENGINE>", () => {
+  it("Sensory Cortex template uses <STYLE_KEYWORDS> instead of legacy <tags> or <VISUAL_ENGINE>", () => {
     const prompt = prompt_templates.build_prompt("story_scene", "The fog rolls in.", {
       fractal: { name: "Mist" },
     });
-    expect(prompt).toContain("<APPLICABLE_KEYWORDS>");
+    expect(prompt).toContain("<STYLE_KEYWORDS>");
     expect(prompt).not.toContain("<VISUAL_ENGINE");
     expect(prompt).not.toContain("<tags>");
   });
@@ -245,14 +245,20 @@ describe("Sensory Cortex Refinements (task-1.4)", () => {
       expect(prompt).not.toContain('Input Intent: "Viper draws her weapon."');
     });
 
-    it("unifies visual style directives into protocol phases and APPLICABLE_KEYWORDS, eliminating VISUAL_ENGINE", () => {
+    it("unifies visual style directives into protocol phases and STYLE_KEYWORDS, eliminating VISUAL_ENGINE and outer PROTOCOL", () => {
       const prompt = prompt_templates.build_prompt("story_scene", "The neon rain falls.", {
         fractal: { name: "Nova City" },
       });
       // Legacy separate VISUAL_ENGINE block must be eliminated
       expect(prompt).not.toContain("<VISUAL_ENGINE");
-      // Phase 1 must contain APPLICABLE_KEYWORDS
-      expect(prompt).toContain("<APPLICABLE_KEYWORDS>");
+      // Outer PROTOCOL wrapper around VISUAL_SYNTHESIS is flattened
+      expect(prompt).not.toContain("<PROTOCOL>");
+      // Phase 1 must contain STYLE_KEYWORDS and COGNITIVE_DIRECTIVE
+      expect(prompt).toContain("<STYLE_KEYWORDS>");
+      expect(prompt).toContain("<COGNITIVE_DIRECTIVE>");
+      expect(prompt).toContain('<PHASE_1 task="Composition Structure Output Schema">');
+      expect(prompt).toContain("<SPATIAL_GEOMETRY>");
+      expect(prompt).not.toContain("<DIRECT_DEPICTION>");
     });
   });
 });

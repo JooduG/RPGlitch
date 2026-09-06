@@ -193,6 +193,9 @@ export class InterfaceStore {
   /** @type {((ctx: any) => void) | null} */
   regenerate_image_handler = $state(null);
 
+  /** @type {((subject: string, prompt: string, kind?: string, target_entity?: any) => Promise<void>) | null} */
+  take_photo_handler = $state(null);
+
   /** @type {any} */
   editing_entity = $state(null);
 
@@ -612,6 +615,7 @@ if (typeof window !== "undefined") {
 
 /**
  * CHANGELOG:
+ * - 2026-09-06: Added take_photo_handler to interface store for entity portrait generation routing across badge menus.
  * - 2026-09-05: Suppressed DatabaseClosedError logging in save_settings to prevent test runner teardown clutter.
  * - 2026-08-29: Renamed from app-store.svelte.js to interface.svelte.js to eliminate name collision with App.svelte and legacy -store suffix (/harmonize).
  * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,
