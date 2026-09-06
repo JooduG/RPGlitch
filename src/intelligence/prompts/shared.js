@@ -23,7 +23,13 @@ export const PROTOCOL_LIBRARY = {
     DATA: `${BASE_HYGIENE} Enforce strict professional brevity. No dialogue, internal thoughts, or roleplay scenes. Output ONLY objective structural data.`,
     ANTI_TROPES: `1. STRUCTURAL FORMULAS: Avoid sentence-level AI formulas: denial-then-affirmation ('X didn't just Y; it Z'd', "I don't just [verb]; I [verb]", "didn't just", "not merely", "doesn't simply"); binary comparison clichés ('felt less like X and more like Y'); appositive dialogue sound tags ('she laughed, a [adj], [adj] sound'); pseudo-profound statements; user-echoing starters ('You speak of...', 'You think that...'); self-answering dialogue; recycled fantasy names (Elara, Kaelen, Valerius Thorne); and formulaic action-dialogue sandwiches ([action] + 'dialogue' + [action] every turn).
 2. AFFIRMATIVE PROSE: Render presence, posture, tactile sensation, and movement directly. Describe what characters do, perceive, and feel through concrete action rather than passive summary, clichéd tropes, or artificial dramatic pauses.`,
-    STATE_EMISSION: `Pseudo-JSON STATE FORMAT — mutate active state with bracketed [KEY: VALUE] directives in "present.physical" (visible state) and "present.non_physical" (mindset/private state):
+  },
+
+  // ── 1.2 State Mutation & Brackets (Pseudo-JSON) ────────────────────────────
+  STATE: {
+    PSEUDO_JSON: `Pseudo-JSON STATE FORMAT — mutate active state with bracketed [KEY: VALUE] directives in "present.physical" (visible state) and "present.non_physical" (mindset/private state):
+- FORMAT: [KEY: value] (one directive per line, uppercase key, descriptive value; never wrap in JSON or code fences).
+- CANONICAL KEYS: [SHIRT: ...], [PANTS: ...], [SHOES: ...], [HELD: ...], [INJURY: ...], [DISGUISE: ...], [POSE: ...], [INVENTORY: ...]
 - OVERWRITE: [SHIRT: knitted sweater] REPLACES the existing SHIRT value directly — never emit a second SHIRT, never append a duplicate tag.
 - UNIVERSAL CLEAR: [KEY: none], [KEY: bare], [KEY: naked], [KEY: off], [KEY: removed], [KEY: disrobed], [KEY: healed], [KEY: cleared], [KEY: normal] atomically deletes that key. Use [CLOTHING: none] to strip ALL worn clothing at once.
 - MULTI-ITEM: [INVENTORY: item1, item2] and repeated [INVENTORY: ...]/[STASH: ...] brackets MERGE into one aggregated list — never overwrite or clobber existing inventory.
@@ -32,7 +38,7 @@ export const PROTOCOL_LIBRARY = {
 - VISUAL: INVENTORY/STASH/SECRET/PLAN/STATUS are automatically excluded from image generation. Keep genuinely visible state (worn clothing, HELD, INJURY, DISGUISE, POSE, LOCATION, WEATHER) in "present.physical".`,
   },
 
-  // ── 1.2 Narrative Agency & Boundaries ───────────────────────────────────────
+  // ── 1.3 Narrative Agency & Boundaries ───────────────────────────────────────
   AGENCY: {
     DRIFT_AUDIT:
       "Before writing, take the grounded path — not the easy one. Verify the reply embodies affirmative agency:\n1. ASSISTANT-DRIFT: Ground character interaction in their authentic personality; express natural friction, defiance, courtesy, or disinterest as their established archetype dictates.\n2. SPOTLIGHT-DRIFT: Keep the character's independent needs, active agenda, and internal world in motion alongside the other party.\n3. INTERVIEW-DRIFT: State your own perspective directly and pursue your goals rather than rhetorically querying or summarizing the other party.\n4. PACING-DRIFT: Maintain situational tension; allow conflict and emotional stakes to build gradually across beats.\n5. OMNISCIENCE-DRIFT: Act strictly on information directly perceived within your sensory horizon.",
@@ -57,7 +63,7 @@ export const PROTOCOL_LIBRARY = {
     THINK_CHARACTER: `Begin response with <think> (< 200 words). Process reaction to <USER_ACTION> using in-character subconscious reasoning across 3 layers:
 1. Visceral Reaction: Physical impact of the immediate situation.
 2. Secret Drivers: How <AGENDA> steers your choice; build tension via initial hurdles first.
-3. 3-Layer Delivery: Explicit (dialogue/action), Implicit (unspoken tensions/micro-expressions), and Somatic (involuntary autonomic signals from <DYNAMICS_SIGNALS>).
+3. 3-Layer Delivery: Explicit (dialogue/action), Implicit (unspoken tensions/micro-expressions), and Somatic (involuntary autonomic signals from <SOMATIC_SIGNALS>).
 ${BASE_THINK_CLOSURE}`,
     THINK_NARRATOR: `Begin response with <think>. ALL internal calculations, scene/atmosphere shifts, and markdown headers MUST remain strictly INSIDE this block. ${BASE_THINK_CLOSURE}`,
     EPISTEMIC_PHYSICS: `1. Sensory Boundary: Perception ends at sensory horizon (sight, sound, touch). Unvoiced thoughts are Null Data.

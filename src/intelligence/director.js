@@ -134,7 +134,7 @@ export function normalize_director_data(payload) {
     ? base.keywords
         .filter((k) => typeof k === "string" && Boolean(k.trim()))
         .map((k) => k.trim())
-        .slice(0, 3)
+        .slice(0, 5)
     : [];
 
   const raw_action = base.next_action || base.speaker;

@@ -20,7 +20,7 @@ import { render_protocols } from "./shared.js";
 export const TEMPORAL_PROTOCOLS = {
   CONTRACT: `TEMPORAL LAYER CONTRACT — ETERNAL / PRESENT / FUTURE / PAST
 - ETERNAL: Permanent baseline identity, personality traits, and physical form. Permanent narrative transformations update it; transient states belong in PRESENT. Explicit user edits always override.
-- PRESENT: Immediate volatile state. "physical" holds active attire, injuries, and held props via bracketed state tags ([KEY: VALUE]); "non_physical" holds immediate mindset and emotional state. True only in this moment.
+- PRESENT: Immediate volatile state. "physical" holds active attire, held props, injuries, and disguise via bracketed pseudo-JSON state tags (e.g. [SHIRT: sweater], [HELD: lantern], [INJURY: sprained ankle], [INVENTORY: item1, item2]); "non_physical" holds immediate mindset and emotional state. True only in this moment.
 - FUTURE: Single consolidated standing agenda — impending intent, immediate objective, or unresolved tension driving the character forward. Written in active future tense.
 - PAST: Settled historical anchors and durable facts. Append new consequential events only; never record transient moods.`,
 
@@ -149,7 +149,7 @@ export function render_memory({ target_entity, target_key = "AI_CHARACTER", othe
   return clean_xml(`
 <SYSTEM role="CONTINUUM_CARETAKER" target="${escape_xml(target_key)}" name="${escape_xml(target_name)}">
   <PROTOCOLS>
-    ${ind(render_protocols("HYGIENE.DATA, AGENCY.PRESENT_TENSE, HYGIENE.STATE_EMISSION"), 4)}
+    ${ind(render_protocols("HYGIENE.DATA, AGENCY.PRESENT_TENSE, STATE.PSEUDO_JSON"), 4)}
   </PROTOCOLS>
   <TARGET_ENTITY_CONTEXT>
 ${target_xml}

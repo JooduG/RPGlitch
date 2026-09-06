@@ -158,11 +158,11 @@ describe("normalize_director_quick_shot (Track 1 Schema)", () => {
     expect(data.in_scene_change).toEqual({ enter: ["doc"], exit: [] });
   });
 
-  it("caps keywords to 1-3 elements and preserves valid tags", () => {
+  it("caps keywords to 1-5 elements and preserves valid tags", () => {
     const data = normalize_director_data({
-      keywords: ["vulnerability", "defiance", "cinematic_shot", "extra_tag"],
+      keywords: ["vulnerability", "defiance", "cinematic_shot", "extra_tag", "fifth_tag", "sixth_overflow"],
     });
-    expect(data.keywords).toEqual(["vulnerability", "defiance", "cinematic_shot"]);
+    expect(data.keywords).toEqual(["vulnerability", "defiance", "cinematic_shot", "extra_tag", "fifth_tag"]);
   });
 
   it("sanitizes directors_note to 1-5 lines string", () => {
@@ -223,9 +223,9 @@ describe("normalize_director_data", () => {
     expect(normalized.in_scene_change).toEqual({ enter: [], exit: [] });
   });
 
-  it("caps keywords at 3 and filters non-strings/empties", () => {
-    const normalized = normalize_director_data({ keywords: ["shame", "  ", "fear", null, "grief", 42, "betrayal"] });
-    expect(normalized.keywords).toEqual(["shame", "fear", "grief"]);
+  it("caps keywords at 5 and filters non-strings/empties", () => {
+    const normalized = normalize_director_data({ keywords: ["shame", "  ", "fear", null, "grief", 42, "betrayal", "rage", "panic"] });
+    expect(normalized.keywords).toEqual(["shame", "fear", "grief", "betrayal", "rage"]);
   });
 
   it("drops out-of-range story_status values to IN_PROGRESS", () => {

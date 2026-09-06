@@ -101,7 +101,7 @@ function clean_prompt_text(text) {
 function resolve_accessors(payload, override_entities = null) {
   if (payload?.render_accessors) return payload.render_accessors;
   const entities = override_entities || payload?.entities || {};
-  const messages = payload?.raw_messages || payload?.simulation_log || [];
+  const messages = Array.isArray(payload?.raw_messages) && payload.raw_messages.length > 0 ? payload.raw_messages : payload?.simulation_log || [];
   return render_builder.create_render_accessors(entities, payload?.input || "", messages);
 }
 

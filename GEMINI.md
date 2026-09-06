@@ -72,13 +72,14 @@ Turns execute sequentially within a round, allowing asynchronous overlapping whe
 
 ### 2. Narrative Hierarchy & AI Protocols
 
-#### The Hierarchy of Intent
+#### Conflict Resolution Priority
 
-When resolving narrative conflicts, enforce directives strictly in this order:
+When narrative constraints compete, resolve them strictly in this order of precedence:
 
-```text
-L1_ABSOLUTE (User Agency) > L2_CRITICAL (Character/Temporal Truth) > L3_HIGH (Plot/Sensory) > L4_MODERATE (Style)
-```
+1. **User Agency**: Absolute protection of user control (P1).
+2. **Physical & Temporal Truth**: Established physical state, causality, and entity integrity.
+3. **Plot & Sensory Momentum**: Environmental scene stakes, active objectives, and atmospheric texture.
+4. **Style & Delivery**: Prose tone, speaking registers, and expressive formatting.
 
 #### Narrative Integrity Directives
 

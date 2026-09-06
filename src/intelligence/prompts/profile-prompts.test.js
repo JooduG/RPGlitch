@@ -4,9 +4,29 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { render_enhancement, render_profile_sorting } from "./profile-prompts.js";
+import { PROFILE_PROTOCOLS, render_enhancement, render_profile_sorting } from "./profile-prompts.js";
 
 describe("Profile Prompts (profile-prompts.js)", () => {
+  describe("PROFILE_PROTOCOLS", () => {
+    it("is deeply frozen and exports valid schema and formats", () => {
+      expect(Object.isFrozen(PROFILE_PROTOCOLS)).toBe(true);
+      expect(Object.isFrozen(PROFILE_PROTOCOLS.MACROS)).toBe(true);
+      expect(Object.isFrozen(PROFILE_PROTOCOLS.SORTING)).toBe(true);
+      expect(Object.isFrozen(PROFILE_PROTOCOLS.OUTPUT_FORMATS)).toBe(true);
+
+      expect(PROFILE_PROTOCOLS.SCHEMA).toContain('"name"');
+      expect(PROFILE_PROTOCOLS.SCHEMA).toContain('"personality"');
+      expect(PROFILE_PROTOCOLS.SCHEMA).toContain('"appearance"');
+      expect(PROFILE_PROTOCOLS.SCHEMA).toContain('"past"');
+      expect(PROFILE_PROTOCOLS.SCHEMA).toContain('"future"');
+
+      expect(PROFILE_PROTOCOLS.OUTPUT_FORMATS.PROSE).toBeDefined();
+      expect(PROFILE_PROTOCOLS.OUTPUT_FORMATS.BRACKETS).toBeDefined();
+      expect(PROFILE_PROTOCOLS.OUTPUT_FORMATS.ARRAY_APPEND).toBeDefined();
+      expect(PROFILE_PROTOCOLS.OUTPUT_FORMATS.ARRAY_SINGLE).toBeDefined();
+      expect(PROFILE_PROTOCOLS.OUTPUT_FORMATS.JSON_OBJECT).toBeDefined();
+    });
+  });
   describe("render_enhancement()", () => {
     it("formats physical properties to XML correctly", () => {
       const entity = {
@@ -131,12 +151,12 @@ describe("Profile Prompts (profile-prompts.js)", () => {
 
     it("omits ingestion directive by default and appends it when ingestion: true", () => {
       const default_res = render_profile_sorting("character");
-      expect(default_res).not.toContain("INGESTION_DIRECTIVE");
+      expect(default_res).not.toContain("SOURCE OF TRUTH & INGESTION RULES");
 
       const ingest_res = render_profile_sorting("character", { ingestion: true });
-      expect(ingest_res).toContain("<INGESTION_DIRECTIVE");
-      expect(ingest_res).toContain("SOURCE_OF_TRUTH");
-      expect(ingest_res).toContain("NO_NULL_FABRICATION");
+      expect(ingest_res).toContain("SOURCE OF TRUTH & INGESTION RULES");
+      expect(ingest_res).toContain("Source text details are absolute truth");
+      expect(ingest_res).toContain("NEVER emit null, undefined, or empty string values");
     });
   });
 });

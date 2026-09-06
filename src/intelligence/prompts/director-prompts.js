@@ -44,7 +44,7 @@ export function render_environmental_hint(input) {
 export const DIRECTOR_PROTOCOLS = Object.freeze({
   SCHEMA: `{
   "_thought_process": "<ONE short sentence: tactical intent & state delta>",
-  "next_action": "'AI_CHARACTER' (AI speaks) | 'FRACTAL' (Fractal narrates) | 'npc:<id>' (in-scene NPC speaks) | { \\"genesis\\": { \\"name\\": \\"<Name>\\", \\"description\\": \\"<description>\\" } } (mint brand-new NPC) | 'EPILOGUE_CONCLUDED' (quest won) | 'EPILOGUE_COLLAPSED' (quest lost)",
+  "next_action": "'AI_CHARACTER' (AI speaks) | 'FRACTAL' (Fractal narrates) | 'npc:<id>' (in-scene NPC speaks) | { "genesis": { "name": "<Name>", "description": "<description>" } } (mint brand-new NPC) | 'EPILOGUE_CONCLUDED' (quest won) | 'EPILOGUE_COLLAPSED' (quest lost)",
   "keywords": ["<1-5 keywords from <AVAILABLE_KEYWORDS> or []>"],
   "directors_note": "<1-5 lines of unseen acting/staging directives for the next speaker, or empty string>",
   "dynamics_deltas": { "chaos": 0, "intensity": 0, "openness": 0, "affinity": 0, "velocity": 0, "entropy": 0 },
@@ -90,7 +90,7 @@ export function render_director({
 }) {
   const active_messages = raw_messages.length > 0 ? raw_messages : simulation_log;
   const accessors = render_accessors || render_builder.create_render_accessors(entities, input, active_messages);
-  const shared_protocols = render_protocols("HYGIENE.STATE_EMISSION, COGNITION.EPISTEMIC_PHYSICS");
+  const shared_protocols = render_protocols("STATE.PSEUDO_JSON, COGNITION.EPISTEMIC_PHYSICS");
   const local_protocols = Object.entries(DIRECTOR_PROTOCOLS)
     .map(([tag, text]) => `<${tag}>\n${text}\n</${tag}>`)
     .join("\n\n");

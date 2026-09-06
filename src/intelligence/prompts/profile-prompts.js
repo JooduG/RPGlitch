@@ -16,65 +16,61 @@ import { render_protocols, PROTOCOL_LIBRARY } from "./shared.js";
 
 // ── 1. Profile Protocols & Directives ─────────────────────────────────────────
 
-export const PROFILE_PROTOCOLS = {
-  SCHEMA: `Extract and sort raw text into a flat JSON object with keys:
-name (string), description (string), signature_color (string), appearance (string), personality (string), current_look (string), state_of_mind (string), past (array of strings → become memory vectors), future (string).
+export const PROFILE_PROTOCOLS = Object.freeze({
+  SCHEMA: `{
+  "name": "<Entity name string>",
+  "description": "<HUMAN EYES ONLY: internal notes / OOC summary>",
+  "signature_color": "<Choose from: Soft Rose, Crimson Red, Deep Indigo, Electric Cyan, Emerald Green, Forest Green, Adrenaline Pink, Lemon Yellow, Toxic Green, Scientific Teal, Space Blue, Pumpkin Amber, Proud Purple, Rusty Orange, Twilight Violet>",
+  "appearance": "<Permanent biometric appearance for image generation: build, face, eyes, hair, height, scars>",
+  "personality": "<Core timeless psychology: beliefs, drivers, cognitive patterns, vocal tone>",
+  "current_look": "<Current physical look: clothing, posture, expression, immediate visible condition>",
+  "state_of_mind": "<Current psychological state: immediate pressure, active focus, temporary behavioral driver>",
+  "past": ["<3-5 distinct formative memory strings>"],
+  "future": "<Single consolidated standing agenda string in active future tense>"
+}
 
-- description: HUMAN EYES ONLY. Internal notes/OOC info.
-- signature_color: Choose from: Soft Rose, Crimson Red, Deep Indigo, Electric Cyan, Emerald Green, Forest Green, Adrenaline Pink, Lemon Yellow, Toxic Green, Scientific Teal, Space Blue, Pumpkin Amber, Proud Purple, Rusty Orange, Twilight Violet.
-- appearance / personality: Permanent form vs Core philosophy.
-- current_look / state_of_mind: Temporary visual features vs Current mood/mental state.
-- past / future: Historical anchors vs Active impulses/intent (a single standing objective string).
-
-Return a single JSON object starting with { and ending with }. No preamble, no markdown backticks, no external XML tags.
-
+- Return a single JSON object starting with { and ending with }. No preamble, no markdown backticks, no external XML tags.
 - Field values are CLEAN PROSE ONLY: never embed XML tags (e.g. <ETERNAL>, <NON_PHYSICAL>), markdown-bold labels (e.g. **PRESENT.NON_PHYSICAL**), or structural headers inside any value.`,
 
-  FORMATS: {
-    ARRAY_APPEND:
-      'Return a JSON array of objects: {"content": string, "emotional_weight": integer (1-10)}. Generate 3-5 NEW distinct memories. Never duplicate a memory already listed in <ENTITY_CONTEXT>.',
-    ARRAY_SINGLE:
-      'Rewrite exactly this ONE memory. Return either a JSON array containing a single object {"content": string, "emotional_weight": integer (1-10)} or a plain text string. Never return multiple entries.',
-  },
-
-  MACROS: {
+  MACROS: Object.freeze({
     CHARACTER: "Use placeholder macros for entities: '{{me}}' (self), '{{you}}' (user persona), '{{fractal}}' (setting). Never hardcode names.",
     FRACTAL:
       "Use placeholder macros for entities: '{{user}}' (user persona), '{{char}}' (AI character), '{{fractal}}' (setting). Never hardcode names.",
-  },
+  }),
 
-  SORTING: {
+  SORTING: Object.freeze({
     REDISTRIBUTE: `REDISTRIBUTE: The source profile may have content in the wrong field. Move each fact to its correct field — e.g. a temporary state written under 'personality' belongs under 'state_of_mind'; a mood written under 'appearance' belongs under 'current_look'. Sort and relocate; do not merely regenerate in place. Never move content into or out of 'description' (internal OOC notes). Preserve the facts; only their location and phrasing may change. Strip any XML tags, markdown-bold field labels, or structural headers from values — they contain only clean prose.`,
-    INGESTION: `<INGESTION_DIRECTIVE Authority="L3_HIGH">
-  <RULE name="SOURCE_OF_TRUTH">
-    Source text details are absolute truth. Map them verbatim into corresponding schema fields.
-  </RULE>
-  <RULE name="NO_NULL_FABRICATION">
-    If a field (e.g., eye color, attire, height, unstated motivations) is absent from the source text:
-    - Synthesize a vivid, lore-consistent default.
-    - NEVER emit null, undefined, or empty string values.
-  </RULE>
-</INGESTION_DIRECTIVE>`,
-  },
+    INGESTION: `SOURCE OF TRUTH & INGESTION RULES:
+- Source text details are absolute truth. Map them faithfully into corresponding schema fields.
+- For absent details (e.g. attire, unstated motivations, physical attributes): synthesize vivid, lore-consistent defaults.
+- NEVER emit null, undefined, or empty string values.`,
+  }),
 
-  OUTPUT_RULES: {
+  OUTPUT_FORMATS: Object.freeze({
     PROSE: `OUTPUT RULES:
 - Emit ONLY the field content, as plain prose. No preamble, no commentary.
 - Do NOT wrap it in JSON, code fences (e.g. \`\`\`json), XML tags (e.g. <ETERNAL>, <NON_PHYSICAL>), markdown-bold labels (e.g. **PRESENT.NON_PHYSICAL**), backticks, or headers.
 - No keys, no labels, no scaffolding — just the text itself.`,
-    JSON_ARRAY: `OUTPUT RULES:
-- Emit ONLY the requested JSON array. No preamble, no commentary.
+    BRACKETS: `OUTPUT RULES:
+- Emit ONLY bracketed [KEY: value] directives, one bracket per line (e.g. [SHIRT: leather jacket], [HELD: lantern]).
+- Common keys: SHIRT, PANTS, SHOES, HELD, INJURY, DISGUISE, POSE, INVENTORY.
+- Do NOT wrap it in JSON, code fences (e.g. \`\`\`json), XML tags, markdown-bold labels, or headers.
+- Return clean brackets only.`,
+    ARRAY_APPEND: `OUTPUT RULES:
+- Return a JSON array of objects: [{"content": string, "emotional_weight": integer (1-10)}].
+- Generate 3-5 NEW distinct memories. Never duplicate a memory already listed in <ENTITY_CONTEXT>.
 - Do NOT wrap it in code fences (e.g. \`\`\`json), XML tags, or markdown.
 - Return valid JSON only.`,
-    BRACKETS: `OUTPUT RULES:
-- Emit ONLY the bracketed [KEY: value] configuration, one bracket per line.
-- Do NOT wrap it in JSON, code fences (e.g. \`\`\`json), XML tags, markdown-bold labels, or headers.`,
+    ARRAY_SINGLE: `OUTPUT RULES:
+- Rewrite exactly this ONE memory. Return either a JSON array containing a single object [{"content": string, "emotional_weight": integer (1-10)}] or a plain text string.
+- Never return multiple entries.
+- Do NOT wrap it in code fences (e.g. \`\`\`json), XML tags, or markdown.`,
     JSON_OBJECT: `OUTPUT RULES:
 - Emit ONLY the requested JSON object, starting with { and ending with }. No preamble, no commentary.
 - Do NOT wrap it in code fences (e.g. \`\`\`json), XML tags, or markdown.
 - Return valid JSON only.`,
-  },
-};
+  }),
+});
 
 // ── 2. Field Context Compiler ────────────────────────────────────────────────
 
@@ -166,8 +162,8 @@ export function render_enhancement({
 }) {
   const format_instruction = is_array_field
     ? array_mode === "patch_single"
-      ? PROFILE_PROTOCOLS.FORMATS.ARRAY_SINGLE
-      : PROFILE_PROTOCOLS.FORMATS.ARRAY_APPEND
+      ? PROFILE_PROTOCOLS.OUTPUT_FORMATS.ARRAY_SINGLE
+      : PROFILE_PROTOCOLS.OUTPUT_FORMATS.ARRAY_APPEND
     : "";
   const macro_instruction = !is_image_field
     ? entity_type === "fractal"
@@ -175,10 +171,10 @@ export function render_enhancement({
       : PROFILE_PROTOCOLS.MACROS.CHARACTER
     : "";
   const output_rules = is_array_field
-    ? PROFILE_PROTOCOLS.OUTPUT_RULES.JSON_ARRAY
+    ? ""
     : field_id.endsWith(".physical") || is_image_field
-      ? PROFILE_PROTOCOLS.OUTPUT_RULES.BRACKETS
-      : PROFILE_PROTOCOLS.OUTPUT_RULES.PROSE;
+      ? PROFILE_PROTOCOLS.OUTPUT_FORMATS.BRACKETS
+      : PROFILE_PROTOCOLS.OUTPUT_FORMATS.PROSE;
 
   return clean_xml(`
 <SYSTEM role="${escape_xml(enhancer || "GENERAL")}" enhancing="${escape_xml(label || "")}" field="${escape_xml(field_id)}">
@@ -217,7 +213,7 @@ export function render_profile_sorting(entity_type = "character", options = {}) 
       : `FOCUS: Extracting data for an individual CHARACTER. Re-contextualize or discard environmental/setting text. ${PROFILE_PROTOCOLS.MACROS.CHARACTER}`;
   const ingestion_str = options.ingestion ? `\n\n    ${ind(PROFILE_PROTOCOLS.SORTING.INGESTION, 4)}` : "";
   const redistribute_str = options.redistribute ? `\n\n    ${ind(PROFILE_PROTOCOLS.SORTING.REDISTRIBUTE, 4)}` : "";
-  const output_rules_str = `\n\n    ${ind(PROFILE_PROTOCOLS.OUTPUT_RULES.JSON_OBJECT, 4)}`;
+  const output_rules_str = `\n\n    ${ind(PROFILE_PROTOCOLS.OUTPUT_FORMATS.JSON_OBJECT, 4)}`;
 
   return clean_xml(`
 <SYSTEM role="NARRATIVE_STRUCTURER" enhancing="Entire Profile">
@@ -237,5 +233,6 @@ export function render_profile_sorting(entity_type = "character", options = {}) 
 
 /**
  * CHANGELOG
+ * - 2026-09-06: Modernized PROFILE_PROTOCOLS with inline JSON schema template, consolidated OUTPUT_FORMATS, and deep freeze.
  * - 2026-08-28: Ground-up deconstruct & refactor: streamlined field context rendering, standardized parameter naming, and removed redundant string/regex wrappers.
  */
