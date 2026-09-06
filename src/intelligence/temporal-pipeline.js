@@ -799,7 +799,7 @@ export const temporal_engine = {
 
       if (!target_item || unconsolidated_slice.length === 0) return;
 
-      const slice = unconsolidated_slice.slice(0, 8);
+      const slice = unconsolidated_slice.slice(0, 16);
       const entity = target_item.entity;
       const type = target_item.type;
 
@@ -920,5 +920,6 @@ if (typeof window !== "undefined") {
 
 /**
  * CHANGELOG
+ * - 2026-09-06: Expanded Memory Forge unconsolidated slice from 8 to 16 turns per consolidation cycle.
  * - 2026-08-28: Reconstructed temporal-pipeline.js with 5 clean domain sections, robust state logging, safe error wrappers, and full JSDoc typings.
  */

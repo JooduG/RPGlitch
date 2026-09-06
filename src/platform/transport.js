@@ -289,7 +289,9 @@ export const llm_service = {
       let abort_listener = null;
 
       try {
-        const generation = ai_engine(instruction, {
+        // Pass instruction as a function so perchance does not pjs-evaluate `[...]`/`{...}`
+        // inside it (pseudo-JSON state tags like [KEY: value] must reach the model verbatim).
+        const generation = ai_engine(() => instruction, {
           ...gen_options,
           onToken: on_chunk,
           onChunk: on_chunk,
@@ -314,7 +316,7 @@ export const llm_service = {
       } catch (clone_err) {
         if (String(clone_err).includes("DataClone") || String(clone_err).includes("could not be cloned")) {
           console.warn("[llm_service] Cross-origin function proxy rejected streaming callbacks. Retrying without stream.");
-          result = await ai_engine(instruction, {
+          result = await ai_engine(() => instruction, {
             ...gen_options,
           });
         } else {

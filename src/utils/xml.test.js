@@ -16,9 +16,9 @@ describe("escape_xml", () => {
 });
 
 describe("prompt_escape", () => {
-  it("escapes tags and perchance brackets but preserves quotes for clean dialogue", () => {
+  it("escapes only XML-significant tags, preserving brackets, ampersands, and quotes", () => {
     const input = `<dialogue>He said "Hello" & [Action: wave]</dialogue>`;
-    const expected = `&lt;dialogue&gt;He said "Hello" &amp; &#91;Action: wave&#93;&lt;/dialogue&gt;`;
+    const expected = `&lt;dialogue&gt;He said "Hello" & [Action: wave]&lt;/dialogue&gt;`;
     expect(prompt_escape(input)).toBe(expected);
   });
 

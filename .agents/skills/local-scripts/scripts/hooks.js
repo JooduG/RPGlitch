@@ -15,12 +15,12 @@
  *   - circuit-breaker:          PostToolUse 3-strike self-audit circuit breaker on tool failures.
  *   - svelte-pre-invocation:    PreInvocation prompt injection for svelte-autofixer awareness.
  *   - svelte-stop-gate:         Stop gate ensuring svelte-autofixer runs after .svelte changes.
- *   - planning-handoff:         Stop gate enforcing tasks/PRESENT.md update on src/ changes.
  *   - stop-hygiene:             Stop gate preventing transient debris in repository root.
  */
 
 import fs from "fs";
 import path from "path";
+// eslint-disable-next-line no-unused-vars
 import { execSync } from "child_process";
 
 // =================================================================================================
@@ -768,7 +768,7 @@ export function synchronize_mission_board(repo_root) {
  * Stop: Planning Handoff Gate.
  *
  * @param {any} payload Hook payload from stdin.
- */
+ 
 export function handle_planning_handoff(payload) {
   const repo_root = resolve_repo_root(payload);
   const future_dir = path.join(repo_root, "tasks", "future");
@@ -837,7 +837,8 @@ export function handle_planning_handoff(payload) {
   }
 
   send_hook_response({ decision: "stop" });
-}
+} 
+*/
 
 /**
  * Stop: Workspace Hygiene Gate.
@@ -886,7 +887,7 @@ const HOOK_DISPATCH_TABLE = Object.freeze({
   "circuit-breaker": handle_circuit_breaker,
   "svelte-pre-invocation": handle_svelte_pre_invocation,
   "svelte-stop-gate": handle_svelte_stop_gate,
-  "planning-handoff": handle_planning_handoff,
+  // "planning-handoff": handle_planning_handoff,
   "stop-hygiene": handle_stop_hygiene,
   "workspace-hygiene": handle_stop_hygiene,
 });

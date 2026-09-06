@@ -10,10 +10,10 @@
  */
 
 import { get_style_keywords, resolve_active_style_key } from "@data";
-import { ind, escape_xml, clean_xml, strip_cognition_blocks } from "@utils";
+import { ind, escape_xml, clean_xml, strip_cognition_blocks, physical_to_xml } from "@utils";
 import { build_available_keywords_xml, format_dynamics_attrs } from "./physics-prompts.js";
 import { render_builder } from "./builder.js";
-import { render_system_head, render_field_value, render_director_cast_xml, render_protocols, render_optional_tag } from "./shared.js";
+import { render_system_head, render_field_value, render_director_cast_xml, render_protocols, render_optional_tag, parse_macros } from "./shared.js";
 
 // ── 0. Lexical & Spatial Recognition Constants ───────────────────────────────
 
@@ -110,7 +110,7 @@ export function render_director({
   <ACTIVE_CHARACTERS>
     <AI_CHARACTER name="${escape_xml(entities?.AI?.name || "AI")}"${format_dynamics_attrs(compressed_snapshot?.ai?.dynamics)}>
       <STATE_OF_MIND>${ind(render_field_value(entities?.AI?.present?.non_physical, entities?.AI, entities), 8)}</STATE_OF_MIND>
-      <CURRENT_LOOK>${ind(render_field_value(entities?.AI?.present?.physical, entities?.AI, entities), 8)}</CURRENT_LOOK>
+      ${ind(physical_to_xml(parse_macros(String(entities?.AI?.present?.physical || "").trim(), entities?.AI, entities), "CURRENT_LOOK"), 6).trim()}
       ${render_optional_tag("INTENT", ind(accessors.future(entities?.AI, { vector_text: true }), 8))}
       ${render_optional_tag("MEMORIES", ind(accessors.past(entities?.AI, { vector_text: true }), 8))}
     </AI_CHARACTER>
@@ -118,7 +118,10 @@ export function render_director({
       <PERSONALITY>${render_field_value(entities?.USER?.eternal?.non_physical, entities?.USER, entities)}</PERSONALITY>
       <STATE_OF_MIND>${ind(render_field_value(entities?.USER?.present?.non_physical, entities?.USER, entities), 8)}</STATE_OF_MIND>
       <PERMANENT_APPEARANCE>${render_field_value(entities?.USER?.eternal?.physical, entities?.USER, entities)}</PERMANENT_APPEARANCE>
-      <CURRENT_LOOK>${ind(render_field_value(entities?.USER?.present?.physical, entities?.USER, entities), 8)}</CURRENT_LOOK>
+      ${ind(
+        physical_to_xml(parse_macros(String(entities?.USER?.present?.physical || "").trim(), entities?.USER, entities), "CURRENT_LOOK"),
+        6,
+      ).trim()}
       ${render_optional_tag("AGENDA", ind(accessors.future(entities?.USER, { vector_text: true }), 8))}
       ${render_optional_tag("BACKSTORY", ind(accessors.past(entities?.USER, { vector_text: true }), 8))}
     </USER_PERSONA>
@@ -176,6 +179,7 @@ export function render_terse_director_task() {
 
 /**
  * CHANGELOG
+ * - 2026-09-06: Formatted CURRENT_LOOK using physical_to_xml and parse_macros for AI_CHARACTER and USER_PERSONA.
  * - 2026-09-06: Refactored prompt compiler per Simulation § 4.2 Structured JSON Schema Design:
  *   streamlined SCHEMA placeholders (keywords, 1-5 lines directors_note), eliminated redundant _thought_process
  *   preamble in TASK prompt, and preserved decoupled genesis/spotlight architecture.

@@ -138,6 +138,23 @@ export function extract_json_block(raw) {
 }
 
 /**
+ * Truncates text at the last word boundary within a character limit,
+ * appending an ellipsis only when text was actually cut.
+ * @param {string | null | undefined} text
+ * @param {number} [limit=200]
+ * @returns {string}
+ */
+export function truncate_at_word(text, limit = 200) {
+  if (!text || typeof text !== "string") return "";
+  const trimmed = text.trim();
+  if (trimmed.length <= limit) return trimmed;
+  const sub = trimmed.slice(0, limit);
+  const last_space = sub.lastIndexOf(" ");
+  const cut = last_space > 0 ? sub.slice(0, last_space).trimEnd() : sub.trim();
+  return `${cut}…`;
+}
+
+/**
  * Text sanitization for prompt safety.
  * Removes markdown-like characters and collapses redundant whitespace.
  * @param {string | null | undefined} text

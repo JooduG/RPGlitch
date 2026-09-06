@@ -375,3 +375,22 @@ describe("decompose_story_title", () => {
     expect(decompose_story_title("")).toEqual([{ text: "" }]);
   });
 });
+
+describe("truncate_at_word", () => {
+  it("truncates at word boundary within limit and appends ellipsis", async () => {
+    const { truncate_at_word } = await import("./text.js");
+    const input = "The quick brown fox jumps over the lazy dog";
+    expect(truncate_at_word(input, 20)).toBe("The quick brown fox…");
+  });
+
+  it("leaves text untouched if under limit", async () => {
+    const { truncate_at_word } = await import("./text.js");
+    expect(truncate_at_word("Short text", 20)).toBe("Short text");
+  });
+
+  it("handles null or empty inputs", async () => {
+    const { truncate_at_word } = await import("./text.js");
+    expect(truncate_at_word(null)).toBe("");
+    expect(truncate_at_word("")).toBe("");
+  });
+});

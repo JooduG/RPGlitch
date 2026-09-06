@@ -11,7 +11,7 @@
  * - Memory Forge Compiler (render_memory)
  */
 
-import { ind, escape_xml, physical_to_xml, clean_xml } from "@utils";
+import { ind, escape_xml, physical_to_xml, clean_xml, truncate_at_word } from "@utils";
 import { PROFILE_FIELDS } from "@data";
 import { render_protocols } from "./shared.js";
 
@@ -22,7 +22,8 @@ export const TEMPORAL_PROTOCOLS = {
 - ETERNAL: Permanent baseline identity, personality traits, and physical form. Permanent narrative transformations update it; transient states belong in PRESENT. Explicit user edits always override.
 - PRESENT: Immediate volatile state. "physical" holds active attire, held props, injuries, and disguise via bracketed pseudo-JSON state tags (e.g. [SHIRT: sweater], [HELD: lantern], [INJURY: sprained ankle], [INVENTORY: item1, item2]); "non_physical" holds immediate mindset and emotional state. True only in this moment.
 - FUTURE: Single consolidated standing agenda — impending intent, immediate objective, or unresolved tension driving the character forward. Written in active future tense.
-- PAST: Settled historical anchors and durable facts. Append new consequential events only; never record transient moods.`,
+- PAST: Settled historical anchors and durable facts. Append new consequential events only; never record transient moods.
+- MACROS: Use placeholder macros for entity references — '{{me}}' (self), '{{you}}' (the other primary party), '{{char}}' (AI character), '{{user}}' (user persona), '{{fractal}}' (setting). Never hardcode names.`,
 
   SCHEMA: `{
   "_thought_process": "<one short sentence analyzing recent events for target entity>",
@@ -40,11 +41,11 @@ export const TEMPORAL_PROTOCOLS = {
 /**
  * Formats recent dialogue / turn history for LLM prompt ingestion.
  * @param {Array<any>} [history]
- * @param {number} [max_turns=8]
+ * @param {number} [max_turns=16]
  * @param {number} [max_chars=400]
  * @returns {string}
  */
-export function format_recent_history(history = [], max_turns = 8, max_chars = 400) {
+export function format_recent_history(history = [], max_turns = 16, max_chars = 400) {
   const rows = Array.isArray(history) ? history.slice(-max_turns) : [];
   const compact = rows
     .filter((m) => {
@@ -54,7 +55,7 @@ export function format_recent_history(history = [], max_turns = 8, max_chars = 4
     .map((m) => ({
       role: m?.role || "",
       character_name: m?.character_name || "",
-      text: String(m?.text ?? m?.content ?? "").slice(0, max_chars),
+      text: truncate_at_word(String(m?.text ?? m?.content ?? ""), max_chars),
     }));
   return JSON.stringify(compact, null, 2).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
@@ -172,5 +173,6 @@ ${scene_cast_xml}${chapter_xml ? `  <CHAPTER_HISTORY>\n${ind(chapter_xml, 4)}\n 
 
 /**
  * CHANGELOG
+ * - 2026-09-06: Added MACROS instruction to contract, increased format_recent_history max_turns to 16, and used truncate_at_word.
  * - 2026-08-28: Ground-up deconstruct & refactor: extracted format_recent_history helper, bound entity context tags directly to PROFILE_FIELDS, and streamlined Memory Forge compiler.
  */

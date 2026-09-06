@@ -171,8 +171,8 @@ export const prompt_templates = {
       if (entity_instance.present?.physical) {
         blocks.push(physical_to_xml(strip_visual_excluded(entity_instance.present.physical), "PRESENT"));
       }
-      if (!blocks.length) return `<${tag_name} name="${escape_xml(entity_instance.name || "Unknown")}" />`;
-      return `<${tag_name} name="${escape_xml(entity_instance.name || "Unknown")}">\n${blocks.join("\n")}\n</${tag_name}>`;
+      if (!blocks.length) return "";
+      return `<${tag_name} name="${escape_xml(entity_instance.name || tag_name)}">\n${blocks.join("\n")}\n</${tag_name}>`;
     };
 
     const ai_character_block = render_entity("AI_CHARACTER", active_ai_character);
@@ -343,6 +343,7 @@ export function clean_image_prompt(raw) {
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-06: Suppressed empty fallback entity tags in render_entity to avoid generating "Unknown" subjects.
  * - 2026-09-06: Upgraded Optics Builder protocol: affirmative framing, cognitive directive, style keywords, merged spatial geometry, dynamic alternation resolution, and removed outer PROTOCOL wrapper. Fixed fractal recursion and framing.
  * - 2026-08-29: Harmonized via /harmonize protocol: purged abbreviated identifiers (style_obj -> style_definition, active_ai -> active_ai_character, active_user -> active_user_persona, active_fractal -> active_fractal_setting, ai_block -> ai_character_block, user_block -> user_persona_block, fractal_block -> fractal_setting_block), validated Universal File Architecture, and verified zero backwards-compatibility debt.
  * - 2026-08-29: Harmonized nomenclature in accordance with GEMINI.md lexical standards:

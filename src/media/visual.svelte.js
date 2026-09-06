@@ -19,7 +19,7 @@
  */
 
 import { db, entities, VISUAL_STYLES, resolve_portrait_visual_style_key, resolve_story_visual_style_key } from "@data";
-import { generate_secure_seed, strip_cognition_blocks, state_bridge, CircuitBreaker, ExponentialBackoffRetryer } from "@utils";
+import { generate_secure_seed, strip_cognition_blocks, truncate_at_word, state_bridge, CircuitBreaker, ExponentialBackoffRetryer } from "@utils";
 import { llm_service } from "@platform";
 import { get_resolution, get_tier_guidance_scale, normalize_image_tier } from "./image-tiers.js";
 import { aesthetic_resolver, resolve_visual_engine_tokens } from "./image-aesthetics.js";
@@ -425,6 +425,22 @@ export class VisualEngine {
 
       const solo_or_character_entity = options.entity || (subject === "user" ? user : subject === "fractal" ? fractal : ai);
 
+      const required_keys = tier === "story_entities" ? ["ai", "user"] : tier === "story_scene" ? ["fractal"] : [subject];
+      const subject_by_key = { ai, user, fractal };
+      const missing_subjects = required_keys
+        .filter((key) => {
+          const entity = subject_by_key[key];
+          return !entity || (entity.name === "Unknown" && !entity.description && !entity.eternal && !entity.present);
+        })
+        .map((key) => `${key} ("${subject_by_key[key]?.name || "missing"}")`);
+
+      if (missing_subjects.length) {
+        console.warn(
+          `[VisualEngine] visualize: skipping ${tier} generation — no resolvable character state for ${missing_subjects.join(", ")}. Image suppressed to avoid "Unknown" subjects.`,
+        );
+        return { imageUrl: null, refinedPrompt: null, caption: null };
+      }
+
       const style_key_for_llm =
         tier === "solo_entity" ? resolve_portrait_visual_style_key(solo_or_character_entity) : resolve_story_visual_style_key(fractal);
       const use_llm = is_selfie || tier === "story_entities" || (tier !== "solo_entity" && (VISUAL_STYLES[style_key_for_llm]?.llm_refine ?? true));
@@ -641,9 +657,9 @@ export class VisualEngine {
     const feed = state_bridge.simulation_log?.feed;
     if (!Array.isArray(feed) || feed.length === 0) return "";
     return feed
-      .filter((entry) => entry && typeof entry.text === "string" && entry.text.trim())
+      .filter((entry) => entry && entry.role !== "system" && typeof entry.text === "string" && entry.text.trim())
       .slice(-max_entries)
-      .map((entry) => `${entry.character_name || entry.role || "narrator"}: ${entry.text.slice(0, max_chars)}`)
+      .map((entry) => `${entry.character_name || entry.role || "narrator"}: ${truncate_at_word(entry.text, max_chars)}`)
       .join("\n");
   }
 
@@ -677,6 +693,7 @@ export function reset_cached_image_engine() {
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-06: Suppressed image generation for unresolvable/Unknown subjects, excluded system entries from visual history, and used truncate_at_word.
  * - 2026-09-06: Allowed explicit options.entity in visualize to support custom characters/NPC portraits.
  * - 2026-09-05: Fractal profile pictures now render in landscape (768x512) — resolution selection is
  *   entity-type aware, routing fractal `_entity` solo_entity shots through the `fractal_profile`/story_scene

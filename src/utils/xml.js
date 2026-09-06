@@ -5,8 +5,9 @@
  * Core Responsibilities:
  * - Pure, stateless XML escaping (`escape_xml`) and LLM prompt escaping (`prompt_escape`).
  *   - `escape_xml`: Full entity escaping (`&`, `<`, `>`, `"`, `'`, `[`, `]`) for XML attribute safety.
- *   - `prompt_escape`: Node text escaping that protects XML tags and Perchance brackets while leaving
- *     quotes unescaped so dialogue and character names remain natural and unpolluted by entity codes.
+ *   - `prompt_escape`: Node text escaping that escapes only XML-significant `<`/`>` so field
+ *     values cannot inject fake tags, while brackets, ampersands, and quotes pass through
+ *     verbatim (pseudo-JSON `[KEY: value]` state tags reach the model unpolluted).
  * - Physical State XML Serialization (`physical_to_xml`): Compiles entity physical/non-physical state
  *   (either bracket pseudo-JSON or plain prose) into structured, indented XML prompt nodes.
  * - Canonical Clothing Taxonomy (`CLOTHING_KEYS`): Shared taxonomy for clothing overrides, visual strip maps,
@@ -83,9 +84,11 @@ export const escape_xml = (str) => {
 
 /**
  * Escapes content destined for LLM prompt text nodes:
- * Preserves XML tag and Perchance square-bracket safety (`&#91;` / `&#93;`),
- * but leaves quotes unescaped so dialogue and character names render naturally
- * without decoding overhead for the model.
+ * Only XML-significant `<` and `>` are escaped, keeping field values from injecting
+ * fake tags into the prompt's XML structure. Brackets, ampersands, and quotes pass
+ * through verbatim so pseudo-JSON state tags (`[KEY: value]`) and dialogue stay
+ * natural — the transport layer passes instructions as a function, so perchance
+ * does not pjs-evaluate `[...]`/`{...}` (see `transport.js`).
  *
  * NOTE: Do NOT use inside XML attribute values (e.g. `name="..."`) — use `escape_xml` instead.
  *
@@ -94,7 +97,7 @@ export const escape_xml = (str) => {
  */
 export const prompt_escape = (str) => {
   if (typeof str !== "string") return "";
-  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\[/g, "&#91;").replace(/\]/g, "&#93;");
+  return str.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 };
 
 // ============================================================================
@@ -186,6 +189,9 @@ export function parse_visual_engine(engineXml = "") {
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-06: prompt_escape now escapes only `<`/`>`; brackets, ampersands, and quotes pass
+ *   through verbatim. Transport passes instructions as a function so perchance never pjs-evaluates
+ *   `[...]`/`{...}` — eliminates `&#91;`/`&#93;`/`&amp;` entity pollution in model-facing prompts.
  * - 2026-08-29: Added parse_visual_engine for structured <VISUAL_ENGINE> XML parsing.
  * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,
  *   structured 4 clear section dividers, exported frozen CLOTHING_KEYS array, added comprehensive
