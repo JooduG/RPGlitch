@@ -25,16 +25,13 @@ export const render_builder = {
    * @param {any[]} [raw_messages=[]]
    */
   create_render_accessors(entities = {}, input = "", raw_messages = []) {
-    const resolve = (ref) => (typeof ref === "string" ? entities[ref] || entities.AI || {} : ref || {});
-    const scoring_context = `${input || ""} ${(Array.isArray(raw_messages) ? raw_messages : [])
-      .slice(-10)
-      .map((m) => m.content || m.text || "")
-      .join(" ")}`.trim();
+    const resolve = (reference) => (typeof reference === "string" ? entities[reference] || entities.AI || {} : reference || {});
+    const scoring_context = prompt_builder.build_scoring_context(input, raw_messages);
 
     return {
       _context: scoring_context,
-      past: (ref, options = {}) => {
-        const entity = resolve(ref);
+      past: (reference, options = {}) => {
+        const entity = resolve(reference);
         const formatted = temporal_engine.format(resolve_vector_pool(entity), scoring_context, {
           offset: 0,
           max_chars: 1500,
@@ -42,8 +39,8 @@ export const render_builder = {
         });
         return parse_macros(formatted, entity, entities);
       },
-      future: (ref) => {
-        const entity = resolve(ref);
+      future: (reference) => {
+        const entity = resolve(reference);
         const raw_future = String(entity?.future || "").trim();
         const extracted_plan = extract_plan_from_state(entity?.present?.non_physical);
         const combined_future = [raw_future, extracted_plan ? `Active Plan: ${extracted_plan}` : ""].filter(Boolean).join("\n");
@@ -66,14 +63,14 @@ export const render_builder = {
     const end = Math.max(0, collapsed.length - offset);
     return collapsed
       .slice(start, end)
-      .map((c, idx) => {
-        const turn_num = start + idx + 1;
-        const speaker = c.name || (c.role === "USER_PERSONA" ? "User" : c.role === "FRACTAL" ? "Fractal" : "Character");
-        const clean_content = String(c.content || "")
+      .map((entry, index) => {
+        const turn_number = start + index + 1;
+        const speaker = entry.name || (entry.role === "USER_PERSONA" ? "User" : entry.role === "FRACTAL" ? "Fractal" : "Character");
+        const clean_content = String(entry.content || "")
           .replace(/<think>[\s\S]*?<\/think>/gi, "")
           .replace(/<\/?think>/gi, "")
           .trim();
-        return `    <turn number="${turn_num}" speaker="${escape_xml(speaker)}">${prompt_escape(clean_content)}</turn>`;
+        return `    <turn number="${turn_number}" speaker="${escape_xml(speaker)}">${prompt_escape(clean_content)}</turn>`;
       })
       .join("\n");
   },
@@ -83,12 +80,12 @@ export const render_builder = {
 
 /**
  * Trims trailing line whitespace and consolidates excessive newlines.
- * @param {string} [str]
+ * @param {string} [text]
  * @returns {string}
  */
-function clean_prompt_text(str) {
-  return typeof str === "string"
-    ? str
+function clean_prompt_text(text) {
+  return typeof text === "string"
+    ? text
         .replace(/[ \t]+$/gm, "")
         .replace(/\n{3,}/g, "\n")
         .trim()
@@ -97,13 +94,15 @@ function clean_prompt_text(str) {
 
 /**
  * Resolves or creates a render_accessors bundle for prompt generation.
+ * Accepts either raw_messages or simulation_log from the payload.
  * @param {any} payload
  * @param {any} [override_entities]
  */
 function resolve_accessors(payload, override_entities = null) {
   if (payload?.render_accessors) return payload.render_accessors;
   const entities = override_entities || payload?.entities || {};
-  return render_builder.create_render_accessors(entities, payload?.input || "", payload?.raw_messages || []);
+  const messages = payload?.raw_messages || payload?.simulation_log || [];
+  return render_builder.create_render_accessors(entities, payload?.input || "", messages);
 }
 
 /**
@@ -143,7 +142,7 @@ export const prompt_builder = {
   build_scoring_context(input = "", simulation_log = []) {
     const recent = (Array.isArray(simulation_log) ? simulation_log : [])
       .slice(-10)
-      .map((m) => m.content || m.text || "")
+      .map((message) => message.content || message.text || "")
       .join(" ");
     return `${input || ""} ${recent}`.trim();
   },
@@ -247,17 +246,14 @@ export const prompt_builder = {
    * @param {any} snapshot
    */
   build_prologue(payload, snapshot = {}) {
-    if (payload.type === "prologue") {
-      const render_accessors = resolve_accessors(payload);
-      const rendered = render_story_prose({
-        mode: "prologue",
-        ...payload,
-        render_accessors,
-        compressed_snapshot: snapshot,
-      });
-      return pack_prompt(rendered);
-    }
-    return prompt_builder.build_character(payload, snapshot, {});
+    const render_accessors = resolve_accessors(payload);
+    const rendered = render_story_prose({
+      mode: "prologue",
+      ...payload,
+      render_accessors,
+      compressed_snapshot: snapshot,
+    });
+    return pack_prompt(rendered);
   },
 
   /**
@@ -389,10 +385,16 @@ export const prompt_builder = {
 };
 
 if (typeof window !== "undefined") {
-  window.prompt_builder = prompt_builder;
+  window.exposed = {
+    ...window.exposed,
+    prompt_builder,
+  };
 }
 
 /**
  * CHANGELOG
+ * - 2026-09-06: Deduplicated scoring context assembly in create_render_accessors(); standardized
+ *   nomenclature (entry, index, turn_number, message); resolved raw_messages and simulation_log
+ *   asymmetrically; purged fallback in build_prologue(); standardized window.exposed bridge.
  * - 2026-08-28: Co-located render_builder directly in builder.js to eliminate circular imports from shared.js.
  */
