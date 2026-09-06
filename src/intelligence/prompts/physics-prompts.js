@@ -131,7 +131,7 @@ export function render_dynamics_block(live_dynamics = null) {
   2. Adjust deltas carefully near boundaries (5 or 95) to prevent clipping at 0 or 100. 
   3. Calibrate dynamics_deltas to reflect the psychological and environmental shift of the turn.
   </LAWS>
-  </AXES>
+  <AXES>
   ${definitions}
   </AXES>
 </DYNAMICS>`.trim();
