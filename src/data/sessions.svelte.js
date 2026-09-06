@@ -28,6 +28,35 @@ export const SESSION_ID_KEY = "active_session_id";
 let _active_id = null;
 
 // ============================================================================
+// INTERNAL QUERY HELPERS
+// ============================================================================
+
+/**
+ * Resolves a simulation log entry by exact ID or feed metadata reference.
+ * @param {string | number} id
+ * @returns {Promise<any | null>}
+ */
+async function _find_log_entry(id) {
+  const numeric_key = isNaN(Number(id)) ? null : Number(id);
+  let entry = numeric_key != null ? await db.simulation_log.get(numeric_key) : null;
+  if (!entry && typeof id === "string") {
+    entry = await db.simulation_log.get(id);
+  }
+  if (!entry) {
+    const feed_match = state_bridge.simulation_log?.feed?.find(
+      (message) => message.id === id || message.meta?.id === id || String(message.id) === String(id),
+    );
+    if (feed_match) {
+      entry = await db.simulation_log.get(feed_match.id);
+    }
+  }
+  if (!entry) {
+    entry = await db.simulation_log.filter((message) => message.meta?.id === id).first();
+  }
+  return entry || null;
+}
+
+// ============================================================================
 // SESSION DRIVER
 // ============================================================================
 
@@ -209,29 +238,35 @@ export const session_driver = {
 
   /**
    * Removes trailing turns back to the last user message to allow regeneration.
+   * Consolidated single pass for efficiency.
    * @returns {Promise<void>}
    */
   async regenerate() {
     const story_id = session_driver.require_active();
     const logs = await db.simulation_log.where("story_id").equals(story_id).sortBy("created_at");
-    for (let i = logs.length - 1; i >= 0; i--) {
-      const entry = logs[i];
-      if (entry.role === "user") break;
-      await db.simulation_log.delete(entry.id);
-      state_bridge.simulation_log?.remove?.(entry.id);
-    }
-    // Prune any empty text records without attachments
-    const remaining = await db.simulation_log.where("story_id").equals(story_id).toArray();
-    for (const entry of remaining) {
-      if (
-        typeof entry.text === "string" &&
-        !entry.text.trim() &&
-        (!entry.attachments || entry.attachments.length === 0) &&
-        !entry.meta?.is_prologue &&
-        !entry.meta?.is_epilogue
-      ) {
+    let found_user_turn = false;
+
+    for (let index = logs.length - 1; index >= 0; index--) {
+      const entry = logs[index];
+      if (!found_user_turn) {
+        if (entry.role === "user") {
+          found_user_turn = true;
+          continue;
+        }
         await db.simulation_log.delete(entry.id);
         state_bridge.simulation_log?.remove?.(entry.id);
+      } else {
+        const is_empty_stale =
+          typeof entry.text === "string" &&
+          !entry.text.trim() &&
+          (!entry.attachments || entry.attachments.length === 0) &&
+          !entry.meta?.is_prologue &&
+          !entry.meta?.is_epilogue;
+
+        if (is_empty_stale) {
+          await db.simulation_log.delete(entry.id);
+          state_bridge.simulation_log?.remove?.(entry.id);
+        }
       }
     }
   },
@@ -254,12 +289,8 @@ export const session_driver = {
    * @returns {Promise<void>}
    */
   async edit_log_entry(id, new_text) {
-    let key = isNaN(Number(id)) ? id : Number(id);
-    let entry = await db.simulation_log.get(key);
-    if (!entry) {
-      const match = state_bridge.simulation_log?.feed?.find((m) => m.id === id || m.meta?.id === id || String(m.id) === String(id));
-      if (match) key = match.id;
-    }
+    const entry = await _find_log_entry(id);
+    const key = entry ? entry.id : isNaN(Number(id)) ? id : Number(id);
     await db.simulation_log.update(key, { text: new_text });
     state_bridge.simulation_log?.update?.(id, { text: new_text });
   },
@@ -272,17 +303,7 @@ export const session_driver = {
    * @returns {Promise<void>}
    */
   async update_log_attachment(id, attachment_index, new_attachment) {
-    const numeric_key = isNaN(Number(id)) ? null : Number(id);
-    let entry = numeric_key ? await db.simulation_log.get(numeric_key) : null;
-    if (!entry) {
-      const feed_match = state_bridge.simulation_log?.feed?.find((m) => m.id === id || m.meta?.id === id || String(m.id) === String(id));
-      if (feed_match) {
-        entry = await db.simulation_log.get(feed_match.id);
-      }
-    }
-    if (!entry) {
-      entry = await db.simulation_log.filter((m) => m.meta?.id === id).first();
-    }
+    const entry = await _find_log_entry(id);
     if (entry) {
       if (!Array.isArray(entry.attachments)) {
         entry.attachments = [];
@@ -301,17 +322,7 @@ export const session_driver = {
    * @returns {Promise<void>}
    */
   async delete_log_attachment(id, attachment_index) {
-    const numeric_key = isNaN(Number(id)) ? null : Number(id);
-    let entry = numeric_key ? await db.simulation_log.get(numeric_key) : null;
-    if (!entry) {
-      const feed_match = state_bridge.simulation_log?.feed?.find((m) => m.id === id || m.meta?.id === id || String(m.id) === String(id));
-      if (feed_match) {
-        entry = await db.simulation_log.get(feed_match.id);
-      }
-    }
-    if (!entry) {
-      entry = await db.simulation_log.filter((m) => m.meta?.id === id).first();
-    }
+    const entry = await _find_log_entry(id);
     if (entry && Array.isArray(entry.attachments)) {
       entry.attachments.splice(attachment_index, 1);
       const is_empty_image_bubble =
@@ -379,13 +390,8 @@ export const session_driver = {
    */
   async load_log(story_id) {
     if (!story_id) return [];
-    const string_id = String(story_id);
-    const numeric_id = Number(story_id);
-    let messages = await db.simulation_log.where("story_id").equals(string_id).sortBy("created_at");
-    if (messages.length === 0 && !isNaN(numeric_id)) {
-      messages = await db.simulation_log.where("story_id").equals(numeric_id).sortBy("created_at");
-    }
-    return messages;
+    const normalized_ids = [...new Set([String(story_id), isNaN(Number(story_id)) ? story_id : Number(story_id)])];
+    return await db.simulation_log.where("story_id").anyOf(normalized_ids).sortBy("created_at");
   },
 
   /**
@@ -418,6 +424,8 @@ export const session_driver = {
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-06: Consolidated entry lookup into _find_log_entry(); streamlined load_log() with
+ *   anyOf() query; optimized regenerate() into single reverse pass; removed redundant fallback chains.
  * - 2026-08-29: Harmonized sessions.svelte.js to adhere strictly to constitutional
  *   lexical standards (unabbreviated naming, full descriptive variables), added
  *   instructional header block, standard dividers, and changelog footer.

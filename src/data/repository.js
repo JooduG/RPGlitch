@@ -29,6 +29,7 @@ import { PREMADE_ENTITIES, PREMADE_ENTITY_MAP } from "./definitions/premade-enti
 // ============================================================================
 // 1. DATA SEEDING (The Entity Foundry)
 // Module-scoped concurrency guard preventing overlapping seed operations.
+// ============================================================================
 let _is_seeding_active = false;
 
 /**
@@ -57,7 +58,6 @@ export async function seed_premades() {
           ...formatted_entity,
           id: blueprint.id,
           origin_id: blueprint.id,
-          is_snapshot: 0,
           created_at: Date.now(),
           updated_at: Date.now(),
         });
@@ -133,7 +133,7 @@ export const entities = {
       let found_entity = await db.entities.get(id);
       if (!found_entity) {
         const raw_premade = PREMADE_ENTITY_MAP.get(id);
-        if (raw_premade) found_entity = normalize(raw_premade);
+        if (raw_premade) found_entity = format_premade(raw_premade, raw_premade.type);
       }
       if (!found_entity || found_entity.type !== type) return null;
       return _map_vector_embeddings(found_entity, deserialize_embedding);
@@ -144,7 +144,7 @@ export const entities = {
   },
 
   /**
-   * Saves or updates an entity, normalizing and deep-cloning to break Proxy reactivity.
+   * Saves or updates an entity, normalizing and snapshotting to break Proxy reactivity.
    * @param {'character'|'fractal'} type
    * @param {Record<string, any>} entity
    * @returns {Promise<Record<string, any>>}
@@ -161,7 +161,6 @@ export const entities = {
         ...normalize({ ...base_entity, ...cloned_entity }),
         id,
         type,
-        is_snapshot: 0,
         updated_at: Date.now(),
       };
 
@@ -377,8 +376,11 @@ export const stories = {
 // CHANGELOG
 // ============================================================================
 /**
- * 2026-09-04: Converted `_seeding` guard from globalThis to module-scoped `_is_seeding_active` with robust finally reset.
- * 2026-08-29: Harmonized `src/data/repository.js` via `/harmonize`:
+ * CHANGELOG
+ * - 2026-09-06: Purged obsolete `is_snapshot: 0` ballast under P4 Zero Backwards Compatibility;
+ *   leveraged `$state.snapshot()` for fast reactivity decoupling in `upsert()` and `update()`.
+ * - 2026-09-04: Converted `_seeding` guard from globalThis to module-scoped `_is_seeding_active` with robust finally reset.
+ * - 2026-08-29: Harmonized `src/data/repository.js` via `/harmonize`:
  *   - Structured Universal File Architecture with instructional header, 4 domain dividers, and changelog footer.
  *   - Enforced Full-Name & Anti-Abbreviation Mandate across all identifiers (e.g. `global_scope`, `existing_records`,
  *     `entities_to_add`, `existing_entity_ids`, `blueprint`, `transformed_entity`, `vector_entry`, `mapped_embedding`,

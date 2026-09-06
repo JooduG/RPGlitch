@@ -262,9 +262,6 @@ export function normalize(base = {}) {
     created_at,
     updated_at,
     origin_id,
-    is_premade,
-    is_custom,
-    version,
     dynamics_baseline,
     name = "",
     description = "",
@@ -291,9 +288,6 @@ export function normalize(base = {}) {
 
   const resolved_type = type === "fractal" ? "fractal" : "character";
   const template = ENTITY_TEMPLATES[resolved_type];
-
-  const is_premade_normalized = is_premade ?? 0;
-  const is_custom_normalized = is_custom ?? 0;
   const origin_id_normalized = origin_id ?? null;
   const dynamics_baseline_normalized = dynamics_baseline instanceof Object ? { ...dynamics_baseline } : null;
 
@@ -303,9 +297,6 @@ export function normalize(base = {}) {
     created_at: created_at ?? 0,
     updated_at: updated_at ?? 0,
     origin_id: origin_id_normalized,
-    is_premade: is_premade_normalized,
-    is_custom: is_custom_normalized,
-    version: version ?? 0,
     dynamics_baseline: dynamics_baseline_normalized,
 
     name: normalize_name(name),
@@ -432,8 +423,6 @@ export function format_premade(premade_data, type) {
   return normalize({
     ...premade_data,
     ...(type ? { type } : {}),
-    is_premade: true,
-    is_custom: false,
   });
 }
 
@@ -455,8 +444,6 @@ export function create_new(type = "character", overrides = {}) {
     created_at: overrides?.created_at ?? now,
     updated_at: overrides?.updated_at ?? now,
     origin_id: overrides?.origin_id ?? null,
-    is_premade: false,
-    is_custom: true,
     signature_color: overrides?.signature_color || get_random_signature_key(),
   });
 }
@@ -521,17 +508,20 @@ export function serialize_entity_for_export(target_entity) {
     if (TRANSIENT_KEYS.has(key)) continue;
     sanitized_export[key] = clone_clean(value, key);
   }
-  return JSON.parse(JSON.stringify(sanitized_export));
+  return sanitized_export;
 }
 
 // ============================================================================
 // CHANGELOG
 // ============================================================================
 /**
- * 2026-08-29: Harmonized module structure under /harmonize protocol:
+ * CHANGELOG
+ * - 2026-09-06: Purged phantom database flags (`is_premade`, `is_custom`, `is_snapshot`, `version`) under
+ *   P4 Zero Backwards Compatibility; eliminated redundant JSON.parse/stringify pass in serialize_entity_for_export.
+ * - 2026-08-29: Harmonized module structure under /harmonize protocol:
  *   - Enforced Universal File Architecture with instructional header, structured dividers, and changelog.
  *   - Refactored inline IIFE property assignments into modular, well-typed normalization helpers.
  *   - Aligned parameter names and variables with Anti-Abbreviation mandate (`target_entity`, `is_user_origin`, `normalized_dynamics`).
  *   - Preserved Four-Quadrant schema, chapter archives, relationship graph bounds, and RAG vector provenance.
- * 2026-08-28: Clamped entity dynamics (1-100), unified speaking style validation, and fixed serialize_entity_for_export chapter history preservation.
+ * - 2026-08-28: Clamped entity dynamics (1-100), unified speaking style validation, and fixed serialize_entity_for_export chapter history preservation.
  */
