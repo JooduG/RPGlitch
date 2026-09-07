@@ -6,6 +6,7 @@
  * - SOMATIC_REGISTRY (12 universal static physical archetypes)
  * - render_dynamics_block (<DYNAMICS> XML compiler)
  * - format_dynamics_attrs (Dynamics parameter XML attributes)
+ * - render_dynamics_axes_xml (<DYNAMIC_AXES> axis-entity block compiler)
  * - build_somatic_signals_xml (<SOMATIC_SIGNALS> XML compiler)
  * - resolve_somatic_directives (Resolves keywords against static and style-motif registries)
  * - build_available_keywords_xml (<AVAILABLE_KEYWORDS> XML compiler for Director)
@@ -157,6 +158,28 @@ export function format_dynamics_attrs(dynamics) {
 }
 
 /**
+ * Compiles live dynamics into a <DYNAMIC_AXES> axis-entity block for the story sheet.
+ * @param {Record<string, number>|null} [live_dynamics=null]
+ * @returns {string}
+ */
+export function render_dynamics_axes_xml(live_dynamics = null) {
+  if (!DYNAMICS_AXES) return "";
+  const has_values = live_dynamics && typeof live_dynamics === "object" && Object.keys(live_dynamics).length > 0;
+  if (!has_values) return "";
+  const axes = Object.entries(DYNAMICS_AXES)
+    .filter(([key]) => live_dynamics[key] !== undefined && live_dynamics[key] !== null)
+    .map(([key, meta]) => {
+      const value = Math.round(Number(live_dynamics[key]));
+      const bounds = String(meta.desc || "").split(/\s+vs\.?\s+/i);
+      const low = (bounds[0] || "").trim();
+      const high = (bounds[1] || "").trim();
+      return `  <AXIS name="${escape_xml(meta.label || key)}" value="${value}" low="${escape_xml(low)}" high="${escape_xml(high)}" />`;
+    })
+    .join("\n");
+  return axes ? `<DYNAMIC_AXES scale="0-100">\n${axes}\n</DYNAMIC_AXES>` : "";
+}
+
+/**
  * Compiles dynamic somatic directives and narrative signals into a single unified <SOMATIC_SIGNALS> XML block.
  *
  * @param {Record<string, number>} [ai_dynamics={}] - Active character dynamics
@@ -225,6 +248,7 @@ export function build_available_keywords_xml(active_style_keywords = []) {
 
 /**
  * CHANGELOG
+ * - 2026-09-06: Added render_dynamics_axes_xml (<DYNAMIC_AXES> axis-entity block for the story sheet).
  * - 2026-09-06: Formatted build_available_keywords_xml tags as bracketed tokens [keyword] for high-adherence LLM parsing.
  * - 2026-09-06: Consolidated build_signals_xml and build_somatic_directives_xml into unified build_somatic_signals_xml (<SOMATIC_SIGNALS>).
  * - 2026-09-06: Unified build_available_keywords_xml into a single flat comma-separated list of tags.
