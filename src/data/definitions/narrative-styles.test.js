@@ -96,7 +96,7 @@ describe("Narrative Style Helper Accessors", () => {
   it("renders pre-compiled narrative style XML correctly", () => {
     const xml = render_narrative_style_xml("edgar_allan_poe");
     expect(xml).toContain('<NARRATIVE_STYLE id="EDGAR_ALLAN_POE">');
-    expect(xml).toContain("Employ the signature storytelling of [Edgar Allan Poe]");
+    expect(xml).toContain("Employ the signature storytelling of Edgar Allan Poe");
     expect(xml).toContain("Include things such as");
     expect(xml).toContain("</NARRATIVE_STYLE>");
   });

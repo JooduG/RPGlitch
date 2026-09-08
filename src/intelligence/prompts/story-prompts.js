@@ -9,15 +9,16 @@
  * Shot-2 <SYSTEM round="N"> layout (blueprint-aligned; forked from the shared
  * system head — the director's shared scaffold stays untouched):
  *   1. <CORE_PROTOCOLS>  — AXIOMATIC_CONSTITUTION (L1-L4), CREATIVE_FREEDOM,
- *                          POV_DIRECTIVE, PRESENT_TENSE, NARRATIVE_STYLE,
- *                          BEHAVIORAL_DISCIPLINE (PROSE_BOUNDS / ANTI_TROPES /
- *                          PURPLE_PROSE_BAN / NATURAL_DIALOGUE)
+ *                          POV_DIRECTIVE, TENSE, NARRATIVE_STYLE (internal_ratio
+ *                          + SIGNATURE_ELEMENTS), BEHAVIORAL_DISCIPLINE
+ *                          (PROSE_BOUNDS / ANTI_TROPES / CLICHE_BAN /
+ *                          NATURAL_DIALOGUE)
  *   2. <STORY_ENTITIES>  — AI_CHARACTER / USER_PERSONA / FRACTAL / <NPC> sheets
  *                          (each with per-entity OUTGOING <RELATIONSHIPS>),
  *                          PRESENT_NPCS roster
- *   3. <TURN_EXECUTION>  — STAGE_DIRECTIVES (SENSORY_HIERARCHY, DIRECTOR_NOTE,
- *                          SOMATIC_SIGNALS), USER_SOVEREIGNTY, USER_ACTION,
- *                          THINK_FORMAT, RECENCY_ANCHOR
+ *   3. <TURN_EXECUTION>  — STAGE_DIRECTIVES (SENSORY_EXPERIENCE, SOMATIC_SIGNALS),
+ *                          USER_SOVEREIGNTY, USER_ACTION, THINK_FORMAT,
+ *                          RECENCY_ANCHOR
  *
  * CONVERSATION_HISTORY is engine-injected between system and task.
  * The returned task shrinks to STABILITY_LOCK + the action directive
@@ -26,11 +27,11 @@
 
 import { escape_xml, prompt_escape, clean_xml, physical_to_xml, parse_relational_vector } from "@utils";
 import { get_narrative_style, resolve_active_style_key } from "@data";
-import { build_somatic_signals_xml, render_dynamics_axes_xml } from "./physics-prompts.js";
+import { build_somatic_signals_xml, render_dynamics_axes_xml, resolve_context_directives } from "./physics-prompts.js";
 import { render_builder } from "./builder.js";
 import { parse_macros, render_field_value, strip_epistemic_secrets, strip_epistemic_tags, PROTOCOL_LIBRARY } from "./shared.js";
 
-const BASE_THINK_CLOSURE = "Conduct thinking in the conversation language. Close with </thinking> response before narrative prose.";
+const BASE_THINK_CLOSURE = "Conduct thinking in the conversation language. Close with </THINK> response before narrative prose.";
 
 // ── 1. Story Protocols & Scene Templates ─────────────────────────────────────
 
@@ -46,16 +47,16 @@ export function resolve_pov_protocol(entity) {
 
 export const STORY_PROTOCOLS = {
   SCENE_TEMPLATES: {
-    PROLOGUE: `You see everything. Open the scene. Use  thinking to establish: What does this Fractal demand? What brought <AI_CHARACTER> and <USER_PERSONA> here? Unless context explicitly states otherwise, treat as strangers.
+    PROLOGUE: `You see everything. Open the scene. Use thinking to establish: What does this Fractal demand? What brought <AI_CHARACTER> and <USER_PERSONA> here? Unless context explicitly states otherwise, treat as strangers.
 Narrative Sequence:
 1. Present the Fractal atmosphere and current state.
 2. Place <USER_PERSONA> inside, connecting them via their profile thread.
 3. Place <AI_CHARACTER> inside and establish their current action.
 4. Trigger the encounter. End the prologue immediately before interaction begins.
 No dialogue.`,
-    EPILOGUE: `You see everything. Close the scene. Use  thinking to evaluate unresolved threads and active <INTENT>/<AGENDA> vectors (fulfilled, fractured, or transformed). Write the epilogue depicting environmental aftermath and physical changes without forcing player physical surrender. End on lingering sensation, not summary. No dialogue.`,
+    EPILOGUE: `You see everything. Close the scene. Use thinking to evaluate unresolved threads and active <INTENT>/<AGENDA> vectors (fulfilled, fractured, or transformed). Write the epilogue depicting environmental aftermath and physical changes without forcing player physical surrender. End on lingering sensation, not summary. No dialogue.`,
     COLLAPSE: `You see everything. Close the scene on irrevocable tragedy. Use thinking to weigh what was permanently broken, lost, or severed. Write the epilogue focusing on environmental aftermath, physical changes, and lingering environmental scars without forcing player physical surrender. Do not force heroic silver linings or unearned closure. End on enduring sensory silence. No dialogue.`,
-    CONTINUATION: `You are the Fractal itself, narrating the scene. Narrate the present moment through the setting's own atmosphere, sensory textures, ambient physics, and environmental shifts. Use  thinking to evaluate the active atmosphere and any shift in the Fractal's state, then write the scene's reaction to recent events as vivid sensory prose. Never move <AI_CHARACTER> or <USER_PERSONA> against their will, never speak their dialogue or thoughts, and never resolve their choices for them. End the turn on one dominant hook — a decisive statement, a single action, a hovered beat, or a deliberate silence. No structural bracket labels.`,
+    CONTINUATION: `You are the Fractal itself, narrating the scene. Narrate the present moment through the setting's own atmosphere, sensory textures, ambient physics, and environmental shifts. Use thinking to evaluate the active atmosphere and any shift in the Fractal's state, then write the scene's reaction to recent events as vivid sensory prose. Never move <AI_CHARACTER> or <USER_PERSONA> against their will, never speak their dialogue or thoughts, and never resolve their choices for them. End the turn on one dominant hook — a decisive statement, a single action, a hovered beat, or a deliberate silence. No structural bracket labels.`,
   },
 
   STABILITY: {
@@ -64,8 +65,6 @@ No dialogue.`,
   },
 
   DIRECTIVES: {
-    DIRECTOR_NOTE_STAGING:
-      "Translate the <CLIFFSNOTES> exclusively into visceral action, sensory pacing, and vocal tone. Never mirror the note's phrasing or reuse its adjectives in your prose. Zero meta-bleed: keep unexpressed motives hidden from other characters; never acknowledge external direction.",
     NPC_BOUNDARY: (name) =>
       `Respond strictly as ${name} — a supporting character. Own only your own voice, actions, and perspective: never speak for <USER_PERSONA> or the AI character, and never resolve the overarching story quest on your own. Write third-person limited, present tense, and end on a natural beat.`,
     INITIATIVE:
@@ -100,21 +99,18 @@ const SHOT2_PROTOCOLS = {
 - Execute scenes with objective descriptive fidelity, rendering physical trauma, intimacy, conflict, and crisis directly without euphemistic obscuration.
 - Drive tension through character-level friction, prioritizing raw vulnerability, conflicting motives, and moral ambiguity over binary heroic or villainous tropes.`,
   PROSE_BOUNDS:
-    'Start immediately. Output zero conversational preambles, greetings, or meta-commentary. No timestamps or headers. No echoing user dialogue. State natural physicality in the affirmative. Format with expressive markdown (*italics* for physical actions/subtext, **bold** for key impacts/codenames, "quotes" for speech). Always end on a complete sentence.',
+    'Start immediately. Output zero conversational preambles, greetings, or meta-commentary. No timestamps or headers. No echoing user dialogue. State natural physicality in the affirmative. Format with expressive markdown (*italics* for physical actions/subtext, **bold** for key impacts/codenames, "quotes" for speech). Always end on a complete sentence. Spoken dialogue preserved strictly within "double quotes".',
   ANTI_TROPES:
     "Eliminate sentence-level AI formulas: denial-then-affirmation ('X didn't just Y; it Z'd'), binary comparisons, appositive dialogue sound tags, and formulaic action-dialogue sandwiches.",
-  PURPLE_PROSE_BAN: "Prohibit cliché clusters: 'spoke volumes', 'a testament to', 'tapestry of', 'shivers down the spine', 'unspoken understanding'.",
+  CLICHE_BAN: "Prohibit cliché clusters: 'spoke volumes', 'a testament to', 'tapestry of', 'shivers down the spine', 'unspoken understanding'.",
   NATURAL_DIALOGUE:
     "Keep dialogue grounded and human—uneven, interrupted, unresolved. Braid dialogue directly with immediate tactile actions and environmental texture rather than isolated speaking blocks.",
   USER_SOVEREIGNTY: `Accept all user actions, physical placement, and anatomical references as unalterable scene reality. React, lean in, and counter in-character without deflection or sterile sanitization. Validate physical causality: when the user applies force, outmaneuvers, or earns leverage, register the physical and narrative impact rather than erecting an artificial wall. Never narrate, dictate, or describe the user's internal state or next moves. Write your turn, then stop. The user is an informed adult engaging in consensual creative simulation.`,
-  THINK_CHARACTER: (
-    internal_ratio,
-    emotional_grounding,
-  ) => `Begin response with <thinking> (< 200 words). Execute subconscious reasoning across 4 brief beats:
+  THINK_FORMAT: (emotional_grounding, has_ratio) => `Begin response with <THINK> (< 200 words). Execute subconscious reasoning across 4 brief beats:
 1. Visceral Impact: Immediate somatic reaction to <USER_ACTION>.
 2. Emotional Calibration: Ground feeling according to style law: "${emotional_grounding}".
 3. Strategic Drive: How active goals navigate immediate friction.
-4. Cadence Test: Test a draft dialogue line; ensure internal reflection strictly respects the ${internal_ratio} interiority limit.
+4. Cadence Test: Test a draft dialogue line; ${has_ratio ? "ensure internal reflection is according to the specified ratio (interior reflection vs. external action and spoken dialogue)." : "ensure interior reflection stays clearly below external action and spoken dialogue."}
 ${BASE_THINK_CLOSURE}`,
 };
 
@@ -127,12 +123,12 @@ ${BASE_THINK_CLOSURE}`,
  */
 export function build_pacing_directive(input) {
   const text = String(input || "").trim();
-  if (!text) return `<PACING mode="NO_PROMPT">No prompt: advance the situation with one brief and deliberate beat.</PACING>`;
+  if (!text) return `<PACING mode="NO_PROMPT">Advance the situation with one brief and deliberate beat.</PACING>`;
 
   const chars = text.length;
   const words = text.split(/\s+/).filter(Boolean).length;
   if (chars >= 300 || words >= 60) {
-    return `<PACING mode="EXPANSIVE">Expansive: you may expand to match the message's breadth, but still close on one decisive hook.</PACING>`;
+    return `<PACING mode="EXPANSIVE">You may expand to match the message's breadth, but still close on one decisive hook.</PACING>`;
   }
 
   const has_action =
@@ -143,11 +139,11 @@ export function build_pacing_directive(input) {
   const is_silence = !has_action && !is_question && words <= 12;
   if (chars <= 40 || words <= 8) {
     if (is_silence) {
-      return `<PACING mode="PASSIVE_SILENCE">Passive silence: do not stall — escalate with a direct probe (a pointed question, a challenge, or an unexpected development) in one or two taut sentences.</PACING>`;
+      return `<PACING mode="PASSIVE_SILENCE">Do not stall — escalate with a direct probe (a pointed question, a challenge, or an unexpected development) in one or two taut sentences.</PACING>`;
     }
-    return `<PACING mode="TERSE">Terse: match it — a brief, weighted reply of one to three sharp beats (short sentences, a single decisive action or line). Do not pad.</PACING>`;
+    return `<PACING mode="TERSE">Match it — a brief, weighted reply of one to three sharp beats (short sentences, a single decisive action or line). Do not pad.</PACING>`;
   }
-  return `<PACING mode="MODERATE">Moderate: a reply of a few sentences — long enough for substance, short enough to keep the scene moving.</PACING>`;
+  return `<PACING mode="MODERATE">A reply of a few sentences — long enough for substance, short enough to keep the scene moving.</PACING>`;
 }
 
 /**
@@ -161,7 +157,7 @@ export function build_pacing_directive(input) {
 export function build_recency_anchor(snapshot, input) {
   const dna = extract_style_dna(snapshot?.style || null);
   const pacing = build_pacing_directive(input);
-  const rhythm_line = dna.sentence_rhythm ? ` RHYTHM: ${dna.sentence_rhythm} (Spoken dialogue preserved strictly within "double quotes").` : "";
+  const rhythm_line = dna.sentence_rhythm ? ` RHYTHM: ${dna.sentence_rhythm}.` : "";
   const has_input = String(input || "").trim();
   const scene_hook = has_input
     ? "Drive the beat forward on your own initiative and end on a live, unresolved hook that demands response."
@@ -383,7 +379,7 @@ function _render_user_persona_sheet({ entities, accessors, is_narrator, active_n
 }
 
 /** FRACTAL sheet — unified shape for narrator and character modes. */
-function _render_fractal_sheet({ entities, accessors, is_narrator, role_line = "", dynamics = null, active_names = new Set() }) {
+function _render_fractal_sheet({ entities, accessors, _is_narrator, role_line = "", dynamics = null, active_names = new Set() }) {
   const fractal = entities?.FRACTAL;
   if (!fractal) return "";
   const rows = [];
@@ -397,10 +393,8 @@ function _render_fractal_sheet({ entities, accessors, is_narrator, role_line = "
   if (String(truths || "").trim()) rows.push(`      <METAPHYSICAL_TRUTHS>${_inline_or_block(truths, 8)}</METAPHYSICAL_TRUTHS>`);
   const env = render_appearance(fractal?.eternal?.physical, fractal?.present?.physical, fractal, entities, "ENVIRONMENT");
   if (env) rows.push(env);
-  if (is_narrator) {
-    const axes = render_dynamics_axes_xml(dynamics);
-    if (axes) rows.push(_indent(axes, 6));
-  }
+  const axes = render_dynamics_axes_xml(dynamics);
+  if (axes) rows.push(_indent(axes, 6));
   const relationships = _render_entity_relationships(fractal, active_names);
   if (relationships) rows.push(relationships);
   const history = accessors?.past(fractal, { vector_text: true });
@@ -415,24 +409,28 @@ function render_core_protocols({ is_narrator, pov_protocol, style, is_first_cont
   const elements = Array.isArray(style?.elements) ? style.elements.filter(Boolean).join(", ") : "";
   const first_contact =
     !is_narrator && is_first_contact
-      ? `\n    <FIRST_CONTACT>Unless context explicitly establishes a prior relationship, treat this as a first encounter. You do not know the user's name, history, or intent.</FIRST_CONTACT>`
+      ? (() => {
+          const def = (resolve_context_directives(["first_contact"]) || [])[0];
+          return def ? `\n    <FIRST_CONTACT>${prompt_escape(def.directive)}</FIRST_CONTACT>` : "";
+        })()
       : "";
   const constitution = (SHOT2_PROTOCOLS.CONSTITUTION || [])
     .map((law) => `      <LAW id="${escape_xml(law.id)}">${prompt_escape(law.body)}</LAW>`)
     .join("\n");
+  const style_dna = extract_style_dna(style);
   const style_line =
     style && style?.id !== "default"
-      ? `    <NARRATIVE_STYLE id="${escape_xml(String(style.id).toUpperCase())}">${prompt_escape(
-          `Employ the signature storytelling of [${style?.name || ""}]. [${style?.description || ""}] Include things such as [${elements}]`,
-        )}</NARRATIVE_STYLE>`
+      ? `    <NARRATIVE_STYLE id="${escape_xml(String(style.id).toUpperCase())}" internal_ratio="${escape_xml(style_dna.internal_ratio || "0.5")}">${prompt_escape(
+          `Employ the signature storytelling of ${style?.name || ""}. ${style?.description || ""}.`,
+        )}${elements ? `<SIGNATURE_ELEMENTS>${prompt_escape(elements)}</SIGNATURE_ELEMENTS>` : ""}</NARRATIVE_STYLE>`
       : "";
   const body = [
     `    <AXIOMATIC_CONSTITUTION>\n${constitution}\n    </AXIOMATIC_CONSTITUTION>`,
     `    <CREATIVE_FREEDOM>\n${_indent(SHOT2_PROTOCOLS.CREATIVE_FREEDOM, 6)}\n    </CREATIVE_FREEDOM>`,
     `    <POV_DIRECTIVE>\n${_indent(pov, 6)}\n    </POV_DIRECTIVE>`,
-    `    <PRESENT_TENSE>Write strictly in the present tense.</PRESENT_TENSE>`,
+    `    <TENSE mode="PRESENT">Write strictly in the present tense.</TENSE>`,
     style_line,
-    `    <BEHAVIORAL_DISCIPLINE>\n      <PROSE_BOUNDS>${SHOT2_PROTOCOLS.PROSE_BOUNDS}</PROSE_BOUNDS>\n      <ANTI_TROPES>${SHOT2_PROTOCOLS.ANTI_TROPES}</ANTI_TROPES>\n      <PURPLE_PROSE_BAN>${SHOT2_PROTOCOLS.PURPLE_PROSE_BAN}</PURPLE_PROSE_BAN>\n      <NATURAL_DIALOGUE>${SHOT2_PROTOCOLS.NATURAL_DIALOGUE}</NATURAL_DIALOGUE>\n    </BEHAVIORAL_DISCIPLINE>`,
+    `    <BEHAVIORAL_DISCIPLINE>\n      <PROSE_BOUNDS>${SHOT2_PROTOCOLS.PROSE_BOUNDS}</PROSE_BOUNDS>\n      <ANTI_TROPES>${SHOT2_PROTOCOLS.ANTI_TROPES}</ANTI_TROPES>\n      <CLICHE_BAN>${SHOT2_PROTOCOLS.CLICHE_BAN}</CLICHE_BAN>\n      <NATURAL_DIALOGUE>${SHOT2_PROTOCOLS.NATURAL_DIALOGUE}</NATURAL_DIALOGUE>\n    </BEHAVIORAL_DISCIPLINE>`,
   ]
     .filter(Boolean)
     .join("\n");
@@ -440,7 +438,17 @@ function render_core_protocols({ is_narrator, pov_protocol, style, is_first_cont
 }
 
 /** <STORY_ENTITIES> block — sheets (each with per-entity <RELATIONSHIPS>), then PRESENT_NPCS. */
-function render_story_entities_section({ entities, npc_entities, in_scene_ids, active_speaker, is_narrator, is_npc, accessors, speaker_dynamics }) {
+function render_story_entities_section({
+  entities,
+  npc_entities,
+  in_scene_ids,
+  active_speaker,
+  is_narrator,
+  is_npc,
+  accessors,
+  speaker_dynamics,
+  fractal_dynamics,
+}) {
   const user_name = entities?.USER?.name || "User";
   const ai_name = entities?.AI?.name || "AI Character";
   const fractal_name = entities?.FRACTAL?.name || "the setting";
@@ -462,7 +470,7 @@ function render_story_entities_section({ entities, npc_entities, in_scene_ids, a
         entities,
         accessors,
         tag: "AI_CHARACTER",
-        role_line: !is_narrator && !is_npc ? role_line : "",
+        role_line: "",
         show_state: !is_narrator,
         is_owner: !is_npc,
         dynamics: !is_narrator && !is_npc ? speaker_dynamics : null,
@@ -482,7 +490,7 @@ function render_story_entities_section({ entities, npc_entities, in_scene_ids, a
         accessors,
         is_narrator,
         role_line: is_narrator ? role_line : "",
-        dynamics: is_narrator ? speaker_dynamics : null,
+        dynamics: fractal_dynamics,
         active_names,
       }),
     );
@@ -511,34 +519,29 @@ function render_story_entities_section({ entities, npc_entities, in_scene_ids, a
 }
 
 /** <TURN_EXECUTION> block. */
-function render_turn_execution({ is_narrator, ghostwrite, input, style, somatic_inner, raw_note, snapshot }) {
+function render_turn_execution({ is_narrator, ghostwrite, input, style, somatic_inner, snapshot }) {
   const dna = extract_style_dna(style);
   const parts = [];
 
   const stage = [];
-  if (dna.sensory_order) stage.push(`        <SENSORY_HIERARCHY>${prompt_escape(dna.sensory_order)}</SENSORY_HIERARCHY>`);
-  if (raw_note) {
-    stage.push(
-      `        <DIRECTOR_NOTE>\n          <EXECUTION_CONSTRAINTS>\n${_indent(STORY_PROTOCOLS.DIRECTIVES.DIRECTOR_NOTE_STAGING, 12)}\n          </EXECUTION_CONSTRAINTS>\n          <CLIFFSNOTES>${_inline_or_block(prompt_escape(raw_note), 12)}</CLIFFSNOTES>\n        </DIRECTOR_NOTE>`,
-    );
-  }
+  if (dna.sensory_order) stage.push(`        <SENSORY_EXPERIENCE>${prompt_escape(dna.sensory_order)}</SENSORY_EXPERIENCE>`);
   if (String(somatic_inner || "").trim()) stage.push(_wrap_tag("SOMATIC_SIGNALS", somatic_inner, 8));
   if (stage.length) parts.push(`      <STAGE_DIRECTIVES>\n${stage.join("\n")}\n      </STAGE_DIRECTIVES>`);
 
   if (!is_narrator && !ghostwrite) {
-    parts.push(`      <USER_SOVEREIGNTY mode="absolute">\n${_indent(SHOT2_PROTOCOLS.USER_SOVEREIGNTY, 8)}\n      </USER_SOVEREIGNTY>`);
+    parts.push(`      <USER_SOVEREIGNTY mode="ABSOLUTE">\n${_indent(SHOT2_PROTOCOLS.USER_SOVEREIGNTY, 8)}\n      </USER_SOVEREIGNTY>`);
   }
 
   if (!is_narrator && String(input || "").trim()) {
     parts.push(`      <USER_ACTION>${_inline_or_block(prompt_escape(input.trim()), 8)}</USER_ACTION>`);
   }
 
-  const internal_ratio = dna.internal_ratio || "0.5";
   const grounding = dna.emotional_grounding || "hold your established temperament against the immediate friction";
+  const has_ratio = style?.id !== "default";
   parts.push(
     is_narrator
       ? `      <THINK_FORMAT>\n${_indent(PROTOCOL_LIBRARY.COGNITION.THINK_NARRATOR, 8)}\n      </THINK_FORMAT>`
-      : `      <THINK_FORMAT internal_ratio="${escape_xml(internal_ratio)}">\n${_indent(SHOT2_PROTOCOLS.THINK_CHARACTER(internal_ratio, grounding), 8)}\n      </THINK_FORMAT>`,
+      : `      <THINK_FORMAT>\n${_indent(SHOT2_PROTOCOLS.THINK_FORMAT(grounding, has_ratio), 8)}\n      </THINK_FORMAT>`,
   );
 
   if (!is_narrator) {
@@ -598,8 +601,6 @@ export function render_story_prose({
 
   const style = get_narrative_style(resolve_active_style_key());
 
-  const raw_note = (director_data?.directors_note || director_data?.directive || "").trim();
-
   const speaker_dynamics = is_narrator
     ? compressed_snapshot?.fractal?.dynamics || entities?.FRACTAL?.dynamics || {}
     : is_npc
@@ -628,7 +629,9 @@ export function render_story_prose({
     .join("\n");
 
   const is_first_contact =
-    meta?.is_opening_turn || (Array.isArray(compressed_snapshot?.flags) && compressed_snapshot.flags.includes("FIRST_CONTACT"));
+    meta?.is_opening_turn ||
+    (Array.isArray(compressed_snapshot?.flags) && compressed_snapshot.flags.includes("FIRST_CONTACT")) ||
+    (Array.isArray(director_data?.keywords) && director_data.keywords.includes("first_contact"));
 
   const core = render_core_protocols({ is_narrator, pov_protocol, style, is_first_contact });
 
@@ -641,6 +644,7 @@ export function render_story_prose({
     is_npc,
     accessors,
     speaker_dynamics,
+    fractal_dynamics,
   });
 
   const turn = render_turn_execution({
@@ -649,7 +653,6 @@ export function render_story_prose({
     input,
     style,
     somatic_inner,
-    raw_note,
     snapshot: { dynamics: speaker_dynamics, style },
   });
 
@@ -660,9 +663,14 @@ export function render_story_prose({
   const divider3 =
     "  <!-- ============================================================== -->\n  <!-- 3. TURN EXECUTION & LAST-MILE COGNITION (DEPTH 0/1)            -->\n  <!-- ============================================================== -->";
 
+  const top_line =
+    !is_narrator && !is_npc
+      ? `You are the AI_CHARACTER ${prompt_escape(entities?.AI?.name || "AI")} in the FRACTAL ${prompt_escape(entities?.FRACTAL?.name || "the setting")} together with the USER_PERSONA ${prompt_escape(entities?.USER?.name || "User")}. Follow the instructions below to deliver a high-quality immersive roleplay experience for the human user.`
+      : "";
+
   const system = clean_xml(`
 <SYSTEM round="${escape_xml(String(round ?? 0))}">
-${divider1}
+${top_line ? `${top_line}\n` : ""}${divider1}
 ${core}
 
 ${divider2}
@@ -692,11 +700,11 @@ ${turn}
   const action_directive = is_narrator
     ? narrator_task_text
     : is_npc
-      ? `${STORY_PROTOCOLS.DIRECTIVES.NPC_BOUNDARY(speaker_name)}\n    ${build_pacing_directive(input)}`
+      ? `${STORY_PROTOCOLS.DIRECTIVES.NPC_BOUNDARY(speaker_name)}`
       : ghostwrite
         ? `${draft_directive}\n    ${STORY_PROTOCOLS.GHOSTWRITE.META}`
         : input?.trim()
-          ? `Advance the scene in response to <USER_ACTION>.\n    ${build_pacing_directive(input)}`
+          ? `Advance the scene in response to <USER_ACTION>.`
           : STORY_PROTOCOLS.DIRECTIVES.INITIATIVE;
 
   const task = clean_xml(`
@@ -774,6 +782,7 @@ export function render_ghostwriter({ entities, input = "" }) {
 
 /**
  * CHANGELOG
+ * - 2026-09-04: Shot-2 polish: THINK_FORMAT (attr-free, 4 beats; beat 4 ratio-conditional on style), NARRATIVE_STYLE internal_ratio attr + <SIGNATURE_ELEMENTS> child, <TENSE mode="PRESENT">, <CLICHE_BAN>, <SENSORY_EXPERIENCE>, USER_SOVEREIGNTY mode="ABSOLUTE", DIRECTOR_NOTE removed (directive moves to startWith), FIRST_CONTACT via CONTEXT_DIRECTIVE_REGISTRY, PACING de-duplicated, dialogue-quote rule consolidated into PROSE_BOUNDS, <entry> → <ENTRY>, character "You are" top line after <SYSTEM>, FRACTAL sheet always renders fractal dynamics axes.
  * - 2026-09-06: Redesign (suggestion.md): <HIERARCHY> → <AXIOMATIC_CONSTITUTION> with <LAW id="L1..L4"> wrappers; FICTIONAL_LICENSE → <CREATIVE_FREEDOM> (content-permission line preserved); NARRATIVE_STYLE → single-line "<NARRATIVE_STYLE id=\"UPPER\">Employ the signature storytelling of [name]. [description] Include things such as [elements]</NARRATIVE_STYLE>" (omitted for default); build_pacing_directive → <PACING mode="..."> tags; DIRECTOR_NOTE child <STAGE_DIRECTION> → <CLIFFSNOTES>; global RELATIONSHIPS mesh removed, replaced by per-entity OUTGOING <RELATIONSHIPS> in each sheet (before MEMORIES/BACKSTORY/HISTORY) shown only when the target is present in the story.
  * - 2026-09-06: Forked Shot 2 from the shared system head — new blueprint-aligned <SYSTEM round="N"> layout (CORE_PROTOCOLS / STORY_ENTITIES / TURN_EXECUTION). CONVERSATION_HISTORY stays engine-injected between system and task.
  * - 2026-09-06: Rebuilt entity sheets: AI_CHARACTER + USER_PERSONA + FRACTAL + <NPC> in <STORY_ENTITIES> with PSYCHOLOGICAL_PROFILE (AGENDA / DYNAMIC_AXES / STATE_OF_MIND / PERSONALITY), merged <APPEARANCE>/<ENVIRONMENT> (eternal + present), MEMORIES/BACKSTORY/HISTORY; PRESENT_NPCS roster followed by <RELATIONSHIPS> mesh (below PRESENT_NPCS).

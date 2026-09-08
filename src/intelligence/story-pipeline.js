@@ -78,7 +78,7 @@ export const gamemaster = {
    * @returns {Promise<{ response: string, meta: any }>}
    */
   async execute_turn(story_id, options = {}) {
-    const { input = "", role: _role = "ai", ...llm_options } = options;
+    const { input = "", role: _role = "ai", is_opening_turn = false, ...llm_options } = options;
     state_bridge.app.busy = true;
 
     try {
@@ -220,6 +220,9 @@ export const gamemaster = {
         director_data = synthesize_director_fallback(director_data, input, state_bridge);
       }
       director_data = normalize_director_data(director_data);
+      if (is_opening_turn && !(director_data.keywords || []).includes("first_contact")) {
+        director_data.keywords = [...(director_data.keywords || []), "first_contact"].slice(0, 5);
+      }
 
       // 3.5. STAGE SPOTLIGHT
       await apply_in_scene_change(state_bridge, director_data.in_scene_change);
@@ -454,6 +457,7 @@ export const gamemaster = {
             messages: simulation_log,
             role: generation_role,
             node_id: node_id,
+            ...(director_data?.directors_note ? { startWith: `<THINK>${director_data.directors_note} ` } : {}),
           },
           {
             onToken,

@@ -14,7 +14,7 @@ export { render_dynamics_block };
 // ── 1. Consolidated Protocol Library ──────────────────────────────────────────
 
 const BASE_HYGIENE = "Start immediately. Output zero narrative prose, conversational filler, or meta-commentary.";
-const BASE_THINK_CLOSURE = "Conduct thinking in the conversation language. Close with </think> before narrative prose.";
+const BASE_THINK_CLOSURE = "Conduct thinking in the conversation language. Close with </THINK> response before narrative prose.";
 
 export const PROTOCOL_LIBRARY = {
   // ── 1.1 Core Output Mechanics, Formatting & Hygiene ────────────────────────
@@ -62,12 +62,12 @@ export const PROTOCOL_LIBRARY = {
 
   // ── 1.3 Cognition & Epistemic Physics ──────────────────────────────────────
   COGNITION: {
-    THINK_CHARACTER: `Begin response with <think> (< 200 words). Process reaction to <USER_ACTION> using in-character subconscious reasoning across 3 layers:
+    THINK_CHARACTER: `Begin response with <THINK> (< 200 words). Process reaction to <USER_ACTION> using in-character subconscious reasoning across 3 layers:
 1. Visceral Reaction: Physical impact of the immediate situation.
 2. Secret Drivers: How <AGENDA> steers your choice; build tension via initial hurdles first.
 3. 3-Layer Delivery: Explicit (dialogue/action), Implicit (unspoken tensions/micro-expressions), and Somatic (involuntary autonomic signals from <SOMATIC_SIGNALS>).
 ${BASE_THINK_CLOSURE}`,
-    THINK_NARRATOR: `Begin response with <think>. ALL internal calculations, scene/atmosphere shifts, and markdown headers MUST remain strictly INSIDE this block. ${BASE_THINK_CLOSURE}`,
+    THINK_NARRATOR: `Begin response with <THINK>. ALL internal calculations, scene/atmosphere shifts, and markdown headers MUST remain strictly INSIDE this block. ${BASE_THINK_CLOSURE}`,
     EPISTEMIC_PHYSICS: `1. Sensory Boundary: Perception ends at sensory horizon (sight, sound, touch). Unvoiced thoughts are Null Data.
 2. Perspective Isolation: Interpret others strictly through personal emotional filters, never omniscient clarity.
 3. Spatial Integrity: Maintain physical boundaries. Avoid unprovoked proximity encroachment or constant posture tagging.

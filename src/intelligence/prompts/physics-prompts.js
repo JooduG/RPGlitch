@@ -4,6 +4,7 @@
  *
  * Prompt XML compilers for dynamics and somatic tells:
  * - SOMATIC_REGISTRY (12 universal static physical archetypes)
+ * - CONTEXT_DIRECTIVE_REGISTRY (system-forced context directives, e.g. FIRST_CONTACT)
  * - render_dynamics_block (<DYNAMICS> XML compiler)
  * - format_dynamics_attrs (Dynamics parameter XML attributes)
  * - render_dynamics_axes_xml (<DYNAMIC_AXES> axis-entity block compiler)
@@ -100,6 +101,36 @@ export const SOMATIC_REGISTRY = [
 /** Fast O(1) archetype lookup map */
 const SOMATIC_MAP = new Map(SOMATIC_REGISTRY.map((entry) => [entry.id, entry]));
 
+// ── 1b. Context Directive Registry ────────────────────────────────────────────
+
+/**
+ * System-forced context directives — injected into director keywords by the
+ * pipeline (never offered to the Director as choices, unlike SOMATIC_REGISTRY).
+ * @type {{ id: string, directive: string }[]}
+ */
+export const CONTEXT_DIRECTIVE_REGISTRY = [
+  {
+    id: "first_contact",
+    directive:
+      "Unless context explicitly establishes a prior relationship, treat this as a first encounter. You do not know the user's name, history, or intent.",
+  },
+];
+
+/**
+ * Resolves injected context-directive keywords against the static registry.
+ * @param {string[]} [keywords]
+ * @returns {{ id: string, directive: string }[]}
+ */
+export function resolve_context_directives(keywords = []) {
+  const resolved = [];
+  for (const keyword of keywords || []) {
+    if (!keyword || typeof keyword !== "string") continue;
+    const def = CONTEXT_DIRECTIVE_REGISTRY.find((entry) => entry.id === keyword);
+    if (def) resolved.push({ id: def.id, directive: def.directive });
+  }
+  return resolved;
+}
+
 // ── 2. Dynamics XML Compilers ─────────────────────────────────────────────────
 
 /** @type {string | null} */
@@ -159,6 +190,8 @@ export function format_dynamics_attrs(dynamics) {
 
 /**
  * Compiles live dynamics into a <DYNAMIC_AXES> axis-entity block for the story sheet.
+ * Each active axis becomes its own named tag (`<CHAOS value="44" low="..." high="..." />`)
+ * so the model can address axes individually.
  * @param {Record<string, number>|null} [live_dynamics=null]
  * @returns {string}
  */
@@ -173,7 +206,10 @@ export function render_dynamics_axes_xml(live_dynamics = null) {
       const bounds = String(meta.desc || "").split(/\s+vs\.?\s+/i);
       const low = (bounds[0] || "").trim();
       const high = (bounds[1] || "").trim();
-      return `  <AXIS name="${escape_xml(meta.label || key)}" value="${value}" low="${escape_xml(low)}" high="${escape_xml(high)}" />`;
+      const tag = String(key)
+        .toUpperCase()
+        .replace(/[^A-Z0-9_]/g, "_");
+      return `  <${tag} value="${value}" low="${escape_xml(low)}" high="${escape_xml(high)}" />`;
     })
     .join("\n");
   return axes ? `<DYNAMIC_AXES scale="0-100">\n${axes}\n</DYNAMIC_AXES>` : "";
@@ -262,6 +298,8 @@ export function build_available_keywords_xml(active_style_keywords = []) {
 
 /**
  * CHANGELOG
+ * - 2026-09-06: Added CONTEXT_DIRECTIVE_REGISTRY + resolve_context_directives (system-forced context keywords like FIRST_CONTACT, injected by the pipeline — never offered to the Director).
+ * - 2026-09-06: render_dynamics_axes_xml now emits each active axis as its own named tag (`<CHAOS value="44" ... />`) instead of `<AXIS name="...">` — the key is uppercased into the tag name.
  * - 2026-09-06: Redesign (suggestion.md): build_somatic_signals_xml now emits dynamic named tags — the keyword/trigger id is uppercased into the tag name (<DOMINANCE>, <PREDATORY_TENSION>, <MIND_GAMES>...) with de-duplication by tag name; directive text is XML-escaped.
  * - 2026-09-06: Added render_dynamics_axes_xml (<DYNAMIC_AXES> axis-entity block for the story sheet).
  * - 2026-09-06: Formatted build_available_keywords_xml tags as bracketed tokens [keyword] for high-adherence LLM parsing.
