@@ -37,7 +37,8 @@ describe("NARRATIVE_STYLES Preset Catalog", () => {
   it("ensures styled presets contain valid XML narrative engine blocks", () => {
     const active_styles = Object.entries(NARRATIVE_STYLES).filter(([key]) => key !== "default");
     for (const [, style] of active_styles) {
-      expect(style.xml).toContain(`<NARRATIVE_STYLE style="${style.id}">`);
+      expect(style.xml).toContain(`<NARRATIVE_STYLE id="${style.id.toUpperCase()}">`);
+      expect(style.xml).toContain("Employ the signature storytelling of");
       expect(style.xml).toContain("</NARRATIVE_STYLE>");
     }
 
@@ -94,9 +95,10 @@ describe("Narrative Style Helper Accessors", () => {
 
   it("renders pre-compiled narrative style XML correctly", () => {
     const xml = render_narrative_style_xml("edgar_allan_poe");
-    expect(xml).toContain('<NARRATIVE_STYLE style="edgar_allan_poe">');
-    expect(xml).toContain("<ESSENCE>");
-    expect(xml).toContain("<SUBSTANTIAL_ELEMENTS>");
+    expect(xml).toContain('<NARRATIVE_STYLE id="EDGAR_ALLAN_POE">');
+    expect(xml).toContain("Employ the signature storytelling of [Edgar Allan Poe]");
+    expect(xml).toContain("Include things such as");
+    expect(xml).toContain("</NARRATIVE_STYLE>");
   });
 
   it("evaluates trigger conditions without throwing errors", () => {

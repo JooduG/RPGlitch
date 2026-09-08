@@ -80,7 +80,7 @@ describe("physics.js", () => {
       const signals = evaluate_dynamics_signals({ ai_dynamics, style });
       const ids = signals.map((s) => s.id);
 
-      expect(ids).toContain("ANAIS_NIN_LYRICAL");
+      expect(ids).toContain("LYRICAL");
     });
 
     it("evaluates composite triggers for dual-axis conditions", () => {

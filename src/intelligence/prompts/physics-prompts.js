@@ -181,6 +181,8 @@ export function render_dynamics_axes_xml(live_dynamics = null) {
 
 /**
  * Compiles dynamic somatic directives and narrative signals into a single unified <SOMATIC_SIGNALS> XML block.
+ * Every active directive/signal is rendered as a dynamic named tag — the keyword/trigger id
+ * uppercased into the tag name (e.g. `dominance` → <DOMINANCE>, `mind_games` → <MIND_GAMES>).
  *
  * @param {Record<string, number>} [ai_dynamics={}] - Active character dynamics
  * @param {Record<string, number>} [fractal_dynamics={}] - Active fractal/environmental dynamics
@@ -188,7 +190,20 @@ export function render_dynamics_axes_xml(live_dynamics = null) {
  * @returns {string} XML block string or "" if no signals or directives are active.
  */
 export function build_somatic_signals_xml(ai_dynamics = {}, fractal_dynamics = {}, options = {}) {
-  const bullets = [];
+  const tags = [];
+  const seen = new Set();
+
+  const push = (id, directive) => {
+    const tag =
+      String(id || "")
+        .trim()
+        .toUpperCase()
+        .replace(/[^A-Z0-9_]/g, "_") || "";
+    const text = String(directive || "").trim();
+    if (!tag || !text || seen.has(tag)) return;
+    seen.add(tag);
+    tags.push(`      <${tag}>${escape_xml(text)}</${tag}>`);
+  };
 
   // 1. Somatic Directives (from keywords or dynamics-based non-verbal reaction thresholds)
   const manual_keywords = options?.keywords || [];
@@ -197,18 +212,17 @@ export function build_somatic_signals_xml(ai_dynamics = {}, fractal_dynamics = {
 
   const resolved_directives = resolve_somatic_directives(resolved_keywords);
   for (const entry of resolved_directives) {
-    bullets.push(`• ${entry.id}: ${entry.directive}`);
+    push(entry.id, entry.directive);
   }
 
   // 2. Dynamics Signals (from active thresholds and narrative style)
   const active_signals = evaluate_dynamics_signals(ai_dynamics, fractal_dynamics, options?.style);
   for (const signal of active_signals) {
-    bullets.push(`• ${signal.text}`);
+    push(signal.id, signal.text);
   }
 
-  if (bullets.length === 0) return "";
-  const inner = bullets.map((item) => `      ${item}`).join("\n");
-  return `    <SOMATIC_SIGNALS>\n${inner}\n    </SOMATIC_SIGNALS>`;
+  if (tags.length === 0) return "";
+  return `    <SOMATIC_SIGNALS>\n${tags.join("\n")}\n    </SOMATIC_SIGNALS>`;
 }
 
 // ── 3. Somatic Directive Compilers ───────────────────────────────────────────
@@ -248,6 +262,7 @@ export function build_available_keywords_xml(active_style_keywords = []) {
 
 /**
  * CHANGELOG
+ * - 2026-09-06: Redesign (suggestion.md): build_somatic_signals_xml now emits dynamic named tags — the keyword/trigger id is uppercased into the tag name (<DOMINANCE>, <PREDATORY_TENSION>, <MIND_GAMES>...) with de-duplication by tag name; directive text is XML-escaped.
  * - 2026-09-06: Added render_dynamics_axes_xml (<DYNAMIC_AXES> axis-entity block for the story sheet).
  * - 2026-09-06: Formatted build_available_keywords_xml tags as bracketed tokens [keyword] for high-adherence LLM parsing.
  * - 2026-09-06: Consolidated build_signals_xml and build_somatic_directives_xml into unified build_somatic_signals_xml (<SOMATIC_SIGNALS>).
