@@ -98,9 +98,9 @@ function define_style(style_definition) {
   let xml = "";
   if (style_definition.id && style_definition.id !== "default") {
     const elements = escape_xml((style_definition.keywords || []).join(", "));
-    xml = `\n  <NARRATIVE_STYLE id="${escape_xml(String(style_definition.id).toUpperCase())}">Employ the signature storytelling of [${escape_xml(
+    xml = `\n  <NARRATIVE_STYLE id="${escape_xml(String(style_definition.id).toUpperCase())}">Employ the signature storytelling of ${escape_xml(
       style_definition.name || "",
-    )}]. [${escape_xml(style_definition.description || "")}] Include things such as [${elements}]</NARRATIVE_STYLE>`;
+    )}. ${escape_xml(style_definition.description || "")} Include things such as ${elements}</NARRATIVE_STYLE>`;
   }
 
   return {
