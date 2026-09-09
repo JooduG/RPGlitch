@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
   AGGREGATE_KEYS,
+  alternation_field_label,
+  diff_alternation_picks,
+  extract_alternations,
+  has_alternations,
+  resolve_alternations,
+  strip_alternation_braces,
   clean_text,
   CLEAR_TOKENS,
   collapse_history,
@@ -400,5 +406,59 @@ describe("truncate_at_word", () => {
     const { truncate_at_word } = await import("./text.js");
     expect(truncate_at_word(null)).toBe("");
     expect(truncate_at_word("")).toBe("");
+  });
+});
+
+describe("alternation macros (selectable options & dice resolution)", () => {
+  it("extracts only real alternation groups (2+ options)", () => {
+    expect(extract_alternations("[SHIRT: {red|black}]")).toEqual([{ raw: "{red|black}", options: ["red", "black"] }]);
+    expect(extract_alternations("{a|b|c}")).toHaveLength(1);
+    expect(extract_alternations("{single} and {a|b}")).toHaveLength(1);
+    expect(extract_alternations("no braces")).toEqual([]);
+    expect(extract_alternations(null)).toEqual([]);
+  });
+
+  it("has_alternations detects groups", () => {
+    expect(has_alternations("[POSE: {standing|kneeling}]")).toBe(true);
+    expect(has_alternations("[POSE: standing]")).toBe(false);
+  });
+
+  it("resolve_alternations rolls one option per group via injectable random", () => {
+    const always_first = () => 0;
+    const r = resolve_alternations("[SHIRT: {red|black}] belt {leather|cloth}", { random: always_first });
+    expect(r.text).toBe("[SHIRT: red] belt leather");
+    expect(r.picks).toHaveLength(2);
+    expect(r.picks[0]).toEqual({ raw: "{red|black}", options: ["red", "black"], index: 0, option: "red" });
+
+    const always_last = () => 0.99;
+    expect(resolve_alternations("{a|b}", { random: always_last }).text).toBe("b");
+  });
+
+  it("reports dice picks through onPick and returns empty picks without alternations", () => {
+    const seen = [];
+    resolve_alternations("x {a|b|c}", { onPick: (pick) => seen.push(pick.index) });
+    expect(seen).toHaveLength(1);
+    expect(resolve_alternations("plain").picks).toEqual([]);
+    expect(resolve_alternations(null).text).toBe("");
+  });
+
+  it("diff_alternation_picks detects which option a resolved string committed to", () => {
+    const picks = diff_alternation_picks("[SHIRT: {red|black}]", "[SHIRT: black]");
+    expect(picks).toHaveLength(1);
+    expect(picks[0].option).toBe("black");
+    expect(picks[0].index).toBe(1);
+    expect(diff_alternation_picks("[SHIRT: {red|black}]", "[SHIRT: green]")).toEqual([]);
+  });
+
+  it("strip_alternation_braces collapses any leaked group to its first option", () => {
+    expect(strip_alternation_braces("He wore {the red coat|a blue cape} while {running|walking}.")).toBe("He wore the red coat while running.");
+    expect(strip_alternation_braces("plain")).toBe("plain");
+    expect(strip_alternation_braces(null)).toBeNull();
+  });
+
+  it("alternation_field_label resolves the enclosing bracket key", () => {
+    expect(alternation_field_label("[SHIRT: {red|black}]", "{red|black}")).toBe("SHIRT");
+    expect(alternation_field_label("plain {a|b} prose", "{a|b}")).toBe("");
+    expect(alternation_field_label("[MOOD: {calm|furious}] then {a|b}", "{a|b}")).toBe("");
   });
 });

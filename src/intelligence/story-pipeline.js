@@ -12,7 +12,18 @@
  */
 
 import { db, entities, stories } from "@data";
-import { generate_uuid, create_job_queue, state_bridge, strip_cognition_blocks, resolve_speaking_style, detox_prose } from "@utils";
+import {
+  generate_uuid,
+  create_job_queue,
+  state_bridge,
+  strip_cognition_blocks,
+  resolve_speaking_style,
+  detox_prose,
+  has_alternations,
+  extract_alternations,
+  alternation_field_label,
+  strip_alternation_braces,
+} from "@utils";
 import { visual_engine, resolve_image_trigger, spawn_image_beat, sweep_stale_ghosts, IMAGE_RESOLVE_TIMEOUT_MS } from "@media";
 import { validate_and_repair_response, force_close_response } from "./parser.js";
 import { llm_service, looks_truncated, raw_to_text, raw_stop_reason } from "@platform";
@@ -49,6 +60,84 @@ const TRUNCATION_COMPLETE_NOTE =
 
 /** Minimum narrative prose length before missing punctuation is treated as cut-off. */
 const TRUNCATION_MIN_PROSE = 40;
+
+const ALTERNATION_FIELD_PATHS = ["present.physical", "present.non_physical", "eternal.physical", "eternal.non_physical", "future"];
+
+function strip_directors_note_seed(full_text, monologue, directors_note) {
+  if (!directors_note) return full_text;
+  const seed = `<THINK>${directors_note} `;
+  const offset = monologue ? monologue.length : 0;
+  if (full_text.slice(offset).startsWith(seed)) {
+    return `${full_text.slice(0, offset)}<THINK>${full_text.slice(offset + seed.length).trimStart()}`;
+  }
+  return full_text;
+}
+
+/**
+ * Macro-leak (narrative side): the Director LLM sees `{A|B}` alternation options
+ * in its input and writes a resolved value back into state. After the Director's
+ * state commit, diff the braced source fields against what was actually written
+ * and log each confirmed pick as `[ALT] FIELD → option N "..." (narrative)`.
+ * @param {any} source_entities - Hydrated entities the Director was shown.
+ * @param {any} director_data - Normalized Director payload (post state commit).
+ */
+function log_narrative_alternations(source_entities, director_data) {
+  const mutations = director_data?.mutations || {};
+  const targets = [
+    ["AI", "AI_CHARACTER", director_data.state_append, mutations.AI_CHARACTER],
+    ["USER", "USER_PERSONA", null, mutations.USER_PERSONA],
+    ["FRACTAL", "FRACTAL", null, mutations.FRACTAL],
+  ];
+  for (const [src_key, top_state, target_mutations] of targets) {
+    const entity = source_entities?.[src_key];
+    if (!entity) continue;
+    const blobs = [top_state, target_mutations?.state_append, target_mutations?.eternal, target_mutations?.foundation_consolidated]
+      .map((b) => (typeof b === "string" ? b : b && typeof b === "object" ? [b.physical, b.non_physical].filter(Boolean).join("\n") : ""))
+      .filter(Boolean)
+      .join("\n");
+    if (!blobs) continue;
+    for (const field of ALTERNATION_FIELD_PATHS) {
+      const source_text = String(entity[field] ?? "");
+      if (!has_alternations(source_text)) continue;
+      for (const group of extract_alternations(source_text)) {
+        const label = alternation_field_label(source_text, group.raw);
+        let haystack = blobs;
+        if (label) {
+          const field_value = extract_field_bracket_value(blobs, label);
+          if (field_value == null) continue;
+          haystack = field_value;
+        }
+        const chosen = group.options.find((o) => o && matches_alt_option(haystack, o));
+        if (chosen == null) continue;
+        const index = group.options.indexOf(chosen);
+        state_bridge.app?.log?.(`[ALT] ${label || `${src_key}.${field}`} → option ${index + 1} "${chosen}" (narrative)`, "system");
+      }
+    }
+  }
+}
+
+/**
+ * Reads the value the Director wrote for a `[KEY: value]` bracket in a state blob.
+ * @param {string} blob - Concatenated committed state text.
+ * @param {string} key - Uppercase bracket key (e.g. "SHIRT").
+ * @returns {string | null} The committed value, or null if the key was not touched.
+ */
+function extract_field_bracket_value(blob, key) {
+  const escaped = String(key).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const m = blob.match(new RegExp(`\\[${escaped}\\s*:\\s*([^\\]]*)`, "i"));
+  return m ? m[1].trim() : null;
+}
+
+/**
+ * Word-boundary case-insensitive check that a committed value contains an option.
+ * @param {string} haystack
+ * @param {string} option
+ * @returns {boolean}
+ */
+function matches_alt_option(haystack, option) {
+  if (!haystack || !option) return false;
+  return new RegExp(`(^|[^A-Za-z0-9])${option.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([^A-Za-z0-9]|$)`, "i").test(haystack);
+}
 
 // ── 2. Narrative Turn Orchestration ───────────────────────────────────────────
 
@@ -224,6 +313,9 @@ export const gamemaster = {
         director_data.keywords = [...(director_data.keywords || []), "first_contact"].slice(0, 5);
       }
 
+      // 3.4.5. MACRO LEAK — log the alternation options the Director (narrative) committed to
+      log_narrative_alternations(payload.entities, director_data);
+
       // 3.5. STAGE SPOTLIGHT
       await apply_in_scene_change(state_bridge, director_data.in_scene_change);
 
@@ -372,7 +464,6 @@ export const gamemaster = {
       if (director_data.intent) think_sections.push(`**Intent:** ${clean_think(director_data.intent)}`);
       if (director_data.somatic_tells) think_sections.push(`**Somatic Tells:** ${clean_think(director_data.somatic_tells)}`);
       if (director_data.dialogue_direction) think_sections.push(`**Dialogue Direction:** ${clean_think(director_data.dialogue_direction)}`);
-      if (director_data._thought_process) think_sections.push(clean_think(director_data._thought_process));
       const think_content = think_sections.join("\n\n");
       if (think_content) final_meta.thoughts = think_content;
 
@@ -510,7 +601,9 @@ export const gamemaster = {
       final_meta.structural_errors = state_bridge.runtime.structural_errors;
 
       const speaker_style = resolve_speaking_style(generation_entity);
-      const persisted_text = detox_prose(validation_result.text, speaker_style);
+      const persisted_text = strip_alternation_braces(
+        detox_prose(strip_directors_note_seed(validation_result.text || "", director_monologue, director_data?.directors_note), speaker_style),
+      );
 
       if (persisted_text && persisted_text.trim()) {
         await state_bridge.session_driver.log_message(persisted_text, log_role, character_name, {
@@ -880,4 +973,5 @@ export const story_pipeline = gamemaster;
  * CHANGELOG
  * - 2026-08-29: Exported canonical story_pipeline alias alongside gamemaster (/harmonize).
  * - 2026-08-28: Reconstructed story-pipeline.js with 5 clean numbered sections, updated header path, and standard JSDoc typings.
+ * - 2026-09-04: Macro-leak (narrative side): Director may select {A|B} alternation options; log_narrative_alternations logs each confirmed pick as [ALT] FIELD -> option N "..." (narrative); persisted prose is guarded via strip_alternation_braces + strip_directors_note_seed (I5); think_sections now surface internal_monologue.
  */

@@ -62,7 +62,7 @@ export const PROTOCOL_LIBRARY = {
 
   // ── 1.3 Cognition & Epistemic Physics ──────────────────────────────────────
   COGNITION: {
-    THINK_CHARACTER: `Begin response with <THINK> (< 200 words). Process reaction to <USER_ACTION> using in-character subconscious reasoning across 3 layers:
+    THINK_CHARACTER: `Begin response with <THINK> (under 200 words). Process reaction to <USER_ACTION> using in-character subconscious reasoning across 3 layers:
 1. Visceral Reaction: Physical impact of the immediate situation.
 2. Secret Drivers: How <AGENDA> steers your choice; build tension via initial hurdles first.
 3. 3-Layer Delivery: Explicit (dialogue/action), Implicit (unspoken tensions/micro-expressions), and Somatic (involuntary autonomic signals from <SOMATIC_SIGNALS>).
@@ -904,4 +904,5 @@ ${cast_indented}
  * - 2026-08-28: Consolidated fragmented protocol rules into PROSE_DISCIPLINE, ANTI_TROPES,
  *   STATE_EMISSION, and self-contained THINK_CHARACTER / THINK_NARRATOR specifications.
  * - 2026-08-28: Co-located single-use protocols (ENTITY_CONVERGENCE_LAW, FIRST_CONTACT, ANCHOR) to their home files.
+ * - 2026-09-04: THINK_CHARACTER wording fix ("< 200 words" -> "under 200 words").
  */

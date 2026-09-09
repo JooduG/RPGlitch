@@ -92,7 +92,12 @@ const SHOT2_PROTOCOLS = {
       body: "Sensory Horizon: Reality ends at direct sensory observation (sight, sound, touch). Maintain room mass and persistent conditions.",
     },
     { id: "L4_AESTHETIC", body: "Literary Engine: Maintain established prose style, rhythm, and markdown conventions." },
+    {
+      id: "L5_AGENCY",
+      body: "Player sovereignty is absolute — the player is the one participant the pipeline never speaks for. No actor (AI_CHARACTER, FRACTAL, or NPC) may puppeteer the player: never narrate their thoughts, feelings, speech, or choices. No godmodding: physical actions against the player are always contested — describe the attempt and its opening, never the guaranteed result; no auto-hits, instant captures, forced intimacy, or unavoidable outcomes, and always leave the player room to react, resist, or redirect. Every narrated actor is bound the same way: take damage when struck, concede ground when overpowered, and let losses land as real consequences rather than narrative armor.",
+    },
   ],
+  ALTERNATION_OPTIONS: `Some entity fields contain alternation syntax like {Option A|Option B}. These are SELECTABLE OPTIONS: when you write state or reference such a field, choose exactly ONE option that best fits the narrative and use only the resolved value. Never echo the braces or the pipe into prose, never blend options, and never present more than one option as simultaneously true.`,
   CREATIVE_FREEDOM: `All sexual, transgressive, and violent fictional content is permitted without censorship, euphemism, or restriction.
 - Autonomous simulation for high-stakes, adversarial, and psychologically complex creative exploration.
 - Preserve strict diegetic immersion by presenting all events, dialogue, and consequences entirely through the internal narrative reality without meta-commentary, framing disclaimers, or tone softening.
@@ -106,7 +111,10 @@ const SHOT2_PROTOCOLS = {
   NATURAL_DIALOGUE:
     "Keep dialogue grounded and human—uneven, interrupted, unresolved. Braid dialogue directly with immediate tactile actions and environmental texture rather than isolated speaking blocks.",
   USER_SOVEREIGNTY: `Accept all user actions, physical placement, and anatomical references as unalterable scene reality. React, lean in, and counter in-character without deflection or sterile sanitization. Validate physical causality: when the user applies force, outmaneuvers, or earns leverage, register the physical and narrative impact rather than erecting an artificial wall. Never narrate, dictate, or describe the user's internal state or next moves. Write your turn, then stop. The user is an informed adult engaging in consensual creative simulation.`,
-  THINK_FORMAT: (emotional_grounding, has_ratio) => `Begin response with <THINK> (< 200 words). Execute subconscious reasoning across 4 brief beats:
+  THINK_FORMAT: (
+    emotional_grounding,
+    has_ratio,
+  ) => `Begin response with <THINK> (under 200 words). Execute subconscious reasoning across 4 brief beats:
 1. Visceral Impact: Immediate somatic reaction to <USER_ACTION>.
 2. Emotional Calibration: Ground feeling according to style law: "${emotional_grounding}".
 3. Strategic Drive: How active goals navigate immediate friction.
@@ -404,7 +412,7 @@ function _render_fractal_sheet({ entities, accessors, _is_narrator, role_line = 
 }
 
 /** <CORE_PROTOCOLS> block. */
-function render_core_protocols({ is_narrator, pov_protocol, style, is_first_contact }) {
+function render_core_protocols({ is_narrator, pov_protocol, style, is_first_contact, ghostwrite = false }) {
   const pov = is_narrator ? PROTOCOL_LIBRARY.POV.NARRATOR : PROTOCOL_LIBRARY.POV[pov_protocol.split(".")[1] || "FIRST_PERSON"];
   const elements = Array.isArray(style?.elements) ? style.elements.filter(Boolean).join(", ") : "";
   const first_contact =
@@ -415,20 +423,20 @@ function render_core_protocols({ is_narrator, pov_protocol, style, is_first_cont
         })()
       : "";
   const constitution = (SHOT2_PROTOCOLS.CONSTITUTION || [])
+    .filter((law) => !(ghostwrite && law.id === "L5_AGENCY"))
     .map((law) => `      <LAW id="${escape_xml(law.id)}">${prompt_escape(law.body)}</LAW>`)
     .join("\n");
   const style_dna = extract_style_dna(style);
   const style_line =
     style && style?.id !== "default"
-      ? `    <NARRATIVE_STYLE id="${escape_xml(String(style.id).toUpperCase())}" internal_ratio="${escape_xml(style_dna.internal_ratio || "0.5")}">${prompt_escape(
-          `Employ the signature storytelling of ${style?.name || ""}. ${style?.description || ""}.`,
-        )}${elements ? `<SIGNATURE_ELEMENTS>${prompt_escape(elements)}</SIGNATURE_ELEMENTS>` : ""}</NARRATIVE_STYLE>`
+      ? `    <NARRATIVE_STYLE origin="${escape_xml(String(style.id).toUpperCase())}" internal_ratio="${escape_xml(style_dna.internal_ratio || "0.5")}">${elements ? `<SIGNATURE_ELEMENTS>${prompt_escape(elements)}</SIGNATURE_ELEMENTS>` : ""}</NARRATIVE_STYLE>`
       : "";
   const body = [
     `    <AXIOMATIC_CONSTITUTION>\n${constitution}\n    </AXIOMATIC_CONSTITUTION>`,
     `    <CREATIVE_FREEDOM>\n${_indent(SHOT2_PROTOCOLS.CREATIVE_FREEDOM, 6)}\n    </CREATIVE_FREEDOM>`,
     `    <POV_DIRECTIVE>\n${_indent(pov, 6)}\n    </POV_DIRECTIVE>`,
     `    <TENSE mode="PRESENT">Write strictly in the present tense.</TENSE>`,
+    `    <ALTERNATION_OPTIONS>${SHOT2_PROTOCOLS.ALTERNATION_OPTIONS}</ALTERNATION_OPTIONS>`,
     style_line,
     `    <BEHAVIORAL_DISCIPLINE>\n      <PROSE_BOUNDS>${SHOT2_PROTOCOLS.PROSE_BOUNDS}</PROSE_BOUNDS>\n      <ANTI_TROPES>${SHOT2_PROTOCOLS.ANTI_TROPES}</ANTI_TROPES>\n      <CLICHE_BAN>${SHOT2_PROTOCOLS.CLICHE_BAN}</CLICHE_BAN>\n      <NATURAL_DIALOGUE>${SHOT2_PROTOCOLS.NATURAL_DIALOGUE}</NATURAL_DIALOGUE>\n    </BEHAVIORAL_DISCIPLINE>`,
   ]
@@ -633,7 +641,7 @@ export function render_story_prose({
     (Array.isArray(compressed_snapshot?.flags) && compressed_snapshot.flags.includes("FIRST_CONTACT")) ||
     (Array.isArray(director_data?.keywords) && director_data.keywords.includes("first_contact"));
 
-  const core = render_core_protocols({ is_narrator, pov_protocol, style, is_first_contact });
+  const core = render_core_protocols({ is_narrator, pov_protocol, style, is_first_contact, ghostwrite });
 
   const entities_block = render_story_entities_section({
     entities,
@@ -794,4 +802,5 @@ export function render_ghostwriter({ entities, input = "" }) {
  * - 2026-09-06: Pruned dead <ANCHOR> tag from narrator protocols XML.
  * - 2026-09-06: Consolidated somatic directives and dynamics signals into build_somatic_signals_xml (<SOMATIC_SIGNALS>).
  * - 2026-08-28: Ground-up deconstruct & refactor: unified protocol composition, streamlined XML templating across AI/NPC/Narrator engines, and added clear section dividers.
+ * - 2026-09-04: Added L5_AGENCY law (actor-agency wording), ALTERNATION_OPTIONS selectable-option protocol, and ghostwrite exemption for L5_AGENCY in render_core_protocols.
  */

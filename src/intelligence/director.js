@@ -48,7 +48,10 @@ export function strip_npc_id(id) {
 export function normalize_next_action(raw) {
   if (!raw) return "AI_CHARACTER";
   if (typeof raw === "object" && raw.genesis) return "GENESIS";
-  if (typeof raw !== "string") return "AI_CHARACTER";
+  if (typeof raw !== "string") {
+    console.warn(`[Director] next_action is not a valid action (${typeof raw}) — falling back to AI_CHARACTER.`);
+    return "AI_CHARACTER";
+  }
   const trimmed = raw.trim();
   const upper = trimmed.toUpperCase();
   const lower = trimmed.toLowerCase();
@@ -60,6 +63,7 @@ export function normalize_next_action(raw) {
   if (upper === "EPILOGUE_COLLAPSED" || lower === "collapsed") return "EPILOGUE_COLLAPSED";
   if (SPEAKER_NPC_PATTERN.test(trimmed)) return trimmed;
 
+  console.warn(`[Director] next_action "${trimmed}" is not a valid action — falling back to AI_CHARACTER.`);
   return "AI_CHARACTER";
 }
 
@@ -197,6 +201,7 @@ export function synthesize_director_fallback(prev_data, input, _bridge) {
   return {
     _parse_error: true,
     _thought_process: thought,
+    internal_monologue: thought,
     next_action: "AI_CHARACTER",
     keywords: [],
     directors_note: "Continue the scene with grounded immersion and physical causality.",
@@ -394,4 +399,5 @@ export async function apply_relationships(bridge, rels) {
  * - 2026-09-06: Added support for next_action.genesis objects in normalize_next_action and normalize_director_data.
  * - 2026-09-05: Added support for unified spotlight schema (enter, exit, genesis) in normalize_director_data.
  * - 2026-08-28: Ground-up deconstruct & refactor: normalized action and speaker resolution, defensive JSON extraction, Stage Spotlight choreography, and unified Relational Mesh persistence.
+ * - 2026-09-04: normalize_next_action warns on unknown/non-string next_action; synthesize_director_fallback also emits internal_monologue so the fallback keeps its think block.
  */

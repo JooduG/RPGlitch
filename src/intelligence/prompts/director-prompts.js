@@ -59,6 +59,8 @@ SENSORY ENGAGEMENT: When <USER_ACTION> explicitly touches or observes physical d
 
   PACING_AND_MOMENTUM: `PACING LAW: Treat the active Fractal's <AGENDA> as a long-term scenario horizon. Do NOT rush to resolve standing objectives in early turns. Cue subtle developments in "directors_note" that build tension gradually.
 PASSIVE USER TURN LAW: When <USER_ACTION> contains no action verbs or questions (e.g. passive waiting or silence), use "directors_note" to introduce an unexpected environmental complication or in-character choice. Never let the scene stall into dead-air.`,
+
+  SELECTABLE_OPTIONS: `Entity fields may contain alternation syntax like {Option A|Option B}. These are SELECTABLE CHOICES. When you emit state mutations (state_append / vector_append / present / eternal), resolve each such field to exactly ONE option that best fits the narrative. Never echo braces or pipes into any emitted value, and never blend options.`,
 });
 
 // ── 2. Director Prompt Compiler (Shot 1) ──────────────────────────────────────
@@ -132,7 +134,7 @@ export function render_director({
 ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
 ${last_ai_text ? `<AI_CHARACTER_LAST_TURN>${ind(last_ai_text, 2)}</AI_CHARACTER_LAST_TURN>` : ""}
 <TASK>
-    Evaluate state mutations caused by ${input?.trim() ? "<USER_ACTION>" : "the current situation"}.${Number(round) <= 1 ? ' Round 1 follows the Fractal prologue, so next_action MUST be "AI_CHARACTER".' : ""}
+    Evaluate state mutations caused by ${input?.trim() ? "<USER_ACTION>" : "the current situation"}.${Number(round) <= 1 ? ' Round 1 follows the Fractal prologue, so next_action MUST be "AI_CHARACTER".' : ""} "USER_PERSONA" is never a valid next_action — it is a memory-caretaker target only; the Director never speaks for the player.
     ${render_environmental_hint(input)}
     Return a single, COMPLETE, VALID JSON object under 400 characters matching this schema:
     ${DIRECTOR_PROTOCOLS.SCHEMA}
@@ -170,4 +172,5 @@ export function render_terse_director_task() {
  *   pruned redundant TERMINATION protocol block; clarified keywords instruction role; cleaned up TASK instruction line.
  * - 2026-09-05: Unified in_scene_change and genesis into spotlight in DIRECTOR_PROTOCOLS.SCHEMA.
  * - 2026-08-28: Removed duplicate raw XML strings in favor of render_protocols for convergence and epistemic rules.
+ * - 2026-09-04: Added SELECTABLE_OPTIONS protocol for {A|B} state mutations; clarified "USER_PERSONA" is never a valid next_action (memory-caretaker target only).
  */

@@ -456,6 +456,16 @@ export class VisualEngine {
           visual_staging: options?.visual_staging || "",
           history: this._build_visual_history(),
           mode: "visualize",
+          onAlternationPick: (picks) => {
+            for (const pick of picks) {
+              const line = `[ALT] ${pick.label || "field"} → option ${pick.index + 1} "${pick.option}" (dice)`;
+              try {
+                state_bridge.app?.log?.(line, "system");
+              } catch (_err) {
+                console.log(line);
+              }
+            }
+          },
         });
 
         try {
@@ -706,4 +716,5 @@ export function reset_cached_image_engine() {
  *   structured 3 explicit section dividers, converted _resolveEntity to snake_case resolve_entity,
  *   standardized camelCase parameters and local variables (generate_secure_seed, timeout_id).
  * - 2026-08-28: Integrated CircuitBreaker and ExponentialBackoffRetryer resilient generation.
+ * - 2026-09-04: visualize() logs code-side alternation dice picks as [ALT] FIELD -> option N "..." (dice).
  */

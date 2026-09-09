@@ -17,7 +17,17 @@
  */
 
 import { VISUAL_STYLES, resolve_portrait_visual_style_key, resolve_story_visual_style_key } from "@data";
-import { escape_xml, physical_to_xml, prompt_escape, safe_parse_json, strip_cognition_blocks, detox_prose } from "@utils";
+import {
+  escape_xml,
+  physical_to_xml,
+  prompt_escape,
+  safe_parse_json,
+  strip_cognition_blocks,
+  detox_prose,
+  has_alternations,
+  resolve_alternations,
+  alternation_field_label,
+} from "@utils";
 import { sanitize_llm } from "@platform";
 import { PROTOCOL_LIBRARY, parse_macros } from "../intelligence/prompts/shared.js";
 import { normalize_image_tier } from "./image-tiers.js";
@@ -90,7 +100,7 @@ export function build_optics_builder_protocol(style_definition = {}, engine_toke
 
   const texture_xml = engine_tokens.texture ? `<TEXTURES>Include textures such as: ${escape_xml(engine_tokens.texture)}</TEXTURES>` : "";
 
-  const has_alternation = /\{[^{}]+(?:\|[^{}]+)+\}/.test(input_text);
+  const has_alternation = has_alternations(input_text);
   const alternation_xml = has_alternation
     ? "\n<ALTERNATION_RESOLUTION>If an input attribute contains Perchance alternation syntax '{Option A|Option B}', resolve it to exactly ONE option consistent with the current narrative; never blend options and never echo the braces or pipe.</ALTERNATION_RESOLUTION>"
     : "";
@@ -149,6 +159,14 @@ export const prompt_templates = {
   build_prompt: (target_type, raw_intent, context = {}) => {
     const { ai, user, fractal, entity, history, mode = "visualize", variant } = context;
 
+    const dice_picks = [];
+    const roll = (text) => {
+      const resolved = resolve_alternations(text, {
+        onPick: (pick) => dice_picks.push({ ...pick, label: alternation_field_label(text, pick.raw) }),
+      });
+      return resolved.text;
+    };
+
     // Unified 4-Tier Image Taxonomy routing
     const tier = normalize_image_tier(target_type);
     const is_selfie = variant === "selfie" || target_type === "selfie";
@@ -169,7 +187,7 @@ export const prompt_templates = {
       if (entity_instance.eternal?.physical) {
         blocks.push(
           physical_to_xml(
-            strip_visual_excluded(parse_macros(String(entity_instance.eternal.physical).trim(), entity_instance, macro_entities)),
+            roll(strip_visual_excluded(parse_macros(String(entity_instance.eternal.physical).trim(), entity_instance, macro_entities))),
             "PHYSICAL_APPEARANCE",
           ),
         );
@@ -177,7 +195,7 @@ export const prompt_templates = {
       if (entity_instance.present?.physical) {
         blocks.push(
           physical_to_xml(
-            strip_visual_excluded(parse_macros(String(entity_instance.present.physical).trim(), entity_instance, macro_entities)),
+            roll(strip_visual_excluded(parse_macros(String(entity_instance.present.physical).trim(), entity_instance, macro_entities))),
             "CURRENT_IMPRESSION",
           ),
         );
@@ -273,7 +291,7 @@ ${is_selfie ? '\nPHASE 6: SELFIE MODE EXTENSION\n- Generate a short, in-characte
 ${history_xml}<INSTRUCTIONS>
 Convert narrative intent into a structured image prompt payload depicting ${subject}.
 </INSTRUCTIONS>
-<INPUT_INTENT>${prompt_escape(detox_prose(raw_intent))}</INPUT_INTENT>
+<INPUT_INTENT>${prompt_escape(detox_prose(roll(raw_intent)))}</INPUT_INTENT>
 ${context_block}
 ${framing_block}
 

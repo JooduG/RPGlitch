@@ -98,9 +98,9 @@ function define_style(style_definition) {
   let xml = "";
   if (style_definition.id && style_definition.id !== "default") {
     const elements = escape_xml((style_definition.keywords || []).join(", "));
-    xml = `\n  <NARRATIVE_STYLE id="${escape_xml(String(style_definition.id).toUpperCase())}">Employ the signature storytelling of ${escape_xml(
-      style_definition.name || "",
-    )}. ${escape_xml(style_definition.description || "")} Include things such as ${elements}</NARRATIVE_STYLE>`;
+    const internal_ratio = Number(style_definition.dna?.internal_ratio ?? 0.5).toFixed(2);
+    const description = (style_definition.description || "").replace(/\.+$/, "");
+    xml = `\n  <NARRATIVE_STYLE origin="${escape_xml(String(style_definition.id).toUpperCase())}" internal_ratio="${escape_xml(internal_ratio)}">${escape_xml(description)}${elements ? `<SIGNATURE_ELEMENTS>${elements}</SIGNATURE_ELEMENTS>` : ""}</NARRATIVE_STYLE>`;
   }
 
   return {
@@ -978,4 +978,5 @@ export function render_narrative_style_xml(style_key = resolve_active_style_key(
  *   2. Standardized section dividers (`// ============================================================================`).
  *   3. Enforced anti-abbreviation mandate (`style_definition`, `description_xml`, `keywords_xml`, `narrative_engine_xml`, `aggregated_motifs`, `character_dynamics`).
  *   4. Applied `Object.freeze` on `NARRATIVE_STYLES` for immutability.
+ * - 2026-09-04: define_style xml builder unified to the modern single-line NARRATIVE_STYLE format (internal_ratio attr + SIGNATURE_ELEMENTS, no "Include things such as") so the director layer and shot-2 layer agree.
  */

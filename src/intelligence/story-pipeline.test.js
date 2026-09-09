@@ -929,7 +929,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
       vi.mocked(llm_service.generate)
         .mockResolvedValueOnce(
           JSON.stringify({
-            _thought_process: "The room is a trap and the doors are sealed.",
+            internal_monologue: "The room is a trap and the doors are sealed.",
             trigger_image: true,
             dynamics_deltas: { intensity: 10 },
           }),
@@ -943,11 +943,11 @@ describe("gamemaster (Intelligence Kernel)", () => {
       expect(payload.thoughts).toContain("The room is a trap and the doors are sealed.");
     });
 
-    it("streams the director's _thought_process as its own think block and preserves the character's own think block", async () => {
+    it("streams the director's internal_monologue as its own think block and preserves the character's own think block", async () => {
       vi.mocked(llm_service.generate)
         .mockResolvedValueOnce(
           JSON.stringify({
-            _thought_process: "The door seals shut behind them.",
+            internal_monologue: "The door seals shut behind them.",
             mutations: { AI_CHARACTER: {} },
           }),
         )
@@ -955,7 +955,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
 
       const result = await gamemaster.execute_turn("story-123", { input: "Hello", role: "ai" });
 
-      expect(result.response).toContain("<think>\nThe door seals shut behind them.\n</think>");
+      expect(result.response).toContain("<think>\n**Cognition:** The door seals shut behind them.\n</think>");
       expect(result.response).toContain("<think>The character steadies itself.</think>");
       expect(result.response).toContain("It moves deeper.");
     });
@@ -978,7 +978,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
 
       // Director prose attempt → terse JSON retry → character pass.
       expect(call_count).toBe(3);
-      expect(result.response).toBe("<think>\nOrion looks angry and the room is dark\n</think>\n\nCharacter response text");
+      expect(result.response).toBe("<think>\n**Cognition:** Orion looks angry and the room is dark\n</think>\n\nCharacter response text");
     });
   });
 
@@ -1712,7 +1712,7 @@ describe("director mutations telemetry integration (Bug 2 verification)", () => 
     vi.mocked(llm_service.generate)
       .mockResolvedValueOnce(
         JSON.stringify({
-          _thought_process: "Tension escalating rapidly.",
+          internal_monologue: "Tension escalating rapidly.",
           next_action: "AI_CHARACTER",
           keywords: ["vulnerability"],
           directors_note: "Hold your ground.",
@@ -1795,7 +1795,7 @@ describe("execute_with_retry resilience diagnostics", () => {
       if (call_count === 2) {
         // Director turn 2 (terse retry): Valid director JSON
         return JSON.stringify({
-          _thought_process: "Recovered via terse prompt.",
+          internal_monologue: "Recovered via terse prompt.",
           next_action: "AI_CHARACTER",
           dynamics_deltas: { intensity: 5 },
         });
@@ -1853,7 +1853,7 @@ describe("execute_with_retry resilience diagnostics", () => {
         }
         if (role === "system") {
           return JSON.stringify({
-            _thought_process: "Prologue complete. First AI reaction triggered.",
+            internal_monologue: "Prologue complete. First AI reaction triggered.",
             next_action: "AI_CHARACTER",
             keywords: ["vulnerability"],
             directors_note: "Step into the mist.",
