@@ -36,10 +36,10 @@ export const PROFILE_FIELDS = {
         enhancer: "COGNITIVE_ARCHITECT",
       },
       fractal: {
-        label: "Metaphysical Truths",
+        label: "Permanent Truths",
         description: "Timeless metaphysical substrate: governing laws, constant environmental forces, and physical constants.",
         directive:
-          "Timeless metaphysical substrate: governing laws, constant forces, structural atmosphere. Physical constants, ambient rules, defining sensory essence, unbreakable world logic. Must hold true in any scene — if it shifts, it belongs in Present. No moments of observation. Dense, high-fidelity paragraph.",
+          "Timeless metaphysical substrate: governing laws, constant forces, structural atmosphere. Intangible constants, ambient rules, defining sensory essence, unbreakable world logic. Must hold true in any scene — if it shifts, it belongs in Present. No moments of observation. Dense, high-fidelity paragraph.",
         enhancer: "METAPHYSICAL_ARCHITECT",
       },
     },
@@ -55,7 +55,7 @@ export const PROFILE_FIELDS = {
         label: "Environment",
         description: "Permanent physical geography for image generation (terrain, architecture, materials, landmarks, scale).",
         directive:
-          "Permanent physical geography for image generation. Return bracketed configuration: [KEY: value] — one bracket per line, no outer braces, no prose outside the brackets. No weather, lighting, or atmospheric events. Keys: [TERRAIN: ...], [ARCHITECTURE: ...], [MATERIALS: ...], [LANDMARKS: ...], [SCALE: ...], [UPPER_CITY: ...], [LOWER_CITY: ...], [CONNECTION: ...], [VISUAL_THEME: ...]. Concrete visible landscape features only — no lore, history, or background summaries. Max 15 lines.",
+          "Permanent physical geography for image generation. Return bracketed configuration: [KEY: value] — one bracket per line, no outer braces, no prose outside the brackets. No weather, lighting, or atmospheric events. Keys: [TERRAIN: ...], [ARCHITECTURE: ...], [MATERIALS: ...], [LANDMARKS: ...], [SCALE: ...], [GEOMETRY: ...], [ZONES: ...], [CONNECTION: ...], [VISUAL_THEME: ...]. Concrete visible landscape features only — no lore, history, or background summaries. Max 15 lines.",
         enhancer: "SPATIAL_RENDERER",
       },
     },

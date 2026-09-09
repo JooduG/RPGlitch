@@ -132,6 +132,12 @@ export const NARRATIVE_STYLES = Object.freeze({
     description: "Standard system instructions without author style overlay.",
     speaking_style: "casual",
     keywords: ["default", "neutral", "standard"],
+    dna: {
+      internal_ratio: 0.5,
+      rhythm: "Balanced, grounded prose.",
+      sensory: "Sight > Sound > Touch > Scent",
+      grounding: "Situational realism and physical presence.",
+    },
   }),
 
   anais_nin: define_style({

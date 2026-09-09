@@ -50,7 +50,7 @@ describe("profile-fields.js schema invariants", () => {
     const fractal_metaphysics = fractal_eternal.fields.find((field) => field.key === "eternal.non_physical");
 
     expect(character_personality.label).toBe("Personality");
-    expect(fractal_metaphysics.label).toBe("Metaphysical Truths");
+    expect(fractal_metaphysics.label).toBe("Permanent Truths");
   });
 
   it("verifies PROFILE_SECTIONS_BY_TYPE cached maps match builder output", () => {
