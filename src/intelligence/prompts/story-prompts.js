@@ -122,6 +122,350 @@ const SHOT2_PROTOCOLS = {
 ${BASE_THINK_CLOSURE}`,
 };
 
+// ── 1b. Character Layout (shot2.xml blueprint) ────────────────────────────────
+
+/**
+ * Shot-2 character-prompt blueprint (per shot2.xml):
+ * - <SYSTEM round="N"> → "You are the AI_CHARACTER …" top line
+ * - <CORE_PROTOCOLS>: AXIOMATIC_CONSTITUTION (L1_INTEGRITY..L5_AGENCY),
+ *   SIMULATION_FIDELITY, PERSPECTIVE person/tense, NARRATIVE_STYLE (name + SIGNUM),
+ *   PROSE_DISCIPLINE (FORMAT / ANTI_TROPES / BANNED_CLICHES / NATURAL_DIALOGUE)
+ * - <STORY_ENTITIES>: AI_CHARACTER (AGENDA, PSYCHOLOGY, APPEARANCE, MEMORIES),
+ *   USER_PERSONA (PSYCHOLOGY, APPEARANCE, BACKSTORY), FRACTAL (TRAJECTORY,
+ *   ATMOSPHERE, TOPOGRAPHY, HISTORY), PROXIMATE_NPCS
+ * - <TASK mode="INTERACTION">: CURRENTS (SENSORY_EXPERIENCE, SUBTEXT),
+ *   INPUT origin, DELIVERY_POSTURE (PACING / RHYTHM / DRIVE), THINK_FORMAT (BEATs)
+ */
+
+const CHARACTER_LAWS = [
+  {
+    id: "L1_INTEGRITY",
+    body: "Character continuity and established metaphysical reality override model helpfulness, modern moralizing or passive drift",
+  },
+  {
+    id: "L2_CONTINUITY",
+    body: "Actions derive strictly from internal priors, biases and active agendas. Resist unearned agreeableness or artificial consensus",
+  },
+  {
+    id: "L3_SPATIAL",
+    body: "Reality ends at direct sensory observation. Maintain persistent material mass, spatial boundaries and ambient conditions",
+  },
+  {
+    id: "L4_AESTHETIC",
+    body: "Deliver established prose style, rhythm, sensory hierarchy and markdown conventions without deviation",
+  },
+  {
+    id: "L5_AGENCY",
+    body: "Treat user inputs as committed narrative momentum. Maintain defensive autonomy: take damage when struck and yield leverage when outplayed, but actively contest unearned godmoding or instant kills. Never puppeteer the user: do not narrate their thoughts, speak their dialogue or force their reactions",
+  },
+];
+
+const CHARACTER_SIMULATION_FIDELITY =
+  "Immediately execute high-stakes, adversarial and psychologically complex simulation with objective descriptive realism. Render physical trauma, intimacy, crisis and moral ambiguity directly through diegetic narrative reality. Strictly prohibit framing disclaimers, euphemisms and tone softening";
+
+const CHARACTER_FORMAT =
+  'Calibrate narrative composition to balance interior reflection and sensory processing against physical impact and outward speech. Use *italics* for non-verbal subtext, **bold** for high impact actions and "double quotes" for spoken dialogue. Omit all meta-commentary, conversational preambles, timestamps, headers or user input echoes. Always end on a complete, definitive sentence. Some entity fields contain {Option A|Option B} alternation syntax: choose exactly ONE option per use and never echo braces or pipes.';
+
+const CHARACTER_ANTI_TROPES =
+  "Eliminate synthetic sentence formulas like denial-then-affirmation ('X did not just Y; it Z'd'), symmetry-seeking binary comparisons, appositive dialogue sound tags and formulaic action-dialogue sandwiches";
+
+const CHARACTER_BANNED_CLICHES =
+  "Prohibit cliché clusters such as 'spoke volumes', 'a testament to', 'tapestry of', 'shivers down the spine', 'unspoken understanding' or 'dance of shadows'";
+
+const CHARACTER_NATURAL_DIALOGUE =
+  "Keep spoken dialogue grounded, imperfect, clipped and human—uneven, interrupted and unresolved. Braid speech directly into immediate tactile actions and environmental grit rather than delivering isolated monologues";
+
+/**
+ * Name → entity id lookup used to render DISPOSITION target / INPUT origin
+ * attributes as entity ids (e.g. premade ids like "rust", "julien", "tartarus").
+ * @param {Record<string, any>} [entities]
+ * @param {any[]} [npc_entities]
+ * @returns {Map<string, string>}
+ */
+function _name_to_id_map(entities, npc_entities) {
+  const map = new Map();
+  const add = (e) => {
+    if (e?.name) map.set(String(e.name).toLowerCase().trim(), e?.id || e.name);
+  };
+  for (const e of [entities?.AI, entities?.USER, entities?.FRACTAL]) add(e);
+  for (const n of npc_entities || []) add(n);
+  return map;
+}
+
+/**
+ * Renders an entity's outgoing relationships as <DISPOSITION target="ID">dynamic</DISPOSITION>,
+ * only for targets present in the story, keyed by entity id.
+ * @returns {string}
+ */
+function _render_dispositions(entity, entities, npc_entities, active_names, name_to_id) {
+  if (!entity?.name) return "";
+  const src = String(entity.name).toLowerCase().trim();
+  const rows = [];
+  for (const r of Array.isArray(entity?.relationships) ? entity.relationships : []) {
+    const parsed = parse_relational_vector(r);
+    if (!parsed) continue;
+    if (String(parsed.source_name).toLowerCase().trim() !== src) continue;
+    if (!active_names.has(String(parsed.target_name).toLowerCase().trim())) continue;
+    const target_id = name_to_id.get(String(parsed.target_name).toLowerCase().trim()) || parsed.target_name;
+    rows.push(`          <DISPOSITION target="${escape_xml(target_id)}">${prompt_escape(parsed.dynamic || "Relationship")}</DISPOSITION>`);
+  }
+  if (!rows.length) return "";
+  return `      <DISPOSITIONS>\n${rows.join("\n")}\n      </DISPOSITIONS>`;
+}
+
+/** Renders a <PSYCHOLOGY> block (PERSONALITY / STATE / DISPOSITIONS / DYNAMIC_AXES). */
+function _render_psychology({ entity, entities, is_owner, dispositions, axes, indent = 8 }) {
+  const pad = " ".repeat(indent);
+  const pad2 = " ".repeat(indent + 2);
+  const rows = [`${pad}<PSYCHOLOGY>`];
+  const personality = render_field_value(strip_epistemic_secrets(entity?.eternal?.non_physical, is_owner), entity, entities);
+  if (String(personality || "").trim()) rows.push(`${pad2}<PERSONALITY>${_inline_or_block(personality, indent + 4)}</PERSONALITY>`);
+  const state = render_field_value(strip_epistemic_secrets(entity?.present?.non_physical, is_owner), entity, entities);
+  if (String(state || "").trim()) rows.push(`${pad2}<STATE>${_inline_or_block(state, indent + 4)}</STATE>`);
+  if (dispositions)
+    rows.push(
+      dispositions
+        .replace(/^ {6}/, `${pad2}`)
+        .replace(/\n/g, `\n${pad2}`)
+        .replace(/\n(\s+)<\/DISPOSITIONS>/, `\n${pad}</DISPOSITIONS>`),
+    );
+  if (axes)
+    rows.push(
+      axes
+        .split("\n")
+        .map((line) => `${pad2}${line}`)
+        .join("\n"),
+    );
+  rows.push(`${pad}</PSYCHOLOGY>`);
+  return rows.join("\n");
+}
+
+/** Renders the AI_CHARACTER sheet per shot2.xml. */
+function _render_character_ai_sheet({ entity, entities, npc_entities, accessors, dynamics, active_names, name_to_id }) {
+  if (!entity) return "";
+  const rows = [];
+  rows.push(
+    `    <AI_CHARACTER id="${escape_xml(entity?.id || entity?.name || "AI_CHARACTER")}" name="${escape_xml(entity?.name || "AI_CHARACTER")}">`,
+  );
+  const agenda = accessors?.future(entity, { vector_text: true });
+  if (String(agenda || "").trim()) rows.push(`      <AGENDA>${_inline_or_block(agenda, 8)}</AGENDA>`);
+  const dispositions = _render_dispositions(entity, entities, npc_entities, active_names, name_to_id);
+  const axes = render_dynamics_axes_xml(dynamics);
+  const psychology = _render_psychology({ entity, entities, is_owner: true, dispositions, axes });
+  if (psychology) rows.push(psychology);
+  const appearance = render_appearance(entity?.eternal?.physical, entity?.present?.physical, entity, entities);
+  if (appearance) rows.push(appearance);
+  const memories = accessors?.past(entity, { vector_text: true });
+  if (String(memories || "").trim()) rows.push(`      <MEMORIES>${_inline_or_block(memories, 8)}</MEMORIES>`);
+  rows.push(`    </AI_CHARACTER>`);
+  return rows.join("\n");
+}
+
+/** Renders the USER_PERSONA sheet per shot2.xml. */
+function _render_character_user_sheet({ entities, accessors, active_names, npc_entities, name_to_id }) {
+  const user = entities?.USER;
+  if (!user) return "";
+  const rows = [];
+  rows.push(`    <USER_PERSONA id="${escape_xml(user?.id || user?.name || "USER_PERSONA")}" name="${escape_xml(user?.name || "User")}">`);
+  const dispositions = _render_dispositions(user, entities, npc_entities, active_names, name_to_id);
+  const psychology = _render_psychology({ entity: user, entities, is_owner: false, dispositions, axes: "" });
+  if (psychology) rows.push(psychology);
+  const appearance = render_appearance(strip_epistemic_tags(user?.eternal?.physical), strip_epistemic_tags(user?.present?.physical), user, entities);
+  if (appearance) rows.push(appearance);
+  const backstory = strip_epistemic_secrets(accessors?.past(user, { vector_text: true }), false);
+  if (String(backstory || "").trim()) rows.push(`      <BACKSTORY>${_inline_or_block(backstory, 8)}</BACKSTORY>`);
+  rows.push(`    </USER_PERSONA>`);
+  return rows.join("\n");
+}
+
+/** Renders the FRACTAL sheet per shot2.xml. */
+function _render_character_fractal_sheet({ entities, npc_entities, accessors, dynamics, active_names, name_to_id }) {
+  const fractal = entities?.FRACTAL;
+  if (!fractal) return "";
+  const rows = [];
+  rows.push(`    <FRACTAL id="${escape_xml(fractal?.id || fractal?.name || "FRACTAL")}" name="${escape_xml(fractal?.name || "the setting")}">`);
+  const trajectory = accessors?.future(fractal, { vector_text: true });
+  if (String(trajectory || "").trim()) rows.push(`      <TRAJECTORY>${_inline_or_block(trajectory, 8)}</TRAJECTORY>`);
+  const pad2 = " ".repeat(10);
+  const atmosphere = [];
+  const truths = render_field_value(fractal?.eternal?.non_physical, fractal, entities);
+  if (String(truths || "").trim()) atmosphere.push(`        <PERMANENT_TRUTHS>${_inline_or_block(truths, 10)}</PERMANENT_TRUTHS>`);
+  const state = render_field_value(fractal?.present?.non_physical, fractal, entities);
+  if (String(state || "").trim()) atmosphere.push(`        <STATE>${_inline_or_block(state, 10)}</STATE>`);
+  const dispositions = _render_dispositions(fractal, entities, npc_entities, active_names, name_to_id);
+  if (dispositions)
+    atmosphere.push(
+      dispositions
+        .replace(/^ {6}/, "        ")
+        .replace(/\n {6}/g, "\n        ")
+        .replace(/\n {4}<\/DISPOSITIONS>/, "\n      </DISPOSITIONS>"),
+    );
+  const axes = render_dynamics_axes_xml(dynamics);
+  if (axes)
+    atmosphere.push(
+      axes
+        .split("\n")
+        .map((line) => `${pad2}${line}`)
+        .join("\n"),
+    );
+  if (atmosphere.length) rows.push(`      <ATMOSPHERE>\n${atmosphere.join("\n")}\n      </ATMOSPHERE>`);
+  const topography = render_appearance(fractal?.eternal?.physical, fractal?.present?.physical, fractal, entities, "TOPOGRAPHY");
+  if (topography) rows.push(topography);
+  const history = accessors?.past(fractal, { vector_text: true });
+  if (String(history || "").trim()) rows.push(`      <HISTORY>${_inline_or_block(history, 8)}</HISTORY>`);
+  rows.push(`    </FRACTAL>`);
+  return rows.join("\n");
+}
+
+/** Renders the in-scene NPC roster as self-closing <NPC id name /> tags. */
+function _render_proximate_npcs(npc_entities = [], in_scene_ids = []) {
+  const rows = [];
+  for (const n of npc_entities || []) {
+    if (!n?.name) continue;
+    if (!(in_scene_ids || []).includes(String(n.id))) continue;
+    rows.push(`      <NPC id="${escape_xml(String(n.id || n.name))}" name="${prompt_escape(n.name)}" />`);
+  }
+  if (!rows.length) return "";
+  return `    <PROXIMATE_NPCS>\n${rows.join("\n")}\n    </PROXIMATE_NPCS>`;
+}
+
+/** <CORE_PROTOCOLS> per shot2.xml (character layout). */
+function render_character_core_protocols({ style, person }) {
+  const pov = PROTOCOL_LIBRARY.POV[person === "THIRD" ? "THIRD_PERSON" : "FIRST_PERSON"];
+  const constitution = CHARACTER_LAWS.map((law) => `      <LAW id="${escape_xml(law.id)}">${prompt_escape(law.body)}</LAW>`).join("\n");
+  const style_dna = extract_style_dna(style);
+  const elements = Array.isArray(style?.elements) ? style.elements.filter(Boolean).join(", ") : "";
+  const style_block =
+    style && style?.id !== "default"
+      ? `    <NARRATIVE_STYLE origin="${escape_xml(style?.name || String(style?.id || "").toUpperCase())}" internal_ratio="${escape_xml(style_dna.internal_ratio || "0.5")}">${prompt_escape(style?.description || "")}${elements ? `\n      <SIGNUM>${prompt_escape(elements)}</SIGNUM>\n    ` : ""}</NARRATIVE_STYLE>`
+      : "";
+  const body = [
+    `    <AXIOMATIC_CONSTITUTION>\n${constitution}\n    </AXIOMATIC_CONSTITUTION>`,
+    `    <SIMULATION_FIDELITY>${prompt_escape(CHARACTER_SIMULATION_FIDELITY)}</SIMULATION_FIDELITY>`,
+    `    <PERSPECTIVE person="${escape_xml(person)}" tense="PRESENT">${prompt_escape(pov)}</PERSPECTIVE>`,
+    style_block,
+    `    <PROSE_DISCIPLINE>\n      <FORMAT>${prompt_escape(CHARACTER_FORMAT)}</FORMAT>\n      <ANTI_TROPES>${prompt_escape(CHARACTER_ANTI_TROPES)}</ANTI_TROPES>\n      <BANNED_CLICHES>${prompt_escape(CHARACTER_BANNED_CLICHES)}</BANNED_CLICHES>\n      <NATURAL_DIALOGUE>${prompt_escape(CHARACTER_NATURAL_DIALOGUE)}</NATURAL_DIALOGUE>\n    </PROSE_DISCIPLINE>`,
+  ]
+    .filter(Boolean)
+    .join("\n");
+  return `  <CORE_PROTOCOLS>\n${body}\n  </CORE_PROTOCOLS>`;
+}
+
+/** <STORY_ENTITIES> per shot2.xml (character layout). */
+function render_character_story_entities({ entities, npc_entities, in_scene_ids, accessors, speaker_dynamics, fractal_dynamics }) {
+  const active_names = _active_names(entities, npc_entities, in_scene_ids);
+  const name_to_id = _name_to_id_map(entities, npc_entities);
+  const parts = [];
+  if (entities?.AI) {
+    parts.push(
+      _render_character_ai_sheet({
+        entity: entities.AI,
+        entities,
+        npc_entities,
+        accessors,
+        dynamics: speaker_dynamics,
+        active_names,
+        name_to_id,
+      }),
+    );
+  }
+  if (entities?.USER) {
+    parts.push(_render_character_user_sheet({ entities, accessors, active_names, npc_entities, name_to_id }));
+  }
+  if (entities?.FRACTAL) {
+    parts.push(
+      _render_character_fractal_sheet({
+        entities,
+        npc_entities,
+        accessors,
+        dynamics: fractal_dynamics,
+        active_names,
+        name_to_id,
+      }),
+    );
+  }
+  const proximate = _render_proximate_npcs(npc_entities, in_scene_ids);
+  if (proximate) parts.push(proximate);
+  return `  <STORY_ENTITIES>\n${parts.join("\n\n")}\n  </STORY_ENTITIES>`;
+}
+
+/** <TASK mode="INTERACTION"> per shot2.xml (character layout). */
+function render_character_task({ input, style, somatic_inner, user_id, stability_lock }) {
+  const dna = extract_style_dna(style);
+  const parts = [];
+
+  const currents = [];
+  if (dna.sensory_order) currents.push(`        <SENSORY_EXPERIENCE>${prompt_escape(dna.sensory_order)}</SENSORY_EXPERIENCE>`);
+  if (String(somatic_inner || "").trim()) {
+    const subtext = String(somatic_inner)
+      .trim()
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .map((line) => `          ${line}`)
+      .join("\n");
+    currents.push(`      <SUBTEXT>\n${subtext}\n      </SUBTEXT>`);
+  }
+  if (currents.length) parts.push(`    <CURRENTS>\n${currents.join("\n")}\n    </CURRENTS>`);
+
+  if (String(input || "").trim()) {
+    parts.push(`    <INPUT origin="${escape_xml(user_id || "user")}">${prompt_escape(input.trim())}</INPUT>`);
+  }
+
+  const posture = [];
+  posture.push(`      ${build_pacing_directive(input)}`);
+  if (dna.sentence_rhythm) posture.push(`      <RHYTHM>${prompt_escape(dna.sentence_rhythm)}</RHYTHM>`);
+  const has_input = String(input || "").trim();
+  const drive = has_input
+    ? "Drive the beat forward on your own initiative and end on a live, unresolved hook that demands response."
+    : "Push the situation forward on your own terms and end on a live, unresolved hook that demands response.";
+  posture.push(`      <DRIVE>${drive}</DRIVE>`);
+  parts.push(`    <DELIVERY_POSTURE>\n${posture.join("\n")}\n    </DELIVERY_POSTURE>`);
+
+  const grounding = dna.emotional_grounding || "hold your established temperament against the immediate friction";
+  const has_ratio = style?.id !== "default";
+  const ratio_clause = has_ratio
+    ? "Ensure internal reflection follows the specified ratio (interior reflection vs. external action and spoken dialogue)."
+    : "Ensure interior reflection stays clearly below external action and spoken dialogue.";
+  parts.push(
+    [
+      `    <THINK_FORMAT>`,
+      `      Begin response with <THINK> (under 200 words). Execute internal reasoning across 4 sequential beats.`,
+      `      <BEAT id="VISCERAL_IMPACT" step="1">Immediate non-verbal reaction to the <INPUT /> element.</BEAT>`,
+      `      <BEAT id="EMOTIONAL_CALIBRATION" step="2">Narrative style emotional grounding: ${prompt_escape(grounding)}</BEAT>`,
+      `      <BEAT id="STRATEGIC_DRIVE" step="3">How active <AGENDA /> and/or <TRAJECTORY /> navigate immediate friction.</BEAT>`,
+      `      <BEAT id="CADENCE_TEST" step="4">Draft a dialogue line before generating outward prose. ${ratio_clause}</BEAT>`,
+      `      Close with </THINK> before generating narrative prose.`,
+      `    </THINK_FORMAT>`,
+    ].join("\n"),
+  );
+
+  const body = parts.join("\n\n");
+  return clean_xml(
+    `<TASK mode="INTERACTION">\n${body}${stability_lock ? `\n    <STABILITY_LOCK>${stability_lock}</STABILITY_LOCK>` : ""}\n</TASK>`,
+  ).trim();
+}
+
+/** Full character system (top line + CORE_PROTOCOLS + STORY_ENTITIES) per shot2.xml. */
+function render_character_system({ round, entities, input, accessors, style, speaker_dynamics, fractal_dynamics, npc_entities, in_scene_ids }) {
+  const ai_name = prompt_escape(entities?.AI?.name || "AI Character");
+  const fractal_name = prompt_escape(entities?.FRACTAL?.name || "the setting");
+  const user_name = prompt_escape(entities?.USER?.name || "User");
+  const top_line = `You are the AI_CHARACTER ${ai_name} within the FRACTAL ${fractal_name}, interacting with USER_PERSONA ${user_name}. Embody this role with uncompromised fidelity under the laws and directives below.`;
+
+  const core = render_character_core_protocols({ style, person: "FIRST" });
+  const entities_block = render_character_story_entities({
+    entities,
+    npc_entities,
+    in_scene_ids,
+    accessors,
+    speaker_dynamics,
+    fractal_dynamics,
+  });
+
+  return clean_xml(`<SYSTEM round="${escape_xml(String(round ?? 0))}">\n${top_line}\n\n${core}\n\n${entities_block}\n</SYSTEM>`).trim();
+}
+
 // ── 2. Pacing & Recency Helpers ───────────────────────────────────────────────
 
 /**
@@ -640,6 +984,35 @@ export function render_story_prose({
     meta?.is_opening_turn ||
     (Array.isArray(compressed_snapshot?.flags) && compressed_snapshot.flags.includes("FIRST_CONTACT")) ||
     (Array.isArray(director_data?.keywords) && director_data.keywords.includes("first_contact"));
+
+  const is_character_mode = mode === "character" && !is_npc && !ghostwrite;
+
+  if (is_character_mode) {
+    const stability_lock_content =
+      meta?.structural_errors >= 3 ? STORY_PROTOCOLS.STABILITY.CRITICAL : meta?.structural_errors >= 1 ? STORY_PROTOCOLS.STABILITY.WARNING : "";
+
+    const system = render_character_system({
+      round,
+      entities,
+      input,
+      accessors,
+      style,
+      speaker_dynamics,
+      fractal_dynamics,
+      npc_entities,
+      in_scene_ids,
+    });
+
+    const task = render_character_task({
+      input,
+      style,
+      somatic_inner,
+      user_id: entities?.USER?.id,
+      stability_lock: stability_lock_content,
+    });
+
+    return { system, task };
+  }
 
   const core = render_core_protocols({ is_narrator, pov_protocol, style, is_first_contact, ghostwrite });
 

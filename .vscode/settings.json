@@ -42,5 +42,8 @@
     "src/data/definitions/signature-colors.js": true,
     "src/media/design.css": true,
     "src/media/tokens.js": true
+  },
+  "[xml]": {
+    "editor.defaultFormatter": "redhat.vscode-xml"
   }
 }

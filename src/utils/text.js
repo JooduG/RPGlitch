@@ -659,7 +659,7 @@ export function collapse_history(messages, options = {}) {
     if (last && last.role === role && last.name === name) {
       last.content += `${separator}${content}`;
     } else {
-      collapsed.push({ role, name, content });
+      collapsed.push({ role, name, content, origin: m.origin });
     }
   }
   return collapsed;

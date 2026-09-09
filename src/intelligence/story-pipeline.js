@@ -58,6 +58,29 @@ const director_background_queue = create_job_queue({ max_concurrency: 1 });
 const TRUNCATION_COMPLETE_NOTE =
   "\n\nIMPORTANT: Your previous reply was cut off mid-sentence. Finish this response IMMEDIATELY: do not repeat any earlier text, do not rehash events, just bring the current moment to a natural close with a complete sentence, then stop.";
 
+/**
+ * Attaches entity ids (e.g. premade ids like "rust", "julien", "tartarus") to
+ * conversation-history messages so the transport layer can emit
+ * <ENTRY origin="…"> with the entity id rather than a display label.
+ * Falls back to leaving the message untouched when no id matches.
+ * @param {Array<{role: string, content?: string, character_name?: string, origin?: string}>} messages
+ * @returns {Array<Record<string, any>>}
+ */
+function _attach_history_origins(messages) {
+  const map = new Map();
+  const add = (e) => {
+    if (e?.name && e?.id) map.set(String(e.name).toLowerCase().trim(), String(e.id));
+  };
+  const snap = state_bridge.runtime?.snapshot_entities ?? {};
+  for (const e of [snap.AI, snap.USER, snap.FRACTAL]) add(e);
+  for (const n of Object.values(state_bridge.runtime?.snapshot_npcs ?? {})) add(n);
+  return messages.map((m) => {
+    if (m?.origin || !m?.character_name) return m;
+    const id = map.get(String(m.character_name).toLowerCase().trim());
+    return id ? { ...m, origin: id } : m;
+  });
+}
+
 /** Minimum narrative prose length before missing punctuation is treated as cut-off. */
 const TRUNCATION_MIN_PROSE = 40;
 
@@ -188,13 +211,15 @@ export const gamemaster = {
 
       // 2. HYDRATION: Fetch history and hydrate context
       const raw_messages = await state_bridge.session_driver.load_log(story_id);
-      const simulation_log = raw_messages
-        .filter((m) => !m.meta?.consolidated && m.role !== "system")
-        .map((m) => ({
-          role: m.role === "user" ? "user" : m.role === "fractal" ? "fractal" : "model",
-          content: m.text || m.content || "",
-          character_name: m.character_name,
-        }));
+      const simulation_log = _attach_history_origins(
+        raw_messages
+          .filter((m) => !m.meta?.consolidated && m.role !== "system")
+          .map((m) => ({
+            role: m.role === "user" ? "user" : m.role === "fractal" ? "fractal" : "model",
+            content: m.text || m.content || "",
+            character_name: m.character_name,
+          })),
+      );
 
       if (input && simulation_log.length > 0) {
         const last = simulation_log[simulation_log.length - 1];
@@ -880,13 +905,15 @@ export const gamemaster = {
   async execute_ghostwriter(input_text = "", signal = null, on_token = null) {
     const story_id = state_bridge.runtime.story_id;
     const raw_messages = story_id ? await state_bridge.session_driver.load_log(story_id) : [];
-    const simulation_log = raw_messages
-      .filter((m) => !m.meta?.consolidated && m.role !== "system")
-      .map((m) => ({
-        role: m.role === "user" ? "user" : m.role === "fractal" ? "fractal" : "model",
-        content: m.text || m.content || "",
-        character_name: m.character_name,
-      }));
+    const simulation_log = _attach_history_origins(
+      raw_messages
+        .filter((m) => !m.meta?.consolidated && m.role !== "system")
+        .map((m) => ({
+          role: m.role === "user" ? "user" : m.role === "fractal" ? "fractal" : "model",
+          content: m.text || m.content || "",
+          character_name: m.character_name,
+        })),
+    );
     const payload = await context_builder.build_context(input_text || "", "simulation", simulation_log);
     const ghost_prompt = prompt_builder.build_ghostwriter(payload.entities, input_text);
 

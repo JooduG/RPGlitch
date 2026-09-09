@@ -70,7 +70,8 @@ export const render_builder = {
           .replace(/<think>[\s\S]*?<\/think>/gi, "")
           .replace(/<\/?think>/gi, "")
           .trim();
-        return `    <ENTRY turn="${turn_number}" origin="${escape_xml(speaker)}">${prompt_escape(clean_content)}</ENTRY>`;
+        const origin = entry.origin || speaker;
+        return `    <ENTRY turn="${turn_number}" origin="${escape_xml(origin)}">${prompt_escape(clean_content)}</ENTRY>`;
       })
       .join("\n");
   },

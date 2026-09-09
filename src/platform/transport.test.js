@@ -118,14 +118,20 @@ describe("raw_to_text and raw_stop_reason", () => {
 });
 
 describe("format_conversation_history", () => {
-  it("formats messages into XML tags with character labels", () => {
+  it("formats messages into XML tags with origin and turn", () => {
     const messages = [
       { role: "USER_PERSONA", content: "Hello" },
       { role: "AI_CHARACTER", character_name: "Iris", content: "Greetings." },
     ];
     const formatted = format_conversation_history(messages);
-    expect(formatted).toContain('<ENTRY origin="User">Hello</ENTRY>');
-    expect(formatted).toContain('<ENTRY origin="Character">Greetings.</ENTRY>');
+    expect(formatted).toContain('<ENTRY origin="User" turn="1">Hello</ENTRY>');
+    expect(formatted).toContain('<ENTRY origin="Character" turn="2">Greetings.</ENTRY>');
+  });
+
+  it("prefers the entity id origin when present", () => {
+    const messages = [{ role: "AI_CHARACTER", character_name: "Iris", origin: "iris", content: "Greetings." }];
+    const formatted = format_conversation_history(messages);
+    expect(formatted).toContain('<ENTRY origin="iris" turn="1">Greetings.</ENTRY>');
   });
 
   it("returns empty string when no messages are provided", () => {

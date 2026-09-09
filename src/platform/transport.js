@@ -165,7 +165,10 @@ function get_ai_engine() {
 /**
  * Formats message history into an XML-tagged conversation block for instruction assembly.
  * Collapses consecutive messages from the same character label into a single entry.
- * @param {Array<{role: string, content?: string, text?: string, character_name?: string}>} messages
+ * Emits entity ids (when available on the message as `origin`) so <ENTRY> references
+ * the application's entity ids (e.g. premade ids like "rust", "julien") and a `turn`
+ * index that increments per collapsed entry.
+ * @param {Array<{role: string, content?: string, text?: string, character_name?: string, origin?: string}>} messages
  * @returns {string}
  */
 export function format_conversation_history(messages) {
@@ -173,9 +176,9 @@ export function format_conversation_history(messages) {
   if (!collapsed || collapsed.length === 0) return "";
 
   return collapsed
-    .map((entry) => {
-      const label = entry.name || (entry.role === "USER_PERSONA" ? "User" : entry.role === "FRACTAL" ? "Fractal" : "Character");
-      return `  <ENTRY origin="${escape_xml(label)}">${escape_xml(entry.content)}</ENTRY>`;
+    .map((entry, index) => {
+      const label = entry.origin || entry.name || (entry.role === "USER_PERSONA" ? "User" : entry.role === "FRACTAL" ? "Fractal" : "Character");
+      return `  <ENTRY origin="${escape_xml(label)}" turn="${index + 1}">${escape_xml(entry.content)}</ENTRY>`;
     })
     .join("\n");
 }
