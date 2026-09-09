@@ -49,7 +49,15 @@
     "!**/tmp/**",
     "!tmp/**/*"
   ],
-  "gitignore": ["!.env.example", "!package-lock.json", "!**/*rpglitch-left-panel.txt", "!**/templates/**", "act_output.log", "gha-creds-*.json"],
+  "gitignore": [
+    "!.env.example",
+    "!package-lock.json",
+    "!**/*rpglitch-left-panel.txt",
+    "!**/templates/**",
+    "act_output.log",
+    "gha-creds-*.json",
+    "shot2.xml"
+  ],
   "linters": {
     "eslint": [],
     "htmlhint": ["**/*.svelte"],

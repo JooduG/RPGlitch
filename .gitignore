@@ -41,3 +41,4 @@ tmp/**/*
 !**/templates/**
 act_output.log
 gha-creds-*.json
+shot2.xml

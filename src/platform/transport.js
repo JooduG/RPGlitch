@@ -175,7 +175,7 @@ export function format_conversation_history(messages) {
   return collapsed
     .map((entry) => {
       const label = entry.name || (entry.role === "USER_PERSONA" ? "User" : entry.role === "FRACTAL" ? "Fractal" : "Character");
-      return `  <ENTRY role="${escape_xml(entry.role)}" name="${escape_xml(label)}">${escape_xml(entry.content)}</ENTRY>`;
+      return `  <ENTRY origin="${escape_xml(label)}">${escape_xml(entry.content)}</ENTRY>`;
     })
     .join("\n");
 }

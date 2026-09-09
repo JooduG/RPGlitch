@@ -124,8 +124,8 @@ describe("format_conversation_history", () => {
       { role: "AI_CHARACTER", character_name: "Iris", content: "Greetings." },
     ];
     const formatted = format_conversation_history(messages);
-    expect(formatted).toContain('<ENTRY role="USER_PERSONA" name="User">Hello</ENTRY>');
-    expect(formatted).toContain('<ENTRY role="AI_CHARACTER" name="Character">Greetings.</ENTRY>');
+    expect(formatted).toContain('<ENTRY origin="User">Hello</ENTRY>');
+    expect(formatted).toContain('<ENTRY origin="Character">Greetings.</ENTRY>');
   });
 
   it("returns empty string when no messages are provided", () => {
