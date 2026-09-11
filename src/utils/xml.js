@@ -239,10 +239,61 @@ export function parse_visual_engine(engineXml = "") {
 }
 
 // ============================================================================
+// [SECTION 5: INDENTATION & TAG WRAPPING HELPERS]
+// ============================================================================
+
+/**
+ * Indents every line of a multi-line string.
+ * @param {string | null | undefined} text
+ * @param {number} spaces
+ * @returns {string}
+ */
+export function indent_all(text, spaces) {
+  if (!text) return "";
+  const prefix = " ".repeat(spaces);
+  return String(text)
+    .trim()
+    .split("\n")
+    .map((line) => `${prefix}${line}`)
+    .join("\n");
+}
+
+/**
+ * Inlines single-line content inside a tag, or renders multi-line content as an
+ * indented block with the closing tag at `indent - 2`.
+ * @param {string | null | undefined} content
+ * @param {number} indent
+ * @returns {string}
+ */
+export function inline_or_block(content, indent) {
+  const text = String(content || "").trim();
+  if (!text) return "";
+  if (text.includes("\n")) {
+    return `\n${indent_all(text, indent)}\n${" ".repeat(indent - 2)}`;
+  }
+  return text;
+}
+
+/**
+ * Wraps already-rendered inner content in a tag, indented to `indent`.
+ * @param {string} tag
+ * @param {string | null | undefined} inner
+ * @param {number} indent
+ * @returns {string}
+ */
+export function wrap_tag(tag, inner, indent) {
+  const body = String(inner || "").trim();
+  if (!body) return "";
+  const pad = " ".repeat(indent);
+  return `${pad}<${tag}>\n${indent_all(body, indent + 2)}\n${pad}</${tag}>`;
+}
+
+// ============================================================================
 // [CHANGELOG]
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-11: Co-located indent_all, inline_or_block, and wrap_tag layout helpers in xml.js for cross-layer prompt formatting purity.
  * - 2026-09-10: physical_to_xml remaps known state-key aliases (SHORTS->APPAREL, SOMA->SOMATIC,
  *   POSE->POSTURE) while preserving the original casing of every other key, strips echoed
  *   `KEY:` value prefixes, and collapses duplicate keys (the canonical name wins);

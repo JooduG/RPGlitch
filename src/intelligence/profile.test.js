@@ -6,7 +6,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { apply_profile_to_entity } from "./profile.js";
 import { render_enhancement, render_profile_sorting } from "./builder.js";
-import { PROFILE_PROTOCOLS } from "./modules/protocols.js";
+import { PROFILE_PROTOCOLS } from "./modules/task.js";
 
 // ── 1. Protocols & Schema Specifications ──────────────────────────────────────
 

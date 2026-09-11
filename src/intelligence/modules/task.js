@@ -17,9 +17,35 @@
  * ============================================================================
  */
 
-import { escape_xml, prompt_escape } from "@utils";
+import { escape_xml, prompt_escape, inline_or_block, wrap_tag, MACRO_DIRECTIVES } from "@utils";
 import { extract_style_dna } from "@data";
-import { inline_or_block, wrap_tag } from "./protocols.js";
+
+// ── 0. Output Formats & Templates ─────────────────────────────────────────────
+
+export const OUTPUT_FORMATS = Object.freeze({
+  PROSE: `OUTPUT RULES:
+- Emit ONLY the field content, as plain prose. No preamble, no commentary.
+- Do NOT wrap it in JSON, code fences (e.g. \`\`\`json), XML tags (e.g. <ETERNAL>, <NON_PHYSICAL>), markdown-bold labels (e.g. **PRESENT.NON_PHYSICAL**), backticks, or headers.
+- No keys, no labels, no scaffolding — just the text itself.`,
+  BRACKETS: `OUTPUT RULES:
+- Emit ONLY bracketed [KEY: value] directives, one bracket per line (e.g. [SHIRT: leather jacket], [HELD: lantern]).
+- Common keys: SHIRT, PANTS, SHOES, HELD, INJURY, DISGUISE, POSE, INVENTORY.
+- Do NOT wrap it in JSON, code fences (e.g. \`\`\`json), XML tags, markdown-bold labels, or headers.
+- Return clean brackets only.`,
+  ARRAY_APPEND: `OUTPUT RULES:
+- Return a JSON array of objects: [{"content": string, "emotional_weight": integer (1-10)}].
+- Generate 3-5 NEW distinct memories. Never duplicate a memory already listed in <ENTITY_CONTEXT>.
+- Do NOT wrap it in code fences (e.g. \`\`\`json), XML tags, or markdown.
+- Return valid JSON only.`,
+  ARRAY_SINGLE: `OUTPUT RULES:
+- Rewrite exactly this ONE memory. Return either a JSON array containing a single object [{"content": string, "emotional_weight": integer (1-10)}] or a plain text string.
+- Never return multiple entries.
+- Do NOT wrap it in code fences (e.g. \`\`\`json), XML tags, or markdown.`,
+  JSON_OBJECT: `OUTPUT RULES:
+- Emit ONLY the requested JSON object, starting with { and ending with }. No preamble, no commentary.
+- Do NOT wrap it in code fences (e.g. \`\`\`json), XML tags, or markdown.
+- Return valid JSON only.`,
+});
 
 // ── 1. Task Protocols & Pacing Presets ────────────────────────────────────────
 
@@ -165,6 +191,16 @@ export const GHOSTWRITE_DIRECTIVES = Object.freeze({
     `Enhance, expand, and polish the following draft written by ${user_name} into vivid, atmospheric action/dialogue:\n    ${draft}`,
 });
 
+// ── 6. Character & Turn Action Directives ─────────────────────────────────────
+
+export const CHARACTER_DIRECTIVES = Object.freeze({
+  NPC_BOUNDARY: (name) =>
+    `Respond strictly as ${name} — a supporting character. Own only your own voice, actions, and perspective: never speak for <USER_PERSONA> or the AI character, and never resolve the overarching story quest on your own. Write third-person limited, present tense, and end on a natural beat.`,
+  INITIATIVE:
+    "Take active initiative to open or advance the scene. Drive events forward through decisions and reactions without waiting for permission.",
+  ADVANCE: "Advance the scene in response to <INPUT />.",
+});
+
 // ── 6. Profile Structuring Directives ─────────────────────────────────────────
 
 export const SORTING_DIRECTIVES = Object.freeze({
@@ -173,6 +209,27 @@ export const SORTING_DIRECTIVES = Object.freeze({
 - Source text details are absolute truth. Map them faithfully into corresponding schema fields.
 - For absent details (e.g. attire, unstated motivations, physical attributes): synthesize vivid, lore-consistent defaults.
 - NEVER emit null, undefined, or empty string values.`,
+});
+
+// ── 7. Temporal Continuum Layer Contract & Bundles ───────────────────────────
+
+export const TEMPORAL_CONTRACT = `TEMPORAL LAYER CONTRACT — ETERNAL / PRESENT / FUTURE / PAST
+- ETERNAL: Permanent baseline identity, personality traits, and physical form. Permanent narrative transformations update it; transient states belong in PRESENT. Explicit user edits always override.
+- PRESENT: Immediate volatile state. "physical" holds active attire, held props, injuries, and disguise via bracketed pseudo-JSON state tags (e.g. [SHIRT: sweater], [HELD: lantern], [INJURY: sprained ankle], [INVENTORY: item1, item2]); "non_physical" holds immediate mindset and emotional state. True only in this moment.
+- FUTURE: Single consolidated standing agenda — impending intent, immediate objective, or unresolved tension driving the character forward. Written in active future tense.
+- PAST: Settled historical anchors and durable facts. Append new consequential events only; never record transient moods.
+- MACROS: Use placeholder macros for entity references — '{{me}}' (self), '{{you}}' (the other primary party), '{{char}}' (AI character), '{{user}}' (user persona), '{{fractal}}' (setting). Never hardcode names.`;
+
+export const TEMPORAL_PROTOCOLS = Object.freeze({
+  CONTRACT: TEMPORAL_CONTRACT,
+  SCHEMA: MEMORY_FORGE_SCHEMA,
+});
+
+export const PROFILE_PROTOCOLS = Object.freeze({
+  SCHEMA: PROFILE_SCHEMA,
+  MACROS: MACRO_DIRECTIVES,
+  SORTING: SORTING_DIRECTIVES,
+  OUTPUT_FORMATS: OUTPUT_FORMATS,
 });
 
 // ── 7. Helper Formatters & Indentation ────────────────────────────────────────
@@ -392,6 +449,8 @@ export function render_profile_sorting_instructions({
 
 /**
  * CHANGELOG
+ * - 2026-09-11: Complete module purification: relocated OUTPUT_FORMATS, TEMPORAL_CONTRACT, TEMPORAL_PROTOCOLS, and PROFILE_PROTOCOLS to task.js; imported layout helpers from @utils; task.js now has zero sibling imports.
+ * - 2026-09-11: Relocated CHARACTER_DIRECTIVES (NPC_BOUNDARY, INITIATIVE, ADVANCE) to task.js to unify all turn action directives under <TASK>.
  * - 2026-09-11: Added render_director_task, render_memory_forge_task, render_enhancement_instructions, and render_profile_sorting_instructions.
  * - 2026-09-11: Added DIRECTOR_SCHEMA, PROFILE_SCHEMA, MEMORY_FORGE_SCHEMA, DIRECTOR_TASK_RULES, render_terse_director_task, SCENE_DIRECTIVES, GHOSTWRITE_DIRECTIVES, and SORTING_DIRECTIVES.
  * - 2026-09-11: Initial creation of modular task.js extracting turn block formatting, pacing, and think formats.

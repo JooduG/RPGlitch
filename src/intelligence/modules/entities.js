@@ -29,11 +29,11 @@ import {
   render_field_value,
   ind,
   clean_xml,
+  indent_all,
+  inline_or_block,
 } from "@utils";
 import { PROFILE_FIELDS } from "@data";
 import { render_dynamics_axes_xml } from "../physics.js";
-import { indent_all, inline_or_block } from "./protocols.js";
-import { format_recent_history, render_chapter_history_xml } from "./history.js";
 
 // ── 1. Epistemic Wall Filters ─────────────────────────────────────────────────
 
@@ -493,8 +493,6 @@ ${active_participants.join("\n")}${candidate_section}
 }
 
 // ── 8. Memory & Chapter XML Contexts ──────────────────────────────────────────
-
-export { format_recent_history, render_chapter_history_xml };
 
 /**
  * Renders in-scene participant blocks and wraps them in <SCENE_CAST>.

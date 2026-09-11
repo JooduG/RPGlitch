@@ -13,10 +13,9 @@
  * ============================================================================
  */
 
-import { escape_xml, prompt_escape } from "@utils";
+import { escape_xml, prompt_escape, indent_all } from "@utils";
 import { extract_style_dna } from "@data";
 import { resolve_context_directives } from "../physics.js";
-import { PROFILE_SCHEMA, SORTING_DIRECTIVES, MEMORY_FORGE_SCHEMA } from "./task.js";
 
 // ── 0. Macro Directives Registry ─────────────────────────────────────────────
 
@@ -99,90 +98,6 @@ SENSORY ENGAGEMENT: When <USER_ACTION> explicitly touches or observes physical d
 PASSIVE USER TURN LAW: When <USER_ACTION> contains no action verbs or questions (e.g. passive waiting or silence), use "directors_note" to introduce an unexpected environmental complication or in-character choice. Never let the scene stall into dead-air.`,
     SELECTABLE_OPTIONS: `Entity fields may contain alternation syntax like {Option A|Option B}. These are SELECTABLE CHOICES. When you emit state mutations (state_append / vector_append / present / eternal), resolve each such field to exactly ONE option that best fits the narrative. Never echo braces or pipes into any emitted value, and never blend options.`,
   }),
-
-  // ── 1.8 Output Formats & Templates ──────────────────────────────────────────
-  OUTPUT_FORMATS: Object.freeze({
-    PROSE: `OUTPUT RULES:
-- Emit ONLY the field content, as plain prose. No preamble, no commentary.
-- Do NOT wrap it in JSON, code fences (e.g. \`\`\`json), XML tags (e.g. <ETERNAL>, <NON_PHYSICAL>), markdown-bold labels (e.g. **PRESENT.NON_PHYSICAL**), backticks, or headers.
-- No keys, no labels, no scaffolding — just the text itself.`,
-    BRACKETS: `OUTPUT RULES:
-- Emit ONLY bracketed [KEY: value] directives, one bracket per line (e.g. [SHIRT: leather jacket], [HELD: lantern]).
-- Common keys: SHIRT, PANTS, SHOES, HELD, INJURY, DISGUISE, POSE, INVENTORY.
-- Do NOT wrap it in JSON, code fences (e.g. \`\`\`json), XML tags, markdown-bold labels, or headers.
-- Return clean brackets only.`,
-    ARRAY_APPEND: `OUTPUT RULES:
-- Return a JSON array of objects: [{"content": string, "emotional_weight": integer (1-10)}].
-- Generate 3-5 NEW distinct memories. Never duplicate a memory already listed in <ENTITY_CONTEXT>.
-- Do NOT wrap it in code fences (e.g. \`\`\`json), XML tags, or markdown.
-- Return valid JSON only.`,
-    ARRAY_SINGLE: `OUTPUT RULES:
-- Rewrite exactly this ONE memory. Return either a JSON array containing a single object [{"content": string, "emotional_weight": integer (1-10)}] or a plain text string.
-- Never return multiple entries.
-- Do NOT wrap it in code fences (e.g. \`\`\`json), XML tags, or markdown.`,
-    JSON_OBJECT: `OUTPUT RULES:
-- Emit ONLY the requested JSON object, starting with { and ending with }. No preamble, no commentary.
-- Do NOT wrap it in code fences (e.g. \`\`\`json), XML tags, or markdown.
-- Return valid JSON only.`,
-  }),
-});
-
-// ── 1.8 Character & Boundary Directives ───────────────────────────────────────
-
-export const CHARACTER_DIRECTIVES = Object.freeze({
-  NPC_BOUNDARY: (name) =>
-    `Respond strictly as ${name} — a supporting character. Own only your own voice, actions, and perspective: never speak for <USER_PERSONA> or the AI character, and never resolve the overarching story quest on your own. Write third-person limited, present tense, and end on a natural beat.`,
-  INITIATIVE:
-    "Take active initiative to open or advance the scene. Drive events forward through decisions and reactions without waiting for permission.",
-  ADVANCE: "Advance the scene in response to <INPUT />.",
-});
-
-// ── 1.9 Profile Authoring Output Formats ──────────────────────────────────────
-
-export const OUTPUT_FORMATS = Object.freeze({
-  PROSE: `OUTPUT RULES:
-- Emit ONLY the field content, as plain prose. No preamble, no commentary.
-- Do NOT wrap it in JSON, code fences (e.g. \`\`\`json), XML tags (e.g. <ETERNAL>, <NON_PHYSICAL>), markdown-bold labels (e.g. **PRESENT.NON_PHYSICAL**), backticks, or headers.
-- No keys, no labels, no scaffolding — just the text itself.`,
-  BRACKETS: `OUTPUT RULES:
-- Emit ONLY bracketed [KEY: value] directives, one bracket per line (e.g. [SHIRT: leather jacket], [HELD: lantern]).
-- Common keys: SHIRT, PANTS, SHOES, HELD, INJURY, DISGUISE, POSE, INVENTORY.
-- Do NOT wrap it in JSON, code fences (e.g. \`\`\`json), XML tags, markdown-bold labels, or headers.
-- Return clean brackets only.`,
-  ARRAY_APPEND: `OUTPUT RULES:
-- Return a JSON array of objects: [{"content": string, "emotional_weight": integer (1-10)}].
-- Generate 3-5 NEW distinct memories. Never duplicate a memory already listed in <ENTITY_CONTEXT>.
-- Do NOT wrap it in code fences (e.g. \`\`\`json), XML tags, or markdown.
-- Return valid JSON only.`,
-  ARRAY_SINGLE: `OUTPUT RULES:
-- Rewrite exactly this ONE memory. Return either a JSON array containing a single object [{"content": string, "emotional_weight": integer (1-10)}] or a plain text string.
-- Never return multiple entries.
-- Do NOT wrap it in code fences (e.g. \`\`\`json), XML tags, or markdown.`,
-  JSON_OBJECT: `OUTPUT RULES:
-- Emit ONLY the requested JSON object, starting with { and ending with }. No preamble, no commentary.
-- Do NOT wrap it in code fences (e.g. \`\`\`json), XML tags, or markdown.
-- Return valid JSON only.`,
-});
-
-// ── 1.10 Temporal Continuum Layer Contract ────────────────────────────────────
-
-export const TEMPORAL_CONTRACT = `TEMPORAL LAYER CONTRACT — ETERNAL / PRESENT / FUTURE / PAST
-- ETERNAL: Permanent baseline identity, personality traits, and physical form. Permanent narrative transformations update it; transient states belong in PRESENT. Explicit user edits always override.
-- PRESENT: Immediate volatile state. "physical" holds active attire, held props, injuries, and disguise via bracketed pseudo-JSON state tags (e.g. [SHIRT: sweater], [HELD: lantern], [INJURY: sprained ankle], [INVENTORY: item1, item2]); "non_physical" holds immediate mindset and emotional state. True only in this moment.
-- FUTURE: Single consolidated standing agenda — impending intent, immediate objective, or unresolved tension driving the character forward. Written in active future tense.
-- PAST: Settled historical anchors and durable facts. Append new consequential events only; never record transient moods.
-- MACROS: Use placeholder macros for entity references — '{{me}}' (self), '{{you}}' (the other primary party), '{{char}}' (AI character), '{{user}}' (user persona), '{{fractal}}' (setting). Never hardcode names.`;
-
-export const TEMPORAL_PROTOCOLS = Object.freeze({
-  CONTRACT: TEMPORAL_CONTRACT,
-  SCHEMA: MEMORY_FORGE_SCHEMA,
-});
-
-export const PROFILE_PROTOCOLS = Object.freeze({
-  SCHEMA: PROFILE_SCHEMA,
-  MACROS: MACRO_DIRECTIVES,
-  SORTING: SORTING_DIRECTIVES,
-  OUTPUT_FORMATS: OUTPUT_FORMATS,
 });
 
 // ── 2. Protocol Compiler & Caching ────────────────────────────────────────────
@@ -222,55 +137,7 @@ export function render_protocols(selection) {
   return rendered;
 }
 
-// ── 3. Layout Helpers ─────────────────────────────────────────────────────────
-
-/**
- * Indents every line of a multi-line string.
- * @param {string|null|undefined} text
- * @param {number} spaces
- * @returns {string}
- */
-export function indent_all(text, spaces) {
-  if (!text) return "";
-  const prefix = " ".repeat(spaces);
-  return String(text)
-    .trim()
-    .split("\n")
-    .map((line) => `${prefix}${line}`)
-    .join("\n");
-}
-
-/**
- * Inlines single-line content inside a tag, or renders multi-line content as an
- * indented block with the closing tag at `indent - 2`.
- * @param {string|null|undefined} content
- * @param {number} indent
- * @returns {string}
- */
-export function inline_or_block(content, indent) {
-  const text = String(content || "").trim();
-  if (!text) return "";
-  if (text.includes("\n")) {
-    return `\n${indent_all(text, indent)}\n${" ".repeat(indent - 2)}`;
-  }
-  return text;
-}
-
-/**
- * Wraps already-rendered inner content in a tag, indented to `indent`.
- * @param {string} tag
- * @param {string|null|undefined} inner
- * @param {number} indent
- * @returns {string}
- */
-export function wrap_tag(tag, inner, indent) {
-  const body = String(inner || "").trim();
-  if (!body) return "";
-  const pad = " ".repeat(indent);
-  return `${pad}<${tag}>\n${indent_all(body, indent + 2)}\n${pad}</${tag}>`;
-}
-
-// ── 4. POV Resolver ───────────────────────────────────────────────────────────
+// ── 3. POV Resolver ───────────────────────────────────────────────────────────
 
 /**
  * Resolves the active POV protocol key for an entity profile.
@@ -368,6 +235,8 @@ export function render_keyword_directives_xml(rule_text, available_keywords_xml)
 
 /**
  * CHANGELOG
+ * - 2026-09-11: Complete module purification: relocated TEMPORAL_CONTRACT, TEMPORAL_PROTOCOLS, PROFILE_PROTOCOLS, and OUTPUT_FORMATS to task.js; delegated layout helpers (indent_all, inline_or_block, wrap_tag) to @utils/xml.js; protocols.js now has zero sibling imports.
+ * - 2026-09-11: Relocated CHARACTER_DIRECTIVES to task.js (co-locating turn execution directives under <TASK>) and pruned dead task.js schema imports.
  * - 2026-09-11: Added resolve_macro_directive and render_keyword_directives_xml.
  * - 2026-09-11: Added render_director_protocols_xml for Director Quick Shot prompt assembly.
  * - 2026-09-11: Added SIMULATION causality/pacing protocols, CHARACTER_DIRECTIVES, OUTPUT_FORMATS, and TEMPORAL_CONTRACT.

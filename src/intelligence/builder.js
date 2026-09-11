@@ -40,7 +40,6 @@ import {
   render_director_protocols_xml,
   render_keyword_directives_xml,
   resolve_macro_directive,
-  CHARACTER_DIRECTIVES,
   PROTOCOL_LIBRARY,
 } from "./modules/protocols.js";
 import {
@@ -48,10 +47,9 @@ import {
   render_scene_spotlight_xml,
   render_scene_cast_xml,
   render_entity_memory_context,
-  render_chapter_history_xml,
   render_enhancement_field_context,
 } from "./modules/entities.js";
-import { render_history, render_input_history_xml } from "./modules/history.js";
+import { render_history, render_chapter_history_xml, render_input_history_xml } from "./modules/history.js";
 import {
   render_task,
   render_director_task,
@@ -66,6 +64,9 @@ import {
   MEMORY_FORGE_SCHEMA,
   SCENE_DIRECTIVES,
   GHOSTWRITE_DIRECTIVES,
+  CHARACTER_DIRECTIVES,
+  OUTPUT_FORMATS,
+  TEMPORAL_CONTRACT,
 } from "./modules/task.js";
 import { render_available_keywords_xml, render_dynamics_xml, render_subtext_xml } from "./physics.js";
 import { temporal_engine, resolve_vector_pool } from "./temporal.js";
@@ -484,7 +485,7 @@ export function render_memory({ target_entity, target_key = "AI_CHARACTER", othe
   const task_xml = render_memory_forge_task({
     target_name,
     target_key,
-    temporal_contract: PROTOCOL_LIBRARY.TEMPORAL_CONTRACT,
+    temporal_contract: TEMPORAL_CONTRACT,
     schema: MEMORY_FORGE_SCHEMA,
   });
 
@@ -515,7 +516,7 @@ export function render_enhancement({
   entity = null,
   entity_type = "character",
 }) {
-  const formats = PROTOCOL_LIBRARY.OUTPUT_FORMATS;
+  const formats = OUTPUT_FORMATS;
   const format_instruction = is_array_field ? (array_mode === "patch_single" ? formats.ARRAY_SINGLE : formats.ARRAY_APPEND) : "";
   const macro_instruction = !is_image_field ? resolve_macro_directive(entity_type) : "";
   const output_rules = is_array_field ? "" : field_id.endsWith(".physical") || is_image_field ? formats.BRACKETS : formats.PROSE;
@@ -533,7 +534,7 @@ export function render_enhancement({
     field: field_id,
     instructions_xml,
     protocols_xml: ind(render_protocols("HYGIENE.DATA"), 4).trim(),
-    contract_xml: ind(escape_xml(PROTOCOL_LIBRARY.TEMPORAL_CONTRACT || ""), 4).trim(),
+    contract_xml: ind(escape_xml(TEMPORAL_CONTRACT || ""), 4).trim(),
     layer_key,
     field_context_xml: render_enhancement_field_context(entity, field_id, content, entity_type, (e, c) =>
       temporal_engine.format(resolve_vector_pool(e), c || "", { max_chars: 1500 }),
@@ -555,7 +556,7 @@ export function render_profile_sorting(entity_type = "character", options = {}) 
 
   const ingestion_str = options.ingestion ? `\n\n    ${ind(SORTING_DIRECTIVES.INGESTION, 4)}` : "";
   const redistribute_str = options.redistribute ? `\n\n    ${ind(SORTING_DIRECTIVES.REDISTRIBUTE, 4)}` : "";
-  const output_rules_str = `\n\n    ${ind(PROTOCOL_LIBRARY.OUTPUT_FORMATS.JSON_OBJECT, 4)}`;
+  const output_rules_str = `\n\n    ${ind(OUTPUT_FORMATS.JSON_OBJECT, 4)}`;
 
   const instructions_xml = render_profile_sorting_instructions({
     schema: PROFILE_SCHEMA,
@@ -843,6 +844,7 @@ if (typeof window !== "undefined") {
 
 /**
  * CHANGELOG
+ * - 2026-09-11: Updated import of CHARACTER_DIRECTIVES from modules/task.js following modular boundary alignment.
  * - 2026-09-11: Standardized system prompt envelope imports: consuming resolve_system_role_line, default render_director_system_xml role_xml, and SYSTEM_CLOSE_TAG.
  * - 2026-09-11: Extracted raw XML formatting into modular Lego blocks in modules/ (history.js, system.js, protocols.js, entities.js, task.js), transforming builder.js into a pure coordinator.
  * - 2026-09-11: Grand Intelligence Purification: Consolidated all prompt compilation (Director, Story Prose, Ghostwriter, Narrator, Memory Forge, Enhancement, Sorting) into builder.js driven by prompts.js and modules/, freeing domain engines completely.

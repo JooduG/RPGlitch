@@ -14,6 +14,12 @@
 
 import { prompt_escape } from "./xml.js";
 
+export const MACRO_DIRECTIVES = Object.freeze({
+  CHARACTER: "Use placeholder macros for entities: '{{me}}' (self), '{{you}}' (user persona), '{{fractal}}' (setting). Never hardcode names.",
+  FRACTAL:
+    "Use placeholder macros for entities: '{{user}}' (user persona), '{{char}}' (AI character), '{{fractal}}' (setting). Never hardcode names.",
+});
+
 /**
  * Safely parses macros in dynamic text with entity references.
  * @param {string} text

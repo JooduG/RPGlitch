@@ -14,7 +14,7 @@ import {
   prune,
   archive_chapter,
 } from "./temporal.js";
-import { TEMPORAL_PROTOCOLS } from "./modules/protocols.js";
+import { TEMPORAL_PROTOCOLS } from "./modules/task.js";
 import { render_memory } from "./builder.js";
 import { llm_service, embed } from "@platform";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
