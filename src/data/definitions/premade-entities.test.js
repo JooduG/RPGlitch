@@ -143,6 +143,16 @@ describe("premade-entities registry", () => {
       expect(has_premade_entity(null)).toBe(false);
     });
 
+    it("uses SCREAMING_SNAKE canonical IDs and resolves them case-insensitively", () => {
+      for (const entity of PREMADE_ENTITIES) {
+        expect(entity.id).toBe(String(entity.id).toUpperCase());
+      }
+      expect(get_premade_entity_by_id("SILVERS")?.id).toBe("SILVERS");
+      expect(get_premade_entity_by_id("silvers")?.id).toBe("SILVERS");
+      expect(has_premade_entity("TARTARUS")).toBe(true);
+      expect(has_premade_entity("tartarus")).toBe(true);
+    });
+
     it("returns subset lists via get_premade_characters and get_premade_fractals", () => {
       const characters = get_premade_characters();
       expect(characters.every((c) => c.type === "character")).toBe(true);

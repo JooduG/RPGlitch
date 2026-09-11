@@ -100,6 +100,48 @@ describe("safe_parse_pseudo_json", () => {
       __raw_prose__: "Just raw narrative prose.",
     });
   });
+
+  it("keeps multi-word uppercase keys separate when unbracketed (tag-name leak regression)", () => {
+    const parsed = safe_parse_pseudo_json(
+      "HAIR: dark with silver streaks at the temples DENTAL FEATURES: perfectly white sharp fangs HEIGHT: 193 cm",
+    );
+    expect(parsed).toEqual({
+      HAIR: "dark with silver streaks at the temples",
+      DENTAL_FEATURES: "perfectly white sharp fangs",
+      HEIGHT: "193 cm",
+    });
+  });
+
+  it("never merges a following key into the previous value across unbracketed keys", () => {
+    const parsed = safe_parse_pseudo_json("LANDMARKS: rows of vat tanks VISUAL_THEME: sterile chrome and cold blue light");
+    expect(parsed).toEqual({
+      LANDMARKS: "rows of vat tanks",
+      VISUAL_THEME: "sterile chrome and cold blue light",
+    });
+  });
+
+  it("does not let a bracket value swallow the next bracket's key", () => {
+    const parsed = safe_parse_pseudo_json("[HAIR: silver streaks] [DENTAL_FEATURES: sharp fangs]");
+    expect(parsed).toEqual({ HAIR: "silver streaks", DENTAL_FEATURES: "sharp fangs" });
+  });
+
+  it("splits a following uppercase key swallowed inside a single bracket (tag-name leak regression)", () => {
+    const parsed = safe_parse_pseudo_json("[HAIR: dark with silver streaks at the temples DENTAL FEATURES: perfectly white sharp fangs]");
+    expect(parsed).toEqual({
+      HAIR: "dark with silver streaks at the temples",
+      DENTAL_FEATURES: "perfectly white sharp fangs",
+    });
+  });
+
+  it("splits multiple keys inside one bracket", () => {
+    const parsed = safe_parse_pseudo_json("[STATE: protective, possessive SECRET: he fears being owned]");
+    expect(parsed).toEqual({ STATE: "protective, possessive", SECRET: "he fears being owned" });
+  });
+
+  it("preserves lowercase keys and URL values while splitting embedded keys", () => {
+    expect(safe_parse_pseudo_json("[location: tavern]")).toEqual({ location: "tavern" });
+    expect(safe_parse_pseudo_json("[NOTE: see HTTP://example.com]")).toEqual({ NOTE: "see HTTP://example.com" });
+  });
 });
 
 describe("merge_prose_into_field", () => {

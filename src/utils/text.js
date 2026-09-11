@@ -38,6 +38,68 @@ export const CLEAR_TOKENS = Object.freeze(new Set(["none", "bare", "naked", "off
 export const AGGREGATE_KEYS = Object.freeze(new Set(["INVENTORY", "STASH"]));
 
 /**
+ * Matches an uppercase pseudo-JSON key (single or multi-word) terminated by a colon.
+ */
+const PSEUDO_JSON_KEY_REGEX = /\b([A-Z][A-Z0-9_]*(?:\s+[A-Z][A-Z0-9_]*)*)\s*:/g;
+
+/**
+ * Splits a bracket body into its constituent `KEY: value` segments, so a value
+ * that swallowed a following key (e.g. `[HAIR: … temples DENTAL_FEATURES: …]`)
+ * never merges keys or loses a key's opening bracket.
+ * @param {string} content - Inner text of a `[...]` block.
+ * @returns {{ key: string, value: string }[]}
+ */
+function _split_key_value_segments(content) {
+  const text = String(content || "").trim();
+  const lead = text.match(/^([^:[\]]+?)\s*:\s*/);
+  if (!lead) return [];
+  const segments = [{ key: lead[1], value: "" }];
+  const rest = text.slice(lead[0].length);
+  PSEUDO_JSON_KEY_REGEX.lastIndex = 0;
+  const marks = [];
+  let match;
+  while ((match = PSEUDO_JSON_KEY_REGEX.exec(rest)) !== null) {
+    if (rest.slice(PSEUDO_JSON_KEY_REGEX.lastIndex, PSEUDO_JSON_KEY_REGEX.lastIndex + 2) === "//") continue;
+    marks.push({ key: match[1], start: match.index, value_start: PSEUDO_JSON_KEY_REGEX.lastIndex });
+  }
+  segments[0].value = (marks.length ? rest.slice(0, marks[0].start) : rest).trim();
+  for (let i = 0; i < marks.length; i++) {
+    const end = i + 1 < marks.length ? marks[i + 1].start : rest.length;
+    segments.push({ key: marks[i].key, value: rest.slice(marks[i].value_start, end).trim() });
+  }
+  return segments;
+}
+
+/**
+ * Stores a parsed pseudo-JSON entry, applying universal atomic clearing
+ * (`CLEAR_TOKENS`) and multi-item aggregation (`AGGREGATE_KEYS`).
+ * @param {Record<string, string | string[]>} target
+ * @param {string} k
+ * @param {string} v
+ */
+function _store_parsed_entry(target, k, v) {
+  if (!k || !v) return;
+  if (CLEAR_TOKENS.has(v.toLowerCase())) {
+    delete target[k];
+    return;
+  }
+  if (AGGREGATE_KEYS.has(k)) {
+    const items = v
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const existing = target[k];
+    const list = Array.isArray(existing) ? existing : existing ? [existing] : [];
+    for (const item of items) {
+      if (item && !list.includes(item)) list.push(item);
+    }
+    target[k] = list;
+    return;
+  }
+  target[k] = v;
+}
+
+/**
  * Model artifact leading prefixes to strip from prose output.
  */
 const MODEL_ARTIFACT_PATTERNS = [/^Mattis\b(?:\.\s*Archetypes:[^\n]*\n*|\.|:|\s)*/i];
@@ -206,38 +268,17 @@ export const safe_parse_pseudo_json = (raw) => {
   if (clean_raw.includes("[") && clean_raw.includes("]")) {
     /** @type {Record<string, string | string[]>} */
     const bracket_extracted = {};
-    const bracket_regex = /\[([^:\]]+)\s*:\s*([^\]]+)\]/g;
+    const bracket_regex = /\[([^[\]]+)\]/g;
     let match;
     let matched_any = false;
 
     while ((match = bracket_regex.exec(clean_raw)) !== null) {
-      matched_any = true;
-      const k = match[1].replace(/["']/g, "").trim().replace(/\s+/g, "_");
-      const v = match[2].replace(/^["']|["']$/g, "").trim();
-      if (!k || !v) continue;
-
-      // Universal atomic clearing: clear-token values drop the key entirely.
-      if (CLEAR_TOKENS.has(v.toLowerCase())) {
-        delete bracket_extracted[k];
-        continue;
+      for (const segment of _split_key_value_segments(match[1])) {
+        matched_any = true;
+        const k = segment.key.replace(/["']/g, "").trim().replace(/\s+/g, "_");
+        const v = segment.value.replace(/^["']|["']$/g, "").trim();
+        _store_parsed_entry(bracket_extracted, k, v);
       }
-
-      // Multi-item aggregation: repeated INVENTORY/STASH brackets merge into one list.
-      if (AGGREGATE_KEYS.has(k)) {
-        const items = v
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean);
-        const existing = bracket_extracted[k];
-        const list = Array.isArray(existing) ? existing : existing ? [existing] : [];
-        for (const item of items) {
-          if (item && !list.includes(item)) list.push(item);
-        }
-        bracket_extracted[k] = list;
-        continue;
-      }
-
-      bracket_extracted[k] = v;
     }
 
     if (matched_any) return bracket_extracted;
@@ -259,33 +300,14 @@ export const safe_parse_pseudo_json = (raw) => {
 
   // Tier 2.5: Process unbracketed uppercase key-value pairs KEY: VALUE (e.g. "CLOTHING: tight tank top EXPRESSION: grin")
   if (clean_raw.includes(":")) {
-    const unbracketed_regex = /\b([A-Z_]{3,})\s*:\s*([^:]+?)(?=\s+[A-Z_]{3,}\s*:|$)/g;
+    const unbracketed_regex = /\b([A-Z][A-Z0-9_]*(?:\s+[A-Z][A-Z0-9_]*)*)\s*:\s*([^:]+?)(?=\s+[A-Z][A-Z0-9_]*(?:\s+[A-Z][A-Z0-9_]*)*\s*:|$)/g;
     /** @type {Record<string, string | string[]>} */
     const unbracketed_extracted = {};
     let match;
     while ((match = unbracketed_regex.exec(clean_raw)) !== null) {
       const k = match[1].trim().replace(/\s+/g, "_");
       const v = match[2].trim();
-      if (k && v) {
-        if (CLEAR_TOKENS.has(v.toLowerCase())) {
-          delete unbracketed_extracted[k];
-          continue;
-        }
-        if (AGGREGATE_KEYS.has(k)) {
-          const items = v
-            .split(",")
-            .map((s) => s.trim())
-            .filter(Boolean);
-          const existing = unbracketed_extracted[k];
-          const list = Array.isArray(existing) ? existing : existing ? [existing] : [];
-          for (const item of items) {
-            if (item && !list.includes(item)) list.push(item);
-          }
-          unbracketed_extracted[k] = list;
-          continue;
-        }
-        unbracketed_extracted[k] = v;
-      }
+      _store_parsed_entry(unbracketed_extracted, k, v);
     }
     if (Object.keys(unbracketed_extracted).length > 0) return unbracketed_extracted;
   }
@@ -764,7 +786,7 @@ export function flatten_physical(raw) {
       .map(([k, v]) => {
         const val_str = Array.isArray(v) ? v.join(", ") : String(v).trim();
         if (!val_str) return "";
-        return `${k.replace(/_/g, " ")}: ${val_str}`;
+        return `${k}: ${val_str}`;
       })
       .filter(Boolean);
     return normalize_comma_spacing(clauses.join(". "));

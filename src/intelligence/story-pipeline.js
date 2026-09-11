@@ -59,7 +59,7 @@ const TRUNCATION_COMPLETE_NOTE =
   "\n\nIMPORTANT: Your previous reply was cut off mid-sentence. Finish this response IMMEDIATELY: do not repeat any earlier text, do not rehash events, just bring the current moment to a natural close with a complete sentence, then stop.";
 
 /**
- * Attaches entity ids (e.g. premade ids like "rust", "julien", "tartarus") to
+ * Attaches entity ids (e.g. premade ids like "RUST", "JULIEN", "TARTARUS") to
  * conversation-history messages so the transport layer can emit
  * <ENTRY origin="…"> with the entity id rather than a display label.
  * Falls back to leaving the message untouched when no id matches.
@@ -86,14 +86,60 @@ const TRUNCATION_MIN_PROSE = 40;
 
 const ALTERNATION_FIELD_PATHS = ["present.physical", "present.non_physical", "eternal.physical", "eternal.non_physical", "future"];
 
-function strip_directors_note_seed(full_text, monologue, directors_note) {
-  if (!directors_note) return full_text;
+/**
+ * Repairs unbalanced <THINK> cognition tags: drops dangling </THINK> closers
+ * that have no matching opener and appends missing closers at the end.
+ * @param {string | null | undefined} text
+ * @returns {string}
+ */
+export function balance_think_tags(text) {
+  const src = String(text || "");
+  const re = /<\/?THINK>/gi;
+  let out = "";
+  let depth = 0;
+  let last = 0;
+  let match;
+  while ((match = re.exec(src)) !== null) {
+    out += src.slice(last, match.index);
+    if (/^<\//.test(match[0])) {
+      if (depth > 0) {
+        depth--;
+        out += match[0];
+      }
+    } else {
+      depth++;
+      out += match[0];
+    }
+    last = match.index + match[0].length;
+  }
+  out += src.slice(last);
+  if (depth > 0) out += "</THINK>".repeat(depth);
+  return out;
+}
+
+/**
+ * Removes the injected Director's-note THINK seed from generated text. When the
+ * model drops the seeded opener but keeps its closing tag, the opener is restored
+ * so the cognition block stays well-formed; all output is tag-balanced.
+ * @param {string} full_text
+ * @param {string} monologue
+ * @param {string} directors_note
+ * @returns {string}
+ */
+export function strip_directors_note_seed(full_text, monologue, directors_note) {
+  const src = String(full_text || "");
+  if (!directors_note) return balance_think_tags(src);
   const seed = `<THINK>${directors_note} `;
   const offset = monologue ? monologue.length : 0;
-  if (full_text.slice(offset).startsWith(seed)) {
-    return `${full_text.slice(0, offset)}<THINK>${full_text.slice(offset + seed.length).trimStart()}`;
+  const region = src.slice(offset);
+  if (region.startsWith(seed)) {
+    return balance_think_tags(`${src.slice(0, offset)}<THINK>${region.slice(seed.length).trimStart()}`);
   }
-  return full_text;
+  const close_idx = region.search(/<\/THINK>/i);
+  if (close_idx !== -1 && !/<THINK>/i.test(region.slice(0, close_idx))) {
+    return balance_think_tags(`${src.slice(0, offset)}<THINK>${region}`);
+  }
+  return balance_think_tags(src);
 }
 
 /**

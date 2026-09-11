@@ -124,14 +124,14 @@ describe("format_conversation_history", () => {
       { role: "AI_CHARACTER", character_name: "Iris", content: "Greetings." },
     ];
     const formatted = format_conversation_history(messages);
-    expect(formatted).toContain('<ENTRY origin="User" turn="1">Hello</ENTRY>');
-    expect(formatted).toContain('<ENTRY origin="Character" turn="2">Greetings.</ENTRY>');
+    expect(formatted).toContain('<ENTRY origin="User" round="1">Hello</ENTRY>');
+    expect(formatted).toContain('<ENTRY origin="Character" round="2">Greetings.</ENTRY>');
   });
 
   it("prefers the entity id origin when present", () => {
     const messages = [{ role: "AI_CHARACTER", character_name: "Iris", origin: "iris", content: "Greetings." }];
     const formatted = format_conversation_history(messages);
-    expect(formatted).toContain('<ENTRY origin="iris" turn="1">Greetings.</ENTRY>');
+    expect(formatted).toContain('<ENTRY origin="iris" round="1">Greetings.</ENTRY>');
   });
 
   it("returns empty string when no messages are provided", () => {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { clean_xml, CLOTHING_KEYS, escape_xml, physical_to_xml, prompt_escape } from "./xml.js";
+import { clean_xml, CLOTHING_KEYS, escape_xml, physical_to_xml, prompt_escape, strip_leading_key_echo } from "./xml.js";
 
 describe("escape_xml", () => {
   it("escapes special characters including quotes and brackets", () => {
@@ -59,6 +59,54 @@ describe("CLOTHING_KEYS", () => {
     expect(CLOTHING_KEYS).toContain("ARMOR");
     expect(CLOTHING_KEYS).toContain("CLOTHING");
     expect(Object.isFrozen(CLOTHING_KEYS)).toBe(true);
+  });
+});
+
+describe("physical state key canonicalization", () => {
+  it("remaps non-canonical aliases to canonical keys", () => {
+    const xml = physical_to_xml("[SOMA: coiled tension] [SHORTS: silk shorts] [POSE: leaning]", "PRESENT");
+    expect(xml).toContain("<SOMATIC>coiled tension</SOMATIC>");
+    expect(xml).toContain("<APPAREL>silk shorts</APPAREL>");
+    expect(xml).toContain("<POSTURE>leaning</POSTURE>");
+    expect(xml).not.toContain("<SOMA>");
+    expect(xml).not.toContain("<SHORTS>");
+    expect(xml).not.toContain("<POSE>");
+  });
+
+  it("lets a canonically-named key win over an aliased duplicate", () => {
+    const xml = physical_to_xml("[SHORTS: denim shorts] [APPAREL: tailored suit]", "PRESENT");
+    expect(xml).toContain("<APPAREL>tailored suit</APPAREL>");
+    expect((xml.match(/<APPAREL>/g) || []).length).toBe(1);
+    expect(xml).not.toContain("denim shorts");
+  });
+
+  it("strips an echoed KEY: prefix from its own value", () => {
+    const xml = physical_to_xml("[STATE: protective, possessive]", "PRESENT");
+    expect(xml).toContain("<STATE>protective, possessive</STATE>");
+  });
+
+  it("regression: does not leak a following key into the previous value", () => {
+    const raw = "HAIR: dark with silver streaks at the temples DENTAL FEATURES: perfectly white sharp fangs";
+    const xml = physical_to_xml(raw, "PRESENT");
+    expect(xml).toContain("<HAIR>dark with silver streaks at the temples</HAIR>");
+    expect(xml).toContain("<DENTAL_FEATURES>perfectly white sharp fangs</DENTAL_FEATURES>");
+    expect(xml).not.toContain("temples DENTAL");
+  });
+
+  it("regression: splits a following key swallowed inside a single bracket", () => {
+    const raw = "[HAIR: dark with silver streaks at the temples DENTAL FEATURES: perfectly white sharp fangs]";
+    const xml = physical_to_xml(raw, "PHYSICAL");
+    expect(xml).toContain("<HAIR>dark with silver streaks at the temples</HAIR>");
+    expect(xml).toContain("<DENTAL_FEATURES>perfectly white sharp fangs</DENTAL_FEATURES>");
+    expect(xml).not.toContain("temples DENTAL");
+  });
+});
+
+describe("strip_leading_key_echo", () => {
+  it("strips matching underscore or spaced key echoes", () => {
+    expect(strip_leading_key_echo("STATE: protective", ["STATE"])).toBe("protective");
+    expect(strip_leading_key_echo("DENTAL FEATURES: sharp fangs", ["DENTAL_FEATURES"])).toBe("sharp fangs");
+    expect(strip_leading_key_echo("plain value", ["STATE"])).toBe("plain value");
   });
 });
 

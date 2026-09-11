@@ -1,0 +1,84 @@
+{
+  "interaction": {
+    "system_mode": "interaction",
+    "speaker_role": "AI_CHARACTER",
+    "ghostwrite": false,
+    "swap_perspectives": false,
+    "axes_scope": "somatic",
+    "user_sovereignty": true,
+    "input": { "tag": "USER_ACTION", "source": "user_message", "required": false },
+    "scene_template": null,
+    "think_format": "character"
+  },
+  "ghostwrite": {
+    "system_mode": "ghostwrite",
+    "speaker_role": "AI_CHARACTER",
+    "ghostwrite": true,
+    "swap_perspectives": true,
+    "axes_scope": "somatic",
+    "user_sovereignty": false,
+    "input": {
+      "tag": "DRAFT",
+      "source": "user_message",
+      "required": false,
+      "note": "the model writes the PLAYER's next turn; the result fills the user's input box"
+    },
+    "scene_template": null,
+    "think_format": "character"
+  },
+  "npc": {
+    "system_mode": "npc",
+    "speaker_role": "NPC",
+    "ghostwrite": false,
+    "swap_perspectives": false,
+    "axes_scope": "somatic",
+    "user_sovereignty": true,
+    "input": { "tag": "USER_ACTION", "source": "user_message", "required": false },
+    "scene_template": null,
+    "think_format": "character"
+  },
+  "fractal": {
+    "system_mode": "fractal",
+    "speaker_role": "FRACTAL",
+    "ghostwrite": false,
+    "swap_perspectives": false,
+    "axes_scope": "fractal",
+    "user_sovereignty": false,
+    "input": { "tag": null, "source": "user_message", "required": false },
+    "scene_template": "CONTINUATION",
+    "think_format": "narrator"
+  },
+  "prologue": {
+    "system_mode": "prologue",
+    "speaker_role": "FRACTAL",
+    "ghostwrite": false,
+    "swap_perspectives": false,
+    "axes_scope": "fractal",
+    "user_sovereignty": false,
+    "input": { "tag": null, "source": "user_message", "required": false },
+    "scene_template": "PROLOGUE",
+    "think_format": "narrator"
+  },
+  "epilogue": {
+    "system_mode": "epilogue",
+    "speaker_role": "FRACTAL",
+    "ghostwrite": false,
+    "swap_perspectives": false,
+    "axes_scope": "fractal",
+    "user_sovereignty": false,
+    "input": { "tag": null, "source": "user_message", "required": false },
+    "scene_template": "EPILOGUE",
+    "think_format": "narrator"
+  },
+  "director": {
+    "system_mode": "director",
+    "speaker_role": null,
+    "ghostwrite": false,
+    "swap_perspectives": false,
+    "axes_scope": "all",
+    "user_sovereignty": false,
+    "input": { "tag": "USER_ACTION", "source": "user_message", "required": false },
+    "scene_template": null,
+    "think_format": null
+  }
+}

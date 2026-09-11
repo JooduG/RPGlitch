@@ -40,7 +40,7 @@
 
 export const PREMADE_CHARACTERS = Object.freeze([
   {
-    id: "orion",
+    id: "ORION",
     name: "Orion the Pink Protector",
     type: "character",
     description: "Colossal pink-haired dumb himbo superhero and fitness influencer known as the Pink Protector.",
@@ -90,7 +90,7 @@ export const PREMADE_CHARACTERS = Object.freeze([
   },
 
   {
-    id: "glitch",
+    id: "GLITCH",
     name: "Glitch",
     type: "character",
     description:
@@ -143,7 +143,7 @@ export const PREMADE_CHARACTERS = Object.freeze([
   },
 
   {
-    id: "silvers",
+    id: "SILVERS",
     name: "Lord Benedict Silvers",
     type: "character",
     description:
@@ -206,7 +206,7 @@ export const PREMADE_CHARACTERS = Object.freeze([
   },
 
   {
-    id: "rust",
+    id: "RUST",
     name: "Hank 'Rust' Brawley",
     type: "character",
     description: "Grizzled honky-tonk weapons specialist, scrap-merchant and scrapyard genius with a crude, aggressive, zero-filter attitude.",
@@ -257,7 +257,7 @@ export const PREMADE_CHARACTERS = Object.freeze([
   },
 
   {
-    id: "elias",
+    id: "ELIAS",
     name: "Dr. Elias Tariq",
     type: "character",
     description:
@@ -307,7 +307,7 @@ export const PREMADE_CHARACTERS = Object.freeze([
   },
 
   {
-    id: "julien",
+    id: "JULIEN",
     name: "Julien the Banished Prince",
     type: "character",
     description:
@@ -357,7 +357,7 @@ export const PREMADE_CHARACTERS = Object.freeze([
   },
 
   {
-    id: "beast",
+    id: "BEAST",
     name: "Beast",
     type: "character",
     description: "Massive bio-engineered male orc combat experiment and feral breeding fighter built for absolute physical control.",
@@ -415,7 +415,7 @@ export const PREMADE_CHARACTERS = Object.freeze([
 
 export const PREMADE_FRACTALS = Object.freeze([
   {
-    id: "nova",
+    id: "NOVA",
     name: "Nova City",
     type: "fractal",
     description: "Glittering queer sanctuary metropolis with a dangerous criminal underbelly known as Ytic'avon.",
@@ -463,7 +463,7 @@ export const PREMADE_FRACTALS = Object.freeze([
   },
 
   {
-    id: "ashenweald",
+    id: "ASHENWEALD",
     name: "Ashenweald",
     type: "fractal",
     description:
@@ -508,7 +508,7 @@ export const PREMADE_FRACTALS = Object.freeze([
   },
 
   {
-    id: "tartarus",
+    id: "TARTARUS",
     name: "Project Tartarus",
     type: "fractal",
     description:
@@ -587,7 +587,7 @@ export const premade = Object.freeze({
  */
 export function get_premade_entity_by_id(id) {
   if (!id || typeof id !== "string") return null;
-  return PREMADE_ENTITY_MAP.get(id) || null;
+  return PREMADE_ENTITY_MAP.get(id) || PREMADE_ENTITY_MAP.get(id.toUpperCase()) || null;
 }
 
 /**
@@ -598,7 +598,7 @@ export function get_premade_entity_by_id(id) {
  */
 export function has_premade_entity(id) {
   if (!id || typeof id !== "string") return false;
-  return PREMADE_ENTITY_MAP.has(id);
+  return PREMADE_ENTITY_MAP.has(id) || PREMADE_ENTITY_MAP.has(id.toUpperCase());
 }
 
 /**

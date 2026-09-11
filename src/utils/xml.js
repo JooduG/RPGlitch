@@ -105,6 +105,61 @@ export const prompt_escape = (str) => {
 // ============================================================================
 
 /**
+ * Canonical remaps for physical-state keys the Director may write as variants of
+ * the shared vocabulary. Canonically-named keys always win over these aliases.
+ * @type {Readonly<Record<string, string>>}
+ */
+export const PHYSICAL_KEY_ALIASES = Object.freeze({
+  SHORTS: "APPAREL",
+  SOMA: "SOMATIC",
+  POSE: "POSTURE",
+});
+
+/**
+ * Strips a duplicated "KEY:" prefix echoed inside its own value (e.g. the value
+ * "STATE: protective" for key "STATE"). Matches whole underscore-or-space keys.
+ * @param {string | null | undefined} value
+ * @param {string | string[]} keys
+ * @returns {string}
+ */
+export function strip_leading_key_echo(value, keys = []) {
+  const text = String(value ?? "");
+  const patterns = (Array.isArray(keys) ? keys : [keys]).filter(Boolean).map((k) =>
+    String(k)
+      .replace(/[^A-Za-z0-9_]/g, "")
+      .replace(/_/g, "[_ ]"),
+  );
+  if (!patterns.length) return text.trim();
+  return text.replace(new RegExp("^\\s*(?:" + patterns.join("|") + ")\\s*:\\s*", "i"), "").trim();
+}
+
+/**
+ * Canonicalizes parsed physical/non-physical keys: known aliases remap to their
+ * canonical SCREAMING_SNAKE name, other keys keep their original casing, echoed
+ * "KEY:" value prefixes are stripped, and duplicate keys collapse (the
+ * canonically-named entry wins over an alias).
+ * @param {Record<string, any>} parsed
+ * @returns {Record<string, string>}
+ */
+function normalize_physical_entries(parsed) {
+  const out = {};
+  for (const [k, v] of Object.entries(parsed || {})) {
+    if (k === "__raw_prose__") continue;
+    const raw_key = String(k).replace(/\s+/g, "_").trim();
+    if (!raw_key) continue;
+    const upper_key = raw_key.toUpperCase();
+    const canonical = PHYSICAL_KEY_ALIASES[upper_key] || raw_key;
+    const value = Array.isArray(v) ? v.join(", ") : String(v);
+    const cleaned = strip_leading_key_echo(value, [raw_key, upper_key, canonical]);
+    if (!cleaned) continue;
+    if (out[canonical] === undefined || raw_key === canonical) {
+      out[canonical] = cleaned;
+    }
+  }
+  return out;
+}
+
+/**
  * Converts a raw physical/non-physical state value (prose string or pseudo-JSON) into
  * an escaped, structured XML block.
  * - Plain prose is wrapped in a single text node.
@@ -123,14 +178,13 @@ export function physical_to_xml(raw, tagName) {
     return `  <${tagName}>${prompt_escape(parsed.__raw_prose__)}</${tagName}>`;
   }
 
-  const entries = Object.entries(parsed);
+  const entries = Object.entries(normalize_physical_entries(parsed));
   if (entries.length === 0) return "";
 
   const children = entries
     .map(([k, v]) => {
-      const tag = k.replace(/\s+/g, "_");
-      const val_str = Array.isArray(v) ? v.join(", ") : String(v);
-      return `    <${tag}>${prompt_escape(val_str)}</${tag}>`;
+      const tag = String(k).replace(/\s+/g, "_");
+      return `    <${tag}>${prompt_escape(String(v))}</${tag}>`;
     })
     .join("\n");
 
@@ -189,6 +243,10 @@ export function parse_visual_engine(engineXml = "") {
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-10: physical_to_xml remaps known state-key aliases (SHORTS->APPAREL, SOMA->SOMATIC,
+ *   POSE->POSTURE) while preserving the original casing of every other key, strips echoed
+ *   `KEY:` value prefixes, and collapses duplicate keys (the canonical name wins);
+ *   added PHYSICAL_KEY_ALIASES + strip_leading_key_echo.
  * - 2026-09-06: prompt_escape now escapes only `<`/`>`; brackets, ampersands, and quotes pass
  *   through verbatim. Transport passes instructions as a function so perchance never pjs-evaluates
  *   `[...]`/`{...}` — eliminates `&#91;`/`&#93;`/`&amp;` entity pollution in model-facing prompts.

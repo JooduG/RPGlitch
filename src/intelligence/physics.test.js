@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { NARRATIVE_STYLES } from "@data";
 import { physics_engine, evaluate_dynamics_signals, DYNAMICS_AXES } from "./physics.js";
+import { render_dynamics_axes_xml } from "./prompts/physics-prompts.js";
 
 describe("physics.js", () => {
   describe("DYNAMICS_AXES", () => {
@@ -129,6 +130,36 @@ describe("physics.js", () => {
 
       const signals = evaluate_dynamics_signals({ ai_dynamics, fractal_dynamics, style: NARRATIVE_STYLES.default });
       expect(signals).toHaveLength(0);
+    });
+  });
+
+  describe("render_dynamics_axes_xml scoping", () => {
+    const dynamics = { chaos: 40, intensity: 60, openness: 30, affinity: 20, velocity: 40, entropy: 60 };
+
+    it("filters to the somatic axes", () => {
+      const xml = render_dynamics_axes_xml(dynamics, "somatic");
+      expect(xml).toContain("<CHAOS");
+      expect(xml).toContain("<INTENSITY");
+      expect(xml).not.toContain("<VELOCITY");
+      expect(xml).not.toContain("<ENTROPY");
+    });
+
+    it("filters to the fractal axes", () => {
+      const xml = render_dynamics_axes_xml(dynamics, "fractal");
+      expect(xml).toContain("<VELOCITY");
+      expect(xml).toContain("<ENTROPY");
+      expect(xml).not.toContain("<CHAOS");
+    });
+
+    it("renders every axis when no scope is given", () => {
+      const xml = render_dynamics_axes_xml(dynamics, null);
+      expect(xml).toContain("<CHAOS");
+      expect(xml).toContain("<VELOCITY");
+    });
+
+    it("returns an empty string for empty dynamics", () => {
+      expect(render_dynamics_axes_xml({}, "somatic")).toBe("");
+      expect(render_dynamics_axes_xml(null, "somatic")).toBe("");
     });
   });
 });

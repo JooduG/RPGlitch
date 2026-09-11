@@ -64,14 +64,14 @@ export const render_builder = {
     return collapsed
       .slice(start, end)
       .map((entry, index) => {
-        const turn_number = start + index + 1;
+        const round_number = start + index + 1;
         const speaker = entry.name || (entry.role === "USER_PERSONA" ? "User" : entry.role === "FRACTAL" ? "Fractal" : "Character");
         const clean_content = String(entry.content || "")
           .replace(/<think>[\s\S]*?<\/think>/gi, "")
           .replace(/<\/?think>/gi, "")
           .trim();
         const origin = entry.origin || speaker;
-        return `    <ENTRY turn="${turn_number}" origin="${escape_xml(origin)}">${prompt_escape(clean_content)}</ENTRY>`;
+        return `    <ENTRY round="${round_number}" origin="${escape_xml(origin)}">${prompt_escape(clean_content)}</ENTRY>`;
       })
       .join("\n");
   },
@@ -177,6 +177,7 @@ export const prompt_builder = {
     const render_accessors = resolve_accessors(payload);
     const rendered = render_story_prose({
       mode: "character",
+      prompt_mode: "interaction",
       ...payload,
       render_accessors,
       compressed_snapshot: snapshot,
@@ -200,6 +201,7 @@ export const prompt_builder = {
     const render_accessors = resolve_accessors(payload);
     const rendered = render_story_prose({
       mode: "scene",
+      prompt_mode: "fractal",
       ...payload,
       render_accessors,
       compressed_snapshot: snapshot,
@@ -225,6 +227,7 @@ export const prompt_builder = {
     const render_accessors = resolve_accessors(payload, entities);
     const rendered = render_story_prose({
       mode: "character",
+      prompt_mode: "npc",
       ...payload,
       entities,
       speaker: npc,
@@ -250,6 +253,7 @@ export const prompt_builder = {
     const render_accessors = resolve_accessors(payload);
     const rendered = render_story_prose({
       mode: "prologue",
+      prompt_mode: "prologue",
       ...payload,
       render_accessors,
       compressed_snapshot: snapshot,
@@ -273,6 +277,7 @@ export const prompt_builder = {
 
     const rendered = render_story_prose({
       mode: "epilogue",
+      prompt_mode: "epilogue",
       entities: safe_entities,
       render_accessors: render_builder.create_render_accessors(safe_entities, "", recent_history),
       compressed_snapshot: {

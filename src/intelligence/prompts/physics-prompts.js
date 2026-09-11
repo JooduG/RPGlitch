@@ -193,14 +193,15 @@ export function format_dynamics_attrs(dynamics) {
  * Each active axis becomes its own named tag (`<CHAOS value="44" low="..." high="..." />`)
  * so the model can address axes individually.
  * @param {Record<string, number>|null} [live_dynamics=null]
+ * @param {"somatic" | "fractal" | null} [scope=null] - restrict to one axis group
  * @returns {string}
  */
-export function render_dynamics_axes_xml(live_dynamics = null) {
+export function render_dynamics_axes_xml(live_dynamics = null, scope = null) {
   if (!DYNAMICS_AXES) return "";
   const has_values = live_dynamics && typeof live_dynamics === "object" && Object.keys(live_dynamics).length > 0;
   if (!has_values) return "";
   const axes = Object.entries(DYNAMICS_AXES)
-    .filter(([key]) => live_dynamics[key] !== undefined && live_dynamics[key] !== null)
+    .filter(([key, meta]) => (!scope || meta.scope === scope) && live_dynamics[key] !== undefined && live_dynamics[key] !== null)
     .map(([key, meta]) => {
       const value = Math.round(Number(live_dynamics[key]));
       const bounds = String(meta.desc || "").split(/\s+vs\.?\s+/i);
@@ -298,6 +299,8 @@ export function build_available_keywords_xml(active_style_keywords = []) {
 
 /**
  * CHANGELOG
+ * - 2026-09-10: render_dynamics_axes_xml accepts a `scope` ("somatic" | "fractal" | null) and filters
+ *   DYNAMICS_AXES by their declared scope, so AI/NPC sheets show somatic axes and FRACTAL sheets show fractal axes.
  * - 2026-09-06: Added CONTEXT_DIRECTIVE_REGISTRY + resolve_context_directives (system-forced context keywords like FIRST_CONTACT, injected by the pipeline — never offered to the Director).
  * - 2026-09-06: render_dynamics_axes_xml now emits each active axis as its own named tag (`<CHAOS value="44" ... />`) instead of `<AXIS name="...">` — the key is uppercased into the tag name.
  * - 2026-09-06: Redesign (suggestion.md): build_somatic_signals_xml now emits dynamic named tags — the keyword/trigger id is uppercased into the tag name (<DOMINANCE>, <PREDATORY_TENSION>, <MIND_GAMES>...) with de-duplication by tag name; directive text is XML-escaped.

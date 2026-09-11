@@ -1,4 +1,4 @@
-import { gamemaster } from "./story-pipeline.js";
+import { gamemaster, balance_think_tags, strip_directors_note_seed } from "./story-pipeline.js";
 import { context_builder } from "./payload.js";
 import { physics_engine } from "./physics.js";
 import { prompt_builder } from "./prompts/builder.js";
@@ -1878,5 +1878,26 @@ describe("execute_with_retry resilience diagnostics", () => {
       expect(_mock_app.busy).toBe(false);
       expect(_mock_simulation_state.phase).toBe("idle");
     });
+  });
+});
+
+describe("THINK tag balancing (startWith seed regression)", () => {
+  it("drops a dangling </THINK> when the seeded opener is lost", () => {
+    const monologue = "<think>\n**Cognition:** plan\n</think>\n\n";
+    const generated = "reasoning continues.</THINK>\n\nProse begins.";
+    const out = strip_directors_note_seed(monologue + generated, monologue, "some directors note");
+    expect(out).toBe("<think>\n**Cognition:** plan\n</think>\n\n<THINK>reasoning continues.</THINK>\n\nProse begins.");
+  });
+
+  it("strips an intact seed but keeps a single THINK opener", () => {
+    const note = "Benedict should react.";
+    const generated = `<THINK>${note} He leans in.</THINK>\n\nProse.`;
+    expect(strip_directors_note_seed(generated, "", note)).toBe("<THINK>He leans in.</THINK>\n\nProse.");
+  });
+
+  it("balance_think_tags leaves balanced text untouched and repairs the rest", () => {
+    expect(balance_think_tags("<THINK>a</THINK> b")).toBe("<THINK>a</THINK> b");
+    expect(balance_think_tags("a</THINK> b")).toBe("a b");
+    expect(balance_think_tags("a <THINK>b")).toBe("a <THINK>b</THINK>");
   });
 });

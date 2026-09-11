@@ -347,12 +347,76 @@ export function parse_llm_image_prompt_response(raw) {
   return null;
 }
 
+const NAME_TOKEN_STOPWORDS = new Set([
+  "lord",
+  "lady",
+  "king",
+  "queen",
+  "prince",
+  "princess",
+  "sir",
+  "dame",
+  "dr",
+  "doctor",
+  "mr",
+  "mrs",
+  "ms",
+  "miss",
+  "the",
+  "of",
+  "and",
+  "from",
+  "with",
+  "von",
+  "van",
+  "de",
+  "la",
+  "project",
+]);
+
 /**
- * Sanitizes a raw LLM image prompt: strips cognition blocks, unwraps JSON structures, and detoxes prose.
- * @param {string} raw
+ * Strips entity proper names from a synthesized diffusion prompt — whole-word,
+ * case-insensitive, with possessive handling. Each full name plus its
+ * significant capitalized tokens (so a surname like "Silvers" is caught even
+ * when the model drops the title), so character names never leak into the
+ * image prompt. Only physical descriptions should survive.
+ * @param {string} text
+ * @param {string[]} [names]
  * @returns {string}
  */
-export function clean_image_prompt(raw) {
+export function strip_proper_names(text, names = []) {
+  const set = new Set();
+  for (const raw of Array.isArray(names) ? names : []) {
+    if (typeof raw !== "string" || !raw.trim()) continue;
+    const full = raw.trim();
+    set.add(full);
+    for (const token of full.split(/[^\p{L}\p{N}'\u2019-]+/u)) {
+      const t = token.replace(/^['\u2019-]+|['\u2019-]+$/g, "");
+      if (t.length < 4 || !/^\p{Lu}/u.test(t) || NAME_TOKEN_STOPWORDS.has(t.toLowerCase())) continue;
+      set.add(t);
+    }
+  }
+  const list = [...set].filter(Boolean).sort((a, b) => b.length - a.length);
+  if (!list.length) return text;
+  const escaped = list.map((n) => n.replace(/[.*+?^$()|[\]\\]/g, "\\$&"));
+  const re = new RegExp("\\b(?:" + escaped.join("|") + ")(?:['\u2019]s|['\u2019])?\\b", "gi");
+  return text
+    .replace(re, "")
+    .replace(/\s*,\s*,+/g, ", ")
+    .replace(/,\s*([,.;])/g, "$1")
+    .replace(/^[\s,;]+/, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
+/**
+ * Sanitizes a raw LLM image prompt: strips cognition blocks, unwraps JSON structures,
+ * detoxes prose, and removes entity proper names (whole-word, possessive-aware).
+ * @param {string} raw
+ * @param {{ names?: string[] }} [options]
+ * @returns {string}
+ */
+export function clean_image_prompt(raw, options = {}) {
   if (typeof raw !== "string") return raw;
   let cleaned = sanitize_llm(strip_cognition_blocks(raw));
 
@@ -364,7 +428,7 @@ export function clean_image_prompt(raw) {
       cleaned = cleaned.replace(/[{}]/g, "");
     }
   }
-  return detox_prose(cleaned);
+  return strip_proper_names(detox_prose(cleaned), options?.names);
 }
 
 // ============================================================================
@@ -372,6 +436,8 @@ export function clean_image_prompt(raw) {
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-10: clean_image_prompt now accepts { names } and strips entity proper names
+ *   (whole-word, possessive-aware) from synthesized diffusion prompts; added strip_proper_names.
  * - 2026-09-04: render_entity now resolves {{...}} macros ({{char}}/{{user}}/{{me}}/{{fractal}}) against each entity's stable identity before compiling PRESENT/ETERNAL blocks, so image prompts never receive raw macro tokens or inverted names.
  * - 2026-09-06: Suppressed empty fallback entity tags in render_entity to avoid generating "Unknown" subjects.
  * - 2026-09-06: Upgraded Optics Builder protocol: affirmative framing, cognitive directive, style keywords, merged spatial geometry, dynamic alternation resolution, and removed outer PROTOCOL wrapper. Fixed fractal recursion and framing.

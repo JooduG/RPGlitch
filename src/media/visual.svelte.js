@@ -364,7 +364,7 @@ export class VisualEngine {
           const parsed = parse_llm_image_prompt_response(result);
           if (parsed) return parsed;
 
-          const clean_prompt = clean_image_prompt(result);
+          const clean_prompt = clean_image_prompt(result, { names: [entity?.name] });
           return clean_prompt ? { prompt: clean_prompt, negative_prompt: "" } : null;
         },
         (attempt) => {
@@ -424,6 +424,9 @@ export class VisualEngine {
       const fractal = (runtime?.active_fractal?.id === story.fractal_id && runtime.active_fractal) || (await this.resolve_entity(story.fractal_id));
 
       const solo_or_character_entity = options.entity || (subject === "user" ? user : subject === "fractal" ? fractal : ai);
+      const frame_names = (
+        tier === "story_entities" ? [ai?.name, user?.name] : tier === "story_scene" ? [] : [solo_or_character_entity?.name]
+      ).filter(Boolean);
 
       const required_keys = tier === "story_entities" ? ["ai", "user"] : tier === "story_scene" ? ["fractal"] : [subject];
       const subject_by_key = { ai, user, fractal };
@@ -506,12 +509,12 @@ export class VisualEngine {
       let extracted_negative = null;
 
       if (parsed_json) {
-        clean_prompt = clean_image_prompt(strip_cognition_blocks(parsed_json.prompt));
+        clean_prompt = clean_image_prompt(strip_cognition_blocks(parsed_json.prompt), { names: frame_names });
         extracted_negative = parsed_json.negative_prompt || null;
       } else {
         const match = refined?.match(/<image_prompt[^>]*>([\s\S]*?)<\/image_prompt>/i);
         const extracted = match?.[1] || refined || "";
-        clean_prompt = clean_image_prompt(strip_cognition_blocks(extracted));
+        clean_prompt = clean_image_prompt(strip_cognition_blocks(extracted), { names: frame_names });
       }
 
       if ((!clean_prompt || clean_prompt.length < 10) && (tier === "story_scene" || tier === "story_entities")) {

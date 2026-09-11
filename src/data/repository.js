@@ -24,7 +24,7 @@ import { generate_uuid, stories_bridge } from "@utils";
 import { deserialize_embedding, serialize_embedding } from "@platform";
 import { db } from "./db.js";
 import { format_premade, normalize } from "./normalizer.js";
-import { PREMADE_ENTITIES, PREMADE_ENTITY_MAP } from "./definitions/premade-entities.js";
+import { PREMADE_ENTITIES, get_premade_entity_by_id } from "./definitions/premade-entities.js";
 
 // ============================================================================
 // 1. DATA SEEDING (The Entity Foundry)
@@ -132,7 +132,7 @@ export const entities = {
     try {
       let found_entity = await db.entities.get(id);
       if (!found_entity) {
-        const raw_premade = PREMADE_ENTITY_MAP.get(id);
+        const raw_premade = get_premade_entity_by_id(id);
         if (raw_premade) found_entity = format_premade(raw_premade, raw_premade.type);
       }
       if (!found_entity || found_entity.type !== type) return null;
@@ -377,6 +377,8 @@ export const stories = {
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-10: Premade fallback lookup now uses `get_premade_entity_by_id` (case-insensitive)
+ *   so lowercase ids (e.g. "orion") resolve their canonical SCREAMING_SNAKE premade (ORION).
  * - 2026-09-06: Purged obsolete `is_snapshot: 0` ballast under P4 Zero Backwards Compatibility;
  *   leveraged `$state.snapshot()` for fast reactivity decoupling in `upsert()` and `update()`.
  * - 2026-09-04: Converted `_seeding` guard from globalThis to module-scoped `_is_seeding_active` with robust finally reset.

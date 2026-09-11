@@ -19,18 +19,19 @@
 
 /**
  * 6 core dynamics axes: 4 somatic (character) and 2 environmental (fractal).
- * @type {Record<string, { label: string, desc: string }>}
+ * Each axis carries a `scope` ("somatic" | "fractal") used to split sheets.
+ * @type {Record<string, { label: string, desc: string, scope: string }>}
  */
 export const DYNAMICS_AXES = {
   // Character (Somatic) axes
-  chaos: { label: "Chaos", desc: "Order vs Volatility" },
-  intensity: { label: "Intensity", desc: "Stillness vs Surge" },
-  openness: { label: "Openness", desc: "Insulation vs Permeability" },
-  affinity: { label: "Affinity", desc: "Isolation vs Coalescence" },
+  chaos: { label: "Chaos", desc: "Order vs Volatility", scope: "somatic" },
+  intensity: { label: "Intensity", desc: "Stillness vs Surge", scope: "somatic" },
+  openness: { label: "Openness", desc: "Insulation vs Permeability", scope: "somatic" },
+  affinity: { label: "Affinity", desc: "Isolation vs Coalescence", scope: "somatic" },
 
   // Fractal (Environmental) axes
-  velocity: { label: "Velocity", desc: "Suspension vs Acceleration" },
-  entropy: { label: "Entropy", desc: "Glitching vs Coherence" },
+  velocity: { label: "Velocity", desc: "Suspension vs Acceleration", scope: "fractal" },
+  entropy: { label: "Entropy", desc: "Glitching vs Coherence", scope: "fractal" },
 };
 
 // ── 2. Global Dynamics Triggers ───────────────────────────────────────────────

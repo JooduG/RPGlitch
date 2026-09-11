@@ -878,14 +878,14 @@ export function render_recoupled_cast_body({
  * @param {string} [cast_body=""]
  * @returns {string}
  */
-export function render_system_head(cast_body = "") {
+export function render_system_head(cast_body = "", system_mode = null) {
   const cast_indented = cast_body
     .split("\n")
     .map((line) => `    ${line}`)
     .join("\n");
 
   return clean_xml(`
-<SYSTEM>
+<SYSTEM${system_mode ? ` mode="${system_mode}"` : ""}>
   ${ind(render_dynamics_block(), 2)}
   ${render_narrative_style_xml()}
   <CAST>

@@ -245,7 +245,7 @@ export function parse_director_json(raw_text) {
 // ── 6. Stage Spotlight Choreography & NPC Resolution ──────────────────────────
 
 /**
- * Normalizes an actor identifier (e.g. "npc:elias" -> "elias") and resolves it
+ * Normalizes an actor identifier (e.g. "npc:ELIAS" -> "ELIAS") and resolves it
  * against active NPCs by key or name.
  * @param {string} raw
  * @param {Record<string, any>} [npcs={}]

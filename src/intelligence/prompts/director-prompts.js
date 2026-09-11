@@ -109,7 +109,7 @@ export function render_director({
     include_user_future: true,
   });
 
-  const system = `${render_system_head(cast_body)}\n${clean_xml(`
+  const system = `${render_system_head(cast_body, "director")}\n${clean_xml(`
   <ROLE name="DIRECTOR">You are the Director — the unseen intelligence orchestrating the mechanical state of the simulation.</ROLE>
 
   <KEYWORD_DIRECTIVES>
