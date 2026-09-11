@@ -45,7 +45,7 @@ export const TEMPORAL_PROTOCOLS = {
  * @param {number} [max_chars=400]
  * @returns {string}
  */
-export function format_recent_history(history = [], max_turns = 16, max_chars = 400) {
+function format_recent_history(history = [], max_turns = 16, max_chars = 400) {
   const rows = Array.isArray(history) ? history.slice(-max_turns) : [];
   const compact = rows
     .filter((m) => {
@@ -66,7 +66,7 @@ export function format_recent_history(history = [], max_turns = 16, max_chars = 
  * @param {any} entity
  * @returns {string}
  */
-export function render_chapter_history_xml(entity) {
+function render_chapter_history_xml(entity) {
   const chapters = Array.isArray(entity?.chapters) ? entity.chapters : [];
   const closed = chapters.filter((c) => c?.status === "closed");
   if (!closed.length) return "";
@@ -82,7 +82,7 @@ export function render_chapter_history_xml(entity) {
  * @param {any} entity
  * @returns {string}
  */
-export function render_entity_memory_context(key, entity) {
+function render_entity_memory_context(key, entity) {
   if (!entity) return "";
   const name = escape_xml(entity?.name || key);
   const is_fractal = key === "FRACTAL";
@@ -173,6 +173,8 @@ ${scene_cast_xml}${chapter_xml ? `  <CHAPTER_HISTORY>\n${ind(chapter_xml, 4)}\n 
 
 /**
  * CHANGELOG
+ * - 2026-09-10: Redundancy sweep. format_recent_history / render_chapter_history_xml /
+ *   render_entity_memory_context are module-private (only render_memory consumes them).
  * - 2026-09-06: Added MACROS instruction to contract, increased format_recent_history max_turns to 16, and used truncate_at_word.
  * - 2026-08-28: Ground-up deconstruct & refactor: extracted format_recent_history helper, bound entity context tags directly to PROFILE_FIELDS, and streamlined Memory Forge compiler.
  */

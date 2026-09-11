@@ -82,7 +82,7 @@ export const PROFILE_PROTOCOLS = Object.freeze({
  * @param {string} [entity_type]
  * @returns {string}
  */
-export function render_enhancement_field_context(entity, field_id, content = "", entity_type = "character") {
+function render_enhancement_field_context(entity, field_id, content = "", entity_type = "character") {
   if (!entity) return "";
   const [section, sub] = String(field_id || "").split(".");
   const is_fractal = entity?.type === "fractal" || entity_type === "fractal";
@@ -233,6 +233,8 @@ export function render_profile_sorting(entity_type = "character", options = {}) 
 
 /**
  * CHANGELOG
+ * - 2026-09-10: Redundancy sweep. render_enhancement_field_context is module-private (only
+ *   render_enhancement consumes it).
  * - 2026-09-06: Modernized PROFILE_PROTOCOLS with inline JSON schema template, consolidated OUTPUT_FORMATS, and deep freeze.
  * - 2026-08-28: Ground-up deconstruct & refactor: streamlined field context rendering, standardized parameter naming, and removed redundant string/regex wrappers.
  */

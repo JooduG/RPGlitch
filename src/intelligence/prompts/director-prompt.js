@@ -3,9 +3,11 @@
  * 📐 SHOT 1 (DIRECTOR) PROMPTS — Quick Shot Prompt Compiler & Schema
  *
  * Dedicated prompt generator for Shot 1 (Director):
- * - DIRECTOR_PROTOCOLS.SCHEMA (canonical schema definition)
- * - DIRECTOR_PROTOCOLS (director-specific operational laws)
+ * - DIRECTOR_PROTOCOLS (the Director registry — the schema + operational laws
+ *   rendered into <PROTOCOLS>, plus the role line, keyword directives,
+ *   stage-spotlight copy and task instructions)
  * - render_director (Director system & task prompt compiler)
+ * - render_environmental_hint (non-verbal-turn routing nudge)
  * - render_terse_director_task (Fast-path recovery task on retry)
  */
 
@@ -13,8 +15,7 @@ import { get_style_keywords, resolve_active_style_key, render_narrative_style_xm
 import { ind, escape_xml, clean_xml, strip_cognition_blocks } from "@utils";
 import { build_available_keywords_xml, render_dynamics_block } from "./physics-prompt.js";
 import { render_builder } from "./builder.js";
-import { render_protocols } from "./shared.js";
-import { render_entity_sheets, get_prompt_mode } from "./shared.js";
+import { render_protocols, render_entity_sheets, get_prompt_mode } from "./shared.js";
 
 // ── 0. Lexical & Spatial Recognition Constants ───────────────────────────────
 
@@ -37,11 +38,19 @@ export function render_environmental_hint(input) {
   if (!input?.trim()) return "";
   if (DIALOGUE_QUOTES_PATTERN.test(input)) return "";
   if (!SPATIAL_VERBS_PATTERN.test(input) && !SPATIAL_NOUNS_PATTERN.test(input)) return "";
-  return '<USER_ACTION_NOTE>This turn is a non-verbal, environmental action. Strongly consider setting "speaker" to "fractal" so the scene/setting itself narrates the moment — unless the AI character should react directly.</USER_ACTION_NOTE>';
+  return DIRECTOR_PROTOCOLS.ENVIRONMENTAL_HINT;
 }
 
 // ── 1. Canonical Quick Shot Director Schema & Protocols ───────────────────────
 
+/**
+ * The Director registry: the `<PROTOCOLS>` bodies (SCHEMA + the operational laws)
+ * plus the role line, keyword directives, stage-spotlight copy, environmental hint
+ * and task instructions that build the Shot-1 system/task scaffold. Only the
+ * PROTOCOL_BLOCK_KEYS entries are protocol bodies (rendered as their own tags by
+ * render_director_protocols_xml); the rest are read directly by the compiler.
+ * The shared STATE.PSEUDO_JSON + epistemic protocols come from render_protocols().
+ */
 export const DIRECTOR_PROTOCOLS = Object.freeze({
   SCHEMA: `{
   "_thought_process": "<ONE short sentence: tactical intent & state delta>",
@@ -62,7 +71,46 @@ SENSORY ENGAGEMENT: When <USER_ACTION> explicitly touches or observes physical d
 PASSIVE USER TURN LAW: When <USER_ACTION> contains no action verbs or questions (e.g. passive waiting or silence), use "directors_note" to introduce an unexpected environmental complication or in-character choice. Never let the scene stall into dead-air.`,
 
   SELECTABLE_OPTIONS: `Entity fields may contain alternation syntax like {Option A|Option B}. These are SELECTABLE CHOICES. When you emit state mutations (state_append / vector_append / present / eternal), resolve each such field to exactly ONE option that best fits the narrative. Never echo braces or pipes into any emitted value, and never blend options.`,
+
+  ROLE: "You are the Director — the unseen intelligence orchestrating the mechanical state of the simulation.",
+
+  KEYWORD_DIRECTIVES: `- Function: Select 1 to 5 keywords below to steer the next speaker's emotional micro-expressions, physical tells, and scene tone.
+- Neutral state: Emit strictly "[]" if no keywords apply.
+- Whitelist rule: Strictly select from the dynamic list below. Never alter keywords or generate unlisted terms.`,
+
+  SPOTLIGHT: {
+    ROUTING_HEADER: "SPEAKER ROUTING RULES:",
+    ROUTING_RULES: `- "AI_CHARACTER": (Default) AI companion reacts to the protagonist.
+- "FRACTAL": User action is non-verbal and environmental (exploring atmosphere, architecture, weather, objects without dialogue) or to break up long streaks of AI speech.
+- "npc:<id>": An active in-scene secondary character takes the floor.
+- "GENESIS": A new character is introduced into the world. Only mint if no existing candidate applies.`,
+    CONVERGENCE_HEADER: "CONVERGENCE & CAST LAW:",
+    CONVERGENCE_LAW:
+      "Always inspect candidate secondary characters below before minting a duplicate. If an existing cast member matches the required role or location (medical, security, merchant), you MUST use that existing entity rather than inventing a duplicate.",
+    PARTICIPANTS_HEADER: "ACTIVE IN-SCENE PARTICIPANTS:",
+    CANDIDATES_HEADER: "CANDIDATE SECONDARY CHARACTERS:",
+  },
+
+  ENVIRONMENTAL_HINT:
+    '<USER_ACTION_NOTE>This turn is a non-verbal, environmental action. Strongly consider setting "speaker" to "fractal" so the scene/setting itself narrates the moment — unless the AI character should react directly.</USER_ACTION_NOTE>',
+
+  TASK: {
+    EVALUATE: (has_input) => `Evaluate state mutations caused by ${has_input ? "<USER_ACTION>" : "the current situation"}.`,
+    ROUND_ONE: ' Round 1 follows the Fractal prologue, so next_action MUST be "AI_CHARACTER".',
+    USER_PERSONA_LOCK:
+      '"USER_PERSONA" is never a valid next_action — it is a memory-caretaker target only; the Director never speaks for the player.',
+    JSON_RETURN: (schema, indent = "    ") =>
+      `Return a single, COMPLETE, VALID JSON object under 400 characters matching this schema:\n${indent}${schema}`,
+  },
 });
+
+/** The DIRECTOR_PROTOCOLS keys that are protocol bodies rendered into <PROTOCOLS>, in prompt order. */
+const PROTOCOL_BLOCK_KEYS = ["SCHEMA", "CONTINUITY_AND_CAUSALITY", "PACING_AND_MOMENTUM", "SELECTABLE_OPTIONS"];
+
+/** Renders the PROTOCOL_BLOCK_KEYS bodies as their own tags inside <PROTOCOLS>, in prompt order. */
+function render_director_protocols_xml() {
+  return PROTOCOL_BLOCK_KEYS.map((tag) => `<${tag}>\n${DIRECTOR_PROTOCOLS[tag]}\n</${tag}>`).join("\n\n");
+}
 
 // ── 2. Scene Spotlight & Cast Summary ─────────────────────────────────────────
 
@@ -84,7 +132,7 @@ const _cast_summary = (npc) => {
  * @param {string[]} [params.in_scene_ids]
  * @returns {string}
  */
-export function render_scene_spotlight_xml({ entities = {}, npc_entities = [], in_scene_ids = [] } = {}) {
+function render_scene_spotlight_xml({ entities = {}, npc_entities = [], in_scene_ids = [] } = {}) {
   const active_trio_ids = new Set([entities?.AI?.id, entities?.USER?.id, entities?.FRACTAL?.id].filter(Boolean).map(String));
   const in_scene_set = new Set((in_scene_ids || []).filter(Boolean).map(String));
 
@@ -107,19 +155,17 @@ export function render_scene_spotlight_xml({ entities = {}, npc_entities = [], i
     }
   }
 
-  const candidate_section = candidate_secondaries.length > 0 ? `\n\nCANDIDATE SECONDARY CHARACTERS:\n${candidate_secondaries.join("\n")}` : "";
+  const { CANDIDATES_HEADER, ROUTING_HEADER, ROUTING_RULES, CONVERGENCE_HEADER, CONVERGENCE_LAW, PARTICIPANTS_HEADER } = DIRECTOR_PROTOCOLS.SPOTLIGHT;
+  const candidate_section = candidate_secondaries.length > 0 ? `\n\n${CANDIDATES_HEADER}\n${candidate_secondaries.join("\n")}` : "";
 
   return `<SCENE_SPOTLIGHT>
-SPEAKER ROUTING RULES:
-- "AI_CHARACTER": (Default) AI companion reacts to the protagonist.
-- "FRACTAL": User action is non-verbal and environmental (exploring atmosphere, architecture, weather, objects without dialogue) or to break up long streaks of AI speech.
-- "npc:<id>": An active in-scene secondary character takes the floor.
-- "GENESIS": A new character is introduced into the world. Only mint if no existing candidate applies.
+${ROUTING_HEADER}
+${ROUTING_RULES}
 
-CONVERGENCE & CAST LAW:
-Always inspect candidate secondary characters below before minting a duplicate. If an existing cast member matches the required role or location (medical, security, merchant), you MUST use that existing entity rather than inventing a duplicate.
+${CONVERGENCE_HEADER}
+${CONVERGENCE_LAW}
 
-ACTIVE IN-SCENE PARTICIPANTS:
+${PARTICIPANTS_HEADER}
 ${active_participants.join("\n")}${candidate_section}
 </SCENE_SPOTLIGHT>`;
 }
@@ -154,9 +200,7 @@ export function render_director({
   const active_messages = raw_messages.length > 0 ? raw_messages : simulation_log;
   const accessors = render_accessors || render_builder.create_render_accessors(entities, input, active_messages);
   const shared_protocols = render_protocols("STATE.PSEUDO_JSON, COGNITION.EPISTEMIC_PHYSICS");
-  const local_protocols = Object.entries(DIRECTOR_PROTOCOLS)
-    .map(([tag, text]) => `<${tag}>\n${text}\n</${tag}>`)
-    .join("\n\n");
+  const local_protocols = render_director_protocols_xml();
   const full_protocols = `${shared_protocols}\n\n${local_protocols}`.trim();
   const active_style_keywords = get_style_keywords(resolve_active_style_key());
 
@@ -174,15 +218,13 @@ export function render_director({
 
   const system = clean_xml(`
 <SYSTEM mode="director">
-  <ROLE name="DIRECTOR">You are the Director — the unseen intelligence orchestrating the mechanical state of the simulation.</ROLE>
+  <ROLE name="DIRECTOR">${DIRECTOR_PROTOCOLS.ROLE}</ROLE>
   ${ind(render_dynamics_block(), 2)}
   ${render_narrative_style_xml()}
 ${entity_sheets}
 
   <KEYWORD_DIRECTIVES>
-  - Function: Select 1 to 5 keywords below to steer the next speaker's emotional micro-expressions, physical tells, and scene tone.
-  - Neutral state: Emit strictly "[]" if no keywords apply.
-  - Whitelist rule: Strictly select from the dynamic list below. Never alter keywords or generate unlisted terms.
+  ${ind(DIRECTOR_PROTOCOLS.KEYWORD_DIRECTIVES, 2)}
   <AVAILABLE_KEYWORDS>${build_available_keywords_xml(active_style_keywords)}</AVAILABLE_KEYWORDS>
   </KEYWORD_DIRECTIVES>
 
@@ -197,15 +239,20 @@ ${entity_sheets}
   const last_ai_message = (active_messages || []).filter((message) => message.role === "model").at(-1);
   const last_ai_text = last_ai_message ? strip_cognition_blocks(last_ai_message.content || last_ai_message.text || "").trim() : "";
 
+  const has_input = !!input?.trim();
+  const evaluation =
+    DIRECTOR_PROTOCOLS.TASK.EVALUATE(has_input) +
+    (Number(round) <= 1 ? DIRECTOR_PROTOCOLS.TASK.ROUND_ONE : "") +
+    ` ${DIRECTOR_PROTOCOLS.TASK.USER_PERSONA_LOCK}`;
+
   const task = clean_xml(`
 <ROUND>${escape_xml(String(round))}</ROUND>
-${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
+${has_input ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
 ${last_ai_text ? `<AI_CHARACTER_LAST_TURN>${ind(last_ai_text, 2)}</AI_CHARACTER_LAST_TURN>` : ""}
 <TASK>
-    Evaluate state mutations caused by ${input?.trim() ? "<USER_ACTION>" : "the current situation"}.${Number(round) <= 1 ? ' Round 1 follows the Fractal prologue, so next_action MUST be "AI_CHARACTER".' : ""} "USER_PERSONA" is never a valid next_action — it is a memory-caretaker target only; the Director never speaks for the player.
+    ${evaluation}
     ${render_environmental_hint(input)}
-    Return a single, COMPLETE, VALID JSON object under 400 characters matching this schema:
-    ${DIRECTOR_PROTOCOLS.SCHEMA}
+    ${DIRECTOR_PROTOCOLS.TASK.JSON_RETURN(DIRECTOR_PROTOCOLS.SCHEMA)}
 </TASK>
   `).trim();
 
@@ -221,14 +268,23 @@ ${last_ai_text ? `<AI_CHARACTER_LAST_TURN>${ind(last_ai_text, 2)}</AI_CHARACTER_
 export function render_terse_director_task() {
   return `
 <TASK>
-  Return a single, COMPLETE, VALID JSON object under 400 characters matching this schema:
-  ${DIRECTOR_PROTOCOLS.SCHEMA}
+  ${DIRECTOR_PROTOCOLS.TASK.JSON_RETURN(DIRECTOR_PROTOCOLS.SCHEMA, "  ")}
 </TASK>
   `.trim();
 }
 
 /**
  * CHANGELOG
+ * - 2026-09-10: Registry consolidation. `DIRECTOR_PROTOCOLS` is now the one Director registry: the
+ *   four `<PROTOCOLS>` bodies (SCHEMA / CONTINUITY_AND_CAUSALITY / PACING_AND_MOMENTUM /
+ *   SELECTABLE_OPTIONS) sit directly alongside the inline role line, keyword-directive bullets,
+ *   stage-spotlight routing/convergence copy, environmental `<USER_ACTION_NOTE>` and task
+ *   instructions (evaluate / round-1 / USER_PERSONA lock / JSON return), folded in as ROLE /
+ *   KEYWORD_DIRECTIVES / SPOTLIGHT / ENVIRONMENTAL_HINT / TASK. `render_director_protocols_xml()`
+ *   renders the `PROTOCOL_BLOCK_KEYS` bodies as tags in prompt order; the spotlight compiler,
+ *   `render_environmental_hint` and `render_terse_director_task` read from the registry.
+ * - 2026-09-10: Redundancy sweep. Merged the two duplicate ./shared.js import statements;
+ *   render_scene_spotlight_xml is module-private (the Director is its only consumer).
  * - 2026-09-10: `get_prompt_mode` now comes from shared.js (the registry owner)
  *   alongside render_entity_sheets — no Shot-1 → Shot-2 import remains.
  * - 2026-09-10: Moved render_scene_spotlight_xml + its _cast_summary helper here

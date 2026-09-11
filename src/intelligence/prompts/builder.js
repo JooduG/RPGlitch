@@ -9,7 +9,6 @@
 import { PROFILE_FIELD_CATALOG } from "@data";
 import { escape_xml, prompt_escape, collapse_history, parse_macros } from "@utils";
 import { temporal_engine, resolve_vector_pool } from "../temporal-pipeline.js";
-import { render_protocols } from "./shared.js";
 import { render_director, render_terse_director_task } from "./director-prompt.js";
 import { render_story_prose, render_ghostwriter } from "./interaction-prompt.js";
 import { render_narrator_prose } from "./narrator-prompt.js";
@@ -85,7 +84,7 @@ export const render_builder = {
  * @param {string|null|undefined} text
  * @returns {string}
  */
-export function extract_plan_from_state(text) {
+function extract_plan_from_state(text) {
   if (!text) return "";
   const plans = [];
   const regex = /\[PLAN\s*:\s*([^\]]*)\]/gi;
@@ -150,7 +149,6 @@ export const prompt_builder = {
     return parse_macros(text, owner, entities);
   },
 
-  render_protocols,
   create_render_accessors: render_builder.create_render_accessors,
   render_history: render_builder.render_history,
 
@@ -413,6 +411,8 @@ if (typeof window !== "undefined") {
 
 /**
  * CHANGELOG
+ * - 2026-09-10: Redundancy sweep. Dropped the unconsumed prompt_builder.render_protocols
+ *   passthrough (and its ./shared.js import); extract_plan_from_state is module-private.
  * - 2026-09-10: Split the Shot-2 compilers across interaction-prompt.js (interaction /
  *   ghostwrite / npc) and narrator-prompt.js; build_scene_narrator / build_prologue /
  *   build_epilogue now call render_narrator_prose (scene_template only — no mode/prompt_mode).

@@ -2,7 +2,7 @@
  * src/intelligence/prompts/physics-prompt.js
  * 🫀 SOMATIC & PHYSICS PROMPT DIRECTIVES
  *
- * Prompt XML compilers for dynamics and somatic tells:
+ * Prompt XML compilers for character dynamics and somatic tells:
  * - SOMATIC_REGISTRY (12 universal static physical archetypes)
  * - CONTEXT_DIRECTIVE_REGISTRY (system-forced context directives, e.g. FIRST_CONTACT)
  * - render_dynamics_block (<DYNAMICS> XML compiler)
@@ -10,6 +10,7 @@
  * - build_somatic_signals_xml (<SUBTEXT> XML compiler)
  * - resolve_somatic_directives (Resolves keywords against static and style-motif registries)
  * - build_available_keywords_xml (<AVAILABLE_KEYWORDS> XML compiler for Director)
+ * The Shot-2 <AXIOMATIC_CONSTITUTION> laws live in shared.js.
  */
 
 import { STYLE_MOTIF_REGISTRY } from "@data";
@@ -22,7 +23,7 @@ import { DYNAMICS_AXES, resolve_non_verbal_reactions, evaluate_dynamics_signals 
  * 12 universal static somatic & trauma archetypes.
  * @type {{ id: string, label: string, tells: string, directive: string }[]}
  */
-export const SOMATIC_REGISTRY = [
+const SOMATIC_REGISTRY = [
   {
     id: "shame",
     label: "Shame",
@@ -107,7 +108,7 @@ const SOMATIC_MAP = new Map(SOMATIC_REGISTRY.map((entry) => [entry.id, entry]));
  * pipeline (never offered to the Director as choices, unlike SOMATIC_REGISTRY).
  * @type {{ id: string, directive: string }[]}
  */
-export const CONTEXT_DIRECTIVE_REGISTRY = [
+const CONTEXT_DIRECTIVE_REGISTRY = [
   {
     id: "first_contact",
     directive:
@@ -256,7 +257,7 @@ export function build_somatic_signals_xml(ai_dynamics = {}, fractal_dynamics = {
  * @param {string[]} [keywords]
  * @returns {{ id: string, tells?: string, directive: string }[]}
  */
-export function resolve_somatic_directives(keywords = []) {
+function resolve_somatic_directives(keywords = []) {
   const resolved = [];
   for (const keyword of keywords || []) {
     if (!keyword || typeof keyword !== "string") continue;
@@ -285,6 +286,17 @@ export function build_available_keywords_xml(active_style_keywords = []) {
 
 /**
  * CHANGELOG
+ * - 2026-09-10: Redundancy sweep. SOMATIC_REGISTRY, CONTEXT_DIRECTIVE_REGISTRY and
+ *   resolve_somatic_directives are module-private (no consumer outside this file); the
+ *   only external interface to the somatic layer is build_somatic_signals_xml /
+ *   build_available_keywords_xml.
+ * - 2026-09-10: Moved render_axiomatic_constitution + the L1-L5 CONSTITUTION_LAWS out to
+ *   shared.js (beside render_core_protocols) — the constitution is not a dynamics concern,
+ *   so it does not belong in the dynamics/somatic compiler; prompt_escape is no longer
+ *   imported here.
+ * - 2026-09-10: Adopted render_axiomatic_constitution + the L1-L5 CONSTITUTION_LAWS
+ *   from interaction-prompt.js — the inviolable simulation laws belong with the
+ *   physics directives both Shot-2 compilers (interaction + narrator) consume.
  * - 2026-09-10: Renamed the build_somatic_signals_xml wrapper from <SOMATIC_SIGNALS> to
  *   <SUBTEXT> (story-prose blueprint alignment; the inner dynamic named tags are unchanged).
  * - 2026-09-10: render_dynamics_axes_xml accepts a `scope` ("somatic" | "fractal" | null) and filters
