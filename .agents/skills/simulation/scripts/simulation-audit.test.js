@@ -111,7 +111,7 @@ ${SEP}
     expect(result.character_task).toBeDefined();
   });
 
-  it("Character prompt keeps dynamics in task snapshot", async () => {
+  it("Character prompt builds delivery posture and think format in task", async () => {
     const scenario = {
       ai_id: "silvers",
       user_id: "julien",
@@ -121,9 +121,9 @@ ${SEP}
 
     const result = await SimulationAudit.execute_turn("Test input", scenario);
 
-    expect(result.character_task).toContain("<SNAPSHOT>");
-    expect(result.character_task).toContain("<DYNAMICS>");
-    expect(result.character_task).toContain("[current: ");
+    expect(result.character_task).toContain("<DELIVERY_POSTURE>");
+    expect(result.character_task).toContain("<THINK_FORMAT>");
+    expect(result.character_task).toContain('<INPUT origin="USER">');
   });
 
   it("Pipeline verification passes all critical checks", async () => {
@@ -137,10 +137,11 @@ ${SEP}
     const result = await SimulationAudit.execute_turn("Test input", scenario);
 
     expect(result.verification).toBeDefined();
-    expect(result.verification.passed).toContain("character:task_has_EPISTEMIC_PHYSICS");
-    expect(result.verification.passed).toContain("character:system_lacks_dynamics_attrs");
-    expect(result.verification.passed).toContain("character:task_has_DYNAMICS_block");
+    expect(result.verification.passed).toContain("character:system_has_AXIOMATIC_CONSTITUTION");
+    expect(result.verification.passed).toContain("character:system_has_CORE_PROTOCOLS");
+    expect(result.verification.passed).toContain("character:system_has_STORY_ENTITIES");
     expect(result.verification.passed).toContain("director:task_has_dynamics_deltas");
+    expect(result.verification.failed.length).toBe(0);
   });
 
   it("passes raw_messages for Director AI_LAST_TURN block", async () => {

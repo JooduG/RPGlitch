@@ -142,8 +142,12 @@ export const SimulationAudit = {
     };
 
     // --- Director (Shot 1) Feature Verification ---
-    check("director:system_has_ACTIVE_CHARACTERS", director.system.includes("<ACTIVE_CHARACTERS>"));
-    check("director:system_has_DYNAMICS_LEGEND", director.system.includes("<DYNAMICS_LEGEND>"));
+    check("director:system_has_ROLE", director.system.includes('<ROLE name="DIRECTOR">'));
+    check("director:system_has_DYNAMICS", director.system.includes("<DYNAMICS>"));
+    check("director:system_has_STORY_ENTITIES", director.system.includes("<STORY_ENTITIES>"));
+    check("director:system_has_KEYWORD_DIRECTIVES", director.system.includes("<KEYWORD_DIRECTIVES>"));
+    check("director:system_has_PROTOCOLS", director.system.includes("<PROTOCOLS>"));
+    check("director:system_has_EPISTEMIC_PHYSICS", director.system.includes("<EPISTEMIC_PHYSICS>"));
     check("director:task_has_JSON_schema", director.task.includes('"_thought_process"'));
     check("director:task_has_next_action", director.task.includes('"next_action"'));
     check("director:task_has_keywords", director.task.includes('"keywords"'));
@@ -152,23 +156,18 @@ export const SimulationAudit = {
     check("director:task_has_spotlight_schema", director.task.includes('"spotlight"'));
 
     // --- Character (Shot 2) Feature Verification ---
-    check("character:system_has_ROLE", character.system.includes("<ROLE name="));
-    check("character:system_has_PROTOCOLS", character.system.includes("<PROTOCOLS>"));
+    check("character:system_has_AXIOMATIC_CONSTITUTION", character.system.includes("<AXIOMATIC_CONSTITUTION>"));
+    check("character:system_has_CORE_PROTOCOLS", character.system.includes("<CORE_PROTOCOLS>"));
+    check("character:system_has_STORY_ENTITIES", character.system.includes("<STORY_ENTITIES>"));
+    check("character:system_has_DYNAMIC_AXES", character.system.includes("<DYNAMIC_AXES"));
 
-    // Prefix-cache: volatile content must be in task, not system
-    check("character:task_has_FRACTAL_FEED", character.task.includes("<FRACTAL_FEED>") || character.task.includes("<FRACTAL"));
+    // Prefix-cache & Task Verification:
     check("character:system_lacks_dynamics_attrs", !character.system.includes("chaos="));
     check("character:system_lacks_PRESENT", !character.system.includes("<PRESENT>"));
-    check("character:task_has_DYNAMICS_block", character.task.includes("<DYNAMICS>"));
-    check("character:task_has_live_dynamics_values", character.task.includes("[current: "));
-
-    // Epistemic Physics rules
-    check("character:task_has_EPISTEMIC_PHYSICS", character.task.includes("<EPISTEMIC_RULES>") || character.task.includes("<EPISTEMIC_PHYSICS>"));
-    check("character:task_has_sensory_horizon_rule", character.task.includes("sensory horizon"));
-    check("character:task_has_null_data_rule", character.task.includes("Null Data"));
-
-    // Unified Future Block
-    check("character:task_has_FUTURE", character.task.includes("<SNAPSHOT>") || character.task.includes("<INTENT>"));
+    check("character:task_has_INPUT", character.task.includes("<INPUT"));
+    check("character:task_has_CURRENTS", character.task.includes("<CURRENTS>"));
+    check("character:task_has_DELIVERY_POSTURE", character.task.includes("<DELIVERY_POSTURE>"));
+    check("character:task_has_THINK_FORMAT", character.task.includes("<THINK_FORMAT>"));
 
     return { passed, failed };
   },
