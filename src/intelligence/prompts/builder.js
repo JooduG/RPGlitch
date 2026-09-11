@@ -10,10 +10,10 @@ import { PROFILE_FIELD_CATALOG } from "@data";
 import { escape_xml, prompt_escape, collapse_history } from "@utils";
 import { temporal_engine, resolve_vector_pool } from "../temporal-pipeline.js";
 import { parse_macros, render_protocols, extract_plan_from_state } from "./shared.js";
-import { render_director, render_terse_director_task } from "./director-prompts.js";
-import { render_story_prose, render_ghostwriter } from "./story-prompts.js";
-import { render_memory } from "./temporal-prompts.js";
-import { render_enhancement, render_profile_sorting } from "./profile-prompts.js";
+import { render_director, render_terse_director_task } from "./director-prompt.js";
+import { render_story_prose, render_ghostwriter } from "./story-prompt.js";
+import { render_memory } from "./temporal-prompt.js";
+import { render_enhancement, render_profile_sorting } from "./profile-prompt.js";
 
 // ── 1. Render Builder Accessor Factory ─────────────────────────────────────────
 

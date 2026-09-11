@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { render_ghostwriter, render_story_prose } from "./story-prompts.js";
+import { render_ghostwriter, render_story_prose } from "./story-prompt.js";
 
 const entities = {
   AI: {

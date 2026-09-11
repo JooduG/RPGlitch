@@ -11,7 +11,7 @@
 
 import { cosine_similarity, generate_uuid as generate_unique_id, merge_prose_into_field, state_bridge } from "@utils";
 import { llm_service, ensure_embedding, score_by_semantics, embed, is_ready, deserialize_embedding } from "@platform";
-import { render_memory } from "./prompts/temporal-prompts.js";
+import { render_memory } from "./prompts/temporal-prompt.js";
 import { apply_relationships } from "./director.js";
 import { extract_and_repair_json } from "./parser.js";
 

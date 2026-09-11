@@ -1,5 +1,5 @@
 /**
- * src/intelligence/prompts/temporal-prompts.js
+ * src/intelligence/prompts/temporal-prompt.js
  * ⏳ TEMPORAL PROMPTS — Memory Forge & State Extraction
  *
  * Dedicated prompt generator for the Temporal Engine (Memory Forge):

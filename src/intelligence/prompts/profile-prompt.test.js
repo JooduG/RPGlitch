@@ -1,12 +1,12 @@
 /**
- * src/intelligence/prompts/profile-prompts.test.js
+ * src/intelligence/prompts/profile-prompt.test.js
  * 📇 UNIT TESTS: PROFILE PIPELINE & FIELD ENHANCEMENT PROMPT COMPILER
  */
 
 import { describe, expect, it } from "vitest";
-import { PROFILE_PROTOCOLS, render_enhancement, render_profile_sorting } from "./profile-prompts.js";
+import { PROFILE_PROTOCOLS, render_enhancement, render_profile_sorting } from "./profile-prompt.js";
 
-describe("Profile Prompts (profile-prompts.js)", () => {
+describe("Profile Prompts (profile-prompt.js)", () => {
   describe("PROFILE_PROTOCOLS", () => {
     it("is deeply frozen and exports valid schema and formats", () => {
       expect(Object.isFrozen(PROFILE_PROTOCOLS)).toBe(true);

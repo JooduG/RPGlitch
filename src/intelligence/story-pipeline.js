@@ -29,7 +29,7 @@ import { validate_and_repair_response, force_close_response } from "./parser.js"
 import { llm_service, looks_truncated, raw_to_text, raw_stop_reason } from "@platform";
 import { physics_engine } from "./physics.js";
 import { normalize_director_data, parse_director_json, synthesize_director_fallback, resolve_npc_entity, apply_in_scene_change } from "./director.js";
-import { render_terse_director_task } from "./prompts/director-prompts.js";
+import { render_terse_director_task } from "./prompts/director-prompt.js";
 import { prompt_builder } from "./prompts/builder.js";
 import { capture_dynamics_delta } from "./telemetry.js";
 import { prune, temporal_engine } from "./temporal-pipeline.js";

@@ -1,5 +1,5 @@
 /**
- * src/intelligence/prompts/profile-prompts.js
+ * src/intelligence/prompts/profile-prompt.js
  * ✨ PROFILE STUDIO & FIELD ENHANCEMENT PROMPTS
  *
  * Prompts for authoring and profile tooling:
@@ -11,7 +11,7 @@
 import { ind, escape_xml, physical_to_xml, clean_xml } from "@utils";
 import { PROFILE_FIELDS } from "@data";
 import { temporal_engine, resolve_vector_pool } from "../temporal-pipeline.js";
-import { TEMPORAL_PROTOCOLS } from "./temporal-prompts.js";
+import { TEMPORAL_PROTOCOLS } from "./temporal-prompt.js";
 import { render_protocols, PROTOCOL_LIBRARY } from "./shared.js";
 
 // ── 1. Profile Protocols & Directives ─────────────────────────────────────────

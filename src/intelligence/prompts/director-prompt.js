@@ -1,5 +1,5 @@
 /**
- * src/intelligence/prompts/director-prompts.js
+ * src/intelligence/prompts/director-prompt.js
  * 📐 SHOT 1 (DIRECTOR) PROMPTS — Quick Shot Prompt Compiler & Schema
  *
  * Dedicated prompt generator for Shot 1 (Director):
@@ -9,11 +9,13 @@
  * - render_terse_director_task (Fast-path recovery task on retry)
  */
 
-import { get_style_keywords, resolve_active_style_key } from "@data";
+import { get_style_keywords, resolve_active_style_key, render_narrative_style_xml } from "@data";
 import { ind, escape_xml, clean_xml, strip_cognition_blocks } from "@utils";
-import { build_available_keywords_xml } from "./physics-prompts.js";
+import { build_available_keywords_xml, render_dynamics_block } from "./physics-prompt.js";
 import { render_builder } from "./builder.js";
-import { render_system_head, render_recoupled_cast_body, render_director_cast_xml, render_protocols } from "./shared.js";
+import { render_protocols, render_scene_spotlight_xml } from "./shared.js";
+import { render_entity_sheets } from "./interaction-prompt.js";
+import { get_prompt_mode } from "./story-prompt.js";
 
 // ── 0. Lexical & Spatial Recognition Constants ───────────────────────────────
 
@@ -99,18 +101,24 @@ export function render_director({
   const full_protocols = `${shared_protocols}\n\n${local_protocols}`.trim();
   const active_style_keywords = get_style_keywords(resolve_active_style_key());
 
-  const cast_body = render_recoupled_cast_body({
+  const config = get_prompt_mode("director");
+  const entity_sheets = render_entity_sheets({
     entities,
+    npc_entities,
+    in_scene_ids,
     accessors,
-    live_dynamics: {
-      ai: compressed_snapshot?.ai?.dynamics,
-      fractal: compressed_snapshot?.fractal?.dynamics,
-    },
-    include_user_future: true,
+    config,
+    is_npc: false,
+    speaker_dynamics: compressed_snapshot?.ai?.dynamics,
+    fractal_dynamics: compressed_snapshot?.fractal?.dynamics,
   });
 
-  const system = `${render_system_head(cast_body, "director")}\n${clean_xml(`
+  const system = clean_xml(`
+<SYSTEM mode="director">
   <ROLE name="DIRECTOR">You are the Director — the unseen intelligence orchestrating the mechanical state of the simulation.</ROLE>
+  ${ind(render_dynamics_block(), 2)}
+  ${render_narrative_style_xml()}
+${entity_sheets}
 
   <KEYWORD_DIRECTIVES>
   - Function: Select 1 to 5 keywords below to steer the next speaker's emotional micro-expressions, physical tells, and scene tone.
@@ -122,9 +130,10 @@ export function render_director({
   <PROTOCOLS>
     ${ind(full_protocols, 4)}
   </PROTOCOLS>
-  ${render_director_cast_xml({ entities, npc_entities, in_scene_ids })}
+
+  ${render_scene_spotlight_xml({ entities, npc_entities, in_scene_ids })}
 </SYSTEM>
-  `).trim()}`;
+  `).trim();
 
   const last_ai_message = (active_messages || []).filter((message) => message.role === "model").at(-1);
   const last_ai_text = last_ai_message ? strip_cognition_blocks(last_ai_message.content || last_ai_message.text || "").trim() : "";
@@ -161,6 +170,13 @@ export function render_terse_director_task() {
 
 /**
  * CHANGELOG
+ * - 2026-09-10: Entity-sheet unification. The director now compiles its <CAST> via the
+ *   shared render_entity_sheets (interaction-prompt.js) wrapped in <STORY_ENTITIES>, driven
+ *   by the `director` mode's `sheets` config. <ROLE name="DIRECTOR"> moved directly under
+ *   <SYSTEM>; per-entity flat dynamics attrs were promoted to <DYNAMIC_AXES> inside the
+ *   AI_CHARACTER/FRACTAL sheets (the single <DYNAMICS> legend kept for calibration); the
+ *   spotlight's relational mesh is gone (per-entity <DISPOSITIONS> replace it). The legacy
+ *   render_recoupled_cast_body / render_system_head / render_director_cast_xml path is deleted.
  * - 2026-09-06: Deleted the hand-rolled <ACTIVE_CHARACTERS> and <FRACTAL> blocks — the director now uses the single shared render_recoupled_cast_body (from shared.js) inside <CAST>, with include_user_future and live dynamics attrs, so the eternal-only cached cast path and all duplicate character-sheet rendering are gone.
  * - 2026-09-06: Formatted CURRENT_LOOK using physical_to_xml and parse_macros for AI_CHARACTER and USER_PERSONA.
  * - 2026-09-06: Refactored prompt compiler per Simulation § 4.2 Structured JSON Schema Design:

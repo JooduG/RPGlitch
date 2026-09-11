@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import prompt_modes from "./prompt-modes.json";
-import { get_prompt_mode, render_ghostwriter, render_story_prose, resolve_prompt_mode } from "./story-prompts.js";
+import { get_prompt_mode, render_ghostwriter, render_story_prose, resolve_prompt_mode } from "./story-prompt.js";
 import { render_builder } from "./builder.js";
 
-const REQUIRED_FIELDS = ["system_mode", "speaker_role", "ghostwrite", "swap_perspectives", "axes_scope", "input", "scene_template", "think_format"];
+const REQUIRED_FIELDS = ["system_mode", "speaker_role", "ghostwrite", "swap_perspectives", "sheets", "input", "scene_template", "think_format"];
 
 const entities = {
   AI: {
@@ -96,6 +96,10 @@ describe("prompt-modes registry", () => {
       expect(typeof mode.system_mode).toBe("string");
       expect(typeof mode.ghostwrite).toBe("boolean");
       expect(typeof mode.swap_perspectives).toBe("boolean");
+      expect(Array.isArray(mode.sheets.dispositions)).toBe(true);
+      expect(Array.isArray(mode.sheets.dynamic_axes)).toBe(true);
+      expect(typeof mode.sheets.user_agenda).toBe("boolean");
+      expect(typeof mode.sheets.proximate_npcs).toBe("boolean");
       expect(mode.user_sovereignty).toBeUndefined();
       expect(mode.input).toBeTypeOf("object");
       expect(mode.input).toHaveProperty("tag");

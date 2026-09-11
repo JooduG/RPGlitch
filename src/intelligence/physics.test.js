@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { NARRATIVE_STYLES } from "@data";
 import { physics_engine, evaluate_dynamics_signals, DYNAMICS_AXES } from "./physics.js";
-import { render_dynamics_axes_xml } from "./prompts/physics-prompts.js";
+import { render_dynamics_axes_xml } from "./prompts/physics-prompt.js";
 
 describe("physics.js", () => {
   describe("DYNAMICS_AXES", () => {

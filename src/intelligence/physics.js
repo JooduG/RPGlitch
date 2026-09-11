@@ -11,7 +11,7 @@
  *
  * Core Laws:
  * - Pure data, math calculations, and signal predicates only.
- * - Zero prompt XML string construction (XML prompts live in ./prompts/physics-prompts.js).
+ * - Zero prompt XML string construction (XML prompts live in ./prompts/physics-prompt.js).
  * - Settle physics pulls volatile dynamics toward baselines with randomized entropy gravity.
  */
 

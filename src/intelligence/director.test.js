@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { render_director } from "./prompts/director-prompts.js";
+import { render_director } from "./prompts/director-prompt.js";
 import {
   normalize_director_data,
   normalize_speaker,
@@ -99,7 +99,6 @@ describe("Director Quick Shot Prompt (render_director)", () => {
     expect(result.system).toContain("<SCENE_SPOTLIGHT>");
     expect(result.system).toContain("Elias (id: npc-elias)");
     expect(result.system).toContain("In-Scene");
-    expect(result.system).toContain("IN-SCENE RELATIONAL MESH");
     expect(result.system).not.toContain("<ROSTER>");
     expect(result.system).not.toContain("<SCENE_ROSTER>");
     expect(result.system).not.toContain("<RELATIONAL_MESH>");

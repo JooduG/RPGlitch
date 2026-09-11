@@ -2,14 +2,11 @@
  * src/intelligence/prompts/shared.js
  * 🧩 SHARED PROMPT COMPOSITION & PREFIX CACHING
  *
- * Shared byte-identical system head prefix, macro resolvers,
- * roster/mesh XML compilers, and the core PROTOCOL_LIBRARY.
+ * Shared macro resolvers, the scene spotlight XML compiler, and the core
+ * PROTOCOL_LIBRARY.
  */
 
-import { ind, prompt_escape, escape_xml, parse_relational_vector, clean_xml, physical_to_xml } from "@utils";
-import { render_narrative_style_xml } from "@data";
-import { render_dynamics_block, format_dynamics_attrs } from "./physics-prompts.js";
-export { render_dynamics_block };
+import { prompt_escape, escape_xml } from "@utils";
 
 // ── 1. Consolidated Protocol Library ──────────────────────────────────────────
 
@@ -554,7 +551,7 @@ export function render_optional_tag(tag_name, content) {
   return `<${tag_name}>${String(content).trim()}</${tag_name}>`;
 }
 
-// ── 4. Roster, Mesh & Epistemic XML Blocks ────────────────────────────────────
+// ── 4. Scene Spotlight & Cast Summary ─────────────────────────────────────────
 
 const _cast_summary = (npc) => {
   const desc = String(npc?.description || npc?.eternal?.non_physical || npc?.present?.non_physical || "")
@@ -563,87 +560,11 @@ const _cast_summary = (npc) => {
   return desc.length > 130 ? `${desc.slice(0, 130).trim()}…` : desc;
 };
 
-function _render_roster_xml(npc_entities = [], in_scene_ids = [], active_trio_ids = []) {
-  const trio = new Set((active_trio_ids || []).filter(Boolean).map(String));
-  const cast = (npc_entities || []).filter((n) => n && !trio.has(String(n.id)));
-  const rows = cast.map((n) => {
-    const presence = (in_scene_ids || []).includes(String(n.id)) ? "In-Scene" : "Off-Screen (Stasis)";
-    return `  - ${escape_xml(n.name)} (id: ${escape_xml(String(n.id))}): ${escape_xml(_cast_summary(n))} [${presence}]`;
-  });
-
-  const candidates_block = rows.length > 0 ? `\n\nCANDIDATE SECONDARY CHARACTERS:\n${rows.join("\n")}` : "";
-
-  return `<ROSTER>
-SPEAKER ROUTING RULES:
-- "AI_CHARACTER": (Default) AI companion reacts to the protagonist.
-- "FRACTAL": User action is non-verbal and environmental (exploring atmosphere, architecture, weather, objects without dialogue) or to break up long streaks of AI speech.
-- "npc:<id>": An active in-scene secondary character takes the floor.
-- "GENESIS": A new character is introduced into the world. Only mint if no existing candidate applies.
-
-CONVERGENCE & CAST LAW:
-Always inspect candidate secondary characters below before minting a duplicate. If an existing cast member matches the required role or location (medical, security, merchant), you MUST use that existing entity rather than inventing a duplicate.${candidates_block}
-</ROSTER>`;
-}
-
-function _render_scene_roster_xml(entities = {}, npc_entities = [], in_scene_ids = []) {
-  const rows = [];
-  if (entities?.AI?.name) rows.push(`- ${escape_xml(entities.AI.name)}: Primary Companion (In-Scene)`);
-  if (entities?.USER?.name) rows.push(`- ${escape_xml(entities.USER.name)}: Protagonist (In-Scene)`);
-  for (const n of npc_entities || []) {
-    if (!(in_scene_ids || []).includes(String(n.id))) continue;
-    rows.push(`- ${escape_xml(n.name)} (id: ${escape_xml(String(n.id))})`);
-  }
-  return rows.length ? `<SCENE_ROSTER>\n${rows.join("\n")}\n</SCENE_ROSTER>` : "";
-}
-
-export function render_relational_mesh_xml(entities = {}, npc_entities = [], perspective_entity = null, in_scene_ids = []) {
-  const rels = [];
-  const perspective_name = perspective_entity?.name ? String(perspective_entity.name).toLowerCase().trim() : null;
-  const fractal_name = entities?.FRACTAL?.name ? String(entities.FRACTAL.name).toLowerCase().trim() : null;
-
-  // Build the set of active names (in-scene participants + eternal world)
-  const active_names = new Set();
-  if (entities?.AI?.name) active_names.add(String(entities.AI.name).toLowerCase().trim());
-  if (entities?.USER?.name) active_names.add(String(entities.USER.name).toLowerCase().trim());
-  if (entities?.FRACTAL?.name) active_names.add(String(entities.FRACTAL.name).toLowerCase().trim());
-  for (const n of npc_entities || []) {
-    if ((in_scene_ids || []).includes(String(n?.id)) && n?.name) {
-      active_names.add(String(n.name).toLowerCase().trim());
-    }
-  }
-
-  const push = (e) => {
-    if (!e?.name) return;
-    for (const r of Array.isArray(e?.relationships) ? e.relationships : []) {
-      const parsed = parse_relational_vector(r);
-      if (!parsed) continue;
-
-      if (perspective_name) {
-        const src = parsed.source_name.toLowerCase();
-        const target = parsed.target_name.toLowerCase();
-        const is_from_me = src === perspective_name;
-        const is_fractal = fractal_name && src === fractal_name;
-        const target_is_active = active_names.has(target);
-        if ((is_from_me || is_fractal) && target_is_active) {
-          rels.push(`- ${escape_xml(parsed.raw)}`);
-        }
-      } else {
-        rels.push(`- ${escape_xml(parsed.raw)}`);
-      }
-    }
-  };
-
-  push(entities?.AI);
-  push(entities?.USER);
-  push(entities?.FRACTAL);
-  for (const n of npc_entities || []) push(n);
-  return rels.length ? `<RELATIONAL_MESH>\n${rels.join("\n")}\n</RELATIONAL_MESH>` : "";
-}
-
 /**
- * Renders the unified Stage Spotlight XML block for the Director prompt.
- * Consolidates active in-scene participants, candidate secondaries (off-screen),
- * speaker routing rules, convergence laws, and strictly in-scene relational mesh.
+ * Renders the Stage Spotlight XML block for the Director prompt: active in-scene
+ * participants, candidate secondaries (off-screen), speaker routing rules, and
+ * convergence laws. Per-entity relationships live in the <STORY_ENTITIES> sheets
+ * as <DISPOSITION> elements (see interaction-prompt.js), not here.
  * @param {Object} [params]
  * @param {any} [params.entities]
  * @param {any[]} [params.npc_entities]
@@ -673,44 +594,7 @@ export function render_scene_spotlight_xml({ entities = {}, npc_entities = [], i
     }
   }
 
-  // Build active names set for relational filtering (in-scene participants + fractal)
-  const active_in_scene_names = new Set();
-  if (entities?.AI?.name) active_in_scene_names.add(String(entities.AI.name).toLowerCase().trim());
-  if (entities?.USER?.name) active_in_scene_names.add(String(entities.USER.name).toLowerCase().trim());
-  if (entities?.FRACTAL?.name) active_in_scene_names.add(String(entities.FRACTAL.name).toLowerCase().trim());
-  for (const n of npc_entities || []) {
-    if (in_scene_set.has(String(n?.id)) && n?.name) {
-      active_in_scene_names.add(String(n.name).toLowerCase().trim());
-    }
-  }
-
-  // Extract relational vectors strictly between active in-scene entities
-  const scoped_rels = [];
-  const collect_rels = (e) => {
-    if (!e?.name) return;
-    for (const r of Array.isArray(e?.relationships) ? e.relationships : []) {
-      const parsed = parse_relational_vector(r);
-      if (!parsed) continue;
-      const src = parsed.source_name.toLowerCase().trim();
-      const target = parsed.target_name.toLowerCase().trim();
-      if (active_in_scene_names.has(src) && active_in_scene_names.has(target)) {
-        scoped_rels.push(`- ${escape_xml(parsed.raw)}`);
-      }
-    }
-  };
-
-  collect_rels(entities?.AI);
-  collect_rels(entities?.USER);
-  collect_rels(entities?.FRACTAL);
-  for (const n of npc_entities || []) {
-    if (in_scene_set.has(String(n?.id))) {
-      collect_rels(n);
-    }
-  }
-
   const candidate_section = candidate_secondaries.length > 0 ? `\n\nCANDIDATE SECONDARY CHARACTERS:\n${candidate_secondaries.join("\n")}` : "";
-
-  const rels_section = scoped_rels.length > 0 ? `\n\nIN-SCENE RELATIONAL MESH:\n${scoped_rels.join("\n")}` : "";
 
   return `<SCENE_SPOTLIGHT>
 SPEAKER ROUTING RULES:
@@ -723,182 +607,21 @@ CONVERGENCE & CAST LAW:
 Always inspect candidate secondary characters below before minting a duplicate. If an existing cast member matches the required role or location (medical, security, merchant), you MUST use that existing entity rather than inventing a duplicate.
 
 ACTIVE IN-SCENE PARTICIPANTS:
-${active_participants.join("\n")}${candidate_section}${rels_section}
+${active_participants.join("\n")}${candidate_section}
 </SCENE_SPOTLIGHT>`;
 }
 
 /**
- * Renders the unified Stage Spotlight XML for the Director.
- * @param {Object} params
- * @param {any} [params.entities]
- * @param {any[]} [params.npc_entities]
- * @param {string[]} [params.in_scene_ids]
- * @returns {string}
- */
-export function render_director_cast_xml({ entities = {}, npc_entities = [], in_scene_ids = [] } = {}) {
-  return render_scene_spotlight_xml({ entities, npc_entities, in_scene_ids });
-}
-
-/**
- * The <CURRENT_STORY_STATE> block shared by storyteller prompts.
- * @param {any} [entities]
- * @param {any[]} [npc_entities]
- * @param {string[]} [in_scene_ids]
- * @param {any} [perspective_entity]
- * @param {Record<string, number>} [live_dynamics] - Current dynamics values merged into a <DYNAMICS> block when non-empty.
- * @returns {string}
- */
-export function render_current_story_state_xml(entities = {}, npc_entities = [], in_scene_ids = [], perspective_entity = null, live_dynamics = null) {
-  const body = [
-    _render_scene_roster_xml(entities, npc_entities, in_scene_ids),
-    render_relational_mesh_xml(entities, npc_entities, perspective_entity, in_scene_ids),
-    `<EPISTEMIC_RULES>\n${ind(PROTOCOL_LIBRARY.COGNITION.EPISTEMIC_PHYSICS, 2)}\n</EPISTEMIC_RULES>`,
-    live_dynamics && typeof live_dynamics === "object" && Object.keys(live_dynamics).length ? render_dynamics_block(live_dynamics) : "",
-  ]
-    .filter(Boolean)
-    .join("\n");
-  return body ? `<CURRENT_STORY_STATE>\n${body}\n</CURRENT_STORY_STATE>` : "";
-}
-
-// ── 6. Shared System Head & CAST Compiler ─────────────────────────────────────
-
-/**
- * Renders the per-entity character-sheet CAST body shared by every prompt:
- * each entity's eternal + present + future + past clump into one block
- * (AI_CHARACTER / USER_PERSONA / FRACTAL, plus an <NPC> sheet when delegated).
- * Entity tags are left unindented; the caller applies a uniform 4-space indent.
- * @param {Object} [params]
- * @param {any} [params.entities]
- * @param {any} [params.active_speaker]
- * @param {boolean} [params.is_narrator=false]
- * @param {boolean} [params.is_npc=false]
- * @param {any} [params.accessors] - Render accessors (future/past) from render_builder.
- * @param {{ ai?: Record<string, number>, fractal?: Record<string, number> }|null} [params.live_dynamics]
- *   Live dynamics attached as XML attrs on the AI_CHARACTER/FRACTAL tags (director).
- * @param {boolean} [params.include_user_future=false]
- *   Expose the USER's future intent as <AGENDA> (omniscient director only; withheld from characters).
- * @returns {string}
- */
-export function render_recoupled_cast_body({
-  entities = {},
-  active_speaker = null,
-  is_narrator = false,
-  is_npc = false,
-  accessors = null,
-  live_dynamics = null,
-  include_user_future = false,
-}) {
-  const rows = [];
-
-  const look_row = (entity, { strip = false } = {}) => {
-    const source = strip ? strip_epistemic_secrets(entity?.present?.physical, false) : entity?.present?.physical;
-    const look = physical_to_xml(render_field_value(source, entity, entities), "CURRENT_LOOK");
-    return look && String(look).trim() ? `  ${String(look).trim()}` : "";
-  };
-
-  const optional_row = (tag, content) => {
-    const rendered = render_optional_tag(tag, ind(content, 6));
-    return rendered ? `  ${rendered}` : "";
-  };
-
-  if (entities?.AI) {
-    const ai = entities.AI;
-    const attrs = live_dynamics?.ai ? format_dynamics_attrs(live_dynamics.ai) : "";
-    rows.push(`<AI_CHARACTER name="${escape_xml(ai.name || "AI")}"${attrs}>`);
-    rows.push(`  <PERSONALITY>${render_field_value(ai.eternal?.non_physical, ai, entities)}</PERSONALITY>`);
-    rows.push(`  <PERMANENT_APPEARANCE>${render_field_value(ai.eternal?.physical, ai, entities)}</PERMANENT_APPEARANCE>`);
-    if (!is_narrator) {
-      rows.push(`  <STATE_OF_MIND>${render_field_value(strip_epistemic_secrets(ai.present?.non_physical, !is_npc), ai, entities)}</STATE_OF_MIND>`);
-    }
-    const ai_look = look_row(ai);
-    if (ai_look) rows.push(ai_look);
-    rows.push(optional_row("INTENT", accessors?.future(ai, { vector_text: true })));
-    rows.push(optional_row("MEMORIES", accessors?.past(ai, { vector_text: true })));
-    rows.push("</AI_CHARACTER>");
-  }
-
-  if (entities?.USER) {
-    const user = entities.USER;
-    rows.push(`<USER_PERSONA name="${escape_xml(user.name || "User")}">`);
-    rows.push(`  <PERSONALITY>${render_field_value(strip_epistemic_tags(user.eternal?.non_physical), user, entities)}</PERSONALITY>`);
-    rows.push(`  <PERMANENT_APPEARANCE>${render_field_value(strip_epistemic_tags(user.eternal?.physical), user, entities)}</PERMANENT_APPEARANCE>`);
-    if (!is_narrator) {
-      rows.push(`  <STATE_OF_MIND>${render_field_value(strip_epistemic_secrets(user.present?.non_physical, false), user, entities)}</STATE_OF_MIND>`);
-    }
-    const user_look = look_row(user, { strip: true });
-    if (user_look) rows.push(user_look);
-    if (include_user_future) {
-      rows.push(optional_row("AGENDA", accessors?.future(user, { vector_text: true })));
-    }
-    rows.push(optional_row("BACKSTORY", strip_epistemic_secrets(accessors?.past(user, { vector_text: true }), false)));
-    rows.push("</USER_PERSONA>");
-  }
-
-  if (entities?.FRACTAL) {
-    const fractal = entities.FRACTAL;
-    const attrs = live_dynamics?.fractal ? format_dynamics_attrs(live_dynamics.fractal) : "";
-    rows.push(`<FRACTAL name="${escape_xml(fractal.name || "the setting")}"${attrs}>`);
-    rows.push(`  <METAPHYSICAL_TRUTHS>${render_field_value(fractal.eternal?.non_physical, fractal, entities)}</METAPHYSICAL_TRUTHS>`);
-    rows.push(`  <ENVIRONMENT>${render_field_value(fractal.eternal?.physical, fractal, entities)}</ENVIRONMENT>`);
-    if (is_narrator) {
-      rows.push(
-        `  <ATMOSPHERE>${render_field_value(active_speaker?.present?.physical || active_speaker?.present?.non_physical, active_speaker, entities)}</ATMOSPHERE>`,
-      );
-      rows.push(optional_row("INTENT", accessors?.future(fractal, { vector_text: true })));
-      rows.push(optional_row("MEMORIES", accessors?.past(fractal, { vector_text: true })));
-    } else {
-      rows.push(`  <CURRENT_STATE>${render_field_value(fractal.present?.non_physical, fractal, entities)}</CURRENT_STATE>`);
-      rows.push(`  <ACTIVE_ATMOSPHERE>${render_field_value(fractal.present?.physical, fractal, entities)}</ACTIVE_ATMOSPHERE>`);
-      rows.push(optional_row("AGENDA", accessors?.future(fractal, { vector_text: true })));
-      rows.push(optional_row("HISTORY", accessors?.past(fractal, { vector_text: true })));
-    }
-    rows.push("</FRACTAL>");
-  }
-
-  if (is_npc && active_speaker) {
-    const npc = active_speaker;
-    rows.push(`<NPC name="${escape_xml(npc.name || "NPC")}">`);
-    rows.push(`  <PERSONALITY>${render_field_value(npc.eternal?.non_physical, npc, entities)}</PERSONALITY>`);
-    rows.push(`  <PERMANENT_APPEARANCE>${render_field_value(npc.eternal?.physical, npc, entities)}</PERMANENT_APPEARANCE>`);
-    rows.push(`  <STATE_OF_MIND>${render_field_value(strip_epistemic_secrets(npc.present?.non_physical, true), npc, entities)}</STATE_OF_MIND>`);
-    const npc_look = look_row(npc);
-    if (npc_look) rows.push(npc_look);
-    rows.push(optional_row("INTENT", accessors?.future(npc, { vector_text: true })));
-    rows.push(optional_row("MEMORIES", accessors?.past(npc, { vector_text: true })));
-    rows.push("</NPC>");
-  }
-
-  return rows.filter((row) => String(row).trim() !== "").join("\n");
-}
-
-/**
- * Shared SYSTEM head — wraps a pre-rendered CAST body (from
- * render_recoupled_cast_body) in the common <SYSTEM> scaffold: dynamics legend,
- * narrative style, and the <CAST> block.
- * @param {string} [cast_body=""]
- * @returns {string}
- */
-export function render_system_head(cast_body = "", system_mode = null) {
-  const cast_indented = cast_body
-    .split("\n")
-    .map((line) => `    ${line}`)
-    .join("\n");
-
-  return clean_xml(`
-<SYSTEM${system_mode ? ` mode="${system_mode}"` : ""}>
-  ${ind(render_dynamics_block(), 2)}
-  ${render_narrative_style_xml()}
-  <CAST>
-${cast_indented}
-  </CAST>
-  `).trim();
-}
-
-/**
  * CHANGELOG
- * - 2026-09-06: Removed the eternal-only CAST + prefix-cache path (system_head_cache/_render_eternal_cast_body). render_system_head now takes the single shared CAST body; render_recoupled_cast_body (moved here from story-prompts.js) is the one cast renderer used by storyteller and director.
- * - 2026-09-06: render_system_head now accepts an optional cast_body_override — when provided (recoupled per-entity sheets from story-prompts.js), it replaces the eternal-only CAST body and bypasses the prefix cache; the default eternal-only cached path is unchanged for the director.
- * - 2026-09-06: Consolidated render_dynamics_block to physics-prompts.js, re-exporting and using it in render_system_head.
+ * - 2026-09-10: Entity-sheet unification. Deleted the legacy cast/system-head path
+ *   (render_recoupled_cast_body, render_system_head, render_director_cast_xml),
+ *   render_current_story_state_xml, render_relational_mesh_xml, the dead
+ *   _render_roster_xml / _render_scene_roster_xml helpers, and the spotlight's
+ *   IN-SCENE RELATIONAL MESH section. All superseded by the shared <STORY_ENTITIES>
+ *   compiler in interaction-prompt.js, where per-entity <DISPOSITIONS> replace the mesh.
+ * - 2026-09-06: Removed the eternal-only CAST + prefix-cache path (system_head_cache/_render_eternal_cast_body). render_system_head now takes the single shared CAST body; render_recoupled_cast_body (moved here from story-prompt.js) is the one cast renderer used by storyteller and director.
+ * - 2026-09-06: render_system_head now accepts an optional cast_body_override — when provided (recoupled per-entity sheets from story-prompt.js), it replaces the eternal-only CAST body and bypasses the prefix cache; the default eternal-only cached path is unchanged for the director.
+ * - 2026-09-06: Consolidated render_dynamics_block to physics-prompt.js, re-exporting and using it in render_system_head.
  * - 2026-09-05: Added render_dynamics_block() merging scale legend, axis metadata, and live values.
  * - 2026-09-05: Consolidated Director cast, stage roster, and relational mesh into render_scene_spotlight_xml() strictly scoped to active scene participants.
  * - 2026-08-28: Consolidated fragmented protocol rules into PROSE_DISCIPLINE, ANTI_TROPES,

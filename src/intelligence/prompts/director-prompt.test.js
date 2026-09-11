@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { DIRECTOR_PROTOCOLS, render_director, render_environmental_hint, render_terse_director_task } from "./director-prompts.js";
+import { DIRECTOR_PROTOCOLS, render_director, render_environmental_hint, render_terse_director_task } from "./director-prompt.js";
 
-describe("director-prompts", () => {
+describe("director-prompt", () => {
   it("exports valid DIRECTOR_PROTOCOLS schema and operational laws", () => {
     expect(DIRECTOR_PROTOCOLS.SCHEMA).toBeDefined();
     expect(DIRECTOR_PROTOCOLS.SCHEMA).toContain("_thought_process");
