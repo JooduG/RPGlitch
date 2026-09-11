@@ -21,6 +21,7 @@ import {
   escape_xml,
   physical_to_xml,
   prompt_escape,
+  parse_macros,
   safe_parse_json,
   strip_cognition_blocks,
   detox_prose,
@@ -29,7 +30,7 @@ import {
   alternation_field_label,
 } from "@utils";
 import { sanitize_llm } from "@platform";
-import { PROTOCOL_LIBRARY, parse_macros } from "../intelligence/prompts/shared.js";
+import { PROTOCOL_LIBRARY } from "../intelligence/prompts/shared.js";
 import { normalize_image_tier } from "./image-tiers.js";
 import { resolve_visual_engine_tokens, strip_visual_excluded } from "./image-aesthetics.js";
 

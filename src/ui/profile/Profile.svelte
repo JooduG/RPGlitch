@@ -19,7 +19,7 @@
   import ProfileHeader from "./ProfileHeader.svelte";
   import RelationalGraph from "./RelationalGraph.svelte";
   import { app, runtime, simulation_state } from "@state";
-  import { resolve_display_macro_segments } from "@intelligence";
+  import { resolve_display_macro_segments } from "@utils";
   import MacroText from "./MacroText.svelte";
   import { fade } from "svelte/transition";
   import {

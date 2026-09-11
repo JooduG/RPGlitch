@@ -20,9 +20,9 @@
  * <SYSTEM>.
  */
 
-import { escape_xml, prompt_escape, physical_to_xml, parse_relational_vector, strip_leading_key_echo } from "@utils";
+import { escape_xml, prompt_escape, physical_to_xml, parse_relational_vector, strip_leading_key_echo, render_field_value } from "@utils";
 import { render_dynamics_axes_xml } from "./physics-prompt.js";
-import { render_field_value, strip_epistemic_secrets, strip_epistemic_tags } from "./shared.js";
+import { strip_epistemic_secrets, strip_epistemic_tags } from "./shared.js";
 
 // ── 1. Layout Helpers ─────────────────────────────────────────────────────────
 

@@ -6,7 +6,8 @@
  * @file src/utils/index.js
  * @description Central barrel export providing unified access to cross-layer
  * state bridges, mathematical & cryptographic algorithms, string/prose codecs,
- * Markdown/XML parsers, DOM/HTML helpers, resilient async runners, and CSS resolvers.
+ * entity-aware macro resolution, Markdown/XML parsers, DOM/HTML helpers,
+ * resilient async runners, and CSS resolvers.
  *
  * Architectural Laws:
  * - Pure and portable: All utilities are stateless or encapsulate self-contained
@@ -94,6 +95,12 @@ export * from "./job-queue.js";
 // ============================================================================
 
 export * from "./styles.js";
+
+// ============================================================================
+// Entity-Aware Macro Resolution & Profile-Field Text Codecs
+// ============================================================================
+
+export * from "./macros.js";
 
 /**
  * CHANGELOG:

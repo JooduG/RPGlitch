@@ -34,14 +34,6 @@ export { extract_and_repair_json, parse_profile_json, parse_think_block, validat
 // ============================================================================
 
 export { prompt_builder } from "./prompts/builder.js";
-export {
-  parse_macros,
-  render_display_macros,
-  resolve_display_macro_segments,
-  UNRESOLVED_LABELS,
-  strip_profile_wrappers,
-  unwrap_enhancement_text,
-} from "./prompts/shared.js";
 
 // ============================================================================
 // Temporal Engine & Memory Forge (Shot 2 Consolidation)

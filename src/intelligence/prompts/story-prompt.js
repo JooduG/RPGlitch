@@ -32,11 +32,11 @@
  * ENTRIES carry only origin + round (no mode).
  */
 
-import { escape_xml, prompt_escape, clean_xml } from "@utils";
+import { escape_xml, prompt_escape, clean_xml, parse_macros } from "@utils";
 import { get_narrative_style, resolve_active_style_key } from "@data";
 import { build_somatic_signals_xml, resolve_context_directives } from "./physics-prompt.js";
 import { render_builder } from "./builder.js";
-import { parse_macros, PROTOCOL_LIBRARY } from "./shared.js";
+import { PROTOCOL_LIBRARY } from "./shared.js";
 import { render_entity_sheets, indent_all as _indent, inline_or_block as _inline_or_block } from "./interaction-prompt.js";
 import prompt_modes from "./prompt-modes.json";
 

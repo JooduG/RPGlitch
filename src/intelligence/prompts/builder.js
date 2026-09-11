@@ -7,9 +7,9 @@
  */
 
 import { PROFILE_FIELD_CATALOG } from "@data";
-import { escape_xml, prompt_escape, collapse_history } from "@utils";
+import { escape_xml, prompt_escape, collapse_history, parse_macros } from "@utils";
 import { temporal_engine, resolve_vector_pool } from "../temporal-pipeline.js";
-import { parse_macros, render_protocols, extract_plan_from_state } from "./shared.js";
+import { render_protocols, extract_plan_from_state } from "./shared.js";
 import { render_director, render_terse_director_task } from "./director-prompt.js";
 import { render_story_prose, render_ghostwriter } from "./story-prompt.js";
 import { render_memory } from "./temporal-prompt.js";
