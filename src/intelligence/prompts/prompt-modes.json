@@ -37,37 +37,15 @@
     "scene_template": null,
     "think_format": "character"
   },
-  "fractal": {
-    "system_mode": "fractal",
+  "narrator": {
+    "system_mode": "narrator",
     "speaker_role": "FRACTAL",
     "ghostwrite": false,
     "swap_perspectives": false,
     "axes_scope": "fractal",
     "user_sovereignty": false,
     "input": { "tag": null, "source": "user_message", "required": false },
-    "scene_template": "CONTINUATION",
-    "think_format": "narrator"
-  },
-  "prologue": {
-    "system_mode": "prologue",
-    "speaker_role": "FRACTAL",
-    "ghostwrite": false,
-    "swap_perspectives": false,
-    "axes_scope": "fractal",
-    "user_sovereignty": false,
-    "input": { "tag": null, "source": "user_message", "required": false },
-    "scene_template": "PROLOGUE",
-    "think_format": "narrator"
-  },
-  "epilogue": {
-    "system_mode": "epilogue",
-    "speaker_role": "FRACTAL",
-    "ghostwrite": false,
-    "swap_perspectives": false,
-    "axes_scope": "fractal",
-    "user_sovereignty": false,
-    "input": { "tag": null, "source": "user_message", "required": false },
-    "scene_template": "EPILOGUE",
+    "scene_template": null,
     "think_format": "narrator"
   },
   "director": {

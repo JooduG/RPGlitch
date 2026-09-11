@@ -7,8 +7,8 @@
  * - Ghostwriter Player Turn (render_ghostwriter)
  *
  * One fused Shot-2 <SYSTEM round="N" mode="..."> layout for every speaker
- * (interaction / ghostwrite / npc / fractal / prologue / epilogue — see
- * prompt-modes.json; the resolved mode drives the renderer):
+ * (interaction / ghostwrite / npc / narrator — see
+ * prompt-modes.json; the narrator beat is selected via scene_template):
  *   1. <AXIOMATIC_CONSTITUTION> — LAWs L1-L5, directly inside <SYSTEM>
  *      (L5_AGENCY omitted for ghostwrite)
  *   2. <CORE_PROTOCOLS>  — CREATIVE_FREEDOM, POV_DIRECTIVE, TENSE,
@@ -700,22 +700,21 @@ export function get_prompt_mode(key) {
  */
 export function resolve_prompt_mode({ mode = "character", ghostwrite = false, is_npc = false } = {}) {
   if (ghostwrite) return get_prompt_mode("ghostwrite");
-  if (mode === "prologue") return get_prompt_mode("prologue");
-  if (mode === "epilogue") return get_prompt_mode("epilogue");
-  if (mode === "scene") return get_prompt_mode("fractal");
+  if (mode === "narrator") return get_prompt_mode("narrator");
   return get_prompt_mode(is_npc ? "npc" : "interaction");
 }
 
 /**
  * Consolidated Story Prose compiler.
- * Unifies AI Character, Stage NPC, and Fractal Narrator generation (Scene / Prologue / Epilogue)
- * into a single fused <SYSTEM> layout driven by the prompt-modes registry.
+ * Unifies AI Character, Stage NPC, and Narrator generation into a single fused
+ * <SYSTEM> layout driven by the prompt-modes registry; the narrator beat
+ * (CONTINUATION / PROLOGUE / EPILOGUE / COLLAPSE) is selected via scene_template.
  *
  * @param {Object} params
- * @param {'character' | 'scene' | 'prologue' | 'epilogue'} [params.mode="character"]
+ * @param {'character' | 'narrator'} [params.mode="character"]
  * @param {number|string|null} [params.round]
  * @param {any} params.entities
- * @param {any} [params.speaker] - Speaker entity (defaults to entities.AI for character mode, or entities.FRACTAL for narrator modes)
+ * @param {any} [params.speaker] - Speaker entity (defaults to entities.AI for character mode, or entities.FRACTAL for narrator mode)
  * @param {string} [params.input]
  * @param {any} [params.compressed_snapshot]
  * @param {any} [params.meta]
@@ -724,7 +723,7 @@ export function resolve_prompt_mode({ mode = "character", ghostwrite = false, is
  * @param {any} [params.director_data]
  * @param {any[]} [params.npc_entities]
  * @param {string[]} [params.in_scene_ids]
- * @param {string} [params.conclusion_status="CONCLUDED"]
+ * @param {'CONTINUATION' | 'PROLOGUE' | 'EPILOGUE' | 'COLLAPSE' | null} [params.scene_template=null]
  * @returns {{ system: string, task: string }}
  */
 export function render_story_prose({
@@ -741,13 +740,14 @@ export function render_story_prose({
   director_data = null,
   npc_entities = [],
   in_scene_ids = [],
-  conclusion_status = "CONCLUDED",
+  scene_template = null,
 }) {
-  const is_narrator_mode = mode === "scene" || mode === "prologue" || mode === "epilogue";
+  const is_narrator_mode = mode === "narrator";
   const active_speaker = speaker || (is_narrator_mode ? entities?.FRACTAL : entities?.AI);
   const is_npc = !is_narrator_mode && !!active_speaker && active_speaker !== entities?.AI;
   const config = prompt_mode ? get_prompt_mode(prompt_mode) : resolve_prompt_mode({ mode, ghostwrite, is_npc });
   const is_narrator = config.think_format === "narrator";
+  const resolved_scene_template = scene_template || config.scene_template || null;
 
   const accessors = render_accessors || render_builder.create_render_accessors(entities, input);
   const pov_protocol = resolve_pov_protocol(active_speaker);
@@ -766,7 +766,7 @@ export function render_story_prose({
   const fractal_dynamics = compressed_snapshot?.fractal?.dynamics || entities?.FRACTAL?.dynamics || {};
 
   const somatic_signals_xml = is_narrator
-    ? mode === "scene"
+    ? resolved_scene_template === "CONTINUATION"
       ? build_somatic_signals_xml({}, fractal_dynamics, {
           keywords: director_data?.keywords || [],
           style,
@@ -838,11 +838,11 @@ export function render_story_prose({
     meta?.structural_errors >= 3 ? STORY_PROTOCOLS.STABILITY.CRITICAL : meta?.structural_errors >= 1 ? STORY_PROTOCOLS.STABILITY.WARNING : "";
 
   const narrator_task_text =
-    config.scene_template === "PROLOGUE"
+    resolved_scene_template === "PROLOGUE"
       ? `${STORY_PROTOCOLS.SCENE_TEMPLATES.PROLOGUE}\n    Input: ${prompt_escape(input?.trim() || "The scene begins.")}`
-      : config.scene_template === "CONTINUATION"
+      : resolved_scene_template === "CONTINUATION"
         ? `${STORY_PROTOCOLS.SCENE_TEMPLATES.CONTINUATION}\n    Input: ${prompt_escape(input?.trim() || "The scene continues.")}`
-        : conclusion_status === "COLLAPSED"
+        : resolved_scene_template === "COLLAPSE"
           ? STORY_PROTOCOLS.SCENE_TEMPLATES.COLLAPSE
           : STORY_PROTOCOLS.SCENE_TEMPLATES.EPILOGUE;
 
@@ -934,6 +934,9 @@ export function render_ghostwriter({ entities, input = "" }) {
 
 /**
  * CHANGELOG
+ * - 2026-09-10: Merged the old `fractal`/`prologue`/`epilogue` prompt modes into the single
+ *   `narrator` mode; render_story_prose now takes `scene_template` instead of `conclusion_status`
+ *   and dispatches the narrator beat (CONTINUATION / PROLOGUE / EPILOGUE / COLLAPSE) from it.
  * - 2026-09-10: Scene grounding: <TURN_EXECUTION> now opens with a SCENE_ANCHOR
  *   (the Fractal's LOCATION/ENVIRONMENT/CONDITION) and SENSORY_EXPERIENCE is
  *   derived from the live fractal environment instead of the style's static

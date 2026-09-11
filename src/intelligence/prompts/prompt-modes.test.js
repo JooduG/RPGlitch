@@ -112,16 +112,14 @@ describe("prompt-modes registry", () => {
   });
 
   it("declares the expected mode keys", () => {
-    expect(Object.keys(prompt_modes).sort()).toEqual(["director", "epilogue", "fractal", "ghostwrite", "interaction", "npc", "prologue"].sort());
+    expect(Object.keys(prompt_modes).sort()).toEqual(["director", "ghostwrite", "interaction", "narrator", "npc"].sort());
   });
 
   it("maps each builder to a known mode", () => {
     expect(resolve_prompt_mode({ mode: "character" }).system_mode).toBe("interaction");
     expect(resolve_prompt_mode({ mode: "character", is_npc: true }).system_mode).toBe("npc");
     expect(resolve_prompt_mode({ mode: "character", ghostwrite: true }).system_mode).toBe("ghostwrite");
-    expect(resolve_prompt_mode({ mode: "scene" }).system_mode).toBe("fractal");
-    expect(resolve_prompt_mode({ mode: "prologue" }).system_mode).toBe("prologue");
-    expect(resolve_prompt_mode({ mode: "epilogue" }).system_mode).toBe("epilogue");
+    expect(resolve_prompt_mode({ mode: "narrator" }).system_mode).toBe("narrator");
     expect(get_prompt_mode("director").system_mode).toBe("director");
     expect(get_prompt_mode("unknown-mode").system_mode).toBe("interaction");
   });
@@ -146,19 +144,22 @@ describe("fused rendering per mode", () => {
     expect(assert_fused_shape(result, "npc")).toBe(true);
   });
 
-  it("renders the fractal mode", () => {
-    const result = render_story_prose({ mode: "scene", round: 5, entities, input: "The station hums." });
-    expect(assert_fused_shape(result, "fractal")).toBe(true);
+  it("renders the narrator mode (continuation beat)", () => {
+    const result = render_story_prose({ mode: "narrator", scene_template: "CONTINUATION", round: 5, entities, input: "The station hums." });
+    expect(assert_fused_shape(result, "narrator")).toBe(true);
+    expect(result.task).toContain("Narrate the present moment");
   });
 
-  it("renders the prologue mode", () => {
-    const result = render_story_prose({ mode: "prologue", round: 1, entities, input: "Open on the arena." });
-    expect(assert_fused_shape(result, "prologue")).toBe(true);
+  it("renders the narrator mode (prologue beat)", () => {
+    const result = render_story_prose({ mode: "narrator", scene_template: "PROLOGUE", round: 1, entities, input: "Open on the arena." });
+    expect(assert_fused_shape(result, "narrator")).toBe(true);
+    expect(result.task).toContain("Open the scene");
   });
 
-  it("renders the epilogue mode", () => {
-    const result = render_story_prose({ mode: "epilogue", round: 9, entities, input: "" });
-    expect(assert_fused_shape(result, "epilogue")).toBe(true);
+  it("renders the narrator mode (epilogue beat)", () => {
+    const result = render_story_prose({ mode: "narrator", scene_template: "EPILOGUE", round: 9, entities, input: "" });
+    expect(assert_fused_shape(result, "narrator")).toBe(true);
+    expect(result.task).toContain("Close the scene");
   });
 
   it("renders the ghostwrite mode", () => {
@@ -178,7 +179,7 @@ describe("dynamic-axes scoping", () => {
     npc_entities: [npc],
     in_scene_ids: ["GAOLER"],
   });
-  const fractal_result = render_story_prose({ mode: "scene", round: 5, entities, input: "The station hums." });
+  const narrator_result = render_story_prose({ mode: "narrator", scene_template: "CONTINUATION", round: 5, entities, input: "The station hums." });
 
   it("scopes the AI_CHARACTER sheet to the somatic axes", () => {
     const axes = slice_axes(slice_sheet(interaction.system, "AI_CHARACTER"));
@@ -193,7 +194,7 @@ describe("dynamic-axes scoping", () => {
   });
 
   it("scopes the FRACTAL sheet to the fractal axes", () => {
-    const axes = slice_axes(slice_sheet(fractal_result.system, "FRACTAL"));
+    const axes = slice_axes(slice_sheet(narrator_result.system, "FRACTAL"));
     expect(axes).toContain("<VELOCITY");
     expect(axes).not.toContain("<CHAOS");
   });

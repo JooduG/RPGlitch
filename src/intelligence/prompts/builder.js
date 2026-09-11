@@ -200,8 +200,9 @@ export const prompt_builder = {
   build_scene_narrator(payload, snapshot = {}, director_data = {}) {
     const render_accessors = resolve_accessors(payload);
     const rendered = render_story_prose({
-      mode: "scene",
-      prompt_mode: "fractal",
+      mode: "narrator",
+      prompt_mode: "narrator",
+      scene_template: "CONTINUATION",
       ...payload,
       render_accessors,
       compressed_snapshot: snapshot,
@@ -252,8 +253,9 @@ export const prompt_builder = {
   build_prologue(payload, snapshot = {}) {
     const render_accessors = resolve_accessors(payload);
     const rendered = render_story_prose({
-      mode: "prologue",
-      prompt_mode: "prologue",
+      mode: "narrator",
+      prompt_mode: "narrator",
+      scene_template: "PROLOGUE",
       ...payload,
       render_accessors,
       compressed_snapshot: snapshot,
@@ -276,15 +278,15 @@ export const prompt_builder = {
     };
 
     const rendered = render_story_prose({
-      mode: "epilogue",
-      prompt_mode: "epilogue",
+      mode: "narrator",
+      prompt_mode: "narrator",
+      scene_template: conclusion_status === "COLLAPSED" ? "COLLAPSE" : "EPILOGUE",
       entities: safe_entities,
       render_accessors: render_builder.create_render_accessors(safe_entities, "", recent_history),
       compressed_snapshot: {
         ai: { dynamics: dynamics?.ai },
         fractal: { dynamics: dynamics?.fractal },
       },
-      conclusion_status,
     });
 
     return pack_prompt(rendered, {}, []);
@@ -399,6 +401,10 @@ if (typeof window !== "undefined") {
 
 /**
  * CHANGELOG
+ * - 2026-09-10: Merged the old `fractal`/`prologue`/`epilogue` prompt modes into the single
+ *   `narrator` mode; build_scene_narrator / build_prologue / build_epilogue now all emit
+ *   mode "narrator" and select their beat per call via `scene_template` (CONTINUATION /
+ *   PROLOGUE / EPILOGUE, or COLLAPSE when the epilogue's conclusion_status is "COLLAPSED").
  * - 2026-09-06: Deduplicated scoring context assembly in create_render_accessors(); standardized
  *   nomenclature (entry, index, turn_number, message); resolved raw_messages and simulation_log
  *   asymmetrically; purged fallback in build_prologue(); standardized window.exposed bridge.
