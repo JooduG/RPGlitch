@@ -39,11 +39,11 @@ const entities = {
 
 describe("ghostwrite identity", () => {
   it("enhances the PLAYER persona's draft, addressed against the AI character", () => {
-    const { system, task } = render_ghostwriter({ entities, input: "I step forward and bare my teeth." });
+    const { task } = render_ghostwriter({ entities, input: "I step forward and bare my teeth." });
     expect(task).toContain("draft written by Lord Benedict Silvers");
     expect(task).toContain("I step forward and bare my teeth.");
     expect(task).not.toContain("draft written by Beast");
-    expect(system).toContain("<DRAFT>I step forward and bare my teeth.</DRAFT>");
+    expect(task).toContain('<INPUT origin="SILVERS">I step forward and bare my teeth.</INPUT>');
   });
 
   it("drafts for the PLAYER persona in response to the AI character when no input is given", () => {
@@ -68,17 +68,23 @@ describe("per-entity DISPOSITIONS", () => {
     expect(system).not.toContain("Absent Stranger");
     expect(system).not.toContain("dread");
   });
+
+  it("hides the user persona's dispositions from the AI-visible prompt", () => {
+    const { system } = render_story_prose({ mode: "character", round: 3, entities, input: "Beast steps forward." });
+    const persona = (system.match(/<USER_PERSONA[\s\S]*?<\/USER_PERSONA>/) || [])[0] || "";
+    expect(persona).toContain("<PERSONALITY>");
+    expect(persona).not.toContain("<DISPOSITIONS>");
+    expect(system).not.toContain("prized asset");
+  });
 });
 
-describe("scene grounding", () => {
-  it("locks the live scene and grounds the senses in it", () => {
-    const { system } = render_story_prose({ mode: "character", round: 3, entities, input: "Beast steps forward." });
-    expect(system).toContain("<SCENE_ANCHOR>");
-    expect(system).toContain("<LOCATION>Project Tartarus</LOCATION>");
-    expect(system).toContain("<ENVIRONMENT>");
-    const sensory = (system.match(/<SENSORY_EXPERIENCE>[\s\S]*?<\/SENSORY_EXPERIENCE>/) || [])[0] || "";
-    expect(sensory).toContain("vat tanks");
-    expect(sensory).toContain("live scene");
+describe("sensory experience", () => {
+  it("emits the selected NarrativeStyle's sensory order and carries no scene anchor", () => {
+    const { task } = render_story_prose({ mode: "character", round: 3, entities, input: "Beast steps forward." });
+    expect(task).not.toContain("<SCENE_ANCHOR>");
+    const sensory = (task.match(/<SENSORY_EXPERIENCE>[\s\S]*?<\/SENSORY_EXPERIENCE>/) || [])[0] || "";
+    expect(sensory).toContain("Sight &gt; Sound &gt; Touch &gt; Scent");
+    expect(sensory).not.toContain("vat tanks");
   });
 });
 
@@ -121,5 +127,44 @@ describe("appearance merge", () => {
     expect(sheet).toContain("<HAIR>present-hair</HAIR>");
     expect(sheet).not.toContain("eternal-hair");
     expect((sheet.match(/<HAIR>/g) || []).length).toBe(1);
+  });
+});
+
+describe("blueprint schema alignment", () => {
+  it("nests AGENDA inside PSYCHOLOGY and TRAJECTORY inside ATMOSPHERE", () => {
+    const { system } = render_story_prose({ mode: "character", round: 3, entities, input: "Beast steps forward." });
+    const ai_sheet = system.match(/<AI_CHARACTER\b[\s\S]*?<\/AI_CHARACTER>/)[0];
+    expect(ai_sheet).toMatch(/<PSYCHOLOGY>[\s\S]*<AGENDA>Break the challenger\.<\/AGENDA>[\s\S]*<\/PSYCHOLOGY>/);
+    const fractal_sheet = system.match(/<FRACTAL\b[\s\S]*?<\/FRACTAL>/)[0];
+    expect(fractal_sheet).toMatch(/<ATMOSPHERE>[\s\S]*<TRAJECTORY>Drift\.<\/TRAJECTORY>[\s\S]*<\/ATMOSPHERE>/);
+  });
+
+  it("never emits USER_SOVEREIGNTY", () => {
+    const interaction = render_story_prose({ mode: "character", round: 3, entities, input: "Beast steps forward." });
+    const continuation = render_story_prose({ mode: "narrator", scene_template: "CONTINUATION", round: 5, entities, input: "The station hums." });
+    expect(interaction.system + interaction.task).not.toContain("USER_SOVEREIGNTY");
+    expect(continuation.system + continuation.task).not.toContain("USER_SOVEREIGNTY");
+  });
+
+  it("renders ALTERNATION_OPTIONS only when a rendered entity field carries alternation syntax", () => {
+    const plain = render_story_prose({ mode: "character", round: 3, entities, input: "Beast steps forward." });
+    expect(plain.system).not.toContain("<ALTERNATION_OPTIONS>");
+
+    const with_alt = {
+      ...entities,
+      USER: { ...entities.USER, present: { physical: "[PANTS: {worn denim|charcoal cargo}]", non_physical: "Observing." } },
+    };
+    const alt = render_story_prose({ mode: "character", round: 3, entities: with_alt, input: "Beast steps forward." });
+    expect(alt.system).toContain("<ALTERNATION_OPTIONS>");
+  });
+
+  it("matches the blueprint THINK_FORMAT beats", () => {
+    const { task } = render_story_prose({ mode: "character", round: 3, entities, input: "Beast steps forward." });
+    expect(task).toContain("Execute internal reasoning across 4 sequential beats");
+    expect(task).toContain('<BEAT id="VISCERAL_IMPACT" step="1">Immediate non-verbal reaction to the <INPUT /> element.</BEAT>');
+    expect(task).toContain('<BEAT id="EMOTIONAL_CALIBRATION" step="2">Narrative style emotional grounding');
+    expect(task).toContain('<BEAT id="STRATEGIC_DRIVE" step="3">How active <AGENDA /> and/or <TRAJECTORY /> navigate immediate friction.</BEAT>');
+    expect(task).toContain('<BEAT id="CADENCE_TEST" step="4">Draft a dialogue line before generating outward prose.</BEAT>');
+    expect(task).toContain("Close with </THINK> before generating narrative prose.");
   });
 });

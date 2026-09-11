@@ -616,6 +616,7 @@ export const gamemaster = {
           {
             system: character_prompt.system,
             task,
+            system_close: character_prompt.system_close,
             messages: simulation_log,
             role: generation_role,
             node_id: node_id,
@@ -788,6 +789,7 @@ export const gamemaster = {
         const text = await llm_service.generate({
           system: result.system,
           task: result.task,
+          system_close: result.system_close,
           role: "fractal",
           node_id: node_id,
         });
@@ -882,7 +884,7 @@ export const gamemaster = {
     const raw_messages = await state_bridge.session_driver.load_log(story_id);
     const recent_history = raw_messages.slice(-10);
 
-    const { system, task } = prompt_builder.build_epilogue(clean_entities, current_dynamics, recent_history, conclusion_status);
+    const { system, task, system_close } = prompt_builder.build_epilogue(clean_entities, current_dynamics, recent_history, conclusion_status);
     if (!system) return null;
 
     state_bridge.app.log("[GameMaster] Generating epilogue...", "system");
@@ -890,7 +892,7 @@ export const gamemaster = {
     const fractal_name = state_bridge.runtime.active_fractal?.name || "Fractal Entity";
 
     const response = await this.execute_with_retry(async () => {
-      const text = await llm_service.generate({ system, task, role: "fractal", node_id: node_id });
+      const text = await llm_service.generate({ system, task, system_close, role: "fractal", node_id: node_id });
       if (!text || !strip_cognition_blocks(text).trim()) {
         throw new Error("EMPTY_EPILOGUE_PROSE");
       }
@@ -970,6 +972,7 @@ export const gamemaster = {
       {
         system: ghost_prompt.system,
         task: ghost_prompt.task,
+        system_close: ghost_prompt.system_close,
         messages: [],
         role: "user",
       },

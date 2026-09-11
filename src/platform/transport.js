@@ -4,7 +4,7 @@
  *
  * Core Responsibilities:
  * - Single point of communication with the Perchance AI text generation engine (`window.generate_text` / `window.pluginGenerateText`).
- * - Formats prompt instruction blocks: `[System Prefix]` ➔ `[Conversation History]` ➔ `[Task Directive]`.
+ * - Formats prompt instruction blocks: `[System Prefix]` ➔ `[Conversation History]` ➔ `[Task Directive]` ➔ `[System Close]`.
  * - Bridges streaming tokens to `stream_bridge` (`start`, `update`, `end`) for real-time UI typewriter rendering.
  * - Handles AbortSignal cancellation by invoking Perchance plugin `.stop()` hooks.
  * - Normalizes and sanitizes raw model output (unwrapping `String` objects, stripping outer quotes, code fences, and conversational filler).
@@ -244,7 +244,7 @@ export const llm_service = {
       throw new Error(msg);
     }
 
-    // 1. Assemble instruction block: [System Prefix] ➔ [Conversation History] ➔ [Task Directive]
+    // 1. Assemble instruction block: [System Prefix] ➔ [Conversation History] ➔ [Task Directive] ➔ [System Close]
     const chat_history = format_conversation_history(payload.messages || []);
     let instruction = payload.system || "";
 
@@ -253,6 +253,9 @@ export const llm_service = {
     }
     if (payload.task) {
       instruction += `\n\n${payload.task}`;
+    }
+    if (payload.system_close) {
+      instruction += `\n\n${payload.system_close}`;
     }
 
     try {

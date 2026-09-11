@@ -108,7 +108,7 @@ function resolve_accessors(payload, override_entities = null) {
 
 /**
  * Packages rendered prompt text into a normalized prompt package with metadata.
- * @param {{ system?: string, task?: string }} rendered
+ * @param {{ system?: string, task?: string, system_close?: string }} rendered
  * @param {Record<string, any>} [meta]
  * @param {any[]} [messages]
  */
@@ -116,6 +116,7 @@ function pack_prompt(rendered, meta = {}, messages = []) {
   return {
     system: clean_prompt_text(rendered?.system),
     task: clean_prompt_text(rendered?.task),
+    ...(rendered?.system_close ? { system_close: String(rendered.system_close) } : {}),
     ...(Object.keys(meta).length > 0 ? { meta } : {}),
     ...(Array.isArray(messages) && messages.length > 0 ? { messages } : {}),
   };

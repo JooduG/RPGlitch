@@ -8,7 +8,7 @@
  * - render_dynamics_block (<DYNAMICS> XML compiler)
  * - format_dynamics_attrs (Dynamics parameter XML attributes)
  * - render_dynamics_axes_xml (<DYNAMIC_AXES> axis-entity block compiler)
- * - build_somatic_signals_xml (<SOMATIC_SIGNALS> XML compiler)
+ * - build_somatic_signals_xml (<SUBTEXT> XML compiler)
  * - resolve_somatic_directives (Resolves keywords against static and style-motif registries)
  * - build_available_keywords_xml (<AVAILABLE_KEYWORDS> XML compiler for Director)
  */
@@ -217,7 +217,7 @@ export function render_dynamics_axes_xml(live_dynamics = null, scope = null) {
 }
 
 /**
- * Compiles dynamic somatic directives and narrative signals into a single unified <SOMATIC_SIGNALS> XML block.
+ * Compiles dynamic somatic directives and narrative signals into a single unified <SUBTEXT> XML block.
  * Every active directive/signal is rendered as a dynamic named tag — the keyword/trigger id
  * uppercased into the tag name (e.g. `dominance` → <DOMINANCE>, `mind_games` → <MIND_GAMES>).
  *
@@ -259,7 +259,7 @@ export function build_somatic_signals_xml(ai_dynamics = {}, fractal_dynamics = {
   }
 
   if (tags.length === 0) return "";
-  return `    <SOMATIC_SIGNALS>\n${tags.join("\n")}\n    </SOMATIC_SIGNALS>`;
+  return `    <SUBTEXT>\n${tags.join("\n")}\n    </SUBTEXT>`;
 }
 
 // ── 3. Somatic Directive Compilers ───────────────────────────────────────────
@@ -299,6 +299,8 @@ export function build_available_keywords_xml(active_style_keywords = []) {
 
 /**
  * CHANGELOG
+ * - 2026-09-10: Renamed the build_somatic_signals_xml wrapper from <SOMATIC_SIGNALS> to
+ *   <SUBTEXT> (story-prose blueprint alignment; the inner dynamic named tags are unchanged).
  * - 2026-09-10: render_dynamics_axes_xml accepts a `scope` ("somatic" | "fractal" | null) and filters
  *   DYNAMICS_AXES by their declared scope, so AI/NPC sheets show somatic axes and FRACTAL sheets show fractal axes.
  * - 2026-09-06: Added CONTEXT_DIRECTIVE_REGISTRY + resolve_context_directives (system-forced context keywords like FIRST_CONTACT, injected by the pipeline — never offered to the Director).

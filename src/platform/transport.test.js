@@ -139,6 +139,39 @@ describe("format_conversation_history", () => {
   });
 });
 
+describe("llm_service instruction envelope", () => {
+  it("nests conversation history and the task inside <SYSTEM>, closing after the task", async () => {
+    let captured = "";
+    globalThis.window = globalThis;
+    // @ts-ignore
+    window.generate_text = async (opts) => {
+      captured = typeof opts.instruction === "function" ? opts.instruction() : opts.instruction;
+      return "ok";
+    };
+    try {
+      await llm_service.generate(
+        {
+          system: '<SYSTEM round="5" mode="narrator">',
+          messages: [{ role: "USER_PERSONA", origin: "SILVERS", content: "I wait." }],
+          task: "<TASK></TASK>",
+          system_close: "</SYSTEM>",
+        },
+        { silent: true, raw: true },
+      );
+    } finally {
+      // @ts-ignore
+      delete window.generate_text;
+    }
+    const history = captured.indexOf("<CONVERSATION_HISTORY>");
+    const history_close = captured.indexOf("</CONVERSATION_HISTORY>");
+    const task = captured.indexOf("<TASK>");
+    const system_close = captured.indexOf("</SYSTEM>");
+    expect(history).toBeGreaterThan(-1);
+    expect(task).toBeGreaterThan(history_close);
+    expect(system_close).toBeGreaterThan(task);
+  });
+});
+
 describe("llm_service mock and enhance", () => {
   it("enhances payload by delegating to generate and sanitizing", async () => {
     const spy = vi.spyOn(llm_service, "generate").mockResolvedValue("Sure: The sun rose.");

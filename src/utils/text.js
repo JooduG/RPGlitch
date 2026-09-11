@@ -767,34 +767,6 @@ export function decompose_story_title(title, entities = {}) {
  */
 export const normalize_comma_spacing = (str) => str.replace(/,([^\s])/g, ", $1");
 
-/**
- * Deterministically flattens raw physical state strings or bracket pseudo-JSON
- * into continuous, comma-spaced descriptive sentences.
- * @param {string | null | undefined} raw - Raw state prose or pseudo-JSON string.
- * @returns {string} Flattened descriptive prose.
- */
-export function flatten_physical(raw) {
-  if (!raw) return "";
-  const parsed = safe_parse_pseudo_json(raw);
-
-  if (parsed.__raw_prose__) {
-    return normalize_comma_spacing(parsed.__raw_prose__);
-  }
-
-  if (Object.keys(parsed).length > 0) {
-    const clauses = Object.entries(parsed)
-      .map(([k, v]) => {
-        const val_str = Array.isArray(v) ? v.join(", ") : String(v).trim();
-        if (!val_str) return "";
-        return `${k}: ${val_str}`;
-      })
-      .filter(Boolean);
-    return normalize_comma_spacing(clauses.join(". "));
-  }
-
-  return normalize_comma_spacing(String(raw).trim());
-}
-
 // ============================================================================
 // [SECTION 6: ALTERNATION MACROS — SELECTABLE OPTIONS & DICE RESOLUTION]
 // ============================================================================
@@ -928,6 +900,8 @@ export function alternation_field_label(text, raw) {
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-10: Removed flatten_physical (its only consumer, the story-prose
+ *   scene anchor, was deleted).
  * - 2026-09-04: Added alternation-macro section: extract_alternations, resolve_alternations
  *   (code-side dice roll for the image pipeline), diff_alternation_picks (narrative pick detection
  *   on the text path), strip_alternation_braces (output guard), alternation_field_label.

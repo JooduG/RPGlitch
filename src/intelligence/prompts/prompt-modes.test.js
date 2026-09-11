@@ -3,17 +3,7 @@ import prompt_modes from "./prompt-modes.json";
 import { get_prompt_mode, render_ghostwriter, render_story_prose, resolve_prompt_mode } from "./story-prompts.js";
 import { render_builder } from "./builder.js";
 
-const REQUIRED_FIELDS = [
-  "system_mode",
-  "speaker_role",
-  "ghostwrite",
-  "swap_perspectives",
-  "axes_scope",
-  "user_sovereignty",
-  "input",
-  "scene_template",
-  "think_format",
-];
+const REQUIRED_FIELDS = ["system_mode", "speaker_role", "ghostwrite", "swap_perspectives", "axes_scope", "input", "scene_template", "think_format"];
 
 const entities = {
   AI: {
@@ -82,9 +72,12 @@ function assert_fused_shape(result, mode) {
   const system = result.system;
   const task = result.task;
   expect((system.match(/<SYSTEM\b/g) || []).length).toBe(1);
+  expect(system).not.toContain("</SYSTEM>");
+  expect(result.system_close).toBe("</SYSTEM>");
   expect(system).toMatch(new RegExp(`<SYSTEM[^>]*mode="${mode}"`));
   expect(task.startsWith("<TASK>")).toBe(true);
-  expect(task).not.toContain("mode=");
+  expect(task.endsWith("</TASK>")).toBe(true);
+  expect(task).not.toMatch(/<TASK[^>]*mode=/);
   const axiom = system.indexOf("<AXIOMATIC_CONSTITUTION>");
   const core = system.indexOf("<CORE_PROTOCOLS>");
   expect(axiom).toBeGreaterThan(-1);
@@ -103,7 +96,7 @@ describe("prompt-modes registry", () => {
       expect(typeof mode.system_mode).toBe("string");
       expect(typeof mode.ghostwrite).toBe("boolean");
       expect(typeof mode.swap_perspectives).toBe("boolean");
-      expect(typeof mode.user_sovereignty).toBe("boolean");
+      expect(mode.user_sovereignty).toBeUndefined();
       expect(mode.input).toBeTypeOf("object");
       expect(mode.input).toHaveProperty("tag");
       expect(mode.input).toHaveProperty("source");
@@ -165,6 +158,17 @@ describe("fused rendering per mode", () => {
   it("renders the ghostwrite mode", () => {
     const result = render_ghostwriter({ entities, input: "I step forward and bare my teeth." });
     expect(assert_fused_shape(result, "ghostwrite")).toBe(true);
+  });
+
+  it("carries the <INPUT origin> inside the task, omitting it for a prologue", () => {
+    const interaction = render_story_prose({ mode: "character", round: 3, entities, input: "Beast steps forward." });
+    expect(interaction.task).toContain('<INPUT origin="SILVERS">Beast steps forward.</INPUT>');
+
+    const continuation = render_story_prose({ mode: "narrator", scene_template: "CONTINUATION", round: 5, entities, input: "The station hums." });
+    expect(continuation.task).toContain('<INPUT origin="SILVERS">The station hums.</INPUT>');
+
+    const prologue = render_story_prose({ mode: "narrator", scene_template: "PROLOGUE", round: 1, entities, input: "Open on the arena." });
+    expect(prologue.task).not.toContain("<INPUT");
   });
 });
 

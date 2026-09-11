@@ -5,8 +5,7 @@
     "ghostwrite": false,
     "swap_perspectives": false,
     "axes_scope": "somatic",
-    "user_sovereignty": true,
-    "input": { "tag": "USER_ACTION", "source": "user_message", "required": false },
+    "input": { "tag": "INPUT", "source": "user_message", "required": false },
     "scene_template": null,
     "think_format": "character"
   },
@@ -16,9 +15,8 @@
     "ghostwrite": true,
     "swap_perspectives": true,
     "axes_scope": "somatic",
-    "user_sovereignty": false,
     "input": {
-      "tag": "DRAFT",
+      "tag": "INPUT",
       "source": "user_message",
       "required": false,
       "note": "the model writes the PLAYER's next turn; the result fills the user's input box"
@@ -32,8 +30,7 @@
     "ghostwrite": false,
     "swap_perspectives": false,
     "axes_scope": "somatic",
-    "user_sovereignty": true,
-    "input": { "tag": "USER_ACTION", "source": "user_message", "required": false },
+    "input": { "tag": "INPUT", "source": "user_message", "required": false },
     "scene_template": null,
     "think_format": "character"
   },
@@ -43,8 +40,7 @@
     "ghostwrite": false,
     "swap_perspectives": false,
     "axes_scope": "fractal",
-    "user_sovereignty": false,
-    "input": { "tag": null, "source": "user_message", "required": false },
+    "input": { "tag": "INPUT", "source": "user_message", "required": false },
     "scene_template": null,
     "think_format": "narrator"
   },
@@ -54,7 +50,6 @@
     "ghostwrite": false,
     "swap_perspectives": false,
     "axes_scope": "all",
-    "user_sovereignty": false,
     "input": { "tag": "USER_ACTION", "source": "user_message", "required": false },
     "scene_template": null,
     "think_format": null
