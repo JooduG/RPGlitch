@@ -412,6 +412,7 @@ export function render_field_value(text, owner, entities) {
 
 /**
  * CHANGELOG
+ * - 2026-09-11: Moved `MACRO_DIRECTIVES` to src/intelligence/modules/protocols.js where prompt protocols reside.
  * - 2026-09-10: Adopted `expand_entity_macros` from intelligence/prompts/story-prompt.js — the deep
  *   clone-and-resolve macro expander belongs beside `parse_macros`, its only dependency.
  * - 2026-09-10: Extracted from intelligence/prompts/shared.js — entity-aware

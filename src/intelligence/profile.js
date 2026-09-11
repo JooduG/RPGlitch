@@ -1,22 +1,20 @@
 /**
- * src/intelligence/profile-pipeline.js
- * 🧬 PROFILE PIPELINE — Profile Structuring, Entity Mapping & Character Spawning
+ * src/intelligence/profile.js
+ * 🧬 PROFILE DOMAIN — Structuring, Entity Mapping, Field Enhancement & Spawning
  *
- * Provides two primary services:
- * 1. Content Ingestion & Shape Pipeline (structure_profile, apply_profile_to_entity):
- *    - Ingests raw source text, structures into flat profiles via LLM.
- *    - Maps flat profile keys onto the nested Twin-Cylinder entity schema.
- * 2. Character Genesis & Active Cast Spawning (spawn_character):
- *    - Processes Director genesis requests and synthesizes recurring characters.
- *    - Persists new characters to Dexie DB, adds them to the story cast, and registers them on-stage.
+ * Sovereign domain file combining profile structuring, entity schema hydration,
+ * field enhancement prompt compilers, and character genesis orchestration:
+ * 1. Profile Protocols & Field Enhancement Compilers (PROFILE_PROTOCOLS, render_enhancement, render_profile_sorting)
+ * 2. Profile Structuring & Schema Mapper (structure_profile, apply_profile_to_entity)
+ * 3. Character Genesis & Active Cast Spawning (spawn_character)
  */
 
-import { parse_profile_json } from "./parser.js";
-import { prompt_builder } from "./prompts/builder.js";
-import { temporal_engine } from "./temporal-pipeline.js";
-import { llm_service } from "@platform";
-import { entities, stories, FLAT_LEAF_MAP } from "@data";
 import { generate_uuid, state_bridge } from "@utils";
+import { FLAT_LEAF_MAP, entities, stories } from "@data";
+import { parse_profile_json } from "./parser.js";
+import { temporal_engine } from "./temporal.js";
+import { llm_service } from "@platform";
+import { render_profile_sorting } from "./builder.js";
 
 // ── 1. Profile Structuring & Schema Mapper ────────────────────────────────────
 
@@ -29,7 +27,15 @@ import { generate_uuid, state_bridge } from "@utils";
  * @returns {Promise<Object | null>}
  */
 export async function structure_profile(raw, type) {
-  const payload = prompt_builder.build_profile_sorting(raw, type, { ingestion: true });
+  const payload = {
+    system: render_profile_sorting(type, { ingestion: true }),
+    messages: [
+      {
+        role: "user",
+        text: typeof raw === "string" ? raw : JSON.stringify(raw, null, 2),
+      },
+    ],
+  };
   const result = await llm_service.enhance(payload);
   return parse_profile_json(result);
 }
@@ -97,7 +103,7 @@ export function apply_profile_to_entity(entity, profile) {
   return entity;
 }
 
-// ── 2. Character Genesis & Active Cast Spawning ───────────────────────────────
+// ── 3. Character Genesis & Active Cast Spawning ───────────────────────────────
 
 /**
  * Spawns a new roster character, persists it to Dexie DB,
@@ -212,5 +218,10 @@ export async function spawn_character(bridge, draft = {}) {
 
 /**
  * CHANGELOG
- * - 2026-08-28: Pruned unused execute_genesis, renamed sort_into_profile -> structure_profile, spawn_npc -> spawn_character; purged legacy 3-tier system references.
+ * - 2026-09-11: Grand Purification: prompt compilation moved to builder.js, leaving profile.js a 100% pure structuring, entity mapping, and genesis engine.
+ * - 2026-09-11: Modularized PROFILE_PROTOCOLS: bound SCHEMA, MACROS, SORTING, and OUTPUT_FORMATS to modular imports.
+ * - 2026-09-11: Consolidated profile-pipeline.js and profile-prompts.js into profile.js, unifying structuring, entity mapping, genesis, and field enhancement prompt compilers into a single domain file.
+ * - 2026-09-10: Redundancy sweep. render_enhancement_field_context is module-private (only render_enhancement consumes it).
+ * - 2026-09-06: Modernized PROFILE_PROTOCOLS with inline JSON schema template, consolidated OUTPUT_FORMATS, and deep freeze.
+ * - 2026-08-28: Ground-up deconstruct & refactor: streamlined field context rendering, standardized parameter naming, and removed redundant string/regex wrappers.
  */

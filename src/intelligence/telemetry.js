@@ -107,7 +107,9 @@ export async function capture_dynamics_delta(bridge, snapshot, meta = null) {
   const log_strings = [];
 
   if (snapshot.ai?.dynamics) {
-    compute_dynamics_deltas("ai", snapshot.ai.dynamics, bridge.runtime.ai, deltas, log_strings);
+    const ai_delta_result = compute_dynamics_deltas("ai", snapshot.ai.dynamics, bridge.runtime.ai);
+    deltas.push(...ai_delta_result.deltas);
+    log_strings.push(...ai_delta_result.log_strings);
     if (bridge.runtime.active_ai?.id) {
       await bridge.runtime.update_entity("character", bridge.runtime.active_ai.id, {
         dynamics: { ...snapshot.ai.dynamics },
@@ -116,7 +118,9 @@ export async function capture_dynamics_delta(bridge, snapshot, meta = null) {
   }
 
   if (snapshot.fractal?.dynamics) {
-    compute_dynamics_deltas("fractal", snapshot.fractal.dynamics, bridge.runtime.fractal, deltas, log_strings);
+    const fractal_delta_result = compute_dynamics_deltas("fractal", snapshot.fractal.dynamics, bridge.runtime.fractal);
+    deltas.push(...fractal_delta_result.deltas);
+    log_strings.push(...fractal_delta_result.log_strings);
     if (bridge.runtime.active_fractal?.id) {
       await bridge.runtime.update_entity("fractal", bridge.runtime.active_fractal.id, {
         dynamics: { ...snapshot.fractal.dynamics },

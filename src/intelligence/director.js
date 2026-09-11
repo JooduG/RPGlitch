@@ -396,6 +396,9 @@ export async function apply_relationships(bridge, rels) {
 
 /**
  * CHANGELOG
+ * - 2026-09-11: Grand Purification: prompt compilation moved to builder.js, DIRECTOR_PROTOCOLS moved to modules/protocols.js, leaving director.js a 100% pure execution & normalization engine.
+ * - 2026-09-11: Modularized prompt blocks: imported SCHEMA, TASK_RULES, SPOTLIGHT_RULES, and SYSTEM_ROLES from modules/.
+ * - 2026-09-11: Consolidated Director domain: merged director-prompt.js into director.js, unifying prompt compilation, schemas, spotlight choreography, and normalization.
  * - 2026-09-06: Added support for next_action.genesis objects in normalize_next_action and normalize_director_data.
  * - 2026-09-05: Added support for unified spotlight schema (enter, exit, genesis) in normalize_director_data.
  * - 2026-08-28: Ground-up deconstruct & refactor: normalized action and speaker resolution, defensive JSON extraction, Stage Spotlight choreography, and unified Relational Mesh persistence.

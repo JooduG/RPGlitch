@@ -1,10 +1,15 @@
-import { gamemaster, balance_think_tags, strip_directors_note_seed } from "./story-pipeline.js";
+/**
+ * src/intelligence/story.test.js
+ * 🎬 UNIT TESTS: STORY PIPELINE TURN COORDINATOR
+ */
+
+import { gamemaster, balance_think_tags, strip_directors_note_seed } from "./story.js";
 import { context_builder } from "./payload.js";
-import { physics_engine } from "./physics.js";
-import { prompt_builder } from "./prompts/builder.js";
-import { temporal_engine } from "./temporal-pipeline.js";
+import { apply_dynamics_gravity } from "./physics.js";
+import { prompt_builder, render_ghostwriter, render_story_prose, render_narrator_prose } from "./builder.js";
+import { temporal_engine } from "./temporal.js";
 import { resolve_npc_entity, apply_in_scene_change, apply_relationships } from "./director.js";
-import { spawn_character } from "./profile-pipeline.js";
+import { spawn_character } from "./profile.js";
 import { capture_dynamics_delta } from "./telemetry.js";
 import * as telemetry from "./telemetry.js";
 import { llm_service } from "@platform";
@@ -54,42 +59,45 @@ const _mock_app = {
   streaming: {
     triggered: false,
     content: "",
-    node_id: null,
-    role: "ai",
-    abort_controller: null,
+    is_live: false,
   },
-};
-
-const _mock_simulation_state = {
-  phase: "idle",
   start_generation: vi.fn(),
   complete: vi.fn(),
   set_generating_entity: vi.fn(),
   clear_generating_entity: vi.fn(),
 };
 
+const _mock_simulation_state = {
+  phase: "idle",
+};
+
 // Mock dependencies
 
-vi.mock("@intelligence/prompts/builder.js", () => ({
-  prompt_builder: {
-    build_prologue: vi.fn(),
-    build_director: vi.fn(),
-    build_character: vi.fn(),
-    build_scene_narrator: vi.fn(),
-    build_npc: vi.fn(() => ({
-      system: "NPC_PROMPT",
-      task: "NPC_TASK",
-      meta: { ai: {}, fractal: {}, role: "npc", entity_id: null },
-    })),
-    build_epilogue: vi.fn(),
-    render_history: vi.fn(),
-    render_protocols: vi.fn(),
-    build_scoring_context: vi.fn(() => "Hello"),
-    build_terse_director_task: vi.fn(() => "<TASK>terse</TASK>"),
-    build_profile_sorting: vi.fn(() => ({ system: "SYS", messages: [] })),
-  },
-  render_terse_director_task: vi.fn(() => "<TASK>terse</TASK>"),
-}));
+vi.mock("./builder.js", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    prompt_builder: {
+      ...actual.prompt_builder,
+      build_prologue: vi.fn(),
+      build_director: vi.fn(() => ({ system: "DIRECTOR_SYS", task: "DIRECTOR_TASK" })),
+      build_character: vi.fn(() => ({ system: "CHAR_SYS", task: "CHAR_TASK", meta: { ai: {}, fractal: {}, flags: [], vectors: [] } })),
+      build_scene_narrator: vi.fn(),
+      build_npc: vi.fn(() => ({
+        system: "NPC_PROMPT",
+        task: "NPC_TASK",
+        meta: { ai: {}, fractal: {}, role: "npc", entity_id: null },
+      })),
+      build_epilogue: vi.fn(),
+      render_history: vi.fn(actual.render_builder.render_history),
+      render_protocols: vi.fn(),
+      build_scoring_context: vi.fn(() => "Hello"),
+      build_terse_director_task: vi.fn(() => "<TASK>Return a single, COMPLETE, VALID JSON object</TASK>"),
+      build_profile_sorting: vi.fn(() => ({ system: "SYS", messages: [] })),
+    },
+    render_terse_director_task: vi.fn(() => "<TASK>Return a single, COMPLETE, VALID JSON object</TASK>"),
+  };
+});
 
 vi.mock("@platform/transport.js", () => ({
   llm_service: {
@@ -202,11 +210,12 @@ vi.mock("@utils", async (importOriginal) => {
   };
 });
 
-vi.mock("@intelligence/temporal-pipeline.js", async (importOriginal) => {
+vi.mock("./temporal.js", async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
     temporal_engine: {
+      ...actual.temporal_engine,
       ensure_momentum: vi.fn(),
       consolidate: vi.fn(),
       set_round: vi.fn(),
@@ -220,12 +229,10 @@ vi.mock("./physics.js", async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
-    physics_engine: {
-      apply_dynamics_gravity: vi.fn().mockImplementation((dynamics) => {
-        if (dynamics) dynamics.intensity = 60; // Mutate to verify change
-      }),
-      extract_entity_dynamics_baselines: vi.fn().mockReturnValue({}),
-    },
+    apply_dynamics_gravity: vi.fn().mockImplementation((dynamics) => {
+      if (dynamics) dynamics.intensity = 60; // Mutate to verify change
+    }),
+    extract_entity_dynamics_baselines: vi.fn().mockReturnValue({}),
   };
 });
 
@@ -878,7 +885,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
     });
 
     it("does not simulate physics a second time after generation", async () => {
-      vi.mocked(physics_engine.apply_dynamics_gravity).mockClear();
+      vi.mocked(apply_dynamics_gravity).mockClear();
       vi.mocked(llm_service.generate).mockResolvedValue("<think>Analyzing user state");
 
       await gamemaster.execute_turn("story-123", {
@@ -887,7 +894,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
       });
 
       // Gravity settlement is called exactly twice (once for AI, once for Fractal)
-      expect(physics_engine.apply_dynamics_gravity).toHaveBeenCalledTimes(2);
+      expect(apply_dynamics_gravity).toHaveBeenCalledTimes(2);
     });
 
     it("triggers capture_dynamics_delta exactly once per execution turn sequence", async () => {
@@ -1425,14 +1432,14 @@ describe("NPC world cast (track-npc-expansion)", () => {
     expect(result.response).toBe("Who goes there?");
     expect(_mock_runtime.active_npcs["npc-stranger-1"].name).toBe("Kaelen");
     expect(_mock_runtime.active_npcs["npc-stranger-1"].speaking_style).toBe("lyrical");
-    expect(physics_engine.apply_dynamics_gravity).toHaveBeenCalledWith(
+    expect(apply_dynamics_gravity).toHaveBeenCalledWith(
       expect.objectContaining({ intensity: 60 }),
       expect.anything(),
       expect.anything(),
       expect.anything(),
       expect.any(Set),
     );
-    expect(physics_engine.apply_dynamics_gravity).toHaveBeenCalledWith(
+    expect(apply_dynamics_gravity).toHaveBeenCalledWith(
       expect.objectContaining({ velocity: 55, entropy: 45 }),
       expect.anything(),
       expect.anything(),
@@ -1901,3 +1908,167 @@ describe("THINK tag balancing (startWith seed regression)", () => {
     expect(balance_think_tags("a <THINK>b")).toBe("a <THINK>b</THINK>");
   });
 });
+
+// ── Story Prose & Prompt Compiler Tests (Merged from story-prompts.test.js) ──
+
+const _prompt_test_entities = {
+  AI: {
+    id: "BEAST",
+    name: "Beast",
+    type: "character",
+    pov: "1st_person",
+    eternal: { physical: "[BUILD: massive grey-green orc]", non_physical: "A brutal arena fighter." },
+    present: { physical: "[SHIRT: leather harness]", non_physical: "Protective." },
+    future: "Break the challenger.",
+    past: [],
+    relationships: ["Beast -> Lord Benedict Silvers: wary respect", "Beast -> Absent Stranger: dread"],
+    dynamics: { chaos: 40, intensity: 60, openness: 30, affinity: 20 },
+  },
+  USER: {
+    id: "SILVERS",
+    name: "Lord Benedict Silvers",
+    type: "character",
+    eternal: { physical: "[HAIR: dark with silver streaks]", non_physical: "An ancient vampire." },
+    present: { physical: "[SUIT: charcoal suit]", non_physical: "Observing." },
+    future: "Claim Beast.",
+    past: [],
+    relationships: ["Lord Benedict Silvers -> Beast: prized asset"],
+    dynamics: { chaos: 20, intensity: 40, openness: 50, affinity: 60 },
+  },
+  FRACTAL: {
+    id: "TARTARUS",
+    name: "Project Tartarus",
+    type: "fractal",
+    eternal: { physical: "[LANDMARKS: rows of vat tanks]", non_physical: "A sterile station." },
+    present: { physical: "[STATE: alert]", non_physical: "Cold." },
+    future: "Drift.",
+    past: [],
+    dynamics: { velocity: 40, entropy: 60 },
+  },
+};
+
+describe("ghostwrite identity", () => {
+  it("enhances the PLAYER persona's draft, addressed against the AI character", () => {
+    const { task } = render_ghostwriter({ entities: _prompt_test_entities, input: "I step forward and bare my teeth." });
+    expect(task).toContain("draft written by Lord Benedict Silvers");
+    expect(task).toContain("I step forward and bare my teeth.");
+    expect(task).not.toContain("draft written by Beast");
+    expect(task).toContain('<INPUT origin="SILVERS">I step forward and bare my teeth.</INPUT>');
+  });
+
+  it("drafts for the PLAYER persona in response to the AI character when no input is given", () => {
+    const { task } = render_ghostwriter({ entities: _prompt_test_entities, input: "" });
+    expect(task).toContain("for Lord Benedict Silvers in response to Beast");
+  });
+
+  it("maintains universal L5_AGENCY in the constitution protecting the listener", () => {
+    const ghostwrite = render_ghostwriter({ entities: _prompt_test_entities, input: "I step forward." });
+    const interaction = render_story_prose({ round: 3, entities: _prompt_test_entities, input: "Beast steps forward." });
+    expect(interaction.system).toContain('id="L5_AGENCY"');
+    expect(ghostwrite.system).toContain('id="L5_AGENCY"');
+    expect(ghostwrite.system).toContain("Never puppeteer the listener");
+  });
+});
+
+describe("interaction structural integrity", () => {
+  it("never includes the USER persona's DISPOSITIONS block", () => {
+    const { system } = render_story_prose({ round: 3, entities: _prompt_test_entities, input: "Beast steps forward." });
+    const user_sheet = system.match(/<USER_PERSONA\b[\s\S]*?<\/USER_PERSONA>/)[0];
+    expect(user_sheet).not.toContain("<DISPOSITIONS");
+  });
+
+  it("renders only relationships whose target is present in the story", () => {
+    const { system } = render_story_prose({ round: 3, entities: _prompt_test_entities, input: "Beast steps forward." });
+    expect(system).toContain('<DISPOSITION target="SILVERS">wary respect</DISPOSITION>');
+    expect(system).not.toContain("Absent Stranger");
+    expect(system).not.toContain("dread");
+  });
+
+  it("hides the user persona's dispositions from the AI-visible prompt", () => {
+    const { system } = render_story_prose({ round: 3, entities: _prompt_test_entities, input: "Beast steps forward." });
+    const persona = (system.match(/<USER_PERSONA[\s\S]*?<\/USER_PERSONA>/) || [])[0] || "";
+    expect(persona).toContain("<PERSONALITY>");
+    expect(persona).not.toContain("<DISPOSITIONS>");
+    expect(system).not.toContain("prized asset");
+  });
+
+  it("places AGENDA inside PSYCHOLOGY on character sheets", () => {
+    const { system } = render_story_prose({ round: 3, entities: _prompt_test_entities, input: "Beast steps forward." });
+    const ai_sheet = system.match(/<AI_CHARACTER\b[\s\S]*?<\/AI_CHARACTER>/)[0];
+    expect(ai_sheet).toMatch(/<PSYCHOLOGY>[\s\S]*<AGENDA>Break the challenger\.<\/AGENDA>[\s\S]*<\/PSYCHOLOGY>/);
+  });
+
+  it("places TRAJECTORY inside ATMOSPHERE on the fractal sheet", () => {
+    const { system } = render_story_prose({ round: 3, entities: _prompt_test_entities, input: "Beast steps forward." });
+    const fractal_sheet = system.match(/<FRACTAL\b[\s\S]*?<\/FRACTAL>/)[0];
+    expect(fractal_sheet).toMatch(/<ATMOSPHERE>[\s\S]*<TRAJECTORY>Drift\.<\/TRAJECTORY>[\s\S]*<\/ATMOSPHERE>/);
+  });
+
+  it("never emits USER_SOVEREIGNTY", () => {
+    const interaction = render_story_prose({ round: 3, entities: _prompt_test_entities, input: "Beast steps forward." });
+    const continuation = render_narrator_prose({
+      scene_template: "CONTINUATION",
+      round: 5,
+      entities: _prompt_test_entities,
+      input: "The station hums.",
+    });
+    expect(interaction.system + interaction.task).not.toContain("USER_SOVEREIGNTY");
+    expect(continuation.system + continuation.task).not.toContain("USER_SOVEREIGNTY");
+  });
+
+  it("renders ALTERNATION_OPTIONS only when a rendered entity field carries alternation syntax", () => {
+    const plain = render_story_prose({ round: 3, entities: _prompt_test_entities, input: "Beast steps forward." });
+    expect(plain.system).not.toContain("<ALTERNATION_OPTIONS>");
+
+    const with_alt = {
+      ..._prompt_test_entities,
+      USER: { ..._prompt_test_entities.USER, present: { physical: "[PANTS: {worn denim|charcoal cargo}]", non_physical: "Observing." } },
+    };
+    const alt = render_story_prose({ round: 3, entities: with_alt, input: "Beast steps forward." });
+    expect(alt.system).toContain("<ALTERNATION_OPTIONS>");
+  });
+
+  it("matches the blueprint THINK_FORMAT beats", () => {
+    const { task } = render_story_prose({ round: 3, entities: _prompt_test_entities, input: "Beast steps forward." });
+    expect(task).toContain("Execute internal reasoning across 4 sequential beats");
+    expect(task).toContain('<BEAT id="VISCERAL_IMPACT" step="1">Immediate non-verbal reaction to the <INPUT /> element.</BEAT>');
+    expect(task).toContain('<BEAT id="EMOTIONAL_CALIBRATION" step="2">Narrative style emotional grounding');
+    expect(task).toContain('<BEAT id="STRATEGIC_DRIVE" step="3">How active <AGENDA /> and/or <TRAJECTORY /> navigate immediate friction.</BEAT>');
+    expect(task).toContain('<BEAT id="CADENCE_TEST" step="4">Draft a dialogue line before generating outward prose.</BEAT>');
+    expect(task).toContain("Close with </THINK> before generating narrative prose.");
+  });
+});
+
+describe("narrator prose compiler", () => {
+  it("renders continuation beat with fractal role line and third-person narrator perspective", () => {
+    const result = render_narrator_prose({
+      scene_template: "CONTINUATION",
+      round: 1,
+      entities: _prompt_test_entities,
+      input: "The reactor pulses.",
+    });
+    expect(result.system).toContain('<SYSTEM round="1" mode="narrator">');
+    expect(result.system).toContain("You are Project Tartarus, the Fractal itself, narrating the story.");
+    expect(result.system).toContain('<PERSPECTIVE person="THIRD" tense="PRESENT">');
+    expect(result.task).toContain("<TASK>");
+    expect(result.task).toContain("You are the Fractal itself, narrating the scene.");
+  });
+
+  it("renders prologue beat omitting input tag and guiding opening sequence", () => {
+    const result = render_narrator_prose({
+      scene_template: "PROLOGUE",
+      round: 0,
+      entities: _prompt_test_entities,
+      input: "A quiet arrival.",
+    });
+    expect(result.task).toContain("You see everything. Open the scene.");
+    expect(result.task).toContain("Input: A quiet arrival.");
+    expect(result.task).not.toContain("<INPUT");
+  });
+});
+
+/**
+ * CHANGELOG
+ * - 2026-09-11: Merged story-prompts.test.js into story.test.js.
+ * - 2026-09-11: Renamed from story-pipeline.test.js to story.test.js to match consolidated story.js domain coordinator.
+ */

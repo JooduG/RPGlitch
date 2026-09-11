@@ -30,7 +30,7 @@ import {
   alternation_field_label,
 } from "@utils";
 import { sanitize_llm } from "@platform";
-import { PROTOCOL_LIBRARY } from "../intelligence/prompts/shared.js";
+import { PROTOCOL_LIBRARY } from "../intelligence/modules/protocols.js";
 import { normalize_image_tier } from "./image-tiers.js";
 import { resolve_visual_engine_tokens, strip_visual_excluded } from "./image-aesthetics.js";
 

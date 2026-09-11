@@ -16,7 +16,7 @@
 import { state_bridge, get_value, clean_text } from "@utils";
 import { PROFILE_FIELD_CATALOG } from "@data";
 import { ensure_embeddings } from "@platform";
-import { resolve_vector_pool } from "./temporal-pipeline.js";
+import { resolve_vector_pool } from "./temporal.js";
 
 /**
  * @typedef {import('@state/runtime.svelte.js').SimulationEntity} SimulationEntity

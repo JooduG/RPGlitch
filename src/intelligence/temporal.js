@@ -1,19 +1,22 @@
 /**
- * src/intelligence/temporal-pipeline.js
- * ⏳ TEMPORAL ENGINE — Memory, Relevance Scoring & Agenda Consolidation
+ * src/intelligence/temporal.js
+ * ⏳ TEMPORAL ENGINE & MEMORY FORGE — Vector Math, Relevance Scoring & Prompt Compilers
  *
- * Owns the entity temporal state across all four quadrants:
+ * Sovereign domain file owning all temporal operations across Eternal, Present, Future, Past:
  * 1. Vector Pool Access & Creation (resolve_vector_pool, create, prune)
  * 2. Relevance Scoring & Context Embeddings (score, score_async, precompute_context_embedding)
  * 3. Vector Math & Dynamic Retrieval (format, score, score_async, score_by_semantics)
- * 5. Temporal Engine Service Instance
+ * 4. Temporal Protocols & Memory Forge Prompt Compilers (TEMPORAL_PROTOCOLS, render_memory)
+ * 5. Deduplication, Caps & Eviction (is_origin, ensure_unique_vector_id, append_past_vector, reconcile_vector_caps)
+ * 6. State Mutations & Chapter Archival (archive_chapter)
+ * 7. Memory Forge & Consolidation Engine (forge_memory, temporal_engine)
  */
 
 import { cosine_similarity, generate_uuid as generate_unique_id, merge_prose_into_field, state_bridge } from "@utils";
 import { llm_service, ensure_embedding, score_by_semantics, embed, is_ready, deserialize_embedding } from "@platform";
-import { render_memory } from "./prompts/temporal-prompt.js";
 import { apply_relationships } from "./director.js";
 import { extract_and_repair_json } from "./parser.js";
+import { render_memory } from "./builder.js";
 
 /**
  * @typedef {import('@state/runtime.svelte.js').SimulationEntity} SimulationEntity
@@ -452,7 +455,7 @@ export function reconcile_vector_caps(entity) {
   return changed;
 }
 
-// ── 4. State Mutations & Chapter Archival ─────────────────────────────────────
+// ── 5. State Mutations & Chapter Archival ─────────────────────────────────────
 
 /** Deduplicates an incoming eternal mutation against the existing identity field. */
 function eternal_field_dedup(existing, incoming) {
@@ -532,7 +535,7 @@ export function archive_chapter(entity, old_future, new_future) {
   return true;
 }
 
-// ── 5. Memory Forge & Consolidation Engine ────────────────────────────────────
+// ── 6. Memory Forge & Consolidation Engine ────────────────────────────────────
 
 /** Parses an LLM forge response with conservative repair fallbacks. */
 function parse_forge_response(response) {
@@ -920,6 +923,9 @@ if (typeof window !== "undefined") {
 
 /**
  * CHANGELOG
+ * - 2026-09-11: Grand Purification: prompt compilation moved to builder.js, leaving temporal.js a 100% pure vector math, scoring, and persistence engine.
+ * - 2026-09-11: Modularized TEMPORAL_PROTOCOLS: bound CONTRACT and SCHEMA to modular imports in modules/.
+ * - 2026-09-11: Consolidated temporal-pipeline.js and temporal-prompt.js into temporal.js, absorbing TEMPORAL_PROTOCOLS and render_memory into a unified temporal domain module.
  * - 2026-09-06: Expanded Memory Forge unconsolidated slice from 8 to 16 turns per consolidation cycle.
  * - 2026-08-28: Reconstructed temporal-pipeline.js with 5 clean domain sections, robust state logging, safe error wrappers, and full JSDoc typings.
  */

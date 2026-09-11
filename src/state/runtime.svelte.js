@@ -35,7 +35,7 @@ import { app } from "./interface.svelte.js";
 // ============================================================================
 
 /**
- * @typedef {import('@intelligence/temporal-pipeline.js').TemporalVector} TemporalVector
+ * @typedef {import('@intelligence/temporal.js').TemporalVector} TemporalVector
  */
 
 /**

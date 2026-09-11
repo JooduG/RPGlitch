@@ -1,5 +1,9 @@
+/**
+ * src/intelligence/director.test.js
+ * 🎬 UNIT TESTS: DIRECTOR DOMAIN (Orchestration, Schemas & Normalization)
+ */
+
 import { describe, expect, it, vi } from "vitest";
-import { render_director } from "./prompts/director-prompt.js";
 import {
   normalize_director_data,
   normalize_speaker,
@@ -8,6 +12,7 @@ import {
   strip_npc_id,
   STORY_STATUS_VALUES,
 } from "./director.js";
+import { render_director } from "./builder.js";
 
 const _mock_app = {
   settings: { narrative_style: "default" },
@@ -67,8 +72,8 @@ describe("Director Quick Shot Prompt (render_director)", () => {
   it("exposes <AVAILABLE_KEYWORDS> and JSON schema keys", () => {
     const result = render_director({ ...base_payload(), compressed_snapshot: base_snapshot });
     expect(result.system).toContain("<AVAILABLE_KEYWORDS>");
-    expect(result.system).toContain("shame");
-    expect(result.system).toContain("betrayal");
+    expect(result.system).toContain("SHAME");
+    expect(result.system).toContain("BETRAYAL");
     expect(result.task).toContain('"next_action"');
     expect(result.task).toContain('"keywords"');
     expect(result.task).toContain('"directors_note"');
@@ -330,3 +335,8 @@ describe("normalize_relationships (Relational Mesh)", () => {
     expect(normalize_relationships({ 0: "Viper → Mira: alliance" })).toEqual([]);
   });
 });
+
+/**
+ * CHANGELOG
+ * - 2026-09-11: Consolidated prompt and orchestration unit tests into director.test.js.
+ */

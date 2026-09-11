@@ -1,5 +1,5 @@
 /**
- * src/intelligence/story-pipeline.js
+ * src/intelligence/story.js
  * 🎬 STORY PIPELINE — Intelligence Kernel Turn Coordinator
  *
  * Unifies the Intelligence Kernel (Context Broker, Dynamics, Prompt Builder) and the
@@ -27,14 +27,14 @@ import {
 import { visual_engine, resolve_image_trigger, spawn_image_beat, sweep_stale_ghosts, IMAGE_RESOLVE_TIMEOUT_MS } from "@media";
 import { validate_and_repair_response, force_close_response } from "./parser.js";
 import { llm_service, looks_truncated, raw_to_text, raw_stop_reason } from "@platform";
-import { physics_engine } from "./physics.js";
+import { apply_dynamics_gravity, extract_entity_dynamics_baselines } from "./physics.js";
 import { normalize_director_data, parse_director_json, synthesize_director_fallback, resolve_npc_entity, apply_in_scene_change } from "./director.js";
-import { render_terse_director_task } from "./prompts/director-prompt.js";
-import { prompt_builder } from "./prompts/builder.js";
+import { prompt_builder, render_terse_director_task } from "./builder.js";
 import { capture_dynamics_delta } from "./telemetry.js";
-import { prune, temporal_engine } from "./temporal-pipeline.js";
+import { prune, temporal_engine } from "./temporal.js";
 import { context_builder } from "./payload.js";
-import { spawn_character } from "./profile-pipeline.js";
+import { spawn_character } from "./profile.js";
+import { TRUNCATION_COMPLETE_NOTE } from "./modules/system.js";
 
 /**
  * @typedef {Object} GenerationOptions
@@ -53,10 +53,6 @@ import { spawn_character } from "./profile-pipeline.js";
  * Bound to concurrency 1 to prevent overlapping Memory Forge write races on entity vectors in IndexedDB.
  */
 const director_background_queue = create_job_queue({ max_concurrency: 1 });
-
-/** Completion directive appended to prompt when reply was cut off by token limit. */
-const TRUNCATION_COMPLETE_NOTE =
-  "\n\nIMPORTANT: Your previous reply was cut off mid-sentence. Finish this response IMMEDIATELY: do not repeat any earlier text, do not rehash events, just bring the current moment to a natural close with a complete sentence, then stop.";
 
 /**
  * Attaches entity ids (e.g. premade ids like "RUST", "JULIEN", "TARTARUS") to
@@ -447,16 +443,16 @@ export const gamemaster = {
       }
 
       // 4.2. GRAVITY SETTLEMENT
-      physics_engine.apply_dynamics_gravity(
+      apply_dynamics_gravity(
         snapshot.ai.dynamics,
-        physics_engine.extract_entity_dynamics_baselines(payload.entities.AI),
+        extract_entity_dynamics_baselines(payload.entities.AI),
         snapshot.fractal.dynamics?.entropy || 50,
         0.1,
         ai_delta_axes,
       );
-      physics_engine.apply_dynamics_gravity(
+      apply_dynamics_gravity(
         snapshot.fractal.dynamics,
-        physics_engine.extract_entity_dynamics_baselines(payload.entities.FRACTAL),
+        extract_entity_dynamics_baselines(payload.entities.FRACTAL),
         snapshot.fractal.dynamics?.entropy || 50,
         0.1,
         fractal_delta_axes,

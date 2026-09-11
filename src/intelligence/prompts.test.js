@@ -1,10 +1,11 @@
-import { describe, expect, it } from "vitest";
-import prompt_modes from "./prompt-modes.json";
-import { get_prompt_mode } from "./shared.js";
-import { render_ghostwriter, render_story_prose, resolve_prompt_mode } from "./interaction-prompt.js";
-import { render_builder } from "./builder.js";
+/**
+ * src/intelligence/prompts.test.js
+ * 🎭 UNIT TESTS: PROMPTS MANIFEST & PROMPT MODES CONFIGURATION REGISTRY
+ */
 
-const REQUIRED_FIELDS = ["system_mode", "speaker_role", "ghostwrite", "swap_perspectives", "sheets", "input", "scene_template", "think_format"];
+import { describe, expect, it } from "vitest";
+import { PROMPT_MODES as prompt_modes, get_prompt_mode, resolve_prompt_mode } from "./prompts.js";
+import { render_ghostwriter, render_story_prose, render_builder } from "./builder.js";
 
 const entities = {
   AI: {
@@ -88,29 +89,25 @@ function assert_fused_shape(result, mode) {
   return true;
 }
 
+const REQUIRED_MODULE_KEYS = ["system", "constitution", "protocols", "entities", "task"];
+const EXPECTED_PROMPT_KEYS = ["director", "enhancement", "ghostwrite", "interaction", "memory_forge", "narrator", "npc", "sorting"];
+
 describe("prompt-modes registry", () => {
-  it("defines every required field for every mode", () => {
+  it("defines all 5 module keys (system, constitution, protocols, entities, task) for every mode", () => {
     for (const [_key, mode] of Object.entries(prompt_modes)) {
-      for (const field of REQUIRED_FIELDS) {
-        expect(mode).toHaveProperty(field);
+      for (const key of REQUIRED_MODULE_KEYS) {
+        expect(mode).toHaveProperty(key);
       }
-      expect(typeof mode.system_mode).toBe("string");
-      expect(typeof mode.ghostwrite).toBe("boolean");
-      expect(typeof mode.swap_perspectives).toBe("boolean");
-      expect(Array.isArray(mode.sheets.dispositions)).toBe(true);
-      expect(Array.isArray(mode.sheets.dynamic_axes)).toBe(true);
-      expect(typeof mode.sheets.user_agenda).toBe("boolean");
-      expect(typeof mode.sheets.proximate_npcs).toBe("boolean");
-      expect(mode.user_sovereignty).toBeUndefined();
-      expect(mode.input).toBeTypeOf("object");
-      expect(mode.input).toHaveProperty("tag");
-      expect(mode.input).toHaveProperty("source");
-      expect(mode.input).toHaveProperty("required");
+      expect(typeof mode.system.mode).toBe("string");
+      expect(typeof mode.constitution.axiomatic).toBe("boolean");
+      expect(Array.isArray(mode.protocols)).toBe(true);
+      expect(typeof mode.entities).toBe("object");
+      expect(typeof mode.task).toBe("object");
     }
   });
 
-  it("declares the expected mode keys", () => {
-    expect(Object.keys(prompt_modes).sort()).toEqual(["director", "ghostwrite", "interaction", "narrator", "npc"].sort());
+  it("declares all 8 canonical simulation prompt keys", () => {
+    expect(Object.keys(prompt_modes).sort()).toEqual(EXPECTED_PROMPT_KEYS.sort());
   });
 
   it("maps each builder to a known mode", () => {
@@ -187,3 +184,9 @@ describe("conversation history entries", () => {
     expect(history).not.toContain("mode=");
   });
 });
+
+/**
+ * CHANGELOG
+ * - 2026-09-11: Renamed from prompt-modes.test.js to prompts.test.js reflecting prompts.js master registry.
+ * - 2026-09-11: Moved prompt-modes.test.js to root of intelligence folder and updated imports to story-prompts.js and builder.js.
+ */

@@ -1,3 +1,8 @@
+/**
+ * src/intelligence/temporal.test.js
+ * ⏳ UNIT TESTS: TEMPORAL ENGINE & MEMORY FORGE
+ */
+
 import {
   temporal_engine,
   TEMPORAL_SCORING,
@@ -8,7 +13,9 @@ import {
   is_origin,
   prune,
   archive_chapter,
-} from "./temporal-pipeline.js";
+} from "./temporal.js";
+import { TEMPORAL_PROTOCOLS } from "./modules/protocols.js";
+import { render_memory } from "./builder.js";
 import { llm_service, embed } from "@platform";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cosine_similarity } from "@utils";
@@ -27,11 +34,16 @@ vi.mock("@data/sessions.svelte.js", () => ({
   },
 }));
 
-vi.mock("@intelligence/prompts/builder.js", () => ({
-  prompt_builder: {
-    build_memory: vi.fn(() => ({ system: "mock prompt", messages: [] })),
-  },
-}));
+vi.mock("./builder.js", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    prompt_builder: {
+      ...actual.prompt_builder,
+      build_memory: vi.fn(() => ({ system: "mock prompt", messages: [] })),
+    },
+  };
+});
 
 vi.mock("@platform/embeddings.svelte.js", () => ({
   ensure_embedding: vi.fn(async (v) => {
@@ -889,4 +901,23 @@ describe("temporal_engine per-entity consolidation progress tracking (Track 2 Ph
 
     expect(mock_runtime.active_ai.relationships).toContain("Viper → Ghost: Growing mutual respect under fire");
   });
+
+  it("exports TEMPORAL_PROTOCOLS and renders memory prompt correctly", () => {
+    expect(TEMPORAL_PROTOCOLS.CONTRACT).toBeDefined();
+    expect(TEMPORAL_PROTOCOLS.SCHEMA).toBeDefined();
+    const prompt = render_memory({
+      target_entity: { name: "Viper", eternal: {}, present: {} },
+      target_key: "AI_CHARACTER",
+      other_entities: {},
+      history: [{ role: "user", text: "Hello Viper" }],
+    });
+    expect(prompt).toContain('<SYSTEM role="CONTINUUM_CARETAKER" target="Viper">');
+    expect(prompt).toContain("<INPUT_HISTORY>");
+    expect(prompt).toContain("Hello Viper");
+  });
 });
+
+/**
+ * CHANGELOG
+ * - 2026-09-11: Consolidated temporal tests into temporal.test.js for unified temporal domain module.
+ */
