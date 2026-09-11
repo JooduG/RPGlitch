@@ -9,7 +9,7 @@
 import { PROFILE_FIELD_CATALOG } from "@data";
 import { escape_xml, prompt_escape, collapse_history, parse_macros } from "@utils";
 import { temporal_engine, resolve_vector_pool } from "../temporal-pipeline.js";
-import { render_protocols, extract_plan_from_state } from "./shared.js";
+import { render_protocols } from "./shared.js";
 import { render_director, render_terse_director_task } from "./director-prompt.js";
 import { render_story_prose, render_ghostwriter } from "./story-prompt.js";
 import { render_memory } from "./temporal-prompt.js";
@@ -78,6 +78,24 @@ export const render_builder = {
 };
 
 // ── 2. Internal Helpers ───────────────────────────────────────────────────────
+
+/**
+ * Extracts the content of any [PLAN: ...] brackets from state text.
+ * @param {string|null|undefined} text
+ * @returns {string}
+ */
+export function extract_plan_from_state(text) {
+  if (!text) return "";
+  const plans = [];
+  const regex = /\[PLAN\s*:\s*([^\]]*)\]/gi;
+  let match;
+  while ((match = regex.exec(String(text))) !== null) {
+    if (match[1] && match[1].trim()) {
+      plans.push(match[1].trim());
+    }
+  }
+  return plans.join("; ");
+}
 
 /**
  * Trims trailing line whitespace and consolidates excessive newlines.
@@ -402,6 +420,8 @@ if (typeof window !== "undefined") {
 
 /**
  * CHANGELOG
+ * - 2026-09-10: Moved extract_plan_from_state here from shared.js — builder is
+ *   its only consumer.
  * - 2026-09-10: Merged the old `fractal`/`prologue`/`epilogue` prompt modes into the single
  *   `narrator` mode; build_scene_narrator / build_prologue / build_epilogue now all emit
  *   mode "narrator" and select their beat per call via `scene_template` (CONTINUATION /

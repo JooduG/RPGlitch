@@ -32,13 +32,12 @@
  * ENTRIES carry only origin + round (no mode).
  */
 
-import { escape_xml, prompt_escape, clean_xml, parse_macros } from "@utils";
+import { escape_xml, prompt_escape, clean_xml, parse_macros, has_alternations } from "@utils";
 import { get_narrative_style, resolve_active_style_key } from "@data";
 import { build_somatic_signals_xml, resolve_context_directives } from "./physics-prompt.js";
 import { render_builder } from "./builder.js";
 import { PROTOCOL_LIBRARY } from "./shared.js";
-import { render_entity_sheets, indent_all as _indent, inline_or_block as _inline_or_block } from "./interaction-prompt.js";
-import prompt_modes from "./prompt-modes.json";
+import { render_entity_sheets, get_prompt_mode, wrap_tag, indent_all as _indent, inline_or_block as _inline_or_block } from "./interaction-prompt.js";
 
 const BASE_THINK_CLOSURE = "Close with </THINK> before generating narrative prose.";
 
@@ -183,14 +182,6 @@ export function build_recency_anchor(snapshot, input) {
 
 // ── 3. Shot-2 Layout Helpers ─────────────────────────────────────────────────
 
-/** Wraps already-rendered inner content in a tag, indented to `indent`. */
-function _wrap_tag(tag, inner, indent) {
-  const body = String(inner || "").trim();
-  if (!body) return "";
-  const pad = " ".repeat(indent);
-  return `${pad}<${tag}>\n${_indent(body, indent + 2)}\n${pad}</${tag}>`;
-}
-
 /**
  * Extracts the redistributed style DNA fields from a compiled NarrativeStyle
  * record (its `narrative_engine` string carries the four <TAG> bodies).
@@ -218,16 +209,6 @@ function render_axiomatic_constitution({ ghostwrite = false } = {}) {
     .map((law) => `      <LAW id="${escape_xml(law.id)}">${prompt_escape(law.body)}</LAW>`)
     .join("\n");
   return `  <AXIOMATIC_CONSTITUTION>\n${constitution}\n  </AXIOMATIC_CONSTITUTION>`;
-}
-
-/**
- * True when any rendered entity field still carries `{Option A|Option B}`
- * alternation syntax, which gates the <ALTERNATION_OPTIONS> protocol.
- * @param {string} text
- * @returns {boolean}
- */
-function _has_alternation(text) {
-  return /\{[^{}]*\|[^{}]*\}/.test(String(text || ""));
 }
 
 /** <CORE_PROTOCOLS> block. */
@@ -284,7 +265,7 @@ function render_task({
 
   const currents = [];
   if (dna.sensory_order) currents.push(`      <SENSORY_EXPERIENCE>${prompt_escape(dna.sensory_order)}</SENSORY_EXPERIENCE>`);
-  if (String(somatic_inner || "").trim()) currents.push(_wrap_tag("SUBTEXT", somatic_inner, 6));
+  if (String(somatic_inner || "").trim()) currents.push(wrap_tag("SUBTEXT", somatic_inner, 6));
   if (currents.length) parts.push(`    <CURRENTS>\n${currents.join("\n")}\n    </CURRENTS>`);
 
   if (input_tag && String(input || "").trim() && !is_prologue) {
@@ -307,15 +288,6 @@ function render_task({
 }
 
 // ── 4. Unified Story Prose Compiler ──────────────────────────────────────────
-
-/**
- * Resolves a prompt-mode config by key, falling back to interaction.
- * @param {string} key
- * @returns {any}
- */
-export function get_prompt_mode(key) {
-  return prompt_modes[key] || prompt_modes.interaction;
-}
 
 /**
  * Maps the caller-facing mode (legacy `mode` string + ghostwrite flag + NPC
@@ -438,7 +410,7 @@ export function render_story_prose({
     pov_protocol,
     style,
     is_first_contact,
-    has_alternation: _has_alternation(entities_block),
+    has_alternation: has_alternations(entities_block),
   });
 
   const ai_char_name = prompt_escape(entities?.AI?.name || "AI Character");
@@ -568,6 +540,11 @@ export function render_ghostwriter({ entities, input = "" }) {
 
 /**
  * CHANGELOG
+ * - 2026-09-10: Moved the prompt-mode registry accessor `get_prompt_mode` + the
+ *   prompt-modes.json import into interaction-prompt.js (the mode-driven sheets
+ *   compiler owns the registry), and `_wrap_tag` → the exported `wrap_tag` layout
+ *   helper there. `_has_alternation` was a duplicate of @utils `has_alternations`
+ *   and is deleted.
  * - 2026-09-10: Entity-sheet extraction. Moved every per-entity sheet renderer
  *   (_render_speaker_sheet / _render_user_persona_sheet / _render_fractal_sheet and their
  *   helpers) into the new shared interaction-prompt.js, which compiles the <STORY_ENTITIES>

@@ -3,11 +3,10 @@
  * 🧩 SHARED PROMPT COMPOSITION & PREFIX CACHING
  *
  * Prompt-protocol composition shared by both shots: the core PROTOCOL_LIBRARY
- * and its compiler, the scene spotlight XML, and the epistemic-wall filters.
- * (Entity-aware macro resolution now lives in @utils/macros.js.)
+ * and its compiler. (Entity-aware macro resolution lives in @utils/macros.js;
+ * the epistemic-wall filters live with their consumers, and the Director's
+ * scene spotlight is in director-prompt.js.)
  */
-
-import { escape_xml } from "@utils";
 
 // ── 1. Consolidated Protocol Library ──────────────────────────────────────────
 
@@ -89,7 +88,7 @@ ${BASE_THINK_CLOSURE}`,
 // ── 2. Protocol Compiler & Caching ────────────────────────────────────────────
 
 /** @type {Map<string, string>} */
-export const protocols_cache = new Map();
+const protocols_cache = new Map();
 
 /**
  * Compiles a comma-separated list of protocol keys (e.g. "HYGIENE.PROSE_DISCIPLINE, AGENCY.MOMENTUM")
@@ -123,116 +122,13 @@ export function render_protocols(selection) {
   return rendered;
 }
 
-// ── 3. Epistemic Wall Filters ─────────────────────────────────────────────────
-
-/**
- * Extracts the content of any [PLAN: ...] brackets from state text.
- * @param {string|null|undefined} text
- * @returns {string}
- */
-export function extract_plan_from_state(text) {
-  if (!text) return "";
-  const plans = [];
-  const regex = /\[PLAN\s*:\s*([^\]]*)\]/gi;
-  let match;
-  while ((match = regex.exec(String(text))) !== null) {
-    if (match[1] && match[1].trim()) {
-      plans.push(match[1].trim());
-    }
-  }
-  return plans.join("; ");
-}
-
-/**
- * Strips epistemic [SECRET: ...] / [PLAN: ...] brackets from rendered state so
- * the AI character never receives another entity's private knowledge across the
- * Epistemic Wall.
- * @param {string} text
- * @returns {string}
- */
-export function strip_epistemic_tags(text) {
-  if (!text) return "";
-  return String(text)
-    .replace(/\[(?:SECRET|PLAN)\s*:\s*[^\]]*\]/gi, "")
-    .replace(/\s{2,}/g, " ")
-    .trim();
-}
-
-/**
- * Strips epistemic secrets and plans across entity boundaries.
- * If is_owner is true, preserves the secrets; if false, strips them completely.
- * @param {string|null|undefined} state_text
- * @param {boolean} [is_owner=false]
- * @returns {string}
- */
-export function strip_epistemic_secrets(state_text, is_owner = false) {
-  if (!state_text) return "";
-  if (is_owner) return String(state_text);
-  return strip_epistemic_tags(state_text);
-}
-
-// ── 4. Scene Spotlight & Cast Summary ─────────────────────────────────────────
-
-const _cast_summary = (npc) => {
-  const desc = String(npc?.description || npc?.eternal?.non_physical || npc?.present?.non_physical || "")
-    .replace(/\s+/g, " ")
-    .trim();
-  return desc.length > 130 ? `${desc.slice(0, 130).trim()}…` : desc;
-};
-
-/**
- * Renders the Stage Spotlight XML block for the Director prompt: active in-scene
- * participants, candidate secondaries (off-screen), speaker routing rules, and
- * convergence laws. Per-entity relationships live in the <STORY_ENTITIES> sheets
- * as <DISPOSITION> elements (see interaction-prompt.js), not here.
- * @param {Object} [params]
- * @param {any} [params.entities]
- * @param {any[]} [params.npc_entities]
- * @param {string[]} [params.in_scene_ids]
- * @returns {string}
- */
-export function render_scene_spotlight_xml({ entities = {}, npc_entities = [], in_scene_ids = [] } = {}) {
-  const active_trio_ids = new Set([entities?.AI?.id, entities?.USER?.id, entities?.FRACTAL?.id].filter(Boolean).map(String));
-  const in_scene_set = new Set((in_scene_ids || []).filter(Boolean).map(String));
-
-  // Build active participant list
-  const active_participants = [];
-  if (entities?.AI?.name) active_participants.push(`- ${escape_xml(entities.AI.name)}: Primary Companion (In-Scene)`);
-  if (entities?.USER?.name) active_participants.push(`- ${escape_xml(entities.USER.name)}: Protagonist (In-Scene)`);
-
-  const candidate_secondaries = [];
-
-  for (const n of npc_entities || []) {
-    if (!n || active_trio_ids.has(String(n.id))) continue;
-    const is_in_scene = in_scene_set.has(String(n.id));
-    const summary = _cast_summary(n);
-    const summary_suffix = summary ? `: ${escape_xml(summary)}` : "";
-    if (is_in_scene) {
-      active_participants.push(`- ${escape_xml(n.name)} (id: ${escape_xml(String(n.id))}) [In-Scene]${summary_suffix}`);
-    } else {
-      candidate_secondaries.push(`- ${escape_xml(n.name)} (id: ${escape_xml(String(n.id))}) [Off-Screen (Stasis)]${summary_suffix}`);
-    }
-  }
-
-  const candidate_section = candidate_secondaries.length > 0 ? `\n\nCANDIDATE SECONDARY CHARACTERS:\n${candidate_secondaries.join("\n")}` : "";
-
-  return `<SCENE_SPOTLIGHT>
-SPEAKER ROUTING RULES:
-- "AI_CHARACTER": (Default) AI companion reacts to the protagonist.
-- "FRACTAL": User action is non-verbal and environmental (exploring atmosphere, architecture, weather, objects without dialogue) or to break up long streaks of AI speech.
-- "npc:<id>": An active in-scene secondary character takes the floor.
-- "GENESIS": A new character is introduced into the world. Only mint if no existing candidate applies.
-
-CONVERGENCE & CAST LAW:
-Always inspect candidate secondary characters below before minting a duplicate. If an existing cast member matches the required role or location (medical, security, merchant), you MUST use that existing entity rather than inventing a duplicate.
-
-ACTIVE IN-SCENE PARTICIPANTS:
-${active_participants.join("\n")}${candidate_section}
-</SCENE_SPOTLIGHT>`;
-}
-
 /**
  * CHANGELOG
+ * - 2026-09-10: Moved the epistemic-wall filters to their single consumers
+ *   (extract_plan_from_state → builder.js; strip_epistemic_tags/_secrets →
+ *   interaction-prompt.js) and render_scene_spotlight_xml + _cast_summary →
+ *   director-prompt.js. This file now exports only PROTOCOL_LIBRARY and
+ *   render_protocols.
  * - 2026-09-10: Extracted the entity-aware macro / display-macro / profile-field
  *   text layer (parse_macros, resolve_display_macro_segments, render_display_macros,
  *   strip_profile_wrappers, unwrap_enhancement_text, render_field_value) to

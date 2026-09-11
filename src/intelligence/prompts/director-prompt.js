@@ -13,9 +13,8 @@ import { get_style_keywords, resolve_active_style_key, render_narrative_style_xm
 import { ind, escape_xml, clean_xml, strip_cognition_blocks } from "@utils";
 import { build_available_keywords_xml, render_dynamics_block } from "./physics-prompt.js";
 import { render_builder } from "./builder.js";
-import { render_protocols, render_scene_spotlight_xml } from "./shared.js";
-import { render_entity_sheets } from "./interaction-prompt.js";
-import { get_prompt_mode } from "./story-prompt.js";
+import { render_protocols } from "./shared.js";
+import { render_entity_sheets, get_prompt_mode } from "./interaction-prompt.js";
 
 // ── 0. Lexical & Spatial Recognition Constants ───────────────────────────────
 
@@ -65,7 +64,67 @@ PASSIVE USER TURN LAW: When <USER_ACTION> contains no action verbs or questions 
   SELECTABLE_OPTIONS: `Entity fields may contain alternation syntax like {Option A|Option B}. These are SELECTABLE CHOICES. When you emit state mutations (state_append / vector_append / present / eternal), resolve each such field to exactly ONE option that best fits the narrative. Never echo braces or pipes into any emitted value, and never blend options.`,
 });
 
-// ── 2. Director Prompt Compiler (Shot 1) ──────────────────────────────────────
+// ── 2. Scene Spotlight & Cast Summary ─────────────────────────────────────────
+
+const _cast_summary = (npc) => {
+  const desc = String(npc?.description || npc?.eternal?.non_physical || npc?.present?.non_physical || "")
+    .replace(/\s+/g, " ")
+    .trim();
+  return desc.length > 130 ? `${desc.slice(0, 130).trim()}…` : desc;
+};
+
+/**
+ * Renders the Stage Spotlight XML block for the Director prompt: active in-scene
+ * participants, candidate secondaries (off-screen), speaker routing rules, and
+ * convergence laws. Per-entity relationships live in the <STORY_ENTITIES> sheets
+ * as <DISPOSITION> elements (see interaction-prompt.js), not here.
+ * @param {Object} [params]
+ * @param {any} [params.entities]
+ * @param {any[]} [params.npc_entities]
+ * @param {string[]} [params.in_scene_ids]
+ * @returns {string}
+ */
+export function render_scene_spotlight_xml({ entities = {}, npc_entities = [], in_scene_ids = [] } = {}) {
+  const active_trio_ids = new Set([entities?.AI?.id, entities?.USER?.id, entities?.FRACTAL?.id].filter(Boolean).map(String));
+  const in_scene_set = new Set((in_scene_ids || []).filter(Boolean).map(String));
+
+  // Build active participant list
+  const active_participants = [];
+  if (entities?.AI?.name) active_participants.push(`- ${escape_xml(entities.AI.name)}: Primary Companion (In-Scene)`);
+  if (entities?.USER?.name) active_participants.push(`- ${escape_xml(entities.USER.name)}: Protagonist (In-Scene)`);
+
+  const candidate_secondaries = [];
+
+  for (const n of npc_entities || []) {
+    if (!n || active_trio_ids.has(String(n.id))) continue;
+    const is_in_scene = in_scene_set.has(String(n.id));
+    const summary = _cast_summary(n);
+    const summary_suffix = summary ? `: ${escape_xml(summary)}` : "";
+    if (is_in_scene) {
+      active_participants.push(`- ${escape_xml(n.name)} (id: ${escape_xml(String(n.id))}) [In-Scene]${summary_suffix}`);
+    } else {
+      candidate_secondaries.push(`- ${escape_xml(n.name)} (id: ${escape_xml(String(n.id))}) [Off-Screen (Stasis)]${summary_suffix}`);
+    }
+  }
+
+  const candidate_section = candidate_secondaries.length > 0 ? `\n\nCANDIDATE SECONDARY CHARACTERS:\n${candidate_secondaries.join("\n")}` : "";
+
+  return `<SCENE_SPOTLIGHT>
+SPEAKER ROUTING RULES:
+- "AI_CHARACTER": (Default) AI companion reacts to the protagonist.
+- "FRACTAL": User action is non-verbal and environmental (exploring atmosphere, architecture, weather, objects without dialogue) or to break up long streaks of AI speech.
+- "npc:<id>": An active in-scene secondary character takes the floor.
+- "GENESIS": A new character is introduced into the world. Only mint if no existing candidate applies.
+
+CONVERGENCE & CAST LAW:
+Always inspect candidate secondary characters below before minting a duplicate. If an existing cast member matches the required role or location (medical, security, merchant), you MUST use that existing entity rather than inventing a duplicate.
+
+ACTIVE IN-SCENE PARTICIPANTS:
+${active_participants.join("\n")}${candidate_section}
+</SCENE_SPOTLIGHT>`;
+}
+
+// ── 3. Director Prompt Compiler (Shot 1) ──────────────────────────────────────
 
 /**
  * Director prompt compiler (Shot 1).
@@ -153,7 +212,7 @@ ${last_ai_text ? `<AI_CHARACTER_LAST_TURN>${ind(last_ai_text, 2)}</AI_CHARACTER_
   return { system, task };
 }
 
-// ── 3. Terse Director Recovery Task ───────────────────────────────────────────
+// ── 4. Terse Director Recovery Task ───────────────────────────────────────────
 
 /**
  * Terse replacement for the Director task — used on retry after truncated JSON.
@@ -170,6 +229,10 @@ export function render_terse_director_task() {
 
 /**
  * CHANGELOG
+ * - 2026-09-10: `get_prompt_mode` now comes from interaction-prompt.js (the mode
+ *   registry owner) instead of story-prompt.js, removing the Shot-1 → Shot-2 import.
+ * - 2026-09-10: Moved render_scene_spotlight_xml + its _cast_summary helper here
+ *   from shared.js — the Director is their only consumer.
  * - 2026-09-10: Entity-sheet unification. The director now compiles its <CAST> via the
  *   shared render_entity_sheets (interaction-prompt.js) wrapped in <STORY_ENTITIES>, driven
  *   by the `director` mode's `sheets` config. <ROLE name="DIRECTOR"> moved directly under

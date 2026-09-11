@@ -22,7 +22,7 @@
 
 import { escape_xml, prompt_escape, physical_to_xml, parse_relational_vector, strip_leading_key_echo, render_field_value } from "@utils";
 import { render_dynamics_axes_xml } from "./physics-prompt.js";
-import { strip_epistemic_secrets, strip_epistemic_tags } from "./shared.js";
+import prompt_modes from "./prompt-modes.json";
 
 // ── 1. Layout Helpers ─────────────────────────────────────────────────────────
 
@@ -57,6 +57,20 @@ export function inline_or_block(content, indent) {
     return `\n${indent_all(text, indent)}\n${" ".repeat(indent - 2)}`;
   }
   return text;
+}
+
+/**
+ * Wraps already-rendered inner content in a tag, indented to `indent`.
+ * @param {string} tag
+ * @param {string|null|undefined} inner
+ * @param {number} indent
+ * @returns {string}
+ */
+export function wrap_tag(tag, inner, indent) {
+  const body = String(inner || "").trim();
+  if (!body) return "";
+  const pad = " ".repeat(indent);
+  return `${pad}<${tag}>\n${indent_all(body, indent + 2)}\n${pad}</${tag}>`;
 }
 
 /**
@@ -442,8 +456,57 @@ export function render_entity_sheets({
   return `  <STORY_ENTITIES>\n${parts.join("\n\n")}\n  </STORY_ENTITIES>`;
 }
 
+// ── 5. Epistemic Wall Filters ─────────────────────────────────────────────────
+
+/**
+ * Strips epistemic [SECRET: ...] / [PLAN: ...] brackets from rendered state so
+ * the AI character never receives another entity's private knowledge across the
+ * Epistemic Wall.
+ * @param {string} text
+ * @returns {string}
+ */
+export function strip_epistemic_tags(text) {
+  if (!text) return "";
+  return String(text)
+    .replace(/\[(?:SECRET|PLAN)\s*:\s*[^\]]*\]/gi, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
+/**
+ * Strips epistemic secrets and plans across entity boundaries.
+ * If is_owner is true, preserves the secrets; if false, strips them completely.
+ * @param {string|null|undefined} state_text
+ * @param {boolean} [is_owner=false]
+ * @returns {string}
+ */
+export function strip_epistemic_secrets(state_text, is_owner = false) {
+  if (!state_text) return "";
+  if (is_owner) return String(state_text);
+  return strip_epistemic_tags(state_text);
+}
+
+// ── 6. Prompt-Mode Registry ──────────────────────────────────────────────────
+
+/**
+ * Resolves a prompt-mode config by key from prompt-modes.json, falling back to
+ * `interaction`. This is the registry that drives render_entity_sheets' sheet
+ * selection and every other mode-gated block.
+ * @param {string} key
+ * @returns {any}
+ */
+export function get_prompt_mode(key) {
+  return prompt_modes[key] || prompt_modes.interaction;
+}
+
 /**
  * CHANGELOG
+ * - 2026-09-10: Moved get_prompt_mode + the prompt-modes.json import here from
+ *   story-prompt.js (this compiler consumes the registry), so the Director no
+ *   longer imports the registry through the Shot-2 module. Also gained the
+ *   exported wrap_tag layout helper (from story-prompt.js).
+ * - 2026-09-10: Moved strip_epistemic_tags/_secrets here from shared.js — this
+ *   compiler is their only consumer.
  * - 2026-09-10: Extracted from story-prompt.js as the single mode-driven
  *   <STORY_ENTITIES> compiler shared by Shot 2 and the Director. Sheets and their
  *   blocks are selected by the active mode's `sheets` config in prompt-modes.json:

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import prompt_modes from "./prompt-modes.json";
-import { get_prompt_mode, render_ghostwriter, render_story_prose, resolve_prompt_mode } from "./story-prompt.js";
+import { get_prompt_mode } from "./interaction-prompt.js";
+import { render_ghostwriter, render_story_prose, resolve_prompt_mode } from "./story-prompt.js";
 import { render_builder } from "./builder.js";
 
 const REQUIRED_FIELDS = ["system_mode", "speaker_role", "ghostwrite", "swap_perspectives", "sheets", "input", "scene_template", "think_format"];
