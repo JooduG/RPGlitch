@@ -85,6 +85,7 @@ export {
   get_style_keywords,
   resolve_active_style_key,
   render_narrative_style_xml,
+  extract_style_dna,
 } from "./definitions/narrative-styles.js";
 
 // ============================================================================
@@ -120,6 +121,7 @@ export { SIGNATURE_COLORS } from "./definitions/signature-colors.js";
 
 /**
  * CHANGELOG:
+ * - 2026-09-10: Re-exported `extract_style_dna` from narrative-styles.js (style-DNA reader co-located with `define_style`).
  * - 2026-09-04: Purged `@utils` proxy re-exports (`detox_prose`, `resolve_speaking_style`, `resolve_style`)
  *   to preserve strict layer boundaries; callers import utility codecs directly from `@utils`.
  * - 2026-08-29: Structured into canonical functional sections with universal header/footer architecture (/harmonize).

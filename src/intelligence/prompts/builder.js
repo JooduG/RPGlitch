@@ -11,7 +11,8 @@ import { escape_xml, prompt_escape, collapse_history, parse_macros } from "@util
 import { temporal_engine, resolve_vector_pool } from "../temporal-pipeline.js";
 import { render_protocols } from "./shared.js";
 import { render_director, render_terse_director_task } from "./director-prompt.js";
-import { render_story_prose, render_ghostwriter } from "./story-prompt.js";
+import { render_story_prose, render_ghostwriter } from "./interaction-prompt.js";
+import { render_narrator_prose } from "./narrator-prompt.js";
 import { render_memory } from "./temporal-prompt.js";
 import { render_enhancement, render_profile_sorting } from "./profile-prompt.js";
 
@@ -195,7 +196,6 @@ export const prompt_builder = {
   build_character(payload, snapshot = {}, director_data = {}) {
     const render_accessors = resolve_accessors(payload);
     const rendered = render_story_prose({
-      mode: "character",
       prompt_mode: "interaction",
       ...payload,
       render_accessors,
@@ -218,9 +218,7 @@ export const prompt_builder = {
    */
   build_scene_narrator(payload, snapshot = {}, director_data = {}) {
     const render_accessors = resolve_accessors(payload);
-    const rendered = render_story_prose({
-      mode: "narrator",
-      prompt_mode: "narrator",
+    const rendered = render_narrator_prose({
       scene_template: "CONTINUATION",
       ...payload,
       render_accessors,
@@ -246,7 +244,6 @@ export const prompt_builder = {
     const entities = { ...(payload.entities || {}), [npc.id]: npc };
     const render_accessors = resolve_accessors(payload, entities);
     const rendered = render_story_prose({
-      mode: "character",
       prompt_mode: "npc",
       ...payload,
       entities,
@@ -271,9 +268,7 @@ export const prompt_builder = {
    */
   build_prologue(payload, snapshot = {}) {
     const render_accessors = resolve_accessors(payload);
-    const rendered = render_story_prose({
-      mode: "narrator",
-      prompt_mode: "narrator",
+    const rendered = render_narrator_prose({
       scene_template: "PROLOGUE",
       ...payload,
       render_accessors,
@@ -296,9 +291,7 @@ export const prompt_builder = {
       FRACTAL: entities?.FRACTAL || { name: "FRACTAL", present: {}, eternal: {} },
     };
 
-    const rendered = render_story_prose({
-      mode: "narrator",
-      prompt_mode: "narrator",
+    const rendered = render_narrator_prose({
       scene_template: conclusion_status === "COLLAPSED" ? "COLLAPSE" : "EPILOGUE",
       entities: safe_entities,
       render_accessors: render_builder.create_render_accessors(safe_entities, "", recent_history),
@@ -420,6 +413,9 @@ if (typeof window !== "undefined") {
 
 /**
  * CHANGELOG
+ * - 2026-09-10: Split the Shot-2 compilers across interaction-prompt.js (interaction /
+ *   ghostwrite / npc) and narrator-prompt.js; build_scene_narrator / build_prologue /
+ *   build_epilogue now call render_narrator_prose (scene_template only — no mode/prompt_mode).
  * - 2026-09-10: Moved extract_plan_from_state here from shared.js — builder is
  *   its only consumer.
  * - 2026-09-10: Merged the old `fractal`/`prologue`/`epilogue` prompt modes into the single

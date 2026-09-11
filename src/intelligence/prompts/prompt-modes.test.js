@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import prompt_modes from "./prompt-modes.json";
-import { get_prompt_mode } from "./interaction-prompt.js";
-import { render_ghostwriter, render_story_prose, resolve_prompt_mode } from "./story-prompt.js";
+import { get_prompt_mode } from "./shared.js";
+import { render_ghostwriter, render_story_prose, resolve_prompt_mode } from "./interaction-prompt.js";
 import { render_builder } from "./builder.js";
 
 const REQUIRED_FIELDS = ["system_mode", "speaker_role", "ghostwrite", "swap_perspectives", "sheets", "input", "scene_template", "think_format"];
@@ -114,10 +114,10 @@ describe("prompt-modes registry", () => {
   });
 
   it("maps each builder to a known mode", () => {
-    expect(resolve_prompt_mode({ mode: "character" }).system_mode).toBe("interaction");
-    expect(resolve_prompt_mode({ mode: "character", is_npc: true }).system_mode).toBe("npc");
-    expect(resolve_prompt_mode({ mode: "character", ghostwrite: true }).system_mode).toBe("ghostwrite");
-    expect(resolve_prompt_mode({ mode: "narrator" }).system_mode).toBe("narrator");
+    expect(resolve_prompt_mode().system_mode).toBe("interaction");
+    expect(resolve_prompt_mode({ is_npc: true }).system_mode).toBe("npc");
+    expect(resolve_prompt_mode({ ghostwrite: true }).system_mode).toBe("ghostwrite");
+    expect(get_prompt_mode("narrator").system_mode).toBe("narrator");
     expect(get_prompt_mode("director").system_mode).toBe("director");
     expect(get_prompt_mode("unknown-mode").system_mode).toBe("interaction");
   });
@@ -125,13 +125,12 @@ describe("prompt-modes registry", () => {
 
 describe("fused rendering per mode", () => {
   it("renders the interaction mode", () => {
-    const result = render_story_prose({ mode: "character", round: 3, entities, input: "Beast steps forward." });
+    const result = render_story_prose({ round: 3, entities, input: "Beast steps forward." });
     expect(assert_fused_shape(result, "interaction")).toBe(true);
   });
 
   it("renders the npc mode", () => {
     const result = render_story_prose({
-      mode: "character",
       round: 4,
       entities,
       speaker: npc,
@@ -142,45 +141,20 @@ describe("fused rendering per mode", () => {
     expect(assert_fused_shape(result, "npc")).toBe(true);
   });
 
-  it("renders the narrator mode (continuation beat)", () => {
-    const result = render_story_prose({ mode: "narrator", scene_template: "CONTINUATION", round: 5, entities, input: "The station hums." });
-    expect(assert_fused_shape(result, "narrator")).toBe(true);
-    expect(result.task).toContain("Narrate the present moment");
-  });
-
-  it("renders the narrator mode (prologue beat)", () => {
-    const result = render_story_prose({ mode: "narrator", scene_template: "PROLOGUE", round: 1, entities, input: "Open on the arena." });
-    expect(assert_fused_shape(result, "narrator")).toBe(true);
-    expect(result.task).toContain("Open the scene");
-  });
-
-  it("renders the narrator mode (epilogue beat)", () => {
-    const result = render_story_prose({ mode: "narrator", scene_template: "EPILOGUE", round: 9, entities, input: "" });
-    expect(assert_fused_shape(result, "narrator")).toBe(true);
-    expect(result.task).toContain("Close the scene");
-  });
-
   it("renders the ghostwrite mode", () => {
     const result = render_ghostwriter({ entities, input: "I step forward and bare my teeth." });
     expect(assert_fused_shape(result, "ghostwrite")).toBe(true);
   });
 
-  it("carries the <INPUT origin> inside the task, omitting it for a prologue", () => {
-    const interaction = render_story_prose({ mode: "character", round: 3, entities, input: "Beast steps forward." });
+  it("carries the <INPUT origin> inside the interaction task", () => {
+    const interaction = render_story_prose({ round: 3, entities, input: "Beast steps forward." });
     expect(interaction.task).toContain('<INPUT origin="SILVERS">Beast steps forward.</INPUT>');
-
-    const continuation = render_story_prose({ mode: "narrator", scene_template: "CONTINUATION", round: 5, entities, input: "The station hums." });
-    expect(continuation.task).toContain('<INPUT origin="SILVERS">The station hums.</INPUT>');
-
-    const prologue = render_story_prose({ mode: "narrator", scene_template: "PROLOGUE", round: 1, entities, input: "Open on the arena." });
-    expect(prologue.task).not.toContain("<INPUT");
   });
 });
 
 describe("dynamic-axes scoping", () => {
-  const interaction = render_story_prose({ mode: "character", round: 3, entities, input: "Beast steps forward." });
+  const interaction = render_story_prose({ round: 3, entities, input: "Beast steps forward." });
   const npc_result = render_story_prose({
-    mode: "character",
     round: 4,
     entities,
     speaker: npc,
@@ -188,7 +162,6 @@ describe("dynamic-axes scoping", () => {
     npc_entities: [npc],
     in_scene_ids: ["GAOLER"],
   });
-  const narrator_result = render_story_prose({ mode: "narrator", scene_template: "CONTINUATION", round: 5, entities, input: "The station hums." });
 
   it("scopes the AI_CHARACTER sheet to the somatic axes", () => {
     const axes = slice_axes(slice_sheet(interaction.system, "AI_CHARACTER"));
@@ -200,12 +173,6 @@ describe("dynamic-axes scoping", () => {
     const axes = slice_axes(slice_sheet(npc_result.system, "NPC"));
     expect(axes).toContain("<CHAOS");
     expect(axes).not.toContain("<VELOCITY");
-  });
-
-  it("scopes the FRACTAL sheet to the fractal axes", () => {
-    const axes = slice_axes(slice_sheet(narrator_result.system, "FRACTAL"));
-    expect(axes).toContain("<VELOCITY");
-    expect(axes).not.toContain("<CHAOS");
   });
 });
 

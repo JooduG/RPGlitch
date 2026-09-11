@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { render_ghostwriter, render_story_prose } from "./story-prompt.js";
+import { render_ghostwriter, render_story_prose } from "./interaction-prompt.js";
+import { render_narrator_prose } from "./narrator-prompt.js";
 
 const entities = {
   AI: {
@@ -53,7 +54,7 @@ describe("ghostwrite identity", () => {
 
   it("omits L5_AGENCY from the constitution while keeping the constitution top-level", () => {
     const ghostwrite = render_ghostwriter({ entities, input: "I step forward." });
-    const interaction = render_story_prose({ mode: "character", round: 3, entities, input: "Beast steps forward." });
+    const interaction = render_story_prose({ round: 3, entities, input: "Beast steps forward." });
     expect(interaction.system).toContain('id="L5_AGENCY"');
     expect(ghostwrite.system).not.toContain('id="L5_AGENCY"');
     expect(ghostwrite.system).toContain("<AXIOMATIC_CONSTITUTION>");
@@ -63,14 +64,14 @@ describe("ghostwrite identity", () => {
 
 describe("per-entity DISPOSITIONS", () => {
   it("renders only relationships whose target is present in the story", () => {
-    const { system } = render_story_prose({ mode: "character", round: 3, entities, input: "Beast steps forward." });
+    const { system } = render_story_prose({ round: 3, entities, input: "Beast steps forward." });
     expect(system).toContain('<DISPOSITION target="SILVERS">wary respect</DISPOSITION>');
     expect(system).not.toContain("Absent Stranger");
     expect(system).not.toContain("dread");
   });
 
   it("hides the user persona's dispositions from the AI-visible prompt", () => {
-    const { system } = render_story_prose({ mode: "character", round: 3, entities, input: "Beast steps forward." });
+    const { system } = render_story_prose({ round: 3, entities, input: "Beast steps forward." });
     const persona = (system.match(/<USER_PERSONA[\s\S]*?<\/USER_PERSONA>/) || [])[0] || "";
     expect(persona).toContain("<PERSONALITY>");
     expect(persona).not.toContain("<DISPOSITIONS>");
@@ -80,7 +81,7 @@ describe("per-entity DISPOSITIONS", () => {
 
 describe("sensory experience", () => {
   it("emits the selected NarrativeStyle's sensory order and carries no scene anchor", () => {
-    const { task } = render_story_prose({ mode: "character", round: 3, entities, input: "Beast steps forward." });
+    const { task } = render_story_prose({ round: 3, entities, input: "Beast steps forward." });
     expect(task).not.toContain("<SCENE_ANCHOR>");
     const sensory = (task.match(/<SENSORY_EXPERIENCE>[\s\S]*?<\/SENSORY_EXPERIENCE>/) || [])[0] || "";
     expect(sensory).toContain("Sight &gt; Sound &gt; Touch &gt; Scent");
@@ -122,7 +123,7 @@ describe("appearance merge", () => {
         dynamics: { velocity: 40, entropy: 60 },
       },
     };
-    const { system } = render_story_prose({ mode: "character", round: 1, entities: merged_entities, input: "Move." });
+    const { system } = render_story_prose({ round: 1, entities: merged_entities, input: "Move." });
     const sheet = system.match(/<AI_CHARACTER\b[\s\S]*?<\/AI_CHARACTER>/)[0];
     expect(sheet).toContain("<HAIR>present-hair</HAIR>");
     expect(sheet).not.toContain("eternal-hair");
@@ -132,7 +133,7 @@ describe("appearance merge", () => {
 
 describe("blueprint schema alignment", () => {
   it("nests AGENDA inside PSYCHOLOGY and TRAJECTORY inside ATMOSPHERE", () => {
-    const { system } = render_story_prose({ mode: "character", round: 3, entities, input: "Beast steps forward." });
+    const { system } = render_story_prose({ round: 3, entities, input: "Beast steps forward." });
     const ai_sheet = system.match(/<AI_CHARACTER\b[\s\S]*?<\/AI_CHARACTER>/)[0];
     expect(ai_sheet).toMatch(/<PSYCHOLOGY>[\s\S]*<AGENDA>Break the challenger\.<\/AGENDA>[\s\S]*<\/PSYCHOLOGY>/);
     const fractal_sheet = system.match(/<FRACTAL\b[\s\S]*?<\/FRACTAL>/)[0];
@@ -140,26 +141,26 @@ describe("blueprint schema alignment", () => {
   });
 
   it("never emits USER_SOVEREIGNTY", () => {
-    const interaction = render_story_prose({ mode: "character", round: 3, entities, input: "Beast steps forward." });
-    const continuation = render_story_prose({ mode: "narrator", scene_template: "CONTINUATION", round: 5, entities, input: "The station hums." });
+    const interaction = render_story_prose({ round: 3, entities, input: "Beast steps forward." });
+    const continuation = render_narrator_prose({ scene_template: "CONTINUATION", round: 5, entities, input: "The station hums." });
     expect(interaction.system + interaction.task).not.toContain("USER_SOVEREIGNTY");
     expect(continuation.system + continuation.task).not.toContain("USER_SOVEREIGNTY");
   });
 
   it("renders ALTERNATION_OPTIONS only when a rendered entity field carries alternation syntax", () => {
-    const plain = render_story_prose({ mode: "character", round: 3, entities, input: "Beast steps forward." });
+    const plain = render_story_prose({ round: 3, entities, input: "Beast steps forward." });
     expect(plain.system).not.toContain("<ALTERNATION_OPTIONS>");
 
     const with_alt = {
       ...entities,
       USER: { ...entities.USER, present: { physical: "[PANTS: {worn denim|charcoal cargo}]", non_physical: "Observing." } },
     };
-    const alt = render_story_prose({ mode: "character", round: 3, entities: with_alt, input: "Beast steps forward." });
+    const alt = render_story_prose({ round: 3, entities: with_alt, input: "Beast steps forward." });
     expect(alt.system).toContain("<ALTERNATION_OPTIONS>");
   });
 
   it("matches the blueprint THINK_FORMAT beats", () => {
-    const { task } = render_story_prose({ mode: "character", round: 3, entities, input: "Beast steps forward." });
+    const { task } = render_story_prose({ round: 3, entities, input: "Beast steps forward." });
     expect(task).toContain("Execute internal reasoning across 4 sequential beats");
     expect(task).toContain('<BEAT id="VISCERAL_IMPACT" step="1">Immediate non-verbal reaction to the <INPUT /> element.</BEAT>');
     expect(task).toContain('<BEAT id="EMOTIONAL_CALIBRATION" step="2">Narrative style emotional grounding');

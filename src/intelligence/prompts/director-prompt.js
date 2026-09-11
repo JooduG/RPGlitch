@@ -14,7 +14,7 @@ import { ind, escape_xml, clean_xml, strip_cognition_blocks } from "@utils";
 import { build_available_keywords_xml, render_dynamics_block } from "./physics-prompt.js";
 import { render_builder } from "./builder.js";
 import { render_protocols } from "./shared.js";
-import { render_entity_sheets, get_prompt_mode } from "./interaction-prompt.js";
+import { render_entity_sheets, get_prompt_mode } from "./shared.js";
 
 // ── 0. Lexical & Spatial Recognition Constants ───────────────────────────────
 
@@ -229,12 +229,12 @@ export function render_terse_director_task() {
 
 /**
  * CHANGELOG
- * - 2026-09-10: `get_prompt_mode` now comes from interaction-prompt.js (the mode
- *   registry owner) instead of story-prompt.js, removing the Shot-1 → Shot-2 import.
+ * - 2026-09-10: `get_prompt_mode` now comes from shared.js (the registry owner)
+ *   alongside render_entity_sheets — no Shot-1 → Shot-2 import remains.
  * - 2026-09-10: Moved render_scene_spotlight_xml + its _cast_summary helper here
  *   from shared.js — the Director is their only consumer.
  * - 2026-09-10: Entity-sheet unification. The director now compiles its <CAST> via the
- *   shared render_entity_sheets (interaction-prompt.js) wrapped in <STORY_ENTITIES>, driven
+ *   shared render_entity_sheets (shared.js) wrapped in <STORY_ENTITIES>, driven
  *   by the `director` mode's `sheets` config. <ROLE name="DIRECTOR"> moved directly under
  *   <SYSTEM>; per-entity flat dynamics attrs were promoted to <DYNAMIC_AXES> inside the
  *   AI_CHARACTER/FRACTAL sheets (the single <DYNAMICS> legend kept for calibration); the

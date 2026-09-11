@@ -48,6 +48,33 @@ export function parse_macros(text, owner, entities = {}) {
 }
 
 /**
+ * Deep-clones `entity`, resolving every string field's {{...}} macros from that
+ * entity's OWN perspective (see {@link parse_macros}). Callers use this before a
+ * perspective swap so stored state never inverts {{char}}/{{user}} references,
+ * and for any other case needing an entity with its macros pre-resolved.
+ * @param {any} entity
+ * @param {{ AI?: any, USER?: any, FRACTAL?: any }} [entities]
+ * @returns {any}
+ */
+export function expand_entity_macros(entity, entities) {
+  if (!entity) return entity;
+  const seen = new WeakSet();
+  const expand = (value) => {
+    if (typeof value === "string") return parse_macros(value, entity, entities);
+    if (Array.isArray(value)) return value.map(expand);
+    if (value && typeof value === "object") {
+      if (seen.has(value)) return value;
+      seen.add(value);
+      const out = {};
+      for (const key of Object.keys(value)) out[key] = expand(value[key]);
+      return out;
+    }
+    return value;
+  };
+  return expand(entity);
+}
+
+/**
  * Friendly label used when `{{you}}` / `{{user}}` appears in a readonly display
  * but no user persona exists to resolve it to, viewed from the AI character's
  * (or an unknown owner's) perspective — there "you" is the user persona. Muted
@@ -385,6 +412,8 @@ export function render_field_value(text, owner, entities) {
 
 /**
  * CHANGELOG
+ * - 2026-09-10: Adopted `expand_entity_macros` from intelligence/prompts/story-prompt.js — the deep
+ *   clone-and-resolve macro expander belongs beside `parse_macros`, its only dependency.
  * - 2026-09-10: Extracted from intelligence/prompts/shared.js — entity-aware
  *   macro resolution and profile-field text normalizers shared by @ui, @media,
  *   and @intelligence.

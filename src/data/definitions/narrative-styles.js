@@ -11,6 +11,7 @@
  * - get_style_keywords: Resolves dynamic keyword sets contributed by an active style
  * - resolve_active_style_key: Resolves the active style key from fractal or application state
  * - render_narrative_style_xml: Compiles the pre-computed active style XML block
+ * - extract_style_dna: Reads the redistributed style-DNA fields back out of `narrative_engine`
  *
  * Architecture & Modification Rules:
  * - Pure data definition module importing downward strictly from `@utils`.
@@ -926,6 +927,27 @@ for (const style of Object.values(NARRATIVE_STYLES)) {
 export const STYLE_MOTIF_REGISTRY = Object.freeze(aggregated_motifs);
 
 /**
+ * Extracts the redistributed style-DNA fields a compiled NarrativeStyle carries
+ * inside its `narrative_engine` string — the inverse of the <TAG> bodies
+ * {@link define_style} writes. A missing/empty engine yields empty strings.
+ * @param {NarrativeStyle | { narrative_engine?: string } | null | undefined} style
+ * @returns {{ internal_ratio: string, sentence_rhythm: string, sensory_order: string, emotional_grounding: string }}
+ */
+export function extract_style_dna(style) {
+  const src = String(style?.narrative_engine || "");
+  const grab = (tag) => {
+    const match = src.match(new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`, "i"));
+    return match ? match[1].trim() : "";
+  };
+  return {
+    internal_ratio: grab("INTERNAL_RATIO"),
+    sentence_rhythm: grab("SENTENCE_RHYTHM"),
+    sensory_order: grab("SENSORY_ORDER"),
+    emotional_grounding: grab("EMOTIONAL_GROUNDING"),
+  };
+}
+
+/**
  * Returns a NarrativeStyle record by key with safe fallback to `default`.
  * @param {string} [style_key]
  * @returns {NarrativeStyle}
@@ -967,6 +989,8 @@ export function render_narrative_style_xml(style_key = resolve_active_style_key(
 // CHANGELOG
 // ============================================================================
 /**
+ * - 2026-09-10: Adopted `extract_style_dna` from intelligence/prompts/story-prompt.js so the parser
+ *   lives beside the `define_style` compiler that writes `narrative_engine` (schema single source).
  * - 2026-09-06: Redesign (suggestion.md): renamed ALL style trigger ids to strip author-name prefixes (HD_CARLTON_MIND_GAMES → MIND_GAMES, etc.); NARRATIVE_STYLE xml → single-line "<NARRATIVE_STYLE id=\"UPPER\">Employ the signature storytelling of [name]. [description] Include things such as [elements]</NARRATIVE_STYLE>" with the id uppercased (drops the old ESSENCE/SUBSTANTIAL_ELEMENTS/engine nesting; `narrative_engine` field kept for extract_style_dna consumers).
  * - 2026-08-28: Option A Deconstruction & Declarative Rebuild:
  *   1. Replaced repetitive hardcoded XML strings with declarative `dna` objects and a compiler `define_style()`.
