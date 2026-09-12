@@ -9,12 +9,13 @@
  *
  * Architecture & Modification Rules:
  * - Unidirectional layer flow: pure string compilation.
+ * - Blueprint (format.js): `PROTOCOL_LIBRARY` catalog + key resolver (`render_protocols`) + pure compilers over @utils `render_xml_tag`.
  * - Single source of truth for simulation fidelity, formatting, anti-tropes, and POV mandates.
  * - Zero sibling imports: layout utilities imported exclusively from @utils.
  * ============================================================================
  */
 
-import { escape_xml, prompt_escape, indent_all } from "@utils";
+import { prompt_escape, render_xml_tag } from "@utils";
 import { extract_style_dna } from "@data";
 
 // ── 0. Macro Directives Registry ─────────────────────────────────────────────
@@ -113,7 +114,7 @@ export function render_protocols(selection) {
       }
       if (!rule || typeof rule !== "string") return "";
       const tag = parts[parts.length - 1];
-      return rule.includes("\n") ? `<${tag}>\n${rule}\n</${tag}>` : `<${tag}>${rule}</${tag}>`;
+      return render_xml_tag({ tag, children: [rule], inline: true });
     })
     .filter(Boolean)
     .join("\n");
@@ -153,27 +154,44 @@ export function render_core_protocols({
   const pov = is_narrator ? PROTOCOL_LIBRARY.POV.NARRATOR : PROTOCOL_LIBRARY.POV[pov_protocol.split(".")[1] || "FIRST_PERSON"];
   const person = is_narrator || pov_protocol === "POV.THIRD_PERSON" ? "THIRD" : "FIRST";
   const elements = Array.isArray(style?.elements) ? style.elements.filter(Boolean).join(", ") : "";
-  const first_contact =
-    !is_narrator && first_contact_directive ? `\n    <FIRST_CONTACT>${prompt_escape(first_contact_directive)}</FIRST_CONTACT>` : "";
   const style_dna = extract_style_dna(style);
   const description = String(style?.description || "").trim();
-  const style_line =
-    style && style?.id !== "default"
-      ? `    <NARRATIVE_STYLE origin="${escape_xml(String(style.id).toUpperCase())}" internal_ratio="${escape_xml(style_dna.internal_ratio || "0.5")}">\n      ${description ? `${prompt_escape(description)}\n      ` : ""}${
-          elements ? `<SIGNUM>${prompt_escape(elements)}</SIGNUM>` : ""
-        }\n    </NARRATIVE_STYLE>`
-      : "";
   const core = PROTOCOL_LIBRARY.CORE;
-  const body = [
-    `    <SIMULATION_FIDELITY>\n${indent_all(core.SIMULATION_FIDELITY, 6)}\n    </SIMULATION_FIDELITY>`,
-    `    <PERSPECTIVE person="${person}" tense="PRESENT">\n      - Point of view: ${prompt_escape(pov)}\n      - Tense: ${PROTOCOL_LIBRARY.AGENCY.PRESENT_TENSE}\n    </PERSPECTIVE>`,
-    has_alternation ? `    <ALTERNATION_OPTIONS>${core.ALTERNATION_OPTIONS}</ALTERNATION_OPTIONS>` : "",
-    style_line,
-    `    <PROSE_DISCIPLINE>\n      <FORMAT>${core.FORMAT}</FORMAT>\n      <ANTI_TROPES>${core.ANTI_TROPES}</ANTI_TROPES>\n      <BANNED_CLICHES>${core.BANNED_CLICHES}</BANNED_CLICHES>\n      <NATURAL_DIALOGUE>${core.NATURAL_DIALOGUE}</NATURAL_DIALOGUE>\n    </PROSE_DISCIPLINE>`,
-  ]
-    .filter(Boolean)
-    .join("\n");
-  return `  <CORE_PROTOCOLS>\n${body}${first_contact}\n  </CORE_PROTOCOLS>`;
+
+  const blocks = [
+    render_xml_tag({ tag: "SIMULATION_FIDELITY", children: [core.SIMULATION_FIDELITY], child_indent: 2 }),
+    render_xml_tag({
+      tag: "PERSPECTIVE",
+      attrs: { person, tense: "PRESENT" },
+      children: [`- Point of view: ${prompt_escape(pov)}`, `- Tense: ${PROTOCOL_LIBRARY.AGENCY.PRESENT_TENSE}`],
+      child_indent: 2,
+      separator: "\n",
+    }),
+    has_alternation ? render_xml_tag({ tag: "ALTERNATION_OPTIONS", children: [core.ALTERNATION_OPTIONS], inline: true }) : "",
+    style && style.id !== "default"
+      ? render_xml_tag({
+          tag: "NARRATIVE_STYLE",
+          attrs: { origin: String(style.id).toUpperCase(), internal_ratio: style_dna.internal_ratio || "0.5" },
+          children: [description ? prompt_escape(description) : "", elements ? `<SIGNUM>${prompt_escape(elements)}</SIGNUM>` : ""],
+          child_indent: 2,
+          separator: "\n",
+        })
+      : "",
+    render_xml_tag({
+      tag: "PROSE_DISCIPLINE",
+      children: [
+        `<FORMAT>${core.FORMAT}</FORMAT>`,
+        `<ANTI_TROPES>${core.ANTI_TROPES}</ANTI_TROPES>`,
+        `<BANNED_CLICHES>${core.BANNED_CLICHES}</BANNED_CLICHES>`,
+        `<NATURAL_DIALOGUE>${core.NATURAL_DIALOGUE}</NATURAL_DIALOGUE>`,
+      ],
+      child_indent: 2,
+      separator: "\n",
+    }),
+    !is_narrator && first_contact_directive ? `<FIRST_CONTACT>${prompt_escape(first_contact_directive)}</FIRST_CONTACT>` : "",
+  ];
+
+  return render_xml_tag({ tag: "CORE_PROTOCOLS", children: blocks, indent: 2, child_indent: 2, separator: "\n" });
 }
 
 /**
@@ -188,19 +206,21 @@ export function resolve_macro_directive(entity_type = "character") {
 // ── 5. Director Protocols Compiler ────────────────────────────────────────────
 
 /**
+ * Ordered keys of the Director `<PROTOCOLS>` bodies. `SCHEMA` is sourced from the
+ * call argument; every other key resolves through `PROTOCOL_LIBRARY.SIMULATION`.
+ * @type {ReadonlyArray<string>}
+ */
+export const DIRECTOR_PROTOCOL_KEYS = Object.freeze(["SCHEMA", "CONTINUITY_AND_CAUSALITY", "PACING_AND_MOMENTUM", "SELECTABLE_OPTIONS"]);
+
+/**
  * Compiles the Director-specific protocols block.
  * @param {string} schema
  * @returns {string}
  */
 export function render_director_protocols_xml(schema) {
-  const sim = PROTOCOL_LIBRARY.SIMULATION;
-  const blocks = [
-    `<SCHEMA>\n${schema}\n</SCHEMA>`,
-    `<CONTINUITY_AND_CAUSALITY>\n${sim.CONTINUITY_AND_CAUSALITY}\n</CONTINUITY_AND_CAUSALITY>`,
-    `<PACING_AND_MOMENTUM>\n${sim.PACING_AND_MOMENTUM}\n</PACING_AND_MOMENTUM>`,
-    `<SELECTABLE_OPTIONS>\n${sim.SELECTABLE_OPTIONS}\n</SELECTABLE_OPTIONS>`,
-  ];
-  return blocks.join("\n\n");
+  return DIRECTOR_PROTOCOL_KEYS.map((key) =>
+    render_xml_tag({ tag: key, children: [key === "SCHEMA" ? schema : PROTOCOL_LIBRARY.SIMULATION[key]] }),
+  ).join("\n\n");
 }
 
 /**
@@ -210,11 +230,18 @@ export function render_director_protocols_xml(schema) {
  * @returns {string}
  */
 export function render_keyword_directives_xml(rule_text, available_keywords_xml) {
-  return `  <KEYWORD_DIRECTIVES>\n    ${indent_all(rule_text, 4).trim()}\n    <AVAILABLE_KEYWORDS>${available_keywords_xml}</AVAILABLE_KEYWORDS>\n  </KEYWORD_DIRECTIVES>`;
+  return render_xml_tag({
+    tag: "KEYWORD_DIRECTIVES",
+    children: [rule_text, `<AVAILABLE_KEYWORDS>${available_keywords_xml}</AVAILABLE_KEYWORDS>`],
+    indent: 2,
+    child_indent: 2,
+    separator: "\n",
+  });
 }
 
 /**
  * CHANGELOG
+ * - 2026-09-12: Standardization pass — render_protocols, render_core_protocols, render_director_protocols_xml, and render_keyword_directives_xml now compose through the shared `render_xml_tag` primitive; added the `DIRECTOR_PROTOCOL_KEYS` catalog so the director block is data-driven; pruned now-dead layout imports.
  * - 2026-09-12: Modularization pass — relocated STATE.PSEUDO_JSON bracket state syntax to modules/format.js (PSEUDO_JSON_CONTRACT). protocols.js now strictly manages behavioural laws, cognitive boundaries, POV, and core prose protocols.
  * - 2026-09-11: Purification pass — dropped the ../physics.js import (the first-contact directive is now injected by builder.js) and removed the dead duplicate STABILITY_WARNING/STABILITY_CRITICAL strings (single source is modules/system.js STABILITY_LOCK).
  * - 2026-09-11: Complete module purification: relocated TEMPORAL_CONTRACT, TEMPORAL_PROTOCOLS, PROFILE_PROTOCOLS, and OUTPUT_FORMATS to task.js; delegated layout helpers (indent_all, inline_or_block, wrap_tag) to @utils/xml.js; protocols.js now has zero sibling imports.

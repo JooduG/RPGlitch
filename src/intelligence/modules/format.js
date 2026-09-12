@@ -6,10 +6,15 @@
  *
  * Single source of truth for prompt output specifications, JSON schemas,
  * and state mutation contracts:
+ * - SCHEMA_ATOMS: canonical director/task schema atoms
+ * - render_json_schema(keys, entity_type): universal schema composer over PROFILE_FIELDS
  * - OUTPUT_FORMATS dictionary with SCREAMING_SNAKE_CASE keys:
- *   PROSE, DIRECTOR, PROFILE, MEMORY_FORGE
+ *   PROSE, DIRECTOR, PROFILE, CONTINUUM
  * - get_output_format() resolver for canonical keys
  * - render_output_format_xml() dedicated envelope compiler
+ *
+ * This module is the reference blueprint for the other `modules/*` files:
+ * a frozen catalog + a key resolver + pure string compilers, nothing else.
  *
  * Architecture & Modification Rules:
  * - Zero backward compatibility (P4): single frozen catalog.
@@ -18,7 +23,7 @@
  * ============================================================================
  */
 
-import { escape_xml, indent_all } from "@utils";
+import { render_xml_tag } from "@utils";
 import { PROFILE_FIELDS } from "@data";
 
 // ── 0. Canonical Schema Atoms & Universal Composer ────────────────────────────
@@ -109,7 +114,7 @@ export const OUTPUT_FORMATS = Object.freeze({
   CONTINUUM: get_continuum_schema("character"),
 });
 
-// ── 1. Resolvers & Helpers ───────────────────────────────────────────────────
+// ── 2. Resolvers & Helpers ───────────────────────────────────────────────────
 
 /**
  * Resolves an output format, schema, or contract string from its key.
@@ -121,7 +126,7 @@ export function get_output_format(key, fallback = "") {
   return OUTPUT_FORMATS[key] || fallback;
 }
 
-// ── 2. Output Format XML Renderers ───────────────────────────────────────────
+// ── 3. Output Format XML Renderers ───────────────────────────────────────────
 
 /**
  * Compiles a dedicated <OUTPUT_FORMAT> XML block.
@@ -132,15 +137,14 @@ export function get_output_format(key, fallback = "") {
  * @returns {string}
  */
 export function render_output_format_xml({ mode = "", content = "", indent_level = 2 }) {
-  const mode_attr = mode ? ` mode="${escape_xml(mode)}"` : "";
   const trimmed = String(content || "").trim();
   if (!trimmed) return "";
-  const indented = indent_all(trimmed, indent_level);
-  return `<OUTPUT_FORMAT${mode_attr}>\n${indented}\n</OUTPUT_FORMAT>`;
+  return render_xml_tag({ tag: "OUTPUT_FORMAT", attrs: { mode }, children: [trimmed], child_indent: indent_level });
 }
 
 /**
  * CHANGELOG
+ * - 2026-09-12: Standardization pass — render_output_format_xml now delegates to the shared `render_xml_tag` composer; header + section numbering corrected (CONTINUUM, not MEMORY_FORGE). Positioned as the reference blueprint for the modules/ layer.
  * - 2026-09-12: Introduced `SCHEMA_ATOMS` and universal schema composer `render_json_schema(keys, entity_type)` unifying `DIRECTOR`, `PROFILE`, and `MEMORY_FORGE` schemas directly onto `PROFILE_FIELDS` with zero hardcoding or drift.
  * - 2026-09-12: Added `get_profile_schema(entity_type)` and `get_memory_forge_schema(entity_type)` to dynamically generate entity-type specific JSON schemas for characters and fractals.
  * - 2026-09-12: Deconstructed, merged, and rebuilt OUTPUT_FORMATS into cohesive, purpose-driven keys. Unified BRACKETS with PSEUDO_JSON, and array outputs into MEMORIES. Stripped redundant negative repetition and hardcoded colors from PROFILE schema. Added canonical alias mapping in get_output_format.

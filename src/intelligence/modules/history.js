@@ -12,11 +12,30 @@
  *
  * Architecture & Modification Rules:
  * - Unidirectional layer flow: pure string compilation.
+ * - Blueprint (format.js): `HISTORY_DEFAULTS` catalog + `resolve_history` resolver + pure compilers over @utils `render_xml_tag`.
  * - Single source of truth for conversational and episodic history formatting.
  * ============================================================================
  */
 
-import { escape_xml, prompt_escape, collapse_history, truncate_at_word } from "@utils";
+import { escape_xml, prompt_escape, collapse_history, truncate_at_word, render_xml_tag } from "@utils";
+
+// ── 0. History Window Catalog & Resolver ──────────────────────────────────────
+
+/**
+ * Canonical history-window defaults. Modes override these via `prompts.js`
+ * `history` layer config, resolved here so no call site hardcodes a window.
+ * @type {Readonly<{ enabled: boolean, limit: number, max_chars: number, offset: number }>}
+ */
+export const HISTORY_DEFAULTS = Object.freeze({ enabled: true, limit: 16, max_chars: 400, offset: 0 });
+
+/**
+ * Resolves a mode's `history` config over the canonical defaults.
+ * @param {Partial<typeof HISTORY_DEFAULTS>|null|undefined} [config]
+ * @returns {{ enabled: boolean, limit: number, max_chars: number, offset: number }}
+ */
+export function resolve_history(config) {
+  return { ...HISTORY_DEFAULTS, ...(config && typeof config === "object" ? config : {}) };
+}
 
 // ── 1. Turn Log XML Formatter ────────────────────────────────────────────────
 
@@ -74,19 +93,20 @@ export function format_recent_history(history = [], max_turns = 16, max_chars = 
 // ── 3. Chapter History & Input History XML ───────────────────────────────────
 
 /**
- * Renders an entity's closed-chapter history so the Memory Forge can
+ * Renders an entity's closed-chapter history so the Continuum Caretaker can
  * recognize milestone boundaries.
  * @param {any} entity
+ * @param {number} [indent=0]
  * @returns {string}
  */
-export function render_chapter_history_xml(entity) {
+export function render_chapter_history_xml(entity, indent = 0) {
   const chapters = Array.isArray(entity?.chapters) ? entity.chapters : [];
   const closed = chapters.filter((c) => c?.status === "closed");
   if (!closed.length) return "";
   const rows = closed
     .slice(-6)
     .map((c) => `- Chapter ${escape_xml(String(c.title || "Untitled"))}: ${escape_xml(String(c.summary || "").slice(0, 220))}`);
-  return `<CHAPTER_HISTORY>\n${rows.join("\n")}\n</CHAPTER_HISTORY>`;
+  return render_xml_tag({ tag: "CHAPTER_HISTORY", children: rows, indent, separator: "\n" });
 }
 
 /**
@@ -97,10 +117,17 @@ export function render_chapter_history_xml(entity) {
  * @returns {string}
  */
 export function render_input_history_xml(history = [], max_turns = 16, max_chars = 400) {
-  return `  <INPUT_HISTORY>\n    ${format_recent_history(history, max_turns, max_chars)}\n  </INPUT_HISTORY>`;
+  return render_xml_tag({
+    tag: "INPUT_HISTORY",
+    children: [format_recent_history(history, max_turns, max_chars)],
+    indent: 2,
+    child_indent: 2,
+    separator: "\n",
+  });
 }
 
 /**
  * CHANGELOG
+ * - 2026-09-12: Standardization pass — added the `HISTORY_DEFAULTS` catalog + `resolve_history` resolver so modes drive their history window via `prompts.js` instead of call-site literals; `render_chapter_history_xml` / `render_input_history_xml` now compose through `render_xml_tag` (the `<INPUT_HISTORY>` JSON is uniformly indented).
  * - 2026-09-11: Initial creation of modular history.js extracting render_history, format_recent_history, render_chapter_history_xml, and render_input_history_xml.
  */

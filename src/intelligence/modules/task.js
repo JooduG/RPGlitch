@@ -12,17 +12,18 @@
  * - Cognitive thinking format (<THINK_FORMAT>)
  * - Master Story Turn Block compiler (render_task)
  * - Director Task Block & Environmental Hint (render_director_task, render_terse_director_task)
- * - Memory Forge Task Block (render_memory_forge_task)
+ * - Memory Forge Task Block (render_continuum_task)
  * - Turn Action Directives (SCENE_DIRECTIVES, GHOSTWRITE_DIRECTIVES, CHARACTER_DIRECTIVES, SORTING_DIRECTIVES)
  *
  * Architecture & Modification Rules:
  * - Unidirectional layer flow: pure string compilation.
+ * - Blueprint (format.js): frozen directive/protocol catalogs + pure `render_*` compilers over @utils `render_xml_tag`.
  * - Single source of truth for turn-level pacing, action directives, and task calibration.
  * - Zero sibling imports: layout utilities imported exclusively from @utils.
  * ============================================================================
  */
 
-import { escape_xml, prompt_escape, inline_or_block, wrap_tag, indent_all } from "@utils";
+import { escape_xml, prompt_escape, inline_or_block, wrap_tag, indent_all, render_xml_tag } from "@utils";
 import { extract_style_dna } from "@data";
 import { OUTPUT_FORMATS } from "./format.js";
 
@@ -297,14 +298,14 @@ export function render_director_task({ round, input = "", last_ai_text = "", sch
 }
 
 /**
- * Compiles the Memory Forge <TASK> block.
+ * Compiles the Continuum Caretaker <TASK> block (Shot 2B memory consolidation).
  * @param {Object} params
  * @param {string} params.target_name
  * @param {string} params.target_key
  * @param {string} [params.schema]
  * @returns {string}
  */
-export function render_memory_forge_task({ target_name, target_key, schema = "" }) {
+export function render_continuum_task({ target_name, target_key, schema = "" }) {
   const schema_block = schema ? `\n\n    Output strict JSON matching this schema:\n    ${schema}` : "";
   return `  <TASK>\n    Analyze recent history specifically for TARGET ENTITY "${escape_xml(target_name)}" (${escape_xml(target_key)}). Record internal evaluation in "_thought_process".\n    Extract state mutations and outward relationships ("${escape_xml(target_name)} → [Target]: [Dynamic]").${schema_block}\n  </TASK>`;
 }
@@ -319,14 +320,13 @@ export function render_memory_forge_task({ target_name, target_key, schema = "" 
  * @returns {string}
  */
 export function render_enhancement_instructions({ directive, format_instruction = "", macro_instruction = "", output_rules = "" }) {
-  const items = [
-    indent_all(escape_xml(directive), 4),
-    format_instruction ? indent_all(format_instruction, 4) : "",
-    macro_instruction ? indent_all(macro_instruction, 4) : "",
-    output_rules ? indent_all(output_rules, 4) : "",
-  ].filter(Boolean);
-
-  return `  <INSTRUCTIONS>\n    ${items.join("\n\n    ")}\n  </INSTRUCTIONS>`;
+  return render_xml_tag({
+    tag: "INSTRUCTIONS",
+    children: [escape_xml(directive), format_instruction, macro_instruction, output_rules],
+    indent: 2,
+    child_indent: 2,
+    separator: "\n\n",
+  });
 }
 
 /**
@@ -353,6 +353,7 @@ export function render_profile_sorting_instructions({
 
 /**
  * CHANGELOG
+ * - 2026-09-12: Standardization pass — render_enhancement_instructions now composes through the shared `render_xml_tag` primitive; renamed render_memory_forge_task -> render_continuum_task to align with the prompts.js mode key.
  * - 2026-09-12: Relocated render_enhancement_instructions and render_profile_sorting_instructions to task.js from format.js. Uses OUTPUT_FORMATS.profile as default schema.
  * - 2026-09-12: Modularization pass — relocated schemas (DIRECTOR_SCHEMA, PROFILE_SCHEMA, MEMORY_FORGE_SCHEMA), contracts (TEMPORAL_CONTRACT), OUTPUT_FORMATS, and instruction renderers to modules/format.js. task.js now focuses exclusively on turn execution, pacing, somatic currents, input formatting, and action directives. Zero sibling imports.
  * - 2026-09-11: Purification pass — added TASK_SCHEMAS/TASK_CONTRACTS and resolve_task_schema/resolve_task_contract; collapsed the private _indent onto @utils indent_all; removed the duplicate MACRO_DIRECTIVES import and the test-only TEMPORAL_PROTOCOLS/PROFILE_PROTOCOLS bundles.

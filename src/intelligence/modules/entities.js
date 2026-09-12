@@ -8,15 +8,17 @@
  * 1. Epistemic Wall Filters (strip_epistemic_tags, strip_epistemic_secrets)
  * 2. Appearance & Topography Merging (render_appearance)
  * 3. Identity & Dispositions (Dispositions, Proximate NPCs)
- * 4. Entity Sheet Compilers (Speaker, User Persona, Fractal)
+ * 4. Entity Sheet Catalog + single data-driven Sheet Compiler (SHEET_SPECS, render_sheet)
  * 5. Master <STORY_ENTITIES> Compiler (render_entity_sheets)
  * 6. Stage Spotlight Choreography (render_scene_spotlight_xml, SPOTLIGHT_RULES)
- * 7. Memory & Chapter XML Contexts (render_entity_memory_context, render_chapter_history_xml, format_recent_history)
- * 8. Profile Field Context XML (render_enhancement_field_context)
+ * 7. Memory & Enhancement Field Contexts (render_entity_memory_context, render_enhancement_field_context)
  *
  * Architecture & Modification Rules:
  * - Unidirectional layer flow: pure string compilation.
  * - Strict Epistemic Wall: user [SECRET: ...] and [PLAN: ...] are never exposed across boundaries.
+ * - One sheet compiler driven by a frozen SHEET_SPECS catalog (the format.js blueprint):
+ *   add a sheet by adding a spec, never by copying the compiler.
+ * - Field XML tags derive from the canonical @data PROFILE_FIELD_CATALOG (zero local label→tag drift).
  * ============================================================================
  */
 
@@ -32,7 +34,7 @@ import {
   indent_all,
   inline_or_block,
 } from "@utils";
-import { PROFILE_FIELDS } from "@data";
+import { PROFILE_FIELD_CATALOG } from "@data";
 
 // ── 1. Epistemic Wall Filters ─────────────────────────────────────────────────
 
@@ -65,6 +67,17 @@ export function strip_epistemic_secrets(state_text, is_owner = false) {
 }
 
 // ── 2. Appearance & Physical State Helpers ────────────────────────────────────
+
+/**
+ * Resolves the canonical XML tag for a profile field leaf from @data.
+ * @param {"character"|"fractal"} kind
+ * @param {string} path - Dot path (e.g. "eternal.non_physical", "future").
+ * @param {string} [fallback=""]
+ * @returns {string}
+ */
+function field_tag(kind, path, fallback = "") {
+  return PROFILE_FIELD_CATALOG[`${kind}.${path}`]?.tag || fallback;
+}
 
 /**
  * Expands a physical/non-physical state value into inner XML child rows.
@@ -141,7 +154,7 @@ function _active_names(entities, npc_entities, in_scene_ids) {
   return names;
 }
 
-function _render_dispositions(entity, entities, npc_entities, active_names, name_to_id, indent = 8) {
+function render_dispositions(entity, entities, npc_entities, active_names, name_to_id, indent = 8) {
   if (!entity?.name) return "";
   const src = String(entity.name).toLowerCase().trim();
   const pad = " ".repeat(indent);
@@ -169,125 +182,118 @@ function _render_proximate_npcs(npc_entities = [], in_scene_ids = []) {
   return `    <PROXIMATE_NPCS>\n${rows.join("\n")}\n    </PROXIMATE_NPCS>`;
 }
 
-// ── 4. Entity Sheet Compilers ─────────────────────────────────────────────────
+// ── 4. Entity Sheet Catalog & Unified Sheet Compiler ──────────────────────────
 
-function _render_speaker_sheet({
-  entity,
-  entities,
-  npc_entities = [],
-  accessors,
-  render_axes = null,
-  tag = "AI_CHARACTER",
-  is_owner = true,
-  dynamics = null,
-  axis_scope = null,
-  show_dispositions = true,
-  active_names = new Set(),
-  name_to_id = new Map(),
-}) {
+/**
+ * One speaker-like sheet spec (AI_CHARACTER / NPC): PSYCHOLOGY wrapper holding
+ * AGENDA / PERSONALITY / STATE / DISPOSITIONS / axes, then APPEARANCE + MEMORIES.
+ */
+const SPEAKER_SHEET = Object.freeze({
+  psychology_tag: "PSYCHOLOGY",
+  agenda_key: "AGENDA",
+  personality_tag: "PERSONALITY",
+  state_tag: "STATE",
+  state_strip_keys: Object.freeze(["STATE_OF_MIND", "STATE"]),
+  appearance_tag: "APPEARANCE",
+  memory_tag: "MEMORIES",
+  axes_scope: "somatic",
+  epistemic: Object.freeze({ state: "owner" }),
+});
+
+/**
+ * Frozen catalog of entity sheet layouts. The compiler below reads these specs,
+ * so sheet differences are declarative data — never duplicated control flow.
+ * `epistemic` policies: "owner" (keep iff the sheet's owner is visible),
+ * "always" (force-strip), or absent (never strip).
+ * @type {Readonly<Record<string, any>>}
+ */
+export const SHEET_SPECS = Object.freeze({
+  AI_CHARACTER: Object.freeze({ ...SPEAKER_SHEET, tag: "AI_CHARACTER", default_name: "AI_CHARACTER" }),
+  NPC: Object.freeze({ ...SPEAKER_SHEET, tag: "NPC", default_name: "NPC" }),
+  USER_PERSONA: Object.freeze({
+    tag: "USER_PERSONA",
+    default_name: "User",
+    psychology_tag: "PSYCHOLOGY",
+    agenda_key: "AGENDA",
+    agenda_gate: "user_agenda",
+    personality_tag: "PERSONALITY",
+    state_tag: "STATE",
+    state_strip_keys: Object.freeze(["STATE_OF_MIND", "STATE"]),
+    appearance_tag: "APPEARANCE",
+    memory_tag: "BACKSTORY",
+    axes_scope: null,
+    epistemic: Object.freeze({ personality: "always", state: "always", appearance: "always", memory: "always" }),
+  }),
+  FRACTAL: Object.freeze({
+    tag: "FRACTAL",
+    default_name: "the setting",
+    psychology_tag: "ATMOSPHERE",
+    agenda_key: "TRAJECTORY",
+    personality_tag: "PERMANENT_TRUTHS",
+    state_tag: "STATE",
+    state_strip_keys: Object.freeze(["CURRENT_STATE", "STATE"]),
+    appearance_tag: "TOPOGRAPHY",
+    memory_tag: "HISTORY",
+    axes_scope: "fractal",
+    epistemic: Object.freeze({}),
+  }),
+});
+
+/**
+ * Compiles one entity sheet from its catalog spec and a per-call context.
+ * @param {Object} spec - A SHEET_SPECS entry.
+ * @param {Object} ctx
+ * @returns {string}
+ */
+function render_sheet(spec, ctx) {
+  const { entity, entities, npc_entities, accessors, render_axes, dynamics, is_owner, show_dispositions, include_agenda, active_names, name_to_id } =
+    ctx;
   if (!entity) return "";
-  const id_attr = entity?.id ? ` id="${escape_xml(String(entity.id))}"` : "";
-  const rows = [];
-  rows.push(`    <${tag}${id_attr} name="${escape_xml(entity?.name || tag)}">`);
-  rows.push(`      <PSYCHOLOGY>`);
-  const agenda = accessors?.future(entity, { vector_text: true });
-  if (String(agenda || "").trim()) rows.push(`        <AGENDA>${inline_or_block(agenda, 10)}</AGENDA>`);
-  const personality = render_field_value(entity?.eternal?.non_physical, entity, entities);
-  if (String(personality || "").trim()) rows.push(`        <PERSONALITY>${inline_or_block(personality, 10)}</PERSONALITY>`);
-  const state = strip_leading_key_echo(render_field_value(strip_epistemic_secrets(entity?.present?.non_physical, is_owner), entity, entities), [
-    "STATE_OF_MIND",
-    "STATE",
-  ]);
-  if (String(state || "").trim()) rows.push(`        <STATE>${inline_or_block(state, 10)}</STATE>`);
-  if (show_dispositions) {
-    const dispositions = _render_dispositions(entity, entities, npc_entities, active_names, name_to_id, 8);
-    if (dispositions) rows.push(dispositions);
-  }
-  const axes = render_axes ? render_axes(dynamics, axis_scope) : "";
-  if (axes) rows.push(indent_all(axes, 8));
-  rows.push(`      </PSYCHOLOGY>`);
-  const appearance = render_appearance(entity?.eternal?.physical, entity?.present?.physical, entity, entities);
-  if (appearance) rows.push(appearance);
-  const memories = accessors?.past(entity, { vector_text: true });
-  if (String(memories || "").trim()) rows.push(`      <MEMORIES>${inline_or_block(memories, 8)}</MEMORIES>`);
-  rows.push(`    </${tag}>`);
-  return rows.join("\n");
-}
+  const epistemic = spec.epistemic || {};
+  const apply_epistemic = (value, policy) => {
+    if (!policy || policy === "none") return value;
+    return strip_epistemic_secrets(value, policy === "owner" ? is_owner : false);
+  };
 
-function _render_user_persona_sheet({
-  entities,
-  accessors,
-  include_agenda = false,
-  show_dispositions = false,
-  npc_entities = [],
-  active_names = new Set(),
-  name_to_id = new Map(),
-}) {
-  const user = entities?.USER;
-  if (!user) return "";
-  const id_attr = user?.id ? ` id="${escape_xml(String(user.id))}"` : "";
+  const id_attr = entity.id ? ` id="${escape_xml(String(entity.id))}"` : "";
   const rows = [];
-  rows.push(`    <USER_PERSONA${id_attr} name="${escape_xml(user?.name || "User")}">`);
-  rows.push(`      <PSYCHOLOGY>`);
-  if (include_agenda) {
-    const agenda = accessors?.future(user, { vector_text: true });
-    if (String(agenda || "").trim()) rows.push(`        <AGENDA>${inline_or_block(agenda, 10)}</AGENDA>`);
-  }
-  const personality = render_field_value(strip_epistemic_tags(user?.eternal?.non_physical), user, entities);
-  if (String(personality || "").trim()) rows.push(`        <PERSONALITY>${inline_or_block(personality, 10)}</PERSONALITY>`);
-  const state = strip_leading_key_echo(render_field_value(strip_epistemic_secrets(user?.present?.non_physical, false), user, entities), [
-    "STATE_OF_MIND",
-    "STATE",
-  ]);
-  if (String(state || "").trim()) rows.push(`        <STATE>${inline_or_block(state, 10)}</STATE>`);
-  if (show_dispositions) {
-    const dispositions = _render_dispositions(user, entities, npc_entities, active_names, name_to_id, 8);
-    if (dispositions) rows.push(dispositions);
-  }
-  rows.push(`      </PSYCHOLOGY>`);
-  const appearance = render_appearance(strip_epistemic_tags(user?.eternal?.physical), strip_epistemic_tags(user?.present?.physical), user, entities);
-  if (appearance) rows.push(appearance);
-  const backstory = strip_epistemic_secrets(accessors?.past(user, { vector_text: true }), false);
-  if (String(backstory || "").trim()) rows.push(`      <BACKSTORY>${inline_or_block(backstory, 8)}</BACKSTORY>`);
-  rows.push(`    </USER_PERSONA>`);
-  return rows.join("\n");
-}
+  rows.push(`    <${spec.tag}${id_attr} name="${escape_xml(entity.name || spec.default_name)}">`);
+  rows.push(`      <${spec.psychology_tag}>`);
 
-function _render_fractal_sheet({
-  entities,
-  accessors,
-  render_axes = null,
-  dynamics = null,
-  axis_scope = null,
-  show_dispositions = true,
-  npc_entities = [],
-  name_to_id = new Map(),
-  active_names = new Set(),
-}) {
-  const fractal = entities?.FRACTAL;
-  if (!fractal) return "";
-  const id_attr = fractal?.id ? ` id="${escape_xml(String(fractal.id))}"` : "";
-  const rows = [];
-  rows.push(`    <FRACTAL${id_attr} name="${escape_xml(fractal?.name || "the setting")}">`);
-  rows.push(`      <ATMOSPHERE>`);
-  const trajectory = accessors?.future(fractal, { vector_text: true });
-  if (String(trajectory || "").trim()) rows.push(`        <TRAJECTORY>${inline_or_block(trajectory, 10)}</TRAJECTORY>`);
-  const permanent = render_field_value(fractal?.eternal?.non_physical, fractal, entities);
-  if (String(permanent || "").trim()) rows.push(`        <PERMANENT_TRUTHS>${inline_or_block(permanent, 10)}</PERMANENT_TRUTHS>`);
-  const state = strip_leading_key_echo(render_field_value(fractal?.present?.non_physical, fractal, entities), ["CURRENT_STATE", "STATE"]);
-  if (String(state || "").trim()) rows.push(`        <STATE>${inline_or_block(state, 10)}</STATE>`);
+  if (!spec.agenda_gate || include_agenda) {
+    const agenda = accessors?.future(entity, { vector_text: true });
+    if (String(agenda || "").trim()) rows.push(`        <${spec.agenda_key}>${inline_or_block(agenda, 10)}</${spec.agenda_key}>`);
+  }
+  const personality = render_field_value(apply_epistemic(entity.eternal?.non_physical, epistemic.personality), entity, entities);
+  if (String(personality || "").trim()) rows.push(`        <${spec.personality_tag}>${inline_or_block(personality, 10)}</${spec.personality_tag}>`);
+
+  const state = strip_leading_key_echo(
+    render_field_value(apply_epistemic(entity.present?.non_physical, epistemic.state), entity, entities),
+    spec.state_strip_keys,
+  );
+  if (String(state || "").trim()) rows.push(`        <${spec.state_tag}>${inline_or_block(state, 10)}</${spec.state_tag}>`);
+
   if (show_dispositions) {
-    const dispositions = _render_dispositions(fractal, entities, npc_entities, active_names, name_to_id, 8);
+    const dispositions = render_dispositions(entity, entities, npc_entities, active_names, name_to_id, 8);
     if (dispositions) rows.push(dispositions);
   }
-  const axes = render_axes ? render_axes(dynamics, axis_scope) : "";
+  const axes = render_axes && spec.axes_scope ? render_axes(dynamics, spec.axes_scope) : "";
   if (axes) rows.push(indent_all(axes, 8));
-  rows.push(`      </ATMOSPHERE>`);
-  const topography = render_appearance(fractal?.eternal?.physical, fractal?.present?.physical, fractal, entities, "TOPOGRAPHY");
-  if (topography) rows.push(topography);
-  const history = accessors?.past(fractal, { vector_text: true });
-  if (String(history || "").trim()) rows.push(`      <HISTORY>${inline_or_block(history, 8)}</HISTORY>`);
-  rows.push(`    </FRACTAL>`);
+  rows.push(`      </${spec.psychology_tag}>`);
+
+  const appearance = render_appearance(
+    apply_epistemic(entity.eternal?.physical, epistemic.appearance),
+    apply_epistemic(entity.present?.physical, epistemic.appearance),
+    entity,
+    entities,
+    spec.appearance_tag,
+  );
+  if (appearance) rows.push(appearance);
+
+  const memory = apply_epistemic(accessors?.past(entity, { vector_text: true }), epistemic.memory);
+  if (String(memory || "").trim()) rows.push(`      <${spec.memory_tag}>${inline_or_block(memory, 8)}</${spec.memory_tag}>`);
+
+  rows.push(`    </${spec.tag}>`);
   return rows.join("\n");
 }
 
@@ -330,17 +336,16 @@ export function render_entity_sheets({
 
   if (entities?.AI) {
     parts.push(
-      _render_speaker_sheet({
+      render_sheet(SHEET_SPECS.AI_CHARACTER, {
         entity: entities.AI,
         entities,
         npc_entities,
         accessors,
         render_axes,
-        tag: "AI_CHARACTER",
-        is_owner: !is_npc,
         dynamics: axes_for.has("AI") ? speaker_dynamics : null,
-        axis_scope: "somatic",
+        is_owner: !is_npc,
         show_dispositions: dispositions_for.has("AI"),
+        include_agenda: true,
         active_names,
         name_to_id,
       }),
@@ -349,12 +354,16 @@ export function render_entity_sheets({
 
   if (entities?.USER) {
     parts.push(
-      _render_user_persona_sheet({
+      render_sheet(SHEET_SPECS.USER_PERSONA, {
+        entity: entities.USER,
         entities,
-        accessors,
-        include_agenda: !!sheets.user_agenda,
-        show_dispositions: dispositions_for.has("USER"),
         npc_entities,
+        accessors,
+        render_axes,
+        dynamics: null,
+        is_owner: false,
+        show_dispositions: dispositions_for.has("USER"),
+        include_agenda: !!sheets.user_agenda,
         active_names,
         name_to_id,
       }),
@@ -363,16 +372,18 @@ export function render_entity_sheets({
 
   if (entities?.FRACTAL) {
     parts.push(
-      _render_fractal_sheet({
+      render_sheet(SHEET_SPECS.FRACTAL, {
+        entity: entities.FRACTAL,
         entities,
+        npc_entities,
         accessors,
         render_axes,
         dynamics: axes_for.has("FRACTAL") ? fractal_dynamics : null,
-        axis_scope: "fractal",
+        is_owner: true,
         show_dispositions: dispositions_for.has("FRACTAL"),
-        npc_entities,
-        name_to_id,
+        include_agenda: true,
         active_names,
+        name_to_id,
       }),
     );
   }
@@ -388,17 +399,16 @@ export function render_entity_sheets({
   for (const n of npc_entities || []) {
     if (!npc_ids.has(String(n?.id))) continue;
     parts.push(
-      _render_speaker_sheet({
+      render_sheet(SHEET_SPECS.NPC, {
         entity: n,
         entities,
         npc_entities,
         accessors,
         render_axes,
-        tag: "NPC",
-        is_owner: true,
         dynamics: axes_for.has("NPC") ? speaker_dynamics || n?.dynamics : null,
-        axis_scope: "somatic",
+        is_owner: true,
         show_dispositions: dispositions_for.has("NPC"),
+        include_agenda: true,
         active_names,
         name_to_id,
       }),
@@ -406,17 +416,16 @@ export function render_entity_sheets({
   }
   if (is_npc && active_speaker && active_speaker_id && !npc_ids.has(active_speaker_id)) {
     parts.push(
-      _render_speaker_sheet({
+      render_sheet(SHEET_SPECS.NPC, {
         entity: active_speaker,
         entities,
         npc_entities,
         accessors,
         render_axes,
-        tag: "NPC",
-        is_owner: true,
         dynamics: axes_for.has("NPC") ? speaker_dynamics : null,
-        axis_scope: "somatic",
+        is_owner: true,
         show_dispositions: dispositions_for.has("NPC"),
+        include_agenda: true,
         active_names,
         name_to_id,
       }),
@@ -431,7 +440,7 @@ export function render_entity_sheets({
   return `  <STORY_ENTITIES>\n${parts.join("\n\n")}\n  </STORY_ENTITIES>`;
 }
 
-// ── 7. Stage Spotlight & Cast Convergence Rules ───────────────────────────────
+// ── 6. Stage Spotlight & Cast Convergence Rules ───────────────────────────────
 
 export const SPOTLIGHT_RULES = Object.freeze({
   ROUTING_HEADER: "SPEAKER ROUTING RULES:",
@@ -498,7 +507,7 @@ ${active_participants.join("\n")}${candidate_section}
 </SCENE_SPOTLIGHT>`;
 }
 
-// ── 8. Memory & Chapter XML Contexts ──────────────────────────────────────────
+// ── 7. Memory & Enhancement Field Contexts ────────────────────────────────────
 
 /**
  * Renders in-scene participant blocks and wraps them in <SCENE_CAST>.
@@ -526,16 +535,13 @@ export function render_scene_cast_xml(other_entities = {}, target_key = "") {
 export function render_entity_memory_context(key, entity) {
   if (!entity) return "";
   const name = escape_xml(entity?.name || key);
-  const is_fractal = key === "FRACTAL";
-  const kind = is_fractal ? "fractal" : "character";
+  const kind = key === "FRACTAL" ? "fractal" : "character";
 
-  const get_tag = (sec, sub) => PROFILE_FIELDS[kind]?.[sec]?.[sub]?.label?.toUpperCase()?.replace(/\s+/g, "_") || "";
-
-  const tag_personality = get_tag("eternal", "non_physical");
-  const tag_state_of_mind = get_tag("present", "non_physical");
-  const tag_appearance = get_tag("eternal", "physical");
-  const tag_current_look = get_tag("present", "physical");
-  const tag_future = PROFILE_FIELDS[kind]?.future?.label?.toUpperCase()?.replace(/\s+/g, "_") || "AGENDA";
+  const tag_personality = field_tag(kind, "eternal.non_physical");
+  const tag_state_of_mind = field_tag(kind, "present.non_physical");
+  const tag_appearance = field_tag(kind, "eternal.physical");
+  const tag_current_look = field_tag(kind, "present.physical");
+  const tag_future = field_tag(kind, "future", "AGENDA");
 
   return clean_xml(`
   <${key} name="${name}">
@@ -563,8 +569,6 @@ export function render_entity_memory_context(key, entity) {
   `).trim();
 }
 
-// ── 9. Profile Field Context XML ──────────────────────────────────────────────
-
 /**
  * Compiles specific sub-fragment context for field enhancement.
  * @param {any} entity
@@ -582,8 +586,7 @@ export function render_enhancement_field_context(entity, field_id, content = "",
 
   if (section && sub && ["eternal", "present"].includes(section)) {
     const block_for = (sec, sub_key) => {
-      const field_def = PROFILE_FIELDS[kind]?.[sec]?.[sub_key];
-      const tag = field_def?.label ? field_def.label.toUpperCase().replace(/\s+/g, "_") : "";
+      const tag = field_tag(kind, `${sec}.${sub_key}`);
       if (!tag) return "";
       const raw = entity?.[sec]?.[sub_key];
       const value =
@@ -608,8 +611,7 @@ export function render_enhancement_field_context(entity, field_id, content = "",
 
   if (field_id === "past" || field_id === "future") {
     const is_past = field_id === "past";
-    const field_def = PROFILE_FIELDS[kind]?.[field_id];
-    const tag = field_def?.label ? field_def.label.toUpperCase().replace(/\s+/g, "_") : is_past ? "MEMORIES" : "AGENDA";
+    const tag = field_tag(kind, field_id, is_past ? "MEMORIES" : "AGENDA");
     let text;
     if (is_past) {
       if (typeof format_past_fn === "function") {
@@ -635,6 +637,7 @@ export function render_enhancement_field_context(entity, field_id, content = "",
 
 /**
  * CHANGELOG
+ * - 2026-09-12: Standardization pass — the three near-duplicate sheet compilers (speaker/user/fractal) were collapsed into one data-driven `render_sheet` reading a frozen `SHEET_SPECS` catalog; every field XML tag now derives from the canonical `PROFILE_FIELD_CATALOG` in @data (no local label→tag duplication); banner corrected (chapter/recent-history functions live in history.js).
  * - 2026-09-11: Purification pass — dropped the ../physics.js import; dynamic-axis rendering is injected by builder.js via the render_axes callback.
  * - 2026-09-11: Delegated format_recent_history and render_chapter_history_xml to history.js, and added render_scene_cast_xml.
  * - 2026-09-11: Renamed module to entities.js. Absorbed format_recent_history, render_chapter_history_xml, render_entity_memory_context, and render_enhancement_field_context.

@@ -288,11 +288,57 @@ export function wrap_tag(tag, inner, indent) {
   return `${pad}<${tag}>\n${indent_all(body, indent + 2)}\n${pad}</${tag}>`;
 }
 
+/**
+ * Universal XML block composer — the single primitive every module builds tags from.
+ * Escapes attribute values with `escape_xml`, drops null/blank children, and joins
+ * them with `separator`. With no children and `closed: false` it emits only the open
+ * tag (used for streaming envelopes the transport closes later).
+ *
+ * @param {Object} [params]
+ * @param {string} params.tag - Tag name.
+ * @param {Record<string, string|number|null|undefined>} [params.attrs={}] - Attribute map (blank/null dropped).
+ * @param {Array<string|null|undefined>|string} [params.children=[]] - Ordered content blocks.
+ * @param {number} [params.indent=0] - Left-shift applied to the whole block (open, body, close).
+ * @param {number|null} [params.child_indent=null] - If set, indents the joined body by this many spaces (relative to the open tag).
+ * @param {boolean} [params.closed=true] - Whether to emit the closing tag.
+ * @param {string} [params.separator="\n\n"] - Joiner between child blocks.
+ * @param {boolean} [params.inline=false] - Emit `<tag>body</tag>` on one line when the body has no newline.
+ * @returns {string}
+ */
+export function render_xml_tag({
+  tag,
+  attrs = {},
+  children = [],
+  indent = 0,
+  child_indent = null,
+  closed = true,
+  separator = "\n\n",
+  inline = false,
+}) {
+  const attr_str = Object.entries(attrs)
+    .filter(([, value]) => value != null && value !== "")
+    .map(([key, value]) => `${key}="${escape_xml(String(value))}"`)
+    .join(" ");
+  const open = attr_str ? `<${tag} ${attr_str}>` : `<${tag}>`;
+  let body = (Array.isArray(children) ? children : [children])
+    .filter((item) => item != null && String(item).trim().length > 0)
+    .map((item) => String(item).trim())
+    .join(separator);
+  if (child_indent != null && body) body = indent_all(body, child_indent);
+  let block;
+  if (!body) block = closed ? `${open}\n</${tag}>` : open;
+  else if (inline && !body.includes("\n")) block = closed ? `${open}${body}</${tag}>` : `${open}${body}`;
+  else block = closed ? `${open}\n${body}\n</${tag}>` : `${open}\n${body}`;
+  return indent > 0 ? indent_all(block, indent) : block;
+}
+
 // ============================================================================
 // [CHANGELOG]
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-12: `render_xml_tag` promoted to a true universal composer — `indent` now shifts the WHOLE block (open + body + close) so nested blocks can be emitted at any depth, and `inline: true` emits `<tag>body</tag>` for single-line bodies. This is the one primitive every `modules/*` compiler builds from.
+ * - 2026-09-12: Added `render_xml_tag` — the universal XML block composer (attribute escaping, blank-child filtering, optional body indentation, optional open-only envelope) that every `modules/*` compiler now builds from, so tag layout lives in one place.
  * - 2026-09-11: Co-located indent_all, inline_or_block, and wrap_tag layout helpers in xml.js for cross-layer prompt formatting purity.
  * - 2026-09-10: physical_to_xml remaps known state-key aliases (SHORTS->APPAREL, SOMA->SOMATIC,
  *   POSE->POSTURE) while preserving the original casing of every other key, strips echoed

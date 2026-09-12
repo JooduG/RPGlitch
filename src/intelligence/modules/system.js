@@ -9,11 +9,12 @@
  *
  * Architecture & Modification Rules:
  * - Unidirectional layer flow: pure string compilation.
+ * - Blueprint (format.js): frozen catalog + resolver + pure compiler over @utils `render_xml_tag`.
  * - Single source of truth for <SYSTEM> open tag, closing tag, and role lines.
  * ============================================================================
  */
 
-import { escape_xml } from "@utils";
+import { render_xml_tag } from "@utils";
 
 // ── 1. Role Line Formatter ───────────────────────────────────────────────────
 
@@ -39,7 +40,7 @@ export const SYSTEM_ROLES = Object.freeze({
  * @returns {string}
  */
 export function render_role_xml(name, content) {
-  return `<ROLE name="${escape_xml(name)}">${content}</ROLE>`;
+  return render_xml_tag({ tag: "ROLE", attrs: { name }, children: [content], inline: true });
 }
 
 /**
@@ -52,14 +53,8 @@ export function render_role_xml(name, content) {
  * @returns {string}
  */
 export function resolve_system_role_line({ role = "DEFAULT", speaker_name = "", listener_name = "", fractal_name = "" } = {}) {
-  switch (role) {
-    case "NARRATOR":
-      return SYSTEM_ROLES.NARRATOR(speaker_name);
-    case "NPC":
-      return SYSTEM_ROLES.NPC(speaker_name, listener_name, fractal_name);
-    default:
-      return SYSTEM_ROLES.DEFAULT(speaker_name, listener_name, fractal_name);
-  }
+  const role_factory = SYSTEM_ROLES[role] || SYSTEM_ROLES.DEFAULT;
+  return role_factory(speaker_name, listener_name, fractal_name);
 }
 
 // ── 2. Stability Lock Messages & Truncation Recovery ─────────────────────────
@@ -87,18 +82,6 @@ export function resolve_stability_lock(meta) {
 // ── 3. Universal System Envelope Compiler ────────────────────────────────────
 
 /**
- * Builds the opening `<SYSTEM>` XML tag with round and mode attributes.
- * @param {number|string|null} round
- * @param {string} mode
- * @returns {string}
- */
-export function open_system_tag(round, mode) {
-  const round_val = escape_xml(String(round ?? 0));
-  const mode_val = escape_xml(String(mode || "interaction"));
-  return `<SYSTEM round="${round_val}" mode="${mode_val}">`;
-}
-
-/**
  * The standard closing tag for the system envelope.
  */
 export const SYSTEM_CLOSE_TAG = "</SYSTEM>";
@@ -115,33 +98,22 @@ export const SYSTEM_CLOSE_TAG = "</SYSTEM>";
  * @returns {string}
  */
 export function render_system_xml({ mode = "", round = null, attributes = {}, children = [], closed = false }) {
-  const merged_attributes = {
-    ...attributes,
-    ...(round != null ? { round } : {}),
-    ...(mode && !attributes.mode ? { mode } : {}),
-  };
-
-  const formatted_attributes = Object.entries(merged_attributes)
-    .filter(([_, value]) => value != null && value !== "")
-    .map(([key, value]) => `${key}="${escape_xml(String(value))}"`)
-    .join(" ");
-
-  const open_tag = formatted_attributes ? `<SYSTEM ${formatted_attributes}>` : "<SYSTEM>";
-
-  const content = (Array.isArray(children) ? children : [children])
-    .filter((item) => item != null && String(item).trim().length > 0)
-    .map((item) => String(item).trim())
-    .join("\n\n");
-
-  if (!content) {
-    return closed ? `${open_tag}\n${SYSTEM_CLOSE_TAG}` : open_tag;
-  }
-
-  return closed ? `${open_tag}\n${content}\n${SYSTEM_CLOSE_TAG}` : `${open_tag}\n${content}`;
+  return render_xml_tag({
+    tag: "SYSTEM",
+    attrs: {
+      ...attributes,
+      ...(round != null ? { round } : {}),
+      ...(mode && !attributes.mode ? { mode } : {}),
+    },
+    children,
+    closed,
+    separator: "\n\n",
+  });
 }
 
 /**
  * CHANGELOG
+ * - 2026-09-12: Standardization pass — render_system_xml now delegates to the shared `render_xml_tag` composer in @utils so envelope layout lives in one place; resolve_system_role_line is a pure SYSTEM_ROLES lookup instead of a duplicated switch; removed the dead `open_system_tag` (superseded by render_system_xml).
  * - 2026-09-12: Unified ground-up rebuild — merged render_prose_system_xml, render_director_system_xml, render_memory_system_xml, render_enhancement_system_xml, and render_sorting_system_xml into a single universal render_system_xml compiler.
  * - 2026-09-11: Purification pass — resolve_system_role_line now resolves from a manifest role key via SYSTEM_ROLES; the director envelope omits the spotlight line when none is supplied.
  * - 2026-09-11: Encapsulated <ROLE> XML format via render_role_xml and added resolve_system_role_line; standardized open_system_tag reuse and SYSTEM_CLOSE_TAG.

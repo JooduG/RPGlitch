@@ -56,12 +56,12 @@ import {
   render_entity_memory_context,
   render_enhancement_field_context,
 } from "./modules/entities.js";
-import { render_history, render_chapter_history_xml, render_input_history_xml } from "./modules/history.js";
+import { render_history, render_chapter_history_xml, render_input_history_xml, resolve_history } from "./modules/history.js";
 import {
   render_task,
   render_director_task,
   render_terse_director_task,
-  render_memory_forge_task,
+  render_continuum_task,
   DIRECTOR_TASK_RULES,
   SORTING_DIRECTIVES,
   SCENE_DIRECTIVES,
@@ -497,19 +497,20 @@ export const render_narrator_prose = render_scene_narrator;
  */
 export function render_memory({ target_entity, target_key = "AI_CHARACTER", other_entities = {}, history = [] }) {
   const config = get_prompt("continuum");
+  const history_config = resolve_history(config.history);
   const target_name = target_entity?.name || target_key;
   const target_xml = config.entities.target_context ? render_entity_memory_context(target_key, target_entity) : "";
   const scene_cast_xml = config.entities.scene_cast ? render_scene_cast_xml(other_entities, target_key) : "";
-  const chapter_xml = config.entities.chapter_history && target_entity ? render_chapter_history_xml(target_entity) : "";
+  const chapter_xml = config.entities.chapter_history && target_entity ? render_chapter_history_xml(target_entity, 2) : "";
 
   const target_type = target_entity?.type || (target_key === "FRACTAL" ? "fractal" : "character");
-  const task_xml = render_memory_forge_task({
+  const task_xml = render_continuum_task({
     target_name,
     target_key,
     schema: get_continuum_schema(target_type),
   });
 
-  const history_xml = render_input_history_xml(history);
+  const history_xml = history_config.enabled ? render_input_history_xml(history, history_config.limit, history_config.max_chars) : "";
 
   return render_system_xml({
     attributes: { role: "CONTINUUM_CARETAKER", target: target_name },
@@ -517,7 +518,7 @@ export function render_memory({ target_entity, target_key = "AI_CHARACTER", othe
       wrap_tag("PROTOCOLS", indent_continuation(render_protocols(config.protocols.join(", ")), 4).trim(), 2),
       wrap_tag("TARGET_ENTITY_CONTEXT", target_xml, 2),
       scene_cast_xml,
-      chapter_xml ? wrap_tag("CHAPTER_HISTORY", indent_continuation(chapter_xml, 4).trim(), 2) : null,
+      chapter_xml,
       history_xml,
       task_xml,
     ],
@@ -880,6 +881,7 @@ if (typeof window !== "undefined") {
 
 /**
  * CHANGELOG
+ * - 2026-09-12: Standardization pass — render_memory resolves its history window via history.js `resolve_history(config.history)` and gates <INPUT_HISTORY> on `history_config.enabled`; fixed a double <CHAPTER_HISTORY> wrap; imported render_continuum_task following the task.js rename.
  * - 2026-09-12: Switched format references to unified OUTPUT_FORMATS.MEMORIES in render_enhancement and cleaned up output_rules_str in render_profile_sorting.
  * - 2026-09-12: Zero backwards compatibility pass — consumed OUTPUT_FORMATS with kebab-case keys and get_output_format from format.js. Relocated instruction renderers to task.js.
  * - 2026-09-12: Modularization pass — imported schemas (DIRECTOR_SCHEMA, PROFILE_SCHEMA, MEMORY_FORGE_SCHEMA), contracts (TEMPORAL_CONTRACT), OUTPUT_FORMATS, and instruction renderers from format.js.

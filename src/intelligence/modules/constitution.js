@@ -10,11 +10,12 @@
  *
  * Architecture & Modification Rules:
  * - Unidirectional layer flow: pure string compilation.
+ * - Blueprint (format.js): frozen catalog + pure compiler over @utils `render_xml_tag`.
  * - Deeply frozen law definitions.
  * ============================================================================
  */
 
-import { escape_xml, prompt_escape } from "@utils";
+import { prompt_escape, render_xml_tag } from "@utils";
 
 // ── 1. The 5 Core Axiomatic Laws ─────────────────────────────────────────────
 
@@ -31,16 +32,24 @@ export const CONSTITUTION_LAWS = Object.freeze({
 
 /**
  * Compiles the `<AXIOMATIC_CONSTITUTION>` XML block rendering laws L1–L5 in insertion order.
+ * @param {number} [indent=2] - Left shift for the whole block.
  * @returns {string}
  */
-export function render_axiomatic_constitution() {
-  const constitution = Object.entries(CONSTITUTION_LAWS)
-    .map(([id, body]) => `      <LAW id="${escape_xml(id)}">${prompt_escape(body)}</LAW>`)
-    .join("\n");
-  return `  <AXIOMATIC_CONSTITUTION>\n${constitution}\n  </AXIOMATIC_CONSTITUTION>`;
+export function render_axiomatic_constitution(indent = 2) {
+  const laws = Object.entries(CONSTITUTION_LAWS).map(([id, body]) =>
+    render_xml_tag({ tag: "LAW", attrs: { id }, children: [prompt_escape(body)], inline: true }),
+  );
+  return render_xml_tag({
+    tag: "AXIOMATIC_CONSTITUTION",
+    children: laws,
+    indent,
+    child_indent: 6 - indent,
+    separator: "\n",
+  });
 }
 
 /**
  * CHANGELOG
+ * - 2026-09-12: Standardization pass — the `<AXIOMATIC_CONSTITUTION>` block is now composed from the shared `render_xml_tag` primitive (catalog + compiler, format.js blueprint); the block's indentation is a parameter.
  * - 2026-09-11: Initial creation of modular constitution.js extracting Axiomatic Constitution laws and compiler.
  */
