@@ -171,8 +171,7 @@ export class ProfileState {
    * @returns {any[]}
    */
   _vectors_of_type(type = "past") {
-    const arr = Array.isArray(this.char?.[type]) ? this.char[type] : [];
-    return arr.filter((v) => (v && typeof v === "object" ? v.type || "past" : "past") === "past");
+    return Array.isArray(this.char?.[type]) ? this.char[type] : [];
   }
 
   /**

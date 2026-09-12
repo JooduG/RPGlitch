@@ -183,13 +183,13 @@ describe("TelemetryCard Telemetry Logic", () => {
     expect(resolve_entity_name("ai")).toBe("AI CHARACTER");
   });
 
-  test("labels future/past vector types with their human-readable names", () => {
-    expect(vector_label("future", "future")).toBe("FUTURE VECTOR");
+  test("labels past memory and present vector types with their human-readable names", () => {
     expect(vector_label("past", "past")).toBe("PAST MEMORY");
-    expect(vector_label(undefined, "future")).toBe("FUTURE VECTOR");
+    expect(vector_label("memory", "memory")).toBe("PAST MEMORY");
+    expect(vector_label(undefined, "memory")).toBe("MEMORY");
     expect(vector_label(undefined, "past")).toBe("PAST MEMORY");
     expect(vector_label("present", "past")).toBe("PRESENT");
-    expect(vector_label("PROPHECY", "future")).toBe("PROPHECY");
+    expect(vector_label("PROPHECY", "memory")).toBe("PROPHECY");
   });
 
   test("MEMORY_FORMATION metadata includes future trajectory and consolidated present state", () => {

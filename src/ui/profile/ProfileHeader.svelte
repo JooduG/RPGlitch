@@ -146,7 +146,7 @@
           hover:[&::-webkit-scrollbar-thumb]:bg-[color-mix(in_srgb,var(--signature-color)_60%,var(--color-frisk))]
           [&::-webkit-scrollbar-track]:bg-transparent
         "
-        placeholder={PROFILE_FIELDS.description}
+        placeholder={PROFILE_FIELDS.description.description}
         bind:value={description}
         use:auto_resize
         onfocus={() => on_focus_field("description", "Description")}

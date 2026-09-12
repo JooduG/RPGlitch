@@ -91,11 +91,11 @@
               </div>
             {/if}
 
-            <!-- 3. FUTURE -->
+            <!-- 3. NEW MEMORIES -->
             {#if block.new_vectors.length > 0}
               {#each block.new_vectors as nv, i (i)}
                 <div class="flex gap-4 rounded-sm border-l-2 border-l-(--color-dev-accent) bg-black/40 px-3 py-2 font-mono text-xs leading-relaxed">
-                  <span class="w-28 shrink-0 text-(--color-dev-accent) uppercase">{vector_label(nv.type, "future")}</span>
+                  <span class="w-28 shrink-0 text-(--color-dev-accent) uppercase">{vector_label(nv.type, "memory")}</span>
                   <span class="line-clamp-2 overflow-hidden text-ellipsis text-slate-200" use:safe_html={render_text(nv.content)}></span>
                 </div>
               {/each}

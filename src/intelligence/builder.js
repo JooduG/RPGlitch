@@ -20,17 +20,22 @@
  */
 
 import { PROFILE_FIELD_CATALOG, get_style_keywords, get_narrative_style, resolve_active_style_key, render_narrative_style_xml } from "@data";
-import { escape_xml, prompt_escape, parse_macros, indent_continuation, strip_cognition_blocks, has_alternations, expand_entity_macros } from "@utils";
+import {
+  escape_xml,
+  prompt_escape,
+  parse_macros,
+  indent_continuation,
+  strip_cognition_blocks,
+  has_alternations,
+  expand_entity_macros,
+  wrap_tag,
+} from "@utils";
 import { get_prompt } from "./prompts.js";
 import {
   resolve_stability_lock,
   resolve_system_role_line,
   SYSTEM_CLOSE_TAG,
-  render_prose_system_xml,
-  render_director_system_xml,
-  render_memory_system_xml,
-  render_enhancement_system_xml,
-  render_sorting_system_xml,
+  render_system_xml,
   render_role_xml,
   SYSTEM_ROLES,
 } from "./modules/system.js";
@@ -57,21 +62,15 @@ import {
   render_director_task,
   render_terse_director_task,
   render_memory_forge_task,
-  render_enhancement_instructions,
-  render_profile_sorting_instructions,
-  DIRECTOR_SCHEMA,
   DIRECTOR_TASK_RULES,
-  PROFILE_SCHEMA,
   SORTING_DIRECTIVES,
-  MEMORY_FORGE_SCHEMA,
   SCENE_DIRECTIVES,
   GHOSTWRITE_DIRECTIVES,
   CHARACTER_DIRECTIVES,
-  OUTPUT_FORMATS,
-  TEMPORAL_CONTRACT,
-  resolve_task_schema,
-  resolve_task_contract,
+  render_enhancement_instructions,
+  render_profile_sorting_instructions,
 } from "./modules/task.js";
+import { OUTPUT_FORMATS, get_output_format, get_profile_schema, get_continuum_schema } from "./modules/format.js";
 import {
   render_available_keywords_xml,
   render_dynamics_xml,
@@ -209,7 +208,7 @@ export function render_director({
   const active_messages = raw_messages.length > 0 ? raw_messages : simulation_log;
   const accessors = render_accessors || render_builder.create_render_accessors(scene_entities, input, active_messages);
   const config = get_prompt("director");
-  const schema = resolve_task_schema(config.task.schema, DIRECTOR_SCHEMA);
+  const schema = get_output_format(config.format || config.task?.schema, OUTPUT_FORMATS.DIRECTOR);
   const shared_protocols = render_protocols(config.protocols.join(", "));
   const local_protocols = render_director_protocols_xml(schema);
   const full_protocols = `${shared_protocols}\n\n${local_protocols}`.trim();
@@ -227,17 +226,23 @@ export function render_director({
     fractal_dynamics: compressed_snapshot?.fractal?.dynamics,
   });
 
-  const system = render_director_system_xml({
-    role_xml: render_role_xml(config.system.role, SYSTEM_ROLES[config.system.role]()),
-    dynamics_xml: indent_continuation(render_dynamics_xml(), 2),
-    style_xml: render_narrative_style_xml(),
-    entity_sheets,
-    keyword_directives_xml: render_keyword_directives_xml(
-      DIRECTOR_TASK_RULES.KEYWORD_DIRECTIVES,
-      render_available_keywords_xml(active_style_keywords),
-    ),
-    protocols_xml: indent_continuation(full_protocols, 4).trim(),
-    spotlight_xml: config.entities.spotlight ? render_scene_spotlight_xml({ entities: scene_entities, npc_entities, in_scene_ids }) : "",
+  const keyword_directives_xml = render_keyword_directives_xml(
+    DIRECTOR_TASK_RULES.KEYWORD_DIRECTIVES,
+    render_available_keywords_xml(active_style_keywords),
+  );
+
+  const system = render_system_xml({
+    mode: "director",
+    children: [
+      render_role_xml(config.system.role, SYSTEM_ROLES[config.system.role]()),
+      render_dynamics_xml(),
+      render_narrative_style_xml(),
+      entity_sheets,
+      keyword_directives_xml,
+      wrap_tag("PROTOCOLS", full_protocols, 4),
+      config.entities.spotlight ? render_scene_spotlight_xml({ entities: scene_entities, npc_entities, in_scene_ids }) : null,
+    ],
+    closed: true,
   });
 
   const last_ai_message = (active_messages || []).filter((message) => message.role === "model").at(-1);
@@ -335,13 +340,11 @@ export function render_story_prose({
   const fractal_name = prompt_escape(entities?.FRACTAL?.name || "the setting");
   const role_line = resolve_system_role_line({ role: config.system.role, speaker_name, listener_name, fractal_name });
 
-  const system = render_prose_system_xml({
+  const system = render_system_xml({
     round,
     mode: config.system.mode,
-    role_line,
-    constitution,
-    core,
-    entities_block,
+    children: [role_line, constitution, core, entities_block],
+    closed: false,
   });
 
   const stability_lock_content = resolve_stability_lock(meta);
@@ -442,13 +445,11 @@ export function render_scene_narrator({
 
   const role_line = resolve_system_role_line({ role: config.system.role, speaker_name });
 
-  const system = render_prose_system_xml({
+  const system = render_system_xml({
     round,
     mode: config.system.mode,
-    role_line,
-    constitution,
-    core,
-    entities_block,
+    children: [role_line, constitution, core, entities_block],
+    closed: false,
   });
 
   const stability_lock_content = resolve_stability_lock(meta);
@@ -492,30 +493,35 @@ export function render_scene_narrator({
 export const render_narrator_prose = render_scene_narrator;
 
 /**
- * Memory Forge prompt compiler.
+ * Continuum prompt compiler (Shot-2 back-shot).
  */
 export function render_memory({ target_entity, target_key = "AI_CHARACTER", other_entities = {}, history = [] }) {
-  const config = get_prompt("memory_forge");
+  const config = get_prompt("continuum");
   const target_name = target_entity?.name || target_key;
   const target_xml = config.entities.target_context ? render_entity_memory_context(target_key, target_entity) : "";
   const scene_cast_xml = config.entities.scene_cast ? render_scene_cast_xml(other_entities, target_key) : "";
   const chapter_xml = config.entities.chapter_history && target_entity ? render_chapter_history_xml(target_entity) : "";
 
+  const target_type = target_entity?.type || (target_key === "FRACTAL" ? "fractal" : "character");
   const task_xml = render_memory_forge_task({
     target_name,
     target_key,
-    temporal_contract: resolve_task_contract(config.task.contract, TEMPORAL_CONTRACT),
-    schema: resolve_task_schema(config.task.schema, MEMORY_FORGE_SCHEMA),
+    schema: get_continuum_schema(target_type),
   });
 
-  return render_memory_system_xml({
-    target_name,
-    protocols_xml: indent_continuation(render_protocols(config.protocols.join(", ")), 4).trim(),
-    target_xml,
-    scene_cast_xml,
-    chapter_xml: chapter_xml ? indent_continuation(chapter_xml, 4).trim() : "",
-    history_xml: render_input_history_xml(history),
-    task_xml,
+  const history_xml = render_input_history_xml(history);
+
+  return render_system_xml({
+    attributes: { role: "CONTINUUM_CARETAKER", target: target_name },
+    children: [
+      wrap_tag("PROTOCOLS", indent_continuation(render_protocols(config.protocols.join(", ")), 4).trim(), 2),
+      wrap_tag("TARGET_ENTITY_CONTEXT", target_xml, 2),
+      scene_cast_xml,
+      chapter_xml ? wrap_tag("CHAPTER_HISTORY", indent_continuation(chapter_xml, 4).trim(), 2) : null,
+      history_xml,
+      task_xml,
+    ],
+    closed: true,
   });
 }
 
@@ -529,39 +535,41 @@ export function render_enhancement({
   content,
   is_image_field = false,
   is_array_field = false,
-  array_mode = "append_new",
+  _array_mode = "append_new",
   field_id = "",
   layer_key = "",
   entity = null,
   entity_type = "character",
 }) {
   const config = get_prompt("enhancement");
-  const formats = OUTPUT_FORMATS;
-  const format_instruction = is_array_field ? (array_mode === "patch_single" ? formats.ARRAY_SINGLE : formats.ARRAY_APPEND) : "";
   const macro_instruction = !is_image_field ? resolve_macro_directive(entity_type) : "";
-  const output_rules = is_array_field ? "" : field_id.endsWith(".physical") || is_image_field ? formats.BRACKETS : formats.PROSE;
+  const output_rules = is_array_field || field_id.endsWith(".physical") || is_image_field ? "" : OUTPUT_FORMATS.PROSE;
 
   const instructions_xml = render_enhancement_instructions({
     directive,
-    format_instruction,
     macro_instruction,
     output_rules,
   });
 
-  return render_enhancement_system_xml({
-    role: enhancer,
-    enhancing: label,
-    field: field_id,
-    instructions_xml,
-    protocols_xml: indent_continuation(render_protocols(config.protocols.join(", ")), 4).trim(),
-    contract_xml: indent_continuation(escape_xml(resolve_task_contract(config.task.contract, TEMPORAL_CONTRACT) || ""), 4).trim(),
-    layer_key,
-    field_context_xml: config.entities.field_context
-      ? render_enhancement_field_context(entity, field_id, content, entity_type, (e, c) =>
-          temporal_engine.format(resolve_vector_pool(e), c || "", { max_chars: 1500 }),
-        )
-      : "",
-    input_content: indent_continuation(escape_xml(content), 4).trim(),
+  return render_system_xml({
+    mode: "enhancement",
+    attributes: {
+      role: enhancer || "GENERAL",
+      enhancing: label || "",
+      field: field_id,
+    },
+    children: [
+      instructions_xml,
+      wrap_tag("PROTOCOLS", indent_continuation(render_protocols(config.protocols.join(", ")), 4).trim(), 2),
+      layer_key ? `<LAYER>${escape_xml(layer_key)}</LAYER>` : null,
+      config.entities.field_context
+        ? render_enhancement_field_context(entity, field_id, content, entity_type, (e, c) =>
+            temporal_engine.format(resolve_vector_pool(e), c || "", { max_chars: 1500 }),
+          )
+        : null,
+      wrap_tag("INPUT_CONTENT", indent_continuation(escape_xml(content), 4).trim(), 2),
+    ],
+    closed: true,
   });
 }
 
@@ -579,10 +587,10 @@ export function render_profile_sorting(entity_type = "character", options = {}) 
 
   const ingestion_str = options.ingestion ? `\n\n    ${indent_continuation(SORTING_DIRECTIVES.INGESTION, 4)}` : "";
   const redistribute_str = options.redistribute ? `\n\n    ${indent_continuation(SORTING_DIRECTIVES.REDISTRIBUTE, 4)}` : "";
-  const output_rules_str = `\n\n    ${indent_continuation(OUTPUT_FORMATS.JSON_OBJECT, 4)}`;
+  const output_rules_str = "";
 
   const instructions_xml = render_profile_sorting_instructions({
-    schema: resolve_task_schema(config.task.schema, PROFILE_SCHEMA),
+    schema: get_profile_schema(resolved_type),
     pov_instruction: PROTOCOL_LIBRARY.POV[config.task.pov] || PROTOCOL_LIBRARY.POV.THIRD_PERSON,
     focus_directive,
     ingestion_str,
@@ -590,9 +598,14 @@ export function render_profile_sorting(entity_type = "character", options = {}) 
     output_rules_str,
   });
 
-  return render_sorting_system_xml({
-    instructions_xml,
-    protocols_xml: indent_continuation(render_protocols(config.protocols.join(", ")), 4).trim(),
+  return render_system_xml({
+    mode: "sorting",
+    attributes: {
+      role: "NARRATIVE_STRUCTURER",
+      enhancing: "Entire Profile",
+    },
+    children: [instructions_xml, wrap_tag("PROTOCOLS", indent_continuation(render_protocols(config.protocols.join(", ")), 4).trim(), 2)],
+    closed: true,
   });
 }
 
@@ -867,6 +880,9 @@ if (typeof window !== "undefined") {
 
 /**
  * CHANGELOG
+ * - 2026-09-12: Switched format references to unified OUTPUT_FORMATS.MEMORIES in render_enhancement and cleaned up output_rules_str in render_profile_sorting.
+ * - 2026-09-12: Zero backwards compatibility pass — consumed OUTPUT_FORMATS with kebab-case keys and get_output_format from format.js. Relocated instruction renderers to task.js.
+ * - 2026-09-12: Modularization pass — imported schemas (DIRECTOR_SCHEMA, PROFILE_SCHEMA, MEMORY_FORGE_SCHEMA), contracts (TEMPORAL_CONTRACT), OUTPUT_FORMATS, and instruction renderers from format.js.
  * - 2026-09-11: Purification pass — the prompts.js manifest now drives compilation (protocol lists, constitution gate, role keys, schema/contract/pov keys, and the entity context/spotlight gates); render_dynamics_axes_xml is injected into render_entity_sheets and resolve_context_directives is computed here, breaking the modules→physics imports; ind renamed to indent_continuation; render_history hop collapsed.
  * - 2026-09-11: Updated import of CHARACTER_DIRECTIVES from modules/task.js following modular boundary alignment.
  * - 2026-09-11: Standardized system prompt envelope imports: consuming resolve_system_role_line, default render_director_system_xml role_xml, and SYSTEM_CLOSE_TAG.

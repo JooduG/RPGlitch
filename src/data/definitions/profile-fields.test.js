@@ -7,13 +7,19 @@ import { describe, expect, it } from "vitest";
 import { PROFILE_FIELDS, PROFILE_FIELD_CATALOG, PROFILE_SECTIONS_BY_TYPE, FLAT_LEAF_MAP, build_profile_sections } from "./profile-fields.js";
 
 describe("profile-fields.js schema invariants", () => {
-  it("defines top-level taxonomy sections", () => {
+  it("defines top-level taxonomy sections and entity root schemas", () => {
     expect(PROFILE_FIELDS.name).toBeDefined();
     expect(PROFILE_FIELDS.description).toBeDefined();
-    expect(PROFILE_FIELDS.eternal).toBeDefined();
-    expect(PROFILE_FIELDS.present).toBeDefined();
-    expect(PROFILE_FIELDS.past).toBeDefined();
-    expect(PROFILE_FIELDS.future).toBeDefined();
+    expect(PROFILE_FIELDS.character).toBeDefined();
+    expect(PROFILE_FIELDS.character.eternal).toBeDefined();
+    expect(PROFILE_FIELDS.character.present).toBeDefined();
+    expect(PROFILE_FIELDS.character.past).toBeDefined();
+    expect(PROFILE_FIELDS.character.future).toBeDefined();
+    expect(PROFILE_FIELDS.fractal).toBeDefined();
+    expect(PROFILE_FIELDS.fractal.eternal).toBeDefined();
+    expect(PROFILE_FIELDS.fractal.present).toBeDefined();
+    expect(PROFILE_FIELDS.fractal.past).toBeDefined();
+    expect(PROFILE_FIELDS.fractal.future).toBeDefined();
   });
 
   it("ensures every leaf in FLAT_LEAF_MAP maps to a valid schema path", () => {

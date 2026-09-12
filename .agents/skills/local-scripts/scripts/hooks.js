@@ -85,6 +85,27 @@ export function resolve_repo_root(payload) {
   return process.cwd().endsWith(".agents") ? fs.realpathSync(process.cwd() + "/..") : process.cwd();
 }
 
+/**
+ * Checks if the workspace is currently in Workshop/Prototyping Mode.
+ * Workshop mode bypasses friction gates (sequential thinking, planning handoff)
+ * during rapid brainstorming and workshopping.
+ *
+ * @param {Record<string, any>} [payload] Stdin hook payload.
+ * @returns {boolean} True if workshop mode is active.
+ */
+export function is_workshop_mode(payload) {
+  if (process.env.WORKSHOP_MODE === "true" || process.env.WORKSHOP_MODE === "1") {
+    return true;
+  }
+  try {
+    const repo_root = resolve_repo_root(payload);
+    const flag_path = path.join(repo_root, "tmp", ".workshop_mode");
+    return fs.existsSync(flag_path);
+  } catch {
+    return false;
+  }
+}
+
 // =================================================================================================
 // 1. CONSTANTS & WORKSPACE REGISTRIES
 // =================================================================================================
@@ -198,6 +219,11 @@ export function handle_command_guard(payload) {
  * @param {any} payload Hook payload from stdin.
  */
 export function handle_sequential_thinking_gate(payload) {
+  if (is_workshop_mode(payload)) {
+    send_hook_response({ decision: "allow" });
+    return;
+  }
+
   const tool_call = payload?.toolCall || {};
   const tool_args = tool_call.args || {};
   const target_file = tool_args.TargetFile || "";
@@ -938,6 +964,7 @@ run();
 /**
  * CHANGELOG
  * -------------------------------------------------------------------------------------------------
+ * 2026-09-12: Added is_workshop_mode helper and bypass in handle_sequential_thinking_gate to allow zero-friction prototyping when WORKSHOP_MODE is set or tmp/.workshop_mode exists.
  * 2026-09-05: Initial creation of consolidated hooks.js dispatcher unifying all 10 Antigravity hooks.
  * 2026-09-05: Fixed circuit breaker false positives (exempted read-only tools, dynamically resolved tmp/.tool-failures.json), optimized transcript parsing (sliced last 60 lines), softened sequential thinking gate on multi-file/repeat edits to ask, and added deep structural equality comparison in handle_waldzell_router.
  * 2026-09-05: A5 clarification — reverted file-architecture-gate to write_to_file only in hooks.json. The handler enforces header/changelog law at file creation time; replace_file_content/multi_replace_file_content operate on existing files in targeted patches and cannot meaningfully enforce full structural blocks.

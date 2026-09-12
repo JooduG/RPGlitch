@@ -529,13 +529,13 @@ export function render_entity_memory_context(key, entity) {
   const is_fractal = key === "FRACTAL";
   const kind = is_fractal ? "fractal" : "character";
 
-  const get_tag = (sec, sub) => PROFILE_FIELDS[sec]?.[sub]?.[kind]?.label?.toUpperCase()?.replace(/\s+/g, "_") || "";
+  const get_tag = (sec, sub) => PROFILE_FIELDS[kind]?.[sec]?.[sub]?.label?.toUpperCase()?.replace(/\s+/g, "_") || "";
 
   const tag_personality = get_tag("eternal", "non_physical");
   const tag_state_of_mind = get_tag("present", "non_physical");
   const tag_appearance = get_tag("eternal", "physical");
   const tag_current_look = get_tag("present", "physical");
-  const tag_future = "AGENDA";
+  const tag_future = PROFILE_FIELDS[kind]?.future?.label?.toUpperCase()?.replace(/\s+/g, "_") || "AGENDA";
 
   return clean_xml(`
   <${key} name="${name}">
@@ -582,7 +582,7 @@ export function render_enhancement_field_context(entity, field_id, content = "",
 
   if (section && sub && ["eternal", "present"].includes(section)) {
     const block_for = (sec, sub_key) => {
-      const field_def = PROFILE_FIELDS[sec]?.[sub_key]?.[kind];
+      const field_def = PROFILE_FIELDS[kind]?.[sec]?.[sub_key];
       const tag = field_def?.label ? field_def.label.toUpperCase().replace(/\s+/g, "_") : "";
       if (!tag) return "";
       const raw = entity?.[sec]?.[sub_key];
@@ -608,7 +608,8 @@ export function render_enhancement_field_context(entity, field_id, content = "",
 
   if (field_id === "past" || field_id === "future") {
     const is_past = field_id === "past";
-    const tag = is_past ? PROFILE_FIELDS.past.label.toUpperCase() : "AGENDA";
+    const field_def = PROFILE_FIELDS[kind]?.[field_id];
+    const tag = field_def?.label ? field_def.label.toUpperCase().replace(/\s+/g, "_") : is_past ? "MEMORIES" : "AGENDA";
     let text;
     if (is_past) {
       if (typeof format_past_fn === "function") {

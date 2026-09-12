@@ -89,11 +89,11 @@ function assert_fused_shape(result, mode) {
   return true;
 }
 
-const REQUIRED_MODULE_KEYS = ["system", "constitution", "protocols", "entities", "task"];
-const EXPECTED_PROMPT_KEYS = ["director", "enhancement", "ghostwrite", "interaction", "memory_forge", "narrator", "npc", "sorting"];
+const REQUIRED_MODULE_KEYS = ["system", "constitution", "protocols", "entities", "format", "task"];
+const EXPECTED_PROMPT_KEYS = ["continuum", "director", "enhancement", "ghostwrite", "interaction", "narrator", "npc", "sorting"];
 
 describe("prompt-modes registry", () => {
-  it("defines all 5 module keys (system, constitution, protocols, entities, task) for every mode", () => {
+  it("defines all 6 module keys (system, constitution, protocols, entities, format, task) for every mode", () => {
     for (const [_key, mode] of Object.entries(prompt_modes)) {
       for (const key of REQUIRED_MODULE_KEYS) {
         expect(mode).toHaveProperty(key);
@@ -102,6 +102,7 @@ describe("prompt-modes registry", () => {
       expect(typeof mode.constitution.axiomatic).toBe("boolean");
       expect(Array.isArray(mode.protocols)).toBe(true);
       expect(typeof mode.entities).toBe("object");
+      expect(typeof mode.format).toBe("string");
       expect(typeof mode.task).toBe("object");
     }
   });

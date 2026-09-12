@@ -84,7 +84,7 @@ export function resolve_stability_lock(meta) {
   return "";
 }
 
-// ── 3. System Envelope Constructors ──────────────────────────────────────────
+// ── 3. Universal System Envelope Compiler ────────────────────────────────────
 
 /**
  * Builds the opening `<SYSTEM>` XML tag with round and mode attributes.
@@ -104,155 +104,45 @@ export function open_system_tag(round, mode) {
 export const SYSTEM_CLOSE_TAG = "</SYSTEM>";
 
 /**
- * Builds the complete system envelope for story/narrator prose prompts.
+ * Universally compiles the root `<SYSTEM>` XML envelope across all simulation modes.
+ *
  * @param {Object} params
- * @param {number|string|null} params.round
- * @param {string} params.mode
- * @param {string} params.role_line
- * @param {string} params.constitution
- * @param {string} params.core
- * @param {string} params.entities_block
+ * @param {string} [params.mode=""] - Prompt mode attribute (e.g. "interaction", "director", "continuum")
+ * @param {number|string|null} [params.round=null] - Active simulation round
+ * @param {Record<string, string|number|null|undefined>} [params.attributes={}] - Custom attributes (e.g. role, target, field)
+ * @param {Array<string|null|undefined>} [params.children=[]] - Ordered array of content blocks
+ * @param {boolean} [params.closed=false] - Whether to close the envelope with </SYSTEM>
  * @returns {string}
  */
-export function render_prose_system_xml({ round, mode, role_line, constitution, core, entities_block }) {
-  const open_tag = open_system_tag(round, mode);
-  return `\n${open_tag}\n${role_line}\n${constitution}\n\n${core}\n\n${entities_block}\n`.trim();
-}
+export function render_system_xml({ mode = "", round = null, attributes = {}, children = [], closed = false }) {
+  const merged_attributes = {
+    ...attributes,
+    ...(round != null ? { round } : {}),
+    ...(mode && !attributes.mode ? { mode } : {}),
+  };
 
-/**
- * Builds the complete system envelope for Director prompts.
- * @param {Object} params
- * @param {string} [params.role_xml]
- * @param {string} params.dynamics_xml
- * @param {string} params.style_xml
- * @param {string} params.entity_sheets
- * @param {string} params.keyword_directives_xml
- * @param {string} params.protocols_xml
- * @param {string} params.spotlight_xml
- * @returns {string}
- */
-export function render_director_system_xml({
-  role_xml,
-  dynamics_xml,
-  style_xml,
-  entity_sheets,
-  keyword_directives_xml,
-  protocols_xml,
-  spotlight_xml,
-}) {
-  const resolved_role_xml = role_xml || render_role_xml("DIRECTOR", SYSTEM_ROLES.DIRECTOR());
-  const parts = [
-    '<SYSTEM mode="director">',
-    `  ${resolved_role_xml}`,
-    `  ${dynamics_xml}`,
-    `  ${style_xml}`,
-    entity_sheets,
-    "",
-    keyword_directives_xml,
-    "",
-    "  <PROTOCOLS>",
-    `    ${protocols_xml}`,
-    "  </PROTOCOLS>",
-    "",
-    spotlight_xml ? `  ${spotlight_xml}` : null,
-    SYSTEM_CLOSE_TAG,
-  ];
-  return parts
-    .filter((p) => p != null)
-    .join("\n")
-    .trim();
-}
+  const formatted_attributes = Object.entries(merged_attributes)
+    .filter(([_, value]) => value != null && value !== "")
+    .map(([key, value]) => `${key}="${escape_xml(String(value))}"`)
+    .join(" ");
 
-/**
- * Builds the complete system envelope for Memory Forge prompts.
- * @param {Object} params
- * @param {string} params.target_name
- * @param {string} params.protocols_xml
- * @param {string} params.target_xml
- * @param {string} [params.scene_cast_xml]
- * @param {string} [params.chapter_xml]
- * @param {string} params.history_xml
- * @param {string} params.task_xml
- * @returns {string}
- */
-export function render_memory_system_xml({ target_name, protocols_xml, target_xml, scene_cast_xml = "", chapter_xml = "", history_xml, task_xml }) {
-  return `
-<SYSTEM role="CONTINUUM_CARETAKER" target="${escape_xml(target_name)}">
-  <PROTOCOLS>
-    ${protocols_xml}
-  </PROTOCOLS>
-  <TARGET_ENTITY_CONTEXT>
-${target_xml}
-  </TARGET_ENTITY_CONTEXT>
-${scene_cast_xml}${chapter_xml ? `  <CHAPTER_HISTORY>\n    ${chapter_xml}\n  </CHAPTER_HISTORY>\n` : ""}${history_xml}
-${task_xml}
-</SYSTEM>
-  `.trim();
-}
+  const open_tag = formatted_attributes ? `<SYSTEM ${formatted_attributes}>` : "<SYSTEM>";
 
-/**
- * Builds the complete system envelope for Profile Enhancement prompts.
- * @param {Object} params
- * @param {string} params.role
- * @param {string} params.enhancing
- * @param {string} params.field
- * @param {string} params.instructions_xml
- * @param {string} params.protocols_xml
- * @param {string} params.contract_xml
- * @param {string} [params.layer_key]
- * @param {string} [params.field_context_xml]
- * @param {string} params.input_content
- * @returns {string}
- */
-export function render_enhancement_system_xml({
-  role,
-  enhancing,
-  field,
-  instructions_xml,
-  protocols_xml,
-  contract_xml,
-  layer_key = "",
-  field_context_xml = "",
-  input_content,
-}) {
-  const layer_line = layer_key ? `<LAYER>${escape_xml(layer_key)}</LAYER>\n  ` : "";
-  const context_line = field_context_xml ? `${field_context_xml}\n  ` : "";
-  return `
-<SYSTEM role="${escape_xml(role || "GENERAL")}" enhancing="${escape_xml(enhancing || "")}" field="${escape_xml(field)}">
-${instructions_xml}
-  <PROTOCOLS>
-    ${protocols_xml}
-  </PROTOCOLS>
-  <CONTRACT>
-    ${contract_xml}
-  </CONTRACT>
-  ${layer_line}${context_line}<INPUT_CONTENT>
-    ${input_content}
-  </INPUT_CONTENT>
-</SYSTEM>
-  `.trim();
-}
+  const content = (Array.isArray(children) ? children : [children])
+    .filter((item) => item != null && String(item).trim().length > 0)
+    .map((item) => String(item).trim())
+    .join("\n\n");
 
-/**
- * Builds the complete system envelope for Profile Sorting prompts.
- * @param {Object} params
- * @param {string} params.instructions_xml
- * @param {string} params.protocols_xml
- * @returns {string}
- */
-export function render_sorting_system_xml({ instructions_xml, protocols_xml }) {
-  return `
-<SYSTEM role="NARRATIVE_STRUCTURER" enhancing="Entire Profile">
-${instructions_xml}
-  <PROTOCOLS>
-    ${protocols_xml}
-  </PROTOCOLS>
-</SYSTEM>
-  `.trim();
+  if (!content) {
+    return closed ? `${open_tag}\n${SYSTEM_CLOSE_TAG}` : open_tag;
+  }
+
+  return closed ? `${open_tag}\n${content}\n${SYSTEM_CLOSE_TAG}` : `${open_tag}\n${content}`;
 }
 
 /**
  * CHANGELOG
+ * - 2026-09-12: Unified ground-up rebuild — merged render_prose_system_xml, render_director_system_xml, render_memory_system_xml, render_enhancement_system_xml, and render_sorting_system_xml into a single universal render_system_xml compiler.
  * - 2026-09-11: Purification pass — resolve_system_role_line now resolves from a manifest role key via SYSTEM_ROLES; the director envelope omits the spotlight line when none is supplied.
  * - 2026-09-11: Encapsulated <ROLE> XML format via render_role_xml and added resolve_system_role_line; standardized open_system_tag reuse and SYSTEM_CLOSE_TAG.
  * - 2026-09-11: Added complete XML system envelopes (render_prose_system_xml, render_director_system_xml, render_memory_system_xml, render_enhancement_system_xml, render_sorting_system_xml).

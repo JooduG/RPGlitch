@@ -1,51 +1,30 @@
 /**
  * src/intelligence/modules/task.js
  * ============================================================================
- * 🎯 TASK MODULE — Turn Block, Delivery Posture, Currents & Think Format
+ * 🎯 TASK MODULE — Turn Block, Delivery Posture, Currents & Turn Directives
  * ============================================================================
  *
  * Compiles the <TASK> turn block across story modes:
- * - Pacing classification and length directives
+ * - Pacing classification and length directives (build_pacing_directive, build_recency_anchor)
  * - Dynamic Delivery Posture (<DELIVERY_POSTURE>)
  * - Sensory currents and somatic subtext (<CURRENTS>)
  * - Formatted user/narrative input (<INPUT origin="...">)
  * - Cognitive thinking format (<THINK_FORMAT>)
+ * - Master Story Turn Block compiler (render_task)
+ * - Director Task Block & Environmental Hint (render_director_task, render_terse_director_task)
+ * - Memory Forge Task Block (render_memory_forge_task)
+ * - Turn Action Directives (SCENE_DIRECTIVES, GHOSTWRITE_DIRECTIVES, CHARACTER_DIRECTIVES, SORTING_DIRECTIVES)
  *
  * Architecture & Modification Rules:
  * - Unidirectional layer flow: pure string compilation.
- * - Single source of truth for turn-level pacing and delivery calibration.
+ * - Single source of truth for turn-level pacing, action directives, and task calibration.
+ * - Zero sibling imports: layout utilities imported exclusively from @utils.
  * ============================================================================
  */
 
 import { escape_xml, prompt_escape, inline_or_block, wrap_tag, indent_all } from "@utils";
 import { extract_style_dna } from "@data";
-
-// ── 0. Output Formats & Templates ─────────────────────────────────────────────
-
-export const OUTPUT_FORMATS = Object.freeze({
-  PROSE: `OUTPUT RULES:
-- Emit ONLY the field content, as plain prose. No preamble, no commentary.
-- Do NOT wrap it in JSON, code fences (e.g. \`\`\`json), XML tags (e.g. <ETERNAL>, <NON_PHYSICAL>), markdown-bold labels (e.g. **PRESENT.NON_PHYSICAL**), backticks, or headers.
-- No keys, no labels, no scaffolding — just the text itself.`,
-  BRACKETS: `OUTPUT RULES:
-- Emit ONLY bracketed [KEY: value] directives, one bracket per line (e.g. [SHIRT: leather jacket], [HELD: lantern]).
-- Common keys: SHIRT, PANTS, SHOES, HELD, INJURY, DISGUISE, POSE, INVENTORY.
-- Do NOT wrap it in JSON, code fences (e.g. \`\`\`json), XML tags, markdown-bold labels, or headers.
-- Return clean brackets only.`,
-  ARRAY_APPEND: `OUTPUT RULES:
-- Return a JSON array of objects: [{"content": string, "emotional_weight": integer (1-10)}].
-- Generate 3-5 NEW distinct memories. Never duplicate a memory already listed in <ENTITY_CONTEXT>.
-- Do NOT wrap it in code fences (e.g. \`\`\`json), XML tags, or markdown.
-- Return valid JSON only.`,
-  ARRAY_SINGLE: `OUTPUT RULES:
-- Rewrite exactly this ONE memory. Return either a JSON array containing a single object [{"content": string, "emotional_weight": integer (1-10)}] or a plain text string.
-- Never return multiple entries.
-- Do NOT wrap it in code fences (e.g. \`\`\`json), XML tags, or markdown.`,
-  JSON_OBJECT: `OUTPUT RULES:
-- Emit ONLY the requested JSON object, starting with { and ending with }. No preamble, no commentary.
-- Do NOT wrap it in code fences (e.g. \`\`\`json), XML tags, or markdown.
-- Return valid JSON only.`,
-});
+import { OUTPUT_FORMATS } from "./format.js";
 
 // ── 1. Task Protocols & Pacing Presets ────────────────────────────────────────
 
@@ -83,42 +62,43 @@ Close with </THINK> before generating narrative prose.`,
     "Begin response with <THINK>. ALL internal calculations, scene/atmosphere shifts, and markdown headers MUST remain strictly INSIDE this block. Conduct thinking in the conversation language. Close with </THINK> response before narrative prose.",
 });
 
-// ── 2. Output Schemas ─────────────────────────────────────────────────────────
+// ── 2. Turn Action Directives ─────────────────────────────────────────────────
 
-export const DIRECTOR_SCHEMA = `{
-  "_thought_process": "<ONE short sentence: tactical intent & state delta>",
-  "next_action": "'AI_CHARACTER' (AI speaks) | 'FRACTAL' (Fractal narrates) | 'npc:<id>' (in-scene NPC speaks) | { "genesis": { "name": "<Name>", "description": "<description>" } } (mint brand-new NPC) | 'EPILOGUE_CONCLUDED' (quest won) | 'EPILOGUE_COLLAPSED' (quest lost)",
-  "keywords": ["<1-5 keywords from <AVAILABLE_KEYWORDS> or []>"],
-  "directors_note": "<1-5 lines of unseen acting/staging directives for the next speaker, or empty string>",
-  "dynamics_deltas": { "chaos": 0, "intensity": 0, "openness": 0, "affinity": 0, "velocity": 0, "entropy": 0 },
-  "visual_staging": "<optional: 1 line camera & lighting directive ONLY if triggering a scene image shift, else omit>",
-  "spotlight": { "enter": ["npc:<id>"], "exit": ["npc:<id>"] }
-}`;
+export const CHARACTER_DIRECTIVES = Object.freeze({
+  NPC_BOUNDARY: (name) =>
+    `Respond strictly as ${name} — a supporting character. Own only your own voice, actions, and perspective: never speak for <USER_PERSONA> or the AI character, and never resolve the overarching story quest on your own. Write third-person limited, present tense, and end on a natural beat.`,
+  INITIATIVE:
+    "Take active initiative to open or advance the scene. Drive events forward through decisions and reactions without waiting for permission.",
+  ADVANCE: "Advance the scene in response to <INPUT />.",
+});
 
-export const PROFILE_SCHEMA = `{
-  "name": "<Entity name string>",
-  "description": "<HUMAN EYES ONLY: internal notes / OOC summary>",
-  "signature_color": "<Choose from: Soft Rose, Crimson Red, Deep Indigo, Electric Cyan, Emerald Green, Forest Green, Adrenaline Pink, Lemon Yellow, Toxic Green, Scientific Teal, Space Blue, Pumpkin Amber, Proud Purple, Rusty Orange, Twilight Violet>",
-  "appearance": "<Permanent biometric appearance for image generation: build, face, eyes, hair, height, scars>",
-  "personality": "<Core timeless psychology: beliefs, drivers, cognitive patterns, vocal tone>",
-  "current_look": "<Current physical look: clothing, posture, expression, immediate visible condition>",
-  "state_of_mind": "<Current psychological state: immediate pressure, active focus, temporary behavioral driver>",
-  "past": ["<3-5 distinct formative memory strings>"],
-  "future": "<Single consolidated standing agenda string in active future tense>"
-}
+export const SCENE_DIRECTIVES = Object.freeze({
+  PROLOGUE: `You see everything. Open the scene. Use thinking to establish: What does this Fractal demand? What brought <AI_CHARACTER> and <USER_PERSONA> here? Unless context explicitly states otherwise, treat as strangers.
+Narrative Sequence:
+1. Present the Fractal atmosphere and current state.
+2. Place <USER_PERSONA> inside, connecting them via their profile thread.
+3. Place <AI_CHARACTER> inside and establish their current action.
+4. Trigger the encounter. End the prologue immediately before interaction begins.
+No dialogue.`,
+  EPILOGUE: `You see everything. Close the scene. Use thinking to evaluate unresolved threads and active <INTENT>/<AGENDA> vectors (fulfilled, fractured, or transformed). Write the epilogue depicting environmental aftermath and physical changes without forcing player physical surrender. End on lingering sensation, not summary. No dialogue.`,
+  COLLAPSE: `You see everything. Close the scene on irrevocable tragedy. Use thinking to weigh what was permanently broken, lost, or severed. Write the epilogue focusing on environmental aftermath, physical changes, and lingering environmental scars without forcing player physical surrender. Do not force heroic silver linings or unearned closure. End on enduring sensory silence. No dialogue.`,
+  CONTINUATION: `You are the Fractal itself, narrating the scene. Narrate the present moment through the setting's own atmosphere, sensory textures, ambient physics, and environmental shifts. Use thinking to evaluate the active atmosphere and any shift in the Fractal's state, then write the scene's reaction to recent events as vivid sensory prose. Never move <AI_CHARACTER> or <USER_PERSONA> against their will, never speak their dialogue or thoughts, and never resolve their choices for them. End the turn on one dominant hook — a decisive statement, a single action, a hovered beat, or a deliberate silence. No structural bracket labels.`,
+});
 
-- Return a single JSON object starting with { and ending with }. No preamble, no markdown backticks, no external XML tags.
-- Field values are CLEAN PROSE ONLY: never embed XML tags (e.g. <ETERNAL>, <NON_PHYSICAL>), markdown-bold labels (e.g. **PRESENT.NON_PHYSICAL**), or structural headers inside any value.`;
+export const GHOSTWRITE_DIRECTIVES = Object.freeze({
+  META: "Match the tone of the scene. Output ONLY in-character prose/dialogue suitable for the player's turn. No meta preamble, no out-of-character commentary.",
+  DRAFT: (user_name, ai_name) => `Draft a compelling, in-character next action or vocal response for ${user_name} in response to ${ai_name}.`,
+  ENHANCE: (user_name, draft) =>
+    `Enhance, expand, and polish the following draft written by ${user_name} into vivid, atmospheric action/dialogue:\n    ${draft}`,
+});
 
-export const MEMORY_FORGE_SCHEMA = `{
-  "_thought_process": "<one short sentence analyzing recent events for target entity>",
-  "target": "'AI_CHARACTER' | 'USER_PERSONA' | 'FRACTAL' | 'NPC_<id>'",
-  "eternal": { "physical": "Permanent baseline appearance change or empty string", "non_physical": "Permanent personality shift or empty string" },
-  "present": { "physical": "Clean updated current conditions (or empty string if unchanged)", "non_physical": "1-3 sentences of evocative present-tense state of mind matching the entity's register" },
-  "future": "2-5 sentences of active future tense standing agenda rewritten from recent events",
-  "past": [ { "content": "Durable fact emerged worth keeping (empty list if none)", "type": "past", "emotional_weight": 5 } ],
-  "relationships": ["Source → Target: dynamic description"]
-}`;
+export const SORTING_DIRECTIVES = Object.freeze({
+  REDISTRIBUTE: `REDISTRIBUTE: The source profile may have content in the wrong field. Move each fact to its correct field — e.g. a temporary state written under 'personality' belongs under 'state_of_mind'; a mood written under 'appearance' belongs under 'current_look'. Sort and relocate; do not merely regenerate in place. Never move content into or out of 'description' (internal OOC notes). Preserve the facts; only their location and phrasing may change. Strip any XML tags, markdown-bold field labels, or structural headers from values — they contain only clean prose.`,
+  INGESTION: `SOURCE OF TRUTH & INGESTION RULES:
+- Source text details are absolute truth. Map them faithfully into corresponding schema fields.
+- For absent details (e.g. attire, unstated motivations, physical attributes): synthesize vivid, lore-consistent defaults.
+- NEVER emit null, undefined, or empty string values.`,
+});
 
 // ── 3. Director Task Rules & Recovery ─────────────────────────────────────────
 
@@ -157,106 +137,18 @@ export function render_environmental_hint(input) {
 
 /**
  * Terse replacement for the Director task — used on retry after truncated JSON.
+ * @param {string} [schema=""]
  * @returns {string}
  */
-export function render_terse_director_task() {
+export function render_terse_director_task(schema = "") {
   return `
 <TASK>
-  ${DIRECTOR_TASK_RULES.JSON_RETURN(DIRECTOR_SCHEMA, "  ")}
+  ${DIRECTOR_TASK_RULES.JSON_RETURN(schema, "  ")}
 </TASK>
   `.trim();
 }
 
-// ── 4. Narrative Scene Directives ─────────────────────────────────────────────
-
-export const SCENE_DIRECTIVES = Object.freeze({
-  PROLOGUE: `You see everything. Open the scene. Use thinking to establish: What does this Fractal demand? What brought <AI_CHARACTER> and <USER_PERSONA> here? Unless context explicitly states otherwise, treat as strangers.
-Narrative Sequence:
-1. Present the Fractal atmosphere and current state.
-2. Place <USER_PERSONA> inside, connecting them via their profile thread.
-3. Place <AI_CHARACTER> inside and establish their current action.
-4. Trigger the encounter. End the prologue immediately before interaction begins.
-No dialogue.`,
-  EPILOGUE: `You see everything. Close the scene. Use thinking to evaluate unresolved threads and active <INTENT>/<AGENDA> vectors (fulfilled, fractured, or transformed). Write the epilogue depicting environmental aftermath and physical changes without forcing player physical surrender. End on lingering sensation, not summary. No dialogue.`,
-  COLLAPSE: `You see everything. Close the scene on irrevocable tragedy. Use thinking to weigh what was permanently broken, lost, or severed. Write the epilogue focusing on environmental aftermath, physical changes, and lingering environmental scars without forcing player physical surrender. Do not force heroic silver linings or unearned closure. End on enduring sensory silence. No dialogue.`,
-  CONTINUATION: `You are the Fractal itself, narrating the scene. Narrate the present moment through the setting's own atmosphere, sensory textures, ambient physics, and environmental shifts. Use thinking to evaluate the active atmosphere and any shift in the Fractal's state, then write the scene's reaction to recent events as vivid sensory prose. Never move <AI_CHARACTER> or <USER_PERSONA> against their will, never speak their dialogue or thoughts, and never resolve their choices for them. End the turn on one dominant hook — a decisive statement, a single action, a hovered beat, or a deliberate silence. No structural bracket labels.`,
-});
-
-// ── 5. Ghostwriting Directives ────────────────────────────────────────────────
-
-export const GHOSTWRITE_DIRECTIVES = Object.freeze({
-  META: "Match the tone of the scene. Output ONLY in-character prose/dialogue suitable for the player's turn. No meta preamble, no out-of-character commentary.",
-  DRAFT: (user_name, ai_name) => `Draft a compelling, in-character next action or vocal response for ${user_name} in response to ${ai_name}.`,
-  ENHANCE: (user_name, draft) =>
-    `Enhance, expand, and polish the following draft written by ${user_name} into vivid, atmospheric action/dialogue:\n    ${draft}`,
-});
-
-// ── 6. Character & Turn Action Directives ─────────────────────────────────────
-
-export const CHARACTER_DIRECTIVES = Object.freeze({
-  NPC_BOUNDARY: (name) =>
-    `Respond strictly as ${name} — a supporting character. Own only your own voice, actions, and perspective: never speak for <USER_PERSONA> or the AI character, and never resolve the overarching story quest on your own. Write third-person limited, present tense, and end on a natural beat.`,
-  INITIATIVE:
-    "Take active initiative to open or advance the scene. Drive events forward through decisions and reactions without waiting for permission.",
-  ADVANCE: "Advance the scene in response to <INPUT />.",
-});
-
-// ── 6. Profile Structuring Directives ─────────────────────────────────────────
-
-export const SORTING_DIRECTIVES = Object.freeze({
-  REDISTRIBUTE: `REDISTRIBUTE: The source profile may have content in the wrong field. Move each fact to its correct field — e.g. a temporary state written under 'personality' belongs under 'state_of_mind'; a mood written under 'appearance' belongs under 'current_look'. Sort and relocate; do not merely regenerate in place. Never move content into or out of 'description' (internal OOC notes). Preserve the facts; only their location and phrasing may change. Strip any XML tags, markdown-bold field labels, or structural headers from values — they contain only clean prose.`,
-  INGESTION: `SOURCE OF TRUTH & INGESTION RULES:
-- Source text details are absolute truth. Map them faithfully into corresponding schema fields.
-- For absent details (e.g. attire, unstated motivations, physical attributes): synthesize vivid, lore-consistent defaults.
-- NEVER emit null, undefined, or empty string values.`,
-});
-
-// ── 7. Temporal Continuum Layer Contract & Bundles ───────────────────────────
-
-export const TEMPORAL_CONTRACT = `TEMPORAL LAYER CONTRACT — ETERNAL / PRESENT / FUTURE / PAST
-- ETERNAL: Permanent baseline identity, personality traits, and physical form. Permanent narrative transformations update it; transient states belong in PRESENT. Explicit user edits always override.
-- PRESENT: Immediate volatile state. "physical" holds active attire, held props, injuries, and disguise via bracketed pseudo-JSON state tags (e.g. [SHIRT: sweater], [HELD: lantern], [INJURY: sprained ankle], [INVENTORY: item1, item2]); "non_physical" holds immediate mindset and emotional state. True only in this moment.
-- FUTURE: Single consolidated standing agenda — impending intent, immediate objective, or unresolved tension driving the character forward. Written in active future tense.
-- PAST: Settled historical anchors and durable facts. Append new consequential events only; never record transient moods.
-- MACROS: Use placeholder macros for entity references — '{{me}}' (self), '{{you}}' (the other primary party), '{{char}}' (AI character), '{{user}}' (user persona), '{{fractal}}' (setting). Never hardcode names.`;
-
-// ── 7b. Manifest-Driven Registries ────────────────────────────────────────────
-
-/** Registry of the JSON schemas addressable by `task.schema` manifest keys. */
-export const TASK_SCHEMAS = Object.freeze({
-  DIRECTOR_SCHEMA,
-  MEMORY_FORGE_SCHEMA,
-  PROFILE_SCHEMA,
-});
-
-/** Registry of the contracts addressable by `task.contract` manifest keys. */
-export const TASK_CONTRACTS = Object.freeze({
-  TEMPORAL_CONTRACT,
-});
-
-/**
- * Resolves a schema text from its manifest key.
- * @param {string} key
- * @param {string} [fallback=""]
- * @returns {string}
- */
-export function resolve_task_schema(key, fallback = "") {
-  return (key && TASK_SCHEMAS[key]) || fallback;
-}
-
-/**
- * Resolves a contract text from its manifest key.
- * @param {string} key
- * @param {string} [fallback=""]
- * @returns {string}
- */
-export function resolve_task_contract(key, fallback = "") {
-  return (key && TASK_CONTRACTS[key]) || fallback;
-}
-
-// ── 7. Helper Formatters & Indentation ────────────────────────────────────────
-
-// ── 3. Pacing & Delivery Posture ──────────────────────────────────────────────
+// ── 4. Pacing & Delivery Posture ──────────────────────────────────────────────
 
 /**
  * Pacing calibration: classifies user message and returns length/energy directive.
@@ -298,7 +190,7 @@ export function build_recency_anchor(snapshot, input) {
   return `<DELIVERY_POSTURE>\n    ${pacing}\n    <RHYTHM>${prompt_escape(rhythm)}</RHYTHM>\n    <DRIVE>${prompt_escape(drive)}</DRIVE>\n</DELIVERY_POSTURE>`;
 }
 
-// ── 4. Currents & Input Renderers ─────────────────────────────────────────────
+// ── 5. Currents & Input Renderers ─────────────────────────────────────────────
 
 /**
  * Renders the <CURRENTS> block (sensory experience + subtext).
@@ -324,7 +216,7 @@ export function render_task_input({ input_tag = "INPUT", input = "", input_origi
   return `    <${input_tag} origin="${escape_xml(origin)}">${inline_or_block(prompt_escape(String(input).trim()), 6)}</${input_tag}>`;
 }
 
-// ── 5. Master <TASK> Compiler ─────────────────────────────────────────────────
+// ── 6. Master Turn Block Compilers ────────────────────────────────────────────
 
 /**
  * Master turn block compiler (<TASK>).
@@ -385,7 +277,7 @@ export function render_task({
  * @param {string} [params.schema]
  * @returns {string}
  */
-export function render_director_task({ round, input = "", last_ai_text = "", schema = DIRECTOR_SCHEMA }) {
+export function render_director_task({ round, input = "", last_ai_text = "", schema = "" }) {
   const has_input = !!input?.trim();
   const evaluation =
     DIRECTOR_TASK_RULES.EVALUATE(has_input) + (Number(round) <= 1 ? DIRECTOR_TASK_RULES.ROUND_ONE : "") + ` ${DIRECTOR_TASK_RULES.USER_PERSONA_LOCK}`;
@@ -397,7 +289,7 @@ export function render_director_task({ round, input = "", last_ai_text = "", sch
     "<TASK>",
     `    ${evaluation}`,
     `    ${render_environmental_hint(input)}`,
-    `    ${DIRECTOR_TASK_RULES.JSON_RETURN(schema)}`,
+    schema ? `    ${DIRECTOR_TASK_RULES.JSON_RETURN(schema)}` : "",
     "</TASK>",
   ].filter(Boolean);
 
@@ -409,12 +301,12 @@ export function render_director_task({ round, input = "", last_ai_text = "", sch
  * @param {Object} params
  * @param {string} params.target_name
  * @param {string} params.target_key
- * @param {string} params.temporal_contract
  * @param {string} [params.schema]
  * @returns {string}
  */
-export function render_memory_forge_task({ target_name, target_key, temporal_contract, schema = MEMORY_FORGE_SCHEMA }) {
-  return `  <TASK>\n    ${indent_all(temporal_contract || "", 4)}\n\n    Analyze recent history specifically for TARGET ENTITY "${escape_xml(target_name)}" (${escape_xml(target_key)}). Record internal evaluation in "_thought_process".\n    Extract state mutations and outward relationships ("${escape_xml(target_name)} → [Target]: [Dynamic]") strictly adhering to the contract.\n\n    Output strict JSON matching this schema:\n    ${schema}\n  </TASK>`;
+export function render_memory_forge_task({ target_name, target_key, schema = "" }) {
+  const schema_block = schema ? `\n\n    Output strict JSON matching this schema:\n    ${schema}` : "";
+  return `  <TASK>\n    Analyze recent history specifically for TARGET ENTITY "${escape_xml(target_name)}" (${escape_xml(target_key)}). Record internal evaluation in "_thought_process".\n    Extract state mutations and outward relationships ("${escape_xml(target_name)} → [Target]: [Dynamic]").${schema_block}\n  </TASK>`;
 }
 
 /**
@@ -440,7 +332,7 @@ export function render_enhancement_instructions({ directive, format_instruction 
 /**
  * Compiles the Profile Sorting <INSTRUCTIONS> block.
  * @param {Object} params
- * @param {string} params.schema
+ * @param {string} [params.schema]
  * @param {string} params.pov_instruction
  * @param {string} params.focus_directive
  * @param {string} [params.ingestion_str]
@@ -449,7 +341,7 @@ export function render_enhancement_instructions({ directive, format_instruction 
  * @returns {string}
  */
 export function render_profile_sorting_instructions({
-  schema = PROFILE_SCHEMA,
+  schema = OUTPUT_FORMATS.PROFILE,
   pov_instruction,
   focus_directive,
   ingestion_str = "",
@@ -461,6 +353,8 @@ export function render_profile_sorting_instructions({
 
 /**
  * CHANGELOG
+ * - 2026-09-12: Relocated render_enhancement_instructions and render_profile_sorting_instructions to task.js from format.js. Uses OUTPUT_FORMATS.profile as default schema.
+ * - 2026-09-12: Modularization pass — relocated schemas (DIRECTOR_SCHEMA, PROFILE_SCHEMA, MEMORY_FORGE_SCHEMA), contracts (TEMPORAL_CONTRACT), OUTPUT_FORMATS, and instruction renderers to modules/format.js. task.js now focuses exclusively on turn execution, pacing, somatic currents, input formatting, and action directives. Zero sibling imports.
  * - 2026-09-11: Purification pass — added TASK_SCHEMAS/TASK_CONTRACTS and resolve_task_schema/resolve_task_contract; collapsed the private _indent onto @utils indent_all; removed the duplicate MACRO_DIRECTIVES import and the test-only TEMPORAL_PROTOCOLS/PROFILE_PROTOCOLS bundles.
  * - 2026-09-11: Complete module purification: relocated OUTPUT_FORMATS, TEMPORAL_CONTRACT, TEMPORAL_PROTOCOLS, and PROFILE_PROTOCOLS to task.js; imported layout helpers from @utils; task.js now has zero sibling imports.
  * - 2026-09-11: Relocated CHARACTER_DIRECTIVES (NPC_BOUNDARY, INITIATIVE, ADVANCE) to task.js to unify all turn action directives under <TASK>.

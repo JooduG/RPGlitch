@@ -6,7 +6,8 @@
 import { describe, expect, it, vi } from "vitest";
 import { apply_profile_to_entity } from "./profile.js";
 import { render_enhancement, render_profile_sorting } from "./builder.js";
-import { PROFILE_SCHEMA, SORTING_DIRECTIVES, OUTPUT_FORMATS } from "./modules/task.js";
+import { SORTING_DIRECTIVES } from "./modules/task.js";
+import { OUTPUT_FORMATS } from "./modules/format.js";
 import { MACRO_DIRECTIVES } from "./modules/protocols.js";
 
 // ── 1. Protocols & Schema Specifications ──────────────────────────────────────
@@ -18,17 +19,16 @@ describe("Profile Domain (profile.js)", () => {
       expect(Object.isFrozen(SORTING_DIRECTIVES)).toBe(true);
       expect(Object.isFrozen(OUTPUT_FORMATS)).toBe(true);
 
-      expect(PROFILE_SCHEMA).toContain('"name"');
-      expect(PROFILE_SCHEMA).toContain('"personality"');
-      expect(PROFILE_SCHEMA).toContain('"appearance"');
-      expect(PROFILE_SCHEMA).toContain('"past"');
-      expect(PROFILE_SCHEMA).toContain('"future"');
+      expect(OUTPUT_FORMATS.PROFILE).toContain('"name"');
+      expect(OUTPUT_FORMATS.PROFILE).toContain('"eternal"');
+      expect(OUTPUT_FORMATS.PROFILE).toContain('"present"');
+      expect(OUTPUT_FORMATS.PROFILE).toContain('"past"');
+      expect(OUTPUT_FORMATS.PROFILE).toContain('"future"');
 
       expect(OUTPUT_FORMATS.PROSE).toBeDefined();
-      expect(OUTPUT_FORMATS.BRACKETS).toBeDefined();
-      expect(OUTPUT_FORMATS.ARRAY_APPEND).toBeDefined();
-      expect(OUTPUT_FORMATS.ARRAY_SINGLE).toBeDefined();
-      expect(OUTPUT_FORMATS.JSON_OBJECT).toBeDefined();
+      expect(OUTPUT_FORMATS.DIRECTOR).toBeDefined();
+      expect(OUTPUT_FORMATS.PROFILE).toBeDefined();
+      expect(OUTPUT_FORMATS.CONTINUUM).toBeDefined();
     });
   });
 
@@ -186,6 +186,8 @@ describe("Profile Domain (profile.js)", () => {
 
 /**
  * CHANGELOG
+ * - 2026-09-12: Updated protocol tests to assert the 7 unified SCREAMING_SNAKE_CASE OUTPUT_FORMATS.
+ * - 2026-09-12: Updated imports for PROFILE_SCHEMA and OUTPUT_FORMATS from modules/format.js.
  * - 2026-09-11: Pointed the profile-protocol assertions at the primitives (PROFILE_SCHEMA / SORTING_DIRECTIVES / OUTPUT_FORMATS / MACRO_DIRECTIVES) after PROFILE_PROTOCOLS was pruned.
  * - 2026-09-11: Consolidated unit tests into profile.test.js matching profile.js domain module.
  */
