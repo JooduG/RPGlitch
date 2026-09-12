@@ -14,7 +14,7 @@ import {
   prune,
   archive_chapter,
 } from "./temporal.js";
-import { TEMPORAL_PROTOCOLS } from "./modules/task.js";
+import { TEMPORAL_CONTRACT, MEMORY_FORGE_SCHEMA } from "./modules/task.js";
 import { render_memory } from "./builder.js";
 import { llm_service, embed } from "@platform";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -902,9 +902,9 @@ describe("temporal_engine per-entity consolidation progress tracking (Track 2 Ph
     expect(mock_runtime.active_ai.relationships).toContain("Viper → Ghost: Growing mutual respect under fire");
   });
 
-  it("exports TEMPORAL_PROTOCOLS and renders memory prompt correctly", () => {
-    expect(TEMPORAL_PROTOCOLS.CONTRACT).toBeDefined();
-    expect(TEMPORAL_PROTOCOLS.SCHEMA).toBeDefined();
+  it("exports the temporal contract/schema and renders the memory prompt correctly", () => {
+    expect(TEMPORAL_CONTRACT).toBeDefined();
+    expect(MEMORY_FORGE_SCHEMA).toBeDefined();
     const prompt = render_memory({
       target_entity: { name: "Viper", eternal: {}, present: {} },
       target_key: "AI_CHARACTER",
@@ -919,5 +919,6 @@ describe("temporal_engine per-entity consolidation progress tracking (Track 2 Ph
 
 /**
  * CHANGELOG
+ * - 2026-09-11: Pointed the temporal-protocol assertions at TEMPORAL_CONTRACT / MEMORY_FORGE_SCHEMA after TEMPORAL_PROTOCOLS was pruned.
  * - 2026-09-11: Consolidated temporal tests into temporal.test.js for unified temporal domain module.
  */

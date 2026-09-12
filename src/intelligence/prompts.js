@@ -16,11 +16,16 @@
  *
  * Architecture & Module Keys:
  * Each prompt entry declaratively structures what it pulls from the 5 core modules:
- * - system: Root envelope metadata and role line resolver key
+ * - system: Root envelope metadata and role key (resolved through SYSTEM_ROLES)
  * - constitution: Axiomatic core inclusion
- * - protocols: List of canonical protocol keys
- * - entities: Sheet scoping, dispositions, dynamic axes, and spotlight flags
+ * - protocols: Ordered protocol keys compiled into the <PROTOCOLS> block
+ *   (prose modes emit the structural <CORE_PROTOCOLS> scaffold instead, so their
+ *   list is empty)
+ * - entities: Sheet scoping, dispositions, dynamic axes, context gates and spotlight
  * - task: Turn block formatting, think format, directives, schemas, and contracts
+ *
+ * Every key below is read by the assembly line in ./builder.js — this manifest is
+ * the control surface, not documentation.
  * ============================================================================
  */
 
@@ -36,7 +41,7 @@ export const PROMPTS = Object.freeze({
     constitution: Object.freeze({
       axiomatic: true,
     }),
-    protocols: Object.freeze(["STATE.PSEUDO_JSON", "COGNITION.EPISTEMIC_PHYSICS", "HYGIENE.DATA"]),
+    protocols: Object.freeze([]),
     entities: Object.freeze({
       dispositions: Object.freeze(["AI", "FRACTAL"]),
       dynamic_axes: Object.freeze(["AI", "FRACTAL"]),
@@ -47,7 +52,6 @@ export const PROMPTS = Object.freeze({
     task: Object.freeze({
       think_format: "character",
       input_tag: "INPUT",
-      directive: "ADVANCE",
     }),
   }),
 
@@ -59,7 +63,7 @@ export const PROMPTS = Object.freeze({
     constitution: Object.freeze({
       axiomatic: true,
     }),
-    protocols: Object.freeze(["STATE.PSEUDO_JSON", "COGNITION.EPISTEMIC_PHYSICS", "HYGIENE.DATA"]),
+    protocols: Object.freeze([]),
     entities: Object.freeze({
       dispositions: Object.freeze(["AI", "FRACTAL"]),
       dynamic_axes: Object.freeze(["AI", "FRACTAL"]),
@@ -70,7 +74,6 @@ export const PROMPTS = Object.freeze({
     task: Object.freeze({
       think_format: "character",
       input_tag: "INPUT",
-      directive: "GHOSTWRITE",
     }),
   }),
 
@@ -82,7 +85,7 @@ export const PROMPTS = Object.freeze({
     constitution: Object.freeze({
       axiomatic: true,
     }),
-    protocols: Object.freeze(["STATE.PSEUDO_JSON", "COGNITION.EPISTEMIC_PHYSICS", "HYGIENE.DATA"]),
+    protocols: Object.freeze([]),
     entities: Object.freeze({
       dispositions: Object.freeze(["FRACTAL", "NPC"]),
       dynamic_axes: Object.freeze(["NPC", "FRACTAL"]),
@@ -93,7 +96,6 @@ export const PROMPTS = Object.freeze({
     task: Object.freeze({
       think_format: "character",
       input_tag: "INPUT",
-      directive: "ADVANCE",
     }),
   }),
 
@@ -105,7 +107,7 @@ export const PROMPTS = Object.freeze({
     constitution: Object.freeze({
       axiomatic: true,
     }),
-    protocols: Object.freeze(["STATE.PSEUDO_JSON", "COGNITION.EPISTEMIC_PHYSICS", "HYGIENE.DATA"]),
+    protocols: Object.freeze([]),
     entities: Object.freeze({
       dispositions: Object.freeze(["AI", "USER", "FRACTAL", "NPC"]),
       dynamic_axes: Object.freeze(["FRACTAL"]),
@@ -116,7 +118,6 @@ export const PROMPTS = Object.freeze({
     task: Object.freeze({
       think_format: "narrator",
       input_tag: "INPUT",
-      directive: "SCENE",
     }),
   }),
 
@@ -139,7 +140,6 @@ export const PROMPTS = Object.freeze({
     task: Object.freeze({
       schema: "DIRECTOR_SCHEMA",
       input_tag: "USER_ACTION",
-      rules: "DIRECTOR_TASK_RULES",
       think_format: null,
     }),
   }),
@@ -203,7 +203,7 @@ export const PROMPTS = Object.freeze({
     constitution: Object.freeze({
       axiomatic: false,
     }),
-    protocols: Object.freeze(["HYGIENE.DATA", "POV.THIRD_PERSON"]),
+    protocols: Object.freeze(["HYGIENE.DATA"]),
     entities: Object.freeze({
       dispositions: Object.freeze([]),
       dynamic_axes: Object.freeze([]),
@@ -213,44 +213,20 @@ export const PROMPTS = Object.freeze({
     }),
     task: Object.freeze({
       schema: "PROFILE_SCHEMA",
-      directives: "SORTING_DIRECTIVES",
+      pov: "THIRD_PERSON",
       think_format: null,
     }),
   }),
 });
 
 /**
- * Compatible alias for legacy PROMPT_MODES.
- */
-export const PROMPT_MODES = PROMPTS;
-
-/**
- * Resolves a prompt config by key, falling back to `interaction`.
- * Provides both modern and legacy property accessors for sheets and input.
+ * Resolves a prompt manifest record by key, falling back to `interaction`.
  * @param {string} [key]
- * @returns {typeof PROMPTS[keyof typeof PROMPTS] & {
- *   system_mode: string,
- *   ghostwrite: boolean,
- *   input: { tag: string },
- *   think_format: string | null,
- *   sheets: typeof PROMPTS[keyof typeof PROMPTS]['entities']
- * }}
+ * @returns {typeof PROMPTS[keyof typeof PROMPTS]}
  */
 export function get_prompt(key) {
-  const base = (key && PROMPTS[key]) || PROMPTS.interaction;
-  return Object.assign({}, base, {
-    system_mode: base.system?.mode || "interaction",
-    ghostwrite: base.system?.mode === "ghostwrite",
-    input: { tag: base.task?.input_tag || "INPUT" },
-    think_format: base.task?.think_format || null,
-    sheets: base.entities,
-  });
+  return (key && PROMPTS[key]) || PROMPTS.interaction;
 }
-
-/**
- * Backward-compatible alias for get_prompt.
- */
-export const get_prompt_mode = get_prompt;
 
 /**
  * Resolves prompt config according to speaker context and turn flags.
@@ -266,8 +242,7 @@ export default PROMPTS;
 
 /**
  * CHANGELOG
+ * - 2026-09-11: Wired the manifest to the assembly line — protocol lists, constitution gating, entity context gates, role keys, schema/contract keys and the sorting POV key are now consumed by builder.js. Pruned inert task.directive/task.rules/task.directives keys and reconciled protocol lists with emitted output. Removed the PROMPT_MODES/get_prompt_mode compatibility aliases (P4).
  * - 2026-09-11: Renamed prompt-modes.js -> prompts.js. Elevated to module-keyed manifest registering all 8 prompt modes (system, constitution, protocols, entities, task).
- * - 2026-09-11: Streamlined PROMPT_MODES to the 5 core simulation turn modes, simplified input schema to { tag }, and pruned dead fields/mock modes.
- * - 2026-09-11: Expanded PROMPT_MODES registry with tooling & state engine modes: enhancement, profile, and temporal.
- * - 2026-09-11: Converted prompt-modes.json into canonical ESM module prompt-modes.js with frozen schemas and Universal File Architecture.
+ * - 2026-09-11: Converted prompt-modes.json into canonical ESM module with frozen schemas.
  */

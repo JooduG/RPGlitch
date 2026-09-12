@@ -4,7 +4,7 @@
  *
  * Sovereign domain file combining profile structuring, entity schema hydration,
  * field enhancement prompt compilers, and character genesis orchestration:
- * 1. Profile Protocols & Field Enhancement Compilers (PROFILE_PROTOCOLS, render_enhancement, render_profile_sorting)
+ * 1. Field Enhancement & Profile Structuring Compilers (render_enhancement, render_profile_sorting)
  * 2. Profile Structuring & Schema Mapper (structure_profile, apply_profile_to_entity)
  * 3. Character Genesis & Active Cast Spawning (spawn_character)
  */
@@ -218,6 +218,7 @@ export async function spawn_character(bridge, draft = {}) {
 
 /**
  * CHANGELOG
+ * - 2026-09-11: Header correction — PROFILE_PROTOCOLS bundle pruned in favour of the modules/task.js primitives.
  * - 2026-09-11: Grand Purification: prompt compilation moved to builder.js, leaving profile.js a 100% pure structuring, entity mapping, and genesis engine.
  * - 2026-09-11: Modularized PROFILE_PROTOCOLS: bound SCHEMA, MACROS, SORTING, and OUTPUT_FORMATS to modular imports.
  * - 2026-09-11: Consolidated profile-pipeline.js and profile-prompts.js into profile.js, unifying structuring, entity mapping, genesis, and field enhancement prompt compilers into a single domain file.

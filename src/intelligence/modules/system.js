@@ -43,23 +43,23 @@ export function render_role_xml(name, content) {
 }
 
 /**
- * Resolves the appropriate system role line based on character context and flags.
- * @param {Object} params
- * @param {boolean} [params.is_npc=false]
- * @param {boolean} [params.is_narrator=false]
- * @param {string} params.speaker_name
+ * Resolves the appropriate system role line from a manifest role key.
+ * @param {Object} [params]
+ * @param {string} [params.role="DEFAULT"] - Key into SYSTEM_ROLES (DEFAULT | NPC | NARRATOR).
+ * @param {string} [params.speaker_name=""]
  * @param {string} [params.listener_name=""]
  * @param {string} [params.fractal_name=""]
  * @returns {string}
  */
-export function resolve_system_role_line({ is_npc = false, is_narrator = false, speaker_name, listener_name = "", fractal_name = "" }) {
-  if (is_narrator) {
-    return SYSTEM_ROLES.NARRATOR(speaker_name);
+export function resolve_system_role_line({ role = "DEFAULT", speaker_name = "", listener_name = "", fractal_name = "" } = {}) {
+  switch (role) {
+    case "NARRATOR":
+      return SYSTEM_ROLES.NARRATOR(speaker_name);
+    case "NPC":
+      return SYSTEM_ROLES.NPC(speaker_name, listener_name, fractal_name);
+    default:
+      return SYSTEM_ROLES.DEFAULT(speaker_name, listener_name, fractal_name);
   }
-  if (is_npc) {
-    return SYSTEM_ROLES.NPC(speaker_name, listener_name, fractal_name);
-  }
-  return SYSTEM_ROLES.DEFAULT(speaker_name, listener_name, fractal_name);
 }
 
 // ── 2. Stability Lock Messages & Truncation Recovery ─────────────────────────
@@ -154,11 +154,11 @@ export function render_director_system_xml({
     `    ${protocols_xml}`,
     "  </PROTOCOLS>",
     "",
-    `  ${spotlight_xml}`,
+    spotlight_xml ? `  ${spotlight_xml}` : null,
     SYSTEM_CLOSE_TAG,
   ];
   return parts
-    .filter((p) => p !== undefined)
+    .filter((p) => p != null)
     .join("\n")
     .trim();
 }
@@ -253,6 +253,7 @@ ${instructions_xml}
 
 /**
  * CHANGELOG
+ * - 2026-09-11: Purification pass — resolve_system_role_line now resolves from a manifest role key via SYSTEM_ROLES; the director envelope omits the spotlight line when none is supplied.
  * - 2026-09-11: Encapsulated <ROLE> XML format via render_role_xml and added resolve_system_role_line; standardized open_system_tag reuse and SYSTEM_CLOSE_TAG.
  * - 2026-09-11: Added complete XML system envelopes (render_prose_system_xml, render_director_system_xml, render_memory_system_xml, render_enhancement_system_xml, render_sorting_system_xml).
  * - 2026-09-11: Added CONTINUUM_CARETAKER role line and harmonized DEFAULT, NPC, NARRATOR, DIRECTOR role strings.

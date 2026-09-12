@@ -6,29 +6,29 @@
 import { describe, expect, it, vi } from "vitest";
 import { apply_profile_to_entity } from "./profile.js";
 import { render_enhancement, render_profile_sorting } from "./builder.js";
-import { PROFILE_PROTOCOLS } from "./modules/task.js";
+import { PROFILE_SCHEMA, SORTING_DIRECTIVES, OUTPUT_FORMATS } from "./modules/task.js";
+import { MACRO_DIRECTIVES } from "./modules/protocols.js";
 
 // ── 1. Protocols & Schema Specifications ──────────────────────────────────────
 
 describe("Profile Domain (profile.js)", () => {
-  describe("PROFILE_PROTOCOLS", () => {
-    it("is deeply frozen and exports valid schema and formats", () => {
-      expect(Object.isFrozen(PROFILE_PROTOCOLS)).toBe(true);
-      expect(Object.isFrozen(PROFILE_PROTOCOLS.MACROS)).toBe(true);
-      expect(Object.isFrozen(PROFILE_PROTOCOLS.SORTING)).toBe(true);
-      expect(Object.isFrozen(PROFILE_PROTOCOLS.OUTPUT_FORMATS)).toBe(true);
+  describe("profile protocol primitives", () => {
+    it("are frozen and expose a valid schema and formats", () => {
+      expect(Object.isFrozen(MACRO_DIRECTIVES)).toBe(true);
+      expect(Object.isFrozen(SORTING_DIRECTIVES)).toBe(true);
+      expect(Object.isFrozen(OUTPUT_FORMATS)).toBe(true);
 
-      expect(PROFILE_PROTOCOLS.SCHEMA).toContain('"name"');
-      expect(PROFILE_PROTOCOLS.SCHEMA).toContain('"personality"');
-      expect(PROFILE_PROTOCOLS.SCHEMA).toContain('"appearance"');
-      expect(PROFILE_PROTOCOLS.SCHEMA).toContain('"past"');
-      expect(PROFILE_PROTOCOLS.SCHEMA).toContain('"future"');
+      expect(PROFILE_SCHEMA).toContain('"name"');
+      expect(PROFILE_SCHEMA).toContain('"personality"');
+      expect(PROFILE_SCHEMA).toContain('"appearance"');
+      expect(PROFILE_SCHEMA).toContain('"past"');
+      expect(PROFILE_SCHEMA).toContain('"future"');
 
-      expect(PROFILE_PROTOCOLS.OUTPUT_FORMATS.PROSE).toBeDefined();
-      expect(PROFILE_PROTOCOLS.OUTPUT_FORMATS.BRACKETS).toBeDefined();
-      expect(PROFILE_PROTOCOLS.OUTPUT_FORMATS.ARRAY_APPEND).toBeDefined();
-      expect(PROFILE_PROTOCOLS.OUTPUT_FORMATS.ARRAY_SINGLE).toBeDefined();
-      expect(PROFILE_PROTOCOLS.OUTPUT_FORMATS.JSON_OBJECT).toBeDefined();
+      expect(OUTPUT_FORMATS.PROSE).toBeDefined();
+      expect(OUTPUT_FORMATS.BRACKETS).toBeDefined();
+      expect(OUTPUT_FORMATS.ARRAY_APPEND).toBeDefined();
+      expect(OUTPUT_FORMATS.ARRAY_SINGLE).toBeDefined();
+      expect(OUTPUT_FORMATS.JSON_OBJECT).toBeDefined();
     });
   });
 
@@ -186,5 +186,6 @@ describe("Profile Domain (profile.js)", () => {
 
 /**
  * CHANGELOG
+ * - 2026-09-11: Pointed the profile-protocol assertions at the primitives (PROFILE_SCHEMA / SORTING_DIRECTIVES / OUTPUT_FORMATS / MACRO_DIRECTIVES) after PROFILE_PROTOCOLS was pruned.
  * - 2026-09-11: Consolidated unit tests into profile.test.js matching profile.js domain module.
  */

@@ -15,7 +15,6 @@
 
 import { escape_xml, prompt_escape, indent_all } from "@utils";
 import { extract_style_dna } from "@data";
-import { resolve_context_directives } from "../physics.js";
 
 // ── 0. Macro Directives Registry ─────────────────────────────────────────────
 
@@ -35,8 +34,6 @@ export const PROTOCOL_LIBRARY = Object.freeze({
     DATA: `${BASE_HYGIENE} Return strictly raw, unpadded structural data.`,
     AFFIRMATIVE_FRAMING:
       "Describe what IS physically in frame ('a softly moonlit glade' rather than 'no harsh sunlight'); keep the negative_prompt limited to global quality artifacts.",
-    STABILITY_WARNING: "WARNING: Structural drift detected. Maintain disciplined XML closures and clean markdown boundaries.",
-    STABILITY_CRITICAL: "CRITICAL: Structural collapse. Re-anchor immediately. Every XML tag must close cleanly.",
   }),
 
   // ── 1.2 State Mutation & Brackets (Pseudo-JSON) ────────────────────────────
@@ -155,26 +152,21 @@ export function resolve_pov_protocol(entity) {
  * Compiles the `<CORE_PROTOCOLS>` block shared across Story Prose turns:
  * SIMULATION_FIDELITY, PERSPECTIVE, ALTERNATION_OPTIONS, NARRATIVE_STYLE, PROSE_DISCIPLINE.
  *
- * @param {{ is_narrator?: boolean, pov_protocol?: string, style?: any, is_first_contact?: boolean, has_alternation?: boolean }} params
+ * @param {{ is_narrator?: boolean, pov_protocol?: string, style?: any, first_contact_directive?: string, has_alternation?: boolean }} params
  * @returns {string}
  */
 export function render_core_protocols({
   is_narrator = false,
   pov_protocol = "POV.FIRST_PERSON",
   style = null,
-  is_first_contact = false,
+  first_contact_directive = "",
   has_alternation = false,
 }) {
   const pov = is_narrator ? PROTOCOL_LIBRARY.POV.NARRATOR : PROTOCOL_LIBRARY.POV[pov_protocol.split(".")[1] || "FIRST_PERSON"];
   const person = is_narrator || pov_protocol === "POV.THIRD_PERSON" ? "THIRD" : "FIRST";
   const elements = Array.isArray(style?.elements) ? style.elements.filter(Boolean).join(", ") : "";
   const first_contact =
-    !is_narrator && is_first_contact
-      ? (() => {
-          const def = (resolve_context_directives(["first_contact"]) || [])[0];
-          return def ? `\n    <FIRST_CONTACT>${prompt_escape(def.directive)}</FIRST_CONTACT>` : "";
-        })()
-      : "";
+    !is_narrator && first_contact_directive ? `\n    <FIRST_CONTACT>${prompt_escape(first_contact_directive)}</FIRST_CONTACT>` : "";
   const style_dna = extract_style_dna(style);
   const description = String(style?.description || "").trim();
   const style_line =
@@ -235,6 +227,7 @@ export function render_keyword_directives_xml(rule_text, available_keywords_xml)
 
 /**
  * CHANGELOG
+ * - 2026-09-11: Purification pass — dropped the ../physics.js import (the first-contact directive is now injected by builder.js) and removed the dead duplicate STABILITY_WARNING/STABILITY_CRITICAL strings (single source is modules/system.js STABILITY_LOCK).
  * - 2026-09-11: Complete module purification: relocated TEMPORAL_CONTRACT, TEMPORAL_PROTOCOLS, PROFILE_PROTOCOLS, and OUTPUT_FORMATS to task.js; delegated layout helpers (indent_all, inline_or_block, wrap_tag) to @utils/xml.js; protocols.js now has zero sibling imports.
  * - 2026-09-11: Relocated CHARACTER_DIRECTIVES to task.js (co-locating turn execution directives under <TASK>) and pruned dead task.js schema imports.
  * - 2026-09-11: Added resolve_macro_directive and render_keyword_directives_xml.

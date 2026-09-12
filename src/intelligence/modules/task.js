@@ -17,7 +17,7 @@
  * ============================================================================
  */
 
-import { escape_xml, prompt_escape, inline_or_block, wrap_tag, MACRO_DIRECTIVES } from "@utils";
+import { escape_xml, prompt_escape, inline_or_block, wrap_tag, indent_all } from "@utils";
 import { extract_style_dna } from "@data";
 
 // ── 0. Output Formats & Templates ─────────────────────────────────────────────
@@ -220,29 +220,41 @@ export const TEMPORAL_CONTRACT = `TEMPORAL LAYER CONTRACT — ETERNAL / PRESENT 
 - PAST: Settled historical anchors and durable facts. Append new consequential events only; never record transient moods.
 - MACROS: Use placeholder macros for entity references — '{{me}}' (self), '{{you}}' (the other primary party), '{{char}}' (AI character), '{{user}}' (user persona), '{{fractal}}' (setting). Never hardcode names.`;
 
-export const TEMPORAL_PROTOCOLS = Object.freeze({
-  CONTRACT: TEMPORAL_CONTRACT,
-  SCHEMA: MEMORY_FORGE_SCHEMA,
+// ── 7b. Manifest-Driven Registries ────────────────────────────────────────────
+
+/** Registry of the JSON schemas addressable by `task.schema` manifest keys. */
+export const TASK_SCHEMAS = Object.freeze({
+  DIRECTOR_SCHEMA,
+  MEMORY_FORGE_SCHEMA,
+  PROFILE_SCHEMA,
 });
 
-export const PROFILE_PROTOCOLS = Object.freeze({
-  SCHEMA: PROFILE_SCHEMA,
-  MACROS: MACRO_DIRECTIVES,
-  SORTING: SORTING_DIRECTIVES,
-  OUTPUT_FORMATS: OUTPUT_FORMATS,
+/** Registry of the contracts addressable by `task.contract` manifest keys. */
+export const TASK_CONTRACTS = Object.freeze({
+  TEMPORAL_CONTRACT,
 });
+
+/**
+ * Resolves a schema text from its manifest key.
+ * @param {string} key
+ * @param {string} [fallback=""]
+ * @returns {string}
+ */
+export function resolve_task_schema(key, fallback = "") {
+  return (key && TASK_SCHEMAS[key]) || fallback;
+}
+
+/**
+ * Resolves a contract text from its manifest key.
+ * @param {string} key
+ * @param {string} [fallback=""]
+ * @returns {string}
+ */
+export function resolve_task_contract(key, fallback = "") {
+  return (key && TASK_CONTRACTS[key]) || fallback;
+}
 
 // ── 7. Helper Formatters & Indentation ────────────────────────────────────────
-
-function _indent(text, spaces) {
-  if (!text) return "";
-  const pad = " ".repeat(spaces);
-  return String(text)
-    .trim()
-    .split("\n")
-    .map((line) => `${pad}${line}`)
-    .join("\n");
-}
 
 // ── 3. Pacing & Delivery Posture ──────────────────────────────────────────────
 
@@ -339,11 +351,11 @@ export function render_task({
   stability_lock = "",
 }) {
   const dna = extract_style_dna(style);
-  const input_tag = config?.input?.tag || "INPUT";
+  const input_tag = config?.task?.input_tag || "INPUT";
   const parts = [];
 
   if (String(stability_lock || "").trim()) parts.push(`    <STABILITY_LOCK>${prompt_escape(stability_lock)}</STABILITY_LOCK>`);
-  if (String(action_directive || "").trim()) parts.push(_indent(action_directive, 4));
+  if (String(action_directive || "").trim()) parts.push(indent_all(action_directive, 4));
 
   const currents = render_task_currents(dna, somatic_inner);
   if (currents) parts.push(currents);
@@ -351,14 +363,14 @@ export function render_task({
   const input_block = render_task_input({ input_tag, input, input_origin });
   if (input_block) parts.push(input_block);
 
-  parts.push(_indent(build_recency_anchor(snapshot, input), 4));
+  parts.push(indent_all(build_recency_anchor(snapshot, input), 4));
 
-  const think_type = config?.think_format || "character";
+  const think_type = config?.task?.think_format || "character";
   if (think_type === "character") {
     const grounding = dna.emotional_grounding || TASK_PROTOCOLS.DEFAULTS.EMOTIONAL_GROUNDING;
-    parts.push(`    <THINK_FORMAT>\n${_indent(TASK_PROTOCOLS.THINK_FORMAT(grounding, input_tag), 6)}\n    </THINK_FORMAT>`);
+    parts.push(`    <THINK_FORMAT>\n${indent_all(TASK_PROTOCOLS.THINK_FORMAT(grounding, input_tag), 6)}\n    </THINK_FORMAT>`);
   } else if (think_type === "narrator") {
-    parts.push(`    <THINK_FORMAT>\n${_indent(TASK_PROTOCOLS.THINK_NARRATOR, 6)}\n    </THINK_FORMAT>`);
+    parts.push(`    <THINK_FORMAT>\n${indent_all(TASK_PROTOCOLS.THINK_NARRATOR, 6)}\n    </THINK_FORMAT>`);
   }
 
   return `<TASK>\n${parts.join("\n\n")}\n</TASK>`;
@@ -380,8 +392,8 @@ export function render_director_task({ round, input = "", last_ai_text = "", sch
 
   const parts = [
     `<ROUND>${escape_xml(String(round))}</ROUND>`,
-    has_input ? `<USER_ACTION>${_indent(input, 2)}</USER_ACTION>` : "",
-    last_ai_text ? `<AI_CHARACTER_LAST_TURN>${_indent(last_ai_text, 2)}</AI_CHARACTER_LAST_TURN>` : "",
+    has_input ? `<USER_ACTION>${indent_all(input, 2)}</USER_ACTION>` : "",
+    last_ai_text ? `<AI_CHARACTER_LAST_TURN>${indent_all(last_ai_text, 2)}</AI_CHARACTER_LAST_TURN>` : "",
     "<TASK>",
     `    ${evaluation}`,
     `    ${render_environmental_hint(input)}`,
@@ -402,7 +414,7 @@ export function render_director_task({ round, input = "", last_ai_text = "", sch
  * @returns {string}
  */
 export function render_memory_forge_task({ target_name, target_key, temporal_contract, schema = MEMORY_FORGE_SCHEMA }) {
-  return `  <TASK>\n    ${_indent(temporal_contract || "", 4)}\n\n    Analyze recent history specifically for TARGET ENTITY "${escape_xml(target_name)}" (${escape_xml(target_key)}). Record internal evaluation in "_thought_process".\n    Extract state mutations and outward relationships ("${escape_xml(target_name)} → [Target]: [Dynamic]") strictly adhering to the contract.\n\n    Output strict JSON matching this schema:\n    ${schema}\n  </TASK>`;
+  return `  <TASK>\n    ${indent_all(temporal_contract || "", 4)}\n\n    Analyze recent history specifically for TARGET ENTITY "${escape_xml(target_name)}" (${escape_xml(target_key)}). Record internal evaluation in "_thought_process".\n    Extract state mutations and outward relationships ("${escape_xml(target_name)} → [Target]: [Dynamic]") strictly adhering to the contract.\n\n    Output strict JSON matching this schema:\n    ${schema}\n  </TASK>`;
 }
 
 /**
@@ -416,10 +428,10 @@ export function render_memory_forge_task({ target_name, target_key, temporal_con
  */
 export function render_enhancement_instructions({ directive, format_instruction = "", macro_instruction = "", output_rules = "" }) {
   const items = [
-    _indent(escape_xml(directive), 4),
-    format_instruction ? _indent(format_instruction, 4) : "",
-    macro_instruction ? _indent(macro_instruction, 4) : "",
-    output_rules ? _indent(output_rules, 4) : "",
+    indent_all(escape_xml(directive), 4),
+    format_instruction ? indent_all(format_instruction, 4) : "",
+    macro_instruction ? indent_all(macro_instruction, 4) : "",
+    output_rules ? indent_all(output_rules, 4) : "",
   ].filter(Boolean);
 
   return `  <INSTRUCTIONS>\n    ${items.join("\n\n    ")}\n  </INSTRUCTIONS>`;
@@ -444,11 +456,12 @@ export function render_profile_sorting_instructions({
   redistribute_str = "",
   output_rules_str = "",
 }) {
-  return `  <INSTRUCTIONS>\n    ${_indent(escape_xml(schema), 4)}\n\n    ${_indent(escape_xml(pov_instruction), 4)}\n\n    ${_indent(focus_directive, 4)}${ingestion_str}${redistribute_str}${output_rules_str}\n  </INSTRUCTIONS>`;
+  return `  <INSTRUCTIONS>\n    ${indent_all(escape_xml(schema), 4)}\n\n    ${indent_all(escape_xml(pov_instruction), 4)}\n\n    ${indent_all(focus_directive, 4)}${ingestion_str}${redistribute_str}${output_rules_str}\n  </INSTRUCTIONS>`;
 }
 
 /**
  * CHANGELOG
+ * - 2026-09-11: Purification pass — added TASK_SCHEMAS/TASK_CONTRACTS and resolve_task_schema/resolve_task_contract; collapsed the private _indent onto @utils indent_all; removed the duplicate MACRO_DIRECTIVES import and the test-only TEMPORAL_PROTOCOLS/PROFILE_PROTOCOLS bundles.
  * - 2026-09-11: Complete module purification: relocated OUTPUT_FORMATS, TEMPORAL_CONTRACT, TEMPORAL_PROTOCOLS, and PROFILE_PROTOCOLS to task.js; imported layout helpers from @utils; task.js now has zero sibling imports.
  * - 2026-09-11: Relocated CHARACTER_DIRECTIVES (NPC_BOUNDARY, INITIATIVE, ADVANCE) to task.js to unify all turn action directives under <TASK>.
  * - 2026-09-11: Added render_director_task, render_memory_forge_task, render_enhancement_instructions, and render_profile_sorting_instructions.

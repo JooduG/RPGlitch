@@ -27,13 +27,12 @@ import {
   parse_relational_vector,
   strip_leading_key_echo,
   render_field_value,
-  ind,
+  indent_continuation,
   clean_xml,
   indent_all,
   inline_or_block,
 } from "@utils";
 import { PROFILE_FIELDS } from "@data";
-import { render_dynamics_axes_xml } from "../physics.js";
 
 // ── 1. Epistemic Wall Filters ─────────────────────────────────────────────────
 
@@ -177,6 +176,7 @@ function _render_speaker_sheet({
   entities,
   npc_entities = [],
   accessors,
+  render_axes = null,
   tag = "AI_CHARACTER",
   is_owner = true,
   dynamics = null,
@@ -203,7 +203,7 @@ function _render_speaker_sheet({
     const dispositions = _render_dispositions(entity, entities, npc_entities, active_names, name_to_id, 8);
     if (dispositions) rows.push(dispositions);
   }
-  const axes = render_dynamics_axes_xml(dynamics, axis_scope);
+  const axes = render_axes ? render_axes(dynamics, axis_scope) : "";
   if (axes) rows.push(indent_all(axes, 8));
   rows.push(`      </PSYCHOLOGY>`);
   const appearance = render_appearance(entity?.eternal?.physical, entity?.present?.physical, entity, entities);
@@ -256,6 +256,7 @@ function _render_user_persona_sheet({
 function _render_fractal_sheet({
   entities,
   accessors,
+  render_axes = null,
   dynamics = null,
   axis_scope = null,
   show_dispositions = true,
@@ -279,7 +280,7 @@ function _render_fractal_sheet({
     const dispositions = _render_dispositions(fractal, entities, npc_entities, active_names, name_to_id, 8);
     if (dispositions) rows.push(dispositions);
   }
-  const axes = render_dynamics_axes_xml(dynamics, axis_scope);
+  const axes = render_axes ? render_axes(dynamics, axis_scope) : "";
   if (axes) rows.push(indent_all(axes, 8));
   rows.push(`      </ATMOSPHERE>`);
   const topography = render_appearance(fractal?.eternal?.physical, fractal?.present?.physical, fractal, entities, "TOPOGRAPHY");
@@ -293,7 +294,7 @@ function _render_fractal_sheet({
 // ── 5. Mode-Driven <STORY_ENTITIES> Master Compiler ───────────────────────────
 
 /**
- * Compiles the shared <STORY_ENTITIES> block from the active prompt-mode's `sheets` config.
+ * Compiles the shared <STORY_ENTITIES> block from the active prompt manifest's `entities` config.
  *
  * @param {Object} [params]
  * @param {any} [params.entities]
@@ -301,7 +302,7 @@ function _render_fractal_sheet({
  * @param {string[]} [params.in_scene_ids]
  * @param {any} [params.active_speaker]
  * @param {any} [params.accessors]
- * @param {any} [params.config] - Resolved prompt-mode record (must carry `.sheets`).
+ * @param {any} [params.config] - Resolved prompt manifest record (must carry `.entities`).
  * @param {boolean} [params.is_npc=false]
  * @param {any} [params.speaker_dynamics]
  * @param {any} [params.fractal_dynamics]
@@ -314,11 +315,12 @@ export function render_entity_sheets({
   active_speaker = null,
   accessors = null,
   config = null,
+  render_axes = null,
   is_npc = false,
   speaker_dynamics = null,
   fractal_dynamics = null,
 }) {
-  const sheets = config?.sheets || {};
+  const sheets = config?.entities || {};
   const dispositions_for = new Set(sheets.dispositions || []);
   const axes_for = new Set(sheets.dynamic_axes || []);
 
@@ -333,6 +335,7 @@ export function render_entity_sheets({
         entities,
         npc_entities,
         accessors,
+        render_axes,
         tag: "AI_CHARACTER",
         is_owner: !is_npc,
         dynamics: axes_for.has("AI") ? speaker_dynamics : null,
@@ -363,6 +366,7 @@ export function render_entity_sheets({
       _render_fractal_sheet({
         entities,
         accessors,
+        render_axes,
         dynamics: axes_for.has("FRACTAL") ? fractal_dynamics : null,
         axis_scope: "fractal",
         show_dispositions: dispositions_for.has("FRACTAL"),
@@ -389,6 +393,7 @@ export function render_entity_sheets({
         entities,
         npc_entities,
         accessors,
+        render_axes,
         tag: "NPC",
         is_owner: true,
         dynamics: axes_for.has("NPC") ? speaker_dynamics || n?.dynamics : null,
@@ -406,6 +411,7 @@ export function render_entity_sheets({
         entities,
         npc_entities,
         accessors,
+        render_axes,
         tag: "NPC",
         is_owner: true,
         dynamics: axes_for.has("NPC") ? speaker_dynamics : null,
@@ -537,7 +543,7 @@ export function render_entity_memory_context(key, entity) {
     <${tag_personality}>${escape_xml(entity?.eternal?.non_physical || "")}</${tag_personality}>
     <${tag_state_of_mind}>${escape_xml(entity?.present?.non_physical || "")}</${tag_state_of_mind}>
     <${tag_appearance}>
-      ${ind(
+      ${indent_continuation(
         physical_to_xml(entity?.eternal?.physical, "PHYSICAL")
           .replace(/<PHYSICAL>|<\/PHYSICAL>/g, "")
           .trim(),
@@ -545,7 +551,7 @@ export function render_entity_memory_context(key, entity) {
       )}
     </${tag_appearance}>
     <${tag_current_look}>
-      ${ind(
+      ${indent_continuation(
         physical_to_xml(entity?.present?.physical, "PHYSICAL")
           .replace(/<PHYSICAL>|<\/PHYSICAL>/g, "")
           .trim(),
@@ -587,7 +593,7 @@ export function render_enhancement_field_context(entity, field_id, content = "",
               .trim()
           : escape_xml(String(raw ?? "").trim());
       if (!value) return "";
-      return `<${tag}>\n${ind(value, 8)}\n    </${tag}>`;
+      return `<${tag}>\n${indent_continuation(value, 8)}\n    </${tag}>`;
     };
 
     const blocks = [block_for(section, sub)];
@@ -618,7 +624,9 @@ export function render_enhancement_field_context(entity, field_id, content = "",
       text = String(entity?.future || "").trim();
     }
     if (!text) return "";
-    return clean_xml(`\n  <ENTITY_CONTEXT>\n    <${tag}>\n      ${ind(escape_xml(text), 6)}\n    </${tag}>\n  </ENTITY_CONTEXT>\n  `).trim();
+    return clean_xml(
+      `\n  <ENTITY_CONTEXT>\n    <${tag}>\n      ${indent_continuation(escape_xml(text), 6)}\n    </${tag}>\n  </ENTITY_CONTEXT>\n  `,
+    ).trim();
   }
 
   return "";
@@ -626,6 +634,7 @@ export function render_enhancement_field_context(entity, field_id, content = "",
 
 /**
  * CHANGELOG
+ * - 2026-09-11: Purification pass — dropped the ../physics.js import; dynamic-axis rendering is injected by builder.js via the render_axes callback.
  * - 2026-09-11: Delegated format_recent_history and render_chapter_history_xml to history.js, and added render_scene_cast_xml.
  * - 2026-09-11: Renamed module to entities.js. Absorbed format_recent_history, render_chapter_history_xml, render_entity_memory_context, and render_enhancement_field_context.
  * - 2026-09-11: Added SPOTLIGHT_RULES and render_scene_spotlight_xml for Stage Spotlight orchestration.

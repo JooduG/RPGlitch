@@ -19,7 +19,7 @@ import {
   format_key_as_label,
   format_relational_vector,
   get_style_initials,
-  ind,
+  indent_continuation,
   match_case,
   merge_prose_into_field,
   NAME_PREFIXES,
@@ -168,15 +168,15 @@ describe("merge_prose_into_field", () => {
   });
 });
 
-describe("ind", () => {
+describe("indent_continuation", () => {
   it("indents multi-line string content with specified spaces", () => {
     const text = "line1\nline2\nline3";
-    expect(ind(text, 2)).toBe("line1\n  line2\n  line3");
+    expect(indent_continuation(text, 2)).toBe("line1\n  line2\n  line3");
   });
 
   it("returns empty string on empty inputs", () => {
-    expect(ind(null, 2)).toBe("");
-    expect(ind("", 2)).toBe("");
+    expect(indent_continuation(null, 2)).toBe("");
+    expect(indent_continuation("", 2)).toBe("");
   });
 });
 
@@ -504,3 +504,8 @@ describe("alternation macros (selectable options & dice resolution)", () => {
     expect(alternation_field_label("[MOOD: {calm|furious}] then {a|b}", "{a|b}")).toBe("");
   });
 });
+
+/**
+ * CHANGELOG
+ * - 2026-09-11: Updated the ind helper tests to the renamed indent_continuation.
+ */

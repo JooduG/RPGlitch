@@ -4,7 +4,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { PROMPT_MODES as prompt_modes, get_prompt_mode, resolve_prompt_mode } from "./prompts.js";
+import { PROMPTS as prompt_modes, get_prompt, resolve_prompt_mode } from "./prompts.js";
 import { render_ghostwriter, render_story_prose, render_builder } from "./builder.js";
 
 const entities = {
@@ -111,12 +111,12 @@ describe("prompt-modes registry", () => {
   });
 
   it("maps each builder to a known mode", () => {
-    expect(resolve_prompt_mode().system_mode).toBe("interaction");
-    expect(resolve_prompt_mode({ is_npc: true }).system_mode).toBe("npc");
-    expect(resolve_prompt_mode({ ghostwrite: true }).system_mode).toBe("ghostwrite");
-    expect(get_prompt_mode("narrator").system_mode).toBe("narrator");
-    expect(get_prompt_mode("director").system_mode).toBe("director");
-    expect(get_prompt_mode("unknown-mode").system_mode).toBe("interaction");
+    expect(resolve_prompt_mode().system.mode).toBe("interaction");
+    expect(resolve_prompt_mode({ is_npc: true }).system.mode).toBe("npc");
+    expect(resolve_prompt_mode({ ghostwrite: true }).system.mode).toBe("ghostwrite");
+    expect(get_prompt("narrator").system.mode).toBe("narrator");
+    expect(get_prompt("director").system.mode).toBe("director");
+    expect(get_prompt("unknown-mode").system.mode).toBe("interaction");
   });
 });
 
@@ -187,6 +187,7 @@ describe("conversation history entries", () => {
 
 /**
  * CHANGELOG
+ * - 2026-09-11: Updated imports/assertions to the modern manifest (PROMPTS/get_prompt) after PROMPT_MODES/get_prompt_mode were removed.
  * - 2026-09-11: Renamed from prompt-modes.test.js to prompts.test.js reflecting prompts.js master registry.
  * - 2026-09-11: Moved prompt-modes.test.js to root of intelligence folder and updated imports to story-prompts.js and builder.js.
  */

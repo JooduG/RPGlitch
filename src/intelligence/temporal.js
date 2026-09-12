@@ -6,7 +6,7 @@
  * 1. Vector Pool Access & Creation (resolve_vector_pool, create, prune)
  * 2. Relevance Scoring & Context Embeddings (score, score_async, precompute_context_embedding)
  * 3. Vector Math & Dynamic Retrieval (format, score, score_async, score_by_semantics)
- * 4. Temporal Protocols & Memory Forge Prompt Compilers (TEMPORAL_PROTOCOLS, render_memory)
+ * 4. Memory Forge Consolidation Prompt Rendering (render_memory; contracts/schemas live in modules/task.js)
  * 5. Deduplication, Caps & Eviction (is_origin, ensure_unique_vector_id, append_past_vector, reconcile_vector_caps)
  * 6. State Mutations & Chapter Archival (archive_chapter)
  * 7. Memory Forge & Consolidation Engine (forge_memory, temporal_engine)
@@ -923,6 +923,7 @@ if (typeof window !== "undefined") {
 
 /**
  * CHANGELOG
+ * - 2026-09-11: Header correction — TEMPORAL_PROTOCOLS bundle pruned; memory-forge prompt rendering still via render_memory.
  * - 2026-09-11: Grand Purification: prompt compilation moved to builder.js, leaving temporal.js a 100% pure vector math, scoring, and persistence engine.
  * - 2026-09-11: Modularized TEMPORAL_PROTOCOLS: bound CONTRACT and SCHEMA to modular imports in modules/.
  * - 2026-09-11: Consolidated temporal-pipeline.js and temporal-prompt.js into temporal.js, absorbing TEMPORAL_PROTOCOLS and render_memory into a unified temporal domain module.

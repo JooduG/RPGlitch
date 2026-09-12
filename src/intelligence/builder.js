@@ -20,7 +20,7 @@
  */
 
 import { PROFILE_FIELD_CATALOG, get_style_keywords, get_narrative_style, resolve_active_style_key, render_narrative_style_xml } from "@data";
-import { escape_xml, prompt_escape, parse_macros, ind, strip_cognition_blocks, has_alternations, expand_entity_macros } from "@utils";
+import { escape_xml, prompt_escape, parse_macros, indent_continuation, strip_cognition_blocks, has_alternations, expand_entity_macros } from "@utils";
 import { get_prompt } from "./prompts.js";
 import {
   resolve_stability_lock,
@@ -31,6 +31,8 @@ import {
   render_memory_system_xml,
   render_enhancement_system_xml,
   render_sorting_system_xml,
+  render_role_xml,
+  SYSTEM_ROLES,
 } from "./modules/system.js";
 import { render_axiomatic_constitution } from "./modules/constitution.js";
 import {
@@ -67,8 +69,16 @@ import {
   CHARACTER_DIRECTIVES,
   OUTPUT_FORMATS,
   TEMPORAL_CONTRACT,
+  resolve_task_schema,
+  resolve_task_contract,
 } from "./modules/task.js";
-import { render_available_keywords_xml, render_dynamics_xml, render_subtext_xml } from "./physics.js";
+import {
+  render_available_keywords_xml,
+  render_dynamics_xml,
+  render_subtext_xml,
+  resolve_context_directives,
+  render_dynamics_axes_xml,
+} from "./physics.js";
 import { temporal_engine, resolve_vector_pool } from "./temporal.js";
 
 // ── 1. Render Builder Accessor Factory ─────────────────────────────────────────
@@ -102,7 +112,7 @@ export const render_builder = {
         const combined_future = [raw_future, extracted_plan ? `Active Plan: ${extracted_plan}` : ""].filter(Boolean).join("\n");
         return parse_macros(combined_future.trim(), entity, entities);
       },
-      simulation_log: (limit = 10, offset = 0) => render_builder.render_history(raw_messages, limit, offset),
+      simulation_log: (limit = 10, offset = 0) => render_history(raw_messages, limit, offset),
     };
   },
 
@@ -198,12 +208,13 @@ export function render_director({
 }) {
   const active_messages = raw_messages.length > 0 ? raw_messages : simulation_log;
   const accessors = render_accessors || render_builder.create_render_accessors(scene_entities, input, active_messages);
-  const shared_protocols = render_protocols("STATE.PSEUDO_JSON, COGNITION.EPISTEMIC_PHYSICS");
-  const local_protocols = render_director_protocols_xml(DIRECTOR_SCHEMA);
+  const config = get_prompt("director");
+  const schema = resolve_task_schema(config.task.schema, DIRECTOR_SCHEMA);
+  const shared_protocols = render_protocols(config.protocols.join(", "));
+  const local_protocols = render_director_protocols_xml(schema);
   const full_protocols = `${shared_protocols}\n\n${local_protocols}`.trim();
   const active_style_keywords = get_style_keywords(resolve_active_style_key());
 
-  const config = get_prompt("director");
   const entity_sheets = render_entity_sheets({
     entities: scene_entities,
     npc_entities,
@@ -211,20 +222,22 @@ export function render_director({
     accessors,
     config,
     is_npc: false,
+    render_axes: render_dynamics_axes_xml,
     speaker_dynamics: compressed_snapshot?.ai?.dynamics,
     fractal_dynamics: compressed_snapshot?.fractal?.dynamics,
   });
 
   const system = render_director_system_xml({
-    dynamics_xml: ind(render_dynamics_xml(), 2),
+    role_xml: render_role_xml(config.system.role, SYSTEM_ROLES[config.system.role]()),
+    dynamics_xml: indent_continuation(render_dynamics_xml(), 2),
     style_xml: render_narrative_style_xml(),
     entity_sheets,
     keyword_directives_xml: render_keyword_directives_xml(
       DIRECTOR_TASK_RULES.KEYWORD_DIRECTIVES,
       render_available_keywords_xml(active_style_keywords),
     ),
-    protocols_xml: ind(full_protocols, 4).trim(),
-    spotlight_xml: render_scene_spotlight_xml({ entities: scene_entities, npc_entities, in_scene_ids }),
+    protocols_xml: indent_continuation(full_protocols, 4).trim(),
+    spotlight_xml: config.entities.spotlight ? render_scene_spotlight_xml({ entities: scene_entities, npc_entities, in_scene_ids }) : "",
   });
 
   const last_ai_message = (active_messages || []).filter((message) => message.role === "model").at(-1);
@@ -234,7 +247,7 @@ export function render_director({
     round,
     input,
     last_ai_text,
-    schema: DIRECTOR_SCHEMA,
+    schema,
   });
 
   return { system, task };
@@ -264,6 +277,7 @@ export function render_story_prose({
   const active_listener = listener || (ghostwrite ? entities?.AI : entities?.USER);
   const is_npc = !ghostwrite && !!active_speaker && active_speaker !== entities?.AI && active_speaker !== entities?.USER;
   const config = get_prompt(prompt_mode || (ghostwrite ? "ghostwrite" : is_npc ? "npc" : "interaction"));
+  const is_ghostwrite = config.system.mode === "ghostwrite";
 
   const accessors = render_accessors || render_builder.create_render_accessors(entities, input);
   const pov_protocol = resolve_pov_protocol(active_speaker);
@@ -278,7 +292,7 @@ export function render_story_prose({
 
   const somatic_signals_xml = render_subtext_xml(speaker_dynamics, fractal_dynamics, {
     keywords: director_data?.keywords || [],
-    style: config.ghostwrite ? null : style,
+    style: is_ghostwrite ? null : style,
   });
   const somatic_inner = String(somatic_signals_xml || "")
     .replace(/^\s*<SUBTEXT>\s*/, "")
@@ -293,7 +307,7 @@ export function render_story_prose({
     (Array.isArray(compressed_snapshot?.flags) && compressed_snapshot.flags.includes("FIRST_CONTACT")) ||
     (Array.isArray(director_data?.keywords) && director_data.keywords.includes("first_contact"));
 
-  const constitution = render_axiomatic_constitution();
+  const constitution = config.constitution.axiomatic ? render_axiomatic_constitution() : "";
 
   const entities_block = render_entity_sheets({
     entities,
@@ -303,24 +317,27 @@ export function render_story_prose({
     accessors,
     config,
     is_npc,
+    render_axes: render_dynamics_axes_xml,
     speaker_dynamics,
     fractal_dynamics,
   });
+
+  const first_contact_directive = is_first_contact ? (resolve_context_directives(["first_contact"]) || [])[0]?.directive || "" : "";
 
   const core = render_core_protocols({
     is_narrator: false,
     pov_protocol,
     style,
-    is_first_contact,
+    first_contact_directive,
     has_alternation: has_alternations(entities_block),
   });
 
   const fractal_name = prompt_escape(entities?.FRACTAL?.name || "the setting");
-  const role_line = resolve_system_role_line({ is_npc, speaker_name, listener_name, fractal_name });
+  const role_line = resolve_system_role_line({ role: config.system.role, speaker_name, listener_name, fractal_name });
 
   const system = render_prose_system_xml({
     round,
-    mode: config.system_mode,
+    mode: config.system.mode,
     role_line,
     constitution,
     core,
@@ -335,13 +352,13 @@ export function render_story_prose({
 
   const action_directive = is_npc
     ? CHARACTER_DIRECTIVES.NPC_BOUNDARY(speaker_name)
-    : config.ghostwrite
+    : is_ghostwrite
       ? `${draft_directive}\n    ${GHOSTWRITE_DIRECTIVES.META}`
       : input?.trim()
         ? CHARACTER_DIRECTIVES.ADVANCE
         : CHARACTER_DIRECTIVES.INITIATIVE;
 
-  const input_origin_entity = config.ghostwrite ? active_speaker : entities?.USER;
+  const input_origin_entity = is_ghostwrite ? active_speaker : entities?.USER;
   const input_origin = input_origin_entity?.id || input_origin_entity?.name || "USER";
 
   const task = render_task({
@@ -400,7 +417,7 @@ export function render_scene_narrator({
   const speaker = entities?.FRACTAL;
   const speaker_name = prompt_escape(speaker?.name || "The Scene");
 
-  const constitution = render_axiomatic_constitution({ is_narrator: true });
+  const constitution = config.constitution.axiomatic ? render_axiomatic_constitution() : "";
   const style = resolve_active_style_key();
 
   const compressed_snapshot = entities?._compressed_dynamics;
@@ -411,6 +428,7 @@ export function render_scene_narrator({
     entities,
     accessors: render_builder.create_render_accessors(entities, input, []),
     config,
+    render_axes: render_dynamics_axes_xml,
     speaker_dynamics,
     fractal_dynamics,
   });
@@ -418,15 +436,15 @@ export function render_scene_narrator({
   const core = render_core_protocols({
     is_narrator: true,
     style,
-    is_first_contact: false,
+    first_contact_directive: "",
     has_alternation: has_alternations(entities_block),
   });
 
-  const role_line = resolve_system_role_line({ is_narrator: true, speaker_name });
+  const role_line = resolve_system_role_line({ role: config.system.role, speaker_name });
 
   const system = render_prose_system_xml({
     round,
-    mode: config.system_mode,
+    mode: config.system.mode,
     role_line,
     constitution,
     core,
@@ -477,24 +495,25 @@ export const render_narrator_prose = render_scene_narrator;
  * Memory Forge prompt compiler.
  */
 export function render_memory({ target_entity, target_key = "AI_CHARACTER", other_entities = {}, history = [] }) {
+  const config = get_prompt("memory_forge");
   const target_name = target_entity?.name || target_key;
-  const target_xml = render_entity_memory_context(target_key, target_entity);
-  const scene_cast_xml = render_scene_cast_xml(other_entities, target_key);
-  const chapter_xml = target_entity ? render_chapter_history_xml(target_entity) : "";
+  const target_xml = config.entities.target_context ? render_entity_memory_context(target_key, target_entity) : "";
+  const scene_cast_xml = config.entities.scene_cast ? render_scene_cast_xml(other_entities, target_key) : "";
+  const chapter_xml = config.entities.chapter_history && target_entity ? render_chapter_history_xml(target_entity) : "";
 
   const task_xml = render_memory_forge_task({
     target_name,
     target_key,
-    temporal_contract: TEMPORAL_CONTRACT,
-    schema: MEMORY_FORGE_SCHEMA,
+    temporal_contract: resolve_task_contract(config.task.contract, TEMPORAL_CONTRACT),
+    schema: resolve_task_schema(config.task.schema, MEMORY_FORGE_SCHEMA),
   });
 
   return render_memory_system_xml({
     target_name,
-    protocols_xml: ind(render_protocols("HYGIENE.DATA, AGENCY.PRESENT_TENSE, STATE.PSEUDO_JSON"), 4).trim(),
+    protocols_xml: indent_continuation(render_protocols(config.protocols.join(", ")), 4).trim(),
     target_xml,
     scene_cast_xml,
-    chapter_xml: chapter_xml ? ind(chapter_xml, 4).trim() : "",
+    chapter_xml: chapter_xml ? indent_continuation(chapter_xml, 4).trim() : "",
     history_xml: render_input_history_xml(history),
     task_xml,
   });
@@ -516,6 +535,7 @@ export function render_enhancement({
   entity = null,
   entity_type = "character",
 }) {
+  const config = get_prompt("enhancement");
   const formats = OUTPUT_FORMATS;
   const format_instruction = is_array_field ? (array_mode === "patch_single" ? formats.ARRAY_SINGLE : formats.ARRAY_APPEND) : "";
   const macro_instruction = !is_image_field ? resolve_macro_directive(entity_type) : "";
@@ -533,13 +553,15 @@ export function render_enhancement({
     enhancing: label,
     field: field_id,
     instructions_xml,
-    protocols_xml: ind(render_protocols("HYGIENE.DATA"), 4).trim(),
-    contract_xml: ind(escape_xml(TEMPORAL_CONTRACT || ""), 4).trim(),
+    protocols_xml: indent_continuation(render_protocols(config.protocols.join(", ")), 4).trim(),
+    contract_xml: indent_continuation(escape_xml(resolve_task_contract(config.task.contract, TEMPORAL_CONTRACT) || ""), 4).trim(),
     layer_key,
-    field_context_xml: render_enhancement_field_context(entity, field_id, content, entity_type, (e, c) =>
-      temporal_engine.format(resolve_vector_pool(e), c || "", { max_chars: 1500 }),
-    ),
-    input_content: ind(escape_xml(content), 4).trim(),
+    field_context_xml: config.entities.field_context
+      ? render_enhancement_field_context(entity, field_id, content, entity_type, (e, c) =>
+          temporal_engine.format(resolve_vector_pool(e), c || "", { max_chars: 1500 }),
+        )
+      : "",
+    input_content: indent_continuation(escape_xml(content), 4).trim(),
   });
 }
 
@@ -547,6 +569,7 @@ export function render_enhancement({
  * Profile sorting prompt compiler.
  */
 export function render_profile_sorting(entity_type = "character", options = {}) {
+  const config = get_prompt("sorting");
   const resolved_type = entity_type === "user" ? "character" : entity_type || "character";
   const macro_rule = resolve_macro_directive(resolved_type);
   const focus_directive =
@@ -554,13 +577,13 @@ export function render_profile_sorting(entity_type = "character", options = {}) 
       ? `FOCUS: Extracting data for a FRACTAL (scene/setting/environment). Re-contextualize or discard character-specific traits. ${macro_rule}`
       : `FOCUS: Extracting data for an individual CHARACTER. Re-contextualize or discard environmental/setting text. ${macro_rule}`;
 
-  const ingestion_str = options.ingestion ? `\n\n    ${ind(SORTING_DIRECTIVES.INGESTION, 4)}` : "";
-  const redistribute_str = options.redistribute ? `\n\n    ${ind(SORTING_DIRECTIVES.REDISTRIBUTE, 4)}` : "";
-  const output_rules_str = `\n\n    ${ind(OUTPUT_FORMATS.JSON_OBJECT, 4)}`;
+  const ingestion_str = options.ingestion ? `\n\n    ${indent_continuation(SORTING_DIRECTIVES.INGESTION, 4)}` : "";
+  const redistribute_str = options.redistribute ? `\n\n    ${indent_continuation(SORTING_DIRECTIVES.REDISTRIBUTE, 4)}` : "";
+  const output_rules_str = `\n\n    ${indent_continuation(OUTPUT_FORMATS.JSON_OBJECT, 4)}`;
 
   const instructions_xml = render_profile_sorting_instructions({
-    schema: PROFILE_SCHEMA,
-    pov_instruction: PROTOCOL_LIBRARY.POV.THIRD_PERSON,
+    schema: resolve_task_schema(config.task.schema, PROFILE_SCHEMA),
+    pov_instruction: PROTOCOL_LIBRARY.POV[config.task.pov] || PROTOCOL_LIBRARY.POV.THIRD_PERSON,
     focus_directive,
     ingestion_str,
     redistribute_str,
@@ -569,7 +592,7 @@ export function render_profile_sorting(entity_type = "character", options = {}) 
 
   return render_sorting_system_xml({
     instructions_xml,
-    protocols_xml: ind(render_protocols("HYGIENE.DATA"), 4).trim(),
+    protocols_xml: indent_continuation(render_protocols(config.protocols.join(", ")), 4).trim(),
   });
 }
 
@@ -583,7 +606,7 @@ export const prompt_builder = {
   },
 
   create_render_accessors: render_builder.create_render_accessors,
-  render_history: render_builder.render_history,
+  render_history,
 
   /**
    * Builds context text for temporal vector relevance scoring.
@@ -844,6 +867,7 @@ if (typeof window !== "undefined") {
 
 /**
  * CHANGELOG
+ * - 2026-09-11: Purification pass — the prompts.js manifest now drives compilation (protocol lists, constitution gate, role keys, schema/contract/pov keys, and the entity context/spotlight gates); render_dynamics_axes_xml is injected into render_entity_sheets and resolve_context_directives is computed here, breaking the modules→physics imports; ind renamed to indent_continuation; render_history hop collapsed.
  * - 2026-09-11: Updated import of CHARACTER_DIRECTIVES from modules/task.js following modular boundary alignment.
  * - 2026-09-11: Standardized system prompt envelope imports: consuming resolve_system_role_line, default render_director_system_xml role_xml, and SYSTEM_CLOSE_TAG.
  * - 2026-09-11: Extracted raw XML formatting into modular Lego blocks in modules/ (history.js, system.js, protocols.js, entities.js, task.js), transforming builder.js into a pure coordinator.

@@ -489,12 +489,13 @@ export function merge_prose_into_field(current_field_value, new_prose) {
 // ============================================================================
 
 /**
- * Safely indents multi-line string content.
+ * Indents every line after the first (the caller supplies the leading-line
+ * prefix) — the continuation-indent counterpart to `indent_all`.
  * @param {string | null | undefined} text
- * @param {number} spaces - Number of leading spaces to apply per line.
+ * @param {number} spaces - Number of leading spaces to apply per continuation line.
  * @returns {string}
  */
-export const ind = (text, spaces) => {
+export const indent_continuation = (text, spaces) => {
   if (!text) return "";
   const prefix = " ".repeat(spaces);
   return String(text).trim().split("\n").join(`\n${prefix}`);
@@ -897,6 +898,7 @@ export function alternation_field_label(text, raw) {
 
 // ============================================================================
 // [CHANGELOG]
+// - 2026-09-11: Purification pass — renamed the lazy stem `ind` to `indent_continuation` (full-name law).
 // ============================================================================
 /**
  * CHANGELOG:

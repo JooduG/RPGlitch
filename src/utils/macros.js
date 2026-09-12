@@ -14,12 +14,6 @@
 
 import { prompt_escape } from "./xml.js";
 
-export const MACRO_DIRECTIVES = Object.freeze({
-  CHARACTER: "Use placeholder macros for entities: '{{me}}' (self), '{{you}}' (user persona), '{{fractal}}' (setting). Never hardcode names.",
-  FRACTAL:
-    "Use placeholder macros for entities: '{{user}}' (user persona), '{{char}}' (AI character), '{{fractal}}' (setting). Never hardcode names.",
-});
-
 /**
  * Safely parses macros in dynamic text with entity references.
  * @param {string} text
@@ -418,6 +412,7 @@ export function render_field_value(text, owner, entities) {
 
 /**
  * CHANGELOG
+ * - 2026-09-11: Purification pass — removed the duplicate MACRO_DIRECTIVES export; modules/protocols.js is the single home, making the 2026-09-11 'moved' note accurate.
  * - 2026-09-11: Moved `MACRO_DIRECTIVES` to src/intelligence/modules/protocols.js where prompt protocols reside.
  * - 2026-09-10: Adopted `expand_entity_macros` from intelligence/prompts/story-prompt.js — the deep
  *   clone-and-resolve macro expander belongs beside `parse_macros`, its only dependency.
