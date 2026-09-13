@@ -25,11 +25,11 @@ import {
   strip_alternation_braces,
 } from "@utils";
 import { visual_engine, resolve_image_trigger, spawn_image_beat, sweep_stale_ghosts, IMAGE_RESOLVE_TIMEOUT_MS } from "@media";
-import { validate_and_repair_response, force_close_response } from "./parser.js";
-import { llm_service, looks_truncated, raw_to_text, raw_stop_reason } from "@platform";
+import { validate_and_repair_response, force_close_response, balance_think_tags, strip_directors_note_seed } from "./parser.js";
+import { llm_service, looks_truncated } from "@platform";
 import { apply_dynamics_gravity, extract_entity_dynamics_baselines } from "./physics.js";
-import { normalize_director_data, parse_director_json, synthesize_director_fallback, resolve_npc_entity, apply_in_scene_change } from "./director.js";
-import { prompt_builder, render_terse_director_task } from "./builder.js";
+import { execute_director_shot, resolve_npc_entity, apply_in_scene_change } from "./director.js";
+import { prompt_builder } from "./builder.js";
 import { capture_dynamics_delta } from "./telemetry.js";
 import { prune, temporal_engine } from "./temporal.js";
 import { context_builder } from "./payload.js";
@@ -80,63 +80,9 @@ function _attach_history_origins(messages) {
 /** Minimum narrative prose length before missing punctuation is treated as cut-off. */
 const TRUNCATION_MIN_PROSE = 40;
 
+export { balance_think_tags, strip_directors_note_seed };
+
 const ALTERNATION_FIELD_PATHS = ["present.physical", "present.non_physical", "eternal.physical", "eternal.non_physical", "future"];
-
-/**
- * Repairs unbalanced <THINK> cognition tags: drops dangling </THINK> closers
- * that have no matching opener and appends missing closers at the end.
- * @param {string | null | undefined} text
- * @returns {string}
- */
-export function balance_think_tags(text) {
-  const src = String(text || "");
-  const re = /<\/?THINK>/gi;
-  let out = "";
-  let depth = 0;
-  let last = 0;
-  let match;
-  while ((match = re.exec(src)) !== null) {
-    out += src.slice(last, match.index);
-    if (/^<\//.test(match[0])) {
-      if (depth > 0) {
-        depth--;
-        out += match[0];
-      }
-    } else {
-      depth++;
-      out += match[0];
-    }
-    last = match.index + match[0].length;
-  }
-  out += src.slice(last);
-  if (depth > 0) out += "</THINK>".repeat(depth);
-  return out;
-}
-
-/**
- * Removes the injected Director's-note THINK seed from generated text. When the
- * model drops the seeded opener but keeps its closing tag, the opener is restored
- * so the cognition block stays well-formed; all output is tag-balanced.
- * @param {string} full_text
- * @param {string} monologue
- * @param {string} directors_note
- * @returns {string}
- */
-export function strip_directors_note_seed(full_text, monologue, directors_note) {
-  const src = String(full_text || "");
-  if (!directors_note) return balance_think_tags(src);
-  const seed = `<THINK>${directors_note} `;
-  const offset = monologue ? monologue.length : 0;
-  const region = src.slice(offset);
-  if (region.startsWith(seed)) {
-    return balance_think_tags(`${src.slice(0, offset)}<THINK>${region.slice(seed.length).trimStart()}`);
-  }
-  const close_idx = region.search(/<\/THINK>/i);
-  if (close_idx !== -1 && !/<THINK>/i.test(region.slice(0, close_idx))) {
-    return balance_think_tags(`${src.slice(0, offset)}<THINK>${region}`);
-  }
-  return balance_think_tags(src);
-}
 
 /**
  * Macro-leak (narrative side): the Director LLM sees `{A|B}` alternation options
@@ -303,82 +249,13 @@ export const gamemaster = {
       };
 
       // 4. DIRECTOR PASS (Shot 1)
-      state_bridge.app.log("[GameMaster] Context hydrated. Physics resolved. Entering DIRECTOR_TURN...", "system");
-      const director_prompt = prompt_builder.build_director(payload, snapshot);
-
-      const director_call = async (terse = false) => {
-        let is_terse_attempt = terse;
-        return await this.execute_with_retry(
-          async () => {
-            const res = await llm_service.generate(
-              {
-                system: director_prompt.system,
-                task: is_terse_attempt ? render_terse_director_task() : director_prompt.task,
-                messages: [],
-                role: "system",
-                node_id: `${node_id}-director`,
-              },
-              {
-                ...llm_options,
-                json: true,
-                silent: true,
-                raw: true,
-                onToken: null,
-              },
-            );
-            const text = raw_to_text(res);
-            const check = validate_and_repair_response(text);
-            if (check.is_refused) {
-              is_terse_attempt = true;
-              throw new Error("AI_REFUSAL_DETECTED");
-            }
-            return res;
-          },
-          1,
-          500,
-        );
-      };
-
-      const director_start_time = performance.now();
-      const director_raw = await director_call(false);
-      let director_text = raw_to_text(director_raw);
-      let director_data = parse_director_json(director_text) || {};
-
-      // Truncation recovery
-      if (director_data._parse_error) {
-        const reason = raw_stop_reason(director_raw);
-        state_bridge.app.log(`[GameMaster] Director JSON truncated${reason ? ` (${reason})` : ""} — retrying with terse directive...`, "warn");
-        try {
-          const terse_raw = await director_call(true);
-          const terse_text = raw_to_text(terse_raw);
-          const retry_data = parse_director_json(terse_text) || {};
-          if (!retry_data._parse_error) {
-            if (!retry_data._thought_process && director_data?._thought_process) {
-              retry_data._thought_process = director_data._thought_process;
-            }
-            if (!retry_data._thought_process) {
-              retry_data._thought_process = "High tension turn evaluation completed.";
-            }
-            director_data = retry_data;
-          }
-        } catch (terse_error) {
-          state_bridge.app.log(`[GameMaster] Terse Director retry failed: ${terse_error?.message || terse_error}`, "warn");
-        }
-      }
-
-      const director_duration_ms = Math.round(performance.now() - director_start_time);
-      if (typeof state_bridge.runtime?.record_director_latency === "function") {
-        state_bridge.runtime.record_director_latency(director_duration_ms);
-      }
-
-      if (!director_data || director_data._parse_error) {
-        state_bridge.app.log("[GameMaster] Director degraded — applying minimal-mutation fallback.", "warn");
-        director_data = synthesize_director_fallback(director_data, input, state_bridge);
-      }
-      director_data = normalize_director_data(director_data);
-      if (is_opening_turn && !(director_data.keywords || []).includes("first_contact")) {
-        director_data.keywords = [...(director_data.keywords || []), "first_contact"].slice(0, 5);
-      }
+      const { director_data } = await execute_director_shot(payload, snapshot, {
+        node_id,
+        input,
+        is_opening_turn,
+        execute_with_retry: this.execute_with_retry.bind(this),
+        ...llm_options,
+      });
 
       // 3.4.5. MACRO LEAK — log the alternation options the Director (narrative) committed to
       log_narrative_alternations(payload.entities, director_data);
@@ -589,7 +466,25 @@ export const gamemaster = {
       state_bridge.runtime.ai = snapshot.ai?.dynamics;
       state_bridge.runtime.fractal = snapshot.fractal?.dynamics;
 
-      // 5. TRANSITION & LOGGING
+      // 4.7. SIMULTANEOUS SHOT 2B: Launch Continuum Caretaker (Memory Forge) in background queue
+      const resolved_status = director_data?.story_status;
+      const forge_round = state_bridge.runtime.round;
+      director_background_queue
+        .run(
+          async () => {
+            if (state_bridge.runtime.round !== forge_round) return { skipped: true };
+            await temporal_engine.consolidate(state_bridge.session_driver, db, entities, state_bridge.runtime, state_bridge.app, {
+              skip_forge: resolved_status === "CONCLUDED" || resolved_status === "COLLAPSED",
+            });
+            return { skipped: false };
+          },
+          { latest: true },
+        )
+        .catch((err) => {
+          state_bridge.app?.log(`[GameMaster] Background consolidation failed: ${err?.message || err}`, "error");
+        });
+
+      // 5. SHOT 2A: Diegetic Narrative Voice (Foreground Stream)
       state_bridge.app.log("[GameMaster] Routing to LLM (Character Pass)...", "system");
       state_bridge.runtime.turn_type = "AI_TURN";
 
@@ -695,24 +590,6 @@ export const gamemaster = {
 
       state_bridge.app.busy = false;
       state_bridge.simulation_state.phase = "idle";
-
-      // 8.5a. CONSOLIDATION
-      const resolved_status = director_data?.story_status;
-      const forge_round = state_bridge.runtime.round;
-      director_background_queue
-        .run(
-          async () => {
-            if (state_bridge.runtime.round !== forge_round) return { skipped: true };
-            await temporal_engine.consolidate(state_bridge.session_driver, db, entities, state_bridge.runtime, state_bridge.app, {
-              skip_forge: resolved_status === "CONCLUDED" || resolved_status === "COLLAPSED",
-            });
-            return { skipped: false };
-          },
-          { latest: true },
-        )
-        .catch((err) => {
-          state_bridge.app?.log(`[GameMaster] Background consolidation failed: ${err?.message || err}`, "error");
-        });
 
       // 8.5. AUTO-DISPATCH EPILOGUE
       const story_status = resolved_status;
@@ -1043,6 +920,7 @@ export const story_pipeline = gamemaster;
 
 /**
  * CHANGELOG
+ * - 2026-09-13: Deconstructed & Streamlined: (1) Outsourced Shot 1 LLM dispatch, refusal recovery, and terse fallback to director.js `execute_director_shot`; (2) Forked Shot 2A (storyteller stream) and Shot 2B (background Memory Forge consolidation) concurrently in parallel; (3) Centralized tag surgery (balance_think_tags, strip_directors_note_seed) into parser.js.
  * - 2026-08-29: Exported canonical story_pipeline alias alongside gamemaster (/harmonize).
  * - 2026-08-28: Reconstructed story-pipeline.js with 5 clean numbered sections, updated header path, and standard JSDoc typings.
  * - 2026-09-04: Macro-leak (narrative side): Director may select {A|B} alternation options; log_narrative_alternations logs each confirmed pick as [ALT] FIELD -> option N "..." (narrative); persisted prose is guarded via strip_alternation_braces + strip_directors_note_seed (I5); think_sections now surface internal_monologue.

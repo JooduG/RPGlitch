@@ -93,10 +93,11 @@ function create(content, type = "past", weight = 5) {
  */
 export function resolve_vector_pool(entity) {
   if (!entity || typeof entity !== "object") return [];
-  const normalize_item = (v, type) => (v && typeof v === "object" ? { ...v, type, content: v.content || v.directive || "" } : v);
+  const normalize_item = (vector, type) =>
+    vector && typeof vector === "object" ? { ...vector, type, content: vector.content || vector.directive || "" } : vector;
   const pool = [];
   if (Array.isArray(entity.past)) {
-    for (const v of entity.past) pool.push(normalize_item(v, "past"));
+    for (const vector of entity.past) pool.push(normalize_item(vector, "past"));
   }
   return pool;
 }
@@ -108,12 +109,12 @@ export function resolve_vector_pool(entity) {
  */
 export function prune(vectors) {
   if (!Array.isArray(vectors)) return [];
-  return vectors.slice(0, 3).map((v) => ({
-    id: v.id,
-    content: v.content || v.directive || v.text || v.summary || "",
-    emotional_weight: v.emotional_weight ?? 5,
+  return vectors.slice(0, 3).map((vector) => ({
+    id: vector.id,
+    content: vector.content || vector.directive || vector.text || vector.summary || "",
+    emotional_weight: vector.emotional_weight ?? 5,
     type: "past",
-    meta: v.meta || {},
+    meta: vector.meta || {},
   }));
 }
 
@@ -148,23 +149,23 @@ export async function precompute_context_embedding(input) {
 
 /**
  * Computes the recency decay multiplier for a vector.
- * @param {any} v
+ * @param {any} vector
  * @param {number} current_round
  * @returns {number}
  */
-function recency_factor(v, current_round) {
-  const weight = v.emotional_weight ?? 5;
+function recency_factor(vector, current_round) {
+  const weight = vector.emotional_weight ?? 5;
   if (weight >= 10) return 1.0;
 
-  if (v.meta?.round != null && current_round != null) {
-    const turns_ago = Math.max(0, current_round - v.meta.round);
+  if (vector.meta?.round != null && current_round != null) {
+    const turns_ago = Math.max(0, current_round - vector.meta.round);
     if (turns_ago === 0) return 1;
     const decay_exponent = Math.max(0, (10 - weight) / 5);
     return Math.pow(1 / (1 + Math.log10(turns_ago + 1)), decay_exponent);
   }
 
-  if (!v.timestamp) return 1;
-  const age_ms = Date.now() - v.timestamp;
+  if (!vector.timestamp) return 1;
+  const age_ms = Date.now() - vector.timestamp;
   if (age_ms <= 0) return 1;
   const estimated_turns = Math.max(1, Math.floor(age_ms / 60000));
   const decay_exponent = Math.max(0, (10 - weight) / 5);
@@ -173,22 +174,22 @@ function recency_factor(v, current_round) {
 
 /**
  * Computes the composite RAG relevance score for a vector.
- * @param {any} v
+ * @param {any} vector
  * @param {number} semantic_similarity
  * @param {number} current_round
  * @param {boolean} [in_scene=false]
  * @returns {number}
  */
-function compute_relevance(v, semantic_similarity, current_round, in_scene = false) {
-  const weight = v.emotional_weight ?? 5;
+function compute_relevance(vector, semantic_similarity, current_round, in_scene = false) {
+  const weight = vector.emotional_weight ?? 5;
   const { SEMANTIC_GAIN, RECENCY_FLOOR, DECAY_SOFTEN, IN_SCENE_SALIENCE_BOOST } = TEMPORAL_SCORING;
   const semantic = Math.max(0, Math.min(1, semantic_similarity || 0));
-  const raw_recency = recency_factor(v, current_round);
+  const raw_recency = recency_factor(vector, current_round);
   const recency = Math.max(RECENCY_FLOOR, Math.pow(raw_recency, DECAY_SOFTEN));
-  v._recency_factor = recency;
+  vector._recency_factor = recency;
 
   // Pinned memories (usr_ or origin-flagged) rank higher
-  const pinned_boost = v.id?.startsWith("usr_") || is_origin(v) ? 1.5 : 1.0;
+  const pinned_boost = vector.id?.startsWith("usr_") || is_origin(vector) ? 1.5 : 1.0;
   // Stage Spotlight presence gives +30% salience boost
   const in_scene_boost = in_scene ? IN_SCENE_SALIENCE_BOOST : 1.0;
 
@@ -204,15 +205,15 @@ function compute_relevance(v, semantic_similarity, current_round, in_scene = fal
 export function score(vectors, in_scene = false) {
   if (!Array.isArray(vectors) || !vectors.length) return [];
 
-  const has_embeddings = vectors.some((v) => v._embedding && v._embedding.length);
+  const has_embeddings = vectors.some((vector) => vector._embedding && vector._embedding.length);
 
-  const scored = vectors.map((v) => {
+  const scored = vectors.map((vector) => {
     let semantic = 0;
-    if (has_embeddings && v._embedding && _context_embedding) {
-      semantic = cosine_similarity(_context_embedding, v._embedding);
+    if (has_embeddings && vector._embedding && _context_embedding) {
+      semantic = cosine_similarity(_context_embedding, vector._embedding);
     }
-    const relevance = compute_relevance(v, semantic, _current_round, in_scene);
-    return { ...v, _relevance: relevance };
+    const relevance = compute_relevance(vector, semantic, _current_round, in_scene);
+    return { ...vector, _relevance: relevance };
   });
 
   return scored.sort((a, b) => {
@@ -238,10 +239,10 @@ export async function score_async(vectors, input, current_round, in_scene = fals
 
   const semantic_scores = await score_by_semantics(vectors, input);
 
-  const scored = semantic_scores.map(({ vector: v, similarity }) => {
-    v._similarity = similarity;
-    v._relevance = compute_relevance(v, similarity, _current_round, in_scene);
-    return { ...v, _relevance: v._relevance, _similarity: similarity };
+  const scored = semantic_scores.map(({ vector, similarity }) => {
+    vector._similarity = similarity;
+    vector._relevance = compute_relevance(vector, similarity, _current_round, in_scene);
+    return { ...vector, _relevance: vector._relevance, _similarity: similarity };
   });
 
   return scored.sort((a, b) => {
@@ -269,8 +270,8 @@ export function format(vectors, input, options = {}) {
   const selected = [];
   const selected_texts = [];
 
-  for (const v of ranked) {
-    const text = v.content || v.directive || "";
+  for (const vector of ranked) {
+    const text = vector.content || vector.directive || "";
     if (!text.trim()) continue;
 
     if (is_duplicate(text, selected_texts.join(" "))) continue;
@@ -280,12 +281,12 @@ export function format(vectors, input, options = {}) {
       break;
     }
 
-    selected.push(v);
+    selected.push(vector);
     selected_texts.push(text);
     running_chars += payload_length;
   }
 
-  return selected.map((v) => (show_text ? v.content || v.directive || "" : "")).join("\n");
+  return selected.map((vector) => (show_text ? vector.content || vector.directive || "" : "")).join("\n");
 }
 
 /**
@@ -307,8 +308,8 @@ export async function format_async(vectors, input, options = {}) {
   const selected = [];
   const selected_texts = [];
 
-  for (const v of sliced) {
-    const text = v.content || v.directive || "";
+  for (const vector of sliced) {
+    const text = vector.content || vector.directive || "";
     if (!text.trim()) continue;
 
     if (is_duplicate(text, selected_texts.join(" "))) continue;
@@ -318,40 +319,40 @@ export async function format_async(vectors, input, options = {}) {
       break;
     }
 
-    selected.push(v);
+    selected.push(vector);
     selected_texts.push(text);
     running_chars += payload_length;
   }
 
-  return selected.map((v) => (show_text ? v.content || v.directive || "" : "")).join("\n");
+  return selected.map((vector) => (show_text ? vector.content || vector.directive || "" : "")).join("\n");
 }
 
 // ── 3. Deduplication, Caps & Eviction ─────────────────────────────────────────
 
 /**
  * Lexical deduplication check: >60% word overlap on words longer than 2 chars.
- * @param {string} a
- * @param {string} b
+ * @param {string} first_text
+ * @param {string} second_text
  * @returns {boolean}
  */
-function is_duplicate(a, b) {
-  if (!a || !b) return false;
+function is_duplicate(first_text, second_text) {
+  if (!first_text || !second_text) return false;
   const words_a = new Set(
-    a
+    first_text
       .toLowerCase()
       .split(/\W+/)
-      .filter((w) => w.length > 2),
+      .filter((word) => word.length > 2),
   );
   const words_b = new Set(
-    b
+    second_text
       .toLowerCase()
       .split(/\W+/)
-      .filter((w) => w.length > 2),
+      .filter((word) => word.length > 2),
   );
   if (words_a.size === 0 || words_b.size === 0) return false;
   let shared = 0;
-  for (const w of words_a) {
-    if (words_b.has(w)) shared++;
+  for (const word of words_a) {
+    if (words_b.has(word)) shared++;
   }
   return shared / Math.min(words_a.size, words_b.size) > 0.6;
 }
@@ -359,8 +360,8 @@ function is_duplicate(a, b) {
 /** True when content is a near-duplicate of any existing vector's text. */
 function is_near_duplicate(existing_list, content) {
   if (!content || !Array.isArray(existing_list)) return false;
-  for (const v of existing_list) {
-    const text = v && (v.content || v.directive || "");
+  for (const vector of existing_list) {
+    const text = vector && (vector.content || vector.directive || "");
     if (text && is_duplicate(text, content)) return true;
   }
   return false;
@@ -368,26 +369,26 @@ function is_near_duplicate(existing_list, content) {
 
 /** True when vector embedding is >0.92 cosine similarity with an existing vector. */
 function is_semantic_duplicate(existing_list, vector) {
-  const emb = vector && deserialize_embedding(vector._embedding);
-  if (!emb) return false;
-  for (const v of existing_list || []) {
-    if (!v) continue;
-    const vemb = deserialize_embedding(v._embedding);
-    if (!vemb) continue;
-    if (cosine_similarity(emb, vemb) > 0.92) return true;
+  const embedding = vector && deserialize_embedding(vector._embedding);
+  if (!embedding) return false;
+  for (const existing_vector of existing_list || []) {
+    if (!existing_vector) continue;
+    const existing_embedding = deserialize_embedding(existing_vector._embedding);
+    if (!existing_embedding) continue;
+    if (cosine_similarity(embedding, existing_embedding) > 0.92) return true;
   }
   return false;
 }
 
 /** True for vectors that are user-authored or origin-protected (immune to eviction). */
-export function is_origin(v) {
-  return Boolean(v && (v.id?.startsWith("usr_") || v.meta?.origin || v.origin || v.timestamp === 0));
+export function is_origin(vector) {
+  return Boolean(vector && (vector.id?.startsWith("usr_") || vector.meta?.origin || vector.origin || vector.timestamp === 0));
 }
 
 /** Evicts the oldest evictable (non-origin) vector from an entity pool. */
 function evict_oldest_evictable(entity, bucket, cap) {
   if (!Array.isArray(entity[bucket]) || entity[bucket].length <= cap) return;
-  const index = entity[bucket].findIndex((v) => !is_origin(v));
+  const index = entity[bucket].findIndex((vector) => !is_origin(vector));
   if (index === -1) return; // all origin-protected
 
   const [evicted] = entity[bucket].splice(index, 1);
@@ -400,7 +401,7 @@ function evict_oldest_evictable(entity, bucket, cap) {
 /** Checks if a vector ID already exists in the entity past pool. */
 function has_vector_id(entity, id) {
   if (!entity || !id) return false;
-  return Array.isArray(entity.past) && entity.past.some((v) => v && v.id === id);
+  return Array.isArray(entity.past) && entity.past.some((vector) => vector && vector.id === id);
 }
 
 /** Reassigns a fresh UUID when a vector ID collides with an existing one. */
@@ -459,20 +460,20 @@ export function reconcile_vector_caps(entity) {
 
 /** Deduplicates an incoming eternal mutation against the existing identity field. */
 function eternal_field_dedup(existing, incoming) {
-  const norm = (s) =>
-    String(s || "")
+  const normalize = (text) =>
+    String(text || "")
       .toLowerCase()
       .replace(/\s+/g, " ")
       .trim();
-  const inc = norm(incoming);
-  if (!inc) return true;
+  const incoming_normalized = normalize(incoming);
+  if (!incoming_normalized) return true;
   const lines = String(existing || "")
     .split("\n")
-    .map(norm)
+    .map(normalize)
     .filter(Boolean);
-  if (lines.includes(inc)) return true;
+  if (lines.includes(incoming_normalized)) return true;
   for (const line of lines) {
-    if (line && is_duplicate(line, inc)) return true;
+    if (line && is_duplicate(line, incoming_normalized)) return true;
   }
   return false;
 }
@@ -491,7 +492,7 @@ function merge_eternal_field(current_field_value, new_prose) {
 function cap_present_prose(current_field_value) {
   const lines = String(current_field_value || "")
     .split("\n")
-    .filter((l) => l.trim());
+    .filter((line) => line.trim());
   if (lines.length <= PRESENT_MAX_SEGMENTS) return lines.join("\n");
   return lines.slice(-PRESENT_MAX_SEGMENTS).join("\n");
 }
@@ -499,17 +500,17 @@ function cap_present_prose(current_field_value) {
 /** Decides whether a forge rewrite crossed a chapter milestone (<45% vocabulary overlap). */
 function has_crossed_chapter_milestone(old_future, new_future) {
   if (!old_future || !new_future || old_future === new_future) return false;
-  const words = (s) =>
+  const extract_words = (text) =>
     new Set(
-      String(s)
+      String(text)
         .toLowerCase()
         .split(/[^a-z']+/)
-        .filter((w) => w.length > 3),
+        .filter((word) => word.length > 3),
     );
-  const old_words = words(old_future);
-  const new_words = words(new_future);
+  const old_words = extract_words(old_future);
+  const new_words = extract_words(new_future);
   if (!old_words.size || !new_words.size) return false;
-  const overlap = [...old_words].filter((w) => new_words.has(w)).length / old_words.size;
+  const overlap = [...old_words].filter((word) => new_words.has(word)).length / old_words.size;
   return overlap < 0.45;
 }
 
@@ -517,10 +518,10 @@ function has_crossed_chapter_milestone(old_future, new_future) {
 export function archive_chapter(entity, old_future, new_future) {
   if (!entity || !has_crossed_chapter_milestone(old_future, new_future)) return false;
   if (!Array.isArray(entity.chapters)) entity.chapters = [];
-  const prev_open = entity.chapters.find((c) => c?.status === "open");
-  if (prev_open) {
-    prev_open.status = "closed";
-    prev_open.closed_at = Date.now();
+  const previous_open_chapter = entity.chapters.find((chapter) => chapter?.status === "open");
+  if (previous_open_chapter) {
+    previous_open_chapter.status = "closed";
+    previous_open_chapter.closed_at = Date.now();
   }
   const title = String(new_future).split(/[.!?]/)[0].trim().slice(0, 60) || "New chapter";
   entity.chapters.push({
@@ -566,12 +567,12 @@ export async function forge_memory(entity_targets, history_slice, options = {}) 
   if (!Array.isArray(entity_targets) || entity_targets.length === 0) return null;
   try {
     const target_key = options.target_key || entity_targets[0]?.key || "AI_CHARACTER";
-    const target_item = entity_targets.find((t) => t.key === target_key) || entity_targets[0];
+    const target_item = entity_targets.find((target) => target.key === target_key) || entity_targets[0];
     const target_entity = target_item?.entity || null;
 
     const other_entities = {};
-    for (const t of entity_targets) {
-      if (t.key !== target_key && t.entity) other_entities[t.key] = t.entity;
+    for (const target of entity_targets) {
+      if (target.key !== target_key && target.entity) other_entities[target.key] = target.entity;
     }
 
     const attempt = async () => {
@@ -650,7 +651,7 @@ export async function forge_memory(entity_targets, history_slice, options = {}) 
 
       if (pending_embeds.length) {
         await Promise.race([
-          Promise.allSettled(pending_embeds.map((v) => ensure_embedding(v))),
+          Promise.allSettled(pending_embeds.map((vector) => ensure_embedding(vector))),
           new Promise((resolve) => setTimeout(resolve, FORGE_EMBED_BUDGET_MS)),
         ]);
       }
@@ -676,10 +677,12 @@ export async function forge_memory(entity_targets, history_slice, options = {}) 
 async function fallback_consolidate(entity_targets, slice, runtime, session) {
   try {
     const facts = (Array.isArray(slice) ? slice : [])
-      .filter((m) => m && (m.role === "ai" || m.role === "fractal" || m.role === "user" || m.role === "npc"))
-      .map((m) => {
-        const speaker = m.character_name || (m.role === "ai" ? "AI" : m.role === "user" ? "User" : m.role === "npc" ? "NPC" : "Environment");
-        return `${speaker}: ${String(m.text ?? m.content ?? "")
+      .filter((message) => message && (message.role === "ai" || message.role === "fractal" || message.role === "user" || message.role === "npc"))
+      .map((message) => {
+        const speaker =
+          message.character_name ||
+          (message.role === "ai" ? "AI" : message.role === "user" ? "User" : message.role === "npc" ? "NPC" : "Environment");
+        return `${speaker}: ${String(message.text ?? message.content ?? "")
           .replace(/<think>[\s\S]*?<\/think>/gi, "")
           .replace(/\s+/g, " ")
           .trim()
@@ -691,15 +694,17 @@ async function fallback_consolidate(entity_targets, slice, runtime, session) {
       if (!entity) continue;
       const entity_name = String(entity.name || key).toLowerCase();
       const relevant = (Array.isArray(slice) ? slice : [])
-        .filter((m) => m && (m.role === "ai" || m.role === "fractal" || m.role === "user" || m.role === "npc"))
-        .filter((m) => {
-          const txt = String(m.text ?? m.content ?? "").toLowerCase();
-          const speaker = String(m.character_name || "").toLowerCase();
-          return speaker === entity_name || (entity_name.length > 2 && txt.includes(entity_name));
+        .filter((message) => message && (message.role === "ai" || message.role === "fractal" || message.role === "user" || message.role === "npc"))
+        .filter((message) => {
+          const text = String(message.text ?? message.content ?? "").toLowerCase();
+          const speaker = String(message.character_name || "").toLowerCase();
+          return speaker === entity_name || (entity_name.length > 2 && text.includes(entity_name));
         })
-        .map((m) => {
-          const speaker = m.character_name || (m.role === "ai" ? "AI" : m.role === "user" ? "User" : m.role === "npc" ? "NPC" : "Environment");
-          return `${speaker}: ${String(m.text ?? m.content ?? "")
+        .map((message) => {
+          const speaker =
+            message.character_name ||
+            (message.role === "ai" ? "AI" : message.role === "user" ? "User" : message.role === "npc" ? "NPC" : "Environment");
+          return `${speaker}: ${String(message.text ?? message.content ?? "")
             .replace(/<think>[\s\S]*?<\/think>/gi, "")
             .replace(/\s+/g, " ")
             .trim()
@@ -773,11 +778,11 @@ export const temporal_engine = {
       let unconsolidated_slice = [];
 
       if (target_key) {
-        target_item = entity_targets.find((t) => t.key === target_key) || entity_targets[0];
+        target_item = entity_targets.find((target) => target.key === target_key) || entity_targets[0];
         target_key = target_item.key;
-        unconsolidated_slice = messages.filter((m) => {
-          if (m.role === "system") return false;
-          const forged = m.meta?.forged_entities || (m.meta?.consolidated ? entity_targets.map((t) => t.key) : []);
+        unconsolidated_slice = messages.filter((message) => {
+          if (message.role === "system") return false;
+          const forged = message.meta?.forged_entities || (message.meta?.consolidated ? entity_targets.map((target) => target.key) : []);
           return !forged.includes(target_key);
         });
       } else {
@@ -785,15 +790,15 @@ export const temporal_engine = {
         for (let i = 0; i < entity_targets.length; i++) {
           const check_idx = (cursor_index + i) % entity_targets.length;
           const candidate = entity_targets[check_idx];
-          const uncons = messages.filter((m) => {
-            if (m.role === "system") return false;
-            const forged = m.meta?.forged_entities || (m.meta?.consolidated ? entity_targets.map((t) => t.key) : []);
+          const candidate_unconsolidated = messages.filter((message) => {
+            if (message.role === "system") return false;
+            const forged = message.meta?.forged_entities || (message.meta?.consolidated ? entity_targets.map((target) => target.key) : []);
             return !forged.includes(candidate.key);
           });
-          if (uncons.length > 0 || i === entity_targets.length - 1) {
+          if (candidate_unconsolidated.length > 0 || i === entity_targets.length - 1) {
             target_item = candidate;
             target_key = candidate.key;
-            unconsolidated_slice = uncons;
+            unconsolidated_slice = candidate_unconsolidated;
             runtime.back_shot_cursor = (check_idx + 1) % entity_targets.length;
             break;
           }
@@ -837,16 +842,16 @@ export const temporal_engine = {
           await runtime.update_entity(type, entity.id, { present: entity.present });
         }
 
-        const e_mut = forged.eternal?.[target_key];
-        if (e_mut && typeof e_mut === "object") {
+        const eternal_mutation = forged.eternal?.[target_key];
+        if (eternal_mutation && typeof eternal_mutation === "object") {
           if (!entity.eternal) entity.eternal = { physical: "", non_physical: "" };
           let eternal_changed = false;
-          if (e_mut.physical?.trim()) {
-            entity.eternal.physical = merge_eternal_field(entity.eternal.physical, e_mut.physical);
+          if (eternal_mutation.physical?.trim()) {
+            entity.eternal.physical = merge_eternal_field(entity.eternal.physical, eternal_mutation.physical);
             eternal_changed = true;
           }
-          if (e_mut.non_physical?.trim()) {
-            entity.eternal.non_physical = merge_eternal_field(entity.eternal.non_physical, e_mut.non_physical);
+          if (eternal_mutation.non_physical?.trim()) {
+            entity.eternal.non_physical = merge_eternal_field(entity.eternal.non_physical, eternal_mutation.non_physical);
             eternal_changed = true;
           }
           if (eternal_changed) {
@@ -869,7 +874,7 @@ export const temporal_engine = {
           await apply_relationships({ runtime, app }, forged.relationships);
         }
 
-        const text = memories.length ? memories.map((v) => v.content || v.directive || "").join(" | ") : "State consolidated.";
+        const text = memories.length ? memories.map((vector) => vector.content || vector.directive || "").join(" | ") : "State consolidated.";
         await session.log_system_entry(`Memory Forged (${target_key}): ${text.substring(0, 50)}...`, "system", {
           type: "MEMORY_FORMATION",
           target: target_key,
@@ -886,16 +891,16 @@ export const temporal_engine = {
         await fallback_consolidate([target_item], slice, runtime, session);
       }
 
-      for (const msg of slice) {
-        const prev_forged = Array.isArray(msg.meta?.forged_entities)
-          ? msg.meta.forged_entities
-          : msg.meta?.consolidated
-            ? entity_targets.map((t) => t.key)
+      for (const message of slice) {
+        const prev_forged = Array.isArray(message.meta?.forged_entities)
+          ? message.meta.forged_entities
+          : message.meta?.consolidated
+            ? entity_targets.map((target) => target.key)
             : [];
         const next_forged = Array.from(new Set([...prev_forged, target_key]));
-        const all_forged = entity_targets.every((t) => next_forged.includes(t.key));
-        msg.meta = {
-          ...msg.meta,
+        const all_forged = entity_targets.every((target) => next_forged.includes(target.key));
+        message.meta = {
+          ...message.meta,
           forged_entities: next_forged,
           consolidated: all_forged,
         };

@@ -13,11 +13,14 @@
  * 5. Safe JSON Extraction & Output Parser
  * 6. Stage Spotlight Choreography & NPC Resolution
  * 7. Relational Mesh Actuator
+ * 8. Shot 1 Director Execution Driver (execute_director_shot)
  */
 
 import { entities } from "@data";
 import { extract_json_block, state_bridge } from "@utils";
-import { extract_and_repair_json, parse_think_block } from "./parser.js";
+import { llm_service, raw_stop_reason, raw_to_text } from "@platform";
+import { prompt_builder, render_terse_director_task } from "./builder.js";
+import { extract_and_repair_json, parse_think_block, validate_and_repair_response } from "./parser.js";
 
 // ── 1. Constants & Value Maps ─────────────────────────────────────────────────
 
@@ -394,8 +397,120 @@ export async function apply_relationships(bridge, rels) {
   }
 }
 
+// ── 8. Shot 1 Director Execution Driver ───────────────────────────────────────
+
+/**
+ * Executes Shot 1 (Director Staging & Turn Evaluation):
+ * 1. Compiles Director planning prompt via prompt_builder.
+ * 2. Dispatches LLM call with retry and refusal detection.
+ * 3. On refusal or JSON truncation, retries gracefully with the terse director directive.
+ * 4. Synthesizes minimal fallback if parsing fails completely.
+ * 5. Normalizes the final payload under full domain contracts.
+ *
+ * @param {any} payload - Hydrated turn context payload
+ * @param {any} snapshot - World and entity dynamics snapshot
+ * @param {object} [options={}] - Execution options
+ * @param {string} [options.node_id] - Execution turn node identifier
+ * @param {string} [options.input] - User input string
+ * @param {boolean} [options.is_opening_turn] - Whether this is round 1 opening turn
+ * @param {Function} [options.execute_with_retry] - Retry wrapper function
+ * @returns {Promise<{ director_data: any, director_duration_ms: number }>}
+ */
+export async function execute_director_shot(payload, snapshot, options = {}) {
+  const { node_id = "turn", input = "", is_opening_turn = false, execute_with_retry, ...llm_options } = options;
+  const retry_caller = typeof execute_with_retry === "function" ? execute_with_retry : async (fn) => fn();
+
+  state_bridge.app?.log("[GameMaster] Context hydrated. Physics resolved. Entering DIRECTOR_TURN...", "system");
+  const director_prompt = prompt_builder.build_director(payload, snapshot);
+
+  const director_call = async (terse = false) => {
+    let is_terse_attempt = terse;
+    return await retry_caller(
+      async () => {
+        const response = await llm_service.generate(
+          {
+            system: director_prompt.system,
+            task: is_terse_attempt ? render_terse_director_task() : director_prompt.task,
+            messages: [],
+            role: "system",
+            node_id: `${node_id}-director`,
+          },
+          {
+            ...llm_options,
+            json: true,
+            silent: true,
+            raw: true,
+            onToken: null,
+          },
+        );
+        const text = raw_to_text(response);
+        const check = validate_and_repair_response(text);
+        if (check.is_refused) {
+          is_terse_attempt = true;
+          throw new Error("AI_REFUSAL_DETECTED");
+        }
+        return response;
+      },
+      1,
+      500,
+    );
+  };
+
+  const start_time = performance.now();
+  let director_raw;
+  try {
+    director_raw = await director_call(false);
+  } catch (error) {
+    state_bridge.app?.log(`[GameMaster] Primary Director call failed: ${error?.message || error} — attempting terse recovery...`, "warn");
+    director_raw = await director_call(true);
+  }
+
+  let director_text = raw_to_text(director_raw);
+  let director_data = parse_director_json(director_text) || {};
+
+  // Truncation recovery
+  if (director_data._parse_error) {
+    const reason = raw_stop_reason(director_raw);
+    state_bridge.app?.log(`[GameMaster] Director JSON truncated${reason ? ` (${reason})` : ""} — retrying with terse directive...`, "warn");
+    try {
+      const terse_raw = await director_call(true);
+      const terse_text = raw_to_text(terse_raw);
+      const retry_data = parse_director_json(terse_text) || {};
+      if (!retry_data._parse_error) {
+        if (!retry_data._thought_process && director_data?._thought_process) {
+          retry_data._thought_process = director_data._thought_process;
+        }
+        if (!retry_data._thought_process) {
+          retry_data._thought_process = "High tension turn evaluation completed.";
+        }
+        director_data = retry_data;
+      }
+    } catch (terse_error) {
+      state_bridge.app?.log(`[GameMaster] Terse Director retry failed: ${terse_error?.message || terse_error}`, "warn");
+    }
+  }
+
+  const director_duration_ms = Math.round(performance.now() - start_time);
+  if (typeof state_bridge.runtime?.record_director_latency === "function") {
+    state_bridge.runtime.record_director_latency(director_duration_ms);
+  }
+
+  if (!director_data || director_data._parse_error) {
+    state_bridge.app?.log("[GameMaster] Director degraded — applying minimal-mutation fallback.", "warn");
+    director_data = synthesize_director_fallback(director_data, input, state_bridge);
+  }
+
+  director_data = normalize_director_data(director_data);
+  if (is_opening_turn && !(director_data.keywords || []).includes("first_contact")) {
+    director_data.keywords = [...(director_data.keywords || []), "first_contact"].slice(0, 5);
+  }
+
+  return { director_data, director_duration_ms };
+}
+
 /**
  * CHANGELOG
+ * - 2026-09-13: Encapsulated Shot 1 execution: implemented execute_director_shot in director.js, absorbing LLM dispatch, refusal recovery, and terse fallback from story.js.
  * - 2026-09-11: Grand Purification: prompt compilation moved to builder.js, DIRECTOR_PROTOCOLS moved to modules/protocols.js, leaving director.js a 100% pure execution & normalization engine.
  * - 2026-09-11: Modularized prompt blocks: imported SCHEMA, TASK_RULES, SPOTLIGHT_RULES, and SYSTEM_ROLES from modules/.
  * - 2026-09-11: Consolidated Director domain: merged director-prompt.js into director.js, unifying prompt compilation, schemas, spotlight choreography, and normalization.

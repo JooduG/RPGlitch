@@ -180,6 +180,62 @@ export function parse_think_block(text) {
   };
 }
 
+/**
+ * Repairs unbalanced <THINK> cognition tags: drops dangling </THINK> closers
+ * that have no matching opener and appends missing closers at the end.
+ * @param {string | null | undefined} text
+ * @returns {string}
+ */
+export function balance_think_tags(text) {
+  const source_text = String(text || "");
+  const tag_regex = /<\/?THINK>/gi;
+  let output = "";
+  let depth = 0;
+  let last_index = 0;
+  let match;
+  while ((match = tag_regex.exec(source_text)) !== null) {
+    output += source_text.slice(last_index, match.index);
+    if (/^<\//.test(match[0])) {
+      if (depth > 0) {
+        depth--;
+        output += match[0];
+      }
+    } else {
+      depth++;
+      output += match[0];
+    }
+    last_index = match.index + match[0].length;
+  }
+  output += source_text.slice(last_index);
+  if (depth > 0) output += "</THINK>".repeat(depth);
+  return output;
+}
+
+/**
+ * Removes the injected Director's-note THINK seed from generated text. When the
+ * model drops the seeded opener but keeps its closing tag, the opener is restored
+ * so the cognition block stays well-formed; all output is tag-balanced.
+ * @param {string} full_text
+ * @param {string} monologue
+ * @param {string} directors_note
+ * @returns {string}
+ */
+export function strip_directors_note_seed(full_text, monologue, directors_note) {
+  const source_text = String(full_text || "");
+  if (!directors_note) return balance_think_tags(source_text);
+  const seed = `<THINK>${directors_note} `;
+  const offset = monologue ? monologue.length : 0;
+  const region = source_text.slice(offset);
+  if (region.startsWith(seed)) {
+    return balance_think_tags(`${source_text.slice(0, offset)}<THINK>${region.slice(seed.length).trimStart()}`);
+  }
+  const close_index = region.search(/<\/THINK>/i);
+  if (close_index !== -1 && !/<THINK>/i.test(region.slice(0, close_index))) {
+    return balance_think_tags(`${source_text.slice(0, offset)}<THINK>${region}`);
+  }
+  return balance_think_tags(source_text);
+}
+
 // ── 3. Narrative Response Completion ──────────────────────────────────────────
 
 /**
@@ -299,5 +355,6 @@ export function clean_image_prompts(text) {
 
 /**
  * CHANGELOG
+ * - 2026-09-13: Centralized cognition tag surgery: absorbed balance_think_tags and strip_directors_note_seed from story.js into Section 2.
  * - 2026-08-28: Ground-up deconstruct & refactor: structured into 5 pure domain sections, verified streaming think tag parsing, JSDoc coverage, and purged backwards-compatible re-exports.
  */

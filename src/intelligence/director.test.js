@@ -5,6 +5,7 @@
 
 import { describe, expect, it, vi } from "vitest";
 import {
+  execute_director_shot,
   normalize_director_data,
   normalize_speaker,
   normalize_in_scene_change,
@@ -13,10 +14,22 @@ import {
   STORY_STATUS_VALUES,
 } from "./director.js";
 import { render_director } from "./builder.js";
+import { llm_service } from "@platform";
 
 const _mock_app = {
   settings: { narrative_style: "default" },
+  log: vi.fn(),
 };
+
+vi.mock("@platform", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    llm_service: {
+      generate: vi.fn(),
+    },
+  };
+});
 
 vi.mock("@utils", async (importOriginal) => {
   const actual = await importOriginal();
@@ -336,7 +349,80 @@ describe("normalize_relationships (Relational Mesh)", () => {
   });
 });
 
+describe("execute_director_shot", () => {
+  const test_payload = () => ({
+    round: 1,
+    entities: {
+      AI: { name: "Viper", present: { non_physical: "Tense" }, dynamics: { intensity: 50 } },
+      USER: { name: "Julien", present: { non_physical: "Defensive" } },
+      FRACTAL: { name: "Tartarus", present: { physical: "Sub-zero vault" } },
+    },
+    input: "I step into the vault.",
+  });
+
+  const test_snapshot = () => ({
+    ai: { dynamics: { intensity: 50 } },
+    fractal: { dynamics: { entropy: 50 } },
+    flags: [],
+  });
+
+  it("successfully parses and normalizes a standard director response", async () => {
+    llm_service.generate.mockResolvedValueOnce(
+      JSON.stringify({
+        _thought_process: "Julien has entered the room.",
+        next_action: "AI_CHARACTER",
+        keywords: ["cold", "tension"],
+        directors_note: "React to the sound of footsteps.",
+        dynamics_deltas: { intensity: 5 },
+        visual_staging: "Low angle spotlight on the entrance",
+      }),
+    );
+
+    const { director_data, director_duration_ms } = await execute_director_shot(test_payload(), test_snapshot());
+
+    expect(director_data.next_action).toBe("AI_CHARACTER");
+    expect(director_data.speaker).toBe("ai");
+    expect(director_data.keywords).toEqual(["cold", "tension"]);
+    expect(director_data.directors_note).toBe("React to the sound of footsteps.");
+    expect(director_data.dynamics_deltas).toEqual({ intensity: 5 });
+    expect(director_duration_ms).toBeGreaterThanOrEqual(0);
+  });
+
+  it("recovers with terse retry when primary response is truncated / malformed", async () => {
+    // 1st call returns truncated JSON
+    llm_service.generate.mockResolvedValueOnce('{"_thought_process": "Evaluating scene", "next_action": "AI_CHAR');
+    // 2nd call (terse retry) returns clean JSON
+    llm_service.generate.mockResolvedValueOnce(
+      JSON.stringify({
+        _thought_process: "High tension turn evaluation completed.",
+        next_action: "FRACTAL",
+        keywords: ["atmospheric"],
+        directors_note: "Let the wind howl through the vents.",
+      }),
+    );
+
+    const { director_data } = await execute_director_shot(test_payload(), test_snapshot());
+
+    expect(director_data.next_action).toBe("FRACTAL");
+    expect(director_data.speaker).toBe("fractal");
+    expect(director_data.keywords).toEqual(["atmospheric"]);
+  });
+
+  it("applies minimal-mutation fallback when all retries fail", async () => {
+    llm_service.generate.mockResolvedValue("completely unparseable garbage without braces");
+
+    const { director_data } = await execute_director_shot(test_payload(), test_snapshot(), {
+      input: "I challenge you!",
+    });
+
+    expect(director_data.next_action).toBe("AI_CHARACTER");
+    expect(director_data._parse_error).toBe(true);
+    expect(director_data.directors_note).toBeTruthy();
+  });
+});
+
 /**
  * CHANGELOG
+ * - 2026-09-13: Added execute_director_shot integration unit tests covering clean parse, terse recovery, and fallback synthesis.
  * - 2026-09-11: Consolidated prompt and orchestration unit tests into director.test.js.
  */

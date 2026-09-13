@@ -1,12 +1,11 @@
 /**
  * src/intelligence/profile.js
- * 🧬 PROFILE DOMAIN — Structuring, Entity Mapping, Field Enhancement & Spawning
+ * 🧬 PROFILE DOMAIN — Structuring, Entity Mapping & Character Genesis
  *
  * Sovereign domain file combining profile structuring, entity schema hydration,
- * field enhancement prompt compilers, and character genesis orchestration:
- * 1. Field Enhancement & Profile Structuring Compilers (render_enhancement, render_profile_sorting)
- * 2. Profile Structuring & Schema Mapper (structure_profile, apply_profile_to_entity)
- * 3. Character Genesis & Active Cast Spawning (spawn_character)
+ * and character genesis orchestration:
+ * 1. Profile Structuring & Schema Mapper (structure_profile, apply_profile_to_entity)
+ * 2. Character Genesis & Active Cast Spawning (spawn_character)
  */
 
 import { generate_uuid, state_bridge } from "@utils";
@@ -51,19 +50,20 @@ export async function structure_profile(raw, type) {
 export function apply_profile_to_entity(entity, profile) {
   if (!profile || typeof profile !== "object") return entity;
 
-  for (const [key, val] of Object.entries(profile)) {
+  for (const [key, value] of Object.entries(profile)) {
     // Identity/asset keys are set by the orchestrator, never by the profile.
     if (key === "profile_picture" || key === "image" || key === "id" || key === "type") continue;
 
     if (key === "past") {
       // PAST is a vector array — each prose entry becomes a pinned memory.
-      if (Array.isArray(val)) {
-        const new_vectors = val
-          .map((text_str) => {
-            const vector_str = typeof text_str === "string" ? text_str : text_str.content || text_str.directive || JSON.stringify(text_str);
-            if (!vector_str || !String(vector_str).trim()) return null;
+      if (Array.isArray(value)) {
+        const new_vectors = value
+          .map((text_string) => {
+            const vector_string =
+              typeof text_string === "string" ? text_string : text_string.content || text_string.directive || JSON.stringify(text_string);
+            if (!vector_string || !String(vector_string).trim()) return null;
             return {
-              ...temporal_engine.create(vector_str, key),
+              ...temporal_engine.create(vector_string, key),
               id: `usr_${generate_uuid()}`,
               emotional_weight: 5,
             };
@@ -71,31 +71,31 @@ export function apply_profile_to_entity(entity, profile) {
           .filter(Boolean);
         entity.past = [...(entity.past || []), ...new_vectors];
       }
-    } else if (key === "future" && typeof val === "string") {
-      entity.future = val.trim();
-    } else if (key === "tags" && Array.isArray(val)) {
-      entity.tags = val
-        .map((t) => String(t).trim())
+    } else if (key === "future" && typeof value === "string") {
+      entity.future = value.trim();
+    } else if (key === "tags" && Array.isArray(value)) {
+      entity.tags = value
+        .map((tag) => String(tag).trim())
         .filter(Boolean)
         .slice(0, 30);
-    } else if (typeof val === "object" && !Array.isArray(val)) {
+    } else if (typeof value === "object" && !Array.isArray(value)) {
       // Nested flat objects → shallow-copy their string leaves.
-      for (const [sub_key, sub_val] of Object.entries(val)) {
-        if (typeof sub_val === "string") {
+      for (const [sub_key, sub_value] of Object.entries(value)) {
+        if (typeof sub_value === "string") {
           if (!entity[key]) entity[key] = {};
-          entity[key][sub_key] = sub_val;
+          entity[key][sub_key] = sub_value;
         }
       }
-    } else if (typeof val === "string") {
+    } else if (typeof value === "string") {
       // Flat LLM keys → nested DB schema; everything else lands verbatim.
       if (FLAT_LEAF_MAP[key]) {
         const [main_key, sub_key] = FLAT_LEAF_MAP[key].split(".");
         if (!entity[main_key]) entity[main_key] = {};
-        entity[main_key][sub_key] = val;
+        entity[main_key][sub_key] = value;
       } else if (key === "name") {
-        entity.name = val.trim().slice(0, 80);
+        entity.name = value.trim().slice(0, 80);
       } else {
-        entity[key] = val;
+        entity[key] = value;
       }
     }
   }
@@ -117,20 +117,20 @@ export async function spawn_character(bridge, draft = {}) {
   const name = String(draft?.name || "").trim();
   if (!name) return null;
   const raw_color = String(draft?.signature_color || "").trim();
-  const desc = String(draft?.description || "").trim();
+  const description = String(draft?.description || "").trim();
   const scene_context = String(draft?.scene_context || "").trim();
 
   // 1. Base entity shell
   let entity = {
     name,
     type: "character",
-    description: desc,
+    description,
     eternal: {
-      physical: desc,
+      physical: description,
       non_physical: "",
     },
     present: {
-      physical: desc,
+      physical: description,
       non_physical: "",
     },
     future: "",
@@ -147,7 +147,7 @@ export async function spawn_character(bridge, draft = {}) {
   try {
     const synthesis_source = [
       `Character Name: ${name}`,
-      desc ? `Core Concept: ${desc}` : "",
+      description ? `Core Concept: ${description}` : "",
       raw_color ? `Signature Color: ${raw_color}` : "",
       scene_context ? `Scene Context & Atmosphere: ${scene_context}` : "",
     ]
@@ -158,8 +158,8 @@ export async function spawn_character(bridge, draft = {}) {
     if (rich_profile && typeof rich_profile === "object") {
       entity = apply_profile_to_entity(entity, rich_profile);
     }
-  } catch (err) {
-    state_bridge.app?.log(`[GameMaster] Genesis rich synthesis failed for "${name}", using raw draft: ${err?.message || err}`, "warn");
+  } catch (error) {
+    state_bridge.app?.log(`[GameMaster] Genesis rich synthesis failed for "${name}", using raw draft: ${error?.message || error}`, "warn");
   }
 
   // Ensure signature color and name are firmly grounded
@@ -174,19 +174,19 @@ export async function spawn_character(bridge, draft = {}) {
     try {
       const portrait_promise = visual_engine
         .generate(saved_entity.id, { mode: "solo_entity", resolution: "512x512", _entity: saved_entity })
-        .then(async (img_url) => {
-          if (img_url && saved_entity.id) {
-            const data_url = typeof img_url === "object" && img_url?.url ? img_url.url : img_url;
+        .then(async (image_url) => {
+          if (image_url && saved_entity.id) {
+            const data_url = typeof image_url === "object" && image_url?.url ? image_url.url : image_url;
             await entities.update("character", saved_entity.id, { profile_picture: data_url });
             await state_bridge.runtime?.update_entity?.("character", saved_entity.id, { profile_picture: data_url });
           }
         });
       if (portrait_promise && typeof portrait_promise.catch === "function") {
-        portrait_promise.catch((err) =>
-          state_bridge.app?.log(`[GameMaster] Portrait generation for "${name}" failed: ${err?.message || err}`, "warn"),
+        portrait_promise.catch((error) =>
+          state_bridge.app?.log(`[GameMaster] Portrait generation for "${name}" failed: ${error?.message || error}`, "warn"),
         );
       }
-    } catch (_err) {
+    } catch (_error) {
       /* portrait failure must never break genesis */
     }
   }

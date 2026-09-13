@@ -1,4 +1,11 @@
-import { clean_image_prompts, parse_think_block, is_refusal_response, extract_and_repair_json } from "./parser.js";
+import {
+  clean_image_prompts,
+  parse_think_block,
+  balance_think_tags,
+  strip_directors_note_seed,
+  is_refusal_response,
+  extract_and_repair_json,
+} from "./parser.js";
 import { escape_xml, strip_cognition_blocks, safe_parse_pseudo_json, merge_prose_into_field } from "@utils";
 import { describe, expect, it } from "vitest";
 
@@ -394,5 +401,50 @@ describe("extract_and_repair_json", () => {
   it("returns fallback for non-json or unrepairable input", () => {
     expect(extract_and_repair_json("Just raw narrative prose without braces", null)).toBeNull();
     expect(extract_and_repair_json("", { fallback: true })).toEqual({ fallback: true });
+  });
+});
+
+describe("balance_think_tags", () => {
+  it("leaves balanced tags unchanged", () => {
+    const text = "<THINK>Internal cognition</THINK>Spoken words";
+    expect(balance_think_tags(text)).toBe(text);
+  });
+
+  it("drops dangling closers without openers", () => {
+    const text = "Spoken words</THINK> lingering text";
+    expect(balance_think_tags(text)).toBe("Spoken words lingering text");
+  });
+
+  it("appends missing closer when opener is unclosed", () => {
+    const text = "<THINK>Unfinished thoughts";
+    expect(balance_think_tags(text)).toBe("<THINK>Unfinished thoughts</THINK>");
+  });
+
+  it("handles case-insensitive tags", () => {
+    const text = "<think>Thoughts</THINK>Outward prose";
+    expect(balance_think_tags(text)).toBe(text);
+  });
+});
+
+describe("strip_directors_note_seed", () => {
+  it("strips seeded director note while keeping think block balanced", () => {
+    const note = "Stay watchful.";
+    const monologue = "";
+    const generated = `<THINK>${note} The shadows lengthen.</THINK>He draws his blade.`;
+    const result = strip_directors_note_seed(generated, monologue, note);
+    expect(result).toBe("<THINK>The shadows lengthen.</THINK>He draws his blade.");
+  });
+
+  it("restores opener if model dropped opener but kept closer", () => {
+    const note = "Stay watchful.";
+    const monologue = "";
+    const generated = "The shadows lengthen.</THINK>He draws his blade.";
+    const result = strip_directors_note_seed(generated, monologue, note);
+    expect(result).toBe("<THINK>The shadows lengthen.</THINK>He draws his blade.");
+  });
+
+  it("returns balanced text if no director note is provided", () => {
+    const generated = "<THINK>Just raw thinking</THINK>Prose";
+    expect(strip_directors_note_seed(generated, "", "")).toBe(generated);
   });
 });
