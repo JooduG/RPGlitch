@@ -225,7 +225,7 @@ function build_scene_roster(entities, npc_entities = [], in_scene_ids = []) {
  * @param {number} [indentation_level=8]
  * @returns {string}
  */
-function render_dispositions(entity, active_names, name_to_id_map, indentation_level = 8) {
+function render_dispositions(entity, active_names, name_to_id_map, indentation_level = 6) {
   if (!entity?.name) return "";
   const source_name = String(entity.name).toLowerCase().trim();
   const indentation_padding = " ".repeat(indentation_level);
@@ -255,15 +255,17 @@ function render_dispositions(entity, active_names, name_to_id_map, indentation_l
  *
  * @param {any[]} [npc_entities=[]]
  * @param {string[]} [in_scene_ids=[]]
+ * @param {Set<string>} [rendered_npc_ids=new Set()]
  * @returns {string}
  */
-function render_proximate_npcs(npc_entities = [], in_scene_ids = []) {
+function render_proximate_npcs(npc_entities = [], in_scene_ids = [], rendered_npc_ids = new Set()) {
   const in_scene_set = new Set((in_scene_ids || []).map(String));
   const rows = [];
 
   for (const npc_entity of npc_entities || []) {
-    if (!npc_entity?.name || !in_scene_set.has(String(npc_entity.id))) continue;
-    rows.push(`      <NPC id="${escape_xml(String(npc_entity.id))}" name="${escape_xml(String(npc_entity.name))}" />`);
+    const npc_id = String(npc_entity?.id);
+    if (!npc_entity?.name || !in_scene_set.has(npc_id) || rendered_npc_ids.has(npc_id)) continue;
+    rows.push(`      <NPC id="${escape_xml(npc_id)}" name="${escape_xml(String(npc_entity.name))}" />`);
   }
 
   if (!rows.length) return "";
@@ -362,6 +364,7 @@ export function render_sheet(specification, context) {
     is_owner = false,
     show_dispositions = false,
     include_agenda = true,
+    include_memories = true,
     active_names,
     name_to_id,
     physical_mode = "combined",
@@ -380,11 +383,11 @@ export function render_sheet(specification, context) {
   rows.push(`    <${specification.tag}${id_attribute} name="${escape_xml(entity.name || specification.default_name)}">`);
   rows.push(`      <${specification.psychology_tag}>`);
 
-  if (!specification.agenda_gate || include_agenda) {
+  if (include_agenda) {
     const agenda_raw = accessors ? accessors.future(entity, { vector_text: true }) : entity?.future;
     const agenda_content = String(agenda_raw || "").trim();
     if (agenda_content) {
-      rows.push(`        <${specification.agenda_key}>${inline_or_block(agenda_content, 10)}</${specification.agenda_key}>`);
+      rows.push(`        <${specification.agenda_key}>${inline_or_block(agenda_content, 8)}</${specification.agenda_key}>`);
     }
   }
 
@@ -402,12 +405,12 @@ export function render_sheet(specification, context) {
   }
 
   if (show_dispositions && active_names && name_to_id) {
-    const dispositions_xml = render_dispositions(entity, active_names, name_to_id, 8);
+    const dispositions_xml = render_dispositions(entity, active_names, name_to_id, 6);
     if (dispositions_xml) rows.push(dispositions_xml);
   }
 
   const axes_xml = render_axes && specification.axes_scope ? render_axes(dynamics, specification.axes_scope) : "";
-  if (axes_xml) rows.push(indent_all(axes_xml, 8));
+  if (axes_xml) rows.push(indent_all(axes_xml, 6));
 
   rows.push(`      </${specification.psychology_tag}>`);
 
@@ -438,17 +441,19 @@ export function render_sheet(specification, context) {
     if (appearance_xml) rows.push(appearance_xml);
   }
 
-  const memory_raw = accessors
-    ? accessors.past(entity, { vector_text: true })
-    : Array.isArray(entity?.past)
-      ? entity.past
-          .map((vector) => vector.content || "")
-          .filter(Boolean)
-          .join("\n")
-      : entity?.past || "";
-  const memory_content = sanitize_by_epistemic_policy(memory_raw, epistemic.memory);
-  if (String(memory_content || "").trim()) {
-    rows.push(`      <${specification.memory_tag}>${inline_or_block(memory_content, 8)}</${specification.memory_tag}>`);
+  if (include_memories) {
+    const memory_raw = accessors
+      ? accessors.past(entity, { vector_text: true })
+      : Array.isArray(entity?.past)
+        ? entity.past
+            .map((vector) => vector.content || "")
+            .filter(Boolean)
+            .join("\n")
+        : entity?.past || "";
+    const memory_content = sanitize_by_epistemic_policy(memory_raw, epistemic.memory);
+    if (String(memory_content || "").trim()) {
+      rows.push(`      <${specification.memory_tag}>${inline_or_block(memory_content, 8)}</${specification.memory_tag}>`);
+    }
   }
 
   rows.push(`    </${specification.tag}>`);
@@ -563,31 +568,39 @@ export function render_entity_sheets({
   }
 
   const rendered_npc_ids = new Set();
+  const active_speaker_id = is_npc && active_speaker ? String(active_speaker.id ?? active_speaker.name) : null;
+
   for (const npc_entity of npc_entities || []) {
     const npc_id = String(npc_entity?.id);
     if (!npc_ids_to_render.has(npc_id)) continue;
     rendered_npc_ids.add(npc_id);
+
+    const is_active_speaker = is_npc && active_speaker_id === npc_id;
+    const is_bystander_npc = is_npc && !is_active_speaker;
+
+    const resolved_npc_dynamics = is_active_speaker ? npc_entity?.dynamics || speaker_dynamics : npc_entity?.dynamics || null;
 
     parts.push(
       render_sheet(SHEET_SPECS.NPC, {
         entity: npc_entity,
         entities,
         npc_entities,
-        accessors,
+        accessors: is_bystander_npc ? null : accessors,
         render_axes,
-        dynamics: axes_for.has("NPC") ? speaker_dynamics || npc_entity?.dynamics : null,
-        is_owner: true,
+        dynamics: axes_for.has("NPC") ? resolved_npc_dynamics : null,
+        is_owner: !is_bystander_npc,
         show_dispositions: dispositions_for.has("NPC"),
-        include_agenda: true,
+        include_agenda: !is_bystander_npc,
+        include_memories: !is_bystander_npc,
         active_names,
         name_to_id,
       }),
     );
   }
 
-  if (is_npc && active_speaker) {
-    const active_speaker_id = String(active_speaker.id ?? active_speaker.name);
+  if (is_npc && active_speaker && active_speaker_id) {
     if (!rendered_npc_ids.has(active_speaker_id)) {
+      rendered_npc_ids.add(active_speaker_id);
       parts.push(
         render_sheet(SHEET_SPECS.NPC, {
           entity: active_speaker,
@@ -595,7 +608,7 @@ export function render_entity_sheets({
           npc_entities,
           accessors,
           render_axes,
-          dynamics: axes_for.has("NPC") ? speaker_dynamics : null,
+          dynamics: axes_for.has("NPC") ? active_speaker.dynamics || speaker_dynamics : null,
           is_owner: true,
           show_dispositions: dispositions_for.has("NPC"),
           include_agenda: true,
@@ -607,7 +620,7 @@ export function render_entity_sheets({
   }
 
   if (entities_configuration.proximate_npcs) {
-    const proximate_npcs = render_proximate_npcs(npc_entities, in_scene_ids);
+    const proximate_npcs = render_proximate_npcs(npc_entities, in_scene_ids, rendered_npc_ids);
     if (proximate_npcs) parts.push(proximate_npcs);
   }
 
@@ -722,6 +735,8 @@ export function render_enhancement_field_context(entity, field_identifier, conte
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-13: Token optimization & epistemic reinforcement: (1) Enforced Bystander NPC Diet where non-speaking in-scene NPCs omit private standing agendas and deep memory vectors while stripping secrets/plans across the Epistemic Wall; (2) Compressed nested whitespace across dispositions and dynamic axes to 6-space hierarchy, trimming whitespace tokens.
+ * - 2026-09-13: Fixed NPC dynamic axes crosstalk by isolating bystander NPC axes from active speaker dynamics; deduplicated in-scene NPCs in proximate roster to eliminate redundant <NPC> tags when full sheets are already rendered.
  * - 2026-09-13: Full architectural symmetry with prompts.js — established 1-to-1 parity between config.entities manifest keys and entities.js renderers; unified TARGET into render_sheet via physical_mode ("combined" vs "separate"); exported render_sheet as sovereign universal compiler; pruned redundant dictionaries; enforced Full-Name domain nomenclature throughout.
  * - 2026-09-13: Streamlined render_entity_memory_context and render_enhancement_field_context — replaced manual tag variables with declarative PROFILE_FIELD_CATALOG path iteration via resolve_entity_field_value, slashing boilerplate and eliminating linter warnings.
  * - 2026-09-13: Deconstruction and first-principles architectural rebuild — established sovereign red thread across 6 symmetrical sections; unified scene presence and name-to-id indexing into build_scene_roster; derived XML tags cleanly via resolve_profile_field_tag; pruned dead loop branches in NPC sheet assembly.

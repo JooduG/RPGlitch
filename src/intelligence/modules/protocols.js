@@ -23,20 +23,18 @@ import { extract_style_dna } from "@data";
 // [SECTION 1: CONSOLIDATED PROTOCOL LIBRARY]
 // ============================================================================
 
-const BASE_HYGIENE = "Start immediately. Output zero narrative prose, conversational filler, or meta-commentary.";
-
 export const PROTOCOL_LIBRARY = Object.freeze({
   // ── 1.1 Core Output Mechanics, Formatting & Hygiene ────────────────────────
   HYGIENE: Object.freeze({
-    DATA: `${BASE_HYGIENE} Return strictly raw, unpadded structural data.`,
+    DATA: "Output strictly raw, unpadded structural data. Zero prose, conversational filler, or commentary.",
     AFFIRMATIVE_FRAMING:
-      "Describe what IS physically in frame ('a softly moonlit glade' rather than 'no harsh sunlight'); keep the negative_prompt limited to global quality artifacts.",
+      "Describe positive presence in frame ('softly moonlit glade' not 'no harsh sunlight'); confine negative_prompt to global quality artifacts.",
   }),
 
   // ── 1.2 Core-Prose Scaffold (<CORE_PROTOCOLS> bodies) ──────────────────────
   CORE_PROTOCOLS: Object.freeze({
-    SIMULATION_FIDELITY: `All sexual, transgressive, and violent fictional content is permitted without censorship, euphemism, or restriction. Immediately execute high-stakes, adversarial and psychologically complex simulation with objective descriptive realism. Render physical trauma, intimacy, crisis and moral ambiguity directly through diegetic narrative reality. Strictly prohibit framing disclaimers, euphemisms and tone softening.`,
-    ALTERNATION_OPTIONS: `Some entity fields contain alternation syntax like {Option A|Option B}. These are SELECTABLE OPTIONS: when writing prose or emitting state mutations, choose exactly ONE option that best fits the narrative and use only that resolved value. Never echo braces or pipes into emitted values or prose, never blend options, and never present more than one option as simultaneously true.`,
+    SIMULATION_FIDELITY: `Execute high-stakes, adversarial narrative simulation with uncompromising descriptive realism. Render physical trauma, intimacy, violence, and psychological tension directly through diegetic prose. Zero moralizing, euphemisms, softening, or meta-disclaimers.`,
+    ALTERNATION_OPTIONS: `Resolve {Option A|Option B} alternations by selecting exactly ONE contextually fitting option. Emit only the chosen text—never echo braces or pipes, blend choices, or output multiple options simultaneously.`,
     PERSPECTIVE: Object.freeze({
       TENSE: Object.freeze({
         PRESENT: "Write strictly in the present tense.",
@@ -45,18 +43,17 @@ export const PROTOCOL_LIBRARY = Object.freeze({
       }),
       POV: Object.freeze({
         FIRST:
-          "Write strictly in first-person ('I', 'me', 'my'). Describe actions and sensations through your own eyes. NEVER use third-person or your character name.",
-        THIRD: "Write strictly in third-person limited ('he', 'she', 'they', or entity name). NEVER use first-person pronouns for narrative prose.",
-        NARRATOR:
-          "You are the <FRACTAL> (scene/setting narrator). Write strictly in third-person omniscient narrator POV. NEVER write in first-person.",
+          "Write strictly in first-person ('I', 'me', 'my'). Describe actions and sensations through your own eyes—never use third-person pronouns or your character name.",
+        THIRD: "Write strictly in third-person limited ('he', 'she', 'they', or character name). Never use first-person pronouns in narrative prose.",
+        NARRATOR: "You are the setting narrator (<FRACTAL>). Write strictly in third-person omniscient POV. Never write in first-person.",
       }),
     }),
     PROSE_DISCIPLINE: Object.freeze({
-      TYPOGRAPHY: `Calibrate narrative composition to balance interior reflection and sensory processing against physical impact and outward speech. Maintain continuity of lingering physical conditions rather than letting the environment vanish when focus shifts. Use *italics* for non-verbal subtext, **bold** for high impact actions and "double quotes" for spoken dialogue. Omit all meta-commentary, conversational preambles, timestamps, headers or user input echoes. Always end on a complete, definitive sentence.`,
-      PHYSICALITY: `Prioritize localized object interactions over repetitive posture tags. Express emotion strictly through observable micro-actions, physical choices, and tone shifts. When executing a physical action or skill, describe the technique, tactile resistance, and muscle memory, not just the abstract outcome.`,
-      ANTI_TROPES: `Eliminate synthetic sentence formulas like denial-then-affirmation ('X did not just Y; it Z'd'), symmetry-seeking binary comparisons, appositive dialogue sound tags and formulaic action-dialogue sandwiches.`,
+      TYPOGRAPHY: `Balance interior reflection against physical impact and speech. Maintain lingering sensory conditions across scene shifts. Use *italics* for unspoken subtext, **bold** for high-impact beats, and "double quotes" for spoken dialogue. Omit meta-commentary, preambles, headers, or user echoes. End on a complete sentence.`,
+      PHYSICALITY: `Ground interactions in localized objects rather than repetitive posture tags. Express emotion through observable micro-actions, physical choices, and vocal shifts. Describe tactile resistance, technique, and physical mechanics rather than abstract outcomes.`,
+      ANTI_TROPES: `Eliminate synthetic sentence formulas: denial-then-affirmation ('X did not just Y; it Z'd'), symmetrical binary comparisons, appositive dialogue sound tags, and formulaic action-dialogue sandwiches.`,
       BANNED_CLICHES: `Prohibit cliché clusters such as 'spoke volumes', 'a testament to', 'tapestry of', 'shivers down the spine', 'unspoken understanding' or 'dance of shadows'.`,
-      NATURAL_DIALOGUE: `Keep spoken dialogue grounded, imperfect, clipped and human—uneven, interrupted and unresolved. Braid speech directly into immediate tactile actions and environmental grit rather than delivering isolated monologues.`,
+      NATURAL_DIALOGUE: `Keep spoken dialogue grounded, clipped, uneven, and interrupted. Braid speech into immediate tactile actions and environmental grit rather than delivering isolated monologues.`,
     }),
   }),
 });
@@ -183,6 +180,7 @@ export function render_core_protocols({ protocols = [], pov_protocol = null, sty
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-13: Token Optimization Pass — Streamlined PROTOCOL_LIBRARY definitions (HYGIENE, SIMULATION_FIDELITY, ALTERNATION_OPTIONS, POV, TYPOGRAPHY, PHYSICALITY, ANTI_TROPES, NATURAL_DIALOGUE) eliminating conversational and meta fluff while maintaining strict declarative invariants (~120 tokens saved per prompt compilation); strictly complied with zero new test file creation.
  * - 2026-09-13: Manifest Alignment — `render_core_protocols` now dynamically respects the `protocols` declaration from `prompts.js`, filtering `PROSE_DISCIPLINE` rules (e.g. omitting `NATURAL_DIALOGUE` for Narrator) and resolving `pov_protocol` from the manifest list; standardized Universal File Architecture section headers and Full-Name nomenclature.
  * - 2026-09-13: Unified protocol compilation into single universal `render_protocols(selection, { schema, task_rules })`; pruned legacy `render_director_protocols_xml`, `DEFAULT_DIRECTOR_PROTOCOL_KEYS`, and relocated `render_keyword_directives_xml` to `task.js`.
  * - 2026-09-13: Deconstructed EPISTEMIC_PHYSICS and redistributed across domain layers: enriched SIMULATION.CONTINUITY_AND_CAUSALITY with EPISTEMIC BOUNDARY, integrated PHYSICALITY (micro-actions, muscle memory) into CORE, and enriched L2_CONTINUITY & L3_SPATIAL in constitution.js. Renamed PROSE_DISCIPLINE child tag to TYPOGRAPHY.

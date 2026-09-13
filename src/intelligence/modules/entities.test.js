@@ -235,6 +235,119 @@ describe("src/intelligence/modules/entities.js", () => {
       expect(xml).toContain('<NPC id="npc_1" name="Sentry Bot" />');
       expect(xml).not.toContain("npc_2");
     });
+
+    it("isolates NPC dynamic axes so bystanders retain their own dynamics without speaker crosstalk", () => {
+      const mock_render_axes = (dynamics) => {
+        if (!dynamics) return "";
+        return `<DYNAMIC_AXES chaos="${dynamics.chaos}" intensity="${dynamics.intensity}" />`;
+      };
+
+      const npc_entities = [
+        { id: "npc_speaker", name: "Glitch", dynamics: { chaos: 52, intensity: 44 } },
+        { id: "npc_bystander", name: "Julien", dynamics: { chaos: 40, intensity: 40 } },
+      ];
+      const in_scene_ids = ["npc_speaker", "npc_bystander"];
+
+      const xml = render_entity_sheets({
+        entities: mock_entities,
+        npc_entities,
+        in_scene_ids,
+        accessors: mock_accessors,
+        render_axes: mock_render_axes,
+        is_npc: true,
+        active_speaker: npc_entities[0],
+        speaker_dynamics: { chaos: 52, intensity: 44 },
+        config: {
+          entities: {
+            dispositions: ["NPC"],
+            dynamic_axes: ["NPC"],
+          },
+        },
+      });
+
+      // Both NPCs should be rendered
+      expect(xml).toContain('<NPC id="npc_speaker" name="Glitch">');
+      expect(xml).toContain('<NPC id="npc_bystander" name="Julien">');
+
+      // Glitch has chaos="52" intensity="44"
+      // Julien MUST have chaos="40" intensity="40", NOT Glitch's values
+      expect(xml).toContain('<DYNAMIC_AXES chaos="52" intensity="44" />');
+      expect(xml).toContain('<DYNAMIC_AXES chaos="40" intensity="40" />');
+    });
+
+    it("deduplicates in-scene NPCs so full sheets are not repeated in proximate roster", () => {
+      const npc_entities = [
+        { id: "npc_1", name: "Sentry Bot" },
+        { id: "npc_2", name: "Distant Drone" },
+      ];
+      const in_scene_ids = ["npc_1", "npc_2"];
+
+      const xml = render_entity_sheets({
+        entities: mock_entities,
+        npc_entities,
+        in_scene_ids,
+        accessors: mock_accessors,
+        config: {
+          entities: {
+            proximate_npcs: true,
+            dispositions: ["NPC"], // Triggers full sheet rendering for in-scene NPCs
+            dynamic_axes: [],
+          },
+        },
+      });
+
+      // Full sheets rendered for in_scene_ids
+      expect(xml).toContain('<NPC id="npc_1" name="Sentry Bot">');
+      expect(xml).toContain('<NPC id="npc_2" name="Distant Drone">');
+
+      // Proximate NPCs roster should NOT repeat them, and since none remain, PROXIMATE_NPCS should not appear
+      expect(xml).not.toContain("<PROXIMATE_NPCS>");
+    });
+
+    it("enforces bystander NPC diet: strips private secrets, plans, standing agenda, and memories from non-speaking NPCs", () => {
+      const npc_entities = [
+        {
+          id: "npc_speaker",
+          name: "Glitch",
+          future: "Hack the server.",
+          past: [{ content: "Infiltrated sector 4." }],
+          present: { non_physical: "Typing furiously. [SECRET: backdoor code]" },
+        },
+        {
+          id: "npc_bystander",
+          name: "Julien",
+          future: "Reclaim the throne.",
+          past: [{ content: "Exiled ten years ago." }],
+          present: { non_physical: "Leaning against the console. [SECRET: hiding the dagger]" },
+        },
+      ];
+      const in_scene_ids = ["npc_speaker", "npc_bystander"];
+
+      const xml = render_entity_sheets({
+        entities: mock_entities,
+        npc_entities,
+        in_scene_ids,
+        is_npc: true,
+        active_speaker: npc_entities[0],
+        config: {
+          entities: {
+            dispositions: ["NPC"],
+            dynamic_axes: [],
+          },
+        },
+      });
+
+      // Active speaker NPC preserves agenda, memories, and owner secrets
+      expect(xml).toContain("Hack the server.");
+      expect(xml).toContain("Infiltrated sector 4.");
+      expect(xml).toContain("backdoor code");
+
+      // Bystander NPC has secrets stripped, and agenda & memories omitted
+      expect(xml).not.toContain("hiding the dagger");
+      expect(xml).not.toContain("Reclaim the throne.");
+      expect(xml).not.toContain("Exiled ten years ago.");
+      expect(xml).toContain("Leaning against the console.");
+    });
   });
 
   describe("render_scene_cast_xml", () => {

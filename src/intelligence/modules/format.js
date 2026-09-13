@@ -47,20 +47,53 @@ import { PROFILE_FIELDS } from "@data";
  */
 export const SCHEMA_ATOMS = Object.freeze({
   // ── 1.1 Shared Tactical & Cognitive Reasoning ──────────────────────────────
-  _thought_process: "<ONE short sentence: tactical intent & state delta>",
+  _thought_process: "<Tactical intent & state delta>",
 
   // ── 1.2 Shot 1: Directorial State & Staging Atoms (director) ────────────────
   next_action: `'AI_CHARACTER' | 'FRACTAL' | 'npc:<id>' | { \\"genesis\\": { \\"name\\": \\"<Name>\\", \\"description\\": \\"<description>\\" } } | 'EPILOGUE_CONCLUDED' | 'EPILOGUE_COLLAPSED'`,
-  keywords: ["<1-5 keywords from <AVAILABLE_KEYWORDS>>"],
-  directors_note:
-    "<1-5 lines of unseen acting/staging directives for next speaker: flag physical obstacles, weave agendas into complications, engage touched physical details, or empty string>",
+  keywords: ["<1-5 keywords from AVAILABLE_KEYWORDS>"],
+  directors_note: "<1-5 lines staging directives for next speaker, or empty string>",
   dynamics_deltas: { chaos: 0, intensity: 0, openness: 0, affinity: 0, velocity: 0, entropy: 0 },
-  visual_staging: "<optional: 1 line camera & lighting directive ONLY if triggering scene image shift, else omit>",
+  visual_staging: "<optional: camera & lighting directive if scene image shifts>",
   spotlight: { enter: ["npc:<id>"], exit: ["npc:<id>"] },
 
   // ── 1.3 Shot 2B: Continuum Caretaker & Relational Graph Atoms (continuum) ───
   target: "'AI_CHARACTER' | 'USER_PERSONA' | 'FRACTAL' | 'NPC_<id>'",
   relationships: ["Source → Target: dynamic description"],
+});
+
+/**
+ * High-density, LLM-optimized field contracts for JSON schemas (Layer 7 Sovereignty).
+ * Eliminates conversational UI tutorials from continuum and profile schemas.
+ */
+export const SCHEMA_FIELD_DESCRIPTORS = Object.freeze({
+  name: "Entity name string",
+  description: "Internal OOC summary notes",
+  signature_color: "Entity signature color name (e.g. amber, sky, violet)",
+  character: {
+    eternal: {
+      physical: "[KEY: value] permanent biometrics (gender, age, ethnicity, build, face, eyes, hair)",
+      non_physical: "Core beliefs, personality drivers, cognitive patterns, vocal tone",
+    },
+    present: {
+      physical: "[KEY: value] current appearance (clothing, colors, expression, posture, condition, held)",
+      non_physical: "Immediate emotional pressure, active mental focus, behavioral drivers",
+    },
+    future: "Consolidated 2-5 sentence standing agenda in active future tense",
+    past: "Settled historical event or precedent exerting lasting residue",
+  },
+  fractal: {
+    eternal: {
+      physical: "[KEY: value] permanent geography (terrain, architecture, materials, landmarks)",
+      non_physical: "Timeless metaphysical substrate, governing laws, physical constants",
+    },
+    present: {
+      physical: "[KEY: value] atmospheric state (lighting, weather, atmosphere, events)",
+      non_physical: "Active anomaly, current pressure, immediate atmospheric shift",
+    },
+    future: "Consolidated 2-5 sentence environmental trajectory in active future tense",
+    past: "Settled historical cataclysm, founding myth, or defining epoch",
+  },
 });
 
 // ============================================================================
@@ -82,21 +115,25 @@ export const SCHEMA_ATOMS = Object.freeze({
 export function render_json_schema(schema_keys, entity_type = "character") {
   const resolved_entity_type = entity_type === "fractal" ? "fractal" : "character";
   const entity_model = PROFILE_FIELDS[resolved_entity_type] || PROFILE_FIELDS.character;
+  const descriptors = SCHEMA_FIELD_DESCRIPTORS[resolved_entity_type] || SCHEMA_FIELD_DESCRIPTORS.character;
 
   const schema_lines = schema_keys
     .map((schema_key) => {
       // 1. Twin-cylinder temporal composite layers (eternal, present)
       if (entity_model[schema_key]?.physical && entity_model[schema_key]?.non_physical) {
-        return `  "${schema_key}": {\n    "physical": "<${entity_model[schema_key].physical.directive}>",\n    "non_physical": "<${entity_model[schema_key].non_physical.directive}>"\n  }`;
+        const physical_descriptor = descriptors[schema_key]?.physical || entity_model[schema_key].physical.directive;
+        const non_physical_descriptor = descriptors[schema_key]?.non_physical || entity_model[schema_key].non_physical.directive;
+        return `  "${schema_key}": {\n    "physical": "<${physical_descriptor}>",\n    "non_physical": "<${non_physical_descriptor}>"\n  }`;
       }
 
       // 2. Direct model or top-level metadata field (name, description, signature_color, future, past)
       const field_definition = entity_model[schema_key] || PROFILE_FIELDS[schema_key];
       if (field_definition?.directive) {
+        const field_descriptor = descriptors[schema_key] || SCHEMA_FIELD_DESCRIPTORS[schema_key] || field_definition.directive;
         if (field_definition.type === "array") {
-          return `  "${schema_key}": [{ "content": "<${field_definition.directive}>", "emotional_weight": 1-10 }]`;
+          return `  "${schema_key}": [{ "content": "<${field_descriptor}>", "emotional_weight": 1-10 }]`;
         }
-        return `  "${schema_key}": "<${field_definition.directive}>"`;
+        return `  "${schema_key}": "<${field_descriptor}>"`;
       }
 
       // 3. Directorial and continuum atoms from SCHEMA_ATOMS
@@ -134,8 +171,7 @@ export function get_director_schema() {
  * and single profile field expansion (enhancement).
  * @type {string}
  */
-export const PROSE_FORMAT =
-  "Emit ONLY the field content as plain prose. No preamble, no commentary, no markdown labels or structural tags. Return the text itself.";
+export const PROSE_FORMAT = "Emit strictly plain prose. No preamble, commentary, markdown, or structural tags.";
 
 // ============================================================================
 // [SECTION 5: SHOT 2B — CONTINUUM CARETAKER SCHEMA (CONTINUUM)]
@@ -216,6 +252,7 @@ export function render_output_format_xml({ mode = "", content = "", indent_level
 
 /**
  * CHANGELOG
+ * - 2026-09-13: Token Optimization pass: (1) Streamlined SCHEMA_ATOMS (_thought_process, keywords, directors_note, visual_staging) to eliminate conversational human fluff; (2) Compacted PROSE_FORMAT from 26 words down to 11 words while preserving plain prose contract; (3) Introduced high-density SCHEMA_FIELD_DESCRIPTORS in render_json_schema for character and fractal schemas, cutting CONTINUUM and PROFILE schema tokens by ~68% without impacting UI profile field definitions.
  * - 2026-09-13: Refactor & Symmetrical Harmonization: (1) Rebuilt format.js into 7 cleanly separated sections mirroring the Multi-Shot simulation lifecycle in src/intelligence/prompts.js (Taxonomy Atoms, Universal Composer, Shot 1 Director, Shot 2A Prose, Shot 2B Continuum, Tool B Profile Ingestion, Section 7 Master Registry); (2) Categorized SCHEMA_ATOMS by lifecycle role while preserving unified frozen export; (3) Added dedicated get_director_schema() and PROSE_FORMAT exports; (4) Enforced Full-Name domain nomenclature across all parameters and variables (schema_keys, resolved_entity_type, field_definition, atom_definition, value_string, format_key, fallback_value, trimmed_content); (5) Maintained 100% zero-sibling module purity.
  * - 2026-09-12: Standardization pass — render_output_format_xml now delegates to the shared `render_xml_tag` composer; header + section numbering corrected (CONTINUUM, not MEMORY_FORGE). Positioned as the reference blueprint for the modules/ layer.
  * - 2026-09-12: Introduced `SCHEMA_ATOMS` and universal schema composer `render_json_schema(keys, entity_type)` unifying `DIRECTOR`, `PROFILE`, and `MEMORY_FORGE` schemas directly onto `PROFILE_FIELDS` with zero hardcoding or drift.

@@ -22,17 +22,15 @@ import { render_xml_tag } from "@utils";
 
 export const SYSTEM_ROLES = Object.freeze({
   INTERACTION: ({ speaker_name = "", listener_name = "", fractal_name = "" } = {}) =>
-    `You are ${speaker_name} within the FRACTAL ${fractal_name}, interacting with ${listener_name}. Embody this role with uncompromised fidelity under the laws and directives below.`,
+    `You are ${speaker_name} within FRACTAL ${fractal_name}, interacting with ${listener_name}.`,
   NPC: ({ speaker_name = "", listener_name = "", fractal_name = "" } = {}) =>
-    `You are ${speaker_name}, a supporting character within the FRACTAL ${fractal_name}, interacting with ${listener_name}. Embody this role with uncompromised fidelity under the laws and directives below.`,
-  NARRATOR: ({ speaker_name = "" } = {}) =>
-    `You are ${speaker_name}, the Fractal itself, narrating the story. Embody this role with uncompromised fidelity under the laws and directives below.`,
-  DIRECTOR: () => "You are the Director — the unseen intelligence orchestrating the mechanical state of the simulation.",
+    `You are ${speaker_name}, a supporting character within FRACTAL ${fractal_name}, interacting with ${listener_name}.`,
+  NARRATOR: ({ speaker_name = "" } = {}) => `You are ${speaker_name}, the Fractal itself, narrating the story.`,
+  DIRECTOR: () => "You are the Director orchestrating simulation mechanics and staging.",
   CONTINUUM_CARETAKER: ({ target_name = "" } = {}) =>
-    `You are the Continuum Caretaker for target entity "${target_name}". Analyze recent events and consolidate temporal state under the contract below.`,
-  NARRATIVE_STRUCTURER: () => "You are the Narrative Structurer, extracting structured profile fragments from raw narrative prose.",
-  ENHANCER: ({ enhancer_name = "GENERAL" } = {}) =>
-    `You are the ${enhancer_name} Profile Enhancer, refining and expanding targeted entity profile dimensions.`,
+    `You are the Continuum Caretaker for target entity "${target_name}". Consolidate temporal state from recent events.`,
+  NARRATIVE_STRUCTURER: () => "You are the Narrative Structurer, extracting profile fragments from narrative prose.",
+  ENHANCER: ({ enhancer_name = "GENERAL" } = {}) => `You are the ${enhancer_name} Profile Enhancer, refining target profile dimensions.`,
 });
 
 /**
@@ -52,12 +50,12 @@ export function resolve_system_role_line({ role = "INTERACTION", ...parameters }
 // ============================================================================
 
 export const STABILITY_LOCK = Object.freeze({
-  WARNING: "WARNING: Structural drift detected. Maintain disciplined XML closures and clean markdown boundaries.",
-  CRITICAL: "CRITICAL: Structural collapse. Re-anchor immediately. Every XML tag must close cleanly.",
+  WARNING: "WARNING: Structural drift detected. Ensure all XML tags close cleanly.",
+  CRITICAL: "CRITICAL: Structural collapse. Every XML tag must close cleanly.",
 });
 
 export const TRUNCATION_COMPLETE_NOTE =
-  "\n\nIMPORTANT: Your previous reply was cut off mid-sentence. Finish this response IMMEDIATELY: do not repeat any earlier text, do not rehash events, just bring the current moment to a natural close with a complete sentence, then stop.";
+  "\n\nIMPORTANT: Previous reply cut off mid-sentence. Complete the response directly without repeating earlier text or rehashing events. Conclude on a complete sentence.";
 
 /**
  * Resolves appropriate stability lock escalation message based on recorded structural errors.
@@ -106,6 +104,7 @@ export function render_system_xml({ mode = "", round = null, attributes = {}, ch
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-13: Token Optimization Pass — Streamlined SYSTEM_ROLES definitions (INTERACTION, NPC, NARRATOR, DIRECTOR, CONTINUUM_CARETAKER, NARRATIVE_STRUCTURER, ENHANCER), STABILITY_LOCK strings, and TRUNCATION_COMPLETE_NOTE to remove redundant human conversational boilerplate while keeping sharp LLM steering; strictly adhered to zero new test file creation.
  * - 2026-09-13: Refactor pass — enforced Full-Name nomenclature (`metadata` over `meta`, `parameters` over `params`, `role_factory` over `factory`); converted `resolve_stability_lock` to standard function declaration with JSDoc; added defensive parameter default to `render_system_xml`; standardized Universal File Architecture section headers.
  * - 2026-09-13: Purged redundant `render_role_xml` abstraction; Director system envelope now consumes raw `role_line` directly, aligning with Story Prose and scrobbles.md blueprint.
  * - 2026-09-12: Standardization pass — render_system_xml now delegates to the shared `render_xml_tag` composer in @utils so envelope layout lives in one place; resolve_system_role_line is a pure SYSTEM_ROLES lookup instead of a duplicated switch; removed the dead `open_system_tag` (superseded by render_system_xml).

@@ -670,7 +670,11 @@ export function collapse_history(messages, options = {}) {
   for (const m of messages) {
     if (m.role === "system") continue;
     const lower_role = (m.role || "").toLowerCase();
-    const role = lower_role === "user" ? "USER_PERSONA" : ["prologue", "fractal"].includes(lower_role) ? "FRACTAL" : "AI_CHARACTER";
+    const role = ["user", "user_persona"].includes(lower_role)
+      ? "USER_PERSONA"
+      : ["prologue", "fractal"].includes(lower_role)
+        ? "FRACTAL"
+        : "AI_CHARACTER";
     const name = m.character_name || "";
     let content = strip_cognition_blocks(m.content || m.text || "");
     if (stripBoldQuotes) {
@@ -679,7 +683,8 @@ export function collapse_history(messages, options = {}) {
     if (!content) continue;
 
     const last = collapsed[collapsed.length - 1];
-    if (last && last.role === role && last.name === name) {
+    const is_same_speaker = last && last.role === role && last.name === name && (last.origin || "") === (m.origin || "");
+    if (is_same_speaker) {
       last.content += `${separator}${content}`;
     } else {
       collapsed.push({ role, name, content, origin: m.origin });

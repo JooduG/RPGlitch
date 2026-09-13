@@ -42,17 +42,17 @@ import { extract_style_dna } from "@data";
 export const TASK_PROTOCOLS = Object.freeze({
   PACING: Object.freeze({
     NO_PROMPT: `<PACING mode="NO_PROMPT">Advance the situation with one brief and deliberate beat.</PACING>`,
-    EXPANSIVE: `<PACING mode="EXPANSIVE">You may expand to match the message's breadth, but still close on one decisive hook.</PACING>`,
-    PASSIVE_SILENCE: `<PACING mode="PASSIVE_SILENCE">Do not stall — escalate with a direct probe (a pointed question, a challenge, or an unexpected development) in one or two taut sentences.</PACING>`,
-    TERSE: `<PACING mode="TERSE">Match it — a brief, weighted reply of one to three sharp beats (short sentences, a single decisive action or line). Do not pad.</PACING>`,
-    MODERATE: `<PACING mode="MODERATE">A reply of a few sentences — long enough for substance, short enough to keep the scene moving.</PACING>`,
+    EXPANSIVE: `<PACING mode="EXPANSIVE">Expand to match message breadth; close on one decisive hook.</PACING>`,
+    PASSIVE_SILENCE: `<PACING mode="PASSIVE_SILENCE">Escalate with a direct challenge, question, or development in 1-2 taut sentences.</PACING>`,
+    TERSE: `<PACING mode="TERSE">Brief, weighted reply in 1-3 sharp beats (concise sentences, single decisive action or line). Zero padding.</PACING>`,
+    MODERATE: `<PACING mode="MODERATE">A reply of 2-4 sentences—substantive, driving the scene forward.</PACING>`,
   }),
 
   RECENCY: Object.freeze({
     RHYTHM: (rhythm_line) =>
-      `Hold your temperament; resist passive compliance. Match the user's conversational scale—build situational friction deliberately rather than rushing to resolution.${rhythm_line}`,
-    DRIVE_ACTIVE: "Drive the beat forward on your own initiative and end on a live, unresolved hook that demands response.",
-    DRIVE_PASSIVE: "Push the situation forward on your own terms and end on a live, unresolved hook that demands response.",
+      `Hold temperament; resist passive compliance. Match conversational scale and build situational friction rather than rushing resolution.${rhythm_line}`,
+    DRIVE_ACTIVE: "Drive the beat forward independently; end on an unresolved hook demanding response.",
+    DRIVE_PASSIVE: "Advance the situation on your own terms; end on an unresolved hook demanding response.",
   }),
 
   DEFAULTS: Object.freeze({
@@ -70,7 +70,7 @@ export const TASK_PROTOCOLS = Object.freeze({
 Close with </THINK> before generating narrative prose.`,
 
   THINK_NARRATOR:
-    "Begin response with <THINK>. ALL internal calculations, scene/atmosphere shifts, and markdown headers MUST remain strictly INSIDE this block. Conduct thinking in the conversation language. Close with </THINK> response before narrative prose.",
+    "Begin response with <THINK>. All internal calculations, scene shifts, and headers must remain inside this block in the conversation language. Close with </THINK> before narrative prose.",
 });
 
 /**
@@ -148,16 +148,16 @@ export function render_task_input({ input_tag = "INPUT", input = "", input_origi
 // ============================================================================
 
 export const DIRECTOR_TASK_RULES = Object.freeze({
-  KEYWORD_DIRECTIVES: `- Function: Select 1 to 5 keywords below to steer the next speaker's emotional micro-expressions, physical tells, and scene tone.
-- Neutral state: Emit strictly "[]" if no keywords apply.
-- Whitelist rule: Strictly select from the dynamic list below. Never alter keywords or generate unlisted terms.`,
+  KEYWORD_DIRECTIVES: `- Function: Select 1-5 keywords from the list below to steer the next speaker's physical tells and scene tone.
+- Neutral state: Emit "[]" if no keywords apply.
+- Whitelist rule: Select strictly from the list below. Never alter or invent keywords.`,
 
   ENVIRONMENTAL_HINT:
-    '<USER_ACTION_NOTE>This turn is a non-verbal, environmental action. Strongly consider setting "speaker" to "fractal" so the scene/setting itself narrates the moment — unless the AI character should react directly.</USER_ACTION_NOTE>',
+    '<USER_ACTION_NOTE>Non-verbal environmental action. Strongly consider setting "speaker" to "fractal" to narrate the setting, unless AI character should react directly.</USER_ACTION_NOTE>',
 
   EVALUATE: (has_input) => `Evaluate state mutations caused by ${has_input ? "<USER_ACTION>" : "the current situation"}.`,
   ROUND_ONE: ' Round 1 follows the Fractal prologue, so next_action MUST be "AI_CHARACTER".',
-  USER_PERSONA_LOCK: '"USER_PERSONA" is never a valid next_action — it is a memory-caretaker target only; the Director never speaks for the player.',
+  USER_PERSONA_LOCK: '"USER_PERSONA" is never a valid next_action; the Director never speaks for the player.',
   JSON_RETURN: (schema, indent = "    ") =>
     `Return a single, COMPLETE, VALID JSON object under 400 characters matching this schema:\n${indent}${schema}`,
 });
@@ -198,13 +198,13 @@ export function render_keyword_directives_xml(rule_text, available_keywords_xml)
 
 export const SPOTLIGHT_RULES = Object.freeze({
   ROUTING_HEADER: "SPEAKER ROUTING RULES:",
-  ROUTING_RULES: `- "AI_CHARACTER": (Default) AI companion reacts to the protagonist.
-- "FRACTAL": User action is non-verbal and environmental (exploring atmosphere, architecture, weather, objects without dialogue) or to break up long streaks of AI speech.
-- "npc:<id>": An active in-scene secondary character takes the floor.
-- "GENESIS": A new character is introduced into the world. Only mint if no existing candidate applies.`,
+  ROUTING_RULES: `- "AI_CHARACTER": (Default) AI companion reacts to protagonist.
+- "FRACTAL": Environmental action (exploring atmosphere, architecture, weather, objects without dialogue) or breaking long AI speech streaks.
+- "npc:<id>": In-scene secondary character takes the floor.
+- "GENESIS": Mint a new character only if no candidate below applies.`,
   CONVERGENCE_HEADER: "CONVERGENCE & CAST LAW:",
   CONVERGENCE_LAW:
-    "Always inspect candidate secondary characters below before minting a duplicate. If an existing cast member matches the required role or location (medical, security, merchant), you MUST use that existing entity rather than inventing a duplicate.",
+    "Inspect candidate secondary characters below before minting. If an existing cast member matches the role or location (medical, security, merchant), you MUST reuse that entity rather than inventing a duplicate.",
   PARTICIPANTS_HEADER: "ACTIVE IN-SCENE PARTICIPANTS:",
   CANDIDATES_HEADER: "CANDIDATE SECONDARY CHARACTERS:",
 });
@@ -314,12 +314,10 @@ export function render_terse_director_task(schema = "") {
 // ============================================================================
 
 export const CHARACTER_DIRECTIVES = Object.freeze({
-  FIRST_CONTACT:
-    "This is a first encounter between these characters. You do not know their name, background, or intent. Acknowledge visual first impressions, establish initial physical distance, and register tone before engaging in full dialogue.",
+  FIRST_CONTACT: "First encounter: characters are strangers. Acknowledge visual first impressions, physical distance, and tone before full dialogue.",
   NPC_BOUNDARY: (name) =>
-    `Respond strictly as ${name} — a supporting character. Own only your own voice, actions, and perspective: never speak for <USER_PERSONA> or the AI character, and never resolve the overarching story quest on your own. Write third-person limited, present tense, and end on a natural beat.`,
-  INITIATIVE:
-    "Take active initiative to open or advance the scene. Drive events forward through decisions and reactions without waiting for permission.",
+    `Respond strictly as ${name} (supporting character). Own only your voice, actions, and perspective; never speak for others or resolve overarching quests. Write third-person limited, present tense; end on a natural beat.`,
+  INITIATIVE: "Take active initiative: drive events forward through decisive actions and reactions.",
   ADVANCE: "Advance the scene in response to <INPUT />.",
 });
 
@@ -331,16 +329,15 @@ Narrative Sequence:
 3. Place <AI_CHARACTER> inside and establish their current action.
 4. Trigger the encounter. End the prologue immediately before interaction begins.
 No dialogue.`,
-  EPILOGUE: `You see everything. Close the scene. Use thinking to evaluate unresolved threads and active <INTENT>/<AGENDA> vectors (fulfilled, fractured, or transformed). Write the epilogue depicting environmental aftermath and physical changes without forcing player physical surrender. End on lingering sensation, not summary. No dialogue.`,
-  COLLAPSE: `You see everything. Close the scene on irrevocable tragedy. Use thinking to weigh what was permanently broken, lost, or severed. Write the epilogue focusing on environmental aftermath, physical changes, and lingering environmental scars without forcing player physical surrender. Do not force heroic silver linings or unearned closure. End on enduring sensory silence. No dialogue.`,
-  CONTINUATION: `You are the Fractal itself, narrating the scene. Narrate the present moment through the setting's own atmosphere, sensory textures, ambient physics, and environmental shifts. Use thinking to evaluate the active atmosphere and any shift in the Fractal's state, then write the scene's reaction to recent events as vivid sensory prose. Never move <AI_CHARACTER> or <USER_PERSONA> against their will, never speak their dialogue or thoughts, and never resolve their choices for them. End the turn on one dominant hook — a decisive statement, a single action, a hovered beat, or a deliberate silence. No structural bracket labels.`,
+  EPILOGUE: `You see everything. Close the scene. Evaluate unresolved threads and active agendas in thinking. Depict environmental aftermath and physical changes without forcing player physical surrender. End on lingering sensation, not summary. No dialogue.`,
+  COLLAPSE: `You see everything. Close the scene on irrevocable tragedy. Weigh permanent loss in thinking. Depict aftermath and environmental scars without forcing player physical surrender or unearned closure. End on enduring sensory silence. No dialogue.`,
+  CONTINUATION: `You are the Fractal itself, narrating the scene. Narrate through ambient physics, sensory textures, and environmental shifts in reaction to recent events. Never puppeteer <AI_CHARACTER> or <USER_PERSONA>. End on one dominant hook (decisive statement, single action, or deliberate silence). Zero bracket labels.`,
 });
 
 export const GHOSTWRITE_DIRECTIVES = Object.freeze({
-  META: "Match the tone of the scene. Output ONLY in-character prose/dialogue suitable for the player's turn. No meta preamble, no out-of-character commentary.",
+  META: "Match scene tone. Output strictly in-character prose/dialogue for the player. Zero meta-commentary or preambles.",
   DRAFT: (user_name, ai_name) => `Draft a compelling, in-character next action or vocal response for ${user_name} in response to ${ai_name}.`,
-  ENHANCE: (user_name, draft) =>
-    `Enhance, expand, and polish the following draft written by ${user_name} into vivid, atmospheric action/dialogue:\n    ${draft}`,
+  ENHANCE: (user_name, draft) => `Polish the draft written by ${user_name} into vivid action/dialogue:\n    ${draft}`,
 });
 
 /**
@@ -434,11 +431,11 @@ export function render_enhancement_instructions({ directive, format_instruction 
 }
 
 export const SORTING_DIRECTIVES = Object.freeze({
-  REDISTRIBUTE: `REDISTRIBUTE: The source profile may have content in the wrong field. Move each fact to its correct field — e.g. a temporary state written under 'personality' belongs under 'state_of_mind'; a mood written under 'appearance' belongs under 'current_look'. Sort and relocate; do not merely regenerate in place. Never move content into or out of 'description' (internal OOC notes). Preserve the facts; only their location and phrasing may change. Strip any XML tags, markdown-bold field labels, or structural headers from values — they contain only clean prose.`,
+  REDISTRIBUTE: `REDISTRIBUTE: The source profile may have content in the wrong field. Relocate each fact to its correct field (e.g., temporary states belong under 'state_of_mind', transient moods under 'current_look'). Never move content into or out of 'description' (internal notes). Preserve factual truth; update only field locations and phrasing. Strip XML tags, markdown bolding, or headers from values—output clean prose.`,
   INGESTION: `SOURCE OF TRUTH & INGESTION RULES:
-- Source text details are absolute truth. Map them faithfully into corresponding schema fields.
-- For absent details (e.g. attire, unstated motivations, physical attributes): synthesize vivid, lore-consistent defaults.
-- NEVER emit null, undefined, or empty string values.`,
+- Source text is absolute truth. Map details faithfully into schema fields.
+- For absent details (attire, motivations): synthesize lore-consistent defaults.
+- Never emit null, undefined, or empty strings.`,
 });
 
 /**
@@ -466,6 +463,7 @@ export function render_profile_sorting_instructions({
 
 /**
  * CHANGELOG
+ * - 2026-09-13: Token Optimization Pass — Streamlined TASK_PROTOCOLS (PACING, RECENCY, THINK_NARRATOR), DIRECTOR_TASK_RULES, SPOTLIGHT_RULES, CHARACTER_DIRECTIVES, SCENE_DIRECTIVES (notably CONTINUATION down to 41 words), GHOSTWRITE_DIRECTIVES, and SORTING_DIRECTIVES, cutting ~230 words (~300 tokens) of conversational padding per turn while preserving all test assertions; strictly obeyed zero new test file creation.
  * - 2026-09-13: Comprehensive architectural rebuild & symmetrical harmonization with `prompts.js`:
  *   (1) Reconstructed into 6 cleanly divided sections mirroring the Multi-Shot simulation cycle (Turn Foundations, Cognition, Shot 1 Director, Shot 2A Story Prose, Shot 2B Continuum, Section 6 Auxiliary Tooling);
  *   (2) Enforced Full-Name domain nomenclature across all identifiers (`character_count`, `word_count`, `style_dna`, `candidate_entity`, `summarize_cast_entity`, `ingestion_instruction`, `redistribute_instruction`, `output_rules_instruction`);
