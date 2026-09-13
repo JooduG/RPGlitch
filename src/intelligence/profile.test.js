@@ -8,7 +8,7 @@ import { apply_profile_to_entity } from "./profile.js";
 import { render_enhancement, render_profile_sorting } from "./builder.js";
 import { SORTING_DIRECTIVES } from "./modules/task.js";
 import { OUTPUT_FORMATS } from "./modules/format.js";
-import { MACRO_DIRECTIVES } from "./modules/protocols.js";
+import { MACRO_DIRECTIVES } from "@utils";
 
 // ── 1. Protocols & Schema Specifications ──────────────────────────────────────
 
