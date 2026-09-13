@@ -29,39 +29,21 @@ import {
   has_alternations,
   expand_entity_macros,
   wrap_tag,
+  resolve_macro_directive,
+  parse_relational_vector,
 } from "@utils";
 import { get_prompt } from "./prompts.js";
-import {
-  resolve_stability_lock,
-  resolve_system_role_line,
-  SYSTEM_CLOSE_TAG,
-  render_system_xml,
-  render_role_xml,
-  SYSTEM_ROLES,
-} from "./modules/system.js";
+import { resolve_stability_lock, resolve_system_role_line, SYSTEM_CLOSE_TAG, render_system_xml } from "./modules/system.js";
 import { render_axiomatic_constitution } from "./modules/constitution.js";
-import {
-  render_protocols,
-  render_core_protocols,
-  resolve_pov_protocol,
-  render_director_protocols_xml,
-  render_keyword_directives_xml,
-  resolve_macro_directive,
-  PROTOCOL_LIBRARY,
-} from "./modules/protocols.js";
-import {
-  render_entity_sheets,
-  render_scene_spotlight_xml,
-  render_scene_cast_xml,
-  render_entity_memory_context,
-  render_enhancement_field_context,
-} from "./modules/entities.js";
+import { render_protocols, render_core_protocols, resolve_pov_protocol, PROTOCOL_LIBRARY } from "./modules/protocols.js";
+import { render_entity_sheets, render_scene_cast_xml, render_entity_memory_context, render_enhancement_field_context } from "./modules/entities.js";
 import { render_history, render_chapter_history_xml, render_input_history_xml, resolve_history } from "./modules/history.js";
 import {
   render_task,
   render_director_task,
   render_terse_director_task,
   render_continuum_task,
+  render_scene_spotlight_xml,
   DIRECTOR_TASK_RULES,
   SORTING_DIRECTIVES,
   SCENE_DIRECTIVES,
@@ -69,15 +51,10 @@ import {
   CHARACTER_DIRECTIVES,
   render_enhancement_instructions,
   render_profile_sorting_instructions,
+  render_keyword_directives_xml,
 } from "./modules/task.js";
 import { OUTPUT_FORMATS, get_output_format, get_profile_schema, get_continuum_schema } from "./modules/format.js";
-import {
-  render_available_keywords_xml,
-  render_dynamics_xml,
-  render_subtext_xml,
-  resolve_context_directives,
-  render_dynamics_axes_xml,
-} from "./physics.js";
+import { render_available_keywords_xml, render_dynamics_xml, render_subtext_xml, render_dynamics_axes_xml } from "./physics.js";
 import { temporal_engine, resolve_vector_pool } from "./temporal.js";
 
 // ── 1. Render Builder Accessor Factory ─────────────────────────────────────────
@@ -209,9 +186,7 @@ export function render_director({
   const accessors = render_accessors || render_builder.create_render_accessors(scene_entities, input, active_messages);
   const config = get_prompt("director");
   const schema = get_output_format(config.format || config.task?.schema, OUTPUT_FORMATS.DIRECTOR);
-  const shared_protocols = render_protocols(config.protocols.join(", "));
-  const local_protocols = render_director_protocols_xml(schema);
-  const full_protocols = `${shared_protocols}\n\n${local_protocols}`.trim();
+  const full_protocols = render_protocols(config.protocols, { schema });
   const active_style_keywords = get_style_keywords(resolve_active_style_key());
 
   const entity_sheets = render_entity_sheets({
@@ -231,10 +206,12 @@ export function render_director({
     render_available_keywords_xml(active_style_keywords),
   );
 
+  const role_line = resolve_system_role_line({ role: config.system.role });
+
   const system = render_system_xml({
     mode: "director",
     children: [
-      render_role_xml(config.system.role, SYSTEM_ROLES[config.system.role]()),
+      role_line,
       render_dynamics_xml(),
       render_narrative_style_xml(),
       entity_sheets,
@@ -307,12 +284,33 @@ export function render_story_prose({
     .filter(Boolean)
     .join("\n");
 
-  const is_first_contact =
-    meta?.is_opening_turn ||
-    (Array.isArray(compressed_snapshot?.flags) && compressed_snapshot.flags.includes("FIRST_CONTACT")) ||
-    (Array.isArray(director_data?.keywords) && director_data.keywords.includes("first_contact"));
+  const speaker_name_lc = String(active_speaker?.name || "")
+    .toLowerCase()
+    .trim();
+  const listener_name_lc = String(active_listener?.name || "")
+    .toLowerCase()
+    .trim();
+  const has_prior_relationship = Boolean(
+    speaker_name_lc &&
+    listener_name_lc &&
+    Array.isArray(active_speaker?.relationships) &&
+    active_speaker.relationships.some((r) => {
+      const parsed = parse_relational_vector(r);
+      return (
+        parsed &&
+        String(parsed.source_name).toLowerCase().trim() === speaker_name_lc &&
+        String(parsed.target_name).toLowerCase().trim() === listener_name_lc
+      );
+    }),
+  );
 
-  const constitution = config.constitution.axiomatic ? render_axiomatic_constitution() : "";
+  const is_first_contact =
+    !has_prior_relationship &&
+    (meta?.is_opening_turn ||
+      (Array.isArray(compressed_snapshot?.flags) && compressed_snapshot.flags.includes("FIRST_CONTACT")) ||
+      (Array.isArray(director_data?.keywords) && director_data.keywords.includes("first_contact")));
+
+  const constitution = config.constitution ? render_axiomatic_constitution() : "";
 
   const entities_block = render_entity_sheets({
     entities,
@@ -327,13 +325,10 @@ export function render_story_prose({
     fractal_dynamics,
   });
 
-  const first_contact_directive = is_first_contact ? (resolve_context_directives(["first_contact"]) || [])[0]?.directive || "" : "";
-
   const core = render_core_protocols({
-    is_narrator: false,
+    protocols: config.protocols,
     pov_protocol,
     style,
-    first_contact_directive,
     has_alternation: has_alternations(entities_block),
   });
 
@@ -353,13 +348,16 @@ export function render_story_prose({
     ? GHOSTWRITE_DIRECTIVES.ENHANCE(speaker_name, prompt_escape(input.trim()))
     : GHOSTWRITE_DIRECTIVES.DRAFT(speaker_name, listener_name);
 
-  const action_directive = is_npc
+  const base_action_directive = is_npc
     ? CHARACTER_DIRECTIVES.NPC_BOUNDARY(speaker_name)
     : is_ghostwrite
       ? `${draft_directive}\n    ${GHOSTWRITE_DIRECTIVES.META}`
       : input?.trim()
         ? CHARACTER_DIRECTIVES.ADVANCE
         : CHARACTER_DIRECTIVES.INITIATIVE;
+
+  const action_directive =
+    is_first_contact && !is_ghostwrite ? `${CHARACTER_DIRECTIVES.FIRST_CONTACT}\n    ${base_action_directive}` : base_action_directive;
 
   const input_origin_entity = is_ghostwrite ? active_speaker : entities?.USER;
   const input_origin = input_origin_entity?.id || input_origin_entity?.name || "USER";
@@ -420,7 +418,7 @@ export function render_scene_narrator({
   const speaker = entities?.FRACTAL;
   const speaker_name = prompt_escape(speaker?.name || "The Scene");
 
-  const constitution = config.constitution.axiomatic ? render_axiomatic_constitution() : "";
+  const constitution = config.constitution ? render_axiomatic_constitution() : "";
   const style = resolve_active_style_key();
 
   const compressed_snapshot = entities?._compressed_dynamics;
@@ -437,9 +435,8 @@ export function render_scene_narrator({
   });
 
   const core = render_core_protocols({
-    is_narrator: true,
+    protocols: config.protocols,
     style,
-    first_contact_directive: "",
     has_alternation: has_alternations(entities_block),
   });
 
@@ -515,7 +512,7 @@ export function render_memory({ target_entity, target_key = "AI_CHARACTER", othe
   return render_system_xml({
     attributes: { role: "CONTINUUM_CARETAKER", target: target_name },
     children: [
-      wrap_tag("PROTOCOLS", indent_continuation(render_protocols(config.protocols.join(", ")), 4).trim(), 2),
+      wrap_tag("PROTOCOLS", indent_continuation(render_protocols(config.protocols), 4).trim(), 2),
       wrap_tag("TARGET_ENTITY_CONTEXT", target_xml, 2),
       scene_cast_xml,
       chapter_xml,
@@ -561,7 +558,7 @@ export function render_enhancement({
     },
     children: [
       instructions_xml,
-      wrap_tag("PROTOCOLS", indent_continuation(render_protocols(config.protocols.join(", ")), 4).trim(), 2),
+      wrap_tag("PROTOCOLS", indent_continuation(render_protocols(config.protocols), 4).trim(), 2),
       layer_key ? `<LAYER>${escape_xml(layer_key)}</LAYER>` : null,
       config.entities.field_context
         ? render_enhancement_field_context(entity, field_id, content, entity_type, (e, c) =>
@@ -590,9 +587,15 @@ export function render_profile_sorting(entity_type = "character", options = {}) 
   const redistribute_str = options.redistribute ? `\n\n    ${indent_continuation(SORTING_DIRECTIVES.REDISTRIBUTE, 4)}` : "";
   const output_rules_str = "";
 
+  const pov_key =
+    config.protocols
+      .find((p) => typeof p === "string" && p.includes("POV."))
+      ?.split(".")
+      .pop() || "THIRD";
+
   const instructions_xml = render_profile_sorting_instructions({
     schema: get_profile_schema(resolved_type),
-    pov_instruction: PROTOCOL_LIBRARY.POV[config.task.pov] || PROTOCOL_LIBRARY.POV.THIRD_PERSON,
+    pov_instruction: PROTOCOL_LIBRARY.CORE_PROTOCOLS.PERSPECTIVE.POV[pov_key] || PROTOCOL_LIBRARY.CORE_PROTOCOLS.PERSPECTIVE.POV.THIRD,
     focus_directive,
     ingestion_str,
     redistribute_str,
@@ -605,7 +608,7 @@ export function render_profile_sorting(entity_type = "character", options = {}) 
       role: "NARRATIVE_STRUCTURER",
       enhancing: "Entire Profile",
     },
-    children: [instructions_xml, wrap_tag("PROTOCOLS", indent_continuation(render_protocols(config.protocols.join(", ")), 4).trim(), 2)],
+    children: [instructions_xml, wrap_tag("PROTOCOLS", indent_continuation(render_protocols(config.protocols), 4).trim(), 2)],
     closed: true,
   });
 }
@@ -881,6 +884,7 @@ if (typeof window !== "undefined") {
 
 /**
  * CHANGELOG
+ * - 2026-09-13: Inlined Director role line directly into render_system_xml; purged render_role_xml import.
  * - 2026-09-12: Standardization pass — render_memory resolves its history window via history.js `resolve_history(config.history)` and gates <INPUT_HISTORY> on `history_config.enabled`; fixed a double <CHAPTER_HISTORY> wrap; imported render_continuum_task following the task.js rename.
  * - 2026-09-12: Switched format references to unified OUTPUT_FORMATS.MEMORIES in render_enhancement and cleaned up output_rules_str in render_profile_sorting.
  * - 2026-09-12: Zero backwards compatibility pass — consumed OUTPUT_FORMATS with kebab-case keys and get_output_format from format.js. Relocated instruction renderers to task.js.

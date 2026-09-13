@@ -32,7 +32,8 @@ export const SCHEMA_ATOMS = Object.freeze({
   _thought_process: "<ONE short sentence: tactical intent & state delta>",
   next_action: `'AI_CHARACTER' | 'FRACTAL' | 'npc:<id>' | { \\"genesis\\": { \\"name\\": \\"<Name>\\", \\"description\\": \\"<description>\\" } } | 'EPILOGUE_CONCLUDED' | 'EPILOGUE_COLLAPSED'`,
   keywords: ["<1-5 keywords from <AVAILABLE_KEYWORDS>>"],
-  directors_note: "<1-5 lines of unseen acting/staging directives for next speaker, or empty string>",
+  directors_note:
+    "<1-5 lines of unseen acting/staging directives for next speaker: flag physical obstacles, weave agendas into complications, engage touched physical details, or empty string>",
   dynamics_deltas: { chaos: 0, intensity: 0, openness: 0, affinity: 0, velocity: 0, entropy: 0 },
   visual_staging: "<optional: 1 line camera & lighting directive ONLY if triggering scene image shift, else omit>",
   spotlight: { enter: ["npc:<id>"], exit: ["npc:<id>"] },

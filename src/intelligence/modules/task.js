@@ -66,6 +66,8 @@ Close with </THINK> before generating narrative prose.`,
 // ── 2. Turn Action Directives ─────────────────────────────────────────────────
 
 export const CHARACTER_DIRECTIVES = Object.freeze({
+  FIRST_CONTACT:
+    "This is a first encounter between these characters. You do not know their name, background, or intent. Acknowledge visual first impressions, establish initial physical distance, and register tone before engaging in full dialogue.",
   NPC_BOUNDARY: (name) =>
     `Respond strictly as ${name} — a supporting character. Own only your own voice, actions, and perspective: never speak for <USER_PERSONA> or the AI character, and never resolve the overarching story quest on your own. Write third-person limited, present tense, and end on a natural beat.`,
   INITIATIVE:
@@ -134,6 +136,71 @@ export function render_environmental_hint(input) {
   if (DIALOGUE_QUOTES_PATTERN.test(input)) return "";
   if (!SPATIAL_VERBS_PATTERN.test(input) && !SPATIAL_NOUNS_PATTERN.test(input)) return "";
   return DIRECTOR_TASK_RULES.ENVIRONMENTAL_HINT;
+}
+
+export const SPOTLIGHT_RULES = Object.freeze({
+  ROUTING_HEADER: "SPEAKER ROUTING RULES:",
+  ROUTING_RULES: `- "AI_CHARACTER": (Default) AI companion reacts to the protagonist.
+- "FRACTAL": User action is non-verbal and environmental (exploring atmosphere, architecture, weather, objects without dialogue) or to break up long streaks of AI speech.
+- "npc:<id>": An active in-scene secondary character takes the floor.
+- "GENESIS": A new character is introduced into the world. Only mint if no existing candidate applies.`,
+  CONVERGENCE_HEADER: "CONVERGENCE & CAST LAW:",
+  CONVERGENCE_LAW:
+    "Always inspect candidate secondary characters below before minting a duplicate. If an existing cast member matches the required role or location (medical, security, merchant), you MUST use that existing entity rather than inventing a duplicate.",
+  PARTICIPANTS_HEADER: "ACTIVE IN-SCENE PARTICIPANTS:",
+  CANDIDATES_HEADER: "CANDIDATE SECONDARY CHARACTERS:",
+});
+
+const _cast_summary = (npc) => {
+  const desc = String(npc?.description || npc?.eternal?.non_physical || npc?.present?.non_physical || "")
+    .replace(/\s+/g, " ")
+    .trim();
+  return desc.length > 130 ? `${desc.slice(0, 130).trim()}…` : desc;
+};
+
+/**
+ * Renders the Stage Spotlight XML block for Director turn orchestration.
+ * @param {Object} [params]
+ * @param {any} [params.entities]
+ * @param {any[]} [params.npc_entities]
+ * @param {string[]} [params.in_scene_ids]
+ * @returns {string}
+ */
+export function render_scene_spotlight_xml({ entities = {}, npc_entities = [], in_scene_ids = [] } = {}) {
+  const active_trio_ids = new Set([entities?.AI?.id, entities?.USER?.id, entities?.FRACTAL?.id].filter(Boolean).map(String));
+  const in_scene_set = new Set((in_scene_ids || []).filter(Boolean).map(String));
+
+  const active_participants = [];
+  if (entities?.AI?.name) active_participants.push(`- ${escape_xml(entities.AI.name)}: Primary Companion (In-Scene)`);
+  if (entities?.USER?.name) active_participants.push(`- ${escape_xml(entities.USER.name)}: Protagonist (In-Scene)`);
+
+  const candidate_secondaries = [];
+
+  for (const n of npc_entities || []) {
+    if (!n || active_trio_ids.has(String(n.id))) continue;
+    const is_in_scene = in_scene_set.has(String(n.id));
+    const summary = _cast_summary(n);
+    const summary_suffix = summary ? `: ${escape_xml(summary)}` : "";
+    if (is_in_scene) {
+      active_participants.push(`- ${escape_xml(n.name)} (id: ${escape_xml(String(n.id))}) [In-Scene]${summary_suffix}`);
+    } else {
+      candidate_secondaries.push(`- ${escape_xml(n.name)} (id: ${escape_xml(String(n.id))}) [Off-Screen (Stasis)]${summary_suffix}`);
+    }
+  }
+
+  const { CANDIDATES_HEADER, ROUTING_HEADER, ROUTING_RULES, CONVERGENCE_HEADER, CONVERGENCE_LAW, PARTICIPANTS_HEADER } = SPOTLIGHT_RULES;
+  const candidate_section = candidate_secondaries.length > 0 ? `\n\n${CANDIDATES_HEADER}\n${candidate_secondaries.join("\n")}` : "";
+
+  return `<SCENE_SPOTLIGHT>
+${ROUTING_HEADER}
+${ROUTING_RULES}
+
+${CONVERGENCE_HEADER}
+${CONVERGENCE_LAW}
+
+${PARTICIPANTS_HEADER}
+${active_participants.join("\n")}${candidate_section}
+</SCENE_SPOTLIGHT>`;
 }
 
 /**
@@ -270,6 +337,22 @@ export function render_task({
 }
 
 /**
+ * Renders the Director KEYWORD_DIRECTIVES XML block.
+ * @param {string} rule_text
+ * @param {string} available_keywords_xml
+ * @returns {string}
+ */
+export function render_keyword_directives_xml(rule_text, available_keywords_xml) {
+  return render_xml_tag({
+    tag: "KEYWORD_DIRECTIVES",
+    children: [rule_text, `<AVAILABLE_KEYWORDS>${available_keywords_xml}</AVAILABLE_KEYWORDS>`],
+    indent: 2,
+    child_indent: 2,
+    separator: "\n",
+  });
+}
+
+/**
  * Compiles the Director turn block with <ROUND>, <USER_ACTION>, <AI_CHARACTER_LAST_TURN>, and <TASK>.
  * @param {Object} params
  * @param {number|string} params.round
@@ -353,6 +436,7 @@ export function render_profile_sorting_instructions({
 
 /**
  * CHANGELOG
+ * - 2026-09-13: Absorbed `SPOTLIGHT_RULES` and `render_scene_spotlight_xml` from `entities.js`, consolidating Director turn choreography into `task.js`.
  * - 2026-09-12: Standardization pass — render_enhancement_instructions now composes through the shared `render_xml_tag` primitive; renamed render_memory_forge_task -> render_continuum_task to align with the prompts.js mode key.
  * - 2026-09-12: Relocated render_enhancement_instructions and render_profile_sorting_instructions to task.js from format.js. Uses OUTPUT_FORMATS.profile as default schema.
  * - 2026-09-12: Modularization pass — relocated schemas (DIRECTOR_SCHEMA, PROFILE_SCHEMA, MEMORY_FORGE_SCHEMA), contracts (TEMPORAL_CONTRACT), OUTPUT_FORMATS, and instruction renderers to modules/format.js. task.js now focuses exclusively on turn execution, pacing, somatic currents, input formatting, and action directives. Zero sibling imports.

@@ -38,118 +38,118 @@
  * ============================================================================
  */
 
-/**
- * Recursively freezes an object graph (arrays included).
- * @template T
- * @param {T} value
- * @returns {T}
- */
-function deep_freeze(value) {
-  if (value && typeof value === "object" && !Object.isFrozen(value)) {
-    Object.values(value).forEach(deep_freeze);
-    Object.freeze(value);
-  }
-  return value;
-}
+// ── 1. Master Mode Factory ───────────────────────────────────────────────────
 
 /**
- * Canonical layer defaults — every mode spreads its deviations over these.
- * @type {Readonly<Record<string, any>>}
+ * Builds one frozen mode record from a declarative delta over the 7 canonical layers.
  */
-const MODE_DEFAULTS = Object.freeze({
-  system: Object.freeze({ role: "DEFAULT" }),
-  constitution: Object.freeze({ axiomatic: true }),
-  protocols: Object.freeze([]),
-  entities: Object.freeze({
-    dispositions: Object.freeze([]),
-    dynamic_axes: Object.freeze([]),
-    user_agenda: false,
-    proximate_npcs: false,
-    spotlight: false,
-  }),
-  history: Object.freeze({ enabled: true, limit: 10 }),
-  task: Object.freeze({ input_tag: "INPUT", think_format: null }),
-});
+function define_mode(spec) {
+  const system =
+    typeof spec.system === "string"
+      ? { mode: spec.system.toLowerCase(), role: spec.system.toUpperCase() }
+      : spec.system || { mode: "interaction", role: "INTERACTION" };
 
-/**
- * Builds one frozen mode record from a declarative delta over MODE_DEFAULTS.
- * @param {Object} spec
- * @param {string} spec.mode - <SYSTEM mode="..."> value (and the mode's identity).
- * @param {string} [spec.role="DEFAULT"] - SYSTEM_ROLES factory key.
- * @param {boolean} [spec.axiomatic=true] - Whether to emit the AXIOMATIC_CONSTITUTION.
- * @param {string[]} [spec.protocols=[]] - Ordered protocol keys (dotted) for the <PROTOCOLS> block.
- * @param {Object} [spec.entities={}] - Entity-sheet scoping delta.
- * @param {Object} [spec.history={enabled:true, limit:10}] - History window config.
- * @param {Object} [spec.task={}] - Task-layer delta (input_tag, think_format, pov).
- * @param {string} spec.format - OUTPUT_FORMATS key (PROSE | DIRECTOR | PROFILE | CONTINUUM).
- * @returns {Readonly<Object>}
- */
-function define_mode({ mode, role = "DEFAULT", axiomatic = true, protocols = [], entities = {}, history = {}, task = {}, format }) {
-  return deep_freeze({
-    system: { ...MODE_DEFAULTS.system, role, mode },
-    constitution: { ...MODE_DEFAULTS.constitution, axiomatic },
-    protocols: [...protocols],
-    entities: { ...MODE_DEFAULTS.entities, ...entities },
-    history: { ...MODE_DEFAULTS.history, ...history },
-    task: { ...MODE_DEFAULTS.task, ...task },
-    format,
+  return Object.freeze({
+    system,
+    constitution: spec.constitution ?? true,
+    protocols: spec.protocols || [],
+    entities: { dispositions: [], dynamic_axes: [], user_agenda: false, proximate_npcs: false, spotlight: false, ...spec.entities },
+    history: { enabled: true, limit: 10, ...spec.history },
+    task: { input_tag: "INPUT", think_format: null, ...spec.task },
+    format: spec.format || "PROSE",
   });
 }
 
+// ── 2. Master Mode Manifest ──────────────────────────────────────────────────
+
 export const PROMPTS = Object.freeze({
-  // ── Shot 2A: Prose Shots (Canonical Narrative Voice) ────────────────────────
-
-  interaction: define_mode({
-    mode: "interaction",
-    role: "DEFAULT",
-    entities: { dispositions: ["AI", "FRACTAL"], dynamic_axes: ["AI", "FRACTAL"], proximate_npcs: true },
-    task: { think_format: "character" },
-    format: "PROSE",
-  }),
-
-  ghostwrite: define_mode({
-    mode: "ghostwrite",
-    role: "DEFAULT",
-    entities: { dispositions: ["AI", "FRACTAL"], dynamic_axes: ["AI", "FRACTAL"], proximate_npcs: true },
-    task: { think_format: "character" },
-    format: "PROSE",
-  }),
-
-  npc: define_mode({
-    mode: "npc",
-    role: "NPC",
-    entities: { dispositions: ["FRACTAL", "NPC"], dynamic_axes: ["NPC", "FRACTAL"], proximate_npcs: true },
-    task: { think_format: "character" },
-    format: "PROSE",
-  }),
-
-  narrator: define_mode({
-    mode: "narrator",
-    role: "NARRATOR",
-    entities: { dispositions: ["AI", "USER", "FRACTAL", "NPC"], dynamic_axes: ["FRACTAL"], user_agenda: true, proximate_npcs: true },
-    task: { think_format: "narrator" },
-    format: "PROSE",
-  }),
-
   // ── Shot 1: Quick Shot (Directorial Mechanics) ──────────────────────────────
 
   director: define_mode({
-    mode: "director",
-    role: "DIRECTOR",
-    axiomatic: false,
-    protocols: ["STATE.PSEUDO_JSON", "COGNITION.EPISTEMIC_PHYSICS"],
+    system: "DIRECTOR",
+    constitution: false,
+    protocols: ["CORE_PROTOCOLS.ALTERNATION_OPTIONS"],
     entities: { dispositions: ["AI", "USER", "FRACTAL", "NPC"], dynamic_axes: ["AI", "FRACTAL"], user_agenda: true, spotlight: true },
     task: { input_tag: "USER_ACTION" },
     format: "DIRECTOR",
   }),
 
+  // ── Shot 2A: Prose Shots (Canonical Narrative Voice) ────────────────────────
+
+  interaction: define_mode({
+    system: "INTERACTION",
+    protocols: [
+      "CORE_PROTOCOLS.SIMULATION_FIDELITY",
+      "CORE_PROTOCOLS.PERSPECTIVE.POV.FIRST",
+      "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PRESENT",
+      "CORE_PROTOCOLS.PROSE_DISCIPLINE.TYPOGRAPHY",
+      "CORE_PROTOCOLS.PROSE_DISCIPLINE.PHYSICALITY",
+      "CORE_PROTOCOLS.PROSE_DISCIPLINE.ANTI_TROPES",
+      "CORE_PROTOCOLS.PROSE_DISCIPLINE.BANNED_CLICHES",
+      "CORE_PROTOCOLS.PROSE_DISCIPLINE.NATURAL_DIALOGUE",
+      "CORE_PROTOCOLS.ALTERNATION_OPTIONS",
+    ],
+    entities: { dispositions: ["AI", "FRACTAL"], dynamic_axes: ["AI", "FRACTAL"], proximate_npcs: true },
+    history: { limit: 16 },
+    task: { think_format: "character" },
+  }),
+
+  ghostwrite: define_mode({
+    system: { mode: "ghostwrite", role: "INTERACTION" },
+    protocols: [
+      "CORE_PROTOCOLS.SIMULATION_FIDELITY",
+      "CORE_PROTOCOLS.PERSPECTIVE.POV.FIRST",
+      "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PRESENT",
+      "CORE_PROTOCOLS.PROSE_DISCIPLINE.TYPOGRAPHY",
+      "CORE_PROTOCOLS.PROSE_DISCIPLINE.PHYSICALITY",
+      "CORE_PROTOCOLS.PROSE_DISCIPLINE.ANTI_TROPES",
+      "CORE_PROTOCOLS.PROSE_DISCIPLINE.BANNED_CLICHES",
+      "CORE_PROTOCOLS.PROSE_DISCIPLINE.NATURAL_DIALOGUE",
+      "CORE_PROTOCOLS.ALTERNATION_OPTIONS",
+    ],
+    entities: { dispositions: ["AI", "FRACTAL"], dynamic_axes: ["AI", "FRACTAL"], proximate_npcs: true },
+    task: { think_format: "character" },
+  }),
+
+  npc: define_mode({
+    system: "NPC",
+    protocols: [
+      "CORE_PROTOCOLS.SIMULATION_FIDELITY",
+      "CORE_PROTOCOLS.PERSPECTIVE.POV.THIRD",
+      "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PRESENT",
+      "CORE_PROTOCOLS.PROSE_DISCIPLINE.TYPOGRAPHY",
+      "CORE_PROTOCOLS.PROSE_DISCIPLINE.PHYSICALITY",
+      "CORE_PROTOCOLS.PROSE_DISCIPLINE.ANTI_TROPES",
+      "CORE_PROTOCOLS.PROSE_DISCIPLINE.BANNED_CLICHES",
+      "CORE_PROTOCOLS.PROSE_DISCIPLINE.NATURAL_DIALOGUE",
+      "CORE_PROTOCOLS.ALTERNATION_OPTIONS",
+    ],
+    entities: { dispositions: ["FRACTAL", "NPC"], dynamic_axes: ["NPC", "FRACTAL"], proximate_npcs: true },
+    task: { think_format: "character" },
+  }),
+
+  narrator: define_mode({
+    system: "NARRATOR",
+    protocols: [
+      "CORE_PROTOCOLS.SIMULATION_FIDELITY",
+      "CORE_PROTOCOLS.PERSPECTIVE.POV.NARRATOR",
+      "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PRESENT",
+      "CORE_PROTOCOLS.PROSE_DISCIPLINE.TYPOGRAPHY",
+      "CORE_PROTOCOLS.PROSE_DISCIPLINE.PHYSICALITY",
+      "CORE_PROTOCOLS.PROSE_DISCIPLINE.ANTI_TROPES",
+      "CORE_PROTOCOLS.PROSE_DISCIPLINE.BANNED_CLICHES",
+      "CORE_PROTOCOLS.ALTERNATION_OPTIONS",
+    ],
+    entities: { dispositions: ["AI", "USER", "FRACTAL", "NPC"], dynamic_axes: ["FRACTAL"], user_agenda: true, proximate_npcs: true },
+    task: { think_format: "narrator" },
+  }),
+
   // ── Shot 2B: Back Shot (Background / Continuum Caretaker) ──────────────────
 
   continuum: define_mode({
-    mode: "continuum",
-    role: "CONTINUUM_CARETAKER",
-    axiomatic: false,
-    protocols: ["HYGIENE.DATA", "AGENCY.PRESENT_TENSE", "STATE.PSEUDO_JSON"],
+    system: "CONTINUUM_CARETAKER",
+    constitution: false,
+    protocols: ["HYGIENE.DATA", "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PRESENT"],
     entities: { target_context: true, scene_cast: true, chapter_history: true },
     history: { limit: 16 },
     task: { input_tag: "INPUT_HISTORY" },
@@ -159,45 +159,38 @@ export const PROMPTS = Object.freeze({
   // ── Profile Enhancement & Ingestion Structuring ─────────────────────────────
 
   enhancement: define_mode({
-    mode: "enhancement",
-    role: "ENHANCER",
-    axiomatic: false,
+    system: "ENHANCER",
+    constitution: false,
     protocols: ["HYGIENE.DATA"],
     entities: { field_context: true },
     history: { enabled: false },
     task: { input_tag: "INPUT_CONTENT" },
-    format: "PROSE",
   }),
 
   sorting: define_mode({
-    mode: "sorting",
-    role: "NARRATIVE_STRUCTURER",
-    axiomatic: false,
-    protocols: ["HYGIENE.DATA"],
+    system: "NARRATIVE_STRUCTURER",
+    constitution: false,
+    protocols: ["HYGIENE.DATA", "CORE_PROTOCOLS.PERSPECTIVE.POV.THIRD"],
     history: { enabled: false },
-    task: { pov: "THIRD_PERSON" },
     format: "PROFILE",
   }),
 });
+
+// ── 3. Manifest Resolvers ────────────────────────────────────────────────────
 
 /**
  * Resolves a prompt manifest record by key, falling back to `interaction`.
  * @param {string} [key]
  * @returns {typeof PROMPTS[keyof typeof PROMPTS]}
  */
-export function get_prompt(key) {
-  return (key && PROMPTS[key]) || PROMPTS.interaction;
-}
+export const get_prompt = (key) => (key && PROMPTS[key]) || PROMPTS.interaction;
 
 /**
  * Resolves prompt config according to speaker context and turn flags.
  * @param {{ is_npc?: boolean, ghostwrite?: boolean }} [options]
  */
-export function resolve_prompt_mode({ is_npc = false, ghostwrite = false } = {}) {
-  if (ghostwrite) return get_prompt("ghostwrite");
-  if (is_npc) return get_prompt("npc");
-  return get_prompt("interaction");
-}
+export const resolve_prompt_mode = ({ is_npc = false, ghostwrite = false } = {}) =>
+  PROMPTS[ghostwrite ? "ghostwrite" : is_npc ? "npc" : "interaction"];
 
 export default PROMPTS;
 

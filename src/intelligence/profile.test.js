@@ -60,7 +60,7 @@ describe("Profile Domain (profile.js)", () => {
         directive: "Enhance.",
         entity_type: "character",
       });
-      expect(char_result).toContain("Use placeholder macros for entities: '{{me}}' (self)");
+      expect(char_result).toContain("Use placeholder macros for entities: '{{me}}' (self, speaker)");
       expect(char_result).not.toContain("'{{user}}' (user persona), '{{char}}' (AI character)");
 
       const fractal_result = render_enhancement({
@@ -71,7 +71,7 @@ describe("Profile Domain (profile.js)", () => {
         entity_type: "fractal",
       });
       expect(fractal_result).toContain("'{{user}}' (user persona), '{{char}}' (AI character)");
-      expect(fractal_result).not.toContain("'{{me}}' (self)");
+      expect(fractal_result).not.toContain("'{{me}}' (self, speaker)");
     });
 
     it("injects the same-layer sibling + eternal baseline (no whole-profile bleed)", () => {

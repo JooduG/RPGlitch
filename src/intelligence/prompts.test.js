@@ -5,7 +5,7 @@
 
 import { describe, expect, it } from "vitest";
 import { PROMPTS as prompt_modes, get_prompt, resolve_prompt_mode } from "./prompts.js";
-import { render_ghostwriter, render_story_prose, render_builder } from "./builder.js";
+import { render_ghostwriter, render_story_prose, render_narrator_prose, render_builder } from "./builder.js";
 
 const entities = {
   AI: {
@@ -99,7 +99,7 @@ describe("prompt-modes registry", () => {
         expect(mode).toHaveProperty(key);
       }
       expect(typeof mode.system.mode).toBe("string");
-      expect(typeof mode.constitution.axiomatic).toBe("boolean");
+      expect(typeof mode.constitution).toBe("boolean");
       expect(Array.isArray(mode.protocols)).toBe(true);
       expect(typeof mode.entities).toBe("object");
       expect(typeof mode.format).toBe("string");
@@ -147,6 +147,18 @@ describe("fused rendering per mode", () => {
   it("carries the <INPUT origin> inside the interaction task", () => {
     const interaction = render_story_prose({ round: 3, entities, input: "Beast steps forward." });
     expect(interaction.task).toContain('<INPUT origin="SILVERS">Beast steps forward.</INPUT>');
+  });
+
+  it("strictly respects the manifest protocol list: interaction includes NATURAL_DIALOGUE, narrator omits it", () => {
+    const interaction = render_story_prose({ round: 3, entities, input: "Beast steps forward." });
+    expect(interaction.system).toContain("<NATURAL_DIALOGUE>");
+
+    const narrator = render_narrator_prose({ entities, round: 1, input: "The station groans." });
+    expect(narrator.system).not.toContain("<NATURAL_DIALOGUE>");
+    expect(narrator.system).toContain("<TYPOGRAPHY>");
+    expect(narrator.system).toContain("<PHYSICALITY>");
+    expect(narrator.system).toContain("<ANTI_TROPES>");
+    expect(narrator.system).toContain("<BANNED_CLICHES>");
   });
 });
 
