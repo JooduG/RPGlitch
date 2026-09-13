@@ -583,9 +583,9 @@ export function render_profile_sorting(entity_type = "character", options = {}) 
       ? `FOCUS: Extracting data for a FRACTAL (scene/setting/environment). Re-contextualize or discard character-specific traits. ${macro_rule}`
       : `FOCUS: Extracting data for an individual CHARACTER. Re-contextualize or discard environmental/setting text. ${macro_rule}`;
 
-  const ingestion_str = options.ingestion ? `\n\n    ${indent_continuation(SORTING_DIRECTIVES.INGESTION, 4)}` : "";
-  const redistribute_str = options.redistribute ? `\n\n    ${indent_continuation(SORTING_DIRECTIVES.REDISTRIBUTE, 4)}` : "";
-  const output_rules_str = "";
+  const ingestion_instruction = options.ingestion ? `\n\n    ${indent_continuation(SORTING_DIRECTIVES.INGESTION, 4)}` : "";
+  const redistribute_instruction = options.redistribute ? `\n\n    ${indent_continuation(SORTING_DIRECTIVES.REDISTRIBUTE, 4)}` : "";
+  const output_rules_instruction = "";
 
   const pov_key =
     config.protocols
@@ -597,9 +597,9 @@ export function render_profile_sorting(entity_type = "character", options = {}) 
     schema: get_profile_schema(resolved_type),
     pov_instruction: PROTOCOL_LIBRARY.CORE_PROTOCOLS.PERSPECTIVE.POV[pov_key] || PROTOCOL_LIBRARY.CORE_PROTOCOLS.PERSPECTIVE.POV.THIRD,
     focus_directive,
-    ingestion_str,
-    redistribute_str,
-    output_rules_str,
+    ingestion_instruction,
+    redistribute_instruction,
+    output_rules_instruction,
   });
 
   return render_system_xml({
@@ -884,6 +884,7 @@ if (typeof window !== "undefined") {
 
 /**
  * CHANGELOG
+ * - 2026-09-13: Synchronized render_profile_sorting_instructions call with Full-Name nomenclature (`ingestion_instruction`, `redistribute_instruction`, `output_rules_instruction`).
  * - 2026-09-13: Inlined Director role line directly into render_system_xml; purged render_role_xml import.
  * - 2026-09-12: Standardization pass — render_memory resolves its history window via history.js `resolve_history(config.history)` and gates <INPUT_HISTORY> on `history_config.enabled`; fixed a double <CHAPTER_HISTORY> wrap; imported render_continuum_task following the task.js rename.
  * - 2026-09-12: Switched format references to unified OUTPUT_FORMATS.MEMORIES in render_enhancement and cleaned up output_rules_str in render_profile_sorting.

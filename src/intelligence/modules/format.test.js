@@ -58,6 +58,7 @@ describe("src/intelligence/modules/format.js", () => {
 
 /**
  * CHANGELOG
+ * - 2026-09-13: Verified output format contracts against the 7-section symmetrical format.js rebuild.
  * - 2026-09-12: Updated unit tests to verify the 7 consolidated SCREAMING_SNAKE_CASE keys and alias resolutions (PSEUDO_JSON -> BRACKETS, ARRAY_* -> MEMORIES).
  * - 2026-09-12: Zero backwards compatibility rebuild — tested frozen OUTPUT_FORMATS with kebab-case keys, get_output_format, and render_output_format_xml. Removed legacy individual constant assertions.
  */

@@ -142,12 +142,12 @@ export const SimulationAudit = {
     };
 
     // --- Director (Shot 1) Feature Verification ---
-    check("director:system_has_ROLE", director.system.includes('<ROLE name="DIRECTOR">'));
+    check("director:system_has_role_line", director.system.includes("You are the Director"));
     check("director:system_has_DYNAMICS", director.system.includes("<DYNAMICS>"));
     check("director:system_has_STORY_ENTITIES", director.system.includes("<STORY_ENTITIES>"));
     check("director:system_has_KEYWORD_DIRECTIVES", director.system.includes("<KEYWORD_DIRECTIVES>"));
     check("director:system_has_PROTOCOLS", director.system.includes("<PROTOCOLS>"));
-    check("director:system_has_EPISTEMIC_PHYSICS", director.system.includes("<EPISTEMIC_PHYSICS>"));
+    check("director:system_has_SCENE_SPOTLIGHT", director.system.includes("<SCENE_SPOTLIGHT>"));
     check("director:task_has_JSON_schema", director.task.includes('"_thought_process"'));
     check("director:task_has_next_action", director.task.includes('"next_action"'));
     check("director:task_has_keywords", director.task.includes('"keywords"'));

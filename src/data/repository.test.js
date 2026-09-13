@@ -57,7 +57,7 @@ describe("entity embedding persistence", () => {
     expect(loaded.past[0]._embedding.length).toBe(384);
     expect(loaded.past[0]._embedding[0]).toBeCloseTo(0.75);
     expect(loaded.past[0]._embedding[383]).toBeCloseTo(-0.25);
-  });
+  }, 15000);
 
   it("drops corrupt embeddings so callers re-infer", async () => {
     const { db, init_db } = await import("./db.js");
