@@ -2,7 +2,7 @@
 name: track-generation-flow-and-storyboard-guards
 description: Generation flow lifecycle, speaker thinking indicators, storyboard active story guards, and shimmer harmonization
 status: queued
-last_synchronized: 2026-09-05
+last_synchronized: 2026-09-14
 references: scribbles.md
 ---
 

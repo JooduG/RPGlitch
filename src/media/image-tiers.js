@@ -56,10 +56,10 @@ export function normalize_image_tier(target_type) {
   if (!target_type) return "story_character";
   const str = String(target_type).trim().toLowerCase();
 
-  if (str === "characters" || str === "prologue" || str === "group" || str === "story_entities") {
+  if (str === "characters" || str === "group" || str === "story_entities") {
     return "story_entities";
   }
-  if (str === "fractal_profile") {
+  if (str === "fractal_profile" || str === "prologue" || str === "epilogue") {
     return "story_scene";
   }
   if (IMAGE_TIERS.includes(/** @type {any} */ (str))) {
@@ -93,6 +93,7 @@ export function get_tier_guidance_scale(mode) {
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-14: Mapped prologue and epilogue aliases to landscape story_scene tier (768x512).
  * - 2026-09-05: `fractal_profile` tier now consumed by VisualEngine for fractal profile pictures
  *   (landscape 768x512 via story_scene) — previously only the alias mapping existed.
  * - 2026-08-29: Verified 4-step /harmonize protocol: confirmed pristine layer boundaries, deeply frozen taxonomy tables, 100% pure deterministic resolvers, strict full-name nomenclature compliance, zero dead shims, and 10/10 passing tests.

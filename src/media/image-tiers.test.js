@@ -19,10 +19,15 @@ describe("image-tiers (4-Tier Image Taxonomy)", () => {
   describe("normalize_image_tier", () => {
     it("normalizes known aliases and multi-character indicators to story_entities", () => {
       expect(normalize_image_tier("characters")).toBe("story_entities");
-      expect(normalize_image_tier("prologue")).toBe("story_entities");
       expect(normalize_image_tier("group")).toBe("story_entities");
       expect(normalize_image_tier("story_entities")).toBe("story_entities");
       expect(normalize_image_tier("  CHARACTERS  ")).toBe("story_entities");
+    });
+
+    it("normalizes prologue and epilogue to landscape story_scene", () => {
+      expect(normalize_image_tier("prologue")).toBe("story_scene");
+      expect(normalize_image_tier("epilogue")).toBe("story_scene");
+      expect(normalize_image_tier("PROLOGUE")).toBe("story_scene");
     });
 
     it("preserves valid canonical tiers unchanged", () => {

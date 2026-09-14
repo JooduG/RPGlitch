@@ -309,7 +309,6 @@ export const SHEET_SPECS = Object.freeze({
     ...CHARACTER_SHEET_BASE,
     tag: "USER_PERSONA",
     default_name: "User",
-    agenda_gate: "user_agenda",
     memory_tag: "BACKSTORY",
     axes_scope: null,
     epistemic: Object.freeze({
@@ -735,6 +734,7 @@ export function render_enhancement_field_context(entity, field_identifier, conte
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-14: Purged dead `agenda_gate` configuration property from `SHEET_SPECS.USER_PERSONA` per P4 pre-beta purity.
  * - 2026-09-13: Token optimization & epistemic reinforcement: (1) Enforced Bystander NPC Diet where non-speaking in-scene NPCs omit private standing agendas and deep memory vectors while stripping secrets/plans across the Epistemic Wall; (2) Compressed nested whitespace across dispositions and dynamic axes to 6-space hierarchy, trimming whitespace tokens.
  * - 2026-09-13: Fixed NPC dynamic axes crosstalk by isolating bystander NPC axes from active speaker dynamics; deduplicated in-scene NPCs in proximate roster to eliminate redundant <NPC> tags when full sheets are already rendered.
  * - 2026-09-13: Full architectural symmetry with prompts.js — established 1-to-1 parity between config.entities manifest keys and entities.js renderers; unified TARGET into render_sheet via physical_mode ("combined" vs "separate"); exported render_sheet as sovereign universal compiler; pruned redundant dictionaries; enforced Full-Name domain nomenclature throughout.

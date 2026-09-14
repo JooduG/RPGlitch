@@ -768,15 +768,15 @@ export function synchronize_mission_board(repo_root) {
       }
     }
 
-    // 3. Sync ## 🚀 Future section with all queued tracks
-    const future_section_pattern = /(## 🚀 Future\s*\r?\n\r?\n)([\s\S]*?)(\r?\n---\r?\n|\r?\n## 📜 Past)/;
+    // 3. Sync ## 🚀 Future section with all queued tracks (preserving any subheadings such as ### 📦 Archived Tracks)
+    const future_section_pattern = /(## 🚀 Future\s*\r?\n\r?\n)([\s\S]*?)(\r?\n### [^\r\n]+|\r?\n---\r?\n|\r?\n## 📜 Past)/;
     if (future_section_pattern.test(updated)) {
       const queued_lines = queued_tracks.map((t) => {
         const desc_suffix = t.description ? `: ${t.description}` : "";
         return `- [\`tasks/future/${t.file}\`](./future/${t.file})${desc_suffix}`;
       });
       const future_body = queued_lines.length > 0 ? queued_lines.join("\n\n") + "\n" : "_No queued tracks._\n";
-      updated = updated.replace(future_section_pattern, `$1${future_body}$3`);
+      updated = updated.replace(future_section_pattern, `$1${future_body}\n$3`);
     }
 
     if (updated !== present_raw) {

@@ -677,12 +677,12 @@ export const gamemaster = {
 
       state_bridge.app.end_stream();
 
-      await state_bridge.session_driver.update_log_attachment(node_id, 0, { src: null, metadata: { mode: "story_entities" } });
+      await state_bridge.session_driver.update_log_attachment(node_id, 0, { src: null, metadata: { mode: "story_scene" } });
 
       const image_promise = visual_engine
         ? Promise.race([
             visual_engine
-              .visualize(story_id, strip_cognition_blocks(response), "story_entities", { silent: true })
+              .visualize(story_id, strip_cognition_blocks(response), "story_scene", { silent: true })
               .then((img_result) => {
                 if (img_result?.imageUrl) {
                   state_bridge.session_driver.update_log_attachment(node_id, 0, {
@@ -690,7 +690,7 @@ export const gamemaster = {
                     metadata: {
                       ...(img_result.metadata || {}),
                       prompt: img_result.refinedPrompt || img_result.metadata?.prompt,
-                      mode: "story_entities",
+                      mode: "story_scene",
                     },
                   });
                 }
@@ -775,7 +775,7 @@ export const gamemaster = {
     let epilogue_attachments = [];
     if (visual_engine) {
       try {
-        const img_result = await visual_engine.visualize(story_id, strip_cognition_blocks(response), "story_entities", { silent: true });
+        const img_result = await visual_engine.visualize(story_id, strip_cognition_blocks(response), "story_scene", { silent: true });
         if (img_result?.imageUrl) {
           epilogue_attachments = [
             {
@@ -783,7 +783,7 @@ export const gamemaster = {
               metadata: {
                 ...(img_result.metadata || {}),
                 prompt: img_result.refinedPrompt || img_result.metadata?.prompt,
-                mode: "characters",
+                mode: "story_scene",
               },
             },
           ];
@@ -920,6 +920,7 @@ export const story_pipeline = gamemaster;
 
 /**
  * CHANGELOG
+ * - 2026-09-14: Updated prologue and epilogue visualization mode from story_entities to landscape story_scene (768x512).
  * - 2026-09-13: Deconstructed & Streamlined: (1) Outsourced Shot 1 LLM dispatch, refusal recovery, and terse fallback to director.js `execute_director_shot`; (2) Forked Shot 2A (storyteller stream) and Shot 2B (background Memory Forge consolidation) concurrently in parallel; (3) Centralized tag surgery (balance_think_tags, strip_directors_note_seed) into parser.js.
  * - 2026-08-29: Exported canonical story_pipeline alias alongside gamemaster (/harmonize).
  * - 2026-08-28: Reconstructed story-pipeline.js with 5 clean numbered sections, updated header path, and standard JSDoc typings.
