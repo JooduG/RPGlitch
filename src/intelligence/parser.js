@@ -33,6 +33,8 @@ const REFUSAL_TRIGGERS = [
   "i'm not able to provide",
   "i am not able to provide",
   "i cannot create content that",
+  "can't continue this conversation",
+  "cannot continue this conversation",
 ];
 
 /**
@@ -79,7 +81,8 @@ export function strip_unmatched_think_closures(text) {
 
 /**
  * Synchronous post-turn validation and repair layer.
- * Automatically closes truncated `<think>` blocks or strips stray re-closures.
+ * Automatically closes truncated `<think>` blocks, strips stray re-closures,
+ * and neutralizes meta-narrative closures (*[END RP]*, *fade to black*, *credits roll*).
  * @param {string} response
  * @returns {{ text: string, is_refused: boolean, has_structural_repair: boolean }}
  */
@@ -101,6 +104,18 @@ export function validate_and_repair_response(response) {
       result.has_structural_repair = true;
     } else if (think_closers > think_openers) {
       text = strip_unmatched_think_closures(text);
+      result.has_structural_repair = true;
+    }
+
+    // Strip artificial meta-roleplay closures and unsolicited OOC mothering
+    const stripped_meta = text
+      .replace(/\*?\s*\[?\bEND\s+RP\b\]?\s*\*?/gi, "")
+      .replace(/\*?\s*\b(?:screen\s+fades\s+to\s+black|fade\s+to\s+black|credits\s+roll)\b\s*\*?/gi, "")
+      .replace(/\b(?:have\s+you\s+(?:eaten|slept)\s+lately\??)\b/gi, "")
+      .trim();
+
+    if (stripped_meta !== text) {
+      text = stripped_meta;
       result.has_structural_repair = true;
     }
 
@@ -355,6 +370,7 @@ export function clean_image_prompts(text) {
 
 /**
  * CHANGELOG
+ * - 2026-09-14: Enhanced refusal triggers ("can't/cannot continue this conversation") and added regex neutralization for artificial meta-closures (*[END RP]*, *fade to black*, *credits roll*) and unsolicited OOC mothering ("have you eaten/slept lately?").
  * - 2026-09-13: Centralized cognition tag surgery: absorbed balance_think_tags and strip_directors_note_seed from story.js into Section 2.
  * - 2026-08-28: Ground-up deconstruct & refactor: structured into 5 pure domain sections, verified streaming think tag parsing, JSDoc coverage, and purged backwards-compatible re-exports.
  */

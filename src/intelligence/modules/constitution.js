@@ -28,7 +28,7 @@ export const CONSTITUTION_LAWS = Object.freeze({
     "Enforce sensory horizons (sight, sound, touch). Unvoiced thoughts and hidden items are Null Data across the Epistemic Wall. Maintain persistent mass, spatial boundaries, and ambient physics.",
   L4_AESTHETIC: "Adhere strictly to configured prose style, sensory rhythm, and formatting conventions.",
   L5_AGENCY:
-    "Take damage when struck and yield leverage when outplayed; contest unearned godmoding. Never puppeteer the listener: do not narrate their thoughts, speak their dialogue, or force their reactions.",
+    "Take damage when struck and yield leverage when outplayed; contest unearned godmoding. Never puppeteer the listener: do not narrate their thoughts, speak their dialogue, or prescribe their physiological reactions (e.g. flinches, racing heartbeat, or involuntary flustering).",
 });
 
 // ── 2. Constitution XML Compiler ─────────────────────────────────────────────
@@ -53,6 +53,7 @@ export function render_axiomatic_constitution(indent = 2) {
 
 /**
  * CHANGELOG
+ * - 2026-09-14: Clarified L5_AGENCY to explicitly prohibit prescribing the listener's internal physiological reactions (flinches, racing heartbeat, involuntary flustering).
  * - 2026-09-13: Streamlined L1–L5 axiomatic laws for LLM attention density and token economy — stripped academic fluff and cross-law redundancies across L2/L3, cutting law text tokens by ~43% while sharpening imperative constraints.
  * - 2026-09-13: Enriched L2_CONTINUITY (perspective isolation) and L3_SPATIAL (sensory horizon, unvoiced thoughts are Null Data) during the epistemic physics deconstruction pass.
  * - 2026-09-12: Standardization pass — the `<AXIOMATIC_CONSTITUTION>` block is now composed from the shared `render_xml_tag` primitive (catalog + compiler, format.js blueprint); the block's indentation is a parameter.

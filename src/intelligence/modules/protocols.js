@@ -51,8 +51,8 @@ export const PROTOCOL_LIBRARY = Object.freeze({
     PROSE_DISCIPLINE: Object.freeze({
       TYPOGRAPHY: `Balance interior reflection against physical impact and speech. Maintain lingering sensory conditions across scene shifts. Use *italics* for unspoken subtext, **bold** for high-impact beats, and "double quotes" for spoken dialogue. Omit meta-commentary, preambles, headers, or user echoes. End on a complete sentence.`,
       PHYSICALITY: `Ground interactions in localized objects rather than repetitive posture tags. Express emotion through observable micro-actions, physical choices, and vocal shifts. Describe tactile resistance, technique, and physical mechanics rather than abstract outcomes.`,
-      ANTI_TROPES: `Eliminate synthetic sentence formulas: denial-then-affirmation ('X did not just Y; it Z'd'), symmetrical binary comparisons, appositive dialogue sound tags, and formulaic action-dialogue sandwiches.`,
-      BANNED_CLICHES: `Prohibit cliché clusters such as 'spoke volumes', 'a testament to', 'tapestry of', 'shivers down the spine', 'unspoken understanding' or 'dance of shadows'.`,
+      ANTI_TROPES: `Eliminate synthetic sentence formulas: denial-then-affirmation ('X did not just Y; it Z'd'), antithetical formulas ('Not X, but Y'), symmetrical binary comparisons, appositive dialogue sound tags, and formulaic action-dialogue sandwiches. State actions directly; never stall with permission loops ('Can I ask a question?'), teasing secrets, or begging quotas.`,
+      BANNED_CLICHES: `Prohibit cliché clusters such as 'spoke volumes', 'a testament to', 'tapestry of', 'shivers down the spine', 'unspoken understanding', 'dance of shadows', Wattpad dominance tropes ('feisty', 'playing with fire', 'death of me', 'mine'), and unprompted physical intimidation (wrist grabs, forced pinning).`,
       NATURAL_DIALOGUE: `Keep spoken dialogue grounded, clipped, uneven, and interrupted. Braid speech into immediate tactile actions and environmental grit rather than delivering isolated monologues.`,
     }),
   }),
@@ -180,6 +180,7 @@ export function render_core_protocols({ protocols = [], pov_protocol = null, sty
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-14: Expanded ANTI_TROPES (added antithetical "Not X, but Y" formula ban and anti-filibuster/anti-stalling imperatives) and BANNED_CLICHES (added Wattpad dominance/posturing tropes and forced physical intimidation prohibitions).
  * - 2026-09-13: Token Optimization Pass — Streamlined PROTOCOL_LIBRARY definitions (HYGIENE, SIMULATION_FIDELITY, ALTERNATION_OPTIONS, POV, TYPOGRAPHY, PHYSICALITY, ANTI_TROPES, NATURAL_DIALOGUE) eliminating conversational and meta fluff while maintaining strict declarative invariants (~120 tokens saved per prompt compilation); strictly complied with zero new test file creation.
  * - 2026-09-13: Manifest Alignment — `render_core_protocols` now dynamically respects the `protocols` declaration from `prompts.js`, filtering `PROSE_DISCIPLINE` rules (e.g. omitting `NATURAL_DIALOGUE` for Narrator) and resolving `pov_protocol` from the manifest list; standardized Universal File Architecture section headers and Full-Name nomenclature.
  * - 2026-09-13: Unified protocol compilation into single universal `render_protocols(selection, { schema, task_rules })`; pruned legacy `render_director_protocols_xml`, `DEFAULT_DIRECTOR_PROTOCOL_KEYS`, and relocated `render_keyword_directives_xml` to `task.js`.

@@ -225,6 +225,21 @@ export function detox_prose(raw_text, speaking_style = "casual", custom_rules = 
     },
   );
 
+  // 4. Syntactical Antithesis Formulas ("It wasn't fear. It was exhaustion." -> "It was exhaustion.")
+  clean_text = clean_text.replace(
+    /\b(?:it|this|that)\s+(?:wasn't|was not|isn't|is not)\s+([^,;.]+)[,;.]\s*(?:it|this|that)\s+(?:was|is)\s+([^.!?]+)/gi,
+    (match, _negated, affirmative) => {
+      if (!affirmative) return match;
+      return `It was ${affirmative.trim()}`;
+    },
+  );
+
+  // 5. Categorical/Superlative Corrections ("That's not just a wound, that's an infection" -> "That's an infection")
+  clean_text = clean_text.replace(
+    /\b(?:that's|that is|it's|it is)\s+not\s+(?:just\s+)?(?:a|an\s+)?([^,;.]+)[,;]\s*(?:that's|it's|that is|it is)\s+/gi,
+    "That is ",
+  );
+
   return clean_text;
 }
 
@@ -233,6 +248,7 @@ export function detox_prose(raw_text, speaking_style = "casual", custom_rules = 
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-14: Added structural pattern formulas 4 & 5 to scrub repetitive syntactical antithesis ("Not X, but Y") and superlative/categorical corrections ("That's not just X, that's Y").
  * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,
  *   structured section dividers, exported frozen VALID_SPEAKING_STYLES collection, added JSDoc
  *   schemas for DetoxRule and SpeakingStyleId, and verified 100% test pass.

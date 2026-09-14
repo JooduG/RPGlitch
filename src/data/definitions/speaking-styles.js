@@ -900,6 +900,34 @@ const COMMUNITY_RULES_LIST = [
     primal: ["for once in a damn long time", "finally"],
     clinical: ["for the first recorded instance", "unprecedentedly"],
   }),
+
+  create_speaking_rule(/\b(?:a\s+)?pang\s+of\s+(guilt|fear|desire|longing|regret|jealousy|panic|hunger|sorrow)\b/gi, {
+    casual: ["a sharp knot of $1", "a sudden wave of $1", "a tight knot of $1"],
+    lyrical: ["a sudden, cold ache of $1", "a sharp tremor of $1"],
+    primal: ["a vicious spike of $1", "a hard punch of $1"],
+    clinical: ["acute sensations of $1", "a transient surge of $1"],
+  }),
+
+  create_speaking_rule(/\byou(?:'re| are)\s+playing\s+with\s+fire\b/gi, {
+    casual: ["you're pushing your luck", "you're stepping over the line", "you're taking a dangerous risk"],
+    lyrical: ["you walk too close to the edge", "you court disaster"],
+    primal: ["you're asking for trouble", "you're testing me"],
+    clinical: ["you are engaging in high-risk escalation", "you are exceeding tolerable boundaries"],
+  }),
+
+  create_speaking_rule(/\byou(?:'re| are)\s+(?:gonna|going\s+to)\s+be\s+the\s+death\s+of\s+me\b/gi, {
+    casual: ["you're exhausting", "you never make this easy", "you're going to get us killed"],
+    lyrical: ["you test the limits of all endurance", "you will break what remains"],
+    primal: ["you're wearing me down", "you're pushing me to the brink"],
+    clinical: ["you are exhausting available reserves", "you represent a recurring threat to stability"],
+  }),
+
+  create_speaking_rule(/\byou(?:'re| are)\s+feisty(?:,\s+you\s+know\s+that)?\b/gi, {
+    casual: ["you don't back down easily", "you've got fight in you", "you don't give in"],
+    lyrical: ["you carry sharp resolve", "you refuse to yield"],
+    primal: ["you still bite", "you've got teeth"],
+    clinical: ["you demonstrate persistent resistance", "you remain adversarial"],
+  }),
 ];
 
 // ============================================================================
@@ -937,6 +965,7 @@ export function is_valid_speaking_style(candidate_style) {
 /**
  * ============================================================================
  * CHANGELOG:
+ * - 2026-09-14: Registered Community Speaking rules for common Ai-isms (pang of guilt/fear/desire, playing with fire, death of me, feisty).
  * - 2026-09-06: Harmonized rule registries and detox conjugation: (1) Added full
  *   grammatical inflection dictionaries (ed, ing, s, "") for shift weight, caress,
  *   and squelch; (2) Unified and consolidated duplicate physical blow and spatial
