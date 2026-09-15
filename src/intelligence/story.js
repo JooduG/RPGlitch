@@ -25,7 +25,13 @@ import {
   strip_alternation_braces,
 } from "@utils";
 import { visual_engine, resolve_image_trigger, spawn_image_beat, sweep_stale_ghosts, IMAGE_RESOLVE_TIMEOUT_MS } from "@media";
-import { validate_and_repair_response, force_close_response, balance_think_tags, strip_directors_note_seed } from "./parser.js";
+import {
+  validate_and_repair_response,
+  force_close_response,
+  balance_think_tags,
+  strip_directors_note_seed,
+  THINK_OPEN_TAG,
+} from "./parser.js";
 import { llm_service, looks_truncated } from "@platform";
 import { apply_dynamics_gravity, extract_entity_dynamics_baselines } from "./physics.js";
 import { execute_director_shot, resolve_npc_entity, apply_in_scene_change } from "./director.js";
@@ -511,7 +517,7 @@ export const gamemaster = {
             messages: simulation_log,
             role: generation_role,
             node_id: node_id,
-            ...(director_data?.directors_note ? { startWith: `<THINK>${director_data.directors_note} ` } : {}),
+            ...(director_data?.directors_note ? { startWith: `${THINK_OPEN_TAG}${director_data.directors_note} ` } : {}),
           },
           {
             onToken,
@@ -920,6 +926,7 @@ export const story_pipeline = gamemaster;
 
 /**
  * CHANGELOG
+ * - 2026-09-15: Domain Layer Prompt-Free Purity — Replaced literal <THINK> string with imported THINK_OPEN_TAG constant from parser.js.
  * - 2026-09-14: Updated prologue and epilogue visualization mode from story_entities to landscape story_scene (768x512).
  * - 2026-09-13: Deconstructed & Streamlined: (1) Outsourced Shot 1 LLM dispatch, refusal recovery, and terse fallback to director.js `execute_director_shot`; (2) Forked Shot 2A (storyteller stream) and Shot 2B (background Memory Forge consolidation) concurrently in parallel; (3) Centralized tag surgery (balance_think_tags, strip_directors_note_seed) into parser.js.
  * - 2026-08-29: Exported canonical story_pipeline alias alongside gamemaster (/harmonize).

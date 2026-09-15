@@ -119,6 +119,12 @@ describe("prompt-modes registry", () => {
     expect(get_prompt("director").system.mode).toBe("director");
     expect(get_prompt("unknown-mode").system.mode).toBe("interaction");
   });
+
+  it("harmonizes history limit to 16 across all Shot-2A prose sibling modes", () => {
+    for (const mode_key of ["interaction", "ghostwrite", "npc", "narrator"]) {
+      expect(prompt_modes[mode_key].history.limit).toBe(16);
+    }
+  });
 });
 
 describe("fused rendering per mode", () => {
@@ -200,6 +206,7 @@ describe("conversation history entries", () => {
 
 /**
  * CHANGELOG
+ * - 2026-09-15: Added unit test verifying history limit 16 across all four Shot-2A prose sibling modes (interaction, ghostwrite, npc, narrator).
  * - 2026-09-11: Updated imports/assertions to the modern manifest (PROMPTS/get_prompt) after PROMPT_MODES/get_prompt_mode were removed.
  * - 2026-09-11: Renamed from prompt-modes.test.js to prompts.test.js reflecting prompts.js master registry.
  * - 2026-09-11: Moved prompt-modes.test.js to root of intelligence folder and updated imports to story-prompts.js and builder.js.

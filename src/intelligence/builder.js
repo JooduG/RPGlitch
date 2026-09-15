@@ -53,7 +53,7 @@ import {
   render_profile_sorting_instructions,
   render_keyword_directives_xml,
 } from "./modules/task.js";
-import { OUTPUT_FORMATS, get_output_format, get_profile_schema, get_continuum_schema } from "./modules/format.js";
+import { OUTPUT_FORMATS, get_output_format } from "./modules/format.js";
 import { render_available_keywords_xml, render_dynamics_xml, render_subtext_xml, render_dynamics_axes_xml } from "./physics.js";
 import { temporal_engine, resolve_vector_pool } from "./temporal.js";
 
@@ -238,6 +238,133 @@ export function render_director({
 export { render_terse_director_task };
 
 /**
+ * Strips outer <SUBTEXT> wrappers and normalizes inner somatic lines.
+ * @param {string} [somatic_signals_xml=""]
+ * @returns {string}
+ */
+function extract_somatic_inner(somatic_signals_xml = "") {
+  return String(somatic_signals_xml || "")
+    .replace(/^\s*<SUBTEXT>\s*/, "")
+    .replace(/\s*<\/SUBTEXT>\s*$/, "")
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .join("\n");
+}
+
+/**
+ * Shared Shot-2A prose compilation core executing the unified 9-step pipeline:
+ * style resolution -> subtext parsing -> constitution -> entity sheets ->
+ * core protocols -> system envelope -> stability lock -> task compilation.
+ *
+ * @param {Object} parameters
+ * @param {any} parameters.config
+ * @param {number|null} [parameters.round=null]
+ * @param {Record<string, any>} [parameters.entities={}]
+ * @param {any[]} [parameters.npc_entities=[]]
+ * @param {string[]} [parameters.in_scene_ids=[]]
+ * @param {any} [parameters.active_speaker=null]
+ * @param {string} [parameters.speaker_name=""]
+ * @param {string} [parameters.listener_name=""]
+ * @param {string} [parameters.fractal_name=""]
+ * @param {string|null} [parameters.pov_protocol=null]
+ * @param {any} parameters.accessors
+ * @param {Record<string, any>} [parameters.speaker_dynamics={}]
+ * @param {Record<string, any>} [parameters.fractal_dynamics={}]
+ * @param {string[]} [parameters.keywords=[]]
+ * @param {boolean} [parameters.suppress_style_subtext=false]
+ * @param {any} [parameters.meta=null]
+ * @param {string} [parameters.input=""]
+ * @param {string} [parameters.input_origin="USER"]
+ * @param {string} [parameters.action_directive=""]
+ * @param {any} [parameters.snapshot=null]
+ * @param {boolean} [parameters.is_npc=false]
+ * @returns {{ system: string, task: string, system_close: string }}
+ */
+function render_prose_turn_core({
+  config,
+  round = null,
+  entities = {},
+  npc_entities = [],
+  in_scene_ids = [],
+  active_speaker = null,
+  speaker_name = "",
+  listener_name = "",
+  fractal_name = "",
+  pov_protocol = null,
+  accessors,
+  speaker_dynamics = {},
+  fractal_dynamics = {},
+  keywords = [],
+  suppress_style_subtext = false,
+  meta = null,
+  input = "",
+  input_origin = "USER",
+  action_directive = "",
+  snapshot = null,
+  is_npc = false,
+}) {
+  const style = get_narrative_style(resolve_active_style_key());
+
+  const somatic_signals_xml = render_subtext_xml(speaker_dynamics, fractal_dynamics, {
+    keywords,
+    style: suppress_style_subtext ? null : style,
+  });
+  const somatic_inner = extract_somatic_inner(somatic_signals_xml);
+
+  const constitution = config.constitution ? render_axiomatic_constitution() : "";
+
+  const entities_block = render_entity_sheets({
+    entities,
+    npc_entities,
+    in_scene_ids,
+    active_speaker,
+    accessors,
+    config,
+    is_npc,
+    render_axes: render_dynamics_axes_xml,
+    speaker_dynamics,
+    fractal_dynamics,
+  });
+
+  const core = render_core_protocols({
+    protocols: config.protocols,
+    pov_protocol,
+    style,
+    has_alternation: has_alternations(entities_block),
+  });
+
+  const role_line = resolve_system_role_line({
+    role: config.system.role,
+    speaker_name,
+    listener_name,
+    fractal_name,
+  });
+
+  const system = render_system_xml({
+    round,
+    mode: config.system.mode,
+    children: [role_line, constitution, core, entities_block],
+    closed: false,
+  });
+
+  const stability_lock_content = resolve_stability_lock(meta);
+
+  const task = render_task({
+    config,
+    input,
+    input_origin,
+    style,
+    somatic_inner,
+    snapshot: snapshot ? { ...snapshot, style } : { style },
+    action_directive,
+    stability_lock: stability_lock_content,
+  });
+
+  return { system, task, system_close: SYSTEM_CLOSE_TAG };
+}
+
+/**
  * Compiles Story Prose prompt for interaction, npc, or ghostwrite.
  */
 export function render_story_prose({
@@ -266,23 +393,10 @@ export function render_story_prose({
 
   const speaker_name = prompt_escape(active_speaker?.name || (is_npc ? "NPC" : "AI"));
   const listener_name = prompt_escape(active_listener?.name || "Listener");
-
-  const style = get_narrative_style(resolve_active_style_key());
+  const fractal_name = prompt_escape(entities?.FRACTAL?.name || "the setting");
 
   const speaker_dynamics = is_npc ? active_speaker?.dynamics || {} : compressed_snapshot?.ai?.dynamics || entities?.AI?.dynamics || {};
   const fractal_dynamics = compressed_snapshot?.fractal?.dynamics || entities?.FRACTAL?.dynamics || {};
-
-  const somatic_signals_xml = render_subtext_xml(speaker_dynamics, fractal_dynamics, {
-    keywords: director_data?.keywords || [],
-    style: is_ghostwrite ? null : style,
-  });
-  const somatic_inner = String(somatic_signals_xml || "")
-    .replace(/^\s*<SUBTEXT>\s*/, "")
-    .replace(/\s*<\/SUBTEXT>\s*$/, "")
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .join("\n");
 
   const speaker_name_lc = String(active_speaker?.name || "")
     .toLowerCase()
@@ -310,40 +424,6 @@ export function render_story_prose({
       (Array.isArray(compressed_snapshot?.flags) && compressed_snapshot.flags.includes("FIRST_CONTACT")) ||
       (Array.isArray(director_data?.keywords) && director_data.keywords.includes("first_contact")));
 
-  const constitution = config.constitution ? render_axiomatic_constitution() : "";
-
-  const entities_block = render_entity_sheets({
-    entities,
-    npc_entities,
-    in_scene_ids,
-    active_speaker,
-    accessors,
-    config,
-    is_npc,
-    render_axes: render_dynamics_axes_xml,
-    speaker_dynamics,
-    fractal_dynamics,
-  });
-
-  const core = render_core_protocols({
-    protocols: config.protocols,
-    pov_protocol,
-    style,
-    has_alternation: has_alternations(entities_block),
-  });
-
-  const fractal_name = prompt_escape(entities?.FRACTAL?.name || "the setting");
-  const role_line = resolve_system_role_line({ role: config.system.role, speaker_name, listener_name, fractal_name });
-
-  const system = render_system_xml({
-    round,
-    mode: config.system.mode,
-    children: [role_line, constitution, core, entities_block],
-    closed: false,
-  });
-
-  const stability_lock_content = resolve_stability_lock(meta);
-
   const draft_directive = input?.trim()
     ? GHOSTWRITE_DIRECTIVES.ENHANCE(speaker_name, prompt_escape(input.trim()))
     : GHOSTWRITE_DIRECTIVES.DRAFT(speaker_name, listener_name);
@@ -362,18 +442,29 @@ export function render_story_prose({
   const input_origin_entity = is_ghostwrite ? active_speaker : entities?.USER;
   const input_origin = input_origin_entity?.id || input_origin_entity?.name || "USER";
 
-  const task = render_task({
+  return render_prose_turn_core({
     config,
+    round,
+    entities,
+    npc_entities,
+    in_scene_ids,
+    active_speaker,
+    speaker_name,
+    listener_name,
+    fractal_name,
+    pov_protocol,
+    accessors,
+    speaker_dynamics,
+    fractal_dynamics,
+    keywords: director_data?.keywords || [],
+    suppress_style_subtext: is_ghostwrite,
+    meta,
     input,
     input_origin,
-    style,
-    somatic_inner,
-    snapshot: { dynamics: speaker_dynamics, style },
     action_directive,
-    stability_lock: stability_lock_content,
+    snapshot: { dynamics: speaker_dynamics },
+    is_npc,
   });
-
-  return { system, task, system_close: SYSTEM_CLOSE_TAG };
 }
 
 /**
@@ -418,38 +509,9 @@ export function render_scene_narrator({
   const speaker = entities?.FRACTAL;
   const speaker_name = prompt_escape(speaker?.name || "The Scene");
 
-  const constitution = config.constitution ? render_axiomatic_constitution() : "";
-  const style = resolve_active_style_key();
-
   const compressed_snapshot = entities?._compressed_dynamics;
   const speaker_dynamics = compressed_snapshot?.ai?.dynamics || null;
   const fractal_dynamics = compressed_snapshot?.fractal?.dynamics || null;
-
-  const entities_block = render_entity_sheets({
-    entities,
-    accessors: render_builder.create_render_accessors(entities, input, []),
-    config,
-    render_axes: render_dynamics_axes_xml,
-    speaker_dynamics,
-    fractal_dynamics,
-  });
-
-  const core = render_core_protocols({
-    protocols: config.protocols,
-    style,
-    has_alternation: has_alternations(entities_block),
-  });
-
-  const role_line = resolve_system_role_line({ role: config.system.role, speaker_name });
-
-  const system = render_system_xml({
-    round,
-    mode: config.system.mode,
-    children: [role_line, constitution, core, entities_block],
-    closed: false,
-  });
-
-  const stability_lock_content = resolve_stability_lock(meta);
 
   const action_directive = is_prologue_beat
     ? `${SCENE_DIRECTIVES.PROLOGUE}\n    Input: ${prompt_escape(input?.trim() || "The scene begins.")}`
@@ -459,32 +521,25 @@ export function render_scene_narrator({
         ? SCENE_DIRECTIVES.COLLAPSE
         : SCENE_DIRECTIVES.EPILOGUE;
 
-  const somatic_signals_xml = render_subtext_xml(speaker_dynamics, fractal_dynamics, {
-    keywords: meta?.keywords || [],
-    style,
-  });
-  const somatic_inner = String(somatic_signals_xml || "")
-    .replace(/^\s*<SUBTEXT>\s*/, "")
-    .replace(/\s*<\/SUBTEXT>\s*$/, "")
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .join("\n");
-
   const input_origin_entity = entities?.USER;
   const input_origin = input_origin_entity?.id || input_origin_entity?.name || "USER";
 
-  const task = render_task({
+  return render_prose_turn_core({
     config,
+    round,
+    entities,
+    speaker_name,
+    accessors: render_builder.create_render_accessors(entities, input, []),
+    speaker_dynamics,
+    fractal_dynamics,
+    keywords: meta?.keywords || [],
+    meta,
     input: is_prologue_beat ? "" : input,
     input_origin,
-    style,
-    somatic_inner,
     action_directive,
-    stability_lock: stability_lock_content,
+    snapshot: { dynamics: fractal_dynamics },
+    is_npc: false,
   });
-
-  return { system, task, system_close: SYSTEM_CLOSE_TAG };
 }
 
 export const render_narrator_prose = render_scene_narrator;
@@ -504,7 +559,7 @@ export function render_memory({ target_entity, target_key = "AI_CHARACTER", othe
   const task_xml = render_continuum_task({
     target_name,
     target_key,
-    schema: get_continuum_schema(target_type),
+    schema: get_output_format(config.format, { target_type }),
   });
 
   const history_xml = history_config.enabled ? render_input_history_xml(history, history_config.limit, history_config.max_chars) : "";
@@ -541,7 +596,8 @@ export function render_enhancement({
 }) {
   const config = get_prompt("enhancement");
   const macro_instruction = !is_image_field ? resolve_macro_directive(entity_type) : "";
-  const output_rules = is_array_field || field_id.endsWith(".physical") || is_image_field ? "" : OUTPUT_FORMATS.PROSE;
+  const output_rules =
+    is_array_field || field_id.endsWith(".physical") || is_image_field ? "" : get_output_format(config.format, OUTPUT_FORMATS.PROSE);
 
   const instructions_xml = render_enhancement_instructions({
     directive,
@@ -594,7 +650,7 @@ export function render_profile_sorting(entity_type = "character", options = {}) 
       .pop() || "THIRD";
 
   const instructions_xml = render_profile_sorting_instructions({
-    schema: get_profile_schema(resolved_type),
+    schema: get_output_format(config.format, { resolved_type }),
     pov_instruction: PROTOCOL_LIBRARY.CORE_PROTOCOLS.PERSPECTIVE.POV[pov_key] || PROTOCOL_LIBRARY.CORE_PROTOCOLS.PERSPECTIVE.POV.THIRD,
     focus_directive,
     ingestion_instruction,
@@ -884,6 +940,7 @@ if (typeof window !== "undefined") {
 
 /**
  * CHANGELOG
+ * - 2026-09-15: Prompt Pipeline Symmetrical Consolidation — (1) Extracted shared `render_prose_turn_core` and `extract_somatic_inner` unifying `render_story_prose` and `render_scene_narrator` by construction; (2) Fixed live narrator style regression by resolving full NarrativeStyle objects and passing recency dynamics snapshots; (3) Routed CONTINUUM, PROFILE, and PROSE formats through parameter-aware `get_output_format(config.format, ...)`.
  * - 2026-09-13: Synchronized render_profile_sorting_instructions call with Full-Name nomenclature (`ingestion_instruction`, `redistribute_instruction`, `output_rules_instruction`).
  * - 2026-09-13: Inlined Director role line directly into render_system_xml; purged render_role_xml import.
  * - 2026-09-12: Standardization pass — render_memory resolves its history window via history.js `resolve_history(config.history)` and gates <INPUT_HISTORY> on `history_config.enabled`; fixed a double <CHAPTER_HISTORY> wrap; imported render_continuum_task following the task.js rename.

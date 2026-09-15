@@ -51,6 +51,8 @@ export function is_refusal_response(text) {
 
 // ── 2. Think Block Parsing & Tag Repair ───────────────────────────────────────
 
+export const THINK_OPEN_TAG = "<THINK>";
+
 /**
  * Drops `</think>` closing tags that appear while no think block is open.
  * @param {string} text
@@ -370,6 +372,7 @@ export function clean_image_prompts(text) {
 
 /**
  * CHANGELOG
+ * - 2026-09-15: Exported THINK_OPEN_TAG constant in Section 2, decoupling domain execution engines from literal prompt markup strings.
  * - 2026-09-14: Enhanced refusal triggers ("can't/cannot continue this conversation") and added regex neutralization for artificial meta-closures (*[END RP]*, *fade to black*, *credits roll*) and unsolicited OOC mothering ("have you eaten/slept lately?").
  * - 2026-09-13: Centralized cognition tag surgery: absorbed balance_think_tags and strip_directors_note_seed from story.js into Section 2.
  * - 2026-08-28: Ground-up deconstruct & refactor: structured into 5 pure domain sections, verified streaming think tag parsing, JSDoc coverage, and purged backwards-compatible re-exports.

@@ -4,7 +4,15 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { OUTPUT_FORMATS, SCHEMA_ATOMS, SCHEMA_FIELD_DESCRIPTORS, get_output_format, render_output_format_xml } from "./format.js";
+import {
+  OUTPUT_FORMATS,
+  SCHEMA_ATOMS,
+  SCHEMA_FIELD_DESCRIPTORS,
+  get_output_format,
+  get_continuum_schema,
+  get_profile_schema,
+  render_output_format_xml,
+} from "./format.js";
 
 describe("src/intelligence/modules/format.js", () => {
   describe("SCHEMA_ATOMS", () => {
@@ -64,6 +72,13 @@ describe("src/intelligence/modules/format.js", () => {
 
       expect(get_output_format("unknown", "fallback_val")).toBe("fallback_val");
       expect(get_output_format(null, "fallback_val")).toBe("fallback_val");
+    });
+
+    it("parameterizes schemas dynamically by target or resolved entity taxonomy type", () => {
+      expect(get_output_format("CONTINUUM", { target_type: "fractal" })).toBe(get_continuum_schema("fractal"));
+      expect(get_output_format("CONTINUUM", { target_type: "character" })).toBe(get_continuum_schema("character"));
+      expect(get_output_format("PROFILE", { resolved_type: "fractal" })).toBe(get_profile_schema("fractal"));
+      expect(get_output_format("PROFILE", { resolved_type: "character" })).toBe(get_profile_schema("character"));
     });
   });
 

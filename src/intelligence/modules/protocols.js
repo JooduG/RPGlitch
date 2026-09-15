@@ -153,11 +153,11 @@ export function render_core_protocols({ protocols = [], pov_protocol = null, sty
     has_alternation && should_include("ALTERNATION_OPTIONS")
       ? render_xml_tag({ tag: "ALTERNATION_OPTIONS", children: [core.ALTERNATION_OPTIONS], inline: true })
       : null,
-    style && style.id !== "default"
+    style && typeof style === "object" && style.id && style.id !== "default"
       ? render_xml_tag({
           tag: "NARRATIVE_STYLE",
           attrs: { origin: String(style.id).toUpperCase(), internal_ratio: style_dna.internal_ratio || "0.5" },
-          children: [description ? prompt_escape(description) : "", elements ? `<SIGNUM>${prompt_escape(elements)}</SIGNUM>` : ""],
+          children: [description ? prompt_escape(description) : "", elements ? `<SIGNATURE_ELEMENTS>${prompt_escape(elements)}</SIGNATURE_ELEMENTS>` : ""],
           child_indent: 2,
           separator: "\n",
         })
@@ -180,6 +180,7 @@ export function render_core_protocols({ protocols = [], pov_protocol = null, sty
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-15: Symmetrical XML Tag Harmonization — Replaced <SIGNUM> with canonical <SIGNATURE_ELEMENTS> matching narrative-styles.js, and hardened narrative style type checks against string/nullish drift.
  * - 2026-09-14: Expanded ANTI_TROPES (added antithetical "Not X, but Y" formula ban and anti-filibuster/anti-stalling imperatives) and BANNED_CLICHES (added Wattpad dominance/posturing tropes and forced physical intimidation prohibitions).
  * - 2026-09-13: Token Optimization Pass — Streamlined PROTOCOL_LIBRARY definitions (HYGIENE, SIMULATION_FIDELITY, ALTERNATION_OPTIONS, POV, TYPOGRAPHY, PHYSICALITY, ANTI_TROPES, NATURAL_DIALOGUE) eliminating conversational and meta fluff while maintaining strict declarative invariants (~120 tokens saved per prompt compilation); strictly complied with zero new test file creation.
  * - 2026-09-13: Manifest Alignment — `render_core_protocols` now dynamically respects the `protocols` declaration from `prompts.js`, filtering `PROSE_DISCIPLINE` rules (e.g. omitting `NATURAL_DIALOGUE` for Narrator) and resolving `pov_protocol` from the manifest list; standardized Universal File Architecture section headers and Full-Name nomenclature.

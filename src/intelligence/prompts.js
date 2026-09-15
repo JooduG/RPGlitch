@@ -108,6 +108,7 @@ export const PROMPTS = Object.freeze({
       "CORE_PROTOCOLS.ALTERNATION_OPTIONS",
     ],
     entities: { dispositions: ["AI", "FRACTAL"], dynamic_axes: ["AI", "FRACTAL"], proximate_npcs: true },
+    history: { limit: 16 },
     task: { think_format: "character" },
   }),
 
@@ -125,6 +126,7 @@ export const PROMPTS = Object.freeze({
       "CORE_PROTOCOLS.ALTERNATION_OPTIONS",
     ],
     entities: { dispositions: ["FRACTAL", "NPC"], dynamic_axes: ["NPC", "FRACTAL"], proximate_npcs: true },
+    history: { limit: 16 },
     task: { think_format: "character" },
   }),
 
@@ -141,6 +143,7 @@ export const PROMPTS = Object.freeze({
       "CORE_PROTOCOLS.ALTERNATION_OPTIONS",
     ],
     entities: { dispositions: ["AI", "USER", "FRACTAL", "NPC"], dynamic_axes: ["FRACTAL"], user_agenda: true, proximate_npcs: true },
+    history: { limit: 16 },
     task: { think_format: "narrator" },
   }),
 
@@ -196,6 +199,7 @@ export default PROMPTS;
 
 /**
  * CHANGELOG
+ * - 2026-09-15: History Limit Harmonization — Explicitly harmonized history window to limit: 16 across all four Shot-2A prose sibling modes (interaction, ghostwrite, npc, narrator).
  * - 2026-09-12: Standardization pass — the `continuum` mode declares its history window (`history.limit`), now consumed by builder.js via history.js `resolve_history` (the window was previously hardcoded at the call site).
  * - 2026-09-12: Standardization pass — replaced the repeated 7-layer skeleton with a declarative `define_mode` factory (MODE_DEFAULTS + per-mode delta + deep-freeze), so each mode is a short data record and the layer defaults live in one place. Values are unchanged.
  * - 2026-09-12: Elevated prompts.js into a standardized 7-module switchboard aligning Shot 1 (Quick Shot: director), Shot 2A (Prose Shot: interaction/ghostwrite/npc/narrator), Shot 2B (Back Shot: continuum), and auxiliary tools (enhancement, sorting). Added explicit history configuration to all modes.

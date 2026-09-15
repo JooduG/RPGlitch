@@ -222,12 +222,25 @@ export const OUTPUT_FORMATS = Object.freeze({
 
 /**
  * Resolves an output format, schema, or contract string from its canonical format key.
- * @param {string} [format_key] - Format key matching OUTPUT_FORMATS
- * @param {string} [fallback_value=""] - Fallback string if key is unmapped
+ * Parameter-aware: accepts an entity type or options object to dynamically parameterize CONTINUUM and PROFILE schemas.
+ * @param {string} [format_key] - Format key matching OUTPUT_FORMATS ("PROSE", "DIRECTOR", "CONTINUUM", "PROFILE")
+ * @param {string|{ entity_type?: string, target_type?: string, resolved_type?: string, fallback?: string }} [options_or_fallback=""]
  * @returns {string}
  */
-export function get_output_format(format_key, fallback_value = "") {
-  return (format_key && OUTPUT_FORMATS[format_key]) || fallback_value;
+export function get_output_format(format_key, options_or_fallback = "") {
+  if (!format_key) return typeof options_or_fallback === "string" ? options_or_fallback : "";
+  const entity_type =
+    typeof options_or_fallback === "object" && options_or_fallback !== null
+      ? options_or_fallback.entity_type || options_or_fallback.target_type || options_or_fallback.resolved_type || "character"
+      : "character";
+  const fallback = typeof options_or_fallback === "string" ? options_or_fallback : options_or_fallback?.fallback || "";
+
+  if (format_key === "CONTINUUM") return get_continuum_schema(entity_type);
+  if (format_key === "PROFILE") return get_profile_schema(entity_type);
+  if (format_key === "DIRECTOR") return get_director_schema();
+  if (format_key === "PROSE") return PROSE_FORMAT;
+
+  return OUTPUT_FORMATS[format_key] || fallback;
 }
 
 /**
@@ -252,6 +265,7 @@ export function render_output_format_xml({ mode = "", content = "", indent_level
 
 /**
  * CHANGELOG
+ * - 2026-09-15: Parameter-Aware Layer 7 Resolution — Enhanced get_output_format with entity-type options parameter routing for CONTINUUM, PROFILE, DIRECTOR, and PROSE formats, making manifest Layer 7 fully load-bearing.
  * - 2026-09-13: Token Optimization pass: (1) Streamlined SCHEMA_ATOMS (_thought_process, keywords, directors_note, visual_staging) to eliminate conversational human fluff; (2) Compacted PROSE_FORMAT from 26 words down to 11 words while preserving plain prose contract; (3) Introduced high-density SCHEMA_FIELD_DESCRIPTORS in render_json_schema for character and fractal schemas, cutting CONTINUUM and PROFILE schema tokens by ~68% without impacting UI profile field definitions.
  * - 2026-09-13: Refactor & Symmetrical Harmonization: (1) Rebuilt format.js into 7 cleanly separated sections mirroring the Multi-Shot simulation lifecycle in src/intelligence/prompts.js (Taxonomy Atoms, Universal Composer, Shot 1 Director, Shot 2A Prose, Shot 2B Continuum, Tool B Profile Ingestion, Section 7 Master Registry); (2) Categorized SCHEMA_ATOMS by lifecycle role while preserving unified frozen export; (3) Added dedicated get_director_schema() and PROSE_FORMAT exports; (4) Enforced Full-Name domain nomenclature across all parameters and variables (schema_keys, resolved_entity_type, field_definition, atom_definition, value_string, format_key, fallback_value, trimmed_content); (5) Maintained 100% zero-sibling module purity.
  * - 2026-09-12: Standardization pass — render_output_format_xml now delegates to the shared `render_xml_tag` composer; header + section numbering corrected (CONTINUUM, not MEMORY_FORGE). Positioned as the reference blueprint for the modules/ layer.
