@@ -25,13 +25,7 @@ import {
   strip_alternation_braces,
 } from "@utils";
 import { visual_engine, resolve_image_trigger, spawn_image_beat, sweep_stale_ghosts, IMAGE_RESOLVE_TIMEOUT_MS } from "@media";
-import {
-  validate_and_repair_response,
-  force_close_response,
-  balance_think_tags,
-  strip_directors_note_seed,
-  THINK_OPEN_TAG,
-} from "./parser.js";
+import { validate_and_repair_response, force_close_response, balance_think_tags, strip_directors_note_seed, THINK_OPEN_TAG } from "./parser.js";
 import { llm_service, looks_truncated } from "@platform";
 import { apply_dynamics_gravity, extract_entity_dynamics_baselines } from "./physics.js";
 import { execute_director_shot, resolve_npc_entity, apply_in_scene_change } from "./director.js";

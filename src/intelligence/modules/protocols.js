@@ -157,7 +157,10 @@ export function render_core_protocols({ protocols = [], pov_protocol = null, sty
       ? render_xml_tag({
           tag: "NARRATIVE_STYLE",
           attrs: { origin: String(style.id).toUpperCase(), internal_ratio: style_dna.internal_ratio || "0.5" },
-          children: [description ? prompt_escape(description) : "", elements ? `<SIGNATURE_ELEMENTS>${prompt_escape(elements)}</SIGNATURE_ELEMENTS>` : ""],
+          children: [
+            description ? prompt_escape(description) : "",
+            elements ? `<SIGNATURE_ELEMENTS>${prompt_escape(elements)}</SIGNATURE_ELEMENTS>` : "",
+          ],
           child_indent: 2,
           separator: "\n",
         })
