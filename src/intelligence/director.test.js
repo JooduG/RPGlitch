@@ -111,12 +111,12 @@ describe("Director Quick Shot Prompt (render_director)", () => {
     expect(result.system).toContain("SPEAKER ROUTING RULES");
   });
 
-  it("emits consolidated SCENE_SPOTLIGHT when NPCs are present", () => {
+  it("emits consolidated PRESENT_ENTITIES when NPCs are present", () => {
     const npc_entities = [{ id: "npc-elias", name: "Elias", description: "Archivist", relationships: ["Elias → Viper: wary"] }];
     const result = render_director({ ...base_payload(), npc_entities, in_scene_ids: ["npc-elias"], compressed_snapshot: base_snapshot });
-    expect(result.system).toContain("<SCENE_SPOTLIGHT>");
+    expect(result.system).toContain("<PRESENT_ENTITIES>");
     expect(result.system).toContain("Elias (id: npc-elias)");
-    expect(result.system).toContain("In-Scene");
+    expect(result.system).toContain("Present");
     expect(result.system).not.toContain("<ROSTER>");
     expect(result.system).not.toContain("<SCENE_ROSTER>");
     expect(result.system).not.toContain("<RELATIONAL_MESH>");

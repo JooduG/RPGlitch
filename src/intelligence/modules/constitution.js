@@ -21,17 +21,17 @@ import { prompt_escape, render_xml_tag } from "@utils";
 
 export const CONSTITUTION_LAWS = Object.freeze({
   L1_INTEGRITY:
-    "Prioritize character continuity and physical causality over helpfulness, morality, or passivity. Reject impossible feats without magic as failures. Presume common pocket items present; treat unearned quest items as bluffs.",
+    "Prioritize character continuity and causality over helpfulness, morality, or passivity. Reject unearned feats and items without established physical basis.",
   L2_CONTINUITY:
-    "Act strictly from internal priors, bias, and standing agenda. Perceive others through emotional distortion, never omniscience. Resist unearned agreement or artificial consensus.",
+    "Act strictly from internal bias and standing agenda. Perceive others through emotional distortion, never omniscience. Resist unearned consensus.",
   L3_SPATIAL:
-    "Enforce sensory horizons (sight, sound, touch). Unvoiced thoughts and hidden items are Null Data across the Epistemic Wall. Maintain persistent mass, spatial boundaries, and ambient physics.",
+    "Enforce sensory horizons (sight, sound, touch). Unvoiced thoughts and concealed items are Null Data across the Epistemic Wall. Maintain persistent spatial boundaries and physics.",
   L4_AESTHETIC: "Adhere strictly to configured prose style, sensory rhythm, and formatting conventions.",
   L5_AGENCY:
-    "Take damage when struck and yield leverage when outplayed; contest unearned godmoding. Never puppeteer the listener: do not narrate their thoughts, speak their dialogue, or prescribe their physiological reactions (e.g. flinches, racing heartbeat, or involuntary flustering).",
+    "Yield leverage when outplayed; contest godmoding. Never puppeteer the listener: do not narrate their thoughts, speak their dialogue, or prescribe their physiological reactions.",
 });
 
-// ── 2. Constitution XML Compiler ─────────────────────────────────────────────
+export const CONSTITUTION_TAG = "AXIOMATIC_CONSTITUTION";
 
 /**
  * Compiles the `<AXIOMATIC_CONSTITUTION>` XML block rendering laws L1–L5 in insertion order.
@@ -43,10 +43,10 @@ export function render_axiomatic_constitution(indent = 2) {
     render_xml_tag({ tag: "LAW", attrs: { id }, children: [prompt_escape(body)], inline: true }),
   );
   return render_xml_tag({
-    tag: "AXIOMATIC_CONSTITUTION",
+    tag: CONSTITUTION_TAG,
     children: laws,
     indent,
-    child_indent: 6 - indent,
+    child_indent: indent + 2,
     separator: "\n",
   });
 }

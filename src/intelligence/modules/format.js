@@ -84,10 +84,9 @@ export function render_json_schema(schema_keys, entity_type = "character") {
   const schema_lines = schema_keys
     .map((schema_key) => {
       // 1. Twin-cylinder temporal composite layers (eternal, present)
-      if (entity_model[schema_key]?.physical && entity_model[schema_key]?.non_physical) {
-        const physical_directive = entity_model[schema_key].physical.directive;
-        const non_physical_directive = entity_model[schema_key].non_physical.directive;
-        return `  "${schema_key}": {\n    "physical": "<${physical_directive}>",\n    "non_physical": "<${non_physical_directive}>"\n  }`;
+      const { physical, non_physical } = entity_model[schema_key] || {};
+      if (physical?.directive && non_physical?.directive) {
+        return `  "${schema_key}": {\n    "physical": "<${physical.directive}>",\n    "non_physical": "<${non_physical.directive}>"\n  }`;
       }
 
       // 2. Direct model or top-level metadata field (name, description, signature_color, future, past)
@@ -184,6 +183,11 @@ export const OUTPUT_FORMATS = Object.freeze({
   CONTINUUM: get_continuum_schema("character"),
 });
 
+const DYNAMIC_SCHEMAS = Object.freeze({
+  CONTINUUM: get_continuum_schema,
+  PROFILE: get_profile_schema,
+});
+
 /**
  * Resolves an output format, schema, or contract string from its canonical format key.
  * Parameter-aware: accepts an entity type or options object to dynamically parameterize CONTINUUM and PROFILE schemas.
@@ -193,16 +197,14 @@ export const OUTPUT_FORMATS = Object.freeze({
  */
 export function get_output_format(format_key, options_or_fallback = "") {
   if (!format_key) return typeof options_or_fallback === "string" ? options_or_fallback : "";
+  const fallback = typeof options_or_fallback === "string" ? options_or_fallback : options_or_fallback?.fallback || "";
   const entity_type =
     typeof options_or_fallback === "object" && options_or_fallback !== null
       ? options_or_fallback.entity_type || options_or_fallback.target_type || options_or_fallback.resolved_type || "character"
       : "character";
-  const fallback = typeof options_or_fallback === "string" ? options_or_fallback : options_or_fallback?.fallback || "";
 
-  if (format_key === "CONTINUUM") return get_continuum_schema(entity_type);
-  if (format_key === "PROFILE") return get_profile_schema(entity_type);
-  if (format_key === "DIRECTOR") return get_director_schema();
-  if (format_key === "PROSE") return PROSE_FORMAT;
+  const dynamic_resolver = DYNAMIC_SCHEMAS[format_key];
+  if (dynamic_resolver) return dynamic_resolver(entity_type);
 
   return OUTPUT_FORMATS[format_key] || fallback;
 }
@@ -221,7 +223,7 @@ export function render_output_format_xml({ mode = "", content = "", indent_level
   if (!trimmed_content) return "";
   return render_xml_tag({
     tag: "OUTPUT_FORMAT",
-    attrs: { mode },
+    attrs: mode ? { mode } : {},
     children: [trimmed_content],
     child_indent: indent_level,
   });

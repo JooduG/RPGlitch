@@ -8,8 +8,10 @@
  * - Epistemic Wall filtering (strip_epistemic_tags, strip_epistemic_secrets)
  * - Physical appearance and topography merging (render_appearance)
  * - Sheet specification catalog integrity (SHEET_SPECS)
- * - Full <STORY_ENTITIES> sheet compilation (render_entity_sheets)
- * - Scene cast XML compilation (render_scene_cast_xml)
+ * - Full <AVAILABLE_ENTITIES> sheet compilation (render_entity_sheets)
+ * - Nearby entities XML compilation (render_nearby_entities_xml)
+ * - Present entities XML compilation (render_present_entities_xml)
+ * - Spatial presence resolution (resolve_available_entities)
  * - Entity memory context rendering (render_entity_memory_context)
  * - Field enhancement context rendering (render_enhancement_field_context)
  * ============================================================================
@@ -23,7 +25,9 @@ import {
   SHEET_SPECS,
   render_sheet,
   render_entity_sheets,
-  render_scene_cast_xml,
+  render_nearby_entities_xml,
+  render_present_entities_xml,
+  resolve_available_entities,
   render_entity_memory_context,
   render_enhancement_field_context,
 } from "./entities.js";
@@ -149,7 +153,7 @@ describe("src/intelligence/modules/entities.js", () => {
       past: () => "Surviving the deep sector.",
     };
 
-    it("renders <STORY_ENTITIES> with AI_CHARACTER, USER_PERSONA, and FRACTAL", () => {
+    it("renders <AVAILABLE_ENTITIES> with AI_CHARACTER, USER_PERSONA, and FRACTAL", () => {
       const xml = render_entity_sheets({
         entities: mock_entities,
         accessors: mock_accessors,
@@ -158,17 +162,17 @@ describe("src/intelligence/modules/entities.js", () => {
             dispositions: ["AI"],
             dynamic_axes: [],
             user_agenda: false,
-            proximate_npcs: false,
+            nearby_entities: false,
           },
         },
         is_npc: false,
       });
 
-      expect(xml).toContain("<STORY_ENTITIES>");
+      expect(xml).toContain("<AVAILABLE_ENTITIES>");
       expect(xml).toContain('    <AI_CHARACTER id="char_ai_1" name="Vesper">');
       expect(xml).toContain('    <USER_PERSONA id="char_user_1" name="Roger">');
       expect(xml).toContain('    <FRACTAL id="fractal_1" name="The Sub-Zero Vault">');
-      expect(xml).toContain("</STORY_ENTITIES>");
+      expect(xml).toContain("</AVAILABLE_ENTITIES>");
     });
 
     it("enforces the Epistemic Wall: strips user secrets and plans from USER_PERSONA", () => {
@@ -210,7 +214,7 @@ describe("src/intelligence/modules/entities.js", () => {
       expect(xml).toContain('<DISPOSITION target="char_user_1">suspicious of motives</DISPOSITION>');
     });
 
-    it("renders proximate NPCs when enabled in manifest configuration", () => {
+    it("renders nearby entities when enabled in manifest configuration", () => {
       const npc_entities = [
         { id: "npc_1", name: "Sentry Bot" },
         { id: "npc_2", name: "Distant Drone" },
@@ -224,15 +228,15 @@ describe("src/intelligence/modules/entities.js", () => {
         accessors: mock_accessors,
         config: {
           entities: {
-            proximate_npcs: true,
+            nearby_entities: true,
             dispositions: [],
             dynamic_axes: [],
           },
         },
       });
 
-      expect(xml).toContain("<PROXIMATE_NPCS>");
-      expect(xml).toContain('<NPC id="npc_1" name="Sentry Bot" />');
+      expect(xml).toContain("<NEARBY_ENTITIES>");
+      expect(xml).toContain('<ENTITY id="npc_1" name="Sentry Bot" role="NPC" />');
       expect(xml).not.toContain("npc_2");
     });
 
@@ -289,7 +293,7 @@ describe("src/intelligence/modules/entities.js", () => {
         accessors: mock_accessors,
         config: {
           entities: {
-            proximate_npcs: true,
+            nearby_entities: true,
             dispositions: ["NPC"], // Triggers full sheet rendering for in-scene NPCs
             dynamic_axes: [],
           },
@@ -300,8 +304,8 @@ describe("src/intelligence/modules/entities.js", () => {
       expect(xml).toContain('<NPC id="npc_1" name="Sentry Bot">');
       expect(xml).toContain('<NPC id="npc_2" name="Distant Drone">');
 
-      // Proximate NPCs roster should NOT repeat them, and since none remain, PROXIMATE_NPCS should not appear
-      expect(xml).not.toContain("<PROXIMATE_NPCS>");
+      // Nearby entities roster should NOT repeat them, and since none remain, NEARBY_ENTITIES should not appear
+      expect(xml).not.toContain("<NEARBY_ENTITIES>");
     });
 
     it("enforces bystander NPC diet: strips private secrets, plans, standing agenda, and memories from non-speaking NPCs", () => {
@@ -350,23 +354,72 @@ describe("src/intelligence/modules/entities.js", () => {
     });
   });
 
-  describe("render_scene_cast_xml", () => {
-    it("renders in-scene participants excluding the target entity", () => {
+  describe("render_nearby_entities_xml", () => {
+    it("renders nearby entities excluding the target entity", () => {
       const other_entities = {
         AI: { name: "Vesper", present: { non_physical: "Observing." } },
         USER: { name: "Roger", eternal: { non_physical: "Steady." } },
       };
 
-      const xml = render_scene_cast_xml(other_entities, "AI");
-      expect(xml).toContain("<SCENE_CAST>");
-      expect(xml).toContain('<IN_SCENE_PARTICIPANT name="Roger" role="USER">');
+      const xml = render_nearby_entities_xml(other_entities, { exclude_key: "AI", indent: 2 });
+      expect(xml).toContain("<NEARBY_ENTITIES>");
+      expect(xml).toContain('<ENTITY id="Roger" name="Roger" role="USER">');
       expect(xml).toContain("<SUMMARY>Steady.</SUMMARY>");
       expect(xml).not.toContain("Vesper");
     });
 
     it("returns empty string when there are no other active entities", () => {
-      expect(render_scene_cast_xml({}, "AI")).toBe("");
-      expect(render_scene_cast_xml({ AI: { name: "Vesper" } }, "AI")).toBe("");
+      expect(render_nearby_entities_xml({}, { exclude_key: "AI" })).toBe("");
+      expect(render_nearby_entities_xml({ AI: { name: "Vesper" } }, { exclude_key: "AI" })).toBe("");
+    });
+  });
+
+  describe("resolve_available_entities", () => {
+    it("resolves present entities and dormant stasis entities accurately", () => {
+      const entities = {
+        AI: { id: "ai_1", name: "Vesper" },
+        USER: { id: "usr_1", name: "Roger" },
+        FRACTAL: { id: "frc_1", name: "The Vault" },
+      };
+      const npc_entities = [
+        { id: "npc_1", name: "Elias" },
+        { id: "npc_2", name: "Sentry" },
+      ];
+      const in_scene_ids = ["npc_1"];
+
+      const resolved = resolve_available_entities({ entities, npc_entities, in_scene_ids });
+      expect(resolved.present.map((e) => e.name)).toEqual(["Vesper", "Roger", "The Vault", "Elias"]);
+      expect(resolved.dormant.map((e) => e.name)).toEqual(["Sentry"]);
+      expect(resolved.active_names.has("vesper")).toBe(true);
+      expect(resolved.active_names.has("elias")).toBe(true);
+      expect(resolved.active_names.has("sentry")).toBe(false);
+      expect(resolved.name_to_id.get("elias")).toBe("npc_1");
+    });
+  });
+
+  describe("render_present_entities_xml", () => {
+    it("renders PRESENT_ENTITIES with routing rules, active participants, and dormant candidates", () => {
+      const entities = {
+        AI: { id: "ai_1", name: "Vesper" },
+        USER: { id: "usr_1", name: "Roger" },
+      };
+      const npc_entities = [
+        { id: "npc_1", name: "Elias", description: "Archivist" },
+        { id: "npc_2", name: "Sentry", description: "Station guard" },
+      ];
+      const in_scene_ids = ["npc_1"];
+
+      const xml = render_present_entities_xml({ entities, npc_entities, in_scene_ids });
+      expect(xml).toContain("<PRESENT_ENTITIES>");
+      expect(xml).toContain("SPEAKER ROUTING RULES:");
+      expect(xml).toContain("CONVERGENCE & ENTITY REUSE:");
+      expect(xml).toContain("ACTIVE PRESENT PARTICIPANTS:");
+      expect(xml).toContain("- Vesper: Primary Companion (Present)");
+      expect(xml).toContain("- Roger: Protagonist (Present)");
+      expect(xml).toContain("- Elias (id: npc_1) [Present]: Archivist");
+      expect(xml).toContain("DORMANT CANDIDATE ENTITIES (STASIS):");
+      expect(xml).toContain("- Sentry (id: npc_2) [Dormant (Stasis)]: Station guard");
+      expect(xml).toContain("</PRESENT_ENTITIES>");
     });
   });
 
@@ -524,6 +577,7 @@ describe("src/intelligence/modules/entities.js", () => {
 /**
  * CHANGELOG
  * ============================================================================
+ * - 2026-09-16: Updated test assertions for spatial and non-theater architecture: validated <AVAILABLE_ENTITIES>, <NEARBY_ENTITIES>, <PRESENT_ENTITIES>, and resolve_available_entities.
  * - 2026-09-13: Initial creation of comprehensive unit test suite for entities.js (Epistemic Wall, appearance merging, sheet compilation, scene cast, memory & enhancement context).
  * ============================================================================
  */

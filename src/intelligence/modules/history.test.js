@@ -14,14 +14,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import {
-  HISTORY_DEFAULTS,
-  resolve_history,
-  render_history,
-  format_recent_history,
-  render_input_history_xml,
-  render_chapter_history_xml,
-} from "./history.js";
+import { HISTORY_DEFAULTS, resolve_history, render_history, render_input_history_xml, render_chapter_history_xml } from "./history.js";
 
 describe("src/intelligence/modules/history.js", () => {
   describe("HISTORY_DEFAULTS & resolve_history()", () => {
@@ -51,7 +44,7 @@ describe("src/intelligence/modules/history.js", () => {
         },
       ];
 
-      const rendered = render_history(simulation_log, 10);
+      const rendered = render_history(simulation_log, { limit: 10, indent: 2 });
       expect(rendered).toContain('origin="SILVERS"');
       expect(rendered).toContain('origin="ELIAS"');
       expect(rendered).toContain('round="1"');
@@ -61,15 +54,7 @@ describe("src/intelligence/modules/history.js", () => {
       expect(rendered).not.toContain("He is hostile.");
     });
 
-    it("handles string or empty simulation log safely", () => {
-      expect(render_history("pre-rendered history")).toBe("pre-rendered history");
-      expect(render_history(null)).toBe("");
-      expect(render_history([])).toBe("");
-    });
-  });
-
-  describe("format_recent_history()", () => {
-    it("formats recent messages as compact <ENTRY> XML tags and strips unvoiced <think> blocks", () => {
+    it("formats uncollapsed recent dialogue messages with word-boundary truncation", () => {
       const history = [
         { role: "user", character_name: "Benedict", text: "Is the road safe?" },
         {
@@ -79,12 +64,11 @@ describe("src/intelligence/modules/history.js", () => {
         },
       ];
 
-      const formatted = format_recent_history(history, 16, 400);
-      expect(formatted).toContain('<ENTRY origin="Benedict" round="1">Is the road safe?</ENTRY>');
-      expect(formatted).toContain('<ENTRY origin="Elias" round="2">The pass is blocked by snow.</ENTRY>');
+      const formatted = render_history(history, { limit: 16, max_chars: 400, collapse: false });
+      expect(formatted).toContain('<ENTRY round="1" origin="Benedict">Is the road safe?</ENTRY>');
+      expect(formatted).toContain('<ENTRY round="2" origin="Elias">The pass is blocked by snow.</ENTRY>');
       expect(formatted).not.toContain("<think>");
       expect(formatted).not.toContain("It is treacherous.");
-      expect(formatted).not.toContain('"character_name"');
     });
 
     it("resolves origins fallback gracefully when character_name is absent", () => {
@@ -93,7 +77,7 @@ describe("src/intelligence/modules/history.js", () => {
         { role: "FRACTAL", text: "Thunder rumbles." },
       ];
 
-      const formatted = format_recent_history(history);
+      const formatted = render_history(history, { collapse: false });
       expect(formatted).toContain('origin="User"');
       expect(formatted).toContain('origin="Fractal"');
     });
@@ -104,8 +88,14 @@ describe("src/intelligence/modules/history.js", () => {
         { role: "ai", text: "<think>Only thought</think>" },
       ];
 
-      const formatted = format_recent_history(history);
+      const formatted = render_history(history, { collapse: false });
       expect(formatted).toBe("");
+    });
+
+    it("handles string or empty simulation log safely", () => {
+      expect(render_history("pre-rendered history")).toBe("pre-rendered history");
+      expect(render_history(null)).toBe("");
+      expect(render_history([])).toBe("");
     });
   });
 
@@ -115,7 +105,7 @@ describe("src/intelligence/modules/history.js", () => {
       const xml = render_input_history_xml(history, { tag: "INPUT_HISTORY", limit: 5 });
 
       expect(xml).toContain("<INPUT_HISTORY>");
-      expect(xml).toContain('<ENTRY origin="Benedict" round="1">Hello</ENTRY>');
+      expect(xml).toContain('<ENTRY round="1" origin="Benedict">Hello</ENTRY>');
       expect(xml).toContain("</INPUT_HISTORY>");
     });
 

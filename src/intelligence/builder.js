@@ -38,10 +38,10 @@ import { render_axiomatic_constitution } from "./modules/constitution.js";
 import { render_protocols, render_core_protocols, resolve_pov_protocol, PROTOCOL_LIBRARY } from "./modules/protocols.js";
 import {
   render_entity_sheets,
-  render_scene_cast_xml,
+  render_nearby_entities_xml,
   render_entity_memory_context,
   render_enhancement_field_context,
-  render_scene_spotlight_xml,
+  render_present_entities_xml,
 } from "./modules/entities.js";
 import { render_history, render_chapter_history_xml, render_input_history_xml, resolve_history } from "./modules/history.js";
 import {
@@ -86,18 +86,25 @@ export const render_builder = {
         const combined_future = [raw_future, extracted_plan ? `Active Plan: ${extracted_plan}` : ""].filter(Boolean).join("\n");
         return parse_macros(combined_future.trim(), entity, entities);
       },
-      simulation_log: (limit = 10, offset = 0) => render_history(raw_messages, limit, offset),
+      simulation_log: (limit = 10, offset = 0) => render_history(raw_messages, { limit, offset, indent: 2 }),
     };
   },
 
   /**
    * Collapses and formats turn history into clean XML entries.
    * @param {any[]} simulation_log
-   * @param {number} [count=10]
-   * @param {number} [offset=0]
+   * @param {Object} [options={}]
+   * @param {number} [options.limit=10]
+   * @param {number} [options.offset=0]
+   * @param {number} [options.indent=2]
    */
-  render_history(simulation_log, count = 10, offset = 0) {
-    return render_history(simulation_log, count, offset);
+  render_history(simulation_log, options = {}) {
+    return render_history(simulation_log, {
+      limit: options.limit ?? 10,
+      offset: options.offset ?? 0,
+      indent: options.indent ?? 2,
+      ...options,
+    });
   },
 };
 
@@ -213,7 +220,7 @@ export function render_director({
       entity_sheets,
       keyword_directives_xml,
       wrap_tag("PROTOCOLS", full_protocols, 4),
-      config.entities.spotlight ? render_scene_spotlight_xml({ entities: scene_entities, npc_entities, in_scene_ids }) : null,
+      config.entities.present_entities ? render_present_entities_xml({ entities: scene_entities, npc_entities, in_scene_ids }) : null,
     ],
     closed: true,
   });
@@ -529,7 +536,9 @@ export function render_memory({ target_entity, target_key = "AI_CHARACTER", othe
   const history_config = resolve_history(config.history);
   const target_name = target_entity?.name || target_key;
   const target_xml = config.entities.target_context ? render_entity_memory_context(target_key, target_entity) : "";
-  const scene_cast_xml = config.entities.scene_cast ? render_scene_cast_xml(other_entities, target_key) : "";
+  const nearby_entities_xml = config.entities.nearby_entities
+    ? render_nearby_entities_xml(other_entities, { exclude_key: target_key, indent: 2 })
+    : "";
   const chapter_xml = config.entities.chapter_history && target_entity ? render_chapter_history_xml(target_entity, 2) : "";
 
   const target_type = target_entity?.type || (target_key === "FRACTAL" ? "fractal" : "character");
@@ -539,14 +548,19 @@ export function render_memory({ target_entity, target_key = "AI_CHARACTER", othe
     schema: get_output_format(config.format, { target_type }),
   });
 
-  const history_xml = history_config.enabled ? render_input_history_xml(history, history_config.limit, history_config.max_chars) : "";
+  const history_xml = history_config.enabled
+    ? render_input_history_xml(history, {
+        limit: history_config.limit,
+        max_chars: history_config.max_chars,
+      })
+    : "";
 
   return render_system_xml({
     attributes: { role: "CONTINUUM_CARETAKER", target: target_name },
     children: [
       wrap_tag("PROTOCOLS", indent_continuation(render_protocols(config.protocols), 4).trim(), 2),
       wrap_tag("TARGET_ENTITY_CONTEXT", target_xml, 2),
-      scene_cast_xml,
+      nearby_entities_xml,
       chapter_xml,
       history_xml,
       task_xml,
@@ -915,6 +929,7 @@ if (typeof window !== "undefined") {
 
 /**
  * CHANGELOG
+ * - 2026-09-16: Spatial Architecture Standardization & Non-Theater Integration: (1) Connected `render_present_entities_xml` to `config.entities.present_entities` in Director compilation; (2) Connected `render_nearby_entities_xml` to `config.entities.nearby_entities` in Continuum memory compilation; (3) Pruned dead `render_scene_spotlight_xml` and `render_scene_cast_xml` imports.
  * - 2026-09-16: Task Simplification & Action Directive Repatriation — Delegated character and scene action directive assembly to `resolve_character_action_directive` and `resolve_scene_action_directive` from `task.js`; simplified `render_keyword_directives_xml` call.
  * - 2026-09-16: Task Nomenclature Standardization — Standardized prompt task compiler variables (`task_xml`) and `directives` parameters across `render_enhancement` and `render_profile_sorting`.
  * - 2026-09-16: Standardized Director system envelope with `round` attribute on `<SYSTEM mode="director" round="...">`, removing redundant `<ROUND>` child from Director task. Repatriated `render_scene_spotlight_xml` from `entities.js`.

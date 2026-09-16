@@ -30,6 +30,38 @@
 import { escape_xml, prompt_escape, collapse_history, truncate_at_word, render_xml_tag } from "@utils";
 
 // ============================================================================
+// [INTERNAL UTILITIES]
+// ============================================================================
+
+/**
+ * Strips internal unvoiced <think> blocks and bare think tags from narrative content.
+ *
+ * @param {string|null|undefined} text
+ * @returns {string}
+ */
+function strip_think_blocks(text) {
+  return String(text || "")
+    .replace(/<think>[\s\S]*?<\/think>/gi, "")
+    .replace(/<\/?think>/gi, "")
+    .trim();
+}
+
+/**
+ * Resolves a speaker's entity origin from raw entry or message properties.
+ *
+ * @param {Record<string, any>} entry
+ * @returns {string}
+ */
+function resolve_entry_origin(entry) {
+  return (
+    entry?.character_name ||
+    entry?.name ||
+    entry?.origin ||
+    (entry?.role === "USER_PERSONA" || entry?.role === "user" ? "User" : entry?.role === "FRACTAL" ? "Fractal" : "Character")
+  );
+}
+
+// ============================================================================
 // [SECTION 1: MANIFEST CONFIGURATION & WINDOW RESOLVER]
 // ============================================================================
 
@@ -60,111 +92,99 @@ export function resolve_history(configuration) {
 }
 
 // ============================================================================
-// [SECTION 2: TURN TRANSCRIPT LOG FORMATTER]
+// [SECTION 2: TURN & DIALOGUE TRANSCRIPT FORMATTER]
 // ============================================================================
 
 /**
- * Collapses and formats turn-based simulation history into clean XML <ENTRY> sequences.
- * Strips internal <think> blocks and attaches verified round indices and origins.
+ * Collapses and formats turn-based simulation history or dialogue messages into clean XML <ENTRY> sequences.
+ * Strips internal unvoiced <think> blocks and attaches verified round indices and origins.
  *
- * @param {any[]} simulation_log - Array of raw dialogue entries or message objects.
- * @param {number} [entry_limit=10] - Number of recent collapsed turns to display.
- * @param {number} [offset=0] - Offset from the end of the history window.
+ * @param {any[]} history - Array of raw dialogue entries or message objects.
+ * @param {Object} [options={}]
+ * @param {number} [options.limit=16] - Number of recent collapsed turns or messages to display.
+ * @param {number} [options.offset=0] - Offset from the end of the history window.
+ * @param {number} [options.max_chars] - Optional maximum characters to truncate entry content at word boundaries.
+ * @param {boolean} [options.collapse=true] - Whether to collapse consecutive turns via collapse_history.
+ * @param {number} [options.indent=0] - Indentation spaces preceding each <ENTRY> tag.
  * @returns {string}
  */
-export function render_history(simulation_log, entry_limit = 10, offset = 0) {
-  if (!simulation_log || typeof simulation_log === "string") {
-    return simulation_log || "";
+export function render_history(history, options = {}) {
+  if (!history || typeof history === "string") {
+    return history || "";
   }
 
-  const collapsed_history = collapse_history(simulation_log, {
-    separator: "\n",
-    stripBoldQuotes: true,
-  });
+  const limit = options.limit ?? HISTORY_DEFAULTS.limit;
+  const offset = options.offset ?? 0;
+  const max_chars = options.max_chars;
+  const should_collapse = options.collapse ?? true;
+  const indent = options.indent ?? 0;
 
-  const start_index = Math.max(0, collapsed_history.length - (entry_limit + offset));
-  const end_index = Math.max(0, collapsed_history.length - offset);
+  const raw_entries = should_collapse
+    ? collapse_history(history, {
+        separator: "\n",
+        stripBoldQuotes: true,
+      })
+    : Array.isArray(history)
+      ? history
+      : [];
 
-  return collapsed_history
+  const start_index = Math.max(0, raw_entries.length - (limit + offset));
+  const end_index = Math.max(0, raw_entries.length - offset);
+
+  return raw_entries
     .slice(start_index, end_index)
     .map((entry, index) => {
-      const round_number = start_index + index + 1;
-      const speaker = entry.name || (entry.role === "USER_PERSONA" ? "User" : entry.role === "FRACTAL" ? "Fractal" : "Character");
-
-      const clean_content = String(entry.content || "")
-        .replace(/<think>[\s\S]*?<\/think>/gi, "")
-        .replace(/<\/?think>/gi, "")
-        .trim();
-
-      const origin = entry.origin || speaker;
-      return `  <ENTRY round="${round_number}" origin="${escape_xml(origin)}">${prompt_escape(clean_content)}</ENTRY>`;
-    })
-    .join("\n");
-}
-
-// ============================================================================
-// [SECTION 3: RECENT DIALOGUE FEED FORMATTER]
-// ============================================================================
-
-/**
- * Formats recent dialogue / turn history into compact XML <ENTRY> sequences for prompt ingestion.
- * Strips internal unvoiced <think> blocks before word-boundary truncation.
- *
- * @param {Array<any>} [history=[]]
- * @param {number} [message_limit=16]
- * @param {number} [maximum_characters=400]
- * @returns {string}
- */
-export function format_recent_history(history = [], message_limit = 16, maximum_characters = 400) {
-  const recent_messages = Array.isArray(history) ? history.slice(-message_limit) : [];
-  return recent_messages
-    .map((message, index) => {
-      const raw_text = String(message?.text ?? message?.content ?? "");
-      const clean_text = raw_text
-        .replace(/<think>[\s\S]*?<\/think>/gi, "")
-        .replace(/<\/?think>/gi, "")
-        .trim();
+      const raw_text = String(entry?.text ?? entry?.content ?? "");
+      const clean_text = strip_think_blocks(raw_text);
       if (!clean_text) return null;
 
-      const origin =
-        message?.character_name ||
-        message?.name ||
-        message?.origin ||
-        (message?.role === "USER_PERSONA" || message?.role === "user" ? "User" : message?.role === "FRACTAL" ? "Fractal" : "Character");
+      const round_number = start_index + index + 1;
+      const origin = entry.origin || resolve_entry_origin(entry);
+      const content = max_chars ? truncate_at_word(clean_text, max_chars) : clean_text;
 
-      const truncated_text = truncate_at_word(clean_text, maximum_characters);
-      return `<ENTRY origin="${escape_xml(origin)}" round="${index + 1}">${prompt_escape(truncated_text)}</ENTRY>`;
+      return render_xml_tag({
+        tag: "ENTRY",
+        attrs: { round: round_number, origin },
+        children: [prompt_escape(content)],
+        indent,
+        inline: true,
+      });
     })
     .filter(Boolean)
     .join("\n");
 }
+
+// ============================================================================
+// [SECTION 3: RECENT DIALOGUE FEED XML ENVELOPE]
+// ============================================================================
 
 /**
  * Renders the enveloped recent dialogue history XML block (<INPUT_HISTORY> or manifest-specified tag).
  * Accepts either explicit numeric bounds or a manifest history configuration object.
  *
  * @param {Array<any>} [history=[]]
- * @param {number|Object} [options_or_limit=16] - Message limit or configuration object.
- * @param {number} [maximum_characters=400]
  * @param {Object} [options={}]
+ * @param {number} [options.limit=16]
+ * @param {number} [options.max_chars=400]
  * @param {string} [options.tag="INPUT_HISTORY"]
  * @param {number} [options.indent=2]
  * @param {number} [options.child_indent=2]
  * @returns {string}
  */
-export function render_input_history_xml(history = [], options_or_limit = 16, maximum_characters = 400, options = {}) {
-  const is_options_object = typeof options_or_limit === "object" && options_or_limit !== null;
-  const resolved_options = is_options_object
-    ? { ...options_or_limit, ...options }
-    : { limit: options_or_limit, max_chars: maximum_characters, ...options };
+export function render_input_history_xml(history = [], options = {}) {
+  const resolved_limit = options.limit ?? HISTORY_DEFAULTS.limit;
+  const resolved_characters = options.max_chars ?? options.maximum_characters ?? HISTORY_DEFAULTS.max_chars;
+  const tag = options.tag || options.input_tag || "INPUT_HISTORY";
+  const indent = options.indent ?? 2;
+  const child_indent = options.child_indent ?? 2;
 
-  const resolved_limit = resolved_options.limit ?? HISTORY_DEFAULTS.limit;
-  const resolved_characters = resolved_options.max_chars ?? resolved_options.maximum_characters ?? HISTORY_DEFAULTS.max_chars;
-  const tag = resolved_options.tag || resolved_options.input_tag || "INPUT_HISTORY";
-  const indent = resolved_options.indent ?? 2;
-  const child_indent = resolved_options.child_indent ?? 2;
+  const formatted_history = render_history(history, {
+    limit: resolved_limit,
+    max_chars: resolved_characters,
+    collapse: false,
+    indent: 0,
+  });
 
-  const formatted_history = format_recent_history(history, resolved_limit, resolved_characters);
   if (!formatted_history) return "";
 
   return render_xml_tag({
@@ -213,6 +233,8 @@ export function render_chapter_history_xml(target_entity, indentation_level = 0)
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-16: Unified turn and dialogue transcript formatting: merged format_recent_history into render_history, pruned format_recent_history under P4 Zero Backwards Compatibility, and updated render_input_history_xml to consume render_history with structured options.
+ * - 2026-09-16: Refactored and standardized: (1) Extracted shared strip_think_blocks and resolve_entry_origin helpers, eliminating duplicated regex and origin-fallback chains; (2) Aligned round/origin attributes and streamlined history options handling.
  * - 2026-09-13: Token Optimization pass: (1) Replaced bloated multi-line 2-space indented JSON in format_recent_history and render_input_history_xml with symmetrical XML <ENTRY> sequences, cutting ~150-250 tokens per Continuum Caretaker background turn; (2) Added unvoiced <think> tag stripping in format_recent_history to enforce epistemic law and preserve word-budget for dialogue; (3) Adjusted render_history indentation to canonical 2-space child indent; (4) Normalized chapter prefixes in render_chapter_history_xml to eliminate repetitive "Chapter Chapter" stutter; (5) Added comprehensive unit test suite history.test.js.
  * - 2026-09-13: Comprehensive architectural rebuild & prompts.js symmetry — aligned history configuration with prompts.js manifest; supported direct configuration objects in render_input_history_xml with dynamic input_tag; enforced strict Full-Name nomenclature (eliminated single-letter variables m, c); structured into 4 distinct temporal horizon sections with Universal File Architecture.
  * - 2026-09-12: Standardization pass — added the `HISTORY_DEFAULTS` catalog + `resolve_history` resolver so modes drive their history window via `prompts.js` instead of call-site literals; `render_chapter_history_xml` / `render_input_history_xml` now compose through `render_xml_tag` (the `<INPUT_HISTORY>` JSON is uniformly indented).

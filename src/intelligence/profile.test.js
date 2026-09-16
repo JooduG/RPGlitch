@@ -101,7 +101,7 @@ describe("Profile Domain (profile.js)", () => {
   describe("render_profile_sorting()", () => {
     it("renders valid schema, macros, and focus directive", () => {
       const char_result = render_profile_sorting("character", { ingestion: true });
-      expect(char_result).toContain('<SYSTEM role="NARRATIVE_STRUCTURER"');
+      expect(char_result).toContain('<SYSTEM mode="sorting" role="NARRATIVE_STRUCTURER"');
       expect(char_result).toContain("FOCUS: Extracting data for an individual CHARACTER.");
       expect(char_result).toContain("SOURCE OF TRUTH & INGESTION RULES:");
 

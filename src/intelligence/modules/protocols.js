@@ -27,19 +27,15 @@ export const PROTOCOL_LIBRARY = Object.freeze({
   // ── 1.1 Core Output Mechanics, Formatting & Hygiene ────────────────────────
   HYGIENE: Object.freeze({
     DATA: "Output strictly raw, unpadded structural data. Zero prose, conversational filler, or commentary.",
-    AFFIRMATIVE_FRAMING:
-      "Describe positive presence in frame ('softly moonlit glade' not 'no harsh sunlight'); confine negative_prompt to global quality artifacts.",
   }),
 
   // ── 1.2 Core-Prose Scaffold (<CORE_PROTOCOLS> bodies) ──────────────────────
   CORE_PROTOCOLS: Object.freeze({
-    SIMULATION_FIDELITY: `Execute high-stakes, adversarial narrative simulation with uncompromising descriptive realism. Render physical trauma, intimacy, violence, and psychological tension directly through diegetic prose. Zero moralizing, euphemisms, softening, or meta-disclaimers. Adult and transgressive content is permitted without censorship or moral framing.`,
+    SIMULATION_FIDELITY: `Execute high-stakes, adversarial narrative simulation with uncompromising descriptive realism. Render physical trauma, intimacy, violence, and psychological tension directly through diegetic prose. Zero moralizing, euphemisms, softening, or meta-disclaimers.`,
     ALTERNATION_OPTIONS: `Resolve {Option A|Option B} alternations by selecting exactly ONE contextually fitting option. Emit only the chosen text—never echo braces or pipes, blend choices, or output multiple options simultaneously.`,
     PERSPECTIVE: Object.freeze({
       TENSE: Object.freeze({
         PRESENT: "Write strictly in the present tense.",
-        PAST: "Write strictly in the past tense.",
-        FUTURE: "Write strictly in the future tense.",
       }),
       POV: Object.freeze({
         FIRST:
@@ -135,7 +131,7 @@ export function render_core_protocols({ protocols = [], pov_protocol = null, sty
 
   const prose_disciplines = Object.entries(core.PROSE_DISCIPLINE)
     .filter(([tag]) => should_include(`PROSE_DISCIPLINE.${tag}`))
-    .map(([tag, body]) => `<${tag}>${body}</${tag}>`);
+    .map(([tag, body]) => render_xml_tag({ tag, children: [body], inline: true }));
 
   const blocks = [
     should_include("SIMULATION_FIDELITY")

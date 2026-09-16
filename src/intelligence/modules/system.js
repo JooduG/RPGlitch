@@ -64,8 +64,9 @@ export const TRUNCATION_COMPLETE_NOTE =
  * @returns {string}
  */
 export function resolve_stability_lock(metadata) {
-  if (metadata?.structural_errors >= 3) return STABILITY_LOCK.CRITICAL;
-  if (metadata?.structural_errors >= 1) return STABILITY_LOCK.WARNING;
+  const errors = Number(metadata?.structural_errors) || 0;
+  if (errors >= 3) return STABILITY_LOCK.CRITICAL;
+  if (errors >= 1) return STABILITY_LOCK.WARNING;
   return "";
 }
 
@@ -73,6 +74,7 @@ export function resolve_stability_lock(metadata) {
 // [SECTION 3: UNIVERSAL SYSTEM ENVELOPE COMPILER]
 // ============================================================================
 
+export const SYSTEM_TAG = "SYSTEM";
 export const SYSTEM_CLOSE_TAG = "</SYSTEM>";
 
 /**
@@ -86,13 +88,15 @@ export const SYSTEM_CLOSE_TAG = "</SYSTEM>";
  * @returns {string}
  */
 export function render_system_xml({ mode = "", round = null, attributes = {}, children = [], closed = false } = {}) {
+  const attrs = {
+    ...(round != null ? { round } : {}),
+    ...(mode ? { mode } : {}),
+    ...attributes,
+  };
+
   return render_xml_tag({
-    tag: "SYSTEM",
-    attrs: {
-      ...attributes,
-      ...(round != null ? { round } : {}),
-      ...(mode && !attributes.mode ? { mode } : {}),
-    },
+    tag: SYSTEM_TAG,
+    attrs,
     children,
     closed,
     separator: "\n\n",

@@ -1,7 +1,7 @@
 /**
  * src/intelligence/modules/entities.js
  * ============================================================================
- * 👥 ENTITIES MODULE — Sovereign Cast Architecture & Universal Sheet Compiler
+ * 👥 ENTITIES MODULE — Spatial Entity Architecture & Universal Sheet Compiler
  * ============================================================================
  *
  * Orchestrates entity manifestation, epistemic security, and XML compilation
@@ -10,19 +10,20 @@
  *
  * 1. Epistemic Boundary (strip_epistemic_tags, strip_epistemic_secrets)
  * 2. Physical State Synthesis (extract_physical_body, render_appearance)
- * 3. Scene Cast & Relational Graph (build_scene_roster, render_dispositions, render_proximate_npcs)
+ * 3. Spatial Presence & Relational Graph (resolve_available_entities, render_dispositions, render_nearby_entities_xml)
  * 4. Declarative Sheet Blueprints & Universal Compiler (SHEET_SPECS, render_sheet)
- * 5. Master Story Entities Assembly (render_entity_sheets)
- * 6. Auxiliary Intelligence Snapshots (render_scene_cast_xml, render_entity_memory_context, render_enhancement_field_context)
+ * 5. Available Entities Master Assembly (render_entity_sheets)
+ * 6. Auxiliary Intelligence Snapshots (render_entity_memory_context, render_enhancement_field_context)
+ * 7. Present Entities & Speaker Routing (ROUTING_RULES, render_present_entities_xml)
  *
  * Symmetrical Manifest Mapping:
- * - `config.entities.dispositions`   ➔ `render_dispositions`
- * - `config.entities.dynamic_axes`   ➔ somatic / fractal axes in `render_sheet`
- * - `config.entities.user_agenda`    ➔ gates `include_agenda` on USER_PERSONA
- * - `config.entities.proximate_npcs` ➔ `render_proximate_npcs`
- * - `config.entities.target_context` ➔ `render_entity_memory_context` (render_sheet in "separate" physical mode)
- * - `config.entities.scene_cast`     ➔ `render_scene_cast_xml`
- * - `config.entities.field_context`  ➔ `render_enhancement_field_context`
+ * - `config.entities.dispositions`     ➔ `render_dispositions`
+ * - `config.entities.dynamic_axes`     ➔ somatic / fractal axes in `render_sheet`
+ * - `config.entities.user_agenda`      ➔ gates `include_agenda` on USER_PERSONA
+ * - `config.entities.nearby_entities`  ➔ `render_nearby_entities_xml`
+ * - `config.entities.present_entities` ➔ `render_present_entities_xml`
+ * - `config.entities.target_context`   ➔ `render_entity_memory_context` (render_sheet in "separate" physical mode)
+ * - `config.entities.field_context`    ➔ `render_enhancement_field_context`
  *
  * Design Laws:
  * - Single-Source Taxonomy: XML tags originate deterministically from @data's PROFILE_FIELD_CATALOG.
@@ -42,6 +43,7 @@ import {
   indent_continuation,
   indent_all,
   inline_or_block,
+  render_xml_tag,
 } from "@utils";
 import { PROFILE_FIELD_CATALOG } from "@data";
 
@@ -135,11 +137,12 @@ function extract_physical_body(raw_value, owner_entity, entities) {
  */
 function extract_physical_rows(raw_value, owner_entity, entities) {
   const body_content = extract_physical_body(raw_value, owner_entity, entities);
-  if (!body_content) return [];
   return body_content
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean);
+    ? body_content
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean)
+    : [];
 }
 
 /**
@@ -181,54 +184,69 @@ export function render_appearance(eternal_text, present_text, owner_entity, enti
 }
 
 // ============================================================================
-// [SECTION 3: SCENE ROSTER & RELATIONAL TOPOLOGY]
+// [SECTION 3: SPATIAL PRESENCE & RELATIONAL TOPOLOGY]
 // ============================================================================
 
 /**
- * Compiles a unified scene roster providing fast name-to-identifier lookup
- * and the active presence set for relational vector resolution.
+ * Resolves simulation entities into active present participants, dormant candidates,
+ * and relational lookup indices.
  *
- * @param {Record<string, any>} [entities]
- * @param {any[]} [npc_entities=[]]
- * @param {string[]} [in_scene_ids=[]]
- * @returns {{ name_to_id: Map<string, string>, active_names: Set<string> }}
+ * @param {Object} [parameters]
+ * @param {Record<string, any>} [parameters.entities={}]
+ * @param {any[]} [parameters.npc_entities=[]]
+ * @param {string[]} [parameters.in_scene_ids=[]]
+ * @returns {{
+ *   present: any[],
+ *   dormant: any[],
+ *   name_to_id: Map<string, string>,
+ *   active_names: Set<string>
+ * }}
  */
-function build_scene_roster(entities, npc_entities = [], in_scene_ids = []) {
+export function resolve_available_entities({ entities = {}, npc_entities = [], in_scene_ids = [] } = {}) {
+  const in_scene_set = new Set((in_scene_ids || []).filter(Boolean).map(String));
+  const active_trio_ids = new Set([entities.AI?.id, entities.USER?.id, entities.FRACTAL?.id].filter(Boolean).map(String));
+
+  const present = [];
+  const dormant = [];
   const name_to_id = new Map();
   const active_names = new Set();
-  const in_scene_set = new Set((in_scene_ids || []).map(String));
 
-  const register_entity = (entity, is_active) => {
+  const register_entity = (entity, is_present) => {
     if (!entity?.name) return;
     const normalized_name = String(entity.name).toLowerCase().trim();
     name_to_id.set(normalized_name, entity.id || entity.name);
-    if (is_active) active_names.add(normalized_name);
+    if (is_present) {
+      active_names.add(normalized_name);
+      present.push(entity);
+    } else {
+      dormant.push(entity);
+    }
   };
 
-  for (const entity of [entities?.AI, entities?.USER, entities?.FRACTAL]) {
-    register_entity(entity, true);
+  for (const entity of [entities.AI, entities.USER, entities.FRACTAL]) {
+    if (entity) register_entity(entity, true);
   }
 
   for (const npc_entity of npc_entities || []) {
-    register_entity(npc_entity, in_scene_set.has(String(npc_entity?.id)));
+    if (!npc_entity || active_trio_ids.has(String(npc_entity.id))) continue;
+    register_entity(npc_entity, in_scene_set.has(String(npc_entity.id)));
   }
 
-  return { name_to_id, active_names };
+  return { present, dormant, name_to_id, active_names };
 }
 
 /**
- * Renders directed relational dispositions for an entity toward other active in-scene participants.
+ * Renders directed relational dispositions for an entity toward other active present participants.
  *
  * @param {any} entity
  * @param {Set<string>} active_names
  * @param {Map<string, string>} name_to_id_map
- * @param {number} [indentation_level=8]
+ * @param {number} [indentation_level=6]
  * @returns {string}
  */
 function render_dispositions(entity, active_names, name_to_id_map, indentation_level = 6) {
   if (!entity?.name) return "";
   const source_name = String(entity.name).toLowerCase().trim();
-  const indentation_padding = " ".repeat(indentation_level);
   const rows = [];
 
   const relationships = Array.isArray(entity?.relationships) ? entity.relationships : [];
@@ -242,34 +260,76 @@ function render_dispositions(entity, active_names, name_to_id_map, indentation_l
 
     const target_id = name_to_id_map.get(target_normalized) || parsed_vector.target_name;
     rows.push(
-      `${indentation_padding}  <DISPOSITION target="${escape_xml(target_id)}">${prompt_escape(parsed_vector.dynamic || "Relationship")}</DISPOSITION>`,
+      render_xml_tag({
+        tag: "DISPOSITION",
+        attrs: { target: target_id },
+        children: [prompt_escape(parsed_vector.dynamic || "Relationship")],
+        inline: true,
+      }),
     );
   }
 
   if (!rows.length) return "";
-  return `${indentation_padding}<DISPOSITIONS>\n${rows.join("\n")}\n${indentation_padding}</DISPOSITIONS>`;
+  return render_xml_tag({
+    tag: "DISPOSITIONS",
+    children: rows,
+    indent: indentation_level,
+    child_indent: indentation_level + 2,
+    separator: "\n",
+  });
 }
 
 /**
- * Renders concise proximate NPC listings for in-scene secondary characters.
+ * Renders concise entries for nearby secondary entities or ambient participants.
+ * Symmetrically activated when `config.entities.nearby_entities` is enabled.
+ * Supports both array of entities and record maps of other entities.
  *
- * @param {any[]} [npc_entities=[]]
- * @param {string[]} [in_scene_ids=[]]
- * @param {Set<string>} [rendered_npc_ids=new Set()]
+ * @param {any[]|Record<string, any>} [entities=[]]
+ * @param {Object} [options={}]
+ * @param {string} [options.exclude_id=null]
+ * @param {string} [options.exclude_key=null]
+ * @param {number} [options.indent=4]
  * @returns {string}
  */
-function render_proximate_npcs(npc_entities = [], in_scene_ids = [], rendered_npc_ids = new Set()) {
-  const in_scene_set = new Set((in_scene_ids || []).map(String));
+export function render_nearby_entities_xml(entities = [], options = {}) {
+  const { exclude_id = null, exclude_key = null, indent = 4 } = options;
+  const entity_list = Array.isArray(entities)
+    ? entities
+    : Object.entries(entities || {}).map(([key, entity]) => ({
+        ...entity,
+        role: entity?.role || key,
+        _key: key,
+      }));
+
   const rows = [];
 
-  for (const npc_entity of npc_entities || []) {
-    const npc_id = String(npc_entity?.id);
-    if (!npc_entity?.name || !in_scene_set.has(npc_id) || rendered_npc_ids.has(npc_id)) continue;
-    rows.push(`      <NPC id="${escape_xml(npc_id)}" name="${escape_xml(String(npc_entity.name))}" />`);
+  for (const entity of entity_list) {
+    if (!entity?.name) continue;
+    const entity_id = String(entity.id || entity.name);
+    if (exclude_id && (entity_id === exclude_id || String(entity.name) === exclude_id)) continue;
+    if (exclude_key && (entity._key === exclude_key || entity.role === exclude_key)) continue;
+
+    const summary = entity.present?.non_physical || entity.eternal?.non_physical || entity.description || "";
+    const pad = " ".repeat(indent + 2);
+    if (summary) {
+      rows.push(
+        render_xml_tag({
+          tag: "ENTITY",
+          attrs: { id: entity_id, name: String(entity.name), role: entity.role || "NPC" },
+          children: [render_xml_tag({ tag: "SUMMARY", children: [escape_xml(String(summary).trim())], inline: true })],
+          indent: indent + 2,
+        }),
+      );
+    } else {
+      rows.push(
+        `${pad}<ENTITY id="${escape_xml(entity_id)}" name="${escape_xml(String(entity.name))}" role="${escape_xml(entity.role || "NPC")}" />`,
+      );
+    }
   }
 
   if (!rows.length) return "";
-  return `    <PROXIMATE_NPCS>\n${rows.join("\n")}\n    </PROXIMATE_NPCS>`;
+  const outer_pad = " ".repeat(indent);
+  return `${outer_pad}<NEARBY_ENTITIES>\n${rows.join("\n")}\n${outer_pad}</NEARBY_ENTITIES>`;
 }
 
 // ============================================================================
@@ -382,26 +442,27 @@ export function render_sheet(specification, context) {
   rows.push(`    <${specification.tag}${id_attribute} name="${escape_xml(entity.name || specification.default_name)}">`);
   rows.push(`      <${specification.psychology_tag}>`);
 
+  const render_sheet_field = (tag, content, indent = 8) => {
+    const text = String(content || "").trim();
+    return text ? `        <${tag}>${inline_or_block(text, indent)}</${tag}>` : null;
+  };
+
   if (include_agenda) {
     const agenda_raw = accessors ? accessors.future(entity, { vector_text: true }) : entity?.future;
-    const agenda_content = String(agenda_raw || "").trim();
-    if (agenda_content) {
-      rows.push(`        <${specification.agenda_key}>${inline_or_block(agenda_content, 8)}</${specification.agenda_key}>`);
-    }
+    const row = render_sheet_field(specification.agenda_key, agenda_raw, 8);
+    if (row) rows.push(row);
   }
 
   const personality_raw = sanitize_by_epistemic_policy(entity.eternal?.non_physical, epistemic.personality);
   const personality_content = render_field_value(personality_raw, entity, entities);
-  if (String(personality_content || "").trim()) {
-    rows.push(`        <${specification.personality_tag}>${inline_or_block(personality_content, 10)}</${specification.personality_tag}>`);
-  }
+  const personality_row = render_sheet_field(specification.personality_tag, personality_content, 10);
+  if (personality_row) rows.push(personality_row);
 
   const state_raw = sanitize_by_epistemic_policy(entity.present?.non_physical, epistemic.state);
   const state_rendered = render_field_value(state_raw, entity, entities);
   const state_content = strip_leading_key_echo(state_rendered, specification.state_strip_keys);
-  if (String(state_content || "").trim()) {
-    rows.push(`        <${specification.state_tag}>${inline_or_block(state_content, 10)}</${specification.state_tag}>`);
-  }
+  const state_row = render_sheet_field(specification.state_tag, state_content, 10);
+  if (state_row) rows.push(state_row);
 
   if (show_dispositions && active_names && name_to_id) {
     const dispositions_xml = render_dispositions(entity, active_names, name_to_id, 6);
@@ -415,19 +476,22 @@ export function render_sheet(specification, context) {
 
   if (physical_mode === "separate") {
     const entity_kind = specification.tag === "FRACTAL" || entity?.type === "fractal" ? "fractal" : "character";
-    const eternal_tag = resolve_profile_field_tag(entity_kind, "eternal.physical", "PHYSICAL_APPEARANCE");
-    const present_tag = resolve_profile_field_tag(entity_kind, "present.physical", "CURRENT_LOOK");
+    const physical_parts = [
+      {
+        tag: resolve_profile_field_tag(entity_kind, "eternal.physical", "PHYSICAL_APPEARANCE"),
+        raw: sanitize_by_epistemic_policy(entity.eternal?.physical, epistemic.appearance),
+      },
+      {
+        tag: resolve_profile_field_tag(entity_kind, "present.physical", "CURRENT_LOOK"),
+        raw: sanitize_by_epistemic_policy(entity.present?.physical, epistemic.appearance),
+      },
+    ];
 
-    const eternal_raw = sanitize_by_epistemic_policy(entity.eternal?.physical, epistemic.appearance);
-    const eternal_body = extract_physical_body(eternal_raw, entity, entities);
-    if (eternal_body) {
-      rows.push(`      <${eternal_tag}>\n${indent_all(eternal_body, 8)}\n      </${eternal_tag}>`);
-    }
-
-    const present_raw = sanitize_by_epistemic_policy(entity.present?.physical, epistemic.appearance);
-    const present_body = extract_physical_body(present_raw, entity, entities);
-    if (present_body) {
-      rows.push(`      <${present_tag}>\n${indent_all(present_body, 8)}\n      </${present_tag}>`);
+    for (const { tag, raw } of physical_parts) {
+      const body = extract_physical_body(raw, entity, entities);
+      if (body) {
+        rows.push(`      <${tag}>\n${indent_all(body, 8)}\n      </${tag}>`);
+      }
     }
   } else {
     const appearance_xml = render_appearance(
@@ -450,8 +514,9 @@ export function render_sheet(specification, context) {
             .join("\n")
         : entity?.past || "";
     const memory_content = sanitize_by_epistemic_policy(memory_raw, epistemic.memory);
-    if (String(memory_content || "").trim()) {
-      rows.push(`      <${specification.memory_tag}>${inline_or_block(memory_content, 8)}</${specification.memory_tag}>`);
+    const memory_row = render_sheet_field(specification.memory_tag, memory_content, 8);
+    if (memory_row) {
+      rows.push(`  ${memory_row}`);
     }
   }
 
@@ -464,8 +529,8 @@ export function render_sheet(specification, context) {
 // ============================================================================
 
 /**
- * Compiles the master <STORY_ENTITIES> XML block configured by the active prompt manifest.
- * Symmetrically reads dispositions, dynamic_axes, user_agenda, and proximate_npcs from config.entities.
+ * Compiles the master <AVAILABLE_ENTITIES> XML block configured by the active prompt manifest.
+ * Symmetrically reads dispositions, dynamic_axes, user_agenda, and nearby_entities from config.entities.
  *
  * @param {Object} [parameters]
  * @param {Record<string, any>} [parameters.entities={}]
@@ -496,57 +561,56 @@ export function render_entity_sheets({
   const dispositions_for = new Set(entities_configuration.dispositions || []);
   const axes_for = new Set(entities_configuration.dynamic_axes || []);
 
-  const { active_names, name_to_id } = build_scene_roster(entities, npc_entities, in_scene_ids);
+  const {
+    present: _present,
+    dormant: _dormant,
+    active_names,
+    name_to_id,
+  } = resolve_available_entities({
+    entities,
+    npc_entities,
+    in_scene_ids,
+  });
   const parts = [];
 
-  if (entities?.AI) {
-    parts.push(
-      render_sheet(SHEET_SPECS.AI_CHARACTER, {
-        entity: entities.AI,
-        entities,
-        npc_entities,
-        accessors,
-        render_axes,
-        dynamics: axes_for.has("AI") ? speaker_dynamics : null,
-        is_owner: !is_npc,
-        show_dispositions: dispositions_for.has("AI"),
-        include_agenda: true,
-        active_names,
-        name_to_id,
-      }),
-    );
-  }
+  const core_trio = [
+    {
+      key: "AI",
+      specification: SHEET_SPECS.AI_CHARACTER,
+      dynamics: axes_for.has("AI") ? speaker_dynamics : null,
+      is_owner: !is_npc,
+      include_agenda: true,
+    },
+    {
+      key: "USER",
+      specification: SHEET_SPECS.USER_PERSONA,
+      dynamics: null,
+      is_owner: false,
+      include_agenda: Boolean(entities_configuration.user_agenda),
+    },
+    {
+      key: "FRACTAL",
+      specification: SHEET_SPECS.FRACTAL,
+      dynamics: axes_for.has("FRACTAL") ? fractal_dynamics : null,
+      is_owner: true,
+      include_agenda: true,
+    },
+  ];
 
-  if (entities?.USER) {
+  for (const { key, specification, dynamics, is_owner, include_agenda } of core_trio) {
+    const entity = entities?.[key];
+    if (!entity) continue;
     parts.push(
-      render_sheet(SHEET_SPECS.USER_PERSONA, {
-        entity: entities.USER,
+      render_sheet(specification, {
+        entity,
         entities,
         npc_entities,
         accessors,
         render_axes,
-        dynamics: null,
-        is_owner: false,
-        show_dispositions: dispositions_for.has("USER"),
-        include_agenda: Boolean(entities_configuration.user_agenda),
-        active_names,
-        name_to_id,
-      }),
-    );
-  }
-
-  if (entities?.FRACTAL) {
-    parts.push(
-      render_sheet(SHEET_SPECS.FRACTAL, {
-        entity: entities.FRACTAL,
-        entities,
-        npc_entities,
-        accessors,
-        render_axes,
-        dynamics: axes_for.has("FRACTAL") ? fractal_dynamics : null,
-        is_owner: true,
-        show_dispositions: dispositions_for.has("FRACTAL"),
-        include_agenda: true,
+        dynamics,
+        is_owner,
+        show_dispositions: dispositions_for.has(key),
+        include_agenda,
         active_names,
         name_to_id,
       }),
@@ -569,14 +633,19 @@ export function render_entity_sheets({
   const rendered_npc_ids = new Set();
   const active_speaker_id = is_npc && active_speaker ? String(active_speaker.id ?? active_speaker.name) : null;
 
-  for (const npc_entity of npc_entities || []) {
+  // Combine npc_entities and fallback active_speaker to eliminate duplicate sheet assembly
+  const candidate_npcs = [...(npc_entities || [])];
+  if (is_npc && active_speaker && active_speaker_id && !candidate_npcs.some((candidate) => String(candidate?.id) === active_speaker_id)) {
+    candidate_npcs.push(active_speaker);
+  }
+
+  for (const npc_entity of candidate_npcs) {
     const npc_id = String(npc_entity?.id);
-    if (!npc_ids_to_render.has(npc_id)) continue;
+    if (!npc_ids_to_render.has(npc_id) || rendered_npc_ids.has(npc_id)) continue;
     rendered_npc_ids.add(npc_id);
 
     const is_active_speaker = is_npc && active_speaker_id === npc_id;
     const is_bystander_npc = is_npc && !is_active_speaker;
-
     const resolved_npc_dynamics = is_active_speaker ? npc_entity?.dynamics || speaker_dynamics : npc_entity?.dynamics || null;
 
     parts.push(
@@ -597,57 +666,24 @@ export function render_entity_sheets({
     );
   }
 
-  if (is_npc && active_speaker && active_speaker_id) {
-    if (!rendered_npc_ids.has(active_speaker_id)) {
-      rendered_npc_ids.add(active_speaker_id);
-      parts.push(
-        render_sheet(SHEET_SPECS.NPC, {
-          entity: active_speaker,
-          entities,
-          npc_entities,
-          accessors,
-          render_axes,
-          dynamics: axes_for.has("NPC") ? active_speaker.dynamics || speaker_dynamics : null,
-          is_owner: true,
-          show_dispositions: dispositions_for.has("NPC"),
-          include_agenda: true,
-          active_names,
-          name_to_id,
-        }),
-      );
-    }
+  if (entities_configuration.nearby_entities) {
+    const nearby_candidates = (npc_entities || []).filter((npc) => (in_scene_ids || []).includes(npc?.id) && !rendered_npc_ids.has(String(npc?.id)));
+    const nearby_xml = render_nearby_entities_xml(nearby_candidates, { indent: 4 });
+    if (nearby_xml) parts.push(nearby_xml);
   }
 
-  if (entities_configuration.proximate_npcs) {
-    const proximate_npcs = render_proximate_npcs(npc_entities, in_scene_ids, rendered_npc_ids);
-    if (proximate_npcs) parts.push(proximate_npcs);
-  }
-
-  return `  <STORY_ENTITIES>\n${parts.join("\n\n")}\n  </STORY_ENTITIES>`;
+  return render_xml_tag({
+    tag: "AVAILABLE_ENTITIES",
+    children: parts,
+    indent: 2,
+    child_indent: 2,
+    separator: "\n\n",
+  });
 }
 
 // ============================================================================
 // [SECTION 6: AUXILIARY INTELLIGENCE SNAPSHOTS]
 // ============================================================================
-
-/**
- * Renders other in-scene participants into an auxiliary <SCENE_CAST> block for Continuum memory passes.
- * Symmetrically activated when `config.entities.scene_cast` is enabled.
- *
- * @param {Record<string, any>} [other_entities={}]
- * @param {string} [target_key=""]
- * @returns {string}
- */
-export function render_scene_cast_xml(other_entities = {}, target_key = "") {
-  const participant_blocks = Object.entries(other_entities)
-    .filter(([entity_key, entity]) => entity && entity_key !== target_key)
-    .map(([entity_key, entity]) => {
-      const summary = entity.present?.non_physical || entity.eternal?.non_physical || "Active in scene";
-      return `  <IN_SCENE_PARTICIPANT name="${escape_xml(entity.name || entity_key)}" role="${escape_xml(entity_key)}">\n    <SUMMARY>${escape_xml(summary)}</SUMMARY>\n  </IN_SCENE_PARTICIPANT>`;
-    });
-
-  return participant_blocks.length ? `  <SCENE_CAST>\n${participant_blocks.join("\n")}\n  </SCENE_CAST>\n` : "";
-}
 
 /**
  * Compiles a structured memory snapshot of an entity's complete state fragments for memory consolidation.
@@ -707,7 +743,12 @@ export function render_enhancement_field_context(entity, field_identifier, conte
       .join("\n    ");
 
     if (!inner_content) return "";
-    return `  <ENTITY_CONTEXT>\n    ${inner_content}\n  </ENTITY_CONTEXT>`;
+    return render_xml_tag({
+      tag: "ENTITY_CONTEXT",
+      children: [inner_content],
+      indent: 2,
+      child_indent: 4,
+    });
   }
 
   if (field_identifier === "past" || field_identifier === "future") {
@@ -723,36 +764,41 @@ export function render_enhancement_field_context(entity, field_identifier, conte
       : String(entity?.future || "").trim();
 
     if (!text) return "";
-    return `  <ENTITY_CONTEXT>\n    <${tag}>\n      ${indent_continuation(escape_xml(text), 6)}\n    </${tag}>\n  </ENTITY_CONTEXT>`;
+    return render_xml_tag({
+      tag: "ENTITY_CONTEXT",
+      children: [render_xml_tag({ tag, children: [escape_xml(text)], child_indent: 6 })],
+      indent: 2,
+      child_indent: 4,
+    });
   }
 
   return "";
 }
 
 // ============================================================================
-// [SECTION 7: STAGE SPOTLIGHT & SECONDARY CASTING]
+// [SECTION 7: PRESENT ENTITIES & SPEAKER ROUTING]
 // ============================================================================
 
-export const SPOTLIGHT_RULES = Object.freeze({
+export const ROUTING_RULES = Object.freeze({
   ROUTING: `SPEAKER ROUTING RULES:
 - "AI_CHARACTER": (Default) AI companion reacts to protagonist.
 - "FRACTAL": Environmental action (exploring atmosphere, architecture, weather, objects without dialogue) or breaking long AI speech streaks.
-- "npc:<id>": In-scene secondary character takes the floor.
+- "npc:<id>": Present secondary character takes action.
 - "GENESIS": Mint a new character only if no candidate below applies.`,
 
-  CONVERGENCE_LAW: `CONVERGENCE & CAST LAW:
-Inspect candidate secondary characters below before minting. If an existing cast member matches the role or location (medical, security, merchant), you MUST reuse that entity rather than inventing a duplicate.`,
+  CONVERGENCE_LAW: `CONVERGENCE & ENTITY REUSE:
+Inspect candidate secondary characters below before minting. If an existing entity matches the role or location (medical, security, merchant), you MUST reuse that entity rather than creating a duplicate.`,
 
-  PARTICIPANTS_HEADER: "ACTIVE IN-SCENE PARTICIPANTS:",
-  CANDIDATES_HEADER: "CANDIDATE SECONDARY CHARACTERS:",
+  PRESENT_HEADER: "ACTIVE PRESENT PARTICIPANTS:",
+  DORMANT_HEADER: "DORMANT CANDIDATE ENTITIES (STASIS):",
 });
 
 /**
- * Generates a concise summary for candidate cast members.
+ * Generates a concise summary for candidate entities.
  * @param {any} entity
  * @returns {string}
  */
-function summarize_cast_entity(entity) {
+function summarize_entity(entity) {
   const description = String(entity?.description || entity?.eternal?.non_physical || entity?.present?.non_physical || "")
     .replace(/\s+/g, " ")
     .trim();
@@ -760,48 +806,55 @@ function summarize_cast_entity(entity) {
 }
 
 /**
- * Renders the Stage Spotlight XML block for Director turn orchestration.
+ * Renders the Present Entities XML block for Director turn arbitration.
+ * Symmetrically activated when `config.entities.present_entities` is enabled.
+ *
  * @param {Object} [parameters]
- * @param {any} [parameters.entities]
- * @param {any[]} [parameters.npc_entities]
- * @param {string[]} [parameters.in_scene_ids]
+ * @param {Record<string, any>} [parameters.entities={}]
+ * @param {any[]} [parameters.npc_entities=[]]
+ * @param {string[]} [parameters.in_scene_ids=[]]
  * @returns {string}
  */
-export function render_scene_spotlight_xml({ entities = {}, npc_entities = [], in_scene_ids = [] } = {}) {
+export function render_present_entities_xml({ entities = {}, npc_entities = [], in_scene_ids = [] } = {}) {
+  const { present, dormant } = resolve_available_entities({ entities, npc_entities, in_scene_ids });
   const active_trio_ids = new Set([entities?.AI?.id, entities?.USER?.id, entities?.FRACTAL?.id].filter(Boolean).map(String));
-  const in_scene_set = new Set((in_scene_ids || []).filter(Boolean).map(String));
 
   const active_participants = [];
-  if (entities?.AI?.name) active_participants.push(`- ${escape_xml(entities.AI.name)}: Primary Companion (In-Scene)`);
-  if (entities?.USER?.name) active_participants.push(`- ${escape_xml(entities.USER.name)}: Protagonist (In-Scene)`);
+  if (entities?.AI?.name) active_participants.push(`- ${escape_xml(entities.AI.name)}: Primary Companion (Present)`);
+  if (entities?.USER?.name) active_participants.push(`- ${escape_xml(entities.USER.name)}: Protagonist (Present)`);
 
-  const candidate_secondaries = [];
-
-  for (const candidate_entity of npc_entities || []) {
-    if (!candidate_entity || active_trio_ids.has(String(candidate_entity.id))) continue;
-    const is_in_scene = in_scene_set.has(String(candidate_entity.id));
-    const summary = summarize_cast_entity(candidate_entity);
-    const summary_suffix = summary ? `: ${escape_xml(summary)}` : "";
-    if (is_in_scene) {
-      active_participants.push(`- ${escape_xml(candidate_entity.name)} (id: ${escape_xml(String(candidate_entity.id))}) [In-Scene]${summary_suffix}`);
-    } else {
-      candidate_secondaries.push(
-        `- ${escape_xml(candidate_entity.name)} (id: ${escape_xml(String(candidate_entity.id))}) [Off-Screen (Stasis)]${summary_suffix}`,
-      );
+  for (const entity of present) {
+    if (active_trio_ids.has(String(entity.id)) || entity === entities?.AI || entity === entities?.USER || entity === entities?.FRACTAL) {
+      continue;
     }
+    const summary = summarize_entity(entity);
+    const summary_suffix = summary ? `: ${escape_xml(summary)}` : "";
+    active_participants.push(`- ${escape_xml(entity.name)} (id: ${escape_xml(String(entity.id))}) [Present]${summary_suffix}`);
   }
 
-  const { CANDIDATES_HEADER, ROUTING, CONVERGENCE_LAW, PARTICIPANTS_HEADER } = SPOTLIGHT_RULES;
-  const candidate_section = candidate_secondaries.length > 0 ? `\n\n${CANDIDATES_HEADER}\n${candidate_secondaries.join("\n")}` : "";
+  const candidate_dormant = [];
+  for (const entity of dormant) {
+    if (active_trio_ids.has(String(entity.id))) continue;
+    const summary = summarize_entity(entity);
+    const summary_suffix = summary ? `: ${escape_xml(summary)}` : "";
+    candidate_dormant.push(`- ${escape_xml(entity.name)} (id: ${escape_xml(String(entity.id))}) [Dormant (Stasis)]${summary_suffix}`);
+  }
 
-  return `<SCENE_SPOTLIGHT>
-${ROUTING}
+  const { DORMANT_HEADER, ROUTING, CONVERGENCE_LAW, PRESENT_HEADER } = ROUTING_RULES;
+  const sections = [
+    ROUTING,
+    CONVERGENCE_LAW,
+    `${PRESENT_HEADER}\n${active_participants.join("\n")}`,
+    candidate_dormant.length > 0 ? `${DORMANT_HEADER}\n${candidate_dormant.join("\n")}` : null,
+  ].filter(Boolean);
 
-${CONVERGENCE_LAW}
-
-${PARTICIPANTS_HEADER}
-${active_participants.join("\n")}${candidate_section}
-</SCENE_SPOTLIGHT>`;
+  return render_xml_tag({
+    tag: "PRESENT_ENTITIES",
+    children: sections,
+    indent: 0,
+    child_indent: 0,
+    separator: "\n\n",
+  });
 }
 
 // ============================================================================
@@ -809,8 +862,10 @@ ${active_participants.join("\n")}${candidate_section}
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-16: Spatial Architecture Standardization & Non-Theater Harmonization: (1) Swapped and standardized spatial XML structures: replaced <STORY_ENTITIES> with <AVAILABLE_ENTITIES>, merged <PROXIMATE_NPCS> and <SCENE_CAST> into <NEARBY_ENTITIES>, and replaced <SCENE_SPOTLIGHT> with <PRESENT_ENTITIES>; (2) Purged all theater/stage metaphors in favor of spatial/systems taxonomy (resolve_available_entities, ROUTING_RULES, render_present_entities_xml); (3) Pruned dead legacy functions under P4 Zero Backwards Compatibility.
+ * - 2026-09-16: Comprehensive simplification and consolidation: (1) Consolidated core trio (AI, USER, FRACTAL) assembly in render_entity_sheets into declarative loop, slashing repetitive boilerplate; (2) Extracted render_sheet_field helper in render_sheet and unified separate physical block compilation; (3) Inlined and simplified extract_physical_rows; (4) Verified 100% test pass across entities, builder, and story suites.
+ * - 2026-09-16: Refactored `entities.js`: standardized `STORY_ENTITIES`, `ENTITY_CONTEXT`, and `SCENE_SPOTLIGHT` XML assembly via `render_xml_tag`; consolidated NPC sheet compilation into unified candidate loop; pruned duplicate changelog line.
  * - 2026-09-16: Repatriated `render_scene_spotlight_xml` and `SPOTLIGHT_RULES` back to `entities.js` (Layer 4 entity/cast management sovereignty). Merged headers into single directive blocks.
- * - 2026-09-14: Purged dead `agenda_gate` configuration property from `SHEET_SPECS.USER_PERSONA` per P4 pre-beta purity.
  * - 2026-09-14: Purged dead `agenda_gate` configuration property from `SHEET_SPECS.USER_PERSONA` per P4 pre-beta purity.
  * - 2026-09-13: Token optimization & epistemic reinforcement: (1) Enforced Bystander NPC Diet where non-speaking in-scene NPCs omit private standing agendas and deep memory vectors while stripping secrets/plans across the Epistemic Wall; (2) Compressed nested whitespace across dispositions and dynamic axes to 6-space hierarchy, trimming whitespace tokens.
  * - 2026-09-13: Fixed NPC dynamic axes crosstalk by isolating bystander NPC axes from active speaker dynamics; deduplicated in-scene NPCs in proximate roster to eliminate redundant <NPC> tags when full sheets are already rendered.
