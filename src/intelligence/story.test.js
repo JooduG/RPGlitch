@@ -1948,16 +1948,18 @@ const _prompt_test_entities = {
 
 describe("ghostwrite identity", () => {
   it("enhances the PLAYER persona's draft, addressed against the AI character", () => {
-    const { task } = render_ghostwriter({ entities: _prompt_test_entities, input: "I step forward and bare my teeth." });
-    expect(task).toContain("draft written by Lord Benedict Silvers");
-    expect(task).toContain("I step forward and bare my teeth.");
-    expect(task).not.toContain("draft written by Beast");
+    const { system, task } = render_ghostwriter({ entities: _prompt_test_entities, input: "I step forward and bare my teeth." });
+    expect(system).toContain("You are Lord Benedict Silvers within FRACTAL Project Tartarus, interacting with Beast.");
     expect(task).toContain('<INPUT origin="SILVERS">I step forward and bare my teeth.</INPUT>');
+    expect(task).toContain("<DELIVERY_POSTURE>");
+    expect(task).toContain("Advance the scene in response to");
   });
 
   it("drafts for the PLAYER persona in response to the AI character when no input is given", () => {
-    const { task } = render_ghostwriter({ entities: _prompt_test_entities, input: "" });
-    expect(task).toContain("for Lord Benedict Silvers in response to Beast");
+    const { system, task } = render_ghostwriter({ entities: _prompt_test_entities, input: "" });
+    expect(system).toContain("You are Lord Benedict Silvers within FRACTAL Project Tartarus, interacting with Beast.");
+    expect(task).toContain("<DELIVERY_POSTURE>");
+    expect(task).toContain("Take active initiative: drive events forward on your own terms");
   });
 
   it("maintains universal L5_AGENCY in the constitution protecting the listener", () => {
@@ -2031,8 +2033,8 @@ describe("interaction structural integrity", () => {
     const { task } = render_story_prose({ round: 3, entities: _prompt_test_entities, input: "Beast steps forward." });
     expect(task).toContain("Execute internal reasoning across 4 sequential beats");
     expect(task).toContain('<BEAT id="VISCERAL_IMPACT" step="1">Immediate non-verbal reaction to the <INPUT /> element.</BEAT>');
-    expect(task).toContain('<BEAT id="EMOTIONAL_CALIBRATION" step="2">Narrative style emotional grounding');
-    expect(task).toContain('<BEAT id="STRATEGIC_DRIVE" step="3">How active <AGENDA /> and/or <TRAJECTORY /> navigate immediate friction.</BEAT>');
+    expect(task).toContain('<BEAT id="EMOTIONAL_CALIBRATION" step="2">Situational realism and physical presence.</BEAT>');
+    expect(task).toContain('<BEAT id="STRATEGIC_DRIVE" step="3">How active <AGENDA /> and/or <TRAJECTORY /> navigates immediate friction.</BEAT>');
     expect(task).toContain('<BEAT id="CADENCE_TEST" step="4">Draft a dialogue line before generating outward prose.</BEAT>');
     expect(task).toContain("Close with </THINK> before generating narrative prose.");
   });
@@ -2068,6 +2070,7 @@ describe("narrator prose compiler", () => {
 
 /**
  * CHANGELOG
+ * - 2026-09-16: Updated ghostwrite identity assertions to test first-person persona system role and kinetic DELIVERY_POSTURE following GHOSTWRITE task directive pruning.
  * - 2026-09-11: Merged story-prompts.test.js into story.test.js.
  * - 2026-09-11: Renamed from story-pipeline.test.js to story.test.js to match consolidated story.js domain coordinator.
  */

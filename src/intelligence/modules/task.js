@@ -37,33 +37,30 @@ export const TASK_LIBRARY = Object.freeze({
   // ── 1.1 Turn Foundations, Pacing & Cognition Protocols ─────────────────────
   PROTOCOLS: Object.freeze({
     PACING: Object.freeze({
-      NO_PROMPT: `<PACING mode="NO_PROMPT">Advance the situation with one brief and deliberate beat.</PACING>`,
+      TERSE: `<PACING mode="TERSE">Brief, weighted reply in 1-2 sharp beats. Zero padding.</PACING>`,
+      ADAPTIVE: `<PACING mode="ADAPTIVE">A reply of 2-4 sentences—substantive, driving the scene forward.</PACING>`,
       EXPANSIVE: `<PACING mode="EXPANSIVE">Expand to match message breadth; close on one decisive hook.</PACING>`,
-      PASSIVE_SILENCE: `<PACING mode="PASSIVE_SILENCE">Escalate with a direct challenge, question, or development in 1-2 taut sentences.</PACING>`,
-      TERSE: `<PACING mode="TERSE">Brief, weighted reply in 1-3 sharp beats (concise sentences, single decisive action or line). Zero padding.</PACING>`,
-      MODERATE: `<PACING mode="MODERATE">A reply of 2-4 sentences—substantive, driving the scene forward.</PACING>`,
     }),
 
     RECENCY: Object.freeze({
-      RHYTHM: (rhythm_line) =>
-        `Hold temperament; resist passive compliance. Match conversational scale and build situational friction rather than rushing resolution.${rhythm_line}`,
-      DRIVE_ACTIVE: "Drive the beat forward independently; end on an unresolved hook demanding response.",
-      DRIVE_PASSIVE: "Advance the situation on your own terms; end on an unresolved hook demanding response.",
+      RHYTHM: (sentence_rhythm) =>
+        sentence_rhythm ||
+        "Hold temperament; resist passive compliance. Match conversational scale and build situational friction rather than rushing resolution.",
+      DRIVE: (has_input) =>
+        has_input
+          ? "Advance the scene in response to <INPUT />: drive the beat forward independently and end on an unresolved hook demanding response."
+          : "Take active initiative: drive events forward on your own terms through decisive actions and end on an unresolved hook demanding response.",
     }),
 
-    DEFAULTS: Object.freeze({
-      EMOTIONAL_GROUNDING: "hold your established temperament against the immediate friction",
-    }),
-
-    THINK_FORMAT: (
-      emotional_grounding,
-      input_tag = "INPUT",
-    ) => `Begin response with <THINK> (under 200 words). Execute internal reasoning across 4 sequential beats:
-<BEAT id="VISCERAL_IMPACT" step="1">Immediate non-verbal reaction to the <${input_tag} /> element.</BEAT>
-<BEAT id="EMOTIONAL_CALIBRATION" step="2">Narrative style emotional grounding: "${emotional_grounding}".</BEAT>
-<BEAT id="STRATEGIC_DRIVE" step="3">How active <AGENDA /> and/or <TRAJECTORY /> navigate immediate friction.</BEAT>
+    THINK_FORMAT: (emotional_grounding) => {
+      const grounding = emotional_grounding || "Hold your established temperament.";
+      return `Begin response with <THINK> (under 200 words). Execute internal reasoning across 4 sequential beats:
+<BEAT id="VISCERAL_IMPACT" step="1">Immediate non-verbal reaction to the <INPUT /> element.</BEAT>
+<BEAT id="EMOTIONAL_CALIBRATION" step="2">${grounding}</BEAT>
+<BEAT id="STRATEGIC_DRIVE" step="3">How active <AGENDA /> and/or <TRAJECTORY /> navigates immediate friction.</BEAT>
 <BEAT id="CADENCE_TEST" step="4">Draft a dialogue line before generating outward prose.</BEAT>
-Close with </THINK> before generating narrative prose.`,
+Close with </THINK> before generating narrative prose.`;
+    },
 
     THINK_NARRATOR:
       "Begin response with <THINK>. All internal calculations, scene shifts, and headers must remain inside this block in the conversation language. Close with </THINK> before narrative prose.",
@@ -76,37 +73,20 @@ Close with </THINK> before generating narrative prose.`,
 - Whitelist rule: Select strictly from the list below. Never alter or invent keywords.`,
 
     ENVIRONMENTAL_HINT:
-      '<USER_ACTION_NOTE>Non-verbal environmental action. Strongly consider setting "speaker" to "fractal" to narrate the setting, unless AI character should react directly.</USER_ACTION_NOTE>',
+      '<INPUT_NOTE>Non-verbal environmental action. Strongly consider setting "speaker" to "fractal" to narrate the setting, unless AI character should react directly.</INPUT_NOTE>',
 
-    EVALUATE: (has_input) => `Evaluate state mutations caused by ${has_input ? "<USER_ACTION>" : "the current situation"}.`,
-    ROUND_ONE: ' Round 1 follows the Fractal prologue, so next_action MUST be "AI_CHARACTER".',
+    EVALUATE: (has_input) => `Evaluate state mutations caused by ${has_input ? "<INPUT />" : "the current situation"}.`,
+    ROUND_ONE: 'Round 1 follows the Fractal prologue, so next_action MUST be "AI_CHARACTER".',
     USER_PERSONA_LOCK: '"USER_PERSONA" is never a valid next_action; the Director never speaks for the player.',
-    JSON_RETURN: (schema, indent = "    ") =>
-      `Return a single, COMPLETE, VALID JSON object under 400 characters matching this schema:\n${indent}${schema}`,
   }),
 
-  // ── 1.3 Shot 1: Stage Spotlight & Secondary Casting Rules (spotlight) ──────
-  SPOTLIGHT: Object.freeze({
-    ROUTING_RULES: `SPEAKER ROUTING RULES:
-- "AI_CHARACTER": (Default) AI companion reacts to protagonist.
-- "FRACTAL": Environmental action (exploring atmosphere, architecture, weather, objects without dialogue) or breaking long AI speech streaks.
-- "npc:<id>": In-scene secondary character takes the floor.
-- "GENESIS": Mint a new character only if no candidate below applies.`,
-    CONVERGENCE_LAW: `CONVERGENCE & CAST LAW:
-Inspect candidate secondary characters below before minting. If an existing cast member matches the role or location (medical, security, merchant), you MUST reuse that entity rather than inventing a duplicate.`,
-    PARTICIPANTS_HEADER: "ACTIVE IN-SCENE PARTICIPANTS:",
-    CANDIDATES_HEADER: "CANDIDATE SECONDARY CHARACTERS:",
-  }),
-
-  // ── 1.4 Shot 2A: Prose Turn Directives (character / scene / ghostwrite) ─────
+  // ── 1.3 Shot 2A: Prose Turn Directives (character / scene / ghostwrite) ─────
   PROSE: Object.freeze({
     CHARACTER: Object.freeze({
       FIRST_CONTACT:
         "First encounter: characters are strangers. Acknowledge visual first impressions, physical distance, and tone before full dialogue.",
       NPC_BOUNDARY: (name) =>
         `Respond strictly as ${name} (supporting character). Own only your voice, actions, and perspective; never speak for others or resolve overarching quests. Write third-person limited, present tense; end on a natural beat.`,
-      INITIATIVE: "Take active initiative: drive events forward through decisive actions and reactions.",
-      ADVANCE: "Advance the scene in response to <INPUT />.",
     }),
 
     SCENE: Object.freeze({
@@ -121,20 +101,12 @@ Strictly zero spoken dialogue or quote marks. No dialogue.`,
       COLLAPSE: `You see everything. Close the scene on irrevocable tragedy. Weigh permanent loss in thinking. Depict aftermath and environmental scars without forcing player physical surrender or unearned closure. End on enduring sensory silence. Strictly zero spoken dialogue or quote marks. No dialogue.`,
       CONTINUATION: `You are the Fractal itself, narrating the scene. Narrate through ambient physics, sensory textures, and environmental shifts in reaction to recent events. Never puppeteer <AI_CHARACTER> or <USER_PERSONA>. End on one dominant hook (decisive statement, single action, or deliberate silence). Zero bracket labels.`,
     }),
-
-    GHOSTWRITE: Object.freeze({
-      META: "Match scene tone. Output strictly in-character prose/dialogue for the player. Zero meta-commentary or preambles.",
-      DRAFT: (user_name, ai_name) => `Draft a compelling, in-character next action or vocal response for ${user_name} in response to ${ai_name}.`,
-      ENHANCE: (user_name, draft) => `Polish the draft written by ${user_name} into vivid action/dialogue:\n    ${draft}`,
-    }),
   }),
 
-  // ── 1.5 Shot 2B: Continuum Caretaker Consolidation Directives (continuum) ──
+  // ── 1.4 Shot 2B: Continuum Caretaker Consolidation Directives (continuum) ──
   CONTINUUM: Object.freeze({
     TARGET_FOCUS: (target_name) =>
       `TARGET FOCUS: Consolidate state and extract relational vectors for ${target_name}.\nAnalyze recent turns in <INPUT_HISTORY>. Synthesize memories, update physical appearance, record active state of mind, and log directed relational bonds.`,
-    JSON_RETURN: (schema, indent = "    ") =>
-      `Return a single, COMPLETE, VALID JSON object under 1200 characters matching this schema:\n${indent}${schema}`,
     MANDATE: `EXECUTION MANDATE:
 1. Memory Formation: Extract 1-3 anchored memories in past tense. Empty list if nothing noteworthy transpired.
 2. Dynamic State: Update physical and non_physical condition.
@@ -142,7 +114,7 @@ Strictly zero spoken dialogue or quote marks. No dialogue.`,
 4. Relational Graph: Emit plain directed vectors: "Source -> Target: Dynamic description".`,
   }),
 
-  // ── 1.6 Tool B: Profile Structuring & Ingestion Directives (sorting) ───────
+  // ── 1.5 Tool B: Profile Structuring & Ingestion Directives (sorting) ───────
   SORTING: Object.freeze({
     REDISTRIBUTE: `REDISTRIBUTE: The source profile may have content in the wrong field. Relocate each fact to its correct field (e.g., temporary states belong under 'state_of_mind', transient moods under 'current_look'). Never move content into or out of 'description' (internal notes). Preserve factual truth; update only field locations and phrasing. Strip XML tags, markdown bolding, or headers from values—output clean prose.`,
     INGESTION: `SOURCE OF TRUTH & INGESTION RULES:
@@ -150,6 +122,9 @@ Strictly zero spoken dialogue or quote marks. No dialogue.`,
 - For absent details (attire, motivations): synthesize lore-consistent defaults.
 - Never emit null, undefined, or empty strings.`,
   }),
+
+  // ── 1.6 Structured JSON Return Directive ────────────────────────────────────
+  JSON_RETURN: (schema, indent = "    ") => `Return a single, COMPLETE, VALID JSON object matching this schema:\n${indent}${schema}`,
 });
 
 // ============================================================================
@@ -157,7 +132,6 @@ Strictly zero spoken dialogue or quote marks. No dialogue.`,
 // ============================================================================
 
 const DIALOGUE_QUOTES_PATTERN = /["'“”‘’]/;
-const QUESTION_PATTERN = /\?\s*$/;
 
 const ACTION_VERBS_PATTERN =
   /\b(?:approach|ascend|bend|circle|climb|close|dash|descend|draw|draws|edge|enter|examine|follow|gaze|grab|grabs|gripp?|halt|kneel|leap|linger|listen|lower|move|nod|nods|observe|open|opens|pause|peer|press|pull|pulls|push|pushes|raise|raises|reach|rest|run|say|says|scan|set|settle|shake|shakes|shout|shouts|sit|sits|slam|slip|smell|stand|stands|stare|step|steps|strike|study|sweep|swing|take|takes|trail|turn|turns|wait|walk|watch|whisper|whispers)\b/i;
@@ -166,24 +140,21 @@ const SPATIAL_NOUNS_PATTERN =
   /\b(?:alcove|alley|altar|arch|belly|bridge|cave|ceiling|chamber|column|conduit|corridor|court|crevice|cylinder|deeps|door|field|floor|forest|gate|gear|hall|keep|ledge|light|lock|mechanism|mouth|passage|rain|river|rock|room|seal|shadow|sky|spillway|stair|stone|street|threshold|tower|tunnel|vault|wall|water|wheel|wind|window|yard)\b/i;
 
 /**
- * Pacing calibration: classifies user message and returns length/energy directive.
+ * Pacing calibration: classifies user message scale and returns kinetic length directive.
  * @param {string|null|undefined} input
  * @returns {string}
  */
 export function build_pacing_directive(input) {
   const pacing = TASK_LIBRARY.PROTOCOLS.PACING;
   const text = String(input || "").trim();
-  if (!text) return pacing.NO_PROMPT;
+  if (!text) return pacing.TERSE;
 
   const character_count = text.length;
   const word_count = text.split(/\s+/).filter(Boolean).length;
   if (character_count >= 300 || word_count >= 60) return pacing.EXPANSIVE;
+  if (character_count <= 40 || word_count <= 8) return pacing.TERSE;
 
-  const has_action = ACTION_VERBS_PATTERN.test(text);
-  const is_question = QUESTION_PATTERN.test(text);
-  const is_silence = !has_action && !is_question && word_count <= 12;
-  if (character_count <= 40 || word_count <= 8) return is_silence ? pacing.PASSIVE_SILENCE : pacing.TERSE;
-  return pacing.MODERATE;
+  return pacing.ADAPTIVE;
 }
 
 /**
@@ -206,12 +177,18 @@ export function render_environmental_hint(input) {
  */
 export function render_prose_reflex(snapshot, input) {
   const style_dna = extract_style_dna(snapshot?.style || null);
-  const { RHYTHM, DRIVE_ACTIVE, DRIVE_PASSIVE } = TASK_LIBRARY.PROTOCOLS.RECENCY;
+  const { RHYTHM, DRIVE } = TASK_LIBRARY.PROTOCOLS.RECENCY;
   const pacing = build_pacing_directive(input);
-  const rhythm_line = style_dna.sentence_rhythm ? ` RHYTHM: ${style_dna.sentence_rhythm}.` : "";
-  const drive = String(input || "").trim() ? DRIVE_ACTIVE : DRIVE_PASSIVE;
-  const rhythm = RHYTHM(rhythm_line);
-  return `<DELIVERY_POSTURE>\n    ${pacing}\n    <RHYTHM>${prompt_escape(rhythm)}</RHYTHM>\n    <DRIVE>${prompt_escape(drive)}</DRIVE>\n</DELIVERY_POSTURE>`;
+  const rhythm = RHYTHM(style_dna.sentence_rhythm);
+  const drive = DRIVE(Boolean(String(input || "").trim()));
+
+  return render_xml_tag({
+    tag: "DELIVERY_POSTURE",
+    children: [pacing, `<RHYTHM>${prompt_escape(rhythm)}</RHYTHM>`, `<DRIVE>${prompt_escape(drive)}</DRIVE>`],
+    indent: 0,
+    child_indent: 4,
+    separator: "\n",
+  });
 }
 
 /**
@@ -221,37 +198,84 @@ export function render_prose_reflex(snapshot, input) {
  * @returns {string}
  */
 export function render_task_currents(style_dna, somatic_inner) {
-  const currents = [];
-  if (style_dna?.sensory_order) currents.push(`      <SENSORY_EXPERIENCE>${prompt_escape(style_dna.sensory_order)}</SENSORY_EXPERIENCE>`);
-  if (String(somatic_inner || "").trim()) currents.push(wrap_tag("SUBTEXT", somatic_inner, 6));
-  return currents.length ? `    <CURRENTS>\n${currents.join("\n")}\n    </CURRENTS>` : "";
+  const children = [
+    style_dna?.sensory_order ? `<SENSORY_EXPERIENCE>${prompt_escape(style_dna.sensory_order)}</SENSORY_EXPERIENCE>` : null,
+    String(somatic_inner || "").trim() ? wrap_tag("SUBTEXT", somatic_inner, 0) : null,
+  ].filter(Boolean);
+
+  return children.length
+    ? render_xml_tag({
+        tag: "CURRENTS",
+        children,
+        indent: 0,
+        child_indent: 4,
+        separator: "\n",
+      })
+    : "";
 }
 
 /**
  * Renders the turn block's `<INPUT origin="...">` tag.
- * @param {{ input_tag?: string, input?: string, input_origin?: string|null }} [parameters]
+ * @param {{ input?: string, input_origin?: string|null }} [parameters]
  * @returns {string}
  */
-export function render_task_input({ input_tag = "INPUT", input = "", input_origin = null } = {}) {
-  if (!input_tag || !String(input || "").trim()) return "";
+export function render_task_input({ input = "", input_origin = null } = {}) {
+  if (!String(input || "").trim()) return "";
   const origin = String(input_origin || "USER");
-  return `    <${input_tag} origin="${escape_xml(origin)}">${inline_or_block(prompt_escape(String(input).trim()), 6)}</${input_tag}>`;
+  const content = prompt_escape(String(input).trim());
+  return `<INPUT origin="${escape_xml(origin)}">${inline_or_block(content, 2)}</INPUT>`;
 }
 
 /**
  * Renders the Director KEYWORD_DIRECTIVES XML block.
- * @param {string} rule_text
  * @param {string} available_keywords_xml
  * @returns {string}
  */
-export function render_keyword_directives_xml(rule_text, available_keywords_xml) {
+export function render_keyword_directives_xml(available_keywords_xml) {
   return render_xml_tag({
     tag: "KEYWORD_DIRECTIVES",
-    children: [rule_text, `<AVAILABLE_KEYWORDS>${available_keywords_xml}</AVAILABLE_KEYWORDS>`],
+    children: [TASK_LIBRARY.DIRECTOR.KEYWORD_DIRECTIVES, `<AVAILABLE_KEYWORDS>${available_keywords_xml}</AVAILABLE_KEYWORDS>`],
     indent: 2,
     child_indent: 2,
     separator: "\n",
   });
+}
+
+/**
+ * Resolves character prose action directive across standard, NPC, and stranger encounter turns.
+ * @param {Object} [parameters]
+ * @param {string} [parameters.speaker_name=""]
+ * @param {boolean} [parameters.is_npc=false]
+ * @param {boolean} [parameters.is_first_contact=false]
+ * @returns {string}
+ */
+export function resolve_character_action_directive({ speaker_name = "", is_npc = false, is_first_contact = false } = {}) {
+  return [
+    is_first_contact ? TASK_LIBRARY.PROSE.CHARACTER.FIRST_CONTACT : null,
+    is_npc ? TASK_LIBRARY.PROSE.CHARACTER.NPC_BOUNDARY(speaker_name) : null,
+  ]
+    .filter(Boolean)
+    .join("\n    ");
+}
+
+/**
+ * Resolves scene / fractal narrative action directive (Prologue, Epilogue, Collapse, Continuation).
+ * @param {Object} [parameters]
+ * @param {string|null} [parameters.scene_template=null]
+ * @param {boolean} [parameters.is_prologue=false]
+ * @param {string|null} [parameters.conclusion_status=null]
+ * @param {string} [parameters.input=""]
+ * @returns {string}
+ */
+export function resolve_scene_action_directive({ scene_template = null, is_prologue = false, conclusion_status = null, input = "" } = {}) {
+  if (is_prologue || scene_template === "PROLOGUE") {
+    return `${TASK_LIBRARY.PROSE.SCENE.PROLOGUE}\n    Input: ${prompt_escape(String(input || "").trim() || "The scene begins.")}`;
+  }
+
+  const status = String(conclusion_status || "").toUpperCase();
+  const template = scene_template || (status === "COLLAPSED" ? "COLLAPSE" : status ? "EPILOGUE" : "CONTINUATION");
+
+  return TASK_LIBRARY.PROSE.SCENE[template] || TASK_LIBRARY.PROSE.SCENE.CONTINUATION;
 }
 
 // ============================================================================
@@ -304,19 +328,19 @@ export function render_task({
   switch (mode) {
     case "director": {
       if (terse) {
-        return `<TASK>\n  ${TASK_LIBRARY.DIRECTOR.JSON_RETURN(schema, "  ")}\n</TASK>`.trim();
+        return render_xml_tag({ tag: "TASK", children: [TASK_LIBRARY.JSON_RETURN(schema, "  ")], indent: 0, child_indent: 2 });
       }
       const evaluation =
         TASK_LIBRARY.DIRECTOR.EVALUATE(!!input?.trim()) +
         (Number(round) <= 1 ? TASK_LIBRARY.DIRECTOR.ROUND_ONE : "") +
         ` ${TASK_LIBRARY.DIRECTOR.USER_PERSONA_LOCK}`;
 
-      const user_action_xml = render_task_input({ input_tag: "USER_ACTION", input, input_origin: "USER" });
-      const task_children = [evaluation, render_environmental_hint(input), schema ? TASK_LIBRARY.DIRECTOR.JSON_RETURN(schema) : null].filter(Boolean);
+      const input_xml = render_task_input({ input, input_origin: "USER" });
+      const task_children = [evaluation, render_environmental_hint(input), schema ? TASK_LIBRARY.JSON_RETURN(schema) : null].filter(Boolean);
 
       const parts = [
-        user_action_xml ? user_action_xml.trim() : null,
-        last_ai_text ? `<AI_CHARACTER_LAST_TURN>${indent_all(last_ai_text, 2)}</AI_CHARACTER_LAST_TURN>` : null,
+        input_xml ? input_xml.trim() : null,
+        last_ai_text ? wrap_tag("AI_CHARACTER_LAST_TURN", indent_all(last_ai_text, 2), 0) : null,
         render_xml_tag({ tag: "TASK", children: task_children, indent: 0, child_indent: 4 }),
       ].filter(Boolean);
 
@@ -326,7 +350,7 @@ export function render_task({
     case "continuum": {
       const items = [
         TASK_LIBRARY.CONTINUUM.TARGET_FOCUS(target_name),
-        schema ? TASK_LIBRARY.CONTINUUM.JSON_RETURN(schema) : null,
+        schema ? TASK_LIBRARY.JSON_RETURN(schema) : null,
         TASK_LIBRARY.CONTINUUM.MANDATE,
       ].filter(Boolean);
 
@@ -341,33 +365,41 @@ export function render_task({
 
     default: {
       const style_dna = extract_style_dna(style);
-      const emotional_grounding = style_dna.emotional_grounding || TASK_LIBRARY.PROTOCOLS.DEFAULTS.EMOTIONAL_GROUNDING;
-      const input_tag = config?.task?.input_tag || "INPUT";
       const think_format = config?.task?.think_format;
 
       const think_directive =
         think_format === "character"
-          ? TASK_LIBRARY.PROTOCOLS.THINK_FORMAT(emotional_grounding, input_tag)
+          ? TASK_LIBRARY.PROTOCOLS.THINK_FORMAT(style_dna.emotional_grounding)
           : think_format === "narrator"
             ? TASK_LIBRARY.PROTOCOLS.THINK_NARRATOR
             : "";
 
       const elements = [
         think_directive,
-        render_task_input({ input_tag, input, input_origin }),
+        render_task_input({ input, input_origin }),
         render_task_currents(style_dna, somatic_inner),
-        action_directive ? inline_or_block(action_directive, 4) : "",
+        action_directive ? String(action_directive).trim() : "",
         render_prose_reflex(snapshot, input),
-        stability_lock ? inline_or_block(stability_lock, 4) : "",
+        stability_lock ? String(stability_lock).trim() : "",
       ].filter(Boolean);
 
-      return elements.length ? `<TASK>\n${elements.join("\n")}\n</TASK>` : "";
+      return elements.length ? render_xml_tag({ tag: "TASK", children: elements, indent: 0, child_indent: 4, separator: "\n" }) : "";
     }
   }
 }
 
 /**
  * CHANGELOG
+ * - 2026-09-16: Standardized Director input tag and `TASK_LIBRARY.DIRECTOR.EVALUATE` to canonical `<INPUT />`, achieving 100% universal input tag consistency across all prompt modes.
+ * - 2026-09-16: Pruned legacy `GHOSTWRITE` directives from `TASK_LIBRARY.PROSE` and simplified `resolve_character_action_directive` — ghostwriting operates as a first-class symmetrical Shot-2A first-person character turn governed by `CORE_PROTOCOLS.PERSPECTIVE.POV.FIRST` and `<DELIVERY_POSTURE><DRIVE>`.
+ * - 2026-09-16: Pruned redundant `DEFAULTS` wrapper from `TASK_LIBRARY.PROTOCOLS` and encapsulated `emotional_grounding` fallback directly within `THINK_FORMAT`.
+ * - 2026-09-16: Reconstructed kinetic momentum and role boundaries — consolidated DRIVE_ACTIVE and DRIVE_PASSIVE into a single dynamic DRIVE(has_input) inside TASK_LIBRARY.PROTOCOLS.RECENCY (rendered exclusively via <DELIVERY_POSTURE><DRIVE>); pruned redundant INITIATIVE and ADVANCE from TASK_LIBRARY.PROSE.CHARACTER; refactored resolve_character_action_directive to strictly emit role/epistemic boundaries without duplicate prose momentum.
+ * - 2026-09-16: Merged duplicate `JSON_RETURN` directives into a single canonical `TASK_LIBRARY.JSON_RETURN` key, eliminating arbitrary character limit discrepancies ("under 400" vs "under 1200") and pruning redundant domain-specific keys under P4 Zero Backwards Compatibility.
+ * - 2026-09-16: Task Simplification & XML Harmonization:
+ *   (1) Cut dead duplicate `TASK_LIBRARY.SPOTLIGHT` (repatriated to `entities.js`);
+ *   (2) Standardized `render_prose_reflex`, `render_task_currents`, and prose `<TASK>` with `render_xml_tag`;
+ *   (3) Simplified `render_keyword_directives_xml` by encapsulating static `TASK_LIBRARY.DIRECTOR.KEYWORD_DIRECTIVES`;
+ *   (4) Repatriated action directive resolution from `builder.js` into `resolve_character_action_directive` and `resolve_scene_action_directive`.
  * - 2026-09-16: Task Nomenclature Standardization — Purged legacy "instructions" mode alias and parameter in render_task in favor of canonical `directives = []`; renamed think_instruction to think_directive; enforced strict P4 Zero Backwards Compatibility.
  * - 2026-09-16: Zero Backwards Compatibility (P4) Purge — Removed all legacy delegator export bridges (render_director_task, render_terse_director_task, render_continuum_task, render_enhancement_instructions, render_profile_sorting_instructions, build_recency_anchor) and refactored render_task to explicit switch(mode).
  * - 2026-09-16: Standardized, modularized, and simplified task module architecture:

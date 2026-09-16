@@ -70,7 +70,6 @@ export const PROMPTS = Object.freeze({
     constitution: false,
     protocols: ["CORE_PROTOCOLS.ALTERNATION_OPTIONS"],
     entities: { dispositions: ["AI", "USER", "FRACTAL", "NPC"], dynamic_axes: ["AI", "FRACTAL"], user_agenda: true, spotlight: true },
-    task: { input_tag: "USER_ACTION" },
     format: "DIRECTOR",
   }),
 
@@ -155,7 +154,6 @@ export const PROMPTS = Object.freeze({
     protocols: ["HYGIENE.DATA", "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PRESENT"],
     entities: { target_context: true, scene_cast: true, chapter_history: true },
     history: { limit: 16 },
-    task: { input_tag: "INPUT_HISTORY" },
     format: "CONTINUUM",
   }),
 
@@ -167,7 +165,6 @@ export const PROMPTS = Object.freeze({
     protocols: ["HYGIENE.DATA"],
     entities: { field_context: true },
     history: { enabled: false },
-    task: { input_tag: "INPUT_CONTENT" },
   }),
 
   sorting: define_mode({
@@ -199,6 +196,8 @@ export default PROMPTS;
 
 /**
  * CHANGELOG
+ * - 2026-09-16: Pruned inert `task.input_tag` overrides from `continuum` and `enhancement` modes under P4 Zero Backwards Compatibility.
+ * - 2026-09-16: Standardized Director `input_tag` to canonical default `"INPUT"`, purging legacy `"USER_ACTION"` tag override under P4 Zero Backwards Compatibility.
  * - 2026-09-15: History Limit Harmonization — Explicitly harmonized history window to limit: 16 across all four Shot-2A prose sibling modes (interaction, ghostwrite, npc, narrator).
  * - 2026-09-12: Standardization pass — the `continuum` mode declares its history window (`history.limit`), now consumed by builder.js via history.js `resolve_history` (the window was previously hardcoded at the call site).
  * - 2026-09-12: Standardization pass — replaced the repeated 7-layer skeleton with a declarative `define_mode` factory (MODE_DEFAULTS + per-mode delta + deep-freeze), so each mode is a short data record and the layer defaults live in one place. Values are unchanged.

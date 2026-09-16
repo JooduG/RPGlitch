@@ -106,7 +106,7 @@ describe("Director Quick Shot Prompt (render_director)", () => {
   it("nudges Director toward fractal narration on non-verbal environmental turns", () => {
     const env_payload = { ...base_payload(), input: "I press my palm flat against the cold iron gate and wait.", compressed_snapshot: base_snapshot };
     const result = render_director(env_payload);
-    expect(result.task).toContain("<USER_ACTION_NOTE>");
+    expect(result.task).toContain("<INPUT_NOTE>");
     expect(result.task).toContain('"speaker" to "fractal"');
     expect(result.system).toContain("SPEAKER ROUTING RULES");
   });

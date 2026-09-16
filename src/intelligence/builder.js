@@ -44,7 +44,13 @@ import {
   render_scene_spotlight_xml,
 } from "./modules/entities.js";
 import { render_history, render_chapter_history_xml, render_input_history_xml, resolve_history } from "./modules/history.js";
-import { render_task, TASK_LIBRARY, render_keyword_directives_xml } from "./modules/task.js";
+import {
+  render_task,
+  TASK_LIBRARY,
+  render_keyword_directives_xml,
+  resolve_character_action_directive,
+  resolve_scene_action_directive,
+} from "./modules/task.js";
 import { OUTPUT_FORMATS, get_output_format } from "./modules/format.js";
 import { render_available_keywords_xml, render_dynamics_xml, render_subtext_xml, render_dynamics_axes_xml } from "./physics.js";
 import { temporal_engine, resolve_vector_pool } from "./temporal.js";
@@ -193,10 +199,7 @@ export function render_director({
     fractal_dynamics: compressed_snapshot?.fractal?.dynamics,
   });
 
-  const keyword_directives_xml = render_keyword_directives_xml(
-    TASK_LIBRARY.DIRECTOR.KEYWORD_DIRECTIVES,
-    render_available_keywords_xml(active_style_keywords),
-  );
+  const keyword_directives_xml = render_keyword_directives_xml(render_available_keywords_xml(active_style_keywords));
 
   const role_line = resolve_system_role_line({ role: config.system.role });
 
@@ -416,20 +419,11 @@ export function render_story_prose({
       (Array.isArray(compressed_snapshot?.flags) && compressed_snapshot.flags.includes("FIRST_CONTACT")) ||
       (Array.isArray(director_data?.keywords) && director_data.keywords.includes("first_contact")));
 
-  const draft_directive = input?.trim()
-    ? TASK_LIBRARY.PROSE.GHOSTWRITE.ENHANCE(speaker_name, prompt_escape(input.trim()))
-    : TASK_LIBRARY.PROSE.GHOSTWRITE.DRAFT(speaker_name, listener_name);
-
-  const base_action_directive = is_npc
-    ? TASK_LIBRARY.PROSE.CHARACTER.NPC_BOUNDARY(speaker_name)
-    : is_ghostwrite
-      ? `${draft_directive}\n    ${TASK_LIBRARY.PROSE.GHOSTWRITE.META}`
-      : input?.trim()
-        ? TASK_LIBRARY.PROSE.CHARACTER.ADVANCE
-        : TASK_LIBRARY.PROSE.CHARACTER.INITIATIVE;
-
-  const action_directive =
-    is_first_contact && !is_ghostwrite ? `${TASK_LIBRARY.PROSE.CHARACTER.FIRST_CONTACT}\n    ${base_action_directive}` : base_action_directive;
+  const action_directive = resolve_character_action_directive({
+    speaker_name,
+    is_npc,
+    is_first_contact,
+  });
 
   const input_origin_entity = is_ghostwrite ? active_speaker : entities?.USER;
   const input_origin = input_origin_entity?.id || input_origin_entity?.name || "USER";
@@ -487,15 +481,7 @@ export function render_scene_narrator({
   input = "",
 }) {
   const is_prologue_beat = is_prologue || scene_template === "PROLOGUE";
-  const resolved_scene_template =
-    scene_template ||
-    (is_prologue_beat
-      ? "PROLOGUE"
-      : conclusion_status === "collapsed" || conclusion_status === "COLLAPSED"
-        ? "COLLAPSE"
-        : conclusion_status
-          ? "EPILOGUE"
-          : "CONTINUATION");
+
   const config = get_prompt("narrator");
 
   const speaker = entities?.FRACTAL;
@@ -505,13 +491,12 @@ export function render_scene_narrator({
   const speaker_dynamics = compressed_snapshot?.ai?.dynamics || null;
   const fractal_dynamics = compressed_snapshot?.fractal?.dynamics || null;
 
-  const action_directive = is_prologue_beat
-    ? `${TASK_LIBRARY.PROSE.SCENE.PROLOGUE}\n    Input: ${prompt_escape(input?.trim() || "The scene begins.")}`
-    : resolved_scene_template === "CONTINUATION"
-      ? TASK_LIBRARY.PROSE.SCENE.CONTINUATION
-      : resolved_scene_template === "COLLAPSE"
-        ? TASK_LIBRARY.PROSE.SCENE.COLLAPSE
-        : TASK_LIBRARY.PROSE.SCENE.EPILOGUE;
+  const action_directive = resolve_scene_action_directive({
+    scene_template,
+    is_prologue,
+    conclusion_status,
+    input,
+  });
 
   const input_origin_entity = entities?.USER;
   const input_origin = input_origin_entity?.id || input_origin_entity?.name || "USER";
@@ -930,6 +915,7 @@ if (typeof window !== "undefined") {
 
 /**
  * CHANGELOG
+ * - 2026-09-16: Task Simplification & Action Directive Repatriation — Delegated character and scene action directive assembly to `resolve_character_action_directive` and `resolve_scene_action_directive` from `task.js`; simplified `render_keyword_directives_xml` call.
  * - 2026-09-16: Task Nomenclature Standardization — Standardized prompt task compiler variables (`task_xml`) and `directives` parameters across `render_enhancement` and `render_profile_sorting`.
  * - 2026-09-16: Standardized Director system envelope with `round` attribute on `<SYSTEM mode="director" round="...">`, removing redundant `<ROUND>` child from Director task. Repatriated `render_scene_spotlight_xml` from `entities.js`.
  * - 2026-09-16: Switched task directive imports from loose constants to unified `TASK_LIBRARY` (`TASK_LIBRARY.DIRECTOR`, `TASK_LIBRARY.PROSE`, `TASK_LIBRARY.SORTING`), aligning with PROTOCOL_LIBRARY architecture.
