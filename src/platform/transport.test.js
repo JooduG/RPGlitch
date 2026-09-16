@@ -6,6 +6,7 @@ vi.mock("@utils", async (importOriginal) => {
   return {
     ...actual,
     escape_xml: vi.fn((s) => s),
+    prompt_escape: vi.fn((s) => s.replace(/</g, "&lt;").replace(/>/g, "&gt;")),
     stream_bridge: {
       start: vi.fn(),
       update: vi.fn(),
@@ -132,6 +133,15 @@ describe("format_conversation_history", () => {
     const messages = [{ role: "AI_CHARACTER", character_name: "Iris", origin: "iris", content: "Greetings." }];
     const formatted = format_conversation_history(messages);
     expect(formatted).toContain('<ENTRY origin="iris" round="1">Greetings.</ENTRY>');
+  });
+
+  it("preserves quotes and apostrophes without entity escaping, and strips think tags", () => {
+    const messages = [{ role: "USER_PERSONA", content: "<think>Planning action.</think>Joodu's posture was solid. \"You're Raphael,\" he said." }];
+    const formatted = format_conversation_history(messages);
+    expect(formatted).toContain('<ENTRY origin="User" round="1">Joodu\'s posture was solid. "You\'re Raphael," he said.</ENTRY>');
+    expect(formatted).not.toContain("&apos;");
+    expect(formatted).not.toContain("&quot;");
+    expect(formatted).not.toContain("<think>");
   });
 
   it("returns empty string when no messages are provided", () => {

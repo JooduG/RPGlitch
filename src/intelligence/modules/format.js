@@ -73,11 +73,11 @@ export const SCHEMA_FIELD_DESCRIPTORS = Object.freeze({
   character: {
     eternal: {
       physical: "[KEY: value] permanent biometrics (gender, age, ethnicity, build, face, eyes, hair)",
-      non_physical: "Core beliefs, personality drivers, cognitive patterns, vocal tone",
+      non_physical: "Prose only (never bracketed or key-value pairs): core beliefs, personality drivers, cognitive patterns, vocal tone",
     },
     present: {
       physical: "[KEY: value] current appearance (clothing, colors, expression, posture, condition, held)",
-      non_physical: "Immediate emotional pressure, active mental focus, behavioral drivers",
+      non_physical: "Prose only (never bracketed or key-value pairs): immediate emotional pressure, active mental focus, behavioral drivers",
     },
     future: "Consolidated 2-5 sentence standing agenda in active future tense",
     past: "Settled historical event or precedent exerting lasting residue",
@@ -85,11 +85,11 @@ export const SCHEMA_FIELD_DESCRIPTORS = Object.freeze({
   fractal: {
     eternal: {
       physical: "[KEY: value] permanent geography (terrain, architecture, materials, landmarks)",
-      non_physical: "Timeless metaphysical substrate, governing laws, physical constants",
+      non_physical: "Prose only (never bracketed or key-value pairs): timeless metaphysical substrate, governing laws, physical constants",
     },
     present: {
       physical: "[KEY: value] atmospheric state (lighting, weather, atmosphere, events)",
-      non_physical: "Active anomaly, current pressure, immediate atmospheric shift",
+      non_physical: "Prose only (never bracketed or key-value pairs): active anomaly, current pressure, immediate atmospheric shift",
     },
     future: "Consolidated 2-5 sentence environmental trajectory in active future tense",
     past: "Settled historical cataclysm, founding myth, or defining epoch",
@@ -265,6 +265,7 @@ export function render_output_format_xml({ mode = "", content = "", indent_level
 
 /**
  * CHANGELOG
+ * - 2026-09-16: Clarified non_physical field descriptors in SCHEMA_FIELD_DESCRIPTORS to specify prose only (prohibiting bracket-dicts or key-value pairs) to prevent Continuum Caretaker format bleed.
  * - 2026-09-15: Parameter-Aware Layer 7 Resolution — Enhanced get_output_format with entity-type options parameter routing for CONTINUUM, PROFILE, DIRECTOR, and PROSE formats, making manifest Layer 7 fully load-bearing.
  * - 2026-09-13: Token Optimization pass: (1) Streamlined SCHEMA_ATOMS (_thought_process, keywords, directors_note, visual_staging) to eliminate conversational human fluff; (2) Compacted PROSE_FORMAT from 26 words down to 11 words while preserving plain prose contract; (3) Introduced high-density SCHEMA_FIELD_DESCRIPTORS in render_json_schema for character and fractal schemas, cutting CONTINUUM and PROFILE schema tokens by ~68% without impacting UI profile field definitions.
  * - 2026-09-13: Refactor & Symmetrical Harmonization: (1) Rebuilt format.js into 7 cleanly separated sections mirroring the Multi-Shot simulation lifecycle in src/intelligence/prompts.js (Taxonomy Atoms, Universal Composer, Shot 1 Director, Shot 2A Prose, Shot 2B Continuum, Tool B Profile Ingestion, Section 7 Master Registry); (2) Categorized SCHEMA_ATOMS by lifecycle role while preserving unified frozen export; (3) Added dedicated get_director_schema() and PROSE_FORMAT exports; (4) Enforced Full-Name domain nomenclature across all parameters and variables (schema_keys, resolved_entity_type, field_definition, atom_definition, value_string, format_key, fallback_value, trimmed_content); (5) Maintained 100% zero-sibling module purity.

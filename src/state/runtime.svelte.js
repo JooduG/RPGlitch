@@ -496,7 +496,12 @@ function create_runtime_store() {
         if (npc_ids.length) {
           const npc_list = (await Promise.all(npc_ids.map((nid) => entities.get("character", nid)))).filter(Boolean);
           active_npcs_state = Object.fromEntries(npc_list.map((n) => [String(n.id), n]));
-          in_scene_npc_ids_state = npc_list.map((n) => String(n.id));
+          const valid_npc_id_set = new Set(npc_list.map((n) => String(n.id)));
+          if (Array.isArray(story.in_scene_npc_ids)) {
+            in_scene_npc_ids_state = story.in_scene_npc_ids.map(String).filter((id) => valid_npc_id_set.has(id));
+          } else {
+            in_scene_npc_ids_state = npc_list.map((n) => String(n.id));
+          }
         } else {
           active_npcs_state = {};
           in_scene_npc_ids_state = [];
@@ -684,6 +689,7 @@ if (typeof window !== "undefined") {
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-16: Added support for explicit story.in_scene_npc_ids during story load, preventing un-staged NPCs from flooding in_scene_npc_ids.
  * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,
  *   structured section dividers, exported DIRECTOR_MS_POOL_CAP constant, cleaned up unlinked
  *   entity blueprint reset in delete_entity, and verified 100% test pass.

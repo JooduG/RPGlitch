@@ -15,7 +15,7 @@
  * - Invariant: Transport does NOT alter narrative content or invent prompt rules; it exclusively transports, streams, and cleans.
  */
 
-import { collapse_history, escape_xml, stream_bridge } from "@utils";
+import { collapse_history, escape_xml, prompt_escape, stream_bridge } from "@utils";
 
 // ============================================================================
 // [SECTION 1: SANITIZATION & NORMALIZATION UTILITIES]
@@ -178,7 +178,11 @@ export function format_conversation_history(messages) {
   return collapsed
     .map((entry, index) => {
       const label = entry.origin || entry.name || (entry.role === "USER_PERSONA" ? "User" : entry.role === "FRACTAL" ? "Fractal" : "Character");
-      return `  <ENTRY origin="${escape_xml(label)}" round="${index + 1}">${escape_xml(entry.content)}</ENTRY>`;
+      const clean_content = String(entry.content || "")
+        .replace(/<think>[\s\S]*?<\/think>/gi, "")
+        .replace(/<\/?think>/gi, "")
+        .trim();
+      return `  <ENTRY origin="${escape_xml(label)}" round="${index + 1}">${prompt_escape(clean_content)}</ENTRY>`;
     })
     .join("\n");
 }
@@ -444,6 +448,7 @@ export const llm_service = {
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-16: Swapped escape_xml for prompt_escape in format_conversation_history to prevent double-escaping quotes/apostrophes in replayed history entries, and added think tag stripping.
  * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,
  *   structured section dividers, extracted named `format_conversation_history` export, normalized
  *   method declarations, and added comprehensive unit test suite.

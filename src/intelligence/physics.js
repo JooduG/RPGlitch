@@ -576,13 +576,14 @@ export function resolve_context_directives(keywords = []) {
  */
 export function render_available_keywords_xml(active_style_keywords = []) {
   const static_ids = AVAILABLE_KEYWORDS;
-  const motifs = (active_style_keywords || []).filter((k) => typeof k === "string" && k.trim());
+  const motifs = (active_style_keywords || []).filter((k) => typeof k === "string" && k.trim()).map((k) => k.trim().toUpperCase());
   const combined = Array.from(new Set([...static_ids, ...motifs]));
   return combined.map((k) => `[${k}]`).join(" ");
 }
 
 /**
  * CHANGELOG
+ * - 2026-09-16: Normalized active_style_keywords to UPPERCASE in render_available_keywords_xml to ensure consistent bracketed keyword listing for Director.
  * - 2026-09-11: Consolidated physics domain: merged physics-protocols.js directly into physics.js, housing all math, registries, and XML compilers together.
  * - 2026-09-11: Streamlined physics engine: stripped redundant desc field from DYNAMICS_AXES; renamed duplicate VULNERABILITY rule to EXPOSED; made compute_dynamics_deltas pure; renamed evaluate_dynamics_signals to evaluate_subtext_protocols with clean options object signature.
  * - 2026-09-11: Refactored physics.js to functional paradigm: dismantled physics_engine singleton into top-level exports, renamed resolve_non_verbal_reactions to evaluate_dynamics_rules, and enforced Universal File Architecture.

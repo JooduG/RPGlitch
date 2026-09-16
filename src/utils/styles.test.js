@@ -61,6 +61,11 @@ describe("detox_prose() with speaking styles", () => {
     expect(detox_prose("He bellowed at the top of his lungs.")).toContain("bellowed");
     expect(detox_prose("There was a hitch in his breath.")).toContain("hitch");
   });
+
+  it("scrubs parenthetical antithesis rationalizations ('not a desire, I tell myself, but a professional appreciation')", () => {
+    const input = "It was not a desire, I tell myself, but a professional appreciation for the potential.";
+    expect(detox_prose(input)).toBe("It was a professional appreciation for the potential.");
+  });
 });
 
 describe("resolve_speaking_style hierarchy", () => {

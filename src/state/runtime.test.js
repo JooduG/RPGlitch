@@ -241,6 +241,21 @@ describe("runtime world-cast hydration (track-npc-expansion)", () => {
     expect([...runtime.snapshot_in_scene_npc_ids].sort()).toEqual(["npc-elias", "npc-mira"]);
   });
 
+  it("respects explicit story.in_scene_npc_ids when specified", async () => {
+    const { story_id, db } = await seed_story_with_npcs([
+      { id: "npc-elias", name: "Elias" },
+      { id: "npc-mira", name: "Mira" },
+    ]);
+    await db.stories.update(story_id, { in_scene_npc_ids: ["npc-mira"] });
+    mock_checkpoint.load_session_checkpoint.mockReturnValue({ story_id: String(story_id), round: 3, phase: "idle" });
+
+    await runtime.sync();
+
+    expect(Object.keys(runtime.active_npcs).sort()).toEqual(["npc-elias", "npc-mira"]);
+    expect(runtime.in_scene_npc_ids).toEqual(["npc-mira"]);
+    expect(runtime.snapshot_in_scene_npc_ids).toEqual(["npc-mira"]);
+  });
+
   it("clears the cast when the story has no npc_ids", async () => {
     const { story_id } = await seed_story_with_npcs();
     mock_checkpoint.load_session_checkpoint.mockReturnValue({ story_id: String(story_id), round: 3, phase: "idle" });

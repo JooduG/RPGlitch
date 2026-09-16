@@ -497,6 +497,29 @@ function cap_present_prose(current_field_value) {
   return lines.slice(-PRESENT_MAX_SEGMENTS).join("\n");
 }
 
+/** Sanitizes non_physical prose, unwrapping or cleaning accidental bracket-dicts (e.g. "{key: value}" or "[KEY: value]"). */
+export function sanitize_non_physical_prose(raw_prose) {
+  let text = String(raw_prose || "").trim();
+  if (!text) return "";
+
+  // If the model wrapped the prose in curly braces {emotional_pressure: ...} or JSON-like object
+  if (text.startsWith("{") && text.endsWith("}")) {
+    const inner = text.slice(1, -1).trim();
+    // Check if it's key: value format
+    const colon_idx = inner.indexOf(":");
+    if (colon_idx !== -1 && !inner.slice(0, colon_idx).includes("\n")) {
+      text = inner.slice(colon_idx + 1).trim();
+    } else {
+      text = inner;
+    }
+  }
+
+  // Strip leading pseudo-bracket if formatted as [KEY: value]
+  text = text.replace(/^\[[A-Z_ ]{3,25}:\s*([\s\S]*?)\]$/i, "$1").trim();
+
+  return text;
+}
+
 /** Decides whether a forge rewrite crossed a chapter milestone (<45% vocabulary overlap). */
 function has_crossed_chapter_milestone(old_future, new_future) {
   if (!old_future || !new_future || old_future === new_future) return false;
@@ -837,7 +860,7 @@ export const temporal_engine = {
             entity.present.physical = merge_prose_into_field(entity.present.physical, summary.physical);
           }
           if (summary.non_physical !== undefined && summary.non_physical.trim()) {
-            entity.present.non_physical = summary.non_physical;
+            entity.present.non_physical = sanitize_non_physical_prose(summary.non_physical);
           }
           await runtime.update_entity(type, entity.id, { present: entity.present });
         }
@@ -851,7 +874,10 @@ export const temporal_engine = {
             eternal_changed = true;
           }
           if (eternal_mutation.non_physical?.trim()) {
-            entity.eternal.non_physical = merge_eternal_field(entity.eternal.non_physical, eternal_mutation.non_physical);
+            entity.eternal.non_physical = merge_eternal_field(
+              entity.eternal.non_physical,
+              sanitize_non_physical_prose(eternal_mutation.non_physical),
+            );
             eternal_changed = true;
           }
           if (eternal_changed) {
@@ -928,6 +954,7 @@ if (typeof window !== "undefined") {
 
 /**
  * CHANGELOG
+ * - 2026-09-16: Added sanitize_non_physical_prose to sanitize and unwrap accidental bracket-dicts or pseudo-json key-value strings from LLM non_physical mutations.
  * - 2026-09-12: Header correction — contracts/schemas relocated to modules/format.js.
  * - 2026-09-11: Header correction — TEMPORAL_PROTOCOLS bundle pruned; memory-forge prompt rendering still via render_memory.
  * - 2026-09-11: Grand Purification: prompt compilation moved to builder.js, leaving temporal.js a 100% pure vector math, scoring, and persistence engine.

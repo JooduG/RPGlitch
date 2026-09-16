@@ -13,6 +13,7 @@ import {
   is_origin,
   prune,
   archive_chapter,
+  sanitize_non_physical_prose,
 } from "./temporal.js";
 import { OUTPUT_FORMATS } from "./modules/format.js";
 import { render_memory } from "./builder.js";
@@ -913,6 +914,29 @@ describe("temporal_engine per-entity consolidation progress tracking (Track 2 Ph
     expect(prompt).toContain('<SYSTEM role="CONTINUUM_CARETAKER" target="Viper">');
     expect(prompt).toContain("<INPUT_HISTORY>");
     expect(prompt).toContain("Hello Viper");
+  });
+
+  describe("sanitize_non_physical_prose", () => {
+    it("strips curly-bracketed key-value pairs leaving clean prose", () => {
+      const input = "{emotional_pressure: Professional excitement, genuine curiosity, trainer-mode focus}";
+      expect(sanitize_non_physical_prose(input)).toBe("Professional excitement, genuine curiosity, trainer-mode focus");
+    });
+
+    it("strips square-bracketed pseudo-json directives", () => {
+      const input = "[MOOD: Somatic tension and hypervigilance]";
+      expect(sanitize_non_physical_prose(input)).toBe("Somatic tension and hypervigilance");
+    });
+
+    it("preserves clean prose untouched", () => {
+      const input = "Immediate emotional pressure, active mental focus, behavioral drivers";
+      expect(sanitize_non_physical_prose(input)).toBe(input);
+    });
+
+    it("handles empty or non-string inputs safely", () => {
+      expect(sanitize_non_physical_prose("")).toBe("");
+      expect(sanitize_non_physical_prose(null)).toBe("");
+      expect(sanitize_non_physical_prose(undefined)).toBe("");
+    });
   });
 });
 

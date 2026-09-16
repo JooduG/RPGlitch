@@ -240,6 +240,15 @@ export function detox_prose(raw_text, speaking_style = "casual", custom_rules = 
     "That is ",
   );
 
+  // 6. Parenthetical / Clause Antithesis ("not a desire, I tell myself, but a professional appreciation" -> "a professional appreciation")
+  clean_text = clean_text.replace(
+    /\bnot\s+(?:a\s+|an\s+)?([a-z0-9_-]+)[,;]\s*(?:(?:I|he|she|we|they)\s+(?:tell|tells|told|remind|reminds|reminded|say|says|said)\s+(?:myself|himself|herself|themselves)[,;]\s*)?but\s+(?:a\s+|an\s+)?/gi,
+    (match) => {
+      // Preserve leading capitalization if original matched sentence start
+      return /^[A-Z]/.test(match) ? "A " : "a ";
+    },
+  );
+
   return clean_text;
 }
 
@@ -248,6 +257,7 @@ export function detox_prose(raw_text, speaking_style = "casual", custom_rules = 
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-16: Added structural pattern formula 6 to scrub parenthetical/clause antithesis rationalizations ('not a desire, I tell myself, but...').
  * - 2026-09-14: Added structural pattern formulas 4 & 5 to scrub repetitive syntactical antithesis ("Not X, but Y") and superlative/categorical corrections ("That's not just X, that's Y").
  * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,
  *   structured section dividers, exported frozen VALID_SPEAKING_STYLES collection, added JSDoc

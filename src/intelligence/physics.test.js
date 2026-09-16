@@ -9,6 +9,7 @@ import {
   DYNAMICS_AXES,
   DYNAMICS_RULES,
   render_dynamics_axes_xml,
+  render_available_keywords_xml,
   PHYSICS_PROTOCOLS,
 } from "./physics.js";
 
@@ -236,6 +237,16 @@ describe("physics.js", () => {
       const reactions = evaluate_dynamics_rules(dynamics, ["shame"], 2);
 
       expect(reactions).toEqual(["SHAME", "FEAR"]);
+    });
+  });
+
+  describe("render_available_keywords_xml", () => {
+    it("normalizes active style keywords and motifs to UPPERCASE brackets", () => {
+      const xml = render_available_keywords_xml(["sensual_submersion", "cybernetic"]);
+      expect(xml).toContain("[SENSUAL_SUBMERSION]");
+      expect(xml).toContain("[CYBERNETIC]");
+      expect(xml).not.toContain("[sensual_submersion]");
+      expect(xml).toContain("[SHAME]");
     });
   });
 });

@@ -328,9 +328,9 @@ Narrative Sequence:
 2. Place <USER_PERSONA> inside, connecting them via their profile thread.
 3. Place <AI_CHARACTER> inside and establish their current action.
 4. Trigger the encounter. End the prologue immediately before interaction begins.
-No dialogue.`,
-  EPILOGUE: `You see everything. Close the scene. Evaluate unresolved threads and active agendas in thinking. Depict environmental aftermath and physical changes without forcing player physical surrender. End on lingering sensation, not summary. No dialogue.`,
-  COLLAPSE: `You see everything. Close the scene on irrevocable tragedy. Weigh permanent loss in thinking. Depict aftermath and environmental scars without forcing player physical surrender or unearned closure. End on enduring sensory silence. No dialogue.`,
+Strictly zero spoken dialogue or quote marks. No dialogue.`,
+  EPILOGUE: `You see everything. Close the scene. Evaluate unresolved threads and active agendas in thinking. Depict environmental aftermath and physical changes without forcing player physical surrender. End on lingering sensation, not summary. Strictly zero spoken dialogue or quote marks. No dialogue.`,
+  COLLAPSE: `You see everything. Close the scene on irrevocable tragedy. Weigh permanent loss in thinking. Depict aftermath and environmental scars without forcing player physical surrender or unearned closure. End on enduring sensory silence. Strictly zero spoken dialogue or quote marks. No dialogue.`,
   CONTINUATION: `You are the Fractal itself, narrating the scene. Narrate through ambient physics, sensory textures, and environmental shifts in reaction to recent events. Never puppeteer <AI_CHARACTER> or <USER_PERSONA>. End on one dominant hook (decisive statement, single action, or deliberate silence). Zero bracket labels.`,
 });
 
@@ -463,6 +463,7 @@ export function render_profile_sorting_instructions({
 
 /**
  * CHANGELOG
+ * - 2026-09-16: Emphatically strengthened dialogue prohibition in SCENE_DIRECTIVES (PROLOGUE, EPILOGUE, COLLAPSE) with 'Strictly zero spoken dialogue or quote marks'.
  * - 2026-09-13: Token Optimization Pass — Streamlined TASK_PROTOCOLS (PACING, RECENCY, THINK_NARRATOR), DIRECTOR_TASK_RULES, SPOTLIGHT_RULES, CHARACTER_DIRECTIVES, SCENE_DIRECTIVES (notably CONTINUATION down to 41 words), GHOSTWRITE_DIRECTIVES, and SORTING_DIRECTIVES, cutting ~230 words (~300 tokens) of conversational padding per turn while preserving all test assertions; strictly obeyed zero new test file creation.
  * - 2026-09-13: Comprehensive architectural rebuild & symmetrical harmonization with `prompts.js`:
  *   (1) Reconstructed into 6 cleanly divided sections mirroring the Multi-Shot simulation cycle (Turn Foundations, Cognition, Shot 1 Director, Shot 2A Story Prose, Shot 2B Continuum, Section 6 Auxiliary Tooling);
