@@ -36,23 +36,15 @@ import { get_prompt } from "./prompts.js";
 import { resolve_stability_lock, resolve_system_role_line, SYSTEM_CLOSE_TAG, render_system_xml } from "./modules/system.js";
 import { render_axiomatic_constitution } from "./modules/constitution.js";
 import { render_protocols, render_core_protocols, resolve_pov_protocol, PROTOCOL_LIBRARY } from "./modules/protocols.js";
-import { render_entity_sheets, render_scene_cast_xml, render_entity_memory_context, render_enhancement_field_context } from "./modules/entities.js";
-import { render_history, render_chapter_history_xml, render_input_history_xml, resolve_history } from "./modules/history.js";
 import {
-  render_task,
-  render_director_task,
-  render_terse_director_task,
-  render_continuum_task,
+  render_entity_sheets,
+  render_scene_cast_xml,
+  render_entity_memory_context,
+  render_enhancement_field_context,
   render_scene_spotlight_xml,
-  DIRECTOR_TASK_RULES,
-  SORTING_DIRECTIVES,
-  SCENE_DIRECTIVES,
-  GHOSTWRITE_DIRECTIVES,
-  CHARACTER_DIRECTIVES,
-  render_enhancement_instructions,
-  render_profile_sorting_instructions,
-  render_keyword_directives_xml,
-} from "./modules/task.js";
+} from "./modules/entities.js";
+import { render_history, render_chapter_history_xml, render_input_history_xml, resolve_history } from "./modules/history.js";
+import { render_task, TASK_LIBRARY, render_keyword_directives_xml } from "./modules/task.js";
 import { OUTPUT_FORMATS, get_output_format } from "./modules/format.js";
 import { render_available_keywords_xml, render_dynamics_xml, render_subtext_xml, render_dynamics_axes_xml } from "./physics.js";
 import { temporal_engine, resolve_vector_pool } from "./temporal.js";
@@ -202,7 +194,7 @@ export function render_director({
   });
 
   const keyword_directives_xml = render_keyword_directives_xml(
-    DIRECTOR_TASK_RULES.KEYWORD_DIRECTIVES,
+    TASK_LIBRARY.DIRECTOR.KEYWORD_DIRECTIVES,
     render_available_keywords_xml(active_style_keywords),
   );
 
@@ -210,6 +202,7 @@ export function render_director({
 
   const system = render_system_xml({
     mode: "director",
+    round,
     children: [
       role_line,
       render_dynamics_xml(),
@@ -225,7 +218,8 @@ export function render_director({
   const last_ai_message = (active_messages || []).filter((message) => message.role === "model").at(-1);
   const last_ai_text = last_ai_message ? strip_cognition_blocks(last_ai_message.content || last_ai_message.text || "").trim() : "";
 
-  const task = render_director_task({
+  const task = render_task({
+    mode: "director",
     round,
     input,
     last_ai_text,
@@ -234,8 +228,6 @@ export function render_director({
 
   return { system, task };
 }
-
-export { render_terse_director_task };
 
 /**
  * Strips outer <SUBTEXT> wrappers and normalizes inner somatic lines.
@@ -425,19 +417,19 @@ export function render_story_prose({
       (Array.isArray(director_data?.keywords) && director_data.keywords.includes("first_contact")));
 
   const draft_directive = input?.trim()
-    ? GHOSTWRITE_DIRECTIVES.ENHANCE(speaker_name, prompt_escape(input.trim()))
-    : GHOSTWRITE_DIRECTIVES.DRAFT(speaker_name, listener_name);
+    ? TASK_LIBRARY.PROSE.GHOSTWRITE.ENHANCE(speaker_name, prompt_escape(input.trim()))
+    : TASK_LIBRARY.PROSE.GHOSTWRITE.DRAFT(speaker_name, listener_name);
 
   const base_action_directive = is_npc
-    ? CHARACTER_DIRECTIVES.NPC_BOUNDARY(speaker_name)
+    ? TASK_LIBRARY.PROSE.CHARACTER.NPC_BOUNDARY(speaker_name)
     : is_ghostwrite
-      ? `${draft_directive}\n    ${GHOSTWRITE_DIRECTIVES.META}`
+      ? `${draft_directive}\n    ${TASK_LIBRARY.PROSE.GHOSTWRITE.META}`
       : input?.trim()
-        ? CHARACTER_DIRECTIVES.ADVANCE
-        : CHARACTER_DIRECTIVES.INITIATIVE;
+        ? TASK_LIBRARY.PROSE.CHARACTER.ADVANCE
+        : TASK_LIBRARY.PROSE.CHARACTER.INITIATIVE;
 
   const action_directive =
-    is_first_contact && !is_ghostwrite ? `${CHARACTER_DIRECTIVES.FIRST_CONTACT}\n    ${base_action_directive}` : base_action_directive;
+    is_first_contact && !is_ghostwrite ? `${TASK_LIBRARY.PROSE.CHARACTER.FIRST_CONTACT}\n    ${base_action_directive}` : base_action_directive;
 
   const input_origin_entity = is_ghostwrite ? active_speaker : entities?.USER;
   const input_origin = input_origin_entity?.id || input_origin_entity?.name || "USER";
@@ -514,12 +506,12 @@ export function render_scene_narrator({
   const fractal_dynamics = compressed_snapshot?.fractal?.dynamics || null;
 
   const action_directive = is_prologue_beat
-    ? `${SCENE_DIRECTIVES.PROLOGUE}\n    Input: ${prompt_escape(input?.trim() || "The scene begins.")}`
+    ? `${TASK_LIBRARY.PROSE.SCENE.PROLOGUE}\n    Input: ${prompt_escape(input?.trim() || "The scene begins.")}`
     : resolved_scene_template === "CONTINUATION"
-      ? SCENE_DIRECTIVES.CONTINUATION
+      ? TASK_LIBRARY.PROSE.SCENE.CONTINUATION
       : resolved_scene_template === "COLLAPSE"
-        ? SCENE_DIRECTIVES.COLLAPSE
-        : SCENE_DIRECTIVES.EPILOGUE;
+        ? TASK_LIBRARY.PROSE.SCENE.COLLAPSE
+        : TASK_LIBRARY.PROSE.SCENE.EPILOGUE;
 
   const input_origin_entity = entities?.USER;
   const input_origin = input_origin_entity?.id || input_origin_entity?.name || "USER";
@@ -556,9 +548,9 @@ export function render_memory({ target_entity, target_key = "AI_CHARACTER", othe
   const chapter_xml = config.entities.chapter_history && target_entity ? render_chapter_history_xml(target_entity, 2) : "";
 
   const target_type = target_entity?.type || (target_key === "FRACTAL" ? "fractal" : "character");
-  const task_xml = render_continuum_task({
+  const task_xml = render_task({
+    mode: "continuum",
     target_name,
-    target_key,
     schema: get_output_format(config.format, { target_type }),
   });
 
@@ -595,14 +587,13 @@ export function render_enhancement({
   entity_type = "character",
 }) {
   const config = get_prompt("enhancement");
-  const macro_instruction = !is_image_field ? resolve_macro_directive(entity_type) : "";
+  const macro_directive = !is_image_field ? resolve_macro_directive(entity_type) : "";
   const output_rules =
     is_array_field || field_id.endsWith(".physical") || is_image_field ? "" : get_output_format(config.format, OUTPUT_FORMATS.PROSE);
 
-  const instructions_xml = render_enhancement_instructions({
-    directive,
-    macro_instruction,
-    output_rules,
+  const task_xml = render_task({
+    mode: "enhancement",
+    directives: [directive, macro_directive, output_rules],
   });
 
   return render_system_xml({
@@ -613,7 +604,7 @@ export function render_enhancement({
       field: field_id,
     },
     children: [
-      instructions_xml,
+      task_xml,
       wrap_tag("PROTOCOLS", indent_continuation(render_protocols(config.protocols), 4).trim(), 2),
       layer_key ? `<LAYER>${escape_xml(layer_key)}</LAYER>` : null,
       config.entities.field_context
@@ -639,23 +630,21 @@ export function render_profile_sorting(entity_type = "character", options = {}) 
       ? `FOCUS: Extracting data for a FRACTAL (scene/setting/environment). Re-contextualize or discard character-specific traits. ${macro_rule}`
       : `FOCUS: Extracting data for an individual CHARACTER. Re-contextualize or discard environmental/setting text. ${macro_rule}`;
 
-  const ingestion_instruction = options.ingestion ? `\n\n    ${indent_continuation(SORTING_DIRECTIVES.INGESTION, 4)}` : "";
-  const redistribute_instruction = options.redistribute ? `\n\n    ${indent_continuation(SORTING_DIRECTIVES.REDISTRIBUTE, 4)}` : "";
-  const output_rules_instruction = "";
-
   const pov_key =
     config.protocols
       .find((p) => typeof p === "string" && p.includes("POV."))
       ?.split(".")
       .pop() || "THIRD";
 
-  const instructions_xml = render_profile_sorting_instructions({
+  const task_xml = render_task({
+    mode: "sorting",
     schema: get_output_format(config.format, { resolved_type }),
-    pov_instruction: PROTOCOL_LIBRARY.CORE_PROTOCOLS.PERSPECTIVE.POV[pov_key] || PROTOCOL_LIBRARY.CORE_PROTOCOLS.PERSPECTIVE.POV.THIRD,
-    focus_directive,
-    ingestion_instruction,
-    redistribute_instruction,
-    output_rules_instruction,
+    directives: [
+      PROTOCOL_LIBRARY.CORE_PROTOCOLS.PERSPECTIVE.POV[pov_key] || PROTOCOL_LIBRARY.CORE_PROTOCOLS.PERSPECTIVE.POV.THIRD,
+      focus_directive,
+      options.ingestion ? TASK_LIBRARY.SORTING.INGESTION : null,
+      options.redistribute ? TASK_LIBRARY.SORTING.REDISTRIBUTE : null,
+    ],
   });
 
   return render_system_xml({
@@ -664,7 +653,7 @@ export function render_profile_sorting(entity_type = "character", options = {}) 
       role: "NARRATIVE_STRUCTURER",
       enhancing: "Entire Profile",
     },
-    children: [instructions_xml, wrap_tag("PROTOCOLS", indent_continuation(render_protocols(config.protocols), 4).trim(), 2)],
+    children: [task_xml, wrap_tag("PROTOCOLS", indent_continuation(render_protocols(config.protocols), 4).trim(), 2)],
     closed: true,
   });
 }
@@ -925,9 +914,10 @@ export const prompt_builder = {
 
   /**
    * Builds the terse fallback prompt for the Director.
+   * @param {string} [schema=""]
    */
-  build_terse_director_task() {
-    return render_terse_director_task();
+  build_terse_director_task(schema = "") {
+    return render_task({ mode: "director", terse: true, schema });
   },
 };
 
@@ -940,6 +930,10 @@ if (typeof window !== "undefined") {
 
 /**
  * CHANGELOG
+ * - 2026-09-16: Task Nomenclature Standardization — Standardized prompt task compiler variables (`task_xml`) and `directives` parameters across `render_enhancement` and `render_profile_sorting`.
+ * - 2026-09-16: Standardized Director system envelope with `round` attribute on `<SYSTEM mode="director" round="...">`, removing redundant `<ROUND>` child from Director task. Repatriated `render_scene_spotlight_xml` from `entities.js`.
+ * - 2026-09-16: Switched task directive imports from loose constants to unified `TASK_LIBRARY` (`TASK_LIBRARY.DIRECTOR`, `TASK_LIBRARY.PROSE`, `TASK_LIBRARY.SORTING`), aligning with PROTOCOL_LIBRARY architecture.
+ * - 2026-09-16: Task Compiler Standardization — Updated render_continuum_task, render_enhancement_instructions, and render_profile_sorting_instructions calls to render_task with mode parameter.
  * - 2026-09-15: Prompt Pipeline Symmetrical Consolidation — (1) Extracted shared `render_prose_turn_core` and `extract_somatic_inner` unifying `render_story_prose` and `render_scene_narrator` by construction; (2) Fixed live narrator style regression by resolving full NarrativeStyle objects and passing recency dynamics snapshots; (3) Routed CONTINUUM, PROFILE, and PROSE formats through parameter-aware `get_output_format(config.format, ...)`.
  * - 2026-09-13: Synchronized render_profile_sorting_instructions call with Full-Name nomenclature (`ingestion_instruction`, `redistribute_instruction`, `output_rules_instruction`).
  * - 2026-09-13: Inlined Director role line directly into render_system_xml; purged render_role_xml import.

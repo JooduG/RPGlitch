@@ -250,7 +250,7 @@ describe("Parameter-Aware Layer 7 Output Format Routing", () => {
       entity_type: "character",
     });
 
-    expect(prose_enhancement).toContain("<INSTRUCTIONS>");
+    expect(prose_enhancement).toContain("<TASK>");
     expect(prose_enhancement).toContain("Emit strictly plain prose");
   });
 });

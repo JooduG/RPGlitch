@@ -6,7 +6,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { apply_profile_to_entity } from "./profile.js";
 import { render_enhancement, render_profile_sorting } from "./builder.js";
-import { SORTING_DIRECTIVES } from "./modules/task.js";
+import { TASK_LIBRARY } from "./modules/task.js";
 import { OUTPUT_FORMATS } from "./modules/format.js";
 import { MACRO_DIRECTIVES } from "@utils";
 
@@ -16,7 +16,7 @@ describe("Profile Domain (profile.js)", () => {
   describe("profile protocol primitives", () => {
     it("are frozen and expose a valid schema and formats", () => {
       expect(Object.isFrozen(MACRO_DIRECTIVES)).toBe(true);
-      expect(Object.isFrozen(SORTING_DIRECTIVES)).toBe(true);
+      expect(Object.isFrozen(TASK_LIBRARY.SORTING)).toBe(true);
       expect(Object.isFrozen(OUTPUT_FORMATS)).toBe(true);
 
       expect(OUTPUT_FORMATS.PROFILE).toContain('"name"');
@@ -186,6 +186,7 @@ describe("Profile Domain (profile.js)", () => {
 
 /**
  * CHANGELOG
+ * - 2026-09-16: Updated primitive protocol assertions from SORTING_DIRECTIVES to TASK_LIBRARY.SORTING following catalog unification in task.js.
  * - 2026-09-12: Updated protocol tests to assert the 7 unified SCREAMING_SNAKE_CASE OUTPUT_FORMATS.
  * - 2026-09-12: Updated imports for PROFILE_SCHEMA and OUTPUT_FORMATS from modules/format.js.
  * - 2026-09-11: Pointed the profile-protocol assertions at the primitives (PROFILE_SCHEMA / SORTING_DIRECTIVES / OUTPUT_FORMATS / MACRO_DIRECTIVES) after PROFILE_PROTOCOLS was pruned.

@@ -730,10 +730,87 @@ export function render_enhancement_field_context(entity, field_identifier, conte
 }
 
 // ============================================================================
+// [SECTION 7: STAGE SPOTLIGHT & SECONDARY CASTING]
+// ============================================================================
+
+export const SPOTLIGHT_RULES = Object.freeze({
+  ROUTING: `SPEAKER ROUTING RULES:
+- "AI_CHARACTER": (Default) AI companion reacts to protagonist.
+- "FRACTAL": Environmental action (exploring atmosphere, architecture, weather, objects without dialogue) or breaking long AI speech streaks.
+- "npc:<id>": In-scene secondary character takes the floor.
+- "GENESIS": Mint a new character only if no candidate below applies.`,
+
+  CONVERGENCE_LAW: `CONVERGENCE & CAST LAW:
+Inspect candidate secondary characters below before minting. If an existing cast member matches the role or location (medical, security, merchant), you MUST reuse that entity rather than inventing a duplicate.`,
+
+  PARTICIPANTS_HEADER: "ACTIVE IN-SCENE PARTICIPANTS:",
+  CANDIDATES_HEADER: "CANDIDATE SECONDARY CHARACTERS:",
+});
+
+/**
+ * Generates a concise summary for candidate cast members.
+ * @param {any} entity
+ * @returns {string}
+ */
+function summarize_cast_entity(entity) {
+  const description = String(entity?.description || entity?.eternal?.non_physical || entity?.present?.non_physical || "")
+    .replace(/\s+/g, " ")
+    .trim();
+  return description.length > 130 ? `${description.slice(0, 130).trim()}…` : description;
+}
+
+/**
+ * Renders the Stage Spotlight XML block for Director turn orchestration.
+ * @param {Object} [parameters]
+ * @param {any} [parameters.entities]
+ * @param {any[]} [parameters.npc_entities]
+ * @param {string[]} [parameters.in_scene_ids]
+ * @returns {string}
+ */
+export function render_scene_spotlight_xml({ entities = {}, npc_entities = [], in_scene_ids = [] } = {}) {
+  const active_trio_ids = new Set([entities?.AI?.id, entities?.USER?.id, entities?.FRACTAL?.id].filter(Boolean).map(String));
+  const in_scene_set = new Set((in_scene_ids || []).filter(Boolean).map(String));
+
+  const active_participants = [];
+  if (entities?.AI?.name) active_participants.push(`- ${escape_xml(entities.AI.name)}: Primary Companion (In-Scene)`);
+  if (entities?.USER?.name) active_participants.push(`- ${escape_xml(entities.USER.name)}: Protagonist (In-Scene)`);
+
+  const candidate_secondaries = [];
+
+  for (const candidate_entity of npc_entities || []) {
+    if (!candidate_entity || active_trio_ids.has(String(candidate_entity.id))) continue;
+    const is_in_scene = in_scene_set.has(String(candidate_entity.id));
+    const summary = summarize_cast_entity(candidate_entity);
+    const summary_suffix = summary ? `: ${escape_xml(summary)}` : "";
+    if (is_in_scene) {
+      active_participants.push(`- ${escape_xml(candidate_entity.name)} (id: ${escape_xml(String(candidate_entity.id))}) [In-Scene]${summary_suffix}`);
+    } else {
+      candidate_secondaries.push(
+        `- ${escape_xml(candidate_entity.name)} (id: ${escape_xml(String(candidate_entity.id))}) [Off-Screen (Stasis)]${summary_suffix}`,
+      );
+    }
+  }
+
+  const { CANDIDATES_HEADER, ROUTING, CONVERGENCE_LAW, PARTICIPANTS_HEADER } = SPOTLIGHT_RULES;
+  const candidate_section = candidate_secondaries.length > 0 ? `\n\n${CANDIDATES_HEADER}\n${candidate_secondaries.join("\n")}` : "";
+
+  return `<SCENE_SPOTLIGHT>
+${ROUTING}
+
+${CONVERGENCE_LAW}
+
+${PARTICIPANTS_HEADER}
+${active_participants.join("\n")}${candidate_section}
+</SCENE_SPOTLIGHT>`;
+}
+
+// ============================================================================
 // [CHANGELOG]
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-16: Repatriated `render_scene_spotlight_xml` and `SPOTLIGHT_RULES` back to `entities.js` (Layer 4 entity/cast management sovereignty). Merged headers into single directive blocks.
+ * - 2026-09-14: Purged dead `agenda_gate` configuration property from `SHEET_SPECS.USER_PERSONA` per P4 pre-beta purity.
  * - 2026-09-14: Purged dead `agenda_gate` configuration property from `SHEET_SPECS.USER_PERSONA` per P4 pre-beta purity.
  * - 2026-09-13: Token optimization & epistemic reinforcement: (1) Enforced Bystander NPC Diet where non-speaking in-scene NPCs omit private standing agendas and deep memory vectors while stripping secrets/plans across the Epistemic Wall; (2) Compressed nested whitespace across dispositions and dynamic axes to 6-space hierarchy, trimming whitespace tokens.
  * - 2026-09-13: Fixed NPC dynamic axes crosstalk by isolating bystander NPC axes from active speaker dynamics; deduplicated in-scene NPCs in proximate roster to eliminate redundant <NPC> tags when full sheets are already rendered.

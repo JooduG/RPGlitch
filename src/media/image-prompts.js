@@ -289,9 +289,9 @@ export const prompt_templates = {
 ${protocol_text}
 ${is_selfie ? '\nPHASE 6: SELFIE MODE EXTENSION\n- Generate a short, in-character social media caption inside "caption".' : ""}
 <TARGET>${tier}</TARGET>
-${history_xml}<INSTRUCTIONS>
+${history_xml}<TASK>
 Convert narrative intent into a structured image prompt payload depicting ${subject}.
-</INSTRUCTIONS>
+</TASK>
 <INPUT_INTENT>${prompt_escape(detox_prose(roll(raw_intent)))}</INPUT_INTENT>
 ${context_block}
 ${framing_block}
@@ -437,6 +437,7 @@ export function clean_image_prompt(raw, options = {}) {
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-16: Prompt Tag Standardization — Replaced legacy <INSTRUCTIONS> XML tag with canonical <TASK> envelope in build_prompt.
  * - 2026-09-10: clean_image_prompt now accepts { names } and strips entity proper names
  *   (whole-word, possessive-aware) from synthesized diffusion prompts; added strip_proper_names.
  * - 2026-09-04: render_entity now resolves {{...}} macros ({{char}}/{{user}}/{{me}}/{{fractal}}) against each entity's stable identity before compiling PRESENT/ETERNAL blocks, so image prompts never receive raw macro tokens or inverted names.

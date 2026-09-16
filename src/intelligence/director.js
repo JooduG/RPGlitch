@@ -19,7 +19,7 @@
 import { entities } from "@data";
 import { extract_json_block, state_bridge } from "@utils";
 import { llm_service, raw_stop_reason, raw_to_text } from "@platform";
-import { prompt_builder, render_terse_director_task } from "./builder.js";
+import { prompt_builder } from "./builder.js";
 import { extract_and_repair_json, parse_think_block, validate_and_repair_response } from "./parser.js";
 
 // ── 1. Constants & Value Maps ─────────────────────────────────────────────────
@@ -430,7 +430,7 @@ export async function execute_director_shot(payload, snapshot, options = {}) {
         const response = await llm_service.generate(
           {
             system: director_prompt.system,
-            task: is_terse_attempt ? render_terse_director_task() : director_prompt.task,
+            task: is_terse_attempt ? prompt_builder.build_terse_director_task() : director_prompt.task,
             messages: [],
             role: "system",
             node_id: `${node_id}-director`,
@@ -510,6 +510,7 @@ export async function execute_director_shot(payload, snapshot, options = {}) {
 
 /**
  * CHANGELOG
+ * - 2026-09-16: Zero Backwards Compatibility (P4) — Migrated terse retry call from deprecated render_terse_director_task to prompt_builder.build_terse_director_task().
  * - 2026-09-13: Encapsulated Shot 1 execution: implemented execute_director_shot in director.js, absorbing LLM dispatch, refusal recovery, and terse fallback from story.js.
  * - 2026-09-11: Grand Purification: prompt compilation moved to builder.js, DIRECTOR_PROTOCOLS moved to modules/protocols.js, leaving director.js a 100% pure execution & normalization engine.
  * - 2026-09-11: Modularized prompt blocks: imported SCHEMA, TASK_RULES, SPOTLIGHT_RULES, and SYSTEM_ROLES from modules/.

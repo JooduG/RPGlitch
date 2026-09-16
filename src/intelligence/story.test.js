@@ -95,7 +95,6 @@ vi.mock("./builder.js", async (importOriginal) => {
       build_terse_director_task: vi.fn(() => "<TASK>Return a single, COMPLETE, VALID JSON object</TASK>"),
       build_profile_sorting: vi.fn(() => ({ system: "SYS", messages: [] })),
     },
-    render_terse_director_task: vi.fn(() => "<TASK>Return a single, COMPLETE, VALID JSON object</TASK>"),
   };
 });
 
