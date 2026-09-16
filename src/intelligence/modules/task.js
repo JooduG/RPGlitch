@@ -77,7 +77,8 @@ Close with </THINK> before generating narrative prose.`;
 
     EVALUATE: (has_input) => `Evaluate state mutations caused by ${has_input ? "<INPUT />" : "the current situation"}.`,
     ROUND_ONE: 'Round 1 follows the Fractal prologue, so next_action MUST be "AI_CHARACTER".',
-    USER_PERSONA_LOCK: '"USER_PERSONA" is never a valid next_action; the Director never speaks for the player.',
+    USER_PERSONA_LOCK:
+      '"USER_PERSONA" (or player character name) is never a valid next_action; the Director never speaks for the player. Valid actions are strictly: "AI_CHARACTER", "FRACTAL", "npc:<id>", or { "genesis": ... }.',
   }),
 
   // ── 1.3 Shot 2A: Prose Turn Directives (character / scene / ghostwrite) ─────
@@ -390,6 +391,7 @@ export function render_task({
 
 /**
  * CHANGELOG
+ * - 2026-09-17: Director Action Clarification — Strengthened `TASK_LIBRARY.DIRECTOR.USER_PERSONA_LOCK` to explicitly disallow player character names and enumerate valid target enums.
  * - 2026-09-16: Standardized Director input tag and `TASK_LIBRARY.DIRECTOR.EVALUATE` to canonical `<INPUT />`, achieving 100% universal input tag consistency across all prompt modes.
  * - 2026-09-16: Pruned legacy `GHOSTWRITE` directives from `TASK_LIBRARY.PROSE` and simplified `resolve_character_action_directive` — ghostwriting operates as a first-class symmetrical Shot-2A first-person character turn governed by `CORE_PROTOCOLS.PERSPECTIVE.POV.FIRST` and `<DELIVERY_POSTURE><DRIVE>`.
  * - 2026-09-16: Pruned redundant `DEFAULTS` wrapper from `TASK_LIBRARY.PROTOCOLS` and encapsulated `emotional_grounding` fallback directly within `THINK_FORMAT`.

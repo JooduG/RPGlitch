@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { clean_image_prompt, strip_proper_names } from "./image-prompts.js";
+import { clean_image_prompt, prompt_templates, strip_proper_names } from "./image-prompts.js";
 
 describe("strip_proper_names", () => {
   it("removes a character's full name and surname tokens", () => {
@@ -41,5 +41,17 @@ describe("clean_image_prompt", () => {
 
   it("works without options", () => {
     expect(clean_image_prompt("a charcoal suit")).toContain("charcoal");
+  });
+});
+
+describe("prompt_templates.build_prompt affirmative framing", () => {
+  it("compiles affirmative framing protocol without undefined leaks", () => {
+    const prompt = prompt_templates.build_prompt("A stormy mountain peak", {
+      tier: "story_scene",
+      context: { scene_description: "lightning over crags" },
+    });
+    expect(prompt).toContain("<AFFIRMATIVE_FRAMING>");
+    expect(prompt).not.toContain("<AFFIRMATIVE_FRAMING>undefined</AFFIRMATIVE_FRAMING>");
+    expect(prompt).toContain("Describe positive presence in frame");
   });
 });

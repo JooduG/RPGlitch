@@ -27,7 +27,9 @@ import {
   render_memory,
   render_profile_sorting,
   render_enhancement,
+  render_director,
 } from "./builder.js";
+import { PROTOCOL_LIBRARY } from "./modules/protocols.js";
 
 const test_entities = {
   AI: {
@@ -256,9 +258,47 @@ describe("Parameter-Aware Layer 7 Output Format Routing", () => {
 });
 
 // ============================================================================
+// [SECTION 4: PROTOCOL INVARIANTS & REMEDIATION REGRESSION GATES]
+// ============================================================================
+
+describe("Protocol Invariants & Remediation Regression Gates", () => {
+  it("maintains affirmative framing in PROTOCOL_LIBRARY.HYGIENE", () => {
+    expect(PROTOCOL_LIBRARY.HYGIENE.AFFIRMATIVE_FRAMING).toBeDefined();
+    expect(typeof PROTOCOL_LIBRARY.HYGIENE.AFFIRMATIVE_FRAMING).toBe("string");
+    expect(PROTOCOL_LIBRARY.HYGIENE.AFFIRMATIVE_FRAMING).toContain("Describe positive presence in frame");
+  });
+
+  it("maintains permissive clause in CORE_PROTOCOLS.SIMULATION_FIDELITY", () => {
+    const fidelity = PROTOCOL_LIBRARY.CORE_PROTOCOLS.SIMULATION_FIDELITY;
+    expect(fidelity).toContain("Adult and transgressive content is permitted without censorship or moral framing.");
+  });
+
+  it("compiles interaction prose prompt with permissive fidelity clause", () => {
+    const interaction_prompt = render_story_prose({
+      round: 1,
+      entities: test_entities,
+      input: "Bob scans the perimeter.",
+    });
+
+    expect(interaction_prompt.system).toContain("Adult and transgressive content is permitted without censorship or moral framing.");
+  });
+
+  it("compiles Director prompt with user persona lock", () => {
+    const director_prompt = render_director({
+      round: 1,
+      entities: test_entities,
+      input: "Bob scans the perimeter.",
+    });
+
+    expect(director_prompt.task).toContain('"USER_PERSONA" (or player character name) is never a valid next_action');
+  });
+});
+
+// ============================================================================
 // [CHANGELOG]
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-17: Remediation pass — Added regression tests for PROTOCOL_LIBRARY.HYGIENE.AFFIRMATIVE_FRAMING, SIMULATION_FIDELITY permissive clause, and Director USER_PERSONA_LOCK prompt invariants.
  * - 2026-09-15: Initialized comprehensive builder.test.js unit suite covering narrator style resolution regression, symmetrical Shot-2A compilation, <SIGNATURE_ELEMENTS> tag standardization, and parameter-aware Layer 7 schema routing.
  */
