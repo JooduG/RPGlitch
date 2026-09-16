@@ -4,15 +4,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import {
-  OUTPUT_FORMATS,
-  SCHEMA_ATOMS,
-  SCHEMA_FIELD_DESCRIPTORS,
-  get_output_format,
-  get_continuum_schema,
-  get_profile_schema,
-  render_output_format_xml,
-} from "./format.js";
+import { OUTPUT_FORMATS, SCHEMA_ATOMS, get_output_format, get_continuum_schema, get_profile_schema, render_output_format_xml } from "./format.js";
 
 describe("src/intelligence/modules/format.js", () => {
   describe("SCHEMA_ATOMS", () => {
@@ -22,16 +14,6 @@ describe("src/intelligence/modules/format.js", () => {
       expect(SCHEMA_ATOMS.directors_note).toBe("<1-5 lines staging directives for next speaker, or empty string>");
       expect(SCHEMA_ATOMS.visual_staging).toBe("<optional: camera & lighting directive if scene image shifts>");
       expect(SCHEMA_ATOMS.keywords).toEqual(["<1-5 keywords from AVAILABLE_KEYWORDS>"]);
-    });
-  });
-
-  describe("SCHEMA_FIELD_DESCRIPTORS", () => {
-    it("is frozen and contains concise schema descriptors for character and fractal taxonomies", () => {
-      expect(Object.isFrozen(SCHEMA_FIELD_DESCRIPTORS)).toBe(true);
-      expect(SCHEMA_FIELD_DESCRIPTORS.character.eternal.physical).toContain("[KEY: value] permanent biometrics");
-      expect(SCHEMA_FIELD_DESCRIPTORS.character.present.physical).toContain("[KEY: value] current appearance");
-      expect(SCHEMA_FIELD_DESCRIPTORS.fractal.eternal.physical).toContain("[KEY: value] permanent geography");
-      expect(SCHEMA_FIELD_DESCRIPTORS.fractal.present.physical).toContain("[KEY: value] atmospheric state");
     });
   });
 
@@ -101,6 +83,7 @@ describe("src/intelligence/modules/format.js", () => {
 
 /**
  * CHANGELOG
+ * - 2026-09-16: Removed SCHEMA_FIELD_DESCRIPTORS suite following repatriation into PROFILE_FIELDS directives in profile-fields.js.
  * - 2026-09-13: Added verification for token-optimized SCHEMA_FIELD_DESCRIPTORS and streamlined schema outputs (PROSE, DIRECTOR, PROFILE, CONTINUUM).
  * - 2026-09-13: Verified output format contracts against the 7-section symmetrical format.js rebuild.
  * - 2026-09-12: Updated unit tests to verify the 7 consolidated SCREAMING_SNAKE_CASE keys and alias resolutions (PSEUDO_JSON -> BRACKETS, ARRAY_* -> MEMORIES).

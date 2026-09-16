@@ -28,7 +28,8 @@
     "**/package.json",
     "**/tasks/**",
     "**/workflows/**",
-    "/ai-rpg"
+    "/ai-rpg",
+    "../scrabbles.md"
   ],
   "files.exclude": {
     "**/.DS_Store": true,

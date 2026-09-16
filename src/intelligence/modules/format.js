@@ -61,41 +61,6 @@ export const SCHEMA_ATOMS = Object.freeze({
   target: "'AI_CHARACTER' | 'USER_PERSONA' | 'FRACTAL' | 'NPC_<id>'",
   relationships: ["Source → Target: dynamic description"],
 });
-
-/**
- * High-density, LLM-optimized field contracts for JSON schemas (Layer 7 Sovereignty).
- * Eliminates conversational UI tutorials from continuum and profile schemas.
- */
-export const SCHEMA_FIELD_DESCRIPTORS = Object.freeze({
-  name: "Entity name string",
-  description: "Internal OOC summary notes",
-  signature_color: "Entity signature color name (e.g. amber, sky, violet)",
-  character: {
-    eternal: {
-      physical: "[KEY: value] permanent biometrics (gender, age, ethnicity, build, face, eyes, hair)",
-      non_physical: "Prose only (never bracketed or key-value pairs): core beliefs, personality drivers, cognitive patterns, vocal tone",
-    },
-    present: {
-      physical: "[KEY: value] current appearance (clothing, colors, expression, posture, condition, held)",
-      non_physical: "Prose only (never bracketed or key-value pairs): immediate emotional pressure, active mental focus, behavioral drivers",
-    },
-    future: "Consolidated 2-5 sentence standing agenda in active future tense",
-    past: "Settled historical event or precedent exerting lasting residue",
-  },
-  fractal: {
-    eternal: {
-      physical: "[KEY: value] permanent geography (terrain, architecture, materials, landmarks)",
-      non_physical: "Prose only (never bracketed or key-value pairs): timeless metaphysical substrate, governing laws, physical constants",
-    },
-    present: {
-      physical: "[KEY: value] atmospheric state (lighting, weather, atmosphere, events)",
-      non_physical: "Prose only (never bracketed or key-value pairs): active anomaly, current pressure, immediate atmospheric shift",
-    },
-    future: "Consolidated 2-5 sentence environmental trajectory in active future tense",
-    past: "Settled historical cataclysm, founding myth, or defining epoch",
-  },
-});
-
 // ============================================================================
 // [SECTION 2: UNIVERSAL DYNAMIC JSON SCHEMA COMPOSER]
 // ============================================================================
@@ -115,25 +80,24 @@ export const SCHEMA_FIELD_DESCRIPTORS = Object.freeze({
 export function render_json_schema(schema_keys, entity_type = "character") {
   const resolved_entity_type = entity_type === "fractal" ? "fractal" : "character";
   const entity_model = PROFILE_FIELDS[resolved_entity_type] || PROFILE_FIELDS.character;
-  const descriptors = SCHEMA_FIELD_DESCRIPTORS[resolved_entity_type] || SCHEMA_FIELD_DESCRIPTORS.character;
 
   const schema_lines = schema_keys
     .map((schema_key) => {
       // 1. Twin-cylinder temporal composite layers (eternal, present)
       if (entity_model[schema_key]?.physical && entity_model[schema_key]?.non_physical) {
-        const physical_descriptor = descriptors[schema_key]?.physical || entity_model[schema_key].physical.directive;
-        const non_physical_descriptor = descriptors[schema_key]?.non_physical || entity_model[schema_key].non_physical.directive;
-        return `  "${schema_key}": {\n    "physical": "<${physical_descriptor}>",\n    "non_physical": "<${non_physical_descriptor}>"\n  }`;
+        const physical_directive = entity_model[schema_key].physical.directive;
+        const non_physical_directive = entity_model[schema_key].non_physical.directive;
+        return `  "${schema_key}": {\n    "physical": "<${physical_directive}>",\n    "non_physical": "<${non_physical_directive}>"\n  }`;
       }
 
       // 2. Direct model or top-level metadata field (name, description, signature_color, future, past)
       const field_definition = entity_model[schema_key] || PROFILE_FIELDS[schema_key];
       if (field_definition?.directive) {
-        const field_descriptor = descriptors[schema_key] || SCHEMA_FIELD_DESCRIPTORS[schema_key] || field_definition.directive;
+        const field_directive = field_definition.directive;
         if (field_definition.type === "array") {
-          return `  "${schema_key}": [{ "content": "<${field_descriptor}>", "emotional_weight": 1-10 }]`;
+          return `  "${schema_key}": [{ "content": "<${field_directive}>", "emotional_weight": 1-10 }]`;
         }
-        return `  "${schema_key}": "<${field_descriptor}>"`;
+        return `  "${schema_key}": "<${field_directive}>"`;
       }
 
       // 3. Directorial and continuum atoms from SCHEMA_ATOMS
@@ -265,6 +229,7 @@ export function render_output_format_xml({ mode = "", content = "", indent_level
 
 /**
  * CHANGELOG
+ * - 2026-09-16: Merged/repatriated SCHEMA_FIELD_DESCRIPTORS directly into PROFILE_FIELDS in src/data/definitions/profile-fields.js. Streamlined render_json_schema to read concise directives directly from PROFILE_FIELDS, eliminating parallel descriptor models and redundant fallback logic.
  * - 2026-09-16: Clarified non_physical field descriptors in SCHEMA_FIELD_DESCRIPTORS to specify prose only (prohibiting bracket-dicts or key-value pairs) to prevent Continuum Caretaker format bleed.
  * - 2026-09-15: Parameter-Aware Layer 7 Resolution — Enhanced get_output_format with entity-type options parameter routing for CONTINUUM, PROFILE, DIRECTOR, and PROSE formats, making manifest Layer 7 fully load-bearing.
  * - 2026-09-13: Token Optimization pass: (1) Streamlined SCHEMA_ATOMS (_thought_process, keywords, directors_note, visual_staging) to eliminate conversational human fluff; (2) Compacted PROSE_FORMAT from 26 words down to 11 words while preserving plain prose contract; (3) Introduced high-density SCHEMA_FIELD_DESCRIPTORS in render_json_schema for character and fractal schemas, cutting CONTINUUM and PROFILE schema tokens by ~68% without impacting UI profile field definitions.

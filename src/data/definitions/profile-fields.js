@@ -20,7 +20,7 @@ import { format_key_as_label } from "@utils";
 import { SIGNATURE_COLORS } from "./signature-colors.js";
 
 const HELPERS = Object.freeze({
-  BRACKETS: `Return bracketed directives: [KEY: value] — one directive per line, no outer braces, no prose outside brackets. Max 15 lines.`,
+  BRACKETS: `Return bracketed directives: [KEY: value] — one directive per line, no outer braces, no prose outside brackets.`,
 });
 
 // ── 1. Canonical Field Taxonomy ───────────────────────────────────────────────
@@ -37,7 +37,7 @@ export const PROFILE_FIELDS = {
   description: {
     label: "Description",
     description: "HUMAN EYES ONLY: internal notes / OOC summary (never used in simulation)",
-    directive: "HUMAN EYES ONLY: internal notes / OOC summary (never used in simulation)",
+    directive: "Internal OOC summary notes",
   },
   signature_color: {
     label: "Signature Color",
@@ -49,14 +49,14 @@ export const PROFILE_FIELDS = {
       physical: {
         label: "Physical Appearance",
         description: "Permanent biometric features for image generation (gender, age, ethnicity, build, face, eyes, hair, height).",
-        directive: `Permanent physical features for image generation. Mandatory keys: [GENDER: ...], [AGE: ...], [ETHNICITY: ...]. Optional keys: [BUILD: ...], [FACE: ...], [EYES: ...], [SKIN: ...], [HAIR: ...], [EARS: ...], [DENTAL_FEATURES: ...], [HEIGHT: ...]. Visible body details and identifying scars only — no clothing, traits, gear, or morality. ${HELPERS.BRACKETS}`,
+        directive: `[KEY: value] permanent biometrics (gender, age, ethnicity, build, face, eyes, hair, scars). Visible body details only — no clothing, equipment, or psychological traits. ${HELPERS.BRACKETS}`,
         enhancer: "BIOMETRIC_RENDERER",
       },
       non_physical: {
         label: "Personality",
         description: "Timeless psychology: core beliefs, personality drivers, cognitive patterns, vocal tone, and communication tics.",
         directive:
-          "Timeless psychology: core beliefs, personality drivers, cognitive patterns, vocal tone, speech cadence, and communication tics. Must hold true in any scene — if it shifts during play, it belongs in Present. No reactive moments or specific events. Dense, high-fidelity paragraph.",
+          "Prose only (never bracketed or key-value pairs): core beliefs, personality drivers, cognitive patterns, vocal tone, speech cadence, and communication tics. Timeless psychological baseline that holds true in any scene. Dense, high-fidelity paragraph.",
         enhancer: "COGNITIVE_ARCHITECT",
       },
     },
@@ -65,14 +65,14 @@ export const PROFILE_FIELDS = {
         label: "Current Look",
         description:
           "Current physical appearance for image generation (clothing, colors, expression, posture, condition). Use {Option A|Option B} for variables.",
-        directive: `Current physical appearance layered over eternal baseline. Keys: [CLOTHING: ...], [COLORS: ...], [EXPRESSION: ...], [POSTURE: ...], [CONDITION: ...], [HELD: ...]. Use {A|B} syntax for option variables. Visible temporary items, expressions, and poses only — no hidden thoughts. ${HELPERS.BRACKETS}`,
+        directive: `[KEY: value] current appearance layered over eternal baseline (clothing, colors, expression, posture, condition, held). Use {Option A|Option B} for variables. Visible temporary items and poses only. ${HELPERS.BRACKETS}`,
         enhancer: "SOMATIC_TRACKER",
       },
       non_physical: {
         label: "State of Mind",
         description: "Current state of mind: immediate emotional pressure, active mental focus, and present behavioral drivers.",
         directive:
-          "What's shifted from the eternal baseline right now: immediate emotional pressure, active mental focus, present behavioral drivers. DO NOT restate permanent baseline traits from Eternal. True in THIS moment only — if always true, it belongs in Eternal. Dense, punchy summary.",
+          "Prose only (never bracketed or key-value pairs): immediate emotional pressure, active mental focus, present behavioral drivers. True in THIS moment only — do not restate permanent baseline traits from Eternal. Dense, punchy summary.",
         enhancer: "TACTICAL_ANALYZER",
       },
     },
@@ -81,14 +81,14 @@ export const PROFILE_FIELDS = {
       description:
         "The entity's active trajectory or standing agenda: clear intent, building pressure, or impending event driving the next state change.",
       directive:
-        "Rewrite the standing agenda as ONE consolidated block of 2-5 sentences in active future tense: a clear intent, building pressure, or impending event driving this entity toward its next state change. Must be distinct from Present. No story scenes, no dialogue, no tag lists.",
+        "Consolidated 2-5 sentence standing agenda in active future tense: clear intent, building pressure, or impending event driving this entity toward its next state change. Distinct from Present. No story scenes, dialogue, or tag lists.",
       enhancer: "TRAJECTORY_SIMULATOR",
     },
     past: {
       label: "Memories",
       description: "Formative memories or critical precedents: specific anchored events or established historical facts.",
       directive:
-        "Specific historical fact or settled event in past tense exerting lasting behavioral residue. Specific over vague; exclude transient moods or immediate dialogue. Empty list if none.",
+        "Settled historical fact or precedent in past tense exerting lasting behavioral residue. Specific over vague; exclude transient moods or immediate dialogue. Empty list if none.",
       enhancer: "EPISODIC_MEMORY_COMPILER",
       type: "array",
     },
@@ -98,14 +98,14 @@ export const PROFILE_FIELDS = {
       physical: {
         label: "Environment",
         description: "Permanent physical geography for image generation (terrain, architecture, materials, landmarks, scale).",
-        directive: `Permanent physical geography for image generation. Keys: [TERRAIN: ...], [ARCHITECTURE: ...], [MATERIALS: ...], [LANDMARKS: ...], [SCALE: ...], [GEOMETRY: ...], [ZONES: ...], [CONNECTION: ...], [VISUAL_THEME: ...]. Concrete visible landscape features only — no weather, lighting, or lore. ${HELPERS.BRACKETS}`,
+        directive: `[KEY: value] permanent geography (terrain, architecture, materials, landmarks, scale). Concrete visible landscape features only — no transient weather, lighting, or lore. ${HELPERS.BRACKETS}`,
         enhancer: "SPATIAL_RENDERER",
       },
       non_physical: {
         label: "Permanent Truths",
         description: "Timeless metaphysical substrate: governing laws, constant environmental forces, and physical constants.",
         directive:
-          "Timeless metaphysical substrate: governing laws, constant forces, structural atmosphere. Intangible constants, ambient rules, defining sensory essence, unbreakable world logic. Must hold true in any scene — if it shifts, it belongs in Present. No moments of observation. Dense, high-fidelity paragraph.",
+          "Prose only (never bracketed or key-value pairs): timeless metaphysical substrate, governing laws, constant environmental forces, unbreakable world logic. Dense, high-fidelity paragraph.",
         enhancer: "METAPHYSICAL_ARCHITECT",
       },
     },
@@ -113,14 +113,14 @@ export const PROFILE_FIELDS = {
       physical: {
         label: "Atmosphere",
         description: "Current atmospheric state for image generation (lighting, weather, atmosphere, events). Use {Option A|Option B} for variables.",
-        directive: `Current atmospheric state layered over eternal baseline. Keys: [LIGHTING: ...], [WEATHER: ...], [ATMOSPHERE: ...], [EVENTS: ...]. Use {A|B} syntax for option variables. Momentary sensory elements only. ${HELPERS.BRACKETS}`,
+        directive: `[KEY: value] current atmospheric state layered over eternal baseline (lighting, weather, atmosphere, events). Use {Option A|Option B} for variables. Momentary sensory elements only. ${HELPERS.BRACKETS}`,
         enhancer: "ATMOSPHERIC_TRACKER",
       },
       non_physical: {
         label: "Current State",
         description: "Current environmental state: active anomalies, immediate pressure, and momentary shifts in physics or atmosphere.",
         directive:
-          "What's changed from the eternal baseline right now: active anomaly, current pressure, immediate shift in physics or atmosphere. True RIGHT NOW only — stable conditions belong in Eternal. Short, high-fidelity statement.",
+          "Prose only (never bracketed or key-value pairs): active anomaly, current pressure, immediate shift in physics or atmosphere. True right now only; short high-fidelity statement.",
         enhancer: "ECOSYSTEM_ANALYZER",
       },
     },
@@ -128,7 +128,7 @@ export const PROFILE_FIELDS = {
       label: "Trajectory",
       description: "Environmental trajectory, building anomaly, or converging weather event driving the next scene state change.",
       directive:
-        "Rewrite the trajectory as ONE consolidated block of 2-5 sentences in active future tense: building atmospheric pressure, impending environmental event, or anomaly apex driving this world toward its next state change. Must be distinct from Present.",
+        "Consolidated 2-5 sentence environmental trajectory in active future tense: building atmospheric pressure, impending environmental event, or anomaly apex driving this world toward its next state change.",
       enhancer: "ECOSYSTEM_SIMULATOR",
     },
     past: {
@@ -320,6 +320,7 @@ export function build_profile_sections(entity_type = "character") {
 
 /**
  * CHANGELOG:
+ * - 2026-09-16: Streamlined all entity field directives in PROFILE_FIELDS into high-density LLM instructions, eliminating conversational filler and tutorial text while preserving imperative schema contracts. Dynamic SIGNATURE_COLORS interpolation preserved.
  * - 2026-09-12: Added `signature_color` to `PROFILE_FIELDS`.
  * - 2026-09-12: Redesigned taxonomy hierarchy to entity_type -> temporal layer -> field (character -> eternal -> physical). Added distinct fractal models for future (Impending Shift) and past (World History). Simplified build_profile_catalog and build_profile_sections.
  * - 2026-09-06: Standardized field taxonomy:
