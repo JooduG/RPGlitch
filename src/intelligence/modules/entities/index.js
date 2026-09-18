@@ -51,7 +51,6 @@ export {
   render_enhancement_field_context,
   render_optics_entities_xml,
   render_optics_subject_rules,
-  resolve_optics_cinematography,
 } from "./sheets.js";
 
 // -----------------------------------------------------------------------------
@@ -60,6 +59,8 @@ export {
 /**
  * CHANGELOG
  * ============================================================================
- * - 2026-09-18: Initial creation of modularized entities index.js barrel re-exporting epistemic, presence, and sheets submodules.
+ * - 2026-09-19: Pruned `resolve_optics_cinematography` re-export following relocation to `modules/task.js` (P4 Zero Backwards Compatibility).
+ * - 2026-09-18: Added re-exports for render_optics_entities_xml and resolve_optics_cinematography from sheets.js submodule.
+ * - 2026-09-18: Modularization pass — split monolithic entities.js into sheets.js, presence.js, and epistemic.js; index.js serves as unified domain aggregator.
  * ============================================================================
  */

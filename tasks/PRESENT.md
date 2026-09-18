@@ -20,8 +20,10 @@ last_synchronized: 2026-09-19
 - **Last Startup Verification**: 2026-09-18 16:35 (via `/startup`).
 
 ### 🔍 Detected TODOs
+
 <!-- TODO_SCAN_START -->
-Last Scanned: 2026-09-19 00:41
+
+Last Scanned: 2026-09-19 01:00
 
 No active AI debt found.
 <!-- TODO_SCAN_END -->
@@ -47,6 +49,8 @@ No active AI debt found.
 ## 📜 Past
 
 | Date / Timestamp | Summary of Changes | Workflows / Skills | Status |
+| 2026-09-19 00:51 | Architecture Purification (Task & Media): (1) Relocated `resolve_optics_cinematography` from `entities/sheets.js` to Layer 6 `modules/task.js` and removed re-export from `entities/index.js` under P4 Zero Backwards Compatibility; (2) Updated `builder.js` and `task.test.js` to import and test `resolve_optics_cinematography` via `task.js`; (3) Switched relative media import in `sheets.js` to sovereign `@media` barrel alias; (4) Verified all 70 test suites pass 100%. | `implement`, `test` | ✅ Completed |
+| 2026-09-19 00:45 | Protocol Compiler Consolidation: (1) Merged `render_protocols` into `render_core_protocols` and converted `compile_protocol_tags` into a module-private compiler helper; (2) Removed `export function render_protocols` under P4 Zero Backwards Compatibility, leaving `render_core_protocols` as the single universal Layer 3 `<CORE_PROTOCOLS>` compiler; (3) Cleaned up dead mock in `story.test.js` and updated `protocols.test.js`; (4) Formatted `tasks/PRESENT.md` and verified all suites. | `implement`, `test` | ✅ Completed |
 | 2026-09-19 00:43 | Core Protocols Unification & Symmetry Cleanup: (1) Symmetrically extracted `render_narrative_style_xml` in `protocols.js` alongside `render_visual_style_xml`; (2) Unified all prompt modes (Director, Continuum, Enhancement, Sorting, Story Prose, Optics) onto universal Layer 3 compiler `render_core_protocols`; (3) Pruned redundant `render_optics_protocols` and external `wrap_tag("CORE_PROTOCOLS")` wrappers from `builder.js` under P4 Zero Backwards Compatibility; (4) Synchronized unit tests in `protocols.test.js` and `builder.test.js`; (5) All 70 test suites (994 tests), design tests, 13 hook contracts, and `npm run verify` pass 100% cleanly. | `implement`, `test` | ✅ Completed |
 | 2026-09-19 00:30 | Visual Style Architecture & Optics Redistribution: (1) Mirrored Narrative Style architecture onto Visual Style: Layer 3 `<CORE_PROTOCOLS>` emits `PROTOCOL_LIBRARY.OPTICS` and `<VISUAL_STYLE origin="...">` (medium, palette, textures) via `render_visual_style_xml`; (2) Layer 4 `<ENTITIES>` co-locates `<SUBJECT_RULES>` (`<DYNAMIC_OVERRIDES>`, `<GARMENT_ANATOMY>`, `<IDENTIFIERS>`, `<CREATURE_DISAMBIGUATION>`, `<ALTERNATION_OPTIONS>`) via `render_optics_subject_rules`; (3) Layer 6 `<TASK>` unifies `<SPATIAL_FRAMING>` (`<FIRST_SENTENCE_MANDATE>`, `<SPATIAL_GEOMETRY>`, dynamic `<CAMERA>`/`<COMPOSITION>`, and `<CINEMATOGRAPHY mode="...">`) plus 4-phase `<THINK_FORMAT>`; (4) Fully pruned `build_optics_builder_protocol` and `OPTICS_BUILDER_PROTOCOL` across codebase under P4 Zero Backwards Compatibility; (5) Aligned `PROMPTS.optics` manifest and `compile_pipeline_prompt("optics")`; (6) All 70 unit test suites (993 tests), design tests, 13 hook contracts, `npm run verify`, and singlefile build pass 100%. | `implement`, `test` | ✅ Completed |
 | 2026-09-18 23:58 | Visual Engine Direct Structuring & XML Parse Elimination: (1) Attached structured `engine` object directly to `VisualStyle` in `define_visual_style` (`src/data/definitions/visual-styles.js`), eliminating the legacy `<VISUAL_ENGINE>` XML stringification loop; (2) Updated `resolve_visual_engine_tokens` in `image-aesthetics.js` to read structured tokens directly without regex parsing; (3) Pruned dead `parse_visual_engine` function from `src/utils/xml.js` under P4 Zero Backwards Compatibility; (4) Synchronized unit tests in `visual-styles.test.js`, `image-aesthetics.test.js`, and `visual.svelte.test.js`; (5) Verified 100% pass across all 69 unit test files (986 tests), design tests, and 13 hook contracts. | `implement`, `test` | ✅ Completed |

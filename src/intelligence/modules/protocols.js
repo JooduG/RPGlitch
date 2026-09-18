@@ -4,12 +4,12 @@
  * 🛡️ CORE PROTOCOLS & PROTOCOL LIBRARY MODULE
  * ============================================================================
  *
- * Provides the protocol registry (PROTOCOL_LIBRARY), prompt header compiler (render_protocols),
- * core prose protocol scaffold (render_core_protocols), POV resolution, and text layout helpers.
+ * Provides the protocol registry (PROTOCOL_LIBRARY), universal Layer 3 compiler (render_core_protocols),
+ * narrative and visual style XML formatters, POV resolution, and text layout helpers.
  *
  * Architecture & Modification Rules:
  * - Unidirectional layer flow: pure string compilation.
- * - Blueprint (protocols.js): `PROTOCOL_LIBRARY` catalog + key resolver (`render_protocols`) + pure compilers over @utils `render_xml_tag`.
+ * - Blueprint (protocols.js): `PROTOCOL_LIBRARY` catalog + `render_core_protocols` universal compiler over @utils `render_xml_tag`.
  * - Single source of truth for simulation fidelity, formatting, anti-tropes, and POV mandates.
  * - Strict manifest alignment: `render_core_protocols` honors the declarative protocols list from `prompts.js`.
  * - Zero sibling imports: layout utilities imported exclusively from @utils.
@@ -74,12 +74,13 @@ export const PROTOCOL_LIBRARY = Object.freeze({
 
 /**
  * Compiles protocol keys into XML protocol tags with optional schema prefix.
+ * Module-private compiler utilized by render_core_protocols.
  * @param {string | string[]} protocol_selection
  * @param {Object} [options]
  * @param {string} [options.schema=""]
  * @returns {string}
  */
-export function render_protocols(protocol_selection, { schema = "" } = {}) {
+function compile_protocol_tags(protocol_selection, { schema = "" } = {}) {
   const keys = Array.isArray(protocol_selection) ? protocol_selection : typeof protocol_selection === "string" ? protocol_selection.split(",") : [];
 
   const protocol_tags = keys
@@ -229,7 +230,7 @@ export function render_core_protocols({
 
   // Resolve static protocol rules (e.g. HYGIENE.DATA, OPTICS.*)
   const non_core_protocols = protocol_list.filter((p) => !p.startsWith("CORE_PROTOCOLS."));
-  const static_rules = non_core_protocols.length > 0 ? render_protocols(non_core_protocols) : "";
+  const static_rules = non_core_protocols.length > 0 ? compile_protocol_tags(non_core_protocols) : "";
 
   // Symmetrical style resolution
   const active_visual_style = visual_style || (Object.keys(engine_tokens).length > 0 ? style : null);
@@ -271,6 +272,7 @@ export function render_core_protocols({
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-19: Consolidation pass: Merged `render_protocols` into `render_core_protocols` and converted `compile_protocol_tags` into a module-private compiler, making `render_core_protocols` the sole public compiler for Layer 3 `<CORE_PROTOCOLS>` envelopes across all prompt modes.
  * - 2026-09-19: Unification pass: (1) Symmetrically extracted `render_narrative_style_xml` alongside `render_visual_style_xml`; (2) Unified all prompt modes (Director, Continuum, Enhancement, Sorting, Story Prose, Optics) onto universal Layer 3 compiler `render_core_protocols`; (3) Pruned redundant `render_optics_protocols` and external `wrap_tag("CORE_PROTOCOLS")` wrappers under P4 Zero Backwards Compatibility.
  * - 2026-09-18: Pruned legacy SELECTABLE_OPTIONS alias in render_protocols; all protocol keys now map directly to canonical XML tags without shims (P4 Zero Backwards Compatibility).
  * - 2026-09-18: Repatriated output schema directives (<COGNITIVE_DIRECTIVE>, <PROMPT_PROSE>, <NEGATIVE_PROMPT>) from Optics Phase 1 to SCHEMA_ATOMS in format.js per layer boundaries.

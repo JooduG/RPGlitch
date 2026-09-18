@@ -54,7 +54,6 @@ import {
   render_enhancement_field_context,
   render_present_entities_xml,
   render_optics_entities_xml,
-  resolve_optics_cinematography,
   verify_epistemic_integrity,
 } from "./modules/entities/index.js";
 
@@ -65,12 +64,12 @@ import {
   render_keyword_directives_xml,
   resolve_character_action_directive,
   resolve_scene_action_directive,
+  resolve_optics_cinematography,
 } from "./modules/task.js";
 import { get_output_format } from "./modules/format.js";
 import { render_available_keywords_xml, render_dynamics_xml, render_subtext_xml, render_dynamics_axes_xml } from "./physics.js";
 import { temporal_engine, resolve_vector_pool } from "./temporal.js";
-import { normalize_image_tier } from "../media/image-tiers.js";
-import { resolve_visual_engine_tokens } from "../media/image-aesthetics.js";
+import { normalize_image_tier, resolve_visual_engine_tokens } from "@media";
 
 // ── 1. Render Builder Accessor Factory ─────────────────────────────────────────
 

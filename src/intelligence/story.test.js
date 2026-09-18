@@ -115,7 +115,6 @@ vi.mock("./builder.js", async (importOriginal) => {
       build_epilogue,
       build_ghostwriter,
       render_history: vi.fn(actual.render_builder.render_history),
-      render_protocols: vi.fn(),
       build_scoring_context: vi.fn(() => "Hello"),
       build_terse_director_task: vi.fn(() => "<TASK>Return a single, COMPLETE, VALID JSON object</TASK>"),
       build_profile_sorting: vi.fn(() => ({ system: "SYS", messages: [] })),

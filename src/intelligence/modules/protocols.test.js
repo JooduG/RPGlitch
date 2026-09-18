@@ -15,7 +15,6 @@
 import { describe, expect, it } from "vitest";
 import {
   PROTOCOL_LIBRARY,
-  render_protocols,
   render_narrative_style_xml,
   render_visual_style_xml,
   render_core_protocols,
@@ -28,8 +27,11 @@ import {
 // ============================================================================
 
 describe("protocols.js - Core Protocol Library & Compiler", () => {
-  it("renders selected protocol tags via render_protocols", () => {
-    const output = render_protocols(["HYGIENE.DATA", "CORE_PROTOCOLS.SIMULATION_FIDELITY"]);
+  it("renders selected protocol tags via render_core_protocols", () => {
+    const output = render_core_protocols({
+      protocols: ["HYGIENE.DATA", "CORE_PROTOCOLS.SIMULATION_FIDELITY"],
+    });
+    expect(output).toContain("<CORE_PROTOCOLS>");
     expect(output).toContain("<DATA>");
     expect(output).toContain(PROTOCOL_LIBRARY.HYGIENE.DATA);
     expect(output).toContain("<SIMULATION_FIDELITY>");

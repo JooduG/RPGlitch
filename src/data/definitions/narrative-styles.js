@@ -16,6 +16,8 @@
  * - Pure data definition module importing downward strictly from `@utils`.
  * - All style entries must specify a valid speaking_style ("casual" | "lyrical" | "primal" | "clinical").
  * - Dynamic motifs are co-located with their author definitions and auto-aggregated into `STYLE_MOTIF_REGISTRY`.
+ * - `motif_keys`: Object.keys() of the style's motifs — fed to the Director <AVAILABLE_KEYWORDS> pool via `get_style_keywords()`.
+ * - `elements`: The input `keywords` array — author-genre tags rendered as `<SIGNATURE_ELEMENTS>` in the protocol layer.
  * ============================================================================
  */
 
@@ -57,9 +59,8 @@ import { state_bridge, resolve_style } from "@utils";
  * @property {string} [portrait]
  * @property {string} description
  * @property {"casual" | "lyrical" | "primal" | "clinical"} speaking_style
- * @property {string[]} keywords
- * @property {string[]} [elements]
- * @property {string[]} [tags]
+ * @property {string[]} motif_keys  - Keys of the style's motif registry entries (used as keyword pool in the Director)
+ * @property {string[]} [elements]  - Author-genre keyword tags rendered as `<SIGNATURE_ELEMENTS>` in the protocol layer
  * @property {Record<string, string>} [motifs]
  * @property {StyleDNA} [dna]
  * @property {StyleTrigger[]} triggers
@@ -94,8 +95,7 @@ function define_style(style_definition) {
     portrait: style_definition.portrait || "",
     description: style_definition.description,
     speaking_style: style_definition.speaking_style,
-    tags: style_definition.keywords || [],
-    keywords: motif_keys,
+    motif_keys,
     elements: style_definition.keywords || [],
     motifs: style_definition.motifs || {},
     dna: style_definition.dna,
@@ -944,14 +944,14 @@ export function get_narrative_style(style_key = "default") {
 }
 
 /**
- * Returns the dynamic style-motif keywords a narrative style contributes to the
+ * Returns the motif keys a narrative style contributes to the
  * Director's <AVAILABLE_KEYWORDS> pool. Empty array for default/unknown keys.
  * @param {string} [style_key]
  * @returns {string[]}
  */
 export function get_style_keywords(style_key = "") {
-  const keywords = NARRATIVE_STYLES[style_key]?.keywords;
-  return keywords ? [...keywords] : [];
+  const motif_keys = NARRATIVE_STYLES[style_key]?.motif_keys;
+  return motif_keys ? [...motif_keys] : [];
 }
 
 /**

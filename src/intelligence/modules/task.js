@@ -336,6 +336,61 @@ export function resolve_scene_action_directive({ scene_template = null, is_prolo
   return TASK_LIBRARY.PROSE.SCENE[template] || TASK_LIBRARY.PROSE.SCENE.CONTINUATION;
 }
 
+/**
+ * Resolves camera framing, scale tokens, and staging directives for Sensory Optics.
+ * Generates dynamic camera framing tokens and context descriptions for Layer 6 (<TASK>).
+ *
+ * @param {Object} [parameters={}]
+ * @returns {{ mode: string, tokens: string, narrative_context: string, visual_staging: string }}
+ */
+export function resolve_optics_cinematography({
+  tier = "solo_entity",
+  solo_subject = null,
+  active_ai_character = null,
+  active_user_persona = null,
+  active_fractal_setting = null,
+  main_entity = null,
+  visual_staging = "",
+} = {}) {
+  const is_fractal_target = tier === "story_scene" || solo_subject?.type === "fractal";
+  const ai_dynamics = active_ai_character?.dynamics || {};
+  const intensity = Number(ai_dynamics.intensity ?? 50);
+  const chaos = Number(ai_dynamics.chaos ?? 50);
+  const affinity = Number(ai_dynamics.affinity ?? 50);
+
+  let mode = "Medium Action";
+  let tokens = "medium shot, waist-up framing, dynamic posture, clear wardrobe & prop details";
+
+  if (is_fractal_target) {
+    mode = "Wide Environmental";
+    tokens = "wide-angle environmental shot, deep spatial composition, atmospheric scale, full silhouette";
+  } else if (chaos >= 75) {
+    mode = "Dutch / Low-Angle";
+    tokens = "dutch angle composition, low-angle perspective, imposing scale, dramatic lighting contrast";
+  } else if (intensity >= 75 || affinity >= 75) {
+    mode = "Intimate Close-Up";
+    tokens = "tight close-up portrait, shallow depth of field, sharp focus on eyes, macro expression detail";
+  } else if (tier === "solo_entity") {
+    mode = "Medium Action";
+    tokens = "medium portrait framing, waist-up composition, distinctive wardrobe, signature atmospheric backdrop";
+  }
+
+  const visual_staging_directive = visual_staging ? `\n  Staging Directive: ${prompt_escape(visual_staging)}` : "";
+  const narrative_context_desc =
+    tier === "story_entities"
+      ? `\n  Group Mandate: Feature both ${prompt_escape(active_ai_character?.name || "AI")} and ${prompt_escape(active_user_persona?.name || "User")} engaged together in their active positions within the fractal environment.`
+      : tier === "story_character" && active_fractal_setting && main_entity?.type !== "fractal" && main_entity !== active_fractal_setting
+        ? `\n  Character In Scene: Depict ${prompt_escape(main_entity?.name || "Subject")} situated directly within ${prompt_escape(active_fractal_setting.name || "Setting")}.`
+        : "";
+
+  return {
+    mode,
+    tokens,
+    narrative_context: narrative_context_desc,
+    visual_staging: visual_staging_directive,
+  };
+}
+
 // ============================================================================
 // [SECTION 3: UNIVERSAL TASK ENVELOPE COMPILER]
 // ============================================================================
@@ -556,6 +611,8 @@ export function render_task({
 
 /**
  * CHANGELOG
+ * - 2026-09-19: Architecture purification: Absorbed `resolve_optics_cinematography` from `entities/sheets.js`, consolidating all dynamic camera staging, scale tokens, and group mandates into Layer 6 (<TASK>).
+ * - 2026-09-18: Consolidated Keyword Directives — added `render_keyword_directives_xml` supporting DIRECTOR and OPTICS modes.
  * - 2026-09-18: Added TASK_LIBRARY.OPTICS directives and dedicated case optics in render_task assembling TARGET, INPUT_INTENT, and nested OUTPUT_FORMAT per scrobbles.md blueprint.
  * - 2026-09-18: Standardized Layer 7 <OUTPUT_FORMAT> emission across director, continuum, sorting, enhancement, and story prose inside <TASK>; injected voice registers into <DELIVERY_POSTURE>.
  * - 2026-09-17: Director Action Clarification — Strengthened `TASK_LIBRARY.DIRECTOR.USER_PERSONA_LOCK` to explicitly disallow player character names and enumerate valid target enums.

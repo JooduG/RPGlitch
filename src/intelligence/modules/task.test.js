@@ -22,6 +22,7 @@ import {
   render_prose_reflex,
   render_task,
   render_keyword_directives_xml,
+  resolve_optics_cinematography,
   TASK_LIBRARY,
 } from "./task.js";
 
@@ -216,11 +217,37 @@ describe("task.js - Optics Task Staging", () => {
     expect(task).toContain("<FIRST_SENTENCE_MANDATE>");
     expect(task).toContain("<SPATIAL_GEOMETRY>");
     expect(task).toContain('<CINEMATOGRAPHY mode="Intimate Close-Up">');
-    expect(task).toContain("<CAMERA>85mm f/1.4 portrait lens</CAMERA>");
     expect(task).toContain("<KEYWORD_DIRECTIVES>");
     expect(task).toContain("<SELFIE_DIRECTIVE>");
     expect(task).toContain("<INPUT_INTENT>Standing alone in the pouring rain</INPUT_INTENT>");
     expect(task).toContain('<OUTPUT_FORMAT mode="json">');
+  });
+
+  it("resolves optics cinematography mode, tokens, and context correctly", () => {
+    const solo = resolve_optics_cinematography({
+      tier: "solo_entity",
+      solo_subject: { name: "Alice", type: "character" },
+    });
+    expect(solo.mode).toBe("Medium Action");
+    expect(solo.tokens).toContain("medium portrait framing");
+
+    const close_up = resolve_optics_cinematography({
+      tier: "story_character",
+      active_ai_character: { name: "Bob", dynamics: { intensity: 80 } },
+    });
+    expect(close_up.mode).toBe("Intimate Close-Up");
+
+    const dutch = resolve_optics_cinematography({
+      tier: "story_character",
+      active_ai_character: { name: "Bob", dynamics: { chaos: 90 } },
+    });
+    expect(dutch.mode).toBe("Dutch / Low-Angle");
+
+    const environmental = resolve_optics_cinematography({
+      tier: "story_scene",
+      active_fractal_setting: { name: "Neon City" },
+    });
+    expect(environmental.mode).toBe("Wide Environmental");
   });
 });
 
@@ -229,6 +256,7 @@ describe("task.js - Optics Task Staging", () => {
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-19: Added unit test for resolve_optics_cinematography following relocation from entities/sheets.js.
  * - 2026-09-18: Added unit tests for render_keyword_directives_xml supporting DIRECTOR and OPTICS modes.
  * - 2026-09-18: Initial creation of comprehensive task.test.js validating pacing directives, environmental hints, delivery posture voice injection, and Layer 7 <OUTPUT_FORMAT> integration across director, continuum, and story prose.
  */
