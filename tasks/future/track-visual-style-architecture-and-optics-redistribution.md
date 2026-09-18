@@ -42,21 +42,21 @@ Establish pure architectural symmetry between **Narrative Style** (Story Prose) 
 
 ## 2.0 Playbook & TDD Execution Steps
 
-- [ ] `1. RED Suite`: Add unit tests in `src/intelligence/modules/protocols.test.js`, `src/intelligence/modules/task.test.js`, `src/intelligence/modules/entities/sheets.test.js`, and `src/intelligence/builder.test.js` asserting:
+- [x] 6790952 `1. RED Suite`: Add unit tests in `src/intelligence/modules/protocols.test.js`, `src/intelligence/modules/task.test.js`, `src/intelligence/modules/entities/sheets.test.js`, and `src/intelligence/builder.test.js` asserting:
   - `render_visual_style_xml` compiles `<VISUAL_STYLE>` with medium, palette, and textures, and returns empty string for `"none"`.
   - `render_optics_protocols` compiles clean `<CORE_PROTOCOLS>` containing static optics rules and `<VISUAL_STYLE>`.
   - `render_optics_subject_rules` compiles `<SUBJECT_RULES>` in Layer 4 with dynamic overrides, garment anatomy, identifiers, and conditional alternations.
   - `render_task({ mode: "optics" })` compiles `<THINK_FORMAT>` and unified `<SPATIAL_FRAMING>` with cinematography and camera/composition tokens.
   - `compile_pipeline_prompt("optics")` delegates cleanly through the switchboard.
-- [ ] `2. GREEN (Layer 3 Protocols & Prompts Manifest)`:
+- [x] 6790952 `2. GREEN (Layer 3 Protocols & Prompts Manifest)`:
   - In `src/intelligence/prompts.js`: update `PROMPTS.optics` to list declarative protocols and `task: { think_format: "optics" }`.
   - In `src/intelligence/modules/protocols.js`: add `PROTOCOL_LIBRARY.OPTICS`, export `render_visual_style_xml` and `render_optics_protocols`, and remove `build_optics_builder_protocol` and `OPTICS_BUILDER_PROTOCOL`.
-- [ ] `3. GREEN (Layer 4 Entities & Subject Rules)`:
+- [x] 6790952 `3. GREEN (Layer 4 Entities & Subject Rules)`:
   - In `src/intelligence/modules/entities/sheets.js`: implement `render_optics_subject_rules` and `resolve_optics_cinematography`. Inject `<SUBJECT_RULES>` into `render_optics_entities_xml` and decouple cinematography from `<ENTITIES>`.
-- [ ] `4. GREEN (Layer 6 Task & Assembly)`:
+- [x] 6790952 `4. GREEN (Layer 6 Task & Assembly)`:
   - In `src/intelligence/modules/task.js`: add `THINK_FORMAT`, `FIRST_SENTENCE_MANDATE`, `SPATIAL_GEOMETRY`, and `SELFIE_DIRECTIVE` to `TASK_LIBRARY.OPTICS`. Update `render_task` to assemble unified `<SPATIAL_FRAMING>` and `<THINK_FORMAT>`.
   - In `src/intelligence/builder.js`: refactor `render_optics_prompt` and `compile_pipeline_prompt("optics")` to cleanly assemble Layers 1–7.
-- [ ] `5. REFACTOR & GATE`:
+- [x] 6790952 `5. REFACTOR & GATE`:
   - Run full test suite (`npm test`), hook contracts (`npm run test:hooks`), and linter (`npm run verify`).
   - Synchronize `tasks/PRESENT.md` pulse buffer and task pointers.
 
@@ -66,6 +66,7 @@ Establish pure architectural symmetry between **Narrative Style** (Story Prose) 
 
 <!-- CHANGELOG_START -->
 
+- 2026-09-19: Track executed and verified: (1) Mirrored Narrative Style architecture onto Visual Style with `render_visual_style_xml` in `protocols.js`; (2) Co-located `SUBJECT_RULES` in Layer 4 (`sheets.js`); (3) Unified spatial framing, cinematography, and think format in Layer 6 (`task.js`); (4) Pruned legacy `build_optics_builder_protocol` and `OPTICS_BUILDER_PROTOCOL` across intelligence and barrel exports; (5) Passed all 70 test suites (993 tests), design tests, 13 hook contracts, `npm run verify`, and single-file `npm run build`.
 - 2026-09-19: Track initialized following grill-me architectural consensus on Visual Style mirroring Narrative Style, subject rules co-location in Layer 4, and unified spatial framing in Layer 6.
 
 <!-- CHANGELOG_END -->
