@@ -1,0 +1,71 @@
+/**
+ * src/intelligence/modules/entities/epistemic.js
+ * ============================================================================
+ * 🛡️ EPISTEMIC SECURITY MODULE — The Epistemic Wall & Privacy Sanitization
+ * ============================================================================
+ *
+ * Enforces the Epistemic Wall across the RPGlitch simulation lifecycle.
+ * Ensures that private thoughts ([SECRET: ...], [PLAN: ...]) and covert intentions
+ * of non-owner entities are never leaked to another entity's perspective.
+ *
+ * Architecture & Modification Rules:
+ * - Unidirectional layer flow: pure string sanitization and verification.
+ * - Zero external dependencies.
+ * - Strict Full-Name domain nomenclature.
+ * ============================================================================
+ */
+
+/**
+ * Strips epistemic [SECRET: ...] and [PLAN: ...] directives from rendered state strings.
+ * Enforces the Epistemic Wall so AI models never receive another entity's private knowledge.
+ *
+ * @param {string|null|undefined} text
+ * @returns {string}
+ */
+export function strip_epistemic_tags(text) {
+  if (!text) return "";
+  return String(text)
+    .replace(/\[(?:SECRET|PLAN)\s*:\s*[^\]]*\]/gi, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
+/**
+ * Conditionally strips epistemic secrets and plans based on entity perspective.
+ * When is_owner is true, private state is preserved; when false, state is sanitized.
+ *
+ * @param {string|null|undefined} state_text
+ * @param {boolean} [is_owner=false]
+ * @returns {string}
+ */
+export function strip_epistemic_secrets(state_text, is_owner = false) {
+  if (!state_text) return "";
+  return is_owner ? String(state_text) : strip_epistemic_tags(state_text);
+}
+
+/**
+ * Verifies epistemic wall integrity in a compiled prompt string.
+ * Throws an Error if forbidden private tags ([SECRET: ...] or [PLAN: ...]) are detected.
+ *
+ * @param {string} prompt_text - Compiled prompt text to audit.
+ * @returns {boolean} True if clean, throws Error if leak detected.
+ */
+export function verify_epistemic_integrity(prompt_text) {
+  if (!prompt_text || typeof prompt_text !== "string") return true;
+  const secret_match = prompt_text.match(/\[SECRET\s*:\s*[^\]]*\]/i);
+  if (secret_match) {
+    throw new Error(`Epistemic leak detected in compiled prompt: forbidden tag "${secret_match[0]}"`);
+  }
+  const plan_match = prompt_text.match(/\[PLAN\s*:\s*[^\]]*\]/i);
+  if (plan_match) {
+    throw new Error(`Epistemic leak detected in compiled prompt: forbidden tag "${plan_match[0]}"`);
+  }
+  return true;
+}
+
+/**
+ * CHANGELOG
+ * ============================================================================
+ * - 2026-09-18: Extracted from monolithic entities.js into dedicated epistemic.js submodule; added verify_epistemic_integrity assertion guard.
+ * ============================================================================
+ */

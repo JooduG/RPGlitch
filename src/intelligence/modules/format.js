@@ -60,6 +60,11 @@ export const SCHEMA_ATOMS = Object.freeze({
   // ── 1.3 Shot 2B: Continuum Caretaker & Relational Graph Atoms (continuum) ───
   target: "'AI_CHARACTER' | 'USER_PERSONA' | 'FRACTAL' | 'NPC_<id>'",
   relationships: ["Source → Target: dynamic description"],
+
+  // ── 1.4 Shot 3: Sensory Cortex & Optics Atoms (optics) ──────────────────────
+  prompt: "<synthesized descriptive image prompt>",
+  negative_prompt: "<negative prompt tokens>",
+  caption: "<in-character selfie caption>",
 });
 // ============================================================================
 // [SECTION 2: UNIVERSAL DYNAMIC JSON SCHEMA COMPOSER]
@@ -165,7 +170,26 @@ export function get_profile_schema(entity_type = "character") {
 }
 
 // ============================================================================
-// [SECTION 7: MASTER OUTPUT FORMAT REGISTRY & XML ENVELOPE COMPILER]
+// [SECTION 7: SHOT 3 & TOOL — SENSORY CORTEX & OPTICS SCHEMA (OPTICS)]
+// ============================================================================
+
+/**
+ * Builds the canonical LLM-optimized JSON schema string for the Sensory Cortex (Shot 3: optics).
+ * Supports optional "selfie" extension for social media captions.
+ * @param {string|{ variant?: string }} [options_or_variant=""]
+ * @returns {string}
+ */
+export function get_optics_schema(options_or_variant = "") {
+  const variant = typeof options_or_variant === "string" ? options_or_variant : options_or_variant?.variant || "";
+  const schema_keys = ["_thought_process", "prompt", "negative_prompt"];
+  if (variant === "selfie") {
+    schema_keys.push("caption");
+  }
+  return render_json_schema(schema_keys);
+}
+
+// ============================================================================
+// [SECTION 8: MASTER OUTPUT FORMAT REGISTRY & XML ENVELOPE COMPILER]
 // ============================================================================
 
 /**
@@ -175,36 +199,45 @@ export function get_profile_schema(entity_type = "character") {
  * - DIRECTOR: Shot 1 Director Quick Shot JSON schema
  * - PROFILE: Tool B Structurer Profile Ingestion JSON schema
  * - CONTINUUM: Shot 2B Continuum Caretaker JSON schema
+ * - OPTICS: Shot 3 Sensory Cortex Image Synthesis JSON schema
  */
 export const OUTPUT_FORMATS = Object.freeze({
   PROSE: PROSE_FORMAT,
   DIRECTOR: get_director_schema(),
   PROFILE: get_profile_schema("character"),
   CONTINUUM: get_continuum_schema("character"),
+  OPTICS: get_optics_schema(),
 });
 
 const DYNAMIC_SCHEMAS = Object.freeze({
   CONTINUUM: get_continuum_schema,
   PROFILE: get_profile_schema,
+  OPTICS: (options) => get_optics_schema(typeof options === "string" ? options : options?.variant),
 });
 
 /**
  * Resolves an output format, schema, or contract string from its canonical format key.
- * Parameter-aware: accepts an entity type or options object to dynamically parameterize CONTINUUM and PROFILE schemas.
- * @param {string} [format_key] - Format key matching OUTPUT_FORMATS ("PROSE", "DIRECTOR", "CONTINUUM", "PROFILE")
- * @param {string|{ entity_type?: string, target_type?: string, resolved_type?: string, fallback?: string }} [options_or_fallback=""]
+ * Parameter-aware: accepts an entity type or options object to dynamically parameterize CONTINUUM, PROFILE, and OPTICS schemas.
+ * @param {string} [format_key] - Format key matching OUTPUT_FORMATS ("PROSE", "DIRECTOR", "CONTINUUM", "PROFILE", "OPTICS")
+ * @param {string|{ entity_type?: string, target_type?: string, resolved_type?: string, variant?: string, fallback?: string }} [options_or_fallback=""]
  * @returns {string}
  */
 export function get_output_format(format_key, options_or_fallback = "") {
   if (!format_key) return typeof options_or_fallback === "string" ? options_or_fallback : "";
   const fallback = typeof options_or_fallback === "string" ? options_or_fallback : options_or_fallback?.fallback || "";
-  const entity_type =
-    typeof options_or_fallback === "object" && options_or_fallback !== null
-      ? options_or_fallback.entity_type || options_or_fallback.target_type || options_or_fallback.resolved_type || "character"
-      : "character";
-
   const dynamic_resolver = DYNAMIC_SCHEMAS[format_key];
-  if (dynamic_resolver) return dynamic_resolver(entity_type);
+  if (dynamic_resolver) {
+    if (format_key === "OPTICS") {
+      return dynamic_resolver(options_or_fallback);
+    }
+    const entity_type =
+      typeof options_or_fallback === "object" && options_or_fallback !== null
+        ? options_or_fallback.entity_type || options_or_fallback.target_type || options_or_fallback.resolved_type || "character"
+        : typeof options_or_fallback === "string" && options_or_fallback
+          ? options_or_fallback
+          : "character";
+    return dynamic_resolver(entity_type);
+  }
 
   return OUTPUT_FORMATS[format_key] || fallback;
 }
@@ -231,6 +264,7 @@ export function render_output_format_xml({ mode = "", content = "", indent_level
 
 /**
  * CHANGELOG
+ * - 2026-09-18: Added OPTICS schema atoms (prompt, negative_prompt, caption), get_optics_schema, and parameter-aware OPTICS output format routing supporting selfie mode.
  * - 2026-09-16: Merged/repatriated SCHEMA_FIELD_DESCRIPTORS directly into PROFILE_FIELDS in src/data/definitions/profile-fields.js. Streamlined render_json_schema to read concise directives directly from PROFILE_FIELDS, eliminating parallel descriptor models and redundant fallback logic.
  * - 2026-09-16: Clarified non_physical field descriptors in SCHEMA_FIELD_DESCRIPTORS to specify prose only (prohibiting bracket-dicts or key-value pairs) to prevent Continuum Caretaker format bleed.
  * - 2026-09-15: Parameter-Aware Layer 7 Resolution — Enhanced get_output_format with entity-type options parameter routing for CONTINUUM, PROFILE, DIRECTOR, and PROSE formats, making manifest Layer 7 fully load-bearing.

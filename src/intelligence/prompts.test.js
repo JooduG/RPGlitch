@@ -90,7 +90,18 @@ function assert_fused_shape(result, mode) {
 }
 
 const REQUIRED_MODULE_KEYS = ["system", "constitution", "protocols", "entities", "format", "task"];
-const EXPECTED_PROMPT_KEYS = ["continuum", "director", "enhancement", "ghostwrite", "interaction", "narrator", "npc", "sorting"];
+const EXPECTED_PROMPT_KEYS = [
+  "continuum",
+  "director",
+  "director_terse",
+  "enhancement",
+  "ghostwrite",
+  "interaction",
+  "narrator",
+  "npc",
+  "optics",
+  "sorting",
+];
 
 describe("prompt-modes registry", () => {
   it("defines all 6 module keys (system, constitution, protocols, entities, format, task) for every mode", () => {
@@ -107,7 +118,7 @@ describe("prompt-modes registry", () => {
     }
   });
 
-  it("declares all 8 canonical simulation prompt keys", () => {
+  it("declares all 10 canonical simulation prompt keys", () => {
     expect(Object.keys(prompt_modes).sort()).toEqual(EXPECTED_PROMPT_KEYS.sort());
   });
 
@@ -206,6 +217,7 @@ describe("conversation history entries", () => {
 
 /**
  * CHANGELOG
+ * - 2026-09-18: Updated expected prompt keys count to 10 (including director_terse and optics).
  * - 2026-09-15: Added unit test verifying history limit 16 across all four Shot-2A prose sibling modes (interaction, ghostwrite, npc, narrator).
  * - 2026-09-11: Updated imports/assertions to the modern manifest (PROMPTS/get_prompt) after PROMPT_MODES/get_prompt_mode were removed.
  * - 2026-09-11: Renamed from prompt-modes.test.js to prompts.test.js reflecting prompts.js master registry.

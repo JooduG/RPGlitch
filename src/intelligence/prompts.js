@@ -85,6 +85,19 @@ export const PROMPTS = Object.freeze({
     format: "DIRECTOR",
   }),
 
+  director_terse: define_mode({
+    system: { mode: "director", role: "DIRECTOR" },
+    constitution: false,
+    protocols: [],
+    entities: {
+      dispositions: [],
+      dynamic_axes: [],
+    },
+    history: { enabled: false },
+    task: { terse: true },
+    format: "DIRECTOR",
+  }),
+
   // ── Shot 2A: Prose Shots (Canonical Narrative Voice) ────────────────────────
 
   interaction: define_mode({
@@ -207,6 +220,19 @@ export const PROMPTS = Object.freeze({
     history: { enabled: false },
     format: "PROFILE",
   }),
+
+  // ── Sensory Cortex: Visual Optics Generation ──────────────────────────────
+
+  optics: define_mode({
+    system: { mode: "optics", role: "SENSORY_CORTEX" },
+    constitution: false,
+    protocols: ["HYGIENE.DATA"],
+    entities: {
+      dispositions: ["AI", "USER", "FRACTAL", "NPC"],
+    },
+    history: { enabled: false },
+    format: "OPTICS",
+  }),
 });
 
 // ── 3. Manifest Resolvers ────────────────────────────────────────────────────
@@ -229,6 +255,7 @@ export default PROMPTS;
 
 /**
  * CHANGELOG
+ * - 2026-09-18: Registered `director_terse` and `optics` modes in PROMPTS master manifest.
  * - 2026-09-16: Pruned inert `task.input_tag` overrides from `continuum` and `enhancement` modes under P4 Zero Backwards Compatibility.
  * - 2026-09-16: Standardized Director `input_tag` to canonical default `"INPUT"`, purging legacy `"USER_ACTION"` tag override under P4 Zero Backwards Compatibility.
  * - 2026-09-15: History Limit Harmonization — Explicitly harmonized history window to limit: 16 across all four Shot-2A prose sibling modes (interaction, ghostwrite, npc, narrator).

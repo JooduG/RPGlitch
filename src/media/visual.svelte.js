@@ -23,7 +23,8 @@ import { generate_secure_seed, strip_cognition_blocks, truncate_at_word, state_b
 import { llm_service } from "@platform";
 import { get_resolution, get_tier_guidance_scale, normalize_image_tier } from "./image-tiers.js";
 import { aesthetic_resolver, resolve_visual_engine_tokens } from "./image-aesthetics.js";
-import { clean_image_prompt, NEGATIVE_PROMPT, parse_llm_image_prompt_response, prompt_templates } from "./image-prompts.js";
+import { NEGATIVE_PROMPT, prompt_templates } from "../intelligence/optics.js";
+import { clean_image_prompt, parse_llm_image_prompt_response } from "../intelligence/parser.js";
 
 // ============================================================================
 // [SECTION 1: HOST ENGINE DISCOVERY & CACHE]
@@ -706,6 +707,7 @@ export function reset_cached_image_engine() {
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-18: Migrated image prompt templates and response parsers from local image-prompts.js to @intelligence barrel.
  * - 2026-09-06: Suppressed image generation for unresolvable/Unknown subjects, excluded system entries from visual history, and used truncate_at_word.
  * - 2026-09-06: Allowed explicit options.entity in visualize to support custom characters/NPC portraits.
  * - 2026-09-05: Fractal profile pictures now render in landscape (768x512) — resolution selection is

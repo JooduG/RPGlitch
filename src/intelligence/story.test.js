@@ -75,20 +75,45 @@ const _mock_simulation_state = {
 
 vi.mock("./builder.js", async (importOriginal) => {
   const actual = await importOriginal();
+  const build_prologue = vi.fn();
+  const build_director = vi.fn(() => ({ system: "DIRECTOR_SYS", task: "DIRECTOR_TASK" }));
+  const build_character = vi.fn(() => ({ system: "CHAR_SYS", task: "CHAR_TASK", meta: { ai: {}, fractal: {}, flags: [], vectors: [] } }));
+  const build_scene_narrator = vi.fn();
+  const build_npc = vi.fn(() => ({
+    system: "NPC_PROMPT",
+    task: "NPC_TASK",
+    meta: { ai: {}, fractal: {}, role: "npc", entity_id: null },
+  }));
+  const build_epilogue = vi.fn();
+  const build_ghostwriter = vi.fn();
+
+  const build_story_prose = vi.fn((payload, options = {}) => {
+    if (options.is_prologue) return build_prologue(payload, options);
+    if (options.is_epilogue) {
+      const dynamics = {
+        ai: options.snapshot?.ai?.dynamics || options.snapshot?.ai,
+        fractal: options.snapshot?.fractal?.dynamics || options.snapshot?.fractal,
+      };
+      return build_epilogue(payload?.entities, dynamics, payload?.simulation_log, options.conclusion_status);
+    }
+    if (options.npc) return build_npc(payload, options.npc, options.snapshot, options.director_data);
+    if (options.is_narrator) return build_scene_narrator(payload, options.snapshot, options.director_data);
+    if (options.ghostwrite) return build_ghostwriter(payload?.entities, options.input);
+    return build_character(payload, options.snapshot, options.director_data);
+  });
+
   return {
     ...actual,
     prompt_builder: {
       ...actual.prompt_builder,
-      build_prologue: vi.fn(),
-      build_director: vi.fn(() => ({ system: "DIRECTOR_SYS", task: "DIRECTOR_TASK" })),
-      build_character: vi.fn(() => ({ system: "CHAR_SYS", task: "CHAR_TASK", meta: { ai: {}, fractal: {}, flags: [], vectors: [] } })),
-      build_scene_narrator: vi.fn(),
-      build_npc: vi.fn(() => ({
-        system: "NPC_PROMPT",
-        task: "NPC_TASK",
-        meta: { ai: {}, fractal: {}, role: "npc", entity_id: null },
-      })),
-      build_epilogue: vi.fn(),
+      build_story_prose,
+      build_prologue,
+      build_director,
+      build_character,
+      build_scene_narrator,
+      build_npc,
+      build_epilogue,
+      build_ghostwriter,
       render_history: vi.fn(actual.render_builder.render_history),
       render_protocols: vi.fn(),
       build_scoring_context: vi.fn(() => "Hello"),

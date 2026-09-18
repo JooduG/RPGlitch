@@ -122,7 +122,7 @@ ${SEP}
     const result = await SimulationAudit.execute_turn("Test input", scenario);
 
     expect(result.character_task).toContain("<DELIVERY_POSTURE>");
-    expect(result.character_task).toContain("<THINK_FORMAT>");
+    expect(result.character_task).toContain("<THINK>");
     expect(result.character_task).toContain('<INPUT origin="USER">');
   });
 
@@ -139,7 +139,7 @@ ${SEP}
     expect(result.verification).toBeDefined();
     expect(result.verification.passed).toContain("character:system_has_AXIOMATIC_CONSTITUTION");
     expect(result.verification.passed).toContain("character:system_has_CORE_PROTOCOLS");
-    expect(result.verification.passed).toContain("character:system_has_STORY_ENTITIES");
+    expect(result.verification.passed).toContain("character:system_has_AVAILABLE_ENTITIES");
     expect(result.verification.passed).toContain("director:task_has_dynamics_deltas");
     expect(result.verification.failed.length).toBe(0);
   });
@@ -158,3 +158,12 @@ ${SEP}
     expect(result.director_task).toContain("The vampire lord smiles coldly.");
   });
 });
+
+// =============================================================================
+// CHANGELOG
+// =============================================================================
+
+/**
+ * CHANGELOG:
+ * - 2026-09-18: Updated assertions to check for canonical <THINK> and <AVAILABLE_ENTITIES>.
+ */

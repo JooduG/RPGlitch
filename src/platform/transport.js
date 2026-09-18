@@ -111,24 +111,26 @@ let _resolved_ai_engine = null;
  * @returns {Function | null}
  */
 function get_ai_engine() {
+  if (typeof window !== "undefined") {
+    try {
+      if (typeof window.generate_text === "function") return window.generate_text;
+    } catch {
+      /* Ignore sandbox access */
+    }
+
+    try {
+      if (typeof window.pluginGenerateText === "function") return window.pluginGenerateText;
+    } catch {
+      /* Ignore sandbox access */
+    }
+  }
+
   if (_resolved_ai_engine) {
     if (typeof _resolved_ai_engine === "function") return _resolved_ai_engine;
     _resolved_ai_engine = null;
   }
 
   if (typeof window === "undefined") return null;
-
-  try {
-    if (typeof window.generate_text === "function") return (_resolved_ai_engine = window.generate_text);
-  } catch {
-    /* Ignore sandbox access */
-  }
-
-  try {
-    if (typeof window.pluginGenerateText === "function") return (_resolved_ai_engine = window.pluginGenerateText);
-  } catch {
-    /* Ignore sandbox access */
-  }
 
   try {
     // @ts-ignore
@@ -248,18 +250,41 @@ export const llm_service = {
       throw new Error(msg);
     }
 
-    // 1. Assemble instruction block: [System Prefix] ➔ [Conversation History] ➔ [Task Directive] ➔ [System Close]
+    // 1. Assemble instruction block: universal nested envelope
     const chat_history = format_conversation_history(payload.messages || []);
-    let instruction = payload.system || "";
+    const system_text = String(payload.system || "").trim();
+    const task_text = String(payload.task || "").trim();
 
-    if (chat_history) {
-      instruction += `\n\n<CONVERSATION_HISTORY>\n${chat_history}\n</CONVERSATION_HISTORY>`;
-    }
-    if (payload.task) {
-      instruction += `\n\n${payload.task}`;
-    }
-    if (payload.system_close) {
-      instruction += `\n\n${payload.system_close}`;
+    let instruction = "";
+
+    const has_system_tag = system_text.includes("<SYSTEM");
+
+    if (has_system_tag) {
+      const is_closed = system_text.endsWith("</SYSTEM>");
+      const base_system = is_closed ? system_text.slice(0, system_text.lastIndexOf("</SYSTEM>")).trimEnd() : system_text;
+
+      const inner_parts = [];
+      if (chat_history) {
+        inner_parts.push(`<CONVERSATION_HISTORY>\n${chat_history}\n</CONVERSATION_HISTORY>`);
+      }
+      if (task_text) {
+        inner_parts.push(task_text);
+      }
+
+      if (inner_parts.length > 0) {
+        instruction = `${base_system}\n\n${inner_parts.join("\n\n")}\n</SYSTEM>`;
+      } else {
+        instruction = is_closed ? system_text : `${base_system}\n</SYSTEM>`;
+      }
+    } else {
+      const parts = [system_text];
+      if (chat_history) {
+        parts.push(`<CONVERSATION_HISTORY>\n${chat_history}\n</CONVERSATION_HISTORY>`);
+      }
+      if (task_text) {
+        parts.push(task_text);
+      }
+      instruction = parts.filter(Boolean).join("\n\n");
     }
 
     try {
@@ -432,15 +457,6 @@ export const llm_service = {
     }
     return text;
   },
-
-  /**
-   * Backwards-compatible alias for format_conversation_history.
-   * @param {Array<{role: string, content?: string, text?: string, character_name?: string}>} messages
-   * @returns {string}
-   */
-  _format_history(messages) {
-    return format_conversation_history(messages);
-  },
 };
 
 // ============================================================================
@@ -448,6 +464,7 @@ export const llm_service = {
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-18: Standardized universal nested envelope assembly (<SYSTEM>...<CONVERSATION_HISTORY>...<TASK>...</SYSTEM>), eliminated system_close parameter dependency, and pruned legacy _format_history alias under P4 Zero Backwards Compatibility.
  * - 2026-09-16: Swapped escape_xml for prompt_escape in format_conversation_history to prevent double-escaping quotes/apostrophes in replayed history entries, and added think tag stripping.
  * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,
  *   structured section dividers, extracted named `format_conversation_history` export, normalized

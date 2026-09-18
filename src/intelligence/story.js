@@ -370,11 +370,12 @@ export const gamemaster = {
       });
 
       // 4.5. PHYSICS SYNC & TELEMETRY
-      const character_prompt = is_using_narrator_engine
-        ? prompt_builder.build_scene_narrator(payload, snapshot, director_data)
-        : npc_entity
-          ? prompt_builder.build_npc(payload, npc_entity, snapshot, director_data)
-          : prompt_builder.build_character(payload, snapshot, director_data);
+      const character_prompt = prompt_builder.build_story_prose(payload, {
+        snapshot,
+        director_data,
+        is_narrator: is_using_narrator_engine,
+        npc: npc_entity,
+      });
       const meta = character_prompt.meta;
 
       let final_meta = { ...meta };
@@ -507,10 +508,10 @@ export const gamemaster = {
           {
             system: character_prompt.system,
             task,
-            system_close: character_prompt.system_close,
             messages: simulation_log,
             role: generation_role,
             node_id: node_id,
+
             ...(director_data?.directors_note ? { startWith: `${THINK_OPEN_TAG}${director_data.directors_note} ` } : {}),
           },
           {
@@ -635,7 +636,7 @@ export const gamemaster = {
       const payload = await context_builder.build_context(prologue_input, "prologue");
 
       await Promise.race([temporal_engine.precompute_context_embedding(prologue_input), new Promise((resolve) => setTimeout(resolve, 1500))]);
-      const result = prompt_builder.build_prologue(payload, {});
+      const result = prompt_builder.build_story_prose(payload, { snapshot: {}, is_prologue: true });
       if (!result.system) return null;
 
       state_bridge.app.log("[GameMaster] Generating prologue...", "system");
@@ -662,10 +663,10 @@ export const gamemaster = {
         const text = await llm_service.generate({
           system: result.system,
           task: result.task,
-          system_close: result.system_close,
           role: "fractal",
           node_id: node_id,
         });
+
         if (!text || !strip_cognition_blocks(text).trim()) {
           throw new Error("EMPTY_PROLOGUE_PROSE");
         }
@@ -757,7 +758,10 @@ export const gamemaster = {
     const raw_messages = await state_bridge.session_driver.load_log(story_id);
     const recent_history = raw_messages.slice(-10);
 
-    const { system, task, system_close } = prompt_builder.build_epilogue(clean_entities, current_dynamics, recent_history, conclusion_status);
+    const { system, task } = prompt_builder.build_story_prose(
+      { entities: clean_entities, simulation_log: recent_history },
+      { snapshot: current_dynamics, is_epilogue: true, conclusion_status },
+    );
     if (!system) return null;
 
     state_bridge.app.log("[GameMaster] Generating epilogue...", "system");
@@ -765,7 +769,8 @@ export const gamemaster = {
     const fractal_name = state_bridge.runtime.active_fractal?.name || "Fractal Entity";
 
     const response = await this.execute_with_retry(async () => {
-      const text = await llm_service.generate({ system, task, system_close, role: "fractal", node_id: node_id });
+      const text = await llm_service.generate({ system, task, role: "fractal", node_id: node_id });
+
       if (!text || !strip_cognition_blocks(text).trim()) {
         throw new Error("EMPTY_EPILOGUE_PROSE");
       }
@@ -836,7 +841,7 @@ export const gamemaster = {
         })),
     );
     const payload = await context_builder.build_context(input_text || "", "simulation", simulation_log);
-    const ghost_prompt = prompt_builder.build_ghostwriter(payload.entities, input_text);
+    const ghost_prompt = prompt_builder.build_story_prose(payload, { input: input_text, ghostwrite: true });
 
     let full_accumulated = "";
     let is_inside_think = false;
@@ -845,10 +850,10 @@ export const gamemaster = {
       {
         system: ghost_prompt.system,
         task: ghost_prompt.task,
-        system_close: ghost_prompt.system_close,
         messages: [],
         role: "user",
       },
+
       {
         silent: true,
         signal,
@@ -920,6 +925,7 @@ export const story_pipeline = gamemaster;
 
 /**
  * CHANGELOG
+ * - 2026-09-18: Master Prompt Pipeline Standardization: (1) Aligned character, prologue, epilogue, and ghostwriter prompt assembly with unified `prompt_builder.build_story_prose`; (2) Pruned legacy `system_close` handling across all LLM generation calls.
  * - 2026-09-15: Domain Layer Prompt-Free Purity — Replaced literal <THINK> string with imported THINK_OPEN_TAG constant from parser.js.
  * - 2026-09-14: Updated prologue and epilogue visualization mode from story_entities to landscape story_scene (768x512).
  * - 2026-09-13: Deconstructed & Streamlined: (1) Outsourced Shot 1 LLM dispatch, refusal recovery, and terse fallback to director.js `execute_director_shot`; (2) Forked Shot 2A (storyteller stream) and Shot 2B (background Memory Forge consolidation) concurrently in parallel; (3) Centralized tag surgery (balance_think_tags, strip_directors_note_seed) into parser.js.

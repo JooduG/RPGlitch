@@ -16,7 +16,8 @@
  * - Raw network unwrapping lives in @platform/transport.js.
  */
 
-import { escape_unescaped_json_quotes, strip_cognition_blocks } from "@utils";
+import { escape_unescaped_json_quotes, strip_cognition_blocks, safe_parse_json, detox_prose } from "@utils";
+import { sanitize_llm } from "@platform";
 
 // ── 1. Refusal & Safety Guardrails ────────────────────────────────────────────
 
@@ -371,7 +372,110 @@ export function clean_image_prompts(text) {
 }
 
 /**
+ * Extracts structured `{ prompt, negative_prompt }` payload from an LLM response stream.
+ * @param {string | null | undefined} raw
+ * @returns {{ prompt: string, negative_prompt: string } | null}
+ */
+export function parse_llm_image_prompt_response(raw) {
+  if (!raw || typeof raw !== "string") return null;
+
+  const parsed = safe_parse_json(raw);
+  if (parsed && typeof parsed.prompt === "string") {
+    return {
+      prompt: parsed.prompt.trim(),
+      negative_prompt: typeof parsed.negative_prompt === "string" ? parsed.negative_prompt.trim() : "",
+    };
+  }
+  return null;
+}
+
+const NAME_TOKEN_STOPWORDS = new Set([
+  "lord",
+  "lady",
+  "king",
+  "queen",
+  "prince",
+  "princess",
+  "sir",
+  "dame",
+  "dr",
+  "doctor",
+  "mr",
+  "mrs",
+  "ms",
+  "miss",
+  "the",
+  "of",
+  "and",
+  "from",
+  "with",
+  "von",
+  "van",
+  "de",
+  "la",
+  "project",
+]);
+
+/**
+ * Strips entity proper names from a synthesized diffusion prompt — whole-word,
+ * case-insensitive, with possessive handling. Each full name plus its
+ * significant capitalized tokens (so a surname like "Silvers" is caught even
+ * when the model drops the title), so character names never leak into the
+ * image prompt. Only physical descriptions should survive.
+ * @param {string} text
+ * @param {string[]} [names]
+ * @returns {string}
+ */
+export function strip_proper_names(text, names = []) {
+  const set = new Set();
+  for (const raw of Array.isArray(names) ? names : []) {
+    if (typeof raw !== "string" || !raw.trim()) continue;
+    const full = raw.trim();
+    set.add(full);
+    for (const token of full.split(/[^\p{L}\p{N}'\u2019-]+/u)) {
+      const t = token.replace(/^['\u2019-]+|['\u2019-]+$/g, "");
+      if (t.length < 4 || !/^\p{Lu}/u.test(t) || NAME_TOKEN_STOPWORDS.has(t.toLowerCase())) continue;
+      set.add(t);
+    }
+  }
+  const list = [...set].filter(Boolean).sort((a, b) => b.length - a.length);
+  if (!list.length) return text;
+  const escaped = list.map((n) => n.replace(/[.*+?^$()|[\]\\]/g, "\\$&"));
+  const re = new RegExp("\\b(?:" + escaped.join("|") + ")(?:['\u2019]s|['\u2019])?\\b", "gi");
+  return text
+    .replace(re, "")
+    .replace(/\s*,\s*,+/g, ", ")
+    .replace(/,\s*([,.;])/g, "$1")
+    .replace(/^[\s,;]+/, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
+/**
+ * Sanitizes a raw LLM image prompt: strips cognition blocks, unwraps JSON structures,
+ * detoxes prose, and removes entity proper names (whole-word, possessive-aware).
+ * @param {string} raw
+ * @param {{ names?: string[] }} [options]
+ * @returns {string}
+ */
+export function clean_image_prompt(raw, options = {}) {
+  if (typeof raw !== "string") return raw;
+  let cleaned = sanitize_llm(strip_cognition_blocks(raw));
+
+  if (cleaned.includes("{")) {
+    const prompt_match = cleaned.match(/"prompt"\s*:\s*"((?:[^"\\]|\\.)*)"/i);
+    if (prompt_match && prompt_match[1]) {
+      cleaned = prompt_match[1].replace(/\\"/g, '"').replace(/\\n/g, "\n");
+    } else {
+      cleaned = cleaned.replace(/[{}]/g, "");
+    }
+  }
+  return strip_proper_names(detox_prose(cleaned), options?.names);
+}
+
+/**
  * CHANGELOG
+ * - 2026-09-18: Absorbed image prompt response parsing & cleaning from image-prompts.js: (1) `parse_llm_image_prompt_response`, (2) `strip_proper_names`, (3) `clean_image_prompt`.
  * - 2026-09-15: Exported THINK_OPEN_TAG constant in Section 2, decoupling domain execution engines from literal prompt markup strings.
  * - 2026-09-14: Enhanced refusal triggers ("can't/cannot continue this conversation") and added regex neutralization for artificial meta-closures (*[END RP]*, *fade to black*, *credits roll*) and unsolicited OOC mothering ("have you eaten/slept lately?").
  * - 2026-09-13: Centralized cognition tag surgery: absorbed balance_think_tags and strip_directors_note_seed from story.js into Section 2.

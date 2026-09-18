@@ -144,10 +144,10 @@ export const SimulationAudit = {
     // --- Director (Shot 1) Feature Verification ---
     check("director:system_has_role_line", director.system.includes("You are the Director"));
     check("director:system_has_DYNAMICS", director.system.includes("<DYNAMICS>"));
-    check("director:system_has_STORY_ENTITIES", director.system.includes("<STORY_ENTITIES>"));
+    check("director:system_has_AVAILABLE_ENTITIES", director.system.includes("<AVAILABLE_ENTITIES>"));
     check("director:system_has_KEYWORD_DIRECTIVES", director.system.includes("<KEYWORD_DIRECTIVES>"));
     check("director:system_has_PROTOCOLS", director.system.includes("<PROTOCOLS>"));
-    check("director:system_has_SCENE_SPOTLIGHT", director.system.includes("<SCENE_SPOTLIGHT>"));
+    check("director:system_has_PRESENT_ENTITIES", director.system.includes("<PRESENT_ENTITIES>"));
     check("director:task_has_JSON_schema", director.task.includes('"_thought_process"'));
     check("director:task_has_next_action", director.task.includes('"next_action"'));
     check("director:task_has_keywords", director.task.includes('"keywords"'));
@@ -158,7 +158,7 @@ export const SimulationAudit = {
     // --- Character (Shot 2) Feature Verification ---
     check("character:system_has_AXIOMATIC_CONSTITUTION", character.system.includes("<AXIOMATIC_CONSTITUTION>"));
     check("character:system_has_CORE_PROTOCOLS", character.system.includes("<CORE_PROTOCOLS>"));
-    check("character:system_has_STORY_ENTITIES", character.system.includes("<STORY_ENTITIES>"));
+    check("character:system_has_AVAILABLE_ENTITIES", character.system.includes("<AVAILABLE_ENTITIES>"));
     check("character:system_has_DYNAMIC_AXES", character.system.includes("<DYNAMIC_AXES"));
 
     // Prefix-cache & Task Verification:
@@ -167,7 +167,7 @@ export const SimulationAudit = {
     check("character:task_has_INPUT", character.task.includes("<INPUT"));
     check("character:task_has_CURRENTS", character.task.includes("<CURRENTS>"));
     check("character:task_has_DELIVERY_POSTURE", character.task.includes("<DELIVERY_POSTURE>"));
-    check("character:task_has_THINK_FORMAT", character.task.includes("<THINK_FORMAT>"));
+    check("character:task_has_THINK", character.task.includes("<THINK>"));
 
     return { passed, failed };
   },
@@ -194,3 +194,12 @@ export const SimulationAudit = {
     return result;
   },
 };
+
+// =============================================================================
+// CHANGELOG
+// =============================================================================
+
+/**
+ * CHANGELOG:
+ * - 2026-09-18: Standardized verification tags to match spatial and prompt specifications (<AVAILABLE_ENTITIES>, <PRESENT_ENTITIES>, <THINK>).
+ */

@@ -21,6 +21,7 @@ import { describe, expect, it } from "vitest";
 import {
   strip_epistemic_tags,
   strip_epistemic_secrets,
+  verify_epistemic_integrity,
   render_appearance,
   SHEET_SPECS,
   render_sheet,
@@ -58,6 +59,12 @@ describe("src/intelligence/modules/entities.js", () => {
       expect(strip_epistemic_secrets(text, true)).toBe(text);
       expect(strip_epistemic_secrets(text, false)).toBe("Observant.");
       expect(strip_epistemic_secrets(text)).toBe("Observant.");
+    });
+
+    it("verifies epistemic integrity and detects leaks of [SECRET: ...] and [PLAN: ...]", () => {
+      expect(verify_epistemic_integrity("Clean prompt without leak.")).toBe(true);
+      expect(() => verify_epistemic_integrity("Leaked [SECRET: hidden key] in prompt")).toThrowError(/Epistemic leak detected/i);
+      expect(() => verify_epistemic_integrity("Leaked [PLAN: infiltrate] in prompt")).toThrowError(/Epistemic leak detected/i);
     });
   });
 

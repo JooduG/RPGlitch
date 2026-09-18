@@ -18,10 +18,10 @@ describe("src/intelligence/modules/format.js", () => {
   });
 
   describe("OUTPUT_FORMATS", () => {
-    it("is frozen and contains exactly the 4 cohesive formats and schemas with SCREAMING_SNAKE_CASE keys", () => {
+    it("is frozen and contains exactly the 5 cohesive formats and schemas with SCREAMING_SNAKE_CASE keys", () => {
       expect(Object.isFrozen(OUTPUT_FORMATS)).toBe(true);
       const keys = Object.keys(OUTPUT_FORMATS);
-      expect(keys.sort()).toEqual(["CONTINUUM", "DIRECTOR", "PROFILE", "PROSE"]);
+      expect(keys.sort()).toEqual(["CONTINUUM", "DIRECTOR", "OPTICS", "PROFILE", "PROSE"]);
 
       // Primitives
       expect(OUTPUT_FORMATS.PROSE).toContain("plain prose");
@@ -32,6 +32,10 @@ describe("src/intelligence/modules/format.js", () => {
       expect(OUTPUT_FORMATS.DIRECTOR).toContain("<Tactical intent & state delta>");
       expect(OUTPUT_FORMATS.DIRECTOR).toContain("next_action");
       expect(OUTPUT_FORMATS.DIRECTOR).toContain("<1-5 lines staging directives for next speaker, or empty string>");
+
+      expect(OUTPUT_FORMATS.OPTICS).toContain("_thought_process");
+      expect(OUTPUT_FORMATS.OPTICS).toContain("prompt");
+      expect(OUTPUT_FORMATS.OPTICS).toContain("negative_prompt");
 
       expect(OUTPUT_FORMATS.PROFILE).toContain('"name"');
       expect(OUTPUT_FORMATS.PROFILE).toContain('"eternal"');
@@ -48,6 +52,7 @@ describe("src/intelligence/modules/format.js", () => {
   describe("get_output_format()", () => {
     it("resolves formats and schemas by exact key without backwards compatibility fallbacks", () => {
       expect(get_output_format("DIRECTOR")).toBe(OUTPUT_FORMATS.DIRECTOR);
+      expect(get_output_format("OPTICS")).toBe(OUTPUT_FORMATS.OPTICS);
       expect(get_output_format("PROFILE")).toBe(OUTPUT_FORMATS.PROFILE);
       expect(get_output_format("CONTINUUM")).toBe(OUTPUT_FORMATS.CONTINUUM);
       expect(get_output_format("PROSE")).toBe(OUTPUT_FORMATS.PROSE);
@@ -61,6 +66,7 @@ describe("src/intelligence/modules/format.js", () => {
       expect(get_output_format("CONTINUUM", { target_type: "character" })).toBe(get_continuum_schema("character"));
       expect(get_output_format("PROFILE", { resolved_type: "fractal" })).toBe(get_profile_schema("fractal"));
       expect(get_output_format("PROFILE", { resolved_type: "character" })).toBe(get_profile_schema("character"));
+      expect(get_output_format("OPTICS", { variant: "selfie" })).toContain('"caption"');
     });
   });
 

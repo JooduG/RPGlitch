@@ -171,21 +171,32 @@ export function render_environmental_hint(input) {
 }
 
 /**
- * Prose Reflex (Delivery Posture) — kinetic reaction envelope calibrated to user input.
- * @param {any} snapshot - { dynamics?, style? }
+ * Prose Reflex (Delivery Posture) — kinetic reaction envelope calibrated to user input and active voice.
+ * @param {any} snapshot - { dynamics?, style?, speaking_style?, speaker? }
  * @param {string} [input] - current user action / scene beat
+ * @param {string} [speaking_style=""] - active speaking style register override
  * @returns {string}
  */
-export function render_prose_reflex(snapshot, input) {
+export function render_prose_reflex(snapshot, input, speaking_style = "") {
   const style_dna = extract_style_dna(snapshot?.style || null);
   const { RHYTHM, DRIVE } = TASK_LIBRARY.PROTOCOLS.RECENCY;
   const pacing = build_pacing_directive(input);
   const rhythm = RHYTHM(style_dna.sentence_rhythm);
   const drive = DRIVE(Boolean(String(input || "").trim()));
+  const resolved_speaking_style = speaking_style || snapshot?.speaking_style || snapshot?.speaker?.speaking_style || "";
+
+  const children = [
+    pacing,
+    `<RHYTHM>${prompt_escape(rhythm)}</RHYTHM>`,
+    `<DRIVE>${prompt_escape(drive)}</DRIVE>`,
+    resolved_speaking_style
+      ? `<VOICE mode="${escape_xml(String(resolved_speaking_style).toLowerCase())}">Deliver dialogue matching the ${escape_xml(String(resolved_speaking_style))} speaking register.</VOICE>`
+      : null,
+  ].filter(Boolean);
 
   return render_xml_tag({
     tag: "DELIVERY_POSTURE",
-    children: [pacing, `<RHYTHM>${prompt_escape(rhythm)}</RHYTHM>`, `<DRIVE>${prompt_escape(drive)}</DRIVE>`],
+    children,
     indent: 0,
     child_indent: 4,
     separator: "\n",
@@ -307,6 +318,7 @@ export function resolve_scene_action_directive({ scene_template = null, is_prolo
  * @param {any} [parameters.snapshot] - physical dynamics and style snapshot
  * @param {string} [parameters.action_directive] - specific scene or character action directive
  * @param {string} [parameters.stability_lock] - stability lock instruction
+ * @param {string} [parameters.speaking_style] - active speaking style register override
  * @returns {string}
  */
 export function render_task({
@@ -325,11 +337,27 @@ export function render_task({
   snapshot = null,
   action_directive = "",
   stability_lock = "",
+  speaking_style = "",
 } = {}) {
   switch (mode) {
     case "director": {
+      const output_format_content = schema ? TASK_LIBRARY.JSON_RETURN(schema, "  ") : "";
+      const output_format_xml = output_format_content
+        ? render_xml_tag({
+            tag: "OUTPUT_FORMAT",
+            attrs: { mode: "json" },
+            children: [output_format_content],
+            child_indent: 2,
+          })
+        : null;
+
       if (terse) {
-        return render_xml_tag({ tag: "TASK", children: [TASK_LIBRARY.JSON_RETURN(schema, "  ")], indent: 0, child_indent: 2 });
+        return render_xml_tag({
+          tag: "TASK",
+          children: [output_format_xml || TASK_LIBRARY.JSON_RETURN(schema, "  ")],
+          indent: 0,
+          child_indent: 2,
+        });
       }
       const evaluation =
         TASK_LIBRARY.DIRECTOR.EVALUATE(!!input?.trim()) +
@@ -337,7 +365,7 @@ export function render_task({
         ` ${TASK_LIBRARY.DIRECTOR.USER_PERSONA_LOCK}`;
 
       const input_xml = render_task_input({ input, input_origin: "USER" });
-      const task_children = [evaluation, render_environmental_hint(input), schema ? TASK_LIBRARY.JSON_RETURN(schema) : null].filter(Boolean);
+      const task_children = [evaluation, render_environmental_hint(input), output_format_xml].filter(Boolean);
 
       const parts = [
         input_xml ? input_xml.trim() : null,
@@ -349,18 +377,32 @@ export function render_task({
     }
 
     case "continuum": {
-      const items = [
-        TASK_LIBRARY.CONTINUUM.TARGET_FOCUS(target_name),
-        schema ? TASK_LIBRARY.JSON_RETURN(schema) : null,
-        TASK_LIBRARY.CONTINUUM.MANDATE,
-      ].filter(Boolean);
+      const output_format_xml = schema
+        ? render_xml_tag({
+            tag: "OUTPUT_FORMAT",
+            attrs: { mode: "json" },
+            children: [TASK_LIBRARY.JSON_RETURN(schema, "  ")],
+            child_indent: 2,
+          })
+        : null;
+
+      const items = [TASK_LIBRARY.CONTINUUM.TARGET_FOCUS(target_name), output_format_xml, TASK_LIBRARY.CONTINUUM.MANDATE].filter(Boolean);
 
       return render_xml_tag({ tag: "TASK", children: items, indent: 0, child_indent: 4, separator: "\n\n" });
     }
 
+    case "optics":
     case "enhancement":
     case "sorting": {
-      const items = [schema ? escape_xml(schema.trim()) : null, ...directives].filter(Boolean);
+      const output_format_xml = schema
+        ? render_xml_tag({
+            tag: "OUTPUT_FORMAT",
+            attrs: { mode: mode === "enhancement" ? "prose" : "json" },
+            children: [mode === "optics" ? TASK_LIBRARY.JSON_RETURN(schema, "  ") : escape_xml(schema.trim())],
+            child_indent: 2,
+          })
+        : null;
+      const items = [output_format_xml, ...directives].filter(Boolean);
       return render_xml_tag({ tag: "TASK", children: items, indent: 2, child_indent: 2, separator: "\n\n" });
     }
 
@@ -375,13 +417,21 @@ export function render_task({
             ? TASK_LIBRARY.PROTOCOLS.THINK_NARRATOR
             : "";
 
+      const output_format_xml = render_xml_tag({
+        tag: "OUTPUT_FORMAT",
+        attrs: { mode: "prose" },
+        children: ["Emit strictly plain prose. No preamble, commentary, markdown, or structural tags."],
+        child_indent: 2,
+      });
+
       const elements = [
         think_directive,
         render_task_input({ input, input_origin }),
         render_task_currents(style_dna, somatic_inner),
         action_directive ? String(action_directive).trim() : "",
-        render_prose_reflex(snapshot, input),
+        render_prose_reflex(snapshot, input, speaking_style),
         stability_lock ? String(stability_lock).trim() : "",
+        output_format_xml,
       ].filter(Boolean);
 
       return elements.length ? render_xml_tag({ tag: "TASK", children: elements, indent: 0, child_indent: 4, separator: "\n" }) : "";
@@ -391,6 +441,7 @@ export function render_task({
 
 /**
  * CHANGELOG
+ * - 2026-09-18: Standardized Layer 7 <OUTPUT_FORMAT> emission across director, continuum, sorting, enhancement, and story prose inside <TASK>; injected voice registers into <DELIVERY_POSTURE>.
  * - 2026-09-17: Director Action Clarification — Strengthened `TASK_LIBRARY.DIRECTOR.USER_PERSONA_LOCK` to explicitly disallow player character names and enumerate valid target enums.
  * - 2026-09-16: Standardized Director input tag and `TASK_LIBRARY.DIRECTOR.EVALUATE` to canonical `<INPUT />`, achieving 100% universal input tag consistency across all prompt modes.
  * - 2026-09-16: Pruned legacy `GHOSTWRITE` directives from `TASK_LIBRARY.PROSE` and simplified `resolve_character_action_directive` — ghostwriting operates as a first-class symmetrical Shot-2A first-person character turn governed by `CORE_PROTOCOLS.PERSPECTIVE.POV.FIRST` and `<DELIVERY_POSTURE><DRIVE>`.

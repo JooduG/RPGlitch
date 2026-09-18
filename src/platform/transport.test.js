@@ -150,7 +150,7 @@ describe("format_conversation_history", () => {
 });
 
 describe("llm_service instruction envelope", () => {
-  it("nests conversation history and the task inside <SYSTEM>, closing after the task", async () => {
+  it("nests conversation history and the task inside <SYSTEM>, closing after the task without system_close", async () => {
     let captured = "";
     globalThis.window = globalThis;
     // @ts-ignore
@@ -164,7 +164,6 @@ describe("llm_service instruction envelope", () => {
           system: '<SYSTEM round="5" mode="narrator">',
           messages: [{ role: "USER_PERSONA", origin: "SILVERS", content: "I wait." }],
           task: "<TASK></TASK>",
-          system_close: "</SYSTEM>",
         },
         { silent: true, raw: true },
       );
@@ -179,6 +178,59 @@ describe("llm_service instruction envelope", () => {
     expect(history).toBeGreaterThan(-1);
     expect(task).toBeGreaterThan(history_close);
     expect(system_close).toBeGreaterThan(task);
+    expect(captured.match(/<\/SYSTEM>/g)?.length).toBe(1);
+  });
+
+  it("embeds task inside already-closed <SYSTEM> envelope and re-closes cleanly", async () => {
+    let captured = "";
+    globalThis.window = globalThis;
+    // @ts-ignore
+    window.generate_text = async (opts) => {
+      captured = typeof opts.instruction === "function" ? opts.instruction() : opts.instruction;
+      return "ok";
+    };
+    try {
+      await llm_service.generate(
+        {
+          system: '<SYSTEM mode="director">\n<PROTOCOLS>Rules</PROTOCOLS>\n</SYSTEM>',
+          task: "<TASK>Evaluate</TASK>",
+        },
+        { silent: true, raw: true },
+      );
+    } finally {
+      // @ts-ignore
+      delete window.generate_text;
+    }
+    const protocols = captured.indexOf("<PROTOCOLS>Rules</PROTOCOLS>");
+    const task = captured.indexOf("<TASK>Evaluate</TASK>");
+    const system_close = captured.indexOf("</SYSTEM>");
+    expect(protocols).toBeGreaterThan(-1);
+    expect(task).toBeGreaterThan(protocols);
+    expect(system_close).toBeGreaterThan(task);
+    expect(captured.match(/<\/SYSTEM>/g)?.length).toBe(1);
+  });
+
+  it("preserves self-contained <SYSTEM>...<TASK>...</TASK></SYSTEM> without modification", async () => {
+    let captured = "";
+    globalThis.window = globalThis;
+    // @ts-ignore
+    window.generate_text = async (opts) => {
+      captured = typeof opts.instruction === "function" ? opts.instruction() : opts.instruction;
+      return "ok";
+    };
+    const complete_prompt = '<SYSTEM mode="continuum">\n<TASK>Consolidate</TASK>\n</SYSTEM>';
+    try {
+      await llm_service.generate(
+        {
+          system: complete_prompt,
+        },
+        { silent: true, raw: true },
+      );
+    } finally {
+      // @ts-ignore
+      delete window.generate_text;
+    }
+    expect(captured).toBe(complete_prompt);
   });
 });
 

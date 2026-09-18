@@ -28,6 +28,8 @@ import {
   render_profile_sorting,
   render_enhancement,
   render_director,
+  compile_pipeline_prompt,
+  prompt_builder,
 } from "./builder.js";
 import { PROTOCOL_LIBRARY } from "./modules/protocols.js";
 
@@ -295,10 +297,134 @@ describe("Protocol Invariants & Remediation Regression Gates", () => {
 });
 
 // ============================================================================
+// [SECTION 5: DECLARATIVE PIPELINE RUNNER & FACADE CONSOLIDATION]
+// ============================================================================
+
+describe("Declarative Pipeline Runner & Facade Consolidation", () => {
+  it("compiles director prompt via compile_pipeline_prompt without duplicate schema in protocols", () => {
+    const director_package = compile_pipeline_prompt("director", {
+      round: 1,
+      entities: test_entities,
+      input: "Bob scans the perimeter.",
+    });
+
+    expect(director_package.system).toContain("<SYSTEM");
+    expect(director_package.system).toContain('mode="director"');
+    expect(director_package.system).toContain("<PROTOCOLS>");
+    // Schema should NOT be inside <PROTOCOLS> in system
+    expect(director_package.system).not.toContain("<SCHEMA>");
+    // Schema should be inside task
+    expect(director_package.task).toContain('<OUTPUT_FORMAT mode="json">');
+    expect(director_package.task).toContain('"next_action"');
+  });
+
+  it("compiles director_terse mode via compile_pipeline_prompt", () => {
+    const terse_package = compile_pipeline_prompt("director_terse", {
+      round: 2,
+    });
+
+    expect(terse_package.system).toContain("<SYSTEM");
+    expect(terse_package.task).toContain("<TASK>");
+    expect(terse_package.task).toContain('<OUTPUT_FORMAT mode="json">');
+    expect(terse_package.task).toContain('"next_action"');
+  });
+
+  it("compiles continuum mode via compile_pipeline_prompt", () => {
+    const continuum_package = compile_pipeline_prompt("continuum", {
+      target_entity: test_entities.AI,
+      target_key: "AI_CHARACTER",
+      other_entities: test_entities,
+      history: [],
+    });
+
+    expect(continuum_package.system).toContain('role="CONTINUUM_CARETAKER"');
+    expect(continuum_package.system).toContain("<TARGET_ENTITY_CONTEXT>");
+  });
+
+  it("compiles enhancement and sorting via compile_pipeline_prompt", () => {
+    const enhancement_package = compile_pipeline_prompt("enhancement", {
+      enhancer: "VOICE",
+      label: "Personality",
+      directive: "Expand vocal cadence",
+      content: "Terse, dry.",
+      field_id: "eternal.non_physical",
+      layer_key: "ETERNAL",
+      entity: test_entities.AI,
+      entity_type: "character",
+    });
+    expect(enhancement_package.system).toContain('enhancing="Personality"');
+
+    const sorting_package = compile_pipeline_prompt("sorting", {
+      entity_type: "character",
+      options: {},
+      input_data: "Raw bio text",
+    });
+    expect(sorting_package.system).toContain('role="NARRATIVE_STRUCTURER"');
+    expect(sorting_package.messages.length).toBe(1);
+  });
+
+  it("compiles optics mode via compile_pipeline_prompt", () => {
+    const optics_package = compile_pipeline_prompt("optics", {
+      subject_name: "Alice",
+      prompt_context: "Standing on the catwalk in neon rain",
+      is_selfie: false,
+    });
+
+    expect(optics_package.system).toContain('role="SENSORY_CORTEX"');
+    expect(optics_package.task).toContain("<TASK>");
+    expect(optics_package.task).toContain('<OUTPUT_FORMAT mode="json">');
+    expect(optics_package.task).toContain('"prompt"');
+    expect(optics_package.task).toContain('"negative_prompt"');
+  });
+
+  it("unifies character, npc, narrator, prologue, and ghostwrite via build_story_prose", () => {
+    // 1. Canonical Character
+    const character_result = prompt_builder.build_story_prose({
+      round: 1,
+      entities: test_entities,
+      input: "Alice prepares to move.",
+    });
+    expect(character_result.system).toContain('mode="interaction"');
+
+    // 2. NPC
+    const npc_result = prompt_builder.build_story_prose({ round: 1, entities: test_entities, input: "Merchant glances around." }, { npc: test_npc });
+    expect(npc_result.system).toContain('mode="npc"');
+
+    // 3. Narrator (continuation)
+    const narrator_result = prompt_builder.build_story_prose({ round: 1, entities: test_entities, input: "The wind howls." }, { is_narrator: true });
+    expect(narrator_result.system).toContain('mode="narrator"');
+
+    // 4. Prologue
+    const prologue_result = prompt_builder.build_story_prose({ round: 0, entities: test_entities }, { is_prologue: true });
+    expect(prologue_result.system).toContain('mode="narrator"');
+
+    // 5. Epilogue
+    const epilogue_result = prompt_builder.build_story_prose(
+      { entities: test_entities, simulation_log: [] },
+      { is_epilogue: true, conclusion_status: "CONCLUDED" },
+    );
+    expect(epilogue_result.system).toContain('mode="narrator"');
+
+    // 6. Ghostwriter
+    const ghostwriter_result = prompt_builder.build_story_prose({ entities: test_entities, input: "I steady my aim." }, { ghostwrite: true });
+    expect(ghostwriter_result.system).toContain('mode="ghostwrite"');
+  });
+
+  it("exposes build_continuum and build_sorting as unified facade methods", () => {
+    const continuum_result = prompt_builder.build_continuum(test_entities.AI, []);
+    expect(continuum_result.system).toContain('role="CONTINUUM_CARETAKER"');
+
+    const sorting_result = prompt_builder.build_sorting("raw text", "character");
+    expect(sorting_result.system).toContain('role="NARRATIVE_STRUCTURER"');
+  });
+});
+
+// ============================================================================
 // [CHANGELOG]
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-18: Added Section 5 tests covering `compile_pipeline_prompt` (director, director_terse, continuum, enhancement, sorting, optics) and `build_story_prose` unification.
  * - 2026-09-17: Remediation pass — Added regression tests for PROTOCOL_LIBRARY.HYGIENE.AFFIRMATIVE_FRAMING, SIMULATION_FIDELITY permissive clause, and Director USER_PERSONA_LOCK prompt invariants.
  * - 2026-09-15: Initialized comprehensive builder.test.js unit suite covering narrator style resolution regression, symmetrical Shot-2A compilation, <SIGNATURE_ELEMENTS> tag standardization, and parameter-aware Layer 7 schema routing.
  */

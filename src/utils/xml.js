@@ -16,7 +16,7 @@
  *
  * Consumed by:
  * - `src/intelligence/prompts/` (Prompt compilation pipelines).
- * - `src/media/image-prompts.js` (Visual prompt synthesis).
+ * - `src/intelligence/optics.js` (Visual prompt synthesis).
  * - `src/utils/text.js` (Clothing key resolution).
  */
 
