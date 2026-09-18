@@ -326,7 +326,7 @@ export function render_display_macros(text, owner, entities = {}) {
  * @returns {string}
  */
 const PROFILE_WRAPPER_TAGS =
-  /<\/?(?:ENTITY_CONTEXT|INPUT_CONTENT|SYSTEM|TASK|INSTRUCTIONS|PROTOCOLS|CONTRACT|LAYER|ETERNAL|PRESENT|PHYSICAL|NON_PHYSICAL|PERSONALITY|STATE_OF_MIND|CURRENT_LOOK|APPEARANCE|AGENDA|PAST|FUTURE|MEMORY|DESCRIPTION|RELATIONSHIPS?)\b[^>]*>/gi;
+  /<\/?(?:ENTITY_CONTEXT|INPUT_CONTENT|SYSTEM|TASK|INSTRUCTIONS|CORE_PROTOCOLS|PROTOCOLS|ENTITIES|HISTORY|CONTRACT|LAYER|ETERNAL|PRESENT|PHYSICAL|NON_PHYSICAL|PERSONALITY|STATE_OF_MIND|CURRENT_LOOK|APPEARANCE|AGENDA|PAST|FUTURE|MEMORY|DESCRIPTION|RELATIONSHIPS?)\b[^>]*>/gi;
 
 export function strip_profile_wrappers(text) {
   if (!text) return "";
@@ -432,6 +432,7 @@ export function render_field_value(text, owner, entities) {
 
 /**
  * CHANGELOG
+ * - 2026-09-18: Added CORE_PROTOCOLS, ENTITIES, and HISTORY to PROFILE_WRAPPER_TAGS per scrobbles.md blueprint.
  * - 2026-09-16: Added TASK to PROFILE_WRAPPER_TAGS to ensure prompt envelope tags are stripped from raw profile generations.
  * - 2026-09-13: Repatriated MACRO_DIRECTIVES and resolve_macro_directive to src/utils/macros.js as the single source of truth for all macro parsing and entity token specifications.
  * - 2026-09-11: Purification pass — removed the duplicate MACRO_DIRECTIVES export; modules/protocols.js is the single home, making the 2026-09-11 'moved' note accurate.

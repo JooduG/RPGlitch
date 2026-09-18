@@ -19,7 +19,16 @@
  * ============================================================================
  */
 
-import { PROFILE_FIELD_CATALOG, get_style_keywords, get_narrative_style, resolve_active_style_key, render_narrative_style_xml } from "@data";
+import {
+  VISUAL_STYLES,
+  resolve_portrait_visual_style_key,
+  resolve_story_visual_style_key,
+  PROFILE_FIELD_CATALOG,
+  get_style_keywords,
+  get_narrative_style,
+  resolve_active_style_key,
+  render_narrative_style_xml,
+} from "@data";
 import {
   escape_xml,
   prompt_escape,
@@ -31,21 +40,32 @@ import {
   wrap_tag,
   resolve_macro_directive,
   parse_relational_vector,
+  resolve_alternations,
+  alternation_field_label,
+  detox_prose,
 } from "@utils";
 import { get_prompt } from "./prompts.js";
 import { resolve_stability_lock, resolve_system_role_line, SYSTEM_CLOSE_TAG, render_system_xml } from "./modules/system.js";
 import { render_axiomatic_constitution } from "./modules/constitution.js";
-import { render_protocols, render_core_protocols, resolve_pov_protocol, PROTOCOL_LIBRARY } from "./modules/protocols.js";
+import {
+  render_protocols,
+  render_core_protocols,
+  resolve_pov_protocol,
+  PROTOCOL_LIBRARY,
+  build_optics_builder_protocol,
+  NEGATIVE_PROMPT,
+} from "./modules/protocols.js";
 import {
   render_entity_sheets,
   render_nearby_entities_xml,
   render_entity_memory_context,
   render_enhancement_field_context,
   render_present_entities_xml,
+  render_optics_entities_xml,
   verify_epistemic_integrity,
-} from "./modules/entities.js";
+} from "./modules/entities/index.js";
 
-import { render_history, render_chapter_history_xml, render_input_history_xml, resolve_history } from "./modules/history.js";
+import { render_history, render_chapter_history_xml, render_input_history_xml, resolve_history, format_sensory_history } from "./modules/history.js";
 import {
   render_task,
   TASK_LIBRARY,
@@ -53,9 +73,11 @@ import {
   resolve_character_action_directive,
   resolve_scene_action_directive,
 } from "./modules/task.js";
-import { OUTPUT_FORMATS, get_output_format } from "./modules/format.js";
+import { OUTPUT_FORMATS, get_output_format, get_optics_schema } from "./modules/format.js";
 import { render_available_keywords_xml, render_dynamics_xml, render_subtext_xml, render_dynamics_axes_xml } from "./physics.js";
 import { temporal_engine, resolve_vector_pool } from "./temporal.js";
+import { normalize_image_tier } from "../media/image-tiers.js";
+import { resolve_visual_engine_tokens } from "../media/image-aesthetics.js";
 
 // ── 1. Render Builder Accessor Factory ─────────────────────────────────────────
 
@@ -217,11 +239,11 @@ export function render_director({
     round,
     children: [
       role_line,
+      wrap_tag("CORE_PROTOCOLS", full_protocols, 4),
       render_dynamics_xml(),
       render_narrative_style_xml(),
-      entity_sheets,
       keyword_directives_xml,
-      wrap_tag("PROTOCOLS", full_protocols, 4),
+      entity_sheets,
       config.entities.present_entities ? render_present_entities_xml({ entities: scene_entities, npc_entities, in_scene_ids }) : null,
     ],
     closed: true,
@@ -564,7 +586,7 @@ export function render_memory({ target_entity, target_key = "AI_CHARACTER", othe
   return render_system_xml({
     attributes: { role: "CONTINUUM_CARETAKER", target: target_name },
     children: [
-      wrap_tag("PROTOCOLS", indent_continuation(render_protocols(config.protocols), 4).trim(), 2),
+      wrap_tag("CORE_PROTOCOLS", indent_continuation(render_protocols(config.protocols), 4).trim(), 2),
       wrap_tag("TARGET_ENTITY_CONTEXT", target_xml, 2),
       nearby_entities_xml,
       chapter_xml,
@@ -609,8 +631,7 @@ export function render_enhancement({
       field: field_id,
     },
     children: [
-      task_xml,
-      wrap_tag("PROTOCOLS", indent_continuation(render_protocols(config.protocols), 4).trim(), 2),
+      wrap_tag("CORE_PROTOCOLS", indent_continuation(render_protocols(config.protocols), 4).trim(), 2),
       layer_key ? `<LAYER>${escape_xml(layer_key)}</LAYER>` : null,
       config.entities.field_context
         ? render_enhancement_field_context(entity, field_id, content, entity_type, (e, c) =>
@@ -618,6 +639,7 @@ export function render_enhancement({
           )
         : null,
       wrap_tag("INPUT_CONTENT", indent_continuation(escape_xml(content), 4).trim(), 2),
+      task_xml,
     ],
     closed: true,
   });
@@ -658,10 +680,142 @@ export function render_profile_sorting(entity_type = "character", options = {}) 
       role: "NARRATIVE_STRUCTURER",
       enhancing: "Entire Profile",
     },
-    children: [task_xml, wrap_tag("PROTOCOLS", indent_continuation(render_protocols(config.protocols), 4).trim(), 2)],
+    children: [wrap_tag("CORE_PROTOCOLS", indent_continuation(render_protocols(config.protocols), 4).trim(), 2), task_xml],
     closed: true,
   });
 }
+
+/**
+ * Constructs system prompts for all image generation tasks (solo entity portraits and multi-character scenes).
+ * Aligns strictly with scrobbles.md blueprint:
+ * <SYSTEM role="SENSORY_CORTEX">
+ *   <CORE_PROTOCOLS>
+ *   <ENTITIES>
+ *   <HISTORY> (optional)
+ *   <TASK>
+ *     <TARGET>
+ *     <INPUT_INTENT>
+ *     <OUTPUT_FORMAT mode="json">
+ *   </TASK>
+ * </SYSTEM>
+ *
+ * @param {string} target_type_or_intent
+ * @param {string|Record<string, any>} [raw_intent_or_options]
+ * @param {Record<string, any>} [context={}]
+ * @returns {string}
+ */
+export function render_optics_prompt(target_type_or_intent, raw_intent_or_options, context = {}) {
+  let target_type = target_type_or_intent;
+  let raw_intent = raw_intent_or_options;
+  let options = context;
+
+  if (typeof raw_intent_or_options === "object" && raw_intent_or_options !== null && !Array.isArray(raw_intent_or_options)) {
+    if (raw_intent_or_options.tier) {
+      target_type = raw_intent_or_options.tier;
+      raw_intent = target_type_or_intent;
+      options = { ...raw_intent_or_options, ...(raw_intent_or_options.context || {}) };
+    }
+  }
+
+  const { ai, user, fractal, entity, history, mode = "visualize", variant, onAlternationPick } = options;
+
+  const dice_picks = [];
+  const roll = (text) => {
+    const resolved = resolve_alternations(text, {
+      onPick: (pick) => {
+        const item = { ...pick, label: alternation_field_label(text, pick.raw) };
+        dice_picks.push(item);
+        if (typeof onAlternationPick === "function") onAlternationPick([item]);
+      },
+    });
+    return resolved.text;
+  };
+
+  const tier = normalize_image_tier(target_type);
+  const is_selfie = variant === "selfie" || target_type === "selfie";
+
+  const active_ai_character = ai || (entity && entity.type !== "user" && entity.type !== "fractal" ? entity : null);
+  const active_user_persona = user || (entity?.type === "user" ? entity : null);
+  const active_fractal_setting = fractal || (entity?.type === "fractal" ? entity : null);
+  const main_entity = entity || active_ai_character || active_user_persona;
+  const solo_subject = entity || active_ai_character || active_user_persona || active_fractal_setting;
+  const macro_entities = { AI: active_ai_character, USER: active_user_persona, FRACTAL: active_fractal_setting };
+
+  const combined_input_text = `${raw_intent || ""} ${main_entity?.present?.physical || ""} ${main_entity?.eternal?.physical || ""}`;
+  const style_key =
+    tier === "solo_entity" || mode === "enhance"
+      ? resolve_portrait_visual_style_key(solo_subject)
+      : resolve_story_visual_style_key(active_fractal_setting);
+  const style_definition = VISUAL_STYLES[style_key] || VISUAL_STYLES.none;
+  const engine_tokens = resolve_visual_engine_tokens(style_key);
+
+  const protocol_content = build_optics_builder_protocol(style_definition, engine_tokens, combined_input_text);
+  const protocols_xml = wrap_tag(
+    "CORE_PROTOCOLS",
+    indent_continuation(
+      is_selfie
+        ? `${protocol_content}\n\nPHASE 6: SELFIE MODE EXTENSION\n- Generate a short, in-character social media caption inside "caption".`
+        : protocol_content,
+      4,
+    ).trim(),
+    2,
+  );
+
+  const entities_xml = render_optics_entities_xml({
+    tier,
+    solo_subject,
+    active_ai_character,
+    active_user_persona,
+    active_fractal_setting,
+    main_entity,
+    macro_entities,
+    roll,
+    visual_staging: options?.visual_staging || "",
+  });
+
+  const history_xml = format_sensory_history(history);
+
+  const resolved_negative_prompt = engine_tokens.negative_prompt || NEGATIVE_PROMPT;
+  const schema = get_optics_schema({ variant: is_selfie ? "selfie" : variant, negative_prompt: resolved_negative_prompt });
+
+  const rolled_intent = detox_prose(roll(raw_intent || ""));
+
+  const task_xml = render_task({
+    mode: "optics",
+    target_tier: tier,
+    input_intent: rolled_intent,
+    schema,
+  });
+
+  return render_system_xml({
+    mode: "optics",
+    attributes: { role: "SENSORY_CORTEX" },
+    children: [protocols_xml, entities_xml, history_xml ? history_xml.trim() : null, task_xml],
+    closed: true,
+  });
+}
+
+/**
+ * Refines raw concept data into structured sentences containing visual targets.
+ * Delegates directly to render_optics_prompt for unified sensory cortex prompt synthesis.
+ * @param {string} raw_intent
+ * @param {string} [target_tier="character"]
+ * @param {any} [target_entity=null]
+ * @returns {string}
+ */
+export function render_visual_enhancement(raw_intent, target_tier = "character", target_entity = null) {
+  const tier = normalize_image_tier(target_tier || "");
+  return render_optics_prompt(tier, raw_intent, {
+    entity: target_entity,
+    mode: "enhance",
+    variant: target_tier === "selfie" ? "selfie" : undefined,
+  });
+}
+
+export const prompt_templates = Object.freeze({
+  build_prompt: render_optics_prompt,
+  enhance_prompt: render_visual_enhancement,
+});
 
 // ── 4. Declarative Pipeline Runner ──────────────────────────────────────────
 
@@ -681,11 +835,7 @@ export function compile_pipeline_prompt(mode_key, context = {}) {
 
   switch (mode_key) {
     case "director": {
-      const rendered = render_director(context);
-      return pack_prompt(rendered, {
-        ai: context.compressed_snapshot?.ai?.dynamics,
-        fractal: context.compressed_snapshot?.fractal?.dynamics,
-      });
+      return prompt_builder.build_director(context, context.compressed_snapshot);
     }
 
     case "director_terse": {
@@ -733,19 +883,21 @@ export function compile_pipeline_prompt(mode_key, context = {}) {
     }
 
     case "optics": {
-      const schema = get_output_format(config.format, { is_selfie: context.is_selfie });
-      const full_protocols = render_protocols(config.protocols);
+      const is_selfie = context.is_selfie || context.variant === "selfie";
+      const tier = normalize_image_tier(context.target_type || context.tier || "solo_entity");
+      const schema = get_optics_schema({ variant: is_selfie ? "selfie" : context.variant });
       const task = render_task({
         mode: "optics",
-        subject_name: context.subject_name,
-        prompt_context: context.prompt_context,
+        target_tier: tier,
+        input_intent: context.prompt_context || context.raw_intent || context.input || "",
         schema,
         directives: context.directives || [],
       });
+      const full_protocols = render_protocols(config.protocols);
       const system = render_system_xml({
         mode: "optics",
         attributes: { role: "SENSORY_CORTEX" },
-        children: [wrap_tag("PROTOCOLS", indent_continuation(full_protocols, 4).trim(), 2), context.entity_context || null, task],
+        children: [wrap_tag("CORE_PROTOCOLS", indent_continuation(full_protocols, 4).trim(), 2), context.entity_context || null],
         closed: true,
       });
       return pack_prompt({ system, task });
@@ -946,52 +1098,24 @@ export const prompt_builder = {
   },
 
   /**
-   * Builds the character prose generator prompt for the primary AI speaker.
-   * @param {any} payload
-   * @param {any} snapshot
-   * @param {any} [director_data]
+   * Facade aliases forwarding directly to unified build_story_prose.
    */
   build_character(payload, snapshot = {}, director_data = {}) {
     return this.build_story_prose(payload, { snapshot, director_data });
   },
 
-  /**
-   * Builds the environmental narrator prompt for scene transitions or fractal prose.
-   * @param {any} payload
-   * @param {any} snapshot
-   * @param {any} [director_data]
-   */
   build_scene_narrator(payload, snapshot = {}, director_data = {}) {
     return this.build_story_prose(payload, { snapshot, director_data, is_narrator: true });
   },
 
-  /**
-   * Builds the character prose generator prompt for an active NPC on stage.
-   * @param {any} payload
-   * @param {any} npc
-   * @param {any} snapshot
-   * @param {any} [director_data]
-   */
   build_npc(payload, npc, snapshot = {}, director_data = {}) {
     return this.build_story_prose(payload, { npc, snapshot, director_data });
   },
 
-  /**
-   * Builds the initial scene-setting prologue prompt.
-   * @param {any} payload
-   * @param {any} snapshot
-   */
   build_prologue(payload, snapshot = {}) {
     return this.build_story_prose(payload, { snapshot, is_prologue: true });
   },
 
-  /**
-   * Builds the concluding epilogue narrator prompt.
-   * @param {Record<string, any>} entities
-   * @param {any} dynamics
-   * @param {any[]} [recent_history]
-   * @param {string} [conclusion_status]
-   */
   build_epilogue(entities, dynamics, recent_history = [], conclusion_status = "CONCLUDED") {
     return this.build_story_prose(
       { entities, simulation_log: recent_history },
@@ -1136,6 +1260,9 @@ if (typeof window !== "undefined") {
 
 /**
  * CHANGELOG
+ * - 2026-09-18: Promoted prompts.js as sovereign prompt switchboard; streamlined builder.js assembly line and unified story prose compilation facades.
+ * - 2026-09-18: Absorbed render_optics_prompt, render_visual_enhancement, and prompt_templates from deconstructed optics.js, coordinating visual prompt synthesis through modules per scrobbles.md blueprint.
+ * - 2026-09-18: Standardized <PROTOCOLS> to <CORE_PROTOCOLS> across Director, Continuum, Enhancement, Sorting, and Optics; ordered <CORE_PROTOCOLS> before entities and moved <TASK> to bottom in enhancement and profile sorting per scrobbles.md blueprint.
  * - 2026-09-18: Master Prompt Pipeline Standardization: (1) Added `compile_pipeline_prompt(mode_key, context)` implementing the 7-layer pipeline runner; (2) Added `build_story_prose` unifying character, npc, narrator, prologue, epilogue, and ghostwriter prose generation; (3) Added `build_continuum` and `build_sorting` unified facade methods; (4) Added Epistemic Wall verification guard via `verify_epistemic_integrity`; (5) Pruned duplicate schema from Director protocols.
  * - 2026-09-16: Spatial Architecture Standardization & Non-Theater Integration: (1) Connected `render_present_entities_xml` to `config.entities.present_entities` in Director compilation; (2) Connected `render_nearby_entities_xml` to `config.entities.nearby_entities` in Continuum memory compilation; (3) Pruned dead `render_scene_spotlight_xml` and `render_scene_cast_xml` imports.
  * - 2026-09-16: Task Simplification & Action Directive Repatriation — Delegated character and scene action directive assembly to `resolve_character_action_directive` and `resolve_scene_action_directive` from `task.js`; simplified `render_keyword_directives_xml` call.

@@ -4,7 +4,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { PROMPTS as prompt_modes, get_prompt, resolve_prompt_mode } from "./prompts.js";
+import { PROMPTS as prompt_modes, get_prompt, resolve_prompt_mode, compile_prompt } from "./prompts.js";
 import { render_ghostwriter, render_story_prose, render_narrator_prose, render_builder } from "./builder.js";
 
 const entities = {
@@ -135,6 +135,42 @@ describe("prompt-modes registry", () => {
     for (const mode_key of ["interaction", "ghostwrite", "npc", "narrator"]) {
       expect(prompt_modes[mode_key].history.limit).toBe(16);
     }
+  });
+
+  it("compiles prompt packages directly through compile_prompt switchboard", () => {
+    // 1. Director shot
+    const director_shot = compile_prompt("director", {
+      round: 1,
+      entities,
+      input: "Beast moves.",
+    });
+    expect(director_shot.system).toContain('mode="director"');
+    expect(director_shot.task).toContain("<TASK>");
+
+    // 2. Prose shot (interaction)
+    const interaction_shot = compile_prompt("interaction", {
+      round: 1,
+      entities,
+      input: "Beast prepares.",
+    });
+    expect(interaction_shot.system).toContain('mode="interaction"');
+    expect(interaction_shot.task).toContain("<TASK>");
+
+    // 3. Continuum caretaker
+    const continuum_shot = compile_prompt("continuum", {
+      target_entity: entities.AI,
+      target_key: "AI_CHARACTER",
+      other_entities: entities,
+      history: [],
+    });
+    expect(continuum_shot.system).toContain('role="CONTINUUM_CARETAKER"');
+
+    // 4. Optics sensory cortex
+    const optics_shot = compile_prompt("optics", {
+      target_tier: "character",
+      prompt_context: "Standing in neon light",
+    });
+    expect(optics_shot.system).toContain('role="SENSORY_CORTEX"');
   });
 });
 

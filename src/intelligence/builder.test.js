@@ -310,8 +310,8 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
 
     expect(director_package.system).toContain("<SYSTEM");
     expect(director_package.system).toContain('mode="director"');
-    expect(director_package.system).toContain("<PROTOCOLS>");
-    // Schema should NOT be inside <PROTOCOLS> in system
+    expect(director_package.system).toContain("<CORE_PROTOCOLS>");
+    // Schema should NOT be inside <CORE_PROTOCOLS> in system
     expect(director_package.system).not.toContain("<SCHEMA>");
     // Schema should be inside task
     expect(director_package.task).toContain('<OUTPUT_FORMAT mode="json">');

@@ -27,7 +27,7 @@
  * ============================================================================
  */
 
-import { escape_xml, prompt_escape, collapse_history, truncate_at_word, render_xml_tag } from "@utils";
+import { escape_xml, prompt_escape, collapse_history, truncate_at_word, render_xml_tag, strip_cognition_blocks } from "@utils";
 
 // ============================================================================
 // [INTERNAL UTILITIES]
@@ -229,10 +229,36 @@ export function render_chapter_history_xml(target_entity, indentation_level = 0)
 }
 
 // ============================================================================
+// [SECTION 5: SENSORY CORTEX HISTORY FORMATTING]
+// ============================================================================
+
+/**
+ * Formats recent narrative history for the sensory cortex, stripping dangling think tags and telemetry lines.
+ * @param {string} [history_text]
+ * @returns {string}
+ */
+export function format_sensory_history(history_text) {
+  if (!history_text || typeof history_text !== "string") return "";
+  const cleaned = strip_cognition_blocks(history_text)
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => {
+      if (!line) return false;
+      if (/^(system|telemetry):\s*(?:chaos|intensity|openness|affinity|velocity|entropy)\s*[+-]\d+/i.test(line)) return false;
+      if (/(?:chaos|intensity|openness|affinity|velocity|entropy)\s*[+-]\d+\s*\|/i.test(line)) return false;
+      return true;
+    })
+    .join("\n")
+    .trim();
+  return cleaned ? `<HISTORY>\n${prompt_escape(cleaned)}\n</HISTORY>\n` : "";
+}
+
+// ============================================================================
 // [CHANGELOG]
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-18: Absorbed format_sensory_history from deconstructed optics.js into Section 5.
  * - 2026-09-16: Unified turn and dialogue transcript formatting: merged format_recent_history into render_history, pruned format_recent_history under P4 Zero Backwards Compatibility, and updated render_input_history_xml to consume render_history with structured options.
  * - 2026-09-16: Refactored and standardized: (1) Extracted shared strip_think_blocks and resolve_entry_origin helpers, eliminating duplicated regex and origin-fallback chains; (2) Aligned round/origin attributes and streamlined history options handling.
  * - 2026-09-13: Token Optimization pass: (1) Replaced bloated multi-line 2-space indented JSON in format_recent_history and render_input_history_xml with symmetrical XML <ENTRY> sequences, cutting ~150-250 tokens per Continuum Caretaker background turn; (2) Added unvoiced <think> tag stripping in format_recent_history to enforce epistemic law and preserve word-budget for dialogue; (3) Adjusted render_history indentation to canonical 2-space child indent; (4) Normalized chapter prefixes in render_chapter_history_xml to eliminate repetitive "Chapter Chapter" stutter; (5) Added comprehensive unit test suite history.test.js.

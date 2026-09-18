@@ -171,8 +171,8 @@ describe("llm_service instruction envelope", () => {
       // @ts-ignore
       delete window.generate_text;
     }
-    const history = captured.indexOf("<CONVERSATION_HISTORY>");
-    const history_close = captured.indexOf("</CONVERSATION_HISTORY>");
+    const history = captured.indexOf("<HISTORY>");
+    const history_close = captured.indexOf("</HISTORY>");
     const task = captured.indexOf("<TASK>");
     const system_close = captured.indexOf("</SYSTEM>");
     expect(history).toBeGreaterThan(-1);
@@ -192,7 +192,7 @@ describe("llm_service instruction envelope", () => {
     try {
       await llm_service.generate(
         {
-          system: '<SYSTEM mode="director">\n<PROTOCOLS>Rules</PROTOCOLS>\n</SYSTEM>',
+          system: '<SYSTEM mode="director">\n<CORE_PROTOCOLS>Rules</CORE_PROTOCOLS>\n</SYSTEM>',
           task: "<TASK>Evaluate</TASK>",
         },
         { silent: true, raw: true },
@@ -201,7 +201,7 @@ describe("llm_service instruction envelope", () => {
       // @ts-ignore
       delete window.generate_text;
     }
-    const protocols = captured.indexOf("<PROTOCOLS>Rules</PROTOCOLS>");
+    const protocols = captured.indexOf("<CORE_PROTOCOLS>Rules</CORE_PROTOCOLS>");
     const task = captured.indexOf("<TASK>Evaluate</TASK>");
     const system_close = captured.indexOf("</SYSTEM>");
     expect(protocols).toBeGreaterThan(-1);

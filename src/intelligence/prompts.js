@@ -235,7 +235,9 @@ export const PROMPTS = Object.freeze({
   }),
 });
 
-// ── 3. Manifest Resolvers ────────────────────────────────────────────────────
+import { compile_pipeline_prompt } from "./builder.js";
+
+// ── 3. Manifest Resolvers & Switchboard Dispatcher ───────────────────────────
 
 /**
  * Resolves a prompt manifest record by key, falling back to `interaction`.
@@ -250,6 +252,18 @@ export const get_prompt = (key) => (key && PROMPTS[key]) || PROMPTS.interaction;
  */
 export const resolve_prompt_mode = ({ is_npc = false, ghostwrite = false } = {}) =>
   PROMPTS[ghostwrite ? "ghostwrite" : is_npc ? "npc" : "interaction"];
+
+/**
+ * Master Switchboard Compiler.
+ * Compiles a normalized prompt package for any registered simulation mode.
+ *
+ * @param {string} mode_key - Manifest key from PROMPTS catalog
+ * @param {Object} [context={}] - Dynamic runtime context, entities, dynamics, and options
+ * @returns {{ system: string, task: string, meta?: Record<string, any>, messages?: any[] }}
+ */
+export function compile_prompt(mode_key, context = {}) {
+  return compile_pipeline_prompt(mode_key, context);
+}
 
 export default PROMPTS;
 

@@ -139,7 +139,7 @@ ${SEP}
     expect(result.verification).toBeDefined();
     expect(result.verification.passed).toContain("character:system_has_AXIOMATIC_CONSTITUTION");
     expect(result.verification.passed).toContain("character:system_has_CORE_PROTOCOLS");
-    expect(result.verification.passed).toContain("character:system_has_AVAILABLE_ENTITIES");
+    expect(result.verification.passed).toContain("character:system_has_ENTITIES");
     expect(result.verification.passed).toContain("director:task_has_dynamics_deltas");
     expect(result.verification.failed.length).toBe(0);
   });
@@ -165,5 +165,6 @@ ${SEP}
 
 /**
  * CHANGELOG:
+ * - 2026-09-18: Updated assertions for canonical <ENTITIES> per scrobbles.md blueprint.
  * - 2026-09-18: Updated assertions to check for canonical <THINK> and <AVAILABLE_ENTITIES>.
  */

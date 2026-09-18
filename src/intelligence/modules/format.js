@@ -180,12 +180,17 @@ export function get_profile_schema(entity_type = "character") {
  * @returns {string}
  */
 export function get_optics_schema(options_or_variant = "") {
-  const variant = typeof options_or_variant === "string" ? options_or_variant : options_or_variant?.variant || "";
+  const options = typeof options_or_variant === "string" ? { variant: options_or_variant } : options_or_variant || {};
+  const variant = options.variant || (options.is_selfie ? "selfie" : "");
   const schema_keys = ["_thought_process", "prompt", "negative_prompt"];
   if (variant === "selfie") {
     schema_keys.push("caption");
   }
-  return render_json_schema(schema_keys);
+  let base_schema = render_json_schema(schema_keys);
+  if (options.negative_prompt) {
+    base_schema = base_schema.replace(`"<negative prompt tokens>"`, `"${options.negative_prompt.replace(/"/g, '\\"')}"`);
+  }
+  return base_schema;
 }
 
 // ============================================================================

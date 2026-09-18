@@ -2,36 +2,40 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { VisualEngine, reset_cached_image_engine } from "./visual.svelte.js";
 import { llm_service } from "@platform";
 
-vi.mock("@data", () => ({
-  db: {
-    stories: { get: vi.fn().mockResolvedValue(null) },
-    simulation_log: {},
-  },
-  detox_prose: (text) => text,
-  entities: {},
-  VISUAL_STYLES: {
-    none: { id: "none", name: "No Visual Style", tags: ["none"], visual_engine: "", negative_prompt: "" },
-  },
-  resolve_portrait_visual_style_key: vi.fn().mockReturnValue("none"),
-  resolve_story_visual_style_key: vi.fn().mockReturnValue("none"),
-  SIGNATURE_COLORS: [
-    "Adrenaline Pink",
-    "Crimson Red",
-    "Deep Indigo",
-    "Electric Cyan",
-    "Emerald Green",
-    "Forest Green",
-    "Lemon Yellow",
-    "Proud Purple",
-    "Pumpkin Amber",
-    "Rusty Orange",
-    "Scientific Teal",
-    "Soft Rose",
-    "Space Blue",
-    "Toxic Green",
-    "Twilight Violet",
-  ],
-}));
+vi.mock("@data", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    db: {
+      stories: { get: vi.fn().mockResolvedValue(null) },
+      simulation_log: {},
+    },
+    detox_prose: (text) => text,
+    entities: {},
+    VISUAL_STYLES: {
+      none: { id: "none", name: "No Visual Style", tags: ["none"], visual_engine: "", negative_prompt: "" },
+    },
+    resolve_portrait_visual_style_key: vi.fn().mockReturnValue("none"),
+    resolve_story_visual_style_key: vi.fn().mockReturnValue("none"),
+    SIGNATURE_COLORS: [
+      "Adrenaline Pink",
+      "Crimson Red",
+      "Deep Indigo",
+      "Electric Cyan",
+      "Emerald Green",
+      "Forest Green",
+      "Lemon Yellow",
+      "Proud Purple",
+      "Pumpkin Amber",
+      "Rusty Orange",
+      "Scientific Teal",
+      "Soft Rose",
+      "Space Blue",
+      "Toxic Green",
+      "Twilight Violet",
+    ],
+  };
+});
 
 vi.mock("@platform", () => ({
   llm_service: { generate: vi.fn() },

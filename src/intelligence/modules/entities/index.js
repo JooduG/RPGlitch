@@ -49,6 +49,7 @@ export {
   render_entity_sheets,
   render_entity_memory_context,
   render_enhancement_field_context,
+  render_optics_entities_xml,
 } from "./sheets.js";
 
 // -----------------------------------------------------------------------------

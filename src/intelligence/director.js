@@ -19,6 +19,7 @@
 import { entities } from "@data";
 import { extract_json_block, state_bridge } from "@utils";
 import { llm_service, raw_stop_reason, raw_to_text } from "@platform";
+import { compile_prompt } from "./prompts.js";
 import { prompt_builder } from "./builder.js";
 import { extract_and_repair_json, parse_think_block, validate_and_repair_response } from "./parser.js";
 
@@ -427,10 +428,11 @@ export async function execute_director_shot(payload, snapshot, options = {}) {
     let is_terse_attempt = terse;
     return await retry_caller(
       async () => {
+        const terse_prompt = is_terse_attempt ? compile_prompt("director_terse", { round: payload?.round }) : null;
         const response = await llm_service.generate(
           {
-            system: director_prompt.system,
-            task: is_terse_attempt ? prompt_builder.build_terse_director_task() : director_prompt.task,
+            system: is_terse_attempt ? terse_prompt.system : director_prompt.system,
+            task: is_terse_attempt ? terse_prompt.task : director_prompt.task,
             messages: [],
             role: "system",
             node_id: `${node_id}-director`,
@@ -510,6 +512,7 @@ export async function execute_director_shot(payload, snapshot, options = {}) {
 
 /**
  * CHANGELOG
+ * - 2026-09-18: Routed execute_director_shot directly through switchboard `compile_prompt("director")` and `compile_prompt("director_terse")`, pruning prompt_builder import.
  * - 2026-09-16: Zero Backwards Compatibility (P4) — Migrated terse retry call from deprecated render_terse_director_task to prompt_builder.build_terse_director_task().
  * - 2026-09-13: Encapsulated Shot 1 execution: implemented execute_director_shot in director.js, absorbing LLM dispatch, refusal recovery, and terse fallback from story.js.
  * - 2026-09-11: Grand Purification: prompt compilation moved to builder.js, DIRECTOR_PROTOCOLS moved to modules/protocols.js, leaving director.js a 100% pure execution & normalization engine.

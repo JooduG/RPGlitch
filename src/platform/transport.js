@@ -265,7 +265,7 @@ export const llm_service = {
 
       const inner_parts = [];
       if (chat_history) {
-        inner_parts.push(`<CONVERSATION_HISTORY>\n${chat_history}\n</CONVERSATION_HISTORY>`);
+        inner_parts.push(`<HISTORY>\n${chat_history}\n</HISTORY>`);
       }
       if (task_text) {
         inner_parts.push(task_text);
@@ -279,7 +279,7 @@ export const llm_service = {
     } else {
       const parts = [system_text];
       if (chat_history) {
-        parts.push(`<CONVERSATION_HISTORY>\n${chat_history}\n</CONVERSATION_HISTORY>`);
+        parts.push(`<HISTORY>\n${chat_history}\n</HISTORY>`);
       }
       if (task_text) {
         parts.push(task_text);
@@ -464,7 +464,8 @@ export const llm_service = {
 // ============================================================================
 /**
  * CHANGELOG:
- * - 2026-09-18: Standardized universal nested envelope assembly (<SYSTEM>...<CONVERSATION_HISTORY>...<TASK>...</SYSTEM>), eliminated system_close parameter dependency, and pruned legacy _format_history alias under P4 Zero Backwards Compatibility.
+ * - 2026-09-18: Standardized conversation history envelope tag from <CONVERSATION_HISTORY> to canonical <HISTORY> per scrobbles.md blueprint.
+ * - 2026-09-18: Standardized universal nested envelope assembly (<SYSTEM>...<HISTORY>...<TASK>...</SYSTEM>), eliminated system_close parameter dependency, and pruned legacy _format_history alias under P4 Zero Backwards Compatibility.
  * - 2026-09-16: Swapped escape_xml for prompt_escape in format_conversation_history to prevent double-escaping quotes/apostrophes in replayed history entries, and added think tag stripping.
  * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,
  *   structured section dividers, extracted named `format_conversation_history` export, normalized

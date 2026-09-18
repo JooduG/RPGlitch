@@ -24,8 +24,11 @@ import {
   indent_all,
   inline_or_block,
   render_xml_tag,
+  parse_macros,
+  prompt_escape,
 } from "@utils";
 import { PROFILE_FIELD_CATALOG } from "@data";
+import { strip_visual_excluded } from "../../../media/image-aesthetics.js";
 import { strip_epistemic_secrets } from "./epistemic.js";
 import { resolve_available_entities, render_dispositions, render_nearby_entities_xml } from "./presence.js";
 
@@ -331,7 +334,7 @@ export function render_sheet(specification, context) {
 // ============================================================================
 
 /**
- * Compiles the master <AVAILABLE_ENTITIES> XML block configured by the active prompt manifest.
+ * Compiles the master <ENTITIES> XML block configured by the active prompt manifest.
  * Symmetrically reads dispositions, dynamic_axes, user_agenda, and nearby_entities from config.entities.
  *
  * @param {Object} [parameters]
@@ -469,7 +472,7 @@ export function render_entity_sheets({
   }
 
   return render_xml_tag({
-    tag: "AVAILABLE_ENTITIES",
+    tag: "ENTITIES",
     children: parts,
     indent: 2,
     child_indent: 2,
@@ -572,8 +575,117 @@ export function render_enhancement_field_context(entity, field_identifier, conte
 }
 
 /**
+ * Compiles active characters and cinematography blocks for Sensory Cortex image synthesis.
+ * @param {Object} [parameters={}]
+ * @returns {string} XML formatted ENTITIES envelope content
+ */
+export function render_optics_entities_xml({
+  tier = "solo_entity",
+  solo_subject = null,
+  active_ai_character = null,
+  active_user_persona = null,
+  active_fractal_setting = null,
+  main_entity = null,
+  macro_entities = {},
+  roll = (text) => text,
+  visual_staging = "",
+} = {}) {
+  const render_entity_block = (tag_name, entity_instance) => {
+    if (!entity_instance) return "";
+    const blocks = [];
+    if (entity_instance.eternal?.physical) {
+      blocks.push(
+        physical_to_xml(
+          roll(strip_visual_excluded(parse_macros(String(entity_instance.eternal.physical).trim(), entity_instance, macro_entities))),
+          "PHYSICAL_APPEARANCE",
+        ),
+      );
+    }
+    if (entity_instance.present?.physical) {
+      blocks.push(
+        physical_to_xml(
+          roll(strip_visual_excluded(parse_macros(String(entity_instance.present.physical).trim(), entity_instance, macro_entities))),
+          "CURRENT_IMPRESSION",
+        ),
+      );
+    }
+    if (!blocks.length) return "";
+    return `<${tag_name} name="${escape_xml(entity_instance.name || tag_name)}">\n${blocks.join("\n")}\n</${tag_name}>`;
+  };
+
+  const ai_character_block = render_entity_block("AI_CHARACTER", active_ai_character);
+  const user_persona_block = render_entity_block("USER_PERSONA", active_user_persona);
+
+  const is_story_tier = tier === "story_entities" || tier === "story_character" || tier === "story_scene";
+  const fractal_setting_block =
+    is_story_tier && active_fractal_setting
+      ? render_entity_block("FRACTAL", active_fractal_setting)
+      : is_story_tier && main_entity
+        ? `<BACKGROUND_DIRECTIVE>You MUST synthesize an evocative, atmospheric background environment that naturally fits the personality, visual theme, and signature colors of ${prompt_escape(main_entity.name || "the subject")}.</BACKGROUND_DIRECTIVE>`
+        : "";
+
+  const context_block = (() => {
+    switch (tier) {
+      case "solo_entity":
+        return `<ACTIVE_CHARACTERS>\n${render_entity_block("SOLO_ENTITY", solo_subject)}\n</ACTIVE_CHARACTERS>\n<RESTRICTION>**SOLO FRAME PROTOCOL.** Isolated single-subject portrait. No secondary characters, no story scene context. The backdrop must be drawn solely from the subject's own identity and signature colors.</RESTRICTION>`;
+      case "story_scene":
+        return `${fractal_setting_block}\n<ENVIRONMENTAL_SCALING>**AFFIRMATIVE ENVIRONMENTAL SCALE.** Focus completely on vast landscape architecture, atmospheric density, weather effects, and physical spatial structures.</ENVIRONMENTAL_SCALING>`;
+      case "story_entities":
+        return `<ACTIVE_CHARACTERS>\n${ai_character_block}\n${user_persona_block}\n</ACTIVE_CHARACTERS>\n${fractal_setting_block}`;
+      case "story_character":
+      default:
+        return `<ACTIVE_CHARACTERS>\n${render_entity_block(main_entity === active_user_persona || main_entity?.type === "user" ? "USER_PERSONA" : main_entity?.type === "fractal" ? "FRACTAL" : "AI_CHARACTER", main_entity)}\n</ACTIVE_CHARACTERS>\n${fractal_setting_block}`;
+    }
+  })();
+
+  // Cinematography
+  const is_fractal_target = tier === "story_scene" || solo_subject?.type === "fractal";
+  const ai_dynamics = active_ai_character?.dynamics || {};
+  const intensity = Number(ai_dynamics.intensity ?? 50);
+  const chaos = Number(ai_dynamics.chaos ?? 50);
+  const affinity = Number(ai_dynamics.affinity ?? 50);
+
+  let framing_mode = "Medium Action";
+  let framing_tokens = "medium shot, waist-up framing, dynamic posture, clear wardrobe & prop details";
+
+  if (is_fractal_target) {
+    framing_mode = "Wide Environmental";
+    framing_tokens = "wide-angle environmental shot, deep spatial composition, atmospheric scale, full silhouette";
+  } else if (chaos >= 75) {
+    framing_mode = "Dutch / Low-Angle";
+    framing_tokens = "dutch angle composition, low-angle perspective, imposing scale, dramatic lighting contrast";
+  } else if (intensity >= 75 || affinity >= 75) {
+    framing_mode = "Intimate Close-Up";
+    framing_tokens = "tight close-up portrait, shallow depth of field, sharp focus on eyes, macro expression detail";
+  } else if (tier === "solo_entity") {
+    framing_mode = "Medium Action";
+    framing_tokens = "medium portrait framing, waist-up composition, distinctive wardrobe, signature atmospheric backdrop";
+  }
+
+  const visual_staging_directive = visual_staging ? `\n  Staging Directive: ${prompt_escape(visual_staging)}` : "";
+  const narrative_context_desc =
+    tier === "story_entities"
+      ? `\n  Group Mandate: Feature both ${prompt_escape(active_ai_character?.name || "AI")} and ${prompt_escape(active_user_persona?.name || "User")} engaged together in their active positions within the fractal environment.`
+      : tier === "story_character" && active_fractal_setting && main_entity?.type !== "fractal" && main_entity !== active_fractal_setting
+        ? `\n  Character In Scene: Depict ${prompt_escape(main_entity?.name || "Subject")} situated directly within ${prompt_escape(active_fractal_setting.name || "Setting")}.`
+        : "";
+
+  const framing_block = `<CINEMATOGRAPHY mode="${framing_mode}">\n  ${framing_tokens}${narrative_context_desc}${visual_staging_directive}\n</CINEMATOGRAPHY>`;
+
+  return render_xml_tag({
+    tag: "ENTITIES",
+    children: [context_block.trim(), framing_block.trim()].filter(Boolean),
+    indent: 2,
+    child_indent: 2,
+    separator: "\n\n",
+  });
+}
+
+/**
  * CHANGELOG
  * ============================================================================
+ * - 2026-09-18: Absorbed render_optics_entities_xml from deconstructed optics.js unifying visual entity sheets and cinematography into canonical <ENTITIES> envelope.
+ * - 2026-09-18: Standardized master entity sheet envelope tag from <AVAILABLE_ENTITIES> to canonical <ENTITIES> per scrobbles.md blueprint.
  * - 2026-09-18: Extracted sheet specifications, physical synthesis, and universal sheet compilation into dedicated sheets.js submodule.
  * ============================================================================
  */

@@ -124,7 +124,19 @@ Strictly zero spoken dialogue or quote marks. No dialogue.`,
 - Never emit null, undefined, or empty strings.`,
   }),
 
-  // ── 1.6 Structured JSON Return Directive ────────────────────────────────────
+  // ── 1.6 Shot 3: Sensory Cortex & Visual Directives (optics) ───────────────
+  OPTICS: Object.freeze({
+    MANDATE: (subject) => `Convert narrative intent into a structured image prompt payload depicting ${subject}.`,
+    SUBJECT_TIERS: Object.freeze({
+      solo_entity:
+        "an isolated solo portrait of the subject, self-contained framing drawn entirely from the subject's own identity, appearance, and signature colors",
+      story_scene: "an expansive landscape environment, architecture, or interior space capturing environmental depth and natural forces",
+      story_entities: "a cinematic group shot featuring both the AI character and user persona together within the fractal environment",
+      story_character: "a character framed within their environment, emphasizing their presence with an evocative background setting",
+    }),
+  }),
+
+  // ── 1.7 Structured JSON Return Directive ────────────────────────────────────
   JSON_RETURN: (schema, indent = "    ") => `Return a single, COMPLETE, VALID JSON object matching this schema:\n${indent}${schema}`,
 });
 
@@ -338,6 +350,9 @@ export function render_task({
   action_directive = "",
   stability_lock = "",
   speaking_style = "",
+  target_tier = "",
+  input_intent = "",
+  subject = "",
 } = {}) {
   switch (mode) {
     case "director": {
@@ -391,14 +406,34 @@ export function render_task({
       return render_xml_tag({ tag: "TASK", children: items, indent: 0, child_indent: 4, separator: "\n\n" });
     }
 
-    case "optics":
+    case "optics": {
+      const output_format_xml = schema
+        ? render_xml_tag({
+            tag: "OUTPUT_FORMAT",
+            attrs: { mode: "json" },
+            children: [
+              `JSON STRUCTURE:\n${schema.trim()}\n\nReturn a single JSON object starting with { and ending with }. No preamble, no markdown backticks, no external XML tags.`,
+            ],
+            child_indent: 2,
+          })
+        : null;
+
+      const subject_desc = subject || TASK_LIBRARY.OPTICS.SUBJECT_TIERS[target_tier] || TASK_LIBRARY.OPTICS.SUBJECT_TIERS.story_character;
+      const mandate = TASK_LIBRARY.OPTICS.MANDATE(subject_desc);
+      const target_tag = target_tier ? `<TARGET>${escape_xml(target_tier)}</TARGET>` : "";
+      const intent_tag = input_intent ? `<INPUT_INTENT>${prompt_escape(input_intent)}</INPUT_INTENT>` : "";
+
+      const items = [target_tag, mandate, intent_tag, output_format_xml, ...directives].filter(Boolean);
+      return render_xml_tag({ tag: "TASK", children: items, indent: 0, child_indent: 2, separator: "\n\n" });
+    }
+
     case "enhancement":
     case "sorting": {
       const output_format_xml = schema
         ? render_xml_tag({
             tag: "OUTPUT_FORMAT",
             attrs: { mode: mode === "enhancement" ? "prose" : "json" },
-            children: [mode === "optics" ? TASK_LIBRARY.JSON_RETURN(schema, "  ") : escape_xml(schema.trim())],
+            children: [escape_xml(schema.trim())],
             child_indent: 2,
           })
         : null;
@@ -441,6 +476,7 @@ export function render_task({
 
 /**
  * CHANGELOG
+ * - 2026-09-18: Added TASK_LIBRARY.OPTICS directives and dedicated case optics in render_task assembling TARGET, INPUT_INTENT, and nested OUTPUT_FORMAT per scrobbles.md blueprint.
  * - 2026-09-18: Standardized Layer 7 <OUTPUT_FORMAT> emission across director, continuum, sorting, enhancement, and story prose inside <TASK>; injected voice registers into <DELIVERY_POSTURE>.
  * - 2026-09-17: Director Action Clarification — Strengthened `TASK_LIBRARY.DIRECTOR.USER_PERSONA_LOCK` to explicitly disallow player character names and enumerate valid target enums.
  * - 2026-09-16: Standardized Director input tag and `TASK_LIBRARY.DIRECTOR.EVALUATE` to canonical `<INPUT />`, achieving 100% universal input tag consistency across all prompt modes.

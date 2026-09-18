@@ -3,14 +3,18 @@ import { SimulationLogStore, simulation_log } from "./log.svelte.js";
 import { runtime } from "./runtime.svelte.js";
 import { session_driver } from "@data";
 
-vi.mock("@data", () => ({
-  session_driver: {
-    load_log: vi.fn().mockResolvedValue([]),
-    delete_log_entry: vi.fn().mockResolvedValue({}),
-    delete_log_attachment: vi.fn().mockResolvedValue({}),
-    edit_log_entry: vi.fn().mockResolvedValue({}),
-  },
-}));
+vi.mock("@data", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    session_driver: {
+      load_log: vi.fn().mockResolvedValue([]),
+      delete_log_entry: vi.fn().mockResolvedValue({}),
+      delete_log_attachment: vi.fn().mockResolvedValue({}),
+      edit_log_entry: vi.fn().mockResolvedValue({}),
+    },
+  };
+});
 
 describe("SimulationLogStore", () => {
   beforeEach(() => {

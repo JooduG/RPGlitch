@@ -85,12 +85,12 @@ describe("render_system_xml", () => {
     const xml = render_system_xml({
       mode: "director",
       round: 3,
-      children: ["<PROTOCOLS>Rules</PROTOCOLS>"],
+      children: ["<CORE_PROTOCOLS>Rules</CORE_PROTOCOLS>"],
       closed: true,
     });
 
     expect(xml).toContain('<SYSTEM round="3" mode="director">');
-    expect(xml).toContain("<PROTOCOLS>Rules</PROTOCOLS>");
+    expect(xml).toContain("<CORE_PROTOCOLS>Rules</CORE_PROTOCOLS>");
     expect(xml).toContain("</SYSTEM>");
   });
 

@@ -16,7 +16,7 @@ import { cosine_similarity, generate_uuid as generate_unique_id, merge_prose_int
 import { llm_service, ensure_embedding, score_by_semantics, embed, is_ready, deserialize_embedding } from "@platform";
 import { apply_relationships } from "./director.js";
 import { extract_and_repair_json } from "./parser.js";
-import { render_memory } from "./builder.js";
+import { compile_prompt } from "./prompts.js";
 
 /**
  * @typedef {import('@state/runtime.svelte.js').SimulationEntity} SimulationEntity
@@ -599,10 +599,7 @@ export async function forge_memory(entity_targets, history_slice, options = {}) 
     }
 
     const attempt = async () => {
-      const payload = {
-        system: render_memory({ target_entity, target_key, other_entities, history: history_slice }),
-        messages: [],
-      };
+      const payload = compile_prompt("continuum", { target_entity, target_key, other_entities, history: history_slice });
       const response = await llm_service.generate(payload, {
         json: true,
         silent: true,
@@ -954,6 +951,7 @@ if (typeof window !== "undefined") {
 
 /**
  * CHANGELOG
+ * - 2026-09-18: Routed forge_memory directly through switchboard `compile_prompt("continuum")`, removing builder.js render_memory coupling.
  * - 2026-09-16: Added sanitize_non_physical_prose to sanitize and unwrap accidental bracket-dicts or pseudo-json key-value strings from LLM non_physical mutations.
  * - 2026-09-12: Header correction — contracts/schemas relocated to modules/format.js.
  * - 2026-09-11: Header correction — TEMPORAL_PROTOCOLS bundle pruned; memory-forge prompt rendering still via render_memory.

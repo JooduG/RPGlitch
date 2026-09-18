@@ -23,7 +23,7 @@ import { generate_secure_seed, strip_cognition_blocks, truncate_at_word, state_b
 import { llm_service } from "@platform";
 import { get_resolution, get_tier_guidance_scale, normalize_image_tier } from "./image-tiers.js";
 import { aesthetic_resolver, resolve_visual_engine_tokens } from "./image-aesthetics.js";
-import { NEGATIVE_PROMPT, prompt_templates } from "../intelligence/optics.js";
+import { NEGATIVE_PROMPT, prompt_templates } from "../intelligence/index.js";
 import { clean_image_prompt, parse_llm_image_prompt_response } from "../intelligence/parser.js";
 
 // ============================================================================
