@@ -125,85 +125,34 @@ export function resolve_pov_protocol(entity) {
 }
 
 // ============================================================================
-// [SECTION 4: CORE-PROSE PROTOCOL BLOCK COMPILER]
+// [SECTION 4: CORE PROTOCOL BLOCK COMPILER]
 // ============================================================================
 
 /**
- * Compiles the `<CORE_PROTOCOLS>` block shared across Story Prose turns,
- * dynamically respecting the declarative protocols list from the manifest.
+ * Renders the declarative `<NARRATIVE_STYLE>` XML block.
+ * Mirrors `<VISUAL_STYLE>` from Sensory Optics. Omitted if style is default or undefined.
  *
- * @param {Object} [parameters]
- * @param {string[]|string} [parameters.protocols=[]] - Declarative protocol list from prompt manifest
- * @param {string|null} [parameters.pov_protocol=null] - Optional override for perspective POV
- * @param {any} [parameters.style=null] - Narrative style profile
- * @param {boolean} [parameters.has_alternation=false] - Whether entity state contains selectable options
- * @returns {string}
+ * @param {Object|null} style - Narrative style record
+ * @returns {string} XML formatted `<NARRATIVE_STYLE>` block or empty string
  */
-export function render_core_protocols({ protocols = [], pov_protocol = null, style = null, has_alternation = false } = {}) {
-  const protocol_list = Array.isArray(protocols) ? protocols : typeof protocols === "string" ? protocols.split(",").map((item) => item.trim()) : [];
+export function render_narrative_style_xml(style) {
+  if (!style || typeof style !== "object" || !style.id || style.id === "default") {
+    return "";
+  }
 
-  const should_include = (key) => protocol_list.length === 0 || protocol_list.some((protocol_item) => protocol_item.includes(key));
-
-  const resolved_pov_protocol =
-    pov_protocol || protocol_list.find((protocol_item) => protocol_item.includes("POV.")) || "CORE_PROTOCOLS.PERSPECTIVE.POV.FIRST";
-
-  const pov_key = String(resolved_pov_protocol).split(".").pop() || "FIRST";
-  const perspective = PROTOCOL_LIBRARY.CORE_PROTOCOLS.PERSPECTIVE;
-  const pov = perspective.POV[pov_key] || perspective.POV.FIRST;
-  const person = pov_key === "FIRST" ? "FIRST" : "THIRD";
-  const elements = Array.isArray(style?.elements) ? style.elements.filter(Boolean).join(", ") : "";
+  const origin = String(style.id).toUpperCase();
   const style_dna = extract_style_dna(style);
-  const description = String(style?.description || "").trim();
-  const core = PROTOCOL_LIBRARY.CORE_PROTOCOLS;
+  const description = String(style.description || "").trim();
+  const elements = Array.isArray(style.elements) ? style.elements.filter(Boolean).join(", ") : "";
 
-  const prose_disciplines = Object.entries(core.PROSE_DISCIPLINE)
-    .filter(([tag]) => should_include(`PROSE_DISCIPLINE.${tag}`))
-    .map(([tag, body]) => render_xml_tag({ tag, children: [body], inline: true }));
-
-  const alternation_tag = has_alternation && should_include("ALTERNATION_OPTIONS") ? render_alternation_protocol("{Option A|Option B}") : null;
-
-  const blocks = [
-    should_include("SIMULATION_FIDELITY")
-      ? render_xml_tag({ tag: "SIMULATION_FIDELITY", children: [core.SIMULATION_FIDELITY], child_indent: 2 })
-      : null,
-    should_include("PERSPECTIVE")
-      ? render_xml_tag({
-          tag: "PERSPECTIVE",
-          attrs: { person, tense: "PRESENT" },
-          children: [`${prompt_escape(pov)}`, `${perspective.TENSE.PRESENT}`],
-          child_indent: 2,
-          separator: "\n",
-        })
-      : null,
-    alternation_tag,
-    style && typeof style === "object" && style.id && style.id !== "default"
-      ? render_xml_tag({
-          tag: "NARRATIVE_STYLE",
-          attrs: { origin: String(style.id).toUpperCase(), internal_ratio: style_dna.internal_ratio || "0.5" },
-          children: [
-            description ? prompt_escape(description) : "",
-            elements ? `<SIGNATURE_ELEMENTS>${prompt_escape(elements)}</SIGNATURE_ELEMENTS>` : "",
-          ],
-          child_indent: 2,
-          separator: "\n",
-        })
-      : null,
-    prose_disciplines.length > 0
-      ? render_xml_tag({
-          tag: "PROSE_DISCIPLINE",
-          children: prose_disciplines,
-          child_indent: 2,
-          separator: "\n",
-        })
-      : null,
-  ].filter(Boolean);
-
-  return render_xml_tag({ tag: "CORE_PROTOCOLS", children: blocks, indent: 2, child_indent: 2, separator: "\n" });
+  return render_xml_tag({
+    tag: "NARRATIVE_STYLE",
+    attrs: { origin, internal_ratio: style_dna.internal_ratio || "0.5" },
+    children: [description ? prompt_escape(description) : "", elements ? `<SIGNATURE_ELEMENTS>${prompt_escape(elements)}</SIGNATURE_ELEMENTS>` : ""],
+    child_indent: 2,
+    separator: "\n",
+  });
 }
-
-// ============================================================================
-// [SECTION 5: SENSORY CORTEX OPTICS PROTOCOLS]
-// ============================================================================
 
 /**
  * Renders the declarative `<VISUAL_STYLE>` XML block (medium, palette, textures).
@@ -238,33 +187,83 @@ export function render_visual_style_xml(style_definition, engine_tokens = {}) {
 }
 
 /**
- * Compiles the clean `<CORE_PROTOCOLS>` envelope for Sensory Cortex image synthesis.
+ * Universal compiler for the Layer 3 `<CORE_PROTOCOLS>` envelope.
+ * Dynamically compiles static protocols, narrative perspective/disciplines,
+ * narrative style, visual style, and alternations from declarative manifest definitions.
  *
  * @param {Object} [parameters]
- * @param {Object|null} [parameters.style=null] - Active visual style record
+ * @param {string[]|string} [parameters.protocols=[]] - Declarative protocol list from prompt manifest
+ * @param {string|null} [parameters.pov_protocol=null] - Optional override for perspective POV
+ * @param {any} [parameters.style=null] - Narrative or visual style record
+ * @param {any} [parameters.visual_style=null] - Explicit visual style record override
  * @param {Record<string, any>} [parameters.engine_tokens={}] - Resolved visual engine tokens
- * @param {string[]|string} [parameters.protocols=[]] - Declarative protocol list from manifest
+ * @param {boolean} [parameters.has_alternation=false] - Whether entity state contains selectable options
  * @returns {string} XML formatted `<CORE_PROTOCOLS>` block
  */
-export function render_optics_protocols({ style = null, engine_tokens = {}, protocols = [] } = {}) {
-  const protocol_list = Array.isArray(protocols) ? protocols : typeof protocols === "string" ? protocols.split(",").map((s) => s.trim()) : [];
+export function render_core_protocols({
+  protocols = [],
+  pov_protocol = null,
+  style = null,
+  visual_style = null,
+  engine_tokens = {},
+  has_alternation = false,
+} = {}) {
+  const protocol_list = Array.isArray(protocols) ? protocols : typeof protocols === "string" ? protocols.split(",").map((item) => item.trim()) : [];
 
-  const static_rules = render_protocols(
-    protocol_list.length > 0
-      ? protocol_list
-      : ["HYGIENE.DATA", "OPTICS.WEIGHTING_RESTRICTIONS", "OPTICS.AFFIRMATIVE_FRAMING", "OPTICS.TYPOGRAPHY", "OPTICS.ENVIRONMENTAL_GROUNDING"],
-  );
+  const should_include = (key) => protocol_list.length === 0 || protocol_list.some((protocol_item) => protocol_item.includes(key));
 
-  const visual_style_xml = render_visual_style_xml(style, engine_tokens);
-  const blocks = [static_rules, visual_style_xml].filter(Boolean);
+  const resolved_pov_protocol =
+    pov_protocol || protocol_list.find((protocol_item) => protocol_item.includes("POV.")) || "CORE_PROTOCOLS.PERSPECTIVE.POV.FIRST";
 
-  return render_xml_tag({
-    tag: "CORE_PROTOCOLS",
-    children: blocks,
-    indent: 2,
-    child_indent: 2,
-    separator: "\n\n",
-  });
+  const pov_key = String(resolved_pov_protocol).split(".").pop() || "FIRST";
+  const perspective = PROTOCOL_LIBRARY.CORE_PROTOCOLS.PERSPECTIVE;
+  const pov = perspective.POV[pov_key] || perspective.POV.FIRST;
+  const person = pov_key === "FIRST" ? "FIRST" : "THIRD";
+  const core = PROTOCOL_LIBRARY.CORE_PROTOCOLS;
+
+  const prose_disciplines = Object.entries(core.PROSE_DISCIPLINE)
+    .filter(([tag]) => should_include(`PROSE_DISCIPLINE.${tag}`))
+    .map(([tag, body]) => render_xml_tag({ tag, children: [body], inline: true }));
+
+  const alternation_tag = has_alternation && should_include("ALTERNATION_OPTIONS") ? render_alternation_protocol("{Option A|Option B}") : null;
+
+  // Resolve static protocol rules (e.g. HYGIENE.DATA, OPTICS.*)
+  const non_core_protocols = protocol_list.filter((p) => !p.startsWith("CORE_PROTOCOLS."));
+  const static_rules = non_core_protocols.length > 0 ? render_protocols(non_core_protocols) : "";
+
+  // Symmetrical style resolution
+  const active_visual_style = visual_style || (Object.keys(engine_tokens).length > 0 ? style : null);
+  const visual_style_xml = active_visual_style ? render_visual_style_xml(active_visual_style, engine_tokens) : "";
+  const narrative_style_xml = !active_visual_style ? render_narrative_style_xml(style) : "";
+
+  const blocks = [
+    static_rules,
+    should_include("SIMULATION_FIDELITY")
+      ? render_xml_tag({ tag: "SIMULATION_FIDELITY", children: [core.SIMULATION_FIDELITY], child_indent: 2 })
+      : null,
+    should_include("PERSPECTIVE")
+      ? render_xml_tag({
+          tag: "PERSPECTIVE",
+          attrs: { person, tense: "PRESENT" },
+          children: [`${prompt_escape(pov)}`, `${perspective.TENSE.PRESENT}`],
+          child_indent: 2,
+          separator: "\n",
+        })
+      : null,
+    alternation_tag,
+    narrative_style_xml,
+    visual_style_xml,
+    prose_disciplines.length > 0
+      ? render_xml_tag({
+          tag: "PROSE_DISCIPLINE",
+          children: prose_disciplines,
+          child_indent: 2,
+          separator: "\n",
+        })
+      : null,
+  ].filter(Boolean);
+
+  return render_xml_tag({ tag: "CORE_PROTOCOLS", children: blocks, indent: 2, child_indent: 2, separator: "\n\n" });
 }
 
 // ============================================================================
@@ -272,6 +271,7 @@ export function render_optics_protocols({ style = null, engine_tokens = {}, prot
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-19: Unification pass: (1) Symmetrically extracted `render_narrative_style_xml` alongside `render_visual_style_xml`; (2) Unified all prompt modes (Director, Continuum, Enhancement, Sorting, Story Prose, Optics) onto universal Layer 3 compiler `render_core_protocols`; (3) Pruned redundant `render_optics_protocols` and external `wrap_tag("CORE_PROTOCOLS")` wrappers under P4 Zero Backwards Compatibility.
  * - 2026-09-18: Pruned legacy SELECTABLE_OPTIONS alias in render_protocols; all protocol keys now map directly to canonical XML tags without shims (P4 Zero Backwards Compatibility).
  * - 2026-09-18: Repatriated output schema directives (<COGNITIVE_DIRECTIVE>, <PROMPT_PROSE>, <NEGATIVE_PROMPT>) from Optics Phase 1 to SCHEMA_ATOMS in format.js per layer boundaries.
  * - 2026-09-18: Harmonized alternation resolution across Story Prose and Optics by unifying directive text and tag to PROTOCOL_LIBRARY.CORE_PROTOCOLS.ALTERNATION_OPTIONS (<ALTERNATION_OPTIONS>).

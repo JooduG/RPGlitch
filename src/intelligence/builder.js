@@ -46,7 +46,7 @@ import {
 import { get_prompt } from "./prompts.js";
 import { resolve_stability_lock, resolve_system_role_line, SYSTEM_CLOSE_TAG, render_system_xml } from "./modules/system.js";
 import { render_axiomatic_constitution } from "./modules/constitution.js";
-import { render_protocols, render_core_protocols, resolve_pov_protocol, PROTOCOL_LIBRARY, render_optics_protocols } from "./modules/protocols.js";
+import { render_core_protocols, resolve_pov_protocol, PROTOCOL_LIBRARY } from "./modules/protocols.js";
 import {
   render_entity_sheets,
   render_nearby_entities_xml,
@@ -208,7 +208,7 @@ export function render_director({
   const accessors = render_accessors || render_builder.create_render_accessors(scene_entities, input, active_messages);
   const config = get_prompt("director");
   const schema = get_output_format(config.format || config.task?.schema);
-  const full_protocols = render_protocols(config.protocols);
+  const core_protocols_xml = render_core_protocols({ protocols: config.protocols });
   const active_style_keywords = get_style_keywords(resolve_active_style_key());
 
   const entity_sheets = render_entity_sheets({
@@ -232,7 +232,7 @@ export function render_director({
     round,
     children: [
       role_line,
-      wrap_tag("CORE_PROTOCOLS", full_protocols, 4),
+      core_protocols_xml,
       render_dynamics_xml(),
       keyword_directives_xml,
       entity_sheets,
@@ -578,7 +578,7 @@ export function render_memory({ target_entity, target_key = "AI_CHARACTER", othe
   return render_system_xml({
     attributes: { role: "CONTINUUM_CARETAKER", target: target_name },
     children: [
-      wrap_tag("CORE_PROTOCOLS", indent_continuation(render_protocols(config.protocols), 4).trim(), 2),
+      render_core_protocols({ protocols: config.protocols }),
       wrap_tag("TARGET_ENTITY_CONTEXT", target_xml, 2),
       nearby_entities_xml,
       chapter_xml,
@@ -622,7 +622,7 @@ export function render_enhancement({
       field: field_id,
     },
     children: [
-      wrap_tag("CORE_PROTOCOLS", indent_continuation(render_protocols(config.protocols), 4).trim(), 2),
+      render_core_protocols({ protocols: config.protocols }),
       layer_key ? `<LAYER>${escape_xml(layer_key)}</LAYER>` : null,
       config.entities.field_context
         ? render_enhancement_field_context(entity, field_id, content, entity_type, (e, c) =>
@@ -671,7 +671,7 @@ export function render_profile_sorting(entity_type = "character", options = {}) 
       role: "NARRATIVE_STRUCTURER",
       enhancing: "Entire Profile",
     },
-    children: [wrap_tag("CORE_PROTOCOLS", indent_continuation(render_protocols(config.protocols), 4).trim(), 2), task_xml],
+    children: [render_core_protocols({ protocols: config.protocols }), task_xml],
     closed: true,
   });
 }
@@ -751,8 +751,8 @@ export function render_optics_prompt(target_type_or_intent, raw_intent_or_option
   const config = get_prompt("optics");
 
   // Layer 3: Core Protocols (<CORE_PROTOCOLS>)
-  const protocols_xml = render_optics_protocols({
-    style: style_definition,
+  const protocols_xml = render_core_protocols({
+    visual_style: style_definition,
     engine_tokens,
     protocols: config.protocols,
   });
@@ -920,8 +920,8 @@ export function compile_pipeline_prompt(mode_key, context = {}) {
           : [];
       const valid_keywords = keyword_list.filter(Boolean);
 
-      const protocols_xml = render_optics_protocols({
-        style: style_definition,
+      const protocols_xml = render_core_protocols({
+        visual_style: style_definition,
         engine_tokens,
         protocols: config.protocols,
       });

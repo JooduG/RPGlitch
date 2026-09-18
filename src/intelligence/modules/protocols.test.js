@@ -16,8 +16,9 @@ import { describe, expect, it } from "vitest";
 import {
   PROTOCOL_LIBRARY,
   render_protocols,
+  render_narrative_style_xml,
   render_visual_style_xml,
-  render_optics_protocols,
+  render_core_protocols,
   resolve_pov_protocol,
   render_alternation_protocol,
 } from "./protocols.js";
@@ -43,6 +44,21 @@ describe("protocols.js - Core Protocol Library & Compiler", () => {
   it("renders alternation protocol if text contains alternations", () => {
     expect(render_alternation_protocol("plain text")).toBe("");
     expect(render_alternation_protocol("choice: {red|blue}")).toContain("<ALTERNATION_OPTIONS>");
+  });
+
+  it("renders <NARRATIVE_STYLE> symmetrically via render_narrative_style_xml", () => {
+    const style = {
+      id: "noir",
+      description: "Shadow-drenched cynicism.",
+      elements: ["rain", "cynicism", "venetian blinds"],
+      dna: { internal_ratio: 0.7 },
+    };
+    const xml = render_narrative_style_xml(style);
+    expect(xml).toContain('<NARRATIVE_STYLE origin="NOIR" internal_ratio="0.70">');
+    expect(xml).toContain("Shadow-drenched cynicism.");
+    expect(xml).toContain("<SIGNATURE_ELEMENTS>rain, cynicism, venetian blinds</SIGNATURE_ELEMENTS>");
+    expect(render_narrative_style_xml({ id: "default" })).toBe("");
+    expect(render_narrative_style_xml(null)).toBe("");
   });
 });
 
@@ -76,7 +92,7 @@ describe("protocols.js - Visual Style & Optics Protocols", () => {
     expect(render_visual_style_xml(null, {})).toBe("");
   });
 
-  it("renders clean <CORE_PROTOCOLS> for optics via render_optics_protocols", () => {
+  it("renders clean <CORE_PROTOCOLS> for optics via render_core_protocols", () => {
     const style_definition = {
       id: "cyberpunk",
       description: "Gritty neon future.",
@@ -87,8 +103,8 @@ describe("protocols.js - Visual Style & Optics Protocols", () => {
       texture: "rain-slicked pavement reflections",
     };
 
-    const protocols_xml = render_optics_protocols({
-      style: style_definition,
+    const protocols_xml = render_core_protocols({
+      visual_style: style_definition,
       engine_tokens,
       protocols: [
         "HYGIENE.DATA",
@@ -100,6 +116,7 @@ describe("protocols.js - Visual Style & Optics Protocols", () => {
     });
 
     expect(protocols_xml).toContain("<CORE_PROTOCOLS>");
+    expect(protocols_xml).toContain("<DATA>");
     expect(protocols_xml).toContain("<WEIGHTING_RESTRICTIONS>");
     expect(protocols_xml).toContain("<AFFIRMATIVE_FRAMING>");
     expect(protocols_xml).toContain("<TYPOGRAPHY>");
