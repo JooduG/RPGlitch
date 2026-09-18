@@ -113,7 +113,7 @@ describe("prompt-modes registry", () => {
       expect(typeof mode.constitution).toBe("boolean");
       expect(Array.isArray(mode.protocols)).toBe(true);
       expect(typeof mode.entities).toBe("object");
-      expect(typeof mode.format).toBe("string");
+      expect(typeof mode.format === "string" || typeof mode.format === "object").toBe(true);
       expect(typeof mode.task).toBe("object");
     }
   });

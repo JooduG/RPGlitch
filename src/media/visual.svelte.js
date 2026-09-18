@@ -23,7 +23,7 @@ import { generate_secure_seed, strip_cognition_blocks, truncate_at_word, state_b
 import { llm_service } from "@platform";
 import { get_resolution, get_tier_guidance_scale, normalize_image_tier } from "./image-tiers.js";
 import { aesthetic_resolver, resolve_visual_engine_tokens } from "./image-aesthetics.js";
-import { NEGATIVE_PROMPT, prompt_templates } from "../intelligence/index.js";
+import { prompt_templates } from "../intelligence/index.js";
 import { clean_image_prompt, parse_llm_image_prompt_response } from "../intelligence/parser.js";
 
 // ============================================================================
@@ -237,10 +237,8 @@ export class VisualEngine {
             const character_negative_tokens = is_character_shot
               ? "empty background, landscape without characters, scenery only, no humans, empty environment"
               : "";
-            const visual_style_negative_tokens = style_key !== "none" ? visual_style_tokens.negative_prompt || "" : "";
-            const raw_negative_sources = [base_negative_prompt, visual_style_negative_tokens, character_negative_tokens, NEGATIVE_PROMPT]
-              .filter(Boolean)
-              .join(", ");
+            const visual_style_negative_tokens = visual_style_tokens.negative_prompt || "";
+            const raw_negative_sources = [base_negative_prompt, visual_style_negative_tokens, character_negative_tokens].filter(Boolean).join(", ");
             const deduplicated_negative_tokens = Array.from(
               new Set(
                 raw_negative_sources
@@ -649,7 +647,7 @@ export class VisualEngine {
         url: data_url,
         metadata: {
           prompt,
-          negative_prompt: options.negative_prompt || NEGATIVE_PROMPT,
+          negative_prompt: options.negative_prompt || VISUAL_STYLES.none.negative_prompt || "",
           seed: options.seed || 12345,
           resolution: `${width}x${height}`,
           guidanceScale: 7,
@@ -720,6 +718,6 @@ export function reset_cached_image_engine() {
  * - 2026-08-29: Applied ground-up /refactor protocol: added Universal File Architecture header block,
  *   structured 3 explicit section dividers, converted _resolveEntity to snake_case resolve_entity,
  *   standardized camelCase parameters and local variables (generate_secure_seed, timeout_id).
- * - 2026-08-28: Integrated CircuitBreaker and ExponentialBackoffRetryer resilient generation.
  * - 2026-09-04: visualize() logs code-side alternation dice picks as [ALT] FIELD -> option N "..." (dice).
+ * - 2026-09-18: Negative Prompt Pipeline Harmonization — Purged orphan NEGATIVE_PROMPT constant from protocols.js and intelligence barrel; resolved negative prompts strictly through visual_style_tokens.negative_prompt and VISUAL_STYLES.none baseline floor.
  */

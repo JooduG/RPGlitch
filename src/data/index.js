@@ -84,7 +84,6 @@ export {
   get_narrative_style,
   get_style_keywords,
   resolve_active_style_key,
-  render_narrative_style_xml,
   extract_style_dna,
 } from "./definitions/narrative-styles.js";
 

@@ -417,6 +417,12 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
     const sorting_result = prompt_builder.build_sorting("raw text", "character");
     expect(sorting_result.system).toContain('role="NARRATIVE_STRUCTURER"');
   });
+  it("audits epistemic integrity returning boolean without throwing unhandled errors", async () => {
+    const { verify_epistemic_integrity } = await import("./modules/entities/epistemic.js");
+    expect(verify_epistemic_integrity("<ENTITIES><CHARACTER>Clean state</CHARACTER></ENTITIES>")).toBe(true);
+    expect(verify_epistemic_integrity("<ENTITIES><CHARACTER>[SECRET: hidden plan]</CHARACTER></ENTITIES>")).toBe(false);
+    expect(verify_epistemic_integrity("<ENTITIES><CHARACTER>[PLAN: attack at dawn]</CHARACTER></ENTITIES>")).toBe(false);
+  });
 });
 
 // ============================================================================
@@ -424,6 +430,7 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-18: Added unit test verifying verify_epistemic_integrity returns boolean for clean and leaked prompts.
  * - 2026-09-18: Added Section 5 tests covering `compile_pipeline_prompt` (director, director_terse, continuum, enhancement, sorting, optics) and `build_story_prose` unification.
  * - 2026-09-17: Remediation pass — Added regression tests for PROTOCOL_LIBRARY.HYGIENE.AFFIRMATIVE_FRAMING, SIMULATION_FIDELITY permissive clause, and Director USER_PERSONA_LOCK prompt invariants.
  * - 2026-09-15: Initialized comprehensive builder.test.js unit suite covering narrator style resolution regression, symmetrical Shot-2A compilation, <SIGNATURE_ELEMENTS> tag standardization, and parameter-aware Layer 7 schema routing.

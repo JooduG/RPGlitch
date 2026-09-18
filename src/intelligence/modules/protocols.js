@@ -54,6 +54,18 @@ export const PROTOCOL_LIBRARY = Object.freeze({
       NATURAL_DIALOGUE: `Keep spoken dialogue grounded, clipped, uneven, and interrupted. Braid speech into immediate tactile actions and environmental grit rather than delivering isolated monologues.`,
     }),
   }),
+
+  // ── 1.3 Sensory Optics Invariants (<CORE_PROTOCOLS> bodies) ────────────────
+  OPTICS: Object.freeze({
+    WEIGHTING_RESTRICTIONS:
+      "Enforce FLUX_T5_WEIGHTING — NEVER emit bracket weight math ('(x:1.3)', '((x))', '[x:0.4]'): FLUX/T5 reads words, not weights. Emphasize via descriptors, varied rephrasing, and attenuation phrasing ('faint', 'subtle touch of', 'barely visible in the distance').",
+    AFFIRMATIVE_FRAMING:
+      "Describe positive presence in frame ('softly moonlit glade' not 'no harsh sunlight'); confine negative_prompt to global quality artifacts.",
+    TYPOGRAPHY:
+      'Render on-screen text ONLY when the scene itself calls for it — signs, graffiti, titles, or UI that are part of the subject matter. Never add text artificially. When text IS present, spell it out exactly and specify placement, font, and color (e.g. "OPEN" in glowing red neon, centered above the doors) — never invent, garble, or approximate lettering, and never output generic placeholders like "text" or "sign".',
+    ENVIRONMENTAL_GROUNDING:
+      "Ground scenes with tangible environmental light fixtures (e.g., flickering cathode tubes, wet pavement reflections, harsh key lamps) and tactile physical surfaces.",
+  }),
 });
 
 // ============================================================================
@@ -75,8 +87,7 @@ export function render_protocols(protocol_selection, { schema = "" } = {}) {
       const protocol_parts = protocol_key.trim().toUpperCase().split(".");
       const rule = protocol_parts.reduce((node, part) => node?.[part], /** @type {any} */ (PROTOCOL_LIBRARY));
       if (!rule || typeof rule !== "string") return "";
-      const last_part = protocol_parts.at(-1);
-      const tag = last_part === "ALTERNATION_OPTIONS" ? "SELECTABLE_OPTIONS" : last_part;
+      const tag = protocol_parts.at(-1);
       return render_xml_tag({ tag, children: [rule], inline: true });
     })
     .filter(Boolean);
@@ -86,8 +97,22 @@ export function render_protocols(protocol_selection, { schema = "" } = {}) {
 }
 
 // ============================================================================
-// [SECTION 3: POV RESOLVER]
+// [SECTION 3: ALTERNATION & POV RESOLVERS]
 // ============================================================================
+
+/**
+ * Compiles the canonical <ALTERNATION_OPTIONS> protocol tag if the input text contains {Option A|Option B} alternations.
+ * @param {string} text - Input text or serialized entity sheet
+ * @returns {string} Formatted <ALTERNATION_OPTIONS> block or empty string
+ */
+export function render_alternation_protocol(text = "") {
+  if (!has_alternations(text)) return "";
+  return render_xml_tag({
+    tag: "ALTERNATION_OPTIONS",
+    children: [PROTOCOL_LIBRARY.CORE_PROTOCOLS.ALTERNATION_OPTIONS],
+    inline: true,
+  });
+}
 
 /**
  * Resolves the active POV protocol key for an entity profile.
@@ -135,6 +160,8 @@ export function render_core_protocols({ protocols = [], pov_protocol = null, sty
     .filter(([tag]) => should_include(`PROSE_DISCIPLINE.${tag}`))
     .map(([tag, body]) => render_xml_tag({ tag, children: [body], inline: true }));
 
+  const alternation_tag = has_alternation && should_include("ALTERNATION_OPTIONS") ? render_alternation_protocol("{Option A|Option B}") : null;
+
   const blocks = [
     should_include("SIMULATION_FIDELITY")
       ? render_xml_tag({ tag: "SIMULATION_FIDELITY", children: [core.SIMULATION_FIDELITY], child_indent: 2 })
@@ -148,9 +175,7 @@ export function render_core_protocols({ protocols = [], pov_protocol = null, sty
           separator: "\n",
         })
       : null,
-    has_alternation && should_include("ALTERNATION_OPTIONS")
-      ? render_xml_tag({ tag: "ALTERNATION_OPTIONS", children: [core.ALTERNATION_OPTIONS], inline: true })
-      : null,
+    alternation_tag,
     style && typeof style === "object" && style.id && style.id !== "default"
       ? render_xml_tag({
           tag: "NARRATIVE_STYLE",
@@ -181,93 +206,76 @@ export function render_core_protocols({ protocols = [], pov_protocol = null, sty
 // ============================================================================
 
 /**
- * Modern concise fallback negative prompt optimized for T5-XXL text streams.
- * Avoids legacy SD 1.5 word-salad tags that cause lexical contamination in FLUX.
+ * Renders the declarative `<VISUAL_STYLE>` XML block (medium, palette, textures).
+ * Mirrors `<NARRATIVE_STYLE>` from Story Prose. Omitted if style is "none" or undefined.
+ *
+ * @param {Object|null} style_definition - Visual style record
+ * @param {Record<string, any>} [engine_tokens={}] - Resolved visual engine tokens
+ * @returns {string} XML formatted `<VISUAL_STYLE>` block or empty string
  */
-export const NEGATIVE_PROMPT = "blurry, low resolution, compressed artifacts, watermark, bad anatomy, distorted features";
+export function render_visual_style_xml(style_definition, engine_tokens = {}) {
+  if (!style_definition || !style_definition.id || style_definition.id === "none") {
+    return "";
+  }
 
-/**
- * Compiles the 5-phase Optics Builder protocol tailored to the active visual style.
- * @param {Record<string, any>} [style_definition={}]
- * @param {Record<string, any>} [engine_tokens={}]
- * @param {string} [input_text=""]
- * @returns {string}
- */
-export function build_optics_builder_protocol(style_definition = {}, engine_tokens = {}, input_text = "") {
-  const keywords_raw = style_definition.keywords || style_definition.tags || [];
-  const keyword_list = Array.isArray(keywords_raw)
-    ? keywords_raw
-    : typeof keywords_raw === "string"
-      ? keywords_raw.split(",").map((s) => s.trim())
-      : [];
-  const valid_keywords = keyword_list.filter(Boolean);
-  const keywords_str = valid_keywords.length ? valid_keywords.join(", ") : "cinematic, atmospheric";
-  const style_keywords_xml = `<KEYWORD_DIRECTIVES>Integrate 2-4 appropriate keywords from below.\n<AVAILABLE_KEYWORDS>${prompt_escape(keywords_str)}</AVAILABLE_KEYWORDS>\n</KEYWORD_DIRECTIVES>`;
+  const origin = String(style_definition.id).toUpperCase();
+  const description = String(style_definition.description || "").trim();
 
-  const camera_or_composition = engine_tokens.camera
-    ? `<CAMERA>Strict camera framing and optical lens specs: ${escape_xml(engine_tokens.camera)}</CAMERA>`
-    : engine_tokens.composition
-      ? `<COMPOSITION>Mandatory visual layout and perspective: ${escape_xml(engine_tokens.composition)}</COMPOSITION>`
-      : "";
+  const children = [
+    description ? prompt_escape(description) : "",
+    engine_tokens.medium ? `<MEDIUM>${escape_xml(engine_tokens.medium)}</MEDIUM>` : "",
+    engine_tokens.palette ? `<PALETTE>${escape_xml(engine_tokens.palette)}</PALETTE>` : "",
+    engine_tokens.texture ? `<TEXTURES>${escape_xml(engine_tokens.texture)}</TEXTURES>` : "",
+  ].filter(Boolean);
 
-  const medium_xml = engine_tokens.medium
-    ? `\n<MEDIUM>Specified artistic medium dictates absolute style; strip out conflicting terms: ${escape_xml(engine_tokens.medium)}</MEDIUM>`
-    : "";
-  const palette_xml = engine_tokens.palette
-    ? `\n<PALETTE>Strict palette overrides conflicting color terms: ${escape_xml(engine_tokens.palette)}</PALETTE>`
-    : "";
-
-  const texture_xml = engine_tokens.texture ? `<TEXTURES>Include textures such as: ${escape_xml(engine_tokens.texture)}</TEXTURES>` : "";
-
-  const has_alternation = has_alternations(input_text);
-  const alternation_xml = has_alternation
-    ? "\n<ALTERNATION_RESOLUTION>If an input attribute contains Perchance alternation syntax '{Option A|Option B}', resolve it to exactly ONE option consistent with the current narrative; never blend options and never echo the braces or pipe.</ALTERNATION_RESOLUTION>"
-    : "";
-
-  return `<VISUAL_SYNTHESIS>
-
-<PHASE_1 task="COMPOSITION_STRATEGY">
-<COGNITIVE_DIRECTIVE>Formulate composition strategy inside "_thought_process" key first.</COGNITIVE_DIRECTIVE>
-<PROMPT_PROSE>Output final image prompt inside "prompt" as continuous, fluid prose.</PROMPT_PROSE>
-<NEGATIVE_PROMPT>Output negative tokens inside "negative_prompt". Enforce KEYWORD_INTEGRITY — quality buzzwords ('masterpiece', '8K', 'ultra HD', 'photorealistic', 'digital art') are forbidden in BOTH "prompt" and "negative_prompt". Ground outputs using physical optics and real-world materials.</NEGATIVE_PROMPT>
-<WEIGHTING_RESTRICTIONS>Enforce FLUX_T5_WEIGHTING — NEVER emit bracket weight math ('(x:1.3)', '((x))', '[x:0.4]'): FLUX/T5 reads words, not weights. Emphasize via descriptors, varied rephrasing, and attenuation phrasing ('faint', 'subtle touch of', 'barely visible in the distance').</WEIGHTING_RESTRICTIONS>
-<AFFIRMATIVE_FRAMING>${PROTOCOL_LIBRARY.HYGIENE.AFFIRMATIVE_FRAMING}</AFFIRMATIVE_FRAMING>
-${style_keywords_xml}
-</PHASE_1>
-
-<PHASE_2 task="SPATIAL_FRAMING">
-<FIRST_SENTENCE_MANDATE>Always place main entities and active physical interactions in the VERY FIRST sentence.</FIRST_SENTENCE_MANDATE>
-<SPATIAL_GEOMETRY>Spatial orientation: direct depiction of focal elements, absolute geometry, camera angles, elevations, lighting positions, and depth layers without metaphor or narrative scaffolding.</SPATIAL_GEOMETRY>${camera_or_composition ? `\n${camera_or_composition}` : ""}
-</PHASE_2>
-
-<PHASE_3 task="SUBJECT_SPECIFICATION">
-<IDENTIFIERS>Always explicitly state gender and physical identifiers (e.g., "a handsome young male high-elf man").</IDENTIFIERS>
-<CREATURE_DISAMBIGUATION>Never use bare animal/creature proper names (e.g., "Beast"). Translate to explicit physical traits (e.g., "a massive grey-green male orc warrior").</CREATURE_DISAMBIGUATION>
-<FEATURE_WEIGHTING>Dedicate maximum descriptive effort to distinguishing features (scars, glowing eyes, horns); keep common traits brief. Reinforce key subjects through varied rephrasing across clauses rather than numeric weights.</FEATURE_WEIGHTING>
-<LEXICAL_PRESERVATION>Preserve the specific visceral, crude, or raw vocabulary from the participant's action and character state (e.g. 'cock', 'shaft', 'bulge', 'thong', 'pecs', 'grease-stained') rather than sanitizing into sterile or clinical synonyms ('genitals', 'undergarment'). Diffusion models and T5 text encoders have vastly different training distributions and aesthetic associations for crude/visceral terms versus clinical terms.</LEXICAL_PRESERVATION>
-<GARMENT_ANATOMY>When rendering specialized or revealing garments (e.g., jockstraps, thongs, harnesses), explicitly specify their physical mechanics and bare skin exposure in natural prose. For a jockstrap, describe: 'wearing an athletic jockstrap featuring a supportive front pouch, open sides and back with bare exposed butt cheeks, and dual wide elastic straps circling under the glutes/thighs'. For thongs, describe: 'a narrow string back leaving the rear completely bare'. Never allow jockstraps to collapse into generic briefs or full-coverage shorts.</GARMENT_ANATOMY>${alternation_xml}
-<DYNAMIC_OVERRIDES>Follow a strict bottom-up hierarchy where the most recent (bottom-most) physical condition update ALWAYS overrides preceding static tags like <SHIRT> or <JACKET>. If a conflicting state appears later (e.g. 'no clothes' then later 'shirt: white'), the most recent/latest state wins.</DYNAMIC_OVERRIDES>
-</PHASE_3>
-
-<PHASE_4 task="STYLE_DISCIPLINE">
-<STYLE_AUTHORITY>Harmonize optical rendering with designated aesthetic style and medium constraints.</STYLE_AUTHORITY>${medium_xml}${palette_xml}
-</PHASE_4>
-
-<PHASE_5 task="SENSORY_GROUNDING">
-<ENVIRONMENTAL_GROUNDING>Ground scenes with tangible environmental light fixtures (e.g., flickering cathode tubes, wet pavement reflections, harsh key lamps) and tactile physical surfaces.</ENVIRONMENTAL_GROUNDING>
-<TYPOGRAPHY>Render on-screen text ONLY when the scene itself calls for it — signs, graffiti, titles, or UI that are part of the subject matter. Never add text artificially. When text IS present, spell it out exactly and specify placement, font, and color (e.g. "OPEN" in glowing red neon, centered above the doors) — never invent, garble, or approximate lettering, and never output generic placeholders like "text" or "sign".</TYPOGRAPHY>${texture_xml ? `\n${texture_xml}` : ""}
-</PHASE_5>
-
-</VISUAL_SYNTHESIS>`;
+  return render_xml_tag({
+    tag: "VISUAL_STYLE",
+    attrs: { origin },
+    children,
+    child_indent: 2,
+    separator: "\n",
+  });
 }
 
-export const OPTICS_BUILDER_PROTOCOL = build_optics_builder_protocol();
+/**
+ * Compiles the clean `<CORE_PROTOCOLS>` envelope for Sensory Cortex image synthesis.
+ *
+ * @param {Object} [parameters]
+ * @param {Object|null} [parameters.style=null] - Active visual style record
+ * @param {Record<string, any>} [parameters.engine_tokens={}] - Resolved visual engine tokens
+ * @param {string[]|string} [parameters.protocols=[]] - Declarative protocol list from manifest
+ * @returns {string} XML formatted `<CORE_PROTOCOLS>` block
+ */
+export function render_optics_protocols({ style = null, engine_tokens = {}, protocols = [] } = {}) {
+  const protocol_list = Array.isArray(protocols) ? protocols : typeof protocols === "string" ? protocols.split(",").map((s) => s.trim()) : [];
+
+  const static_rules = render_protocols(
+    protocol_list.length > 0
+      ? protocol_list
+      : ["HYGIENE.DATA", "OPTICS.WEIGHTING_RESTRICTIONS", "OPTICS.AFFIRMATIVE_FRAMING", "OPTICS.TYPOGRAPHY", "OPTICS.ENVIRONMENTAL_GROUNDING"],
+  );
+
+  const visual_style_xml = render_visual_style_xml(style, engine_tokens);
+  const blocks = [static_rules, visual_style_xml].filter(Boolean);
+
+  return render_xml_tag({
+    tag: "CORE_PROTOCOLS",
+    children: blocks,
+    indent: 2,
+    child_indent: 2,
+    separator: "\n\n",
+  });
+}
 
 // ============================================================================
 // [CHANGELOG]
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-18: Pruned legacy SELECTABLE_OPTIONS alias in render_protocols; all protocol keys now map directly to canonical XML tags without shims (P4 Zero Backwards Compatibility).
+ * - 2026-09-18: Repatriated output schema directives (<COGNITIVE_DIRECTIVE>, <PROMPT_PROSE>, <NEGATIVE_PROMPT>) from Optics Phase 1 to SCHEMA_ATOMS in format.js per layer boundaries.
+ * - 2026-09-18: Harmonized alternation resolution across Story Prose and Optics by unifying directive text and tag to PROTOCOL_LIBRARY.CORE_PROTOCOLS.ALTERNATION_OPTIONS (<ALTERNATION_OPTIONS>).
+ * - 2026-09-18: Connected build_optics_builder_protocol to optional compiled style_keywords_xml, consolidating keyword directives through render_keyword_directives_xml in builder.js.
  * - 2026-09-18: Absorbed NEGATIVE_PROMPT, build_optics_builder_protocol, and OPTICS_BUILDER_PROTOCOL from deconstructed optics.js into Section 5.
  * - 2026-09-17: Remediation pass — Restored PROTOCOL_LIBRARY.HYGIENE.AFFIRMATIVE_FRAMING to eliminate image prompt undefined leaks, and restored CORE_PROTOCOLS.SIMULATION_FIDELITY permissive adult/transgressive clause.
  * - 2026-09-15: Symmetrical XML Tag Harmonization — Replaced <SIGNUM> with canonical <SIGNATURE_ELEMENTS> matching narrative-styles.js, and hardened narrative style type checks against string/nullish drift.

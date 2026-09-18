@@ -5,7 +5,7 @@ import {
   get_narrative_style,
   get_style_keywords,
   resolve_active_style_key,
-  render_narrative_style_xml,
+  extract_style_dna,
 } from "./narrative-styles.js";
 import { VALID_SPEAKING_STYLES } from "./speaking-styles.js";
 
@@ -30,30 +30,18 @@ describe("NARRATIVE_STYLES Preset Catalog", () => {
       expect(Array.isArray(style.keywords)).toBe(true);
       expect(VALID_SPEAKING_STYLES).toContain(style.speaking_style);
       expect(Array.isArray(style.triggers)).toBe(true);
-      expect(typeof style.xml).toBe("string");
     }
   });
 
-  it("ensures styled presets contain valid XML narrative engine blocks", () => {
+  it("ensures styled presets contain valid structured DNA", () => {
     const active_styles = Object.entries(NARRATIVE_STYLES).filter(([key]) => key !== "default");
-    for (const [, style] of active_styles) {
-      expect(style.xml).toContain(`<NARRATIVE_STYLE origin="${style.id.toUpperCase()}"`);
-      expect(style.xml).toContain("</NARRATIVE_STYLE>");
+    const styles_with_dna = active_styles.filter(([, style]) => Boolean(style.dna));
+    for (const [, style] of styles_with_dna) {
+      expect(typeof style.dna.internal_ratio).toBe("number");
+      expect(typeof style.dna.rhythm).toBe("string");
+      expect(typeof style.dna.sensory).toBe("string");
+      expect(typeof style.dna.grounding).toBe("string");
     }
-
-    const styles_with_engine = active_styles.filter(([, style]) => Boolean(style.narrative_engine));
-    for (const [, style] of styles_with_engine) {
-      expect(style.narrative_engine).not.toContain("<dna>");
-      expect(style.narrative_engine).toContain("<INTERNAL_RATIO>");
-      expect(style.narrative_engine).toContain("<SENTENCE_RHYTHM>");
-      expect(style.narrative_engine).toContain("<SENSORY_ORDER>");
-      expect(style.narrative_engine).toContain("<EMOTIONAL_GROUNDING>");
-    }
-  });
-
-  it("ensures default preset produces empty XML block", () => {
-    expect(NARRATIVE_STYLES.default.xml).toBe("");
-    expect(render_narrative_style_xml("default")).toBe("");
   });
 });
 
@@ -92,12 +80,16 @@ describe("Narrative Style Helper Accessors", () => {
     expect(resolve_active_style_key()).toBe("");
   });
 
-  it("renders pre-compiled narrative style XML correctly", () => {
-    const xml = render_narrative_style_xml("edgar_allan_poe");
-    expect(xml).toContain('<NARRATIVE_STYLE origin="EDGAR_ALLAN_POE" internal_ratio="');
-    expect(xml).toContain("<SIGNATURE_ELEMENTS>");
-    expect(xml).toContain("</NARRATIVE_STYLE>");
-    expect(xml).not.toContain("Include things such as");
+  it("extracts style DNA directly from structured style object", () => {
+    const dna = extract_style_dna(NARRATIVE_STYLES.cormac_mccarthy);
+    expect(dna.internal_ratio).toBe("0.20");
+    expect(dna.sentence_rhythm).toContain("Polysyndetic");
+    expect(dna.sensory_order).toContain("Sight");
+    expect(dna.emotional_grounding).toContain("Fatalistic");
+
+    const empty_dna = extract_style_dna(null);
+    expect(empty_dna.internal_ratio).toBe("0.50");
+    expect(empty_dna.sentence_rhythm).toBe("");
   });
 
   it("evaluates trigger conditions without throwing errors", () => {

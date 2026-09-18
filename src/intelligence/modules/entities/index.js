@@ -50,6 +50,8 @@ export {
   render_entity_memory_context,
   render_enhancement_field_context,
   render_optics_entities_xml,
+  render_optics_subject_rules,
+  resolve_optics_cinematography,
 } from "./sheets.js";
 
 // -----------------------------------------------------------------------------

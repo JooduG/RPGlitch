@@ -15,7 +15,8 @@ import {
   archive_chapter,
   sanitize_non_physical_prose,
 } from "./temporal.js";
-import { OUTPUT_FORMATS } from "./modules/format.js";
+import { get_output_format } from "./modules/format.js";
+import { PROMPTS } from "./prompts.js";
 import { render_memory } from "./builder.js";
 import { llm_service, embed } from "@platform";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -904,7 +905,7 @@ describe("temporal_engine per-entity consolidation progress tracking (Track 2 Ph
   });
 
   it("exports the continuum schema and renders the continuum prompt correctly", () => {
-    expect(OUTPUT_FORMATS.CONTINUUM).toBeDefined();
+    expect(get_output_format(PROMPTS.continuum.format)).toBeDefined();
     const prompt = render_memory({
       target_entity: { name: "Viper", eternal: {}, present: {} },
       target_key: "AI_CHARACTER",

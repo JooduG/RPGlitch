@@ -63,7 +63,7 @@ describe("strip_visual_excluded", () => {
 });
 
 describe("resolve_visual_engine_tokens", () => {
-  it("resolves empty tokens for 'none' style", () => {
+  it("resolves empty tokens for 'none' style with baseline negative_prompt", () => {
     const tokens = resolve_visual_engine_tokens("none");
     expect(tokens).toEqual({
       medium: "",
@@ -71,7 +71,7 @@ describe("resolve_visual_engine_tokens", () => {
       camera: "",
       composition: "",
       texture: "",
-      negative_prompt: "",
+      negative_prompt: "blurry, low resolution, compressed artifacts, watermark, bad anatomy, distorted features",
     });
   });
 
@@ -84,7 +84,7 @@ describe("resolve_visual_engine_tokens", () => {
     expect(tokens.negative_prompt).toBe("medieval, fantasy, natural, pastoral, watercolor, oil painting, antique, sunny, historical");
   });
 
-  it("falls back gracefully when style key is unknown", () => {
+  it("falls back gracefully when style key is unknown to baseline negative_prompt", () => {
     const tokens = resolve_visual_engine_tokens("non_existent_key");
     expect(tokens).toEqual({
       medium: "",
@@ -92,7 +92,7 @@ describe("resolve_visual_engine_tokens", () => {
       camera: "",
       composition: "",
       texture: "",
-      negative_prompt: "",
+      negative_prompt: "blurry, low resolution, compressed artifacts, watermark, bad anatomy, distorted features",
     });
   });
 });

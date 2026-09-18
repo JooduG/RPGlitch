@@ -84,7 +84,7 @@ export { build_turn_summary } from "./telemetry.js";
 // Optics & Visual Prompt Compilation (Sensory Cortex)
 // ============================================================================
 
-export { NEGATIVE_PROMPT, OPTICS_BUILDER_PROTOCOL, build_optics_builder_protocol } from "./modules/protocols.js";
+export { render_visual_style_xml, render_optics_protocols } from "./modules/protocols.js";
 export { format_sensory_history } from "./modules/history.js";
 export { render_optics_prompt, render_visual_enhancement, prompt_templates } from "./builder.js";
 

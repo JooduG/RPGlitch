@@ -41,29 +41,46 @@
 // ── 1. Master Mode Factory ───────────────────────────────────────────────────
 
 /**
- * Builds one frozen mode record from a declarative delta over the 7 canonical layers.
+ * Canonical default entity configuration across all 7 layers.
  */
-function define_mode(spec) {
+const DEFAULT_ENTITIES_CONFIG = Object.freeze({
+  dispositions: [],
+  dynamic_axes: [],
+  user_agenda: false,
+  nearby_entities: false,
+  present_entities: false,
+  field_context: false,
+  target_context: false,
+  chapter_history: false,
+});
+
+/**
+ * Builds one frozen mode record from a declarative delta over the 7 canonical layers.
+ * Resolves system mode & role cleanly from mode_key or explicit spec.
+ *
+ * @param {string} mode_key - Canonical key of the prompt mode
+ * @param {Object} spec - Mode specification delta
+ */
+function define_mode(mode_key, spec) {
   const system =
     typeof spec.system === "string"
-      ? { mode: spec.system.toLowerCase(), role: spec.system.toUpperCase() }
-      : spec.system || { mode: "interaction", role: "INTERACTION" };
+      ? { mode: mode_key, role: spec.system.toUpperCase() }
+      : spec.system || { mode: mode_key, role: mode_key.toUpperCase() };
 
   return Object.freeze({
-    system,
+    system: Object.freeze(system),
     constitution: spec.constitution ?? true,
-    protocols: spec.protocols || [],
-    entities: {
-      dispositions: [],
-      dynamic_axes: [],
-      user_agenda: false,
-      nearby_entities: false,
-      present_entities: false,
+    protocols: Object.freeze(spec.protocols || []),
+    entities: Object.freeze({
+      ...DEFAULT_ENTITIES_CONFIG,
       ...spec.entities,
-    },
-    history: { enabled: true, limit: 10, ...spec.history },
-    task: { input_tag: "INPUT", think_format: null, ...spec.task },
-    format: spec.format || "PROSE",
+    }),
+    history: Object.freeze({ enabled: true, limit: 10, ...spec.history }),
+    task: Object.freeze({ input_tag: "INPUT", think_format: null, ...spec.task }),
+    format:
+      typeof spec.format === "object" && spec.format !== null
+        ? Object.freeze({ ...spec.format, schema: Object.freeze([...(spec.format.schema || [])]) })
+        : spec.format || "PROSE",
   });
 }
 
@@ -72,7 +89,7 @@ function define_mode(spec) {
 export const PROMPTS = Object.freeze({
   // ── Shot 1: Quick Shot (Directorial Mechanics) ──────────────────────────────
 
-  director: define_mode({
+  director: define_mode("director", {
     system: "DIRECTOR",
     constitution: false,
     protocols: ["CORE_PROTOCOLS.ALTERNATION_OPTIONS"],
@@ -82,10 +99,13 @@ export const PROMPTS = Object.freeze({
       user_agenda: true,
       present_entities: true,
     },
-    format: "DIRECTOR",
+    format: {
+      mode: "json",
+      schema: ["_thought_process", "next_action", "keywords", "directors_note", "dynamics_deltas", "visual_staging", "spotlight"],
+    },
   }),
 
-  director_terse: define_mode({
+  director_terse: define_mode("director_terse", {
     system: { mode: "director", role: "DIRECTOR" },
     constitution: false,
     protocols: [],
@@ -95,12 +115,15 @@ export const PROMPTS = Object.freeze({
     },
     history: { enabled: false },
     task: { terse: true },
-    format: "DIRECTOR",
+    format: {
+      mode: "json",
+      schema: ["_thought_process", "next_action", "keywords", "directors_note", "dynamics_deltas", "visual_staging", "spotlight"],
+    },
   }),
 
   // ── Shot 2A: Prose Shots (Canonical Narrative Voice) ────────────────────────
 
-  interaction: define_mode({
+  interaction: define_mode("interaction", {
     system: "INTERACTION",
     protocols: [
       "CORE_PROTOCOLS.SIMULATION_FIDELITY",
@@ -122,7 +145,7 @@ export const PROMPTS = Object.freeze({
     task: { think_format: "character" },
   }),
 
-  ghostwrite: define_mode({
+  ghostwrite: define_mode("ghostwrite", {
     system: { mode: "ghostwrite", role: "INTERACTION" },
     protocols: [
       "CORE_PROTOCOLS.SIMULATION_FIDELITY",
@@ -144,7 +167,7 @@ export const PROMPTS = Object.freeze({
     task: { think_format: "character" },
   }),
 
-  npc: define_mode({
+  npc: define_mode("npc", {
     system: "NPC",
     protocols: [
       "CORE_PROTOCOLS.SIMULATION_FIDELITY",
@@ -166,7 +189,7 @@ export const PROMPTS = Object.freeze({
     task: { think_format: "character" },
   }),
 
-  narrator: define_mode({
+  narrator: define_mode("narrator", {
     system: "NARRATOR",
     protocols: [
       "CORE_PROTOCOLS.SIMULATION_FIDELITY",
@@ -190,7 +213,7 @@ export const PROMPTS = Object.freeze({
 
   // ── Shot 2B: Back Shot (Background / Continuum Caretaker) ──────────────────
 
-  continuum: define_mode({
+  continuum: define_mode("continuum", {
     system: "CONTINUUM_CARETAKER",
     constitution: false,
     protocols: ["HYGIENE.DATA", "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PRESENT"],
@@ -200,38 +223,49 @@ export const PROMPTS = Object.freeze({
       chapter_history: true,
     },
     history: { limit: 16 },
-    format: "CONTINUUM",
+    format: {
+      mode: "json",
+      schema: ["_thought_process", "target", "eternal", "present", "future", "past", "relationships"],
+    },
   }),
 
   // ── Profile Enhancement & Ingestion Structuring ─────────────────────────────
 
-  enhancement: define_mode({
+  enhancement: define_mode("enhancement", {
     system: "ENHANCER",
     constitution: false,
     protocols: ["HYGIENE.DATA"],
     entities: { field_context: true },
     history: { enabled: false },
+    format: "PROSE",
   }),
 
-  sorting: define_mode({
+  sorting: define_mode("sorting", {
     system: "NARRATIVE_STRUCTURER",
     constitution: false,
     protocols: ["HYGIENE.DATA", "CORE_PROTOCOLS.PERSPECTIVE.POV.THIRD"],
     history: { enabled: false },
-    format: "PROFILE",
+    format: {
+      mode: "json",
+      schema: ["name", "description", "signature_color", "eternal", "present", "past", "future"],
+    },
   }),
 
   // ── Sensory Cortex: Visual Optics Generation ──────────────────────────────
 
-  optics: define_mode({
+  optics: define_mode("optics", {
     system: { mode: "optics", role: "SENSORY_CORTEX" },
     constitution: false,
-    protocols: ["HYGIENE.DATA"],
+    protocols: ["HYGIENE.DATA", "OPTICS.WEIGHTING_RESTRICTIONS", "OPTICS.AFFIRMATIVE_FRAMING", "OPTICS.TYPOGRAPHY", "OPTICS.ENVIRONMENTAL_GROUNDING"],
     entities: {
       dispositions: ["AI", "USER", "FRACTAL", "NPC"],
     },
     history: { enabled: false },
-    format: "OPTICS",
+    task: { think_format: "optics" },
+    format: {
+      mode: "json",
+      schema: ["_thought_process", "prompt", "negative_prompt"],
+    },
   }),
 });
 
@@ -269,6 +303,8 @@ export default PROMPTS;
 
 /**
  * CHANGELOG
+ * - 2026-09-18: Repatriated output schema definitions from format.js into prompts.js: declared explicit { mode: "json", schema: [...] } arrays for director, director_terse, continuum, sorting, and optics.
+ * - 2026-09-18: Purified define_mode and PROMPTS catalog: bound mode_key to system.mode, declared canonical DEFAULT_ENTITIES_CONFIG, and explicitly typed enhancement format as PROSE.
  * - 2026-09-18: Registered `director_terse` and `optics` modes in PROMPTS master manifest.
  * - 2026-09-16: Pruned inert `task.input_tag` overrides from `continuum` and `enhancement` modes under P4 Zero Backwards Compatibility.
  * - 2026-09-16: Standardized Director `input_tag` to canonical default `"INPUT"`, purging legacy `"USER_ACTION"` tag override under P4 Zero Backwards Compatibility.

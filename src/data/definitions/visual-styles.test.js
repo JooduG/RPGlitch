@@ -17,7 +17,6 @@ import {
   resolve_portrait_visual_style_key,
   resolve_story_visual_style_key,
 } from "./visual-styles.js";
-import { parse_visual_engine } from "@utils";
 
 // ---------------------------------------------------------------------------------------------
 // PRESET REGISTRY & XML COMPILATION TESTS
@@ -26,6 +25,7 @@ import { parse_visual_engine } from "@utils";
 describe("VISUAL_STYLES Preset Registry", () => {
   it("exports all expected visual styles including lego, vintage, and analog_video", () => {
     expect(VISUAL_STYLES.none).toBeDefined();
+    expect(VISUAL_STYLES.none.negative_prompt).toContain("blurry");
     expect(VISUAL_STYLES.lego).toBeDefined();
     expect(VISUAL_STYLES.vintage).toBeDefined();
     expect(VISUAL_STYLES.polaroid).toBeUndefined();
@@ -56,11 +56,8 @@ describe("VISUAL_STYLES Preset Registry", () => {
     expect(vintage.name).toBe("Vintage Film");
     expect(vintage.keywords).toContain("vintage");
     expect(vintage.keywords).toContain("35mm");
-    expect(vintage.keywords).toContain("analog");
-    expect(vintage.visual_engine).toContain("<VISUAL_ENGINE>");
-    expect(vintage.visual_engine).toContain("<MEDIUM>");
-    expect(vintage.visual_engine).toContain("<CAMERA>");
-    expect(vintage.visual_engine).toContain("35mm analog film photo");
+    expect(vintage.engine).toBeDefined();
+    expect(vintage.engine.medium).toContain("35mm analog film photo");
     expect(vintage.negative_prompt).toContain("white border");
     expect(vintage.negative_prompt).toContain("polaroid frame");
     expect(vintage.negative_prompt).toContain("polaroid border");
@@ -72,13 +69,9 @@ describe("VISUAL_STYLES Preset Registry", () => {
     expect(lego.name).toContain("LEGO");
     expect(lego.keywords).toContain("lego");
     expect(lego.keywords).toContain("minifigure");
-    expect(lego.visual_engine).toContain("minifigure");
-    expect(lego.visual_engine).toContain("ABS plastic");
-    expect(lego.visual_engine).toContain("studs");
-
-    const parsed = parse_visual_engine(lego.visual_engine);
-    expect(parsed.medium).toContain("plastic toy construction");
-    expect(parsed.texture).toContain("studs");
+    expect(lego.engine).toBeDefined();
+    expect(lego.engine.medium).toContain("plastic toy construction");
+    expect(lego.engine.texture).toContain("studs");
   });
 
   it("configures analog_video with glitch artifacts and scanline stripes", () => {
@@ -86,12 +79,9 @@ describe("VISUAL_STYLES Preset Registry", () => {
     expect(vhs.keywords).toContain("scanlines");
     expect(vhs.keywords).toContain("glitch");
     expect(vhs.keywords).toContain("surveillance");
-    expect(vhs.visual_engine).toContain("horizontal scanline stripes");
-    expect(vhs.visual_engine).toContain("VHS tracking glitch lines");
-
-    const parsed = parse_visual_engine(vhs.visual_engine);
-    expect(parsed.texture).toContain("horizontal scanline stripes");
-    expect(parsed.texture).toContain("interlacing tear lines");
+    expect(vhs.engine).toBeDefined();
+    expect(vhs.engine.texture).toContain("horizontal scanline stripes");
+    expect(vhs.engine.texture).toContain("interlacing tear lines");
   });
 
   it("configures cinematic with widescreen optics and non-anime negative prompt", () => {
@@ -99,8 +89,9 @@ describe("VISUAL_STYLES Preset Registry", () => {
     expect(cinematic.keywords).toContain("cinematic");
     expect(cinematic.keywords).toContain("film");
     expect(cinematic.keywords).toContain("anamorphic");
-    expect(cinematic.visual_engine).toContain("widescreen");
-    expect(cinematic.visual_engine).toContain("anamorphic");
+    expect(cinematic.engine).toBeDefined();
+    expect(cinematic.engine.medium).toContain("widescreen");
+    expect(cinematic.engine.camera).toContain("anamorphic");
     expect(cinematic.negative_prompt).toContain("anime");
     expect(cinematic.negative_prompt).toContain("cel-shaded");
   });
@@ -116,21 +107,16 @@ describe("VISUAL_STYLES Preset Registry", () => {
     }
   });
 
-  it("validates active visual engines parse clean XML structures with uppercase tags", () => {
+  it("validates active visual engines contain structured tokens", () => {
     const active_styles = Object.entries(VISUAL_STYLES).filter(([key]) => key !== "none");
     for (const [, style] of active_styles) {
-      expect(style.visual_engine).toContain("<VISUAL_ENGINE>");
-      expect(style.visual_engine).toContain("</VISUAL_ENGINE>");
-      expect(style.visual_engine).toContain("<MEDIUM>");
-      expect(style.visual_engine).toContain("</MEDIUM>");
-      expect(style.visual_engine).toContain("<PALETTE>");
-      expect(style.visual_engine).toContain("</PALETTE>");
-      expect(style.visual_engine).toContain("<TEXTURE>");
-      expect(style.visual_engine).toContain("</TEXTURE>");
-      const parsed = parse_visual_engine(style.visual_engine);
-      expect(parsed.medium.length).toBeGreaterThan(0);
-      expect(parsed.palette.length).toBeGreaterThan(0);
-      expect(parsed.texture.length).toBeGreaterThan(0);
+      expect(style.engine).toBeDefined();
+      expect(typeof style.engine.medium).toBe("string");
+      expect(style.engine.medium.length).toBeGreaterThan(0);
+      expect(typeof style.engine.palette).toBe("string");
+      expect(style.engine.palette.length).toBeGreaterThan(0);
+      expect(typeof style.engine.texture).toBe("string");
+      expect(style.engine.texture.length).toBeGreaterThan(0);
     }
   });
 

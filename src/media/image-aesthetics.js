@@ -17,7 +17,7 @@
  */
 
 import { VISUAL_STYLES, resolve_portrait_visual_style_key } from "@data";
-import { CLOTHING_KEYS, safe_parse_pseudo_json, parse_visual_engine, normalize_comma_spacing } from "@utils";
+import { CLOTHING_KEYS, safe_parse_pseudo_json, normalize_comma_spacing } from "@utils";
 import { get_signature_label, PALETTE } from "./palette.js";
 
 // ============================================================================
@@ -101,17 +101,23 @@ export function strip_visual_excluded(raw_parameter_string) {
 
 /**
  * Resolves visual engine medium, palette, camera, and negative prompts for a style key.
+ * Directly reads structured tokens from `visual_style.engine`.
+ *
  * @param {string} visual_style_key
  * @returns {VisualEngineTokens}
  */
 export function resolve_visual_engine_tokens(visual_style_key) {
   const visual_style = VISUAL_STYLES[visual_style_key] || VISUAL_STYLES.none;
-  const engine_tokens = parse_visual_engine(visual_style.visual_engine);
+  const engine = visual_style.engine || {};
 
-  if (visual_style.negative_prompt && typeof visual_style.negative_prompt === "string") {
-    engine_tokens.negative_prompt = visual_style.negative_prompt.trim();
-  }
-  return engine_tokens;
+  return {
+    medium: String(engine.medium || "").trim(),
+    palette: String(engine.palette || "").trim(),
+    camera: String(engine.camera || "").trim(),
+    composition: String(engine.composition || "").trim(),
+    texture: String(engine.texture || "").trim(),
+    negative_prompt: String(visual_style.negative_prompt || "").trim(),
+  };
 }
 
 // ============================================================================

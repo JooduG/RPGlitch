@@ -16,7 +16,14 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { build_pacing_directive, render_environmental_hint, render_prose_reflex, render_task } from "./task.js";
+import {
+  build_pacing_directive,
+  render_environmental_hint,
+  render_prose_reflex,
+  render_task,
+  render_keyword_directives_xml,
+  TASK_LIBRARY,
+} from "./task.js";
 
 // ============================================================================
 // [SECTION 1: PACING & ENVIRONMENTAL HINTS]
@@ -52,10 +59,7 @@ describe("Pacing and Environmental Reaction", () => {
 
 describe("render_prose_reflex", () => {
   it("synthesizes DELIVERY_POSTURE with rhythm, drive, and pacing", () => {
-    const reflex = render_prose_reflex(
-      { style: { narrative_engine: "<SENTENCE_RHYTHM>Clipped, staccato.</SENTENCE_RHYTHM>" } },
-      "He draws his sword.",
-    );
+    const reflex = render_prose_reflex({ style: { dna: { rhythm: "Clipped, staccato." } } }, "He draws his sword.");
     expect(reflex).toContain("<DELIVERY_POSTURE>");
     expect(reflex).toContain("<RHYTHM>");
     expect(reflex).toContain("Clipped, staccato.");
@@ -155,9 +159,76 @@ describe("render_task — Continuum Mode", () => {
 });
 
 // ============================================================================
+// [SECTION 5: KEYWORD DIRECTIVES XML]
+// ============================================================================
+
+describe("render_keyword_directives_xml", () => {
+  it("renders default DIRECTOR keyword directives XML", () => {
+    const xml = render_keyword_directives_xml("melancholy, visceral");
+    expect(xml).toContain("<KEYWORD_DIRECTIVES>");
+    expect(xml).toContain("- Function: Select 1-5 keywords from the list below");
+    expect(xml).toContain('- Neutral state: Emit "[]" if no keywords apply.');
+    expect(xml).toContain("- Whitelist rule: Select strictly from the list below.");
+    expect(xml).toContain("<AVAILABLE_KEYWORDS>melancholy, visceral</AVAILABLE_KEYWORDS>");
+    expect(xml).toContain("</KEYWORD_DIRECTIVES>");
+  });
+
+  it("renders OPTICS keyword directives XML cleanly", () => {
+    const xml = render_keyword_directives_xml("cinematic, atmospheric", "OPTICS");
+    expect(xml).toContain("<KEYWORD_DIRECTIVES>");
+    expect(xml).toContain(TASK_LIBRARY.KEYWORD_DIRECTIVES.OPTICS);
+    expect(xml).toContain("<AVAILABLE_KEYWORDS>cinematic, atmospheric</AVAILABLE_KEYWORDS>");
+    expect(xml).toContain("</KEYWORD_DIRECTIVES>");
+  });
+});
+
+// ============================================================================
+// [SECTION 6: OPTICS TASK STAGING & SPATIAL FRAMING]
+// ============================================================================
+
+describe("task.js - Optics Task Staging", () => {
+  it("compiles optics task with THINK_FORMAT, unified SPATIAL_FRAMING, and cinematography", () => {
+    const task = render_task({
+      mode: "optics",
+      target_tier: "story_character",
+      input_intent: "Standing alone in the pouring rain",
+      think_format: "optics",
+      cinematography: {
+        mode: "Intimate Close-Up",
+        tokens: "tight close-up portrait, shallow depth of field",
+        narrative_context: "\n  Character In Scene: Depict Alice.",
+        visual_staging: "\n  Staging Directive: Looking upward with eyes closed.",
+      },
+      engine_tokens: {
+        camera: "85mm f/1.4 portrait lens",
+      },
+      keywords: ["melancholy", "atmospheric"],
+      is_selfie: true,
+      schema: '{"prompt": "string"}',
+    });
+
+    expect(task).toContain("<TASK>");
+    expect(task).toContain("<TARGET>story_character</TARGET>");
+    expect(task).toContain("<MANDATE>");
+    expect(task).toContain("<THINK_FORMAT>");
+    expect(task).toContain("_thought_process");
+    expect(task).toContain("<SPATIAL_FRAMING>");
+    expect(task).toContain("<FIRST_SENTENCE_MANDATE>");
+    expect(task).toContain("<SPATIAL_GEOMETRY>");
+    expect(task).toContain('<CINEMATOGRAPHY mode="Intimate Close-Up">');
+    expect(task).toContain("<CAMERA>85mm f/1.4 portrait lens</CAMERA>");
+    expect(task).toContain("<KEYWORD_DIRECTIVES>");
+    expect(task).toContain("<SELFIE_DIRECTIVE>");
+    expect(task).toContain("<INPUT_INTENT>Standing alone in the pouring rain</INPUT_INTENT>");
+    expect(task).toContain('<OUTPUT_FORMAT mode="json">');
+  });
+});
+
+// ============================================================================
 // [CHANGELOG]
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-18: Added unit tests for render_keyword_directives_xml supporting DIRECTOR and OPTICS modes.
  * - 2026-09-18: Initial creation of comprehensive task.test.js validating pacing directives, environmental hints, delivery posture voice injection, and Layer 7 <OUTPUT_FORMAT> integration across director, continuum, and story prose.
  */

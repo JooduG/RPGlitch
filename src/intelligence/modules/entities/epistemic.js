@@ -45,20 +45,20 @@ export function strip_epistemic_secrets(state_text, is_owner = false) {
 
 /**
  * Verifies epistemic wall integrity in a compiled prompt string.
- * Throws an Error if forbidden private tags ([SECRET: ...] or [PLAN: ...]) are detected.
+ * Audits for forbidden private tags ([SECRET: ...] or [PLAN: ...]).
  *
  * @param {string} prompt_text - Compiled prompt text to audit.
- * @returns {boolean} True if clean, throws Error if leak detected.
+ * @returns {boolean} True if clean, false if an epistemic leak was detected.
  */
 export function verify_epistemic_integrity(prompt_text) {
   if (!prompt_text || typeof prompt_text !== "string") return true;
   const secret_match = prompt_text.match(/\[SECRET\s*:\s*[^\]]*\]/i);
   if (secret_match) {
-    throw new Error(`Epistemic leak detected in compiled prompt: forbidden tag "${secret_match[0]}"`);
+    return false;
   }
   const plan_match = prompt_text.match(/\[PLAN\s*:\s*[^\]]*\]/i);
   if (plan_match) {
-    throw new Error(`Epistemic leak detected in compiled prompt: forbidden tag "${plan_match[0]}"`);
+    return false;
   }
   return true;
 }
@@ -66,6 +66,7 @@ export function verify_epistemic_integrity(prompt_text) {
 /**
  * CHANGELOG
  * ============================================================================
+ * - 2026-09-18: Standardized verify_epistemic_integrity contract to return boolean (true = clean, false = leak) aligning with call-site guard.
  * - 2026-09-18: Extracted from monolithic entities.js into dedicated epistemic.js submodule; added verify_epistemic_integrity assertion guard.
  * ============================================================================
  */

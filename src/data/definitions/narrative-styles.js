@@ -10,7 +10,6 @@
  * - get_narrative_style: Retrieves a style record by identifier with safe fallback
  * - get_style_keywords: Resolves dynamic keyword sets contributed by an active style
  * - resolve_active_style_key: Resolves the active style key from fractal or application state
- * - render_narrative_style_xml: Compiles the pre-computed active style XML block
  * - extract_style_dna: Reads the redistributed style-DNA fields back out of `narrative_engine`
  *
  * Architecture & Modification Rules:
@@ -20,7 +19,7 @@
  * ============================================================================
  */
 
-import { state_bridge, escape_xml, resolve_style } from "@utils";
+import { state_bridge, resolve_style } from "@utils";
 
 // ============================================================================
 // 1. Type Definitions
@@ -59,10 +58,10 @@ import { state_bridge, escape_xml, resolve_style } from "@utils";
  * @property {string} description
  * @property {"casual" | "lyrical" | "primal" | "clinical"} speaking_style
  * @property {string[]} keywords
- * @property {string} narrative_engine
- * @property {string[]} [keywords]
+ * @property {string[]} [elements]
+ * @property {string[]} [tags]
  * @property {Record<string, string>} [motifs]
- * @property {string} xml
+ * @property {StyleDNA} [dna]
  * @property {StyleTrigger[]} triggers
  */
 
@@ -72,7 +71,7 @@ import { state_bridge, escape_xml, resolve_style } from "@utils";
 
 /**
  * Factory creating a compiled, fully validated NarrativeStyle record.
- * Automatically formats `dna` into standard XML <NARRATIVE_ENGINE> format.
+ * Attaches structured `dna` directly to the record without intermediate stringification.
  *
  * @param {Object} style_definition
  * @param {string} style_definition.id
@@ -89,21 +88,6 @@ import { state_bridge, escape_xml, resolve_style } from "@utils";
 function define_style(style_definition) {
   const motif_keys = style_definition.motifs ? Object.keys(style_definition.motifs) : [];
 
-  const narrative_engine = style_definition.dna
-    ? `<INTERNAL_RATIO>${style_definition.dna.internal_ratio.toFixed(2)}</INTERNAL_RATIO>
-<SENTENCE_RHYTHM>${style_definition.dna.rhythm}</SENTENCE_RHYTHM>
-<SENSORY_ORDER>${style_definition.dna.sensory}</SENSORY_ORDER>
-<EMOTIONAL_GROUNDING>${style_definition.dna.grounding}</EMOTIONAL_GROUNDING>`
-    : "";
-
-  let xml = "";
-  if (style_definition.id && style_definition.id !== "default") {
-    const elements = escape_xml((style_definition.keywords || []).join(", "));
-    const internal_ratio = Number(style_definition.dna?.internal_ratio ?? 0.5).toFixed(2);
-    const description = (style_definition.description || "").replace(/\.+$/, "");
-    xml = `\n  <NARRATIVE_STYLE origin="${escape_xml(String(style_definition.id).toUpperCase())}" internal_ratio="${escape_xml(internal_ratio)}">${escape_xml(description)}${elements ? `<SIGNATURE_ELEMENTS>${elements}</SIGNATURE_ELEMENTS>` : ""}</NARRATIVE_STYLE>`;
-  }
-
   return {
     id: style_definition.id,
     name: style_definition.name,
@@ -114,8 +98,7 @@ function define_style(style_definition) {
     keywords: motif_keys,
     elements: style_definition.keywords || [],
     motifs: style_definition.motifs || {},
-    narrative_engine,
-    xml,
+    dna: style_definition.dna,
     triggers: style_definition.triggers || [],
   };
 }
@@ -927,23 +910,27 @@ for (const style of Object.values(NARRATIVE_STYLES)) {
 export const STYLE_MOTIF_REGISTRY = Object.freeze(aggregated_motifs);
 
 /**
- * Extracts the redistributed style-DNA fields a compiled NarrativeStyle carries
- * inside its `narrative_engine` string — the inverse of the <TAG> bodies
- * {@link define_style} writes. A missing/empty engine yields empty strings.
- * @param {NarrativeStyle | { narrative_engine?: string } | null | undefined} style
+ * Extracts the style-DNA fields from a NarrativeStyle record.
+ * Directly returns normalized strings from structured `style.dna`.
+ *
+ * @param {NarrativeStyle | { dna?: StyleDNA } | null | undefined} style
  * @returns {{ internal_ratio: string, sentence_rhythm: string, sensory_order: string, emotional_grounding: string }}
  */
 export function extract_style_dna(style) {
-  const src = String(style?.narrative_engine || "");
-  const grab = (tag) => {
-    const match = src.match(new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`, "i"));
-    return match ? match[1].trim() : "";
-  };
+  const dna = style?.dna;
+  if (!dna) {
+    return {
+      internal_ratio: "0.50",
+      sentence_rhythm: "",
+      sensory_order: "",
+      emotional_grounding: "",
+    };
+  }
   return {
-    internal_ratio: grab("INTERNAL_RATIO"),
-    sentence_rhythm: grab("SENTENCE_RHYTHM"),
-    sensory_order: grab("SENSORY_ORDER"),
-    emotional_grounding: grab("EMOTIONAL_GROUNDING"),
+    internal_ratio: typeof dna.internal_ratio === "number" ? dna.internal_ratio.toFixed(2) : String(dna.internal_ratio || "0.50"),
+    sentence_rhythm: String(dna.rhythm || "").trim(),
+    sensory_order: String(dna.sensory || "").trim(),
+    emotional_grounding: String(dna.grounding || "").trim(),
   };
 }
 
@@ -974,15 +961,6 @@ export function get_style_keywords(style_key = "") {
  */
 export function resolve_active_style_key() {
   return resolve_style(state_bridge.runtime?.active_fractal?.narrative_style, "narrative_style", NARRATIVE_STYLES, "");
-}
-
-/**
- * Renders the pre-compiled narrative style XML block.
- * @param {string} [style_key] - Optional pre-resolved style key
- * @returns {string}
- */
-export function render_narrative_style_xml(style_key = resolve_active_style_key()) {
-  return NARRATIVE_STYLES[style_key]?.xml || "";
 }
 
 // ============================================================================

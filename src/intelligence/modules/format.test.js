@@ -4,7 +4,8 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { OUTPUT_FORMATS, SCHEMA_ATOMS, get_output_format, get_continuum_schema, get_profile_schema, render_output_format_xml } from "./format.js";
+import { PROSE_FORMAT, SCHEMA_ATOMS, get_output_format, render_json_schema, render_output_format_xml } from "./format.js";
+import { PROMPTS } from "../prompts.js";
 
 describe("src/intelligence/modules/format.js", () => {
   describe("SCHEMA_ATOMS", () => {
@@ -17,56 +18,46 @@ describe("src/intelligence/modules/format.js", () => {
     });
   });
 
-  describe("OUTPUT_FORMATS", () => {
-    it("is frozen and contains exactly the 5 cohesive formats and schemas with SCREAMING_SNAKE_CASE keys", () => {
-      expect(Object.isFrozen(OUTPUT_FORMATS)).toBe(true);
-      const keys = Object.keys(OUTPUT_FORMATS);
-      expect(keys.sort()).toEqual(["CONTINUUM", "DIRECTOR", "OPTICS", "PROFILE", "PROSE"]);
-
-      // Primitives
-      expect(OUTPUT_FORMATS.PROSE).toContain("plain prose");
-      expect(OUTPUT_FORMATS.PROSE).toBe("Emit strictly plain prose. No preamble, commentary, markdown, or structural tags.");
-
-      // Schemas & streamlined token constraints
-      expect(OUTPUT_FORMATS.DIRECTOR).toContain("_thought_process");
-      expect(OUTPUT_FORMATS.DIRECTOR).toContain("<Tactical intent & state delta>");
-      expect(OUTPUT_FORMATS.DIRECTOR).toContain("next_action");
-      expect(OUTPUT_FORMATS.DIRECTOR).toContain("<1-5 lines staging directives for next speaker, or empty string>");
-
-      expect(OUTPUT_FORMATS.OPTICS).toContain("_thought_process");
-      expect(OUTPUT_FORMATS.OPTICS).toContain("prompt");
-      expect(OUTPUT_FORMATS.OPTICS).toContain("negative_prompt");
-
-      expect(OUTPUT_FORMATS.PROFILE).toContain('"name"');
-      expect(OUTPUT_FORMATS.PROFILE).toContain('"eternal"');
-      expect(OUTPUT_FORMATS.PROFILE).toContain('"present"');
-      expect(OUTPUT_FORMATS.PROFILE).not.toContain("HUMAN EYES ONLY");
-      expect(OUTPUT_FORMATS.PROFILE).not.toContain("Max 15 lines");
-
-      expect(OUTPUT_FORMATS.CONTINUUM).toContain("eternal");
-      expect(OUTPUT_FORMATS.CONTINUUM).toContain("relationships");
-      expect(OUTPUT_FORMATS.CONTINUUM).not.toContain("Max 15 lines");
+  describe("PROSE_FORMAT", () => {
+    it("declares the canonical plain prose directive", () => {
+      expect(PROSE_FORMAT).toContain("plain prose");
+      expect(PROSE_FORMAT).toBe("Emit strictly plain prose. No preamble, commentary, markdown, or structural tags.");
     });
   });
 
   describe("get_output_format()", () => {
-    it("resolves formats and schemas by exact key without backwards compatibility fallbacks", () => {
-      expect(get_output_format("DIRECTOR")).toBe(OUTPUT_FORMATS.DIRECTOR);
-      expect(get_output_format("OPTICS")).toBe(OUTPUT_FORMATS.OPTICS);
-      expect(get_output_format("PROFILE")).toBe(OUTPUT_FORMATS.PROFILE);
-      expect(get_output_format("CONTINUUM")).toBe(OUTPUT_FORMATS.CONTINUUM);
-      expect(get_output_format("PROSE")).toBe(OUTPUT_FORMATS.PROSE);
-
+    it("resolves PROSE format string to PROSE_FORMAT and returns fallback for unknown strings", () => {
+      expect(get_output_format("PROSE")).toBe(PROSE_FORMAT);
       expect(get_output_format("unknown", "fallback_val")).toBe("fallback_val");
       expect(get_output_format(null, "fallback_val")).toBe("fallback_val");
     });
 
     it("parameterizes schemas dynamically by target or resolved entity taxonomy type", () => {
-      expect(get_output_format("CONTINUUM", { target_type: "fractal" })).toBe(get_continuum_schema("fractal"));
-      expect(get_output_format("CONTINUUM", { target_type: "character" })).toBe(get_continuum_schema("character"));
-      expect(get_output_format("PROFILE", { resolved_type: "fractal" })).toBe(get_profile_schema("fractal"));
-      expect(get_output_format("PROFILE", { resolved_type: "character" })).toBe(get_profile_schema("character"));
-      expect(get_output_format("OPTICS", { variant: "selfie" })).toContain('"caption"');
+      expect(get_output_format(PROMPTS.continuum.format, { target_type: "fractal" })).toBe(
+        render_json_schema(PROMPTS.continuum.format.schema, "fractal"),
+      );
+      expect(get_output_format(PROMPTS.continuum.format, { target_type: "character" })).toBe(
+        render_json_schema(PROMPTS.continuum.format.schema, "character"),
+      );
+      expect(get_output_format(PROMPTS.sorting.format, { resolved_type: "fractal" })).toBe(
+        render_json_schema(PROMPTS.sorting.format.schema, "fractal"),
+      );
+      expect(get_output_format(PROMPTS.sorting.format, { resolved_type: "character" })).toBe(
+        render_json_schema(PROMPTS.sorting.format.schema, "character"),
+      );
+      expect(get_output_format(PROMPTS.optics.format, { variant: "selfie" })).toContain('"caption"');
+    });
+
+    it("dynamically compiles format specification objects declared in PROMPTS manifest", () => {
+      const director_spec = PROMPTS.director.format;
+      expect(get_output_format(director_spec)).toBe(render_json_schema(director_spec.schema));
+
+      const continuum_spec = PROMPTS.continuum.format;
+      expect(get_output_format(continuum_spec, { target_type: "fractal" })).toBe(render_json_schema(continuum_spec.schema, "fractal"));
+      expect(get_output_format(continuum_spec, { target_type: "character" })).toBe(render_json_schema(continuum_spec.schema, "character"));
+
+      const optics_spec = PROMPTS.optics.format;
+      expect(get_output_format(optics_spec, { variant: "selfie" })).toContain('"caption"');
     });
   });
 

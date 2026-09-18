@@ -15,8 +15,8 @@
  * - Template Hygiene (`clean_xml`): Trims trailing line whitespace and trims blank boundary lines.
  *
  * Consumed by:
- * - `src/intelligence/prompts/` (Prompt compilation pipelines).
- * - `src/intelligence/optics.js` (Visual prompt synthesis).
+ * - `src/intelligence/prompts.js` (Prompt compilation pipelines).
+ * - `src/intelligence/builder.js` (Visual and narrative prompt synthesis).
  * - `src/utils/text.js` (Clothing key resolution).
  */
 
@@ -214,30 +214,6 @@ export function clean_xml(xml) {
     .replace(/\n{3,}/g, "\n\n");
 }
 
-/**
- * Parses structured tokens (<medium>, <palette>, <camera>, <composition>, <texture>, <negative_prompt>)
- * out of a <VISUAL_ENGINE> XML block.
- * @param {string} [engineXml=""]
- * @returns {{ medium: string, palette: string, camera: string, composition: string, texture: string, negative_prompt: string }}
- */
-export function parse_visual_engine(engineXml = "") {
-  const result = { medium: "", palette: "", camera: "", composition: "", texture: "", negative_prompt: "" };
-  if (!engineXml) return result;
-
-  const extract_tag = (tag) => {
-    const match = engineXml.match(new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`, "i"));
-    return match ? match[1].trim() : "";
-  };
-
-  result.medium = extract_tag("medium");
-  result.palette = extract_tag("palette");
-  result.camera = extract_tag("camera");
-  result.composition = extract_tag("composition");
-  result.texture = extract_tag("texture");
-  result.negative_prompt = extract_tag("negative_prompt");
-  return result;
-}
-
 // ============================================================================
 // [SECTION 5: INDENTATION & TAG WRAPPING HELPERS]
 // ============================================================================
@@ -336,7 +312,8 @@ export function render_xml_tag({
 // [CHANGELOG]
 // ============================================================================
 /**
- * CHANGELOG:
+ * CHANGELOG
+ * - 2026-09-18: Pruned stale reference to deleted src/intelligence/optics.js from module header.
  * - 2026-09-12: `render_xml_tag` promoted to a true universal composer — `indent` now shifts the WHOLE block (open + body + close) so nested blocks can be emitted at any depth, and `inline: true` emits `<tag>body</tag>` for single-line bodies. This is the one primitive every `modules/*` compiler builds from.
  * - 2026-09-12: Added `render_xml_tag` — the universal XML block composer (attribute escaping, blank-child filtering, optional body indentation, optional open-only envelope) that every `modules/*` compiler now builds from, so tag layout lives in one place.
  * - 2026-09-11: Co-located indent_all, inline_or_block, and wrap_tag layout helpers in xml.js for cross-layer prompt formatting purity.

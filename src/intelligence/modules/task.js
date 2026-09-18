@@ -66,12 +66,16 @@ Close with </THINK> before generating narrative prose.`;
       "Begin response with <THINK>. All internal calculations, scene shifts, and headers must remain inside this block in the conversation language. Close with </THINK> before narrative prose.",
   }),
 
-  // ── 1.2 Shot 1: Directorial Staging & Evaluation Rules (director) ───────────
-  DIRECTOR: Object.freeze({
-    KEYWORD_DIRECTIVES: `- Function: Select 1-5 keywords from the list below to steer the next speaker's physical tells and scene tone.
+  // ── 1.2 Keyword Directives (Director & Sensory Optics) ─────────────────────
+  KEYWORD_DIRECTIVES: Object.freeze({
+    DIRECTOR: `- Function: Select 1-5 keywords from the list below to steer the next speaker's physical tells and scene tone.
 - Neutral state: Emit "[]" if no keywords apply.
 - Whitelist rule: Select strictly from the list below. Never alter or invent keywords.`,
+    OPTICS: "Integrate 2-4 appropriate keywords from below.",
+  }),
 
+  // ── 1.3 Shot 1: Directorial Staging & Evaluation Rules (director) ───────────
+  DIRECTOR: Object.freeze({
     ENVIRONMENTAL_HINT:
       '<INPUT_NOTE>Non-verbal environmental action. Strongly consider setting "speaker" to "fractal" to narrate the setting, unless AI character should react directly.</INPUT_NOTE>',
 
@@ -81,7 +85,7 @@ Close with </THINK> before generating narrative prose.`;
       '"USER_PERSONA" (or player character name) is never a valid next_action; the Director never speaks for the player. Valid actions are strictly: "AI_CHARACTER", "FRACTAL", "npc:<id>", or { "genesis": ... }.',
   }),
 
-  // ── 1.3 Shot 2A: Prose Turn Directives (character / scene / ghostwrite) ─────
+  // ── 1.4 Shot 2A: Prose Turn Directives (character / scene / ghostwrite) ─────
   PROSE: Object.freeze({
     CHARACTER: Object.freeze({
       FIRST_CONTACT:
@@ -126,7 +130,17 @@ Strictly zero spoken dialogue or quote marks. No dialogue.`,
 
   // ── 1.6 Shot 3: Sensory Cortex & Visual Directives (optics) ───────────────
   OPTICS: Object.freeze({
-    MANDATE: (subject) => `Convert narrative intent into a structured image prompt payload depicting ${subject}.`,
+    MANDATE: (subject) => `<MANDATE>Convert narrative intent into a structured image prompt payload depicting ${subject}.</MANDATE>`,
+    THINK_FORMAT: `<THINK_FORMAT>In "_thought_process", calibrate:
+1. Focal subject & identity traits (strip proper names)
+2. Spatial layers (foreground, focal subject, background)
+3. Light sources, color palette, and textures from active style
+4. Wardrobe mechanics & exposure checks</THINK_FORMAT>`,
+    FIRST_SENTENCE_MANDATE:
+      "<FIRST_SENTENCE_MANDATE>Always place main entities and active physical interactions in the VERY FIRST sentence.</FIRST_SENTENCE_MANDATE>",
+    SPATIAL_GEOMETRY:
+      "<SPATIAL_GEOMETRY>Spatial orientation: direct depiction of focal elements, absolute geometry, camera angles, elevations, lighting positions, and depth layers without metaphor or narrative scaffolding.</SPATIAL_GEOMETRY>",
+    SELFIE_DIRECTIVE: '<SELFIE_DIRECTIVE>Generate a short, in-character social media caption inside "caption".</SELFIE_DIRECTIVE>',
     SUBJECT_TIERS: Object.freeze({
       solo_entity:
         "an isolated solo portrait of the subject, self-contained framing drawn entirely from the subject's own identity, appearance, and signature colors",
@@ -251,15 +265,35 @@ export function render_task_input({ input = "", input_origin = null } = {}) {
 }
 
 /**
- * Renders the Director KEYWORD_DIRECTIVES XML block.
- * @param {string} available_keywords_xml
- * @returns {string}
+ * Renders the canonical <KEYWORD_DIRECTIVES> XML block for Director or Optics.
+ * Supports passing either raw keywords XML or raw keywords string, with mode-specific directive resolution.
+ *
+ * @param {string} available_keywords_content - Raw XML or escaped keyword string
+ * @param {string|{ mode?: 'DIRECTOR'|'OPTICS', directive?: string, indent?: number }} [options_or_directive="DIRECTOR"]
+ * @returns {string} Formatted <KEYWORD_DIRECTIVES> block
  */
-export function render_keyword_directives_xml(available_keywords_xml) {
+export function render_keyword_directives_xml(available_keywords_content, options_or_directive = "DIRECTOR") {
+  const options =
+    typeof options_or_directive === "string"
+      ? options_or_directive === "OPTICS" || options_or_directive === "DIRECTOR"
+        ? { mode: options_or_directive }
+        : { directive: options_or_directive }
+      : options_or_directive || {};
+
+  const directive =
+    options.directive || (options.mode === "OPTICS" ? TASK_LIBRARY.KEYWORD_DIRECTIVES.OPTICS : TASK_LIBRARY.KEYWORD_DIRECTIVES.DIRECTOR);
+
+  const indent = options.indent ?? 2;
+
+  const inner_content = String(available_keywords_content || "").trim();
+  const available_tag = inner_content.startsWith("<AVAILABLE_KEYWORDS>")
+    ? inner_content
+    : `<AVAILABLE_KEYWORDS>${inner_content}</AVAILABLE_KEYWORDS>`;
+
   return render_xml_tag({
     tag: "KEYWORD_DIRECTIVES",
-    children: [TASK_LIBRARY.DIRECTOR.KEYWORD_DIRECTIVES, `<AVAILABLE_KEYWORDS>${available_keywords_xml}</AVAILABLE_KEYWORDS>`],
-    indent: 2,
+    children: [directive, available_tag],
+    indent,
     child_indent: 2,
     separator: "\n",
   });
@@ -353,6 +387,11 @@ export function render_task({
   target_tier = "",
   input_intent = "",
   subject = "",
+  think_format = "",
+  cinematography = null,
+  engine_tokens = null,
+  keywords = [],
+  is_selfie = false,
 } = {}) {
   switch (mode) {
     case "director": {
@@ -423,7 +462,48 @@ export function render_task({
       const target_tag = target_tier ? `<TARGET>${escape_xml(target_tier)}</TARGET>` : "";
       const intent_tag = input_intent ? `<INPUT_INTENT>${prompt_escape(input_intent)}</INPUT_INTENT>` : "";
 
-      const items = [target_tag, mandate, intent_tag, output_format_xml, ...directives].filter(Boolean);
+      const think_xml = think_format === "optics" ? TASK_LIBRARY.OPTICS.THINK_FORMAT : null;
+
+      // Spatial Framing Assembly
+      const spatial_framing_children = [TASK_LIBRARY.OPTICS.FIRST_SENTENCE_MANDATE, TASK_LIBRARY.OPTICS.SPATIAL_GEOMETRY];
+
+      if (cinematography && typeof cinematography === "object") {
+        const { mode = "Medium Action", tokens = "", narrative_context = "", visual_staging = "" } = cinematography;
+        spatial_framing_children.push(
+          `<CINEMATOGRAPHY mode="${escape_xml(mode)}">\n  ${tokens}${narrative_context}${visual_staging}\n</CINEMATOGRAPHY>`,
+        );
+      }
+
+      if (engine_tokens?.camera) {
+        spatial_framing_children.push(`<CAMERA>${escape_xml(engine_tokens.camera)}</CAMERA>`);
+      } else if (engine_tokens?.composition) {
+        spatial_framing_children.push(`<COMPOSITION>${escape_xml(engine_tokens.composition)}</COMPOSITION>`);
+      }
+
+      const spatial_framing_xml = render_xml_tag({
+        tag: "SPATIAL_FRAMING",
+        children: spatial_framing_children,
+        child_indent: 2,
+        separator: "\n",
+      });
+
+      const keyword_directives_xml =
+        Array.isArray(keywords) && keywords.length > 0 ? render_keyword_directives_xml(keywords.join(", "), "OPTICS") : null;
+
+      const selfie_xml = is_selfie ? TASK_LIBRARY.OPTICS.SELFIE_DIRECTIVE : null;
+
+      const items = [
+        target_tag,
+        mandate,
+        think_xml,
+        spatial_framing_xml,
+        keyword_directives_xml,
+        selfie_xml,
+        intent_tag,
+        output_format_xml,
+        ...directives,
+      ].filter(Boolean);
+
       return render_xml_tag({ tag: "TASK", children: items, indent: 0, child_indent: 2, separator: "\n\n" });
     }
 

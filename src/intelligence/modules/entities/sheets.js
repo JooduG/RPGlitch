@@ -575,6 +575,87 @@ export function render_enhancement_field_context(entity, field_identifier, conte
 }
 
 /**
+ * Compiles co-located <SUBJECT_RULES> for Sensory Cortex image synthesis.
+ * Keeps entity unboxing & wardrobe rules adjacent to physical character data.
+ *
+ * @param {boolean} [has_alternation=false]
+ * @returns {string} XML formatted <SUBJECT_RULES> block
+ */
+export function render_optics_subject_rules(has_alternation = false) {
+  const rules = [
+    "<DYNAMIC_OVERRIDES>Follow a strict bottom-up hierarchy where the most recent (bottom-most) physical condition update ALWAYS overrides preceding static tags like <SHIRT> or <JACKET>. If a conflicting state appears later (e.g. 'no clothes' then later 'shirt: white'), the most recent/latest state wins.</DYNAMIC_OVERRIDES>",
+    "<GARMENT_ANATOMY>When rendering specialized or revealing garments (e.g., jockstraps, thongs, harnesses), explicitly specify their physical mechanics and bare skin exposure in natural prose. For a jockstrap, describe: 'wearing an athletic jockstrap featuring a supportive front pouch, open sides and back with bare exposed butt cheeks, and dual wide elastic straps circling under the glutes/thighs'. For thongs, describe: 'a narrow string back leaving the rear completely bare'. Never allow jockstraps to collapse into generic briefs or full-coverage shorts.</GARMENT_ANATOMY>",
+    has_alternation
+      ? "<ALTERNATION_OPTIONS>Resolve {Option A|Option B} alternations by selecting exactly ONE contextually fitting option. Emit only the chosen text—never echo braces or pipes, blend choices, or output multiple options simultaneously.</ALTERNATION_OPTIONS>"
+      : null,
+    '<IDENTIFIERS>Always explicitly state gender and physical identifiers (e.g., "a handsome young male high-elf man").</IDENTIFIERS>',
+    '<CREATURE_DISAMBIGUATION>Never use bare animal/creature proper names (e.g., "Beast"). Translate to explicit physical traits (e.g., "a massive grey-green male orc warrior").</CREATURE_DISAMBIGUATION>',
+  ].filter(Boolean);
+
+  return render_xml_tag({
+    tag: "SUBJECT_RULES",
+    children: rules,
+    child_indent: 2,
+    separator: "\n",
+  });
+}
+
+/**
+ * Resolves camera framing, scale tokens, and staging directives for Sensory Optics.
+ * Extracted so cinematography can be passed to Layer 6 (<TASK>) rather than trapped in Layer 4 (<ENTITIES>).
+ *
+ * @param {Object} [parameters={}]
+ * @returns {{ mode: string, tokens: string, narrative_context: string, visual_staging: string }}
+ */
+export function resolve_optics_cinematography({
+  tier = "solo_entity",
+  solo_subject = null,
+  active_ai_character = null,
+  active_user_persona = null,
+  active_fractal_setting = null,
+  main_entity = null,
+  visual_staging = "",
+} = {}) {
+  const is_fractal_target = tier === "story_scene" || solo_subject?.type === "fractal";
+  const ai_dynamics = active_ai_character?.dynamics || {};
+  const intensity = Number(ai_dynamics.intensity ?? 50);
+  const chaos = Number(ai_dynamics.chaos ?? 50);
+  const affinity = Number(ai_dynamics.affinity ?? 50);
+
+  let mode = "Medium Action";
+  let tokens = "medium shot, waist-up framing, dynamic posture, clear wardrobe & prop details";
+
+  if (is_fractal_target) {
+    mode = "Wide Environmental";
+    tokens = "wide-angle environmental shot, deep spatial composition, atmospheric scale, full silhouette";
+  } else if (chaos >= 75) {
+    mode = "Dutch / Low-Angle";
+    tokens = "dutch angle composition, low-angle perspective, imposing scale, dramatic lighting contrast";
+  } else if (intensity >= 75 || affinity >= 75) {
+    mode = "Intimate Close-Up";
+    tokens = "tight close-up portrait, shallow depth of field, sharp focus on eyes, macro expression detail";
+  } else if (tier === "solo_entity") {
+    mode = "Medium Action";
+    tokens = "medium portrait framing, waist-up composition, distinctive wardrobe, signature atmospheric backdrop";
+  }
+
+  const visual_staging_directive = visual_staging ? `\n  Staging Directive: ${prompt_escape(visual_staging)}` : "";
+  const narrative_context_desc =
+    tier === "story_entities"
+      ? `\n  Group Mandate: Feature both ${prompt_escape(active_ai_character?.name || "AI")} and ${prompt_escape(active_user_persona?.name || "User")} engaged together in their active positions within the fractal environment.`
+      : tier === "story_character" && active_fractal_setting && main_entity?.type !== "fractal" && main_entity !== active_fractal_setting
+        ? `\n  Character In Scene: Depict ${prompt_escape(main_entity?.name || "Subject")} situated directly within ${prompt_escape(active_fractal_setting.name || "Setting")}.`
+        : "";
+
+  return {
+    mode,
+    tokens,
+    narrative_context: narrative_context_desc,
+    visual_staging: visual_staging_directive,
+  };
+}
+
+/**
  * Compiles active characters and cinematography blocks for Sensory Cortex image synthesis.
  * @param {Object} [parameters={}]
  * @returns {string} XML formatted ENTITIES envelope content
@@ -588,7 +669,7 @@ export function render_optics_entities_xml({
   main_entity = null,
   macro_entities = {},
   roll = (text) => text,
-  visual_staging = "",
+  has_alternation = false,
 } = {}) {
   const render_entity_block = (tag_name, entity_instance) => {
     if (!entity_instance) return "";
@@ -638,43 +719,11 @@ export function render_optics_entities_xml({
     }
   })();
 
-  // Cinematography
-  const is_fractal_target = tier === "story_scene" || solo_subject?.type === "fractal";
-  const ai_dynamics = active_ai_character?.dynamics || {};
-  const intensity = Number(ai_dynamics.intensity ?? 50);
-  const chaos = Number(ai_dynamics.chaos ?? 50);
-  const affinity = Number(ai_dynamics.affinity ?? 50);
-
-  let framing_mode = "Medium Action";
-  let framing_tokens = "medium shot, waist-up framing, dynamic posture, clear wardrobe & prop details";
-
-  if (is_fractal_target) {
-    framing_mode = "Wide Environmental";
-    framing_tokens = "wide-angle environmental shot, deep spatial composition, atmospheric scale, full silhouette";
-  } else if (chaos >= 75) {
-    framing_mode = "Dutch / Low-Angle";
-    framing_tokens = "dutch angle composition, low-angle perspective, imposing scale, dramatic lighting contrast";
-  } else if (intensity >= 75 || affinity >= 75) {
-    framing_mode = "Intimate Close-Up";
-    framing_tokens = "tight close-up portrait, shallow depth of field, sharp focus on eyes, macro expression detail";
-  } else if (tier === "solo_entity") {
-    framing_mode = "Medium Action";
-    framing_tokens = "medium portrait framing, waist-up composition, distinctive wardrobe, signature atmospheric backdrop";
-  }
-
-  const visual_staging_directive = visual_staging ? `\n  Staging Directive: ${prompt_escape(visual_staging)}` : "";
-  const narrative_context_desc =
-    tier === "story_entities"
-      ? `\n  Group Mandate: Feature both ${prompt_escape(active_ai_character?.name || "AI")} and ${prompt_escape(active_user_persona?.name || "User")} engaged together in their active positions within the fractal environment.`
-      : tier === "story_character" && active_fractal_setting && main_entity?.type !== "fractal" && main_entity !== active_fractal_setting
-        ? `\n  Character In Scene: Depict ${prompt_escape(main_entity?.name || "Subject")} situated directly within ${prompt_escape(active_fractal_setting.name || "Setting")}.`
-        : "";
-
-  const framing_block = `<CINEMATOGRAPHY mode="${framing_mode}">\n  ${framing_tokens}${narrative_context_desc}${visual_staging_directive}\n</CINEMATOGRAPHY>`;
+  const subject_rules_block = render_optics_subject_rules(has_alternation);
 
   return render_xml_tag({
     tag: "ENTITIES",
-    children: [context_block.trim(), framing_block.trim()].filter(Boolean),
+    children: [context_block.trim(), subject_rules_block.trim()].filter(Boolean),
     indent: 2,
     child_indent: 2,
     separator: "\n\n",

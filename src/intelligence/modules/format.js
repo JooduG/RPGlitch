@@ -13,16 +13,12 @@
  *              (Tactical reasoning, directorial staging, and relational graph atoms)
  * • Section 2: Universal Dynamic JSON Schema Composer
  *              (Dynamically compiles structured contracts over PROFILE_FIELDS and SCHEMA_ATOMS)
- * • Section 3: Shot 1 — Directorial State Schema (DIRECTOR)
- *              (State transitions, dynamics deltas, keyword anchors, spotlight, camera staging)
- * • Section 4: Shot 2A & Tool A — Pure Prose Output Format (PROSE)
+ * • Section 3: Pure Prose Output Format (PROSE)
  *              (Unpadded narrative prose directive for dialogue, action, and field enhancement)
- * • Section 5: Shot 2B — Continuum Caretaker Schema (CONTINUUM)
- *              (Temporal state mutation, memory distillation, and relational vector updates)
- * • Section 6: Tool B — Profile Ingestion Schema (PROFILE)
- *              (Universal 4-quadrant profile extraction for characters and fractals)
- * • Section 7: Master Output Format Registry & XML Envelope Compiler
- *              (OUTPUT_FORMATS dictionary, get_output_format resolver, render_output_format_xml)
+ * • Section 4: Master Output Format Universal Resolver
+ *              (get_output_format dynamic resolver compiling PROMPTS format schemas or PROSE)
+ * • Section 5: XML Envelope Compiler
+ *              (render_output_format_xml compiler for <OUTPUT_FORMAT> tags)
  *
  * Architecture & Design Laws:
  * - Layer 7 Sovereignty: Single source of truth for prompt output contracts and schemas.
@@ -46,24 +42,18 @@ import { PROFILE_FIELDS } from "@data";
  * Categorized by their lifecycle role while exposed as a single frozen catalog.
  */
 export const SCHEMA_ATOMS = Object.freeze({
-  // ── 1.1 Shared Tactical & Cognitive Reasoning ──────────────────────────────
   _thought_process: "<Tactical intent & state delta>",
-
-  // ── 1.2 Shot 1: Directorial State & Staging Atoms (director) ────────────────
   next_action: `'AI_CHARACTER' | 'FRACTAL' | 'npc:<id>' | { \\"genesis\\": { \\"name\\": \\"<Name>\\", \\"description\\": \\"<description>\\" } } | 'EPILOGUE_CONCLUDED' | 'EPILOGUE_COLLAPSED'`,
   keywords: ["<1-5 keywords from AVAILABLE_KEYWORDS>"],
   directors_note: "<1-5 lines staging directives for next speaker, or empty string>",
   dynamics_deltas: { chaos: 0, intensity: 0, openness: 0, affinity: 0, velocity: 0, entropy: 0 },
   visual_staging: "<optional: camera & lighting directive if scene image shifts>",
   spotlight: { enter: ["npc:<id>"], exit: ["npc:<id>"] },
-
-  // ── 1.3 Shot 2B: Continuum Caretaker & Relational Graph Atoms (continuum) ───
   target: "'AI_CHARACTER' | 'USER_PERSONA' | 'FRACTAL' | 'NPC_<id>'",
   relationships: ["Source → Target: dynamic description"],
-
-  // ── 1.4 Shot 3: Sensory Cortex & Optics Atoms (optics) ──────────────────────
-  prompt: "<synthesized descriptive image prompt>",
-  negative_prompt: "<negative prompt tokens>",
+  prompt:
+    "<Final image prompt as continuous fluid prose. Ground outputs using physical optics and real-world materials; zero quality buzzwords ('masterpiece', '8K', 'photorealistic').>",
+  negative_prompt: "<Negative tokens avoiding quality buzzwords; ground using physical artifacts and flaws.>",
   caption: "<in-character selfie caption>",
 });
 // ============================================================================
@@ -119,19 +109,7 @@ export function render_json_schema(schema_keys, entity_type = "character") {
 }
 
 // ============================================================================
-// [SECTION 3: SHOT 1 — DIRECTORIAL STATE SCHEMA (DIRECTOR)]
-// ============================================================================
-
-/**
- * Builds the canonical LLM-optimized JSON schema string for Director turn staging (Shot 1).
- * @returns {string}
- */
-export function get_director_schema() {
-  return render_json_schema(["_thought_process", "next_action", "keywords", "directors_note", "dynamics_deltas", "visual_staging", "spotlight"]);
-}
-
-// ============================================================================
-// [SECTION 4: SHOT 2A & TOOL A — PURE PROSE OUTPUT FORMAT (PROSE)]
+// [SECTION 3: PURE PROSE OUTPUT FORMAT (PROSE)]
 // ============================================================================
 
 /**
@@ -142,110 +120,60 @@ export function get_director_schema() {
 export const PROSE_FORMAT = "Emit strictly plain prose. No preamble, commentary, markdown, or structural tags.";
 
 // ============================================================================
-// [SECTION 5: SHOT 2B — CONTINUUM CARETAKER SCHEMA (CONTINUUM)]
+// [SECTION 4: MASTER OUTPUT FORMAT RESOLVER]
 // ============================================================================
 
 /**
- * Builds the canonical LLM-optimized JSON schema string for the Continuum Caretaker (Shot 2B)
- * based on the target entity taxonomy type.
- * @param {'character' | 'fractal' | string} [entity_type='character']
- * @returns {string}
- */
-export function get_continuum_schema(entity_type = "character") {
-  return render_json_schema(["_thought_process", "target", "eternal", "present", "future", "past", "relationships"], entity_type);
-}
-
-// ============================================================================
-// [SECTION 6: TOOL B — PROFILE INGESTION SCHEMA (PROFILE)]
-// ============================================================================
-
-/**
- * Builds the canonical LLM-optimized JSON schema string for profile extraction (Tool B: sorting)
- * based on the target entity taxonomy type.
- * @param {'character' | 'fractal' | string} [entity_type='character']
- * @returns {string}
- */
-export function get_profile_schema(entity_type = "character") {
-  return render_json_schema(["name", "description", "signature_color", "eternal", "present", "past", "future"], entity_type);
-}
-
-// ============================================================================
-// [SECTION 7: SHOT 3 & TOOL — SENSORY CORTEX & OPTICS SCHEMA (OPTICS)]
-// ============================================================================
-
-/**
- * Builds the canonical LLM-optimized JSON schema string for the Sensory Cortex (Shot 3: optics).
- * Supports optional "selfie" extension for social media captions.
- * @param {string|{ variant?: string }} [options_or_variant=""]
- * @returns {string}
- */
-export function get_optics_schema(options_or_variant = "") {
-  const options = typeof options_or_variant === "string" ? { variant: options_or_variant } : options_or_variant || {};
-  const variant = options.variant || (options.is_selfie ? "selfie" : "");
-  const schema_keys = ["_thought_process", "prompt", "negative_prompt"];
-  if (variant === "selfie") {
-    schema_keys.push("caption");
-  }
-  let base_schema = render_json_schema(schema_keys);
-  if (options.negative_prompt) {
-    base_schema = base_schema.replace(`"<negative prompt tokens>"`, `"${options.negative_prompt.replace(/"/g, '\\"')}"`);
-  }
-  return base_schema;
-}
-
-// ============================================================================
-// [SECTION 8: MASTER OUTPUT FORMAT REGISTRY & XML ENVELOPE COMPILER]
-// ============================================================================
-
-/**
- * Frozen master registry of all prompt output format specifications.
- * Symmetrically keyed to the format properties in `src/intelligence/prompts.js`:
- * - PROSE: Plain unpadded narrative prose
- * - DIRECTOR: Shot 1 Director Quick Shot JSON schema
- * - PROFILE: Tool B Structurer Profile Ingestion JSON schema
- * - CONTINUUM: Shot 2B Continuum Caretaker JSON schema
- * - OPTICS: Shot 3 Sensory Cortex Image Synthesis JSON schema
- */
-export const OUTPUT_FORMATS = Object.freeze({
-  PROSE: PROSE_FORMAT,
-  DIRECTOR: get_director_schema(),
-  PROFILE: get_profile_schema("character"),
-  CONTINUUM: get_continuum_schema("character"),
-  OPTICS: get_optics_schema(),
-});
-
-const DYNAMIC_SCHEMAS = Object.freeze({
-  CONTINUUM: get_continuum_schema,
-  PROFILE: get_profile_schema,
-  OPTICS: (options) => get_optics_schema(typeof options === "string" ? options : options?.variant),
-});
-
-/**
- * Resolves an output format, schema, or contract string from its canonical format key.
+ * Resolves an output format, schema, or contract string from its canonical format specification.
  * Parameter-aware: accepts an entity type or options object to dynamically parameterize CONTINUUM, PROFILE, and OPTICS schemas.
- * @param {string} [format_key] - Format key matching OUTPUT_FORMATS ("PROSE", "DIRECTOR", "CONTINUUM", "PROFILE", "OPTICS")
- * @param {string|{ entity_type?: string, target_type?: string, resolved_type?: string, variant?: string, fallback?: string }} [options_or_fallback=""]
- * @returns {string}
+ *
+ * @param {string|{ mode?: string, schema?: string[] }} [format_spec="PROSE"] - Format spec object from PROMPTS manifest or "PROSE" string
+ * @param {string|{ entity_type?: string, target_type?: string, resolved_type?: string, variant?: string, is_selfie?: boolean, negative_prompt?: string, fallback?: string }} [options_or_fallback=""]
+ * @returns {string} Compiled output format directive or schema
  */
-export function get_output_format(format_key, options_or_fallback = "") {
-  if (!format_key) return typeof options_or_fallback === "string" ? options_or_fallback : "";
-  const fallback = typeof options_or_fallback === "string" ? options_or_fallback : options_or_fallback?.fallback || "";
-  const dynamic_resolver = DYNAMIC_SCHEMAS[format_key];
-  if (dynamic_resolver) {
-    if (format_key === "OPTICS") {
-      return dynamic_resolver(options_or_fallback);
-    }
-    const entity_type =
-      typeof options_or_fallback === "object" && options_or_fallback !== null
-        ? options_or_fallback.entity_type || options_or_fallback.target_type || options_or_fallback.resolved_type || "character"
-        : typeof options_or_fallback === "string" && options_or_fallback
-          ? options_or_fallback
-          : "character";
-    return dynamic_resolver(entity_type);
+export function get_output_format(format_spec, options_or_fallback = "") {
+  if (!format_spec) return typeof options_or_fallback === "string" ? options_or_fallback : "";
+
+  // 1. Plain narrative prose directive
+  if (format_spec === "PROSE") {
+    return PROSE_FORMAT;
   }
 
-  return OUTPUT_FORMATS[format_key] || fallback;
+  const options =
+    typeof options_or_fallback === "object" && options_or_fallback !== null
+      ? options_or_fallback
+      : typeof options_or_fallback === "string" && options_or_fallback
+        ? { entity_type: options_or_fallback }
+        : {};
+
+  const fallback = typeof options_or_fallback === "string" ? options_or_fallback : options.fallback || "";
+
+  // 2. Structured JSON schema specification from PROMPTS manifest: { mode: "json", schema: [...] }
+  if (typeof format_spec === "object" && format_spec !== null && Array.isArray(format_spec.schema)) {
+    const entity_type = options.entity_type || options.target_type || options.resolved_type || "character";
+    const schema_keys = [...format_spec.schema];
+
+    if (options.variant === "selfie" || options.is_selfie) {
+      if (!schema_keys.includes("caption")) {
+        schema_keys.push("caption");
+      }
+    }
+
+    let compiled_schema = render_json_schema(schema_keys, entity_type);
+
+    if (options.negative_prompt) {
+      compiled_schema = compiled_schema.replace(`"<negative prompt tokens>"`, `"${options.negative_prompt.replace(/"/g, '\\"')}"`);
+    }
+
+    return compiled_schema;
+  }
+
+  return fallback;
 }
+
+// ============================================================================
+// [SECTION 5: XML ENVELOPE COMPILER]
+// ============================================================================
 
 /**
  * Compiles a dedicated <OUTPUT_FORMAT> XML envelope block.
@@ -269,6 +197,10 @@ export function render_output_format_xml({ mode = "", content = "", indent_level
 
 /**
  * CHANGELOG
+ * - 2026-09-18: Enriched SCHEMA_ATOMS for prompt, negative_prompt, and _thought_process with concrete optical synthesis instructions, repatriating output format directives from protocols.js.
+ * - 2026-09-18: Purged duplicate schema arrays (STRING_KEY_SCHEMAS, duplicate OUTPUT_FORMATS schema objects) in adherence to DRY and P4 Zero Backwards Compatibility. format.js now serves as the pure dynamic renderer for format specifications declared in prompts.js.
+ * - 2026-09-18: Streamlined format.js by removing redundant get_*_schema functions and DYNAMIC_SCHEMAS. Output schemas are declared directly in prompts.js and rendered via render_json_schema and get_output_format.
+ * - 2026-09-18: Enhanced get_output_format to consume direct schema specification objects `{ mode: 'json', schema: [...] }` from prompts.js switchboard, compiling dynamic schemas with parameter-aware entity taxonomy and variant extensions.
  * - 2026-09-18: Added OPTICS schema atoms (prompt, negative_prompt, caption), get_optics_schema, and parameter-aware OPTICS output format routing supporting selfie mode.
  * - 2026-09-16: Merged/repatriated SCHEMA_FIELD_DESCRIPTORS directly into PROFILE_FIELDS in src/data/definitions/profile-fields.js. Streamlined render_json_schema to read concise directives directly from PROFILE_FIELDS, eliminating parallel descriptor models and redundant fallback logic.
  * - 2026-09-16: Clarified non_physical field descriptors in SCHEMA_FIELD_DESCRIPTORS to specify prose only (prohibiting bracket-dicts or key-value pairs) to prevent Continuum Caretaker format bleed.

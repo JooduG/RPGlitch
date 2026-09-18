@@ -27,7 +27,6 @@ import {
   get_style_keywords,
   get_narrative_style,
   resolve_active_style_key,
-  render_narrative_style_xml,
 } from "@data";
 import {
   escape_xml,
@@ -47,14 +46,7 @@ import {
 import { get_prompt } from "./prompts.js";
 import { resolve_stability_lock, resolve_system_role_line, SYSTEM_CLOSE_TAG, render_system_xml } from "./modules/system.js";
 import { render_axiomatic_constitution } from "./modules/constitution.js";
-import {
-  render_protocols,
-  render_core_protocols,
-  resolve_pov_protocol,
-  PROTOCOL_LIBRARY,
-  build_optics_builder_protocol,
-  NEGATIVE_PROMPT,
-} from "./modules/protocols.js";
+import { render_protocols, render_core_protocols, resolve_pov_protocol, PROTOCOL_LIBRARY, render_optics_protocols } from "./modules/protocols.js";
 import {
   render_entity_sheets,
   render_nearby_entities_xml,
@@ -62,6 +54,7 @@ import {
   render_enhancement_field_context,
   render_present_entities_xml,
   render_optics_entities_xml,
+  resolve_optics_cinematography,
   verify_epistemic_integrity,
 } from "./modules/entities/index.js";
 
@@ -73,7 +66,7 @@ import {
   resolve_character_action_directive,
   resolve_scene_action_directive,
 } from "./modules/task.js";
-import { OUTPUT_FORMATS, get_output_format, get_optics_schema } from "./modules/format.js";
+import { get_output_format } from "./modules/format.js";
 import { render_available_keywords_xml, render_dynamics_xml, render_subtext_xml, render_dynamics_axes_xml } from "./physics.js";
 import { temporal_engine, resolve_vector_pool } from "./temporal.js";
 import { normalize_image_tier } from "../media/image-tiers.js";
@@ -214,7 +207,7 @@ export function render_director({
   const active_messages = raw_messages.length > 0 ? raw_messages : simulation_log;
   const accessors = render_accessors || render_builder.create_render_accessors(scene_entities, input, active_messages);
   const config = get_prompt("director");
-  const schema = get_output_format(config.format || config.task?.schema, OUTPUT_FORMATS.DIRECTOR);
+  const schema = get_output_format(config.format || config.task?.schema);
   const full_protocols = render_protocols(config.protocols);
   const active_style_keywords = get_style_keywords(resolve_active_style_key());
 
@@ -241,7 +234,6 @@ export function render_director({
       role_line,
       wrap_tag("CORE_PROTOCOLS", full_protocols, 4),
       render_dynamics_xml(),
-      render_narrative_style_xml(),
       keyword_directives_xml,
       entity_sheets,
       config.entities.present_entities ? render_present_entities_xml({ entities: scene_entities, npc_entities, in_scene_ids }) : null,
@@ -615,8 +607,7 @@ export function render_enhancement({
 }) {
   const config = get_prompt("enhancement");
   const macro_directive = !is_image_field ? resolve_macro_directive(entity_type) : "";
-  const output_rules =
-    is_array_field || field_id.endsWith(".physical") || is_image_field ? "" : get_output_format(config.format, OUTPUT_FORMATS.PROSE);
+  const output_rules = is_array_field || field_id.endsWith(".physical") || is_image_field ? "" : get_output_format(config.format);
 
   const task_xml = render_task({
     mode: "enhancement",
@@ -749,18 +740,35 @@ export function render_optics_prompt(target_type_or_intent, raw_intent_or_option
   const style_definition = VISUAL_STYLES[style_key] || VISUAL_STYLES.none;
   const engine_tokens = resolve_visual_engine_tokens(style_key);
 
-  const protocol_content = build_optics_builder_protocol(style_definition, engine_tokens, combined_input_text);
-  const protocols_xml = wrap_tag(
-    "CORE_PROTOCOLS",
-    indent_continuation(
-      is_selfie
-        ? `${protocol_content}\n\nPHASE 6: SELFIE MODE EXTENSION\n- Generate a short, in-character social media caption inside "caption".`
-        : protocol_content,
-      4,
-    ).trim(),
-    2,
-  );
+  const keywords_raw = style_definition.keywords || style_definition.tags || [];
+  const keyword_list = Array.isArray(keywords_raw)
+    ? keywords_raw
+    : typeof keywords_raw === "string"
+      ? keywords_raw.split(",").map((s) => s.trim())
+      : [];
+  const valid_keywords = keyword_list.filter(Boolean);
 
+  const config = get_prompt("optics");
+
+  // Layer 3: Core Protocols (<CORE_PROTOCOLS>)
+  const protocols_xml = render_optics_protocols({
+    style: style_definition,
+    engine_tokens,
+    protocols: config.protocols,
+  });
+
+  // Cinematography Resolution (Layer 6 Spatial Framing)
+  const cinematography = resolve_optics_cinematography({
+    tier,
+    solo_subject,
+    active_ai_character,
+    active_user_persona,
+    active_fractal_setting,
+    main_entity,
+    visual_staging: options?.visual_staging || "",
+  });
+
+  // Layer 4: Entities Context (<ENTITIES>)
   const entities_xml = render_optics_entities_xml({
     tier,
     solo_subject,
@@ -770,20 +778,28 @@ export function render_optics_prompt(target_type_or_intent, raw_intent_or_option
     main_entity,
     macro_entities,
     roll,
-    visual_staging: options?.visual_staging || "",
+    has_alternation: has_alternations(combined_input_text),
   });
 
+  // Layer 5: Sensory History (<CONVERSATION_HISTORY>)
   const history_xml = format_sensory_history(history);
 
-  const resolved_negative_prompt = engine_tokens.negative_prompt || NEGATIVE_PROMPT;
-  const schema = get_optics_schema({ variant: is_selfie ? "selfie" : variant, negative_prompt: resolved_negative_prompt });
+  // Layer 7: Output Schema Format (<OUTPUT_FORMAT>)
+  const resolved_negative_prompt = engine_tokens.negative_prompt || "";
+  const schema = get_output_format(config.format, { variant: is_selfie ? "selfie" : variant, negative_prompt: resolved_negative_prompt });
 
   const rolled_intent = detox_prose(roll(raw_intent || ""));
 
+  // Layer 6: Universal Task (<TASK>)
   const task_xml = render_task({
     mode: "optics",
     target_tier: tier,
     input_intent: rolled_intent,
+    think_format: config.task?.think_format || "optics",
+    cinematography,
+    engine_tokens,
+    keywords: valid_keywords,
+    is_selfie,
     schema,
   });
 
@@ -839,7 +855,7 @@ export function compile_pipeline_prompt(mode_key, context = {}) {
     }
 
     case "director_terse": {
-      const schema = context.schema || get_output_format(config.format, OUTPUT_FORMATS.DIRECTOR);
+      const schema = context.schema || get_output_format(config.format);
       const task = render_task({ mode: "director", terse: true, schema });
       const system = render_system_xml({
         mode: "director",
@@ -869,6 +885,11 @@ export function compile_pipeline_prompt(mode_key, context = {}) {
     }
 
     case "sorting": {
+      // NOTE: Layer-Order Design Intent:
+      // Mode "sorting" (NARRATIVE_STRUCTURER) encapsulates the structural profile rules and schema
+      // within <SYSTEM>, while injecting the raw profile text to be sorted via messages (which the
+      // transport layer serializes into <HISTORY> appended after <TASK>). This ensures the model reads
+      // the extraction rules, POV, and JSON schema directive before consuming the unstructured raw text.
       const system = render_profile_sorting(context.entity_type, context.options);
       return {
         system: clean_prompt_text(system),
@@ -885,21 +906,76 @@ export function compile_pipeline_prompt(mode_key, context = {}) {
     case "optics": {
       const is_selfie = context.is_selfie || context.variant === "selfie";
       const tier = normalize_image_tier(context.target_type || context.tier || "solo_entity");
-      const schema = get_optics_schema({ variant: is_selfie ? "selfie" : context.variant });
+      const rolled_intent = detox_prose(context.prompt_context || context.raw_intent || context.input || "");
+      const active_fractal = context.fractal || context.active_fractal_setting;
+      const solo_subject = context.entity || context.main_entity || context.solo_subject;
+      const style_key = tier === "solo_entity" ? resolve_portrait_visual_style_key(solo_subject) : resolve_story_visual_style_key(active_fractal);
+      const style_definition = VISUAL_STYLES[style_key] || VISUAL_STYLES.none;
+      const engine_tokens = resolve_visual_engine_tokens(style_key);
+      const keywords_raw = style_definition.keywords || style_definition.tags || [];
+      const keyword_list = Array.isArray(keywords_raw)
+        ? keywords_raw
+        : typeof keywords_raw === "string"
+          ? keywords_raw.split(",").map((s) => s.trim())
+          : [];
+      const valid_keywords = keyword_list.filter(Boolean);
+
+      const protocols_xml = render_optics_protocols({
+        style: style_definition,
+        engine_tokens,
+        protocols: config.protocols,
+      });
+
+      const cinematography = resolve_optics_cinematography({
+        tier,
+        solo_subject,
+        active_ai_character: context.active_ai_character || context.ai,
+        active_user_persona: context.active_user_persona || context.user,
+        active_fractal_setting: active_fractal,
+        main_entity: solo_subject,
+        visual_staging: context.visual_staging || "",
+      });
+
+      const entities_xml = render_optics_entities_xml({
+        tier,
+        solo_subject,
+        active_ai_character: context.active_ai_character || context.ai,
+        active_user_persona: context.active_user_persona || context.user,
+        active_fractal_setting: active_fractal,
+        main_entity: solo_subject,
+        macro_entities: {
+          AI: context.active_ai_character || context.ai,
+          USER: context.active_user_persona || context.user,
+          FRACTAL: active_fractal,
+        },
+        has_alternation: has_alternations(rolled_intent),
+      });
+
+      const history_xml = format_sensory_history(context.history || []);
+
+      const resolved_negative_prompt = engine_tokens.negative_prompt || "";
+      const schema = get_output_format(config.format, { variant: is_selfie ? "selfie" : context.variant, negative_prompt: resolved_negative_prompt });
+
       const task = render_task({
         mode: "optics",
         target_tier: tier,
-        input_intent: context.prompt_context || context.raw_intent || context.input || "",
+        input_intent: rolled_intent,
+        think_format: config.task?.think_format || "optics",
+        cinematography,
+        engine_tokens,
+        keywords: valid_keywords,
+        is_selfie,
         schema,
         directives: context.directives || [],
       });
-      const full_protocols = render_protocols(config.protocols);
+
       const system = render_system_xml({
         mode: "optics",
         attributes: { role: "SENSORY_CORTEX" },
-        children: [wrap_tag("CORE_PROTOCOLS", indent_continuation(full_protocols, 4).trim(), 2), context.entity_context || null],
-        closed: true,
+        children: [protocols_xml, entities_xml, history_xml ? history_xml.trim() : null],
+        closed: false,
       });
+
       return pack_prompt({ system, task });
     }
 
@@ -1260,6 +1336,7 @@ if (typeof window !== "undefined") {
 
 /**
  * CHANGELOG
+ * - 2026-09-18: Consolidated Optics keyword directives through render_keyword_directives_xml(..., "OPTICS") supplied to build_optics_builder_protocol.
  * - 2026-09-18: Promoted prompts.js as sovereign prompt switchboard; streamlined builder.js assembly line and unified story prose compilation facades.
  * - 2026-09-18: Absorbed render_optics_prompt, render_visual_enhancement, and prompt_templates from deconstructed optics.js, coordinating visual prompt synthesis through modules per scrobbles.md blueprint.
  * - 2026-09-18: Standardized <PROTOCOLS> to <CORE_PROTOCOLS> across Director, Continuum, Enhancement, Sorting, and Optics; ordered <CORE_PROTOCOLS> before entities and moved <TASK> to bottom in enhancement and profile sorting per scrobbles.md blueprint.

@@ -7,7 +7,8 @@ import { describe, expect, it, vi } from "vitest";
 import { apply_profile_to_entity } from "./profile.js";
 import { render_enhancement, render_profile_sorting } from "./builder.js";
 import { TASK_LIBRARY } from "./modules/task.js";
-import { OUTPUT_FORMATS } from "./modules/format.js";
+import { PROSE_FORMAT, get_output_format } from "./modules/format.js";
+import { PROMPTS } from "./prompts.js";
 import { MACRO_DIRECTIVES } from "@utils";
 
 // ── 1. Protocols & Schema Specifications ──────────────────────────────────────
@@ -17,18 +18,19 @@ describe("Profile Domain (profile.js)", () => {
     it("are frozen and expose a valid schema and formats", () => {
       expect(Object.isFrozen(MACRO_DIRECTIVES)).toBe(true);
       expect(Object.isFrozen(TASK_LIBRARY.SORTING)).toBe(true);
-      expect(Object.isFrozen(OUTPUT_FORMATS)).toBe(true);
+      expect(Object.isFrozen(PROMPTS.sorting.format)).toBe(true);
 
-      expect(OUTPUT_FORMATS.PROFILE).toContain('"name"');
-      expect(OUTPUT_FORMATS.PROFILE).toContain('"eternal"');
-      expect(OUTPUT_FORMATS.PROFILE).toContain('"present"');
-      expect(OUTPUT_FORMATS.PROFILE).toContain('"past"');
-      expect(OUTPUT_FORMATS.PROFILE).toContain('"future"');
+      const profile_schema = get_output_format(PROMPTS.sorting.format, { resolved_type: "character" });
+      expect(profile_schema).toContain('"name"');
+      expect(profile_schema).toContain('"eternal"');
+      expect(profile_schema).toContain('"present"');
+      expect(profile_schema).toContain('"past"');
+      expect(profile_schema).toContain('"future"');
 
-      expect(OUTPUT_FORMATS.PROSE).toBeDefined();
-      expect(OUTPUT_FORMATS.DIRECTOR).toBeDefined();
-      expect(OUTPUT_FORMATS.PROFILE).toBeDefined();
-      expect(OUTPUT_FORMATS.CONTINUUM).toBeDefined();
+      expect(PROSE_FORMAT).toBeDefined();
+      expect(get_output_format(PROMPTS.director.format)).toBeDefined();
+      expect(profile_schema).toBeDefined();
+      expect(get_output_format(PROMPTS.continuum.format)).toBeDefined();
     });
   });
 

@@ -55,7 +55,7 @@ export { IMAGE_TIERS, DEFAULT_IMAGE_TIER, normalize_image_tier, get_resolution, 
 // Visual Aesthetics & Prompt Compilers
 // ============================================================================
 
-export { NEGATIVE_PROMPT, prompt_templates } from "../intelligence/index.js";
+export { prompt_templates } from "../intelligence/index.js";
 export { parse_llm_image_prompt_response, clean_image_prompt } from "../intelligence/parser.js";
 
 export {

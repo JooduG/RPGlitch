@@ -512,7 +512,7 @@ export async function execute_director_shot(payload, snapshot, options = {}) {
 
 /**
  * CHANGELOG
- * - 2026-09-18: Routed execute_director_shot directly through switchboard `compile_prompt("director")` and `compile_prompt("director_terse")`, pruning prompt_builder import.
+ * - 2026-09-18: Routed Director shot execution through prompt_builder.build_director and switchboard compile_prompt("director_terse").
  * - 2026-09-16: Zero Backwards Compatibility (P4) — Migrated terse retry call from deprecated render_terse_director_task to prompt_builder.build_terse_director_task().
  * - 2026-09-13: Encapsulated Shot 1 execution: implemented execute_director_shot in director.js, absorbing LLM dispatch, refusal recovery, and terse fallback from story.js.
  * - 2026-09-11: Grand Purification: prompt compilation moved to builder.js, DIRECTOR_PROTOCOLS moved to modules/protocols.js, leaving director.js a 100% pure execution & normalization engine.

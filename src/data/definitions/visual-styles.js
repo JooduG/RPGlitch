@@ -38,7 +38,7 @@ import { state_bridge, resolve_style } from "@utils";
  * @property {string} portrait - Preview thumbnail asset path
  * @property {string} description - Detailed aesthetic summary for tooltips
  * @property {string[]} keywords - Visual descriptor keywords injected into generation
- * @property {string} visual_engine - Injected XML prompt block
+ * @property {VisualStyleEngine} [engine] - Structured prompt component tokens
  * @property {string} negative_prompt - Style-differentiating negative prompt
  * @property {boolean} [llm_refine] - When false, story tiers using this style skip LLM
  *   prompt refinement and use deterministic flattening (for raw/unmodified styles).
@@ -54,7 +54,7 @@ import { state_bridge, resolve_style } from "@utils";
 
 /**
  * Factory creating a compiled, fully validated VisualStyle record.
- * Automatically formats `engine` into standard XML <VISUAL_ENGINE> format with uppercase tags.
+ * Attaches structured `engine` directly to the record without intermediate stringification.
  *
  * @param {Object} definition - Declarative visual style definition configuration
  * @param {string} definition.id - Unique identifier
@@ -69,15 +69,6 @@ import { state_bridge, resolve_style } from "@utils";
  * @returns {VisualStyle}
  */
 function define_visual_style(definition) {
-  const visual_engine = definition.engine
-    ? `<VISUAL_ENGINE>
-<MEDIUM>${definition.engine.medium}</MEDIUM>
-<PALETTE>${definition.engine.palette}</PALETTE>
-${definition.engine.camera ? `<CAMERA>${definition.engine.camera}</CAMERA>` : `<COMPOSITION>${definition.engine.composition}</COMPOSITION>`}
-<TEXTURE>${definition.engine.texture}</TEXTURE>
-</VISUAL_ENGINE>`
-    : "";
-
   return {
     id: definition.id,
     name: definition.name,
@@ -86,7 +77,7 @@ ${definition.engine.camera ? `<CAMERA>${definition.engine.camera}</CAMERA>` : `<
     keywords: definition.keywords,
     llm_refine: definition.llm_refine ?? true,
     ...(definition.guidance_scale !== undefined ? { guidance_scale: definition.guidance_scale } : {}),
-    visual_engine,
+    engine: definition.engine,
     negative_prompt: definition.negative_prompt || "",
   };
 }
@@ -101,9 +92,10 @@ const _VISUAL_STYLES = {
     id: "none",
     name: "No Visual Style",
     portrait: "https://user.uploads.dev/file/f968b744a4afde6ab81c0e751dc5e972.png",
-    description: "Raw prompt generation without any visual style tokens or negative prompts injected.",
+    description: "Raw prompt generation without visual style engine tokens, enforcing baseline quality guards.",
     keywords: ["none", "raw", "unmodified"],
     llm_refine: false,
+    negative_prompt: "blurry, low resolution, compressed artifacts, watermark, bad anatomy, distorted features",
   }),
 
   // ---------------------------------------------------------------------------------------------
