@@ -84,9 +84,9 @@ describe("Director Quick Shot Prompt (render_director)", () => {
 
   it("exposes <AVAILABLE_KEYWORDS> and JSON schema keys", () => {
     const result = render_director({ ...base_payload(), compressed_snapshot: base_snapshot });
-    expect(result.system).toContain("<AVAILABLE_KEYWORDS>");
-    expect(result.system).toContain("SHAME");
-    expect(result.system).toContain("BETRAYAL");
+    expect(result.task).toContain("<AVAILABLE_KEYWORDS>");
+    expect(result.task).toContain("SHAME");
+    expect(result.task).toContain("BETRAYAL");
     expect(result.task).toContain('"next_action"');
     expect(result.task).toContain('"keywords"');
     expect(result.task).toContain('"directors_note"');
@@ -440,6 +440,7 @@ describe("execute_director_shot", () => {
 
 /**
  * CHANGELOG
+ * - 2026-09-21: Keyword directives now live in the Director <TASK> envelope (single source of truth for directive prose) — the <AVAILABLE_KEYWORDS> assertions target `result.task`; the <INPUT_NOTE> environmental nudge remains in `result.task` inside <DIRECTIVES>.
  * - 2026-09-19: Opening-turn first-contact is now an explicit `director_data.first_contact` flag (no longer smuggled as a "first_contact" keyword, which polluted the somatic keyword channel and truncated a real keyword); test added.
  * - 2026-09-13: Added execute_director_shot integration unit tests covering clean parse, terse recovery, and fallback synthesis.
  * - 2026-09-11: Consolidated prompt and orchestration unit tests into director.test.js.

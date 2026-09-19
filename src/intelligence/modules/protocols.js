@@ -118,8 +118,12 @@ export function render_alternation_protocol(text = "") {
  * @param {Object} [entity]
  * @returns {string}
  */
-export function resolve_pov_protocol(entity) {
-  const pov = entity?.pov || (entity?.type === "fractal" ? "3rd_person" : "1st_person");
+export function resolve_pov_protocol(source) {
+  if (typeof source === "string") {
+    const pov_name = source.toUpperCase();
+    return pov_name === "FIRST" || pov_name === "THIRD" || pov_name === "NARRATOR" ? `CORE_PROTOCOLS.PERSPECTIVE.POV.${pov_name}` : null;
+  }
+  const pov = source?.pov || (source?.type === "fractal" ? "3rd_person" : "1st_person");
   return pov === "3rd_person" ? "CORE_PROTOCOLS.PERSPECTIVE.POV.THIRD" : "CORE_PROTOCOLS.PERSPECTIVE.POV.FIRST";
 }
 
@@ -211,12 +215,11 @@ export function render_core_protocols({
 
   const should_include = (key) => protocol_list.length === 0 || protocol_list.some((protocol_item) => protocol_item.includes(key));
 
-  const resolved_pov_protocol =
-    pov_protocol || protocol_list.find((protocol_item) => protocol_item.includes("POV.")) || "CORE_PROTOCOLS.PERSPECTIVE.POV.FIRST";
+  const resolved_pov_protocol = pov_protocol || null;
 
-  const pov_key = String(resolved_pov_protocol).split(".").pop() || "FIRST";
+  const pov_key = resolved_pov_protocol ? String(resolved_pov_protocol).split(".").pop() : null;
   const perspective = PROTOCOL_LIBRARY.CORE_PROTOCOLS.PERSPECTIVE;
-  const pov = perspective.POV[pov_key] || perspective.POV.FIRST;
+  const pov = pov_key ? perspective.POV[pov_key] || "" : "";
   const person = pov_key === "FIRST" ? "FIRST" : "THIRD";
   const core = PROTOCOL_LIBRARY.CORE_PROTOCOLS;
 
@@ -240,11 +243,11 @@ export function render_core_protocols({
     should_include("SIMULATION_FIDELITY")
       ? render_xml_tag({ tag: "SIMULATION_FIDELITY", children: [core.SIMULATION_FIDELITY], child_indent: 2 })
       : null,
-    should_include("PERSPECTIVE")
+    resolved_pov_protocol
       ? render_xml_tag({
           tag: "PERSPECTIVE",
           attrs: { person, tense: "PRESENT" },
-          children: [`${prompt_escape(pov)}`, `${perspective.TENSE.PRESENT}`],
+          children: [prompt_escape(pov), ...(should_include("TENSE.PRESENT") ? [perspective.TENSE.PRESENT] : [])],
           child_indent: 2,
           separator: "\n",
         })
@@ -274,6 +277,7 @@ export function render_core_protocols({
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-21: POV single-source — `render_core_protocols` now emits `<PERSPECTIVE>` only when a `pov_protocol` is supplied, and `resolve_pov_protocol` accepts either an entity or a bare key string ("FIRST"/"THIRD"/"NARRATOR"); POV is no longer declared in the prose/data manifest protocol lists.
  * - 2026-09-20: Metasyntax ban — the NARRATOR POV line references the setting as «FRACTAL» instead of a raw `<FRACTAL>` tag.
  * - 2026-09-19: Inlined AFFIRMATIVE_FRAMING as a single PROTOCOL_LIBRARY.OPTICS entry (dropped the module-private shared const and the dead HYGIENE alias); the builder.test.js regression gate is retargeted to OPTICS.
  * - 2026-09-19: Deduplicated AFFIRMATIVE_FRAMING constant between HYGIENE and OPTICS in PROTOCOL_LIBRARY (Mega Report D2).

@@ -4,10 +4,10 @@
  * 🎭 PROMPTS MANIFEST — Master Module-Keyed Switchboard
  * ============================================================================
  *
- * Sovereign switchboard declaring the 7-layer blueprint for all simulation prompts.
+ * Sovereign switchboard declaring the 7-layer blueprint for all 9 simulation prompt modes.
  *
  * ── Multi-Shot Simulation Cycle ─────────────────────────────────────────────
- * • Shot 1  (Quick Shot) : director    — Turn staging & mechanical state
+ * • Shot 1  (Quick Shot) : director    — Turn staging & mechanical state (+ terse fallback)
  * • Shot 2A (Prose Shot) : interaction — AI character voice (canonical)
  *                        : ghostwrite  — User persona turn drafter
  *                        : npc         — Supporting stage character
@@ -17,6 +17,7 @@
  * ── Auxiliary Tooling ───────────────────────────────────────────────────────
  * • Tool A (Magic Wand)  : enhancement — Single profile field expansion
  * • Tool B (Structurer)  : sorting     — Raw ingestion structuring
+ * • Sensory Cortex       : optics      — Image prompt synthesis
  *
  * ── The 7-Layer Universal Pipeline ──────────────────────────────────────────
  * 1. system       : Root <SYSTEM> envelope mode & SYSTEM_ROLES factory key
@@ -60,7 +61,7 @@ const DEFAULT_ENTITIES_CONFIG = Object.freeze({
 });
 
 /**
- * Shared Director JSON schema for `director` and its `director_terse` fallback.
+ * Director JSON schema for the `director` mode (and its `terse` refusal-recovery fallback).
  * @type {ReadonlyArray<string>}
  */
 const DIRECTOR_SCHEMA = Object.freeze([
@@ -75,16 +76,16 @@ const DIRECTOR_SCHEMA = Object.freeze([
 
 /**
  * Composes the Shot-2A prose protocol bundle shared by the interaction/ghostwrite/npc/narrator
- * sibling modes: fidelity → POV → tense → prose discipline → (optional dialogue) → alternation.
+ * sibling modes: fidelity → tense → prose discipline → (optional dialogue) → alternation.
+ * POV is intentionally NOT declared here — perspective is resolved by the single
+ * `resolve_pov_protocol` resolver (entity profile or the mode's `system.pov` override).
  *
- * @param {"FIRST"|"THIRD"|"NARRATOR"} pov_key
  * @param {{ include_dialogue?: boolean }} [options={}]
  * @returns {string[]}
  */
-function prose_protocols(pov_key, { include_dialogue = false } = {}) {
+function prose_protocols({ include_dialogue = false } = {}) {
   return [
     "CORE_PROTOCOLS.SIMULATION_FIDELITY",
-    `CORE_PROTOCOLS.PERSPECTIVE.POV.${pov_key}`,
     "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PRESENT",
     "CORE_PROTOCOLS.PROSE_DISCIPLINE.TYPOGRAPHY",
     "CORE_PROTOCOLS.PROSE_DISCIPLINE.PHYSICALITY",
@@ -144,22 +145,11 @@ export const PROMPTS = Object.freeze({
     format: { mode: "json", schema: DIRECTOR_SCHEMA },
   }),
 
-  director_terse: define_mode("director_terse", {
-    system: { mode: "director", role: "DIRECTOR" },
-    constitution: false,
-    protocols: [],
-    entities: {
-      dispositions: [],
-      dynamic_axes: [],
-    },
-    format: { mode: "json", schema: DIRECTOR_SCHEMA },
-  }),
-
   // ── Shot 2A: Prose Shots (Canonical Narrative Voice) ────────────────────────
 
   interaction: define_mode("interaction", {
     system: "INTERACTION",
-    protocols: prose_protocols("FIRST", { include_dialogue: true }),
+    protocols: prose_protocols({ include_dialogue: true }),
     entities: {
       dispositions: ["AI", "FRACTAL"],
       dynamic_axes: ["AI", "FRACTAL"],
@@ -170,7 +160,7 @@ export const PROMPTS = Object.freeze({
 
   ghostwrite: define_mode("ghostwrite", {
     system: { mode: "ghostwrite", role: "INTERACTION" },
-    protocols: prose_protocols("FIRST", { include_dialogue: true }),
+    protocols: prose_protocols({ include_dialogue: true }),
     entities: {
       dispositions: ["AI", "FRACTAL"],
       dynamic_axes: ["AI", "FRACTAL"],
@@ -181,7 +171,7 @@ export const PROMPTS = Object.freeze({
 
   npc: define_mode("npc", {
     system: "NPC",
-    protocols: prose_protocols("THIRD", { include_dialogue: true }),
+    protocols: prose_protocols({ include_dialogue: true }),
     entities: {
       dispositions: ["FRACTAL", "NPC"],
       dynamic_axes: ["NPC", "FRACTAL"],
@@ -191,8 +181,8 @@ export const PROMPTS = Object.freeze({
   }),
 
   narrator: define_mode("narrator", {
-    system: "NARRATOR",
-    protocols: prose_protocols("NARRATOR"),
+    system: { mode: "narrator", role: "NARRATOR", pov: "NARRATOR" },
+    protocols: prose_protocols(),
     entities: {
       dispositions: ["AI", "USER", "FRACTAL", "NPC"],
       dynamic_axes: ["FRACTAL"],
@@ -207,7 +197,7 @@ export const PROMPTS = Object.freeze({
   continuum: define_mode("continuum", {
     system: "CONTINUUM_CARETAKER",
     constitution: false,
-    protocols: ["HYGIENE.DATA", "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PRESENT"],
+    protocols: ["HYGIENE.DATA"],
     entities: {
       target_context: true,
       nearby_entities: true,
@@ -233,7 +223,7 @@ export const PROMPTS = Object.freeze({
   sorting: define_mode("sorting", {
     system: "NARRATIVE_STRUCTURER",
     constitution: false,
-    protocols: ["HYGIENE.DATA", "CORE_PROTOCOLS.PERSPECTIVE.POV.THIRD"],
+    protocols: ["HYGIENE.DATA"],
     format: {
       mode: "json",
       schema: ["name", "description", "signature_color", "eternal", "present", "past", "future"],
@@ -288,6 +278,7 @@ export default PROMPTS;
 
 /**
  * CHANGELOG
+ * - 2026-09-21: Standardization pass — retired the `director_terse` mode (now `compile_prompt("director", { terse: true })`), so the registry declares 9 modes; `prose_protocols({ include_dialogue })` no longer takes a POV key (resolved by `resolve_pov_protocol`), the continuum/sorting protocol lists dropped POV/TENSE, and the narrator declares `system.pov = "NARRATOR"` for the single POV resolver.
  * - 2026-09-19: Collapsed the facade chain (P7) — `compile_prompt` now calls `assemble_prompt(get_prompt(mode_key), context)` directly; the intermediate `compile_pipeline_prompt` facade was retired. `compile_prompt` remains the single public entry point.
  * - 2026-09-19: Table-driven assembler (P4) — `define_mode` now stamps each record with its canonical `key`, which `assemble_prompt` uses to select a `MODE_ADAPTERS` entry (needed because `director_terse` shares `system.mode = "director"`).
  * - 2026-09-19: Manifest DRY (P3) — the four Shot-2A prose modes now compose their protocol lists from one `prose_protocols(pov, { include_dialogue })` bundle, and `director`/`director_terse` share the `DIRECTOR_SCHEMA` constant (no duplicated key lists).

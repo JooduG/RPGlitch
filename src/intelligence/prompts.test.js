@@ -90,18 +90,7 @@ function assert_fused_shape(result, mode) {
 }
 
 const REQUIRED_MODULE_KEYS = ["system", "constitution", "protocols", "entities", "format", "task"];
-const EXPECTED_PROMPT_KEYS = [
-  "continuum",
-  "director",
-  "director_terse",
-  "enhancement",
-  "ghostwrite",
-  "interaction",
-  "narrator",
-  "npc",
-  "optics",
-  "sorting",
-];
+const EXPECTED_PROMPT_KEYS = ["continuum", "director", "enhancement", "ghostwrite", "interaction", "narrator", "npc", "optics", "sorting"];
 
 describe("prompt-modes registry", () => {
   it("defines all 6 module keys (system, constitution, protocols, entities, format, task) for every mode", () => {
@@ -118,7 +107,7 @@ describe("prompt-modes registry", () => {
     }
   });
 
-  it("declares all 10 canonical simulation prompt keys", () => {
+  it("declares all 9 canonical simulation prompt keys", () => {
     expect(Object.keys(prompt_modes).sort()).toEqual(EXPECTED_PROMPT_KEYS.sort());
   });
 
@@ -133,7 +122,7 @@ describe("prompt-modes registry", () => {
 
   it("declares the history layer only for continuum (its sole consumer)", () => {
     expect(prompt_modes.continuum.history).toEqual({ limit: 16 });
-    for (const mode_key of ["director", "director_terse", "interaction", "ghostwrite", "npc", "narrator", "enhancement", "sorting", "optics"]) {
+    for (const mode_key of ["director", "interaction", "ghostwrite", "npc", "narrator", "enhancement", "sorting", "optics"]) {
       expect(prompt_modes[mode_key].history).toBeNull();
     }
   });
@@ -158,20 +147,23 @@ describe("prompt-modes registry", () => {
       "CORE_PROTOCOLS.PROSE_DISCIPLINE.ANTI_TROPES",
       "CORE_PROTOCOLS.PROSE_DISCIPLINE.BANNED_CLICHES",
     ];
-    const compose = (pov, natural) => [
+    const compose = (natural) => [
       "CORE_PROTOCOLS.SIMULATION_FIDELITY",
-      pov,
       "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PRESENT",
       ...discipline,
       ...(natural ? ["CORE_PROTOCOLS.PROSE_DISCIPLINE.NATURAL_DIALOGUE"] : []),
       "CORE_PROTOCOLS.ALTERNATION_OPTIONS",
     ];
 
-    expect(prompt_modes.interaction.protocols).toEqual(compose("CORE_PROTOCOLS.PERSPECTIVE.POV.FIRST", true));
-    expect(prompt_modes.ghostwrite.protocols).toEqual(compose("CORE_PROTOCOLS.PERSPECTIVE.POV.FIRST", true));
-    expect(prompt_modes.npc.protocols).toEqual(compose("CORE_PROTOCOLS.PERSPECTIVE.POV.THIRD", true));
-    expect(prompt_modes.narrator.protocols).toEqual(compose("CORE_PROTOCOLS.PERSPECTIVE.POV.NARRATOR", false));
-    expect(prompt_modes.director.format.schema).toEqual(prompt_modes.director_terse.format.schema);
+    expect(prompt_modes.interaction.protocols).toEqual(compose(true));
+    expect(prompt_modes.ghostwrite.protocols).toEqual(compose(true));
+    expect(prompt_modes.npc.protocols).toEqual(compose(true));
+    expect(prompt_modes.narrator.protocols).toEqual(compose(false));
+
+    // POV is resolved by the single `resolve_pov_protocol` resolver — never baked into the manifest lists.
+    for (const mode_key of ["interaction", "ghostwrite", "npc", "narrator"]) {
+      expect(prompt_modes[mode_key].protocols.some((protocol) => protocol.includes(".POV."))).toBe(false);
+    }
   });
 
   it("compiles prompt packages directly through compile_prompt switchboard", () => {
@@ -369,7 +361,7 @@ describe("master switchboard compile_prompt", () => {
     // Check that PROFILE_FIELD_CATALOG attributes were successfully populated
     expect(physical_enhancement.system).toContain('role="ENHANCER"');
     expect(physical_enhancement.system).toContain("You are the BIOMETRIC_RENDERER Profile Enhancer");
-    expect(physical_enhancement.system).toContain('enhancing="Physical Appearance"');
+    expect(physical_enhancement.system).toContain('scope="Physical Appearance"');
     expect(physical_enhancement.system).toContain("<LAYER>ETERNAL</LAYER>");
     expect(physical_enhancement.task).toContain("[KEY: value] permanent biometrics");
 
@@ -382,7 +374,7 @@ describe("master switchboard compile_prompt", () => {
 
     expect(non_physical_enhancement.system).toContain('role="ENHANCER"');
     expect(non_physical_enhancement.system).toContain("You are the COGNITIVE_ARCHITECT Profile Enhancer");
-    expect(non_physical_enhancement.system).toContain('enhancing="Personality"');
+    expect(non_physical_enhancement.system).toContain('scope="Personality"');
     expect(non_physical_enhancement.system).toContain("<LAYER>ETERNAL</LAYER>");
     expect(non_physical_enhancement.task).toContain("Prose only");
   });
@@ -390,6 +382,7 @@ describe("master switchboard compile_prompt", () => {
 
 /**
  * CHANGELOG
+ * - 2026-09-21: Realigned registry assertions to the standardization pass — key count is 9 (the `director_terse` mode collapsed into `director` + `{ terse: true }`), prose protocol bundles no longer carry POV keys (resolved by `resolve_pov_protocol`), and the enhancement scope attribute is asserted as `scope=`.
  * - 2026-09-19: Table-driven assembler (P4) — asserted every manifest mode resolves through `MODE_ADAPTERS` (or the prose fallback), replacing the former switch dispatch.
  * - 2026-09-19: Manifest DRY (P3) — asserted the shared `prose_protocols` bundle reproduces the four prose protocol arrays exactly, and that `director`/`director_terse` share one schema constant.
  * - 2026-09-19: Retired inert manifest data (P2) — history is asserted only on continuum (its `resolve_history` consumer), the six prose/tooling modes carry no history layer, and `task` is asserted to expose only the live `think_format` key.

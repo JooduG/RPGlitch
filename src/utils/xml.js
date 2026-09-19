@@ -300,7 +300,7 @@ export function render_xml_tag({
     .filter((item) => item != null && String(item).trim().length > 0)
     .map((item) => String(item).trim())
     .join(separator);
-  if (child_indent != null && body) body = indent_all(body, child_indent);
+  if (child_indent != null && body && !(inline && !body.includes("\n"))) body = indent_all(body, child_indent);
   let block;
   if (!body) block = closed ? `${open}\n</${tag}>` : open;
   else if (inline && !body.includes("\n")) block = closed ? `${open}${body}</${tag}>` : `${open}${body}`;
@@ -313,6 +313,7 @@ export function render_xml_tag({
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-21: `render_xml_tag` no longer applies `child_indent` to a single-line `inline` body — inline emission now leaves `<tag>body</tag>` on one line, fixing the accidental double-space prefix on inline children.
  * - 2026-09-18: Pruned stale reference to deleted src/intelligence/optics.js from module header.
  * - 2026-09-12: `render_xml_tag` promoted to a true universal composer — `indent` now shifts the WHOLE block (open + body + close) so nested blocks can be emitted at any depth, and `inline: true` emits `<tag>body</tag>` for single-line bodies. This is the one primitive every `modules/*` compiler builds from.
  * - 2026-09-12: Added `render_xml_tag` — the universal XML block composer (attribute escaping, blank-child filtering, optional body indentation, optional open-only envelope) that every `modules/*` compiler now builds from, so tag layout lives in one place.

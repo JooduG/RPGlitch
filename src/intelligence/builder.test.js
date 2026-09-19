@@ -225,12 +225,12 @@ describe("Parameter-Aware Layer 7 Output Format Routing", () => {
 
   it("routes profile sorting schema dynamically by resolved taxonomy type", () => {
     const character_sorting = render_profile_sorting("character");
-    expect(character_sorting.task).toContain("&quot;name&quot;");
-    expect(character_sorting.task).toContain("&quot;signature_color&quot;");
+    expect(character_sorting.task).toContain('"name"');
+    expect(character_sorting.task).toContain('"signature_color"');
 
     const fractal_sorting = render_profile_sorting("fractal");
-    expect(fractal_sorting.task).toContain("&quot;name&quot;");
-    expect(fractal_sorting.task).toContain("&quot;signature_color&quot;");
+    expect(fractal_sorting.task).toContain('"name"');
+    expect(fractal_sorting.task).toContain('"signature_color"');
   });
 
   it("routes enhancement output rules via get_output_format", () => {
@@ -331,9 +331,10 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
     expect(director_package.system).toContain("<ALTERNATION_OPTIONS>");
   });
 
-  it("compiles director_terse mode via compile_prompt", () => {
-    const terse_package = compile_prompt("director_terse", {
+  it("compiles director terse fallback via compile_prompt", () => {
+    const terse_package = compile_prompt("director", {
       round: 2,
+      terse: true,
     });
 
     expect(terse_package.system).toContain("<SYSTEM");
@@ -365,7 +366,7 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
       entity: test_entities.AI,
       entity_type: "character",
     });
-    expect(enhancement_package.system).toContain('enhancing="Personality"');
+    expect(enhancement_package.system).toContain('scope="Personality"');
 
     const sorting_package = compile_prompt("sorting", {
       entity_type: "character",
@@ -446,6 +447,7 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-21: Realigned to the table-driven envelope pass — sorting schema now asserted with raw JSON quotes (OUTPUT_FORMAT derives from the one TASK state builder, so the former sorting-only XML escaping was dropped for parity with director/continuum/optics), the enhancement scope attribute renamed `enhancing=` → `scope=`, and the terse director case now compiles `director` with `{ terse: true }` (the retired `director_terse` mode collapsed).
  * - 2026-09-19: Followed the P7 facade collapse — Section 5 now drives `compile_prompt` (from prompts.js) and `render_scene_narrator`; the ghostwrite case uses `render_story_prose({ ghostwrite: true })` (the production path).
  * - 2026-09-19: Retargeted the affirmative-framing regression gate from PROTOCOL_LIBRARY.HYGIENE to PROTOCOL_LIBRARY.OPTICS (its new single source of truth).
  * - 2026-09-19: Added T1/R1 and R5 regression tests asserting Director includes <ALTERNATION_OPTIONS> when alternations exist and omits empty <CORE_PROTOCOLS>.

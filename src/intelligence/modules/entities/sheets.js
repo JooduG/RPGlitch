@@ -131,8 +131,7 @@ export function render_appearance(eternal_text, present_text, owner_entity, enti
   }
 
   if (!merged_entries.length) return "";
-  const inner_content = merged_entries.map((row_content) => `        ${row_content}`).join("\n");
-  return `      <${tag}>\n${inner_content}\n      </${tag}>`;
+  return render_xml_tag({ tag, children: [merged_entries.join("\n")], child_indent: 2 });
 }
 
 // ============================================================================
@@ -215,7 +214,7 @@ export const SHEET_SPECS = Object.freeze({
   FRACTAL: Object.freeze({
     tag: "FRACTAL",
     default_name: "the setting",
-    psychology_tag: "ATMOSPHERE",
+    psychology_tag: "ESSENCE",
     agenda_key: PROFILE_FIELD_CATALOG["fractal.future"].tag,
     personality_tag: PROFILE_FIELD_CATALOG["fractal.eternal.non_physical"].tag,
     state_tag: "STATE",
@@ -253,50 +252,42 @@ const SHEET_FIELD_RENDERERS = Object.freeze({
   agenda(specification, context, helpers) {
     if (!context.include_agenda) return "";
     const agenda_raw = context.accessors ? context.accessors.future(context.entity, { vector_text: true }) : context.entity?.future;
-    return helpers.render_sheet_field(specification.agenda_key, helpers.sanitize(agenda_raw, specification.epistemic.agenda), 8) || "";
+    return helpers.render_sheet_field(specification.agenda_key, helpers.sanitize(agenda_raw, specification.epistemic.agenda)) || "";
   },
 
   personality(specification, context, helpers) {
     const personality_raw = helpers.sanitize(context.entity.eternal?.non_physical, specification.epistemic.personality);
-    const personality_content = render_field_value(personality_raw, context.entity, context.entities);
-    return helpers.render_sheet_field(specification.personality_tag, personality_content, 10) || "";
+    return helpers.render_sheet_field(specification.personality_tag, render_field_value(personality_raw, context.entity, context.entities)) || "";
   },
 
   state(specification, context, helpers) {
     const state_raw = helpers.sanitize(context.entity.present?.non_physical, specification.epistemic.state);
     const state_content = strip_leading_key_echo(render_field_value(state_raw, context.entity, context.entities), specification.state_strip_keys);
-    return helpers.render_sheet_field(specification.state_tag, state_content, 10) || "";
+    return helpers.render_sheet_field(specification.state_tag, state_content) || "";
   },
 
   dispositions(specification, context) {
     if (!context.show_dispositions || !context.active_names || !context.name_to_id) return "";
-    return render_dispositions(context.entity, context.active_names, context.name_to_id, 6) || "";
+    return render_dispositions(context.entity, context.active_names, context.name_to_id) || "";
   },
 
   axes(specification, context) {
     if (typeof context.render_axes !== "function" || !specification.axes_scope) return "";
-    const axes_xml = context.render_axes(context.dynamics, specification.axes_scope);
-    return axes_xml ? indent_all(axes_xml, 6) : "";
+    return context.render_axes(context.dynamics, specification.axes_scope) || "";
   },
 
   physical(specification, context, helpers) {
     if (context.physical_mode === "separate") {
       const entity_kind = specification.tag === "FRACTAL" || context.entity?.type === "fractal" ? "fractal" : "character";
-      const physical_parts = [
-        {
-          tag: resolve_profile_field_tag(entity_kind, "eternal.physical", "PHYSICAL_APPEARANCE"),
-          raw: helpers.sanitize(context.entity.eternal?.physical, specification.epistemic.appearance),
-        },
-        {
-          tag: resolve_profile_field_tag(entity_kind, "present.physical", "CURRENT_LOOK"),
-          raw: helpers.sanitize(context.entity.present?.physical, specification.epistemic.appearance),
-        },
-      ];
-
       const blocks = [];
-      for (const { tag, raw } of physical_parts) {
-        const body = extract_physical_body(raw, context.entity, context.entities);
-        if (body) blocks.push(`      <${tag}>\n${indent_all(body, 8)}\n      </${tag}>`);
+      for (const [field_path, fallback_tag] of [
+        ["eternal.physical", "PHYSICAL_APPEARANCE"],
+        ["present.physical", "CURRENT_LOOK"],
+      ]) {
+        const tag = resolve_profile_field_tag(entity_kind, field_path, fallback_tag);
+        const raw_value = helpers.sanitize(resolve_entity_field_value(context.entity, field_path), specification.epistemic.appearance);
+        const body = extract_physical_body(raw_value, context.entity, context.entities);
+        if (body) blocks.push(render_xml_tag({ tag, children: [body], child_indent: 2 }));
       }
       return blocks.join("\n");
     }
@@ -320,9 +311,7 @@ const SHEET_FIELD_RENDERERS = Object.freeze({
             .filter(Boolean)
             .join("\n")
         : context.entity?.past || "";
-    const memory_content = helpers.sanitize(memory_raw, specification.epistemic.memory);
-    const memory_row = helpers.render_sheet_field(specification.memory_tag, memory_content, 8);
-    return memory_row ? `  ${memory_row}` : "";
+    return helpers.render_sheet_field(specification.memory_tag, helpers.sanitize(memory_raw, specification.epistemic.memory)) || "";
   },
 });
 
@@ -334,6 +323,9 @@ const SHEET_FIELD_RENDERERS = Object.freeze({
  * `show_dispositions`). Supports both "combined" physical synthesis
  * (<APPEARANCE> / <TOPOGRAPHY>) and "separate" physical unboxing
  * (<PHYSICAL_APPEARANCE> / <CURRENT_LOOK>).
+ *
+ * Every element is emitted through `render_xml_tag` at a uniform two-space step,
+ * so the whole sheet tree is indent-consistent.
  *
  * @param {Object} specification - An entry from SHEET_SPECS.
  * @param {Object} context
@@ -367,26 +359,28 @@ export function render_sheet(specification, context) {
     if (!policy || policy === EPISTEMIC_POLICY.NONE) return value;
     return strip_epistemic_secrets(value, policy === EPISTEMIC_POLICY.OWNER ? Boolean(view.is_owner) : false);
   };
-  const render_sheet_field = (tag, content, indent = 8) => {
-    const text = String(content || "").trim();
-    return text ? `        <${tag}>${inline_or_block(text, indent)}</${tag}>` : null;
+  const render_sheet_field = (tag, content) => {
+    const text = String(content ?? "").trim();
+    return text ? render_xml_tag({ tag, children: [text], inline: true, child_indent: 2 }) : null;
   };
   const helpers = { sanitize, render_sheet_field };
 
-  const id_attribute = view.entity.id ? ` id="${escape_xml(String(view.entity.id))}"` : "";
-  const rows = [`    <${specification.tag}${id_attribute} name="${escape_xml(view.entity.name || specification.default_name)}">`];
-
+  const section_blocks = [];
   for (const section of SHEET_SECTIONS) {
-    if (section.wrapper) rows.push(`      <${specification[section.wrapper]}>`);
-    for (const field_name of section.fields) {
-      const row = SHEET_FIELD_RENDERERS[field_name](specification, view, helpers);
-      if (row) rows.push(row);
+    const field_blocks = section.fields.map((field_name) => SHEET_FIELD_RENDERERS[field_name](specification, view, helpers)).filter(Boolean);
+    if (!field_blocks.length) continue;
+    if (section.wrapper) {
+      section_blocks.push(render_xml_tag({ tag: specification[section.wrapper], children: field_blocks, child_indent: 2, separator: "\n" }));
+    } else {
+      section_blocks.push(field_blocks.join("\n"));
     }
-    if (section.wrapper) rows.push(`      </${specification[section.wrapper]}>`);
   }
 
-  rows.push(`    </${specification.tag}>`);
-  return rows.join("\n");
+  const attrs = {
+    ...(view.entity.id ? { id: String(view.entity.id) } : {}),
+    name: view.entity.name || specification.default_name,
+  };
+  return render_xml_tag({ tag: specification.tag, attrs, children: section_blocks, child_indent: 2, separator: "\n" });
 }
 
 // ============================================================================
@@ -566,7 +560,7 @@ export function render_entity_sheets({
 
   if (entity_plan.nearby_entities) {
     const nearby_candidates = (npc_entities || []).filter((npc) => (in_scene_ids || []).includes(npc?.id) && !rendered_npc_ids.has(String(npc?.id)));
-    const nearby_xml = render_nearby_entities_xml(nearby_candidates, { indent: 4 });
+    const nearby_xml = render_nearby_entities_xml(nearby_candidates, { indent: 0 });
     if (nearby_xml) parts.push(nearby_xml);
   }
 
@@ -735,7 +729,7 @@ export function render_optics_entities_xml({
       blocks.push(
         physical_to_xml(
           roll(strip_visual_excluded(parse_macros(String(entity_instance.present.physical).trim(), entity_instance, macro_entities))),
-          "CURRENT_IMPRESSION",
+          "CURRENT_LOOK",
         ),
       );
     }
@@ -832,6 +826,7 @@ ${axes}
 /**
  * CHANGELOG
  * ============================================================================
+ * - 2026-09-21: Tag nomenclature pass — the fractal psychology wrapper is now `ESSENCE` (was the ambiguous `ATMOSPHERE`, which collided with the physical `<ATMOSPHERE>` weather key) and the optics present-look wrapper is `CURRENT_LOOK` (was `CURRENT_IMPRESSION`); sheet field indentation now composes through nested `render_xml_tag` calls for uniform 2-space steps.
  * - 2026-09-20: Sheet-grammar unification — `SHEET_SPECS` is now pure vocabulary (tags, section name, axis scope, physical mode, `epistemic`) walked by one shared `SHEET_SECTIONS` sequence + `SHEET_FIELD_RENDERERS` catalog; named `EPISTEMIC_POLICY` constants and `EPISTEMIC_ALWAYS` / `EPISTEMIC_OWNER_STATE` bundles replace the duplicated visibility literals, and `render_sheet` resolves every field through one projection. Intentional grammatical differences (PSYCHOLOGY/ATMOSPHERE, APPEARANCE/TOPOGRAPHY, combined vs separate physical) remain declared per-kind data. Also «SHIRT»/«JACKET» metasyntax in `render_optics_subject_rules`.
  * - 2026-09-19: Added `resolve_entities(config, context)` as the single resolver for every `config.entities` gate plus the available-entity maps and NPC render list; `render_entity_sheets` now consumes that plan instead of reading `.entities` directly.
  * - 2026-09-19: Layer boundary purification: Replaced `@media` import of `strip_visual_excluded` with sibling import from `./epistemic.js`, restoring unidirectional downward layer flow.

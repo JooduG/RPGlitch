@@ -94,12 +94,13 @@ vi.mock("./builder.js", async (importOriginal) => {
   const assemble_prompt = vi.fn((config, context = {}) => {
     switch (config?.key) {
       case "director":
+        if (context.terse) {
+          return {
+            system: '<SYSTEM mode="director" round="1"><ROLE>DIRECTOR</ROLE></SYSTEM>',
+            task: "<TASK>Return a single, COMPLETE, VALID JSON object</TASK>",
+          };
+        }
         return mock_prompt_spies.build_director(context, context.compressed_snapshot);
-      case "director_terse":
-        return {
-          system: '<SYSTEM mode="director" round="1"><ROLE>DIRECTOR</ROLE></SYSTEM>',
-          task: "<TASK>Return a single, COMPLETE, VALID JSON object</TASK>",
-        };
       case "narrator":
         if (context.is_prologue || context.scene_template === "PROLOGUE") {
           return mock_prompt_spies.build_prologue(context, context);
@@ -2031,10 +2032,10 @@ describe("interaction structural integrity", () => {
     expect(ai_sheet).toMatch(/<PSYCHOLOGY>[\s\S]*<AGENDA>Break the challenger\.<\/AGENDA>[\s\S]*<\/PSYCHOLOGY>/);
   });
 
-  it("places TRAJECTORY inside ATMOSPHERE on the fractal sheet", () => {
+  it("places TRAJECTORY inside ESSENCE on the fractal sheet", () => {
     const { system } = render_story_prose({ round: 3, entities: _prompt_test_entities, input: "Beast steps forward." });
     const fractal_sheet = system.match(/<FRACTAL\b[\s\S]*?<\/FRACTAL>/)[0];
-    expect(fractal_sheet).toMatch(/<ATMOSPHERE>[\s\S]*<TRAJECTORY>Drift\.<\/TRAJECTORY>[\s\S]*<\/ATMOSPHERE>/);
+    expect(fractal_sheet).toMatch(/<ESSENCE>[\s\S]*<TRAJECTORY>Drift\.<\/TRAJECTORY>[\s\S]*<\/ESSENCE>/);
   });
 
   it("never emits USER_SOVEREIGNTY", () => {
@@ -2102,6 +2103,7 @@ describe("narrator prose compiler", () => {
 
 /**
  * CHANGELOG
+ * - 2026-09-21: Standardization pass — the mocked `assemble_prompt` now routes terse Director retries through the `director` case (`context.terse`) since the `director_terse` mode was retired, and the fractal psychology wrapper assertion follows the `ATMOSPHERE`→`ESSENCE` rename.
  * - 2026-09-19: Purged legacy prompt_builder mock shim under P4 Zero Backwards Compatibility; modernized prompt compilation spies around assemble_prompt and build_scoring_context.
  * - 2026-09-16: Updated ghostwrite identity assertions to test first-person persona system role and kinetic DELIVERY_POSTURE following GHOSTWRITE task directive pruning.
  * - 2026-09-11: Merged story-prompts.test.js into story.test.js.

@@ -28,7 +28,7 @@
 
 import { escape_xml, prompt_escape, inline_or_block, wrap_tag, indent_all, render_xml_tag, resolve_macro_directive } from "@utils";
 import { extract_style_dna, STYLE_MOTIF_REGISTRY } from "@data";
-import { PROSE_FORMAT, format_json_return } from "./format.js";
+import { PROSE_FORMAT, format_json_return, render_output_format_xml } from "./format.js";
 
 // ============================================================================
 // [SECTION 1: UNIFIED TASK DIRECTIVES & PROTOCOLS CATALOG]
@@ -92,7 +92,7 @@ Close with </THINK> before generating narrative prose.`;
       FIRST_CONTACT:
         "First encounter: characters are strangers. Acknowledge visual first impressions, physical distance, and tone before full dialogue.",
       NPC_BOUNDARY: (name) =>
-        `Respond strictly as ${name} (supporting character). Own only your voice, actions, and perspective; never speak for others or resolve overarching quests. Write third-person limited, present tense; end on a natural beat.`,
+        `Respond strictly as ${name} (supporting character). Own only your voice, actions, and perspective; never speak for others or resolve overarching quests. End on a natural beat.`,
     }),
 
     SCENE: Object.freeze({
@@ -122,6 +122,7 @@ Strictly zero spoken dialogue or quote marks. No dialogue.`,
 
   // ── 1.5 Tool B: Profile Structuring & Ingestion Directives (sorting) ───────
   SORTING: Object.freeze({
+    POV_THIRD: "Write strictly in third-person limited ('he', 'she', 'they', or character name). Never use first-person pronouns in narrative prose.",
     FOCUS: (entity_type = "character") =>
       `${
         entity_type === "fractal"
@@ -137,12 +138,12 @@ Strictly zero spoken dialogue or quote marks. No dialogue.`,
 
   // ── 1.6 Shot 3: Sensory Cortex & Visual Directives (optics) ───────────────
   OPTICS: Object.freeze({
-    MANDATE: (subject) => `<MANDATE>Convert narrative intent into a structured image prompt payload depicting ${subject}.</MANDATE>`,
-    THINK_FORMAT: `<THINK_FORMAT>In "_thought_process", calibrate:
+    MANDATE: (subject) => `Convert narrative intent into a structured image prompt payload depicting ${subject}.`,
+    THINK_FORMAT: `In "_thought_process", calibrate:
 1. Focal subject & identity traits (strip proper names)
 2. Spatial layers (foreground, focal subject, background)
 3. Light sources, color palette, and textures from active style
-4. Wardrobe mechanics & exposure checks</THINK_FORMAT>`,
+4. Wardrobe mechanics & exposure checks`,
     FIRST_SENTENCE_MANDATE: (tier = "") =>
       tier === "story_scene"
         ? "<FIRST_SENTENCE_MANDATE>Always establish vast environmental geometry, architectural structures, terrain scale, and atmospheric lighting in the VERY FIRST sentence before any secondary elements.</FIRST_SENTENCE_MANDATE>"
@@ -323,7 +324,7 @@ export function render_keyword_directives_xml(available_keywords_content, option
   const directive =
     options.directive || (options.mode === "OPTICS" ? TASK_LIBRARY.KEYWORD_DIRECTIVES.OPTICS : TASK_LIBRARY.KEYWORD_DIRECTIVES.DIRECTOR);
 
-  const indent = options.indent ?? 2;
+  const indent = options.indent ?? 0;
 
   const inner_content = String(available_keywords_content || "").trim();
   const available_tag = inner_content.startsWith("<AVAILABLE_KEYWORDS>")
@@ -430,179 +431,103 @@ export function resolve_optics_cinematography({
 // ============================================================================
 // [SECTION 3: UNIVERSAL TASK ENVELOPE COMPILER]
 // ============================================================================
+//
+// One ordered layer table (`TASK_LAYERS`) is walked by a single `render_task`.
+// Each mode supplies *state* through a `TASK_STATE_BUILDERS` factory; the table
+// owns ordering, the `<DIRECTIVES>` envelope, and indentation. Adding a mode or
+// a slot is a data edit — never a switch branch.
 
 /**
- * Universal Task Envelope Compiler (<TASK>).
- * Single unified dispatcher and renderer for all prompt modes across the simulation lifecycle:
- * - "director": Directorial staging, turn evaluation, keyword steering, or terse retry envelope.
- * - "continuum": Memory Forge temporal consolidation, trajectory synthesis, and relationship extraction.
- * - "enhancement" / "sorting": Structured task directive envelopes and schema contracts.
- * - default (story prose): Master multi-beat character/narrator cognition, currents, and prose reflex.
+ * Canonical ordered `<TASK>` layer table — the single grammar every mode walks.
+ * Each emitter reads one slot from the compiled state; null/blank slots are dropped.
+ * @type {ReadonlyArray<{ key: string, emit: (state: Record<string, any>) => (string|null|undefined) }>}
+ */
+export const TASK_LAYERS = Object.freeze([
+  { key: "think", emit: (state) => state.think },
+  { key: "input", emit: (state) => state.input },
+  { key: "last_turn", emit: (state) => state.last_turn },
+  { key: "currents", emit: (state) => state.currents },
+  { key: "target", emit: (state) => state.target },
+  { key: "spatial_framing", emit: (state) => state.spatial_framing },
+  { key: "directives", emit: (state) => render_directives_xml(state.directives) },
+  { key: "keyword_directives", emit: (state) => state.keyword_directives },
+  { key: "intent", emit: (state) => state.intent },
+  { key: "delivery_posture", emit: (state) => state.delivery_posture },
+  { key: "stability_lock", emit: (state) => state.stability_lock },
+  { key: "output_format", emit: (state) => state.output_format },
+]);
+
+/**
+ * Wraps a mode's instruction prose in the single canonical `<DIRECTIVES>` element.
+ * Every mode routes its directive text through this one element — no more bare
+ * floating prose at mode-specific positions.
  *
- * @param {Object} [parameters={}]
- * @param {string} [parameters.mode] - "director" | "continuum" | "enhancement" | "sorting" | undefined
- * @param {string} [parameters.schema] - JSON schema contract
- * @param {number|string} [parameters.round] - simulation macro-round (director)
- * @param {string} [parameters.input] - user action / scene beat
- * @param {string} [parameters.last_ai_text] - previous AI turn content (director)
- * @param {boolean} [parameters.terse] - whether to emit terse retry envelope (director)
- * @param {string} [parameters.target_name] - entity focus name (continuum)
- * @param {Array<string|null|undefined|false>} [parameters.directives] - structured task directive blocks
- * @param {any} [parameters.config] - prompt-mode config record (story prose)
- * @param {string|null} [parameters.input_origin] - origin identifier (e.g., "USER", "SYSTEM")
- * @param {any} [parameters.style] - resolved NarrativeStyle definition
- * @param {string} [parameters.subtext_xml] - pre-rendered <SUBTEXT> block
- * @param {any} [parameters.snapshot] - physical dynamics and style snapshot
- * @param {string} [parameters.action_directive] - specific scene or character action directive
- * @param {string} [parameters.stability_lock] - stability lock instruction
- * @param {string} [parameters.speaking_style] - active speaking style register override
+ * @param {Array<string|null|undefined>|string} [directives=[]]
  * @returns {string}
  */
-export function render_task({
-  mode,
-  schema = "",
-  round = 1,
-  input = "",
-  last_ai_text = "",
-  terse = false,
-  target_name = "",
-  directives = [],
-  config,
-  input_origin = null,
-  style = null,
-  subtext_xml = "",
-  snapshot = null,
-  action_directive = "",
-  stability_lock = "",
-  speaking_style = "",
-  target_tier = "",
-  input_intent = "",
-  subject = "",
-  think_format = "",
-  cinematography = null,
-  engine_tokens = null,
-  keywords = [],
-  is_selfie = false,
-} = {}) {
-  switch (mode) {
-    case "director":
-      return render_director_task({ schema, round, input, last_ai_text, terse });
-
-    case "continuum":
-      return render_structured_task({ mode, schema, target_name });
-
-    case "optics":
-      return render_optics_task({
-        schema,
-        subject,
-        target_tier,
-        input_intent,
-        think_format,
-        cinematography,
-        engine_tokens,
-        keywords,
-        is_selfie,
-        directives,
-      });
-
-    case "enhancement":
-    case "sorting":
-      return render_structured_task({ mode, schema, directives });
-
-    default:
-      return render_prose_task({ config, style, subtext_xml, input, input_origin, action_directive, snapshot, speaking_style, stability_lock });
-  }
+export function render_directives_xml(directives = []) {
+  const blocks = (Array.isArray(directives) ? directives : [directives]).map((block) => String(block ?? "").trim()).filter(Boolean);
+  if (!blocks.length) return "";
+  return render_xml_tag({ tag: "DIRECTIVES", children: blocks, child_indent: 2, separator: "\n\n" });
 }
 
 /**
- * Compiles the Director <TASK> envelope: evaluation + environmental hint + JSON return,
- * plus the terse refusal-recovery variant.
- *
- * @param {Object} [parameters={}]
+ * Wraps a cognition directive in the canonical `<THINK_FORMAT>` element.
+ * @param {string} [directive=""]
  * @returns {string}
  */
-export function render_director_task({ schema = "", round = 1, input = "", last_ai_text = "", terse = false } = {}) {
-  const output_format_content = schema ? TASK_LIBRARY.JSON_RETURN(schema) : "";
-  const output_format_xml = output_format_content
-    ? render_xml_tag({
-        tag: "OUTPUT_FORMAT",
-        attrs: { mode: "json" },
-        children: [output_format_content],
-        child_indent: 2,
-      })
-    : null;
+function render_think_format(directive = "") {
+  const text = String(directive || "").trim();
+  return text ? render_xml_tag({ tag: "THINK_FORMAT", children: [text], child_indent: 2 }) : "";
+}
 
-  if (terse) {
-    return render_xml_tag({
-      tag: "TASK",
-      children: [output_format_xml || TASK_LIBRARY.JSON_RETURN(schema)],
-      indent: 0,
-      child_indent: 2,
-    });
-  }
+/**
+ * Director task state (Shot 1 staging + optional terse refusal-recovery).
+ * @param {Object} [parameters={}]
+ * @returns {Record<string, any>}
+ */
+function build_director_task_state({ schema = "", round = 1, input = "", last_ai_text = "", terse = false, keyword_directives = null } = {}) {
+  const output_format = schema ? render_output_format_xml({ mode: "json", content: TASK_LIBRARY.JSON_RETURN(schema) }) : "";
+  if (terse) return { output_format };
 
   const evaluation =
-    TASK_LIBRARY.DIRECTOR.EVALUATE(!!input?.trim()) +
+    TASK_LIBRARY.DIRECTOR.EVALUATE(Boolean(input?.trim())) +
     (Number(round) <= 1 ? TASK_LIBRARY.DIRECTOR.ROUND_ONE : "") +
     ` ${TASK_LIBRARY.DIRECTOR.USER_PERSONA_LOCK}`;
 
-  const input_xml = render_task_input({ input, input_origin: "USER" });
-  const task_children = [evaluation, render_environmental_hint(input), output_format_xml].filter(Boolean);
-
-  const parts = [
-    input_xml ? input_xml.trim() : null,
-    last_ai_text ? wrap_tag("AI_CHARACTER_LAST_TURN", indent_all(last_ai_text, 2), 0) : null,
-    render_xml_tag({ tag: "TASK", children: task_children, indent: 0, child_indent: 4 }),
-  ].filter(Boolean);
-
-  return parts.join("\n");
+  return {
+    input: render_task_input({ input, input_origin: "USER" }),
+    last_turn: last_ai_text ? render_xml_tag({ tag: "AI_CHARACTER_LAST_TURN", children: [last_ai_text], child_indent: 2 }) : "",
+    directives: [evaluation, render_environmental_hint(input)],
+    keyword_directives,
+    output_format,
+  };
 }
 
 /**
- * Compiles the structured <TASK> envelopes for continuum (target focus + mandate) and
- * enhancement/sorting (schema + directives).
- *
+ * Structured task state for the data tooling modes (continuum / enhancement / sorting).
  * @param {Object} [parameters={}]
- * @param {string} [parameters.mode]
- * @param {string} [parameters.schema=""]
- * @param {string} [parameters.target_name=""]
- * @param {Array<string|null|undefined|false>} [parameters.directives=[]]
- * @returns {string}
+ * @returns {Record<string, any>}
  */
-export function render_structured_task({ mode, schema = "", target_name = "", directives = [] } = {}) {
+function build_structured_task_state({ mode, schema = "", target_name = "", directives = [] } = {}) {
   if (mode === "continuum") {
-    const output_format_xml = schema
-      ? render_xml_tag({
-          tag: "OUTPUT_FORMAT",
-          attrs: { mode: "json" },
-          children: [TASK_LIBRARY.JSON_RETURN(schema)],
-          child_indent: 2,
-        })
-      : null;
-    const items = [TASK_LIBRARY.CONTINUUM.TARGET_FOCUS(target_name), output_format_xml, TASK_LIBRARY.CONTINUUM.MANDATE].filter(Boolean);
-    return render_xml_tag({ tag: "TASK", children: items, indent: 0, child_indent: 4, separator: "\n\n" });
+    return {
+      directives: [TASK_LIBRARY.CONTINUUM.TARGET_FOCUS(target_name), TASK_LIBRARY.CONTINUUM.MANDATE],
+      output_format: schema ? render_output_format_xml({ mode: "json", content: TASK_LIBRARY.JSON_RETURN(schema) }) : "",
+    };
   }
-
-  const output_format_xml = schema
-    ? render_xml_tag({
-        tag: "OUTPUT_FORMAT",
-        attrs: { mode: mode === "enhancement" ? "prose" : "json" },
-        children: [escape_xml(schema.trim())],
-        child_indent: 2,
-      })
-    : null;
-  const items = [output_format_xml, ...directives].filter(Boolean);
-  return render_xml_tag({ tag: "TASK", children: items, indent: 2, child_indent: 2, separator: "\n\n" });
+  return {
+    directives,
+    output_format: schema ? render_output_format_xml({ mode: "json", content: TASK_LIBRARY.JSON_RETURN(schema) }) : "",
+  };
 }
 
 /**
- * Compiles the Sensory Optics <TASK> envelope: target, mandate, spatial framing,
- * keyword directives, optional selfie, intent, and JSON return.
- *
+ * Optics task state (Sensory Cortex staging + schema).
  * @param {Object} [parameters={}]
- * @returns {string}
+ * @returns {Record<string, any>}
  */
-export function render_optics_task({
+function build_optics_task_state({
   schema = "",
   subject = "",
   target_tier = "",
@@ -614,32 +539,18 @@ export function render_optics_task({
   is_selfie = false,
   directives = [],
 } = {}) {
-  const output_format_xml = schema
-    ? render_xml_tag({
-        tag: "OUTPUT_FORMAT",
-        attrs: { mode: "json" },
-        children: [TASK_LIBRARY.JSON_RETURN(schema)],
-        child_indent: 2,
-      })
-    : null;
+  const subject_description = subject || TASK_LIBRARY.OPTICS.SUBJECT_TIERS[target_tier] || TASK_LIBRARY.OPTICS.SUBJECT_TIERS.story_character;
 
-  const subject_desc = subject || TASK_LIBRARY.OPTICS.SUBJECT_TIERS[target_tier] || TASK_LIBRARY.OPTICS.SUBJECT_TIERS.story_character;
-  const mandate = TASK_LIBRARY.OPTICS.MANDATE(subject_desc);
-  const target_tag = target_tier ? render_xml_tag({ tag: "TARGET", children: [escape_xml(target_tier)], inline: true }) : "";
-  const intent_tag = input_intent ? render_xml_tag({ tag: "INPUT_INTENT", children: [prompt_escape(input_intent)], inline: true }) : "";
-
-  const think_xml = think_format === "optics" ? TASK_LIBRARY.OPTICS.THINK_FORMAT : null;
-
-  const first_sentence_directive =
+  const spatial_children = [
     typeof TASK_LIBRARY.OPTICS.FIRST_SENTENCE_MANDATE === "function"
       ? TASK_LIBRARY.OPTICS.FIRST_SENTENCE_MANDATE(target_tier)
-      : TASK_LIBRARY.OPTICS.FIRST_SENTENCE_MANDATE;
-
-  const spatial_framing_children = [first_sentence_directive, TASK_LIBRARY.OPTICS.SPATIAL_GEOMETRY];
+      : TASK_LIBRARY.OPTICS.FIRST_SENTENCE_MANDATE,
+    TASK_LIBRARY.OPTICS.SPATIAL_GEOMETRY,
+  ];
 
   if (cinematography && typeof cinematography === "object") {
     const { mode = "Medium Action", tokens = "", narrative_context = "", visual_staging = "" } = cinematography;
-    spatial_framing_children.push(
+    spatial_children.push(
       render_xml_tag({
         tag: "CINEMATOGRAPHY",
         attrs: { mode },
@@ -651,45 +562,28 @@ export function render_optics_task({
   }
 
   if (engine_tokens?.camera) {
-    spatial_framing_children.push(render_xml_tag({ tag: "CAMERA", children: [escape_xml(engine_tokens.camera)], inline: true }));
+    spatial_children.push(render_xml_tag({ tag: "CAMERA", children: [escape_xml(engine_tokens.camera)], inline: true }));
   } else if (engine_tokens?.composition) {
-    spatial_framing_children.push(render_xml_tag({ tag: "COMPOSITION", children: [escape_xml(engine_tokens.composition)], inline: true }));
+    spatial_children.push(render_xml_tag({ tag: "COMPOSITION", children: [escape_xml(engine_tokens.composition)], inline: true }));
   }
 
-  const spatial_framing_xml = render_xml_tag({
-    tag: "SPATIAL_FRAMING",
-    children: spatial_framing_children,
-    child_indent: 2,
-    separator: "\n",
-  });
-
-  const keyword_directives_xml = Array.isArray(keywords) && keywords.length > 0 ? render_keyword_directives_xml(keywords.join(", "), "OPTICS") : null;
-
-  const selfie_xml = is_selfie ? TASK_LIBRARY.OPTICS.SELFIE_DIRECTIVE : null;
-
-  const items = [
-    target_tag,
-    mandate,
-    think_xml,
-    spatial_framing_xml,
-    keyword_directives_xml,
-    selfie_xml,
-    intent_tag,
-    output_format_xml,
-    ...directives,
-  ].filter(Boolean);
-
-  return render_xml_tag({ tag: "TASK", children: items, indent: 0, child_indent: 2, separator: "\n\n" });
+  return {
+    think: think_format === "optics" ? render_think_format(TASK_LIBRARY.OPTICS.THINK_FORMAT) : "",
+    target: target_tier ? render_xml_tag({ tag: "TARGET", children: [escape_xml(target_tier)], inline: true }) : "",
+    spatial_framing: render_xml_tag({ tag: "SPATIAL_FRAMING", children: spatial_children, child_indent: 2, separator: "\n" }),
+    directives: [TASK_LIBRARY.OPTICS.MANDATE(subject_description), is_selfie ? TASK_LIBRARY.OPTICS.SELFIE_DIRECTIVE : null, ...directives],
+    keyword_directives: Array.isArray(keywords) && keywords.length > 0 ? render_keyword_directives_xml(keywords.join(", "), "OPTICS") : "",
+    intent: input_intent ? render_xml_tag({ tag: "INPUT_INTENT", children: [prompt_escape(input_intent)], inline: true }) : "",
+    output_format: schema ? render_output_format_xml({ mode: "json", content: TASK_LIBRARY.JSON_RETURN(schema) }) : "",
+  };
 }
 
 /**
- * Compiles the Shot-2A prose <TASK> envelope: think format, input, currents, action
- * directive, delivery posture, stability lock, and prose format.
- *
+ * Story Prose task state (think beats, input, currents, action directive, posture).
  * @param {Object} [parameters={}]
- * @returns {string}
+ * @returns {Record<string, any>}
  */
-export function render_prose_task({
+function build_prose_task_state({
   config = null,
   style = null,
   subtext_xml = "",
@@ -702,7 +596,6 @@ export function render_prose_task({
 } = {}) {
   const style_dna = extract_style_dna(style);
   const think_format = config?.task?.think_format;
-
   const think_directive =
     think_format === "character"
       ? TASK_LIBRARY.PROTOCOLS.THINK_FORMAT(style_dna.emotional_grounding)
@@ -710,24 +603,44 @@ export function render_prose_task({
         ? TASK_LIBRARY.PROTOCOLS.THINK_NARRATOR
         : "";
 
-  const output_format_xml = render_xml_tag({
-    tag: "OUTPUT_FORMAT",
-    attrs: { mode: "prose" },
-    children: [PROSE_FORMAT],
-    child_indent: 2,
-  });
+  return {
+    think: render_think_format(think_directive),
+    input: render_task_input({ input, input_origin }),
+    currents: render_task_currents(style_dna, subtext_xml),
+    directives: [action_directive],
+    delivery_posture: render_prose_reflex(snapshot, input, speaking_style),
+    stability_lock: String(stability_lock || "").trim(),
+    output_format: render_output_format_xml({ mode: "prose", content: PROSE_FORMAT }),
+  };
+}
 
-  const elements = [
-    think_directive,
-    render_task_input({ input, input_origin }),
-    render_task_currents(style_dna, subtext_xml),
-    action_directive ? String(action_directive).trim() : "",
-    render_prose_reflex(snapshot, input, speaking_style),
-    stability_lock ? String(stability_lock).trim() : "",
-    output_format_xml,
-  ].filter(Boolean);
+/**
+ * Mode → state-factory table (the single dispatch surface, mirroring PROMPT_LAYERS).
+ * @type {Readonly<Record<string, (parameters: Record<string, any>) => Record<string, any>>>}
+ */
+const TASK_STATE_BUILDERS = Object.freeze({
+  director: build_director_task_state,
+  continuum: build_structured_task_state,
+  enhancement: build_structured_task_state,
+  sorting: build_structured_task_state,
+  optics: build_optics_task_state,
+  prose: build_prose_task_state,
+});
 
-  return elements.length ? render_xml_tag({ tag: "TASK", children: elements, indent: 0, child_indent: 4, separator: "\n" }) : "";
+/**
+ * Universal Task Envelope Compiler (<TASK>).
+ * Resolves the mode's state factory, walks `TASK_LAYERS`, and emits the canonical
+ * `<TASK>` envelope. Modes without a registered factory fall back to story prose.
+ *
+ * @param {Object} [parameters={}]
+ * @param {string} [parameters.mode] - "director" | "continuum" | "enhancement" | "sorting" | "optics" | undefined (prose)
+ * @returns {string}
+ */
+export function render_task(parameters = {}) {
+  const mode = parameters.mode && TASK_STATE_BUILDERS[parameters.mode] ? parameters.mode : "prose";
+  const state = TASK_STATE_BUILDERS[mode](parameters);
+  const children = TASK_LAYERS.map((layer) => layer.emit(state)).filter(Boolean);
+  return children.length ? render_xml_tag({ tag: "TASK", children, indent: 0, child_indent: 4, separator: "\n" }) : "";
 }
 
 // ============================================================================
@@ -833,6 +746,7 @@ export function render_subtext_xml(ai_dynamics = {}, fractal_dynamics = {}, opti
 
 /**
  * CHANGELOG
+ * - 2026-09-21: Table-driven TASK envelope — introduced `TASK_LAYERS` (the single ordered layer grammar) walked by one `render_task` over a `TASK_STATE_BUILDERS` dispatch table; all mode instruction prose now flows through the one `<DIRECTIVES>` element (optics' `<MANDATE>` retired), cognition directives go through `render_think_format`, keyword directives emit at indent 0, and `TASK_LIBRARY.SORTING.POV_THIRD` replaced the manifest-derived sorting POV.
  * - 2026-09-20: Metasyntax ban — reserved element names referenced inside directive prose now render as guillemets («INPUT», «AGENDA», «TRAJECTORY», «AI_CHARACTER», «USER_PERSONA», «INPUT_HISTORY») instead of raw tags, so the emitted prompt contains no reserved-tag literals.
  * - 2026-09-19: Decomposed the `render_task` god-function (P5) — extracted the per-mode compilers `render_director_task`, `render_structured_task`, `render_optics_task`, and `render_prose_task` behind a thin `mode` dispatcher; `TASK_LIBRARY` remains the sole directive-text source.
  * - 2026-09-19: One XML emitter (P1) — `render_subtext_xml` composes its `<SUBTEXT>` envelope through `render_xml_tag` and returns the full block (no wrap→strip round-trip; `render_task_currents` consumes `subtext_xml` directly); `<TARGET>`, `<INPUT_INTENT>`, `<CINEMATOGRAPHY>`, `<CAMERA>`, and `<COMPOSITION>` now emit through `render_xml_tag`.

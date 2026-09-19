@@ -427,7 +427,7 @@ export async function execute_director_shot(payload, snapshot, options = {}) {
     let is_terse_attempt = terse;
     return await retry_caller(
       async () => {
-        const terse_prompt = is_terse_attempt ? compile_prompt("director_terse", { round: payload?.round }) : null;
+        const terse_prompt = is_terse_attempt ? compile_prompt("director", { round: payload?.round, terse: true }) : null;
         const response = await llm_service.generate(
           {
             system: is_terse_attempt ? terse_prompt.system : director_prompt.system,
@@ -509,6 +509,7 @@ export async function execute_director_shot(payload, snapshot, options = {}) {
 
 /**
  * CHANGELOG
+ * - 2026-09-21: Terse fallback now compiles `compile_prompt("director", { round, terse: true })` — the retired `director_terse` mode collapsed into the `director` manifest record plus a `terse` flag.
  * - 2026-09-19: Opening-turn first-contact is emitted as an explicit `director_data.first_contact` flag instead of a synthetic "first_contact" keyword, so it can no longer pollute the somatic keyword channel or displace a real keyword.
  * - 2026-09-19: Replaced stale prompt_builder docstring and test references with unified compile_prompt("director") under P4 Zero Backwards Compatibility.
  * - 2026-09-18: Routed Director shot execution through compile_prompt("director") and switchboard compile_prompt("director_terse").

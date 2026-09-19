@@ -75,10 +75,9 @@ export function resolve_available_entities({ entities = {}, npc_entities = [], i
  * @param {any} entity
  * @param {Set<string>} active_names
  * @param {Map<string, string>} name_to_id_map
- * @param {number} [indentation_level=6]
  * @returns {string}
  */
-export function render_dispositions(entity, active_names, name_to_id_map, indentation_level = 6) {
+export function render_dispositions(entity, active_names, name_to_id_map) {
   if (!entity?.name) return "";
   const source_name = String(entity.name).toLowerCase().trim();
   const rows = [];
@@ -104,13 +103,7 @@ export function render_dispositions(entity, active_names, name_to_id_map, indent
   }
 
   if (!rows.length) return "";
-  return render_xml_tag({
-    tag: "DISPOSITIONS",
-    children: rows,
-    indent: indentation_level,
-    child_indent: indentation_level + 2,
-    separator: "\n",
-  });
+  return render_xml_tag({ tag: "DISPOSITIONS", children: rows, child_indent: 2, separator: "\n" });
 }
 
 /**
@@ -251,6 +244,7 @@ export function render_present_entities_xml({ entities = {}, npc_entities = [], 
 /**
  * CHANGELOG
  * ============================================================================
+ * - 2026-09-21: `render_dispositions` is now offset-free — it takes `(entity, active_names, name_to_id_map)` and emits at indent 0 (the dropped `indent` parameter), letting callers place the block via their own `render_xml_tag` nesting.
  * - 2026-09-18: Extracted spatial presence, nearby cast, and Director present entities routing into dedicated presence.js submodule.
  * ============================================================================
  */
