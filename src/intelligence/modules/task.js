@@ -308,22 +308,23 @@ export function render_task_currents(style_dna, subtext_xml) {
 }
 
 /**
- * Renders the turn block's single `<INPUT>` tag — the ONE input channel every mode uses.
- * Attributes: `origin` (who supplied it), `round` (turn index, when known), `kind` (what
- * the payload is: "action" | "content" | "intent" | "ingestion"). Blank attributes are omitted.
+ * Renders a turn-signal block — the ONE signal channel every mode uses (the live `<INPUT>`
+ * and the Director's `<AI_CHARACTER_LAST_TURN>` are the same shape). Attributes: `origin`
+ * (who supplied it), `round` (turn index, when known), `mode` (what the payload is:
+ * "action" | "content" | "intent" | "ingestion"). Blank attributes are omitted.
  *
- * @param {{ input?: string, input_origin?: string|null, input_round?: number|string|null, input_kind?: string|null }} [parameters]
+ * @param {{ input?: string, input_origin?: string|null, input_round?: number|string|null, input_mode?: string|null, tag?: string }} [parameters]
  * @returns {string}
  */
-export function render_task_input({ input = "", input_origin = null, input_round = null, input_kind = null } = {}) {
+export function render_task_input({ input = "", input_origin = null, input_round = null, input_mode = null, tag = "INPUT" } = {}) {
   if (!String(input || "").trim()) return "";
   const attributes = [];
   if (input_origin) attributes.push(`origin="${escape_xml(String(input_origin))}"`);
   if (input_round != null && String(input_round) !== "") attributes.push(`round="${escape_xml(String(input_round))}"`);
-  if (input_kind) attributes.push(`kind="${escape_xml(String(input_kind))}"`);
+  if (input_mode) attributes.push(`mode="${escape_xml(String(input_mode))}"`);
   const attribute_string = attributes.length ? ` ${attributes.join(" ")}` : "";
   const content = prompt_escape(String(input).trim());
-  return `<INPUT${attribute_string}>${inline_or_block(content, 2)}</INPUT>`;
+  return `<${tag}${attribute_string}>${inline_or_block(content, 2)}</${tag}>`;
 }
 
 /**
@@ -474,7 +475,6 @@ export const TASK_LAYERS = Object.freeze([
   { key: "target", emit: (state) => state.target },
   { key: "spatial_framing", emit: (state) => state.spatial_framing },
   { key: "directives", emit: (state) => render_directives_xml(state.directives) },
-  { key: "keyword_directives", emit: (state) => state.keyword_directives },
   { key: "delivery_posture", emit: (state) => state.delivery_posture },
   { key: "stability_lock", emit: (state) => state.stability_lock },
   { key: "output_format", emit: (state) => state.output_format },
@@ -515,14 +515,21 @@ function build_director_task_state({ schema = "", round = 1, input = "", last_ai
 
   const evaluation =
     TASK_LIBRARY.DIRECTOR.EVALUATE(Boolean(input?.trim())) +
-    (Number(round) <= 1 ? TASK_LIBRARY.DIRECTOR.ROUND_ONE : "") +
+    (Number(round) <= 1 ? ` ${TASK_LIBRARY.DIRECTOR.ROUND_ONE}` : "") +
     ` ${TASK_LIBRARY.DIRECTOR.USER_PERSONA_LOCK}`;
 
   return {
-    input: render_task_input({ input, input_origin: "USER", input_round: round, input_kind: "action" }),
-    last_turn: last_ai_text ? render_xml_tag({ tag: "AI_CHARACTER_LAST_TURN", children: [last_ai_text], child_indent: 2 }) : "",
-    directives: [evaluation, render_environmental_hint(input), TASK_LIBRARY.DIRECTOR.ROUTING, TASK_LIBRARY.DIRECTOR.CONVERGENCE],
-    keyword_directives,
+    input: render_task_input({ input, input_origin: "USER", input_round: round, input_mode: "action" }),
+    last_turn: last_ai_text
+      ? render_task_input({ input: last_ai_text, input_origin: "AI_CHARACTER", input_mode: "action", tag: "AI_CHARACTER_LAST_TURN" })
+      : "",
+    directives: [
+      evaluation,
+      render_environmental_hint(input),
+      TASK_LIBRARY.DIRECTOR.ROUTING,
+      TASK_LIBRARY.DIRECTOR.CONVERGENCE,
+      keyword_directives,
+    ].filter(Boolean),
     output_format,
   };
 }
@@ -538,11 +545,11 @@ function build_structured_task_state({
   target_name = "",
   directives = [],
   input = "",
-  input_kind = null,
+  input_mode = null,
   output_format = "",
   output_mode = "",
 } = {}) {
-  const input_block = render_task_input({ input, input_kind });
+  const input_block = render_task_input({ input, input_mode });
   const rendered_output = output_format
     ? render_output_format_xml({ mode: output_mode || "prose", content: output_format })
     : schema
@@ -607,13 +614,19 @@ function build_optics_task_state({
     spatial_children.push(render_xml_tag({ tag: "COMPOSITION", children: [escape_xml(engine_tokens.composition)], inline: true }));
   }
 
+  const keyword_directives = Array.isArray(keywords) && keywords.length > 0 ? render_keyword_directives_xml(keywords.join(", "), "OPTICS") : null;
+
   return {
     think: think_format === "optics" ? render_think_format(TASK_LIBRARY.OPTICS.THINK_FORMAT) : "",
-    input: render_task_input({ input: input_intent, input_kind: "intent" }),
+    input: render_task_input({ input: input_intent, input_mode: "intent" }),
     target: target_tier ? render_xml_tag({ tag: "TARGET", children: [escape_xml(target_tier)], inline: true }) : "",
     spatial_framing: render_xml_tag({ tag: "SPATIAL_FRAMING", children: spatial_children, child_indent: 2, separator: "\n" }),
-    directives: [TASK_LIBRARY.OPTICS.MANDATE(subject_description), is_selfie ? TASK_LIBRARY.OPTICS.SELFIE_DIRECTIVE : null, ...directives],
-    keyword_directives: Array.isArray(keywords) && keywords.length > 0 ? render_keyword_directives_xml(keywords.join(", "), "OPTICS") : "",
+    directives: [
+      TASK_LIBRARY.OPTICS.MANDATE(subject_description),
+      is_selfie ? TASK_LIBRARY.OPTICS.SELFIE_DIRECTIVE : null,
+      ...directives,
+      keyword_directives,
+    ].filter(Boolean),
     output_format: schema ? render_output_format_xml({ mode: "json", content: TASK_LIBRARY.JSON_RETURN(schema) }) : "",
   };
 }
@@ -646,7 +659,7 @@ function build_prose_task_state({
 
   return {
     think: render_think_format(think_directive),
-    input: render_task_input({ input, input_origin, input_round: round, input_kind: "action" }),
+    input: render_task_input({ input, input_origin, input_round: round, input_mode: "action" }),
     currents: render_task_currents(style_dna, subtext_xml),
     directives: [action_directive],
     delivery_posture: render_prose_reflex(snapshot, input, speaking_style),
@@ -791,6 +804,7 @@ export function render_subtext_xml(ai_dynamics = {}, fractal_dynamics = {}, opti
 
 /**
  * CHANGELOG
+ * - 2026-09-23: Envelope harmonization — `render_task_input` emits the singular `mode` discriminator (was `kind`) and now renders the Director's last turn too (`tag` option), so `<INPUT …>` and `<AI_CHARACTER_LAST_TURN …>` share one shape; `<KEYWORD_DIRECTIVES>` nests inside `<DIRECTIVES>` (the `keyword_directives` task layer is retired); `render_task` no longer has a separate keyword slot.
  * - 2026-09-22: Recommendations 1/3/4/5 — `render_task` child indent lowered from 4 to 2 and it now walks only the manifest's declared `layers`; `render_task_input` emits the single `<INPUT origin|round|kind>` channel for every mode; the Director's `SPEAKER ROUTING RULES` + `CONVERGENCE` prose moved into the TASK `<DIRECTIVES>` (`TASK_LIBRARY.DIRECTOR.ROUTING`/`CONVERGENCE`), and interaction/ghostwrite gain a base `PROSE.CHARACTER.BASE` directive.
  * - 2026-09-21: Table-driven TASK envelope — introduced `TASK_LAYERS` (the single ordered layer grammar) walked by one `render_task` over a `TASK_STATE_BUILDERS` dispatch table; all mode instruction prose now flows through the one `<DIRECTIVES>` element (optics' `<MANDATE>` retired), cognition directives go through `render_think_format`, keyword directives emit at indent 0, and `TASK_LIBRARY.SORTING.POV_THIRD` replaced the manifest-derived sorting POV.
  * - 2026-09-20: Metasyntax ban — reserved element names referenced inside directive prose now render as guillemets («INPUT», «AGENDA», «TRAJECTORY», «AI_CHARACTER», «USER_PERSONA», «INPUT_HISTORY») instead of raw tags, so the emitted prompt contains no reserved-tag literals.

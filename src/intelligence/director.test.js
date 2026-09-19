@@ -116,7 +116,10 @@ describe("Director Quick Shot Prompt (render_director)", () => {
     const result = render_director({ ...base_payload(), npc_entities, in_scene_ids: ["npc-elias"], compressed_snapshot: base_snapshot });
     expect(result.system).toContain('<CAST mode="present">');
     expect(result.system).toContain("Elias (id: npc-elias)");
-    expect(result.system).toContain("Present");
+    expect(result.system).not.toContain("ACTIVE PRESENT PARTICIPANTS");
+    // The roster is the final child inside <ENTITIES>.
+    expect(result.system.indexOf("<ENTITIES>")).toBeLessThan(result.system.indexOf('<CAST mode="present">'));
+    expect(result.system.indexOf('<CAST mode="present">')).toBeLessThan(result.system.lastIndexOf("</ENTITIES>"));
     expect(result.system).not.toContain("<ROSTER>");
     expect(result.system).not.toContain("<SCENE_ROSTER>");
     expect(result.system).not.toContain("<RELATIONAL_MESH>");
@@ -440,6 +443,7 @@ describe("execute_director_shot", () => {
 
 /**
  * CHANGELOG
+ * - 2026-09-23: Cast assertions follow the harmonized roster — `<CAST mode="present">` is the final child of `<ENTITIES>`, with the `ACTIVE PRESENT PARTICIPANTS` header retired.
  * - 2026-09-21: Keyword directives now live in the Director <TASK> envelope (single source of truth for directive prose) — the <AVAILABLE_KEYWORDS> assertions target `result.task`; the <INPUT_NOTE> environmental nudge remains in `result.task` inside <DIRECTIVES>.
  * - 2026-09-19: Opening-turn first-contact is now an explicit `director_data.first_contact` flag (no longer smuggled as a "first_contact" keyword, which polluted the somatic keyword channel and truncated a real keyword); test added.
  * - 2026-09-13: Added execute_director_shot integration unit tests covering clean parse, terse recovery, and fallback synthesis.

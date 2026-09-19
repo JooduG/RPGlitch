@@ -909,7 +909,7 @@ describe("temporal_engine per-entity consolidation progress tracking (Track 2 Ph
       other_entities: {},
       history: [{ role: "user", text: "Hello Viper" }],
     });
-    expect(prompt.system).toContain('role="CONTINUUM_CARETAKER" target="Viper"');
+    expect(prompt.system).toContain('mode="continuum" target="Viper"');
     expect(prompt.system).toContain("<HISTORY>");
     expect(prompt.system).toContain("Hello Viper");
   });
@@ -940,6 +940,7 @@ describe("temporal_engine per-entity consolidation progress tracking (Track 2 Ph
 
 /**
  * CHANGELOG
+ * - 2026-09-23: Assertion follows the single `mode` discriminator (`mode="continuum" target="Viper"`).
  * - 2026-09-12: Updated imports for TEMPORAL_CONTRACT and MEMORY_FORGE_SCHEMA from modules/format.js.
  * - 2026-09-11: Pointed the temporal-protocol assertions at TEMPORAL_CONTRACT / MEMORY_FORGE_SCHEMA after TEMPORAL_PROTOCOLS was pruned.
  * - 2026-09-11: Consolidated temporal tests into temporal.test.js for unified temporal domain module.

@@ -192,14 +192,14 @@ describe("prompt-modes registry", () => {
       other_entities: entities,
       history: [],
     });
-    expect(continuum_shot.system).toContain('role="CONTINUUM_CARETAKER"');
+    expect(continuum_shot.system).toContain('mode="continuum"');
 
     // 4. Optics sensory cortex
     const optics_shot = compile_prompt("optics", {
       target_tier: "character",
       prompt_context: "Standing in neon light",
     });
-    expect(optics_shot.system).toContain('role="SENSORY_CORTEX"');
+    expect(optics_shot.system).toContain('mode="optics"');
   });
 });
 
@@ -228,7 +228,7 @@ describe("fused rendering per mode", () => {
 
   it("carries the <INPUT origin> inside the interaction task", () => {
     const interaction = render_story_prose({ round: 3, entities, input: "Beast steps forward." });
-    expect(interaction.task).toContain('<INPUT origin="SILVERS" round="3" kind="action">Beast steps forward.</INPUT>');
+    expect(interaction.task).toContain('<INPUT origin="SILVERS" round="3" mode="action">Beast steps forward.</INPUT>');
   });
 
   it("strictly respects the manifest protocol list: interaction includes NATURAL_DIALOGUE, narrator omits it", () => {
@@ -359,7 +359,7 @@ describe("master switchboard compile_prompt", () => {
     });
 
     // Check that PROFILE_FIELD_CATALOG attributes were successfully populated
-    expect(physical_enhancement.system).toContain('role="ENHANCER"');
+    expect(physical_enhancement.system).toContain('mode="enhancement"');
     expect(physical_enhancement.system).toContain("You are the BIOMETRIC_RENDERER Profile Enhancer");
     expect(physical_enhancement.system).toContain('scope="Physical Appearance"');
     expect(physical_enhancement.system).toContain("<LAYER>ETERNAL</LAYER>");
@@ -372,7 +372,7 @@ describe("master switchboard compile_prompt", () => {
       entity: entities.AI,
     });
 
-    expect(non_physical_enhancement.system).toContain('role="ENHANCER"');
+    expect(non_physical_enhancement.system).toContain('mode="enhancement"');
     expect(non_physical_enhancement.system).toContain("You are the COGNITIVE_ARCHITECT Profile Enhancer");
     expect(non_physical_enhancement.system).toContain('scope="Personality"');
     expect(non_physical_enhancement.system).toContain("<LAYER>ETERNAL</LAYER>");
@@ -382,6 +382,7 @@ describe("master switchboard compile_prompt", () => {
 
 /**
  * CHANGELOG
+ * - 2026-09-23: Envelope-harmonization assertions — the registry reads the single `mode` discriminator (`mode.system.mode`; the `role` attribute was retired).
  * - 2026-09-21: Realigned registry assertions to the standardization pass — key count is 9 (the `director_terse` mode collapsed into `director` + `{ terse: true }`), prose protocol bundles no longer carry POV keys (resolved by `resolve_pov_protocol`), and the enhancement scope attribute is asserted as `scope=`.
  * - 2026-09-19: Table-driven assembler (P4) — asserted every manifest mode resolves through `MODE_ADAPTERS` (or the prose fallback), replacing the former switch dispatch.
  * - 2026-09-19: Manifest DRY (P3) — asserted the shared `prose_protocols` bundle reproduces the four prose protocol arrays exactly, and that `director`/`director_terse` share one schema constant.

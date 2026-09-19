@@ -164,9 +164,9 @@ export const CAST_TAG = "CAST";
  * The single cast-block vocabulary. Every roster in every mode emits one `<CAST mode="…">`
  * envelope, so director present-participants, prose nearby-entities, and optics active
  * characters share one schema (recommendation #9).
- * @type {Readonly<{ PRESENT: "present", NEARBY: "nearby", ACTIVE: "active" }>}
+ * @type {Readonly<{ PRESENT: "present", NEARBY: "nearby", ACTIVE: "active", DORMANT: "dormant" }>}
  */
-export const CAST_MODES = Object.freeze({ PRESENT: "present", NEARBY: "nearby", ACTIVE: "active" });
+export const CAST_MODES = Object.freeze({ PRESENT: "present", NEARBY: "nearby", ACTIVE: "active", DORMANT: "dormant" });
 
 /**
  * Emits the one canonical `<CAST mode="…">` envelope.
@@ -183,11 +183,6 @@ export function render_cast_xml({ mode = CAST_MODES.NEARBY, children = [], inden
   return render_xml_tag({ tag: CAST_TAG, attrs: { mode }, children: blocks, indent, child_indent, separator: "\n\n" });
 }
 
-export const CAST_HEADERS = Object.freeze({
-  PRESENT: "ACTIVE PRESENT PARTICIPANTS:",
-  DORMANT: "DORMANT CANDIDATE ENTITIES (STASIS):",
-});
-
 /**
  * Generates a concise summary for candidate entities.
  * @param {any} entity
@@ -201,10 +196,11 @@ function summarize_entity(entity) {
 }
 
 /**
- * Renders the Director's `<CAST mode="present">` roster (active present participants + dormant
- * candidates) for turn arbitration. Symmetrically activated when `config.entities.present_entities`
- * is enabled. The speaker-routing and convergence rules live in `<DIRECTIVES>` (`TASK_LIBRARY.DIRECTOR`),
- * not in this data block.
+ * Renders the Director's roster for turn arbitration: one `<CAST mode="present">` for
+ * on-stage participants and, when genesis candidates exist, one `<CAST mode="dormant">`
+ * for reusable stasis entities. Symmetrically activated when `config.entities.present_entities`
+ * is enabled. The speaker-routing and convergence rules live in `<DIRECTIVES>`
+ * (`TASK_LIBRARY.DIRECTOR`), not in this data block.
  *
  * @param {Object} [parameters]
  * @param {Record<string, any>} [parameters.entities={}]
@@ -215,40 +211,37 @@ function summarize_entity(entity) {
 export function render_present_cast_xml({ entities = {}, npc_entities = [], in_scene_ids = [] } = {}) {
   const { present, dormant } = resolve_available_entities({ entities, npc_entities, in_scene_ids });
   const active_trio_ids = new Set([entities?.AI?.id, entities?.USER?.id, entities?.FRACTAL?.id].filter(Boolean).map(String));
+  const is_active_trio = (entity) =>
+    active_trio_ids.has(String(entity?.id)) || entity === entities?.AI || entity === entities?.USER || entity === entities?.FRACTAL;
 
-  const active_participants = [];
-  if (entities?.AI?.name) active_participants.push(`- ${escape_xml(entities.AI.name)}: Primary Companion (Present)`);
-  if (entities?.USER?.name) active_participants.push(`- ${escape_xml(entities.USER.name)}: Protagonist (Present)`);
-
+  const present_rows = [];
+  if (entities?.AI?.name) present_rows.push(`- ${escape_xml(entities.AI.name)}: Primary Companion`);
+  if (entities?.USER?.name) present_rows.push(`- ${escape_xml(entities.USER.name)}: Protagonist`);
   for (const entity of present) {
-    if (active_trio_ids.has(String(entity.id)) || entity === entities?.AI || entity === entities?.USER || entity === entities?.FRACTAL) {
-      continue;
-    }
+    if (is_active_trio(entity)) continue;
     const summary = summarize_entity(entity);
-    const summary_suffix = summary ? `: ${escape_xml(summary)}` : "";
-    active_participants.push(`- ${escape_xml(entity.name)} (id: ${escape_xml(String(entity.id))}) [Present]${summary_suffix}`);
+    present_rows.push(`- ${escape_xml(entity.name)} (id: ${escape_xml(String(entity.id))})${summary ? `: ${escape_xml(summary)}` : ""}`);
   }
 
-  const candidate_dormant = [];
+  const dormant_rows = [];
   for (const entity of dormant) {
-    if (active_trio_ids.has(String(entity.id))) continue;
+    if (is_active_trio(entity)) continue;
     const summary = summarize_entity(entity);
-    const summary_suffix = summary ? `: ${escape_xml(summary)}` : "";
-    candidate_dormant.push(`- ${escape_xml(entity.name)} (id: ${escape_xml(String(entity.id))}) [Dormant (Stasis)]${summary_suffix}`);
+    dormant_rows.push(`- ${escape_xml(entity.name)} (id: ${escape_xml(String(entity.id))})${summary ? `: ${escape_xml(summary)}` : ""}`);
   }
 
-  const { DORMANT, PRESENT } = CAST_HEADERS;
-  const sections = [
-    `${PRESENT}\n${active_participants.join("\n")}`,
-    candidate_dormant.length > 0 ? `${DORMANT}\n${candidate_dormant.join("\n")}` : null,
-  ].filter(Boolean);
-
-  return render_cast_xml({ mode: CAST_MODES.PRESENT, children: sections });
+  return [
+    present_rows.length ? render_cast_xml({ mode: CAST_MODES.PRESENT, children: [present_rows.join("\n")] }) : "",
+    dormant_rows.length ? render_cast_xml({ mode: CAST_MODES.DORMANT, children: [dormant_rows.join("\n")] }) : "",
+  ]
+    .filter(Boolean)
+    .join("\n\n");
 }
 
 /**
  * CHANGELOG
  * ============================================================================
+ * - 2026-09-23: Cast de-duplication — the `<CAST>` roster now lives inside `<ENTITIES>` (built by `render_entity_sheets`), drops the `ACTIVE PRESENT PARTICIPANTS:` header and the per-row `(Present)`/`[Present]` suffixes, and splits genesis candidates into a separate `<CAST mode="dormant">` block (`CAST_MODES.DORMANT`); `CAST_HEADERS` retired.
  * - 2026-09-22: One cast block (recommendation #9) — `PRESENT_ENTITIES` / `NEARBY_ENTITIES` collapse into the single `<CAST mode="present|nearby">` envelope (`render_cast_xml`, `CAST_MODES`); the Director's speaker-routing and convergence prose moved out of the data block into `<DIRECTIVES>` (`TASK_LIBRARY.DIRECTOR`, recommendation #3); `render_present_entities_xml` → `render_present_cast_xml`.
  * - 2026-09-21: `render_dispositions` is now offset-free — it takes `(entity, active_names, name_to_id_map)` and emits at indent 0 (the dropped `indent` parameter), letting callers place the block via their own `render_xml_tag` nesting.
  * - 2026-09-18: Extracted spatial presence, nearby cast, and Director present entities routing into dedicated presence.js submodule.

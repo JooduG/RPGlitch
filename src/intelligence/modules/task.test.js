@@ -102,7 +102,7 @@ describe("render_task — Director Mode", () => {
       schema: dummy_schema,
     });
 
-    expect(task).toContain('<INPUT origin="USER" round="1" kind="action">');
+    expect(task).toContain('<INPUT origin="USER" round="1" mode="action">');
     expect(task).toContain("<TASK>");
     expect(task).toContain('next_action MUST be "AI_CHARACTER"');
     expect(task).toContain('<OUTPUT_FORMAT mode="json">');
@@ -137,7 +137,7 @@ describe("render_task — Story Prose Mode", () => {
     expect(task).toContain("<TASK>");
     expect(task).toContain("<THINK>");
     expect(task).toContain("VISCERAL_IMPACT");
-    expect(task).toContain('<INPUT kind="action">');
+    expect(task).toContain('<INPUT mode="action">');
     expect(task).toContain("Respond strictly as Alice.");
     expect(task).toContain("<DELIVERY_POSTURE>");
     expect(task).toContain('<VOICE mode="clinical">');
@@ -226,7 +226,7 @@ describe("task.js - Optics Task Staging", () => {
     expect(task).toContain('<CINEMATOGRAPHY mode="Intimate Close-Up">');
     expect(task).toContain("<KEYWORD_DIRECTIVES>");
     expect(task).toContain("<SELFIE_DIRECTIVE>");
-    expect(task).toContain('<INPUT kind="intent">Standing alone in the pouring rain</INPUT>');
+    expect(task).toContain('<INPUT mode="intent">Standing alone in the pouring rain</INPUT>');
     expect(task).toContain('<OUTPUT_FORMAT mode="json">');
   });
 
@@ -328,7 +328,6 @@ describe("TASK_LAYERS — canonical envelope grammar", () => {
       "target",
       "spatial_framing",
       "directives",
-      "keyword_directives",
       "delivery_posture",
       "stability_lock",
       "output_format",
@@ -349,8 +348,8 @@ describe("TASK_LAYERS — canonical envelope grammar", () => {
 describe("render_task — per-mode state dispatch", () => {
   it("routes director to its JSON staging state and terse to the minimal refusal state", () => {
     const full = render_task({ mode: "director", round: 2, input: "hi", last_ai_text: "prev", schema: '{"a":1}' });
-    expect(full).toContain('<INPUT origin="USER" round="2" kind="action">hi</INPUT>');
-    expect(full).toContain("<AI_CHARACTER_LAST_TURN>");
+    expect(full).toContain('<INPUT origin="USER" round="2" mode="action">hi</INPUT>');
+    expect(full).toContain('<AI_CHARACTER_LAST_TURN origin="AI_CHARACTER" mode="action">');
     expect(full).toContain("<DIRECTIVES>");
     expect(full).toContain('<OUTPUT_FORMAT mode="json">');
 
@@ -395,6 +394,7 @@ describe("render_task — per-mode state dispatch", () => {
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-23: Harmonized signal channel + directives nesting — assertions now expect the `mode` discriminator (was `kind`), the `<AI_CHARACTER_LAST_TURN>` block carrying input-style attributes, the `keyword_directives` slot removed from `TASK_LAYERS`, and `<KEYWORD_DIRECTIVES>` nested inside `<DIRECTIVES>`.
  * - 2026-09-21: Realigned to the table-driven TASK envelope: removed the retired per-mode renderer imports and rewrote Section 3/7 around `render_task` + `TASK_LAYERS` + `render_directives_xml` (directive prose now lives inside the single `<DIRECTIVES>` element; optics `<MANDATE>` folded into `<DIRECTIVES>`).
  * - 2026-09-19: Added a per-mode compiler dispatch suite asserting render_task routes to render_director_task / render_structured_task / render_optics_task / render_prose_task.
  * - 2026-09-19: Dropped the resolve_context_directives test (resolver removed — FIRST_CONTACT is now the single TASK_LIBRARY.PROSE.CHARACTER directive, driven by director_data.first_contact).

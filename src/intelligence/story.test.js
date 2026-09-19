@@ -1983,7 +1983,7 @@ describe("ghostwrite identity", () => {
   it("enhances the PLAYER persona's draft, addressed against the AI character", () => {
     const { system, task } = render_story_prose({ entities: _prompt_test_entities, input: "I step forward and bare my teeth.", ghostwrite: true });
     expect(system).toContain("You are Lord Benedict Silvers within FRACTAL Project Tartarus, interacting with Beast.");
-    expect(task).toContain('<INPUT origin="SILVERS" kind="action">I step forward and bare my teeth.</INPUT>');
+    expect(task).toContain('<INPUT origin="SILVERS" mode="action">I step forward and bare my teeth.</INPUT>');
     expect(task).toContain("<DELIVERY_POSTURE>");
     expect(task).toContain("Advance the scene in response to");
   });
@@ -2081,7 +2081,7 @@ describe("narrator prose compiler", () => {
       entities: _prompt_test_entities,
       input: "The reactor pulses.",
     });
-    expect(result.system).toContain('<SYSTEM round="1" mode="narrator" role="NARRATOR">');
+    expect(result.system).toContain('<SYSTEM round="1" mode="narrator">');
     expect(result.system).toContain("You are Project Tartarus, the Fractal itself, narrating the story.");
     expect(result.system).toContain('<PERSPECTIVE person="THIRD" tense="PRESENT">');
     expect(result.task).toContain("<TASK>");
@@ -2103,6 +2103,7 @@ describe("narrator prose compiler", () => {
 
 /**
  * CHANGELOG
+ * - 2026-09-23: Envelope-harmonization assertions — `<INPUT>` now carries `mode="action"`, and the narrator envelope no longer emits a redundant `role="NARRATOR"` attribute (single `<SYSTEM mode="narrator">`).
  * - 2026-09-22: Ghostwrite assertion follows the single `<INPUT origin|round|kind>` channel (recommendation #5) — the emitted tag now carries `kind="action"`.
  * - 2026-09-21: Standardization pass — the mocked `assemble_prompt` now routes terse Director retries through the `director` case (`context.terse`) since the `director_terse` mode was retired, and the fractal psychology wrapper assertion follows the `ATMOSPHERE`→`ESSENCE` rename.
  * - 2026-09-19: Purged legacy prompt_builder mock shim under P4 Zero Backwards Compatibility; modernized prompt compilation spies around assemble_prompt and build_scoring_context.

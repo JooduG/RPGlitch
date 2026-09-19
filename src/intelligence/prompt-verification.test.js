@@ -85,10 +85,10 @@ describe("Prompt pipeline — universal envelope invariants", () => {
       const prompt_package = compile_prompt(mode_key, context);
       const task = String(prompt_package.task || "");
 
-      // 1. Open <SYSTEM> fragment carrying a machine-readable role and a human role line.
+      // 1. Open <SYSTEM> fragment carrying the single machine-readable `mode` and a human role line.
       expect(prompt_package.system).toContain("<SYSTEM");
       expect(prompt_package.system).not.toContain("</SYSTEM>");
-      expect(prompt_package.system).toMatch(/<SYSTEM[^>]*role="[A-Z_]+"/);
+      expect(prompt_package.system).toMatch(/<SYSTEM[^>]*mode="[a-z_]+"/);
       expect(prompt_package.system).toContain("You are ");
 
       // 2. The Task is the package's own field — never nested in <SYSTEM>.
@@ -164,6 +164,7 @@ describe("Prompt pipeline — declared envelope layers", () => {
 
 /**
  * CHANGELOG
+ * - 2026-09-23: Invariant now asserts the single `<SYSTEM mode="…">` discriminator (the redundant `role` attribute was dropped) following the envelope-harmonization pass.
  * - 2026-09-22: Added the declared-envelope-layer gate (recommendation #4) — each mode's manifest `layers` must cover every emitted top-level layer tag, in declared order, and may only declare known keys.
  * - 2026-09-20: Extended the gate with universal envelope invariants (open <SYSTEM> + role line, single top-level <TASK>, no reserved-tag metasyntax) alongside the regenerated per-mode tag inventory.
  * - 2026-09-19: Added Phase-0 per-mode contract tests (tag inventory + package shape + size tripwire) for every registered prompt mode.

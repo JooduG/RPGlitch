@@ -204,7 +204,7 @@ export const SHEET_SPECS = Object.freeze({
     tag: "USER_PERSONA",
     default_name: "User",
     memory_tag: "BACKSTORY",
-    axes_scope: null,
+    axes_scope: "somatic",
     epistemic: EPISTEMIC_ALWAYS,
   }),
   FRACTAL: Object.freeze({
@@ -394,7 +394,7 @@ export function render_sheet(specification, context) {
 /**
  * Resolves the mode's `entities` manifest layer and the active entity roster into one plan.
  * Single source of truth for every entity gate read (`dispositions`, `dynamic_axes`,
- * `user_agenda`, `nearby_entities`, `present_entities`, `field_context`, `target_context`,
+ * `agendas`, `nearby_entities`, `present_entities`, `field_context`, `target_context`,
  * `chapter_history`) plus the available-entity maps and NPC render list.
  *
  * @param {any} [config=null] - Resolved prompt manifest record containing `.entities`.
@@ -404,12 +404,13 @@ export function render_sheet(specification, context) {
  * @param {string[]} [context.in_scene_ids=[]]
  * @param {any} [context.active_speaker=null]
  * @param {boolean} [context.is_npc=false]
- * @returns {Readonly<{ dispositions: Set<string>, dynamic_axes: Set<string>, user_agenda: boolean, nearby_entities: boolean, present_entities: boolean, field_context: boolean, target_context: boolean, chapter_history: boolean, active_names: Set<string>, name_to_id: Map<string, string>, npc_ids_to_render: Set<string> }>}
+ * @returns {Readonly<{ dispositions: Set<string>, dynamic_axes: Set<string>, agendas: Set<string>, nearby_entities: boolean, present_entities: boolean, field_context: boolean, target_context: boolean, chapter_history: boolean, active_names: Set<string>, name_to_id: Map<string, string>, npc_ids_to_render: Set<string> }>}
  */
 export function resolve_entities(config = null, context = {}) {
   const configuration = config?.entities || {};
   const dispositions = new Set(configuration.dispositions || []);
   const dynamic_axes = new Set(configuration.dynamic_axes || []);
+  const agendas = new Set(configuration.agendas || []);
 
   const { active_names, name_to_id } = resolve_available_entities({
     entities: context.entities || {},
@@ -434,7 +435,7 @@ export function resolve_entities(config = null, context = {}) {
   return Object.freeze({
     dispositions,
     dynamic_axes,
-    user_agenda: Boolean(configuration.user_agenda),
+    agendas,
     nearby_entities: Boolean(configuration.nearby_entities),
     present_entities: Boolean(configuration.present_entities),
     field_context: Boolean(configuration.field_context),
@@ -461,6 +462,8 @@ export function resolve_entities(config = null, context = {}) {
  * @param {boolean} [parameters.is_npc=false]
  * @param {any} [parameters.speaker_dynamics=null]
  * @param {any} [parameters.fractal_dynamics=null]
+ * @param {string} [parameters.speaker_key="AI"] - Which core entity is speaking ("AI"/"USER"/"NPC"), gating ownership + agenda visibility.
+ * @param {string|null} [parameters.cast_xml=null] - Pre-rendered `<CAST>` roster appended as the final `<ENTITIES>` child.
  * @returns {string}
  */
 export function render_entity_sheets({
@@ -474,34 +477,48 @@ export function render_entity_sheets({
   is_npc = false,
   speaker_dynamics = null,
   fractal_dynamics = null,
+  speaker_key = "AI",
+  cast_xml = null,
 }) {
   const entity_plan = resolve_entities(config, { entities, npc_entities, in_scene_ids, active_speaker, is_npc });
   const dispositions_for = entity_plan.dispositions;
   const axes_for = entity_plan.dynamic_axes;
+  const agendas = entity_plan.agendas;
   const { active_names, name_to_id } = entity_plan;
   const parts = [];
+
+  // The speaking entity owns its sheet (private STATE survives) and carries live axes; the
+  // listener is gated by `agendas`/`dispositions`. Swapping `speaker_key` (e.g. "USER" for
+  // ghostwrite) mirrors the whole sheet-visibility surface — that is the only structural
+  // difference between the interaction and ghostwrite envelopes.
+  const dynamics_for = (key) => {
+    if (!axes_for.has(key)) return null;
+    if (key === speaker_key) return speaker_dynamics;
+    if (key === "FRACTAL") return fractal_dynamics;
+    return entities?.[key]?.dynamics || null;
+  };
 
   const core_trio = [
     {
       key: "AI",
       specification: SHEET_SPECS.AI_CHARACTER,
-      dynamics: axes_for.has("AI") ? speaker_dynamics : null,
-      is_owner: !is_npc,
-      include_agenda: true,
+      dynamics: dynamics_for("AI"),
+      is_owner: speaker_key === "AI",
+      include_agenda: agendas.has("AI"),
     },
     {
       key: "USER",
       specification: SHEET_SPECS.USER_PERSONA,
-      dynamics: null,
-      is_owner: false,
-      include_agenda: entity_plan.user_agenda,
+      dynamics: dynamics_for("USER"),
+      is_owner: speaker_key === "USER",
+      include_agenda: agendas.has("USER"),
     },
     {
       key: "FRACTAL",
       specification: SHEET_SPECS.FRACTAL,
-      dynamics: axes_for.has("FRACTAL") ? fractal_dynamics : null,
+      dynamics: dynamics_for("FRACTAL"),
       is_owner: true,
-      include_agenda: true,
+      include_agenda: agendas.has("FRACTAL"),
     },
   ];
 
@@ -567,6 +584,8 @@ export function render_entity_sheets({
     const nearby_xml = render_nearby_entities_xml(nearby_candidates, { indent: 0 });
     if (nearby_xml) parts.push(nearby_xml);
   }
+
+  if (cast_xml) parts.push(cast_xml);
 
   return render_xml_tag({
     tag: "ENTITIES",
@@ -816,14 +835,28 @@ export function render_dynamics_axes_xml(live_dynamics = null, scope = null, axe
 }
 
 /**
- * Compiles universal <DYNAMICS> calibration rules and axes legend for director planning.
+ * Compiles the Director's single `<DYNAMICS>` block — calibration laws plus the full axis
+ * set with each axis's live value (when known) and its poles. The Director evaluates all six
+ * axes as one group, so values are gathered here rather than fragmented across entity sheets.
  *
  * @param {Record<string, { label: string, low: string, high: string }>} [axes_registry={}]
+ * @param {Record<string, number>} [live_values={}] - Current values keyed by axis name (unknown axes render pole-only).
  * @returns {string} XML block string.
  */
-export function render_dynamics_xml(axes_registry = {}) {
+export function render_dynamics_xml(axes_registry = {}, live_values = {}) {
   const axes = Object.entries(axes_registry)
-    .map(([key, meta]) => `    - ${key} (${meta.label}): ${meta.low} vs ${meta.high}`)
+    .map(([key, meta]) => {
+      const raw_value = live_values?.[key];
+      const value = raw_value == null || raw_value === "" ? null : Math.round(Number(raw_value));
+      const attrs = [
+        value != null && Number.isFinite(value) ? `value="${value}"` : null,
+        `low="${escape_xml(meta.low)}"`,
+        `high="${escape_xml(meta.high)}"`,
+      ]
+        .filter(Boolean)
+        .join(" ");
+      return `    <${key.toUpperCase()} ${attrs} />`;
+    })
     .join("\n");
   return `
 <DYNAMICS>
@@ -841,6 +874,7 @@ ${axes}
 /**
  * CHANGELOG
  * ============================================================================
+ * - 2026-09-23: Entity-visibility mirror + cast nesting — the agenda gate is now the `agendas` list (replacing `user_agenda`) and sheet ownership/axes flow from a single `speaker_key`, so ghostwrite is interaction with `speaker_key="USER"` (AI↔USER visibility swapped); `<ENTITIES>` accepts a `cast_xml` roster appended as its final child. `USER_PERSONA.axes_scope` is now `"somatic"` so the player sheet can carry its own axes when it is the speaker (ghostwrite), completing the mirror — the manifest's `dynamic_axes` gate still keeps those axes hidden in every listener position.
  * - 2026-09-22: One entity-sheet grammar (recommendation #2) — the fractal sheet now uses `PSYCHOLOGY`/`APPEARANCE`, every physical sheet uses one `APPEARANCE`/`CURRENT_LOOK` vocabulary for all kinds (retiring `ESSENCE`/`TOPOGRAPHY`/`PHYSICAL_APPEARANCE`/`ENVIRONMENT`/`ATMOSPHERE`), and optics' blocks route through the shared `render_sheet` path via `VISUAL_SECTIONS` + `context.transform_physical`.
  * - 2026-09-21: Tag nomenclature pass — the fractal psychology wrapper is now `ESSENCE` (was the ambiguous `ATMOSPHERE`, which collided with the physical `<ATMOSPHERE>` weather key) and the optics present-look wrapper is `CURRENT_LOOK` (was `CURRENT_IMPRESSION`); sheet field indentation now composes through nested `render_xml_tag` calls for uniform 2-space steps.
  * - 2026-09-20: Sheet-grammar unification — `SHEET_SPECS` is now pure vocabulary (tags, section name, axis scope, physical mode, `epistemic`) walked by one shared `SHEET_SECTIONS` sequence + `SHEET_FIELD_RENDERERS` catalog; named `EPISTEMIC_POLICY` constants and `EPISTEMIC_ALWAYS` / `EPISTEMIC_OWNER_STATE` bundles replace the duplicated visibility literals, and `render_sheet` resolves every field through one projection. Intentional grammatical differences (PSYCHOLOGY/ATMOSPHERE, APPEARANCE/TOPOGRAPHY, combined vs separate physical) remain declared per-kind data. Also «SHIRT»/«JACKET» metasyntax in `render_optics_subject_rules`.

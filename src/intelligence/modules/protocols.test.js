@@ -135,12 +135,13 @@ describe("protocols.js - Visual Style & Optics Protocols", () => {
       velocity: { label: "Velocity", low: "Suspension", high: "Acceleration", scope: "fractal" },
     };
 
-    it("renders <DYNAMICS> laws and axes legend", () => {
-      const xml = render_dynamics_xml(mock_axes);
+    it("renders the unified <DYNAMICS> block with law text, axis values, and poles", () => {
+      const xml = render_dynamics_xml(mock_axes, { chaos: 65 });
       expect(xml).toContain("<DYNAMICS>");
       expect(xml).toContain("<LAWS>");
-      expect(xml).toContain("- chaos (Chaos): Order vs Volatility");
-      expect(xml).toContain("- velocity (Velocity): Suspension vs Acceleration");
+      expect(xml).toContain('<CHAOS value="65" low="Order" high="Volatility" />');
+      // Axes without a live value still render their poles (the legend survives).
+      expect(xml).toContain('<VELOCITY low="Suspension" high="Acceleration" />');
     });
 
     it("renders scoped <DYNAMIC_AXES>", () => {
@@ -161,5 +162,6 @@ describe("protocols.js - Visual Style & Optics Protocols", () => {
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-23: Added coverage for the consolidated `render_dynamics_xml` `<DYNAMICS>` block — each axis carries `value` plus both poles, and a value-less axis keeps its legend.
  * - 2026-09-19: Added unit test suite validating render_visual_style_xml and render_optics_protocols for Layer 3.
  */

@@ -351,7 +351,7 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
       history: [],
     });
 
-    expect(continuum_package.system).toContain('role="CONTINUUM_CARETAKER"');
+    expect(continuum_package.system).toContain('mode="continuum"');
     expect(continuum_package.system).toContain("<TARGET_ENTITY_CONTEXT>");
   });
 
@@ -373,9 +373,9 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
       options: {},
       input_data: "Raw bio text",
     });
-    expect(sorting_package.system).toContain('role="NARRATIVE_STRUCTURER"');
+    expect(sorting_package.system).toContain('mode="sorting"');
     expect(sorting_package.messages).toBeUndefined();
-    expect(sorting_package.task).toContain('<INPUT kind="ingestion">Raw bio text</INPUT>');
+    expect(sorting_package.task).toContain('<INPUT mode="ingestion">Raw bio text</INPUT>');
   });
 
   it("compiles optics mode via compile_prompt", () => {
@@ -385,7 +385,7 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
       is_selfie: false,
     });
 
-    expect(optics_package.system).toContain('role="SENSORY_CORTEX"');
+    expect(optics_package.system).toContain('mode="optics"');
     expect(optics_package.task).toContain("<TASK>");
     expect(optics_package.task).toContain('<OUTPUT_FORMAT mode="json">');
     expect(optics_package.task).toContain('"prompt"');
@@ -430,10 +430,10 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
 
   it("exposes continuum and sorting as declarative pipeline modes", () => {
     const continuum_result = compile_prompt("continuum", { target_entity: test_entities.AI, history: [] });
-    expect(continuum_result.system).toContain('role="CONTINUUM_CARETAKER"');
+    expect(continuum_result.system).toContain('mode="continuum"');
 
     const sorting_result = compile_prompt("sorting", { input_data: "raw text", entity_type: "character" });
-    expect(sorting_result.system).toContain('role="NARRATIVE_STRUCTURER"');
+    expect(sorting_result.system).toContain('mode="sorting"');
   });
   it("audits epistemic integrity returning boolean without throwing unhandled errors", async () => {
     const { verify_epistemic_integrity } = await import("./modules/entities/epistemic.js");
@@ -448,6 +448,7 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-23: Envelope-harmonization assertions — system envelopes are matched by `mode="…"` (the `role` attribute was retired) and `<INPUT mode="ingestion">` replaces the `kind=` channel.
  * - 2026-09-21: Realigned to the table-driven envelope pass — sorting schema now asserted with raw JSON quotes (OUTPUT_FORMAT derives from the one TASK state builder, so the former sorting-only XML escaping was dropped for parity with director/continuum/optics), the enhancement scope attribute renamed `enhancing=` → `scope=`, and the terse director case now compiles `director` with `{ terse: true }` (the retired `director_terse` mode collapsed).
  * - 2026-09-19: Followed the P7 facade collapse — Section 5 now drives `compile_prompt` (from prompts.js) and `render_scene_narrator`; the ghostwrite case uses `render_story_prose({ ghostwrite: true })` (the production path).
  * - 2026-09-19: Retargeted the affirmative-framing regression gate from PROTOCOL_LIBRARY.HYGIENE to PROTOCOL_LIBRARY.OPTICS (its new single source of truth).

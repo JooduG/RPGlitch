@@ -103,7 +103,7 @@ describe("Profile Domain (profile.js)", () => {
   describe("render_profile_sorting()", () => {
     it("renders valid schema, macros, and focus directive", () => {
       const char_result = render_profile_sorting("character", { ingestion: true });
-      expect(char_result.system + char_result.task).toContain('<SYSTEM mode="sorting" role="NARRATIVE_STRUCTURER"');
+      expect(char_result.system + char_result.task).toContain('<SYSTEM mode="sorting"');
       expect(char_result.system + char_result.task).toContain("FOCUS: Extracting data for an individual CHARACTER.");
       expect(char_result.system + char_result.task).toContain("SOURCE OF TRUTH & INGESTION RULES:");
 
@@ -188,6 +188,7 @@ describe("Profile Domain (profile.js)", () => {
 
 /**
  * CHANGELOG
+ * - 2026-09-23: Assertion follows the single `mode` discriminator (`<SYSTEM mode="sorting"`).
  * - 2026-09-16: Updated primitive protocol assertions from SORTING_DIRECTIVES to TASK_LIBRARY.SORTING following catalog unification in task.js.
  * - 2026-09-12: Updated protocol tests to assert the 7 unified SCREAMING_SNAKE_CASE OUTPUT_FORMATS.
  * - 2026-09-12: Updated imports for PROFILE_SCHEMA and OUTPUT_FORMATS from modules/format.js.

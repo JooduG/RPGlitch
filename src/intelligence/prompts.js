@@ -52,7 +52,7 @@
 const DEFAULT_ENTITIES_CONFIG = Object.freeze({
   dispositions: [],
   dynamic_axes: [],
-  user_agenda: false,
+  agendas: [],
   nearby_entities: false,
   present_entities: false,
   field_context: false,
@@ -101,11 +101,9 @@ export const ENVELOPE_LAYER_TAGS = Object.freeze({
   constitution: "AXIOMATIC_CONSTITUTION",
   protocols: "CORE_PROTOCOLS",
   dynamics: "DYNAMICS",
-  keyword_directives: "KEYWORD_DIRECTIVES",
   entities: "ENTITIES",
   target_context: "TARGET_ENTITY_CONTEXT",
   nearby_cast: "CAST",
-  present_cast: "CAST",
   layer: "LAYER",
   field_context: "ENTITY_CONTEXT",
   input_content: "INPUT",
@@ -192,13 +190,12 @@ export const PROMPTS = Object.freeze({
     protocols: ["CORE_PROTOCOLS.ALTERNATION_OPTIONS"],
     entities: {
       dispositions: ["AI", "USER", "FRACTAL", "NPC"],
-      dynamic_axes: ["AI", "FRACTAL"],
-      user_agenda: true,
+      agendas: ["AI", "USER", "FRACTAL"],
       present_entities: true,
     },
     layers: {
-      system: ["role", "protocols", "dynamics", "entities", "present_cast"],
-      task: ["input", "last_turn", "directives", "keyword_directives", "output_format"],
+      system: ["role", "protocols", "dynamics", "entities"],
+      task: ["input", "last_turn", "directives", "output_format"],
     },
     format: { mode: "json", schema: DIRECTOR_SCHEMA },
   }),
@@ -211,6 +208,7 @@ export const PROMPTS = Object.freeze({
     entities: {
       dispositions: ["AI", "FRACTAL"],
       dynamic_axes: ["AI", "FRACTAL"],
+      agendas: ["AI", "FRACTAL"],
       nearby_entities: true,
     },
     layers: PROSE_LAYERS,
@@ -221,8 +219,9 @@ export const PROMPTS = Object.freeze({
     system: { mode: "ghostwrite", role: "INTERACTION" },
     protocols: prose_protocols({ include_dialogue: true }),
     entities: {
-      dispositions: ["AI", "FRACTAL"],
-      dynamic_axes: ["AI", "FRACTAL"],
+      dispositions: ["USER", "FRACTAL"],
+      dynamic_axes: ["USER", "FRACTAL"],
+      agendas: ["USER", "FRACTAL"],
       nearby_entities: true,
     },
     layers: PROSE_LAYERS,
@@ -235,6 +234,7 @@ export const PROMPTS = Object.freeze({
     entities: {
       dispositions: ["FRACTAL", "NPC"],
       dynamic_axes: ["NPC", "FRACTAL"],
+      agendas: ["AI", "FRACTAL"],
       nearby_entities: true,
     },
     layers: PROSE_LAYERS,
@@ -247,7 +247,7 @@ export const PROMPTS = Object.freeze({
     entities: {
       dispositions: ["AI", "USER", "FRACTAL", "NPC"],
       dynamic_axes: ["FRACTAL"],
-      user_agenda: true,
+      agendas: ["AI", "USER", "FRACTAL"],
       nearby_entities: true,
     },
     layers: PROSE_LAYERS,
@@ -318,7 +318,7 @@ export const PROMPTS = Object.freeze({
     ],
     layers: {
       system: ["role", "protocols", "entities", "history"],
-      task: ["think", "input", "target", "spatial_framing", "directives", "keyword_directives", "output_format"],
+      task: ["think", "input", "target", "spatial_framing", "directives", "output_format"],
     },
     task: { think_format: "optics" },
     format: {
@@ -362,6 +362,7 @@ export default PROMPTS;
 
 /**
  * CHANGELOG
+ * - 2026-09-23: Envelope harmonization — dropped the `present_cast` system layer (the `<CAST>` roster now nests inside `<ENTITIES>`) and the `keyword_directives` task layer (the block now nests inside `<DIRECTIVES>`); the `user_agenda` boolean became an `agendas` list, the Director's `dynamic_axes` gate was removed (all six axes gather in the one `<DYNAMICS>` block), and ghostwrite's entity gates mirror interaction's with AI↔USER swapped.
  * - 2026-09-22: Declared envelope shape (recommendation #4) — every mode now carries a frozen `layers: { system, task }` manifest consumed by the `PROMPT_LAYERS`/`TASK_LAYERS` walkers and validated against `ENVELOPE_LAYER_TAGS`; the sorting schema gained `_thought_process` and the continuum/sorting schemas share `TEMPORAL_SCHEMA_FRAGMENT` (recommendation #8).
  * - 2026-09-22: One protocol namespace (recommendation #7) — the data-mode protocol lists now declare `CORE_PROTOCOLS.DATA` instead of the retired `HYGIENE.DATA` namespace.
  * - 2026-09-21: Standardization pass — retired the `director_terse` mode (now `compile_prompt("director", { terse: true })`), so the registry declares 9 modes; `prose_protocols({ include_dialogue })` no longer takes a POV key (resolved by `resolve_pov_protocol`), the continuum/sorting protocol lists dropped POV/TENSE, and the narrator declares `system.pov = "NARRATOR"` for the single POV resolver.

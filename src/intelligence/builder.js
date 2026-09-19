@@ -213,14 +213,12 @@ const PROMPT_LAYERS = Object.freeze([
   { key: "constitution", emit: (state) => state.constitution },
   { key: "protocols", emit: (state) => state.core_protocols },
   { key: "dynamics", emit: (state) => state.dynamics },
-  { key: "keyword_directives", emit: (state) => state.keyword_directives },
   { key: "entities", emit: (state) => state.entities_block },
   { key: "target_context", emit: (state) => state.target_context },
   { key: "nearby_cast", emit: (state) => state.nearby_cast },
   { key: "layer", emit: (state) => state.layer },
   { key: "field_context", emit: (state) => state.field_context },
   { key: "input_content", emit: (state) => state.input_content },
-  { key: "present_cast", emit: (state) => state.present_cast },
   { key: "chapter_history", emit: (state) => state.chapter_history },
   { key: "history", emit: (state) => state.history_block },
 ]);
@@ -262,6 +260,9 @@ export function render_director({
   const schema = get_output_format(config.format);
   const active_style_keywords = get_style_keywords(resolve_active_style_key());
 
+  const merged_dynamics = { ...(compressed_snapshot?.fractal?.dynamics || {}), ...(compressed_snapshot?.ai?.dynamics || {}) };
+  const cast_xml = entity_plan.present_entities ? render_present_cast_xml({ entities: scene_entities, npc_entities, in_scene_ids }) : null;
+
   const entity_sheets = render_entity_sheets({
     entities: scene_entities,
     npc_entities,
@@ -272,6 +273,7 @@ export function render_director({
     render_axes: (dynamics, scope) => render_dynamics_axes_xml(dynamics, scope, DYNAMICS_AXES),
     speaker_dynamics: compressed_snapshot?.ai?.dynamics,
     fractal_dynamics: compressed_snapshot?.fractal?.dynamics,
+    cast_xml,
   });
 
   const core_protocols_xml = render_core_protocols({
@@ -286,14 +288,12 @@ export function render_director({
   const system = render_system_xml({
     mode: config.system.mode,
     round,
-    attributes: { role: config.system.role },
     children: render_prompt_layers(
       {
         role_line,
         core_protocols: core_protocols_xml,
-        dynamics: render_dynamics_xml(DYNAMICS_AXES),
+        dynamics: render_dynamics_xml(DYNAMICS_AXES, merged_dynamics),
         entities_block: entity_sheets,
-        present_cast: entity_plan.present_entities ? render_present_cast_xml({ entities: scene_entities, npc_entities, in_scene_ids }) : null,
       },
       config.layers.system,
     ),
@@ -366,6 +366,7 @@ function render_prose_turn_core({
   action_directive = "",
   snapshot = null,
   is_npc = false,
+  speaker_key = "AI",
 }) {
   const style = get_narrative_style(resolve_active_style_key());
 
@@ -390,6 +391,7 @@ function render_prose_turn_core({
     render_axes: (dynamics, scope) => render_dynamics_axes_xml(dynamics, scope, DYNAMICS_AXES),
     speaker_dynamics,
     fractal_dynamics,
+    speaker_key,
   });
 
   if (!verify_epistemic_integrity(entities_block)) {
@@ -413,7 +415,6 @@ function render_prose_turn_core({
   const system = render_system_xml({
     round,
     mode: config.system.mode,
-    attributes: { role: config.system.role },
     children: render_prompt_layers({ role_line, constitution, core_protocols: core, entities_block }, config.layers.system),
   });
 
@@ -466,7 +467,9 @@ export function render_story_prose({
   const listener_name = prompt_escape(active_listener?.name || "Listener");
   const fractal_name = prompt_escape(entities?.FRACTAL?.name || "the setting");
 
-  const speaker_dynamics = is_npc ? active_speaker?.dynamics || {} : compressed_snapshot?.ai?.dynamics || entities?.AI?.dynamics || {};
+  const speaker_key = is_ghostwrite ? "USER" : is_npc ? "NPC" : "AI";
+  const speaker_dynamics =
+    is_npc || is_ghostwrite ? active_speaker?.dynamics || {} : compressed_snapshot?.ai?.dynamics || entities?.AI?.dynamics || {};
   const fractal_dynamics = compressed_snapshot?.fractal?.dynamics || entities?.FRACTAL?.dynamics || {};
 
   const speaker_name_lc = String(active_speaker?.name || "")
@@ -523,6 +526,7 @@ export function render_story_prose({
     action_directive,
     snapshot: { dynamics: speaker_dynamics },
     is_npc,
+    speaker_key,
   });
 }
 
@@ -612,7 +616,7 @@ export function render_memory({ target_entity, target_key = "AI_CHARACTER", othe
 
   const system = render_system_xml({
     mode: config.system.mode,
-    attributes: { role: config.system.role, target: target_name },
+    attributes: { target: target_name },
     children: render_prompt_layers(
       {
         role_line,
@@ -668,7 +672,6 @@ export function render_enhancement({
   const system = render_system_xml({
     mode: config.system.mode,
     attributes: {
-      role: config.system.role,
       scope: resolved_label,
       field: field_id,
     },
@@ -682,7 +685,7 @@ export function render_enhancement({
               temporal_engine.format(resolve_vector_pool(e), c || "", { max_chars: 1500 }),
             )
           : null,
-        input_content: render_task_input({ input: content, input_kind: "content" }),
+        input_content: render_task_input({ input: content, input_mode: "content" }),
       },
       config.layers.system,
     ),
@@ -705,7 +708,7 @@ export function render_profile_sorting(entity_type = "character", options = {}) 
     mode: "sorting",
     schema: get_output_format(config.format, { entity_type: resolved_type }),
     input: input_text,
-    input_kind: "ingestion",
+    input_mode: "ingestion",
     directives: [
       TASK_LIBRARY.SORTING.POV_THIRD,
       focus_directive,
@@ -720,7 +723,6 @@ export function render_profile_sorting(entity_type = "character", options = {}) 
   const system = render_system_xml({
     mode: config.system.mode,
     attributes: {
-      role: config.system.role,
       scope: "Entire Profile",
     },
     children: render_prompt_layers(
@@ -736,20 +738,19 @@ export function render_profile_sorting(entity_type = "character", options = {}) 
 }
 
 /**
- * Compiles the Optics <SYSTEM role="SENSORY_CORTEX"> envelope for every image-generation task
+ * Compiles the Optics <SYSTEM mode="optics"> envelope for every image-generation task
  * (solo entity portraits and multi-character scenes):
- * <SYSTEM role="SENSORY_CORTEX">      (open fragment; transport closes it)
+ * <SYSTEM mode="optics">               (open fragment; transport closes it)
  *   <CORE_PROTOCOLS>
  *   <ENTITIES>                         (contains <CAST mode="active">)
  *   <HISTORY>                          (optional)
  * </SYSTEM>
  * <TASK>
  *   <THINK_FORMAT>
- *   <INPUT kind="intent">
+ *   <INPUT mode="intent">
  *   <TARGET>
  *   <SPATIAL_FRAMING>
- *   <DIRECTIVES>
- *   <KEYWORD_DIRECTIVES>
+ *   <DIRECTIVES>                      (contains <KEYWORD_DIRECTIVES>)
  *   <OUTPUT_FORMAT mode="json">
  * </TASK>
  *
@@ -876,7 +877,6 @@ export function render_optics_prompt(options = {}) {
 
   const full_system = render_system_xml({
     mode: "optics",
-    attributes: { role: "SENSORY_CORTEX" },
     children: render_prompt_layers(
       {
         role_line: resolve_system_role_line({ role: "SENSORY_CORTEX" }),
@@ -936,7 +936,6 @@ export const MODE_ADAPTERS = {
       const system = render_system_xml({
         mode: config.system.mode,
         round: context.round,
-        attributes: { role: config.system.role },
         children: render_prompt_layers({ role_line: resolve_system_role_line({ role: config.system.role }) }, config.layers.system),
       });
       return pack_prompt(
@@ -982,7 +981,7 @@ export const MODE_ADAPTERS = {
   sorting: (config, context) => {
     // Layer-Order Design Intent: the NARRATIVE_STRUCTURER rules, POV, and JSON schema live
     // in <SYSTEM>/<TASK>, and the raw profile text to be sorted is delivered through the
-    // single <INPUT kind="ingestion"> channel inside <TASK> (no ad-hoc `messages` payload).
+    // single <INPUT mode="ingestion"> channel inside <TASK> (no ad-hoc `messages` payload).
     const { system, task } = render_profile_sorting(context.entity_type, { ...context.options, input_data: context.input_data });
     return pack_prompt({ system, task }, resolve_prompt_meta());
   },
@@ -1112,6 +1111,7 @@ export function assemble_prompt(config, context = {}) {
 
 /**
  * CHANGELOG
+ * - 2026-09-23: Envelope harmonization + ghostwrite mirror — dropped the `<SYSTEM role>` attribute (single `mode`), folded `<KEYWORD_DIRECTIVES>` into `<DIRECTIVES>`, moved the `<CAST>` roster inside `<ENTITIES>` (via `render_entity_sheets`), consolidated all six dynamics axes into the Director's one `<DYNAMICS>` block, routed `render_prose_turn_core`/`render_story_prose` through `speaker_key` so ghostwrite is interaction with AI↔USER visibility swapped, and retired the now-dead `present_cast`/`keyword_directives` system layers.
  * - 2026-09-22: Recommendations 1–9 wiring — `render_prompt_layers(state, allowed_keys)` and `render_task({ layers })` now honor each mode's declared `config.layers`; continuum/enhancement/optics route through the shared `<APPEARANCE>`/`<CURRENT_LOOK>` sheet grammar, the single `<CAST mode>` block (continuum excludes its target entity), the single `<INPUT kind>` channel, and universal `<DIRECTIVES>`; `render_enhancement` emits `<OUTPUT_FORMAT>` for its prose fields; every package carries the full `{ ai, fractal, flags }` meta (recommendation #6).
  * - 2026-09-21: Standardization pass — Director keyword directives moved from `<SYSTEM>` into the `<TASK>` envelope; the `director_terse` adapter collapsed into the `director` adapter (`context.terse`); `render_story_prose` resolves POV through `resolve_pov_protocol(config.system.pov || active_speaker)`; `render_scene_narrator` now accepts `compressed_snapshot`/`pov_protocol` (the `entities._compressed_dynamics` side-channel is gone) so the narrator receives its dynamics; the `enhancing` attribute is renamed `scope`; sorting reads `TASK_LIBRARY.SORTING.POV_THIRD`; `resolve_prompt_meta` normalizes package meta; the `PROTOCOL_LIBRARY` import was retired.
  * - 2026-09-20: Universal envelope (`{ system, task }`) — every compiler (`render_director`, the prose core, `render_memory`, `render_enhancement`, `render_profile_sorting`, `render_optics_prompt`, `director_terse`) now composes through the extended `PROMPT_LAYERS` table via `render_prompt_layers`, returns the `<TASK>` as its own package field (fixing the Optics double-task regression), and emits a `SYSTEM_ROLES` role line + `role="…"` attribute; `pack_prompt` dropped the retired `system_close` field.
