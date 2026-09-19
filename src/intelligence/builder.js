@@ -49,13 +49,12 @@ import { render_axiomatic_constitution } from "./modules/constitution.js";
 import { render_core_protocols, resolve_pov_protocol, PROTOCOL_LIBRARY } from "./modules/protocols.js";
 import {
   render_entity_sheets,
-  render_nearby_entities_xml,
   render_entity_memory_context,
   render_enhancement_field_context,
-  render_present_entities_xml,
   render_optics_entities_xml,
-  verify_epistemic_integrity,
-} from "./modules/entities/index.js";
+} from "./modules/entities/sheets.js";
+import { render_nearby_entities_xml, render_present_entities_xml } from "./modules/entities/presence.js";
+import { verify_epistemic_integrity } from "./modules/entities/epistemic.js";
 
 import { render_history, render_chapter_history_xml, render_input_history_xml, resolve_history, format_sensory_history } from "./modules/history.js";
 import {
@@ -1044,6 +1043,7 @@ export const create_render_accessors = render_builder.create_render_accessors;
 
 /**
  * CHANGELOG
+ * - 2026-09-19: Replaced intermediate `modules/entities/index.js` aggregator with direct concrete imports from `sheets.js`, `presence.js`, and `epistemic.js` under P4 Zero Backwards Compatibility.
  * - 2026-09-19: Fixed E1 (Profile Field Enhancement Metadata): render_enhancement now defensively hydrates missing enhancer, label, directive, layer_key, and is_array_field from PROFILE_FIELD_CATALOG, and updated header to reflect modern compile_prompt architecture.
  * - 2026-09-19: Fixed Director alternation protocol resolution (R1): reordered render_entity_sheets before render_core_protocols and passed has_alternations(entity_sheets).
  * - 2026-09-18: Consolidated Optics keyword directives through render_keyword_directives_xml(..., "OPTICS") supplied to build_optics_builder_protocol.

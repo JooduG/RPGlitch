@@ -55,8 +55,6 @@ export { IMAGE_TIERS, DEFAULT_IMAGE_TIER, normalize_image_tier, get_resolution, 
 // Visual Aesthetics & Prompt Compilers
 // ============================================================================
 
-export { parse_llm_image_prompt_response, clean_image_prompt } from "../intelligence/parser.js";
-
 export {
   aesthetic_resolver,
   build_aesthetic_map,
@@ -88,6 +86,7 @@ export {
 
 /**
  * CHANGELOG:
+ * - 2026-09-19: Purged cross-layer re-exports `parse_llm_image_prompt_response` and `clean_image_prompt` from intelligence/parser.js under P4 Zero Backwards Compatibility.
  * - 2026-09-19: Purged retired prompt_templates export under P4 Zero Backwards Compatibility.
  * - 2026-09-18: Re-exported image prompt compilers and parsers from @intelligence following prompt pipeline consolidation.
  * - 2026-08-29: Applied /harmonize protocol: structured barrel into canonical functional sections with universal header/footer architecture and exported PALETTE_CSS_VARIABLES / PALETTE_VARIABLES.
