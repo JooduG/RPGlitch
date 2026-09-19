@@ -19,8 +19,14 @@
  * ============================================================================
  */
 
-import { STYLE_MOTIF_REGISTRY } from "@data";
-import { escape_xml } from "@utils";
+import { clamp } from "@utils";
+import { render_dynamics_xml as compile_dynamics_xml, render_dynamics_axes_xml as compile_dynamics_axes_xml } from "./modules/entities/sheets.js";
+import {
+  render_subtext_xml as compile_subtext_xml,
+  render_available_keywords_xml as compile_available_keywords_xml,
+  resolve_physics_protocols as compile_physics_protocols,
+  resolve_context_directives as compile_context_directives,
+} from "./modules/task.js";
 
 // ── 1. Dynamics Axes ──────────────────────────────────────────────────────────
 
@@ -291,10 +297,10 @@ export function apply_dynamics_gravity(dynamics, baselines = {}, active_entropy 
     if (skip_axes && skip_axes.has(axis)) continue;
     const target = baselines[axis] ?? 50;
     const randomized_gravity = base_gravity + (Math.random() * 2 - 1) * variance;
-    const applied_gravity = Math.max(0, Math.min(1, randomized_gravity));
+    const applied_gravity = clamp(randomized_gravity, 0, 1);
 
     const next_val = dynamics[axis] + (target - dynamics[axis]) * applied_gravity;
-    dynamics[axis] = Math.max(0, Math.min(100, Math.round(next_val)));
+    dynamics[axis] = clamp(Math.round(next_val), 0, 100);
   }
 }
 
@@ -422,7 +428,7 @@ export function evaluate_dynamics_rules(dynamics = {}, manual_keywords = [], max
 }
 
 // ============================================================================
-// 6. Dynamics XML Compilers
+// 6. Dynamics XML Compilers (Delegators to modules/protocols.js & modules/task.js)
 // ============================================================================
 
 /**
@@ -430,93 +436,33 @@ export function evaluate_dynamics_rules(dynamics = {}, manual_keywords = [], max
  * @returns {string} Formatted XML block.
  */
 export function render_dynamics_xml() {
-  const axes = Object.entries(DYNAMICS_AXES)
-    .map(([key, meta]) => `    - ${key} (${meta.label}): ${meta.low} vs ${meta.high}`)
-    .join("\n");
-
-  return `
-<DYNAMICS>
-  <LAWS>
-  1. Calibrate dynamics_deltas conservatively (±1 to ±4 standard; ±8 to ±12 extreme). 
-  2. Adjust deltas carefully near boundaries (5 or 95) to prevent clipping at 0 or 100. 
-  3. Calibrate dynamics_deltas to reflect the psychological and environmental shift of the turn.
-  </LAWS>
-  <AXES>
-${axes}
-  </AXES>
-</DYNAMICS>`.trim();
+  return compile_dynamics_xml(DYNAMICS_AXES);
 }
 
 /**
  * Compiles live dynamics into a <DYNAMIC_AXES> axis-entity block for the story sheet.
- * Each active axis becomes its own named tag (`<CHAOS value="44" low="Order" high="Volatility" />`).
- *
  * @param {Record<string, number>|null} [live_dynamics=null]
  * @param {"somatic" | "fractal" | null} [scope=null] - Restrict to one axis group
  * @returns {string} XML block string or "" if no dynamics are active.
  */
 export function render_dynamics_axes_xml(live_dynamics = null, scope = null) {
-  if (!live_dynamics || typeof live_dynamics !== "object") return "";
-
-  const tags = Object.entries(DYNAMICS_AXES)
-    .filter(([key, meta]) => (!scope || meta.scope === scope) && live_dynamics[key] !== undefined && live_dynamics[key] !== null)
-    .map(([key, meta]) => {
-      const value = Math.round(Number(live_dynamics[key]));
-      const tag = key.toUpperCase();
-      return `  <${tag} value="${value}" low="${escape_xml(meta.low)}" high="${escape_xml(meta.high)}" />`;
-    });
-
-  return tags.length > 0 ? `<DYNAMIC_AXES scale="0-100">\n${tags.join("\n")}\n</DYNAMIC_AXES>` : "";
+  return compile_dynamics_axes_xml(live_dynamics, scope, DYNAMICS_AXES);
 }
 
 /**
  * Compiles dynamic somatic directives and narrative signals into a single unified <SUBTEXT> XML block.
- *
  * @param {Record<string, number>} [ai_dynamics={}] - Active character dynamics
  * @param {Record<string, number>} [fractal_dynamics={}] - Active fractal/environmental dynamics
  * @param {{ style?: object, keywords?: string[] }} [options={}] - Narrative style and manual or director keywords
  * @returns {string} XML block string or "" if no signals or directives are active.
  */
 export function render_subtext_xml(ai_dynamics = {}, fractal_dynamics = {}, options = {}) {
-  const tags = [];
-  const seen = new Set();
-
-  const push = (id, directive) => {
-    const tag =
-      String(id || "")
-        .trim()
-        .toUpperCase()
-        .replace(/[^A-Z0-9_]/g, "_") || "";
-    const text = String(directive || "").trim();
-    if (!tag || !text || seen.has(tag)) return;
-    seen.add(tag);
-    tags.push(`      <${tag}>${escape_xml(text)}</${tag}>`);
-  };
-
-  // 1. Somatic Directives
-  const manual_keywords = options?.keywords || [];
-  const resolved_keywords = ai_dynamics && Object.keys(ai_dynamics).length ? evaluate_dynamics_rules(ai_dynamics, manual_keywords) : manual_keywords;
-
-  const resolved_directives = resolve_physics_protocols(resolved_keywords);
-  for (const entry of resolved_directives) {
-    push(entry.id, entry.directive);
-  }
-
-  // 2. Dynamics Subtext Protocols
-  const active_protocols = evaluate_subtext_protocols({
-    ai_dynamics,
-    fractal_dynamics,
-    style: options?.style,
+  return compile_subtext_xml(ai_dynamics, fractal_dynamics, {
+    ...options,
+    physics_protocols: PHYSICS_PROTOCOLS,
+    evaluate_dynamics_rules,
+    evaluate_subtext_protocols,
   });
-  for (const protocol of active_protocols) {
-    const text =
-      protocol.text ||
-      (typeof PHYSICS_PROTOCOLS[protocol.id] === "string" ? PHYSICS_PROTOCOLS[protocol.id] : PHYSICS_PROTOCOLS[protocol.id]?.directive);
-    push(protocol.id, text);
-  }
-
-  if (tags.length === 0) return "";
-  return `    <SUBTEXT>\n${tags.join("\n")}\n    </SUBTEXT>`;
 }
 
 // ============================================================================
@@ -529,24 +475,7 @@ export function render_subtext_xml(ai_dynamics = {}, fractal_dynamics = {}, opti
  * @returns {{ id: string, tells?: string, directive: string }[]}
  */
 export function resolve_physics_protocols(keywords = []) {
-  const resolved = [];
-  for (const keyword of keywords || []) {
-    if (!keyword || typeof keyword !== "string") continue;
-    const clean_key = keyword.trim();
-    const upper_key = clean_key.toUpperCase();
-    const protocol_def = PHYSICS_PROTOCOLS[upper_key] || PHYSICS_PROTOCOLS[clean_key];
-    if (protocol_def) {
-      if (typeof protocol_def === "object") {
-        resolved.push({ id: upper_key, tells: protocol_def.tells, directive: protocol_def.directive });
-      } else {
-        resolved.push({ id: upper_key, directive: String(protocol_def) });
-      }
-      continue;
-    }
-    const motif = STYLE_MOTIF_REGISTRY[clean_key] || STYLE_MOTIF_REGISTRY[clean_key.toLowerCase()];
-    if (motif) resolved.push({ id: clean_key, directive: motif.directive });
-  }
-  return resolved;
+  return compile_physics_protocols(keywords, PHYSICS_PROTOCOLS);
 }
 
 /**
@@ -555,18 +484,7 @@ export function resolve_physics_protocols(keywords = []) {
  * @returns {{ id: string, directive: string }[]}
  */
 export function resolve_context_directives(keywords = []) {
-  const resolved = [];
-  for (const keyword of keywords || []) {
-    if (!keyword || typeof keyword !== "string") continue;
-    const clean_key = keyword.trim();
-    const upper_key = clean_key.toUpperCase();
-    const entry = PHYSICS_PROTOCOLS[upper_key];
-    if (entry) {
-      const directive = typeof entry === "string" ? entry : entry.directive;
-      resolved.push({ id: upper_key, directive });
-    }
-  }
-  return resolved;
+  return compile_context_directives(keywords, PHYSICS_PROTOCOLS);
 }
 
 /**
@@ -575,10 +493,7 @@ export function resolve_context_directives(keywords = []) {
  * @returns {string}
  */
 export function render_available_keywords_xml(active_style_keywords = []) {
-  const static_ids = AVAILABLE_KEYWORDS;
-  const motifs = (active_style_keywords || []).filter((k) => typeof k === "string" && k.trim()).map((k) => k.trim().toUpperCase());
-  const combined = Array.from(new Set([...static_ids, ...motifs]));
-  return combined.map((k) => `[${k}]`).join(" ");
+  return compile_available_keywords_xml(active_style_keywords, AVAILABLE_KEYWORDS);
 }
 
 /**

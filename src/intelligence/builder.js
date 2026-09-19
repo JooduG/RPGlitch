@@ -64,9 +64,12 @@ import {
   resolve_character_action_directive,
   resolve_scene_action_directive,
   resolve_optics_cinematography,
+  render_available_keywords_xml,
+  render_subtext_xml,
 } from "./modules/task.js";
 import { get_output_format } from "./modules/format.js";
-import { render_available_keywords_xml, render_dynamics_xml, render_subtext_xml, render_dynamics_axes_xml } from "./physics.js";
+import { render_dynamics_xml, render_dynamics_axes_xml } from "./modules/entities/sheets.js";
+import { DYNAMICS_AXES, PHYSICS_PROTOCOLS, AVAILABLE_KEYWORDS, evaluate_dynamics_rules, evaluate_subtext_protocols } from "./physics.js";
 import { temporal_engine, resolve_vector_pool } from "./temporal.js";
 import { normalize_image_tier, resolve_visual_engine_tokens } from "@media";
 
@@ -227,7 +230,7 @@ export function render_director({
     accessors,
     config,
     is_npc: false,
-    render_axes: render_dynamics_axes_xml,
+    render_axes: (dynamics, scope) => render_dynamics_axes_xml(dynamics, scope, DYNAMICS_AXES),
     speaker_dynamics: compressed_snapshot?.ai?.dynamics,
     fractal_dynamics: compressed_snapshot?.fractal?.dynamics,
   });
@@ -237,7 +240,7 @@ export function render_director({
     has_alternation: has_alternations(entity_sheets),
   });
 
-  const keyword_directives_xml = render_keyword_directives_xml(render_available_keywords_xml(active_style_keywords));
+  const keyword_directives_xml = render_keyword_directives_xml(render_available_keywords_xml(active_style_keywords, AVAILABLE_KEYWORDS));
 
   const role_line = resolve_system_role_line({ role: config.system.role });
 
@@ -247,7 +250,7 @@ export function render_director({
     children: [
       role_line,
       core_protocols_xml,
-      render_dynamics_xml(),
+      render_dynamics_xml(DYNAMICS_AXES),
       keyword_directives_xml,
       entity_sheets,
       config.entities.present_entities ? render_present_entities_xml({ entities: scene_entities, npc_entities, in_scene_ids }) : null,
@@ -341,6 +344,9 @@ function render_prose_turn_core({
   const somatic_signals_xml = render_subtext_xml(speaker_dynamics, fractal_dynamics, {
     keywords,
     style: suppress_style_subtext ? null : style,
+    physics_protocols: PHYSICS_PROTOCOLS,
+    evaluate_dynamics_rules,
+    evaluate_subtext_protocols,
   });
   const somatic_inner = extract_somatic_inner(somatic_signals_xml);
 
@@ -354,7 +360,7 @@ function render_prose_turn_core({
     accessors,
     config,
     is_npc,
-    render_axes: render_dynamics_axes_xml,
+    render_axes: (dynamics, scope) => render_dynamics_axes_xml(dynamics, scope, DYNAMICS_AXES),
     speaker_dynamics,
     fractal_dynamics,
   });

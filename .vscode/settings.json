@@ -38,6 +38,7 @@
     "**/pnpm-lock.yaml": true,
     "**/Thumbs.db": true,
     "**/yarn.lock": true,
+    "**/src/**/index.js": true,
     "**/.gemini/config/skills/**/templates": true,
     "src/data/definitions/signature-colors.js": true,
     "src/media/design.css": true,

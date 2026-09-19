@@ -21,6 +21,7 @@ import {
   resolve_pov_protocol,
   render_alternation_protocol,
 } from "./protocols.js";
+import { render_dynamics_axes_xml, render_dynamics_xml } from "./entities/sheets.js";
 
 // ============================================================================
 // [SECTION 1: CORE PROTOCOL LIBRARY & COMPILER]
@@ -126,6 +127,32 @@ describe("protocols.js - Visual Style & Optics Protocols", () => {
     expect(protocols_xml).toContain('<VISUAL_STYLE origin="CYBERPUNK">');
     // Verify no legacy nested <VISUAL_SYNTHESIS> wrapper exists
     expect(protocols_xml).not.toContain("<VISUAL_SYNTHESIS>");
+  });
+
+  describe("Dynamics & Axes XML Compilers", () => {
+    const mock_axes = {
+      chaos: { label: "Chaos", low: "Order", high: "Volatility", scope: "somatic" },
+      velocity: { label: "Velocity", low: "Suspension", high: "Acceleration", scope: "fractal" },
+    };
+
+    it("renders <DYNAMICS> laws and axes legend", () => {
+      const xml = render_dynamics_xml(mock_axes);
+      expect(xml).toContain("<DYNAMICS>");
+      expect(xml).toContain("<LAWS>");
+      expect(xml).toContain("- chaos (Chaos): Order vs Volatility");
+      expect(xml).toContain("- velocity (Velocity): Suspension vs Acceleration");
+    });
+
+    it("renders scoped <DYNAMIC_AXES>", () => {
+      const dynamics = { chaos: 65, velocity: 30 };
+      const somatic_xml = render_dynamics_axes_xml(dynamics, "somatic", mock_axes);
+      expect(somatic_xml).toContain('<CHAOS value="65" low="Order" high="Volatility" />');
+      expect(somatic_xml).not.toContain("<VELOCITY");
+
+      const fractal_xml = render_dynamics_axes_xml(dynamics, "fractal", mock_axes);
+      expect(fractal_xml).toContain('<VELOCITY value="30" low="Suspension" high="Acceleration" />');
+      expect(fractal_xml).not.toContain("<CHAOS");
+    });
   });
 });
 

@@ -679,6 +679,56 @@ export function render_optics_entities_xml({
   });
 }
 
+// ============================================================================
+// [SECTION 5: DYNAMICS AXES COMPILER]
+// ============================================================================
+
+/**
+ * Compiles live dynamics into a <DYNAMIC_AXES> axis-entity block for the story sheet.
+ * Each active axis becomes its own named tag (`<CHAOS value="44" low="Order" high="Volatility" />`).
+ *
+ * @param {Record<string, number>|null} [live_dynamics=null]
+ * @param {"somatic" | "fractal" | null} [scope=null] - Restrict to one axis group
+ * @param {Record<string, { label: string, low: string, high: string, scope?: string }>} [axes_registry={}]
+ * @returns {string} XML block string or "" if no dynamics are active.
+ */
+export function render_dynamics_axes_xml(live_dynamics = null, scope = null, axes_registry = {}) {
+  if (!live_dynamics || typeof live_dynamics !== "object") return "";
+
+  const tags = Object.entries(axes_registry)
+    .filter(([key, meta]) => (!scope || meta.scope === scope) && live_dynamics[key] !== undefined && live_dynamics[key] !== null)
+    .map(([key, meta]) => {
+      const value = Math.round(Number(live_dynamics[key]));
+      const tag = key.toUpperCase();
+      return `  <${tag} value="${value}" low="${escape_xml(meta.low)}" high="${escape_xml(meta.high)}" />`;
+    });
+
+  return tags.length > 0 ? `<DYNAMIC_AXES scale="0-100">\n${tags.join("\n")}\n</DYNAMIC_AXES>` : "";
+}
+
+/**
+ * Compiles universal <DYNAMICS> calibration rules and axes legend for director planning.
+ *
+ * @param {Record<string, { label: string, low: string, high: string }>} [axes_registry={}]
+ * @returns {string} XML block string.
+ */
+export function render_dynamics_xml(axes_registry = {}) {
+  const axes = Object.entries(axes_registry)
+    .map(([key, meta]) => `    - ${key} (${meta.label}): ${meta.low} vs ${meta.high}`)
+    .join("\n");
+  return `
+<DYNAMICS>
+  <LAWS>
+  1. Calibrate dynamics_deltas conservatively (±1 to ±4 standard; ±8 to ±12 extreme). 
+  2. Adjust deltas carefully near boundaries (5 or 95) to prevent clipping at 0 or 100. 
+  3. Calibrate dynamics_deltas to reflect the psychological and environmental shift of the turn.
+  </LAWS>
+  <AXES>
+${axes}
+  </AXES>
+</DYNAMICS>`.trim();
+}
+
 /**
  * CHANGELOG
  * ============================================================================

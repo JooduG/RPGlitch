@@ -4,7 +4,15 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { PROSE_FORMAT, SCHEMA_ATOMS, get_output_format, render_json_schema, render_output_format_xml } from "./format.js";
+import {
+  PROSE_FORMAT,
+  SCHEMA_ATOMS,
+  get_output_format,
+  render_json_schema,
+  render_output_format_xml,
+  format_json_return,
+  format_optics_json_return,
+} from "./format.js";
 import { PROMPTS } from "../prompts.js";
 
 describe("src/intelligence/modules/format.js", () => {
@@ -18,10 +26,22 @@ describe("src/intelligence/modules/format.js", () => {
     });
   });
 
-  describe("PROSE_FORMAT", () => {
+  describe("PROSE_FORMAT & JSON return formatters", () => {
     it("declares the canonical plain prose directive", () => {
       expect(PROSE_FORMAT).toContain("plain prose");
       expect(PROSE_FORMAT).toBe("Emit strictly plain prose. No preamble, commentary, markdown, or structural tags.");
+    });
+
+    it("formats general json return instruction with custom indent", () => {
+      const formatted = format_json_return('{\n  "key": "val"\n}', "  ");
+      expect(formatted).toContain("Return a single, COMPLETE, VALID JSON object matching this schema:");
+      expect(formatted).toContain('  {\n  "key": "val"\n}');
+    });
+
+    it("formats optics json return instruction with JSON STRUCTURE preamble", () => {
+      const formatted = format_optics_json_return('{\n  "prompt": "desc"\n}');
+      expect(formatted).toContain('JSON STRUCTURE:\n{\n  "prompt": "desc"\n}');
+      expect(formatted).toContain("Return a single JSON object starting with { and ending with }.");
     });
   });
 

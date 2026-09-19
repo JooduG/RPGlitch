@@ -109,7 +109,7 @@ export function render_json_schema(schema_keys, entity_type = "character") {
 }
 
 // ============================================================================
-// [SECTION 3: PURE PROSE OUTPUT FORMAT (PROSE)]
+// [SECTION 3: OUTPUT FORMAT DIRECTIVES (PROSE & JSON)]
 // ============================================================================
 
 /**
@@ -118,6 +118,26 @@ export function render_json_schema(schema_keys, entity_type = "character") {
  * @type {string}
  */
 export const PROSE_FORMAT = "Emit strictly plain prose. No preamble, commentary, markdown, or structural tags.";
+
+/**
+ * Formats structured JSON schema return instructions.
+ *
+ * @param {string} schema - JSON schema definition
+ * @param {string} [indent="  "] - Indentation spacing
+ * @returns {string} Formatted instruction
+ */
+export function format_json_return(schema, indent = "  ") {
+  return `Return a single, COMPLETE, VALID JSON object matching this schema:\n${indent}${schema}`;
+}
+
+/**
+ * Preamble instruction for Sensory Optics JSON output.
+ * @param {string} schema - JSON schema definition
+ * @returns {string} Formatted optics structure instruction
+ */
+export function format_optics_json_return(schema) {
+  return `JSON STRUCTURE:\n${schema.trim()}\n\nReturn a single JSON object starting with { and ending with }. No preamble, no markdown backticks, no external XML tags.`;
+}
 
 // ============================================================================
 // [SECTION 4: MASTER OUTPUT FORMAT RESOLVER]

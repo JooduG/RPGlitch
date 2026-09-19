@@ -23,6 +23,10 @@ import {
   render_task,
   render_keyword_directives_xml,
   resolve_optics_cinematography,
+  render_subtext_xml,
+  render_available_keywords_xml,
+  resolve_physics_protocols,
+  resolve_context_directives,
   TASK_LIBRARY,
 } from "./task.js";
 
@@ -266,6 +270,51 @@ describe("task.js - Optics Task Staging", () => {
     expect(TASK_LIBRARY.OPTICS.CINEMATOGRAPHY.PRESETS.SOLO_PORTRAIT.mode).toBe("Medium Action");
     expect(TASK_LIBRARY.OPTICS.CINEMATOGRAPHY.STAGING_DIRECTIVE("look left")).toBe("\n  Staging Directive: look left");
     expect(TASK_LIBRARY.OPTICS.CINEMATOGRAPHY.STAGING_DIRECTIVE("")).toBe("");
+  });
+
+  describe("Subtext & Keyword XML Compilers", () => {
+    const mock_physics_protocols = {
+      SHAME: "Averted eye contact, hunched shoulders.",
+      FEAR: "Shallow breathing, scanning exits.",
+      ADRENALINE: "High-adrenaline pacing.",
+    };
+
+    it("resolves physics protocols against registry and style motifs", () => {
+      const resolved = resolve_physics_protocols(["shame", "unknown_key"], mock_physics_protocols);
+      expect(resolved).toHaveLength(1);
+      expect(resolved[0].id).toBe("SHAME");
+      expect(resolved[0].directive).toBe("Averted eye contact, hunched shoulders.");
+    });
+
+    it("resolves context directives against registry", () => {
+      const resolved = resolve_context_directives(["fear"], mock_physics_protocols);
+      expect(resolved).toHaveLength(1);
+      expect(resolved[0].id).toBe("FEAR");
+      expect(resolved[0].directive).toBe("Shallow breathing, scanning exits.");
+    });
+
+    it("renders available keywords XML with uppercase brackets", () => {
+      const xml = render_available_keywords_xml(["cyberpunk", "sensual"], ["SHAME", "FEAR"]);
+      expect(xml).toContain("[SHAME]");
+      expect(xml).toContain("[FEAR]");
+      expect(xml).toContain("[CYBERPUNK]");
+      expect(xml).toContain("[SENSUAL]");
+    });
+
+    it("renders subtext XML block with somatic directives and subtext protocols", () => {
+      const xml = render_subtext_xml(
+        { intensity: 80 },
+        { velocity: 20 },
+        {
+          keywords: ["SHAME"],
+          physics_protocols: mock_physics_protocols,
+          evaluate_subtext_protocols: () => [{ id: "ADRENALINE" }],
+        },
+      );
+      expect(xml).toContain("<SUBTEXT>");
+      expect(xml).toContain("<SHAME>Averted eye contact, hunched shoulders.</SHAME>");
+      expect(xml).toContain("<ADRENALINE>High-adrenaline pacing.</ADRENALINE>");
+    });
   });
 });
 

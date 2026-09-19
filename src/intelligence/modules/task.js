@@ -27,8 +27,8 @@
  */
 
 import { escape_xml, prompt_escape, inline_or_block, wrap_tag, indent_all, render_xml_tag } from "@utils";
-import { extract_style_dna } from "@data";
-import { PROSE_FORMAT } from "./format.js";
+import { extract_style_dna, STYLE_MOTIF_REGISTRY } from "@data";
+import { PROSE_FORMAT, format_json_return, format_optics_json_return } from "./format.js";
 
 // ============================================================================
 // [SECTION 1: UNIFIED TASK DIRECTIVES & PROTOCOLS CATALOG]
@@ -185,7 +185,7 @@ Strictly zero spoken dialogue or quote marks. No dialogue.`,
   }),
 
   // ── 1.7 Structured JSON Return Directive ────────────────────────────────────
-  JSON_RETURN: (schema, indent = "    ") => `Return a single, COMPLETE, VALID JSON object matching this schema:\n${indent}${schema}`,
+  JSON_RETURN: (schema, indent = "    ") => format_json_return(schema, indent),
 });
 
 // ============================================================================
@@ -535,9 +535,7 @@ export function render_task({
         ? render_xml_tag({
             tag: "OUTPUT_FORMAT",
             attrs: { mode: "json" },
-            children: [
-              `JSON STRUCTURE:\n${schema.trim()}\n\nReturn a single JSON object starting with { and ending with }. No preamble, no markdown backticks, no external XML tags.`,
-            ],
+            children: [format_optics_json_return(schema)],
             child_indent: 2,
           })
         : null;
@@ -642,6 +640,128 @@ export function render_task({
       return elements.length ? render_xml_tag({ tag: "TASK", children: elements, indent: 0, child_indent: 4, separator: "\n" }) : "";
     }
   }
+}
+
+// ============================================================================
+// [SECTION 4: SUBTEXT, AVAILABLE KEYWORDS & PROTOCOL RESOLVERS]
+// ============================================================================
+
+/**
+ * Resolves a list of chosen keywords against a physics protocol registry and style-motif registry.
+ * @param {string[]} [keywords=[]]
+ * @param {Record<string, any>} [physics_protocols={}]
+ * @returns {{ id: string, tells?: string, directive: string }[]}
+ */
+export function resolve_physics_protocols(keywords = [], physics_protocols = {}) {
+  const resolved = [];
+  for (const keyword of keywords || []) {
+    if (!keyword || typeof keyword !== "string") continue;
+    const clean_key = keyword.trim();
+    const upper_key = clean_key.toUpperCase();
+    const protocol_def = physics_protocols[upper_key] || physics_protocols[clean_key];
+    if (protocol_def) {
+      if (typeof protocol_def === "object") {
+        resolved.push({ id: upper_key, tells: protocol_def.tells, directive: protocol_def.directive });
+      } else {
+        resolved.push({ id: upper_key, directive: String(protocol_def) });
+      }
+      continue;
+    }
+    const motif = STYLE_MOTIF_REGISTRY[clean_key] || STYLE_MOTIF_REGISTRY[clean_key.toLowerCase()];
+    if (motif) resolved.push({ id: clean_key, directive: motif.directive });
+  }
+  return resolved;
+}
+
+/**
+ * Resolves injected context-directive keywords against a physics protocol registry.
+ * @param {string[]} [keywords=[]]
+ * @param {Record<string, any>} [physics_protocols={}]
+ * @returns {{ id: string, directive: string }[]}
+ */
+export function resolve_context_directives(keywords = [], physics_protocols = {}) {
+  const resolved = [];
+  for (const keyword of keywords || []) {
+    if (!keyword || typeof keyword !== "string") continue;
+    const clean_key = keyword.trim();
+    const upper_key = clean_key.toUpperCase();
+    const entry = physics_protocols[upper_key];
+    if (entry) {
+      const directive = typeof entry === "string" ? entry : entry.directive;
+      resolved.push({ id: upper_key, directive });
+    }
+  }
+  return resolved;
+}
+
+/**
+ * Builds <AVAILABLE_KEYWORDS> listing for the Director as a unified, flat bracketed list of tags.
+ * @param {string[]} [active_style_keywords=[]]
+ * @param {readonly string[]} [available_keywords=[]]
+ * @returns {string}
+ */
+export function render_available_keywords_xml(active_style_keywords = [], available_keywords = []) {
+  const motifs = (active_style_keywords || []).filter((k) => typeof k === "string" && k.trim()).map((k) => k.trim().toUpperCase());
+  const combined = Array.from(new Set([...available_keywords, ...motifs]));
+  return combined.map((k) => `[${k}]`).join(" ");
+}
+
+/**
+ * Compiles dynamic somatic directives and narrative signals into a single unified <SUBTEXT> XML block.
+ *
+ * @param {Record<string, number>} [ai_dynamics={}] - Active character dynamics
+ * @param {Record<string, number>} [fractal_dynamics={}] - Active fractal/environmental dynamics
+ * @param {object} [options={}] - Options containing style, keywords, evaluators, and protocol registries
+ * @returns {string} XML block string or "" if no signals or directives are active.
+ */
+export function render_subtext_xml(ai_dynamics = {}, fractal_dynamics = {}, options = {}) {
+  const tags = [];
+  const seen = new Set();
+
+  const push = (id, directive) => {
+    const tag =
+      String(id || "")
+        .trim()
+        .toUpperCase()
+        .replace(/[^A-Z0-9_]/g, "_") || "";
+    const text = String(directive || "").trim();
+    if (!tag || !text || seen.has(tag)) return;
+    seen.add(tag);
+    tags.push(`      <${tag}>${escape_xml(text)}</${tag}>`);
+  };
+
+  const physics_protocols = options?.physics_protocols || {};
+  const manual_keywords = options?.keywords || [];
+  const evaluate_dynamics_rules = options?.evaluate_dynamics_rules;
+  const resolved_keywords =
+    ai_dynamics && Object.keys(ai_dynamics).length && typeof evaluate_dynamics_rules === "function"
+      ? evaluate_dynamics_rules(ai_dynamics, manual_keywords)
+      : manual_keywords;
+
+  const resolved_directives = resolve_physics_protocols(resolved_keywords, physics_protocols);
+  for (const entry of resolved_directives) {
+    push(entry.id, entry.directive);
+  }
+
+  const evaluate_subtext_protocols = options?.evaluate_subtext_protocols;
+  const active_protocols =
+    typeof evaluate_subtext_protocols === "function"
+      ? evaluate_subtext_protocols({
+          ai_dynamics,
+          fractal_dynamics,
+          style: options?.style,
+        })
+      : [];
+
+  for (const protocol of active_protocols) {
+    const text =
+      protocol.text ||
+      (typeof physics_protocols[protocol.id] === "string" ? physics_protocols[protocol.id] : physics_protocols[protocol.id]?.directive);
+    push(protocol.id, text);
+  }
+
+  if (tags.length === 0) return "";
+  return `    <SUBTEXT>\n${tags.join("\n")}\n    </SUBTEXT>`;
 }
 
 /**
