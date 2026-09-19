@@ -40,7 +40,7 @@ vi.mock("./builder.js", async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
-    compile_pipeline_prompt: vi.fn(() => ({ system: "mock prompt", messages: [] })),
+    assemble_prompt: vi.fn(() => ({ system: "mock prompt", messages: [] })),
   };
 });
 

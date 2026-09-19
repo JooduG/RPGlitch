@@ -6,7 +6,7 @@
 import { gamemaster, balance_think_tags, strip_directors_note_seed } from "./story.js";
 import { context_builder } from "./payload.js";
 import { apply_dynamics_gravity } from "./physics.js";
-import { build_scoring_context, render_ghostwriter, render_story_prose, render_narrator_prose } from "./builder.js";
+import { build_scoring_context, render_story_prose, render_scene_narrator } from "./builder.js";
 import { temporal_engine } from "./temporal.js";
 import { resolve_npc_entity, apply_in_scene_change, apply_relationships } from "./director.js";
 import { spawn_character } from "./profile.js";
@@ -91,8 +91,8 @@ vi.mock("./builder.js", async (importOriginal) => {
   const actual = await importOriginal();
   const build_scoring_context = vi.fn(() => "Hello");
 
-  const compile_pipeline_prompt = vi.fn((mode_key, context = {}) => {
-    switch (mode_key) {
+  const assemble_prompt = vi.fn((config, context = {}) => {
+    switch (config?.key) {
       case "director":
         return mock_prompt_spies.build_director(context, context.compressed_snapshot);
       case "director_terse":
@@ -126,7 +126,7 @@ vi.mock("./builder.js", async (importOriginal) => {
   return {
     ...actual,
     build_scoring_context,
-    compile_pipeline_prompt,
+    assemble_prompt,
   };
 });
 
@@ -1980,7 +1980,7 @@ const _prompt_test_entities = {
 
 describe("ghostwrite identity", () => {
   it("enhances the PLAYER persona's draft, addressed against the AI character", () => {
-    const { system, task } = render_ghostwriter({ entities: _prompt_test_entities, input: "I step forward and bare my teeth." });
+    const { system, task } = render_story_prose({ entities: _prompt_test_entities, input: "I step forward and bare my teeth.", ghostwrite: true });
     expect(system).toContain("You are Lord Benedict Silvers within FRACTAL Project Tartarus, interacting with Beast.");
     expect(task).toContain('<INPUT origin="SILVERS">I step forward and bare my teeth.</INPUT>');
     expect(task).toContain("<DELIVERY_POSTURE>");
@@ -1988,14 +1988,14 @@ describe("ghostwrite identity", () => {
   });
 
   it("drafts for the PLAYER persona in response to the AI character when no input is given", () => {
-    const { system, task } = render_ghostwriter({ entities: _prompt_test_entities, input: "" });
+    const { system, task } = render_story_prose({ entities: _prompt_test_entities, input: "", ghostwrite: true });
     expect(system).toContain("You are Lord Benedict Silvers within FRACTAL Project Tartarus, interacting with Beast.");
     expect(task).toContain("<DELIVERY_POSTURE>");
     expect(task).toContain("Take active initiative: drive events forward on your own terms");
   });
 
   it("maintains universal L5_AGENCY in the constitution protecting the listener", () => {
-    const ghostwrite = render_ghostwriter({ entities: _prompt_test_entities, input: "I step forward." });
+    const ghostwrite = render_story_prose({ entities: _prompt_test_entities, input: "I step forward.", ghostwrite: true });
     const interaction = render_story_prose({ round: 3, entities: _prompt_test_entities, input: "Beast steps forward." });
     expect(interaction.system).toContain('id="L5_AGENCY"');
     expect(ghostwrite.system).toContain('id="L5_AGENCY"');
@@ -2039,7 +2039,7 @@ describe("interaction structural integrity", () => {
 
   it("never emits USER_SOVEREIGNTY", () => {
     const interaction = render_story_prose({ round: 3, entities: _prompt_test_entities, input: "Beast steps forward." });
-    const continuation = render_narrator_prose({
+    const continuation = render_scene_narrator({
       scene_template: "CONTINUATION",
       round: 5,
       entities: _prompt_test_entities,
@@ -2074,7 +2074,7 @@ describe("interaction structural integrity", () => {
 
 describe("narrator prose compiler", () => {
   it("renders continuation beat with fractal role line and third-person narrator perspective", () => {
-    const result = render_narrator_prose({
+    const result = render_scene_narrator({
       scene_template: "CONTINUATION",
       round: 1,
       entities: _prompt_test_entities,
@@ -2088,7 +2088,7 @@ describe("narrator prose compiler", () => {
   });
 
   it("renders prologue beat omitting input tag and guiding opening sequence", () => {
-    const result = render_narrator_prose({
+    const result = render_scene_narrator({
       scene_template: "PROLOGUE",
       round: 0,
       entities: _prompt_test_entities,
@@ -2102,7 +2102,7 @@ describe("narrator prose compiler", () => {
 
 /**
  * CHANGELOG
- * - 2026-09-19: Purged legacy prompt_builder mock shim under P4 Zero Backwards Compatibility; modernized prompt compilation spies around compile_pipeline_prompt and build_scoring_context.
+ * - 2026-09-19: Purged legacy prompt_builder mock shim under P4 Zero Backwards Compatibility; modernized prompt compilation spies around assemble_prompt and build_scoring_context.
  * - 2026-09-16: Updated ghostwrite identity assertions to test first-person persona system role and kinetic DELIVERY_POSTURE following GHOSTWRITE task directive pruning.
  * - 2026-09-11: Merged story-prompts.test.js into story.test.js.
  * - 2026-09-11: Renamed from story-pipeline.test.js to story.test.js to match consolidated story.js domain coordinator.

@@ -24,7 +24,7 @@
  * 3. protocols    : Ordered protocol atoms or empty array (emits <CORE_PROTOCOLS>)
  * 4. entities     : Scoping for sheets, dispositions, dynamic axes, spotlight
  * 5. history      : Conversation history windowing configuration
- * 6. task         : Turn payload, input tag, and think format calibration
+ * 6. task         : Think-format calibration for the turn payload
  * 7. format       : Output specification key (PROSE, DIRECTOR, CONTINUUM, PROFILE)
  *
  * Every mode is produced by `define_mode`, which layers a mode's deviations over
@@ -34,7 +34,12 @@
  *
  * Architecture & Modification Rules:
  * - Zero backward compatibility (P4): single frozen switchboard catalog.
- * - Every key below is read by the assembly line in ./builder.js.
+ * - Layer keys are consumed by the assembly line and its module emitters:
+ *   `assemble_prompt` / `MODE_ADAPTERS` (`./builder.js`) dispatch on the record's stamped
+ *   `key`; `protocols` → `modules/protocols.js`, `entities` → `modules/entities/sheets.js`
+ *   `resolve_entities`, `history` → `modules/history.js` `resolve_history`, `task` / `format`
+ *   → `modules/task.js` and `modules/format.js`.
+ * - Declare only live keys: any manifest key with no consumer is pruned (no inert data).
  * ============================================================================
  */
 
@@ -55,6 +60,42 @@ const DEFAULT_ENTITIES_CONFIG = Object.freeze({
 });
 
 /**
+ * Shared Director JSON schema for `director` and its `director_terse` fallback.
+ * @type {ReadonlyArray<string>}
+ */
+const DIRECTOR_SCHEMA = Object.freeze([
+  "_thought_process",
+  "next_action",
+  "keywords",
+  "directors_note",
+  "dynamics_deltas",
+  "visual_staging",
+  "spotlight",
+]);
+
+/**
+ * Composes the Shot-2A prose protocol bundle shared by the interaction/ghostwrite/npc/narrator
+ * sibling modes: fidelity → POV → tense → prose discipline → (optional dialogue) → alternation.
+ *
+ * @param {"FIRST"|"THIRD"|"NARRATOR"} pov_key
+ * @param {{ include_dialogue?: boolean }} [options={}]
+ * @returns {string[]}
+ */
+function prose_protocols(pov_key, { include_dialogue = false } = {}) {
+  return [
+    "CORE_PROTOCOLS.SIMULATION_FIDELITY",
+    `CORE_PROTOCOLS.PERSPECTIVE.POV.${pov_key}`,
+    "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PRESENT",
+    "CORE_PROTOCOLS.PROSE_DISCIPLINE.TYPOGRAPHY",
+    "CORE_PROTOCOLS.PROSE_DISCIPLINE.PHYSICALITY",
+    "CORE_PROTOCOLS.PROSE_DISCIPLINE.ANTI_TROPES",
+    "CORE_PROTOCOLS.PROSE_DISCIPLINE.BANNED_CLICHES",
+    ...(include_dialogue ? ["CORE_PROTOCOLS.PROSE_DISCIPLINE.NATURAL_DIALOGUE"] : []),
+    "CORE_PROTOCOLS.ALTERNATION_OPTIONS",
+  ];
+}
+
+/**
  * Builds one frozen mode record from a declarative delta over the 7 canonical layers.
  * Resolves system mode & role cleanly from mode_key or explicit spec.
  *
@@ -68,6 +109,7 @@ function define_mode(mode_key, spec) {
       : spec.system || { mode: mode_key, role: mode_key.toUpperCase() };
 
   return Object.freeze({
+    key: mode_key,
     system: Object.freeze(system),
     constitution: spec.constitution ?? true,
     protocols: Object.freeze(spec.protocols || []),
@@ -75,8 +117,8 @@ function define_mode(mode_key, spec) {
       ...DEFAULT_ENTITIES_CONFIG,
       ...spec.entities,
     }),
-    history: Object.freeze({ enabled: true, limit: 10, ...spec.history }),
-    task: Object.freeze({ input_tag: "INPUT", think_format: null, ...spec.task }),
+    history: spec.history ? Object.freeze({ ...spec.history }) : null,
+    task: Object.freeze({ think_format: null, ...spec.task }),
     format:
       typeof spec.format === "object" && spec.format !== null
         ? Object.freeze({ ...spec.format, schema: Object.freeze([...(spec.format.schema || [])]) })
@@ -99,10 +141,7 @@ export const PROMPTS = Object.freeze({
       user_agenda: true,
       present_entities: true,
     },
-    format: {
-      mode: "json",
-      schema: ["_thought_process", "next_action", "keywords", "directors_note", "dynamics_deltas", "visual_staging", "spotlight"],
-    },
+    format: { mode: "json", schema: DIRECTOR_SCHEMA },
   }),
 
   director_terse: define_mode("director_terse", {
@@ -113,101 +152,53 @@ export const PROMPTS = Object.freeze({
       dispositions: [],
       dynamic_axes: [],
     },
-    history: { enabled: false },
-    task: { terse: true },
-    format: {
-      mode: "json",
-      schema: ["_thought_process", "next_action", "keywords", "directors_note", "dynamics_deltas", "visual_staging", "spotlight"],
-    },
+    format: { mode: "json", schema: DIRECTOR_SCHEMA },
   }),
 
   // ── Shot 2A: Prose Shots (Canonical Narrative Voice) ────────────────────────
 
   interaction: define_mode("interaction", {
     system: "INTERACTION",
-    protocols: [
-      "CORE_PROTOCOLS.SIMULATION_FIDELITY",
-      "CORE_PROTOCOLS.PERSPECTIVE.POV.FIRST",
-      "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PRESENT",
-      "CORE_PROTOCOLS.PROSE_DISCIPLINE.TYPOGRAPHY",
-      "CORE_PROTOCOLS.PROSE_DISCIPLINE.PHYSICALITY",
-      "CORE_PROTOCOLS.PROSE_DISCIPLINE.ANTI_TROPES",
-      "CORE_PROTOCOLS.PROSE_DISCIPLINE.BANNED_CLICHES",
-      "CORE_PROTOCOLS.PROSE_DISCIPLINE.NATURAL_DIALOGUE",
-      "CORE_PROTOCOLS.ALTERNATION_OPTIONS",
-    ],
+    protocols: prose_protocols("FIRST", { include_dialogue: true }),
     entities: {
       dispositions: ["AI", "FRACTAL"],
       dynamic_axes: ["AI", "FRACTAL"],
       nearby_entities: true,
     },
-    history: { limit: 16 },
     task: { think_format: "character" },
   }),
 
   ghostwrite: define_mode("ghostwrite", {
     system: { mode: "ghostwrite", role: "INTERACTION" },
-    protocols: [
-      "CORE_PROTOCOLS.SIMULATION_FIDELITY",
-      "CORE_PROTOCOLS.PERSPECTIVE.POV.FIRST",
-      "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PRESENT",
-      "CORE_PROTOCOLS.PROSE_DISCIPLINE.TYPOGRAPHY",
-      "CORE_PROTOCOLS.PROSE_DISCIPLINE.PHYSICALITY",
-      "CORE_PROTOCOLS.PROSE_DISCIPLINE.ANTI_TROPES",
-      "CORE_PROTOCOLS.PROSE_DISCIPLINE.BANNED_CLICHES",
-      "CORE_PROTOCOLS.PROSE_DISCIPLINE.NATURAL_DIALOGUE",
-      "CORE_PROTOCOLS.ALTERNATION_OPTIONS",
-    ],
+    protocols: prose_protocols("FIRST", { include_dialogue: true }),
     entities: {
       dispositions: ["AI", "FRACTAL"],
       dynamic_axes: ["AI", "FRACTAL"],
       nearby_entities: true,
     },
-    history: { limit: 16 },
     task: { think_format: "character" },
   }),
 
   npc: define_mode("npc", {
     system: "NPC",
-    protocols: [
-      "CORE_PROTOCOLS.SIMULATION_FIDELITY",
-      "CORE_PROTOCOLS.PERSPECTIVE.POV.THIRD",
-      "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PRESENT",
-      "CORE_PROTOCOLS.PROSE_DISCIPLINE.TYPOGRAPHY",
-      "CORE_PROTOCOLS.PROSE_DISCIPLINE.PHYSICALITY",
-      "CORE_PROTOCOLS.PROSE_DISCIPLINE.ANTI_TROPES",
-      "CORE_PROTOCOLS.PROSE_DISCIPLINE.BANNED_CLICHES",
-      "CORE_PROTOCOLS.PROSE_DISCIPLINE.NATURAL_DIALOGUE",
-      "CORE_PROTOCOLS.ALTERNATION_OPTIONS",
-    ],
+    protocols: prose_protocols("THIRD", { include_dialogue: true }),
     entities: {
       dispositions: ["FRACTAL", "NPC"],
       dynamic_axes: ["NPC", "FRACTAL"],
       nearby_entities: true,
     },
-    history: { limit: 16 },
     task: { think_format: "character" },
   }),
 
   narrator: define_mode("narrator", {
     system: "NARRATOR",
-    protocols: [
-      "CORE_PROTOCOLS.SIMULATION_FIDELITY",
-      "CORE_PROTOCOLS.PERSPECTIVE.POV.NARRATOR",
-      "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PRESENT",
-      "CORE_PROTOCOLS.PROSE_DISCIPLINE.TYPOGRAPHY",
-      "CORE_PROTOCOLS.PROSE_DISCIPLINE.PHYSICALITY",
-      "CORE_PROTOCOLS.PROSE_DISCIPLINE.ANTI_TROPES",
-      "CORE_PROTOCOLS.PROSE_DISCIPLINE.BANNED_CLICHES",
-      "CORE_PROTOCOLS.ALTERNATION_OPTIONS",
-    ],
+    protocols: prose_protocols("NARRATOR"),
     entities: {
       dispositions: ["AI", "USER", "FRACTAL", "NPC"],
       dynamic_axes: ["FRACTAL"],
       user_agenda: true,
       nearby_entities: true,
     },
-    history: { limit: 16 },
     task: { think_format: "narrator" },
   }),
 
@@ -236,7 +227,6 @@ export const PROMPTS = Object.freeze({
     constitution: false,
     protocols: ["HYGIENE.DATA"],
     entities: { field_context: true },
-    history: { enabled: false },
     format: "PROSE",
   }),
 
@@ -244,7 +234,6 @@ export const PROMPTS = Object.freeze({
     system: "NARRATIVE_STRUCTURER",
     constitution: false,
     protocols: ["HYGIENE.DATA", "CORE_PROTOCOLS.PERSPECTIVE.POV.THIRD"],
-    history: { enabled: false },
     format: {
       mode: "json",
       schema: ["name", "description", "signature_color", "eternal", "present", "past", "future"],
@@ -257,10 +246,6 @@ export const PROMPTS = Object.freeze({
     system: { mode: "optics", role: "SENSORY_CORTEX" },
     constitution: false,
     protocols: ["HYGIENE.DATA", "OPTICS.WEIGHTING_RESTRICTIONS", "OPTICS.AFFIRMATIVE_FRAMING", "OPTICS.TYPOGRAPHY", "OPTICS.ENVIRONMENTAL_GROUNDING"],
-    entities: {
-      dispositions: ["AI", "USER", "FRACTAL", "NPC"],
-    },
-    history: { enabled: false },
     task: { think_format: "optics" },
     format: {
       mode: "json",
@@ -269,7 +254,7 @@ export const PROMPTS = Object.freeze({
   }),
 });
 
-import { compile_pipeline_prompt } from "./builder.js";
+import { assemble_prompt } from "./builder.js";
 
 // ── 3. Manifest Resolvers & Switchboard Dispatcher ───────────────────────────
 
@@ -296,13 +281,17 @@ export const resolve_prompt_mode = ({ is_npc = false, ghostwrite = false } = {})
  * @returns {{ system: string, task: string, meta?: Record<string, any>, messages?: any[] }}
  */
 export function compile_prompt(mode_key, context = {}) {
-  return compile_pipeline_prompt(mode_key, context);
+  return assemble_prompt(get_prompt(mode_key), context);
 }
 
 export default PROMPTS;
 
 /**
  * CHANGELOG
+ * - 2026-09-19: Collapsed the facade chain (P7) — `compile_prompt` now calls `assemble_prompt(get_prompt(mode_key), context)` directly; the intermediate `compile_pipeline_prompt` facade was retired. `compile_prompt` remains the single public entry point.
+ * - 2026-09-19: Table-driven assembler (P4) — `define_mode` now stamps each record with its canonical `key`, which `assemble_prompt` uses to select a `MODE_ADAPTERS` entry (needed because `director_terse` shares `system.mode = "director"`).
+ * - 2026-09-19: Manifest DRY (P3) — the four Shot-2A prose modes now compose their protocol lists from one `prose_protocols(pov, { include_dialogue })` bundle, and `director`/`director_terse` share the `DIRECTOR_SCHEMA` constant (no duplicated key lists).
+ * - 2026-09-19: Retired inert manifest data (P2) — `define_mode` no longer injects `history`/`input_tag` defaults; history is declared by continuum alone (its only `resolve_history` consumer), the inert `task.terse` override and optics' unconsumed `entities` gate are pruned, and `task` now only carries `think_format`.
  * - 2026-09-18: Repatriated output schema definitions from format.js into prompts.js: declared explicit { mode: "json", schema: [...] } arrays for director, director_terse, continuum, sorting, and optics.
  * - 2026-09-18: Purified define_mode and PROMPTS catalog: bound mode_key to system.mode, declared canonical DEFAULT_ENTITIES_CONFIG, and explicitly typed enhancement format as PROSE.
  * - 2026-09-18: Registered `director_terse` and `optics` modes in PROMPTS master manifest.

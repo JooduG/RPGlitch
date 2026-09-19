@@ -20,16 +20,8 @@
 import { describe, expect, it, beforeEach, afterEach } from "vitest";
 
 import { register_state_accessors } from "@utils";
-import {
-  render_story_prose,
-  render_narrator_prose,
-  render_ghostwriter,
-  render_memory,
-  render_profile_sorting,
-  render_enhancement,
-  render_director,
-  compile_pipeline_prompt,
-} from "./builder.js";
+import { render_story_prose, render_scene_narrator, render_memory, render_profile_sorting, render_enhancement, render_director } from "./builder.js";
+import { compile_prompt } from "./prompts.js";
 import { PROTOCOL_LIBRARY } from "./modules/protocols.js";
 
 const test_entities = {
@@ -102,7 +94,7 @@ const test_npc = {
 // [SECTION 1: NARRATOR STYLE OBJECT PLUMBING & REGRESSION VERIFICATION]
 // ============================================================================
 
-describe("render_narrator_prose — Style Object Plumbing (Bug #1 Regression)", () => {
+describe("render_scene_narrator — Style Object Plumbing (Bug #1 Regression)", () => {
   beforeEach(() => {
     register_state_accessors({ runtime: { active_fractal: { narrative_style: "cormac_mccarthy" } } });
   });
@@ -112,7 +104,7 @@ describe("render_narrator_prose — Style Object Plumbing (Bug #1 Regression)", 
   });
 
   it("compiles narrator prompt with full style object and never leaks origin='UNDEFINED'", () => {
-    const result = render_narrator_prose({
+    const result = render_scene_narrator({
       entities: test_entities,
       round: 1,
       input: "The sirens echo down the alleyway.",
@@ -126,7 +118,7 @@ describe("render_narrator_prose — Style Object Plumbing (Bug #1 Regression)", 
   });
 
   it("extracts style DNA sentence rhythm and sensory order into narrator task", () => {
-    const result = render_narrator_prose({
+    const result = render_scene_narrator({
       entities: test_entities,
       round: 2,
       input: "Rain patters on the rusted metal.",
@@ -141,7 +133,7 @@ describe("render_narrator_prose — Style Object Plumbing (Bug #1 Regression)", 
   });
 
   it("passes dynamics snapshot into narrator task recency anchor", () => {
-    const result = render_narrator_prose({
+    const result = render_scene_narrator({
       entities: test_entities,
       round: 3,
       input: "A shadow moves behind the vents.",
@@ -164,9 +156,10 @@ describe("Shot-2A Prose Modes Symmetrical Compilation", () => {
       input: "Alice draws her sidearm.",
     });
 
-    const ghostwrite_result = render_ghostwriter({
+    const ghostwrite_result = render_story_prose({
       entities: test_entities,
       input: "I check my magazines.",
+      ghostwrite: true,
     });
 
     const npc_result = render_story_prose({
@@ -178,7 +171,7 @@ describe("Shot-2A Prose Modes Symmetrical Compilation", () => {
       in_scene_ids: ["MERCHANT"],
     });
 
-    const narrator_result = render_narrator_prose({
+    const narrator_result = render_scene_narrator({
       entities: test_entities,
       round: 1,
       input: "Steam hisses from an overhead pipe.",
@@ -300,8 +293,8 @@ describe("Protocol Invariants & Remediation Regression Gates", () => {
 // ============================================================================
 
 describe("Declarative Pipeline Runner & Facade Consolidation", () => {
-  it("compiles director prompt via compile_pipeline_prompt without duplicate schema in protocols", () => {
-    const director_package = compile_pipeline_prompt("director", {
+  it("compiles director prompt via compile_prompt without duplicate schema in protocols", () => {
+    const director_package = compile_prompt("director", {
       round: 1,
       entities: test_entities,
       input: "Bob scans the perimeter.",
@@ -329,7 +322,7 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
         },
       },
     };
-    const director_package = compile_pipeline_prompt("director", {
+    const director_package = compile_prompt("director", {
       round: 1,
       entities: entities_with_alternation,
       input: "Bob scans the perimeter.",
@@ -339,8 +332,8 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
     expect(director_package.system).toContain("<ALTERNATION_OPTIONS>");
   });
 
-  it("compiles director_terse mode via compile_pipeline_prompt", () => {
-    const terse_package = compile_pipeline_prompt("director_terse", {
+  it("compiles director_terse mode via compile_prompt", () => {
+    const terse_package = compile_prompt("director_terse", {
       round: 2,
     });
 
@@ -350,8 +343,8 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
     expect(terse_package.task).toContain('"next_action"');
   });
 
-  it("compiles continuum mode via compile_pipeline_prompt", () => {
-    const continuum_package = compile_pipeline_prompt("continuum", {
+  it("compiles continuum mode via compile_prompt", () => {
+    const continuum_package = compile_prompt("continuum", {
       target_entity: test_entities.AI,
       target_key: "AI_CHARACTER",
       other_entities: test_entities,
@@ -362,8 +355,8 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
     expect(continuum_package.system).toContain("<TARGET_ENTITY_CONTEXT>");
   });
 
-  it("compiles enhancement and sorting via compile_pipeline_prompt", () => {
-    const enhancement_package = compile_pipeline_prompt("enhancement", {
+  it("compiles enhancement and sorting via compile_prompt", () => {
+    const enhancement_package = compile_prompt("enhancement", {
       enhancer: "VOICE",
       label: "Personality",
       directive: "Expand vocal cadence",
@@ -375,7 +368,7 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
     });
     expect(enhancement_package.system).toContain('enhancing="Personality"');
 
-    const sorting_package = compile_pipeline_prompt("sorting", {
+    const sorting_package = compile_prompt("sorting", {
       entity_type: "character",
       options: {},
       input_data: "Raw bio text",
@@ -384,8 +377,8 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
     expect(sorting_package.messages.length).toBe(1);
   });
 
-  it("compiles optics mode via compile_pipeline_prompt", () => {
-    const optics_package = compile_pipeline_prompt("optics", {
+  it("compiles optics mode via compile_prompt", () => {
+    const optics_package = compile_prompt("optics", {
       subject_name: "Alice",
       prompt_context: "Standing on the catwalk in neon rain",
       is_selfie: false,
@@ -398,9 +391,9 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
     expect(optics_package.task).toContain('"negative_prompt"');
   });
 
-  it("unifies character, npc, narrator, prologue, epilogue, and ghostwrite via compile_pipeline_prompt", () => {
+  it("unifies character, npc, narrator, prologue, epilogue, and ghostwrite via compile_prompt", () => {
     // 1. Canonical Character
-    const character_result = compile_pipeline_prompt("interaction", {
+    const character_result = compile_prompt("interaction", {
       round: 1,
       entities: test_entities,
       input: "Alice prepares to move.",
@@ -408,19 +401,19 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
     expect(character_result.system).toContain('mode="interaction"');
 
     // 2. NPC
-    const npc_result = compile_pipeline_prompt("npc", { round: 1, entities: test_entities, input: "Merchant glances around.", npc: test_npc });
+    const npc_result = compile_prompt("npc", { round: 1, entities: test_entities, input: "Merchant glances around.", npc: test_npc });
     expect(npc_result.system).toContain('mode="npc"');
 
     // 3. Narrator (continuation)
-    const narrator_result = compile_pipeline_prompt("narrator", { round: 1, entities: test_entities, input: "The wind howls.", is_narrator: true });
+    const narrator_result = compile_prompt("narrator", { round: 1, entities: test_entities, input: "The wind howls.", is_narrator: true });
     expect(narrator_result.system).toContain('mode="narrator"');
 
     // 4. Prologue
-    const prologue_result = compile_pipeline_prompt("narrator", { round: 0, entities: test_entities, is_prologue: true, scene_template: "PROLOGUE" });
+    const prologue_result = compile_prompt("narrator", { round: 0, entities: test_entities, is_prologue: true, scene_template: "PROLOGUE" });
     expect(prologue_result.system).toContain('mode="narrator"');
 
     // 5. Epilogue
-    const epilogue_result = compile_pipeline_prompt("narrator", {
+    const epilogue_result = compile_prompt("narrator", {
       entities: test_entities,
       simulation_log: [],
       is_epilogue: true,
@@ -430,15 +423,15 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
     expect(epilogue_result.system).toContain('mode="narrator"');
 
     // 6. Ghostwriter
-    const ghostwriter_result = compile_pipeline_prompt("ghostwrite", { entities: test_entities, input: "I steady my aim.", ghostwrite: true });
+    const ghostwriter_result = compile_prompt("ghostwrite", { entities: test_entities, input: "I steady my aim.", ghostwrite: true });
     expect(ghostwriter_result.system).toContain('mode="ghostwrite"');
   });
 
   it("exposes continuum and sorting as declarative pipeline modes", () => {
-    const continuum_result = compile_pipeline_prompt("continuum", { target_entity: test_entities.AI, history: [] });
+    const continuum_result = compile_prompt("continuum", { target_entity: test_entities.AI, history: [] });
     expect(continuum_result.system).toContain('role="CONTINUUM_CARETAKER"');
 
-    const sorting_result = compile_pipeline_prompt("sorting", { input_data: "raw text", entity_type: "character" });
+    const sorting_result = compile_prompt("sorting", { input_data: "raw text", entity_type: "character" });
     expect(sorting_result.system).toContain('role="NARRATIVE_STRUCTURER"');
   });
   it("audits epistemic integrity returning boolean without throwing unhandled errors", async () => {
@@ -454,6 +447,7 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-19: Followed the P7 facade collapse — Section 5 now drives `compile_prompt` (from prompts.js) and `render_scene_narrator`; the ghostwrite case uses `render_story_prose({ ghostwrite: true })` (the production path).
  * - 2026-09-19: Retargeted the affirmative-framing regression gate from PROTOCOL_LIBRARY.HYGIENE to PROTOCOL_LIBRARY.OPTICS (its new single source of truth).
  * - 2026-09-19: Added T1/R1 and R5 regression tests asserting Director includes <ALTERNATION_OPTIONS> when alternations exist and omits empty <CORE_PROTOCOLS>.
  * - 2026-09-18: Added unit test verifying verify_epistemic_integrity returns boolean for clean and leaked prompts.

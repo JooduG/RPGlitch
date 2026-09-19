@@ -21,6 +21,10 @@ import {
   render_environmental_hint,
   render_prose_reflex,
   render_task,
+  render_director_task,
+  render_structured_task,
+  render_optics_task,
+  render_prose_task,
   render_keyword_directives_xml,
   resolve_optics_cinematography,
   render_subtext_xml,
@@ -311,10 +315,42 @@ describe("task.js - Optics Task Staging", () => {
 });
 
 // ============================================================================
+// [SECTION 7: MODE DISPATCHER DECOMPOSITION]
+// ============================================================================
+
+describe("render_task — per-mode compiler dispatch", () => {
+  it("routes director to render_director_task", () => {
+    const args = { schema: '{"a":1}', round: 2, input: "hi", last_ai_text: "prev", terse: false };
+    expect(render_task({ mode: "director", ...args })).toBe(render_director_task(args));
+  });
+
+  it("routes continuum and enhancement/sorting to render_structured_task", () => {
+    expect(render_task({ mode: "continuum", target_name: "Kaelen", schema: '{"m":[]}' })).toBe(
+      render_structured_task({ mode: "continuum", target_name: "Kaelen", schema: '{"m":[]}' }),
+    );
+    const directives = ["- one", "- two"];
+    expect(render_task({ mode: "sorting", schema: "rules", directives })).toBe(
+      render_structured_task({ mode: "sorting", schema: "rules", directives }),
+    );
+  });
+
+  it("routes optics to render_optics_task", () => {
+    const args = { target_tier: "story_character", input_intent: "rain", think_format: "optics", is_selfie: true, schema: '{"prompt":"s"}' };
+    expect(render_task({ mode: "optics", ...args })).toBe(render_optics_task(args));
+  });
+
+  it("routes prose (default) to render_prose_task", () => {
+    const args = { config: { task: { think_format: "character" } }, input: "hi", input_origin: "USER", action_directive: "Be Alice." };
+    expect(render_task({ ...args })).toBe(render_prose_task(args));
+  });
+});
+
+// ============================================================================
 // [CHANGELOG]
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-19: Added a per-mode compiler dispatch suite asserting render_task routes to render_director_task / render_structured_task / render_optics_task / render_prose_task.
  * - 2026-09-19: Dropped the resolve_context_directives test (resolver removed — FIRST_CONTACT is now the single TASK_LIBRARY.PROSE.CHARACTER directive, driven by director_data.first_contact).
  * - 2026-09-19: Added unit test assertions for TASK_LIBRARY.OPTICS.CINEMATOGRAPHY presets, group context, and staging directives.
  * - 2026-09-19: Added unit test for resolve_optics_cinematography following relocation from entities/sheets.js.

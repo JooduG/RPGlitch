@@ -5,7 +5,8 @@
 
 import { describe, expect, it } from "vitest";
 import { PROMPTS as prompt_modes, get_prompt, resolve_prompt_mode, compile_prompt } from "./prompts.js";
-import { render_ghostwriter, render_story_prose, render_narrator_prose, render_builder } from "./builder.js";
+import { render_story_prose, render_scene_narrator, MODE_ADAPTERS } from "./builder.js";
+import { render_history } from "./modules/history.js";
 
 const entities = {
   AI: {
@@ -131,10 +132,47 @@ describe("prompt-modes registry", () => {
     expect(get_prompt("unknown-mode").system.mode).toBe("interaction");
   });
 
-  it("harmonizes history limit to 16 across all Shot-2A prose sibling modes", () => {
-    for (const mode_key of ["interaction", "ghostwrite", "npc", "narrator"]) {
-      expect(prompt_modes[mode_key].history.limit).toBe(16);
+  it("declares the history layer only for continuum (its sole consumer)", () => {
+    expect(prompt_modes.continuum.history).toEqual({ limit: 16 });
+    for (const mode_key of ["director", "director_terse", "interaction", "ghostwrite", "npc", "narrator", "enhancement", "sorting", "optics"]) {
+      expect(prompt_modes[mode_key].history).toBeNull();
     }
+  });
+
+  it("exposes only the live task key (think_format) across every mode", () => {
+    for (const mode of Object.values(prompt_modes)) {
+      expect(Object.keys(mode.task)).toEqual(["think_format"]);
+    }
+  });
+
+  it("routes every manifest mode through the adapter table (no switch)", () => {
+    expect(typeof MODE_ADAPTERS.prose).toBe("function");
+    for (const mode_key of Object.keys(prompt_modes)) {
+      expect(typeof (MODE_ADAPTERS[mode_key] || MODE_ADAPTERS.prose)).toBe("function");
+    }
+  });
+
+  it("composes the Shot-2A prose protocol bundles without duplicated key lists", () => {
+    const discipline = [
+      "CORE_PROTOCOLS.PROSE_DISCIPLINE.TYPOGRAPHY",
+      "CORE_PROTOCOLS.PROSE_DISCIPLINE.PHYSICALITY",
+      "CORE_PROTOCOLS.PROSE_DISCIPLINE.ANTI_TROPES",
+      "CORE_PROTOCOLS.PROSE_DISCIPLINE.BANNED_CLICHES",
+    ];
+    const compose = (pov, natural) => [
+      "CORE_PROTOCOLS.SIMULATION_FIDELITY",
+      pov,
+      "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PRESENT",
+      ...discipline,
+      ...(natural ? ["CORE_PROTOCOLS.PROSE_DISCIPLINE.NATURAL_DIALOGUE"] : []),
+      "CORE_PROTOCOLS.ALTERNATION_OPTIONS",
+    ];
+
+    expect(prompt_modes.interaction.protocols).toEqual(compose("CORE_PROTOCOLS.PERSPECTIVE.POV.FIRST", true));
+    expect(prompt_modes.ghostwrite.protocols).toEqual(compose("CORE_PROTOCOLS.PERSPECTIVE.POV.FIRST", true));
+    expect(prompt_modes.npc.protocols).toEqual(compose("CORE_PROTOCOLS.PERSPECTIVE.POV.THIRD", true));
+    expect(prompt_modes.narrator.protocols).toEqual(compose("CORE_PROTOCOLS.PERSPECTIVE.POV.NARRATOR", false));
+    expect(prompt_modes.director.format.schema).toEqual(prompt_modes.director_terse.format.schema);
   });
 
   it("compiles prompt packages directly through compile_prompt switchboard", () => {
@@ -193,7 +231,7 @@ describe("fused rendering per mode", () => {
   });
 
   it("renders the ghostwrite mode", () => {
-    const result = render_ghostwriter({ entities, input: "I step forward and bare my teeth." });
+    const result = render_story_prose({ entities, input: "I step forward and bare my teeth.", ghostwrite: true });
     expect(assert_fused_shape(result, "ghostwrite")).toBe(true);
   });
 
@@ -206,7 +244,7 @@ describe("fused rendering per mode", () => {
     const interaction = render_story_prose({ round: 3, entities, input: "Beast steps forward." });
     expect(interaction.system).toContain("<NATURAL_DIALOGUE>");
 
-    const narrator = render_narrator_prose({ entities, round: 1, input: "The station groans." });
+    const narrator = render_scene_narrator({ entities, round: 1, input: "The station groans." });
     expect(narrator.system).not.toContain("<NATURAL_DIALOGUE>");
     expect(narrator.system).toContain("<TYPOGRAPHY>");
     expect(narrator.system).toContain("<PHYSICALITY>");
@@ -241,7 +279,7 @@ describe("dynamic-axes scoping", () => {
 
 describe("conversation history entries", () => {
   it("carry origin and round, never a mode attribute", () => {
-    const history = render_builder.render_history([
+    const history = render_history([
       { role: "AI_CHARACTER", content: "He nods.", origin: "BEAST" },
       { role: "USER_PERSONA", content: "I wave.", origin: "SILVERS" },
     ]);
@@ -351,6 +389,9 @@ describe("master switchboard compile_prompt", () => {
 
 /**
  * CHANGELOG
+ * - 2026-09-19: Table-driven assembler (P4) — asserted every manifest mode resolves through `MODE_ADAPTERS` (or the prose fallback), replacing the former switch dispatch.
+ * - 2026-09-19: Manifest DRY (P3) — asserted the shared `prose_protocols` bundle reproduces the four prose protocol arrays exactly, and that `director`/`director_terse` share one schema constant.
+ * - 2026-09-19: Retired inert manifest data (P2) — history is asserted only on continuum (its `resolve_history` consumer), the six prose/tooling modes carry no history layer, and `task` is asserted to expose only the live `think_format` key.
  * - 2026-09-19: Added E1 regression test verifying defensive hydration of PROFILE_FIELD_CATALOG metadata (role, label, layer, directive) for compile_prompt("enhancement").
  * - 2026-09-19: Added unit tests for compile_prompt switchboard: optics single door with onAlternationPick dice callback, and direct execution across all canonical modes (Mega Report S1, S2, R4).
  * - 2026-09-18: Updated expected prompt keys count to 10 (including director_terse and optics).

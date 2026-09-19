@@ -333,8 +333,63 @@ export function render_sheet(specification, context) {
 // ============================================================================
 
 /**
+ * Resolves the mode's `entities` manifest layer and the active entity roster into one plan.
+ * Single source of truth for every entity gate read (`dispositions`, `dynamic_axes`,
+ * `user_agenda`, `nearby_entities`, `present_entities`, `field_context`, `target_context`,
+ * `chapter_history`) plus the available-entity maps and NPC render list.
+ *
+ * @param {any} [config=null] - Resolved prompt manifest record containing `.entities`.
+ * @param {Object} [context={}]
+ * @param {Record<string, any>} [context.entities={}]
+ * @param {any[]} [context.npc_entities=[]]
+ * @param {string[]} [context.in_scene_ids=[]]
+ * @param {any} [context.active_speaker=null]
+ * @param {boolean} [context.is_npc=false]
+ * @returns {Readonly<{ dispositions: Set<string>, dynamic_axes: Set<string>, user_agenda: boolean, nearby_entities: boolean, present_entities: boolean, field_context: boolean, target_context: boolean, chapter_history: boolean, active_names: Set<string>, name_to_id: Map<string, string>, npc_ids_to_render: Set<string> }>}
+ */
+export function resolve_entities(config = null, context = {}) {
+  const configuration = config?.entities || {};
+  const dispositions = new Set(configuration.dispositions || []);
+  const dynamic_axes = new Set(configuration.dynamic_axes || []);
+
+  const { active_names, name_to_id } = resolve_available_entities({
+    entities: context.entities || {},
+    npc_entities: context.npc_entities || [],
+    in_scene_ids: context.in_scene_ids || [],
+  });
+
+  const npc_ids_to_render = new Set();
+  const active_speaker = context.active_speaker || null;
+  if (context.is_npc && active_speaker) {
+    npc_ids_to_render.add(String(active_speaker.id ?? active_speaker.name));
+  }
+  if (dispositions.has("NPC") || dynamic_axes.has("NPC")) {
+    const in_scene_set = new Set((context.in_scene_ids || []).map(String));
+    for (const npc_entity of context.npc_entities || []) {
+      if (npc_entity?.id && in_scene_set.has(String(npc_entity.id))) {
+        npc_ids_to_render.add(String(npc_entity.id));
+      }
+    }
+  }
+
+  return Object.freeze({
+    dispositions,
+    dynamic_axes,
+    user_agenda: Boolean(configuration.user_agenda),
+    nearby_entities: Boolean(configuration.nearby_entities),
+    present_entities: Boolean(configuration.present_entities),
+    field_context: Boolean(configuration.field_context),
+    target_context: Boolean(configuration.target_context),
+    chapter_history: Boolean(configuration.chapter_history),
+    active_names,
+    name_to_id,
+    npc_ids_to_render,
+  });
+}
+
+/**
  * Compiles the master <ENTITIES> XML block configured by the active prompt manifest.
- * Symmetrically reads dispositions, dynamic_axes, user_agenda, and nearby_entities from config.entities.
+ * All gates resolve through `resolve_entities`.
  *
  * @param {Object} [parameters]
  * @param {Record<string, any>} [parameters.entities={}]
@@ -361,15 +416,10 @@ export function render_entity_sheets({
   speaker_dynamics = null,
   fractal_dynamics = null,
 }) {
-  const entities_configuration = config?.entities || {};
-  const dispositions_for = new Set(entities_configuration.dispositions || []);
-  const axes_for = new Set(entities_configuration.dynamic_axes || []);
-
-  const { active_names, name_to_id } = resolve_available_entities({
-    entities,
-    npc_entities,
-    in_scene_ids,
-  });
+  const entity_plan = resolve_entities(config, { entities, npc_entities, in_scene_ids, active_speaker, is_npc });
+  const dispositions_for = entity_plan.dispositions;
+  const axes_for = entity_plan.dynamic_axes;
+  const { active_names, name_to_id } = entity_plan;
   const parts = [];
 
   const core_trio = [
@@ -385,7 +435,7 @@ export function render_entity_sheets({
       specification: SHEET_SPECS.USER_PERSONA,
       dynamics: null,
       is_owner: false,
-      include_agenda: Boolean(entities_configuration.user_agenda),
+      include_agenda: entity_plan.user_agenda,
     },
     {
       key: "FRACTAL",
@@ -416,18 +466,7 @@ export function render_entity_sheets({
     );
   }
 
-  const npc_ids_to_render = new Set();
-  if (is_npc && active_speaker) {
-    npc_ids_to_render.add(String(active_speaker.id ?? active_speaker.name));
-  }
-  if (dispositions_for.has("NPC") || axes_for.has("NPC")) {
-    const in_scene_set = new Set((in_scene_ids || []).map(String));
-    for (const npc_entity of npc_entities || []) {
-      if (npc_entity?.id && in_scene_set.has(String(npc_entity.id))) {
-        npc_ids_to_render.add(String(npc_entity.id));
-      }
-    }
-  }
+  const npc_ids_to_render = entity_plan.npc_ids_to_render;
 
   const rendered_npc_ids = new Set();
   const active_speaker_id = is_npc && active_speaker ? String(active_speaker.id ?? active_speaker.name) : null;
@@ -464,7 +503,7 @@ export function render_entity_sheets({
     );
   }
 
-  if (entities_configuration.nearby_entities) {
+  if (entity_plan.nearby_entities) {
     const nearby_candidates = (npc_entities || []).filter((npc) => (in_scene_ids || []).includes(npc?.id) && !rendered_npc_ids.has(String(npc?.id)));
     const nearby_xml = render_nearby_entities_xml(nearby_candidates, { indent: 4 });
     if (nearby_xml) parts.push(nearby_xml);
@@ -732,6 +771,7 @@ ${axes}
 /**
  * CHANGELOG
  * ============================================================================
+ * - 2026-09-19: Added `resolve_entities(config, context)` as the single resolver for every `config.entities` gate plus the available-entity maps and NPC render list; `render_entity_sheets` now consumes that plan instead of reading `.entities` directly.
  * - 2026-09-19: Layer boundary purification: Replaced `@media` import of `strip_visual_excluded` with sibling import from `./epistemic.js`, restoring unidirectional downward layer flow.
  * - 2026-09-19: Added <SIGNATURE_COLORS> directive in render_optics_subject_rules mandating verbatim preservation of hair, eyes, and distinctive accent colors in generated prompt prose (F1).
  * - 2026-09-19: Architectural boundary purification: Relocated `resolve_optics_cinematography` to Layer 6 `src/intelligence/modules/task.js`; `sheets.js` now exclusively governs Layer 4 (<ENTITIES>) physical appearance synthesis, entity specs, and subject rules.
