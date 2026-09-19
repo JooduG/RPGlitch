@@ -20,7 +20,7 @@ describe("Profile Domain (profile.js)", () => {
       expect(Object.isFrozen(TASK_LIBRARY.SORTING)).toBe(true);
       expect(Object.isFrozen(PROMPTS.sorting.format)).toBe(true);
 
-      const profile_schema = get_output_format(PROMPTS.sorting.format, { resolved_type: "character" });
+      const profile_schema = get_output_format(PROMPTS.sorting.format, { entity_type: "character" });
       expect(profile_schema).toContain('"name"');
       expect(profile_schema).toContain('"eternal"');
       expect(profile_schema).toContain('"present"');

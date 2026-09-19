@@ -43,7 +43,7 @@ export const DYNAMICS_AXES = Object.freeze({
 // ── 2. Physics Protocols & Directives Registry ────────────────────────────────
 
 /**
- * Universal physics protocols: 12 somatic archetypes + 18 dynamics trigger directives + context directives.
+ * Universal physics protocols: 12 somatic archetypes + 18 dynamics trigger directives.
  * @type {Record<string, { label?: string, tells?: string, directive: string } | string>}
  */
 export const PHYSICS_PROTOCOLS = Object.freeze({
@@ -100,10 +100,6 @@ export const PHYSICS_PROTOCOLS = Object.freeze({
   TRANCE:
     "Lethargic dissociation and perceptual distortion. Heavy physical fatigue and languid actions paired with surreal, fragmented thoughts and reality glitches.",
   HARMONY: "Pristine mental clarity and physical stability. Razor-sharp recall and steady focus grounded in safe, predictable environmental physics.",
-
-  // ── 2.3 System-Forced Context Directives ─────────────────────────────────────
-  FIRST_CONTACT:
-    "Unless context explicitly establishes a prior relationship, treat this as a first encounter. You do not know the user's name, history, or intent.",
 });
 
 /** List of static archetype keyword IDs for Director available keyword listings */
@@ -421,6 +417,7 @@ export function evaluate_dynamics_rules(dynamics = {}, manual_keywords = [], max
 
 /**
  * CHANGELOG
+ * - 2026-09-19: Removed PHYSICS_PROTOCOLS.FIRST_CONTACT (the "System-Forced Context Directives" section) — first-contact is a prose directive, now single-sourced as TASK_LIBRARY.PROSE.CHARACTER.FIRST_CONTACT; the registry is strictly 12 somatic archetypes + 18 dynamics triggers.
  * - 2026-09-19: P4 dead-code pass — removed the delegator compilers (render_dynamics_xml, render_dynamics_axes_xml, render_subtext_xml, render_available_keywords_xml, resolve_physics_protocols, resolve_context_directives); physics.js now exports only axis metadata, registries, math, and evaluators.
  * - 2026-09-16: Normalized active_style_keywords to UPPERCASE in render_available_keywords_xml to ensure consistent bracketed keyword listing for Director.
  * - 2026-09-11: Consolidated physics domain: merged physics-protocols.js directly into physics.js, housing all math, registries, and XML compilers together.

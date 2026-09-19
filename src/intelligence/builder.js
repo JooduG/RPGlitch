@@ -460,11 +460,7 @@ export function render_story_prose({
     }),
   );
 
-  const is_first_contact =
-    !has_prior_relationship &&
-    (meta?.is_opening_turn ||
-      (Array.isArray(compressed_snapshot?.flags) && compressed_snapshot.flags.includes("FIRST_CONTACT")) ||
-      (Array.isArray(director_data?.keywords) && director_data.keywords.includes("first_contact")));
+  const is_first_contact = !has_prior_relationship && director_data?.first_contact === true;
 
   const action_directive = resolve_character_action_directive({
     speaker_name,
@@ -671,11 +667,7 @@ export function render_enhancement({
 export function render_profile_sorting(entity_type = "character", options = {}) {
   const config = get_prompt("sorting");
   const resolved_type = entity_type === "user" ? "character" : entity_type || "character";
-  const macro_rule = resolve_macro_directive(resolved_type);
-  const focus_directive =
-    resolved_type === "fractal"
-      ? `FOCUS: Extracting data for a FRACTAL (scene/setting/environment). Re-contextualize or discard character-specific traits. ${macro_rule}`
-      : `FOCUS: Extracting data for an individual CHARACTER. Re-contextualize or discard environmental/setting text. ${macro_rule}`;
+  const focus_directive = TASK_LIBRARY.SORTING.FOCUS(resolved_type);
 
   const pov_key =
     config.protocols
@@ -1048,6 +1040,8 @@ export const create_render_accessors = render_builder.create_render_accessors;
 
 /**
  * CHANGELOG
+ * - 2026-09-19: First-contact now derives solely from `director_data.first_contact` (dropped the dead `meta.is_opening_turn` and empty `snapshot.flags` checks and the synthetic "first_contact" keyword); it maps to the single TASK_LIBRARY.PROSE.CHARACTER.FIRST_CONTACT directive.
+ * - 2026-09-19: Moved the profile-sorting FOCUS directive into TASK_LIBRARY.SORTING.FOCUS(entity_type) (task.js), folding in the macro rule; render_profile_sorting now simply calls it.
  * - 2026-09-19: Fix pass — render_enhancement treats explicit `null` directive/layer_key as missing (nullish coalescing) and dropped the dead `_array_mode` parameter; Profile enhancement callers now rely solely on catalog hydration (single source of truth).
  * - 2026-09-19: Replaced intermediate `modules/entities/index.js` aggregator with direct concrete imports from `sheets.js`, `presence.js`, and `epistemic.js` under P4 Zero Backwards Compatibility.
  * - 2026-09-19: Fixed E1 (Profile Field Enhancement Metadata): render_enhancement now defensively hydrates missing enhancer, label, directive, layer_key, and is_array_field from PROFILE_FIELD_CATALOG, and updated header to reflect modern compile_prompt architecture.

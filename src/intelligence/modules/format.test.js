@@ -36,11 +36,11 @@ describe("src/intelligence/modules/format.js", () => {
   describe("get_output_format()", () => {
     it("resolves PROSE format string to PROSE_FORMAT and returns fallback for unknown strings", () => {
       expect(get_output_format("PROSE")).toBe(PROSE_FORMAT);
-      expect(get_output_format("unknown", "fallback_val")).toBe("fallback_val");
-      expect(get_output_format(null, "fallback_val")).toBe("fallback_val");
+      expect(get_output_format("unknown", { fallback: "fallback_val" })).toBe("fallback_val");
+      expect(get_output_format(null, { fallback: "fallback_val" })).toBe("fallback_val");
     });
 
-    it("parameterizes schemas dynamically by target or resolved entity taxonomy type", () => {
+    it("parameterizes schemas dynamically by entity taxonomy type", () => {
       expect(get_output_format(PROMPTS.continuum.format, { entity_type: "fractal" })).toBe(
         render_json_schema(PROMPTS.continuum.format.schema, "fractal"),
       );

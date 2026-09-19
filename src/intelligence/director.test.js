@@ -388,6 +388,23 @@ describe("execute_director_shot", () => {
     expect(director_duration_ms).toBeGreaterThanOrEqual(0);
   });
 
+  it("flags the opening turn with first_contact without polluting the somatic keyword list", async () => {
+    llm_service.generate.mockResolvedValueOnce(
+      JSON.stringify({
+        _thought_process: "First contact.",
+        next_action: "AI_CHARACTER",
+        keywords: ["vulnerability", "defiance", "intimacy", "grief", "shame"],
+        directors_note: "Open on visual impressions.",
+        dynamics_deltas: {},
+      }),
+    );
+
+    const { director_data } = await execute_director_shot(test_payload(), test_snapshot(), { is_opening_turn: true });
+
+    expect(director_data.first_contact).toBe(true);
+    expect(director_data.keywords).toEqual(["vulnerability", "defiance", "intimacy", "grief", "shame"]);
+  });
+
   it("recovers with terse retry when primary response is truncated / malformed", async () => {
     // 1st call returns truncated JSON
     llm_service.generate.mockResolvedValueOnce('{"_thought_process": "Evaluating scene", "next_action": "AI_CHAR');
@@ -423,6 +440,7 @@ describe("execute_director_shot", () => {
 
 /**
  * CHANGELOG
+ * - 2026-09-19: Opening-turn first-contact is now an explicit `director_data.first_contact` flag (no longer smuggled as a "first_contact" keyword, which polluted the somatic keyword channel and truncated a real keyword); test added.
  * - 2026-09-13: Added execute_director_shot integration unit tests covering clean parse, terse recovery, and fallback synthesis.
  * - 2026-09-11: Consolidated prompt and orchestration unit tests into director.test.js.
  */

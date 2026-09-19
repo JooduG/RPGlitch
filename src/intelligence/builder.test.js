@@ -263,10 +263,10 @@ describe("Parameter-Aware Layer 7 Output Format Routing", () => {
 // ============================================================================
 
 describe("Protocol Invariants & Remediation Regression Gates", () => {
-  it("maintains affirmative framing in PROTOCOL_LIBRARY.HYGIENE", () => {
-    expect(PROTOCOL_LIBRARY.HYGIENE.AFFIRMATIVE_FRAMING).toBeDefined();
-    expect(typeof PROTOCOL_LIBRARY.HYGIENE.AFFIRMATIVE_FRAMING).toBe("string");
-    expect(PROTOCOL_LIBRARY.HYGIENE.AFFIRMATIVE_FRAMING).toContain("Describe positive presence in frame");
+  it("maintains affirmative framing in PROTOCOL_LIBRARY.OPTICS", () => {
+    expect(PROTOCOL_LIBRARY.OPTICS.AFFIRMATIVE_FRAMING).toBeDefined();
+    expect(typeof PROTOCOL_LIBRARY.OPTICS.AFFIRMATIVE_FRAMING).toBe("string");
+    expect(PROTOCOL_LIBRARY.OPTICS.AFFIRMATIVE_FRAMING).toContain("Describe positive presence in frame");
   });
 
   it("maintains permissive clause in CORE_PROTOCOLS.SIMULATION_FIDELITY", () => {
@@ -454,6 +454,7 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-19: Retargeted the affirmative-framing regression gate from PROTOCOL_LIBRARY.HYGIENE to PROTOCOL_LIBRARY.OPTICS (its new single source of truth).
  * - 2026-09-19: Added T1/R1 and R5 regression tests asserting Director includes <ALTERNATION_OPTIONS> when alternations exist and omits empty <CORE_PROTOCOLS>.
  * - 2026-09-18: Added unit test verifying verify_epistemic_integrity returns boolean for clean and leaked prompts.
  * - 2026-09-18: Added Section 5 tests covering `compile_pipeline_prompt` (director, director_terse, continuum, enhancement, sorting, optics) and `build_story_prose` unification.

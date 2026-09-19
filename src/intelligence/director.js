@@ -502,15 +502,14 @@ export async function execute_director_shot(payload, snapshot, options = {}) {
   }
 
   director_data = normalize_director_data(director_data);
-  if (is_opening_turn && !(director_data.keywords || []).includes("first_contact")) {
-    director_data.keywords = [...(director_data.keywords || []), "first_contact"].slice(0, 5);
-  }
+  director_data.first_contact = Boolean(is_opening_turn || director_data.first_contact);
 
   return { director_data, director_duration_ms };
 }
 
 /**
  * CHANGELOG
+ * - 2026-09-19: Opening-turn first-contact is emitted as an explicit `director_data.first_contact` flag instead of a synthetic "first_contact" keyword, so it can no longer pollute the somatic keyword channel or displace a real keyword.
  * - 2026-09-19: Replaced stale prompt_builder docstring and test references with unified compile_prompt("director") under P4 Zero Backwards Compatibility.
  * - 2026-09-18: Routed Director shot execution through compile_prompt("director") and switchboard compile_prompt("director_terse").
  * - 2026-09-16: Zero Backwards Compatibility (P4) — Migrated terse retry call from deprecated render_terse_director_task to compile_prompt("director_terse").

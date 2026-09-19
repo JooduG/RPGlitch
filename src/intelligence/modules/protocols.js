@@ -23,14 +23,10 @@ import { extract_style_dna } from "@data";
 // [SECTION 1: CONSOLIDATED PROTOCOL LIBRARY]
 // ============================================================================
 
-const AFFIRMATIVE_FRAMING =
-  "Describe positive presence in frame ('softly moonlit glade' not 'no harsh sunlight'); confine negative_prompt to global quality artifacts.";
-
 export const PROTOCOL_LIBRARY = Object.freeze({
   // ── 1.1 Core Output Mechanics, Formatting & Hygiene ────────────────────────
   HYGIENE: Object.freeze({
     DATA: "Output strictly raw, unpadded structural data. Zero prose, conversational filler, or commentary.",
-    AFFIRMATIVE_FRAMING,
   }),
 
   // ── 1.2 Core-Prose Scaffold (<CORE_PROTOCOLS> bodies) ──────────────────────
@@ -61,7 +57,8 @@ export const PROTOCOL_LIBRARY = Object.freeze({
   OPTICS: Object.freeze({
     WEIGHTING_RESTRICTIONS:
       "Enforce FLUX_T5_WEIGHTING — NEVER emit bracket weight math ('(x:1.3)', '((x))', '[x:0.4]'): FLUX/T5 reads words, not weights. Emphasize via descriptors, varied rephrasing, and attenuation phrasing ('faint', 'subtle touch of', 'barely visible in the distance').",
-    AFFIRMATIVE_FRAMING,
+    AFFIRMATIVE_FRAMING:
+      "Describe positive presence in frame ('softly moonlit glade' not 'no harsh sunlight'); confine negative_prompt to global quality artifacts.",
     TYPOGRAPHY:
       'Render on-screen text ONLY when the scene itself calls for it — signs, graffiti, titles, or UI that are part of the subject matter. Never add text artificially. When text IS present, spell it out exactly and specify placement, font, and color (e.g. "OPEN" in glowing red neon, centered above the doors) — never invent, garble, or approximate lettering, and never output generic placeholders like "text" or "sign".',
     ENVIRONMENTAL_GROUNDING:
@@ -277,6 +274,7 @@ export function render_core_protocols({
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-19: Inlined AFFIRMATIVE_FRAMING as a single PROTOCOL_LIBRARY.OPTICS entry (dropped the module-private shared const and the dead HYGIENE alias); the builder.test.js regression gate is retargeted to OPTICS.
  * - 2026-09-19: Deduplicated AFFIRMATIVE_FRAMING constant between HYGIENE and OPTICS in PROTOCOL_LIBRARY (Mega Report D2).
  * - 2026-09-19: Omitted empty `<CORE_PROTOCOLS>` envelope when resolved blocks are empty (R5).
  * - 2026-09-19: Consolidation pass: Merged `render_protocols` into `render_core_protocols` and converted `compile_protocol_tags` into a module-private compiler, making `render_core_protocols` the sole public compiler for Layer 3 `<CORE_PROTOCOLS>` envelopes across all prompt modes.

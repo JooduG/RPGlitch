@@ -40,6 +40,7 @@ import { PROFILE_FIELDS } from "@data";
 /**
  * Directorial and continuum schema atoms used to construct structured JSON schemas.
  * Categorized by their lifecycle role while exposed as a single frozen catalog.
+ * Atoms may be a literal value or a function of the optional schema baseline.
  */
 export const SCHEMA_ATOMS = Object.freeze({
   _thought_process: "<Tactical intent & state delta>",
@@ -53,7 +54,8 @@ export const SCHEMA_ATOMS = Object.freeze({
   relationships: ["Source → Target: dynamic description"],
   prompt:
     "<Final image prompt as continuous fluid prose. Ground outputs using physical optics and real-world materials; zero quality buzzwords ('masterpiece', '8K', 'photorealistic').>",
-  negative_prompt: "<Negative tokens avoiding quality buzzwords; ground using physical artifacts and flaws.>",
+  negative_prompt: (style_baseline = "") =>
+    `<Negative tokens avoiding quality buzzwords; ground using physical artifacts and flaws.${style_baseline ? ` Style baseline: ${String(style_baseline).replace(/"/g, '\\"')}` : ""}>`,
   caption: "<in-character selfie caption>",
 });
 // ============================================================================
@@ -70,34 +72,35 @@ export const SCHEMA_ATOMS = Object.freeze({
  *
  * @param {string[]} schema_keys - Ordered array of schema keys to compile
  * @param {'character' | 'fractal' | string} [entity_type='character'] - Target entity taxonomy model
+ * @param {{ negative_baseline?: string }} [options={}] - Optional style baseline injected into the negative_prompt atom
  * @returns {string} Formatted JSON schema template string
  */
-export function render_json_schema(schema_keys, entity_type = "character") {
+export function render_json_schema(schema_keys, entity_type = "character", { negative_baseline = "" } = {}) {
   const resolved_entity_type = entity_type === "fractal" ? "fractal" : "character";
   const entity_model = PROFILE_FIELDS[resolved_entity_type] || PROFILE_FIELDS.character;
 
   const schema_lines = schema_keys
     .map((schema_key) => {
+      const field_definition = entity_model[schema_key] || PROFILE_FIELDS[schema_key];
+
       // 1. Twin-cylinder temporal composite layers (eternal, present)
-      const { physical, non_physical } = entity_model[schema_key] || {};
-      if (physical?.directive && non_physical?.directive) {
-        return `  "${schema_key}": {\n    "physical": "<${physical.directive}>",\n    "non_physical": "<${non_physical.directive}>"\n  }`;
+      if (field_definition?.physical?.directive && field_definition?.non_physical?.directive) {
+        return `  "${schema_key}": {\n    "physical": "<${field_definition.physical.directive}>",\n    "non_physical": "<${field_definition.non_physical.directive}>"\n  }`;
       }
 
       // 2. Direct model or top-level metadata field (name, description, signature_color, future, past)
-      const field_definition = entity_model[schema_key] || PROFILE_FIELDS[schema_key];
       if (field_definition?.directive) {
-        const field_directive = field_definition.directive;
         if (field_definition.type === "array") {
-          return `  "${schema_key}": [{ "content": "<${field_directive}>", "emotional_weight": 1-10 }]`;
+          return `  "${schema_key}": [{ "content": "<${field_definition.directive}>", "emotional_weight": 1-10 }]`;
         }
-        return `  "${schema_key}": "<${field_directive}>"`;
+        return `  "${schema_key}": "<${field_definition.directive}>"`;
       }
 
       // 3. Directorial and continuum atoms from SCHEMA_ATOMS
       if (schema_key in SCHEMA_ATOMS) {
         const atom_definition = SCHEMA_ATOMS[schema_key];
-        const value_string = typeof atom_definition === "string" ? `"${atom_definition}"` : JSON.stringify(atom_definition);
+        const resolved_atom = typeof atom_definition === "function" ? atom_definition(negative_baseline) : atom_definition;
+        const value_string = typeof resolved_atom === "string" ? `"${resolved_atom}"` : JSON.stringify(resolved_atom);
         return `  "${schema_key}": ${value_string}`;
       }
 
@@ -134,52 +137,35 @@ export function format_json_return(schema) {
 // ============================================================================
 
 /**
- * Resolves an output format, schema, or contract string from its canonical format specification.
- * Parameter-aware: accepts an entity type or options object to dynamically parameterize CONTINUUM, PROFILE, and OPTICS schemas.
+ * Resolves an output format directive or schema from its canonical format specification.
+ * Parameter-aware: accepts an options object to dynamically parameterize CONTINUUM, PROFILE, DIRECTOR, and OPTICS schemas.
  *
- * @param {string|{ mode?: string, schema?: string[] }} [format_spec="PROSE"] - Format spec object from PROMPTS manifest or "PROSE" string
- * @param {string|{ entity_type?: string, target_type?: string, resolved_type?: string, variant?: string, is_selfie?: boolean, negative_prompt?: string, fallback?: string }} [options_or_fallback=""]
+ * @param {string|{ mode?: string, schema?: string[] }} [format_spec="PROSE"] - Format spec object from the PROMPTS manifest, or the "PROSE" sentinel
+ * @param {{ entity_type?: string, variant?: string, is_selfie?: boolean, negative_prompt?: string, fallback?: string }} [options={}]
  * @returns {string} Compiled output format directive or schema
  */
-export function get_output_format(format_spec, options_or_fallback = "") {
-  if (!format_spec) return typeof options_or_fallback === "string" ? options_or_fallback : "";
+export function get_output_format(format_spec, options = {}) {
+  if (!format_spec) return options.fallback || "";
 
   // 1. Plain narrative prose directive
   if (format_spec === "PROSE") {
     return PROSE_FORMAT;
   }
 
-  const options =
-    typeof options_or_fallback === "object" && options_or_fallback !== null
-      ? options_or_fallback
-      : typeof options_or_fallback === "string" && options_or_fallback
-        ? { entity_type: options_or_fallback }
-        : {};
-
-  const fallback = typeof options_or_fallback === "string" ? options_or_fallback : options.fallback || "";
-
   // 2. Structured JSON schema specification from PROMPTS manifest: { mode: "json", schema: [...] }
-  if (typeof format_spec === "object" && format_spec !== null && Array.isArray(format_spec.schema)) {
-    const entity_type = options.entity_type || "character";
+  if (Array.isArray(format_spec.schema)) {
     const schema_keys = [...format_spec.schema];
 
-    if (options.variant === "selfie" || options.is_selfie) {
-      if (!schema_keys.includes("caption")) {
-        schema_keys.push("caption");
-      }
+    if ((options.variant === "selfie" || options.is_selfie) && !schema_keys.includes("caption")) {
+      schema_keys.push("caption");
     }
 
-    let compiled_schema = render_json_schema(schema_keys, entity_type);
-
-    if (options.negative_prompt) {
-      const guidance = `<Negative tokens avoiding quality buzzwords; ground using physical artifacts and flaws. Style baseline: ${options.negative_prompt.replace(/"/g, '\\"')}>`;
-      compiled_schema = compiled_schema.replace(`"${SCHEMA_ATOMS.negative_prompt}"`, `"${guidance}"`);
-    }
-
-    return compiled_schema;
+    return render_json_schema(schema_keys, options.entity_type || "character", {
+      negative_baseline: options.negative_prompt || "",
+    });
   }
 
-  return fallback;
+  return options.fallback || "";
 }
 
 // ============================================================================
@@ -208,6 +194,8 @@ export function render_output_format_xml({ mode = "", content = "", indent_level
 
 /**
  * CHANGELOG
+ * - 2026-09-19: Standardized get_output_format to a single `(format_spec, options)` signature (dropped the string options_or_fallback overload and the stale target_type/resolved_type JSDoc), and collapsed render_json_schema's field lookup to one `field_definition`.
+ * - 2026-09-19: Simplified negative-prompt injection — SCHEMA_ATOMS.negative_prompt is now a function of the style baseline (EVALUATE-style), and render_json_schema invokes any function atom with `negative_baseline`; removed the compose helper, the key special-case, and the duplicated base wording.
  * - 2026-09-19: Collapsed both JSON-return formatters into one canonical instruction — format_json_return(schema) is now the single source of truth (Optics' former strict constraint is baked in); format_optics_json_return and its indent/strict options are gone.
  * - 2026-09-19: Standardized get_output_format option parameter to entity_type and purged legacy target_type/resolved_type shims under P4 Zero Backwards Compatibility (Mega Report S6).
  * - 2026-09-19: Fixed negative prompt injection into Optics schema (R3): injected style baseline negative tokens into SCHEMA_ATOMS.negative_prompt as contextual guidance.

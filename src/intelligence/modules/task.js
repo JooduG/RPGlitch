@@ -26,7 +26,7 @@
  * ============================================================================
  */
 
-import { escape_xml, prompt_escape, inline_or_block, wrap_tag, indent_all, render_xml_tag } from "@utils";
+import { escape_xml, prompt_escape, inline_or_block, wrap_tag, indent_all, render_xml_tag, resolve_macro_directive } from "@utils";
 import { extract_style_dna, STYLE_MOTIF_REGISTRY } from "@data";
 import { PROSE_FORMAT, format_json_return } from "./format.js";
 
@@ -122,6 +122,12 @@ Strictly zero spoken dialogue or quote marks. No dialogue.`,
 
   // ── 1.5 Tool B: Profile Structuring & Ingestion Directives (sorting) ───────
   SORTING: Object.freeze({
+    FOCUS: (entity_type = "character") =>
+      `${
+        entity_type === "fractal"
+          ? "FOCUS: Extracting data for a FRACTAL (scene/setting/environment). Re-contextualize or discard character-specific traits."
+          : "FOCUS: Extracting data for an individual CHARACTER. Re-contextualize or discard environmental/setting text."
+      } ${resolve_macro_directive(entity_type)}`,
     REDISTRIBUTE: `REDISTRIBUTE: The source profile may have content in the wrong field. Relocate each fact to its correct field (e.g., temporary states belong under 'state_of_mind', transient moods under 'current_look'). Never move content into or out of 'description' (internal notes). Preserve factual truth; update only field locations and phrasing. Strip XML tags, markdown bolding, or headers from values—output clean prose.`,
     INGESTION: `SOURCE OF TRUTH & INGESTION RULES:
 - Source text is absolute truth. Map details faithfully into schema fields.
@@ -674,27 +680,6 @@ export function resolve_physics_protocols(keywords = [], physics_protocols = {})
 }
 
 /**
- * Resolves injected context-directive keywords against a physics protocol registry.
- * @param {string[]} [keywords=[]]
- * @param {Record<string, any>} [physics_protocols={}]
- * @returns {{ id: string, directive: string }[]}
- */
-export function resolve_context_directives(keywords = [], physics_protocols = {}) {
-  const resolved = [];
-  for (const keyword of keywords || []) {
-    if (!keyword || typeof keyword !== "string") continue;
-    const clean_key = keyword.trim();
-    const upper_key = clean_key.toUpperCase();
-    const entry = physics_protocols[upper_key];
-    if (entry) {
-      const directive = typeof entry === "string" ? entry : entry.directive;
-      resolved.push({ id: upper_key, directive });
-    }
-  }
-  return resolved;
-}
-
-/**
  * Builds <AVAILABLE_KEYWORDS> listing for the Director as a unified, flat bracketed list of tags.
  * @param {string[]} [active_style_keywords=[]]
  * @param {readonly string[]} [available_keywords=[]]
@@ -766,6 +751,8 @@ export function render_subtext_xml(ai_dynamics = {}, fractal_dynamics = {}, opti
 
 /**
  * CHANGELOG
+ * - 2026-09-19: Removed the dead resolve_context_directives resolver (no production caller); first-contact is single-sourced as TASK_LIBRARY.PROSE.CHARACTER.FIRST_CONTACT and emitted via resolve_character_action_directive.
+ * - 2026-09-19: Added TASK_LIBRARY.SORTING.FOCUS(entity_type) — the profile-sorting focus directive plus macro rule, absorbed from builder.js.
  * - 2026-09-19: Optics now emits its <OUTPUT_FORMAT> via TASK_LIBRARY.JSON_RETURN(schema); TASK_LIBRARY.JSON_RETURN aliases format_json_return directly and pruned the format_optics_json_return import.
  * - 2026-09-19: Integrated optics cinematography presets, staging directive helper, and group/scene narrative context builders into TASK_LIBRARY.OPTICS.CINEMATOGRAPHY, refactoring resolve_optics_cinematography to consume them.
  * - 2026-09-19: Imported and utilized PROSE_FORMAT from format.js, eliminating hardcoded string literal duplication (Mega Report D3).

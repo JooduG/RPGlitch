@@ -26,7 +26,6 @@ import {
   render_subtext_xml,
   render_available_keywords_xml,
   resolve_physics_protocols,
-  resolve_context_directives,
   TASK_LIBRARY,
 } from "./task.js";
 
@@ -286,13 +285,6 @@ describe("task.js - Optics Task Staging", () => {
       expect(resolved[0].directive).toBe("Averted eye contact, hunched shoulders.");
     });
 
-    it("resolves context directives against registry", () => {
-      const resolved = resolve_context_directives(["fear"], mock_physics_protocols);
-      expect(resolved).toHaveLength(1);
-      expect(resolved[0].id).toBe("FEAR");
-      expect(resolved[0].directive).toBe("Shallow breathing, scanning exits.");
-    });
-
     it("renders available keywords XML with uppercase brackets", () => {
       const xml = render_available_keywords_xml(["cyberpunk", "sensual"], ["SHAME", "FEAR"]);
       expect(xml).toContain("[SHAME]");
@@ -323,6 +315,7 @@ describe("task.js - Optics Task Staging", () => {
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-19: Dropped the resolve_context_directives test (resolver removed — FIRST_CONTACT is now the single TASK_LIBRARY.PROSE.CHARACTER directive, driven by director_data.first_contact).
  * - 2026-09-19: Added unit test assertions for TASK_LIBRARY.OPTICS.CINEMATOGRAPHY presets, group context, and staging directives.
  * - 2026-09-19: Added unit test for resolve_optics_cinematography following relocation from entities/sheets.js.
  * - 2026-09-18: Added unit tests for render_keyword_directives_xml supporting DIRECTOR and OPTICS modes.
