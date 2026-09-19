@@ -41,7 +41,7 @@ export const PROTOCOL_LIBRARY = Object.freeze({
         FIRST:
           "Write strictly in first-person ('I', 'me', 'my'). Describe actions and sensations through your own eyes—never use third-person pronouns or your character name.",
         THIRD: "Write strictly in third-person limited ('he', 'she', 'they', or character name). Never use first-person pronouns in narrative prose.",
-        NARRATOR: "You are the setting narrator (<FRACTAL>). Write strictly in third-person omniscient POV. Never write in first-person.",
+        NARRATOR: "You are the setting narrator («FRACTAL»). Write strictly in third-person omniscient POV. Never write in first-person.",
       }),
     }),
     PROSE_DISCIPLINE: Object.freeze({
@@ -274,6 +274,7 @@ export function render_core_protocols({
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-20: Metasyntax ban — the NARRATOR POV line references the setting as «FRACTAL» instead of a raw `<FRACTAL>` tag.
  * - 2026-09-19: Inlined AFFIRMATIVE_FRAMING as a single PROTOCOL_LIBRARY.OPTICS entry (dropped the module-private shared const and the dead HYGIENE alias); the builder.test.js regression gate is retargeted to OPTICS.
  * - 2026-09-19: Deduplicated AFFIRMATIVE_FRAMING constant between HYGIENE and OPTICS in PROTOCOL_LIBRARY (Mega Report D2).
  * - 2026-09-19: Omitted empty `<CORE_PROTOCOLS>` envelope when resolved blocks are empty (R5).

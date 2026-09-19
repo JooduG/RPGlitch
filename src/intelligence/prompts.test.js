@@ -76,7 +76,6 @@ function assert_fused_shape(result, mode) {
   const task = result.task;
   expect((system.match(/<SYSTEM\b/g) || []).length).toBe(1);
   expect(system).not.toContain("</SYSTEM>");
-  expect(result.system_close).toBe("</SYSTEM>");
   expect(system).toMatch(new RegExp(`<SYSTEM[^>]*mode="${mode}"`));
   expect(task.startsWith("<TASK>")).toBe(true);
   expect(task.endsWith("</TASK>")).toBe(true);
@@ -368,10 +367,11 @@ describe("master switchboard compile_prompt", () => {
     });
 
     // Check that PROFILE_FIELD_CATALOG attributes were successfully populated
-    expect(physical_enhancement.system).toContain('role="BIOMETRIC_RENDERER"');
+    expect(physical_enhancement.system).toContain('role="ENHANCER"');
+    expect(physical_enhancement.system).toContain("You are the BIOMETRIC_RENDERER Profile Enhancer");
     expect(physical_enhancement.system).toContain('enhancing="Physical Appearance"');
     expect(physical_enhancement.system).toContain("<LAYER>ETERNAL</LAYER>");
-    expect(physical_enhancement.system).toContain("[KEY: value] permanent biometrics");
+    expect(physical_enhancement.task).toContain("[KEY: value] permanent biometrics");
 
     const non_physical_enhancement = compile_prompt("enhancement", {
       field_id: "eternal.non_physical",
@@ -380,10 +380,11 @@ describe("master switchboard compile_prompt", () => {
       entity: entities.AI,
     });
 
-    expect(non_physical_enhancement.system).toContain('role="COGNITIVE_ARCHITECT"');
+    expect(non_physical_enhancement.system).toContain('role="ENHANCER"');
+    expect(non_physical_enhancement.system).toContain("You are the COGNITIVE_ARCHITECT Profile Enhancer");
     expect(non_physical_enhancement.system).toContain('enhancing="Personality"');
     expect(non_physical_enhancement.system).toContain("<LAYER>ETERNAL</LAYER>");
-    expect(non_physical_enhancement.system).toContain("Prose only");
+    expect(non_physical_enhancement.task).toContain("Prose only");
   });
 });
 

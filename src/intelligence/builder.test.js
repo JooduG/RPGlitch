@@ -182,7 +182,6 @@ describe("Shot-2A Prose Modes Symmetrical Compilation", () => {
       expect(mode_result.system).toContain("<AXIOMATIC_CONSTITUTION>");
       expect(mode_result.system).toContain("<CORE_PROTOCOLS>");
       expect(mode_result.system).not.toContain("</SYSTEM>");
-      expect(mode_result.system_close).toBe("</SYSTEM>");
       expect(mode_result.task).toMatch(/^<TASK>/);
       expect(mode_result.task).toMatch(/<\/TASK>$/);
       expect(mode_result.system).not.toContain('origin="UNDEFINED"');
@@ -212,8 +211,8 @@ describe("Parameter-Aware Layer 7 Output Format Routing", () => {
       other_entities: test_entities,
     });
 
-    expect(character_memory).toContain('"eternal"');
-    expect(character_memory).toContain('"relationships"');
+    expect(character_memory.task).toContain('"eternal"');
+    expect(character_memory.task).toContain('"relationships"');
 
     const fractal_memory = render_memory({
       target_entity: test_entities.FRACTAL,
@@ -221,17 +220,17 @@ describe("Parameter-Aware Layer 7 Output Format Routing", () => {
       other_entities: test_entities,
     });
 
-    expect(fractal_memory).toContain('"eternal"');
+    expect(fractal_memory.task).toContain('"eternal"');
   });
 
   it("routes profile sorting schema dynamically by resolved taxonomy type", () => {
     const character_sorting = render_profile_sorting("character");
-    expect(character_sorting).toContain("&quot;name&quot;");
-    expect(character_sorting).toContain("&quot;signature_color&quot;");
+    expect(character_sorting.task).toContain("&quot;name&quot;");
+    expect(character_sorting.task).toContain("&quot;signature_color&quot;");
 
     const fractal_sorting = render_profile_sorting("fractal");
-    expect(fractal_sorting).toContain("&quot;name&quot;");
-    expect(fractal_sorting).toContain("&quot;signature_color&quot;");
+    expect(fractal_sorting.task).toContain("&quot;name&quot;");
+    expect(fractal_sorting.task).toContain("&quot;signature_color&quot;");
   });
 
   it("routes enhancement output rules via get_output_format", () => {
@@ -246,8 +245,8 @@ describe("Parameter-Aware Layer 7 Output Format Routing", () => {
       entity_type: "character",
     });
 
-    expect(prose_enhancement).toContain("<TASK>");
-    expect(prose_enhancement).toContain("Emit strictly plain prose");
+    expect(prose_enhancement.task).toContain("<TASK>");
+    expect(prose_enhancement.task).toContain("Emit strictly plain prose");
   });
 });
 

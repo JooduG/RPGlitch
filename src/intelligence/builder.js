@@ -44,7 +44,7 @@ import {
   detox_prose,
 } from "@utils";
 import { get_prompt } from "./prompts.js";
-import { resolve_stability_lock, resolve_system_role_line, SYSTEM_CLOSE_TAG, render_system_xml } from "./modules/system.js";
+import { resolve_stability_lock, resolve_system_role_line, render_system_xml } from "./modules/system.js";
 import { render_axiomatic_constitution } from "./modules/constitution.js";
 import { render_core_protocols, resolve_pov_protocol, PROTOCOL_LIBRARY } from "./modules/protocols.js";
 import {
@@ -170,7 +170,12 @@ function resolve_accessors(payload, override_entities = null) {
 
 /**
  * Packages rendered prompt text into a normalized prompt package with metadata.
- * @param {{ system?: string, task?: string, system_close?: string }} rendered
+ *
+ * The package is always `{ system, task }` (+ optional `meta` / `messages`): `system` is an OPEN
+ * `<SYSTEM>` fragment and `task` is the separate `<TASK>` block. `transport.js` owns assembling and
+ * closing the final envelope, so there is no `system_close` field.
+ *
+ * @param {{ system?: string, task?: string }} rendered
  * @param {Record<string, any>} [meta]
  * @param {any[]} [messages]
  */
@@ -178,7 +183,6 @@ function pack_prompt(rendered, meta = {}, messages = []) {
   return {
     system: clean_prompt_text(rendered?.system),
     task: clean_prompt_text(rendered?.task),
-    ...(rendered?.system_close ? { system_close: String(rendered.system_close) } : {}),
     ...(Object.keys(meta).length > 0 ? { meta } : {}),
     ...(Array.isArray(messages) && messages.length > 0 ? { messages } : {}),
   };
@@ -193,13 +197,25 @@ const PROMPT_LAYERS = Object.freeze([
   { key: "role", emit: (state) => state.role_line },
   { key: "constitution", emit: (state) => state.constitution },
   { key: "protocols", emit: (state) => state.core_protocols },
+  { key: "dynamics", emit: (state) => state.dynamics },
+  { key: "keyword_directives", emit: (state) => state.keyword_directives },
   { key: "entities", emit: (state) => state.entities_block },
+  { key: "target_context", emit: (state) => state.target_context },
+  { key: "nearby_entities", emit: (state) => state.nearby_entities },
+  { key: "layer", emit: (state) => state.layer },
+  { key: "field_context", emit: (state) => state.field_context },
+  { key: "input_content", emit: (state) => state.input_content },
+  { key: "present_entities", emit: (state) => state.present_entities },
+  { key: "chapter_history", emit: (state) => state.chapter_history },
   { key: "history", emit: (state) => state.history_block },
 ]);
 
 /**
- * Walks `PROMPT_LAYERS` and returns the ordered, non-empty envelope children.
- * @param {{ role_line?: string, constitution?: string, core_protocols?: string, entities_block?: string, history_block?: string }} state
+ * Walks the canonical `PROMPT_LAYERS` table and returns the ordered, non-empty `<SYSTEM>` children.
+ * Every compiler composes its envelope through this single emitter, so a layer reorder/insert is a
+ * table edit, never a change to an individual mode's children array.
+ *
+ * @param {Partial<Record<"role_line"|"constitution"|"core_protocols"|"dynamics"|"keyword_directives"|"entities_block"|"target_context"|"nearby_entities"|"field_context"|"layer"|"input_content"|"present_entities"|"chapter_history"|"history_block", string|null|undefined>>} state
  * @returns {string[]}
  */
 function render_prompt_layers(state) {
@@ -251,17 +267,17 @@ export function render_director({
   const role_line = resolve_system_role_line({ role: config.system.role });
 
   const system = render_system_xml({
-    mode: "director",
+    mode: config.system.mode,
     round,
-    children: [
+    attributes: { role: config.system.role },
+    children: render_prompt_layers({
       role_line,
-      core_protocols_xml,
-      render_dynamics_xml(DYNAMICS_AXES),
-      keyword_directives_xml,
-      entity_sheets,
-      entity_plan.present_entities ? render_present_entities_xml({ entities: scene_entities, npc_entities, in_scene_ids }) : null,
-    ],
-    closed: true,
+      core_protocols: core_protocols_xml,
+      dynamics: render_dynamics_xml(DYNAMICS_AXES),
+      keyword_directives: keyword_directives_xml,
+      entities_block: entity_sheets,
+      present_entities: entity_plan.present_entities ? render_present_entities_xml({ entities: scene_entities, npc_entities, in_scene_ids }) : null,
+    }),
   });
 
   const last_ai_message = (active_messages || []).filter((message) => message.role === "model").at(-1);
@@ -305,7 +321,7 @@ export function render_director({
  * @param {string} [parameters.action_directive=""]
  * @param {any} [parameters.snapshot=null]
  * @param {boolean} [parameters.is_npc=false]
- * @returns {{ system: string, task: string, system_close: string }}
+ * @returns {{ system: string, task: string }}
  */
 function render_prose_turn_core({
   config,
@@ -376,8 +392,8 @@ function render_prose_turn_core({
   const system = render_system_xml({
     round,
     mode: config.system.mode,
+    attributes: { role: config.system.role },
     children: render_prompt_layers({ role_line, constitution, core_protocols: core, entities_block }),
-    closed: false,
   });
 
   const stability_lock_content = resolve_stability_lock(meta);
@@ -393,7 +409,7 @@ function render_prose_turn_core({
     stability_lock: stability_lock_content,
   });
 
-  return { system, task, system_close: SYSTEM_CLOSE_TAG };
+  return { system, task };
 }
 
 /**
@@ -563,19 +579,22 @@ export function render_memory({ target_entity, target_key = "AI_CHARACTER", othe
       })
     : "";
 
-  return render_system_xml({
-    mode: "continuum",
-    attributes: { role: "CONTINUUM_CARETAKER", target: target_name },
-    children: [
-      render_core_protocols({ protocols: config.protocols }),
-      wrap_tag("TARGET_ENTITY_CONTEXT", target_xml, 2),
-      nearby_entities_xml,
-      chapter_xml,
-      history_xml,
-      task_xml,
-    ],
-    closed: true,
+  const role_line = resolve_system_role_line({ role: config.system.role, target_name });
+
+  const system = render_system_xml({
+    mode: config.system.mode,
+    attributes: { role: config.system.role, target: target_name },
+    children: render_prompt_layers({
+      role_line,
+      core_protocols: render_core_protocols({ protocols: config.protocols }),
+      target_context: wrap_tag("TARGET_ENTITY_CONTEXT", target_xml, 2),
+      nearby_entities: nearby_entities_xml,
+      chapter_history: chapter_xml,
+      history_block: history_xml,
+    }),
   });
+
+  return { system, task: task_xml };
 }
 
 /**
@@ -612,26 +631,29 @@ export function render_enhancement({
     directives: [resolved_directive, macro_directive, output_rules],
   });
 
-  return render_system_xml({
-    mode: "enhancement",
+  const role_line = resolve_system_role_line({ role: config.system.role, enhancer_name: resolved_enhancer });
+
+  const system = render_system_xml({
+    mode: config.system.mode,
     attributes: {
-      role: resolved_enhancer,
+      role: config.system.role,
       enhancing: resolved_label,
       field: field_id,
     },
-    children: [
-      render_core_protocols({ protocols: config.protocols }),
-      resolved_layer_key ? render_xml_tag({ tag: "LAYER", children: [escape_xml(resolved_layer_key)], inline: true }) : null,
-      entity_plan.field_context
+    children: render_prompt_layers({
+      role_line,
+      core_protocols: render_core_protocols({ protocols: config.protocols }),
+      layer: resolved_layer_key ? render_xml_tag({ tag: "LAYER", children: [escape_xml(resolved_layer_key)], inline: true }) : null,
+      field_context: entity_plan.field_context
         ? render_enhancement_field_context(entity, field_id, content, normalized_type, (e, c) =>
             temporal_engine.format(resolve_vector_pool(e), c || "", { max_chars: 1500 }),
           )
         : null,
-      wrap_tag("INPUT_CONTENT", indent_continuation(escape_xml(content), 4).trim(), 2),
-      task_xml,
-    ],
-    closed: true,
+      input_content: wrap_tag("INPUT_CONTENT", indent_continuation(escape_xml(content), 4).trim(), 2),
+    }),
   });
+
+  return { system, task: task_xml };
 }
 
 /**
@@ -659,15 +681,21 @@ export function render_profile_sorting(entity_type = "character", options = {}) 
     ],
   });
 
-  return render_system_xml({
-    mode: "sorting",
+  const role_line = resolve_system_role_line({ role: config.system.role });
+
+  const system = render_system_xml({
+    mode: config.system.mode,
     attributes: {
-      role: "NARRATIVE_STRUCTURER",
+      role: config.system.role,
       enhancing: "Entire Profile",
     },
-    children: [render_core_protocols({ protocols: config.protocols }), task_xml],
-    closed: true,
+    children: render_prompt_layers({
+      role_line,
+      core_protocols: render_core_protocols({ protocols: config.protocols }),
+    }),
   });
+
+  return { system, task: task_xml };
 }
 
 /**
@@ -808,12 +836,11 @@ export function render_optics_prompt(options = {}) {
     mode: "optics",
     attributes: { role: "SENSORY_CORTEX" },
     children: render_prompt_layers({
+      role_line: resolve_system_role_line({ role: "SENSORY_CORTEX" }),
       core_protocols: protocols_xml,
       entities_block: entities_xml,
       history_block: history_xml ? history_xml.trim() : null,
     }),
-    task: task_xml,
-    closed: true,
   });
 
   return pack_prompt({ system: full_system, task: task_xml });
@@ -848,7 +875,7 @@ function normalize_context(context = {}, entities_override = null) {
  * `prose` is the fallback for interaction/ghostwrite and any unknown key.
  * Adding a mode is a manifest record plus, at most, one entry here — no switch edits.
  *
- * @type {Record<string, (config: any, context: Record<string, any>) => { system: string, task: string, system_close?: string, meta?: Record<string, any>, messages?: any[] }>}
+ * @type {Record<string, (config: any, context: Record<string, any>) => { system: string, task: string, meta?: Record<string, any>, messages?: any[] }>}
  */
 export const MODE_ADAPTERS = {
   director: (config, context) => {
@@ -868,17 +895,17 @@ export const MODE_ADAPTERS = {
     const schema = context.schema || get_output_format(config.format);
     const task = render_task({ mode: "director", terse: true, schema });
     const system = render_system_xml({
-      mode: "director",
+      mode: config.system.mode,
       round: context.round,
-      children: [resolve_system_role_line({ role: config.system.role })],
-      closed: true,
+      attributes: { role: config.system.role },
+      children: render_prompt_layers({ role_line: resolve_system_role_line({ role: config.system.role }) }),
     });
     return pack_prompt({ system, task });
   },
 
-  continuum: (config, context) => pack_prompt({ system: render_memory(context) }),
+  continuum: (config, context) => pack_prompt(render_memory(context)),
 
-  enhancement: (config, context) => pack_prompt({ system: render_enhancement(context) }),
+  enhancement: (config, context) => pack_prompt(render_enhancement(context)),
 
   sorting: (config, context) => {
     // NOTE: Layer-Order Design Intent:
@@ -886,8 +913,8 @@ export const MODE_ADAPTERS = {
     // within <SYSTEM>, while injecting the raw profile text to be sorted via messages (which the
     // transport layer serializes into <HISTORY> appended after <TASK>). This ensures the model reads
     // the extraction rules, POV, and JSON schema directive before consuming the unstructured raw text.
-    const system = render_profile_sorting(context.entity_type, context.options);
-    return pack_prompt({ system }, {}, [
+    const { system, task } = render_profile_sorting(context.entity_type, context.options);
+    return pack_prompt({ system, task }, {}, [
       {
         role: "user",
         text: typeof context.input_data === "string" ? context.input_data : JSON.stringify(context.input_data || {}, null, 2),
@@ -1000,7 +1027,7 @@ export const MODE_ADAPTERS = {
  *
  * @param {any} config - Resolved prompt manifest record (carries its canonical `key`).
  * @param {Object} [context={}] - Dynamic runtime context, entities, dynamics, and options
- * @returns {{ system: string, task: string, system_close?: string, meta?: Record<string, any>, messages?: any[] }}
+ * @returns {{ system: string, task: string, meta?: Record<string, any>, messages?: any[] }}
  */
 export function assemble_prompt(config, context = {}) {
   const adapter = MODE_ADAPTERS[config.key] || MODE_ADAPTERS.prose;
@@ -1011,6 +1038,7 @@ export function assemble_prompt(config, context = {}) {
 
 /**
  * CHANGELOG
+ * - 2026-09-20: Universal envelope (`{ system, task }`) — every compiler (`render_director`, the prose core, `render_memory`, `render_enhancement`, `render_profile_sorting`, `render_optics_prompt`, `director_terse`) now composes through the extended `PROMPT_LAYERS` table via `render_prompt_layers`, returns the `<TASK>` as its own package field (fixing the Optics double-task regression), and emits a `SYSTEM_ROLES` role line + `role="…"` attribute; `pack_prompt` dropped the retired `system_close` field.
  * - 2026-09-19: Collapsed facades (P7) — the public chain is now `compile_prompt` (prompts.js) → `assemble_prompt`; retired `compile_pipeline_prompt`, the `render_builder` wrapper object (now the standalone `create_render_accessors`, and the test-only `render_history` passthrough deleted), the `render_narrator_prose` alias (callers use `render_scene_narrator`), and the `render_ghostwriter` wrapper (the production ghostwrite path is `MODE_ADAPTERS.prose`); added `normalize_context(context)` so the entity / snapshot / accessor / history fallbacks live in one place.
  * - 2026-09-19: Unified Optics (P6) — `render_optics_prompt` takes a single options object (dropped the 3-positional-arg shuffling) and emits its `<SYSTEM role="SENSORY_CORTEX">` envelope through the shared `PROMPT_LAYERS` table with the Task nested via `render_system_xml`'s `task` parameter; `PROMPT_LAYERS` gains a `history` layer (protocols → entities → history). Media callers already pass one options object, so no call-site change was required.
  * - 2026-09-19: Table-driven assembler (P4) — the `compile_pipeline_prompt` switch is replaced by `MODE_ADAPTERS` (one assembler per mode + a `prose` fallback) dispatched through `assemble_prompt(config, context)`; the prose envelope is emitted from the `PROMPT_LAYERS` table. Adding a mode no longer edits a switch.

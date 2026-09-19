@@ -143,7 +143,7 @@ export function make_contract_cases() {
 
 /**
  * Ordered tag inventory + package shape every mode must emit (layer order encoded).
- * @type {Readonly<Record<string, { system: string[], task: string[], system_close: boolean, messages: number }>>}
+ * @type {Readonly<Record<string, { system: string[], task: string[], messages: number }>>}
  */
 export const CONTRACT = {
   director: {
@@ -195,14 +195,12 @@ export const CONTRACT = {
       "WEATHER",
       "PRESENT_ENTITIES",
     ],
-    task: ["INPUT", "AI_CHARACTER_LAST_TURN", "TASK", "INPUT", "OUTPUT_FORMAT"],
-    system_close: false,
+    task: ["INPUT", "AI_CHARACTER_LAST_TURN", "TASK", "OUTPUT_FORMAT"],
     messages: 0,
   },
   director_terse: {
     system: ["SYSTEM"],
     task: ["TASK", "OUTPUT_FORMAT"],
-    system_close: false,
     messages: 0,
   },
   interaction: {
@@ -266,11 +264,8 @@ export const CONTRACT = {
       "TASK",
       "THINK",
       "BEAT",
-      "INPUT",
       "BEAT",
       "BEAT",
-      "AGENDA",
-      "TRAJECTORY",
       "BEAT",
       "INPUT",
       "CURRENTS",
@@ -284,7 +279,6 @@ export const CONTRACT = {
       "DRIVE",
       "OUTPUT_FORMAT",
     ],
-    system_close: true,
     messages: 0,
   },
   ghostwrite: {
@@ -348,11 +342,8 @@ export const CONTRACT = {
       "TASK",
       "THINK",
       "BEAT",
-      "INPUT",
       "BEAT",
       "BEAT",
-      "AGENDA",
-      "TRAJECTORY",
       "BEAT",
       "INPUT",
       "CURRENTS",
@@ -366,7 +357,6 @@ export const CONTRACT = {
       "DRIVE",
       "OUTPUT_FORMAT",
     ],
-    system_close: true,
     messages: 0,
   },
   npc: {
@@ -438,11 +428,8 @@ export const CONTRACT = {
       "TASK",
       "THINK",
       "BEAT",
-      "INPUT",
       "BEAT",
       "BEAT",
-      "AGENDA",
-      "TRAJECTORY",
       "BEAT",
       "INPUT",
       "CURRENTS",
@@ -460,7 +447,6 @@ export const CONTRACT = {
       "DRIVE",
       "OUTPUT_FORMAT",
     ],
-    system_close: true,
     messages: 0,
   },
   narrator: {
@@ -514,21 +500,7 @@ export const CONTRACT = {
       "ATMOSPHERE",
       "WEATHER",
     ],
-    task: [
-      "TASK",
-      "THINK",
-      "INPUT",
-      "CURRENTS",
-      "SENSORY_EXPERIENCE",
-      "AI_CHARACTER",
-      "USER_PERSONA",
-      "DELIVERY_POSTURE",
-      "PACING",
-      "RHYTHM",
-      "DRIVE",
-      "OUTPUT_FORMAT",
-    ],
-    system_close: true,
+    task: ["TASK", "THINK", "INPUT", "CURRENTS", "SENSORY_EXPERIENCE", "DELIVERY_POSTURE", "PACING", "RHYTHM", "DRIVE", "OUTPUT_FORMAT"],
     messages: 0,
   },
   narrator_prologue: {
@@ -582,22 +554,7 @@ export const CONTRACT = {
       "ATMOSPHERE",
       "WEATHER",
     ],
-    task: [
-      "TASK",
-      "THINK",
-      "CURRENTS",
-      "SENSORY_EXPERIENCE",
-      "AI_CHARACTER",
-      "USER_PERSONA",
-      "USER_PERSONA",
-      "AI_CHARACTER",
-      "DELIVERY_POSTURE",
-      "PACING",
-      "RHYTHM",
-      "DRIVE",
-      "OUTPUT_FORMAT",
-    ],
-    system_close: true,
+    task: ["TASK", "THINK", "CURRENTS", "SENSORY_EXPERIENCE", "DELIVERY_POSTURE", "PACING", "RHYTHM", "DRIVE", "OUTPUT_FORMAT"],
     messages: 0,
   },
   narrator_epilogue: {
@@ -652,7 +609,6 @@ export const CONTRACT = {
       "WEATHER",
     ],
     task: ["TASK", "THINK", "CURRENTS", "SENSORY_EXPERIENCE", "DELIVERY_POSTURE", "PACING", "RHYTHM", "DRIVE", "OUTPUT_FORMAT"],
-    system_close: true,
     messages: 0,
   },
   continuum: {
@@ -682,24 +638,18 @@ export const CONTRACT = {
       "INPUT_HISTORY",
       "ENTRY",
       "ENTRY",
-      "TASK",
-      "INPUT_HISTORY",
-      "OUTPUT_FORMAT",
     ],
-    task: [],
-    system_close: false,
+    task: ["TASK", "OUTPUT_FORMAT"],
     messages: 0,
   },
   enhancement: {
-    system: ["SYSTEM", "CORE_PROTOCOLS", "DATA", "LAYER", "ENTITY_CONTEXT", "PERSONALITY", "PHYSICAL_APPEARANCE", "BUILD", "INPUT_CONTENT", "TASK"],
-    task: [],
-    system_close: false,
+    system: ["SYSTEM", "CORE_PROTOCOLS", "DATA", "LAYER", "ENTITY_CONTEXT", "PERSONALITY", "PHYSICAL_APPEARANCE", "BUILD", "INPUT_CONTENT"],
+    task: ["TASK"],
     messages: 0,
   },
   sorting: {
-    system: ["SYSTEM", "CORE_PROTOCOLS", "DATA", "PERSPECTIVE", "TASK", "OUTPUT_FORMAT"],
-    task: [],
-    system_close: false,
+    system: ["SYSTEM", "CORE_PROTOCOLS", "DATA", "PERSPECTIVE"],
+    task: ["TASK", "OUTPUT_FORMAT"],
     messages: 1,
   },
   optics: {
@@ -722,24 +672,10 @@ export const CONTRACT = {
       "RESTRICTION",
       "SUBJECT_RULES",
       "DYNAMIC_OVERRIDES",
-      "SHIRT",
-      "JACKET",
       "GARMENT_ANATOMY",
       "IDENTIFIERS",
       "CREATURE_DISAMBIGUATION",
       "SIGNATURE_COLORS",
-      "TASK",
-      "TARGET",
-      "MANDATE",
-      "THINK_FORMAT",
-      "SPATIAL_FRAMING",
-      "FIRST_SENTENCE_MANDATE",
-      "SPATIAL_GEOMETRY",
-      "CINEMATOGRAPHY",
-      "KEYWORD_DIRECTIVES",
-      "AVAILABLE_KEYWORDS",
-      "INPUT_INTENT",
-      "OUTPUT_FORMAT",
     ],
     task: [
       "TASK",
@@ -755,32 +691,29 @@ export const CONTRACT = {
       "INPUT_INTENT",
       "OUTPUT_FORMAT",
     ],
-    system_close: false,
     messages: 0,
   },
 };
 
-/**
- * Coarse character-count baseline per mode (25% tolerance tripwire for text drift).
- * @type {Readonly<Record<string, { system: number, task: number }>>}
- */
 export const CONTRACT_SIZES = {
-  director: { system: 4142, task: 1385 },
-  director_terse: { system: 113, task: 909 },
-  interaction: { system: 5765, task: 1899 },
-  ghostwrite: { system: 5754, task: 1892 },
-  npc: { system: 6137, task: 2713 },
-  narrator: { system: 5141, task: 1319 },
-  narrator_prologue: { system: 5141, task: 1584 },
-  narrator_epilogue: { system: 5141, task: 1253 },
-  continuum: { system: 4439, task: 0 },
-  enhancement: { system: 851, task: 0 },
-  sorting: { system: 3462, task: 0 },
-  optics: { system: 5647, task: 2111 },
+  director: { system: 4148, task: 1383 },
+  director_terse: { system: 119, task: 909 },
+  interaction: { system: 5784, task: 1885 },
+  ghostwrite: { system: 5773, task: 1878 },
+  npc: { system: 6148, task: 2699 },
+  narrator: { system: 5151, task: 1311 },
+  narrator_prologue: { system: 5151, task: 1584 },
+  narrator_epilogue: { system: 5151, task: 1253 },
+  continuum: { system: 1702, task: 2832 },
+  enhancement: { system: 623, task: 292 },
+  sorting: { system: 566, task: 3038 },
+  optics: { system: 3604, task: 2111 },
 };
 
 /**
  * CHANGELOG
  * - 2026-09-19: Introduced per-mode contract fixtures (tag inventory + layer order + size tripwire) as the Phase-0 safety net for the prompt-pipeline refactor.
  * - 2026-09-19: Renamed the golden fixtures to the prompt contract (prompt-goldens.fixtures.js -> prompt-verification.js).
+ * - 2026-09-20: Regenerated after envelope unification (P1/P2) + metasyntax ban (P3) + universal role lines (P5); dropped `system_close` (transport owns the close).
+ * - 2026-09-20: Re-froze `CONTRACT` tag inventories and `CONTRACT_SIZES` byte counts against the post-unification output; removed the vestigial `system_close` fixture key.
  */

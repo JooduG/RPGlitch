@@ -49,16 +49,16 @@ export const TASK_LIBRARY = Object.freeze({
         "Hold temperament; resist passive compliance. Match conversational scale and build situational friction rather than rushing resolution.",
       DRIVE: (has_input) =>
         has_input
-          ? "Advance the scene in response to <INPUT />: drive the beat forward independently and end on an unresolved hook demanding response."
+          ? "Advance the scene in response to «INPUT»: drive the beat forward independently and end on an unresolved hook demanding response."
           : "Take active initiative: drive events forward on your own terms through decisive actions and end on an unresolved hook demanding response.",
     }),
 
     THINK_FORMAT: (emotional_grounding) => {
       const grounding = emotional_grounding || "Hold your established temperament.";
       return `Begin response with <THINK> (under 200 words). Execute internal reasoning across 4 sequential beats:
-<BEAT id="VISCERAL_IMPACT" step="1">Immediate non-verbal reaction to the <INPUT /> element.</BEAT>
+<BEAT id="VISCERAL_IMPACT" step="1">Immediate non-verbal reaction to the «INPUT» element.</BEAT>
 <BEAT id="EMOTIONAL_CALIBRATION" step="2">${grounding}</BEAT>
-<BEAT id="STRATEGIC_DRIVE" step="3">How active <AGENDA /> and/or <TRAJECTORY /> navigates immediate friction.</BEAT>
+<BEAT id="STRATEGIC_DRIVE" step="3">How active «AGENDA» and/or «TRAJECTORY» navigates immediate friction.</BEAT>
 <BEAT id="CADENCE_TEST" step="4">Draft a dialogue line before generating outward prose.</BEAT>
 Close with </THINK> before generating narrative prose.`;
     },
@@ -80,7 +80,7 @@ Close with </THINK> before generating narrative prose.`;
     ENVIRONMENTAL_HINT:
       '<INPUT_NOTE>Non-verbal environmental action. Strongly consider setting "speaker" to "fractal" to narrate the setting, unless AI character should react directly.</INPUT_NOTE>',
 
-    EVALUATE: (has_input) => `Evaluate state mutations caused by ${has_input ? "<INPUT />" : "the current situation"}.`,
+    EVALUATE: (has_input) => `Evaluate state mutations caused by ${has_input ? "«INPUT»" : "the current situation"}.`,
     ROUND_ONE: 'Round 1 follows the Fractal prologue, so next_action MUST be "AI_CHARACTER".',
     USER_PERSONA_LOCK:
       '"USER_PERSONA" (or player character name) is never a valid next_action; the Director never speaks for the player. Valid actions are strictly: "AI_CHARACTER", "FRACTAL", "npc:<id>", or { "genesis": ... }.',
@@ -96,23 +96,23 @@ Close with </THINK> before generating narrative prose.`;
     }),
 
     SCENE: Object.freeze({
-      PROLOGUE: `You see everything. Open the scene. Use thinking to establish: What does this Fractal demand? What brought <AI_CHARACTER> and <USER_PERSONA> here? Unless context explicitly states otherwise, treat as strangers.
+      PROLOGUE: `You see everything. Open the scene. Use thinking to establish: What does this Fractal demand? What brought «AI_CHARACTER» and «USER_PERSONA» here? Unless context explicitly states otherwise, treat as strangers.
 Narrative Sequence:
 1. Present the Fractal atmosphere and current state.
-2. Place <USER_PERSONA> inside, connecting them via their profile thread.
-3. Place <AI_CHARACTER> inside and establish their current action.
+2. Place «USER_PERSONA» inside, connecting them via their profile thread.
+3. Place «AI_CHARACTER» inside and establish their current action.
 4. Trigger the encounter. End the prologue immediately before interaction begins.
 Strictly zero spoken dialogue or quote marks. No dialogue.`,
       EPILOGUE: `You see everything. Close the scene. Evaluate unresolved threads and active agendas in thinking. Depict environmental aftermath and physical changes without forcing player physical surrender. End on lingering sensation, not summary. Strictly zero spoken dialogue or quote marks. No dialogue.`,
       COLLAPSE: `You see everything. Close the scene on irrevocable tragedy. Weigh permanent loss in thinking. Depict aftermath and environmental scars without forcing player physical surrender or unearned closure. End on enduring sensory silence. Strictly zero spoken dialogue or quote marks. No dialogue.`,
-      CONTINUATION: `You are the Fractal itself, narrating the scene. Narrate through ambient physics, sensory textures, and environmental shifts in reaction to recent events. Never puppeteer <AI_CHARACTER> or <USER_PERSONA>. End on one dominant hook (decisive statement, single action, or deliberate silence). Zero bracket labels.`,
+      CONTINUATION: `You are the Fractal itself, narrating the scene. Narrate through ambient physics, sensory textures, and environmental shifts in reaction to recent events. Never puppeteer «AI_CHARACTER» or «USER_PERSONA». End on one dominant hook (decisive statement, single action, or deliberate silence). Zero bracket labels.`,
     }),
   }),
 
   // ── 1.4 Shot 2B: Continuum Caretaker Consolidation Directives (continuum) ──
   CONTINUUM: Object.freeze({
     TARGET_FOCUS: (target_name) =>
-      `TARGET FOCUS: Consolidate state and extract relational vectors for ${target_name}.\nAnalyze recent turns in <INPUT_HISTORY>. Synthesize memories, update physical appearance, record active state of mind, and log directed relational bonds.`,
+      `TARGET FOCUS: Consolidate state and extract relational vectors for ${target_name}.\nAnalyze recent turns in «INPUT_HISTORY». Synthesize memories, update physical appearance, record active state of mind, and log directed relational bonds.`,
     MANDATE: `EXECUTION MANDATE:
 1. Memory Formation: Extract 1-3 anchored memories in past tense. Empty list if nothing noteworthy transpired.
 2. Dynamic State: Update physical and non_physical condition.
@@ -833,6 +833,7 @@ export function render_subtext_xml(ai_dynamics = {}, fractal_dynamics = {}, opti
 
 /**
  * CHANGELOG
+ * - 2026-09-20: Metasyntax ban — reserved element names referenced inside directive prose now render as guillemets («INPUT», «AGENDA», «TRAJECTORY», «AI_CHARACTER», «USER_PERSONA», «INPUT_HISTORY») instead of raw tags, so the emitted prompt contains no reserved-tag literals.
  * - 2026-09-19: Decomposed the `render_task` god-function (P5) — extracted the per-mode compilers `render_director_task`, `render_structured_task`, `render_optics_task`, and `render_prose_task` behind a thin `mode` dispatcher; `TASK_LIBRARY` remains the sole directive-text source.
  * - 2026-09-19: One XML emitter (P1) — `render_subtext_xml` composes its `<SUBTEXT>` envelope through `render_xml_tag` and returns the full block (no wrap→strip round-trip; `render_task_currents` consumes `subtext_xml` directly); `<TARGET>`, `<INPUT_INTENT>`, `<CINEMATOGRAPHY>`, `<CAMERA>`, and `<COMPOSITION>` now emit through `render_xml_tag`.
  * - 2026-09-19: Removed the dead resolve_context_directives resolver (no production caller); first-contact is single-sourced as TASK_LIBRARY.PROSE.CHARACTER.FIRST_CONTACT and emitted via resolve_character_action_directive.

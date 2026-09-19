@@ -909,9 +909,9 @@ describe("temporal_engine per-entity consolidation progress tracking (Track 2 Ph
       other_entities: {},
       history: [{ role: "user", text: "Hello Viper" }],
     });
-    expect(prompt).toContain('role="CONTINUUM_CARETAKER" target="Viper"');
-    expect(prompt).toContain("<INPUT_HISTORY>");
-    expect(prompt).toContain("Hello Viper");
+    expect(prompt.system).toContain('role="CONTINUUM_CARETAKER" target="Viper"');
+    expect(prompt.system).toContain("<INPUT_HISTORY>");
+    expect(prompt.system).toContain("Hello Viper");
   });
 
   describe("sanitize_non_physical_prose", () => {

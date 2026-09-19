@@ -139,6 +139,39 @@ export function render_appearance(eternal_text, present_text, owner_entity, enti
 // [SECTION 2: DECLARATIVE SHEET BLUEPRINTS & UNIVERSAL COMPILER]
 // ============================================================================
 
+/**
+ * Named epistemic visibility policies for a sheet field.
+ * - `always`  — the field is always shown, with private [SECRET]/[PLAN] directives stripped.
+ * - `owner`   — private directives survive only for the owning perspective (`is_owner`).
+ * - `none`    — the field bypasses sanitisation entirely.
+ * @type {Readonly<{ ALWAYS: "always", OWNER: "owner", NONE: "none" }>}
+ */
+export const EPISTEMIC_POLICY = Object.freeze({ ALWAYS: "always", OWNER: "owner", NONE: "none" });
+
+/**
+ * Visibility declaration for sheets that keep private STATE when they own the sheet.
+ * @type {Readonly<Record<string, string>>}
+ */
+const EPISTEMIC_OWNER_STATE = Object.freeze({
+  agenda: EPISTEMIC_POLICY.ALWAYS,
+  personality: EPISTEMIC_POLICY.ALWAYS,
+  state: EPISTEMIC_POLICY.OWNER,
+  appearance: EPISTEMIC_POLICY.ALWAYS,
+  memory: EPISTEMIC_POLICY.ALWAYS,
+});
+
+/**
+ * Visibility declaration for sheets whose fields are never private.
+ * @type {Readonly<Record<string, string>>}
+ */
+const EPISTEMIC_ALWAYS = Object.freeze({
+  agenda: EPISTEMIC_POLICY.ALWAYS,
+  personality: EPISTEMIC_POLICY.ALWAYS,
+  state: EPISTEMIC_POLICY.ALWAYS,
+  appearance: EPISTEMIC_POLICY.ALWAYS,
+  memory: EPISTEMIC_POLICY.ALWAYS,
+});
+
 const CHARACTER_SHEET_BASE = Object.freeze({
   psychology_tag: "PSYCHOLOGY",
   agenda_key: PROFILE_FIELD_CATALOG["character.future"].tag,
@@ -148,12 +181,15 @@ const CHARACTER_SHEET_BASE = Object.freeze({
   appearance_tag: "APPEARANCE",
   memory_tag: PROFILE_FIELD_CATALOG["character.past"].tag,
   axes_scope: "somatic",
-  epistemic: Object.freeze({ state: "owner" }),
+  epistemic: EPISTEMIC_OWNER_STATE,
 });
 
 /**
  * Frozen catalog of entity sheet blueprints driven by PROFILE_FIELD_CATALOG.
- * Defines structural tags, epistemic policies, and dynamic axes scopes for each entity kind.
+ * Each entry is pure vocabulary — structural tags, section name, physical mode,
+ * dynamic-axis scope and the epistemic visibility declaration. The grammatical
+ * differences between character / fractal / persona sheets live here as data;
+ * the emission sequence itself is shared (see SHEET_SECTIONS).
  *
  * @type {Readonly<Record<string, any>>}
  */
@@ -174,12 +210,7 @@ export const SHEET_SPECS = Object.freeze({
     default_name: "User",
     memory_tag: "BACKSTORY",
     axes_scope: null,
-    epistemic: Object.freeze({
-      personality: "always",
-      state: "always",
-      appearance: "always",
-      memory: "always",
-    }),
+    epistemic: EPISTEMIC_ALWAYS,
   }),
   FRACTAL: Object.freeze({
     tag: "FRACTAL",
@@ -192,14 +223,117 @@ export const SHEET_SPECS = Object.freeze({
     appearance_tag: "TOPOGRAPHY",
     memory_tag: PROFILE_FIELD_CATALOG["fractal.past"].tag,
     axes_scope: "fractal",
-    epistemic: Object.freeze({}),
+    epistemic: EPISTEMIC_ALWAYS,
   }),
 });
 
 /**
- * Compiles a single entity sheet XML block from its specification blueprint.
- * Supports both "combined" physical synthesis (<APPEARANCE> / <TOPOGRAPHY>)
- * and "separate" physical unboxing (<PHYSICAL_APPEARANCE> / <CURRENT_LOOK>).
+ * The one sheet grammar: an ordered list of wrapper sections, each declaring the
+ * field emitters it contains. Every entity kind walks this same sequence — the
+ * grammatical differences between kinds live in the SHEET_SPECS vocabulary
+ * (section tag, field tags, axis scope, physical mode), never in bespoke
+ * branches. A wrapper of `null` emits its fields without an enclosing section.
+ *
+ * @type {ReadonlyArray<{ wrapper: string | null, fields: ReadonlyArray<string> }>}
+ */
+const SHEET_SECTIONS = Object.freeze([
+  Object.freeze({ wrapper: "psychology_tag", fields: Object.freeze(["agenda", "personality", "state", "dispositions", "axes"]) }),
+  Object.freeze({ wrapper: null, fields: Object.freeze(["physical"]) }),
+  Object.freeze({ wrapper: null, fields: Object.freeze(["memory"]) }),
+]);
+
+/**
+ * One emitter per sheet field role — the complete, single authority for how a
+ * sheet field becomes XML. Adding or reordering a field is a data edit
+ * (SHEET_SECTIONS + this catalog), not a change to `render_sheet`.
+ *
+ * @type {Readonly<Record<string, (specification: any, context: any, helpers: any) => string>>}
+ */
+const SHEET_FIELD_RENDERERS = Object.freeze({
+  agenda(specification, context, helpers) {
+    if (!context.include_agenda) return "";
+    const agenda_raw = context.accessors ? context.accessors.future(context.entity, { vector_text: true }) : context.entity?.future;
+    return helpers.render_sheet_field(specification.agenda_key, helpers.sanitize(agenda_raw, specification.epistemic.agenda), 8) || "";
+  },
+
+  personality(specification, context, helpers) {
+    const personality_raw = helpers.sanitize(context.entity.eternal?.non_physical, specification.epistemic.personality);
+    const personality_content = render_field_value(personality_raw, context.entity, context.entities);
+    return helpers.render_sheet_field(specification.personality_tag, personality_content, 10) || "";
+  },
+
+  state(specification, context, helpers) {
+    const state_raw = helpers.sanitize(context.entity.present?.non_physical, specification.epistemic.state);
+    const state_content = strip_leading_key_echo(render_field_value(state_raw, context.entity, context.entities), specification.state_strip_keys);
+    return helpers.render_sheet_field(specification.state_tag, state_content, 10) || "";
+  },
+
+  dispositions(specification, context) {
+    if (!context.show_dispositions || !context.active_names || !context.name_to_id) return "";
+    return render_dispositions(context.entity, context.active_names, context.name_to_id, 6) || "";
+  },
+
+  axes(specification, context) {
+    if (typeof context.render_axes !== "function" || !specification.axes_scope) return "";
+    const axes_xml = context.render_axes(context.dynamics, specification.axes_scope);
+    return axes_xml ? indent_all(axes_xml, 6) : "";
+  },
+
+  physical(specification, context, helpers) {
+    if (context.physical_mode === "separate") {
+      const entity_kind = specification.tag === "FRACTAL" || context.entity?.type === "fractal" ? "fractal" : "character";
+      const physical_parts = [
+        {
+          tag: resolve_profile_field_tag(entity_kind, "eternal.physical", "PHYSICAL_APPEARANCE"),
+          raw: helpers.sanitize(context.entity.eternal?.physical, specification.epistemic.appearance),
+        },
+        {
+          tag: resolve_profile_field_tag(entity_kind, "present.physical", "CURRENT_LOOK"),
+          raw: helpers.sanitize(context.entity.present?.physical, specification.epistemic.appearance),
+        },
+      ];
+
+      const blocks = [];
+      for (const { tag, raw } of physical_parts) {
+        const body = extract_physical_body(raw, context.entity, context.entities);
+        if (body) blocks.push(`      <${tag}>\n${indent_all(body, 8)}\n      </${tag}>`);
+      }
+      return blocks.join("\n");
+    }
+
+    return render_appearance(
+      helpers.sanitize(context.entity.eternal?.physical, specification.epistemic.appearance),
+      helpers.sanitize(context.entity.present?.physical, specification.epistemic.appearance),
+      context.entity,
+      context.entities,
+      specification.appearance_tag,
+    );
+  },
+
+  memory(specification, context, helpers) {
+    if (!context.include_memories) return "";
+    const memory_raw = context.accessors
+      ? context.accessors.past(context.entity, { vector_text: true })
+      : Array.isArray(context.entity?.past)
+        ? context.entity.past
+            .map((vector) => vector.content || "")
+            .filter(Boolean)
+            .join("\n")
+        : context.entity?.past || "";
+    const memory_content = helpers.sanitize(memory_raw, specification.epistemic.memory);
+    const memory_row = helpers.render_sheet_field(specification.memory_tag, memory_content, 8);
+    return memory_row ? `  ${memory_row}` : "";
+  },
+});
+
+/**
+ * Compiles a single entity sheet XML block by walking the shared grammar
+ * (SHEET_SECTIONS) over the kind's vocabulary (SHEET_SPECS). All field visibility
+ * resolves through one projection: the spec's `epistemic` declaration plus the
+ * caller's perspective flags (`is_owner`, `include_agenda`, `include_memories`,
+ * `show_dispositions`). Supports both "combined" physical synthesis
+ * (<APPEARANCE> / <TOPOGRAPHY>) and "separate" physical unboxing
+ * (<PHYSICAL_APPEARANCE> / <CURRENT_LOOK>).
  *
  * @param {Object} specification - An entry from SHEET_SPECS.
  * @param {Object} context
@@ -218,110 +352,37 @@ export const SHEET_SPECS = Object.freeze({
  * @returns {string}
  */
 export function render_sheet(specification, context) {
-  const {
-    entity,
-    entities,
-    accessors,
-    render_axes,
-    dynamics,
-    is_owner = false,
-    show_dispositions = false,
-    include_agenda = true,
-    include_memories = true,
-    active_names,
-    name_to_id,
-    physical_mode = "combined",
-  } = context;
+  if (!context?.entity) return "";
 
-  if (!entity) return "";
-
-  const epistemic = specification.epistemic || {};
-  const sanitize_by_epistemic_policy = (value, policy) => {
-    if (!policy || policy === "none") return value;
-    return strip_epistemic_secrets(value, policy === "owner" ? is_owner : false);
+  const view = {
+    include_agenda: true,
+    include_memories: true,
+    show_dispositions: false,
+    physical_mode: "combined",
+    is_owner: false,
+    ...context,
   };
-
-  const id_attribute = entity.id ? ` id="${escape_xml(String(entity.id))}"` : "";
-  const rows = [];
-  rows.push(`    <${specification.tag}${id_attribute} name="${escape_xml(entity.name || specification.default_name)}">`);
-  rows.push(`      <${specification.psychology_tag}>`);
-
+  const epistemic = specification.epistemic || EPISTEMIC_ALWAYS;
+  const sanitize = (value, policy) => {
+    if (!policy || policy === EPISTEMIC_POLICY.NONE) return value;
+    return strip_epistemic_secrets(value, policy === EPISTEMIC_POLICY.OWNER ? Boolean(view.is_owner) : false);
+  };
   const render_sheet_field = (tag, content, indent = 8) => {
     const text = String(content || "").trim();
     return text ? `        <${tag}>${inline_or_block(text, indent)}</${tag}>` : null;
   };
+  const helpers = { sanitize, render_sheet_field };
 
-  if (include_agenda) {
-    const agenda_raw = accessors ? accessors.future(entity, { vector_text: true }) : entity?.future;
-    const row = render_sheet_field(specification.agenda_key, agenda_raw, 8);
-    if (row) rows.push(row);
-  }
+  const id_attribute = view.entity.id ? ` id="${escape_xml(String(view.entity.id))}"` : "";
+  const rows = [`    <${specification.tag}${id_attribute} name="${escape_xml(view.entity.name || specification.default_name)}">`];
 
-  const personality_raw = sanitize_by_epistemic_policy(entity.eternal?.non_physical, epistemic.personality);
-  const personality_content = render_field_value(personality_raw, entity, entities);
-  const personality_row = render_sheet_field(specification.personality_tag, personality_content, 10);
-  if (personality_row) rows.push(personality_row);
-
-  const state_raw = sanitize_by_epistemic_policy(entity.present?.non_physical, epistemic.state);
-  const state_rendered = render_field_value(state_raw, entity, entities);
-  const state_content = strip_leading_key_echo(state_rendered, specification.state_strip_keys);
-  const state_row = render_sheet_field(specification.state_tag, state_content, 10);
-  if (state_row) rows.push(state_row);
-
-  if (show_dispositions && active_names && name_to_id) {
-    const dispositions_xml = render_dispositions(entity, active_names, name_to_id, 6);
-    if (dispositions_xml) rows.push(dispositions_xml);
-  }
-
-  const axes_xml = render_axes && specification.axes_scope ? render_axes(dynamics, specification.axes_scope) : "";
-  if (axes_xml) rows.push(indent_all(axes_xml, 6));
-
-  rows.push(`      </${specification.psychology_tag}>`);
-
-  if (physical_mode === "separate") {
-    const entity_kind = specification.tag === "FRACTAL" || entity?.type === "fractal" ? "fractal" : "character";
-    const physical_parts = [
-      {
-        tag: resolve_profile_field_tag(entity_kind, "eternal.physical", "PHYSICAL_APPEARANCE"),
-        raw: sanitize_by_epistemic_policy(entity.eternal?.physical, epistemic.appearance),
-      },
-      {
-        tag: resolve_profile_field_tag(entity_kind, "present.physical", "CURRENT_LOOK"),
-        raw: sanitize_by_epistemic_policy(entity.present?.physical, epistemic.appearance),
-      },
-    ];
-
-    for (const { tag, raw } of physical_parts) {
-      const body = extract_physical_body(raw, entity, entities);
-      if (body) {
-        rows.push(`      <${tag}>\n${indent_all(body, 8)}\n      </${tag}>`);
-      }
+  for (const section of SHEET_SECTIONS) {
+    if (section.wrapper) rows.push(`      <${specification[section.wrapper]}>`);
+    for (const field_name of section.fields) {
+      const row = SHEET_FIELD_RENDERERS[field_name](specification, view, helpers);
+      if (row) rows.push(row);
     }
-  } else {
-    const appearance_xml = render_appearance(
-      sanitize_by_epistemic_policy(entity.eternal?.physical, epistemic.appearance),
-      sanitize_by_epistemic_policy(entity.present?.physical, epistemic.appearance),
-      entity,
-      entities,
-      specification.appearance_tag,
-    );
-    if (appearance_xml) rows.push(appearance_xml);
-  }
-
-  if (include_memories) {
-    const memory_raw = accessors
-      ? accessors.past(entity, { vector_text: true })
-      : Array.isArray(entity?.past)
-        ? entity.past
-            .map((vector) => vector.content || "")
-            .filter(Boolean)
-            .join("\n")
-        : entity?.past || "";
-    const memory_content = sanitize_by_epistemic_policy(memory_raw, epistemic.memory);
-    const memory_row = render_sheet_field(specification.memory_tag, memory_content, 8);
-    if (memory_row) {
-      rows.push(`  ${memory_row}`);
-    }
+    if (section.wrapper) rows.push(`      </${specification[section.wrapper]}>`);
   }
 
   rows.push(`    </${specification.tag}>`);
@@ -621,7 +682,7 @@ export function render_enhancement_field_context(entity, field_identifier, conte
  */
 export function render_optics_subject_rules(has_alternation = false) {
   const rules = [
-    "<DYNAMIC_OVERRIDES>Follow a strict bottom-up hierarchy where the most recent (bottom-most) physical condition update ALWAYS overrides preceding static tags like <SHIRT> or <JACKET>. If a conflicting state appears later (e.g. 'no clothes' then later 'shirt: white'), the most recent/latest state wins.</DYNAMIC_OVERRIDES>",
+    "<DYNAMIC_OVERRIDES>Follow a strict bottom-up hierarchy where the most recent (bottom-most) physical condition update ALWAYS overrides preceding static tags like «SHIRT» or «JACKET». If a conflicting state appears later (e.g. 'no clothes' then later 'shirt: white'), the most recent/latest state wins.</DYNAMIC_OVERRIDES>",
     "<GARMENT_ANATOMY>When rendering specialized or revealing garments (e.g., jockstraps, thongs, harnesses), explicitly specify their physical mechanics and bare skin exposure in natural prose. For a jockstrap, describe: 'wearing an athletic jockstrap featuring a supportive front pouch, open sides and back with bare exposed butt cheeks, and dual wide elastic straps circling under the glutes/thighs'. For thongs, describe: 'a narrow string back leaving the rear completely bare'. Never allow jockstraps to collapse into generic briefs or full-coverage shorts.</GARMENT_ANATOMY>",
     has_alternation
       ? "<ALTERNATION_OPTIONS>Resolve {Option A|Option B} alternations by selecting exactly ONE contextually fitting option. Emit only the chosen text—never echo braces or pipes, blend choices, or output multiple options simultaneously.</ALTERNATION_OPTIONS>"
@@ -771,6 +832,7 @@ ${axes}
 /**
  * CHANGELOG
  * ============================================================================
+ * - 2026-09-20: Sheet-grammar unification — `SHEET_SPECS` is now pure vocabulary (tags, section name, axis scope, physical mode, `epistemic`) walked by one shared `SHEET_SECTIONS` sequence + `SHEET_FIELD_RENDERERS` catalog; named `EPISTEMIC_POLICY` constants and `EPISTEMIC_ALWAYS` / `EPISTEMIC_OWNER_STATE` bundles replace the duplicated visibility literals, and `render_sheet` resolves every field through one projection. Intentional grammatical differences (PSYCHOLOGY/ATMOSPHERE, APPEARANCE/TOPOGRAPHY, combined vs separate physical) remain declared per-kind data. Also «SHIRT»/«JACKET» metasyntax in `render_optics_subject_rules`.
  * - 2026-09-19: Added `resolve_entities(config, context)` as the single resolver for every `config.entities` gate plus the available-entity maps and NPC render list; `render_entity_sheets` now consumes that plan instead of reading `.entities` directly.
  * - 2026-09-19: Layer boundary purification: Replaced `@media` import of `strip_visual_excluded` with sibling import from `./epistemic.js`, restoring unidirectional downward layer flow.
  * - 2026-09-19: Added <SIGNATURE_COLORS> directive in render_optics_subject_rules mandating verbatim preservation of hair, eyes, and distinctive accent colors in generated prompt prose (F1).

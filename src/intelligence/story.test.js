@@ -2064,9 +2064,9 @@ describe("interaction structural integrity", () => {
   it("matches the blueprint THINK_FORMAT beats", () => {
     const { task } = render_story_prose({ round: 3, entities: _prompt_test_entities, input: "Beast steps forward." });
     expect(task).toContain("Execute internal reasoning across 4 sequential beats");
-    expect(task).toContain('<BEAT id="VISCERAL_IMPACT" step="1">Immediate non-verbal reaction to the <INPUT /> element.</BEAT>');
+    expect(task).toContain('<BEAT id="VISCERAL_IMPACT" step="1">Immediate non-verbal reaction to the «INPUT» element.</BEAT>');
     expect(task).toContain('<BEAT id="EMOTIONAL_CALIBRATION" step="2">Situational realism and physical presence.</BEAT>');
-    expect(task).toContain('<BEAT id="STRATEGIC_DRIVE" step="3">How active <AGENDA /> and/or <TRAJECTORY /> navigates immediate friction.</BEAT>');
+    expect(task).toContain('<BEAT id="STRATEGIC_DRIVE" step="3">How active «AGENDA» and/or «TRAJECTORY» navigates immediate friction.</BEAT>');
     expect(task).toContain('<BEAT id="CADENCE_TEST" step="4">Draft a dialogue line before generating outward prose.</BEAT>');
     expect(task).toContain("Close with </THINK> before generating narrative prose.");
   });
@@ -2080,7 +2080,7 @@ describe("narrator prose compiler", () => {
       entities: _prompt_test_entities,
       input: "The reactor pulses.",
     });
-    expect(result.system).toContain('<SYSTEM round="1" mode="narrator">');
+    expect(result.system).toContain('<SYSTEM round="1" mode="narrator" role="NARRATOR">');
     expect(result.system).toContain("You are Project Tartarus, the Fractal itself, narrating the story.");
     expect(result.system).toContain('<PERSPECTIVE person="THIRD" tense="PRESENT">');
     expect(result.task).toContain("<TASK>");

@@ -72,7 +72,7 @@ describe("render_prose_reflex", () => {
     expect(reflex).toContain("<RHYTHM>");
     expect(reflex).toContain("Clipped, staccato.");
     expect(reflex).toContain("<DRIVE>");
-    expect(reflex).toContain("Advance the scene in response to &lt;INPUT /&gt;");
+    expect(reflex).toContain("Advance the scene in response to «INPUT»");
   });
 
   it("injects voice register into DELIVERY_POSTURE when speaking_style is provided", () => {

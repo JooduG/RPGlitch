@@ -49,9 +49,9 @@ describe("Profile Domain (profile.js)", () => {
         enhancer: "AESTHETICS",
         entity,
       });
-      expect(result).toContain("<PHYSICAL_APPEARANCE>");
-      expect(result).toContain("<eyeColor>blue</eyeColor>");
-      expect(result).toContain("<hair>black</hair>");
+      expect(result.system + result.task).toContain("<PHYSICAL_APPEARANCE>");
+      expect(result.system + result.task).toContain("<eyeColor>blue</eyeColor>");
+      expect(result.system + result.task).toContain("<hair>black</hair>");
     });
 
     it("injects MACRO_PROTOCOL correctly for characters vs fractals", () => {
@@ -62,8 +62,8 @@ describe("Profile Domain (profile.js)", () => {
         directive: "Enhance.",
         entity_type: "character",
       });
-      expect(char_result).toContain("Use placeholder macros for entities: '{{me}}' (self, speaker)");
-      expect(char_result).not.toContain("'{{user}}' (user persona), '{{char}}' (AI character)");
+      expect(char_result.system + char_result.task).toContain("Use placeholder macros for entities: '{{me}}' (self, speaker)");
+      expect(char_result.system + char_result.task).not.toContain("'{{user}}' (user persona), '{{char}}' (AI character)");
 
       const fractal_result = render_enhancement({
         field_id: "eternal.non_physical",
@@ -72,8 +72,8 @@ describe("Profile Domain (profile.js)", () => {
         directive: "Enhance.",
         entity_type: "fractal",
       });
-      expect(fractal_result).toContain("'{{user}}' (user persona), '{{char}}' (AI character)");
-      expect(fractal_result).not.toContain("'{{me}}' (self, speaker)");
+      expect(fractal_result.system + fractal_result.task).toContain("'{{user}}' (user persona), '{{char}}' (AI character)");
+      expect(fractal_result.system + fractal_result.task).not.toContain("'{{me}}' (self, speaker)");
     });
 
     it("injects the same-layer sibling + eternal baseline (no whole-profile bleed)", () => {
@@ -91,25 +91,25 @@ describe("Profile Domain (profile.js)", () => {
         entity,
         entity_type: "character",
       });
-      expect(result).toContain("Present mood.");
-      expect(result).toContain("Present outfit.");
-      expect(result).toContain("Eternal psyche.");
-      expect(result).not.toContain("Eternal body.");
-      expect(result).not.toContain("Old memory anchor");
-      expect(result).not.toContain("Impending prophecy");
+      expect(result.system + result.task).toContain("Present mood.");
+      expect(result.system + result.task).toContain("Present outfit.");
+      expect(result.system + result.task).toContain("Eternal psyche.");
+      expect(result.system + result.task).not.toContain("Eternal body.");
+      expect(result.system + result.task).not.toContain("Old memory anchor");
+      expect(result.system + result.task).not.toContain("Impending prophecy");
     });
   });
 
   describe("render_profile_sorting()", () => {
     it("renders valid schema, macros, and focus directive", () => {
       const char_result = render_profile_sorting("character", { ingestion: true });
-      expect(char_result).toContain('<SYSTEM mode="sorting" role="NARRATIVE_STRUCTURER"');
-      expect(char_result).toContain("FOCUS: Extracting data for an individual CHARACTER.");
-      expect(char_result).toContain("SOURCE OF TRUTH & INGESTION RULES:");
+      expect(char_result.system + char_result.task).toContain('<SYSTEM mode="sorting" role="NARRATIVE_STRUCTURER"');
+      expect(char_result.system + char_result.task).toContain("FOCUS: Extracting data for an individual CHARACTER.");
+      expect(char_result.system + char_result.task).toContain("SOURCE OF TRUTH & INGESTION RULES:");
 
       const fractal_result = render_profile_sorting("fractal", { redistribute: true });
-      expect(fractal_result).toContain("FOCUS: Extracting data for a FRACTAL");
-      expect(fractal_result).toContain("REDISTRIBUTE: The source profile may have content");
+      expect(fractal_result.system + fractal_result.task).toContain("FOCUS: Extracting data for a FRACTAL");
+      expect(fractal_result.system + fractal_result.task).toContain("REDISTRIBUTE: The source profile may have content");
     });
   });
 

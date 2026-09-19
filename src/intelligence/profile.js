@@ -27,7 +27,7 @@ import { render_profile_sorting } from "./builder.js";
  */
 export async function structure_profile(raw, type) {
   const payload = {
-    system: render_profile_sorting(type, { ingestion: true }),
+    ...render_profile_sorting(type, { ingestion: true }),
     messages: [
       {
         role: "user",

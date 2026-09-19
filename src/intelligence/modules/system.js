@@ -76,38 +76,34 @@ export function resolve_stability_lock(metadata) {
 // ============================================================================
 
 export const SYSTEM_TAG = "SYSTEM";
-export const SYSTEM_CLOSE_TAG = "</SYSTEM>";
 
 /**
  * Compiles a root <SYSTEM> XML envelope.
- * Supports clean nesting of task blocks and full closure.
+ *
+ * The envelope is an OPEN fragment (`<SYSTEM …>…`) unless `closed` is explicitly set true.
+ * The universal Task block is NEVER nested here — compilers return it as the package's separate
+ * `task` field and `transport.js` appends history + task and emits the single `<SYSTEM>` close.
  *
  * @param {Object} [options]
  * @param {string} [options.mode=""]
  * @param {number|string|null} [options.round=null]
  * @param {Record<string, any>} [options.attributes={}]
  * @param {string[]} [options.children=[]]
- * @param {string} [options.task=""] - Optional task directive block to nest inside <SYSTEM>
  * @param {boolean} [options.closed=false]
  * @returns {string}
  */
-export function render_system_xml({ mode = "", round = null, attributes = {}, children = [], task = "", closed = false } = {}) {
+export function render_system_xml({ mode = "", round = null, attributes = {}, children = [], closed = false } = {}) {
   const attrs = {
     ...(round != null ? { round } : {}),
     ...(mode ? { mode } : {}),
     ...attributes,
   };
 
-  const all_children = Array.isArray(children) ? [...children] : [children];
-  if (task && String(task).trim()) {
-    all_children.push(String(task).trim());
-  }
-
   return render_xml_tag({
     tag: SYSTEM_TAG,
     attrs,
-    children: all_children,
-    closed: closed || Boolean(task && String(task).trim()),
+    children: Array.isArray(children) ? children : [children],
+    closed,
     separator: "\n\n",
   });
 }
@@ -117,6 +113,7 @@ export function render_system_xml({ mode = "", round = null, attributes = {}, ch
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-20: Universal envelope — `render_system_xml` now emits an OPEN `<SYSTEM role="…">` fragment only (dropped the `task` parameter and `SYSTEM_CLOSE_TAG`); `platform/transport.js` appends history + task and owns the single `</SYSTEM>` close, so every mode packages `{ system, task }`.
  * - 2026-09-18: Added SENSORY_CORTEX role and task parameter to render_system_xml for universal nested envelope compilation.
  * - 2026-09-13: Token Optimization Pass — Streamlined SYSTEM_ROLES definitions (INTERACTION, NPC, NARRATOR, DIRECTOR, CONTINUUM_CARETAKER, NARRATIVE_STRUCTURER, ENHANCER), STABILITY_LOCK strings, and TRUNCATION_COMPLETE_NOTE to remove redundant human conversational boilerplate while keeping sharp LLM steering; strictly adhered to zero new test file creation.
  * - 2026-09-13: Refactor pass — enforced Full-Name nomenclature (`metadata` over `meta`, `parameters` over `params`, `role_factory` over `factory`); converted `resolve_stability_lock` to standard function declaration with JSDoc; added defensive parameter default to `render_system_xml`; standardized Universal File Architecture section headers.

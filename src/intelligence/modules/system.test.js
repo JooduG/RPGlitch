@@ -7,7 +7,7 @@
  * Validates root <SYSTEM> XML envelope compilation:
  * 1. Role line formatting across all prompt roles (including SENSORY_CORTEX)
  * 2. Stability lock escalation rules based on structural errors
- * 3. Universal <SYSTEM> envelope compilation with clean nested <TASK> support
+ * 3. Universal open-fragment <SYSTEM> envelope compilation (the Task is owned by the package)
  * ============================================================================
  */
 
@@ -94,7 +94,7 @@ describe("render_system_xml", () => {
     expect(xml).toContain("</SYSTEM>");
   });
 
-  it("nests <TASK> cleanly inside <SYSTEM> envelope and auto-closes", () => {
+  it("keeps the Task out of the system envelope (the package owns it)", () => {
     const xml = render_system_xml({
       mode: "story",
       round: 2,
@@ -104,14 +104,8 @@ describe("render_system_xml", () => {
 
     expect(xml).toContain('<SYSTEM round="2" mode="story">');
     expect(xml).toContain("<ROLE>Role content</ROLE>");
-    expect(xml).toContain("<TASK>\n  Execute scene beat.\n</TASK>");
-    expect(xml).toContain("</SYSTEM>");
-
-    // Ensure TASK is inside SYSTEM before closing tag
-    const task_index = xml.indexOf("<TASK>");
-    const close_index = xml.indexOf("</SYSTEM>");
-    expect(task_index).toBeGreaterThan(-1);
-    expect(close_index).toBeGreaterThan(task_index);
+    expect(xml).not.toContain("<TASK>");
+    expect(xml).not.toContain("</SYSTEM>");
   });
 });
 
@@ -120,5 +114,6 @@ describe("render_system_xml", () => {
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-20: Retargeted the envelope test to the open-fragment contract — `render_system_xml` no longer nests a `<TASK>` and never auto-closes; the Task is owned by the package and closed by transport.
  * - 2026-09-18: Initial creation of comprehensive system.test.js covering SYSTEM_ROLES (including SENSORY_CORTEX), stability locks, and clean nested <TASK> envelope compilation.
  */
