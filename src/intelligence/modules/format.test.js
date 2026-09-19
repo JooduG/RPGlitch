@@ -4,15 +4,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import {
-  PROSE_FORMAT,
-  SCHEMA_ATOMS,
-  get_output_format,
-  render_json_schema,
-  render_output_format_xml,
-  format_json_return,
-  format_optics_json_return,
-} from "./format.js";
+import { PROSE_FORMAT, SCHEMA_ATOMS, get_output_format, render_json_schema, render_output_format_xml, format_json_return } from "./format.js";
 import { PROMPTS } from "../prompts.js";
 
 describe("src/intelligence/modules/format.js", () => {
@@ -32,16 +24,12 @@ describe("src/intelligence/modules/format.js", () => {
       expect(PROSE_FORMAT).toBe("Emit strictly plain prose. No preamble, commentary, markdown, or structural tags.");
     });
 
-    it("formats general json return instruction with custom indent", () => {
-      const formatted = format_json_return('{\n  "key": "val"\n}', "  ");
+    it("formats the single canonical json return instruction", () => {
+      const formatted = format_json_return('{\n  "key": "val"\n}');
       expect(formatted).toContain("Return a single, COMPLETE, VALID JSON object matching this schema:");
-      expect(formatted).toContain('  {\n  "key": "val"\n}');
-    });
-
-    it("formats optics json return instruction with JSON STRUCTURE preamble", () => {
-      const formatted = format_optics_json_return('{\n  "prompt": "desc"\n}');
-      expect(formatted).toContain('JSON STRUCTURE:\n{\n  "prompt": "desc"\n}');
-      expect(formatted).toContain("Return a single JSON object starting with { and ending with }.");
+      expect(formatted).toContain('{\n  "key": "val"\n}');
+      expect(formatted).toContain("No preamble, no markdown backticks, no external XML tags.");
+      expect(formatted).toContain("Output must start with { and end with }.");
     });
   });
 
@@ -106,6 +94,7 @@ describe("src/intelligence/modules/format.js", () => {
 
 /**
  * CHANGELOG
+ * - 2026-09-19: Consolidated JSON-return formatter coverage into a single canonical format_json_return assertion (indent/strict variants removed).
  * - 2026-09-19: Added test for negative prompt injection into Optics schema format (R3).
  * - 2026-09-16: Removed SCHEMA_FIELD_DESCRIPTORS suite following repatriation into PROFILE_FIELDS directives in profile-fields.js.
  * - 2026-09-13: Added verification for token-optimized SCHEMA_FIELD_DESCRIPTORS and streamlined schema outputs (PROSE, DIRECTOR, PROFILE, CONTINUUM).

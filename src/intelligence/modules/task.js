@@ -28,7 +28,7 @@
 
 import { escape_xml, prompt_escape, inline_or_block, wrap_tag, indent_all, render_xml_tag } from "@utils";
 import { extract_style_dna, STYLE_MOTIF_REGISTRY } from "@data";
-import { PROSE_FORMAT, format_json_return, format_optics_json_return } from "./format.js";
+import { PROSE_FORMAT, format_json_return } from "./format.js";
 
 // ============================================================================
 // [SECTION 1: UNIFIED TASK DIRECTIVES & PROTOCOLS CATALOG]
@@ -185,7 +185,7 @@ Strictly zero spoken dialogue or quote marks. No dialogue.`,
   }),
 
   // ── 1.7 Structured JSON Return Directive ────────────────────────────────────
-  JSON_RETURN: (schema, indent = "    ") => format_json_return(schema, indent),
+  JSON_RETURN: format_json_return,
 });
 
 // ============================================================================
@@ -480,7 +480,7 @@ export function render_task({
 } = {}) {
   switch (mode) {
     case "director": {
-      const output_format_content = schema ? TASK_LIBRARY.JSON_RETURN(schema, "  ") : "";
+      const output_format_content = schema ? TASK_LIBRARY.JSON_RETURN(schema) : "";
       const output_format_xml = output_format_content
         ? render_xml_tag({
             tag: "OUTPUT_FORMAT",
@@ -493,7 +493,7 @@ export function render_task({
       if (terse) {
         return render_xml_tag({
           tag: "TASK",
-          children: [output_format_xml || TASK_LIBRARY.JSON_RETURN(schema, "  ")],
+          children: [output_format_xml || TASK_LIBRARY.JSON_RETURN(schema)],
           indent: 0,
           child_indent: 2,
         });
@@ -520,7 +520,7 @@ export function render_task({
         ? render_xml_tag({
             tag: "OUTPUT_FORMAT",
             attrs: { mode: "json" },
-            children: [TASK_LIBRARY.JSON_RETURN(schema, "  ")],
+            children: [TASK_LIBRARY.JSON_RETURN(schema)],
             child_indent: 2,
           })
         : null;
@@ -535,7 +535,7 @@ export function render_task({
         ? render_xml_tag({
             tag: "OUTPUT_FORMAT",
             attrs: { mode: "json" },
-            children: [format_optics_json_return(schema)],
+            children: [TASK_LIBRARY.JSON_RETURN(schema)],
             child_indent: 2,
           })
         : null;
@@ -766,6 +766,7 @@ export function render_subtext_xml(ai_dynamics = {}, fractal_dynamics = {}, opti
 
 /**
  * CHANGELOG
+ * - 2026-09-19: Optics now emits its <OUTPUT_FORMAT> via TASK_LIBRARY.JSON_RETURN(schema); TASK_LIBRARY.JSON_RETURN aliases format_json_return directly and pruned the format_optics_json_return import.
  * - 2026-09-19: Integrated optics cinematography presets, staging directive helper, and group/scene narrative context builders into TASK_LIBRARY.OPTICS.CINEMATOGRAPHY, refactoring resolve_optics_cinematography to consume them.
  * - 2026-09-19: Imported and utilized PROSE_FORMAT from format.js, eliminating hardcoded string literal duplication (Mega Report D3).
  * - 2026-09-19: Parameterized FIRST_SENTENCE_MANDATE by tier in TASK_LIBRARY.OPTICS (F3): story_scene mandates establishing terrain, architecture, and atmospheric perspective first, while character tiers prioritize main entities.

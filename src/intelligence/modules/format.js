@@ -13,8 +13,8 @@
  *              (Tactical reasoning, directorial staging, and relational graph atoms)
  * • Section 2: Universal Dynamic JSON Schema Composer
  *              (Dynamically compiles structured contracts over PROFILE_FIELDS and SCHEMA_ATOMS)
- * • Section 3: Pure Prose Output Format (PROSE)
- *              (Unpadded narrative prose directive for dialogue, action, and field enhancement)
+ * • Section 3: Output Format Directives (PROSE & JSON)
+ *              (Unpadded narrative prose directive + unified structured JSON return instruction)
  * • Section 4: Master Output Format Universal Resolver
  *              (get_output_format dynamic resolver compiling PROMPTS format schemas or PROSE)
  * • Section 5: XML Envelope Compiler
@@ -120,23 +120,13 @@ export function render_json_schema(schema_keys, entity_type = "character") {
 export const PROSE_FORMAT = "Emit strictly plain prose. No preamble, commentary, markdown, or structural tags.";
 
 /**
- * Formats structured JSON schema return instructions.
+ * Formats the canonical structured JSON-return instruction for a compiled schema.
  *
  * @param {string} schema - JSON schema definition
- * @param {string} [indent="    "] - Indentation spacing
  * @returns {string} Formatted instruction
  */
-export function format_json_return(schema, indent = "    ") {
-  return `Return a single, COMPLETE, VALID JSON object matching this schema:\n${indent}${schema}`;
-}
-
-/**
- * Preamble instruction for Sensory Optics JSON output.
- * @param {string} schema - JSON schema definition
- * @returns {string} Formatted optics structure instruction
- */
-export function format_optics_json_return(schema) {
-  return `JSON STRUCTURE:\n${schema.trim()}\n\nReturn a single JSON object starting with { and ending with }. No preamble, no markdown backticks, no external XML tags.`;
+export function format_json_return(schema) {
+  return `Return a single, COMPLETE, VALID JSON object matching this schema:\n${schema}\n\nNo preamble, no markdown backticks, no external XML tags. Output must start with { and end with }.`;
 }
 
 // ============================================================================
@@ -218,6 +208,7 @@ export function render_output_format_xml({ mode = "", content = "", indent_level
 
 /**
  * CHANGELOG
+ * - 2026-09-19: Collapsed both JSON-return formatters into one canonical instruction — format_json_return(schema) is now the single source of truth (Optics' former strict constraint is baked in); format_optics_json_return and its indent/strict options are gone.
  * - 2026-09-19: Standardized get_output_format option parameter to entity_type and purged legacy target_type/resolved_type shims under P4 Zero Backwards Compatibility (Mega Report S6).
  * - 2026-09-19: Fixed negative prompt injection into Optics schema (R3): injected style baseline negative tokens into SCHEMA_ATOMS.negative_prompt as contextual guidance.
  * - 2026-09-18: Enriched SCHEMA_ATOMS for prompt, negative_prompt, and _thought_process with concrete optical synthesis instructions, repatriating output format directives from protocols.js.
