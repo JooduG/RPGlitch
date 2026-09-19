@@ -933,7 +933,7 @@ export const story_pipeline = gamemaster;
 /**
  * CHANGELOG
  * - 2026-09-19: Prompt Unification (Mega Report Phase 2): Migrated story.js prompt compilation (interaction, npc, narrator/prologue/epilogue, ghostwrite) directly to `compile_prompt` from prompts.js and `build_scoring_context` from builder.js, eliminating all references to prompt_builder under P4 Zero Backwards Compatibility.
- * - 2026-09-18: Master Prompt Pipeline Standardization: (1) Aligned character, prologue, epilogue, and ghostwriter prompt assembly with unified `prompt_builder.build_story_prose`; (2) Pruned legacy `system_close` handling across all LLM generation calls.
+ * - 2026-09-18: Master Prompt Pipeline Standardization: (1) Aligned character, prologue, epilogue, and ghostwriter prompt assembly with unified `compile_prompt`; (2) Pruned legacy `system_close` handling across all LLM generation calls.
  * - 2026-09-15: Domain Layer Prompt-Free Purity — Replaced literal <THINK> string with imported THINK_OPEN_TAG constant from parser.js.
  * - 2026-09-14: Updated prologue and epilogue visualization mode from story_entities to landscape story_scene (768x512).
  * - 2026-09-13: Deconstructed & Streamlined: (1) Outsourced Shot 1 LLM dispatch, refusal recovery, and terse fallback to director.js `execute_director_shot`; (2) Forked Shot 2A (storyteller stream) and Shot 2B (background Memory Forge consolidation) concurrently in parallel; (3) Centralized tag surgery (balance_think_tags, strip_directors_note_seed) into parser.js.
