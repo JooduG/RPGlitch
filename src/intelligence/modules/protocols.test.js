@@ -30,11 +30,11 @@ import { render_dynamics_axes_xml, render_dynamics_xml } from "./entities/sheets
 describe("protocols.js - Core Protocol Library & Compiler", () => {
   it("renders selected protocol tags via render_core_protocols", () => {
     const output = render_core_protocols({
-      protocols: ["HYGIENE.DATA", "CORE_PROTOCOLS.SIMULATION_FIDELITY"],
+      protocols: ["CORE_PROTOCOLS.DATA", "CORE_PROTOCOLS.SIMULATION_FIDELITY"],
     });
     expect(output).toContain("<CORE_PROTOCOLS>");
     expect(output).toContain("<DATA>");
-    expect(output).toContain(PROTOCOL_LIBRARY.HYGIENE.DATA);
+    expect(output).toContain(PROTOCOL_LIBRARY.CORE_PROTOCOLS.DATA);
     expect(output).toContain("<SIMULATION_FIDELITY>");
   });
 
@@ -110,7 +110,7 @@ describe("protocols.js - Visual Style & Optics Protocols", () => {
       visual_style: style_definition,
       engine_tokens,
       protocols: [
-        "HYGIENE.DATA",
+        "CORE_PROTOCOLS.DATA",
         "OPTICS.WEIGHTING_RESTRICTIONS",
         "OPTICS.AFFIRMATIVE_FRAMING",
         "OPTICS.TYPOGRAPHY",

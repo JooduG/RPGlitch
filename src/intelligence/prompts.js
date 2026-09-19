@@ -75,6 +75,54 @@ const DIRECTOR_SCHEMA = Object.freeze([
 ]);
 
 /**
+ * The twin-cylinder temporal composite fragment shared by the two structured profile
+ * schemas (continuum consolidation and profile ingestion), so the eternal/present/past/future
+ * key order lives in one place (recommendation #8).
+ * @type {ReadonlyArray<string>}
+ */
+const TEMPORAL_SCHEMA_FRAGMENT = Object.freeze(["eternal", "present", "past", "future"]);
+
+/**
+ * Canonical system-layer slots shared by the four Shot-2A prose modes.
+ * @type {Readonly<{ system: ReadonlyArray<string>, task: ReadonlyArray<string> }>}
+ */
+const PROSE_LAYERS = Object.freeze({
+  system: Object.freeze(["role", "constitution", "protocols", "entities"]),
+  task: Object.freeze(["think", "input", "currents", "directives", "delivery_posture", "stability_lock", "output_format"]),
+});
+
+/**
+ * The one map from an envelope layer key to the tag it emits (recommendation #4). A mode's
+ * declared `layers` are validated against this by `prompt-verification.test.js`, so the
+ * declaration is load-bearing rather than documentation. `role`/`stability_lock` emit no tag.
+ * @type {Readonly<Record<string, string>>}
+ */
+export const ENVELOPE_LAYER_TAGS = Object.freeze({
+  constitution: "AXIOMATIC_CONSTITUTION",
+  protocols: "CORE_PROTOCOLS",
+  dynamics: "DYNAMICS",
+  keyword_directives: "KEYWORD_DIRECTIVES",
+  entities: "ENTITIES",
+  target_context: "TARGET_ENTITY_CONTEXT",
+  nearby_cast: "CAST",
+  present_cast: "CAST",
+  layer: "LAYER",
+  field_context: "ENTITY_CONTEXT",
+  input_content: "INPUT",
+  chapter_history: "CHAPTER_HISTORY",
+  history: "HISTORY",
+  think: "THINK_FORMAT",
+  input: "INPUT",
+  last_turn: "AI_CHARACTER_LAST_TURN",
+  currents: "CURRENTS",
+  target: "TARGET",
+  spatial_framing: "SPATIAL_FRAMING",
+  directives: "DIRECTIVES",
+  delivery_posture: "DELIVERY_POSTURE",
+  output_format: "OUTPUT_FORMAT",
+});
+
+/**
  * Composes the Shot-2A prose protocol bundle shared by the interaction/ghostwrite/npc/narrator
  * sibling modes: fidelity → tense → prose discipline → (optional dialogue) → alternation.
  * POV is intentionally NOT declared here — perspective is resolved by the single
@@ -109,9 +157,15 @@ function define_mode(mode_key, spec) {
       ? { mode: mode_key, role: spec.system.toUpperCase() }
       : spec.system || { mode: mode_key, role: mode_key.toUpperCase() };
 
+  const declared_layers = spec.layers || {};
+
   return Object.freeze({
     key: mode_key,
     system: Object.freeze(system),
+    layers: Object.freeze({
+      system: Object.freeze([...(declared_layers.system || [])]),
+      task: Object.freeze([...(declared_layers.task || [])]),
+    }),
     constitution: spec.constitution ?? true,
     protocols: Object.freeze(spec.protocols || []),
     entities: Object.freeze({
@@ -142,6 +196,10 @@ export const PROMPTS = Object.freeze({
       user_agenda: true,
       present_entities: true,
     },
+    layers: {
+      system: ["role", "protocols", "dynamics", "entities", "present_cast"],
+      task: ["input", "last_turn", "directives", "keyword_directives", "output_format"],
+    },
     format: { mode: "json", schema: DIRECTOR_SCHEMA },
   }),
 
@@ -155,6 +213,7 @@ export const PROMPTS = Object.freeze({
       dynamic_axes: ["AI", "FRACTAL"],
       nearby_entities: true,
     },
+    layers: PROSE_LAYERS,
     task: { think_format: "character" },
   }),
 
@@ -166,6 +225,7 @@ export const PROMPTS = Object.freeze({
       dynamic_axes: ["AI", "FRACTAL"],
       nearby_entities: true,
     },
+    layers: PROSE_LAYERS,
     task: { think_format: "character" },
   }),
 
@@ -177,6 +237,7 @@ export const PROMPTS = Object.freeze({
       dynamic_axes: ["NPC", "FRACTAL"],
       nearby_entities: true,
     },
+    layers: PROSE_LAYERS,
     task: { think_format: "character" },
   }),
 
@@ -189,6 +250,7 @@ export const PROMPTS = Object.freeze({
       user_agenda: true,
       nearby_entities: true,
     },
+    layers: PROSE_LAYERS,
     task: { think_format: "narrator" },
   }),
 
@@ -197,16 +259,20 @@ export const PROMPTS = Object.freeze({
   continuum: define_mode("continuum", {
     system: "CONTINUUM_CARETAKER",
     constitution: false,
-    protocols: ["HYGIENE.DATA"],
+    protocols: ["CORE_PROTOCOLS.DATA"],
     entities: {
       target_context: true,
       nearby_entities: true,
       chapter_history: true,
     },
     history: { limit: 16 },
+    layers: {
+      system: ["role", "protocols", "target_context", "nearby_cast", "chapter_history", "history"],
+      task: ["input", "directives", "output_format"],
+    },
     format: {
       mode: "json",
-      schema: ["_thought_process", "target", "eternal", "present", "future", "past", "relationships"],
+      schema: ["_thought_process", "target", ...TEMPORAL_SCHEMA_FRAGMENT, "relationships"],
     },
   }),
 
@@ -215,18 +281,26 @@ export const PROMPTS = Object.freeze({
   enhancement: define_mode("enhancement", {
     system: "ENHANCER",
     constitution: false,
-    protocols: ["HYGIENE.DATA"],
+    protocols: ["CORE_PROTOCOLS.DATA"],
     entities: { field_context: true },
+    layers: {
+      system: ["role", "protocols", "layer", "field_context", "input_content"],
+      task: ["directives", "output_format"],
+    },
     format: "PROSE",
   }),
 
   sorting: define_mode("sorting", {
     system: "NARRATIVE_STRUCTURER",
     constitution: false,
-    protocols: ["HYGIENE.DATA"],
+    protocols: ["CORE_PROTOCOLS.DATA"],
+    layers: {
+      system: ["role", "protocols"],
+      task: ["input", "directives", "output_format"],
+    },
     format: {
       mode: "json",
-      schema: ["name", "description", "signature_color", "eternal", "present", "past", "future"],
+      schema: ["_thought_process", "name", "description", "signature_color", ...TEMPORAL_SCHEMA_FRAGMENT],
     },
   }),
 
@@ -235,7 +309,17 @@ export const PROMPTS = Object.freeze({
   optics: define_mode("optics", {
     system: { mode: "optics", role: "SENSORY_CORTEX" },
     constitution: false,
-    protocols: ["HYGIENE.DATA", "OPTICS.WEIGHTING_RESTRICTIONS", "OPTICS.AFFIRMATIVE_FRAMING", "OPTICS.TYPOGRAPHY", "OPTICS.ENVIRONMENTAL_GROUNDING"],
+    protocols: [
+      "CORE_PROTOCOLS.DATA",
+      "OPTICS.WEIGHTING_RESTRICTIONS",
+      "OPTICS.AFFIRMATIVE_FRAMING",
+      "OPTICS.TYPOGRAPHY",
+      "OPTICS.ENVIRONMENTAL_GROUNDING",
+    ],
+    layers: {
+      system: ["role", "protocols", "entities", "history"],
+      task: ["think", "input", "target", "spatial_framing", "directives", "keyword_directives", "output_format"],
+    },
     task: { think_format: "optics" },
     format: {
       mode: "json",
@@ -278,6 +362,8 @@ export default PROMPTS;
 
 /**
  * CHANGELOG
+ * - 2026-09-22: Declared envelope shape (recommendation #4) — every mode now carries a frozen `layers: { system, task }` manifest consumed by the `PROMPT_LAYERS`/`TASK_LAYERS` walkers and validated against `ENVELOPE_LAYER_TAGS`; the sorting schema gained `_thought_process` and the continuum/sorting schemas share `TEMPORAL_SCHEMA_FRAGMENT` (recommendation #8).
+ * - 2026-09-22: One protocol namespace (recommendation #7) — the data-mode protocol lists now declare `CORE_PROTOCOLS.DATA` instead of the retired `HYGIENE.DATA` namespace.
  * - 2026-09-21: Standardization pass — retired the `director_terse` mode (now `compile_prompt("director", { terse: true })`), so the registry declares 9 modes; `prose_protocols({ include_dialogue })` no longer takes a POV key (resolved by `resolve_pov_protocol`), the continuum/sorting protocol lists dropped POV/TENSE, and the narrator declares `system.pov = "NARRATOR"` for the single POV resolver.
  * - 2026-09-19: Collapsed the facade chain (P7) — `compile_prompt` now calls `assemble_prompt(get_prompt(mode_key), context)` directly; the intermediate `compile_pipeline_prompt` facade was retired. `compile_prompt` remains the single public entry point.
  * - 2026-09-19: Table-driven assembler (P4) — `define_mode` now stamps each record with its canonical `key`, which `assemble_prompt` uses to select a `MODE_ADAPTERS` entry (needed because `director_terse` shares `system.mode = "director"`).

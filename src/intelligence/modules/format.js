@@ -125,6 +125,11 @@ export const PROSE_FORMAT = "Emit strictly plain prose. No preamble, commentary,
 /**
  * Formats the canonical structured JSON-return instruction for a compiled schema.
  *
+ * Schema-escaping policy (single, universal): the compiled schema text is emitted VERBATIM —
+ * never XML-escaped — because it is a contract literal the model must read exactly. Untrusted
+ * *values* are escaped at their own boundary (`prompt_escape` for text nodes, `escape_xml` for
+ * attributes) before they reach any schema position.
+ *
  * @param {string} schema - JSON schema definition
  * @returns {string} Formatted instruction
  */
@@ -194,6 +199,7 @@ export function render_output_format_xml({ mode = "", content = "", indent_level
 
 /**
  * CHANGELOG
+ * - 2026-09-22: Uniform output contract (recommendation #8) — `format_json_return` documents the single raw schema-escaping policy now that every mode emits an `<OUTPUT_FORMAT>`.
  * - 2026-09-19: Standardized get_output_format to a single `(format_spec, options)` signature (dropped the string options_or_fallback overload and the stale target_type/resolved_type JSDoc), and collapsed render_json_schema's field lookup to one `field_definition`.
  * - 2026-09-19: Simplified negative-prompt injection — SCHEMA_ATOMS.negative_prompt is now a function of the style baseline (EVALUATE-style), and render_json_schema invokes any function atom with `negative_baseline`; removed the compose helper, the key special-case, and the duplicated base wording.
  * - 2026-09-19: Collapsed both JSON-return formatters into one canonical instruction — format_json_return(schema) is now the single source of truth (Optics' former strict constraint is baked in); format_optics_json_return and its indent/strict options are gone.

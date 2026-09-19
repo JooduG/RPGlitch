@@ -102,7 +102,7 @@ describe("render_task — Director Mode", () => {
       schema: dummy_schema,
     });
 
-    expect(task).toContain('<INPUT origin="USER">');
+    expect(task).toContain('<INPUT origin="USER" round="1" kind="action">');
     expect(task).toContain("<TASK>");
     expect(task).toContain('next_action MUST be "AI_CHARACTER"');
     expect(task).toContain('<OUTPUT_FORMAT mode="json">');
@@ -137,7 +137,7 @@ describe("render_task — Story Prose Mode", () => {
     expect(task).toContain("<TASK>");
     expect(task).toContain("<THINK>");
     expect(task).toContain("VISCERAL_IMPACT");
-    expect(task).toContain('<INPUT origin="USER">');
+    expect(task).toContain('<INPUT kind="action">');
     expect(task).toContain("Respond strictly as Alice.");
     expect(task).toContain("<DELIVERY_POSTURE>");
     expect(task).toContain('<VOICE mode="clinical">');
@@ -226,7 +226,7 @@ describe("task.js - Optics Task Staging", () => {
     expect(task).toContain('<CINEMATOGRAPHY mode="Intimate Close-Up">');
     expect(task).toContain("<KEYWORD_DIRECTIVES>");
     expect(task).toContain("<SELFIE_DIRECTIVE>");
-    expect(task).toContain("<INPUT_INTENT>Standing alone in the pouring rain</INPUT_INTENT>");
+    expect(task).toContain('<INPUT kind="intent">Standing alone in the pouring rain</INPUT>');
     expect(task).toContain('<OUTPUT_FORMAT mode="json">');
   });
 
@@ -329,7 +329,6 @@ describe("TASK_LAYERS — canonical envelope grammar", () => {
       "spatial_framing",
       "directives",
       "keyword_directives",
-      "intent",
       "delivery_posture",
       "stability_lock",
       "output_format",
@@ -350,7 +349,7 @@ describe("TASK_LAYERS — canonical envelope grammar", () => {
 describe("render_task — per-mode state dispatch", () => {
   it("routes director to its JSON staging state and terse to the minimal refusal state", () => {
     const full = render_task({ mode: "director", round: 2, input: "hi", last_ai_text: "prev", schema: '{"a":1}' });
-    expect(full).toContain('<INPUT origin="USER">hi</INPUT>');
+    expect(full).toContain('<INPUT origin="USER" round="2" kind="action">hi</INPUT>');
     expect(full).toContain("<AI_CHARACTER_LAST_TURN>");
     expect(full).toContain("<DIRECTIVES>");
     expect(full).toContain('<OUTPUT_FORMAT mode="json">');

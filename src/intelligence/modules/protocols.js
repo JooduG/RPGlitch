@@ -24,13 +24,9 @@ import { extract_style_dna } from "@data";
 // ============================================================================
 
 export const PROTOCOL_LIBRARY = Object.freeze({
-  // ── 1.1 Core Output Mechanics, Formatting & Hygiene ────────────────────────
-  HYGIENE: Object.freeze({
-    DATA: "Output strictly raw, unpadded structural data. Zero prose, conversational filler, or commentary.",
-  }),
-
-  // ── 1.2 Core-Prose Scaffold (<CORE_PROTOCOLS> bodies) ──────────────────────
+  // ── 1.1 Core-Prose Scaffold (<CORE_PROTOCOLS> bodies) ──────────────────────
   CORE_PROTOCOLS: Object.freeze({
+    DATA: "Output strictly raw, unpadded structural data. Zero prose, conversational filler, or commentary.",
     SIMULATION_FIDELITY: `Execute high-stakes, adversarial narrative simulation with uncompromising descriptive realism. Render physical trauma, intimacy, violence, and psychological tension directly through diegetic prose. Zero moralizing, euphemisms, softening, or meta-disclaimers. Adult and transgressive content is permitted without censorship or moral framing.`,
     ALTERNATION_OPTIONS: `Resolve {Option A|Option B} alternations by selecting exactly ONE contextually fitting option. Emit only the chosen text—never echo braces or pipes, blend choices, or output multiple options simultaneously.`,
     PERSPECTIVE: Object.freeze({
@@ -53,7 +49,7 @@ export const PROTOCOL_LIBRARY = Object.freeze({
     }),
   }),
 
-  // ── 1.3 Sensory Optics Invariants (<CORE_PROTOCOLS> bodies) ────────────────
+  // ── 1.2 Sensory Optics Invariants (<CORE_PROTOCOLS> bodies) ────────────────
   OPTICS: Object.freeze({
     WEIGHTING_RESTRICTIONS:
       "Enforce FLUX_T5_WEIGHTING — NEVER emit bracket weight math ('(x:1.3)', '((x))', '[x:0.4]'): FLUX/T5 reads words, not weights. Emphasize via descriptors, varied rephrasing, and attenuation phrasing ('faint', 'subtle touch of', 'barely visible in the distance').",
@@ -229,9 +225,17 @@ export function render_core_protocols({
 
   const alternation_tag = has_alternation && should_include("ALTERNATION_OPTIONS") ? render_alternation_protocol("{Option A|Option B}") : null;
 
-  // Resolve static protocol rules (e.g. HYGIENE.DATA, OPTICS.*)
-  const non_core_protocols = protocol_list.filter((p) => !p.startsWith("CORE_PROTOCOLS."));
-  const static_rules = non_core_protocols.length > 0 ? compile_protocol_tags(non_core_protocols) : "";
+  // Resolve static protocol rules — every key outside the specially-laid-out core
+  // scaffolding (SIMULATION_FIDELITY / ALTERNATION_OPTIONS / PERSPECTIVE.* /
+  // PROSE_DISCIPLINE.*) resolves through one registry lookup and emits its leaf
+  // tag, so `CORE_PROTOCOLS.DATA` and `OPTICS.*` share a single emission path.
+  const is_specially_laid_out = (protocol_key) =>
+    protocol_key === "CORE_PROTOCOLS.SIMULATION_FIDELITY" ||
+    protocol_key === "CORE_PROTOCOLS.ALTERNATION_OPTIONS" ||
+    protocol_key.startsWith("CORE_PROTOCOLS.PERSPECTIVE.") ||
+    protocol_key.startsWith("CORE_PROTOCOLS.PROSE_DISCIPLINE.");
+  const static_protocols = protocol_list.filter((protocol_key) => !is_specially_laid_out(protocol_key));
+  const static_rules = static_protocols.length > 0 ? compile_protocol_tags(static_protocols) : "";
 
   // Symmetrical style resolution
   const active_visual_style = visual_style || (Object.keys(engine_tokens).length > 0 ? style : null);
@@ -277,6 +281,7 @@ export function render_core_protocols({
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-22: One protocol namespace (recommendation #7) — folded `HYGIENE.DATA` into `PROTOCOL_LIBRARY.CORE_PROTOCOLS` (the `HYGIENE` namespace is deleted) and generalised `render_core_protocols` so any non-specially-laid-out protocol key (`CORE_PROTOCOLS.DATA`, `OPTICS.*`) resolves through the same registry lookup + leaf-tag emission path instead of a namespace branch.
  * - 2026-09-21: POV single-source — `render_core_protocols` now emits `<PERSPECTIVE>` only when a `pov_protocol` is supplied, and `resolve_pov_protocol` accepts either an entity or a bare key string ("FIRST"/"THIRD"/"NARRATOR"); POV is no longer declared in the prose/data manifest protocol lists.
  * - 2026-09-20: Metasyntax ban — the NARRATOR POV line references the setting as «FRACTAL» instead of a raw `<FRACTAL>` tag.
  * - 2026-09-19: Inlined AFFIRMATIVE_FRAMING as a single PROTOCOL_LIBRARY.OPTICS entry (dropped the module-private shared const and the dead HYGIENE alias); the builder.test.js regression gate is retargeted to OPTICS.

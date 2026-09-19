@@ -1983,7 +1983,7 @@ describe("ghostwrite identity", () => {
   it("enhances the PLAYER persona's draft, addressed against the AI character", () => {
     const { system, task } = render_story_prose({ entities: _prompt_test_entities, input: "I step forward and bare my teeth.", ghostwrite: true });
     expect(system).toContain("You are Lord Benedict Silvers within FRACTAL Project Tartarus, interacting with Beast.");
-    expect(task).toContain('<INPUT origin="SILVERS">I step forward and bare my teeth.</INPUT>');
+    expect(task).toContain('<INPUT origin="SILVERS" kind="action">I step forward and bare my teeth.</INPUT>');
     expect(task).toContain("<DELIVERY_POSTURE>");
     expect(task).toContain("Advance the scene in response to");
   });
@@ -2032,10 +2032,10 @@ describe("interaction structural integrity", () => {
     expect(ai_sheet).toMatch(/<PSYCHOLOGY>[\s\S]*<AGENDA>Break the challenger\.<\/AGENDA>[\s\S]*<\/PSYCHOLOGY>/);
   });
 
-  it("places TRAJECTORY inside ESSENCE on the fractal sheet", () => {
+  it("places TRAJECTORY inside PSYCHOLOGY on the fractal sheet", () => {
     const { system } = render_story_prose({ round: 3, entities: _prompt_test_entities, input: "Beast steps forward." });
     const fractal_sheet = system.match(/<FRACTAL\b[\s\S]*?<\/FRACTAL>/)[0];
-    expect(fractal_sheet).toMatch(/<ESSENCE>[\s\S]*<TRAJECTORY>Drift\.<\/TRAJECTORY>[\s\S]*<\/ESSENCE>/);
+    expect(fractal_sheet).toMatch(/<PSYCHOLOGY>[\s\S]*<TRAJECTORY>Drift\.<\/TRAJECTORY>[\s\S]*<\/PSYCHOLOGY>/);
   });
 
   it("never emits USER_SOVEREIGNTY", () => {
@@ -2103,6 +2103,7 @@ describe("narrator prose compiler", () => {
 
 /**
  * CHANGELOG
+ * - 2026-09-22: Ghostwrite assertion follows the single `<INPUT origin|round|kind>` channel (recommendation #5) — the emitted tag now carries `kind="action"`.
  * - 2026-09-21: Standardization pass — the mocked `assemble_prompt` now routes terse Director retries through the `director` case (`context.terse`) since the `director_terse` mode was retired, and the fractal psychology wrapper assertion follows the `ATMOSPHERE`→`ESSENCE` rename.
  * - 2026-09-19: Purged legacy prompt_builder mock shim under P4 Zero Backwards Compatibility; modernized prompt compilation spies around assemble_prompt and build_scoring_context.
  * - 2026-09-16: Updated ghostwrite identity assertions to test first-person persona system role and kinetic DELIVERY_POSTURE following GHOSTWRITE task directive pruning.

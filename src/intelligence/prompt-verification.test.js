@@ -14,11 +14,42 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { register_state_accessors } from "@utils";
-import { compile_prompt } from "./prompts.js";
+import { compile_prompt, ENVELOPE_LAYER_TAGS, PROMPTS } from "./prompts.js";
 import { CONTRACT, CONTRACT_SIZES, make_contract_cases } from "./prompt-verification.js";
 
 const TAG_PATTERN = /<([A-Z][A-Z0-9_]{1,})(?=[\s>/])/g;
 const RESERVED_REFERENCE_PATTERN = /<(INPUT|AGENDA|TRAJECTORY|SHIRT|JACKET)\s*\/>/;
+
+/** Manifest layer keys that emit plain text rather than a tag (never match a direct-child tag). */
+const TEXT_ONLY_LAYERS = new Set(["role", "stability_lock"]);
+
+/**
+ * Extracts ONLY the direct (indent-2) child element tags of an envelope string, so nested
+ * content (protocol atoms, entity sheets) can never mask a missing or undeclared top-level layer.
+ * @param {string} [text]
+ * @returns {string[]}
+ */
+function extract_layer_tags(text) {
+  return String(text || "")
+    .split("\n")
+    .map((line) => line.match(/^ {2}<([A-Z][A-Z0-9_]*)\b/))
+    .filter(Boolean)
+    .map((match) => match[1]);
+}
+
+/**
+ * True when `sequence` appears within `container` in the same relative order.
+ * @param {string[]} sequence
+ * @param {string[]} container
+ * @returns {boolean}
+ */
+function is_subsequence(sequence, container) {
+  let index = 0;
+  for (const item of container) {
+    if (item === sequence[index]) index += 1;
+  }
+  return index === sequence.length;
+}
 
 /**
  * Extracts the ordered opening-tag inventory from a rendered prompt.
@@ -97,8 +128,43 @@ describe("Prompt pipeline — per-mode contract envelopes", () => {
   });
 });
 
+describe("Prompt pipeline — declared envelope layers", () => {
+  beforeEach(with_accessors);
+  afterEach(() => register_state_accessors({ runtime: null }));
+
+  const cases = make_contract_cases();
+
+  for (const mode_key of Object.keys(PROMPTS)) {
+    it(mode_key + " emits exactly its declared envelope layers", () => {
+      const [case_key, context] = cases[mode_key];
+      const prompt_package = compile_prompt(case_key, context);
+      const config = PROMPTS[mode_key];
+
+      const declared_system = config.layers.system.map((key) => ENVELOPE_LAYER_TAGS[key]).filter(Boolean);
+      const declared_task = config.layers.task.map((key) => ENVELOPE_LAYER_TAGS[key]).filter(Boolean);
+
+      const emitted_system = extract_layer_tags(prompt_package.system);
+      const emitted_task = extract_layer_tags(prompt_package.task);
+
+      // No undeclared top-level layer may leak, and declaration order must be respected.
+      expect(emitted_system.every((tag) => declared_system.includes(tag))).toBe(true);
+      expect(emitted_task.every((tag) => declared_task.includes(tag))).toBe(true);
+      expect(is_subsequence(emitted_system, declared_system)).toBe(true);
+      expect(is_subsequence(emitted_task, declared_task)).toBe(true);
+    });
+
+    it(mode_key + " declares only known layer keys", () => {
+      const config = PROMPTS[mode_key];
+      for (const key of [...config.layers.system, ...config.layers.task]) {
+        expect(TEXT_ONLY_LAYERS.has(key) || key in ENVELOPE_LAYER_TAGS).toBe(true);
+      }
+    });
+  }
+});
+
 /**
  * CHANGELOG
+ * - 2026-09-22: Added the declared-envelope-layer gate (recommendation #4) — each mode's manifest `layers` must cover every emitted top-level layer tag, in declared order, and may only declare known keys.
  * - 2026-09-20: Extended the gate with universal envelope invariants (open <SYSTEM> + role line, single top-level <TASK>, no reserved-tag metasyntax) alongside the regenerated per-mode tag inventory.
  * - 2026-09-19: Added Phase-0 per-mode contract tests (tag inventory + package shape + size tripwire) for every registered prompt mode.
  * - 2026-09-19: Renamed from prompt-goldens.test.js (golden fixtures -> prompt contract).

@@ -159,14 +159,13 @@ export function render_history(history, options = {}) {
 // ============================================================================
 
 /**
- * Renders the enveloped recent dialogue history XML block (<INPUT_HISTORY> or manifest-specified tag).
- * Accepts either explicit numeric bounds or a manifest history configuration object.
+ * Renders the enveloped recent dialogue history XML block (the single `<HISTORY>` tag).
  *
  * @param {Array<any>} [history=[]]
  * @param {Object} [options={}]
  * @param {number} [options.limit=16]
  * @param {number} [options.max_chars=400]
- * @param {string} [options.tag="INPUT_HISTORY"]
+ * @param {string} [options.tag="HISTORY"]
  * @param {number} [options.indent=2]
  * @param {number} [options.child_indent=2]
  * @returns {string}
@@ -174,7 +173,7 @@ export function render_history(history, options = {}) {
 export function render_input_history_xml(history = [], options = {}) {
   const resolved_limit = options.limit ?? HISTORY_DEFAULTS.limit;
   const resolved_characters = options.max_chars ?? options.maximum_characters ?? HISTORY_DEFAULTS.max_chars;
-  const tag = options.tag || options.input_tag || "INPUT_HISTORY";
+  const tag = options.tag || options.input_tag || "HISTORY";
   const indent = options.indent ?? 2;
   const child_indent = options.child_indent ?? 2;
 
@@ -258,6 +257,7 @@ export function format_sensory_history(history_text) {
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-22: One input channel (recommendation #5) — `render_input_history_xml`'s default tag is now `HISTORY` (was `INPUT_HISTORY`), matching the single input/history vocabulary.
  * - 2026-09-18: Absorbed format_sensory_history from deconstructed optics.js into Section 5.
  * - 2026-09-16: Unified turn and dialogue transcript formatting: merged format_recent_history into render_history, pruned format_recent_history under P4 Zero Backwards Compatibility, and updated render_input_history_xml to consume render_history with structured options.
  * - 2026-09-16: Refactored and standardized: (1) Extracted shared strip_think_blocks and resolve_entry_origin helpers, eliminating duplicated regex and origin-fallback chains; (2) Aligned round/origin attributes and streamlined history options handling.

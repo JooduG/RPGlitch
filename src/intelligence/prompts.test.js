@@ -228,7 +228,7 @@ describe("fused rendering per mode", () => {
 
   it("carries the <INPUT origin> inside the interaction task", () => {
     const interaction = render_story_prose({ round: 3, entities, input: "Beast steps forward." });
-    expect(interaction.task).toContain('<INPUT origin="SILVERS">Beast steps forward.</INPUT>');
+    expect(interaction.task).toContain('<INPUT origin="SILVERS" round="3" kind="action">Beast steps forward.</INPUT>');
   });
 
   it("strictly respects the manifest protocol list: interaction includes NATURAL_DIALOGUE, narrator omits it", () => {

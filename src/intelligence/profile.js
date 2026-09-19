@@ -26,15 +26,10 @@ import { render_profile_sorting } from "./builder.js";
  * @returns {Promise<Object | null>}
  */
 export async function structure_profile(raw, type) {
-  const payload = {
-    ...render_profile_sorting(type, { ingestion: true }),
-    messages: [
-      {
-        role: "user",
-        text: typeof raw === "string" ? raw : JSON.stringify(raw, null, 2),
-      },
-    ],
-  };
+  const payload = render_profile_sorting(type, {
+    ingestion: true,
+    input_data: typeof raw === "string" ? raw : JSON.stringify(raw, null, 2),
+  });
   const result = await llm_service.enhance(payload);
   return parse_profile_json(result);
 }
@@ -218,6 +213,7 @@ export async function spawn_character(bridge, draft = {}) {
 
 /**
  * CHANGELOG
+ * - 2026-09-22: One input channel (recommendation #5) — `structure_profile` delivers the raw profile text through `<INPUT kind="ingestion">` via `render_profile_sorting({ input_data })` instead of a `messages` payload.
  * - 2026-09-11: Header correction — PROFILE_PROTOCOLS bundle pruned in favour of the modules/task.js primitives.
  * - 2026-09-11: Grand Purification: prompt compilation moved to builder.js, leaving profile.js a 100% pure structuring, entity mapping, and genesis engine.
  * - 2026-09-11: Modularized PROFILE_PROTOCOLS: bound SCHEMA, MACROS, SORTING, and OUTPUT_FORMATS to modular imports.

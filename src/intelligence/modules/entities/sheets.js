@@ -15,21 +15,10 @@
  * ============================================================================
  */
 
-import {
-  escape_xml,
-  physical_to_xml,
-  strip_leading_key_echo,
-  render_field_value,
-  indent_continuation,
-  indent_all,
-  inline_or_block,
-  render_xml_tag,
-  parse_macros,
-  prompt_escape,
-} from "@utils";
+import { escape_xml, physical_to_xml, strip_leading_key_echo, render_field_value, indent_continuation, render_xml_tag, prompt_escape } from "@utils";
 import { PROFILE_FIELD_CATALOG } from "@data";
 import { strip_epistemic_secrets, strip_visual_excluded } from "./epistemic.js";
-import { resolve_available_entities, render_dispositions, render_nearby_entities_xml } from "./presence.js";
+import { resolve_available_entities, render_dispositions, render_nearby_entities_xml, render_cast_xml, CAST_MODES } from "./presence.js";
 
 // ============================================================================
 // [SECTION 1: PHYSICAL STATE SYNTHESIS]
@@ -65,11 +54,13 @@ export function resolve_entity_field_value(entity, path) {
  * @param {string|Record<string, any>|null|undefined} raw_value
  * @param {any} [owner_entity]
  * @param {any} [entities]
+ * @param {((value: string) => string)|null} [transform]
  * @returns {string}
  */
-export function extract_physical_body(raw_value, owner_entity, entities) {
+export function extract_physical_body(raw_value, owner_entity, entities, transform = null) {
   const resolved_value = owner_entity ? render_field_value(raw_value, owner_entity, entities) : raw_value;
-  const xml_output = physical_to_xml(resolved_value, "BODY");
+  const final_value = typeof transform === "function" ? transform(String(resolved_value ?? "")) : resolved_value;
+  const xml_output = physical_to_xml(final_value, "BODY");
   if (!xml_output) return "";
 
   const structured_match = xml_output.match(/^ {2}<BODY>\n([\s\S]*?)\n {2}<\/BODY>$/);
@@ -85,10 +76,11 @@ export function extract_physical_body(raw_value, owner_entity, entities) {
  * @param {string|null|undefined} raw_value
  * @param {any} owner_entity
  * @param {any} entities
+ * @param {((value: string) => string)|null} [transform]
  * @returns {string[]}
  */
-export function extract_physical_rows(raw_value, owner_entity, entities) {
-  const body_content = extract_physical_body(raw_value, owner_entity, entities);
+export function extract_physical_rows(raw_value, owner_entity, entities, transform = null) {
+  const body_content = extract_physical_body(raw_value, owner_entity, entities, transform);
   return body_content
     ? body_content
         .split("\n")
@@ -99,7 +91,7 @@ export function extract_physical_rows(raw_value, owner_entity, entities) {
 
 /**
  * Synthesizes eternal (permanent biometric/topographic baseline) and present (active outfit/atmosphere)
- * into a single unified physical block (<APPEARANCE> or <TOPOGRAPHY>).
+ * into a single unified physical block (<APPEARANCE>).
  * Present attributes cleanly overwrite corresponding eternal attributes by XML tag name.
  *
  * @param {string|null|undefined} eternal_text
@@ -107,9 +99,10 @@ export function extract_physical_rows(raw_value, owner_entity, entities) {
  * @param {any} owner_entity
  * @param {any} entities
  * @param {string} [tag="APPEARANCE"]
+ * @param {((value: string) => string)|null} [transform]
  * @returns {string}
  */
-export function render_appearance(eternal_text, present_text, owner_entity, entities, tag = "APPEARANCE") {
+export function render_appearance(eternal_text, present_text, owner_entity, entities, tag = "APPEARANCE", transform = null) {
   const merged_entries = [];
   const index_by_tag = new Map();
 
@@ -118,7 +111,10 @@ export function render_appearance(eternal_text, present_text, owner_entity, enti
     return match ? match[1].toUpperCase() : String(row_content);
   };
 
-  const all_rows = [...extract_physical_rows(eternal_text, owner_entity, entities), ...extract_physical_rows(present_text, owner_entity, entities)];
+  const all_rows = [
+    ...extract_physical_rows(eternal_text, owner_entity, entities, transform),
+    ...extract_physical_rows(present_text, owner_entity, entities, transform),
+  ];
 
   for (const row_content of all_rows) {
     const key = extract_tag_name(row_content);
@@ -214,12 +210,12 @@ export const SHEET_SPECS = Object.freeze({
   FRACTAL: Object.freeze({
     tag: "FRACTAL",
     default_name: "the setting",
-    psychology_tag: "ESSENCE",
+    psychology_tag: "PSYCHOLOGY",
     agenda_key: PROFILE_FIELD_CATALOG["fractal.future"].tag,
     personality_tag: PROFILE_FIELD_CATALOG["fractal.eternal.non_physical"].tag,
     state_tag: "STATE",
     state_strip_keys: Object.freeze(["CURRENT_STATE", "STATE"]),
-    appearance_tag: "TOPOGRAPHY",
+    appearance_tag: "APPEARANCE",
     memory_tag: PROFILE_FIELD_CATALOG["fractal.past"].tag,
     axes_scope: "fractal",
     epistemic: EPISTEMIC_ALWAYS,
@@ -241,6 +237,13 @@ const SHEET_SECTIONS = Object.freeze([
   Object.freeze({ wrapper: null, fields: Object.freeze(["memory"]) }),
 ]);
 
+/**
+ * The physical-only section list Sensory Optics uses: an image subject exposes only its
+ * physical state (no agenda/personality/memory), while still flowing through the one
+ * `render_sheet` grammar (recommendation #2).
+ * @type {ReadonlyArray<{ wrapper: string|null, fields: ReadonlyArray<string> }>}
+ */
+const VISUAL_SECTIONS = Object.freeze([Object.freeze({ wrapper: null, fields: Object.freeze(["physical"]) })]);
 /**
  * One emitter per sheet field role — the complete, single authority for how a
  * sheet field becomes XML. Adding or reordering a field is a data edit
@@ -277,16 +280,15 @@ const SHEET_FIELD_RENDERERS = Object.freeze({
   },
 
   physical(specification, context, helpers) {
+    const transform = context.transform_physical;
     if (context.physical_mode === "separate") {
-      const entity_kind = specification.tag === "FRACTAL" || context.entity?.type === "fractal" ? "fractal" : "character";
       const blocks = [];
-      for (const [field_path, fallback_tag] of [
-        ["eternal.physical", "PHYSICAL_APPEARANCE"],
+      for (const [field_path, tag] of [
+        ["eternal.physical", "APPEARANCE"],
         ["present.physical", "CURRENT_LOOK"],
       ]) {
-        const tag = resolve_profile_field_tag(entity_kind, field_path, fallback_tag);
         const raw_value = helpers.sanitize(resolve_entity_field_value(context.entity, field_path), specification.epistemic.appearance);
-        const body = extract_physical_body(raw_value, context.entity, context.entities);
+        const body = extract_physical_body(raw_value, context.entity, context.entities, transform);
         if (body) blocks.push(render_xml_tag({ tag, children: [body], child_indent: 2 }));
       }
       return blocks.join("\n");
@@ -298,6 +300,7 @@ const SHEET_FIELD_RENDERERS = Object.freeze({
       context.entity,
       context.entities,
       specification.appearance_tag,
+      transform,
     );
   },
 
@@ -320,9 +323,8 @@ const SHEET_FIELD_RENDERERS = Object.freeze({
  * (SHEET_SECTIONS) over the kind's vocabulary (SHEET_SPECS). All field visibility
  * resolves through one projection: the spec's `epistemic` declaration plus the
  * caller's perspective flags (`is_owner`, `include_agenda`, `include_memories`,
- * `show_dispositions`). Supports both "combined" physical synthesis
- * (<APPEARANCE> / <TOPOGRAPHY>) and "separate" physical unboxing
- * (<PHYSICAL_APPEARANCE> / <CURRENT_LOOK>).
+ * `show_dispositions`). Supports both "combined" physical synthesis (one merged
+ * <APPEARANCE>) and "separate" physical unboxing (<APPEARANCE> + <CURRENT_LOOK>).
  *
  * Every element is emitted through `render_xml_tag` at a uniform two-space step,
  * so the whole sheet tree is indent-consistent.
@@ -341,6 +343,8 @@ const SHEET_FIELD_RENDERERS = Object.freeze({
  * @param {Set<string>} [context.active_names]
  * @param {Map<string, string>} [context.name_to_id]
  * @param {"combined"|"separate"} [context.physical_mode="combined"]
+ * @param {((value: string) => string)|null} [context.transform_physical=null] - Post-macro transform applied to each physical body (optics: visual-filter strip + alternation roll).
+ * @param {ReadonlyArray<{ wrapper: string|null, fields: ReadonlyArray<string> }>} [context.sections] - Section-list override (optics renders the physical section only).
  * @returns {string}
  */
 export function render_sheet(specification, context) {
@@ -354,7 +358,7 @@ export function render_sheet(specification, context) {
     is_owner: false,
     ...context,
   };
-  const epistemic = specification.epistemic || EPISTEMIC_ALWAYS;
+  const sections = view.sections || SHEET_SECTIONS;
   const sanitize = (value, policy) => {
     if (!policy || policy === EPISTEMIC_POLICY.NONE) return value;
     return strip_epistemic_secrets(value, policy === EPISTEMIC_POLICY.OWNER ? Boolean(view.is_owner) : false);
@@ -366,7 +370,7 @@ export function render_sheet(specification, context) {
   const helpers = { sanitize, render_sheet_field };
 
   const section_blocks = [];
-  for (const section of SHEET_SECTIONS) {
+  for (const section of sections) {
     const field_blocks = section.fields.map((field_name) => SHEET_FIELD_RENDERERS[field_name](specification, view, helpers)).filter(Boolean);
     if (!field_blocks.length) continue;
     if (section.wrapper) {
@@ -624,7 +628,11 @@ export function render_enhancement_field_context(entity, field_identifier, conte
 
     const inner_content = target_paths
       .map((path) => {
-        const tag = resolve_profile_field_tag(entity_kind, path);
+        const tag = path.endsWith(".physical")
+          ? path.startsWith("present")
+            ? "CURRENT_LOOK"
+            : "APPEARANCE"
+          : resolve_profile_field_tag(entity_kind, path);
         if (!tag) return "";
         const raw_value = resolve_entity_field_value(entity, path);
         const value = path.endsWith(".physical") ? extract_physical_body(raw_value) : escape_xml(String(raw_value ?? "").trim());
@@ -716,25 +724,20 @@ export function render_optics_entities_xml({
 } = {}) {
   const render_entity_block = (tag_name, entity_instance) => {
     if (!entity_instance) return "";
-    const blocks = [];
-    if (entity_instance.eternal?.physical) {
-      blocks.push(
-        physical_to_xml(
-          roll(strip_visual_excluded(parse_macros(String(entity_instance.eternal.physical).trim(), entity_instance, macro_entities))),
-          "PHYSICAL_APPEARANCE",
-        ),
-      );
-    }
-    if (entity_instance.present?.physical) {
-      blocks.push(
-        physical_to_xml(
-          roll(strip_visual_excluded(parse_macros(String(entity_instance.present.physical).trim(), entity_instance, macro_entities))),
-          "CURRENT_LOOK",
-        ),
-      );
-    }
-    if (!blocks.length) return "";
-    return `<${tag_name} name="${escape_xml(entity_instance.name || tag_name)}">\n${blocks.join("\n")}\n</${tag_name}>`;
+    const base_specification = tag_name === "FRACTAL" || entity_instance.type === "fractal" ? SHEET_SPECS.FRACTAL : SHEET_SPECS.AI_CHARACTER;
+    return render_sheet(
+      { ...base_specification, tag: tag_name, default_name: tag_name },
+      {
+        entity: entity_instance,
+        entities: macro_entities,
+        physical_mode: "separate",
+        sections: VISUAL_SECTIONS,
+        include_agenda: false,
+        include_memories: false,
+        is_owner: true,
+        transform_physical: (value) => roll(strip_visual_excluded(value)),
+      },
+    );
   };
 
   const ai_character_block = render_entity_block("AI_CHARACTER", active_ai_character);
@@ -751,14 +754,26 @@ export function render_optics_entities_xml({
   const context_block = (() => {
     switch (tier) {
       case "solo_entity":
-        return `<ACTIVE_CHARACTERS>\n${render_entity_block("SOLO_ENTITY", solo_subject)}\n</ACTIVE_CHARACTERS>\n<RESTRICTION>**SOLO FRAME PROTOCOL.** Isolated single-subject portrait. No secondary characters, no story scene context. The backdrop must be drawn solely from the subject's own identity and signature colors.</RESTRICTION>`;
+        return `${render_cast_xml({ mode: CAST_MODES.ACTIVE, children: [render_entity_block("SOLO_ENTITY", solo_subject)] })}\n<RESTRICTION>**SOLO FRAME PROTOCOL.** Isolated single-subject portrait. No secondary characters, no story scene context. The backdrop must be drawn solely from the subject's own identity and signature colors.</RESTRICTION>`;
       case "story_scene":
         return `${fractal_setting_block}\n<ENVIRONMENTAL_SCALING>**AFFIRMATIVE ENVIRONMENTAL SCALE.** Focus completely on vast landscape architecture, atmospheric density, weather effects, and physical spatial structures.</ENVIRONMENTAL_SCALING>`;
       case "story_entities":
-        return `<ACTIVE_CHARACTERS>\n${ai_character_block}\n${user_persona_block}\n</ACTIVE_CHARACTERS>\n${fractal_setting_block}`;
+        return `${render_cast_xml({ mode: CAST_MODES.ACTIVE, children: [ai_character_block, user_persona_block] })}\n${fractal_setting_block}`;
       case "story_character":
       default:
-        return `<ACTIVE_CHARACTERS>\n${render_entity_block(main_entity === active_user_persona || main_entity?.type === "user" ? "USER_PERSONA" : main_entity?.type === "fractal" ? "FRACTAL" : "AI_CHARACTER", main_entity)}\n</ACTIVE_CHARACTERS>\n${fractal_setting_block}`;
+        return `${render_cast_xml({
+          mode: CAST_MODES.ACTIVE,
+          children: [
+            render_entity_block(
+              main_entity === active_user_persona || main_entity?.type === "user"
+                ? "USER_PERSONA"
+                : main_entity?.type === "fractal"
+                  ? "FRACTAL"
+                  : "AI_CHARACTER",
+              main_entity,
+            ),
+          ],
+        })}\n${fractal_setting_block}`;
     }
   })();
 
@@ -826,6 +841,7 @@ ${axes}
 /**
  * CHANGELOG
  * ============================================================================
+ * - 2026-09-22: One entity-sheet grammar (recommendation #2) — the fractal sheet now uses `PSYCHOLOGY`/`APPEARANCE`, every physical sheet uses one `APPEARANCE`/`CURRENT_LOOK` vocabulary for all kinds (retiring `ESSENCE`/`TOPOGRAPHY`/`PHYSICAL_APPEARANCE`/`ENVIRONMENT`/`ATMOSPHERE`), and optics' blocks route through the shared `render_sheet` path via `VISUAL_SECTIONS` + `context.transform_physical`.
  * - 2026-09-21: Tag nomenclature pass — the fractal psychology wrapper is now `ESSENCE` (was the ambiguous `ATMOSPHERE`, which collided with the physical `<ATMOSPHERE>` weather key) and the optics present-look wrapper is `CURRENT_LOOK` (was `CURRENT_IMPRESSION`); sheet field indentation now composes through nested `render_xml_tag` calls for uniform 2-space steps.
  * - 2026-09-20: Sheet-grammar unification — `SHEET_SPECS` is now pure vocabulary (tags, section name, axis scope, physical mode, `epistemic`) walked by one shared `SHEET_SECTIONS` sequence + `SHEET_FIELD_RENDERERS` catalog; named `EPISTEMIC_POLICY` constants and `EPISTEMIC_ALWAYS` / `EPISTEMIC_OWNER_STATE` bundles replace the duplicated visibility literals, and `render_sheet` resolves every field through one projection. Intentional grammatical differences (PSYCHOLOGY/ATMOSPHERE, APPEARANCE/TOPOGRAPHY, combined vs separate physical) remain declared per-kind data. Also «SHIRT»/«JACKET» metasyntax in `render_optics_subject_rules`.
  * - 2026-09-19: Added `resolve_entities(config, context)` as the single resolver for every `config.entities` gate plus the available-entity maps and NPC render list; `render_entity_sheets` now consumes that plan instead of reading `.entities` directly.

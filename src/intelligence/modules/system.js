@@ -104,6 +104,7 @@ export function render_system_xml({ mode = "", round = null, attributes = {}, ch
     attrs,
     children: Array.isArray(children) ? children : [children],
     closed,
+    child_indent: 2,
     separator: "\n\n",
   });
 }
@@ -113,6 +114,7 @@ export function render_system_xml({ mode = "", round = null, attributes = {}, ch
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-22: `render_system_xml` passes `child_indent: 2` so every `<SYSTEM>` child (role line, protocols, entities, cast, history) sits at one uniform depth (recommendation #1).
  * - 2026-09-20: Universal envelope — `render_system_xml` now emits an OPEN `<SYSTEM role="…">` fragment only (dropped the `task` parameter and `SYSTEM_CLOSE_TAG`); `platform/transport.js` appends history + task and owns the single `</SYSTEM>` close, so every mode packages `{ system, task }`.
  * - 2026-09-18: Added SENSORY_CORTEX role and task parameter to render_system_xml for universal nested envelope compilation.
  * - 2026-09-13: Token Optimization Pass — Streamlined SYSTEM_ROLES definitions (INTERACTION, NPC, NARRATOR, DIRECTOR, CONTINUUM_CARETAKER, NARRATIVE_STRUCTURER, ENHANCER), STABILITY_LOCK strings, and TRUNCATION_COMPLETE_NOTE to remove redundant human conversational boilerplate while keeping sharp LLM steering; strictly adhered to zero new test file creation.

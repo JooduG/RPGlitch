@@ -219,6 +219,28 @@ export function clean_xml(xml) {
 // ============================================================================
 
 /**
+ * Normalizes a block's own leading indentation to column zero: drops boundary blank
+ * lines, then removes the common leading whitespace shared by every non-blank line.
+ * Relative indentation inside the block is preserved, so a pre-indented fragment can be
+ * re-embedded at any depth without its first line losing (or its later lines keeping) an
+ * accidental offset — the bug that left open tags at column 0 and their closing tags at
+ * column 2.
+ *
+ * @param {string | null | undefined} text
+ * @returns {string}
+ */
+export function dedent_all(text) {
+  if (text == null) return "";
+  const lines = String(text).replace(/\r\n?/g, "\n").split("\n");
+  while (lines.length && !lines[0].trim()) lines.shift();
+  while (lines.length && !lines[lines.length - 1].trim()) lines.pop();
+  if (!lines.length) return "";
+  const indents = lines.filter((line) => line.trim()).map((line) => (line.match(/^[ \t]*/) || [""])[0].length);
+  const common_indent = indents.length ? Math.min(...indents) : 0;
+  return lines.map((line) => (line.trim() ? line.slice(common_indent).trimEnd() : "")).join("\n");
+}
+
+/**
  * Indents every line of a multi-line string.
  * @param {string | null | undefined} text
  * @param {number} spaces
@@ -298,7 +320,7 @@ export function render_xml_tag({
   const open = attr_str ? `<${tag} ${attr_str}>` : `<${tag}>`;
   let body = (Array.isArray(children) ? children : [children])
     .filter((item) => item != null && String(item).trim().length > 0)
-    .map((item) => String(item).trim())
+    .map((item) => dedent_all(item))
     .join(separator);
   if (child_indent != null && body && !(inline && !body.includes("\n"))) body = indent_all(body, child_indent);
   let block;
@@ -313,6 +335,7 @@ export function render_xml_tag({
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-22: One indentation primitive (recommendation #1) — added `dedent_all` and routed `render_xml_tag`'s child normalization through it, so a pre-indented child block is re-embedded at a uniform depth instead of having only its first line trimmed (the cause of open tags at column 0 paired with closing tags at column 2).
  * - 2026-09-21: `render_xml_tag` no longer applies `child_indent` to a single-line `inline` body — inline emission now leaves `<tag>body</tag>` on one line, fixing the accidental double-space prefix on inline children.
  * - 2026-09-18: Pruned stale reference to deleted src/intelligence/optics.js from module header.
  * - 2026-09-12: `render_xml_tag` promoted to a true universal composer — `indent` now shifts the WHOLE block (open + body + close) so nested blocks can be emitted at any depth, and `inline: true` emits `<tag>body</tag>` for single-line bodies. This is the one primitive every `modules/*` compiler builds from.

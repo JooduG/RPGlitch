@@ -49,7 +49,7 @@ describe("Profile Domain (profile.js)", () => {
         enhancer: "AESTHETICS",
         entity,
       });
-      expect(result.system + result.task).toContain("<PHYSICAL_APPEARANCE>");
+      expect(result.system + result.task).toContain("<APPEARANCE>");
       expect(result.system + result.task).toContain("<eyeColor>blue</eyeColor>");
       expect(result.system + result.task).toContain("<hair>black</hair>");
     });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { clean_xml, CLOTHING_KEYS, escape_xml, physical_to_xml, prompt_escape, render_xml_tag, strip_leading_key_echo } from "./xml.js";
+import { clean_xml, CLOTHING_KEYS, dedent_all, escape_xml, physical_to_xml, prompt_escape, render_xml_tag, strip_leading_key_echo } from "./xml.js";
 
 describe("escape_xml", () => {
   it("escapes special characters including quotes and brackets", () => {
@@ -153,5 +153,55 @@ describe("render_xml_tag", () => {
     const xml = render_xml_tag({ tag: "A", children: ["x", "y"], child_indent: 2 });
     expect(xml).toContain("<A>\n  x");
     expect(xml).toContain("  y\n</A>");
+  });
+
+  it("normalizes a pre-indented child block to a uniform depth", () => {
+    const child = "  <ENTITIES>\n    <X>1</X>\n  </ENTITIES>";
+    expect(render_xml_tag({ tag: "SYSTEM", children: [child], child_indent: 2 })).toBe(
+      "<SYSTEM>\n  <ENTITIES>\n    <X>1</X>\n  </ENTITIES>\n</SYSTEM>",
+    );
+  });
+});
+
+describe("dedent_all", () => {
+  it("removes the common leading indentation and boundary blank lines", () => {
+    expect(dedent_all("\n    <A>\n      <B>x</B>\n    </A>\n")).toBe("<A>\n  <B>x</B>\n</A>");
+  });
+
+  it("preserves relative indentation inside the block", () => {
+    expect(dedent_all("  a\n      b\n    c")).toBe("a\n    b\n  c");
+  });
+
+  it("returns an empty string for blank input", () => {
+    expect(dedent_all("")).toBe("");
+    expect(dedent_all("   \n  ")).toBe("");
+    expect(dedent_all(null)).toBe("");
+  });
+});
+
+describe("indentation parity", () => {
+  it("keeps every open/close tag pair at the same indentation", () => {
+    const child = render_xml_tag({
+      tag: "CORE_PROTOCOLS",
+      children: [render_xml_tag({ tag: "SIMULATION_FIDELITY", children: ["text"], child_indent: 2 })],
+      indent: 2,
+      child_indent: 2,
+    });
+    const xml = render_xml_tag({ tag: "SYSTEM", attrs: { role: "DIRECTOR" }, children: [child], child_indent: 2 });
+    const open_indentation = new Map();
+    const close_indentation = new Map();
+    for (const line of xml.split("\n")) {
+      const match = line.match(/^( *)(<\/?)([A-Z][A-Z0-9_]*)/);
+      if (!match) continue;
+      const [, spaces, bracket, tag_name] = match;
+      const target = bracket === "</" ? close_indentation : open_indentation;
+      target.set(tag_name, spaces.length);
+    }
+    open_indentation.forEach((indent, tag_name) => {
+      expect(close_indentation.get(tag_name)).toBe(indent);
+    });
+    expect(open_indentation.get("SYSTEM")).toBe(0);
+    expect(open_indentation.get("CORE_PROTOCOLS")).toBe(2);
+    expect(open_indentation.get("SIMULATION_FIDELITY")).toBe(4);
   });
 });

@@ -374,7 +374,8 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
       input_data: "Raw bio text",
     });
     expect(sorting_package.system).toContain('role="NARRATIVE_STRUCTURER"');
-    expect(sorting_package.messages.length).toBe(1);
+    expect(sorting_package.messages).toBeUndefined();
+    expect(sorting_package.task).toContain('<INPUT kind="ingestion">Raw bio text</INPUT>');
   });
 
   it("compiles optics mode via compile_prompt", () => {

@@ -108,13 +108,13 @@ describe("Director Quick Shot Prompt (render_director)", () => {
     const result = render_director(env_payload);
     expect(result.task).toContain("<INPUT_NOTE>");
     expect(result.task).toContain('"speaker" to "fractal"');
-    expect(result.system).toContain("SPEAKER ROUTING RULES");
+    expect(result.task).toContain("SPEAKER ROUTING RULES");
   });
 
-  it("emits consolidated PRESENT_ENTITIES when NPCs are present", () => {
+  it('emits a consolidated <CAST mode="present"> when NPCs are present', () => {
     const npc_entities = [{ id: "npc-elias", name: "Elias", description: "Archivist", relationships: ["Elias → Viper: wary"] }];
     const result = render_director({ ...base_payload(), npc_entities, in_scene_ids: ["npc-elias"], compressed_snapshot: base_snapshot });
-    expect(result.system).toContain("<PRESENT_ENTITIES>");
+    expect(result.system).toContain('<CAST mode="present">');
     expect(result.system).toContain("Elias (id: npc-elias)");
     expect(result.system).toContain("Present");
     expect(result.system).not.toContain("<ROSTER>");

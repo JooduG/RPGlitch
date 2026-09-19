@@ -26,7 +26,7 @@
  * ============================================================================
  */
 
-import { escape_xml, prompt_escape, inline_or_block, wrap_tag, indent_all, render_xml_tag, resolve_macro_directive } from "@utils";
+import { escape_xml, prompt_escape, inline_or_block, render_xml_tag, resolve_macro_directive } from "@utils";
 import { extract_style_dna, STYLE_MOTIF_REGISTRY } from "@data";
 import { PROSE_FORMAT, format_json_return, render_output_format_xml } from "./format.js";
 
@@ -80,6 +80,15 @@ Close with </THINK> before generating narrative prose.`;
     ENVIRONMENTAL_HINT:
       '<INPUT_NOTE>Non-verbal environmental action. Strongly consider setting "speaker" to "fractal" to narrate the setting, unless AI character should react directly.</INPUT_NOTE>',
 
+    ROUTING: `SPEAKER ROUTING RULES:
+- "AI_CHARACTER": (Default) AI companion reacts to protagonist.
+- "FRACTAL": Environmental action (exploring atmosphere, architecture, weather, objects without dialogue) or breaking long AI speech streaks.
+- "npc:<id>": Present secondary character takes action.
+- "GENESIS": Mint a new character only if no candidate below applies.`,
+
+    CONVERGENCE: `CONVERGENCE & ENTITY REUSE:
+Inspect candidate secondary characters below before minting. If an existing entity matches the role or location (medical, security, merchant), you MUST reuse that entity rather than creating a duplicate.`,
+
     EVALUATE: (has_input) => `Evaluate state mutations caused by ${has_input ? "«INPUT»" : "the current situation"}.`,
     ROUND_ONE: 'Round 1 follows the Fractal prologue, so next_action MUST be "AI_CHARACTER".',
     USER_PERSONA_LOCK:
@@ -89,10 +98,15 @@ Close with </THINK> before generating narrative prose.`;
   // ── 1.4 Shot 2A: Prose Turn Directives (character / scene / ghostwrite) ─────
   PROSE: Object.freeze({
     CHARACTER: Object.freeze({
+      BASE: "Stay in character: own only your own voice, actions, and perspective. Never speak, act, or decide for other participants.",
       FIRST_CONTACT:
         "First encounter: characters are strangers. Acknowledge visual first impressions, physical distance, and tone before full dialogue.",
       NPC_BOUNDARY: (name) =>
         `Respond strictly as ${name} (supporting character). Own only your voice, actions, and perspective; never speak for others or resolve overarching quests. End on a natural beat.`,
+    }),
+
+    GHOSTWRITE: Object.freeze({
+      BASE: "Draft «USER_PERSONA»'s turn strictly from their own first-person perspective — their actions, dialogue, and intent. Never narrate other characters' reactions or resolve the scene for them.",
     }),
 
     SCENE: Object.freeze({
@@ -112,7 +126,7 @@ Strictly zero spoken dialogue or quote marks. No dialogue.`,
   // ── 1.4 Shot 2B: Continuum Caretaker Consolidation Directives (continuum) ──
   CONTINUUM: Object.freeze({
     TARGET_FOCUS: (target_name) =>
-      `TARGET FOCUS: Consolidate state and extract relational vectors for ${target_name}.\nAnalyze recent turns in «INPUT_HISTORY». Synthesize memories, update physical appearance, record active state of mind, and log directed relational bonds.`,
+      `TARGET FOCUS: Consolidate state and extract relational vectors for ${target_name}.\nAnalyze recent turns in «HISTORY». Synthesize memories, update physical appearance, record active state of mind, and log directed relational bonds.`,
     MANDATE: `EXECUTION MANDATE:
 1. Memory Formation: Extract 1-3 anchored memories in past tense. Empty list if nothing noteworthy transpired.
 2. Dynamic State: Update physical and non_physical condition.
@@ -294,15 +308,22 @@ export function render_task_currents(style_dna, subtext_xml) {
 }
 
 /**
- * Renders the turn block's `<INPUT origin="...">` tag.
- * @param {{ input?: string, input_origin?: string|null }} [parameters]
+ * Renders the turn block's single `<INPUT>` tag — the ONE input channel every mode uses.
+ * Attributes: `origin` (who supplied it), `round` (turn index, when known), `kind` (what
+ * the payload is: "action" | "content" | "intent" | "ingestion"). Blank attributes are omitted.
+ *
+ * @param {{ input?: string, input_origin?: string|null, input_round?: number|string|null, input_kind?: string|null }} [parameters]
  * @returns {string}
  */
-export function render_task_input({ input = "", input_origin = null } = {}) {
+export function render_task_input({ input = "", input_origin = null, input_round = null, input_kind = null } = {}) {
   if (!String(input || "").trim()) return "";
-  const origin = String(input_origin || "USER");
+  const attributes = [];
+  if (input_origin) attributes.push(`origin="${escape_xml(String(input_origin))}"`);
+  if (input_round != null && String(input_round) !== "") attributes.push(`round="${escape_xml(String(input_round))}"`);
+  if (input_kind) attributes.push(`kind="${escape_xml(String(input_kind))}"`);
+  const attribute_string = attributes.length ? ` ${attributes.join(" ")}` : "";
   const content = prompt_escape(String(input).trim());
-  return `<INPUT origin="${escape_xml(origin)}">${inline_or_block(content, 2)}</INPUT>`;
+  return `<INPUT${attribute_string}>${inline_or_block(content, 2)}</INPUT>`;
 }
 
 /**
@@ -341,20 +362,23 @@ export function render_keyword_directives_xml(available_keywords_content, option
 }
 
 /**
- * Resolves character prose action directive across standard, NPC, and stranger encounter turns.
+ * Resolves character prose action directive across standard, NPC, ghostwrite, and stranger encounter turns.
+ * Every prose turn carries a base role-boundary directive; the NPC and first-contact cases layer extras on top.
  * @param {Object} [parameters]
  * @param {string} [parameters.speaker_name=""]
  * @param {boolean} [parameters.is_npc=false]
+ * @param {boolean} [parameters.is_ghostwrite=false]
  * @param {boolean} [parameters.is_first_contact=false]
  * @returns {string}
  */
-export function resolve_character_action_directive({ speaker_name = "", is_npc = false, is_first_contact = false } = {}) {
+export function resolve_character_action_directive({ speaker_name = "", is_npc = false, is_ghostwrite = false, is_first_contact = false } = {}) {
   return [
+    is_ghostwrite ? TASK_LIBRARY.PROSE.GHOSTWRITE.BASE : TASK_LIBRARY.PROSE.CHARACTER.BASE,
     is_first_contact ? TASK_LIBRARY.PROSE.CHARACTER.FIRST_CONTACT : null,
     is_npc ? TASK_LIBRARY.PROSE.CHARACTER.NPC_BOUNDARY(speaker_name) : null,
   ]
     .filter(Boolean)
-    .join("\n    ");
+    .join("\n\n");
 }
 
 /**
@@ -451,7 +475,6 @@ export const TASK_LAYERS = Object.freeze([
   { key: "spatial_framing", emit: (state) => state.spatial_framing },
   { key: "directives", emit: (state) => render_directives_xml(state.directives) },
   { key: "keyword_directives", emit: (state) => state.keyword_directives },
-  { key: "intent", emit: (state) => state.intent },
   { key: "delivery_posture", emit: (state) => state.delivery_posture },
   { key: "stability_lock", emit: (state) => state.stability_lock },
   { key: "output_format", emit: (state) => state.output_format },
@@ -496,9 +519,9 @@ function build_director_task_state({ schema = "", round = 1, input = "", last_ai
     ` ${TASK_LIBRARY.DIRECTOR.USER_PERSONA_LOCK}`;
 
   return {
-    input: render_task_input({ input, input_origin: "USER" }),
+    input: render_task_input({ input, input_origin: "USER", input_round: round, input_kind: "action" }),
     last_turn: last_ai_text ? render_xml_tag({ tag: "AI_CHARACTER_LAST_TURN", children: [last_ai_text], child_indent: 2 }) : "",
-    directives: [evaluation, render_environmental_hint(input)],
+    directives: [evaluation, render_environmental_hint(input), TASK_LIBRARY.DIRECTOR.ROUTING, TASK_LIBRARY.DIRECTOR.CONVERGENCE],
     keyword_directives,
     output_format,
   };
@@ -509,16 +532,33 @@ function build_director_task_state({ schema = "", round = 1, input = "", last_ai
  * @param {Object} [parameters={}]
  * @returns {Record<string, any>}
  */
-function build_structured_task_state({ mode, schema = "", target_name = "", directives = [] } = {}) {
+function build_structured_task_state({
+  mode,
+  schema = "",
+  target_name = "",
+  directives = [],
+  input = "",
+  input_kind = null,
+  output_format = "",
+  output_mode = "",
+} = {}) {
+  const input_block = render_task_input({ input, input_kind });
+  const rendered_output = output_format
+    ? render_output_format_xml({ mode: output_mode || "prose", content: output_format })
+    : schema
+      ? render_output_format_xml({ mode: "json", content: TASK_LIBRARY.JSON_RETURN(schema) })
+      : "";
   if (mode === "continuum") {
     return {
+      input: input_block,
       directives: [TASK_LIBRARY.CONTINUUM.TARGET_FOCUS(target_name), TASK_LIBRARY.CONTINUUM.MANDATE],
-      output_format: schema ? render_output_format_xml({ mode: "json", content: TASK_LIBRARY.JSON_RETURN(schema) }) : "",
+      output_format: rendered_output,
     };
   }
   return {
+    input: input_block,
     directives,
-    output_format: schema ? render_output_format_xml({ mode: "json", content: TASK_LIBRARY.JSON_RETURN(schema) }) : "",
+    output_format: rendered_output,
   };
 }
 
@@ -569,11 +609,11 @@ function build_optics_task_state({
 
   return {
     think: think_format === "optics" ? render_think_format(TASK_LIBRARY.OPTICS.THINK_FORMAT) : "",
+    input: render_task_input({ input: input_intent, input_kind: "intent" }),
     target: target_tier ? render_xml_tag({ tag: "TARGET", children: [escape_xml(target_tier)], inline: true }) : "",
     spatial_framing: render_xml_tag({ tag: "SPATIAL_FRAMING", children: spatial_children, child_indent: 2, separator: "\n" }),
     directives: [TASK_LIBRARY.OPTICS.MANDATE(subject_description), is_selfie ? TASK_LIBRARY.OPTICS.SELFIE_DIRECTIVE : null, ...directives],
     keyword_directives: Array.isArray(keywords) && keywords.length > 0 ? render_keyword_directives_xml(keywords.join(", "), "OPTICS") : "",
-    intent: input_intent ? render_xml_tag({ tag: "INPUT_INTENT", children: [prompt_escape(input_intent)], inline: true }) : "",
     output_format: schema ? render_output_format_xml({ mode: "json", content: TASK_LIBRARY.JSON_RETURN(schema) }) : "",
   };
 }
@@ -589,6 +629,7 @@ function build_prose_task_state({
   subtext_xml = "",
   input = "",
   input_origin = null,
+  round = null,
   action_directive = "",
   snapshot = null,
   speaking_style = "",
@@ -605,7 +646,7 @@ function build_prose_task_state({
 
   return {
     think: render_think_format(think_directive),
-    input: render_task_input({ input, input_origin }),
+    input: render_task_input({ input, input_origin, input_round: round, input_kind: "action" }),
     currents: render_task_currents(style_dna, subtext_xml),
     directives: [action_directive],
     delivery_posture: render_prose_reflex(snapshot, input, speaking_style),
@@ -634,13 +675,17 @@ const TASK_STATE_BUILDERS = Object.freeze({
  *
  * @param {Object} [parameters={}]
  * @param {string} [parameters.mode] - "director" | "continuum" | "enhancement" | "sorting" | "optics" | undefined (prose)
+ * @param {string[]} [parameters.layers] - Declared task-layer order (from the manifest); omitted = all layers.
  * @returns {string}
  */
 export function render_task(parameters = {}) {
   const mode = parameters.mode && TASK_STATE_BUILDERS[parameters.mode] ? parameters.mode : "prose";
   const state = TASK_STATE_BUILDERS[mode](parameters);
-  const children = TASK_LAYERS.map((layer) => layer.emit(state)).filter(Boolean);
-  return children.length ? render_xml_tag({ tag: "TASK", children, indent: 0, child_indent: 4, separator: "\n" }) : "";
+  const allowed_layers = Array.isArray(parameters.layers) ? parameters.layers : null;
+  const children = TASK_LAYERS.filter((layer) => !allowed_layers || allowed_layers.includes(layer.key))
+    .map((layer) => layer.emit(state))
+    .filter(Boolean);
+  return children.length ? render_xml_tag({ tag: "TASK", children, indent: 0, child_indent: 2, separator: "\n" }) : "";
 }
 
 // ============================================================================
@@ -746,6 +791,7 @@ export function render_subtext_xml(ai_dynamics = {}, fractal_dynamics = {}, opti
 
 /**
  * CHANGELOG
+ * - 2026-09-22: Recommendations 1/3/4/5 — `render_task` child indent lowered from 4 to 2 and it now walks only the manifest's declared `layers`; `render_task_input` emits the single `<INPUT origin|round|kind>` channel for every mode; the Director's `SPEAKER ROUTING RULES` + `CONVERGENCE` prose moved into the TASK `<DIRECTIVES>` (`TASK_LIBRARY.DIRECTOR.ROUTING`/`CONVERGENCE`), and interaction/ghostwrite gain a base `PROSE.CHARACTER.BASE` directive.
  * - 2026-09-21: Table-driven TASK envelope — introduced `TASK_LAYERS` (the single ordered layer grammar) walked by one `render_task` over a `TASK_STATE_BUILDERS` dispatch table; all mode instruction prose now flows through the one `<DIRECTIVES>` element (optics' `<MANDATE>` retired), cognition directives go through `render_think_format`, keyword directives emit at indent 0, and `TASK_LIBRARY.SORTING.POV_THIRD` replaced the manifest-derived sorting POV.
  * - 2026-09-20: Metasyntax ban — reserved element names referenced inside directive prose now render as guillemets («INPUT», «AGENDA», «TRAJECTORY», «AI_CHARACTER», «USER_PERSONA», «INPUT_HISTORY») instead of raw tags, so the emitted prompt contains no reserved-tag literals.
  * - 2026-09-19: Decomposed the `render_task` god-function (P5) — extracted the per-mode compilers `render_director_task`, `render_structured_task`, `render_optics_task`, and `render_prose_task` behind a thin `mode` dispatcher; `TASK_LIBRARY` remains the sole directive-text source.
