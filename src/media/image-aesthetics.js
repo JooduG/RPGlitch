@@ -18,7 +18,10 @@
 
 import { VISUAL_STYLES, resolve_portrait_visual_style_key } from "@data";
 import { CLOTHING_KEYS, safe_parse_pseudo_json, normalize_comma_spacing } from "@utils";
+import { VISUAL_EXCLUDED_KEYS, strip_visual_excluded } from "@intelligence";
 import { get_signature_label, PALETTE } from "./palette.js";
+
+export { VISUAL_EXCLUDED_KEYS, strip_visual_excluded };
 
 // ============================================================================
 // [SECTION 1: TYPE DEFINITIONS & CONSTANTS]
@@ -53,12 +56,6 @@ import { get_signature_label, PALETTE } from "./palette.js";
  */
 
 /**
- * Keys that must NEVER reach an image-generation prompt (private state or physical inventory).
- * @type {ReadonlySet<string>}
- */
-export const VISUAL_EXCLUDED_KEYS = Object.freeze(new Set(["INVENTORY", "STASH", "SECRET", "PLAN", "STATUS"]));
-
-/**
  * Ordered visual style token keys for deterministic prompt composition.
  * @type {ReadonlyArray<string>}
  */
@@ -81,23 +78,6 @@ const BARE_MARKER_REGEX =
 // ============================================================================
 // [SECTION 2: EXCLUSION FILTERS & ENGINE TOKEN RESOLVERS]
 // ============================================================================
-
-/**
- * Strips non-visual pseudo-JSON keys from a raw parameter string.
- * @param {string | null | undefined} raw_parameter_string
- * @returns {string} Sanitized visual parameter string
- */
-export function strip_visual_excluded(raw_parameter_string) {
-  if (!raw_parameter_string) return "";
-  const parsed_parameters = safe_parse_pseudo_json(raw_parameter_string);
-  if (parsed_parameters.__raw_prose__) return raw_parameter_string;
-
-  const retained_entries = Object.entries(parsed_parameters)
-    .filter(([key]) => !VISUAL_EXCLUDED_KEYS.has(key))
-    .map(([key, value]) => `[${key}: ${Array.isArray(value) ? value.join(", ") : String(value).replace(/[[\]]/g, "")}]`);
-
-  return retained_entries.join(" ");
-}
 
 /**
  * Resolves visual engine medium, palette, camera, and negative prompts for a style key.
@@ -251,6 +231,7 @@ export const aesthetic_resolver = {
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-19: Repatriated VISUAL_EXCLUDED_KEYS and strip_visual_excluded to @intelligence/modules/entities/epistemic.js; re-exported from @intelligence for backwards-clean imports.
  * - 2026-08-29: Harmonized via /harmonize protocol: purged clipped abbreviations (VS_ORDERED_KEYS -> ORDERED_VISUAL_STYLE_KEYS,
  *   _vs_* -> _visual_style_*, *_obj -> *_object, val -> value, val_str -> value_string, vs_values -> visual_style_values),
  *   added JSDoc typedefs (VisualEngineTokens, AestheticEntityInput), extracted precompiled module-level BARE_MARKER_REGEX,

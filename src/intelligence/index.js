@@ -87,9 +87,11 @@ export { build_turn_summary } from "./telemetry.js";
 export { render_narrative_style_xml, render_visual_style_xml, render_core_protocols } from "./modules/protocols.js";
 export { format_sensory_history } from "./modules/history.js";
 export { render_optics_prompt } from "./builder.js";
+export { VISUAL_EXCLUDED_KEYS, strip_visual_excluded } from "./modules/entities/index.js";
 
 /**
  * CHANGELOG:
+ * - 2026-09-19: Exported VISUAL_EXCLUDED_KEYS and strip_visual_excluded from entities module following epistemic prompt filter unification.
  * - 2026-09-18: Exported visual optics pipeline (`optics.js`) and image prompt response parsers (`parser.js`) as part of prompt pipeline standardization.
  * - 2026-09-11: Updated barrel exports to reference consolidated root domain modules: story.js, builder.js, temporal.js, and profile.js.
  * - 2026-08-29: Applied /harmonize protocol: structured barrel into canonical functional sections with universal header/footer architecture and exported story_pipeline.

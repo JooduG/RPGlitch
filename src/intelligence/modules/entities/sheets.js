@@ -28,8 +28,7 @@ import {
   prompt_escape,
 } from "@utils";
 import { PROFILE_FIELD_CATALOG } from "@data";
-import { strip_visual_excluded } from "@media";
-import { strip_epistemic_secrets } from "./epistemic.js";
+import { strip_epistemic_secrets, strip_visual_excluded } from "./epistemic.js";
 import { resolve_available_entities, render_dispositions, render_nearby_entities_xml } from "./presence.js";
 
 // ============================================================================
@@ -683,6 +682,7 @@ export function render_optics_entities_xml({
 /**
  * CHANGELOG
  * ============================================================================
+ * - 2026-09-19: Layer boundary purification: Replaced `@media` import of `strip_visual_excluded` with sibling import from `./epistemic.js`, restoring unidirectional downward layer flow.
  * - 2026-09-19: Added <SIGNATURE_COLORS> directive in render_optics_subject_rules mandating verbatim preservation of hair, eyes, and distinctive accent colors in generated prompt prose (F1).
  * - 2026-09-19: Architectural boundary purification: Relocated `resolve_optics_cinematography` to Layer 6 `src/intelligence/modules/task.js`; `sheets.js` now exclusively governs Layer 4 (<ENTITIES>) physical appearance synthesis, entity specs, and subject rules.
  * - 2026-09-18: Absorbed render_optics_entities_xml from deconstructed optics.js unifying visual entity sheets and cinematography into canonical <ENTITIES> envelope.

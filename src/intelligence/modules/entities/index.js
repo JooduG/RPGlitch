@@ -20,7 +20,13 @@
 // [SECTION 1: EPISTEMIC SECURITY RE-EXPORTS]
 // -----------------------------------------------------------------------------
 
-export { strip_epistemic_tags, strip_epistemic_secrets, verify_epistemic_integrity } from "./epistemic.js";
+export {
+  strip_epistemic_tags,
+  strip_epistemic_secrets,
+  verify_epistemic_integrity,
+  VISUAL_EXCLUDED_KEYS,
+  strip_visual_excluded,
+} from "./epistemic.js";
 
 // -----------------------------------------------------------------------------
 // [SECTION 2: SPATIAL PRESENCE & ROUTING RE-EXPORTS]
@@ -59,6 +65,7 @@ export {
 /**
  * CHANGELOG
  * ============================================================================
+ * - 2026-09-19: Re-exported `VISUAL_EXCLUDED_KEYS` and `strip_visual_excluded` from `epistemic.js` establishing pure self-contained epistemic prompt filtering.
  * - 2026-09-19: Pruned `resolve_optics_cinematography` re-export following relocation to `modules/task.js` (P4 Zero Backwards Compatibility).
  * - 2026-09-18: Added re-exports for render_optics_entities_xml and resolve_optics_cinematography from sheets.js submodule.
  * - 2026-09-18: Modularization pass — split monolithic entities.js into sheets.js, presence.js, and epistemic.js; index.js serves as unified domain aggregator.
