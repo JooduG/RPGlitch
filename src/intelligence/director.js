@@ -401,7 +401,7 @@ export async function apply_relationships(bridge, rels) {
 
 /**
  * Executes Shot 1 (Director Staging & Turn Evaluation):
- * 1. Compiles Director planning prompt via prompt_builder.
+ * 1. Compiles Director planning prompt via compile_prompt("director").
  * 2. Dispatches LLM call with retry and refusal detection.
  * 3. On refusal or JSON truncation, retries gracefully with the terse director directive.
  * 4. Synthesizes minimal fallback if parsing fails completely.
@@ -511,7 +511,8 @@ export async function execute_director_shot(payload, snapshot, options = {}) {
 
 /**
  * CHANGELOG
- * - 2026-09-18: Routed Director shot execution through prompt_builder.build_director and switchboard compile_prompt("director_terse").
+ * - 2026-09-19: Replaced stale prompt_builder docstring reference with unified compile_prompt("director").
+ * - 2026-09-18: Routed Director shot execution through compile_prompt("director") and switchboard compile_prompt("director_terse").
  * - 2026-09-16: Zero Backwards Compatibility (P4) — Migrated terse retry call from deprecated render_terse_director_task to prompt_builder.build_terse_director_task().
  * - 2026-09-13: Encapsulated Shot 1 execution: implemented execute_director_shot in director.js, absorbing LLM dispatch, refusal recovery, and terse fallback from story.js.
  * - 2026-09-11: Grand Purification: prompt compilation moved to builder.js, DIRECTOR_PROTOCOLS moved to modules/protocols.js, leaving director.js a 100% pure execution & normalization engine.

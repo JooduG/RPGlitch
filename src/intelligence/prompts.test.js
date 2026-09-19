@@ -320,10 +320,38 @@ describe("master switchboard compile_prompt", () => {
     });
     expect(sorting.system).toContain('mode="sorting"');
   });
+
+  it("defensively hydrates catalog metadata for enhancement when optional parameters are omitted (E1 regression)", () => {
+    const physical_enhancement = compile_prompt("enhancement", {
+      field_id: "eternal.physical",
+      content: "[HAIR: dark brown]",
+      entity_type: "character",
+      entity: entities.AI,
+    });
+
+    // Check that PROFILE_FIELD_CATALOG attributes were successfully populated
+    expect(physical_enhancement.system).toContain('role="BIOMETRIC_RENDERER"');
+    expect(physical_enhancement.system).toContain('enhancing="Physical Appearance"');
+    expect(physical_enhancement.system).toContain("<LAYER>ETERNAL</LAYER>");
+    expect(physical_enhancement.system).toContain("[KEY: value] permanent biometrics");
+
+    const non_physical_enhancement = compile_prompt("enhancement", {
+      field_id: "eternal.non_physical",
+      content: "Calm and composed.",
+      entity_type: "character",
+      entity: entities.AI,
+    });
+
+    expect(non_physical_enhancement.system).toContain('role="COGNITIVE_ARCHITECT"');
+    expect(non_physical_enhancement.system).toContain('enhancing="Personality"');
+    expect(non_physical_enhancement.system).toContain("<LAYER>ETERNAL</LAYER>");
+    expect(non_physical_enhancement.system).toContain("Prose only");
+  });
 });
 
 /**
  * CHANGELOG
+ * - 2026-09-19: Added E1 regression test verifying defensive hydration of PROFILE_FIELD_CATALOG metadata (role, label, layer, directive) for compile_prompt("enhancement").
  * - 2026-09-19: Added unit tests for compile_prompt switchboard: optics single door with onAlternationPick dice callback, and direct execution across all canonical modes (Mega Report S1, S2, R4).
  * - 2026-09-18: Updated expected prompt keys count to 10 (including director_terse and optics).
  * - 2026-09-15: Added unit test verifying history limit 16 across all four Shot-2A prose sibling modes (interaction, ghostwrite, npc, narrator).

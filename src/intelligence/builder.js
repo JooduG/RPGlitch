@@ -8,10 +8,10 @@
  * Consumes the declarative manifest in ./prompts.js and the 5 structural modules
  * (system, constitution, protocols, entities, task) to compile all prompt payloads:
  * 1. Render Accessor Factory & History Formatter (create_render_accessors, render_history)
- * 2. Story Prose Compilers (build_character, build_scene_narrator, build_npc, build_prologue, build_epilogue, build_ghostwriter)
- * 3. Director Planning Compiler (build_director, build_terse_director_task)
- * 4. Temporal Continuum Distillation (build_memory)
- * 5. Profile Ingestion & Enhancement Compilers (build_enhancement, build_profile_sorting)
+ * 2. Story Prose Compilers (compile_prompt / compile_pipeline_prompt)
+ * 3. Director Planning Compiler (render_director)
+ * 4. Temporal Continuum Distillation (render_memory)
+ * 5. Profile Ingestion & Enhancement Compilers (render_enhancement, render_profile_sorting)
  *
  * Architecture & Purity Invariant:
  * - Pure assembly layer: coordinates structural modules.
@@ -26,6 +26,7 @@ import {
   get_style_keywords,
   get_narrative_style,
   resolve_active_style_key,
+  PROFILE_FIELD_CATALOG,
 } from "@data";
 import {
   escape_xml,
@@ -613,34 +614,43 @@ export function render_enhancement({
   directive,
   content,
   is_image_field = false,
-  is_array_field = false,
+  is_array_field,
   _array_mode = "append_new",
   field_id = "",
-  layer_key = "",
+  layer_key,
   entity = null,
   entity_type = "character",
 }) {
   const config = get_prompt("enhancement");
-  const macro_directive = !is_image_field ? resolve_macro_directive(entity_type) : "";
-  const output_rules = is_array_field || field_id.endsWith(".physical") || is_image_field ? "" : get_output_format(config.format);
+  const normalized_type = entity_type === "user" ? "character" : entity_type || "character";
+  const catalog_meta = field_id ? PROFILE_FIELD_CATALOG[`${normalized_type}.${field_id}`] || PROFILE_FIELD_CATALOG[field_id] : null;
+
+  const resolved_enhancer = enhancer || catalog_meta?.enhancer || config.system.role || "ENHANCER";
+  const resolved_label = label || catalog_meta?.label || "";
+  const resolved_directive = directive !== undefined ? directive : catalog_meta?.directive || "";
+  const resolved_layer_key = layer_key !== undefined ? layer_key : catalog_meta?.layer_key || "";
+  const resolved_is_array = is_array_field !== undefined ? is_array_field : catalog_meta?.type === "array";
+
+  const macro_directive = !is_image_field ? resolve_macro_directive(normalized_type) : "";
+  const output_rules = resolved_is_array || field_id.endsWith(".physical") || is_image_field ? "" : get_output_format(config.format);
 
   const task_xml = render_task({
     mode: "enhancement",
-    directives: [directive, macro_directive, output_rules],
+    directives: [resolved_directive, macro_directive, output_rules],
   });
 
   return render_system_xml({
     mode: "enhancement",
     attributes: {
-      role: enhancer || config.system.role || "ENHANCER",
-      enhancing: label || "",
+      role: resolved_enhancer,
+      enhancing: resolved_label,
       field: field_id,
     },
     children: [
       render_core_protocols({ protocols: config.protocols }),
-      layer_key ? `<LAYER>${escape_xml(layer_key)}</LAYER>` : null,
+      resolved_layer_key ? `<LAYER>${escape_xml(resolved_layer_key)}</LAYER>` : null,
       config.entities.field_context
-        ? render_enhancement_field_context(entity, field_id, content, entity_type, (e, c) =>
+        ? render_enhancement_field_context(entity, field_id, content, normalized_type, (e, c) =>
             temporal_engine.format(resolve_vector_pool(e), c || "", { max_chars: 1500 }),
           )
         : null,
@@ -1034,6 +1044,7 @@ export const create_render_accessors = render_builder.create_render_accessors;
 
 /**
  * CHANGELOG
+ * - 2026-09-19: Fixed E1 (Profile Field Enhancement Metadata): render_enhancement now defensively hydrates missing enhancer, label, directive, layer_key, and is_array_field from PROFILE_FIELD_CATALOG, and updated header to reflect modern compile_prompt architecture.
  * - 2026-09-19: Fixed Director alternation protocol resolution (R1): reordered render_entity_sheets before render_core_protocols and passed has_alternations(entity_sheets).
  * - 2026-09-18: Consolidated Optics keyword directives through render_keyword_directives_xml(..., "OPTICS") supplied to build_optics_builder_protocol.
  * - 2026-09-18: Promoted prompts.js as sovereign prompt switchboard; streamlined builder.js assembly line and unified story prose compilation facades.

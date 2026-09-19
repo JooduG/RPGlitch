@@ -321,6 +321,7 @@ export class ProfileState {
     this.busy_fields.add(key);
     try {
       const type = this.char.type === "user" ? "character" : this.char.type || "character";
+      const catalog_meta = PROFILE_FIELD_CATALOG[`${type}.${key}`];
       const payload = compile_prompt("enhancement", {
         field_id: key,
         content: value,
@@ -328,6 +329,11 @@ export class ProfileState {
         entity_type: type,
         is_image_field: false,
         entity: this.char,
+        enhancer: catalog_meta?.enhancer,
+        label: catalog_meta?.label,
+        directive: catalog_meta?.directive,
+        layer_key: catalog_meta?.layer_key,
+        is_array_field: catalog_meta?.type === "array",
       });
       const result = await llm_service.enhance(payload);
       if (result) {
@@ -407,7 +413,7 @@ export class ProfileState {
     if (entries.length > 15) return null;
 
     if (key === "eternal.physical" && type === "character") {
-      const present = new Set(entries.map(([k]) => String(k).toUpperCase().replace(/\s+/g, "_")));
+      const present = new SvelteSet(entries.map(([k]) => String(k).toUpperCase().replace(/\s+/g, "_")));
       for (const mandatory of ["GENDER", "AGE", "ETHNICITY"]) {
         if (!present.has(mandatory)) return null;
       }
@@ -434,6 +440,7 @@ export class ProfileState {
 
     try {
       const type = this.char.type === "user" ? "character" : this.char.type || "character";
+      const catalog_meta = PROFILE_FIELD_CATALOG[`${type}.${path}`];
       const payload = compile_prompt("enhancement", {
         field_id: path,
         content,
@@ -441,6 +448,11 @@ export class ProfileState {
         entity_type: type,
         is_image_field: false,
         entity: this.char,
+        enhancer: catalog_meta?.enhancer,
+        label: catalog_meta?.label,
+        directive: catalog_meta?.directive,
+        layer_key: catalog_meta?.layer_key,
+        is_array_field: true,
         array_mode: "patch_single",
       });
       const result = await llm_service.enhance(payload);
@@ -692,3 +704,8 @@ export class ProfileState {
     }
   }
 }
+
+/**
+ * CHANGELOG
+ * - 2026-09-19: Fixed E1: explicitly passed catalog_meta (enhancer, label, directive, layer_key, is_array_field) in enhance_field_inner and enhance_vector_item when compiling enhancement prompts.
+ */
