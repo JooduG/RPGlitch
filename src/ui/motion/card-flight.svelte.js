@@ -1,20 +1,35 @@
 /**
- * @file src/ui/entity/EntityCard.svelte.js
- * 🃏 CARD MOTION ENGINE
+ * @file src/ui/motion/card-flight.svelte.js
+ * 🃏 CARD FLIGHT MOTION ENGINE
  * Clone-based physical card travel shared by the card hand (select), the slot
  * swap, and the storyboard shuffle. A fixed-position clone of a card element
  * is carried from one rect to another (pickup → glide → set-down) and then
  * dissolved. Callers commit real state via `on_land`, so the destination's
  * update is masked by the arrival of the flying card.
+ *
+ * SVELTE 5 SOVEREIGN: Pure native runtimes, integrated with motion engine.
  */
 
 import { clamp } from "@utils";
+import { motion } from "./engine.svelte.js";
+
+// -----------------------------------------------------------------------------
+// TIMING & EASING CONSTANTS
+// -----------------------------------------------------------------------------
 
 const GLIDE_EASE = "cubic-bezier(0.25, 1, 0.5, 1)";
 const PICKUP_EASE = "cubic-bezier(0.3, 0.9, 0.4, 1)";
 const EXIT_EASE = "cubic-bezier(0.4, 0, 1, 1)";
 
 /** @typedef {{ left: number, top: number, width: number, height: number }} Rect */
+
+const CARD_TYPES = ["ai", "fractal", "user"];
+let _begin_flight_running = false;
+let scrub_style_injected = false;
+
+// -----------------------------------------------------------------------------
+// DOM CLONE & RECT UTILITIES
+// -----------------------------------------------------------------------------
 
 /**
  * Clones a card element into a fixed-position stand-in ready to be flown.
@@ -73,6 +88,14 @@ function place(clone, rect) {
   clone.style.width = `${rect.width}px`;
   clone.style.height = `${rect.height}px`;
 }
+
+function ease_out_cubic(t) {
+  return 1 - Math.pow(1 - t, 3);
+}
+
+// -----------------------------------------------------------------------------
+// FLIGHT TRANSITIONS
+// -----------------------------------------------------------------------------
 
 /**
  * Carries a clone of `source_el` from `from_rect` to `to_rect` (pickup lift →
@@ -171,12 +194,65 @@ export function fly_card_out(source_el, to_rect, options = {}) {
   setTimeout(() => clone.remove(), duration_ms + fade_delay + fade_ms + 60);
 }
 
-import { motion } from "@motion/engine.svelte.js";
+/**
+ * Cover-style card flight: carries a clone from one rect to another by lerping
+ * its left/top/width/height directly (rAF-driven). Because the card's art is
+ * object-cover, the box grows/shrinks and the image crops — it never stretches
+ * like a non-uniform transform scale would.
+ * @param {HTMLElement} source_el
+ * @param {Rect} from_rect
+ * @param {Rect} to_rect
+ * @param {object} [options]
+ * @param {number} [options.duration]
+ * @param {number} [options.delay]
+ * @param {string} [options.tag]
+ * @param {number} [options.z]
+ * @param {(clone: HTMLElement) => void} [options.on_clone]
+ * @param {() => void} [options.on_land]
+ * @returns {Promise<void>}
+ */
+function cover_flight(source_el, from_rect, to_rect, options = {}) {
+  const { duration = 380, delay = 0, tag = "data-begin-flight", z = 9996, on_clone, on_land } = options;
+  return new Promise((resolve) => {
+    const clone = make_card_clone(source_el, tag, z);
+    clone.style.willChange = "left, top, width, height";
+    clone.style.left = `${from_rect.left}px`;
+    clone.style.top = `${from_rect.top}px`;
+    clone.style.width = `${from_rect.width}px`;
+    clone.style.height = `${from_rect.height}px`;
+    on_clone?.(clone);
 
-const CARD_TYPES = ["ai", "fractal", "user"];
-let _begin_flight_running = false;
+    const start = Date.now() + delay;
+    const step = () => {
+      const t = clamp((Date.now() - start) / duration, 0, 1);
+      const e = ease_out_cubic(t);
+      clone.style.left = `${from_rect.left + (to_rect.left - from_rect.left) * e}px`;
+      clone.style.top = `${from_rect.top + (to_rect.top - from_rect.top) * e}px`;
+      clone.style.width = `${from_rect.width + (to_rect.width - from_rect.width) * e}px`;
+      clone.style.height = `${from_rect.height + (to_rect.height - from_rect.height) * e}px`;
+      if (t < 1) {
+        requestAnimationFrame(step);
+      } else {
+        // Land: reveal the real card beneath, then dissolve the clone.
+        try {
+          on_land?.();
+        } finally {
+          clone.style.transition = "opacity 140ms ease-in";
+          clone.style.opacity = "0";
+          setTimeout(() => clone.remove(), 160);
+          resolve();
+        }
+      }
+    };
+    if (delay > 0) setTimeout(() => requestAnimationFrame(step), delay);
+    else requestAnimationFrame(step);
+  });
+}
 
-// ── STATIC CARD LOCATION ──────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
+// STORYBOARD & PROLOGUE COGNITIVE TRANSITIONS
+// -----------------------------------------------------------------------------
+
 /**
  * Ensures cards and badges in the prologue message remain displayed in place.
  */
@@ -186,8 +262,6 @@ function msg_card(type) {
 function panel_card(type) {
   return document.querySelector(`[data-panel-card="${type}"] [data-card-root]`);
 }
-
-let scrub_style_injected = false;
 
 function ensure_scrub_style() {
   if (scrub_style_injected) return;
@@ -264,7 +338,6 @@ export function update_card_scrub() {
   reset_title(msg_title());
 }
 
-// ── BEGIN-STORY FLIGHT ─────────────────────────────────────────────────────
 /**
  * Captures the storyboard slot cards (visuals + rects) before the view flips,
  * so the begin-story flight still has an origin once the storyboard unmounts.
@@ -293,65 +366,6 @@ export function capture_storyboard_flight(enabled = { ai: true, fractal: true, u
     }
   }
   return assets.clones.ai || assets.clones.fractal || assets.clones.user ? assets : null;
-}
-
-function ease_out_cubic(t) {
-  return 1 - Math.pow(1 - t, 3);
-}
-
-/**
- * Cover-style card flight: carries a clone from one rect to another by lerping
- * its left/top/width/height directly (rAF-driven). Because the card's art is
- * object-cover, the box grows/shrinks and the image crops — it never stretches
- * like a non-uniform transform scale would.
- * @param {HTMLElement} source_el
- * @param {Rect} from_rect
- * @param {Rect} to_rect
- * @param {object} [options]
- * @param {number} [options.duration]
- * @param {number} [options.delay]
- * @param {string} [options.tag]
- * @param {number} [options.z]
- * @param {(clone: HTMLElement) => void} [options.on_clone]
- * @param {() => void} [options.on_land]
- * @returns {Promise<void>}
- */
-function cover_flight(source_el, from_rect, to_rect, options = {}) {
-  const { duration = 380, delay = 0, tag = "data-begin-flight", z = 9996, on_clone, on_land } = options;
-  return new Promise((resolve) => {
-    const clone = make_card_clone(source_el, tag, z);
-    clone.style.willChange = "left, top, width, height";
-    clone.style.left = `${from_rect.left}px`;
-    clone.style.top = `${from_rect.top}px`;
-    clone.style.width = `${from_rect.width}px`;
-    clone.style.height = `${from_rect.height}px`;
-    on_clone?.(clone);
-
-    const start = Date.now() + delay;
-    const step = () => {
-      const t = clamp((Date.now() - start) / duration, 0, 1);
-      const e = ease_out_cubic(t);
-      clone.style.left = `${from_rect.left + (to_rect.left - from_rect.left) * e}px`;
-      clone.style.top = `${from_rect.top + (to_rect.top - from_rect.top) * e}px`;
-      clone.style.width = `${from_rect.width + (to_rect.width - from_rect.width) * e}px`;
-      clone.style.height = `${from_rect.height + (to_rect.height - from_rect.height) * e}px`;
-      if (t < 1) {
-        requestAnimationFrame(step);
-      } else {
-        // Land: reveal the real card beneath, then dissolve the clone.
-        try {
-          on_land?.();
-        } finally {
-          clone.style.transition = "opacity 140ms ease-in";
-          clone.style.opacity = "0";
-          setTimeout(() => clone.remove(), 160);
-          resolve();
-        }
-      }
-    };
-    if (delay > 0) setTimeout(() => requestAnimationFrame(step), delay);
-    else requestAnimationFrame(step);
-  });
 }
 
 /**
@@ -419,3 +433,8 @@ export async function fly_storyboard_cards_into_prologue(assets, dst_rects = {})
   await Promise.all(jobs);
   _begin_flight_running = false;
 }
+
+/**
+ * CHANGELOG:
+ * - 2026-09-19: Relocated card flight and scrubbing engine from src/ui/entity/EntityCard.svelte.js to src/ui/motion/card-flight.svelte.js, eliminating cross-layer inversion and barrel tangles.
+ */
