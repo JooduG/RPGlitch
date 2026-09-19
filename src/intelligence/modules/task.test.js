@@ -248,6 +248,24 @@ describe("task.js - Optics Task Staging", () => {
       active_fractal_setting: { name: "Neon City" },
     });
     expect(environmental.mode).toBe("Wide Environmental");
+
+    const group = resolve_optics_cinematography({
+      tier: "story_entities",
+      active_ai_character: { name: "Aria" },
+      active_user_persona: { name: "Protagonist" },
+      visual_staging: "side by side under neon light",
+    });
+    expect(group.narrative_context).toContain("Group Mandate: Feature both Aria and Protagonist");
+    expect(group.visual_staging).toContain("Staging Directive: side by side under neon light");
+
+    // Direct assertions on TASK_LIBRARY.OPTICS.CINEMATOGRAPHY
+    expect(TASK_LIBRARY.OPTICS.CINEMATOGRAPHY.PRESETS.WIDE_ENVIRONMENTAL.mode).toBe("Wide Environmental");
+    expect(TASK_LIBRARY.OPTICS.CINEMATOGRAPHY.PRESETS.DUTCH_LOW_ANGLE.mode).toBe("Dutch / Low-Angle");
+    expect(TASK_LIBRARY.OPTICS.CINEMATOGRAPHY.PRESETS.INTIMATE_CLOSE_UP.mode).toBe("Intimate Close-Up");
+    expect(TASK_LIBRARY.OPTICS.CINEMATOGRAPHY.PRESETS.MEDIUM_ACTION.mode).toBe("Medium Action");
+    expect(TASK_LIBRARY.OPTICS.CINEMATOGRAPHY.PRESETS.SOLO_PORTRAIT.mode).toBe("Medium Action");
+    expect(TASK_LIBRARY.OPTICS.CINEMATOGRAPHY.STAGING_DIRECTIVE("look left")).toBe("\n  Staging Directive: look left");
+    expect(TASK_LIBRARY.OPTICS.CINEMATOGRAPHY.STAGING_DIRECTIVE("")).toBe("");
   });
 });
 
@@ -256,6 +274,7 @@ describe("task.js - Optics Task Staging", () => {
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-19: Added unit test assertions for TASK_LIBRARY.OPTICS.CINEMATOGRAPHY presets, group context, and staging directives.
  * - 2026-09-19: Added unit test for resolve_optics_cinematography following relocation from entities/sheets.js.
  * - 2026-09-18: Added unit tests for render_keyword_directives_xml supporting DIRECTOR and OPTICS modes.
  * - 2026-09-18: Initial creation of comprehensive task.test.js validating pacing directives, environmental hints, delivery posture voice injection, and Layer 7 <OUTPUT_FORMAT> integration across director, continuum, and story prose.

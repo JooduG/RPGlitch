@@ -151,6 +151,37 @@ Strictly zero spoken dialogue or quote marks. No dialogue.`,
       story_entities: "a cinematic group shot featuring both the AI character and user persona together within the fractal environment",
       story_character: "a character framed within their environment, emphasizing their presence with an evocative background setting",
     }),
+    CINEMATOGRAPHY: Object.freeze({
+      PRESETS: Object.freeze({
+        WIDE_ENVIRONMENTAL: Object.freeze({
+          mode: "Wide Environmental",
+          tokens: "wide-angle environmental shot, deep spatial composition, atmospheric scale, full silhouette",
+        }),
+        DUTCH_LOW_ANGLE: Object.freeze({
+          mode: "Dutch / Low-Angle",
+          tokens: "dutch angle composition, low-angle perspective, imposing scale, dramatic lighting contrast",
+        }),
+        INTIMATE_CLOSE_UP: Object.freeze({
+          mode: "Intimate Close-Up",
+          tokens: "tight close-up portrait, shallow depth of field, sharp focus on eyes, macro expression detail",
+        }),
+        MEDIUM_ACTION: Object.freeze({
+          mode: "Medium Action",
+          tokens: "medium shot, waist-up framing, dynamic posture, clear wardrobe & prop details",
+        }),
+        SOLO_PORTRAIT: Object.freeze({
+          mode: "Medium Action",
+          tokens: "medium portrait framing, waist-up composition, distinctive wardrobe, signature atmospheric backdrop",
+        }),
+      }),
+      STAGING_DIRECTIVE: (visual_staging) => (visual_staging ? `\n  Staging Directive: ${prompt_escape(visual_staging)}` : ""),
+      NARRATIVE_CONTEXT: Object.freeze({
+        GROUP: (ai_name = "AI", user_name = "User") =>
+          `\n  Group Mandate: Feature both ${prompt_escape(ai_name)} and ${prompt_escape(user_name)} engaged together in their active positions within the fractal environment.`,
+        CHARACTER_IN_SCENE: (character_name = "Subject", setting_name = "Setting") =>
+          `\n  Character In Scene: Depict ${prompt_escape(character_name)} situated directly within ${prompt_escape(setting_name)}.`,
+      }),
+    }),
   }),
 
   // ── 1.7 Structured JSON Return Directive ────────────────────────────────────
@@ -361,34 +392,30 @@ export function resolve_optics_cinematography({
   const chaos = Number(ai_dynamics.chaos ?? 50);
   const affinity = Number(ai_dynamics.affinity ?? 50);
 
-  let mode = "Medium Action";
-  let tokens = "medium shot, waist-up framing, dynamic posture, clear wardrobe & prop details";
+  const { PRESETS, STAGING_DIRECTIVE, NARRATIVE_CONTEXT } = TASK_LIBRARY.OPTICS.CINEMATOGRAPHY;
+  let preset = PRESETS.MEDIUM_ACTION;
 
   if (is_fractal_target) {
-    mode = "Wide Environmental";
-    tokens = "wide-angle environmental shot, deep spatial composition, atmospheric scale, full silhouette";
+    preset = PRESETS.WIDE_ENVIRONMENTAL;
   } else if (chaos >= 75) {
-    mode = "Dutch / Low-Angle";
-    tokens = "dutch angle composition, low-angle perspective, imposing scale, dramatic lighting contrast";
+    preset = PRESETS.DUTCH_LOW_ANGLE;
   } else if (intensity >= 75 || affinity >= 75) {
-    mode = "Intimate Close-Up";
-    tokens = "tight close-up portrait, shallow depth of field, sharp focus on eyes, macro expression detail";
+    preset = PRESETS.INTIMATE_CLOSE_UP;
   } else if (tier === "solo_entity") {
-    mode = "Medium Action";
-    tokens = "medium portrait framing, waist-up composition, distinctive wardrobe, signature atmospheric backdrop";
+    preset = PRESETS.SOLO_PORTRAIT;
   }
 
-  const visual_staging_directive = visual_staging ? `\n  Staging Directive: ${prompt_escape(visual_staging)}` : "";
+  const visual_staging_directive = STAGING_DIRECTIVE(visual_staging);
   const narrative_context_desc =
     tier === "story_entities"
-      ? `\n  Group Mandate: Feature both ${prompt_escape(active_ai_character?.name || "AI")} and ${prompt_escape(active_user_persona?.name || "User")} engaged together in their active positions within the fractal environment.`
+      ? NARRATIVE_CONTEXT.GROUP(active_ai_character?.name || "AI", active_user_persona?.name || "User")
       : tier === "story_character" && active_fractal_setting && main_entity?.type !== "fractal" && main_entity !== active_fractal_setting
-        ? `\n  Character In Scene: Depict ${prompt_escape(main_entity?.name || "Subject")} situated directly within ${prompt_escape(active_fractal_setting.name || "Setting")}.`
+        ? NARRATIVE_CONTEXT.CHARACTER_IN_SCENE(main_entity?.name || "Subject", active_fractal_setting.name || "Setting")
         : "";
 
   return {
-    mode,
-    tokens,
+    mode: preset.mode,
+    tokens: preset.tokens,
     narrative_context: narrative_context_desc,
     visual_staging: visual_staging_directive,
   };
@@ -619,6 +646,7 @@ export function render_task({
 
 /**
  * CHANGELOG
+ * - 2026-09-19: Integrated optics cinematography presets, staging directive helper, and group/scene narrative context builders into TASK_LIBRARY.OPTICS.CINEMATOGRAPHY, refactoring resolve_optics_cinematography to consume them.
  * - 2026-09-19: Imported and utilized PROSE_FORMAT from format.js, eliminating hardcoded string literal duplication (Mega Report D3).
  * - 2026-09-19: Parameterized FIRST_SENTENCE_MANDATE by tier in TASK_LIBRARY.OPTICS (F3): story_scene mandates establishing terrain, architecture, and atmospheric perspective first, while character tiers prioritize main entities.
  * - 2026-09-19: Architecture purification: Absorbed `resolve_optics_cinematography` from `entities/sheets.js`, consolidating all dynamic camera staging, scale tokens, and group mandates into Layer 6 (<TASK>).
