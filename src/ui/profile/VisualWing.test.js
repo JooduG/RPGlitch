@@ -2,9 +2,7 @@ import { describe, expect, test, vi } from "vitest";
 const llm_service = {
   enhance: vi.fn(),
 };
-const prompt_builder = {
-  build_enhancement: vi.fn(),
-};
+const compile_prompt = vi.fn();
 const TextToImage = {
   composeBasePrompt: vi.fn((_char) => "Composed Prompt"),
   generate: vi.fn(),
@@ -45,7 +43,7 @@ async function handle_creative_action(ctx) {
   try {
     if (activeField && isEnhanceMode) {
       if (enhancementType === "generative") {
-        const payload = prompt_builder.build_enhancement("modifiers.prompt", char.modifiers.prompt);
+        const payload = compile_prompt("enhancement", { field_id: "modifiers.prompt", content: char.modifiers.prompt });
         await llm_service.enhance(payload);
       } else {
         // ...

@@ -251,8 +251,80 @@ describe("conversation history entries", () => {
   });
 });
 
+describe("master switchboard compile_prompt", () => {
+  it("compiles optics prompt with onAlternationPick callback for interactive dice-picking", () => {
+    const picks = [];
+    const context = {
+      target_type: "solo_entity",
+      raw_intent: "Standing in the rain {wearing a slicker|holding an umbrella}.",
+      entity: entities.AI,
+      onAlternationPick: (p) => picks.push(...p),
+    };
+
+    const result = compile_prompt("optics", context);
+    expect(result.system).toContain("<SYSTEM");
+    expect(result.system).toContain('mode="optics"');
+    expect(result.task).toContain("<TASK");
+    expect(picks.length).toBeGreaterThan(0);
+    expect(["wearing a slicker", "holding an umbrella"]).toContain(picks[0].option);
+  });
+
+  it("compiles optics prompt in enhancement mode without errors", () => {
+    const context = {
+      target_type: "character",
+      raw_intent: "A tall cyborg warrior.",
+      mode: "enhance",
+      entity: entities.AI,
+    };
+
+    const result = compile_prompt("optics", context);
+    expect(result.system).toContain('mode="optics"');
+    expect(result.system).toContain("<SUBJECT_RULES");
+  });
+
+  it("compiles director prompt directly through compile_prompt", () => {
+    const result = compile_prompt("director", {
+      round: 1,
+      input: "Hello",
+      entities,
+      compressed_snapshot: { ai: { dynamics: { chaos: 50 } } },
+    });
+
+    expect(result.system).toContain('mode="director"');
+    expect(result.task).toContain('"_thought_process"');
+  });
+
+  it("compiles continuum prompt directly through compile_prompt", () => {
+    const result = compile_prompt("continuum", {
+      target_entity: entities.AI,
+      history: [],
+    });
+
+    expect(result.system).toContain('mode="continuum"');
+  });
+
+  it("compiles enhancement and sorting directly through compile_prompt", () => {
+    const enhancement = compile_prompt("enhancement", {
+      content: "Cold demeanor",
+      label: "Personality",
+      directive: "Enrich",
+      enhancer: "PSYCHOLOGICAL",
+      field_id: "personality",
+      entity: entities.AI,
+    });
+    expect(enhancement.system).toContain('mode="enhancement"');
+
+    const sorting = compile_prompt("sorting", {
+      input_data: { name: "Test" },
+      entity_type: "character",
+    });
+    expect(sorting.system).toContain('mode="sorting"');
+  });
+});
+
 /**
  * CHANGELOG
+ * - 2026-09-19: Added unit tests for compile_prompt switchboard: optics single door with onAlternationPick dice callback, and direct execution across all canonical modes (Mega Report S1, S2, R4).
  * - 2026-09-18: Updated expected prompt keys count to 10 (including director_terse and optics).
  * - 2026-09-15: Added unit test verifying history limit 16 across all four Shot-2A prose sibling modes (interaction, ghostwrite, npc, narrator).
  * - 2026-09-11: Updated imports/assertions to the modern manifest (PROMPTS/get_prompt) after PROMPT_MODES/get_prompt_mode were removed.

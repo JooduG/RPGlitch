@@ -590,6 +590,7 @@ export function render_optics_subject_rules(has_alternation = false) {
       : null,
     '<IDENTIFIERS>Always explicitly state gender and physical identifiers (e.g., "a handsome young male high-elf man").</IDENTIFIERS>',
     '<CREATURE_DISAMBIGUATION>Never use bare animal/creature proper names (e.g., "Beast"). Translate to explicit physical traits (e.g., "a massive grey-green male orc warrior").</CREATURE_DISAMBIGUATION>',
+    "<SIGNATURE_COLORS>Every character's distinctive color and physical identifiers (hair color, eye color, skin markings, glowing tattoo accents) are non-negotiable visual anchors. You MUST preserve all declared color and identity tokens verbatim in the output prompt prose.</SIGNATURE_COLORS>",
   ].filter(Boolean);
 
   return render_xml_tag({
@@ -682,6 +683,7 @@ export function render_optics_entities_xml({
 /**
  * CHANGELOG
  * ============================================================================
+ * - 2026-09-19: Added <SIGNATURE_COLORS> directive in render_optics_subject_rules mandating verbatim preservation of hair, eyes, and distinctive accent colors in generated prompt prose (F1).
  * - 2026-09-19: Architectural boundary purification: Relocated `resolve_optics_cinematography` to Layer 6 `src/intelligence/modules/task.js`; `sheets.js` now exclusively governs Layer 4 (<ENTITIES>) physical appearance synthesis, entity specs, and subject rules.
  * - 2026-09-18: Absorbed render_optics_entities_xml from deconstructed optics.js unifying visual entity sheets and cinematography into canonical <ENTITIES> envelope.
  * - 2026-09-18: Standardized master entity sheet envelope tag from <AVAILABLE_ENTITIES> to canonical <ENTITIES> per scrobbles.md blueprint.

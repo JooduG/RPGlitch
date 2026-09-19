@@ -20,7 +20,6 @@ import { entities } from "@data";
 import { extract_json_block, state_bridge } from "@utils";
 import { llm_service, raw_stop_reason, raw_to_text } from "@platform";
 import { compile_prompt } from "./prompts.js";
-import { prompt_builder } from "./builder.js";
 import { extract_and_repair_json, parse_think_block, validate_and_repair_response } from "./parser.js";
 
 // ── 1. Constants & Value Maps ─────────────────────────────────────────────────
@@ -422,7 +421,7 @@ export async function execute_director_shot(payload, snapshot, options = {}) {
   const retry_caller = typeof execute_with_retry === "function" ? execute_with_retry : async (fn) => fn();
 
   state_bridge.app?.log("[GameMaster] Context hydrated. Physics resolved. Entering DIRECTOR_TURN...", "system");
-  const director_prompt = prompt_builder.build_director(payload, snapshot);
+  const director_prompt = compile_prompt("director", { ...payload, compressed_snapshot: snapshot });
 
   const director_call = async (terse = false) => {
     let is_terse_attempt = terse;

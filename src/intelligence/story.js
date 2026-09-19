@@ -29,7 +29,8 @@ import { validate_and_repair_response, force_close_response, balance_think_tags,
 import { llm_service, looks_truncated } from "@platform";
 import { apply_dynamics_gravity, extract_entity_dynamics_baselines } from "./physics.js";
 import { execute_director_shot, resolve_npc_entity, apply_in_scene_change } from "./director.js";
-import { prompt_builder } from "./builder.js";
+import { build_scoring_context } from "./builder.js";
+import { compile_prompt } from "./prompts.js";
 import { capture_dynamics_delta } from "./telemetry.js";
 import { prune, temporal_engine } from "./temporal.js";
 import { context_builder } from "./payload.js";
@@ -220,7 +221,7 @@ export const gamemaster = {
       payload.meta = payload.meta || {};
       payload.meta.structural_errors = state_bridge.runtime.structural_errors || 0;
 
-      const scoring_context = prompt_builder.build_scoring_context(input, simulation_log);
+      const scoring_context = build_scoring_context(input, simulation_log);
       if (scoring_context) {
         await Promise.race([temporal_engine.precompute_context_embedding(scoring_context), new Promise((resolve) => setTimeout(resolve, 1500))]);
       }
@@ -370,10 +371,12 @@ export const gamemaster = {
       });
 
       // 4.5. PHYSICS SYNC & TELEMETRY
-      const character_prompt = prompt_builder.build_story_prose(payload, {
-        snapshot,
+      const prompt_mode = npc_entity ? "npc" : is_using_narrator_engine ? "narrator" : "interaction";
+      const character_prompt = compile_prompt(prompt_mode, {
+        ...payload,
+        compressed_snapshot: snapshot,
         director_data,
-        is_narrator: is_using_narrator_engine,
+        speaker: npc_entity,
         npc: npc_entity,
       });
       const meta = character_prompt.meta;
@@ -636,7 +639,7 @@ export const gamemaster = {
       const payload = await context_builder.build_context(prologue_input, "prologue");
 
       await Promise.race([temporal_engine.precompute_context_embedding(prologue_input), new Promise((resolve) => setTimeout(resolve, 1500))]);
-      const result = prompt_builder.build_story_prose(payload, { snapshot: {}, is_prologue: true });
+      const result = compile_prompt("narrator", { ...payload, snapshot: {}, is_prologue: true, scene_template: "PROLOGUE" });
       if (!result.system) return null;
 
       state_bridge.app.log("[GameMaster] Generating prologue...", "system");
@@ -758,10 +761,14 @@ export const gamemaster = {
     const raw_messages = await state_bridge.session_driver.load_log(story_id);
     const recent_history = raw_messages.slice(-10);
 
-    const { system, task } = prompt_builder.build_story_prose(
-      { entities: clean_entities, simulation_log: recent_history },
-      { snapshot: current_dynamics, is_epilogue: true, conclusion_status },
-    );
+    const { system, task } = compile_prompt("narrator", {
+      entities: clean_entities,
+      simulation_log: recent_history,
+      compressed_snapshot: current_dynamics,
+      is_epilogue: true,
+      conclusion_status,
+      scene_template: conclusion_status === "COLLAPSED" ? "COLLAPSE" : "EPILOGUE",
+    });
     if (!system) return null;
 
     state_bridge.app.log("[GameMaster] Generating epilogue...", "system");
@@ -841,7 +848,7 @@ export const gamemaster = {
         })),
     );
     const payload = await context_builder.build_context(input_text || "", "simulation", simulation_log);
-    const ghost_prompt = prompt_builder.build_story_prose(payload, { input: input_text, ghostwrite: true });
+    const ghost_prompt = compile_prompt("ghostwrite", { ...payload, input: input_text, ghostwrite: true });
 
     let full_accumulated = "";
     let is_inside_think = false;
@@ -925,6 +932,7 @@ export const story_pipeline = gamemaster;
 
 /**
  * CHANGELOG
+ * - 2026-09-19: Prompt Unification (Mega Report Phase 2): Migrated story.js prompt compilation (interaction, npc, narrator/prologue/epilogue, ghostwrite) directly to `compile_prompt` from prompts.js and `build_scoring_context` from builder.js, eliminating all references to prompt_builder under P4 Zero Backwards Compatibility.
  * - 2026-09-18: Master Prompt Pipeline Standardization: (1) Aligned character, prologue, epilogue, and ghostwriter prompt assembly with unified `prompt_builder.build_story_prose`; (2) Pruned legacy `system_close` handling across all LLM generation calls.
  * - 2026-09-15: Domain Layer Prompt-Free Purity — Replaced literal <THINK> string with imported THINK_OPEN_TAG constant from parser.js.
  * - 2026-09-14: Updated prologue and epilogue visualization mode from story_entities to landscape story_scene (768x512).

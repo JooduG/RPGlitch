@@ -28,6 +28,7 @@
 
 import { escape_xml, prompt_escape, inline_or_block, wrap_tag, indent_all, render_xml_tag } from "@utils";
 import { extract_style_dna } from "@data";
+import { PROSE_FORMAT } from "./format.js";
 
 // ============================================================================
 // [SECTION 1: UNIFIED TASK DIRECTIVES & PROTOCOLS CATALOG]
@@ -136,8 +137,10 @@ Strictly zero spoken dialogue or quote marks. No dialogue.`,
 2. Spatial layers (foreground, focal subject, background)
 3. Light sources, color palette, and textures from active style
 4. Wardrobe mechanics & exposure checks</THINK_FORMAT>`,
-    FIRST_SENTENCE_MANDATE:
-      "<FIRST_SENTENCE_MANDATE>Always place main entities and active physical interactions in the VERY FIRST sentence.</FIRST_SENTENCE_MANDATE>",
+    FIRST_SENTENCE_MANDATE: (tier = "") =>
+      tier === "story_scene"
+        ? "<FIRST_SENTENCE_MANDATE>Always establish vast environmental geometry, architectural structures, terrain scale, and atmospheric lighting in the VERY FIRST sentence before any secondary elements.</FIRST_SENTENCE_MANDATE>"
+        : "<FIRST_SENTENCE_MANDATE>Always place main entities and active physical interactions in the VERY FIRST sentence.</FIRST_SENTENCE_MANDATE>",
     SPATIAL_GEOMETRY:
       "<SPATIAL_GEOMETRY>Spatial orientation: direct depiction of focal elements, absolute geometry, camera angles, elevations, lighting positions, and depth layers without metaphor or narrative scaffolding.</SPATIAL_GEOMETRY>",
     SELFIE_DIRECTIVE: '<SELFIE_DIRECTIVE>Generate a short, in-character social media caption inside "caption".</SELFIE_DIRECTIVE>',
@@ -520,7 +523,12 @@ export function render_task({
       const think_xml = think_format === "optics" ? TASK_LIBRARY.OPTICS.THINK_FORMAT : null;
 
       // Spatial Framing Assembly
-      const spatial_framing_children = [TASK_LIBRARY.OPTICS.FIRST_SENTENCE_MANDATE, TASK_LIBRARY.OPTICS.SPATIAL_GEOMETRY];
+      const first_sentence_directive =
+        typeof TASK_LIBRARY.OPTICS.FIRST_SENTENCE_MANDATE === "function"
+          ? TASK_LIBRARY.OPTICS.FIRST_SENTENCE_MANDATE(target_tier)
+          : TASK_LIBRARY.OPTICS.FIRST_SENTENCE_MANDATE;
+
+      const spatial_framing_children = [first_sentence_directive, TASK_LIBRARY.OPTICS.SPATIAL_GEOMETRY];
 
       if (cinematography && typeof cinematography === "object") {
         const { mode = "Medium Action", tokens = "", narrative_context = "", visual_staging = "" } = cinematography;
@@ -590,7 +598,7 @@ export function render_task({
       const output_format_xml = render_xml_tag({
         tag: "OUTPUT_FORMAT",
         attrs: { mode: "prose" },
-        children: ["Emit strictly plain prose. No preamble, commentary, markdown, or structural tags."],
+        children: [PROSE_FORMAT],
         child_indent: 2,
       });
 
@@ -611,6 +619,8 @@ export function render_task({
 
 /**
  * CHANGELOG
+ * - 2026-09-19: Imported and utilized PROSE_FORMAT from format.js, eliminating hardcoded string literal duplication (Mega Report D3).
+ * - 2026-09-19: Parameterized FIRST_SENTENCE_MANDATE by tier in TASK_LIBRARY.OPTICS (F3): story_scene mandates establishing terrain, architecture, and atmospheric perspective first, while character tiers prioritize main entities.
  * - 2026-09-19: Architecture purification: Absorbed `resolve_optics_cinematography` from `entities/sheets.js`, consolidating all dynamic camera staging, scale tokens, and group mandates into Layer 6 (<TASK>).
  * - 2026-09-18: Consolidated Keyword Directives — added `render_keyword_directives_xml` supporting DIRECTOR and OPTICS modes.
  * - 2026-09-18: Added TASK_LIBRARY.OPTICS directives and dedicated case optics in render_task assembling TARGET, INPUT_INTENT, and nested OUTPUT_FORMAT per scrobbles.md blueprint.

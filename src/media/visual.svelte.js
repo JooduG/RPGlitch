@@ -23,7 +23,7 @@ import { generate_secure_seed, strip_cognition_blocks, truncate_at_word, state_b
 import { llm_service } from "@platform";
 import { get_resolution, get_tier_guidance_scale, normalize_image_tier } from "./image-tiers.js";
 import { aesthetic_resolver, resolve_visual_engine_tokens } from "./image-aesthetics.js";
-import { prompt_templates, clean_image_prompt, parse_llm_image_prompt_response } from "@intelligence";
+import { compile_prompt, clean_image_prompt, parse_llm_image_prompt_response } from "@intelligence";
 
 // ============================================================================
 // [SECTION 1: HOST ENGINE DISCOVERY & CACHE]
@@ -224,28 +224,28 @@ export class VisualEngine {
             }
 
             const entity_type = effective_type;
-            const tier_for_shot = normalize_image_tier(
-              entity_type === "solo_entity" || entity_type === "story_character" || entity_type === "story_entities"
-                ? entity_type
-                : entity_type === "fractal"
-                  ? "story_scene"
-                  : "story_character",
-            );
+            const tier_for_shot = normalize_image_tier(entity_type === "fractal" ? "story_scene" : entity_type);
 
             const is_character_shot = tier_for_shot !== "story_scene";
             const character_negative_tokens = is_character_shot
               ? "empty background, landscape without characters, scenery only, no humans, empty environment"
               : "";
             const visual_style_negative_tokens = visual_style_tokens.negative_prompt || "";
-            const raw_negative_sources = [base_negative_prompt, visual_style_negative_tokens, character_negative_tokens].filter(Boolean).join(", ");
-            const deduplicated_negative_tokens = Array.from(
-              new Set(
-                raw_negative_sources
-                  .split(",")
-                  .map((token) => token.trim())
-                  .filter(Boolean),
-              ),
-            );
+            const baseline_floor = VISUAL_STYLES.none?.negative_prompt || "";
+            const raw_negative_sources = [base_negative_prompt, baseline_floor, visual_style_negative_tokens, character_negative_tokens]
+              .filter(Boolean)
+              .join(", ");
+            const seen_negative_tokens = Object.create(null);
+            const deduplicated_negative_tokens = [];
+            for (const raw_token of raw_negative_sources.split(",")) {
+              const token = raw_token.trim().replace(/[.,;]+$/, "");
+              if (!token) continue;
+              const lookup_key = token.toLowerCase();
+              if (!seen_negative_tokens[lookup_key]) {
+                seen_negative_tokens[lookup_key] = true;
+                deduplicated_negative_tokens.push(token);
+              }
+            }
             const effective_negative_prompt = deduplicated_negative_tokens.join(", ");
             const effective_seed = options.seed ?? generate_secure_seed();
             const effective_resolution = options.resolution ?? `${resolution_bounds.width}x${resolution_bounds.height}`;
@@ -355,7 +355,14 @@ export class VisualEngine {
     return await this.breaker.execute(async () => {
       return await this.retryer.retry(
         async () => {
-          const system = prompt_templates.enhance_prompt(text, type, entity);
+          const system = compile_prompt("optics", {
+            tier: type,
+            target_type: type,
+            raw_intent: text,
+            entity,
+            mode: "enhance",
+            variant: type === "selfie" ? "selfie" : undefined,
+          }).system;
           const result = await llm_service.generate({ system, messages: [] }, { silent: true });
           if (!result) throw new Error("Prompt enhancement failed - no content.");
 
@@ -448,7 +455,10 @@ export class VisualEngine {
 
       let refined = null;
       if (use_llm) {
-        const system = prompt_templates.build_prompt(tier, sanitized_prompt, {
+        const system = compile_prompt("optics", {
+          tier,
+          target_type: tier,
+          raw_intent: sanitized_prompt,
           ai,
           user,
           fractal,
@@ -462,12 +472,12 @@ export class VisualEngine {
               const line = `[ALT] ${pick.label || "field"} → option ${pick.index + 1} "${pick.option}" (dice)`;
               try {
                 state_bridge.app?.log?.(line, "system");
-              } catch (_err) {
-                console.log(line);
+              } catch {
+                // Fallback ignored in headless or unattached environments
               }
             }
           },
-        });
+        }).system;
 
         try {
           const extraction_timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("LLM prompt extraction timed out")), 90000));
@@ -531,6 +541,15 @@ export class VisualEngine {
       if (extracted_negative && !generate_options.negative_prompt) {
         generate_options.negative_prompt = extracted_negative;
       }
+
+      if (solo_or_character_entity?.signature_color && tier !== "story_scene") {
+        const signature_name = solo_or_character_entity.signature_color.toLowerCase();
+        const base_color_word = signature_name.split(/\s+/).pop();
+        if (base_color_word && !clean_prompt.toLowerCase().includes(base_color_word)) {
+          clean_prompt = `${clean_prompt}, with signature ${signature_name} accent details`;
+        }
+      }
+
       const payload = await this.generate(clean_prompt, generate_options);
 
       const effective_metadata =
@@ -704,6 +723,8 @@ export function reset_cached_image_engine() {
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-19: Prompt Unification (Mega Report S1, R4): Retired prompt_templates; routed enhance and visualize prompt compilation directly through switchboard compile_prompt("optics", ...).
+ * - 2026-09-19: Pipeline correctness & fidelity fixes: (1) Fixed tier mapping so story_scene passes without character negatives (R2); (2) Applied VISUAL_STYLES.none as universal baseline quality floor in generate() (F2); (3) Case-folded and stripped punctuation during negative token deduplication (F5); (4) Enforced signature color trait verification in visualize() (F1).
  * - 2026-09-18: Migrated image prompt templates and response parsers from local image-prompts.js to @intelligence barrel.
  * - 2026-09-06: Suppressed image generation for unresolvable/Unknown subjects, excluded system entries from visual history, and used truncate_at_word.
  * - 2026-09-06: Allowed explicit options.entity in visualize to support custom characters/NPC portraits.

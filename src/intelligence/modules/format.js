@@ -150,7 +150,7 @@ export function get_output_format(format_spec, options_or_fallback = "") {
 
   // 2. Structured JSON schema specification from PROMPTS manifest: { mode: "json", schema: [...] }
   if (typeof format_spec === "object" && format_spec !== null && Array.isArray(format_spec.schema)) {
-    const entity_type = options.entity_type || options.target_type || options.resolved_type || "character";
+    const entity_type = options.entity_type || "character";
     const schema_keys = [...format_spec.schema];
 
     if (options.variant === "selfie" || options.is_selfie) {
@@ -162,7 +162,8 @@ export function get_output_format(format_spec, options_or_fallback = "") {
     let compiled_schema = render_json_schema(schema_keys, entity_type);
 
     if (options.negative_prompt) {
-      compiled_schema = compiled_schema.replace(`"<negative prompt tokens>"`, `"${options.negative_prompt.replace(/"/g, '\\"')}"`);
+      const guidance = `<Negative tokens avoiding quality buzzwords; ground using physical artifacts and flaws. Style baseline: ${options.negative_prompt.replace(/"/g, '\\"')}>`;
+      compiled_schema = compiled_schema.replace(`"${SCHEMA_ATOMS.negative_prompt}"`, `"${guidance}"`);
     }
 
     return compiled_schema;
@@ -197,6 +198,8 @@ export function render_output_format_xml({ mode = "", content = "", indent_level
 
 /**
  * CHANGELOG
+ * - 2026-09-19: Standardized get_output_format option parameter to entity_type and purged legacy target_type/resolved_type shims under P4 Zero Backwards Compatibility (Mega Report S6).
+ * - 2026-09-19: Fixed negative prompt injection into Optics schema (R3): injected style baseline negative tokens into SCHEMA_ATOMS.negative_prompt as contextual guidance.
  * - 2026-09-18: Enriched SCHEMA_ATOMS for prompt, negative_prompt, and _thought_process with concrete optical synthesis instructions, repatriating output format directives from protocols.js.
  * - 2026-09-18: Purged duplicate schema arrays (STRING_KEY_SCHEMAS, duplicate OUTPUT_FORMATS schema objects) in adherence to DRY and P4 Zero Backwards Compatibility. format.js now serves as the pure dynamic renderer for format specifications declared in prompts.js.
  * - 2026-09-18: Streamlined format.js by removing redundant get_*_schema functions and DYNAMIC_SCHEMAS. Output schemas are declared directly in prompts.js and rendered via render_json_schema and get_output_format.

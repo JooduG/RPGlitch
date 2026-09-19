@@ -3,7 +3,7 @@
  * 🧬 PROFILE STATE — Reactive controller for entity editing.
  */
 import { db, normalize, PROFILE_FIELD_CATALOG, FLAT_LEAF_MAP } from "@data";
-import { prompt_builder, temporal_engine, parse_profile_json } from "@intelligence";
+import { compile_prompt, temporal_engine, parse_profile_json } from "@intelligence";
 import { llm_service } from "@platform";
 import { app, runtime } from "@state";
 import {
@@ -321,7 +321,14 @@ export class ProfileState {
     this.busy_fields.add(key);
     try {
       const type = this.char.type === "user" ? "character" : this.char.type || "character";
-      const payload = prompt_builder.build_enhancement(key, value, this.char.name || "", type, false, this.char);
+      const payload = compile_prompt("enhancement", {
+        field_id: key,
+        content: value,
+        entity_name: this.char.name || "",
+        entity_type: type,
+        is_image_field: false,
+        entity: this.char,
+      });
       const result = await llm_service.enhance(payload);
       if (result) {
         const clean_result = strip_profile_wrappers(strip_cognition_blocks(result).trim());
@@ -427,7 +434,15 @@ export class ProfileState {
 
     try {
       const type = this.char.type === "user" ? "character" : this.char.type || "character";
-      const payload = prompt_builder.build_enhancement(path, content, this.char.name || "", type, false, this.char, "patch_single");
+      const payload = compile_prompt("enhancement", {
+        field_id: path,
+        content,
+        entity_name: this.char.name || "",
+        entity_type: type,
+        is_image_field: false,
+        entity: this.char,
+        array_mode: "patch_single",
+      });
       const result = await llm_service.enhance(payload);
 
       if (result) {
@@ -527,7 +542,11 @@ export class ProfileState {
     this.busy_fields.add("description");
 
     try {
-      const payload = prompt_builder.build_profile_sorting(this.char, entity_type, { redistribute: true });
+      const payload = compile_prompt("sorting", {
+        input_data: this.char,
+        entity_type,
+        options: { redistribute: true },
+      });
       const result = await llm_service.enhance(payload);
 
       if (result) {

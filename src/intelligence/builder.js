@@ -23,7 +23,6 @@ import {
   VISUAL_STYLES,
   resolve_portrait_visual_style_key,
   resolve_story_visual_style_key,
-  PROFILE_FIELD_CATALOG,
   get_style_keywords,
   get_narrative_style,
   resolve_active_style_key,
@@ -71,7 +70,19 @@ import { render_available_keywords_xml, render_dynamics_xml, render_subtext_xml,
 import { temporal_engine, resolve_vector_pool } from "./temporal.js";
 import { normalize_image_tier, resolve_visual_engine_tokens } from "@media";
 
-// ── 1. Render Builder Accessor Factory ─────────────────────────────────────────
+/**
+ * Builds context text for temporal vector relevance scoring.
+ * @param {string} [input]
+ * @param {any[]} [simulation_log]
+ * @returns {string}
+ */
+export function build_scoring_context(input = "", simulation_log = []) {
+  const recent = (Array.isArray(simulation_log) ? simulation_log : [])
+    .slice(-10)
+    .map((message) => message.content || message.text || "")
+    .join(" ");
+  return `${input || ""} ${recent}`.trim();
+}
 
 export const render_builder = {
   /**
@@ -82,7 +93,7 @@ export const render_builder = {
    */
   create_render_accessors(entities = {}, input = "", raw_messages = []) {
     const resolve = (reference) => (typeof reference === "string" ? entities[reference] || entities.AI || {} : reference || {});
-    const scoring_context = prompt_builder.build_scoring_context(input, raw_messages);
+    const scoring_context = build_scoring_context(input, raw_messages);
 
     return {
       _context: scoring_context,
@@ -207,7 +218,6 @@ export function render_director({
   const accessors = render_accessors || render_builder.create_render_accessors(scene_entities, input, active_messages);
   const config = get_prompt("director");
   const schema = get_output_format(config.format || config.task?.schema);
-  const core_protocols_xml = render_core_protocols({ protocols: config.protocols });
   const active_style_keywords = get_style_keywords(resolve_active_style_key());
 
   const entity_sheets = render_entity_sheets({
@@ -220,6 +230,11 @@ export function render_director({
     render_axes: render_dynamics_axes_xml,
     speaker_dynamics: compressed_snapshot?.ai?.dynamics,
     fractal_dynamics: compressed_snapshot?.fractal?.dynamics,
+  });
+
+  const core_protocols_xml = render_core_protocols({
+    protocols: config.protocols,
+    has_alternation: has_alternations(entity_sheets),
   });
 
   const keyword_directives_xml = render_keyword_directives_xml(render_available_keywords_xml(active_style_keywords));
@@ -564,7 +579,7 @@ export function render_memory({ target_entity, target_key = "AI_CHARACTER", othe
   const task_xml = render_task({
     mode: "continuum",
     target_name,
-    schema: get_output_format(config.format, { target_type }),
+    schema: get_output_format(config.format, { entity_type: target_type }),
   });
 
   const history_xml = history_config.enabled
@@ -575,6 +590,7 @@ export function render_memory({ target_entity, target_key = "AI_CHARACTER", othe
     : "";
 
   return render_system_xml({
+    mode: "continuum",
     attributes: { role: "CONTINUUM_CARETAKER", target: target_name },
     children: [
       render_core_protocols({ protocols: config.protocols }),
@@ -616,7 +632,7 @@ export function render_enhancement({
   return render_system_xml({
     mode: "enhancement",
     attributes: {
-      role: enhancer || "GENERAL",
+      role: enhancer || config.system.role || "ENHANCER",
       enhancing: label || "",
       field: field_id,
     },
@@ -655,7 +671,7 @@ export function render_profile_sorting(entity_type = "character", options = {}) 
 
   const task_xml = render_task({
     mode: "sorting",
-    schema: get_output_format(config.format, { resolved_type }),
+    schema: get_output_format(config.format, { entity_type: resolved_type }),
     directives: [
       PROTOCOL_LIBRARY.CORE_PROTOCOLS.PERSPECTIVE.POV[pov_key] || PROTOCOL_LIBRARY.CORE_PROTOCOLS.PERSPECTIVE.POV.THIRD,
       focus_directive,
@@ -699,7 +715,11 @@ export function render_optics_prompt(target_type_or_intent, raw_intent_or_option
   let raw_intent = raw_intent_or_options;
   let options = context;
 
-  if (typeof raw_intent_or_options === "object" && raw_intent_or_options !== null && !Array.isArray(raw_intent_or_options)) {
+  if (typeof target_type_or_intent === "object" && target_type_or_intent !== null && !Array.isArray(target_type_or_intent)) {
+    options = { ...target_type_or_intent };
+    target_type = options.tier || options.target_type || "solo_entity";
+    raw_intent = options.raw_intent || options.prompt_context || options.input || "";
+  } else if (typeof raw_intent_or_options === "object" && raw_intent_or_options !== null && !Array.isArray(raw_intent_or_options)) {
     if (raw_intent_or_options.tier) {
       target_type = raw_intent_or_options.tier;
       raw_intent = target_type_or_intent;
@@ -802,35 +822,22 @@ export function render_optics_prompt(target_type_or_intent, raw_intent_or_option
     schema,
   });
 
-  return render_system_xml({
+  const full_system = render_system_xml({
     mode: "optics",
     attributes: { role: "SENSORY_CORTEX" },
     children: [protocols_xml, entities_xml, history_xml ? history_xml.trim() : null, task_xml],
     closed: true,
   });
-}
 
-/**
- * Refines raw concept data into structured sentences containing visual targets.
- * Delegates directly to render_optics_prompt for unified sensory cortex prompt synthesis.
- * @param {string} raw_intent
- * @param {string} [target_tier="character"]
- * @param {any} [target_entity=null]
- * @returns {string}
- */
-export function render_visual_enhancement(raw_intent, target_tier = "character", target_entity = null) {
-  const tier = normalize_image_tier(target_tier || "");
-  return render_optics_prompt(tier, raw_intent, {
-    entity: target_entity,
-    mode: "enhance",
-    variant: target_tier === "selfie" ? "selfie" : undefined,
+  const clean_system = clean_prompt_text(full_system);
+  const clean_task = clean_prompt_text(task_xml);
+
+  return Object.assign(new String(clean_system), {
+    system: clean_system,
+    task: clean_task,
+    messages: [],
   });
 }
-
-export const prompt_templates = Object.freeze({
-  build_prompt: render_optics_prompt,
-  enhance_prompt: render_visual_enhancement,
-});
 
 // ── 4. Declarative Pipeline Runner ──────────────────────────────────────────
 
@@ -850,7 +857,16 @@ export function compile_pipeline_prompt(mode_key, context = {}) {
 
   switch (mode_key) {
     case "director": {
-      return prompt_builder.build_director(context, context.compressed_snapshot);
+      const render_accessors = resolve_accessors(context);
+      const rendered = render_director({
+        ...context,
+        render_accessors,
+        compressed_snapshot: context.compressed_snapshot || {},
+      });
+      return pack_prompt(rendered, {
+        ai: context.compressed_snapshot?.ai?.dynamics,
+        fractal: context.compressed_snapshot?.fractal?.dynamics,
+      });
     }
 
     case "director_terse": {
@@ -903,79 +919,94 @@ export function compile_pipeline_prompt(mode_key, context = {}) {
     }
 
     case "optics": {
-      const is_selfie = context.is_selfie || context.variant === "selfie";
-      const tier = normalize_image_tier(context.target_type || context.tier || "solo_entity");
-      const rolled_intent = detox_prose(context.prompt_context || context.raw_intent || context.input || "");
-      const active_fractal = context.fractal || context.active_fractal_setting;
-      const solo_subject = context.entity || context.main_entity || context.solo_subject;
-      const style_key = tier === "solo_entity" ? resolve_portrait_visual_style_key(solo_subject) : resolve_story_visual_style_key(active_fractal);
-      const style_definition = VISUAL_STYLES[style_key] || VISUAL_STYLES.none;
-      const engine_tokens = resolve_visual_engine_tokens(style_key);
-      const keywords_raw = style_definition.keywords || style_definition.tags || [];
-      const keyword_list = Array.isArray(keywords_raw)
-        ? keywords_raw
-        : typeof keywords_raw === "string"
-          ? keywords_raw.split(",").map((s) => s.trim())
-          : [];
-      const valid_keywords = keyword_list.filter(Boolean);
+      return render_optics_prompt(context);
+    }
 
-      const protocols_xml = render_core_protocols({
-        visual_style: style_definition,
-        engine_tokens,
-        protocols: config.protocols,
-      });
+    case "narrator": {
+      const scene_template = context.scene_template || (context.is_prologue ? "PROLOGUE" : context.is_epilogue ? "EPILOGUE" : "CONTINUATION");
+      if (scene_template === "PROLOGUE") {
+        const entities = context.entities || {};
+        const snapshot = context.snapshot || context.compressed_snapshot || {};
+        const render_accessors = resolve_accessors(context, entities);
+        return pack_prompt(
+          render_narrator_prose({
+            scene_template: "PROLOGUE",
+            ...context,
+            entities,
+            render_accessors,
+            compressed_snapshot: snapshot,
+          }),
+        );
+      }
 
-      const cinematography = resolve_optics_cinematography({
-        tier,
-        solo_subject,
-        active_ai_character: context.active_ai_character || context.ai,
-        active_user_persona: context.active_user_persona || context.user,
-        active_fractal_setting: active_fractal,
-        main_entity: solo_subject,
-        visual_staging: context.visual_staging || "",
-      });
+      if (scene_template === "EPILOGUE" || scene_template === "COLLAPSE" || context.is_epilogue) {
+        const conclusion_status = context.conclusion_status || (scene_template === "COLLAPSE" ? "COLLAPSED" : "EPILOGUE");
+        const raw_entities = context.entities || {};
+        const safe_entities = {
+          AI: raw_entities?.AI || { name: "AI", present: {}, eternal: {} },
+          USER: raw_entities?.USER || { name: "USER", present: {}, eternal: {} },
+          FRACTAL: raw_entities?.FRACTAL || { name: "FRACTAL", present: {}, eternal: {} },
+        };
+        const snapshot = context.snapshot || context.compressed_snapshot || {};
+        const recent_history = context.recent_history || context.simulation_log || context.raw_messages || [];
+        return pack_prompt(
+          render_narrator_prose({
+            scene_template: conclusion_status === "COLLAPSED" ? "COLLAPSE" : "EPILOGUE",
+            entities: safe_entities,
+            render_accessors: render_builder.create_render_accessors(safe_entities, "", recent_history),
+            compressed_snapshot: {
+              ai: { dynamics: snapshot.ai?.dynamics || context.dynamics?.ai },
+              fractal: { dynamics: snapshot.fractal?.dynamics || context.dynamics?.fractal },
+            },
+          }),
+          {},
+          [],
+        );
+      }
 
-      const entities_xml = render_optics_entities_xml({
-        tier,
-        solo_subject,
-        active_ai_character: context.active_ai_character || context.ai,
-        active_user_persona: context.active_user_persona || context.user,
-        active_fractal_setting: active_fractal,
-        main_entity: solo_subject,
-        macro_entities: {
-          AI: context.active_ai_character || context.ai,
-          USER: context.active_user_persona || context.user,
-          FRACTAL: active_fractal,
+      const entities = context.entities || {};
+      const snapshot = context.snapshot || context.compressed_snapshot || {};
+      const render_accessors = resolve_accessors(context, entities);
+      return pack_prompt(
+        render_narrator_prose({
+          scene_template: scene_template || "CONTINUATION",
+          ...context,
+          entities,
+          render_accessors,
+          compressed_snapshot: snapshot,
+          director_data: context.director_data || {},
+        }),
+        {
+          ai: snapshot.ai?.dynamics,
+          fractal: snapshot.fractal?.dynamics,
+          flags: snapshot.flags,
         },
-        has_alternation: has_alternations(rolled_intent),
-      });
+      );
+    }
 
-      const history_xml = format_sensory_history(context.history || []);
-
-      const resolved_negative_prompt = engine_tokens.negative_prompt || "";
-      const schema = get_output_format(config.format, { variant: is_selfie ? "selfie" : context.variant, negative_prompt: resolved_negative_prompt });
-
-      const task = render_task({
-        mode: "optics",
-        target_tier: tier,
-        input_intent: rolled_intent,
-        think_format: config.task?.think_format || "optics",
-        cinematography,
-        engine_tokens,
-        keywords: valid_keywords,
-        is_selfie,
-        schema,
-        directives: context.directives || [],
-      });
-
-      const system = render_system_xml({
-        mode: "optics",
-        attributes: { role: "SENSORY_CORTEX" },
-        children: [protocols_xml, entities_xml, history_xml ? history_xml.trim() : null],
-        closed: false,
-      });
-
-      return pack_prompt({ system, task });
+    case "npc": {
+      const npc_entity = context.npc || context.speaker;
+      const raw_entities = context.entities || {};
+      const combined_entities = npc_entity?.id ? { ...raw_entities, [npc_entity.id]: npc_entity } : raw_entities;
+      const snapshot = context.snapshot || context.compressed_snapshot || {};
+      const npc_accessors = resolve_accessors(context, combined_entities);
+      return pack_prompt(
+        render_story_prose({
+          prompt_mode: "npc",
+          ...context,
+          entities: combined_entities,
+          speaker: npc_entity,
+          render_accessors: npc_accessors,
+          compressed_snapshot: snapshot,
+          director_data: context.director_data || {},
+        }),
+        {
+          ai: snapshot.ai?.dynamics,
+          fractal: snapshot.fractal?.dynamics,
+          role: "npc",
+          entity_id: npc_entity?.id,
+        },
+      );
     }
 
     default: {
@@ -997,344 +1028,13 @@ export function compile_pipeline_prompt(mode_key, context = {}) {
   }
 }
 
-// ── 5. Unified Prompt Builder Service ─────────────────────────────────────────
+// ── 5. Universal Accessors & Exports ─────────────────────────────────────────
 
-export const prompt_builder = {
-  clean_prompt_text,
-
-  parse_macros(text, owner, entities = {}) {
-    return parse_macros(text, owner, entities);
-  },
-
-  create_render_accessors: render_builder.create_render_accessors,
-  render_history,
-  compile_pipeline_prompt,
-
-  /**
-   * Builds context text for temporal vector relevance scoring.
-   * @param {string} [input]
-   * @param {any[]} [simulation_log]
-   * @returns {string}
-   */
-  build_scoring_context(input = "", simulation_log = []) {
-    const recent = (Array.isArray(simulation_log) ? simulation_log : [])
-      .slice(-10)
-      .map((message) => message.content || message.text || "")
-      .join(" ");
-    return `${input || ""} ${recent}`.trim();
-  },
-
-  /**
-   * Builds the system and task prompts for the Director planning turn.
-   * @param {any} payload
-   * @param {any} snapshot
-   */
-  build_director(payload, snapshot = {}) {
-    const render_accessors = resolve_accessors(payload);
-    const rendered = render_director({
-      ...payload,
-      render_accessors,
-      compressed_snapshot: snapshot,
-    });
-
-    return pack_prompt(rendered, {
-      ai: snapshot.ai?.dynamics,
-      fractal: snapshot.fractal?.dynamics,
-    });
-  },
-
-  /**
-   * Universal story prose compiler unifying character, npc, narrator, prologue, epilogue, and ghostwriter turns.
-   * @param {any} payload - State payload containing entities, round, input, raw_messages / simulation_log
-   * @param {Object} [options={}] - Options controlling speaker, dynamics snapshot, director data, and scene template
-   */
-  build_story_prose(payload, options = {}) {
-    const entities = options.entities || payload?.entities || {};
-    const snapshot = options.snapshot || options.compressed_snapshot || {};
-    const director_data = options.director_data || {};
-    const render_accessors = resolve_accessors(payload, entities);
-
-    const prompt_mode = options.mode || options.prompt_mode;
-    const speaker = options.speaker || null;
-    const listener = options.listener || null;
-    const ghostwrite = options.ghostwrite || false;
-    const scene_template = options.scene_template || null;
-
-    if (options.is_prologue || scene_template === "PROLOGUE") {
-      return pack_prompt(
-        render_narrator_prose({
-          scene_template: "PROLOGUE",
-          ...payload,
-          entities,
-          render_accessors,
-          compressed_snapshot: snapshot,
-        }),
-      );
-    }
-
-    if (options.is_epilogue || scene_template === "EPILOGUE" || scene_template === "COLLAPSE") {
-      const conclusion_status = options.conclusion_status || (scene_template === "COLLAPSE" ? "COLLAPSED" : "EPILOGUE");
-      const safe_entities = {
-        AI: entities?.AI || { name: "AI", present: {}, eternal: {} },
-        USER: entities?.USER || { name: "USER", present: {}, eternal: {} },
-        FRACTAL: entities?.FRACTAL || { name: "FRACTAL", present: {}, eternal: {} },
-      };
-      const recent_history = options.recent_history || payload?.simulation_log || payload?.raw_messages || [];
-      return pack_prompt(
-        render_narrator_prose({
-          scene_template: conclusion_status === "COLLAPSED" ? "COLLAPSE" : "EPILOGUE",
-          entities: safe_entities,
-          render_accessors: render_builder.create_render_accessors(safe_entities, "", recent_history),
-          compressed_snapshot: {
-            ai: { dynamics: snapshot.ai?.dynamics || options.dynamics?.ai },
-            fractal: { dynamics: snapshot.fractal?.dynamics || options.dynamics?.fractal },
-          },
-        }),
-        {},
-        [],
-      );
-    }
-
-    if (options.is_narrator || prompt_mode === "narrator") {
-      return pack_prompt(
-        render_narrator_prose({
-          scene_template: scene_template || "CONTINUATION",
-          ...payload,
-          entities,
-          render_accessors,
-          compressed_snapshot: snapshot,
-          director_data,
-        }),
-        {
-          ai: snapshot.ai?.dynamics,
-          fractal: snapshot.fractal?.dynamics,
-          flags: snapshot.flags,
-        },
-      );
-    }
-
-    if (options.npc) {
-      const npc_entity = options.npc;
-      const combined_entities = { ...entities, [npc_entity.id]: npc_entity };
-      const npc_accessors = resolve_accessors(payload, combined_entities);
-      return pack_prompt(
-        render_story_prose({
-          prompt_mode: "npc",
-          ...payload,
-          entities: combined_entities,
-          speaker: npc_entity,
-          render_accessors: npc_accessors,
-          compressed_snapshot: snapshot,
-          director_data,
-        }),
-        {
-          ai: snapshot.ai?.dynamics,
-          fractal: snapshot.fractal?.dynamics,
-          role: "npc",
-          entity_id: npc_entity?.id,
-        },
-      );
-    }
-
-    if (ghostwrite || prompt_mode === "ghostwrite") {
-      const ghost_speaker = entities?.USER ? expand_entity_macros(entities.USER, entities) : null;
-      const ghost_target = entities?.AI ? expand_entity_macros(entities.AI, entities) : null;
-      return pack_prompt(
-        render_story_prose({
-          speaker: ghost_speaker,
-          listener: ghost_target,
-          entities,
-          input: payload?.input || options.input || "",
-          ghostwrite: true,
-          render_accessors,
-          compressed_snapshot: snapshot,
-          director_data,
-        }),
-      );
-    }
-
-    return pack_prompt(
-      render_story_prose({
-        prompt_mode: prompt_mode || "interaction",
-        ...payload,
-        entities,
-        speaker,
-        listener,
-        render_accessors,
-        compressed_snapshot: snapshot,
-        director_data,
-      }),
-      {
-        ai: snapshot.ai?.dynamics,
-        fractal: snapshot.fractal?.dynamics,
-        flags: snapshot.flags,
-      },
-    );
-  },
-
-  /**
-   * Facade aliases forwarding directly to unified build_story_prose.
-   */
-  build_character(payload, snapshot = {}, director_data = {}) {
-    return this.build_story_prose(payload, { snapshot, director_data });
-  },
-
-  build_scene_narrator(payload, snapshot = {}, director_data = {}) {
-    return this.build_story_prose(payload, { snapshot, director_data, is_narrator: true });
-  },
-
-  build_npc(payload, npc, snapshot = {}, director_data = {}) {
-    return this.build_story_prose(payload, { npc, snapshot, director_data });
-  },
-
-  build_prologue(payload, snapshot = {}) {
-    return this.build_story_prose(payload, { snapshot, is_prologue: true });
-  },
-
-  build_epilogue(entities, dynamics, recent_history = [], conclusion_status = "CONCLUDED") {
-    return this.build_story_prose(
-      { entities, simulation_log: recent_history },
-      {
-        snapshot: {
-          ai: { dynamics: dynamics?.ai },
-          fractal: { dynamics: dynamics?.fractal },
-        },
-        is_epilogue: true,
-        conclusion_status,
-      },
-    );
-  },
-
-  /**
-   * Builds the memory distillation prompt for the background memory forge.
-   * @param {any} entities_or_target
-   * @param {any[]} [history]
-   * @param {any} [options]
-   */
-  build_memory(entities_or_target, history = [], options = {}) {
-    let target_entity = options.target_entity || null;
-    let target_key = options.target_key || "AI_CHARACTER";
-    let other_entities = options.other_entities && Object.keys(options.other_entities).length ? { ...options.other_entities } : {};
-
-    if (entities_or_target && typeof entities_or_target === "object") {
-      if (entities_or_target.AI_CHARACTER || entities_or_target.USER_PERSONA || entities_or_target.FRACTAL) {
-        if (!target_entity) target_entity = entities_or_target[target_key] || entities_or_target.AI_CHARACTER;
-        if (!Object.keys(other_entities).length) {
-          other_entities = { ...entities_or_target };
-        }
-      } else if (!target_entity) {
-        target_entity = entities_or_target;
-      }
-    }
-
-    return {
-      system: render_memory({ target_entity, target_key, other_entities, history }),
-      messages: [],
-    };
-  },
-
-  /**
-   * Universal continuum prompt compiler.
-   * @param {any} entities_or_target
-   * @param {any[]} [history]
-   * @param {any} [options]
-   */
-  build_continuum(entities_or_target, history = [], options = {}) {
-    return this.build_memory(entities_or_target, history, options);
-  },
-
-  /**
-   * Builds the profile field enhancer prompt.
-   */
-  build_enhancement(
-    field_id,
-    content,
-    entity_name = "",
-    entity_type = "character",
-    is_image_field = false,
-    entity = null,
-    array_mode = "append_new",
-  ) {
-    const resolved_type = entity_type === "user" ? "character" : entity_type || "character";
-    const meta = PROFILE_FIELD_CATALOG[`${resolved_type}.${field_id}`] || {
-      directive: "Expand and enrich the fragment.",
-      enhancer: "GENERAL",
-    };
-
-    const is_array_field = meta.type === "array";
-    return {
-      system: render_enhancement({
-        content,
-        label: meta.label || entity_name,
-        directive: meta.directive,
-        enhancer: meta.enhancer,
-        is_image_field: is_image_field || field_id.endsWith(".physical"),
-        is_array_field,
-        array_mode,
-        field_id,
-        layer_key: meta.layer_key || "",
-        entity,
-        entity_type: resolved_type,
-      }),
-      messages: [],
-    };
-  },
-
-  /**
-   * Builds the character card ingestion and profile extraction prompt.
-   * @param {any} input_data
-   * @param {string} [entity_type]
-   * @param {any} [options]
-   */
-  build_profile_sorting(input_data, entity_type = "character", options = {}) {
-    return {
-      system: render_profile_sorting(entity_type, options),
-      messages: [
-        {
-          role: "user",
-          text: typeof input_data === "string" ? input_data : JSON.stringify(input_data, null, 2),
-        },
-      ],
-    };
-  },
-
-  /**
-   * Universal profile sorting compiler.
-   * @param {any} input_data
-   * @param {string} [entity_type]
-   * @param {any} [options]
-   */
-  build_sorting(input_data, entity_type = "character", options = {}) {
-    return this.build_profile_sorting(input_data, entity_type, options);
-  },
-
-  /**
-   * Builds the ghostwriter autocomplete prompt.
-   * @param {any} entities
-   * @param {string} [input]
-   */
-  build_ghostwriter(entities, input = "") {
-    return render_ghostwriter({ entities, input });
-  },
-
-  /**
-   * Builds the terse fallback prompt for the Director.
-   * @param {string} [schema=""]
-   */
-  build_terse_director_task(schema = "") {
-    return render_task({ mode: "director", terse: true, schema });
-  },
-};
-
-if (typeof window !== "undefined") {
-  window.exposed = {
-    ...window.exposed,
-    prompt_builder,
-  };
-}
+export const create_render_accessors = render_builder.create_render_accessors;
 
 /**
  * CHANGELOG
+ * - 2026-09-19: Fixed Director alternation protocol resolution (R1): reordered render_entity_sheets before render_core_protocols and passed has_alternations(entity_sheets).
  * - 2026-09-18: Consolidated Optics keyword directives through render_keyword_directives_xml(..., "OPTICS") supplied to build_optics_builder_protocol.
  * - 2026-09-18: Promoted prompts.js as sovereign prompt switchboard; streamlined builder.js assembly line and unified story prose compilation facades.
  * - 2026-09-18: Absorbed render_optics_prompt, render_visual_enhancement, and prompt_templates from deconstructed optics.js, coordinating visual prompt synthesis through modules per scrobbles.md blueprint.

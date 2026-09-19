@@ -86,6 +86,7 @@ vi.mock("./builder.js", async (importOriginal) => {
   }));
   const build_epilogue = vi.fn();
   const build_ghostwriter = vi.fn();
+  const build_scoring_context = vi.fn(() => "Hello");
 
   const build_story_prose = vi.fn((payload, options = {}) => {
     if (options.is_prologue) return build_prologue(payload, options);
@@ -102,8 +103,42 @@ vi.mock("./builder.js", async (importOriginal) => {
     return build_character(payload, options.snapshot, options.director_data);
   });
 
+  const compile_pipeline_prompt = vi.fn((mode_key, context = {}) => {
+    switch (mode_key) {
+      case "director":
+        return build_director(context, context.compressed_snapshot);
+      case "director_terse":
+        return {
+          system: '<SYSTEM mode="director" round="1"><ROLE>DIRECTOR</ROLE></SYSTEM>',
+          task: "<TASK>Return a single, COMPLETE, VALID JSON object</TASK>",
+        };
+      case "narrator":
+        if (context.is_prologue || context.scene_template === "PROLOGUE") {
+          return build_prologue(context, context);
+        }
+        if (context.is_epilogue || context.scene_template === "EPILOGUE" || context.scene_template === "COLLAPSE") {
+          const dynamics = {
+            ai: context.compressed_snapshot?.ai?.dynamics || context.compressed_snapshot?.ai,
+            fractal: context.compressed_snapshot?.fractal?.dynamics || context.compressed_snapshot?.fractal,
+          };
+          return build_epilogue(context.entities, dynamics, context.simulation_log, context.conclusion_status);
+        }
+        return build_scene_narrator(context, context.compressed_snapshot, context.director_data);
+      case "npc": {
+        const { npc, speaker, compressed_snapshot, director_data, ...rest_payload } = context;
+        return build_npc(rest_payload, npc || speaker, compressed_snapshot, director_data);
+      }
+      case "ghostwrite":
+        return build_ghostwriter(context.entities, context.input);
+      default:
+        return build_character(context, context.compressed_snapshot, context.director_data);
+    }
+  });
+
   return {
     ...actual,
+    build_scoring_context,
+    compile_pipeline_prompt,
     prompt_builder: {
       ...actual.prompt_builder,
       build_story_prose,
@@ -114,8 +149,9 @@ vi.mock("./builder.js", async (importOriginal) => {
       build_npc,
       build_epilogue,
       build_ghostwriter,
+      compile_pipeline_prompt,
       render_history: vi.fn(actual.render_builder.render_history),
-      build_scoring_context: vi.fn(() => "Hello"),
+      build_scoring_context,
       build_terse_director_task: vi.fn(() => "<TASK>Return a single, COMPLETE, VALID JSON object</TASK>"),
       build_profile_sorting: vi.fn(() => ({ system: "SYS", messages: [] })),
     },

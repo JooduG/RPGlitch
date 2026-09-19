@@ -46,7 +46,7 @@ export {
 // ============================================================================
 
 export { compile_prompt, PROMPTS, get_prompt, resolve_prompt_mode } from "./prompts.js";
-export { prompt_builder } from "./builder.js";
+export { create_render_accessors, build_scoring_context } from "./builder.js";
 
 // ============================================================================
 // Temporal Engine & Memory Forge (Shot 2 Consolidation)
@@ -86,7 +86,7 @@ export { build_turn_summary } from "./telemetry.js";
 
 export { render_narrative_style_xml, render_visual_style_xml, render_core_protocols } from "./modules/protocols.js";
 export { format_sensory_history } from "./modules/history.js";
-export { render_optics_prompt, render_visual_enhancement, prompt_templates } from "./builder.js";
+export { render_optics_prompt } from "./builder.js";
 
 /**
  * CHANGELOG:

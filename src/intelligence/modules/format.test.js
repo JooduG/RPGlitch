@@ -33,16 +33,16 @@ describe("src/intelligence/modules/format.js", () => {
     });
 
     it("parameterizes schemas dynamically by target or resolved entity taxonomy type", () => {
-      expect(get_output_format(PROMPTS.continuum.format, { target_type: "fractal" })).toBe(
+      expect(get_output_format(PROMPTS.continuum.format, { entity_type: "fractal" })).toBe(
         render_json_schema(PROMPTS.continuum.format.schema, "fractal"),
       );
-      expect(get_output_format(PROMPTS.continuum.format, { target_type: "character" })).toBe(
+      expect(get_output_format(PROMPTS.continuum.format, { entity_type: "character" })).toBe(
         render_json_schema(PROMPTS.continuum.format.schema, "character"),
       );
-      expect(get_output_format(PROMPTS.sorting.format, { resolved_type: "fractal" })).toBe(
+      expect(get_output_format(PROMPTS.sorting.format, { entity_type: "fractal" })).toBe(
         render_json_schema(PROMPTS.sorting.format.schema, "fractal"),
       );
-      expect(get_output_format(PROMPTS.sorting.format, { resolved_type: "character" })).toBe(
+      expect(get_output_format(PROMPTS.sorting.format, { entity_type: "character" })).toBe(
         render_json_schema(PROMPTS.sorting.format.schema, "character"),
       );
       expect(get_output_format(PROMPTS.optics.format, { variant: "selfie" })).toContain('"caption"');
@@ -53,11 +53,17 @@ describe("src/intelligence/modules/format.js", () => {
       expect(get_output_format(director_spec)).toBe(render_json_schema(director_spec.schema));
 
       const continuum_spec = PROMPTS.continuum.format;
-      expect(get_output_format(continuum_spec, { target_type: "fractal" })).toBe(render_json_schema(continuum_spec.schema, "fractal"));
-      expect(get_output_format(continuum_spec, { target_type: "character" })).toBe(render_json_schema(continuum_spec.schema, "character"));
+      expect(get_output_format(continuum_spec, { entity_type: "fractal" })).toBe(render_json_schema(continuum_spec.schema, "fractal"));
+      expect(get_output_format(continuum_spec, { entity_type: "character" })).toBe(render_json_schema(continuum_spec.schema, "character"));
 
       const optics_spec = PROMPTS.optics.format;
       expect(get_output_format(optics_spec, { variant: "selfie" })).toContain('"caption"');
+    });
+
+    it("injects baseline negative prompt into Optics schema format (R3)", () => {
+      const optics_spec = PROMPTS.optics.format;
+      const formatted = get_output_format(optics_spec, { negative_prompt: "blurry, low resolution" });
+      expect(formatted).toContain("Style baseline: blurry, low resolution");
     });
   });
 
@@ -80,6 +86,7 @@ describe("src/intelligence/modules/format.js", () => {
 
 /**
  * CHANGELOG
+ * - 2026-09-19: Added test for negative prompt injection into Optics schema format (R3).
  * - 2026-09-16: Removed SCHEMA_FIELD_DESCRIPTORS suite following repatriation into PROFILE_FIELDS directives in profile-fields.js.
  * - 2026-09-13: Added verification for token-optimized SCHEMA_FIELD_DESCRIPTORS and streamlined schema outputs (PROSE, DIRECTOR, PROFILE, CONTINUUM).
  * - 2026-09-13: Verified output format contracts against the 7-section symmetrical format.js rebuild.

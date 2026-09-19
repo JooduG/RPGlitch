@@ -40,10 +40,7 @@ vi.mock("./builder.js", async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
-    prompt_builder: {
-      ...actual.prompt_builder,
-      build_memory: vi.fn(() => ({ system: "mock prompt", messages: [] })),
-    },
+    compile_pipeline_prompt: vi.fn(() => ({ system: "mock prompt", messages: [] })),
   };
 });
 
@@ -912,7 +909,7 @@ describe("temporal_engine per-entity consolidation progress tracking (Track 2 Ph
       other_entities: {},
       history: [{ role: "user", text: "Hello Viper" }],
     });
-    expect(prompt).toContain('<SYSTEM role="CONTINUUM_CARETAKER" target="Viper">');
+    expect(prompt).toContain('role="CONTINUUM_CARETAKER" target="Viper"');
     expect(prompt).toContain("<INPUT_HISTORY>");
     expect(prompt).toContain("Hello Viper");
   });

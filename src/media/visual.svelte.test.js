@@ -13,7 +13,13 @@ vi.mock("@data", async (importOriginal) => {
     detox_prose: (text) => text,
     entities: {},
     VISUAL_STYLES: {
-      none: { id: "none", name: "No Visual Style", tags: ["none"], engine: {}, negative_prompt: "" },
+      none: {
+        id: "none",
+        name: "No Visual Style",
+        tags: ["none"],
+        engine: {},
+        negative_prompt: "blurry, low resolution, bad anatomy, distorted features",
+      },
     },
     resolve_portrait_visual_style_key: vi.fn().mockReturnValue("none"),
     resolve_story_visual_style_key: vi.fn().mockReturnValue("none"),
@@ -145,5 +151,61 @@ describe("VisualEngine.generate — fractal profile pictures render in landscape
 
     expect(window.generate_image).toHaveBeenCalledTimes(1);
     expect(window.generate_image).toHaveBeenCalledWith(expect.objectContaining({ resolution: "512x768" }));
+  });
+
+  it("excludes character negative tokens for story_scene mode (R2, T3)", async () => {
+    await engine.generate("an expansive mountain landscape with aurora", {
+      mode: "story_scene",
+      returnPayload: true,
+    });
+
+    expect(window.generate_image).toHaveBeenCalledTimes(1);
+    const call_args = window.generate_image.mock.calls[0][0];
+    expect(call_args.negativePrompt).not.toContain("empty background");
+    expect(call_args.negativePrompt).not.toContain("landscape without characters");
+    expect(call_args.negativePrompt).not.toContain("no humans");
+  });
+
+  it("includes character negative tokens for story_character mode", async () => {
+    await engine.generate("a close up of the warrior", {
+      mode: "story_character",
+      returnPayload: true,
+    });
+
+    expect(window.generate_image).toHaveBeenCalledTimes(1);
+    const call_args = window.generate_image.mock.calls[0][0];
+    expect(call_args.negativePrompt).toContain("empty background");
+    expect(call_args.negativePrompt).toContain("landscape without characters");
+    expect(call_args.negativePrompt).toContain("no humans");
+  });
+
+  it("includes VISUAL_STYLES.none negative tokens as baseline floor for all styled generations (F2, T5)", async () => {
+    await engine.generate("an ancient temple", {
+      mode: "story_scene",
+      returnPayload: true,
+    });
+
+    expect(window.generate_image).toHaveBeenCalledTimes(1);
+    const call_args = window.generate_image.mock.calls[0][0];
+    expect(call_args.negativePrompt).toContain("blurry");
+    expect(call_args.negativePrompt).toContain("bad anatomy");
+    expect(call_args.negativePrompt).toContain("distorted features");
+  });
+
+  it("deduplicates negative tokens with case-folding and punctuation stripping (F5, T5)", async () => {
+    await engine.generate("a cyberpunk street", {
+      mode: "story_scene",
+      negative_prompt: "3D render, 3d render, scanlines., scanlines, blurry",
+      returnPayload: true,
+    });
+
+    expect(window.generate_image).toHaveBeenCalledTimes(1);
+    const call_args = window.generate_image.mock.calls[0][0];
+    const tokens = call_args.negativePrompt.split(",").map((t) => t.trim());
+    const lower_tokens = tokens.map((t) => t.toLowerCase());
+    const unique_tokens = new Set(lower_tokens);
+    expect(tokens.length).toBe(unique_tokens.size);
+    expect(lower_tokens.filter((t) => t === "3d render").length).toBe(1);
+    expect(lower_tokens.filter((t) => t.startsWith("scanlines")).length).toBe(1);
   });
 });

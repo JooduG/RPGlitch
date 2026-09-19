@@ -13,7 +13,7 @@
  */
 
 import { context_builder } from "../../../../src/intelligence/payload.js";
-import { prompt_builder } from "../../../../src/intelligence/builder.js";
+import { compile_prompt } from "../../../../src/intelligence/prompts.js";
 import { premade } from "../../../../src/data/definitions/premade-entities.js";
 
 /**
@@ -109,8 +109,8 @@ export const SimulationAudit = {
     };
 
     // 3. PHASE 3: SYNTHESIS (Prompt Construction)
-    const director_prompt = prompt_builder.build_director(payload, snapshot);
-    const character_prompt = prompt_builder.build_character(payload, snapshot, null);
+    const director_prompt = compile_prompt("director", { ...payload, compressed_snapshot: snapshot });
+    const character_prompt = compile_prompt("interaction", { ...payload, snapshot });
 
     // 4. PHASE 4: VERIFICATION (Pipeline Feature Audit)
     const verification = this.verify_pipeline(director_prompt, character_prompt);
@@ -146,7 +146,10 @@ export const SimulationAudit = {
     check("director:system_has_DYNAMICS", director.system.includes("<DYNAMICS>"));
     check("director:system_has_ENTITIES", director.system.includes("<ENTITIES>"));
     check("director:system_has_KEYWORD_DIRECTIVES", director.system.includes("<KEYWORD_DIRECTIVES>"));
-    check("director:system_has_CORE_PROTOCOLS", director.system.includes("<CORE_PROTOCOLS>"));
+    check(
+      "director:system_no_empty_protocols",
+      !director.system.includes("<CORE_PROTOCOLS></CORE_PROTOCOLS>") && !director.system.includes("<CORE_PROTOCOLS>\n  </CORE_PROTOCOLS>"),
+    );
     check("director:system_has_PRESENT_ENTITIES", director.system.includes("<PRESENT_ENTITIES>"));
     check("director:task_has_JSON_schema", director.task.includes('"_thought_process"'));
     check("director:task_has_next_action", director.task.includes('"next_action"'));
@@ -159,7 +162,6 @@ export const SimulationAudit = {
     check("character:system_has_AXIOMATIC_CONSTITUTION", character.system.includes("<AXIOMATIC_CONSTITUTION>"));
     check("character:system_has_CORE_PROTOCOLS", character.system.includes("<CORE_PROTOCOLS>"));
     check("character:system_has_ENTITIES", character.system.includes("<ENTITIES>"));
-    check("character:system_has_DYNAMIC_AXES", character.system.includes("<DYNAMIC_AXES"));
 
     // Prefix-cache & Task Verification:
     check("character:system_lacks_dynamics_attrs", !character.system.includes("chaos="));
@@ -203,4 +205,7 @@ export const SimulationAudit = {
  * CHANGELOG:
  * - 2026-09-18: Standardized verification checks to match scrobbles.md blueprint (<ENTITIES>, <CORE_PROTOCOLS>).
  * - 2026-09-18: Standardized verification tags to match spatial and prompt specifications (<AVAILABLE_ENTITIES>, <PRESENT_ENTITIES>, <THINK>).
+ * - 2026-09-19: Replaced director:system_has_CORE_PROTOCOLS with director:system_no_empty_protocols per R1/R5 dynamic protocol omission.
+ * - 2026-09-19: Retired prompt_builder import. Migrated PHASE 3 synthesis to compile_prompt("director") and compile_prompt("interaction") under P4 Zero Backwards Compatibility (Mega Report D1).
+ * - 2026-09-19: Retired stale character:system_has_DYNAMIC_AXES verification check — DYNAMIC_AXES are now exclusively in the Director shot's <DYNAMICS> envelope and are conditional on entity dynamics data.
  */

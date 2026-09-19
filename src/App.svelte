@@ -200,8 +200,11 @@
       let final_prompt = prompt;
       let final_negative = negative_prompt;
 
-      // Second+ regenerate: re-refine the prompt via LLM
-      if (regenerate_count >= 1 && prompt) {
+      // Second+ regenerate OR unrefined pass-1 fallback prompt: re-refine via LLM (F6)
+      const is_unrefined =
+        !prompt || prompt.length < 30 || prompt.includes("<image_prompt>") || prompt.startsWith("RAW photograph or structured artistic rendering of");
+
+      if ((regenerate_count >= 1 || is_unrefined) && prompt) {
         const refined = await visual_engine.enhance(prompt, mode);
         if (refined?.prompt) {
           final_prompt = refined.prompt;
@@ -569,6 +572,11 @@
     </div>
   </div>
 {/if}
+
+<!--
+CHANGELOG:
+- 2026-09-19: Fallback-aware regeneration (F6): trigger LLM prompt enhancement on pass 1 if the stored prompt is unrefined or raw fallback markup.
+-->
 
 <!--
 CHANGELOG:

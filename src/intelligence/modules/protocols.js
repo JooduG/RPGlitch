@@ -23,12 +23,14 @@ import { extract_style_dna } from "@data";
 // [SECTION 1: CONSOLIDATED PROTOCOL LIBRARY]
 // ============================================================================
 
+const AFFIRMATIVE_FRAMING =
+  "Describe positive presence in frame ('softly moonlit glade' not 'no harsh sunlight'); confine negative_prompt to global quality artifacts.";
+
 export const PROTOCOL_LIBRARY = Object.freeze({
   // ── 1.1 Core Output Mechanics, Formatting & Hygiene ────────────────────────
   HYGIENE: Object.freeze({
     DATA: "Output strictly raw, unpadded structural data. Zero prose, conversational filler, or commentary.",
-    AFFIRMATIVE_FRAMING:
-      "Describe positive presence in frame ('softly moonlit glade' not 'no harsh sunlight'); confine negative_prompt to global quality artifacts.",
+    AFFIRMATIVE_FRAMING,
   }),
 
   // ── 1.2 Core-Prose Scaffold (<CORE_PROTOCOLS> bodies) ──────────────────────
@@ -59,8 +61,7 @@ export const PROTOCOL_LIBRARY = Object.freeze({
   OPTICS: Object.freeze({
     WEIGHTING_RESTRICTIONS:
       "Enforce FLUX_T5_WEIGHTING — NEVER emit bracket weight math ('(x:1.3)', '((x))', '[x:0.4]'): FLUX/T5 reads words, not weights. Emphasize via descriptors, varied rephrasing, and attenuation phrasing ('faint', 'subtle touch of', 'barely visible in the distance').",
-    AFFIRMATIVE_FRAMING:
-      "Describe positive presence in frame ('softly moonlit glade' not 'no harsh sunlight'); confine negative_prompt to global quality artifacts.",
+    AFFIRMATIVE_FRAMING,
     TYPOGRAPHY:
       'Render on-screen text ONLY when the scene itself calls for it — signs, graffiti, titles, or UI that are part of the subject matter. Never add text artificially. When text IS present, spell it out exactly and specify placement, font, and color (e.g. "OPEN" in glowing red neon, centered above the doors) — never invent, garble, or approximate lettering, and never output generic placeholders like "text" or "sign".',
     ENVIRONMENTAL_GROUNDING:
@@ -264,6 +265,10 @@ export function render_core_protocols({
       : null,
   ].filter(Boolean);
 
+  if (blocks.length === 0) {
+    return "";
+  }
+
   return render_xml_tag({ tag: "CORE_PROTOCOLS", children: blocks, indent: 2, child_indent: 2, separator: "\n\n" });
 }
 
@@ -272,6 +277,8 @@ export function render_core_protocols({
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-19: Deduplicated AFFIRMATIVE_FRAMING constant between HYGIENE and OPTICS in PROTOCOL_LIBRARY (Mega Report D2).
+ * - 2026-09-19: Omitted empty `<CORE_PROTOCOLS>` envelope when resolved blocks are empty (R5).
  * - 2026-09-19: Consolidation pass: Merged `render_protocols` into `render_core_protocols` and converted `compile_protocol_tags` into a module-private compiler, making `render_core_protocols` the sole public compiler for Layer 3 `<CORE_PROTOCOLS>` envelopes across all prompt modes.
  * - 2026-09-19: Unification pass: (1) Symmetrically extracted `render_narrative_style_xml` alongside `render_visual_style_xml`; (2) Unified all prompt modes (Director, Continuum, Enhancement, Sorting, Story Prose, Optics) onto universal Layer 3 compiler `render_core_protocols`; (3) Pruned redundant `render_optics_protocols` and external `wrap_tag("CORE_PROTOCOLS")` wrappers under P4 Zero Backwards Compatibility.
  * - 2026-09-18: Pruned legacy SELECTABLE_OPTIONS alias in render_protocols; all protocol keys now map directly to canonical XML tags without shims (P4 Zero Backwards Compatibility).

@@ -1,7 +1,7 @@
 ---
 name: present
 description: Active mission board, roadmap, feature maturity, and pulse history log
-active_track: null
+active_track: tasks/future/track-prompt-unification-and-dead-code-elimination.md
 last_synchronized: 2026-09-19
 ---
 
@@ -9,21 +9,19 @@ last_synchronized: 2026-09-19
 
 ## ⚡ Present
 
-- **Active Track**: None (Ready for Next Queue Assignment)
-- **Active Task**: All visual style architecture, subject rules co-location, and unified spatial framing phases complete.
+- **Active Track**: [`tasks/future/track-prompt-unification-and-dead-code-elimination.md`](./future/track-prompt-unification-and-dead-code-elimination.md)
+- **Active Task**: Phase 1: Test-Driven Red Suite (Optics single door and compile_prompt direct execution tests)
 
 ### 🩺 System & Session Readiness
 
 - **Active Baton**: [`scribbles.md`](../scribbles.md) (Generation flow lifecycle, speaker thinking indicators, active-story guard modal exploration, shimmer harmonization).
-- **Environmental Health**: Git branch `main` (hook contracts passing 13/13 via `npm run test:hooks`, 70 test suites / 993 tests passing 100%, design tests passing, build passing).
+- **Environmental Health**: Git branch `main` (hook contracts passing 13/13 via `npm run test:hooks`, 70 test suites / 1001 tests passing 100%, design tests passing, build passing).
 - **Sovereign Constraints**: Svelte 5 Runes only (`$state`, `$derived`, `$effect`), single-file bundle distribution (`vite-plugin-singlefile`), P4 Zero Backwards Compatibility (pre-beta purity).
 - **Last Startup Verification**: 2026-09-18 16:35 (via `/startup`).
 
 ### 🔍 Detected TODOs
-
 <!-- TODO_SCAN_START -->
-
-Last Scanned: 2026-09-19 01:00
+Last Scanned: 2026-09-19 03:48
 
 No active AI debt found.
 <!-- TODO_SCAN_END -->
@@ -49,6 +47,7 @@ No active AI debt found.
 ## 📜 Past
 
 | Date / Timestamp | Summary of Changes | Workflows / Skills | Status |
+| 2026-09-19 02:55 | Mega Report Phase 0 & Phase 1 Remediation: (1) Reordered `render_director` in `builder.js` and passed `has_alternations(entity_sheets)` to `render_core_protocols` (R1); (2) Completely omitted `<CORE_PROTOCOLS>` envelope when resolved blocks are empty (R5); (3) Normalized tier mapping in `visual.svelte.js` so `story_scene` excludes character negative tokens (R2); (4) Targeted `SCHEMA_ATOMS.negative_prompt` with contextual guidance in `get_output_format` (R3); (5) Deterministically unioned `none` style negative tokens as baseline quality floor (F2); (6) Added `<SIGNATURE_COLORS>` directive in `sheets.js` and deterministic color verification in `visualize()` (F1); (7) Parameterized `FIRST_SENTENCE_MANDATE` by tier in `task.js` (F3); (8) Case-folded and stripped punctuation in negative token deduplication (F5); (9) Fallback-aware regeneration on pass 1 in `App.svelte` (F6); (10) All 70 unit test files (1001 tests), design tests, 13 hook contracts, `npm run verify`, and single-file build pass 100%. | `implement`, `test` | ✅ Completed |
 | 2026-09-19 00:51 | Architecture Purification (Task & Media): (1) Relocated `resolve_optics_cinematography` from `entities/sheets.js` to Layer 6 `modules/task.js` and removed re-export from `entities/index.js` under P4 Zero Backwards Compatibility; (2) Updated `builder.js` and `task.test.js` to import and test `resolve_optics_cinematography` via `task.js`; (3) Switched relative media import in `sheets.js` to sovereign `@media` barrel alias; (4) Verified all 70 test suites pass 100%. | `implement`, `test` | ✅ Completed |
 | 2026-09-19 00:45 | Protocol Compiler Consolidation: (1) Merged `render_protocols` into `render_core_protocols` and converted `compile_protocol_tags` into a module-private compiler helper; (2) Removed `export function render_protocols` under P4 Zero Backwards Compatibility, leaving `render_core_protocols` as the single universal Layer 3 `<CORE_PROTOCOLS>` compiler; (3) Cleaned up dead mock in `story.test.js` and updated `protocols.test.js`; (4) Formatted `tasks/PRESENT.md` and verified all suites. | `implement`, `test` | ✅ Completed |
 | 2026-09-19 00:43 | Core Protocols Unification & Symmetry Cleanup: (1) Symmetrically extracted `render_narrative_style_xml` in `protocols.js` alongside `render_visual_style_xml`; (2) Unified all prompt modes (Director, Continuum, Enhancement, Sorting, Story Prose, Optics) onto universal Layer 3 compiler `render_core_protocols`; (3) Pruned redundant `render_optics_protocols` and external `wrap_tag("CORE_PROTOCOLS")` wrappers from `builder.js` under P4 Zero Backwards Compatibility; (4) Synchronized unit tests in `protocols.test.js` and `builder.test.js`; (5) All 70 test suites (994 tests), design tests, 13 hook contracts, and `npm run verify` pass 100% cleanly. | `implement`, `test` | ✅ Completed |
@@ -58,6 +57,3 @@ No active AI debt found.
 | 2026-09-18 23:20 | Keyword Directives Harmonization & Optics Consolidation: (1) Generalized `render_keyword_directives_xml` in `task.js` to support both DIRECTOR and OPTICS modes; (2) Connected `build_optics_builder_protocol` in `protocols.js` to accept compiled `style_keywords_xml` option, delegating XML generation to `render_keyword_directives_xml` in `builder.js`; (3) Purged redundant `TASK_LIBRARY.DIRECTOR.KEYWORD_DIRECTIVES` getter under P4 Zero Backwards Compatibility; (4) Added comprehensive unit test coverage in `src/intelligence/modules/task.test.js`; (5) All 69 unit test files (987 tests), design tests, and 13 hook contracts pass 100%. | `implement`, `test` | ✅ Completed |
 | 2026-09-18 23:05 | Schema Repatriation & Format Deduplication: (1) Repatriated output schema definitions from `src/intelligence/modules/format.js` into `src/intelligence/prompts.js`, declaring explicit `{ mode: 'json', schema: [...] }` arrays on `director`, `director_terse`, `continuum`, `sorting`, and `optics`; (2) Removed redundant hardcoded schema getters (`get_director_schema`, `get_continuum_schema`, `get_profile_schema`, `get_optics_schema`) and `STRING_KEY_SCHEMAS`; (3) Streamlined `get_output_format` to dynamically compile schemas directly from manifest format specifications via `render_json_schema`; (4) Simplified `builder.js` callers; (5) All 69 unit test files (986 tests), design tests, and 13 hook contracts pass 100%. | `implement`, `test` | ✅ Completed |
 | 2026-09-18 22:50 | Prompts Catalog & Factory Purification: (1) Standardized `define_mode(mode_key, spec)` in `prompts.js` so `system.mode` strictly binds to canonical mode key while resolving uppercase role factories; (2) Defined frozen `DEFAULT_ENTITIES_CONFIG` declaring all entity flags (`field_context`, `target_context`, `chapter_history`, `user_agenda`, `nearby_entities`, `present_entities`, `dispositions`, `dynamic_axes`); (3) Explicitly typed `format: "PROSE"` for `enhancement` mode; (4) All 69 unit test files (984 tests), design tests, and 13 hook contracts pass 100%. | `implement`, `test` | ✅ Completed |
-| 2026-09-18 21:10 | Prompt Switchboard Promotion & Builder Streamlining: (1) Implemented and exported sovereign `compile_prompt(mode_key, context)` in `src/intelligence/prompts.js`, cleanly delegating to `compile_pipeline_prompt`; (2) Consolidated repetitive prompt builder facades and wired `prompt_builder.build_director` through the 7-layer pipeline runner; (3) Routed `temporal.js` (`forge_memory`), `director.js`, and `src/intelligence/index.js` through switchboard compilation; (4) Added comprehensive unit tests in `src/intelligence/prompts.test.js` validating all primary prompt modes; (5) All 69 unit test files (983 tests), design tests, 13 hook contracts, and `deploy:prepare` pass 100%. | `implement`, `test` | ✅ Completed |
-| 2026-09-18 20:50 | Optics Deconstruction & P4 Full Removal (scrobbles.md Alignment): (1) Redistributed `src/intelligence/optics.js` into core modules: `NEGATIVE_PROMPT` and `build_optics_builder_protocol` in `protocols.js`, `format_sensory_history` in `history.js`, `render_optics_entities_xml` in `entities/sheets.js`, `TASK_LIBRARY.OPTICS` and output schema in `task.js` and `format.js`; (2) In `src/intelligence/builder.js`, bound `render_optics_prompt`, `render_visual_enhancement`, and `prompt_templates`; (3) Executed Option B (P4 Zero Backwards Compatibility) by completely deleting `src/intelligence/optics.js` and updating all consumers (`src/media/visual.svelte.js`, `src/media/index.js`, `src/intelligence/index.js`); (4) Resolved linter/mock regressions in `sheets.js`, `visual.svelte.test.js`, and `log.test.js`; (5) All 70 unit test files (998 tests), design tests, and 13 hook contracts pass 100% cleanly. | `implement`, `test` | ✅ Completed |
-| 2026-09-18 20:15 | Prompt Pipeline Phases 3-5 (Declarative Pipeline Runner, Consumer Alignment & Optics Integration): (1) In `src/intelligence/prompts.js`, registered `director_terse` and `optics` modes; (2) In `src/intelligence/builder.js`, implemented `compile_pipeline_prompt(mode_key, context)` executing 7 manifest layers, consolidated prompt facade into `build_director`, `build_story_prose`, `build_continuum`, `build_sorting`, `build_terse_director_task`, and added `verify_epistemic_integrity` guard; (3) In `src/intelligence/story.js`, aligned character/npc/narrator/prologue/epilogue/ghostwriter with `build_story_prose` and pruned `system_close`; (4) Created `src/intelligence/optics.js` absorbing 5-phase Optics Builder protocol and sensory cinematography; (5) In `src/intelligence/parser.js`, absorbed image prompt response parsing and proper name cleaning; (6) Migrated `src/media/visual.svelte.js` and media index to consume intelligence optics/parser, deleted legacy `src/media/image-prompts.js`, and relocated tests to `src/intelligence/optics.test.js`; (7) All 71 test files (1026 tests), design tests, 13 hook contracts, `npm run verify`, and `npm run build` pass 100% cleanly. | `implement`, `test` | ✅ Completed |

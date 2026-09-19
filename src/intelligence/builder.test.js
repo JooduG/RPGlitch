@@ -29,7 +29,6 @@ import {
   render_enhancement,
   render_director,
   compile_pipeline_prompt,
-  prompt_builder,
 } from "./builder.js";
 import { PROTOCOL_LIBRARY } from "./modules/protocols.js";
 
@@ -310,12 +309,34 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
 
     expect(director_package.system).toContain("<SYSTEM");
     expect(director_package.system).toContain('mode="director"');
-    expect(director_package.system).toContain("<CORE_PROTOCOLS>");
+    // Empty protocol block should be completely omitted (R5)
+    expect(director_package.system).not.toContain("<CORE_PROTOCOLS>");
     // Schema should NOT be inside <CORE_PROTOCOLS> in system
     expect(director_package.system).not.toContain("<SCHEMA>");
     // Schema should be inside task
     expect(director_package.task).toContain('<OUTPUT_FORMAT mode="json">');
     expect(director_package.task).toContain('"next_action"');
+  });
+
+  it("compiles director mode with <ALTERNATION_OPTIONS> in <CORE_PROTOCOLS> when entities have alternations (R1, T1)", () => {
+    const entities_with_alternation = {
+      ...test_entities,
+      AI: {
+        ...test_entities.AI,
+        present: {
+          physical: "[JACKET: {neon blue|crimson red}] [POSTURE: alert]",
+          non_physical: "Guarded vigilance.",
+        },
+      },
+    };
+    const director_package = compile_pipeline_prompt("director", {
+      round: 1,
+      entities: entities_with_alternation,
+      input: "Bob scans the perimeter.",
+    });
+
+    expect(director_package.system).toContain("<CORE_PROTOCOLS>");
+    expect(director_package.system).toContain("<ALTERNATION_OPTIONS>");
   });
 
   it("compiles director_terse mode via compile_pipeline_prompt", () => {
@@ -377,9 +398,9 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
     expect(optics_package.task).toContain('"negative_prompt"');
   });
 
-  it("unifies character, npc, narrator, prologue, and ghostwrite via build_story_prose", () => {
+  it("unifies character, npc, narrator, prologue, epilogue, and ghostwrite via compile_pipeline_prompt", () => {
     // 1. Canonical Character
-    const character_result = prompt_builder.build_story_prose({
+    const character_result = compile_pipeline_prompt("interaction", {
       round: 1,
       entities: test_entities,
       input: "Alice prepares to move.",
@@ -387,34 +408,37 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
     expect(character_result.system).toContain('mode="interaction"');
 
     // 2. NPC
-    const npc_result = prompt_builder.build_story_prose({ round: 1, entities: test_entities, input: "Merchant glances around." }, { npc: test_npc });
+    const npc_result = compile_pipeline_prompt("npc", { round: 1, entities: test_entities, input: "Merchant glances around.", npc: test_npc });
     expect(npc_result.system).toContain('mode="npc"');
 
     // 3. Narrator (continuation)
-    const narrator_result = prompt_builder.build_story_prose({ round: 1, entities: test_entities, input: "The wind howls." }, { is_narrator: true });
+    const narrator_result = compile_pipeline_prompt("narrator", { round: 1, entities: test_entities, input: "The wind howls.", is_narrator: true });
     expect(narrator_result.system).toContain('mode="narrator"');
 
     // 4. Prologue
-    const prologue_result = prompt_builder.build_story_prose({ round: 0, entities: test_entities }, { is_prologue: true });
+    const prologue_result = compile_pipeline_prompt("narrator", { round: 0, entities: test_entities, is_prologue: true, scene_template: "PROLOGUE" });
     expect(prologue_result.system).toContain('mode="narrator"');
 
     // 5. Epilogue
-    const epilogue_result = prompt_builder.build_story_prose(
-      { entities: test_entities, simulation_log: [] },
-      { is_epilogue: true, conclusion_status: "CONCLUDED" },
-    );
+    const epilogue_result = compile_pipeline_prompt("narrator", {
+      entities: test_entities,
+      simulation_log: [],
+      is_epilogue: true,
+      conclusion_status: "CONCLUDED",
+      scene_template: "EPILOGUE",
+    });
     expect(epilogue_result.system).toContain('mode="narrator"');
 
     // 6. Ghostwriter
-    const ghostwriter_result = prompt_builder.build_story_prose({ entities: test_entities, input: "I steady my aim." }, { ghostwrite: true });
+    const ghostwriter_result = compile_pipeline_prompt("ghostwrite", { entities: test_entities, input: "I steady my aim.", ghostwrite: true });
     expect(ghostwriter_result.system).toContain('mode="ghostwrite"');
   });
 
-  it("exposes build_continuum and build_sorting as unified facade methods", () => {
-    const continuum_result = prompt_builder.build_continuum(test_entities.AI, []);
+  it("exposes continuum and sorting as declarative pipeline modes", () => {
+    const continuum_result = compile_pipeline_prompt("continuum", { target_entity: test_entities.AI, history: [] });
     expect(continuum_result.system).toContain('role="CONTINUUM_CARETAKER"');
 
-    const sorting_result = prompt_builder.build_sorting("raw text", "character");
+    const sorting_result = compile_pipeline_prompt("sorting", { input_data: "raw text", entity_type: "character" });
     expect(sorting_result.system).toContain('role="NARRATIVE_STRUCTURER"');
   });
   it("audits epistemic integrity returning boolean without throwing unhandled errors", async () => {
@@ -430,6 +454,7 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-19: Added T1/R1 and R5 regression tests asserting Director includes <ALTERNATION_OPTIONS> when alternations exist and omits empty <CORE_PROTOCOLS>.
  * - 2026-09-18: Added unit test verifying verify_epistemic_integrity returns boolean for clean and leaked prompts.
  * - 2026-09-18: Added Section 5 tests covering `compile_pipeline_prompt` (director, director_terse, continuum, enhancement, sorting, optics) and `build_story_prose` unification.
  * - 2026-09-17: Remediation pass — Added regression tests for PROTOCOL_LIBRARY.HYGIENE.AFFIRMATIVE_FRAMING, SIMULATION_FIDELITY permissive clause, and Director USER_PERSONA_LOCK prompt invariants.
