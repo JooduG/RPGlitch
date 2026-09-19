@@ -232,7 +232,7 @@ describe("task.js - Optics Task Staging", () => {
       tier: "solo_entity",
       solo_subject: { name: "Alice", type: "character" },
     });
-    expect(solo.mode).toBe("Medium Action");
+    expect(solo.mode).toBe("Solo Portrait");
     expect(solo.tokens).toContain("medium portrait framing");
 
     const close_up = resolve_optics_cinematography({
@@ -267,7 +267,7 @@ describe("task.js - Optics Task Staging", () => {
     expect(TASK_LIBRARY.OPTICS.CINEMATOGRAPHY.PRESETS.DUTCH_LOW_ANGLE.mode).toBe("Dutch / Low-Angle");
     expect(TASK_LIBRARY.OPTICS.CINEMATOGRAPHY.PRESETS.INTIMATE_CLOSE_UP.mode).toBe("Intimate Close-Up");
     expect(TASK_LIBRARY.OPTICS.CINEMATOGRAPHY.PRESETS.MEDIUM_ACTION.mode).toBe("Medium Action");
-    expect(TASK_LIBRARY.OPTICS.CINEMATOGRAPHY.PRESETS.SOLO_PORTRAIT.mode).toBe("Medium Action");
+    expect(TASK_LIBRARY.OPTICS.CINEMATOGRAPHY.PRESETS.SOLO_PORTRAIT.mode).toBe("Solo Portrait");
     expect(TASK_LIBRARY.OPTICS.CINEMATOGRAPHY.STAGING_DIRECTIVE("look left")).toBe("\n  Staging Directive: look left");
     expect(TASK_LIBRARY.OPTICS.CINEMATOGRAPHY.STAGING_DIRECTIVE("")).toBe("");
   });

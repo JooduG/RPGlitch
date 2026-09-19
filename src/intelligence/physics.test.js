@@ -8,10 +8,11 @@ import {
   evaluate_dynamics_rules,
   DYNAMICS_AXES,
   DYNAMICS_RULES,
-  render_dynamics_axes_xml,
-  render_available_keywords_xml,
+  AVAILABLE_KEYWORDS,
   PHYSICS_PROTOCOLS,
 } from "./physics.js";
+import { render_dynamics_axes_xml } from "./modules/entities/sheets.js";
+import { render_available_keywords_xml } from "./modules/task.js";
 
 describe("physics.js", () => {
   describe("DYNAMICS_AXES", () => {
@@ -183,7 +184,7 @@ describe("physics.js", () => {
     const dynamics = { chaos: 40, intensity: 60, openness: 30, affinity: 20, velocity: 40, entropy: 60 };
 
     it("filters to the somatic axes", () => {
-      const xml = render_dynamics_axes_xml(dynamics, "somatic");
+      const xml = render_dynamics_axes_xml(dynamics, "somatic", DYNAMICS_AXES);
       expect(xml).toContain("<CHAOS");
       expect(xml).toContain("<INTENSITY");
       expect(xml).not.toContain("<VELOCITY");
@@ -191,21 +192,21 @@ describe("physics.js", () => {
     });
 
     it("filters to the fractal axes", () => {
-      const xml = render_dynamics_axes_xml(dynamics, "fractal");
+      const xml = render_dynamics_axes_xml(dynamics, "fractal", DYNAMICS_AXES);
       expect(xml).toContain("<VELOCITY");
       expect(xml).toContain("<ENTROPY");
       expect(xml).not.toContain("<CHAOS");
     });
 
     it("renders every axis when no scope is given", () => {
-      const xml = render_dynamics_axes_xml(dynamics, null);
+      const xml = render_dynamics_axes_xml(dynamics, null, DYNAMICS_AXES);
       expect(xml).toContain("<CHAOS");
       expect(xml).toContain("<VELOCITY");
     });
 
     it("returns an empty string for empty dynamics", () => {
-      expect(render_dynamics_axes_xml({}, "somatic")).toBe("");
-      expect(render_dynamics_axes_xml(null, "somatic")).toBe("");
+      expect(render_dynamics_axes_xml({}, "somatic", DYNAMICS_AXES)).toBe("");
+      expect(render_dynamics_axes_xml(null, "somatic", DYNAMICS_AXES)).toBe("");
     });
   });
 
@@ -242,7 +243,7 @@ describe("physics.js", () => {
 
   describe("render_available_keywords_xml", () => {
     it("normalizes active style keywords and motifs to UPPERCASE brackets", () => {
-      const xml = render_available_keywords_xml(["sensual_submersion", "cybernetic"]);
+      const xml = render_available_keywords_xml(["sensual_submersion", "cybernetic"], AVAILABLE_KEYWORDS);
       expect(xml).toContain("[SENSUAL_SUBMERSION]");
       expect(xml).toContain("[CYBERNETIC]");
       expect(xml).not.toContain("[sensual_submersion]");

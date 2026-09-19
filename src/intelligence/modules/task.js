@@ -170,7 +170,7 @@ Strictly zero spoken dialogue or quote marks. No dialogue.`,
           tokens: "medium shot, waist-up framing, dynamic posture, clear wardrobe & prop details",
         }),
         SOLO_PORTRAIT: Object.freeze({
-          mode: "Medium Action",
+          mode: "Solo Portrait",
           tokens: "medium portrait framing, waist-up composition, distinctive wardrobe, signature atmospheric backdrop",
         }),
       }),

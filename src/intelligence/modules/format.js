@@ -123,10 +123,10 @@ export const PROSE_FORMAT = "Emit strictly plain prose. No preamble, commentary,
  * Formats structured JSON schema return instructions.
  *
  * @param {string} schema - JSON schema definition
- * @param {string} [indent="  "] - Indentation spacing
+ * @param {string} [indent="    "] - Indentation spacing
  * @returns {string} Formatted instruction
  */
-export function format_json_return(schema, indent = "  ") {
+export function format_json_return(schema, indent = "    ") {
   return `Return a single, COMPLETE, VALID JSON object matching this schema:\n${indent}${schema}`;
 }
 

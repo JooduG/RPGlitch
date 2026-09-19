@@ -10,8 +10,7 @@
  * 3. Unified Dynamics Rules (DYNAMICS_RULES: subtext protocols & somatic thresholds)
  * 4. Physics Engine & Gravity Settlement (apply_dynamics_gravity, extract_entity_dynamics_baselines)
  * 5. Delta Computation & Subtext Protocol Evaluators (compute_dynamics_deltas, evaluate_subtext_protocols, evaluate_dynamics_rules)
- * 6. Dynamics XML Compilers (render_dynamics_xml, render_dynamics_axes_xml, render_subtext_xml, render_available_keywords_xml)
- * 7. Protocol Resolvers (resolve_physics_protocols, resolve_context_directives)
+ * 6. Consumed by modules/entities/sheets.js (axis XML) and modules/task.js (subtext/keyword compilers), which own all XML generation.
  *
  * Architecture & Modification Rules:
  * - Unidirectional layer flow: pure data, math calculations, and XML generation.
@@ -20,13 +19,6 @@
  */
 
 import { clamp } from "@utils";
-import { render_dynamics_xml as compile_dynamics_xml, render_dynamics_axes_xml as compile_dynamics_axes_xml } from "./modules/entities/sheets.js";
-import {
-  render_subtext_xml as compile_subtext_xml,
-  render_available_keywords_xml as compile_available_keywords_xml,
-  resolve_physics_protocols as compile_physics_protocols,
-  resolve_context_directives as compile_context_directives,
-} from "./modules/task.js";
 
 // ── 1. Dynamics Axes ──────────────────────────────────────────────────────────
 
@@ -427,77 +419,9 @@ export function evaluate_dynamics_rules(dynamics = {}, manual_keywords = [], max
   return result;
 }
 
-// ============================================================================
-// 6. Dynamics XML Compilers (Delegators to modules/protocols.js & modules/task.js)
-// ============================================================================
-
-/**
- * Compiles the canonical <DYNAMICS> reference block (laws & axes legend) for the Director prompt.
- * @returns {string} Formatted XML block.
- */
-export function render_dynamics_xml() {
-  return compile_dynamics_xml(DYNAMICS_AXES);
-}
-
-/**
- * Compiles live dynamics into a <DYNAMIC_AXES> axis-entity block for the story sheet.
- * @param {Record<string, number>|null} [live_dynamics=null]
- * @param {"somatic" | "fractal" | null} [scope=null] - Restrict to one axis group
- * @returns {string} XML block string or "" if no dynamics are active.
- */
-export function render_dynamics_axes_xml(live_dynamics = null, scope = null) {
-  return compile_dynamics_axes_xml(live_dynamics, scope, DYNAMICS_AXES);
-}
-
-/**
- * Compiles dynamic somatic directives and narrative signals into a single unified <SUBTEXT> XML block.
- * @param {Record<string, number>} [ai_dynamics={}] - Active character dynamics
- * @param {Record<string, number>} [fractal_dynamics={}] - Active fractal/environmental dynamics
- * @param {{ style?: object, keywords?: string[] }} [options={}] - Narrative style and manual or director keywords
- * @returns {string} XML block string or "" if no signals or directives are active.
- */
-export function render_subtext_xml(ai_dynamics = {}, fractal_dynamics = {}, options = {}) {
-  return compile_subtext_xml(ai_dynamics, fractal_dynamics, {
-    ...options,
-    physics_protocols: PHYSICS_PROTOCOLS,
-    evaluate_dynamics_rules,
-    evaluate_subtext_protocols,
-  });
-}
-
-// ============================================================================
-// 7. Protocol Resolvers & Keyword Compilers
-// ============================================================================
-
-/**
- * Resolves a list of chosen keywords against the physics protocol registry and the style-motif registry.
- * @param {string[]} [keywords]
- * @returns {{ id: string, tells?: string, directive: string }[]}
- */
-export function resolve_physics_protocols(keywords = []) {
-  return compile_physics_protocols(keywords, PHYSICS_PROTOCOLS);
-}
-
-/**
- * Resolves injected context-directive keywords against the physics protocol registry.
- * @param {string[]} [keywords]
- * @returns {{ id: string, directive: string }[]}
- */
-export function resolve_context_directives(keywords = []) {
-  return compile_context_directives(keywords, PHYSICS_PROTOCOLS);
-}
-
-/**
- * Builds <AVAILABLE_KEYWORDS> listing for the Director as a unified, flat bracketed list of tags.
- * @param {string[]} [active_style_keywords]
- * @returns {string}
- */
-export function render_available_keywords_xml(active_style_keywords = []) {
-  return compile_available_keywords_xml(active_style_keywords, AVAILABLE_KEYWORDS);
-}
-
 /**
  * CHANGELOG
+ * - 2026-09-19: P4 dead-code pass — removed the delegator compilers (render_dynamics_xml, render_dynamics_axes_xml, render_subtext_xml, render_available_keywords_xml, resolve_physics_protocols, resolve_context_directives); physics.js now exports only axis metadata, registries, math, and evaluators.
  * - 2026-09-16: Normalized active_style_keywords to UPPERCASE in render_available_keywords_xml to ensure consistent bracketed keyword listing for Director.
  * - 2026-09-11: Consolidated physics domain: merged physics-protocols.js directly into physics.js, housing all math, registries, and XML compilers together.
  * - 2026-09-11: Streamlined physics engine: stripped redundant desc field from DYNAMICS_AXES; renamed duplicate VULNERABILITY rule to EXPOSED; made compute_dynamics_deltas pure; renamed evaluate_dynamics_signals to evaluate_subtext_protocols with clean options object signature.

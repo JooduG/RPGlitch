@@ -321,7 +321,6 @@ export class ProfileState {
     this.busy_fields.add(key);
     try {
       const type = this.char.type === "user" ? "character" : this.char.type || "character";
-      const catalog_meta = PROFILE_FIELD_CATALOG[`${type}.${key}`];
       const payload = compile_prompt("enhancement", {
         field_id: key,
         content: value,
@@ -329,11 +328,6 @@ export class ProfileState {
         entity_type: type,
         is_image_field: false,
         entity: this.char,
-        enhancer: catalog_meta?.enhancer,
-        label: catalog_meta?.label,
-        directive: catalog_meta?.directive,
-        layer_key: catalog_meta?.layer_key,
-        is_array_field: catalog_meta?.type === "array",
       });
       const result = await llm_service.enhance(payload);
       if (result) {
@@ -440,7 +434,6 @@ export class ProfileState {
 
     try {
       const type = this.char.type === "user" ? "character" : this.char.type || "character";
-      const catalog_meta = PROFILE_FIELD_CATALOG[`${type}.${path}`];
       const payload = compile_prompt("enhancement", {
         field_id: path,
         content,
@@ -448,12 +441,6 @@ export class ProfileState {
         entity_type: type,
         is_image_field: false,
         entity: this.char,
-        enhancer: catalog_meta?.enhancer,
-        label: catalog_meta?.label,
-        directive: catalog_meta?.directive,
-        layer_key: catalog_meta?.layer_key,
-        is_array_field: true,
-        array_mode: "patch_single",
       });
       const result = await llm_service.enhance(payload);
 

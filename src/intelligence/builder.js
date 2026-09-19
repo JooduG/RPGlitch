@@ -620,7 +620,6 @@ export function render_enhancement({
   content,
   is_image_field = false,
   is_array_field,
-  _array_mode = "append_new",
   field_id = "",
   layer_key,
   entity = null,
@@ -632,9 +631,9 @@ export function render_enhancement({
 
   const resolved_enhancer = enhancer || catalog_meta?.enhancer || config.system.role || "ENHANCER";
   const resolved_label = label || catalog_meta?.label || "";
-  const resolved_directive = directive !== undefined ? directive : catalog_meta?.directive || "";
-  const resolved_layer_key = layer_key !== undefined ? layer_key : catalog_meta?.layer_key || "";
-  const resolved_is_array = is_array_field !== undefined ? is_array_field : catalog_meta?.type === "array";
+  const resolved_directive = directive ?? catalog_meta?.directive ?? "";
+  const resolved_layer_key = layer_key ?? catalog_meta?.layer_key ?? "";
+  const resolved_is_array = is_array_field ?? catalog_meta?.type === "array";
 
   const macro_directive = !is_image_field ? resolve_macro_directive(normalized_type) : "";
   const output_rules = resolved_is_array || field_id.endsWith(".physical") || is_image_field ? "" : get_output_format(config.format);
@@ -1049,6 +1048,7 @@ export const create_render_accessors = render_builder.create_render_accessors;
 
 /**
  * CHANGELOG
+ * - 2026-09-19: Fix pass — render_enhancement treats explicit `null` directive/layer_key as missing (nullish coalescing) and dropped the dead `_array_mode` parameter; Profile enhancement callers now rely solely on catalog hydration (single source of truth).
  * - 2026-09-19: Replaced intermediate `modules/entities/index.js` aggregator with direct concrete imports from `sheets.js`, `presence.js`, and `epistemic.js` under P4 Zero Backwards Compatibility.
  * - 2026-09-19: Fixed E1 (Profile Field Enhancement Metadata): render_enhancement now defensively hydrates missing enhancer, label, directive, layer_key, and is_array_field from PROFILE_FIELD_CATALOG, and updated header to reflect modern compile_prompt architecture.
  * - 2026-09-19: Fixed Director alternation protocol resolution (R1): reordered render_entity_sheets before render_core_protocols and passed has_alternations(entity_sheets).
