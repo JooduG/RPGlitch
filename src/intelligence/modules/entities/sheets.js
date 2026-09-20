@@ -392,6 +392,56 @@ export function render_sheet(specification, context) {
 // ============================================================================
 
 /**
+ * Named entity-visibility policies — the ONE place a mode's "who sees what" is decided.
+ * Each policy maps the mode's speaker to the three sheet gates (`dispositions`,
+ * `dynamic_axes`, `agendas`) the sheet compiler reads, so a mode declares only its policy
+ * name + speaker and the sets live here instead of as three parallel arrays per record.
+ *
+ * Sheet-bearing policies: `default` (speaker + environment fully visible, listener shows
+ * personality/state only), `supporting` (default plus the AI companion's agenda), `director`
+ * (everyone's agenda/dispositions, no live axes), `omniscient` (narrator). The tool modes
+ * (`target`/`field`/`visual`/`none`) expose no core sheets, so their gates are empty.
+ *
+ * @type {Readonly<Record<string, (speaker: string|null) => { dispositions: Set<string>, dynamic_axes: Set<string>, agendas: Set<string> }>>}
+ */
+export const VISIBILITY_POLICIES = Object.freeze({
+  default: (speaker) => {
+    const visible = new Set([speaker, "FRACTAL"].filter(Boolean));
+    return { dispositions: visible, dynamic_axes: new Set(visible), agendas: new Set(visible) };
+  },
+  supporting: (speaker) => ({
+    dispositions: new Set([speaker, "FRACTAL"].filter(Boolean)),
+    dynamic_axes: new Set([speaker, "FRACTAL"].filter(Boolean)),
+    agendas: new Set(["AI", "FRACTAL"]),
+  }),
+  director: () => ({
+    dispositions: new Set(["AI", "USER", "FRACTAL", "NPC"]),
+    dynamic_axes: new Set(),
+    agendas: new Set(["AI", "USER", "FRACTAL"]),
+  }),
+  omniscient: () => ({
+    dispositions: new Set(["AI", "USER", "FRACTAL", "NPC"]),
+    dynamic_axes: new Set(["FRACTAL"]),
+    agendas: new Set(["AI", "USER", "FRACTAL"]),
+  }),
+  target: () => ({ dispositions: new Set(), dynamic_axes: new Set(), agendas: new Set() }),
+  field: () => ({ dispositions: new Set(), dynamic_axes: new Set(), agendas: new Set() }),
+  visual: () => ({ dispositions: new Set(), dynamic_axes: new Set(), agendas: new Set() }),
+  none: () => ({ dispositions: new Set(), dynamic_axes: new Set(), agendas: new Set() }),
+});
+
+/**
+ * Resolves one mode's sheet-visibility policy into the three gate sets the sheet compiler reads.
+ * @param {string} [visibility]
+ * @param {string|null} [speaker]
+ * @returns {{ dispositions: Set<string>, dynamic_axes: Set<string>, agendas: Set<string> }}
+ */
+export function resolve_visibility_gates(visibility, speaker) {
+  const policy = VISIBILITY_POLICIES[visibility] || VISIBILITY_POLICIES.none;
+  return policy(speaker);
+}
+
+/**
  * Resolves the mode's `entities` manifest layer and the active entity roster into one plan.
  * Single source of truth for every entity gate read (`dispositions`, `dynamic_axes`,
  * `agendas`, `nearby_entities`, `present_entities`, `field_context`, `target_context`,
@@ -408,9 +458,7 @@ export function render_sheet(specification, context) {
  */
 export function resolve_entities(config = null, context = {}) {
   const configuration = config?.entities || {};
-  const dispositions = new Set(configuration.dispositions || []);
-  const dynamic_axes = new Set(configuration.dynamic_axes || []);
-  const agendas = new Set(configuration.agendas || []);
+  const { dispositions, dynamic_axes, agendas } = resolve_visibility_gates(config?.visibility, config?.speaker);
 
   const { active_names, name_to_id } = resolve_available_entities({
     entities: context.entities || {},
@@ -874,6 +922,7 @@ ${axes}
 /**
  * CHANGELOG
  * ============================================================================
+ * - 2026-09-23: Visibility policy (R3) — added the exported `VISIBILITY_POLICIES` table and `resolve_visibility_gates(visibility, speaker)`; `resolve_entities` now derives the `dispositions`/`dynamic_axes`/`agendas` sheet gates from the mode's `visibility` + `speaker` instead of reading three parallel `config.entities` arrays. Output bytes unchanged.
  * - 2026-09-23: Entity-visibility mirror + cast nesting — the agenda gate is now the `agendas` list (replacing `user_agenda`) and sheet ownership/axes flow from a single `speaker_key`, so ghostwrite is interaction with `speaker_key="USER"` (AI↔USER visibility swapped); `<ENTITIES>` accepts a `cast_xml` roster appended as its final child. `USER_PERSONA.axes_scope` is now `"somatic"` so the player sheet can carry its own axes when it is the speaker (ghostwrite), completing the mirror — the manifest's `dynamic_axes` gate still keeps those axes hidden in every listener position.
  * - 2026-09-22: One entity-sheet grammar (recommendation #2) — the fractal sheet now uses `PSYCHOLOGY`/`APPEARANCE`, every physical sheet uses one `APPEARANCE`/`CURRENT_LOOK` vocabulary for all kinds (retiring `ESSENCE`/`TOPOGRAPHY`/`PHYSICAL_APPEARANCE`/`ENVIRONMENT`/`ATMOSPHERE`), and optics' blocks route through the shared `render_sheet` path via `VISUAL_SECTIONS` + `context.transform_physical`.
  * - 2026-09-21: Tag nomenclature pass — the fractal psychology wrapper is now `ESSENCE` (was the ambiguous `ATMOSPHERE`, which collided with the physical `<ATMOSPHERE>` weather key) and the optics present-look wrapper is `CURRENT_LOOK` (was `CURRENT_IMPRESSION`); sheet field indentation now composes through nested `render_xml_tag` calls for uniform 2-space steps.

@@ -145,7 +145,7 @@ export function format_json_return(schema) {
  * Resolves an output format directive or schema from its canonical format specification.
  * Parameter-aware: accepts an options object to dynamically parameterize CONTINUUM, PROFILE, DIRECTOR, and OPTICS schemas.
  *
- * @param {string|{ mode?: string, schema?: string[] }} [format_spec="PROSE"] - Format spec object from the PROMPTS manifest, or the "PROSE" sentinel
+ * @param {string|{ mode?: string, schema?: string[] }} [format_spec={ mode: "prose" }] - Format spec object from the PROMPTS manifest (normalized at `define_mode`).
  * @param {{ entity_type?: string, variant?: string, is_selfie?: boolean, negative_prompt?: string, fallback?: string }} [options={}]
  * @returns {string} Compiled output format directive or schema
  */
@@ -153,7 +153,7 @@ export function get_output_format(format_spec, options = {}) {
   if (!format_spec) return options.fallback || "";
 
   // 1. Plain narrative prose directive
-  if (format_spec === "PROSE") {
+  if (format_spec === "PROSE" || format_spec.mode === "prose") {
     return PROSE_FORMAT;
   }
 
@@ -199,6 +199,7 @@ export function render_output_format_xml({ mode = "", content = "", indent_level
 
 /**
  * CHANGELOG
+ * - 2026-09-23: `get_output_format` accepts the normalized `{ mode: "prose" }` shape (every mode's `format` is now an object produced by `define_mode`), while retaining the legacy `"PROSE"` sentinel for direct callers.
  * - 2026-09-22: Uniform output contract (recommendation #8) — `format_json_return` documents the single raw schema-escaping policy now that every mode emits an `<OUTPUT_FORMAT>`.
  * - 2026-09-19: Standardized get_output_format to a single `(format_spec, options)` signature (dropped the string options_or_fallback overload and the stale target_type/resolved_type JSDoc), and collapsed render_json_schema's field lookup to one `field_definition`.
  * - 2026-09-19: Simplified negative-prompt injection — SCHEMA_ATOMS.negative_prompt is now a function of the style baseline (EVALUATE-style), and render_json_schema invokes any function atom with `negative_baseline`; removed the compose helper, the key special-case, and the duplicated base wording.

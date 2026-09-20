@@ -96,7 +96,7 @@ describe("render_task — Director Mode", () => {
 
   it("renders Director task with evaluation rules and OUTPUT_FORMAT mode='json'", () => {
     const task = render_task({
-      mode: "director",
+      task_state: "director",
       round: 1,
       input: "Bob draws a weapon.",
       schema: dummy_schema,
@@ -113,7 +113,7 @@ describe("render_task — Director Mode", () => {
 
   it("renders terse Director retry envelope with OUTPUT_FORMAT mode='json'", () => {
     const task = render_task({
-      mode: "director",
+      task_state: "director",
       terse: true,
       schema: dummy_schema,
     });
@@ -128,7 +128,7 @@ describe("render_task — Director Mode", () => {
 describe("render_task — Story Prose Mode", () => {
   it("renders Story Prose task with OUTPUT_FORMAT mode='prose'", () => {
     const task = render_task({
-      config: { task: { think_format: "character" } },
+      config: { think_format: "character" },
       input: "Alice examines the vault.",
       action_directive: "Respond strictly as Alice.",
       speaking_style: "clinical",
@@ -152,7 +152,7 @@ describe("render_task — Continuum Mode", () => {
   it("renders Continuum task with target focus and OUTPUT_FORMAT mode='json'", () => {
     const dummy_schema = '{\n  "memories": []\n}';
     const task = render_task({
-      mode: "continuum",
+      task_state: "continuum",
       target_name: "Kaelen",
       schema: dummy_schema,
     });
@@ -196,7 +196,7 @@ describe("render_keyword_directives_xml", () => {
 describe("task.js - Optics Task Staging", () => {
   it("compiles optics task with THINK_FORMAT, unified SPATIAL_FRAMING, and cinematography", () => {
     const task = render_task({
-      mode: "optics",
+      task_state: "optics",
       target_tier: "story_character",
       input_intent: "Standing alone in the pouring rain",
       think_format: "optics",
@@ -347,20 +347,20 @@ describe("TASK_LAYERS — canonical envelope grammar", () => {
 
 describe("render_task — per-mode state dispatch", () => {
   it("routes director to its JSON staging state and terse to the minimal refusal state", () => {
-    const full = render_task({ mode: "director", round: 2, input: "hi", last_ai_text: "prev", schema: '{"a":1}' });
+    const full = render_task({ task_state: "director", round: 2, input: "hi", last_ai_text: "prev", schema: '{"a":1}' });
     expect(full).toContain('<INPUT origin="USER" round="2" mode="action">hi</INPUT>');
     expect(full).toContain('<AI_CHARACTER_LAST_TURN origin="AI_CHARACTER" mode="action">');
     expect(full).toContain("<DIRECTIVES>");
     expect(full).toContain('<OUTPUT_FORMAT mode="json">');
 
-    const terse = render_task({ mode: "director", terse: true, schema: '{"a":1}' });
+    const terse = render_task({ task_state: "director", terse: true, schema: '{"a":1}' });
     expect(terse).not.toContain("<DIRECTIVES>");
     expect(terse).not.toContain("<INPUT");
     expect(terse).toContain('<OUTPUT_FORMAT mode="json">');
   });
 
   it("routes continuum to target-focus + mandate directives and a JSON schema", () => {
-    const task = render_task({ mode: "continuum", target_name: "Kaelen", schema: '{"m":[]}' });
+    const task = render_task({ task_state: "continuum", target_name: "Kaelen", schema: '{"m":[]}' });
     expect(task).toContain("<DIRECTIVES>");
     expect(task).toContain("TARGET FOCUS: Consolidate state and extract relational vectors for Kaelen.");
     expect(task).toContain("EXECUTION MANDATE:");
@@ -368,7 +368,7 @@ describe("render_task — per-mode state dispatch", () => {
   });
 
   it("routes enhancement/sorting directives through <DIRECTIVES> without a schema when none is supplied", () => {
-    const task = render_task({ mode: "sorting", directives: ["- one", "- two"] });
+    const task = render_task({ task_state: "sorting", directives: ["- one", "- two"] });
     expect(task).toContain("<DIRECTIVES>");
     expect(task).toContain("- one");
     expect(task).not.toContain("<OUTPUT_FORMAT");
@@ -376,7 +376,7 @@ describe("render_task — per-mode state dispatch", () => {
 
   it("routes optics to the sensory staging state", () => {
     const args = { target_tier: "story_character", input_intent: "rain", think_format: "optics", is_selfie: true, schema: '{"prompt":"s"}' };
-    const task = render_task({ mode: "optics", ...args });
+    const task = render_task({ task_state: "optics", ...args });
     expect(task).toContain("<TARGET>story_character</TARGET>");
     expect(task).toContain("<SPATIAL_FRAMING>");
     expect(task).toContain("<DIRECTIVES>");
@@ -384,8 +384,8 @@ describe("render_task — per-mode state dispatch", () => {
   });
 
   it("falls back to story prose for an unknown mode", () => {
-    const args = { config: { task: { think_format: "character" } }, input: "hi", input_origin: "USER", action_directive: "Be Alice." };
-    expect(render_task({ mode: "not-a-mode", ...args })).toBe(render_task(args));
+    const args = { config: { think_format: "character" }, input: "hi", input_origin: "USER", action_directive: "Be Alice." };
+    expect(render_task({ task_state: "not-a-mode", ...args })).toBe(render_task(args));
   });
 });
 
@@ -394,6 +394,7 @@ describe("render_task — per-mode state dispatch", () => {
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-23: `render_task` calls updated to the `task_state` API (was `mode`) and the story-prose case passes the flattened `config.think_format` (was `config.task.think_format`).
  * - 2026-09-23: Harmonized signal channel + directives nesting — assertions now expect the `mode` discriminator (was `kind`), the `<AI_CHARACTER_LAST_TURN>` block carrying input-style attributes, the `keyword_directives` slot removed from `TASK_LAYERS`, and `<KEYWORD_DIRECTIVES>` nested inside `<DIRECTIVES>`.
  * - 2026-09-21: Realigned to the table-driven TASK envelope: removed the retired per-mode renderer imports and rewrote Section 3/7 around `render_task` + `TASK_LAYERS` + `render_directives_xml` (directive prose now lives inside the single `<DIRECTIVES>` element; optics `<MANDATE>` folded into `<DIRECTIVES>`).
  * - 2026-09-19: Added a per-mode compiler dispatch suite asserting render_task routes to render_director_task / render_structured_task / render_optics_task / render_prose_task.

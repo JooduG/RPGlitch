@@ -15,6 +15,10 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { register_state_accessors } from "@utils";
 import { compile_prompt, ENVELOPE_LAYER_TAGS, PROMPTS } from "./prompts.js";
+import { MODE_ADAPTERS } from "./builder.js";
+import { SYSTEM_ROLES } from "./modules/system.js";
+import { TASK_STATE_BUILDERS } from "./modules/task.js";
+import { VISIBILITY_POLICIES } from "./modules/entities/sheets.js";
 import { CONTRACT, CONTRACT_SIZES, make_contract_cases } from "./prompt-verification.js";
 
 const TAG_PATTERN = /<([A-Z][A-Z0-9_]{1,})(?=[\s>/])/g;
@@ -162,8 +166,47 @@ describe("Prompt pipeline — declared envelope layers", () => {
   }
 });
 
+describe("Prompt pipeline — mode-record single-source-of-truth invariants", () => {
+  it("maps every manifest mode to a registered adapter (and every adapter to a manifest mode)", () => {
+    for (const mode_key of Object.keys(PROMPTS)) {
+      expect(typeof (MODE_ADAPTERS[mode_key] || MODE_ADAPTERS.prose)).toBe("function");
+    }
+    for (const adapter_key of Object.keys(MODE_ADAPTERS)) {
+      if (adapter_key === "prose") continue;
+      expect(PROMPTS).toHaveProperty(adapter_key);
+    }
+  });
+
+  it("stamps every mode with its own envelope discriminator", () => {
+    for (const [mode_key, config] of Object.entries(PROMPTS)) {
+      expect(config.key).toBe(mode_key);
+      expect(config.system.mode).toBe(mode_key);
+    }
+  });
+
+  it("gives every mode a speaker and a known visibility policy", () => {
+    for (const [mode_key, config] of Object.entries(PROMPTS)) {
+      expect(config.speaker === null || typeof config.speaker === "string").toBe(true);
+      expect(config.visibility in VISIBILITY_POLICIES).toBe(true);
+    }
+  });
+
+  it("resolves every role_line key against SYSTEM_ROLES", () => {
+    for (const [mode_key, config] of Object.entries(PROMPTS)) {
+      expect(SYSTEM_ROLES[config.role_line]).toBeDefined();
+    }
+  });
+
+  it("points every task_state at a registered task builder", () => {
+    for (const [mode_key, config] of Object.entries(PROMPTS)) {
+      expect(TASK_STATE_BUILDERS).toHaveProperty(config.task_state);
+    }
+  });
+});
+
 /**
  * CHANGELOG
+ * - 2026-09-23: Added the mode-record single-source-of-truth gate (R8) — asserts the mode↔adapter mapping, `system.mode === key`, a known `visibility` policy per mode, every `role_line` in `SYSTEM_ROLES`, and every `task_state` in `TASK_STATE_BUILDERS`.
  * - 2026-09-23: Invariant now asserts the single `<SYSTEM mode="…">` discriminator (the redundant `role` attribute was dropped) following the envelope-harmonization pass.
  * - 2026-09-22: Added the declared-envelope-layer gate (recommendation #4) — each mode's manifest `layers` must cover every emitted top-level layer tag, in declared order, and may only declare known keys.
  * - 2026-09-20: Extended the gate with universal envelope invariants (open <SYSTEM> + role line, single top-level <TASK>, no reserved-tag metasyntax) alongside the regenerated per-mode tag inventory.

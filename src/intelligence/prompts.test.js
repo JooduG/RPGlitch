@@ -89,11 +89,11 @@ function assert_fused_shape(result, mode) {
   return true;
 }
 
-const REQUIRED_MODULE_KEYS = ["system", "constitution", "protocols", "entities", "format", "task"];
+const REQUIRED_MODULE_KEYS = ["system", "constitution", "protocols", "entities", "format"];
 const EXPECTED_PROMPT_KEYS = ["continuum", "director", "enhancement", "ghostwrite", "interaction", "narrator", "npc", "optics", "sorting"];
 
 describe("prompt-modes registry", () => {
-  it("defines all 6 module keys (system, constitution, protocols, entities, format, task) for every mode", () => {
+  it("defines the canonical module keys for every mode", () => {
     for (const [_key, mode] of Object.entries(prompt_modes)) {
       for (const key of REQUIRED_MODULE_KEYS) {
         expect(mode).toHaveProperty(key);
@@ -103,7 +103,7 @@ describe("prompt-modes registry", () => {
       expect(Array.isArray(mode.protocols)).toBe(true);
       expect(typeof mode.entities).toBe("object");
       expect(typeof mode.format === "string" || typeof mode.format === "object").toBe(true);
-      expect(typeof mode.task).toBe("object");
+      expect(typeof mode.think_format === "string" || mode.think_format === null).toBe(true);
     }
   });
 
@@ -127,9 +127,10 @@ describe("prompt-modes registry", () => {
     }
   });
 
-  it("exposes only the live task key (think_format) across every mode", () => {
+  it("flattens the cognition key (think_format) onto every record", () => {
     for (const mode of Object.values(prompt_modes)) {
-      expect(Object.keys(mode.task)).toEqual(["think_format"]);
+      expect(mode).toHaveProperty("think_format");
+      expect("task" in mode).toBe(false);
     }
   });
 
@@ -382,6 +383,7 @@ describe("master switchboard compile_prompt", () => {
 
 /**
  * CHANGELOG
+ * - 2026-09-23: Registry assertions realigned to the consolidated record — the required module keys drop `task` (now a flattened `think_format`), and the task-key test asserts `think_format` at the top level with no `task` bag.
  * - 2026-09-23: Envelope-harmonization assertions — the registry reads the single `mode` discriminator (`mode.system.mode`; the `role` attribute was retired).
  * - 2026-09-21: Realigned registry assertions to the standardization pass — key count is 9 (the `director_terse` mode collapsed into `director` + `{ terse: true }`), prose protocol bundles no longer carry POV keys (resolved by `resolve_pov_protocol`), and the enhancement scope attribute is asserted as `scope=`.
  * - 2026-09-19: Table-driven assembler (P4) — asserted every manifest mode resolves through `MODE_ADAPTERS` (or the prose fallback), replacing the former switch dispatch.

@@ -47,12 +47,10 @@
 // ── 1. Master Mode Factory ───────────────────────────────────────────────────
 
 /**
- * Canonical default entity configuration across all 7 layers.
+ * Canonical default entity configuration across all 7 layers (the visibility gates are
+ * derived from a mode's `visibility` policy, not declared here).
  */
 const DEFAULT_ENTITIES_CONFIG = Object.freeze({
-  dispositions: [],
-  dynamic_axes: [],
-  agendas: [],
   nearby_entities: false,
   present_entities: false,
   field_context: false,
@@ -89,6 +87,37 @@ const TEMPORAL_SCHEMA_FRAGMENT = Object.freeze(["eternal", "present", "past", "f
 const PROSE_LAYERS = Object.freeze({
   system: Object.freeze(["role", "constitution", "protocols", "entities"]),
   task: Object.freeze(["think", "input", "currents", "directives", "delivery_posture", "stability_lock", "output_format"]),
+});
+
+/**
+ * Named layer presets — one frozen `{ system, task }` declaration per envelope family, so a
+ * mode's layer knowledge lives here (a named preset) instead of as a literal array in its
+ * record. A mode may spread a preset and apply a delta (`{ ...PRESET, task: [...] }`).
+ * @type {Readonly<{ system: ReadonlyArray<string>, task: ReadonlyArray<string> }>}
+ */
+const DIRECTOR_LAYERS = Object.freeze({
+  system: Object.freeze(["role", "protocols", "dynamics", "entities"]),
+  task: Object.freeze(["input", "last_turn", "directives", "output_format"]),
+});
+
+const TOOL_LAYERS = Object.freeze({
+  system: Object.freeze(["role", "protocols", "target_context", "nearby_cast", "chapter_history", "history"]),
+  task: Object.freeze(["input", "directives", "output_format"]),
+});
+
+const ENHANCEMENT_LAYERS = Object.freeze({
+  system: Object.freeze(["role", "protocols", "layer", "field_context", "input_content"]),
+  task: Object.freeze(["directives", "output_format"]),
+});
+
+const SORTING_LAYERS = Object.freeze({
+  system: Object.freeze(["role", "protocols"]),
+  task: Object.freeze(["input", "directives", "output_format"]),
+});
+
+const OPTICS_LAYERS = Object.freeze({
+  system: Object.freeze(["role", "protocols", "entities", "history"]),
+  task: Object.freeze(["think", "input", "target", "spatial_framing", "directives", "output_format"]),
 });
 
 /**
@@ -143,23 +172,28 @@ function prose_protocols({ include_dialogue = false } = {}) {
 }
 
 /**
- * Builds one frozen mode record from a declarative delta over the 7 canonical layers.
- * Resolves system mode & role cleanly from mode_key or explicit spec.
+ * Builds one frozen mode record from a declarative delta over the canonical layers.
+ * The record is the single source of truth for the mode: its envelope discriminator
+ * (`system.mode`), its speaker, its entity-visibility policy, its role line, its task
+ * state builder, its declared layers, and its output format all live here — so adding a
+ * mode is one record (plus, at most, one task-state factory) and nothing else moves.
  *
  * @param {string} mode_key - Canonical key of the prompt mode
  * @param {Object} spec - Mode specification delta
  */
 function define_mode(mode_key, spec) {
-  const system =
-    typeof spec.system === "string"
-      ? { mode: mode_key, role: spec.system.toUpperCase() }
-      : spec.system || { mode: mode_key, role: mode_key.toUpperCase() };
-
   const declared_layers = spec.layers || {};
 
   return Object.freeze({
     key: mode_key,
-    system: Object.freeze(system),
+    system: Object.freeze({
+      mode: mode_key,
+      ...(spec.pov ? { pov: spec.pov } : {}),
+    }),
+    speaker: spec.speaker ?? null,
+    visibility: spec.visibility || "default",
+    role_line: (spec.role_line || mode_key).toUpperCase(),
+    task_state: spec.task_state || "prose",
     layers: Object.freeze({
       system: Object.freeze([...(declared_layers.system || [])]),
       task: Object.freeze([...(declared_layers.task || [])]),
@@ -171,11 +205,12 @@ function define_mode(mode_key, spec) {
       ...spec.entities,
     }),
     history: spec.history ? Object.freeze({ ...spec.history }) : null,
-    task: Object.freeze({ think_format: null, ...spec.task }),
-    format:
+    think_format: spec.think_format ?? null,
+    format: Object.freeze(
       typeof spec.format === "object" && spec.format !== null
-        ? Object.freeze({ ...spec.format, schema: Object.freeze([...(spec.format.schema || [])]) })
-        : spec.format || "PROSE",
+        ? { ...spec.format, schema: Object.freeze([...(spec.format.schema || [])]) }
+        : { mode: String(spec.format || "prose").toLowerCase() },
+    ),
   });
 }
 
@@ -185,79 +220,71 @@ export const PROMPTS = Object.freeze({
   // ── Shot 1: Quick Shot (Directorial Mechanics) ──────────────────────────────
 
   director: define_mode("director", {
-    system: "DIRECTOR",
+    speaker: null,
+    visibility: "director",
+    role_line: "DIRECTOR",
+    task_state: "director",
     constitution: false,
     protocols: ["CORE_PROTOCOLS.ALTERNATION_OPTIONS"],
-    entities: {
-      dispositions: ["AI", "USER", "FRACTAL", "NPC"],
-      agendas: ["AI", "USER", "FRACTAL"],
-      present_entities: true,
-    },
-    layers: {
-      system: ["role", "protocols", "dynamics", "entities"],
-      task: ["input", "last_turn", "directives", "output_format"],
-    },
+    entities: { present_entities: true },
+    layers: DIRECTOR_LAYERS,
     format: { mode: "json", schema: DIRECTOR_SCHEMA },
   }),
 
   // ── Shot 2A: Prose Shots (Canonical Narrative Voice) ────────────────────────
 
   interaction: define_mode("interaction", {
-    system: "INTERACTION",
+    speaker: "AI",
+    visibility: "default",
+    role_line: "INTERACTION",
+    task_state: "prose",
     protocols: prose_protocols({ include_dialogue: true }),
-    entities: {
-      dispositions: ["AI", "FRACTAL"],
-      dynamic_axes: ["AI", "FRACTAL"],
-      agendas: ["AI", "FRACTAL"],
-      nearby_entities: true,
-    },
+    entities: { nearby_entities: true },
     layers: PROSE_LAYERS,
-    task: { think_format: "character" },
+    think_format: "character",
   }),
 
   ghostwrite: define_mode("ghostwrite", {
-    system: { mode: "ghostwrite", role: "INTERACTION" },
+    speaker: "USER",
+    visibility: "default",
+    role_line: "INTERACTION",
+    task_state: "prose",
     protocols: prose_protocols({ include_dialogue: true }),
-    entities: {
-      dispositions: ["USER", "FRACTAL"],
-      dynamic_axes: ["USER", "FRACTAL"],
-      agendas: ["USER", "FRACTAL"],
-      nearby_entities: true,
-    },
+    entities: { nearby_entities: true },
     layers: PROSE_LAYERS,
-    task: { think_format: "character" },
+    think_format: "character",
   }),
 
   npc: define_mode("npc", {
-    system: "NPC",
+    speaker: "NPC",
+    visibility: "supporting",
+    role_line: "NPC",
+    task_state: "prose",
     protocols: prose_protocols({ include_dialogue: true }),
-    entities: {
-      dispositions: ["FRACTAL", "NPC"],
-      dynamic_axes: ["NPC", "FRACTAL"],
-      agendas: ["AI", "FRACTAL"],
-      nearby_entities: true,
-    },
+    entities: { nearby_entities: true },
     layers: PROSE_LAYERS,
-    task: { think_format: "character" },
+    think_format: "character",
   }),
 
   narrator: define_mode("narrator", {
-    system: { mode: "narrator", role: "NARRATOR", pov: "NARRATOR" },
+    speaker: null,
+    visibility: "omniscient",
+    role_line: "NARRATOR",
+    task_state: "prose",
+    pov: "NARRATOR",
     protocols: prose_protocols(),
-    entities: {
-      dispositions: ["AI", "USER", "FRACTAL", "NPC"],
-      dynamic_axes: ["FRACTAL"],
-      agendas: ["AI", "USER", "FRACTAL"],
-      nearby_entities: true,
-    },
+    entities: { nearby_entities: true },
     layers: PROSE_LAYERS,
-    task: { think_format: "narrator" },
+    think_format: "narrator",
   }),
 
   // ── Shot 2B: Back Shot (Background / Continuum Caretaker) ──────────────────
 
   continuum: define_mode("continuum", {
-    system: "CONTINUUM_CARETAKER",
+    speaker: null,
+    visibility: "target",
+    role_line: "CONTINUUM_CARETAKER",
+    task_state: "continuum",
     constitution: false,
     protocols: ["CORE_PROTOCOLS.DATA"],
     entities: {
@@ -266,10 +293,7 @@ export const PROMPTS = Object.freeze({
       chapter_history: true,
     },
     history: { limit: 16 },
-    layers: {
-      system: ["role", "protocols", "target_context", "nearby_cast", "chapter_history", "history"],
-      task: ["input", "directives", "output_format"],
-    },
+    layers: TOOL_LAYERS,
     format: {
       mode: "json",
       schema: ["_thought_process", "target", ...TEMPORAL_SCHEMA_FRAGMENT, "relationships"],
@@ -279,25 +303,25 @@ export const PROMPTS = Object.freeze({
   // ── Profile Enhancement & Ingestion Structuring ─────────────────────────────
 
   enhancement: define_mode("enhancement", {
-    system: "ENHANCER",
+    speaker: null,
+    visibility: "field",
+    role_line: "ENHANCER",
+    task_state: "enhancement",
     constitution: false,
     protocols: ["CORE_PROTOCOLS.DATA"],
     entities: { field_context: true },
-    layers: {
-      system: ["role", "protocols", "layer", "field_context", "input_content"],
-      task: ["directives", "output_format"],
-    },
+    layers: ENHANCEMENT_LAYERS,
     format: "PROSE",
   }),
 
   sorting: define_mode("sorting", {
-    system: "NARRATIVE_STRUCTURER",
+    speaker: null,
+    visibility: "none",
+    role_line: "NARRATIVE_STRUCTURER",
+    task_state: "sorting",
     constitution: false,
     protocols: ["CORE_PROTOCOLS.DATA"],
-    layers: {
-      system: ["role", "protocols"],
-      task: ["input", "directives", "output_format"],
-    },
+    layers: SORTING_LAYERS,
     format: {
       mode: "json",
       schema: ["_thought_process", "name", "description", "signature_color", ...TEMPORAL_SCHEMA_FRAGMENT],
@@ -307,7 +331,10 @@ export const PROMPTS = Object.freeze({
   // ── Sensory Cortex: Visual Optics Generation ──────────────────────────────
 
   optics: define_mode("optics", {
-    system: { mode: "optics", role: "SENSORY_CORTEX" },
+    speaker: null,
+    visibility: "visual",
+    role_line: "SENSORY_CORTEX",
+    task_state: "optics",
     constitution: false,
     protocols: [
       "CORE_PROTOCOLS.DATA",
@@ -316,11 +343,8 @@ export const PROMPTS = Object.freeze({
       "OPTICS.TYPOGRAPHY",
       "OPTICS.ENVIRONMENTAL_GROUNDING",
     ],
-    layers: {
-      system: ["role", "protocols", "entities", "history"],
-      task: ["think", "input", "target", "spatial_framing", "directives", "output_format"],
-    },
-    task: { think_format: "optics" },
+    layers: OPTICS_LAYERS,
+    think_format: "optics",
     format: {
       mode: "json",
       schema: ["_thought_process", "prompt", "negative_prompt"],
@@ -362,6 +386,7 @@ export default PROMPTS;
 
 /**
  * CHANGELOG
+ * - 2026-09-23: Pipeline consolidation (R1/R3/R5/R7) — the mode record is now the single source of truth: each mode declares `speaker`, `visibility`, `role_line`, `task_state`, `think_format`, a named layer preset (`DIRECTOR_LAYERS`/`TOOL_LAYERS`/`ENHANCEMENT_LAYERS`/`SORTING_LAYERS`/`OPTICS_LAYERS` alongside `PROSE_LAYERS`), and its format; `config.system.role` is retired (the `role_line` key indexes SYSTEM_ROLES), `config.task` collapses to a top-level `think_format`, `format` normalizes to `{ mode, schema? }` at `define_mode`, and the three per-mode visibility arrays (`dispositions`/`dynamic_axes`/`agendas`) are replaced by the `visibility` policy resolved in `sheets.js`. Output bytes unchanged.
  * - 2026-09-23: Envelope harmonization — dropped the `present_cast` system layer (the `<CAST>` roster now nests inside `<ENTITIES>`) and the `keyword_directives` task layer (the block now nests inside `<DIRECTIVES>`); the `user_agenda` boolean became an `agendas` list, the Director's `dynamic_axes` gate was removed (all six axes gather in the one `<DYNAMICS>` block), and ghostwrite's entity gates mirror interaction's with AI↔USER swapped.
  * - 2026-09-22: Declared envelope shape (recommendation #4) — every mode now carries a frozen `layers: { system, task }` manifest consumed by the `PROMPT_LAYERS`/`TASK_LAYERS` walkers and validated against `ENVELOPE_LAYER_TAGS`; the sorting schema gained `_thought_process` and the continuum/sorting schemas share `TEMPORAL_SCHEMA_FRAGMENT` (recommendation #8).
  * - 2026-09-22: One protocol namespace (recommendation #7) — the data-mode protocol lists now declare `CORE_PROTOCOLS.DATA` instead of the retired `HYGIENE.DATA` namespace.

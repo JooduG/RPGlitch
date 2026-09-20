@@ -535,36 +535,38 @@ function build_director_task_state({ schema = "", round = 1, input = "", last_ai
 }
 
 /**
- * Structured task state for the data tooling modes (continuum / enhancement / sorting).
+ * Structured task state for the data tooling modes (enhancement / sorting).
  * @param {Object} [parameters={}]
  * @returns {Record<string, any>}
  */
-function build_structured_task_state({
-  mode,
-  schema = "",
-  target_name = "",
-  directives = [],
-  input = "",
-  input_mode = null,
-  output_format = "",
-  output_mode = "",
-} = {}) {
+function build_structured_task_state({ schema = "", directives = [], input = "", input_mode = null, output_format = "", output_mode = "" } = {}) {
   const input_block = render_task_input({ input, input_mode });
   const rendered_output = output_format
     ? render_output_format_xml({ mode: output_mode || "prose", content: output_format })
     : schema
       ? render_output_format_xml({ mode: "json", content: TASK_LIBRARY.JSON_RETURN(schema) })
       : "";
-  if (mode === "continuum") {
-    return {
-      input: input_block,
-      directives: [TASK_LIBRARY.CONTINUUM.TARGET_FOCUS(target_name), TASK_LIBRARY.CONTINUUM.MANDATE],
-      output_format: rendered_output,
-    };
-  }
   return {
     input: input_block,
     directives,
+    output_format: rendered_output,
+  };
+}
+
+/**
+ * Continuum task state (Shot-2B memory consolidation: target focus + execution mandate).
+ * @param {Object} [parameters={}]
+ * @returns {Record<string, any>}
+ */
+function build_continuum_task_state({ schema = "", target_name = "", input = "", input_mode = null, output_format = "", output_mode = "" } = {}) {
+  const rendered_output = output_format
+    ? render_output_format_xml({ mode: output_mode || "prose", content: output_format })
+    : schema
+      ? render_output_format_xml({ mode: "json", content: TASK_LIBRARY.JSON_RETURN(schema) })
+      : "";
+  return {
+    input: render_task_input({ input, input_mode }),
+    directives: [TASK_LIBRARY.CONTINUUM.TARGET_FOCUS(target_name), TASK_LIBRARY.CONTINUUM.MANDATE],
     output_format: rendered_output,
   };
 }
@@ -649,7 +651,7 @@ function build_prose_task_state({
   stability_lock = "",
 } = {}) {
   const style_dna = extract_style_dna(style);
-  const think_format = config?.task?.think_format;
+  const think_format = config?.think_format;
   const think_directive =
     think_format === "character"
       ? TASK_LIBRARY.PROTOCOLS.THINK_FORMAT(style_dna.emotional_grounding)
@@ -672,9 +674,9 @@ function build_prose_task_state({
  * Mode → state-factory table (the single dispatch surface, mirroring PROMPT_LAYERS).
  * @type {Readonly<Record<string, (parameters: Record<string, any>) => Record<string, any>>>}
  */
-const TASK_STATE_BUILDERS = Object.freeze({
+export const TASK_STATE_BUILDERS = Object.freeze({
   director: build_director_task_state,
-  continuum: build_structured_task_state,
+  continuum: build_continuum_task_state,
   enhancement: build_structured_task_state,
   sorting: build_structured_task_state,
   optics: build_optics_task_state,
@@ -683,17 +685,18 @@ const TASK_STATE_BUILDERS = Object.freeze({
 
 /**
  * Universal Task Envelope Compiler (<TASK>).
- * Resolves the mode's state factory, walks `TASK_LAYERS`, and emits the canonical
- * `<TASK>` envelope. Modes without a registered factory fall back to story prose.
+ * Resolves the mode's task-state factory by its manifest `task_state` key, walks
+ * `TASK_LAYERS`, and emits the canonical `<TASK>` envelope. Modes without a registered
+ * factory fall back to story prose.
  *
  * @param {Object} [parameters={}]
- * @param {string} [parameters.mode] - "director" | "continuum" | "enhancement" | "sorting" | "optics" | undefined (prose)
+ * @param {string} [parameters.task_state] - "director" | "continuum" | "enhancement" | "sorting" | "optics" | "prose" (default)
  * @param {string[]} [parameters.layers] - Declared task-layer order (from the manifest); omitted = all layers.
  * @returns {string}
  */
 export function render_task(parameters = {}) {
-  const mode = parameters.mode && TASK_STATE_BUILDERS[parameters.mode] ? parameters.mode : "prose";
-  const state = TASK_STATE_BUILDERS[mode](parameters);
+  const task_state = parameters.task_state && TASK_STATE_BUILDERS[parameters.task_state] ? parameters.task_state : "prose";
+  const state = TASK_STATE_BUILDERS[task_state](parameters);
   const allowed_layers = Array.isArray(parameters.layers) ? parameters.layers : null;
   const children = TASK_LAYERS.filter((layer) => !allowed_layers || allowed_layers.includes(layer.key))
     .map((layer) => layer.emit(state))
@@ -804,6 +807,7 @@ export function render_subtext_xml(ai_dynamics = {}, fractal_dynamics = {}, opti
 
 /**
  * CHANGELOG
+ * - 2026-09-23: Pipeline consolidation (R6/R7) — extracted `build_continuum_task_state` so the generic `build_structured_task_state` loses its `if (mode === "continuum")` branch (and no longer ignores its own `directives`); `render_task` dispatches on `task_state` instead of a `mode` string, and `build_prose_task_state` reads the flattened `config.think_format`. `TASK_STATE_BUILDERS` is exported for the contract gate. Output bytes unchanged.
  * - 2026-09-23: Envelope harmonization — `render_task_input` emits the singular `mode` discriminator (was `kind`) and now renders the Director's last turn too (`tag` option), so `<INPUT …>` and `<AI_CHARACTER_LAST_TURN …>` share one shape; `<KEYWORD_DIRECTIVES>` nests inside `<DIRECTIVES>` (the `keyword_directives` task layer is retired); `render_task` no longer has a separate keyword slot.
  * - 2026-09-22: Recommendations 1/3/4/5 — `render_task` child indent lowered from 4 to 2 and it now walks only the manifest's declared `layers`; `render_task_input` emits the single `<INPUT origin|round|kind>` channel for every mode; the Director's `SPEAKER ROUTING RULES` + `CONVERGENCE` prose moved into the TASK `<DIRECTIVES>` (`TASK_LIBRARY.DIRECTOR.ROUTING`/`CONVERGENCE`), and interaction/ghostwrite gain a base `PROSE.CHARACTER.BASE` directive.
  * - 2026-09-21: Table-driven TASK envelope — introduced `TASK_LAYERS` (the single ordered layer grammar) walked by one `render_task` over a `TASK_STATE_BUILDERS` dispatch table; all mode instruction prose now flows through the one `<DIRECTIVES>` element (optics' `<MANDATE>` retired), cognition directives go through `render_think_format`, keyword directives emit at indent 0, and `TASK_LIBRARY.SORTING.POV_THIRD` replaced the manifest-derived sorting POV.

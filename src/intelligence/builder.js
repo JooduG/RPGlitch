@@ -237,6 +237,25 @@ function render_prompt_layers(state, allowed_keys = null) {
     .filter(Boolean);
 }
 
+/**
+ * Composes the open `<SYSTEM>` envelope for a mode from its manifest record and a layer state
+ * bag. The single envelope-assembly surface: every compiler routes through here, so a new
+ * `<SYSTEM>` attribute or layer change is a one-line edit rather than a seven-site sweep.
+ *
+ * @param {any} config - Resolved prompt manifest record (carries `system.mode` and `layers.system`).
+ * @param {Record<string, any>} [state={}] - Emitter state bag keyed by `PROMPT_LAYERS` slots.
+ * @param {{ round?: number|string|null, attributes?: Record<string, any> }} [options={}]
+ * @returns {string}
+ */
+function compose_system(config, state = {}, { round = null, attributes = {} } = {}) {
+  return render_system_xml({
+    mode: config.system.mode,
+    round,
+    attributes,
+    children: render_prompt_layers(state, config.layers.system),
+  });
+}
+
 // ── 3. Prompt Compilers ───────────────────────────────────────────────────────
 
 /**
@@ -283,27 +302,24 @@ export function render_director({
 
   const keyword_directives_xml = render_keyword_directives_xml(render_available_keywords_xml(active_style_keywords, AVAILABLE_KEYWORDS));
 
-  const role_line = resolve_system_role_line({ role: config.system.role });
+  const role_line = resolve_system_role_line({ role: config.role_line });
 
-  const system = render_system_xml({
-    mode: config.system.mode,
-    round,
-    children: render_prompt_layers(
-      {
-        role_line,
-        core_protocols: core_protocols_xml,
-        dynamics: render_dynamics_xml(DYNAMICS_AXES, merged_dynamics),
-        entities_block: entity_sheets,
-      },
-      config.layers.system,
-    ),
-  });
+  const system = compose_system(
+    config,
+    {
+      role_line,
+      core_protocols: core_protocols_xml,
+      dynamics: render_dynamics_xml(DYNAMICS_AXES, merged_dynamics),
+      entities_block: entity_sheets,
+    },
+    { round },
+  );
 
   const last_ai_message = (active_messages || []).filter((message) => message.role === "model").at(-1);
   const last_ai_text = last_ai_message ? strip_cognition_blocks(last_ai_message.content || last_ai_message.text || "").trim() : "";
 
   const task = render_task({
-    mode: "director",
+    task_state: config.task_state,
     round,
     input,
     last_ai_text,
@@ -406,21 +422,18 @@ function render_prose_turn_core({
   });
 
   const role_line = resolve_system_role_line({
-    role: config.system.role,
+    role: config.role_line,
     speaker_name,
     listener_name,
     fractal_name,
   });
 
-  const system = render_system_xml({
-    round,
-    mode: config.system.mode,
-    children: render_prompt_layers({ role_line, constitution, core_protocols: core, entities_block }, config.layers.system),
-  });
+  const system = compose_system(config, { role_line, constitution, core_protocols: core, entities_block }, { round });
 
   const stability_lock_content = resolve_stability_lock(meta);
 
   const task = render_task({
+    task_state: config.task_state,
     config,
     input,
     input_origin,
@@ -454,11 +467,13 @@ export function render_story_prose({
   npc_entities = [],
   in_scene_ids = [],
 }) {
-  const active_speaker = speaker || (ghostwrite ? entities?.USER : entities?.AI);
-  const active_listener = listener || (ghostwrite ? entities?.AI : entities?.USER);
-  const is_npc = !ghostwrite && !!active_speaker && active_speaker !== entities?.AI && active_speaker !== entities?.USER;
-  const config = get_prompt(prompt_mode || (ghostwrite ? "ghostwrite" : is_npc ? "npc" : "interaction"));
-  const is_ghostwrite = config.system.mode === "ghostwrite";
+  const is_npc_hint = !ghostwrite && !!speaker && speaker !== entities?.AI && speaker !== entities?.USER;
+  const config = get_prompt(prompt_mode || (ghostwrite ? "ghostwrite" : is_npc_hint ? "npc" : "interaction"));
+  const is_ghostwrite = config.speaker === "USER";
+  const is_npc = config.speaker === "NPC";
+
+  const active_speaker = speaker || (is_ghostwrite ? entities?.USER : entities?.AI);
+  const active_listener = listener || (is_ghostwrite ? entities?.AI : entities?.USER);
 
   const accessors = render_accessors || create_render_accessors(entities, input);
   const pov_protocol = resolve_pov_protocol(config.system.pov || active_speaker);
@@ -467,9 +482,9 @@ export function render_story_prose({
   const listener_name = prompt_escape(active_listener?.name || "Listener");
   const fractal_name = prompt_escape(entities?.FRACTAL?.name || "the setting");
 
-  const speaker_key = is_ghostwrite ? "USER" : is_npc ? "NPC" : "AI";
+  const speaker_key = config.speaker || "AI";
   const speaker_dynamics =
-    is_npc || is_ghostwrite ? active_speaker?.dynamics || {} : compressed_snapshot?.ai?.dynamics || entities?.AI?.dynamics || {};
+    config.speaker === "AI" ? compressed_snapshot?.ai?.dynamics || entities?.AI?.dynamics || {} : active_speaker?.dynamics || {};
   const fractal_dynamics = compressed_snapshot?.fractal?.dynamics || entities?.FRACTAL?.dynamics || {};
 
   const speaker_name_lc = String(active_speaker?.name || "")
@@ -599,7 +614,7 @@ export function render_memory({ target_entity, target_key = "AI_CHARACTER", othe
 
   const target_type = target_entity?.type || (target_key === "FRACTAL" ? "fractal" : "character");
   const task_xml = render_task({
-    mode: "continuum",
+    task_state: config.task_state,
     target_name,
     schema: get_output_format(config.format, { entity_type: target_type }),
     layers: config.layers.task,
@@ -612,23 +627,20 @@ export function render_memory({ target_entity, target_key = "AI_CHARACTER", othe
       })
     : "";
 
-  const role_line = resolve_system_role_line({ role: config.system.role, target_name });
+  const role_line = resolve_system_role_line({ role: config.role_line, target_name });
 
-  const system = render_system_xml({
-    mode: config.system.mode,
-    attributes: { target: target_name },
-    children: render_prompt_layers(
-      {
-        role_line,
-        core_protocols: render_core_protocols({ protocols: config.protocols }),
-        target_context: wrap_tag("TARGET_ENTITY_CONTEXT", target_xml, 2),
-        nearby_cast: nearby_entities_xml,
-        chapter_history: chapter_xml,
-        history_block: history_xml,
-      },
-      config.layers.system,
-    ),
-  });
+  const system = compose_system(
+    config,
+    {
+      role_line,
+      core_protocols: render_core_protocols({ protocols: config.protocols }),
+      target_context: wrap_tag("TARGET_ENTITY_CONTEXT", target_xml, 2),
+      nearby_cast: nearby_entities_xml,
+      chapter_history: chapter_xml,
+      history_block: history_xml,
+    },
+    { attributes: { target: target_name } },
+  );
 
   return { system, task: task_xml };
 }
@@ -652,7 +664,7 @@ export function render_enhancement({
   const normalized_type = entity_type === "user" ? "character" : entity_type || "character";
   const catalog_meta = field_id ? PROFILE_FIELD_CATALOG[`${normalized_type}.${field_id}`] || PROFILE_FIELD_CATALOG[field_id] : null;
 
-  const resolved_enhancer = enhancer || catalog_meta?.enhancer || config.system.role || "ENHANCER";
+  const resolved_enhancer = enhancer || catalog_meta?.enhancer || config.role_line || "ENHANCER";
   const resolved_label = label || catalog_meta?.label || "";
   const resolved_directive = directive ?? catalog_meta?.directive ?? "";
   const resolved_layer_key = layer_key ?? catalog_meta?.layer_key ?? "";
@@ -660,36 +672,30 @@ export function render_enhancement({
   const macro_directive = !is_image_field ? resolve_macro_directive(normalized_type) : "";
 
   const task_xml = render_task({
-    mode: "enhancement",
+    task_state: config.task_state,
     directives: [resolved_directive, macro_directive],
     output_format: get_output_format(config.format),
     output_mode: "prose",
     layers: config.layers.task,
   });
 
-  const role_line = resolve_system_role_line({ role: config.system.role, enhancer_name: resolved_enhancer });
+  const role_line = resolve_system_role_line({ role: config.role_line, enhancer_name: resolved_enhancer });
 
-  const system = render_system_xml({
-    mode: config.system.mode,
-    attributes: {
-      scope: resolved_label,
-      field: field_id,
+  const system = compose_system(
+    config,
+    {
+      role_line,
+      core_protocols: render_core_protocols({ protocols: config.protocols }),
+      layer: resolved_layer_key ? render_xml_tag({ tag: "LAYER", children: [escape_xml(resolved_layer_key)], inline: true }) : null,
+      field_context: entity_plan.field_context
+        ? render_enhancement_field_context(entity, field_id, content, normalized_type, (e, c) =>
+            temporal_engine.format(resolve_vector_pool(e), c || "", { max_chars: 1500 }),
+          )
+        : null,
+      input_content: render_task_input({ input: content, input_mode: "content" }),
     },
-    children: render_prompt_layers(
-      {
-        role_line,
-        core_protocols: render_core_protocols({ protocols: config.protocols }),
-        layer: resolved_layer_key ? render_xml_tag({ tag: "LAYER", children: [escape_xml(resolved_layer_key)], inline: true }) : null,
-        field_context: entity_plan.field_context
-          ? render_enhancement_field_context(entity, field_id, content, normalized_type, (e, c) =>
-              temporal_engine.format(resolve_vector_pool(e), c || "", { max_chars: 1500 }),
-            )
-          : null,
-        input_content: render_task_input({ input: content, input_mode: "content" }),
-      },
-      config.layers.system,
-    ),
-  });
+    { attributes: { scope: resolved_label, field: field_id } },
+  );
 
   return { system, task: task_xml };
 }
@@ -705,7 +711,7 @@ export function render_profile_sorting(entity_type = "character", options = {}) 
     options.input_data == null ? "" : typeof options.input_data === "string" ? options.input_data : JSON.stringify(options.input_data, null, 2);
 
   const task_xml = render_task({
-    mode: "sorting",
+    task_state: config.task_state,
     schema: get_output_format(config.format, { entity_type: resolved_type }),
     input: input_text,
     input_mode: "ingestion",
@@ -718,21 +724,16 @@ export function render_profile_sorting(entity_type = "character", options = {}) 
     layers: config.layers.task,
   });
 
-  const role_line = resolve_system_role_line({ role: config.system.role });
+  const role_line = resolve_system_role_line({ role: config.role_line });
 
-  const system = render_system_xml({
-    mode: config.system.mode,
-    attributes: {
-      scope: "Entire Profile",
+  const system = compose_system(
+    config,
+    {
+      role_line,
+      core_protocols: render_core_protocols({ protocols: config.protocols }),
     },
-    children: render_prompt_layers(
-      {
-        role_line,
-        core_protocols: render_core_protocols({ protocols: config.protocols }),
-      },
-      config.layers.system,
-    ),
-  });
+    { attributes: { scope: "Entire Profile" } },
+  );
 
   return { system, task: task_xml };
 }
@@ -863,10 +864,10 @@ export function render_optics_prompt(options = {}) {
 
   // Layer 6: Universal Task (<TASK>)
   const task_xml = render_task({
-    mode: "optics",
+    task_state: config.task_state,
     target_tier: tier,
     input_intent: rolled_intent,
-    think_format: config.task?.think_format || "optics",
+    think_format: config.think_format || "optics",
     cinematography,
     engine_tokens,
     keywords: valid_keywords,
@@ -875,17 +876,11 @@ export function render_optics_prompt(options = {}) {
     layers: config.layers.task,
   });
 
-  const full_system = render_system_xml({
-    mode: "optics",
-    children: render_prompt_layers(
-      {
-        role_line: resolve_system_role_line({ role: "SENSORY_CORTEX" }),
-        core_protocols: protocols_xml,
-        entities_block: entities_xml,
-        history_block: history_xml ? history_xml.trim() : null,
-      },
-      config.layers.system,
-    ),
+  const full_system = compose_system(config, {
+    role_line: resolve_system_role_line({ role: config.role_line }),
+    core_protocols: protocols_xml,
+    entities_block: entities_xml,
+    history_block: history_xml ? history_xml.trim() : null,
   });
 
   return pack_prompt(
@@ -902,20 +897,31 @@ export function render_optics_prompt(options = {}) {
 /**
  * Normalizes the recurring runtime-context fallbacks shared by the mode adapters — the entity
  * bag, dynamics snapshot, render accessors, director data, and the history transport window —
- * so no adapter re-derives them ad hoc.
+ * so no adapter re-derives them ad hoc. `require_trio` fills a missing AI/USER/FRACTAL entity
+ * with an empty shell (used by the narrator's conclusion beats) and builds the accessors over
+ * that safe trio.
  *
  * @param {Record<string, any>} [context={}]
  * @param {Record<string, any>} [entities_override] - Explicit entity bag (e.g. npc-augmented).
+ * @param {{ require_trio?: boolean }} [options={}]
  * @returns {{ entities: Record<string, any>, snapshot: Record<string, any>, render_accessors: any, director_data: Record<string, any>, recent_history: any[], npc: any }}
  */
-function normalize_context(context = {}, entities_override = null) {
-  const entities = entities_override || context.entities || {};
+function normalize_context(context = {}, entities_override = null, { require_trio = false } = {}) {
+  const recent_history = context.recent_history || context.simulation_log || context.raw_messages || [];
+  let entities = entities_override || context.entities || {};
+  if (require_trio) {
+    entities = {
+      AI: entities?.AI || { name: "AI", present: {}, eternal: {} },
+      USER: entities?.USER || { name: "USER", present: {}, eternal: {} },
+      FRACTAL: entities?.FRACTAL || { name: "FRACTAL", present: {}, eternal: {} },
+    };
+  }
   return {
     entities,
     snapshot: context.snapshot || context.compressed_snapshot || {},
-    render_accessors: resolve_accessors(context, entities),
+    render_accessors: require_trio ? create_render_accessors(entities, "", recent_history) : resolve_accessors(context, entities),
     director_data: context.director_data || {},
-    recent_history: context.recent_history || context.simulation_log || context.raw_messages || [],
+    recent_history,
     npc: context.npc || context.speaker,
   };
 }
@@ -932,12 +938,8 @@ export const MODE_ADAPTERS = {
   director: (config, context) => {
     if (context.terse) {
       const schema = context.schema || get_output_format(config.format);
-      const task = render_task({ mode: "director", terse: true, schema, layers: ["output_format"] });
-      const system = render_system_xml({
-        mode: config.system.mode,
-        round: context.round,
-        children: render_prompt_layers({ role_line: resolve_system_role_line({ role: config.system.role }) }, config.layers.system),
-      });
+      const task = render_task({ task_state: config.task_state, terse: true, schema, layers: ["output_format"] });
+      const system = compose_system(config, { role_line: resolve_system_role_line({ role: config.role_line }) }, { round: context.round });
       return pack_prompt(
         { system, task },
         resolve_prompt_meta({
@@ -990,66 +992,34 @@ export const MODE_ADAPTERS = {
 
   narrator: (config, context) => {
     const scene_template = context.scene_template || (context.is_prologue ? "PROLOGUE" : context.is_epilogue ? "EPILOGUE" : "CONTINUATION");
-    if (scene_template === "PROLOGUE") {
-      const { entities, snapshot, render_accessors } = normalize_context(context);
-      return pack_prompt(
-        render_scene_narrator({
-          scene_template: "PROLOGUE",
-          ...context,
-          entities,
-          render_accessors,
-          compressed_snapshot: snapshot,
-        }),
-        resolve_prompt_meta({
-          ai: snapshot.ai?.dynamics,
-          fractal: snapshot.fractal?.dynamics,
-          flags: snapshot.flags || {},
-        }),
-      );
-    }
+    const is_conclusion = scene_template === "EPILOGUE" || scene_template === "COLLAPSE" || Boolean(context.is_epilogue);
+    const { entities, snapshot, render_accessors } = normalize_context(context, null, { require_trio: is_conclusion });
 
-    if (scene_template === "EPILOGUE" || scene_template === "COLLAPSE" || context.is_epilogue) {
+    let resolved_template = scene_template || "CONTINUATION";
+    let narrator_snapshot = snapshot;
+    if (is_conclusion) {
       const conclusion_status = context.conclusion_status || (scene_template === "COLLAPSE" ? "COLLAPSED" : "EPILOGUE");
-      const { entities, snapshot, recent_history } = normalize_context(context);
-      const safe_entities = {
-        AI: entities?.AI || { name: "AI", present: {}, eternal: {} },
-        USER: entities?.USER || { name: "USER", present: {}, eternal: {} },
-        FRACTAL: entities?.FRACTAL || { name: "FRACTAL", present: {}, eternal: {} },
+      resolved_template = conclusion_status === "COLLAPSED" ? "COLLAPSE" : "EPILOGUE";
+      narrator_snapshot = {
+        ai: { dynamics: snapshot.ai?.dynamics || context.dynamics?.ai },
+        fractal: { dynamics: snapshot.fractal?.dynamics || context.dynamics?.fractal },
       };
-      return pack_prompt(
-        render_scene_narrator({
-          scene_template: conclusion_status === "COLLAPSED" ? "COLLAPSE" : "EPILOGUE",
-          entities: safe_entities,
-          render_accessors: create_render_accessors(safe_entities, "", recent_history),
-          compressed_snapshot: {
-            ai: { dynamics: snapshot.ai?.dynamics || context.dynamics?.ai },
-            fractal: { dynamics: snapshot.fractal?.dynamics || context.dynamics?.fractal },
-          },
-        }),
-        resolve_prompt_meta({
-          ai: snapshot.ai?.dynamics || context.dynamics?.ai,
-          fractal: snapshot.fractal?.dynamics || context.dynamics?.fractal,
-          flags: snapshot.flags || {},
-        }),
-        [],
-      );
     }
 
-    const { entities, snapshot, render_accessors, director_data } = normalize_context(context);
     return pack_prompt(
       render_scene_narrator({
-        scene_template: scene_template || "CONTINUATION",
         ...context,
+        scene_template: resolved_template,
         entities,
         render_accessors,
-        compressed_snapshot: snapshot,
-        director_data,
+        compressed_snapshot: narrator_snapshot,
       }),
       resolve_prompt_meta({
-        ai: snapshot.ai?.dynamics,
-        fractal: snapshot.fractal?.dynamics,
+        ai: narrator_snapshot.ai?.dynamics,
+        fractal: narrator_snapshot.fractal?.dynamics,
         flags: snapshot.flags || {},
       }),
+      [],
     );
   },
 
@@ -1111,6 +1081,7 @@ export function assemble_prompt(config, context = {}) {
 
 /**
  * CHANGELOG
+ * - 2026-09-23: Pipeline consolidation (R1–R7) — added `compose_system(config, state, { round, attributes })` and routed all seven `<SYSTEM>` assembly sites through it; compilers now read `config.role_line` (was `config.system.role`), `config.think_format`, and dispatch `render_task` via `config.task_state`; `render_story_prose` reads `config.speaker` (no more identity inference), and the narrator adapter's three branches collapse into one path via `normalize_context(context, override, { require_trio })`. Output bytes unchanged.
  * - 2026-09-23: Envelope harmonization + ghostwrite mirror — dropped the `<SYSTEM role>` attribute (single `mode`), folded `<KEYWORD_DIRECTIVES>` into `<DIRECTIVES>`, moved the `<CAST>` roster inside `<ENTITIES>` (via `render_entity_sheets`), consolidated all six dynamics axes into the Director's one `<DYNAMICS>` block, routed `render_prose_turn_core`/`render_story_prose` through `speaker_key` so ghostwrite is interaction with AI↔USER visibility swapped, and retired the now-dead `present_cast`/`keyword_directives` system layers.
  * - 2026-09-22: Recommendations 1–9 wiring — `render_prompt_layers(state, allowed_keys)` and `render_task({ layers })` now honor each mode's declared `config.layers`; continuum/enhancement/optics route through the shared `<APPEARANCE>`/`<CURRENT_LOOK>` sheet grammar, the single `<CAST mode>` block (continuum excludes its target entity), the single `<INPUT kind>` channel, and universal `<DIRECTIVES>`; `render_enhancement` emits `<OUTPUT_FORMAT>` for its prose fields; every package carries the full `{ ai, fractal, flags }` meta (recommendation #6).
  * - 2026-09-21: Standardization pass — Director keyword directives moved from `<SYSTEM>` into the `<TASK>` envelope; the `director_terse` adapter collapsed into the `director` adapter (`context.terse`); `render_story_prose` resolves POV through `resolve_pov_protocol(config.system.pov || active_speaker)`; `render_scene_narrator` now accepts `compressed_snapshot`/`pov_protocol` (the `entities._compressed_dynamics` side-channel is gone) so the narrator receives its dynamics; the `enhancing` attribute is renamed `scope`; sorting reads `TASK_LIBRARY.SORTING.POV_THIRD`; `resolve_prompt_meta` normalizes package meta; the `PROTOCOL_LIBRARY` import was retired.
