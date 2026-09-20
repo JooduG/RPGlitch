@@ -61,7 +61,6 @@ import {
   render_task,
   TASK_LIBRARY,
   render_keyword_directives_xml,
-  render_task_input,
   resolve_character_action_directive,
   resolve_scene_action_directive,
   resolve_optics_cinematography,
@@ -69,7 +68,7 @@ import {
   render_subtext_xml,
 } from "./modules/task.js";
 import { get_output_format } from "./modules/format.js";
-import { render_dynamics_xml, render_dynamics_axes_xml } from "./modules/entities/sheets.js";
+import { render_dynamics_axes_xml } from "./modules/entities/sheets.js";
 import { DYNAMICS_AXES, PHYSICS_PROTOCOLS, AVAILABLE_KEYWORDS, evaluate_dynamics_rules, evaluate_subtext_protocols } from "./physics.js";
 import { temporal_engine, resolve_vector_pool } from "./temporal.js";
 import { normalize_image_tier, resolve_visual_engine_tokens } from "@media";
@@ -212,13 +211,12 @@ const PROMPT_LAYERS = Object.freeze([
   { key: "role", emit: (state) => state.role_line },
   { key: "constitution", emit: (state) => state.constitution },
   { key: "protocols", emit: (state) => state.core_protocols },
-  { key: "dynamics", emit: (state) => state.dynamics },
+  { key: "dynamic_axes", emit: (state) => state.dynamics },
   { key: "entities", emit: (state) => state.entities_block },
   { key: "target_context", emit: (state) => state.target_context },
   { key: "nearby_cast", emit: (state) => state.nearby_cast },
   { key: "layer", emit: (state) => state.layer },
   { key: "field_context", emit: (state) => state.field_context },
-  { key: "input_content", emit: (state) => state.input_content },
   { key: "chapter_history", emit: (state) => state.chapter_history },
   { key: "history", emit: (state) => state.history_block },
 ]);
@@ -228,7 +226,7 @@ const PROMPT_LAYERS = Object.freeze([
  * Every compiler composes its envelope through this single emitter, so a layer reorder/insert is a
  * table edit, never a change to an individual mode's children array.
  *
- * @param {Partial<Record<"role_line"|"constitution"|"core_protocols"|"dynamics"|"keyword_directives"|"entities_block"|"target_context"|"nearby_entities"|"field_context"|"layer"|"input_content"|"present_entities"|"chapter_history"|"history_block", string|null|undefined>>} state
+ * @param {Partial<Record<"role_line"|"constitution"|"core_protocols"|"dynamics"|"entities_block"|"target_context"|"nearby_cast"|"layer"|"field_context"|"chapter_history"|"history_block", string|null|undefined>>} state
  * @returns {string[]}
  */
 function render_prompt_layers(state, allowed_keys = null) {
@@ -309,7 +307,7 @@ export function render_director({
     {
       role_line,
       core_protocols: core_protocols_xml,
-      dynamics: render_dynamics_xml(DYNAMICS_AXES, merged_dynamics),
+      dynamics: render_dynamics_axes_xml(merged_dynamics, null, DYNAMICS_AXES),
       entities_block: entity_sheets,
     },
     { round },
@@ -674,6 +672,8 @@ export function render_enhancement({
   const task_xml = render_task({
     task_state: config.task_state,
     directives: [resolved_directive, macro_directive],
+    input: content,
+    input_channel: "content",
     output_format: get_output_format(config.format),
     output_mode: "prose",
     layers: config.layers.task,
@@ -692,7 +692,6 @@ export function render_enhancement({
             temporal_engine.format(resolve_vector_pool(e), c || "", { max_chars: 1500 }),
           )
         : null,
-      input_content: render_task_input({ input: content, input_mode: "content" }),
     },
     { attributes: { scope: resolved_label, field: field_id } },
   );
@@ -714,7 +713,7 @@ export function render_profile_sorting(entity_type = "character", options = {}) 
     task_state: config.task_state,
     schema: get_output_format(config.format, { entity_type: resolved_type }),
     input: input_text,
-    input_mode: "ingestion",
+    input_channel: "ingestion",
     directives: [
       TASK_LIBRARY.SORTING.POV_THIRD,
       focus_directive,
@@ -748,7 +747,7 @@ export function render_profile_sorting(entity_type = "character", options = {}) 
  * </SYSTEM>
  * <TASK>
  *   <THINK_FORMAT>
- *   <INPUT mode="intent">
+ *   <INPUT channel="intent">
  *   <TARGET>
  *   <SPATIAL_FRAMING>
  *   <DIRECTIVES>                      (contains <KEYWORD_DIRECTIVES>)
@@ -827,6 +826,7 @@ export function render_optics_prompt(options = {}) {
     visual_style: style_definition,
     engine_tokens,
     protocols: config.protocols,
+    has_alternation: has_alternations(combined_input_text),
   });
 
   // Cinematography Resolution (Layer 6 Spatial Framing)
@@ -850,7 +850,6 @@ export function render_optics_prompt(options = {}) {
     main_entity,
     macro_entities,
     roll,
-    has_alternation: has_alternations(combined_input_text),
   });
 
   // Layer 5: Sensory History (<CONVERSATION_HISTORY>)
@@ -872,6 +871,8 @@ export function render_optics_prompt(options = {}) {
     engine_tokens,
     keywords: valid_keywords,
     is_selfie,
+    main_entity_name: main_entity?.name || "",
+    has_fractal_setting: Boolean(active_fractal_setting),
     schema,
     layers: config.layers.task,
   });
@@ -983,7 +984,7 @@ export const MODE_ADAPTERS = {
   sorting: (config, context) => {
     // Layer-Order Design Intent: the NARRATIVE_STRUCTURER rules, POV, and JSON schema live
     // in <SYSTEM>/<TASK>, and the raw profile text to be sorted is delivered through the
-    // single <INPUT mode="ingestion"> channel inside <TASK> (no ad-hoc `messages` payload).
+    // single <INPUT channel="ingestion"> channel inside <TASK> (no ad-hoc `messages` payload).
     const { system, task } = render_profile_sorting(context.entity_type, { ...context.options, input_data: context.input_data });
     return pack_prompt({ system, task }, resolve_prompt_meta());
   },
@@ -1081,6 +1082,7 @@ export function assemble_prompt(config, context = {}) {
 
 /**
  * CHANGELOG
+ * - 2026-09-23: Prompt-grammar harmonization (phases 0–3) — the Director composes its six axes through the shared `render_dynamics_axes_xml` (dropping `render_dynamics_xml`/`<DYNAMICS>`); optics passes `has_alternation` to `render_core_protocols` and drops its entity-block rules; enhancement routes its content `<INPUT>` through `<TASK>`; the retired `input_content` system layer is pruned.
  * - 2026-09-23: Pipeline consolidation (R1–R7) — added `compose_system(config, state, { round, attributes })` and routed all seven `<SYSTEM>` assembly sites through it; compilers now read `config.role_line` (was `config.system.role`), `config.think_format`, and dispatch `render_task` via `config.task_state`; `render_story_prose` reads `config.speaker` (no more identity inference), and the narrator adapter's three branches collapse into one path via `normalize_context(context, override, { require_trio })`. Output bytes unchanged.
  * - 2026-09-23: Envelope harmonization + ghostwrite mirror — dropped the `<SYSTEM role>` attribute (single `mode`), folded `<KEYWORD_DIRECTIVES>` into `<DIRECTIVES>`, moved the `<CAST>` roster inside `<ENTITIES>` (via `render_entity_sheets`), consolidated all six dynamics axes into the Director's one `<DYNAMICS>` block, routed `render_prose_turn_core`/`render_story_prose` through `speaker_key` so ghostwrite is interaction with AI↔USER visibility swapped, and retired the now-dead `present_cast`/`keyword_directives` system layers.
  * - 2026-09-22: Recommendations 1–9 wiring — `render_prompt_layers(state, allowed_keys)` and `render_task({ layers })` now honor each mode's declared `config.layers`; continuum/enhancement/optics route through the shared `<APPEARANCE>`/`<CURRENT_LOOK>` sheet grammar, the single `<CAST mode>` block (continuum excludes its target entity), the single `<INPUT kind>` channel, and universal `<DIRECTIVES>`; `render_enhancement` emits `<OUTPUT_FORMAT>` for its prose fields; every package carries the full `{ ai, fractal, flags }` meta (recommendation #6).

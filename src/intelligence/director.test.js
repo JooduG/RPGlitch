@@ -106,20 +106,20 @@ describe("Director Quick Shot Prompt (render_director)", () => {
   it("nudges Director toward fractal narration on non-verbal environmental turns", () => {
     const env_payload = { ...base_payload(), input: "I press my palm flat against the cold iron gate and wait.", compressed_snapshot: base_snapshot };
     const result = render_director(env_payload);
-    expect(result.task).toContain("<INPUT_NOTE>");
+    expect(result.task).toContain("ENVIRONMENTAL HINT:");
     expect(result.task).toContain('"speaker" to "fractal"');
-    expect(result.task).toContain("SPEAKER ROUTING RULES");
+    expect(result.task).toContain("NEXT ACTION ROUTING RULES");
   });
 
-  it('emits a consolidated <CAST mode="present"> when NPCs are present', () => {
+  it('emits a consolidated <CAST mode="in_scene"> when NPCs are present', () => {
     const npc_entities = [{ id: "npc-elias", name: "Elias", description: "Archivist", relationships: ["Elias → Viper: wary"] }];
     const result = render_director({ ...base_payload(), npc_entities, in_scene_ids: ["npc-elias"], compressed_snapshot: base_snapshot });
-    expect(result.system).toContain('<CAST mode="present">');
+    expect(result.system).toContain('<CAST mode="in_scene">');
     expect(result.system).toContain("Elias (id: npc-elias)");
     expect(result.system).not.toContain("ACTIVE PRESENT PARTICIPANTS");
     // The roster is the final child inside <ENTITIES>.
-    expect(result.system.indexOf("<ENTITIES>")).toBeLessThan(result.system.indexOf('<CAST mode="present">'));
-    expect(result.system.indexOf('<CAST mode="present">')).toBeLessThan(result.system.lastIndexOf("</ENTITIES>"));
+    expect(result.system.indexOf("<ENTITIES>")).toBeLessThan(result.system.indexOf('<CAST mode="in_scene">'));
+    expect(result.system.indexOf('<CAST mode="in_scene">')).toBeLessThan(result.system.lastIndexOf("</ENTITIES>"));
     expect(result.system).not.toContain("<ROSTER>");
     expect(result.system).not.toContain("<SCENE_ROSTER>");
     expect(result.system).not.toContain("<RELATIONAL_MESH>");
@@ -443,6 +443,7 @@ describe("execute_director_shot", () => {
 
 /**
  * CHANGELOG
+ * - 2026-09-23: Prompt-grammar harmonization — the cast assertion now expects `<CAST mode="in_scene">` (was `present`) and the Director's routing heading is asserted as `NEXT ACTION ROUTING RULES` (was `SPEAKER ROUTING RULES`).
  * - 2026-09-23: Cast assertions follow the harmonized roster — `<CAST mode="present">` is the final child of `<ENTITIES>`, with the `ACTIVE PRESENT PARTICIPANTS` header retired.
  * - 2026-09-21: Keyword directives now live in the Director <TASK> envelope (single source of truth for directive prose) — the <AVAILABLE_KEYWORDS> assertions target `result.task`; the <INPUT_NOTE> environmental nudge remains in `result.task` inside <DIRECTIVES>.
  * - 2026-09-19: Opening-turn first-contact is now an explicit `director_data.first_contact` flag (no longer smuggled as a "first_contact" keyword, which polluted the somatic keyword channel and truncated a real keyword); test added.

@@ -149,9 +149,7 @@ export const CONTRACT = {
   director: {
     system: [
       "SYSTEM",
-      "DYNAMICS",
-      "LAWS",
-      "AXES",
+      "DYNAMIC_AXES",
       "CHAOS",
       "INTENSITY",
       "OPENNESS",
@@ -191,7 +189,7 @@ export const CONTRACT = {
       "WEATHER",
       "CAST",
     ],
-    task: ["TASK", "INPUT", "AI_CHARACTER_LAST_TURN", "DIRECTIVES", "KEYWORD_DIRECTIVES", "AVAILABLE_KEYWORDS", "OUTPUT_FORMAT"],
+    task: ["TASK", "INPUT", "INPUT", "DIRECTIVES", "KEYWORD_DIRECTIVES", "AVAILABLE_KEYWORDS", "OUTPUT_FORMAT"],
     messages: 0,
   },
   director_terse: {
@@ -697,8 +695,8 @@ export const CONTRACT = {
     messages: 0,
   },
   enhancement: {
-    system: ["SYSTEM", "CORE_PROTOCOLS", "DATA", "LAYER", "ENTITY_CONTEXT", "PERSONALITY", "APPEARANCE", "BUILD", "INPUT"],
-    task: ["TASK", "DIRECTIVES", "OUTPUT_FORMAT"],
+    system: ["SYSTEM", "CORE_PROTOCOLS", "DATA", "LAYER", "ENTITY_CONTEXT", "PERSONALITY", "APPEARANCE", "BUILD"],
+    task: ["TASK", "INPUT", "DIRECTIVES", "OUTPUT_FORMAT"],
     messages: 0,
   },
   sorting: {
@@ -723,13 +721,6 @@ export const CONTRACT = {
       "CURRENT_LOOK",
       "JACKET",
       "POSTURE",
-      "RESTRICTION",
-      "SUBJECT_RULES",
-      "DYNAMIC_OVERRIDES",
-      "GARMENT_ANATOMY",
-      "IDENTIFIERS",
-      "CREATURE_DISAMBIGUATION",
-      "SIGNATURE_COLORS",
     ],
     task: [
       "TASK",
@@ -750,22 +741,23 @@ export const CONTRACT = {
 };
 
 export const CONTRACT_SIZES = {
-  director: { system: 2399, task: 2592 },
+  director: { system: 2087, task: 2871 },
   director_terse: { system: 105, task: 909 },
-  interaction: { system: 5617, task: 2069 },
-  ghostwrite: { system: 5618, task: 2040 },
-  npc: { system: 5949, task: 2833 },
-  narrator: { system: 5189, task: 1809 },
-  narrator_prologue: { system: 5189, task: 2060 },
-  narrator_epilogue: { system: 5189, task: 1729 },
+  interaction: { system: 5617, task: 2158 },
+  ghostwrite: { system: 5618, task: 2129 },
+  npc: { system: 5949, task: 2922 },
+  narrator: { system: 5189, task: 1922 },
+  narrator_prologue: { system: 5189, task: 2170 },
+  narrator_epilogue: { system: 5189, task: 1839 },
   continuum: { system: 1210, task: 2818 },
-  enhancement: { system: 586, task: 370 },
-  sorting: { system: 287, task: 3001 },
-  optics: { system: 3575, task: 2138 },
+  enhancement: { system: 541, task: 441 },
+  sorting: { system: 287, task: 3004 },
+  optics: { system: 1761, task: 3785 },
 };
 
 /**
  * CHANGELOG
+ * - 2026-09-23: Prompt-grammar harmonization (phases 0–3) — re-froze after the `INPUT` unification (the Director's `<AI_CHARACTER_LAST_TURN>` is now a second `<INPUT origin="AI_CHARACTER" channel="reply">`), the `<DYNAMIC_AXES>` unification (the Director's `<DYNAMICS><LAWS><AXES>` collapses to the one axes block shared with the sheets, and its calibration rules moved into `<DIRECTIVES>`), the `<CAST mode="in_scene">` rename, the optics rule prose relocation into `<DIRECTIVES>` (with optics' alternation protocol now in `<CORE_PROTOCOLS>`), the enhancement `<INPUT>` moving from `<SYSTEM>` into `<TASK>`, and the `input`/`last_turn` task-layer collapse into one `inputs` layer.
  * - 2026-09-23: Re-froze `CONTRACT` tag inventories and `CONTRACT_SIZES` after the envelope-harmonization pass — the Director's six dynamics axes moved into the one `<DYNAMICS>` block, the `<CAST>` roster moved inside `<ENTITIES>`, `<KEYWORD_DIRECTIVES>` nested inside `<DIRECTIVES>`, `<AI_CHARACTER_LAST_TURN>` gained input-style attributes, the `<SYSTEM role>` attribute was dropped, and ghostwrite's entity visibility now mirrors interaction's with AI↔USER swapped (the ghostwrite case now supplies a `round` and the player sheet carries its own `DYNAMIC_AXES`, so the two prose envelopes differ only by the swapped identities).
  * - 2026-09-22: Re-froze `CONTRACT` tag inventories and `CONTRACT_SIZES` after the recommendations 1–9 standardization pass — one entity-sheet grammar (`PSYCHOLOGY`/`APPEARANCE`, `CURRENT_LOOK`), one `<CAST mode="present|nearby|active">` block, one `<INPUT>` channel, and universal `<DIRECTIVES>`; continuum history tag is now `HISTORY`.
  * - 2026-09-21: Re-froze `CONTRACT` tag inventories and `CONTRACT_SIZES` after the standardization pass — keyword directives moved from `<SYSTEM>` into `<TASK>`, every mode's instruction prose now lives in one `<DIRECTIVES>` element, fractal psychology tag renamed `ATMOSPHERE`→`ESSENCE`, optics `CURRENT_IMPRESSION`→`CURRENT_LOOK`, POV/`<PERSPECTIVE>` removed from data-mode manifests, the narrator now receives its dynamics snapshot (`SUBTEXT`/`DYNAMIC_AXES`), and the `director_terse` case now compiles `director` with `{ terse: true }`.

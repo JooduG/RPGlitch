@@ -86,7 +86,7 @@ const TEMPORAL_SCHEMA_FRAGMENT = Object.freeze(["eternal", "present", "past", "f
  */
 const PROSE_LAYERS = Object.freeze({
   system: Object.freeze(["role", "constitution", "protocols", "entities"]),
-  task: Object.freeze(["think", "input", "currents", "directives", "delivery_posture", "stability_lock", "output_format"]),
+  task: Object.freeze(["think", "inputs", "currents", "directives", "delivery_posture", "stability_lock", "output_format"]),
 });
 
 /**
@@ -96,28 +96,28 @@ const PROSE_LAYERS = Object.freeze({
  * @type {Readonly<{ system: ReadonlyArray<string>, task: ReadonlyArray<string> }>}
  */
 const DIRECTOR_LAYERS = Object.freeze({
-  system: Object.freeze(["role", "protocols", "dynamics", "entities"]),
-  task: Object.freeze(["input", "last_turn", "directives", "output_format"]),
+  system: Object.freeze(["role", "protocols", "dynamic_axes", "entities"]),
+  task: Object.freeze(["inputs", "directives", "output_format"]),
 });
 
 const TOOL_LAYERS = Object.freeze({
   system: Object.freeze(["role", "protocols", "target_context", "nearby_cast", "chapter_history", "history"]),
-  task: Object.freeze(["input", "directives", "output_format"]),
+  task: Object.freeze(["inputs", "directives", "output_format"]),
 });
 
 const ENHANCEMENT_LAYERS = Object.freeze({
-  system: Object.freeze(["role", "protocols", "layer", "field_context", "input_content"]),
-  task: Object.freeze(["directives", "output_format"]),
+  system: Object.freeze(["role", "protocols", "layer", "field_context"]),
+  task: Object.freeze(["inputs", "directives", "output_format"]),
 });
 
 const SORTING_LAYERS = Object.freeze({
   system: Object.freeze(["role", "protocols"]),
-  task: Object.freeze(["input", "directives", "output_format"]),
+  task: Object.freeze(["inputs", "directives", "output_format"]),
 });
 
 const OPTICS_LAYERS = Object.freeze({
   system: Object.freeze(["role", "protocols", "entities", "history"]),
-  task: Object.freeze(["think", "input", "target", "spatial_framing", "directives", "output_format"]),
+  task: Object.freeze(["think", "inputs", "target", "spatial_framing", "directives", "output_format"]),
 });
 
 /**
@@ -129,18 +129,16 @@ const OPTICS_LAYERS = Object.freeze({
 export const ENVELOPE_LAYER_TAGS = Object.freeze({
   constitution: "AXIOMATIC_CONSTITUTION",
   protocols: "CORE_PROTOCOLS",
-  dynamics: "DYNAMICS",
+  dynamic_axes: "DYNAMIC_AXES",
   entities: "ENTITIES",
   target_context: "TARGET_ENTITY_CONTEXT",
   nearby_cast: "CAST",
   layer: "LAYER",
   field_context: "ENTITY_CONTEXT",
-  input_content: "INPUT",
   chapter_history: "CHAPTER_HISTORY",
   history: "HISTORY",
   think: "THINK_FORMAT",
-  input: "INPUT",
-  last_turn: "AI_CHARACTER_LAST_TURN",
+  inputs: "INPUT",
   currents: "CURRENTS",
   target: "TARGET",
   spatial_framing: "SPATIAL_FRAMING",
@@ -338,6 +336,7 @@ export const PROMPTS = Object.freeze({
     constitution: false,
     protocols: [
       "CORE_PROTOCOLS.DATA",
+      "CORE_PROTOCOLS.ALTERNATION_OPTIONS",
       "OPTICS.WEIGHTING_RESTRICTIONS",
       "OPTICS.AFFIRMATIVE_FRAMING",
       "OPTICS.TYPOGRAPHY",
@@ -386,6 +385,7 @@ export default PROMPTS;
 
 /**
  * CHANGELOG
+ * - 2026-09-23: Prompt-grammar harmonization (phases 0–3) — layer presets renamed (`dynamics`→`dynamic_axes`) and the task layer list collapsed to one `inputs` slot (retiring `last_turn`); `ENVELOPE_LAYER_TAGS` follows (`DYNAMIC_AXES`, `INPUT`, `input_content` pruned); enhancement moved its `<INPUT>` from `<SYSTEM>` to `<TASK>`; optics added `CORE_PROTOCOLS.ALTERNATION_OPTIONS` so its alternation protocol lives in `<CORE_PROTOCOLS>` (not `<SUBJECT_RULES>`).
  * - 2026-09-23: Pipeline consolidation (R1/R3/R5/R7) — the mode record is now the single source of truth: each mode declares `speaker`, `visibility`, `role_line`, `task_state`, `think_format`, a named layer preset (`DIRECTOR_LAYERS`/`TOOL_LAYERS`/`ENHANCEMENT_LAYERS`/`SORTING_LAYERS`/`OPTICS_LAYERS` alongside `PROSE_LAYERS`), and its format; `config.system.role` is retired (the `role_line` key indexes SYSTEM_ROLES), `config.task` collapses to a top-level `think_format`, `format` normalizes to `{ mode, schema? }` at `define_mode`, and the three per-mode visibility arrays (`dispositions`/`dynamic_axes`/`agendas`) are replaced by the `visibility` policy resolved in `sheets.js`. Output bytes unchanged.
  * - 2026-09-23: Envelope harmonization — dropped the `present_cast` system layer (the `<CAST>` roster now nests inside `<ENTITIES>`) and the `keyword_directives` task layer (the block now nests inside `<DIRECTIVES>`); the `user_agenda` boolean became an `agendas` list, the Director's `dynamic_axes` gate was removed (all six axes gather in the one `<DYNAMICS>` block), and ghostwrite's entity gates mirror interaction's with AI↔USER swapped.
  * - 2026-09-22: Declared envelope shape (recommendation #4) — every mode now carries a frozen `layers: { system, task }` manifest consumed by the `PROMPT_LAYERS`/`TASK_LAYERS` walkers and validated against `ENVELOPE_LAYER_TAGS`; the sorting schema gained `_thought_process` and the continuum/sorting schemas share `TEMPORAL_SCHEMA_FRAGMENT` (recommendation #8).

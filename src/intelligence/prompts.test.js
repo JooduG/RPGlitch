@@ -229,7 +229,7 @@ describe("fused rendering per mode", () => {
 
   it("carries the <INPUT origin> inside the interaction task", () => {
     const interaction = render_story_prose({ round: 3, entities, input: "Beast steps forward." });
-    expect(interaction.task).toContain('<INPUT origin="SILVERS" round="3" mode="action">Beast steps forward.</INPUT>');
+    expect(interaction.task).toContain('<INPUT origin="SILVERS" round="3" channel="action">Beast steps forward.</INPUT>');
   });
 
   it("strictly respects the manifest protocol list: interaction includes NATURAL_DIALOGUE, narrator omits it", () => {
@@ -309,7 +309,7 @@ describe("master switchboard compile_prompt", () => {
 
     const result = compile_prompt("optics", context);
     expect(result.system).toContain('mode="optics"');
-    expect(result.system).toContain("<SUBJECT_RULES");
+    expect(result.task).toContain("SIGNATURE COLORS:");
   });
 
   it("compiles director prompt directly through compile_prompt", () => {
@@ -383,6 +383,7 @@ describe("master switchboard compile_prompt", () => {
 
 /**
  * CHANGELOG
+ * - 2026-09-23: Prompt-grammar harmonization — task envelopes now assert `<INPUT … channel="action">` (the `mode=` signal discriminator was retired for `channel=` across every signal).
  * - 2026-09-23: Registry assertions realigned to the consolidated record — the required module keys drop `task` (now a flattened `think_format`), and the task-key test asserts `think_format` at the top level with no `task` bag.
  * - 2026-09-23: Envelope-harmonization assertions — the registry reads the single `mode` discriminator (`mode.system.mode`; the `role` attribute was retired).
  * - 2026-09-21: Realigned registry assertions to the standardization pass — key count is 9 (the `director_terse` mode collapsed into `director` + `{ terse: true }`), prose protocol bundles no longer carry POV keys (resolved by `resolve_pov_protocol`), and the enhancement scope attribute is asserted as `scope=`.

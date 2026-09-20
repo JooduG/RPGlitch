@@ -1983,7 +1983,7 @@ describe("ghostwrite identity", () => {
   it("enhances the PLAYER persona's draft, addressed against the AI character", () => {
     const { system, task } = render_story_prose({ entities: _prompt_test_entities, input: "I step forward and bare my teeth.", ghostwrite: true });
     expect(system).toContain("You are Lord Benedict Silvers within FRACTAL Project Tartarus, interacting with Beast.");
-    expect(task).toContain('<INPUT origin="SILVERS" mode="action">I step forward and bare my teeth.</INPUT>');
+    expect(task).toContain('<INPUT origin="SILVERS" channel="action">I step forward and bare my teeth.</INPUT>');
     expect(task).toContain("<DELIVERY_POSTURE>");
     expect(task).toContain("Advance the scene in response to");
   });
@@ -2064,12 +2064,12 @@ describe("interaction structural integrity", () => {
 
   it("matches the blueprint THINK_FORMAT beats", () => {
     const { task } = render_story_prose({ round: 3, entities: _prompt_test_entities, input: "Beast steps forward." });
-    expect(task).toContain("Execute internal reasoning across 4 sequential beats");
+    expect(task).toContain("Open your output with one internal <THINK> block (under 200 words). Reason across 4 sequential beats");
     expect(task).toContain('<BEAT id="VISCERAL_IMPACT" step="1">Immediate non-verbal reaction to the «INPUT» element.</BEAT>');
     expect(task).toContain('<BEAT id="EMOTIONAL_CALIBRATION" step="2">Situational realism and physical presence.</BEAT>');
     expect(task).toContain('<BEAT id="STRATEGIC_DRIVE" step="3">How active «AGENDA» and/or «TRAJECTORY» navigates immediate friction.</BEAT>');
     expect(task).toContain('<BEAT id="CADENCE_TEST" step="4">Draft a dialogue line before generating outward prose.</BEAT>');
-    expect(task).toContain("Close with </THINK> before generating narrative prose.");
+    expect(task).toContain("Close </THINK> before the narrative. This think block is internal reasoning and is never part of the visible prose.");
   });
 });
 
@@ -2103,6 +2103,8 @@ describe("narrator prose compiler", () => {
 
 /**
  * CHANGELOG
+ * - 2026-09-23: Prompt-grammar harmonization — the `THINK_FORMAT` beat assertion follows the reconciled wording ("Open your output with one internal `<THINK>` block (under 200 words). Reason across 4 sequential beats" … "Close `</THINK>` before the narrative. This think block is internal reasoning and is never part of the visible prose.").
+ * - 2026-09-23: Prompt-grammar harmonization — the prose task assertion now expects `<INPUT origin="SILVERS" channel="action">` (the signal discriminator is `channel=`, not `mode=`).
  * - 2026-09-23: Envelope-harmonization assertions — `<INPUT>` now carries `mode="action"`, and the narrator envelope no longer emits a redundant `role="NARRATOR"` attribute (single `<SYSTEM mode="narrator">`).
  * - 2026-09-22: Ghostwrite assertion follows the single `<INPUT origin|round|kind>` channel (recommendation #5) — the emitted tag now carries `kind="action"`.
  * - 2026-09-21: Standardization pass — the mocked `assemble_prompt` now routes terse Director retries through the `director` case (`context.terse`) since the `director_terse` mode was retired, and the fractal psychology wrapper assertion follows the `ATMOSPHERE`→`ESSENCE` rename.

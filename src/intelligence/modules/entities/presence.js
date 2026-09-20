@@ -164,9 +164,9 @@ export const CAST_TAG = "CAST";
  * The single cast-block vocabulary. Every roster in every mode emits one `<CAST mode="…">`
  * envelope, so director present-participants, prose nearby-entities, and optics active
  * characters share one schema (recommendation #9).
- * @type {Readonly<{ PRESENT: "present", NEARBY: "nearby", ACTIVE: "active", DORMANT: "dormant" }>}
+ * @type {Readonly<{ IN_SCENE: "in_scene", NEARBY: "nearby", ACTIVE: "active", DORMANT: "dormant" }>}
  */
-export const CAST_MODES = Object.freeze({ PRESENT: "present", NEARBY: "nearby", ACTIVE: "active", DORMANT: "dormant" });
+export const CAST_MODES = Object.freeze({ IN_SCENE: "in_scene", NEARBY: "nearby", ACTIVE: "active", DORMANT: "dormant" });
 
 /**
  * Emits the one canonical `<CAST mode="…">` envelope.
@@ -196,7 +196,7 @@ function summarize_entity(entity) {
 }
 
 /**
- * Renders the Director's roster for turn arbitration: one `<CAST mode="present">` for
+ * Renders the Director's roster for turn arbitration: one `<CAST mode="in_scene">` for
  * on-stage participants and, when genesis candidates exist, one `<CAST mode="dormant">`
  * for reusable stasis entities. Symmetrically activated when `config.entities.present_entities`
  * is enabled. The speaker-routing and convergence rules live in `<DIRECTIVES>`
@@ -231,7 +231,7 @@ export function render_present_cast_xml({ entities = {}, npc_entities = [], in_s
   }
 
   return [
-    present_rows.length ? render_cast_xml({ mode: CAST_MODES.PRESENT, children: [present_rows.join("\n")] }) : "",
+    present_rows.length ? render_cast_xml({ mode: CAST_MODES.IN_SCENE, children: [present_rows.join("\n")] }) : "",
     dormant_rows.length ? render_cast_xml({ mode: CAST_MODES.DORMANT, children: [dormant_rows.join("\n")] }) : "",
   ]
     .filter(Boolean)
@@ -241,6 +241,7 @@ export function render_present_cast_xml({ entities = {}, npc_entities = [], in_s
 /**
  * CHANGELOG
  * ============================================================================
+ * - 2026-09-23: Prompt-grammar harmonization (phases 0–3) — `CAST_MODES.PRESENT` renamed to `CAST_MODES.IN_SCENE` (`<CAST mode="in_scene">`) to stop colliding with the `PERSPECTIVE` present tense.
  * - 2026-09-23: Cast de-duplication — the `<CAST>` roster now lives inside `<ENTITIES>` (built by `render_entity_sheets`), drops the `ACTIVE PRESENT PARTICIPANTS:` header and the per-row `(Present)`/`[Present]` suffixes, and splits genesis candidates into a separate `<CAST mode="dormant">` block (`CAST_MODES.DORMANT`); `CAST_HEADERS` retired.
  * - 2026-09-22: One cast block (recommendation #9) — `PRESENT_ENTITIES` / `NEARBY_ENTITIES` collapse into the single `<CAST mode="present|nearby">` envelope (`render_cast_xml`, `CAST_MODES`); the Director's speaker-routing and convergence prose moved out of the data block into `<DIRECTIVES>` (`TASK_LIBRARY.DIRECTOR`, recommendation #3); `render_present_entities_xml` → `render_present_cast_xml`.
  * - 2026-09-21: `render_dispositions` is now offset-free — it takes `(entity, active_names, name_to_id_map)` and emits at indent 0 (the dropped `indent` parameter), letting callers place the block via their own `render_xml_tag` nesting.

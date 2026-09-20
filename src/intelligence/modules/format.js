@@ -120,7 +120,7 @@ export function render_json_schema(schema_keys, entity_type = "character", { neg
  * and single profile field expansion (enhancement).
  * @type {string}
  */
-export const PROSE_FORMAT = "Emit strictly plain prose. No preamble, commentary, markdown, or structural tags.";
+export const PROSE_FORMAT = "After closing </THINK>, emit strictly plain prose: no preamble, commentary, markdown, or structural tags.";
 
 /**
  * Formats the canonical structured JSON-return instruction for a compiled schema.
@@ -199,6 +199,7 @@ export function render_output_format_xml({ mode = "", content = "", indent_level
 
 /**
  * CHANGELOG
+ * - 2026-09-23: Prompt-grammar harmonization (phases 0–3) — `PROSE_FORMAT` now scopes the plain-prose rule explicitly to after `</THINK>`, removing the contradiction with `THINK_FORMAT`.
  * - 2026-09-23: `get_output_format` accepts the normalized `{ mode: "prose" }` shape (every mode's `format` is now an object produced by `define_mode`), while retaining the legacy `"PROSE"` sentinel for direct callers.
  * - 2026-09-22: Uniform output contract (recommendation #8) — `format_json_return` documents the single raw schema-escaping policy now that every mode emits an `<OUTPUT_FORMAT>`.
  * - 2026-09-19: Standardized get_output_format to a single `(format_spec, options)` signature (dropped the string options_or_fallback overload and the stale target_type/resolved_type JSDoc), and collapsed render_json_schema's field lookup to one `field_definition`.

@@ -42,17 +42,22 @@ function extract_layer_tags(text) {
 }
 
 /**
- * True when `sequence` appears within `container` in the same relative order.
- * @param {string[]} sequence
- * @param {string[]} container
+ * True when `emitted` lists only declared tags, in non-decreasing declaration order. A single
+ * declared layer may emit the same tag more than once (e.g. the Director's `inputs` layer emits
+ * both the user action and the AI reply as sibling `<INPUT>` blocks), which a plain subsequence
+ * check would reject.
+ * @param {string[]} emitted
+ * @param {string[]} declared
  * @returns {boolean}
  */
-function is_subsequence(sequence, container) {
-  let index = 0;
-  for (const item of container) {
-    if (item === sequence[index]) index += 1;
+function respects_declared_order(emitted, declared) {
+  let last_index = -1;
+  for (const tag of emitted) {
+    const index = declared.indexOf(tag);
+    if (index === -1 || index < last_index) return false;
+    last_index = index;
   }
-  return index === sequence.length;
+  return true;
 }
 
 /**
@@ -153,8 +158,8 @@ describe("Prompt pipeline — declared envelope layers", () => {
       // No undeclared top-level layer may leak, and declaration order must be respected.
       expect(emitted_system.every((tag) => declared_system.includes(tag))).toBe(true);
       expect(emitted_task.every((tag) => declared_task.includes(tag))).toBe(true);
-      expect(is_subsequence(emitted_system, declared_system)).toBe(true);
-      expect(is_subsequence(emitted_task, declared_task)).toBe(true);
+      expect(respects_declared_order(emitted_system, declared_system)).toBe(true);
+      expect(respects_declared_order(emitted_task, declared_task)).toBe(true);
     });
 
     it(mode_key + " declares only known layer keys", () => {
@@ -185,20 +190,20 @@ describe("Prompt pipeline — mode-record single-source-of-truth invariants", ()
   });
 
   it("gives every mode a speaker and a known visibility policy", () => {
-    for (const [mode_key, config] of Object.entries(PROMPTS)) {
+    for (const config of Object.values(PROMPTS)) {
       expect(config.speaker === null || typeof config.speaker === "string").toBe(true);
       expect(config.visibility in VISIBILITY_POLICIES).toBe(true);
     }
   });
 
   it("resolves every role_line key against SYSTEM_ROLES", () => {
-    for (const [mode_key, config] of Object.entries(PROMPTS)) {
+    for (const config of Object.values(PROMPTS)) {
       expect(SYSTEM_ROLES[config.role_line]).toBeDefined();
     }
   });
 
   it("points every task_state at a registered task builder", () => {
-    for (const [mode_key, config] of Object.entries(PROMPTS)) {
+    for (const config of Object.values(PROMPTS)) {
       expect(TASK_STATE_BUILDERS).toHaveProperty(config.task_state);
     }
   });
@@ -206,6 +211,7 @@ describe("Prompt pipeline — mode-record single-source-of-truth invariants", ()
 
 /**
  * CHANGELOG
+ * - 2026-09-23: Declared-envelope gate now tolerates one declared layer emitting the same tag repeatedly (non-decreasing declaration order) — the Director's single `inputs` layer emits both the user action and the AI reply as sibling `<INPUT>` blocks.
  * - 2026-09-23: Added the mode-record single-source-of-truth gate (R8) — asserts the mode↔adapter mapping, `system.mode === key`, a known `visibility` policy per mode, every `role_line` in `SYSTEM_ROLES`, and every `task_state` in `TASK_STATE_BUILDERS`.
  * - 2026-09-23: Invariant now asserts the single `<SYSTEM mode="…">` discriminator (the redundant `role` attribute was dropped) following the envelope-harmonization pass.
  * - 2026-09-22: Added the declared-envelope-layer gate (recommendation #4) — each mode's manifest `layers` must cover every emitted top-level layer tag, in declared order, and may only declare known keys.

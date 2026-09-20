@@ -21,7 +21,7 @@ describe("src/intelligence/modules/format.js", () => {
   describe("PROSE_FORMAT & JSON return formatters", () => {
     it("declares the canonical plain prose directive", () => {
       expect(PROSE_FORMAT).toContain("plain prose");
-      expect(PROSE_FORMAT).toBe("Emit strictly plain prose. No preamble, commentary, markdown, or structural tags.");
+      expect(PROSE_FORMAT).toBe("After closing </THINK>, emit strictly plain prose: no preamble, commentary, markdown, or structural tags.");
     });
 
     it("formats the single canonical json return instruction", () => {
@@ -94,6 +94,7 @@ describe("src/intelligence/modules/format.js", () => {
 
 /**
  * CHANGELOG
+ * - 2026-09-23: PROSE_FORMAT assertion follows the harmonized directive — the plain-prose rule is now scoped to after `</THINK>` to remove the contradiction with `THINK_FORMAT`.
  * - 2026-09-19: Consolidated JSON-return formatter coverage into a single canonical format_json_return assertion (indent/strict variants removed).
  * - 2026-09-19: Added test for negative prompt injection into Optics schema format (R3).
  * - 2026-09-16: Removed SCHEMA_FIELD_DESCRIPTORS suite following repatriation into PROFILE_FIELDS directives in profile-fields.js.

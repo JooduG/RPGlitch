@@ -15,7 +15,7 @@
  * ============================================================================
  */
 
-import { escape_xml, physical_to_xml, strip_leading_key_echo, render_field_value, indent_continuation, render_xml_tag, prompt_escape } from "@utils";
+import { escape_xml, physical_to_xml, strip_leading_key_echo, render_field_value, indent_continuation, render_xml_tag } from "@utils";
 import { PROFILE_FIELD_CATALOG } from "@data";
 import { strip_epistemic_secrets, strip_visual_excluded } from "./epistemic.js";
 import { resolve_available_entities, render_dispositions, render_nearby_entities_xml, render_cast_xml, CAST_MODES } from "./presence.js";
@@ -742,33 +742,6 @@ export function render_enhancement_field_context(entity, field_identifier, conte
   return "";
 }
 
-/**
- * Compiles co-located <SUBJECT_RULES> for Sensory Cortex image synthesis.
- * Keeps entity unboxing & wardrobe rules adjacent to physical character data.
- *
- * @param {boolean} [has_alternation=false]
- * @returns {string} XML formatted <SUBJECT_RULES> block
- */
-export function render_optics_subject_rules(has_alternation = false) {
-  const rules = [
-    "<DYNAMIC_OVERRIDES>Follow a strict bottom-up hierarchy where the most recent (bottom-most) physical condition update ALWAYS overrides preceding static tags like «SHIRT» or «JACKET». If a conflicting state appears later (e.g. 'no clothes' then later 'shirt: white'), the most recent/latest state wins.</DYNAMIC_OVERRIDES>",
-    "<GARMENT_ANATOMY>When rendering specialized or revealing garments (e.g., jockstraps, thongs, harnesses), explicitly specify their physical mechanics and bare skin exposure in natural prose. For a jockstrap, describe: 'wearing an athletic jockstrap featuring a supportive front pouch, open sides and back with bare exposed butt cheeks, and dual wide elastic straps circling under the glutes/thighs'. For thongs, describe: 'a narrow string back leaving the rear completely bare'. Never allow jockstraps to collapse into generic briefs or full-coverage shorts.</GARMENT_ANATOMY>",
-    has_alternation
-      ? "<ALTERNATION_OPTIONS>Resolve {Option A|Option B} alternations by selecting exactly ONE contextually fitting option. Emit only the chosen text—never echo braces or pipes, blend choices, or output multiple options simultaneously.</ALTERNATION_OPTIONS>"
-      : null,
-    '<IDENTIFIERS>Always explicitly state gender and physical identifiers (e.g., "a handsome young male high-elf man").</IDENTIFIERS>',
-    '<CREATURE_DISAMBIGUATION>Never use bare animal/creature proper names (e.g., "Beast"). Translate to explicit physical traits (e.g., "a massive grey-green male orc warrior").</CREATURE_DISAMBIGUATION>',
-    "<SIGNATURE_COLORS>Every character's distinctive color and physical identifiers (hair color, eye color, skin markings, glowing tattoo accents) are non-negotiable visual anchors. You MUST preserve all declared color and identity tokens verbatim in the output prompt prose.</SIGNATURE_COLORS>",
-  ].filter(Boolean);
-
-  return render_xml_tag({
-    tag: "SUBJECT_RULES",
-    children: rules,
-    child_indent: 2,
-    separator: "\n",
-  });
-}
-
 // ============================================================================
 // [SECTION 5: SENSORY OPTICS ENTITY COMPILERS]
 // ============================================================================
@@ -787,7 +760,6 @@ export function render_optics_entities_xml({
   main_entity = null,
   macro_entities = {},
   roll = (text) => text,
-  has_alternation = false,
 } = {}) {
   const render_entity_block = (tag_name, entity_instance) => {
     if (!entity_instance) return "";
@@ -811,19 +783,14 @@ export function render_optics_entities_xml({
   const user_persona_block = render_entity_block("USER_PERSONA", active_user_persona);
 
   const is_story_tier = tier === "story_entities" || tier === "story_character" || tier === "story_scene";
-  const fractal_setting_block =
-    is_story_tier && active_fractal_setting
-      ? render_entity_block("FRACTAL", active_fractal_setting)
-      : is_story_tier && main_entity
-        ? `<BACKGROUND_DIRECTIVE>You MUST synthesize an evocative, atmospheric background environment that naturally fits the personality, visual theme, and signature colors of ${prompt_escape(main_entity.name || "the subject")}.</BACKGROUND_DIRECTIVE>`
-        : "";
+  const fractal_setting_block = is_story_tier && active_fractal_setting ? render_entity_block("FRACTAL", active_fractal_setting) : "";
 
   const context_block = (() => {
     switch (tier) {
       case "solo_entity":
-        return `${render_cast_xml({ mode: CAST_MODES.ACTIVE, children: [render_entity_block("SOLO_ENTITY", solo_subject)] })}\n<RESTRICTION>**SOLO FRAME PROTOCOL.** Isolated single-subject portrait. No secondary characters, no story scene context. The backdrop must be drawn solely from the subject's own identity and signature colors.</RESTRICTION>`;
+        return render_cast_xml({ mode: CAST_MODES.ACTIVE, children: [render_entity_block("SOLO_ENTITY", solo_subject)] });
       case "story_scene":
-        return `${fractal_setting_block}\n<ENVIRONMENTAL_SCALING>**AFFIRMATIVE ENVIRONMENTAL SCALE.** Focus completely on vast landscape architecture, atmospheric density, weather effects, and physical spatial structures.</ENVIRONMENTAL_SCALING>`;
+        return fractal_setting_block;
       case "story_entities":
         return `${render_cast_xml({ mode: CAST_MODES.ACTIVE, children: [ai_character_block, user_persona_block] })}\n${fractal_setting_block}`;
       case "story_character":
@@ -844,11 +811,9 @@ export function render_optics_entities_xml({
     }
   })();
 
-  const subject_rules_block = render_optics_subject_rules(has_alternation);
-
   return render_xml_tag({
     tag: "ENTITIES",
-    children: [context_block.trim(), subject_rules_block.trim()].filter(Boolean),
+    children: [context_block.trim()].filter(Boolean),
     indent: 2,
     child_indent: 2,
     separator: "\n\n",
@@ -883,45 +848,9 @@ export function render_dynamics_axes_xml(live_dynamics = null, scope = null, axe
 }
 
 /**
- * Compiles the Director's single `<DYNAMICS>` block — calibration laws plus the full axis
- * set with each axis's live value (when known) and its poles. The Director evaluates all six
- * axes as one group, so values are gathered here rather than fragmented across entity sheets.
- *
- * @param {Record<string, { label: string, low: string, high: string }>} [axes_registry={}]
- * @param {Record<string, number>} [live_values={}] - Current values keyed by axis name (unknown axes render pole-only).
- * @returns {string} XML block string.
- */
-export function render_dynamics_xml(axes_registry = {}, live_values = {}) {
-  const axes = Object.entries(axes_registry)
-    .map(([key, meta]) => {
-      const raw_value = live_values?.[key];
-      const value = raw_value == null || raw_value === "" ? null : Math.round(Number(raw_value));
-      const attrs = [
-        value != null && Number.isFinite(value) ? `value="${value}"` : null,
-        `low="${escape_xml(meta.low)}"`,
-        `high="${escape_xml(meta.high)}"`,
-      ]
-        .filter(Boolean)
-        .join(" ");
-      return `    <${key.toUpperCase()} ${attrs} />`;
-    })
-    .join("\n");
-  return `
-<DYNAMICS>
-  <LAWS>
-  1. Calibrate dynamics_deltas conservatively (±1 to ±4 standard; ±8 to ±12 extreme). 
-  2. Adjust deltas carefully near boundaries (5 or 95) to prevent clipping at 0 or 100. 
-  3. Calibrate dynamics_deltas to reflect the psychological and environmental shift of the turn.
-  </LAWS>
-  <AXES>
-${axes}
-  </AXES>
-</DYNAMICS>`.trim();
-}
-
-/**
  * CHANGELOG
  * ============================================================================
+ * - 2026-09-23: Prompt-grammar harmonization (phases 0–3) — deleted `render_dynamics_xml` (the Director now uses the shared `render_dynamics_axes_xml`) and `render_optics_subject_rules`; `<ENTITIES>` is now pure data (the SOLO FRAME / AFFIRMATIVE ENVIRONMENTAL SCALE / background directives and the subject rules moved into `<DIRECTIVES>`), and `prompt_escape` is no longer imported.
  * - 2026-09-23: Visibility policy (R3) — added the exported `VISIBILITY_POLICIES` table and `resolve_visibility_gates(visibility, speaker)`; `resolve_entities` now derives the `dispositions`/`dynamic_axes`/`agendas` sheet gates from the mode's `visibility` + `speaker` instead of reading three parallel `config.entities` arrays. Output bytes unchanged.
  * - 2026-09-23: Entity-visibility mirror + cast nesting — the agenda gate is now the `agendas` list (replacing `user_agenda`) and sheet ownership/axes flow from a single `speaker_key`, so ghostwrite is interaction with `speaker_key="USER"` (AI↔USER visibility swapped); `<ENTITIES>` accepts a `cast_xml` roster appended as its final child. `USER_PERSONA.axes_scope` is now `"somatic"` so the player sheet can carry its own axes when it is the speaker (ghostwrite), completing the mirror — the manifest's `dynamic_axes` gate still keeps those axes hidden in every listener position.
  * - 2026-09-22: One entity-sheet grammar (recommendation #2) — the fractal sheet now uses `PSYCHOLOGY`/`APPEARANCE`, every physical sheet uses one `APPEARANCE`/`CURRENT_LOOK` vocabulary for all kinds (retiring `ESSENCE`/`TOPOGRAPHY`/`PHYSICAL_APPEARANCE`/`ENVIRONMENT`/`ATMOSPHERE`), and optics' blocks route through the shared `render_sheet` path via `VISUAL_SECTIONS` + `context.transform_physical`.

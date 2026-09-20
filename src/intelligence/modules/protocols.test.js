@@ -21,7 +21,7 @@ import {
   resolve_pov_protocol,
   render_alternation_protocol,
 } from "./protocols.js";
-import { render_dynamics_axes_xml, render_dynamics_xml } from "./entities/sheets.js";
+import { render_dynamics_axes_xml } from "./entities/sheets.js";
 
 // ============================================================================
 // [SECTION 1: CORE PROTOCOL LIBRARY & COMPILER]
@@ -135,15 +135,6 @@ describe("protocols.js - Visual Style & Optics Protocols", () => {
       velocity: { label: "Velocity", low: "Suspension", high: "Acceleration", scope: "fractal" },
     };
 
-    it("renders the unified <DYNAMICS> block with law text, axis values, and poles", () => {
-      const xml = render_dynamics_xml(mock_axes, { chaos: 65 });
-      expect(xml).toContain("<DYNAMICS>");
-      expect(xml).toContain("<LAWS>");
-      expect(xml).toContain('<CHAOS value="65" low="Order" high="Volatility" />');
-      // Axes without a live value still render their poles (the legend survives).
-      expect(xml).toContain('<VELOCITY low="Suspension" high="Acceleration" />');
-    });
-
     it("renders scoped <DYNAMIC_AXES>", () => {
       const dynamics = { chaos: 65, velocity: 30 };
       const somatic_xml = render_dynamics_axes_xml(dynamics, "somatic", mock_axes);
@@ -162,6 +153,7 @@ describe("protocols.js - Visual Style & Optics Protocols", () => {
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-23: Prompt-grammar harmonization — dropped the `render_dynamics_xml` `<DYNAMICS>` coverage (that compiler was deleted); the suite keeps the scoped `render_dynamics_axes_xml` `<DYNAMIC_AXES>` case the Director now shares.
  * - 2026-09-23: Added coverage for the consolidated `render_dynamics_xml` `<DYNAMICS>` block — each axis carries `value` plus both poles, and a value-less axis keeps its legend.
  * - 2026-09-19: Added unit test suite validating render_visual_style_xml and render_optics_protocols for Layer 3.
  */

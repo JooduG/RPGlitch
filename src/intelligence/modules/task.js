@@ -55,16 +55,16 @@ export const TASK_LIBRARY = Object.freeze({
 
     THINK_FORMAT: (emotional_grounding) => {
       const grounding = emotional_grounding || "Hold your established temperament.";
-      return `Begin response with <THINK> (under 200 words). Execute internal reasoning across 4 sequential beats:
+      return `Open your output with one internal <THINK> block (under 200 words). Reason across 4 sequential beats:
 <BEAT id="VISCERAL_IMPACT" step="1">Immediate non-verbal reaction to the «INPUT» element.</BEAT>
 <BEAT id="EMOTIONAL_CALIBRATION" step="2">${grounding}</BEAT>
 <BEAT id="STRATEGIC_DRIVE" step="3">How active «AGENDA» and/or «TRAJECTORY» navigates immediate friction.</BEAT>
 <BEAT id="CADENCE_TEST" step="4">Draft a dialogue line before generating outward prose.</BEAT>
-Close with </THINK> before generating narrative prose.`;
+Close </THINK> before the narrative. This think block is internal reasoning and is never part of the visible prose.`;
     },
 
     THINK_NARRATOR:
-      "Begin response with <THINK>. All internal calculations, scene shifts, and headers must remain inside this block in the conversation language. Close with </THINK> before narrative prose.",
+      "Open your output with one internal <THINK> block. All internal calculations, scene shifts, and headers must remain inside it, in the conversation language. Close </THINK> before the narrative. This think block is internal reasoning and is never part of the visible prose.",
   }),
 
   // ── 1.2 Keyword Directives (Director & Sensory Optics) ─────────────────────
@@ -78,9 +78,14 @@ Close with </THINK> before generating narrative prose.`;
   // ── 1.3 Shot 1: Directorial Staging & Evaluation Rules (director) ───────────
   DIRECTOR: Object.freeze({
     ENVIRONMENTAL_HINT:
-      '<INPUT_NOTE>Non-verbal environmental action. Strongly consider setting "speaker" to "fractal" to narrate the setting, unless AI character should react directly.</INPUT_NOTE>',
+      'ENVIRONMENTAL HINT: Non-verbal environmental action. Strongly consider setting "speaker" to "fractal" to narrate the setting, unless AI character should react directly.',
 
-    ROUTING: `SPEAKER ROUTING RULES:
+    DYNAMICS_CALIBRATION: `DYNAMICS CALIBRATION:
+1. Calibrate dynamics_deltas conservatively (±1 to ±4 standard; ±8 to ±12 extreme).
+2. Adjust deltas carefully near boundaries (5 or 95) to prevent clipping at 0 or 100.
+3. Calibrate dynamics_deltas to reflect the psychological and environmental shift of the turn.`,
+
+    ROUTING: `NEXT ACTION ROUTING RULES:
 - "AI_CHARACTER": (Default) AI companion reacts to protagonist.
 - "FRACTAL": Environmental action (exploring atmosphere, architecture, weather, objects without dialogue) or breaking long AI speech streaks.
 - "npc:<id>": Present secondary character takes action.
@@ -153,6 +158,19 @@ Strictly zero spoken dialogue or quote marks. No dialogue.`,
   // ── 1.6 Shot 3: Sensory Cortex & Visual Directives (optics) ───────────────
   OPTICS: Object.freeze({
     MANDATE: (subject) => `Convert narrative intent into a structured image prompt payload depicting ${subject}.`,
+    SUBJECT_RULES: Object.freeze([
+      "DYNAMIC OVERRIDES: Follow a strict bottom-up hierarchy where the most recent (bottom-most) physical condition update ALWAYS overrides preceding static tags like «SHIRT» or «JACKET». If a conflicting state appears later (e.g. 'no clothes' then later 'shirt: white'), the most recent/latest state wins.",
+      "GARMENT ANATOMY: When rendering specialized or revealing garments (e.g., jockstraps, thongs, harnesses), explicitly specify their physical mechanics and bare skin exposure in natural prose. For a jockstrap, describe: 'wearing an athletic jockstrap featuring a supportive front pouch, open sides and back with bare exposed butt cheeks, and dual wide elastic straps circling under the glutes/thighs'. For thongs, describe: 'a narrow string back leaving the rear completely bare'. Never allow jockstraps to collapse into generic briefs or full-coverage shorts.",
+      'IDENTIFIERS: Always explicitly state gender and physical identifiers (e.g., "a handsome young male high-elf man").',
+      'CREATURE DISAMBIGUATION: Never use bare animal/creature proper names (e.g., "Beast"). Translate to explicit physical traits (e.g., "a massive grey-green male orc warrior").',
+      "SIGNATURE COLORS: Every character's distinctive color and physical identifiers (hair color, eye color, skin markings, glowing tattoo accents) are non-negotiable visual anchors. You MUST preserve all declared color and identity tokens verbatim in the output prompt prose.",
+    ]),
+    SOLO_FRAME:
+      "**SOLO FRAME PROTOCOL.** Isolated single-subject portrait. No secondary characters, no story scene context. The backdrop must be drawn solely from the subject's own identity and signature colors.",
+    ENVIRONMENTAL_SCALE:
+      "**AFFIRMATIVE ENVIRONMENTAL SCALE.** Focus completely on vast landscape architecture, atmospheric density, weather effects, and physical spatial structures.",
+    BACKGROUND: (subject_name = "the subject") =>
+      `You MUST synthesize an evocative, atmospheric background environment that naturally fits the personality, visual theme, and signature colors of ${subject_name}.`,
     THINK_FORMAT: `In "_thought_process", calibrate:
 1. Focal subject & identity traits (strip proper names)
 2. Spatial layers (foreground, focal subject, background)
@@ -308,23 +326,23 @@ export function render_task_currents(style_dna, subtext_xml) {
 }
 
 /**
- * Renders a turn-signal block — the ONE signal channel every mode uses (the live `<INPUT>`
- * and the Director's `<AI_CHARACTER_LAST_TURN>` are the same shape). Attributes: `origin`
- * (who supplied it), `round` (turn index, when known), `mode` (what the payload is:
- * "action" | "content" | "intent" | "ingestion"). Blank attributes are omitted.
+ * Renders a turn-signal block — the ONE signal channel every mode uses. Every signal, from
+ * any origin, is an `<INPUT>`; the `origin` attribute names the sender and `channel` names
+ * the payload kind ("action" | "reply" | "content" | "intent" | "ingestion"). `round` is the
+ * turn index when known. Blank attributes are omitted.
  *
- * @param {{ input?: string, input_origin?: string|null, input_round?: number|string|null, input_mode?: string|null, tag?: string }} [parameters]
+ * @param {{ input?: string, input_origin?: string|null, input_round?: number|string|null, input_channel?: string|null }} [parameters]
  * @returns {string}
  */
-export function render_task_input({ input = "", input_origin = null, input_round = null, input_mode = null, tag = "INPUT" } = {}) {
+export function render_task_input({ input = "", input_origin = null, input_round = null, input_channel = null } = {}) {
   if (!String(input || "").trim()) return "";
   const attributes = [];
   if (input_origin) attributes.push(`origin="${escape_xml(String(input_origin))}"`);
   if (input_round != null && String(input_round) !== "") attributes.push(`round="${escape_xml(String(input_round))}"`);
-  if (input_mode) attributes.push(`mode="${escape_xml(String(input_mode))}"`);
+  if (input_channel) attributes.push(`channel="${escape_xml(String(input_channel))}"`);
   const attribute_string = attributes.length ? ` ${attributes.join(" ")}` : "";
   const content = prompt_escape(String(input).trim());
-  return `<${tag}${attribute_string}>${inline_or_block(content, 2)}</${tag}>`;
+  return `<INPUT${attribute_string}>${inline_or_block(content, 2)}</INPUT>`;
 }
 
 /**
@@ -469,8 +487,7 @@ export function resolve_optics_cinematography({
  */
 export const TASK_LAYERS = Object.freeze([
   { key: "think", emit: (state) => state.think },
-  { key: "input", emit: (state) => state.input },
-  { key: "last_turn", emit: (state) => state.last_turn },
+  { key: "inputs", emit: (state) => state.inputs },
   { key: "currents", emit: (state) => state.currents },
   { key: "target", emit: (state) => state.target },
   { key: "spatial_framing", emit: (state) => state.spatial_framing },
@@ -518,12 +535,17 @@ function build_director_task_state({ schema = "", round = 1, input = "", last_ai
     (Number(round) <= 1 ? ` ${TASK_LIBRARY.DIRECTOR.ROUND_ONE}` : "") +
     ` ${TASK_LIBRARY.DIRECTOR.USER_PERSONA_LOCK}`;
 
+  const inputs = [
+    render_task_input({ input, input_origin: "USER", input_round: round, input_channel: "action" }),
+    last_ai_text ? render_task_input({ input: last_ai_text, input_origin: "AI_CHARACTER", input_channel: "reply" }) : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
+
   return {
-    input: render_task_input({ input, input_origin: "USER", input_round: round, input_mode: "action" }),
-    last_turn: last_ai_text
-      ? render_task_input({ input: last_ai_text, input_origin: "AI_CHARACTER", input_mode: "action", tag: "AI_CHARACTER_LAST_TURN" })
-      : "",
+    inputs,
     directives: [
+      TASK_LIBRARY.DIRECTOR.DYNAMICS_CALIBRATION,
       evaluation,
       render_environmental_hint(input),
       TASK_LIBRARY.DIRECTOR.ROUTING,
@@ -539,15 +561,15 @@ function build_director_task_state({ schema = "", round = 1, input = "", last_ai
  * @param {Object} [parameters={}]
  * @returns {Record<string, any>}
  */
-function build_structured_task_state({ schema = "", directives = [], input = "", input_mode = null, output_format = "", output_mode = "" } = {}) {
-  const input_block = render_task_input({ input, input_mode });
+function build_structured_task_state({ schema = "", directives = [], input = "", input_channel = null, output_format = "", output_mode = "" } = {}) {
+  const input_block = render_task_input({ input, input_channel });
   const rendered_output = output_format
     ? render_output_format_xml({ mode: output_mode || "prose", content: output_format })
     : schema
       ? render_output_format_xml({ mode: "json", content: TASK_LIBRARY.JSON_RETURN(schema) })
       : "";
   return {
-    input: input_block,
+    inputs: input_block,
     directives,
     output_format: rendered_output,
   };
@@ -558,14 +580,14 @@ function build_structured_task_state({ schema = "", directives = [], input = "",
  * @param {Object} [parameters={}]
  * @returns {Record<string, any>}
  */
-function build_continuum_task_state({ schema = "", target_name = "", input = "", input_mode = null, output_format = "", output_mode = "" } = {}) {
+function build_continuum_task_state({ schema = "", target_name = "", input = "", input_channel = null, output_format = "", output_mode = "" } = {}) {
   const rendered_output = output_format
     ? render_output_format_xml({ mode: output_mode || "prose", content: output_format })
     : schema
       ? render_output_format_xml({ mode: "json", content: TASK_LIBRARY.JSON_RETURN(schema) })
       : "";
   return {
-    input: render_task_input({ input, input_mode }),
+    inputs: render_task_input({ input, input_channel }),
     directives: [TASK_LIBRARY.CONTINUUM.TARGET_FOCUS(target_name), TASK_LIBRARY.CONTINUUM.MANDATE],
     output_format: rendered_output,
   };
@@ -586,6 +608,8 @@ function build_optics_task_state({
   engine_tokens = null,
   keywords = [],
   is_selfie = false,
+  main_entity_name = "",
+  has_fractal_setting = false,
   directives = [],
 } = {}) {
   const subject_description = subject || TASK_LIBRARY.OPTICS.SUBJECT_TIERS[target_tier] || TASK_LIBRARY.OPTICS.SUBJECT_TIERS.story_character;
@@ -618,13 +642,22 @@ function build_optics_task_state({
 
   const keyword_directives = Array.isArray(keywords) && keywords.length > 0 ? render_keyword_directives_xml(keywords.join(", "), "OPTICS") : null;
 
+  const is_story_tier = target_tier === "story_entities" || target_tier === "story_character" || target_tier === "story_scene";
+  const tier_directive =
+    target_tier === "solo_entity" ? TASK_LIBRARY.OPTICS.SOLO_FRAME : target_tier === "story_scene" ? TASK_LIBRARY.OPTICS.ENVIRONMENTAL_SCALE : null;
+  const background_directive =
+    is_story_tier && !has_fractal_setting && main_entity_name ? TASK_LIBRARY.OPTICS.BACKGROUND(prompt_escape(main_entity_name)) : null;
+
   return {
     think: think_format === "optics" ? render_think_format(TASK_LIBRARY.OPTICS.THINK_FORMAT) : "",
-    input: render_task_input({ input: input_intent, input_mode: "intent" }),
+    inputs: render_task_input({ input: input_intent, input_channel: "intent" }),
     target: target_tier ? render_xml_tag({ tag: "TARGET", children: [escape_xml(target_tier)], inline: true }) : "",
     spatial_framing: render_xml_tag({ tag: "SPATIAL_FRAMING", children: spatial_children, child_indent: 2, separator: "\n" }),
     directives: [
       TASK_LIBRARY.OPTICS.MANDATE(subject_description),
+      ...TASK_LIBRARY.OPTICS.SUBJECT_RULES,
+      tier_directive,
+      background_directive,
       is_selfie ? TASK_LIBRARY.OPTICS.SELFIE_DIRECTIVE : null,
       ...directives,
       keyword_directives,
@@ -661,7 +694,7 @@ function build_prose_task_state({
 
   return {
     think: render_think_format(think_directive),
-    input: render_task_input({ input, input_origin, input_round: round, input_mode: "action" }),
+    inputs: render_task_input({ input, input_origin, input_round: round, input_channel: "action" }),
     currents: render_task_currents(style_dna, subtext_xml),
     directives: [action_directive],
     delivery_posture: render_prose_reflex(snapshot, input, speaking_style),
@@ -807,6 +840,7 @@ export function render_subtext_xml(ai_dynamics = {}, fractal_dynamics = {}, opti
 
 /**
  * CHANGELOG
+ * - 2026-09-23: Prompt-grammar harmonization (phases 0–3) — `render_task_input` emits `<INPUT>` for every signal with a `channel` attribute (was `mode`) and no `tag` override (the Director's last turn is a second `<INPUT origin="AI_CHARACTER" channel="reply">`); the `input`/`last_turn` slots collapse into one `inputs` layer; the Director's dynamics calibration and the optics subject rules/tier framing move into `<DIRECTIVES>`; the think/prose wording is reconciled ("open with one internal <THINK> block", "after closing </THINK>, emit strictly plain prose").
  * - 2026-09-23: Pipeline consolidation (R6/R7) — extracted `build_continuum_task_state` so the generic `build_structured_task_state` loses its `if (mode === "continuum")` branch (and no longer ignores its own `directives`); `render_task` dispatches on `task_state` instead of a `mode` string, and `build_prose_task_state` reads the flattened `config.think_format`. `TASK_STATE_BUILDERS` is exported for the contract gate. Output bytes unchanged.
  * - 2026-09-23: Envelope harmonization — `render_task_input` emits the singular `mode` discriminator (was `kind`) and now renders the Director's last turn too (`tag` option), so `<INPUT …>` and `<AI_CHARACTER_LAST_TURN …>` share one shape; `<KEYWORD_DIRECTIVES>` nests inside `<DIRECTIVES>` (the `keyword_directives` task layer is retired); `render_task` no longer has a separate keyword slot.
  * - 2026-09-22: Recommendations 1/3/4/5 — `render_task` child indent lowered from 4 to 2 and it now walks only the manifest's declared `layers`; `render_task_input` emits the single `<INPUT origin|round|kind>` channel for every mode; the Director's `SPEAKER ROUTING RULES` + `CONVERGENCE` prose moved into the TASK `<DIRECTIVES>` (`TASK_LIBRARY.DIRECTOR.ROUTING`/`CONVERGENCE`), and interaction/ghostwrite gain a base `PROSE.CHARACTER.BASE` directive.
