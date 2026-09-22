@@ -51,6 +51,7 @@ describe("Director Quick Shot Prompt (render_director)", () => {
     round: 1,
     entities: {
       AI: {
+        id: "VIPER",
         name: "Viper",
         present: { non_physical: "Volatile Present" },
         eternal: { non_physical: "Static Eternal" },
@@ -58,6 +59,7 @@ describe("Director Quick Shot Prompt (render_director)", () => {
         future: "Viper future 1",
       },
       USER: {
+        id: "GHOST",
         name: "Ghost",
         present: { non_physical: "Ghost Present" },
         eternal: { non_physical: "Ghost Eternal" },
@@ -65,6 +67,7 @@ describe("Director Quick Shot Prompt (render_director)", () => {
         future: "Ghost future 1",
       },
       FRACTAL: {
+        id: "VOID",
         name: "Void",
         present: { non_physical: "Void Present" },
         eternal: { non_physical: "Void Eternal" },
@@ -111,18 +114,40 @@ describe("Director Quick Shot Prompt (render_director)", () => {
     expect(result.task).toContain("NEXT ACTION ROUTING RULES");
   });
 
-  it('emits a consolidated <CAST mode="in_scene"> when NPCs are present', () => {
+  it("gives on-stage NPCs a full sheet and never restates the sheeted trio in a CAST block", () => {
     const npc_entities = [{ id: "npc-elias", name: "Elias", description: "Archivist", relationships: ["Elias → Viper: wary"] }];
     const result = render_director({ ...base_payload(), npc_entities, in_scene_ids: ["npc-elias"], compressed_snapshot: base_snapshot });
-    expect(result.system).toContain('<CAST mode="in_scene">');
-    expect(result.system).toContain("Elias (id: npc-elias)");
+    expect(result.system).toContain('<NPC id="npc-elias" name="Elias">');
+    expect(result.system).not.toContain("<CAST");
+    expect(result.system).not.toContain("Primary Companion");
+    expect(result.system).not.toContain("Protagonist");
     expect(result.system).not.toContain("ACTIVE PRESENT PARTICIPANTS");
-    // The roster is the final child inside <ENTITIES>.
-    expect(result.system.indexOf("<ENTITIES>")).toBeLessThan(result.system.indexOf('<CAST mode="in_scene">'));
-    expect(result.system.indexOf('<CAST mode="in_scene">')).toBeLessThan(result.system.lastIndexOf("</ENTITIES>"));
     expect(result.system).not.toContain("<ROSTER>");
     expect(result.system).not.toContain("<SCENE_ROSTER>");
     expect(result.system).not.toContain("<RELATIONAL_MESH>");
+  });
+
+  it('emits a consolidated <CAST mode="candidates"> for off-stage reuse candidates only', () => {
+    const npc_entities = [{ id: "npc-mira", name: "Mira", description: "Street medic", relationships: ["Mira → Viper: neutral"] }];
+    const result = render_director({ ...base_payload(), npc_entities, in_scene_ids: [], compressed_snapshot: base_snapshot });
+    expect(result.system).toContain('<CAST mode="candidates">');
+    expect(result.system).toContain("Mira (id: npc-mira)");
+    expect(result.system).toContain("Street medic");
+    // The candidate roster is the final child inside <ENTITIES>.
+    expect(result.system.indexOf("<ENTITIES>")).toBeLessThan(result.system.indexOf('<CAST mode="candidates">'));
+    expect(result.system.indexOf('<CAST mode="candidates">')).toBeLessThan(result.system.lastIndexOf("</ENTITIES>"));
+  });
+
+  it("stamps entity-id origins on the Director inputs", () => {
+    const result = render_director({
+      ...base_payload(),
+      simulation_log: [{ role: "model", content: "Viper nods." }],
+      compressed_snapshot: base_snapshot,
+    });
+    expect(result.task).toContain('<INPUT origin="GHOST" round="1" channel="action">Check the door.</INPUT>');
+    expect(result.task).toContain('<INPUT origin="VIPER" channel="reply">Viper nods.</INPUT>');
+    expect(result.task).not.toContain('origin="USER"');
+    expect(result.task).not.toContain('origin="AI_CHARACTER"');
   });
 });
 
@@ -443,6 +468,7 @@ describe("execute_director_shot", () => {
 
 /**
  * CHANGELOG
+ * - 2026-09-24: Cast/input de-duplication — the fixture entities now carry real ids; the cast assertions split into "on-stage NPC owns a sheet, no CAST restatement of the trio" and "off-stage reuse candidates emit `<CAST mode="candidates">`", and a new test pins the Director's `<INPUT>` origins to the real entity ids (GHOST/VIPER).
  * - 2026-09-23: Prompt-grammar harmonization — the cast assertion now expects `<CAST mode="in_scene">` (was `present`) and the Director's routing heading is asserted as `NEXT ACTION ROUTING RULES` (was `SPEAKER ROUTING RULES`).
  * - 2026-09-23: Cast assertions follow the harmonized roster — `<CAST mode="present">` is the final child of `<ENTITIES>`, with the `ACTIVE PRESENT PARTICIPANTS` header retired.
  * - 2026-09-21: Keyword directives now live in the Director <TASK> envelope (single source of truth for directive prose) — the <AVAILABLE_KEYWORDS> assertions target `result.task`; the <INPUT_NOTE> environmental nudge remains in `result.task` inside <DIRECTIVES>.

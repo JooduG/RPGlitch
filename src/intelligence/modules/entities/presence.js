@@ -162,11 +162,12 @@ export const CAST_TAG = "CAST";
 
 /**
  * The single cast-block vocabulary. Every roster in every mode emits one `<CAST mode="…">`
- * envelope, so director present-participants, prose nearby-entities, and optics active
- * characters share one schema (recommendation #9).
- * @type {Readonly<{ IN_SCENE: "in_scene", NEARBY: "nearby", ACTIVE: "active", DORMANT: "dormant" }>}
+ * envelope, so the Director's reuse candidates, prose nearby-entities, and optics active
+ * characters share one schema (recommendation #9). There is deliberately no on-stage mode:
+ * participants that already carry a full entity sheet are never restated as a roster.
+ * @type {Readonly<{ CANDIDATES: "candidates", NEARBY: "nearby", ACTIVE: "active" }>}
  */
-export const CAST_MODES = Object.freeze({ IN_SCENE: "in_scene", NEARBY: "nearby", ACTIVE: "active", DORMANT: "dormant" });
+export const CAST_MODES = Object.freeze({ CANDIDATES: "candidates", NEARBY: "nearby", ACTIVE: "active" });
 
 /**
  * Emits the one canonical `<CAST mode="…">` envelope.
@@ -196,11 +197,13 @@ function summarize_entity(entity) {
 }
 
 /**
- * Renders the Director's roster for turn arbitration: one `<CAST mode="in_scene">` for
- * on-stage participants and, when genesis candidates exist, one `<CAST mode="dormant">`
- * for reusable stasis entities. Symmetrically activated when `config.entities.present_entities`
- * is enabled. The speaker-routing and convergence rules live in `<DIRECTIVES>`
- * (`TASK_LIBRARY.DIRECTOR`), not in this data block.
+ * Renders the Director's reuse roster as one `<CAST mode="candidates">` block of off-stage
+ * secondary characters. On-stage participants and the core trio already carry full sheets
+ * inside `<ENTITIES>`, so this block never restates them — it exists solely to let the
+ * Director reuse an existing entity instead of minting a duplicate via GENESIS.
+ * Symmetrically activated when `config.entities.candidate_entities` is enabled. The
+ * speaker-routing and convergence rules live in `<DIRECTIVES>` (`TASK_LIBRARY.DIRECTOR`),
+ * not in this data block.
  *
  * @param {Object} [parameters]
  * @param {Record<string, any>} [parameters.entities={}]
@@ -208,39 +211,22 @@ function summarize_entity(entity) {
  * @param {string[]} [parameters.in_scene_ids=[]]
  * @returns {string}
  */
-export function render_present_cast_xml({ entities = {}, npc_entities = [], in_scene_ids = [] } = {}) {
-  const { present, dormant } = resolve_available_entities({ entities, npc_entities, in_scene_ids });
-  const active_trio_ids = new Set([entities?.AI?.id, entities?.USER?.id, entities?.FRACTAL?.id].filter(Boolean).map(String));
-  const is_active_trio = (entity) =>
-    active_trio_ids.has(String(entity?.id)) || entity === entities?.AI || entity === entities?.USER || entity === entities?.FRACTAL;
+export function render_candidate_cast_xml({ entities = {}, npc_entities = [], in_scene_ids = [] } = {}) {
+  const { dormant } = resolve_available_entities({ entities, npc_entities, in_scene_ids });
+  if (!dormant.length) return "";
 
-  const present_rows = [];
-  if (entities?.AI?.name) present_rows.push(`- ${escape_xml(entities.AI.name)}: Primary Companion`);
-  if (entities?.USER?.name) present_rows.push(`- ${escape_xml(entities.USER.name)}: Protagonist`);
-  for (const entity of present) {
-    if (is_active_trio(entity)) continue;
+  const rows = dormant.map((entity) => {
     const summary = summarize_entity(entity);
-    present_rows.push(`- ${escape_xml(entity.name)} (id: ${escape_xml(String(entity.id))})${summary ? `: ${escape_xml(summary)}` : ""}`);
-  }
+    return `- ${escape_xml(entity.name)} (id: ${escape_xml(String(entity.id))})${summary ? `: ${escape_xml(summary)}` : ""}`;
+  });
 
-  const dormant_rows = [];
-  for (const entity of dormant) {
-    if (is_active_trio(entity)) continue;
-    const summary = summarize_entity(entity);
-    dormant_rows.push(`- ${escape_xml(entity.name)} (id: ${escape_xml(String(entity.id))})${summary ? `: ${escape_xml(summary)}` : ""}`);
-  }
-
-  return [
-    present_rows.length ? render_cast_xml({ mode: CAST_MODES.IN_SCENE, children: [present_rows.join("\n")] }) : "",
-    dormant_rows.length ? render_cast_xml({ mode: CAST_MODES.DORMANT, children: [dormant_rows.join("\n")] }) : "",
-  ]
-    .filter(Boolean)
-    .join("\n\n");
+  return render_cast_xml({ mode: CAST_MODES.CANDIDATES, children: [rows.join("\n")] });
 }
 
 /**
  * CHANGELOG
  * ============================================================================
+ * - 2026-09-24: Cast de-duplication (true) — the Director roster now emits only `<CAST mode="candidates">` off-stage reuse candidates; on-stage participants and the core trio (which already carry full sheets in `<ENTITIES>`) are never restated, so the redundant `Primary Companion`/`Protagonist` rows and the `<CAST mode="in_scene">` envelope are gone; `CAST_MODES.IN_SCENE`/`CAST_MODES.DORMANT` collapse into `CAST_MODES.CANDIDATES` and `render_present_cast_xml` becomes `render_candidate_cast_xml`.
  * - 2026-09-23: Prompt-grammar harmonization (phases 0–3) — `CAST_MODES.PRESENT` renamed to `CAST_MODES.IN_SCENE` (`<CAST mode="in_scene">`) to stop colliding with the `PERSPECTIVE` present tense.
  * - 2026-09-23: Cast de-duplication — the `<CAST>` roster now lives inside `<ENTITIES>` (built by `render_entity_sheets`), drops the `ACTIVE PRESENT PARTICIPANTS:` header and the per-row `(Present)`/`[Present]` suffixes, and splits genesis candidates into a separate `<CAST mode="dormant">` block (`CAST_MODES.DORMANT`); `CAST_HEADERS` retired.
  * - 2026-09-22: One cast block (recommendation #9) — `PRESENT_ENTITIES` / `NEARBY_ENTITIES` collapse into the single `<CAST mode="present|nearby">` envelope (`render_cast_xml`, `CAST_MODES`); the Director's speaker-routing and convergence prose moved out of the data block into `<DIRECTIVES>` (`TASK_LIBRARY.DIRECTOR`, recommendation #3); `render_present_entities_xml` → `render_present_cast_xml`.

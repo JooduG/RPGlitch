@@ -246,7 +246,8 @@ describe("Parameter-Aware Layer 7 Output Format Routing", () => {
     });
 
     expect(prose_enhancement.task).toContain("<TASK>");
-    expect(prose_enhancement.task).toContain("emit strictly plain prose");
+    expect(prose_enhancement.task).toContain("Emit strictly plain prose");
+    expect(prose_enhancement.task).not.toContain("</THINK>");
   });
 });
 
@@ -448,6 +449,7 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-24: The enhancement `OUTPUT_FORMAT` assertion now expects the think-free directive (`Emit strictly plain prose…`) and asserts no orphaned `</THINK>` reference.
  * - 2026-09-23: Prompt-grammar harmonization — the enhancement `<INPUT channel="content">` now lives in `<TASK>` (moved out of `<SYSTEM>`), and the prose `OUTPUT_FORMAT` assertion matches the reconciled `</THINK>` wording.
  * - 2026-09-23: Envelope-harmonization assertions — system envelopes are matched by `mode="…"` (the `role` attribute was retired) and `<INPUT mode="ingestion">` replaces the `kind=` channel.
  * - 2026-09-21: Realigned to the table-driven envelope pass — sorting schema now asserted with raw JSON quotes (OUTPUT_FORMAT derives from the one TASK state builder, so the former sorting-only XML escaping was dropped for parity with director/continuum/optics), the enhancement scope attribute renamed `enhancing=` → `scope=`, and the terse director case now compiles `director` with `{ terse: true }` (the retired `director_terse` mode collapsed).

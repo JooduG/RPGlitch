@@ -53,7 +53,7 @@ import {
   render_enhancement_field_context,
   render_optics_entities_xml,
 } from "./modules/entities/sheets.js";
-import { render_nearby_entities_xml, render_present_cast_xml } from "./modules/entities/presence.js";
+import { render_nearby_entities_xml, render_candidate_cast_xml } from "./modules/entities/presence.js";
 import { verify_epistemic_integrity } from "./modules/entities/epistemic.js";
 
 import { render_history, render_chapter_history_xml, render_input_history_xml, resolve_history, format_sensory_history } from "./modules/history.js";
@@ -278,7 +278,7 @@ export function render_director({
   const active_style_keywords = get_style_keywords(resolve_active_style_key());
 
   const merged_dynamics = { ...(compressed_snapshot?.fractal?.dynamics || {}), ...(compressed_snapshot?.ai?.dynamics || {}) };
-  const cast_xml = entity_plan.present_entities ? render_present_cast_xml({ entities: scene_entities, npc_entities, in_scene_ids }) : null;
+  const cast_xml = entity_plan.candidate_entities ? render_candidate_cast_xml({ entities: scene_entities, npc_entities, in_scene_ids }) : null;
 
   const entity_sheets = render_entity_sheets({
     entities: scene_entities,
@@ -318,6 +318,7 @@ export function render_director({
 
   const task = render_task({
     task_state: config.task_state,
+    entities: scene_entities,
     round,
     input,
     last_ai_text,
@@ -674,7 +675,7 @@ export function render_enhancement({
     directives: [resolved_directive, macro_directive],
     input: content,
     input_channel: "content",
-    output_format: get_output_format(config.format),
+    output_format: get_output_format(config.format, { has_think: Boolean(config.think_format) }),
     output_mode: "prose",
     layers: config.layers.task,
   });
@@ -1082,6 +1083,7 @@ export function assemble_prompt(config, context = {}) {
 
 /**
  * CHANGELOG
+ * - 2026-09-24: Cast/input de-duplication — `render_director` now passes its entity bag into `render_task` (so the Director's `<INPUT>` origins are real entity ids) and mounts the renamed `render_candidate_cast_xml` behind the renamed `candidate_entities` gate; `render_enhancement` resolves its prose `<OUTPUT_FORMAT>` with `has_think: false` so it never references an unopened `</THINK>`.
  * - 2026-09-23: Prompt-grammar harmonization (phases 0–3) — the Director composes its six axes through the shared `render_dynamics_axes_xml` (dropping `render_dynamics_xml`/`<DYNAMICS>`); optics passes `has_alternation` to `render_core_protocols` and drops its entity-block rules; enhancement routes its content `<INPUT>` through `<TASK>`; the retired `input_content` system layer is pruned.
  * - 2026-09-23: Pipeline consolidation (R1–R7) — added `compose_system(config, state, { round, attributes })` and routed all seven `<SYSTEM>` assembly sites through it; compilers now read `config.role_line` (was `config.system.role`), `config.think_format`, and dispatch `render_task` via `config.task_state`; `render_story_prose` reads `config.speaker` (no more identity inference), and the narrator adapter's three branches collapse into one path via `normalize_context(context, override, { require_trio })`. Output bytes unchanged.
  * - 2026-09-23: Envelope harmonization + ghostwrite mirror — dropped the `<SYSTEM role>` attribute (single `mode`), folded `<KEYWORD_DIRECTIVES>` into `<DIRECTIVES>`, moved the `<CAST>` roster inside `<ENTITIES>` (via `render_entity_sheets`), consolidated all six dynamics axes into the Director's one `<DYNAMICS>` block, routed `render_prose_turn_core`/`render_story_prose` through `speaker_key` so ghostwrite is interaction with AI↔USER visibility swapped, and retired the now-dead `present_cast`/`keyword_directives` system layers.

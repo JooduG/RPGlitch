@@ -52,7 +52,7 @@
  */
 const DEFAULT_ENTITIES_CONFIG = Object.freeze({
   nearby_entities: false,
-  present_entities: false,
+  candidate_entities: false,
   field_context: false,
   target_context: false,
   chapter_history: false,
@@ -102,7 +102,7 @@ const DIRECTOR_LAYERS = Object.freeze({
 
 const TOOL_LAYERS = Object.freeze({
   system: Object.freeze(["role", "protocols", "target_context", "nearby_cast", "chapter_history", "history"]),
-  task: Object.freeze(["inputs", "directives", "output_format"]),
+  task: Object.freeze(["directives", "output_format"]),
 });
 
 const ENHANCEMENT_LAYERS = Object.freeze({
@@ -224,7 +224,7 @@ export const PROMPTS = Object.freeze({
     task_state: "director",
     constitution: false,
     protocols: ["CORE_PROTOCOLS.ALTERNATION_OPTIONS"],
-    entities: { present_entities: true },
+    entities: { candidate_entities: true },
     layers: DIRECTOR_LAYERS,
     format: { mode: "json", schema: DIRECTOR_SCHEMA },
   }),
@@ -385,6 +385,7 @@ export default PROMPTS;
 
 /**
  * CHANGELOG
+ * - 2026-09-24: Director entity gate renamed `present_entities` → `candidate_entities` (the cast block now carries only off-stage reuse candidates); `TOOL_LAYERS.task` drops its never-filled `inputs` slot, so continuum's task declares only `directives` + `output_format`.
  * - 2026-09-23: Prompt-grammar harmonization (phases 0–3) — layer presets renamed (`dynamics`→`dynamic_axes`) and the task layer list collapsed to one `inputs` slot (retiring `last_turn`); `ENVELOPE_LAYER_TAGS` follows (`DYNAMIC_AXES`, `INPUT`, `input_content` pruned); enhancement moved its `<INPUT>` from `<SYSTEM>` to `<TASK>`; optics added `CORE_PROTOCOLS.ALTERNATION_OPTIONS` so its alternation protocol lives in `<CORE_PROTOCOLS>` (not `<SUBJECT_RULES>`).
  * - 2026-09-23: Pipeline consolidation (R1/R3/R5/R7) — the mode record is now the single source of truth: each mode declares `speaker`, `visibility`, `role_line`, `task_state`, `think_format`, a named layer preset (`DIRECTOR_LAYERS`/`TOOL_LAYERS`/`ENHANCEMENT_LAYERS`/`SORTING_LAYERS`/`OPTICS_LAYERS` alongside `PROSE_LAYERS`), and its format; `config.system.role` is retired (the `role_line` key indexes SYSTEM_ROLES), `config.task` collapses to a top-level `think_format`, `format` normalizes to `{ mode, schema? }` at `define_mode`, and the three per-mode visibility arrays (`dispositions`/`dynamic_axes`/`agendas`) are replaced by the `visibility` policy resolved in `sheets.js`. Output bytes unchanged.
  * - 2026-09-23: Envelope harmonization — dropped the `present_cast` system layer (the `<CAST>` roster now nests inside `<ENTITIES>`) and the `keyword_directives` task layer (the block now nests inside `<DIRECTIVES>`); the `user_agenda` boolean became an `agendas` list, the Director's `dynamic_axes` gate was removed (all six axes gather in the one `<DYNAMICS>` block), and ghostwrite's entity gates mirror interaction's with AI↔USER swapped.

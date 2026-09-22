@@ -444,7 +444,7 @@ export function resolve_visibility_gates(visibility, speaker) {
 /**
  * Resolves the mode's `entities` manifest layer and the active entity roster into one plan.
  * Single source of truth for every entity gate read (`dispositions`, `dynamic_axes`,
- * `agendas`, `nearby_entities`, `present_entities`, `field_context`, `target_context`,
+ * `agendas`, `nearby_entities`, `candidate_entities`, `field_context`, `target_context`,
  * `chapter_history`) plus the available-entity maps and NPC render list.
  *
  * @param {any} [config=null] - Resolved prompt manifest record containing `.entities`.
@@ -454,7 +454,7 @@ export function resolve_visibility_gates(visibility, speaker) {
  * @param {string[]} [context.in_scene_ids=[]]
  * @param {any} [context.active_speaker=null]
  * @param {boolean} [context.is_npc=false]
- * @returns {Readonly<{ dispositions: Set<string>, dynamic_axes: Set<string>, agendas: Set<string>, nearby_entities: boolean, present_entities: boolean, field_context: boolean, target_context: boolean, chapter_history: boolean, active_names: Set<string>, name_to_id: Map<string, string>, npc_ids_to_render: Set<string> }>}
+ * @returns {Readonly<{ dispositions: Set<string>, dynamic_axes: Set<string>, agendas: Set<string>, nearby_entities: boolean, candidate_entities: boolean, field_context: boolean, target_context: boolean, chapter_history: boolean, active_names: Set<string>, name_to_id: Map<string, string>, npc_ids_to_render: Set<string> }>}
  */
 export function resolve_entities(config = null, context = {}) {
   const configuration = config?.entities || {};
@@ -485,7 +485,7 @@ export function resolve_entities(config = null, context = {}) {
     dynamic_axes,
     agendas,
     nearby_entities: Boolean(configuration.nearby_entities),
-    present_entities: Boolean(configuration.present_entities),
+    candidate_entities: Boolean(configuration.candidate_entities),
     field_context: Boolean(configuration.field_context),
     target_context: Boolean(configuration.target_context),
     chapter_history: Boolean(configuration.chapter_history),
@@ -850,6 +850,7 @@ export function render_dynamics_axes_xml(live_dynamics = null, scope = null, axe
 /**
  * CHANGELOG
  * ============================================================================
+ * - 2026-09-24: `resolve_entities` gate renamed `present_entities` → `candidate_entities`, matching the cast block's refined role (off-stage reuse candidates only, never a restatement of sheeted participants).
  * - 2026-09-23: Prompt-grammar harmonization (phases 0–3) — deleted `render_dynamics_xml` (the Director now uses the shared `render_dynamics_axes_xml`) and `render_optics_subject_rules`; `<ENTITIES>` is now pure data (the SOLO FRAME / AFFIRMATIVE ENVIRONMENTAL SCALE / background directives and the subject rules moved into `<DIRECTIVES>`), and `prompt_escape` is no longer imported.
  * - 2026-09-23: Visibility policy (R3) — added the exported `VISIBILITY_POLICIES` table and `resolve_visibility_gates(visibility, speaker)`; `resolve_entities` now derives the `dispositions`/`dynamic_axes`/`agendas` sheet gates from the mode's `visibility` + `speaker` instead of reading three parallel `config.entities` arrays. Output bytes unchanged.
  * - 2026-09-23: Entity-visibility mirror + cast nesting — the agenda gate is now the `agendas` list (replacing `user_agenda`) and sheet ownership/axes flow from a single `speaker_key`, so ghostwrite is interaction with `speaker_key="USER"` (AI↔USER visibility swapped); `<ENTITIES>` accepts a `cast_xml` roster appended as its final child. `USER_PERSONA.axes_scope` is now `"somatic"` so the player sheet can carry its own axes when it is the speaker (ghostwrite), completing the mirror — the manifest's `dynamic_axes` gate still keeps those axes hidden in every listener position.

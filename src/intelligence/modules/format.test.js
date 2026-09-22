@@ -4,7 +4,15 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { PROSE_FORMAT, SCHEMA_ATOMS, get_output_format, render_json_schema, render_output_format_xml, format_json_return } from "./format.js";
+import {
+  PROSE_FORMAT,
+  PLAIN_PROSE_FORMAT,
+  SCHEMA_ATOMS,
+  get_output_format,
+  render_json_schema,
+  render_output_format_xml,
+  format_json_return,
+} from "./format.js";
 import { PROMPTS } from "../prompts.js";
 
 describe("src/intelligence/modules/format.js", () => {
@@ -24,6 +32,11 @@ describe("src/intelligence/modules/format.js", () => {
       expect(PROSE_FORMAT).toBe("After closing </THINK>, emit strictly plain prose: no preamble, commentary, markdown, or structural tags.");
     });
 
+    it("declares a think-free plain prose directive for modes without a THINK block", () => {
+      expect(PLAIN_PROSE_FORMAT).toBe("Emit strictly plain prose: no preamble, commentary, markdown, or structural tags.");
+      expect(PLAIN_PROSE_FORMAT).not.toContain("</THINK>");
+    });
+
     it("formats the single canonical json return instruction", () => {
       const formatted = format_json_return('{\n  "key": "val"\n}');
       expect(formatted).toContain("Return a single, COMPLETE, VALID JSON object matching this schema:");
@@ -38,6 +51,12 @@ describe("src/intelligence/modules/format.js", () => {
       expect(get_output_format("PROSE")).toBe(PROSE_FORMAT);
       expect(get_output_format("unknown", { fallback: "fallback_val" })).toBe("fallback_val");
       expect(get_output_format(null, { fallback: "fallback_val" })).toBe("fallback_val");
+    });
+
+    it("swaps in the think-free prose directive when has_think is false", () => {
+      expect(get_output_format("PROSE", { has_think: false })).toBe(PLAIN_PROSE_FORMAT);
+      expect(get_output_format(PROMPTS.enhancement.format, { has_think: false })).toBe(PLAIN_PROSE_FORMAT);
+      expect(get_output_format(PROMPTS.enhancement.format)).toBe(PROSE_FORMAT);
     });
 
     it("parameterizes schemas dynamically by entity taxonomy type", () => {
@@ -94,6 +113,7 @@ describe("src/intelligence/modules/format.js", () => {
 
 /**
  * CHANGELOG
+ * - 2026-09-24: Added coverage for `PLAIN_PROSE_FORMAT` and the `get_output_format(..., { has_think: false })` think-free swap (enhancement no longer emits an orphaned `</THINK>` reference).
  * - 2026-09-23: PROSE_FORMAT assertion follows the harmonized directive — the plain-prose rule is now scoped to after `</THINK>` to remove the contradiction with `THINK_FORMAT`.
  * - 2026-09-19: Consolidated JSON-return formatter coverage into a single canonical format_json_return assertion (indent/strict variants removed).
  * - 2026-09-19: Added test for negative prompt injection into Optics schema format (R3).

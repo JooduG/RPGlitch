@@ -100,9 +100,10 @@ describe("render_task — Director Mode", () => {
       round: 1,
       input: "Bob draws a weapon.",
       schema: dummy_schema,
+      entities: { AI: { id: "ALICE", name: "Alice" }, USER: { id: "BOB", name: "Bob" } },
     });
 
-    expect(task).toContain('<INPUT origin="USER" round="1" channel="action">');
+    expect(task).toContain('<INPUT origin="BOB" round="1" channel="action">');
     expect(task).toContain("<TASK>");
     expect(task).toContain('next_action MUST be "AI_CHARACTER"');
     expect(task).toContain('<OUTPUT_FORMAT mode="json">');
@@ -145,6 +146,14 @@ describe("render_task — Story Prose Mode", () => {
     expect(task).toContain("After closing </THINK>, emit strictly plain prose: no preamble, commentary, markdown, or structural tags.");
     expect(task).toContain("</OUTPUT_FORMAT>");
     expect(task).toContain("</TASK>");
+  });
+
+  it("drops the </THINK> reference for a prose task with no think block", () => {
+    const task = render_task({ input: "Terse, dry.", action_directive: "Expand it." });
+
+    expect(task).not.toContain("<THINK_FORMAT>");
+    expect(task).toContain("Emit strictly plain prose: no preamble, commentary, markdown, or structural tags.");
+    expect(task).not.toContain("</THINK>");
   });
 });
 
@@ -346,9 +355,16 @@ describe("TASK_LAYERS — canonical envelope grammar", () => {
 
 describe("render_task — per-mode state dispatch", () => {
   it("routes director to its JSON staging state and terse to the minimal refusal state", () => {
-    const full = render_task({ task_state: "director", round: 2, input: "hi", last_ai_text: "prev", schema: '{"a":1}' });
-    expect(full).toContain('<INPUT origin="USER" round="2" channel="action">hi</INPUT>');
-    expect(full).toContain('<INPUT origin="AI_CHARACTER" channel="reply">');
+    const full = render_task({
+      task_state: "director",
+      round: 2,
+      input: "hi",
+      last_ai_text: "prev",
+      schema: '{"a":1}',
+      entities: { AI: { id: "ALICE", name: "Alice" }, USER: { id: "BOB", name: "Bob" } },
+    });
+    expect(full).toContain('<INPUT origin="BOB" round="2" channel="action">hi</INPUT>');
+    expect(full).toContain('<INPUT origin="ALICE" channel="reply">');
     expect(full).toContain("<DIRECTIVES>");
     expect(full).toContain('<OUTPUT_FORMAT mode="json">');
 
@@ -394,6 +410,7 @@ describe("render_task — per-mode state dispatch", () => {
 /**
  * CHANGELOG
  * - 2026-09-23: `render_task` calls updated to the `task_state` API (was `mode`) and the story-prose case passes the flattened `config.think_format` (was `config.task.think_format`).
+ * - 2026-09-24: Entity-id origins — the Director `<INPUT>` assertions now expect the real entity ids (`origin="BOB"` / `origin="ALICE"`) from a supplied `entities` bag; added a think-free prose case asserting no orphaned `</THINK>` reference.
  * - 2026-09-23: Prompt-grammar harmonization — `<INPUT>` now carries `channel=` (was `mode=`), the Director's last turn is a second `<INPUT origin="AI_CHARACTER" channel="reply">` (no separate tag), the `input`/`last_turn` slots collapse into one `inputs` layer, and prose `OUTPUT_FORMAT` is asserted against the reconciled `</THINK>` wording.
  * - 2026-09-23: Harmonized signal channel + directives nesting — assertions now expect the `mode` discriminator (was `kind`), the `<AI_CHARACTER_LAST_TURN>` block carrying input-style attributes, the `keyword_directives` slot removed from `TASK_LAYERS`, and `<KEYWORD_DIRECTIVES>` nested inside `<DIRECTIVES>`.
  * - 2026-09-21: Realigned to the table-driven TASK envelope: removed the retired per-mode renderer imports and rewrote Section 3/7 around `render_task` + `TASK_LAYERS` + `render_directives_xml` (directive prose now lives inside the single `<DIRECTIVES>` element; optics `<MANDATE>` folded into `<DIRECTIVES>`).

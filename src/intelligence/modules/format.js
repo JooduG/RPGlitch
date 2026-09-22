@@ -116,11 +116,19 @@ export function render_json_schema(schema_keys, entity_type = "character", { neg
 // ============================================================================
 
 /**
- * Plain prose emission instruction for Story Prose turns (interaction, ghostwrite, npc, narrator)
- * and single profile field expansion (enhancement).
+ * Plain prose emission instruction for Story Prose turns (interaction, ghostwrite, npc, narrator),
+ * which all open with a `<THINK>` block.
  * @type {string}
  */
 export const PROSE_FORMAT = "After closing </THINK>, emit strictly plain prose: no preamble, commentary, markdown, or structural tags.";
+
+/**
+ * Think-free variant for prose-format modes that emit no `<THINK>` block (single profile field
+ * expansion / enhancement), so the plain-prose rule never references a closing tag the model
+ * was never told to open.
+ * @type {string}
+ */
+export const PLAIN_PROSE_FORMAT = "Emit strictly plain prose: no preamble, commentary, markdown, or structural tags.";
 
 /**
  * Formats the canonical structured JSON-return instruction for a compiled schema.
@@ -146,15 +154,15 @@ export function format_json_return(schema) {
  * Parameter-aware: accepts an options object to dynamically parameterize CONTINUUM, PROFILE, DIRECTOR, and OPTICS schemas.
  *
  * @param {string|{ mode?: string, schema?: string[] }} [format_spec={ mode: "prose" }] - Format spec object from the PROMPTS manifest (normalized at `define_mode`).
- * @param {{ entity_type?: string, variant?: string, is_selfie?: boolean, negative_prompt?: string, fallback?: string }} [options={}]
+ * @param {{ entity_type?: string, variant?: string, is_selfie?: boolean, negative_prompt?: string, fallback?: string, has_think?: boolean }} [options={}]
  * @returns {string} Compiled output format directive or schema
  */
 export function get_output_format(format_spec, options = {}) {
   if (!format_spec) return options.fallback || "";
 
-  // 1. Plain narrative prose directive
+  // 1. Plain narrative prose directive (think-free variant for modes that open no <THINK> block)
   if (format_spec === "PROSE" || format_spec.mode === "prose") {
-    return PROSE_FORMAT;
+    return options.has_think === false ? PLAIN_PROSE_FORMAT : PROSE_FORMAT;
   }
 
   // 2. Structured JSON schema specification from PROMPTS manifest: { mode: "json", schema: [...] }
@@ -199,6 +207,7 @@ export function render_output_format_xml({ mode = "", content = "", indent_level
 
 /**
  * CHANGELOG
+ * - 2026-09-24: Added `PLAIN_PROSE_FORMAT` and a `has_think` option to `get_output_format`, so a prose-format mode without a `<THINK>` block (enhancement) no longer emits the orphaned "After closing `</THINK>`" reference.
  * - 2026-09-23: Prompt-grammar harmonization (phases 0–3) — `PROSE_FORMAT` now scopes the plain-prose rule explicitly to after `</THINK>`, removing the contradiction with `THINK_FORMAT`.
  * - 2026-09-23: `get_output_format` accepts the normalized `{ mode: "prose" }` shape (every mode's `format` is now an object produced by `define_mode`), while retaining the legacy `"PROSE"` sentinel for direct callers.
  * - 2026-09-22: Uniform output contract (recommendation #8) — `format_json_return` documents the single raw schema-escaping policy now that every mode emits an `<OUTPUT_FORMAT>`.

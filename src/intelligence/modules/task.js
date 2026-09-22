@@ -28,7 +28,7 @@
 
 import { escape_xml, prompt_escape, inline_or_block, render_xml_tag, resolve_macro_directive } from "@utils";
 import { extract_style_dna, STYLE_MOTIF_REGISTRY } from "@data";
-import { PROSE_FORMAT, format_json_return, render_output_format_xml } from "./format.js";
+import { PROSE_FORMAT, PLAIN_PROSE_FORMAT, format_json_return, render_output_format_xml } from "./format.js";
 
 // ============================================================================
 // [SECTION 1: UNIFIED TASK DIRECTIVES & PROTOCOLS CATALOG]
@@ -327,9 +327,10 @@ export function render_task_currents(style_dna, subtext_xml) {
 
 /**
  * Renders a turn-signal block — the ONE signal channel every mode uses. Every signal, from
- * any origin, is an `<INPUT>`; the `origin` attribute names the sender and `channel` names
- * the payload kind ("action" | "reply" | "content" | "intent" | "ingestion"). `round` is the
- * turn index when known. Blank attributes are omitted.
+ * any origin, is an `<INPUT>`; the `origin` attribute names the sender by its real entity id
+ * (never a role token, so the attribute always matches the `<ENTITIES>` sheets) and `channel`
+ * names the payload kind ("action" | "reply" | "content" | "intent" | "ingestion"). `round`
+ * is the turn index when known. Blank attributes are omitted.
  *
  * @param {{ input?: string, input_origin?: string|null, input_round?: number|string|null, input_channel?: string|null }} [parameters]
  * @returns {string}
@@ -526,7 +527,15 @@ function render_think_format(directive = "") {
  * @param {Object} [parameters={}]
  * @returns {Record<string, any>}
  */
-function build_director_task_state({ schema = "", round = 1, input = "", last_ai_text = "", terse = false, keyword_directives = null } = {}) {
+function build_director_task_state({
+  schema = "",
+  round = 1,
+  input = "",
+  last_ai_text = "",
+  terse = false,
+  keyword_directives = null,
+  entities = {},
+} = {}) {
   const output_format = schema ? render_output_format_xml({ mode: "json", content: TASK_LIBRARY.JSON_RETURN(schema) }) : "";
   if (terse) return { output_format };
 
@@ -535,9 +544,14 @@ function build_director_task_state({ schema = "", round = 1, input = "", last_ai
     (Number(round) <= 1 ? ` ${TASK_LIBRARY.DIRECTOR.ROUND_ONE}` : "") +
     ` ${TASK_LIBRARY.DIRECTOR.USER_PERSONA_LOCK}`;
 
+  // `origin` always names the sending entity's real id (never a role token), symmetric with
+  // every prose mode — the reply's origin is the AI companion, the action's is the player.
+  const user_origin = entities?.USER?.id || entities?.USER?.name || "USER";
+  const ai_origin = entities?.AI?.id || entities?.AI?.name || "AI_CHARACTER";
+
   const inputs = [
-    render_task_input({ input, input_origin: "USER", input_round: round, input_channel: "action" }),
-    last_ai_text ? render_task_input({ input: last_ai_text, input_origin: "AI_CHARACTER", input_channel: "reply" }) : "",
+    render_task_input({ input, input_origin: user_origin, input_round: round, input_channel: "action" }),
+    last_ai_text ? render_task_input({ input: last_ai_text, input_origin: ai_origin, input_channel: "reply" }) : "",
   ]
     .filter(Boolean)
     .join("\n");
@@ -580,14 +594,13 @@ function build_structured_task_state({ schema = "", directives = [], input = "",
  * @param {Object} [parameters={}]
  * @returns {Record<string, any>}
  */
-function build_continuum_task_state({ schema = "", target_name = "", input = "", input_channel = null, output_format = "", output_mode = "" } = {}) {
+function build_continuum_task_state({ schema = "", target_name = "", output_format = "", output_mode = "" } = {}) {
   const rendered_output = output_format
     ? render_output_format_xml({ mode: output_mode || "prose", content: output_format })
     : schema
       ? render_output_format_xml({ mode: "json", content: TASK_LIBRARY.JSON_RETURN(schema) })
       : "";
   return {
-    inputs: render_task_input({ input, input_channel }),
     directives: [TASK_LIBRARY.CONTINUUM.TARGET_FOCUS(target_name), TASK_LIBRARY.CONTINUUM.MANDATE],
     output_format: rendered_output,
   };
@@ -699,7 +712,7 @@ function build_prose_task_state({
     directives: [action_directive],
     delivery_posture: render_prose_reflex(snapshot, input, speaking_style),
     stability_lock: String(stability_lock || "").trim(),
-    output_format: render_output_format_xml({ mode: "prose", content: PROSE_FORMAT }),
+    output_format: render_output_format_xml({ mode: "prose", content: think_directive ? PROSE_FORMAT : PLAIN_PROSE_FORMAT }),
   };
 }
 
@@ -840,6 +853,7 @@ export function render_subtext_xml(ai_dynamics = {}, fractal_dynamics = {}, opti
 
 /**
  * CHANGELOG
+ * - 2026-09-24: Entity-id origins + dead-slot prune — the Director's two `<INPUT>` blocks now carry the real sender ids (`origin="<USER id>"` / `origin="<AI id>"`, falling back to a name then a role token only when no entity is supplied), matching every prose mode; `build_director_task_state` reads the `entities` bag and `build_continuum_task_state` drops its never-emitted `inputs` slot.
  * - 2026-09-23: Prompt-grammar harmonization (phases 0–3) — `render_task_input` emits `<INPUT>` for every signal with a `channel` attribute (was `mode`) and no `tag` override (the Director's last turn is a second `<INPUT origin="AI_CHARACTER" channel="reply">`); the `input`/`last_turn` slots collapse into one `inputs` layer; the Director's dynamics calibration and the optics subject rules/tier framing move into `<DIRECTIVES>`; the think/prose wording is reconciled ("open with one internal <THINK> block", "after closing </THINK>, emit strictly plain prose").
  * - 2026-09-23: Pipeline consolidation (R6/R7) — extracted `build_continuum_task_state` so the generic `build_structured_task_state` loses its `if (mode === "continuum")` branch (and no longer ignores its own `directives`); `render_task` dispatches on `task_state` instead of a `mode` string, and `build_prose_task_state` reads the flattened `config.think_format`. `TASK_STATE_BUILDERS` is exported for the contract gate. Output bytes unchanged.
  * - 2026-09-23: Envelope harmonization — `render_task_input` emits the singular `mode` discriminator (was `kind`) and now renders the Director's last turn too (`tag` option), so `<INPUT …>` and `<AI_CHARACTER_LAST_TURN …>` share one shape; `<KEYWORD_DIRECTIVES>` nests inside `<DIRECTIVES>` (the `keyword_directives` task layer is retired); `render_task` no longer has a separate keyword slot.
