@@ -61,6 +61,53 @@ export function reset_image_generation_queue() {
 }
 
 /**
+ * Tracks attachments whose image generation is currently in flight, keyed
+ * `${entry_id}:${attachment_index}`. The ghost sweeper consults this so a
+ * legitimately slow generation (the prologue runs an LLM refinement pass
+ * before texturing) is never reaped while it is still working.
+ * @type {Set<string>}
+ */
+export const _in_flight_image_generations = new Set();
+
+/**
+ * Marks an attachment's image generation as in flight.
+ * @param {string | number} id
+ * @param {number} [attachment_index=0]
+ */
+export function mark_generation_in_flight(id, attachment_index = 0) {
+  if (id == null) return;
+  _in_flight_image_generations.add(`${id}:${attachment_index}`);
+}
+
+/**
+ * Clears an attachment's in-flight generation marker.
+ * @param {string | number} id
+ * @param {number} [attachment_index=0]
+ */
+export function clear_generation_in_flight(id, attachment_index = 0) {
+  if (id == null) return;
+  _in_flight_image_generations.delete(`${id}:${attachment_index}`);
+}
+
+/**
+ * Reports whether an attachment's image generation is currently in flight.
+ * @param {string | number} id
+ * @param {number} [attachment_index=0]
+ * @returns {boolean}
+ */
+export function is_generation_in_flight(id, attachment_index = 0) {
+  if (id == null) return false;
+  return _in_flight_image_generations.has(`${id}:${attachment_index}`);
+}
+
+/**
+ * Clears all in-flight generation markers (used for testing and teardowns).
+ */
+export function reset_generation_in_flight() {
+  _in_flight_image_generations.clear();
+}
+
+/**
  * Internal helper to remove a resolved or failed beat from the active queue.
  * @param {string | number} id
  */
@@ -116,8 +163,14 @@ export async function sweep_stale_ghosts() {
       for (let attachment_index = 0; attachment_index < attachments.length; attachment_index++) {
         const attachment = attachments[attachment_index];
         if (attachment && attachment.src == null) {
+          // Never reap a placeholder whose generation is still running. The
+          // prologue's image only starts after its (long) prose pass, and then
+          // runs an LLM refinement + texturing pass, so ageing from
+          // `entry.created_at` would sweep it mid-generation.
+          if (is_generation_in_flight(entry.id, attachment_index)) continue;
           const is_failed = attachment.metadata?.failed === true || attachment.metadata?.image_ghost_swept === true;
-          const is_stale = now - (entry.created_at || 0) > IMAGE_GHOST_MAX_AGE_MS;
+          const requested_at = Number(attachment.metadata?.requested_at) || entry.created_at || 0;
+          const is_stale = now - requested_at > IMAGE_GHOST_MAX_AGE_MS;
           const is_empty_text = !entry.text || !entry.text.trim();
 
           if (is_empty_text && (is_failed || is_stale)) {
@@ -150,6 +203,7 @@ export async function sweep_stale_ghosts() {
  */
 export async function mark_placeholder_failed(id, metadata = {}) {
   if (!id) return;
+  clear_generation_in_flight(id, 0);
   try {
     const key = isNaN(Number(id)) ? id : Number(id);
     let has_narrative_text = false;
@@ -219,7 +273,7 @@ export async function spawn_image_beat(tier, options = {}) {
       return;
     }
 
-    const placeholder_metadata = { mode: tier, image_source: source, image_explicit: explicit };
+    const placeholder_metadata = { mode: tier, image_source: source, image_explicit: explicit, requested_at: Date.now() };
     const placeholder_entry = await state_bridge.session_driver.log_message("", "fractal", fractal_name, {
       turn_type: "SYSTEM_TURN",
       attachments: [{ src: null, metadata: placeholder_metadata }],
@@ -233,6 +287,7 @@ export async function spawn_image_beat(tier, options = {}) {
       if (evicted?.id) await mark_placeholder_failed(evicted.id, evicted.metadata);
     }
 
+    mark_generation_in_flight(placeholder_entry.id, 0);
     const resolve_placeholder = async () => {
       try {
         const result = await Promise.race([
@@ -258,6 +313,8 @@ export async function spawn_image_beat(tier, options = {}) {
         _remove_from_image_generation_queue(placeholder_entry.id);
         await mark_placeholder_failed(placeholder_entry.id, placeholder_metadata);
         throw error;
+      } finally {
+        clear_generation_in_flight(placeholder_entry.id, 0);
       }
     };
 
@@ -275,6 +332,11 @@ export async function spawn_image_beat(tier, options = {}) {
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-24: Ghost-sweep lifecycle fix — placeholders now carry a `requested_at`
+ *   stamp and the sweeper ages from it instead of `entry.created_at` (which for the
+ *   prologue predates its ~45s prose pass, so images were reaped mid-generation);
+ *   added an in-flight generation registry (`mark/clear/is_generation_in_flight`)
+ *   so a still-running generation is never swept.
  * - 2026-08-29: Applied /harmonize protocol:
  *   - Renamed queue constants and functions per Anti-Abbreviation Mandate (`_image_generation_queue`, `IMAGE_GENERATION_QUEUE_CAPACITY`, `get_image_generation_queue`, `reset_image_generation_queue`, `_remove_from_image_generation_queue`).
  *   - Enhanced variable and parameter naming (`attachment_index`, `has_narrative_text`, `database_entries`, `resolved_image_url`, `refined_prompt`).

@@ -79,6 +79,10 @@ export { visual_engine, VisualEngine } from "./visual.svelte.js";
 export {
   spawn_image_beat,
   sweep_stale_ghosts,
+  mark_generation_in_flight,
+  clear_generation_in_flight,
+  is_generation_in_flight,
+  reset_generation_in_flight,
   get_image_generation_queue,
   reset_image_generation_queue,
   IMAGE_RESOLVE_TIMEOUT_MS,
@@ -86,6 +90,7 @@ export {
 
 /**
  * CHANGELOG:
+ * - 2026-09-24: Re-exported the in-flight image generation registry helpers from image-beats.js.
  * - 2026-09-19: Purged cross-layer re-exports `parse_llm_image_prompt_response` and `clean_image_prompt` from intelligence/parser.js under P4 Zero Backwards Compatibility.
  * - 2026-09-19: Purged retired prompt_templates export under P4 Zero Backwards Compatibility.
  * - 2026-09-18: Re-exported image prompt compilers and parsers from @intelligence following prompt pipeline consolidation.

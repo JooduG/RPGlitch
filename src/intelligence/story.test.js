@@ -1917,6 +1917,46 @@ describe("execute_with_retry resilience diagnostics", () => {
       expect(_mock_app.busy).toBe(false);
       expect(_mock_simulation_state.phase).toBe("idle");
     });
+
+    it("marks the prologue image placeholder failed when visualization yields no image", async () => {
+      mock_prompt_spies.build_prologue.mockReturnValue({ system: "PROLOGUE_SYSTEM", task: "PROLOGUE_TASK" });
+      mock_prompt_spies.build_director.mockReturnValue({ system: "DIRECTOR_SYSTEM", task: "DIRECTOR_TASK" });
+      mock_prompt_spies.build_character.mockReturnValue({
+        system: "CHARACTER_SYSTEM",
+        task: "CHARACTER_TASK",
+        meta: { ai: {}, fractal: {}, role: "ai" },
+      });
+      vi.mocked(visual_engine.visualize).mockResolvedValue({ imageUrl: null, refinedPrompt: null, caption: null, metadata: {} });
+      vi.mocked(session_driver.log_message).mockResolvedValue({ id: "pro-node" });
+      vi.mocked(session_driver.edit_log_entry).mockResolvedValue({});
+      vi.mocked(llm_service.generate).mockImplementation(async ({ role }) => {
+        if (role === "fractal") return "The hall breathes with frozen dust.";
+        if (role === "system") {
+          return JSON.stringify({
+            internal_monologue: "ok",
+            next_action: "AI_CHARACTER",
+            keywords: [],
+            directors_note: "proceed",
+            dynamics_deltas: {},
+          });
+        }
+        return "I steady my breathing.";
+      });
+
+      await gamemaster.execute_story_opening("story-123");
+
+      // The prologue entry is keyed by the generated node id carried in its log_message meta.
+      const prologue_call = vi.mocked(session_driver.log_message).mock.calls.find((call) => call[3]?.meta?.is_prologue);
+      const prologue_node_id = prologue_call?.[3]?.meta?.id;
+
+      await vi.waitFor(() =>
+        expect(session_driver.update_log_attachment).toHaveBeenCalledWith(
+          prologue_node_id,
+          0,
+          expect.objectContaining({ src: null, metadata: expect.objectContaining({ failed: true }) }),
+        ),
+      );
+    });
   });
 });
 

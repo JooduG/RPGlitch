@@ -8,6 +8,9 @@ import {
   _remove_from_image_generation_queue,
   get_image_generation_queue,
   reset_image_generation_queue,
+  mark_generation_in_flight,
+  clear_generation_in_flight,
+  reset_generation_in_flight,
   IMAGE_GENERATION_QUEUE_CAPACITY,
   IMAGE_PLACEHOLDER_HARD_CAP,
   IMAGE_GHOST_MAX_AGE_MS,
@@ -19,6 +22,7 @@ import { visual_engine } from "./visual.svelte.js";
 describe("image-beats (Media Layer Placeholder & Generation Lifecycle)", () => {
   beforeEach(() => {
     reset_image_generation_queue();
+    reset_generation_in_flight();
     reset_bridges_for_testing();
     vi.restoreAllMocks();
   });
@@ -132,6 +136,52 @@ describe("image-beats (Media Layer Placeholder & Generation Lifecycle)", () => {
         }),
       );
     });
+
+    it("ages placeholders from requested_at, not the entry creation time", async () => {
+      const now = 400000;
+      vi.spyOn(Date, "now").mockReturnValue(now);
+      const update_mock = vi.fn().mockResolvedValue(true);
+      const mock_entries = [
+        // Entry logged long ago (the slow prose pass), but the image was only requested recently.
+        {
+          id: "prologue",
+          text: "A long prologue.",
+          created_at: now - 180000,
+          attachments: [{ src: null, metadata: { mode: "story_scene", requested_at: now - 5000 } }],
+        },
+      ];
+      register_state_accessors({
+        runtime: { story_id: "story-123" },
+        session_driver: { load_log: vi.fn().mockResolvedValue(mock_entries), delete_log_entry: vi.fn(), update_log_attachment: update_mock },
+        simulation_log: { remove: vi.fn() },
+      });
+
+      await sweep_stale_ghosts();
+
+      expect(update_mock).not.toHaveBeenCalled();
+    });
+
+    it("never sweeps a placeholder whose generation is still in flight", async () => {
+      const now = 400000;
+      vi.spyOn(Date, "now").mockReturnValue(now);
+      const update_mock = vi.fn().mockResolvedValue(true);
+      const mock_entries = [
+        { id: "inflight", text: "Narrative.", created_at: now - 300000, attachments: [{ src: null, metadata: { mode: "story_scene" } }] },
+      ];
+      register_state_accessors({
+        runtime: { story_id: "story-123" },
+        session_driver: { load_log: vi.fn().mockResolvedValue(mock_entries), delete_log_entry: vi.fn(), update_log_attachment: update_mock },
+        simulation_log: { remove: vi.fn() },
+      });
+      mark_generation_in_flight("inflight", 0);
+
+      await sweep_stale_ghosts();
+      expect(update_mock).not.toHaveBeenCalled();
+
+      clear_generation_in_flight("inflight", 0);
+      await sweep_stale_ghosts();
+      expect(update_mock).toHaveBeenCalledWith("inflight", 0, expect.objectContaining({ metadata: expect.objectContaining({ failed: true }) }));
+    });
   });
 
   describe("mark_placeholder_failed", () => {
@@ -212,7 +262,7 @@ describe("image-beats (Media Layer Placeholder & Generation Lifecycle)", () => {
         attachments: [
           {
             src: null,
-            metadata: { mode: "story_scene", image_source: "dynamics", image_explicit: false },
+            metadata: { mode: "story_scene", image_source: "dynamics", image_explicit: false, requested_at: expect.any(Number) },
           },
         ],
       });

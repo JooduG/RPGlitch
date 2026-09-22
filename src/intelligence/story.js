@@ -24,7 +24,15 @@ import {
   alternation_field_label,
   strip_alternation_braces,
 } from "@utils";
-import { visual_engine, resolve_image_trigger, spawn_image_beat, sweep_stale_ghosts, IMAGE_RESOLVE_TIMEOUT_MS } from "@media";
+import {
+  visual_engine,
+  resolve_image_trigger,
+  spawn_image_beat,
+  sweep_stale_ghosts,
+  mark_generation_in_flight,
+  clear_generation_in_flight,
+  IMAGE_RESOLVE_TIMEOUT_MS,
+} from "@media";
 import { validate_and_repair_response, force_close_response, balance_think_tags, strip_directors_note_seed, THINK_OPEN_TAG } from "./parser.js";
 import { llm_service, looks_truncated } from "@platform";
 import { apply_dynamics_gravity, extract_entity_dynamics_baselines } from "./physics.js";
@@ -681,46 +689,57 @@ export const gamemaster = {
 
       state_bridge.app.end_stream();
 
-      await state_bridge.session_driver.update_log_attachment(node_id, 0, { src: null, metadata: { mode: "story_scene" } });
+      const prologue_image_requested_at = Date.now();
+      await state_bridge.session_driver.update_log_attachment(node_id, 0, {
+        src: null,
+        metadata: { mode: "story_scene", requested_at: prologue_image_requested_at },
+      });
 
+      // The prologue image runs an LLM "optics" refinement pass before texturing,
+      // so it routinely takes ~2 minutes. Mark it in flight so the ghost sweeper
+      // (which ages placeholders) never reaps it mid-generation, and surface an
+      // explicit failure if it yields nothing rather than leaving a live shimmer.
       const image_promise = visual_engine
-        ? Promise.race([
-            visual_engine
-              .visualize(story_id, strip_cognition_blocks(response), "story_scene", { silent: true })
-              .then((img_result) => {
-                if (img_result?.imageUrl) {
-                  state_bridge.session_driver.update_log_attachment(node_id, 0, {
-                    src: img_result.imageUrl,
-                    metadata: {
-                      ...(img_result.metadata || {}),
-                      prompt: img_result.refinedPrompt || img_result.metadata?.prompt,
-                      mode: "story_scene",
-                    },
-                  });
-                }
-              })
-              .catch((err) => {
-                console.warn("[Prologue Image Error]", err);
-              }),
-            new Promise((resolve) =>
-              setTimeout(async () => {
-                try {
-                  const key = isNaN(Number(node_id)) ? node_id : Number(node_id);
-                  const entry = await db.simulation_log.get(key);
-                  const att = entry?.attachments?.[0];
-                  if (att && att.src == null) {
-                    await state_bridge.session_driver.update_log_attachment(node_id, 0, {
-                      src: null,
-                      metadata: { ...(att.metadata || {}), failed: true, image_ghost_swept: true, error: "Prologue image timed out." },
-                    });
-                  }
-                } catch (_err) {
-                  /* guard must never break prologue */
-                }
-                resolve();
-              }, IMAGE_RESOLVE_TIMEOUT_MS),
-            ),
-          ])
+        ? (async () => {
+            mark_generation_in_flight(node_id, 0);
+            try {
+              const img_result = await visual_engine.visualize(story_id, strip_cognition_blocks(response), "story_scene", { silent: true });
+              if (img_result?.imageUrl) {
+                await state_bridge.session_driver.update_log_attachment(node_id, 0, {
+                  src: img_result.imageUrl,
+                  metadata: {
+                    ...(img_result.metadata || {}),
+                    prompt: img_result.refinedPrompt || img_result.metadata?.prompt,
+                    mode: "story_scene",
+                    requested_at: prologue_image_requested_at,
+                  },
+                });
+              } else {
+                await state_bridge.session_driver.update_log_attachment(node_id, 0, {
+                  src: null,
+                  metadata: {
+                    mode: "story_scene",
+                    requested_at: prologue_image_requested_at,
+                    failed: true,
+                    error: "Prologue image generation returned no image.",
+                  },
+                });
+              }
+            } catch (err) {
+              console.warn("[Prologue Image Error]", err);
+              await state_bridge.session_driver.update_log_attachment(node_id, 0, {
+                src: null,
+                metadata: {
+                  mode: "story_scene",
+                  requested_at: prologue_image_requested_at,
+                  failed: true,
+                  error: "Prologue image generation failed.",
+                },
+              });
+            } finally {
+              clear_generation_in_flight(node_id, 0);
+            }
+          })()
         : Promise.resolve();
 
       state_bridge.app.streaming.active = true;
@@ -730,7 +749,21 @@ export const gamemaster = {
 
       const turn_promise = this.execute_turn(story_id, { role: "ai", is_opening_turn: true });
 
-      await Promise.all([image_promise, turn_promise]);
+      // The image is enrichment: stop *waiting* on it after the budget, but let
+      // it finish in the background and land in the feed when it resolves.
+      const image_budget = (async () => {
+        let budget_id;
+        const budget = new Promise((resolve) => {
+          budget_id = setTimeout(resolve, IMAGE_RESOLVE_TIMEOUT_MS);
+        });
+        try {
+          await Promise.race([image_promise, budget]);
+        } finally {
+          clearTimeout(budget_id);
+        }
+      })();
+
+      await Promise.all([image_budget, turn_promise]);
       return await turn_promise;
     } finally {
       state_bridge.app.busy = false;
@@ -932,6 +965,11 @@ export const story_pipeline = gamemaster;
 
 /**
  * CHANGELOG
+ * - 2026-09-24: Prologue image lifecycle fix — the placeholder now carries a `requested_at`
+ *   stamp and the generation is registered in flight so the ghost sweeper can't reap it
+ *   mid-render; the prologue only stops *waiting* on the image after the budget and no
+ *   longer fakes a failure, and a null/errored render now marks the placeholder failed
+ *   instead of leaving a live shimmer.
  * - 2026-09-19: Prompt Unification (Mega Report Phase 2): Migrated story.js prompt compilation (interaction, npc, narrator/prologue/epilogue, ghostwrite) directly to `compile_prompt` from prompts.js and `build_scoring_context` from builder.js, eliminating all references to prompt_builder under P4 Zero Backwards Compatibility.
  * - 2026-09-18: Master Prompt Pipeline Standardization: (1) Aligned character, prologue, epilogue, and ghostwriter prompt assembly with unified `compile_prompt`; (2) Pruned legacy `system_close` handling across all LLM generation calls.
  * - 2026-09-15: Domain Layer Prompt-Free Purity — Replaced literal <THINK> string with imported THINK_OPEN_TAG constant from parser.js.
