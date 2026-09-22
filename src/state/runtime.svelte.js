@@ -121,6 +121,25 @@ function create_unlinked_entity() {
 // ============================================================================
 
 /**
+ * Applies the authoritative story title (and its colored decomposition) to the
+ * shared app store against the story's bound entity trio.
+ * @param {any} story
+ * @param {any} [ai]
+ * @param {any} [user]
+ * @param {any} [fractal]
+ */
+function apply_story_title(story, ai = null, user = null, fractal = null) {
+  if (!story?.title) return;
+  app.story_title = story.title;
+  app.story_title_parts = decompose_story_title(story.title, {
+    ai,
+    user,
+    fractal,
+    get_color: get_signature_color,
+  });
+}
+
+/**
  * Constructs the reactive runtime store instance.
  */
 function create_runtime_store() {
@@ -513,15 +532,7 @@ function create_runtime_store() {
         app.selected_fractal = active_fractal_state;
 
         // Story title decomposition
-        if (story.title) {
-          app.story_title = story.title;
-          app.story_title_parts = decompose_story_title(story.title, {
-            ai: active_ai_state,
-            user: active_user_state,
-            fractal: active_fractal_state,
-            get_color: get_signature_color,
-          });
-        }
+        apply_story_title(story, active_ai_state, active_user_state, active_fractal_state);
 
         simulation_story.by_id[db_key] = story;
         if (String(db_key) !== String(simulation_story_id)) {
@@ -533,6 +544,19 @@ function create_runtime_store() {
       } catch (err) {
         console.warn("[Data] Sync Failed:", err);
       }
+    },
+
+    /**
+     * Re-asserts the active story's title into the shared app store.
+     * The storyboard owns `app.story_title` while it is mounted (it previews the
+     * draft title from the current slot selections), so entering storymode must
+     * restore the authoritative story title — otherwise a transient storyboard
+     * mount during boot leaves the lobby placeholder as the prologue header.
+     */
+    restore_story_title() {
+      if (!simulation_story_id) return;
+      const story = simulation_story.by_id[simulation_story_id] ?? simulation_story.by_id[coerce_story_key(simulation_story_id)] ?? null;
+      apply_story_title(story, active_ai_state, active_user_state, active_fractal_state);
     },
 
     /**
@@ -689,6 +713,9 @@ if (typeof window !== "undefined") {
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-24: Extracted `apply_story_title` and added `restore_story_title()` so entering storymode re-asserts the
+ *   active story's authoritative title — a transient storyboard mount during boot was leaving "Your story begins here..."
+ *   as the prologue header. Also reasserted at the end of `sync()` via the shared helper.
  * - 2026-09-16: Added support for explicit story.in_scene_npc_ids during story load, preventing un-staged NPCs from flooding in_scene_npc_ids.
  * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,
  *   structured section dividers, exported DIRECTOR_MS_POOL_CAP constant, cleaned up unlinked

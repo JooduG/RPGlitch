@@ -488,6 +488,13 @@ export class InterfaceStore {
         flushSync(() => {
           this.view = view;
         });
+        // Entering storymode must surface the ACTIVE story's title. The
+        // storyboard writes `app.story_title` from the draft slot selections
+        // while it is mounted, so re-assert the authoritative value once the
+        // view has actually flipped (and the storyboard has unmounted).
+        if (view === "storymode") {
+          runtime.restore_story_title?.();
+        }
       },
       { className: "is-switching-view" },
     );
@@ -615,6 +622,9 @@ if (typeof window !== "undefined") {
 
 /**
  * CHANGELOG:
+ * - 2026-09-24: `set_view("storymode")` now re-asserts the active story's title via `runtime.restore_story_title()`
+ *   once the view has flipped, so a transient storyboard mount during boot can no longer leave the lobby placeholder
+ *   ("Your story begins here...") as the prologue header.
  * - 2026-09-06: Added take_photo_handler to interface store for entity portrait generation routing across badge menus.
  * - 2026-09-05: Suppressed DatabaseClosedError logging in save_settings to prevent test runner teardown clutter.
  * - 2026-08-29: Renamed from app-store.svelte.js to interface.svelte.js to eliminate name collision with App.svelte and legacy -store suffix (/harmonize).
