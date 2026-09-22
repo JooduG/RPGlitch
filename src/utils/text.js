@@ -203,20 +203,46 @@ export function extract_json_block(raw) {
 }
 
 /**
- * Truncates text at the last word boundary within a character limit,
- * appending an ellipsis only when text was actually cut.
+ * Collapses every run of whitespace to a single space and trims the result.
  * @param {string | null | undefined} text
- * @param {number} [limit=200]
  * @returns {string}
  */
-export function truncate_at_word(text, limit = 200) {
+export function collapse_whitespace(text) {
   if (!text || typeof text !== "string") return "";
+  return text.replace(/\s+/g, " ").trim();
+}
+
+/**
+ * The single word-boundary truncator every layer shares — `clean_text`,
+ * `derive_vector_title` (this module) and `truncate_readable` (html.js) all
+ * delegate here, so clipping behaviour is defined once.
+ *
+ * @param {string | null | undefined} text
+ * @param {number} [limit=200] - Character budget for the retained content.
+ * @param {Object} [options={}]
+ * @param {string} [options.ellipsis="…"] - Suffix appended only when text was cut.
+ * @param {boolean} [options.reserve_ellipsis=false] - Count the ellipsis inside `limit`.
+ * @param {number} [options.min_bound_ratio=0] - Only break at a space past this fraction of the budget.
+ * @param {number} [options.min_bound_chars=0] - Only break at a space at/after this column.
+ * @param {boolean} [options.strip_trailing_punctuation=false] - Drop trailing `. , ; :` before the ellipsis.
+ * @returns {string}
+ */
+export function truncate_at_word(text, limit = 200, options = {}) {
+  if (!text || typeof text !== "string") return "";
+  const { ellipsis = "…", reserve_ellipsis = false, min_bound_ratio = 0, min_bound_chars = 0, strip_trailing_punctuation = false } = options;
+
   const trimmed = text.trim();
-  if (trimmed.length <= limit) return trimmed;
-  const sub = trimmed.slice(0, limit);
+  if (trimmed.length <= limit) {
+    return strip_trailing_punctuation ? trimmed.replace(/[.,;:]+$/, "") : trimmed;
+  }
+
+  const budget = reserve_ellipsis ? Math.max(1, limit - ellipsis.length) : limit;
+  const sub = trimmed.slice(0, budget);
   const last_space = sub.lastIndexOf(" ");
-  const cut = last_space > 0 ? sub.slice(0, last_space).trimEnd() : sub.trim();
-  return `${cut}…`;
+  const threshold = Math.max(min_bound_chars, Math.floor(budget * min_bound_ratio));
+  const cut = (last_space > threshold ? sub.slice(0, last_space) : sub).trimEnd();
+  const final = strip_trailing_punctuation ? cut.replace(/[.,;:]+$/, "") : cut;
+  return `${final}${ellipsis}`;
 }
 
 /**
@@ -228,10 +254,9 @@ export function truncate_at_word(text, limit = 200) {
  */
 export function clean_text(text, limit = 500) {
   if (!text || typeof text !== "string") return "";
-  let clean = text.replace(/[*_~`#[\]]/g, " ");
-  clean = clean.replace(/\s+/g, " ").trim();
+  const clean = collapse_whitespace(text.replace(/[*_~`#[\]]/g, " "));
   if (limit && clean.length > limit) {
-    clean = `${clean.substring(0, limit).trim()}...`;
+    return truncate_at_word(clean, limit, { ellipsis: "..." });
   }
   return clean;
 }
@@ -524,7 +549,7 @@ export function get_style_initials(name) {
  * @returns {string}
  */
 export function first_sentence(text, max_len = 160) {
-  const clean = strip_cognition_blocks(text).replace(/```/g, "").replace(/\s+/g, " ").trim();
+  const clean = collapse_whitespace(strip_cognition_blocks(text).replace(/```/g, ""));
   if (!clean) return "";
   const regex = new RegExp(`^[^.!?]{1,${max_len}}[.!?:;]?`);
   const m = clean.match(regex);
@@ -634,21 +659,9 @@ export function format_relational_vector(source_name, target_name, dynamic = "")
  */
 export function derive_vector_title(text, max_len = 38) {
   if (!text || typeof text !== "string") return "";
-  const cleaned = text
-    .trim()
-    .replace(/^["'“”«»]+|["'“”«»]+$/g, "")
-    .replace(/\s+/g, " ");
-
+  const cleaned = collapse_whitespace(text.replace(/^["'“”«»]+|["'“”«»]+$/g, ""));
   if (!cleaned) return "";
-
-  if (cleaned.length <= max_len) {
-    return cleaned.replace(/[.,;:]+$/, "");
-  }
-
-  const sub = cleaned.slice(0, max_len);
-  const last_space = sub.lastIndexOf(" ");
-  const truncated = last_space > 15 ? sub.slice(0, last_space) : sub;
-  return truncated.replace(/[.,;:]+$/, "") + "…";
+  return truncate_at_word(cleaned, max_len, { min_bound_chars: 15, strip_trailing_punctuation: true });
 }
 
 // ============================================================================
@@ -907,6 +920,11 @@ export function alternation_field_label(text, raw) {
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-25: Stripping/truncation standardization — `truncate_at_word` is now the one
+ *   word-boundary truncator (options: ellipsis, reserve_ellipsis, min_bound_ratio/min_bound_chars,
+ *   strip_trailing_punctuation) and `clean_text` + `derive_vector_title` delegate to it (no more
+ *   bespoke `substring`/`slice` clipping); added `collapse_whitespace` and routed `first_sentence`
+ *   through it, replacing the scattered `.replace(/\s+/g, " ").trim()` copies.
  * - 2026-09-10: Removed flatten_physical (its only consumer, the story-prose
  *   scene anchor, was deleted).
  * - 2026-09-04: Added alternation-macro section: extract_alternations, resolve_alternations

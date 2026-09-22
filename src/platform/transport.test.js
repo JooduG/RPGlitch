@@ -13,7 +13,7 @@ vi.mock("@utils", async (importOriginal) => {
       end: vi.fn(),
       is_active: vi.fn().mockReturnValue(false),
     },
-    collapse_history: vi.fn((messages) => messages.map((m) => ({ ...m, content: m.content || m.text || "" }))),
+    collapse_history: vi.fn((messages) => messages.map((m) => ({ ...m, content: actual.strip_cognition_blocks(m.content || m.text || "") }))),
   };
 });
 

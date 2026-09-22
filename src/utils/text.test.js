@@ -10,6 +10,7 @@ import {
   clean_text,
   CLEAR_TOKENS,
   collapse_history,
+  collapse_whitespace,
   decompose_story_title,
   derive_vector_title,
   escape_unescaped_json_quotes,
@@ -27,6 +28,7 @@ import {
   safe_parse_json,
   safe_parse_pseudo_json,
   strip_cognition_blocks,
+  truncate_at_word,
 } from "./text.js";
 
 describe("safe_parse_json", () => {
@@ -433,21 +435,46 @@ describe("decompose_story_title", () => {
 });
 
 describe("truncate_at_word", () => {
-  it("truncates at word boundary within limit and appends ellipsis", async () => {
-    const { truncate_at_word } = await import("./text.js");
+  it("truncates at word boundary within limit and appends ellipsis", () => {
     const input = "The quick brown fox jumps over the lazy dog";
     expect(truncate_at_word(input, 20)).toBe("The quick brown fox…");
   });
 
-  it("leaves text untouched if under limit", async () => {
-    const { truncate_at_word } = await import("./text.js");
+  it("leaves text untouched if under limit", () => {
     expect(truncate_at_word("Short text", 20)).toBe("Short text");
   });
 
-  it("handles null or empty inputs", async () => {
-    const { truncate_at_word } = await import("./text.js");
+  it("reserves room for the ellipsis when requested", () => {
+    const out = truncate_at_word("The quick brown fox jumps over the lazy dog", 20, { reserve_ellipsis: true });
+    expect(out.length).toBeLessThanOrEqual(20);
+    expect(out.endsWith("…")).toBe(true);
+  });
+
+  it("honours a minimum word-boundary ratio", () => {
+    expect(truncate_at_word("alpha beta gamma delta epsilon", 20)).toBe("alpha beta gamma…");
+    expect(truncate_at_word("alpha beta gamma delta epsilon", 20, { min_bound_ratio: 0.9 })).toBe("alpha beta gamma del…");
+  });
+
+  it("strips trailing punctuation before the ellipsis when requested", () => {
+    const out = truncate_at_word("one, two, three, four", 16, { strip_trailing_punctuation: true });
+    expect(out.endsWith("…")).toBe(true);
+    expect(out).not.toMatch(/[,;:]…$/);
+  });
+
+  it("handles null or empty inputs", () => {
     expect(truncate_at_word(null)).toBe("");
     expect(truncate_at_word("")).toBe("");
+  });
+});
+
+describe("collapse_whitespace", () => {
+  it("collapses runs of whitespace and trims the result", () => {
+    expect(collapse_whitespace("  a \n\t b  ")).toBe("a b");
+  });
+
+  it("handles null or empty inputs", () => {
+    expect(collapse_whitespace(null)).toBe("");
+    expect(collapse_whitespace("")).toBe("");
   });
 });
 

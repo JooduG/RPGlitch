@@ -15,7 +15,7 @@
  * - Invariant: Transport does NOT alter narrative content or invent prompt rules; it exclusively transports, streams, and cleans.
  */
 
-import { collapse_history, escape_xml, prompt_escape, stream_bridge } from "@utils";
+import { collapse_history, escape_xml, prompt_escape, stream_bridge, strip_cognition_blocks } from "@utils";
 
 // ============================================================================
 // [SECTION 1: SANITIZATION & NORMALIZATION UTILITIES]
@@ -31,10 +31,7 @@ export function looks_truncated(text) {
   if (!text || typeof text !== "string") return false;
   if (!text.trim()) return false;
 
-  const stripped = text
-    .replace(/<think>[\s\S]*?<\/think>/gi, "")
-    .replace(/<\/?think>/gi, "")
-    .trim();
+  const stripped = strip_cognition_blocks(text);
 
   if (!stripped) return true; // Think-only response or empty narrative
 
@@ -180,10 +177,7 @@ export function format_conversation_history(messages) {
   return collapsed
     .map((entry, index) => {
       const label = entry.origin || entry.name || (entry.role === "USER_PERSONA" ? "User" : entry.role === "FRACTAL" ? "Fractal" : "Character");
-      const clean_content = String(entry.content || "")
-        .replace(/<think>[\s\S]*?<\/think>/gi, "")
-        .replace(/<\/?think>/gi, "")
-        .trim();
+      const clean_content = String(entry.content || "").trim();
       return `  <ENTRY origin="${escape_xml(label)}" round="${index + 1}">${prompt_escape(clean_content)}</ENTRY>`;
     })
     .join("\n");
@@ -464,6 +458,7 @@ export const llm_service = {
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-25: Stripping standardization — `looks_truncated` now calls the shared `strip_cognition_blocks` (also catching unclosed/leaked blocks), and `format_conversation_history` drops its redundant re-strip now that `collapse_history` guarantees cognition-free content.
  * - 2026-09-18: Standardized conversation history envelope tag from <CONVERSATION_HISTORY> to canonical <HISTORY> per scrobbles.md blueprint.
  * - 2026-09-18: Standardized universal nested envelope assembly (<SYSTEM>...<HISTORY>...<TASK>...</SYSTEM>), eliminated system_close parameter dependency, and pruned legacy _format_history alias under P4 Zero Backwards Compatibility.
  * - 2026-09-16: Swapped escape_xml for prompt_escape in format_conversation_history to prevent double-escaping quotes/apostrophes in replayed history entries, and added think tag stripping.

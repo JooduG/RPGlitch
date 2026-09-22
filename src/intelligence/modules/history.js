@@ -27,24 +27,11 @@
  * ============================================================================
  */
 
-import { escape_xml, prompt_escape, collapse_history, truncate_at_word, render_xml_tag, strip_cognition_blocks } from "@utils";
+import { escape_xml, prompt_escape, collapse_history, collapse_whitespace, truncate_at_word, render_xml_tag, strip_cognition_blocks } from "@utils";
 
 // ============================================================================
 // [INTERNAL UTILITIES]
 // ============================================================================
-
-/**
- * Strips internal unvoiced <think> blocks and bare think tags from narrative content.
- *
- * @param {string|null|undefined} text
- * @returns {string}
- */
-function strip_think_blocks(text) {
-  return String(text || "")
-    .replace(/<think>[\s\S]*?<\/think>/gi, "")
-    .replace(/<\/?think>/gi, "")
-    .trim();
-}
 
 /**
  * Resolves a speaker's entity origin from raw entry or message properties.
@@ -135,7 +122,7 @@ export function render_history(history, options = {}) {
     .slice(start_index, end_index)
     .map((entry, index) => {
       const raw_text = String(entry?.text ?? entry?.content ?? "");
-      const clean_text = strip_think_blocks(raw_text);
+      const clean_text = strip_cognition_blocks(raw_text);
       if (!clean_text) return null;
 
       const round_number = start_index + index + 1;
@@ -215,7 +202,7 @@ export function render_chapter_history_xml(target_entity, indentation_level = 0)
   const chapter_rows = closed_chapters.slice(-6).map((chapter) => {
     const raw_title = String(chapter.title || "Untitled").trim();
     const normalized_title = raw_title.replace(/^Chapter\s+/i, "");
-    const clean_summary = String(chapter.summary || "").slice(0, 220);
+    const clean_summary = truncate_at_word(String(chapter.summary || ""), 220);
     return `- Chapter ${escape_xml(normalized_title)}: ${escape_xml(clean_summary)}`;
   });
 
@@ -277,7 +264,7 @@ export function render_visual_history(entries, { max_entries = 2, max_chars = 20
       // <THINK> block, and slicing the raw text first can leave that block unclosed;
       // format_sensory_history's strip_cognition_blocks then eats an unclosed <THINK>
       // through to end-of-string, collapsing the whole line to a bare "Name:".
-      const prose = strip_cognition_blocks(entry.text).replace(/\s+/g, " ").trim();
+      const prose = collapse_whitespace(strip_cognition_blocks(entry.text));
       if (!prose) return "";
       return `${entry.character_name || entry.role || "narrator"}: ${truncate_at_word(prose, max_chars)}`;
     })
@@ -290,6 +277,7 @@ export function render_visual_history(entries, { max_entries = 2, max_chars = 20
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-25: Stripping standardization — retired the local `strip_think_blocks` helper (it duplicated `strip_cognition_blocks` minus the DYNAMICS/artifact passes) and routed `format_sensory_history` + `render_visual_history` through the shared `strip_cognition_blocks` + `collapse_whitespace`; chapter summaries now clip via `truncate_at_word` instead of a mid-word `slice`.
  * - 2026-09-24: `render_visual_history` now strips the leading cognition block (and collapses whitespace) BEFORE truncating, so a word-boundary slice can no longer leave an unclosed <THINK> that `format_sensory_history` strips through to end-of-string — which had collapsed the optics <HISTORY> to a bare `Name:` line.
  * - 2026-09-24: Added `render_visual_history` — the optics (Sensory Cortex) recent-narrative window moved out of `media/visual.svelte.js` (`_build_visual_history`) so history shaping lives with the rest of the history module.
  * - 2026-09-22: One input channel (recommendation #5) — `render_input_history_xml`'s default tag is now `HISTORY` (was `INPUT_HISTORY`), matching the single input/history vocabulary.

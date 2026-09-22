@@ -17,6 +17,7 @@ import {
   create_job_queue,
   state_bridge,
   strip_cognition_blocks,
+  truncate_at_word,
   resolve_speaking_style,
   detox_prose,
   has_alternations,
@@ -411,15 +412,12 @@ export const gamemaster = {
         },
       };
 
-      const clean_think = (t) =>
-        String(t || "")
-          .replace(/<\/?think>/gi, "")
-          .trim();
       const think_sections = [];
-      if (director_data.internal_monologue) think_sections.push(`**Cognition:** ${clean_think(director_data.internal_monologue)}`);
-      if (director_data.intent) think_sections.push(`**Intent:** ${clean_think(director_data.intent)}`);
-      if (director_data.somatic_tells) think_sections.push(`**Somatic Tells:** ${clean_think(director_data.somatic_tells)}`);
-      if (director_data.dialogue_direction) think_sections.push(`**Dialogue Direction:** ${clean_think(director_data.dialogue_direction)}`);
+      if (director_data.internal_monologue) think_sections.push(`**Cognition:** ${strip_cognition_blocks(director_data.internal_monologue)}`);
+      if (director_data.intent) think_sections.push(`**Intent:** ${strip_cognition_blocks(director_data.intent)}`);
+      if (director_data.somatic_tells) think_sections.push(`**Somatic Tells:** ${strip_cognition_blocks(director_data.somatic_tells)}`);
+      if (director_data.dialogue_direction)
+        think_sections.push(`**Dialogue Direction:** ${strip_cognition_blocks(director_data.dialogue_direction)}`);
       const think_content = think_sections.join("\n\n");
       if (think_content) final_meta.thoughts = think_content;
 
@@ -455,14 +453,14 @@ export const gamemaster = {
       const image_tier = resolved_image?.tier;
 
       if (is_image_trigger_active && image_tier) {
-        let trigger_prompt = [input, clean_think(director_data._thought_process), clean_think(director_data.directive)]
+        let trigger_prompt = [input, strip_cognition_blocks(director_data._thought_process), strip_cognition_blocks(director_data.directive)]
           .filter(Boolean)
           .join(" ")
           .trim();
         if (!trigger_prompt) {
           const last_beat = [...simulation_log].reverse().find((m) => m.role === "fractal" || m.role === "model");
           if (last_beat?.content) {
-            trigger_prompt = strip_cognition_blocks(last_beat.content).slice(0, 700);
+            trigger_prompt = truncate_at_word(strip_cognition_blocks(last_beat.content), 700);
           }
         }
         await spawn_image_beat(image_tier, {
@@ -547,10 +545,7 @@ export const gamemaster = {
       let validation_result = await this.execute_with_retry(() => make_character_try(null), 2, 1000);
 
       if (looks_truncated(validation_result.text)) {
-        const prose_only = String(validation_result.text)
-          .replace(/<think>[\s\S]*?<\/think>/gi, "")
-          .replace(/<\/?think>/gi, "")
-          .trim();
+        const prose_only = strip_cognition_blocks(validation_result.text);
         if (prose_only && prose_only.length >= TRUNCATION_MIN_PROSE) {
           state_bridge.app.log("[GameMaster] Reply truncated — regenerating with completion directive...", "warn");
           state_bridge.app.streaming.content = director_monologue || "";
@@ -965,6 +960,9 @@ export const story_pipeline = gamemaster;
 
 /**
  * CHANGELOG
+ * - 2026-09-25: Stripping standardization — dropped the local `clean_think` tag-scrub and the
+ *   inline closure-strip in the truncation check, routing both through the shared
+ *   `strip_cognition_blocks`; the image-trigger snippet now clips via `truncate_at_word`.
  * - 2026-09-24: Prologue image lifecycle fix — the placeholder now carries a `requested_at`
  *   stamp and the generation is registered in flight so the ghost sweeper can't reap it
  *   mid-render; the prologue only stops *waiting* on the image after the budget and no

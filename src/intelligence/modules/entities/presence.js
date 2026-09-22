@@ -15,7 +15,7 @@
  * ============================================================================
  */
 
-import { escape_xml, prompt_escape, parse_relational_vector, render_xml_tag } from "@utils";
+import { escape_xml, prompt_escape, parse_relational_vector, collapse_whitespace, truncate_at_word, render_xml_tag } from "@utils";
 
 // ============================================================================
 // [SECTION 1: SPATIAL PRESENCE & RELATIONAL TOPOLOGY]
@@ -190,10 +190,8 @@ export function render_cast_xml({ mode = CAST_MODES.NEARBY, children = [], inden
  * @returns {string}
  */
 function summarize_entity(entity) {
-  const description = String(entity?.description || entity?.eternal?.non_physical || entity?.present?.non_physical || "")
-    .replace(/\s+/g, " ")
-    .trim();
-  return description.length > 130 ? `${description.slice(0, 130).trim()}…` : description;
+  const description = collapse_whitespace(String(entity?.description || entity?.eternal?.non_physical || entity?.present?.non_physical || ""));
+  return truncate_at_word(description, 130);
 }
 
 /**
@@ -226,6 +224,7 @@ export function render_candidate_cast_xml({ entities = {}, npc_entities = [], in
 /**
  * CHANGELOG
  * ============================================================================
+ * - 2026-09-25: `summarize_entity` now clips via the shared `collapse_whitespace` + `truncate_at_word` (word-boundary + ellipsis) instead of a mid-word `slice`.
  * - 2026-09-24: Cast de-duplication (true) — the Director roster now emits only `<CAST mode="candidates">` off-stage reuse candidates; on-stage participants and the core trio (which already carry full sheets in `<ENTITIES>`) are never restated, so the redundant `Primary Companion`/`Protagonist` rows and the `<CAST mode="in_scene">` envelope are gone; `CAST_MODES.IN_SCENE`/`CAST_MODES.DORMANT` collapse into `CAST_MODES.CANDIDATES` and `render_present_cast_xml` becomes `render_candidate_cast_xml`.
  * - 2026-09-23: Prompt-grammar harmonization (phases 0–3) — `CAST_MODES.PRESENT` renamed to `CAST_MODES.IN_SCENE` (`<CAST mode="in_scene">`) to stop colliding with the `PERSPECTIVE` present tense.
  * - 2026-09-23: Cast de-duplication — the `<CAST>` roster now lives inside `<ENTITIES>` (built by `render_entity_sheets`), drops the `ACTIVE PRESENT PARTICIPANTS:` header and the per-row `(Present)`/`[Present]` suffixes, and splits genesis candidates into a separate `<CAST mode="dormant">` block (`CAST_MODES.DORMANT`); `CAST_HEADERS` retired.

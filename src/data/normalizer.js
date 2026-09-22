@@ -37,7 +37,7 @@
  * ============================================================================
  */
 
-import { generate_uuid, pick_random } from "@utils";
+import { generate_uuid, pick_random, truncate_at_word } from "@utils";
 import { security } from "@platform";
 import { SIGNATURE_COLORS } from "./definitions/signature-colors.js";
 import { is_valid_speaking_style } from "./definitions/speaking-styles.js";
@@ -191,7 +191,7 @@ function normalize_relationships(raw_relationships) {
   return (Array.isArray(raw_relationships) ? raw_relationships : [])
     .map((relationship) => (relationship != null ? sanitize_html(String(relationship)).trim() : ""))
     .filter(Boolean)
-    .map((relationship) => (relationship.length > 240 ? `${relationship.slice(0, 240).trim()}…` : relationship))
+    .map((relationship) => truncate_at_word(relationship, 240))
     .slice(0, 40);
 }
 
@@ -516,6 +516,7 @@ export function serialize_entity_for_export(target_entity) {
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-25: Relationship-graph truncation now uses the shared `truncate_at_word` (word boundary + ellipsis) instead of a mid-word `slice`.
  * - 2026-09-06: Purged phantom database flags (`is_premade`, `is_custom`, `is_snapshot`, `version`) under
  *   P4 Zero Backwards Compatibility; eliminated redundant JSON.parse/stringify pass in serialize_entity_for_export.
  * - 2026-08-29: Harmonized module structure under /harmonize protocol:

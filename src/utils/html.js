@@ -15,6 +15,8 @@
  * - External entity and world-lore card importers.
  */
 
+import { truncate_at_word } from "./text.js";
+
 // ============================================================================
 // [SECTION 1: CONSTANTS & INGESTION BUDGETS]
 // ============================================================================
@@ -248,18 +250,12 @@ export function html_to_plain_text(html, options = {}) {
  */
 export function truncate_readable(text, max_chars = INGESTION_CHAR_LIMIT, ellipsis = "…") {
   if (typeof text !== "string" || !text) return "";
-  if (text.length <= max_chars) return text;
-
-  const budget = Math.max(1, max_chars - ellipsis.length);
-  let slice = text.slice(0, budget);
-  const last_space = slice.lastIndexOf(" ");
-
-  if (last_space > Math.floor(budget * 0.5)) {
-    slice = slice.slice(0, last_space);
-  }
-
-  slice = slice.replace(/[.,;:\s]+$/, "");
-  return slice + ellipsis;
+  return truncate_at_word(text, max_chars, {
+    ellipsis,
+    reserve_ellipsis: true,
+    min_bound_ratio: 0.5,
+    strip_trailing_punctuation: true,
+  });
 }
 
 // ============================================================================
@@ -267,6 +263,9 @@ export function truncate_readable(text, max_chars = INGESTION_CHAR_LIMIT, ellips
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-25: `truncate_readable` now delegates to the shared `truncate_at_word`
+ *   (reserve_ellipsis + 50% minimum word boundary + trailing-punctuation trim), so the
+ *   ingestion clip and every other word-boundary clip share one implementation.
  * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,
  *   structured section dividers, exported frozen BLOCK_LEVEL_TAGS and NOISE_SELECTORS sets,
  *   optimized entity lookup table, and verified full unit test coverage.

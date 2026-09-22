@@ -817,7 +817,7 @@ export class VoiceEngine {
    */
   queue_stream_sentence(current_raw_text) {
     if (this.#is_stream_stopped) return;
-    const sanitized_stream_track = current_raw_text.replace(/<think>[\s\S]*?<\/think>/gi, "").replace(/<think>[\s\S]*/gi, "");
+    const sanitized_stream_track = strip_cognition_blocks(current_raw_text);
     const fresh_buffer = sanitized_stream_track.slice(this.spoken_character_cursor);
 
     const { sentences, committed } = split_speech_sentences(fresh_buffer);
@@ -849,7 +849,7 @@ export class VoiceEngine {
    */
   flush_stream_remainder(current_raw_text) {
     if (this.#is_stream_stopped) return;
-    const sanitized_stream_track = current_raw_text.replace(/<think>[\s\S]*?<\/think>/gi, "").replace(/<think>[\s\S]*/gi, "");
+    const sanitized_stream_track = strip_cognition_blocks(current_raw_text);
     const remaining_text = sanitized_stream_track.slice(this.spoken_character_cursor);
     const clean_remainder = strip_cognition_blocks(remaining_text).trim();
 
@@ -1166,6 +1166,7 @@ export const Audio = audio_engine;
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-25: Streaming TTS track sanitization now uses the shared `strip_cognition_blocks` instead of duplicated inline think-strip regexes.
  * - 2026-09-05: Suppressed DatabaseClosedError logging in save_settings to prevent test runner teardown clutter.
  * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,
  *   structured 4 explicit section dividers, converted anonymous class singleton into named AudioEngine

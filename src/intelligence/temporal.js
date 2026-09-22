@@ -12,7 +12,15 @@
  * 7. Memory Forge & Consolidation Engine (forge_memory, temporal_engine)
  */
 
-import { cosine_similarity, generate_uuid as generate_unique_id, merge_prose_into_field, state_bridge } from "@utils";
+import {
+  cosine_similarity,
+  generate_uuid as generate_unique_id,
+  merge_prose_into_field,
+  collapse_whitespace,
+  strip_cognition_blocks,
+  truncate_at_word,
+  state_bridge,
+} from "@utils";
 import { llm_service, ensure_embedding, score_by_semantics, embed, is_ready, deserialize_embedding } from "@platform";
 import { apply_relationships } from "./director.js";
 import { extract_and_repair_json } from "./parser.js";
@@ -460,11 +468,7 @@ export function reconcile_vector_caps(entity) {
 
 /** Deduplicates an incoming eternal mutation against the existing identity field. */
 function eternal_field_dedup(existing, incoming) {
-  const normalize = (text) =>
-    String(text || "")
-      .toLowerCase()
-      .replace(/\s+/g, " ")
-      .trim();
+  const normalize = (text) => collapse_whitespace(String(text || "").toLowerCase());
   const incoming_normalized = normalize(incoming);
   if (!incoming_normalized) return true;
   const lines = String(existing || "")
@@ -702,11 +706,7 @@ async function fallback_consolidate(entity_targets, slice, runtime, session) {
         const speaker =
           message.character_name ||
           (message.role === "ai" ? "AI" : message.role === "user" ? "User" : message.role === "npc" ? "NPC" : "Environment");
-        return `${speaker}: ${String(message.text ?? message.content ?? "")
-          .replace(/<think>[\s\S]*?<\/think>/gi, "")
-          .replace(/\s+/g, " ")
-          .trim()
-          .slice(0, 220)}`;
+        return `${speaker}: ${truncate_at_word(collapse_whitespace(strip_cognition_blocks(message.text ?? message.content ?? "")), 220)}`;
       })
       .join(" ");
 
@@ -724,11 +724,7 @@ async function fallback_consolidate(entity_targets, slice, runtime, session) {
           const speaker =
             message.character_name ||
             (message.role === "ai" ? "AI" : message.role === "user" ? "User" : message.role === "npc" ? "NPC" : "Environment");
-          return `${speaker}: ${String(message.text ?? message.content ?? "")
-            .replace(/<think>[\s\S]*?<\/think>/gi, "")
-            .replace(/\s+/g, " ")
-            .trim()
-            .slice(0, 180)}`;
+          return `${speaker}: ${truncate_at_word(collapse_whitespace(strip_cognition_blocks(message.text ?? message.content ?? "")), 180)}`;
         })
         .join(" | ");
 
@@ -961,6 +957,7 @@ if (typeof window !== "undefined") {
 
 /**
  * CHANGELOG
+ * - 2026-09-25: Stripping standardization — the deterministic memory-snippet builders now compose `strip_cognition_blocks` + `collapse_whitespace` + `truncate_at_word` instead of inline regex/slice chains, and `eternal_field_dedup` reuses `collapse_whitespace`.
  * - 2026-09-24: Consolidation persists the `meta` marker per-turn via `db.simulation_log.update(id, { meta })` instead of a whole-row `bulkPut(slice)`. The slice is loaded before the (slow) forge LLM call, so bulk-writing it clobbered any attachment resolved onto those turns during the forge — reverting a finished prologue/story image to a permanently stuck loading placeholder.
  * - 2026-09-18: Routed forge_memory directly through switchboard `compile_prompt("continuum")`, removing builder.js render_memory coupling.
  * - 2026-09-16: Added sanitize_non_physical_prose to sanitize and unwrap accidental bracket-dicts or pseudo-json key-value strings from LLM non_physical mutations.
