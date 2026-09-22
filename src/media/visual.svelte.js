@@ -19,11 +19,11 @@
  */
 
 import { db, entities, VISUAL_STYLES, resolve_portrait_visual_style_key, resolve_story_visual_style_key } from "@data";
-import { generate_secure_seed, strip_cognition_blocks, truncate_at_word, state_bridge, CircuitBreaker, ExponentialBackoffRetryer } from "@utils";
+import { generate_secure_seed, strip_cognition_blocks, state_bridge, CircuitBreaker, ExponentialBackoffRetryer } from "@utils";
 import { llm_service } from "@platform";
 import { get_resolution, get_tier_guidance_scale, normalize_image_tier } from "./image-tiers.js";
-import { aesthetic_resolver, resolve_visual_engine_tokens } from "./image-aesthetics.js";
-import { compile_prompt, clean_image_prompt, parse_llm_image_prompt_response } from "@intelligence";
+import { aesthetic_resolver, compose_visual_generation_prompt } from "./image-aesthetics.js";
+import { compile_prompt, clean_image_prompt, parse_llm_image_prompt_response, render_optics_fallback, render_visual_history } from "@intelligence";
 
 // ============================================================================
 // [SECTION 1: HOST ENGINE DISCOVERY & CACHE]
@@ -208,45 +208,16 @@ export class VisualEngine {
               options._entity && normalize_image_tier(options.mode || "") === "solo_entity"
                 ? resolve_portrait_visual_style_key(options._entity)
                 : resolve_story_visual_style_key(options._fractal || options.fractal);
-            const visual_style_tokens = resolve_visual_engine_tokens(style_key);
 
-            // Inject positive style tokens into prompt
-            const visual_style_positive_tokens = [
-              visual_style_tokens.medium,
-              visual_style_tokens.palette,
-              visual_style_tokens.camera || visual_style_tokens.composition,
-              visual_style_tokens.texture,
-            ]
-              .filter(Boolean)
-              .join(", ");
-            if (visual_style_positive_tokens && style_key !== "none" && !final_prompt.includes(visual_style_tokens.medium || "\x00")) {
-              final_prompt = `${final_prompt}, ${visual_style_positive_tokens}`;
-            }
+            const tier_for_shot = normalize_image_tier(effective_type === "fractal" ? "story_scene" : effective_type);
+            const { prompt: composed_prompt, negative_prompt: effective_negative_prompt } = compose_visual_generation_prompt({
+              prompt: final_prompt,
+              style_key,
+              is_character_shot: tier_for_shot !== "story_scene",
+              base_negative_prompt,
+            });
+            final_prompt = composed_prompt;
 
-            const entity_type = effective_type;
-            const tier_for_shot = normalize_image_tier(entity_type === "fractal" ? "story_scene" : entity_type);
-
-            const is_character_shot = tier_for_shot !== "story_scene";
-            const character_negative_tokens = is_character_shot
-              ? "empty background, landscape without characters, scenery only, no humans, empty environment"
-              : "";
-            const visual_style_negative_tokens = visual_style_tokens.negative_prompt || "";
-            const baseline_floor = VISUAL_STYLES.none?.negative_prompt || "";
-            const raw_negative_sources = [base_negative_prompt, baseline_floor, visual_style_negative_tokens, character_negative_tokens]
-              .filter(Boolean)
-              .join(", ");
-            const seen_negative_tokens = Object.create(null);
-            const deduplicated_negative_tokens = [];
-            for (const raw_token of raw_negative_sources.split(",")) {
-              const token = raw_token.trim().replace(/[.,;]+$/, "");
-              if (!token) continue;
-              const lookup_key = token.toLowerCase();
-              if (!seen_negative_tokens[lookup_key]) {
-                seen_negative_tokens[lookup_key] = true;
-                deduplicated_negative_tokens.push(token);
-              }
-            }
-            const effective_negative_prompt = deduplicated_negative_tokens.join(", ");
             const effective_seed = options.seed ?? generate_secure_seed();
             const effective_resolution = options.resolution ?? `${resolution_bounds.width}x${resolution_bounds.height}`;
 
@@ -355,15 +326,15 @@ export class VisualEngine {
     return await this.breaker.execute(async () => {
       return await this.retryer.retry(
         async () => {
-          const system = compile_prompt("optics", {
+          const { system, task } = compile_prompt("optics", {
             tier: type,
             target_type: type,
             raw_intent: text,
             entity,
             mode: "enhance",
             variant: type === "selfie" ? "selfie" : undefined,
-          }).system;
-          const result = await llm_service.generate({ system, messages: [] }, { silent: true });
+          });
+          const result = await llm_service.generate({ system, task, messages: [] }, { silent: true });
           if (!result) throw new Error("Prompt enhancement failed - no content.");
 
           const parsed = parse_llm_image_prompt_response(result);
@@ -455,7 +426,7 @@ export class VisualEngine {
 
       let refined = null;
       if (use_llm) {
-        const system = compile_prompt("optics", {
+        const { system, task } = compile_prompt("optics", {
           tier,
           target_type: tier,
           raw_intent: sanitized_prompt,
@@ -465,7 +436,7 @@ export class VisualEngine {
           entity: tier === "solo_entity" || tier === "story_character" ? solo_or_character_entity : undefined,
           variant: is_selfie ? "selfie" : options?.variant,
           visual_staging: options?.visual_staging || "",
-          history: this._build_visual_history(),
+          history: render_visual_history(state_bridge.simulation_log?.feed),
           mode: "visualize",
           onAlternationPick: (picks) => {
             for (const pick of picks) {
@@ -477,11 +448,11 @@ export class VisualEngine {
               }
             }
           },
-        }).system;
+        });
 
         try {
           const extraction_timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("LLM prompt extraction timed out")), 90000));
-          refined = await Promise.race([llm_service.generate({ system, messages: [] }, { silent: true }), extraction_timeout]);
+          refined = await Promise.race([llm_service.generate({ system, task, messages: [] }, { silent: true }), extraction_timeout]);
         } catch (extract_error) {
           console.warn("[VisualEngine] visualize: LLM prompt extraction failed, using fallback:", /** @type {Error} */ (extract_error).message);
         }
@@ -489,40 +460,18 @@ export class VisualEngine {
 
       if (!refined) {
         if (use_llm) console.warn("[VisualEngine] visualize: LLM returned empty/null, synthesizing fallback prompt.");
-        const fallback_entity =
-          tier === "solo_entity"
-            ? subject === "user"
-              ? user
-              : subject === "fractal"
-                ? fractal
-                : ai
-            : tier === "story_scene" || tier === "story_entities"
-              ? fractal
-              : subject === "user"
-                ? user
-                : ai;
-        const fallback_description = aesthetic_resolver.flatten(fallback_entity);
-        const fallback_name = fallback_entity?.name || tier;
-        const short_intent = sanitized_prompt && sanitized_prompt.length < 200 ? sanitized_prompt : "";
-        if (tier === "story_character" && fractal) {
-          const fractal_description = aesthetic_resolver.flatten(fractal);
-          refined = `<image_prompt>${short_intent ? `${short_intent}, ` : ""}${fallback_name}, ${fallback_description || "detailed character"}, situated within ${fractal.name || "the setting"}, ${fractal_description || "atmospheric environment, dramatic lighting"}</image_prompt>`;
-        } else {
-          refined = `<image_prompt>${short_intent ? `${short_intent}, ` : ""}${fallback_name}, ${fallback_description || "detailed character portrait, dramatic lighting"}</image_prompt>`;
-        }
+        refined = render_optics_fallback({ tier, subject, ai, user, fractal, intent: sanitized_prompt });
       }
 
-      const parsed_json = parse_llm_image_prompt_response(refined);
+      const parsed_response = parse_llm_image_prompt_response(refined);
       let clean_prompt;
       let extracted_negative = null;
 
-      if (parsed_json) {
-        clean_prompt = clean_image_prompt(strip_cognition_blocks(parsed_json.prompt), { names: frame_names });
-        extracted_negative = parsed_json.negative_prompt || null;
+      if (parsed_response) {
+        clean_prompt = clean_image_prompt(strip_cognition_blocks(parsed_response.prompt), { names: frame_names });
+        extracted_negative = parsed_response.negative_prompt || null;
       } else {
-        const match = refined?.match(/<image_prompt[^>]*>([\s\S]*?)<\/image_prompt>/i);
-        const extracted = match?.[1] || refined || "";
-        clean_prompt = clean_image_prompt(strip_cognition_blocks(extracted), { names: frame_names });
+        clean_prompt = clean_image_prompt(strip_cognition_blocks(refined || ""), { names: frame_names });
       }
 
       if ((!clean_prompt || clean_prompt.length < 10) && (tier === "story_scene" || tier === "story_entities")) {
@@ -532,8 +481,7 @@ export class VisualEngine {
 
       let caption = null;
       if (is_selfie) {
-        const caption_match = refined?.match(/<caption\s+text="([^"]+)"/i) || refined?.match(/<caption>([\s\S]*?)<\/caption>/i);
-        caption = caption_match?.[1] || "You wanted a selfie? There you go.";
+        caption = parsed_response?.caption || "You wanted a selfie? There you go.";
       }
 
       const generate_options = { mode: tier, returnPayload: true, _fractal: fractal, ...options };
@@ -678,22 +626,6 @@ export class VisualEngine {
   // --- Private Helpers ---
 
   /**
-   * Builds a compact recent-narrative history for the prompt builder.
-   * @param {number} [max_entries=2]
-   * @param {number} [max_chars=200]
-   * @returns {string}
-   */
-  _build_visual_history(max_entries = 2, max_chars = 200) {
-    const feed = state_bridge.simulation_log?.feed;
-    if (!Array.isArray(feed) || feed.length === 0) return "";
-    return feed
-      .filter((entry) => entry && entry.role !== "system" && typeof entry.text === "string" && entry.text.trim())
-      .slice(-max_entries)
-      .map((entry) => `${entry.character_name || entry.role || "narrator"}: ${truncate_at_word(entry.text, max_chars)}`)
-      .join("\n");
-  }
-
-  /**
    * Resolves an entity record by ID from IndexedDB entities table.
    * @param {string | null | undefined} id
    * @returns {Promise<any>}
@@ -723,6 +655,8 @@ export function reset_cached_image_engine() {
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-24: Prompt-domain fold-in — the optics recent-narrative window now calls `render_visual_history` (@intelligence), the empty-response fallback now calls `render_optics_fallback` (@intelligence), the `<image_prompt>`/`<caption>` extraction now uses `parse_llm_image_prompt_response`, and `generate()` consumes the finished spec from `compose_visual_generation_prompt` (@media/image-aesthetics); removed the local `_build_visual_history`, fallback templates, caption regexes, and inline token assembly.
+ * - 2026-09-24: Optics envelope regression — enhance() and visualize() now forward the compiled <TASK> (task) alongside the <SYSTEM> fragment, honoring the universal { system, task } package contract; previously only .system was sent, so the LLM never received the OUTPUT_FORMAT JSON schema and improvised XML/Markdown envelopes.
  * - 2026-09-19: Prompt Unification (Mega Report S1, R4): Retired prompt_templates; routed enhance and visualize prompt compilation directly through switchboard compile_prompt("optics", ...).
  * - 2026-09-19: Pipeline correctness & fidelity fixes: (1) Fixed tier mapping so story_scene passes without character negatives (R2); (2) Applied VISUAL_STYLES.none as universal baseline quality floor in generate() (F2); (3) Case-folded and stripped punctuation during negative token deduplication (F5); (4) Enforced signature color trait verification in visualize() (F1).
  * - 2026-09-18: Migrated image prompt templates and response parsers from local image-prompts.js to @intelligence barrel.

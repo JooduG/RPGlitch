@@ -384,9 +384,30 @@ export function parse_llm_image_prompt_response(raw) {
     return {
       prompt: parsed.prompt.trim(),
       negative_prompt: typeof parsed.negative_prompt === "string" ? parsed.negative_prompt.trim() : "",
+      caption: typeof parsed.caption === "string" && parsed.caption.trim() ? parsed.caption.trim() : extract_image_caption(raw),
     };
   }
+
+  const image_prompt_match = raw.match(/<image_prompt[^>]*>([\s\S]*?)<\/image_prompt>/i);
+  if (image_prompt_match) {
+    return {
+      prompt: image_prompt_match[1].trim(),
+      negative_prompt: "",
+      caption: extract_image_caption(raw),
+    };
+  }
+
   return null;
+}
+
+/**
+ * Extracts an optional `<caption>` value from raw optics output (attribute or element form).
+ * @param {string} raw
+ * @returns {string|null}
+ */
+function extract_image_caption(raw) {
+  const caption_match = raw.match(/<caption\s+text="([^"]+)"/i) || raw.match(/<caption>([\s\S]*?)<\/caption>/i);
+  return caption_match?.[1]?.trim() || null;
 }
 
 const NAME_TOKEN_STOPWORDS = new Set([
@@ -458,6 +479,37 @@ export function strip_proper_names(text, names = []) {
  * @param {{ names?: string[] }} [options]
  * @returns {string}
  */
+/**
+ * Flattens leaked XML/HTML markup and Markdown emphasis into plain comma-delimited prose.
+ * Safety net for optics responses that arrive as `<SCENE_DATA>…</SCENE_DATA>` or
+ * `**MEDIUM:**` blocks instead of the contracted JSON — the image model must receive prose,
+ * never container or structural markup.
+ * @param {string} text
+ * @returns {string}
+ */
+export function flatten_markup_to_prose(text) {
+  if (!text || typeof text !== "string") return "";
+  return text
+    .replace(/```[a-z]*\n?/gi, "")
+    .replace(/<\/?[a-z][^>]*>/gi, ", ")
+    .replace(/\*\*|__/g, "")
+    .replace(/(^|\n)\s*#{1,6}\s*/g, "$1")
+    .replace(/(^|\n)\s*[-*]\s+/g, "$1")
+    .replace(/[ \t]*,[ \t]*(?:,[ \t]*)+/g, ", ")
+    .replace(/,\s*([.;,])/g, "$1")
+    .replace(/[,;]\s*$/, "")
+    .replace(/^[\s,;]+/, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
+/**
+ * Sanitizes a raw LLM image prompt: strips cognition blocks, unwraps JSON structures,
+ * flattens leaked markup, detoxes prose, and removes entity proper names (whole-word, possessive-aware).
+ * @param {string} raw
+ * @param {{ names?: string[] }} [options]
+ * @returns {string}
+ */
 export function clean_image_prompt(raw, options = {}) {
   if (typeof raw !== "string") return raw;
   let cleaned = sanitize_llm(strip_cognition_blocks(raw));
@@ -470,11 +522,13 @@ export function clean_image_prompt(raw, options = {}) {
       cleaned = cleaned.replace(/[{}]/g, "");
     }
   }
-  return strip_proper_names(detox_prose(cleaned), options?.names);
+  return strip_proper_names(detox_prose(flatten_markup_to_prose(cleaned)), options?.names);
 }
 
 /**
  * CHANGELOG
+ * - 2026-09-24: Optics JSON caption — `parse_llm_image_prompt_response` now surfaces the `caption` field from the contracted optics JSON (selfie variant), falling back to `<caption>` markup extraction only when the field is absent.
+ * - 2026-09-24: Optics response parsing consolidation — `parse_llm_image_prompt_response` now also extracts the `<image_prompt>` element and `<caption>` (returning `{ prompt, negative_prompt, caption }`), and `clean_image_prompt` routes through the new `flatten_markup_to_prose`, so leaked XML/HTML containers and Markdown emphasis are flattened to prose instead of being forwarded to the image model.
  * - 2026-09-18: Absorbed image prompt response parsing & cleaning from image-prompts.js: (1) `parse_llm_image_prompt_response`, (2) `strip_proper_names`, (3) `clean_image_prompt`.
  * - 2026-09-15: Exported THINK_OPEN_TAG constant in Section 2, decoupling domain execution engines from literal prompt markup strings.
  * - 2026-09-14: Enhanced refusal triggers ("can't/cannot continue this conversation") and added regex neutralization for artificial meta-closures (*[END RP]*, *fade to black*, *credits roll*) and unsolicited OOC mothering ("have you eaten/slept lately?").

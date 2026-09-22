@@ -62,6 +62,7 @@ export {
   VISUAL_EXCLUDED_KEYS,
   ORDERED_VISUAL_STYLE_KEYS,
   resolve_visual_engine_tokens,
+  compose_visual_generation_prompt,
 } from "./image-aesthetics.js";
 
 export { resolve_image_trigger } from "./image-trigger.js";
@@ -90,6 +91,7 @@ export {
 
 /**
  * CHANGELOG:
+ * - 2026-09-24: Folded the visual prompt-token domain out of `visual.svelte.js` — exported `compose_visual_generation_prompt` from image-aesthetics.js.
  * - 2026-09-24: Re-exported the in-flight image generation registry helpers from image-beats.js.
  * - 2026-09-19: Purged cross-layer re-exports `parse_llm_image_prompt_response` and `clean_image_prompt` from intelligence/parser.js under P4 Zero Backwards Compatibility.
  * - 2026-09-19: Purged retired prompt_templates export under P4 Zero Backwards Compatibility.

@@ -209,3 +209,39 @@ describe("VisualEngine.generate — fractal profile pictures render in landscape
     expect(lower_tokens.filter((t) => t.startsWith("scanlines")).length).toBe(1);
   });
 });
+
+describe("VisualEngine optics envelope — the compiled <TASK> reaches the LLM", () => {
+  let engine;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    engine = new VisualEngine();
+    engine.generate = vi.fn().mockResolvedValue({ url: "https://img.test/scene.png", metadata: {} });
+    vi.mocked(llm_service.generate).mockResolvedValue(
+      JSON.stringify({ prompt: "A twilight forest below a marble palace", negative_prompt: "blurry" }),
+    );
+  });
+
+  it("forwards the <TASK> package during visualize()", async () => {
+    await engine.visualize("story-1", "The vault door slams shut.", "story_scene", { silent: true });
+
+    expect(llm_service.generate).toHaveBeenCalledTimes(1);
+    const [payload] = llm_service.generate.mock.calls[0];
+    expect(payload.system).toContain('mode="optics"');
+    expect(payload.task).toBeTruthy();
+    expect(payload.task).toContain("<TASK>");
+    expect(payload.task).toContain('<OUTPUT_FORMAT mode="json">');
+    expect(payload.task).toContain('"negative_prompt"');
+  });
+
+  it("forwards the <TASK> package during enhance()", async () => {
+    await engine.enhance("a lone wolf on a ridge", "story_character");
+
+    expect(llm_service.generate).toHaveBeenCalledTimes(1);
+    const [payload] = llm_service.generate.mock.calls[0];
+    expect(payload.system).toContain('mode="optics"');
+    expect(payload.task).toBeTruthy();
+    expect(payload.task).toContain("<TASK>");
+    expect(payload.task).toContain('<OUTPUT_FORMAT mode="json">');
+  });
+});

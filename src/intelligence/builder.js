@@ -71,7 +71,7 @@ import { get_output_format } from "./modules/format.js";
 import { render_dynamics_axes_xml } from "./modules/entities/sheets.js";
 import { DYNAMICS_AXES, PHYSICS_PROTOCOLS, AVAILABLE_KEYWORDS, evaluate_dynamics_rules, evaluate_subtext_protocols } from "./physics.js";
 import { temporal_engine, resolve_vector_pool } from "./temporal.js";
-import { normalize_image_tier, resolve_visual_engine_tokens } from "@media";
+import { aesthetic_resolver, normalize_image_tier, resolve_visual_engine_tokens } from "@media";
 
 /**
  * Builds context text for temporal vector relevance scoring.
@@ -894,6 +894,45 @@ export function render_optics_prompt(options = {}) {
   );
 }
 
+/**
+ * Deterministic fallback image prompt for when the optics LLM pass yields nothing.
+ * Owned beside `render_optics_prompt` so the fallback template strings stay inside the
+ * prompt pipeline rather than in the media orchestration layer.
+ *
+ * @param {Object} [options={}]
+ * @param {string} [options.tier] - Canonical image tier ("solo_entity" | "story_character" | "story_entities" | "story_scene").
+ * @param {string} [options.subject] - Resolved subject key ("ai" | "user" | "fractal").
+ * @param {any} [options.ai]
+ * @param {any} [options.user]
+ * @param {any} [options.fractal]
+ * @param {string} [options.intent] - Raw visual intent (used verbatim only when short).
+ * @returns {string}
+ */
+export function render_optics_fallback({ tier = "solo_entity", subject = "ai", ai, user, fractal, intent = "" } = {}) {
+  const normalized_tier = normalize_image_tier(tier);
+  const fallback_entity =
+    normalized_tier === "solo_entity"
+      ? subject === "user"
+        ? user
+        : subject === "fractal"
+          ? fractal
+          : ai
+      : normalized_tier === "story_scene" || normalized_tier === "story_entities"
+        ? fractal
+        : subject === "user"
+          ? user
+          : ai;
+  const fallback_description = aesthetic_resolver.flatten(fallback_entity);
+  const fallback_name = fallback_entity?.name || normalized_tier;
+  const short_intent = intent && intent.length < 200 ? intent : "";
+
+  if (normalized_tier === "story_character" && fractal) {
+    const fractal_description = aesthetic_resolver.flatten(fractal);
+    return `<image_prompt>${short_intent ? `${short_intent}, ` : ""}${fallback_name}, ${fallback_description || "detailed character"}, situated within ${fractal.name || "the setting"}, ${fractal_description || "atmospheric environment, dramatic lighting"}</image_prompt>`;
+  }
+  return `<image_prompt>${short_intent ? `${short_intent}, ` : ""}${fallback_name}, ${fallback_description || "detailed character portrait, dramatic lighting"}</image_prompt>`;
+}
+
 // ── 4. Declarative Pipeline Runner ──────────────────────────────────────────
 
 /**
@@ -1083,6 +1122,7 @@ export function assemble_prompt(config, context = {}) {
 
 /**
  * CHANGELOG
+ * - 2026-09-24: Optics fallback ownership — added `render_optics_fallback()` (moved the `<image_prompt>` fallback templates out of `media/visual.svelte.js`), so both the optics compile and its deterministic fallback live in the builder.
  * - 2026-09-24: Cast/input de-duplication — `render_director` now passes its entity bag into `render_task` (so the Director's `<INPUT>` origins are real entity ids) and mounts the renamed `render_candidate_cast_xml` behind the renamed `candidate_entities` gate; `render_enhancement` resolves its prose `<OUTPUT_FORMAT>` with `has_think: false` so it never references an unopened `</THINK>`.
  * - 2026-09-23: Prompt-grammar harmonization (phases 0–3) — the Director composes its six axes through the shared `render_dynamics_axes_xml` (dropping `render_dynamics_xml`/`<DYNAMICS>`); optics passes `has_alternation` to `render_core_protocols` and drops its entity-block rules; enhancement routes its content `<INPUT>` through `<TASK>`; the retired `input_content` system layer is pruned.
  * - 2026-09-23: Pipeline consolidation (R1–R7) — added `compose_system(config, state, { round, attributes })` and routed all seven `<SYSTEM>` assembly sites through it; compilers now read `config.role_line` (was `config.system.role`), `config.think_format`, and dispatch `render_task` via `config.task_state`; `render_story_prose` reads `config.speaker` (no more identity inference), and the narrator adapter's three branches collapse into one path via `normalize_context(context, override, { require_trio })`. Output bytes unchanged.

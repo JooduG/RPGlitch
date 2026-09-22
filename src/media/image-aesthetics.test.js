@@ -11,6 +11,7 @@ import {
   resolve_visual_engine_tokens,
   strip_visual_excluded,
   VISUAL_EXCLUDED_KEYS,
+  compose_visual_generation_prompt,
 } from "./image-aesthetics.js";
 
 describe("image-aesthetics constants", () => {
@@ -204,5 +205,29 @@ describe("aesthetic_resolver", () => {
     expect(flattened).toContain("HAIR: raven black");
     expect(flattened).toContain("EYES: emerald");
     expect(flattened).toContain("in color #11aecc");
+  });
+});
+
+describe("compose_visual_generation_prompt", () => {
+  it("appends ordered positive style tokens and dedupes negatives over the baseline floor", () => {
+    const result = compose_visual_generation_prompt({
+      prompt: "a lone alley",
+      style_key: "cyberpunk",
+      is_character_shot: true,
+      base_negative_prompt: "blurry",
+    });
+
+    expect(result.prompt).toContain("a lone alley");
+    expect(result.prompt).toContain("neon cyberpunk dystopian digital concept art matte painting");
+    expect(result.negative_prompt).toContain("empty background");
+    expect(result.negative_prompt).toContain("medieval");
+    expect(result.negative_prompt.split(", ").filter((token) => token === "blurry").length).toBe(1);
+  });
+
+  it("leaves 'none' style prompts untouched and omits the character guard for scenes", () => {
+    const result = compose_visual_generation_prompt({ prompt: "a wide mountain", style_key: "none", is_character_shot: false });
+    expect(result.prompt).toBe("a wide mountain");
+    expect(result.negative_prompt).not.toContain("empty background");
+    expect(result.negative_prompt).toContain("blurry");
   });
 });

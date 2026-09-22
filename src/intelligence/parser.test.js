@@ -5,6 +5,9 @@ import {
   strip_directors_note_seed,
   is_refusal_response,
   extract_and_repair_json,
+  parse_llm_image_prompt_response,
+  flatten_markup_to_prose,
+  clean_image_prompt,
 } from "./parser.js";
 import { escape_xml, strip_cognition_blocks, safe_parse_pseudo_json, merge_prose_into_field } from "@utils";
 import { describe, expect, it } from "vitest";
@@ -446,5 +449,57 @@ describe("strip_directors_note_seed", () => {
   it("returns balanced text if no director note is provided", () => {
     const generated = "<THINK>Just raw thinking</THINK>Prose";
     expect(strip_directors_note_seed(generated, "", "")).toBe(generated);
+  });
+});
+
+describe("parse_llm_image_prompt_response", () => {
+  it("extracts the JSON contract prompt, negative prompt, and caption", () => {
+    const raw = '{"prompt":"a pale tower in fog","negative_prompt":"blurry","caption":"You asked for a portrait."}';
+    const parsed = parse_llm_image_prompt_response(raw);
+    expect(parsed).toEqual({ prompt: "a pale tower in fog", negative_prompt: "blurry", caption: "You asked for a portrait." });
+  });
+
+  it("extracts an <image_prompt> block and its <caption> sibling", () => {
+    const raw = '<image_prompt>a marble hall, cold light</image_prompt><caption text="Here you are.">';
+    const parsed = parse_llm_image_prompt_response(raw);
+    expect(parsed.prompt).toBe("a marble hall, cold light");
+    expect(parsed.negative_prompt).toBe("");
+    expect(parsed.caption).toBe("Here you are.");
+  });
+
+  it("returns null for unstructured prose so callers can fall back", () => {
+    expect(parse_llm_image_prompt_response("Just a wandering sentence.")).toBeNull();
+    expect(parse_llm_image_prompt_response("")).toBeNull();
+  });
+});
+
+describe("flatten_markup_to_prose", () => {
+  it("flattens a leaked optics XML container into prose", () => {
+    const raw =
+      "<SCENE_DATA>\n  <MEDIUM>bold graphic novel illustration</MEDIUM>\n  <COMPOSITION>wide shot over the spires</COMPOSITION>\n</SCENE_DATA>";
+    const flat = flatten_markup_to_prose(raw);
+    expect(flat).not.toContain("<");
+    expect(flat).not.toContain(">");
+    expect(flat).toContain("bold graphic novel illustration");
+    expect(flat).toContain("wide shot over the spires");
+  });
+
+  it("strips markdown emphasis", () => {
+    expect(flatten_markup_to_prose("**MEDIUM:** bold poster art")).toBe("MEDIUM: bold poster art");
+  });
+
+  it("returns empty string for falsy input", () => {
+    expect(flatten_markup_to_prose("")).toBe("");
+    expect(flatten_markup_to_prose(/** @type {any} */ (null))).toBe("");
+  });
+});
+
+describe("clean_image_prompt — markup safety net", () => {
+  it("never forwards leaked XML containers to the image model", () => {
+    const leaked =
+      "<SCENE_DATA>\n  <MEDIUM>bold graphic novel illustration</MEDIUM>\n  <COMPOSITION>wide shot over the spires</COMPOSITION>\n</SCENE_DATA>";
+    const cleaned = clean_image_prompt(leaked);
+    expect(cleaned).not.toContain("<");
+    expect(cleaned).toContain("spires");
   });
 });

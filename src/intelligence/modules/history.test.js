@@ -14,7 +14,14 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { HISTORY_DEFAULTS, resolve_history, render_history, render_input_history_xml, render_chapter_history_xml } from "./history.js";
+import {
+  HISTORY_DEFAULTS,
+  resolve_history,
+  render_history,
+  render_input_history_xml,
+  render_chapter_history_xml,
+  render_visual_history,
+} from "./history.js";
 
 describe("src/intelligence/modules/history.js", () => {
   describe("HISTORY_DEFAULTS & resolve_history()", () => {
@@ -138,6 +145,32 @@ describe("src/intelligence/modules/history.js", () => {
       expect(render_chapter_history_xml({ chapters: [] })).toBe("");
       expect(render_chapter_history_xml({ chapters: [{ status: "open" }] })).toBe("");
     });
+  });
+});
+
+describe("src/intelligence/modules/history.js — render_visual_history", () => {
+  it("formats the most recent non-system beats as 'Name: prose' lines", () => {
+    const entries = [
+      { role: "fractal", character_name: "Ashenweald", text: "The fog curls around the roots." },
+      { role: "system", text: "telemetry: chaos +1" },
+      { role: "ai", character_name: "Silvers", text: "He watches from the treeline." },
+    ];
+
+    const rendered = render_visual_history(entries);
+    expect(rendered).toContain("Ashenweald: The fog curls around the roots.");
+    expect(rendered).toContain("Silvers: He watches from the treeline.");
+    expect(rendered).not.toContain("telemetry");
+  });
+
+  it("limits to the most recent entries and returns empty for absent feeds", () => {
+    const entries = [
+      { role: "ai", character_name: "First", text: "One." },
+      { role: "ai", character_name: "Second", text: "Two." },
+    ];
+
+    expect(render_visual_history(entries, { max_entries: 1 })).toBe("Second: Two.");
+    expect(render_visual_history([])).toBe("");
+    expect(render_visual_history(null)).toBe("");
   });
 });
 

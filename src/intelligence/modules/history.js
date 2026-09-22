@@ -253,10 +253,35 @@ export function format_sensory_history(history_text) {
 }
 
 // ============================================================================
+// [SECTION 6: VISUAL STAGING HISTORY]
+// ============================================================================
+
+/**
+ * Builds the compact recent-narrative history fed to the optics (Sensory Cortex) prompt —
+ * one `Character: prose` line per recent non-system beat, truncated at word boundaries.
+ * Owned here beside `format_sensory_history` so no media call site hand-rolls a window.
+ *
+ * @param {any[]} [entries] - Simulation feed entries (typically `simulation_log.feed`).
+ * @param {Object} [options={}]
+ * @param {number} [options.max_entries=2] - Number of most recent beats to include.
+ * @param {number} [options.max_chars=200] - Per-entry character budget (word-boundary truncated).
+ * @returns {string}
+ */
+export function render_visual_history(entries, { max_entries = 2, max_chars = 200 } = {}) {
+  if (!Array.isArray(entries) || entries.length === 0) return "";
+  return entries
+    .filter((entry) => entry && entry.role !== "system" && typeof entry.text === "string" && entry.text.trim())
+    .slice(-max_entries)
+    .map((entry) => `${entry.character_name || entry.role || "narrator"}: ${truncate_at_word(entry.text, max_chars)}`)
+    .join("\n");
+}
+
+// ============================================================================
 // [CHANGELOG]
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-24: Added `render_visual_history` — the optics (Sensory Cortex) recent-narrative window moved out of `media/visual.svelte.js` (`_build_visual_history`) so history shaping lives with the rest of the history module.
  * - 2026-09-22: One input channel (recommendation #5) — `render_input_history_xml`'s default tag is now `HISTORY` (was `INPUT_HISTORY`), matching the single input/history vocabulary.
  * - 2026-09-18: Absorbed format_sensory_history from deconstructed optics.js into Section 5.
  * - 2026-09-16: Unified turn and dialogue transcript formatting: merged format_recent_history into render_history, pruned format_recent_history under P4 Zero Backwards Compatibility, and updated render_input_history_xml to consume render_history with structured options.

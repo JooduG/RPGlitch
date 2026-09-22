@@ -100,6 +100,57 @@ export function resolve_visual_engine_tokens(visual_style_key) {
   };
 }
 
+/**
+ * Composes the final image-model prompt and negative prompt from a base prompt and a visual
+ * style key: injects the ordered positive style tokens, then assembles the negative tokens
+ * (case-folded, punctuation-stripped, deduplicated) over the universal baseline quality floor.
+ * Pure — so the media engine's `generate()` only transports the finished spec.
+ *
+ * @param {Object} [options={}]
+ * @param {string} [options.prompt] - The clean descriptive prompt.
+ * @param {string} [options.style_key] - Resolved visual style key.
+ * @param {boolean} [options.is_character_shot] - Whether to add the "no empty background" guard.
+ * @param {string} [options.base_negative_prompt] - Caller/entity-supplied negatives.
+ * @returns {{ prompt: string, negative_prompt: string }}
+ */
+export function compose_visual_generation_prompt({ prompt = "", style_key = "none", is_character_shot = true, base_negative_prompt = "" } = {}) {
+  const visual_style_tokens = resolve_visual_engine_tokens(style_key);
+  const positive_tokens = [
+    visual_style_tokens.medium,
+    visual_style_tokens.palette,
+    visual_style_tokens.camera || visual_style_tokens.composition,
+    visual_style_tokens.texture,
+  ]
+    .filter(Boolean)
+    .join(", ");
+  let composed_prompt = prompt;
+  if (positive_tokens && style_key !== "none" && !composed_prompt.includes(visual_style_tokens.medium || "\x00")) {
+    composed_prompt = `${composed_prompt}, ${positive_tokens}`;
+  }
+
+  const character_negative_tokens = is_character_shot
+    ? "empty background, landscape without characters, scenery only, no humans, empty environment"
+    : "";
+  const baseline_floor = VISUAL_STYLES.none?.negative_prompt || "";
+  const raw_negative_sources = [base_negative_prompt, baseline_floor, visual_style_tokens.negative_prompt, character_negative_tokens]
+    .filter(Boolean)
+    .join(", ");
+
+  const seen_negative_tokens = Object.create(null);
+  const deduplicated_negative_tokens = [];
+  for (const raw_token of raw_negative_sources.split(",")) {
+    const token = raw_token.trim().replace(/[.,;]+$/, "");
+    if (!token) continue;
+    const lookup_key = token.toLowerCase();
+    if (!seen_negative_tokens[lookup_key]) {
+      seen_negative_tokens[lookup_key] = true;
+      deduplicated_negative_tokens.push(token);
+    }
+  }
+
+  return { prompt: composed_prompt, negative_prompt: deduplicated_negative_tokens.join(", ") };
+}
+
 // ============================================================================
 // [SECTION 3: AESTHETIC MAP SYNTHESIS]
 // ============================================================================
@@ -231,6 +282,7 @@ export const aesthetic_resolver = {
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-24: Added `compose_visual_generation_prompt()` — the positive style-token injection and negative-token assembly/dedup moved out of `visual.svelte.js` `generate()` into this pure compiler so the media engine only transports a finished prompt/negative spec.
  * - 2026-09-19: Repatriated VISUAL_EXCLUDED_KEYS and strip_visual_excluded to @intelligence/modules/entities/epistemic.js; re-exported from @intelligence for backwards-clean imports.
  * - 2026-08-29: Harmonized via /harmonize protocol: purged clipped abbreviations (VS_ORDERED_KEYS -> ORDERED_VISUAL_STYLE_KEYS,
  *   _vs_* -> _visual_style_*, *_obj -> *_object, val -> value, val_str -> value_string, vs_values -> visual_style_values),

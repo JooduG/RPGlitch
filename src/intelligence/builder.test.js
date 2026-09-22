@@ -20,7 +20,15 @@
 import { describe, expect, it, beforeEach, afterEach } from "vitest";
 
 import { register_state_accessors } from "@utils";
-import { render_story_prose, render_scene_narrator, render_memory, render_profile_sorting, render_enhancement, render_director } from "./builder.js";
+import {
+  render_story_prose,
+  render_scene_narrator,
+  render_memory,
+  render_profile_sorting,
+  render_enhancement,
+  render_director,
+  render_optics_fallback,
+} from "./builder.js";
 import { compile_prompt } from "./prompts.js";
 import { PROTOCOL_LIBRARY } from "./modules/protocols.js";
 
@@ -89,6 +97,25 @@ const test_npc = {
   relationships: ["Merchant -> Alice: wary curiosity"],
   dynamics: { chaos: 15, intensity: 25, openness: 15, affinity: 10 },
 };
+
+// ============================================================================
+// [SECTION 0: OPTICS FALLBACK COMPILER]
+// ============================================================================
+
+describe("render_optics_fallback()", () => {
+  it("builds an <image_prompt> grounded in the setting entity for scene tiers", () => {
+    const fallback = render_optics_fallback({ tier: "story_scene", subject: "ai", fractal: test_entities.FRACTAL });
+    expect(fallback).toContain("<image_prompt>");
+    expect(fallback).toContain("</image_prompt>");
+    expect(fallback).toContain(test_entities.FRACTAL.name);
+  });
+
+  it("situates a story_character inside the fractal setting", () => {
+    const fallback = render_optics_fallback({ tier: "story_character", subject: "ai", ai: test_entities.AI, fractal: test_entities.FRACTAL });
+    expect(fallback).toContain(test_entities.AI.name);
+    expect(fallback).toContain(test_entities.FRACTAL.name);
+  });
+});
 
 // ============================================================================
 // [SECTION 1: NARRATOR STYLE OBJECT PLUMBING & REGRESSION VERIFICATION]

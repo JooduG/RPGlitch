@@ -39,6 +39,7 @@ export {
   parse_llm_image_prompt_response,
   strip_proper_names,
   clean_image_prompt,
+  flatten_markup_to_prose,
 } from "./parser.js";
 
 // ============================================================================
@@ -85,12 +86,13 @@ export { build_turn_summary } from "./telemetry.js";
 // ============================================================================
 
 export { render_narrative_style_xml, render_visual_style_xml, render_core_protocols } from "./modules/protocols.js";
-export { format_sensory_history } from "./modules/history.js";
-export { render_optics_prompt } from "./builder.js";
+export { format_sensory_history, render_visual_history } from "./modules/history.js";
+export { render_optics_prompt, render_optics_fallback } from "./builder.js";
 export { VISUAL_EXCLUDED_KEYS, strip_visual_excluded } from "./modules/entities/epistemic.js";
 
 /**
  * CHANGELOG:
+ * - 2026-09-24: Folded the media-side optics prompt domain into the barrel — exported `render_visual_history` (history.js), `render_optics_fallback` (builder.js), and `flatten_markup_to_prose` (parser.js).
  * - 2026-09-19: Re-exported VISUAL_EXCLUDED_KEYS and strip_visual_excluded directly from concrete module epistemic.js under P4 Zero Backwards Compatibility.
  * - 2026-09-19: Exported VISUAL_EXCLUDED_KEYS and strip_visual_excluded from entities module following epistemic prompt filter unification.
  * - 2026-09-18: Exported visual optics pipeline (`optics.js`) and image prompt response parsers (`parser.js`) as part of prompt pipeline standardization.
