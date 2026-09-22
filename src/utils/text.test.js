@@ -11,6 +11,7 @@ import {
   CLEAR_TOKENS,
   collapse_history,
   collapse_whitespace,
+  compute_initials,
   decompose_story_title,
   derive_vector_title,
   escape_unescaped_json_quotes,
@@ -21,10 +22,14 @@ import {
   format_relational_vector,
   get_style_initials,
   indent_continuation,
+  is_narrative_role,
   match_case,
   merge_prose_into_field,
+  NAME_PREFIX_STEMS,
   NAME_PREFIXES,
+  NARRATIVE_ROLES,
   parse_relational_vector,
+  role_display_label,
   safe_parse_json,
   safe_parse_pseudo_json,
   strip_cognition_blocks,
@@ -192,6 +197,61 @@ describe("get_style_initials", () => {
     expect(get_style_initials("No Narrative Style")).toBe("?");
     expect(get_style_initials("No Visual Style")).toBe("?");
     expect(get_style_initials("")).toBe("?");
+  });
+});
+
+describe("compute_initials", () => {
+  it("skips title/stop prefixes", () => {
+    expect(compute_initials("Lord Benedict Silvers")).toBe("BS");
+    expect(compute_initials("The One Ring")).toBe("OR");
+    expect(compute_initials("Sir Reginald")).toBe("R");
+    expect(compute_initials("Alexander The Great")).toBe("AG");
+  });
+
+  it("honours an explicit stop-word set", () => {
+    expect(compute_initials("Sir Reginald", new Set(["sir"]))).toBe("R");
+    expect(compute_initials("Alexander The Great", new Set([]))).toBe("ATG");
+  });
+
+  it("keeps unicode letters and strips punctuation", () => {
+    expect(compute_initials("María José")).toBe("MJ");
+    expect(compute_initials("Glitch-7 (hacker)")).toBe("GH");
+  });
+
+  it("falls back to raw words when every word is a stop word", () => {
+    expect(compute_initials("Dr. Professor Lord")).toBe("P");
+    expect(compute_initials("Dr Lord Prof")).toBe("DLP");
+  });
+
+  it("handles empty input with a question mark", () => {
+    expect(compute_initials("")).toBe("?");
+    expect(compute_initials("   ")).toBe("?");
+    expect(compute_initials(null)).toBe("?");
+  });
+
+  it("derives NAME_PREFIX_STEMS without trailing periods", () => {
+    expect(NAME_PREFIX_STEMS.has("dr")).toBe(true);
+    expect(NAME_PREFIX_STEMS.has("dr.")).toBe(false);
+  });
+});
+
+describe("role_display_label & is_narrative_role", () => {
+  it("maps roles to display labels", () => {
+    expect(role_display_label("USER_PERSONA")).toBe("User");
+    expect(role_display_label("user")).toBe("User");
+    expect(role_display_label("FRACTAL")).toBe("Fractal");
+    expect(role_display_label("AI_CHARACTER")).toBe("Character");
+    expect(role_display_label(null)).toBe("Character");
+  });
+
+  it("identifies narrative roles", () => {
+    expect(is_narrative_role("ai")).toBe(true);
+    expect(is_narrative_role("FRACTAL")).toBe(true);
+    expect(is_narrative_role("user")).toBe(true);
+    expect(is_narrative_role("npc")).toBe(true);
+    expect(is_narrative_role("system")).toBe(false);
+    expect(is_narrative_role(null)).toBe(false);
+    expect(NARRATIVE_ROLES.size).toBe(4);
   });
 });
 

@@ -19,6 +19,7 @@ import {
   collapse_whitespace,
   strip_cognition_blocks,
   truncate_at_word,
+  is_narrative_role,
   state_bridge,
 } from "@utils";
 import { llm_service, ensure_embedding, score_by_semantics, embed, is_ready, deserialize_embedding } from "@platform";
@@ -700,12 +701,12 @@ export async function forge_memory(entity_targets, history_slice, options = {}) 
 /** Fallback memory extraction when LLM forge fails. */
 async function fallback_consolidate(entity_targets, slice, runtime, session) {
   try {
+    const speaker_label = (message) =>
+      message.character_name || (message.role === "ai" ? "AI" : message.role === "user" ? "User" : message.role === "npc" ? "NPC" : "Environment");
     const facts = (Array.isArray(slice) ? slice : [])
-      .filter((message) => message && (message.role === "ai" || message.role === "fractal" || message.role === "user" || message.role === "npc"))
+      .filter((message) => message && is_narrative_role(message.role))
       .map((message) => {
-        const speaker =
-          message.character_name ||
-          (message.role === "ai" ? "AI" : message.role === "user" ? "User" : message.role === "npc" ? "NPC" : "Environment");
+        const speaker = speaker_label(message);
         return `${speaker}: ${truncate_at_word(collapse_whitespace(strip_cognition_blocks(message.text ?? message.content ?? "")), 220)}`;
       })
       .join(" ");
@@ -714,16 +715,14 @@ async function fallback_consolidate(entity_targets, slice, runtime, session) {
       if (!entity) continue;
       const entity_name = String(entity.name || key).toLowerCase();
       const relevant = (Array.isArray(slice) ? slice : [])
-        .filter((message) => message && (message.role === "ai" || message.role === "fractal" || message.role === "user" || message.role === "npc"))
+        .filter((message) => message && is_narrative_role(message.role))
         .filter((message) => {
           const text = String(message.text ?? message.content ?? "").toLowerCase();
           const speaker = String(message.character_name || "").toLowerCase();
           return speaker === entity_name || (entity_name.length > 2 && text.includes(entity_name));
         })
         .map((message) => {
-          const speaker =
-            message.character_name ||
-            (message.role === "ai" ? "AI" : message.role === "user" ? "User" : message.role === "npc" ? "NPC" : "Environment");
+          const speaker = speaker_label(message);
           return `${speaker}: ${truncate_at_word(collapse_whitespace(strip_cognition_blocks(message.text ?? message.content ?? "")), 180)}`;
         })
         .join(" | ");
@@ -957,6 +956,7 @@ if (typeof window !== "undefined") {
 
 /**
  * CHANGELOG
+ * - 2026-09-25: DRY pass — `fallback_consolidate` now filters with the shared `is_narrative_role` and builds speaker labels through one local `speaker_label` helper.
  * - 2026-09-25: Stripping standardization — the deterministic memory-snippet builders now compose `strip_cognition_blocks` + `collapse_whitespace` + `truncate_at_word` instead of inline regex/slice chains, and `eternal_field_dedup` reuses `collapse_whitespace`.
  * - 2026-09-24: Consolidation persists the `meta` marker per-turn via `db.simulation_log.update(id, { meta })` instead of a whole-row `bulkPut(slice)`. The slice is loaded before the (slow) forge LLM call, so bulk-writing it clobbered any attachment resolved onto those turns during the forge — reverting a finished prologue/story image to a permanently stuck loading placeholder.
  * - 2026-09-18: Routed forge_memory directly through switchboard `compile_prompt("continuum")`, removing builder.js render_memory coupling.

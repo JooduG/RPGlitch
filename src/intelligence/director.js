@@ -17,7 +17,7 @@
  */
 
 import { entities } from "@data";
-import { extract_json_block, state_bridge } from "@utils";
+import { extract_json_block, collapse_whitespace, state_bridge } from "@utils";
 import { llm_service, raw_stop_reason, raw_to_text } from "@platform";
 import { compile_prompt } from "./prompts.js";
 import { extract_and_repair_json, parse_think_block, validate_and_repair_response } from "./parser.js";
@@ -120,7 +120,7 @@ export function normalize_relationships(raw) {
   const out = [];
   for (const r of raw) {
     if (typeof r !== "string") continue;
-    const clean = r.trim().replace(/\s+/g, " ");
+    const clean = collapse_whitespace(r);
     if (!clean || !/→|->|—\s*>/i.test(clean)) continue;
     out.push(clean.slice(0, 160));
     if (out.length >= 6) break;
@@ -509,6 +509,7 @@ export async function execute_director_shot(payload, snapshot, options = {}) {
 
 /**
  * CHANGELOG
+ * - 2026-09-25: `normalize_relationships` now collapses whitespace via the shared `collapse_whitespace` instead of an inline regex.
  * - 2026-09-21: Terse fallback now compiles `compile_prompt("director", { round, terse: true })` — the retired `director_terse` mode collapsed into the `director` manifest record plus a `terse` flag.
  * - 2026-09-19: Opening-turn first-contact is emitted as an explicit `director_data.first_contact` flag instead of a synthetic "first_contact" keyword, so it can no longer pollute the somatic keyword channel or displace a real keyword.
  * - 2026-09-19: Replaced stale prompt_builder docstring and test references with unified compile_prompt("director") under P4 Zero Backwards Compatibility.

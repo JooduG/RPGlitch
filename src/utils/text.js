@@ -137,6 +137,13 @@ export const NAME_PREFIXES = Object.freeze([
 ]);
 
 /**
+ * `NAME_PREFIXES` with trailing periods stripped, so a name token like "Dr."
+ * matches its stop-word stem "dr". Shared by `compute_initials`.
+ * @type {ReadonlySet<string>}
+ */
+export const NAME_PREFIX_STEMS = Object.freeze(new Set(NAME_PREFIXES.map((prefix) => prefix.replace(/\.$/, ""))));
+
+/**
  * @typedef {Object} ParsedRelationalVector
  * @property {string} source_name - Source node entity name.
  * @property {string} target_name - Target node entity name.
@@ -542,6 +549,30 @@ export function get_style_initials(name) {
 }
 
 /**
+ * Derives up to 3 uppercase initials from an entity name, skipping title/stop
+ * prefixes (`NAME_PREFIX_STEMS`) when any remain. Falls back to the raw words
+ * when every word is a stop word, and to "?" for empty input.
+ * @param {string | null | undefined} text
+ * @param {Set<string>} [stop_words=NAME_PREFIX_STEMS]
+ * @returns {string}
+ */
+export function compute_initials(text, stop_words = NAME_PREFIX_STEMS) {
+  const words = String(text || "")
+    .replace(/[‘’']/g, "")
+    .replace(/[^\p{L}\s]/gu, " ")
+    .trim()
+    .split(/\s+/);
+  const filtered = words.filter((word) => !stop_words.has(word.toLowerCase()));
+  return (
+    (filtered.length ? filtered : words)
+      .slice(0, 3)
+      .map((word) => word.charAt(0))
+      .join("")
+      .toUpperCase() || "?"
+  );
+}
+
+/**
  * Extracts a single short sentence (<= max_len chars) from a blob of text.
  * Strips think blocks, markdown fences, and excessive whitespace.
  * @param {string | null | undefined} text
@@ -667,6 +698,34 @@ export function derive_vector_title(text, max_len = 38) {
 // ============================================================================
 // [SECTION 5: HISTORY & STORY TITLE DECOMPOSITION]
 // ============================================================================
+
+/**
+ * Maps an entry/message role to its human-readable display label used in
+ * history envelopes (`User` / `Fractal` / `Character`). Single source for the
+ * role→label ternary previously duplicated in history.js and transport.js.
+ * @param {string | null | undefined} role
+ * @returns {"User" | "Fractal" | "Character"}
+ */
+export function role_display_label(role) {
+  const key = String(role || "").toLowerCase();
+  if (key === "user" || key === "user_persona") return "User";
+  if (key === "fractal") return "Fractal";
+  return "Character";
+}
+
+/**
+ * Roles that carry narrative dialogue/history (as opposed to `system` telemetry).
+ * @type {ReadonlySet<string>}
+ */
+export const NARRATIVE_ROLES = Object.freeze(new Set(["ai", "fractal", "user", "npc"]));
+
+/**
+ * @param {string | null | undefined} role
+ * @returns {boolean} Whether a role is a narrative participant.
+ */
+export function is_narrative_role(role) {
+  return NARRATIVE_ROLES.has(String(role || "").toLowerCase());
+}
 
 /**
  * Collapses conversation history into role-grouped entries.
@@ -920,6 +979,7 @@ export function alternation_field_label(text, raw) {
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-25: DRY pass — consolidated `compute_initials` (was duplicated verbatim in Storyboard.svelte.js and ProfilePicture.svelte) and `NAME_PREFIX_STEMS` here; added `role_display_label` + `NARRATIVE_ROLES`/`is_narrative_role` so the role→label and narrative-role checks live in one place.
  * - 2026-09-25: Stripping/truncation standardization — `truncate_at_word` is now the one
  *   word-boundary truncator (options: ellipsis, reserve_ellipsis, min_bound_ratio/min_bound_chars,
  *   strip_trailing_punctuation) and `clean_text` + `derive_vector_title` delegate to it (no more

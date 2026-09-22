@@ -27,7 +27,16 @@
  * ============================================================================
  */
 
-import { escape_xml, prompt_escape, collapse_history, collapse_whitespace, truncate_at_word, render_xml_tag, strip_cognition_blocks } from "@utils";
+import {
+  escape_xml,
+  prompt_escape,
+  collapse_history,
+  collapse_whitespace,
+  truncate_at_word,
+  render_xml_tag,
+  strip_cognition_blocks,
+  role_display_label,
+} from "@utils";
 
 // ============================================================================
 // [INTERNAL UTILITIES]
@@ -40,12 +49,7 @@ import { escape_xml, prompt_escape, collapse_history, collapse_whitespace, trunc
  * @returns {string}
  */
 function resolve_entry_origin(entry) {
-  return (
-    entry?.character_name ||
-    entry?.name ||
-    entry?.origin ||
-    (entry?.role === "USER_PERSONA" || entry?.role === "user" ? "User" : entry?.role === "FRACTAL" ? "Fractal" : "Character")
-  );
+  return entry?.character_name || entry?.name || entry?.origin || role_display_label(entry?.role);
 }
 
 // ============================================================================
@@ -277,6 +281,7 @@ export function render_visual_history(entries, { max_entries = 2, max_chars = 20
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-25: DRY pass — `resolve_entry_origin`'s role fallback now calls the shared `role_display_label`.
  * - 2026-09-25: Stripping standardization — retired the local `strip_think_blocks` helper (it duplicated `strip_cognition_blocks` minus the DYNAMICS/artifact passes) and routed `format_sensory_history` + `render_visual_history` through the shared `strip_cognition_blocks` + `collapse_whitespace`; chapter summaries now clip via `truncate_at_word` instead of a mid-word `slice`.
  * - 2026-09-24: `render_visual_history` now strips the leading cognition block (and collapses whitespace) BEFORE truncating, so a word-boundary slice can no longer leave an unclosed <THINK> that `format_sensory_history` strips through to end-of-string — which had collapsed the optics <HISTORY> to a bare `Name:` line.
  * - 2026-09-24: Added `render_visual_history` — the optics (Sensory Cortex) recent-narrative window moved out of `media/visual.svelte.js` (`_build_visual_history`) so history shaping lives with the rest of the history module.

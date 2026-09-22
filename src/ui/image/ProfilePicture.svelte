@@ -6,7 +6,7 @@
    * Built on bits-ui Avatar for robust loading-state management.
    */
   import { Avatar } from "bits-ui";
-  import { NAME_PREFIXES } from "@utils";
+  import { compute_initials } from "@utils";
   import { get_signature_color } from "@media";
 
   let {
@@ -25,37 +25,13 @@
     ...rest
   } = $props();
 
-  /**
-   * Generates initials from entity name, filtering common stop words.
-   * @param {string} str
-   * @returns {string}
-   */
-  const calculate_initials = (str) => {
-    if (!str) return "?";
-    const words = str
-      .replace(/['']/g, "")
-      .replace(/[^\p{L}\s]/gu, " ")
-      .trim()
-      .split(/\s+/);
-    const stop_words = new Set(NAME_PREFIXES.map((w) => w.replace(/\.$/, "")));
-    let filtered = words.filter((w) => !stop_words.has(w.toLowerCase()));
-
-    return (
-      (filtered.length ? filtered : words)
-        .slice(0, 3)
-        .map((w) => w.charAt(0))
-        .join("")
-        .toUpperCase() || "?"
-    );
-  };
-
   // 1. Reactive State
   let loading_status = $state("loading");
   const name = $derived(entity?.name || (placeholder_char ? "" : "Entity"));
   const media_url = $derived(src || entity?.profile_picture);
   const has_media = $derived(!!media_url);
   const signature_color = $derived(get_signature_color(entity));
-  const initials = $derived(placeholder_char || calculate_initials(name));
+  const initials = $derived(placeholder_char || compute_initials(name));
 
   // 2. Modifiers
   const is_flipped = $derived(entity?.modifiers?.flipped ?? false);

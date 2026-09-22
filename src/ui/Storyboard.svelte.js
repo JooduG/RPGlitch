@@ -5,30 +5,7 @@
  * begin-story flight, and prologue-landing choreography. Component-sibling
  * state module for Storyboard.svelte.
  */
-import { NAME_PREFIXES } from "@utils";
-
-const DEFAULT_STOP_WORDS = new Set(NAME_PREFIXES.map((w) => w.replace(/\.$/, "")));
-
-/**
- * Derives card initials from an entity name, skipping common prefixes.
- * @param {any} str
- * @param {Set<string>} [stop_words]
- */
-export function compute_initials(str, stop_words = DEFAULT_STOP_WORDS) {
-  const words = String(str || "")
-    .replace(/['']/g, "")
-    .replace(/[^\p{L}\s]/gu, " ")
-    .trim()
-    .split(/\s+/);
-  const filtered = words.filter((w) => !stop_words.has(w.toLowerCase()));
-  return (
-    (filtered.length ? filtered : words)
-      .slice(0, 3)
-      .map((w) => w.charAt(0))
-      .join("")
-      .toUpperCase() || "?"
-  );
-}
+import { compute_initials } from "@utils";
 
 /**
  * Computes the on-screen deck rect a card travels to/from during a shuffle.

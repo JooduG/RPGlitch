@@ -15,7 +15,7 @@
  * - Invariant: Transport does NOT alter narrative content or invent prompt rules; it exclusively transports, streams, and cleans.
  */
 
-import { collapse_history, escape_xml, prompt_escape, stream_bridge, strip_cognition_blocks } from "@utils";
+import { collapse_history, escape_xml, prompt_escape, stream_bridge, strip_cognition_blocks, role_display_label } from "@utils";
 
 // ============================================================================
 // [SECTION 1: SANITIZATION & NORMALIZATION UTILITIES]
@@ -176,7 +176,7 @@ export function format_conversation_history(messages) {
 
   return collapsed
     .map((entry, index) => {
-      const label = entry.origin || entry.name || (entry.role === "USER_PERSONA" ? "User" : entry.role === "FRACTAL" ? "Fractal" : "Character");
+      const label = entry.origin || entry.name || role_display_label(entry.role);
       const clean_content = String(entry.content || "").trim();
       return `  <ENTRY origin="${escape_xml(label)}" round="${index + 1}">${prompt_escape(clean_content)}</ENTRY>`;
     })
@@ -458,6 +458,7 @@ export const llm_service = {
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-25: DRY pass — `format_conversation_history`'s label fallback now calls the shared `role_display_label`.
  * - 2026-09-25: Stripping standardization — `looks_truncated` now calls the shared `strip_cognition_blocks` (also catching unclosed/leaked blocks), and `format_conversation_history` drops its redundant re-strip now that `collapse_history` guarantees cognition-free content.
  * - 2026-09-18: Standardized conversation history envelope tag from <CONVERSATION_HISTORY> to canonical <HISTORY> per scrobbles.md blueprint.
  * - 2026-09-18: Standardized universal nested envelope assembly (<SYSTEM>...<HISTORY>...<TASK>...</SYSTEM>), eliminated system_close parameter dependency, and pruned legacy _format_history alias under P4 Zero Backwards Compatibility.

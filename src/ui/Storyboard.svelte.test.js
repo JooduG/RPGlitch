@@ -5,7 +5,8 @@
  */
 import { describe, expect, it } from "vitest";
 
-import { claimed_entity_lock, compute_initials, deck_geometry } from "./Storyboard.svelte.js";
+import { claimed_entity_lock, deck_geometry } from "./Storyboard.svelte.js";
+import { compute_initials } from "@utils";
 
 describe("compute_initials", () => {
   it("skips common name prefixes using the default stop list", () => {
