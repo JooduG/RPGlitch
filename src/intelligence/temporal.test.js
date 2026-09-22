@@ -505,7 +505,7 @@ describe("temporal_engine", () => {
         require_active: vi.fn(() => "story_1"),
         load_log: vi.fn(() => mock_messages),
       };
-      const mock_db = { simulation_log: { bulkPut: vi.fn() } };
+      const mock_db = { simulation_log: { update: vi.fn() } };
       const mock_entities = { save: vi.fn() };
       const mock_runtime = { active_ai: { future: "", past: [] } };
       const mock_app = { log: vi.fn() };
@@ -519,7 +519,7 @@ describe("temporal_engine", () => {
       );
 
       expect(mock_session.require_active).toHaveBeenCalled();
-      expect(mock_db.simulation_log.bulkPut).toHaveBeenCalled();
+      expect(mock_db.simulation_log.update).toHaveBeenCalled();
     });
 
     it("routes each entity's own memory by its forged type", async () => {
@@ -529,7 +529,7 @@ describe("temporal_engine", () => {
         load_log: vi.fn(() => mock_messages),
         log_system_entry: vi.fn(),
       };
-      const mock_db = { simulation_log: { bulkPut: vi.fn() } };
+      const mock_db = { simulation_log: { update: vi.fn() } };
       const mock_entities = { save: vi.fn() };
 
       const ai = { id: "ai1", future: "", past: [], present: { physical: "", non_physical: "" }, eternal: { physical: "", non_physical: "" } };
@@ -589,7 +589,7 @@ describe("temporal_engine", () => {
       expect(user.past[0].content).toContain("confront");
 
       expect(mock_session.log_system_entry).toHaveBeenCalled();
-      expect(mock_db.simulation_log.bulkPut).toHaveBeenCalled();
+      expect(mock_db.simulation_log.update).toHaveBeenCalled();
     });
   });
 });
@@ -668,7 +668,7 @@ describe("temporal_engine.consolidate()", () => {
       update_entity: vi.fn(),
     };
     const mock_app = { log: vi.fn() };
-    const mock_db = { simulation_log: { bulkPut: vi.fn() } };
+    const mock_db = { simulation_log: { update: vi.fn() } };
     llm_service.generate.mockResolvedValue(
       JSON.stringify({
         _thought_process: "Consolidating state.",
@@ -725,14 +725,14 @@ describe("temporal_engine.consolidate() skip_forge", () => {
       load_log: vi.fn(async () => [{ id: 1, role: "user", text: "t1" }]),
       log_system_entry: vi.fn(),
     };
-    const mock_db = { simulation_log: { bulkPut: vi.fn() } };
+    const mock_db = { simulation_log: { update: vi.fn() } };
     const mock_app = { log: vi.fn() };
 
     await temporal_engine.consolidate(mock_session, mock_db, {}, {}, mock_app, { skip_forge: true });
 
     expect(mock_session.require_active).toHaveBeenCalled();
     expect(mock_session.load_log).not.toHaveBeenCalled();
-    expect(mock_db.simulation_log.bulkPut).not.toHaveBeenCalled();
+    expect(mock_db.simulation_log.update).not.toHaveBeenCalled();
     expect(llm_service.generate).not.toHaveBeenCalled();
   });
 
@@ -742,7 +742,7 @@ describe("temporal_engine.consolidate() skip_forge", () => {
       load_log: vi.fn(async () => [{ id: 1, role: "user", text: "t1" }]),
       log_system_entry: vi.fn(),
     };
-    const mock_db = { simulation_log: { bulkPut: vi.fn() } };
+    const mock_db = { simulation_log: { update: vi.fn() } };
     const mock_app = { log: vi.fn() };
     const mock_runtime = {
       active_ai: { id: "ai-1", name: "Viper", type: "character", past: [] },
@@ -806,7 +806,7 @@ describe("temporal_engine per-entity consolidation progress tracking (Track 2 Ph
       load_log: vi.fn(async () => mock_messages),
       log_system_entry: vi.fn(),
     };
-    const mock_db = { simulation_log: { bulkPut: vi.fn() } };
+    const mock_db = { simulation_log: { update: vi.fn() } };
     const mock_runtime = {
       active_ai: { id: "ai-1", name: "Viper", type: "character", past: [] },
       active_user: { id: "user-1", name: "Ghost", type: "character", past: [] },
@@ -827,9 +827,47 @@ describe("temporal_engine per-entity consolidation progress tracking (Track 2 Ph
 
     await temporal_engine.consolidate(mock_session, mock_db, {}, mock_runtime, mock_app, { target_key: "AI_CHARACTER" });
 
-    expect(mock_db.simulation_log.bulkPut).toHaveBeenCalled();
-    const updated_slice = mock_db.simulation_log.bulkPut.mock.calls[0][0];
-    expect(updated_slice[0].meta.forged_entities).toContain("AI_CHARACTER");
+    expect(mock_db.simulation_log.update).toHaveBeenCalled();
+    const [, updated_patch] = mock_db.simulation_log.update.mock.calls[0];
+    expect(updated_patch.meta.forged_entities).toContain("AI_CHARACTER");
+  });
+
+  it("persists only the meta marker so a concurrently-resolved image attachment is never clobbered", async () => {
+    const mock_messages = [
+      { id: 1, role: "fractal", text: "Prologue.", meta: { is_prologue: true }, attachments: [{ src: "https://img.test/prologue.png" }] },
+    ];
+    const mock_session = {
+      require_active: vi.fn(() => "story-1"),
+      load_log: vi.fn(async () => mock_messages),
+      log_system_entry: vi.fn(),
+    };
+    const mock_db = { simulation_log: { update: vi.fn() } };
+    const mock_runtime = {
+      active_ai: { id: "ai-1", name: "Viper", type: "character", past: [] },
+      update_entity: vi.fn(),
+    };
+    const mock_app = { log: vi.fn() };
+
+    llm_service.generate.mockResolvedValue(
+      JSON.stringify({
+        _thought_process: "Consolidating Viper.",
+        target: "AI_CHARACTER",
+        present: { physical: "", non_physical: "Observing." },
+        future: "Keep watch.",
+        past: [],
+      }),
+    );
+
+    await temporal_engine.consolidate(mock_session, mock_db, {}, mock_runtime, mock_app, { target_key: "AI_CHARACTER" });
+
+    expect(mock_db.simulation_log.update).toHaveBeenCalledWith(1, {
+      meta: expect.objectContaining({ is_prologue: true, forged_entities: ["AI_CHARACTER"] }),
+    });
+    // The patch must carry ONLY `meta` — never the whole row, which would overwrite a
+    // finished image attachment that resolved while the forge LLM call was running.
+    for (const [, patch] of mock_db.simulation_log.update.mock.calls) {
+      expect(Object.keys(patch)).toEqual(["meta"]);
+    }
   });
 
   it("rotates targets across AI -> USER -> FRACTAL -> NPCs in round-robin and auto-advances empty targets", async () => {
@@ -842,7 +880,7 @@ describe("temporal_engine per-entity consolidation progress tracking (Track 2 Ph
       load_log: vi.fn(async () => mock_messages),
       log_system_entry: vi.fn(),
     };
-    const mock_db = { simulation_log: { bulkPut: vi.fn() } };
+    const mock_db = { simulation_log: { update: vi.fn() } };
     const mock_runtime = {
       active_ai: { id: "ai-1", name: "Viper", type: "character", past: [] },
       active_user: { id: "user-1", name: "Ghost", type: "character", past: [] },
@@ -865,9 +903,9 @@ describe("temporal_engine per-entity consolidation progress tracking (Track 2 Ph
     // Auto-advancement should skip AI_CHARACTER and select USER_PERSONA!
     await temporal_engine.consolidate(mock_session, mock_db, {}, mock_runtime, mock_app);
 
-    expect(mock_db.simulation_log.bulkPut).toHaveBeenCalled();
-    const updated = mock_db.simulation_log.bulkPut.mock.calls[0][0];
-    expect(updated[0].meta.forged_entities).toContain("USER_PERSONA");
+    expect(mock_db.simulation_log.update).toHaveBeenCalled();
+    const [, updated_patch] = mock_db.simulation_log.update.mock.calls[0];
+    expect(updated_patch.meta.forged_entities).toContain("USER_PERSONA");
   });
 
   it("extracts and applies relationship edges from Memory Forge payload", async () => {
@@ -877,7 +915,7 @@ describe("temporal_engine per-entity consolidation progress tracking (Track 2 Ph
       load_log: vi.fn(async () => mock_messages),
       log_system_entry: vi.fn(),
     };
-    const mock_db = { simulation_log: { bulkPut: vi.fn() } };
+    const mock_db = { simulation_log: { update: vi.fn() } };
     const mock_runtime = {
       active_ai: { id: "ai-1", name: "Viper", type: "character", past: [], relationships: [] },
       active_user: { id: "user-1", name: "Ghost", type: "character", past: [], relationships: [] },

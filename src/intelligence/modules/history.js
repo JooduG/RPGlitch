@@ -272,7 +272,16 @@ export function render_visual_history(entries, { max_entries = 2, max_chars = 20
   return entries
     .filter((entry) => entry && entry.role !== "system" && typeof entry.text === "string" && entry.text.trim())
     .slice(-max_entries)
-    .map((entry) => `${entry.character_name || entry.role || "narrator"}: ${truncate_at_word(entry.text, max_chars)}`)
+    .map((entry) => {
+      // Strip cognition BEFORE truncating. Beats are stored with their leading
+      // <THINK> block, and slicing the raw text first can leave that block unclosed;
+      // format_sensory_history's strip_cognition_blocks then eats an unclosed <THINK>
+      // through to end-of-string, collapsing the whole line to a bare "Name:".
+      const prose = strip_cognition_blocks(entry.text).replace(/\s+/g, " ").trim();
+      if (!prose) return "";
+      return `${entry.character_name || entry.role || "narrator"}: ${truncate_at_word(prose, max_chars)}`;
+    })
+    .filter(Boolean)
     .join("\n");
 }
 
@@ -281,6 +290,7 @@ export function render_visual_history(entries, { max_entries = 2, max_chars = 20
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-24: `render_visual_history` now strips the leading cognition block (and collapses whitespace) BEFORE truncating, so a word-boundary slice can no longer leave an unclosed <THINK> that `format_sensory_history` strips through to end-of-string — which had collapsed the optics <HISTORY> to a bare `Name:` line.
  * - 2026-09-24: Added `render_visual_history` — the optics (Sensory Cortex) recent-narrative window moved out of `media/visual.svelte.js` (`_build_visual_history`) so history shaping lives with the rest of the history module.
  * - 2026-09-22: One input channel (recommendation #5) — `render_input_history_xml`'s default tag is now `HISTORY` (was `INPUT_HISTORY`), matching the single input/history vocabulary.
  * - 2026-09-18: Absorbed format_sensory_history from deconstructed optics.js into Section 5.

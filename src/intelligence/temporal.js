@@ -914,6 +914,13 @@ export const temporal_engine = {
         await fallback_consolidate([target_item], slice, runtime, session);
       }
 
+      // Persist ONLY the consolidation marker (`meta`) for each turn. A whole-row
+      // `bulkPut(slice)` here would clobber fields written by other pipelines during
+      // the forge's LLM latency (the slice was loaded *before* the forge ran) — e.g.
+      // an image beat that resolved onto one of these turns while the forge was
+      // working, silently reverting a finished prologue/story image back to its
+      // loading placeholder with no path to ever resolve again.
+      const meta_persistence = [];
       for (const message of slice) {
         const prev_forged = Array.isArray(message.meta?.forged_entities)
           ? message.meta.forged_entities
@@ -927,8 +934,11 @@ export const temporal_engine = {
           forged_entities: next_forged,
           consolidated: all_forged,
         };
+        if (message.id !== undefined && message.id !== null) {
+          meta_persistence.push(db.simulation_log.update(message.id, { meta: message.meta }));
+        }
       }
-      await db.simulation_log.bulkPut(slice);
+      await Promise.all(meta_persistence);
       state_bridge.simulation_log?.refresh();
     } catch (err) {
       state_bridge.app?.log?.(`[TemporalEngine] Consolidation forge failed: ${err?.message || err}`, "error");
@@ -951,6 +961,7 @@ if (typeof window !== "undefined") {
 
 /**
  * CHANGELOG
+ * - 2026-09-24: Consolidation persists the `meta` marker per-turn via `db.simulation_log.update(id, { meta })` instead of a whole-row `bulkPut(slice)`. The slice is loaded before the (slow) forge LLM call, so bulk-writing it clobbered any attachment resolved onto those turns during the forge — reverting a finished prologue/story image to a permanently stuck loading placeholder.
  * - 2026-09-18: Routed forge_memory directly through switchboard `compile_prompt("continuum")`, removing builder.js render_memory coupling.
  * - 2026-09-16: Added sanitize_non_physical_prose to sanitize and unwrap accidental bracket-dicts or pseudo-json key-value strings from LLM non_physical mutations.
  * - 2026-09-12: Header correction — contracts/schemas relocated to modules/format.js.

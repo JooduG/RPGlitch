@@ -172,6 +172,14 @@ describe("src/intelligence/modules/history.js — render_visual_history", () => 
     expect(render_visual_history([])).toBe("");
     expect(render_visual_history(null)).toBe("");
   });
+
+  it("strips the cognition block before truncating so an open <THINK> slice never erases the prose", () => {
+    const entries = [
+      { role: "fractal", character_name: "Tartarus", text: `<THINK>\n${"deliberation ".repeat(30)}\n</THINK>\nThe gates grind open.` },
+    ];
+
+    expect(render_visual_history(entries, { max_chars: 40 })).toBe("Tartarus: The gates grind open.");
+  });
 });
 
 /**
