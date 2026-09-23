@@ -37,13 +37,11 @@ import {
 } from "@media";
 import { validate_and_repair_response, force_close_response, balance_think_tags, strip_directors_note_seed, THINK_OPEN_TAG } from "./parser.js";
 import { llm_service, looks_truncated } from "@platform";
-import { apply_dynamics_gravity, extract_entity_dynamics_baselines } from "./physics.js";
+import { apply_dynamics_gravity, extract_entity_dynamics_baselines, capture_dynamics_delta } from "./physics.js";
 import { execute_director_shot, resolve_npc_entity, apply_in_scene_change } from "./director.js";
-import { build_scoring_context } from "./builder.js";
+import { build_scoring_context, context_builder } from "./builder.js";
 import { compile_prompt } from "./prompts.js";
-import { capture_dynamics_delta } from "./telemetry.js";
 import { prune, temporal_engine } from "./temporal.js";
-import { context_builder } from "./payload.js";
 import { spawn_character } from "./profile.js";
 import { TRUNCATION_COMPLETE_NOTE } from "./modules/system.js";
 
@@ -624,7 +622,6 @@ export const gamemaster = {
   // ── 3. Story Lifecycles ─────────────────────────────────────────────────────
 
   /**
-  /**
    * EXECUTE STORY OPENING CHAIN
    * Generates prologue, commits record, and auto-chains Director Reflex and AI turn.
    * @param {string} story_id
@@ -957,6 +954,7 @@ export const story_pipeline = gamemaster;
 
 /**
  * CHANGELOG
+ * - 2026-09-24: Streamlined dependencies: routed `capture_dynamics_delta` from `physics.js` and `context_builder` from `builder.js`, removing orphaned imports to retired standalone modules (`telemetry.js`, `payload.js`).
  * - 2026-09-25: Unified history message filtering — migrated execute_turn, execute_epilogue, and execute_ghostwriter to consume canonical `filter_narrative_messages` from @utils.
  * - 2026-09-25: Stripping standardization — dropped the local `clean_think` tag-scrub and the
  *   inline closure-strip in the truncation check, routing both through the shared

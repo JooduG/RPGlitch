@@ -4,14 +4,13 @@
  */
 
 import { gamemaster, balance_think_tags, strip_directors_note_seed } from "./story.js";
-import { context_builder } from "./payload.js";
 import { apply_dynamics_gravity } from "./physics.js";
-import { build_scoring_context, render_story_prose, render_scene_narrator } from "./builder.js";
+import { build_scoring_context, render_story_prose, render_scene_narrator, context_builder } from "./builder.js";
 import { temporal_engine } from "./temporal.js";
 import { resolve_npc_entity, apply_in_scene_change, apply_relationships } from "./director.js";
 import { spawn_character } from "./profile.js";
-import { capture_dynamics_delta } from "./telemetry.js";
-import * as telemetry from "./telemetry.js";
+import { capture_dynamics_delta } from "./physics.js";
+import * as physics from "./physics.js";
 import { llm_service } from "@platform";
 import { session_driver } from "@data";
 import { visual_engine, spawn_image_beat, sweep_stale_ghosts, resolve_image_trigger, reset_image_generation_queue } from "@media";
@@ -930,7 +929,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
     });
 
     it("triggers capture_dynamics_delta exactly once per execution turn sequence", async () => {
-      const telemetry_spy = vi.spyOn(telemetry, "capture_dynamics_delta");
+      const telemetry_spy = vi.spyOn(physics, "capture_dynamics_delta");
       vi.mocked(llm_service.generate).mockResolvedValue("Clean output response");
 
       await gamemaster.execute_turn("story-123", {

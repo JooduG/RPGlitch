@@ -47,7 +47,7 @@ export {
 // ============================================================================
 
 export { compile_prompt, PROMPTS, get_prompt, resolve_prompt_mode } from "./prompts.js";
-export { create_render_accessors, build_scoring_context } from "./builder.js";
+export { create_render_accessors, build_scoring_context, context_builder, to_data_points } from "./builder.js";
 
 // ============================================================================
 // Temporal Engine & Memory Forge (Shot 2 Consolidation)
@@ -79,7 +79,7 @@ export {
 // Telemetry & Turn Summary Generation
 // ============================================================================
 
-export { build_turn_summary } from "./telemetry.js";
+export { build_turn_summary } from "./physics.js";
 
 // ============================================================================
 // Optics & Visual Prompt Compilation (Sensory Cortex)
@@ -92,6 +92,7 @@ export { VISUAL_EXCLUDED_KEYS, strip_visual_excluded } from "./modules/entities/
 
 /**
  * CHANGELOG:
+ * - 2026-09-24: Streamlined intelligence kernel domain: merged `telemetry.js` into `physics.js` (`build_turn_summary`), and merged `payload.js` into `builder.js` (`context_builder`, `to_data_points`).
  * - 2026-09-24: Folded the media-side optics prompt domain into the barrel — exported `render_visual_history` (history.js), `render_optics_fallback` (builder.js), and `flatten_markup_to_prose` (parser.js).
  * - 2026-09-19: Re-exported VISUAL_EXCLUDED_KEYS and strip_visual_excluded directly from concrete module epistemic.js under P4 Zero Backwards Compatibility.
  * - 2026-09-19: Exported VISUAL_EXCLUDED_KEYS and strip_visual_excluded from entities module following epistemic prompt filter unification.
