@@ -13,7 +13,7 @@ import {
   PALETTE,
   PALETTE_CSS_VARIABLES,
 } from "./palette.js";
-import { aesthetic_resolver } from "./image-aesthetics.js";
+import { aesthetic_resolver } from "./optics.js";
 import { describe, expect, test } from "vitest";
 
 describe("Tokens Color Generation", () => {

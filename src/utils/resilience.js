@@ -116,6 +116,25 @@ export class CircuitBreaker {
     return this.#state;
   }
 
+  /**
+   * Manually updates breaker state (e.g. for probing recovery or testing).
+   * @param {CircuitBreakerState} new_state
+   */
+  set state(new_state) {
+    this.#state = new_state;
+  }
+
+  /**
+   * Resets the circuit breaker to clean CLOSED state.
+   */
+  reset() {
+    this.#state = "CLOSED";
+    this.#failure_count = 0;
+    this.#success_count = 0;
+    this.#last_failure_time = 0;
+    this.#queue.length = 0;
+  }
+
   /** @returns {boolean} True if the breaker is CLOSED (healthy). */
   get is_closed() {
     return this.#state === "CLOSED";

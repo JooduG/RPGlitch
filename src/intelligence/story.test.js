@@ -13,8 +13,14 @@ import { capture_dynamics_delta } from "./physics.js";
 import * as physics from "./physics.js";
 import { llm_service } from "@platform";
 import { session_driver } from "@data";
-import { visual_engine, spawn_image_beat, sweep_stale_ghosts, resolve_image_trigger, reset_image_generation_queue } from "@media";
-import { _image_generation_queue } from "@media/image-beats.js";
+import {
+  visual_engine,
+  spawn_image_beat,
+  sweep_stale_ghosts,
+  resolve_image_trigger,
+  reset_image_generation_queue,
+  _image_generation_queue,
+} from "@media";
 import { entities, stories } from "@data";
 import { state_bridge } from "@utils";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -165,15 +171,23 @@ const { _mock_visual_engine } = vi.hoisted(() => ({
   },
 }));
 
-vi.mock("../media/visual.svelte.js", () => ({
-  visual_engine: _mock_visual_engine,
-  VisualEngine: vi.fn(),
-}));
+vi.mock("../media/visual.svelte.js", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    visual_engine: _mock_visual_engine,
+    VisualEngine: vi.fn(),
+  };
+});
 
-vi.mock("@media/visual.svelte.js", () => ({
-  visual_engine: _mock_visual_engine,
-  VisualEngine: vi.fn(),
-}));
+vi.mock("@media/visual.svelte.js", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    visual_engine: _mock_visual_engine,
+    VisualEngine: vi.fn(),
+  };
+});
 
 vi.mock("@media", async (importOriginal) => {
   const actual = await importOriginal();

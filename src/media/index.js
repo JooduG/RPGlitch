@@ -46,16 +46,16 @@ export { get_signature_color, get_signature_label, ensure_theme_tokens, SIGNATUR
 export { TOKENS } from "./tokens.js";
 
 // ============================================================================
-// Image Generation Quality Tiers & Resolutions
-// ============================================================================
-
-export { IMAGE_TIERS, DEFAULT_IMAGE_TIER, normalize_image_tier, get_resolution, get_tier_guidance_scale } from "./image-tiers.js";
-
-// ============================================================================
-// Visual Aesthetics & Prompt Compilers
+// Pure Visual Optics (Taxonomy, Triggers, Aesthetics & Prompts)
 // ============================================================================
 
 export {
+  IMAGE_TIERS,
+  DEFAULT_IMAGE_TIER,
+  normalize_image_tier,
+  get_resolution,
+  get_tier_guidance_scale,
+  resolve_image_trigger,
   aesthetic_resolver,
   build_aesthetic_map,
   strip_visual_excluded,
@@ -63,21 +63,15 @@ export {
   ORDERED_VISUAL_STYLE_KEYS,
   resolve_visual_engine_tokens,
   compose_visual_generation_prompt,
-} from "./image-aesthetics.js";
-
-export { resolve_image_trigger } from "./image-trigger.js";
+} from "./optics.js";
 
 // ============================================================================
-// Visual Engine Runtime (Svelte 5 Runes)
-// ============================================================================
-
-export { visual_engine, VisualEngine } from "./visual.svelte.js";
-
-// ============================================================================
-// Image Beats & Generation Lifecycle
+// Visual Engine Runtime (Svelte 5 Runes) & Image Beats Lifecycle
 // ============================================================================
 
 export {
+  visual_engine,
+  VisualEngine,
   spawn_image_beat,
   sweep_stale_ghosts,
   mark_generation_in_flight,
@@ -86,11 +80,16 @@ export {
   reset_generation_in_flight,
   get_image_generation_queue,
   reset_image_generation_queue,
+  _image_generation_queue,
+  IMAGE_GENERATION_QUEUE_CAPACITY,
+  IMAGE_PLACEHOLDER_HARD_CAP,
   IMAGE_RESOLVE_TIMEOUT_MS,
-} from "./image-beats.js";
+  IMAGE_GHOST_MAX_AGE_MS,
+} from "./visual.svelte.js";
 
 /**
  * CHANGELOG:
+ * - 2026-09-24: Media layer consolidation — collapsed image-tiers.js, image-trigger.js, and image-aesthetics.js into optics.js; absorbed image-beats.js into visual.svelte.js; enforced P4 Zero Backwards Compatibility.
  * - 2026-09-24: Folded the visual prompt-token domain out of `visual.svelte.js` — exported `compose_visual_generation_prompt` from image-aesthetics.js.
  * - 2026-09-24: Re-exported the in-flight image generation registry helpers from image-beats.js.
  * - 2026-09-19: Purged cross-layer re-exports `parse_llm_image_prompt_response` and `clean_image_prompt` from intelligence/parser.js under P4 Zero Backwards Compatibility.

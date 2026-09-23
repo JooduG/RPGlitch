@@ -465,6 +465,7 @@ export const gamemaster = {
           source: final_meta.image_source,
           prompt: trigger_prompt,
           visual_staging: director_data.visual_staging || "",
+          engine: visual_engine,
         });
       }
 

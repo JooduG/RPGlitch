@@ -18,11 +18,18 @@
  * Purity: Svelte 5 Rune-driven state class (`is_loading`, `error`, `attempts`, `is_offline`).
  */
 
+import { SvelteSet } from "svelte/reactivity";
 import { db, entities, VISUAL_STYLES, resolve_portrait_visual_style_key, resolve_story_visual_style_key } from "@data";
 import { generate_secure_seed, strip_cognition_blocks, state_bridge, CircuitBreaker, ExponentialBackoffRetryer } from "@utils";
 import { llm_service } from "@platform";
-import { get_resolution, get_tier_guidance_scale, normalize_image_tier } from "./image-tiers.js";
-import { aesthetic_resolver, compose_visual_generation_prompt } from "./image-aesthetics.js";
+import {
+  get_resolution,
+  get_tier_guidance_scale,
+  normalize_image_tier,
+  aesthetic_resolver,
+  compose_visual_generation_prompt,
+  IMAGE_TIERS,
+} from "./optics.js";
 import { compile_prompt, clean_image_prompt, parse_llm_image_prompt_response, render_optics_fallback, render_visual_history } from "@intelligence";
 
 // ============================================================================
@@ -651,10 +658,305 @@ export function reset_cached_image_engine() {
 }
 
 // ============================================================================
+// [SECTION 4: IMAGE BEATS, QUEUE & GHOST-SWEEP LIFECYCLE]
+// ============================================================================
+
+/** Maximum concurrent image beats in the active queue before oldest eviction */
+export const IMAGE_GENERATION_QUEUE_CAPACITY = 5;
+
+/** Maximum unresolved placeholders permitted in active story log before trigger refusal */
+export const IMAGE_PLACEHOLDER_HARD_CAP = 5;
+
+/** Timeout limit (120s) for a single visual generation beat */
+export const IMAGE_RESOLVE_TIMEOUT_MS = 120000;
+
+/** Maximum age (2m) before an unresolved placeholder is swept as stale */
+export const IMAGE_GHOST_MAX_AGE_MS = 2 * 60 * 1000;
+
+/**
+ * In-memory generation queue tracking active image generation beats.
+ * @type {Array<{ id: string | number, tier: string, source: string, metadata: Record<string, any> }>}
+ */
+export const _image_generation_queue = [];
+
+/**
+ * Returns a shallow copy snapshot of active queued image beats.
+ * @returns {Array<{ id: string | number, tier: string, source: string, metadata: Record<string, any> }>}
+ */
+export function get_image_generation_queue() {
+  return [..._image_generation_queue];
+}
+
+/**
+ * Resets the in-memory generation queue (used for testing and teardowns).
+ */
+export function reset_image_generation_queue() {
+  _image_generation_queue.length = 0;
+}
+
+/**
+ * Tracks attachments whose image generation is currently in flight, keyed
+ * `${entry_id}:${attachment_index}`. The ghost sweeper consults this so a
+ * legitimately slow generation (the prologue runs an LLM refinement pass
+ * before texturing) is never reaped while it is still working.
+ * @type {SvelteSet<string>}
+ */
+export const _in_flight_image_generations = new SvelteSet();
+
+/**
+ * Marks an attachment's image generation as in flight.
+ * @param {string | number} id
+ * @param {number} [attachment_index=0]
+ */
+export function mark_generation_in_flight(id, attachment_index = 0) {
+  if (id == null) return;
+  _in_flight_image_generations.add(`${id}:${attachment_index}`);
+}
+
+/**
+ * Clears an attachment's in-flight generation marker.
+ * @param {string | number} id
+ * @param {number} [attachment_index=0]
+ */
+export function clear_generation_in_flight(id, attachment_index = 0) {
+  if (id == null) return;
+  _in_flight_image_generations.delete(`${id}:${attachment_index}`);
+}
+
+/**
+ * Reports whether an attachment's image generation is currently in flight.
+ * @param {string | number} id
+ * @param {number} [attachment_index=0]
+ * @returns {boolean}
+ */
+export function is_generation_in_flight(id, attachment_index = 0) {
+  if (id == null) return false;
+  return _in_flight_image_generations.has(`${id}:${attachment_index}`);
+}
+
+/**
+ * Clears all in-flight generation markers (used for testing and teardowns).
+ */
+export function reset_generation_in_flight() {
+  _in_flight_image_generations.clear();
+}
+
+/**
+ * Internal helper to remove a resolved or failed beat from the active queue.
+ * @param {string | number} id
+ */
+export function _remove_from_image_generation_queue(id) {
+  const index = _image_generation_queue.findIndex((entry) => entry.id === id);
+  if (index !== -1) _image_generation_queue.splice(index, 1);
+}
+
+/**
+ * Counts unresolved image placeholders (`src: null`, not marked failed) in the active story log.
+ * @returns {Promise<number>}
+ */
+export async function count_pending_ghosts() {
+  try {
+    const story_id = state_bridge.runtime.story_id;
+    if (!story_id) return 0;
+
+    const entries = await state_bridge.session_driver.load_log(story_id);
+    let count = 0;
+
+    for (const entry of entries) {
+      const attachments = entry?.attachments || [];
+      for (const attachment of attachments) {
+        if (attachment && attachment.src == null && !attachment.metadata?.failed) {
+          count++;
+        }
+      }
+    }
+    return count;
+  } catch {
+    return 0;
+  }
+}
+
+/**
+ * Marks placeholders older than `IMAGE_GHOST_MAX_AGE_MS` as failed and removes empty ghost rows.
+ * @returns {Promise<void>}
+ */
+export async function sweep_stale_ghosts() {
+  try {
+    const story_id = state_bridge.runtime.story_id;
+    if (!story_id) return;
+
+    const entries = await state_bridge.session_driver.load_log(story_id);
+    const now = Date.now();
+
+    for (const entry of entries) {
+      const attachments = entry?.attachments || [];
+      for (let attachment_index = 0; attachment_index < attachments.length; attachment_index++) {
+        const attachment = attachments[attachment_index];
+        if (attachment && attachment.src == null) {
+          // Never reap a placeholder whose generation is still running.
+          if (is_generation_in_flight(entry.id, attachment_index)) continue;
+          const is_failed = attachment.metadata?.failed === true || attachment.metadata?.image_ghost_swept === true;
+          const requested_at = Number(attachment.metadata?.requested_at) || entry.created_at || 0;
+          const is_stale = now - requested_at > IMAGE_GHOST_MAX_AGE_MS;
+          const is_empty_text = !entry.text || !entry.text.trim();
+
+          if (is_empty_text && (is_failed || is_stale)) {
+            await state_bridge.session_driver.delete_log_entry(entry.id);
+            state_bridge.simulation_log?.remove?.(entry.id);
+          } else if (is_stale && !is_failed) {
+            await state_bridge.session_driver.update_log_attachment(entry.id, attachment_index, {
+              src: null,
+              metadata: {
+                ...(attachment.metadata || {}),
+                failed: true,
+                image_ghost_swept: true,
+                error: "Image beat timed out before it could resolve.",
+              },
+            });
+          }
+        }
+      }
+    }
+  } catch {
+    /* sweep must never throw into trigger execution */
+  }
+}
+
+/**
+ * Marks a logged placeholder attachment as failed so it never lingers as a broken ghost card.
+ * @param {string | number} id
+ * @param {Record<string, any>} [metadata={}]
+ * @returns {Promise<void>}
+ */
+export async function mark_placeholder_failed(id, metadata = {}) {
+  if (!id) return;
+  clear_generation_in_flight(id, 0);
+  try {
+    const key = isNaN(Number(id)) ? id : Number(id);
+    let has_narrative_text = false;
+
+    const current_story_id = state_bridge.runtime?.story_id;
+    const feed_match = state_bridge.simulation_log?.feed?.find(
+      (entry) =>
+        (!entry.story_id || !current_story_id || entry.story_id === current_story_id) &&
+        (entry.id === key || entry.id === id || String(entry.id) === String(id)),
+    );
+    if (feed_match && feed_match.text && feed_match.text.trim()) {
+      has_narrative_text = true;
+    } else {
+      try {
+        const database_entries = await state_bridge.session_driver.load_log(current_story_id);
+        const match = database_entries?.find((entry) => entry.id === key || entry.id === id || String(entry.id) === String(id));
+        if (match && match.text && match.text.trim()) has_narrative_text = true;
+      } catch {
+        /* db lookup fallback ignore */
+      }
+    }
+
+    if (has_narrative_text) {
+      await state_bridge.session_driver.update_log_attachment(id, 0, {
+        src: null,
+        metadata: { ...metadata, failed: true, error: "Image beat was dropped before it could resolve." },
+      });
+      return;
+    }
+
+    // For standalone image placeholders (empty text), purge row completely
+    await state_bridge.session_driver.delete_log_entry(id);
+    state_bridge.simulation_log?.remove?.(key);
+    state_bridge.simulation_log?.remove?.(id);
+  } catch (error) {
+    console.warn("[ImageQueue] Failed to mark image placeholder as failed:", error);
+  }
+}
+
+/**
+ * Spawns an image beat: logs placeholder attachment and initiates background image generation.
+ * @param {string} tier - One of the 4-tier targets (story_entities | story_character | solo_entity | story_scene).
+ * @param {{ explicit?: boolean, source?: string, prompt?: string, visual_staging?: string }} [options={}]
+ * @returns {Promise<void>}
+ */
+export async function spawn_image_beat(tier, options = {}) {
+  const { explicit = false, source = "dynamics", prompt = "", visual_staging = "", engine = null } = options;
+  if (!tier || !IMAGE_TIERS.includes(tier)) return;
+
+  const runtime_state = state_bridge.runtime;
+  const visual_prompt = String(prompt || "").trim() || "A significant narrative moment unfolds.";
+  const fractal_name = runtime_state.active_fractal?.name || "Fractal";
+
+  try {
+    await sweep_stale_ghosts();
+    const pending_ghosts = await count_pending_ghosts();
+
+    if (pending_ghosts >= IMAGE_PLACEHOLDER_HARD_CAP) {
+      state_bridge.app.log(
+        `[Image Trigger] Skipped ${tier} — ${pending_ghosts} unresolved image beats pending (hard cap ${IMAGE_PLACEHOLDER_HARD_CAP}).`,
+        "warn",
+      );
+      return;
+    }
+
+    const placeholder_metadata = { mode: tier, image_source: source, image_explicit: explicit, requested_at: Date.now() };
+    const placeholder_entry = await state_bridge.session_driver.log_message("", "fractal", fractal_name, {
+      turn_type: "SYSTEM_TURN",
+      attachments: [{ src: null, metadata: placeholder_metadata }],
+    });
+    if (!placeholder_entry?.id) return;
+
+    // Bounded queue management
+    _image_generation_queue.push({ id: placeholder_entry.id, tier, source, metadata: placeholder_metadata });
+    if (_image_generation_queue.length > IMAGE_GENERATION_QUEUE_CAPACITY) {
+      const evicted = _image_generation_queue.shift();
+      if (evicted?.id) await mark_placeholder_failed(evicted.id, evicted.metadata);
+    }
+
+    mark_generation_in_flight(placeholder_entry.id, 0);
+    const resolve_placeholder = async () => {
+      try {
+        const engine_ref = engine || (typeof this !== "undefined" && this instanceof VisualEngine ? this : visual_engine);
+        const result = await Promise.race([
+          engine_ref.visualize(runtime_state.story_id, visual_prompt, tier, { silent: true, visual_staging }),
+          new Promise((_, reject) => setTimeout(() => reject(new Error("IMAGE_RESOLVE_TIMEOUT")), IMAGE_RESOLVE_TIMEOUT_MS)),
+        ]);
+
+        _remove_from_image_generation_queue(placeholder_entry.id);
+
+        const resolved_image_url = result?.imageUrl || result?.image_url;
+        const refined_prompt = result?.refinedPrompt || result?.refined_prompt;
+
+        if (resolved_image_url) {
+          await state_bridge.session_driver.update_log_attachment(placeholder_entry.id, 0, {
+            src: resolved_image_url,
+            metadata: { mode: tier, image_source: source, ...result.metadata, prompt: refined_prompt },
+          });
+        } else {
+          await mark_placeholder_failed(placeholder_entry.id, placeholder_metadata);
+          state_bridge.app.log(`[Image Trigger] ${tier} generation returned no image.`, "warn");
+        }
+      } catch (error) {
+        _remove_from_image_generation_queue(placeholder_entry.id);
+        await mark_placeholder_failed(placeholder_entry.id, placeholder_metadata);
+        throw error;
+      } finally {
+        clear_generation_in_flight(placeholder_entry.id, 0);
+      }
+    };
+
+    // Dispatch background execution
+    resolve_placeholder().catch((error) => {
+      console.warn(`[Image Trigger] Background resolution failed for beat ${placeholder_entry.id}:`, error);
+    });
+  } catch (error) {
+    console.warn("[Image Trigger] Failed to spawn image beat:", error);
+  }
+}
+
+// ============================================================================
 // [CHANGELOG]
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-24: Media layer consolidation — absorbed image-beats.js (queue bounds, in-flight registry, ghost sweeping, spawn_image_beat) directly into visual.svelte.js per P4 Zero Backwards Compatibility.
  * - 2026-09-24: Prompt-domain fold-in — the optics recent-narrative window now calls `render_visual_history` (@intelligence), the empty-response fallback now calls `render_optics_fallback` (@intelligence), the `<image_prompt>`/`<caption>` extraction now uses `parse_llm_image_prompt_response`, and `generate()` consumes the finished spec from `compose_visual_generation_prompt` (@media/image-aesthetics); removed the local `_build_visual_history`, fallback templates, caption regexes, and inline token assembly.
  * - 2026-09-24: Optics envelope regression — enhance() and visualize() now forward the compiled <TASK> (task) alongside the <SYSTEM> fragment, honoring the universal { system, task } package contract; previously only .system was sent, so the LLM never received the OUTPUT_FORMAT JSON schema and improvised XML/Markdown envelopes.
  * - 2026-09-19: Prompt Unification (Mega Report S1, R4): Retired prompt_templates; routed enhance and visualize prompt compilation directly through switchboard compile_prompt("optics", ...).
