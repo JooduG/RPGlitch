@@ -30,22 +30,20 @@ export { llm_service, sanitize_llm, looks_truncated, raw_to_text, raw_stop_reaso
 export { fetch_web, validate_url, blob_to_data_url } from "./web-fetch.js";
 
 // ============================================================================
-// DOMPurify Security & Content Sanitization
+// DOMPurify Security, Environment Hardening & Session Checkpointing
 // ============================================================================
 
-export { sanitize_to_fragment, security, sanitize, escape_html, validate_image } from "./security.js";
-
-// ============================================================================
-// Browser Environment Hardening
-// ============================================================================
-
-export { install_environment_hardening } from "./environment.js";
-
-// ============================================================================
-// Session Checkpoint Persistence
-// ============================================================================
-
-export { save_session_checkpoint, load_session_checkpoint, clear_session_checkpoint } from "./session-storage.js";
+export {
+  sanitize_to_fragment,
+  security,
+  sanitize,
+  escape_html,
+  validate_image,
+  install_environment_hardening,
+  save_session_checkpoint,
+  load_session_checkpoint,
+  clear_session_checkpoint,
+} from "./security.js";
 
 // ============================================================================
 // Neural Semantic Embeddings Engine

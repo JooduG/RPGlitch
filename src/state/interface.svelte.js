@@ -15,7 +15,7 @@
  * - Handles viewport media query listeners and touch capabilities synced with design system tokens.
  * - Owns persistent application user settings (`sound`, `call_mode`, `stream_text`, `auto_scroll`, `developer_mode`, `dev_grid_visible`, styles).
  * - Bridges image preview modal requests to the UI layer without violating layer boundaries.
- * - Delegates streaming and telemetry calls to their respective stores (`streaming.svelte.js`, `developer-log.svelte.js`).
+ * - Delegates streaming and telemetry calls to their respective stores (`status.svelte.js`, `log.svelte.js`).
  *
  * Layer & Dependency Invariants:
  * - `src/state/` MUST NEVER import from `src/ui/`.
@@ -32,10 +32,8 @@ import { db, entities, normalize, stories } from "@data";
 import { Audio, get_signature_color, visual_engine } from "@media";
 import { embeddings_engine } from "@platform";
 import { runtime } from "./runtime.svelte.js";
-import { streaming as streaming_store } from "./streaming.svelte.js";
-import { developer_log } from "./developer-log.svelte.js";
-import { simulation_state, ui_state } from "./status.svelte.js";
-import { install_freeze_watchdog } from "./freeze-watchdog.js";
+import { developer_log } from "./log.svelte.js";
+import { install_freeze_watchdog, simulation_state, streaming as streaming_store, ui_state } from "./status.svelte.js";
 
 // ============================================================================
 // Bridges & JSDoc Type Definitions
@@ -580,7 +578,7 @@ export class InterfaceStore {
     this.save_settings();
   };
 
-  // STREAMING CONTROL — delegates to streaming.svelte.js
+  // STREAMING CONTROL — delegates to status.svelte.js (StreamingStore)
   start_stream = (id, role = "ai") => streaming_store.start_stream(id, role);
   update_stream = (chunk) => streaming_store.update_stream(chunk);
   end_stream = () => streaming_store.end_stream();

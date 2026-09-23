@@ -23,6 +23,7 @@
  * ============================================================================
  */
 
+import { SvelteMap } from "svelte/reactivity";
 import { onnx_mutex, mark_ort_ready, cosine_similarity } from "@utils";
 
 // ============================================================================
@@ -183,8 +184,8 @@ async function get_pipeline() {
 // LRU Cache & Inference Engine
 // ============================================================================
 
-/** @type {Map<string, Float32Array>} */
-const _embedding_cache = new Map();
+/** @type {SvelteMap<string, Float32Array>} */
+const _embedding_cache = new SvelteMap();
 /** @type {number} */
 let _max_cache = EMBEDDING_CACHE_MAX;
 let _cache_hits = 0;

@@ -1,15 +1,23 @@
 /**
  * src/platform/security.js
- * 🛡️ SECURITY & ZERO-TRUST DATA SANITIZATION
+ * 🛡️ SECURITY, ZERO-TRUST DATA SANITIZATION & BROWSER HARDENING
  *
  * Core Responsibilities:
- * - Sanitizes untrusted user/LLM HTML strings to safe strings or DocumentFragments via DOMPurify.
- * - Escapes special HTML characters to prevent cross-site scripting (XSS) injection.
- * - Validates binary image files against size limits, declared MIME types, and magic byte signatures (JPEG, PNG, GIF, WebP, AVIF).
+ * 1. HTML Sanitization & Escaping:
+ *    - Sanitizes untrusted user/LLM HTML strings to safe strings or DocumentFragments via DOMPurify.
+ *    - Escapes special HTML characters to prevent cross-site scripting (XSS) injection.
+ * 2. Binary File & Image Security Validation:
+ *    - Validates binary image files against size limits, declared MIME types, and magic byte signatures (JPEG, PNG, GIF, WebP, AVIF).
+ * 3. Browser Environment Hardening & Sandbox Silencing:
+ *    - Patches ResizeObserver to execute callbacks inside `requestAnimationFrame` ticks, breaking layout loops.
+ *    - Suppresses known benign browser warnings and Perchance sandbox frame errors ("Symbol", "numActualScriptLines").
+ * 4. Multi-Tier Session Checkpointing:
+ *    - Persists and recovers lightweight session state across page reloads during schema upgrades and iframe quiescence.
+ *    - Resilient 3-tier fallback: `sessionStorage` (Tier 1) ➔ `window.name` (Tier 2) ➔ `in-memory` (Tier 3).
  *
  * Dependencies & Cross-Module Invariants:
  * - `dompurify`: Authoritative browser-compatible HTML sanitization engine.
- * - Used across UI actions (`src/ui/actions.js`), bootstrap error templates (`src/main.js`), and image uploads.
+ * - Used across UI actions (`src/ui/actions.js`), bootstrap (`src/main.js`), and image uploads.
  * - Invariant: Zero-Trust — reject unverified binary headers even if file MIME type is in the allowed list.
  */
 
@@ -24,6 +32,25 @@ export const DEFAULT_MAX_IMAGE_SIZE_BYTES = 25 * 1024 * 1024;
 
 /** Default allowed image MIME types. */
 export const DEFAULT_ALLOWED_IMAGE_MIME_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"];
+
+/** Text pattern identifying benign ResizeObserver layout deferral warnings. */
+const RESIZE_OBSERVER_LOOP_PATTERN = "ResizeObserver loop";
+
+/** Text patterns identifying benign Perchance iframe sandbox internal artifacts. */
+const PERCHANCE_FRAME_ERROR_PATTERNS = ["Symbol", "numActualScriptLines"];
+
+/** Storage key for session checkpoint entries in sessionStorage. */
+export const CHECKPOINT_KEY = "rpglitch.session_checkpoint";
+
+/**
+ * @typedef {Object} SessionCheckpoint
+ * @property {string | null} story_id - The active story identifier.
+ * @property {number} round - The current macro round count.
+ * @property {string} phase - The active execution phase.
+ */
+
+/** @type {SessionCheckpoint | null} */
+let _in_memory_checkpoint = null;
 
 /**
  * Binary magic number / header signature validators for supported image formats.
@@ -138,7 +165,237 @@ export async function validate_image(file, options = {}) {
 }
 
 // ============================================================================
-// [SECTION 4: SINGLETON FACADE & EXPORTS]
+// [SECTION 4: ENVIRONMENT HARDENING & SANDBOX ERROR SUPPRESSION]
+// ============================================================================
+
+/**
+ * Suppresses benign "ResizeObserver loop completed with undelivered notifications" errors.
+ */
+function install_resize_observer_guard() {
+  if (typeof window !== "undefined" && typeof ResizeObserver !== "undefined") {
+    const original_resize_observer = ResizeObserver;
+
+    class SafeResizeObserver extends original_resize_observer {
+      /**
+       * @param {ResizeObserverCallback} callback
+       */
+      constructor(callback) {
+        const wrapped = (entries, observer) => {
+          requestAnimationFrame(() => {
+            try {
+              callback(entries, observer);
+            } catch (err) {
+              console.error("[SafeResizeObserver] callback error:", err);
+            }
+          });
+        };
+        super(/** @type {ResizeObserverCallback} */ (wrapped));
+      }
+    }
+
+    Object.setPrototypeOf(SafeResizeObserver, original_resize_observer);
+    Object.defineProperty(window, "ResizeObserver", {
+      value: SafeResizeObserver,
+      writable: true,
+      configurable: true,
+    });
+  }
+
+  if (typeof window !== "undefined") {
+    const original_onerror = window.onerror;
+    window.onerror = function (msg, source, lineno, colno, error) {
+      if (msg && String(msg).includes(RESIZE_OBSERVER_LOOP_PATTERN)) {
+        return true; // Suppress benign loop notification
+      }
+      return original_onerror ? original_onerror.call(this, msg, source, lineno, colno, error) : false;
+    };
+
+    const original_add_event_listener = window.addEventListener;
+    window.addEventListener = function (type, listener, options) {
+      if (type === "error") {
+        const wrapped = (event) => {
+          const message = event?.message;
+          if (message && String(message).includes(RESIZE_OBSERVER_LOOP_PATTERN)) {
+            return;
+          }
+          return listener.call(this, event);
+        };
+        return original_add_event_listener.call(this, type, wrapped, options);
+      }
+      return original_add_event_listener.call(this, type, listener, options);
+    };
+  }
+}
+
+/**
+ * Checks whether an error or rejection payload matches known Perchance sandbox internal errors.
+ * @param {any} target
+ * @returns {boolean}
+ */
+function is_perchance_frame_error(target) {
+  if (!target) return false;
+  try {
+    const message = target.message ? String(target.message) : String(target);
+    return PERCHANCE_FRAME_ERROR_PATTERNS.some((pattern) => message.includes(pattern));
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Silences the Perchance engine's own frame errors ("Symbol", "numActualScriptLines")
+ * that surface from sandbox iframe parent boundaries.
+ */
+function silence_perchance_frame_errors() {
+  if (typeof window === "undefined") return;
+
+  window.addEventListener(
+    "error",
+    (event) => {
+      if (is_perchance_frame_error(event)) {
+        event.preventDefault?.();
+        event.stopPropagation?.();
+      }
+    },
+    true,
+  );
+
+  window.addEventListener(
+    "unhandledrejection",
+    (event) => {
+      if (is_perchance_frame_error(event?.reason)) {
+        event.preventDefault?.();
+        event.stopPropagation?.();
+      }
+    },
+    true,
+  );
+}
+
+/**
+ * Installs all environment hardening and sandbox error guards.
+ * Synchronously invoked at bootstrap in `src/main.js` before DOM mounting.
+ */
+export function install_environment_hardening() {
+  install_resize_observer_guard();
+  silence_perchance_frame_errors();
+}
+
+// ============================================================================
+// [SECTION 5: RELOAD-SAFE SESSION CHECKPOINT TIERS]
+// ============================================================================
+
+/**
+ * Probes for available and usable `sessionStorage`.
+ * Returns null when running in restricted or sandboxed iframe environments.
+ * @returns {Storage | null}
+ */
+function get_session_storage() {
+  try {
+    if (typeof window !== "undefined" && typeof window.sessionStorage !== "undefined") {
+      window.sessionStorage.getItem("__rpglitch_probe__");
+      return window.sessionStorage;
+    }
+  } catch {
+    /* Sandboxed iframe SecurityError — fall through to next tier */
+  }
+  return null;
+}
+
+/**
+ * Persists a session checkpoint across an imminent page reload or database migration.
+ * @param {SessionCheckpoint | Partial<SessionCheckpoint>} checkpoint
+ */
+export function save_session_checkpoint(checkpoint) {
+  const payload = {
+    story_id: checkpoint?.story_id ?? null,
+    round: typeof checkpoint?.round === "number" ? checkpoint.round : 0,
+    phase: checkpoint?.phase ?? "idle",
+  };
+
+  _in_memory_checkpoint = payload;
+
+  const storage = get_session_storage();
+  if (storage) {
+    try {
+      storage.setItem(CHECKPOINT_KEY, JSON.stringify(payload));
+      return;
+    } catch {
+      /* Storage quota exceeded or blocked — continue to Tier 2 */
+    }
+  }
+
+  try {
+    if (typeof window !== "undefined") {
+      window.name = JSON.stringify(payload);
+    }
+  } catch {
+    /* Cross-origin window access restriction */
+  }
+}
+
+/**
+ * Reads the persisted session checkpoint from available storage tiers, returning null if absent or corrupt.
+ * @returns {SessionCheckpoint | null}
+ */
+export function load_session_checkpoint() {
+  if (_in_memory_checkpoint) {
+    return _in_memory_checkpoint;
+  }
+
+  const storage = get_session_storage();
+  if (storage) {
+    try {
+      const raw = storage.getItem(CHECKPOINT_KEY);
+      if (raw) {
+        try {
+          return JSON.parse(raw);
+        } catch {
+          /* Corrupted storage payload — fall through to Tier 2 */
+        }
+      }
+    } catch {
+      /* Storage access error */
+    }
+  }
+
+  try {
+    if (typeof window !== "undefined" && window.name && window.name.startsWith("{")) {
+      return JSON.parse(window.name);
+    }
+  } catch {
+    /* Corrupted or blocked window.name */
+  }
+
+  return null;
+}
+
+/**
+ * Clears the session checkpoint across all storage tiers after a successful session restoration.
+ */
+export function clear_session_checkpoint() {
+  _in_memory_checkpoint = null;
+
+  const storage = get_session_storage();
+  if (storage) {
+    try {
+      storage.removeItem(CHECKPOINT_KEY);
+    } catch {
+      /* Storage removal error */
+    }
+  }
+
+  try {
+    if (typeof window !== "undefined" && window.name && window.name.startsWith("{")) {
+      window.name = "";
+    }
+  } catch {
+    /* Window.name access error */
+  }
+}
+
+// ============================================================================
+// [SECTION 6: SINGLETON FACADE & EXPORTS]
 // ============================================================================
 
 export const security = {
@@ -146,6 +403,10 @@ export const security = {
   sanitize_to_fragment,
   escape_html,
   validate_image,
+  install_environment_hardening,
+  save_session_checkpoint,
+  load_session_checkpoint,
+  clear_session_checkpoint,
 };
 
 // ============================================================================
@@ -153,6 +414,7 @@ export const security = {
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-24: Platform layer consolidation — merged `environment.js` (ResizeObserver guard, Perchance sandbox frame error silencing) and `session-storage.js` (multi-tier reload checkpointing) directly into `security.js` under P4 Zero Backwards Compatibility.
  * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,
  *   structured section dividers, extracted `IMAGE_SIGNATURE_VALIDATORS` and constants, converted
  *   to standard function declarations, purged redundant default object export, and verified unit test suite.

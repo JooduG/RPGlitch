@@ -1,23 +1,39 @@
 /**
  * src/state/log.svelte.js
- * 📜 SIMULATION LOG STORE: In-Memory Message Feed & Session Dialogue State
+ * 📜 SIMULATION & DEVELOPER LOG STORES: In-Memory Message Feed & Diagnostic Telemetry
  *
  * Core Responsibilities:
- * - Manages the reactive active session dialogue log entries (`feed`) rendered by the UI message stack.
+ * - Manages the reactive active session dialogue log entries (`feed`) rendered by the UI message stack (`simulation_log`).
  * - Maintains an internal ID lookup set to prevent duplicate message ingestion.
  * - Reconciles in-memory message state with IndexedDB persistence via `session_driver`.
  * - Provides live mutation APIs (`add`, `update`, `remove`, `edit_entry`, `delete_entry`, `delete_attachment`, `clear`).
+ * - Manages developer-mode telemetry log entries backing `app.log()` and `app.logs` (Console HUD) (`developer_log`).
+ * - Enforces an in-memory cap of MAX_DEVELOPER_LOG_ENTRIES (500) to prevent unbounded memory growth.
+ * - Persists developer log entries into IndexedDB `kv_settings` so diagnostic history survives page reloads.
  *
  * Dependencies & Cross-Module Invariants:
- * - `@data` (`session_driver`): Loading, deleting, and editing persisted message records.
+ * - `@data` (`session_driver`, `db`): Loading, deleting, and editing persisted message records, and kv_settings persistence.
+ * - `@utils` (`generate_uuid`): Generating unique cryptographic UUIDs per telemetry event.
  * - `runtime.svelte.js` (`runtime`): Resolving the active `story_id`.
+ * - Invariant: Telemetry errors or storage hiccups must never throw or disrupt narrative execution.
  */
 
-import { session_driver } from "@data";
+import { SvelteSet } from "svelte/reactivity";
+import { db, session_driver } from "@data";
+import { generate_uuid } from "@utils";
 import { runtime } from "./runtime.svelte.js";
 
 // ============================================================================
-// [SECTION 1: JSDOC SCHEMAS & TYPE DEFINITIONS]
+// [SECTION 1: CONSTANTS & IDENTIFIERS]
+// ============================================================================
+
+export const DEVELOPER_TELEMETRY_STORAGE_KEY = "dev_telemetry";
+export const MAX_DEVELOPER_LOG_ENTRIES = 500;
+
+export { generate_uuid };
+
+// ============================================================================
+// [SECTION 2: JSDOC SCHEMAS & TYPE DEFINITIONS]
 // ============================================================================
 
 /**
@@ -36,16 +52,24 @@ import { runtime } from "./runtime.svelte.js";
  * @property {string[]} [attachments] - Array of base64 data URLs or asset paths.
  */
 
+/**
+ * @typedef {Object} DeveloperLogEntry
+ * @property {string} id - Unique UUID for the log event.
+ * @property {string} message - Telemetry payload or diagnostic text.
+ * @property {string} type - Event category (e.g. 'system', 'ai', 'db', 'warn', 'error').
+ * @property {number} timestamp - Epoch timestamp in milliseconds.
+ */
+
 // ============================================================================
-// [SECTION 2: SIMULATION LOG STORE CLASS]
+// [SECTION 3: SIMULATION LOG STORE CLASS]
 // ============================================================================
 
 export class SimulationLogStore {
   /** @type {LogEntry[]} */
   feed = $state([]);
 
-  /** @type {Set<string | number>} */
-  #id_set = new Set();
+  /** @type {SvelteSet<string | number>} */
+  #id_set = new SvelteSet();
 
   /**
    * Synchronizes in-memory feed with persistence for the active story.
@@ -58,7 +82,7 @@ export class SimulationLogStore {
 
     const messages = await session_driver.load_log(runtime.story_id);
     this.feed = messages;
-    this.#id_set = new Set(messages.filter((m) => m.id != null).map((m) => m.id));
+    this.#id_set = new SvelteSet(messages.filter((m) => m.id != null).map((m) => m.id));
   }
 
   /**
@@ -135,16 +159,93 @@ export class SimulationLogStore {
 }
 
 // ============================================================================
-// [SECTION 3: SINGLETON INSTANCE & EXPORT]
+// [SECTION 4: DEVELOPER TELEMETRY LOG STORE CLASS]
+// ============================================================================
+
+export class DeveloperLogStore {
+  /** @type {DeveloperLogEntry[]} */
+  #entries = $state([]);
+
+  /**
+   * Current reactive list of telemetry log entries.
+   * @returns {DeveloperLogEntry[]}
+   */
+  get entries() {
+    return this.#entries;
+  }
+
+  /**
+   * Records a developer or system diagnostic event.
+   * Capped to MAX_DEVELOPER_LOG_ENTRIES and asynchronously persisted to IndexedDB.
+   * @param {string} message
+   * @param {string} [type='system']
+   * @returns {DeveloperLogEntry}
+   */
+  log(message, type = "system") {
+    const entry = {
+      id: generate_uuid(),
+      message: String(message ?? ""),
+      type,
+      timestamp: Date.now(),
+    };
+
+    this.#entries.push(entry);
+    if (this.#entries.length > MAX_DEVELOPER_LOG_ENTRIES) {
+      this.#entries.splice(0, this.#entries.length - MAX_DEVELOPER_LOG_ENTRIES);
+    }
+
+    try {
+      db?.kv_settings?.put({ key: DEVELOPER_TELEMETRY_STORAGE_KEY, value: this.#entries.slice(-MAX_DEVELOPER_LOG_ENTRIES) })?.catch(() => {});
+    } catch {
+      /* Persistence errors must never break runtime flow */
+    }
+
+    return entry;
+  }
+
+  /**
+   * Restores persisted developer logs from IndexedDB.
+   * @returns {Promise<DeveloperLogEntry[]>}
+   */
+  async hydrate() {
+    try {
+      const entry = await db?.kv_settings?.get(DEVELOPER_TELEMETRY_STORAGE_KEY);
+      if (entry?.value && Array.isArray(entry.value)) {
+        this.#entries = entry.value;
+      }
+    } catch (error) {
+      console.warn("[DeveloperLog] Hydration failed:", error);
+    }
+    return this.#entries;
+  }
+
+  /**
+   * Clears all in-memory telemetry logs and deletes persisted storage.
+   */
+  clear() {
+    this.#entries = [];
+    try {
+      db?.kv_settings?.delete?.(DEVELOPER_TELEMETRY_STORAGE_KEY)?.catch(() => {});
+    } catch {
+      /* Ignore cleanup failures */
+    }
+  }
+}
+
+// ============================================================================
+// [SECTION 5: SINGLETON INSTANCES & EXPORTS]
 // ============================================================================
 
 export const simulation_log = new SimulationLogStore();
+export const developer_log = new DeveloperLogStore();
 
 // ============================================================================
 // [CHANGELOG]
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-23: Consolidated developer telemetry store (`developer-log.svelte.js`) directly
+ *   into log.svelte.js under P4 Zero Backwards Compatibility.
  * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,
  *   structured section dividers, converted ID cache to private field (#id_set), added clear()
  *   method, aligned JSDoc LogEntry typedef, and verified test suite.

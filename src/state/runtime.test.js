@@ -3,14 +3,14 @@ import { runtime } from "./runtime.svelte.js";
 import { app } from "./interface.svelte.js";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-// hoisted so it's initialized before the mocked @platform/session-storage.js module is
+// hoisted so it's initialized before the mocked @platform module is
 // first imported (which happens during the top-level runtime import below).
 const mock_checkpoint = vi.hoisted(() => ({
   load_session_checkpoint: vi.fn(() => null),
   clear_session_checkpoint: vi.fn(),
 }));
 
-vi.mock("@platform/session-storage.js", async (importOriginal) => {
+vi.mock("@platform", async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,

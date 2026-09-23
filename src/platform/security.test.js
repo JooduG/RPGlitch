@@ -1,5 +1,5 @@
 import { security } from "@platform";
-import { describe, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 const sanitize_html = security.sanitize;
 const sanitize_to_fragment = security.sanitize_to_fragment;
 // Mock DOMPurify for sanitize_html tests
@@ -210,6 +210,167 @@ describe("validation.js", () => {
     test("should throw error if magic numbers don't match", async () => {
       const file = new MockFile([JPEG_HEADER], "fake.png", { type: "image/png" });
       await expect(security.validate_image(file)).rejects.toThrow(/Security verification failed/);
+    });
+  });
+
+  describe("environment hardening", () => {
+    let original_onerror;
+    let original_resize_observer;
+    let original_add_event_listener;
+
+    beforeEach(() => {
+      original_onerror = window.onerror;
+      original_resize_observer = window.ResizeObserver;
+      original_add_event_listener = window.addEventListener;
+    });
+
+    afterEach(() => {
+      window.onerror = original_onerror;
+      window.ResizeObserver = original_resize_observer;
+      window.addEventListener = original_add_event_listener;
+      vi.restoreAllMocks();
+    });
+
+    test("patches ResizeObserver to wrap callbacks in requestAnimationFrame", () => {
+      const callback_mock = vi.fn();
+      const raf_spy = vi.spyOn(window, "requestAnimationFrame").mockImplementation((cb) => {
+        cb(0);
+        return 1;
+      });
+
+      security.install_environment_hardening();
+
+      const observer = new window.ResizeObserver(callback_mock);
+      expect(observer).toBeDefined();
+      expect(window.ResizeObserver).not.toBe(original_resize_observer);
+      expect(raf_spy).not.toHaveBeenCalled();
+
+      raf_spy.mockRestore();
+    });
+
+    test("suppresses ResizeObserver loop messages via window.onerror", () => {
+      security.install_environment_hardening();
+      const result = window.onerror?.("ResizeObserver loop completed with undelivered notifications.", "test.js", 1, 1, new Error("loop"));
+      expect(result).toBe(true);
+    });
+
+    test("passes non-ResizeObserver errors to original window.onerror", () => {
+      const custom_onerror = vi.fn().mockReturnValue(false);
+      window.onerror = custom_onerror;
+
+      security.install_environment_hardening();
+
+      const err = new Error("General Runtime Error");
+      const result = window.onerror?.("General Runtime Error", "test.js", 1, 1, err);
+
+      expect(custom_onerror).toHaveBeenCalledWith("General Runtime Error", "test.js", 1, 1, err);
+      expect(result).toBe(false);
+    });
+
+    test("filters ResizeObserver loop errors in window error event listeners", () => {
+      security.install_environment_hardening();
+
+      const listener = vi.fn();
+      window.addEventListener("error", listener);
+
+      const ro_event = new Event("error");
+      Object.defineProperty(ro_event, "message", { value: "ResizeObserver loop limit exceeded" });
+      window.dispatchEvent(ro_event);
+
+      expect(listener).not.toHaveBeenCalled();
+
+      const normal_event = new Event("error");
+      Object.defineProperty(normal_event, "message", { value: "Uncaught ReferenceError: foo is not defined" });
+      window.dispatchEvent(normal_event);
+
+      expect(listener).toHaveBeenCalledWith(normal_event);
+    });
+
+    test("silences Perchance sandbox Symbol and numActualScriptLines error events", () => {
+      security.install_environment_hardening();
+
+      const symbol_event = new Event("error", { cancelable: true });
+      Object.defineProperty(symbol_event, "message", { value: "Cannot convert a Symbol value to a string" });
+      const prevent_spy = vi.spyOn(symbol_event, "preventDefault");
+      const stop_spy = vi.spyOn(symbol_event, "stopPropagation");
+
+      window.dispatchEvent(symbol_event);
+
+      expect(prevent_spy).toHaveBeenCalled();
+      expect(stop_spy).toHaveBeenCalled();
+    });
+
+    test("silences Perchance sandbox unhandledrejection events", () => {
+      security.install_environment_hardening();
+
+      const reason = new Error("numActualScriptLines is not defined");
+      const rejection_event = new CustomEvent("unhandledrejection", {
+        cancelable: true,
+        detail: { reason },
+      });
+      Object.defineProperty(rejection_event, "reason", { value: reason });
+      const prevent_spy = vi.spyOn(rejection_event, "preventDefault");
+      const stop_spy = vi.spyOn(rejection_event, "stopPropagation");
+
+      window.dispatchEvent(rejection_event);
+
+      expect(prevent_spy).toHaveBeenCalled();
+      expect(stop_spy).toHaveBeenCalled();
+    });
+  });
+
+  describe("session checkpointing", () => {
+    beforeEach(() => {
+      window.name = "";
+      window.sessionStorage.clear();
+      security.clear_session_checkpoint();
+    });
+
+    test("round-trips a checkpoint through sessionStorage", () => {
+      security.save_session_checkpoint({ story_id: "story-42", round: 7, phase: "generating" });
+      expect(security.load_session_checkpoint()).toEqual({ story_id: "story-42", round: 7, phase: "generating" });
+    });
+
+    test("coerces missing story id and round to safe defaults", () => {
+      security.save_session_checkpoint({ story_id: null, round: undefined, phase: undefined });
+      expect(security.load_session_checkpoint()).toEqual({ story_id: null, round: 0, phase: "idle" });
+    });
+
+    test("clears the checkpoint", () => {
+      security.save_session_checkpoint({ story_id: "story-1", round: 0, phase: "idle" });
+      security.clear_session_checkpoint();
+      expect(security.load_session_checkpoint()).toBeNull();
+    });
+
+    test("returns null when nothing is stored", () => {
+      expect(security.load_session_checkpoint()).toBeNull();
+    });
+
+    test("writes to window.name when sessionStorage is blocked", () => {
+      const ss_get = vi.spyOn(window.sessionStorage.__proto__, "getItem").mockImplementation(() => {
+        throw new Error("blocked");
+      });
+      const ss_set = vi.spyOn(window.sessionStorage.__proto__, "setItem").mockImplementation(() => {
+        throw new Error("blocked");
+      });
+
+      security.clear_session_checkpoint();
+      security.save_session_checkpoint({ story_id: "story-9", round: 3, phase: "idle" });
+      expect(window.name).toBe(JSON.stringify({ story_id: "story-9", round: 3, phase: "idle" }));
+
+      ss_get.mockRestore();
+      ss_set.mockRestore();
+    });
+
+    test("restores from window.name when sessionStorage is blocked on a cold load", () => {
+      security.clear_session_checkpoint();
+      const ss_get = vi.spyOn(window.sessionStorage.__proto__, "getItem").mockImplementation(() => {
+        throw new Error("blocked");
+      });
+      window.name = JSON.stringify({ story_id: "story-9", round: 3, phase: "idle" });
+
+      expect(security.load_session_checkpoint()).toEqual({ story_id: "story-9", round: 3, phase: "idle" });
+      ss_get.mockRestore();
     });
   });
 });
