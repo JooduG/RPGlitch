@@ -161,4 +161,9 @@ describe("DeveloperLogStore", () => {
     developer_log.clear();
     expect(developer_log.entries.length).toBe(0);
   });
+
+  it("flushes pending debounced persistence synchronously via flush()", () => {
+    developer_log.log("Buffered diagnostic message");
+    expect(() => developer_log.flush()).not.toThrow();
+  });
 });

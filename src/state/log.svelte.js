@@ -178,6 +178,21 @@ export class DeveloperLogStore {
   }
 
   /**
+   * Immediately flushes any pending debounced telemetry writes to IndexedDB kv_settings.
+   */
+  flush() {
+    if (this.#persist_timer) {
+      clearTimeout(this.#persist_timer);
+      this.#persist_timer = null;
+    }
+    try {
+      db?.kv_settings?.put({ key: DEVELOPER_TELEMETRY_STORAGE_KEY, value: this.#entries.slice(-MAX_DEVELOPER_LOG_ENTRIES) })?.catch(() => {});
+    } catch {
+      /* Persistence errors must never break runtime flow */
+    }
+  }
+
+  /**
    * Schedules a debounced write to IndexedDB kv_settings.
    */
   #schedule_persist() {
@@ -254,6 +269,18 @@ export class DeveloperLogStore {
 
 export const simulation_log = new SimulationLogStore();
 export const developer_log = new DeveloperLogStore();
+
+if (typeof window !== "undefined") {
+  window.addEventListener("pagehide", () => {
+    developer_log.flush();
+  });
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") {
+      developer_log.flush();
+    }
+  });
+}
 
 // ============================================================================
 // [CHANGELOG]

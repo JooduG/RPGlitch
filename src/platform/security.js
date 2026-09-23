@@ -172,35 +172,6 @@ export async function validate_image(file, options = {}) {
 // ============================================================================
 
 /**
- * Suppresses benign "ResizeObserver loop completed with undelivered notifications" errors.
- * Uses a non-invasive capturing listener and window.onerror filter without mutating
- * global constructors or wrapping user event listeners.
- */
-function install_resize_observer_guard() {
-  if (typeof window === "undefined") return;
-
-  const original_onerror = window.onerror;
-  window.onerror = function (msg, source, lineno, colno, error) {
-    if (msg && String(msg).includes(RESIZE_OBSERVER_LOOP_PATTERN)) {
-      return true; // Suppress benign loop notification
-    }
-    return original_onerror ? original_onerror.call(this, msg, source, lineno, colno, error) : false;
-  };
-
-  window.addEventListener(
-    "error",
-    (event) => {
-      const message = event?.message;
-      if (message && String(message).includes(RESIZE_OBSERVER_LOOP_PATTERN)) {
-        event.preventDefault?.();
-        event.stopImmediatePropagation?.();
-      }
-    },
-    true,
-  );
-}
-
-/**
  * Checks whether an error or rejection payload matches known Perchance sandbox internal errors.
  * @param {any} target
  * @returns {boolean}
@@ -216,15 +187,33 @@ function is_perchance_frame_error(target) {
 }
 
 /**
- * Silences the Perchance engine's own frame errors ("Symbol", "numActualScriptLines")
- * that surface from sandbox iframe parent boundaries.
+ * Installs all environment hardening and sandbox error guards.
+ * Uses a single unified capturing error listener and unhandledrejection handler
+ * to silence benign ResizeObserver loop notices and Perchance iframe boundary faults
+ * without double-dispatch or global constructor monkey-patching.
+ * Synchronously invoked at bootstrap in `src/main.js` before DOM mounting.
  */
-function silence_perchance_frame_errors() {
+export function install_environment_hardening() {
   if (typeof window === "undefined") return;
 
+  const original_onerror = window.onerror;
+  window.onerror = function (msg, source, lineno, colno, error) {
+    if (msg && String(msg).includes(RESIZE_OBSERVER_LOOP_PATTERN)) {
+      return true; // Suppress benign loop notification
+    }
+    return original_onerror ? original_onerror.call(this, msg, source, lineno, colno, error) : false;
+  };
+
+  // Single unified capture-phase error listener for ResizeObserver and Perchance sandbox artifacts
   window.addEventListener(
     "error",
     (event) => {
+      const message = event?.message;
+      if (message && String(message).includes(RESIZE_OBSERVER_LOOP_PATTERN)) {
+        event.preventDefault?.();
+        event.stopImmediatePropagation?.();
+        return;
+      }
       if (is_perchance_frame_error(event)) {
         event.preventDefault?.();
         event.stopPropagation?.();
@@ -243,15 +232,6 @@ function silence_perchance_frame_errors() {
     },
     true,
   );
-}
-
-/**
- * Installs all environment hardening and sandbox error guards.
- * Synchronously invoked at bootstrap in `src/main.js` before DOM mounting.
- */
-export function install_environment_hardening() {
-  install_resize_observer_guard();
-  silence_perchance_frame_errors();
 }
 
 // ============================================================================
