@@ -15,7 +15,9 @@
  * ============================================================================
  */
 
-import { safe_parse_pseudo_json } from "@utils";
+import { strip_visual_excluded, VISUAL_EXCLUDED_KEYS } from "@utils";
+
+export { strip_visual_excluded, VISUAL_EXCLUDED_KEYS };
 
 /**
  * Strips epistemic [SECRET: ...] and [PLAN: ...] directives from rendered state strings.
@@ -66,32 +68,9 @@ export function verify_epistemic_integrity(prompt_text) {
 }
 
 /**
- * Keys that must NEVER reach an image-generation prompt (private state or physical inventory).
- * @type {ReadonlySet<string>}
- */
-export const VISUAL_EXCLUDED_KEYS = Object.freeze(new Set(["INVENTORY", "STASH", "SECRET", "PLAN", "STATUS"]));
-
-/**
- * Strips non-visual pseudo-JSON keys from a raw parameter string for image generation prompts.
- *
- * @param {string | null | undefined} raw_parameter_string
- * @returns {string} Sanitized visual parameter string
- */
-export function strip_visual_excluded(raw_parameter_string) {
-  if (!raw_parameter_string) return "";
-  const parsed_parameters = safe_parse_pseudo_json(raw_parameter_string);
-  if (parsed_parameters.__raw_prose__) return raw_parameter_string;
-
-  const retained_entries = Object.entries(parsed_parameters)
-    .filter(([key]) => !VISUAL_EXCLUDED_KEYS.has(key))
-    .map(([key, value]) => `[${key}: ${Array.isArray(value) ? value.join(", ") : String(value).replace(/[[\]]/g, "")}]`);
-
-  return retained_entries.join(" ");
-}
-
-/**
  * CHANGELOG
  * ============================================================================
+ * - 2026-09-23: Delegated VISUAL_EXCLUDED_KEYS and strip_visual_excluded to @utils/text.js to break circular dependency with media layer.
  * - 2026-09-19: Repatriated VISUAL_EXCLUDED_KEYS and strip_visual_excluded from media layer to epistemic.js, establishing pure self-contained epistemic prompt filtering.
  * - 2026-09-18: Standardized verify_epistemic_integrity contract to return boolean (true = clean, false = leak) aligning with call-site guard.
  * - 2026-09-18: Extracted from monolithic entities.js into dedicated epistemic.js submodule; added verify_epistemic_integrity assertion guard.

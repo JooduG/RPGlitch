@@ -3,18 +3,18 @@
  * 👁️ SENSORY CORTEX — VISUAL OPTICS COMPILER, TAXONOMY & TRIGGER ARBITRATION
  *
  * Core Responsibilities:
- * 1. 4-Tier Image Taxonomy & Resolutions (IMAGE_TIERS, DEFAULT_IMAGE_TIER, 
-ormalize_image_tier, get_resolution, get_tier_guidance_scale):
+ * 1. 4-Tier Image Taxonomy & Resolutions (IMAGE_TIERS, DEFAULT_IMAGE_TIER,
+ *    normalize_image_tier, get_resolution, get_tier_guidance_scale):
  *    - story_entities: Multi-character group compositions (768x768).
  *    - story_character: In-story focused character portrayals (512x768).
  *    - solo_entity: Profile and isolated character portraits (512x768).
  *    - story_scene: Environmental, landscape, and establishing scene shots (768x512).
- * 2. Dual-Source Trigger Arbitration & Dynamics Gate (IMAGE_TRIGGER, 
-esolve_image_trigger, valuate_image_trigger):
+ * 2. Dual-Source Trigger Arbitration & Dynamics Gate (IMAGE_TRIGGER,
+ *    resolve_image_trigger, evaluate_image_trigger):
  *    - Source A: Pure-JS physical dynamics displacement & extreme band crossings (Signal A & B).
- *    - Source B: LLM Director narrative beat requests (	rigger_image / isual_staging).
+ *    - Source B: LLM Director narrative beat requests (trigger_image / visual_staging).
  *    - Decoupled cooldown timers (2 rounds for Director, 3 rounds for Dynamics).
- * 3. Aesthetic Map Synthesis & Prompt Composition (uild_aesthetic_map, compose_visual_generation_prompt, esthetic_resolver):
+ * 3. Aesthetic Map Synthesis & Prompt Composition (build_aesthetic_map, compose_visual_generation_prompt, aesthetic_resolver):
  *    - Merges eternal/present physical traits with clothing override protocols.
  *    - Injects resolved visual style tokens (_visual_style_medium, _visual_style_palette, etc.).
  *    - Assembles and deduplicates positive/negative prompt tokens against universal quality floors.
@@ -23,8 +23,7 @@ esolve_image_trigger, valuate_image_trigger):
  */
 
 import { VISUAL_STYLES, resolve_portrait_visual_style_key } from "@data";
-import { CLOTHING_KEYS, safe_parse_pseudo_json, normalize_comma_spacing } from "@utils";
-import { VISUAL_EXCLUDED_KEYS, strip_visual_excluded } from "@intelligence";
+import { CLOTHING_KEYS, safe_parse_pseudo_json, normalize_comma_spacing, VISUAL_EXCLUDED_KEYS, strip_visual_excluded } from "@utils";
 import { get_signature_label, PALETTE } from "./palette.js";
 
 export { VISUAL_EXCLUDED_KEYS, strip_visual_excluded };
@@ -349,7 +348,7 @@ const BARE_MARKER_REGEX =
 
 /**
  * Resolves visual engine medium, palette, camera, and negative prompts for a style key.
- * Directly reads structured tokens from isual_style.engine.
+ * Directly reads structured tokens from  isual_style.engine.
  *
  * @param {string} visual_style_key
  * @returns {VisualEngineTokens}
@@ -545,7 +544,8 @@ export const aesthetic_resolver = {
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-24: Imported VISUAL_EXCLUDED_KEYS and strip_visual_excluded from @utils instead of @intelligence, breaking circular media↔intelligence dependency.
  * - 2026-09-24: Consolidated pure visual optics domain (optics.js) absorbing image-tiers.js (taxonomy, resolutions), image-trigger.js (dual-source trigger arbitration, dynamics gate), and image-aesthetics.js (aesthetic map synthesis, prompt composition, resolvers).
- * - 2026-09-24: Added compose_visual_generation_prompt() — positive style-token injection and negative-token assembly/dedup moved out of isual.svelte.js generate() into this pure compiler.
+ * - 2026-09-24: Added compose_visual_generation_prompt() — positive style-token injection and negative-token assembly/dedup moved out of visual.svelte.js generate() into this pure compiler.
  * - 2026-09-19: Repatriated VISUAL_EXCLUDED_KEYS and strip_visual_excluded to @intelligence/modules/entities/epistemic.js; re-exported from @intelligence for backwards-clean imports.
  */

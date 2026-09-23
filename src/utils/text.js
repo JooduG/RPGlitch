@@ -38,6 +38,12 @@ export const CLEAR_TOKENS = Object.freeze(new Set(["none", "bare", "naked", "off
 export const AGGREGATE_KEYS = Object.freeze(new Set(["INVENTORY", "STASH"]));
 
 /**
+ * Keys that must NEVER reach an image-generation prompt (private state or physical inventory).
+ * @type {ReadonlySet<string>}
+ */
+export const VISUAL_EXCLUDED_KEYS = Object.freeze(new Set(["INVENTORY", "STASH", "SECRET", "PLAN", "STATUS"]));
+
+/**
  * Matches an uppercase pseudo-JSON key (single or multi-word) terminated by a colon.
  */
 const PSEUDO_JSON_KEY_REGEX = /\b([A-Z][A-Z0-9_]*(?:\s+[A-Z][A-Z0-9_]*)*)\s*:/g;
@@ -514,6 +520,24 @@ export function merge_prose_into_field(current_field_value, new_prose) {
   }
 
   return lines;
+}
+
+/**
+ * Strips non-visual pseudo-JSON keys from a raw parameter string for image generation prompts.
+ *
+ * @param {string | null | undefined} raw_parameter_string
+ * @returns {string} Sanitized visual parameter string
+ */
+export function strip_visual_excluded(raw_parameter_string) {
+  if (!raw_parameter_string) return "";
+  const parsed_parameters = safe_parse_pseudo_json(raw_parameter_string);
+  if (parsed_parameters.__raw_prose__) return raw_parameter_string;
+
+  const retained_entries = Object.entries(parsed_parameters)
+    .filter(([key]) => !VISUAL_EXCLUDED_KEYS.has(key))
+    .map(([key, value]) => `[${key}: ${Array.isArray(value) ? value.join(", ") : String(value).replace(/[[\]]/g, "")}]`);
+
+  return retained_entries.join(" ");
 }
 
 // ============================================================================
@@ -1047,6 +1071,7 @@ export function alternation_field_label(text, raw) {
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-23: Relocated VISUAL_EXCLUDED_KEYS and strip_visual_excluded here from @intelligence/epistemic.js to break circular dependency between media and intelligence layers.
  * - 2026-09-25: History formatting standardization — added `format_history_entries` and `filter_narrative_messages` to unify conversation history collapsing, XML `<ENTRY>` serialization, and narrative turn extraction across platform and intelligence layers.
  * - 2026-09-25: DRY pass — consolidated `compute_initials` (was duplicated verbatim in Storyboard.svelte.js and ProfilePicture.svelte) and `NAME_PREFIX_STEMS` here; added `role_display_label` + `NARRATIVE_ROLES`/`is_narrative_role` so the role→label and narrative-role checks live in one place.
  * - 2026-09-25: Stripping/truncation standardization — `truncate_at_word` is now the one

@@ -35,7 +35,9 @@ import {
   filter_narrative_messages,
   format_history_entries,
   strip_cognition_blocks,
+  strip_visual_excluded,
   truncate_at_word,
+  VISUAL_EXCLUDED_KEYS,
 } from "./text.js";
 
 describe("safe_parse_json", () => {
@@ -642,6 +644,39 @@ describe("alternation macros (selectable options & dice resolution)", () => {
     expect(alternation_field_label("[SHIRT: {red|black}]", "{red|black}")).toBe("SHIRT");
     expect(alternation_field_label("plain {a|b} prose", "{a|b}")).toBe("");
     expect(alternation_field_label("[MOOD: {calm|furious}] then {a|b}", "{a|b}")).toBe("");
+  });
+});
+
+describe("strip_visual_excluded & VISUAL_EXCLUDED_KEYS", () => {
+  it("exports frozen VISUAL_EXCLUDED_KEYS set", () => {
+    expect(VISUAL_EXCLUDED_KEYS).toBeInstanceOf(Set);
+    expect(VISUAL_EXCLUDED_KEYS.has("INVENTORY")).toBe(true);
+    expect(VISUAL_EXCLUDED_KEYS.has("STASH")).toBe(true);
+    expect(VISUAL_EXCLUDED_KEYS.has("SECRET")).toBe(true);
+    expect(VISUAL_EXCLUDED_KEYS.has("PLAN")).toBe(true);
+    expect(VISUAL_EXCLUDED_KEYS.has("STATUS")).toBe(true);
+    expect(Object.isFrozen(VISUAL_EXCLUDED_KEYS)).toBe(true);
+  });
+
+  it("returns empty string for falsey inputs", () => {
+    expect(strip_visual_excluded("")).toBe("");
+    expect(strip_visual_excluded(null)).toBe("");
+    expect(strip_visual_excluded(undefined)).toBe("");
+  });
+
+  it("preserves raw prose if no pseudo-JSON brackets are parsed", () => {
+    const raw = "A lone figure stands in the rain";
+    expect(strip_visual_excluded(raw)).toBe(raw);
+  });
+
+  it("strips visual excluded keys and retains visual keys", () => {
+    const input = "[SHIRT: red tunic] [INVENTORY: dagger, potion] [HAIR: raven] [SECRET: knows the truth] [STATUS: bleeding]";
+    const result = strip_visual_excluded(input);
+    expect(result).toContain("[SHIRT: red tunic]");
+    expect(result).toContain("[HAIR: raven]");
+    expect(result).not.toContain("INVENTORY");
+    expect(result).not.toContain("SECRET");
+    expect(result).not.toContain("STATUS");
   });
 });
 
