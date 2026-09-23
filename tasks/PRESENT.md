@@ -9,15 +9,15 @@ last_synchronized: 2026-09-19
 
 ## ⚡ Present
 
-- **Active Track**: [`tasks/future/track-prompt-architecture-purification-and-physics-decoupling.md`](./future/track-prompt-architecture-purification-and-physics-decoupling.md)
-- **Active Task**: Decoupling XML compilers from physics.js into modules/protocols.js and modules/task.js, wiring @utils math
+- **Active Track**: [`tasks/future/track-generation-flow-and-storyboard-guards.md`](./future/track-generation-flow-and-storyboard-guards.md)
+- **Active Task**: `task-1.1`: Extend `src/state/status.test.js` with failing unit tests covering fine-grained generation stages: `director_thinking`, `speaker_thinking`, `start_director_stage()`, `set_delegated_speaker()`, `start_stream_stage()`, and state resets on `complete()`.
 
 ### 🩺 System & Session Readiness
 
 - **Active Baton**: [`scribbles.md`](../scribbles.md) (Generation flow lifecycle, speaker thinking indicators, active-story guard modal exploration, shimmer harmonization).
-- **Environmental Health**: Git branch `main` (hook contracts passing 13/13 via `npm run test:hooks`, 70 test suites / 1006 tests passing 100%, design tests passing, clean working tree).
+- **Environmental Health**: Git branch `main` (hook contracts passing 13/13 via `npm run test:hooks`, 71 test suites / 1114 tests passing 100%, design tests passing, clean working tree).
 - **Sovereign Constraints**: Svelte 5 Runes only (`$state`, `$derived`, `$effect`), single-file bundle distribution (`vite-plugin-singlefile`), P4 Zero Backwards Compatibility (pre-beta purity).
-- **Last Startup Verification**: 2026-09-19 11:46 (via `/startup`).
+- **Last Startup Verification**: 2026-09-23 15:57 (via `/startup`).
 
 ### 🔍 Detected TODOs
 
