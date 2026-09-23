@@ -568,13 +568,6 @@ export const PREMADE_ENTITIES = Object.freeze([...PREMADE_CHARACTERS, ...PREMADE
  */
 export const PREMADE_ENTITY_MAP = new Map(PREMADE_ENTITIES.map((blueprint) => [blueprint.id, blueprint]));
 
-/**
- * Backward-compatible object wrapper mapping `entities` array.
- */
-export const premade = Object.freeze({
-  entities: PREMADE_ENTITIES,
-});
-
 // ============================================================================
 // 4. Query Primitives & Selectors
 // ============================================================================
@@ -622,6 +615,7 @@ export function get_premade_fractals() {
 /* ============================================================================
  * CHANGELOG
  * ============================================================================
+ * - 2026-09-24: Purged legacy `premade` object wrapper under P4 Zero Backwards Compatibility.
  * - 2026-08-29: Harmonized module via `/harmonize`. Renamed `premades.js` -> `premade-entities.js`.
  *   Enforced Universal File Architecture, Anti-Abbreviation nomenclature, frozen constants
  *   (`PREMADE_CHARACTERS`, `PREMADE_FRACTALS`, `PREMADE_ENTITIES`, `PREMADE_ENTITY_MAP`),

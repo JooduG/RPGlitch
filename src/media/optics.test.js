@@ -7,9 +7,7 @@ import { describe, expect, it } from "vitest";
 import {
   DEFAULT_IMAGE_TIER,
   IMAGE_TIERS,
-  IMAGE_TRIGGER,
   ORDERED_VISUAL_STYLE_KEYS,
-  VISUAL_EXCLUDED_KEYS,
   aesthetic_resolver,
   build_aesthetic_map,
   compose_visual_generation_prompt,
@@ -18,9 +16,8 @@ import {
   get_tier_guidance_scale,
   normalize_image_tier,
   resolve_image_trigger,
-  resolve_visual_engine_tokens,
-  strip_visual_excluded,
 } from "./optics.js";
+import { VISUAL_EXCLUDED_KEYS, strip_visual_excluded } from "@utils";
 
 describe("optics.js — 4-Tier Image Taxonomy & Resolutions", () => {
   describe("constants", () => {

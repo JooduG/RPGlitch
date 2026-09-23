@@ -23,10 +23,8 @@
  */
 
 import { VISUAL_STYLES, resolve_portrait_visual_style_key } from "@data";
-import { CLOTHING_KEYS, safe_parse_pseudo_json, normalize_comma_spacing, VISUAL_EXCLUDED_KEYS, strip_visual_excluded } from "@utils";
+import { CLOTHING_KEYS, safe_parse_pseudo_json, normalize_comma_spacing, VISUAL_EXCLUDED_KEYS } from "@utils";
 import { get_signature_label, PALETTE } from "./palette.js";
-
-export { VISUAL_EXCLUDED_KEYS, strip_visual_excluded };
 
 // ============================================================================
 // [SECTION 1: TAXONOMY CONSTANTS & RESOLUTION SPECS]
@@ -544,6 +542,7 @@ export const aesthetic_resolver = {
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-24: Purged redundant re-exports of VISUAL_EXCLUDED_KEYS and strip_visual_excluded under P4 Zero Backwards Compatibility.
  * - 2026-09-24: Imported VISUAL_EXCLUDED_KEYS and strip_visual_excluded from @utils instead of @intelligence, breaking circular media↔intelligence dependency.
  * - 2026-09-24: Consolidated pure visual optics domain (optics.js) absorbing image-tiers.js (taxonomy, resolutions), image-trigger.js (dual-source trigger arbitration, dynamics gate), and image-aesthetics.js (aesthetic map synthesis, prompt composition, resolvers).
  * - 2026-09-24: Added compose_visual_generation_prompt() — positive style-token injection and negative-token assembly/dedup moved out of visual.svelte.js generate() into this pure compiler.

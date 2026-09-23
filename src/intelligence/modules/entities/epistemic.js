@@ -15,10 +15,6 @@
  * ============================================================================
  */
 
-import { strip_visual_excluded, VISUAL_EXCLUDED_KEYS } from "@utils";
-
-export { strip_visual_excluded, VISUAL_EXCLUDED_KEYS };
-
 /**
  * Strips epistemic [SECRET: ...] and [PLAN: ...] directives from rendered state strings.
  * Enforces the Epistemic Wall so AI models never receive another entity's private knowledge.
@@ -70,6 +66,7 @@ export function verify_epistemic_integrity(prompt_text) {
 /**
  * CHANGELOG
  * ============================================================================
+ * - 2026-09-23: Purged redundant re-exports of VISUAL_EXCLUDED_KEYS and strip_visual_excluded under P4; downstream consumers import directly from @utils.
  * - 2026-09-23: Delegated VISUAL_EXCLUDED_KEYS and strip_visual_excluded to @utils/text.js to break circular dependency with media layer.
  * - 2026-09-19: Repatriated VISUAL_EXCLUDED_KEYS and strip_visual_excluded from media layer to epistemic.js, establishing pure self-contained epistemic prompt filtering.
  * - 2026-09-18: Standardized verify_epistemic_integrity contract to return boolean (true = clean, false = leak) aligning with call-site guard.

@@ -58,8 +58,6 @@ export {
   resolve_image_trigger,
   aesthetic_resolver,
   build_aesthetic_map,
-  strip_visual_excluded,
-  VISUAL_EXCLUDED_KEYS,
   ORDERED_VISUAL_STYLE_KEYS,
   resolve_visual_engine_tokens,
   compose_visual_generation_prompt,
@@ -89,6 +87,7 @@ export {
 
 /**
  * CHANGELOG:
+ * - 2026-09-24: Purged VISUAL_EXCLUDED_KEYS and strip_visual_excluded re-exports under P4 Zero Backwards Compatibility (now imported directly from @utils).
  * - 2026-09-24: Media layer consolidation — collapsed image-tiers.js, image-trigger.js, and image-aesthetics.js into optics.js; absorbed image-beats.js into visual.svelte.js; enforced P4 Zero Backwards Compatibility.
  * - 2026-09-24: Folded the visual prompt-token domain out of `visual.svelte.js` — exported `compose_visual_generation_prompt` from image-aesthetics.js.
  * - 2026-09-24: Re-exported the in-flight image generation registry helpers from image-beats.js.

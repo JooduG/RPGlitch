@@ -161,7 +161,7 @@ export function get_output_format(format_spec, options = {}) {
   if (!format_spec) return options.fallback || "";
 
   // 1. Plain narrative prose directive (think-free variant for modes that open no <THINK> block)
-  if (format_spec === "PROSE" || format_spec.mode === "prose") {
+  if (format_spec.mode === "prose") {
     return options.has_think === false ? PLAIN_PROSE_FORMAT : PROSE_FORMAT;
   }
 
@@ -207,6 +207,7 @@ export function render_output_format_xml({ mode = "", content = "", indent_level
 
 /**
  * CHANGELOG
+ * - 2026-09-24: Purged legacy `"PROSE"` string sentinel in `get_output_format` under P4 Zero Backwards Compatibility (`format_spec` must be a normalized spec object).
  * - 2026-09-24: Added `PLAIN_PROSE_FORMAT` and a `has_think` option to `get_output_format`, so a prose-format mode without a `<THINK>` block (enhancement) no longer emits the orphaned "After closing `</THINK>`" reference.
  * - 2026-09-23: Prompt-grammar harmonization (phases 0–3) — `PROSE_FORMAT` now scopes the plain-prose rule explicitly to after `</THINK>`, removing the contradiction with `THINK_FORMAT`.
  * - 2026-09-23: `get_output_format` accepts the normalized `{ mode: "prose" }` shape (every mode's `format` is now an object produced by `define_mode`), while retaining the legacy `"PROSE"` sentinel for direct callers.

@@ -47,14 +47,14 @@ describe("src/intelligence/modules/format.js", () => {
   });
 
   describe("get_output_format()", () => {
-    it("resolves PROSE format string to PROSE_FORMAT and returns fallback for unknown strings", () => {
-      expect(get_output_format("PROSE")).toBe(PROSE_FORMAT);
+    it("resolves prose format object to PROSE_FORMAT and returns fallback for unknown strings", () => {
+      expect(get_output_format({ mode: "prose" })).toBe(PROSE_FORMAT);
       expect(get_output_format("unknown", { fallback: "fallback_val" })).toBe("fallback_val");
       expect(get_output_format(null, { fallback: "fallback_val" })).toBe("fallback_val");
     });
 
     it("swaps in the think-free prose directive when has_think is false", () => {
-      expect(get_output_format("PROSE", { has_think: false })).toBe(PLAIN_PROSE_FORMAT);
+      expect(get_output_format({ mode: "prose" }, { has_think: false })).toBe(PLAIN_PROSE_FORMAT);
       expect(get_output_format(PROMPTS.enhancement.format, { has_think: false })).toBe(PLAIN_PROSE_FORMAT);
       expect(get_output_format(PROMPTS.enhancement.format)).toBe(PROSE_FORMAT);
     });

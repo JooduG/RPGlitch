@@ -15,9 +15,17 @@
  * ============================================================================
  */
 
-import { escape_xml, physical_to_xml, strip_leading_key_echo, render_field_value, indent_continuation, render_xml_tag } from "@utils";
+import {
+  escape_xml,
+  physical_to_xml,
+  strip_leading_key_echo,
+  render_field_value,
+  indent_continuation,
+  render_xml_tag,
+  strip_visual_excluded,
+} from "@utils";
 import { PROFILE_FIELD_CATALOG } from "@data";
-import { strip_epistemic_secrets, strip_visual_excluded } from "./epistemic.js";
+import { strip_epistemic_secrets } from "./epistemic.js";
 import { resolve_available_entities, render_dispositions, render_nearby_entities_xml, render_cast_xml, CAST_MODES } from "./presence.js";
 
 // ============================================================================
@@ -850,6 +858,7 @@ export function render_dynamics_axes_xml(live_dynamics = null, scope = null, axe
 /**
  * CHANGELOG
  * ============================================================================
+ * - 2026-09-24: Imported strip_visual_excluded directly from @utils instead of epistemic.js under P4 Zero Backwards Compatibility.
  * - 2026-09-24: `resolve_entities` gate renamed `present_entities` → `candidate_entities`, matching the cast block's refined role (off-stage reuse candidates only, never a restatement of sheeted participants).
  * - 2026-09-23: Prompt-grammar harmonization (phases 0–3) — deleted `render_dynamics_xml` (the Director now uses the shared `render_dynamics_axes_xml`) and `render_optics_subject_rules`; `<ENTITIES>` is now pure data (the SOLO FRAME / AFFIRMATIVE ENVIRONMENTAL SCALE / background directives and the subject rules moved into `<DIRECTIVES>`), and `prompt_escape` is no longer imported.
  * - 2026-09-23: Visibility policy (R3) — added the exported `VISIBILITY_POLICIES` table and `resolve_visibility_gates(visibility, speaker)`; `resolve_entities` now derives the `dispositions`/`dynamic_axes`/`agendas` sheet gates from the mode's `visibility` + `speaker` instead of reading three parallel `config.entities` arrays. Output bytes unchanged.

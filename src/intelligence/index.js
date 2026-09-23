@@ -88,10 +88,10 @@ export { build_turn_summary } from "./physics.js";
 export { render_narrative_style_xml, render_visual_style_xml, render_core_protocols } from "./modules/protocols.js";
 export { format_sensory_history, render_visual_history } from "./modules/history.js";
 export { render_optics_prompt, render_optics_fallback } from "./builder.js";
-export { VISUAL_EXCLUDED_KEYS, strip_visual_excluded } from "./modules/entities/epistemic.js";
 
 /**
  * CHANGELOG:
+ * - 2026-09-24: Purged VISUAL_EXCLUDED_KEYS and strip_visual_excluded re-exports under P4 Zero Backwards Compatibility (now accessed directly from @utils).
  * - 2026-09-24: Streamlined intelligence kernel domain: merged `telemetry.js` into `physics.js` (`build_turn_summary`), and merged `payload.js` into `builder.js` (`context_builder`, `to_data_points`).
  * - 2026-09-24: Folded the media-side optics prompt domain into the barrel — exported `render_visual_history` (history.js), `render_optics_fallback` (builder.js), and `flatten_markup_to_prose` (parser.js).
  * - 2026-09-19: Re-exported VISUAL_EXCLUDED_KEYS and strip_visual_excluded directly from concrete module epistemic.js under P4 Zero Backwards Compatibility.

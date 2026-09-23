@@ -11,7 +11,6 @@ import {
   PREMADE_FRACTALS,
   PREMADE_ENTITIES,
   PREMADE_ENTITY_MAP,
-  premade,
   get_premade_entity_by_id,
   has_premade_entity,
   get_premade_characters,
@@ -31,7 +30,6 @@ describe("premade-entities registry", () => {
     expect(Array.isArray(PREMADE_ENTITIES)).toBe(true);
     expect(Object.isFrozen(PREMADE_ENTITIES)).toBe(true);
     expect(PREMADE_ENTITY_MAP instanceof Map).toBe(true);
-    expect(premade.entities).toBe(PREMADE_ENTITIES);
   });
 
   it("contains unique IDs across all premade entities", () => {

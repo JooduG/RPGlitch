@@ -57,7 +57,6 @@ export {
 // ============================================================================
 
 export {
-  premade,
   PREMADE_ENTITIES,
   PREMADE_CHARACTERS,
   PREMADE_FRACTALS,
@@ -120,6 +119,7 @@ export { SIGNATURE_COLORS } from "./definitions/signature-colors.js";
 
 /**
  * CHANGELOG:
+ * - 2026-09-24: Purged `premade` legacy object wrapper export under P4 Zero Backwards Compatibility.
  * - 2026-09-10: Re-exported `extract_style_dna` from narrative-styles.js (style-DNA reader co-located with `define_style`).
  * - 2026-09-04: Purged `@utils` proxy re-exports (`detox_prose`, `resolve_speaking_style`, `resolve_style`)
  *   to preserve strict layer boundaries; callers import utility codecs directly from `@utils`.
