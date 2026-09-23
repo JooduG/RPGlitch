@@ -166,6 +166,9 @@ export class DeveloperLogStore {
   /** @type {DeveloperLogEntry[]} */
   #entries = $state([]);
 
+  /** @type {any} */
+  #persist_timer = null;
+
   /**
    * Current reactive list of telemetry log entries.
    * @returns {DeveloperLogEntry[]}
@@ -175,8 +178,25 @@ export class DeveloperLogStore {
   }
 
   /**
+   * Schedules a debounced write to IndexedDB kv_settings.
+   */
+  #schedule_persist() {
+    if (this.#persist_timer) {
+      clearTimeout(this.#persist_timer);
+    }
+    this.#persist_timer = setTimeout(() => {
+      this.#persist_timer = null;
+      try {
+        db?.kv_settings?.put({ key: DEVELOPER_TELEMETRY_STORAGE_KEY, value: this.#entries.slice(-MAX_DEVELOPER_LOG_ENTRIES) })?.catch(() => {});
+      } catch {
+        /* Persistence errors must never break runtime flow */
+      }
+    }, 500);
+  }
+
+  /**
    * Records a developer or system diagnostic event.
-   * Capped to MAX_DEVELOPER_LOG_ENTRIES and asynchronously persisted to IndexedDB.
+   * Capped to MAX_DEVELOPER_LOG_ENTRIES and asynchronously persisted to IndexedDB (debounced).
    * @param {string} message
    * @param {string} [type='system']
    * @returns {DeveloperLogEntry}
@@ -194,11 +214,7 @@ export class DeveloperLogStore {
       this.#entries.splice(0, this.#entries.length - MAX_DEVELOPER_LOG_ENTRIES);
     }
 
-    try {
-      db?.kv_settings?.put({ key: DEVELOPER_TELEMETRY_STORAGE_KEY, value: this.#entries.slice(-MAX_DEVELOPER_LOG_ENTRIES) })?.catch(() => {});
-    } catch {
-      /* Persistence errors must never break runtime flow */
-    }
+    this.#schedule_persist();
 
     return entry;
   }

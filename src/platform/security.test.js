@@ -231,21 +231,10 @@ describe("validation.js", () => {
       vi.restoreAllMocks();
     });
 
-    test("patches ResizeObserver to wrap callbacks in requestAnimationFrame", () => {
-      const callback_mock = vi.fn();
-      const raf_spy = vi.spyOn(window, "requestAnimationFrame").mockImplementation((cb) => {
-        cb(0);
-        return 1;
-      });
-
+    test("does not monkey-patch global ResizeObserver or window.addEventListener", () => {
       security.install_environment_hardening();
-
-      const observer = new window.ResizeObserver(callback_mock);
-      expect(observer).toBeDefined();
-      expect(window.ResizeObserver).not.toBe(original_resize_observer);
-      expect(raf_spy).not.toHaveBeenCalled();
-
-      raf_spy.mockRestore();
+      expect(window.ResizeObserver).toBe(original_resize_observer);
+      expect(window.addEventListener).toBe(original_add_event_listener);
     });
 
     test("suppresses ResizeObserver loop messages via window.onerror", () => {
@@ -356,7 +345,7 @@ describe("validation.js", () => {
 
       security.clear_session_checkpoint();
       security.save_session_checkpoint({ story_id: "story-9", round: 3, phase: "idle" });
-      expect(window.name).toBe(JSON.stringify({ story_id: "story-9", round: 3, phase: "idle" }));
+      expect(window.name).toBe(`__RPGLITCH_CHECKPOINT__:${JSON.stringify({ story_id: "story-9", round: 3, phase: "idle" })}`);
 
       ss_get.mockRestore();
       ss_set.mockRestore();
@@ -367,7 +356,7 @@ describe("validation.js", () => {
       const ss_get = vi.spyOn(window.sessionStorage.__proto__, "getItem").mockImplementation(() => {
         throw new Error("blocked");
       });
-      window.name = JSON.stringify({ story_id: "story-9", round: 3, phase: "idle" });
+      window.name = `__RPGLITCH_CHECKPOINT__:${JSON.stringify({ story_id: "story-9", round: 3, phase: "idle" })}`;
 
       expect(security.load_session_checkpoint()).toEqual({ story_id: "story-9", round: 3, phase: "idle" });
       ss_get.mockRestore();

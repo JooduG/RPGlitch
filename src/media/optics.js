@@ -346,7 +346,7 @@ const BARE_MARKER_REGEX =
 
 /**
  * Resolves visual engine medium, palette, camera, and negative prompts for a style key.
- * Directly reads structured tokens from  isual_style.engine.
+ * Directly reads structured tokens from visual_style.engine.
  *
  * @param {string} visual_style_key
  * @returns {VisualEngineTokens}

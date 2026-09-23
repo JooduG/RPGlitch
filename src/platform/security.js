@@ -42,6 +42,9 @@ const PERCHANCE_FRAME_ERROR_PATTERNS = ["Symbol", "numActualScriptLines"];
 /** Storage key for session checkpoint entries in sessionStorage. */
 export const CHECKPOINT_KEY = "rpglitch.session_checkpoint";
 
+/** Namespaced prefix for session checkpoint payloads stored in window.name. */
+export const WINDOW_NAME_CHECKPOINT_PREFIX = "__RPGLITCH_CHECKPOINT__:";
+
 /**
  * @typedef {Object} SessionCheckpoint
  * @property {string | null} story_id - The active story identifier.
@@ -170,61 +173,31 @@ export async function validate_image(file, options = {}) {
 
 /**
  * Suppresses benign "ResizeObserver loop completed with undelivered notifications" errors.
+ * Uses a non-invasive capturing listener and window.onerror filter without mutating
+ * global constructors or wrapping user event listeners.
  */
 function install_resize_observer_guard() {
-  if (typeof window !== "undefined" && typeof ResizeObserver !== "undefined") {
-    const original_resize_observer = ResizeObserver;
+  if (typeof window === "undefined") return;
 
-    class SafeResizeObserver extends original_resize_observer {
-      /**
-       * @param {ResizeObserverCallback} callback
-       */
-      constructor(callback) {
-        const wrapped = (entries, observer) => {
-          requestAnimationFrame(() => {
-            try {
-              callback(entries, observer);
-            } catch (err) {
-              console.error("[SafeResizeObserver] callback error:", err);
-            }
-          });
-        };
-        super(/** @type {ResizeObserverCallback} */ (wrapped));
-      }
+  const original_onerror = window.onerror;
+  window.onerror = function (msg, source, lineno, colno, error) {
+    if (msg && String(msg).includes(RESIZE_OBSERVER_LOOP_PATTERN)) {
+      return true; // Suppress benign loop notification
     }
+    return original_onerror ? original_onerror.call(this, msg, source, lineno, colno, error) : false;
+  };
 
-    Object.setPrototypeOf(SafeResizeObserver, original_resize_observer);
-    Object.defineProperty(window, "ResizeObserver", {
-      value: SafeResizeObserver,
-      writable: true,
-      configurable: true,
-    });
-  }
-
-  if (typeof window !== "undefined") {
-    const original_onerror = window.onerror;
-    window.onerror = function (msg, source, lineno, colno, error) {
-      if (msg && String(msg).includes(RESIZE_OBSERVER_LOOP_PATTERN)) {
-        return true; // Suppress benign loop notification
+  window.addEventListener(
+    "error",
+    (event) => {
+      const message = event?.message;
+      if (message && String(message).includes(RESIZE_OBSERVER_LOOP_PATTERN)) {
+        event.preventDefault?.();
+        event.stopImmediatePropagation?.();
       }
-      return original_onerror ? original_onerror.call(this, msg, source, lineno, colno, error) : false;
-    };
-
-    const original_add_event_listener = window.addEventListener;
-    window.addEventListener = function (type, listener, options) {
-      if (type === "error") {
-        const wrapped = (event) => {
-          const message = event?.message;
-          if (message && String(message).includes(RESIZE_OBSERVER_LOOP_PATTERN)) {
-            return;
-          }
-          return listener.call(this, event);
-        };
-        return original_add_event_listener.call(this, type, wrapped, options);
-      }
-      return original_add_event_listener.call(this, type, listener, options);
-    };
-  }
+    },
+    true,
+  );
 }
 
 /**
@@ -327,7 +300,7 @@ export function save_session_checkpoint(checkpoint) {
 
   try {
     if (typeof window !== "undefined") {
-      window.name = JSON.stringify(payload);
+      window.name = `${WINDOW_NAME_CHECKPOINT_PREFIX}${JSON.stringify(payload)}`;
     }
   } catch {
     /* Cross-origin window access restriction */
@@ -360,8 +333,8 @@ export function load_session_checkpoint() {
   }
 
   try {
-    if (typeof window !== "undefined" && window.name && window.name.startsWith("{")) {
-      return JSON.parse(window.name);
+    if (typeof window !== "undefined" && typeof window.name === "string" && window.name.startsWith(WINDOW_NAME_CHECKPOINT_PREFIX)) {
+      return JSON.parse(window.name.slice(WINDOW_NAME_CHECKPOINT_PREFIX.length));
     }
   } catch {
     /* Corrupted or blocked window.name */
@@ -386,7 +359,7 @@ export function clear_session_checkpoint() {
   }
 
   try {
-    if (typeof window !== "undefined" && window.name && window.name.startsWith("{")) {
+    if (typeof window !== "undefined" && typeof window.name === "string" && window.name.startsWith(WINDOW_NAME_CHECKPOINT_PREFIX)) {
       window.name = "";
     }
   } catch {
@@ -414,6 +387,7 @@ export const security = {
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-24: Refactored `install_resize_observer_guard` to non-invasively capture errors without monkey-patching `window.ResizeObserver` or `window.addEventListener`. Namespaced `window.name` session checkpoint with `__RPGLITCH_CHECKPOINT__:`.
  * - 2026-09-24: Platform layer consolidation — merged `environment.js` (ResizeObserver guard, Perchance sandbox frame error silencing) and `session-storage.js` (multi-tier reload checkpointing) directly into `security.js` under P4 Zero Backwards Compatibility.
  * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,
  *   structured section dividers, extracted `IMAGE_SIGNATURE_VALIDATORS` and constants, converted
