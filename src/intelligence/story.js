@@ -24,6 +24,7 @@ import {
   extract_alternations,
   alternation_field_label,
   strip_alternation_braces,
+  filter_narrative_messages,
 } from "@utils";
 import {
   visual_engine,
@@ -210,13 +211,11 @@ export const gamemaster = {
       // 2. HYDRATION: Fetch history and hydrate context
       const raw_messages = await state_bridge.session_driver.load_log(story_id);
       const simulation_log = _attach_history_origins(
-        raw_messages
-          .filter((m) => !m.meta?.consolidated && m.role !== "system")
-          .map((m) => ({
-            role: m.role === "user" ? "user" : m.role === "fractal" ? "fractal" : "model",
-            content: m.text || m.content || "",
-            character_name: m.character_name,
-          })),
+        filter_narrative_messages(raw_messages, { exclude_consolidated: true }).map((m) => ({
+          role: m.role === "user" ? "user" : m.role === "fractal" ? "fractal" : "model",
+          content: m.text || m.content || "",
+          character_name: m.character_name,
+        })),
       );
 
       if (input && simulation_log.length > 0) {
@@ -787,7 +786,7 @@ export const gamemaster = {
       fractal: state_bridge.runtime.fractal || { velocity: 50, entropy: 50 },
     };
     const raw_messages = await state_bridge.session_driver.load_log(story_id);
-    const recent_history = raw_messages.slice(-10);
+    const recent_history = filter_narrative_messages(raw_messages).slice(-10);
 
     const { system, task } = compile_prompt("narrator", {
       entities: clean_entities,
@@ -867,13 +866,11 @@ export const gamemaster = {
     const story_id = state_bridge.runtime.story_id;
     const raw_messages = story_id ? await state_bridge.session_driver.load_log(story_id) : [];
     const simulation_log = _attach_history_origins(
-      raw_messages
-        .filter((m) => !m.meta?.consolidated && m.role !== "system")
-        .map((m) => ({
-          role: m.role === "user" ? "user" : m.role === "fractal" ? "fractal" : "model",
-          content: m.text || m.content || "",
-          character_name: m.character_name,
-        })),
+      filter_narrative_messages(raw_messages, { exclude_consolidated: true }).map((m) => ({
+        role: m.role === "user" ? "user" : m.role === "fractal" ? "fractal" : "model",
+        content: m.text || m.content || "",
+        character_name: m.character_name,
+      })),
     );
     const payload = await context_builder.build_context(input_text || "", "simulation", simulation_log);
     const ghost_prompt = compile_prompt("ghostwrite", { ...payload, input: input_text, ghostwrite: true });
@@ -960,6 +957,7 @@ export const story_pipeline = gamemaster;
 
 /**
  * CHANGELOG
+ * - 2026-09-25: Unified history message filtering — migrated execute_turn, execute_epilogue, and execute_ghostwriter to consume canonical `filter_narrative_messages` from @utils.
  * - 2026-09-25: Stripping standardization — dropped the local `clean_think` tag-scrub and the
  *   inline closure-strip in the truncation check, routing both through the shared
  *   `strip_cognition_blocks`; the image-trigger snippet now clips via `truncate_at_word`.

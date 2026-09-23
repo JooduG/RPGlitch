@@ -17,7 +17,7 @@
  * Consumed across the engine by UI, State, Media, and Intelligence layers.
  */
 
-import { CLOTHING_KEYS } from "./xml.js";
+import { CLOTHING_KEYS, escape_xml, prompt_escape } from "./xml.js";
 
 // ============================================================================
 // [SECTION 1: CONSTANTS & TOKEN SETS]
@@ -766,6 +766,74 @@ export function collapse_history(messages, options = {}) {
 }
 
 /**
+ * Filters a sequence of dialogue messages or log records to retain only narrative turns.
+ * Strips out system messages and optionally excludes consolidated rounds.
+ *
+ * @param {Array<any>} messages - Array of dialogue/log records.
+ * @param {Object} [options={}]
+ * @param {boolean} [options.exclude_consolidated=false] - Whether to exclude turns already consolidated into memories.
+ * @returns {Array<any>} Filtered narrative message records.
+ */
+export function filter_narrative_messages(messages, options = {}) {
+  if (!Array.isArray(messages) || messages.length === 0) return [];
+  const { exclude_consolidated = false } = options;
+
+  return messages.filter((message) => {
+    if (!message || message.role === "system") return false;
+    if (exclude_consolidated && message.meta?.consolidated) return false;
+    return true;
+  });
+}
+
+/**
+ * Universal conversation history serializer.
+ * Transforms an array of messages/entries into clean XML `<ENTRY>` sequences with origin attributes,
+ * round counters, stripped cognition blocks, and optional word-boundary truncation.
+ *
+ * @param {Array<any>} messages - Array of dialogue/log entries.
+ * @param {Object} [options={}]
+ * @param {number} [options.limit] - Optional window limit of entries to include from the end.
+ * @param {number} [options.offset=0] - Offset from the end of the history window.
+ * @param {number} [options.max_chars] - Maximum characters per entry before word-boundary truncation.
+ * @param {boolean} [options.collapse=true] - Whether to collapse consecutive turns from the same speaker.
+ * @param {string} [options.separator="\n\n"] - Separator between merged paragraphs in collapsed turns.
+ * @param {boolean} [options.stripBoldQuotes=false] - Whether to strip bold markdown quotes during collapsing.
+ * @param {number} [options.indent=0] - Leading space indentation preceding each <ENTRY> tag.
+ * @returns {string} XML formatted <ENTRY> sequence string.
+ */
+export function format_history_entries(messages, options = {}) {
+  if (!messages) return "";
+  if (typeof messages === "string") return messages;
+  if (!Array.isArray(messages) || messages.length === 0) return "";
+
+  const { limit, offset = 0, max_chars, collapse = true, separator = "\n\n", stripBoldQuotes = false, indent = 0 } = options;
+
+  const raw_entries = collapse ? collapse_history(messages, { separator, stripBoldQuotes }) : messages;
+
+  const total = raw_entries.length;
+  const start_index = limit ? Math.max(0, total - (limit + offset)) : 0;
+  const end_index = Math.max(0, total - offset);
+
+  const prefix = indent > 0 ? " ".repeat(indent) : "";
+
+  return raw_entries
+    .slice(start_index, end_index)
+    .map((entry, index) => {
+      const raw_text = String(entry?.content ?? entry?.text ?? "");
+      const clean_text = strip_cognition_blocks(raw_text).trim();
+      if (!clean_text) return null;
+
+      const origin = entry.origin || entry.character_name || entry.name || (entry.role ? role_display_label(entry.role) : "") || "Character";
+      const round_number = start_index + index + 1;
+      const content = max_chars ? truncate_at_word(clean_text, max_chars) : clean_text;
+
+      return `${prefix}<ENTRY round="${round_number}" origin="${escape_xml(origin)}">${prompt_escape(content)}</ENTRY>`;
+    })
+    .filter(Boolean)
+    .join("\n");
+}
+
+/**
  * Decomposes a flat story title into styled title parts matching active entities.
  * Highlights AI, User, and Fractal names with their signature colors.
  * @param {string | null | undefined} title
@@ -979,6 +1047,7 @@ export function alternation_field_label(text, raw) {
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-25: History formatting standardization — added `format_history_entries` and `filter_narrative_messages` to unify conversation history collapsing, XML `<ENTRY>` serialization, and narrative turn extraction across platform and intelligence layers.
  * - 2026-09-25: DRY pass — consolidated `compute_initials` (was duplicated verbatim in Storyboard.svelte.js and ProfilePicture.svelte) and `NAME_PREFIX_STEMS` here; added `role_display_label` + `NARRATIVE_ROLES`/`is_narrative_role` so the role→label and narrative-role checks live in one place.
  * - 2026-09-25: Stripping/truncation standardization — `truncate_at_word` is now the one
  *   word-boundary truncator (options: ellipsis, reserve_ellipsis, min_bound_ratio/min_bound_chars,

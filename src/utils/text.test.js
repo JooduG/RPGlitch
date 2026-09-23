@@ -32,6 +32,8 @@ import {
   role_display_label,
   safe_parse_json,
   safe_parse_pseudo_json,
+  filter_narrative_messages,
+  format_history_entries,
   strip_cognition_blocks,
   truncate_at_word,
 } from "./text.js";
@@ -321,6 +323,57 @@ describe("collapse_history", () => {
       { role: "assistant", text: "Welcome.", character_name: "Glitch" },
     ];
     expect(collapse_history(messages)).toEqual([{ role: "AI_CHARACTER", name: "Glitch", content: "Welcome." }]);
+  });
+});
+
+describe("filter_narrative_messages", () => {
+  it("filters out system messages and respects consolidated option", () => {
+    const messages = [
+      { role: "system", text: "Story Started" },
+      { role: "user", text: "Look out", meta: { consolidated: true } },
+      { role: "assistant", text: "I see it", character_name: "Iris" },
+    ];
+
+    expect(filter_narrative_messages(messages)).toEqual([
+      { role: "user", text: "Look out", meta: { consolidated: true } },
+      { role: "assistant", text: "I see it", character_name: "Iris" },
+    ]);
+
+    expect(filter_narrative_messages(messages, { exclude_consolidated: true })).toEqual([
+      { role: "assistant", text: "I see it", character_name: "Iris" },
+    ]);
+  });
+
+  it("handles null or non-array inputs safely", () => {
+    expect(filter_narrative_messages(null)).toEqual([]);
+    expect(filter_narrative_messages(undefined)).toEqual([]);
+  });
+});
+
+describe("format_history_entries", () => {
+  it("formats messages into canonical XML <ENTRY> sequences with origin, round, and stripped think tags", () => {
+    const messages = [
+      { role: "user", text: "Hello", character_name: "Orion", origin: "ORION" },
+      { role: "assistant", text: "<think>He greets me.</think>Greetings.", character_name: "Glitch", origin: "GLITCH" },
+    ];
+    const xml = format_history_entries(messages);
+    expect(xml).toContain('<ENTRY round="1" origin="ORION">Hello</ENTRY>');
+    expect(xml).toContain('<ENTRY round="2" origin="GLITCH">Greetings.</ENTRY>');
+    expect(xml).not.toContain("<think>");
+  });
+
+  it("collapses consecutive messages with separator and supports indent and max_chars", () => {
+    const messages = [
+      { role: "user", text: "One", character_name: "Orion" },
+      { role: "user", text: "Two", character_name: "Orion" },
+    ];
+    const xml = format_history_entries(messages, { separator: "\n\n", indent: 2 });
+    expect(xml).toBe('  <ENTRY round="1" origin="Orion">One\n\nTwo</ENTRY>');
+  });
+
+  it("returns empty string on empty or null inputs", () => {
+    expect(format_history_entries([])).toBe("");
+    expect(format_history_entries(null)).toBe("");
   });
 });
 

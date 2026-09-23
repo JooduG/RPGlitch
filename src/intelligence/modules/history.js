@@ -27,30 +27,7 @@
  * ============================================================================
  */
 
-import {
-  escape_xml,
-  prompt_escape,
-  collapse_history,
-  collapse_whitespace,
-  truncate_at_word,
-  render_xml_tag,
-  strip_cognition_blocks,
-  role_display_label,
-} from "@utils";
-
-// ============================================================================
-// [INTERNAL UTILITIES]
-// ============================================================================
-
-/**
- * Resolves a speaker's entity origin from raw entry or message properties.
- *
- * @param {Record<string, any>} entry
- * @returns {string}
- */
-function resolve_entry_origin(entry) {
-  return entry?.character_name || entry?.name || entry?.origin || role_display_label(entry?.role);
-}
+import { escape_xml, collapse_whitespace, truncate_at_word, render_xml_tag, strip_cognition_blocks, format_history_entries } from "@utils";
 
 // ============================================================================
 // [SECTION 1: MANIFEST CONFIGURATION & WINDOW RESOLVER]
@@ -100,49 +77,21 @@ export function resolve_history(configuration) {
  * @returns {string}
  */
 export function render_history(history, options = {}) {
-  if (!history || typeof history === "string") {
-    return history || "";
-  }
-
   const limit = options.limit ?? HISTORY_DEFAULTS.limit;
   const offset = options.offset ?? 0;
   const max_chars = options.max_chars;
   const should_collapse = options.collapse ?? true;
   const indent = options.indent ?? 0;
 
-  const raw_entries = should_collapse
-    ? collapse_history(history, {
-        separator: "\n",
-        stripBoldQuotes: true,
-      })
-    : Array.isArray(history)
-      ? history
-      : [];
-
-  const start_index = Math.max(0, raw_entries.length - (limit + offset));
-  const end_index = Math.max(0, raw_entries.length - offset);
-
-  return raw_entries
-    .slice(start_index, end_index)
-    .map((entry, index) => {
-      const raw_text = String(entry?.text ?? entry?.content ?? "");
-      const clean_text = strip_cognition_blocks(raw_text);
-      if (!clean_text) return null;
-
-      const round_number = start_index + index + 1;
-      const origin = entry.origin || resolve_entry_origin(entry);
-      const content = max_chars ? truncate_at_word(clean_text, max_chars) : clean_text;
-
-      return render_xml_tag({
-        tag: "ENTRY",
-        attrs: { round: round_number, origin },
-        children: [prompt_escape(content)],
-        indent,
-        inline: true,
-      });
-    })
-    .filter(Boolean)
-    .join("\n");
+  return format_history_entries(history, {
+    limit,
+    offset,
+    max_chars,
+    collapse: should_collapse,
+    separator: "\n",
+    stripBoldQuotes: true,
+    indent,
+  });
 }
 
 // ============================================================================
@@ -281,6 +230,7 @@ export function render_visual_history(entries, { max_entries = 2, max_chars = 20
 // ============================================================================
 /**
  * CHANGELOG
+ * - 2026-09-25: Unified History Pipeline — `render_history` now delegates directly to `format_history_entries` from `@utils/text.js`, unifying turn transcript serialization across platform and intelligence layers.
  * - 2026-09-25: DRY pass — `resolve_entry_origin`'s role fallback now calls the shared `role_display_label`.
  * - 2026-09-25: Stripping standardization — retired the local `strip_think_blocks` helper (it duplicated `strip_cognition_blocks` minus the DYNAMICS/artifact passes) and routed `format_sensory_history` + `render_visual_history` through the shared `strip_cognition_blocks` + `collapse_whitespace`; chapter summaries now clip via `truncate_at_word` instead of a mid-word `slice`.
  * - 2026-09-24: `render_visual_history` now strips the leading cognition block (and collapses whitespace) BEFORE truncating, so a word-boundary slice can no longer leave an unclosed <THINK> that `format_sensory_history` strips through to end-of-string — which had collapsed the optics <HISTORY> to a bare `Name:` line.

@@ -122,23 +122,23 @@ describe("format_conversation_history", () => {
   it("formats messages into XML tags with origin and turn", () => {
     const messages = [
       { role: "USER_PERSONA", content: "Hello" },
-      { role: "AI_CHARACTER", character_name: "Iris", content: "Greetings." },
+      { role: "AI_CHARACTER", content: "Greetings." },
     ];
     const formatted = format_conversation_history(messages);
-    expect(formatted).toContain('<ENTRY origin="User" round="1">Hello</ENTRY>');
-    expect(formatted).toContain('<ENTRY origin="Character" round="2">Greetings.</ENTRY>');
+    expect(formatted).toContain('<ENTRY round="1" origin="User">Hello</ENTRY>');
+    expect(formatted).toContain('<ENTRY round="2" origin="Character">Greetings.</ENTRY>');
   });
 
   it("prefers the entity id origin when present", () => {
     const messages = [{ role: "AI_CHARACTER", character_name: "Iris", origin: "iris", content: "Greetings." }];
     const formatted = format_conversation_history(messages);
-    expect(formatted).toContain('<ENTRY origin="iris" round="1">Greetings.</ENTRY>');
+    expect(formatted).toContain('<ENTRY round="1" origin="iris">Greetings.</ENTRY>');
   });
 
   it("preserves quotes and apostrophes without entity escaping, and strips think tags", () => {
     const messages = [{ role: "USER_PERSONA", content: "<think>Planning action.</think>Joodu's posture was solid. \"You're Raphael,\" he said." }];
     const formatted = format_conversation_history(messages);
-    expect(formatted).toContain('<ENTRY origin="User" round="1">Joodu\'s posture was solid. "You\'re Raphael," he said.</ENTRY>');
+    expect(formatted).toContain('<ENTRY round="1" origin="User">Joodu\'s posture was solid. "You\'re Raphael," he said.</ENTRY>');
     expect(formatted).not.toContain("&apos;");
     expect(formatted).not.toContain("&quot;");
     expect(formatted).not.toContain("<think>");

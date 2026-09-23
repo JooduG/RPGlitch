@@ -15,7 +15,7 @@
  * - Invariant: Transport does NOT alter narrative content or invent prompt rules; it exclusively transports, streams, and cleans.
  */
 
-import { collapse_history, escape_xml, prompt_escape, stream_bridge, strip_cognition_blocks, role_display_label } from "@utils";
+import { format_history_entries, stream_bridge, strip_cognition_blocks } from "@utils";
 
 // ============================================================================
 // [SECTION 1: SANITIZATION & NORMALIZATION UTILITIES]
@@ -171,16 +171,7 @@ function get_ai_engine() {
  * @returns {string}
  */
 export function format_conversation_history(messages) {
-  const collapsed = collapse_history(messages, { separator: "\n\n" });
-  if (!collapsed || collapsed.length === 0) return "";
-
-  return collapsed
-    .map((entry, index) => {
-      const label = entry.origin || entry.name || role_display_label(entry.role);
-      const clean_content = String(entry.content || "").trim();
-      return `  <ENTRY origin="${escape_xml(label)}" round="${index + 1}">${prompt_escape(clean_content)}</ENTRY>`;
-    })
-    .join("\n");
+  return format_history_entries(messages, { separator: "\n\n", indent: 2 });
 }
 
 // ============================================================================
@@ -458,6 +449,7 @@ export const llm_service = {
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-25: Unified History Pipeline — `format_conversation_history` now delegates directly to the canonical `format_history_entries` in `@utils/text.js`, eliminating duplicate collapsing and XML serialization.
  * - 2026-09-25: DRY pass — `format_conversation_history`'s label fallback now calls the shared `role_display_label`.
  * - 2026-09-25: Stripping standardization — `looks_truncated` now calls the shared `strip_cognition_blocks` (also catching unclosed/leaked blocks), and `format_conversation_history` drops its redundant re-strip now that `collapse_history` guarantees cognition-free content.
  * - 2026-09-18: Standardized conversation history envelope tag from <CONVERSATION_HISTORY> to canonical <HISTORY> per scrobbles.md blueprint.

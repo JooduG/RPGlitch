@@ -123,7 +123,7 @@ ${SEP}
 
     expect(result.character_task).toContain("<DELIVERY_POSTURE>");
     expect(result.character_task).toContain("<THINK>");
-    expect(result.character_task).toContain('<INPUT origin="USER">');
+    expect(result.character_task).toContain('<INPUT origin="USER"');
   });
 
   it("Pipeline verification passes all critical checks", async () => {
@@ -154,7 +154,7 @@ ${SEP}
 
     const result = await SimulationAudit.execute_turn("I submit.", scenario);
 
-    expect(result.director_task).toContain("<AI_CHARACTER_LAST_TURN>");
+    expect(result.director_task).toContain('<INPUT origin="AI" channel="reply">');
     expect(result.director_task).toContain("The vampire lord smiles coldly.");
   });
 });
