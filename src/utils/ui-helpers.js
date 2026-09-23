@@ -4,302 +4,297 @@
  *
  * Core Responsibilities:
  * - Dynamic CSS Token Resolution: Evaluates raw variables (`--token`), `var(--token)`, `calc()`,
- *   and relative units (`rem`, `em`, `s`, `ms`) into computed numbers, pixels, milliseconds, or strings.
- * - Measurement Element Pipeline (`#shared-measure-el`): Injects an invisible measurement element into the DOM
- *   to allow the browser's native CSS engine to evaluate computed styles with sentinels for failure detection.
- * - Browser Blob Downloads (`download_text_file`, `download_json_file`): Generates temporary object URLs, simulates
- *   anchor clicks, and cleans up object URLs after download.
+ *   and relative units (`rem`, `ms`, `s`) into typed computed values (pixels, ms, unitless, strings).
+ * - Browser Blob Downloads (`download_text_file`, `download_json_file`): Generates temporary object URLs,
+ *   simulates anchor clicks, and cleans up object URLs after download.
  * - Guarded View Transitions (`guarded_transition`): Provides single-flight lock protection around
  *   `document.startViewTransition()`, with synchronous fallback when transitions are active or unsupported.
+ *
+ * Exports:
+ * - `resolve_px(value, fallback?, context?)` — Resolves CSS value → pixel number.
+ * - `resolve_ms(value, fallback?, context?)` — Resolves CSS duration → millisecond number.
+ * - `resolve_number(value, fallback?, context?)` — Resolves CSS unitless value → number.
+ * - `resolve_string(value, fallback?, context?)` — Resolves CSS variable → raw string.
+ * - `download_text_file(filename, text, mime?)` — Downloads a text blob.
+ * - `download_json_file(filename, value)` — Downloads a JSON blob.
+ * - `guarded_transition(callback, options?)` — Single-flight view transition wrapper.
  *
  * Consumed by:
  * - `src/state/interface.svelte.js` (View transition navigation & layout measuring).
  * - `src/ui/entity/EntityCard.svelte` (Transition animations).
  * - `src/ui/story/StoryManager.svelte` (Story export downloads).
+ * - `src/ui/motion/kinetic.svelte.js` (WAAPI animation timing & spring physics parameters).
+ * - `src/ui/primitives/Dialog.svelte` (Transition duration tokens).
  */
 
 // ============================================================================
-// [SECTION 1: JSDOC SCHEMAS & SPEC TYPES]
+// [SECTION 1: PRIVATE CSS VARIABLE TRAVERSAL HELPER]
 // ============================================================================
 
 /**
- * @typedef {Object} ResolveSpec
- * @property {string} prop - The CSS property to probe on the measure element.
- * @property {string} sentinel - Sentinel value injected to detect resolution failure.
- * @property {(computed: string) => (number | string | null)} parseComputed - Parses browser computed value into target type.
- * @property {(raw: string) => (number | string | null)} parseDirect - Parses raw non-variable input string directly.
- * @property {(direct: string) => (number | string | null)} parseResolvedVar - Parses value resolved from a CSS variable.
- */
-
-/**
- * @typedef {Object} TransitionOptions
- * @property {string} [className] - Optional CSS class applied to document root during transition.
- */
-
-// ============================================================================
-// [SECTION 2: COMPUTED STYLE RESOLUTION & MEASUREMENT]
-// ============================================================================
-
-/**
- * Prepares a CSS value for measurement, wrapping raw variables in var().
- * @param {string | number} value
- * @returns {string}
- */
-function get_css_value(value) {
-  const trimmed = String(value).trim();
-  return trimmed.startsWith("--") ? `var(${trimmed})` : trimmed;
-}
-
-/**
- * Tries to resolve a variable directly from a context element's computed style.
- * @param {string} trimmed - Trimmed variable name or var() expression.
- * @param {HTMLElement | null} context - Element context.
- * @returns {string | null} Resolved variable value, or null.
- */
-function try_direct_var_resolve(trimmed, context) {
-  if (!context || typeof window === "undefined") return null;
-
-  const is_var = trimmed.startsWith("--") || (trimmed.startsWith("var(") && trimmed.endsWith(")"));
-  if (!is_var) return null;
-
-  const var_name = trimmed.startsWith("--") ? trimmed : trimmed.slice(4, -1).trim();
-  if (var_name.includes(",")) return null; // Skip complex fallbacks for fast path
-
-  try {
-    return window.getComputedStyle(context).getPropertyValue(var_name).trim();
-  } catch (_) {
-    return null;
-  }
-}
-
-/** @type {HTMLElement | null} */
-let shared_measurement_element = null;
-
-/**
- * Ensures the shared measurement element exists in the DOM and is parented correctly.
- * @param {HTMLElement | null} [context=null] - Optional element context for parenting.
- * @returns {HTMLElement | null}
- */
-function get_measurement_element(context = null) {
-  if (typeof document === "undefined") return null;
-
-  if (!shared_measurement_element) {
-    shared_measurement_element = document.createElement("div");
-    shared_measurement_element.id = "shared-measure-el";
-    shared_measurement_element.style.position = "absolute";
-    shared_measurement_element.style.visibility = "hidden";
-    shared_measurement_element.style.pointerEvents = "none";
-    shared_measurement_element.style.zIndex = "-9999";
-    shared_measurement_element.style.display = "flex";
-    document.body.appendChild(shared_measurement_element);
-  }
-
-  const is_context_connected = context && context.nodeType === 1 && (context.isConnected ?? true);
-  const can_accept_children =
-    is_context_connected &&
-    !/^(area|base|br|col|embed|hr|img|input|keygen|link|meta|param|source|track|wbr|textarea|template|svg)$/i.test(context.tagName);
-  const target_parent = can_accept_children ? context : document.body;
-
-  if (shared_measurement_element.parentElement !== target_parent || !(shared_measurement_element.isConnected ?? true)) {
-    target_parent.appendChild(shared_measurement_element);
-  }
-
-  return shared_measurement_element;
-}
-
-/**
- * Prepares the measurement element with a value and sentinel for failure detection.
- * @param {string} value
- * @param {string} prop
- * @param {string} sentinel
- * @param {HTMLElement | null} context
- * @returns {HTMLElement | null}
- */
-function prepare_measurement_element(value, prop, sentinel, context) {
-  const measurement_element = get_measurement_element(context);
-  if (!measurement_element) return null;
-
-  const css_value = get_css_value(value);
-  if (typeof measurement_element.dataset !== "undefined") {
-    measurement_element.dataset.resolveValue = css_value;
-  }
-
-  // 1. Proxy resolution to detect valid vs invalid variables (handles 0 vs undefined)
-  measurement_element.style.setProperty("--proxy", "SENTINEL");
-  measurement_element.style.setProperty("--proxy", css_value);
-  const resolved = window.getComputedStyle(measurement_element).getPropertyValue("--proxy").trim();
-
-  // If it stayed at SENTINEL, the browser rejected the value.
-  // If it became empty string, it was a var() that resolved to nothing.
-  if (resolved === "SENTINEL" || (resolved === "" && css_value !== "")) {
-    return null;
-  }
-
-  // 2. Set actual property for unit resolution (e.g. rem -> px)
-  /** @type {any} */ (measurement_element.style)[prop] = sentinel;
-  /** @type {any} */ (measurement_element.style)[prop] = css_value;
-
-  return measurement_element;
-}
-
-/**
- * Core CSS-value resolver shared by all typed variants (px/ms/number/string).
- * Pipeline: null/number shortcut -> direct parse -> fast variable resolve -> browser measure -> fallback.
+ * Walks the element tree upward resolving a single CSS custom property name.
+ * Falls back to `.style` directly for JSDOM environments where `getComputedStyle`
+ * does not surface inline custom properties.
  *
- * @param {string | number | undefined} value - The CSS value or variable name.
- * @param {number | string} fallback - Fallback value if resolution fails.
- * @param {HTMLElement | null} context - Element context for variable resolution.
- * @param {ResolveSpec} spec - Type-specific parse/probe configuration.
- * @returns {number | string}
+ * @param {string} var_name - The CSS custom property name (e.g. `"--my-token"`).
+ * @param {HTMLElement | null} context - Starting element (defaults to `document.body`).
+ * @returns {string} The resolved raw string value, or `""` if not found.
  */
-function resolve_css(value, fallback, context, spec) {
+function _resolve_css_var(var_name, context) {
+  if (typeof window === "undefined" || typeof document === "undefined") return "";
+  const target_el = context || document.body || document.documentElement;
+  try {
+    let cur = target_el;
+    while (cur) {
+      const computed = window.getComputedStyle(cur).getPropertyValue(var_name).trim();
+      if (computed !== "") return computed;
+      const inline = /** @type {HTMLElement} */ (cur).style?.getPropertyValue?.(var_name)?.trim() ?? "";
+      if (inline !== "") return inline;
+      cur = cur.parentElement;
+    }
+  } catch (_) {
+    // Fall through
+  }
+  return "";
+}
+
+// ============================================================================
+// [SECTION 2: TYPED CSS RESOLVERS]
+// ============================================================================
+
+/**
+ * Resolves a CSS value (numeric, px string, rem string, calc, or CSS variable) to a pixel number.
+ * Reads computed styles directly without injecting temporary measurement DOM nodes.
+ *
+ * @param {string | number | undefined} value - The CSS value, variable name (`--name`), or `var(--name)`.
+ * @param {number} [fallback=0] - Fallback value if resolution fails.
+ * @param {HTMLElement | null} [context=null] - Optional element context for variable resolution.
+ * @returns {number} Resolved pixel number.
+ */
+export function resolve_px(value, fallback = 0, context = null) {
   if (value === undefined || value === null) return fallback;
-  if (typeof value === "number") return value;
+  if (typeof value === "number") return Number.isNaN(value) ? fallback : value;
 
-  const trimmed = String(value).trim();
-  if (!trimmed) return fallback;
+  const raw = String(value).trim();
+  if (!raw) return fallback;
 
-  // 1. Try direct parse for simple values (skip if variable/calc present)
-  if (!trimmed.includes("var") && !trimmed.includes("calc")) {
-    const direct = spec.parseDirect(trimmed);
-    if (direct !== null && direct !== undefined) return direct;
+  // 1. Direct numeric or px match (e.g. "20", "20px", "-5.5px")
+  const px_match = raw.match(/^([-.\d]+)(?:px)?$/);
+  if (px_match) {
+    const num = parseFloat(px_match[1]);
+    return Number.isNaN(num) ? fallback : num;
   }
 
-  // 2. Fast Path: Direct Variable Resolution from context
-  const fast_resolved = try_direct_var_resolve(trimmed, context);
-  if (fast_resolved && !fast_resolved.includes("calc") && !fast_resolved.includes("var")) {
-    const parsed = spec.parseResolvedVar(fast_resolved);
-    if (parsed !== null && parsed !== undefined) return parsed;
+  // 2. Direct rem match (1rem = root font-size or 16px baseline)
+  const rem_match = raw.match(/^([-.\d]+)rem$/);
+  if (rem_match) {
+    const rem = parseFloat(rem_match[1]);
+    if (Number.isNaN(rem)) return fallback;
+    if (typeof window !== "undefined" && typeof document !== "undefined") {
+      const root_font = parseFloat(window.getComputedStyle(document.documentElement).fontSize);
+      return rem * (Number.isNaN(root_font) || root_font <= 0 ? 16 : root_font);
+    }
+    return rem * 16;
   }
 
-  // 3. Browser Resolution (Measurement Element)
-  const measurement_element = prepare_measurement_element(trimmed, spec.prop, spec.sentinel, context);
-  if (measurement_element) {
-    const style = window.getComputedStyle(measurement_element);
-    const computed = spec.prop.startsWith("--") ? style.getPropertyValue(spec.prop).trim() : /** @type {any} */ (style)[spec.prop];
+  // 3. Variable resolution: bare "--token" or "var(--token, fallback)"
+  if (typeof window !== "undefined" && typeof document !== "undefined") {
+    let var_name = "";
+    let var_fallback = "";
 
-    if (typeof computed === "string") {
-      // Detect failure: if it stayed at sentinel, it definitely failed.
-      if (parseFloat(computed) === parseFloat(spec.sentinel)) {
-        return fallback;
+    if (raw.startsWith("--")) {
+      var_name = raw;
+    } else {
+      const var_match = raw.match(/^var\((--[^,)]+)(?:,\s*([^)]+))?\)$/);
+      if (var_match) {
+        var_name = var_match[1].trim();
+        var_fallback = var_match[2]?.trim() || "";
       }
-      const result = spec.parseComputed(computed);
-      if (result !== null && result !== undefined) return result;
+    }
+
+    if (var_name) {
+      const resolved = _resolve_css_var(var_name, context);
+      if (resolved) return resolve_px(resolved, fallback, context);
+      if (var_fallback) return resolve_px(var_fallback, fallback, context);
+    }
+
+    // 4. Simple calc() evaluation (e.g. calc(10px + 5px), calc(var(--a) + var(--b)))
+    // NOTE: Operators MUST be whitespace-delimited per CSS spec (avoids splitting on hyphens in var names).
+    if (raw.startsWith("calc(") && raw.endsWith(")")) {
+      const inner = raw.slice(5, -1).trim();
+      const additive_match = inner.match(/^(.+?)\s+([+-])\s+(.+)$/);
+      if (additive_match) {
+        const left = resolve_px(additive_match[1].trim(), NaN, context);
+        const op = additive_match[2];
+        const right = resolve_px(additive_match[3].trim(), NaN, context);
+        if (!Number.isNaN(left) && !Number.isNaN(right)) {
+          return op === "+" ? left + right : left - right;
+        }
+      }
+      const mult_match = inner.match(/^(.+?)\s*([*/])\s*(.+)$/);
+      if (mult_match) {
+        const left = resolve_px(mult_match[1].trim(), NaN, context);
+        const op = mult_match[2];
+        const right = parseFloat(mult_match[3]);
+        if (!Number.isNaN(left) && !Number.isNaN(right)) {
+          return op === "*" ? left * right : right !== 0 ? left / right : fallback;
+        }
+      }
     }
   }
 
   return fallback;
 }
 
-// ============================================================================
-// [SECTION 3: TYPED CSS RESOLVERS (PX / MS / NUMBER / STRING)]
-// ============================================================================
-
 /**
- * Resolves a CSS value (variables, rem/em, clamp, calc) to pixels.
- * @param {string | number | undefined} value - The CSS value or variable name.
+ * Resolves a CSS duration value (`ms` / `s` string, or CSS variable) to milliseconds.
+ * Rejects unitless non-zero numbers as ambiguous — only `0`, `Nms`, or `Ns` are valid.
+ *
+ * @param {string | number | undefined} value - The CSS duration, variable name, or `var(--name)`.
  * @param {number} [fallback=0] - Fallback value if resolution fails.
- * @param {HTMLElement | null} [context=null] - Optional element context.
- * @returns {number} Resolved pixel number.
- */
-export function resolve_px(value, fallback = 0, context = null) {
-  const px_regex = /^([-.\d]+)(px)?$/;
-  const parse_px = (/** @type {string} */ s) => {
-    const m = s.match(px_regex);
-    return m ? parseFloat(m[1]) : null;
-  };
-  return /** @type {number} */ (
-    resolve_css(value, fallback, context, {
-      prop: "paddingTop",
-      sentinel: "1.234px",
-      parseDirect: parse_px,
-      parseResolvedVar: parse_px,
-      parseComputed: (c) => {
-        const n = parseFloat(c);
-        return isNaN(n) ? null : n;
-      },
-    })
-  );
-}
-
-/**
- * Resolves a CSS duration value (variables, ms, s) to milliseconds.
- * @param {string | number | undefined} value - The CSS duration or variable name.
- * @param {number} [fallback=0] - Fallback value if resolution fails.
- * @param {HTMLElement | null} [context=null] - Optional element context.
+ * @param {HTMLElement | null} [context=null] - Optional element context for variable resolution.
  * @returns {number} Resolved duration in milliseconds.
  */
 export function resolve_ms(value, fallback = 0, context = null) {
-  const to_ms = (/** @type {string} */ val, /** @type {string | undefined} */ unit) => {
-    const numeric = parseFloat(val);
-    if (!unit) return numeric === 0 ? 0 : null;
-    return unit === "ms" ? numeric : numeric * 1000;
-  };
-  const parse_ms = (/** @type {string} */ s) => {
-    const m = s.match(/^([-.\d]+)(ms|s)?$/);
-    return m ? to_ms(m[1], m[2]) : null;
-  };
-  return /** @type {number} */ (
-    resolve_css(value, fallback, context, {
-      prop: "transitionDuration",
-      sentinel: "1.234s",
-      parseDirect: parse_ms,
-      parseResolvedVar: parse_ms,
-      parseComputed: (c) => {
-        const m = c.match(/([-.\d]+)(s|ms)/);
-        return m ? to_ms(m[1], m[2]) : null;
-      },
-    })
-  );
+  if (value === undefined || value === null) return fallback;
+  if (typeof value === "number") return Number.isNaN(value) ? fallback : value;
+
+  const raw = String(value).trim();
+  if (!raw) return fallback;
+
+  // Direct ms (e.g. "200ms", "0ms")
+  const ms_match = raw.match(/^([-.\d]+)ms$/);
+  if (ms_match) {
+    const num = parseFloat(ms_match[1]);
+    return Number.isNaN(num) ? fallback : num;
+  }
+
+  // Direct seconds (e.g. "1s", "0.5s")
+  const s_match = raw.match(/^([-.\d]+)s$/);
+  if (s_match) {
+    const num = parseFloat(s_match[1]);
+    return Number.isNaN(num) ? fallback : num * 1000;
+  }
+
+  // Zero without unit is unambiguously 0ms
+  if (raw === "0") return 0;
+
+  // Variable resolution: bare "--token" or "var(--token, fallback)"
+  if (typeof window !== "undefined" && typeof document !== "undefined") {
+    let var_name = "";
+    let var_fallback = "";
+
+    if (raw.startsWith("--")) {
+      var_name = raw;
+    } else {
+      const var_match = raw.match(/^var\((--[^,)]+)(?:,\s*([^)]+))?\)$/);
+      if (var_match) {
+        var_name = var_match[1].trim();
+        var_fallback = var_match[2]?.trim() || "";
+      }
+    }
+
+    if (var_name) {
+      const resolved = _resolve_css_var(var_name, context);
+      if (resolved) return resolve_ms(resolved, fallback, context);
+      if (var_fallback) return resolve_ms(var_fallback, fallback, context);
+    }
+  }
+
+  return fallback;
 }
 
 /**
- * Resolves a unitless CSS numeric value (variables, flex-grow, line-height).
- * @param {string | number | undefined} value - The CSS value or variable name.
+ * Resolves a CSS value (unitless number or CSS variable) to a plain number.
+ * Rejects values with units — use `resolve_px` or `resolve_ms` for those.
+ *
+ * @param {string | number | undefined} value - The CSS unitless value, variable name, or `var(--name)`.
  * @param {number} [fallback=0] - Fallback value if resolution fails.
- * @param {HTMLElement | null} [context=null] - Optional element context.
- * @returns {number} Resolved numeric value.
+ * @param {HTMLElement | null} [context=null] - Optional element context for variable resolution.
+ * @returns {number} Resolved unitless number.
  */
 export function resolve_number(value, fallback = 0, context = null) {
-  const parse_num = (/** @type {string} */ s) => {
-    const n = parseFloat(s);
-    return isNaN(n) ? null : n;
-  };
-  return /** @type {number} */ (
-    resolve_css(value, fallback, context, {
-      prop: "flexGrow",
-      sentinel: "1.234",
-      parseDirect: parse_num,
-      parseResolvedVar: parse_num,
-      parseComputed: (c) => parse_num(c),
-    })
-  );
+  if (value === undefined || value === null) return fallback;
+  if (typeof value === "number") return Number.isNaN(value) ? fallback : value;
+
+  const raw = String(value).trim();
+  if (!raw) return fallback;
+
+  // Direct unitless numeric (rejects anything with a unit suffix like px, ms, rem)
+  if (/^[-.\d]+$/.test(raw)) {
+    const num = parseFloat(raw);
+    return Number.isNaN(num) ? fallback : num;
+  }
+
+  // Variable resolution: bare "--token" or "var(--token, fallback)"
+  if (typeof window !== "undefined" && typeof document !== "undefined") {
+    let var_name = "";
+    let var_fallback = "";
+
+    if (raw.startsWith("--")) {
+      var_name = raw;
+    } else {
+      const var_match = raw.match(/^var\((--[^,)]+)(?:,\s*([^)]+))?\)$/);
+      if (var_match) {
+        var_name = var_match[1].trim();
+        var_fallback = var_match[2]?.trim() || "";
+      }
+    }
+
+    if (var_name) {
+      const resolved = _resolve_css_var(var_name, context);
+      if (resolved) return resolve_number(resolved, fallback, context);
+      if (var_fallback) return resolve_number(var_fallback, fallback, context);
+    }
+  }
+
+  return fallback;
 }
 
 /**
- * Resolves a CSS string value (easings, color tokens, font names).
- * @param {string | undefined} value - The CSS value or variable name.
- * @param {string} [fallback=""] - Fallback value if resolution fails.
- * @param {HTMLElement | null} [context=null] - Optional element context.
+ * Resolves a CSS variable to its raw string value without any unit conversion.
+ * Returns the trimmed value directly, or literal string passthrough for non-variable inputs.
+ *
+ * @param {string | undefined} value - The CSS variable name (`--name`), `var(--name)`, or literal string.
+ * @param {string} [fallback=""] - Fallback string if resolution fails.
+ * @param {HTMLElement | null} [context=null] - Optional element context for variable resolution.
  * @returns {string} Resolved string value.
  */
 export function resolve_string(value, fallback = "", context = null) {
-  const clean_str = (/** @type {string} */ s) => s.replace(/['"]/g, "");
-  const parse_var = (/** @type {string} */ s) => (s && s !== "SENTINEL" && !s.includes("var(") ? clean_str(s) : null);
+  if (value === undefined || value === null) return fallback;
 
-  return /** @type {string} */ (
-    resolve_css(value, fallback, context, {
-      prop: "--proxy",
-      sentinel: "SENTINEL",
-      parseDirect: () => null,
-      parseResolvedVar: parse_var,
-      parseComputed: (c) => (c && c !== "SENTINEL" ? clean_str(c) : null),
-    })
-  );
+  const raw = String(value).trim();
+  if (!raw) return fallback;
+
+  // Variable resolution: bare "--token" or "var(--token, fallback)"
+  if (typeof window !== "undefined" && typeof document !== "undefined") {
+    let var_name = "";
+    let var_fallback = "";
+
+    if (raw.startsWith("--")) {
+      var_name = raw;
+    } else {
+      const var_match = raw.match(/^var\((--[^,)]+)(?:,\s*([^)]+))?\)$/);
+      if (var_match) {
+        var_name = var_match[1].trim();
+        var_fallback = var_match[2]?.trim() || "";
+      }
+    }
+
+    if (var_name) {
+      const resolved = _resolve_css_var(var_name, context);
+      if (resolved) return resolved;
+      if (var_fallback) return var_fallback;
+      return fallback;
+    }
+  }
+
+  // Literal string passthrough
+  return raw || fallback;
 }
 
 // ============================================================================
-// [SECTION 4: BROWSER DOWNLOAD UTILITIES]
+// [SECTION 3: BROWSER DOWNLOAD UTILITIES]
 // ============================================================================
 
 /**
@@ -344,8 +339,13 @@ export const download_text_file = (filename, text, mime = "text/plain;charset=ut
 export const download_json_file = (filename, value) => download_blob(filename, JSON.stringify(value, null, 2), "application/json;charset=utf-8");
 
 // ============================================================================
-// [SECTION 5: GUARDED VIEW TRANSITION PIPELINE]
+// [SECTION 4: GUARDED VIEW TRANSITION PIPELINE]
 // ============================================================================
+
+/**
+ * @typedef {Object} TransitionOptions
+ * @property {string} [className] - Optional CSS class applied to document root during transition.
+ */
 
 /** @type {{ active: boolean }} */
 const _transition_state = { active: false };
@@ -401,6 +401,11 @@ export function guarded_transition(callback, options = {}) {
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-24 (rev 2): Restored resolve_ms, resolve_number, resolve_string — they are live consumers
+ *   in kinetic.svelte.js (WAAPI timing) and Dialog.svelte (transition duration). Extracted private
+ *   _resolve_css_var helper so the DOM traversal loop is defined once and shared by all four typed resolvers.
+ * - 2026-09-24 (rev 1): Pruned heavy invisible measurement element harness. Simplified resolve_px to
+ *   compute directly via getComputedStyle without injecting DOM nodes.
  * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,
  *   structured 5 clear section dividers, added typed JSDoc schemas (ResolveSpec, TransitionOptions),
  *   and verified 100% test pass.

@@ -14,18 +14,23 @@
  * - `src/media/audio.svelte.js` (Kokoro-82M TTS model loading and speech synthesis).
  */
 
+import { create_job_queue } from "./job-queue.js";
+
 // ============================================================================
 // [SECTION 1: ONNX MUTEX SERIALIZATION ENGINE]
 // ============================================================================
 
 /**
  * Global mutex for WebAssembly ONNX runtime execution.
- * Serializes async WASM inference tasks to protect shared memory heaps.
+ * Serializes async WASM inference tasks using a single-concurrency job queue to protect shared memory heaps.
  */
 export class OnnxMutex {
-  /** @type {Array<() => Promise<void>>} */
-  #queue = [];
-  #active = false;
+  /** @type {ReturnType<typeof create_job_queue>} */
+  #queue;
+
+  constructor() {
+    this.#queue = create_job_queue({ max_concurrency: 1 });
+  }
 
   /**
    * Enqueues an async ONNX inference task for sequential execution.
@@ -34,37 +39,7 @@ export class OnnxMutex {
    * @returns {Promise<T>} Resolves with the task output or rejects on worker failure.
    */
   async run(fn) {
-    return new Promise((resolve, reject) => {
-      this.#queue.push(async () => {
-        try {
-          const result = await fn();
-          resolve(result);
-        } catch (err) {
-          reject(err);
-        }
-      });
-      this.#process();
-    });
-  }
-
-  /**
-   * Drains the serialized execution queue sequentially.
-   * @returns {Promise<void>}
-   */
-  async #process() {
-    if (this.#active) return;
-    this.#active = true;
-
-    while (this.#queue.length > 0) {
-      const task = this.#queue.shift();
-      try {
-        if (task) await task();
-      } catch (_error) {
-        // Individual task errors are captured and routed to the task promise in run()
-      }
-    }
-
-    this.#active = false;
+    return /** @type {Promise<T>} */ (this.#queue.run(fn));
   }
 
   /**
@@ -72,7 +47,7 @@ export class OnnxMutex {
    * @returns {boolean}
    */
   is_busy() {
-    return this.#active || this.#queue.length > 0;
+    return this.#queue.is_busy();
   }
 
   /**
@@ -80,7 +55,7 @@ export class OnnxMutex {
    * @returns {number}
    */
   get queue_length() {
-    return this.#queue.length;
+    return this.#queue.queue_length;
   }
 }
 

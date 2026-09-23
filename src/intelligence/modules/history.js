@@ -27,7 +27,15 @@
  * ============================================================================
  */
 
-import { escape_xml, collapse_whitespace, truncate_at_word, render_xml_tag, strip_cognition_blocks, format_history_entries } from "@utils";
+import {
+  escape_xml,
+  collapse_whitespace,
+  truncate_at_word,
+  render_xml_tag,
+  strip_cognition_blocks,
+  format_history_entries,
+  prompt_escape,
+} from "@utils";
 
 // ============================================================================
 // [SECTION 1: MANIFEST CONFIGURATION & WINDOW RESOLVER]

@@ -11,7 +11,7 @@
  * - Provides a mock streaming driver for local development and offline automated testing.
  *
  * Dependencies & Cross-Module Invariants:
- * - `@utils` (`collapse_history`, `escape_xml`, `stream_bridge`): Conversation history formatting and reactive stream dispatch.
+ * - `@utils` (`format_history_entries`, `strip_cognition_blocks`, `stream_bridge`): Conversation history serialization, output sanitization, and reactive stream dispatch.
  * - Invariant: Transport does NOT alter narrative content or invent prompt rules; it exclusively transports, streams, and cleans.
  */
 

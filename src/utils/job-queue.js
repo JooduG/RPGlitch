@@ -137,6 +137,14 @@ export function create_job_queue(options = {}) {
     },
 
     /**
+     * Returns the count of pending waiting jobs.
+     * @returns {number}
+     */
+    get queue_length() {
+      return waiting.length;
+    },
+
+    /**
      * Cancels all pending unstarted tasks; running workers finish normally.
      */
     clear() {

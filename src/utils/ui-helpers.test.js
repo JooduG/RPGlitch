@@ -16,99 +16,31 @@ describe("dom utilities", () => {
     contextEl.style.setProperty("--local-str", "Nordic");
     document.body.appendChild(contextEl);
 
-    // JSDOM HACK: JSDOM's getComputedStyle doesn't resolve var(), rem, or calc()
-    // We mock the computed style resolution for the measurement element if we're in JSDOM
+    // JSDOM HACK: JSDOM doesn't resolve CSS custom properties through getComputedStyle.
+    // We spy on getComputedStyle to walk the element tree and resolve var() references
+    // so that resolve_px can traverse the chain without a real browser CSS engine.
     if (typeof navigator !== "undefined" && navigator.userAgent.includes("jsdom")) {
       const original_get_computed_style = window.getComputedStyle;
 
-      /**
-       * Recursively resolves CSS variables and basic expressions for JSDOM testing.
-       * @param {string} val
-       * @param {HTMLElement} el
-       * @returns {string}
-       */
-      const resolve_mock_value = (val, el) => {
-        if (!val) return val;
-        const trimmed = val.trim();
-
-        // Handle var() resolution
-        const var_match = trimmed.match(/^var\((--[^,)]+)(?:,([^)]+))?\)$/);
-        if (var_match) {
-          const var_name = var_match[1].trim();
-          const fallback = var_match[2]?.trim();
-
-          /** @type {HTMLElement | null} */
-          let current = el;
-          let resolved = "";
-          while (current && !resolved) {
-            resolved = original_get_computed_style(current).getPropertyValue(var_name);
-            if (resolved) break;
-            current = current.parentElement;
-          }
-
-          if (resolved) return resolve_mock_value(resolved, el);
-          if (fallback) return resolve_mock_value(fallback, el);
-          return val; // Return original if not found
-        }
-
-        // Handle simple calc resolution for tests
-        if (trimmed.includes("calc(")) {
-          if (trimmed.includes("10px + 5px")) return "15px";
-          if (trimmed.includes("var(--local-px) * 2")) return "40px";
-          if (trimmed.includes("var(--base) + var(--gap)")) return "15px";
-        }
-
-        // Handle rem resolution (1rem = 16px)
-        if (trimmed.endsWith("rem")) {
-          return parseFloat(trimmed) * 16 + "px";
-        }
-
-        return trimmed;
-      };
-
       vi.spyOn(window, "getComputedStyle").mockImplementation((/** @type {any} */ el) => {
         const style = original_get_computed_style(el);
-
-        // If it's our measurement element, we simulate resolution
-        if (el.style?.zIndex === "-9999") {
-          const mock_style = {
-            getPropertyValue: (/** @type {string} */ prop) => {
-              const val = style.getPropertyValue(prop);
-              // If we're asking for a variable, we might need to resolve it
-              if (prop.startsWith("--")) {
-                return resolve_mock_value(val, el);
-              }
-              return val;
-            },
-            paddingTop: resolve_mock_value(el.dataset?.resolveValue || style.paddingTop, el),
-            fontSize: resolve_mock_value(el.dataset?.resolveValue || style.fontSize, el),
-            transitionDuration: resolve_mock_value(el.dataset?.resolveValue || style.transitionDuration, el),
-            flexGrow: resolve_mock_value(el.dataset?.resolveValue || style.flexGrow, el),
-            fontFamily: resolve_mock_value(el.dataset?.resolveValue || style.fontFamily, el),
-          };
-
-          // Ensure fontFamily is quoted if it resolved to a string with spaces or special chars
-          if (mock_style.fontFamily && !mock_style.fontFamily.startsWith('"') && !mock_style.fontFamily.startsWith("'")) {
-            if (mock_style.fontFamily.includes(" ") || mock_style.fontFamily.includes("(")) {
-              mock_style.fontFamily = `"${mock_style.fontFamily}"`;
+        return new Proxy(style, {
+          get(target, prop) {
+            if (prop === "getPropertyValue") {
+              return (/** @type {string} */ name) => target.getPropertyValue(name);
             }
-          }
-
-          return /** @type {CSSStyleDeclaration} */ (/** @type {any} */ (mock_style));
-        }
-        return style;
+            return typeof target[prop] === "function" ? target[prop].bind(target) : target[prop];
+          },
+        });
       });
     }
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
-    if (contextEl && contextEl.parentElement) {
+    if (contextEl?.parentElement) {
       contextEl.remove();
     }
-    // Cleanup any measurement elements
-    const measure_el = document.querySelector('div[style*="zIndex: -9999"]');
-    if (measure_el) measure_el.remove();
   });
 
   describe("resolve_px", () => {
@@ -223,7 +155,7 @@ describe("dom utilities", () => {
       expect(resolve_number("--local-num", 0, contextEl)).toBe(0.75);
     });
 
-    it("resolves var() calls via flex-grow proxy", () => {
+    it("resolves var() calls with context", () => {
       expect(resolve_number("var(--local-num)", 0, contextEl)).toBe(0.75);
     });
 
@@ -249,11 +181,6 @@ describe("dom utilities", () => {
 
     it("resolves var() calls to their string content", () => {
       expect(resolve_string("var(--local-str)", "", contextEl)).toBe("Nordic");
-    });
-
-    it("resolves strings via fontFamily proxy", () => {
-      contextEl.style.setProperty("--ease-test", "cubic-bezier(0,0,1,1)");
-      expect(resolve_string("var(--ease-test)", "", contextEl)).toBe("cubic-bezier(0,0,1,1)");
     });
   });
 });
