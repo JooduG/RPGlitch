@@ -850,6 +850,7 @@ export function handle_planning_handoff(payload) {
 
   try {
     const status_output = execSync("git status --porcelain", {
+      cwd: repo_root,
       encoding: "utf-8",
       stdio: ["ignore", "pipe", "ignore"],
     }).trim();
@@ -998,6 +999,7 @@ run();
 /**
  * CHANGELOG
  * -------------------------------------------------------------------------------------------------
+ * 2026-09-24: Passed explicit `cwd: repo_root` to `git status --porcelain` in `handle_planning_handoff` so file paths are uniformly relative to workspace root regardless of subshell invocation CWD.
  * 2026-09-12: Added is_workshop_mode helper and bypass in handle_sequential_thinking_gate to allow zero-friction prototyping when WORKSHOP_MODE is set or tmp/.workshop_mode exists.
  * 2026-09-05: Initial creation of consolidated hooks.js dispatcher unifying all 10 Antigravity hooks.
  * 2026-09-05: Fixed circuit breaker false positives (exempted read-only tools, dynamically resolved tmp/.tool-failures.json), optimized transcript parsing (sliced last 60 lines), softened sequential thinking gate on multi-file/repeat edits to ask, and added deep structural equality comparison in handle_waldzell_router.

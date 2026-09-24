@@ -1,7 +1,7 @@
 ---
 name: present
 description: Active mission board, roadmap, feature maturity, and pulse history log
-active_track: tasks/future/track-state-and-ui-runes-harmonization.md
+active_track: tasks/future/track-generation-flow-and-storyboard-guards.md
 last_synchronized: 2026-09-24
 ---
 
@@ -9,13 +9,13 @@ last_synchronized: 2026-09-24
 
 ## ⚡ Present
 
-- **Active Track**: [`tasks/future/track-state-and-ui-runes-harmonization.md`](./future/track-state-and-ui-runes-harmonization.md)
-- **Active Task**: Phase 4 complete: Modernized `src/ui/Storyboard.svelte.js` to `class StoryboardController` with `$state` runes, integrated `SvelteSet`, reactively bound `disabled` state on `StoryboardBar.svelte`, passing all 61 test suites (1,117 unit tests).
+- **Active Track**: [`tasks/future/track-generation-flow-and-storyboard-guards.md`](./future/track-generation-flow-and-storyboard-guards.md)
+- **Active Task**: Ready for Phase 1: Fine-grained generation stages (`director_thinking`, `speaker_thinking`, `start_director_stage()`, `set_delegated_speaker()`, `start_stream_stage()`, `complete()`) in `src/state/status.svelte.js` and tests.
 
 ### 🩺 System & Session Readiness
 
 - **Active Baton**: [`scribbles.md`](../scribbles.md) (Generation flow lifecycle, speaker thinking indicators, active-story guard modal exploration, shimmer harmonization).
-- **Environmental Health**: Git branch `main` (hook contracts passing 16/16 via `npm run test:hooks`, 61 test suites / 1114 tests passing 100%, design tests passing, clean working tree).
+- **Environmental Health**: Git branch `main` (hook contracts passing 16/16 via `npm run test:hooks`, 61 test suites / 1117 tests passing 100%, design tests passing, clean working tree).
 - **Sovereign Constraints**: Svelte 5 Runes only (`$state`, `$derived`, `$effect`), single-file bundle distribution (`vite-plugin-singlefile`), P4 Zero Backwards Compatibility (pre-beta purity).
 - **Last Startup Verification**: 2026-09-23 15:57 (via `/startup`).
 
@@ -32,10 +32,11 @@ No active AI debt found.
 
 ## 🚀 Future
 
-- [`tasks/future/track-generation-flow-and-storyboard-guards.md`](./future/track-generation-flow-and-storyboard-guards.md): Generation flow lifecycle, speaker thinking indicators, storyboard active story guards, and shimmer harmonization
+_No queued tracks._
 
 ### 📦 Archived Tracks
 
+- [`C:/Users/johng/.gemini/antigravity-ide/archive/2026-09/2026-09-24-track-state-and-ui-runes-harmonization.md`](file:///C:/Users/johng/.gemini/antigravity-ide/archive/2026-09/2026-09-24-track-state-and-ui-runes-harmonization.md): State & UI Runes Harmonization — Svelte 5 class migration of `RuntimeEngineStore` (`src/state/runtime.svelte.js`) and `StoryboardController` (`src/ui/Storyboard.svelte.js`) with `$state` runes, `SvelteSet` adoption, reactive shuffle lock in `StoryboardBar.svelte`, and 100% downstream API compatibility across 1,117 unit tests (Archived 2026-09-24)
 - [`C:/Users/johng/.gemini/antigravity-ide/archive/2026-09/2026-09-24-track-agent-governance-evolutions.md`](file:///C:/Users/johng/.gemini/antigravity-ide/archive/2026-09/2026-09-24-track-agent-governance-evolutions.md): Sovereign Agent Governance Evolutions & Context-Driven Harmonization — Wikipedia AI tells & structural prose detox formulas 7 & 8, D1–D5 & R1 prompt complexity triage CLI utility, Epistemic Context Cartography & CDD Auditable Proof Matrix, and spec-to-code drift detection Stop hook (Archived 2026-09-24)
 - [`C:/Users/johng/.gemini/antigravity-ide/archive/2026-09/2026-09-19-track-prompt-architecture-purification-and-physics-decoupling.md`](file:///C:/Users/johng/.gemini/antigravity-ide/archive/2026-09/2026-09-19-track-prompt-architecture-purification-and-physics-decoupling.md): Prompt Architecture Purification & Physics Decoupling — Relocated dynamics XML compilers to `modules/protocols.js` / `modules/entities/sheets.js`, relocated subtext & available keywords to `modules/task.js`, purified `physics.js` with `clamp` from `@utils`, and removed XML compilation from physics domain (Archived 2026-09-23)
 - [`C:/Users/johng/.gemini/antigravity-ide/archive/2026-09/2026-09-19-track-prompt-unification-and-dead-code-elimination.md`](file:///C:/Users/johng/.gemini/antigravity-ide/archive/2026-09/2026-09-19-track-prompt-unification-and-dead-code-elimination.md): Mega Report Phase 2 & 3 — Dead code elimination, one-door `compile_prompt` unification, retirement of `prompt_templates` and `prompt_builder` facades, literal deduplication (D2/D3), `entity_type` standardization (S6), optics single door (R4), and simulation-audit.js P4 migration (Archived 2026-09-19)
