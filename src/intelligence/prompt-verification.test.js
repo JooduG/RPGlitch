@@ -19,7 +19,7 @@ import { MODE_ADAPTERS } from "./builder.js";
 import { SYSTEM_ROLES } from "./modules/system.js";
 import { TASK_STATE_BUILDERS } from "./modules/task.js";
 import { VISIBILITY_POLICIES } from "./modules/entities/sheets.js";
-import { CONTRACT, CONTRACT_SIZES, make_contract_cases } from "./prompt-verification.js";
+import { CONTRACT, CONTRACT_SIZES, DIRECTOR_DIRECTIVE_LEADS, make_contract_cases } from "./prompt-verification.js";
 
 const TAG_PATTERN = /<([A-Z][A-Z0-9_]{1,})(?=[\s>/])/g;
 const RESERVED_REFERENCE_PATTERN = /<(INPUT|AGENDA|TRAJECTORY|SHIRT|JACKET)\s*\/>/;
@@ -132,6 +132,14 @@ describe("Prompt pipeline — per-mode contract envelopes", () => {
     });
   }
 
+  it("emits the Director's directive paragraphs in the declared sequence", () => {
+    const [mode_key, context] = cases.director;
+    const task = String(compile_prompt(mode_key, context).task || "");
+    const positions = DIRECTOR_DIRECTIVE_LEADS.map((lead) => task.indexOf(lead));
+    expect(positions.every((position) => position !== -1)).toBe(true);
+    expect(positions).toEqual([...positions].sort((left, right) => left - right));
+  });
+
   it("declares a contract case and envelope for every compiled mode", () => {
     expect(Object.keys(CONTRACT).sort()).toEqual(Object.keys(cases).sort());
   });
@@ -211,6 +219,7 @@ describe("Prompt pipeline — mode-record single-source-of-truth invariants", ()
 
 /**
  * CHANGELOG
+ * - 2026-09-25: Added the Director directive-sequence gate (`DIRECTOR_DIRECTIVE_LEADS`) so the `<DIRECTIVES>` prose order is pinned independently of the tag inventory and size tripwire.
  * - 2026-09-23: Declared-envelope gate now tolerates one declared layer emitting the same tag repeatedly (non-decreasing declaration order) — the Director's single `inputs` layer emits both the user action and the AI reply as sibling `<INPUT>` blocks.
  * - 2026-09-23: Added the mode-record single-source-of-truth gate (R8) — asserts the mode↔adapter mapping, `system.mode === key`, a known `visibility` policy per mode, every `role_line` in `SYSTEM_ROLES`, and every `task_state` in `TASK_STATE_BUILDERS`.
  * - 2026-09-23: Invariant now asserts the single `<SYSTEM mode="…">` discriminator (the redundant `role` attribute was dropped) following the envelope-harmonization pass.

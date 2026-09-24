@@ -11,9 +11,11 @@
  * ── Multi-Shot Simulation Lifecycle Mapping ─────────────────────────────────
  * • Section 1: Unified Task Directives & Protocols Catalog (TASK_LIBRARY)
  *              (Protocols, Director, Continuum, Prose, Sorting directives)
- * • Section 2: Prose Reflex & Input Reaction Engine
+ * • Section 2: Dynamic Directive Compiler (compile_directive_tags)
+ *              (Dotted-key directive selection → ordered directive paragraphs)
+ * • Section 3: Prose Reflex & Input Reaction Engine
  *              (Pacing classification, environmental hints, delivery posture, currents, inputs)
- * • Section 3: Universal Task Envelope Compiler (render_task)
+ * • Section 4: Universal Task Envelope Compiler (render_task)
  *              (Universal dispatcher across director, continuum, enhancement, sorting, prose)
  *
  * Architecture & Design Laws:
@@ -76,14 +78,24 @@ Close </THINK> before the narrative. This think block is internal reasoning and 
   }),
 
   // ── 1.3 Shot 1: Directorial Staging & Evaluation Rules (director) ───────────
+  // Every atom is either a pure string or a `(values) => string` template, so the
+  // generic directive compiler (Section 2) resolves an ordered key selection without
+  // any per-mode builder logic. Templates that opt out of the turn return "".
   DIRECTOR: Object.freeze({
-    ENVIRONMENTAL_HINT:
-      'ENVIRONMENTAL HINT: Non-verbal environmental action. Strongly consider setting "speaker" to "fractal" to narrate the setting, unless AI character should react directly.',
-
     DYNAMICS_CALIBRATION: `DYNAMICS CALIBRATION:
 1. Calibrate dynamics_deltas conservatively (±1 to ±4 standard; ±8 to ±12 extreme).
 2. Adjust deltas carefully near boundaries (5 or 95) to prevent clipping at 0 or 100.
 3. Calibrate dynamics_deltas to reflect the psychological and environmental shift of the turn.`,
+
+    ENVIRONMENTAL_HINT: ({ has_environmental_hint = false } = {}) =>
+      has_environmental_hint
+        ? 'ENVIRONMENTAL HINT: Non-verbal environmental action. Strongly consider setting "speaker" to "fractal" to narrate the setting, unless AI character should react directly.'
+        : "",
+
+    EVALUATION: ({ has_input = false, round = 1 } = {}) =>
+      `Evaluate state mutations caused by ${has_input ? "«INPUT»" : "the current situation"}.` +
+      (Number(round) <= 1 ? ' Round 1 follows the Fractal prologue, so next_action MUST be "AI_CHARACTER".' : "") +
+      ' "USER_PERSONA" (or player character name) is never a valid next_action; the Director never speaks for the player. Valid actions are strictly: "AI_CHARACTER", "FRACTAL", "npc:<id>", or { "genesis": ... }.',
 
     ROUTING: `NEXT ACTION ROUTING RULES:
 - "AI_CHARACTER": (Default) AI companion reacts to protagonist.
@@ -93,11 +105,6 @@ Close </THINK> before the narrative. This think block is internal reasoning and 
 
     CONVERGENCE: `CONVERGENCE & ENTITY REUSE:
 Inspect candidate secondary characters below before minting. If an existing entity matches the role or location (medical, security, merchant), you MUST reuse that entity rather than creating a duplicate.`,
-
-    EVALUATE: (has_input) => `Evaluate state mutations caused by ${has_input ? "«INPUT»" : "the current situation"}.`,
-    ROUND_ONE: 'Round 1 follows the Fractal prologue, so next_action MUST be "AI_CHARACTER".',
-    USER_PERSONA_LOCK:
-      '"USER_PERSONA" (or player character name) is never a valid next_action; the Director never speaks for the player. Valid actions are strictly: "AI_CHARACTER", "FRACTAL", "npc:<id>", or { "genesis": ... }.',
   }),
 
   // ── 1.4 Shot 2A: Prose Turn Directives (character / scene / ghostwrite) ─────
@@ -228,7 +235,62 @@ Strictly zero spoken dialogue or quote marks. No dialogue.`,
 });
 
 // ============================================================================
-// [SECTION 2: PROSE REFLEX & INPUT REACTION ENGINE]
+// [SECTION 2: DYNAMIC DIRECTIVE COMPILER]
+// ============================================================================
+//
+// Protocols.js pattern applied to Layer 6: one hierarchical, dotted-key catalog
+// (TASK_LIBRARY) plus one generic compiler that resolves an ordered directive
+// selection into directive paragraphs. Selection stays pure data; conditionals
+// live inside template atoms (they resolve to "" to opt out), so per-mode builders
+// never own ordering again.
+
+/**
+ * Ordered directive selection for the Director (Shot 1). Pure data — the generic
+ * compiler resolves each dotted key through `TASK_LIBRARY`.
+ * @type {ReadonlyArray<string>}
+ */
+export const DIRECTOR_DIRECTIVES = Object.freeze([
+  "DIRECTOR.DYNAMICS_CALIBRATION",
+  "DIRECTOR.EVALUATION",
+  "DIRECTOR.ENVIRONMENTAL_HINT",
+  "DIRECTOR.ROUTING",
+  "DIRECTOR.CONVERGENCE",
+]);
+
+/**
+ * Resolves one dotted directive key against `TASK_LIBRARY`, invoking template atoms
+ * with the shared `values` bag. Returns a trimmed directive string ("" when absent).
+ * @param {string} directive_key
+ * @param {Record<string, any>} [values={}]
+ * @returns {string}
+ */
+function resolve_directive_atom(directive_key, values = {}) {
+  const directive_parts = String(directive_key).trim().split(".");
+  const atom = directive_parts.reduce((node, part) => node?.[part], /** @type {any} */ (TASK_LIBRARY));
+  const text = typeof atom === "function" ? atom(values) : atom;
+  return String(text ?? "").trim();
+}
+
+/**
+ * Generic directive compiler — resolves an ordered dotted-key selection through
+ * `TASK_LIBRARY` into directive paragraphs (the Layer 6 analogue of protocols.js
+ * `compile_protocol_tags`).
+ *
+ * @param {string | string[]} directive_selection
+ * @param {Record<string, any>} [values={}]
+ * @returns {string[]} Ordered, non-empty directive paragraphs.
+ */
+export function compile_directive_tags(directive_selection, values = {}) {
+  const directive_keys = Array.isArray(directive_selection)
+    ? directive_selection
+    : typeof directive_selection === "string"
+      ? directive_selection.split(",")
+      : [];
+  return directive_keys.map((directive_key) => resolve_directive_atom(directive_key, values)).filter(Boolean);
+}
+
+// ============================================================================
+// [SECTION 3: PROSE REFLEX & INPUT REACTION ENGINE]
 // ============================================================================
 
 const DIALOGUE_QUOTES_PATTERN = /["'“”‘’]/;
@@ -266,7 +328,7 @@ export function render_environmental_hint(input) {
   if (!input?.trim()) return "";
   if (DIALOGUE_QUOTES_PATTERN.test(input)) return "";
   if (!ACTION_VERBS_PATTERN.test(input) && !SPATIAL_NOUNS_PATTERN.test(input)) return "";
-  return TASK_LIBRARY.DIRECTOR.ENVIRONMENTAL_HINT;
+  return resolve_directive_atom("DIRECTOR.ENVIRONMENTAL_HINT", { has_environmental_hint: true });
 }
 
 /**
@@ -473,7 +535,7 @@ export function resolve_optics_cinematography({
 }
 
 // ============================================================================
-// [SECTION 3: UNIVERSAL TASK ENVELOPE COMPILER]
+// [SECTION 4: UNIVERSAL TASK ENVELOPE COMPILER]
 // ============================================================================
 //
 // One ordered layer table (`TASK_LAYERS`) is walked by a single `render_task`.
@@ -539,11 +601,6 @@ function build_director_task_state({
   const output_format = schema ? render_output_format_xml({ mode: "json", content: TASK_LIBRARY.JSON_RETURN(schema) }) : "";
   if (terse) return { output_format };
 
-  const evaluation =
-    TASK_LIBRARY.DIRECTOR.EVALUATE(Boolean(input?.trim())) +
-    (Number(round) <= 1 ? ` ${TASK_LIBRARY.DIRECTOR.ROUND_ONE}` : "") +
-    ` ${TASK_LIBRARY.DIRECTOR.USER_PERSONA_LOCK}`;
-
   // `origin` always names the sending entity's real id (never a role token), symmetric with
   // every prose mode — the reply's origin is the AI companion, the action's is the player.
   const user_origin = entities?.USER?.id || entities?.USER?.name || "USER";
@@ -556,16 +613,15 @@ function build_director_task_state({
     .filter(Boolean)
     .join("\n");
 
+  const directive_values = {
+    has_input: Boolean(input?.trim()),
+    round: Number(round) || 1,
+    has_environmental_hint: Boolean(render_environmental_hint(input)),
+  };
+
   return {
     inputs,
-    directives: [
-      TASK_LIBRARY.DIRECTOR.DYNAMICS_CALIBRATION,
-      evaluation,
-      render_environmental_hint(input),
-      TASK_LIBRARY.DIRECTOR.ROUTING,
-      TASK_LIBRARY.DIRECTOR.CONVERGENCE,
-      keyword_directives,
-    ].filter(Boolean),
+    directives: [...compile_directive_tags(DIRECTOR_DIRECTIVES, directive_values), keyword_directives].filter(Boolean),
     output_format,
   };
 }
@@ -751,7 +807,7 @@ export function render_task(parameters = {}) {
 }
 
 // ============================================================================
-// [SECTION 4: SUBTEXT, AVAILABLE KEYWORDS & PROTOCOL RESOLVERS]
+// [SECTION 5: SUBTEXT, AVAILABLE KEYWORDS & PROTOCOL RESOLVERS]
 // ============================================================================
 
 /**
@@ -853,6 +909,7 @@ export function render_subtext_xml(ai_dynamics = {}, fractal_dynamics = {}, opti
 
 /**
  * CHANGELOG
+ * - 2026-09-25: Director directive compiler (protocols.js pattern) — the Director's hand-rolled `<DIRECTIVES>` array is replaced by the declarative `DIRECTOR_DIRECTIVES` selection resolved through the new generic `compile_directive_tags` (a Layer-6 twin of `compile_protocol_tags`); the `TASK_LIBRARY.DIRECTOR` atoms are now pure strings or `(values) => string` templates (`EVALUATION` folds in the old evaluate/round-one/persona-lock trio, `ENVIRONMENTAL_HINT` self-gates), so `build_director_task_state` no longer owns directive ordering. Director task output is byte-identical.
  * - 2026-09-24: Entity-id origins + dead-slot prune — the Director's two `<INPUT>` blocks now carry the real sender ids (`origin="<USER id>"` / `origin="<AI id>"`, falling back to a name then a role token only when no entity is supplied), matching every prose mode; `build_director_task_state` reads the `entities` bag and `build_continuum_task_state` drops its never-emitted `inputs` slot.
  * - 2026-09-23: Prompt-grammar harmonization (phases 0–3) — `render_task_input` emits `<INPUT>` for every signal with a `channel` attribute (was `mode`) and no `tag` override (the Director's last turn is a second `<INPUT origin="AI_CHARACTER" channel="reply">`); the `input`/`last_turn` slots collapse into one `inputs` layer; the Director's dynamics calibration and the optics subject rules/tier framing move into `<DIRECTIVES>`; the think/prose wording is reconciled ("open with one internal <THINK> block", "after closing </THINK>, emit strictly plain prose").
  * - 2026-09-23: Pipeline consolidation (R6/R7) — extracted `build_continuum_task_state` so the generic `build_structured_task_state` loses its `if (mode === "continuum")` branch (and no longer ignores its own `directives`); `render_task` dispatches on `task_state` instead of a `mode` string, and `build_prose_task_state` reads the flattened `config.think_format`. `TASK_STATE_BUILDERS` is exported for the contract gate. Output bytes unchanged.

@@ -739,6 +739,20 @@ export const CONTRACT = {
   },
 };
 
+/**
+ * Ordered leading phrases of the Director's `<DIRECTIVES>` paragraphs that the contract
+ * fixture deterministically emits (the environmental-hint paragraph is input-conditional,
+ * so it is excluded). The tag-inventory gate is blind to prose, so this pins the Director's
+ * directive *sequence* — the generic `compile_directive_tags` selection in `modules/task.js`
+ * — against silent reordering.
+ * @type {ReadonlyArray<string>}
+ */
+export const DIRECTOR_DIRECTIVE_LEADS = Object.freeze([
+  "DYNAMICS CALIBRATION:",
+  "Evaluate state mutations caused by",
+  "NEXT ACTION ROUTING RULES:",
+  "CONVERGENCE & ENTITY REUSE:",
+]);
 export const CONTRACT_SIZES = {
   director: { system: 1989, task: 2863 },
   director_terse: { system: 105, task: 909 },
@@ -756,6 +770,7 @@ export const CONTRACT_SIZES = {
 
 /**
  * CHANGELOG
+ * - 2026-09-25: Added `DIRECTOR_DIRECTIVE_LEADS` — the Director's `<DIRECTIVES>` prose sequence is now gated (the tag inventory cannot see prose, so the generic directive compiler's selection is pinned by ordered leading phrases).
  * - 2026-09-24: Re-froze after the cast/input de-duplication — the director contract drops its trailing `CAST` (the fixture now emits none, since on-stage participants are never restated) and `CONTRACT_SIZES` re-baselines director (`system` 2087→1989, `task` 2871→2863) and enhancement (`task` 441→417, no more orphaned `</THINK>` reference).
  * - 2026-09-23: Prompt-grammar harmonization (phases 0–3) — re-froze after the `INPUT` unification (the Director's `<AI_CHARACTER_LAST_TURN>` is now a second `<INPUT origin="AI_CHARACTER" channel="reply">`), the `<DYNAMIC_AXES>` unification (the Director's `<DYNAMICS><LAWS><AXES>` collapses to the one axes block shared with the sheets, and its calibration rules moved into `<DIRECTIVES>`), the `<CAST mode="in_scene">` rename, the optics rule prose relocation into `<DIRECTIVES>` (with optics' alternation protocol now in `<CORE_PROTOCOLS>`), the enhancement `<INPUT>` moving from `<SYSTEM>` into `<TASK>`, and the `input`/`last_turn` task-layer collapse into one `inputs` layer.
  * - 2026-09-23: Re-froze `CONTRACT` tag inventories and `CONTRACT_SIZES` after the envelope-harmonization pass — the Director's six dynamics axes moved into the one `<DYNAMICS>` block, the `<CAST>` roster moved inside `<ENTITIES>`, `<KEYWORD_DIRECTIVES>` nested inside `<DIRECTIVES>`, `<AI_CHARACTER_LAST_TURN>` gained input-style attributes, the `<SYSTEM role>` attribute was dropped, and ghostwrite's entity visibility now mirrors interaction's with AI↔USER swapped (the ghostwrite case now supplies a `round` and the player sheet carries its own `DYNAMIC_AXES`, so the two prose envelopes differ only by the swapped identities).
