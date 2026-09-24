@@ -218,8 +218,16 @@ const TEST_CASES = [
     },
     expectedDecision: "continue",
     expectedReasonSnippet: "Spec-to-Code Drift Warning",
-    mockFile: "src/utils/unplanned-drift-probe.js",
-    mockContent: "/**\\n * Unplanned probe file for hook drift testing\\n */\\nexport const probe = 1;\\n",
+    mockFiles: [
+      {
+        file: "src/utils/unplanned-drift-probe.js",
+        content: "/**\n * Unplanned probe file for hook drift testing\n */\nexport const probe = 1;\n",
+      },
+      {
+        file: "tasks/PRESENT.md",
+        content: "---\nname: present\n---\n# Temporal Mission Board\n<!-- mock handoff recorded -->\n",
+      },
+    ],
   },
 ];
 
@@ -245,11 +253,16 @@ function run() {
         .map((f) => ({ file: f, content: fs.readFileSync(path.join(future_dir, f), "utf-8") }));
     }
 
-    const mock_abs_path = tc.mockFile ? path.resolve(repo_root, tc.mockFile) : null;
-    if (mock_abs_path) {
+    const mock_files = tc.mockFiles || (tc.mockFile ? [{ file: tc.mockFile, content: tc.mockContent || "test-data" }] : []);
+    const written_mocks = [];
+    for (const mock of mock_files) {
+      const mock_abs_path = path.resolve(repo_root, mock.file);
       const parent_dir = path.dirname(mock_abs_path);
+      const exists_before = fs.existsSync(mock_abs_path);
+      const prev_content = exists_before ? fs.readFileSync(mock_abs_path, "utf-8") : null;
       if (!fs.existsSync(parent_dir)) fs.mkdirSync(parent_dir, { recursive: true });
-      fs.writeFileSync(mock_abs_path, tc.mockContent || "test-data");
+      fs.writeFileSync(mock_abs_path, mock.content);
+      written_mocks.push({ path: mock_abs_path, exists_before, prev_content });
     }
 
     const cmd_args = [tc.file, ...(tc.args || [])];
@@ -259,8 +272,12 @@ function run() {
       encoding: "utf-8",
     });
 
-    if (mock_abs_path && fs.existsSync(mock_abs_path)) {
-      fs.unlinkSync(mock_abs_path);
+    for (const mock of written_mocks) {
+      if (!mock.exists_before) {
+        if (fs.existsSync(mock.path)) fs.unlinkSync(mock.path);
+      } else if (mock.prev_content !== null) {
+        fs.writeFileSync(mock.path, mock.prev_content, "utf-8");
+      }
     }
 
     // Restore any modified track blueprints in tasks/future/
