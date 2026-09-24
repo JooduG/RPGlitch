@@ -5,8 +5,12 @@
  */
 import { describe, expect, it } from "vitest";
 
-import { claimed_entity_lock, deck_geometry } from "./Storyboard.svelte.js";
+import { claimed_entity_lock, deck_geometry, StoryboardController, storyboard } from "./Storyboard.svelte.js";
 import { compute_initials } from "@utils";
+
+// ---------------------------------------------------------------------------------------------
+// HELPER LOGIC TESTS
+// ---------------------------------------------------------------------------------------------
 
 describe("compute_initials", () => {
   it("skips common name prefixes using the default stop list", () => {
@@ -88,3 +92,36 @@ describe("claimed_entity_lock", () => {
     expect(claimed_entity_lock([{ id: null }, { id: undefined }], [null])).toBeNull();
   });
 });
+
+// ---------------------------------------------------------------------------------------------
+// STORYBOARD CONTROLLER REACTIVITY TESTS
+// ---------------------------------------------------------------------------------------------
+
+describe("StoryboardController", () => {
+  it("initializes with default non-shuffling, non-flight state", () => {
+    const controller = new StoryboardController();
+    expect(controller.is_shuffling).toBe(false);
+    expect(controller.begin_flight_started).toBe(false);
+  });
+
+  it("allows setting and reading begin_flight_started flag", () => {
+    const controller = new StoryboardController();
+    controller.begin_flight_started = true;
+    expect(controller.begin_flight_started).toBe(true);
+    controller.begin_flight_started = false;
+    expect(controller.begin_flight_started).toBe(false);
+  });
+
+  it("exports a singleton storyboard instance with reactive properties", () => {
+    expect(storyboard).toBeDefined();
+    expect(typeof storyboard.shuffle).toBe("function");
+    expect(typeof storyboard.begin).toBe("function");
+    expect(typeof storyboard.is_shuffling).toBe("boolean");
+  });
+});
+
+/**
+ * CHANGELOG:
+ * - 2026-09-24: Added unit tests for StoryboardController reactive properties (is_shuffling, begin_flight_started).
+ * - 2026-06-15: Initialized unit tests for deck_geometry and claimed_entity_lock.
+ */

@@ -1,11 +1,27 @@
 /**
  * @file src/ui/Storyboard.svelte.js
  * 🃏 STORYBOARD STATE & ORCHESTRATION MODULE
+ *
  * Pure helpers (card initials, deck geometry, claim lock) plus the shuffle-deal,
  * begin-story flight, and prologue-landing choreography. Component-sibling
  * state module for Storyboard.svelte.
+ *
+ * Exported Classes & Singletons:
+ * - `StoryboardController`: Reactive Svelte 5 runes controller managing shuffle state, flight latches, and story starting.
+ * - `storyboard`: Singleton instance of StoryboardController.
  */
-import { compute_initials } from "@utils";
+
+import { SvelteSet } from "svelte/reactivity";
+import { compute_initials, pick_random } from "@utils";
+import { stories, VISUAL_STYLES, NARRATIVE_STYLES } from "@data";
+import { chrono_engine, app, simulation_log } from "@state";
+import { get_signature_color } from "@media";
+import { motion, fly_card_in, fly_card_out, capture_storyboard_flight, fly_storyboard_cards_into_prologue } from "@motion";
+import { parse_message } from "./message/render.js";
+
+// ---------------------------------------------------------------------------------------------
+// PURE GEOMETRY & CLAIM HELPERS
+// ---------------------------------------------------------------------------------------------
 
 /**
  * Computes the on-screen deck rect a card travels to/from during a shuffle.
@@ -31,20 +47,9 @@ export function deck_geometry(viewport, slot_rect, { pickup_scale = 0.62, deck_c
  * @param {Iterable<unknown>} claimed_ids
  */
 export function claimed_entity_lock(selected, claimed_ids) {
-  const claimed = new Set(claimed_ids);
+  const claimed = new SvelteSet(claimed_ids);
   return selected.filter(Boolean).find((e) => e.id != null && claimed.has(String(e.id))) || null;
 }
-
-import { pick_random } from "@utils";
-import { stories, VISUAL_STYLES, NARRATIVE_STYLES } from "@data";
-import { chrono_engine } from "@state";
-import { get_signature_color } from "@media";
-import { motion, fly_card_in, fly_card_out, capture_storyboard_flight, fly_storyboard_cards_into_prologue } from "@motion";
-import { app, simulation_log } from "@state";
-
-// Module-level latches (not reactive — nothing renders them).
-let shuffle_active = false;
-let begin_flight_started = false;
 
 /**
  * Re-dresses a flying card clone with the newly drawn entity's appearance, so
@@ -78,7 +83,34 @@ function dress_deal_card(clone, entity) {
   });
 }
 
-export const storyboard = {
+// ---------------------------------------------------------------------------------------------
+// STORYBOARD CONTROLLER CLASS (SVELTE 5 RUNES)
+// ---------------------------------------------------------------------------------------------
+
+export class StoryboardController {
+  #is_shuffling = $state(false);
+  #begin_flight_started = $state(false);
+
+  /**
+   * Whether a card deal-shuffle animation is currently in progress.
+   * @returns {boolean}
+   */
+  get is_shuffling() {
+    return this.#is_shuffling;
+  }
+
+  /**
+   * Whether the flight transition into the prologue message has been initiated.
+   * @returns {boolean}
+   */
+  get begin_flight_started() {
+    return this.#begin_flight_started;
+  }
+
+  set begin_flight_started(val) {
+    this.#begin_flight_started = Boolean(val);
+  }
+
   async shuffle() {
     if (app.simulation.loading) return;
     if (!app.ai_list.length) {
@@ -120,16 +152,16 @@ export const storyboard = {
       return { type, wrap: wrapper, root, rect: root ? root.getBoundingClientRect() : null };
     });
 
-    const dealable = !motion.is_reduced && app.view === "storyboard" && !shuffle_active;
+    const dealable = !motion.is_reduced && app.view === "storyboard" && !this.#is_shuffling;
     if (!dealable || slots.some((s) => !s.root || !s.rect)) {
       // If a deal is already airborne, ignore the click rather than double-committing.
-      if (!shuffle_active) commit();
+      if (!this.#is_shuffling) commit();
       return;
     }
 
     // 🃏 THE SHUFFLE DEAL — current cards return to the deck, then the newly
     // drawn cards deal out to their slots, staggered like a real hand.
-    shuffle_active = true;
+    this.#is_shuffling = true;
     slots.forEach((s) => {
       s.wrap?.classList.remove("deal-reveal", "deal-revealed");
       s.wrap?.classList.add("deal-reveal");
@@ -178,13 +210,13 @@ export const storyboard = {
     });
 
     setTimeout(() => {
-      shuffle_active = false;
+      this.#is_shuffling = false;
     }, 180 + 700);
-  },
+  }
 
   async begin() {
     // Reset the begin-flight latch so a fresh begin can orchestrate again.
-    begin_flight_started = false;
+    this.#begin_flight_started = false;
     if (!app.selected_ai || !app.selected_user || !app.selected_fractal) return;
     const claimed = await stories.active_entity_ids();
     const locked = claimed_entity_lock([app.selected_ai, app.selected_user, app.selected_fractal], claimed);
@@ -198,10 +230,14 @@ export const storyboard = {
       fractal: app.selected_fractal,
     });
     await app.load_entities(); // Claim the new story's entities immediately
-  },
-};
+  }
+}
 
-import { parse_message } from "./message/render.js";
+export const storyboard = new StoryboardController();
+
+// ---------------------------------------------------------------------------------------------
+// BEGIN FLIGHT EFFECT
+// ---------------------------------------------------------------------------------------------
 
 /**
  * Installs the begin-story flight watcher. Must be called once during
@@ -218,7 +254,7 @@ export function install_begin_flight_effect() {
     const _pending = app.begin_story_pending;
     if (!_pending) return;
     const has_prologue_entry = simulation_log.feed.some((entry) => entry.meta?.is_prologue);
-    if (!has_prologue_entry || begin_flight_started) return;
+    if (!has_prologue_entry || storyboard.begin_flight_started) return;
 
     // Check if the stream has actual visible prose ready for the typewriter to animate
     if (app.streaming.active && app.streaming.content) {
@@ -230,7 +266,7 @@ export function install_begin_flight_effect() {
       return;
     }
 
-    begin_flight_started = true;
+    storyboard.begin_flight_started = true;
     // Capture BEFORE the flip — the storyboard unmounts on the view change.
     const assets = capture_storyboard_flight();
     app._begin_flight_assets = assets;
@@ -266,3 +302,9 @@ export function install_begin_flight_effect() {
     }, 0);
   });
 }
+
+/**
+ * CHANGELOG:
+ * - 2026-09-24: Refactored module-level state latches into idiomatic Svelte 5 `StoryboardController` class with `$state` runes and exported singleton `storyboard`.
+ * - 2026-06-15: Initialized storyboard shuffle choreography and begin-story flight orchestration.
+ */

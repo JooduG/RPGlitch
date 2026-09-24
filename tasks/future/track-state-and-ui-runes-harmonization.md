@@ -92,11 +92,16 @@ classDiagram
 - [x] `task-2.3`: Execute `svelte-autofixer` via MCP tool on `src/state/runtime.svelte.js` ensuring 0 compilation errors or rune warnings.
 - [x] `task-2.4`: Run `src/state/runtime.test.js` and related state tests (`log.test.js`, `status.test.js`, `interface.test.js`, `chrono.test.js`).
 
-### Phase 3: Full Integration & Downstream Verification
+### Phase 4: StoryboardController Modernization & UI Reactivity
 
-- [x] `task-3.1`: Verify all downstream consumers (`main.js`, `story.js`, `sessions.svelte.js`, `TelemetryCard.svelte`, etc.) interface seamlessly with the new class store.
-- [x] `task-3.2`: Run full test suite (`npm run test:unit`) across all 61 test files (1,114 tests) to guarantee zero regressions.
+- [x] `task-4.1`: Write unit tests for `StoryboardController` reactive properties (`is_shuffling`, `begin_flight_started`) in `src/ui/Storyboard.svelte.test.js`.
+- [x] `task-4.2`: Refactor `src/ui/Storyboard.svelte.js` to `class StoryboardController` with private runes, export singleton `storyboard`, and apply UFA structure (header, section dividers, changelog).
+- [x] `task-4.3`: Update `src/ui/console/StoryboardBar.svelte` to reactively disable shuffle button while `storyboard.is_shuffling`.
+- [x] `task-4.4`: Run `svelte-autofixer` on `src/ui/Storyboard.svelte.js` and `src/ui/console/StoryboardBar.svelte`.
+- [x] `task-4.5`: Run full test suite (`npm run test:unit`) ensuring 100% green pass.
 
 <!-- CHANGELOG
+  - 2026-09-24: Completed Phase 4 (StoryboardController Svelte 5 class refactor, SvelteSet integration, reactive StoryboardBar binding, and 1,117 unit tests passing).
+  - 2026-09-24: Added Phase 4 tasks for StoryboardController modernization and reactive UI binding.
   - 2026-09-24: Initialized track file for State & UI Runes Harmonization, migrating runtime.svelte.js from closure factory to modern Svelte 5 class-based Runes store.
 -->

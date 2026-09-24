@@ -79,7 +79,7 @@
   flank={true}
   variant="invisible"
   aria-label="Shuffle Entities"
-  disabled={app.control_panel_open || app.simulation.loading}
+  disabled={app.control_panel_open || app.simulation.loading || storyboard.is_shuffling}
   onclick={() => storyboard.shuffle()}
   actions={[shimmy, tooltip]}
   class="touch-target-coarse shrink-0"
@@ -91,3 +91,8 @@
     />
   </svg>
 </Button>
+
+<!-- CHANGELOG
+  - 2026-09-24: Bound shuffle button disabled condition to reactive `storyboard.is_shuffling` state.
+  - 2026-06-15: Initialized StoryboardBar with model progress, begin story action, and shuffle triggers.
+-->
