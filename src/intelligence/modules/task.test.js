@@ -404,9 +404,6 @@ describe("render_task — per-mode state dispatch", () => {
   });
 });
 
-// ============================================================================
-// [CHANGELOG]
-// ============================================================================
 /**
  * CHANGELOG
  * - 2026-09-23: `render_task` calls updated to the `task_state` API (was `mode`) and the story-prose case passes the flattened `config.think_format` (was `config.task.think_format`).

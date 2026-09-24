@@ -1161,9 +1161,6 @@ export class AudioEngine {
 export const audio_engine = new AudioEngine();
 export const Audio = audio_engine;
 
-// ============================================================================
-// [CHANGELOG]
-// ============================================================================
 /**
  * CHANGELOG:
  * - 2026-09-25: Streaming TTS track sanitization now uses the shared `strip_cognition_blocks` instead of duplicated inline think-strip regexes.

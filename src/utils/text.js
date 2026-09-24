@@ -1065,13 +1065,10 @@ export function alternation_field_label(text, raw) {
   return "";
 }
 
-// ============================================================================
-// [CHANGELOG]
-// - 2026-09-11: Purification pass — renamed the lazy stem `ind` to `indent_continuation` (full-name law).
-// ============================================================================
 /**
  * CHANGELOG:
  * - 2026-09-23: Relocated VISUAL_EXCLUDED_KEYS and strip_visual_excluded here from @intelligence/epistemic.js to break circular dependency between media and intelligence layers.
+ * - 2026-09-11: Purification pass — renamed the lazy stem `ind` to `indent_continuation` (full-name law).
  * - 2026-09-25: History formatting standardization — added `format_history_entries` and `filter_narrative_messages` to unify conversation history collapsing, XML `<ENTRY>` serialization, and narrative turn extraction across platform and intelligence layers.
  * - 2026-09-25: DRY pass — consolidated `compute_initials` (was duplicated verbatim in Storyboard.svelte.js and ProfilePicture.svelte) and `NAME_PREFIX_STEMS` here; added `role_display_label` + `NARRATIVE_ROLES`/`is_narrative_role` so the role→label and narrative-role checks live in one place.
  * - 2026-09-25: Stripping/truncation standardization — `truncate_at_word` is now the one

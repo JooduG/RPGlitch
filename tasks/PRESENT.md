@@ -1,7 +1,7 @@
 ---
 name: present
 description: Active mission board, roadmap, feature maturity, and pulse history log
-active_track: tasks/future/track-agent-governance-evolutions.md
+active_track: tasks/future/track-generation-flow-and-storyboard-guards.md
 last_synchronized: 2026-09-24
 ---
 
@@ -9,13 +9,13 @@ last_synchronized: 2026-09-24
 
 ## ⚡ Present
 
-- **Active Track**: [`tasks/future/track-agent-governance-evolutions.md`](./future/track-agent-governance-evolutions.md)
-- **Active Task**: All tasks completed. Phase 5 verification gate passed cleanly (16/16 hook tests, 61/61 unit test suites, 0 lint errors, build succeeded).
+- **Active Track**: [`tasks/future/track-generation-flow-and-storyboard-guards.md`](./future/track-generation-flow-and-storyboard-guards.md)
+- **Active Task**: `task-1.1`: Extend `src/state/status.test.js` with failing unit tests covering fine-grained generation stages: `director_thinking`, `speaker_thinking`, `start_director_stage()`, `set_delegated_speaker()`, `start_stream_stage()`, and state resets on `complete()`.
 
 ### 🩺 System & Session Readiness
 
 - **Active Baton**: [`scribbles.md`](../scribbles.md) (Generation flow lifecycle, speaker thinking indicators, active-story guard modal exploration, shimmer harmonization).
-- **Environmental Health**: Git branch `main` (hook contracts passing 13/13 via `npm run test:hooks`, 71 test suites / 1114 tests passing 100%, design tests passing, clean working tree).
+- **Environmental Health**: Git branch `main` (hook contracts passing 16/16 via `npm run test:hooks`, 61 test suites / 1114 tests passing 100%, design tests passing, clean working tree).
 - **Sovereign Constraints**: Svelte 5 Runes only (`$state`, `$derived`, `$effect`), single-file bundle distribution (`vite-plugin-singlefile`), P4 Zero Backwards Compatibility (pre-beta purity).
 - **Last Startup Verification**: 2026-09-23 15:57 (via `/startup`).
 
@@ -23,7 +23,7 @@ last_synchronized: 2026-09-24
 
 <!-- TODO_SCAN_START -->
 
-Last Scanned: 2026-09-24 03:49
+Last Scanned: 2026-09-24 04:10
 
 No active AI debt found.
 <!-- TODO_SCAN_END -->
@@ -32,11 +32,11 @@ No active AI debt found.
 
 ## 🚀 Future
 
-- [`tasks/future/track-generation-flow-and-storyboard-guards.md`](./future/track-generation-flow-and-storyboard-guards.md): Generation flow lifecycle, speaker thinking indicators, storyboard active story guards, and shimmer harmonization
-
+_No queued tracks._
 
 ### 📦 Archived Tracks
 
+- [`C:/Users/johng/.gemini/antigravity-ide/archive/2026-09/2026-09-24-track-agent-governance-evolutions.md`](file:///C:/Users/johng/.gemini/antigravity-ide/archive/2026-09/2026-09-24-track-agent-governance-evolutions.md): Sovereign Agent Governance Evolutions & Context-Driven Harmonization — Wikipedia AI tells & structural prose detox formulas 7 & 8, D1–D5 & R1 prompt complexity triage CLI utility, Epistemic Context Cartography & CDD Auditable Proof Matrix, and spec-to-code drift detection Stop hook (Archived 2026-09-24)
 - [`C:/Users/johng/.gemini/antigravity-ide/archive/2026-09/2026-09-19-track-prompt-architecture-purification-and-physics-decoupling.md`](file:///C:/Users/johng/.gemini/antigravity-ide/archive/2026-09/2026-09-19-track-prompt-architecture-purification-and-physics-decoupling.md): Prompt Architecture Purification & Physics Decoupling — Relocated dynamics XML compilers to `modules/protocols.js` / `modules/entities/sheets.js`, relocated subtext & available keywords to `modules/task.js`, purified `physics.js` with `clamp` from `@utils`, and removed XML compilation from physics domain (Archived 2026-09-23)
 - [`C:/Users/johng/.gemini/antigravity-ide/archive/2026-09/2026-09-19-track-prompt-unification-and-dead-code-elimination.md`](file:///C:/Users/johng/.gemini/antigravity-ide/archive/2026-09/2026-09-19-track-prompt-unification-and-dead-code-elimination.md): Mega Report Phase 2 & 3 — Dead code elimination, one-door `compile_prompt` unification, retirement of `prompt_templates` and `prompt_builder` facades, literal deduplication (D2/D3), `entity_type` standardization (S6), optics single door (R4), and simulation-audit.js P4 migration (Archived 2026-09-19)
 - [`C:/Users/johng/.gemini/antigravity-ide/archive/2026-09/2026-09-19-track-visual-style-architecture-and-optics-redistribution.md`](file:///C:/Users/johng/.gemini/antigravity-ide/archive/2026-09/2026-09-19-track-visual-style-architecture-and-optics-redistribution.md): Visual style architecture mirrored from narrative style, Layer 3 `<VISUAL_STYLE>` and static optics protocols, Layer 4 co-located `<SUBJECT_RULES>`, Layer 6 unified `<SPATIAL_FRAMING>` and think format, and P4 elimination of `build_optics_builder_protocol` (Archived 2026-09-19)
@@ -49,6 +49,7 @@ No active AI debt found.
 
 ---
 
+| 2026-09-24 04:11 | Universal Comment & Changelog Banner Harmonization: (1) Audited and eliminated redundant stacked `// CHANGELOG` and divider comments placed immediately above canonical JSDoc `/** * CHANGELOG ... */` blocks across 37 modules in `src/`; (2) Cleaned duplicate header in `src/data/sessions.svelte.js` and folded stray inline changelog comments in `src/utils/text.js` into canonical JSDoc block; (3) Hardened `synchronize_mission_board` in `hooks.js` to prevent double-newline insertion during automated PRESENT.md formatting; (4) Verified 100% test pass on `npm run lint`, `npm run audit`, and `npm run test:hooks` (16/16 contracts green). | `implement`, `housekeeping`, `test` | ✅ Completed |
 | 2026-09-24 03:47 | Sovereign Agent Governance Evolutions: (1) Implemented Wikipedia AI tells & structural prose detox formulas 7 & 8 in `src/utils/styles.js` and `src/data/definitions/speaking-styles.js` (25/25 style unit tests passing); (2) Added deterministic CLI prompt complexity triage engine in `.agents/skills/simulation/scripts/triage-prompt.js` with D1–D5 & R1 parameter density scoring (5/5 unit tests passing); (3) Codified Epistemic Context Cartography and Conductor Auditable Proof Matrix in `GEMINI.md`, `planning/SKILL.md`, and `simulation/SKILL.md`; (4) Built spec-to-code drift detection Stop hook in `hooks.js` and verified with 16/16 hook contract tests; (5) Passed 100% of quality gates (`npm run verify` passing lint/audit/test across 61 test suites / 1114 tests, `npm run build` producing clean single-file bundle). | `implement`, `test`, `planning` | ✅ Completed |
 | 2026-09-24 03:10 | Agent Governance & Hook Gate Hardening: (1) Added camelCase normalization (`thoughtNumber` -> `thought_number`) in `hooks.js (handle_waldzell_router)` to prevent schema validation failures; (2) Re-enabled `planning-handoff` hook in `hooks.js` and registered `planning-handoff-gate` in `.agents/hooks.json` to keep `tasks/PRESENT.md` and active tracks synchronized on turn termination; (3) Added comprehensive contract tests in `hooks.test.js` (15/15 hook tests green); (4) Documented governance inventory in `AGENT-GOVERNANCE-INVENTORY.md`. | `implement`, `planning` | ✅ Completed |
 | 2026-09-24 03:02 | Sovereign Documentation & Skill Harmonization: (1) Reconciled Kokoro TTS file references across `GEMINI.md`, `README.md`, `GLOSSARY.md`, and `.agents/skills/audio/SKILL.md` to point to consolidated `src/media/speech.js` & `audio.svelte.js` (retiring `voice.js`); (2) Corrected global somatic archetype definition path in `GLOSSARY.md` from `triggers.js` to single source `src/intelligence/physics.js` (`PHYSICS_PROTOCOLS`); (3) Updated Directory Map in `GLOSSARY.md` to reflect `interface.svelte.js`; (4) Synchronized `.agents/skills/simulation/SKILL.md` Section 3 & 6 source tables to point directly to `prompts.js`, `story.js`, and `temporal.js`; (5) Aligned `tasks/future/track-generation-flow-and-storyboard-guards.md` and `tasks/PRESENT.md` frontmatter to active; (6) Verified 100% pass on markdown lint (`npm run lint:md`), hook contracts (`npm run test:hooks`), design tests, and unified hygiene audit. | `planning`, `implement` | ✅ Completed |

@@ -951,9 +951,6 @@ export async function spawn_image_beat(tier, options = {}) {
   }
 }
 
-// ============================================================================
-// [CHANGELOG]
-// ============================================================================
 /**
  * CHANGELOG:
  * - 2026-09-24: Media layer consolidation — absorbed image-beats.js (queue bounds, in-flight registry, ghost sweeping, spawn_image_beat) directly into visual.svelte.js per P4 Zero Backwards Compatibility.

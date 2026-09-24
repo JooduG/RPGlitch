@@ -261,9 +261,6 @@ export function detox_prose(raw_text, speaking_style = "casual", custom_rules = 
   return clean_text;
 }
 
-// ============================================================================
-// [CHANGELOG]
-// ============================================================================
 /**
  * CHANGELOG:
  * - 2026-09-24: Added structural pattern formulas 7 & 8 to scrub dangling significance participial clauses (underscoring/highlighting) and rhetorical false contrasts (em-dash 'not just X — it's Y'), aligning with Wikipedia AI tells.

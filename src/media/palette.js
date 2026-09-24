@@ -200,9 +200,6 @@ export function ensure_theme_tokens() {
   }
 }
 
-// ============================================================================
-// [CHANGELOG]
-// ============================================================================
 /**
  * CHANGELOG:
  * - 2026-08-29: Applied /harmonize protocol: purged truncated variable names (input_string, color_value,

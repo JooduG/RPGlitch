@@ -511,9 +511,6 @@ export function serialize_entity_for_export(target_entity) {
   return sanitized_export;
 }
 
-// ============================================================================
-// CHANGELOG
-// ============================================================================
 /**
  * CHANGELOG
  * - 2026-09-25: Relationship-graph truncation now uses the shared `truncate_at_word` (word boundary + ellipsis) instead of a mid-word `slice`.

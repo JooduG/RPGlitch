@@ -789,7 +789,7 @@ export function synchronize_mission_board(repo_root) {
         return `- [\`tasks/future/${t.file}\`](./future/${t.file})${desc_suffix}`;
       });
       const future_body = queued_lines.length > 0 ? queued_lines.join("\n\n") + "\n" : "_No queued tracks._\n";
-      updated = updated.replace(future_section_pattern, `$1${future_body}\n$3`);
+      updated = updated.replace(future_section_pattern, `$1${future_body}$3`);
     }
 
     if (updated !== present_raw) {
@@ -859,7 +859,12 @@ export function handle_planning_handoff(payload) {
       return;
     }
 
-    const changed_files = status_output.split("\n").map((line) => line.slice(3).trim().replace(/\\/g, "/"));
+    const changed_files = status_output.split("\n").map((line) =>
+      line
+        .replace(/^..\s+/, "")
+        .trim()
+        .replace(/\\/g, "/"),
+    );
     const has_substantive_source_changes = changed_files.some((file) => file.startsWith("src/") && /\.(js|ts|svelte|css)$/.test(file));
     const has_handoff_recorded = changed_files.some((file) => file === "tasks/PRESENT.md");
 

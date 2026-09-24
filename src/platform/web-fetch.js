@@ -225,9 +225,6 @@ export async function fetch_web(raw_url, options = {}) {
   return { url, text };
 }
 
-// ============================================================================
-// [CHANGELOG]
-// ============================================================================
 /**
  * CHANGELOG:
  * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,

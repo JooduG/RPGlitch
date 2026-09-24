@@ -564,9 +564,6 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
   });
 });
 
-// ============================================================================
-// [CHANGELOG]
-// ============================================================================
 /**
  * CHANGELOG
  * - 2026-09-24: The enhancement `OUTPUT_FORMAT` assertion now expects the think-free directive (`Emit strictly plain prose…`) and asserts no orphaned `</THINK>` reference.

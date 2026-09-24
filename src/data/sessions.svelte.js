@@ -419,14 +419,12 @@ export const session_driver = {
   },
 };
 
-// ============================================================================
-// CHANGELOG
-// ============================================================================
 /**
  * CHANGELOG
- * - 2026-09-06: Consolidated entry lookup into _find_log_entry(); streamlined load_log() with
+ * -------------------------------------------------------------------------------------------------
+ * 2026-09-06: Consolidated entry lookup into _find_log_entry(); streamlined load_log() with
  *   anyOf() query; optimized regenerate() into single reverse pass; removed redundant fallback chains.
- * - 2026-08-29: Harmonized sessions.svelte.js to adhere strictly to constitutional
+ * 2026-08-29: Harmonized sessions.svelte.js to adhere strictly to constitutional
  *   lexical standards (unabbreviated naming, full descriptive variables), added
  *   instructional header block, standard dividers, and changelog footer.
  */

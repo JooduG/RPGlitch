@@ -1,7 +1,7 @@
 ---
 name: track-generation-flow-and-storyboard-guards
 description: Generation flow lifecycle, speaker thinking indicators, storyboard active story guards, and shimmer harmonization
-status: queued
+status: active
 last_synchronized: 2026-09-24
 references: scribbles.md
 ---
@@ -88,6 +88,17 @@ sequenceDiagram
 ---
 
 ## 3.0 Implementation Playbook
+
+### Phase 0: Universal Comment & Changelog Banner Harmonization (COMPLETED)
+
+- [x] `task-0.1`: Audit and eliminate redundant/stacked `// CHANGELOG` and divider comments placed immediately above canonical JSDoc `/** * CHANGELOG ... */` blocks across `src/` modules:
+  - `src/data/card-conversion.js`, `src/data/db.js`, `src/data/normalizer.js`, `src/data/repository.js`, `src/data/sessions.svelte.js`
+  - `src/intelligence/builder.js`, `src/intelligence/builder.test.js`, `src/intelligence/modules/history.js`, `src/intelligence/modules/protocols.js`, `src/intelligence/modules/protocols.test.js`, `src/intelligence/modules/system.js`, `src/intelligence/modules/system.test.js`, `src/intelligence/modules/task.test.js`
+  - `src/media/audio.svelte.js`, `src/media/optics.js`, `src/media/palette.js`, `src/media/speech.js`, `src/media/visual.svelte.js`
+  - `src/platform/security.js`, `src/platform/transport.js`, `src/platform/web-fetch.js`
+  - `src/state/chrono.svelte.js`, `src/state/log.svelte.js`, `src/state/runtime.svelte.js`, `src/state/status.svelte.js`
+  - `src/utils/bridges.js`, `src/utils/field-path.js`, `src/utils/html.js`, `src/utils/job-queue.js`, `src/utils/markdown.js`, `src/utils/math.js`, `src/utils/onnx.js`, `src/utils/resilience.js`, `src/utils/story-export.js`, `src/utils/styles.js`, `src/utils/text.js`, `src/utils/ui-helpers.js`, `src/utils/xml.js`
+- [x] `task-0.2`: Eliminate double changelog header lines in `src/data/sessions.svelte.js` and merge isolated inline changelog comments into canonical JSDoc in `src/utils/text.js`.
 
 ### Phase 1: Test-Driven Red Suite (State & Lifecycle Contracts)
 

@@ -117,9 +117,6 @@ export async function init_db() {
 
 export { db };
 
-// ============================================================================
-// CHANGELOG
-// ============================================================================
 /**
  * CHANGELOG
  * - 2026-09-06: Flattened schema to clean canonical v1 under P4 Zero Backwards Compatibility;

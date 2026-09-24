@@ -166,9 +166,6 @@ export function stable_pick(list, seed = "", offset = 0) {
   return list[hash % list.length];
 }
 
-// ============================================================================
-// [CHANGELOG]
-// ============================================================================
 /**
  * CHANGELOG:
  * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,

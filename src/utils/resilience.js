@@ -253,9 +253,6 @@ export class CircuitBreaker {
   }
 }
 
-// ============================================================================
-// [CHANGELOG]
-// ============================================================================
 /**
  * CHANGELOG:
  * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,

@@ -171,9 +171,6 @@ export function reset_bridges_for_testing() {
   _bump_stories_version = null;
 }
 
-// ============================================================================
-// [CHANGELOG]
-// ============================================================================
 /**
  * CHANGELOG:
  * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,

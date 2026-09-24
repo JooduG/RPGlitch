@@ -708,9 +708,6 @@ if (typeof window !== "undefined") {
   runtime.init_effects();
 }
 
-// ============================================================================
-// [CHANGELOG]
-// ============================================================================
 /**
  * CHANGELOG:
  * - 2026-09-24: Extracted `apply_story_title` and added `restore_story_title()` so entering storymode re-asserts the

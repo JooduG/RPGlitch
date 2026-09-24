@@ -362,9 +362,6 @@ export const security = {
   clear_session_checkpoint,
 };
 
-// ============================================================================
-// [CHANGELOG]
-// ============================================================================
 /**
  * CHANGELOG:
  * - 2026-09-24: Refactored `install_resize_observer_guard` to non-invasively capture errors without monkey-patching `window.ResizeObserver` or `window.addEventListener`. Namespaced `window.name` session checkpoint with `__RPGLITCH_CHECKPOINT__:`.

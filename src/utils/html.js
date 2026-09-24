@@ -258,9 +258,6 @@ export function truncate_readable(text, max_chars = INGESTION_CHAR_LIMIT, ellips
   });
 }
 
-// ============================================================================
-// [CHANGELOG]
-// ============================================================================
 /**
  * CHANGELOG:
  * - 2026-09-25: `truncate_readable` now delegates to the shared `truncate_at_word`

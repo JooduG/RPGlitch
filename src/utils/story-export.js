@@ -153,9 +153,6 @@ export function build_story_export_filename(story = {}, date = new Date()) {
   return `story-${slug}-${stamp}.md`;
 }
 
-// ============================================================================
-// [CHANGELOG]
-// ============================================================================
 /**
  * CHANGELOG:
  * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,

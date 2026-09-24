@@ -372,9 +372,6 @@ export const stories = {
   },
 };
 
-// ============================================================================
-// CHANGELOG
-// ============================================================================
 /**
  * CHANGELOG
  * - 2026-09-10: Premade fallback lookup now uses `get_premade_entity_by_id` (case-insensitive)

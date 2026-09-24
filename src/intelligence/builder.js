@@ -1292,8 +1292,6 @@ export function assemble_prompt(config, context = {}) {
   return adapter(config, context);
 }
 
-// ── 5. Module Changelog ──────────────────────────────────────────────────────
-
 /**
  * CHANGELOG
  * - 2026-09-24: Consolidated payload assembler (`to_data_points` and `context_builder`) directly into `builder.js`, pruning `payload.js` and streamlining intelligence kernel architecture.

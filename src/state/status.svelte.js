@@ -451,9 +451,6 @@ export const simulation_state = new SimulationStateStore();
 export const ui_state = new UIStateStore();
 export const streaming = new StreamingStore();
 
-// ============================================================================
-// [CHANGELOG]
-// ============================================================================
 /**
  * CHANGELOG:
  * - 2026-09-23: Consolidated streaming accumulator (`streaming.svelte.js`) and freeze watchdog

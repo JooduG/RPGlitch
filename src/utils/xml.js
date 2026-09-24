@@ -330,9 +330,6 @@ export function render_xml_tag({
   return indent > 0 ? indent_all(block, indent) : block;
 }
 
-// ============================================================================
-// [CHANGELOG]
-// ============================================================================
 /**
  * CHANGELOG
  * - 2026-09-22: One indentation primitive (recommendation #1) — added `dedent_all` and routed `render_xml_tag`'s child normalization through it, so a pre-indented child block is re-embedded at a uniform depth instead of having only its first line trimmed (the cause of open tags at column 0 paired with closing tags at column 2).

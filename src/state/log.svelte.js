@@ -282,9 +282,6 @@ if (typeof window !== "undefined") {
   });
 }
 
-// ============================================================================
-// [CHANGELOG]
-// ============================================================================
 /**
  * CHANGELOG:
  * - 2026-09-23: Consolidated developer telemetry store (`developer-log.svelte.js`) directly

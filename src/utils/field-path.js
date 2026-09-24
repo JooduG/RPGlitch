@@ -83,9 +83,6 @@ export function set_value(obj, path, value) {
   current[last_key] = value;
 }
 
-// ============================================================================
-// [CHANGELOG]
-// ============================================================================
 /**
  * CHANGELOG:
  * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,

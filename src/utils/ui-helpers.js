@@ -396,9 +396,6 @@ export function guarded_transition(callback, options = {}) {
   return done_promise;
 }
 
-// ============================================================================
-// [CHANGELOG]
-// ============================================================================
 /**
  * CHANGELOG:
  * - 2026-09-24 (rev 2): Restored resolve_ms, resolve_number, resolve_string — they are live consumers

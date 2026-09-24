@@ -337,9 +337,6 @@ export class ChronoEngine {
 
 export const chrono_engine = new ChronoEngine();
 
-// ============================================================================
-// [CHANGELOG]
-// ============================================================================
 /**
  * CHANGELOG:
  * - 2026-08-29: Applied /harmonize protocol: structured Universal File Architecture,

@@ -444,9 +444,6 @@ export const llm_service = {
   },
 };
 
-// ============================================================================
-// [CHANGELOG]
-// ============================================================================
 /**
  * CHANGELOG:
  * - 2026-09-25: Unified History Pipeline — `format_conversation_history` now delegates directly to the canonical `format_history_entries` in `@utils/text.js`, eliminating duplicate collapsing and XML serialization.

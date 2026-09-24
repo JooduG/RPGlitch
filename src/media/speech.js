@@ -337,9 +337,6 @@ export function split_speech_by_speaker(text, active_roster = [], options = {}) 
     }));
 }
 
-// ============================================================================
-// [CHANGELOG]
-// ============================================================================
 /**
  * CHANGELOG:
  * - 2026-08-29: Applied /harmonize protocol: purged shorthand abbreviations (char -> character,

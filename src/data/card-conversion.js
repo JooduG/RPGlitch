@@ -240,9 +240,6 @@ export function serialize_rpglitch_entity(entity) {
   return serialize_entity_for_export(normalize(entity));
 }
 
-// ============================================================================
-// CHANGELOG
-// ============================================================================
 /**
  * CHANGELOG:
  * - 2026-08-29: Harmonized module structure, added formal Universal Header,

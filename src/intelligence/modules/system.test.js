@@ -109,9 +109,6 @@ describe("render_system_xml", () => {
   });
 });
 
-// ============================================================================
-// [CHANGELOG]
-// ============================================================================
 /**
  * CHANGELOG
  * - 2026-09-20: Retargeted the envelope test to the open-fragment contract — `render_system_xml` no longer nests a `<TASK>` and never auto-closes; the Task is owned by the package and closed by transport.
