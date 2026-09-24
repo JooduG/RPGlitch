@@ -523,7 +523,7 @@ export function resolve_optics_cinematography({
   const chaos = Number(ai_dynamics.chaos ?? 50);
   const affinity = Number(ai_dynamics.affinity ?? 50);
 
-  const { PRESETS, NARRATIVE_CONTEXT } = TASK_LIBRARY.OPTICS.CINEMATOGRAPHY;
+  const { PRESETS } = TASK_LIBRARY.OPTICS.CINEMATOGRAPHY;
   let preset = PRESETS.MEDIUM_ACTION;
 
   if (is_fractal_target) {
@@ -575,8 +575,8 @@ export function resolve_optics_cinematography({
  * @type {ReadonlyArray<{ key: string, emit: (state: Record<string, any>) => (string|null|undefined) }>}
  */
 export const TASK_LAYERS = Object.freeze([
-  { key: "think", emit: (state) => state.think },
-  { key: "inputs", emit: (state) => state.inputs },
+  { key: "think_format", emit: (state) => state.think_format },
+  { key: "input", emit: (state) => state.input },
   { key: "currents", emit: (state) => state.currents },
   { key: "target", emit: (state) => state.target },
   { key: "spatial_framing", emit: (state) => state.spatial_framing },
@@ -705,21 +705,21 @@ export const TASK_SLOT_RESOLVERS = Object.freeze({
  * @type {Readonly<Record<string, Readonly<Record<string, string>>>>}
  */
 export const TASK_MODE_PLANS = Object.freeze({
-  director: Object.freeze({ inputs: "director_signals", directives: "manifest_directives", output_format: "json_output" }),
+  director: Object.freeze({ input: "director_signals", directives: "manifest_directives", output_format: "json_output" }),
   continuum: Object.freeze({ directives: "manifest_directives", output_format: "external_output" }),
-  enhancement: Object.freeze({ inputs: "content_signal", directives: "external_directives", output_format: "external_output" }),
-  sorting: Object.freeze({ inputs: "ingestion_signal", directives: "manifest_directives", output_format: "external_output" }),
+  enhancement: Object.freeze({ input: "content_signal", directives: "external_directives", output_format: "external_output" }),
+  sorting: Object.freeze({ input: "ingestion_signal", directives: "manifest_directives", output_format: "external_output" }),
   optics: Object.freeze({
-    think: "optics_think",
-    inputs: "intent_signal",
+    think_format: "optics_think",
+    input: "intent_signal",
     target: "optics_target",
     spatial_framing: "optics_spatial_framing",
     directives: "manifest_directives",
     output_format: "json_output",
   }),
   prose: Object.freeze({
-    think: "prose_think",
-    inputs: "action_signal",
+    think_format: "prose_think",
+    input: "action_signal",
     currents: "prose_currents",
     directives: "action_directive",
     delivery_posture: "prose_posture",

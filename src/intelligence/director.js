@@ -1,19 +1,18 @@
 /**
  * src/intelligence/director.js
- * 📐 DIRECTOR DOMAIN MODULE — Quick Shot Normalization, JSON Extraction, & Actuators.
+ * 📐 DIRECTOR DOMAIN MODULE — Quick Shot Orchestration, Normalization, & Stage Actuators.
  *
- * Normalizes Director outputs, extracts quick-shot JSON schemas defensively,
- * applies Stage Spotlight choreography, and reconciles the Relational Mesh.
+ * Core engine driver for Shot 1 (Director Quick Shot). Normalizes Director turn outputs,
+ * parses structured JSON schemas defensively with terse recovery fallbacks, applies Stage Spotlight
+ * choreography, and reconciles the Relational Mesh across active story participants.
  *
  * Architecture:
- * 1. Constants & Value Maps
- * 2. Action & Speaker Normalizers
- * 3. Quick Shot Payload Normalizer
- * 4. Fallback Synthesizer
- * 5. Safe JSON Extraction & Output Parser
- * 6. Stage Spotlight Choreography & NPC Resolution
- * 7. Relational Mesh Actuator
- * 8. Shot 1 Director Execution Driver (execute_director_shot)
+ * 1. Domain Constants & Schema Contracts
+ * 2. Shot 1 Director Execution Driver (execute_director_shot)
+ * 3. Safe Extraction, Parsing & Fallback (parse_director_json, synthesize_director_fallback)
+ * 4. Payload Normalization (normalize_director_data & field normalizers)
+ * 5. Stage Spotlight Choreography (normalize_actor_id, resolve_npc_entity, apply_in_scene_change)
+ * 6. Relational Mesh Actuator (normalize_relationships, apply_relationships)
  */
 
 import { entities } from "@data";
@@ -22,20 +21,187 @@ import { llm_service, raw_stop_reason, raw_to_text } from "@platform";
 import { compile_prompt } from "./prompts.js";
 import { extract_and_repair_json, parse_think_block, validate_and_repair_response } from "./parser.js";
 
-// ── 1. Constants & Value Maps ─────────────────────────────────────────────────
+// ============================================================================
+// 1. DOMAIN CONSTANTS & SCHEMA CONTRACTS
+// ============================================================================
 
-export const STORY_STATUS_VALUES = ["IN_PROGRESS", "CONCLUDED", "COLLAPSED"];
+export { DIRECTOR_SCHEMA } from "./prompts.js";
 
-const SPEAKER_AI_ALIASES = new Set(["ai", "ai_character", "character", "companion"]);
-const SPEAKER_FRACTAL_ALIASES = new Set(["fractal", "world", "narrator", "environment", "scene"]);
+/**
+ * Valid terminal story states emitted or observed by the Director.
+ * @type {ReadonlyArray<"IN_PROGRESS" | "CONCLUDED" | "COLLAPSED">}
+ */
+export const STORY_STATUS_VALUES = Object.freeze(["IN_PROGRESS", "CONCLUDED", "COLLAPSED"]);
+
+const SPEAKER_AI_ALIASES = Object.freeze(new Set(["ai", "ai_character", "character", "companion"]));
+const SPEAKER_FRACTAL_ALIASES = Object.freeze(new Set(["fractal", "world", "narrator", "environment", "scene"]));
 const SPEAKER_NPC_PATTERN = /^npc(?::[^\s]+)?$/i;
 
-// ── 2. Action & Speaker Normalizers ───────────────────────────────────────────
+// ============================================================================
+// 2. SHOT 1 DIRECTOR EXECUTION DRIVER
+// ============================================================================
+
+/**
+ * Executes Shot 1 (Director Staging & Turn Evaluation):
+ * 1. Compiles Director planning prompt via compile_prompt("director").
+ * 2. Dispatches LLM call with retry and refusal detection.
+ * 3. On refusal or JSON truncation, retries gracefully with the terse director directive.
+ * 4. Synthesizes minimal fallback if parsing fails completely.
+ * 5. Normalizes the final payload under full domain contracts.
+ *
+ * @param {any} payload - Hydrated turn context payload
+ * @param {any} snapshot - World and entity dynamics snapshot
+ * @param {object} [options={}] - Execution options
+ * @param {string} [options.node_id] - Execution turn node identifier
+ * @param {string} [options.input] - User input string
+ * @param {boolean} [options.is_opening_turn] - Whether this is round 1 opening turn
+ * @param {Function} [options.execute_with_retry] - Retry wrapper function
+ * @returns {Promise<{ director_data: any, director_duration_ms: number }>}
+ */
+export async function execute_director_shot(payload, snapshot, options = {}) {
+  const { node_id = "turn", input = "", is_opening_turn = false, execute_with_retry, ...llm_options } = options;
+  const retry_caller = typeof execute_with_retry === "function" ? execute_with_retry : async (fn) => fn();
+
+  state_bridge.app?.log("[Director] Context hydrated. Physics resolved. Entering DIRECTOR_TURN...", "system");
+  const director_prompt = compile_prompt("director", { ...payload, compressed_snapshot: snapshot });
+
+  const invoke_llm = async (is_terse) => {
+    const prompt = is_terse ? compile_prompt("director", { round: payload?.round, terse: true }) : director_prompt;
+    const response = await retry_caller(
+      () =>
+        llm_service.generate(
+          {
+            system: prompt.system,
+            task: prompt.task,
+            messages: [],
+            role: "system",
+            node_id: `${node_id}-director`,
+          },
+          { ...llm_options, json: true, silent: true, raw: true, onToken: null },
+        ),
+      1,
+      500,
+    );
+    const text = raw_to_text(response);
+    const check = validate_and_repair_response(text);
+    if (check.is_refused) throw new Error("AI_REFUSAL_DETECTED");
+    return { response, text };
+  };
+
+  const start_time = performance.now();
+  let director_data = null;
+  let raw_output = null;
+
+  // 1. Primary Director Call
+  try {
+    raw_output = await invoke_llm(false);
+    director_data = !raw_output.text?.trim() ? {} : parse_director_json(raw_output.text);
+  } catch (error) {
+    state_bridge.app?.log(`[Director] Primary Director call failed: ${error?.message || error} — attempting terse recovery...`, "warn");
+  }
+
+  // 2. Terse Recovery (on failure or truncated/unparseable JSON)
+  if (!director_data || director_data._parse_error) {
+    const previous_thought = director_data?._thought_process;
+    const stop_reason = raw_output?.response ? raw_stop_reason(raw_output.response) : "";
+    if (raw_output) {
+      state_bridge.app?.log(`[Director] Director JSON truncated${stop_reason ? ` (${stop_reason})` : ""} — retrying with terse directive...`, "warn");
+    }
+    try {
+      const terse_output = await invoke_llm(true);
+      const retry_data = parse_director_json(terse_output.text);
+      if (retry_data && !retry_data._parse_error) {
+        retry_data._thought_process = retry_data._thought_process || previous_thought || "High tension turn evaluation completed.";
+        director_data = retry_data;
+      }
+    } catch (terse_error) {
+      state_bridge.app?.log(`[Director] Terse Director retry failed: ${terse_error?.message || terse_error}`, "warn");
+    }
+  }
+
+  // 3. Fallback Synthesis (if still degraded)
+  if (!director_data || director_data._parse_error) {
+    state_bridge.app?.log("[Director] Director degraded — applying minimal-mutation fallback.", "warn");
+    director_data = synthesize_director_fallback(director_data, input, state_bridge);
+  }
+
+  const director_duration_ms = Math.round(performance.now() - start_time);
+  if (typeof state_bridge.runtime?.record_director_latency === "function") {
+    state_bridge.runtime.record_director_latency(director_duration_ms);
+  }
+
+  director_data = normalize_director_data(director_data);
+  director_data.first_contact = Boolean(is_opening_turn || director_data.first_contact);
+
+  return { director_data, director_duration_ms };
+}
+
+// ============================================================================
+// 3. SAFE EXTRACTION, PARSING & FALLBACK
+// ============================================================================
+
+/**
+ * Extracts and sanitizes the Director's JSON payload from raw LLM output.
+ * Falls back to raw prose parsing if bracketed JSON is missing or malformed.
+ *
+ * @param {string} raw_text - Raw text emitted by LLM service
+ * @returns {any | null} Normalized Director data payload or null
+ */
+export function parse_director_json(raw_text) {
+  if (!raw_text || !raw_text.trim()) return null;
+
+  const parsed = extract_and_repair_json(raw_text, null);
+  if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+    if (parsed.prose) delete parsed.prose;
+    return normalize_director_data(parsed);
+  }
+
+  const json_string = extract_json_block(raw_text);
+  if (!json_string) {
+    console.warn("[Director] Director JSON missing brackets, falling back to raw prose.");
+    state_bridge.app?.log("[Director] Director JSON missing brackets — using raw prose fallback", "warn");
+  } else {
+    console.warn("[Director] Director JSON invalid, falling back to raw prose.");
+  }
+
+  const stripped = raw_text.replace(/```json\n?|```/g, "").trim();
+  const extracted_think = parse_think_block(stripped).think;
+  return normalize_director_data({ internal_monologue: extracted_think || stripped, _parse_error: true });
+}
+
+/**
+ * Minimal-mutation fallback synthesized when Director JSON parsing fails completely.
+ *
+ * @param {any} previous_data - Partial data extracted prior to error
+ * @param {string} input - Active user input string
+ * @param {any} [_bridge] - State bridge handle
+ * @returns {any} Fallback director payload
+ */
+export function synthesize_director_fallback(previous_data, input, _bridge) {
+  const thought = String(previous_data?._thought_process || previous_data?.internal_monologue || input || "The scene continues.").trim();
+  return {
+    _parse_error: true,
+    _thought_process: thought,
+    internal_monologue: thought,
+    next_action: "AI_CHARACTER",
+    keywords: [],
+    directors_note: "Continue the scene with grounded immersion and physical causality.",
+    visual_staging: "",
+    dynamics_deltas: {},
+    in_scene_change: { enter: [], exit: [] },
+    story_status: "IN_PROGRESS",
+  };
+}
+
+// ============================================================================
+// 4. PAYLOAD NORMALIZATION & ATOMIC NORMALIZERS
+// ============================================================================
 
 /**
  * Strips the `npc:` prefix so an actor identifier resolves to a bare ID.
- * @param {any} id
- * @returns {string}
+ *
+ * @param {any} id - Raw NPC identifier
+ * @returns {string} Stripped identifier or empty string
  */
 export function strip_npc_id(id) {
   if (typeof id !== "string") return "";
@@ -45,8 +211,9 @@ export function strip_npc_id(id) {
 /**
  * Normalizes a Director `next_action` into its canonical enum or NPC target.
  * Unknown values gracefully fall back to "AI_CHARACTER".
- * @param {any} raw
- * @returns {string}
+ *
+ * @param {any} raw - Raw action value
+ * @returns {string} Canonical action enum or NPC identifier
  */
 export function normalize_next_action(raw) {
   if (!raw) return "AI_CHARACTER";
@@ -56,11 +223,11 @@ export function normalize_next_action(raw) {
     return "AI_CHARACTER";
   }
   const trimmed = raw.trim();
-  const upper = trimmed.toUpperCase();
   const lower = trimmed.toLowerCase();
+  const upper = trimmed.toUpperCase();
 
-  if (SPEAKER_AI_ALIASES.has(lower) || upper === "AI_CHARACTER") return "AI_CHARACTER";
-  if (SPEAKER_FRACTAL_ALIASES.has(lower) || upper === "FRACTAL") return "FRACTAL";
+  if (SPEAKER_AI_ALIASES.has(lower)) return "AI_CHARACTER";
+  if (SPEAKER_FRACTAL_ALIASES.has(lower)) return "FRACTAL";
   if (upper === "GENESIS") return "GENESIS";
   if (upper === "EPILOGUE_CONCLUDED" || lower === "concluded") return "EPILOGUE_CONCLUDED";
   if (upper === "EPILOGUE_COLLAPSED" || lower === "collapsed") return "EPILOGUE_COLLAPSED";
@@ -71,9 +238,10 @@ export function normalize_next_action(raw) {
 }
 
 /**
- * Coerces a raw Director `speaker` value into the canonical delegation target.
- * @param {any} raw
- * @returns {"ai" | "fractal" | "npc"}
+ * Coerces a raw Director `speaker` or `next_action` value into the canonical delegation target.
+ *
+ * @param {any} raw - Raw speaker or next_action string
+ * @returns {"ai" | "fractal" | "npc"} Canonical speaker role
  */
 export function normalize_speaker(raw) {
   if (typeof raw !== "string") return "ai";
@@ -85,68 +253,32 @@ export function normalize_speaker(raw) {
 }
 
 /**
- * Sanitizes director's note to a clean 1-5 line string.
- * @param {any} raw
- * @returns {string}
+ * Sanitizes director's note to a clean 1-5 line string (max 500 chars).
+ *
+ * @param {any} raw - Raw note string
+ * @returns {string} Sanitized multi-line note string
  */
 export function normalize_directors_note(raw) {
   if (typeof raw !== "string") return "";
   const lines = raw
     .split(/\r?\n/)
-    .map((l) => l.trim())
+    .map((line) => line.trim())
     .filter(Boolean)
     .slice(0, 5);
   return lines.join("\n").slice(0, 500);
 }
 
 /**
- * Normalizes the Director's Stage Spotlight choreography.
- * @param {any} raw
- * @returns {{ enter: string[], exit: string[] }}
- */
-export function normalize_in_scene_change(raw) {
-  const base = raw && typeof raw === "object" ? raw : {};
-  const clean = (list) => (Array.isArray(list) ? list : []).map(strip_npc_id).filter(Boolean);
-  return { enter: clean(base.enter), exit: clean(base.exit) };
-}
-
-/**
- * Normalizes the Director's relational-web mutations.
- * @param {any} raw
- * @returns {string[]}
- */
-export function normalize_relationships(raw) {
-  if (!Array.isArray(raw)) return [];
-  const out = [];
-  for (const r of raw) {
-    if (typeof r !== "string") continue;
-    const clean = collapse_whitespace(r);
-    if (!clean || !/→|->|—\s*>/i.test(clean)) continue;
-    out.push(clean.slice(0, 160));
-    if (out.length >= 6) break;
-  }
-  return out;
-}
-
-// ── 3. Quick Shot Payload Normalizer ──────────────────────────────────────────
-
-/**
  * Normalizes an entire Director payload with defensive fallbacks for every field.
- * @param {any} payload
- * @returns {any}
+ *
+ * @param {any} payload - Raw or parsed Director payload
+ * @returns {any} Normalized Director output data object
  */
 export function normalize_director_data(payload) {
   const base = payload && typeof payload === "object" ? payload : {};
-  const keywords = Array.isArray(base.keywords)
-    ? base.keywords
-        .filter((k) => typeof k === "string" && Boolean(k.trim()))
-        .map((k) => k.trim())
-        .slice(0, 5)
-    : [];
-
   const raw_action = base.next_action || base.speaker;
   const next_action = normalize_next_action(raw_action);
-  const speaker = next_action.startsWith("npc") ? "npc" : next_action === "FRACTAL" ? "fractal" : "ai";
+  const speaker = normalize_speaker(next_action);
   const npc_id = speaker === "npc" ? strip_npc_id(next_action) : "";
 
   const story_status =
@@ -158,11 +290,13 @@ export function normalize_director_data(payload) {
           ? base.story_status
           : "IN_PROGRESS";
 
-  const directors_note = normalize_directors_note(base.directors_note || base.directive);
-  const visual_staging = typeof base.visual_staging === "string" ? base.visual_staging.trim() : "";
+  const keywords = Array.isArray(base.keywords)
+    ? base.keywords
+        .filter((k) => typeof k === "string" && Boolean(k.trim()))
+        .map((k) => k.trim())
+        .slice(0, 5)
+    : [];
 
-  const spotlight_source = base.spotlight || base.in_scene_change;
-  const in_scene_change = normalize_in_scene_change(spotlight_source);
   const raw_genesis = base.next_action?.genesis || base.spotlight?.genesis || base.genesis;
   const genesis =
     raw_genesis && typeof raw_genesis === "object"
@@ -180,84 +314,44 @@ export function normalize_director_data(payload) {
     speaker,
     npc_id,
     keywords,
-    directors_note,
-    visual_staging,
+    directors_note: normalize_directors_note(base.directors_note || base.directive),
+    visual_staging: typeof base.visual_staging === "string" ? base.visual_staging.trim() : "",
     story_status,
-    in_scene_change,
+    in_scene_change: normalize_in_scene_change(base.spotlight || base.in_scene_change),
     ...(genesis ? { genesis } : {}),
     dynamics_deltas: base.dynamics_deltas || base.mutations?.AI_CHARACTER?.dynamics_deltas || {},
     mutations: base.mutations || {},
   };
 }
 
-// ── 4. Fallback Synthesizer ───────────────────────────────────────────────────
+// ============================================================================
+// 5. STAGE SPOTLIGHT CHOREOGRAPHY
+// ============================================================================
 
 /**
- * Minimal-mutation fallback synthesized when Director JSON parsing fails.
- * @param {any} prev_data
- * @param {string} input
- * @param {any} bridge
- * @returns {any}
+ * Normalizes the Director's Stage Spotlight choreography (enter/exit lists).
+ *
+ * @param {any} raw - Raw spotlight or in_scene_change input
+ * @returns {{ enter: string[], exit: string[] }}
  */
-export function synthesize_director_fallback(prev_data, input, _bridge) {
-  const thought = String(prev_data?._thought_process || prev_data?.internal_monologue || input || "The scene continues.").trim();
-  return {
-    _parse_error: true,
-    _thought_process: thought,
-    internal_monologue: thought,
-    next_action: "AI_CHARACTER",
-    keywords: [],
-    directors_note: "Continue the scene with grounded immersion and physical causality.",
-    visual_staging: "",
-    dynamics_deltas: {},
-    in_scene_change: { enter: [], exit: [] },
-    story_status: "IN_PROGRESS",
-  };
+export function normalize_in_scene_change(raw) {
+  const base = raw && typeof raw === "object" ? raw : {};
+  const clean = (list) => (Array.isArray(list) ? list : []).map(strip_npc_id).filter(Boolean);
+  return { enter: clean(base.enter), exit: clean(base.exit) };
 }
-
-// ── 5. Safe JSON Extraction & Output Parser ───────────────────────────────────
-
-/**
- * Extracts and sanitizes the Director's JSON payload from raw LLM output.
- * Falls back to raw prose parsing if bracketed JSON is missing or malformed.
- * @param {string} raw_text
- * @returns {any}
- */
-export function parse_director_json(raw_text) {
-  if (!raw_text || !raw_text.trim()) return null;
-
-  const parsed = extract_and_repair_json(raw_text, null);
-  if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
-    if (parsed.prose) delete parsed.prose;
-    return normalize_director_data(parsed);
-  }
-
-  const json_string = extract_json_block(raw_text);
-  if (!json_string) {
-    console.warn("[GameMaster] Director JSON missing brackets, falling back to raw prose.");
-    state_bridge.app.log("[GameMaster] Director JSON missing brackets — using raw prose fallback", "warn");
-  } else {
-    console.warn("[GameMaster] Director JSON invalid, falling back to raw prose.");
-  }
-
-  const stripped = raw_text.replace(/```json\n?|```/g, "").trim();
-  const extracted_think = parse_think_block(stripped).think;
-  return normalize_director_data({ internal_monologue: extracted_think || stripped, _parse_error: true });
-}
-
-// ── 6. Stage Spotlight Choreography & NPC Resolution ──────────────────────────
 
 /**
  * Normalizes an actor identifier (e.g. "npc:ELIAS" -> "ELIAS") and resolves it
  * against active NPCs by key or name.
- * @param {string} raw
- * @param {Record<string, any>} [npcs={}]
- * @param {boolean} [allow_id_like=false]
- * @returns {string | null}
+ *
+ * @param {string} raw - Raw actor identifier or name
+ * @param {Record<string, any>} [npcs={}] - Active NPC entities index
+ * @param {boolean} [allow_id_like=false] - Whether to allow id-like strings if not matched
+ * @returns {string | null} Resolved NPC ID or null
  */
 export function normalize_actor_id(raw, npcs = {}, allow_id_like = false) {
   if (!raw) return null;
-  const id = String(raw).trim().replace(/^npc:/i, "");
+  const id = strip_npc_id(raw);
   if (!id) return null;
   if (npcs[id]) return id;
 
@@ -274,9 +368,10 @@ export function normalize_actor_id(raw, npcs = {}, allow_id_like = false) {
 
 /**
  * Resolves a delegated NPC by id (bare or `npc:<id>`) or by name.
- * @param {any} bridge
- * @param {string} npc_id
- * @returns {any | null}
+ *
+ * @param {any} bridge - Application or state bridge containing runtime
+ * @param {string} npc_id - NPC identifier
+ * @returns {any | null} Resolved NPC entity or null
  */
 export function resolve_npc_entity(bridge, npc_id) {
   if (!npc_id) return null;
@@ -288,9 +383,10 @@ export function resolve_npc_entity(bridge, npc_id) {
 /**
  * Applies the Director's Stage Spotlight choreography (enter/exit) to
  * runtime.in_scene_npc_ids.
- * @param {any} bridge
- * @param {{ enter?: string[], exit?: string[] } | null} change
- * @returns {Promise<boolean>}
+ *
+ * @param {any} bridge - State bridge handle
+ * @param {{ enter?: string[], exit?: string[] } | null} change - Enter and exit lists
+ * @returns {Promise<boolean>} Whether in_scene_npc_ids mutated
  */
 export async function apply_in_scene_change(bridge, change) {
   if (!change || typeof change !== "object") return false;
@@ -315,20 +411,42 @@ export async function apply_in_scene_change(bridge, change) {
   return changed;
 }
 
-// ── 7. Relational Mesh Actuator ───────────────────────────────────────────────
+// ============================================================================
+// 6. RELATIONAL MESH ACTUATOR
+// ============================================================================
+
+/**
+ * Normalizes the Director's relational-web mutations.
+ *
+ * @param {any} raw - Raw relationships array
+ * @returns {string[]} Sanitized directed edge strings
+ */
+export function normalize_relationships(raw) {
+  if (!Array.isArray(raw)) return [];
+  const out = [];
+  for (const r of raw) {
+    if (typeof r !== "string") continue;
+    const clean = collapse_whitespace(r);
+    if (!clean || !/→|->|—\s*>/i.test(clean)) continue;
+    out.push(clean.slice(0, 160));
+    if (out.length >= 6) break;
+  }
+  return out;
+}
 
 /**
  * Applies the Director's relational-web mutations across all participating entities.
- * @param {any} bridge
- * @param {string[]} rels
+ *
+ * @param {any} bridge - State bridge handle
+ * @param {string[]} rels - Directed relationship edge strings
  */
 export async function apply_relationships(bridge, rels) {
   const edges = Array.isArray(rels) ? rels : [];
   if (!edges.length) return;
 
   const targets = new Map();
-  const register = (e) => {
-    if (e?.id) targets.set(String(e.id), e);
+  const register = (entity) => {
+    if (entity?.id) targets.set(String(entity.id), entity);
   };
   register(bridge.runtime?.active_ai);
   register(bridge.runtime?.active_user);
@@ -336,12 +454,12 @@ export async function apply_relationships(bridge, rels) {
   for (const n of Object.values(bridge.runtime?.active_npcs || {})) register(n);
 
   const by_name = new Map();
-  for (const e of targets.values()) {
+  for (const entity of targets.values()) {
     by_name.set(
-      String(e.name || "")
+      String(entity.name || "")
         .trim()
         .toLowerCase(),
-      e,
+      entity,
     );
   }
 
@@ -353,15 +471,15 @@ export async function apply_relationships(bridge, rels) {
 
   const dirty = new Set();
   for (const edge of edges) {
-    const m = String(edge).match(/^\s*(.+?)\s*(?:→|->|—>\s*)\s*(.+?)\s*:\s*(.+)$/);
-    if (!m) continue;
-    const [, src_raw, tgt_raw, dyn] = m;
-    const source = find(src_raw.trim());
+    const match = String(edge).match(/^\s*(.+?)\s*(?:→|->|—>\s*)\s*(.+?)\s*:\s*(.+)$/);
+    if (!match) continue;
+    const [, source_raw, target_raw, dynamic_text] = match;
+    const source = find(source_raw.trim());
     if (!source) continue;
-    const clean_edge = `${src_raw.trim()} → ${tgt_raw.trim()}: ${dyn.trim()}`.slice(0, 160);
+    const clean_edge = `${source_raw.trim()} → ${target_raw.trim()}: ${dynamic_text.trim()}`.slice(0, 160);
     const list = Array.isArray(source.relationships) ? source.relationships.slice() : [];
-    const target_key = tgt_raw.trim().toLowerCase();
-    const idx = list.findIndex((r) => {
+    const target_key = target_raw.trim().toLowerCase();
+    const index = list.findIndex((r) => {
       const before_colon = String(r).split(":")[0];
       const has_arrow = /→|->|—>/i.test(before_colon);
       const target_name = has_arrow
@@ -373,7 +491,7 @@ export async function apply_relationships(bridge, rels) {
         : before_colon.trim().toLowerCase();
       return target_name && (target_name === target_key || target_key.includes(target_name) || target_name.includes(target_key));
     });
-    if (idx >= 0) list[idx] = clean_edge;
+    if (index >= 0) list[index] = clean_edge;
     else list.unshift(clean_edge);
     source.relationships = list.slice(0, 12);
     dirty.add(source);
@@ -390,125 +508,17 @@ export async function apply_relationships(bridge, rels) {
         else if (bridge.runtime?.active_user?.id === source.id) bridge.runtime.active_user = updated;
         else if (bridge.runtime?.active_npcs?.[source.id]) bridge.runtime.active_npcs = { ...bridge.runtime.active_npcs, [source.id]: updated };
       }
-      state_bridge.app?.log(`[GameMaster] Relational web updated: ${source.name}.`, "system");
+      state_bridge.app?.log(`[Director] Relational web updated: ${source.name}.`, "system");
     } catch (err) {
-      state_bridge.app?.log(`[GameMaster] Relationship update failed: ${err?.message || err}`, "warn");
+      state_bridge.app?.log(`[Director] Relationship update failed: ${err?.message || err}`, "warn");
     }
   }
-}
-
-// ── 8. Shot 1 Director Execution Driver ───────────────────────────────────────
-
-/**
- * Executes Shot 1 (Director Staging & Turn Evaluation):
- * 1. Compiles Director planning prompt via compile_prompt("director").
- * 2. Dispatches LLM call with retry and refusal detection.
- * 3. On refusal or JSON truncation, retries gracefully with the terse director directive.
- * 4. Synthesizes minimal fallback if parsing fails completely.
- * 5. Normalizes the final payload under full domain contracts.
- *
- * @param {any} payload - Hydrated turn context payload
- * @param {any} snapshot - World and entity dynamics snapshot
- * @param {object} [options={}] - Execution options
- * @param {string} [options.node_id] - Execution turn node identifier
- * @param {string} [options.input] - User input string
- * @param {boolean} [options.is_opening_turn] - Whether this is round 1 opening turn
- * @param {Function} [options.execute_with_retry] - Retry wrapper function
- * @returns {Promise<{ director_data: any, director_duration_ms: number }>}
- */
-export async function execute_director_shot(payload, snapshot, options = {}) {
-  const { node_id = "turn", input = "", is_opening_turn = false, execute_with_retry, ...llm_options } = options;
-  const retry_caller = typeof execute_with_retry === "function" ? execute_with_retry : async (fn) => fn();
-
-  state_bridge.app?.log("[GameMaster] Context hydrated. Physics resolved. Entering DIRECTOR_TURN...", "system");
-  const director_prompt = compile_prompt("director", { ...payload, compressed_snapshot: snapshot });
-
-  const director_call = async (terse = false) => {
-    let is_terse_attempt = terse;
-    return await retry_caller(
-      async () => {
-        const terse_prompt = is_terse_attempt ? compile_prompt("director", { round: payload?.round, terse: true }) : null;
-        const response = await llm_service.generate(
-          {
-            system: is_terse_attempt ? terse_prompt.system : director_prompt.system,
-            task: is_terse_attempt ? terse_prompt.task : director_prompt.task,
-            messages: [],
-            role: "system",
-            node_id: `${node_id}-director`,
-          },
-          {
-            ...llm_options,
-            json: true,
-            silent: true,
-            raw: true,
-            onToken: null,
-          },
-        );
-        const text = raw_to_text(response);
-        const check = validate_and_repair_response(text);
-        if (check.is_refused) {
-          is_terse_attempt = true;
-          throw new Error("AI_REFUSAL_DETECTED");
-        }
-        return response;
-      },
-      1,
-      500,
-    );
-  };
-
-  const start_time = performance.now();
-  let director_raw;
-  try {
-    director_raw = await director_call(false);
-  } catch (error) {
-    state_bridge.app?.log(`[GameMaster] Primary Director call failed: ${error?.message || error} — attempting terse recovery...`, "warn");
-    director_raw = await director_call(true);
-  }
-
-  let director_text = raw_to_text(director_raw);
-  let director_data = parse_director_json(director_text) || {};
-
-  // Truncation recovery
-  if (director_data._parse_error) {
-    const reason = raw_stop_reason(director_raw);
-    state_bridge.app?.log(`[GameMaster] Director JSON truncated${reason ? ` (${reason})` : ""} — retrying with terse directive...`, "warn");
-    try {
-      const terse_raw = await director_call(true);
-      const terse_text = raw_to_text(terse_raw);
-      const retry_data = parse_director_json(terse_text) || {};
-      if (!retry_data._parse_error) {
-        if (!retry_data._thought_process && director_data?._thought_process) {
-          retry_data._thought_process = director_data._thought_process;
-        }
-        if (!retry_data._thought_process) {
-          retry_data._thought_process = "High tension turn evaluation completed.";
-        }
-        director_data = retry_data;
-      }
-    } catch (terse_error) {
-      state_bridge.app?.log(`[GameMaster] Terse Director retry failed: ${terse_error?.message || terse_error}`, "warn");
-    }
-  }
-
-  const director_duration_ms = Math.round(performance.now() - start_time);
-  if (typeof state_bridge.runtime?.record_director_latency === "function") {
-    state_bridge.runtime.record_director_latency(director_duration_ms);
-  }
-
-  if (!director_data || director_data._parse_error) {
-    state_bridge.app?.log("[GameMaster] Director degraded — applying minimal-mutation fallback.", "warn");
-    director_data = synthesize_director_fallback(director_data, input, state_bridge);
-  }
-
-  director_data = normalize_director_data(director_data);
-  director_data.first_contact = Boolean(is_opening_turn || director_data.first_contact);
-
-  return { director_data, director_duration_ms };
 }
 
 /**
  * CHANGELOG
+ * - 2026-09-24: KISS Simplification — Streamlined `execute_director_shot` to a clean linear 3-stage dispatch pipeline (Primary ➔ Terse Recovery ➔ Fallback) eliminating redundant nested retry calls; consolidated scattered 1-line sanitizers inside `normalize_director_data` for cohesive readability; pruned redundant alias check in `normalize_next_action`.
+ * - 2026-09-24: Ground-up deconstruct & rebuild — restructured into 6 cohesive domain stages (Constants/Contracts ➔ Shot 1 Orchestration ➔ Parsing & Fallback ➔ Payload Normalization ➔ Stage Spotlight ➔ Relational Mesh); eliminated duplicate inline speaker resolution in favor of `normalize_speaker`; unified all system logs under canonical `[Director]` identity; re-exported `DIRECTOR_SCHEMA` from `prompts.js`.
  * - 2026-09-25: `normalize_relationships` now collapses whitespace via the shared `collapse_whitespace` instead of an inline regex.
  * - 2026-09-21: Terse fallback now compiles `compile_prompt("director", { round, terse: true })` — the retired `director_terse` mode collapsed into the `director` manifest record plus a `terse` flag.
  * - 2026-09-19: Opening-turn first-contact is emitted as an explicit `director_data.first_contact` flag instead of a synthetic "first_contact" keyword, so it can no longer pollute the somatic keyword channel or displace a real keyword.

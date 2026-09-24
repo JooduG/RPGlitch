@@ -337,8 +337,8 @@ describe("task.js - Optics Task Staging", () => {
 describe("TASK_LAYERS — canonical envelope grammar", () => {
   it("declares the ordered layer slots every mode walks", () => {
     expect(TASK_LAYERS.map((layer) => layer.key)).toEqual([
-      "think",
-      "inputs",
+      "think_format",
+      "input",
       "currents",
       "target",
       "spatial_framing",

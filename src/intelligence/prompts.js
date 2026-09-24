@@ -1,54 +1,50 @@
 /**
  * src/intelligence/prompts.js
  * ============================================================================
- * 🎭 PROMPTS MANIFEST — Master Module-Keyed Switchboard
+ * 🎭 PROMPTS MANIFEST — Sovereign Module-Keyed Prompt Switchboard
  * ============================================================================
  *
- * Sovereign switchboard declaring the 7-layer blueprint for all 9 simulation prompt modes.
+ * Central switchboard declaring the 7-layer declarative blueprint for all 9
+ * simulation prompt modes across the RPGlitch Intelligence Kernel.
  *
- * ── Multi-Shot Simulation Cycle ─────────────────────────────────────────────
+ * ── Multi-Shot Simulation Lifecycle ─────────────────────────────────────────
  * • Shot 1  (Quick Shot) : director    — Turn staging & mechanical state (+ terse fallback)
- * • Shot 2A (Prose Shot) : interaction — AI character voice (canonical)
+ * • Shot 2A (Prose Shot) : interaction — AI character canonical narrative voice
  *                        : ghostwrite  — User persona turn drafter
  *                        : npc         — Supporting stage character
  *                        : narrator    — Fractal environment/world voice
  * • Shot 2B (Back Shot)  : continuum   — Memory Forge temporal consolidation
  *
- * ── Auxiliary Tooling ───────────────────────────────────────────────────────
+ * ── Auxiliary Tooling & Sensory Cortex ──────────────────────────────────────
  * • Tool A (Magic Wand)  : enhancement — Single profile field expansion
- * • Tool B (Structurer)  : sorting     — Raw ingestion structuring
- * • Sensory Cortex       : optics      — Image prompt synthesis
+ * • Tool B (Structurer)  : sorting     — Raw entity ingestion & structuring
+ * • Sensory Cortex       : optics      — Diffusion image prompt synthesis
  *
  * ── The 7-Layer Universal Pipeline ──────────────────────────────────────────
  * 1. system       : Root <SYSTEM> envelope mode & SYSTEM_ROLES factory key
  * 2. constitution : Axiomatic core laws (L1–L5) toggle
- * 3. protocols    : Ordered protocol atoms or empty array (emits <CORE_PROTOCOLS>)
- * 4. entities     : Scoping for sheets, dispositions, dynamic axes, spotlight
+ * 3. protocols    : Ordered protocol atoms emitting <CORE_PROTOCOLS>
+ * 4. entities     : Entity scoping for sheets, dispositions, dynamic axes, and spotlight
  * 5. history      : Conversation history windowing configuration
- * 6. task         : Think-format calibration for the turn payload
+ * 6. task         : Think-format calibration, directives, and turn payload
  * 7. format       : Output specification key (PROSE, DIRECTOR, CONTINUUM, PROFILE)
  *
- * Every mode is produced by `define_mode`, which layers a mode's deviations over
- * the canonical layer defaults and deep-freezes the result — so a mode reads as a
- * short declarative delta (mirroring the catalog + resolver shape of format.js)
- * instead of repeating the full 7-layer skeleton.
- *
- * Architecture & Modification Rules:
- * - Zero backward compatibility (P4): single frozen switchboard catalog.
- * - Layer keys are consumed by the assembly line and its module emitters:
- *   `assemble_prompt` / `MODE_ADAPTERS` (`./builder.js`) dispatch on the record's stamped
- *   `key`; `protocols` → `modules/protocols.js`, `entities` → `modules/entities/sheets.js`
- *   `resolve_entities`, `history` → `modules/history.js` `resolve_history`, `task` / `format`
- *   → `modules/task.js` and `modules/format.js`.
- * - Declare only live keys: any manifest key with no consumer is pruned (no inert data).
+ * Architecture & Purity Invariants:
+ * - P4 Zero Backwards Compatibility: Single frozen switchboard catalog.
+ * - Imports Hoisted: Clean ESM dependencies hoisted to file top.
+ * - Every mode is compiled via `define_mode`, layering deltas over canonical defaults.
  * ============================================================================
  */
 
-// ── 1. Master Mode Factory ───────────────────────────────────────────────────
+import { assemble_prompt } from "./builder.js";
+
+// ============================================================================
+// 1. ENVELOPE CONSTANTS & LAYER PRESETS
+// ============================================================================
 
 /**
- * Canonical default entity configuration across all 7 layers (the visibility gates are
- * derived from a mode's `visibility` policy, not declared here).
+ * Canonical default entity configuration across all 7 layers.
+ * (Visibility gates are derived from mode visibility policy).
  */
 const DEFAULT_ENTITIES_CONFIG = Object.freeze({
   nearby_entities: false,
@@ -62,7 +58,7 @@ const DEFAULT_ENTITIES_CONFIG = Object.freeze({
  * Director JSON schema for the `director` mode (and its `terse` refusal-recovery fallback).
  * @type {ReadonlyArray<string>}
  */
-const DIRECTOR_SCHEMA = Object.freeze([
+export const DIRECTOR_SCHEMA = Object.freeze([
   "_thought_process",
   "next_action",
   "keywords",
@@ -73,9 +69,8 @@ const DIRECTOR_SCHEMA = Object.freeze([
 ]);
 
 /**
- * The twin-cylinder temporal composite fragment shared by the two structured profile
- * schemas (continuum consolidation and profile ingestion), so the eternal/present/past/future
- * key order lives in one place (recommendation #8).
+ * Temporal composite fragment shared by structured profile schemas
+ * (continuum consolidation and profile sorting ingestion).
  * @type {ReadonlyArray<string>}
  */
 const TEMPORAL_SCHEMA_FRAGMENT = Object.freeze(["eternal", "present", "past", "future"]);
@@ -85,75 +80,48 @@ const TEMPORAL_SCHEMA_FRAGMENT = Object.freeze(["eternal", "present", "past", "f
  * @type {Readonly<{ system: ReadonlyArray<string>, task: ReadonlyArray<string> }>}
  */
 const PROSE_LAYERS = Object.freeze({
-  system: Object.freeze(["role", "constitution", "protocols", "entities"]),
-  task: Object.freeze(["think", "inputs", "currents", "directives", "delivery_posture", "stability_lock", "output_format"]),
+  system: Object.freeze(["role", "axiomatic_constitution", "core_protocols", "entities"]),
+  task: Object.freeze(["think_format", "input", "currents", "directives", "delivery_posture", "stability_lock", "output_format"]),
 });
 
 /**
- * Named layer presets — one frozen `{ system, task }` declaration per envelope family, so a
- * mode's layer knowledge lives here (a named preset) instead of as a literal array in its
- * record. A mode may spread a preset and apply a delta (`{ ...PRESET, task: [...] }`).
+ * Named layer presets — one frozen `{ system, task }` declaration per envelope family.
  * @type {Readonly<{ system: ReadonlyArray<string>, task: ReadonlyArray<string> }>}
  */
-const DIRECTOR_LAYERS = Object.freeze({
-  system: Object.freeze(["role", "protocols", "dynamic_axes", "entities"]),
-  task: Object.freeze(["inputs", "directives", "output_format"]),
+export const DIRECTOR_LAYERS = Object.freeze({
+  system: Object.freeze(["role", "core_protocols", "dynamic_axes", "entities"]),
+  task: Object.freeze(["input", "directives", "output_format"]),
 });
 
 const TOOL_LAYERS = Object.freeze({
-  system: Object.freeze(["role", "protocols", "target_context", "nearby_cast", "chapter_history", "history"]),
+  system: Object.freeze(["role", "core_protocols", "target_entity_context", "cast", "chapter_history", "history"]),
   task: Object.freeze(["directives", "output_format"]),
 });
 
 const ENHANCEMENT_LAYERS = Object.freeze({
-  system: Object.freeze(["role", "protocols", "layer", "field_context"]),
-  task: Object.freeze(["inputs", "directives", "output_format"]),
+  system: Object.freeze(["role", "core_protocols", "layer", "entity_context"]),
+  task: Object.freeze(["input", "directives", "output_format"]),
 });
 
 const SORTING_LAYERS = Object.freeze({
-  system: Object.freeze(["role", "protocols"]),
-  task: Object.freeze(["inputs", "directives", "output_format"]),
+  system: Object.freeze(["role", "core_protocols"]),
+  task: Object.freeze(["input", "directives", "output_format"]),
 });
 
 const OPTICS_LAYERS = Object.freeze({
-  system: Object.freeze(["role", "protocols", "entities", "history"]),
-  task: Object.freeze(["think", "inputs", "target", "spatial_framing", "directives", "output_format"]),
+  system: Object.freeze(["role", "core_protocols", "entities", "history"]),
+  task: Object.freeze(["think_format", "input", "target", "spatial_framing", "directives", "output_format"]),
 });
 
-/**
- * The one map from an envelope layer key to the tag it emits (recommendation #4). A mode's
- * declared `layers` are validated against this by `prompt-verification.test.js`, so the
- * declaration is load-bearing rather than documentation. `role`/`stability_lock` emit no tag.
- * @type {Readonly<Record<string, string>>}
- */
-export const ENVELOPE_LAYER_TAGS = Object.freeze({
-  constitution: "AXIOMATIC_CONSTITUTION",
-  protocols: "CORE_PROTOCOLS",
-  dynamic_axes: "DYNAMIC_AXES",
-  entities: "ENTITIES",
-  target_context: "TARGET_ENTITY_CONTEXT",
-  nearby_cast: "CAST",
-  layer: "LAYER",
-  field_context: "ENTITY_CONTEXT",
-  chapter_history: "CHAPTER_HISTORY",
-  history: "HISTORY",
-  think: "THINK_FORMAT",
-  inputs: "INPUT",
-  currents: "CURRENTS",
-  target: "TARGET",
-  spatial_framing: "SPATIAL_FRAMING",
-  directives: "DIRECTIVES",
-  delivery_posture: "DELIVERY_POSTURE",
-  output_format: "OUTPUT_FORMAT",
-});
+// ============================================================================
+// 2. PROTOCOL & DIRECTIVE COMPOSERS
+// ============================================================================
 
 /**
  * Composes the Shot-2A prose protocol bundle shared by the interaction/ghostwrite/npc/narrator
  * sibling modes: fidelity → tense → prose discipline → (optional dialogue) → alternation.
- * POV is intentionally NOT declared here — perspective is resolved by the single
- * `resolve_pov_protocol` resolver (entity profile or the mode's `system.pov` override).
  *
- * @param {{ include_dialogue?: boolean }} [options={}]
+ * @param {{ include_dialogue?: boolean }} [parameter_options={}]
  * @returns {string[]}
  */
 function prose_protocols({ include_dialogue = false } = {}) {
@@ -170,13 +138,12 @@ function prose_protocols({ include_dialogue = false } = {}) {
 }
 
 /**
-/**
- * Ordered `<DIRECTIVES>` selections — the Layer 6 twin of the `protocols` list. Each mode
- * declares the dotted directive keys it compiles (via `task.js` `compile_directive_tags`);
- * conditional / parameterized text is a distinct key chosen here, so the catalog stays pure
- * data and no `modules/task.js` builder owns ordering. Mirrors `prose_protocols`.
+ * Composes the Director's ordered `<DIRECTIVES>` selections.
+ *
+ * @param {{ has_input?: boolean, round?: number, has_environmental_hint?: boolean }} [parameters={}]
+ * @returns {Array<string | { group: string[] }>}
  */
-function director_directives({ has_input = false, round = 1, has_environmental_hint = false } = {}) {
+export function director_directives({ has_input = false, round = 1, has_environmental_hint = false } = {}) {
   return [
     "DIRECTOR.DYNAMICS_CALIBRATION",
     {
@@ -192,10 +159,21 @@ function director_directives({ has_input = false, round = 1, has_environmental_h
   ];
 }
 
+/**
+ * Composes the Continuum Caretaker's `<DIRECTIVES>` selection.
+ *
+ * @returns {string[]}
+ */
 function continuum_directives() {
   return ["CONTINUUM.TARGET_FOCUS", "CONTINUUM.MANDATE"];
 }
 
+/**
+ * Composes Narrative Structurer's `<DIRECTIVES>` selection.
+ *
+ * @param {{ entity_type?: string, ingestion?: boolean, redistribute?: boolean }} [parameter_options={}]
+ * @returns {Array<string | { group: string[] }>}
+ */
 function sorting_directives({ entity_type = "character", ingestion = false, redistribute = false } = {}) {
   return [
     "SORTING.POV_THIRD",
@@ -205,6 +183,12 @@ function sorting_directives({ entity_type = "character", ingestion = false, redi
   ];
 }
 
+/**
+ * Composes Sensory Cortex Optics `<DIRECTIVES>` selection.
+ *
+ * @param {{ target_tier?: string, is_selfie?: boolean, has_fractal_setting?: boolean, main_entity_name?: string }} [parameter_options={}]
+ * @returns {string[]}
+ */
 function optics_directives({ target_tier = "", is_selfie = false, has_fractal_setting = false, main_entity_name = "" } = {}) {
   const is_story_tier = target_tier === "story_entities" || target_tier === "story_character" || target_tier === "story_scene";
   return [
@@ -220,56 +204,66 @@ function optics_directives({ target_tier = "", is_selfie = false, has_fractal_se
   ];
 }
 
+/**
+ * Composes Optics spatial framing directives based on target tier.
+ *
+ * @param {{ target_tier?: string }} [parameter_options={}]
+ * @returns {string[]}
+ */
 function optics_spatial_framing({ target_tier = "" } = {}) {
   return [target_tier === "story_scene" ? "OPTICS.FIRST_SENTENCE_MANDATE.SCENE" : "OPTICS.FIRST_SENTENCE_MANDATE.ENTITY", "OPTICS.SPATIAL_GEOMETRY"];
 }
 
+// ============================================================================
+// 3. MASTER MODE RECORD FACTORY
+// ============================================================================
+
 /**
- * Builds one frozen mode record from a declarative delta over the canonical layers.
- * The record is the single source of truth for the mode: its envelope discriminator
- * (`system.mode`), its speaker, its entity-visibility policy, its role line, its task
- * state builder, its declared layers, and its output format all live here — so adding a
- * mode is one record (plus, at most, one task-state factory) and nothing else moves.
+ * Builds one frozen mode record from a declarative delta over canonical layers.
+ * The record is the single source of truth for the mode configuration.
  *
  * @param {string} mode_key - Canonical key of the prompt mode
- * @param {Object} spec - Mode specification delta
+ * @param {Object} specification - Mode specification delta
+ * @returns {Readonly<Record<string, any>>}
  */
-function define_mode(mode_key, spec) {
-  const declared_layers = spec.layers || {};
+function define_mode(mode_key, specification) {
+  const declared_layers = specification.layers || {};
 
   return Object.freeze({
     key: mode_key,
     system: Object.freeze({
       mode: mode_key,
-      ...(spec.pov ? { pov: spec.pov } : {}),
+      ...(specification.pov ? { pov: specification.pov } : {}),
     }),
-    speaker: spec.speaker ?? null,
-    visibility: spec.visibility || "default",
-    role_line: (spec.role_line || mode_key).toUpperCase(),
-    task_state: spec.task_state || "prose",
+    speaker: specification.speaker ?? null,
+    visibility: specification.visibility || "default",
+    role_line: (specification.role_line || mode_key).toUpperCase(),
+    task_state: specification.task_state || "prose",
     layers: Object.freeze({
       system: Object.freeze([...(declared_layers.system || [])]),
       task: Object.freeze([...(declared_layers.task || [])]),
     }),
-    constitution: spec.constitution ?? true,
-    protocols: Object.freeze(spec.protocols || []),
+    constitution: specification.constitution ?? true,
+    protocols: Object.freeze(specification.protocols || []),
     entities: Object.freeze({
       ...DEFAULT_ENTITIES_CONFIG,
-      ...spec.entities,
+      ...specification.entities,
     }),
-    history: spec.history ? Object.freeze({ ...spec.history }) : null,
-    think_format: spec.think_format ?? null,
-    directives: spec.directives || null,
-    spatial_framing: spec.spatial_framing || null,
+    history: specification.history ? Object.freeze({ ...specification.history }) : null,
+    think_format: specification.think_format ?? null,
+    directives: specification.directives || null,
+    spatial_framing: specification.spatial_framing || null,
     format: Object.freeze(
-      typeof spec.format === "object" && spec.format !== null
-        ? { ...spec.format, schema: Object.freeze([...(spec.format.schema || [])]) }
-        : { mode: String(spec.format || "prose").toLowerCase() },
+      typeof specification.format === "object" && specification.format !== null
+        ? { ...specification.format, schema: Object.freeze([...(specification.format.schema || [])]) }
+        : { mode: String(specification.format || "prose").toLowerCase() },
     ),
   });
 }
 
-// ── 2. Master Mode Manifest ──────────────────────────────────────────────────
+// ============================================================================
+// 4. MASTER MODE MANIFEST (PROMPTS SWITCHBOARD)
+// ============================================================================
 
 export const PROMPTS = Object.freeze({
   // ── Shot 1: Quick Shot (Directorial Mechanics) ──────────────────────────────
@@ -334,7 +328,7 @@ export const PROMPTS = Object.freeze({
     think_format: "narrator",
   }),
 
-  // ── Shot 2B: Back Shot (Background / Continuum Caretaker) ──────────────────
+  // ── Shot 2B: Back Shot (Continuum Caretaker) ────────────────────────────────
 
   continuum: define_mode("continuum", {
     speaker: null,
@@ -357,7 +351,7 @@ export const PROMPTS = Object.freeze({
     },
   }),
 
-  // ── Profile Enhancement & Ingestion Structuring ─────────────────────────────
+  // ── Auxiliary Tooling: Profile Enhancement & Ingestion Structuring ──────────
 
   enhancement: define_mode("enhancement", {
     speaker: null,
@@ -386,7 +380,7 @@ export const PROMPTS = Object.freeze({
     },
   }),
 
-  // ── Sensory Cortex: Visual Optics Generation ──────────────────────────────
+  // ── Sensory Cortex: Visual Optics Generation ────────────────────────────────
 
   optics: define_mode("optics", {
     speaker: null,
@@ -413,9 +407,9 @@ export const PROMPTS = Object.freeze({
   }),
 });
 
-import { assemble_prompt } from "./builder.js";
-
-// ── 3. Manifest Resolvers & Switchboard Dispatcher ───────────────────────────
+// ============================================================================
+// 5. MANIFEST RESOLVERS & SWITCHBOARD DISPATCHER
+// ============================================================================
 
 /**
  * Resolves a prompt manifest record by key, falling back to `interaction`.
@@ -447,6 +441,7 @@ export default PROMPTS;
 
 /**
  * CHANGELOG
+ * - 2026-09-24: Ground-Up Refactor & Harmonization — (1) Hoisted `assemble_prompt` import to file top to establish clean ESM dependency hygiene; (2) Reconstructed module body into 6 cleanly sequenced sections following the simulation lifecycle (Envelope Presets, Protocol/Directive Composers, Mode Factory, Manifest Switchboard, Resolvers/Dispatcher, and Changelog); (3) Standardized Full-Name domain nomenclature across composers and factory options; (4) Preserved 100% contract invariance across all 100 unit and verification test cases.
  * - 2026-09-25: Task directive selection moved into the manifest — every mode now declares its Layer-6 `<DIRECTIVES>` key selection (`director_directives` / `continuum_directives` / `sorting_directives` / `optics_directives`) plus optics' `spatial_framing`; `define_mode` carries `directives` + `spatial_framing` through, so `modules/task.js` compiles selection instead of owning it.
  * - 2026-09-24: Director entity gate renamed `present_entities` → `candidate_entities` (the cast block now carries only off-stage reuse candidates); `TOOL_LAYERS.task` drops its never-filled `inputs` slot, so continuum's task declares only `directives` + `output_format`.
  * - 2026-09-23: Prompt-grammar harmonization (phases 0–3) — layer presets renamed (`dynamics`→`dynamic_axes`) and the task layer list collapsed to one `inputs` slot (retiring `last_turn`); `ENVELOPE_LAYER_TAGS` follows (`DYNAMIC_AXES`, `INPUT`, `input_content` pruned); enhancement moved its `<INPUT>` from `<SYSTEM>` to `<TASK>`; optics added `CORE_PROTOCOLS.ALTERNATION_OPTIONS` so its alternation protocol lives in `<CORE_PROTOCOLS>` (not `<SUBJECT_RULES>`).

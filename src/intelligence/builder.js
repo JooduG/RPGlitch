@@ -380,16 +380,16 @@ function resolve_prompt_meta({ ai = null, fractal = null, flags = {}, role = nul
  * Emitters read from the assembled layer state, so adding/reordering a system layer is a
  * table edit rather than a change to every compiler.
  */
-const PROMPT_LAYERS = Object.freeze([
+export const PROMPT_LAYERS = Object.freeze([
   { key: "role", emit: (state) => state.role_line },
-  { key: "constitution", emit: (state) => state.constitution },
-  { key: "protocols", emit: (state) => state.core_protocols },
+  { key: "axiomatic_constitution", emit: (state) => state.constitution },
+  { key: "core_protocols", emit: (state) => state.core_protocols },
   { key: "dynamic_axes", emit: (state) => state.dynamics },
   { key: "entities", emit: (state) => state.entities_block },
-  { key: "target_context", emit: (state) => state.target_context },
-  { key: "nearby_cast", emit: (state) => state.nearby_cast },
+  { key: "target_entity_context", emit: (state) => state.target_context },
+  { key: "cast", emit: (state) => state.nearby_cast },
   { key: "layer", emit: (state) => state.layer },
-  { key: "field_context", emit: (state) => state.field_context },
+  { key: "entity_context", emit: (state) => state.field_context },
   { key: "chapter_history", emit: (state) => state.chapter_history },
   { key: "history", emit: (state) => state.history_block },
 ]);

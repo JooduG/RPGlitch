@@ -14,10 +14,10 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { register_state_accessors } from "@utils";
-import { compile_prompt, ENVELOPE_LAYER_TAGS, PROMPTS } from "./prompts.js";
-import { MODE_ADAPTERS } from "./builder.js";
+import { compile_prompt, PROMPTS } from "./prompts.js";
+import { MODE_ADAPTERS, PROMPT_LAYERS } from "./builder.js";
 import { SYSTEM_ROLES } from "./modules/system.js";
-import { TASK_MODE_PLANS } from "./modules/task.js";
+import { TASK_MODE_PLANS, TASK_LAYERS } from "./modules/task.js";
 import { VISIBILITY_POLICIES } from "./modules/entities/sheets.js";
 import { CONTRACT, CONTRACT_SIZES, MODE_DIRECTIVE_LEADS, make_contract_cases } from "./prompt-verification.js";
 
@@ -159,8 +159,8 @@ describe("Prompt pipeline — declared envelope layers", () => {
       const prompt_package = compile_prompt(case_key, context);
       const config = PROMPTS[mode_key];
 
-      const declared_system = config.layers.system.map((key) => ENVELOPE_LAYER_TAGS[key]).filter(Boolean);
-      const declared_task = config.layers.task.map((key) => ENVELOPE_LAYER_TAGS[key]).filter(Boolean);
+      const declared_system = config.layers.system.filter((key) => !TEXT_ONLY_LAYERS.has(key)).map((key) => key.toUpperCase());
+      const declared_task = config.layers.task.filter((key) => !TEXT_ONLY_LAYERS.has(key)).map((key) => key.toUpperCase());
 
       const emitted_system = extract_layer_tags(prompt_package.system);
       const emitted_task = extract_layer_tags(prompt_package.task);
@@ -174,8 +174,14 @@ describe("Prompt pipeline — declared envelope layers", () => {
 
     it(mode_key + " declares only known layer keys", () => {
       const config = PROMPTS[mode_key];
-      for (const key of [...config.layers.system, ...config.layers.task]) {
-        expect(TEXT_ONLY_LAYERS.has(key) || key in ENVELOPE_LAYER_TAGS).toBe(true);
+      const valid_system_keys = new Set(PROMPT_LAYERS.map((layer) => layer.key));
+      const valid_task_keys = new Set(TASK_LAYERS.map((layer) => layer.key));
+
+      for (const key of config.layers.system) {
+        expect(valid_system_keys.has(key)).toBe(true);
+      }
+      for (const key of config.layers.task) {
+        expect(valid_task_keys.has(key)).toBe(true);
       }
     });
   }
