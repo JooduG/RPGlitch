@@ -190,6 +190,12 @@ export class RuntimeEngineStore {
   /** @type {number[]} */
   director_ms_pool = $state([]);
 
+  // --- Simulation Stability & Back-Shot Telemetry ---
+  /** @type {number} */
+  structural_errors = $state(0);
+  /** @type {number} */
+  back_shot_cursor = $state(0);
+
   // --- Generation Concurrency Mutex ---
   is_foreground_generating = $state(false);
   is_background_generating = $state(false);
@@ -640,6 +646,12 @@ export class RuntimeEngineStore {
       this.active_fractal = mock_data.fractal;
       app.selected_fractal = mock_data.fractal;
     }
+    if (mock_data.structural_errors !== undefined) {
+      this.structural_errors = mock_data.structural_errors;
+    }
+    if (mock_data.back_shot_cursor !== undefined) {
+      this.back_shot_cursor = mock_data.back_shot_cursor;
+    }
     this.is_ready = true;
   }
 }
@@ -657,6 +669,7 @@ if (typeof window !== "undefined") {
 
 /**
  * CHANGELOG:
+ * - 2026-09-24: Explicitly declared reactive `$state(0)` fields `structural_errors` and `back_shot_cursor` on `RuntimeEngineStore`, preventing undeclared dynamic property mutations and enabling reactive tracking.
  * - 2026-09-24: Refactored `create_runtime_store()` into idiomatic Svelte 5 `RuntimeEngineStore` class, eliminating closure getters/setters in favor of direct `$state` fields while preserving 100% API compatibility.
  * - 2026-09-24: Extracted `apply_story_title` and added `restore_story_title()` so entering storymode re-asserts the
  *   active story's authoritative title — a transient storyboard mount during boot was leaving "Your story begins here..."

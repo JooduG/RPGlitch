@@ -346,5 +346,29 @@ describe("runtime world-cast hydration (track-npc-expansion)", () => {
       expect(runtime.is_foreground_generating).toBe(false);
       expect(runtime.is_background_generating).toBe(false);
     });
+
+    it("maintains declared reactive state for structural_errors and back_shot_cursor", () => {
+      expect(runtime.structural_errors).toBe(0);
+      expect(runtime.back_shot_cursor).toBe(0);
+
+      runtime.structural_errors = 3;
+      runtime.back_shot_cursor = 2;
+
+      expect(runtime.structural_errors).toBe(3);
+      expect(runtime.back_shot_cursor).toBe(2);
+
+      runtime._debug_inject({ structural_errors: 1, back_shot_cursor: 5 });
+      expect(runtime.structural_errors).toBe(1);
+      expect(runtime.back_shot_cursor).toBe(5);
+
+      runtime.structural_errors = 0;
+      runtime.back_shot_cursor = 0;
+    });
   });
 });
+
+/**
+ * CHANGELOG:
+ * - 2026-09-24: Added unit tests for explicitly declared `structural_errors` and `back_shot_cursor` reactive fields on `RuntimeEngineStore`.
+ * - 2026-06-15: Initial test suite for runtime state synchronization, NPC staging, and telemetry.
+ */

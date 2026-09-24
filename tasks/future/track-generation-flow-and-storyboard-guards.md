@@ -3,7 +3,7 @@ name: track-generation-flow-and-storyboard-guards
 description: Generation flow lifecycle, speaker thinking indicators, storyboard active story guards, and shimmer harmonization
 status: active
 last_synchronized: 2026-09-24
-references: scribbles.md
+references: scribbles.md, src/state/runtime.svelte.js, src/state/runtime.test.js
 ---
 
 # 🎯 Track: Generation Flow, Speaker Avatar Thinking Indicators & Storyboard Active Session Guards
