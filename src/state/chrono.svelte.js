@@ -207,13 +207,7 @@ export class ChronoEngine {
           }
         }
 
-        state_bridge.simulation_state.start_generation("system");
-        state_bridge.simulation_state.set_generating_entity({
-          type: "system",
-          name: "Director",
-          avatar: null,
-          color: "var(--color-frozen)",
-        });
+        state_bridge.simulation_state.start_director_stage();
 
         try {
           await gamemaster.execute_turn(story_id, {

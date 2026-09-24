@@ -4,15 +4,17 @@
    * 🃏 STORYBOARD BOTTOM BAR — the storyboard branch of the console: settings
    * gear, the models-progress / "BEGIN STORY" trigger, and the shuffle control.
    */
-  import { Button, ProgressBar, tooltip } from "@primitives";
+  import { Button, ProgressBar, tooltip, Dialog } from "@primitives";
   import { pulse, shimmy } from "@motion";
-  import { app, runtime } from "@state";
+  import { app, runtime, chrono_engine } from "@state";
   import { storyboard } from "@ui";
   import SettingsButton from "./SettingsButton.svelte";
 
   let models_ready = $derived(app.models_ready);
   let has_active_story = $derived(Boolean(runtime.story_id));
   let ready_to_begin = $derived(has_active_story || (app.is_ready && models_ready));
+
+  let show_active_guard = $state(false);
 
   const PROLOGUE_PHRASES = ["INITIALIZING SIMULATION...", "SETTING THE STAGE...", "ONCE UPON A TIMING...", "WRITING PROLOGUE..."];
 
@@ -41,12 +43,35 @@
 
   function handle_primary_click() {
     if (has_active_story) {
-      app.set_view("storymode");
+      show_active_guard = true;
       return;
     }
     storyboard.begin();
   }
+
+  function handle_resume_story() {
+    show_active_guard = false;
+    app.set_view("storymode");
+  }
+
+  async function handle_conclude_and_new() {
+    show_active_guard = false;
+    if (runtime.story_id) {
+      await chrono_engine.stop?.();
+    }
+    await storyboard.begin();
+  }
 </script>
+
+<Dialog
+  type="confirm"
+  bind:open={show_active_guard}
+  title="Active Story in Progress"
+  message="A simulation session is already active. Would you like to resume your current story, or conclude it and begin a new adventure?"
+  confirm_label="Conclude & Start New"
+  on_confirm={handle_conclude_and_new}
+  on_cancel={handle_resume_story}
+/>
 
 <SettingsButton variant={app.control_panel_open ? "secondary" : "invisible"} testid="settings-button" />
 

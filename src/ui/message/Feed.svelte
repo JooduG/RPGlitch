@@ -7,7 +7,8 @@
   import { Audio } from "@media/audio.svelte.js";
   import { chrono_engine } from "@state";
   import { app, simulation_state, simulation_log } from "@state";
-  import { motion, item_in, update_card_scrub, clear_card_location } from "@motion";
+  import { motion, item_in, update_card_scrub, clear_card_location, Shimmer } from "@motion";
+  import { ProfilePicture } from "@image";
 
   /**
    * @typedef {Object} Props
@@ -288,7 +289,118 @@
       {/if}
     {/each}
 
-    {#if visible_feed.length === 0}
+    {#if simulation_state.busy && !app.streaming.active}
+      <div
+        class="relative flex w-full items-start justify-start p-4 pl-[calc(var(--spacing-column-unit)*2)] transition-all duration-200"
+        in:item_in={{ duration: 200 }}
+      >
+        <!-- Speaker Portrait Gutter Slot -->
+        {#if simulation_state.speaker_thinking && simulation_state.generating_entity_name}
+          <div
+            class="
+              absolute
+              top-1/2
+              left-[calc(var(--spacing-column-unit)*0.5)]
+              m-0
+              flex
+              w-(--spacing-column-unit)
+              -translate-y-1/2
+              items-center
+              justify-center
+              p-0
+              select-none
+            "
+            style="--signature-color: {simulation_state.generating_entity_color || 'var(--color-electric-cyan)'};"
+          >
+            <div
+              class="
+                group/badge
+                relative
+                [isolation:isolate]
+                m-0
+                aspect-3/4
+                w-(--spacing-column-unit)
+                [transform:translateZ(0)]
+                animate-pulse
+                overflow-hidden
+                rounded-xl
+                border
+                border-solid
+                border-(--signature-color)
+                bg-black/60
+                p-0
+                shadow-[0_0_calc(var(--spacing-unit)*4)_color-mix(in_srgb,var(--signature-color)_25%,transparent)]
+              "
+            >
+              {#if simulation_state.generating_entity_avatar}
+                <img
+                  src={simulation_state.generating_entity_avatar}
+                  alt={simulation_state.generating_entity_name}
+                  class="h-full w-full object-cover object-top"
+                />
+              {:else}
+                <ProfilePicture
+                  entity={{
+                    name: simulation_state.generating_entity_name,
+                    signature_color: simulation_state.generating_entity_color,
+                  }}
+                  alt=""
+                  class="h-full w-full rounded-[inherit] [&_img]:h-full [&_img]:w-full [&_img]:rounded-[inherit] [&_img]:object-cover [&_img]:object-top"
+                />
+              {/if}
+              <div
+                aria-hidden="true"
+                class="pointer-events-none absolute inset-0 rounded-[inherit] opacity-30"
+                style="background-color: var(--signature-color); mix-blend-mode: color;"
+              ></div>
+              <Shimmer color={simulation_state.generating_entity_color || "var(--color-electric-cyan)"} />
+            </div>
+          </div>
+        {/if}
+
+        <!-- Pending Bubble with Shimmer -->
+        <div
+          class="
+            relative
+            flex
+            w-[calc(var(--spacing-column-unit)*6)]
+            max-w-full
+            items-center
+            gap-3
+            overflow-hidden
+            rounded-2xl
+            border
+            border-solid
+            border-white/10
+            bg-slate-900/60
+            px-4
+            py-3
+            backdrop-blur-md
+          "
+        >
+          <Shimmer
+            color={simulation_state.speaker_thinking
+              ? simulation_state.generating_entity_color || "var(--color-electric-cyan)"
+              : "var(--color-frozen)"}
+          />
+          <div class="flex items-center gap-2">
+            <span
+              class="size-2 animate-ping rounded-full"
+              style="background-color: {simulation_state.speaker_thinking
+                ? simulation_state.generating_entity_color || 'var(--color-electric-cyan)'
+                : 'var(--color-frozen)'};"
+            ></span>
+            <span class="font-mono text-xs tracking-widest text-slate-400 uppercase">
+              {simulation_state.speaker_thinking
+                ? `${simulation_state.generating_entity_name || "Character"} is thinking...`
+                : "Director evaluating scene..."}
+            </span>
+          </div>
+        </div>
+      </div>
+    {/if}
+
+    {#if visible_feed.length === 0 && !simulation_state.busy}
       <div
         class="flex h-full flex-col items-center justify-center gap-4 p-4 text-center text-slate-600 [&>p]:max-w-[calc(var(--spacing-column-unit)*8)]"
       >

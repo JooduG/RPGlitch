@@ -369,7 +369,7 @@ export const gamemaster = {
       const generation_name = generation_entity?.name || (npc_entity ? "NPC" : is_using_narrator_engine ? "Fractal" : "AI");
       state_bridge.runtime.streaming_entity_id = npc_entity ? npc_entity.id : null;
       state_bridge.simulation_state?.start_generation?.(generation_role);
-      state_bridge.simulation_state?.set_generating_entity?.({
+      state_bridge.simulation_state?.set_delegated_speaker?.({
         type: npc_entity ? "npc" : is_using_narrator_engine ? "fractal" : "ai",
         name: generation_name,
         avatar: generation_entity?.profile_picture || null,
@@ -499,6 +499,7 @@ export const gamemaster = {
       const director_monologue = think_content ? `<think>\n${think_content}\n</think>\n\n` : "";
 
       if (director_monologue) {
+        state_bridge.simulation_state?.start_stream_stage?.();
         state_bridge.app.start_stream(node_id, generation_role);
         state_bridge.app.update_stream(director_monologue);
         if (typeof llm_options.onToken === "function") {

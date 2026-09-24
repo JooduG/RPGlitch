@@ -55,6 +55,9 @@ describe("ChronoEngine", () => {
         mock_simulation_state.intent_active = val;
       }),
       start_generation: vi.fn(),
+      start_director_stage: vi.fn(),
+      set_delegated_speaker: vi.fn(),
+      start_stream_stage: vi.fn(),
       set_generating_entity: vi.fn(),
       complete: vi.fn(),
       lock: vi.fn(() => {

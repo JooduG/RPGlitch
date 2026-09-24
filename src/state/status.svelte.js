@@ -77,6 +77,12 @@ export class SimulationStateStore {
   /** @type {string | null} */
   #generating_entity_color = $state(null);
 
+  /** @type {boolean} */
+  #director_thinking = $state(false);
+
+  /** @type {boolean} */
+  #speaker_thinking = $state(false);
+
   // --- GETTERS & SETTERS ---
 
   get phase() {
@@ -111,6 +117,14 @@ export class SimulationStateStore {
   }
   get generating_entity_color() {
     return this.#generating_entity_color;
+  }
+
+  get director_thinking() {
+    return this.#director_thinking;
+  }
+
+  get speaker_thinking() {
+    return this.#speaker_thinking;
   }
 
   /**
@@ -161,7 +175,44 @@ export class SimulationStateStore {
   complete() {
     this.#phase = "idle";
     this.#role = null;
+    this.#director_thinking = false;
+    this.#speaker_thinking = false;
     this.clear_generating_entity();
+  }
+
+  /**
+   * Initiates the Director thinking stage (Stage 1 of turn generation).
+   */
+  start_director_stage() {
+    this.#phase = "generating";
+    this.#role = "system";
+    this.#director_thinking = true;
+    this.#speaker_thinking = false;
+    this.set_generating_entity({
+      type: "system",
+      name: "Director",
+      avatar: null,
+      color: "var(--color-frozen)",
+    });
+  }
+
+  /**
+   * Transitions from Director thinking to Speaker thinking once the next speaker
+   * is delegated by the Director (Stage 2 of turn generation).
+   * @param {GeneratingEntity} entity
+   */
+  set_delegated_speaker(entity = {}) {
+    this.#director_thinking = false;
+    this.#speaker_thinking = true;
+    this.set_generating_entity(entity);
+  }
+
+  /**
+   * Transitions from Speaker thinking to active prose streaming (Stage 3 of turn generation).
+   */
+  start_stream_stage() {
+    this.#director_thinking = false;
+    this.#speaker_thinking = false;
   }
 
   /**

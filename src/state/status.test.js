@@ -108,6 +108,43 @@ describe("SimulationStateStore", () => {
     expect(simulation_state.generating_entity_avatar).toBeNull();
     expect(simulation_state.generating_entity_color).toBeNull();
   });
+
+  it("coordinates fine-grained generation stages (director_thinking, speaker_thinking, streaming)", () => {
+    expect(simulation_state.director_thinking).toBe(false);
+    expect(simulation_state.speaker_thinking).toBe(false);
+
+    // Stage 1: Director Stage
+    simulation_state.start_director_stage();
+    expect(simulation_state.phase).toBe("generating");
+    expect(simulation_state.role).toBe("system");
+    expect(simulation_state.director_thinking).toBe(true);
+    expect(simulation_state.speaker_thinking).toBe(false);
+    expect(simulation_state.generating_entity_name).toBe("Director");
+
+    // Stage 2: Speaker Delegated (Speaker Thinking)
+    simulation_state.set_delegated_speaker({
+      type: "npc",
+      name: "Sylvia",
+      avatar: "data:avatar",
+      color: "#00ffff",
+    });
+    expect(simulation_state.director_thinking).toBe(false);
+    expect(simulation_state.speaker_thinking).toBe(true);
+    expect(simulation_state.generating_entity_name).toBe("Sylvia");
+    expect(simulation_state.generating_entity_color).toBe("#00ffff");
+
+    // Stage 3: Stream Stage
+    simulation_state.start_stream_stage();
+    expect(simulation_state.director_thinking).toBe(false);
+    expect(simulation_state.speaker_thinking).toBe(false);
+
+    // Complete resets everything
+    simulation_state.complete();
+    expect(simulation_state.director_thinking).toBe(false);
+    expect(simulation_state.speaker_thinking).toBe(false);
+    expect(simulation_state.generating_entity_name).toBeNull();
+    expect(simulation_state.phase).toBe("idle");
+  });
 });
 
 describe("UIStateStore", () => {
