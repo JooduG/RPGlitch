@@ -740,19 +740,37 @@ export const CONTRACT = {
 };
 
 /**
- * Ordered leading phrases of the Director's `<DIRECTIVES>` paragraphs that the contract
- * fixture deterministically emits (the environmental-hint paragraph is input-conditional,
- * so it is excluded). The tag-inventory gate is blind to prose, so this pins the Director's
- * directive *sequence* — the generic `compile_directive_tags` selection in `modules/task.js`
- * — against silent reordering.
- * @type {ReadonlyArray<string>}
+ * Ordered leading phrases of the `<DIRECTIVES>` paragraphs each directive-bearing mode
+ * deterministically emits for its contract fixture. The tag-inventory gate is blind to
+ * prose, so this pins the directive *sequence* — the generic `compile_directive_tags`
+ * selection in `modules/task.js` — against silent reordering. Only unconditional fixture
+ * paragraphs appear (conditional ones, e.g. the Director's environmental hint, are excluded).
+ * @type {Readonly<Record<string, ReadonlyArray<string>>>}
  */
-export const DIRECTOR_DIRECTIVE_LEADS = Object.freeze([
-  "DYNAMICS CALIBRATION:",
-  "Evaluate state mutations caused by",
-  "NEXT ACTION ROUTING RULES:",
-  "CONVERGENCE & ENTITY REUSE:",
-]);
+export const MODE_DIRECTIVE_LEADS = Object.freeze({
+  director: Object.freeze([
+    "DYNAMICS CALIBRATION:",
+    "Evaluate state mutations caused by",
+    "NEXT ACTION ROUTING RULES:",
+    "CONVERGENCE & ENTITY REUSE:",
+  ]),
+  continuum: Object.freeze(["TARGET FOCUS: Consolidate state and extract relational vectors for", "EXECUTION MANDATE:"]),
+  sorting: Object.freeze([
+    "Write strictly in third-person limited",
+    "FOCUS: Extracting data for an individual CHARACTER",
+    "Use placeholder macros for entities:",
+    "SOURCE OF TRUTH & INGESTION RULES:",
+  ]),
+  optics: Object.freeze([
+    "Convert narrative intent into a structured image prompt payload depicting",
+    "DYNAMIC OVERRIDES:",
+    "GARMENT ANATOMY:",
+    "IDENTIFIERS:",
+    "CREATURE DISAMBIGUATION:",
+    "SIGNATURE COLORS:",
+    "**SOLO FRAME PROTOCOL.**",
+  ]),
+});
 export const CONTRACT_SIZES = {
   director: { system: 1989, task: 2863 },
   director_terse: { system: 105, task: 909 },

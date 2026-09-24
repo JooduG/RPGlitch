@@ -63,7 +63,6 @@ import { verify_epistemic_integrity } from "./modules/entities/epistemic.js";
 import { render_history, render_chapter_history_xml, render_input_history_xml, resolve_history, format_sensory_history } from "./modules/history.js";
 import {
   render_task,
-  TASK_LIBRARY,
   render_keyword_directives_xml,
   resolve_character_action_directive,
   resolve_scene_action_directive,
@@ -491,6 +490,7 @@ export function render_director({
   const last_ai_text = last_ai_message ? strip_cognition_blocks(last_ai_message.content || last_ai_message.text || "").trim() : "";
 
   const task = render_task({
+    config,
     task_state: config.task_state,
     entities: scene_entities,
     round,
@@ -787,6 +787,7 @@ export function render_memory({ target_entity, target_key = "AI_CHARACTER", othe
 
   const target_type = target_entity?.type || (target_key === "FRACTAL" ? "fractal" : "character");
   const task_xml = render_task({
+    config,
     task_state: config.task_state,
     target_name,
     schema: get_output_format(config.format, { entity_type: target_type }),
@@ -845,6 +846,7 @@ export function render_enhancement({
   const macro_directive = !is_image_field ? resolve_macro_directive(normalized_type) : "";
 
   const task_xml = render_task({
+    config,
     task_state: config.task_state,
     directives: [resolved_directive, macro_directive],
     input: content,
@@ -880,21 +882,18 @@ export function render_enhancement({
 export function render_profile_sorting(entity_type = "character", options = {}) {
   const config = get_prompt("sorting");
   const resolved_type = entity_type === "user" ? "character" : entity_type || "character";
-  const focus_directive = TASK_LIBRARY.SORTING.FOCUS(resolved_type);
   const input_text =
     options.input_data == null ? "" : typeof options.input_data === "string" ? options.input_data : JSON.stringify(options.input_data, null, 2);
 
   const task_xml = render_task({
+    config,
     task_state: config.task_state,
     schema: get_output_format(config.format, { entity_type: resolved_type }),
     input: input_text,
     input_channel: "ingestion",
-    directives: [
-      TASK_LIBRARY.SORTING.POV_THIRD,
-      focus_directive,
-      options.ingestion ? TASK_LIBRARY.SORTING.INGESTION : null,
-      options.redistribute ? TASK_LIBRARY.SORTING.REDISTRIBUTE : null,
-    ],
+    entity_type: resolved_type,
+    ingestion: Boolean(options.ingestion),
+    redistribute: Boolean(options.redistribute),
     layers: config.layers.task,
   });
 
@@ -1038,6 +1037,7 @@ export function render_optics_prompt(options = {}) {
 
   // Layer 6: Universal Task (<TASK>)
   const task_xml = render_task({
+    config,
     task_state: config.task_state,
     target_tier: tier,
     input_intent: rolled_intent,
@@ -1153,7 +1153,7 @@ export const MODE_ADAPTERS = {
   director: (config, context) => {
     if (context.terse) {
       const schema = context.schema || get_output_format(config.format);
-      const task = render_task({ task_state: config.task_state, terse: true, schema, layers: ["output_format"] });
+      const task = render_task({ config, task_state: config.task_state, terse: true, schema, layers: ["output_format"] });
       const system = compose_system(config, { role_line: resolve_system_role_line({ role: config.role_line }) }, { round: context.round });
       return pack_prompt(
         { system, task },
@@ -1294,6 +1294,7 @@ export function assemble_prompt(config, context = {}) {
 
 /**
  * CHANGELOG
+ * - 2026-09-25: Layer-6 refactor wiring — every `render_task` call site now passes its manifest `config`, so the task compiler resolves the mode's declarative `<DIRECTIVES>` selection (director/continuum/sorting/optics) and `optics` spatial framing instead of a hand-rolled builder array; `render_profile_sorting` passes `entity_type`/`ingestion`/`redistribute` rather than precompiled directive strings, and the now-unused `TASK_LIBRARY` import is dropped. Output bytes unchanged.
  * - 2026-09-24: Consolidated payload assembler (`to_data_points` and `context_builder`) directly into `builder.js`, pruning `payload.js` and streamlining intelligence kernel architecture.
  * - 2026-09-24: Optics fallback ownership — added `render_optics_fallback()` (moved the `<image_prompt>` fallback templates out of `media/visual.svelte.js`), so both the optics compile and its deterministic fallback live in the builder.
  * - 2026-09-24: Cast/input de-duplication — `render_director` now passes its entity bag into `render_task` (so the Director's `<INPUT>` origins are real entity ids) and mounts the renamed `render_candidate_cast_xml` behind the renamed `candidate_entities` gate; `render_enhancement` resolves its prose `<OUTPUT_FORMAT>` with `has_think: false` so it never references an unopened `</THINK>`.

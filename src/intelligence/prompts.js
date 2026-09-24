@@ -170,6 +170,61 @@ function prose_protocols({ include_dialogue = false } = {}) {
 }
 
 /**
+/**
+ * Ordered `<DIRECTIVES>` selections — the Layer 6 twin of the `protocols` list. Each mode
+ * declares the dotted directive keys it compiles (via `task.js` `compile_directive_tags`);
+ * conditional / parameterized text is a distinct key chosen here, so the catalog stays pure
+ * data and no `modules/task.js` builder owns ordering. Mirrors `prose_protocols`.
+ */
+function director_directives({ has_input = false, round = 1, has_environmental_hint = false } = {}) {
+  return [
+    "DIRECTOR.DYNAMICS_CALIBRATION",
+    {
+      group: [
+        has_input ? "DIRECTOR.EVALUATION_INPUT" : "DIRECTOR.EVALUATION_SCENE",
+        ...(Number(round) <= 1 ? ["DIRECTOR.ROUND_ONE"] : []),
+        "DIRECTOR.USER_PERSONA_LOCK",
+      ],
+    },
+    ...(has_environmental_hint ? ["DIRECTOR.ENVIRONMENTAL_HINT"] : []),
+    "DIRECTOR.ROUTING",
+    "DIRECTOR.CONVERGENCE",
+  ];
+}
+
+function continuum_directives() {
+  return ["CONTINUUM.TARGET_FOCUS", "CONTINUUM.MANDATE"];
+}
+
+function sorting_directives({ entity_type = "character", ingestion = false, redistribute = false } = {}) {
+  return [
+    "SORTING.POV_THIRD",
+    { group: [entity_type === "fractal" ? "SORTING.FOCUS_FRACTAL" : "SORTING.FOCUS_CHARACTER", "SORTING.MACRO"] },
+    ...(ingestion ? ["SORTING.INGESTION"] : []),
+    ...(redistribute ? ["SORTING.REDISTRIBUTE"] : []),
+  ];
+}
+
+function optics_directives({ target_tier = "", is_selfie = false, has_fractal_setting = false, main_entity_name = "" } = {}) {
+  const is_story_tier = target_tier === "story_entities" || target_tier === "story_character" || target_tier === "story_scene";
+  return [
+    "OPTICS.MANDATE",
+    "OPTICS.SUBJECT_RULES.DYNAMIC_OVERRIDES",
+    "OPTICS.SUBJECT_RULES.GARMENT_ANATOMY",
+    "OPTICS.SUBJECT_RULES.IDENTIFIERS",
+    "OPTICS.SUBJECT_RULES.CREATURE_DISAMBIGUATION",
+    "OPTICS.SUBJECT_RULES.SIGNATURE_COLORS",
+    ...(target_tier === "solo_entity" ? ["OPTICS.SOLO_FRAME"] : target_tier === "story_scene" ? ["OPTICS.ENVIRONMENTAL_SCALE"] : []),
+    ...(is_story_tier && !has_fractal_setting && main_entity_name ? ["OPTICS.BACKGROUND"] : []),
+    ...(is_selfie ? ["OPTICS.SELFIE_DIRECTIVE"] : []),
+  ];
+}
+
+function optics_spatial_framing({ target_tier = "" } = {}) {
+  return [target_tier === "story_scene" ? "OPTICS.FIRST_SENTENCE_MANDATE.SCENE" : "OPTICS.FIRST_SENTENCE_MANDATE.ENTITY", "OPTICS.SPATIAL_GEOMETRY"];
+}
+
+/**
  * Builds one frozen mode record from a declarative delta over the canonical layers.
  * The record is the single source of truth for the mode: its envelope discriminator
  * (`system.mode`), its speaker, its entity-visibility policy, its role line, its task
@@ -204,6 +259,8 @@ function define_mode(mode_key, spec) {
     }),
     history: spec.history ? Object.freeze({ ...spec.history }) : null,
     think_format: spec.think_format ?? null,
+    directives: spec.directives || null,
+    spatial_framing: spec.spatial_framing || null,
     format: Object.freeze(
       typeof spec.format === "object" && spec.format !== null
         ? { ...spec.format, schema: Object.freeze([...(spec.format.schema || [])]) }
@@ -222,6 +279,7 @@ export const PROMPTS = Object.freeze({
     visibility: "director",
     role_line: "DIRECTOR",
     task_state: "director",
+    directives: director_directives,
     constitution: false,
     protocols: ["CORE_PROTOCOLS.ALTERNATION_OPTIONS"],
     entities: { candidate_entities: true },
@@ -283,6 +341,7 @@ export const PROMPTS = Object.freeze({
     visibility: "target",
     role_line: "CONTINUUM_CARETAKER",
     task_state: "continuum",
+    directives: continuum_directives,
     constitution: false,
     protocols: ["CORE_PROTOCOLS.DATA"],
     entities: {
@@ -317,6 +376,7 @@ export const PROMPTS = Object.freeze({
     visibility: "none",
     role_line: "NARRATIVE_STRUCTURER",
     task_state: "sorting",
+    directives: sorting_directives,
     constitution: false,
     protocols: ["CORE_PROTOCOLS.DATA"],
     layers: SORTING_LAYERS,
@@ -333,6 +393,8 @@ export const PROMPTS = Object.freeze({
     visibility: "visual",
     role_line: "SENSORY_CORTEX",
     task_state: "optics",
+    directives: optics_directives,
+    spatial_framing: optics_spatial_framing,
     constitution: false,
     protocols: [
       "CORE_PROTOCOLS.DATA",
@@ -385,6 +447,7 @@ export default PROMPTS;
 
 /**
  * CHANGELOG
+ * - 2026-09-25: Task directive selection moved into the manifest — every mode now declares its Layer-6 `<DIRECTIVES>` key selection (`director_directives` / `continuum_directives` / `sorting_directives` / `optics_directives`) plus optics' `spatial_framing`; `define_mode` carries `directives` + `spatial_framing` through, so `modules/task.js` compiles selection instead of owning it.
  * - 2026-09-24: Director entity gate renamed `present_entities` → `candidate_entities` (the cast block now carries only off-stage reuse candidates); `TOOL_LAYERS.task` drops its never-filled `inputs` slot, so continuum's task declares only `directives` + `output_format`.
  * - 2026-09-23: Prompt-grammar harmonization (phases 0–3) — layer presets renamed (`dynamics`→`dynamic_axes`) and the task layer list collapsed to one `inputs` slot (retiring `last_turn`); `ENVELOPE_LAYER_TAGS` follows (`DYNAMIC_AXES`, `INPUT`, `input_content` pruned); enhancement moved its `<INPUT>` from `<SYSTEM>` to `<TASK>`; optics added `CORE_PROTOCOLS.ALTERNATION_OPTIONS` so its alternation protocol lives in `<CORE_PROTOCOLS>` (not `<SUBJECT_RULES>`).
  * - 2026-09-23: Pipeline consolidation (R1/R3/R5/R7) — the mode record is now the single source of truth: each mode declares `speaker`, `visibility`, `role_line`, `task_state`, `think_format`, a named layer preset (`DIRECTOR_LAYERS`/`TOOL_LAYERS`/`ENHANCEMENT_LAYERS`/`SORTING_LAYERS`/`OPTICS_LAYERS` alongside `PROSE_LAYERS`), and its format; `config.system.role` is retired (the `role_line` key indexes SYSTEM_ROLES), `config.task` collapses to a top-level `think_format`, `format` normalizes to `{ mode, schema? }` at `define_mode`, and the three per-mode visibility arrays (`dispositions`/`dynamic_axes`/`agendas`) are replaced by the `visibility` policy resolved in `sheets.js`. Output bytes unchanged.

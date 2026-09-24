@@ -28,9 +28,11 @@ import {
   render_subtext_xml,
   render_available_keywords_xml,
   resolve_physics_protocols,
+  get_directive_atom,
   TASK_LAYERS,
   TASK_LIBRARY,
 } from "./task.js";
+import { get_prompt } from "../prompts.js";
 
 // ============================================================================
 // [SECTION 1: PACING & ENVIRONMENTAL HINTS]
@@ -96,6 +98,7 @@ describe("render_task — Director Mode", () => {
 
   it("renders Director task with evaluation rules and OUTPUT_FORMAT mode='json'", () => {
     const task = render_task({
+      config: get_prompt("director"),
       task_state: "director",
       round: 1,
       input: "Bob draws a weapon.",
@@ -114,9 +117,11 @@ describe("render_task — Director Mode", () => {
 
   it("renders terse Director retry envelope with OUTPUT_FORMAT mode='json'", () => {
     const task = render_task({
+      config: get_prompt("director"),
       task_state: "director",
       terse: true,
       schema: dummy_schema,
+      layers: ["output_format"],
     });
 
     expect(task).toContain("<TASK>");
@@ -161,6 +166,7 @@ describe("render_task — Continuum Mode", () => {
   it("renders Continuum task with target focus and OUTPUT_FORMAT mode='json'", () => {
     const dummy_schema = '{\n  "memories": []\n}';
     const task = render_task({
+      config: get_prompt("continuum"),
       task_state: "continuum",
       target_name: "Kaelen",
       schema: dummy_schema,
@@ -205,6 +211,7 @@ describe("render_keyword_directives_xml", () => {
 describe("task.js - Optics Task Staging", () => {
   it("compiles optics task with THINK_FORMAT, unified SPATIAL_FRAMING, and cinematography", () => {
     const task = render_task({
+      config: get_prompt("optics"),
       task_state: "optics",
       target_tier: "story_character",
       input_intent: "Standing alone in the pouring rain",
@@ -280,8 +287,8 @@ describe("task.js - Optics Task Staging", () => {
     expect(TASK_LIBRARY.OPTICS.CINEMATOGRAPHY.PRESETS.INTIMATE_CLOSE_UP.mode).toBe("Intimate Close-Up");
     expect(TASK_LIBRARY.OPTICS.CINEMATOGRAPHY.PRESETS.MEDIUM_ACTION.mode).toBe("Medium Action");
     expect(TASK_LIBRARY.OPTICS.CINEMATOGRAPHY.PRESETS.SOLO_PORTRAIT.mode).toBe("Solo Portrait");
-    expect(TASK_LIBRARY.OPTICS.CINEMATOGRAPHY.STAGING_DIRECTIVE("look left")).toBe("\n  Staging Directive: look left");
-    expect(TASK_LIBRARY.OPTICS.CINEMATOGRAPHY.STAGING_DIRECTIVE("")).toBe("");
+    expect(get_directive_atom("OPTICS.CINEMATOGRAPHY.STAGING_DIRECTIVE", { visual_staging: "look left" })).toBe("\n  Staging Directive: look left");
+    expect(resolve_optics_cinematography({ tier: "solo_entity" }).visual_staging).toBe("");
   });
 
   describe("Subtext & Keyword XML Compilers", () => {
@@ -356,6 +363,7 @@ describe("TASK_LAYERS — canonical envelope grammar", () => {
 describe("render_task — per-mode state dispatch", () => {
   it("routes director to its JSON staging state and terse to the minimal refusal state", () => {
     const full = render_task({
+      config: get_prompt("director"),
       task_state: "director",
       round: 2,
       input: "hi",
@@ -368,14 +376,14 @@ describe("render_task — per-mode state dispatch", () => {
     expect(full).toContain("<DIRECTIVES>");
     expect(full).toContain('<OUTPUT_FORMAT mode="json">');
 
-    const terse = render_task({ task_state: "director", terse: true, schema: '{"a":1}' });
+    const terse = render_task({ config: get_prompt("director"), task_state: "director", terse: true, schema: '{"a":1}', layers: ["output_format"] });
     expect(terse).not.toContain("<DIRECTIVES>");
     expect(terse).not.toContain("<INPUT");
     expect(terse).toContain('<OUTPUT_FORMAT mode="json">');
   });
 
   it("routes continuum to target-focus + mandate directives and a JSON schema", () => {
-    const task = render_task({ task_state: "continuum", target_name: "Kaelen", schema: '{"m":[]}' });
+    const task = render_task({ config: get_prompt("continuum"), task_state: "continuum", target_name: "Kaelen", schema: '{"m":[]}' });
     expect(task).toContain("<DIRECTIVES>");
     expect(task).toContain("TARGET FOCUS: Consolidate state and extract relational vectors for Kaelen.");
     expect(task).toContain("EXECUTION MANDATE:");
@@ -391,7 +399,7 @@ describe("render_task — per-mode state dispatch", () => {
 
   it("routes optics to the sensory staging state", () => {
     const args = { target_tier: "story_character", input_intent: "rain", think_format: "optics", is_selfie: true, schema: '{"prompt":"s"}' };
-    const task = render_task({ task_state: "optics", ...args });
+    const task = render_task({ config: get_prompt("optics"), task_state: "optics", ...args });
     expect(task).toContain("<TARGET>story_character</TARGET>");
     expect(task).toContain("<SPATIAL_FRAMING>");
     expect(task).toContain("<DIRECTIVES>");
@@ -406,6 +414,7 @@ describe("render_task — per-mode state dispatch", () => {
 
 /**
  * CHANGELOG
+ * - 2026-09-25: Layer-6 refactor — directive-bearing `render_task` calls (director/continuum/optics) now pass their manifest `config` so the declarative `<DIRECTIVES>`/spatial-framing selections resolve; terse calls pass `layers: ["output_format"]` like production; the cinematography staging assertion moved from the retired `STAGING_DIRECTIVE(...)` closure to `get_directive_atom`.
  * - 2026-09-23: `render_task` calls updated to the `task_state` API (was `mode`) and the story-prose case passes the flattened `config.think_format` (was `config.task.think_format`).
  * - 2026-09-24: Entity-id origins — the Director `<INPUT>` assertions now expect the real entity ids (`origin="BOB"` / `origin="ALICE"`) from a supplied `entities` bag; added a think-free prose case asserting no orphaned `</THINK>` reference.
  * - 2026-09-23: Prompt-grammar harmonization — `<INPUT>` now carries `channel=` (was `mode=`), the Director's last turn is a second `<INPUT origin="AI_CHARACTER" channel="reply">` (no separate tag), the `input`/`last_turn` slots collapse into one `inputs` layer, and prose `OUTPUT_FORMAT` is asserted against the reconciled `</THINK>` wording.
