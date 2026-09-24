@@ -169,7 +169,7 @@ RPGlitch is a **Local-First Reactive Monolith (PWA)** built for the Perchance if
 - **`src/state/`**: Reactive nervous system (`interface.svelte.js`, `runtime.svelte.js`, `status.svelte.js`, `chrono.svelte.js`). Owns all Runes and the turn driver.
 - **`src/intelligence/`**: AI Kernel (Prompts, Context Broker, LLM streams).
 - **`src/data/`**: Persistence layer. Manages Dexie.js schemas and repositories.
-- **`src/media/`**: Sensory assets, visual parameters, and Kokoro-82M Neural TTS (`voice.js`).
+- **`src/media/`**: Sensory assets, visual parameters, and Kokoro-82M Neural TTS (`speech.js` & `audio.svelte.js`).
 - **`src/platform/`**: External API bridges, iframe integration, and DOMPurify safety.
 
 #### Import Rules (Unidirectional Flow)

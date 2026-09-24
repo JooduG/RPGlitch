@@ -271,12 +271,12 @@ A curated catalog of 20+ visual art direction presets (e.g. Oil Painting, Anime,
 
 The curated pool of physical and emotional tell triggers presented to the Director each turn, comprised of two distinct layers:
 
-1. **Global Somatic Archetypes (Static)**: 12 universal trauma/somatic profiles (`shame`, `fear`, `vulnerability`, `betrayal`, `abandonment`, `emotional_neglect`, `defiance`, `stoic_pain`, `recklessness`, `desperation`, `guilt`, `paranoia`) defined in `src/data/definitions/triggers.js`, always available regardless of genre.
+1. **Global Somatic Archetypes (Static)**: 12 universal trauma/somatic profiles (`shame`, `fear`, `vulnerability`, `betrayal`, `abandonment`, `emotional_neglect`, `defiance`, `stoic_pain`, `recklessness`, `desperation`, `guilt`, `paranoia`) defined in `src/intelligence/physics.js` (`PHYSICS_PROTOCOLS`), always available regardless of genre.
 2. **Style-Specific Dynamic Keywords**: Thematic motifs dynamically exported from the currently active narrative style via `get_style_keywords()` (e.g. `gothic_dread`, `cyber_alienation`, `clinical_detachment`).
 
 The Director selects 1–2 keywords per round to dynamically inject targeted `<SOMATIC_DIRECTIVES>` into the active speaker's prompt.
 
-### Kokoro Neural TTS (`src/media/voice.js`)
+### Kokoro Neural TTS (`src/media/speech.js`)
 
 Client-side ONNX neural text-to-speech engine running Kokoro-82M for real-time multi-voice speech synthesis, sentence segmentation, and cadence rates.
 
@@ -313,9 +313,9 @@ Strict architectural law enforcing unidirectional downward imports across the 6 
 ### Repository Directory Map
 
 - **`src/ui/`**: Atomic Svelte 5 components (Message, Entity, Profile, Console, Storyboard).
-- **`src/state/`**: Reactive Runes state stores (`app.svelte.js`, `runtime.svelte.js`, `status.svelte.js`, `chrono.svelte.js`).
+- **`src/state/`**: Reactive Runes state stores (`interface.svelte.js`, `runtime.svelte.js`, `status.svelte.js`, `chrono.svelte.js`).
 - **`src/intelligence/`**: AI Kernel, prompt compiler, dynamics evaluator, director, temporal engine.
 - **`src/data/`**: Persistence layer, IndexedDB (Dexie schemas), entity normalizers, definitions catalogs.
-- **`src/media/`**: Sensory assets, voice synthesizer (`voice.js`), design tokens, image prompt compiler, CSS styles.
+- **`src/media/`**: Sensory assets, voice synthesizer (`speech.js` & `audio.svelte.js`), design tokens, image prompt compiler, CSS styles.
 - **`src/platform/`**: Perchance iframe bridge, DOMPurify security, HTTP transport, neural embeddings (`embeddings.svelte.js`).
 - **`src/utils/`**: Pure helper utilities (job queue, crypto, text formatters, styles engine, story export).

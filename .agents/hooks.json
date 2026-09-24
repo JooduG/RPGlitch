@@ -115,6 +115,15 @@
       }
     ]
   },
+  "planning-handoff-gate": {
+    "Stop": [
+      {
+        "type": "command",
+        "command": "node skills/local-scripts/scripts/hooks.js planning-handoff",
+        "timeout": 15
+      }
+    ]
+  },
   "workspace-hygiene-gate": {
     "Stop": [
       {

@@ -20,7 +20,6 @@
 
 import fs from "fs";
 import path from "path";
-// eslint-disable-next-line no-unused-vars
 import { execSync } from "child_process";
 
 // =================================================================================================
@@ -357,6 +356,20 @@ export function handle_waldzell_router(payload) {
     }
 
     if (server_name === "mcp-sequentialthinking-tools" && target_tool === "sequentialthinking_tools") {
+      // Normalize camelCase aliases that models or callers frequently emit
+      if (inner_args.thoughtNumber !== undefined && inner_args.thought_number === undefined) {
+        inner_args.thought_number = inner_args.thoughtNumber;
+        delete inner_args.thoughtNumber;
+      }
+      if (inner_args.totalThoughts !== undefined && inner_args.total_thoughts === undefined) {
+        inner_args.total_thoughts = inner_args.totalThoughts;
+        delete inner_args.totalThoughts;
+      }
+      if (inner_args.nextThoughtNeeded !== undefined && inner_args.next_thought_needed === undefined) {
+        inner_args.next_thought_needed = inner_args.nextThoughtNeeded;
+        delete inner_args.nextThoughtNeeded;
+      }
+
       if (!inner_args.available_tools || inner_args.available_tools.length === 0) {
         inner_args = {
           ...inner_args,
@@ -758,8 +771,8 @@ export function synchronize_mission_board(repo_root) {
 
     // 1. Sync frontmatter active_track
     if (active_tracks.length === 1) {
-      const active_stem = active_tracks[0].stem;
-      updated = updated.replace(/^active_track:\s*.+$/m, `active_track: ${active_stem}`);
+      const active_file = `tasks/future/${active_tracks[0].file}`;
+      updated = updated.replace(/^active_track:\s*.+$/m, `active_track: ${active_file}`);
       // 2. Sync - **Active Track**: [`tasks/future/...`](./future/...)
       const active_link_pattern = /- \*\*Active Track\*\*:\s*\[`tasks\/future\/[^`]+`\]\(\.\/future\/[^)]+\)/m;
       const expected_link = `- **Active Track**: [\`tasks/future/${active_tracks[0].file}\`](./future/${active_tracks[0].file})`;
@@ -794,7 +807,7 @@ export function synchronize_mission_board(repo_root) {
  * Stop: Planning Handoff Gate.
  *
  * @param {any} payload Hook payload from stdin.
- 
+ */
 export function handle_planning_handoff(payload) {
   const repo_root = resolve_repo_root(payload);
   const future_dir = path.join(repo_root, "tasks", "future");
@@ -863,8 +876,7 @@ export function handle_planning_handoff(payload) {
   }
 
   send_hook_response({ decision: "stop" });
-} 
-*/
+}
 
 /**
  * Stop: Workspace Hygiene Gate.
@@ -913,7 +925,7 @@ const HOOK_DISPATCH_TABLE = Object.freeze({
   "circuit-breaker": handle_circuit_breaker,
   "svelte-pre-invocation": handle_svelte_pre_invocation,
   "svelte-stop-gate": handle_svelte_stop_gate,
-  // "planning-handoff": handle_planning_handoff,
+  "planning-handoff": handle_planning_handoff,
   "stop-hygiene": handle_stop_hygiene,
   "workspace-hygiene": handle_stop_hygiene,
 });

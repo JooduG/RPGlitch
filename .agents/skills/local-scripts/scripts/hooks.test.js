@@ -107,6 +107,27 @@ const TEST_CASES = [
     expectedHasTools: true,
   },
   {
+    name: "hooks.js waldzell-router: Normalize sequentialthinking camelCase arguments",
+    file: "skills/local-scripts/scripts/hooks.js",
+    args: ["waldzell-router"],
+    input: {
+      toolCall: {
+        name: "call_mcp_tool",
+        args: {
+          ServerName: "mcp-sequentialthinking-tools",
+          ToolName: "sequentialthinking_tools",
+          Arguments: {
+            thought: "Step 1",
+            thoughtNumber: 1,
+            totalThoughts: 5,
+            nextThoughtNeeded: true,
+          },
+        },
+      },
+    },
+    expectedNormalizedArgs: true,
+  },
+  {
     name: "hooks.js grep-truncation: Feedback on capped ripgrep search",
     file: "skills/local-scripts/scripts/hooks.js",
     args: ["grep-truncation"],
@@ -179,7 +200,6 @@ const TEST_CASES = [
     },
     expectedDecision: "allow",
   },
-  /*
   {
     name: "hooks.js planning-handoff: Auto-sync PRESENT.md when cleanly aligned",
     file: "skills/local-scripts/scripts/hooks.js",
@@ -189,7 +209,6 @@ const TEST_CASES = [
     },
     expectedDecision: "stop",
   },
-  */
 ];
 
 /**
@@ -241,6 +260,9 @@ function run() {
       ok = Array.isArray(parsed_output.overwrite?.Arguments?.available_tools) && parsed_output.overwrite.Arguments.available_tools.length > 0;
     } else if (tc.expectedHasFeedback) {
       ok = typeof parsed_output.feedback === "string" && parsed_output.feedback.length > 0;
+    } else if (tc.expectedNormalizedArgs) {
+      const args = parsed_output.overwrite?.Arguments || {};
+      ok = args.thought_number === 1 && args.total_thoughts === 5 && args.next_thought_needed === true && args.thoughtNumber === undefined;
     }
 
     if (ok) {
