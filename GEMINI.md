@@ -223,6 +223,13 @@ RPGlitch is a **Local-First Reactive Monolith (PWA)** built for the Perchance if
 
 - **Relative Resolution**: **Always use relative paths for internal references** (e.g., `./tasks/PRESENT.md`).
 - **Absolute Grounding**: **Map all code claims to specific file paths and line numbers**.
+- **Epistemic Context Cartography**: When gathering context or diagnosing issues, explicitly separate facts into four distinct evidentiary tiers:
+  1. _User Facts_: Explicit requirements stated directly by the user.
+  2. _Repository Evidence_: Verified source code quotes, line numbers, and file paths.
+  3. _Inferences_: Logical deductions based on repository evidence.
+  4. _Unknowns_: Unverified assumptions or missing data requiring validation.
+- **Conductor Auditable Proof Matrix**: Mandate a 3-column verification matrix in track completion milestones:
+  `| Requirement / Criterion | Implementation Location (file:line) | Automated Test / Verification Proof (test:line or command) |`
 - **Archival Standard**: Upon track completion, move the track specification from `tasks/future/<track>.md` to `C:/Users/johng/.gemini/antigravity-ide/archive/YYYY-MM/<date>-<track>.md`. The global archive (`C:\Users\johng\.gemini\antigravity-ide\archive`) is the sole exclusive historical repository for retired blueprints and logs.
 
 ---

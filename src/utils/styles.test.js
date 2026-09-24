@@ -66,6 +66,24 @@ describe("detox_prose() with speaking styles", () => {
     const input = "It was not a desire, I tell myself, but a professional appreciation for the potential.";
     expect(detox_prose(input)).toBe("It was a professional appreciation for the potential.");
   });
+
+  it("scrubs Wikipedia AI stock filler words and corporate cliches", () => {
+    expect(detox_prose("The realm of cyberspace stands as a testament to progress.")).not.toMatch(/realm|stands as a testament/i);
+    expect(detox_prose("It plays a vital role in our seamless, holistic platform.")).not.toMatch(/vital role|seamless|holistic/i);
+    expect(detox_prose("In today's fast-paced world, this is a game-changer.")).not.toMatch(/in today's fast-paced world|game-changer/i);
+  });
+
+  it("scrubs dangling participial significance clauses ('...underscoring its impact')", () => {
+    const input = "The team deployed the update, highlighting the shift toward automation.";
+    expect(detox_prose(input)).toBe("The team deployed the update.");
+    const input2 = "He sealed the airlock, underscoring his decisive leadership.";
+    expect(detox_prose(input2)).toBe("He sealed the airlock.");
+  });
+
+  it("scrubs rhetorical 'not just X, it's Y' false contrasts", () => {
+    const input = "It's not just a tool — it's a movement.";
+    expect(detox_prose(input)).toBe("It is a movement.");
+  });
 });
 
 describe("resolve_speaking_style hierarchy", () => {

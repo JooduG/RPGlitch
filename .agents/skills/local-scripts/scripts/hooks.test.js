@@ -209,6 +209,18 @@ const TEST_CASES = [
     },
     expectedDecision: "stop",
   },
+  {
+    name: "hooks.js planning-handoff: Detect spec-to-code drift when src file modified without blueprint entry",
+    file: "skills/local-scripts/scripts/hooks.js",
+    args: ["planning-handoff"],
+    input: {
+      workspacePaths: ["c:/Users/johng/source/repos/RPGlitch"],
+    },
+    expectedDecision: "continue",
+    expectedReasonSnippet: "Spec-to-Code Drift Warning",
+    mockFile: "src/utils/unplanned-drift-probe.js",
+    mockContent: "/**\\n * Unplanned probe file for hook drift testing\\n */\\nexport const probe = 1;\\n",
+  },
 ];
 
 /**
@@ -223,7 +235,16 @@ function run() {
   let failed = 0;
 
   for (const tc of TEST_CASES) {
-    const repo_root = path.resolve(".agents/..");
+    const repo_root = process.cwd().endsWith(".agents") ? path.resolve("..") : path.resolve(".");
+    const future_dir = path.join(repo_root, "tasks", "future");
+    let active_tracks_backup = [];
+    if (fs.existsSync(future_dir)) {
+      active_tracks_backup = fs
+        .readdirSync(future_dir)
+        .filter((f) => f.endsWith(".md"))
+        .map((f) => ({ file: f, content: fs.readFileSync(path.join(future_dir, f), "utf-8") }));
+    }
+
     const mock_abs_path = tc.mockFile ? path.resolve(repo_root, tc.mockFile) : null;
     if (mock_abs_path) {
       const parent_dir = path.dirname(mock_abs_path);
@@ -242,6 +263,17 @@ function run() {
       fs.unlinkSync(mock_abs_path);
     }
 
+    // Restore any modified track blueprints in tasks/future/
+    for (const backup of active_tracks_backup) {
+      const p = path.join(future_dir, backup.file);
+      if (fs.existsSync(p)) {
+        const curr = fs.readFileSync(p, "utf-8");
+        if (curr !== backup.content) {
+          fs.writeFileSync(p, backup.content, "utf-8");
+        }
+      }
+    }
+
     let parsed_output;
     try {
       parsed_output = JSON.parse(res.stdout.trim());
@@ -254,6 +286,9 @@ function run() {
     let ok = false;
     if (tc.expectedDecision) {
       ok = parsed_output.decision === tc.expectedDecision;
+      if (ok && tc.expectedReasonSnippet) {
+        ok = typeof parsed_output.reason === "string" && parsed_output.reason.includes(tc.expectedReasonSnippet);
+      }
     } else if (tc.expectedServer) {
       ok = parsed_output.overwrite?.ServerName === tc.expectedServer;
     } else if (tc.expectedHasTools) {
@@ -307,4 +342,5 @@ if (process.env.VITEST) {
  * 2026-09-05: Added 10th test case (circuit-breaker read-only tool exemption). Reverted file-architecture-gate matcher to write_to_file only; added 11th test case documenting that replace_file_content is explicitly allowed (gate is scoped to file creation, not chunk patches).
  * 2026-09-05: Added 12th & 13th test cases verifying active-track-gate (denial of multiple active tracks and allowance of non-active edits in tasks/future/).
  * 2026-09-05: Added 14th test case verifying planning-handoff automatic synchronization of tasks/PRESENT.md with tasks/future/.
+ * 2026-09-24: Added 16th test case verifying spec-to-code drift detection contract during planning-handoff stop hook.
  */

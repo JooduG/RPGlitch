@@ -170,13 +170,14 @@ When authoring or modifying prompt architectures, watch for these common psychol
 
 When implementing changes, consult the canonical source files rather than duplicating schemas here:
 
-| Domain                         | Canonical Source File                                                   | Primary Responsibility                                                              |
-| :----------------------------- | :---------------------------------------------------------------------- | :---------------------------------------------------------------------------------- |
-| **Chronos & Heartbeat**        | [`src/state/chrono.svelte.js`](../../../src/state/chrono.svelte.js)     | Round counter, Stasis lock, atomic turn dispatch (`send`, `retry`, `continue`).     |
-| **Turn Pipeline (Gamemaster)** | [`src/intelligence/story.js`](../../../src/intelligence/story.js)       | Turn orchestration, Shot 1 execution, dynamics settlement, Shot 2 streaming.        |
-| **Director & Story Prompts**   | [`src/intelligence/prompts.js`](../../../src/intelligence/prompts.js)   | Master prompt manifest, Shot 1 & Shot 2 blueprints, schemas, speaker routing rules. |
-| **Dynamics & Settlement**      | [`src/intelligence/physics.js`](../../../src/intelligence/physics.js)   | 0-100 slider math, baseline gravity, entropy velocity calculations.                 |
-| **Temporal Engine & Forge**    | [`src/intelligence/temporal.js`](../../../src/intelligence/temporal.js) | Vector scoring, cosine deduplication, Memory Forge consolidation, past/future sync. |
+| Domain                         | Canonical Source File                                                              | Primary Responsibility                                                               |
+| :----------------------------- | :--------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------- |
+| **Chronos & Heartbeat**        | [`src/state/chrono.svelte.js`](../../../src/state/chrono.svelte.js)                | Round counter, Stasis lock, atomic turn dispatch (`send`, `retry`, `continue`).      |
+| **Turn Pipeline (Gamemaster)** | [`src/intelligence/story.js`](../../../src/intelligence/story.js)                  | Turn orchestration, Shot 1 execution, dynamics settlement, Shot 2 streaming.         |
+| **Director & Story Prompts**   | [`src/intelligence/prompts.js`](../../../src/intelligence/prompts.js)              | Master prompt manifest, Shot 1 & Shot 2 blueprints, schemas, speaker routing rules.  |
+| **Dynamics & Settlement**      | [`src/intelligence/physics.js`](../../../src/intelligence/physics.js)              | 0-100 slider math, baseline gravity, entropy velocity calculations.                  |
+| **Temporal Engine & Forge**    | [`src/intelligence/temporal.js`](../../../src/intelligence/temporal.js)            | Vector scoring, cosine deduplication, Memory Forge consolidation, past/future sync.  |
+| **Prompt Complexity Triage**   | [`.agents/skills/simulation/scripts/triage-prompt.js`](./scripts/triage-prompt.js) | D1–D5 scoring, R1 parameter density risk, and tier ceilings for prompt layer tuning. |
 
 ---
 

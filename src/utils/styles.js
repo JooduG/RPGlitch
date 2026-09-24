@@ -249,6 +249,15 @@ export function detox_prose(raw_text, speaking_style = "casual", custom_rules = 
     },
   );
 
+  // 7. Dangling Significance Participial Clause (", underscoring/highlighting/cementing/serving as ...")
+  clean_text = clean_text.replace(/,\s*(?:highlighting|underscoring|cementing|signaling|exemplifying|reflecting)\s+[^.!?]+([.!?])/gi, "$1");
+
+  // 8. Rhetorical False Contrast ("It's not just a tool — it's a movement" -> "It is a movement.")
+  clean_text = clean_text.replace(
+    /\b(?:it's|it is)\s+not\s+just\s+(?:a\s+|an\s+)?[^,;.—–]+\s*[,;.—–]\s*(?:it's|it is)\s+(?:a\s+|an\s+)?([^.!?]+)/gi,
+    "It is a $1",
+  );
+
   return clean_text;
 }
 
@@ -257,6 +266,7 @@ export function detox_prose(raw_text, speaking_style = "casual", custom_rules = 
 // ============================================================================
 /**
  * CHANGELOG:
+ * - 2026-09-24: Added structural pattern formulas 7 & 8 to scrub dangling significance participial clauses (underscoring/highlighting) and rhetorical false contrasts (em-dash 'not just X — it's Y'), aligning with Wikipedia AI tells.
  * - 2026-09-16: Added structural pattern formula 6 to scrub parenthetical/clause antithesis rationalizations ('not a desire, I tell myself, but...').
  * - 2026-09-14: Added structural pattern formulas 4 & 5 to scrub repetitive syntactical antithesis ("Not X, but Y") and superlative/categorical corrections ("That's not just X, that's Y").
  * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,

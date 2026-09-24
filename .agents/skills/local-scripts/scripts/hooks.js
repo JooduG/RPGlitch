@@ -812,11 +812,11 @@ export function handle_planning_handoff(payload) {
   const repo_root = resolve_repo_root(payload);
   const future_dir = path.join(repo_root, "tasks", "future");
 
+  const active_tracks = [];
   // Validate Single Active Track Invariant across tasks/future/
   if (fs.existsSync(future_dir)) {
     try {
       const files = fs.readdirSync(future_dir).filter((f) => f.endsWith(".md"));
-      const active_tracks = [];
 
       for (const file of files) {
         const file_path = path.join(future_dir, file);
@@ -870,6 +870,23 @@ export function handle_planning_handoff(payload) {
           "Planning Handoff Law: Substantive changes were made to `src/`, but `tasks/PRESENT.md` has not been updated. Record your session progress and updated Pulse/Roadmap in `tasks/PRESENT.md` before concluding.",
       });
       return;
+    }
+
+    // Spec-to-Code Drift Verification (Conductor CDD Pattern)
+    if (active_tracks && active_tracks.length === 1 && has_substantive_source_changes) {
+      const active_track_path = path.join(future_dir, active_tracks[0]);
+      if (fs.existsSync(active_track_path)) {
+        const track_content = fs.readFileSync(active_track_path, "utf-8");
+        const src_modifications = changed_files.filter((file) => file.startsWith("src/"));
+        const drift_files = src_modifications.filter((file) => !track_content.includes(file) && !track_content.includes(path.basename(file)));
+        if (drift_files.length > 0) {
+          send_hook_response({
+            decision: "continue",
+            reason: `Spec-to-Code Drift Warning: Modified files (${drift_files.join(", ")}) are not declared in active track "${active_tracks[0]}". Either update the track specification in \`tasks/future/${active_tracks[0]}\` to reflect this scope or revert unintended changes.`,
+          });
+          return;
+        }
+      }
     }
   } catch {
     // Graceful fallback

@@ -928,6 +928,55 @@ const COMMUNITY_RULES_LIST = [
     primal: ["you still bite", "you've got teeth"],
     clinical: ["you demonstrate persistent resistance", "you remain adversarial"],
   }),
+
+  create_speaking_rule(/\b(?:the\s+)?realm\s+of\b/gi, {
+    casual: ["the world of", "the field of", ""],
+    lyrical: ["the domain of", "the expanse of"],
+    primal: ["the dirt of", "the territory of"],
+    clinical: ["the domain of", "the operational scope of"],
+  }),
+
+  create_speaking_rule(/\bstands\s+as\s+a\s+testament\s+to\b/gi, {
+    casual: ["shows the scale of", "proves the reality of", "marks"],
+    lyrical: ["remains quiet witness to", "bears silent witness to"],
+    primal: ["proves", "shows"],
+    clinical: ["serves as verifiable evidence of", "indicates"],
+  }),
+
+  create_speaking_rule(/\bplays?\s+a\s+vital\s+role\s+in\b/gi, {
+    casual: ["matters a lot for", "is central to", "drives"],
+    lyrical: ["weaves deeply through", "anchors"],
+    primal: ["drives", "matters to"],
+    clinical: ["is critical to", "serves as a primary factor in"],
+  }),
+
+  create_speaking_rule(/\bseamless(?:ly)?\b/gi, {
+    casual: ["smooth", "clean", "direct"],
+    lyrical: ["unbroken", "effortless"],
+    primal: ["smooth", "fast"],
+    clinical: ["continuous", "without interruption"],
+  }),
+
+  create_speaking_rule(/\bholistic(?:ally)?\b/gi, {
+    casual: ["complete", "full", "broad"],
+    lyrical: ["whole", "interwoven"],
+    primal: ["complete", "total"],
+    clinical: ["integrated", "system-wide"],
+  }),
+
+  create_speaking_rule(/\bin\s+today's\s+fast-paced\s+world\b/gi, {
+    casual: ["now", "these days", "today"],
+    lyrical: ["in this fleeting hour", "now"],
+    primal: ["right now", "today"],
+    clinical: ["currently", "in contemporary conditions"],
+  }),
+
+  create_speaking_rule(/\bgame-changer\b/gi, {
+    casual: ["breakthrough", "big shift", "turning point"],
+    lyrical: ["shift in the tide", "new dawn"],
+    primal: ["real blow", "shift"],
+    clinical: ["disruptive factor", "structural shift"],
+  }),
 ];
 
 // ============================================================================
@@ -965,6 +1014,7 @@ export function is_valid_speaking_style(candidate_style) {
 /**
  * ============================================================================
  * CHANGELOG:
+ * - 2026-09-24: Added Community Speaking rules for Wikipedia AI stock vocabulary clusters (realm of, stands as a testament to, plays a vital role in, seamless, holistic, fast-paced world, game-changer).
  * - 2026-09-14: Registered Community Speaking rules for common Ai-isms (pang of guilt/fear/desire, playing with fire, death of me, feisty).
  * - 2026-09-06: Harmonized rule registries and detox conjugation: (1) Added full
  *   grammatical inflection dictionaries (ed, ing, s, "") for shift weight, caress,

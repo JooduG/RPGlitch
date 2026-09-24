@@ -1,7 +1,7 @@
 ---
 name: present
 description: Active mission board, roadmap, feature maturity, and pulse history log
-active_track: tasks/future/track-generation-flow-and-storyboard-guards.md
+active_track: tasks/future/track-agent-governance-evolutions.md
 last_synchronized: 2026-09-24
 ---
 
@@ -9,8 +9,8 @@ last_synchronized: 2026-09-24
 
 ## ⚡ Present
 
-- **Active Track**: [`tasks/future/track-generation-flow-and-storyboard-guards.md`](./future/track-generation-flow-and-storyboard-guards.md)
-- **Active Task**: `task-1.1`: Extend `src/state/status.test.js` with failing unit tests covering fine-grained generation stages: `director_thinking`, `speaker_thinking`, `start_director_stage()`, `set_delegated_speaker()`, `start_stream_stage()`, and state resets on `complete()`.
+- **Active Track**: [`tasks/future/track-agent-governance-evolutions.md`](./future/track-agent-governance-evolutions.md)
+- **Active Task**: All tasks completed. Phase 5 verification gate passed cleanly (16/16 hook tests, 61/61 unit test suites, 0 lint errors, build succeeded).
 
 ### 🩺 System & Session Readiness
 
@@ -23,7 +23,7 @@ last_synchronized: 2026-09-24
 
 <!-- TODO_SCAN_START -->
 
-Last Scanned: 2026-09-24 03:14
+Last Scanned: 2026-09-24 03:49
 
 No active AI debt found.
 <!-- TODO_SCAN_END -->
@@ -49,6 +49,7 @@ No active AI debt found.
 
 ---
 
+| 2026-09-24 03:47 | Sovereign Agent Governance Evolutions: (1) Implemented Wikipedia AI tells & structural prose detox formulas 7 & 8 in `src/utils/styles.js` and `src/data/definitions/speaking-styles.js` (25/25 style unit tests passing); (2) Added deterministic CLI prompt complexity triage engine in `.agents/skills/simulation/scripts/triage-prompt.js` with D1–D5 & R1 parameter density scoring (5/5 unit tests passing); (3) Codified Epistemic Context Cartography and Conductor Auditable Proof Matrix in `GEMINI.md`, `planning/SKILL.md`, and `simulation/SKILL.md`; (4) Built spec-to-code drift detection Stop hook in `hooks.js` and verified with 16/16 hook contract tests; (5) Passed 100% of quality gates (`npm run verify` passing lint/audit/test across 61 test suites / 1114 tests, `npm run build` producing clean single-file bundle). | `implement`, `test`, `planning` | ✅ Completed |
 | 2026-09-24 03:10 | Agent Governance & Hook Gate Hardening: (1) Added camelCase normalization (`thoughtNumber` -> `thought_number`) in `hooks.js (handle_waldzell_router)` to prevent schema validation failures; (2) Re-enabled `planning-handoff` hook in `hooks.js` and registered `planning-handoff-gate` in `.agents/hooks.json` to keep `tasks/PRESENT.md` and active tracks synchronized on turn termination; (3) Added comprehensive contract tests in `hooks.test.js` (15/15 hook tests green); (4) Documented governance inventory in `AGENT-GOVERNANCE-INVENTORY.md`. | `implement`, `planning` | ✅ Completed |
 | 2026-09-24 03:02 | Sovereign Documentation & Skill Harmonization: (1) Reconciled Kokoro TTS file references across `GEMINI.md`, `README.md`, `GLOSSARY.md`, and `.agents/skills/audio/SKILL.md` to point to consolidated `src/media/speech.js` & `audio.svelte.js` (retiring `voice.js`); (2) Corrected global somatic archetype definition path in `GLOSSARY.md` from `triggers.js` to single source `src/intelligence/physics.js` (`PHYSICS_PROTOCOLS`); (3) Updated Directory Map in `GLOSSARY.md` to reflect `interface.svelte.js`; (4) Synchronized `.agents/skills/simulation/SKILL.md` Section 3 & 6 source tables to point directly to `prompts.js`, `story.js`, and `temporal.js`; (5) Aligned `tasks/future/track-generation-flow-and-storyboard-guards.md` and `tasks/PRESENT.md` frontmatter to active; (6) Verified 100% pass on markdown lint (`npm run lint:md`), hook contracts (`npm run test:hooks`), design tests, and unified hygiene audit. | `planning`, `implement` | ✅ Completed |
 | 2026-09-24 02:43 | Utility Streamlining, Resolver Hardening & Audit P4 Harmonization: (1) Preserved all 4 typed CSS resolvers (`resolve_px`, `resolve_ms`, `resolve_number`, `resolve_string`) in `src/utils/ui-helpers.js` backed by single-source `_resolve_css_var` DOM traversal loop; (2) Re-added full test suites in `src/utils/ui-helpers.test.js` (34/34 tests green); (3) Updated `simulation-audit.js` and `simulation-audit.test.js` to consume `context_builder` from `builder.js` and `get_premade_entity_by_id` from `premade-entities.js`, fixing legacy imports under P4 Zero Backwards Compatibility; (4) Rotated 10 oldest pulse entries to global archive; (5) Executed `npm run verify` passing 100% across all 3 phases (lint, audit, test) with 61 unit test suites (1,111 tests), design tests, and 13/13 Antigravity lifecycle hook contracts. | `implement`, `refactor`, `test` | ✅ Completed |
@@ -59,4 +60,3 @@ No active AI debt found.
 | 2026-09-23 20:53 | Intelligence Kernel Domain Consolidation: (1) Consolidated `telemetry.js` (`build_update_entry`, `build_retrieval`, `capture_dynamics_delta`, `build_turn_summary`) directly into `src/intelligence/physics.js` and folded its test suite into `physics.test.js`; (2) Consolidated `payload.js` (`to_data_points`, `context_builder`) directly into `src/intelligence/builder.js` and folded its test suite into `builder.test.js`; (3) Deleted obsolete standalone files `telemetry.js` and `payload.js` (and their test files) under P4 Zero Backwards Compatibility; (4) Retained `src/intelligence/modules/constitution.js` strictly intact per user mandate; (5) Updated imports and exports in `index.js`, `story.js`, and `story.test.js`; (6) All 69 unit test files (1,119 tests), design tests, and 13/13 Antigravity lifecycle hook contracts pass 100%. | `implement`, `test`, `refactor` | ✅ Completed |
 | 2026-09-23 20:18 | Conversation History & Simulation Log Standardization: (1) Added `format_history_entries` and `filter_narrative_messages` to `@utils/text.js`, providing a single authoritative formatting pipeline for turn-based XML `<ENTRY>` serialization, whitespace collapsing, and narrative message filtering; (2) Refactored `src/platform/transport.js` (`format_conversation_history`) and `src/intelligence/modules/history.js` (`render_history`) to delegate to `format_history_entries`, adhering to unidirectional layer boundaries (`[utils] -> [platform] -> [intelligence]`); (3) Refactored `execute_turn`, `execute_epilogue`, and `execute_ghostwriter` in `src/intelligence/story.js` to consume `filter_narrative_messages`; (4) Synchronized `simulation-audit.js` checks with canonical PROMPT-PIPELINE-STRUCTURE.md schemas; (5) Verified 100% pass across all 71 unit test files (1,119 tests), design tests, and 13/13 Antigravity lifecycle hook contracts. | `implement`, `test`, `refactor` | ✅ Completed |
 | 2026-09-23 17:55 | Housekeeping Protocol: (1) Reconciled 10 ignore layers via `npm run sync:ignores` and verified `.env` boundary; (2) Synchronized living Pinecone developer memory via `npm run knowledge:upsert` (223 chunks uploaded, 3,218 total vectors); (3) Swept technical debt via `npm run audit:backlog` (0 items) and verified 0 violations across 498 assets via `npm run tool:audit-hygiene`; (4) Executed verification gate with 13/13 hook contracts (`npm run test:hooks`), 3/3 design tests (`npm run test:design`), and 71 unit test files / 1114 tests passing 100% (`npm run test:unit`). | `housekeeping`, `test` | ✅ Completed |
-| 2026-09-19 13:30 | Physics Decoupling & XML Compiler Relocation: (1) Decoupled all prompt XML compilation out of `src/intelligence/physics.js`; (2) Relocated `render_dynamics_xml` and `render_dynamics_axes_xml` into Layer 4 `src/intelligence/modules/entities/sheets.js`; (3) Relocated `render_subtext_xml`, `render_available_keywords_xml`, `resolve_physics_protocols`, and `resolve_context_directives` into Layer 6 `src/intelligence/modules/task.js`; (4) Purified `physics.js` by wiring `clamp` from `@utils/math.js` for baseline dynamics gravity settlement; (5) Updated callers in `builder.js` and test suites in `task.test.js`, `protocols.test.js`, and `physics.test.js`; (6) All 70 unit test suites (1013 tests), design tests, 13 hook contracts, and `npm run verify` pass 100% cleanly. | `implement`, `refactor`, `test` | ✅ Completed |
