@@ -123,7 +123,7 @@ ${SEP}
 
     expect(result.character_task).toContain("<DELIVERY_POSTURE>");
     expect(result.character_task).toContain("<THINK>");
-    expect(result.character_task).toContain('<INPUT origin="USER"');
+    expect(result.character_task).toMatch(/<INPUT origin="JULIEN"/);
   });
 
   it("Pipeline verification passes all critical checks", async () => {

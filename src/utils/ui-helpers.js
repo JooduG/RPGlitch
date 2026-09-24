@@ -119,7 +119,7 @@ export function resolve_px(value, fallback = 0, context = null) {
     }
 
     // 4. Simple calc() evaluation (e.g. calc(10px + 5px), calc(var(--a) + var(--b)))
-    // NOTE: Operators MUST be whitespace-delimited per CSS spec (avoids splitting on hyphens in var names).
+    // NOTE: Operators MUST be whitespace-delimited per CSS spec (avoids splitting on hyphens in variable names).
     if (raw.startsWith("calc(") && raw.endsWith(")")) {
       const inner = raw.slice(5, -1).trim();
       const additive_match = inner.match(/^(.+?)\s+([+-])\s+(.+)$/);

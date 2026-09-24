@@ -12,9 +12,9 @@
  *   ACTIVE_GOALS, ATMOSPHERIC_CHANGES, trigger amplification, goal arbitration
  */
 
-import { context_builder } from "../../../../src/intelligence/payload.js";
+import { context_builder } from "../../../../src/intelligence/builder.js";
 import { compile_prompt } from "../../../../src/intelligence/prompts.js";
-import { premade } from "../../../../src/data/definitions/premade-entities.js";
+import { get_premade_entity_by_id } from "../../../../src/data/definitions/premade-entities.js";
 
 /**
  * Enriches a vector with category and triggers fields if missing.
@@ -183,7 +183,7 @@ export const SimulationAudit = {
     for (const type of types) {
       const entity_id = scenario[type + "_id"];
       if (entity_id) {
-        const found = premade.entities.find((e) => e.id === entity_id);
+        const found = get_premade_entity_by_id(entity_id);
         if (found) {
           result[type] = found;
         }
@@ -207,4 +207,5 @@ export const SimulationAudit = {
  * - 2026-09-19: Replaced director:system_has_CORE_PROTOCOLS with director:system_no_empty_protocols per R1/R5 dynamic protocol omission.
  * - 2026-09-19: Retired prompt_builder import. Migrated PHASE 3 synthesis to compile_prompt("director") and compile_prompt("interaction") under P4 Zero Backwards Compatibility (Mega Report D1).
  * - 2026-09-19: Retired stale character:system_has_DYNAMIC_AXES verification check — DYNAMIC_AXES are now exclusively in the Director shot's <DYNAMICS> envelope and are conditional on entity dynamics data.
+ * - 2026-09-24: Updated context_builder import from retired payload.js to builder.js under P4 Zero Backwards Compatibility.
  */
