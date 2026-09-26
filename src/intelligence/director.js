@@ -33,7 +33,13 @@ export { DIRECTOR_SCHEMA } from "./prompts.js";
  */
 export const STORY_STATUS_VALUES = Object.freeze(["IN_PROGRESS", "CONCLUDED", "COLLAPSED"]);
 
-const SPEAKER_AI_ALIASES = Object.freeze(new Set(["ai", "ai_character", "character", "companion"]));
+// Player-yield aliases ("user_persona", "user", "player", "protagonist", …) are folded into
+// AI_CHARACTER: the schema has no "hand the turn to the player" action, and the player always
+// receives their own turn immediately after the AI beat. Mapping them here keeps the model's
+// intent legal instead of emitting a spurious invalid-action warning.
+const SPEAKER_AI_ALIASES = Object.freeze(
+  new Set(["ai", "ai_character", "character", "companion", "user", "user_persona", "user persona", "player", "player_character", "protagonist"]),
+);
 const SPEAKER_FRACTAL_ALIASES = Object.freeze(new Set(["fractal", "world", "narrator", "environment", "scene"]));
 const SPEAKER_NPC_PATTERN = /^npc(?::[^\s]+)?$/i;
 
@@ -517,6 +523,7 @@ export async function apply_relationships(bridge, rels) {
 
 /**
  * CHANGELOG
+ * - 2026-09-26: Player-yield aliases — `USER_PERSONA`/`USER`/`PLAYER`/`protagonist` now fold into `AI_CHARACTER`/`ai` instead of logging an invalid-action warning and falling back.
  * - 2026-09-24: KISS Simplification — Streamlined `execute_director_shot` to a clean linear 3-stage dispatch pipeline (Primary ➔ Terse Recovery ➔ Fallback) eliminating redundant nested retry calls; consolidated scattered 1-line sanitizers inside `normalize_director_data` for cohesive readability; pruned redundant alias check in `normalize_next_action`.
  * - 2026-09-24: Ground-up deconstruct & rebuild — restructured into 6 cohesive domain stages (Constants/Contracts ➔ Shot 1 Orchestration ➔ Parsing & Fallback ➔ Payload Normalization ➔ Stage Spotlight ➔ Relational Mesh); eliminated duplicate inline speaker resolution in favor of `normalize_speaker`; unified all system logs under canonical `[Director]` identity; re-exported `DIRECTOR_SCHEMA` from `prompts.js`.
  * - 2026-09-25: `normalize_relationships` now collapses whitespace via the shared `collapse_whitespace` instead of an inline regex.

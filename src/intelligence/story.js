@@ -33,7 +33,6 @@ import {
   sweep_stale_ghosts,
   mark_generation_in_flight,
   clear_generation_in_flight,
-  IMAGE_RESOLVE_TIMEOUT_MS,
 } from "@media";
 import { validate_and_repair_response, force_close_response, balance_think_tags, strip_directors_note_seed, THINK_OPEN_TAG } from "./parser.js";
 import { llm_service, looks_truncated } from "@platform";
@@ -449,6 +448,10 @@ export const gamemaster = {
       const is_image_trigger_active = Boolean(resolved_image?.active);
       const image_tier = resolved_image?.tier;
 
+      // Background enrichment (image optics + memory forge) is DEFERRED until after the
+      // foreground reply. Both enqueue LLM work through the single-slot global gate, and
+      // the user-visible reply must own that slot first (see the deferred dispatch in step 8.2).
+      let deferred_image_beat = /** @type {{ tier: string, options: any } | null} */ (null);
       if (is_image_trigger_active && image_tier) {
         let trigger_prompt = [input, strip_cognition_blocks(director_data._thought_process), strip_cognition_blocks(director_data.directive)]
           .filter(Boolean)
@@ -460,13 +463,16 @@ export const gamemaster = {
             trigger_prompt = truncate_at_word(strip_cognition_blocks(last_beat.content), 700);
           }
         }
-        await spawn_image_beat(image_tier, {
-          explicit: resolved_image.director_explicit,
-          source: final_meta.image_source,
-          prompt: trigger_prompt,
-          visual_staging: director_data.visual_staging || "",
-          engine: visual_engine,
-        });
+        deferred_image_beat = {
+          tier: image_tier,
+          options: {
+            explicit: resolved_image.director_explicit,
+            source: final_meta.image_source,
+            prompt: trigger_prompt,
+            visual_staging: director_data.visual_staging || "",
+            engine: visual_engine,
+          },
+        };
       }
 
       await capture_dynamics_delta(state_bridge, snapshot, final_meta);
@@ -474,23 +480,10 @@ export const gamemaster = {
       state_bridge.runtime.ai = snapshot.ai?.dynamics;
       state_bridge.runtime.fractal = snapshot.fractal?.dynamics;
 
-      // 4.7. SIMULTANEOUS SHOT 2B: Launch Continuum Caretaker (Memory Forge) in background queue
+      // 4.7. RESOLVED STATUS / FORGE ROUND: captured here so the deferred background
+      // consolidation (step 8.2) gates on the same round and conclusion state.
       const resolved_status = director_data?.story_status;
       const forge_round = state_bridge.runtime.round;
-      director_background_queue
-        .run(
-          async () => {
-            if (state_bridge.runtime.round !== forge_round) return { skipped: true };
-            await temporal_engine.consolidate(state_bridge.session_driver, db, entities, state_bridge.runtime, state_bridge.app, {
-              skip_forge: resolved_status === "CONCLUDED" || resolved_status === "COLLAPSED",
-            });
-            return { skipped: false };
-          },
-          { latest: true },
-        )
-        .catch((err) => {
-          state_bridge.app?.log(`[GameMaster] Background consolidation failed: ${err?.message || err}`, "error");
-        });
 
       // 5. SHOT 2A: Diegetic Narrative Voice (Foreground Stream)
       state_bridge.app.log("[GameMaster] Routing to LLM (Character Pass)...", "system");
@@ -597,6 +590,32 @@ export const gamemaster = {
       state_bridge.app.busy = false;
       state_bridge.simulation_state.phase = "idle";
 
+      // 8.2. DEFERRED BACKGROUND ENRICHMENT — the foreground reply has landed and the LLM
+      // gate slot is free, so release the image beat (background optics) and the memory
+      // forge (background consolidation) onto the background lane.
+      if (deferred_image_beat) {
+        spawn_image_beat(deferred_image_beat.tier, deferred_image_beat.options).catch((err) => {
+          state_bridge.app.log(`[GameMaster] Image beat dispatch failed: ${err?.message || err}`, "warn");
+        });
+      }
+
+      director_background_queue
+        .run(
+          async () => {
+            if (state_bridge.runtime.round !== forge_round) return { skipped: true };
+            await temporal_engine.consolidate(state_bridge.session_driver, db, entities, state_bridge.runtime, state_bridge.app, {
+              skip_forge: resolved_status === "CONCLUDED" || resolved_status === "COLLAPSED",
+            });
+            return { skipped: false };
+          },
+          { latest: true },
+        )
+        .catch((err) => {
+          const message = err?.message || String(err);
+          if (err?.name === "AbortError" || message.includes("aborted")) return;
+          state_bridge.app?.log(`[GameMaster] Background consolidation failed: ${message}`, "error");
+        });
+
       // 8.5. AUTO-DISPATCH EPILOGUE
       const story_status = resolved_status;
       if (story_status === "CONCLUDED" || story_status === "COLLAPSED") {
@@ -688,52 +707,59 @@ export const gamemaster = {
         metadata: { mode: "story_scene", requested_at: prologue_image_requested_at },
       });
 
-      // The prologue image runs an LLM "optics" refinement pass before texturing,
-      // so it routinely takes ~2 minutes. Mark it in flight so the ghost sweeper
-      // (which ages placeholders) never reaps it mid-generation, and surface an
-      // explicit failure if it yields nothing rather than leaving a live shimmer.
-      const image_promise = visual_engine
-        ? (async () => {
-            mark_generation_in_flight(node_id, 0);
-            try {
-              const img_result = await visual_engine.visualize(story_id, strip_cognition_blocks(response), "story_scene", { silent: true });
-              if (img_result?.imageUrl) {
-                await state_bridge.session_driver.update_log_attachment(node_id, 0, {
-                  src: img_result.imageUrl,
-                  metadata: {
-                    ...(img_result.metadata || {}),
-                    prompt: img_result.refinedPrompt || img_result.metadata?.prompt,
-                    mode: "story_scene",
-                    requested_at: prologue_image_requested_at,
-                  },
-                });
-              } else {
-                await state_bridge.session_driver.update_log_attachment(node_id, 0, {
-                  src: null,
-                  metadata: {
-                    mode: "story_scene",
-                    requested_at: prologue_image_requested_at,
-                    failed: true,
-                    error: "Prologue image generation returned no image.",
-                  },
-                });
-              }
-            } catch (err) {
-              console.warn("[Prologue Image Error]", err);
+      // The prologue image runs an LLM "optics" refinement pass before texturing, so it
+      // routinely takes ~2 minutes. Its background LLM call is DEFERRED until the opening
+      // turn's foreground reply has landed, so it cannot contend with (and stale-abort) the
+      // reply on the single-slot global LLM gate. It is marked in flight up-front so the
+      // ghost sweeper (which ages placeholders) never reaps it mid-generation.
+      let release_prologue_image = () => {};
+      const prologue_image_gate = new Promise((resolve) => {
+        release_prologue_image = resolve;
+      });
+
+      if (visual_engine) {
+        (async () => {
+          mark_generation_in_flight(node_id, 0);
+          await prologue_image_gate;
+          try {
+            const img_result = await visual_engine.visualize(story_id, strip_cognition_blocks(response), "story_scene", { silent: true });
+            if (img_result?.imageUrl) {
+              await state_bridge.session_driver.update_log_attachment(node_id, 0, {
+                src: img_result.imageUrl,
+                metadata: {
+                  ...(img_result.metadata || {}),
+                  prompt: img_result.refinedPrompt || img_result.metadata?.prompt,
+                  mode: "story_scene",
+                  requested_at: prologue_image_requested_at,
+                },
+              });
+            } else {
               await state_bridge.session_driver.update_log_attachment(node_id, 0, {
                 src: null,
                 metadata: {
                   mode: "story_scene",
                   requested_at: prologue_image_requested_at,
                   failed: true,
-                  error: "Prologue image generation failed.",
+                  error: "Prologue image generation returned no image.",
                 },
               });
-            } finally {
-              clear_generation_in_flight(node_id, 0);
             }
-          })()
-        : Promise.resolve();
+          } catch (err) {
+            console.warn("[Prologue Image Error]", err);
+            await state_bridge.session_driver.update_log_attachment(node_id, 0, {
+              src: null,
+              metadata: {
+                mode: "story_scene",
+                requested_at: prologue_image_requested_at,
+                failed: true,
+                error: "Prologue image generation failed.",
+              },
+            });
+          } finally {
+            clear_generation_in_flight(node_id, 0);
+          }
+        })().catch(() => {});
+      }
 
       state_bridge.app.streaming.active = true;
       state_bridge.app.streaming.content = "";
@@ -742,22 +768,14 @@ export const gamemaster = {
 
       const turn_promise = this.execute_turn(story_id, { role: "ai", is_opening_turn: true });
 
-      // The image is enrichment: stop *waiting* on it after the budget, but let
-      // it finish in the background and land in the feed when it resolves.
-      const image_budget = (async () => {
-        let budget_id;
-        const budget = new Promise((resolve) => {
-          budget_id = setTimeout(resolve, IMAGE_RESOLVE_TIMEOUT_MS);
-        });
-        try {
-          await Promise.race([image_promise, budget]);
-        } finally {
-          clearTimeout(budget_id);
-        }
-      })();
-
-      await Promise.all([image_budget, turn_promise]);
-      return await turn_promise;
+      // Release the deferred prologue image only once the foreground reply has landed.
+      // The image still renders in the background and lands in the feed when it resolves.
+      // Released in `finally` so a failed opening turn can never strand the gate promise.
+      try {
+        return await turn_promise;
+      } finally {
+        release_prologue_image();
+      }
     } finally {
       state_bridge.app.busy = false;
       state_bridge.app.end_stream();
@@ -956,6 +974,7 @@ export const story_pipeline = gamemaster;
 
 /**
  * CHANGELOG
+ * - 2026-09-26: Deferred background LLM enrichment — the image-beat optics dispatch and the Continuum memory forge now fire AFTER the character pass (step 8.2) instead of racing it, and the prologue image waits for the opening reply (replacing the image-resolve budget race), so the foreground reply always owns the single-slot global LLM gate first.
  * - 2026-09-24: Streamlined dependencies: routed `capture_dynamics_delta` from `physics.js` and `context_builder` from `builder.js`, removing orphaned imports to retired standalone modules (`telemetry.js`, `payload.js`).
  * - 2026-09-25: Unified history message filtering — migrated execute_turn, execute_epilogue, and execute_ghostwriter to consume canonical `filter_narrative_messages` from @utils.
  * - 2026-09-25: Stripping standardization — dropped the local `clean_think` tag-scrub and the

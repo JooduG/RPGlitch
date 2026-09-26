@@ -341,7 +341,7 @@ export class VisualEngine {
             mode: "enhance",
             variant: type === "selfie" ? "selfie" : undefined,
           });
-          const result = await llm_service.generate({ system, task, messages: [] }, { silent: true });
+          const result = await llm_service.generate({ system, task, messages: [] }, { silent: true, priority: "background" });
           if (!result) throw new Error("Prompt enhancement failed - no content.");
 
           const parsed = parse_llm_image_prompt_response(result);
@@ -459,7 +459,10 @@ export class VisualEngine {
 
         try {
           const extraction_timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("LLM prompt extraction timed out")), 90000));
-          refined = await Promise.race([llm_service.generate({ system, task, messages: [] }, { silent: true }), extraction_timeout]);
+          refined = await Promise.race([
+            llm_service.generate({ system, task, messages: [] }, { silent: true, priority: "background" }),
+            extraction_timeout,
+          ]);
         } catch (extract_error) {
           console.warn("[VisualEngine] visualize: LLM prompt extraction failed, using fallback:", /** @type {Error} */ (extract_error).message);
         }
@@ -953,6 +956,7 @@ export async function spawn_image_beat(tier, options = {}) {
 
 /**
  * CHANGELOG:
+ * - 2026-09-26: Optics LLM passes (enhance + visualize extraction) now dispatch at `priority: "background"`, so the global LLM gate preempts them whenever a foreground reply is queued.
  * - 2026-09-24: Media layer consolidation — absorbed image-beats.js (queue bounds, in-flight registry, ghost sweeping, spawn_image_beat) directly into visual.svelte.js per P4 Zero Backwards Compatibility.
  * - 2026-09-24: Prompt-domain fold-in — the optics recent-narrative window now calls `render_visual_history` (@intelligence), the empty-response fallback now calls `render_optics_fallback` (@intelligence), the `<image_prompt>`/`<caption>` extraction now uses `parse_llm_image_prompt_response`, and `generate()` consumes the finished spec from `compose_visual_generation_prompt` (@media/image-aesthetics); removed the local `_build_visual_history`, fallback templates, caption regexes, and inline token assembly.
  * - 2026-09-24: Optics envelope regression — enhance() and visualize() now forward the compiled <TASK> (task) alongside the <SYSTEM> fragment, honoring the universal { system, task } package contract; previously only .system was sent, so the LLM never received the OUTPUT_FORMAT JSON schema and improvised XML/Markdown envelopes.

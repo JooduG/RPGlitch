@@ -278,11 +278,16 @@
     menu_y = y;
     menu_open = true;
 
+    // Snapshot the derived length BEFORE the frame callback: reading a `$derived` from a
+    // requestAnimationFrame callback after the component's effect is destroyed logs a
+    // Svelte `derived_inert` warning and can yield a stale value.
+    const action_count = badge_actions.length || 1;
+
     requestAnimationFrame(() => {
       const vw = window.innerWidth;
       const vh = window.innerHeight;
       const width = 160;
-      const height = (badge_actions.length || 1) * 36;
+      const height = action_count * 36;
       if (menu_x + width > vw) menu_x = vw - width;
       if (menu_y + height > vh) menu_y = vh - height;
       if (menu_x < 0) menu_x = 0;

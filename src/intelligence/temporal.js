@@ -609,6 +609,7 @@ export async function forge_memory(entity_targets, history_slice, options = {}) 
         json: true,
         silent: true,
         raw: true,
+        priority: "background",
       });
       return parse_forge_response(response);
     };
@@ -956,6 +957,7 @@ if (typeof window !== "undefined") {
 
 /**
  * CHANGELOG
+ * - 2026-09-26: Memory-forge generations now dispatch with `priority: "background"`, so the global LLM gate preempts opportunistic consolidation whenever a foreground reply is queued.
  * - 2026-09-25: DRY pass — `fallback_consolidate` now filters with the shared `is_narrative_role` and builds speaker labels through one local `speaker_label` helper.
  * - 2026-09-25: Stripping standardization — the deterministic memory-snippet builders now compose `strip_cognition_blocks` + `collapse_whitespace` + `truncate_at_word` instead of inline regex/slice chains, and `eternal_field_dedup` reuses `collapse_whitespace`.
  * - 2026-09-24: Consolidation persists the `meta` marker per-turn via `db.simulation_log.update(id, { meta })` instead of a whole-row `bulkPut(slice)`. The slice is loaded before the (slow) forge LLM call, so bulk-writing it clobbered any attachment resolved onto those turns during the forge — reverting a finished prologue/story image to a permanently stuck loading placeholder.

@@ -1089,10 +1089,12 @@ describe("gamemaster (Intelligence Kernel)", () => {
       expect(result.meta.image_tier).toBe("story_scene");
       expect(result.meta.image_source).toBe("dynamics");
       expect(_mock_runtime.last_dynamics_beat_round).toBe(1);
-      // Placeholder attachment logged immediately
-      const placeholder_call = session_driver.log_message.mock.calls.find((c) => c[3]?.attachments?.[0]?.src === null);
-      expect(placeholder_call).toBeDefined();
-      expect(placeholder_call[3].attachments[0].metadata.mode).toBe("story_scene");
+      // Placeholder attachment is logged on the background lane once the reply has landed
+      await vi.waitFor(() => {
+        const placeholder_call = session_driver.log_message.mock.calls.find((c) => c[3]?.attachments?.[0]?.src === null);
+        expect(placeholder_call).toBeDefined();
+        expect(placeholder_call[3].attachments[0].metadata.mode).toBe("story_scene");
+      });
       // Background generation fired against the tier (not awaited)
       await vi.waitFor(() => expect(visual_engine.visualize).toHaveBeenCalled());
       expect(visual_engine.visualize).toHaveBeenCalledWith("story-123", expect.stringContaining("Hello"), "story_scene", {

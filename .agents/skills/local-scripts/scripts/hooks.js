@@ -862,7 +862,7 @@ export function handle_planning_handoff(payload) {
 
     const changed_files = status_output.split("\n").map((line) =>
       line
-        .replace(/^..\s+/, "")
+        .replace(/^..?\s+/, "")
         .trim()
         .replace(/\\/g, "/"),
     );
@@ -999,6 +999,7 @@ run();
 /**
  * CHANGELOG
  * -------------------------------------------------------------------------------------------------
+ * 2026-09-25: Hardened porcelain git status path extraction regex in `handle_planning_handoff` (`/^..?\s+/`) to robustly handle both single-letter and two-letter status code prefixes.
  * 2026-09-24: Passed explicit `cwd: repo_root` to `git status --porcelain` in `handle_planning_handoff` so file paths are uniformly relative to workspace root regardless of subshell invocation CWD.
  * 2026-09-12: Added is_workshop_mode helper and bypass in handle_sequential_thinking_gate to allow zero-friction prototyping when WORKSHOP_MODE is set or tmp/.workshop_mode exists.
  * 2026-09-05: Initial creation of consolidated hooks.js dispatcher unifying all 10 Antigravity hooks.

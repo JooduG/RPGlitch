@@ -101,10 +101,10 @@ Close </THINK> before the narrative. This think block is internal reasoning and 
     EVALUATION_SCENE: "Evaluate state mutations caused by the current situation.",
     ROUND_ONE: 'Round 1 follows the Fractal prologue, so next_action MUST be "AI_CHARACTER".',
     USER_PERSONA_LOCK:
-      '"USER_PERSONA" (or player character name) is never a valid next_action; the Director never speaks for the player. Valid actions are strictly: "AI_CHARACTER", "FRACTAL", "npc:<id>", or { "genesis": ... }.',
+      '"USER_PERSONA", "USER", "PLAYER", or the player character\'s name is NEVER a valid next_action — the Director never speaks for the player. The window for the player to act opens automatically right after the AI beat, so you never need a "yield to player" action: if you believe the player should act next, output "AI_CHARACTER" (the default). Valid actions are strictly: "AI_CHARACTER", "FRACTAL", "npc:<id>", or { "genesis": ... }.',
 
     ROUTING: `NEXT ACTION ROUTING RULES:
-- "AI_CHARACTER": (Default) AI companion reacts to protagonist.
+- "AI_CHARACTER": (Default) AI companion reacts to protagonist. Choose this whenever the player might act next — the player's turn opens immediately after this beat.
 - "FRACTAL": Environmental action (exploring atmosphere, architecture, weather, objects without dialogue) or breaking long AI speech streaks.
 - "npc:<id>": Present secondary character takes action.
 - "GENESIS": Mint a new character only if no candidate below applies.`,
@@ -179,7 +179,7 @@ Analyze recent turns in «HISTORY». Synthesize memories, update physical appear
       CREATURE_DISAMBIGUATION:
         'CREATURE DISAMBIGUATION: Never use bare animal/creature proper names (e.g., "Beast"). Translate to explicit physical traits (e.g., "a massive grey-green male orc warrior").',
       SIGNATURE_COLORS:
-        "SIGNATURE COLORS: Every character's distinctive color and physical identifiers (hair color, eye color, skin markings, glowing tattoo accents) are non-negotiable visual anchors. You MUST preserve all declared color and identity tokens verbatim in the output prompt prose.",
+        "SIGNATURE COLORS: Every character's distinctive visual anchors — declared hair color AND length, eye color, skin markings, and signature accent colors — are non-negotiable. Copy them EXACTLY as written in the ENTITIES sheet; never recolor, lengthen, shorten, or substitute them, and never derive a subject's hair or eye color from the environment (silver fog, twilight, moonlight), the lighting, or accessories (e.g., silver jewelry). If the sheet declares a specific hair color or length, the output prompt MUST state that exact value.",
     }),
 
     SOLO_FRAME:
@@ -912,6 +912,7 @@ export function render_subtext_xml(ai_dynamics = {}, fractal_dynamics = {}, opti
 
 /**
  * CHANGELOG
+ * - 2026-09-26: Prompt hardening — `DIRECTOR.USER_PERSONA_LOCK`/`ROUTING` now state that a player-yield action is never valid and the player's turn opens automatically (so the model stops emitting `USER_PERSONA`); `OPTICS.SUBJECT_RULES.SIGNATURE_COLORS` now forbids recoloring/lengthening declared hair, deriving hair/eye color from the environment or lighting, or conflating accessories (silver jewelry) with hair, and requires the exact declared values.
  * - 2026-09-25: Full protocols.js-level refactor (phases 0–3) — `TASK_LIBRARY` is now pure data (strings + `{placeholder}` templates; every closure gone, conditional text split into distinct keys); the generic `compile_directive_tags`/`get_directive_atom` compiler (with `{ group }` paragraphs) replaces per-mode hand assembly; each mode's `<DIRECTIVES>` selection is declared in the manifest (`prompts.js` `directives`); and the five builders collapse into one `build_task_state` over `TASK_MODE_PLANS` + `TASK_SLOT_RESOLVERS`. `TASK_STATE_BUILDERS` is retired in favour of `TASK_MODE_PLANS`. Director task output is byte-identical.
  * - 2026-09-25: Director directive compiler (protocols.js pattern) — the Director's hand-rolled `<DIRECTIVES>` array is replaced by the declarative `DIRECTOR_DIRECTIVES` selection resolved through the new generic `compile_directive_tags` (a Layer-6 twin of `compile_protocol_tags`); the `TASK_LIBRARY.DIRECTOR` atoms are now pure strings or `(values) => string` templates (`EVALUATION` folds in the old evaluate/round-one/persona-lock trio, `ENVIRONMENTAL_HINT` self-gates), so `build_director_task_state` no longer owns directive ordering. Director task output is byte-identical.
  * - 2026-09-24: Entity-id origins + dead-slot prune — the Director's two `<INPUT>` blocks now carry the real sender ids (`origin="<USER id>"` / `origin="<AI id>"`, falling back to a name then a role token only when no entity is supplied), matching every prose mode; `build_director_task_state` reads the `entities` bag and `build_continuum_task_state` drops its never-emitted `inputs` slot.

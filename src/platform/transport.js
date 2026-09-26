@@ -16,6 +16,7 @@
  */
 
 import { format_history_entries, stream_bridge, strip_cognition_blocks } from "@utils";
+import { LLM_PRIORITY, get_llm_gate_status, merge_abort_signals, run_llm_job } from "./llm-gate.js";
 
 // ============================================================================
 // [SECTION 1: SANITIZATION & NORMALIZATION UTILITIES]
@@ -196,6 +197,7 @@ export function format_conversation_history(messages) {
  * @property {((token: string) => void)} [onToken] - Streaming token callback.
  * @property {boolean} [json] - Hint for structured JSON output.
  * @property {AbortSignal} [signal] - Abort controller signal for cancellation.
+ * @property {"foreground" | "background"} [priority] - Gate scheduling tier; background work yields to foreground turns.
  */
 
 export const llm_service = {
@@ -234,6 +236,24 @@ export const llm_service = {
       if (!options.silent) console.error(msg);
       throw new Error(msg);
     }
+
+    const priority = options.priority === "background" ? LLM_PRIORITY.BACKGROUND : LLM_PRIORITY.FOREGROUND;
+    return run_llm_job((gate_signal) => this._execute_generation(ai_engine, payload, options, gate_signal), priority);
+  },
+
+  /**
+   * Runs a single generation against the resolved engine while holding the global LLM
+   * gate slot. The merged signal aborts when the caller aborts OR when a higher-priority
+   * foreground request preempts this (background) job.
+   *
+   * @param {Function} ai_engine - Resolved Perchance generation function
+   * @param {PromptPayload} payload
+   * @param {GenerationOptions} options
+   * @param {AbortSignal} gate_signal - Preemption signal owned by the gate
+   * @returns {Promise<string | any>}
+   */
+  async _execute_generation(ai_engine, payload, options, gate_signal) {
+    options = { ...options, signal: merge_abort_signals(options.signal, gate_signal) };
 
     // 1. Assemble instruction block: universal nested envelope
     const chat_history = format_conversation_history(payload.messages || []);
@@ -395,6 +415,14 @@ export const llm_service = {
   },
 
   /**
+   * Reports global LLM gate telemetry for diagnostics and the freeze watchdog.
+   * @returns {{ active: boolean, active_priority: number, queued: number, foreground_queued: number }}
+   */
+  gate_status() {
+    return get_llm_gate_status();
+  },
+
+  /**
    * Returns a standard mock message for testing.
    * @returns {string}
    */
@@ -446,6 +474,7 @@ export const llm_service = {
 
 /**
  * CHANGELOG:
+ * - 2026-09-26: Global LLM gate — every generation now dispatches through `run_llm_job` (single-slot, foreground-priority, preemptible background work) so background memory/optics calls cannot stale-abort the user-visible reply; added `gate_status()` telemetry for the freeze watchdog.
  * - 2026-09-25: Unified History Pipeline — `format_conversation_history` now delegates directly to the canonical `format_history_entries` in `@utils/text.js`, eliminating duplicate collapsing and XML serialization.
  * - 2026-09-25: DRY pass — `format_conversation_history`'s label fallback now calls the shared `role_display_label`.
  * - 2026-09-25: Stripping standardization — `looks_truncated` now calls the shared `strip_cognition_blocks` (also catching unclosed/leaked blocks), and `format_conversation_history` drops its redundant re-strip now that `collapse_history` guarantees cognition-free content.

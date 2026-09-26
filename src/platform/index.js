@@ -62,7 +62,10 @@ export {
   EMBEDDING_DIM,
 } from "./embeddings.svelte.js";
 
+export { LLM_PRIORITY, run_llm_job, get_llm_gate_status, merge_abort_signals } from "./llm-gate.js";
+
 /**
  * CHANGELOG:
+ * - 2026-09-26: Re-exported the global LLM gate (`LLM_PRIORITY`, `run_llm_job`, `get_llm_gate_status`, `merge_abort_signals`) from `./llm-gate.js` so the state-layer freeze watchdog can read gate back-pressure telemetry.
  * - 2026-08-29: Structured into canonical functional sections with universal header/footer architecture (/harmonize).
  */

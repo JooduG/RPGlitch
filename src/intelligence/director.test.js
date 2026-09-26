@@ -173,6 +173,12 @@ describe("normalize_director_quick_shot (Track 1 Schema)", () => {
     expect(normalize_director_data({ next_action: "Orion the Pink Protector" }).next_action).toBe("AI_CHARACTER");
     expect(normalize_director_data({ next_action: "Glitch" }).next_action).toBe("AI_CHARACTER");
     expect(normalize_director_data({ next_action: "Sylvia" }).next_action).toBe("AI_CHARACTER");
+
+    // Player-yield intents fold into AI_CHARACTER (no "hand the turn to the player" action exists)
+    expect(normalize_director_data({ next_action: "USER_PERSONA" }).next_action).toBe("AI_CHARACTER");
+    expect(normalize_director_data({ next_action: "user" }).next_action).toBe("AI_CHARACTER");
+    expect(normalize_director_data({ next_action: "player" }).next_action).toBe("AI_CHARACTER");
+    expect(normalize_director_data({ next_action: "protagonist" }).next_action).toBe("AI_CHARACTER");
   });
 
   it("normalizes unified spotlight schema merging enter, exit, and genesis", () => {

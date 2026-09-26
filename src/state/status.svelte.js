@@ -25,6 +25,7 @@
  */
 
 import { Audio } from "@media";
+import { get_llm_gate_status } from "@platform";
 import { developer_log } from "./log.svelte.js";
 
 // ============================================================================
@@ -441,6 +442,16 @@ export function install_freeze_watchdog() {
       return;
     }
 
+    // The foreground turn may simply be queued behind the global LLM gate while
+    // background enrichment holds the slot. That is back-pressure, not a freeze —
+    // let the gate preempt the background job instead of killing a healthy turn.
+    if (get_llm_gate_status().foreground_queued > 0) {
+      stuck_since = 0;
+      last_stream_len = stream_len;
+      last_chunk_ts = streaming_active ? Date.now() : 0;
+      return;
+    }
+
     if (stuck_since === 0) {
       stuck_since = Date.now();
       last_stream_len = stream_len;
@@ -504,6 +515,7 @@ export const streaming = new StreamingStore();
 
 /**
  * CHANGELOG:
+ * - 2026-09-26: Watchdog back-pressure guard — a foreground turn queued behind the global LLM gate is treated as not-a-freeze (the gate preempts background work) instead of tripping `force_recover_simulation`.
  * - 2026-09-23: Consolidated streaming accumulator (`streaming.svelte.js`) and freeze watchdog
  *   recovery engine (`freeze-watchdog.js`) directly into status.svelte.js under P4 Zero Backwards Compatibility.
  * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,
