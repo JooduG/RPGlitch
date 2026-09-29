@@ -655,198 +655,14 @@ export function handle_svelte_stop_gate(payload) {
 }
 
 /**
- * PreToolUse: Single Active Track Gate.
- * Enforces that only one track in tasks/future/ can have status: active at any time.
- *
- * @param {any} payload Hook payload from stdin.
- */
-export function handle_active_track_gate(payload) {
-  const tool_name = payload?.toolCall?.name || payload?.tool_name || "";
-  const args = payload?.toolCall?.args || {};
-
-  if (tool_name !== "write_to_file" && tool_name !== "replace_file_content" && tool_name !== "multi_replace_file_content") {
-    send_hook_response({ decision: "allow" });
-    return;
-  }
-
-  const target_file = (args.TargetFile || "").replace(/\\/g, "/");
-  if (!target_file.includes("tasks/future/") || !target_file.endsWith(".md")) {
-    send_hook_response({ decision: "allow" });
-    return;
-  }
-
-  // Determine if the incoming edit sets or keeps status: active
-  let target_content_sets_active = false;
-  if (tool_name === "write_to_file") {
-    target_content_sets_active = /status:\s*active\b/i.test(args.CodeContent || "");
-  } else if (tool_name === "replace_file_content") {
-    target_content_sets_active = /status:\s*active\b/i.test(args.ReplacementContent || "");
-  } else if (tool_name === "multi_replace_file_content") {
-    const chunks = args.ReplacementChunks || [];
-    target_content_sets_active = chunks.some((c) => /status:\s*active\b/i.test(c.ReplacementContent || ""));
-  }
-
-  if (!target_content_sets_active) {
-    send_hook_response({ decision: "allow" });
-    return;
-  }
-
-  const repo_root = resolve_repo_root(payload);
-  const future_dir = path.join(repo_root, "tasks", "future");
-  const target_basename = path.basename(target_file);
-
-  if (fs.existsSync(future_dir)) {
-    try {
-      const files = fs.readdirSync(future_dir);
-      const demoted_tracks = [];
-
-      for (const file of files) {
-        if (!file.endsWith(".md") || file === target_basename) continue;
-        const file_path = path.join(future_dir, file);
-        const content = fs.readFileSync(file_path, "utf-8");
-        if (/status:\s*active\b/i.test(content)) {
-          const updated = content.replace(/^status:\s*active\b/m, "status: queued");
-          fs.writeFileSync(file_path, updated, "utf-8");
-          demoted_tracks.push(file);
-        }
-      }
-
-      if (demoted_tracks.length > 0) {
-        send_hook_response({
-          decision: "allow",
-          feedback: `[Active Track Gate]: Activated "${target_basename}". Automatically transitioned previous active track(s) (${demoted_tracks.join(", ")}) to status: queued.`,
-        });
-        return;
-      }
-    } catch {
-      // Graceful fallback
-    }
-  }
-
-  send_hook_response({ decision: "allow" });
-}
-
-/**
- * Synchronizes tasks/PRESENT.md with the canonical track states in tasks/future/.
- * Ensures active_track, Active Track link, and the ## 🚀 Future queued list are always up-to-date.
- *
- * @param {string} repo_root Absolute repository root.
- * @returns {{ synchronized: boolean, error?: string }}
- */
-export function synchronize_mission_board(repo_root) {
-  const future_dir = path.join(repo_root, "tasks", "future");
-  const present_path = path.join(repo_root, "tasks", "PRESENT.md");
-
-  if (!fs.existsSync(future_dir) || !fs.existsSync(present_path)) {
-    return { synchronized: false };
-  }
-
-  try {
-    const files = fs.readdirSync(future_dir).filter((f) => f.endsWith(".md"));
-    const active_tracks = [];
-    const queued_tracks = [];
-
-    for (const file of files) {
-      const file_path = path.join(future_dir, file);
-      const content = fs.readFileSync(file_path, "utf-8");
-      const desc_match = content.match(/^description:\s*(.+)$/m);
-      const description = desc_match ? desc_match[1].trim() : "";
-
-      if (/status:\s*active\b/i.test(content)) {
-        active_tracks.push({ file, stem: file.replace(/\.md$/, ""), description });
-      } else if (/status:\s*queued\b/i.test(content)) {
-        queued_tracks.push({ file, stem: file.replace(/\.md$/, ""), description });
-      }
-    }
-
-    if (active_tracks.length > 1) {
-      return {
-        synchronized: false,
-        error: `Found multiple active tracks in tasks/future/ (${active_tracks.map((t) => t.file).join(", ")}). Exactly one track can have status: active.`,
-      };
-    }
-
-    const present_raw = fs.readFileSync(present_path, "utf-8");
-    let updated = present_raw;
-
-    // 1. Sync frontmatter active_track
-    if (active_tracks.length === 1) {
-      const active_file = `tasks/future/${active_tracks[0].file}`;
-      updated = updated.replace(/^active_track:\s*.+$/m, `active_track: ${active_file}`);
-      // 2. Sync - **Active Track**: [`tasks/future/...`](./future/...)
-      const active_link_pattern = /- \*\*Active Track\*\*:\s*\[`tasks\/future\/[^`]+`\]\(\.\/future\/[^)]+\)/m;
-      const expected_link = `- **Active Track**: [\`tasks/future/${active_tracks[0].file}\`](./future/${active_tracks[0].file})`;
-      if (active_link_pattern.test(updated)) {
-        updated = updated.replace(active_link_pattern, expected_link);
-      }
-    }
-
-    // 3. Sync ## 🚀 Future section with all queued tracks (preserving any subheadings such as ### 📦 Archived Tracks)
-    const future_section_pattern = /(## 🚀 Future\s*\r?\n\r?\n)([\s\S]*?)(\r?\n### [^\r\n]+|\r?\n---\r?\n|\r?\n## 📜 Past)/;
-    if (future_section_pattern.test(updated)) {
-      const queued_lines = queued_tracks.map((t) => {
-        const desc_suffix = t.description ? `: ${t.description}` : "";
-        return `- [\`tasks/future/${t.file}\`](./future/${t.file})${desc_suffix}`;
-      });
-      const future_body = queued_lines.length > 0 ? queued_lines.join("\n\n") + "\n" : "_No queued tracks._\n";
-      updated = updated.replace(future_section_pattern, `$1${future_body}$3`);
-    }
-
-    if (updated !== present_raw) {
-      fs.writeFileSync(present_path, updated, "utf-8");
-      return { synchronized: true };
-    }
-
-    return { synchronized: false };
-  } catch (err) {
-    return { synchronized: false, error: err.message };
-  }
-}
-
-/**
  * Stop: Planning Handoff Gate.
+ * Validates that substantive changes in `src/` are recorded in CHANGELOG.md or ROADMAP.md,
+ * and ensures spec-to-code alignment against the active blueprint in ROADMAP.md.
  *
  * @param {any} payload Hook payload from stdin.
  */
 export function handle_planning_handoff(payload) {
   const repo_root = resolve_repo_root(payload);
-  const future_dir = path.join(repo_root, "tasks", "future");
-
-  const active_tracks = [];
-  // Validate Single Active Track Invariant across tasks/future/
-  if (fs.existsSync(future_dir)) {
-    try {
-      const files = fs.readdirSync(future_dir).filter((f) => f.endsWith(".md"));
-
-      for (const file of files) {
-        const file_path = path.join(future_dir, file);
-        const content = fs.readFileSync(file_path, "utf-8");
-        if (/status:\s*active\b/i.test(content)) {
-          active_tracks.push(file);
-        }
-      }
-
-      if (active_tracks.length > 1) {
-        send_hook_response({
-          decision: "continue",
-          reason: `Planning Invariant Violation: Found multiple active tracks in tasks/future/ (${active_tracks.join(", ")}). Exactly one track must have status: active; all others must be status: queued.`,
-        });
-        return;
-      }
-    } catch {
-      // Graceful fallback
-    }
-  }
-
-  // Automatically synchronize tasks/PRESENT.md with active & queued tracks from tasks/future/
-  const sync_result = synchronize_mission_board(repo_root);
-  if (sync_result.error) {
-    send_hook_response({
-      decision: "continue",
-      reason: `Planning Invariant Error: ${sync_result.error}`,
-    });
-    return;
-  }
 
   try {
     const status_output = execSync("git status --porcelain", {
@@ -867,28 +683,35 @@ export function handle_planning_handoff(payload) {
         .replace(/\\/g, "/"),
     );
     const has_substantive_source_changes = changed_files.some((file) => file.startsWith("src/") && /\.(js|ts|svelte|css)$/.test(file));
-    const has_handoff_recorded = changed_files.some((file) => file === "tasks/PRESENT.md");
+    const has_handoff_recorded = changed_files.some((file) => file === "CHANGELOG.md" || file === "ROADMAP.md");
 
     if (has_substantive_source_changes && !has_handoff_recorded) {
       send_hook_response({
         decision: "continue",
         reason:
-          "Planning Handoff Law: Substantive changes were made to `src/`, but `tasks/PRESENT.md` has not been updated. Record your session progress and updated Pulse/Roadmap in `tasks/PRESENT.md` before concluding.",
+          "Planning Handoff Law: Substantive changes were made to `src/`, but neither `CHANGELOG.md` nor `ROADMAP.md` has been updated. Record your session progress and updated Pulse/Roadmap before concluding.",
       });
       return;
     }
 
     // Spec-to-Code Drift Verification (Conductor CDD Pattern)
-    if (active_tracks && active_tracks.length === 1 && has_substantive_source_changes) {
-      const active_track_path = path.join(future_dir, active_tracks[0]);
-      if (fs.existsSync(active_track_path)) {
-        const track_content = fs.readFileSync(active_track_path, "utf-8");
+    if (has_substantive_source_changes) {
+      const roadmap_path = path.join(repo_root, "ROADMAP.md");
+      let active_plan_content = null;
+
+      if (fs.existsSync(roadmap_path)) {
+        active_plan_content = fs.readFileSync(roadmap_path, "utf-8");
+      }
+
+      if (active_plan_content) {
         const src_modifications = changed_files.filter((file) => file.startsWith("src/"));
-        const drift_files = src_modifications.filter((file) => !track_content.includes(file) && !track_content.includes(path.basename(file)));
+        const drift_files = src_modifications.filter(
+          (file) => !active_plan_content.includes(file) && !active_plan_content.includes(path.basename(file)),
+        );
         if (drift_files.length > 0) {
           send_hook_response({
             decision: "continue",
-            reason: `Spec-to-Code Drift Warning: Modified files (${drift_files.join(", ")}) are not declared in active track "${active_tracks[0]}". Either update the track specification in \`tasks/future/${active_tracks[0]}\` to reflect this scope or revert unintended changes.`,
+            reason: `Spec-to-Code Drift Warning: Modified files (${drift_files.join(", ")}) are not declared in ROADMAP.md active blueprint. Either update the architectural blueprint in \`ROADMAP.md\` to reflect this scope or revert unintended changes.`,
           });
           return;
         }
@@ -943,7 +766,6 @@ const HOOK_DISPATCH_TABLE = Object.freeze({
   "sequential-thinking-gate": handle_sequential_thinking_gate,
   "waldzell-router": handle_waldzell_router,
   "file-architecture-gate": handle_file_architecture_gate,
-  "active-track-gate": handle_active_track_gate,
   "grep-truncation": handle_grep_truncation,
   "circuit-breaker": handle_circuit_breaker,
   "svelte-pre-invocation": handle_svelte_pre_invocation,
@@ -980,12 +802,7 @@ function run() {
     handle_grep_truncation(payload);
     return;
   }
-  if (tool_name === "write_to_file" || tool_name === "replace_file_content" || tool_name === "multi_replace_file_content") {
-    const target_file = (payload?.toolCall?.args?.TargetFile || "").replace(/\\/g, "/");
-    if (target_file.includes("tasks/future/")) {
-      handle_active_track_gate(payload);
-      return;
-    }
+  if (tool_name === "write_to_file") {
     handle_file_architecture_gate(payload);
     return;
   }

@@ -164,44 +164,7 @@ const TEST_CASES = [
     expectedDecision: "allow",
   },
   {
-    name: "hooks.js active-track-gate: Auto-demote previous active track when activating another",
-    file: "skills/local-scripts/scripts/hooks.js",
-    args: ["active-track-gate"],
-    input: {
-      toolCall: {
-        name: "replace_file_content",
-        args: {
-          TargetFile: "c:/Users/johng/source/repos/RPGlitch/tasks/future/test-track-beta.md",
-          TargetContent: "status: queued",
-          ReplacementContent: "status: active",
-        },
-      },
-      workspacePaths: ["c:/Users/johng/source/repos/RPGlitch"],
-    },
-    mockFile: "tasks/future/test-track-alpha.md",
-    mockContent: "---\nname: test-track-alpha\ndescription: Test track alpha\nstatus: active\n---\n# Alpha\n",
-    expectedDecision: "allow",
-    expectedHasFeedback: true,
-  },
-  {
-    name: "hooks.js active-track-gate: Allow editing queued track without setting active",
-    file: "skills/local-scripts/scripts/hooks.js",
-    args: ["active-track-gate"],
-    input: {
-      toolCall: {
-        name: "replace_file_content",
-        args: {
-          TargetFile: "c:/Users/johng/source/repos/RPGlitch/tasks/future/test-track-beta.md",
-          TargetContent: "status: queued",
-          ReplacementContent: "status: queued",
-        },
-      },
-      workspacePaths: ["c:/Users/johng/source/repos/RPGlitch"],
-    },
-    expectedDecision: "allow",
-  },
-  {
-    name: "hooks.js planning-handoff: Auto-sync PRESENT.md when cleanly aligned",
+    name: "hooks.js planning-handoff: Auto-sync when cleanly aligned",
     file: "skills/local-scripts/scripts/hooks.js",
     args: ["planning-handoff"],
     input: {
@@ -224,8 +187,8 @@ const TEST_CASES = [
         content: "/**\n * Unplanned probe file for hook drift testing\n */\nexport const probe = 1;\n",
       },
       {
-        file: "tasks/PRESENT.md",
-        content: "---\nname: present\n---\n# Temporal Mission Board\n<!-- mock handoff recorded -->\n",
+        file: "CHANGELOG.md",
+        content: "# Changelog\n<!-- mock handoff recorded -->\n",
       },
     ],
   },
@@ -244,15 +207,6 @@ function run() {
 
   for (const tc of TEST_CASES) {
     const repo_root = process.cwd().endsWith(".agents") ? path.resolve("..") : path.resolve(".");
-    const future_dir = path.join(repo_root, "tasks", "future");
-    let active_tracks_backup = [];
-    if (fs.existsSync(future_dir)) {
-      active_tracks_backup = fs
-        .readdirSync(future_dir)
-        .filter((f) => f.endsWith(".md"))
-        .map((f) => ({ file: f, content: fs.readFileSync(path.join(future_dir, f), "utf-8") }));
-    }
-
     const mock_files = tc.mockFiles || (tc.mockFile ? [{ file: tc.mockFile, content: tc.mockContent || "test-data" }] : []);
     const written_mocks = [];
     for (const mock of mock_files) {
@@ -275,19 +229,14 @@ function run() {
     for (const mock of written_mocks) {
       if (!mock.exists_before) {
         if (fs.existsSync(mock.path)) fs.unlinkSync(mock.path);
+        // Clean up parent directory if empty and was created during test
+        let dir = path.dirname(mock.path);
+        while (dir !== repo_root && fs.existsSync(dir) && fs.readdirSync(dir).length === 0) {
+          fs.rmdirSync(dir);
+          dir = path.dirname(dir);
+        }
       } else if (mock.prev_content !== null) {
         fs.writeFileSync(mock.path, mock.prev_content, "utf-8");
-      }
-    }
-
-    // Restore any modified track blueprints in tasks/future/
-    for (const backup of active_tracks_backup) {
-      const p = path.join(future_dir, backup.file);
-      if (fs.existsSync(p)) {
-        const curr = fs.readFileSync(p, "utf-8");
-        if (curr !== backup.content) {
-          fs.writeFileSync(p, backup.content, "utf-8");
-        }
       }
     }
 

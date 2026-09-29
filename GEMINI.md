@@ -165,20 +165,19 @@ RPGlitch is a **Local-First Reactive Monolith (PWA)** built for the Perchance if
 
 #### Structural Glossary
 
-- **`src/ui/`**: Expression layer (Atomic Svelte components). Renders DOM, captures input, subscribes to state.
-- **`src/state/`**: Reactive nervous system (`interface.svelte.js`, `runtime.svelte.js`, `status.svelte.js`, `chrono.svelte.js`). Owns all Runes and the turn driver.
-- **`src/intelligence/`**: AI Kernel (Prompts, Context Broker, LLM streams).
-- **`src/data/`**: Persistence layer. Manages Dexie.js schemas and repositories.
-- **`src/media/`**: Sensory assets, visual parameters, and Kokoro-82M Neural TTS (`speech.js` & `audio.svelte.js`).
-- **`src/platform/`**: External API bridges, iframe integration, and DOMPurify safety.
+- **Presentation Layer (`src/ui/`)**: Atomic UI components, layouts, and rendering views. Subscribes to reactive state controllers but declares no global domain state.
+- **Reactive State Management Layer (`src/state/`)**: Reactive domain controllers (`runtime.svelte.js`, `chrono.svelte.js`, `status.svelte.js`, `interface.svelte.js`). Coordinates data between user events, persistence, and inference.
+- **Agent Orchestration & Inference Layer (`src/intelligence/`)**: AI Kernel, prompt pipeline compilers, multi-stage LLM calling, and narrative filtering.
+- **Client Persistence Layer (`src/data/`)**: Persistence layer. Manages Dexie.js schemas, repositories, and transactional mutations.
+- **Platform & Hardware Services (`src/platform/`, `src/media/`)**: External API bridges, Web Audio, Kokoro TTS, ONNX runtime workers, and DOMPurify safety.
 
 #### Import Rules (Unidirectional Flow)
 
 **Allowed Downward Imports**:
 
-- `src/ui/` may import from any layer.
-- `src/state/` may import from `intelligence`, `data`, `platform`, `media`, `utils`.
-- `src/data/` may import from `platform`, `utils`.
+- `src/ui/` (Presentation) may import from any layer.
+- `src/state/` (Reactive State) may import from `intelligence`, `data`, `platform`, `media`, `utils`.
+- `src/data/` (Persistence) may import from `platform`, `utils`.
 
 **Forbidden Upward Imports**:
 
@@ -214,23 +213,23 @@ RPGlitch is a **Local-First Reactive Monolith (PWA)** built for the Perchance if
 
 **4-Step Implementation Loop**:
 
-1. **Anchor Tasks**: **Verify the active track specification in `./tasks/future/<track>.md` is initialized and aligned with `./GEMINI.md` and `./tasks/PRESENT.md`**.
+1. **Anchor Tasks**: **Verify the active initiative and implementation plan in `./ROADMAP.md` is aligned with `./GEMINI.md` and `./ARCHITECTURE.md`**.
 2. **Wire State**: Connect Svelte 5 Runes and expose safe global bridges via `window.exposed`.
 3. **Apply Styling**: Implement rules from `./DESIGN.md`.
 4. **Anchor Persistence**: Bind dynamic changes to Dexie.js repositories.
 
 **Navigator Protocol**:
 
-- **Relative Resolution**: **Always use relative paths for internal references** (e.g., `./tasks/PRESENT.md`).
+- **Relative Resolution**: **Always use relative paths for internal references** (e.g., `./ROADMAP.md`, `./ARCHITECTURE.md`).
 - **Absolute Grounding**: **Map all code claims to specific file paths and line numbers**.
 - **Epistemic Context Cartography**: When gathering context or diagnosing issues, explicitly separate facts into four distinct evidentiary tiers:
   1. _User Facts_: Explicit requirements stated directly by the user.
   2. _Repository Evidence_: Verified source code quotes, line numbers, and file paths.
   3. _Inferences_: Logical deductions based on repository evidence.
   4. _Unknowns_: Unverified assumptions or missing data requiring validation.
-- **Conductor Auditable Proof Matrix**: Mandate a 3-column verification matrix in track completion milestones:
+- **Conductor Auditable Proof Matrix**: Mandate a 3-column verification matrix in milestone completion reviews:
   `| Requirement / Criterion | Implementation Location (file:line) | Automated Test / Verification Proof (test:line or command) |`
-- **Archival Standard**: Upon track completion, move the track specification from `tasks/future/<track>.md` to `C:/Users/johng/.gemini/antigravity-ide/archive/YYYY-MM/<date>-<track>.md`. The global archive (`C:\Users\johng\.gemini\antigravity-ide\archive`) is the sole exclusive historical repository for retired blueprints and logs.
+- **Archival Standard**: The global archive (`C:/Users/johng/.gemini/antigravity-ide/archive/YYYY-MM/`) preserves deep forensic analysis, major completed architectural blueprints, and historical research artifacts. Record concise release and turn pulses in `CHANGELOG.md`.
 
 ---
 
@@ -260,29 +259,31 @@ RPGlitch is a **Local-First Reactive Monolith (PWA)** built for the Perchance if
 
 ## 📖 System Lexicon & Memory Boundaries
 
-### 1. System Lexicon
+### 1. System Lexicon & Architecture
 
 > [!TIP]
-> **Authoritative Definitions**: The full canonical glossary of simulation physics, entity hierarchies, directorial mechanics, and persistence rules is documented in [GLOSSARY.md](./GLOSSARY.md).
+> **Authoritative Definitions & Specs**: The full canonical blueprint of simulation physics, entity hierarchies, directorial mechanics, and persistence rules is documented in [ARCHITECTURE.md](./ARCHITECTURE.md).
 
 - **RPGlitch**: The core simulation engine and repository.
-- **Temporal Engine**: Intelligence module managing the temporal continuum of an entity.
-- **Entity Fragments**: The four-quadrant state architecture (**Eternal**, **Present**, **Past**, **Future**).
-- **Entity**: The fundamental simulation unit—either a `character` or a `fractal`.
-- **Fractal**: A world, setting, or environmental entity.
-- **User Persona**: The human-controlled character entity (strictly protected by P1: User Agency).
-- **AI Character**: An agent-controlled character entity.
-- **Stage Spotlight**: In-scene presence tracking (`runtime.in_scene_npc_ids`) while off-screen characters freeze in stasis.
-- **Universal Relational Graph**: Plain-text directed vectors (`"[Source] → [Target]: [Dynamic]"`) defining interpersonal bonds and world affiliations.
-- **Simulation Lock**: UI stasis state active while the engine processes a turn.
-- **Full Dictionary**: Consult [GLOSSARY.md](./GLOSSARY.md) for complete entries.
+- **Simulation Lifecycle**: The turn-based execution loop managed by `ChronoEngine`.
+- **Quad-Partitioned Entity Schema**: The four-quadrant state architecture (**Static Profile / eternal**, **Dynamic State / present**, **Episodic Vector Store / past**, **Strategic Trajectory / future**).
+- **Domain Entity**: Base class for interactive simulation components—either a `character` or an environment entity (`fractal`).
+- **Environment Entity (`fractal`)**: The world model governing environmental hazards, sensory motifs, and overarching scene objectives.
+- **User Persona Entity**: The human-controlled participant (strictly protected by P1: User Agency).
+- **AI Persona Entity**: The primary autonomous agent-controlled co-star in the scene.
+- **Context Culling / Active Scene Scope**: In-scene presence tracking (`runtime.in_scene_npc_ids`) while inactive entities remain serialized in IndexedDB with zero token consumption.
+- **Directed Relational Graph**: Directed plain-text relationship vectors (`"[Source] → [Target]: [Dynamic]"`) defining interpersonal dynamics and world affiliations without foreign key rigidity.
+- **Numerical State Vectors (0–100)**: Somatic and psychological metrics (`chaos`, `intensity`, `openness`, `affinity`, `velocity`, `entropy`).
+- **Epistemic Partitioning**: The boundary stripping private user tags (`[SECRET: ...]`, `[PLAN: ...]`) from agent generation payloads to prevent telepathy.
+- **Narrative Post-Processing Pipeline (`src/utils/styles.js`)**: Deterministic sanitization pipeline cleansing generated prose of AI clichés, repetition, and structural prompt bleed.
+- **Full Specification**: Consult [ARCHITECTURE.md](./ARCHITECTURE.md) for complete entries.
 
 ---
 
-### 2. Memory Protocol Boundaries
+## 2. Memory Protocol Boundaries
 
 > [!NOTE]
 > **CRITICAL DISTINCTION**:
 >
-> - **Application Memory** (Temporal Engine, Dexie.js, RPGlitch State): Consult the [Simulation](./.agents/skills/simulation/SKILL.md) skill.
+> - **Application Memory** (Temporal Engine, Dexie.js, RPGlitch State): Consult the [Simulation](./.agents/skills/simulation/SKILL.md) skill and [ARCHITECTURE.md](./ARCHITECTURE.md).
 > - **Development Data** (Pinecone, Supabase, Agent Context): Consult the global `developer-database` skill.

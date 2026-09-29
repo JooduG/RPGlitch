@@ -21,32 +21,32 @@ In traditional interactive fiction, the language model is asked to be everything
 
 ---
 
-## 2.0 THE CHRONOS HEARTBEAT: ROUND VS. TURN
+## 2.0 SIMULATION LIFECYCLE & CHRONOS EXECUTION PIPELINE
 
-Time in RPGlitch does not flow continuously; it progresses through a strict, discrete temporal heartbeat managed by [`ChronoEngine`](../../../src/state/chrono.svelte.js).
+Time in RPGlitch does not flow continuously; it progresses through a strict, discrete temporal lifecycle managed by [`ChronoEngine`](../../../src/state/chrono.svelte.js).
 
 ```text
-[User Input / Action]
+[User Action Input]
         │
         ▼ (The Absolute Interrupt)
  ┌──────────────┐
  │ STASIS LOCK  │ ──► UI freezes, inputs disabled, double-click gate active
  └──────┬───────┘
         │
-        ▼ (Chronos System Turn)
+        ▼ (Stage 1: State Arbitration & Director Pass)
  ┌──────────────┐
- │ SHOT 1: GM   │ ──► Director staging, physics deltas, cast spotlight, speaker routing
+ │ STAGE 1: DIR │ ──► Director staging, physics deltas, context culling, speaker routing
  └──────┬───────┘
         │
-        ▼ (Chronos AI Turn)
+        ▼ (Stage 2: Narrative Generation & Streaming)
  ┌──────────────┐
- │ SHOT 2: ACT  │ ──► Streamed in-character reaction behind the Epistemic Wall
+ │ STAGE 2: ACT │ ──► Streamed in-character reaction behind Epistemic Partitioning
  └──────┬───────┘
         │
-        ├─────────────────────────────────────────────────┐ (Async Fork)
+        ├─────────────────────────────────────────────────┐ (Async Background Fork)
         ▼                                                 ▼
  ┌──────────────┐                                  ┌──────────────┐
- │ STASIS LIFT  │ ──► User composer unfreezes      │ SHOT 3: FORGE│ (Background Memory)
+ │ STASIS LIFT  │ ──► User composer unfreezes      │ STAGE 3: CTX │ (Context Consolidation)
  └──────────────┘                                  └──────────────┘
 ```
 
@@ -61,10 +61,10 @@ A **Round** tracks the macro progression of the session.
 
 Turns are atomic execution steps that happen _within_ a round:
 
-1. **System Simulation Turn (`SYSTEM_TURN`)**:
+1. **Director Turn (`SYSTEM_TURN`)**:
    - The UI enters **STASIS** (`simulation_state.intent_active = true`).
    - The physics engine evaluates numerical drift, slider settlement, and dynamic boundaries synchronously.
-   - Shot 1 (Director) executes to resolve staging and speaker assignment.
+   - Stage 1 (Director Pass) executes to resolve staging and speaker assignment.
 2. **Character Expression Turn (`AI_TURN`)**:
    - The active speaker streams their internal subconscious thoughts (`<think>`) and physical prose in real time.
 3. **Protagonist Turn (`USER_TURN`)**:
@@ -72,45 +72,45 @@ Turns are atomic execution steps that happen _within_ a round:
 
 ---
 
-## 3.0 THE MULTI-SHOT TELEMETRY MODEL
+## 3.0 MULTI-STAGE EXECUTION PIPELINE
 
-Rather than attempting to do staging, acting, and memory extraction in a single monolithic prompt, RPGlitch bifurcates the cognitive workload across three distinct telemetry shots.
+Rather than attempting to do staging, acting, and memory extraction in a single monolithic prompt, RPGlitch bifurcates the cognitive workload across three distinct pipeline stages.
 
-### Shot 1: The Director Quick Shot (Staging & Physics)
+### Stage 1: State Arbitration & Director Pass (Staging & Physics)
 
 _Source: [`src/intelligence/prompts.js`](../../../src/intelligence/prompts.js) & [`src/intelligence/director.js`](../../../src/intelligence/director.js)_
 
-**The Mental Model: The God's-Eye Stage Manager.**
-Before an actor speaks, an invisible director must assess the physical stage. The Director does not write creative dialogue; it outputs pure structural judgment:
+**The Mental Model: The Stage Manager & Rules Engine.**
+Before an actor speaks, an invisible director evaluates the physical state. The Director does not write creative dialogue; it outputs pure structural judgment:
 
 - **Speaker Routing**: Who has the floor? Does the AI character respond (`AI_CHARACTER`)? Does the environment react to non-verbal exploration (`FRACTAL`)? Does an active companion speak (`npc:<id>`)? Or should an entirely new entity emerge from the world (`GENESIS`)?
-- **Stage Spotlight**: Off-screen characters are frozen in stasis to preserve token economy and prevent narrative bloat. The Director explicitly moves NPCs on-stage (`enter`) or off-stage (`exit`).
+- **Active Scene Scope & Context Culling**: Off-screen characters are frozen in stasis to preserve token economy and prevent narrative bloat. The Director explicitly moves NPCs on-stage (`enter`) or off-stage (`exit`).
 - **Physical Causality & Prop Provenance**: If the player attempts an impossible physical feat (e.g., walking through solid steel or materializing an unearned quest relic), the Director does _not_ throw a rude error message. Instead, it injects a directorial note instructing the actor to confront that physical contradiction in-character.
 - **Pacing Law (Dead-Air Prevention)**: If a user submits passive silence ("...") or pure waiting, the Director recognizes a stall and instructs the world to complicate the scene with an active event or probing challenge.
 
-### Shot 2: The Storyteller Shot (Sensory Horizon)
+### Stage 2: Narrative Generation & Streaming (Sensory Horizon)
 
 _Source: [`src/intelligence/prompts.js`](../../../src/intelligence/prompts.js) & [`src/intelligence/story.js`](../../../src/intelligence/story.js)_
 
 **The Mental Model: The In-Character Persona Behind the Sensory Horizon.**
 Once staging is established, the active speaker generates in-character prose. The actor is subject to strict cognitive limitations:
 
-- **The Epistemic Wall**: The actor is deliberately blinded. Player secrets (`[SECRET: ...]`) and covert intentions (`[PLAN: ...]`) are stripped from the prompt. The actor only knows what their physical senses (eyes, ears, skin) can register.
+- **Epistemic Partitioning**: The actor is deliberately blinded. Player secrets (`[SECRET: ...]`) and covert intentions (`[PLAN: ...]`) are stripped from the prompt. The actor only knows what their physical senses (eyes, ears, skin) can register.
 - **The 3-Layer Subconscious Delivery (`<think>`)**: Before vocalizing, the character must reason across three layers:
   1. _Visceral Impact_: Immediate physical reaction to sensory stimuli.
   2. _Secret Agenda_: How their private `future` standing agenda steers their reaction toward friction or intrigue.
   3. _Somatic Manifestation_: Involuntary bodily signals (pulse, pupil dilation, muscle tension) derived from the dynamics engine.
 - **Affirmative Physicality & Momentum**: Non-physical entities describe presence, never absence (what _is_, rather than what _is not_). Every response must end on an active physical beat, tension, or unanswered hook—never a conversational dead-end.
 
-### Shot 3: The Memory Forge (Asynchronous Distillation)
+### Stage 3: Asynchronous Context Consolidation (Memory Forge)
 
 _Source: [`src/intelligence/prompts.js`](../../../src/intelligence/prompts.js) & [`src/intelligence/temporal.js`](../../../src/intelligence/temporal.js)_
 
-**The Mental Model: The Dreamer Consolidating Long-Term Memory.**
-Dumping raw chat history into an LLM causes catastrophic forgetting, context bloat, and narrative dilution. The Memory Forge runs asynchronously in the background _after_ a turn completes:
+**The Mental Model: Context Consolidation & Long-Term Memory.**
+Dumping raw chat history into an LLM causes catastrophic forgetting, context bloat, and narrative dilution. Context consolidation runs asynchronously in the background _after_ a turn completes:
 
-- **Consolidation over Accumulation**: Instead of saving 50 turns of dialogue, the Forge distills durable facts into compact vector memories.
-- **Standing Agenda Rewriting**: An entity's `future` trajectory is rewritten wholesale each cycle to represent their current active motivation.
+- **Consolidation over Accumulation**: Instead of saving 50 turns of dialogue, the process distills durable facts into compact vector memories.
+- **Strategic Trajectory Rewriting**: An entity's `future` trajectory is rewritten wholesale each cycle to represent their current active motivation.
 - **Provenance Protection**: Memories created by the user or lore specs (`usr_` prefix) are origin-protected (`is_origin: true`) and immune to automated eviction. Session memories (`ai_` prefix) roll with a strict cap of 20 vectors within the 200 total ceiling.
 
 ---
@@ -156,7 +156,7 @@ When authoring or modifying prompt architectures, watch for these common psychol
 
 - _Symptom_: The AI character comments on the user's hidden feelings, notices an invisible weapon under a heavy coat, or answers an unvoiced thought.
 - _Root Cause_: Leaking user metadata into the character's context.
-- _Engine Antidote_: The Epistemic Wall (`strip_epistemic_tags`). Private user tags are physically purged before prompt compilation.
+- _Engine Antidote_: Epistemic Partitioning (`strip_epistemic_tags`). Private user tags are physically purged before prompt compilation.
 
 ### 3. Pacing Collapse (Rushing the Climax)
 
@@ -170,14 +170,14 @@ When authoring or modifying prompt architectures, watch for these common psychol
 
 When implementing changes, consult the canonical source files rather than duplicating schemas here:
 
-| Domain                         | Canonical Source File                                                              | Primary Responsibility                                                               |
-| :----------------------------- | :--------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------- |
-| **Chronos & Heartbeat**        | [`src/state/chrono.svelte.js`](../../../src/state/chrono.svelte.js)                | Round counter, Stasis lock, atomic turn dispatch (`send`, `retry`, `continue`).      |
-| **Turn Pipeline (Gamemaster)** | [`src/intelligence/story.js`](../../../src/intelligence/story.js)                  | Turn orchestration, Shot 1 execution, dynamics settlement, Shot 2 streaming.         |
-| **Director & Story Prompts**   | [`src/intelligence/prompts.js`](../../../src/intelligence/prompts.js)              | Master prompt manifest, Shot 1 & Shot 2 blueprints, schemas, speaker routing rules.  |
-| **Dynamics & Settlement**      | [`src/intelligence/physics.js`](../../../src/intelligence/physics.js)              | 0-100 slider math, baseline gravity, entropy velocity calculations.                  |
-| **Temporal Engine & Forge**    | [`src/intelligence/temporal.js`](../../../src/intelligence/temporal.js)            | Vector scoring, cosine deduplication, Memory Forge consolidation, past/future sync.  |
-| **Prompt Complexity Triage**   | [`.agents/skills/simulation/scripts/triage-prompt.js`](./scripts/triage-prompt.js) | D1–D5 scoring, R1 parameter density risk, and tier ceilings for prompt layer tuning. |
+| Domain                           | Canonical Source File                                                              | Primary Responsibility                                                                |
+| :------------------------------- | :--------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------ |
+| **Simulation Lifecycle**         | [`src/state/chrono.svelte.js`](../../../src/state/chrono.svelte.js)                | Round counter, Stasis lock, atomic turn dispatch (`send`, `retry`, `continue`).       |
+| **Turn Pipeline (Orchestrator)** | [`src/intelligence/story.js`](../../../src/intelligence/story.js)                  | Turn orchestration, Stage 1 execution, dynamics settlement, Stage 2 streaming.        |
+| **Director & Story Prompts**     | [`src/intelligence/prompts.js`](../../../src/intelligence/prompts.js)              | Master prompt manifest, Stage 1 & Stage 2 blueprints, schemas, speaker routing rules. |
+| **Dynamics & Settlement**        | [`src/intelligence/physics.js`](../../../src/intelligence/physics.js)              | 0-100 slider math, baseline gravity, entropy velocity calculations.                   |
+| **Temporal Memory & Compaction** | [`src/intelligence/temporal.js`](../../../src/intelligence/temporal.js)            | Vector scoring, cosine deduplication, Memory consolidation, past/future sync.         |
+| **Prompt Complexity Triage**     | [`.agents/skills/simulation/scripts/triage-prompt.js`](./scripts/triage-prompt.js) | D1–D5 scoring, R1 parameter density risk, and tier ceilings for prompt layer tuning.  |
 
 ---
 

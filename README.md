@@ -96,4 +96,7 @@ RPGlitch distinguishes **application memory** (what ships in the app) from **dev
 
 - [Sovereign Rules & Foundations](GEMINI.md)
 - [Design System](DESIGN.md)
-- [Canonical Glossary & System Lexicon](GLOSSARY.md)
+- [System Architecture & Lexicon](ARCHITECTURE.md)
+- [Strategic Roadmap](ROADMAP.md)
+- [Changelog & Pulse Log](CHANGELOG.md)
+- [Security Specification](SECURITY.md)
