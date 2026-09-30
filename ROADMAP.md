@@ -1,6 +1,14 @@
 # RPGlitch Technical Roadmap
 
-This roadmap defines the architectural blueprints, active engineering sprints, queued strategic initiatives, and technical backlog for RPGlitch.
+This roadmap defines the target architectural blueprints, active engineering sprints, queued strategic initiatives, and technical backlog for **RPGlitch**.
+
+- **Temporal Mirror**: `ROADMAP.md` is the **FUTURE mirror** representing the delta between the current state and the desired target state. Its completed counterpart is [CHANGELOG.md](CHANGELOG.md) (the **PAST mirror**).
+- **Core Specifications**:
+  - [README.md](README.md): Strategic product overview, game design, and simulation philosophy.
+  - [ARCHITECTURE.md](ARCHITECTURE.md): Authoritative software architecture, layer boundaries, and state reality in `src/`.
+  - [DESIGN.md](DESIGN.md): Nordic visual design tokens, typography, and motion contracts.
+  - [SECURITY.md](SECURITY.md): Threat defense, input sanitization, and sink controls.
+- **Idea Promotion Lifecycle**: Uncommitted mechanical ideas and exploratory proposals incubate in [`.agents/skills/simulation/references/`](.agents/skills/simulation/references/) as `suggestion-*.md`. When an idea is **promoted** from an exploratory possibility into a planned initiative, it is **removed from the incubator and fully migrated into this roadmap**.
 
 ---
 
@@ -8,7 +16,9 @@ This roadmap defines the architectural blueprints, active engineering sprints, q
 
 - **Reference Identifier**: `memory-compaction-and-state-transitions`
 - **Origin & Heritage**: Derived from MoeChat's proven **Project Prism-DCM** architecture (`SPEC-prism.md`, `SPEC-context-limit.md`), adapted for RPGlitch's multi-entity Svelte 5 simulation runtime.
-- **Current Status**: Phase A (Universal Bracket Predicates & Synaptic Engine) and 8-Bit Vector Quantization in `embeddings.svelte.js` are fully implemented and verified 100% green. Memory Forge chapter consolidation and prompt middle-out protection are staged next.
+- **Current Status**:
+  - ✅ **Phase A Completed & Shipped**: Universal Bracket Predicates & Synaptic Engine (`src/intelligence/synaptic.js`) and 8-Bit Vector Quantization (`src/platform/embeddings.svelte.js`) are fully implemented and passing all tests in `src/`.
+  - 🔄 **Phase B In Progress (Active Delta)**: Memory Forge Chapter Consolidation (Tier 1 Chapter nodes, Tier 2 Arc nodes with fanout: 8), prompt middle-out 6,000-token cliff protection, and deterministic hybrid lexical retrieval ranking.
 - **Sprint Scope**: Memory Forge consolidation, universal bracket state grounding, deterministic hybrid lexical retrieval, write-time rot prevention, and 8-bit vector quantization.
 
 ---

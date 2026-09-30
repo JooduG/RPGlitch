@@ -1,6 +1,11 @@
 # RPGlitch System Architecture Specification
 
-This specification documents the technical architecture, domain models, execution lifecycles, and layer boundaries of **RPGlitch**. It provides the structural blueprint for client-side execution, AI orchestration, and deterministic state management.
+This specification documents the authoritative technical architecture, domain models, execution lifecycles, and layer boundaries of **RPGlitch**. It provides the structural blueprint for client-side execution, AI orchestration, and deterministic state management.
+
+- **Strategic Vision & Game Design**: Consult [README.md](README.md) for product design, narrative concepts, and simulation philosophy.
+- **Visual & Sensory Tokens**: Consult [DESIGN.md](DESIGN.md) for the Nordic design system, color tokens, typography, and motion rules.
+- **Security & Threat Defense**: Consult [SECURITY.md](SECURITY.md) for the defense-in-depth pipeline, DOMPurify sink rules, and boundary validation.
+- **Future Engineering & Sprints**: Consult [ROADMAP.md](ROADMAP.md) for target architecture blueprints and the active development delta.
 
 ---
 
@@ -10,11 +15,11 @@ RPGlitch is architected as an offline-capable, **Local-First Single-Page Applica
 
 ```mermaid
 flowchart TD
-    UI["Presentation Layer<br><code>src/ui</code>"]
-    State["Reactive State Management Layer<br><code>src/state</code>"]
-    Intelligence["Agent Orchestration & Inference Layer<br><code>src/intelligence</code>"]
-    Data["Client Persistence Layer<br><code>src/data</code>"]
-    Platform["Platform & Hardware Services<br><code>src/platform</code>, <code>src/media</code>"]
+    UI["<code>src/ui</code><br>Presentation Layer"]
+    State["<code>src/state</code><br>Reactive State Management Layer"]
+    Intelligence["<code>src/intelligence</code><br>Agent Orchestration & Inference Layer"]
+    Data["<code>src/data</code><br>Client Persistence Layer"]
+    Platform["<code>src/platform</code>, <code>src/media</code>, <code>src/utils</code><br>Platform, Hardware & Utility Services"]
 
     UI --> |imports downward| State
     State --> |imports downward| Intelligence
@@ -29,15 +34,15 @@ flowchart TD
 - **Persistence Engine**: **Dexie.js 4 (IndexedDB)**. Handles structured client-side storage for sessions, entities, environmental models, and vector embeddings. Web Storage (`localStorage`) is restricted due to origin sandboxing and synchronous I/O overhead.
 - **Styling System**: **Tailwind CSS v4** configured with CSS custom properties specified in `DESIGN.md`.
 - **Client-Side Neural Engines**:
-- **Kokoro-82M**: Embedded ONNX text-to-speech runtime (`src/media/speech.js`) for synthesized voice streaming.
+- **Kokoro-82M**: Embedded ONNX text-to-speech runtime (`src/media/audio.svelte.js` & `src/media/speech.js`) for synthesized voice streaming.
 - **Transformers.js**: Embedded ONNX vector embedding pipeline (`src/platform/embeddings.svelte.js`) running a 384-dimensional model for semantic retrieval-augmented generation (RAG).
 
 ### Bootstrap Sequence (`src/main.js`)
 
-1. **Environment Verification**: Verifies browser capability flags (**IndexedDB**, **Web Audio API**, **WebAssembly**).
+1. **Environment Verification**: Verifies browser capability flags (**IndexedDB**, **Web Audio API**, **WebAssembly**) and installs runtime error hardening.
 2. **Database Connection**: Opens Dexie database instances and migrates schemas.
 3. **Application Mount**: Mounts the root Svelte 5 component to the DOM.
-4. **Bridge Registration**: Mounts isolated debug hooks to `window.exposed` during development.
+4. **Global & State Bridge Registration**: Exposes required platform libraries (`Dexie`, `DOMPurify`) to `window` and registers downward state/stream accessors into `@utils` bridges (`state_bridge`, `stream_bridge`) to decouple non-reactive layers.
 
 ---
 
@@ -45,45 +50,52 @@ flowchart TD
 
 The codebase enforces strict unidirectional dependency flow. High-level layers depend on low-level abstractions; low-level services never reference consumers.
 
-- **Presentation Layer (`src/ui`)**: Atomic UI components, layouts, and rendering views. Components subscribe to reactive state controllers but declare no global domain state.
-- **Reactive State Management Layer (`src/state`)**: Domain controllers (`runtime.svelte.js`, `chrono.svelte.js`, `status.svelte.js`, `interface.svelte.js`). Coordinates data between user events, persistence, and inference.
-- **Agent Orchestration & Inference Layer (`src/intelligence`)**: System prompt compilation, context window pruning, multi-stage LLM calling, and narrative filtering.
-- **Client Persistence Layer (`src/data`)**: Repositories, table schemas, transactional data mutations, and Dexie bindings.
-- **Platform & Hardware Services (`src/platform`, `src/media`)**: Hardware bridges including Web Audio, Kokoro TTS, ONNX runtime workers, and vector calculation utilities.
+- **`src/ui`** (Presentation Layer): Atomic UI components, layouts, and rendering views. Components subscribe to reactive state controllers but declare no global domain state.
+- **`src/state`** (Reactive State Management Layer): Domain controllers (`runtime.svelte.js`, `chrono.svelte.js`, `status.svelte.js`, `interface.svelte.js`). Coordinates data between user events, persistence, and inference.
+- **`src/intelligence`** (Agent Orchestration & Inference Layer): System prompt compilation, context window pruning, multi-stage LLM calling, and narrative filtering.
+- **`src/data`** (Client Persistence Layer): Repositories, table schemas, transactional data mutations, and Dexie bindings.
+- **`src/platform` & `src/media`** (Platform & Hardware Services): Hardware bridges including Web Audio, Kokoro TTS, ONNX runtime workers, and vector calculation utilities.
+- **`src/utils`** (Cross-Cutting Utilities): Deterministic algorithms, string helpers, formatting, and validation utilities.
 
 ### Architectural Invariants
 
 - **Downstream-Only Imports**: Modules may only import from sibling directories or layers located directly below them.
-- **State Decoupling**: Pure business logic within `src/intelligence` or `src/data` must remain decoupled from Svelte runes and UI listeners.
+- **State Decoupling**: Pure business logic within `src/intelligence` or `src/data` must remain decoupled from Svelte runes and UI listeners. This guarantees full unit test portability across headless runtimes (such as Vitest and Node.js) where browser reactivity loops and Svelte compiler contexts do not exist.
 
 ---
 
 ## 3. Simulation Lifecycle & Execution Pipeline
 
-The simulation runs a deterministic turn-based cycle triggered by user interactions.
+The simulation cycle processes player actions through a unified single-round execution pipeline orchestrated by the **Two-Shot Telemetry** loop and background narrative support (**Back Shot**).
 
 ```mermaid
 flowchart TD
-    Input["User Action Input"] --> Stage1["Stage 1: State Arbitration & Director Pass"]
-    Stage1 --> Stage2["Stage 2: Narrative Generation & Agent Streaming"]
-    Stage2 --> Stage3["Stage 3: Asynchronous Context Consolidation"]
-    Stage3 --> Unlock["Interface Unlock"]
+    UserAction["User Action Submission"] --> SystemTurn["System Turn (Deterministic Physics / Non-LLM)"]
+    subgraph RoundLoop ["The Round Lifecycle"]
+        direction TB
+        SystemTurn --> Shot1["Shot 1: Quick Shot (Director Turn)"]
+        Shot1 --> Shot2["Shot 2: Narrative Turn (AI Character / Agent Turn)"]
+        Shot2 --> UserTurn["User Turn (Input Controls Released)"]
+    end
+    Shot2 -. triggers asynchronously .-> BackShot["Back Shot (Background Narrative Support / Memory Forge)"]
+    UserTurn --> NextAction["User Action Submission (Completes Round & Begins Next)"]
 ```
 
 ### Lifecycle Units: Rounds vs. Turns
 
-- **Round (`runtime.round`)**: The macro-level simulation cycle. A round begins when a user action is dispatched via **chrono.send()** and terminates after Stage 3 operations complete.
-- **Turn**: An atomic execution slice allocated to a single participant within a round:
+- **Round (`runtime.round`)**: The macro-level simulation heartbeat tracking linear session progression. A round is initiated when a user action is submitted via **`chrono.send()`**, processes internal system and participant turns sequentially, and terminates only when the biological protagonist submits their next action payload during the **User Turn** (the human input action finalizes the current loop and births the next).
+- **Turn**: The sequential micro-states within a single round:
 
-1. **Director Turn**: Evaluates physics, updates state vectors, resolves active speakers, and sets UI state to locked (`simulation_state.phase === "locked"`).
-2. **Agent Turn**: Streams narrative prose from the designated active speaker.
-3. **User Turn**: Releases interface locks, rendering input controls for the player.
+1. **System Turn (Metaphysical Chronos)**: Synchronous background physics and sanitization executed immediately upon user action submission. Crucially, **the System Turn does not invoke an LLM**; it evaluates deterministic state rules, applies somatic dynamic deltas, evaluates spatial presence, records `DYNAMICS_DELTA`, and packages the state kernel.
+2. **Director Turn (Shot 1 / Quick Shot)**: Fast staging and turn orchestration inference. Operates in `phase = "generating"` with `director_thinking = true`. Evaluates the state kernel, validates participant intent against spatial constraints, updates numerical dynamics, delegates the active speaker (`AI`, `FRACTAL`, or `NPC`), and stages the upcoming narrative beats.
+3. **Agent Turn (Shot 2 / Narrative Turn)**: Asynchronous storyteller pass. Transitions to `speaker_thinking = true` then streams in-character narrative prose from the designated active speaker directly into the view. (System state locks `phase = "locked"` are reserved strictly for atomic database state commits and timeline persistence).
+4. **User Turn (Biological Protagonist)**: Conceptually the **final turn of the round**. Once the delegated speaker finishes streaming, generation completes (`phase = "idle"`), interface locks release, and user input is enabled. The user authors and submits their next action, which simultaneously **completes the round** and triggers the next cycle.
 
-### Multi-Stage Execution Pipeline
+### Two-Shot Architecture & The Back Shot
 
-- **Stage 1 (State Arbitration & Director Pass)**: Fast-path deterministic inference. Validates participant intent, applies somatic dynamic deltas, evaluates spatial presence, and outputs a structured delta (`DYNAMICS_DELTA`).
-- **Stage 2 (Narrative Generation & Streaming)**: In-character prose generation from the perspective of the delegated speaker, streamed incrementally to the Presentation Layer.
-- **Stage 3 (Asynchronous Context Consolidation)**: Background worker process executed every 4 rounds. Computes semantic embeddings for recent turns, stores episodic vectors, and updates short-term tactical agendas without blocking the interface.
+1. **Shot 1 (Director Turn / Quick Shot)**: Staging and arbitration pass. Analyzes the immediate physics delta, updates somatic state vectors, and orchestrates speaking turn delegation.
+2. **Shot 2 (Narrative Turn / User-Facing Shot)**: Narrative execution pass. Generates and streams user-facing, in-character prose from the delegated speaker's perspective, cleaned via deterministic prose detox filters.
+3. **The Back Shot (Background Narrative Support Process)**: A play on words for the asynchronous, non-blocking narrative support process executed in the background **every round** via `director_background_queue`. Runs the **Memory Forge**, computing semantic embeddings, consolidating episodic vectors, pruning to the vector cap (`PAST_VECTOR_CAP = 20`), and rewriting the entity's `future` standing agenda without interfering with the active user turn.
 
 ---
 
@@ -108,11 +120,15 @@ flowchart TB
 
 ### Entity Classification
 
-All three entity types share an identical **Quad-Partitioned Entity Schema** and are instantiated with the same structure. They differ only in their narrative role and the rules governing authorship.
+All domain entities share an identical **Quad-Partitioned Entity Schema** and are instantiated with the same structure. Crucially, a **Story** in RPGlitch requires the convergence of three foundational entities: the **User Persona**, the **AI Character**, and the **Fractal**. Together, these three entities form the minimal triadic reality required to instantiate and execute a narrative session:
 
-- **User Persona Entity (`runtime.active_user`)**: The human participant's avatar. Protected by the **Agency Invariant**: the engine and autonomous agents are strictly forbidden from authoring thoughts, dialogue, or motor actions for the user.
-- **AI Character Entity (`runtime.active_ai`)**: The active autonomous agent-controlled co-star. Operates within the scene and is fully controlled by the AI inference pipeline.
-- **Fractal Entity (`runtime.active_fractal`)**: The environment entity. Governs atmospheric hazards, structural decay, sensory descriptors, and scene-level objectives. Uses the same quad-partitioned character schema as other entities — it is not a separate data structure.
+- **User Persona Entity (`runtime.active_user`)**: The human participant's avatar drawn from the character pool. Protected by the **Agency Invariant**: the engine and autonomous agents are strictly forbidden from authoring thoughts, dialogue, or motor actions for the user.
+- **AI Character Entity (`runtime.active_ai`)**: The active autonomous agent-controlled co-star drawn from the character pool. Operates within the scene and is fully controlled by the AI inference pipeline.
+- **Fractal Entity (`runtime.active_fractal`)**: The environment entity. Governs atmospheric hazards, structural decay, sensory descriptors, and scene-level objectives. Uses the same quad-partitioned schema as characters — it is not an ad-hoc separate structure.
+- **Secondary Characters / Supporting NPCs (`runtime.active_npcs`) & Stage Spotlight (`runtime.in_scene_npc_ids`)**: Beyond the core triad, stories support secondary non-player characters stored in the shared character pool. Secondary characters serve as narrative instruments for the Director to tell an engaging story. NPCs present in the active scene spotlight can be assigned speaking turns directly by the Director (`npc:id`), while off-stage cast members remain serialized in IndexedDB with zero token consumption.
+
+> [!NOTE]
+> **Shared Character Pool**: The repository holds characters ranging from fully developed primary personas to lesser secondary supporting characters. Any character in the repository can seamlessly serve as the active player avatar, the primary autonomous co-star, or an in-scene secondary NPC. Entities differ only in their assigned runtime role and the rules governing agency and authorship.
 
 ### Quad-Partitioned Entity Schema
 
@@ -127,21 +143,22 @@ Every entity is split into four discrete operational segments. **Eternal, Presen
 
 Entity interconnections are tracked using a directed relational graph (`[Source] -> [Target]: [Relation Description]`):
 
-- **Entity -> Environment**: `"Dr. Elias -> Tartarus: Chief Medical Officer at Sector 4"`
-- **Entity -> Entity**: `"Elias -> Benedict: Distrusts due to classified cybernetic augments"`
-- **Environment -> Entity**: `"Tartarus -> Julien: Active warrant issued for treason"`
+- **Character -> Fractal**: `"Dr. Elias -> Tartarus: Chief Medical Officer at Sector 4"`
+- **Character -> Character**: `"Elias -> Benedict: Distrusts due to classified cybernetic augments"`
+- **Fractal -> Character**: `"Tartarus -> Julien: Active warrant issued for treason"`
 
-### Dynamics (0–100)
+### Dynamics (0–100) & Baselines
 
-Dynamics are numerical state scalars stored inside an entity's **Present** segment. They encode psychological, somatic, and environmental pressure that the inference engine translates into prose subtext and behavioral modifiers.
+Dynamics are numerical state scalars stored inside an entity's **Present** segment. They encode psychological, somatic, and environmental pressure that the inference engine translates into prose subtext and behavioral modifiers. Each dynamic metric has a corresponding **`dynamics_baseline`** representing its gravitational home state:
 
-- **Character Dynamics (AI Character & User Persona scope)**:
+- **Character Dynamics**:
+  Included on all character entities in the database. However, in storymode, **only the active AI character's dynamics actively drive narrative generation and behavioral mutations**. The user persona's dynamics remain essentially dormant until that character is swapped into the AI co-star role.
   - **chaos**: Behavioral stability vs. volatility.
   - **intensity**: Autonomic nervous activation and adrenaline response.
   - **openness**: Receptivity vs. defensive suspicion.
   - **affinity**: Interpersonal trust vs. hostility.
 
-- **Environmental Dynamics (Fractal scope)**:
+- **Fractal Dynamics**:
   - **velocity**: Kinetic pacing and environmental movement rate.
   - **entropy**: Structural degradation, environmental noise, and physical breakdown.
 
@@ -153,9 +170,14 @@ Dynamics are numerical state scalars stored inside an entity's **Present** segme
 
 The orchestrator dynamically scopes the system context window. Only entities flagged as present in the active scene receive state vector processing and prompt token allocation. Inactive entities remain serialized in IndexedDB with zero token consumption.
 
-### Epistemic Partitioning
+### Epistemic Partitioning & Secrecy Signaling
 
-To avoid unintended agent omniscience, private user directives (`[SECRET: ...]` and `[PLAN: ...]`) are filtered out prior to compiling agent inference prompts. The omniscient Director layer retains full access to evaluate outcomes, but downstream agent prompts receive only sensory information available within the scene.
+To prevent unintended agent omniscience, the system enforces a strict epistemic boundary between the omniscient director evaluation and entity-level generation:
+
+- **Epistemic Wall**: In `render_character()`, private user directives (`[SECRET: ...]` and `[PLAN: ...]`), private equipment/garments (`[INVENTORY: ... | private]`, `[STASH: ... | private]`), and hidden relational edges (`| hide`) are filtered out before compiling AI character inference payloads (`filter_epistemic_brackets`). The AI cannot read what it has no perceptual means of observing.
+- **Secrecy Signaling (`| private`)**: Owner perspectives receive explicit secrecy markers (e.g. `[DAGGER: stiletto | private]`). This informs the persona LLM of an item or goal's existence in their possession without leading them to openly voice or expose it to other scene participants.
+- **Omniscient Director Access**: `render_director()` preserves unstripped access to all state brackets across both participants and fractals to accurately arbitrate somatic outcomes and spatial physics.
+- **Integrity Auditing**: `verify_epistemic_integrity` actively audits prompt outputs to guarantee zero leaking of private tags across entity boundaries.
 
 ### Subtext & Psychosomatic Tell Generation
 

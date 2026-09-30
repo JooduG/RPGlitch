@@ -7,6 +7,12 @@ description: Mental model, cognitive principles, and architectural heuristics fo
 
 > "State is Truth. The User is the Protagonist; I am the Physics."
 
+This skill serves as the operational engineering runbook for simulation physics, prompt architecture, and cognitive guardrails.
+
+- **Conceptual Game Design & Strategy**: Consult [README.md](../../../README.md) for the Story Triad, simulation philosophy, and turn progression concepts.
+- **Authoritative Technical Architecture**: Consult [ARCHITECTURE.md](../../../ARCHITECTURE.md) for reactive Svelte 5 state models, Quad-Partitioned entity schemas, and layer boundaries.
+- **Active Sprint & Delta**: Consult [ROADMAP.md](../../../ROADMAP.md) for target memory compaction blueprints.
+
 ---
 
 ## 1.0 THE CORE MENTAL FRAMEWORK: PHYSICS VS. PROSE
@@ -165,15 +171,18 @@ When implementing changes, consult the canonical source files rather than duplic
 
 ---
 
-## 7.0 SUGGESTION BLUEPRINT REGISTRY (`references/`)
+## 7.0 UNCOMMITTED PROPOSAL INCUBATOR (`references/`)
 
-The `.agents/skills/simulation/references/` directory houses active architectural specifications and proposals:
+The `.agents/skills/simulation/references/` directory serves as the local idea incubator for uncommitted proposals and exploratory mechanics:
 
 1. **Attachment Style Archetypes:** [`suggestion-attachment-style-archetypes.md`](./references/suggestion-attachment-style-archetypes.md) — 4 attachment schemas (`secure`, `anxious`, `dismissive`, `fearful_avoidant`), threat responses, defense curves.
 2. **Composable Style Entities:** [`suggestion-composable-style-entities.md`](./references/suggestion-composable-style-entities.md) — First-class editable `StyleCard` entities in Dexie.js, hot-swappable narrative and visual styles from the Storyboard deck.
 3. **D20 Micro-Resolution Engine:** [`suggestion-d20-stat-resolution.md`](./references/suggestion-d20-stat-resolution.md) — Pure functional `evaluate_stat_check`, DC difficulty ladder, and success-with-a-cost thresholds.
 4. **Climax Fate Branching & Choices:** [`suggestion-fate-branching-choices.md`](./references/suggestion-fate-branching-choices.md) — Triad of Fate Paths (High, Middle, Low), Director `<choices>` XML format, and action chips.
 5. **Gambit 21 Push-Your-Luck Engine:** [`suggestion-gambit-blackjack-engine.md`](./references/suggestion-gambit-blackjack-engine.md) — Multi-turn Blackjack macro state machine (target 21) for sustained encounter pacing.
+
+> [!TIP]
+> **Idea Promotion Lifecycle**: These proposals represent exploratory possibilities. When an initiative is **promoted** to a planned milestone or active sprint, it is **migrated directly into [ROADMAP.md](../../../ROADMAP.md) and pruned from this directory**.
 
 ---
 

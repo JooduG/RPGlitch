@@ -215,14 +215,14 @@ flowchart LR
 
 **4-Step Implementation Loop**:
 
-1. **Anchor Tasks**: **Verify the active initiative and implementation plan in `./ROADMAP.md` is aligned with `./GEMINI.md` and `./ARCHITECTURE.md`**.
-2. **Wire State**: Connect Svelte 5 Runes and expose safe global bridges via `window.exposed`.
+1. **Anchor Tasks**: **Verify the active initiative and implementation plan in `./ROADMAP.md` is aligned with `./GEMINI.md`, `./README.md`, and `./ARCHITECTURE.md`**.
+2. **Wire State**: Connect Svelte 5 Runes and bind to decoupled state bridges (`state_bridge`, `stream_bridge`).
 3. **Apply Styling**: Implement rules from `./DESIGN.md`.
 4. **Anchor Persistence**: Bind dynamic changes to Dexie.js repositories.
 
 **Navigator Protocol**:
 
-- **Relative Resolution**: **Always use relative paths for internal references** (e.g., `./ROADMAP.md`, `./ARCHITECTURE.md`).
+- **Relative Resolution**: **Always use relative paths for internal references** (e.g., `./ROADMAP.md`, `./ARCHITECTURE.md`, `./README.md`).
 - **Absolute Grounding**: **Map all code claims to specific file paths and line numbers**.
 - **Epistemic Context Cartography**: When gathering context or diagnosing issues, explicitly separate facts into four distinct evidentiary tiers:
   1. _User Facts_: Explicit requirements stated directly by the user.
@@ -232,6 +232,29 @@ flowchart LR
 - **Conductor Auditable Proof Matrix**: Mandate a 3-column verification matrix in milestone completion reviews:
   `| Requirement / Criterion | Implementation Location (file:line) | Automated Test / Verification Proof (test:line or command) |`
 - **Archival Standard**: The global archive (`C:/Users/johng/.gemini/antigravity-ide/archive/YYYY-MM/`) preserves deep forensic analysis, major completed architectural blueprints, and historical research artifacts. Record concise release and turn pulses in `CHANGELOG.md`.
+
+---
+
+### 6. The Documentation Hierarchy & Specification Law
+
+RPGlitch operates under a strict four-layer documentation architecture:
+
+1. **Strategic Layer (`README.md`)**: The front door. Governs high-level product vision, game design, narrative concepts, and the canonical Story Triad (`active_user`, `active_ai`, `active_fractal`).
+2. **Tactical Layer (`ARCHITECTURE.md`, `DESIGN.md`, `SECURITY.md`, `ROADMAP.md`)**:
+   - `ARCHITECTURE.md`: Authoritative software engineering reality, layer boundaries, and state mechanisms in `src/`.
+   - `DESIGN.md`: Nordic visual tokens, typography, and motion rules.
+   - `SECURITY.md`: Defense-in-depth threat model, input sanitization, and DOM sink controls.
+   - `ROADMAP.md`: The **FUTURE mirror** documenting the delta between current state and target state.
+3. **Operational Layer (Plan Artifacts & `CHANGELOG.md`)**:
+   - Plan Artifacts (`<brain>/plan.md`): The actionable execution bridge translating tactical roadmap targets into step-by-step TDD commits.
+   - `CHANGELOG.md`: The **PAST mirror** documenting historical release pulses and completed milestones.
+4. **Governance & Skill Laws**:
+   - **Parallel Constitutional Authority**: `GEMINI.md` provides navigation instructions and compliance laws spanning all layers.
+   - **Specification vs. Skill Law**:
+     - **Specifications (WHAT)** live exclusively in core markdown files (`ARCHITECTURE.md`, `DESIGN.md`, `SECURITY.md`, `README.md`).
+     - **Skills** are layer-agnostic behavioral playbooks and runbooks ("do this, don't do that", framework patterns, recipes).
+     - Skills must **never define project-specific product specifications or data schemas**; they must link directly to the authoritative specifications. Generic, project-agnostic best practices (e.g. Svelte 5 runes rules, AudioContext user gestures) belong in skills.
+   - **Idea Promotion Lifecycle**: Uncommitted proposals and mechanical brainstorming incubate in `.agents/skills/simulation/references/` as `suggestion-*.md`. When an idea is **promoted** to a planned initiative, it is **removed from the incubator and fully migrated to `ROADMAP.md`**.
 
 ---
 
@@ -289,3 +312,11 @@ flowchart LR
 >
 > - **Application Memory** (Temporal Engine, Dexie.js, RPGlitch State): Consult the [Simulation](./.agents/skills/simulation/SKILL.md) skill and [ARCHITECTURE.md](./ARCHITECTURE.md).
 > - **Development Data** (Pinecone, Supabase, Agent Context): Consult the global `developer-database` skill.
+
+---
+
+## 🏛️ Constitutional Authority & Precedence
+
+1. **Global `GEMINI.md`**: Supreme arbiter of constitutional agent persona, core engineering laws (SOLID, TDD, Clean Code, P4 Zero Backwards Compatibility), compliance, and operational behaviors across all workspaces.
+2. **Workspace `GEMINI.md` (This Document)**: Sovereign arbiter of RPGlitch-specific technical architecture, simulation physics, Svelte 5 state management, and local operational specifications, extending and specializing the global constitution.
+3. In the event of conflicting operational instructions, **always resolve conflicts in favor of Passive Governance, Core Compliance Laws, and Explicit User Constraints**.

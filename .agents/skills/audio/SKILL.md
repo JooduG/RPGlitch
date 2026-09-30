@@ -19,6 +19,7 @@ As the `audio` specialist, you manage the Engine's auditory feedback through the
 ## 2.0 OVERVIEW & PHILOSOPHY
 
 - **Auditory Harmony**: Sound effects must be clinical, minimalist, and non-intrusive.
+- **Specification Anchors**: Consult [ARCHITECTURE.md](../../../ARCHITECTURE.md) for media layer boundaries and downward-only import rules, and [DESIGN.md](../../../DESIGN.md) for sensory design tokens.
 - **Gesture Protocol**: All `AudioContext` usage MUST be unlocked by an explicit user gesture (e.g., click, touchstart) before playback to comply with browser autoplay policies.
 - **State Sovereignty**: Audio preferences (`notifications_enabled`, `enabled`, `volume`, `rate`) are managed centrally via Svelte 5 `$state` runes and persisted to Dexie (`db.audio_prefs`).
 

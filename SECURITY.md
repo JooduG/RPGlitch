@@ -2,6 +2,10 @@
 
 This specification documents the client-side security architecture, threat model, input validation controls, and credential handling practices for RPGlitch. This standard integrates directly with the global Security Skill.
 
+- **System Architecture**: Consult [ARCHITECTURE.md](ARCHITECTURE.md) for reactive state layers, dynamics, and persistence bindings.
+- **Product Vision**: Consult [README.md](README.md) for game design philosophy and the User Agency Invariant (P1).
+- **Visual Design**: Consult [DESIGN.md](DESIGN.md) for design tokens and rendering contracts.
+
 ---
 
 ## 1. Threat Model and Trust Boundaries
