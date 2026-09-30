@@ -135,7 +135,7 @@ RPGlitch organizes technical and operational governance across a structured docu
 ```
 
 - **[ARCHITECTURE.md](ARCHITECTURE.md)**: Authoritative technical specification for layer boundaries, Svelte 5 reactive stores, Dexie.js persistence, and the Two-Shot execution pipeline.
-- **[DESIGN.md](DESIGN.md)**: Single source of truth for the Nordic design system, color tokens, typography, radii, and View Transition animations.
+- **[DESIGN.md](DESIGN.md)**: Single source of truth for the Nordic design system, color tokens, typography, radii, and View Transition animations (adhering to the [design.md specification](https://github.com/google-labs-code/design.md)).
 - **[SECURITY.md](SECURITY.md)**: Client-side defense-in-depth model, input sanitization boundaries, DOMPurify sink controls, and epistemic leak verification.
 - **[ROADMAP.md](ROADMAP.md)**: Active engineering sprints, architectural blueprints for unbuilt features, and technical backlog.
 - **[CHANGELOG.md](CHANGELOG.md)**: Chronological record of completed releases and architectural refactors.

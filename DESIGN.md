@@ -120,7 +120,9 @@ components:
 
 > "Depth is the ultimate luxury. Precision is the baseline of sovereignty."
 
-The RPGlitch Design System is a high-fidelity aesthetic framework optimized. It envisions the application as a high-end research terminal situated within a sub-zero facility—cool, deep, and elegant.
+This design system adheres to the [design.md specification](https://github.com/google-labs-code/design.md) by Google Labs (aligned with the [W3C Design Tokens Community Group](https://design-tokens.github.io/community-group/format/)), declaring authoritative tokens in YAML frontmatter and design guidelines in Markdown. Tokens are automatically compiled to Tailwind CSS v4 and JavaScript bridges via `.agents/skills/design/scripts/sync-css.js`.
+
+The RPGlitch Design System is a high-fidelity aesthetic framework. It envisions the application as a high-end research terminal situated within a sub-zero facility—cool, deep, and elegant.
 
 ## ❄️ The Nordic Collection (Vision)
 
