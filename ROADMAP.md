@@ -12,6 +12,50 @@ This roadmap defines the target architectural blueprints, active engineering spr
 
 ---
 
+## Immediate Priority: Stress Test Forensics & High-Yield Remediation
+
+This track addresses the critical issues identified during live Perchance stress testing (`rpglitch-stress-test-report.md` & `rpglitch-long-term-review-trace.json`). Staged strictly from lowest-effort/highest-yield to deeper prompt mechanics.
+
+### 1. Low-Hanging Fruit (Immediate Execution Target)
+
+- [ ] **Storyboard Resume Fix (Session Non-Destruction)**:
+  - **Issue**: Clicking "Return to Storyboard" in [`src/ui/console/ControlPanel.svelte`](src/ui/console/ControlPanel.svelte#L55) calls `await session_driver.clear_active()`, wiping `runtime.story_id`, resetting `round = 0`, and clearing `SESSION_ID_KEY`. When [`src/ui/console/StoryboardBar.svelte`](src/ui/console/StoryboardBar.svelte#L14) mounts, `has_active_story` evaluates to `false` and defaults to `SELECT ENTITIES (0/3)` with dead primary clicks.
+  - **Fix**: Remove `session_driver.clear_active()` from "Return to Storyboard". Reserve `clear_active()` exclusively for the explicit, destructive "END STORY" button. Preserving `runtime.story_id` restores the reactive `ENTER STORYMODE` button immediately.
+  - **Touchpoint**: [`src/ui/console/ControlPanel.svelte`](src/ui/console/ControlPanel.svelte).
+- [ ] **Telemetry String Duplication (`DYNAMICS_DELTA`)**:
+  - **Issue**: Telemetry snapshot strings in [`src/intelligence/physics.js`](src/intelligence/physics.js#L512-L558) concatenate duplicate metric tokens (e.g. `Chaos +2 | Intensity +8 ... Chaos +2 | Intensity +8`), bloating the simlog and HUD banners.
+  - **Fix**: Deduplicate `log_strings` entries via a `Set` before joining with `|`.
+  - **Touchpoint**: [`src/intelligence/physics.js`](src/intelligence/physics.js).
+- [ ] **Ghost Empty Fractal Rows on Image Beats**:
+  - **Issue**: [`src/media/visual.svelte.js`](src/media/visual.svelte.js#L903) calls `log_message("", "fractal", ...)` to mount image placeholders, polluting the conversation feed and Dexie log with empty string entries.
+  - **Fix**: Decouple placeholder attachment records from dialogue messages, or classify them strictly as `role: "system"` with `type: "image_beat"` and filter empty strings from conversational dialogue queries.
+  - **Touchpoint**: [`src/media/visual.svelte.js`](src/media/visual.svelte.js).
+- [ ] **Generation Mutex Abort Round Rollback & Message Cleanup**:
+  - **Issue**: In [`src/state/chrono.svelte.js`](src/state/chrono.svelte.js#L241-L248), when `error.name === "AbortError"`, `runtime.round = previous_round` is skipped, permanently consuming round numbers. Additionally, the user message was already committed via `session_driver.send()`, creating duplicate user entries upon retry.
+  - **Fix**: Roll back `state_bridge.runtime.round = previous_round` on abort, and delete the orphaned unresponded user turn row from Dexie upon cancellation.
+  - **Touchpoint**: [`src/state/chrono.svelte.js`](src/state/chrono.svelte.js).
+
+### 2. Core Physics & Directorial Mechanics
+
+- [ ] **Memory Forge Asynchronous Round Misattribution**:
+  - **Issue**: [`src/data/sessions.svelte.js`](src/data/sessions.svelte.js#L413) timestamps `log_system_entry` with live `state_bridge.runtime.round`. Background consolidation completing after the player begins round $N+1$ gets misattributed to round $N+1$, causing 0-forge and 2-forge artifacts (e.g. R8 with 0, R9 with 2). Furthermore, dynamically changing `in_scene_npc_ids` alters `entity_targets.length`, throwing off cursor modulo math and repeating entities back-to-back (e.g. `AI_CHARACTER` forged in both R14 and R15).
+  - **Fix**: Accept an explicit `target_round` parameter in `log_system_entry(text, role, meta, story_id, round = null)`. Stabilize cursor rotation in [`src/intelligence/temporal.js`](src/intelligence/temporal.js) by preserving index mappings independently of transient in-scene cast changes.
+  - **Touchpoints**: [`src/data/sessions.svelte.js`](src/data/sessions.svelte.js), [`src/intelligence/temporal.js`](src/intelligence/temporal.js), [`src/intelligence/story.js`](src/intelligence/story.js).
+- [ ] **Director Image Cooldown Persistence**:
+  - **Issue**: `last_director_beat_round` in [`src/state/runtime.svelte.js`](src/state/runtime.svelte.js#L185) is an in-memory-only `$state(-1)` variable. It is not persisted in `db.stories`, resetting to `-1` across page reloads or story transitions and prematurely clearing cooldowns (e.g. R14 $\rightarrow$ R15 back-to-back trigger).
+  - **Fix**: Persist `last_director_beat_round` and `last_dynamics_beat_round` into `db.stories` via the `runtime.save()` effect and load them on story startup.
+  - **Touchpoints**: [`src/state/runtime.svelte.js`](src/state/runtime.svelte.js), [`src/data/repository.js`](src/data/repository.js), [`src/data/db.js`](src/data/db.js).
+- [ ] **Cinematic Framing Dynamic Lens Biasing (Anti-Wide Lock)**:
+  - **Issue**: 9 out of 10 images stayed locked in Wide Environmental framing because `story_scene` tier unconditionally compiles `OPTICS.FIRST_SENTENCE_MANDATE.SCENE` and `ENVIRONMENTAL_SCALE` in [`src/intelligence/prompts.js`](src/intelligence/prompts.js#L192-L215) and [`src/intelligence/modules/task.js`](src/intelligence/modules/task.js#L187-L202), overriding close-up cues.
+  - **Fix**: Allow the Director's `visual_staging` to selectively trigger `story_character` or dynamically toggle `FIRST_SENTENCE_MANDATE.ENTITY` when character intimacy or physical confrontation is declared.
+  - **Touchpoints**: [`src/intelligence/prompts.js`](src/intelligence/prompts.js), [`src/intelligence/modules/task.js`](src/intelligence/modules/task.js), [`src/media/optics.js`](src/media/optics.js).
+- [ ] **Fatal Stakes & Physical Causality Grounding (Death & Collapse)**:
+  - **Issue**: In Round 18, explicit PC drowning death was ignored by the Director and the AI character hallucinated that the player was still standing and kneeling with Benedict's hand on their throat.
+  - **Fix**: Enforce strict physical outcome evaluation in Director Task directives (`DIRECTOR.EVALUATION_INPUT`). When fatal terminal states are stated, mandate emitting `next_action: "EPILOGUE_COLLAPSED"` and `story_status: "COLLAPSED"`. In character generation prompts, forbid resurrecting or altering declared biological outcomes.
+  - **Touchpoints**: [`src/intelligence/prompts.js`](src/intelligence/prompts.js), [`src/intelligence/modules/task.js`](src/intelligence/modules/task.js), [`src/intelligence/director.js`](src/intelligence/director.js).
+
+---
+
 ## Active Sprint: Hierarchical Memory Compaction & Entity State Graph
 
 - **Reference Identifier**: `memory-compaction-and-state-transitions`

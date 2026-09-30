@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- **Stress Test Forensics & High-Yield Remediation Roadmap Planning**:
+  - Integrated comprehensive architectural fixes into [ROADMAP.md](ROADMAP.md) derived from live Perchance stress test trace analysis (`rpglitch-stress-test-report.md`, `rpglitch-long-term-review-trace.json`).
+  - Staged **Low-Hanging Fruit** at the absolute top of the roadmap for immediate execution: Storyboard Resume fix (preventing `clear_active()` from wiping the active session), `DYNAMICS_DELTA` telemetry string deduplication, empty ghost fractal row removal, and generation mutex abort round rollback.
+  - Staged **Core Physics & Directorial Mechanics** as secondary priorities: explicit round target pass to `log_system_entry` to cure 0-forge/2-forge misattribution, `last_director_beat_round` persistence in `db.stories`, dynamic lens biasing in optics task rules (preventing 9/10 Wide environmental lock), and strict physical causality grounding on PC death.
 - **Documentation Architecture Refactor (Strategic / Tactical / Operational / Governance)**:
   - **`README.md` (Strategic Layer)**: Elevated to the product front door, articulating the simulation philosophy, canonical Story Triad (`active_user`, `active_ai`, `active_fractal`), Director orchestration, supporting secondary character cast, simulation dynamics, and round/turn heartbeat, with a specification navigation grid and minimal quickstart. Completely purged legacy tabletop and DnD terminology in favor of pure AI roleplay simulation.
   - **`ARCHITECTURE.md` (Tactical Layer)**: Cross-referenced with `README.md`, `DESIGN.md`, `SECURITY.md`, and `ROADMAP.md` while maintaining authoritative software architecture in `src/`.
