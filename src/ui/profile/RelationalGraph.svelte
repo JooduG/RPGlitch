@@ -15,6 +15,7 @@
   import { get_signature_color } from "@media";
   import { Button, TextField, tooltip } from "@primitives";
   import { parse_relational_vector, format_relational_vector } from "@utils";
+  import { extract_entity_relationships, apply_bracket_mutation } from "@intelligence";
 
   /**
    * @typedef {Object} Props
@@ -91,17 +92,55 @@
     if (!entity?.name) return [];
     const current_name = norm(entity.name);
     const edges = [];
+    const known_names = all_entities.map((e) => e.name);
+
+    // Harvest bracket relationships for the central entity across eternal, present, past, future
+    const bracket_rel_map = extract_entity_relationships(entity, known_names);
 
     // A. Outgoing edges (stored directly on entity.relationships)
     const outgoing_raw = Array.isArray(entity.relationships) ? entity.relationships : [];
+    const matched_targets = new Set();
+
     for (const r of outgoing_raw) {
       const parsed = parse_relational_vector(r);
       if (parsed) {
+        const target_norm = norm(parsed.target_name);
+        matched_targets.add(target_norm);
+
+        // Check if bracket links exist for this target
+        let temporal_links = null;
+        for (const [key, links] of bracket_rel_map) {
+          if (norm(key) === target_norm) {
+            temporal_links = links;
+            break;
+          }
+        }
+
         edges.push({
           ...parsed,
           is_outgoing: true,
           source_entity: entity,
           target_entity: find_matched_entity(parsed.target_name),
+          temporal_links,
+        });
+      }
+    }
+
+    // Add any bracket-discovered relationships not already present in entity.relationships
+    for (const [target_key, links] of bracket_rel_map) {
+      const target_norm = norm(target_key);
+      if (!matched_targets.has(target_norm) && target_norm !== current_name) {
+        matched_targets.add(target_norm);
+        const target_entity = find_matched_entity(target_key);
+        const dynamic = links.present || links.eternal || (links.past && links.past[0]) || links.future || "Connected";
+        edges.push({
+          source_name: entity.name,
+          target_name: target_entity?.name || target_key,
+          dynamic,
+          is_outgoing: true,
+          source_entity: entity,
+          target_entity,
+          temporal_links: links,
         });
       }
     }
@@ -110,6 +149,8 @@
     for (const other of all_entities) {
       if (norm(other.name) === current_name) continue;
       const other_rels = Array.isArray(other.relationships) ? other.relationships : [];
+      let found_incoming = false;
+
       for (const r of other_rels) {
         const parsed = parse_relational_vector(r);
         if (parsed && norm(parsed.target_name) === current_name) {
@@ -119,6 +160,27 @@
             source_entity: other,
             target_entity: entity,
           });
+          found_incoming = true;
+        }
+      }
+
+      // Also check if other entity has bracket relationship targeting current entity
+      if (!found_incoming) {
+        const other_bracket_map = extract_entity_relationships(other, [entity.name]);
+        for (const [key, links] of other_bracket_map) {
+          if (norm(key) === current_name) {
+            const dynamic = links.present || links.eternal || (links.past && links.past[0]) || links.future || "Connected";
+            edges.push({
+              source_name: other.name,
+              target_name: entity.name,
+              dynamic,
+              is_outgoing: false,
+              source_entity: other,
+              target_entity: entity,
+              temporal_links: links,
+            });
+            break;
+          }
         }
       }
     }
@@ -141,6 +203,7 @@
         map.set(key, {
           name: resolved?.name || other_name,
           entity: resolved,
+          temporal_links: edge.temporal_links || null,
         });
       }
     }
@@ -235,6 +298,21 @@
     return list;
   });
 
+  function format_node_tooltip(item) {
+    let tip = `${item.name} (Click to open profile)`;
+    const links = item.temporal_links;
+    if (!links) return tip;
+    const parts = [];
+    if (links.eternal) parts.push(`🏛️ Eternal: ${links.eternal}`);
+    if (links.present) parts.push(`⚡ Present: ${links.present}`);
+    if (links.past?.length) parts.push(`📜 Past: ${links.past[0]}`);
+    if (links.future) parts.push(`🚀 Future: ${links.future}`);
+    if (parts.length) {
+      tip += `\n${parts.join("\n")}`;
+    }
+    return tip;
+  }
+
   function handle_add_edge() {
     if (!new_target_name.trim() || !new_dynamic.trim() || !entity?.name) return;
     const clean_target = new_target_name.trim();
@@ -251,6 +329,13 @@
     ].slice(0, 12);
 
     entity.relationships = next_rels;
+
+    // Synchronize into universal bracket predicates (present.non_physical)
+    if (entity.present) {
+      const mutation = apply_bracket_mutation(entity.present.non_physical || "", `[${clean_target}: ${clean_dyn}]`);
+      entity.present.non_physical = mutation.text;
+    }
+
     on_update_relationships(next_rels);
     new_target_name = "";
     new_dynamic = "";
@@ -370,7 +455,7 @@
                   on_select_entity(sat_entity);
                 }
               }}
-              use:tooltip={`${node.item.name} (Click to open profile)`}
+              use:tooltip={format_node_tooltip(node.item)}
               class="group relative flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border-2 bg-slate-900 shadow-lg transition-all duration-300 hover:scale-115"
               style="border-color: {sat_color}; box-shadow: 0 0 12px {sat_color}22;"
             >

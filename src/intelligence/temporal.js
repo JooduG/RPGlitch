@@ -26,6 +26,7 @@ import { llm_service, ensure_embedding, score_by_semantics, embed, is_ready, des
 import { apply_relationships } from "./director.js";
 import { extract_and_repair_json } from "./parser.js";
 import { compile_prompt } from "./prompts.js";
+import { parse_bracket_entries, format_bracket_entry } from "./synaptic.js";
 
 /**
  * @typedef {import('@state/runtime.svelte.js').SimulationEntity} SimulationEntity
@@ -96,18 +97,73 @@ function create(content, type = "past", weight = 5) {
 }
 
 /**
- * Merges an entity's memories into a single normalized array.
+ * Merges an entity's memories into a single normalized array of TemporalVectors.
+ * Supports both flat universal bracket strings (chunked on bracket boundaries) and
+ * structured TemporalVector arrays.
+ *
  * @param {any} entity
  * @returns {any[]}
  */
 export function resolve_vector_pool(entity) {
   if (!entity || typeof entity !== "object") return [];
-  const normalize_item = (vector, type) =>
-    vector && typeof vector === "object" ? { ...vector, type, content: vector.content || vector.directive || "" } : vector;
   const pool = [];
-  if (Array.isArray(entity.past)) {
-    for (const vector of entity.past) pool.push(normalize_item(vector, "past"));
+
+  // Case 1: entity.past is a flat string containing universal bracket predicates
+  if (typeof entity.past === "string") {
+    const entries = parse_bracket_entries(entity.past);
+    for (const entry of entries) {
+      pool.push({
+        id: `ai_${generate_unique_id()}`,
+        timestamp: Date.now(),
+        type: "past",
+        content: format_bracket_entry(entry),
+        emotional_weight: entry.weight ?? 5,
+        meta: { key: entry.key, visibility: entry.visibility },
+      });
+    }
+    return pool;
   }
+
+  // Case 2: entity.past is an array of objects or bracket strings
+  if (Array.isArray(entity.past)) {
+    for (const vector of entity.past) {
+      if (typeof vector === "string") {
+        const entries = parse_bracket_entries(vector);
+        if (entries.length > 0) {
+          for (const entry of entries) {
+            pool.push({
+              id: `ai_${generate_unique_id()}`,
+              timestamp: Date.now(),
+              type: "past",
+              content: format_bracket_entry(entry),
+              emotional_weight: entry.weight ?? 5,
+              meta: { key: entry.key, visibility: entry.visibility },
+            });
+          }
+        } else {
+          pool.push({
+            id: `ai_${generate_unique_id()}`,
+            timestamp: Date.now(),
+            type: "past",
+            content: vector,
+            emotional_weight: 5,
+            meta: {},
+          });
+        }
+      } else if (vector && typeof vector === "object") {
+        const content = vector.content || vector.directive || "";
+        const bracket_entries = parse_bracket_entries(content);
+        const derived_weight = bracket_entries[0]?.weight ?? vector.emotional_weight ?? 5;
+        pool.push({
+          ...vector,
+          type: "past",
+          content,
+          emotional_weight: derived_weight,
+        });
+      }
+    }
+  }
+
   return pool;
 }
 
@@ -428,8 +484,16 @@ export function ensure_unique_vector_id(entity, vector) {
 /** Appends a past vector under caps, skipping duplicates and protecting origin records. */
 export function append_past_vector(entity, vector) {
   if (!entity) return;
-  if (!Array.isArray(entity.past)) entity.past = [];
+
   const content = vector?.content || vector?.directive || "";
+  if (!content) return;
+
+  if (typeof entity.past === "string") {
+    entity.past = entity.past.trim() ? `${entity.past.trim()} ${content}` : content;
+    return;
+  }
+
+  if (!Array.isArray(entity.past)) entity.past = [];
   if (is_near_duplicate(entity.past, content)) return;
   if (is_semantic_duplicate(entity.past, vector)) return;
 
@@ -957,6 +1021,7 @@ if (typeof window !== "undefined") {
 
 /**
  * CHANGELOG
+ * - 2026-09-29: `resolve_vector_pool` now supports flat universal bracket strings and bracket entry arrays via `parse_bracket_entries`, chunking on bracket boundaries with emotional weight synchronized from `w:`. `append_past_vector` seamlessly supports both flat strings and arrays.
  * - 2026-09-26: Memory-forge generations now dispatch with `priority: "background"`, so the global LLM gate preempts opportunistic consolidation whenever a foreground reply is queued.
  * - 2026-09-25: DRY pass — `fallback_consolidate` now filters with the shared `is_narrative_role` and builds speaker labels through one local `speaker_label` helper.
  * - 2026-09-25: Stripping standardization — the deterministic memory-snippet builders now compose `strip_cognition_blocks` + `collapse_whitespace` + `truncate_at_word` instead of inline regex/slice chains, and `eternal_field_dedup` reuses `collapse_whitespace`.

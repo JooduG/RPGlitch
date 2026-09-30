@@ -15,8 +15,11 @@
  * ============================================================================
  */
 
+import { filter_epistemic_brackets } from "../../synaptic.js";
+
 /**
- * Strips epistemic [SECRET: ...] and [PLAN: ...] directives from rendered state strings.
+ * Strips epistemic [SECRET: ...] and [PLAN: ...] directives as well as
+ * hidden bracket entries from rendered state strings.
  * Enforces the Epistemic Wall so AI models never receive another entity's private knowledge.
  *
  * @param {string|null|undefined} text
@@ -24,7 +27,8 @@
  */
 export function strip_epistemic_tags(text) {
   if (!text) return "";
-  return String(text)
+  const filtered = filter_epistemic_brackets(text, "other");
+  return String(filtered)
     .replace(/\[(?:SECRET|PLAN)\s*:\s*[^\]]*\]/gi, "")
     .replace(/\s{2,}/g, " ")
     .trim();
@@ -40,12 +44,12 @@ export function strip_epistemic_tags(text) {
  */
 export function strip_epistemic_secrets(state_text, is_owner = false) {
   if (!state_text) return "";
-  return is_owner ? String(state_text) : strip_epistemic_tags(state_text);
+  return filter_epistemic_brackets(state_text, is_owner ? "owner" : "other");
 }
 
 /**
  * Verifies epistemic wall integrity in a compiled prompt string.
- * Audits for forbidden private tags ([SECRET: ...] or [PLAN: ...]).
+ * Audits for forbidden private tags ([SECRET: ...], [PLAN: ...], or uncompiled | hide entries).
  *
  * @param {string} prompt_text - Compiled prompt text to audit.
  * @returns {boolean} True if clean, false if an epistemic leak was detected.
@@ -60,12 +64,17 @@ export function verify_epistemic_integrity(prompt_text) {
   if (plan_match) {
     return false;
   }
+  const hide_match = prompt_text.match(/\[[^\]]*\|\s*hide\s*[^\]]*\]/i);
+  if (hide_match) {
+    return false;
+  }
   return true;
 }
 
 /**
  * CHANGELOG
  * ============================================================================
+ * - 2026-09-29: Routed through synaptic.js:filter_epistemic_brackets to support universal bracket hide visibility, owner secrecy signals, and uncompiled hide leakage detection.
  * - 2026-09-23: Purged redundant re-exports of VISUAL_EXCLUDED_KEYS and strip_visual_excluded under P4; downstream consumers import directly from @utils.
  * - 2026-09-23: Delegated VISUAL_EXCLUDED_KEYS and strip_visual_excluded to @utils/text.js to break circular dependency with media layer.
  * - 2026-09-19: Repatriated VISUAL_EXCLUDED_KEYS and strip_visual_excluded from media layer to epistemic.js, establishing pure self-contained epistemic prompt filtering.

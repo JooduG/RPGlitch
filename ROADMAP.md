@@ -8,7 +8,7 @@ This roadmap defines the architectural blueprints, active engineering sprints, q
 
 - **Reference Identifier**: `memory-compaction-and-state-transitions`
 - **Origin & Heritage**: Derived from MoeChat's proven **Project Prism-DCM** architecture (`SPEC-prism.md`, `SPEC-context-limit.md`), adapted for RPGlitch's multi-entity Svelte 5 simulation runtime.
-- **Current Status**: Generation stage tracking in `status.svelte.js` and `chrono.svelte.js` is complete; speaker loading states in `Feed.svelte` and storyboard confirmation modals in `StoryboardBar.svelte` are staged for verification.
+- **Current Status**: Phase A of the Universal Bracket Predicates & Synaptic Engine (`src/intelligence/synaptic.js`) is implemented and verified 100% green with brace-depth alternation support, targeted slice splicing, 3-way epistemic filtering, and lockstep relationship synchronization. Generation stage tracking in `status.svelte.js`/`chrono.svelte.js`, speaker loading states in `Feed.svelte`, and storyboard confirmation modals in `StoryboardBar.svelte` are staged for verification.
 - **Sprint Scope**: Hierarchical memory tree compaction, entity fact supersession, deterministic hybrid lexical retrieval, write-time rot prevention, and 8-bit vector quantization.
 
 ---
@@ -92,7 +92,13 @@ $$\text{Score} = (\text{Entity Overlap} \times 3.0) + (\text{Lexical Frequency} 
 
 ### Implementation Touchpoints
 
-- `src/intelligence/temporal.js`: Implement `add_entity_fact()`, `compact_fractal_nodes()`, and update `compute_relevance()` with the hybrid retrieval formula.
+- `src/intelligence/synaptic.js` & `src/intelligence/synaptic.test.js`: Universal bracket predicate domain engine, brace-depth tokenization, targeted slice splicing, 3-way epistemic filtering, and cross-tempus relationship harvesting.
+- `src/intelligence/index.js`: Barrel exports for universal bracket predicate domain functions (`parse_bracket_entries`, `filter_bracket_entries`, `apply_bracket_mutation`, `extract_entity_relationships`).
+- `src/intelligence/modules/entities/epistemic.js`: Route privacy sanitization through `filter_epistemic_brackets` with owner secrecy signals.
+- `src/intelligence/modules/entities/presence.js`: Unified relational dispositions harvesting universal bracket predicates with legacy fallback.
+- `src/intelligence/director.js`: Relational actuator synchronizing incoming dynamics onto `present.non_physical` via `apply_bracket_mutation`.
+- `src/intelligence/temporal.js` & `src/intelligence/temporal.test.js`: Implement `add_entity_fact()`, `compact_fractal_nodes()`, flat bracket parsing in `resolve_vector_pool()`, and update `compute_relevance()` with the hybrid retrieval formula.
+- `src/ui/profile/RelationalGraph.svelte` & `src/ui/profile/RelationalGraph.test.js`: Multi-tempus relationship constellation graph harvesting cross-tempus bracket relationships with tempus badges.
 - `src/platform/embeddings.svelte.js`: Add `quantize_vector_q8()` and `dequantize_vector_q8()` serialization codecs.
 - `src/intelligence/modules/format.js` & `src/intelligence/modules/entities/sheets.js`: Format context injection into isolated `<CURRENT_STATE>` and `<HISTORICAL_CONTEXT>` blocks.
 - `src/state/chrono.svelte.js`: Attach tree compaction triggers to turn finalization on a configured interval (e.g., every 4 turns).

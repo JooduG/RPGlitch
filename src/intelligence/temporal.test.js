@@ -14,6 +14,7 @@ import {
   prune,
   archive_chapter,
   sanitize_non_physical_prose,
+  append_past_vector,
 } from "./temporal.js";
 import { get_output_format } from "./modules/format.js";
 import { PROMPTS } from "./prompts.js";
@@ -974,10 +975,44 @@ describe("temporal_engine per-entity consolidation progress tracking (Track 2 Ph
       expect(sanitize_non_physical_prose(undefined)).toBe("");
     });
   });
+
+  describe("flat bracket past vector resolution", () => {
+    it("resolves flat bracket string past into discrete TemporalVectors with weights", () => {
+      const entity = {
+        past: "[CLOCKTOWER: fought Orion in the rain during round 2 | w: 8] [ELARA: shared birthday cake | w: 7]",
+      };
+      const pool = resolve_vector_pool(entity);
+      expect(pool).toHaveLength(2);
+      expect(pool[0].content).toBe("[CLOCKTOWER: fought Orion in the rain during round 2 | w: 8]");
+      expect(pool[0].emotional_weight).toBe(8);
+      expect(pool[1].content).toBe("[ELARA: shared birthday cake | w: 7]");
+      expect(pool[1].emotional_weight).toBe(7);
+    });
+
+    it("resolves array of bracket strings and synchronizes emotional_weight from w: flag", () => {
+      const entity = {
+        past: [
+          "[ORION: covert ally meeting at docks | hide | w: 9]",
+          { id: "ai_123", content: "[WEAPON: lost stiletto in river | w: 6]", emotional_weight: 5 },
+        ],
+      };
+      const pool = resolve_vector_pool(entity);
+      expect(pool).toHaveLength(2);
+      expect(pool[0].emotional_weight).toBe(9);
+      expect(pool[1].emotional_weight).toBe(6);
+    });
+
+    it("appends to flat string past cleanly", () => {
+      const entity = { past: "[TOP: leather jacket]" };
+      append_past_vector(entity, { content: "[DAGGER: hidden blade | hide | w: 8]" });
+      expect(entity.past).toBe("[TOP: leather jacket] [DAGGER: hidden blade | hide | w: 8]");
+    });
+  });
 });
 
 /**
  * CHANGELOG
+ * - 2026-09-29: Added tests for flat universal bracket string resolution and appending in resolve_vector_pool and append_past_vector.
  * - 2026-09-23: Assertion follows the single `mode` discriminator (`mode="continuum" target="Viper"`).
  * - 2026-09-12: Updated imports for TEMPORAL_CONTRACT and MEMORY_FORGE_SCHEMA from modules/format.js.
  * - 2026-09-11: Pointed the temporal-protocol assertions at TEMPORAL_CONTRACT / MEMORY_FORGE_SCHEMA after TEMPORAL_PROTOCOLS was pruned.

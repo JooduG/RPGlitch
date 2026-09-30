@@ -77,4 +77,30 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
 
     expect(on_select_entity).toHaveBeenCalledWith(expect.objectContaining({ id: "silvers", name: "Lord Benedict Silvers" }));
   });
+
+  it("renders constellation nodes derived from universal bracket predicates in present.non_physical", async () => {
+    const mock_entity = {
+      id: "silvers",
+      name: "Lord Benedict Silvers",
+      type: "character",
+      relationships: [],
+      present: {
+        non_physical: "[HANK: arms supplier debt | w: 8]",
+      },
+    };
+
+    render(RelationalGraph, { props: { entity: mock_entity } });
+
+    // Center node
+    expect(await screen.findByText("Lord Benedict Silvers")).toBeTruthy();
+    // Satellite node harvested from bracket
+    expect(await screen.findByText("Hank")).toBeTruthy();
+  });
 });
+
+/**
+ * CHANGELOG
+ * ============================================================================
+ * - 2026-09-29: Added unit test verifying universal bracket relationship harvesting into constellation satellite nodes.
+ * ============================================================================
+ */

@@ -20,6 +20,7 @@ import { extract_json_block, collapse_whitespace, state_bridge } from "@utils";
 import { llm_service, raw_stop_reason, raw_to_text } from "@platform";
 import { compile_prompt } from "./prompts.js";
 import { extract_and_repair_json, parse_think_block, validate_and_repair_response } from "./parser.js";
+import { apply_bracket_mutation } from "./synaptic.js";
 
 // ============================================================================
 // 1. DOMAIN CONSTANTS & SCHEMA CONTRACTS
@@ -500,13 +501,24 @@ export async function apply_relationships(bridge, rels) {
     if (index >= 0) list[index] = clean_edge;
     else list.unshift(clean_edge);
     source.relationships = list.slice(0, 12);
+
+    // Synchronize into universal bracket predicates (present.non_physical)
+    if (!source.present) source.present = {};
+    const bracket_directive = `[${target_raw.trim()}: ${dynamic_text.trim()}]`;
+    const mutation = apply_bracket_mutation(source.present.non_physical || "", bracket_directive, { round: bridge.runtime?.round || 0 });
+    source.present.non_physical = mutation.text;
+
     dirty.add(source);
   }
 
   for (const source of dirty) {
     try {
       const source_type = source.type === "fractal" ? "fractal" : "character";
-      const updated = await entities.upsert(source_type, { ...source, relationships: source.relationships });
+      const updated = await entities.upsert(source_type, {
+        ...source,
+        relationships: source.relationships,
+        present: source.present,
+      });
       const type = source.type === "fractal" ? "fractal" : "character";
       if (type === "fractal" && bridge.runtime?.active_fractal?.id === source.id) bridge.runtime.active_fractal = updated;
       else if (type === "character") {
@@ -523,6 +535,7 @@ export async function apply_relationships(bridge, rels) {
 
 /**
  * CHANGELOG
+ * - 2026-09-29: `apply_relationships` now synchronizes relational updates into universal bracket predicates on `source.present.non_physical` via `apply_bracket_mutation`, ensuring lockstep alignment with legacy relationship vectors.
  * - 2026-09-26: Player-yield aliases — `USER_PERSONA`/`USER`/`PLAYER`/`protagonist` now fold into `AI_CHARACTER`/`ai` instead of logging an invalid-action warning and falling back.
  * - 2026-09-24: KISS Simplification — Streamlined `execute_director_shot` to a clean linear 3-stage dispatch pipeline (Primary ➔ Terse Recovery ➔ Fallback) eliminating redundant nested retry calls; consolidated scattered 1-line sanitizers inside `normalize_director_data` for cohesive readability; pruned redundant alias check in `normalize_next_action`.
  * - 2026-09-24: Ground-up deconstruct & rebuild — restructured into 6 cohesive domain stages (Constants/Contracts ➔ Shot 1 Orchestration ➔ Parsing & Fallback ➔ Payload Normalization ➔ Stage Spotlight ➔ Relational Mesh); eliminated duplicate inline speaker resolution in favor of `normalize_speaker`; unified all system logs under canonical `[Director]` identity; re-exported `DIRECTOR_SCHEMA` from `prompts.js`.

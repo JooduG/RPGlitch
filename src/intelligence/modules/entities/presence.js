@@ -16,6 +16,7 @@
  */
 
 import { escape_xml, prompt_escape, parse_relational_vector, collapse_whitespace, truncate_at_word, render_xml_tag } from "@utils";
+import { extract_entity_relationships } from "../../synaptic.js";
 
 // ============================================================================
 // [SECTION 1: SPATIAL PRESENCE & RELATIONAL TOPOLOGY]
@@ -71,6 +72,7 @@ export function resolve_available_entities({ entities = {}, npc_entities = [], i
 
 /**
  * Renders directed relational dispositions for an entity toward other active present participants.
+ * Sourced synergistically from both universal bracket predicates and legacy relational vectors.
  *
  * @param {any} entity
  * @param {Set<string>} active_names
@@ -81,7 +83,32 @@ export function render_dispositions(entity, active_names, name_to_id_map) {
   if (!entity?.name) return "";
   const source_name = String(entity.name).toLowerCase().trim();
   const rows = [];
+  const handled_targets = new Set();
 
+  // 1. Bracket-derived relationships (present > eternal)
+  const active_name_list = Array.from(active_names);
+  const bracket_relationships = extract_entity_relationships(entity, active_name_list);
+
+  for (const [target_key, links] of bracket_relationships) {
+    const target_normalized = target_key.toLowerCase().trim();
+    if (!active_names.has(target_normalized)) continue;
+
+    const dynamic = links.present || links.eternal;
+    if (!dynamic) continue;
+
+    const target_id = name_to_id_map.get(target_normalized) || target_key;
+    rows.push(
+      render_xml_tag({
+        tag: "DISPOSITION",
+        attrs: { target: target_id },
+        children: [prompt_escape(dynamic)],
+        inline: true,
+      }),
+    );
+    handled_targets.add(target_normalized);
+  }
+
+  // 2. Legacy relational vectors (fallback for unhandled targets)
   const relationships = Array.isArray(entity?.relationships) ? entity.relationships : [];
   for (const relationship of relationships) {
     const parsed_vector = parse_relational_vector(relationship);
@@ -89,7 +116,7 @@ export function render_dispositions(entity, active_names, name_to_id_map) {
     if (String(parsed_vector.source_name).toLowerCase().trim() !== source_name) continue;
 
     const target_normalized = String(parsed_vector.target_name).toLowerCase().trim();
-    if (!active_names.has(target_normalized)) continue;
+    if (!active_names.has(target_normalized) || handled_targets.has(target_normalized)) continue;
 
     const target_id = name_to_id_map.get(target_normalized) || parsed_vector.target_name;
     rows.push(
@@ -100,6 +127,7 @@ export function render_dispositions(entity, active_names, name_to_id_map) {
         inline: true,
       }),
     );
+    handled_targets.add(target_normalized);
   }
 
   if (!rows.length) return "";
@@ -224,6 +252,7 @@ export function render_candidate_cast_xml({ entities = {}, npc_entities = [], in
 /**
  * CHANGELOG
  * ============================================================================
+ * - 2026-09-29: `render_dispositions` now harvests entity-keyed relationships from universal bracket predicates (via synaptic.js) as well as legacy relational vectors, preventing dual-source-of-truth divergence.
  * - 2026-09-25: `summarize_entity` now clips via the shared `collapse_whitespace` + `truncate_at_word` (word-boundary + ellipsis) instead of a mid-word `slice`.
  * - 2026-09-24: Cast de-duplication (true) — the Director roster now emits only `<CAST mode="candidates">` off-stage reuse candidates; on-stage participants and the core trio (which already carry full sheets in `<ENTITIES>`) are never restated, so the redundant `Primary Companion`/`Protagonist` rows and the `<CAST mode="in_scene">` envelope are gone; `CAST_MODES.IN_SCENE`/`CAST_MODES.DORMANT` collapse into `CAST_MODES.CANDIDATES` and `render_present_cast_xml` becomes `render_candidate_cast_xml`.
  * - 2026-09-23: Prompt-grammar harmonization (phases 0–3) — `CAST_MODES.PRESENT` renamed to `CAST_MODES.IN_SCENE` (`<CAST mode="in_scene">`) to stop colliding with the `PERSPECTIVE` present tense.
