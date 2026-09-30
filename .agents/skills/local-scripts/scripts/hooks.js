@@ -78,7 +78,7 @@ export function to_relative_workspace_path(file_path, workspace_root) {
  * @returns {string} Absolute path to repository root.
  */
 export function resolve_repo_root(payload) {
-  if (payload?.workspacePaths && payload.workspacePaths[0]) {
+  if (payload?.workspacePaths && payload.workspacePaths[0] && fs.existsSync(payload.workspacePaths[0])) {
     return payload.workspacePaths[0];
   }
   return process.cwd().endsWith(".agents") ? fs.realpathSync(process.cwd() + "/..") : process.cwd();
@@ -816,6 +816,7 @@ run();
 /**
  * CHANGELOG
  * -------------------------------------------------------------------------------------------------
+ * 2026-09-30: Hardened `resolve_repo_root` to verify `fs.existsSync(payload.workspacePaths[0])` so non-existent test or cross-platform mock paths fall back safely to current workspace root.
  * 2026-09-25: Hardened porcelain git status path extraction regex in `handle_planning_handoff` (`/^..?\s+/`) to robustly handle both single-letter and two-letter status code prefixes.
  * 2026-09-24: Passed explicit `cwd: repo_root` to `git status --porcelain` in `handle_planning_handoff` so file paths are uniformly relative to workspace root regardless of subshell invocation CWD.
  * 2026-09-12: Added is_workshop_mode helper and bypass in handle_sequential_thinking_gate to allow zero-friction prototyping when WORKSHOP_MODE is set or tmp/.workshop_mode exists.

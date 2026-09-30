@@ -11,6 +11,8 @@ import fs from "fs";
 import path from "path";
 import { spawnSync } from "child_process";
 
+const REPO_ROOT = (process.cwd().endsWith(".agents") ? path.resolve("..") : path.resolve(".")).replace(/\\/g, "/");
+
 const TEST_CASES = [
   {
     name: "hooks.js command-guard: Deny git reset --hard",
@@ -41,7 +43,7 @@ const TEST_CASES = [
       toolCall: {
         name: "write_to_file",
         args: {
-          TargetFile: "c:/Users/johng/source/repos/RPGlitch/src/test-foo.js",
+          TargetFile: `${REPO_ROOT}/src/test-foo.js`,
           CodeContent: "console.log(1);",
         },
       },
@@ -56,7 +58,7 @@ const TEST_CASES = [
       toolCall: {
         name: "write_to_file",
         args: {
-          TargetFile: "c:/Users/johng/source/repos/RPGlitch/src/test-foo.js",
+          TargetFile: `${REPO_ROOT}/src/test-foo.js`,
           CodeContent: "/**\n * Header\n */\nconsole.log(1);\n/** CHANGELOG */\n",
         },
       },
@@ -67,7 +69,7 @@ const TEST_CASES = [
     name: "hooks.js stop-hygiene: Block on root .tmp file",
     file: "skills/local-scripts/scripts/hooks.js",
     args: ["stop-hygiene"],
-    input: { executionNum: 1, workspacePaths: ["c:/Users/johng/source/repos/RPGlitch"] },
+    input: { executionNum: 1, workspacePaths: [REPO_ROOT] },
     mockFile: "test-transient.tmp",
     expectedDecision: "continue",
   },
@@ -155,7 +157,7 @@ const TEST_CASES = [
       toolCall: {
         name: "replace_file_content",
         args: {
-          TargetFile: "c:/Users/johng/source/repos/RPGlitch/src/state/runtime.svelte.js",
+          TargetFile: `${REPO_ROOT}/src/state/runtime.svelte.js`,
           TargetContent: "const old = 1;",
           ReplacementContent: "const updated = 1;",
         },
@@ -168,7 +170,7 @@ const TEST_CASES = [
     file: "skills/local-scripts/scripts/hooks.js",
     args: ["planning-handoff"],
     input: {
-      workspacePaths: ["c:/Users/johng/source/repos/RPGlitch"],
+      workspacePaths: [REPO_ROOT],
     },
     expectedDecision: "stop",
   },
@@ -177,7 +179,7 @@ const TEST_CASES = [
     file: "skills/local-scripts/scripts/hooks.js",
     args: ["planning-handoff"],
     input: {
-      workspacePaths: ["c:/Users/johng/source/repos/RPGlitch"],
+      workspacePaths: [REPO_ROOT],
     },
     expectedDecision: "continue",
     expectedReasonSnippet: "Spec-to-Code Drift Warning",
@@ -308,5 +310,6 @@ if (process.env.VITEST) {
  * 2026-09-05: Added 10th test case (circuit-breaker read-only tool exemption). Reverted file-architecture-gate matcher to write_to_file only; added 11th test case documenting that replace_file_content is explicitly allowed (gate is scoped to file creation, not chunk patches).
  * 2026-09-05: Added 12th & 13th test cases verifying active-track-gate (denial of multiple active tracks and allowance of non-active edits in tasks/future/).
  * 2026-09-05: Added 14th test case verifying planning-handoff automatic synchronization of tasks/PRESENT.md with tasks/future/.
+ * 2026-09-30: Replaced hardcoded Windows workspace paths with dynamic `REPO_ROOT` across all test cases so lifecycle hook tests pass reliably on both Windows and Linux CI runners.
  * 2026-09-24: Added 16th test case verifying spec-to-code drift detection contract during planning-handoff stop hook.
  */
