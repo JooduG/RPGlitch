@@ -149,6 +149,49 @@ Never leaves a colleague behind.`;
     expect(result.superseded[0].round_superseded).toBe(4);
   });
 
+  it("does not delete valid descriptive values like normal, bare, healed", () => {
+    const initial = "[MOOD: brooding]\n[CHEST: clothed]\n[WOUND: bleeding]";
+    const mutation = "[MOOD: normal]\n[CHEST: bare]\n[WOUND: healed]";
+
+    const result = apply_bracket_mutation(initial, mutation, { round: 1 });
+
+    expect(result.text).toContain("[MOOD: normal]");
+    expect(result.text).toContain("[CHEST: bare]");
+    expect(result.text).toContain("[WOUND: healed]");
+    expect(result.superseded).toHaveLength(3);
+
+    // Re-applying the exact same normal/bare/healed values is idempotent and does not delete them
+    const idempotent_result = apply_bracket_mutation(result.text, "[MOOD: normal]", { round: 2 });
+    expect(idempotent_result.text).toContain("[MOOD: normal]");
+    expect(idempotent_result.superseded).toHaveLength(0);
+  });
+
+  it("treats | private as an alias of hide during tokenization and parsing", () => {
+    const input = "[DAGGER: silver stiletto | private | w: 8]";
+    const entries = parse_bracket_entries(input);
+
+    expect(entries).toHaveLength(1);
+    expect(entries[0].key).toBe("DAGGER");
+    expect(entries[0].value).toBe("silver stiletto");
+    expect(entries[0].visibility).toBe("hide");
+    expect(entries[0].weight).toBe(8);
+  });
+
+  it("round-trips owner compiled secrecy signals safely without unhiding on re-parse", () => {
+    const original = "[SECRET_NOTE: map to vault | hide]";
+    const owner_compiled = filter_epistemic_brackets(original, "owner");
+    expect(owner_compiled).toBe("[SECRET_NOTE: map to vault | private]");
+
+    // When re-parsed, it must maintain visibility: 'hide'
+    const re_parsed = parse_bracket_entries(owner_compiled);
+    expect(re_parsed).toHaveLength(1);
+    expect(re_parsed[0].visibility).toBe("hide");
+
+    // And filtering for 'other' from re-parsed owner text strips it cleanly
+    const other_filtered = filter_epistemic_brackets(owner_compiled, "other");
+    expect(other_filtered).toBe("");
+  });
+
   it("is idempotent when applying identical directives", () => {
     const initial = "[TOP: leather jacket | w: 5]";
     const mutation = "[TOP: leather jacket | w: 5]";
@@ -217,22 +260,22 @@ Always walks with a slight limp.`;
 });
 
 describe("synaptic: relationship extraction", () => {
-  it("harvests entity-keyed brackets across eternal, present, past, and future", () => {
-    const entity = {
-      name: "Kael",
-      eternal: {
-        physical: "[HAIR: silver] [SCAR: jawline]",
-        non_physical: "Quiet protector. [ELARA: younger sister | w: 10] [CREED: defend the weak]",
-      },
-      present: {
-        physical: "[TOP: leather jacket]",
-        non_physical: "[ELARA: protective companion | w: 8] [ORION: bitter rival | hide | w: 8]",
-      },
-      past: [{ content: "[ORION: clashed at the clocktower during round 2 | w: 8]" }, { content: "[ELARA: shared meal at the hearth | w: 6]" }],
-      future: "[ELARA: guide safely to sanctuary | w: 9] [ORION: confront in the courtyard | hide]",
-    };
+  const entity = {
+    name: "Kael",
+    eternal: {
+      physical: "[HAIR: silver] [SCAR: jawline]",
+      non_physical: "Quiet protector. [ELARA: younger sister | w: 10] [CREED: defend the weak]",
+    },
+    present: {
+      physical: "[TOP: leather jacket]",
+      non_physical: "[ELARA: protective companion | w: 8] [ORION: bitter rival | hide | w: 8]",
+    },
+    past: [{ content: "[ORION: clashed at the clocktower during round 2 | w: 8]" }, { content: "[ELARA: shared meal at the hearth | w: 6]" }],
+    future: "[ELARA: guide safely to sanctuary | w: 9] [ORION: confront in the courtyard | hide]",
+  };
 
-    const relationships = extract_entity_relationships(entity, ["Elara", "Orion"]);
+  it("harvests entity-keyed brackets across eternal, present, past, and future for owner", () => {
+    const relationships = extract_entity_relationships(entity, ["Elara", "Orion"], "owner");
 
     expect(relationships.has("ELARA")).toBe(true);
     expect(relationships.has("ORION")).toBe(true);
@@ -247,12 +290,26 @@ describe("synaptic: relationship extraction", () => {
     const orion_links = relationships.get("ORION");
     expect(orion_links.present).toBe("bitter rival");
     expect(orion_links.past[0]).toContain("clashed at the clocktower");
+    expect(orion_links.future).toBe("confront in the courtyard");
+  });
+
+  it("redacts hidden relationships when harvested for other perspectives", () => {
+    const relationships = extract_entity_relationships(entity, ["Elara", "Orion"], "other");
+
+    expect(relationships.has("ELARA")).toBe(true);
+    // ORION present and future were hidden (| hide), so only public links should be visible
+    const orion_links = relationships.get("ORION");
+    expect(orion_links?.present).toBeUndefined();
+    expect(orion_links?.future).toBeUndefined();
+    // Past was not marked hide, so it remains visible
+    expect(orion_links?.past).toHaveLength(1);
   });
 });
 
 /**
  * CHANGELOG
  * ============================================================================
+ * - 2026-09-30: Added tests for restricted clearing keywords (none/cleared only), | private token alias, owner round-trip resiliency, and perspective-aware relationship harvesting.
  * - 2026-09-29: Initial comprehensive TDD test suite for the Synaptic Bracket Engine (synaptic.js).
  * ============================================================================
  */

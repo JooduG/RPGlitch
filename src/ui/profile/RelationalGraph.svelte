@@ -344,8 +344,16 @@
 
   function handle_delete_edge(raw_str) {
     if (!entity?.relationships) return;
+    const parsed = parse_relational_vector(raw_str);
     const next_rels = entity.relationships.filter((r) => r !== raw_str);
     entity.relationships = next_rels;
+
+    // Purge corresponding target bracket from present.non_physical via atomic [TARGET: none] directive
+    if (entity.present && parsed?.target_name) {
+      const mutation = apply_bracket_mutation(entity.present.non_physical || "", `[${parsed.target_name}: none]`);
+      entity.present.non_physical = mutation.text;
+    }
+
     on_update_relationships(next_rels);
   }
   const center_color = $derived(get_signature_color(entity));
@@ -603,3 +611,12 @@
     {/each}
   </div>
 {/if}
+
+<!--
+  CHANGELOG
+  ============================================================================
+  - 2026-09-30: Synchronized handle_delete_edge into present.non_physical via atomic
+    [TARGET: none] bracket mutation, preventing stale bracket shadow drift.
+  - 2026-09-29: Initial implementation of radial relational constellation graph.
+  ============================================================================
+-->

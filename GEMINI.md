@@ -118,7 +118,7 @@ A simulation requires entities (Characters and Fractals) to execute a narrative.
   - **Eternal**: Baseline physical features and core essence.
   - **Present**: Immediate physical conditions and active processing states. Governed by Pseudo-JSON bracket parameters (`[KEY: VALUE]`):
     - _Direct Overwrites_: `[SHIRT: sweater]` replaces `SHIRT` cleanly without string duplication.
-    - _Universal Atomic Clearing_: `[KEY: none]`, `[KEY: bare]`, `[KEY: naked]`, `[KEY: off]`, `[KEY: removed]`, `[KEY: disrobed]`, `[KEY: healed]`, `[KEY: cleared]`, `[KEY: normal]` deletes that specific key. `[CLOTHING: none]` wildcard-purges all clothing keys.
+    - _Universal Atomic Clearing_: `[KEY: none]` or `[KEY: cleared]` deletes that specific key. Natural descriptive states (e.g. `[MOOD: normal]`, `[CHEST: bare]`, `[WOUND: healed]`) are preserved as valid values without silent deletion.
     - _Multi-Item Aggregation_: Repeated `[INVENTORY: ...]` / `[STASH: ...]` brackets merge into an aggregated array.
     - _Undress / Redress Lifecycle_: Undressing stashes garments in `[INVENTORY: ...]`; redressing reads items back from inventory without hallucination.
   - **Past (Memories)**: Historical anchors and session memories stored in the `past` vector array (retrieved via vector RAG):
@@ -127,7 +127,7 @@ A simulation requires entities (Characters and Fractals) to execute a narrative.
   - **Future (Standing Agenda)**: Active trajectory, impending intent, and standing agenda stored as a single consolidated prose field (rewritten wholesale by the Memory Forge each cycle).
 - **Dual Filter Engine**:
   - _Visual Prompt Filter_: `INVENTORY`, `STASH`, `SECRET`, `PLAN`, and `STATUS` are strictly stripped from image generation prompts (`build_aesthetic_map` & `strip_visual_excluded`).
-  - _Epistemic Prompt Filter_: `[SECRET: ...]` and `[PLAN: ...]` of the User are stripped across the Epistemic Wall in `render_character()` to prevent AI telepathy, while remaining fully visible in `render_director()`.
+  - _Epistemic Prompt Filter_: `[SECRET: ...]` and `[PLAN: ...]` of the User are stripped across the Epistemic Wall in `render_character()` to prevent AI telepathy, while remaining fully visible in `render_director()`. Owner perspectives receive the `| private` secrecy signal (e.g., `[DAGGER: stiletto | private]`) so persona LLMs do not voice covert items/plans openly.
 
 ---
 

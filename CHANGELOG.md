@@ -11,20 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **Synaptic Bracket Engine (`src/intelligence/synaptic.js`)**: Implemented the universal bracket predicate domain engine (`[KEY: value | flags]`) with brace-depth aware tokenization preserving Perchance `{a|b}` alternations, targeted slice splicing preserving prose/layout, three-way epistemic filtering (`'owner' | 'other' | 'vision'`), deterministic supersession ledger, and cross-field relationship harvesting.
-- **Synaptic Test Suite (`src/intelligence/synaptic.test.js`)**: Comprehensive 17-test TDD suite verifying alternations, targeted mutations, clearing atoms, secrecy signals, and relationship extraction.
-- **Multi-Tempus Relational Constellation Graph (`src/ui/profile/RelationalGraph.svelte`)**: Harvests universal bracket relationships across all four tempuses (`eternal`, `present`, `past`, `future`), displays multi-tempus badges (🏛️ Eternal, ⚡ Present, 📜 Past, 🚀 Future) in interactive node tooltips, and syncs newly authored bonds directly to `present.non_physical` brackets. Verified by 4 unit tests in `src/ui/profile/RelationalGraph.test.js`.
-- **Flat Bracket Temporal Vector Pools (`src/intelligence/temporal.js`)**: Extended `resolve_vector_pool` to parse and resolve flat bracket strings alongside arrays, with emotional salience weight extraction (`w:`) for RAG vector pools, and string-appending support in `append_past_vector`. Verified by 50 unit tests in `src/intelligence/temporal.test.js`.
-- Staged generation lifecycle indicators in `src/ui/message/Feed.svelte` displaying Director evaluation status and active delegated speaker thinking states.
-- Confirmation modal guard in `src/ui/console/StoryboardBar.svelte` with actions to resume, conclude, or cancel active narrative sessions.
-
-### Changed
-
-- **Epistemic Wall Integration (`src/intelligence/modules/entities/epistemic.js`)**: Routed privacy sanitization through `filter_epistemic_brackets`, preserving secrecy signal (`| private`) for owners while stripping hidden keys for others and checking for uncompiled `| hide` leaks.
-- **Relational Dispositions (`src/intelligence/modules/entities/presence.js`)**: Unified `render_dispositions` to harvest entity-keyed relationships from universal bracket predicates with graceful fallback to legacy relationship vectors.
-- **Director Quick Shot Relational Actuator (`src/intelligence/director.js`)**: Synchronized incoming relationship updates into universal bracket predicates on `present.non_physical` via `apply_bracket_mutation`.
-- **Barrel Exports (`src/intelligence/index.js`)**: Cleanly exported `parse_bracket_entries`, `filter_bracket_entries`, `apply_bracket_mutation`, and `extract_entity_relationships` to the domain intelligence layer.
-- Refined sweep duration and gradient opacity curves in `src/ui/motion/Shimmer.svelte` for visual consistency.
+- **Synaptic Bracket Engine Hardening (`src/intelligence/synaptic.js`)**:
+  - Restriced `CLEARING_KEYWORDS` strictly to `none` and `cleared`, eliminating silent data loss for natural descriptive states like `[MOOD: normal]`, `[CHEST: bare]`, and `[WOUND: healed]`.
+  - Added `private` flag aliasing in `parse_bracket_entries`, ensuring round-trip resilience when owner-compiled strings are re-parsed.
+  - Implemented perspective-aware filtering (`'owner' | 'other'`) in `extract_entity_relationships`, preventing private or hidden relational edges (`| hide`) from leaking across viewpoints.
+- **Relational Edge Bracket Synchronization (`src/ui/profile/RelationalGraph.svelte`)**: Synchronized edge deletion into `present.non_physical` brackets via atomic `[TARGET: none]` directives, preventing stale bracket predicates from shadowing subsequent relationship modifications.
+- **Epistemic Wall Audit Hardening (`src/intelligence/modules/entities/epistemic.js`)**: Extended `verify_epistemic_integrity` to audit for unauthorized `| private` leaks across entity boundaries.
+- **Synaptic Test Suite Expansion (`src/intelligence/synaptic.test.js` & `src/ui/profile/RelationalGraph.test.js`)**: Added 4 unit tests covering descriptive value preservation, `| private` token aliasing, perspective-based relationship redaction, and bracket removal upon edge deletion (1,149 tests passing across 62 suites).
 
 ---
 

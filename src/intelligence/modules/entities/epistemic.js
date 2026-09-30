@@ -49,12 +49,14 @@ export function strip_epistemic_secrets(state_text, is_owner = false) {
 
 /**
  * Verifies epistemic wall integrity in a compiled prompt string.
- * Audits for forbidden private tags ([SECRET: ...], [PLAN: ...], or uncompiled | hide entries).
+ * Audits for forbidden private tags ([SECRET: ...], [PLAN: ...], or uncompiled | hide / | private entries).
  *
  * @param {string} prompt_text - Compiled prompt text to audit.
+ * @param {Object} [options={}]
+ * @param {boolean} [options.is_owner=false] - Whether the prompt perspective belongs to the owner entity.
  * @returns {boolean} True if clean, false if an epistemic leak was detected.
  */
-export function verify_epistemic_integrity(prompt_text) {
+export function verify_epistemic_integrity(prompt_text, { is_owner = false } = {}) {
   if (!prompt_text || typeof prompt_text !== "string") return true;
   const secret_match = prompt_text.match(/\[SECRET\s*:\s*[^\]]*\]/i);
   if (secret_match) {
@@ -68,12 +70,19 @@ export function verify_epistemic_integrity(prompt_text) {
   if (hide_match) {
     return false;
   }
+  if (!is_owner) {
+    const private_match = prompt_text.match(/\[[^\]]*\|\s*private\s*[^\]]*\]/i);
+    if (private_match) {
+      return false;
+    }
+  }
   return true;
 }
 
 /**
  * CHANGELOG
  * ============================================================================
+ * - 2026-09-30: Audited | private flags in verify_epistemic_integrity for non-owner contexts, ensuring owner secrecy signals cannot leak to other perspectives.
  * - 2026-09-29: Routed through synaptic.js:filter_epistemic_brackets to support universal bracket hide visibility, owner secrecy signals, and uncompiled hide leakage detection.
  * - 2026-09-23: Purged redundant re-exports of VISUAL_EXCLUDED_KEYS and strip_visual_excluded under P4; downstream consumers import directly from @utils.
  * - 2026-09-23: Delegated VISUAL_EXCLUDED_KEYS and strip_visual_excluded to @utils/text.js to break circular dependency with media layer.

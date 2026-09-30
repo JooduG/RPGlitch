@@ -96,11 +96,34 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
     // Satellite node harvested from bracket
     expect(await screen.findByText("Hank")).toBeTruthy();
   });
+
+  it("purges corresponding target bracket from present.non_physical when an edge is deleted", async () => {
+    const mock_entity = {
+      id: "silvers",
+      name: "Lord Benedict Silvers",
+      type: "character",
+      relationships: ["Lord Benedict Silvers → Hank: custom pyrotechnics"],
+      present: {
+        non_physical: "[HANK: custom pyrotechnics]",
+      },
+    };
+
+    const on_update_relationships = vi.fn();
+    render(RelationalGraph, { props: { entity: mock_entity, is_editing: true, on_update_relationships } });
+
+    const remove_btn = await screen.findByRole("button", { name: /Remove Bond/i });
+    await fireEvent.click(remove_btn);
+
+    expect(on_update_relationships).toHaveBeenCalledWith([]);
+    expect(mock_entity.relationships).toHaveLength(0);
+    expect(mock_entity.present.non_physical).toBe("");
+  });
 });
 
 /**
  * CHANGELOG
  * ============================================================================
+ * - 2026-09-30: Added test verifying handle_delete_edge cleanses present.non_physical bracket predicates.
  * - 2026-09-29: Added unit test verifying universal bracket relationship harvesting into constellation satellite nodes.
  * ============================================================================
  */

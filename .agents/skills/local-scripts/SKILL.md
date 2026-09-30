@@ -39,11 +39,13 @@ Located in `.agents/skills/local-scripts/scripts/` and invoked via `npm run`:
 
 RPGlitch registers automated behavioral hooks in [`.agents/hooks.json`](../../hooks.json). These hooks intercept agent actions in real time to guarantee constitutional compliance:
 
-```text
-[PreToolUse]     ──► Gate / validate / rewrite arguments BEFORE tool execution
-[PostToolUse]    ──► Inspect results, detect truncation, count consecutive failures
-[PreInvocation]  ──► Inject ephemeral reminders into agent working context
-[Stop]           ──► Final gatekeeper: blocks session completion if invariants violated
+```mermaid
+flowchart TD
+    PreTool["PreToolUse"] -->|Gate / validate / rewrite args| ToolExec["Tool Execution"]
+    ToolExec --> PostTool["PostToolUse"]
+    PostTool -->|Inspect results / detect truncation| Done["Result Accepted"]
+    PreInvoc["PreInvocation"] -->|Inject working context reminders| Prompt["Model Prompt"]
+    StopGate["Stop Gate"] -->|Block exit if invariants violated| Complete["Session Complete"]
 ```
 
 ### 3.1 PreToolUse Hooks (Argument Interception & Safety Gates)

@@ -32,8 +32,10 @@ const MAXIMUM_WEIGHT = 10;
 
 /**
  * Recognized atomic clearing keywords that indicate an entry has been removed.
+ * Restricts strictly to 'none' and explicit 'cleared' to avoid accidental data loss
+ * of natural descriptive states (e.g., 'normal', 'bare', 'healed').
  */
-const CLEARING_KEYWORDS = new Set(["none", "bare", "naked", "off", "removed", "cleared", "healed", "normal"]);
+const CLEARING_KEYWORDS = new Set(["none", "cleared"]);
 
 // -----------------------------------------------------------------------------
 // Bracket Entry Tokenization & Parsing
@@ -127,7 +129,7 @@ export function parse_bracket_entries(text) {
 
           for (let flag_index = 1; flag_index < segments.length; flag_index++) {
             const flag = segments[flag_index].toLowerCase();
-            if (flag === "hide") {
+            if (flag === "hide" || flag === "private") {
               visibility = "hide";
             } else if (flag === "show") {
               visibility = "show";
@@ -372,12 +374,15 @@ export function filter_epistemic_brackets(text, perspective = "other") {
 
 /**
  * Harvests all entity-keyed relationship brackets across an entity's fields.
+ * Supports perspective-aware filtering ('owner' | 'other') to prevent private/hidden
+ * relational dynamics from leaking to unauthorized viewpoints.
  *
  * @param {any} entity
  * @param {string[]} [known_entity_names=[]]
+ * @param {'owner'|'other'} [perspective='owner']
  * @returns {Map<string, { eternal?: string, present?: string, past: string[], future?: string }>}
  */
-export function extract_entity_relationships(entity, known_entity_names = []) {
+export function extract_entity_relationships(entity, known_entity_names = [], perspective = "owner") {
   const relationships = new Map();
   if (!entity || typeof entity !== "object") return relationships;
 
@@ -396,11 +401,16 @@ export function extract_entity_relationships(entity, known_entity_names = []) {
     return relationships.get(normalized_name);
   };
 
+  const is_visible = (entry) => {
+    if (perspective === "owner") return true;
+    return entry.visibility !== "hide";
+  };
+
   // 1. Eternal non-physical
   if (entity.eternal?.non_physical) {
     const eternal_entries = parse_bracket_entries(entity.eternal.non_physical);
     for (const entry of eternal_entries) {
-      if (entity_name_set.has(entry.key)) {
+      if (entity_name_set.has(entry.key) && is_visible(entry)) {
         get_or_create_relationship(entry.key).eternal = entry.value;
       }
     }
@@ -410,7 +420,7 @@ export function extract_entity_relationships(entity, known_entity_names = []) {
   if (entity.present?.non_physical) {
     const present_entries = parse_bracket_entries(entity.present.non_physical);
     for (const entry of present_entries) {
-      if (entity_name_set.has(entry.key)) {
+      if (entity_name_set.has(entry.key) && is_visible(entry)) {
         get_or_create_relationship(entry.key).present = entry.value;
       }
     }
@@ -421,9 +431,15 @@ export function extract_entity_relationships(entity, known_entity_names = []) {
     for (const vector of entity.past) {
       const content = vector?.content || vector?.text || "";
       const past_entries = parse_bracket_entries(content);
-      for (const entry of past_entries) {
-        if (entity_name_set.has(entry.key)) {
-          get_or_create_relationship(entry.key).past.push(entry.value);
+      if (past_entries.length > 0) {
+        for (const entry of past_entries) {
+          if (entity_name_set.has(entry.key) && is_visible(entry)) {
+            get_or_create_relationship(entry.key).past.push(entry.value);
+          }
+        }
+      } else if (vector?.meta?.key && entity_name_set.has(String(vector.meta.key).toUpperCase())) {
+        if (perspective === "owner" || vector?.meta?.visibility !== "hide") {
+          get_or_create_relationship(String(vector.meta.key).toUpperCase()).past.push(content);
         }
       }
     }
@@ -433,7 +449,7 @@ export function extract_entity_relationships(entity, known_entity_names = []) {
   if (entity.future && typeof entity.future === "string") {
     const future_entries = parse_bracket_entries(entity.future);
     for (const entry of future_entries) {
-      if (entity_name_set.has(entry.key)) {
+      if (entity_name_set.has(entry.key) && is_visible(entry)) {
         get_or_create_relationship(entry.key).future = entry.value;
       }
     }
@@ -445,6 +461,10 @@ export function extract_entity_relationships(entity, known_entity_names = []) {
 /**
  * CHANGELOG
  * ============================================================================
+ * - 2026-09-30: Tightened CLEARING_KEYWORDS to 'none' and 'cleared' preventing data loss
+ *   of valid narrative values ('normal', 'bare', 'healed'). Added 'private' flag alias
+ *   in tokenizer to preserve secrecy round-trips. Added perspective parameter to
+ *   extract_entity_relationships to prevent private relationship leaks.
  * - 2026-09-29: Initial implementation of the Synaptic Bracket Engine (synaptic.js).
  *   Delivers brace-depth aware parsing for Perchance alternations, targeted slice
  *   mutation with supersession ledger, three-way epistemic filtering ('owner' |
