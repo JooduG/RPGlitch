@@ -35,7 +35,13 @@ export default defineConfig({
 
     include: ["src/**/*.test.{js,ts}", ".agents/skills/*/scripts/**/*.test.{js,ts}", "tests/**/*.test.{js,ts}"],
     // @agent:ignore-start
-    exclude: ["**/node_modules/**", "**/dist/**", "**/.git/**", "**/tmp/**", "**/archive/**"],
+    exclude: [
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/.git/**",
+      "**/tmp/**",
+      "**/archive/**"
+    ],
     // @agent:ignore-end
 
     // Test setup hook (Path corrected to .agents)

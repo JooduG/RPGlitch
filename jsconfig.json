@@ -4,41 +4,107 @@
     "allowJs": true,
     "baseUrl": ".",
     "checkJs": false,
-    "lib": ["esnext", "dom", "dom.iterable"],
+    "lib": [
+      "esnext",
+      "dom",
+      "dom.iterable"
+    ],
     "module": "esnext",
     "moduleResolution": "bundler",
     "paths": {
-      "@/*": ["src/*"],
-      "@motion": ["src/ui/motion/index.js"],
-      "@motion/*": ["src/ui/motion/*"],
-      "@primitives": ["src/ui/primitives/index.js"],
-      "@primitives/*": ["src/ui/primitives/*"],
-      "@utils": ["src/utils/index.js"],
-      "@utils/*": ["src/utils/*"],
-      "@data": ["src/data/index.js"],
-      "@data/*": ["src/data/*"],
-      "@intelligence": ["src/intelligence/index.js"],
-      "@intelligence/*": ["src/intelligence/*"],
-      "@media": ["src/media/index.js"],
-      "@media/*": ["src/media/*"],
-      "@platform": ["src/platform/index.js"],
-      "@platform/*": ["src/platform/*"],
-      "@state": ["src/state/index.js"],
-      "@state/*": ["src/state/*"],
-      "@ui": ["src/ui/index.js"],
-      "@ui/*": ["src/ui/*"],
-      "@console": ["src/ui/console/index.js"],
-      "@console/*": ["src/ui/console/*"],
-      "@story": ["src/ui/story/index.js"],
-      "@story/*": ["src/ui/story/*"],
-      "@message": ["src/ui/message/index.js"],
-      "@message/*": ["src/ui/message/*"],
-      "@entity": ["src/ui/entity/index.js"],
-      "@entity/*": ["src/ui/entity/*"],
-      "@profile": ["src/ui/profile/index.js"],
-      "@profile/*": ["src/ui/profile/*"],
-      "@image": ["src/ui/image/index.js"],
-      "@image/*": ["src/ui/image/*"]
+      "@/*": [
+        "src/*"
+      ],
+      "@motion": [
+        "src/ui/motion/index.js"
+      ],
+      "@motion/*": [
+        "src/ui/motion/*"
+      ],
+      "@primitives": [
+        "src/ui/primitives/index.js"
+      ],
+      "@primitives/*": [
+        "src/ui/primitives/*"
+      ],
+      "@utils": [
+        "src/utils/index.js"
+      ],
+      "@utils/*": [
+        "src/utils/*"
+      ],
+      "@data": [
+        "src/data/index.js"
+      ],
+      "@data/*": [
+        "src/data/*"
+      ],
+      "@intelligence": [
+        "src/intelligence/index.js"
+      ],
+      "@intelligence/*": [
+        "src/intelligence/*"
+      ],
+      "@media": [
+        "src/media/index.js"
+      ],
+      "@media/*": [
+        "src/media/*"
+      ],
+      "@platform": [
+        "src/platform/index.js"
+      ],
+      "@platform/*": [
+        "src/platform/*"
+      ],
+      "@state": [
+        "src/state/index.js"
+      ],
+      "@state/*": [
+        "src/state/*"
+      ],
+      "@ui": [
+        "src/ui/index.js"
+      ],
+      "@ui/*": [
+        "src/ui/*"
+      ],
+      "@console": [
+        "src/ui/console/index.js"
+      ],
+      "@console/*": [
+        "src/ui/console/*"
+      ],
+      "@story": [
+        "src/ui/story/index.js"
+      ],
+      "@story/*": [
+        "src/ui/story/*"
+      ],
+      "@message": [
+        "src/ui/message/index.js"
+      ],
+      "@message/*": [
+        "src/ui/message/*"
+      ],
+      "@entity": [
+        "src/ui/entity/index.js"
+      ],
+      "@entity/*": [
+        "src/ui/entity/*"
+      ],
+      "@profile": [
+        "src/ui/profile/index.js"
+      ],
+      "@profile/*": [
+        "src/ui/profile/*"
+      ],
+      "@image": [
+        "src/ui/image/index.js"
+      ],
+      "@image/*": [
+        "src/ui/image/*"
+      ]
     },
     "strict": true,
     "target": "esnext",
@@ -56,5 +122,8 @@
     ".secrets",
     "**/*.lock"
   ],
-  "include": ["src/**/*", "types.d.ts"]
+  "include": [
+    "src/**/*",
+    "types.d.ts"
+  ]
 }

@@ -63,7 +63,7 @@
     "eslint": [],
     "htmlhint": ["**/*.svelte"],
     "markdownlint": ["**/modern-web-guidance/guides/**", "**/suggestion*"],
-    "prettier": ["**/suggestion*", "eslint.config.js", ".vscode/settings.json"],
+    "prettier": ["**/suggestion*", "eslint.config.js", ".vscode/settings.json", "jsconfig.json", "vitest.config.js"],
     "stylelint": []
   },
   "vscode": {

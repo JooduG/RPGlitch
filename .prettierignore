@@ -39,3 +39,5 @@ tmp/**/*
 **/suggestion*
 eslint.config.js
 .vscode/settings.json
+jsconfig.json
+vitest.config.js
