@@ -59,6 +59,8 @@ export {
   embed,
   serialize_embedding,
   deserialize_embedding,
+  quantize_vector_q8,
+  dequantize_vector_q8,
   EMBEDDING_DIM,
 } from "./embeddings.svelte.js";
 

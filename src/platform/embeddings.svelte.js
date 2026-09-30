@@ -59,15 +59,95 @@ export function serialize_embedding(raw_embedding) {
 }
 
 /**
+ * Quantizes a 384-dimensional Float32Array embedding into an 8-bit unsigned integer array (Uint8Array)
+ * serialized as a base64 string or Uint8Array.
+ * Maps normalized range [-1.0, 1.0] to [0, 255].
+ *
+ * @param {Float32Array | ArrayLike<number> | null | undefined} raw_embedding
+ * @param {boolean} [as_base64=true]
+ * @returns {string | Uint8Array | null}
+ */
+export function quantize_vector_q8(raw_embedding, as_base64 = true) {
+  if (!raw_embedding || raw_embedding.length !== EMBEDDING_DIM) return null;
+  const uint8_array = new Uint8Array(EMBEDDING_DIM);
+  for (let i = 0; i < EMBEDDING_DIM; i++) {
+    const val = Number(raw_embedding[i]);
+    // Clamp to [-1.0, 1.0] and map to [0, 255]
+    const clamped = Math.max(-1.0, Math.min(1.0, val));
+    uint8_array[i] = Math.round(((clamped + 1.0) / 2.0) * 255);
+  }
+
+  if (!as_base64) return uint8_array;
+
+  // Convert Uint8Array to base64 string safely across Node/browser
+  let binary_string = "";
+  for (let i = 0; i < EMBEDDING_DIM; i++) {
+    binary_string += String.fromCharCode(uint8_array[i]);
+  }
+  return typeof btoa === "function" ? btoa(binary_string) : Buffer.from(uint8_array).toString("base64");
+}
+
+/**
+ * Dequantizes an 8-bit quantized embedding (Uint8Array or base64 string) back into a normalized Float32Array.
+ *
+ * @param {string | Uint8Array | ArrayLike<number> | null | undefined} quantized_data
+ * @returns {Float32Array | null}
+ */
+export function dequantize_vector_q8(quantized_data) {
+  if (!quantized_data) return null;
+
+  let uint8_array = null;
+  if (quantized_data instanceof Uint8Array && quantized_data.length === EMBEDDING_DIM) {
+    uint8_array = quantized_data;
+  } else if (typeof quantized_data === "string") {
+    try {
+      const binary_string = typeof atob === "function" ? atob(quantized_data) : Buffer.from(quantized_data, "base64").toString("binary");
+      if (binary_string.length !== EMBEDDING_DIM) return null;
+      uint8_array = new Uint8Array(EMBEDDING_DIM);
+      for (let i = 0; i < EMBEDDING_DIM; i++) {
+        uint8_array[i] = binary_string.charCodeAt(i);
+      }
+    } catch {
+      return null;
+    }
+  } else if (Array.isArray(quantized_data) && quantized_data.length === EMBEDDING_DIM) {
+    uint8_array = new Uint8Array(quantized_data);
+  }
+
+  if (!uint8_array) return null;
+
+  const float32_array = new Float32Array(EMBEDDING_DIM);
+  let norm_squared = 0;
+  for (let i = 0; i < EMBEDDING_DIM; i++) {
+    const val = (uint8_array[i] / 255.0) * 2.0 - 1.0;
+    float32_array[i] = val;
+    norm_squared += val * val;
+  }
+
+  // Renormalize to unit length to preserve cosine similarity precision
+  if (norm_squared > 0) {
+    const norm = Math.sqrt(norm_squared);
+    for (let i = 0; i < EMBEDDING_DIM; i++) {
+      float32_array[i] /= norm;
+    }
+  }
+
+  return float32_array;
+}
+
+/**
  * Deserializes a stored embedding back into a Float32Array of EMBEDDING_DIM.
- * Accepts Float32Array or number[] (the JSON-safe persisted form). Returns
- * null for missing/corrupt values so callers re-infer.
+ * Accepts Float32Array, number[] (the JSON-safe persisted form), or quantized base64/Uint8Array.
+ * Returns null for missing/corrupt values so callers re-infer.
  * @param {unknown} stored_embedding
  * @returns {Float32Array | null}
  */
 export function deserialize_embedding(stored_embedding) {
   if (stored_embedding instanceof Float32Array) {
     return stored_embedding.length === EMBEDDING_DIM ? stored_embedding : null;
+  }
+  if (typeof stored_embedding === "string" || stored_embedding instanceof Uint8Array) {
+    return dequantize_vector_q8(stored_embedding);
   }
   if (Array.isArray(stored_embedding)) {
     if (stored_embedding.length !== EMBEDDING_DIM) return null;
@@ -386,6 +466,7 @@ export const embeddings_engine = {
 
 /**
  * CHANGELOG:
+ * - 2026-09-30: Added `quantize_vector_q8` and `dequantize_vector_q8` 8-bit quantization codecs with base64 and Uint8Array serialization for Phase B memory compaction.
  * - 2026-08-29: Applied /harmonize protocol: purged shorthand variable abbreviations (`emb` → `raw_embedding`, `v` → `vector`), aligned JSDoc annotations, and validated Svelte 5 runes reactivity.
  * - 2026-08-29: Added Universal File Architecture header block, structured section dividers, normalized `cache_stats()` snake_case nomenclature, enforced P4 zero backwards compatibility.
  * - 2026-08-27: Realigned layer boundaries: moved `embeddings.svelte.js` + vector codecs into `src/platform/` and unified `EMBEDDING_DIM = 384` validation.

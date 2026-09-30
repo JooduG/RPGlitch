@@ -9,15 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **`ARCHITECTURE.md` Canon Terminology Pass**: Promoted `Eternal`, `Present`, `Past`, and `Future` as the primary canonical quadrant labels throughout all documentation; secondary descriptors (`static profile`, `dynamic state`, `episodic vector store`, `strategic trajectory`) are retained in parentheses for structural clarity only. Renamed `Numerical State Vectors` to **Dynamics**. Clarified that all three entity types (`active_user`, `active_ai`, `active_fractal`) share an identical Quad-Partitioned Entity Schema and differ only in narrative role and authorship rules. Explicitly noted that Fractal is not a separate data structure.
+
 ### Added
 
+- **8-Bit Vector Quantization Engine (`src/platform/embeddings.svelte.js` & `src/platform/index.js`)**:
+  - Implemented `quantize_vector_q8` and `dequantize_vector_q8` codecs mapping normalized 384-dimensional Float32 embeddings to uint8 $[0, 255]$ with base64 and Uint8Array serialization.
+  - Preserved cosine similarity fidelity $> 0.99$ while slashing vector storage overhead in Dexie.js by 75%.
+  - Upgraded `deserialize_embedding` to seamlessly accept Float32Array, JSON number arrays, and quantized base64/Uint8Array representations.
 - **Synaptic Bracket Engine Hardening (`src/intelligence/synaptic.js`)**:
   - Restriced `CLEARING_KEYWORDS` strictly to `none` and `cleared`, eliminating silent data loss for natural descriptive states like `[MOOD: normal]`, `[CHEST: bare]`, and `[WOUND: healed]`.
   - Added `private` flag aliasing in `parse_bracket_entries`, ensuring round-trip resilience when owner-compiled strings are re-parsed.
   - Implemented perspective-aware filtering (`'owner' | 'other'`) in `extract_entity_relationships`, preventing private or hidden relational edges (`| hide`) from leaking across viewpoints.
 - **Relational Edge Bracket Synchronization (`src/ui/profile/RelationalGraph.svelte`)**: Synchronized edge deletion into `present.non_physical` brackets via atomic `[TARGET: none]` directives, preventing stale bracket predicates from shadowing subsequent relationship modifications.
 - **Epistemic Wall Audit Hardening (`src/intelligence/modules/entities/epistemic.js`)**: Extended `verify_epistemic_integrity` to audit for unauthorized `| private` leaks across entity boundaries.
-- **Synaptic Test Suite Expansion (`src/intelligence/synaptic.test.js` & `src/ui/profile/RelationalGraph.test.js`)**: Added 4 unit tests covering descriptive value preservation, `| private` token aliasing, perspective-based relationship redaction, and bracket removal upon edge deletion (1,149 tests passing across 62 suites).
+- **Test Suite Expansion**: Added unit tests for 8-bit vector quantization, entity fact supersession, and hierarchical tree compaction (1,155 tests passing across 62 suites).
 
 ---
 

@@ -7,6 +7,8 @@ import {
   EMBEDDING_DIM,
   serialize_embedding,
   deserialize_embedding,
+  quantize_vector_q8,
+  dequantize_vector_q8,
 } from "./embeddings.svelte.js";
 
 describe("embedding serialization", () => {
@@ -20,6 +22,35 @@ describe("embedding serialization", () => {
     const deserialized = deserialize_embedding(serialized);
     expect(deserialized instanceof Float32Array).toBe(true);
     expect(deserialized?.[0]).toBeCloseTo(0.42);
+  });
+
+  it("quantizes Float32Array to Uint8Array and preserves cosine fidelity > 0.99", () => {
+    const raw = new Float32Array(EMBEDDING_DIM);
+    // Fill with normalized vector values
+    let norm = 0;
+    for (let i = 0; i < EMBEDDING_DIM; i++) {
+      raw[i] = Math.sin(i * 0.1);
+      norm += raw[i] * raw[i];
+    }
+    norm = Math.sqrt(norm);
+    for (let i = 0; i < EMBEDDING_DIM; i++) raw[i] /= norm;
+
+    const quantized = quantize_vector_q8(raw);
+    expect(quantized instanceof Uint8Array || typeof quantized === "string").toBe(true);
+
+    const dequantized = dequantize_vector_q8(quantized);
+    expect(dequantized instanceof Float32Array).toBe(true);
+    expect(dequantized.length).toBe(EMBEDDING_DIM);
+
+    // Compute cosine similarity between raw and dequantized
+    let dot = 0;
+    let norm_deq = 0;
+    for (let i = 0; i < EMBEDDING_DIM; i++) {
+      dot += raw[i] * dequantized[i];
+      norm_deq += dequantized[i] * dequantized[i];
+    }
+    const similarity = dot / (1.0 * Math.sqrt(norm_deq));
+    expect(similarity).toBeGreaterThan(0.99);
   });
 });
 

@@ -95,32 +95,33 @@ flowchart TB
         direction TB
         subgraph Row1 [" "]
             direction LR
-            Eternal["<b>Static Profile (eternal)</b><br>• Invariant Anatomy<br>• Identity / Archetype"]
-            Present["<b>Dynamic State (present)</b><br>• Somatic State Vector (0–100)<br>• Behavioral Modifiers"]
+            Eternal["<b>Eternal (static profile)</b><br>• Invariant Anatomy<br>• Identity / Archetype"]
+            Present["<b>Present (dynamic state)</b><br>• Dynamics (0–100)<br>• Behavioral Modifiers"]
         end
         subgraph Row2 [" "]
             direction LR
-            Past["<b>Episodic Vector Store (past)</b><br>• 384-d Embedding Array<br>• Semantic RAG References"]
-            Future["<b>Strategic Trajectory (future)</b><br>• Active Goals<br>• Immediate Intent"]
+            Past["<b>Past (episodic vector store)</b><br>• 384-d Embedding Array<br>• Semantic RAG References"]
+            Future["<b>Future (strategic trajectory)</b><br>• Active Goals<br>• Immediate Intent"]
         end
     end
 ```
 
 ### Entity Classification
 
-- **Entity**: Base class for all interactive components within the simulation.
+All three entity types share an identical **Quad-Partitioned Entity Schema** and are instantiated with the same structure. They differ only in their narrative role and the rules governing authorship.
+
 - **User Persona Entity (`runtime.active_user`)**: The human participant's avatar. Protected by the **Agency Invariant**: the engine and autonomous agents are strictly forbidden from authoring thoughts, dialogue, or motor actions for the user.
-- **AI Entity (`runtime.active_ai`)**: The active autonomous persona operating within the scene.
-- **Fractal Entity (`runtime.active_fractal`)**: The world model governing environmental hazards, structural decay, atmospheric descriptors, and scene-level objectives.
+- **AI Character Entity (`runtime.active_ai`)**: The active autonomous agent-controlled co-star. Operates within the scene and is fully controlled by the AI inference pipeline.
+- **Fractal Entity (`runtime.active_fractal`)**: The environment entity. Governs atmospheric hazards, structural decay, sensory descriptors, and scene-level objectives. Uses the same quad-partitioned character schema as other entities — it is not a separate data structure.
 
 ### Quad-Partitioned Entity Schema
 
-Entity states are split into four discrete operational segments:
+Every entity is split into four discrete operational segments. **Eternal, Present, Past, and Future are the canonical terms**; the secondary descriptors in parentheses are provided for structural clarity only.
 
-- **Static Profile (`eternal`)**: Immutable attributes, baseline physiology, background lore, and foundational constraints.
-- **Dynamic State (`present`)**: Ephemeral properties, current physiological markers, and numerical state vectors.
-- **Episodic Vector Store (`past`)**: Searchable memory index containing past dialogue turns and scene events indexed by Transformers.js embeddings.
-- **Strategic Trajectory (`future`)**: Short-term tactical agenda, immediate conversational intent, and open goals.
+- **Eternal (static profile)**: Immutable attributes, baseline physiology, background lore, and foundational constraints.
+- **Present (dynamic state)**: Ephemeral properties, current physiological markers, and dynamics.
+- **Past (episodic vector store)**: Searchable memory index containing past dialogue turns and scene events indexed by Transformers.js embeddings.
+- **Future (strategic trajectory)**: Short-term tactical agenda, immediate conversational intent, and open goals.
 
 ### Directed Relational Graph
 
@@ -130,17 +131,19 @@ Entity interconnections are tracked using a directed relational graph (`[Source]
 - **Entity -> Entity**: `"Elias -> Benedict: Distrusts due to classified cybernetic augments"`
 - **Environment -> Entity**: `"Tartarus -> Julien: Active warrant issued for treason"`
 
-### Numerical State Vectors (0–100)
+### Dynamics (0–100)
 
-- **Psychological & Somatic Attributes (AI Character Scope)**:
-- **chaos**: Behavioral stability vs. volatility.
-- **intensity**: Autonomic nervous activation and adrenaline response.
-- **openness**: Receptivity vs. defensive suspicion.
-- **affinity**: Interpersonal trust vs. hostility.
+Dynamics are numerical state scalars stored inside an entity's **Present** segment. They encode psychological, somatic, and environmental pressure that the inference engine translates into prose subtext and behavioral modifiers.
 
-- **Environmental Attributes (Fractal Scope)**:
-- **velocity**: Kinetic pacing and environmental movement rate.
-- **entropy**: Structural degradation, environmental noise, and physical breakdown.
+- **Character Dynamics (AI Character & User Persona scope)**:
+  - **chaos**: Behavioral stability vs. volatility.
+  - **intensity**: Autonomic nervous activation and adrenaline response.
+  - **openness**: Receptivity vs. defensive suspicion.
+  - **affinity**: Interpersonal trust vs. hostility.
+
+- **Environmental Dynamics (Fractal scope)**:
+  - **velocity**: Kinetic pacing and environmental movement rate.
+  - **entropy**: Structural degradation, environmental noise, and physical breakdown.
 
 ---
 

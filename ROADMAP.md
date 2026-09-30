@@ -8,8 +8,8 @@ This roadmap defines the architectural blueprints, active engineering sprints, q
 
 - **Reference Identifier**: `memory-compaction-and-state-transitions`
 - **Origin & Heritage**: Derived from MoeChat's proven **Project Prism-DCM** architecture (`SPEC-prism.md`, `SPEC-context-limit.md`), adapted for RPGlitch's multi-entity Svelte 5 simulation runtime.
-- **Current Status**: Phase A of the Universal Bracket Predicates & Synaptic Engine (`src/intelligence/synaptic.js`) is implemented and verified 100% green with brace-depth alternation support, targeted slice splicing, 3-way epistemic filtering, and lockstep relationship synchronization. Generation stage tracking in `status.svelte.js`/`chrono.svelte.js`, speaker loading states in `Feed.svelte`, and storyboard confirmation modals in `StoryboardBar.svelte` are staged for verification.
-- **Sprint Scope**: Hierarchical memory tree compaction, entity fact supersession, deterministic hybrid lexical retrieval, write-time rot prevention, and 8-bit vector quantization.
+- **Current Status**: Phase A (Universal Bracket Predicates & Synaptic Engine) and 8-Bit Vector Quantization in `embeddings.svelte.js` are fully implemented and verified 100% green. Memory Forge chapter consolidation and prompt middle-out protection are staged next.
+- **Sprint Scope**: Memory Forge consolidation, universal bracket state grounding, deterministic hybrid lexical retrieval, write-time rot prevention, and 8-bit vector quantization.
 
 ---
 
@@ -57,12 +57,12 @@ flowchart TD
 
 ### Technical Specifications
 
-#### Entity State Machine & Fact Graphs (Layer 1)
+#### Universal Bracket State Grounding (Layer 1)
 
-- Maintain entity attributes as atomic subject-predicate-object triples: `(subject, predicate, object)` with importance `imp` (1–5) and confidence `conf` (0–1).
-- **State transitions, not accumulation**: When updating an existing `subject + predicate` pair, flag the prior entry as `superseded`, append a `superseded_by` pointer, and record the turn timestamp.
-- **Bare Slugs & Normalization**: Strip possessives and punctuation from entity slugs (`bare()`) to prevent entity duplication drift.
-- Active prompts receive only current verified facts. Superseded entries remain persisted in Dexie.js for temporal queries and rollback capabilities.
+- Ground physical, relational, and psychological presence exclusively in **Universal Bracket Predicates** (`present.physical` / `present.non_physical`).
+- **Atomic Bracket Overwrites**: Overwrites occur natively in-place (`[SHIRT: sweater]` replaces `SHIRT` cleanly).
+- **Universal Atomic Clearing**: `[KEY: none]` or `[KEY: cleared]` removes that specific key, preserving natural descriptive states like `[MOOD: normal]`.
+- Active prompts receive only current verified brackets in `<CURRENT_STATE>`, with zero foreign fact accumulation tables or legacy state collisions.
 
 #### Multi-Tier Compaction & Ghost Tokens (Layer 2)
 
@@ -97,11 +97,11 @@ $$\text{Score} = (\text{Entity Overlap} \times 3.0) + (\text{Lexical Frequency} 
 - `src/intelligence/modules/entities/epistemic.js`: Route privacy sanitization through `filter_epistemic_brackets` with owner secrecy signals.
 - `src/intelligence/modules/entities/presence.js`: Unified relational dispositions harvesting universal bracket predicates with legacy fallback.
 - `src/intelligence/director.js`: Relational actuator synchronizing incoming dynamics onto `present.non_physical` via `apply_bracket_mutation`.
-- `src/intelligence/temporal.js` & `src/intelligence/temporal.test.js`: Implement `add_entity_fact()`, `compact_fractal_nodes()`, flat bracket parsing in `resolve_vector_pool()`, and update `compute_relevance()` with the hybrid retrieval formula.
+- `src/intelligence/temporal.js` & `src/intelligence/temporal.test.js`: Leverage existing `entity.chapters` and `temporal_engine.consolidate` for Macro-Quest milestones, and update `compute_relevance()` with the hybrid retrieval formula.
 - `src/ui/profile/RelationalGraph.svelte` & `src/ui/profile/RelationalGraph.test.js`: Multi-tempus relationship constellation graph harvesting cross-tempus bracket relationships with tempus badges.
-- `src/platform/embeddings.svelte.js`: Add `quantize_vector_q8()` and `dequantize_vector_q8()` serialization codecs.
+- `src/platform/embeddings.svelte.js` & `src/platform/embeddings.test.js`: Add `quantize_vector_q8()` and `dequantize_vector_q8()` serialization codecs.
+- `src/platform/index.js`: Barrel export `quantize_vector_q8` and `dequantize_vector_q8`.
 - `src/intelligence/modules/format.js` & `src/intelligence/modules/entities/sheets.js`: Format context injection into isolated `<CURRENT_STATE>` and `<HISTORICAL_CONTEXT>` blocks.
-- `src/state/chrono.svelte.js`: Attach tree compaction triggers to turn finalization on a configured interval (e.g., every 4 turns).
 
 ---
 
