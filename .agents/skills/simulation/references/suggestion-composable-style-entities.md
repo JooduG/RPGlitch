@@ -44,17 +44,16 @@ styles: "id, type, name, updated_at"
 
 ## 3. Dynamic Composition & Storyboard Integration
 
-```text
-┌────────────────────────────────────────────────────────┐
-│                   STORYBOARD DECK                      │
-├───────────────────────────┬────────────────────────────┤
-│   NARRATIVE STYLE CARD    │     VISUAL STYLE CARD      │
-│    [Gibson Cyberpunk]     │     [35mm Analog Noir]     │
-└─────────────┬─────────────┴─────────────┬──────────────┘
-              │                           │
-              ▼                           ▼
-   [Intelligence Kernel]         [Image Synthesis]
-    (LLM Prose Cadence)           (Diffusion Tokens)
+```mermaid
+flowchart TD
+    subgraph Deck ["STORYBOARD DECK"]
+        direction LR
+        Narrative["NARRATIVE STYLE CARD<br><b>Gibson Cyberpunk</b>"]
+        Visual["VISUAL STYLE CARD<br><b>35mm Analog Noir</b>"]
+    end
+
+    Narrative --> Kernel["Intelligence Kernel<br>(LLM Prose Cadence)"]
+    Visual --> Diffusion["Image Synthesis<br>(Diffusion Tokens)"]
 ```
 
 1. **Active Session Binding**: `runtime.active_story.narrative_style_id` and `runtime.active_story.visual_style_id` reference Dexie records by id.

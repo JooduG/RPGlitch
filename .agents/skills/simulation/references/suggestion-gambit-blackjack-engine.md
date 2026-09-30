@@ -16,15 +16,12 @@ The **Gambit Push-Your-Luck Engine** is a multi-turn Blackjack state machine (ta
 
 ## 2. State Machine Lifecycle
 
-```text
-[ Start Encounter ] ──► [ Deal 2 Initial Cards (1–11) ] ──► [ Prompt Player ]
-                                                                   │
-           ┌───────────────────── [DRAW CARD] ─────────────────────┤
-           │                                                       │
-           ▼                                                       ▼
-  [ Add Card (1–11) ]                                      [STAND] or [BUST]
-           │                                                       │
-           └──────────────────► [ Recalculate ] ──────────────────► [ Final Narrative Tier ]
+```mermaid
+flowchart TD
+    Start["Start Encounter"] --> Deal["Deal 2 Initial Cards (1–11)"] --> Prompt["Prompt Player"]
+    Prompt --> |DRAW CARD| Add["Add Card (1–11)"]
+    Prompt --> |STAND or BUST| Final["Final Narrative Tier"]
+    Add --> Recalc["Recalculate"] --> Final
 ```
 
 ---

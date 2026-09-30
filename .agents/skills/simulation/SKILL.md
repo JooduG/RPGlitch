@@ -25,29 +25,13 @@ In traditional interactive fiction, the language model is asked to be everything
 
 Time in RPGlitch does not flow continuously; it progresses through a strict, discrete temporal lifecycle managed by [`ChronoEngine`](../../../src/state/chrono.svelte.js).
 
-```text
-[User Action Input]
-        │
-        ▼ (The Absolute Interrupt)
- ┌──────────────┐
- │ STASIS LOCK  │ ──► UI freezes, inputs disabled, double-click gate active
- └──────┬───────┘
-        │
-        ▼ (Stage 1: State Arbitration & Director Pass)
- ┌──────────────┐
- │ STAGE 1: DIR │ ──► Director staging, physics deltas, context culling, speaker routing
- └──────┬───────┘
-        │
-        ▼ (Stage 2: Narrative Generation & Streaming)
- ┌──────────────┐
- │ STAGE 2: ACT │ ──► Streamed in-character reaction behind Epistemic Partitioning
- └──────┬───────┘
-        │
-        ├─────────────────────────────────────────────────┐ (Async Background Fork)
-        ▼                                                 ▼
- ┌──────────────┐                                  ┌──────────────┐
- │ STASIS LIFT  │ ──► User composer unfreezes      │ STAGE 3: CTX │ (Context Consolidation)
- └──────────────┘                                  └──────────────┘
+```mermaid
+flowchart TD
+    Input["User Action Input"] --> |The Absolute Interrupt| Lock["STASIS LOCK<br>UI freezes, inputs disabled, double-click gate active"]
+    Lock --> |Stage 1: State Arbitration & Director Pass| Stage1["STAGE 1: DIR<br>Director staging, physics deltas, context culling, speaker routing"]
+    Stage1 --> |Stage 2: Narrative Generation & Streaming| Stage2["STAGE 2: ACT<br>Streamed in-character reaction behind Epistemic Partitioning"]
+    Stage2 --> Lift["STASIS LIFT<br>User composer unfreezes"]
+    Stage2 -.-> |Async Background Fork| Stage3["STAGE 3: CTX<br>Context Consolidation"]
 ```
 
 ### The Round (Macro-State)

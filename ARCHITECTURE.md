@@ -8,36 +8,18 @@ This specification documents the technical architecture, domain models, executio
 
 RPGlitch is architected as an offline-capable, **Local-First Single-Page Application (SPA)** packaged as a single-file portable bundle.
 
-```
-┌────────────────────────────────────────────────────────┐
-│                   Presentation Layer                   │
-│                        (src/ui)                        │
-└───────────────────────────┬────────────────────────────┘
-                            │ imports downward
-                            ▼
-┌────────────────────────────────────────────────────────┐
-│             Reactive State Management Layer            │
-│                       (src/state)                      │
-└───────────────────────────┬────────────────────────────┘
-                            │ imports downward
-                            ▼
-┌────────────────────────────────────────────────────────┐
-│         Agent Orchestration & Inference Layer          │
-│                   (src/intelligence)                   │
-└───────────────────────────┬────────────────────────────┘
-                            │ imports downward
-                            ▼
-┌────────────────────────────────────────────────────────┐
-│                Client Persistence Layer                │
-│                       (src/data)                       │
-└───────────────────────────┬────────────────────────────┘
-                            │ imports downward
-                            ▼
-┌────────────────────────────────────────────────────────┐
-│              Platform & Hardware Services              │
-│                (src/platform, src/media)               │
-└───────────────────────────┘────────────────────────────┘
+```mermaid
+flowchart TD
+    UI["Presentation Layer<br><code>src/ui</code>"]
+    State["Reactive State Management Layer<br><code>src/state</code>"]
+    Intelligence["Agent Orchestration & Inference Layer<br><code>src/intelligence</code>"]
+    Data["Client Persistence Layer<br><code>src/data</code>"]
+    Platform["Platform & Hardware Services<br><code>src/platform</code>, <code>src/media</code>"]
 
+    UI --> |imports downward| State
+    State --> |imports downward| Intelligence
+    Intelligence --> |imports downward| Data
+    Data --> |imports downward| Platform
 ```
 
 ### Core Technologies
@@ -80,21 +62,12 @@ The codebase enforces strict unidirectional dependency flow. High-level layers d
 
 The simulation runs a deterministic turn-based cycle triggered by user interactions.
 
-```
-[User Action Input]
-         │
-         ▼
-[Stage 1: State Arbitration & Director Pass]
-         │
-         ▼
-[Stage 2: Narrative Generation & Agent Streaming]
-         │
-         ▼
-[Stage 3: Asynchronous Context Consolidation]
-         │
-         ▼
-[Interface Unlock]
-
+```mermaid
+flowchart TD
+    Input["User Action Input"] --> Stage1["Stage 1: State Arbitration & Director Pass"]
+    Stage1 --> Stage2["Stage 2: Narrative Generation & Agent Streaming"]
+    Stage2 --> Stage3["Stage 3: Asynchronous Context Consolidation"]
+    Stage3 --> Unlock["Interface Unlock"]
 ```
 
 ### Lifecycle Units: Rounds vs. Turns
@@ -116,19 +89,21 @@ The simulation runs a deterministic turn-based cycle triggered by user interacti
 
 ## 4. Domain Entities & State Models
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                          Domain Entity                          │
-├───────────────────────────────┬─────────────────────────────────┤
-│ Static Profile (eternal)      │ Dynamic State (present)         │
-│ - Invariant Anatomy           │ - Somatic State Vector (0-100)  │
-│ - Identity / Archetype        │ - Behavioral Modifiers          │
-├───────────────────────────────┼─────────────────────────────────┤
-│ Episodic Vector Store (past)  │ Strategic Trajectory (future)   │
-│ - 384-d Embedding Array       │ - Active Goals                  │
-│ - Semantic RAG References     │ - Immediate Intent              │
-└───────────────────────────────┴─────────────────────────────────┘
-
+```mermaid
+flowchart TB
+    subgraph Entity ["Domain Entity"]
+        direction TB
+        subgraph Row1 [" "]
+            direction LR
+            Eternal["<b>Static Profile (eternal)</b><br>• Invariant Anatomy<br>• Identity / Archetype"]
+            Present["<b>Dynamic State (present)</b><br>• Somatic State Vector (0–100)<br>• Behavioral Modifiers"]
+        end
+        subgraph Row2 [" "]
+            direction LR
+            Past["<b>Episodic Vector Store (past)</b><br>• 384-d Embedding Array<br>• Semantic RAG References"]
+            Future["<b>Strategic Trajectory (future)</b><br>• Active Goals<br>• Immediate Intent"]
+        end
+    end
 ```
 
 ### Entity Classification

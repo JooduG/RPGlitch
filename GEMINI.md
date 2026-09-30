@@ -31,8 +31,9 @@ We bridge creative prose and mechanical truth through three distinct layers:
 
 ## ⚡ The Simulation Physics Engine
 
-```text
-[Input] ➔ [Sanity] ➔ [Execution] ➔ [Persistence] ➔ [Expression]
+```mermaid
+flowchart LR
+    Input["Input"] --> Sanity["Sanity"] --> Execution["Execution"] --> Persistence["Persistence"] --> Expression["Expression"]
 ```
 
 ### 1. The Simulation Heartbeat (Round & Turn)
@@ -159,8 +160,9 @@ RPGlitch is a **Local-First Reactive Monolith (PWA)** built for the Perchance if
 
 ### 3. Layer Boundaries & Import Hierarchy
 
-```text
-[src/ui] ➔ [src/state] ➔ [src/intelligence] ➔ [src/data] ➔ [src/platform]
+```mermaid
+flowchart LR
+    UI["src/ui"] --> State["src/state"] --> Intelligence["src/intelligence"] --> Data["src/data"] --> Platform["src/platform"]
 ```
 
 #### Structural Glossary

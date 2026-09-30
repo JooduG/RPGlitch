@@ -15,27 +15,18 @@ RPGlitch is a local-first Progressive Web Application running inside the Perchan
 
 Every external data source is classified as untrusted. No payload is permitted to mutate reactive state or touch DOM sinks without traversing the multi-layer pipeline below:
 
-```text
-[ Untrusted Sources: User Input | URL Params | postMessage | LLM Streams ]
-                                  │
-                                  ▼
- ┌─────────────────────────────────────────────────────────────────┐
- │ 1. Ingestion Boundary     Schema parsing & key stripping       │
- └────────────────────────────────┬────────────────────────────────┘
-                                  │
-                                  ▼
- ┌─────────────────────────────────────────────────────────────────┐
- │ 2. State & Invariants     Numeric clamping & memory limits      │
- └────────────────────────────────┬────────────────────────────────┘
-                                  │
-                                  ▼
- ┌─────────────────────────────────────────────────────────────────┐
- │ 3. Output Encoding        DOMPurify sanitization before sink    │
- └────────────────────────────────┬────────────────────────────────┘
-                                  │
-                                  ▼
-           [ Protected UI Runtime & Local Storage Engine ]
+```mermaid
+flowchart TD
+    Sources["Untrusted Sources:<br>User Input | URL Params | postMessage | LLM Streams"]
+    Boundary["1. Ingestion Boundary:<br>Schema parsing & key stripping"]
+    Invariants["2. State & Invariants:<br>Numeric clamping & memory limits"]
+    Encoding["3. Output Encoding:<br>DOMPurify sanitization before sink"]
+    Protected["Protected UI Runtime & Local Storage Engine"]
 
+    Sources --> Boundary
+    Boundary --> Invariants
+    Invariants --> Encoding
+    Encoding --> Protected
 ```
 
 ---

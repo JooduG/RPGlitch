@@ -18,15 +18,16 @@ This specification formalizes **Climax Fate Branching** and the **`<choices>` XM
 
 At narrative climax turns, the Director structures 3 archetypal paths with distinct consequences:
 
-```text
-                                  [SCENE CLIMAX]
-                                         │
-        ┌────────────────────────────────┼────────────────────────────────┐
-        ▼                                ▼                                ▼
-  [THE HIGH PATH]                 [THE MIDDLE PATH]                [THE LOW PATH]
-  Truth / Revelation              Covert Observation               Rupture / Catastrophe
-  Direct Initiative               Tactical Retreat                 Severe Escalation
-  Reconnection / Clarity          Leverage Trading                 Irrevocable Loss
+```mermaid
+flowchart TD
+    Climax["SCENE CLIMAX"]
+    High["<b>THE HIGH PATH</b><br>• Truth / Revelation<br>• Direct Initiative<br>• Reconnection / Clarity"]
+    Middle["<b>THE MIDDLE PATH</b><br>• Covert Observation<br>• Tactical Retreat<br>• Leverage Trading"]
+    Low["<b>THE LOW PATH</b><br>• Rupture / Catastrophe<br>• Severe Escalation<br>• Irrevocable Loss"]
+
+    Climax --> High
+    Climax --> Middle
+    Climax --> Low
 ```
 
 ---
