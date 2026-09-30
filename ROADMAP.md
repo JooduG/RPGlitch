@@ -18,7 +18,7 @@ This track addresses the critical issues identified during live Perchance stress
 
 ### 1. Low-Hanging Fruit (Immediate Execution Target)
 
-- [ ] **Storyboard Resume Fix (Session Non-Destruction)**:
+- [x] **Storyboard Resume Fix (Session Non-Destruction)**:
   - **Issue**: Clicking "Return to Storyboard" in [`src/ui/console/ControlPanel.svelte`](src/ui/console/ControlPanel.svelte#L55) calls `await session_driver.clear_active()`, wiping `runtime.story_id`, resetting `round = 0`, and clearing `SESSION_ID_KEY`. When [`src/ui/console/StoryboardBar.svelte`](src/ui/console/StoryboardBar.svelte#L14) mounts, `has_active_story` evaluates to `false` and defaults to `SELECT ENTITIES (0/3)` with dead primary clicks.
   - **Fix**: Remove `session_driver.clear_active()` from "Return to Storyboard". Reserve `clear_active()` exclusively for the explicit, destructive "END STORY" button. Preserving `runtime.story_id` restores the reactive `ENTER STORYMODE` button immediately.
   - **Touchpoint**: [`src/ui/console/ControlPanel.svelte`](src/ui/console/ControlPanel.svelte).

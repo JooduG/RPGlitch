@@ -5,7 +5,6 @@
    * when the gear is toggled: Audio, Storyboard, Storymode, Library, Advanced.
    */
   import { Accordion, Button, ScrollArea, TextField } from "@primitives";
-  import { session_driver } from "@data";
   import { app, simulation_state } from "@state";
   import { StoryManager } from "@story";
   import AudioControls from "./AudioControls.svelte";
@@ -52,9 +51,7 @@
                 variant="primary"
                 size="small"
                 onclick={async () => {
-                  await session_driver.clear_active();
-                  await app.load_entities(); // Keep lobby lists in sync with active-story claims
-                  app.set_view("storyboard");
+                  await app.set_view("storyboard");
                 }}
               />
 
