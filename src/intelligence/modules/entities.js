@@ -1,35 +1,246 @@
 /**
- * src/intelligence/modules/entities/sheets.js
+ * src/intelligence/modules/entities.js
  * ============================================================================
- * 📋 SHEETS MODULE — Entity Sheet Specifications & Universal XML Compilers
+ * 👥 CONSOLIDATED ENTITIES MODULE — Spatial Presence, Cast Sheets & Dispositions
  * ============================================================================
  *
- * Provides physical appearance synthesis, entity sheet specifications (SHEET_SPECS),
- * single-entity sheet compiler (render_sheet), master available entities compiler
+ * Single authoritative module orchestrating entity spatial presence, relational
+ * dispositions, cast formatting, entity sheet specifications (SHEET_SPECS),
+ * single-entity sheet compilation (render_sheet), master entities assembly
  * (render_entity_sheets), and auxiliary snapshot contexts (memory & enhancement).
+ *
+ * Formed by consolidating `presence.js` and `sheets.js` under P4 Zero Backwards
+ * Compatibility.
  *
  * Architecture & Modification Rules:
  * - Unidirectional layer flow: pure string and structured XML compilation.
- * - Single source of truth for entity sheet XML layouts across all simulation modes.
+ * - Single source of truth for entity XML layouts across all simulation modes.
+ * - Relational dispositions harvested 100% from universal bracket predicates
+ *   via veil.js (`extract_entity_relationships`).
  * - Strict Full-Name domain nomenclature.
  * ============================================================================
  */
 
 import {
   escape_xml,
+  prompt_escape,
   physical_to_xml,
   strip_leading_key_echo,
   render_field_value,
   indent_continuation,
   render_xml_tag,
   strip_visual_excluded,
+  collapse_whitespace,
+  truncate_at_word,
 } from "@utils";
 import { PROFILE_FIELD_CATALOG } from "@data";
-import { strip_epistemic_secrets } from "./epistemic.js";
-import { resolve_available_entities, render_dispositions, render_nearby_entities_xml, render_cast_xml, CAST_MODES } from "./presence.js";
+import { strip_epistemic_secrets, extract_entity_relationships, strip_relational_brackets } from "../veil.js";
 
 // ============================================================================
-// [SECTION 1: PHYSICAL STATE SYNTHESIS]
+// [SECTION 1: SPATIAL PRESENCE & RELATIONAL TOPOLOGY]
+// ============================================================================
+
+/**
+ * Resolves simulation entities into active present participants, dormant candidates,
+ * and relational lookup indices.
+ *
+ * @param {Object} [parameters]
+ * @param {Record<string, any>} [parameters.entities={}]
+ * @param {any[]} [parameters.npc_entities=[]]
+ * @param {string[]} [parameters.in_scene_ids=[]]
+ * @returns {{
+ *   present: any[],
+ *   dormant: any[],
+ *   name_to_id: Map<string, string>,
+ *   active_names: Set<string>
+ * }}
+ */
+export function resolve_available_entities({ entities = {}, npc_entities = [], in_scene_ids = [] } = {}) {
+  const in_scene_set = new Set((in_scene_ids || []).filter(Boolean).map(String));
+  const active_trio_ids = new Set([entities.AI?.id, entities.USER?.id, entities.FRACTAL?.id].filter(Boolean).map(String));
+
+  const present = [];
+  const dormant = [];
+  const name_to_id = new Map();
+  const active_names = new Set();
+
+  const register_entity = (entity, is_present) => {
+    if (!entity?.name) return;
+    const normalized_name = String(entity.name).toLowerCase().trim();
+    name_to_id.set(normalized_name, entity.id || entity.name);
+    if (is_present) {
+      active_names.add(normalized_name);
+      present.push(entity);
+    } else {
+      dormant.push(entity);
+    }
+  };
+
+  for (const entity of [entities.AI, entities.USER, entities.FRACTAL]) {
+    if (entity) register_entity(entity, true);
+  }
+
+  for (const npc_entity of npc_entities || []) {
+    if (!npc_entity || active_trio_ids.has(String(npc_entity.id))) continue;
+    register_entity(npc_entity, in_scene_set.has(String(npc_entity.id)));
+  }
+
+  return { present, dormant, name_to_id, active_names };
+}
+
+/**
+ * Renders directed relational dispositions for an entity toward other active present participants.
+ * Sourced 100% from universal bracket predicates via veil.js.
+ *
+ * @param {any} entity
+ * @param {Set<string>} active_names
+ * @param {Map<string, string>} name_to_id_map
+ * @returns {string}
+ */
+export function render_dispositions(entity, active_names, name_to_id_map) {
+  if (!entity?.name) return "";
+  const rows = [];
+  const handled_targets = new Set();
+
+  // Build entity objects so extract_entity_relationships can populate id_to_name,
+  // enabling resolution of ID-keyed brackets like [@SILVERS: ...] where "SILVERS"
+  // is the entity.id rather than the entity.name.
+  const active_entity_objects = [];
+  for (const [lowercase_name, entity_id] of name_to_id_map) {
+    active_entity_objects.push({ id: entity_id, name: lowercase_name });
+  }
+
+  const bracket_relationships = extract_entity_relationships(entity, active_entity_objects);
+
+  for (const [target_key, links] of bracket_relationships) {
+    const target_normalized = target_key.toLowerCase().trim();
+    if (!active_names.has(target_normalized)) continue;
+
+    const dynamic = links.present || links.eternal;
+    if (!dynamic) continue;
+
+    const target_id = name_to_id_map.get(target_normalized) || target_key;
+    rows.push(
+      render_xml_tag({
+        tag: "DISPOSITION",
+        attrs: { target: target_id },
+        children: [prompt_escape(dynamic)],
+        inline: true,
+      }),
+    );
+    handled_targets.add(target_normalized);
+  }
+
+  if (!rows.length) return "";
+  return render_xml_tag({ tag: "DISPOSITIONS", children: rows, child_indent: 2, separator: "\n" });
+}
+
+/**
+ * Renders concise entries for nearby secondary entities or ambient participants as a
+ * `<CAST mode="nearby">` block.
+ *
+ * @param {any[]|Record<string, any>} [entities=[]]
+ * @param {Object} [options={}]
+ * @param {string} [options.exclude_id=null]
+ * @param {string} [options.exclude_key=null]
+ * @param {number} [options.indent=0]
+ * @returns {string}
+ */
+export function render_nearby_entities_xml(entities = [], options = {}) {
+  const { exclude_id = null, exclude_key = null, indent = 0 } = options;
+  const entity_list = Array.isArray(entities)
+    ? entities
+    : Object.entries(entities || {}).map(([key, entity]) => ({
+        ...entity,
+        role: entity?.role || key,
+        _key: key,
+      }));
+
+  const rows = [];
+
+  for (const entity of entity_list) {
+    if (!entity?.name) continue;
+    const entity_id = String(entity.id || entity.name);
+    if (exclude_id && (entity_id === exclude_id || String(entity.name) === exclude_id)) continue;
+    if (exclude_key && (entity._key === exclude_key || entity.role === exclude_key)) continue;
+
+    const summary = entity.present?.non_physical || entity.eternal?.non_physical || entity.description || "";
+    const attrs = { id: entity_id, name: String(entity.name), role: entity.role || "NPC" };
+    rows.push(
+      summary
+        ? render_xml_tag({
+            tag: "ENTITY",
+            attrs,
+            children: [render_xml_tag({ tag: "SUMMARY", children: [escape_xml(String(summary).trim())], inline: true })],
+          })
+        : `<ENTITY id="${escape_xml(attrs.id)}" name="${escape_xml(attrs.name)}" role="${escape_xml(attrs.role)}" />`,
+    );
+  }
+
+  if (!rows.length) return "";
+  return render_cast_xml({ mode: CAST_MODES.NEARBY, children: [rows.join("\n")], indent, child_indent: 2 });
+}
+
+// ============================================================================
+// [SECTION 2: CANONICAL CAST BLOCK]
+// ============================================================================
+
+export const CAST_TAG = "CAST";
+
+/**
+ * The single cast-block vocabulary.
+ * @type {Readonly<{ CANDIDATES: "candidates", NEARBY: "nearby", ACTIVE: "active" }>}
+ */
+export const CAST_MODES = Object.freeze({ CANDIDATES: "candidates", NEARBY: "nearby", ACTIVE: "active" });
+
+/**
+ * Emits the one canonical `<CAST mode="…">` envelope.
+ * @param {Object} [parameters]
+ * @param {string} [parameters.mode=CAST_MODES.NEARBY]
+ * @param {Array<string|null|undefined>} [parameters.children=[]]
+ * @param {number} [parameters.indent=0]
+ * @param {number} [parameters.child_indent=2]
+ * @returns {string}
+ */
+export function render_cast_xml({ mode = CAST_MODES.NEARBY, children = [], indent = 0, child_indent = 2 } = {}) {
+  const blocks = (Array.isArray(children) ? children : [children]).filter((child) => child != null && String(child).trim());
+  if (!blocks.length) return "";
+  return render_xml_tag({ tag: CAST_TAG, attrs: { mode }, children: blocks, indent, child_indent, separator: "\n\n" });
+}
+
+/**
+ * Generates a concise summary for candidate entities.
+ * @param {any} entity
+ * @returns {string}
+ */
+function summarize_entity(entity) {
+  const description = collapse_whitespace(String(entity?.description || entity?.eternal?.non_physical || entity?.present?.non_physical || ""));
+  return truncate_at_word(description, 130);
+}
+
+/**
+ * Renders the Director's reuse roster as one `<CAST mode="candidates">` block of off-stage secondary characters.
+ *
+ * @param {Object} [parameters]
+ * @param {Record<string, any>} [parameters.entities={}]
+ * @param {any[]} [parameters.npc_entities=[]]
+ * @param {string[]} [parameters.in_scene_ids=[]]
+ * @returns {string}
+ */
+export function render_candidate_cast_xml({ entities = {}, npc_entities = [], in_scene_ids = [] } = {}) {
+  const { dormant } = resolve_available_entities({ entities, npc_entities, in_scene_ids });
+  if (!dormant.length) return "";
+
+  const rows = dormant.map((entity) => {
+    const summary = summarize_entity(entity);
+    return `- ${escape_xml(entity.name)} (id: ${escape_xml(String(entity.id))})${summary ? `: ${escape_xml(summary)}` : ""}`;
+  });
+
+  return render_cast_xml({ mode: CAST_MODES.CANDIDATES, children: [rows.join("\n")] });
+}
+
+// ============================================================================
+// [SECTION 3: PHYSICAL STATE SYNTHESIS]
 // ============================================================================
 
 /**
@@ -57,7 +268,7 @@ export function resolve_entity_field_value(entity, path) {
 }
 
 /**
- * Extracts and unboxes inner XML body rows from a physical/topographical definition.
+ * Extracts and unboxes inner XML body rows from a physical definition.
  *
  * @param {string|Record<string, any>|null|undefined} raw_value
  * @param {any} [owner_entity]
@@ -98,9 +309,7 @@ export function extract_physical_rows(raw_value, owner_entity, entities, transfo
 }
 
 /**
- * Synthesizes eternal (permanent biometric/topographic baseline) and present (active outfit/atmosphere)
- * into a single unified physical block (<APPEARANCE>).
- * Present attributes cleanly overwrite corresponding eternal attributes by XML tag name.
+ * Synthesizes eternal and present into a single unified physical block (<APPEARANCE>).
  *
  * @param {string|null|undefined} eternal_text
  * @param {string|null|undefined} present_text
@@ -139,22 +348,11 @@ export function render_appearance(eternal_text, present_text, owner_entity, enti
 }
 
 // ============================================================================
-// [SECTION 2: DECLARATIVE SHEET BLUEPRINTS & UNIVERSAL COMPILER]
+// [SECTION 4: DECLARATIVE SHEET BLUEPRINTS & UNIVERSAL COMPILER]
 // ============================================================================
 
-/**
- * Named epistemic visibility policies for a sheet field.
- * - `always`  — the field is always shown, with private [SECRET]/[PLAN] directives stripped.
- * - `owner`   — private directives survive only for the owning perspective (`is_owner`).
- * - `none`    — the field bypasses sanitisation entirely.
- * @type {Readonly<{ ALWAYS: "always", OWNER: "owner", NONE: "none" }>}
- */
 export const EPISTEMIC_POLICY = Object.freeze({ ALWAYS: "always", OWNER: "owner", NONE: "none" });
 
-/**
- * Visibility declaration for sheets that keep private STATE when they own the sheet.
- * @type {Readonly<Record<string, string>>}
- */
 const EPISTEMIC_OWNER_STATE = Object.freeze({
   agenda: EPISTEMIC_POLICY.ALWAYS,
   personality: EPISTEMIC_POLICY.ALWAYS,
@@ -163,10 +361,6 @@ const EPISTEMIC_OWNER_STATE = Object.freeze({
   memory: EPISTEMIC_POLICY.ALWAYS,
 });
 
-/**
- * Visibility declaration for sheets whose fields are never private.
- * @type {Readonly<Record<string, string>>}
- */
 const EPISTEMIC_ALWAYS = Object.freeze({
   agenda: EPISTEMIC_POLICY.ALWAYS,
   personality: EPISTEMIC_POLICY.ALWAYS,
@@ -187,15 +381,6 @@ const CHARACTER_SHEET_BASE = Object.freeze({
   epistemic: EPISTEMIC_OWNER_STATE,
 });
 
-/**
- * Frozen catalog of entity sheet blueprints driven by PROFILE_FIELD_CATALOG.
- * Each entry is pure vocabulary — structural tags, section name, physical mode,
- * dynamic-axis scope and the epistemic visibility declaration. The grammatical
- * differences between character / fractal / persona sheets live here as data;
- * the emission sequence itself is shared (see SHEET_SECTIONS).
- *
- * @type {Readonly<Record<string, any>>}
- */
 export const SHEET_SPECS = Object.freeze({
   AI_CHARACTER: Object.freeze({
     ...CHARACTER_SHEET_BASE,
@@ -230,35 +415,14 @@ export const SHEET_SPECS = Object.freeze({
   }),
 });
 
-/**
- * The one sheet grammar: an ordered list of wrapper sections, each declaring the
- * field emitters it contains. Every entity kind walks this same sequence — the
- * grammatical differences between kinds live in the SHEET_SPECS vocabulary
- * (section tag, field tags, axis scope, physical mode), never in bespoke
- * branches. A wrapper of `null` emits its fields without an enclosing section.
- *
- * @type {ReadonlyArray<{ wrapper: string | null, fields: ReadonlyArray<string> }>}
- */
 const SHEET_SECTIONS = Object.freeze([
   Object.freeze({ wrapper: "psychology_tag", fields: Object.freeze(["agenda", "personality", "state", "dispositions", "axes"]) }),
   Object.freeze({ wrapper: null, fields: Object.freeze(["physical"]) }),
   Object.freeze({ wrapper: null, fields: Object.freeze(["memory"]) }),
 ]);
 
-/**
- * The physical-only section list Sensory Optics uses: an image subject exposes only its
- * physical state (no agenda/personality/memory), while still flowing through the one
- * `render_sheet` grammar (recommendation #2).
- * @type {ReadonlyArray<{ wrapper: string|null, fields: ReadonlyArray<string> }>}
- */
 const VISUAL_SECTIONS = Object.freeze([Object.freeze({ wrapper: null, fields: Object.freeze(["physical"]) })]);
-/**
- * One emitter per sheet field role — the complete, single authority for how a
- * sheet field becomes XML. Adding or reordering a field is a data edit
- * (SHEET_SECTIONS + this catalog), not a change to `render_sheet`.
- *
- * @type {Readonly<Record<string, (specification: any, context: any, helpers: any) => string>>}
- */
+
 const SHEET_FIELD_RENDERERS = Object.freeze({
   agenda(specification, context, helpers) {
     if (!context.include_agenda) return "";
@@ -273,7 +437,10 @@ const SHEET_FIELD_RENDERERS = Object.freeze({
 
   state(specification, context, helpers) {
     const state_raw = helpers.sanitize(context.entity.present?.non_physical, specification.epistemic.state);
-    const state_content = strip_leading_key_echo(render_field_value(state_raw, context.entity, context.entities), specification.state_strip_keys);
+    // Strip @-prefixed relational brackets — those belong exclusively in <DISPOSITIONS>
+    // so they never leak across the Epistemic Wall through the STATE field.
+    const state_without_relations = strip_relational_brackets(state_raw);
+    const state_content = strip_leading_key_echo(render_field_value(state_without_relations, context.entity, context.entities), specification.state_strip_keys);
     return helpers.render_sheet_field(specification.state_tag, state_content) || "";
   },
 
@@ -327,32 +494,10 @@ const SHEET_FIELD_RENDERERS = Object.freeze({
 });
 
 /**
- * Compiles a single entity sheet XML block by walking the shared grammar
- * (SHEET_SECTIONS) over the kind's vocabulary (SHEET_SPECS). All field visibility
- * resolves through one projection: the spec's `epistemic` declaration plus the
- * caller's perspective flags (`is_owner`, `include_agenda`, `include_memories`,
- * `show_dispositions`). Supports both "combined" physical synthesis (one merged
- * <APPEARANCE>) and "separate" physical unboxing (<APPEARANCE> + <CURRENT_LOOK>).
+ * Compiles a single entity sheet XML block.
  *
- * Every element is emitted through `render_xml_tag` at a uniform two-space step,
- * so the whole sheet tree is indent-consistent.
- *
- * @param {Object} specification - An entry from SHEET_SPECS.
+ * @param {Object} specification
  * @param {Object} context
- * @param {any} context.entity
- * @param {any} [context.entities]
- * @param {any} [context.accessors]
- * @param {Function} [context.render_axes]
- * @param {any} [context.dynamics]
- * @param {boolean} [context.is_owner=false]
- * @param {boolean} [context.show_dispositions=false]
- * @param {boolean} [context.include_agenda=true]
- * @param {boolean} [context.include_memories=true]
- * @param {Set<string>} [context.active_names]
- * @param {Map<string, string>} [context.name_to_id]
- * @param {"combined"|"separate"} [context.physical_mode="combined"]
- * @param {((value: string) => string)|null} [context.transform_physical=null] - Post-macro transform applied to each physical body (optics: visual-filter strip + alternation roll).
- * @param {ReadonlyArray<{ wrapper: string|null, fields: ReadonlyArray<string> }>} [context.sections] - Section-list override (optics renders the physical section only).
  * @returns {string}
  */
 export function render_sheet(specification, context) {
@@ -396,22 +541,9 @@ export function render_sheet(specification, context) {
 }
 
 // ============================================================================
-// [SECTION 3: MASTER STORY ENTITIES ASSEMBLY]
+// [SECTION 5: MASTER STORY ENTITIES ASSEMBLY]
 // ============================================================================
 
-/**
- * Named entity-visibility policies — the ONE place a mode's "who sees what" is decided.
- * Each policy maps the mode's speaker to the three sheet gates (`dispositions`,
- * `dynamic_axes`, `agendas`) the sheet compiler reads, so a mode declares only its policy
- * name + speaker and the sets live here instead of as three parallel arrays per record.
- *
- * Sheet-bearing policies: `default` (speaker + environment fully visible, listener shows
- * personality/state only), `supporting` (default plus the AI companion's agenda), `director`
- * (everyone's agenda/dispositions, no live axes), `omniscient` (narrator). The tool modes
- * (`target`/`field`/`visual`/`none`) expose no core sheets, so their gates are empty.
- *
- * @type {Readonly<Record<string, (speaker: string|null) => { dispositions: Set<string>, dynamic_axes: Set<string>, agendas: Set<string> }>>}
- */
 export const VISIBILITY_POLICIES = Object.freeze({
   default: (speaker) => {
     const visible = new Set([speaker, "FRACTAL"].filter(Boolean));
@@ -438,32 +570,11 @@ export const VISIBILITY_POLICIES = Object.freeze({
   none: () => ({ dispositions: new Set(), dynamic_axes: new Set(), agendas: new Set() }),
 });
 
-/**
- * Resolves one mode's sheet-visibility policy into the three gate sets the sheet compiler reads.
- * @param {string} [visibility]
- * @param {string|null} [speaker]
- * @returns {{ dispositions: Set<string>, dynamic_axes: Set<string>, agendas: Set<string> }}
- */
 export function resolve_visibility_gates(visibility, speaker) {
   const policy = VISIBILITY_POLICIES[visibility] || VISIBILITY_POLICIES.none;
   return policy(speaker);
 }
 
-/**
- * Resolves the mode's `entities` manifest layer and the active entity roster into one plan.
- * Single source of truth for every entity gate read (`dispositions`, `dynamic_axes`,
- * `agendas`, `nearby_entities`, `candidate_entities`, `field_context`, `target_context`,
- * `chapter_history`) plus the available-entity maps and NPC render list.
- *
- * @param {any} [config=null] - Resolved prompt manifest record containing `.entities`.
- * @param {Object} [context={}]
- * @param {Record<string, any>} [context.entities={}]
- * @param {any[]} [context.npc_entities=[]]
- * @param {string[]} [context.in_scene_ids=[]]
- * @param {any} [context.active_speaker=null]
- * @param {boolean} [context.is_npc=false]
- * @returns {Readonly<{ dispositions: Set<string>, dynamic_axes: Set<string>, agendas: Set<string>, nearby_entities: boolean, candidate_entities: boolean, field_context: boolean, target_context: boolean, chapter_history: boolean, active_names: Set<string>, name_to_id: Map<string, string>, npc_ids_to_render: Set<string> }>}
- */
 export function resolve_entities(config = null, context = {}) {
   const configuration = config?.entities || {};
   const { dispositions, dynamic_axes, agendas } = resolve_visibility_gates(config?.visibility, config?.speaker);
@@ -505,21 +616,8 @@ export function resolve_entities(config = null, context = {}) {
 
 /**
  * Compiles the master <ENTITIES> XML block configured by the active prompt manifest.
- * All gates resolve through `resolve_entities`.
  *
  * @param {Object} [parameters]
- * @param {Record<string, any>} [parameters.entities={}]
- * @param {any[]} [parameters.npc_entities=[]]
- * @param {string[]} [parameters.in_scene_ids=[]]
- * @param {any} [parameters.active_speaker=null]
- * @param {any} [parameters.accessors=null]
- * @param {any} [parameters.config=null] - Resolved prompt manifest record containing `.entities`.
- * @param {Function} [parameters.render_axes=null]
- * @param {boolean} [parameters.is_npc=false]
- * @param {any} [parameters.speaker_dynamics=null]
- * @param {any} [parameters.fractal_dynamics=null]
- * @param {string} [parameters.speaker_key="AI"] - Which core entity is speaking ("AI"/"USER"/"NPC"), gating ownership + agenda visibility.
- * @param {string|null} [parameters.cast_xml=null] - Pre-rendered `<CAST>` roster appended as the final `<ENTITIES>` child.
  * @returns {string}
  */
 export function render_entity_sheets({
@@ -543,10 +641,6 @@ export function render_entity_sheets({
   const { active_names, name_to_id } = entity_plan;
   const parts = [];
 
-  // The speaking entity owns its sheet (private STATE survives) and carries live axes; the
-  // listener is gated by `agendas`/`dispositions`. Swapping `speaker_key` (e.g. "USER" for
-  // ghostwrite) mirrors the whole sheet-visibility surface — that is the only structural
-  // difference between the interaction and ghostwrite envelopes.
   const dynamics_for = (key) => {
     if (!axes_for.has(key)) return null;
     if (key === speaker_key) return speaker_dynamics;
@@ -599,7 +693,6 @@ export function render_entity_sheets({
   }
 
   const npc_ids_to_render = entity_plan.npc_ids_to_render;
-
   const rendered_npc_ids = new Set();
   const active_speaker_id = is_npc && active_speaker ? String(active_speaker.id ?? active_speaker.name) : null;
 
@@ -653,18 +746,9 @@ export function render_entity_sheets({
 }
 
 // ============================================================================
-// [SECTION 4: AUXILIARY INTELLIGENCE SNAPSHOTS]
+// [SECTION 6: AUXILIARY INTELLIGENCE SNAPSHOTS]
 // ============================================================================
 
-/**
- * Compiles a structured memory snapshot of an entity's complete state fragments for memory consolidation.
- * Symmetrically activated when `config.entities.target_context` is enabled.
- * Delegates directly to the universal render_sheet compiler with physical_mode: "separate".
- *
- * @param {string} entity_key
- * @param {any} entity
- * @returns {string}
- */
 export function render_entity_memory_context(entity_key, entity) {
   if (!entity) return "";
   const specification = SHEET_SPECS[entity_key] || SHEET_SPECS.AI_CHARACTER;
@@ -676,17 +760,6 @@ export function render_entity_memory_context(entity_key, entity) {
   });
 }
 
-/**
- * Compiles contextual sibling and temporal baseline blocks for profile field enhancement tasks.
- * Symmetrically activated when `config.entities.field_context` is enabled.
- *
- * @param {any} entity
- * @param {string} field_identifier - Dot-notation field key (e.g. "present.physical", "future").
- * @param {string} [content=""] - Current content being enhanced.
- * @param {string} [entity_type="character"]
- * @param {Function} [format_past_function=null] - Optional past vector formatter.
- * @returns {string}
- */
 export function render_enhancement_field_context(entity, field_identifier, content = "", entity_type = "character", format_past_function = null) {
   if (!entity) return "";
   const [section_name, subsection_name] = String(field_identifier || "").split(".");
@@ -695,11 +768,7 @@ export function render_enhancement_field_context(entity, field_identifier, conte
 
   if (section_name && subsection_name && ["eternal", "present"].includes(section_name)) {
     const sibling_subsection = subsection_name === "physical" ? "non_physical" : "physical";
-    const target_paths = [
-      `${section_name}.${subsection_name}`,
-      `${section_name}.${sibling_subsection}`,
-      ...(section_name === "present" ? [`eternal.${subsection_name}`] : []),
-    ];
+    const target_paths = [`${section_name}.${sibling_subsection}`, ...(section_name === "present" ? [`eternal.${subsection_name}`] : [])];
 
     const inner_content = target_paths
       .map((path) => {
@@ -710,7 +779,8 @@ export function render_enhancement_field_context(entity, field_identifier, conte
           : resolve_profile_field_tag(entity_kind, path);
         if (!tag) return "";
         const raw_value = resolve_entity_field_value(entity, path);
-        const value = path.endsWith(".physical") ? extract_physical_body(raw_value) : escape_xml(String(raw_value ?? "").trim());
+        const sanitized_raw_value = strip_epistemic_secrets(String(raw_value ?? ""));
+        const value = path.endsWith(".physical") ? extract_physical_body(sanitized_raw_value) : escape_xml(sanitized_raw_value.trim());
         if (!value) return "";
         return `<${tag}>\n${indent_continuation(value, 8)}\n    </${tag}>`;
       })
@@ -751,14 +821,9 @@ export function render_enhancement_field_context(entity, field_identifier, conte
 }
 
 // ============================================================================
-// [SECTION 5: SENSORY OPTICS ENTITY COMPILERS]
+// [SECTION 7: SENSORY OPTICS & DYNAMICS AXES]
 // ============================================================================
 
-/**
- * Compiles active characters and cinematography blocks for Sensory Cortex image synthesis.
- * @param {Object} [parameters={}]
- * @returns {string} XML formatted ENTITIES envelope content
- */
 export function render_optics_entities_xml({
   tier = "solo_entity",
   solo_subject = null,
@@ -828,19 +893,6 @@ export function render_optics_entities_xml({
   });
 }
 
-// ============================================================================
-// [SECTION 5: DYNAMICS AXES COMPILER]
-// ============================================================================
-
-/**
- * Compiles live dynamics into a <DYNAMIC_AXES> axis-entity block for the story sheet.
- * Each active axis becomes its own named tag (`<CHAOS value="44" low="Order" high="Volatility" />`).
- *
- * @param {Record<string, number>|null} [live_dynamics=null]
- * @param {"somatic" | "fractal" | null} [scope=null] - Restrict to one axis group
- * @param {Record<string, { label: string, low: string, high: string, scope?: string }>} [axes_registry={}]
- * @returns {string} XML block string or "" if no dynamics are active.
- */
 export function render_dynamics_axes_xml(live_dynamics = null, scope = null, axes_registry = {}) {
   if (!live_dynamics || typeof live_dynamics !== "object") return "";
 
@@ -858,20 +910,6 @@ export function render_dynamics_axes_xml(live_dynamics = null, scope = null, axe
 /**
  * CHANGELOG
  * ============================================================================
- * - 2026-09-24: Imported strip_visual_excluded directly from @utils instead of epistemic.js under P4 Zero Backwards Compatibility.
- * - 2026-09-24: `resolve_entities` gate renamed `present_entities` → `candidate_entities`, matching the cast block's refined role (off-stage reuse candidates only, never a restatement of sheeted participants).
- * - 2026-09-23: Prompt-grammar harmonization (phases 0–3) — deleted `render_dynamics_xml` (the Director now uses the shared `render_dynamics_axes_xml`) and `render_optics_subject_rules`; `<ENTITIES>` is now pure data (the SOLO FRAME / AFFIRMATIVE ENVIRONMENTAL SCALE / background directives and the subject rules moved into `<DIRECTIVES>`), and `prompt_escape` is no longer imported.
- * - 2026-09-23: Visibility policy (R3) — added the exported `VISIBILITY_POLICIES` table and `resolve_visibility_gates(visibility, speaker)`; `resolve_entities` now derives the `dispositions`/`dynamic_axes`/`agendas` sheet gates from the mode's `visibility` + `speaker` instead of reading three parallel `config.entities` arrays. Output bytes unchanged.
- * - 2026-09-23: Entity-visibility mirror + cast nesting — the agenda gate is now the `agendas` list (replacing `user_agenda`) and sheet ownership/axes flow from a single `speaker_key`, so ghostwrite is interaction with `speaker_key="USER"` (AI↔USER visibility swapped); `<ENTITIES>` accepts a `cast_xml` roster appended as its final child. `USER_PERSONA.axes_scope` is now `"somatic"` so the player sheet can carry its own axes when it is the speaker (ghostwrite), completing the mirror — the manifest's `dynamic_axes` gate still keeps those axes hidden in every listener position.
- * - 2026-09-22: One entity-sheet grammar (recommendation #2) — the fractal sheet now uses `PSYCHOLOGY`/`APPEARANCE`, every physical sheet uses one `APPEARANCE`/`CURRENT_LOOK` vocabulary for all kinds (retiring `ESSENCE`/`TOPOGRAPHY`/`PHYSICAL_APPEARANCE`/`ENVIRONMENT`/`ATMOSPHERE`), and optics' blocks route through the shared `render_sheet` path via `VISUAL_SECTIONS` + `context.transform_physical`.
- * - 2026-09-21: Tag nomenclature pass — the fractal psychology wrapper is now `ESSENCE` (was the ambiguous `ATMOSPHERE`, which collided with the physical `<ATMOSPHERE>` weather key) and the optics present-look wrapper is `CURRENT_LOOK` (was `CURRENT_IMPRESSION`); sheet field indentation now composes through nested `render_xml_tag` calls for uniform 2-space steps.
- * - 2026-09-20: Sheet-grammar unification — `SHEET_SPECS` is now pure vocabulary (tags, section name, axis scope, physical mode, `epistemic`) walked by one shared `SHEET_SECTIONS` sequence + `SHEET_FIELD_RENDERERS` catalog; named `EPISTEMIC_POLICY` constants and `EPISTEMIC_ALWAYS` / `EPISTEMIC_OWNER_STATE` bundles replace the duplicated visibility literals, and `render_sheet` resolves every field through one projection. Intentional grammatical differences (PSYCHOLOGY/ATMOSPHERE, APPEARANCE/TOPOGRAPHY, combined vs separate physical) remain declared per-kind data. Also «SHIRT»/«JACKET» metasyntax in `render_optics_subject_rules`.
- * - 2026-09-19: Added `resolve_entities(config, context)` as the single resolver for every `config.entities` gate plus the available-entity maps and NPC render list; `render_entity_sheets` now consumes that plan instead of reading `.entities` directly.
- * - 2026-09-19: Layer boundary purification: Replaced `@media` import of `strip_visual_excluded` with sibling import from `./epistemic.js`, restoring unidirectional downward layer flow.
- * - 2026-09-19: Added <SIGNATURE_COLORS> directive in render_optics_subject_rules mandating verbatim preservation of hair, eyes, and distinctive accent colors in generated prompt prose (F1).
- * - 2026-09-19: Architectural boundary purification: Relocated `resolve_optics_cinematography` to Layer 6 `src/intelligence/modules/task.js`; `sheets.js` now exclusively governs Layer 4 (<ENTITIES>) physical appearance synthesis, entity specs, and subject rules.
- * - 2026-09-18: Absorbed render_optics_entities_xml from deconstructed optics.js unifying visual entity sheets and cinematography into canonical <ENTITIES> envelope.
- * - 2026-09-18: Standardized master entity sheet envelope tag from <AVAILABLE_ENTITIES> to canonical <ENTITIES> per scrobbles.md blueprint.
- * - 2026-09-18: Extracted sheet specifications, physical synthesis, and universal sheet compilation into dedicated sheets.js submodule.
+ * - 2026-10-01: Consolidated presence.js and sheets.js into single src/intelligence/modules/entities.js module under P4 Zero Backwards Compatibility. Relational dispositions now harvest 100% from universal bracket predicates via veil.js.
  * ============================================================================
  */
