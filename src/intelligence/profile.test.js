@@ -7,9 +7,9 @@ import { describe, expect, it, vi } from "vitest";
 import { apply_profile_to_entity } from "./profile.js";
 import { render_enhancement, render_profile_sorting } from "./builder.js";
 import { TASK_LIBRARY } from "./modules/task.js";
-import { PROSE_FORMAT, get_output_format } from "./modules/format.js";
+import { PROSE_FORMAT, get_output_format } from "./modules/task.js";
 import { PROMPTS } from "./prompts.js";
-import { MACRO_DIRECTIVES } from "@utils";
+import { MACRO_DIRECTIVES } from "./modules/protocols.js";
 
 // ── 1. Protocols & Schema Specifications ──────────────────────────────────────
 
@@ -39,17 +39,17 @@ describe("Profile Domain (profile.js)", () => {
   describe("render_enhancement()", () => {
     it("formats physical properties to XML correctly", () => {
       const entity = {
-        eternal: { physical: '{"eyeColor": "blue", "hair": "black"}' },
+        present: { physical: '{"eyeColor": "blue", "hair": "black"}' },
       };
       const result = render_enhancement({
-        field_id: "eternal.physical",
+        field_id: "present.non_physical",
         content: "Content",
-        label: "Appearance",
+        label: "Mood",
         directive: "Enhance look.",
         enhancer: "AESTHETICS",
         entity,
       });
-      expect(result.system + result.task).toContain("<APPEARANCE>");
+      expect(result.system + result.task).toContain("<CURRENT_LOOK>");
       expect(result.system + result.task).toContain("<eyeColor>blue</eyeColor>");
       expect(result.system + result.task).toContain("<hair>black</hair>");
     });
@@ -62,8 +62,8 @@ describe("Profile Domain (profile.js)", () => {
         directive: "Enhance.",
         entity_type: "character",
       });
-      expect(char_result.system + char_result.task).toContain("Use placeholder macros for entities: '{{me}}' (self, speaker)");
-      expect(char_result.system + char_result.task).not.toContain("'{{user}}' (user persona), '{{char}}' (AI character)");
+      expect(char_result.system + char_result.task).toContain("Use placeholder macros for entities: '@ME' / '@SPEAKER' (self, actor)");
+      expect(char_result.system + char_result.task).not.toContain("'@USER' (user persona), '@CHAR' (AI character)");
 
       const fractal_result = render_enhancement({
         field_id: "eternal.non_physical",
@@ -72,8 +72,8 @@ describe("Profile Domain (profile.js)", () => {
         directive: "Enhance.",
         entity_type: "fractal",
       });
-      expect(fractal_result.system + fractal_result.task).toContain("'{{user}}' (user persona), '{{char}}' (AI character)");
-      expect(fractal_result.system + fractal_result.task).not.toContain("'{{me}}' (self, speaker)");
+      expect(fractal_result.system + fractal_result.task).toContain("'@USER' (user persona), '@CHAR' (AI character)");
+      expect(fractal_result.system + fractal_result.task).not.toContain("'@ME' / '@SPEAKER' (self, actor)");
     });
 
     it("injects the same-layer sibling + eternal baseline (no whole-profile bleed)", () => {

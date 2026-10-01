@@ -13,8 +13,7 @@
 <script>
   import { entities, PREMADE_ENTITIES } from "@data";
   import { get_signature_color } from "@media";
-  import { Button, TextField, tooltip } from "@primitives";
-  import { parse_relational_vector, format_relational_vector } from "@utils";
+  import { TextField, tooltip } from "@primitives";
   import { extract_entity_relationships, apply_bracket_mutation } from "@intelligence";
 
   /**
@@ -69,22 +68,34 @@
   function find_matched_entity(target_name) {
     if (!target_name) return null;
     const n = norm(target_name);
-    // 1. Exact match in all_entities
-    const exact = all_entities.find((e) => norm(e.name) === n);
+    const n_no_underscore = n.replace(/_/g, " ");
+    // 1. Exact match by name or id in all_entities
+    const exact = all_entities.find((e) => {
+      const en = norm(e.name);
+      const eid = norm(e.id);
+      return en === n || en === n_no_underscore || eid === n || eid === n_no_underscore;
+    });
     if (exact) return exact;
     // 2. Word-boundary or token match in all_entities
     const token_match = all_entities.find((e) => {
       const en = norm(e.name);
-      return en === n || en.split(/\s+/).includes(n) || n.split(/\s+/).includes(en);
+      return (
+        en === n ||
+        en === n_no_underscore ||
+        en.split(/\s+/).includes(n) ||
+        en.split(/\s+/).includes(n_no_underscore) ||
+        n_no_underscore.split(/\s+/).includes(en)
+      );
     });
     if (token_match) return token_match;
     // 3. Match in premade catalog
     const pm = PREMADE_ENTITIES.find((e) => {
       const en = norm(e.name);
-      return en === n || en.split(/\s+/).includes(n) || n.split(/\s+/).includes(en);
+      const eid = norm(e.id);
+      return en === n || en === n_no_underscore || eid === n || eid === n_no_underscore;
     });
     if (pm) return pm;
-    return { name: target_name };
+    return { name: target_name.replace(/_/g, " ") };
   }
 
   // 1. Resolve Outgoing & Incoming Edges relative to the central entity
@@ -92,95 +103,46 @@
     if (!entity?.name) return [];
     const current_name = norm(entity.name);
     const edges = [];
-    const known_names = all_entities.map((e) => e.name);
 
     // Harvest bracket relationships for the central entity across eternal, present, past, future
-    const bracket_rel_map = extract_entity_relationships(entity, known_names);
-
-    // A. Outgoing edges (stored directly on entity.relationships)
-    const outgoing_raw = Array.isArray(entity.relationships) ? entity.relationships : [];
+    const bracket_rel_map = extract_entity_relationships(entity, all_entities);
     const matched_targets = new Set();
 
-    for (const r of outgoing_raw) {
-      const parsed = parse_relational_vector(r);
-      if (parsed) {
-        const target_norm = norm(parsed.target_name);
-        matched_targets.add(target_norm);
-
-        // Check if bracket links exist for this target
-        let temporal_links = null;
-        for (const [key, links] of bracket_rel_map) {
-          if (norm(key) === target_norm) {
-            temporal_links = links;
-            break;
-          }
-        }
-
-        edges.push({
-          ...parsed,
-          is_outgoing: true,
-          source_entity: entity,
-          target_entity: find_matched_entity(parsed.target_name),
-          temporal_links,
-        });
-      }
-    }
-
-    // Add any bracket-discovered relationships not already present in entity.relationships
+    // Outgoing edges (harvested from central entity's universal bracket predicates)
     for (const [target_key, links] of bracket_rel_map) {
       const target_norm = norm(target_key);
-      if (!matched_targets.has(target_norm) && target_norm !== current_name) {
-        matched_targets.add(target_norm);
-        const target_entity = find_matched_entity(target_key);
-        const dynamic = links.present || links.eternal || (links.past && links.past[0]) || links.future || "Connected";
-        edges.push({
-          source_name: entity.name,
-          target_name: target_entity?.name || target_key,
-          dynamic,
-          is_outgoing: true,
-          source_entity: entity,
-          target_entity,
-          temporal_links: links,
-        });
-      }
+      if (target_norm === current_name) continue;
+      matched_targets.add(target_norm);
+      const target_entity = find_matched_entity(target_key);
+      const dynamic = links.present || links.eternal || (links.past && links.past[0]) || links.future || "Connected";
+      edges.push({
+        source_name: entity.name,
+        target_name: target_entity?.name || target_key,
+        dynamic,
+        is_outgoing: true,
+        source_entity: entity,
+        target_entity,
+        temporal_links: links,
+      });
     }
 
     // B. Incoming edges (harvested from other entities pointing to current entity)
     for (const other of all_entities) {
       if (norm(other.name) === current_name) continue;
-      const other_rels = Array.isArray(other.relationships) ? other.relationships : [];
-      let found_incoming = false;
-
-      for (const r of other_rels) {
-        const parsed = parse_relational_vector(r);
-        if (parsed && norm(parsed.target_name) === current_name) {
+      const other_bracket_map = extract_entity_relationships(other, [entity]);
+      for (const [key, links] of other_bracket_map) {
+        if (norm(key) === current_name) {
+          const dynamic = links.present || links.eternal || (links.past && links.past[0]) || links.future || "Connected";
           edges.push({
-            ...parsed,
+            source_name: other.name,
+            target_name: entity.name,
+            dynamic,
             is_outgoing: false,
             source_entity: other,
             target_entity: entity,
+            temporal_links: links,
           });
-          found_incoming = true;
-        }
-      }
-
-      // Also check if other entity has bracket relationship targeting current entity
-      if (!found_incoming) {
-        const other_bracket_map = extract_entity_relationships(other, [entity.name]);
-        for (const [key, links] of other_bracket_map) {
-          if (norm(key) === current_name) {
-            const dynamic = links.present || links.eternal || (links.past && links.past[0]) || links.future || "Connected";
-            edges.push({
-              source_name: other.name,
-              target_name: entity.name,
-              dynamic,
-              is_outgoing: false,
-              source_entity: other,
-              target_entity: entity,
-              temporal_links: links,
-            });
-            break;
-          }
+          break;
         }
       }
     }
@@ -317,44 +279,56 @@
     if (!new_target_name.trim() || !new_dynamic.trim() || !entity?.name) return;
     const clean_target = new_target_name.trim();
     const clean_dyn = new_dynamic.trim();
-    const new_vector = format_relational_vector(entity.name, clean_target, clean_dyn);
 
-    const existing = Array.isArray(entity.relationships) ? entity.relationships.slice() : [];
-    const next_rels = [
-      new_vector,
-      ...existing.filter((r) => {
-        const parsed = parse_relational_vector(r);
-        return !parsed || norm(parsed.target_name) !== norm(clean_target);
-      }),
-    ].slice(0, 12);
+    // Mutate universal bracket predicates in present.non_physical
+    if (!entity.present) entity.present = {};
+    const target_identifier = clean_target.startsWith("@") ? clean_target : `@${clean_target}`;
+    const mutation = apply_bracket_mutation(entity.present.non_physical || "", `[${target_identifier}: ${clean_dyn}]`);
+    entity.present.non_physical = mutation.text;
 
-    entity.relationships = next_rels;
-
-    // Synchronize into universal bracket predicates (present.non_physical)
-    if (entity.present) {
-      const mutation = apply_bracket_mutation(entity.present.non_physical || "", `[${clean_target}: ${clean_dyn}]`);
-      entity.present.non_physical = mutation.text;
-    }
-
-    on_update_relationships(next_rels);
+    on_update_relationships();
     new_target_name = "";
     new_dynamic = "";
     show_add_form = false;
   }
 
-  function handle_delete_edge(raw_str) {
-    if (!entity?.relationships) return;
-    const parsed = parse_relational_vector(raw_str);
-    const next_rels = entity.relationships.filter((r) => r !== raw_str);
-    entity.relationships = next_rels;
+  function handle_delete_edge(target_name) {
+    console.log("handle_delete_edge called with target_name:", target_name, "entity:", entity);
+    if (!target_name || !entity?.present) return;
+    const clean_target = String(target_name).trim();
+    const target_identifier = clean_target.startsWith("@") ? clean_target : `@${clean_target}`;
 
     // Purge corresponding target bracket from present.non_physical via atomic [TARGET: none] directive
-    if (entity.present && parsed?.target_name) {
-      const mutation = apply_bracket_mutation(entity.present.non_physical || "", `[${parsed.target_name}: none]`);
-      entity.present.non_physical = mutation.text;
-    }
+    const mutation = apply_bracket_mutation(entity.present.non_physical || "", `[${target_identifier}: none]`);
+    console.log("handle_delete_edge mutation result:", mutation);
+    entity.present.non_physical = mutation.text;
 
-    on_update_relationships(next_rels);
+    on_update_relationships();
+  }
+
+  function handle_update_edge_dynamic(target_name, new_dyn) {
+    if (!target_name || !entity?.present) return;
+    const clean_target = String(target_name).trim();
+    const target_identifier = clean_target.startsWith("@") ? clean_target : `@${clean_target}`;
+
+    const mutation = apply_bracket_mutation(entity.present.non_physical || "", `[${target_identifier}: ${String(new_dyn || "").trim()}]`);
+    entity.present.non_physical = mutation.text;
+
+    on_update_relationships();
+  }
+
+  function handle_retarget_edge(old_target, new_target, dyn) {
+    if (!old_target || !new_target || !entity?.present) return;
+    const old_identifier = String(old_target).trim().startsWith("@") ? String(old_target).trim() : `@${String(old_target).trim()}`;
+    const new_identifier = String(new_target).trim().startsWith("@") ? String(new_target).trim() : `@${String(new_target).trim()}`;
+
+    // Atomically clear old and apply new
+    let text = entity.present.non_physical || "";
+    text = apply_bracket_mutation(text, `[${old_identifier}: none]`).text;
+    text = apply_bracket_mutation(text, `[${new_identifier}: ${String(dyn || "").trim()}]`).text;
+    entity.present.non_physical = text;
+
+    on_update_relationships();
   }
   const center_color = $derived(get_signature_color(entity));
 </script>
@@ -538,83 +512,73 @@
   </div>
 {/if}
 
-<!-- Edit Mode: Existing Outgoing Bonds List (Matching Vector Instrument Style Exactly) -->
-{#if is_editing && entity?.relationships && entity.relationships.length > 0}
-  <div class="flex w-full flex-col gap-4" style="--accent-color: {center_color}">
-    {#each entity.relationships as rel, i (i)}
-      {@const parsed = parse_relational_vector(rel)}
-      {@const current_target = parsed ? parsed.target_name : ""}
-      {@const current_dynamic = parsed ? parsed.dynamic : rel}
-      <div class="animate-[slide-down-item_400ms_cubic-bezier(0.23,1,0.32,1)_forwards]">
-        <TextField
-          is_edit={true}
-          collapsed={false}
-          signature_color={center_color}
-          value={current_dynamic}
-          placeholder="Enter relationship dynamic detail..."
-          oninput={(e) => {
-            const next_dyn = e.currentTarget.value;
-            const target = parsed?.target_name || "Unknown";
-            const next_rel = format_relational_vector(entity.name, target, next_dyn);
-            const next_rels = entity.relationships.slice();
-            next_rels[i] = next_rel;
-            entity.relationships = next_rels;
-            on_update_relationships(next_rels);
-          }}
-        >
-          {#snippet status()}
-            <div class="my-auto flex max-w-full min-w-0 items-center gap-2 text-left">
-              <select
-                value={current_target}
-                onchange={(e) => {
-                  const new_target = e.currentTarget.value;
-                  const dyn = parsed?.dynamic || "";
-                  const next_rel = format_relational_vector(entity.name, new_target, dyn);
-                  const next_rels = entity.relationships.slice();
-                  next_rels[i] = next_rel;
-                  entity.relationships = next_rels;
-                  on_update_relationships(next_rels);
-                }}
-                class="cursor-pointer rounded-sm border border-white/10 bg-white/10 px-1.5 py-0.5 font-sans text-xs font-normal tracking-normal text-white opacity-90 transition-opacity hover:opacity-100 focus:border-white/30 focus:outline-none"
-              >
-                {#if !current_target || !all_entities.some((e) => norm(e.name) === norm(current_target))}
-                  <option value={current_target} class="bg-slate-900 text-slate-200">{current_target || "Select target..."}</option>
-                {/if}
-                {#each all_entities.filter((e) => norm(e.name) !== norm(entity?.name)) as opt (opt.id || opt.name)}
-                  <option value={opt.name} class="bg-slate-900 text-slate-200">{opt.name} ({opt.type || "character"})</option>
-                {/each}
-              </select>
-            </div>
-          {/snippet}
-
-          {#snippet header_actions()}
-            <Button
-              variant="invisible"
-              size="small"
-              square
-              actions={[tooltip]}
-              tooltip="Remove Bond"
-              aria-label="Remove Bond"
-              onclick={(e) => {
-                e.stopPropagation();
-                handle_delete_edge(rel);
+<!-- Edit Mode: Existing Outgoing Bonds List (Derived directly from universal bracket predicates) -->
+{#if is_editing}
+  {@const outgoing_edges = resolved_edges.filter((e) => e.is_outgoing)}
+  {#if outgoing_edges.length > 0}
+    <div class="flex w-full flex-col gap-4" style="--accent-color: {center_color}">
+      {#each outgoing_edges as edge, i (edge.target_name || i)}
+        {@const current_target = edge.target_name || ""}
+        {@const current_dynamic = edge.dynamic || ""}
+        <div class="animate-[slide-down-item_400ms_cubic-bezier(0.23,1,0.32,1)_forwards] flex items-start gap-1.5">
+          <!-- Delete button rendered directly in component template (not inside snippet) for reliable event binding -->
+          <button
+            type="button"
+            aria-label="Remove Bond"
+            use:tooltip={"Remove Bond"}
+            class="mt-1 inline-flex size-5 shrink-0 cursor-pointer items-center justify-center rounded p-0.5 text-slate-400 transition-all duration-150 hover:bg-white/20 hover:text-white active:scale-95"
+            onclick={() => handle_delete_edge(current_target)}
+          >
+            <svg viewBox="0 0 24 24" class="size-3.5 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]">
+              <polyline points="3 6 5 6 21 6" stroke="currentColor"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="currentColor"></path>
+            </svg>
+          </button>
+          <div class="min-w-0 flex-1">
+            <TextField
+              is_edit={true}
+              collapsed={false}
+              signature_color={center_color}
+              value={current_dynamic}
+              placeholder="Enter relationship dynamic detail..."
+              oninput={(e) => {
+                handle_update_edge_dynamic(current_target, e.currentTarget.value);
               }}
             >
-              <svg viewBox="0 0 24 24" class="size-icon-small fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]">
-                <polyline points="3 6 5 6 21 6" stroke="currentColor"></polyline>
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="currentColor"></path>
-              </svg>
-            </Button>
-          {/snippet}
-        </TextField>
-      </div>
-    {/each}
-  </div>
+              {#snippet status()}
+                <div class="my-auto flex max-w-full min-w-0 items-center gap-2 text-left">
+                  <select
+                    value={current_target}
+                    onchange={(e) => {
+                      handle_retarget_edge(current_target, e.currentTarget.value, current_dynamic);
+                    }}
+                    class="cursor-pointer rounded-sm border border-white/10 bg-white/10 px-1.5 py-0.5 font-sans text-xs font-normal tracking-normal text-white opacity-90 transition-opacity hover:opacity-100 focus:border-white/30 focus:outline-none"
+                  >
+                    {#if !current_target || !all_entities.some((e) => norm(e.name) === norm(current_target))}
+                      <option value={current_target} class="bg-slate-900 text-slate-200">{current_target || "Select target..."}</option>
+                    {/if}
+                    {#each all_entities.filter((e) => norm(e.name) !== norm(entity?.name)) as opt (opt.id || opt.name)}
+                      <option value={opt.name} class="bg-slate-900 text-slate-200">{opt.name} ({opt.type || "character"})</option>
+                    {/each}
+                  </select>
+                </div>
+              {/snippet}
+            </TextField>
+          </div>
+        </div>
+      {/each}
+    </div>
+
+  {/if}
 {/if}
 
 <!--
   CHANGELOG
   ============================================================================
+  - 2026-10-01: Universal Predicates Migration — edit list and constellation nodes
+    are driven 100% by universal bracket predicates (`present.non_physical`).
+    Purged legacy `entity.relationships` array references under P4 Zero Backwards
+    Compatibility.
   - 2026-09-30: Synchronized handle_delete_edge into present.non_physical via atomic
     [TARGET: none] bracket mutation, preventing stale bracket shadow drift.
   - 2026-09-29: Initial implementation of radial relational constellation graph.

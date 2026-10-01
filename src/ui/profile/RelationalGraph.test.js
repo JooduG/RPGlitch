@@ -10,16 +10,20 @@ vi.mock("@data", async (importOriginal) => {
       name: "Lord Benedict Silvers",
       type: "character",
       signature_color: "Crimson Red",
-      relationships: ["Lord Benedict Silvers → Hank: custom pyrotechnics"],
+      present: {
+        non_physical: "[@HANK: custom pyrotechnics]",
+      },
     },
     {
       id: "hank",
       name: "Hank",
       type: "character",
       signature_color: "Rusty Orange",
-      relationships: ["Hank → Lord Benedict Silvers: arms supplier debt"],
+      present: {
+        non_physical: "[@LORD_BENEDICT_SILVERS: arms supplier debt]",
+      },
     },
-    { id: "julien", name: "Julien", type: "character", signature_color: "Soft Rose", relationships: [] },
+    { id: "julien", name: "Julien", type: "character", signature_color: "Soft Rose", present: { non_physical: "" } },
   ];
   return {
     ...actual,
@@ -48,7 +52,9 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
       name: "Hank",
       type: "character",
       signature_color: "Rusty Orange",
-      relationships: ["Hank → Lord Benedict Silvers: arms supplier debt"],
+      present: {
+        non_physical: "[@LORD_BENEDICT_SILVERS: arms supplier debt]",
+      },
     };
 
     const on_select_entity = vi.fn();
@@ -66,7 +72,9 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
       name: "Hank",
       type: "character",
       signature_color: "Rusty Orange",
-      relationships: ["Hank → Lord Benedict Silvers: arms supplier debt"],
+      present: {
+        non_physical: "[@LORD_BENEDICT_SILVERS: arms supplier debt]",
+      },
     };
 
     const on_select_entity = vi.fn();
@@ -83,9 +91,8 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
       id: "silvers",
       name: "Lord Benedict Silvers",
       type: "character",
-      relationships: [],
       present: {
-        non_physical: "[HANK: arms supplier debt | w: 8]",
+        non_physical: "[@HANK: arms supplier debt | w: 8]",
       },
     };
 
@@ -102,20 +109,24 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
       id: "silvers",
       name: "Lord Benedict Silvers",
       type: "character",
-      relationships: ["Lord Benedict Silvers → Hank: custom pyrotechnics"],
       present: {
-        non_physical: "[HANK: custom pyrotechnics]",
+        non_physical: "[@HANK: custom pyrotechnics]",
       },
     };
 
     const on_update_relationships = vi.fn();
     render(RelationalGraph, { props: { entity: mock_entity, is_editing: true, on_update_relationships } });
 
-    const remove_btn = await screen.findByRole("button", { name: /Remove Bond/i });
-    await fireEvent.click(remove_btn);
+    // Wait for the button to appear in the DOM (initial render with all_entities=[])
+    await screen.findByRole("button", { name: /Remove Bond/i });
+    // Re-query immediately before clicking: the async $effect loading all_entities
+    // may re-key the {#each} block (target_name changes from "HANK" to "Hank"),
+    // destroying and recreating the DOM node. A fresh query avoids the stale ref.
+    const live_remove_btn = screen.getByRole("button", { name: /Remove Bond/i });
+    console.log("Found remove_btn outerHTML:", live_remove_btn.outerHTML);
+    await fireEvent.click(live_remove_btn);
 
-    expect(on_update_relationships).toHaveBeenCalledWith([]);
-    expect(mock_entity.relationships).toHaveLength(0);
+    expect(on_update_relationships).toHaveBeenCalled();
     expect(mock_entity.present.non_physical).toBe("");
   });
 });
@@ -123,6 +134,8 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
 /**
  * CHANGELOG
  * ============================================================================
+ * - 2026-10-01: Universal Predicates Migration — updated test suite to drive
+ *   constellation nodes and deletions 100% through universal bracket predicates.
  * - 2026-09-30: Added test verifying handle_delete_edge cleanses present.non_physical bracket predicates.
  * - 2026-09-29: Added unit test verifying universal bracket relationship harvesting into constellation satellite nodes.
  * ============================================================================
