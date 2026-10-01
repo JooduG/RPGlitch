@@ -723,7 +723,11 @@ export async function forge_memory(entity_targets, history_slice, options = {}) 
         forged.eternal[key] = entity_block.eternal;
       }
 
-      const raw_vectors = Array.isArray(entity_block.past) ? entity_block.past : [];
+      const raw_vectors = Array.isArray(entity_block.past)
+        ? entity_block.past
+        : typeof entity_block.past === "string"
+          ? resolve_vector_pool({ past: entity_block.past })
+          : [];
       forged.memories[key] = [];
       const pending_embeds = [];
 
