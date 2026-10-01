@@ -21,7 +21,7 @@ import {
   resolve_pov_protocol,
   render_alternation_protocol,
 } from "./protocols.js";
-import { render_dynamics_axes_xml } from "./entities/sheets.js";
+import { render_dynamics_axes_xml } from "./entities.js";
 
 // ============================================================================
 // [SECTION 1: CORE PROTOCOL LIBRARY & COMPILER]

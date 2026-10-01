@@ -126,8 +126,8 @@ A simulation requires entities (Characters and Fractals) to execute a narrative.
     - _Bound Limits_: Maximum 200 total vectors per entity; <= 220 characters per entry. Deduplication uses > 60% word overlap and > 0.92 cosine similarity.
   - **Future (Standing Agenda)**: Active trajectory, impending intent, and standing agenda stored as a single consolidated prose field (rewritten wholesale by the Memory Forge each cycle).
 - **Dual Filter Engine**:
-  - _Visual Prompt Filter_: `INVENTORY`, `STASH`, `SECRET`, `PLAN`, and `STATUS` are strictly stripped from image generation prompts (`build_aesthetic_map` & `strip_visual_excluded`).
-  - _Epistemic Prompt Filter_: `[SECRET: ...]` and `[PLAN: ...]` of the User are stripped across the Epistemic Wall in `render_character()` to prevent AI telepathy, while remaining fully visible in `render_director()`. Owner perspectives receive the `| private` secrecy signal (e.g., `[DAGGER: stiletto | private]`) so persona LLMs do not voice covert items/plans openly.
+  - _Visual Prompt Filter_: `INVENTORY`, `STASH`, and bracket elements bearing `| hide` flags are strictly stripped from image generation prompts (`build_aesthetic_map` & `strip_visual_excluded`).
+  - _Epistemic Prompt Filter_: Brackets flagged with `| hide` belonging to other entities are stripped across the Epistemic Wall in `render_character()` to prevent AI telepathy, while remaining fully visible in `render_director()`. Owner perspectives preserve their own `| hide` signals directly (e.g., `[DAGGER: stiletto | hide]`) so persona LLMs do not voice covert items/plans openly.
 
 ---
 

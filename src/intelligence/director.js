@@ -20,7 +20,7 @@ import { extract_json_block, collapse_whitespace, state_bridge } from "@utils";
 import { llm_service, raw_stop_reason, raw_to_text } from "@platform";
 import { compile_prompt } from "./prompts.js";
 import { extract_and_repair_json, parse_think_block, validate_and_repair_response } from "./parser.js";
-import { apply_bracket_mutation } from "./synaptic.js";
+import { apply_bracket_mutation } from "./veil.js";
 
 // ============================================================================
 // 1. DOMAIN CONSTANTS & SCHEMA CONTRACTS
@@ -483,28 +483,11 @@ export async function apply_relationships(bridge, rels) {
     const [, source_raw, target_raw, dynamic_text] = match;
     const source = find(source_raw.trim());
     if (!source) continue;
-    const clean_edge = `${source_raw.trim()} → ${target_raw.trim()}: ${dynamic_text.trim()}`.slice(0, 160);
-    const list = Array.isArray(source.relationships) ? source.relationships.slice() : [];
-    const target_key = target_raw.trim().toLowerCase();
-    const index = list.findIndex((r) => {
-      const before_colon = String(r).split(":")[0];
-      const has_arrow = /→|->|—>/i.test(before_colon);
-      const target_name = has_arrow
-        ? before_colon
-            .split(/→|->|—>/i)
-            .pop()
-            .trim()
-            .toLowerCase()
-        : before_colon.trim().toLowerCase();
-      return target_name && (target_name === target_key || target_key.includes(target_name) || target_name.includes(target_key));
-    });
-    if (index >= 0) list[index] = clean_edge;
-    else list.unshift(clean_edge);
-    source.relationships = list.slice(0, 12);
 
     // Synchronize into universal bracket predicates (present.non_physical)
     if (!source.present) source.present = {};
-    const bracket_directive = `[${target_raw.trim()}: ${dynamic_text.trim()}]`;
+    const target_identifier = target_raw.trim().startsWith("@") ? target_raw.trim() : `@${target_raw.trim()}`;
+    const bracket_directive = `[${target_identifier}: ${dynamic_text.trim()}]`;
     const mutation = apply_bracket_mutation(source.present.non_physical || "", bracket_directive, { round: bridge.runtime?.round || 0 });
     source.present.non_physical = mutation.text;
 
@@ -516,7 +499,6 @@ export async function apply_relationships(bridge, rels) {
       const source_type = source.type === "fractal" ? "fractal" : "character";
       const updated = await entities.upsert(source_type, {
         ...source,
-        relationships: source.relationships,
         present: source.present,
       });
       const type = source.type === "fractal" ? "fractal" : "character";
@@ -535,6 +517,7 @@ export async function apply_relationships(bridge, rels) {
 
 /**
  * CHANGELOG
+ * - 2026-10-01: Universal Predicates Migration — `apply_relationships` now writes dynamic relational updates exclusively to `source.present.non_physical` bracket predicates (`[@TARGET: dynamic]`), purging legacy `source.relationships` array mutations under P4 Zero Backwards Compatibility.
  * - 2026-09-29: `apply_relationships` now synchronizes relational updates into universal bracket predicates on `source.present.non_physical` via `apply_bracket_mutation`, ensuring lockstep alignment with legacy relationship vectors.
  * - 2026-09-26: Player-yield aliases — `USER_PERSONA`/`USER`/`PLAYER`/`protagonist` now fold into `AI_CHARACTER`/`ai` instead of logging an invalid-action warning and falling back.
  * - 2026-09-24: KISS Simplification — Streamlined `execute_director_shot` to a clean linear 3-stage dispatch pipeline (Primary ➔ Terse Recovery ➔ Fallback) eliminating redundant nested retry calls; consolidated scattered 1-line sanitizers inside `normalize_director_data` for cohesive readability; pruned redundant alias check in `normalize_next_action`.

@@ -132,7 +132,6 @@ export async function spawn_character(bridge, draft = {}) {
     past: [],
     dynamics: { intensity: 50, openness: 50, chaos: 50, affinity: 50 },
     dynamics_baseline: { intensity: 50, openness: 50, chaos: 50, affinity: 50 },
-    relationships: Array.isArray(draft?.relationships) ? draft.relationships : [],
     speaking_style: draft?.speaking_style || "casual",
     is_wanderer: false,
     signature_color: raw_color || undefined,
@@ -213,6 +212,7 @@ export async function spawn_character(bridge, draft = {}) {
 
 /**
  * CHANGELOG
+ * - 2026-10-01: Universal Predicates Migration — purged legacy `relationships: []` array initialization from `spawn_character` under P4 Zero Backwards Compatibility.
  * - 2026-09-22: One input channel (recommendation #5) — `structure_profile` delivers the raw profile text through `<INPUT kind="ingestion">` via `render_profile_sorting({ input_data })` instead of a `messages` payload.
  * - 2026-09-11: Header correction — PROFILE_PROTOCOLS bundle pruned in favour of the modules/task.js primitives.
  * - 2026-09-11: Grand Purification: prompt compilation moved to builder.js, leaving profile.js a 100% pure structuring, entity mapping, and genesis engine.

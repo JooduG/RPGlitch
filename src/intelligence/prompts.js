@@ -100,7 +100,7 @@ const TOOL_LAYERS = Object.freeze({
 
 const ENHANCEMENT_LAYERS = Object.freeze({
   system: Object.freeze(["role", "core_protocols", "layer", "entity_context"]),
-  task: Object.freeze(["input", "directives", "output_format"]),
+  task: Object.freeze(["think_format", "input", "directives", "output_format"]),
 });
 
 const SORTING_LAYERS = Object.freeze({
@@ -362,7 +362,8 @@ export const PROMPTS = Object.freeze({
     protocols: ["CORE_PROTOCOLS.DATA"],
     entities: { field_context: true },
     layers: ENHANCEMENT_LAYERS,
-    format: "PROSE",
+    think_format: "enhancement",
+    format: { mode: "temporal_field" },
   }),
 
   sorting: define_mode("sorting", {
@@ -441,6 +442,7 @@ export default PROMPTS;
 
 /**
  * CHANGELOG
+ * - 2026-10-01: Added think_format: "enhancement" and temporal_field format contract to enhancement mode, enabling cognitive thinking blocks for single profile field refinement.
  * - 2026-09-24: Ground-Up Refactor & Harmonization — (1) Hoisted `assemble_prompt` import to file top to establish clean ESM dependency hygiene; (2) Reconstructed module body into 6 cleanly sequenced sections following the simulation lifecycle (Envelope Presets, Protocol/Directive Composers, Mode Factory, Manifest Switchboard, Resolvers/Dispatcher, and Changelog); (3) Standardized Full-Name domain nomenclature across composers and factory options; (4) Preserved 100% contract invariance across all 100 unit and verification test cases.
  * - 2026-09-25: Task directive selection moved into the manifest — every mode now declares its Layer-6 `<DIRECTIVES>` key selection (`director_directives` / `continuum_directives` / `sorting_directives` / `optics_directives`) plus optics' `spatial_framing`; `define_mode` carries `directives` + `spatial_framing` through, so `modules/task.js` compiles selection instead of owning it.
  * - 2026-09-24: Director entity gate renamed `present_entities` → `candidate_entities` (the cast block now carries only off-stage reuse candidates); `TOOL_LAYERS.task` drops its never-filled `inputs` slot, so continuum's task declares only `directives` + `output_format`.

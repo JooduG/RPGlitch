@@ -1639,20 +1639,17 @@ describe("apply_relationships (Relational Mesh)", () => {
 
   it("resolves sources by case-insensitive name and persists edges", async () => {
     await apply_relationships(state_bridge, ["Viper → Mira: alliance"]);
-    expect(_mock_runtime.active_ai.relationships).toContain("Viper → Mira: alliance");
-    expect(entities.upsert).toHaveBeenCalledWith("character", expect.objectContaining({ id: "ai-1", relationships: ["Viper → Mira: alliance"] }));
+    expect(_mock_runtime.active_ai.present.non_physical).toContain("[@MIRA: alliance]");
+    expect(entities.upsert).toHaveBeenCalledWith(
+      "character",
+      expect.objectContaining({ id: "ai-1", present: expect.objectContaining({ non_physical: expect.stringContaining("[@MIRA: alliance]") }) }),
+    );
   });
 
   it("resolves sources by id and replaces existing edges to the same target", async () => {
-    _mock_runtime.active_ai.relationships = ["Viper → Mira: alliance"];
+    _mock_runtime.active_ai.present = { non_physical: "[@MIRA: alliance]" };
     await apply_relationships(state_bridge, ["ai-1 → Mira: rivalry"]);
-    expect(_mock_runtime.active_ai.relationships).toEqual(["ai-1 → Mira: rivalry"]);
-  });
-
-  it("caps the edge list at 12", async () => {
-    const rels = Array.from({ length: 15 }, (_, i) => `Viper → Target${i}: edge ${i}`);
-    await apply_relationships(state_bridge, rels);
-    expect(_mock_runtime.active_ai.relationships.length).toBeLessThanOrEqual(12);
+    expect(_mock_runtime.active_ai.present.non_physical).toBe("[@MIRA: rivalry]");
   });
 
   it("skips edges whose source resolves to nobody", async () => {
@@ -1662,8 +1659,14 @@ describe("apply_relationships (Relational Mesh)", () => {
 
   it("writes fractal edges through the fractal upsert path", async () => {
     await apply_relationships(state_bridge, ["Void → Viper: looming danger"]);
-    expect(entities.upsert).toHaveBeenCalledWith("fractal", expect.objectContaining({ id: "fx-1", relationships: ["Void → Viper: looming danger"] }));
-    expect(_mock_runtime.active_fractal.relationships).toContain("Void → Viper: looming danger");
+    expect(entities.upsert).toHaveBeenCalledWith(
+      "fractal",
+      expect.objectContaining({
+        id: "fx-1",
+        present: expect.objectContaining({ non_physical: expect.stringContaining("[@VIPER: looming danger]") }),
+      }),
+    );
+    expect(_mock_runtime.active_fractal.present.non_physical).toContain("[@VIPER: looming danger]");
   });
 });
 
@@ -2005,10 +2008,9 @@ const _prompt_test_entities = {
     type: "character",
     pov: "1st_person",
     eternal: { physical: "[BUILD: massive grey-green orc]", non_physical: "A brutal arena fighter." },
-    present: { physical: "[SHIRT: leather harness]", non_physical: "Protective." },
+    present: { physical: "[SHIRT: leather harness]", non_physical: "Protective. [@SILVERS: wary respect] [@ABSENT_STRANGER: dread]" },
     future: "Break the challenger.",
     past: [],
-    relationships: ["Beast -> Lord Benedict Silvers: wary respect", "Beast -> Absent Stranger: dread"],
     dynamics: { chaos: 40, intensity: 60, openness: 30, affinity: 20 },
   },
   USER: {
@@ -2016,10 +2018,9 @@ const _prompt_test_entities = {
     name: "Lord Benedict Silvers",
     type: "character",
     eternal: { physical: "[HAIR: dark with silver streaks]", non_physical: "An ancient vampire." },
-    present: { physical: "[SUIT: charcoal suit]", non_physical: "Observing." },
+    present: { physical: "[SUIT: charcoal suit]", non_physical: "Observing. [@BEAST: prized asset]" },
     future: "Claim Beast.",
     past: [],
-    relationships: ["Lord Benedict Silvers -> Beast: prized asset"],
     dynamics: { chaos: 20, intensity: 40, openness: 50, affinity: 60 },
   },
   FRACTAL: {

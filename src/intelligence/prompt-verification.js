@@ -32,10 +32,9 @@ export function create_contract_fixtures() {
       type: "character",
       pov: "1st_person",
       eternal: { physical: "[BUILD: tall and athletic]", non_physical: "Analytical cybernetic specialist." },
-      present: { physical: "[JACKET: worn leather] [POSTURE: alert]", non_physical: "Guarded vigilance." },
+      present: { physical: "[JACKET: worn leather] [POSTURE: alert]", non_physical: "Guarded vigilance. [@BOB: guarded trust]" },
       future: "Infiltrate the mainframe.",
       past: [],
-      relationships: ["Alice -> Bob: guarded trust"],
       dynamics: { chaos: 30, intensity: 70, openness: 40, affinity: 20 },
     },
     USER: {
@@ -43,10 +42,9 @@ export function create_contract_fixtures() {
       name: "Bob",
       type: "character",
       eternal: { physical: "[BUILD: broad shoulders]", non_physical: "Veteran decker." },
-      present: { physical: "[COAT: dark trench coat]", non_physical: "Patient." },
+      present: { physical: "[COAT: dark trench coat]", non_physical: "Patient. [@ALICE: protective ally]" },
       future: "Provide tactical cover.",
       past: [],
-      relationships: ["Bob -> Alice: protective ally"],
       dynamics: { chaos: 20, intensity: 50, openness: 60, affinity: 70 },
     },
     FRACTAL: {
@@ -66,10 +64,9 @@ export function create_contract_fixtures() {
     name: "Merchant",
     type: "npc",
     eternal: { physical: "[BUILD: stooped]", non_physical: "Scavenger." },
-    present: { physical: "[CLOTHING: rags]", non_physical: "Suspicious." },
+    present: { physical: "[CLOTHING: rags]", non_physical: "Suspicious. [@ALICE: wary curiosity]" },
     future: "Survive.",
     past: [],
-    relationships: ["Merchant -> Alice: wary curiosity"],
     dynamics: { chaos: 15, intensity: 25, openness: 15, affinity: 10 },
   };
 
@@ -694,8 +691,8 @@ export const CONTRACT = {
     messages: 0,
   },
   enhancement: {
-    system: ["SYSTEM", "CORE_PROTOCOLS", "DATA", "LAYER", "ENTITY_CONTEXT", "PERSONALITY", "APPEARANCE", "BUILD"],
-    task: ["TASK", "INPUT", "DIRECTIVES", "OUTPUT_FORMAT"],
+    system: ["SYSTEM", "CORE_PROTOCOLS", "DATA", "LAYER", "ENTITY_CONTEXT", "APPEARANCE", "BUILD"],
+    task: ["TASK", "THINK_FORMAT", "THINK", "INPUT", "DIRECTIVES", "OUTPUT_FORMAT"],
     messages: 0,
   },
   sorting: {
@@ -781,13 +778,14 @@ export const CONTRACT_SIZES = {
   narrator_prologue: { system: 5189, task: 2170 },
   narrator_epilogue: { system: 5189, task: 1839 },
   continuum: { system: 1210, task: 2818 },
-  enhancement: { system: 541, task: 417 },
+  enhancement: { system: 452, task: 867 },
   sorting: { system: 287, task: 3004 },
   optics: { system: 1761, task: 3785 },
 };
 
 /**
  * CHANGELOG
+ * - 2026-10-01: Re-baselined `CONTRACT_SIZES.enhancement` (system 541→452, task 417→867) and `CONTRACT.enhancement.task` tags for Universal Bracket and Think Enhancement protocol.
  * - 2026-09-25: Added `DIRECTOR_DIRECTIVE_LEADS` — the Director's `<DIRECTIVES>` prose sequence is now gated (the tag inventory cannot see prose, so the generic directive compiler's selection is pinned by ordered leading phrases).
  * - 2026-09-24: Re-froze after the cast/input de-duplication — the director contract drops its trailing `CAST` (the fixture now emits none, since on-stage participants are never restated) and `CONTRACT_SIZES` re-baselines director (`system` 2087→1989, `task` 2871→2863) and enhancement (`task` 441→417, no more orphaned `</THINK>` reference).
  * - 2026-09-23: Prompt-grammar harmonization (phases 0–3) — re-froze after the `INPUT` unification (the Director's `<AI_CHARACTER_LAST_TURN>` is now a second `<INPUT origin="AI_CHARACTER" channel="reply">`), the `<DYNAMIC_AXES>` unification (the Director's `<DYNAMICS><LAWS><AXES>` collapses to the one axes block shared with the sheets, and its calibration rules moved into `<DIRECTIVES>`), the `<CAST mode="in_scene">` rename, the optics rule prose relocation into `<DIRECTIVES>` (with optics' alternation protocol now in `<CORE_PROTOCOLS>`), the enhancement `<INPUT>` moving from `<SYSTEM>` into `<TASK>`, and the `input`/`last_turn` task-layer collapse into one `inputs` layer.

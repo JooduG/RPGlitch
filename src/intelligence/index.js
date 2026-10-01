@@ -90,7 +90,7 @@ export { format_sensory_history, render_visual_history } from "./modules/history
 export { render_optics_prompt, render_optics_fallback } from "./builder.js";
 
 // ============================================================================
-// Synaptic Bracket Predicate Domain Engine
+// Veil Engine & Universal Bracket Predicates (Epistemic Wall)
 // ============================================================================
 
 export {
@@ -99,10 +99,15 @@ export {
   apply_bracket_mutation,
   filter_epistemic_brackets,
   extract_entity_relationships,
-} from "./synaptic.js";
+  strip_epistemic_tags,
+  strip_epistemic_secrets,
+  verify_epistemic_integrity,
+  strip_bracket_engine_flags,
+} from "./veil.js";
 
 /**
  * CHANGELOG:
+ * - 2026-10-01: Re-exported consolidated Veil Engine functions (bracket parsing, epistemic wall, secrecy signals) from veil.js.
  * - 2026-09-29: Exported universal bracket predicate domain engine functions from synaptic.js.
  * - 2026-09-24: Purged VISUAL_EXCLUDED_KEYS and strip_visual_excluded re-exports under P4 Zero Backwards Compatibility (now accessed directly from @utils).
  * - 2026-09-24: Streamlined intelligence kernel domain: merged `telemetry.js` into `physics.js` (`build_turn_summary`), and merged `payload.js` into `builder.js` (`context_builder`, `to_data_points`).

@@ -60,7 +60,29 @@ export const PROTOCOL_LIBRARY = Object.freeze({
     ENVIRONMENTAL_GROUNDING:
       "Ground scenes with tangible environmental light fixtures (e.g., flickering cathode tubes, wet pavement reflections, harsh key lamps) and tactile physical surfaces.",
   }),
+
+  // ── 1.3 Entity Macro Directives ─────────────────────────────────────────────
+  MACROS: Object.freeze({
+    CHARACTER:
+      "Use placeholder macros for entities: '@ME' / '@SPEAKER' (self, actor), '@YOU' / '@LISTENER' (user persona, addressee), '@FRACTAL' (setting, environment), or specific '@ENTITY_NAME'. Never use raw pronouns ambiguously.",
+    FRACTAL:
+      "Use placeholder macros for entities: '@USER' (user persona), '@CHAR' (AI character), '@FRACTAL' (setting, environment), or specific '@ENTITY_NAME'.",
+    SORTING:
+      "Use '@' entity macros: '@ME' / '@SPEAKER' (self), '@YOU' / '@LISTENER' (user persona), '@CHAR' (AI character), '@FRACTAL' (environment), or specific '@ENTITY_NAME'.",
+  }),
 });
+
+export const MACRO_DIRECTIVES = PROTOCOL_LIBRARY.MACROS;
+
+/**
+ * Resolves the macro placeholder directive according to the entity type or mode.
+ * @param {string} [entity_type="character"]
+ * @returns {string}
+ */
+export function resolve_macro_directive(entity_type = "character") {
+  if (entity_type === "sorting") return MACRO_DIRECTIVES.SORTING;
+  return entity_type === "fractal" ? MACRO_DIRECTIVES.FRACTAL : MACRO_DIRECTIVES.CHARACTER;
+}
 
 // ============================================================================
 // [SECTION 2: DYNAMIC PROTOCOL COMPILER]
@@ -278,6 +300,7 @@ export function render_core_protocols({
 
 /**
  * CHANGELOG
+ * - 2026-10-01: Repatriated MACRO_DIRECTIVES and resolve_macro_directive to PROTOCOL_LIBRARY.MACROS per Layer 3 prompt architecture.
  * - 2026-09-22: One protocol namespace (recommendation #7) — folded `HYGIENE.DATA` into `PROTOCOL_LIBRARY.CORE_PROTOCOLS` (the `HYGIENE` namespace is deleted) and generalised `render_core_protocols` so any non-specially-laid-out protocol key (`CORE_PROTOCOLS.DATA`, `OPTICS.*`) resolves through the same registry lookup + leaf-tag emission path instead of a namespace branch.
  * - 2026-09-21: POV single-source — `render_core_protocols` now emits `<PERSPECTIVE>` only when a `pov_protocol` is supplied, and `resolve_pov_protocol` accepts either an entity or a bare key string ("FIRST"/"THIRD"/"NARRATOR"); POV is no longer declared in the prose/data manifest protocol lists.
  * - 2026-09-20: Metasyntax ban — the NARRATOR POV line references the setting as «FRACTAL» instead of a raw `<FRACTAL>` tag.

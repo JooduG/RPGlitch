@@ -3,18 +3,10 @@
  * 🧬 PROFILE STATE — Reactive controller for entity editing.
  */
 import { db, normalize, PROFILE_FIELD_CATALOG, FLAT_LEAF_MAP } from "@data";
-import { compile_prompt, temporal_engine, parse_profile_json } from "@intelligence";
+import { compile_prompt, parse_profile_json } from "@intelligence";
 import { llm_service } from "@platform";
 import { app, runtime } from "@state";
-import {
-  generate_uuid,
-  get_value,
-  set_value,
-  strip_cognition_blocks,
-  safe_parse_pseudo_json,
-  strip_profile_wrappers,
-  unwrap_enhancement_text,
-} from "@utils";
+import { get_value, set_value, strip_cognition_blocks, safe_parse_pseudo_json, strip_profile_wrappers, unwrap_enhancement_text } from "@utils";
 import { SvelteSet } from "svelte/reactivity";
 
 const DEFAULT_FIELD = { key: "visual-prompt", label: "Image Prompt" };
@@ -162,26 +154,6 @@ export class ProfileState {
     if (!this.char) return;
     set_value(this.char, path, value);
     this._user_mutated = true;
-  }
-
-  /**
-   * Returns the vector items belonging to the 'past' memory array.
-   * Vectors without an explicit type are treated as past.
-   * @param {'past'} [type]
-   * @returns {any[]}
-   */
-  _vectors_of_type(type = "past") {
-    return Array.isArray(this.char?.[type]) ? this.char[type] : [];
-  }
-
-  /**
-   * Replaces memories inside the matching past vector array.
-   * @param {'past'} type
-   * @param {any[]} items
-   */
-  _set_vectors_of_type(type, items) {
-    if (!this.char) return;
-    this.char[type] = items.slice();
   }
 
   /**
@@ -333,37 +305,7 @@ export class ProfileState {
       if (result) {
         const clean_result = strip_profile_wrappers(strip_cognition_blocks(result).trim());
 
-        // Array fields (past) return JSON arrays of vector objects; all other
-        // fields (including the prose FUTURE field) return plain text.
-        const is_array_field = key === "past";
-        if (is_array_field) {
-          const json_str = clean_result.replace(/```json\n?|```/g, "").trim();
-          const start = json_str.indexOf("[");
-          const end = json_str.lastIndexOf("]");
-          if (start >= 0 && end >= 0) {
-            try {
-              const parsed = JSON.parse(json_str.substring(start, end + 1));
-              if (Array.isArray(parsed)) {
-                const current_items = this._vectors_of_type(key);
-                const vectors = parsed
-                  .map((v, idx) => {
-                    const content = typeof v === "string" ? v : v.content || v.directive || v.text || "";
-                    if (!content || !String(content).trim()) return null;
-                    const existing = current_items[idx];
-                    const base = existing ? { ...existing, content: String(content).trim() } : temporal_engine.create(content, key);
-                    base.emotional_weight = typeof v.emotional_weight === "number" ? v.emotional_weight : (existing?.emotional_weight ?? 5);
-                    return base;
-                  })
-                  .filter(Boolean);
-                this._set_vectors_of_type(key, vectors);
-                temporal_engine.reconcile_vector_caps(this.char);
-                this._user_mutated = true;
-              }
-            } catch (e) {
-              console.error("Array enhancement JSON parse failed:", e);
-            }
-          }
-        } else if (key.endsWith(".physical")) {
+        if (key.endsWith(".physical")) {
           const normalized = this._normalize_physical_enhancement(key, unwrap_enhancement_text(clean_result, key), type);
           if (normalized == null) {
             console.warn(`[ProfileState] Physical enhancement for ${key} rejected — unparsable or missing mandatory keys. Keeping current value.`);
@@ -417,113 +359,6 @@ export class ProfileState {
   }
 
   /**
-   * AI-enhanced text generation for a specific vector item in an array (e.g. past[0]).
-   * @param {string} path - Array path ('past')
-   * @param {number} index - Index of item to enhance
-   */
-  async enhance_vector_item(path, index) {
-    const item_key = `${path}[${index}]`;
-    const items = this._vectors_of_type(path);
-    const item = items[index];
-    const content = typeof item === "string" ? item : item?.content || item?.directive || "";
-
-    if (!content || this.busy_fields.has(item_key) || this.busy_fields.has(path)) return;
-
-    this.busy_fields.add(item_key);
-    this.busy_fields.add(path);
-
-    try {
-      const type = this.char.type === "user" ? "character" : this.char.type || "character";
-      const payload = compile_prompt("enhancement", {
-        field_id: path,
-        content,
-        entity_name: this.char.name || "",
-        entity_type: type,
-        is_image_field: false,
-        entity: this.char,
-      });
-      const result = await llm_service.enhance(payload);
-
-      if (result) {
-        let clean_result = strip_profile_wrappers(strip_cognition_blocks(result).trim());
-        let json_str = clean_result.replace(/```json\n?|```/g, "").trim();
-
-        const start_arr = json_str.indexOf("[");
-        const end_arr = json_str.lastIndexOf("]");
-        const start_obj = json_str.indexOf("{");
-        const end_obj = json_str.lastIndexOf("}");
-
-        let patch = {};
-
-        if (start_arr >= 0 && end_arr > start_arr) {
-          try {
-            const parsed = JSON.parse(json_str.substring(start_arr, end_arr + 1));
-            if (Array.isArray(parsed) && parsed.length > 0) {
-              const current_items = this._vectors_of_type(path);
-
-              parsed.forEach((v, idx) => {
-                const target_idx = index + idx;
-                const dir = typeof v === "string" ? v : v.content || v.directive || v.text || "";
-                if (!dir) return;
-
-                const emotional_weight = typeof v.emotional_weight === "number" ? v.emotional_weight : 5;
-
-                if (target_idx < current_items.length) {
-                  const existing = current_items[target_idx];
-                  current_items[target_idx] = {
-                    ...existing,
-                    content: dir,
-                    emotional_weight: typeof v.emotional_weight === "number" ? emotional_weight : (existing.emotional_weight ?? 5),
-                  };
-                } else {
-                  current_items.push({
-                    id: `ai_${generate_uuid()}`,
-                    timestamp: Date.now(),
-                    content: dir,
-                    type: path,
-                    emotional_weight,
-                  });
-                }
-              });
-
-              this._set_vectors_of_type(path, current_items);
-              this._user_mutated = true;
-              return;
-            }
-          } catch (_e) {
-            // Keep clean_result as fallback
-          }
-        } else if (start_obj >= 0 && end_obj > start_obj) {
-          try {
-            const parsed = JSON.parse(json_str.substring(start_obj, end_obj + 1));
-            if (parsed && typeof parsed === "object") {
-              if (parsed.content || parsed.directive || parsed.text) patch.content = parsed.content || parsed.directive || parsed.text;
-              if (typeof parsed.emotional_weight === "number") patch.emotional_weight = parsed.emotional_weight;
-            }
-          } catch (_e) {
-            // Keep clean_result as fallback
-          }
-        }
-
-        if (!patch.content) {
-          clean_result = clean_result.replace(/^"(.*)"$/, "$1").trim();
-          if (clean_result) patch.content = clean_result;
-        }
-
-        if (patch.content) {
-          this.patch_vector_item(path, index, patch);
-          this._user_mutated = true;
-        }
-      }
-    } catch (err) {
-      console.error("Vector item enhance failed:", err);
-    } finally {
-      this.busy_fields.delete(item_key);
-      this.busy_fields.delete(path);
-    }
-  }
-
-  /**
    * AI-enhanced text generation for the entire profile.
    * @param {"character" | "fractal"} entity_type
    */
@@ -558,21 +393,14 @@ export class ProfileState {
             if (FLAT_LEAF_MAP[key]) key = FLAT_LEAF_MAP[key];
 
             if (key === "past") {
-              if (Array.isArray(val)) {
-                const current_vectors = this._vectors_of_type(key);
-                const new_vectors = val.map((text_str, idx) => {
-                  const existing = current_vectors[idx] || {};
-                  const vector_str = strip_profile_wrappers(
-                    typeof text_str === "string" ? text_str : text_str.content || text_str.directive || text_str.text || JSON.stringify(text_str),
-                  ).trim();
-                  const base_vector = temporal_engine.create(vector_str, key);
-                  // Keep the original vector's provenance id when enhancing an
-                  // existing memory; otherwise the engine's ai_ stamp stands.
-                  base_vector.id = existing.id || base_vector.id;
-                  base_vector.emotional_weight = existing.emotional_weight || 5;
-                  return base_vector;
+              if (typeof val === "string") {
+                set_value(this.char, "past", strip_profile_wrappers(val));
+              } else if (Array.isArray(val)) {
+                const bracket_lines = val.map((item) => {
+                  const content = typeof item === "string" ? item : item.content || item.directive || item.text || "";
+                  return content.trim().startsWith("[") ? content.trim() : `[MEM: ${content.trim()}]`;
                 });
-                this._set_vectors_of_type(key, new_vectors);
+                set_value(this.char, "past", bracket_lines.join("\n"));
               }
             } else if (key === "future" && typeof val === "string") {
               // FUTURE is a prose field — flat string value lands directly.
@@ -602,74 +430,6 @@ export class ProfileState {
       this.busy_fields.delete("description");
       this.is_saving = false;
     }
-  }
-
-  /**
-   * Adds a new item to a vector array.
-   * @param {string} path
-   */
-  add_vector_item(path) {
-    if (!this.char || !this.is_editing) return;
-
-    const items = this._vectors_of_type(path);
-
-    // User-authored memories are pinned: the usr_ prefix marks them immune to
-    // Memory Forge eviction, compression, and alteration.
-    const new_item = {
-      id: `usr_${generate_uuid()}`,
-      timestamp: Date.now(),
-      content: "",
-      type: path,
-      emotional_weight: 5,
-    };
-
-    this._set_vectors_of_type(path, [new_item, ...items]);
-    this._user_mutated = true;
-  }
-
-  /**
-   * Patches a specific item in a vector array.
-   * @param {string} path
-   * @param {number} index
-   * @param {any} patch
-   */
-  patch_vector_item(path, index, patch) {
-    if (!this.char) return;
-    const items = this._vectors_of_type(path);
-    if (!items[index]) return;
-    items[index] = { ...items[index], ...patch };
-    this._set_vectors_of_type(path, items);
-    this._user_mutated = true;
-  }
-
-  /**
-   * Removes an item from a vector array.
-   * @param {string} path
-   * @param {number} index
-   */
-  remove_vector_item(path, index) {
-    if (!this.char) return;
-    const items = this._vectors_of_type(path).filter((/** @type {any} */ _, /** @type {number} */ i) => i !== index);
-    this._set_vectors_of_type(path, items);
-    this._user_mutated = true;
-  }
-
-  /**
-   * Updates the weight of a vector item.
-   * @param {string} path
-   * @param {number} index
-   * @param {number} delta
-   */
-  update_vector_weight(path, index, delta) {
-    if (!this.char) return;
-    const items = this._vectors_of_type(path);
-    const item = items[index];
-    if (!item) return;
-    const weight = item.emotional_weight ?? 5;
-    this.patch_vector_item(path, index, {
-      emotional_weight: Math.min(10, Math.max(1, weight + delta)),
-    });
-    this._user_mutated = true;
   }
 
   /**

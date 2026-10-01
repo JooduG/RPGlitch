@@ -174,10 +174,11 @@ The orchestrator dynamically scopes the system context window. Only entities fla
 
 To prevent unintended agent omniscience, the system enforces a strict epistemic boundary between the omniscient director evaluation and entity-level generation:
 
-- **Epistemic Wall**: In `render_character()`, private user directives (`[SECRET: ...]` and `[PLAN: ...]`), private equipment/garments (`[INVENTORY: ... | private]`, `[STASH: ... | private]`), and hidden relational edges (`| hide`) are filtered out before compiling AI character inference payloads (`filter_epistemic_brackets`). The AI cannot read what it has no perceptual means of observing.
-- **Secrecy Signaling (`| private`)**: Owner perspectives receive explicit secrecy markers (e.g. `[DAGGER: stiletto | private]`). This informs the persona LLM of an item or goal's existence in their possession without leading them to openly voice or expose it to other scene participants.
-- **Omniscient Director Access**: `render_director()` preserves unstripped access to all state brackets across both participants and fractals to accurately arbitrate somatic outcomes and spatial physics.
-- **Integrity Auditing**: `verify_epistemic_integrity` actively audits prompt outputs to guarantee zero leaking of private tags across entity boundaries.
+- **Epistemic Wall**: In `render_character()`, hidden state brackets (`| hide`), covert inventory/stashes (`[INVENTORY: ... | hide]`, `[STASH: ... | hide]`), and hidden relational edges (`| hide`) belonging to non-owner entities are stripped across the Epistemic Wall before compiling AI character inference payloads (`filter_epistemic_brackets`). The AI cannot read what it has no perceptual means of observing.
+- **Secrecy Signaling (`| hide` / `| show`)**: Owner perspectives preserve their own `| hide` flags directly (e.g. `[DAGGER: stiletto | hide]`, `[OBJECTIVE: assassinate target | hide]`). This informs the persona LLM of an item, plan, or disposition in their possession while signaling that it must not be openly voiced or exposed to other scene participants.
+- **Omniscient Director Access**: `render_director()` preserves unstripped access to all state brackets and flags across both participants and fractals to accurately arbitrate somatic outcomes, dynamic shifts, and spatial physics.
+- **Vector Retrieval Sanitization**: Semantic vector indexing strips engine metadata flags (`| hide`, `| show`, `| w: N`) via `strip_bracket_engine_flags` before generating embeddings, preventing keyword noise from contaminating semantic similarity scoring.
+- **Integrity Auditing**: `verify_epistemic_integrity` actively audits prompt outputs to guarantee zero leaking of hidden tags or unauthorized `| hide` flags across entity boundaries.
 
 ### Subtext & Psychosomatic Tell Generation
 

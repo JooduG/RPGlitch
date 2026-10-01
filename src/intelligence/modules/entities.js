@@ -440,7 +440,10 @@ const SHEET_FIELD_RENDERERS = Object.freeze({
     // Strip @-prefixed relational brackets — those belong exclusively in <DISPOSITIONS>
     // so they never leak across the Epistemic Wall through the STATE field.
     const state_without_relations = strip_relational_brackets(state_raw);
-    const state_content = strip_leading_key_echo(render_field_value(state_without_relations, context.entity, context.entities), specification.state_strip_keys);
+    const state_content = strip_leading_key_echo(
+      render_field_value(state_without_relations, context.entity, context.entities),
+      specification.state_strip_keys,
+    );
     return helpers.render_sheet_field(specification.state_tag, state_content) || "";
   },
 

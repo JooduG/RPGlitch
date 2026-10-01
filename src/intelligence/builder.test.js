@@ -263,7 +263,7 @@ describe("Parameter-Aware Layer 7 Output Format Routing", () => {
   });
 
   it("routes enhancement output rules via get_output_format", () => {
-    const prose_enhancement = render_enhancement({
+    const bracket_enhancement = render_enhancement({
       enhancer: "VOICE",
       label: "Personality",
       directive: "Expand vocal cadence",
@@ -274,9 +274,9 @@ describe("Parameter-Aware Layer 7 Output Format Routing", () => {
       entity_type: "character",
     });
 
-    expect(prose_enhancement.task).toContain("<TASK>");
-    expect(prose_enhancement.task).toContain("Emit strictly plain prose");
-    expect(prose_enhancement.task).not.toContain("</THINK>");
+    expect(bracket_enhancement.task).toContain("<TASK>");
+    expect(bracket_enhancement.task).toContain("<THINK_FORMAT>");
+    expect(bracket_enhancement.task).toContain("[KEY: value]");
   });
 });
 
@@ -466,10 +466,10 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
     expect(sorting_result.system).toContain('mode="sorting"');
   });
   it("audits epistemic integrity returning boolean without throwing unhandled errors", async () => {
-    const { verify_epistemic_integrity } = await import("./modules/entities/epistemic.js");
+    const { verify_epistemic_integrity } = await import("./veil.js");
     expect(verify_epistemic_integrity("<ENTITIES><CHARACTER>Clean state</CHARACTER></ENTITIES>")).toBe(true);
-    expect(verify_epistemic_integrity("<ENTITIES><CHARACTER>[SECRET: hidden plan]</CHARACTER></ENTITIES>")).toBe(false);
-    expect(verify_epistemic_integrity("<ENTITIES><CHARACTER>[PLAN: attack at dawn]</CHARACTER></ENTITIES>")).toBe(false);
+    expect(verify_epistemic_integrity("<ENTITIES><CHARACTER>[DAGGER: stiletto | hide]</CHARACTER></ENTITIES>")).toBe(false);
+    expect(verify_epistemic_integrity("<ENTITIES><CHARACTER>[DAGGER: stiletto | private]</CHARACTER></ENTITIES>")).toBe(false);
   });
 
   describe("Payload Assembler & Data Points", () => {

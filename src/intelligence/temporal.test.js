@@ -16,7 +16,7 @@ import {
   sanitize_non_physical_prose,
   append_past_vector,
 } from "./temporal.js";
-import { get_output_format } from "./modules/format.js";
+import { get_output_format } from "./modules/task.js";
 import { PROMPTS } from "./prompts.js";
 import { render_memory } from "./builder.js";
 import { llm_service, embed } from "@platform";
@@ -918,8 +918,8 @@ describe("temporal_engine per-entity consolidation progress tracking (Track 2 Ph
     };
     const mock_db = { simulation_log: { update: vi.fn() } };
     const mock_runtime = {
-      active_ai: { id: "ai-1", name: "Viper", type: "character", past: [], relationships: [] },
-      active_user: { id: "user-1", name: "Ghost", type: "character", past: [], relationships: [] },
+      active_ai: { id: "ai-1", name: "Viper", type: "character", past: [], present: { physical: "", non_physical: "" } },
+      active_user: { id: "user-1", name: "Ghost", type: "character", past: [], present: { physical: "", non_physical: "" } },
       update_entity: vi.fn(),
     };
     const mock_app = { log: vi.fn() };
@@ -937,7 +937,7 @@ describe("temporal_engine per-entity consolidation progress tracking (Track 2 Ph
 
     await temporal_engine.consolidate(mock_session, mock_db, {}, mock_runtime, mock_app, { target_key: "AI_CHARACTER" });
 
-    expect(mock_runtime.active_ai.relationships).toContain("Viper → Ghost: Growing mutual respect under fire");
+    expect(mock_runtime.active_ai.present.non_physical).toContain("[@GHOST: Growing mutual respect under fire]");
   });
 
   it("exports the continuum schema and renders the continuum prompt correctly", () => {

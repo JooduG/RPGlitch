@@ -15,7 +15,6 @@
   import DevWing from "./DevWing.svelte";
   import VisualWing from "./VisualWing.svelte";
   import { ProfileState } from "./Profile.svelte.js";
-  import Vectors from "./Vectors.svelte";
   import ProfileHeader from "./ProfileHeader.svelte";
   import RelationalGraph from "./RelationalGraph.svelte";
   import { app, runtime, simulation_state } from "@state";
@@ -422,6 +421,22 @@
     if (!profile_state.char) return;
     download_json_file(export_entity_filename("v2.json"), serialize_character_card({ ...profile_state.char, type: entity_type }));
   }
+
+  /**
+   * Evaluates if a temporal field in edit mode is formatted as a single dense paragraph (>=120 chars, no line breaks or brackets).
+   * @param {string} field_key
+   * @param {string} value
+   * @returns {boolean}
+   */
+  function should_show_bracket_tip(field_key, value) {
+    if (!profile_state.is_editing || !value) return false;
+    const is_temporal = ["eternal.physical", "eternal.non_physical", "present.physical", "present.non_physical", "past", "future"].includes(
+      field_key,
+    );
+    if (!is_temporal) return false;
+    const trimmed = String(value).trim();
+    return trimmed.length >= 120 && !trimmed.includes("\n") && !trimmed.includes("[");
+  }
 </script>
 
 <svelte:window
@@ -769,16 +784,12 @@
 {#snippet EntityBody()}
   <div class={entity_body_class} style:grid-template-columns={entity_body_grid_cols} data-testid="profile-fragments">
     {#each active_sections as section (section.id)}
-      {@const array_field = section.fields.find((/** @type {any} */ f) => f.type === "array")}
-
       <div
         class={get_section_class()}
         style:border-color={app.viewport.mobile ? "color-mix(in srgb, var(--signature-color) 30%, transparent)" : undefined}
         data-section={section.id}
         onclick={() => {
-          if (array_field) {
-            profile_state.add_vector_item(array_field.key);
-          } else if (profile_state.is_editing && section.fields.length > 0) {
+          if (profile_state.is_editing && section.fields.length > 0) {
             const first_field = section.fields[0];
             const el = document.getElementById(`field-${first_field.key.replace(".", "-")}`);
             if (el) el.focus();
@@ -793,12 +804,6 @@
             class="relative m-0 flex items-center justify-center text-center tracking-widest uppercase transition-colors duration-300"
             style="color: var(--signature-color); text-shadow: none;"
           >
-            {#if profile_state.is_editing && profile_state.hovered_section === section.id && array_field}
-              <span
-                class="pointer-events-none absolute -top-5 left-1/2 -translate-x-1/2 font-mono text-base tracking-widest text-white"
-                style:animation="add-hint-fade var(--motion-elastic) forwards">+</span
-              >
-            {/if}
             <span
               class={get_label_span_class()}
               style:text-orientation={app.viewport.mobile ? undefined : "mixed"}
@@ -810,136 +815,141 @@
 
       <div class={get_fields_container_class(section.fields.length)}>
         {#each section.fields as field (field.key)}
-          <div class="relative flex h-full w-full min-w-0 flex-col items-stretch justify-stretch gap-2">
-            {#if field.type === "array"}
-              <Vectors state={profile_state} path={field.key} sublabel={field.label} description={field.description} {signature_color} />
-            {:else}
-              {@const field_id = `field-${field.key.replace(".", "-")}`}
-              {@const raw = profile_state.get_safe_value(field.key) || ""}
-              {@const parsed = (() => {
-                const res = safe_parse_pseudo_json(raw);
-                if (res && Object.keys(res).length > 0 && !res.__raw_prose__) {
-                  const standardized = {};
-                  Object.entries(res).forEach(([k, v]) => {
-                    if (typeof v === "string") {
-                      standardized[k] = v.replace(/,([^\s])/g, ", $1");
-                    } else {
-                      standardized[k] = v;
-                    }
-                  });
-                  return standardized;
+          {@const field_id = `field-${field.key.replace(".", "-")}`}
+          {@const raw = profile_state.get_safe_value(field.key) || ""}
+          {@const parsed = (() => {
+            const res = safe_parse_pseudo_json(raw);
+            if (res && Object.keys(res).length > 0 && !res.__raw_prose__) {
+              const standardized = {};
+              Object.entries(res).forEach(([k, v]) => {
+                if (typeof v === "string") {
+                  standardized[k] = v.replace(/,([^\s])/g, ", $1");
+                } else {
+                  standardized[k] = v;
                 }
-                return null;
-              })()}
+              });
+              return standardized;
+            }
+            return null;
+          })()}
+          <div class="relative flex h-full w-full min-w-0 flex-col items-stretch justify-stretch gap-2">
+            {#if field.column_label}
+              <Label class="justify-center drop-shadow-md" style="color: var(--signature-color);" disabled={!profile_state.is_editing} for={field_id}
+                >{field.column_label}</Label
+              >
+            {/if}
 
-              {#if field.column_label}
-                <Label
-                  class="justify-center drop-shadow-md"
-                  style="color: var(--signature-color);"
-                  disabled={!profile_state.is_editing}
-                  for={field_id}>{field.column_label}</Label
-                >
-              {/if}
-
-              {#if !profile_state.is_editing && parsed}
-                <div
-                  id={field_id}
-                  class="relative flex h-full min-h-20 w-full flex-col overflow-hidden rounded-xl border border-transparent transition-all duration-300"
-                  role="region"
-                  aria-label={field.label}
-                  use:auto_resize={{ sync_id: section.label }}
-                  data-sync-id={section.label}
-                >
-                  {#if field.label}
-                    <header
-                      style="position: relative; top: 0; z-index: 10; display: flex !important; align-items: center !important; justify-content: space-between !important; border-radius: 0.75rem; background-color: var(--color-dev-accent) !important; padding: 0.175rem 0.75rem; opacity: 1 !important; min-height: 1.5rem !important; height: auto !important; --color-dev-accent: {signature_color};"
-                      class="relative w-full overflow-hidden"
-                    >
-                      {#if profile_state.busy_fields.has(field.key)}
-                        <Shimmer color={signature_color || "var(--color-amber-gold, #f59e0b)"} class="rounded-[inherit]" />
-                      {/if}
-                      <div
-                        style="margin-right: 0.5rem; display: flex !important; align-items: center !important; flex: 1 1 0% !important; min-width: 0; overflow: hidden;"
-                      >
-                        <span
-                          class="block max-w-full cursor-default truncate font-sans text-xs font-normal tracking-normal whitespace-nowrap text-white opacity-90"
-                          use:tooltip
-                          aria-label={field.description}>{field.label}</span
-                        >
-                      </div>
-                    </header>
-                  {/if}
-                  <div class="pt-2">
+            {#if !profile_state.is_editing && parsed}
+              <div
+                id={field_id}
+                class="relative flex h-full min-h-20 w-full flex-col overflow-hidden rounded-xl border border-transparent transition-all duration-300"
+                role="region"
+                aria-label={field.label}
+                use:auto_resize={{ sync_id: section.label }}
+                data-sync-id={section.label}
+              >
+                {#if field.label}
+                  <header
+                    style="position: relative; top: 0; z-index: 10; display: flex !important; align-items: center !important; justify-content: space-between !important; border-radius: 0.75rem; background-color: var(--color-dev-accent) !important; padding: 0.175rem 0.75rem; opacity: 1 !important; min-height: 1.5rem !important; height: auto !important; --color-dev-accent: {signature_color};"
+                    class="relative w-full overflow-hidden"
+                  >
                     {#if profile_state.busy_fields.has(field.key)}
-                      <span class="animate-pulse font-mono text-[10px] tracking-widest text-white uppercase">ENHANCING</span>
-                    {:else}
-                      {@const sorted_entries = Object.entries(parsed).sort((a, b) => String(a[1]).length - String(b[1]).length)}
-                      <div class="flex flex-wrap gap-2">
-                        {#each sorted_entries as [k, v] (k)}
-                          {#if v && String(v).trim()}
-                            <div
-                              class="flex min-w-23.75 grow flex-col items-start gap-0.5 rounded-xl border border-(--signature-color)/15 bg-(--signature-color)/5 px-2.5 py-1.5"
-                            >
-                              <span class="text-left font-mono text-[10px] font-bold tracking-wider text-(--signature-color) uppercase opacity-85"
-                                >{k}</span
-                              >
-                              <span class="text-left text-xs leading-normal text-slate-200">
-                                {@render RenderFormattedValue(String(v))}
-                              </span>
-                            </div>
-                          {/if}
-                        {/each}
-                      </div>
+                      <Shimmer color={signature_color || "var(--color-amber-gold, #f59e0b)"} class="rounded-[inherit]" />
                     {/if}
-                  </div>
-                </div>
-              {:else}
-                <TextField
-                  id={field_id}
-                  is_edit={profile_state.is_editing}
-                  active={profile_state.active_field?.key === field.key}
-                  sync_id={section.label}
-                  {signature_color}
-                  placeholder={field.description}
-                  value={raw}
-                  inline_snippet={inline_macro_text}
-                  oninput={(e) => profile_state.set_field_value(field.key, e.target.value)}
-                  busy={profile_state.busy_fields.has(field.key)}
-                  onfocus={() => profile_state.set_active_field(field.key, field.label || section.label)}
-                >
-                  {#snippet status()}
-                    {#if field.label}
+                    <div
+                      style="margin-right: 0.5rem; display: flex !important; align-items: center !important; flex: 1 1 0% !important; min-width: 0; overflow: hidden;"
+                    >
                       <span
-                        class="block max-w-full cursor-default truncate font-sans text-xs font-normal tracking-normal whitespace-nowrap text-white opacity-80"
+                        class="block max-w-full cursor-default truncate font-sans text-xs font-normal tracking-normal whitespace-nowrap text-white opacity-90"
                         use:tooltip
                         aria-label={field.description}>{field.label}</span
                       >
-                    {/if}
-                  {/snippet}
+                    </div>
+                  </header>
+                {/if}
+                <div class="pt-2">
+                  {#if profile_state.busy_fields.has(field.key)}
+                    <span class="animate-pulse font-mono text-[10px] tracking-widest text-white uppercase">ENHANCING</span>
+                  {:else}
+                    {@const sorted_entries = Object.entries(parsed).sort((a, b) => String(a[1]).length - String(b[1]).length)}
+                    <div class="flex flex-wrap gap-2">
+                      {#each sorted_entries as [k, v] (k)}
+                        {#if v && String(v).trim()}
+                          <div
+                            class="flex min-w-23.75 grow flex-col items-start gap-0.5 rounded-xl border border-(--signature-color)/15 bg-(--signature-color)/5 px-2.5 py-1.5"
+                          >
+                            <span class="text-left font-mono text-[10px] font-bold tracking-wider text-(--signature-color) uppercase opacity-85"
+                              >{k}</span
+                            >
+                            <span class="text-left text-xs leading-normal text-slate-200">
+                              {@render RenderFormattedValue(String(v))}
+                            </span>
+                          </div>
+                        {/if}
+                      {/each}
+                    </div>
+                  {/if}
+                </div>
+              </div>
+            {:else}
+              <TextField
+                id={field_id}
+                is_edit={profile_state.is_editing}
+                active={profile_state.active_field?.key === field.key}
+                sync_id={section.label}
+                {signature_color}
+                placeholder={field.description}
+                value={raw}
+                inline_snippet={inline_macro_text}
+                oninput={(e) => profile_state.set_field_value(field.key, e.target.value)}
+                busy={profile_state.busy_fields.has(field.key)}
+                onfocus={() => profile_state.set_active_field(field.key, field.label || section.label)}
+              >
+                {#snippet status()}
+                  {#if field.label}
+                    <span
+                      class="block max-w-full cursor-default truncate font-sans text-xs font-normal tracking-normal whitespace-nowrap text-white opacity-80"
+                      use:tooltip
+                      aria-label={field.description}>{field.label}</span
+                    >
+                  {/if}
+                {/snippet}
 
-                  {#snippet header_actions()}
-                    {#if profile_state.is_editing}
-                      <Button
-                        variant="invisible"
-                        size="small"
-                        square={true}
-                        aria-label="Enhance with AI"
-                        actions={[tooltip]}
-                        disabled={profile_state.busy_fields.has(field.key) || !profile_state.get_safe_value(field.key)}
-                        onclick={() => profile_state.enhance(field.key, profile_state.get_safe_value(field.key))}
-                        class={get_ai_action_btn_class(field.key)}
+                {#snippet header_actions()}
+                  {#if profile_state.is_editing}
+                    <Button
+                      variant="invisible"
+                      size="small"
+                      square={true}
+                      aria-label="Enhance with AI"
+                      actions={[tooltip]}
+                      disabled={profile_state.busy_fields.has(field.key) || !profile_state.get_safe_value(field.key)}
+                      onclick={() => profile_state.enhance(field.key, profile_state.get_safe_value(field.key))}
+                      class={get_ai_action_btn_class(field.key)}
+                    >
+                      <svg
+                        viewBox="0 0 24 24"
+                        class="size-icon-small fill-none stroke-current stroke-2"
+                        style="stroke-linecap: round; stroke-linejoin: round;"
                       >
-                        <svg
-                          viewBox="0 0 24 24"
-                          class="size-icon-small fill-none stroke-current stroke-2"
-                          style="stroke-linecap: round; stroke-linejoin: round;"
-                        >
-                          <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" fill="currentColor"></path>
-                        </svg>
-                      </Button>
-                    {/if}
-                  {/snippet}
-                </TextField>
+                        <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" fill="currentColor"></path>
+                      </svg>
+                    </Button>
+                  {/if}
+                {/snippet}
+              </TextField>
+
+              {#if should_show_bracket_tip(field.key, raw)}
+                <div
+                  class="flex items-center gap-1.5 rounded-md border border-cyan-500/20 bg-cyan-950/20 px-2 py-1 text-[11px] leading-tight text-cyan-300/80"
+                  transition:fade={{ duration: 150 }}
+                >
+                  <span class="shrink-0 font-mono text-[10px] font-semibold tracking-wider text-cyan-400 uppercase">Tip</span>
+                  <span
+                    >The engine reasons best with multiple bracketed directives <code class="font-mono text-[10px] text-cyan-200">[KEY: value]</code> or
+                    distinct lines.</span
+                  >
+                </div>
               {/if}
             {/if}
           </div>
@@ -991,8 +1001,7 @@
             app.open_profile(selected);
           }
         }}
-        on_update_relationships={(next_rels) => {
-          profile_state.char.relationships = next_rels;
+        on_update_relationships={() => {
           profile_state.mark_mutated();
         }}
       />
@@ -1087,6 +1096,12 @@
 {#snippet inline_macro_text(text)}
   <MacroText {text} owner={profile_state.char} entities={display_entities} />
 {/snippet}
+
+<!--
+CHANGELOG:
+- 2026-10-01: Universal Predicates Migration — decoupled RelationalGraph mutation from `profile_state.char.relationships`, driving relationships purely through universal bracket predicates in `present.non_physical`.
+- 2026-10-01: Added Nordic bracket tip banner below temporal fields in edit mode when dense single-paragraph text (>=120 chars without linebreaks/brackets) is detected.
+-->
 
 <style>
   @keyframes slide-in-left {

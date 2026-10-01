@@ -18,7 +18,7 @@ import { compile_prompt, PROMPTS } from "./prompts.js";
 import { MODE_ADAPTERS, PROMPT_LAYERS } from "./builder.js";
 import { SYSTEM_ROLES } from "./modules/system.js";
 import { TASK_MODE_PLANS, TASK_LAYERS } from "./modules/task.js";
-import { VISIBILITY_POLICIES } from "./modules/entities/sheets.js";
+import { VISIBILITY_POLICIES } from "./modules/entities.js";
 import { CONTRACT, CONTRACT_SIZES, MODE_DIRECTIVE_LEADS, make_contract_cases } from "./prompt-verification.js";
 
 const TAG_PATTERN = /<([A-Z][A-Z0-9_]{1,})(?=[\s>/])/g;

@@ -21,6 +21,7 @@ import { SIGNATURE_COLORS } from "./signature-colors.js";
 
 const HELPERS = Object.freeze({
   BRACKETS: `Return bracketed directives: [KEY: value] — one directive per line, no outer braces, no prose outside brackets.`,
+  RELATIONAL_BRACKETS: `May include targeted relational brackets: [TARGET_ENTITY: relationship dynamic | flags] (flags: 'hide' / 'show', 'w: 1-10'). Atomic clearing: [KEY: none].`,
 });
 
 // ── 1. Canonical Field Taxonomy ───────────────────────────────────────────────
@@ -55,8 +56,7 @@ export const PROFILE_FIELDS = {
       non_physical: {
         label: "Personality",
         description: "Timeless psychology: core beliefs, personality drivers, cognitive patterns, vocal tone, and communication tics.",
-        directive:
-          "Prose only (never bracketed or key-value pairs): core beliefs, personality drivers, cognitive patterns, vocal tone, speech cadence, and communication tics. Timeless psychological baseline that holds true in any scene. Dense, high-fidelity paragraph.",
+        directive: `Dense, high-fidelity prose capturing core beliefs, personality drivers, cognitive patterns, vocal tone, speech cadence, and communication tics. Timeless psychological baseline that holds true in any scene. May include permanent relational brackets: [TARGET_ENTITY: relationship dynamic | flags].`,
         enhancer: "COGNITIVE_ARCHITECT",
       },
     },
@@ -71,8 +71,7 @@ export const PROFILE_FIELDS = {
       non_physical: {
         label: "State of Mind",
         description: "Current state of mind: immediate emotional pressure, active mental focus, and present behavioral drivers.",
-        directive:
-          "Prose only (never bracketed or key-value pairs): immediate emotional pressure, active mental focus, present behavioral drivers. True in THIS moment only — do not restate permanent baseline traits from Eternal. Dense, punchy summary.",
+        directive: `Dense, punchy summary of immediate emotional pressure, active mental focus, and present behavioral drivers true in THIS moment only. May include transient relational or state brackets: [TARGET_ENTITY: immediate dynamic | flags].`,
         enhancer: "TACTICAL_ANALYZER",
       },
     },
@@ -87,10 +86,8 @@ export const PROFILE_FIELDS = {
     past: {
       label: "Memories",
       description: "Formative memories or critical precedents: specific anchored events or established historical facts.",
-      directive:
-        "Settled historical fact or precedent in past tense exerting lasting behavioral residue. Specific over vague; exclude transient moods or immediate dialogue. Empty list if none.",
+      directive: `Settled historical fact or precedent in past tense: [KEY: value | flags] (flags: 'hide' / 'show', 'w: 1-10'). Specific over vague; exclude transient moods or immediate dialogue. ${HELPERS.BRACKETS}`,
       enhancer: "EPISODIC_MEMORY_COMPILER",
-      type: "array",
     },
   },
   fractal: {
@@ -105,7 +102,7 @@ export const PROFILE_FIELDS = {
         label: "Permanent Truths",
         description: "Timeless metaphysical substrate: governing laws, constant environmental forces, and physical constants.",
         directive:
-          "Prose only (never bracketed or key-value pairs): timeless metaphysical substrate, governing laws, constant environmental forces, unbreakable world logic. Dense, high-fidelity paragraph.",
+          "Timeless metaphysical substrate: governing laws, constant environmental forces, and physical constants. May include environmental condition brackets: [LAW: description | flags] (flags: 'hide', 'w: 1-10').",
         enhancer: "METAPHYSICAL_ARCHITECT",
       },
     },
@@ -120,7 +117,7 @@ export const PROFILE_FIELDS = {
         label: "Current State",
         description: "Current environmental state: active anomalies, immediate pressure, and momentary shifts in physics or atmosphere.",
         directive:
-          "Prose only (never bracketed or key-value pairs): active anomaly, current pressure, immediate shift in physics or atmosphere. True right now only; short high-fidelity statement.",
+          "Current environmental state: active anomaly, immediate pressure, momentary shifts in physics or atmosphere. May include state or anomaly brackets: [ANOMALY: active condition | flags].",
         enhancer: "ECOSYSTEM_ANALYZER",
       },
     },
@@ -134,10 +131,8 @@ export const PROFILE_FIELDS = {
     past: {
       label: "History",
       description: "Historical cataclysms, founding myths, and settled geographic epochs.",
-      directive:
-        "Settled historical cataclysm, founding myth, or defining epoch in past tense that shaped current world reality. Specific over vague; exclude active weather or temporary conditions. Empty list if none.",
+      directive: `Settled historical cataclysm, founding myth, or defining epoch in past tense: [KEY: value | flags] (flags: 'hide' / 'show', 'w: 1-10'). Specific over vague; exclude active weather or temporary conditions. ${HELPERS.BRACKETS}`,
       enhancer: "HISTORIAN",
-      type: "array",
     },
   },
 };
@@ -320,6 +315,8 @@ export function build_profile_sections(entity_type = "character") {
 
 /**
  * CHANGELOG:
+ * - 2026-10-01: Symmetrically authorized bracket directives across fractal eternal and present non_physical layers in PROFILE_FIELDS, harmonizing bracket predicate architecture.
+ * - 2026-09-30: Updated non_physical field directives in PROFILE_FIELDS to document support for targeted bracket predicates and relational edges ([TARGET: dynamic | flags]) alongside natural prose, aligning with Synaptic Bracket Engine and RelationalGraph synchronization.
  * - 2026-09-16: Streamlined all entity field directives in PROFILE_FIELDS into high-density LLM instructions, eliminating conversational filler and tutorial text while preserving imperative schema contracts. Dynamic SIGNATURE_COLORS interpolation preserved.
  * - 2026-09-12: Added `signature_color` to `PROFILE_FIELDS`.
  * - 2026-09-12: Redesigned taxonomy hierarchy to entity_type -> temporal layer -> field (character -> eternal -> physical). Added distinct fractal models for future (Impending Shift) and past (World History). Simplified build_profile_catalog and build_profile_sections.

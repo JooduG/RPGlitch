@@ -36,7 +36,6 @@ import {
   has_alternations,
   wrap_tag,
   render_xml_tag,
-  resolve_macro_directive,
   parse_relational_vector,
   resolve_alternations,
   alternation_field_label,
@@ -49,16 +48,18 @@ import { ensure_embeddings } from "@platform";
 import { get_prompt } from "./prompts.js";
 import { resolve_stability_lock, resolve_system_role_line, render_system_xml } from "./modules/system.js";
 import { render_axiomatic_constitution } from "./modules/constitution.js";
-import { render_core_protocols, resolve_pov_protocol } from "./modules/protocols.js";
+import { render_core_protocols, resolve_pov_protocol, resolve_macro_directive } from "./modules/protocols.js";
 import {
   render_entity_sheets,
   resolve_entities,
   render_entity_memory_context,
   render_enhancement_field_context,
   render_optics_entities_xml,
-} from "./modules/entities/sheets.js";
-import { render_nearby_entities_xml, render_candidate_cast_xml } from "./modules/entities/presence.js";
-import { verify_epistemic_integrity } from "./modules/entities/epistemic.js";
+  render_nearby_entities_xml,
+  render_candidate_cast_xml,
+  render_dynamics_axes_xml,
+} from "./modules/entities.js";
+import { verify_epistemic_integrity } from "./veil.js";
 
 import { render_history, render_chapter_history_xml, render_input_history_xml, resolve_history, format_sensory_history } from "./modules/history.js";
 import {
@@ -69,9 +70,8 @@ import {
   resolve_optics_cinematography,
   render_available_keywords_xml,
   render_subtext_xml,
+  get_output_format,
 } from "./modules/task.js";
-import { get_output_format } from "./modules/format.js";
-import { render_dynamics_axes_xml } from "./modules/entities/sheets.js";
 import { DYNAMICS_AXES, PHYSICS_PROTOCOLS, AVAILABLE_KEYWORDS, evaluate_dynamics_rules, evaluate_subtext_protocols } from "./physics.js";
 import { temporal_engine, resolve_vector_pool } from "./temporal.js";
 import { aesthetic_resolver, normalize_image_tier, resolve_visual_engine_tokens } from "@media";
@@ -844,6 +844,12 @@ export function render_enhancement({
   const resolved_layer_key = layer_key ?? catalog_meta?.layer_key ?? "";
 
   const macro_directive = !is_image_field ? resolve_macro_directive(normalized_type) : "";
+  const is_temporal_field =
+    field_id === "past" ||
+    field_id === "future" ||
+    field_id.startsWith("eternal.") ||
+    field_id.startsWith("present.") ||
+    Boolean(catalog_meta?.layer_key);
 
   const task_xml = render_task({
     config,
@@ -851,7 +857,11 @@ export function render_enhancement({
     directives: [resolved_directive, macro_directive],
     input: content,
     input_channel: "content",
-    output_format: get_output_format(config.format, { has_think: Boolean(config.think_format) }),
+    output_format: get_output_format(config.format, {
+      has_think: Boolean(config.think_format),
+      is_temporal: is_temporal_field,
+      entity_type: normalized_type,
+    }),
     output_mode: "prose",
     layers: config.layers.task,
   });
@@ -1294,6 +1304,7 @@ export function assemble_prompt(config, context = {}) {
 
 /**
  * CHANGELOG
+ * - 2026-10-01: Re-routed resolve_macro_directive from protocols.js and parameterized render_enhancement with is_temporal and think-awareness for Layer 7 format compilation.
  * - 2026-09-25: Layer-6 refactor wiring — every `render_task` call site now passes its manifest `config`, so the task compiler resolves the mode's declarative `<DIRECTIVES>` selection (director/continuum/sorting/optics) and `optics` spatial framing instead of a hand-rolled builder array; `render_profile_sorting` passes `entity_type`/`ingestion`/`redistribute` rather than precompiled directive strings, and the now-unused `TASK_LIBRARY` import is dropped. Output bytes unchanged.
  * - 2026-09-24: Consolidated payload assembler (`to_data_points` and `context_builder`) directly into `builder.js`, pruning `payload.js` and streamlining intelligence kernel architecture.
  * - 2026-09-24: Optics fallback ownership — added `render_optics_fallback()` (moved the `<image_prompt>` fallback templates out of `media/visual.svelte.js`), so both the optics compile and its deterministic fallback live in the builder.
@@ -1341,4 +1352,5 @@ export function assemble_prompt(config, context = {}) {
  * - 2026-09-10: Redundancy sweep. Dropped the unconsumed prompt_builder.render_protocols passthrough; extract_plan_from_state is module-private.
  * - 2026-09-06: Deduplicated scoring context assembly in create_render_accessors(); standardized nomenclature; purged fallback in build_prologue(); standardized window.exposed bridge.
  * - 2026-08-28: Co-located render_builder directly in builder.js to eliminate circular imports from shared.js.
+ * - 2026-10-01: Consolidated entity presence and sheet renderers from modules/entities.js.
  */

@@ -38,9 +38,9 @@
  * ============================================================================
  */
 
-import { escape_xml, prompt_escape, inline_or_block, render_xml_tag, resolve_macro_directive } from "@utils";
-import { extract_style_dna, STYLE_MOTIF_REGISTRY } from "@data";
-import { PROSE_FORMAT, PLAIN_PROSE_FORMAT, format_json_return, render_output_format_xml } from "./format.js";
+import { escape_xml, prompt_escape, inline_or_block, render_xml_tag } from "@utils";
+import { extract_style_dna, STYLE_MOTIF_REGISTRY, PROFILE_FIELDS } from "@data";
+import { resolve_macro_directive } from "./protocols.js";
 
 // ============================================================================
 // [SECTION 1: UNIFIED TASK DIRECTIVES & PROTOCOLS CATALOG]
@@ -75,6 +75,9 @@ Close </THINK> before the narrative. This think block is internal reasoning and 
 
     THINK_NARRATOR:
       "Open your output with one internal <THINK> block. All internal calculations, scene shifts, and headers must remain inside it, in the conversation language. Close </THINK> before the narrative. This think block is internal reasoning and is never part of the visible prose.",
+
+    THINK_ENHANCEMENT:
+      "Open your output with one internal <THINK> block. Analyze entity identity, coherence with existing traits, and plan the bracket directives or refined phrasing. Close </THINK> before emitting the final content.",
 
     VOICE: "Deliver dialogue matching the {speaking_style} speaking register.",
   }),
@@ -150,7 +153,7 @@ Analyze recent turns in «HISTORY». Synthesize memories, update physical appear
 1. Memory Formation: Extract 1-3 anchored memories in past tense. Empty list if nothing noteworthy transpired.
 2. Dynamic State: Update physical and non_physical condition.
 3. Future Trajectory: Consolidate active standing agenda in future tense.
-4. Relational Graph: Emit plain directed vectors: "Source -> Target: Dynamic description".`,
+4. Relational Graph: Update directed relational brackets in present.non_physical: '[@TARGET: dynamic description | flags]'.`,
   }),
 
   // ── 1.6 Tool B: Profile Structuring & Ingestion Directives (sorting) ───────
@@ -159,9 +162,10 @@ Analyze recent turns in «HISTORY». Synthesize memories, update physical appear
     FOCUS_CHARACTER: "FOCUS: Extracting data for an individual CHARACTER. Re-contextualize or discard environmental/setting text.",
     FOCUS_FRACTAL: "FOCUS: Extracting data for a FRACTAL (scene/setting/environment). Re-contextualize or discard character-specific traits.",
     MACRO: "{macro_directive}",
-    REDISTRIBUTE: `REDISTRIBUTE: The source profile may have content in the wrong field. Relocate each fact to its correct field (e.g., temporary states belong under 'state_of_mind', transient moods under 'current_look'). Never move content into or out of 'description' (internal notes). Preserve factual truth; update only field locations and phrasing. Strip XML tags, markdown bolding, or headers from values—output clean prose.`,
+    REDISTRIBUTE: `REDISTRIBUTE: The source profile may have content in the wrong field. Relocate each fact to its correct field (e.g., temporary states belong under 'present.non_physical', transient moods under 'present.physical'). For physical and temporal layers, structure traits into [KEY: value] bracket directives. Never move content into or out of 'description' (internal notes). Preserve factual truth; update only field locations and phrasing. Strip XML tags, markdown bolding, or headers from values—output clean bracket directives and prose.`,
     INGESTION: `SOURCE OF TRUTH & INGESTION RULES:
 - Source text is absolute truth. Map details faithfully into schema fields.
+- For physical and temporal layers, structure traits into canonical [KEY: value] bracket directives.
 - For absent details (attire, motivations): synthesize lore-consistent defaults.
 - Never emit null, undefined, or empty strings.`,
   }),
@@ -641,6 +645,7 @@ export const TASK_SLOT_RESOLVERS = Object.freeze({
       return render_think_format(get_directive_atom("PROTOCOLS.THINK_CHARACTER", { emotional_grounding: grounding }));
     }
     if (think_format === "narrator") return render_think_format(TASK_LIBRARY.PROTOCOLS.THINK_NARRATOR);
+    if (think_format === "enhancement") return render_think_format(TASK_LIBRARY.PROTOCOLS.THINK_ENHANCEMENT);
     return "";
   },
   optics_think: () => render_think_format(TASK_LIBRARY.OPTICS.THINK_FORMAT),
@@ -707,7 +712,12 @@ export const TASK_SLOT_RESOLVERS = Object.freeze({
 export const TASK_MODE_PLANS = Object.freeze({
   director: Object.freeze({ input: "director_signals", directives: "manifest_directives", output_format: "json_output" }),
   continuum: Object.freeze({ directives: "manifest_directives", output_format: "external_output" }),
-  enhancement: Object.freeze({ input: "content_signal", directives: "external_directives", output_format: "external_output" }),
+  enhancement: Object.freeze({
+    think_format: "prose_think",
+    input: "content_signal",
+    directives: "external_directives",
+    output_format: "external_output",
+  }),
   sorting: Object.freeze({ input: "ingestion_signal", directives: "manifest_directives", output_format: "external_output" }),
   optics: Object.freeze({
     think_format: "optics_think",
@@ -910,8 +920,193 @@ export function render_subtext_xml(ai_dynamics = {}, fractal_dynamics = {}, opti
   return render_xml_tag({ tag: "SUBTEXT", children: tags, child_indent: 2, separator: "\n" });
 }
 
+// ============================================================================
+// [SECTION 6: OUTPUT FORMATS, SCHEMAS & STATE CONTRACTS (LAYER 7)]
+// ============================================================================
+
+/**
+ * Directorial and continuum schema atoms used to construct structured JSON schemas.
+ * Categorized by their lifecycle role while exposed as a single frozen catalog.
+ * Atoms may be a literal value or a function of the optional schema baseline.
+ */
+export const SCHEMA_ATOMS = Object.freeze({
+  _thought_process: "<Tactical intent & state delta>",
+  next_action: `'AI_CHARACTER' | 'FRACTAL' | 'npc:<id>' | { \\"genesis\\": { \\"name\\": \\"<Name>\\", \\"description\\": \\"<description>\\" } } | 'EPILOGUE_CONCLUDED' | 'EPILOGUE_COLLAPSED'`,
+  keywords: ["<1-5 keywords from AVAILABLE_KEYWORDS>"],
+  directors_note: "<1-5 lines staging directives for next speaker, or empty string>",
+  dynamics_deltas: { chaos: 0, intensity: 0, openness: 0, affinity: 0, velocity: 0, entropy: 0 },
+  visual_staging: "<optional: camera & lighting directive if scene image shifts>",
+  spotlight: { enter: ["npc:<id>"], exit: ["npc:<id>"] },
+  target: "'AI_CHARACTER' | 'USER_PERSONA' | 'FRACTAL' | 'NPC_<id>'",
+  relationships: ["Source → Target: dynamic description"],
+  prompt:
+    "<Final image prompt as continuous fluid prose. Ground outputs using physical optics and real-world materials; zero quality buzzwords ('masterpiece', '8K', 'photorealistic').>",
+  negative_prompt: (style_baseline = "") =>
+    `<Negative tokens avoiding quality buzzwords; ground using physical artifacts and flaws.${style_baseline ? ` Style baseline: ${String(style_baseline).replace(/"/g, '\\"')}` : ""}>`,
+  caption: "<in-character selfie caption>",
+});
+
+/**
+ * Universally composes a formatted JSON schema string from canonical PROFILE_FIELDS and SCHEMA_ATOMS.
+ *
+ * Handles:
+ * 1. Twin-cylinder temporal composite layers (eternal, present) split into physical/non_physical directives.
+ * 2. Scalar and array profile fields from PROFILE_FIELDS (with array emotional_weight scoring).
+ * 3. Directorial and continuum atoms from SCHEMA_ATOMS.
+ *
+ * @param {string[]} schema_keys - Ordered array of schema keys to compile
+ * @param {'character' | 'fractal' | string} [entity_type='character'] - Target entity taxonomy model
+ * @param {{ negative_baseline?: string }} [options={}] - Optional style baseline injected into the negative_prompt atom
+ * @returns {string} Formatted JSON schema template string
+ */
+export function render_json_schema(schema_keys, entity_type = "character", { negative_baseline = "" } = {}) {
+  const resolved_entity_type = entity_type === "fractal" ? "fractal" : "character";
+  const entity_model = PROFILE_FIELDS[resolved_entity_type] || PROFILE_FIELDS.character;
+
+  const schema_lines = schema_keys
+    .map((schema_key) => {
+      const field_definition = entity_model[schema_key] || PROFILE_FIELDS[schema_key];
+
+      // 1. Twin-cylinder temporal composite layers (eternal, present)
+      if (field_definition?.physical?.directive && field_definition?.non_physical?.directive) {
+        return `  "${schema_key}": {\n    "physical": "<${field_definition.physical.directive}>",\n    "non_physical": "<${field_definition.non_physical.directive}>"\n  }`;
+      }
+
+      // 2. Direct model or top-level metadata field (name, description, signature_color, future, past)
+      if (field_definition?.directive) {
+        if (field_definition.type === "array") {
+          return `  "${schema_key}": [{ "content": "<${field_definition.directive}>", "emotional_weight": 1-10 }]`;
+        }
+        return `  "${schema_key}": "<${field_definition.directive}>"`;
+      }
+
+      // 3. Directorial and continuum atoms from SCHEMA_ATOMS
+      if (schema_key in SCHEMA_ATOMS) {
+        const atom_definition = SCHEMA_ATOMS[schema_key];
+        const resolved_atom = typeof atom_definition === "function" ? atom_definition(negative_baseline) : atom_definition;
+        const value_string = typeof resolved_atom === "string" ? `"${resolved_atom}"` : JSON.stringify(resolved_atom);
+        return `  "${schema_key}": ${value_string}`;
+      }
+
+      return null;
+    })
+    .filter(Boolean);
+
+  return `{\n${schema_lines.join(",\n")}\n}`;
+}
+
+/**
+ * Plain prose emission instruction for Story Prose turns (interaction, ghostwrite, npc, narrator),
+ * which all open with a `<THINK>` block.
+ * @type {string}
+ */
+export const PROSE_FORMAT = "After closing </THINK>, emit strictly plain prose: no preamble, commentary, markdown, or structural tags.";
+
+/**
+ * Think-free variant for prose-format modes that emit no `<THINK>` block.
+ * @type {string}
+ */
+export const PLAIN_PROSE_FORMAT = "Emit strictly plain prose: no preamble, commentary, markdown, or structural tags.";
+
+/**
+ * Canonical universal bracket directive for temporal field enhancement (with think block).
+ * @type {string}
+ */
+export const BRACKET_FORMAT =
+  "After closing </THINK>, emit strictly bracketed directives: [KEY: value] — one per line, no outer braces, no conversational prose outside brackets. Optional flags: '| hide' (for covert items, secrets, private thoughts), '| w: 1-10' (importance weight). Atomic clearing: [KEY: none].";
+
+/**
+ * Think-free variant of bracket directive for non-think callers.
+ * @type {string}
+ */
+export const PLAIN_BRACKET_FORMAT =
+  "Emit strictly bracketed directives: [KEY: value] — one per line, no outer braces, no conversational prose outside brackets. Optional flags: '| hide' (for covert items, secrets, private thoughts), '| w: 1-10' (importance weight). Atomic clearing: [KEY: none].";
+
+/**
+ * Clean text emission instruction for non-temporal fields (name, description) with think block.
+ * @type {string}
+ */
+export const PLAIN_TEXT_FORMAT = "After closing </THINK>, emit clean text: no preamble, commentary, markdown, or structural tags.";
+
+/**
+ * Formats the canonical structured JSON-return instruction for a compiled schema.
+ *
+ * Schema-escaping policy (single, universal): the compiled schema text is emitted VERBATIM —
+ * never XML-escaped — because it is a contract literal the model must read exactly. Untrusted
+ * *values* are escaped at their own boundary (`prompt_escape` for text nodes, `escape_xml` for
+ * attributes) before they reach any schema position.
+ *
+ * @param {string} schema - JSON schema definition
+ * @returns {string} Formatted instruction
+ */
+export function format_json_return(schema) {
+  return `Return a single, COMPLETE, VALID JSON object matching this schema:\n${schema}\n\nNo preamble, no markdown backticks, no external XML tags. Output must start with { and end with }.`;
+}
+
+/**
+ * Resolves an output format directive or schema from its canonical format specification.
+ * Parameter-aware: accepts an options object to dynamically parameterize CONTINUUM, PROFILE, DIRECTOR, and OPTICS schemas.
+ *
+ * @param {string|{ mode?: string, schema?: string[] }} [format_spec={ mode: "prose" }] - Format spec object from the PROMPTS manifest (normalized at `define_mode`).
+ * @param {{ entity_type?: string, variant?: string, is_selfie?: boolean, negative_prompt?: string, fallback?: string, has_think?: boolean, is_temporal?: boolean }} [options={}]
+ * @returns {string} Compiled output format directive or schema
+ */
+export function get_output_format(format_spec, options = {}) {
+  if (!format_spec) return options.fallback || "";
+
+  // 1. Single profile field enhancement format routing
+  if (format_spec.mode === "temporal_field" || options.is_temporal !== undefined) {
+    if (options.is_temporal) {
+      return options.has_think !== false ? BRACKET_FORMAT : PLAIN_BRACKET_FORMAT;
+    }
+    return options.has_think !== false ? PLAIN_TEXT_FORMAT : PLAIN_PROSE_FORMAT;
+  }
+
+  // 2. Plain narrative prose directive (think-free variant for modes that open no <THINK> block)
+  if (format_spec.mode === "prose") {
+    return options.has_think === false ? PLAIN_PROSE_FORMAT : PROSE_FORMAT;
+  }
+
+  // 3. Structured JSON schema specification from PROMPTS manifest: { mode: "json", schema: [...] }
+  if (Array.isArray(format_spec.schema)) {
+    const schema_keys = [...format_spec.schema];
+
+    if ((options.variant === "selfie" || options.is_selfie) && !schema_keys.includes("caption")) {
+      schema_keys.push("caption");
+    }
+
+    return render_json_schema(schema_keys, options.entity_type || "character", {
+      negative_baseline: options.negative_prompt || "",
+    });
+  }
+
+  return options.fallback || "";
+}
+
+/**
+ * Compiles a dedicated <OUTPUT_FORMAT> XML envelope block.
+ *
+ * @param {Object} parameters
+ * @param {string} [parameters.mode=""] - Optional mode attribute (e.g. "json", "prose")
+ * @param {string} parameters.content - Body content of the output format directive
+ * @param {number} [parameters.indent_level=2] - Indentation spaces
+ * @returns {string} Formatted XML block or empty string if content is blank
+ */
+export function render_output_format_xml({ mode = "", content = "", indent_level = 2 }) {
+  const trimmed_content = String(content || "").trim();
+  if (!trimmed_content) return "";
+  return render_xml_tag({
+    tag: "OUTPUT_FORMAT",
+    attrs: mode ? { mode } : {},
+    children: [trimmed_content],
+    child_indent: indent_level,
+  });
+}
+
 /**
  * CHANGELOG
+ * - 2026-10-01: Consolidated Layer 7 (OUTPUT_FORMAT, format.js) directly into task.js. Eliminated cross-sibling module import and unified turn execution with output schema definitions.
+ * - 2026-10-01: Added THINK_ENHANCEMENT cognition beat protocol, wired enhancement think_format into TASK_SLOT_RESOLVERS and TASK_MODE_PLANS, and updated SORTING directives for bracket-first physical and temporal layers.
  * - 2026-09-26: Prompt hardening — `DIRECTOR.USER_PERSONA_LOCK`/`ROUTING` now state that a player-yield action is never valid and the player's turn opens automatically (so the model stops emitting `USER_PERSONA`); `OPTICS.SUBJECT_RULES.SIGNATURE_COLORS` now forbids recoloring/lengthening declared hair, deriving hair/eye color from the environment or lighting, or conflating accessories (silver jewelry) with hair, and requires the exact declared values.
  * - 2026-09-25: Full protocols.js-level refactor (phases 0–3) — `TASK_LIBRARY` is now pure data (strings + `{placeholder}` templates; every closure gone, conditional text split into distinct keys); the generic `compile_directive_tags`/`get_directive_atom` compiler (with `{ group }` paragraphs) replaces per-mode hand assembly; each mode's `<DIRECTIVES>` selection is declared in the manifest (`prompts.js` `directives`); and the five builders collapse into one `build_task_state` over `TASK_MODE_PLANS` + `TASK_SLOT_RESOLVERS`. `TASK_STATE_BUILDERS` is retired in favour of `TASK_MODE_PLANS`. Director task output is byte-identical.
  * - 2026-09-25: Director directive compiler (protocols.js pattern) — the Director's hand-rolled `<DIRECTIVES>` array is replaced by the declarative `DIRECTOR_DIRECTIVES` selection resolved through the new generic `compile_directive_tags` (a Layer-6 twin of `compile_protocol_tags`); the `TASK_LIBRARY.DIRECTOR` atoms are now pure strings or `(values) => string` templates (`EVALUATION` folds in the old evaluate/round-one/persona-lock trio, `ENVIRONMENTAL_HINT` self-gates), so `build_director_task_state` no longer owns directive ordering. Director task output is byte-identical.

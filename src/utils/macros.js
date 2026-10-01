@@ -14,55 +14,66 @@
 
 import { prompt_escape } from "./xml.js";
 
-// ============================================================================
-// Macro Directives Registry & Resolver
-// ============================================================================
-
-export const MACRO_DIRECTIVES = Object.freeze({
-  CHARACTER:
-    "Use placeholder macros for entities: '{{me}}' (self, speaker), '{{you}}' (user persona, listener), '{{fractal}}' (setting, environment). Never hardcode names.",
-  FRACTAL:
-    "Use placeholder macros for entities: '{{user}}' (user persona), '{{char}}' (AI character), '{{fractal}}' (setting, environment). Never hardcode names.",
-});
-
-/**
- * Resolves the macro placeholder directive according to the entity type.
- * @param {string} [entity_type="character"]
- * @returns {string}
- */
-export function resolve_macro_directive(entity_type = "character") {
-  return entity_type === "fractal" ? MACRO_DIRECTIVES.FRACTAL : MACRO_DIRECTIVES.CHARACTER;
-}
-
 /**
  * Safely parses macros in dynamic text with entity references.
+ * Supports @SPEAKER, @LISTENER, @OWNER, @ME, @YOU, @USER, @CHAR, @FRACTAL, and concrete @ENTITY_NAME tokens.
+ *
  * @param {string} text
  * @param {any} owner
  * @param {any} entities
+ * @param {Object} [context={}]
+ * @param {any} [context.speaker]
+ * @param {any} [context.listener]
  * @returns {string}
  */
-export function parse_macros(text, owner, entities = {}) {
+export function parse_macros(text, owner, entities = {}, context = {}) {
   if (!text || !entities) return text || "";
-  const ai_name = entities.AI?.name || "AI";
-  const user_name = entities.USER?.name || "User";
-  const fractal_name = entities.FRACTAL?.name || "Fractal";
+  const ai_entity = entities.AI || null;
+  const user_entity = entities.USER || null;
+  const fractal_entity = entities.FRACTAL || null;
+
+  const ai_name = ai_entity?.name || "AI";
+  const user_name = user_entity?.name || "User";
+  const fractal_name = fractal_entity?.name || "Fractal";
 
   const perspective = _resolve_owner_perspective(owner, entities);
+  const speaker_entity = context.speaker || (perspective === "user" ? user_entity : ai_entity);
+  const listener_entity = context.listener || (perspective === "user" ? ai_entity : user_entity);
 
-  return text.replace(/\{\{(.*?)\}\}/g, (match, macro) => {
-    const token = macro.toLowerCase().trim();
-    if (perspective === "ai") {
-      const map = { me: ai_name, char: ai_name, you: user_name, user: user_name, fractal: fractal_name };
-      return map[token] ?? match;
+  return text.replace(/(?<!\w)@([a-zA-Z0-9_-]+)\b/gi, (match, raw_token) => {
+    const token = raw_token.toUpperCase();
+
+    // 1. Direct role targets
+    if (token === "USER") return user_name;
+    if (token === "CHAR") return ai_name;
+    if (token === "FRACTAL") return fractal_name;
+
+    // 2. Perspective & stance tokens
+    if (token === "SPEAKER" || token === "ME" || token === "OWNER") {
+      if (speaker_entity?.name) return speaker_entity.name;
+      if (perspective === "ai") return ai_name;
+      if (perspective === "user") return user_name;
+      if (perspective === "fractal") return fractal_name;
+      return match;
     }
-    if (perspective === "user") {
-      const map = { me: user_name, user: user_name, you: ai_name, char: ai_name, fractal: fractal_name };
-      return map[token] ?? match;
+
+    if (token === "LISTENER" || token === "YOU") {
+      if (listener_entity?.name) return listener_entity.name;
+      if (perspective === "ai") return user_name;
+      if (perspective === "user") return ai_name;
+      if (perspective === "fractal") return `${ai_name} and ${user_name}`;
+      return match;
     }
-    if (perspective === "fractal") {
-      const map = { fractal: fractal_name, me: fractal_name, you: `${ai_name} and ${user_name}`, char: ai_name, user: user_name };
-      return map[token] ?? match;
+
+    // 3. Concrete entity name/id match
+    const token_lc = raw_token.toLowerCase();
+    for (const entity of [ai_entity, user_entity, fractal_entity, owner]) {
+      if (!entity) continue;
+      if ((entity.id && String(entity.id).toLowerCase() === token_lc) || (entity.name && String(entity.name).toLowerCase() === token_lc)) {
+        return entity.name;
+      }
     }
+
     return match;
   });
 }
@@ -237,61 +248,91 @@ function _resolve_you_target(owner, entities = {}) {
  * @param {{ AI?: any, USER?: any, FRACTAL?: any }} [entities]
  * @returns {Array<{ text: string, macro: string|null, entity: any|null }>}
  */
-export function resolve_display_macro_segments(text, owner, entities = {}) {
+export function resolve_display_macro_segments(text, owner, entities = {}, context = {}) {
   if (!text) return [];
   const me_name = owner?.name?.trim() || "";
-  const ai_name = entities.AI?.name?.trim() || "";
-  const user_name = entities.USER?.name?.trim() || "";
-  const fractal_name = entities.FRACTAL?.name?.trim() || "";
-  const placeholder = (token) => `\u27e8${token}\u27e9`;
+  const ai_entity = entities.AI || null;
+  const user_entity = entities.USER || null;
+  const fractal_entity = entities.FRACTAL || null;
+
+  const ai_name = ai_entity?.name?.trim() || "";
+  const user_name = user_entity?.name?.trim() || "";
+  const fractal_name = fractal_entity?.name?.trim() || "";
+  const placeholder = (token) => `@${token}`;
+
+  const perspective = _resolve_owner_perspective(owner, entities);
+  const speaker_entity = context.speaker || (perspective === "user" ? user_entity : ai_entity || owner);
+  const listener_entity = context.listener || (perspective === "user" ? ai_entity : user_entity);
 
   const segments = [];
   const source = String(text);
   let last = 0;
-  const re = /\{\{(.*?)\}\}/g;
+  const re = /(?<!\w)@([a-zA-Z0-9_-]+)\b/gi;
   let m;
   while ((m = re.exec(source)) !== null) {
     if (m.index > last) {
       segments.push({ text: source.slice(last, m.index), macro: null, entity: null });
     }
-    const token = m[1].toLowerCase().trim();
+    const raw_token = m[1];
+    const token = raw_token.toUpperCase();
     let label = null;
     let entity = null;
-    if (token === "me") {
-      if (me_name) {
+
+    if (token === "SPEAKER" || token === "ME" || token === "OWNER") {
+      if (speaker_entity?.name) {
+        label = speaker_entity.name;
+        entity = speaker_entity;
+      } else if (me_name) {
         label = me_name;
         entity = owner;
       } else if (owner) {
         label = owner.type === "fractal" ? "this fractal" : "this character";
       }
-    } else if (token === "char") {
+    } else if (token === "CHAR") {
       if (ai_name) {
         label = ai_name;
-        entity = entities.AI;
+        entity = ai_entity;
       } else {
         label = UNRESOLVED_LABELS.char;
       }
-    } else if (token === "user") {
+    } else if (token === "USER") {
       if (user_name) {
         label = user_name;
-        entity = entities.USER;
+        entity = user_entity;
       } else {
         label = UNRESOLVED_LABELS.user;
       }
-    } else if (token === "you") {
-      const you_target = _resolve_you_target(owner, entities);
-      label = you_target.label;
-      entity = you_target.entity;
-    } else if (token === "fractal") {
+    } else if (token === "LISTENER" || token === "YOU") {
+      if (listener_entity?.name) {
+        label = listener_entity.name;
+        entity = listener_entity;
+      } else {
+        const you_target = _resolve_you_target(owner, entities);
+        label = you_target.label;
+        entity = you_target.entity;
+      }
+    } else if (token === "FRACTAL") {
       if (fractal_name) {
         label = fractal_name;
-        entity = entities.FRACTAL;
+        entity = fractal_entity;
       } else {
         label = UNRESOLVED_LABELS.fractal;
       }
+    } else {
+      // Concrete entity check by name or id
+      const token_lc = raw_token.toLowerCase();
+      for (const cand of [ai_entity, user_entity, fractal_entity, owner]) {
+        if (!cand) continue;
+        if ((cand.id && String(cand.id).toLowerCase() === token_lc) || (cand.name && String(cand.name).toLowerCase() === token_lc)) {
+          label = cand.name;
+          entity = cand;
+          break;
+        }
+      }
     }
-    if (label === null) label = placeholder(token);
-    segments.push({ text: label, macro: token, entity });
+
+    if (label === null) label = placeholder(raw_token);
+    segments.push({ text: label, macro: raw_token, entity });
     last = m.index + m[0].length;
   }
   if (last < source.length) {
@@ -432,6 +473,7 @@ export function render_field_value(text, owner, entities) {
 
 /**
  * CHANGELOG
+ * - 2026-10-01: Relocated prompt directive MACRO_DIRECTIVES and resolve_macro_directive to src/intelligence/modules/protocols.js per Layer 3 prompt architecture, keeping macros.js a pure stateless string utility.
  * - 2026-09-18: Added CORE_PROTOCOLS, ENTITIES, and HISTORY to PROFILE_WRAPPER_TAGS per scrobbles.md blueprint.
  * - 2026-09-16: Added TASK to PROFILE_WRAPPER_TAGS to ensure prompt envelope tags are stripped from raw profile generations.
  * - 2026-09-13: Repatriated MACRO_DIRECTIVES and resolve_macro_directive to src/utils/macros.js as the single source of truth for all macro parsing and entity token specifications.

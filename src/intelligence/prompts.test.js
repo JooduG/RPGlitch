@@ -18,10 +18,12 @@ const entities = {
       physical: "[BUILD: massive grey-green orc] [HAIR: dark with silver streaks at the temples]\n[DENTAL_FEATURES: perfectly white sharp fangs]",
       non_physical: "A brutal arena fighter.",
     },
-    present: { physical: "[SHIRT: leather harness] [APPAREL: oiled cloth wraps] [POSTURE: coiled]", non_physical: "Protective and possessive." },
+    present: {
+      physical: "[SHIRT: leather harness] [APPAREL: oiled cloth wraps] [POSTURE: coiled]",
+      non_physical: "Protective and possessive. [@SILVERS: wary respect] [@ABSENT_STRANGER: dread]",
+    },
     future: "Break the challenger.",
     past: [],
-    relationships: ["Beast -> Lord Benedict Silvers: wary respect", "Beast -> Absent Stranger: dread"],
     dynamics: { chaos: 40, intensity: 60, openness: 30, affinity: 20 },
   },
   USER: {
@@ -32,10 +34,9 @@ const entities = {
       physical: "[HAIR: dark with silver streaks at the temples]\n[DENTAL_FEATURES: perfectly white sharp fangs]",
       non_physical: "An ancient vampire.",
     },
-    present: { physical: "[SUIT: charcoal suit]", non_physical: "Observing." },
+    present: { physical: "[SUIT: charcoal suit]", non_physical: "Observing. [@BEAST: prized asset]" },
     future: "Claim Beast.",
     past: [],
-    relationships: ["Lord Benedict Silvers -> Beast: prized asset"],
     dynamics: { chaos: 20, intensity: 40, openness: 50, affinity: 60 },
   },
   FRACTAL: {
@@ -55,10 +56,9 @@ const npc = {
   name: "Gaoler",
   type: "npc",
   eternal: { physical: "[BUILD: wiry]", non_physical: "A jailer." },
-  present: { physical: "[SHIRT: mail]", non_physical: "Bored." },
+  present: { physical: "[SHIRT: mail]", non_physical: "Bored. [@BEAST: contempt]" },
   future: "Watch.",
   past: [],
-  relationships: ["Gaoler -> Beast: contempt"],
   dynamics: { chaos: 10, intensity: 20, openness: 10, affinity: 5 },
 };
 
@@ -377,7 +377,7 @@ describe("master switchboard compile_prompt", () => {
     expect(non_physical_enhancement.system).toContain("You are the COGNITIVE_ARCHITECT Profile Enhancer");
     expect(non_physical_enhancement.system).toContain('scope="Personality"');
     expect(non_physical_enhancement.system).toContain("<LAYER>ETERNAL</LAYER>");
-    expect(non_physical_enhancement.task).toContain("Prose only");
+    expect(non_physical_enhancement.task).toContain("[KEY: value]");
   });
 });
 

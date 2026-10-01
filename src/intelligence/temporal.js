@@ -26,7 +26,7 @@ import { llm_service, ensure_embedding, score_by_semantics, embed, is_ready, des
 import { apply_relationships } from "./director.js";
 import { extract_and_repair_json } from "./parser.js";
 import { compile_prompt } from "./prompts.js";
-import { parse_bracket_entries, format_bracket_entry } from "./synaptic.js";
+import { parse_bracket_entries, format_bracket_entry, strip_bracket_engine_flags } from "./veil.js";
 
 /**
  * @typedef {import('@state/runtime.svelte.js').SimulationEntity} SimulationEntity
@@ -302,12 +302,21 @@ export async function score_async(vectors, input, current_round, in_scene = fals
 
   if (!input?.trim()) return [...vectors].sort((a, b) => b.timestamp - a.timestamp);
 
-  const semantic_scores = await score_by_semantics(vectors, input);
+  // Strip internal flags (| hide, | show, | w: N) before semantic embedding calculation
+  // to prevent false semantic collisions on control words, while retaining original vectors.
+  const cleaned_vectors = vectors.map((v) => {
+    const raw_content = v.content || v.directive || v.text || "";
+    const clean_content = strip_bracket_engine_flags(raw_content);
+    return clean_content === raw_content ? v : { ...v, content: clean_content };
+  });
 
-  const scored = semantic_scores.map(({ vector, similarity }) => {
-    vector._similarity = similarity;
-    vector._relevance = compute_relevance(vector, similarity, _current_round, in_scene);
-    return { ...vector, _relevance: vector._relevance, _similarity: similarity };
+  const semantic_scores = await score_by_semantics(cleaned_vectors, input);
+
+  const scored = semantic_scores.map(({ similarity }, idx) => {
+    const original_vector = vectors[idx];
+    original_vector._similarity = similarity;
+    original_vector._relevance = compute_relevance(original_vector, similarity, _current_round, in_scene);
+    return { ...original_vector, _relevance: original_vector._relevance, _similarity: similarity };
   });
 
   return scored.sort((a, b) => {
@@ -1021,6 +1030,7 @@ if (typeof window !== "undefined") {
 
 /**
  * CHANGELOG
+ * - 2026-10-01: Strip internal bracket engine flags (| hide, | show, | w: N) before embedding calculations in score_async, eliminating false semantic collisions on control words.
  * - 2026-09-29: `resolve_vector_pool` now supports flat universal bracket strings and bracket entry arrays via `parse_bracket_entries`, chunking on bracket boundaries with emotional weight synchronized from `w:`. `append_past_vector` seamlessly supports both flat strings and arrays.
  * - 2026-09-26: Memory-forge generations now dispatch with `priority: "background"`, so the global LLM gate preempts opportunistic consolidation whenever a foreground reply is queued.
  * - 2026-09-25: DRY pass — `fallback_consolidate` now filters with the shared `is_narrative_role` and builds speaker labels through one local `speaker_label` helper.

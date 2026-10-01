@@ -520,7 +520,7 @@
       {#each outgoing_edges as edge, i (edge.target_name || i)}
         {@const current_target = edge.target_name || ""}
         {@const current_dynamic = edge.dynamic || ""}
-        <div class="animate-[slide-down-item_400ms_cubic-bezier(0.23,1,0.32,1)_forwards] flex items-start gap-1.5">
+        <div class="flex animate-[slide-down-item_400ms_cubic-bezier(0.23,1,0.32,1)_forwards] items-start gap-1.5">
           <!-- Delete button rendered directly in component template (not inside snippet) for reliable event binding -->
           <button
             type="button"
@@ -568,7 +568,6 @@
         </div>
       {/each}
     </div>
-
   {/if}
 {/if}
 

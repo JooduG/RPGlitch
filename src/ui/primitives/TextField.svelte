@@ -317,7 +317,7 @@
           </div>
         {/if}
         {#if header_actions}
-          <div class="flex h-full items-center" in:fade={{ duration: 200, delay: 50 }}>
+          <div class="flex h-full items-center">
             {@render header_actions()}
           </div>
         {/if}
