@@ -34,6 +34,10 @@ This track addresses the critical issues identified during live Perchance stress
   - **Issue**: In [`src/state/chrono.svelte.js`](src/state/chrono.svelte.js#L241-L248), when `error.name === "AbortError"`, `runtime.round = previous_round` is skipped, permanently consuming round numbers. Additionally, the user message was already committed via `session_driver.send()`, creating duplicate user entries upon retry.
   - **Fix**: Roll back `state_bridge.runtime.round = previous_round` on abort, and delete the orphaned unresponded user turn row from Dexie upon cancellation.
   - **Touchpoint**: [`src/state/chrono.svelte.js`](src/state/chrono.svelte.js).
+- [x] **TextField Header Actions Transition Flicker (UI Polish)**:
+  - **Issue**: The `header_actions` slot wrapper in [`src/ui/primitives/TextField.svelte`](src/ui/primitives/TextField.svelte) carried a redundant `in:fade` directive that conflicted with parent-level transitions, causing a double-fade flicker when the actions panel appeared.
+  - **Fix**: Remove the redundant `in:fade={{ duration: 200, delay: 50 }}` from the `header_actions` wrapper `<div>`.
+  - **Touchpoint**: [`src/ui/primitives/TextField.svelte`](src/ui/primitives/TextField.svelte).
 
 ### 2. Core Physics & Directorial Mechanics
 
@@ -56,14 +60,63 @@ This track addresses the critical issues identified during live Perchance stress
 
 ---
 
+## Sovereign Architecture Blueprint: Clean-Slate Engine Reconstruction
+
+This umbrella blueprint establishes the first-principles architectural unification of RPGlitch's core simulation runtime, deconstructing duplicate representations and eliminating legacy shims under **P4 Zero Backwards Compatibility (Pre-Beta Purity)**.
+
+### Architectural Pillars
+
+```mermaid
+flowchart TD
+    subgraph Sovereign Engine Topology
+        ENT["1. Unified Entity Cast Registry<br>(Presence state: active | nearby | dormant)"]
+        UPM["2. Universal Predicates & Macros<br>(All state, relations & macros unified)"]
+        RED["3. Pure Functional Dynamics Reducer<br>(Input -> Deltas -> Baseline/Gravity -> Clamped State)"]
+        EVT["4. Identity-Stamped History Log<br>(Origin Entity ID stamped at birth)"]
+        QUE["5. Durable Lifecycle Task Worker<br>(Round/Story-keyed execution gates in job-queue.js)"]
+    end
+
+    ENT --> UPM
+    UPM --> RED
+    RED --> EVT
+    EVT --> QUE
+```
+
+1. **Unified Entity Cast Registry (Scene Presence & Genesis)**:
+   - Consolidate active trio and NPCs into a single entity cast registry.
+   - Presence tracked strictly via explicit state enum: `'active' | 'nearby' | 'dormant'` (no detached `in_scene_npc_ids` array or fuzzy prefix-stripping lookups).
+   - Genesis instantiates an Entity directly with `presence: 'active'` and an assigned `entity_id`.
+2. **Universal Predicates & Macro Relational Engine**:
+   - **Active Tactical Plan**: [`universal_predicates_and_macro_relational_plan.md`](file:///c:/Users/johng/.gemini/antigravity-ide/brain/63039ce3-5ee6-45f8-bcc6-42462dd704ed/universal_predicates_and_macro_relational_plan.md).
+   - Retire the legacy `entity.relationships: string[]` array completely.
+   - All relational dynamics stored as universal bracket predicates with `@` entity keys across temporal layers:
+     - `eternal.non_physical`: Baseline foundational bonds (`[@JULIEN: childhood bond]`).
+     - `present.non_physical`: Immediate situational dynamics (`[@USER: fierce protection | hide]`).
+   - Dynamic role targets (`[@USER: ...]`, `[@CHAR: ...]`, `[@FRACTAL: ...]`) and **Unified Perspective Resolution** (`{me}` = Source Entity, `{you}` = Target Entity) integrated natively.
+   - Pre-resolve alternations or bind them to structured Director slots rather than guessing via post-hoc regex string diffing.
+   - Consolidate presence and sheets modules into `src/intelligence/modules/entities.js`.
+   - **Touchpoints**: [`src/utils/macros.js`](src/utils/macros.js), [`src/utils/macros.test.js`](src/utils/macros.test.js), [`src/intelligence/modules/protocols.js`](src/intelligence/modules/protocols.js), [`src/intelligence/modules/protocols.test.js`](src/intelligence/modules/protocols.test.js), [`src/intelligence/modules/task.js`](src/intelligence/modules/task.js), [`src/intelligence/modules/entities.js`](src/intelligence/modules/entities.js), [`src/intelligence/veil.js`](src/intelligence/veil.js), [`src/intelligence/veil.test.js`](src/intelligence/veil.test.js), [`src/intelligence/director.js`](src/intelligence/director.js), [`src/intelligence/story.js`](src/intelligence/story.js), [`src/intelligence/story.test.js`](src/intelligence/story.test.js), [`src/intelligence/builder.js`](src/intelligence/builder.js), [`src/intelligence/temporal.js`](src/intelligence/temporal.js), [`src/intelligence/temporal.test.js`](src/intelligence/temporal.test.js), [`src/intelligence/physics.js`](src/intelligence/physics.js), [`src/intelligence/physics.test.js`](src/intelligence/physics.test.js), [`src/intelligence/prompts.test.js`](src/intelligence/prompts.test.js), [`src/intelligence/prompt-verification.test.js`](src/intelligence/prompt-verification.test.js), [`src/intelligence/profile.js`](src/intelligence/profile.js), [`src/ui/profile/RelationalGraph.svelte`](src/ui/profile/RelationalGraph.svelte), [`src/ui/profile/RelationalGraph.test.js`](src/ui/profile/RelationalGraph.test.js), [`src/ui/profile/Profile.svelte`](src/ui/profile/Profile.svelte).
+3. **Pure Functional Dynamics Reducer (`src/intelligence/dynamics.js`)**:
+   - Rename `physics.js` $\rightarrow$ `dynamics.js` and gather **all** dynamics calculations into one module.
+   - Export pure reducer `reduce_dynamics(current, deltas, baselines, entropy) => next_dynamics` uniformly for all entities.
+4. **Identity-Stamped History Log**:
+   - Stamp `entity_id` onto log entries at creation in `src/state/log.svelte.js`.
+   - Prompt compilation directly emits `<ENTRY origin="${entry.entity_id}">`, eliminating runtime reverse name-to-ID lookup maps (`_attach_history_origins`).
+5. **Durable Lifecycle Task Worker (`src/utils/job-queue.js`)**:
+   - Enhance `job-queue.js` with session/round context gating (`queue.run(task, { story_id, round, latest: true })`).
+   - Aborts stale background tasks automatically with `{ stale: true }` if the story switches or round advances mid-flight.
+
+---
+
 ## Active Sprint: Hierarchical Memory Compaction & Entity State Graph
 
 - **Reference Identifier**: `memory-compaction-and-state-transitions`
 - **Origin & Heritage**: Derived from MoeChat's proven **Project Prism-DCM** architecture (`SPEC-prism.md`, `SPEC-context-limit.md`), adapted for RPGlitch's multi-entity Svelte 5 simulation runtime.
 - **Current Status**:
-  - ✅ **Phase A Completed & Shipped**: Universal Bracket Predicates & Synaptic Engine (`src/intelligence/synaptic.js`) and 8-Bit Vector Quantization (`src/platform/embeddings.svelte.js`) are fully implemented and passing all tests in `src/`.
+  - ✅ **Phase A Completed & Shipped**: Universal Bracket Predicates, Veil Engine (`src/intelligence/veil.js`, `src/intelligence/veil.test.js`), Layer 7 Format Consolidation (`src/intelligence/modules/task.js`), Universal Temporal String Harmonization & Vectors Retirement (`src/data/definitions/profile-fields.js`, `src/ui/profile/Profile.svelte`, `src/ui/profile/Profile.svelte.js`, `src/ui/profile/Vectors.svelte`, `src/ui/profile/index.js`), and 8-Bit Vector Quantization (`src/platform/embeddings.svelte.js`) are fully implemented and passing all tests in `src/`.
   - 🔄 **Phase B In Progress (Active Delta)**: Memory Forge Chapter Consolidation (Tier 1 Chapter nodes, Tier 2 Arc nodes with fanout: 8), prompt middle-out 6,000-token cliff protection, and deterministic hybrid lexical retrieval ranking.
 - **Sprint Scope**: Memory Forge consolidation, universal bracket state grounding, deterministic hybrid lexical retrieval, write-time rot prevention, and 8-bit vector quantization.
+- **Touchpoints**: [`src/intelligence/veil.js`](src/intelligence/veil.js), [`src/intelligence/veil.test.js`](src/intelligence/veil.test.js), [`src/intelligence/modules/task.js`](src/intelligence/modules/task.js), [`src/data/definitions/profile-fields.js`](src/data/definitions/profile-fields.js), [`src/ui/profile/Profile.svelte`](src/ui/profile/Profile.svelte), [`src/ui/profile/Profile.svelte.js`](src/ui/profile/Profile.svelte.js), [`src/ui/profile/Vectors.svelte`](src/ui/profile/Vectors.svelte), [`src/ui/profile/index.js`](src/ui/profile/index.js).
 
 ---
 
@@ -147,6 +200,7 @@ $$\text{Score} = (\text{Entity Overlap} \times 3.0) + (\text{Lexical Frequency} 
 ### Implementation Touchpoints
 
 - `src/intelligence/synaptic.js` & `src/intelligence/synaptic.test.js`: Universal bracket predicate domain engine, brace-depth tokenization, targeted slice splicing, 3-way epistemic filtering, and cross-tempus relationship harvesting.
+- `src/data/definitions/profile-fields.js` & `src/data/definitions/profile-fields.test.js`: Entity taxonomy definitions and generation directives aligned with universal bracket predicates, relational targeting (`[TARGET: dynamic | flags]`), and atomic clearing.
 - `src/intelligence/index.js`: Barrel exports for universal bracket predicate domain functions (`parse_bracket_entries`, `filter_bracket_entries`, `apply_bracket_mutation`, `extract_entity_relationships`).
 - `src/intelligence/modules/entities/epistemic.js`: Route privacy sanitization through `filter_epistemic_brackets` with owner secrecy signals.
 - `src/intelligence/modules/entities/presence.js`: Unified relational dispositions harvesting universal bracket predicates with legacy fallback.
@@ -155,7 +209,18 @@ $$\text{Score} = (\text{Entity Overlap} \times 3.0) + (\text{Lexical Frequency} 
 - `src/ui/profile/RelationalGraph.svelte` & `src/ui/profile/RelationalGraph.test.js`: Multi-tempus relationship constellation graph harvesting cross-tempus bracket relationships with tempus badges.
 - `src/platform/embeddings.svelte.js` & `src/platform/embeddings.test.js`: Add `quantize_vector_q8()` and `dequantize_vector_q8()` serialization codecs.
 - `src/platform/index.js`: Barrel export `quantize_vector_q8` and `dequantize_vector_q8`.
-- `src/intelligence/modules/format.js` & `src/intelligence/modules/entities/sheets.js`: Format context injection into isolated `<CURRENT_STATE>` and `<HISTORICAL_CONTEXT>` blocks.
+- `src/intelligence/modules/format.js` & `src/intelligence/modules/format.test.js`: Format context injection into isolated `<CURRENT_STATE>` and `<HISTORICAL_CONTEXT>` blocks, plus temporal bracket formats (`BRACKET_FORMAT`, `PLAIN_BRACKET_FORMAT`, `PLAIN_TEXT_FORMAT`).
+- `src/intelligence/modules/entities/sheets.js`: Render entity contexts and profile sheets with self-context elimination and sanitized epistemic secrets.
+- `src/intelligence/modules/protocols.js` & `src/intelligence/modules/protocols.test.js`: Relocated canonical macro directives (`MACRO_DIRECTIVES`, `resolve_macro_directive`) and centralized protocol library definitions.
+- `src/intelligence/modules/entities.js`: Consolidated entity presence, candidate cast, and profile sheet rendering into a single sovereign module with bracket-driven dynamic harvesting.
+- `src/intelligence/modules/task.js`: Added `TASK_LIBRARY.PROTOCOLS.THINK_ENHANCEMENT`, updated `TASK_LIBRARY.SORTING` for bracket-first temporal layers, wired macro directive resolvers, and configured `think_format: "prose_think"` for enhancement.
+- `src/intelligence/prompts.js` & `src/intelligence/prompts.test.js`: Configured `enhancement` mode with `think_format: "enhancement"` and `format: { mode: "temporal_field" }`.
+- `src/intelligence/builder.js` & `src/intelligence/builder.test.js`: Wired `resolve_macro_directive` import from `protocols.js`, and updated `render_enhancement` with temporal bracket format detection and thinking block compilation.
+- `src/intelligence/profile.js` & `src/intelligence/profile.test.js`: Verified single-field and multi-field profile enhancement pipelines with sibling context and bracket format assertions; pruned legacy entity relationship arrays.
+- `src/intelligence/physics.test.js`: Verified physics engine integration with consolidated entities module and universal bracket mechanics.
+- `src/intelligence/prompt-verification.js` & `src/intelligence/prompt-verification.test.js`: Enforced tag inventory and size tripwires for universal bracket contracts and enhancement thinking envelope.
+- `src/ui/profile/Profile.svelte`: Profile Studio edit-mode Nordic tip banner prompting bracket structure when temporal fields contain unsegmented prose blocks ($\ge 120$ chars).
+- `src/utils/macros.js` & `src/utils/macros.test.js`: Decoupled prompt macro directives into `src/intelligence/modules/protocols.js` and expanded universal macro token replacements.
 
 ---
 
