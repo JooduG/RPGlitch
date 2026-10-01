@@ -1007,6 +1007,51 @@ describe("temporal_engine per-entity consolidation progress tracking (Track 2 Ph
       append_past_vector(entity, { content: "[DAGGER: hidden blade | hide | w: 8]" });
       expect(entity.past).toBe("[TOP: leather jacket] [DAGGER: hidden blade | hide | w: 8]");
     });
+
+    it("skips exact-duplicate appends onto flat string past", () => {
+      const entity = { past: "[TOP: leather jacket]" };
+      append_past_vector(entity, { content: "[TOP: leather jacket]" });
+      expect(entity.past).toBe("[TOP: leather jacket]");
+    });
+
+    it("trims the oldest bracket at the cap while preserving prose", () => {
+      const words = [
+        "zebra",
+        "quartz",
+        "mango",
+        "fjord",
+        "pixel",
+        "vortex",
+        "juniper",
+        "cobalt",
+        "saffron",
+        "tundra",
+        "onyx",
+        "willow",
+        "ember",
+        "harbor",
+        "ivory",
+        "meadow",
+        "obsidian",
+        "prairie",
+        "raven",
+        "summit",
+        "lantern",
+      ];
+      const entity = {
+        past:
+          "Once upon a storm. " +
+          words
+            .slice(0, PAST_VECTOR_CAP)
+            .map((w, i) => "[K" + i + ": " + w + "]")
+            .join(" "),
+      };
+      append_past_vector(entity, { content: "[NEWBIE: cipher]" });
+      expect(entity.past.match(/\[/g).length).toBe(PAST_VECTOR_CAP);
+      expect(entity.past).not.toContain("[K0:");
+      expect(entity.past).toContain("[NEWBIE: cipher]");
+      expect(entity.past).toContain("Once upon a storm.");
+    });
   });
 });
 

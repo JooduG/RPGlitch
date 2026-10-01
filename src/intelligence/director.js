@@ -497,16 +497,13 @@ export async function apply_relationships(bridge, rels) {
   for (const source of dirty) {
     try {
       const source_type = source.type === "fractal" ? "fractal" : "character";
-      const updated = await entities.upsert(source_type, {
-        ...source,
-        present: source.present,
-      });
+      await entities.update(source_type, source.id, { present: source.present });
       const type = source.type === "fractal" ? "fractal" : "character";
-      if (type === "fractal" && bridge.runtime?.active_fractal?.id === source.id) bridge.runtime.active_fractal = updated;
+      if (type === "fractal" && bridge.runtime?.active_fractal?.id === source.id) bridge.runtime.active_fractal = { ...source };
       else if (type === "character") {
-        if (bridge.runtime?.active_ai?.id === source.id) bridge.runtime.active_ai = updated;
-        else if (bridge.runtime?.active_user?.id === source.id) bridge.runtime.active_user = updated;
-        else if (bridge.runtime?.active_npcs?.[source.id]) bridge.runtime.active_npcs = { ...bridge.runtime.active_npcs, [source.id]: updated };
+        if (bridge.runtime?.active_ai?.id === source.id) bridge.runtime.active_ai = { ...source };
+        else if (bridge.runtime?.active_user?.id === source.id) bridge.runtime.active_user = { ...source };
+        else if (bridge.runtime?.active_npcs?.[source.id]) bridge.runtime.active_npcs = { ...bridge.runtime.active_npcs, [source.id]: { ...source } };
       }
       state_bridge.app?.log(`[Director] Relational web updated: ${source.name}.`, "system");
     } catch (err) {

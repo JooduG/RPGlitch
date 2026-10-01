@@ -1640,9 +1640,11 @@ describe("apply_relationships (Relational Mesh)", () => {
   it("resolves sources by case-insensitive name and persists edges", async () => {
     await apply_relationships(state_bridge, ["Viper → Mira: alliance"]);
     expect(_mock_runtime.active_ai.present.non_physical).toContain("[@MIRA: alliance]");
-    expect(entities.upsert).toHaveBeenCalledWith(
+    expect(entities.upsert).not.toHaveBeenCalled();
+    expect(entities.update).toHaveBeenCalledWith(
       "character",
-      expect.objectContaining({ id: "ai-1", present: expect.objectContaining({ non_physical: expect.stringContaining("[@MIRA: alliance]") }) }),
+      "ai-1",
+      expect.objectContaining({ present: expect.objectContaining({ non_physical: expect.stringContaining("[@MIRA: alliance]") }) }),
     );
   });
 
@@ -1655,14 +1657,16 @@ describe("apply_relationships (Relational Mesh)", () => {
   it("skips edges whose source resolves to nobody", async () => {
     await apply_relationships(state_bridge, ["Unknown → Mira: debt"]);
     expect(entities.upsert).not.toHaveBeenCalled();
+    expect(entities.update).not.toHaveBeenCalled();
   });
 
-  it("writes fractal edges through the fractal upsert path", async () => {
+  it("writes fractal edges through the fractal update patch path", async () => {
     await apply_relationships(state_bridge, ["Void → Viper: looming danger"]);
-    expect(entities.upsert).toHaveBeenCalledWith(
+    expect(entities.upsert).not.toHaveBeenCalled();
+    expect(entities.update).toHaveBeenCalledWith(
       "fractal",
+      "fx-1",
       expect.objectContaining({
-        id: "fx-1",
         present: expect.objectContaining({ non_physical: expect.stringContaining("[@VIPER: looming danger]") }),
       }),
     );

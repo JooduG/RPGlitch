@@ -88,6 +88,15 @@ describe("entity embedding persistence", () => {
     expect(raw.past[0]._embedding.length).toBe(384);
     expect(raw.past[0]._embedding[0]).toBeCloseTo(0.5);
   });
+
+  it("round-trips Veil string past pools through upsert and get", async () => {
+    const { entities } = await import("./repository.js");
+    const entity = make_entity("char-string-past");
+    entity.past = "[ORION: wary] [MIRA: kind]";
+    await entities.upsert("character", entity);
+    const loaded = await entities.get("character", "char-string-past");
+    expect(loaded.past).toBe("[ORION: wary] [MIRA: kind]");
+  }, 15000);
 });
 
 describe("story entity claims", () => {

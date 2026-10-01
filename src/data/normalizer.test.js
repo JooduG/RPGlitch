@@ -1,5 +1,6 @@
 import {
   coerce_temporal_array,
+  coerce_temporal_vectors,
   create_new,
   ENTITY_TEMPLATES,
   format_premade,
@@ -300,6 +301,20 @@ describe("normalizer.js", () => {
       expect(exported.custom_data.lore_notes).toEqual(["ancient tomb", "cursed blade"]);
       expect(exported.id).toBeUndefined();
       expect(exported.created_at).toBeUndefined();
+    });
+  });
+  describe("coerce_temporal_vectors() with Veil string pools", () => {
+    it("passes bracket strings through verbatim instead of wiping them", () => {
+      expect(coerce_temporal_vectors("[ORION: wary] [MIRA: kind]")).toBe("[ORION: wary] [MIRA: kind]");
+    });
+
+    it("preserves string past pools through normalize() end to end", () => {
+      expect(normalize({ past: "[ORION: wary]" }).past).toBe("[ORION: wary]");
+    });
+
+    it("still coerces legacy arrays and non-values as before", () => {
+      expect(normalize({}).past).toEqual([]);
+      expect(coerce_temporal_vectors(null)).toEqual([]);
     });
   });
 });

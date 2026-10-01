@@ -375,10 +375,13 @@ export function coerce_temporal_array(value) {
 /**
  * Coerces raw temporal data (strings or objects) into proper TemporalVector-shaped objects.
  * Guarantees that every item has id, content, significance, and origin provenance.
- * @param {any[]} value
- * @returns {any[]}
+ * Plain bracket-string pools pass through verbatim (sanitized + trimmed) so the
+ * Veil string model survives normalization without being wiped to [].
+ * @param {any} value
+ * @returns {any[]|string}
  */
 export function coerce_temporal_vectors(value) {
+  if (typeof value === "string") return sanitize_html(value).trim();
   if (!Array.isArray(value)) return [];
   return value
     .map((item) => {

@@ -498,7 +498,20 @@ export function append_past_vector(entity, vector) {
   if (!content) return;
 
   if (typeof entity.past === "string") {
-    entity.past = entity.past.trim() ? `${entity.past.trim()} ${content}` : content;
+    const incoming_text = String(content).trim();
+    if (!incoming_text) return;
+    const current_text = entity.past.trim();
+    if (current_text.includes(incoming_text)) return;
+    if (current_text && is_duplicate(current_text, incoming_text)) return;
+    let next_text = current_text ? `${current_text} ${incoming_text}` : incoming_text;
+    let bracket_entries = parse_bracket_entries(next_text);
+    while (bracket_entries.length > PAST_VECTOR_CAP) {
+      const oldest_entry = bracket_entries[0];
+      if (oldest_entry == null || oldest_entry.start_index == null || oldest_entry.end_index == null) break;
+      next_text = (next_text.slice(0, oldest_entry.start_index) + next_text.slice(oldest_entry.end_index)).replace(/[ \t]{2,}/g, " ").trim();
+      bracket_entries = parse_bracket_entries(next_text);
+    }
+    entity.past = next_text;
     return;
   }
 

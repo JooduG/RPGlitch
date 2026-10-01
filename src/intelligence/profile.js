@@ -50,21 +50,31 @@ export function apply_profile_to_entity(entity, profile) {
     if (key === "profile_picture" || key === "image" || key === "id" || key === "type") continue;
 
     if (key === "past") {
-      // PAST is a vector array — each prose entry becomes a pinned memory.
-      if (Array.isArray(value)) {
-        const new_vectors = value
-          .map((text_string) => {
-            const vector_string =
-              typeof text_string === "string" ? text_string : text_string.content || text_string.directive || JSON.stringify(text_string);
-            if (!vector_string || !String(vector_string).trim()) return null;
-            return {
+      // PAST accepts prose lists or a flat bracket string; the entity pool may be
+      // a legacy vector array or a Veil bracket string — merge without type flips.
+      const incoming_items = Array.isArray(value) ? value : typeof value === "string" ? [value] : null;
+      if (incoming_items) {
+        const cleaned_texts = incoming_items
+          .map((item) => {
+            if (typeof item === "string") return item;
+            if (item && typeof item === "object") return item.content || item.directive || JSON.stringify(item);
+            return "";
+          })
+          .map((text) => String(text || "").trim())
+          .filter(Boolean);
+        if (cleaned_texts.length > 0) {
+          if (typeof entity.past === "string") {
+            const current_text = entity.past.trim();
+            entity.past = current_text ? `${current_text} ${cleaned_texts.join(" ")}` : cleaned_texts.join(" ");
+          } else {
+            const new_vectors = cleaned_texts.map((vector_string) => ({
               ...temporal_engine.create(vector_string, key),
               id: `usr_${generate_uuid()}`,
               emotional_weight: 5,
-            };
-          })
-          .filter(Boolean);
-        entity.past = [...(entity.past || []), ...new_vectors];
+            }));
+            entity.past = [...(Array.isArray(entity.past) ? entity.past : []), ...new_vectors];
+          }
+        }
       }
     } else if (key === "future" && typeof value === "string") {
       entity.future = value.trim();

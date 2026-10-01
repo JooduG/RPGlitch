@@ -5,6 +5,7 @@
 
 import { describe, expect, it, vi } from "vitest";
 import {
+  apply_relationships,
   execute_director_shot,
   normalize_director_data,
   normalize_speaker,
@@ -28,6 +29,14 @@ vi.mock("@platform", async (importOriginal) => {
     llm_service: {
       generate: vi.fn(),
     },
+  };
+});
+
+vi.mock("@data", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    entities: { ...actual.entities, update: vi.fn(), upsert: vi.fn() },
   };
 });
 
@@ -472,6 +481,21 @@ describe("execute_director_shot", () => {
   });
 });
 
+describe("apply_relationships()", () => {
+  it("persists only the present patch and never rewrites past pools", async () => {
+    const { entities } = await import("@data");
+    const ai = { id: "viper", type: "character", name: "Viper", past: "[VIPER: old scar]", present: { non_physical: "Calm." } };
+    const ghost = { id: "ghost", type: "character", name: "Ghost", past: [], present: { non_physical: "Quiet." } };
+    const bridge = { runtime: { active_ai: ai, active_user: ghost, active_fractal: null, active_npcs: {} } };
+    await apply_relationships(bridge, ["Viper → Ghost: wary allies"]);
+    expect(entities.upsert).not.toHaveBeenCalled();
+    expect(entities.update).toHaveBeenCalledTimes(1);
+    expect(entities.update).toHaveBeenCalledWith("character", "viper", { present: ai.present });
+    expect(ai.past).toBe("[VIPER: old scar]");
+    expect(ai.present.non_physical).toContain("@GHOST");
+    expect(ai.present.non_physical).toContain("wary allies");
+  });
+});
 /**
  * CHANGELOG
  * - 2026-09-24: Cast/input de-duplication — the fixture entities now carry real ids; the cast assertions split into "on-stage NPC owns a sheet, no CAST restatement of the trio" and "off-stage reuse candidates emit `<CAST mode="candidates">`", and a new test pins the Director's `<INPUT>` origins to the real entity ids (GHOST/VIPER).

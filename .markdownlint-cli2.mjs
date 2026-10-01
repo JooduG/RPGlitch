@@ -3,6 +3,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import markdownIt from "markdown-it";
 import githubRules, { init } from "@github/markdownlint-github";
+import mermaid from "@mermaid-lint/markdownlint";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const localConfig = JSON.parse(fs.readFileSync(path.resolve(__dirname, "./.markdownlint.json"), "utf8"));
@@ -16,5 +17,6 @@ export default {
   },
   markdownItFactory: () => markdownIt({ html: true }),
   customRules: githubRules,
+  ...mermaid.recommended,
   outputFormatters: [["markdownlint-cli2-formatter-pretty", { appendLink: true }]],
 };

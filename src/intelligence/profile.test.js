@@ -145,6 +145,21 @@ describe("Profile Domain (profile.js)", () => {
       expect(entity.past[0].id.startsWith("usr_")).toBe(true);
     });
 
+    it("merges past prose onto Veil string pools without type flips", () => {
+      const entity = { past: "[ORION: wary]" };
+      apply_profile_to_entity(entity, { past: ["[MIRA: trusts him.]"] });
+      expect(typeof entity.past).toBe("string");
+      expect(entity.past).toContain("[ORION: wary]");
+      expect(entity.past).toContain("[MIRA: trusts him.]");
+    });
+
+    it("accepts a flat past string onto array pools as one pinned vector", () => {
+      const entity = { past: [] };
+      apply_profile_to_entity(entity, { past: "[SOLO: lone wolf.]" });
+      expect(entity.past).toHaveLength(1);
+      expect(entity.past[0].content).toBe("[SOLO: lone wolf.]");
+    });
+
     it("sets future prose and clips tags to the 30-cap", () => {
       const entity = {};
       const tags = Array.from({ length: 40 }, (_, i) => `tag-${i}`);
