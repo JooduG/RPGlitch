@@ -27,6 +27,14 @@ export { db, init_db, set_versionchange_quiesce } from "./db.js";
 // ============================================================================
 
 export { seed_premades, stories, entities, coerce_story_key } from "./repository.js";
+export {
+  ledger_repository,
+  append_ledger_entry,
+  append_ledger_entries,
+  query_entity_history,
+  query_story_snapshot,
+  replay_entity_field,
+} from "./ledger.js";
 
 // ============================================================================
 // Sessions & Lifecycle Drivers

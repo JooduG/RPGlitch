@@ -37,6 +37,15 @@ vi.mock("@data/sessions.svelte.js", () => ({
   },
 }));
 
+vi.mock("@data", async (importOriginal) => {
+  const actual = await importOriginal().catch(() => ({}));
+  return {
+    ...actual,
+    append_ledger_entry: vi.fn(async () => 1),
+    append_ledger_entries: vi.fn(async () => {}),
+  };
+});
+
 vi.mock("./builder.js", async (importOriginal) => {
   const actual = await importOriginal();
   return {

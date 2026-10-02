@@ -40,6 +40,7 @@ import Dexie from "dexie";
  *  kv_settings: Table;
  *  sessions: Table;
  *  audio_prefs: Table;
+ *  mutation_ledger: Table;
  * }}
  */
 const db = /** @type {any} */ (new Dexie("rpglitch"));
@@ -55,6 +56,10 @@ db.version(1).stores({
   kv_settings: "key",
   sessions: "++id, session_id, timestamp",
   audio_prefs: "key",
+});
+
+db.version(2).stores({
+  mutation_ledger: "++id, story_id, entity_id, [story_id+round+seq], [entity_id+field], round, timestamp",
 });
 
 // ============================================================================

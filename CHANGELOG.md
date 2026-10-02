@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Event-Sourced Mutation Ledger (Part 8 Four-Quadrant Architecture)**:
+  - **Dexie Schema Version 2 (`src/data/db.js`)**: Added `mutation_ledger` table with indices `++id, story_id, entity_id, [story_id+round+seq], [entity_id+field], round, timestamp`.
+  - **Ledger Persistence Layer (`src/data/ledger.js`)**: Created change-only event storage module providing `append_ledger_entry`, `append_ledger_entries`, `query_entity_history`, `query_story_snapshot`, and `replay_entity_field` to reconstruct state at any `(round, seq)`. Full unit test coverage in `src/data/ledger.test.js`.
+  - **Hybrid Materialized State**: Entity records continue to store materialized live bracket text/prose for zero-latency prompt compilation and UI rendering, while discrete field mutations append auditable change lines to the ledger.
+  - **Story Cascade Deletion**: Deleting a story in `src/data/repository.js` now purges associated `mutation_ledger` records alongside simulation logs.
+  - **Round-Decay Wire-up**: Stamped `round: runtime.round` in `create()` and `forge_memory()` in `src/intelligence/temporal.js`, activating round-based recency decay (`TEMPORAL_SCORING`).
+  - **Non-Physical Bracket Preservation**: Enhanced `temporal.js` forge consolidation so prose replacements preserve existing parsed bracket entries, eliminating the race condition where forge summary rewrites wiped active relational links.
+  - **Unified Entity Birth Core (`birth_entity_core`)**: Extracted shared birth pipeline in `src/intelligence/profile.js` used by both `spawn_character` and `ImportModal.svelte`, recording genesis ledger entries (`writer: "genesis"`) and firing post-save portraits.
+  - **Relational Graph Ledger Logging**: User additions, updates, retargeting, and deletions in `src/ui/profile/RelationalGraph.svelte` now append ledger entries (`writer: "user"`).
+
 ### Fixed
 
 - **GitHub Actions CI Workflow & Cross-Platform Hook Hardening**:

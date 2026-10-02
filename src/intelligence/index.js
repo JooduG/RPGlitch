@@ -59,7 +59,7 @@ export { temporal_engine, reconcile_vector_caps } from "./temporal.js";
 // Profile Synthesis & Roster Genesis
 // ============================================================================
 
-export { apply_profile_to_entity, structure_profile, spawn_character } from "./profile.js";
+export { apply_profile_to_entity, structure_profile, spawn_character, birth_entity_core } from "./profile.js";
 
 // ============================================================================
 // Simulation Physics & Dynamics Axis Engine

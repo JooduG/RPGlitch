@@ -15,7 +15,7 @@
  * 6. Relational Mesh Actuator (normalize_relationships, apply_relationships)
  */
 
-import { entities } from "@data";
+import { entities, append_ledger_entry } from "@data";
 import { extract_json_block, collapse_whitespace, state_bridge } from "@utils";
 import { llm_service, raw_stop_reason, raw_to_text } from "@platform";
 import { compile_prompt } from "./prompts.js";
@@ -488,8 +488,25 @@ export async function apply_relationships(bridge, rels) {
     if (!source.present) source.present = {};
     const target_identifier = target_raw.trim().startsWith("@") ? target_raw.trim() : `@${target_raw.trim()}`;
     const bracket_directive = `[${target_identifier}: ${dynamic_text.trim()}]`;
-    const mutation = apply_bracket_mutation(source.present.non_physical || "", bracket_directive, { round: bridge.runtime?.round || 0 });
+    const old_non_physical = source.present.non_physical || "";
+    const mutation = apply_bracket_mutation(old_non_physical, bracket_directive, { round: bridge.runtime?.round || 0 });
     source.present.non_physical = mutation.text;
+
+    // Record ledger entry
+    try {
+      append_ledger_entry({
+        story_id: bridge.runtime?.story_id ?? null,
+        round: bridge.runtime?.round ?? 0,
+        seq: 3,
+        entity_id: source.id,
+        field: "present.non_physical",
+        key: target_identifier,
+        new_value: dynamic_text.trim(),
+        writer: "forge",
+      }).catch(() => {});
+    } catch (err) {
+      void err;
+    }
 
     dirty.add(source);
   }

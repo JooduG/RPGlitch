@@ -108,27 +108,27 @@ export function apply_profile_to_entity(entity, profile) {
   return entity;
 }
 
-// ── 3. Character Genesis & Active Cast Spawning ───────────────────────────────
+// ── 2. Unified Entity Birth Core ──────────────────────────────────────────────
 
 /**
- * Spawns a new roster character, persists it to Dexie DB,
- * registers it on the active story cast, and puts it on-stage.
+ * Common birth core shared across spawn_character and ImportModal.
+ * Runs structuring (if prose), maps profile leaves, saves to DB,
+ * writes genesis ledger entries, and chains post-save portrait generation.
  *
- * @param {any} bridge
- * @param {{ name: string, description?: string, relationships?: string[], speaking_style?: string, signature_color?: string, scene_context?: string }} [draft]
- * @returns {Promise<any | null>}
+ * @param {'character' | 'fractal'} type
+ * @param {Object} draft
+ * @param {Object} [options]
+ * @returns {Promise<any>}
  */
-export async function spawn_character(bridge, draft = {}) {
+export async function birth_entity_core(type, draft = {}, options = {}) {
   const name = String(draft?.name || "").trim();
-  if (!name) return null;
   const raw_color = String(draft?.signature_color || "").trim();
   const description = String(draft?.description || "").trim();
   const scene_context = String(draft?.scene_context || "").trim();
 
-  // 1. Base entity shell
   let entity = {
-    name,
-    type: "character",
+    name: name || (type === "fractal" ? "New Fractal" : "New Character"),
+    type,
     description,
     eternal: {
       physical: description,
@@ -147,53 +147,114 @@ export async function spawn_character(bridge, draft = {}) {
     signature_color: raw_color || undefined,
   };
 
-  // 2. Rich Character Profile Synthesis (same pipeline as import)
-  try {
-    const synthesis_source = [
-      `Character Name: ${name}`,
-      description ? `Core Concept: ${description}` : "",
-      raw_color ? `Signature Color: ${raw_color}` : "",
-      scene_context ? `Scene Context & Atmosphere: ${scene_context}` : "",
-    ]
-      .filter(Boolean)
-      .join("\n");
+  // Run structuring if rich synthesis text is provided
+  if (options.run_sorter || (!draft?.eternal && !draft?.present && (name || description))) {
+    try {
+      const synthesis_source = [
+        `Entity Name: ${entity.name}`,
+        description ? `Core Concept: ${description}` : "",
+        raw_color ? `Signature Color: ${raw_color}` : "",
+        scene_context ? `Scene Context & Atmosphere: ${scene_context}` : "",
+      ]
+        .filter(Boolean)
+        .join("\n");
 
-    const rich_profile = await structure_profile(synthesis_source, "character");
-    if (rich_profile && typeof rich_profile === "object") {
-      entity = apply_profile_to_entity(entity, rich_profile);
+      const rich_profile = await structure_profile(synthesis_source, type);
+      if (rich_profile && typeof rich_profile === "object") {
+        entity = apply_profile_to_entity(entity, rich_profile);
+      }
+    } catch (error) {
+      state_bridge.app?.log(`[GameMaster] Genesis rich synthesis failed for "${name}": ${error?.message || error}`, "warn");
     }
-  } catch (error) {
-    state_bridge.app?.log(`[GameMaster] Genesis rich synthesis failed for "${name}", using raw draft: ${error?.message || error}`, "warn");
+  } else if (draft && typeof draft === "object") {
+    entity = apply_profile_to_entity(entity, draft);
   }
 
-  // Ensure signature color and name are firmly grounded
   if (name) entity.name = name;
   if (raw_color) entity.signature_color = raw_color;
 
-  const saved_entity = await entities.upsert("character", entity);
+  const saved_entity = await entities.upsert(type, entity);
 
-  // 3. Genesis portrait — fire-and-forget in background using rich physical description
-  const { visual_engine } = await import("@media");
-  if (typeof visual_engine?.generate === "function" && typeof window !== "undefined") {
+  // Write Genesis Ledger Entries
+  const { append_ledger_entries } = await import("@data");
+  const story_id = options.story_id ?? state_bridge.runtime?.story_id ?? null;
+  const ledger_lines = [];
+  if (saved_entity.eternal?.physical) {
+    ledger_lines.push({
+      story_id,
+      round: 0,
+      seq: 0,
+      entity_id: saved_entity.id,
+      field: "eternal.physical",
+      new_value: saved_entity.eternal.physical,
+      writer: "genesis",
+    });
+  }
+  if (saved_entity.present?.physical) {
+    ledger_lines.push({
+      story_id,
+      round: 0,
+      seq: 0,
+      entity_id: saved_entity.id,
+      field: "present.physical",
+      new_value: saved_entity.present.physical,
+      writer: "genesis",
+    });
+  }
+  if (ledger_lines.length > 0) {
     try {
-      const portrait_promise = visual_engine
-        .generate(saved_entity.id, { mode: "solo_entity", resolution: "512x512", _entity: saved_entity })
-        .then(async (image_url) => {
-          if (image_url && saved_entity.id) {
-            const data_url = typeof image_url === "object" && image_url?.url ? image_url.url : image_url;
-            await entities.update("character", saved_entity.id, { profile_picture: data_url });
-            await state_bridge.runtime?.update_entity?.("character", saved_entity.id, { profile_picture: data_url });
-          }
-        });
-      if (portrait_promise && typeof portrait_promise.catch === "function") {
-        portrait_promise.catch((error) =>
-          state_bridge.app?.log(`[GameMaster] Portrait generation for "${name}" failed: ${error?.message || error}`, "warn"),
-        );
-      }
-    } catch (_error) {
-      /* portrait failure must never break genesis */
+      await append_ledger_entries(ledger_lines);
+    } catch (err) {
+      void err;
     }
   }
+
+  // Chained post-save portrait generation (fire-and-forget)
+  if (options.generate_portrait !== false && type === "character") {
+    const { visual_engine } = await import("@media");
+    if (typeof visual_engine?.generate === "function" && typeof window !== "undefined") {
+      try {
+        const portrait_promise = visual_engine
+          .generate(saved_entity.id, { mode: "solo_entity", resolution: "512x512", _entity: saved_entity })
+          .then(async (image_url) => {
+            if (image_url && saved_entity.id) {
+              const data_url = typeof image_url === "object" && image_url?.url ? image_url.url : image_url;
+              await entities.update("character", saved_entity.id, { profile_picture: data_url });
+              await state_bridge.runtime?.update_entity?.("character", saved_entity.id, { profile_picture: data_url });
+            }
+          });
+        if (portrait_promise && typeof portrait_promise.catch === "function") {
+          portrait_promise.catch((error) =>
+            state_bridge.app?.log(`[GameMaster] Portrait generation for "${name}" failed: ${error?.message || error}`, "warn"),
+          );
+        }
+      } catch (_error) {
+        /* portrait failure must never break genesis */
+      }
+    }
+  }
+
+  return saved_entity;
+}
+
+// ── 3. Character Genesis & Active Cast Spawning ───────────────────────────────
+
+/**
+ * Spawns a new roster character, persists it to Dexie DB,
+ * registers it on the active story cast, and puts it on-stage.
+ *
+ * @param {any} bridge
+ * @param {{ name: string, description?: string, relationships?: string[], speaking_style?: string, signature_color?: string, scene_context?: string }} [draft]
+ * @returns {Promise<any | null>}
+ */
+export async function spawn_character(bridge, draft = {}) {
+  const name = String(draft?.name || "").trim();
+  if (!name) return null;
+
+  const saved_entity = await birth_entity_core("character", draft, {
+    story_id: bridge.runtime?.story_id,
+    run_sorter: true,
+  });
 
   // 4. Register on active story
   const story_id = bridge.runtime?.story_id;

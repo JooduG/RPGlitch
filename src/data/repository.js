@@ -360,13 +360,16 @@ export const stories = {
   },
 
   /**
-   * Deletes a story and its entire simulation log.
+   * Deletes a story and its entire simulation log and mutation ledger.
    * @param {string|number} id
    * @returns {Promise<void>}
    */
   async delete(id) {
     const story_ids_to_purge = [...new Set([String(id), id])];
     await db.simulation_log.where("story_id").anyOf(story_ids_to_purge).delete();
+    if (db.mutation_ledger) {
+      await db.mutation_ledger.where("story_id").anyOf(story_ids_to_purge).delete();
+    }
     await db.stories.delete(coerce_story_key(id));
     stories_bridge.bump();
   },

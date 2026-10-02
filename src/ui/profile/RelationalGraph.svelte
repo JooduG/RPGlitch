@@ -286,6 +286,23 @@
     const mutation = apply_bracket_mutation(entity.present.non_physical || "", `[${target_identifier}: ${clean_dyn}]`);
     entity.present.non_physical = mutation.text;
 
+    try {
+      import("@data").then(({ append_ledger_entry }) => {
+        append_ledger_entry({
+          story_id: null,
+          round: 0,
+          seq: 0,
+          entity_id: entity.id,
+          field: "present.non_physical",
+          key: target_identifier,
+          new_value: clean_dyn,
+          writer: "user",
+        }).catch(() => {});
+      });
+    } catch (_e) {
+      /* empty */
+    }
+
     on_update_relationships();
     new_target_name = "";
     new_dynamic = "";
@@ -293,15 +310,30 @@
   }
 
   function handle_delete_edge(target_name) {
-    console.log("handle_delete_edge called with target_name:", target_name, "entity:", entity);
     if (!target_name || !entity?.present) return;
     const clean_target = String(target_name).trim();
     const target_identifier = clean_target.startsWith("@") ? clean_target : `@${clean_target}`;
 
     // Purge corresponding target bracket from present.non_physical via atomic [TARGET: none] directive
     const mutation = apply_bracket_mutation(entity.present.non_physical || "", `[${target_identifier}: none]`);
-    console.log("handle_delete_edge mutation result:", mutation);
     entity.present.non_physical = mutation.text;
+
+    try {
+      import("@data").then(({ append_ledger_entry }) => {
+        append_ledger_entry({
+          story_id: null,
+          round: 0,
+          seq: 0,
+          entity_id: entity.id,
+          field: "present.non_physical",
+          key: target_identifier,
+          new_value: null,
+          writer: "user",
+        }).catch(() => {});
+      });
+    } catch (_e) {
+      /* empty */
+    }
 
     on_update_relationships();
   }
@@ -313,6 +345,23 @@
 
     const mutation = apply_bracket_mutation(entity.present.non_physical || "", `[${target_identifier}: ${String(new_dyn || "").trim()}]`);
     entity.present.non_physical = mutation.text;
+
+    try {
+      import("@data").then(({ append_ledger_entry }) => {
+        append_ledger_entry({
+          story_id: null,
+          round: 0,
+          seq: 0,
+          entity_id: entity.id,
+          field: "present.non_physical",
+          key: target_identifier,
+          new_value: String(new_dyn || "").trim(),
+          writer: "user",
+        }).catch(() => {});
+      });
+    } catch (_e) {
+      /* empty */
+    }
 
     on_update_relationships();
   }
@@ -327,6 +376,35 @@
     text = apply_bracket_mutation(text, `[${old_identifier}: none]`).text;
     text = apply_bracket_mutation(text, `[${new_identifier}: ${String(dyn || "").trim()}]`).text;
     entity.present.non_physical = text;
+
+    try {
+      import("@data").then(({ append_ledger_entries }) => {
+        append_ledger_entries([
+          {
+            story_id: null,
+            round: 0,
+            seq: 0,
+            entity_id: entity.id,
+            field: "present.non_physical",
+            key: old_identifier,
+            new_value: null,
+            writer: "user",
+          },
+          {
+            story_id: null,
+            round: 0,
+            seq: 0,
+            entity_id: entity.id,
+            field: "present.non_physical",
+            key: new_identifier,
+            new_value: String(dyn || "").trim(),
+            writer: "user",
+          },
+        ]).catch(() => {});
+      });
+    } catch (_e) {
+      /* empty */
+    }
 
     on_update_relationships();
   }

@@ -27,6 +27,7 @@ import { apply_relationships } from "./director.js";
 import { extract_and_repair_json } from "./parser.js";
 import { compile_prompt } from "./prompts.js";
 import { parse_bracket_entries, format_bracket_entry, strip_bracket_engine_flags } from "./veil.js";
+import { append_ledger_entries } from "@data";
 
 /**
  * @typedef {import('@state/runtime.svelte.js').SimulationEntity} SimulationEntity
@@ -86,13 +87,14 @@ function normalize_forged_type(value) {
  * @returns {TemporalVector}
  */
 function create(content, type = "past", weight = 5) {
+  const current_round = state_bridge.runtime?.round ?? 0;
   return {
     id: `ai_${generate_unique_id()}`,
     timestamp: Date.now(),
     content: String(content || "").slice(0, MAX_VECTOR_CHARS),
     type,
     emotional_weight: weight,
-    meta: {},
+    meta: { round: current_round },
   };
 }
 
@@ -749,13 +751,14 @@ export async function forge_memory(entity_targets, history_slice, options = {}) 
         const content = String(raw.content ?? raw.directive ?? "").trim();
         if (!content) continue;
 
+        const current_round = state_bridge.runtime?.round ?? 0;
         const vector = {
           id: `ai_${generate_unique_id()}`,
           timestamp: Date.now(),
           type: normalize_forged_type(raw.type),
           content,
           emotional_weight: Number(raw.emotional_weight ?? 5) || 5,
-          meta: { ...(memory?.meta || {}), forged_for: key },
+          meta: { ...(memory?.meta || {}), forged_for: key, round: current_round },
         };
 
         if (vector.type !== "present") {
@@ -921,6 +924,9 @@ export const temporal_engine = {
 
       const forged = await forge_memory(entity_targets, slice, { target_key });
       if (forged) {
+        const current_round = state_bridge.runtime?.round ?? 0;
+        const ledger_batch = [];
+
         const memories = forged.memories?.[target_key] || [];
         for (const memory of memories) {
           if (memory.type === "present") {
@@ -929,10 +935,28 @@ export const temporal_engine = {
               merge_prose_into_field(entity.present.non_physical, memory.content || memory.directive || ""),
             );
             await runtime.update_entity(type, entity.id, { present: entity.present });
+            ledger_batch.push({
+              story_id,
+              round: current_round,
+              seq: 3,
+              entity_id: entity.id,
+              field: "present.non_physical",
+              new_value: memory.content || memory.directive || "",
+              writer: "forge",
+            });
           } else {
             ensure_unique_vector_id(entity, memory);
             append_past_vector(entity, memory);
             await runtime.update_entity(type, entity.id, { past: entity.past });
+            ledger_batch.push({
+              story_id,
+              round: current_round,
+              seq: 3,
+              entity_id: entity.id,
+              field: "past",
+              new_value: memory.content || "",
+              writer: "forge",
+            });
           }
         }
 
@@ -941,9 +965,32 @@ export const temporal_engine = {
           if (!entity.present) entity.present = { physical: "", non_physical: "" };
           if (summary.physical !== undefined && summary.physical.trim()) {
             entity.present.physical = merge_prose_into_field(entity.present.physical, summary.physical);
+            ledger_batch.push({
+              story_id,
+              round: current_round,
+              seq: 3,
+              entity_id: entity.id,
+              field: "present.physical",
+              new_value: summary.physical,
+              writer: "forge",
+            });
           }
           if (summary.non_physical !== undefined && summary.non_physical.trim()) {
-            entity.present.non_physical = sanitize_non_physical_prose(summary.non_physical);
+            // Snapshot existing bracket entries to prevent prose replacement from nuking live relational links
+            const existing_brackets = parse_bracket_entries(entity.present.non_physical || "");
+            const sanitized_prose = sanitize_non_physical_prose(summary.non_physical);
+            const preserved_bracket_text = existing_brackets.map((b) => format_bracket_entry(b)).join(" ");
+            entity.present.non_physical = [sanitized_prose, preserved_bracket_text].filter(Boolean).join(" ").trim();
+
+            ledger_batch.push({
+              story_id,
+              round: current_round,
+              seq: 3,
+              entity_id: entity.id,
+              field: "present.non_physical",
+              new_value: sanitized_prose,
+              writer: "forge",
+            });
           }
           await runtime.update_entity(type, entity.id, { present: entity.present });
         }
@@ -955,6 +1002,15 @@ export const temporal_engine = {
           if (eternal_mutation.physical?.trim()) {
             entity.eternal.physical = merge_eternal_field(entity.eternal.physical, eternal_mutation.physical);
             eternal_changed = true;
+            ledger_batch.push({
+              story_id,
+              round: current_round,
+              seq: 3,
+              entity_id: entity.id,
+              field: "eternal.physical",
+              new_value: eternal_mutation.physical,
+              writer: "forge",
+            });
           }
           if (eternal_mutation.non_physical?.trim()) {
             entity.eternal.non_physical = merge_eternal_field(
@@ -962,6 +1018,15 @@ export const temporal_engine = {
               sanitize_non_physical_prose(eternal_mutation.non_physical),
             );
             eternal_changed = true;
+            ledger_batch.push({
+              story_id,
+              round: current_round,
+              seq: 3,
+              entity_id: entity.id,
+              field: "eternal.non_physical",
+              new_value: eternal_mutation.non_physical,
+              writer: "forge",
+            });
           }
           if (eternal_changed) {
             await runtime.update_entity(type, entity.id, { eternal: entity.eternal });
@@ -974,6 +1039,16 @@ export const temporal_engine = {
           entity.future = rewritten.trim();
           const chapter_forked = archive_chapter(entity, old_future, entity.future);
           await runtime.update_entity(type, entity.id, { future: entity.future, ...(chapter_forked ? { chapters: entity.chapters } : {}) });
+          ledger_batch.push({
+            story_id,
+            round: current_round,
+            seq: 3,
+            entity_id: entity.id,
+            field: "future",
+            old_value: old_future,
+            new_value: entity.future,
+            writer: "forge",
+          });
           if (chapter_forked) {
             app.log?.(`[TemporalEngine] 📜 Chapter archived for ${entity.name || target_key} — milestone crossed.`, "system");
           }
@@ -981,6 +1056,10 @@ export const temporal_engine = {
 
         if (Array.isArray(forged.relationships) && forged.relationships.length > 0) {
           await apply_relationships({ runtime, app }, forged.relationships);
+        }
+
+        if (ledger_batch.length > 0) {
+          await append_ledger_entries(ledger_batch);
         }
 
         const text = memories.length ? memories.map((vector) => vector.content || vector.directive || "").join(" | ") : "State consolidated.";

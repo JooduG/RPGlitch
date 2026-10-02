@@ -1,7 +1,7 @@
 <script>
   import { Button, Modal, SourceField, Toggle } from "@primitives";
   import { app, runtime, simulation_state } from "@state";
-  import { apply_profile_to_entity, structure_profile } from "@intelligence";
+  import { birth_entity_core } from "@intelligence";
   import { create_new, detect_card_format, normalize, parse_character_card } from "@data";
   import { generate_uuid } from "@utils";
 
@@ -73,24 +73,22 @@
    */
   async function import_card(type, parsed) {
     const flat = parse_character_card(parsed);
-    const entity = create_new(type);
-    if (image_data) entity.profile_picture = image_data;
-    apply_profile_to_entity(entity, flat);
-    await runtime.save_entity(type, entity);
+    if (image_data) flat.profile_picture = image_data;
+    await birth_entity_core(type, flat, { generate_portrait: !image_data });
   }
 
   /**
-   * Runs the LLM ingestion sorter over raw prose and saves the result.
+   * Runs the LLM ingestion sorter over raw prose and saves the result via birth_entity_core.
    * @param {'character' | 'fractal'} type
    * @param {string} raw
    */
   async function import_from_llm(type, raw) {
-    const profile = await structure_profile(raw, type);
-    if (!profile) return; // Lenient: LLM failed to sort — import silently skipped.
-    const entity = create_new(type);
-    if (image_data) entity.profile_picture = image_data;
-    apply_profile_to_entity(entity, profile);
-    await runtime.save_entity(type, entity);
+    const draft = { description: raw };
+    if (image_data) draft.profile_picture = image_data;
+    await birth_entity_core(type, draft, {
+      run_sorter: true,
+      generate_portrait: !image_data,
+    });
   }
 
   async function handle_import() {
