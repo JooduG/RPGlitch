@@ -69,12 +69,9 @@ describe("premade-entities registry", () => {
       expect(character.future).toBeTruthy();
 
       // Past memory verification
-      expect(Array.isArray(character.past)).toBe(true);
-      for (const memory of character.past) {
-        expect(memory.id).toBeTruthy();
-        expect(memory.id.startsWith("usr_")).toBe(true);
-        expect(memory.content).toBeTruthy();
-      }
+      expect(typeof character.past).toBe("string");
+      expect(character.past).toContain("[");
+      expect(character.past).toContain("]");
     }
   });
 
@@ -106,12 +103,9 @@ describe("premade-entities registry", () => {
       expect(fractal.future).toBeTruthy();
 
       // Past memory verification
-      expect(Array.isArray(fractal.past)).toBe(true);
-      for (const memory of fractal.past) {
-        expect(memory.id).toBeTruthy();
-        expect(memory.id.startsWith("usr_")).toBe(true);
-        expect(memory.content).toBeTruthy();
-      }
+      expect(typeof fractal.past).toBe("string");
+      expect(fractal.past).toContain("[");
+      expect(fractal.past).toContain("]");
     }
   });
 

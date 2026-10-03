@@ -853,7 +853,16 @@
       <div class={get_fields_container_class(section.fields.length)}>
         {#each section.fields as field (field.key)}
           {@const field_id = `field-${field.key.replace(".", "-")}`}
-          {@const raw = profile_state.get_safe_value(field.key) || ""}
+          {@const raw_val = profile_state.get_safe_value(field.key)}
+          {@const raw =
+            typeof raw_val === "string"
+              ? raw_val
+              : Array.isArray(raw_val)
+                ? raw_val
+                    .map((item) => (typeof item === "object" ? item?.content || item?.directive || "" : String(item || "")))
+                    .filter(Boolean)
+                    .join("\n")
+                : raw_val || ""}
           {@const parsed = (() => {
             const res = safe_parse_pseudo_json(raw);
             if (res && Object.keys(res).length > 0 && !res.__raw_prose__) {
@@ -1191,6 +1200,7 @@
 
 <!--
 CHANGELOG:
+- 2026-10-04: Safeguarded raw profile field parsing to extract content from any legacy vector objects or arrays, preventing [object Object] leaks and standardizing past as bracket strings.
 - 2026-10-04: Grayed out hidden/private pseudo-JSON cards (dashed border, dimmed background, muted text) and stripped raw engine flags (| show, | hide, | w:N) from card values.
 - 2026-10-03: Added Field History Inspector launcher button to parsed pseudo-JSON bracket field headers so timeline inspection is available regardless of bracket existence.
 - 2026-10-03: Added Field History Inspector launcher to TextField header actions and mounted FieldHistoryModal for timeline auditing.

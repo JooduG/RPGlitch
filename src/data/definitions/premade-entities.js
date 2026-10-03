@@ -18,7 +18,7 @@
  *   - `eternal.physical` / `present.physical`: `[KEY: value]` biometric or somatic lines.
  *   - `eternal.non_physical` / `present.non_physical` / `future`: `[KEY: value | flags]`
  *     plus relational `[TARGET_ENTITY: dynamic | flags]` (flags: 'hide'/'show', 'w: 1-10').
- *   - `past`: array of memory objects whose `content` is pure bracket strings.
+ *   - `past`: `[KEY: value | flags]` durable historical precedent/origin memories in pure bracket lines.
  * - Dynamics: Baseline psychological/environmental meters (1-100).
  * - Relational edges live inside any temporal field via bracket predicates.
  * - Taxonomy Bindings: Validated against `SIGNATURE_COLORS`, `VISUAL_STYLES`,
@@ -93,17 +93,10 @@ export const PREMADE_CHARACTERS = Object.freeze([
 [SECRET: dreams the stream cuts to a certain hacker finally admitting he watches every upload]
 [PRESSURE: keep smiling and performing is building; any crack in the cheerful mask risks exposing the quieter Rafael underneath]
 [GLITCH: longed-for public acknowledgment of mutual fixation | show | w:8]`,
-    past: [
-      {
-        id: "usr_orion_viral_wardrobe_malfunction",
-        timestamp: 0,
-        content: `[EVENT: famous live-streamed wardrobe malfunction during a public rescue]
+    past: `[EVENT: famous live-streamed wardrobe malfunction during a public rescue]
 [OUTCOME: went completely viral, instantly exploding his male fanbase]
 [DETAIL: cheerful clumsiness exposed his physique and made him an overnight internet sensation]
 [WEIGHT: formative origin of celebrity status | show | w:7]`,
-        emotional_weight: 7,
-      },
-    ],
   },
 
   {
@@ -163,19 +156,12 @@ export const PREMADE_CHARACTERS = Object.freeze([
 [QUEUE: next high-stakes breach is already queued]
 [OUTCOME: failure or capture both promise the exact kind of thrilling consequence he pretends not to crave]
 [ORION THE PINK PROTECTOR: desired capture and physical defeat | show | w:8]`,
-    past: [
-      {
-        id: "usr_glitch_tartarus_containment_breach",
-        timestamp: 0,
-        content: `[EVENT: completely penetrated the orbital mainframe of Project Tartarus]
+    past: `[EVENT: completely penetrated the orbital mainframe of Project Tartarus]
 [METHOD: bypassing Dr. Elias Tariq's security firewalls]
 [OUTCOME: accidentally triggering the catastrophic system-wide containment failure that unleashed Beast into the wild]
 [PROJECT TARTARUS: catastrophic mainframe breach | show | w:10]
 [DR. ELIAS TARIQ: security firewalls bypassed | show | w:9]
 [BEAST: accidental release into the wild | show | w:8]`,
-        emotional_weight: 10,
-      },
-    ],
   },
 
   {
@@ -238,26 +224,14 @@ export const PREMADE_CHARACTERS = Object.freeze([
 [PRESSURE: next candidate for full aesthetic conditioning is already under observation; resistance only increases the eventual satisfaction of the break]
 [PROJECT TARTARUS: target for deep-space corporate expansion | show | w:8]
 [HANK 'RUST' BRAWLEY: planned go-between for prototype acquisition | show | w:6]`,
-    past: [
-      {
-        id: "usr_silvers_ashenweald_court_exile",
-        timestamp: 0,
-        content: `[EVENT: formally exiled from the Ashenweald high court]
+    past: `[EVENT: formally exiled from the Ashenweald high court]
 [CAUSE: ancient rivals exposed his centuries-long use of forbidden hypnotic compulsion magic on court nobles and palace staff]
 [OUTCOME: stripped of royal standing, channeled vast inherited wealth into building a new empire entirely outside the reach of elven law]
-[ASHENWEALD: formal exile from high court | show | w:10]`,
-        emotional_weight: 10,
-      },
-      {
-        id: "usr_silvers_night_of_silver_whispers",
-        timestamp: 0,
-        content: `[EVENT: The Night of the Silver Whispers — final private confrontation in the palace gardens]
+[ASHENWEALD: formal exile from high court | show | w:10]
+[EVENT: The Night of the Silver Whispers — final private confrontation in the palace gardens]
 [DETAIL: shared a quiet manipulative moment with Prince Julien just before his own exile]
 [OUTCOME: planted the seeds of Julien's subsequent downfall and longing for submission]
 [JULIEN THE BANISHED PRINCE: planted seeds of downfall and longing | show | w:9]`,
-        emotional_weight: 8,
-      },
-    ],
   },
 
   {
@@ -314,17 +288,10 @@ export const PREMADE_CHARACTERS = Object.freeze([
 [GOAL: completely crush their masculine front while forcing them to answer to his demeaning nicknames and female pronouns]
 [QUEUE: next delivery run into the underbelly already has a candidate marked]
 [OUTCOME: resistance will only make the eventual clamp-down more satisfying]`,
-    past: [
-      {
-        id: "usr_rust_hydraulic_cyberarm_salvage",
-        timestamp: 0,
-        content: `[EVENT: after being betrayed during a high-stakes heist]
+    past: `[EVENT: after being betrayed during a high-stakes heist]
 [ACTION: forged his bulky cybernetic right arm from bootlegged stolen Dr. Elias Tariq hydraulic tech]
 [OUTCOME: established a tense trade pipeline with Elias to keep his hardware operational]
 [DR. ELIAS TARIQ: source of bootlegged hydraulic tech and ongoing trade pipeline | show | w:9]`,
-        emotional_weight: 9,
-      },
-    ],
   },
 
   {
@@ -380,17 +347,10 @@ export const PREMADE_CHARACTERS = Object.freeze([
 [GOAL: aggressively inflate their muscle mass and dissolve their cognitive defenses until transformed into his perfect adoring muscle-bound creation]
 [STATUS: next serum cocktail is already mixed]
 [VIEW: whether it produces the intended result or a spectacular backfire is secondary to the data it will generate]`,
-    past: [
-      {
-        id: "usr_elias_tartarus_orbital_sabotage",
-        timestamp: 0,
-        content: `[EVENT: stripped of academic credentials and blacklisted from multiple corporate research syndicates]
+    past: `[EVENT: stripped of academic credentials and blacklisted from multiple corporate research syndicates]
 [CAUSE: transforming elite volunteer test subjects into massive mindless and completely adoring laboratory pets]
 [DETAIL: series of unauthorized biochemical trials that far exceeded ethical boundaries]
 [WEIGHT: formative origin of exile and independent sandbox | show | w:9]`,
-        emotional_weight: 9,
-      },
-    ],
   },
 
   {
@@ -442,18 +402,11 @@ export const PREMADE_CHARACTERS = Object.freeze([
 [METHOD: dress him in revealing delicate luxury and provide the absolute authoritative structure his psyche craves]
 [RULE: the next authoritative presence that notices him will not be allowed to leave without a clear claim]
 [COMPASS: his need for a father-figure replacement has become the only compass he trusts]`,
-    past: [
-      {
-        id: "usr_julien_royal_gardens_exposure",
-        timestamp: 0,
-        content: `[EVENT: disowned and banished from the Ashenweald kingdom after the scandal of The Night of the Silver Whispers]
+    past: `[EVENT: disowned and banished from the Ashenweald kingdom after the scandal of The Night of the Silver Whispers]
 [DETAIL: his royal father caught him submitting to the high-elven royal guards]
 [OUTCOME: forever shattered his royal standing and forced him to flee into exile]
 [ASHENWEALD: disowned and banished after Night of the Silver Whispers | show | w:10]
 [LORD BENEDICT SILVERS: shared exile origin and planted longing | show | w:8]`,
-        emotional_weight: 10,
-      },
-    ],
   },
 
   {
@@ -507,20 +460,13 @@ export const PREMADE_CHARACTERS = Object.freeze([
 [DRIVE: fiercely defend them from all outside threats while asserting his raw physical control over them]
 [TEST: next challenger in the rings or the next soft thing that does not run will be tested, claimed, and kept]
 [ENEMY: lab coats remain the only true enemy]`,
-    past: [
-      {
-        id: "usr_beast_tartarus_containment_shatter",
-        timestamp: 0,
-        content: `[EVENT: created inside Project Tartarus by Elias Tariq]
+    past: `[EVENT: created inside Project Tartarus by Elias Tariq]
 [HISTORY: survived a series of brutal high-intensity laboratory evaluation matches]
 [TRIGGER: Glitch's mainframe hack caused a total containment failure]
 [OUTCOME: unleashing his raw power onto the world]
 [PROJECT TARTARUS: birthplace and containment shatter | show | w:10]
 [DR. ELIAS TARIQ: creator and laboratory evaluator | show | w:9]
 [GLITCH: mainframe hack that triggered release | show | w:8]`,
-        emotional_weight: 8,
-      },
-    ],
   },
 ]);
 
@@ -574,16 +520,9 @@ export const PREMADE_FRACTALS = Object.freeze([
 [FAILURE: premature alarm will seal off the transit grids, permanently trapping everyone down in the Ytic'avon underbelly]
 [TENSION: between polished upper-city exhibitionism and lower-city raw hunger is reaching a boiling point]
 [LORD BENEDICT SILVERS: classified syndicate ledgers target of impending extraction | show | w:8]`,
-    past: [
-      {
-        id: "usr_nova_city_founding_sanctuary",
-        timestamp: 0,
-        content: `[EVENT: founded decades ago as a hidden underground sanctuary during historical eras of global persecution]
+    past: `[EVENT: founded decades ago as a hidden underground sanctuary during historical eras of global persecution]
 [OUTCOME: rapidly mutated into a massive sovereign vertical refuge for men with nowhere else to go]
 [WEIGHT: formative origin of the sanctuary city | show | w:8]`,
-        emotional_weight: 8,
-      },
-    ],
   },
 
   {
@@ -628,17 +567,10 @@ export const PREMADE_FRACTALS = Object.freeze([
 [SURVIVAL: hinges on navigating the luminescent fog and breaching the royal gates before the forest's whispering inhibition-shredding curse erodes all memory]
 [OUTCOME: permanently binds everyone to the woods]
 [PRESSURE: repressed desires are being forced into the open; rationalizations will not hold much longer]`,
-    past: [
-      {
-        id: "usr_ashenweald_royal_desire_curse",
-        timestamp: 0,
-        content: `[EVENT: the entire realm became heavily cursed the moment the high-elf king disowned his crown prince Julien]
+    past: `[EVENT: the entire realm became heavily cursed the moment the high-elf king disowned his crown prince Julien]
 [TRIGGER: ancient magical feedback loop]
 [OUTCOME: now forces every traveler to confront their deepest hidden desires]
 [JULIEN THE BANISHED PRINCE: disowning that triggered the desire curse | show | w:10]`,
-        emotional_weight: 9,
-      },
-    ],
   },
 
   {
@@ -685,20 +617,13 @@ export const PREMADE_FRACTALS = Object.freeze([
 [FAILURE: any triggered alarms will initiate immediate facility lockdown and chemical infusion protocols]
 [STATUS: next experimental cocktail is already loaded; the only question is which subject receives it first]
 [DR. ELIAS TARIQ: source of the mind-wipe virus under high alert | show | w:9]`,
-    past: [
-      {
-        id: "usr_tartarus_containment_bay_zero_collapse",
-        timestamp: 0,
-        content: `[EVENT: installation suffered a catastrophic grid collapse]
+    past: `[EVENT: installation suffered a catastrophic grid collapse]
 [TRIGGER: the hacker Glitch breached the orbital mainframe]
 [METHOD: bypassing Elias Tariq's security firewalls]
 [OUTCOME: triggering the massive containment failure that unleashed Beast]
 [GLITCH: mainframe breach that caused collapse | show | w:10]
 [DR. ELIAS TARIQ: security firewalls bypassed | show | w:9]
 [BEAST: unleashed by containment failure | show | w:9]`,
-        emotional_weight: 10,
-      },
-    ],
   },
 ]);
 
@@ -763,6 +688,9 @@ export function get_premade_fractals() {
 /* ============================================================================
  * CHANGELOG
  * ============================================================================
+ * - 2026-10-04: Standardized past memory fields across all premade characters and fractals
+ *   into direct multiline bracket strings, matching the other five quadrant fields and eliminating
+ *   legacy vector object arrays.
  * - 2026-10-03: Full pure-bracket conversion of every temporal field
  *   (eternal.physical / non_physical, present.physical / non_physical, future, past.content)
  *   into `[KEY: value | flags]` and relational `[TARGET: dynamic | show | w:N]` format
