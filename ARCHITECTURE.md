@@ -75,7 +75,7 @@ sequenceDiagram
     actor User as 🧑‍🚀 Biological Protagonist
     participant Chrono as ⚡ Chrono & System Engine
     participant Director as 🎬 Director (Quick Shot)
-    participant Actor as 🎭 Chosen Actor (Narrative Shot)
+    participant Persona as 🎭 Chosen Actor (Narrative Shot)
     participant Queue as 🔄 Background Queue
 
     loop The Round Lifecycle (Macro-State)
@@ -90,9 +90,9 @@ sequenceDiagram
         end
 
         rect rgb(25, 30, 45)
-            Note over Chrono,Actor: Turn 2: Actor Turn (Narrative Shot)
-            Chrono->>Actor: Dispatches staging & Director's Note
-            Actor-->>User: Streams in-character dialogue, <think> cognition & prose
+            Note over Chrono,Persona: Turn 2: Actor Turn (Narrative Shot)
+            Chrono->>Persona: Dispatches staging & Director's Note
+            Persona-->>User: Streams in-character dialogue, <think> cognition & prose
             
             opt If Scheduled by Director in Turn 1
                 Chrono-)Queue: Dispatches Visual Beat (optics prompt + Perchance diffusion)
