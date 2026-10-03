@@ -121,10 +121,11 @@ A simulation requires entities (Characters and Fractals) to execute a narrative.
     - _Universal Atomic Clearing_: `[KEY: none]` or `[KEY: cleared]` deletes that specific key. Natural descriptive states (e.g. `[MOOD: normal]`, `[CHEST: bare]`, `[WOUND: healed]`) are preserved as valid values without silent deletion.
     - _Multi-Item Aggregation_: Repeated `[INVENTORY: ...]` / `[STASH: ...]` brackets merge into an aggregated array.
     - _Undress / Redress Lifecycle_: Undressing stashes garments in `[INVENTORY: ...]`; redressing reads items back from inventory without hallucination.
-  - **Past (Memories)**: Historical anchors and session memories stored in the `past` vector array (retrieved via vector RAG):
+  - **Past (Memories)**: Durable facts and session memories stored as a multiline bracket string (`[KEY: settled fact]`) indexed by semantic embeddings:
     - _ID Provenance & Forge-Skip_: `usr_` prefixed memories (user/lore authored) are origin-protected (`is_origin`), immune to Memory Forge eviction/compression, and receive a 1.5x relevance multiplier in `compute_relevance()`. `ai_` session memories roll with a cap of 20 (`PAST_VECTOR_CAP = 20`).
     - _Bound Limits_: Maximum 200 total vectors per entity; <= 220 characters per entry. Deduplication uses > 60% word overlap and > 0.92 cosine similarity.
   - **Future (Standing Agenda)**: Active trajectory, impending intent, and standing agenda stored as a single consolidated prose field (rewritten wholesale by the Memory Forge each cycle).
+- **Event-Sourced Mutation Ledger**: All dynamic state mutations (`present`, `past`, `future`) record discrete change-only diffs to `mutation_ledger` (`round`, `seq`, `writer`, `decider`, `old_value`, `new_value`, `visibility`, `weight`) enabling deterministic `replay_entity_field` reconstruction and field inspection.
 - **Dual Filter Engine**:
   - _Visual Prompt Filter_: `INVENTORY`, `STASH`, and bracket elements bearing `| hide` flags are strictly stripped from image generation prompts (`build_aesthetic_map` & `strip_visual_excluded`).
   - _Epistemic Prompt Filter_: Brackets flagged with `| hide` belonging to other entities are stripped across the Epistemic Wall in `render_character()` to prevent AI telepathy, while remaining fully visible in `render_director()`. Owner perspectives preserve their own `| hide` signals directly (e.g., `[DAGGER: stiletto | hide]`) so persona LLMs do not voice covert items/plans openly.
@@ -299,7 +300,7 @@ RPGlitch operates under a strict four-layer documentation architecture:
 - **Context Culling / Active Scene Scope**: In-scene presence tracking (`runtime.in_scene_npc_ids`) while inactive entities remain serialized in IndexedDB with zero token consumption.
 - **Directed Relational Graph**: Directed plain-text relationship vectors (`"[Source] → [Target]: [Dynamic]"`) defining interpersonal dynamics and world affiliations without foreign key rigidity.
 - **Numerical State Vectors (0–100)**: Somatic and psychological metrics (`chaos`, `intensity`, `openness`, `affinity`, `velocity`, `entropy`).
-- **Epistemic Partitioning**: The boundary stripping private user tags (`[SECRET: ...]`, `[PLAN: ...]`) from agent generation payloads to prevent telepathy.
+- **Epistemic Partitioning**: The boundary stripping private tags and brackets bearing `| hide` flags across entity perspectives to prevent AI telepathy while keeping them visible to the Director.
 - **Narrative Post-Processing Pipeline (`src/utils/styles.js`)**: Deterministic sanitization pipeline cleansing generated prose of AI clichés, repetition, and structural prompt bleed.
 - **Full Specification**: Consult [ARCHITECTURE.md](./ARCHITECTURE.md) for complete entries.
 

@@ -31,11 +31,12 @@ flowchart TD
 
 - **UI & Reactivity**: **Svelte 5 Runes**. State synchronization is governed exclusively by **$state()**, **$derived()**, and **$effect()**. Legacy store contracts (`writable`) and Svelte 4 reactivity (`$:`) are disallowed.
 - **Build Tooling**: **Vite 8** with **vite-plugin-singlefile**. The build compiles all markup, scripts, stylesheets, and embedded assets into an isolated `index.html` artifact designed for iframe sandboxing.
-- **Persistence Engine**: **Dexie.js 4 (IndexedDB)**. Handles structured client-side storage for sessions, entities, environmental models, and vector embeddings. Web Storage (`localStorage`) is restricted due to origin sandboxing and synchronous I/O overhead.
+- **Persistence Engine**: **Dexie.js 4 (IndexedDB)**. Handles structured client-side storage for sessions, entities, environmental models, vector embeddings, and the **Mutation Ledger** (`db.mutation_ledger`). Web Storage (`localStorage`) is restricted due to origin sandboxing and synchronous I/O overhead.
+- **Event-Sourced Mutation Ledger (`src/data/ledger.js`)**: An append-only event stream recording discrete, change-only field mutations (`round`, `seq`, `writer`, `decider`, `old_value`, `new_value`, `visibility`, `weight`). Provides deterministic state reconstruction at any `(round, seq)` snapshot via `replay_entity_field()` while materialized entities provide zero-latency live prompt compilation.
 - **Styling System**: **Tailwind CSS v4** configured with CSS custom properties specified in `DESIGN.md`.
 - **Client-Side Neural Engines**:
-- **Kokoro-82M**: Embedded ONNX text-to-speech runtime (`src/media/audio.svelte.js` & `src/media/speech.js`) for synthesized voice streaming.
-- **Transformers.js**: Embedded ONNX vector embedding pipeline (`src/platform/embeddings.svelte.js`) running a 384-dimensional model for semantic retrieval-augmented generation (RAG).
+  - **Kokoro-82M**: Embedded ONNX text-to-speech runtime (`src/media/audio.svelte.js` & `src/media/speech.js`) for synthesized voice streaming.
+  - **Transformers.js**: Embedded ONNX vector embedding pipeline (`src/platform/embeddings.svelte.js`) running a 384-dimensional model for semantic retrieval-augmented generation (RAG).
 
 ### Bootstrap Sequence (`src/main.js`)
 
@@ -85,11 +86,10 @@ flowchart TD
 
 - **Round (`runtime.round`)**: The macro-level simulation heartbeat tracking linear session progression. A round is initiated when a user action is submitted via **`chrono.send()`**, processes internal system and participant turns sequentially, and terminates only when the biological protagonist submits their next action payload during the **User Turn** (the human input action finalizes the current loop and births the next).
 - **Turn**: The sequential micro-states within a single round:
-
-1. **System Turn (Metaphysical Chronos)**: Synchronous background physics and sanitization executed immediately upon user action submission. Crucially, **the System Turn does not invoke an LLM**; it evaluates deterministic state rules, applies somatic dynamic deltas, evaluates spatial presence, records `DYNAMICS_DELTA`, and packages the state kernel.
-2. **Director Turn (Shot 1 / Quick Shot)**: Fast staging and turn orchestration inference. Operates in `phase = "generating"` with `director_thinking = true`. Evaluates the state kernel, validates participant intent against spatial constraints, updates numerical dynamics, delegates the active speaker (`AI`, `FRACTAL`, or `NPC`), and stages the upcoming narrative beats.
-3. **Agent Turn (Shot 2 / Narrative Turn)**: Asynchronous storyteller pass. Transitions to `speaker_thinking = true` then streams in-character narrative prose from the designated active speaker directly into the view. (System state locks `phase = "locked"` are reserved strictly for atomic database state commits and timeline persistence).
-4. **User Turn (Biological Protagonist)**: Conceptually the **final turn of the round**. Once the delegated speaker finishes streaming, generation completes (`phase = "idle"`), interface locks release, and user input is enabled. The user authors and submits their next action, which simultaneously **completes the round** and triggers the next cycle.
+  1. **System Turn (Metaphysical Chronos)**: Synchronous background physics and sanitization executed immediately upon user action submission. Crucially, **the System Turn does not invoke an LLM**; it evaluates deterministic state rules, applies somatic dynamic deltas, evaluates spatial presence, records `DYNAMICS_DELTA`, and packages the state kernel.
+  2. **Director Turn (Shot 1 / Quick Shot)**: Fast staging and turn orchestration inference. Operates in `phase = "generating"` with `director_thinking = true`. Evaluates the state kernel, validates participant intent against spatial constraints, updates numerical dynamics, delegates the active speaker (`AI`, `FRACTAL`, or `NPC`), and stages the upcoming narrative beats.
+  3. **Agent Turn (Shot 2 / Narrative Turn)**: Asynchronous storyteller pass. Transitions to `speaker_thinking = true` then streams in-character narrative prose from the designated active speaker directly into the view. (System state locks `phase = "locked"` are reserved strictly for atomic database state commits and timeline persistence).
+  4. **User Turn (Biological Protagonist)**: Conceptually the **final turn of the round**. Once the delegated speaker finishes streaming, generation completes (`phase = "idle"`), interface locks release, and user input is enabled. The user authors and submits their next action, which simultaneously **completes the round** and triggers the next cycle.
 
 ### Two-Shot Architecture & The Back Shot
 
@@ -132,16 +132,16 @@ All domain entities share an identical **Quad-Partitioned Entity Schema** and ar
 
 ### Quad-Partitioned Entity Schema
 
-Every entity is split into four discrete operational segments. **Eternal, Present, Past, and Future are the canonical terms**; the secondary descriptors in parentheses are provided for structural clarity only.
+Every entity is split into four discrete operational segments. **Eternal, Present, Past, and Future are the canonical terms**; the secondary descriptors in parentheses are provided for structural clarity only. All four quadrants operate as symmetrical strings across entities:
 
 - **Eternal (static profile)**: Immutable attributes, baseline physiology, background lore, and foundational constraints.
-- **Present (dynamic state)**: Ephemeral properties, current physiological markers, and dynamics.
-- **Past (episodic vector store)**: Searchable memory index containing past dialogue turns and scene events indexed by Transformers.js embeddings.
+- **Present (dynamic state)**: Ephemeral properties, current physiological markers, and dynamics, structured via Universal Bracket Predicates (`[KEY: value | flags]`).
+- **Past (episodic vector store)**: Multiline bracket strings (`[KEY: settled fact]`) indexed by Transformers.js embeddings for semantic retrieval.
 - **Future (strategic trajectory)**: Short-term tactical agenda, immediate conversational intent, and open goals.
 
-### Directed Relational Graph
+### Directed Relational Graph & Veil Engine
 
-Entity interconnections are tracked using a directed relational graph (`[Source] -> [Target]: [Relation Description]`):
+Entity interconnections are tracked using a directed relational graph (`[Source] -> [Target]: [Relation Description]`) and projected into universal bracket predicates on `source.present.non_physical` (`[@TARGET: dynamic | flags]`):
 
 - **Character -> Fractal**: `"Dr. Elias -> Tartarus: Chief Medical Officer at Sector 4"`
 - **Character -> Character**: `"Elias -> Benedict: Distrusts due to classified cybernetic augments"`

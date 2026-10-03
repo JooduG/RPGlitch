@@ -85,7 +85,7 @@ _Source: [`src/intelligence/prompts.js`](../../../src/intelligence/prompts.js) &
 **The Mental Model: The In-Character Persona Behind the Sensory Horizon.**
 Once staging is established, the active speaker generates in-character prose. The actor is subject to strict cognitive limitations:
 
-- **Epistemic Partitioning**: The actor is deliberately blinded. Player secrets (`[SECRET: ...]`) and covert intentions (`[PLAN: ...]`) are stripped from the prompt. The actor only knows what their physical senses (eyes, ears, skin) can register.
+- **Epistemic Partitioning**: The actor is deliberately blinded. Other entities' brackets flagged with `| hide` are stripped across the Epistemic Wall in `render_character()`. The actor only knows what their physical senses (eyes, ears, skin) can register. Owner perspectives preserve their own `| hide` flags so persona LLMs do not voice covert items/plans openly.
 - **The 3-Layer Subconscious Delivery (`<think>`)**: Before vocalizing, the character must reason across three layers:
   1. _Visceral Impact_: Immediate physical reaction to sensory stimuli.
   2. _Secret Agenda_: How their private `future` standing agenda steers their reaction toward friction or intrigue.
