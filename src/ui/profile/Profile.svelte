@@ -934,15 +934,25 @@
                     {@const sorted_entries = Object.entries(parsed).sort((a, b) => String(a[1]).length - String(b[1]).length)}
                     <div class="flex flex-wrap gap-2">
                       {#each sorted_entries as [k, v] (k)}
-                        {#if v && String(v).trim()}
+                        {@const raw_val = String(v ?? "")}
+                        {@const is_hidden = /(?:^|\s)\|(?:\s*(?:hide|private)\b)/i.test(raw_val)}
+                        {@const clean_val = raw_val
+                          .replace(/\s*\|\s*(?:hide|show|private)\b/gi, "")
+                          .replace(/\s*\|\s*w:\s*\d+\b/gi, "")
+                          .trim()}
+                        {#if clean_val}
                           <div
-                            class="flex min-w-23.75 grow flex-col items-start gap-0.5 rounded-xl border border-(--signature-color)/15 bg-(--signature-color)/5 px-2.5 py-1.5"
+                            class="flex min-w-23.75 grow flex-col items-start gap-0.5 rounded-xl px-2.5 py-1.5 transition-colors {is_hidden
+                              ? 'border border-dashed border-slate-700/60 bg-slate-900/40 opacity-55'
+                              : 'border border-(--signature-color)/15 bg-(--signature-color)/5'}"
                           >
-                            <span class="text-left font-mono text-[10px] font-bold tracking-wider text-(--signature-color) uppercase opacity-85"
-                              >{k}</span
+                            <span
+                              class="text-left font-mono text-[10px] font-bold tracking-wider uppercase {is_hidden
+                                ? 'text-slate-400 opacity-70'
+                                : 'text-(--signature-color) opacity-85'}">{k}</span
                             >
-                            <span class="text-left text-xs leading-normal text-slate-200">
-                              {@render RenderFormattedValue(String(v))}
+                            <span class="text-left text-xs leading-normal {is_hidden ? 'text-slate-400 italic' : 'text-slate-200'}">
+                              {@render RenderFormattedValue(clean_val)}
                             </span>
                           </div>
                         {/if}
@@ -1181,6 +1191,7 @@
 
 <!--
 CHANGELOG:
+- 2026-10-04: Grayed out hidden/private pseudo-JSON cards (dashed border, dimmed background, muted text) and stripped raw engine flags (| show, | hide, | w:N) from card values.
 - 2026-10-03: Added Field History Inspector launcher button to parsed pseudo-JSON bracket field headers so timeline inspection is available regardless of bracket existence.
 - 2026-10-03: Added Field History Inspector launcher to TextField header actions and mounted FieldHistoryModal for timeline auditing.
 - 2026-10-01: Universal Predicates Migration — decoupled RelationalGraph mutation from `profile_state.char.relationships`, driving relationships purely through universal bracket predicates in `present.non_physical`.
