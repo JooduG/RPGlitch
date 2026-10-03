@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Environmental Scene Framing Preservation (`src/media/optics.js`)**: Added `staging_has_scene_focus` check to prevent high intensity/affinity dynamics from suppressing wide panoramic framing when explicitly requested in `visual_staging`.
   - **Profile Field Directive Helpers Consolidation & Universal Brackets (`src/data/definitions/profile-fields.js`)**: Merged `HELPERS.BRACKETS` and `HELPERS.RELATIONAL_BRACKETS` into a single unified bracket guideline that instructs and prefers bracket directives across all fields (`eternal.non_physical`, `present.non_physical`, `future`, `eternal.physical`, `present.physical`, `past`) for both characters and fractals while preserving natural prose compatibility, relational dynamics (`[TARGET: dynamic | flags]`), and atomic clearing (`[KEY: none]`).
   - **Contract Size Re-baselining (`src/intelligence/prompt-verification.js`)**: Re-baselined frozen prompt verification bounds (`CONTRACT_SIZES.continuum.task` and `CONTRACT_SIZES.sorting.task`) to match expanded taxonomy directives.
+  - **Premade Entities Test Schema Alignment (`src/data/definitions/premade-entities.test.js`)**: Purged retired top-level `relationships` array assertions across character and fractal test suites per P4 Zero Backwards Compatibility and Universal Predicates migration.
 - Active observation of P1 User Agency hard-negative enforcement (Track 1.1).
 
 ---

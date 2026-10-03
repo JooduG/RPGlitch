@@ -67,7 +67,6 @@ describe("premade-entities registry", () => {
       expect(character.present?.physical).toBeTruthy();
       expect(character.present?.non_physical).toBeTruthy();
       expect(character.future).toBeTruthy();
-      expect(Array.isArray(character.relationships)).toBe(true);
 
       // Past memory verification
       expect(Array.isArray(character.past)).toBe(true);
@@ -105,7 +104,6 @@ describe("premade-entities registry", () => {
       expect(fractal.present?.physical).toBeTruthy();
       expect(fractal.present?.non_physical).toBeTruthy();
       expect(fractal.future).toBeTruthy();
-      expect(Array.isArray(fractal.relationships)).toBe(true);
 
       // Past memory verification
       expect(Array.isArray(fractal.past)).toBe(true);

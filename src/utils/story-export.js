@@ -17,7 +17,7 @@
  * - `src/ui/console/Console.svelte` (Dev console story export).
  */
 
-import { format_datetime, strip_cognition_blocks } from "./text.js";
+import { format_datetime, strip_cognition_blocks, filter_narrative_messages } from "./text.js";
 
 // ============================================================================
 // [SECTION 1: CONSTANTS & NARRATOR ROLES]
@@ -117,18 +117,7 @@ export function export_story_markdown(story = {}, entries = [], options = {}) {
   const state_label = is_collapsed ? "Collapsed (Tragic Ending)" : is_concluded ? "Concluded" : "Active";
 
   const raw_log = Array.isArray(entries) ? entries : [];
-  const log = options.include_system
-    ? raw_log
-    : raw_log.filter((entry) => {
-        if (!entry || entry.role === "system") return false;
-        const text = String(entry.text ?? entry.content ?? "").trim();
-        const has_image =
-          Array.isArray(entry.attachments) && typeof entry.attachments[0]?.src === "string" && Boolean(entry.attachments[0].src.trim());
-        if (!text && !has_image && !entry.meta?.is_prologue && !entry.meta?.is_epilogue) {
-          return false;
-        }
-        return true;
-      });
+  const log = options.include_system ? raw_log : filter_narrative_messages(raw_log, { keep_resolved_image_rows: true });
   const formatted_beats = [];
 
   for (const entry of log) {

@@ -173,7 +173,7 @@ export function resolve_image_trigger({ snapshot, prev_dynamics, director_data, 
     /\b(?:wide|panoramic|landscape|establishing|environment|aerial|distant|overview|scenery|room|corridor|cityscape|horizon)\b/i.test(raw_staging);
   const staging_has_character_focus =
     has_visual_staging &&
-    /\b(?:close-?up|portrait|face|eyes|expression|intimate|confrontation|clutch|holding|combat|wound|touch|intimacy|profile|headshot)\b/i.test(
+    /\b(?:close-?ups?|portraits?|faces?|eyes?|expressions?|intimate|intimacy|confrontations?|clutch(?:es|ed|ing)?|hold(?:s|ing)?|held|holding|combats?|wounds?|wounded|touch(?:es|ed|ing)?|profiles?|headshots?)\b/i.test(
       raw_staging,
     );
   const dynamics_have_character_focus = !staging_has_scene_focus && (current_intensity >= 75 || current_affinity >= 75);

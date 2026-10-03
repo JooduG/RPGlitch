@@ -841,13 +841,17 @@ export function collapse_history(messages, options = {}) {
  */
 export function filter_narrative_messages(messages, options = {}) {
   if (!Array.isArray(messages) || messages.length === 0) return [];
-  const { exclude_consolidated = false } = options;
+  const { exclude_consolidated = false, keep_resolved_image_rows = false } = options;
 
   return messages.filter((message) => {
     if (!message || message.role === "system") return false;
     if (exclude_consolidated && message.meta?.consolidated) return false;
     const text = String(message.content ?? message.text ?? "").trim();
     if (!text && !message.meta?.is_prologue && !message.meta?.is_epilogue) {
+      if (keep_resolved_image_rows && Array.isArray(message.attachments)) {
+        const first_source = message.attachments[0]?.src;
+        if (typeof first_source === "string" && first_source.trim()) return true;
+      }
       return false;
     }
     return true;

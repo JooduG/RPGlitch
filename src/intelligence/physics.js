@@ -555,9 +555,18 @@ export async function capture_dynamics_delta(bridge, snapshot, meta = null) {
     );
     if (fractal_entry) updates.FRACTAL = fractal_entry;
 
-    const unique_log_strings = Array.from(new Set(log_strings));
+    const merged_log_strings = [];
+    const seen_axes = new Map();
+    for (const token of log_strings) {
+      const axis = token.split(" ")[0];
+      if (seen_axes.has(axis)) merged_log_strings[seen_axes.get(axis)] = token;
+      else {
+        seen_axes.set(axis, merged_log_strings.length);
+        merged_log_strings.push(token);
+      }
+    }
     await bridge.session_driver.log_system_entry(
-      unique_log_strings.length > 0 ? unique_log_strings.join(" | ") : "Simulation Telemetry Snapshot",
+      merged_log_strings.length > 0 ? merged_log_strings.join(" | ") : "Simulation Telemetry Snapshot",
       "system",
       {
         type: "DYNAMICS_DELTA",

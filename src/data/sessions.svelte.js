@@ -20,6 +20,7 @@
 
 import { parse_relational_vector, state_bridge, stories_bridge } from "@utils";
 import { db } from "./db.js";
+import { append_ledger_entries } from "./ledger.js";
 
 /** Durable IndexedDB key for the active-session pointer (kv_settings). */
 export const SESSION_ID_KEY = "active_session_id";
@@ -219,6 +220,44 @@ export const session_driver = {
     entry.id = await db.simulation_log.add(entry);
     if (state_bridge.simulation_log?.add) {
       state_bridge.simulation_log.add(entry);
+    }
+
+    try {
+      const cast_records = [
+        ["ai", ai_entity],
+        ["user", user_entity],
+        ["fractal", fractal_entity],
+      ];
+      const genesis_lines = [];
+      for (const [, record] of cast_records) {
+        if (!record || record.id == null) continue;
+        const fields = {
+          "eternal.physical": record.eternal?.physical,
+          "eternal.non_physical": record.eternal?.non_physical,
+          "present.physical": record.present?.physical,
+          "present.non_physical": record.present?.non_physical,
+          past: record.past,
+          future: record.future,
+        };
+        for (const [field_path, value] of Object.entries(fields)) {
+          if (value == null) continue;
+          const string_value = Array.isArray(value) ? JSON.stringify(value) : typeof value === "object" ? JSON.stringify(value) : String(value);
+          if (!string_value.trim() || string_value === "[]" || string_value === "{}") continue;
+          genesis_lines.push({
+            story_id,
+            round: 0,
+            seq: 0,
+            entity_id: String(record.id),
+            field: field_path,
+            new_value: string_value,
+            writer: "genesis",
+            decider: "genesis",
+          });
+        }
+      }
+      if (genesis_lines.length > 0) await append_ledger_entries(genesis_lines);
+    } catch (error) {
+      console.warn("[Session] Story genesis ledger backfill failed:", error);
     }
 
     return story_id;
