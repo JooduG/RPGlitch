@@ -34,6 +34,7 @@ export {
   query_entity_history,
   query_story_snapshot,
   replay_entity_field,
+  replay_full_entity_at_round,
 } from "./ledger.js";
 
 // ============================================================================

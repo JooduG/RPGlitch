@@ -215,6 +215,8 @@ export class RuntimeEngineStore {
         const _round = this.round;
         const _ai = this.#ai_physics;
         const _fractal = this.#fractal_physics;
+        const _director_beat = this.last_director_beat_round;
+        const _dynamics_beat = this.last_dynamics_beat_round;
         if (this.is_ready && this.#story_id) {
           db.stories
             .update(coerce_story_key(this.#story_id), {
@@ -223,6 +225,8 @@ export class RuntimeEngineStore {
               updated_at: Date.now(),
               ai_dynamics: $state.snapshot(_ai),
               fractal_dynamics: $state.snapshot(_fractal),
+              last_director_beat_round: _director_beat,
+              last_dynamics_beat_round: _dynamics_beat,
             })
             .catch((err) => console.error("[Data] Auto-save failed:", err));
         }
@@ -420,6 +424,8 @@ export class RuntimeEngineStore {
       if (typeof checkpoint?.round === "number" && checkpoint.round > (story.round ?? 0)) {
         this.round = checkpoint.round;
       }
+      this.last_director_beat_round = typeof story.last_director_beat_round === "number" ? story.last_director_beat_round : -1;
+      this.last_dynamics_beat_round = typeof story.last_dynamics_beat_round === "number" ? story.last_dynamics_beat_round : -1;
 
       const [user_data, ai_data, fractal_data] = await Promise.all([
         /** @type {Promise<SimulationEntity | null>} */ (entities.get("character", story.user_id)),
@@ -516,6 +522,14 @@ export class RuntimeEngineStore {
   }
 
   /**
+   * Resets story title and parts on app store to prevent title bleed across stories.
+   */
+  reset_story_title() {
+    app.story_title = "";
+    app.story_title_parts = [];
+  }
+
+  /**
    * Persists story round and dynamics state to IndexedDB.
    * @param {number | null} [round]
    */
@@ -529,6 +543,8 @@ export class RuntimeEngineStore {
         updated_at: Date.now(),
         ai_dynamics: $state.snapshot(this.#ai_physics),
         fractal_dynamics: $state.snapshot(this.#fractal_physics),
+        last_director_beat_round: this.last_director_beat_round,
+        last_dynamics_beat_round: this.last_dynamics_beat_round,
       });
       app.stories_version++;
     } catch (err) {

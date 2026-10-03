@@ -15,6 +15,7 @@
   import DevWing from "./DevWing.svelte";
   import VisualWing from "./VisualWing.svelte";
   import FieldHistoryModal from "./FieldHistoryModal.svelte";
+  import TimelineModal from "./TimelineModal.svelte";
   import { ProfileState } from "./Profile.svelte.js";
   import ProfileHeader from "./ProfileHeader.svelte";
   import RelationalGraph from "./RelationalGraph.svelte";
@@ -30,6 +31,7 @@
     PROFILE_SECTIONS_BY_TYPE,
     serialize_character_card,
     serialize_rpglitch_entity,
+    normalize,
   } from "@data";
 
   /** @type {{ entity_type?: "character" | "fractal" }} */
@@ -49,6 +51,8 @@
   /** Mutation Ledger Field History Inspector */
   let show_field_history_modal = $state(false);
   let history_target_field = $state("present.non_physical");
+  /** Full Profile Timeline Scrubber & Branching Mode */
+  let show_timeline_modal = $state(false);
 
   // --- DEVMODE LIVE TELEMETRY SYNC ---
   $effect(() => {
@@ -729,6 +733,15 @@
               <Button
                 variant="secondary"
                 class="touch-target-coarse"
+                aria-label="Inspect historical rounds and branch or revert entity state"
+                actions={[tooltip]}
+                onclick={() => (show_timeline_modal = true)}
+              >
+                Timeline
+              </Button>
+              <Button
+                variant="secondary"
+                class="touch-target-coarse"
                 disabled={simulation_state.busy || !profile_state.can_edit}
                 aria-label={!profile_state.can_edit ? "Edit locked — entity is in an active story. Enable DevMode to override." : "Edit"}
                 onclick={() => {
@@ -790,6 +803,17 @@
       entity_id={profile_state.char.id}
       entity_name={profile_state.char.name}
       field={history_target_field}
+    />
+  {/if}
+
+  {#if show_timeline_modal && profile_state.char?.id}
+    <TimelineModal
+      bind:open={show_timeline_modal}
+      entity={profile_state.char}
+      {entity_type}
+      on_reverted={() => {
+        profile_state.char = normalize(profile_state.char);
+      }}
     />
   {/if}
 {/if}

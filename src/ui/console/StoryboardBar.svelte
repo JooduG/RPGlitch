@@ -4,17 +4,21 @@
    * 🃏 STORYBOARD BOTTOM BAR — the storyboard branch of the console: settings
    * gear, the models-progress / "BEGIN STORY" trigger, and the shuffle control.
    */
-  import { Button, ProgressBar, tooltip, Dialog } from "@primitives";
+  import { Button, ProgressBar, tooltip } from "@primitives";
   import { pulse, shimmy } from "@motion";
   import { app, runtime, chrono_engine } from "@state";
+  import { gamemaster } from "@intelligence";
+  import { stories } from "@data";
   import { storyboard } from "@ui";
   import SettingsButton from "./SettingsButton.svelte";
+  import EndStoryModal from "./EndStoryModal.svelte";
 
   let models_ready = $derived(app.models_ready);
   let has_active_story = $derived(Boolean(runtime.story_id));
   let ready_to_begin = $derived(has_active_story || (app.is_ready && models_ready));
 
   let show_active_guard = $state(false);
+  let is_concluding = $state(false);
 
   const PROLOGUE_PHRASES = ["INITIALIZING SIMULATION...", "SETTING THE STAGE...", "ONCE UPON A TIMING...", "WRITING PROLOGUE..."];
 
@@ -43,34 +47,54 @@
 
   function handle_primary_click() {
     if (has_active_story) {
-      show_active_guard = true;
+      app.set_view("storymode");
       return;
     }
     storyboard.begin();
   }
 
-  function handle_resume_story() {
-    show_active_guard = false;
-    app.set_view("storymode");
+  async function handle_epilogue_and_conclude() {
+    if (is_concluding || !runtime.story_id) return;
+    is_concluding = true;
+    try {
+      await gamemaster.execute_epilogue(runtime.story_id);
+      await stories.conclude(runtime.story_id);
+      await chrono_engine.stop?.();
+      await app.load_entities();
+      await storyboard.begin();
+    } catch (err) {
+      console.error("[End Story Guard] Epilogue failed:", err);
+      app.log(`Failed to generate epilogue: ${err.message || err}`, "error");
+    } finally {
+      is_concluding = false;
+    }
   }
 
-  async function handle_conclude_and_new() {
-    show_active_guard = false;
-    if (runtime.story_id) {
+  async function handle_conclude_immediately() {
+    if (is_concluding || !runtime.story_id) return;
+    is_concluding = true;
+    try {
+      await stories.conclude(runtime.story_id);
       await chrono_engine.stop?.();
+      await app.load_entities();
+      await storyboard.begin();
+    } catch (err) {
+      console.error("[End Story Guard] Immediate conclude failed:", err);
+      app.log(`Failed to conclude story: ${err.message || err}`, "error");
+    } finally {
+      is_concluding = false;
     }
-    await storyboard.begin();
   }
 </script>
 
-<Dialog
-  type="confirm"
+<EndStoryModal
   bind:open={show_active_guard}
+  busy={is_concluding}
   title="Active Story in Progress"
-  message="A simulation session is already active. Would you like to resume your current story, or conclude it and begin a new adventure?"
-  confirm_label="Conclude & Start New"
-  on_confirm={handle_conclude_and_new}
-  on_cancel={handle_resume_story}
+  message="A simulation session is already active. Would you like to author a final epilogue before starting a new story, or conclude immediately?"
+  on_epilogue_and_conclude={handle_epilogue_and_conclude}
+  on_conclude_immediately={handle_conclude_immediately}
+  on_cancel={() => (show_active_guard = false)}
 />
 
 <SettingsButton variant={app.control_panel_open ? "secondary" : "invisible"} testid="settings-button" />

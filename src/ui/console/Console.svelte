@@ -14,13 +14,14 @@
   import { session_driver, stories } from "@data";
   import { gamemaster } from "@intelligence";
   import { get_signature_color } from "@media";
-  import { app, runtime, simulation_log, simulation_state } from "@state";
+  import { app, runtime, simulation_log, simulation_state, chrono_engine } from "@state";
   import { download_text_file, export_story_markdown } from "@utils";
   import { install_begin_flight_effect } from "@ui";
   import ControlPanel from "./ControlPanel.svelte";
   import SettingsButton from "./SettingsButton.svelte";
   import StoryboardBar from "./StoryboardBar.svelte";
   import StorymodeBar from "./StorymodeBar.svelte";
+  import EndStoryModal from "./EndStoryModal.svelte";
 
   // --- STORYMODE CONSOLE STATE ---
   let is_focused = $state(false);
@@ -98,7 +99,13 @@
     }
   }
 
-  async function handle_end_story() {
+  let show_end_story_modal = $state(false);
+
+  function handle_end_story() {
+    show_end_story_modal = true;
+  }
+
+  async function handle_epilogue_and_conclude() {
     if (is_ending_story) return;
     is_ending_story = true;
     try {
@@ -113,6 +120,26 @@
       app.log(`Failed to end story: ${err.message || err}`, "error");
     } finally {
       is_ending_story = false;
+      show_end_story_modal = false;
+    }
+  }
+
+  async function handle_conclude_immediately() {
+    if (is_ending_story) return;
+    is_ending_story = true;
+    try {
+      app.control_panel_open = false;
+      if (runtime.story_id) {
+        await stories.conclude(runtime.story_id);
+        await chrono_engine.stop?.();
+        await app.load_entities();
+      }
+    } catch (err) {
+      console.error("[End Story Immediate Error]", err);
+      app.log(`Failed to conclude story: ${err.message || err}`, "error");
+    } finally {
+      is_ending_story = false;
+      show_end_story_modal = false;
     }
   }
 </script>
@@ -228,6 +255,16 @@
     </div>
   </div>
 </div>
+
+<EndStoryModal
+  bind:open={show_end_story_modal}
+  busy={is_ending_story}
+  title="Conclude Active Story"
+  message="Would you like to author a final epilogue before concluding, or conclude immediately?"
+  on_epilogue_and_conclude={handle_epilogue_and_conclude}
+  on_conclude_immediately={handle_conclude_immediately}
+  on_cancel={() => (show_end_story_modal = false)}
+/>
 
 <style>
   /* Shuffle deal reveal — flying clones are art-only (strip_card_text); the

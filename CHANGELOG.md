@@ -11,6 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Session & Timeline Lifecycle & Profile Timeline Mode (ROADMAP Section 1)**:
+  - **Profile Timeline Scrubber & Branching (`src/ui/profile/TimelineModal.svelte`, `Profile.svelte`)**: Built full Four-Quadrant timeline mode accessible from Readonly Profile Studio. Scans `db.mutation_ledger` history, reconstructs full profile at round $X$ via `replay_full_entity_at_round`, displays active mutations, and provides both **"Update from this point"** (in-place revert) and **"Clone from this point"** (branching into a new census entity).
+  - **Storyboard & Console End Story Guard (`src/ui/console/EndStoryModal.svelte`, `StoryboardBar.svelte`, `Console.svelte`)**: Unified modal dialog replacing legacy unshielded buttons. Presents **"Generate Epilogue & Conclude"** vs. **"Conclude Immediately"** with click-outside / Escape dismissal and busy locks.
+  - **Director Evaluation Lens (`src/ui/message/Feed.svelte`)**: Replaced textual indicators in the left-gutter anchor slot with a pure visual lens (frost spinner ring + bouncing dots) that morphs seamlessly into the designated speaker's portrait upon delegation.
+  - **Full Entity Replay Codec (`src/data/ledger.js`, `src/data/index.js`)**: Exported `replay_full_entity_at_round` to reconstruct `eternal`, `present`, and `future` quadrants up to any round limit.
+  - **Story Entity Snapshots & Reversion (`src/data/sessions.svelte.js`, `src/data/repository.js`)**: Snapshotting active trio on story creation and added `revert_story_entities(story_id)` to restore baseline states.
+  - **Director Image & Dynamics Cooldown Persistence (`src/state/runtime.svelte.js`)**: Persisted `last_director_beat_round` and `last_dynamics_beat_round` in `db.stories` via reactive auto-save and `sync()`.
+  - **Chrono Mutex Abort Rollback & Title Reset (`src/state/chrono.svelte.js`, `src/state/runtime.svelte.js`)**: On `AbortError`, rolls back `runtime.round = previous_round` and purges the unresponded user turn row from IndexedDB. Added `reset_story_title()` upon starting new stories.
+  - **Memory Forge Explicit Round Attribution (`src/intelligence/story.js`, `src/intelligence/temporal.js`, `src/data/sessions.svelte.js`)**: Added `target_round` override in `log_system_entry` and forwarded target forge rounds so background tasks never misattribute events to round $N+1$.
+
 - **Mutation Ledger Hardening & Field History Inspector (Phase B1.1)**:
   - **Dedup-Before-Write Guard (`src/data/ledger.js`)**: Implemented `is_identical_mutation(entry)` to prevent duplicate no-op ledger line appends when mutations carry unchanged values, visibility, and weights.
   - **Visibility & Weight Flag Restoration (`src/data/ledger.js`)**: Added `visibility` (`'show'`/`'hide'`) and `weight` (`number`) columns to `LedgerEntry` schema and payload formatting; updated `replay_entity_field` to preserve flags in `entries_map` and format them in `reconstructed_brackets` (`[@TARGET: dynamic | hide w:8]`).

@@ -66,6 +66,8 @@ export class ChronoEngine {
     state_bridge.app.simulation.loading = true;
 
     try {
+      // Clear stale story title from previous stories before session creation
+      state_bridge.runtime?.reset_story_title?.();
       const story_title = state_bridge.app.story_title || `The Journey of ${selection.ai.name} & ${selection.user.name} in ${selection.fractal.name}`;
 
       // 1. Create Core Session in persistence
@@ -241,6 +243,20 @@ export class ChronoEngine {
         const error = /** @type {any} */ (err);
         if (error.name === "AbortError" || error.message?.includes("aborted")) {
           state_bridge.app.log("Generation interrupted cleanly.", "system");
+          state_bridge.runtime.round = previous_round;
+
+          // 🛡️ ABORT CLEANUP: Purge orphaned unresponded user turn row from IndexedDB and feed
+          if (final_input && story_id) {
+            try {
+              const latest_log = await session_driver.load_log(story_id);
+              const last_message = latest_log[latest_log.length - 1];
+              if (last_message?.role === "user" && last_message.id != null) {
+                await session_driver.delete_log_entry(last_message.id);
+              }
+            } catch (cleanup_err) {
+              console.warn("[Chrono] Failed to purge aborted user message:", cleanup_err);
+            }
+          }
         } else {
           state_bridge.app.log(`Time Fracture: ${error.message}`, "error");
           console.error("[Chrono] 💥 Time Fracture:", error);
@@ -323,6 +339,17 @@ export class ChronoEngine {
       }
     })();
   }
+
+  /**
+   * Concludes the active story session, saves state, and clears active pointers.
+   * @returns {Promise<void>}
+   */
+  async stop() {
+    if (state_bridge.runtime?.story_id) {
+      await state_bridge.runtime.save();
+    }
+    await session_driver.clear_active();
+  }
 }
 
 // ============================================================================
@@ -333,6 +360,7 @@ export const chrono_engine = new ChronoEngine();
 
 /**
  * CHANGELOG:
+ * - 2026-10-03: Added `stop()` method to cleanly conclude active story, added AbortError round rollback and orphaned user turn row deletion, and cleared stale story titles on session start.
  * - 2026-08-29: Applied /harmonize protocol: structured Universal File Architecture,
  *   added section dividers, JSDoc typedefs, normalized variable naming (snake_case/question_snake),
  *   and verified turn pipeline integrity.

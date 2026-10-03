@@ -360,6 +360,33 @@ export const stories = {
   },
 
   /**
+   * Reverts a story's bound entities (AI, User, Fractal) back to their pre-story baseline snapshot.
+   * @param {string|number} story_id
+   * @returns {Promise<boolean>}
+   */
+  async revert_story_entities(story_id) {
+    const story = await db.stories.get(coerce_story_key(story_id));
+    if (!story?.entity_snapshots) return false;
+
+    const updates = [];
+    if (story.ai_id && story.entity_snapshots.ai) {
+      updates.push(db.entities.put(story.entity_snapshots.ai));
+    }
+    if (story.user_id && story.entity_snapshots.user) {
+      updates.push(db.entities.put(story.entity_snapshots.user));
+    }
+    if (story.fractal_id && story.entity_snapshots.fractal) {
+      updates.push(db.entities.put(story.entity_snapshots.fractal));
+    }
+
+    if (updates.length > 0) {
+      await Promise.all(updates);
+      return true;
+    }
+    return false;
+  },
+
+  /**
    * Deletes a story and its entire simulation log and mutation ledger.
    * @param {string|number} id
    * @returns {Promise<void>}
@@ -377,6 +404,7 @@ export const stories = {
 
 /**
  * CHANGELOG
+ * - 2026-10-03: Added `revert_story_entities` to restore baseline entity snapshots from story metadata.
  * - 2026-09-10: Premade fallback lookup now uses `get_premade_entity_by_id` (case-insensitive)
  *   so lowercase ids (e.g. "orion") resolve their canonical SCREAMING_SNAKE premade (ORION).
  * - 2026-09-06: Purged obsolete `is_snapshot: 0` ballast under P4 Zero Backwards Compatibility;

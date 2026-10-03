@@ -924,7 +924,7 @@ export const temporal_engine = {
 
       const forged = await forge_memory(entity_targets, slice, { target_key });
       if (forged) {
-        const current_round = state_bridge.runtime?.round ?? 0;
+        const current_round = typeof options.target_round === "number" ? options.target_round : (state_bridge.runtime?.round ?? 0);
         const ledger_batch = [];
 
         const memories = forged.memories?.[target_key] || [];
@@ -1114,18 +1114,24 @@ export const temporal_engine = {
         }
 
         const text = memories.length ? memories.map((vector) => vector.content || vector.directive || "").join(" | ") : "State consolidated.";
-        await session.log_system_entry(`Memory Forged (${target_key}): ${text.substring(0, 50)}...`, "system", {
-          type: "MEMORY_FORMATION",
-          target: target_key,
-          memories,
-          vectors: memories,
-          future: entity?.future || forged.future?.[target_key] || "",
-          present: entity?.present || forged.present?.[target_key] || null,
-          eternal: forged.eternal?.[target_key] || null,
-          thought_process: forged._thought_process || "",
-          relationships: forged.relationships || [],
-          turns_count: slice.length,
-        });
+        await session.log_system_entry(
+          `Memory Forged (${target_key}): ${text.substring(0, 50)}...`,
+          "system",
+          {
+            type: "MEMORY_FORMATION",
+            target: target_key,
+            memories,
+            vectors: memories,
+            future: entity?.future || forged.future?.[target_key] || "",
+            present: entity?.present || forged.present?.[target_key] || null,
+            eternal: forged.eternal?.[target_key] || null,
+            thought_process: forged._thought_process || "",
+            relationships: forged.relationships || [],
+            turns_count: slice.length,
+          },
+          story_id,
+          current_round,
+        );
       } else {
         await fallback_consolidate([target_item], slice, runtime, session);
       }

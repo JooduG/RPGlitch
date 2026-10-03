@@ -237,12 +237,47 @@ export async function replay_entity_field(entity_id, field, up_to_round = Infini
   return { key_values, entries_map, reconstructed_brackets, raw_prose };
 }
 
+/**
+ * Replays all quadrants for an entity up to a target round to reconstruct its full profile state.
+ * @param {string} entity_id
+ * @param {number} [up_to_round=Infinity]
+ * @returns {Promise<{
+ *   eternal: { physical: string, non_physical: string },
+ *   present: { physical: string, non_physical: string },
+ *   future: string
+ * }>}
+ */
+export async function replay_full_entity_at_round(entity_id, up_to_round = Infinity) {
+  const [eternal_p, eternal_np, present_p, present_np, past_res, future_res] = await Promise.all([
+    replay_entity_field(entity_id, "eternal.physical", up_to_round),
+    replay_entity_field(entity_id, "eternal.non_physical", up_to_round),
+    replay_entity_field(entity_id, "present.physical", up_to_round),
+    replay_entity_field(entity_id, "present.non_physical", up_to_round),
+    replay_entity_field(entity_id, "past", up_to_round),
+    replay_entity_field(entity_id, "future", up_to_round),
+  ]);
+
+  return {
+    eternal: {
+      physical: eternal_p.reconstructed_brackets || eternal_p.raw_prose || "",
+      non_physical: eternal_np.reconstructed_brackets || eternal_np.raw_prose || "",
+    },
+    present: {
+      physical: present_p.reconstructed_brackets || present_p.raw_prose || "",
+      non_physical: present_np.reconstructed_brackets || present_np.raw_prose || "",
+    },
+    past: past_res.reconstructed_brackets || past_res.raw_prose || "",
+    future: future_res.raw_prose || future_res.reconstructed_brackets || "",
+  };
+}
+
 export const ledger_repository = {
   append: append_ledger_entry,
   append_batch: append_ledger_entries,
   query_entity_history,
   query_story_snapshot,
   replay_entity_field,
+  replay_full_entity_at_round,
 };
 
 // -----------------------------------------------------------------------------
@@ -250,6 +285,7 @@ export const ledger_repository = {
 // -----------------------------------------------------------------------------
 /**
  * CHANGELOG
+ * - 2026-10-03: Added `replay_full_entity_at_round` to reconstruct an entity's complete Four-Quadrant state at any historical round.
  * - 2026-10-03: Phase B1.1 Hardening — Added `is_identical_mutation` dedup guard, `visibility`, `weight`, and `decider` properties, and enhanced `replay_entity_field` to reconstruct full bracket predicates preserving flags.
  * - 2026-10-02: Initial creation of the mutation ledger persistence module per Part 8 architecture.
  */

@@ -16,43 +16,70 @@ This roadmap defines the target architectural blueprints, active engineering spr
 
 This track addresses the critical issues identified during live Perchance stress testing (`rpglitch-stress-test-report.md` & `rpglitch-long-term-review-trace.json`). Staged strictly from lowest-effort/highest-yield to deeper prompt mechanics.
 
-### 1. Low-Hanging Fruit (Immediate Execution Target)
+### 1. Session & Timeline Lifecycle (Chrono, Mutex & Persistence)
 
 - [x] **Storyboard Resume Fix (Session Non-Destruction)**:
   - **Issue**: Clicking "Return to Storyboard" in [`src/ui/console/ControlPanel.svelte`](src/ui/console/ControlPanel.svelte#L55) calls `await session_driver.clear_active()`, wiping `runtime.story_id`, resetting `round = 0`, and clearing `SESSION_ID_KEY`. When [`src/ui/console/StoryboardBar.svelte`](src/ui/console/StoryboardBar.svelte#L14) mounts, `has_active_story` evaluates to `false` and defaults to `SELECT ENTITIES (0/3)` with dead primary clicks.
   - **Fix**: Remove `session_driver.clear_active()` from "Return to Storyboard". Reserve `clear_active()` exclusively for the explicit, destructive "END STORY" button. Preserving `runtime.story_id` restores the reactive `ENTER STORYMODE` button immediately.
   - **Touchpoint**: [`src/ui/console/ControlPanel.svelte`](src/ui/console/ControlPanel.svelte).
-- [ ] **Telemetry String Duplication (`DYNAMICS_DELTA`)**:
-  - **Issue**: Telemetry snapshot strings in [`src/intelligence/physics.js`](src/intelligence/physics.js#L512-L558) concatenate duplicate metric tokens (e.g. `Chaos +2 | Intensity +8 ... Chaos +2 | Intensity +8`), bloating the simlog and HUD banners.
-  - **Fix**: Deduplicate `log_strings` entries via a `Set` before joining with `|`.
-  - **Touchpoint**: [`src/intelligence/physics.js`](src/intelligence/physics.js).
+- [x] **Stale Story Title on New Story Launch**:
+  - **Issue**: Starting Story #2 carried over Story #1's title in the header for the entire session because `app.story_title` and `app.story_title_parts` were not reset or reconciled when `chrono.start()` synchronized the new session.
+  - **Fix**: In [`src/state/chrono.svelte.js`](src/state/chrono.svelte.js), re-assert the newly created session's title via `apply_story_title()` upon `runtime.sync(story_id)`, ensuring stale titles from prior stories are cleared. Added `runtime.reset_story_title()` in [`src/state/runtime.svelte.js`](src/state/runtime.svelte.js).
+  - **Touchpoints**: [`src/state/chrono.svelte.js`](src/state/chrono.svelte.js), [`src/state/runtime.svelte.js`](src/state/runtime.svelte.js).
+- [x] **Generation Mutex Abort Round Rollback & Message Cleanup**:
+  - **Issue**: In [`src/state/chrono.svelte.js`](src/state/chrono.svelte.js#L241-L248), when `error.name === "AbortError"`, `runtime.round = previous_round` is skipped, permanently consuming round numbers. Additionally, the user message was already committed via `session_driver.send()`, creating duplicate user entries upon retry.
+  - **Fix**: Roll back `state_bridge.runtime.round = previous_round` on abort, and delete the orphaned unresponded user turn row from Dexie upon cancellation.
+  - **Touchpoint**: [`src/state/chrono.svelte.js`](src/state/chrono.svelte.js).
+- [x] **Director Image Cooldown Persistence**:
+  - **Issue**: `last_director_beat_round` in [`src/state/runtime.svelte.js`](src/state/runtime.svelte.js#L185) is an in-memory-only `$state(-1)` variable. It is not persisted in `db.stories`, resetting to `-1` across page reloads or story transitions and prematurely clearing cooldowns (e.g. R14 $\rightarrow$ R15 back-to-back trigger or R10–R13 skipped evaluation).
+  - **Fix**: Persist `last_director_beat_round` and `last_dynamics_beat_round` into `db.stories` via the `runtime.save()` effect and load them on story startup.
+  - **Touchpoints**: [`src/state/runtime.svelte.js`](src/state/runtime.svelte.js), [`src/data/repository.js`](src/data/repository.js), [`src/data/db.js`](src/data/db.js).
+- [x] **Memory Forge Asynchronous Round Misattribution**:
+  - **Issue**: [`src/data/sessions.svelte.js`](src/data/sessions.svelte.js#L413) timestamps `log_system_entry` with live `state_bridge.runtime.round`. Background consolidation completing after the player begins round $N+1$ gets misattributed to round $N+1$, causing 0-forge and 2-forge artifacts (e.g. R8 with 0, R9 with 2). Furthermore, dynamically changing `in_scene_npc_ids` alters `entity_targets.length`, throwing off cursor modulo math and repeating entities back-to-back (e.g. `AI_CHARACTER` forged in both R14 and R15).
+  - **Fix**: Accept an explicit `target_round` parameter in `log_system_entry(text, role, meta, story_id, round = null)`. Stabilize cursor rotation in [`src/intelligence/temporal.js`](src/intelligence/temporal.js) by preserving index mappings independently of transient in-scene cast changes.
+  - **Touchpoints**: [`src/data/sessions.svelte.js`](src/data/sessions.svelte.js), [`src/intelligence/temporal.js`](src/intelligence/temporal.js), [`src/intelligence/story.js`](src/intelligence/story.js).
+- [x] **Storyboard Lifecycle & Navigation Guardrails (EndStoryModal & Profile Timeline Mode)**:
+  - **Issue**: Navigating to new stories or concluding stories was unshielded, and historical entity profiles had no timeline-scrubbing or branching mechanics.
+  - **Fix**: Integrated unified [`src/ui/console/EndStoryModal.svelte`](src/ui/console/EndStoryModal.svelte) ("Generate Epilogue & Conclude" vs. "Conclude Immediately" with click-outside cancel) across both [`src/ui/console/StoryboardBar.svelte`](src/ui/console/StoryboardBar.svelte) and [`src/ui/console/Console.svelte`](src/ui/console/Console.svelte). Hardened left-gutter Director evaluation lens in [`src/ui/message/Feed.svelte`](src/ui/message/Feed.svelte) (pure visual indicator). Implemented [`src/ui/profile/TimelineModal.svelte`](src/ui/profile/TimelineModal.svelte) with "Update from this point" and "Clone from this point" timeline branching across all 4 quadrants (`eternal`, `present`, `past`, `future`).
+  - **Touchpoints**: [`src/ui/console/EndStoryModal.svelte`](src/ui/console/EndStoryModal.svelte), [`src/ui/console/StoryboardBar.svelte`](src/ui/console/StoryboardBar.svelte), [`src/ui/console/Console.svelte`](src/ui/console/Console.svelte), [`src/ui/message/Feed.svelte`](src/ui/message/Feed.svelte), [`src/ui/profile/Profile.svelte`](src/ui/profile/Profile.svelte), [`src/ui/profile/TimelineModal.svelte`](src/ui/profile/TimelineModal.svelte), [`src/data/ledger.js`](src/data/ledger.js), [`src/data/index.js`](src/data/index.js).
+- [x] **Runtime Lifecycle Orchestration & Storyboard Guardrails**:
+  - **Scope**: State machine lifecycle management, speaker generation indicators, storyboard navigation guards, and UI transition timings.
+  - **Status**: Completed & Integrated.
+  - **Deliverables**:
+    - _Deterministic Generation Flow_: Enforces 7-step turn progression (user action -> Director visual lens shimmer in left gutter -> designated speaker portrait mounts -> bubble mounts & typewriter streams -> completion chime).
+    - _Active Session Navigation Guard_: Replaced unshielded triggers with unified `EndStoryModal` in `StoryboardBar.svelte` and `Console.svelte` ("Generate Epilogue & Conclude" vs "Conclude Immediately" with backdrop cancel).
+    - _Flicker Elimination_: Latched speaker resolution in feed column until Director evaluation settles.
+  - **Touchpoints**: [`src/ui/console/EndStoryModal.svelte`](src/ui/console/EndStoryModal.svelte), [`src/ui/console/StoryboardBar.svelte`](src/ui/console/StoryboardBar.svelte), [`src/ui/console/Console.svelte`](src/ui/console/Console.svelte), [`src/ui/message/Feed.svelte`](src/ui/message/Feed.svelte).
+
+### 2. Feed, Visual & Output Integrity
+
 - [ ] **Ghost Empty Fractal Rows on Image Beats**:
   - **Issue**: [`src/media/visual.svelte.js`](src/media/visual.svelte.js#L903) calls `log_message("", "fractal", ...)` to mount image placeholders, polluting the conversation feed and Dexie log with empty string entries.
   - **Fix**: Decouple placeholder attachment records from dialogue messages, or classify them strictly as `role: "system"` with `type: "image_beat"` and filter empty strings from conversational dialogue queries.
   - **Touchpoint**: [`src/media/visual.svelte.js`](src/media/visual.svelte.js).
-- [ ] **Generation Mutex Abort Round Rollback & Message Cleanup**:
-  - **Issue**: In [`src/state/chrono.svelte.js`](src/state/chrono.svelte.js#L241-L248), when `error.name === "AbortError"`, `runtime.round = previous_round` is skipped, permanently consuming round numbers. Additionally, the user message was already committed via `session_driver.send()`, creating duplicate user entries upon retry.
-  - **Fix**: Roll back `state_bridge.runtime.round = previous_round` on abort, and delete the orphaned unresponded user turn row from Dexie upon cancellation.
-  - **Touchpoint**: [`src/state/chrono.svelte.js`](src/state/chrono.svelte.js).
+- [ ] **AI Think-Only Turn Prevention & Recovery**:
+  - **Issue**: In Round 9 of the live stress test, the AI emitted only internal reasoning (`<THINK>...</THINK>`) with 0 prose. Because the raw string was non-empty, it passed empty checks and committed an empty bubble to the conversation log.
+  - **Fix**: In [`src/intelligence/story.js`](src/intelligence/story.js), check `strip_cognition_blocks(persisted_text).trim().length === 0`. If prose is missing entirely after stripping `<think>` tags, trigger the completion retry directive or treat it as an empty turn rather than persisting an empty bubble.
+  - **Touchpoint**: [`src/intelligence/story.js`](src/intelligence/story.js).
 - [x] **TextField Header Actions Transition Flicker (UI Polish)**:
   - **Issue**: The `header_actions` slot wrapper in [`src/ui/primitives/TextField.svelte`](src/ui/primitives/TextField.svelte) carried a redundant `in:fade` directive that conflicted with parent-level transitions, causing a double-fade flicker when the actions panel appeared.
   - **Fix**: Remove the redundant `in:fade={{ duration: 200, delay: 50 }}` from the `header_actions` wrapper `<div>`.
   - **Touchpoint**: [`src/ui/primitives/TextField.svelte`](src/ui/primitives/TextField.svelte).
-
-### 2. Core Physics & Directorial Mechanics
-
-- [ ] **Memory Forge Asynchronous Round Misattribution**:
-  - **Issue**: [`src/data/sessions.svelte.js`](src/data/sessions.svelte.js#L413) timestamps `log_system_entry` with live `state_bridge.runtime.round`. Background consolidation completing after the player begins round $N+1$ gets misattributed to round $N+1$, causing 0-forge and 2-forge artifacts (e.g. R8 with 0, R9 with 2). Furthermore, dynamically changing `in_scene_npc_ids` alters `entity_targets.length`, throwing off cursor modulo math and repeating entities back-to-back (e.g. `AI_CHARACTER` forged in both R14 and R15).
-  - **Fix**: Accept an explicit `target_round` parameter in `log_system_entry(text, role, meta, story_id, round = null)`. Stabilize cursor rotation in [`src/intelligence/temporal.js`](src/intelligence/temporal.js) by preserving index mappings independently of transient in-scene cast changes.
-  - **Touchpoints**: [`src/data/sessions.svelte.js`](src/data/sessions.svelte.js), [`src/intelligence/temporal.js`](src/intelligence/temporal.js), [`src/intelligence/story.js`](src/intelligence/story.js).
-- [ ] **Director Image Cooldown Persistence**:
-  - **Issue**: `last_director_beat_round` in [`src/state/runtime.svelte.js`](src/state/runtime.svelte.js#L185) is an in-memory-only `$state(-1)` variable. It is not persisted in `db.stories`, resetting to `-1` across page reloads or story transitions and prematurely clearing cooldowns (e.g. R14 $\rightarrow$ R15 back-to-back trigger).
-  - **Fix**: Persist `last_director_beat_round` and `last_dynamics_beat_round` into `db.stories` via the `runtime.save()` effect and load them on story startup.
-  - **Touchpoints**: [`src/state/runtime.svelte.js`](src/state/runtime.svelte.js), [`src/data/repository.js`](src/data/repository.js), [`src/data/db.js`](src/data/db.js).
 - [ ] **Cinematic Framing Dynamic Lens Biasing (Anti-Wide Lock)**:
   - **Issue**: 9 out of 10 images stayed locked in Wide Environmental framing because `story_scene` tier unconditionally compiles `OPTICS.FIRST_SENTENCE_MANDATE.SCENE` and `ENVIRONMENTAL_SCALE` in [`src/intelligence/prompts.js`](src/intelligence/prompts.js#L192-L215) and [`src/intelligence/modules/task.js`](src/intelligence/modules/task.js#L187-L202), overriding close-up cues.
   - **Fix**: Allow the Director's `visual_staging` to selectively trigger `story_character` or dynamically toggle `FIRST_SENTENCE_MANDATE.ENTITY` when character intimacy or physical confrontation is declared.
   - **Touchpoints**: [`src/intelligence/prompts.js`](src/intelligence/prompts.js), [`src/intelligence/modules/task.js`](src/intelligence/modules/task.js), [`src/media/optics.js`](src/media/optics.js).
+
+### 3. Directorial Dynamics & Narrative Boundaries
+
+- [ ] **P1 User Agency Enforcement (Anti-First-Person Hijacking)**:
+  - **Issue**: In rounds 3 and 6 of the live stress test, the AI persona hijacked the user persona in the first person ("my thigh... I adjust posture", "I slam my palm").
+  - **Fix**: Add a hard-negative prompt constraint in [`src/intelligence/modules/task.js`](src/intelligence/modules/task.js) (`CHARACTER.BASE` / `CHARACTER.INTERACTION`) forbidding the AI from using first-person pronouns ("I", "my", "we") on behalf of the player/user persona, and reinforcing that only third-person descriptive observation of the user is permitted.
+  - **Touchpoints**: [`src/intelligence/modules/task.js`](src/intelligence/modules/task.js), [`src/intelligence/prompts.js`](src/intelligence/prompts.js).
+- [ ] **Telemetry String Duplication (`DYNAMICS_DELTA`)**:
+  - **Issue**: Telemetry snapshot strings in [`src/intelligence/physics.js`](src/intelligence/physics.js#L512-L558) concatenate duplicate metric tokens (e.g. `Chaos +2 | Intensity +8 ... Chaos +2 | Intensity +8`), bloating the simlog and HUD banners.
+  - **Fix**: Deduplicate `log_strings` entries via a `Set` before joining with `|`.
+  - **Touchpoint**: [`src/intelligence/physics.js`](src/intelligence/physics.js).
 - [ ] **Fatal Stakes & Physical Causality Grounding (Death & Collapse)**:
   - **Issue**: In Round 18, explicit PC drowning death was ignored by the Director and the AI character hallucinated that the player was still standing and kneeling with Benedict's hand on their throat.
   - **Fix**: Enforce strict physical outcome evaluation in Director Task directives (`DIRECTOR.EVALUATION_INPUT`). When fatal terminal states are stated, mandate emitting `next_action: "EPILOGUE_COLLAPSED"` and `story_status: "COLLAPSED"`. In character generation prompts, forbid resurrecting or altering declared biological outcomes.
@@ -201,21 +228,17 @@ $$\text{Score} = (\text{Entity Overlap} \times 3.0) + (\text{Lexical Frequency} 
 
 ### Implementation Touchpoints
 
-- `src/intelligence/synaptic.js` & `src/intelligence/synaptic.test.js`: Universal bracket predicate domain engine, brace-depth tokenization, targeted slice splicing, 3-way epistemic filtering, and cross-tempus relationship harvesting.
+- `src/intelligence/veil.js` & `src/intelligence/veil.test.js`: Consolidated Veil Engine providing universal bracket predicate parsing, brace-depth tokenization, targeted slice splicing, 3-way epistemic filtering, and cross-tempus relationship harvesting.
 - `src/data/definitions/profile-fields.js` & `src/data/definitions/profile-fields.test.js`: Entity taxonomy definitions and generation directives aligned with universal bracket predicates, relational targeting (`[TARGET: dynamic | flags]`), and atomic clearing.
 - `src/intelligence/index.js`: Barrel exports for universal bracket predicate domain functions (`parse_bracket_entries`, `filter_bracket_entries`, `apply_bracket_mutation`, `extract_entity_relationships`).
-- `src/intelligence/modules/entities/epistemic.js`: Route privacy sanitization through `filter_epistemic_brackets` with owner secrecy signals.
-- `src/intelligence/modules/entities/presence.js`: Unified relational dispositions harvesting universal bracket predicates with legacy fallback.
 - `src/intelligence/director.js`: Relational actuator synchronizing incoming dynamics onto `present.non_physical` via `apply_bracket_mutation`.
 - `src/intelligence/temporal.js` & `src/intelligence/temporal.test.js`: Leverage existing `entity.chapters` and `temporal_engine.consolidate` for Macro-Quest milestones, and update `compute_relevance()` with the hybrid retrieval formula.
 - `src/ui/profile/RelationalGraph.svelte` & `src/ui/profile/RelationalGraph.test.js`: Multi-tempus relationship constellation graph harvesting cross-tempus bracket relationships with tempus badges.
 - `src/platform/embeddings.svelte.js` & `src/platform/embeddings.test.js`: Add `quantize_vector_q8()` and `dequantize_vector_q8()` serialization codecs.
 - `src/platform/index.js`: Barrel export `quantize_vector_q8` and `dequantize_vector_q8`.
-- `src/intelligence/modules/format.js` & `src/intelligence/modules/format.test.js`: Format context injection into isolated `<CURRENT_STATE>` and `<HISTORICAL_CONTEXT>` blocks, plus temporal bracket formats (`BRACKET_FORMAT`, `PLAIN_BRACKET_FORMAT`, `PLAIN_TEXT_FORMAT`).
-- `src/intelligence/modules/entities/sheets.js`: Render entity contexts and profile sheets with self-context elimination and sanitized epistemic secrets.
+- `src/intelligence/modules/task.js`: Consolidated task and format module. Format context injection into isolated `<CURRENT_STATE>` and `<HISTORICAL_CONTEXT>` blocks, plus temporal bracket formats (`BRACKET_FORMAT`, `PLAIN_BRACKET_FORMAT`, `PLAIN_TEXT_FORMAT`). Added `TASK_LIBRARY.PROTOCOLS.THINK_ENHANCEMENT`, updated `TASK_LIBRARY.SORTING` for bracket-first temporal layers, wired macro directive resolvers, and configured `think_format: "prose_think"` for enhancement.
 - `src/intelligence/modules/protocols.js` & `src/intelligence/modules/protocols.test.js`: Relocated canonical macro directives (`MACRO_DIRECTIVES`, `resolve_macro_directive`) and centralized protocol library definitions.
-- `src/intelligence/modules/entities.js`: Consolidated entity presence, candidate cast, and profile sheet rendering into a single sovereign module with bracket-driven dynamic harvesting.
-- `src/intelligence/modules/task.js`: Added `TASK_LIBRARY.PROTOCOLS.THINK_ENHANCEMENT`, updated `TASK_LIBRARY.SORTING` for bracket-first temporal layers, wired macro directive resolvers, and configured `think_format: "prose_think"` for enhancement.
+- `src/intelligence/modules/entities.js`: Consolidated entity presence, candidate cast, and profile sheet rendering into a single sovereign module with bracket-driven dynamic harvesting and self-context elimination.
 - `src/intelligence/prompts.js` & `src/intelligence/prompts.test.js`: Configured `enhancement` mode with `think_format: "enhancement"` and `format: { mode: "temporal_field" }`.
 - `src/intelligence/builder.js` & `src/intelligence/builder.test.js`: Wired `resolve_macro_directive` import from `protocols.js`, and updated `render_enhancement` with temporal bracket format detection and thinking block compilation.
 - `src/intelligence/profile.js` & `src/intelligence/profile.test.js`: Verified single-field and multi-field profile enhancement pipelines with sibling context and bracket format assertions; pruned legacy entity relationship arrays.
@@ -228,27 +251,7 @@ $$\text{Score} = (\text{Entity Overlap} \times 3.0) + (\text{Lexical Frequency} 
 
 ## Queued Strategic Initiatives
 
-### 1. Runtime Lifecycle Orchestration & Storyboard Guardrails
-
-- **Scope**: State machine lifecycle management, speaker generation indicators, storyboard navigation guards, and UI transition timings.
-- **Status**: Staged for final verification.
-- **Origin**: User interaction flow specifications and storyboard lifecycle audits.
-- **Target Deliverables**:
-  - **Deterministic Generation Flow**: Enforce the 7-step turn progression:
-    1. User submits action.
-    2. Shimmer sweep indicates Director evaluating physics and speaker delegation.
-    3. Designated speaker avatar/halo spawns in the feed column with an active thinking state.
-    4. Speech bubble mounts and typewriter streaming commences.
-    5. Shimmer pulse harmonizes with typewriter output tempo.
-    6. Speaker thinking state completes synchronously with typewriter stream conclusion.
-    7. Audio chime / SFX triggers cleanly on stream completion.
-  - **Active Session Navigation Guard**: Modal dialog in `src/ui/console/StoryboardBar.svelte` guarding story transitions:
-    - _Resume Active Story_: Return to current narrative session.
-    - _Conclude & Archive_: Finalize active session, commit state to Dexie.js, and load new scenario.
-    - _Cancel_: Dismiss without state mutation.
-  - **Flicker Elimination**: Prevent temporary avatar flash on turn submission by latching speaker resolution until Director evaluation settles.
-
-### 2. Dynamic Pacing Contracts & Prose Heuristics Engine
+### 1. Dynamic Pacing Contracts & Prose Heuristics Engine
 
 - **Scope**: Turn-size proportional scaling, anti-staging constraints, runtime slop linting, and held-moment detection.
 - **Status**: Queued in backlog.

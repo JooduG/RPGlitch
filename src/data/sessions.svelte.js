@@ -130,6 +130,7 @@ export const session_driver = {
    */
   async create_from_selection(selection) {
     const ai_entity = selection.ai_id ? await db.entities.get(selection.ai_id) : null;
+    const user_entity = selection.user_id ? await db.entities.get(selection.user_id) : null;
     const fractal_entity = selection.fractal_id ? await db.entities.get(selection.fractal_id) : null;
 
     const visual_style = selection.visual_style || selection.fractal?.visual_style || fractal_entity?.visual_style;
@@ -190,12 +191,9 @@ export const session_driver = {
       visual_style,
       narrative_style,
       entity_snapshots: {
-        ai: { dynamics: ai_entity?.dynamics || {} },
-        fractal: {
-          dynamics: fractal_entity?.dynamics || {},
-          visual_style,
-          narrative_style,
-        },
+        ai: ai_entity ? JSON.parse(JSON.stringify(ai_entity)) : { dynamics: {} },
+        user: user_entity ? JSON.parse(JSON.stringify(user_entity)) : { dynamics: {} },
+        fractal: fractal_entity ? JSON.parse(JSON.stringify(fractal_entity)) : { dynamics: {}, visual_style, narrative_style },
       },
       npc_ids: Array.from(initial_npc_ids),
       created_at: Date.now(),
@@ -400,9 +398,10 @@ export const session_driver = {
    * @param {string} [role='system']
    * @param {Record<string, any>} [meta={}]
    * @param {string|number|null} [story_id=null]
+   * @param {number|null} [round=null]
    * @returns {Promise<void>}
    */
-  async log_system_entry(text, role = "system", meta = {}, story_id = null) {
+  async log_system_entry(text, role = "system", meta = {}, story_id = null, round = null) {
     const effective_story_id = story_id ?? session_driver.require_active();
     const entry = {
       story_id: effective_story_id,
@@ -410,7 +409,7 @@ export const session_driver = {
       type: "text",
       text,
       turn_type: "SYSTEM_TURN",
-      round: state_bridge.runtime?.round ?? 0,
+      round: typeof round === "number" ? round : (state_bridge.runtime?.round ?? 0),
       meta: $state.snapshot(meta),
       created_at: Date.now(),
     };

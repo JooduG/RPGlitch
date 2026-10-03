@@ -605,6 +605,7 @@ export const gamemaster = {
             if (state_bridge.runtime.round !== forge_round) return { skipped: true };
             await temporal_engine.consolidate(state_bridge.session_driver, db, entities, state_bridge.runtime, state_bridge.app, {
               skip_forge: resolved_status === "CONCLUDED" || resolved_status === "COLLAPSED",
+              target_round: forge_round,
             });
             return { skipped: false };
           },
