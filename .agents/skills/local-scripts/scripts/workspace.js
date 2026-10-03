@@ -25,7 +25,7 @@
  *        C. Legislative & Backlog Debt:
  *           - Unresolved agentic debt tags (#TODO-AI)
  *           - Sovereign template structure validation (SKILL, RULE, WORKFLOW)
- *           - Temporal Mission Board backlog synchronization (tasks/PRESENT.md)
+ *           - Sovereign Roadmap backlog synchronization (ROADMAP.md)
  *
  *   3. ALL-IN-ONE HYGIENE PASS (`all` / default):
  *      Executes both the Workspace Synchronizer and the Hygiene & Debt Auditor sequentially.
@@ -730,7 +730,7 @@ export const legislative_debt_rules = [
     id: "PROJECT_TODO_AI_TAG",
     severity: "DEBT",
     regex: /#TODO-AI/,
-    message: "⚠️ Unresolved Agentic Debt (#TODO-AI) found. Ensure it is registered in tasks/PRESENT.md.",
+    message: "⚠️ Unresolved Agentic Debt (#TODO-AI) found. Ensure it is registered in ROADMAP.md.",
     validate: (line_content, file_path) =>
       !file_path.includes("warden.js") && !file_path.includes("workspace.js") && !file_path.includes("SKILL.md") && !file_path.includes("rules.js"),
   },
@@ -739,21 +739,12 @@ export const legislative_debt_rules = [
     severity: "ADVICE",
     validate: (file_content, file_path) => {
       const relative_path = path.relative(ROOT_DIRECTORY, file_path).replace(/\\/g, "/");
-      if (!relative_path.startsWith("tasks/")) return true;
-      if (relative_path === "tasks/PRESENT.md") {
-        const match = file_content.match(/active_track:\s*([^\s\n]+)/);
-        if (match && match[1] && match[1] !== "null" && match[1] !== "none") {
-          const track_file_path = path.join(ROOT_DIRECTORY, "tasks", "future", `${match[1]}.md`);
-          if (fs.existsSync(track_file_path)) {
-            const track_content = fs.readFileSync(track_file_path, "utf-8");
-            return track_content.includes("[ ]") || track_content.includes("[~]");
-          }
-        }
-        return true;
+      if (relative_path === "ROADMAP.md") {
+        return file_content.includes("[ ]") || file_content.includes("[x]");
       }
-      return file_content.includes("[ ]") || file_content.includes("[~]");
+      return true;
     },
-    message: "💡 Task file appears exhausted or lacks open items. Sync with the backlog.",
+    message: "💡 Roadmap appears exhausted or lacks open items. Sync with active engineering goals.",
   },
 ];
 
@@ -766,7 +757,6 @@ export function audit_hygiene(exit_on_heresy = true) {
   const source_directory = path.join(ROOT_DIRECTORY, "src");
   const skills_directory = path.join(ROOT_DIRECTORY, ".agents/skills");
   const workflows_directory = path.join(ROOT_DIRECTORY, ".agents/workflows");
-  const tasks_directory = path.join(ROOT_DIRECTORY, "tasks");
 
   console.log("\n================================================================================");
   console.log("🛡️  PIPELINE 2: UNIFIED HYGIENE & DEBT AUDITOR");
@@ -793,9 +783,9 @@ export function audit_hygiene(exit_on_heresy = true) {
 
   // Run Phase C: Legislative & Backlog Debt
   const legislative_result = run_audit({
-    title: "📜 PHASE C: LEGISLATIVE & BACKLOG DEBT (Templates, TODOs, Active Track)",
+    title: "📜 PHASE C: LEGISLATIVE & BACKLOG DEBT (Templates, TODOs, Roadmap)",
     root_directory: ROOT_DIRECTORY,
-    scan_directories: [source_directory, skills_directory, workflows_directory, tasks_directory],
+    scan_directories: [source_directory, skills_directory, workflows_directory],
     extensions: [".md"],
     rules: legislative_debt_rules,
     exit_on_heresy: false,

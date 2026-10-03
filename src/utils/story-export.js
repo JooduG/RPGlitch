@@ -17,7 +17,7 @@
  * - `src/ui/console/Console.svelte` (Dev console story export).
  */
 
-import { format_datetime, strip_cognition_blocks } from "./text.js";
+import { format_datetime, strip_cognition_blocks, filter_narrative_messages } from "./text.js";
 
 // ============================================================================
 // [SECTION 1: CONSTANTS & NARRATOR ROLES]
@@ -105,7 +105,8 @@ export function export_story_markdown(story = {}, entries = [], options = {}) {
   const is_concluded = is_collapsed || story.state === "concluded" || !!story.is_concluded;
   const state_label = is_collapsed ? "Collapsed (Tragic Ending)" : is_concluded ? "Concluded" : "Active";
 
-  const log = Array.isArray(entries) ? entries : [];
+  const raw_log = Array.isArray(entries) ? entries : [];
+  const log = options.include_system ? raw_log : filter_narrative_messages(raw_log);
   const formatted_beats = [];
 
   for (const entry of log) {

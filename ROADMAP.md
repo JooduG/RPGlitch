@@ -16,22 +16,23 @@ This roadmap defines the authoritative technical backlog, active engineering spr
 
 Highest-priority micro-actions, diagnostic fixes, and technical debt required to keep the development environment, memory footprints, and background runtime stable.
 
-- [ ] **1.1 Unify Simulation Log History Generation**:
+- [x] **1.1 Unify Simulation Log History Generation**:
   - **Issue**: Conversation history arrays and markdown blocks are assembled through multiple disparate ad-hoc formatters across UI components and prompt compilers, causing formatting drift.
   - **Action**: Centralize all conversation history compilation through a single sovereign formatter in `src/utils/story-export.js` / `src/intelligence/modules/history.js`.
   - **Touchpoints**: [`src/intelligence/modules/history.js`](src/intelligence/modules/history.js), [`src/utils/story-export.js`](src/utils/story-export.js), [`src/ui/console/`](src/ui/console/).
-- [ ] **1.2 Complete Tool Script Path Migration**:
+- [x] **1.2 Complete Tool Script Path Migration**:
   - **Issue**: Lingering tool and testing scripts still reference obsolete `tasks/` directory paths instead of the unified `.agents/` and `src/` structures.
   - **Action**: Audit and migrate all remaining scripts to current directory conventions.
   - **Touchpoint**: [`.agents/skills/local-scripts/scripts/`](.agents/skills/local-scripts/scripts/).
-- [ ] **1.3 Index Health & Compaction Profiling in Dexie.js 4**:
+- [x] **1.3 Index Health & Compaction Profiling in Dexie.js 4**:
   - **Issue**: Multi-table indices (`mutation_ledger`, `stories`, `entities`) risk index fragmentation and memory growth over extended multi-story runs.
   - **Action**: Profile IndexedDB storage utilization and index query latency during state-transition compaction tests.
-  - **Touchpoints**: [`src/data/db.js`](src/data/db.js), [`src/data/ledger.js`](src/data/ledger.js).
-- [ ] **1.4 Neural Audio TTS Mutex Verification**:
+  - **Touchpoints**: [`src/data/db.js`](src/data/db.js), [`src/data/ledger.js`](src/data/ledger.js), [`src/data/db.test.js`](src/data/db.test.js).
+
+- [x] **1.4 Neural Audio TTS Mutex Verification**:
   - **Issue**: Kokoro-82M neural TTS synthesis and Transformers.js embedding generation execute in the client environment; resource contention during background Memory Forge passes can introduce audio stutter.
   - **Action**: Stress-test and verify the web-worker execution gate between `src/media/audio.svelte.js` and `src/platform/embeddings.svelte.js`.
-  - **Touchpoints**: [`src/media/audio.svelte.js`](src/media/audio.svelte.js), [`src/platform/embeddings.svelte.js`](src/platform/embeddings.svelte.js).
+  - **Touchpoints**: [`src/media/audio.svelte.js`](src/media/audio.svelte.js), [`src/platform/embeddings.svelte.js`](src/platform/embeddings.svelte.js), [`src/utils/onnx.test.js`](src/utils/onnx.test.js).
 
 ---
 
