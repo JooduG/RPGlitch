@@ -17,12 +17,7 @@
    */
 
   /** @type {Props} */
-  let {
-    open = $bindable(false),
-    entity_id,
-    entity_name = "Entity",
-    field = "present.non_physical",
-  } = $props();
+  let { open = $bindable(false), entity_id, entity_name = "Entity", field = "present.non_physical" } = $props();
 
   let is_loading = $state(false);
   /** @type {Array<any>} */
@@ -68,9 +63,7 @@
     <!-- Header -->
     <div class="flex items-center justify-between border-b border-white/10 pb-3">
       <div class="flex flex-col">
-        <h4 class="m-0 text-sm font-bold tracking-wider text-cyan-400 uppercase">
-          Mutation Ledger Inspector
-        </h4>
+        <h4 class="m-0 text-sm font-bold tracking-wider text-cyan-400 uppercase">Mutation Ledger Inspector</h4>
         <span class="font-mono text-xs text-slate-400">
           {entity_name} &bull; <span class="text-cyan-200">{field}</span>
         </span>
@@ -80,27 +73,25 @@
         <div class="flex rounded-lg bg-black/40 p-0.5">
           <button
             type="button"
-            class="cursor-pointer rounded-md px-2.5 py-1 font-mono text-[11px] font-medium transition-colors {active_tab === 'timeline' ? 'bg-cyan-500/20 text-cyan-300' : 'text-slate-400 hover:text-slate-200'}"
+            class="cursor-pointer rounded-md px-2.5 py-1 font-mono text-[11px] font-medium transition-colors {active_tab === 'timeline'
+              ? 'bg-cyan-500/20 text-cyan-300'
+              : 'text-slate-400 hover:text-slate-200'}"
             onclick={() => (active_tab = "timeline")}
           >
             Timeline ({history_records.length})
           </button>
           <button
             type="button"
-            class="cursor-pointer rounded-md px-2.5 py-1 font-mono text-[11px] font-medium transition-colors {active_tab === 'reconstructed' ? 'bg-cyan-500/20 text-cyan-300' : 'text-slate-400 hover:text-slate-200'}"
+            class="cursor-pointer rounded-md px-2.5 py-1 font-mono text-[11px] font-medium transition-colors {active_tab === 'reconstructed'
+              ? 'bg-cyan-500/20 text-cyan-300'
+              : 'text-slate-400 hover:text-slate-200'}"
             onclick={() => (active_tab = "reconstructed")}
           >
             Reconstructed State
           </button>
         </div>
 
-        <Button
-          variant="invisible"
-          size="small"
-          square={true}
-          onclick={() => (open = false)}
-          aria-label="Close"
-        >
+        <Button variant="invisible" size="small" square={true} onclick={() => (open = false)} aria-label="Close">
           <svg viewBox="0 0 24 24" class="size-4 fill-none stroke-current stroke-2" style="stroke-linecap: round; stroke-linejoin: round;">
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -112,9 +103,7 @@
     <!-- Body -->
     <div class="flex flex-1 flex-col overflow-y-auto pr-1">
       {#if is_loading}
-        <div class="flex h-48 items-center justify-center font-mono text-xs text-cyan-400 animate-pulse">
-          Replaying ledger stream...
-        </div>
+        <div class="flex h-48 animate-pulse items-center justify-center font-mono text-xs text-cyan-400">Replaying ledger stream...</div>
       {:else if active_tab === "timeline"}
         {#if history_records.length === 0}
           <div class="flex h-48 flex-col items-center justify-center gap-1 font-mono text-xs text-slate-500">
@@ -123,7 +112,7 @@
           </div>
         {:else}
           <div class="flex flex-col gap-2.5 py-1">
-            {#each history_records as record (record.id || (record.timestamp + '-' + record.round + '-' + record.seq))}
+            {#each history_records as record (record.id || record.timestamp + "-" + record.round + "-" + record.seq)}
               <div class="flex flex-col gap-1.5 rounded-xl border border-white/5 bg-black/25 p-3 text-xs transition-colors hover:border-cyan-500/20">
                 <div class="flex items-center justify-between font-mono text-[10px] text-slate-400">
                   <div class="flex items-center gap-2">
@@ -180,19 +169,15 @@
         <!-- Reconstructed Tab -->
         <div class="flex flex-col gap-3 py-1">
           <div class="flex flex-col gap-1">
-            <span class="font-mono text-[11px] font-bold text-slate-300 uppercase tracking-wider">
-              Replayed Bracket Predicates
-            </span>
-            <div class="min-h-24 rounded-xl border border-white/10 bg-black/40 p-3 font-mono text-xs leading-relaxed text-cyan-200 break-words">
+            <span class="font-mono text-[11px] font-bold tracking-wider text-slate-300 uppercase"> Replayed Bracket Predicates </span>
+            <div class="min-h-24 rounded-xl border border-white/10 bg-black/40 p-3 font-mono text-xs leading-relaxed break-words text-cyan-200">
               {reconstructed_brackets || "(empty state)"}
             </div>
           </div>
 
           {#if reconstructed_prose}
             <div class="flex flex-col gap-1">
-              <span class="font-mono text-[11px] font-bold text-slate-300 uppercase tracking-wider">
-                Replayed Raw Prose
-              </span>
+              <span class="font-mono text-[11px] font-bold tracking-wider text-slate-300 uppercase"> Replayed Raw Prose </span>
               <div class="min-h-16 rounded-xl border border-white/10 bg-black/40 p-3 font-mono text-xs text-slate-300">
                 {reconstructed_prose}
               </div>

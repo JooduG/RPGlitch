@@ -75,9 +75,7 @@
 
   <div class="flex flex-col gap-2 rounded-xl border border-white/5 bg-black/20 p-3">
     <div class="flex items-center justify-between">
-      <span class="font-mono text-[10px] font-bold tracking-widest text-cyan-400 uppercase">
-        Mutation Ledger
-      </span>
+      <span class="font-mono text-[10px] font-bold tracking-widest text-cyan-400 uppercase"> Mutation Ledger </span>
       <Button
         variant="bare"
         size="small"
@@ -142,12 +140,7 @@
 </section>
 
 {#if show_history_modal && profile_state.char?.id}
-  <FieldHistoryModal
-    bind:open={show_history_modal}
-    entity_id={profile_state.char.id}
-    entity_name={profile_state.char.name}
-    field={inspector_field}
-  />
+  <FieldHistoryModal bind:open={show_history_modal} entity_id={profile_state.char.id} entity_name={profile_state.char.name} field={inspector_field} />
 {/if}
 
 <!--

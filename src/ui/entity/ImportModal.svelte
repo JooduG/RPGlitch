@@ -1,9 +1,8 @@
 <script>
   import { Button, Modal, SourceField, Toggle } from "@primitives";
-  import { app, runtime, simulation_state } from "@state";
+  import { app, simulation_state } from "@state";
   import { birth_entity_core } from "@intelligence";
   import { create_new, detect_card_format, normalize, parse_character_card } from "@data";
-  import { generate_uuid } from "@utils";
 
   let { open = $bindable(false), target_type: _target_type = "character" } = $props();
 
@@ -65,7 +64,6 @@
       generate_portrait: false,
     });
   }
-
 
   /**
    * Imports a standard Character Card V2/V3 payload.

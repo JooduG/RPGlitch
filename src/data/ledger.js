@@ -72,7 +72,6 @@ export function is_identical_mutation(entry) {
   return is_same_value && is_same_visibility && is_same_weight;
 }
 
-
 /**
  * Formats a single entry payload for database persistence.
  * @param {LedgerEntry} entry
@@ -130,9 +129,7 @@ export async function append_ledger_entry(entry) {
 export async function append_ledger_entries(entries) {
   if (!Array.isArray(entries) || entries.length === 0) return;
   const now = Date.now();
-  const payloads = entries
-    .filter((e) => e && e.entity_id && e.field && !is_identical_mutation(e))
-    .map((entry) => format_entry_payload(entry, now));
+  const payloads = entries.filter((e) => e && e.entity_id && e.field && !is_identical_mutation(e)).map((entry) => format_entry_payload(entry, now));
 
   if (payloads.length > 0) {
     await db.mutation_ledger.bulkAdd(payloads);

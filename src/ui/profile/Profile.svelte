@@ -794,7 +794,6 @@
   {/if}
 {/if}
 
-
 {#snippet EntityBody()}
   <div class={entity_body_class} style:grid-template-columns={entity_body_grid_cols} data-testid="profile-fragments">
     {#each active_sections as section (section.id)}
@@ -942,7 +941,11 @@
                     }}
                     class="cursor-pointer text-slate-400 hover:text-cyan-300"
                   >
-                    <svg viewBox="0 0 24 24" class="size-icon-small fill-none stroke-current stroke-2" style="stroke-linecap: round; stroke-linejoin: round;">
+                    <svg
+                      viewBox="0 0 24 24"
+                      class="size-icon-small fill-none stroke-current stroke-2"
+                      style="stroke-linecap: round; stroke-linejoin: round;"
+                    >
                       <circle cx="12" cy="12" r="10"></circle>
                       <polyline points="12 6 12 12 16 14"></polyline>
                     </svg>
