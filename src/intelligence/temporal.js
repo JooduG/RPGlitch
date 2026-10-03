@@ -932,9 +932,7 @@ export const temporal_engine = {
           if (memory.type === "present") {
             if (!entity.present) entity.present = { physical: "", non_physical: "" };
             const old_non_physical = entity.present.non_physical || "";
-            const merged_non_physical = cap_present_prose(
-              merge_prose_into_field(old_non_physical, memory.content || memory.directive || ""),
-            );
+            const merged_non_physical = cap_present_prose(merge_prose_into_field(old_non_physical, memory.content || memory.directive || ""));
             if (merged_non_physical !== old_non_physical) {
               entity.present.non_physical = merged_non_physical;
               await runtime.update_entity(type, entity.id, { present: entity.present });
