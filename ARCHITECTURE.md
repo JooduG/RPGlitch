@@ -93,7 +93,7 @@ sequenceDiagram
             Note over Chrono,Persona: Turn 2: Actor Turn (Narrative Shot)
             Chrono->>Persona: Dispatches staging & Director's Note
             Persona-->>User: Streams in-character dialogue, <think> cognition & prose
-            
+
             opt If Scheduled by Director in Turn 1
                 Chrono-)Queue: Dispatches Visual Beat (optics prompt + Perchance diffusion)
             end
@@ -102,7 +102,7 @@ sequenceDiagram
         rect rgb(20, 35, 30)
             Note over User,Queue: Turn 3: User Turn (Head Shot)
             Chrono->>User: STASIS lifted (phase = "idle", input enabled)
-            
+
             par User Deliberation
                 User->>User: Deliberates, reads & authors next message (no time limit)
             and Background Full-State Consolidation
@@ -185,12 +185,14 @@ Dynamics are numerical state scalars stored inside an entity's **Present** segme
 
 - **Character Dynamics**:
   Included on all character entities in the database. However, in storymode, **only the active AI character's dynamics actively drive narrative generation and behavioral mutations**. The user persona's dynamics remain essentially dormant until that character is swapped into the AI co-star role.
+
   - **chaos**: Behavioral stability vs. volatility.
   - **intensity**: Autonomic nervous activation and adrenaline response.
   - **openness**: Receptivity vs. defensive suspicion.
   - **affinity**: Interpersonal trust vs. hostility.
 
 - **Fractal Dynamics**:
+
   - **velocity**: Kinetic pacing and environmental movement rate.
   - **entropy**: Structural degradation, environmental noise, and physical breakdown.
 

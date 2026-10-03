@@ -43,6 +43,7 @@ The Simulation Cycle is the overarching heartbeat of the engine—a complete seq
 #### The Round (Macro-State)
 
 A **Round** tracks linear session progression. It increments strictly when the user submits a new message payload.
+
 - **The Absolute Interrupt**: Human message input finalizes the current loop and births the next.
 - **Round Completion**: A round concludes only when the user submits their next message payload during Turn 3 (Head Shot).
 
@@ -68,6 +69,7 @@ Within each round, active intelligence and mechanical engines execute as sequent
 #### Conflict Resolution Priority
 
 When narrative constraints compete, resolve them strictly in this order of precedence:
+
 1. **User Agency**: Absolute protection of user control (P1).
 2. **Physical & Temporal Truth**: Established physical state, causality, and entity integrity.
 3. **Plot & Sensory Momentum**: Environmental scene stakes, active objectives, and atmospheric texture.
