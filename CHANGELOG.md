@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Speaker & NPC ID Synchronization (`src/intelligence/director.js`)**: Synchronized `speaker` and `npc_id` in `normalize_director_data` so that `base.speaker` with `npc:<id>` preserves target identity even when paired with an `AI_CHARACTER` action.
   - **Case-Insensitive Story Status Normalization (`src/intelligence/director.js`)**: Normalized `story_status` to match uppercase canonical status values consistently, preventing lowercase valid statuses from falling back to `IN_PROGRESS`.
   - **Environmental Scene Framing Preservation (`src/media/optics.js`)**: Added `staging_has_scene_focus` check to prevent high intensity/affinity dynamics from suppressing wide panoramic framing when explicitly requested in `visual_staging`.
+  - **Profile Field Directive Helpers Consolidation & Universal Brackets (`src/data/definitions/profile-fields.js`)**: Merged `HELPERS.BRACKETS` and `HELPERS.RELATIONAL_BRACKETS` into a single unified bracket guideline that instructs and prefers bracket directives across all fields (`eternal.non_physical`, `present.non_physical`, `future`, `eternal.physical`, `present.physical`, `past`) for both characters and fractals while preserving natural prose compatibility, relational dynamics (`[TARGET: dynamic | flags]`), and atomic clearing (`[KEY: none]`).
+  - **Contract Size Re-baselining (`src/intelligence/prompt-verification.js`)**: Re-baselined frozen prompt verification bounds (`CONTRACT_SIZES.continuum.task` and `CONTRACT_SIZES.sorting.task`) to match expanded taxonomy directives.
 - Active observation of P1 User Agency hard-negative enforcement (Track 1.1).
 
 ---

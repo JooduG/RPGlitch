@@ -20,8 +20,7 @@ import { format_key_as_label } from "@utils";
 import { SIGNATURE_COLORS } from "./signature-colors.js";
 
 const HELPERS = Object.freeze({
-  BRACKETS: `Return bracketed directives: [KEY: value] — one directive per line, no outer braces, no prose outside brackets.`,
-  RELATIONAL_BRACKETS: `May include targeted relational brackets: [TARGET_ENTITY: relationship dynamic | flags] (flags: 'hide' / 'show', 'w: 1-10'). Atomic clearing: [KEY: none].`,
+  BRACKETS: `Format using bracket directives: [KEY: value] — one per line, no outer braces. May include targeted relational or state brackets: [TARGET_ENTITY: relationship dynamic | flags] (flags: 'hide' / 'show', 'w: 1-10'). Atomic clearing: [KEY: none].`,
 });
 
 // ── 1. Canonical Field Taxonomy ───────────────────────────────────────────────
@@ -29,6 +28,7 @@ const HELPERS = Object.freeze({
 /**
  * Canonical taxonomy of all entity fields, structured by entity type -> temporal layer -> field.
  */
+
 export const PROFILE_FIELDS = {
   name: {
     label: "Name",
@@ -56,7 +56,7 @@ export const PROFILE_FIELDS = {
       non_physical: {
         label: "Personality",
         description: "Timeless psychology: core beliefs, personality drivers, cognitive patterns, vocal tone, and communication tics.",
-        directive: `Dense, high-fidelity prose capturing core beliefs, personality drivers, cognitive patterns, vocal tone, speech cadence, and communication tics. Timeless psychological baseline that holds true in any scene. May include permanent relational brackets: [TARGET_ENTITY: relationship dynamic | flags].`,
+        directive: `Core beliefs, personality drivers, cognitive patterns, vocal tone, speech cadence, and communication tics. Timeless psychological baseline that holds true in any scene. ${HELPERS.BRACKETS}`,
         enhancer: "COGNITIVE_ARCHITECT",
       },
     },
@@ -71,7 +71,7 @@ export const PROFILE_FIELDS = {
       non_physical: {
         label: "State of Mind",
         description: "Current state of mind: immediate emotional pressure, active mental focus, and present behavioral drivers.",
-        directive: `Dense, punchy summary of immediate emotional pressure, active mental focus, and present behavioral drivers true in THIS moment only. May include transient relational or state brackets: [TARGET_ENTITY: immediate dynamic | flags].`,
+        directive: `Immediate emotional pressure, active mental focus, and present behavioral drivers true in THIS moment only. ${HELPERS.BRACKETS}`,
         enhancer: "TACTICAL_ANALYZER",
       },
     },
@@ -79,8 +79,7 @@ export const PROFILE_FIELDS = {
       label: "Agenda",
       description:
         "The entity's active trajectory or standing agenda: clear intent, building pressure, or impending event driving the next state change.",
-      directive:
-        "Consolidated 2-5 sentence standing agenda in active future tense: clear intent, building pressure, or impending event driving this entity toward its next state change. Distinct from Present. No story scenes, dialogue, or tag lists.",
+      directive: `Active trajectory or standing agenda in active future tense: clear intent, building pressure, or impending event driving this entity toward its next state change. Distinct from Present. No story scenes or dialogue. ${HELPERS.BRACKETS}`,
       enhancer: "TRAJECTORY_SIMULATOR",
     },
     past: {
@@ -101,8 +100,7 @@ export const PROFILE_FIELDS = {
       non_physical: {
         label: "Permanent Truths",
         description: "Timeless metaphysical substrate: governing laws, constant environmental forces, and physical constants.",
-        directive:
-          "Timeless metaphysical substrate: governing laws, constant environmental forces, and physical constants. May include environmental condition brackets: [LAW: description | flags] (flags: 'hide', 'w: 1-10').",
+        directive: `Timeless metaphysical substrate: governing laws, constant environmental forces, and physical constants. ${HELPERS.BRACKETS}`,
         enhancer: "METAPHYSICAL_ARCHITECT",
       },
     },
@@ -116,16 +114,14 @@ export const PROFILE_FIELDS = {
       non_physical: {
         label: "Current State",
         description: "Current environmental state: active anomalies, immediate pressure, and momentary shifts in physics or atmosphere.",
-        directive:
-          "Current environmental state: active anomaly, immediate pressure, momentary shifts in physics or atmosphere. May include state or anomaly brackets: [ANOMALY: active condition | flags].",
+        directive: `Current environmental state: active anomaly, immediate pressure, momentary shifts in physics or atmosphere. ${HELPERS.BRACKETS}`,
         enhancer: "ECOSYSTEM_ANALYZER",
       },
     },
     future: {
       label: "Trajectory",
       description: "Environmental trajectory, building anomaly, or converging weather event driving the next scene state change.",
-      directive:
-        "Consolidated 2-5 sentence environmental trajectory in active future tense: building atmospheric pressure, impending environmental event, or anomaly apex driving this world toward its next state change.",
+      directive: `Environmental trajectory, building atmospheric pressure, impending environmental event, or anomaly apex driving this world toward its next state change in active future tense. ${HELPERS.BRACKETS}`,
       enhancer: "ECOSYSTEM_SIMULATOR",
     },
     past: {
@@ -315,6 +311,8 @@ export function build_profile_sections(entity_type = "character") {
 
 /**
  * CHANGELOG:
+ * - 2026-10-03: Instructed and preferred bracket directives across all fields (eternal/present non_physical and future) using HELPERS.BRACKETS, allowing prose while documenting bracket syntax.
+ * - 2026-10-03: Consolidated HELPERS.BRACKETS and HELPERS.RELATIONAL_BRACKETS into unified BRACKETS helper documenting both standard and relational bracket syntax.
  * - 2026-10-01: Symmetrically authorized bracket directives across fractal eternal and present non_physical layers in PROFILE_FIELDS, harmonizing bracket predicate architecture.
  * - 2026-09-30: Updated non_physical field directives in PROFILE_FIELDS to document support for targeted bracket predicates and relational edges ([TARGET: dynamic | flags]) alongside natural prose, aligning with Synaptic Bracket Engine and RelationalGraph synchronization.
  * - 2026-09-16: Streamlined all entity field directives in PROFILE_FIELDS into high-density LLM instructions, eliminating conversational filler and tutorial text while preserving imperative schema contracts. Dynamic SIGNATURE_COLORS interpolation preserved.

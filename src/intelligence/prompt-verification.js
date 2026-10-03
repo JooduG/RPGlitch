@@ -777,14 +777,16 @@ export const CONTRACT_SIZES = {
   narrator: { system: 5189, task: 1922 },
   narrator_prologue: { system: 5189, task: 2170 },
   narrator_epilogue: { system: 5189, task: 1839 },
-  continuum: { system: 1210, task: 2818 },
+  continuum: { system: 1210, task: 3821 },
   enhancement: { system: 452, task: 867 },
-  sorting: { system: 287, task: 3004 },
+  sorting: { system: 287, task: 4296 },
   optics: { system: 1761, task: 3785 },
 };
 
 /**
  * CHANGELOG
+ * - 2026-10-03: Re-baselined `CONTRACT_SIZES.continuum.task` (2818→3821) and `CONTRACT_SIZES.sorting.task` (3904→4296) after applying unified `HELPERS.BRACKETS` across all non-physical and future fields in `profile-fields.js`.
+ * - 2026-10-03: Re-baselined `CONTRACT_SIZES.sorting.task` (3004→3904) after consolidating `HELPERS.BRACKETS` and `HELPERS.RELATIONAL_BRACKETS` across field directives in `profile-fields.js`.
  * - 2026-10-03: Re-baselined `CONTRACT_SIZES.director.task` (2863→4065) for Director Speaker Lock (2.7) and Biological Causality & Terminal State Arbitration (2.6).
  * - 2026-10-01: Re-baselined `CONTRACT_SIZES.enhancement` (system 541→452, task 417→867) and `CONTRACT.enhancement.task` tags for Universal Bracket and Think Enhancement protocol.
  * - 2026-09-25: Added `DIRECTOR_DIRECTIVE_LEADS` — the Director's `<DIRECTIVES>` prose sequence is now gated (the tag inventory cannot see prose, so the generic directive compiler's selection is pinned by ordered leading phrases).

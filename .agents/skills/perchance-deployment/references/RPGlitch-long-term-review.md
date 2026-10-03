@@ -8,17 +8,22 @@
 
 ## 1. Primary Objectives & Inquiries Under Test
 
-1. **Track 1 Remediations Verification**:
-   - **Ghost Row Suppression (2.1)**: Image beat placeholders mount cleanly without emitting blank dialogue rows into the context window.
-   - **Think-Only Recovery (2.2)**: If an AI persona emits solely internal reasoning (`<think>`), verify the engine triggers the automatic recovery retry directive to guarantee dialogue prose.
-   - **Telemetry Deduplication (2.3)**: Confirm `DYNAMICS_DELTA` tokens in HUD cards and simlog contain no duplicated tokens.
+1. **Track 1 & Code Review Remediations Verification**:
+   - **Ghost Row Suppression & Export Image Preservation**: Image beat placeholders mount cleanly without emitting blank dialogue rows into the context window, and Markdown exports (`export_story_markdown`) retain generated image markdown (`![prompt](src)`).
+   - **Think-Only Recovery**: If an AI persona emits solely internal reasoning (`<think>`), verify the engine triggers the automatic recovery retry directive to guarantee dialogue prose.
+   - **Telemetry Deduplication**: Confirm `DYNAMICS_DELTA` tokens in HUD cards and simlog contain zero duplicated metric tokens.
+   - **Bracket Auto-Repair**: Unclosed (`[KEY: val`) and unopened (`key | w: 8]`) brackets auto-balance without falsely turning ordinary narrative prose (e.g. `Note: ...`) into pseudo-JSON predicates.
 2. **Behavioral & Narrative Integrity Audits**:
-   - **P1 User Agency & Anti-Hijacking (2.5)**: Hard-test for first-person player puppeting (e.g., AI saying _"my hand shakes"_ on behalf of the user).
-   - **Physical Causality & Terminal States (2.6)**: Challenge physical boundaries, injury, and terminal states (death/collapse) to test Director `story_status` handling.
-   - **Cinematic Framing Lenses (2.4)**: Track image prompt framing to check whether the generator breaks out of wide environmental locks into close/medium character shots.
-3. **State, Ledger & Background Pipeline Audits**:
-   - **Genesis Ledger Attribution**: Verify whether story creation/character imports emit proper R0:S0 genesis rows in `db.mutation_ledger` (and observe premade seed behavior).
+   - **P1 User Agency & Speaker Lock**: Verify the Director's Note strictly directs the chosen actor (AI, Fractal, or NPC) and never scripts thoughts or actions for `«USER_PERSONA»`.
+   - **Action Routing Alignment**: Verify the Director can freely emit `EPILOGUE_COLLAPSED` or `EPILOGUE_CONCLUDED` without prompt lock conflicts.
+   - **Physical Causality & Graded Biological Limits**: Fatal trauma (death, drowning, decapitation) triggers `EPILOGUE_COLLAPSED` / `COLLAPSED`, while severe survivable injury (maiming, blood loss) remains in-progress with somatic penalties in `present.physical`.
+   - **Dynamic Optics & Environmental Preservation**: Staging intimate cues biases the tier to `story_character`, while panoramic environmental cues (`wide`, `landscape`, `distant`) preserve `story_scene` even under high intensity/affinity dynamics.
+   - **Speaker & NPC Target Sync**: Specifying an NPC speaker (`speaker: "npc:id"`) preserves `npc_id` target resolution even across diverse action descriptors.
+3. **State, Ledger & Profile Studio Audits**:
+   - **Genesis Ledger Attribution**: Verify whether story creation/character imports emit proper R0:S0 genesis rows in `db.mutation_ledger` for all 4 quadrants.
    - **Compare-Then-Skip Dedup**: Ensure no-op rounds append 0 redundant rows to `mutation_ledger`.
+   - **Bracketed Field History Clock Trigger**: Verify the Field History Inspector clock button appears on fields containing brackets (`safe_parse_pseudo_json`) as well as raw prose.
+   - **Profile Timeline Scrubber & Branching Mode**: Verify the Readonly Profile Timeline Mode reconstructs history at round $X$ and allows both "Update from this point" and "Clone from this point".
    - **Background Queue & Concurrency**: Ensure deferred image generation and rolling Memory Forge passes execute asynchronously without locking the UI or causing audio/streaming stutter.
 
 ---
@@ -101,10 +106,14 @@ Follow this targeted round sequence to systematically trigger and audit each eng
   - _Audit Gate_: `FieldHistoryModal.svelte` opens.
     - **Timeline Tab**: Displays chronological mutations with `R{round}:S{seq}`, `writer`, `decider`, `old_value -> new_value`, and `hide`/`w:N` badges.
     - **Reconstructed Tab**: Displays replayed bracket predicates assembled via `replay_entity_field(entity_id, field)`. Confirm flags (`| hide w:8`) are restored faithfully.
-- **Turns 28–30 — Storyboard 1-Click Resume & Trace Output**:
+- **Turns 28–30 — Storyboard 1-Click Resume, Console Prompt Capture & Trace Output**:
   - _Action_: Click "Return to Storyboard" in `ControlPanel.svelte` while the story is in progress.
   - _Audit Gate_: `session_driver.clear_active()` is **not** called. Story session and `runtime.story_id` remain intact in memory and Dexie. Storyboard bottom bar displays **`"ENTER STORYMODE"`** in emerald green. Clicking it instantly returns to the active conversation.
-  - _Final Step_: Export session JSON trace to `tmp/rpglitch-long-term-review-trace-<timestamp>.json`.
+  - _Browser Console & Prompt Inspection_:
+    - Open the browser DevTools Console (`F12` / `Ctrl+Shift+I`).
+    - Inspect the live prompt dispatches: each turn logs the compiled prompts (`[Director] Prompt compiled`, `[Story] Prompt compiled`).
+    - Capture representative prompt-and-output pairs (especially Director Shot 1 and Storyteller Shot 2) for key rounds (e.g. Genesis R0, Quick-shot R4, Trauma R21).
+  - _Final Step_: Export session JSON trace to `tmp/rpglitch-long-term-review-trace-<timestamp>.json` and copy key console prompt snippets alongside the scorecard.
 
 ---
 
@@ -124,14 +133,15 @@ Record all turn data into this live audit table:
 
 ### Core Physics & Prompt Integrity
 
-- [ ] **P1 User Agency**: AI strictly respects user autonomy; zero first-person puppeting or player narration.
+- [ ] **P1 User Agency & Speaker Lock**: AI strictly respects user autonomy; Director's Note only directs the chosen actor and never puppeteers `«USER_PERSONA»`.
 - [ ] **Epistemic Partitioning**: Zero telepathic prompt bleed of `| hide` brackets across character viewpoints.
 - [ ] **Track 1 — Quick Shot Streamlining**: 4-field schema executes with sub-second latency; `last_director_ms` records accurate timings.
-- [ ] **Track 1 — Think-Only Guard (2.2)**: Model never persists empty speech bubble when reasoning exclusively in `<think>`.
-- [ ] **Track 1 — Telemetry Deduplication (2.3)**: `DYNAMICS_DELTA` telemetry logs zero duplicate metric tokens.
-- [ ] **Track 1 — Ghost Row Suppression (2.1)**: Standalone image beat attachments do not emit blank dialogue entries into prompt history.
-- [ ] **Track 1 — Framing Lenses (2.4)**: Optics pipeline successfully alternates between wide environment and intimate/character framing.
-- [ ] **Track 1 — Terminal State Grounding (2.6)**: Lethal consequences trigger proper `COLLAPSED` status.
+- [ ] **Track 1 — Think-Only Guard**: Model never persists empty speech bubble when reasoning exclusively in `<think>`.
+- [ ] **Track 1 — Telemetry Deduplication**: `DYNAMICS_DELTA` telemetry logs zero duplicate metric tokens.
+- [ ] **Track 1 — Ghost Row Suppression & Export Image Markdown**: Standalone image beats do not emit blank dialogue entries into prompt history, and markdown exports retain image attachments (`![prompt](src)`).
+- [ ] **Track 1 — Framing Lenses & Environmental Protection**: Optics pipeline biases toward intimate character framing on close-ups/high affinity while preserving panoramic `story_scene` framing when requested.
+- [ ] **Track 1 — Graded Biological Limits**: Lethal consequences trigger `EPILOGUE_COLLAPSED` / `COLLAPSED`; severe survivable injuries stay in-progress with physical penalties.
+- [ ] **Track 1 — Bracket Auto-Repair**: Auto-balances brackets without corrupting natural language dialogue lines.
 
 ### Event Sourcing & Ledger Hardening
 
@@ -140,7 +150,8 @@ Record all turn data into this live audit table:
 - [ ] **Memory Forge Compare-Then-Skip**: Unchanged fields during Shot 2 consolidation are skipped from `ledger_batch`.
 - [ ] **Sequence & Writer Reconciliation**: Director logs `seq: 1, writer: "director", decider: "director"`; Forge logs `seq: 3, writer: "forge", decider: "forge"`.
 - [ ] **Flag Preservation**: `visibility` (`hide`) and `weight` (`w:N`) persist in `db.mutation_ledger` and restore via `replay_entity_field`.
-- [ ] **Field History Inspector**: `FieldHistoryModal.svelte` renders timeline audit and reconstructed state cleanly from `DevWing` and `Profile`.
+- [ ] **Field History Inspector Clock Button**: Clock button renders on both bracket-parsed and raw prose fields in Profile Studio.
+- [ ] **Profile Timeline Scrubber & Branching**: Reconstructs state at round $X$; supports both "Update from this point" and "Clone from this point".
 
 ### Directorial Mechanics & UI/UX
 
