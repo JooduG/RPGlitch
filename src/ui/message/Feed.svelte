@@ -19,7 +19,7 @@
   let { visible_feed = [], card_actions } = $props();
 
   let scroll_ref = $state(null);
-  let user_scrolled_up = $state(true);
+  let user_scrolled_up = $state(false);
   const AUTO_SCROLL_SLACK = 40;
   let scrub_raf = 0;
 
@@ -95,8 +95,28 @@
 
   let last_feed_length = $state(0);
 
+  function snap_to_bottom() {
+    const el = scroll_ref?.querySelector(".scroll-area-viewport");
+    if (!el) return;
+    el.scrollTop = el.scrollHeight - el.clientHeight;
+  }
+
+  function should_follow() {
+    if (app.settings.auto_scroll === false) return false;
+    return !user_scrolled_up;
+  }
+
+  $effect(() => {
+    if (scroll_ref) tick().then(snap_to_bottom);
+  });
+
+  $effect(() => {
+    if (app.settings.auto_scroll && scroll_ref) tick().then(snap_to_bottom);
+  });
+
   $effect(() => {
     const _is_active = app.streaming.active;
+    const _stream_len = _is_active ? String(app.streaming.content ?? "").length : 0;
     const _pending = app.begin_story_pending;
     const current_len = visible_feed.length;
 
@@ -106,14 +126,14 @@
 
     if (_pending) {
       last_feed_length = current_len;
-      user_scrolled_up = true;
+      tick().then(snap_to_bottom);
       return;
     }
 
     let follow_raf = 0;
     const ease_follow = () => {
       follow_raf = 0;
-      if (user_scrolled_up) return;
+      if (!should_follow()) return;
       const target = el.scrollHeight - el.clientHeight;
       const diff = target - el.scrollTop;
       if (Math.abs(diff) < 0.5) return;
@@ -125,18 +145,18 @@
       follow_raf = requestAnimationFrame(ease_follow);
     };
     const start_follow = () => {
-      if (user_scrolled_up || follow_raf) return;
+      if (!should_follow() || follow_raf) return;
       follow_raf = requestAnimationFrame(ease_follow);
     };
 
     if (current_len > last_feed_length) {
-      if (!user_scrolled_up) tick().then(start_follow);
+      tick().then(start_follow);
     }
     last_feed_length = current_len;
 
-    if (!user_scrolled_up) {
-      tick().then(start_follow);
-    }
+    tick().then(start_follow);
+
+    if (_stream_len > 0) tick().then(start_follow);
 
     const observer = new MutationObserver(() => start_follow());
     observer.observe(el, { childList: true, subtree: true, characterData: true });

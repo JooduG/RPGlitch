@@ -82,6 +82,7 @@ Before an actor speaks, an invisible director evaluates the physical state. The 
 - **Active Scene Scope & Context Culling**: Off-screen characters are frozen in stasis to preserve token economy and prevent narrative bloat. The Director explicitly moves NPCs on-stage (`enter`) or off-stage (`exit`).
 - **Physical Causality & Prop Provenance**: If the player attempts an impossible physical feat (e.g., walking through solid steel or materializing an unearned quest relic), the Director does _not_ throw a rude error message. Instead, it injects a directorial note instructing the actor to confront that physical contradiction in-character.
 - **Pacing Law (Dead-Air Prevention)**: If a user submits passive silence ("...") or pure waiting, the Director recognizes a stall and instructs the world to complicate the scene with an active event or probing challenge.
+- **Visual & Media Orchestration (Image Beat Triggering)**: The Director evaluates somatic intensity, environmental reveals, and narrative climax thresholds. If an illustrative beat is earned, it schedules an image generation trigger (`trigger_image`). To prevent browser LLM gate collisions during Shot 2's live streaming, the visual synthesis pipeline (optics prompt compilation + Perchance image generation) is deferred and released concurrently onto the background lane immediately when Shot 2 lands.
 
 ### Stage 2: Narrative Generation & Streaming (Sensory Horizon)
 
