@@ -70,39 +70,49 @@ The codebase enforces strict unidirectional dependency flow. High-level layers d
 The simulation cycle processes player messages through a unified single-round execution pipeline organized into the **3-Turn Sequence (Shot & Sub-Process)**.
 
 ```mermaid
-flowchart TD
-    UserMsg["User Submits Message (chrono.send)"] --> RoundStartup["⚡ Round Startup (Physics & Dynamics Pre-Pass)"]
-    
-    subgraph RoundLoop ["The Round Lifecycle"]
-        direction TB
-        
-        subgraph Stage1 ["Turn 1: Director Turn (Quick Shot)"]
-            direction LR
-            T1["<b>Quick Shot</b><br>• Response to Previous Round<br>• Scene staging & speaker delegation<br>• Hands Director's Note to Actor"]
-            P1["<i>Deterministic Sub-Process</i><br>Physics, dynamics gravity &<br>slider bounds calculated"]
-            T1 --- P1
+sequenceDiagram
+    autonumber
+    actor User as 🧑‍🚀 Biological Protagonist
+    participant Chrono as ⚡ Chrono & System Engine
+    participant Director as 🎬 Director (Quick Shot)
+    participant Actor as 🎭 Chosen Actor (Narrative Shot)
+    participant Queue as 🔄 Background Queue
+
+    loop The Round Lifecycle (Macro-State)
+        User->>Chrono: Submits Message (chrono.send)
+        Note over Chrono: UI enters STASIS (locked)
+
+        rect rgb(20, 25, 35)
+            Note over Chrono,Director: Turn 1: Director Turn (Quick Shot)
+            Chrono->>Chrono: Physics Pre-Pass (slider bounds, dynamic gravity)
+            Chrono->>Director: Evaluates state kernel (response to previous round)
+            Director-->>Chrono: Emits DYNAMICS_DELTA, delegates speaker, sets Director's Note
         end
 
-        subgraph Stage2 ["Turn 2: Actor Turn (Narrative Shot)"]
-            direction LR
-            T2["<b>Narrative Shot</b><br>• Response to Director Turn<br>• Chosen Actor streams dialogue,<br>  inner &lt;think&gt; & physical prose"]
-            P2["<i>Optional Sub-Process</i><br>Image generation (if scheduled<br>by Director in Turn 1)"]
-            T2 --- P2
+        rect rgb(25, 30, 45)
+            Note over Chrono,Actor: Turn 2: Actor Turn (Narrative Shot)
+            Chrono->>Actor: Dispatches staging & Director's Note
+            Actor-->>User: Streams in-character dialogue, <think> cognition & prose
+            
+            opt If Scheduled by Director in Turn 1
+                Chrono-)Queue: Dispatches Visual Beat (optics prompt + Perchance diffusion)
+            end
         end
 
-        subgraph Stage3 ["Turn 3: User Turn (Head Shot)"]
-            direction LR
-            T3["<b>Head Shot</b><br>• Response to Actor Turn<br>• Protagonist deliberates & authors<br>  message (no time limit)"]
-            P3["<i>Background Sub-Process</i><br>Full-State Consolidation<br>(Round-robin 1 entity across past rounds)"]
-            T3 --- P3
+        rect rgb(20, 35, 30)
+            Note over User,Queue: Turn 3: User Turn (Head Shot)
+            Chrono->>User: STASIS lifted (phase = "idle", input enabled)
+            
+            par User Deliberation
+                User->>User: Deliberates, reads & authors next message (no time limit)
+            and Background Full-State Consolidation
+                Chrono-)Queue: Consolidates 1 entity across past rounds (quadrants, embeddings, ledger)
+                Queue-->>Chrono: Emits MEMORY_FORMATION & VECTOR_RESOLUTION cards
+            end
         end
 
-        Stage1 --> Stage2
-        Stage2 --> Stage3
+        User->>Chrono: Sends next message (completes round & births next)
     end
-
-    Stage3 --> UserSubmit["🏁 User Submits Message ➔ Completes Round"]
-    UserSubmit --> |Births Next Round| RoundStartup
 ```
 
 ### Lifecycle Units: Rounds & The 3-Turn Sequence (Shot & Sub-Process)
