@@ -11,7 +11,6 @@ This document serves as the sovereign technical blueprint for **RPGlitch**. It d
 ### The Triad Protocol
 
 We bridge creative prose and mechanical truth through three distinct layers:
-
 1. **ETERNAL (The Spec)**: Deep lore, taxonomies, and immutable character archetypes.
 2. **PRESENT (The State)**: Reactive Svelte 5 Runes mirroring physical and psychological reality.
 3. **PAST (The Echo)**: Persistent logs (Dexie.js / Pinecone) that provide contextual weight to every decision.
@@ -21,10 +20,10 @@ We bridge creative prose and mechanical truth through three distinct layers:
 - **P1: User Agency**: **Never speak, act, or think on behalf of the User**. Maintain strict third-person limited integrity for non-user entities at all times.
 - **P2: Internal Consistency**: Maintain continuity of memory across turns. The "Echo" must mirror the "State".
 - **P3: Narrative Momentum**:
-- **Cinematic Pacing**: Use sensory bridges and end responses with unresolved tension or meaningful choices.
-- **Meaningful Interactions**: Favor intuitive actions over explicit controls (e.g., clicking a slot triggers character selection).
-- **Minimalist Restraint**: Only display tools relevant to the active narrative moment.
-- **Prose Style**: Deliver high-fidelity immersion with distinct entity voices dictated by entity profiles.
+  - **Cinematic Pacing**: Use sensory bridges and end responses with unresolved tension or meaningful choices.
+  - **Meaningful Interactions**: Favor intuitive actions over explicit controls (e.g., clicking a slot triggers character selection).
+  - **Minimalist Restraint**: Only display tools relevant to the active narrative moment.
+  - **Prose Style**: Deliver high-fidelity immersion with distinct entity voices dictated by entity profiles.
 - **P4: Zero Backwards Compatibility (Pre-Beta Purity)**: **Never write backwards-compatible fallbacks, legacy aliases, deprecated wrappers, or schema shims**. Backwards compatibility at this stage is a symptom of technical debt and degraded code quality. When an abstraction, key, or format changes, refactor all downstream consumers and prune dead code immediately. We prioritize a pristine, minimal, and uncompromising codebase/database over maintaining legacy ballast.
 
 ---
@@ -43,7 +42,6 @@ The Simulation Cycle is the overarching heartbeat of the engine—a complete seq
 #### The Round (Macro-State)
 
 A **Round** tracks linear session progression. It increments strictly when the user submits a new message payload.
-
 - **The Absolute Interrupt**: Human input finalizes the current loop and births the next.
 - **Completion**: A round concludes only when all internal turns for that payload finish executing.
 
@@ -52,22 +50,20 @@ A **Round** tracks linear session progression. It increments strictly when the u
 Turns execute sequentially within a round, allowing asynchronous overlapping where safe:
 
 1. **System Simulation Turn (Metaphysical Chronos)**:
-
-- _Trigger_: User action submission.
+- _Trigger_: User action submission via `chrono.send()`.
 - _State_: **Lock the system and disable the UI**.
-- _Logic_: **Execute physics, state mutations, and sanitization synchronously**.
-- _Exit_: Package the mutated state kernel for the AI driver.
-
-2. **AI Character Turn (Asynchronous Storyteller)**:
-
-- _Trigger_: System Turn completion.
-- _Logic_: Process the state kernel and stream the narrative reaction in the background.
-- _Concurrency_: The user may type while the AI streams and can interrupt early by submitting a new action.
-
-3. **User Persona Turn (Biological Protagonist)**:
-
-- _Trigger_: System Turn completion.
-- _State_: **Release the UI and enable user input**.
+- _Logic_: **Execute physics, dynamic state mutations, and sanitization synchronously (no LLM)**.
+- _Exit_: Package the mutated state kernel for the Director.
+2. **Director Turn (Shot 1 / Quick Shot)**:
+- _Trigger_: System Turn completion (`phase = "generating"`, `director_thinking = true`).
+- _Logic_: Fast staging inference — evaluates state rules, updates numerical dynamics, delegates the active speaker (`AI`, `FRACTAL`, or `NPC`), and logs `DYNAMICS_DELTA`.
+3. **Agent Turn (Shot 2 / Narrative Turn)**:
+- _Trigger_: Director pass completion (`speaker_thinking = true`).
+- _Logic_: Streams in-character narrative prose from the designated active speaker.
+- _Concurrency_: The user may read or type while the AI streams and can interrupt early by submitting a new action.
+4. **User Persona Turn (Biological Protagonist)**:
+- _Trigger_: Agent Turn stream completion (`phase = "idle"`).
+- _State_: **Release the UI and enable user input**. Submitting an action completes the current round and begins the next.
 
 ---
 
@@ -76,7 +72,6 @@ Turns execute sequentially within a round, allowing asynchronous overlapping whe
 #### Conflict Resolution Priority
 
 When narrative constraints compete, resolve them strictly in this order of precedence:
-
 1. **User Agency**: Absolute protection of user control (P1).
 2. **Physical & Temporal Truth**: Established physical state, causality, and entity integrity.
 3. **Plot & Sensory Momentum**: Environmental scene stakes, active objectives, and atmospheric texture.
@@ -101,10 +96,11 @@ When narrative constraints compete, resolve them strictly in this order of prece
 - **Resolution Hierarchy**: Entity speaking style > Narrative style preset > `"casual"`.
 - **Detox Rule**: All generated prose passes through `detox_prose(text, resolved_style)` to cleanse clichés while preserving individual entity tone.
 
-#### Two-Shot Telemetry Mandate
+#### Two-Shot Telemetry & Back Shot Architecture
 
-- **Shot 1 (Director Quick Shot)**: Fast staging and turn orchestration. Logs `DYNAMICS_DELTA` events exclusively.
-- **Shot 2 (Memory Forge / Back Shot)**: Asynchronous consolidation across rounds. Logs `MEMORY_FORMATION` and `VECTOR_RESOLUTION` events.
+- **Shot 1 (Director Quick Shot)**: Staging and turn arbitration pass. Evaluates state rules, updates numerical dynamics, delegates the active speaker, and logs `DYNAMICS_DELTA` events exclusively.
+- **Shot 2 (Narrative Turn / User-Facing Shot)**: Narrative generation pass. Streams user-facing, in-character prose from the delegated speaker's perspective into the view.
+- **The Back Shot (Memory Forge / Background Consolidation)**: Asynchronous, non-blocking narrative support process executed in the background **every round** via `director_background_queue`. Consolidates episodic vectors, rewrites the `future` standing agenda, and logs `MEMORY_FORMATION` and `VECTOR_RESOLUTION` telemetry events without blocking user input.
 
 ---
 

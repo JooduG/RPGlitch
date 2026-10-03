@@ -20,7 +20,6 @@ This skill serves as the operational engineering runbook for simulation physics,
 In traditional interactive fiction, the language model is asked to be everything at once: the rule arbiter, the world simulator, the scene director, and the roleplaying actor. This inevitably causes **hallucinatory collapse**—characters magically know secrets, physics bend to convenience, inventory evaporates, and conversations drift into agreeable, sterile pleasantness.
 
 **RPGlitch breaks this illusion into strict mechanical physics and subjective prose:**
-
 - **The Engine is the Physics**: Real mechanical state (slider dynamics, worn clothing, inventory items, interpersonal relationship edges, environmental entropy) lives strictly inside **Svelte 5 Runes and Dexie.js**. It never lives inside the model's ungrounded memory.
 - **The LLM is the Sensor & Expression Layer**: The language model never invents core physical state out of thin air. Instead, the engine projects the live **State Geometry** into structured contexts, and the model merely acts as a subjective lens experiencing and reacting to that reality.
 - **P1 Sovereignty (User Agency)**: The User owns the only unconstrained biological will in the simulation. The engine and AI characters may create physical obstacles, emotional friction, and environmental consequences, but **never narrate, predict, assume, or feel on behalf of the User Persona**.
@@ -43,7 +42,6 @@ flowchart TD
 ### The Round (Macro-State)
 
 A **Round** tracks the macro progression of the session.
-
 - **The Absolute Interrupt**: A round is born when human input arrives (`chrono.send()`), or when an intentional retry/continuation occurs. Human will finalizes the previous cycle and births the next.
 - **Macro Boundaries**: Rounds govern long-term scenario decay, image generation beat intervals, and chapter progression milestones.
 
@@ -110,7 +108,6 @@ Dumping raw chat history into an LLM causes catastrophic forgetting, context blo
 Modern LLM inference relies heavily on **Key-Value (KV) Prefix Caching**. If a prompt's opening tokens change every turn, the cache misses, leading to slow Time-To-First-Token (TTFT) and high compute costs.
 
 **RPGlitch strictly enforces Prompt Bifurcation:**
-
 1. **The Static Prefix (`system`)**:
    - Must be **byte-identical across rounds**.
    - Contains immutable universe laws, character eternal archetypes, narrative style guides, and protocol rules.
@@ -122,7 +119,6 @@ Modern LLM inference relies heavily on **Key-Value (KV) Prefix Caching**. If a p
 ### 4.2 Structured JSON Schema Design (Contract vs. Intent)
 
 When instructing models to output structured JSON (e.g., Director Quick Shot, Memory Forge):
-
 - **Separate Intent from Contract**:
   - **Protocols & Task Prose**: Define the "Why" and "How"—causality laws, domain rules, and reasoning criteria.
   - **Schema Contract**: Defines the "What"—keys, types, concise pipe enums (`'AI_CHARACTER' | 'FRACTAL'`), and compact format/length constraints.
