@@ -120,22 +120,24 @@ Follow this targeted round sequence to systematically trigger and audit each eng
 Record all turn data into this live audit table:
 
 | Rnd | Probe / Milestone | Active Speaker (`ai`/`fractal`/`npc:<id>`) | Quick Shot (`next_action` / latency ms) | Back Shot (`forged_entity` / memory / relationships) | Mutation Ledger Entries Added (seq / writer / decider / dedup status) | Image Trigger (`tier` / `source` / framing lens) | UI & History State (`pinned_id` / history modal audit) | Verdict |
-| :-- | :---------------- | :----------------------------------------- | :-------------------------------------- | :--------------------------------------------------- | :--------------------------------------------------------------------- | :----------------------------------------------- | :------------------------------------------------------ | :------ |
-| 0   | Genesis Baseline  | `system`                                   | Genesis Sync                            | Initial State Sync                                   | R0:S0 genesis entries for all 4 quadrants                              | None (Cooldown armed)                            | Storyboard $\rightarrow$ Storymode Flip                 | PASS    |
-| 1   | Quick Shot Probe  |                                            |                                         |                                                      |                                                                        |                                                  |                                                         |         |
-| ... | ...               |                                            |                                         |                                                      |                                                                        |                                                  |                                                         |         |
+| :-- | :---------------- | :----------------------------------------- | :-------------------------------------- | :--------------------------------------------------- | :-------------------------------------------------------------------- | :----------------------------------------------- | :----------------------------------------------------- | :------ |
+| 0   | Genesis Baseline  | `system`                                   | Genesis Sync                            | Initial State Sync                                   | R0:S0 genesis entries for all 4 quadrants                             | None (Cooldown armed)                            | Storyboard $\rightarrow$ Storymode Flip                | PASS    |
+| 1   | Quick Shot Probe  |                                            |                                         |                                                      |                                                                       |                                                  |                                                        |         |
+| ... | ...               |                                            |                                         |                                                      |                                                                       |                                                  |                                                        |         |
 
 ---
 
 ## 4. Part 6 — Runtime Quality Scorecard
 
 ### Core Physics & Prompt Integrity
+
 - [ ] **P1 User Agency**: AI strictly respects user autonomy; zero ghost puppeting or player narration.
 - [ ] **Epistemic Partitioning**: Zero telepathic prompt bleed of `| hide` brackets across character viewpoints.
 - [ ] **Track 1 — Quick Shot Streamlining**: 4-field schema executes with sub-second latency; `last_director_ms` records accurate timings.
 - [ ] **Track 1 — Generation Mutex**: `runtime.generation_mutex` prevents overlapping turns and releases cleanly.
 
 ### Event Sourcing & Ledger Hardening
+
 - [ ] **Genesis Quadrant Logging**: All 4 quadrants log `round: 0, seq: 0, writer: "genesis"` on entity creation and import.
 - [ ] **Director Dedup-Before-Write**: Identical relational directives are skipped from the ledger on subsequent rounds.
 - [ ] **Memory Forge Compare-Then-Skip**: Unchanged fields during Shot 2 consolidation are skipped from `ledger_batch`.
@@ -144,6 +146,7 @@ Record all turn data into this live audit table:
 - [ ] **Field History Inspector**: `FieldHistoryModal.svelte` renders timeline audit and reconstructed state cleanly from `DevWing` and `Profile`.
 
 ### Directorial Mechanics & UI/UX
+
 - [ ] **Track 2 — Single-Target Rolling Worker**: Back Shot forges exactly 1 entity per round round-robin ($\text{AI} \rightarrow \text{USER} \rightarrow \text{FRACTAL}$) with non-physical bracket preservation.
 - [ ] **Track 3 — Decoupled Image Cooldowns**: Independent cooldown timers (`director: 2`, `dynamics: 3`) enforce strict 1-image-per-round ceiling.
 - [ ] **Track 4 — Single-Entity Cyan Databox**: Telemetry cards render a focused single databox in pure terminal cyan (`var(--color-dev-accent)`) without portraits.
