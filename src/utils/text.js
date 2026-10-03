@@ -805,6 +805,10 @@ export function filter_narrative_messages(messages, options = {}) {
   return messages.filter((message) => {
     if (!message || message.role === "system") return false;
     if (exclude_consolidated && message.meta?.consolidated) return false;
+    const text = String(message.content ?? message.text ?? "").trim();
+    if (!text && !message.meta?.is_prologue && !message.meta?.is_epilogue) {
+      return false;
+    }
     return true;
   });
 }

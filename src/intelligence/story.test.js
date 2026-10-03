@@ -578,6 +578,49 @@ describe("gamemaster (Intelligence Kernel)", () => {
     expect(result.response).toBe("Identified.");
   });
 
+  it("execute_turn() detects think-only AI responses and retries with a dialogue directive", async () => {
+    const mock_payload = {
+      input: "What do you see?",
+      type: "simulation",
+      round: 1,
+      entities: {
+        AI: { name: "Viper" },
+        USER: { name: "Ghost" },
+        FRACTAL: { name: "Void" },
+      },
+      view_id: "global",
+      simulation_log: "",
+      raw_messages: [],
+      meta: { timestamp: new Date().toISOString() },
+    };
+
+    vi.mocked(context_builder.build_context).mockResolvedValue(mock_payload);
+    mock_prompt_spies.build_director.mockReturnValue({
+      system: "DIRECTOR_PROMPT",
+      task: "DIRECTOR_TASK",
+    });
+    mock_prompt_spies.build_character.mockReturnValue({
+      system: "CHARACTER_PROMPT",
+      task: "CHARACTER_TASK",
+      meta: { ai: {}, fractal: {}, flags: [], vectors: [] },
+    });
+    // Call 1: Director returns empty JSON
+    // Call 2: Character returns only <think>...</think>
+    // Call 3: Retry returns valid in-character dialogue
+    vi.mocked(llm_service.generate)
+      .mockResolvedValueOnce("{}")
+      .mockResolvedValueOnce("<think>I am analyzing the perimeter carefully.</think>")
+      .mockResolvedValueOnce("I see shadows moving near the tree line.");
+
+    const result = await gamemaster.execute_turn("story-123", {
+      input: "What do you see?",
+      role: "ai",
+    });
+
+    expect(llm_service.generate).toHaveBeenCalledTimes(3);
+    expect(result.response).toBe("I see shadows moving near the tree line.");
+  });
+
   it("execute_turn() auto-dispatches the epilogue when the Director declares CONCLUDED", async () => {
     const mock_payload = {
       input: "We did it.",
@@ -815,7 +858,11 @@ describe("gamemaster (Intelligence Kernel)", () => {
     });
 
     it("appends missing think block closure", async () => {
-      vi.mocked(llm_service.generate).mockResolvedValueOnce("{}").mockResolvedValueOnce("<think>Analyzing user state");
+      // The think-only guard retries once; the retry also returns the unclosed think block.
+      vi.mocked(llm_service.generate)
+        .mockResolvedValueOnce("{}")
+        .mockResolvedValueOnce("<think>Analyzing user state")
+        .mockResolvedValueOnce("<think>Analyzing user state");
 
       const result = await gamemaster.execute_turn("story-123", {
         input: "Hello",
@@ -870,6 +917,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
           JSON.stringify({ mutations: { AI_CHARACTER: { state_append: { physical: "some state" }, dynamics_deltas: { intensity: 5 } } } }),
         ) // Turn 1 Director
         .mockResolvedValueOnce("<think>Unclosed block") // Turn 1 Character
+        .mockResolvedValueOnce("<think>Unclosed block") // Turn 1 think-only retry
         .mockResolvedValueOnce(
           JSON.stringify({ mutations: { AI_CHARACTER: { state_append: { physical: "some state" }, dynamics_deltas: { intensity: 5 } } } }),
         ) // Turn 2 Director

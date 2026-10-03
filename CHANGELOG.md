@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Track 1 Integrity Remediation (ROADMAP 2.1–2.3)**:
+  - **Think-Only Turn Recovery (`src/intelligence/story.js`)**: A reply that is only `<think>` blocks triggers one retry with a dialogue directive instead of persisting an empty bubble.
+  - **Telemetry Token Deduplication (`src/intelligence/physics.js`)**: `DYNAMICS_DELTA` log tokens are deduplicated via `Set`.
+  - **Empty-Row Filtering (`src/utils/text.js`)**: `filter_narrative_messages` drops empty-text rows (image-beat placeholders) from prompt history; placeholders stay `fractal`-role so the feed still renders the image card.
+  - Tests: `physics.test.js`, `story.test.js`, `text.test.js`.
+
 - **Session & Timeline Lifecycle & Profile Timeline Mode (ROADMAP Section 1)**:
   - **Profile Timeline Scrubber & Branching (`src/ui/profile/TimelineModal.svelte`, `Profile.svelte`)**: Built full Four-Quadrant timeline mode accessible from Readonly Profile Studio. Scans `db.mutation_ledger` history, reconstructs full profile at round $X$ via `replay_full_entity_at_round`, displays active mutations, and provides both **"Update from this point"** (in-place revert) and **"Clone from this point"** (branching into a new census entity).
   - **Storyboard & Console End Story Guard (`src/ui/console/EndStoryModal.svelte`, `StoryboardBar.svelte`, `Console.svelte`)**: Unified modal dialog replacing legacy unshielded buttons. Presents **"Generate Epilogue & Conclude"** vs. **"Conclude Immediately"** with click-outside / Escape dismissal and busy locks.
@@ -37,6 +43,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added generated exclude configurations (`jsconfig.json`, `vitest.config.js`) to Prettier ignore rules in [`ignores.master.json`](ignores.master.json) to eliminate formatting discrepancies during continuous integration.
   - Hardened `resolve_repo_root()` in [`.agents/skills/local-scripts/scripts/hooks.js`](.agents/skills/local-scripts/scripts/hooks.js) to verify path existence before relying on `payload.workspacePaths[0]`, falling back cleanly to `process.cwd()`.
   - Replaced hardcoded Windows workspace paths in [`.agents/skills/local-scripts/scripts/hooks.test.js`](.agents/skills/local-scripts/scripts/hooks.test.js) with dynamic `REPO_ROOT` fixtures so all 14 lifecycle hook contracts execute identically on both Windows and Linux CI environments.
+- **TextField Header Actions Transition Flicker (UI Polish)**:
+  - Removed redundant `in:fade={{ duration: 200, delay: 50 }}` on the `header_actions` slot wrapper in [`src/ui/primitives/TextField.svelte`](src/ui/primitives/TextField.svelte) that conflicted with parent-level modal transitions, eliminating visual double-fade snapping when action toolbars mount.
 - **Storyboard Resume Fix (Session Non-Destruction)**:
   - Fixed an issue in [`src/ui/console/ControlPanel.svelte`](src/ui/console/ControlPanel.svelte) where clicking "Return to Storyboard" prematurely invoked `session_driver.clear_active()`, deleting the active story session from memory and persistent settings. Returning to the storyboard now purely transitions the view, preserving `runtime.story_id` and keeping the reactive `ENTER STORYMODE` button functional in `StoryboardBar.svelte`.
 

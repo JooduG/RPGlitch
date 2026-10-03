@@ -555,16 +555,21 @@ export async function capture_dynamics_delta(bridge, snapshot, meta = null) {
     );
     if (fractal_entry) updates.FRACTAL = fractal_entry;
 
-    await bridge.session_driver.log_system_entry(log_strings.length > 0 ? log_strings.join(" | ") : "Simulation Telemetry Snapshot", "system", {
-      type: "DYNAMICS_DELTA",
-      trigger_image: meta?.trigger_image === true,
-      ...(meta?.image_trigger ? { image_trigger: meta.image_trigger } : {}),
-      ...(meta?.image_tier ? { image_tier: meta.image_tier } : {}),
-      ...(meta?.image_source ? { image_source: meta.image_source } : {}),
-      ...(meta?.image_signals ? { image_signals: meta.image_signals } : {}),
-      ...(meta?.thoughts ? { thoughts: meta.thoughts } : {}),
-      updates,
-    });
+    const unique_log_strings = Array.from(new Set(log_strings));
+    await bridge.session_driver.log_system_entry(
+      unique_log_strings.length > 0 ? unique_log_strings.join(" | ") : "Simulation Telemetry Snapshot",
+      "system",
+      {
+        type: "DYNAMICS_DELTA",
+        trigger_image: meta?.trigger_image === true,
+        ...(meta?.image_trigger ? { image_trigger: meta.image_trigger } : {}),
+        ...(meta?.image_tier ? { image_tier: meta.image_tier } : {}),
+        ...(meta?.image_source ? { image_source: meta.image_source } : {}),
+        ...(meta?.image_signals ? { image_signals: meta.image_signals } : {}),
+        ...(meta?.thoughts ? { thoughts: meta.thoughts } : {}),
+        updates,
+      },
+    );
   }
 }
 

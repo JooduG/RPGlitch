@@ -346,6 +346,20 @@ describe("filter_narrative_messages", () => {
     ]);
   });
 
+  it("filters out empty string entries without prologue/epilogue flags", () => {
+    const messages = [
+      { role: "fractal", text: "", character_name: "World" },
+      { role: "fractal", text: "   ", character_name: "World" },
+      { role: "fractal", text: "", meta: { is_prologue: true }, character_name: "World" },
+      { role: "assistant", text: "Valid dialogue", character_name: "Iris" },
+    ];
+
+    expect(filter_narrative_messages(messages)).toEqual([
+      { role: "fractal", text: "", meta: { is_prologue: true }, character_name: "World" },
+      { role: "assistant", text: "Valid dialogue", character_name: "Iris" },
+    ]);
+  });
+
   it("handles null or non-array inputs safely", () => {
     expect(filter_narrative_messages(null)).toEqual([]);
     expect(filter_narrative_messages(undefined)).toEqual([]);

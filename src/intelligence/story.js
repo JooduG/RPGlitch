@@ -536,6 +536,16 @@ export const gamemaster = {
 
       let validation_result = await this.execute_with_retry(() => make_character_try(null), 2, 1000);
 
+      // 6.1 THINK-ONLY GUARD: If response contains exclusively cognition/think blocks with 0 prose
+      const initial_prose = strip_cognition_blocks(validation_result.text || "").trim();
+      if (!initial_prose) {
+        state_bridge.app.log("[GameMaster] AI emitted think-only reasoning with 0 prose — regenerating with dialogue directive...", "warn");
+        state_bridge.app.streaming.content = director_monologue || "";
+        const THINK_ONLY_RETRY_NOTE =
+          "\n\nCRITICAL: You must provide in-character dialogue or narrative prose after your internal thoughts. Do not output only <think> blocks.";
+        validation_result = await this.execute_with_retry(() => make_character_try(THINK_ONLY_RETRY_NOTE), 1, 500);
+      }
+
       if (looks_truncated(validation_result.text)) {
         const prose_only = strip_cognition_blocks(validation_result.text);
         if (prose_only && prose_only.length >= TRUNCATION_MIN_PROSE) {

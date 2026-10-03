@@ -382,6 +382,33 @@ describe("physics.js", () => {
         expect(logged_entries[0].payload.updates.AI_CHARACTER.dynamics).toEqual([{ axis: "intensity", old_value: 50, new_value: 65, diff: 15 }]);
         expect(logged_entries[0].payload.updates.FRACTAL.dynamics).toEqual([{ axis: "velocity", old_value: 50, new_value: 60, diff: 10 }]);
       });
+
+      it("deduplicates delta log tokens before joining into the telemetry log string", async () => {
+        const logged_entries = [];
+        const bridge = {
+          runtime: {
+            ai: { intensity: 50 },
+            active_ai: { id: "char-1", name: "Silvers" },
+            update_entity: async () => {},
+          },
+          session_driver: {
+            log_system_entry: async (log, type, payload) => {
+              logged_entries.push({ log, type, payload });
+            },
+          },
+        };
+
+        const snapshot = {
+          ai: { name: "Silvers", dynamics: { intensity: 65 } },
+        };
+
+        await capture_dynamics_delta(bridge, snapshot, null);
+
+        expect(logged_entries.length).toBe(1);
+        const tokens = logged_entries[0].log.split(" | ");
+        const unique_tokens = new Set(tokens);
+        expect(tokens.length).toBe(unique_tokens.size);
+      });
     });
   });
 });
