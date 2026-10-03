@@ -20,6 +20,7 @@ This skill serves as the operational engineering runbook for simulation physics,
 In traditional interactive fiction, the language model is asked to be everything at once: the rule arbiter, the world simulator, the scene director, and the roleplaying actor. This inevitably causes **hallucinatory collapse**—characters magically know secrets, physics bend to convenience, inventory evaporates, and conversations drift into agreeable, sterile pleasantness.
 
 **RPGlitch breaks this illusion into strict mechanical physics and subjective prose:**
+
 - **The Engine is the Physics**: Real mechanical state (slider dynamics, worn clothing, inventory items, interpersonal relationship edges, environmental entropy) lives strictly inside **Svelte 5 Runes and Dexie.js**. It never lives inside the model's ungrounded memory.
 - **The LLM is the Sensor & Expression Layer**: The language model never invents core physical state out of thin air. Instead, the engine projects the live **State Geometry** into structured contexts, and the model merely acts as a subjective lens experiencing and reacting to that reality.
 - **P1 Sovereignty (User Agency)**: The User owns the only unconstrained biological will in the simulation. The engine and AI characters may create physical obstacles, emotional friction, and environmental consequences, but **never narrate, predict, assume, or feel on behalf of the User Persona**.
@@ -42,28 +43,24 @@ flowchart TD
 ### The Round (Macro-State)
 
 A **Round** tracks the macro progression of the session.
+
 - **The Absolute Interrupt**: A round is born when human input arrives (`chrono.send()`), or when an intentional retry/continuation occurs. Human will finalizes the previous cycle and births the next.
 - **Macro Boundaries**: Rounds govern long-term scenario decay, image generation beat intervals, and chapter progression milestones.
 
-### The 3-Shot Sequence (Turns) & Mechanical Updates
+### The 3-Turn Sequence: Shot & Sub-Process
 
-Within each round, active intelligence executes as sequential **Shots (Turns)**, bracketed by silent **Mechanical Updates** (not turns):
+Within each round, active intelligence and underlying mechanics execute as sequential **Turns (Shot & Sub-Process)**:
 
-- ⚡ **Round Startup (System Update / Non-LLM)**:
-  - _State_: The UI enters **STASIS** (`simulation_state.intent_active = true`).
-  - _Nature_: **Mechanical Update (Not a Turn)**. Evaluates deterministic physics, slider drift, dynamic boundaries, and spatial presence synchronously (no LLM).
-- 🎬 **Shot 1: Director Turn (Quick Shot)**:
-  - _Trigger_: Round Startup completion (`phase = "generating"`, `director_thinking = true`).
-  - _Nature_: **Staging Turn**. Fast inference pass — evaluates state rules, updates numerical dynamics, delegates the active speaker (`AI`, `FRACTAL`, or `NPC`), and logs `DYNAMICS_DELTA`.
-- 🎭 **Shot 2: Agent Turn (Actor Turn)**:
-  - _Trigger_: Director pass completion (`speaker_thinking = true`).
-  - _Nature_: **Storyteller Turn**. Streams internal subconscious thoughts (`<think>`) and in-character physical prose directly into the view.
-- 🧑‍🚀 **Shot 3: User Turn (User Persona Turn)**:
-  - _Trigger_: Agent Turn stream completion (`phase = "idle"`).
-  - _Nature_: **Protagonist Turn**. STASIS is lifted. The UI unlocks, allowing the user to reflect and compose their next action without arbitrary time constraints.
-  - 🔄 **Background Update (The Back Shot / Forge Consolidation)**:
-    - _Nature_: **Mechanical Consolidation (Not a Turn)**. Released onto `director_background_queue` immediately when Shot 2 finishes, running silently in the background while the user composes their message in Shot 3.
-- 🏁 **Round Completion**: The user sends their message, finalizing the round and birthing the next.
+- 🎬 **Turn 1: Director Turn (Quick Shot)**:
+  - _Shot (Quick Shot)_: Fast staging inference (`phase = "generating"`, `director_thinking = true`) in response to the **previous round**. Evaluates rules, updates numerical dynamics, delegates the chosen actor (`AI`, `FRACTAL`, or `NPC`), conditionally schedules image beats (`trigger_image`), and delivers the Director's Note. Emits `DYNAMICS_DELTA` telemetry.
+  - _Sub-Process (Physics Pre-Pass)_: Evaluates deterministic somatic physics, slider bounds, and spatial presence synchronously before LLM invocation (no LLM).
+- 🎭 **Turn 2: Actor Turn (Narrative Shot)**:
+  - _Shot (Narrative Shot)_: Storyteller pass in response to the **Director Turn**. The chosen speaker transitions to `speaker_thinking = true` then streams in-character dialogue, inner `<think>` cognition, and sensory prose directly into the view.
+  - _Sub-Process (Optional Visual Generation)_: If scheduled by the Director in Turn 1, the visual synthesis pipeline compiles prompt optics and dispatches image diffusion via the Perchance Image Plugin immediately upon narrative stream completion.
+- 🧑‍🚀 **Turn 3: User Turn (Head Shot)**:
+  - _Shot (Head Shot)_: Biological protagonist deliberation in response to the **Actor Turn**. STASIS is lifted (`phase = "idle"`). The UI unlocks, allowing the user to reflect and compose their next message without arbitrary time constraints.
+  - _Sub-Process (Full-State Consolidation)_: Runs silently in the background on `director_background_queue` while the user composes their message in Turn 3. Sweeps one entity round-robin style across multiple historical rounds, consolidating all 4 entity quadrants (`eternal`, `present`, `past`, `future`), computing 384-d embeddings, enforcing vector caps (`PAST_VECTOR_CAP = 20`), appending change-only diffs to `mutation_ledger`, and emitting `MEMORY_FORMATION` / `VECTOR_RESOLUTION` telemetry cards.
+- 🏁 **Round Completion**: The user submits their message, finalizing the round and immediately birthing the next.
 
 ---
 
@@ -116,6 +113,7 @@ Dumping raw chat history into an LLM causes catastrophic forgetting, context blo
 Modern LLM inference relies heavily on **Key-Value (KV) Prefix Caching**. If a prompt's opening tokens change every turn, the cache misses, leading to slow Time-To-First-Token (TTFT) and high compute costs.
 
 **RPGlitch strictly enforces Prompt Bifurcation:**
+
 1. **The Static Prefix (`system`)**:
    - Must be **byte-identical across rounds**.
    - Contains immutable universe laws, character eternal archetypes, narrative style guides, and protocol rules.
@@ -127,6 +125,7 @@ Modern LLM inference relies heavily on **Key-Value (KV) Prefix Caching**. If a p
 ### 4.2 Structured JSON Schema Design (Contract vs. Intent)
 
 When instructing models to output structured JSON (e.g., Director Quick Shot, Memory Forge):
+
 - **Separate Intent from Contract**:
   - **Protocols & Task Prose**: Define the "Why" and "How"—causality laws, domain rules, and reasoning criteria.
   - **Schema Contract**: Defines the "What"—keys, types, concise pipe enums (`'AI_CHARACTER' | 'FRACTAL'`), and compact format/length constraints.
