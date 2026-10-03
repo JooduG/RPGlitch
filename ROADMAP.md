@@ -12,74 +12,19 @@ This roadmap defines the authoritative technical backlog, active engineering spr
 
 ---
 
-## 1. Technical Debt & Codebase Stabilization
+## 1. Track 1: Live Simulation Forensics & Integrity Remediation (Active Observation)
 
-Highest-priority micro-actions, diagnostic fixes, and technical debt required to keep the development environment, memory footprints, and background runtime stable.
+Follow-up hardening and behavioral verification derived directly from stress-test trace logs.
 
-- [x] **1.1 Unify Simulation Log History Generation**:
-  - **Issue**: Conversation history arrays and markdown blocks are assembled through multiple disparate ad-hoc formatters across UI components and prompt compilers, causing formatting drift.
-  - **Action**: Centralize all conversation history compilation through a single sovereign formatter in `src/utils/story-export.js` / `src/intelligence/modules/history.js`.
-  - **Touchpoints**: [`src/intelligence/modules/history.js`](src/intelligence/modules/history.js), [`src/utils/story-export.js`](src/utils/story-export.js), [`src/ui/console/`](src/ui/console/).
-- [x] **1.2 Complete Tool Script Path Migration**:
-  - **Issue**: Lingering tool and testing scripts still reference obsolete `tasks/` directory paths instead of the unified `.agents/` and `src/` structures.
-  - **Action**: Audit and migrate all remaining scripts to current directory conventions.
-  - **Touchpoint**: [`.agents/skills/local-scripts/scripts/`](.agents/skills/local-scripts/scripts/).
-- [x] **1.3 Index Health & Compaction Profiling in Dexie.js 4**:
-  - **Issue**: Multi-table indices (`mutation_ledger`, `stories`, `entities`) risk index fragmentation and memory growth over extended multi-story runs.
-  - **Action**: Profile IndexedDB storage utilization and index query latency during state-transition compaction tests.
-  - **Touchpoints**: [`src/data/db.js`](src/data/db.js), [`src/data/ledger.js`](src/data/ledger.js), [`src/data/db.test.js`](src/data/db.test.js).
-
-- [x] **1.4 Neural Audio TTS Mutex Verification**:
-  - **Issue**: Kokoro-82M neural TTS synthesis and Transformers.js embedding generation execute in the client environment; resource contention during background Memory Forge passes can introduce audio stutter.
-  - **Action**: Stress-test and verify the web-worker execution gate between `src/media/audio.svelte.js` and `src/platform/embeddings.svelte.js`.
-  - **Touchpoints**: [`src/media/audio.svelte.js`](src/media/audio.svelte.js), [`src/platform/embeddings.svelte.js`](src/platform/embeddings.svelte.js), [`src/utils/onnx.test.js`](src/utils/onnx.test.js).
-
----
-
-## 2. Track 1: Live Simulation Forensics & Integrity Remediation
-
-Targeted bug fixes and behavioral hardening derived directly from stress-test forensic trace logs (`rpglitch-stress-test-report.md` & `rpglitch-long-term-review-trace.json`).
-
-- [x] **2.1 Ghost Empty Fractal Rows on Image Beats**:
-  - **Issue**: [`src/media/visual.svelte.js`](src/media/visual.svelte.js#L903) invokes `log_message("", "fractal", ...)` to mount image placeholders, saving empty string rows that pollute the message feed and Dexie log.
-  - **Action**: Decouple placeholder attachment records from the conversational message stream; classify image beat mount events as system records (`role: "system"`, `type: "image_beat"`) and filter empty strings from dialogue queries.
-  - **Touchpoints**: [`src/media/visual.svelte.js`](src/media/visual.svelte.js), [`src/utils/text.js`](src/utils/text.js), [`src/utils/text.test.js`](src/utils/text.test.js).
-- [x] **2.2 AI Think-Only Turn Prevention & Recovery**:
-  - **Issue**: In Round 9 of the stress test, the AI emitted exclusively internal `<think>...</think>` scratchpad reasoning with zero prose; because the raw string was non-empty, it passed initial checks and saved an empty speech bubble.
-  - **Action**: In [`src/intelligence/story.js`](src/intelligence/story.js), assert `strip_cognition_blocks(persisted_text).trim().length > 0`. If prose is missing entirely after stripping `<think>` tags, trigger an automatic recovery retry directive rather than persisting an empty turn.
-  - **Touchpoints**: [`src/intelligence/story.js`](src/intelligence/story.js), [`src/intelligence/story.test.js`](src/intelligence/story.test.js).
-- [x] **2.3 Telemetry String Token Deduplication (`DYNAMICS_DELTA`)**:
-  - **Issue**: Telemetry snapshot strings in [`src/intelligence/physics.js`](src/intelligence/physics.js#L512-L558) concatenate duplicate metric tokens (e.g. `Chaos +2 | Intensity +8 ... Chaos +2 | Intensity +8`), cluttering the HUD banner and simlog.
-  - **Action**: Deduplicate delta tokens via a `Set` before joining with `|`.
-  - **Touchpoints**: [`src/intelligence/physics.js`](src/intelligence/physics.js), [`src/intelligence/physics.test.js`](src/intelligence/physics.test.js).
-- [ ] **2.4 Dynamic Cinematic Lens Biasing (Anti-Wide Angle Lock)**:
-  - **Issue**: 9 out of 10 synthesized scene images stayed locked in Wide Environmental scale because `OPTICS.FIRST_SENTENCE_MANDATE.SCENE` unconditionally forced landscape framing over close-up shots.
-  - **Action**: Enable Director `visual_staging` to trigger character-focused optics (`FIRST_SENTENCE_MANDATE.ENTITY` / `story_character`) when interpersonal intimacy or direct confrontation is declared.
-  - **Touchpoints**: [`src/intelligence/prompts.js`](src/intelligence/prompts.js), [`src/intelligence/modules/task.js`](src/intelligence/modules/task.js), [`src/media/optics.js`](src/media/optics.js).
-- [ ] **2.5 P1 User Agency Hard-Negative Enforcement (Anti-First-Person Hijacking)**:
+- [ ] **1.1 P1 User Agency Hard-Negative Enforcement (Anti-First-Person Hijacking)**:
   - **Issue**: In rounds 3 and 6 of the stress test, the AI persona hijacked the player avatar in the first person ("my thigh... I adjust posture").
-  - **Action**: Inject an explicit hard-negative constraint in [`src/intelligence/modules/task.js`](src/intelligence/modules/task.js) (`CHARACTER.BASE` / `CHARACTER.INTERACTION`) forbidding first-person pronouns ("I", "my", "we") on behalf of the player persona, restricting all references to third-person descriptive observation.
-  - **Touchpoints**: [`src/intelligence/modules/task.js`](src/intelligence/modules/task.js), [`src/intelligence/prompts.js`](src/intelligence/prompts.js).
-- [ ] **2.6 Physical Causality Grounding & Terminal State Arbitration (Death & Collapse)**:
-  - **Issue**: In Round 18 of the stress test, explicit PC drowning was ignored by the Director, leading the AI character to hallucinate the player still standing and talking.
-  - **Action**: Enforce terminal biological state evaluation in Director task directives (`DIRECTOR.EVALUATION_INPUT`). When fatal physical outcomes occur, mandate emitting `next_action: "EPILOGUE_COLLAPSED"` and `story_status: "COLLAPSED"`, forbidding subsequent resurrections or timeline bypasses.
-  - **Touchpoints**: [`src/intelligence/prompts.js`](src/intelligence/prompts.js), [`src/intelligence/modules/task.js`](src/intelligence/modules/task.js), [`src/intelligence/director.js`](src/intelligence/director.js).
-- [x] **2.7 Director's Note Speaker Lock & P1 Agency Enforcement**:
-  - **Issue**: The Director's Note directed actions and thoughts for the player persona, which seeded into the speaker's `<think>` block and caused the AI character to puppeteer the user persona.
-  - **Action**: Connected `directors_note` strictly to `next_action` in `TASK_LIBRARY.DIRECTOR.USER_PERSONA_LOCK` and `SCHEMA_ATOMS.directors_note`, explicitly forbidding directives for `USER_PERSONA` (player).
-  - **Touchpoints**: [`src/intelligence/modules/task.js`](src/intelligence/modules/task.js).
-- [x] **2.8 Bracketed Field History Clock Trigger in Profile Studio**:
-  - **Issue**: When a field contained brackets, the field history clock button in the header was missing because `parsed` mode rendered a dedicated chip container without header action buttons.
-  - **Action**: Embedded the Field History Inspector trigger button in the header of parsed pseudo-JSON (`safe_parse_pseudo_json`) fields in `Profile.svelte`.
-  - **Touchpoints**: [`src/ui/profile/Profile.svelte`](src/ui/profile/Profile.svelte).
-- [x] **2.9 Bracket Balancing & Auto-Repair in Non-Physical State**:
-  - **Issue**: Unclosed (`[KEY: ...`) or unopened (`... | w: 8]`) brackets in the Fractal's non-physical state caused malformed card formatting in the live UI.
-  - **Action**: Implemented `balance_brackets()` in `src/utils/text.js` and wired it into `sanitize_non_physical_prose` in `src/intelligence/temporal.js`.
-  - **Touchpoints**: [`src/utils/text.js`](src/utils/text.js), [`src/intelligence/temporal.js`](src/intelligence/temporal.js), [`src/utils/text.test.js`](src/utils/text.test.js).
+  - **Status**: Under empirical observation following completion of Director's Note Speaker Lock (which disconnected user directives from Director thoughts). Evaluating whether this root fix prevents downstream first-person player hijacking before adding further prompt or regex layers.
+  - **Touchpoints**: [`src/intelligence/modules/task.js`](src/intelligence/modules/task.js), [`src/intelligence/prompts.js`](src/intelligence/prompts.js), [`src/intelligence/director.js`](src/intelligence/director.js), [`src/intelligence/director.test.js`](src/intelligence/director.test.js), [`src/intelligence/prompt-verification.js`](src/intelligence/prompt-verification.js), [`src/media/optics.js`](src/media/optics.js), [`src/media/optics.test.js`](src/media/optics.test.js).
+  - _Completed Track 1 items (Ghost Empty Rows, Think-Only Turn Recovery, Telemetry Deduplication, Lens Biasing, Terminal Biological Causality, Bracket Auto-Repair, Field History Clock Trigger) have shipped and are recorded in [CHANGELOG.md](CHANGELOG.md)._
 
 ---
 
-## 3. Track 2: Hierarchical Memory Compaction & Context Protection (Sprint Phase B2)
+## 2. Track 2: Hierarchical Memory Compaction & Context Protection (Sprint Phase B2)
 
 The active continuation of the Hierarchical Memory & State Reconciliation initiative (Project Prism-DCM), eliminating flat history limits, preventing middle-out context cliff drops, and establishing hybrid retrieval ranking.
 
@@ -95,82 +40,82 @@ flowchart TD
     ContextBuilder --> PromptBuffer["Structured Context Injection"]
 ```
 
-- [ ] **3.1 Multi-Tier Tree Compactor (`entity.chapters`)**:
+- [ ] **2.1 Multi-Tier Tree Compactor (`entity.chapters`)**:
   - **Concept**: Replace the flat FIFO 20-item memory window with a multi-tier tree:
     - _Tier 0_: Atomic turn events extracted during simulation.
     - _Tier 1 (Chapters)_: When a cluster reaches the fanout threshold (`prismFanout = 8`), compact the window into an anchor node flagged with `ghost: true`.
     - _Tier 2 (Arcs)_: Condense groups of Tier 1 summaries into high-level arc milestones (height $\le 5$).
     - _Selective Leaf Expansion_: Active context retains high-level summary anchors; matching query keywords dynamically expands only the relevant leaf events without bloating the prompt.
   - **Touchpoints**: [`src/intelligence/temporal.js`](src/intelligence/temporal.js), [`src/intelligence/temporal.test.js`](src/intelligence/temporal.test.js).
-- [ ] **3.2 Context Window Compiler & 6,000-Token Cliff Protection**:
+- [ ] **2.2 Context Window Compiler & 6,000-Token Cliff Protection**:
   - **Concept**: Language model inference servers silently drop the center of prompts (middle-out truncation) when input exceeds ~6,000 tokens (`SPEC-context-limit.md`).
   - **Action**: Build proactive token budgeting into prompt compilation to clamp assemblies securely under the 6,000-token cliff, dynamically pruning lower-weight leaves before dispatch.
   - **Touchpoints**: [`src/intelligence/builder.js`](src/intelligence/builder.js), [`src/intelligence/modules/task.js`](src/intelligence/modules/task.js), [`src/intelligence/prompts.js`](src/intelligence/prompts.js).
-- [ ] **3.3 Deterministic Hybrid Lexical & Semantic Retrieval Ranking**:
+- [ ] **2.3 Deterministic Hybrid Lexical & Semantic Retrieval Ranking**:
   - **Concept**: Calculate retrieval rank instantaneously via a deterministic multi-factor formula, incorporating cosine similarity as an additive multiplier without blocking the main execution loop:
     $$\text{Score} = (\text{Entity Overlap} \times 3.0) + (\text{Lexical Frequency} \times 1.0) + (\text{Emotional Salience} \times 0.4) + (\text{Recency} \times 1.2)$$
   - **Touchpoints**: [`src/intelligence/temporal.js`](src/intelligence/temporal.js), [`src/intelligence/temporal.test.js`](src/intelligence/temporal.test.js).
-- [ ] **3.4 Memory Extraction Advisory & Write-Time Rot Prevention**:
+- [ ] **2.4 Memory Extraction Advisory & Write-Time Rot Prevention**:
   - **Concept**: Provide the top 12 known settled facts in extraction prompts (`# ALREADY REMEMBERED`) and hash normalized strings (`eventKey`) to fold repeated events into existing node provenance instead of appending duplicate records.
   - **Touchpoints**: [`src/intelligence/temporal.js`](src/intelligence/temporal.js), [`src/intelligence/prompts.js`](src/intelligence/prompts.js).
 
 ---
 
-## 4. Track 3: Clean-Slate Sovereign Engine Reconstruction
+## 3. Track 3: Clean-Slate Sovereign Engine Reconstruction
 
 Architectural unification of the core simulation runtime, deconstructing duplicate representations and eliminating legacy shims under **P4 Zero Backwards Compatibility (Pre-Beta Purity)**.
 
 ```mermaid
 flowchart TD
     subgraph Sovereign Topology
-        ENT["4.1 Unified Cast Registry (active | nearby | dormant)"]
-        UPM["4.2 Macro Relational Engine (@USER, {me}, {you})"]
-        RED["4.3 Pure Dynamics Reducer (reduce_dynamics)"]
-        EVT["4.4 Identity-Stamped History Log (origin=entity_id)"]
-        QUE["4.5 Durable Lifecycle Task Worker (stale task abort)"]
+        ENT["3.1 Unified Cast Registry (active | nearby | dormant)"]
+        UPM["3.2 Macro Relational Engine (@USER, {me}, {you})"]
+        RED["3.3 Pure Dynamics Reducer (reduce_dynamics)"]
+        EVT["3.4 Identity-Stamped History Log (origin=entity_id)"]
+        QUE["3.5 Durable Lifecycle Task Worker (stale task abort)"]
     end
     ENT --> UPM --> RED --> EVT --> QUE
 ```
 
-- [ ] **4.1 Unified Entity Cast Registry (Scene Presence & Genesis)**:
+- [ ] **3.1 Unified Entity Cast Registry (Scene Presence & Genesis)**:
   - **Scope**: Unify the active trio and supporting NPCs into a single entity cast registry.
   - **Mechanic**: Track presence strictly via explicit state enum: `'active' | 'nearby' | 'dormant'` (eliminating the detached `in_scene_npc_ids` array and fuzzy name lookups). Character Genesis instantiates an entity directly with `presence: 'active'` and an assigned `entity_id`.
   - **Touchpoints**: [`src/state/runtime.svelte.js`](src/state/runtime.svelte.js), [`src/intelligence/story.js`](src/intelligence/story.js), [`src/intelligence/profile.js`](src/intelligence/profile.js).
-- [ ] **4.2 Universal Predicates & Macro Relational Engine**:
+- [ ] **3.2 Universal Predicates & Macro Relational Engine**:
   - **Scope**: Fully retire the legacy `entity.relationships: string[]` array.
   - **Mechanic**: Store all relational dynamics as universal bracket predicates (`[@TARGET: dynamic | flags]`) across temporal layers (`eternal.non_physical` for baseline bonds, `present.non_physical` for situational dynamics). Integrate dynamic role targets (`[@USER: ...]`, `[@CHAR: ...]`, `[@FRACTAL: ...]`) and **Unified Perspective Resolution** (`{me}` = Source Entity, `{you}` = Target Entity) natively.
   - **Touchpoints**: [`src/utils/macros.js`](src/utils/macros.js), [`src/intelligence/modules/entities.js`](src/intelligence/modules/entities.js), [`src/intelligence/veil.js`](src/intelligence/veil.js), [`src/ui/profile/RelationalGraph.svelte`](src/ui/profile/RelationalGraph.svelte).
-- [ ] **4.3 Pure Functional Dynamics Reducer (`src/intelligence/dynamics.js`)**:
+- [ ] **3.3 Pure Functional Dynamics Reducer (`src/intelligence/dynamics.js`)**:
   - **Scope**: Rename `physics.js` $\rightarrow$ `dynamics.js` and unify all state calculations into a single stateless module.
   - **Mechanic**: Export a pure functional reducer `reduce_dynamics(current, deltas, baselines, entropy) => next_dynamics` used uniformly across all entity types.
   - **Touchpoints**: [`src/intelligence/physics.js`](src/intelligence/physics.js), [`src/intelligence/dynamics.js`](src/intelligence/dynamics.js).
-- [ ] **4.4 Identity-Stamped History Log**:
+- [ ] **3.4 Identity-Stamped History Log**:
   - **Scope**: Stamp `entity_id` directly onto log entries at creation in `src/state/log.svelte.js`.
   - **Mechanic**: Prompt compilation directly emits `<ENTRY origin="${entry.entity_id}">`, eliminating runtime reverse name-to-ID lookup maps (`_attach_history_origins`).
   - **Touchpoints**: [`src/state/log.svelte.js`](src/state/log.svelte.js), [`src/intelligence/modules/history.js`](src/intelligence/modules/history.js).
-- [ ] **4.5 Durable Lifecycle Task Worker**:
+- [ ] **3.5 Durable Lifecycle Task Worker**:
   - **Scope**: Enhance `src/utils/job-queue.js` with session/round context gating (`queue.run(task, { story_id, round, latest: true })`).
   - **Mechanic**: Automatically abort stale background tasks with `{ stale: true }` if the story switches or round advances mid-flight.
   - **Touchpoint**: [`src/utils/job-queue.js`](src/utils/job-queue.js).
 
 ---
 
-## 5. Track 4: Pacing, World Info & Advanced Narrative Mechanics
+## 4. Track 4: Pacing, World Info & Advanced Narrative Mechanics
 
 Advanced storytelling mechanisms, conversational pacing heuristics, and world simulation modules.
 
-- [ ] **5.1 Dynamic Pacing Contracts & Prose Heuristics Engine**:
+- [ ] **4.1 Dynamic Pacing Contracts & Prose Heuristics Engine**:
   - **Input-Proportional Sizing**: Classify user inputs into size categories (`TINY` $\le 12$ chars, `SMALL` $\le 90$ chars, `MEDIUM` $\le 400$ chars, `EXPANSIVE` $> 400$ chars) and clamp reply beat counts accordingly to eliminate unprompted essays on simple user actions.
   - **Anti-Staging Constraints**: Forbid gratuitous physical movement (walking to windows, adjusting clothes) on terse dialogue turns.
   - **Multi-Tier Slop Linter (`src/utils/styles.js`)**: Purge repetitive narrative clichés (`not X, but Y`, `against better judgment`) and cap cliché somatic markers to $\le 1$ per reply.
   - **Held-Moment Permitting**: Detect conversational pauses and silence without forcing abrupt scene transitions.
   - **Touchpoints**: [`src/intelligence/modules/task.js`](src/intelligence/modules/task.js), [`src/utils/styles.js`](src/utils/styles.js).
-- [ ] **5.2 Standalone World Info & Triggered Lorebook System**:
+- [ ] **4.2 Standalone World Info & Triggered Lorebook System**:
   - **Schema**: Standalone lorebook entities `(id, name, description, scan_depth, token_budget, recursive, entries[])`.
   - **Matching Engine**: Multi-pass regex, glob wildcards, and whole-word matching over the last $N$ turns with secondary filter logic (`any`, `all`, `not_any`).
   - **Budget-Conscious Insertion**: Inject fired entries into prompt envelopes with strict token ceilings to avoid crowding live character state.
   - **Touchpoints**: [`src/data/db.js`](src/data/db.js), [`src/intelligence/modules/`](src/intelligence/modules/).
-- [ ] **5.3 Epistemic Partitioning Hardening & Director Alternative Branches**:
+- [ ] **4.3 Epistemic Partitioning Hardening & Director Alternative Branches**:
   - **Private Directive Purging**: Ensure covert directives and secret flags are rigorously scrubbed across entity boundaries before compiling persona prompts.
   - **Fractal & NPC Audio Stream Concurrency**: Prevent audio synthesis cutoffs when ambient fractal dialogue overlaps with AI character speech.
   - **Director Alternative Branches**: Allow the Director to supply bracketed alternative dialogue branches for user-guided exploration.

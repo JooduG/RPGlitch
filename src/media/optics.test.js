@@ -195,6 +195,45 @@ describe("optics.js — Trigger Decision Engine & Dynamics Gate", () => {
       expect(res.source).toBe("director");
       expect(res.next_director_round).toBe(3);
     });
+
+    it("biases director tier to story_character when visual_staging specifies intimate/close-up framing", () => {
+      const snapshot = { ai: { dynamics: { intensity: 50 } } };
+      const prev_dynamics = { ai: { intensity: 50 } };
+      const res = resolve_image_trigger({
+        snapshot,
+        prev_dynamics,
+        director_data: {
+          trigger_image: true,
+          visual_staging: "Tight close-up on Sylvia's face and eyes as she holds her breath in confrontation.",
+        },
+        turn_round: 5,
+        last_director_beat_round: 2,
+        last_dynamics_beat_round: 2,
+      });
+
+      expect(res.active).toBe(true);
+      expect(res.tier).toBe("story_character");
+      expect(res.source).toBe("director");
+    });
+
+    it("biases tier to story_character when emotional dynamics reflect extreme intensity or affinity", () => {
+      const snapshot = { ai: { dynamics: { intensity: 82, affinity: 40 } } };
+      const prev_dynamics = { ai: { intensity: 82, affinity: 40 } };
+      const res = resolve_image_trigger({
+        snapshot,
+        prev_dynamics,
+        director_data: {
+          trigger_image: true,
+        },
+        turn_round: 5,
+        last_director_beat_round: 2,
+        last_dynamics_beat_round: 2,
+      });
+
+      expect(res.active).toBe(true);
+      expect(res.tier).toBe("story_character");
+      expect(res.source).toBe("director");
+    });
   });
 });
 

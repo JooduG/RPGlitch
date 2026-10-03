@@ -769,7 +769,7 @@ export const MODE_DIRECTIVE_LEADS = Object.freeze({
   ]),
 });
 export const CONTRACT_SIZES = {
-  director: { system: 1989, task: 2863 },
+  director: { system: 1989, task: 4065 },
   director_terse: { system: 105, task: 909 },
   interaction: { system: 5617, task: 2158 },
   ghostwrite: { system: 5618, task: 2129 },
@@ -785,6 +785,7 @@ export const CONTRACT_SIZES = {
 
 /**
  * CHANGELOG
+ * - 2026-10-03: Re-baselined `CONTRACT_SIZES.director.task` (2863→4065) for Director Speaker Lock (2.7) and Biological Causality & Terminal State Arbitration (2.6).
  * - 2026-10-01: Re-baselined `CONTRACT_SIZES.enhancement` (system 541→452, task 417→867) and `CONTRACT.enhancement.task` tags for Universal Bracket and Think Enhancement protocol.
  * - 2026-09-25: Added `DIRECTOR_DIRECTIVE_LEADS` — the Director's `<DIRECTIVES>` prose sequence is now gated (the tag inventory cannot see prose, so the generic directive compiler's selection is pinned by ordered leading phrases).
  * - 2026-09-24: Re-froze after the cast/input de-duplication — the director contract drops its trailing `CAST` (the fixture now emits none, since on-stage participants are never restated) and `CONTRACT_SIZES` re-baselines director (`system` 2087→1989, `task` 2871→2863) and enhancement (`task` 441→417, no more orphaned `</THINK>` reference).

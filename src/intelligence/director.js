@@ -284,14 +284,22 @@ export function normalize_directors_note(raw) {
 export function normalize_director_data(payload) {
   const base = payload && typeof payload === "object" ? payload : {};
   const raw_action = base.next_action || base.speaker;
-  const next_action = normalize_next_action(raw_action);
-  const speaker = normalize_speaker(next_action);
-  const npc_id = speaker === "npc" ? strip_npc_id(next_action) : "";
+  const parsed_action = normalize_next_action(raw_action);
+  const raw_status = typeof base.story_status === "string" ? base.story_status.trim().toUpperCase() : "";
+  const effective_action =
+    raw_status === "COLLAPSED" && !raw_action
+      ? "EPILOGUE_COLLAPSED"
+      : raw_status === "CONCLUDED" && !raw_action
+        ? "EPILOGUE_CONCLUDED"
+        : parsed_action;
+
+  const speaker = normalize_speaker(base.speaker || effective_action);
+  const npc_id = speaker === "npc" ? strip_npc_id(effective_action) : "";
 
   const story_status =
-    next_action === "EPILOGUE_CONCLUDED"
+    effective_action === "EPILOGUE_CONCLUDED"
       ? "CONCLUDED"
-      : next_action === "EPILOGUE_COLLAPSED"
+      : effective_action === "EPILOGUE_COLLAPSED"
         ? "COLLAPSED"
         : STORY_STATUS_VALUES.includes(base.story_status)
           ? base.story_status
@@ -317,7 +325,7 @@ export function normalize_director_data(payload) {
 
   return {
     ...base,
-    next_action,
+    next_action: effective_action,
     speaker,
     npc_id,
     keywords,

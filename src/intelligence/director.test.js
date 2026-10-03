@@ -174,6 +174,11 @@ describe("normalize_director_quick_shot (Track 1 Schema)", () => {
     expect(normalize_director_data({ next_action: "collapsed" }).next_action).toBe("EPILOGUE_COLLAPSED");
     expect(normalize_director_data({ next_action: "concluded" }).next_action).toBe("EPILOGUE_CONCLUDED");
 
+    // Harmonizes story_status COLLAPSED with next_action EPILOGUE_COLLAPSED
+    expect(normalize_director_data({ next_action: "EPILOGUE_COLLAPSED" }).story_status).toBe("COLLAPSED");
+    expect(normalize_director_data({ story_status: "COLLAPSED" }).next_action).toBe("EPILOGUE_COLLAPSED");
+    expect(normalize_director_data({ story_status: "COLLAPSED" }).story_status).toBe("COLLAPSED");
+
     // Unknown or empty falls back to AI_CHARACTER
     expect(normalize_director_data({ next_action: "unknown_void" }).next_action).toBe("AI_CHARACTER");
     expect(normalize_director_data({}).next_action).toBe("AI_CHARACTER");

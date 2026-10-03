@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- Active observation of P1 User Agency hard-negative enforcement (Track 1.1).
+
+---
+
+## [0.6.0] - 2026-10-03
+
 - **Technical Debt & Codebase Stabilization (ROADMAP Section 1.1–1.4)**:
   - **Simulation Log & Export History Alignment (`src/utils/story-export.js`)**: Harmonized human-facing Markdown story exports with the canonical `filter_narrative_messages` filter from `src/utils/text.js`. Stripped empty-string rows and image beat placeholder tokens from export transcripts when `include_system: false`, preventing phantom entries in exported files while leaving raw system diagnostic logs intact for developer audits.
   - **Tool Script Workspace Path Migration (`.agents/skills/local-scripts/scripts/workspace.js`)**: Purged obsolete references to the retired `tasks/` directory (`tasks/PRESENT.md`, `tasks/future/`) in workspace diagnostic utilities. Retargeted project todo and backlog sync audits directly to authoritative specifications and active `.agents/` runbooks.
@@ -16,15 +22,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   - **Neural Audio TTS & WASM Embedding Mutex Concurrency Verification (`src/utils/onnx.test.js`)**: Extended `OnnxMutex` unit tests to stress-test concurrent, interleaved Kokoro-82M speech synthesis tasks and 384-d semantic embedding tasks under load. Verified strict mutual exclusion (`max_concurrency_observed <= 1`), sequential non-overlapping execution, and error isolation without WASM heap collision.
 
-- **Track 1 Integrity Remediation (ROADMAP 2.1–2.7)**:
-
+- **Track 1 Integrity Remediation (ROADMAP 2.1–2.9)**:
+  - **Dynamic Cinematic Lens Biasing & Anti-Wide Angle Lock (`src/media/optics.js`, `src/media/optics.test.js`)**: Enhanced `resolve_image_trigger` to bias image tiers away from generic wide landscapes (`story_scene`) toward character portrayals (`story_character`) when the Director's `visual_staging` specifies portrait/intimate cues (close-up, face, eyes, confrontation, wound, touch) or when AI dynamics indicate extreme intensity or affinity ($\ge 75$).
+  - **Biological Mortality Limits & Terminal State Arbitration (`src/intelligence/modules/task.js`, `src/intelligence/director.js`, `src/intelligence/director.test.js`)**: Updated `EVALUATION_INPUT` and `ROUTING` in `TASK_LIBRARY` to instruct the Director to strictly enforce biological mortality limits on fatal trauma (drowning, catastrophic injury, death), mandating `next_action: "EPILOGUE_COLLAPSED"` and `story_status: "COLLAPSED"` to prevent casualty amnesia or casual conversation across fatal outcomes. Normalized bidirectional status mapping in `normalize_director_data`.
   - **Director's Note Speaker Lock & P1 Agency Enforcement (`src/intelligence/modules/task.js`)**: Connected `directors_note` explicitly to `next_action` in `TASK_LIBRARY.DIRECTOR.USER_PERSONA_LOCK` and `SCHEMA_ATOMS.directors_note`. Mandated that staging directives must ONLY instruct the chosen next speaker (AI, Fractal, or NPC) and NEVER script, suggest actions, or narrate thoughts for `«USER_PERSONA»`, preventing storyteller prompt bleed and player hijacking.
   - **Bracketed Field History Clock Trigger (`src/ui/profile/Profile.svelte`)**: Restored the Field History Inspector clock trigger button in the header of parsed pseudo-JSON (`safe_parse_pseudo_json`) fields in Profile Studio, ensuring timeline history inspection is visible on fields whether they contain brackets or raw prose.
   - **Bracket Balancing & Sanitization Repair (`src/utils/text.js`, `src/intelligence/temporal.js`)**: Implemented `balance_brackets()` to automatically enclose unclosed (`[KEY: val`) and unopened (`key | w: 8]`) brackets in state strings, and wired it through `sanitize_non_physical_prose` during Memory Forge consolidation so malformed brackets never persist in `present.non_physical`.
   - **Think-Only Turn Recovery (`src/intelligence/story.js`)**: A reply that is only `<think>` blocks triggers one retry with a dialogue directive instead of persisting an empty bubble.
   - **Telemetry Token Deduplication (`src/intelligence/physics.js`)**: `DYNAMICS_DELTA` log tokens are deduplicated via `Set`.
   - **Empty-Row Filtering (`src/utils/text.js`)**: `filter_narrative_messages` drops empty-text rows (image-beat placeholders) from prompt history; placeholders stay `fractal`-role so the feed still renders the image card.
-  - Tests: `physics.test.js`, `story.test.js`, `text.test.js`, `prompt-verification.test.js`, `director.test.js`.
+  - Tests: `physics.test.js`, `story.test.js`, `text.test.js`, `prompt-verification.test.js`, `director.test.js`, `optics.test.js`.
 
 - **Session & Timeline Lifecycle & Profile Timeline Mode (ROADMAP Section 1)**:
   - **Profile Timeline Scrubber & Branching (`src/ui/profile/TimelineModal.svelte`, `Profile.svelte`)**: Built full Four-Quadrant timeline mode accessible from Readonly Profile Studio. Scans `db.mutation_ledger` history, reconstructs full profile at round $X$ via `replay_full_entity_at_round`, displays active mutations, and provides both **"Update from this point"** (in-place revert) and **"Clone from this point"** (branching into a new census entity).

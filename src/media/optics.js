@@ -157,9 +157,23 @@ export function resolve_image_trigger({ snapshot, prev_dynamics, director_data, 
   const tier_from_string = typeof raw_trigger === "string" && IMAGE_TRIGGER.tiers.includes(raw_trigger) ? raw_trigger : null;
   const tier_from_preference =
     typeof director_data?.image_tier === "string" && IMAGE_TRIGGER.tiers.includes(director_data.image_tier) ? director_data.image_tier : null;
-  const has_visual_staging = typeof director_data?.visual_staging === "string" && Boolean(director_data.visual_staging.trim());
+  const raw_staging = typeof director_data?.visual_staging === "string" ? director_data.visual_staging.trim() : "";
+  const has_visual_staging = Boolean(raw_staging);
   const director_explicit = raw_trigger === true || raw_trigger === "true" || tier_from_string !== null || has_visual_staging;
   const director_qualifies = director_explicit && director_cooldown_elapsed;
+
+  // 1.1 Character Optics Biasing (Anti-Wide Angle Lock):
+  // Check if visual_staging indicates character intimacy/confrontation or if dynamics show extreme intensity/affinity
+  const ai_dynamics = snapshot?.ai?.dynamics || {};
+  const current_intensity = Number(ai_dynamics.intensity ?? 50);
+  const current_affinity = Number(ai_dynamics.affinity ?? 50);
+  const staging_has_character_focus =
+    has_visual_staging &&
+    /\b(?:close-?up|portrait|face|eyes|expression|intimate|confrontation|clutch|holding|combat|wound|touch|intimacy|profile|headshot)\b/i.test(
+      raw_staging,
+    );
+  const dynamics_have_character_focus = current_intensity >= 75 || current_affinity >= 75;
+  const biased_character_tier = staging_has_character_focus || dynamics_have_character_focus ? "story_character" : null;
 
   // 2. Evaluate Pure-JS Dynamics Gate (Priority 2)
   const image_trigger_evaluation = evaluate_image_trigger({ ai: snapshot?.ai?.dynamics, fractal: snapshot?.fractal?.dynamics }, prev_dynamics, {
@@ -180,12 +194,12 @@ export function resolve_image_trigger({ snapshot, prev_dynamics, director_data, 
   if (director_qualifies) {
     active = true;
     source = "director";
-    tier = tier_from_string || tier_from_preference || IMAGE_TRIGGER.default_tier;
+    tier = tier_from_string || tier_from_preference || biased_character_tier || IMAGE_TRIGGER.default_tier;
     next_director_round = turn_round;
   } else if (dynamics_qualifies) {
     active = true;
     source = "dynamics";
-    tier = image_trigger_evaluation.tier || IMAGE_TRIGGER.default_tier;
+    tier = image_trigger_evaluation.tier || biased_character_tier || IMAGE_TRIGGER.default_tier;
     next_dynamics_round = turn_round;
   }
 

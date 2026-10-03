@@ -100,8 +100,10 @@ Close </THINK> before the narrative. This think block is internal reasoning and 
     ENVIRONMENTAL_HINT:
       'ENVIRONMENTAL HINT: Non-verbal environmental action. Strongly consider setting "speaker" to "fractal" to narrate the setting, unless AI character should react directly.',
 
-    EVALUATION_INPUT: "Evaluate state mutations caused by «INPUT».",
-    EVALUATION_SCENE: "Evaluate state mutations caused by the current situation.",
+    EVALUATION_INPUT:
+      'Evaluate state mutations caused by «INPUT». Evaluate biological limits and physical causality strictly: if «INPUT» or physical events describe fatal, unrecoverable trauma (e.g. drowning/asphyxiation, lethal fall, catastrophic injury, or death), you MUST emit next_action: "EPILOGUE_COLLAPSED" and story_status: "COLLAPSED". Never hallucinate physical survival, bypass consequence, or continue casual dialogue across fatal events.',
+    EVALUATION_SCENE:
+      'Evaluate state mutations caused by the current situation. If environmental catastrophe or fatal trauma has occurred, emit next_action: "EPILOGUE_COLLAPSED" and story_status: "COLLAPSED".',
     ROUND_ONE: 'Round 1 follows the Fractal prologue, so next_action MUST be "AI_CHARACTER".',
     USER_PERSONA_LOCK:
       '"USER_PERSONA", "USER", "PLAYER", or the player character\'s name is NEVER a valid next_action — the Director never speaks for the player. The window for the player to act opens automatically right after the AI beat, so you never need a "yield to player" action: if you believe the player should act next, output "AI_CHARACTER" (the default). Valid actions are strictly: "AI_CHARACTER", "FRACTAL", "npc:<id>", or { "genesis": ... }. Furthermore, "directors_note" MUST ONLY direct the next_action speaker (AI, Fractal, or NPC) — NEVER direct, script, or suggest actions or thoughts for «USER_PERSONA» (the player has absolute agency).',
@@ -110,7 +112,9 @@ Close </THINK> before the narrative. This think block is internal reasoning and 
 - "AI_CHARACTER": (Default) AI companion reacts to protagonist. Choose this whenever the player might act next — the player's turn opens immediately after this beat.
 - "FRACTAL": Environmental action (exploring atmosphere, architecture, weather, objects without dialogue) or breaking long AI speech streaks.
 - "npc:<id>": Present secondary character takes action.
-- "GENESIS": Mint a new character only if no candidate below applies.`,
+- "GENESIS": Mint a new character only if no candidate below applies.
+- "EPILOGUE_COLLAPSED": Fatal consequence, player death, irreversible collapse, or catastrophic defeat. Ends the scenario in tragedy.
+- "EPILOGUE_CONCLUDED": Triumphant or peaceful narrative resolution. Concludes the active arc.`,
 
     CONVERGENCE: `CONVERGENCE & ENTITY REUSE:
 Inspect candidate secondary characters below before minting. If an existing entity matches the role or location (medical, security, merchant), you MUST reuse that entity rather than creating a duplicate.`,
