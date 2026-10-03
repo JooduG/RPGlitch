@@ -67,35 +67,31 @@ The codebase enforces strict unidirectional dependency flow. High-level layers d
 
 ## 3. Simulation Lifecycle & Execution Pipeline
 
-The simulation cycle processes player actions through a unified single-round execution pipeline orchestrated by the **Two-Shot Telemetry** loop and background narrative support (**Back Shot**).
+The simulation cycle processes player actions through a unified single-round execution pipeline orchestrated by the **3-Shot Sequence (Turns)** and silent **Mechanical Updates**.
 
 ```mermaid
 flowchart TD
-    UserAction["User Action Submission"] --> SystemTurn["System Turn (Deterministic Physics / Non-LLM)"]
-    subgraph RoundLoop ["The Round Lifecycle"]
+    UserAction["User Action Submission"] --> RoundStartup["Round Startup (System Update / Non-LLM)"]
+    subgraph RoundLoop ["The Round (3 Sequential Shots / Turns)"]
         direction TB
-        SystemTurn --> Shot1["Shot 1: Quick Shot (Director Turn)"]
-        Shot1 --> Shot2["Shot 2: Narrative Turn (AI Character / Agent Turn)"]
-        Shot2 --> UserTurn["User Turn (Input Controls Released)"]
+        RoundStartup --> Shot1["Shot 1: Director Turn (Quick Shot)"]
+        Shot1 --> Shot2["Shot 2: Agent Turn (Actor Stream)"]
+        Shot2 --> Shot3["Shot 3: User Turn (Persona Authoring)"]
     end
-    Shot2 -. triggers asynchronously .-> BackShot["Back Shot (Background Narrative Support / Memory Forge)"]
-    UserTurn --> NextAction["User Action Submission (Completes Round & Begins Next)"]
+    Shot2 -. triggers silently in background .-> BackShot["Background Update (The Back Shot / Forge Consolidation)"]
+    Shot3 --> RoundEnd["User Submits Action ➔ Round Completion (Finalizes Loop & Births Next)"]
 ```
 
-### Lifecycle Units: Rounds vs. Turns
+### Lifecycle Units: Rounds, Shots (Turns) & Mechanical Updates
 
-- **Round (`runtime.round`)**: The macro-level simulation heartbeat tracking linear session progression. A round is initiated when a user action is submitted via **`chrono.send()`**, processes internal system and participant turns sequentially, and terminates only when the biological protagonist submits their next action payload during the **User Turn** (the human input action finalizes the current loop and births the next).
-- **Turn**: The sequential micro-states within a single round:
-  1. **System Turn (Metaphysical Chronos)**: Synchronous background physics and sanitization executed immediately upon user action submission. Crucially, **the System Turn does not invoke an LLM**; it evaluates deterministic state rules, applies somatic dynamic deltas, evaluates spatial presence, records `DYNAMICS_DELTA`, and packages the state kernel.
-  2. **Director Turn (Shot 1 / Quick Shot)**: Fast staging and turn orchestration inference. Operates in `phase = "generating"` with `director_thinking = true`. Evaluates the state kernel, validates participant intent against spatial constraints, updates numerical dynamics, delegates the active speaker (`AI`, `FRACTAL`, or `NPC`), and stages the upcoming narrative beats.
-  3. **Agent Turn (Shot 2 / Narrative Turn)**: Asynchronous storyteller pass. Transitions to `speaker_thinking = true` then streams in-character narrative prose from the designated active speaker directly into the view. (System state locks `phase = "locked"` are reserved strictly for atomic database state commits and timeline persistence).
-  4. **User Turn (Biological Protagonist)**: Conceptually the **final turn of the round**. Once the delegated speaker finishes streaming, generation completes (`phase = "idle"`), interface locks release, and user input is enabled. The user authors and submits their next action, which simultaneously **completes the round** and triggers the next cycle.
-
-### Two-Shot Architecture & The Back Shot
-
-1. **Shot 1 (Director Turn / Quick Shot)**: Staging and arbitration pass. Analyzes the immediate physics delta, updates somatic state vectors, and orchestrates speaking turn delegation.
-2. **Shot 2 (Narrative Turn / User-Facing Shot)**: Narrative execution pass. Generates and streams user-facing, in-character prose from the delegated speaker's perspective, cleaned via deterministic prose detox filters.
-3. **The Back Shot (Background Narrative Support Process)**: A play on words for the asynchronous, non-blocking narrative support process executed in the background **every round** via `director_background_queue`. Runs the **Memory Forge**, computing semantic embeddings, consolidating episodic vectors, pruning to the vector cap (`PAST_VECTOR_CAP = 20`), and rewriting the entity's `future` standing agenda without interfering with the active user turn.
+- **Round (`runtime.round`)**: The macro-level simulation heartbeat tracking linear session progression. A round is initiated when a user action is submitted via **`chrono.send()`**, processes internal system and participant turns sequentially, and terminates only when the biological protagonist submits their next action payload during **Shot 3 (User Turn)** (the human input action finalizes the current loop and births the next).
+- **The 3-Shot Sequence (Turns)**: Active intelligence executes sequentially where each **Shot is synonymous with a Turn**:
+  1. **Shot 1: Director Turn (Quick Shot)**: Fast staging and turn orchestration inference. Operates in `phase = "generating"` with `director_thinking = true`. Evaluates the state kernel, validates participant intent against spatial constraints, updates numerical dynamics, delegates the active speaker (`AI`, `FRACTAL`, or `NPC`), and stages the upcoming narrative beats. Emits `DYNAMICS_DELTA` telemetry.
+  2. **Shot 2: Agent Turn (Actor Turn)**: Asynchronous storyteller pass. Transitions to `speaker_thinking = true` then streams in-character narrative prose from the designated active speaker directly into the view, detoxed via deterministic filters.
+  3. **Shot 3: User Turn (User Persona Turn)**: The biological protagonist takes the floor. Once Shot 2 finishes streaming, generation completes (`phase = "idle"`), interface locks release, and user input is enabled. The user authors and submits their next action, which simultaneously **completes the round** and triggers the next cycle.
+- **Mechanical Updates (Silent / Non-Turns)**:
+  - ⚡ **Round Startup (System Update)**: Synchronous background physics and sanitization executed immediately upon user action submission. Crucially, **Round Startup does not invoke an LLM**; it evaluates deterministic state rules, applies somatic dynamic deltas, evaluates spatial presence, and packages the state kernel.
+  - 🔄 **Background Update (The Back Shot / Forge Consolidation)**: An asynchronous, non-blocking narrative support process executed in the background **every round** via `director_background_queue`. Runs silently while the user authors their response in Shot 3, computing semantic embeddings, consolidating episodic vectors, pruning to the vector cap (`PAST_VECTOR_CAP = 20`), rewriting the entity's `future` trajectory, appending change diffs to `mutation_ledger`, and emitting `MEMORY_FORMATION` / `VECTOR_RESOLUTION` telemetry cards.
 
 ---
 

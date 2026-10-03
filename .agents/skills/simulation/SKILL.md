@@ -45,18 +45,25 @@ A **Round** tracks the macro progression of the session.
 - **The Absolute Interrupt**: A round is born when human input arrives (`chrono.send()`), or when an intentional retry/continuation occurs. Human will finalizes the previous cycle and births the next.
 - **Macro Boundaries**: Rounds govern long-term scenario decay, image generation beat intervals, and chapter progression milestones.
 
-### The Turn (Micro-States)
+### The 3-Shot Sequence (Turns) & Mechanical Updates
 
-Turns are atomic execution steps that happen _within_ a round:
+Within each round, active intelligence executes as sequential **Shots (Turns)**, bracketed by silent **Mechanical Updates** (not turns):
 
-1. **Director Turn (`SYSTEM_TURN`)**:
-   - The UI enters **STASIS** (`simulation_state.intent_active = true`).
-   - The physics engine evaluates numerical drift, slider settlement, and dynamic boundaries synchronously.
-   - Stage 1 (Director Pass) executes to resolve staging and speaker assignment.
-2. **Character Expression Turn (`AI_TURN`)**:
-   - The active speaker streams their internal subconscious thoughts (`<think>`) and physical prose in real time.
-3. **Protagonist Turn (`USER_TURN`)**:
-   - STASIS is lifted. The UI unlocks, allowing the user to read, reflect, and compose their next move.
+- ⚡ **Round Startup (System Update / Non-LLM)**:
+  - _State_: The UI enters **STASIS** (`simulation_state.intent_active = true`).
+  - _Nature_: **Mechanical Update (Not a Turn)**. Evaluates deterministic physics, slider drift, dynamic boundaries, and spatial presence synchronously (no LLM).
+- 🎬 **Shot 1: Director Turn (Quick Shot)**:
+  - _Trigger_: Round Startup completion (`phase = "generating"`, `director_thinking = true`).
+  - _Nature_: **Staging Turn**. Fast inference pass — evaluates state rules, updates numerical dynamics, delegates the active speaker (`AI`, `FRACTAL`, or `NPC`), and logs `DYNAMICS_DELTA`.
+- 🎭 **Shot 2: Agent Turn (Actor Turn)**:
+  - _Trigger_: Director pass completion (`speaker_thinking = true`).
+  - _Nature_: **Storyteller Turn**. Streams internal subconscious thoughts (`<think>`) and in-character physical prose directly into the view.
+- 🧑‍🚀 **Shot 3: User Turn (User Persona Turn)**:
+  - _Trigger_: Agent Turn stream completion (`phase = "idle"`).
+  - _Nature_: **Protagonist Turn**. STASIS is lifted. The UI unlocks, allowing the user to reflect and compose their next action without arbitrary time constraints.
+  - 🔄 **Background Update (The Back Shot / Forge Consolidation)**:
+    - _Nature_: **Mechanical Consolidation (Not a Turn)**. Released onto `director_background_queue` immediately when Shot 2 finishes, running silently in the background while the user composes their message in Shot 3.
+- 🏁 **Round Completion**: The user sends their message, finalizing the round and birthing the next.
 
 ---
 

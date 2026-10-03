@@ -35,7 +35,7 @@ flowchart LR
     Input["Input"] --> Sanity["Sanity"] --> Execution["Execution"] --> Persistence["Persistence"] --> Expression["Expression"]
 ```
 
-### 1. The Simulation Heartbeat (Round & Turn)
+### 1. The Simulation Heartbeat (Rounds, Shots & Updates)
 
 The Simulation Cycle is the overarching heartbeat of the engine—a complete sequence of cause and effect.
 
@@ -43,27 +43,27 @@ The Simulation Cycle is the overarching heartbeat of the engine—a complete seq
 
 A **Round** tracks linear session progression. It increments strictly when the user submits a new message payload.
 - **The Absolute Interrupt**: Human input finalizes the current loop and births the next.
-- **Completion**: A round concludes only when all internal turns for that payload finish executing.
+- **Round Completion**: A round concludes only when the user submits their next message payload during Shot 3 (User Turn).
 
-#### The Turn (Micro-States)
+#### The 3-Shot Sequence (Turns) & Mechanical Updates
 
-Turns execute sequentially within a round, allowing asynchronous overlapping where safe:
+Within each round, active intelligence executes as sequential **Shots (Turns)**, bracketed by silent **Mechanical Updates** (which are not turns):
 
-1. **System Simulation Turn (Metaphysical Chronos)**:
-- _Trigger_: User action submission via `chrono.send()`.
-- _State_: **Lock the system and disable the UI**.
-- _Logic_: **Execute physics, dynamic state mutations, and sanitization synchronously (no LLM)**.
-- _Exit_: Package the mutated state kernel for the Director.
-2. **Director Turn (Shot 1 / Quick Shot)**:
-- _Trigger_: System Turn completion (`phase = "generating"`, `director_thinking = true`).
-- _Logic_: Fast staging inference — evaluates state rules, updates numerical dynamics, delegates the active speaker (`AI`, `FRACTAL`, or `NPC`), and logs `DYNAMICS_DELTA`.
-3. **Agent Turn (Shot 2 / Narrative Turn)**:
-- _Trigger_: Director pass completion (`speaker_thinking = true`).
-- _Logic_: Streams in-character narrative prose from the designated active speaker.
-- _Concurrency_: The user may read or type while the AI streams and can interrupt early by submitting a new action.
-4. **User Persona Turn (Biological Protagonist)**:
-- _Trigger_: Agent Turn stream completion (`phase = "idle"`).
-- _State_: **Release the UI and enable user input**. Submitting an action completes the current round and begins the next.
+- ⚡ **Round Startup (System Update / Non-LLM)**:
+  - _Trigger_: User action submission via `chrono.send()`.
+  - _Nature_: **Mechanical Update (Not a Turn)**. Evaluates deterministic physics, updates spatial presence, and packages the state kernel instantaneously (no LLM). Locks the system and disables the UI during processing.
+- 🎬 **Shot 1: Director Turn (Quick Shot)**:
+  - _Trigger_: Round Startup completion (`phase = "generating"`, `director_thinking = true`).
+  - _Nature_: **Staging Turn**. Fast inference pass — evaluates state rules, updates numerical dynamics, delegates the active speaker (`AI`, `FRACTAL`, or `NPC`), and logs `DYNAMICS_DELTA`.
+- 🎭 **Shot 2: Agent Turn (Actor Turn)**:
+  - _Trigger_: Director pass completion (`speaker_thinking = true`).
+  - _Nature_: **Storyteller Turn**. Streams in-character narrative prose from the designated active speaker directly into the view.
+- 🧑‍🚀 **Shot 3: User Turn (User Persona Turn)**:
+  - _Trigger_: Agent Turn stream completion (`phase = "idle"`).
+  - _Nature_: **Protagonist Turn**. Interface controls are released and input is enabled. The user authors their next response without arbitrary time constraints.
+  - 🔄 **Background Update (The Back Shot / Forge Update)**:
+    - _Nature_: **Mechanical Consolidation (Not a Turn)**. Released onto `director_background_queue` immediately when Shot 2 completes, running silently in the background while the user composes their message in Shot 3. Distills durable facts into `past` memory brackets with 384-d embeddings, enforces vector caps (`PAST_VECTOR_CAP = 20`), rewrites the `future` trajectory, appends diffs to `mutation_ledger`, and emits `MEMORY_FORMATION` / `VECTOR_RESOLUTION` telemetry cards.
+- 🏁 **Round Completion**: The user sends their message, finalizing the round and birthing the next.
 
 ---
 
@@ -96,11 +96,11 @@ When narrative constraints compete, resolve them strictly in this order of prece
 - **Resolution Hierarchy**: Entity speaking style > Narrative style preset > `"casual"`.
 - **Detox Rule**: All generated prose passes through `detox_prose(text, resolved_style)` to cleanse clichés while preserving individual entity tone.
 
-#### Two-Shot Telemetry & Back Shot Architecture
+#### Telemetry & Telemetry Cards Architecture
 
-- **Shot 1 (Director Quick Shot)**: Staging and turn arbitration pass. Evaluates state rules, updates numerical dynamics, delegates the active speaker, and logs `DYNAMICS_DELTA` events exclusively.
-- **Shot 2 (Narrative Turn / User-Facing Shot)**: Narrative generation pass. Streams user-facing, in-character prose from the delegated speaker's perspective into the view.
-- **The Back Shot (Memory Forge / Background Consolidation)**: Asynchronous, non-blocking narrative support process executed in the background **every round** via `director_background_queue`. Consolidates episodic vectors, rewrites the `future` standing agenda, and logs `MEMORY_FORMATION` and `VECTOR_RESOLUTION` telemetry events without blocking user input.
+- **Shot 1 (Director Turn)**: Logs `DYNAMICS_DELTA` events exclusively.
+- **Shot 2 (Agent Turn)**: Streams user-facing, in-character narrative prose.
+- **Background Update (The Back Shot / Forge Update)**: Logs `MEMORY_FORMATION` and `VECTOR_RESOLUTION` telemetry events upon background completion.
 
 ---
 
