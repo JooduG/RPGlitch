@@ -175,32 +175,36 @@ export async function birth_entity_core(type, draft = {}, options = {}) {
 
   const saved_entity = await entities.upsert(type, entity);
 
-  // Write Genesis Ledger Entries
+  // Write Genesis Ledger Entries for all populated quadrant fields
   const { append_ledger_entries } = await import("@data");
   const story_id = options.story_id ?? state_bridge.runtime?.story_id ?? null;
   const ledger_lines = [];
-  if (saved_entity.eternal?.physical) {
+
+  const record_genesis_field = (field_path, value) => {
+    if (!value) return;
+    const string_value = Array.isArray(value) ? JSON.stringify(value) : typeof value === "object" ? JSON.stringify(value) : String(value);
+    if (!string_value.trim()) return;
     ledger_lines.push({
       story_id,
       round: 0,
       seq: 0,
       entity_id: saved_entity.id,
-      field: "eternal.physical",
-      new_value: saved_entity.eternal.physical,
+      field: field_path,
+      new_value: string_value,
       writer: "genesis",
+      decider: "genesis",
     });
+  };
+
+  record_genesis_field("eternal.physical", saved_entity.eternal?.physical);
+  record_genesis_field("eternal.non_physical", saved_entity.eternal?.non_physical);
+  record_genesis_field("present.physical", saved_entity.present?.physical);
+  record_genesis_field("present.non_physical", saved_entity.present?.non_physical);
+  if (Array.isArray(saved_entity.past) ? saved_entity.past.length > 0 : saved_entity.past) {
+    record_genesis_field("past", saved_entity.past);
   }
-  if (saved_entity.present?.physical) {
-    ledger_lines.push({
-      story_id,
-      round: 0,
-      seq: 0,
-      entity_id: saved_entity.id,
-      field: "present.physical",
-      new_value: saved_entity.present.physical,
-      writer: "genesis",
-    });
-  }
+  record_genesis_field("future", saved_entity.future);
+
   if (ledger_lines.length > 0) {
     try {
       await append_ledger_entries(ledger_lines);
@@ -283,6 +287,7 @@ export async function spawn_character(bridge, draft = {}) {
 
 /**
  * CHANGELOG
+ * - 2026-10-03: Hardened Ledger Integration — `birth_entity_core` now emits genesis ledger entries across all populated four-quadrant fields (`eternal.physical`, `eternal.non_physical`, `present.physical`, `present.non_physical`, `past`, `future`) with `writer: "genesis"` and `decider: "genesis"`.
  * - 2026-10-01: Universal Predicates Migration — purged legacy `relationships: []` array initialization from `spawn_character` under P4 Zero Backwards Compatibility.
  * - 2026-09-22: One input channel (recommendation #5) — `structure_profile` delivers the raw profile text through `<INPUT kind="ingestion">` via `render_profile_sorting({ input_data })` instead of a `messages` payload.
  * - 2026-09-11: Header correction — PROFILE_PROTOCOLS bundle pruned in favour of the modules/task.js primitives.

@@ -59,12 +59,13 @@
    */
   async function import_native_json(type, parsed) {
     const merged = { ...create_new(type), ...normalize(parsed) };
-    merged.id = generate_uuid();
-    merged.created_at = Date.now();
-    merged.type = type;
     if (image_data) merged.profile_picture = image_data;
-    await runtime.save_entity(type, merged);
+    await birth_entity_core(type, merged, {
+      run_sorter: false,
+      generate_portrait: false,
+    });
   }
+
 
   /**
    * Imports a standard Character Card V2/V3 payload.
@@ -208,3 +209,9 @@
     </div>
   </div>
 </Modal>
+
+<!--
+CHANGELOG:
+- 2026-10-03: Route `import_native_json` through `birth_entity_core` to write genesis ledger lines and unify entity birth path across all import formats.
+- 2026-10-01: Migrated entity import handling to structured entity birth patterns.
+-->

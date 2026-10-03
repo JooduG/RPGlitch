@@ -20,7 +20,7 @@ import { extract_json_block, collapse_whitespace, state_bridge } from "@utils";
 import { llm_service, raw_stop_reason, raw_to_text } from "@platform";
 import { compile_prompt } from "./prompts.js";
 import { extract_and_repair_json, parse_think_block, validate_and_repair_response } from "./parser.js";
-import { apply_bracket_mutation } from "./veil.js";
+import { apply_bracket_mutation, parse_bracket_entries } from "./veil.js";
 
 // ============================================================================
 // 1. DOMAIN CONSTANTS & SCHEMA CONTRACTS
@@ -488,21 +488,36 @@ export async function apply_relationships(bridge, rels) {
     if (!source.present) source.present = {};
     const target_identifier = target_raw.trim().startsWith("@") ? target_raw.trim() : `@${target_raw.trim()}`;
     const bracket_directive = `[${target_identifier}: ${dynamic_text.trim()}]`;
+
+    // Inspect prior bracket state before mutation for change detection
     const old_non_physical = source.present.non_physical || "";
+    const prior_entries = parse_bracket_entries(old_non_physical);
+    const existing_entry = prior_entries.find((entry) => entry.key === target_identifier.toUpperCase());
+
     const mutation = apply_bracket_mutation(old_non_physical, bracket_directive, { round: bridge.runtime?.round || 0 });
     source.present.non_physical = mutation.text;
 
-    // Record ledger entry
+    // Parse incoming directive flags to preserve visibility and weight in ledger
+    const incoming_entries = parse_bracket_entries(bracket_directive);
+    const incoming_entry = incoming_entries[0] || null;
+
+    // Record ledger entry with dedup guard, correct seq: 1 and writer/decider attribution
     try {
       append_ledger_entry({
         story_id: bridge.runtime?.story_id ?? null,
         round: bridge.runtime?.round ?? 0,
-        seq: 3,
+        seq: 1,
         entity_id: source.id,
         field: "present.non_physical",
         key: target_identifier,
-        new_value: dynamic_text.trim(),
-        writer: "forge",
+        old_value: existing_entry ? existing_entry.value : null,
+        old_visibility: existing_entry ? existing_entry.visibility : null,
+        old_weight: existing_entry ? existing_entry.weight : null,
+        new_value: incoming_entry ? incoming_entry.value : dynamic_text.trim(),
+        visibility: incoming_entry ? incoming_entry.visibility : "show",
+        weight: incoming_entry ? incoming_entry.weight : null,
+        writer: "director",
+        decider: "director",
       }).catch(() => {});
     } catch (err) {
       void err;
@@ -531,6 +546,7 @@ export async function apply_relationships(bridge, rels) {
 
 /**
  * CHANGELOG
+ * - 2026-10-03: Hardened Ledger Integration — In `apply_relationships`, inspect prior state to populate `old_value`, `old_visibility`, `old_weight`, parse incoming flags (`visibility`, `weight`), set sequence to `seq: 1`, writer to `director`, and decider to `director`.
  * - 2026-10-01: Universal Predicates Migration — `apply_relationships` now writes dynamic relational updates exclusively to `source.present.non_physical` bracket predicates (`[@TARGET: dynamic]`), purging legacy `source.relationships` array mutations under P4 Zero Backwards Compatibility.
  * - 2026-09-29: `apply_relationships` now synchronizes relational updates into universal bracket predicates on `source.present.non_physical` via `apply_bracket_mutation`, ensuring lockstep alignment with legacy relationship vectors.
  * - 2026-09-26: Player-yield aliases — `USER_PERSONA`/`USER`/`PLAYER`/`protagonist` now fold into `AI_CHARACTER`/`ai` instead of logging an invalid-action warning and falling back.

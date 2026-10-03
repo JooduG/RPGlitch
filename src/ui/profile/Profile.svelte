@@ -14,6 +14,7 @@
   import AudioWing from "./AudioWing.svelte";
   import DevWing from "./DevWing.svelte";
   import VisualWing from "./VisualWing.svelte";
+  import FieldHistoryModal from "./FieldHistoryModal.svelte";
   import { ProfileState } from "./Profile.svelte.js";
   import ProfileHeader from "./ProfileHeader.svelte";
   import RelationalGraph from "./RelationalGraph.svelte";
@@ -45,6 +46,9 @@
   let show_export_modal = $state(false);
   /** Toggle add form for relationships */
   let show_rel_add_form = $state(false);
+  /** Mutation Ledger Field History Inspector */
+  let show_field_history_modal = $state(false);
+  let history_target_field = $state("present.non_physical");
 
   // --- DEVMODE LIVE TELEMETRY SYNC ---
   $effect(() => {
@@ -779,7 +783,17 @@
       </aside>
     </div>
   </Modal>
+
+  {#if show_field_history_modal && profile_state.char?.id}
+    <FieldHistoryModal
+      bind:open={show_field_history_modal}
+      entity_id={profile_state.char.id}
+      entity_name={profile_state.char.name}
+      field={history_target_field}
+    />
+  {/if}
 {/if}
+
 
 {#snippet EntityBody()}
   <div class={entity_body_class} style:grid-template-columns={entity_body_grid_cols} data-testid="profile-fragments">
@@ -916,6 +930,24 @@
                 {/snippet}
 
                 {#snippet header_actions()}
+                  <Button
+                    variant="invisible"
+                    size="small"
+                    square={true}
+                    aria-label="Inspect Field History"
+                    actions={[tooltip]}
+                    onclick={() => {
+                      history_target_field = field.key;
+                      show_field_history_modal = true;
+                    }}
+                    class="cursor-pointer text-slate-400 hover:text-cyan-300"
+                  >
+                    <svg viewBox="0 0 24 24" class="size-icon-small fill-none stroke-current stroke-2" style="stroke-linecap: round; stroke-linejoin: round;">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                  </Button>
+
                   {#if profile_state.is_editing}
                     <Button
                       variant="invisible"
@@ -1099,6 +1131,7 @@
 
 <!--
 CHANGELOG:
+- 2026-10-03: Added Field History Inspector launcher to TextField header actions and mounted FieldHistoryModal for timeline auditing.
 - 2026-10-01: Universal Predicates Migration — decoupled RelationalGraph mutation from `profile_state.char.relationships`, driving relationships purely through universal bracket predicates in `present.non_physical`.
 - 2026-10-01: Added Nordic bracket tip banner below temporal fields in edit mode when dense single-paragraph text (>=120 chars without linebreaks/brackets) is detected.
 -->

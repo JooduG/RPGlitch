@@ -133,9 +133,94 @@ describe("mutation ledger persistence & replay", () => {
     expect(snapshot).toHaveLength(1);
     expect(snapshot[0].entity_id).toBe("e1");
   });
+
+  it("skips duplicate writes with identical values and flags (dedup guard)", async () => {
+    const { append_ledger_entry, append_ledger_entries, query_entity_history } = await import("./ledger.js");
+
+    const row_1 = await append_ledger_entry({
+      story_id: "s_dedup",
+      round: 1,
+      seq: 1,
+      entity_id: "char_mira",
+      field: "present.non_physical",
+      key: "@ORION",
+      old_value: "steady ally",
+      new_value: "steady ally", // Identical -> should skip
+    });
+
+    expect(row_1).toBeNull();
+
+    // Verify append_ledger_entries skips identical batches
+    await append_ledger_entries([
+      {
+        story_id: "s_dedup",
+        round: 1,
+        seq: 1,
+        entity_id: "char_mira",
+        field: "present.non_physical",
+        key: "@ORION",
+        old_value: "steady ally",
+        new_value: "steady ally",
+      },
+      {
+        story_id: "s_dedup",
+        round: 1,
+        seq: 1,
+        entity_id: "char_mira",
+        field: "present.non_physical",
+        key: "@ORION",
+        old_value: "steady ally",
+        new_value: "fierce guardian", // Changed -> should persist
+      },
+    ]);
+
+    const history = await query_entity_history("char_mira", "present.non_physical");
+    expect(history).toHaveLength(1);
+    expect(history[0].new_value).toBe("fierce guardian");
+  });
+
+  it("restores visibility and weight flags in replay_entity_field", async () => {
+    const { append_ledger_entries, replay_entity_field } = await import("./ledger.js");
+
+    await append_ledger_entries([
+      {
+        story_id: "s_flags",
+        round: 1,
+        seq: 1,
+        entity_id: "char_mira",
+        field: "present.non_physical",
+        key: "@BENEDICT",
+        new_value: "covert informant",
+        visibility: "hide",
+        weight: 8,
+        writer: "director",
+        decider: "director",
+      },
+      {
+        story_id: "s_flags",
+        round: 1,
+        seq: 1,
+        entity_id: "char_mira",
+        field: "present.non_physical",
+        key: "DAGGER",
+        new_value: "stiletto",
+        visibility: "hide",
+        writer: "user",
+      },
+    ]);
+
+    const replayed = await replay_entity_field("char_mira", "present.non_physical");
+    expect(replayed.key_values.get("@BENEDICT")).toBe("covert informant");
+    expect(replayed.entries_map.get("@BENEDICT")?.visibility).toBe("hide");
+    expect(replayed.entries_map.get("@BENEDICT")?.weight).toBe(8);
+
+    expect(replayed.reconstructed_brackets).toContain("[@BENEDICT: covert informant | hide w:8]");
+    expect(replayed.reconstructed_brackets).toContain("[DAGGER: stiletto | hide]");
+  });
 });
 
 /**
  * CHANGELOG
+ * - 2026-10-03: Added unit tests for dedup guard, flag preservation, and reconstructed brackets.
  * - 2026-10-02: Created unit test suite for mutation ledger persistence and replay.
  */

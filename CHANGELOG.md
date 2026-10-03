@@ -11,15 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **Event-Sourced Mutation Ledger (Part 8 Four-Quadrant Architecture)**:
-  - **Dexie Schema Version 2 (`src/data/db.js`)**: Added `mutation_ledger` table with indices `++id, story_id, entity_id, [story_id+round+seq], [entity_id+field], round, timestamp`.
-  - **Ledger Persistence Layer (`src/data/ledger.js`)**: Created change-only event storage module providing `append_ledger_entry`, `append_ledger_entries`, `query_entity_history`, `query_story_snapshot`, and `replay_entity_field` to reconstruct state at any `(round, seq)`. Full unit test coverage in `src/data/ledger.test.js`.
-  - **Hybrid Materialized State**: Entity records continue to store materialized live bracket text/prose for zero-latency prompt compilation and UI rendering, while discrete field mutations append auditable change lines to the ledger.
-  - **Story Cascade Deletion**: Deleting a story in `src/data/repository.js` now purges associated `mutation_ledger` records alongside simulation logs.
-  - **Round-Decay Wire-up**: Stamped `round: runtime.round` in `create()` and `forge_memory()` in `src/intelligence/temporal.js`, activating round-based recency decay (`TEMPORAL_SCORING`).
-  - **Non-Physical Bracket Preservation**: Enhanced `temporal.js` forge consolidation so prose replacements preserve existing parsed bracket entries, eliminating the race condition where forge summary rewrites wiped active relational links.
-  - **Unified Entity Birth Core (`birth_entity_core`)**: Extracted shared birth pipeline in `src/intelligence/profile.js` used by both `spawn_character` and `ImportModal.svelte`, recording genesis ledger entries (`writer: "genesis"`) and firing post-save portraits.
-  - **Relational Graph Ledger Logging**: User additions, updates, retargeting, and deletions in `src/ui/profile/RelationalGraph.svelte` now append ledger entries (`writer: "user"`).
+- **Mutation Ledger Hardening & Field History Inspector (Phase B1.1)**:
+  - **Dedup-Before-Write Guard (`src/data/ledger.js`)**: Implemented `is_identical_mutation(entry)` to prevent duplicate no-op ledger line appends when mutations carry unchanged values, visibility, and weights.
+  - **Visibility & Weight Flag Restoration (`src/data/ledger.js`)**: Added `visibility` (`'show'`/`'hide'`) and `weight` (`number`) columns to `LedgerEntry` schema and payload formatting; updated `replay_entity_field` to preserve flags in `entries_map` and format them in `reconstructed_brackets` (`[@TARGET: dynamic | hide w:8]`).
+  - **Director Writer Attribution & Sequence Normalization (`src/intelligence/director.js`)**: Updated `apply_relationships` to inspect prior state before mutations, extract incoming flags, and stamp `seq: 1`, `writer: "director"`, and `decider: "director"`.
+  - **Genesis Quadrant Logging (`src/intelligence/profile.js`)**: Extended `birth_entity_core` to write genesis ledger lines across all four populated quadrants (`eternal.physical`, `eternal.non_physical`, `present.physical`, `present.non_physical`, `past`, `future`).
+  - **Unified Native JSON Ingestion (`src/ui/entity/ImportModal.svelte`)**: Routed `import_native_json` through `birth_entity_core` with `run_sorter: false` and `generate_portrait: false`, ensuring imported native entities register genesis ledger records.
+  - **Field History Modal & Inspector UI (`src/ui/profile/FieldHistoryModal.svelte`, `DevWing.svelte`, `Profile.svelte`)**: Implemented `FieldHistoryModal.svelte` providing a timeline audit view and replayed bracket/prose state inspector, accessible from both `DevWing` and `Profile` field header actions.
 
 ### Fixed
 

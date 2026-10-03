@@ -4,4 +4,5 @@ export { default as RelationalGraph } from "./RelationalGraph.svelte";
 export { default as VisualWing } from "./VisualWing.svelte";
 export { default as AudioWing } from "./AudioWing.svelte";
 export { default as DevWing } from "./DevWing.svelte";
+export { default as FieldHistoryModal } from "./FieldHistoryModal.svelte";
 export * from "./Profile.svelte.js";

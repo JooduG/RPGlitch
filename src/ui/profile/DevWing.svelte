@@ -5,9 +5,10 @@
    * Dynamically renders and binds to all entity dynamics (Somatic or Environmental).
    * Part of the RPGlitch UI.
    */
-  import { Accordion, DataBox, Meter } from "@primitives";
+  import { Accordion, Button, DataBox, Meter } from "@primitives";
   import { DYNAMICS_AXES } from "@intelligence";
   import { format_datetime } from "@utils";
+  import FieldHistoryModal from "./FieldHistoryModal.svelte";
 
   /**
    * @typedef {Object} Props
@@ -16,6 +17,9 @@
 
   /** @type {Props} */
   let { profile_state } = $props();
+
+  let show_history_modal = $state(false);
+  let inspector_field = $state("present.non_physical");
 
   /**
    * Dynamically computes which dynamics are available on the current character.
@@ -62,12 +66,31 @@
     {/each}
   </div>
 
-  <!-- RAW EXPLORER -->
+  <!-- RAW EXPLORER & HISTORY INSPECTOR -->
   <Accordion label="View JSON Data">
     <DataBox maxHeight="calc(var(--spacing-unit) * 60)">
       <pre class="font-mono">{JSON.stringify(profile_state.char, null, 2)}</pre>
     </DataBox>
   </Accordion>
+
+  <div class="flex flex-col gap-2 rounded-xl border border-white/5 bg-black/20 p-3">
+    <div class="flex items-center justify-between">
+      <span class="font-mono text-[10px] font-bold tracking-widest text-cyan-400 uppercase">
+        Mutation Ledger
+      </span>
+      <Button
+        variant="bare"
+        size="small"
+        onclick={() => {
+          inspector_field = "present.non_physical";
+          show_history_modal = true;
+        }}
+        class="cursor-pointer font-mono text-[11px] text-cyan-300 hover:text-cyan-200"
+      >
+        Inspect History &rarr;
+      </Button>
+    </div>
+  </div>
 
   <!-- META FOOTER -->
   <footer
@@ -117,3 +140,17 @@
     </div>
   </footer>
 </section>
+
+{#if show_history_modal && profile_state.char?.id}
+  <FieldHistoryModal
+    bind:open={show_history_modal}
+    entity_id={profile_state.char.id}
+    entity_name={profile_state.char.name}
+    field={inspector_field}
+  />
+{/if}
+
+<!--
+CHANGELOG:
+- 2026-10-03: Added Mutation Ledger history inspector trigger and embedded `FieldHistoryModal` in DevWing.
+-->

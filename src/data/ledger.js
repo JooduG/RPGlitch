@@ -41,33 +41,46 @@ import { db } from "./db.js";
  * @property {number} [id] - Auto-incremented ID
  * @property {number|string|null} story_id - Story ID
  * @property {number} [round] - Round index
- * @property {number} [seq] - Sequence index within round
+ * @property {number} [seq] - Sequence index within round (0: genesis/user, 1: director, 2: character, 3: forge)
  * @property {number|string|null} [turn_id] - Simulation log ID
  * @property {string} entity_id - Entity ID
  * @property {string} field - Quadrant field key
  * @property {string|null} [key] - Bracket directive key
  * @property {string|null} [old_value] - Prior value
  * @property {string|null} [new_value] - New value (null = cleared)
+ * @property {'show'|'hide'|null} [visibility] - Bracket visibility flag
+ * @property {number|null} [weight] - Bracket weight flag (1-10)
  * @property {string[]} [supersedes] - Array of superseded keys
  * @property {number} [timestamp] - Timestamp
  * @property {'genesis'|'sorter'|'forge'|'director'|'user'|string} [writer] - Origin writer
+ * @property {string|null} [decider] - Origin subsystem deciding the mutation ('director', 'forge', 'user', 'genesis')
  */
 
 // -----------------------------------------------------------------------------
 // 1. MUTATION APPEND OPERATIONS
 // -----------------------------------------------------------------------------
 
-/**
- * Appends a discrete mutation entry to the ledger.
- * @param {LedgerEntry} entry
- * @returns {Promise<number>} Inserted row ID
- */
-export async function append_ledger_entry(entry) {
-  if (!entry || !entry.entity_id || !entry.field) {
-    throw new Error("[Ledger] Invalid entry: entity_id and field are required.");
+export function is_identical_mutation(entry) {
+  if (!entry) return true;
+  // If no prior state was provided for comparison, it is an explicit mutation/append and cannot be deduplicated
+  if (entry.old_value === undefined && entry.old_visibility === undefined && entry.old_weight === undefined) {
+    return false;
   }
+  const is_same_value = (entry.old_value ?? null) === (entry.new_value ?? null);
+  const is_same_visibility = (entry.old_visibility ?? null) === (entry.visibility ?? null);
+  const is_same_weight = (entry.old_weight ?? null) === (entry.weight ?? null);
+  return is_same_value && is_same_visibility && is_same_weight;
+}
 
-  const payload = {
+
+/**
+ * Formats a single entry payload for database persistence.
+ * @param {LedgerEntry} entry
+ * @param {number} [fallback_timestamp]
+ * @returns {Object}
+ */
+function format_entry_payload(entry, fallback_timestamp = Date.now()) {
+  return {
     story_id: entry.story_id ?? null,
     round: Number(entry.round ?? 0),
     seq: Number(entry.seq ?? 0),
@@ -77,16 +90,40 @@ export async function append_ledger_entry(entry) {
     key: entry.key ? String(entry.key).toUpperCase().trim() : null,
     old_value: entry.old_value != null ? String(entry.old_value) : null,
     new_value: entry.new_value != null ? String(entry.new_value) : null,
+    visibility: entry.visibility === "hide" ? "hide" : entry.visibility === "show" ? "show" : null,
+    weight: typeof entry.weight === "number" && !Number.isNaN(entry.weight) ? entry.weight : null,
     supersedes: Array.isArray(entry.supersedes) ? entry.supersedes.map(String) : [],
-    timestamp: Number(entry.timestamp ?? Date.now()),
+    timestamp: Number(entry.timestamp ?? fallback_timestamp),
     writer: String(entry.writer || "unknown"),
+    decider: entry.decider ? String(entry.decider) : entry.writer ? String(entry.writer) : null,
   };
+}
 
+/**
+ * Appends a discrete mutation entry to the ledger.
+ * Skips append if the new mutation is identical to the old state (dedup guard).
+ *
+ * @param {LedgerEntry} entry
+ * @returns {Promise<number|null>} Inserted row ID, or null if deduplicated
+ */
+export async function append_ledger_entry(entry) {
+  if (!entry || !entry.entity_id || !entry.field) {
+    throw new Error("[Ledger] Invalid entry: entity_id and field are required.");
+  }
+
+  // Dedup Guard: Skip append if values and flags did not change
+  if (is_identical_mutation(entry)) {
+    return null;
+  }
+
+  const payload = format_entry_payload(entry);
   return await db.mutation_ledger.add(payload);
 }
 
 /**
  * Appends multiple mutation entries in a single transaction.
+ * Filters out no-op identical mutations.
+ *
  * @param {LedgerEntry[]} entries
  * @returns {Promise<void>}
  */
@@ -94,21 +131,8 @@ export async function append_ledger_entries(entries) {
   if (!Array.isArray(entries) || entries.length === 0) return;
   const now = Date.now();
   const payloads = entries
-    .filter((e) => e && e.entity_id && e.field)
-    .map((entry) => ({
-      story_id: entry.story_id ?? null,
-      round: Number(entry.round ?? 0),
-      seq: Number(entry.seq ?? 0),
-      turn_id: entry.turn_id ?? null,
-      entity_id: String(entry.entity_id),
-      field: String(entry.field),
-      key: entry.key ? String(entry.key).toUpperCase().trim() : null,
-      old_value: entry.old_value != null ? String(entry.old_value) : null,
-      new_value: entry.new_value != null ? String(entry.new_value) : null,
-      supersedes: Array.isArray(entry.supersedes) ? entry.supersedes.map(String) : [],
-      timestamp: Number(entry.timestamp ?? now),
-      writer: String(entry.writer || "unknown"),
-    }));
+    .filter((e) => e && e.entity_id && e.field && !is_identical_mutation(e))
+    .map((entry) => format_entry_payload(entry, now));
 
   if (payloads.length > 0) {
     await db.mutation_ledger.bulkAdd(payloads);
@@ -156,15 +180,23 @@ export async function query_story_snapshot(story_id, max_round = Infinity, max_s
 
 /**
  * Replays ledger entries for an entity's field to reconstruct the bracket dictionary or prose state.
+ * Restores visibility, weight, and formatted bracket lines.
+ *
  * @param {string} entity_id
  * @param {string} field
  * @param {number} [up_to_round=Infinity]
  * @param {number} [up_to_seq=Infinity]
- * @returns {Promise<{ key_values: Map<string, string>, raw_prose: string }>}
+ * @returns {Promise<{
+ *   key_values: Map<string, string>,
+ *   entries_map: Map<string, { value: string, visibility: 'show'|'hide', weight: number }>,
+ *   reconstructed_brackets: string,
+ *   raw_prose: string
+ * }>}
  */
 export async function replay_entity_field(entity_id, field, up_to_round = Infinity, up_to_seq = Infinity) {
   const history = await query_entity_history(entity_id, field);
   const key_values = new Map();
+  const entries_map = new Map();
   let raw_prose = "";
 
   for (const entry of history) {
@@ -174,12 +206,19 @@ export async function replay_entity_field(entity_id, field, up_to_round = Infini
     if (entry.key) {
       if (entry.new_value === null) {
         key_values.delete(entry.key);
+        entries_map.delete(entry.key);
       } else {
         key_values.set(entry.key, entry.new_value);
+        entries_map.set(entry.key, {
+          value: entry.new_value,
+          visibility: entry.visibility === "hide" ? "hide" : "show",
+          weight: typeof entry.weight === "number" ? entry.weight : 5,
+        });
       }
       if (Array.isArray(entry.supersedes)) {
         for (const super_key of entry.supersedes) {
           key_values.delete(super_key.toUpperCase());
+          entries_map.delete(super_key.toUpperCase());
         }
       }
     } else if (entry.new_value != null) {
@@ -187,7 +226,18 @@ export async function replay_entity_field(entity_id, field, up_to_round = Infini
     }
   }
 
-  return { key_values, raw_prose };
+  // Build reconstructed bracket string with preserved flags
+  const bracket_lines = [];
+  for (const [key, meta] of entries_map.entries()) {
+    const flags = [];
+    if (meta.visibility === "hide") flags.push("hide");
+    if (meta.weight && meta.weight !== 5) flags.push(`w:${meta.weight}`);
+    const flag_suffix = flags.length > 0 ? ` | ${flags.join(" ")}` : "";
+    bracket_lines.push(`[${key}: ${meta.value}${flag_suffix}]`);
+  }
+  const reconstructed_brackets = bracket_lines.join(" ");
+
+  return { key_values, entries_map, reconstructed_brackets, raw_prose };
 }
 
 export const ledger_repository = {
@@ -203,5 +253,6 @@ export const ledger_repository = {
 // -----------------------------------------------------------------------------
 /**
  * CHANGELOG
+ * - 2026-10-03: Phase B1.1 Hardening — Added `is_identical_mutation` dedup guard, `visibility`, `weight`, and `decider` properties, and enhanced `replay_entity_field` to reconstruct full bracket predicates preserving flags.
  * - 2026-10-02: Initial creation of the mutation ledger persistence module per Part 8 architecture.
  */
