@@ -700,6 +700,65 @@ describe("temporal_engine.consolidate()", () => {
     expect(mock_user.present.physical).toContain("[CONDITION: blindfolded with midnight-blue silk]");
     expect(mock_user.present.non_physical).toBe("Deeply submissive");
   });
+
+  it("skips appending ledger lines when forged values are identical to current entity state (compare-then-skip guard)", async () => {
+    const { append_ledger_entries } = await import("@data");
+    vi.mocked(append_ledger_entries).mockClear();
+
+    const mock_user = {
+      id: "user-1",
+      name: "Julien",
+      type: "character",
+      present: {
+        physical: "[SUIT: black jacket]",
+        non_physical: "Observant",
+      },
+      eternal: {
+        physical: "Tall and slender",
+        non_physical: "Keen analytical mind",
+      },
+      past: [],
+      future: "Existing standing objective",
+    };
+
+    const mock_session = {
+      require_active: vi.fn(() => "story-1"),
+      load_log: vi.fn(async () => [
+        { id: 1, role: "user", text: "t1" },
+        { id: 2, role: "ai", text: "t2" },
+      ]),
+      log_system_entry: vi.fn(),
+    };
+    const mock_runtime = {
+      active_user: mock_user,
+      update_entity: vi.fn(),
+    };
+    const mock_app = { log: vi.fn() };
+    const mock_db = { simulation_log: { update: vi.fn() } };
+
+    // LLM returns values identical to current state
+    llm_service.generate.mockResolvedValueOnce(
+      JSON.stringify({
+        _thought_process: "No state changed.",
+        target: "USER_PERSONA",
+        present: {
+          physical: "[SUIT: black jacket]",
+          non_physical: "Observant",
+        },
+        eternal: {
+          physical: "Tall and slender",
+          non_physical: "Keen analytical mind",
+        },
+        future: "Existing standing objective",
+        memories: [],
+      }),
+    );
+
+    await temporal_engine.consolidate(mock_session, mock_db, {}, mock_runtime, mock_app, { target_key: "USER_PERSONA" });
+
+    // No mutation occurred, so append_ledger_entries should NOT have been called with identical entries
+    expect(append_ledger_entries).not.toHaveBeenCalled();
+  });
 });
 
 describe("prune", () => {

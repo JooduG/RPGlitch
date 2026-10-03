@@ -931,103 +931,152 @@ export const temporal_engine = {
         for (const memory of memories) {
           if (memory.type === "present") {
             if (!entity.present) entity.present = { physical: "", non_physical: "" };
-            entity.present.non_physical = cap_present_prose(
-              merge_prose_into_field(entity.present.non_physical, memory.content || memory.directive || ""),
+            const old_non_physical = entity.present.non_physical || "";
+            const merged_non_physical = cap_present_prose(
+              merge_prose_into_field(old_non_physical, memory.content || memory.directive || ""),
             );
-            await runtime.update_entity(type, entity.id, { present: entity.present });
-            ledger_batch.push({
-              story_id,
-              round: current_round,
-              seq: 3,
-              entity_id: entity.id,
-              field: "present.non_physical",
-              new_value: memory.content || memory.directive || "",
-              writer: "forge",
-            });
+            if (merged_non_physical !== old_non_physical) {
+              entity.present.non_physical = merged_non_physical;
+              await runtime.update_entity(type, entity.id, { present: entity.present });
+              ledger_batch.push({
+                story_id,
+                round: current_round,
+                seq: 3,
+                entity_id: entity.id,
+                field: "present.non_physical",
+                old_value: old_non_physical,
+                new_value: entity.present.non_physical,
+                writer: "forge",
+                decider: "forge",
+              });
+            }
           } else {
-            ensure_unique_vector_id(entity, memory);
-            append_past_vector(entity, memory);
-            await runtime.update_entity(type, entity.id, { past: entity.past });
-            ledger_batch.push({
-              story_id,
-              round: current_round,
-              seq: 3,
-              entity_id: entity.id,
-              field: "past",
-              new_value: memory.content || "",
-              writer: "forge",
-            });
+            const memory_content = String(memory.content || "").trim();
+            if (memory_content) {
+              const old_past_content = Array.isArray(entity.past)
+                ? entity.past.map((v) => (typeof v === "object" ? v?.content || "" : String(v))).join(" | ")
+                : String(entity.past || "");
+              ensure_unique_vector_id(entity, memory);
+              append_past_vector(entity, memory);
+              await runtime.update_entity(type, entity.id, { past: entity.past });
+              ledger_batch.push({
+                story_id,
+                round: current_round,
+                seq: 3,
+                entity_id: entity.id,
+                field: "past",
+                old_value: old_past_content,
+                new_value: memory_content,
+                writer: "forge",
+                decider: "forge",
+              });
+            }
           }
         }
 
         const summary = forged.present?.[target_key];
         if (summary && typeof summary === "object") {
           if (!entity.present) entity.present = { physical: "", non_physical: "" };
+          let present_changed = false;
+
           if (summary.physical !== undefined && summary.physical.trim()) {
-            entity.present.physical = merge_prose_into_field(entity.present.physical, summary.physical);
-            ledger_batch.push({
-              story_id,
-              round: current_round,
-              seq: 3,
-              entity_id: entity.id,
-              field: "present.physical",
-              new_value: summary.physical,
-              writer: "forge",
-            });
+            const old_physical = entity.present.physical || "";
+            const merged_physical = merge_prose_into_field(old_physical, summary.physical);
+            if (merged_physical !== old_physical) {
+              entity.present.physical = merged_physical;
+              present_changed = true;
+              ledger_batch.push({
+                story_id,
+                round: current_round,
+                seq: 3,
+                entity_id: entity.id,
+                field: "present.physical",
+                old_value: old_physical,
+                new_value: entity.present.physical,
+                writer: "forge",
+                decider: "forge",
+              });
+            }
           }
+
           if (summary.non_physical !== undefined && summary.non_physical.trim()) {
+            const old_non_physical = entity.present.non_physical || "";
             // Snapshot existing bracket entries to prevent prose replacement from nuking live relational links
-            const existing_brackets = parse_bracket_entries(entity.present.non_physical || "");
+            const existing_brackets = parse_bracket_entries(old_non_physical);
             const sanitized_prose = sanitize_non_physical_prose(summary.non_physical);
             const preserved_bracket_text = existing_brackets.map((b) => format_bracket_entry(b)).join(" ");
-            entity.present.non_physical = [sanitized_prose, preserved_bracket_text].filter(Boolean).join(" ").trim();
+            const merged_non_physical = [sanitized_prose, preserved_bracket_text].filter(Boolean).join(" ").trim();
 
-            ledger_batch.push({
-              story_id,
-              round: current_round,
-              seq: 3,
-              entity_id: entity.id,
-              field: "present.non_physical",
-              new_value: sanitized_prose,
-              writer: "forge",
-            });
+            if (merged_non_physical !== old_non_physical) {
+              entity.present.non_physical = merged_non_physical;
+              present_changed = true;
+              ledger_batch.push({
+                story_id,
+                round: current_round,
+                seq: 3,
+                entity_id: entity.id,
+                field: "present.non_physical",
+                old_value: old_non_physical,
+                new_value: entity.present.non_physical,
+                writer: "forge",
+                decider: "forge",
+              });
+            }
           }
-          await runtime.update_entity(type, entity.id, { present: entity.present });
+
+          if (present_changed) {
+            await runtime.update_entity(type, entity.id, { present: entity.present });
+          }
         }
 
         const eternal_mutation = forged.eternal?.[target_key];
         if (eternal_mutation && typeof eternal_mutation === "object") {
           if (!entity.eternal) entity.eternal = { physical: "", non_physical: "" };
           let eternal_changed = false;
+
           if (eternal_mutation.physical?.trim()) {
-            entity.eternal.physical = merge_eternal_field(entity.eternal.physical, eternal_mutation.physical);
-            eternal_changed = true;
-            ledger_batch.push({
-              story_id,
-              round: current_round,
-              seq: 3,
-              entity_id: entity.id,
-              field: "eternal.physical",
-              new_value: eternal_mutation.physical,
-              writer: "forge",
-            });
+            const old_eternal_physical = entity.eternal.physical || "";
+            const merged_eternal_physical = merge_eternal_field(old_eternal_physical, eternal_mutation.physical);
+            if (merged_eternal_physical !== old_eternal_physical) {
+              entity.eternal.physical = merged_eternal_physical;
+              eternal_changed = true;
+              ledger_batch.push({
+                story_id,
+                round: current_round,
+                seq: 3,
+                entity_id: entity.id,
+                field: "eternal.physical",
+                old_value: old_eternal_physical,
+                new_value: entity.eternal.physical,
+                writer: "forge",
+                decider: "forge",
+              });
+            }
           }
+
           if (eternal_mutation.non_physical?.trim()) {
-            entity.eternal.non_physical = merge_eternal_field(
-              entity.eternal.non_physical,
+            const old_eternal_non_physical = entity.eternal.non_physical || "";
+            const merged_eternal_non_physical = merge_eternal_field(
+              old_eternal_non_physical,
               sanitize_non_physical_prose(eternal_mutation.non_physical),
             );
-            eternal_changed = true;
-            ledger_batch.push({
-              story_id,
-              round: current_round,
-              seq: 3,
-              entity_id: entity.id,
-              field: "eternal.non_physical",
-              new_value: eternal_mutation.non_physical,
-              writer: "forge",
-            });
+            if (merged_eternal_non_physical !== old_eternal_non_physical) {
+              entity.eternal.non_physical = merged_eternal_non_physical;
+              eternal_changed = true;
+              ledger_batch.push({
+                story_id,
+                round: current_round,
+                seq: 3,
+                entity_id: entity.id,
+                field: "eternal.non_physical",
+                old_value: old_eternal_non_physical,
+                new_value: entity.eternal.non_physical,
+                writer: "forge",
+                decider: "forge",
+              });
+            }
           }
+
           if (eternal_changed) {
             await runtime.update_entity(type, entity.id, { eternal: entity.eternal });
           }
@@ -1036,21 +1085,25 @@ export const temporal_engine = {
         let rewritten = forged.future?.[target_key];
         if (typeof rewritten === "string" && rewritten.trim()) {
           const old_future = typeof entity.future === "string" ? entity.future : "";
-          entity.future = rewritten.trim();
-          const chapter_forked = archive_chapter(entity, old_future, entity.future);
-          await runtime.update_entity(type, entity.id, { future: entity.future, ...(chapter_forked ? { chapters: entity.chapters } : {}) });
-          ledger_batch.push({
-            story_id,
-            round: current_round,
-            seq: 3,
-            entity_id: entity.id,
-            field: "future",
-            old_value: old_future,
-            new_value: entity.future,
-            writer: "forge",
-          });
-          if (chapter_forked) {
-            app.log?.(`[TemporalEngine] 📜 Chapter archived for ${entity.name || target_key} — milestone crossed.`, "system");
+          const next_future = rewritten.trim();
+          if (next_future !== old_future) {
+            entity.future = next_future;
+            const chapter_forked = archive_chapter(entity, old_future, entity.future);
+            await runtime.update_entity(type, entity.id, { future: entity.future, ...(chapter_forked ? { chapters: entity.chapters } : {}) });
+            ledger_batch.push({
+              story_id,
+              round: current_round,
+              seq: 3,
+              entity_id: entity.id,
+              field: "future",
+              old_value: old_future,
+              new_value: entity.future,
+              writer: "forge",
+              decider: "forge",
+            });
+            if (chapter_forked) {
+              app.log?.(`[TemporalEngine] 📜 Chapter archived for ${entity.name || target_key} — milestone crossed.`, "system");
+            }
           }
         }
 
@@ -1126,6 +1179,7 @@ if (typeof window !== "undefined") {
 
 /**
  * CHANGELOG
+ * - 2026-10-03: Memory Forge Compare-Then-Skip Guard — In `temporal_engine.consolidate`, inspect prior states across all 4 quadrants (`present.physical`, `present.non_physical`, `eternal.physical`, `eternal.non_physical`, `future`, `past`) before writing mutations, skipping no-ops, populating `old_value`, and setting `decider: "forge"`.
  * - 2026-10-01: Strip internal bracket engine flags (| hide, | show, | w: N) before embedding calculations in score_async, eliminating false semantic collisions on control words.
  * - 2026-09-29: `resolve_vector_pool` now supports flat universal bracket strings and bracket entry arrays via `parse_bracket_entries`, chunking on bracket boundaries with emotional weight synchronized from `w:`. `append_past_vector` seamlessly supports both flat strings and arrays.
  * - 2026-09-26: Memory-forge generations now dispatch with `priority: "background"`, so the global LLM gate preempts opportunistic consolidation whenever a foreground reply is queued.

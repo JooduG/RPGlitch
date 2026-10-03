@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Director Writer Attribution & Sequence Normalization (`src/intelligence/director.js`)**: Updated `apply_relationships` to inspect prior state before mutations, extract incoming flags, and stamp `seq: 1`, `writer: "director"`, and `decider: "director"`.
   - **Genesis Quadrant Logging (`src/intelligence/profile.js`)**: Extended `birth_entity_core` to write genesis ledger lines across all four populated quadrants (`eternal.physical`, `eternal.non_physical`, `present.physical`, `present.non_physical`, `past`, `future`).
   - **Unified Native JSON Ingestion (`src/ui/entity/ImportModal.svelte`)**: Routed `import_native_json` through `birth_entity_core` with `run_sorter: false` and `generate_portrait: false`, ensuring imported native entities register genesis ledger records.
+  - **Memory Forge Compare-Then-Skip Guard (`src/intelligence/temporal.js`)**: In `temporal_engine.consolidate`, inspect prior states across all quadrants (`present.physical`, `present.non_physical`, `eternal.physical`, `eternal.non_physical`, `future`, `past`) before writing mutations, skipping no-ops, populating `old_value`, and setting `decider: "forge"`.
   - **Field History Modal & Inspector UI (`src/ui/profile/FieldHistoryModal.svelte`, `DevWing.svelte`, `Profile.svelte`)**: Implemented `FieldHistoryModal.svelte` providing a timeline audit view and replayed bracket/prose state inspector, accessible from both `DevWing` and `Profile` field header actions.
 
 ### Fixed
