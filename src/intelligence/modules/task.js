@@ -104,7 +104,7 @@ Close </THINK> before the narrative. This think block is internal reasoning and 
     EVALUATION_SCENE: "Evaluate state mutations caused by the current situation.",
     ROUND_ONE: 'Round 1 follows the Fractal prologue, so next_action MUST be "AI_CHARACTER".',
     USER_PERSONA_LOCK:
-      '"USER_PERSONA", "USER", "PLAYER", or the player character\'s name is NEVER a valid next_action — the Director never speaks for the player. The window for the player to act opens automatically right after the AI beat, so you never need a "yield to player" action: if you believe the player should act next, output "AI_CHARACTER" (the default). Valid actions are strictly: "AI_CHARACTER", "FRACTAL", "npc:<id>", or { "genesis": ... }.',
+      '"USER_PERSONA", "USER", "PLAYER", or the player character\'s name is NEVER a valid next_action — the Director never speaks for the player. The window for the player to act opens automatically right after the AI beat, so you never need a "yield to player" action: if you believe the player should act next, output "AI_CHARACTER" (the default). Valid actions are strictly: "AI_CHARACTER", "FRACTAL", "npc:<id>", or { "genesis": ... }. Furthermore, "directors_note" MUST ONLY direct the next_action speaker (AI, Fractal, or NPC) — NEVER direct, script, or suggest actions or thoughts for «USER_PERSONA» (the player has absolute agency).',
 
     ROUTING: `NEXT ACTION ROUTING RULES:
 - "AI_CHARACTER": (Default) AI companion reacts to protagonist. Choose this whenever the player might act next — the player's turn opens immediately after this beat.
@@ -933,7 +933,7 @@ export const SCHEMA_ATOMS = Object.freeze({
   _thought_process: "<Tactical intent & state delta>",
   next_action: `'AI_CHARACTER' | 'FRACTAL' | 'npc:<id>' | { \\"genesis\\": { \\"name\\": \\"<Name>\\", \\"description\\": \\"<description>\\" } } | 'EPILOGUE_CONCLUDED' | 'EPILOGUE_COLLAPSED'`,
   keywords: ["<1-5 keywords from AVAILABLE_KEYWORDS>"],
-  directors_note: "<1-5 lines staging directives for next speaker, or empty string>",
+  directors_note: "<1-5 lines staging directives ONLY for the next_action speaker (never for player/user_persona), or empty string>",
   dynamics_deltas: { chaos: 0, intensity: 0, openness: 0, affinity: 0, velocity: 0, entropy: 0 },
   visual_staging: "<optional: camera & lighting directive if scene image shifts>",
   spotlight: { enter: ["npc:<id>"], exit: ["npc:<id>"] },

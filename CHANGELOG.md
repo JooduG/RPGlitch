@@ -7,15 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## `[Unreleased]`
 
 ### Added
 
-- **Track 1 Integrity Remediation (ROADMAP 2.1–2.3)**:
+- **Track 1 Integrity Remediation (ROADMAP 2.1–2.7)**:
+  - **Director's Note Speaker Lock & P1 Agency Enforcement (`src/intelligence/modules/task.js`)**: Connected `directors_note` explicitly to `next_action` in `TASK_LIBRARY.DIRECTOR.USER_PERSONA_LOCK` and `SCHEMA_ATOMS.directors_note`. Mandated that staging directives must ONLY instruct the chosen next speaker (AI, Fractal, or NPC) and NEVER script, suggest actions, or narrate thoughts for `«USER_PERSONA»`, preventing storyteller prompt bleed and player hijacking.
+  - **Bracketed Field History Clock Trigger (`src/ui/profile/Profile.svelte`)**: Restored the Field History Inspector clock trigger button in the header of parsed pseudo-JSON (`safe_parse_pseudo_json`) fields in Profile Studio, ensuring timeline history inspection is visible on fields whether they contain brackets or raw prose.
+  - **Bracket Balancing & Sanitization Repair (`src/utils/text.js`, `src/intelligence/temporal.js`)**: Implemented `balance_brackets()` to automatically enclose unclosed (`[KEY: val`) and unopened (`key | w: 8]`) brackets in state strings, and wired it through `sanitize_non_physical_prose` during Memory Forge consolidation so malformed brackets never persist in `present.non_physical`.
   - **Think-Only Turn Recovery (`src/intelligence/story.js`)**: A reply that is only `<think>` blocks triggers one retry with a dialogue directive instead of persisting an empty bubble.
   - **Telemetry Token Deduplication (`src/intelligence/physics.js`)**: `DYNAMICS_DELTA` log tokens are deduplicated via `Set`.
   - **Empty-Row Filtering (`src/utils/text.js`)**: `filter_narrative_messages` drops empty-text rows (image-beat placeholders) from prompt history; placeholders stay `fractal`-role so the feed still renders the image card.
-  - Tests: `physics.test.js`, `story.test.js`, `text.test.js`.
+  - Tests: `physics.test.js`, `story.test.js`, `text.test.js`, `prompt-verification.test.js`, `director.test.js`.
 
 - **Session & Timeline Lifecycle & Profile Timeline Mode (ROADMAP Section 1)**:
   - **Profile Timeline Scrubber & Branching (`src/ui/profile/TimelineModal.svelte`, `Profile.svelte`)**: Built full Four-Quadrant timeline mode accessible from Readonly Profile Studio. Scans `db.mutation_ledger` history, reconstructs full profile at round $X$ via `replay_full_entity_at_round`, displays active mutations, and provides both **"Update from this point"** (in-place revert) and **"Clone from this point"** (branching into a new census entity).

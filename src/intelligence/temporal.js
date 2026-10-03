@@ -16,6 +16,7 @@ import {
   cosine_similarity,
   generate_uuid as generate_unique_id,
   merge_prose_into_field,
+  balance_brackets,
   collapse_whitespace,
   strip_cognition_blocks,
   truncate_at_word,
@@ -609,6 +610,11 @@ export function sanitize_non_physical_prose(raw_prose) {
 
   // Strip leading pseudo-bracket if formatted as [KEY: value]
   text = text.replace(/^\[[A-Z_ ]{3,25}:\s*([\s\S]*?)\]$/i, "$1").trim();
+
+  // Repair unclosed/unopened brackets if present
+  if (text.includes("[") || text.includes("]")) {
+    text = balance_brackets(text);
+  }
 
   return text;
 }

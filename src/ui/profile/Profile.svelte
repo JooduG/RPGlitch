@@ -902,6 +902,29 @@
                         aria-label={field.description}>{field.label}</span
                       >
                     </div>
+                    <div class="ml-auto flex h-full shrink-0 items-center gap-2">
+                      <Button
+                        variant="invisible"
+                        size="small"
+                        square={true}
+                        aria-label="Inspect Field History"
+                        actions={[tooltip]}
+                        onclick={() => {
+                          history_target_field = field.key;
+                          show_field_history_modal = true;
+                        }}
+                        class="cursor-pointer text-slate-400 hover:text-cyan-300"
+                      >
+                        <svg
+                          viewBox="0 0 24 24"
+                          class="size-icon-small fill-none stroke-current stroke-2"
+                          style="stroke-linecap: round; stroke-linejoin: round;"
+                        >
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                      </Button>
+                    </div>
                   </header>
                 {/if}
                 <div class="pt-2">
@@ -1158,6 +1181,7 @@
 
 <!--
 CHANGELOG:
+- 2026-10-03: Added Field History Inspector launcher button to parsed pseudo-JSON bracket field headers so timeline inspection is available regardless of bracket existence.
 - 2026-10-03: Added Field History Inspector launcher to TextField header actions and mounted FieldHistoryModal for timeline auditing.
 - 2026-10-01: Universal Predicates Migration — decoupled RelationalGraph mutation from `profile_state.char.relationships`, driving relationships purely through universal bracket predicates in `present.non_physical`.
 - 2026-10-01: Added Nordic bracket tip banner below temporal fields in edit mode when dense single-paragraph text (>=120 chars without linebreaks/brackets) is detected.

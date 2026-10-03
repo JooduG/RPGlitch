@@ -34,6 +34,7 @@ import {
   safe_parse_pseudo_json,
   filter_narrative_messages,
   format_history_entries,
+  balance_brackets,
   strip_cognition_blocks,
   strip_visual_excluded,
   truncate_at_word,
@@ -593,6 +594,38 @@ describe("truncate_at_word", () => {
   it("handles null or empty inputs", () => {
     expect(truncate_at_word(null)).toBe("");
     expect(truncate_at_word("")).toBe("");
+  });
+});
+
+describe("balance_brackets", () => {
+  it("encloses line that ends with ] but misses [", () => {
+    const input = "high-alert containment breach | w: 8]";
+    expect(balance_brackets(input)).toBe("[high-alert containment breach | w: 8]");
+  });
+
+  it("closes line that starts with [ but misses ]", () => {
+    const input = "[ANOMALY: imminent orbital dissemination of mind-wipe virus";
+    expect(balance_brackets(input)).toBe("[ANOMALY: imminent orbital dissemination of mind-wipe virus]");
+  });
+
+  it("repairs multiline text containing both opening and closing bracket errors", () => {
+    const input = "high-alert containment breach | w: 8]\n[ANOMALY: imminent orbital dissemination of mind-wipe virus";
+    expect(balance_brackets(input)).toBe("[high-alert containment breach | w: 8]\n[ANOMALY: imminent orbital dissemination of mind-wipe virus]");
+  });
+
+  it("leaves already balanced brackets untouched", () => {
+    const input = "[STATE: active] [MOOD: tense | w: 7]";
+    expect(balance_brackets(input)).toBe("[STATE: active] [MOOD: tense | w: 7]");
+  });
+
+  it("wraps unbracketed key-value or weight directives", () => {
+    expect(balance_brackets("ANOMALY: containment breach | w: 8")).toBe("[ANOMALY: containment breach | w: 8]");
+    expect(balance_brackets("@DR_TARIQ: hostile | hide")).toBe("[@DR_TARIQ: hostile | hide]");
+  });
+
+  it("handles null and empty input gracefully", () => {
+    expect(balance_brackets(null)).toBe("");
+    expect(balance_brackets("")).toBe("");
   });
 });
 

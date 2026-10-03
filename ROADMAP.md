@@ -63,6 +63,18 @@ Targeted bug fixes and behavioral hardening derived directly from stress-test fo
   - **Issue**: In Round 18 of the stress test, explicit PC drowning was ignored by the Director, leading the AI character to hallucinate the player still standing and talking.
   - **Action**: Enforce terminal biological state evaluation in Director task directives (`DIRECTOR.EVALUATION_INPUT`). When fatal physical outcomes occur, mandate emitting `next_action: "EPILOGUE_COLLAPSED"` and `story_status: "COLLAPSED"`, forbidding subsequent resurrections or timeline bypasses.
   - **Touchpoints**: [`src/intelligence/prompts.js`](src/intelligence/prompts.js), [`src/intelligence/modules/task.js`](src/intelligence/modules/task.js), [`src/intelligence/director.js`](src/intelligence/director.js).
+- [x] **2.7 Director's Note Speaker Lock & P1 Agency Enforcement**:
+  - **Issue**: The Director's Note directed actions and thoughts for the player persona, which seeded into the speaker's `<think>` block and caused the AI character to puppeteer the user persona.
+  - **Action**: Connected `directors_note` strictly to `next_action` in `TASK_LIBRARY.DIRECTOR.USER_PERSONA_LOCK` and `SCHEMA_ATOMS.directors_note`, explicitly forbidding directives for `USER_PERSONA` (player).
+  - **Touchpoints**: [`src/intelligence/modules/task.js`](src/intelligence/modules/task.js).
+- [x] **2.8 Bracketed Field History Clock Trigger in Profile Studio**:
+  - **Issue**: When a field contained brackets, the field history clock button in the header was missing because `parsed` mode rendered a dedicated chip container without header action buttons.
+  - **Action**: Embedded the Field History Inspector trigger button in the header of parsed pseudo-JSON (`safe_parse_pseudo_json`) fields in `Profile.svelte`.
+  - **Touchpoints**: [`src/ui/profile/Profile.svelte`](src/ui/profile/Profile.svelte).
+- [x] **2.9 Bracket Balancing & Auto-Repair in Non-Physical State**:
+  - **Issue**: Unclosed (`[KEY: ...`) or unopened (`... | w: 8]`) brackets in the Fractal's non-physical state caused malformed card formatting in the live UI.
+  - **Action**: Implemented `balance_brackets()` in `src/utils/text.js` and wired it into `sanitize_non_physical_prose` in `src/intelligence/temporal.js`.
+  - **Touchpoints**: [`src/utils/text.js`](src/utils/text.js), [`src/intelligence/temporal.js`](src/intelligence/temporal.js), [`src/utils/text.test.js`](src/utils/text.test.js).
 
 ---
 

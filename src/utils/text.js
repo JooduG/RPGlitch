@@ -613,6 +613,47 @@ export function first_sentence(text, max_len = 160) {
 }
 
 /**
+ * Repairs unclosed or unopened brackets in state strings and directives.
+ * Fixes malformed strings such as:
+ * - "foo | w: 8]\n[BAR: baz" -> "[foo | w: 8]\n[BAR: baz]"
+ * - "ANOMALY: alert" -> "[ANOMALY: alert]"
+ *
+ * @param {string | null | undefined} raw - Input string with potentially malformed brackets
+ * @returns {string} Clean string where every bracket predicate is properly enclosed
+ */
+export function balance_brackets(raw) {
+  if (!raw || typeof raw !== "string") return "";
+  const lines = raw.split(/\r?\n/);
+  const repaired_lines = lines.map((line) => {
+    let trimmed = line.trim();
+    if (!trimmed) return "";
+
+    // Case 1: Line ends with ']' but does not start with '['
+    if (trimmed.endsWith("]") && !trimmed.startsWith("[")) {
+      trimmed = `[${trimmed}`;
+    }
+
+    // Case 2: Line starts with '[' but does not end with ']'
+    if (trimmed.startsWith("[") && !trimmed.endsWith("]")) {
+      trimmed = `${trimmed}]`;
+    }
+
+    // Case 3: Line has no brackets at all, but looks like a key-value or weight directive
+    // e.g. "ANOMALY: alert | w: 8" or "STATE: high alert"
+    if (!trimmed.includes("[") && !trimmed.includes("]")) {
+      const is_predicate = /^(@?[A-Z_]{3,25}:|[^:|]+\|\s*(?:w:\s*\d+|show|hide))/i.test(trimmed);
+      if (is_predicate) {
+        trimmed = `[${trimmed}]`;
+      }
+    }
+
+    return trimmed;
+  });
+
+  return repaired_lines.join("\n").trim();
+}
+
+/**
  * Matches the capitalization of the original string on the replacement string.
  * If the first character of original is uppercase, capitalizes replacement.
  * @param {string | null | undefined} original
