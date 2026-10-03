@@ -163,17 +163,21 @@ export function resolve_image_trigger({ snapshot, prev_dynamics, director_data, 
   const director_qualifies = director_explicit && director_cooldown_elapsed;
 
   // 1.1 Character Optics Biasing (Anti-Wide Angle Lock):
-  // Check if visual_staging indicates character intimacy/confrontation or if dynamics show extreme intensity/affinity
+  // Check if visual_staging indicates character intimacy/confrontation or if dynamics show extreme intensity/affinity.
+  // Environmental/panoramic staging cues explicitly preserve scene tier over character bias.
   const ai_dynamics = snapshot?.ai?.dynamics || {};
   const current_intensity = Number(ai_dynamics.intensity ?? 50);
   const current_affinity = Number(ai_dynamics.affinity ?? 50);
+  const staging_has_scene_focus =
+    has_visual_staging &&
+    /\b(?:wide|panoramic|landscape|establishing|environment|aerial|distant|overview|scenery|room|corridor|cityscape|horizon)\b/i.test(raw_staging);
   const staging_has_character_focus =
     has_visual_staging &&
     /\b(?:close-?up|portrait|face|eyes|expression|intimate|confrontation|clutch|holding|combat|wound|touch|intimacy|profile|headshot)\b/i.test(
       raw_staging,
     );
-  const dynamics_have_character_focus = current_intensity >= 75 || current_affinity >= 75;
-  const biased_character_tier = staging_has_character_focus || dynamics_have_character_focus ? "story_character" : null;
+  const dynamics_have_character_focus = !staging_has_scene_focus && (current_intensity >= 75 || current_affinity >= 75);
+  const biased_character_tier = !staging_has_scene_focus && (staging_has_character_focus || dynamics_have_character_focus) ? "story_character" : null;
 
   // 2. Evaluate Pure-JS Dynamics Gate (Priority 2)
   const image_trigger_evaluation = evaluate_image_trigger({ ai: snapshot?.ai?.dynamics, fractal: snapshot?.fractal?.dynamics }, prev_dynamics, {
@@ -553,6 +557,7 @@ export const aesthetic_resolver = {
 
 /**
  * CHANGELOG:
+ * - 2026-10-03: Environmental scene framing preservation — staging_has_scene_focus now checks for wide/landscape/environmental cues and preserves story_scene tier even under high intensity/affinity dynamics.
  * - 2026-09-24: Purged redundant re-exports of VISUAL_EXCLUDED_KEYS and strip_visual_excluded under P4 Zero Backwards Compatibility.
  * - 2026-09-24: Imported VISUAL_EXCLUDED_KEYS and strip_visual_excluded from @utils instead of @intelligence, breaking circular media↔intelligence dependency.
  * - 2026-09-24: Consolidated pure visual optics domain (optics.js) absorbing image-tiers.js (taxonomy, resolutions), image-trigger.js (dual-source trigger arbitration, dynamics gate), and image-aesthetics.js (aesthetic map synthesis, prompt composition, resolvers).

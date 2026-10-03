@@ -87,6 +87,20 @@ describe("export_story_markdown", () => {
     expect(md).toContain("**Vael:** Two.");
   });
 
+  it("preserves and renders valid image attachments in story exports", () => {
+    const entries = [
+      { role: "user", text: "Look over there.", round: 1 },
+      {
+        role: "fractal",
+        text: "",
+        attachments: [{ src: "https://example.com/vault.png", metadata: { prompt: "Ancient obsidian chamber" } }],
+      },
+    ];
+    const md = export_story_markdown(story, entries);
+    expect(md).toContain("**Beats:** 2");
+    expect(md).toContain("![Ancient obsidian chamber](https://example.com/vault.png)");
+  });
+
   it("marks concluded stories", () => {
     const md = export_story_markdown({ ...story, state: "concluded" }, []);
     expect(md).toContain("**State:** Concluded");

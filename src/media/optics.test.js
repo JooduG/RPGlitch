@@ -234,6 +234,26 @@ describe("optics.js — Trigger Decision Engine & Dynamics Gate", () => {
       expect(res.tier).toBe("story_character");
       expect(res.source).toBe("director");
     });
+
+    it("preserves story_scene when visual_staging explicitly requests panoramic environmental framing despite high intensity", () => {
+      const snapshot = { ai: { dynamics: { intensity: 85, affinity: 40 } } };
+      const prev_dynamics = { ai: { intensity: 85, affinity: 40 } };
+      const res = resolve_image_trigger({
+        snapshot,
+        prev_dynamics,
+        director_data: {
+          trigger_image: true,
+          visual_staging: "Wide panoramic landscape of the burning research sector across the horizon.",
+        },
+        turn_round: 5,
+        last_director_beat_round: 2,
+        last_dynamics_beat_round: 2,
+      });
+
+      expect(res.active).toBe(true);
+      expect(res.tier).toBe("story_scene");
+      expect(res.source).toBe("director");
+    });
   });
 });
 

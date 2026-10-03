@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Code Review & Regression Remediation**:
+  - **Prompt Action Alignment (`src/intelligence/modules/task.js`)**: Updated `USER_PERSONA_LOCK` to explicitly include `EPILOGUE_COLLAPSED` and `EPILOGUE_CONCLUDED` in its permitted actions list, reconciling the direct contradiction between lock constraints and the routing rules.
+  - **Terminal Trauma Severity Grading (`src/intelligence/modules/task.js`)**: Graded `EVALUATION_INPUT` and `EVALUATION_SCENE` to distinguish definitively fatal terminal destruction from severe but survivable bodily trauma, preventing premature story collapse on non-fatal high-stakes injuries.
+  - **Image Preservation in Story Exports (`src/utils/story-export.js`)**: Updated `format_story_beat` and `export_story_markdown` to preserve log rows with image attachments and format them as Markdown media (`![prompt](src)`), preventing image loss on empty-text fractal rows.
+  - **Bracket Auto-Repair Case 3 Hardening (`src/utils/text.js`)**: Restricted predicate auto-enclosure in `balance_brackets` to strict uppercase keys (`^[A-Z][A-Z0-9_]{1,24}:`) and entity targets (`^@[A-Z0-9_]{1,24}:`), eliminating false-positive pseudo-JSON corruption on natural language dialogue and prose.
+  - **Speaker & NPC ID Synchronization (`src/intelligence/director.js`)**: Synchronized `speaker` and `npc_id` in `normalize_director_data` so that `base.speaker` with `npc:<id>` preserves target identity even when paired with an `AI_CHARACTER` action.
+  - **Case-Insensitive Story Status Normalization (`src/intelligence/director.js`)**: Normalized `story_status` to match uppercase canonical status values consistently, preventing lowercase valid statuses from falling back to `IN_PROGRESS`.
+  - **Environmental Scene Framing Preservation (`src/media/optics.js`)**: Added `staging_has_scene_focus` check to prevent high intensity/affinity dynamics from suppressing wide panoramic framing when explicitly requested in `visual_staging`.
 - Active observation of P1 User Agency hard-negative enforcement (Track 1.1).
 
 ---

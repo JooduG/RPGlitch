@@ -623,6 +623,12 @@ describe("balance_brackets", () => {
     expect(balance_brackets("@DR_TARIQ: hostile | hide")).toBe("[@DR_TARIQ: hostile | hide]");
   });
 
+  it("does not wrap natural language prose lines with colons or pipes", () => {
+    expect(balance_brackets("Note: the corridor hums quietly.")).toBe("Note: the corridor hums quietly.");
+    expect(balance_brackets("He whispered: run before they find you.")).toBe("He whispered: run before they find you.");
+    expect(balance_brackets("They played hide and seek in the shadows.")).toBe("They played hide and seek in the shadows.");
+  });
+
   it("handles null and empty input gracefully", () => {
     expect(balance_brackets(null)).toBe("");
     expect(balance_brackets("")).toBe("");

@@ -639,9 +639,9 @@ export function balance_brackets(raw) {
     }
 
     // Case 3: Line has no brackets at all, but looks like a key-value or weight directive
-    // e.g. "ANOMALY: alert | w: 8" or "STATE: high alert"
+    // e.g. "ANOMALY: alert | w: 8" or "@DR_TARIQ: hostile | hide"
     if (!trimmed.includes("[") && !trimmed.includes("]")) {
-      const is_predicate = /^(@?[A-Z_]{3,25}:|[^:|]+\|\s*(?:w:\s*\d+|show|hide))/i.test(trimmed);
+      const is_predicate = /^(@?[A-Z][A-Z0-9_]{1,24}:|[^:|]+\|\s*(?:w:\s*\d+|show|hide)\b)/.test(trimmed);
       if (is_predicate) {
         trimmed = `[${trimmed}]`;
       }
@@ -1112,7 +1112,9 @@ export function alternation_field_label(text, raw) {
 
 /**
  * CHANGELOG:
+ * - 2026-10-03: Hardened balance_brackets Case 3 — restricted predicate auto-enclosure to uppercase state keys (^[A-Z][A-Z0-9_]{1,24}:) or entity targets (^@[A-Z0-9_]{1,24}:) and strict bracket flags to prevent false-positive predicate creation on natural language prose lines.
  * - 2026-09-23: Relocated VISUAL_EXCLUDED_KEYS and strip_visual_excluded here from @intelligence/epistemic.js to break circular dependency between media and intelligence layers.
+
  * - 2026-09-11: Purification pass — renamed the lazy stem `ind` to `indent_continuation` (full-name law).
  * - 2026-09-25: History formatting standardization — added `format_history_entries` and `filter_narrative_messages` to unify conversation history collapsing, XML `<ENTRY>` serialization, and narrative turn extraction across platform and intelligence layers.
  * - 2026-09-25: DRY pass — consolidated `compute_initials` (was duplicated verbatim in Storyboard.svelte.js and ProfilePicture.svelte) and `NAME_PREFIX_STEMS` here; added `role_display_label` + `NARRATIVE_ROLES`/`is_narrative_role` so the role→label and narrative-role checks live in one place.

@@ -17,7 +17,7 @@
  * - `src/ui/console/Console.svelte` (Dev console story export).
  */
 
-import { format_datetime, strip_cognition_blocks, filter_narrative_messages } from "./text.js";
+import { format_datetime, strip_cognition_blocks } from "./text.js";
 
 // ============================================================================
 // [SECTION 1: CONSTANTS & NARRATOR ROLES]
@@ -67,13 +67,24 @@ export function format_story_beat(entry, options = {}) {
 
   const raw_entry = /** @type {StoryBeatEntry} */ (entry);
   const raw_text = raw_entry.text ?? raw_entry.content ?? "";
-  if (typeof raw_text !== "string" || !raw_text.trim()) return null;
-
   const role = String(raw_entry.role || "").toLowerCase();
   if (role === "system" && !options.include_system) return null;
 
-  const text = strip_cognition_blocks(raw_text).trim();
-  if (!text) return null;
+  const text = typeof raw_text === "string" ? strip_cognition_blocks(raw_text).trim() : "";
+  const first_attachment = Array.isArray(raw_entry.attachments) ? raw_entry.attachments[0] : null;
+  const image_src = typeof first_attachment?.src === "string" && first_attachment.src.trim() ? first_attachment.src.trim() : null;
+
+  if (!text && !image_src) return null;
+
+  if (image_src) {
+    const prompt_caption =
+      typeof first_attachment?.metadata?.prompt === "string" && first_attachment.metadata.prompt.trim()
+        ? first_attachment.metadata.prompt.trim()
+        : "Scene Illustration";
+    const image_md = `![${prompt_caption}](${image_src})`;
+    if (!text) return image_md;
+    return `${image_md}\n\n${NARRATOR_ROLES.has(role) ? `> ${text.replace(/\n+/g, "\n> ")}` : text}`;
+  }
 
   if (NARRATOR_ROLES.has(role)) {
     return `> ${text.replace(/\n+/g, "\n> ")}`;
@@ -106,7 +117,18 @@ export function export_story_markdown(story = {}, entries = [], options = {}) {
   const state_label = is_collapsed ? "Collapsed (Tragic Ending)" : is_concluded ? "Concluded" : "Active";
 
   const raw_log = Array.isArray(entries) ? entries : [];
-  const log = options.include_system ? raw_log : filter_narrative_messages(raw_log);
+  const log = options.include_system
+    ? raw_log
+    : raw_log.filter((entry) => {
+        if (!entry || entry.role === "system") return false;
+        const text = String(entry.text ?? entry.content ?? "").trim();
+        const has_image =
+          Array.isArray(entry.attachments) && typeof entry.attachments[0]?.src === "string" && Boolean(entry.attachments[0].src.trim());
+        if (!text && !has_image && !entry.meta?.is_prologue && !entry.meta?.is_epilogue) {
+          return false;
+        }
+        return true;
+      });
   const formatted_beats = [];
 
   for (const entry of log) {
@@ -156,6 +178,7 @@ export function build_story_export_filename(story = {}, date = new Date()) {
 
 /**
  * CHANGELOG:
+ * - 2026-10-03: Image preservation in story markdown exports — format_story_beat now supports attachments with image src URLs and renders markdown images (![prompt](src)), preventing image loss on empty-text fractal rows.
  * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,
  *   structured section dividers, exported frozen NARRATOR_ROLES collection, defined StoryRecord/Beat
  *   JSDoc schemas, and verified 100% test pass.

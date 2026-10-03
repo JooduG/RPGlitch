@@ -293,9 +293,20 @@ describe("normalize_director_data", () => {
     expect(normalized.keywords).toEqual(["shame", "fear", "grief", "betrayal", "rage"]);
   });
 
-  it("drops out-of-range story_status values to IN_PROGRESS", () => {
+  it("drops out-of-range story_status values to IN_PROGRESS and normalizes lowercase valid statuses", () => {
     expect(normalize_director_data({ story_status: "RESOLVED" }).story_status).toBe("IN_PROGRESS");
     expect(normalize_director_data({ story_status: "COLLAPSED" }).story_status).toBe("COLLAPSED");
+    expect(normalize_director_data({ story_status: "collapsed", next_action: "AI_CHARACTER" }).story_status).toBe("COLLAPSED");
+    expect(normalize_director_data({ story_status: "concluded", next_action: "AI_CHARACTER" }).story_status).toBe("CONCLUDED");
+  });
+
+  it("synchronizes speaker and npc_id when base.speaker specifies an NPC target", () => {
+    const normalized = normalize_director_data({
+      speaker: "npc:glitch",
+      next_action: "AI_CHARACTER",
+    });
+    expect(normalized.speaker).toBe("npc");
+    expect(normalized.npc_id).toBe("glitch");
   });
 
   it("is safe on null/non-object payloads", () => {

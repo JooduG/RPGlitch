@@ -293,16 +293,22 @@ export function normalize_director_data(payload) {
         ? "EPILOGUE_CONCLUDED"
         : parsed_action;
 
-  const speaker = normalize_speaker(base.speaker || effective_action);
-  const npc_id = speaker === "npc" ? strip_npc_id(effective_action) : "";
+  const effective_speaker_source = typeof base.speaker === "string" && base.speaker.trim() ? base.speaker.trim() : effective_action;
+  const speaker = normalize_speaker(effective_speaker_source);
+  const npc_id =
+    speaker === "npc"
+      ? typeof base.speaker === "string" && base.speaker.toLowerCase().startsWith("npc:")
+        ? strip_npc_id(base.speaker)
+        : strip_npc_id(effective_action)
+      : "";
 
   const story_status =
     effective_action === "EPILOGUE_CONCLUDED"
       ? "CONCLUDED"
       : effective_action === "EPILOGUE_COLLAPSED"
         ? "COLLAPSED"
-        : STORY_STATUS_VALUES.includes(base.story_status)
-          ? base.story_status
+        : STORY_STATUS_VALUES.includes(raw_status)
+          ? raw_status
           : "IN_PROGRESS";
 
   const keywords = Array.isArray(base.keywords)
@@ -554,6 +560,7 @@ export async function apply_relationships(bridge, rels) {
 
 /**
  * CHANGELOG
+ * - 2026-10-03: Speaker & NPC ID synchronization and case-insensitive status normalization — fixed discrepancy where base.speaker ("npc:<id>") with separate next_action caused npc_id loss; ensured raw_status is matched case-insensitively against STORY_STATUS_VALUES.
  * - 2026-10-03: Hardened Ledger Integration — In `apply_relationships`, inspect prior state to populate `old_value`, `old_visibility`, `old_weight`, parse incoming flags (`visibility`, `weight`), set sequence to `seq: 1`, writer to `director`, and decider to `director`.
  * - 2026-10-01: Universal Predicates Migration — `apply_relationships` now writes dynamic relational updates exclusively to `source.present.non_physical` bracket predicates (`[@TARGET: dynamic]`), purging legacy `source.relationships` array mutations under P4 Zero Backwards Compatibility.
  * - 2026-09-29: `apply_relationships` now synchronizes relational updates into universal bracket predicates on `source.present.non_physical` via `apply_bracket_mutation`, ensuring lockstep alignment with legacy relationship vectors.
