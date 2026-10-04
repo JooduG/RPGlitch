@@ -546,7 +546,7 @@ export function extract_entity_relationships(entity, known_entities = [], perspe
       if (starts_with_at) {
         key = key.replace(/^@/, "");
       }
-      if ((starts_with_at || entity_name_set.has(key)) && is_visible(entry)) {
+      if (starts_with_at && is_visible(entry)) {
         const target = normalize_target(key);
         const processed_val = process_value(entry.value, target.display);
         const record = get_or_create_relationship(target.key);

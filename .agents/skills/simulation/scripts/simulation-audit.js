@@ -47,7 +47,7 @@ function map_entity(data) {
     type: data.type,
     present: data.present || { physical: "", non_physical: "" },
     eternal: data.eternal || { physical: "", non_physical: "" },
-    past: (data.past || []).map(enrich_vector),
+    past: Array.isArray(data.past) ? data.past.map(enrich_vector) : data.past || "",
     future: data.future || "",
     dynamics: data.dynamics || {},
     dynamics_baseline: data.dynamics_baseline || null,

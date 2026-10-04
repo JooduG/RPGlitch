@@ -174,11 +174,14 @@ Every entity is split into four discrete operational segments. **Eternal, Presen
 
 ### Directed Relational Graph & Veil Engine
 
-Entity interconnections are tracked using a directed relational graph (`[Source] -> [Target]: [Relation Description]`) and projected into universal bracket predicates on `source.present.non_physical` (`[@TARGET: dynamic | flags]`):
+Entity interconnections are tracked using a directed relational graph (`[Source] -> [Target]: [Relation Description]`) and projected into universal bracket predicates on entity non-physical fields (`[@TARGET: dynamic | flags]`):
 
-- **Character -> Fractal**: `"Dr. Elias -> Tartarus: Chief Medical Officer at Sector 4"`
-- **Character -> Character**: `"Elias -> Benedict: Distrusts due to classified cybernetic augments"`
-- **Fractal -> Character**: `"Tartarus -> Julien: Active warrant issued for treason"`
+- **Target Addressing & Prefix Mandate**: All relational brackets pointing to other entities or active roles **MUST begin with `@`** (e.g., `[@BEAST: ...]`, `[@NOVA CITY: ...]`, `[@USER: ...]`). This prevents collision with common nouns or standard trait keys (`[BEAST: ...]`). The target can be the entity's exact ID, full name, or dynamic role macro (`@USER`, `@CHAR`, `@FRACTAL`).
+- **Natural Space Support**: Bracket keys natively support spaces (e.g., `[@LORD BENEDICT SILVERS: ...]`, `[MEASURING TAPE: ...]`).
+- **Directed Edges**:
+  - **Character -> Fractal**: `"Dr. Elias -> Tartarus: Chief Medical Officer at Sector 4"`
+  - **Character -> Character**: `"Elias -> Benedict: Distrusts due to classified cybernetic augments"`
+  - **Fractal -> Character**: `"Tartarus -> Julien: Active warrant issued for treason"`
 
 ### Dynamics (0–100) & Baselines
 

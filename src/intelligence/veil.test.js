@@ -201,13 +201,13 @@ describe("veil: filter_epistemic_brackets & privacy", () => {
 
 describe("veil: extract_entity_relationships", () => {
   const entity = {
-    eternal: { non_physical: "Solitary wanderer. [ELARA: younger sister]" },
-    present: { non_physical: "Watchful and tense. [ELARA: protective companion] [ORION: bitter rival | hide]" },
+    eternal: { non_physical: "Solitary wanderer. [@ELARA: younger sister]" },
+    present: { non_physical: "Watchful and tense. [@ELARA: protective companion] [@ORION: bitter rival | hide]" },
     past: [
-      { id: "ai_1", content: "Remembered a warm shared meal. [ELARA: shared meal]" },
-      { id: "ai_2", content: "A violent encounter. [ORION: clashed at the clocktower]" },
+      { id: "ai_1", content: "Remembered a warm shared meal. [@ELARA: shared meal]" },
+      { id: "ai_2", content: "A violent encounter. [@ORION: clashed at the clocktower]" },
     ],
-    future: "Plans to reach the coast. [ELARA: guide safely to sanctuary] [ORION: confront in the courtyard | hide]",
+    future: "Plans to reach the coast. [@ELARA: guide safely to sanctuary] [@ORION: confront in the courtyard | hide]",
   };
 
   it("extracts all relational links for known entities under owner perspective", () => {

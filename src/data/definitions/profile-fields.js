@@ -20,7 +20,7 @@ import { format_key_as_label } from "@utils";
 import { SIGNATURE_COLORS } from "./signature-colors.js";
 
 const HELPERS = Object.freeze({
-  BRACKETS: `Format using bracket directives: [KEY: value] — one per line, no outer braces. May include targeted relational or state brackets: [TARGET_ENTITY: relationship dynamic | flags] (flags: 'hide' / 'show', 'w: 1-10'). Atomic clearing: [KEY: none].`,
+  BRACKETS: `Format using bracket directives: [KEY: value] — one per line, no outer braces. Keys support natural spaces. Relational brackets targeting other entities or active roles MUST begin with '@': [@TARGET_ENTITY: relationship dynamic | flags] (target may be entity name or ID, or role macros like @USER/@CHAR; flags: 'hide' / 'show', 'w: 1-10'). Atomic clearing: [KEY: none].`,
 });
 
 // ── 1. Canonical Field Taxonomy ───────────────────────────────────────────────

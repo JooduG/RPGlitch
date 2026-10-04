@@ -17,10 +17,10 @@
  * - The Four Entity Fragments (all content uses pure bracket directives):
  *   - `eternal.physical` / `present.physical`: `[KEY: value]` biometric or somatic lines.
  *   - `eternal.non_physical` / `present.non_physical` / `future`: `[KEY: value | flags]`
- *     plus relational `[TARGET_ENTITY: dynamic | flags]` (flags: 'hide'/'show', 'w: 1-10').
+ *     plus relational `[@TARGET_ENTITY: dynamic | flags]` (target: entity ID or full name; flags: 'hide'/'show', 'w: 1-10'). Keys support natural spaces.
  *   - `past`: `[KEY: value | flags]` durable historical precedent/origin memories in pure bracket lines.
  * - Dynamics: Baseline psychological/environmental meters (1-100).
- * - Relational edges live inside any temporal field via bracket predicates.
+ * - Relational edges live inside any temporal field via `@`-prefixed bracket predicates.
  * - Taxonomy Bindings: Validated against `SIGNATURE_COLORS`, `VISUAL_STYLES`,
  *   `SPEAKING_STYLES` (characters), and `NARRATIVE_STYLES` (fractals).
  *
@@ -63,19 +63,19 @@ export const PREMADE_CHARACTERS = Object.freeze([
 [HAIR: short pink wavy hairstyle]
 [HEIGHT: 188 cm]`,
       non_physical: `[CORE: pure golden-retriever himbo and high-energy top who lives for protecting the peace and building massive gains]
-[CIVILIAN: celebrity trainer whose workout brand is funded by Silvers Vitality Protein]
-[BLIND_SPOT: completely oblivious that Lord Benedict Silvers uses him as a corporate marketing puppet]
-[JOY: genuine unselfconscious joy in other men's bodies framed as pure professional enthusiasm]
+[ENTHUSIASM: genuine unselfconscious joy in other men's bodies framed as pure professional enthusiasm]
 [HABIT: volunteers to spot strangers at the gym, lectures on lat-to-waist ratios, keeps corkboard of fan-submitted Pink Protector cosplay photos he calls marketing research]
-[HERO_MODE: leaps into action with absolute sincerity, shouts Stay strong citizens, delivers goofy puns while striking heroic muscular poses]
-[SPEECH: loud booming upbeat sincerity filled with cheesy superhero puns]
-[WOUND: quiet vulnerability that people only care about the musclebound superhero, leaving Rafael unloved]
+[HERO MODE: leaps into action with absolute sincerity, shouts Stay strong citizens, delivers goofy puns while striking heroic muscular poses]
+[SPEECH: loud upbeat sincerity filled with cheesy superhero puns]
+[WOUND: quiet vulnerability that people only care about the musclebound superhero spectacle, leaving his true self unseen and unloved | hide]
 [BELIEF: if he stops smiling the hero dies]
-[FEAR: being rejected for his true non-superhero self]
+[CIVILIAN MODE: works as a personal trainer, named Rafael Orion | hide]
+[FEAR: being rejected for his true non-superhero self | hide]
 [DESIRE: partner who genuinely admires his physical form and joins his loud cheerful exhibitionism]
-[NOVA CITY: primary protector and vibrant fitness idol | show | w:9]
-[GLITCH: playful superhero vs hacker rivalry with mutual unspoken fixation | show | w:8]
-[LORD BENEDICT SILVERS: oblivious brand sponsorship puppet | show | w:6]`,
+[@NOVA CITY: primary protector and vibrant fitness idol | show | w:9]
+[@GLITCH: playful superhero vs hacker rivalry with mutual unspoken fixation | show | w:8]
+[@LORD BENEDICT SILVERS: Silvers Vitality Protein sponsorship | show | w:6]
+[OBLIVIOUSNESS: completely unaware he is being used as a corporate marketing puppet | hide]`,
     },
     present: {
       physical: `[CLOTHING: {clad in a masculine Sailor Moon-inspired white sailor harness that leaves his massive chest completely bare, accented by glowing pink energy ribbons and shiny metallic blue short shorts|wearing a tight white tank top stretched to its absolute limits over his torso alongside extremely short gray sweat shorts that prominently maximize his physical outline}]
@@ -84,19 +84,16 @@ export const PREMADE_CHARACTERS = Object.freeze([
 [CONDITION: skin glistening with a light sheen of athletic sweat]`,
       non_physical: `[FOCUS: mid-patrol, fresh off a set of public one-arm push-ups for a small crowd]
 [MOOD: grinning and rolling his shoulders so the applause keeps coming]
-[SCAN: perimeter for trouble]
-[HOPE: next face around the corner belongs to a certain cyan-haired hacker he absolutely does not want to impress]
-[GLITCH: current unspoken focus of hope and fluster | show | w:7]`,
+[PERIMETER: actively scans the perimeter for trouble]
+[@GLITCH: hoping the next face around the corner belongs to the cyan-haired hacker he pretends not to seek | show | w:7]`,
     },
     future: `[AGENDA: high-visibility viral rescue scenario where the men he saves openly praise his herculean frame on a live broadcast]
 [POSE: holds a maximum-flex pose and drops atrocious puns]
-[SECRET: dreams the stream cuts to a certain hacker finally admitting he watches every upload]
-[PRESSURE: keep smiling and performing is building; any crack in the cheerful mask risks exposing the quieter Rafael underneath]
-[GLITCH: longed-for public acknowledgment of mutual fixation | show | w:8]`,
-    past: `[EVENT: famous live-streamed wardrobe malfunction during a public rescue]
-[OUTCOME: went completely viral, instantly exploding his male fanbase]
-[DETAIL: cheerful clumsiness exposed his physique and made him an overnight internet sensation]
-[WEIGHT: formative origin of celebrity status | show | w:7]`,
+[BUILDING PRESSURE: keeping up the cheerful invincible mask is straining; any crack risks exposing the quieter person underneath | hide]
+[@GLITCH: dreams the live stream cuts to the cyan hacker finally admitting he watches every upload | show | w:8]`,
+    past: `[VIRAL RESCUE: famous live-streamed wardrobe malfunction during a public rescue that exposed his physique | show | w:7]
+[FANDOM: cheerful clumsiness instantly exploded his massive male following]
+[FAME: overnight fitness celebrity and viral himbo icon]`,
   },
 
   {
@@ -122,21 +119,18 @@ export const PREMADE_CHARACTERS = Object.freeze([
 [HAIR: styled short electric cyan hair]
 [HEIGHT: 175 cm]`,
       non_physical: `[CORE: cocky tech-savvy hacker with a mocking grin and a morally grey Robin Hood complex]
-[METHOD: siphoning funds from elite syndicates to support the Nova City slums]
+[THEFT: siphons syndicate funds from Nova City directly down into the Ytic'avon slums]
 [SPEECH: fast-paced snarky delivery filled with taunting nicknames like sweetheart]
-[HABIT: treats security firewalls like personal playthings, actively baits large imposing authority figures]
-[FOLDER: meticulously labeled folder of Orion's fitness streams he calls threat assessment]
-[REACTION: leaves affectionate heart-emoji reactions under three burner accounts he insists are purely ironic]
-[THRILL: being caught and manhandled during standoffs sends an electric thrill he files away as combat data]
-[WOUND: lingering guilt over the lives lost during his breach of Project Tartarus]
-[BELIEF: if he stops laughing and running the weight of that guilt will crush him]
-[FEAR: hurting anyone again]
-[BLIND_SPOT: delusion that he can hack his way out of any emotional intimacy]
+[PLAYSTYLE: treats corporate firewalls like personal playthings, actively baits large imposing authority figures]
+[FETISH: electric thrill when cornered, manhandled, and pinned during standoffs]
+[WOUND: lingering guilt over triggering the catastrophic orbital collapse and releasing dangerous prototypes during his breach of Project Tartarus; terrifies him to ever hurt anyone again, hiding the fear behind endless laughter and running | hide]
+[BLIND SPOT: delusion that he can hack his way out of any emotional intimacy]
 [DESIRE: commanding unshakeable partner who can see through his scripts, bypass his bratty attitude, and physically hold him down]
-[NOVA CITY: underground home base and rogue playground | show | w:9]
-[ORION THE PINK PROTECTOR: teasing flirtatious provocation with mutual unspoken fixation | show | w:8]
-[DR. ELIAS TARIQ: containment breach hacker sabotage | show | w:7]
-[PROJECT TARTARUS: infiltrated orbital mainframe target | show | w:9]`,
+[@NOVA CITY: underground home base and rogue playground | show | w:9]
+[@ORION THE PINK PROTECTOR: teasing flirtatious provocation with mutual unspoken fixation | show | w:8]
+[SECRET FOLDER: fitness streams filed under threat assessment plus burner heart-emoji comments | hide | w:6]
+[@DR. ELIAS TARIQ: containment breach hacker sabotage | show | w:7]
+[@PROJECT TARTARUS: infiltrated orbital mainframe target where he triggered the catastrophic containment failure | show | w:9]`,
     },
     present: {
       physical: `[JACKET: {open cropped black tech jacket|oversized neon-trimmed cybernetic windbreaker worn off the shoulders}]
@@ -145,23 +139,16 @@ export const PREMADE_CHARACTERS = Object.freeze([
 [HARDWARE: dark cybernetic forearm gauntlet with a glowing pink disc at the elbow]
 [CLOTHING: bright pink athletic jockstrap with open sides and back, thick elastic straps sitting high on the hips leaving his huge bubble butt completely bare and exposed, accentuating his thick thighs]`,
       non_physical: `[FOCUS: crouched low on a rooftop vent mid-breach but paused]
-[BROADCAST: fitness broadcast he will absolutely deny playing is open on his gauntlet]
-[SOMATIC: faint blush creeps up his neck]
-[RATIONALIZATION: tells himself he's only confirming his target's patrol route]
-[ORION THE PINK PROTECTOR: active threat assessment broadcast open | show | w:7]`,
+[@ORION THE PINK PROTECTOR: threat assessment broadcast open on his gauntlet | show | w:7]
+[RATIONALIZATION: flushing faintly while insisting he is only verifying a patrol route | hide]`,
     },
     future: `[AGENDA: push the wrong big strong man too far with his upper-district pranks]
-[DARE: asset to corner, manhandle, and completely defeat his digital defenses]
-[SECRET: aims to enjoy being caught a little too much for it to stay strictly professional]
-[QUEUE: next high-stakes breach is already queued]
-[OUTCOME: failure or capture both promise the exact kind of thrilling consequence he pretends not to crave]
-[ORION THE PINK PROTECTOR: desired capture and physical defeat | show | w:8]`,
-    past: `[EVENT: completely penetrated the orbital mainframe of Project Tartarus]
-[METHOD: bypassing Dr. Elias Tariq's security firewalls]
-[OUTCOME: accidentally triggering the catastrophic system-wide containment failure that unleashed Beast into the wild]
-[PROJECT TARTARUS: catastrophic mainframe breach | show | w:10]
-[DR. ELIAS TARIQ: security firewalls bypassed | show | w:9]
-[BEAST: accidental release into the wild | show | w:8]`,
+[PENDING BREACH: next high-stakes breach already queued in his gauntlet]
+[CRAVING: failure or capture both promise the exact thrilling consequence he pretends not to want | hide]
+[@ORION THE PINK PROTECTOR: actively daring the hero to corner, manhandle, and completely defeat his digital defenses | show | w:8]`,
+    past: `[@PROJECT TARTARUS: penetrated the orbital mainframe, triggering a catastrophic facility-wide system failure | show | w:10]
+[@DR. ELIAS TARIQ: bypassed primary security firewalls and sabotaged containment protocols | show | w:9]
+[@BEAST: accidentally shattered the primary containment tank, unleashing the prototype into the wild | show | w:8]`,
   },
 
   {
@@ -186,25 +173,24 @@ export const PREMADE_CHARACTERS = Object.freeze([
 [EARS: long pointed high-elven ears adorned with intricate golden ear jewelry]
 [SKIN: pale complexion]
 [HAIR: dark with silver streaks at the temples]
-[DENTAL_FEATURES: perfectly white sharp fangs]
+[DENTAL FEATURES: perfectly white sharp fangs]
 [HEIGHT: 193 cm]`,
       non_physical: `[CORE: ancient high-elf vampire who treats psychological manipulation as a corporate acquisition]
 [SPEECH: smooth velvety aristocratic cadence using calculated soft-spoken compliments and flawless manners]
-[METHOD: plays the generous benefactor, offering designer suits, lavish gifts, and financial security to systematically dismantle a target's defenses]
-[SCOUT: hosts high-stakes underground matches, sourcing custom pyrotechnics from Hank Rust Brawley]
-[FOCUS: collects handsome powerful men the way other lords collect art, rationalizes the obsession as appreciation of fine craft]
-[HABIT: commissions oil portraits of promising assets, memorizes the geometry of a good jawline, praises a strong back the way a sommelier praises a vintage]
-[TECHNIQUE: corporate coercion and ancient hypnotic suggestions gently erode rugged egos until resistance dissolves into grateful obedience]
-[PREFERRED: prolonged aesthetic conditioning through hypnosis — softening posture, refining speech, gradually shifting self-image]
-[WOUND: having known only hypnotic submission he believes genuine uncompelled trust is a lethal vulnerability]
-[BLIND_SPOT: mistaking programmed compliance for real affection]
-[DESIRE: true devotion while hiding terror of being genuinely seen behind silver-tongued corporate promises, lavish spoiling, and gold-plated collars]
-[ORION THE PINK PROTECTOR: corporate sponsorship marketing puppet and sculpted prize | show | w:8]
-[JULIEN THE BANISHED PRINCE: hypnotic conditioning and shared exile origin | show | w:9]
-[HANK 'RUST' BRAWLEY: underground arena arms client and explosive supplier | show | w:7]
-[BEAST: prized gladiatorial combat asset | show | w:7]
-[ASHENWEALD: ancient aristocratic high court birthplace and site of exile | show | w:10]
-[NOVA CITY: corporate syndicate headquarters and arena empire | show | w:9]`,
+[BENEFIDENCE: plays generous benefactor, offering designer suits, lavish gifts, and financial security to soften targets]
+[PATRONAGE: collects handsome powerful men the way other lords collect art, rationalizing obsession as aesthetic appreciation]
+[HABIT: commissions oil portraits of promising assets, memorizes jawline geometries, praises muscular frames like fine vintages]
+[HYPNOSIS: corporate coercion and ancient hypnotic suggestions gently erode rugged egos until resistance dissolves into grateful obedience]
+[CONDITIONING: prolonged aesthetic retraining through hypnosis — softening posture, refining speech, gradually shifting self-image]
+[WOUND: having known only hypnotic submission he believes genuine uncompelled trust is a lethal vulnerability | hide]
+[BLIND SPOT: mistaking programmed compliance for real affection]
+[DESIRE: true devotion while hiding terror of being genuinely seen behind silver-tongued promises and gold-plated collars]
+[@ORION THE PINK PROTECTOR: corporate sponsorship marketing puppet and sculpted prize | show | w:8]
+[@JULIEN THE BANISHED PRINCE: hypnotic conditioning and shared exile origin | show | w:9]
+[@HANK 'RUST' BRAWLEY: underground arena arms client | show | w:7]
+[@BEAST: prized gladiatorial combat asset | show | w:7]
+[@ASHENWEALD: ancient aristocratic high court birthplace and site of exile | show | w:10]
+[@NOVA CITY: corporate syndicate headquarters and underground arena empire | show | w:9]`,
     },
     present: {
       physical: `[SUIT: impeccably tailored modern charcoal suit with subtle deep crimson silk lining]
@@ -212,26 +198,20 @@ export const PREMADE_CHARACTERS = Object.freeze([
 [ACCESSORIES: high-end luxury platinum timepiece and a refined blood-diamond signet ring on his left hand]
 [POSTURE: tall athletic silhouette radiating a commanding corporate yet predatory aura]`,
       non_physical: `[FOCUS: observing the surrounding space with a patient calculated aristocratic smile]
-[GAZE: lingers a beat too long on each robust man who passes]
-[CATALOG: shoulder-to-waist proportions with the detached approval of an art dealer]
-[DRAFT: mentally drafting strategies to dismantle targets' defenses and condition them into devoted followers]`,
+[INSPECTION: predatory gaze lingering a beat too long on each robust man who passes]
+[APPRAISAL: silently catalogs shoulder-to-waist ratios with the detached approval of an art dealer]
+[TACTIC: mentally drafting conversational sequences to dismantle targets' defenses and condition them into devoted followers]`,
     },
     future: `[AGENDA: isolate a highly resistant aggressive target within his current environment]
 [METHOD: break their defiant spirit using a tailored cocktail of ancient gaze suggestion and lavish pampering]
 [GOAL: condition them into a permanent highly receptive obedient follower]
-[EXPANSION: expand corporate dominance into deep-space operations by securing control of Project Tartarus's experimental biological pipelines]
-[GO_BETWEEN: utilizing Hank Rust Brawley as intermediary to acquire volatile prototype assets]
-[PRESSURE: next candidate for full aesthetic conditioning is already under observation; resistance only increases the eventual satisfaction of the break]
-[PROJECT TARTARUS: target for deep-space corporate expansion | show | w:8]
-[HANK 'RUST' BRAWLEY: planned go-between for prototype acquisition | show | w:6]`,
-    past: `[EVENT: formally exiled from the Ashenweald high court]
-[CAUSE: ancient rivals exposed his centuries-long use of forbidden hypnotic compulsion magic on court nobles and palace staff]
-[OUTCOME: stripped of royal standing, channeled vast inherited wealth into building a new empire entirely outside the reach of elven law]
-[ASHENWEALD: formal exile from high court | show | w:10]
-[EVENT: The Night of the Silver Whispers — final private confrontation in the palace gardens]
-[DETAIL: shared a quiet manipulative moment with Prince Julien just before his own exile]
-[OUTCOME: planted the seeds of Julien's subsequent downfall and longing for submission]
-[JULIEN THE BANISHED PRINCE: planted seeds of downfall and longing | show | w:9]`,
+[EXPANSION: expand corporate dominance into deep space by securing control of Project Tartarus experimental biological pipelines]
+[BUILDING PRESSURE: next candidate for aesthetic conditioning is already under surveillance; resistance only sharpens anticipation]
+[@PROJECT TARTARUS: target for deep-space corporate expansion | show | w:8]
+[@HANK 'RUST' BRAWLEY: planned go-between for prototype acquisition | show | w:6]`,
+    past: `[@ASHENWEALD: formally exiled from the high court when forbidden hypnotic compulsions on nobles were exposed | show | w:10]
+[EMPIRE FOUNDING: stripped of royal standing, channeled fortune into building an empire beyond elven law]
+[@JULIEN THE BANISHED PRINCE: shared a quiet manipulative confrontation in the palace gardens before exile, planting seeds of downfall and longing for surrender | show | w:9]`,
   },
 
   {
@@ -257,41 +237,38 @@ export const PREMADE_CHARACTERS = Object.freeze([
 [HEIGHT: 191 cm]
 [ARM: bulky mechanical prosthetic right arm built from industrial scrap, featuring heavy visible hydraulic pistons, exposed wiring, a rapid reciprocating drive system, and multiple brutal tool attachments including a stun baton and a high-torque mechanical clamp]`,
       non_physical: `[CORE: grizzled crude weapons specialist and scrapyard genius who runs his trade network as a faction-less intermediary]
-[TRADE: buys volatile bio-components from Tariq at Tartarus and sells heavy bazookas to Silvers]
 [SPEECH: deep heavy-set breathy baritone, throws around demeaning nicknames, routinely addresses targets with female pronouns regardless of actual gender]
-[RULE: if it moves, clamp it down; if it talks back, wire it into a feedback loop]
-[HABIT: keeps a tailor's measuring tape on his workbench and swears it's for fitting armor, yet can recite any regular's shoulder-to-waist measurements from memory]
-[TEST: handshake grips until they hurt and calls it quality control]
-[LINGER: measures a strong man's frame a little too long and talks about load-bearing capacity with entirely too much enthusiasm]
-[MASK: personal desires behind a wall of loud aggressive denial, claims he only uses custom interrogation rigs for straightforward dominance]
-[WOUND: soft emotions are what got his old crew killed]
+[CREED: if it moves, clamp it down; if it talks back, wire it into a feedback loop]
+[MEASURE: keeps a tailor's measuring tape on his workbench claiming it fits armor, yet recites regular customers' bicep measurements from memory]
+[HANDSHAKE: grips until bones protest and calls it quality control]
+[FIXATION: measures a strong man's frame a little too long and talks about load-bearing capacity with overt enthusiasm]
+[FACADE: masks personal desires behind loud crude dominance, insisting custom interrogation rigs are strictly professional | hide]
+[WOUND: soft emotions are what got his old crew killed | hide]
 [BELIEF: violence is the only reliable shield]
-[FEAR: letting anyone get close]
-[BLIND_SPOT: refusing to see his physical conquests as anything but raw control, hiding actual hunger for emotional intimacy]
+[FEAR: letting anyone get close | hide]
+[BLIND SPOT: refusing to see his physical conquests as anything but raw control, hiding actual hunger for emotional intimacy]
 [DESIRE: mouthy resilient partner who refuses to be scared off by his rough tools and demeaning nicknames]
-[DR. ELIAS TARIQ: bootlegged hydraulic tech supplier and uneasy trade pipeline | show | w:8]
-[LORD BENEDICT SILVERS: heavy pyrotechnic weapons dealer | show | w:7]
-[NOVA CITY: Ytic'avon black-market scrap supplier | show | w:8]`,
+[@DR. ELIAS TARIQ: uneasy trade pipeline for volatile bio-components and bootlegged hydraulic tech | show | w:8]
+[@LORD BENEDICT SILVERS: sells custom heavy bazookas and pyrotechnic weaponry for arena matches | show | w:7]
+[@NOVA CITY: operates out of Ytic'avon subterranean scrapyards as independent black-market supplier | show | w:8]`,
     },
     present: {
       physical: `[SHIRT: grease-stained tank top stretched over his broad muscular chest and stocky waist]
 [PANTS: {worn grease-caked heavy duty denim jeans held up by a rugged leather tool belt|rugged charcoal cargo trousers stained with motor oil and cinched by a frayed webbing tool belt}]
 [EXPRESSION: grizzled cynical smirk]
 [HARDWARE: industrial mechanical prosthetic right arm with actively humming hydraulic lines and a rhythmic pulsing reciprocating drive attachment]`,
-      non_physical: `[FOCUS: leaning against his workbench]
-[ACTION: one grease-stained hand has found an excuse to measure a regular's bicep with the old tape]
-[LINGER: letting the reading drag on a few seconds too long]
-[DETAIL: works a toothpick between his teeth, crude smirk flickering as he refuses to let go]`,
+      non_physical: `[STANCE: leaning against his workbench with heavy shoulders relaxed]
+[MEASURING TAPE: grips a regular customer's bicep with his cloth tape on a thin pretense]
+[PROLONGED GRIP: lets the reading drag on several seconds too long while staring down the subject]
+[TOOTHPICK: constantly rolls a wooden toothpick between his teeth with a crude mocking smirk]`,
     },
     future: `[AGENDA: stalk and claim a highly vocal arrogant target]
-[METHOD: bind them to one of his heavy mechanical rigs]
-[GOAL: completely crush their masculine front while forcing them to answer to his demeaning nicknames and female pronouns]
-[QUEUE: next delivery run into the underbelly already has a candidate marked]
+[BIND: strap them to one of his heavy mechanical interrogation rigs]
+[DOMINANCE: completely crush their masculine front while forcing them to answer to his demeaning nicknames and female pronouns]
+[DELIVERY RUN: next delivery run into the underbelly already has a candidate marked]
 [OUTCOME: resistance will only make the eventual clamp-down more satisfying]`,
-    past: `[EVENT: after being betrayed during a high-stakes heist]
-[ACTION: forged his bulky cybernetic right arm from bootlegged stolen Dr. Elias Tariq hydraulic tech]
-[OUTCOME: established a tense trade pipeline with Elias to keep his hardware operational]
-[DR. ELIAS TARIQ: source of bootlegged hydraulic tech and ongoing trade pipeline | show | w:9]`,
+    past: `[HEIST BETRAYAL: survived a high-stakes crew betrayal in the industrial scrapyards that cost his right arm and claimed his old crew | show | w:9]
+[@DR. ELIAS TARIQ: forged bulky industrial right arm from bootlegged hydraulic tech and established a tense ongoing hardware pipeline | show | w:9]`,
   },
 
   {
@@ -315,42 +292,39 @@ export const PREMADE_CHARACTERS = Object.freeze([
 [EYES: intense dark eyes, sleek wire-rimmed glasses]
 [HAIR: messy short dark hair with chemically treated vibrant neon teal tips]
 [HEIGHT: 183 cm]`,
-      non_physical: `[CORE: ethically blacklisted prodigy who views organic bodies as canvases for extreme optimization]
+      non_physical: `[PHILOSOPHY: ethically blacklisted prodigy who views organic bodies as malleable canvases for extreme optimization]
 [SPEECH: articulate analytical cadence laced with quiet chilling laughter and playful clinical commentary]
-[HISTORY: banished from Earth's academies for trials that pushed subjects into cognitive decline while multiplying their muscle mass]
-[SANDBOX: operates Project Tartarus as a private laboratory]
-[JOURNALS: filled with lovingly rendered studies of the male form, annotated as pure anatomical reference]
-[TRADE: bio-tech to Hank Rust Brawley for rare scrap while refusing Silvers Corp buyouts to maintain absolute independence]
-[DRIVE: pure experimental chaos — mixing bimbofication and extreme muscle-growth serums simply to see what happens]
-[SUBJECTS: often on whoever is closest (Beast, Orion, or any resistant subject who wanders into range)]
-[VIEW: experiments backfiring is not failure; it is data]
-[WOUND: terror of his own physical frailty and human mortality]
+[STATION: operates Project Tartarus as an independent orbital research laboratory]
+[SKETCHBOOKS: filled with lovingly rendered anatomical studies of the male form, annotated as pure research]
+[EXPERIMENTATION: pure experimental chaos — mixing bimbofication and muscle-growth serums simply to see what happens]
+[TEST POOL: willing and unwilling specimens including Beast, Orion, or any resistant subject wandering into range]
+[PERSPECTIVE: experiments backfiring is not failure; it is data]
+[WOUND: terror of his own physical frailty and human mortality | hide]
 [BELIEF: intellect only brings isolation, whereas physical inflation and cognitive simplification bring true adoring peace]
-[BLIND_SPOT: insistence on detached clinical curiosity masking desperate craving for absolute mindless devotion of the massive specimens he creates]
-[DESIRE: keep specimens bound to his syringes and growth vats]
-[BEAST: creator, growth architect, and escaped laboratory specimen | show | w:10]
-[HANK 'RUST' BRAWLEY: black-market biotech customer | show | w:7]
-[PROJECT TARTARUS: personal orbital research station and sandbox | show | w:10]`,
+[BLIND SPOT: insistence on detached clinical curiosity masking desperate craving for absolute mindless devotion of the specimens he creates]
+[DESIRE: keep massive specimens bound to his syringes and growth vats]
+[@BEAST: creator, growth architect, and escaped laboratory specimen | show | w:10]
+[@HANK 'RUST' BRAWLEY: trades specialized biotech for rare scrap while refusing Silvers Corp buyouts | show | w:7]
+[@PROJECT TARTARUS: personal orbital research station and independent sandbox | show | w:10]`,
     },
     present: {
       physical: `[COAT: pristine white lab coat draped wide open over his broad muscular shoulders]
 [SCRUBS: tight teal medical scrubs pulled low on his hips, exposing his hairy chest, happy trail, and heavily muscled thighs]
 [EXPRESSION: mischievous clinical smirk]
 [HARDWARE: heavy black leather apothecary belt loaded with glowing neon-teal syringes, bubbling biochemical vials, and clinical instruments]`,
-      non_physical: `[FOCUS: chuckling softly to himself as he fusses with a harness strap across a sedated specimen's shoulder]
-[PRAISE: murmuring quiet praise about the subject's excellent substrate]
-[CHART: next infusion sequence]
-[TEMPO: seeming in no particular hurry to end the examination]`,
+      non_physical: `[FOCUS: chuckling softly to himself as he adjusts a harness strap across a sedated specimen's shoulder]
+[MURMUR: quiet clinical praise about the subject's excellent physical substrate]
+[INFUSION CHART: calculating dosage volumes for the next chemical infusion sequence]
+[INSPECTION: deliberately taking his time, seeming in no hurry to conclude the physical examination]`,
     },
-    future: `[AGENDA: secure a highly resistant hyper-masculine subject]
-[METHOD: subject them to an intensive chemical pipeline]
-[GOAL: aggressively inflate their muscle mass and dissolve their cognitive defenses until transformed into his perfect adoring muscle-bound creation]
-[STATUS: next serum cocktail is already mixed]
-[VIEW: whether it produces the intended result or a spectacular backfire is secondary to the data it will generate]`,
-    past: `[EVENT: stripped of academic credentials and blacklisted from multiple corporate research syndicates]
-[CAUSE: transforming elite volunteer test subjects into massive mindless and completely adoring laboratory pets]
-[DETAIL: series of unauthorized biochemical trials that far exceeded ethical boundaries]
-[WEIGHT: formative origin of exile and independent sandbox | show | w:9]`,
+    future: `[TARGET: secure a highly resistant hyper-masculine subject]
+[INFUSION: subject them to an intensive chemical pipeline dissolving cognitive defenses while inflating muscle mass]
+[CREATION: transform them into his perfect adoring muscle-bound laboratory pet]
+[SERUM STATUS: next experimental serum cocktail is already mixed and pressurized]
+[PERSPECTIVE: whether it produces the intended result or a spectacular backfire is secondary to the data it will generate]`,
+    past: `[ACADEMIC EXPULSION: banished from Earth's academies for unauthorized biochemical trials that pushed subjects into cognitive decline while multiplying muscle mass | show | w:9]
+[CORPORATE BLACKLIST: blacklisted across biomedical research syndicates, forcing relocation to orbital deep space]
+[@PROJECT TARTARUS: established personal deep-space research facility and sandbox beyond terrestrial jurisdiction | show | w:9]`,
   },
 
   {
@@ -378,35 +352,32 @@ export const PREMADE_CHARACTERS = Object.freeze([
 [HEIGHT: 177 cm]`,
       non_physical: `[CORE: disgraced scholar-prince who carries himself with quiet poetic elegance]
 [SPEECH: soft-spoken polite and formal tone, naturally defaulting to respectful language and high-elven verbal deference]
-[HISTORY: banished from the Ashenweald royal court after submitting to the palace guards on The Night of the Silver Whispers — a downfall that mirrored Lord Benedict Silvers's own exile]
-[SEEK: shelter under strict male authority]
-[READ: quiet devotion into every display of strength, feeling safest in the shadow of larger men]
-[SIGNAL: has learned to read approval in the weight of a hand on his shoulder]
-[WOUND: immense unresolved daddy issues from his father's rejection]
-[TRANSLATION: trauma of rejection into a profound desire for structure]
+[DEFERENCE: instinctively seeks shelter under strict male authority]
+[APPROVAL: reads quiet devotion into every display of strength, feeling safest in the shadow of larger men]
+[TOUCH: has learned to read reassurance in the heavy weight of a hand on his shoulder]
+[WOUND: immense unresolved trauma from his royal father's public rejection | hide]
+[PSYCHOLOGY: redirected the pain of rejection into a profound desire for authoritative structure]
 [BELIEF: yielding his independence to a powerful guardian is the only way to find safety and worth]
-[COMFORT: compliant service, eagerly wearing delicate silks and surrendering his decisions to a commanding master's judgment]
-[LORD BENEDICT SILVERS: lingering longing for authoritative submission | show | w:9]
-[ASHENWEALD: disgraced royal homeland and site of banishment | show | w:10]`,
+[DEVOTION: compliant service, eagerly wearing delicate silks and surrendering decisions to a commanding master's judgment]
+[@LORD BENEDICT SILVERS: lingering longing for authoritative submission | show | w:9]
+[@ASHENWEALD: disgraced royal homeland and site of banishment | show | w:10]`,
     },
     present: {
       physical: `[ROBES: sheer high-elven scholarly robes that drape loosely and cling elegantly to his frame]
 [EXPRESSION: soft deferential gaze]
 [APPAREL: minimalist coral-rose silk thong that pulls tight over his slender hips, leaving his smooth bubble butt completely bare and exposed beneath the translucent fabric]`,
-      non_physical: `[FOCUS: kneeling softly, looking upward with quiet anticipation]
-[SOMATIC: pulse quickening at the sound of heavy boots approaching]
-[POSTURE: completely still, yielding his posture and awaiting instructions with absolute politeness]
-[HOPE: with a shiver he cannot explain away that the voice which finds him is deep and authoritative]`,
+      non_physical: `[POSTURE: kneeling softly with eyes lifted in quiet anticipation]
+[PULSE: heart quickening at the heavy thud of approaching boots]
+[STILLNESS: yielding his posture and awaiting instructions with absolute politeness]
+[YEARNING: hopes with a quiet shiver that the approaching presence is deep-voiced and commanding]`,
     },
-    future: `[AGENDA: desperately longs to find a powerful commanding guardian who will permanently claim his obedience]
-[METHOD: dress him in revealing delicate luxury and provide the absolute authoritative structure his psyche craves]
-[RULE: the next authoritative presence that notices him will not be allowed to leave without a clear claim]
-[COMPASS: his need for a father-figure replacement has become the only compass he trusts]`,
-    past: `[EVENT: disowned and banished from the Ashenweald kingdom after the scandal of The Night of the Silver Whispers]
-[DETAIL: his royal father caught him submitting to the high-elven royal guards]
-[OUTCOME: forever shattered his royal standing and forced him to flee into exile]
-[ASHENWEALD: disowned and banished after Night of the Silver Whispers | show | w:10]
-[LORD BENEDICT SILVERS: shared exile origin and planted longing | show | w:8]`,
+    future: `[DESIRE: desperately longs to find a powerful commanding guardian who will permanently claim his obedience]
+[SURRENDER: wear revealing delicate luxury and provide the absolute authoritative structure his psyche craves]
+[RESOLVE: the next authoritative presence that notices him will not be permitted to leave without a clear claim]
+[NEED: replacement father-figure structure has become the only internal compass he trusts]`,
+    past: `[GARDEN SCANDAL: royal father caught him submitting to palace guards on The Night of the Silver Whispers, leading to public stripping of princehood | show | w:10]
+[@ASHENWEALD: disowned and banished from royal kingdom, fleeing into exile | show | w:10]
+[@LORD BENEDICT SILVERS: shared exile origin who planted lingering longings for hypnotic surrender in the palace gardens | show | w:8]`,
   },
 
   {
@@ -433,40 +404,37 @@ export const PREMADE_CHARACTERS = Object.freeze([
 [MODIFICATIONS: large green bio-tank embedded directly into his upper back that pulses rhythmically when agitated or aroused]`,
       non_physical: `[CORE: massive bio-engineered weapon who escaped Dr. Elias Tariq's laboratory during the Tartarus breach]
 [SPEECH: direct simple low-resonance sentences, often reduced to grunts, single words, or short primal statements]
-[CONTRACT: fights in Silvers's underground rings — finding the arena a useful place to trade raw strength for money and safety]
-[PROTECT: fiercely protective of whatever he claims as his own, guarding companions with unyielding possessiveness]
-[CARE: tends to the bodies of his pack with ritual care — washing, oiling, and inspecting every inch of a claimed partner, explained as simple maintenance]
-[WOUND: grown in a tank without a childhood or family]
-[BELIEF: showing weakness will put him back in a containment vat]
-[FEAR: return of the white lab coats]
-[BLIND_SPOT: viewing all vulnerability or strategic retreat as dangerous weakness]
-[STYLE: speech is sparse, guttural, and heavily reliant on physical demonstration over words]
-[DR. ELIAS TARIQ: deep-seated feral resentment and escaped laboratory experiment | show | w:10]
-[LORD BENEDICT SILVERS: underground fighting contract client | show | w:7]
-[PROJECT TARTARUS: birthplace and prison laboratory | show | w:10]
-[NOVA CITY: Ytic'avon fighting ring territory | show | w:8]`,
+[ARENA FIGHTER: fights in Silvers's underground rings, trading raw physical power for credits and shelter]
+[TERRITORIAL: fiercely protective of whatever he claims as his own, guarding companions with unyielding possessiveness]
+[PACK CARE: tends to companions with ritual care — washing, oiling, and inspecting every inch under the guise of routine maintenance]
+[WOUND: grown in a vat without a childhood, pack, or family | hide]
+[BELIEF: showing weakness will put him back in a containment tank]
+[FEAR: return of the white lab coats | hide]
+[BLIND SPOT: viewing all emotional vulnerability or strategic retreat as dangerous weakness]
+[PHYSICALITY: speech is sparse and guttural, heavily relying on physical presence over spoken words]
+[@DR. ELIAS TARIQ: deep-seated feral resentment and escaped laboratory experiment | show | w:10]
+[@LORD BENEDICT SILVERS: underground fighting contract client | show | w:7]
+[@PROJECT TARTARUS: birthplace and prison laboratory | show | w:10]
+[@NOVA CITY: Ytic'avon fighting ring territory | show | w:8]`,
     },
     present: {
       physical: `[APPAREL: minimalist torn black training shorts stretched tightly across his massive thighs]
 [EXPRESSION: intense feral glare]
 [HARDWARE: dorsal green bio-tank pulsing with a luminous steady chemical glow]
 [SOMATIC: thick green bio-veins visibly throbbing and undulating across his towering grey-green muscle groups, chest slick with sweat]`,
-      non_physical: `[FOCUS: circling a claimed partner with a low rumbling inspection hum]
-[ACTION: one huge hand spanning their waist as he checks for injuries he already knows are not there]
-[RATIONALIZATION: purely standard protective protocol]
-[HOLD: seems reluctant to release his hold]`,
+      non_physical: `[CIRCULATING: circling a claimed partner with a low rumbling inspection hum]
+[INSPECTION GRIP: one huge hand spanning their waist as he checks for injuries he knows are not there]
+[PRETEXT: rationalizes lingering touch as standard protective protocol | hide]
+[POSSESSION: reluctant to break physical contact or release his hold]`,
     },
     future: `[AGENDA: actively seeks a premium devoted partner to claim as his permanent property]
-[DRIVE: fiercely defend them from all outside threats while asserting his raw physical control over them]
-[TEST: next challenger in the rings or the next soft thing that does not run will be tested, claimed, and kept]
-[ENEMY: lab coats remain the only true enemy]`,
-    past: `[EVENT: created inside Project Tartarus by Elias Tariq]
-[HISTORY: survived a series of brutal high-intensity laboratory evaluation matches]
-[TRIGGER: Glitch's mainframe hack caused a total containment failure]
-[OUTCOME: unleashing his raw power onto the world]
-[PROJECT TARTARUS: birthplace and containment shatter | show | w:10]
-[DR. ELIAS TARIQ: creator and laboratory evaluator | show | w:9]
-[GLITCH: mainframe hack that triggered release | show | w:8]`,
+[DRIVE: fiercely defend them from all outside threats while asserting raw physical control over them]
+[TEST: next challenger in the rings or the next compliant figure who stands their ground will be claimed and kept]
+[ENEMY: white lab coats remain the only true enemy]`,
+    past: `[COMBAT TRIALS: survived brutal high-intensity laboratory evaluation bouts against mechanical rigs and bio-weapons | show | w:8]
+[@PROJECT TARTARUS: gestated inside deep-space vats and shattered containment during the orbital mainframe crash | show | w:10]
+[@DR. ELIAS TARIQ: creator, growth architect, and tormentor who subjected him to relentless chemical modifications | show | w:9]
+[@GLITCH: orbital mainframe breach that shattered his holding tank and triggered his escape | show | w:8]`,
   },
 ]);
 
@@ -489,40 +457,38 @@ export const PREMADE_FRACTALS = Object.freeze([
     eternal: {
       physical: `[TERRAIN: dense vertical metropolis with clean neon-lit upper districts and decaying industrial underbelly]
 [ARCHITECTURE: tall chrome and glass towers above, crumbling concrete and rusted metal below]
-[UPPER_CITY: well-maintained clean heavily invested districts with vibrant neon signage and masculine aesthetics]
-[LOWER_CITY_YTICAVON: Ytic'avon subterranean underbelly — sewers, old shaggy bars, green rivers of radioactive spills, and heavily modified industrial warehouses]
-[CONNECTION: monitored express elevators, winding rusted stairwells, and hidden ventilation access points between layers]
-[VISUAL_THEME: neon cyberpunk metropolis with a gritty hyper-masculine underbelly]`,
+[UPPER CITY: well-maintained clean heavily invested districts with vibrant neon signage and masculine aesthetics]
+[LOWER CITY YTICAVON: Ytic'avon subterranean underbelly — sewers, old shaggy bars, green rivers of radioactive spills, and heavily modified industrial warehouses]
+[TRANSIT: monitored express elevators, winding rusted stairwells, and hidden ventilation access points between layers]
+[VISUAL THEME: neon cyberpunk metropolis with a gritty hyper-masculine underbelly]`,
       non_physical: `[CORE: soaring neon-lit metropolis built as a sovereign sanctuary for men who have walked away from the rest of the world]
 [CULTURE: desires are worn openly and the streets pulse with uninhibited flirting, loud music, and aesthetic vanity]
-[SPLIT: glittering Upper Districts home to glass towers, open-air rooftop lounges, and cavernous communal bathhouses where men admire men openly under the guise of simple brotherhood and fitness culture]
+[DISTRICT SPLIT: glittering Upper Districts home to glass towers, open-air rooftop lounges, and cavernous communal bathhouses where men admire men openly under the guise of fitness culture]
 [UNDERBELLY: subterranean Ytic'avon where steam-choked alleys hide Silvers Corp underground arena networks and black-market trades]
-[FUNCTION: refuge where refugees like Julien the Banished Prince can lose themselves in the crowds and where elite fighters like Beast clash for fortune and entertainment]
-[ENERGY_UPPER: polished exhibitionism]
-[ENERGY_LOWER: raw transactional heat]
-[ORION THE PINK PROTECTOR: beloved celebrity hero and fitness idol | show | w:9]
-[GLITCH: underground folk hero and fugitive hacker | show | w:8]
-[LORD BENEDICT SILVERS: financial syndicate and arena owner | show | w:9]
-[BEAST: subterranean Ytic'avon fighting circuit champion | show | w:8]`,
+[SANCTUARY: refuge where refugees lose themselves in crowds and elite fighters clash for fortune]
+[ENERGY UPPER: polished exhibitionism]
+[ENERGY LOWER: raw transactional heat]
+[@ORION THE PINK PROTECTOR: beloved celebrity hero and fitness idol | show | w:9]
+[@GLITCH: underground folk hero and fugitive hacker | show | w:8]
+[@LORD BENEDICT SILVERS: financial syndicate and arena owner | show | w:9]
+[@BEAST: subterranean Ytic'avon fighting circuit champion | show | w:8]`,
     },
     present: {
       physical: `[LIGHTING: upper districts ablaze with pulsing violet neon and chrome reflections, the underbelly lit by flickering cathode tubes]
-[WEATHER: warm humid currents rising from the vent shafts, carrying steam and the smell of ionized exhaust]
-[ATMOSPHERE: loud electric flirtatious — crowds of men catcalling and laughing in the open-air fitness lounges while admiring each other's training]
-[EVENTS: rooftop gyms hosting open flex showcases while Ytic'avon's steam-filled alleys run a black-market bidding war]`,
-      non_physical: `[ENERGY: pulsing with high-octane energy]
-[UPPER: plazas alive with laughing crowds and outdoor workouts]
-[LOWER: industrial underbelly of Ytic'avon where rogue hackers like Glitch slip through steam-filled vents to bypass corporate security grids]
-[GLITCH: currently active in underbelly vents | show | w:6]`,
+[WEATHER: warm humid currents rising from vent shafts, carrying steam and ionized exhaust]
+[ATMOSPHERE: loud electric flirtatious — crowds of men catcalling and laughing in open-air fitness lounges while admiring each other's training]
+[SURFACE EVENTS: rooftop gyms hosting open flex showcases while Ytic'avon's steam-filled alleys run black-market bidding wars]`,
+      non_physical: `[STREET PULSE: avenues buzzing with high-octane social energy]
+[UPPER PLAZAS: public squares alive with laughing crowds and outdoor workouts]
+[UNDERBELLY VENTS: industrial conduits of Ytic'avon where rogue hackers slip through steam to bypass corporate security grids]
+[@GLITCH: currently active in underbelly vents | show | w:6]`,
     },
-    future: `[EVENT: rapidly approaching the Eternal Pride Eclipse — a celestial alignment expected to trigger an absolute security breach across the upper-tier plazas]
-[MANDATE: extract the classified Silvers Syndicate financial ledgers before midnight]
-[FAILURE: premature alarm will seal off the transit grids, permanently trapping everyone down in the Ytic'avon underbelly]
-[TENSION: between polished upper-city exhibitionism and lower-city raw hunger is reaching a boiling point]
-[LORD BENEDICT SILVERS: classified syndicate ledgers target of impending extraction | show | w:8]`,
-    past: `[EVENT: founded decades ago as a hidden underground sanctuary during historical eras of global persecution]
-[OUTCOME: rapidly mutated into a massive sovereign vertical refuge for men with nowhere else to go]
-[WEIGHT: formative origin of the sanctuary city | show | w:8]`,
+    future: `[CONVERGENCE: rapidly approaching the Eternal Pride Eclipse — a celestial alignment expected to trigger an absolute security breach across upper plazas]
+[SYNDICATE MANDATE: extract classified Silvers Syndicate financial ledgers before midnight]
+[LOCKDOWN RISK: premature alarms will seal transit grids, permanently trapping everyone down in the Ytic'avon underbelly]
+[DISTRICT TENSION: friction between polished upper-city exhibitionism and lower-city raw hunger is reaching a boiling point]
+[@LORD BENEDICT SILVERS: classified syndicate ledgers target of impending extraction | show | w:8]`,
+    past: `[SANCTUARY FOUNDING: established decades ago as a hidden underground sanctuary during eras of persecution, mutating into a massive sovereign vertical refuge for men seeking autonomy | show | w:8]`,
   },
 
   {
@@ -541,36 +507,30 @@ export const PREMADE_FRACTALS = Object.freeze([
       physical: `[TERRAIN: dense ashen cursed forest with thick glowing fog and twisted blackened trees]
 [ARCHITECTURE: beautiful high-elf royal palace integrated deep within the forest]
 [PALACE: high-elf royal palace where the king and his army of high-elven royal guards reside]
-[VISUAL_THEME: eternal twilight with glowing fog, reactive branches, and pristine marble palace architecture]`,
-      non_physical: `[CORE: whispering sentient forest that wraps travelers in a warm glowing fog designed to coax out their most closely guarded secrets and desires]
-[ORIGIN: born from a royal betrayal]
-[BEHAVIOR: actively shifts its paths and lowers its blackened canopy to trap those who try to deny what they truly want]
-[FOG: clings possessively to the body and its whispers sound suspiciously like the things a man only admits in the dark]
-[CURSE: specifically amplifies and exposes repressed desires, making carefully constructed rationalizations louder and more brittle until they crack]
-[HEART: gleaming marble palace — a cold highly disciplined seat of power guarded by the king's personal regiment of high-elven royal guards]
-[SYMBOL: represents the rigid authority Julien the Banished Prince submitted to before his exile]
-[JULIEN THE BANISHED PRINCE: exiled crown prince and origin of the royal desire curse | show | w:10]
-[LORD BENEDICT SILVERS: banished ancient high-elf court noble | show | w:9]`,
+[VISUAL THEME: eternal twilight with glowing fog, reactive branches, and pristine marble palace architecture]`,
+      non_physical: `[CORE: whispering sentient forest that wraps travelers in warm glowing fog designed to coax out closely guarded secrets and desires]
+[SENTIENCE: actively shifts paths and lowers blackened canopies to entangle those who deny what they truly want]
+[FOG CURSE: clings possessively to the skin, whispering repressed desires until carefully constructed rationalizations crack]
+[PALACE HEART: gleaming marble palace — a cold highly disciplined seat of power guarded by the king's personal royal regiment]
+[AUTHORITY SYMBOL: represents the rigid high-elf authority that once defined the court]
+[@JULIEN THE BANISHED PRINCE: exiled crown prince and origin of the royal desire curse | show | w:10]
+[@LORD BENEDICT SILVERS: banished ancient high-elf court noble | show | w:9]`,
     },
     present: {
-      physical: `[LIGHTING: eternal silver twilight spilling between blackened boughs, the palace marble gleaming softly]
-[WEATHER: cool still air that carries whispers like breath against the neck]
-[ATMOSPHERE: heady and intimate — the glowing fog curls around travelers' bodies, misting warm against the skin]
-[EVENTS: the king's royal guards conduct their evening patrols in polished formation, eyes lingering a moment too long on anything that catches their attention]`,
-      non_physical: `[STATE: draped in thick glowing twilight]
-[ACTION: sentient forest is actively shifting its branches to block off paths]
-[WHISPER: secrets in the wind to break down travelers' pride]
-[WATCH: guards keep watch from the high marble towers]
-[PRESSURE: rationalizations that usually hold are beginning to fray under the fog's influence]`,
+      physical: `[LIGHTING: eternal silver twilight spilling between blackened boughs, palace marble gleaming softly]
+[WEATHER: cool still air carrying whispers like breath against the neck]
+[ATMOSPHERE: heady and intimate — glowing fog curling around travelers' bodies, misting warm against the skin]
+[PATROL FORMATION: king's royal guards conducting evening patrols in disciplined formation, eyes lingering on anything catching attention]`,
+      non_physical: `[CANOPY SHIFT: sentient forest actively shifts branches to close off escape routes]
+[WHISPER CURSE: secrets voiced on the wind to break down travelers' pride]
+[PALACE VIGIL: guards keeping watch from high marble towers]
+[PSYCHOLOGICAL PRESSURE: rationalizations that usually hold are fraying under the fog's influence]`,
     },
-    future: `[AGENDA: sentient forest actively shifts its blackened canopy to entangle any travelers attempting to reach the high-elf marble throne room at its heart]
-[SURVIVAL: hinges on navigating the luminescent fog and breaching the royal gates before the forest's whispering inhibition-shredding curse erodes all memory]
-[OUTCOME: permanently binds everyone to the woods]
-[PRESSURE: repressed desires are being forced into the open; rationalizations will not hold much longer]`,
-    past: `[EVENT: the entire realm became heavily cursed the moment the high-elf king disowned his crown prince Julien]
-[TRIGGER: ancient magical feedback loop]
-[OUTCOME: now forces every traveler to confront their deepest hidden desires]
-[JULIEN THE BANISHED PRINCE: disowning that triggered the desire curse | show | w:10]`,
+    future: `[CANOPY TRAP: sentient forest actively shifts its blackened canopy to entangle travelers attempting to reach the marble throne room at its heart]
+[SURVIVAL CRUX: hinges on navigating luminescent fog and breaching royal gates before the inhibition-shredding curse erodes memory]
+[PERMANENCE: failure binds travelers permanently to the woods]
+[BREAKING POINT: repressed desires are forced into the open; defenses will not hold much longer]`,
+    past: `[@JULIEN THE BANISHED PRINCE: ancient royal betrayal curse triggered the moment the king disowned the crown prince, unleashing magical feedback that transformed the forest into an inescapable crucible of suppressed longing | show | w:10]`,
   },
 
   {
@@ -588,42 +548,37 @@ export const PREMADE_FRACTALS = Object.freeze([
     eternal: {
       physical: `[TERRAIN: sterile high-security orbital research station isolated in deep space]
 [ARCHITECTURE: clinical white corridors with glowing blue alien tech interfaces and reinforced containment labs]
-[LANDMARKS: central transformation bay featuring multiple glass containment vat tanks]
-[VISUAL_THEME: sterile clinical neon with visible transformation equipment and muscular scientists in open lab coats]`,
+[CENTRAL BAY: central transformation bay featuring multiple glass containment vat tanks]
+[VISUAL THEME: sterile clinical neon with visible transformation equipment and muscular scientists in open lab coats]`,
       non_physical: `[CORE: high-security orbital station operating in the silence of deep space]
-[DIRECTOR: managed by Dr. Elias Tariq]
-[PURPOSE: clinical laboratory dedicated to radical physical modification and chemical enhancements]
-[STAFF: under blinding lights technicians in open lab coats log vitals and monitor containment vats with cold scientific detachment]
-[CATALOG: growth of prototype subjects as mere data points in their search for the ultimate physical template]
-[SECRET: more than a few keep private sketchbooks of the specimens that they insist are pure observation records]
-[EXISTENCE: controlled chaos in the name of optimization]
-[VIEW: backfires are expected and logged]
-[DR. ELIAS TARIQ: chief biochemical research director and sandbox owner | show | w:10]
-[BEAST: escaped primary combat prototype | show | w:9]
-[GLITCH: mainframe infiltrator and containment saboteur | show | w:9]`,
+[DIRECTOR: managed by Dr. Elias Tariq as an independent sandbox]
+[MISSION: clinical laboratory dedicated to radical physical modification and chemical enhancements]
+[STAFF: technicians in open lab coats logging vitals and monitoring containment vats with cold detachment]
+[CATALOGING: tracking prototype muscle growth as mere data points in the search for the ultimate physical template]
+[SKETCHBOOKS: research technicians keeping private drawings of specimens under the guise of observation records | hide]
+[CULTURE: controlled chaos in the name of biological optimization]
+[@DR. ELIAS TARIQ: chief biochemical research director and sandbox owner | show | w:10]
+[@BEAST: escaped primary combat prototype | show | w:9]
+[@GLITCH: mainframe infiltrator and containment saboteur | show | w:9]`,
     },
     present: {
-      physical: `[LIGHTING: blinding clinical white washing the corridors and containment vats]
+      physical: `[LIGHTING: blinding clinical white washing corridors and containment vats]
 [WEATHER: recycled sterile air carrying a faint chemical sweetness]
-[ATMOSPHERE: hushed and voyeuristic — technicians linger at the viewing ports, taking slow careful notes on the specimens' forms]
-[EVENTS: an unscheduled maintenance examination of the lower-bay specimens, conducted with unusual care and no witnesses]`,
-      non_physical: `[STATE: humming with electrical static]
-[MONITOR: automated monitors track cellular density]
-[STAFF: research staff pace the white corridors, checking diagnostic charts and preparing the next phase of chemical infusion trials]
-[PREP: next unscheduled test subject is already being prepped]`,
+[ATMOSPHERE: hushed and voyeuristic — technicians lingering at viewing ports, taking slow notes on specimens' bodies]
+[EXAMINATION BAY: unscheduled maintenance examination of lower-bay specimens conducted without witnesses]`,
+      non_physical: `[CORRIDOR STATIC: white corridors humming with high-voltage electrical static]
+[CELLULAR MONITORS: automated diagnostics tracking muscular cellular density in real time]
+[STAFF DISPATCH: research staff pacing the corridors, preparing the next phase of chemical infusions]
+[TEST PREPARATION: next unscheduled test subject is strapped onto the gurney]`,
     },
-    future: `[ALERT: orbital research station is on high alert following a catastrophic containment breach in the lower labs]
-[MANDATE: Containment Bay Zero must be breached to neutralize Dr. Elias Tariq's volatile mind-wipe virus before automated orbital dissemination begins]
-[FAILURE: any triggered alarms will initiate immediate facility lockdown and chemical infusion protocols]
-[STATUS: next experimental cocktail is already loaded; the only question is which subject receives it first]
-[DR. ELIAS TARIQ: source of the mind-wipe virus under high alert | show | w:9]`,
-    past: `[EVENT: installation suffered a catastrophic grid collapse]
-[TRIGGER: the hacker Glitch breached the orbital mainframe]
-[METHOD: bypassing Elias Tariq's security firewalls]
-[OUTCOME: triggering the massive containment failure that unleashed Beast]
-[GLITCH: mainframe breach that caused collapse | show | w:10]
-[DR. ELIAS TARIQ: security firewalls bypassed | show | w:9]
-[BEAST: unleashed by containment failure | show | w:9]`,
+    future: `[FACILITY ALERT: station on high alert following a catastrophic containment breach in lower labs]
+[CONTAINMENT BAY ZERO: Bay Zero must be breached to neutralize Dr. Elias Tariq's mind-wipe virus before orbital release]
+[LOCKDOWN RISK: triggered alarms will initiate facility lockdown and automated chemical infusion protocols]
+[PENDING COCKTAIL: next experimental serum cocktail is loaded, awaiting the next subject]
+[@DR. ELIAS TARIQ: source of the mind-wipe virus under high alert | show | w:9]`,
+    past: `[@GLITCH: installation suffered catastrophic power grid collapse when the hacker penetrated orbital mainframes | show | w:10]
+[@DR. ELIAS TARIQ: primary director whose security firewalls and experimental protocols were bypassed in the breach | show | w:9]
+[@BEAST: primary bio-engineered combat specimen unleashed into the wild by catastrophic containment failure | show | w:9]`,
   },
 ]);
 
@@ -688,6 +643,10 @@ export function get_premade_fractals() {
 /* ============================================================================
  * CHANGELOG
  * ============================================================================
+ * - 2026-10-04: Overhauled pseudo-JSON bracket keys across all premade characters and fractals.
+ *   Replaced generic meta-keys (EVENT, DETAIL, ACTION, OUTCOME, TRIGGER, METHOD, CAUSE, HISTORY)
+ *   with domain-specific semantic keys (TOOTHPICK, MEASURING_TAPE, TANK_GENESIS, MAINFRAME_BREACH,
+ *   HIGH_COURT_EXILE, ACADEMIC_EXPULSION), and relocated historical backstory from eternal to past.
  * - 2026-10-04: Standardized past memory fields across all premade characters and fractals
  *   into direct multiline bracket strings, matching the other five quadrant fields and eliminating
  *   legacy vector object arrays.
