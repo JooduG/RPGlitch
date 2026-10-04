@@ -165,7 +165,7 @@ export function director_directives({ has_input = false, round = 1, has_environm
  * @returns {string[]}
  */
 function continuum_directives() {
-  return ["CONTINUUM.TARGET_FOCUS", "CONTINUUM.MANDATE"];
+  return ["CONTINUUM.TARGET_FOCUS", "CONTINUUM.MANDATE", "TEMPORAL.TENSE"];
 }
 
 /**
@@ -180,6 +180,7 @@ function sorting_directives({ entity_type = "character", ingestion = false, redi
     { group: [entity_type === "fractal" ? "SORTING.FOCUS_FRACTAL" : "SORTING.FOCUS_CHARACTER", "SORTING.MACRO"] },
     ...(ingestion ? ["SORTING.INGESTION"] : []),
     ...(redistribute ? ["SORTING.REDISTRIBUTE"] : []),
+    "TEMPORAL.TENSE",
   ];
 }
 
@@ -442,6 +443,7 @@ export default PROMPTS;
 
 /**
  * CHANGELOG
+ * - 2026-10-04: sorting_directives and continuum_directives now append TEMPORAL.TENSE (order pinned in MODE_DIRECTIVE_LEADS); field tense stated once per prompt instead of per schema value.
  * - 2026-10-01: Added think_format: "enhancement" and temporal_field format contract to enhancement mode, enabling cognitive thinking blocks for single profile field refinement.
  * - 2026-09-24: Ground-Up Refactor & Harmonization — (1) Hoisted `assemble_prompt` import to file top to establish clean ESM dependency hygiene; (2) Reconstructed module body into 6 cleanly sequenced sections following the simulation lifecycle (Envelope Presets, Protocol/Directive Composers, Mode Factory, Manifest Switchboard, Resolvers/Dispatcher, and Changelog); (3) Standardized Full-Name domain nomenclature across composers and factory options; (4) Preserved 100% contract invariance across all 100 unit and verification test cases.
  * - 2026-09-25: Task directive selection moved into the manifest — every mode now declares its Layer-6 `<DIRECTIVES>` key selection (`director_directives` / `continuum_directives` / `sorting_directives` / `optics_directives`) plus optics' `spatial_framing`; `define_mode` carries `directives` + `spatial_framing` through, so `modules/task.js` compiles selection instead of owning it.

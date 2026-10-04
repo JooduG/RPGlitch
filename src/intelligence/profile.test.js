@@ -7,7 +7,7 @@ import { describe, expect, it, vi } from "vitest";
 import { apply_profile_to_entity } from "./profile.js";
 import { render_enhancement, render_profile_sorting } from "./builder.js";
 import { TASK_LIBRARY } from "./modules/task.js";
-import { PROSE_FORMAT, get_output_format } from "./modules/task.js";
+import { get_output_format } from "./modules/task.js";
 import { PROMPTS } from "./prompts.js";
 import { MACRO_DIRECTIVES } from "./modules/protocols.js";
 
@@ -27,7 +27,7 @@ describe("Profile Domain (profile.js)", () => {
       expect(profile_schema).toContain('"past"');
       expect(profile_schema).toContain('"future"');
 
-      expect(PROSE_FORMAT).toBeDefined();
+      expect(TASK_LIBRARY.FORMATS.PROSE).toBeDefined();
       expect(get_output_format(PROMPTS.director.format)).toBeDefined();
       expect(profile_schema).toBeDefined();
       expect(get_output_format(PROMPTS.continuum.format)).toBeDefined();

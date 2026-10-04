@@ -52,7 +52,7 @@ export const PROFILE_FIELDS = {
       non_physical: {
         label: "Personality",
         description: "Timeless psychology: core beliefs, personality drivers, cognitive patterns, vocal tone, and communication tics.",
-        directive: `Core beliefs, personality drivers, cognitive patterns, vocal tone, speech cadence, and communication tics. Timeless psychological baseline that holds true in any scene.`,
+        directive: `Core beliefs, personality drivers, cognitive patterns, vocal tone, speech cadence, and communication tics.`,
         enhancer: "COGNITIVE_ARCHITECT",
       },
     },
@@ -61,13 +61,13 @@ export const PROFILE_FIELDS = {
         label: "Current Look",
         description:
           "Current physical appearance for image generation (clothing, colors, expression, posture, condition). Use {Option A|Option B} for variables.",
-        directive: `[KEY: value] current appearance layered over eternal baseline (clothing, colors, expression, posture, condition, held). Use {Option A|Option B} for variables. Visible temporary items and poses only.`,
+        directive: `[KEY: value] current appearance (clothing, colors, expression, posture, condition, held). Use {Option A|Option B} for variables. Visible temporary items and poses only.`,
         enhancer: "SOMATIC_TRACKER",
       },
       non_physical: {
         label: "State of Mind",
         description: "Current state of mind: immediate emotional pressure, active mental focus, and present behavioral drivers.",
-        directive: `Immediate emotional pressure, active mental focus, and present behavioral drivers true in THIS moment only.`,
+        directive: `Immediate emotional pressure, active mental focus, and present behavioral drivers.`,
         enhancer: "TACTICAL_ANALYZER",
       },
     },
@@ -75,13 +75,13 @@ export const PROFILE_FIELDS = {
       label: "Agenda",
       description:
         "The entity's active trajectory or standing agenda: clear intent, building pressure, or impending event driving the next state change.",
-      directive: `Active trajectory or standing agenda in active future tense: clear intent, building pressure, or impending event driving this entity toward its next state change. Distinct from Present. No story scenes or dialogue.`,
+      directive: `Active trajectory or standing agenda: clear intent, building pressure, or impending event driving this entity toward its next state change. No story scenes or dialogue.`,
       enhancer: "TRAJECTORY_SIMULATOR",
     },
     past: {
       label: "Memories",
       description: "Formative memories or critical precedents: specific anchored events or established historical facts.",
-      directive: `Settled historical fact or precedent in past tense: [KEY: value | flags] (flags: 'hide' / 'show', 'w: 1-10'). Specific over vague; exclude transient moods or immediate dialogue.`,
+      directive: `Settled historical fact or precedent: [KEY: value | flags] (flags: 'hide' / 'show', 'w: 1-10'). Specific over vague; exclude transient moods or immediate dialogue.`,
       enhancer: "EPISODIC_MEMORY_COMPILER",
     },
   },
@@ -96,7 +96,7 @@ export const PROFILE_FIELDS = {
       non_physical: {
         label: "Permanent Truths",
         description: "Timeless metaphysical substrate: governing laws, constant environmental forces, and physical constants.",
-        directive: `Timeless metaphysical substrate: governing laws, constant environmental forces, and physical constants.`,
+        directive: `Metaphysical substrate: governing laws, constant environmental forces, and physical constants.`,
         enhancer: "METAPHYSICAL_ARCHITECT",
       },
     },
@@ -104,7 +104,7 @@ export const PROFILE_FIELDS = {
       physical: {
         label: "Atmosphere",
         description: "Current atmospheric state for image generation (lighting, weather, atmosphere, events). Use {Option A|Option B} for variables.",
-        directive: `[KEY: value] current atmospheric state layered over eternal baseline (lighting, weather, atmosphere, events). Use {Option A|Option B} for variables. Momentary sensory elements only.`,
+        directive: `[KEY: value] current atmospheric state (lighting, weather, atmosphere, events). Use {Option A|Option B} for variables. Momentary sensory elements only.`,
         enhancer: "ATMOSPHERIC_TRACKER",
       },
       non_physical: {
@@ -117,13 +117,13 @@ export const PROFILE_FIELDS = {
     future: {
       label: "Trajectory",
       description: "Environmental trajectory, building anomaly, or converging weather event driving the next scene state change.",
-      directive: `Environmental trajectory, building atmospheric pressure, impending environmental event, or anomaly apex driving this world toward its next state change in active future tense.`,
+      directive: `Environmental trajectory, building atmospheric pressure, impending environmental event, or anomaly apex driving this world toward its next state change.`,
       enhancer: "ECOSYSTEM_SIMULATOR",
     },
     past: {
       label: "History",
       description: "Historical cataclysms, founding myths, and settled geographic epochs.",
-      directive: `Settled historical cataclysm, founding myth, or defining epoch in past tense: [KEY: value | flags] (flags: 'hide' / 'show', 'w: 1-10'). Specific over vague; exclude active weather or temporary conditions.`,
+      directive: `Settled historical cataclysm, founding myth, or defining epoch: [KEY: value | flags] (flags: 'hide' / 'show', 'w: 1-10'). Specific over vague; exclude active weather or temporary conditions.`,
       enhancer: "HISTORIAN",
     },
   },
@@ -307,6 +307,7 @@ export function build_profile_sections(entity_type = "character") {
 
 /**
  * CHANGELOG:
+ * - 2026-10-04: Stripped per-field tense clauses from the temporal layer directives (tense now stated once via TASK_LIBRARY.TEMPORAL.TENSE); field text is pure content guidance.
  * - 2026-10-03: Instructed and preferred bracket directives across all fields (eternal/present non_physical and future) using HELPERS.BRACKETS, allowing prose while documenting bracket syntax.
  * - 2026-10-03: Consolidated HELPERS.BRACKETS and HELPERS.RELATIONAL_BRACKETS into unified BRACKETS helper documenting both standard and relational bracket syntax.
  * - 2026-10-01: Symmetrically authorized bracket directives across fractal eternal and present non_physical layers in PROFILE_FIELDS, harmonizing bracket predicate architecture.

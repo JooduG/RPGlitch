@@ -70,6 +70,7 @@ import {
   resolve_optics_cinematography,
   render_available_keywords_xml,
   render_subtext_xml,
+  get_directive_atom,
   get_output_format,
 } from "./modules/task.js";
 import { DYNAMICS_AXES, PHYSICS_PROTOCOLS, AVAILABLE_KEYWORDS, evaluate_dynamics_rules, evaluate_subtext_protocols } from "./physics.js";
@@ -854,7 +855,7 @@ export function render_enhancement({
   const task_xml = render_task({
     config,
     task_state: config.task_state,
-    directives: [resolved_directive, macro_directive],
+    directives: [resolved_directive, macro_directive, get_directive_atom("TEMPORAL.TENSE")],
     input: content,
     input_channel: "content",
     output_format: get_output_format(config.format, {
@@ -1304,6 +1305,7 @@ export function assemble_prompt(config, context = {}) {
 
 /**
  * CHANGELOG
+ * - 2026-10-04: Enhancement DIRECTIVES now append the canonical TEMPORAL.TENSE atom after the field directive and macro.
  * - 2026-10-01: Re-routed resolve_macro_directive from protocols.js and parameterized render_enhancement with is_temporal and think-awareness for Layer 7 format compilation.
  * - 2026-09-25: Layer-6 refactor wiring — every `render_task` call site now passes its manifest `config`, so the task compiler resolves the mode's declarative `<DIRECTIVES>` selection (director/continuum/sorting/optics) and `optics` spatial framing instead of a hand-rolled builder array; `render_profile_sorting` passes `entity_type`/`ingestion`/`redistribute` rather than precompiled directive strings, and the now-unused `TASK_LIBRARY` import is dropped. Output bytes unchanged.
  * - 2026-09-24: Consolidated payload assembler (`to_data_points` and `context_builder`) directly into `builder.js`, pruning `payload.js` and streamlining intelligence kernel architecture.

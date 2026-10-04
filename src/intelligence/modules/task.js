@@ -10,7 +10,7 @@
  *
  * ── Multi-Shot Simulation Lifecycle Mapping ─────────────────────────────────
  * • Section 1: Unified Task Directives & Protocols Catalog (TASK_LIBRARY)
- *              (Protocols, Director, Continuum, Prose, Sorting, Optics directives)
+ *              (Protocols, Director, Continuum, Prose, Sorting, Optics directives, Output Formats, Temporal Tense)
  * • Section 2: Dynamic Directive Compiler (get_directive_atom / compile_directive_tags)
  *              (Dotted-key resolution + {placeholder} interpolation → ordered paragraphs)
  * • Section 3: Prose Reflex & Input Reaction Engine
@@ -249,6 +249,23 @@ Analyze recent turns in «HISTORY». Synthesize memories, update physical appear
         CHARACTER_IN_SCENE: "\n  Character In Scene: Depict {character_name} situated directly within {setting_name}.",
       }),
     }),
+  }),
+  // ---- 1.8 Output Emission Formats (prose / bracket / text / json) ----
+  FORMATS: Object.freeze({
+    PROSE: "After closing </THINK>, emit strictly plain prose: no preamble, commentary, markdown, or structural tags.",
+    PLAIN_PROSE: "Emit strictly plain prose: no preamble, commentary, markdown, or structural tags.",
+    BRACKET:
+      "After closing </THINK>, emit strictly bracketed directives: [KEY: value] — one per line, no outer braces, no conversational prose outside brackets. Keys support natural spaces. Relational brackets targeting other entities or active roles MUST begin with '@': [@TARGET_ENTITY: relationship dynamic | flags] (flags: 'hide' for covert items / 'show', 'w: 1-10' importance weight). Atomic clearing: [KEY: none].",
+    PLAIN_BRACKET:
+      "Emit strictly bracketed directives: [KEY: value] — one per line, no outer braces, no conversational prose outside brackets. Keys support natural spaces. Relational brackets targeting other entities or active roles MUST begin with '@': [@TARGET_ENTITY: relationship dynamic | flags] (flags: 'hide' for covert items / 'show', 'w: 1-10' importance weight). Atomic clearing: [KEY: none].",
+    PLAIN_TEXT: "After closing </THINK>, emit clean text: no preamble, commentary, markdown, or structural tags.",
+    JSON_RETURN:
+      "Return a single, COMPLETE, VALID JSON object matching this schema:\n{schema}\n\nNo preamble, no markdown backticks, no external XML tags. Output must start with { and end with }.",
+  }),
+  // -- 1.9 Temporal Layer Tense (single-field + schema modes) --
+  TEMPORAL: Object.freeze({
+    TENSE:
+      "TEMPORAL TENSE: ETERNAL fields are timeless permanent baselines, true in any scene. PRESENT fields layer over the eternal baseline and hold true in THIS moment only. PAST fields are settled history in past tense. FUTURE fields are active trajectory in active future tense, distinct from Present.",
   }),
 });
 
@@ -698,13 +715,15 @@ export const TASK_SLOT_RESOLVERS = Object.freeze({
   prose_posture: (values) => render_prose_reflex(values.snapshot, values.input, values.speaking_style),
   stability_lock: (values) => String(values.stability_lock || "").trim(),
 
-  json_output: (values) => (values.schema ? render_output_format_xml({ mode: "json", content: format_json_return(values.schema) }) : ""),
-  prose_output: (values) => render_output_format_xml({ mode: "prose", content: values.config?.think_format ? PROSE_FORMAT : PLAIN_PROSE_FORMAT }),
+  json_output: (values) =>
+    values.schema ? render_output_format_xml({ mode: "json", content: get_directive_atom("FORMATS.JSON_RETURN", values) }) : "",
+  prose_output: (values) =>
+    render_output_format_xml({ mode: "prose", content: values.config?.think_format ? TASK_LIBRARY.FORMATS.PROSE : TASK_LIBRARY.FORMATS.PLAIN_PROSE }),
   external_output: (values) =>
     values.output_format
       ? render_output_format_xml({ mode: values.output_mode || "prose", content: values.output_format })
       : values.schema
-        ? render_output_format_xml({ mode: "json", content: format_json_return(values.schema) })
+        ? render_output_format_xml({ mode: "json", content: get_directive_atom("FORMATS.JSON_RETURN", values) })
         : "",
 });
 
@@ -1000,54 +1019,6 @@ export function render_json_schema(schema_keys, entity_type = "character", { neg
 }
 
 /**
- * Plain prose emission instruction for Story Prose turns (interaction, ghostwrite, npc, narrator),
- * which all open with a `<THINK>` block.
- * @type {string}
- */
-export const PROSE_FORMAT = "After closing </THINK>, emit strictly plain prose: no preamble, commentary, markdown, or structural tags.";
-
-/**
- * Think-free variant for prose-format modes that emit no `<THINK>` block.
- * @type {string}
- */
-export const PLAIN_PROSE_FORMAT = "Emit strictly plain prose: no preamble, commentary, markdown, or structural tags.";
-
-/**
- * Canonical universal bracket directive for temporal field enhancement (with think block).
- * @type {string}
- */
-export const BRACKET_FORMAT =
-  "After closing </THINK>, emit strictly bracketed directives: [KEY: value] — one per line, no outer braces, no conversational prose outside brackets. Keys support natural spaces. Relational brackets targeting other entities or active roles MUST begin with '@': [@TARGET_ENTITY: relationship dynamic | flags] (flags: 'hide' for covert items / 'show', 'w: 1-10' importance weight). Atomic clearing: [KEY: none].";
-
-/**
- * Think-free variant of bracket directive for non-think callers.
- * @type {string}
- */
-export const PLAIN_BRACKET_FORMAT =
-  "Emit strictly bracketed directives: [KEY: value] — one per line, no outer braces, no conversational prose outside brackets. Keys support natural spaces. Relational brackets targeting other entities or active roles MUST begin with '@': [@TARGET_ENTITY: relationship dynamic | flags] (flags: 'hide' for covert items / 'show', 'w: 1-10' importance weight). Atomic clearing: [KEY: none].";
-
-/**
- * Clean text emission instruction for non-temporal fields (name, description) with think block.
- * @type {string}
- */
-export const PLAIN_TEXT_FORMAT = "After closing </THINK>, emit clean text: no preamble, commentary, markdown, or structural tags.";
-
-/**
- * Formats the canonical structured JSON-return instruction for a compiled schema.
- *
- * Schema-escaping policy (single, universal): the compiled schema text is emitted VERBATIM —
- * never XML-escaped — because it is a contract literal the model must read exactly. Untrusted
- * *values* are escaped at their own boundary (`prompt_escape` for text nodes, `escape_xml` for
- * attributes) before they reach any schema position.
- *
- * @param {string} schema - JSON schema definition
- * @returns {string} Formatted instruction
- */
-export function format_json_return(schema) {
-  return `Return a single, COMPLETE, VALID JSON object matching this schema:\n${schema}\n\nNo preamble, no markdown backticks, no external XML tags. Output must start with { and end with }.`;
-}
-
-/**
  * Resolves an output format directive or schema from its canonical format specification.
  * Parameter-aware: accepts an options object to dynamically parameterize CONTINUUM, PROFILE, DIRECTOR, and OPTICS schemas.
  *
@@ -1061,14 +1032,14 @@ export function get_output_format(format_spec, options = {}) {
   // 1. Single profile field enhancement format routing
   if (format_spec.mode === "temporal_field" || options.is_temporal !== undefined) {
     if (options.is_temporal) {
-      return options.has_think !== false ? BRACKET_FORMAT : PLAIN_BRACKET_FORMAT;
+      return options.has_think !== false ? TASK_LIBRARY.FORMATS.BRACKET : TASK_LIBRARY.FORMATS.PLAIN_BRACKET;
     }
-    return options.has_think !== false ? PLAIN_TEXT_FORMAT : PLAIN_PROSE_FORMAT;
+    return options.has_think !== false ? TASK_LIBRARY.FORMATS.PLAIN_TEXT : TASK_LIBRARY.FORMATS.PLAIN_PROSE;
   }
 
   // 2. Plain narrative prose directive (think-free variant for modes that open no <THINK> block)
   if (format_spec.mode === "prose") {
-    return options.has_think === false ? PLAIN_PROSE_FORMAT : PROSE_FORMAT;
+    return options.has_think === false ? TASK_LIBRARY.FORMATS.PLAIN_PROSE : TASK_LIBRARY.FORMATS.PROSE;
   }
 
   // 3. Structured JSON schema specification from PROMPTS manifest: { mode: "json", schema: [...] }
@@ -1109,6 +1080,8 @@ export function render_output_format_xml({ mode = "", content = "", indent_level
 
 /**
  * CHANGELOG
+ * - 2026-10-04: Added TASK_LIBRARY.TEMPORAL.TENSE (new 1.9 section) - one canonical temporal-tense paragraph for single-field and schema modes; per-field tense clauses removed from the profile layer directives.
+ * - 2026-10-04: Moved the five output emission strings plus the JSON-return template into TASK_LIBRARY.FORMATS (new 1.8 section); retired format_json_return in favor of get_directive_atom with FORMATS.JSON_RETURN - byte-identical output, schema still interpolated verbatim; profile.test.js now reads TASK_LIBRARY.FORMATS.PROSE. No contract size change.
  * - 2026-10-01: Consolidated Layer 7 (OUTPUT_FORMAT, format.js) directly into task.js. Eliminated cross-sibling module import and unified turn execution with output schema definitions.
  * - 2026-10-01: Added THINK_ENHANCEMENT cognition beat protocol, wired enhancement think_format into TASK_SLOT_RESOLVERS and TASK_MODE_PLANS, and updated SORTING directives for bracket-first physical and temporal layers.
  * - 2026-09-26: Prompt hardening — `DIRECTOR.USER_PERSONA_LOCK`/`ROUTING` now state that a player-yield action is never valid and the player's turn opens automatically (so the model stops emitting `USER_PERSONA`); `OPTICS.SUBJECT_RULES.SIGNATURE_COLORS` now forbids recoloring/lengthening declared hair, deriving hair/eye color from the environment or lighting, or conflating accessories (silver jewelry) with hair, and requires the exact declared values.
