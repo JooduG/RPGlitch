@@ -1,11 +1,11 @@
 /**
  * src/intelligence/modules/system.js
  * ============================================================================
- * 🌐 SYSTEM PROMPT MODULE — Root Envelope, Role Lines & Stability Locks
+ * 🌐 SYSTEM PROMPT MODULE — Root Envelope & Role Lines
  * ============================================================================
  *
- * Provides root <SYSTEM> XML envelope construction, role line formatting,
- * and structural stability-lock error recovery text.
+ * Provides root <SYSTEM> XML envelope construction and role line formatting.
+ * Stability-lock and truncation recovery copy lives in recovery.js.
  *
  * Architecture & Modification Rules:
  * - Unidirectional layer flow: pure string compilation.
@@ -47,32 +47,7 @@ export function resolve_system_role_line({ role = "INTERACTION", ...parameters }
 }
 
 // ============================================================================
-// [SECTION 2: STABILITY LOCK MESSAGES & TRUNCATION RECOVERY]
-// ============================================================================
-
-export const STABILITY_LOCK = Object.freeze({
-  WARNING: "WARNING: Structural drift detected. Ensure all XML tags close cleanly.",
-  CRITICAL: "CRITICAL: Structural collapse. Every XML tag must close cleanly.",
-});
-
-export const TRUNCATION_COMPLETE_NOTE =
-  "\n\nIMPORTANT: Previous reply cut off mid-sentence. Complete the response directly without repeating earlier text or rehashing events. Conclude on a complete sentence.";
-
-/**
- * Resolves appropriate stability lock escalation message based on recorded structural errors.
- * @param {Object} [metadata]
- * @param {number} [metadata.structural_errors]
- * @returns {string}
- */
-export function resolve_stability_lock(metadata) {
-  const errors = Number(metadata?.structural_errors) || 0;
-  if (errors >= 3) return STABILITY_LOCK.CRITICAL;
-  if (errors >= 1) return STABILITY_LOCK.WARNING;
-  return "";
-}
-
-// ============================================================================
-// [SECTION 3: UNIVERSAL SYSTEM ENVELOPE COMPILER]
+// [SECTION 2: UNIVERSAL SYSTEM ENVELOPE COMPILER]
 // ============================================================================
 
 export const SYSTEM_TAG = "SYSTEM";
@@ -111,6 +86,7 @@ export function render_system_xml({ mode = "", round = null, attributes = {}, ch
 
 /**
  * CHANGELOG
+ * - 2026-10-04: Moved stability-lock/truncation recovery copy to recovery.js; system.js owns identity + envelope only.
  * - 2026-09-22: `render_system_xml` passes `child_indent: 2` so every `<SYSTEM>` child (role line, protocols, entities, cast, history) sits at one uniform depth (recommendation #1).
  * - 2026-09-20: Universal envelope — `render_system_xml` now emits an OPEN `<SYSTEM role="…">` fragment only (dropped the `task` parameter and `SYSTEM_CLOSE_TAG`); `platform/transport.js` appends history + task and owns the single `</SYSTEM>` close, so every mode packages `{ system, task }`.
  * - 2026-09-18: Added SENSORY_CORTEX role and task parameter to render_system_xml for universal nested envelope compilation.

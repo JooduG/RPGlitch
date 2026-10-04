@@ -44,22 +44,22 @@ import {
 } from "@utils";
 import { ensure_embeddings } from "@platform";
 import { get_prompt } from "./prompts.js";
-import { resolve_stability_lock, resolve_system_role_line, render_system_xml } from "./modules/system.js";
+import { resolve_system_role_line, render_system_xml } from "./modules/system.js";
+import { resolve_stability_lock } from "./modules/reflex.js";
 import { render_axiomatic_constitution } from "./modules/constitution.js";
 import { render_core_protocols, resolve_pov_protocol, resolve_macro_directive, resolve_layer_tense_protocol } from "./modules/protocols.js";
 import {
   render_entity_sheets,
   resolve_entities,
-  render_entity_memory_context,
-  render_enhancement_field_context,
   render_optics_entities_xml,
   render_nearby_entities_xml,
   render_candidate_cast_xml,
-  render_dynamics_axes_xml,
 } from "./modules/entities.js";
+import { render_entity_memory_context, render_enhancement_field_context, render_chapter_history_xml } from "./modules/sheets.js";
+import { render_dynamics_axes_xml } from "./physics.js";
 import { verify_epistemic_integrity } from "./veil.js";
 
-import { render_history, render_chapter_history_xml, render_input_history_xml, resolve_history, format_sensory_history } from "./modules/history.js";
+import { render_history, render_input_history_xml, resolve_history, format_sensory_history } from "./modules/history.js";
 import {
   render_task,
   render_keyword_directives_xml,
@@ -68,8 +68,8 @@ import {
   resolve_optics_cinematography,
   render_available_keywords_xml,
   render_subtext_xml,
-  get_output_format,
 } from "./modules/task.js";
+import { get_output_format } from "./modules/output.js";
 import { DYNAMICS_AXES, PHYSICS_PROTOCOLS, AVAILABLE_KEYWORDS, evaluate_dynamics_rules, evaluate_subtext_protocols } from "./physics.js";
 import { temporal_engine, resolve_vector_pool } from "./temporal.js";
 import { aesthetic_resolver, normalize_image_tier, resolve_visual_engine_tokens } from "@media";
@@ -1306,6 +1306,7 @@ export function assemble_prompt(config, context = {}) {
 
 /**
  * CHANGELOG
+ * - 2026-10-04: Rewired module imports for the prompt-architecture split (recovery.js, output.js, style.js, sheets.js, media optics/history shaping); assembly logic unchanged.
  * - 2026-10-04: Dropped the enhancement `<LAYER>` tag (tense now rides the `<PERSPECTIVE tense>` attribute) and flipped `render_enhancement` to catalog-first enhancer priority.
  * - 2026-10-04: Sorting passes pov_protocol THIRD (POV_THIRD retired); enhancement resolves its field layer-tense protocol dynamically into core_protocols instead of a blanket DIRECTIVES paragraph.
  * - 2026-10-04: Enhancement DIRECTIVES now append the canonical TEMPORAL.TENSE atom after the field directive and macro.

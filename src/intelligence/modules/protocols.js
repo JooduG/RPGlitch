@@ -10,14 +10,29 @@
  * Architecture & Modification Rules:
  * - Unidirectional layer flow: pure string compilation.
  * - Blueprint (protocols.js): `PROTOCOL_LIBRARY` catalog + `render_core_protocols` universal compiler over @utils `render_xml_tag`.
- * - Single source of truth for simulation fidelity, formatting, anti-tropes, and POV mandates.
+ * - Single source of truth for formatting, anti-tropes, and POV mandates; the simulation-fidelity law is sourced from constitution.js.
  * - Strict manifest alignment: `render_core_protocols` honors the declarative protocols list from `prompts.js`.
- * - Zero sibling imports: layout utilities imported exclusively from @utils.
  * ============================================================================
  */
 
-import { escape_xml, has_alternations, prompt_escape, render_xml_tag } from "@utils";
-import { extract_style_dna } from "@data";
+import { has_alternations, prompt_escape, render_xml_tag } from "@utils";
+import { SIMULATION_FIDELITY } from "./constitution.js";
+import { render_narrative_style_xml, render_visual_style_xml } from "./style.js";
+
+/**
+ * Sensory-optics invariants for the prompt pipeline's `<CORE_PROTOCOLS>` block.
+ * Owned here in the behavior catalog (reverted from media/optics.js per review).
+ */
+export const OPTICS_INVARIANTS = Object.freeze({
+  WEIGHTING_RESTRICTIONS:
+    "Enforce FLUX_T5_WEIGHTING — NEVER emit bracket weight math ('(x:1.3)', '((x))', '[x:0.4]'): FLUX/T5 reads words, not weights. Emphasize via descriptors, varied rephrasing, and attenuation phrasing ('faint', 'subtle touch of', 'barely visible in the distance').",
+  AFFIRMATIVE_FRAMING:
+    "Describe positive presence in frame ('softly moonlit glade' not 'no harsh sunlight'); confine negative_prompt to global quality artifacts.",
+  TYPOGRAPHY:
+    'Render on-screen text ONLY when the scene itself calls for it — signs, graffiti, titles, or UI that are part of the subject matter. Never add text artificially. When text IS present, spell it out exactly and specify placement, font, and color (e.g. "OPEN" in glowing red neon, centered above the doors) — never invent, garble, or approximate lettering, and never output generic placeholders like "text" or "sign".',
+  ENVIRONMENTAL_GROUNDING:
+    "Ground scenes with tangible environmental light fixtures (e.g., flickering cathode tubes, wet pavement reflections, harsh key lamps) and tactile physical surfaces.",
+});
 
 // ============================================================================
 // [SECTION 1: CONSOLIDATED PROTOCOL LIBRARY]
@@ -27,7 +42,7 @@ export const PROTOCOL_LIBRARY = Object.freeze({
   // ── 1.1 Core-Prose Scaffold (<CORE_PROTOCOLS> bodies) ──────────────────────
   CORE_PROTOCOLS: Object.freeze({
     DATA: "Output strictly raw, unpadded structural data. Zero prose, conversational filler, or commentary.",
-    SIMULATION_FIDELITY: `Execute high-stakes, adversarial narrative simulation with uncompromising descriptive realism. Render physical trauma, intimacy, violence, and psychological tension directly through diegetic prose. Zero moralizing, euphemisms, softening, or meta-disclaimers. Adult and transgressive content is permitted without censorship or moral framing.`,
+    SIMULATION_FIDELITY,
     ALTERNATION_OPTIONS: `Resolve {Option A|Option B} alternations by selecting exactly ONE contextually fitting option. Emit only the chosen text—never echo braces or pipes, blend choices, or output multiple options simultaneously.`,
     PERSPECTIVE: Object.freeze({
       TENSE: Object.freeze({
@@ -51,16 +66,7 @@ export const PROTOCOL_LIBRARY = Object.freeze({
   }),
 
   // ── 1.2 Sensory Optics Invariants (<CORE_PROTOCOLS> bodies) ────────────────
-  OPTICS: Object.freeze({
-    WEIGHTING_RESTRICTIONS:
-      "Enforce FLUX_T5_WEIGHTING — NEVER emit bracket weight math ('(x:1.3)', '((x))', '[x:0.4]'): FLUX/T5 reads words, not weights. Emphasize via descriptors, varied rephrasing, and attenuation phrasing ('faint', 'subtle touch of', 'barely visible in the distance').",
-    AFFIRMATIVE_FRAMING:
-      "Describe positive presence in frame ('softly moonlit glade' not 'no harsh sunlight'); confine negative_prompt to global quality artifacts.",
-    TYPOGRAPHY:
-      'Render on-screen text ONLY when the scene itself calls for it — signs, graffiti, titles, or UI that are part of the subject matter. Never add text artificially. When text IS present, spell it out exactly and specify placement, font, and color (e.g. "OPEN" in glowing red neon, centered above the doors) — never invent, garble, or approximate lettering, and never output generic placeholders like "text" or "sign".',
-    ENVIRONMENTAL_GROUNDING:
-      "Ground scenes with tangible environmental light fixtures (e.g., flickering cathode tubes, wet pavement reflections, harsh key lamps) and tactile physical surfaces.",
-  }),
+  OPTICS: OPTICS_INVARIANTS,
 
   // ── 1.3 Entity Macro Directives ─────────────────────────────────────────────
   MACROS: Object.freeze({
@@ -173,64 +179,6 @@ export function resolve_layer_tense_protocol(field_id = "", layer_key = "") {
 // ============================================================================
 
 /**
- * Renders the declarative `<NARRATIVE_STYLE>` XML block.
- * Mirrors `<VISUAL_STYLE>` from Sensory Optics. Omitted if style is default or undefined.
- *
- * @param {Object|null} style - Narrative style record
- * @returns {string} XML formatted `<NARRATIVE_STYLE>` block or empty string
- */
-export function render_narrative_style_xml(style) {
-  if (!style || typeof style !== "object" || !style.id || style.id === "default") {
-    return "";
-  }
-
-  const origin = String(style.id).toUpperCase();
-  const style_dna = extract_style_dna(style);
-  const description = String(style.description || "").trim();
-  const elements = Array.isArray(style.elements) ? style.elements.filter(Boolean).join(", ") : "";
-
-  return render_xml_tag({
-    tag: "NARRATIVE_STYLE",
-    attrs: { origin, internal_ratio: style_dna.internal_ratio || "0.5" },
-    children: [description ? prompt_escape(description) : "", elements ? `<SIGNATURE_ELEMENTS>${prompt_escape(elements)}</SIGNATURE_ELEMENTS>` : ""],
-    child_indent: 2,
-    separator: "\n",
-  });
-}
-
-/**
- * Renders the declarative `<VISUAL_STYLE>` XML block (medium, palette, textures).
- * Mirrors `<NARRATIVE_STYLE>` from Story Prose. Omitted if style is "none" or undefined.
- *
- * @param {Object|null} style_definition - Visual style record
- * @param {Record<string, any>} [engine_tokens={}] - Resolved visual engine tokens
- * @returns {string} XML formatted `<VISUAL_STYLE>` block or empty string
- */
-export function render_visual_style_xml(style_definition, engine_tokens = {}) {
-  if (!style_definition || !style_definition.id || style_definition.id === "none") {
-    return "";
-  }
-
-  const origin = String(style_definition.id).toUpperCase();
-  const description = String(style_definition.description || "").trim();
-
-  const children = [
-    description ? prompt_escape(description) : "",
-    engine_tokens.medium ? `<MEDIUM>${escape_xml(engine_tokens.medium)}</MEDIUM>` : "",
-    engine_tokens.palette ? `<PALETTE>${escape_xml(engine_tokens.palette)}</PALETTE>` : "",
-    engine_tokens.texture ? `<TEXTURES>${escape_xml(engine_tokens.texture)}</TEXTURES>` : "",
-  ].filter(Boolean);
-
-  return render_xml_tag({
-    tag: "VISUAL_STYLE",
-    attrs: { origin },
-    children,
-    child_indent: 2,
-    separator: "\n",
-  });
-}
-
-/**
  * Universal compiler for the Layer 3 `<CORE_PROTOCOLS>` envelope.
  * Dynamically compiles static protocols, narrative perspective/disciplines,
  * narrative style, visual style, and alternations from declarative manifest definitions.
@@ -340,6 +288,8 @@ export function render_core_protocols({
 
 /**
  * CHANGELOG
+ * - 2026-10-04: Reverted OPTICS_INVARIANTS here (was media/optics.js) — optics protocol texts live in the behavior catalog; style renderers stay in style.js.
+ * - 2026-10-04: Sourced SIMULATION_FIDELITY from constitution.js and style renderers from style.js; protocols.js keeps the behavior catalog + core compiler only.
  * - 2026-10-04: Dropped the `PERSPECTIVE.MANDATE` line (pure throat-clearing — the tense/POV atoms already command; ~30 tokens saved per prompt).
  * - 2026-10-04: Retired the `POV.NARRATOR` atom (narrator mode resolves normal `THIRD`; the role line already establishes the Fractal-itself identity).
  * - 2026-10-04: Dropped the fractal type-sniffing fallback in `resolve_pov_protocol` (normal 3rd-person default; entities always carry explicit `pov`); fixtures now stamp `pov` like production entities.

@@ -1,7 +1,7 @@
 /**
  * src/intelligence/modules/task.js
  * ============================================================================
- * 🎯 TASK MODULE — Turn Execution, Action Directives, Somatics, Pacing & Staging
+ * 🎯 TASK MODULE — Turn Execution, Action Directives, Somatics & Staging
  * ============================================================================
  *
  * Compiles the Layer 6 (<TASK>) turn execution block and instruction envelopes
@@ -13,8 +13,8 @@
  *              (Protocols, Director, Continuum, Prose, Sorting, Optics directives, Output Formats)
  * • Section 2: Dynamic Directive Compiler (get_directive_atom / compile_directive_tags)
  *              (Dotted-key resolution + {placeholder} interpolation → ordered paragraphs)
- * • Section 3: Prose Reflex & Input Reaction Engine
- *              (Pacing classification, environmental hints, delivery posture, currents, inputs)
+ * • Section 3: Task Signals & Currents
+ *              (Turn-signal envelopes and currents; pacing/reflex live in reflex.js)
  * • Section 4: Universal Task Envelope Compiler (TASK_LAYERS / TASK_MODE_PLANS / render_task)
  *              (One slot-resolver registry + one ordered layer table; modes are data)
  * • Section 5: Subtext, Available Keywords & Protocol Resolvers
@@ -39,8 +39,10 @@
  */
 
 import { escape_xml, prompt_escape, inline_or_block, render_xml_tag } from "@utils";
-import { extract_style_dna, STYLE_MOTIF_REGISTRY, PROFILE_FIELDS } from "@data";
+import { extract_style_dna, STYLE_MOTIF_REGISTRY } from "@data";
+import { OUTPUT_FORMATS, render_output_format_xml } from "./output.js";
 import { resolve_macro_directive } from "./protocols.js";
+import { REFLEX_LIBRARY, render_environmental_hint, render_prose_reflex } from "./reflex.js";
 
 // ============================================================================
 // [SECTION 1: UNIFIED TASK DIRECTIVES & PROTOCOLS CATALOG]
@@ -49,20 +51,9 @@ import { resolve_macro_directive } from "./protocols.js";
 export const TASK_LIBRARY = Object.freeze({
   // ── 1.1 Turn Foundations, Pacing & Cognition Protocols ─────────────────────
   PROTOCOLS: Object.freeze({
-    PACING: Object.freeze({
-      TERSE: `<PACING mode="TERSE">Brief, weighted reply in 1-2 sharp beats. Zero padding.</PACING>`,
-      ADAPTIVE: `<PACING mode="ADAPTIVE">A reply of 2-4 sentences—substantive, driving the scene forward.</PACING>`,
-      EXPANSIVE: `<PACING mode="EXPANSIVE">Expand to match message breadth; close on one decisive hook.</PACING>`,
-    }),
+    PACING: REFLEX_LIBRARY.PACING,
 
-    RECENCY: Object.freeze({
-      RHYTHM_DEFAULT:
-        "Hold temperament; resist passive compliance. Match conversational scale and build situational friction rather than rushing resolution.",
-      DRIVE_WITH_INPUT:
-        "Advance the scene in response to «INPUT»: drive the beat forward independently and end on an unresolved hook demanding response.",
-      DRIVE_WITHOUT_INPUT:
-        "Take active initiative: drive events forward on your own terms through decisive actions and end on an unresolved hook demanding response.",
-    }),
+    RECENCY: REFLEX_LIBRARY.RECENCY,
 
     THINK_GROUNDING_DEFAULT: "Hold your established temperament.",
 
@@ -79,7 +70,7 @@ Close </THINK> before the narrative. This think block is internal reasoning and 
     THINK_ENHANCEMENT:
       "Open your output with one internal <THINK> block. Analyze entity identity, coherence with existing traits, and plan the bracket directives or refined phrasing. Close </THINK> before emitting the final content.",
 
-    VOICE: "Deliver dialogue matching the {speaking_style} speaking register.",
+    VOICE: REFLEX_LIBRARY.VOICE,
   }),
 
   // ── 1.2 Keyword Directives (Director & Sensory Optics) ─────────────────────
@@ -97,8 +88,7 @@ Close </THINK> before the narrative. This think block is internal reasoning and 
 2. Adjust deltas carefully near boundaries (5 or 95) to prevent clipping at 0 or 100.
 3. Calibrate dynamics_deltas to reflect the psychological and environmental shift of the turn.`,
 
-    ENVIRONMENTAL_HINT:
-      'ENVIRONMENTAL HINT: Non-verbal environmental action. Strongly consider setting "speaker" to "fractal" to narrate the setting, unless AI character should react directly.',
+    ENVIRONMENTAL_HINT: REFLEX_LIBRARY.ENVIRONMENTAL_HINT,
 
     EVALUATION_INPUT:
       'Evaluate state mutations caused by «INPUT». Evaluate biological limits and physical causality strictly: if «INPUT» or physical events describe definitively fatal, terminal bodily destruction (e.g. biological death, irreversible drowning/asphyxiation, decapitation, or lethal cranial destruction with zero chance of medical survival), you MUST emit next_action: "EPILOGUE_COLLAPSED" and story_status: "COLLAPSED". Severe but survivable trauma (maiming, crushed limbs, severe blood loss, unconsciousness) should remain in-progress with somatic penalties in present.physical. Never hallucinate physical survival, bypass consequence, or continue casual dialogue across fatal events.',
@@ -250,17 +240,7 @@ Analyze recent turns in «HISTORY». Synthesize memories, update physical appear
     }),
   }),
   // ---- 1.8 Output Emission Formats (prose / bracket / text / json) ----
-  FORMATS: Object.freeze({
-    PROSE: "After closing </THINK>, emit strictly plain prose: no preamble, commentary, markdown, or structural tags.",
-    PLAIN_PROSE: "Emit strictly plain prose: no preamble, commentary, markdown, or structural tags.",
-    BRACKET:
-      "After closing </THINK>, emit strictly bracketed directives: [KEY: value] — one per line, no outer braces, no conversational prose outside brackets. Keys support natural spaces. Relational brackets targeting other entities or active roles MUST begin with '@': [@TARGET_ENTITY: relationship dynamic | flags] (flags: 'hide' for covert items / 'show', 'w: 1-10' importance weight). Atomic clearing: [KEY: none].",
-    PLAIN_BRACKET:
-      "Emit strictly bracketed directives: [KEY: value] — one per line, no outer braces, no conversational prose outside brackets. Keys support natural spaces. Relational brackets targeting other entities or active roles MUST begin with '@': [@TARGET_ENTITY: relationship dynamic | flags] (flags: 'hide' for covert items / 'show', 'w: 1-10' importance weight). Atomic clearing: [KEY: none].",
-    PLAIN_TEXT: "After closing </THINK>, emit clean text: no preamble, commentary, markdown, or structural tags.",
-    JSON_RETURN:
-      "Return a single, COMPLETE, VALID JSON object matching this schema:\n{schema}\n\nNo preamble, no markdown backticks, no external XML tags. Output must start with { and end with }.",
-  }),
+  FORMATS: OUTPUT_FORMATS,
 });
 
 // ============================================================================
@@ -316,84 +296,10 @@ export function compile_directive_tags(directive_selection, values = {}) {
 }
 
 // ============================================================================
-// [SECTION 3: PROSE REFLEX & INPUT REACTION ENGINE]
+// [SECTION 3: TASK SIGNALS & CURRENTS]
 // ============================================================================
-
-const DIALOGUE_QUOTES_PATTERN = /["'“”‘’]/;
-
-const ACTION_VERBS_PATTERN =
-  /\b(?:approach|ascend|bend|circle|climb|close|dash|descend|draw|draws|edge|enter|examine|follow|gaze|grab|grabs|gripp?|halt|kneel|leap|linger|listen|lower|move|nod|nods|observe|open|opens|pause|peer|press|pull|pulls|push|pushes|raise|raises|reach|rest|run|say|says|scan|set|settle|shake|shakes|shout|shouts|sit|sits|slam|slip|smell|stand|stands|stare|step|steps|strike|study|sweep|swing|take|takes|trail|turn|turns|wait|walk|watch|whisper|whispers)\b/i;
-
-const SPATIAL_NOUNS_PATTERN =
-  /\b(?:alcove|alley|altar|arch|belly|bridge|cave|ceiling|chamber|column|conduit|corridor|court|crevice|cylinder|deeps|door|field|floor|forest|gate|gear|hall|keep|ledge|light|lock|mechanism|mouth|passage|rain|river|rock|room|seal|shadow|sky|spillway|stair|stone|street|threshold|tower|tunnel|vault|wall|water|wheel|wind|window|yard)\b/i;
-
-/**
- * Pacing calibration: classifies user message scale and returns kinetic length directive.
- * @param {string|null|undefined} input
- * @returns {string}
- */
-export function build_pacing_directive(input) {
-  const pacing = TASK_LIBRARY.PROTOCOLS.PACING;
-  const text = String(input || "").trim();
-  if (!text) return pacing.TERSE;
-
-  const character_count = text.length;
-  const word_count = text.split(/\s+/).filter(Boolean).length;
-  if (character_count >= 300 || word_count >= 60) return pacing.EXPANSIVE;
-  if (character_count <= 40 || word_count <= 8) return pacing.TERSE;
-
-  return pacing.ADAPTIVE;
-}
-
-/**
- * Detects a non-verbal, environmental user turn and returns a hint nudging the Director.
- * @param {string|null|undefined} input
- * @returns {string}
- */
-export function render_environmental_hint(input) {
-  if (!input?.trim()) return "";
-  if (DIALOGUE_QUOTES_PATTERN.test(input)) return "";
-  if (!ACTION_VERBS_PATTERN.test(input) && !SPATIAL_NOUNS_PATTERN.test(input)) return "";
-  return TASK_LIBRARY.DIRECTOR.ENVIRONMENTAL_HINT;
-}
-
-/**
- * Prose Reflex (Delivery Posture) — kinetic reaction envelope calibrated to user input and active voice.
- * @param {any} snapshot - { dynamics?, style?, speaking_style?, speaker? }
- * @param {string} [input] - current user action / scene beat
- * @param {string} [speaking_style=""] - active speaking style register override
- * @returns {string}
- */
-export function render_prose_reflex(snapshot, input, speaking_style = "") {
-  const style_dna = extract_style_dna(snapshot?.style || null);
-  const { RHYTHM_DEFAULT, DRIVE_WITH_INPUT, DRIVE_WITHOUT_INPUT } = TASK_LIBRARY.PROTOCOLS.RECENCY;
-  const pacing = build_pacing_directive(input);
-  const rhythm = style_dna.sentence_rhythm || RHYTHM_DEFAULT;
-  const drive = String(input || "").trim() ? DRIVE_WITH_INPUT : DRIVE_WITHOUT_INPUT;
-  const resolved_speaking_style = speaking_style || snapshot?.speaking_style || snapshot?.speaker?.speaking_style || "";
-
-  const children = [
-    pacing,
-    `<RHYTHM>${prompt_escape(rhythm)}</RHYTHM>`,
-    `<DRIVE>${prompt_escape(drive)}</DRIVE>`,
-    resolved_speaking_style
-      ? render_xml_tag({
-          tag: "VOICE",
-          attrs: { mode: String(resolved_speaking_style).toLowerCase() },
-          children: [get_directive_atom("PROTOCOLS.VOICE", { speaking_style: escape_xml(String(resolved_speaking_style)) })],
-          inline: true,
-        })
-      : null,
-  ].filter(Boolean);
-
-  return render_xml_tag({
-    tag: "DELIVERY_POSTURE",
-    children,
-    indent: 0,
-    child_indent: 4,
-    separator: "\n",
-  });
-}
+// Pacing, environmental hints, delivery posture, and stability copy live in
+// reflex.js — this section keeps the turn-signal and currents compilers.
 
 /**
  * Renders the <CURRENTS> block (sensory experience + subtext).
@@ -937,143 +843,10 @@ export function render_subtext_xml(ai_dynamics = {}, fractal_dynamics = {}, opti
   return render_xml_tag({ tag: "SUBTEXT", children: tags, child_indent: 2, separator: "\n" });
 }
 
-// ============================================================================
-// [SECTION 6: OUTPUT FORMATS, SCHEMAS & STATE CONTRACTS (LAYER 7)]
-// ============================================================================
-
-/**
- * Directorial and continuum schema atoms used to construct structured JSON schemas.
- * Categorized by their lifecycle role while exposed as a single frozen catalog.
- * Atoms may be a literal value or a function of the optional schema baseline.
- */
-export const SCHEMA_ATOMS = Object.freeze({
-  _thought_process: "<Tactical intent & state delta>",
-  next_action: `'AI_CHARACTER' | 'FRACTAL' | 'npc:<id>' | { \\"genesis\\": { \\"name\\": \\"<Name>\\", \\"description\\": \\"<description>\\" } } | 'EPILOGUE_CONCLUDED' | 'EPILOGUE_COLLAPSED'`,
-  keywords: ["<1-5 keywords from AVAILABLE_KEYWORDS>"],
-  directors_note: "<1-5 lines staging directives ONLY for the next_action speaker (never for player/user_persona), or empty string>",
-  dynamics_deltas: { chaos: 0, intensity: 0, openness: 0, affinity: 0, velocity: 0, entropy: 0 },
-  visual_staging: "<optional: camera & lighting directive if scene image shifts>",
-  spotlight: { enter: ["npc:<id>"], exit: ["npc:<id>"] },
-  target: "'AI_CHARACTER' | 'USER_PERSONA' | 'FRACTAL' | 'NPC_<id>'",
-  relationships: ["Source → Target: dynamic description"],
-  prompt:
-    "<Final image prompt as continuous fluid prose. Ground outputs using physical optics and real-world materials; zero quality buzzwords ('masterpiece', '8K', 'photorealistic').>",
-  negative_prompt: (style_baseline = "") =>
-    `<Negative tokens avoiding quality buzzwords; ground using physical artifacts and flaws.${style_baseline ? ` Style baseline: ${String(style_baseline).replace(/"/g, '\\"')}` : ""}>`,
-  caption: "<in-character selfie caption>",
-});
-
-/**
- * Universally composes a formatted JSON schema string from canonical PROFILE_FIELDS and SCHEMA_ATOMS.
- *
- * Handles:
- * 1. Twin-cylinder temporal composite layers (eternal, present) split into physical/non_physical directives.
- * 2. Scalar and array profile fields from PROFILE_FIELDS (with array emotional_weight scoring).
- * 3. Directorial and continuum atoms from SCHEMA_ATOMS.
- *
- * @param {string[]} schema_keys - Ordered array of schema keys to compile
- * @param {'character' | 'fractal' | string} [entity_type='character'] - Target entity taxonomy model
- * @param {{ negative_baseline?: string }} [options={}] - Optional style baseline injected into the negative_prompt atom
- * @returns {string} Formatted JSON schema template string
- */
-export function render_json_schema(schema_keys, entity_type = "character", { negative_baseline = "" } = {}) {
-  const resolved_entity_type = entity_type === "fractal" ? "fractal" : "character";
-  const entity_model = PROFILE_FIELDS[resolved_entity_type] || PROFILE_FIELDS.character;
-
-  const schema_lines = schema_keys
-    .map((schema_key) => {
-      const field_definition = entity_model[schema_key] || PROFILE_FIELDS[schema_key];
-
-      // 1. Twin-cylinder temporal composite layers (eternal, present)
-      if (field_definition?.physical?.directive && field_definition?.non_physical?.directive) {
-        return `  "${schema_key}": {\n    "physical": "<${field_definition.physical.directive}>",\n    "non_physical": "<${field_definition.non_physical.directive}>"\n  }`;
-      }
-
-      // 2. Direct model or top-level metadata field (name, description, signature_color, future, past)
-      if (field_definition?.directive) {
-        if (field_definition.type === "array") {
-          return `  "${schema_key}": [{ "content": "<${field_definition.directive}>", "emotional_weight": 1-10 }]`;
-        }
-        return `  "${schema_key}": "<${field_definition.directive}>"`;
-      }
-
-      // 3. Directorial and continuum atoms from SCHEMA_ATOMS
-      if (schema_key in SCHEMA_ATOMS) {
-        const atom_definition = SCHEMA_ATOMS[schema_key];
-        const resolved_atom = typeof atom_definition === "function" ? atom_definition(negative_baseline) : atom_definition;
-        const value_string = typeof resolved_atom === "string" ? `"${resolved_atom}"` : JSON.stringify(resolved_atom);
-        return `  "${schema_key}": ${value_string}`;
-      }
-
-      return null;
-    })
-    .filter(Boolean);
-
-  return `{\n${schema_lines.join(",\n")}\n}`;
-}
-
-/**
- * Resolves an output format directive or schema from its canonical format specification.
- * Parameter-aware: accepts an options object to dynamically parameterize CONTINUUM, PROFILE, DIRECTOR, and OPTICS schemas.
- *
- * @param {string|{ mode?: string, schema?: string[] }} [format_spec={ mode: "prose" }] - Format spec object from the PROMPTS manifest (normalized at `define_mode`).
- * @param {{ entity_type?: string, variant?: string, is_selfie?: boolean, negative_prompt?: string, fallback?: string, has_think?: boolean, is_temporal?: boolean }} [options={}]
- * @returns {string} Compiled output format directive or schema
- */
-export function get_output_format(format_spec, options = {}) {
-  if (!format_spec) return options.fallback || "";
-
-  // 1. Single profile field enhancement format routing
-  if (format_spec.mode === "temporal_field" || options.is_temporal !== undefined) {
-    if (options.is_temporal) {
-      return options.has_think !== false ? TASK_LIBRARY.FORMATS.BRACKET : TASK_LIBRARY.FORMATS.PLAIN_BRACKET;
-    }
-    return options.has_think !== false ? TASK_LIBRARY.FORMATS.PLAIN_TEXT : TASK_LIBRARY.FORMATS.PLAIN_PROSE;
-  }
-
-  // 2. Plain narrative prose directive (think-free variant for modes that open no <THINK> block)
-  if (format_spec.mode === "prose") {
-    return options.has_think === false ? TASK_LIBRARY.FORMATS.PLAIN_PROSE : TASK_LIBRARY.FORMATS.PROSE;
-  }
-
-  // 3. Structured JSON schema specification from PROMPTS manifest: { mode: "json", schema: [...] }
-  if (Array.isArray(format_spec.schema)) {
-    const schema_keys = [...format_spec.schema];
-
-    if ((options.variant === "selfie" || options.is_selfie) && !schema_keys.includes("caption")) {
-      schema_keys.push("caption");
-    }
-
-    return render_json_schema(schema_keys, options.entity_type || "character", {
-      negative_baseline: options.negative_prompt || "",
-    });
-  }
-
-  return options.fallback || "";
-}
-
-/**
- * Compiles a dedicated <OUTPUT_FORMAT> XML envelope block.
- *
- * @param {Object} parameters
- * @param {string} [parameters.mode=""] - Optional mode attribute (e.g. "json", "prose")
- * @param {string} parameters.content - Body content of the output format directive
- * @param {number} [parameters.indent_level=2] - Indentation spaces
- * @returns {string} Formatted XML block or empty string if content is blank
- */
-export function render_output_format_xml({ mode = "", content = "", indent_level = 2 }) {
-  const trimmed_content = String(content || "").trim();
-  if (!trimmed_content) return "";
-  return render_xml_tag({
-    tag: "OUTPUT_FORMAT",
-    attrs: mode ? { mode } : {},
-    children: [trimmed_content],
-    child_indent: indent_level,
-  });
-}
-
 /**
  * CHANGELOG
+ * - 2026-10-04: Moved pacing/reflex engine plus stability/truncation recovery (ex-recovery.js, deleted) into reflex.js; TASK_LIBRARY keeps live references so directive keys and prompt bytes are unchanged.
+ * - 2026-10-04: Moved output contracts to output.js (emission formats, schema atoms, JSON composer, format router, `<OUTPUT_FORMAT>` envelope); task.js keeps turn assembly with FORMATS wired to OUTPUT_FORMATS.
  * - 2026-10-04: Retired TASK_LIBRARY.SORTING.POV_THIRD (sorting now resolves CORE_PROTOCOLS.PERSPECTIVE.POV.THIRD through pov_protocol) and TASK_LIBRARY.TEMPORAL (replaced by per-layer PERSPECTIVE.LAYER_TENSE atoms); PROSE.BASE stays - bespoke ghostwrite text, not a POV duplicate.
  * - 2026-10-04: Added TASK_LIBRARY.TEMPORAL.TENSE (new 1.9 section) - one canonical temporal-tense paragraph for single-field and schema modes; per-field tense clauses removed from the profile layer directives.
  * - 2026-10-04: Moved the five output emission strings plus the JSON-return template into TASK_LIBRARY.FORMATS (new 1.8 section); retired format_json_return in favor of get_directive_atom with FORMATS.JSON_RETURN - byte-identical output, schema still interpolated verbatim; profile.test.js now reads TASK_LIBRARY.FORMATS.PROSE. No contract size change.

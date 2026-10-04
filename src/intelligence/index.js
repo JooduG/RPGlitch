@@ -85,8 +85,9 @@ export { build_turn_summary } from "./physics.js";
 // Optics & Visual Prompt Compilation (Sensory Cortex)
 // ============================================================================
 
-export { render_narrative_style_xml, render_visual_style_xml, render_core_protocols } from "./modules/protocols.js";
-export { format_sensory_history, render_visual_history } from "./modules/history.js";
+export { render_core_protocols } from "./modules/protocols.js";
+export { render_narrative_style_xml, render_visual_style_xml } from "./modules/style.js";
+export { render_visual_history, format_sensory_history } from "./modules/history.js";
 export { render_optics_prompt, render_optics_fallback } from "./builder.js";
 
 // ============================================================================

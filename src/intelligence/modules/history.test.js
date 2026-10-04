@@ -14,14 +14,8 @@
  */
 
 import { describe, expect, it } from "vitest";
-import {
-  HISTORY_DEFAULTS,
-  resolve_history,
-  render_history,
-  render_input_history_xml,
-  render_chapter_history_xml,
-  render_visual_history,
-} from "./history.js";
+import { HISTORY_DEFAULTS, resolve_history, render_history, render_input_history_xml, render_visual_history } from "./history.js";
+import { render_chapter_history_xml } from "./sheets.js";
 
 describe("src/intelligence/modules/history.js", () => {
   describe("HISTORY_DEFAULTS & resolve_history()", () => {

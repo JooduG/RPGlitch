@@ -15,14 +15,13 @@
 import { describe, expect, it } from "vitest";
 import {
   PROTOCOL_LIBRARY,
-  render_narrative_style_xml,
-  render_visual_style_xml,
   render_core_protocols,
   resolve_pov_protocol,
   resolve_layer_tense_protocol,
   render_alternation_protocol,
 } from "./protocols.js";
-import { render_dynamics_axes_xml } from "./entities.js";
+import { render_narrative_style_xml, render_visual_style_xml } from "./style.js";
+import { render_dynamics_axes_xml } from "../physics.js";
 
 // ============================================================================
 // [SECTION 1: CORE PROTOCOL LIBRARY & COMPILER]

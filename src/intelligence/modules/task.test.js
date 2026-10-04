@@ -18,9 +18,6 @@
 
 import { describe, expect, it } from "vitest";
 import {
-  build_pacing_directive,
-  render_environmental_hint,
-  render_prose_reflex,
   render_task,
   render_directives_xml,
   render_keyword_directives_xml,
@@ -32,6 +29,7 @@ import {
   TASK_LAYERS,
   TASK_LIBRARY,
 } from "./task.js";
+import { build_pacing_directive, render_environmental_hint, render_prose_reflex } from "./reflex.js";
 import { get_prompt } from "../prompts.js";
 
 // ============================================================================

@@ -7,7 +7,7 @@ import { describe, expect, it, vi } from "vitest";
 import { apply_profile_to_entity } from "./profile.js";
 import { render_enhancement, render_profile_sorting } from "./builder.js";
 import { TASK_LIBRARY } from "./modules/task.js";
-import { get_output_format } from "./modules/task.js";
+import { get_output_format } from "./modules/output.js";
 import { PROMPTS } from "./prompts.js";
 import { MACRO_DIRECTIVES } from "./modules/protocols.js";
 

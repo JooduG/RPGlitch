@@ -557,6 +557,9 @@ export const aesthetic_resolver = {
 
 /**
  * CHANGELOG:
+ * - 2026-10-04: Reverted OPTICS_INVARIANTS to intelligence protocols.js and sensory/visual history shaping to intelligence history.js — optics.js owns taxonomy/triggers/aesthetics only.
+ * - 2026-10-04: Added OPTICS_INVARIANTS — single source of the sensory-optics protocol texts (consumed by intelligence protocols.js).
+ * - 2026-10-04: Absorbed optics history shaping (format_sensory_history, render_visual_history) from intelligence history.js.
  * - 2026-10-03: Environmental scene framing preservation — staging_has_scene_focus now checks for wide/landscape/environmental cues and preserves story_scene tier even under high intensity/affinity dynamics.
  * - 2026-09-24: Purged redundant re-exports of VISUAL_EXCLUDED_KEYS and strip_visual_excluded under P4 Zero Backwards Compatibility.
  * - 2026-09-24: Imported VISUAL_EXCLUDED_KEYS and strip_visual_excluded from @utils instead of @intelligence, breaking circular media↔intelligence dependency.

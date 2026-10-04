@@ -12,7 +12,8 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { SYSTEM_ROLES, resolve_system_role_line, resolve_stability_lock, render_system_xml, STABILITY_LOCK } from "./system.js";
+import { SYSTEM_ROLES, resolve_system_role_line, render_system_xml } from "./system.js";
+import { resolve_stability_lock, STABILITY_LOCK } from "./reflex.js";
 
 // ============================================================================
 // [SECTION 1: SYSTEM ROLES & RESOLUTION]

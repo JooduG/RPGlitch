@@ -16,7 +16,7 @@ import {
   sanitize_non_physical_prose,
   append_past_vector,
 } from "./temporal.js";
-import { get_output_format } from "./modules/task.js";
+import { get_output_format } from "./modules/output.js";
 import { PROMPTS } from "./prompts.js";
 import { render_memory } from "./builder.js";
 import { llm_service, embed } from "@platform";

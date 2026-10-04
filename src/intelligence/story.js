@@ -42,7 +42,7 @@ import { build_scoring_context, context_builder } from "./builder.js";
 import { compile_prompt } from "./prompts.js";
 import { prune, temporal_engine } from "./temporal.js";
 import { spawn_character } from "./profile.js";
-import { TRUNCATION_COMPLETE_NOTE } from "./modules/system.js";
+import { TRUNCATION_COMPLETE_NOTE } from "./modules/reflex.js";
 
 /**
  * @typedef {Object} GenerationOptions

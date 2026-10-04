@@ -15,7 +15,7 @@ import {
   capture_dynamics_delta,
   build_turn_summary,
 } from "./physics.js";
-import { render_dynamics_axes_xml } from "./modules/entities.js";
+import { render_dynamics_axes_xml } from "./physics.js";
 import { render_available_keywords_xml } from "./modules/task.js";
 
 describe("physics.js", () => {

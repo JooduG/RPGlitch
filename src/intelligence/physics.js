@@ -18,7 +18,7 @@
  * ============================================================================
  */
 
-import { clamp } from "@utils";
+import { clamp, escape_xml } from "@utils";
 
 // ── 1. Dynamics Axes ──────────────────────────────────────────────────────────
 
@@ -602,7 +602,26 @@ export function build_turn_summary(feed, round) {
 }
 
 /**
+ * Renders live dynamics values as a `<DYNAMIC_AXES scale="0-100">` block.
+ * Dynamics presentation lives with the dynamics engine, not the entity sheets.
+ */
+export function render_dynamics_axes_xml(live_dynamics = null, scope = null, axes_registry = {}) {
+  if (!live_dynamics || typeof live_dynamics !== "object") return "";
+
+  const tags = Object.entries(axes_registry)
+    .filter(([key, meta]) => (!scope || meta.scope === scope) && live_dynamics[key] !== undefined && live_dynamics[key] !== null)
+    .map(([key, meta]) => {
+      const value = Math.round(Number(live_dynamics[key]));
+      const tag = key.toUpperCase();
+      return `  <${tag} value="${value}" low="${escape_xml(meta.low)}" high="${escape_xml(meta.high)}" />`;
+    });
+
+  return tags.length > 0 ? `<DYNAMIC_AXES scale="0-100">\n${tags.join("\n")}\n</DYNAMIC_AXES>` : "";
+}
+
+/**
  * CHANGELOG
+ * - 2026-10-04: Absorbed render_dynamics_axes_xml from entities.js — dynamics presentation lives with the dynamics engine.
  * - 2026-09-25: Module consolidation — absorbed telemetry builders, dynamics delta capture, and turn summaries from telemetry.js into physics.js.
  * - 2026-09-19: Removed PHYSICS_PROTOCOLS.FIRST_CONTACT (the "System-Forced Context Directives" section) — first-contact is a prose directive, now single-sourced as TASK_LIBRARY.PROSE.CHARACTER.FIRST_CONTACT; the registry is strictly 12 somatic archetypes + 18 dynamics triggers.
  * - 2026-09-19: P4 dead-code pass — removed the delegator compilers (render_dynamics_xml, render_dynamics_axes_xml, render_subtext_xml, render_available_keywords_xml, resolve_physics_protocols, resolve_context_directives); physics.js now exports only axis metadata, registries, math, and evaluators.

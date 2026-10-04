@@ -10,13 +10,12 @@
  *
  * 1. Manifest Window Resolver (HISTORY_DEFAULTS, resolve_history)
  * 2. Turn Transcript Log Formatter (render_history)
- * 3. Recent Dialogue Feed Formatter (format_recent_history, render_input_history_xml)
- * 4. Episodic Chapter Milestones (render_chapter_history_xml)
+ * 3. Recent Dialogue Feed Formatter (render_input_history_xml)
+ * 4. Sensory & Visual History Shaping (format_sensory_history, render_visual_history)
  *
  * Symmetrical Manifest Mapping:
  * - `config.history`                 ➔ `resolve_history`
  * - `config.task.input_tag`          ➔ `render_input_history_xml` wrapper tag
- * - `config.entities.chapter_history`➔ `render_chapter_history_xml`
  * - `accessors.simulation_log`       ➔ `render_history`
  *
  * Architecture & Design Laws:
@@ -27,15 +26,7 @@
  * ============================================================================
  */
 
-import {
-  escape_xml,
-  collapse_whitespace,
-  truncate_at_word,
-  render_xml_tag,
-  strip_cognition_blocks,
-  format_history_entries,
-  prompt_escape,
-} from "@utils";
+import { render_xml_tag, format_history_entries, strip_cognition_blocks, collapse_whitespace, truncate_at_word, prompt_escape } from "@utils";
 
 // ============================================================================
 // [SECTION 1: MANIFEST CONFIGURATION & WINDOW RESOLVER]
@@ -144,40 +135,10 @@ export function render_input_history_xml(history = [], options = {}) {
 }
 
 // ============================================================================
-// [SECTION 4: EPISODIC CHAPTER MILESTONES]
+// [SECTION 4: SENSORY & VISUAL HISTORY SHAPING]
 // ============================================================================
-
-/**
- * Renders an entity's closed-chapter milestone boundaries into a structured <CHAPTER_HISTORY> XML block.
- * Symmetrically activated when `config.entities.chapter_history` is enabled.
- *
- * @param {any} target_entity
- * @param {number} [indentation_level=0]
- * @returns {string}
- */
-export function render_chapter_history_xml(target_entity, indentation_level = 0) {
-  const chapters = Array.isArray(target_entity?.chapters) ? target_entity.chapters : [];
-  const closed_chapters = chapters.filter((chapter) => chapter?.status === "closed");
-  if (!closed_chapters.length) return "";
-
-  const chapter_rows = closed_chapters.slice(-6).map((chapter) => {
-    const raw_title = String(chapter.title || "Untitled").trim();
-    const normalized_title = raw_title.replace(/^Chapter\s+/i, "");
-    const clean_summary = truncate_at_word(String(chapter.summary || ""), 220);
-    return `- Chapter ${escape_xml(normalized_title)}: ${escape_xml(clean_summary)}`;
-  });
-
-  return render_xml_tag({
-    tag: "CHAPTER_HISTORY",
-    children: chapter_rows,
-    indent: indentation_level,
-    separator: "\n",
-  });
-}
-
-// ============================================================================
-// [SECTION 5: SENSORY CORTEX HISTORY FORMATTING]
-// ============================================================================
+// Recent-narrative windows shaped for image prompting live here with the rest
+// of history shaping (reverted from media/optics.js per review).
 
 /**
  * Formats recent narrative history for the sensory cortex, stripping dangling think tags and telemetry lines.
@@ -200,14 +161,9 @@ export function format_sensory_history(history_text) {
   return cleaned ? `<HISTORY>\n${prompt_escape(cleaned)}\n</HISTORY>\n` : "";
 }
 
-// ============================================================================
-// [SECTION 6: VISUAL STAGING HISTORY]
-// ============================================================================
-
 /**
  * Builds the compact recent-narrative history fed to the optics (Sensory Cortex) prompt —
  * one `Character: prose` line per recent non-system beat, truncated at word boundaries.
- * Owned here beside `format_sensory_history` so no media call site hand-rolls a window.
  *
  * @param {any[]} [entries] - Simulation feed entries (typically `simulation_log.feed`).
  * @param {Object} [options={}]
@@ -221,10 +177,6 @@ export function render_visual_history(entries, { max_entries = 2, max_chars = 20
     .filter((entry) => entry && entry.role !== "system" && typeof entry.text === "string" && entry.text.trim())
     .slice(-max_entries)
     .map((entry) => {
-      // Strip cognition BEFORE truncating. Beats are stored with their leading
-      // <THINK> block, and slicing the raw text first can leave that block unclosed;
-      // format_sensory_history's strip_cognition_blocks then eats an unclosed <THINK>
-      // through to end-of-string, collapsing the whole line to a bare "Name:".
       const prose = collapse_whitespace(strip_cognition_blocks(entry.text));
       if (!prose) return "";
       return `${entry.character_name || entry.role || "narrator"}: ${truncate_at_word(prose, max_chars)}`;
@@ -235,6 +187,8 @@ export function render_visual_history(entries, { max_entries = 2, max_chars = 20
 
 /**
  * CHANGELOG
+ * - 2026-10-04: Reverted sensory/visual history shaping (format_sensory_history, render_visual_history) from media/optics.js — history shaping lives here; chapter milestones stay in sheets.js.
+ * - 2026-10-04: Optics history shaping (format_sensory_history, render_visual_history) moves to media/optics.js; chapter milestones move to sheets.js. This module owns transcript windows only.
  * - 2026-09-25: Unified History Pipeline — `render_history` now delegates directly to `format_history_entries` from `@utils/text.js`, unifying turn transcript serialization across platform and intelligence layers.
  * - 2026-09-25: DRY pass — `resolve_entry_origin`'s role fallback now calls the shared `role_display_label`.
  * - 2026-09-25: Stripping standardization — retired the local `strip_think_blocks` helper (it duplicated `strip_cognition_blocks` minus the DYNAMICS/artifact passes) and routed `format_sensory_history` + `render_visual_history` through the shared `strip_cognition_blocks` + `collapse_whitespace`; chapter summaries now clip via `truncate_at_word` instead of a mid-word `slice`.
