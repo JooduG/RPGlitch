@@ -84,6 +84,9 @@ export class SimulationStateStore {
   /** @type {boolean} */
   #speaker_thinking = $state(false);
 
+  /** @type {boolean} */
+  #media_generating = $state(false);
+
   // --- GETTERS & SETTERS ---
 
   get phase() {
@@ -126,6 +129,10 @@ export class SimulationStateStore {
 
   get speaker_thinking() {
     return this.#speaker_thinking;
+  }
+
+  get media_generating() {
+    return this.#media_generating;
   }
 
   /**
@@ -178,6 +185,7 @@ export class SimulationStateStore {
     this.#role = null;
     this.#director_thinking = false;
     this.#speaker_thinking = false;
+    this.#media_generating = false;
     this.clear_generating_entity();
   }
 
@@ -189,6 +197,7 @@ export class SimulationStateStore {
     this.#role = "system";
     this.#director_thinking = true;
     this.#speaker_thinking = false;
+    this.#media_generating = false;
     this.set_generating_entity({
       type: "system",
       name: "Director",
@@ -205,6 +214,21 @@ export class SimulationStateStore {
   set_delegated_speaker(entity = {}) {
     this.#director_thinking = false;
     this.#speaker_thinking = true;
+    this.#media_generating = false;
+    this.set_generating_entity(entity);
+  }
+
+  /**
+   * Enters the media-rendering stage (manual photo / portrait generation).
+   * Holds the generation lock without entering any thinking stage, so the
+   * feed pending indicator attributes to the subject instead of the Director.
+   * @param {GeneratingEntity} entity
+   */
+  start_media_stage(entity = {}) {
+    this.#phase = "generating";
+    this.#director_thinking = false;
+    this.#speaker_thinking = false;
+    this.#media_generating = true;
     this.set_generating_entity(entity);
   }
 
@@ -214,6 +238,7 @@ export class SimulationStateStore {
   start_stream_stage() {
     this.#director_thinking = false;
     this.#speaker_thinking = false;
+    this.#media_generating = false;
   }
 
   /**

@@ -329,7 +329,7 @@
             p-0
             select-none
           "
-          style="--signature-color: {simulation_state.speaker_thinking
+          style="--signature-color: {simulation_state.speaker_thinking || simulation_state.media_generating
             ? simulation_state.generating_entity_color || 'var(--color-electric-cyan)'
             : 'var(--color-frozen)'};"
         >
@@ -355,13 +355,13 @@
               duration-300
             "
           >
-            {#if simulation_state.speaker_thinking && simulation_state.generating_entity_avatar}
+            {#if (simulation_state.speaker_thinking || simulation_state.media_generating) && simulation_state.generating_entity_avatar}
               <img
                 src={simulation_state.generating_entity_avatar}
                 alt={simulation_state.generating_entity_name || "Speaker"}
                 class="h-full w-full object-cover object-top"
               />
-            {:else if simulation_state.speaker_thinking && simulation_state.generating_entity_name}
+            {:else if (simulation_state.speaker_thinking || simulation_state.media_generating) && simulation_state.generating_entity_name}
               <ProfilePicture
                 entity={{
                   name: simulation_state.generating_entity_name,
@@ -384,7 +384,7 @@
               style="background-color: var(--signature-color); mix-blend-mode: color;"
             ></div>
             <Shimmer
-              color={simulation_state.speaker_thinking
+              color={simulation_state.speaker_thinking || simulation_state.media_generating
                 ? simulation_state.generating_entity_color || "var(--color-electric-cyan)"
                 : "var(--color-frozen)"}
             />
@@ -410,26 +410,26 @@
           "
         >
           <Shimmer
-            color={simulation_state.speaker_thinking
+            color={simulation_state.speaker_thinking || simulation_state.media_generating
               ? simulation_state.generating_entity_color || "var(--color-electric-cyan)"
               : "var(--color-frozen)"}
           />
           <div class="flex items-center gap-1.5">
             <span
               class="size-1.5 animate-bounce rounded-full"
-              style="background-color: {simulation_state.speaker_thinking
+              style="background-color: {simulation_state.speaker_thinking || simulation_state.media_generating
                 ? simulation_state.generating_entity_color || 'var(--color-electric-cyan)'
                 : 'var(--color-frozen)'}; animation-delay: 0ms;"
             ></span>
             <span
               class="size-1.5 animate-bounce rounded-full"
-              style="background-color: {simulation_state.speaker_thinking
+              style="background-color: {simulation_state.speaker_thinking || simulation_state.media_generating
                 ? simulation_state.generating_entity_color || 'var(--color-electric-cyan)'
                 : 'var(--color-frozen)'}; animation-delay: 150ms;"
             ></span>
             <span
               class="size-1.5 animate-bounce rounded-full"
-              style="background-color: {simulation_state.speaker_thinking
+              style="background-color: {simulation_state.speaker_thinking || simulation_state.media_generating
                 ? simulation_state.generating_entity_color || 'var(--color-electric-cyan)'
                 : 'var(--color-frozen)'}; animation-delay: 300ms;"
             ></span>

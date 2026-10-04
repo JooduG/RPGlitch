@@ -91,6 +91,12 @@
     try {
       simulation_state.role = subject;
       simulation_state.start_generation(subject);
+      simulation_state.start_media_stage({
+        type: subject,
+        name: role_label,
+        avatar: entity?.profile_picture || entity?.avatar || null,
+        color: entity?.signature_color || entity?.color || null,
+      });
 
       target_mode = kind || (subject === "fractal" ? "story_scene" : "story_character");
 
@@ -137,6 +143,12 @@
       simulation_state.role = "fractal";
       simulation_state.start_generation("fractal");
       const fractal = runtime.active_fractal || app.selected_fractal;
+      simulation_state.start_media_stage({
+        type: "fractal",
+        name: fractal?.name || "Scene",
+        avatar: fractal?.profile_picture || fractal?.avatar || null,
+        color: fractal?.signature_color || fractal?.color || null,
+      });
       const group_prompt = "A scene featuring both the AI character and the user persona together";
 
       placeholder_entry = await session_driver.log_message("", "fractal", fractal?.name || "Scene", {

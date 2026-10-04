@@ -145,6 +145,33 @@ describe("SimulationStateStore", () => {
     expect(simulation_state.generating_entity_name).toBeNull();
     expect(simulation_state.phase).toBe("idle");
   });
+
+  it("tracks a media-rendering stage distinct from thinking stages", () => {
+    simulation_state.start_media_stage({ type: "ai", name: "Glitch", avatar: "data:pic", color: "#ff00aa" });
+    expect(simulation_state.phase).toBe("generating");
+    expect(simulation_state.busy).toBe(true);
+    expect(simulation_state.media_generating).toBe(true);
+    expect(simulation_state.director_thinking).toBe(false);
+    expect(simulation_state.speaker_thinking).toBe(false);
+    expect(simulation_state.generating_entity_name).toBe("Glitch");
+
+    simulation_state.start_director_stage();
+    expect(simulation_state.media_generating).toBe(false);
+
+    simulation_state.start_media_stage({ type: "fractal", name: "Nova City" });
+    simulation_state.set_delegated_speaker({ type: "npc", name: "Sylvia" });
+    expect(simulation_state.media_generating).toBe(false);
+    expect(simulation_state.speaker_thinking).toBe(true);
+
+    simulation_state.start_media_stage({ type: "user", name: "Jood" });
+    simulation_state.start_stream_stage();
+    expect(simulation_state.media_generating).toBe(false);
+
+    simulation_state.start_media_stage({ type: "ai", name: "Glitch" });
+    simulation_state.complete();
+    expect(simulation_state.media_generating).toBe(false);
+    expect(simulation_state.generating_entity_name).toBeNull();
+  });
 });
 
 describe("UIStateStore", () => {
