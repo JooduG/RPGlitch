@@ -40,7 +40,7 @@
 
 import { escape_xml, prompt_escape, inline_or_block, render_xml_tag } from "@utils";
 import { extract_style_dna, STYLE_MOTIF_REGISTRY } from "@data";
-import { OUTPUT_FORMATS, render_output_format_xml } from "./output.js";
+import { resolve_output_plan, render_output_plan, render_json_return } from "./output.js";
 import { resolve_macro_directive } from "./protocols.js";
 import { REFLEX_LIBRARY, render_environmental_hint, render_prose_reflex } from "./reflex.js";
 
@@ -609,24 +609,21 @@ export const TASK_SLOT_RESOLVERS = Object.freeze({
   prose_posture: (values) => render_prose_reflex(values.snapshot, values.input, values.speaking_style),
   stability_lock: (values) => String(values.stability_lock || "").trim(),
 
-  json_output: (values) =>
-    values.schema
-      ? render_output_format_xml({
-          mode: "json",
-          content: OUTPUT_FORMATS.JSON_RETURN.replace("{schema}", values.schema != null ? String(values.schema) : ""),
-        })
-      : "",
-  prose_output: (values) =>
-    render_output_format_xml({ mode: "prose", content: values.config?.think_format ? OUTPUT_FORMATS.PROSE : OUTPUT_FORMATS.PLAIN_PROSE }),
-  external_output: (values) =>
-    values.output_format
-      ? render_output_format_xml({ mode: values.output_mode || "prose", content: values.output_format })
-      : values.schema
-        ? render_output_format_xml({
-            mode: "json",
-            content: OUTPUT_FORMATS.JSON_RETURN.replace("{schema}", values.schema != null ? String(values.schema) : ""),
-          })
-        : "",
+  output_format: (values) => {
+    if (values.output_format) {
+      return render_output_plan({ kind: "external", body: values.output_format }, { mode: values.output_mode || "prose" });
+    }
+    if (values.schema) {
+      return render_output_plan({ kind: "json", body: render_json_return(values.schema) }, { mode: "json" });
+    }
+    const effective_mode = values.mode && TASK_MODE_PLANS[values.mode] ? values.mode : "prose";
+    if (effective_mode === "prose") {
+      return render_output_plan(resolve_output_plan({ format_spec: { mode: "prose" }, has_think: Boolean(values.config?.think_format) }), {
+        mode: "prose",
+      });
+    }
+    return "";
+  },
 });
 
 /**
@@ -635,22 +632,22 @@ export const TASK_SLOT_RESOLVERS = Object.freeze({
  * @type {Readonly<Record<string, Readonly<Record<string, string>>>>}
  */
 export const TASK_MODE_PLANS = Object.freeze({
-  director: Object.freeze({ input: "director_signals", directives: "manifest_directives", output_format: "json_output" }),
-  continuum: Object.freeze({ directives: "manifest_directives", output_format: "external_output" }),
+  director: Object.freeze({ input: "director_signals", directives: "manifest_directives", output_format: "output_format" }),
+  continuum: Object.freeze({ directives: "manifest_directives", output_format: "output_format" }),
   enhancement: Object.freeze({
     think_format: "prose_think",
     input: "content_signal",
     directives: "external_directives",
-    output_format: "external_output",
+    output_format: "output_format",
   }),
-  sorting: Object.freeze({ input: "ingestion_signal", directives: "manifest_directives", output_format: "external_output" }),
+  sorting: Object.freeze({ input: "ingestion_signal", directives: "manifest_directives", output_format: "output_format" }),
   optics: Object.freeze({
     think_format: "optics_think",
     input: "intent_signal",
     target: "optics_target",
     spatial_framing: "optics_spatial_framing",
     directives: "manifest_directives",
-    output_format: "json_output",
+    output_format: "output_format",
   }),
   prose: Object.freeze({
     think_format: "prose_think",
@@ -659,7 +656,7 @@ export const TASK_MODE_PLANS = Object.freeze({
     directives: "action_directive",
     delivery_posture: "prose_posture",
     stability_lock: "stability_lock",
-    output_format: "prose_output",
+    output_format: "output_format",
   }),
 });
 
@@ -847,6 +844,7 @@ export function render_subtext_xml(ai_dynamics = {}, fractal_dynamics = {}, opti
 
 /**
  * CHANGELOG
+ * - 2026-10-04: Collapsed json_output/prose_output/external_output into one `output_format` slot resolver over output.js plans (pre-routed body → schema → prose-mode fallback); all six mode plans point at it; OUTPUT_FORMATS import dropped.
  * - 2026-10-04: Removed all catalog aliases (P4) — TASK_LIBRARY drops PACING/RECENCY/VOICE, DIRECTOR.ENVIRONMENTAL_HINT, and FORMATS; REFLEX.* keys resolve against REFLEX_LIBRARY, output resolvers read OUTPUT_FORMATS directly.
  * - 2026-10-04: Moved pacing/reflex engine plus stability/truncation recovery (ex-recovery.js, deleted) into reflex.js; TASK_LIBRARY keeps live references so directive keys and prompt bytes are unchanged.
  * - 2026-10-04: Moved output contracts to output.js (emission formats, schema atoms, JSON composer, format router, `<OUTPUT_FORMAT>` envelope); task.js keeps turn assembly with FORMATS wired to OUTPUT_FORMATS.

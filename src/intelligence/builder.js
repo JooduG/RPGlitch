@@ -848,7 +848,7 @@ export function render_enhancement({
     input_channel: "content",
     output_format: get_output_format(config.format, {
       has_think: Boolean(config.think_format),
-      is_temporal: is_temporal_field,
+      ...(is_temporal_field ? { is_temporal: true } : {}),
       entity_type: normalized_type,
     }),
     output_mode: "prose",
