@@ -16,10 +16,12 @@ import { describe, expect, it } from "vitest";
 import {
   PROTOCOL_LIBRARY,
   render_core_protocols,
+  resolve_protocol_plan,
+  render_protocol_plan,
   resolve_pov_protocol,
   resolve_layer_tense_protocol,
-  render_alternation_protocol,
 } from "./protocols.js";
+import { render_alternation_protocol } from "./reflex.js";
 import { render_narrative_style_xml, render_visual_style_xml } from "./style.js";
 import { render_dynamics_axes_xml } from "../physics.js";
 
@@ -30,11 +32,10 @@ import { render_dynamics_axes_xml } from "../physics.js";
 describe("protocols.js - Core Protocol Library & Compiler", () => {
   it("renders selected protocol tags via render_core_protocols", () => {
     const output = render_core_protocols({
-      protocols: ["CORE_PROTOCOLS.DATA"],
+      protocols: ["OUTPUT.DATA"],
     });
     expect(output).toContain("<CORE_PROTOCOLS>");
     expect(output).toContain("<DATA>");
-    expect(output).toContain(PROTOCOL_LIBRARY.CORE_PROTOCOLS.DATA);
     expect(output).not.toContain("SIMULATION_FIDELITY");
   });
 
@@ -54,7 +55,7 @@ describe("protocols.js - Core Protocol Library & Compiler", () => {
 
   it("folds tense atoms into PERSPECTIVE instead of a LAYER_TENSE block", () => {
     const output = render_core_protocols({
-      protocols: ["CORE_PROTOCOLS.DATA", "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PAST", "CORE_PROTOCOLS.PERSPECTIVE.TENSE.FUTURE"],
+      protocols: ["OUTPUT.DATA", "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PAST", "CORE_PROTOCOLS.PERSPECTIVE.TENSE.FUTURE"],
     });
     expect(output).not.toContain("<LAYER_TENSE>");
     expect(output).toContain('<PERSPECTIVE tense="LAYER">');
@@ -67,7 +68,7 @@ describe("protocols.js - Core Protocol Library & Compiler", () => {
 
   it("pins a single tense atom to the PERSPECTIVE tense attribute", () => {
     const output = render_core_protocols({
-      protocols: ["CORE_PROTOCOLS.DATA", "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PAST"],
+      protocols: ["OUTPUT.DATA", "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PAST"],
       pov_protocol: "CORE_PROTOCOLS.PERSPECTIVE.POV.THIRD",
     });
     expect(output).toContain('<PERSPECTIVE person="THIRD" tense="PAST">');
@@ -139,21 +140,14 @@ describe("protocols.js - Visual Style & Optics Protocols", () => {
     const protocols_xml = render_core_protocols({
       visual_style: style_definition,
       engine_tokens,
-      protocols: [
-        "CORE_PROTOCOLS.DATA",
-        "OPTICS.WEIGHTING_RESTRICTIONS",
-        "OPTICS.AFFIRMATIVE_FRAMING",
-        "OPTICS.TYPOGRAPHY",
-        "OPTICS.ENVIRONMENTAL_GROUNDING",
-      ],
+      protocols: ["OUTPUT.DATA", "OPTICS.IMAGE_VOCABULARY", "OPTICS.TEXT_RENDERING", "CORE_PROTOCOLS.GROUNDING"],
     });
 
     expect(protocols_xml).toContain("<CORE_PROTOCOLS>");
     expect(protocols_xml).toContain("<DATA>");
-    expect(protocols_xml).toContain("<WEIGHTING_RESTRICTIONS>");
-    expect(protocols_xml).toContain("<AFFIRMATIVE_FRAMING>");
-    expect(protocols_xml).toContain("<TYPOGRAPHY>");
-    expect(protocols_xml).toContain("<ENVIRONMENTAL_GROUNDING>");
+    expect(protocols_xml).toContain("<IMAGE_VOCABULARY>");
+    expect(protocols_xml).toContain("<TEXT_RENDERING>");
+    expect(protocols_xml).toContain("<GROUNDING>");
     expect(protocols_xml).toContain('<VISUAL_STYLE origin="CYBERPUNK">');
     // Verify no legacy nested <VISUAL_SYNTHESIS> wrapper exists
     expect(protocols_xml).not.toContain("<VISUAL_SYNTHESIS>");
@@ -178,8 +172,94 @@ describe("protocols.js - Visual Style & Optics Protocols", () => {
   });
 });
 
+describe("protocols.js - Protocol Plans", () => {
+  const prose_bundle = [
+    "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PRESENT",
+    "CORE_PROTOCOLS.PROSE_DISCIPLINE.TYPOGRAPHY",
+    "CORE_PROTOCOLS.PROSE_DISCIPLINE.NATURAL_DIALOGUE",
+    "CORE_PROTOCOLS.ALTERNATION_OPTIONS",
+  ];
+
+  it("resolves frozen plans with static rules, perspective data, and drop counts", () => {
+    const plan = resolve_protocol_plan({ protocols: [...prose_bundle, "BOGUS.KEY"], has_alternation: true });
+    expect(Object.isFrozen(plan)).toBe(true);
+    expect(plan.static_rules).toEqual([]);
+    expect(plan.perspective.tense).toBe("PRESENT");
+    expect(plan.perspective.person).toBe(null);
+    expect(plan.alternation).toBe(true);
+    expect(plan.disciplines.map((discipline) => discipline.tag)).toEqual(["TYPOGRAPHY", "NATURAL_DIALOGUE"]);
+    expect(plan.dropped.unknown).toBe(1);
+  });
+
+  it("maps plans to the identical envelopes as the compiler", () => {
+    const inputs = {
+      protocols: ["OUTPUT.DATA", ...prose_bundle],
+      pov_protocol: "CORE_PROTOCOLS.PERSPECTIVE.POV.THIRD",
+      has_alternation: true,
+    };
+    expect(render_protocol_plan(resolve_protocol_plan(inputs))).toBe(render_core_protocols(inputs));
+    expect(render_protocol_plan(null)).toBe("");
+  });
+
+  it("records visual style selection as plan data", () => {
+    const plan = resolve_protocol_plan({
+      protocols: ["OUTPUT.DATA", "OPTICS.IMAGE_VOCABULARY"],
+      visual_style: { id: "photo", description: "Candid." },
+      engine_tokens: { medium: "35mm" },
+    });
+    expect(plan.style_kind).toBe("visual");
+    expect(plan.style_xml).toContain('<VISUAL_STYLE origin="PHOTO">');
+    expect(plan.static_rules.map((rule) => rule.tag)).toEqual(["DATA", "IMAGE_VOCABULARY"]);
+  });
+});
+
+describe("protocols.js - Restructured Catalog", () => {
+  it("resolves OUTPUT.DATA through the output-shape fallback with the same tag", () => {
+    const plan = resolve_protocol_plan({ protocols: ["OUTPUT.DATA"] });
+    expect(plan.static_rules).toEqual([{ tag: "DATA", body: expect.stringContaining("raw, unpadded structural data") }]);
+    expect(plan.dropped.unknown).toBe(0);
+    expect(render_core_protocols({ protocols: ["OUTPUT.DATA"] })).toContain("<DATA>");
+  });
+
+  it("shares one GROUNDING atom between prose and optics lists", () => {
+    const prose = resolve_protocol_plan({
+      protocols: ["CORE_PROTOCOLS.GROUNDING", "CORE_PROTOCOLS.PROSE_DISCIPLINE.TYPOGRAPHY"],
+    });
+    expect(prose.static_rules.map((rule) => rule.tag)).toEqual(["GROUNDING"]);
+    const optics = resolve_protocol_plan({
+      protocols: ["OUTPUT.DATA", "OPTICS.IMAGE_VOCABULARY", "OPTICS.TEXT_RENDERING", "CORE_PROTOCOLS.GROUNDING"],
+    });
+    expect(optics.static_rules.map((rule) => rule.tag)).toEqual(["DATA", "IMAGE_VOCABULARY", "TEXT_RENDERING", "GROUNDING"]);
+  });
+
+  it("emits single-concern discipline atoms including standalone consent", () => {
+    const output = render_core_protocols({
+      protocols: [
+        "CORE_PROTOCOLS.PROSE_DISCIPLINE.SENTENCE_FORMULAS",
+        "CORE_PROTOCOLS.PROSE_DISCIPLINE.SCENE_MOMENTUM",
+        "CORE_PROTOCOLS.PROSE_DISCIPLINE.CLICHES",
+        "CORE_PROTOCOLS.PROSE_DISCIPLINE.CONSENT",
+      ],
+    });
+    for (const tag of ["SENTENCE_FORMULAS", "SCENE_MOMENTUM", "CLICHES", "CONSENT"]) {
+      expect(output).toContain(`<${tag}>`);
+    }
+    expect(output).not.toContain("ANTI_TROPES");
+    expect(output).not.toContain("BANNED_CLICHES");
+    expect(output).not.toContain("PHYSICALITY");
+  });
+
+  it("builds macro directives from the shared subject lists", () => {
+    expect(PROTOCOL_LIBRARY.MACROS.CHARACTER).toContain("Never use raw pronouns ambiguously.");
+    expect(PROTOCOL_LIBRARY.MACROS.FRACTAL).toContain("'@USER' (user persona)");
+    expect(PROTOCOL_LIBRARY.MACROS.SORTING).toContain("Use placeholder macros for entities:");
+  });
+});
+
 /**
  * CHANGELOG
+ * - 2026-10-04: Catalog restructure coverage — OUTPUT.DATA fallback, shared GROUNDING, single-concern disciplines + CONSENT, macro derivation, plan parity; alternation assertions read from reflex.js.
+ * - 2026-10-04: Plan/render split coverage — frozen plans, perspective data, drop counts, compiler parity, visual style-kind recording.
  * - 2026-10-04: Unified-tense round — resolver/merge tests track `PERSPECTIVE.TENSE.*` keys and the reworded atoms.
  * - 2026-10-04: Rewrote the layer-tense test for the PERSPECTIVE merge (`<LAYER_TENSE>` gone; tense asserts against the `tense` attribute plus the composed command).
  * - 2026-09-23: Prompt-grammar harmonization — dropped the `render_dynamics_xml` `<DYNAMICS>` coverage (that compiler was deleted); the suite keeps the scoped `render_dynamics_axes_xml` `<DYNAMIC_AXES>` case the Director now shares.

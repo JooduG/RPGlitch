@@ -144,12 +144,14 @@ describe("prompt-modes registry", () => {
   it("composes the Shot-2A prose protocol bundles without duplicated key lists", () => {
     const discipline = [
       "CORE_PROTOCOLS.PROSE_DISCIPLINE.TYPOGRAPHY",
-      "CORE_PROTOCOLS.PROSE_DISCIPLINE.PHYSICALITY",
-      "CORE_PROTOCOLS.PROSE_DISCIPLINE.ANTI_TROPES",
-      "CORE_PROTOCOLS.PROSE_DISCIPLINE.BANNED_CLICHES",
+      "CORE_PROTOCOLS.PROSE_DISCIPLINE.SENTENCE_FORMULAS",
+      "CORE_PROTOCOLS.PROSE_DISCIPLINE.SCENE_MOMENTUM",
+      "CORE_PROTOCOLS.PROSE_DISCIPLINE.CLICHES",
+      "CORE_PROTOCOLS.PROSE_DISCIPLINE.CONSENT",
     ];
     const compose = (natural) => [
       "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PRESENT",
+      "CORE_PROTOCOLS.GROUNDING",
       ...discipline,
       ...(natural ? ["CORE_PROTOCOLS.PROSE_DISCIPLINE.NATURAL_DIALOGUE"] : []),
       "CORE_PROTOCOLS.ALTERNATION_OPTIONS",
@@ -238,9 +240,11 @@ describe("fused rendering per mode", () => {
     const narrator = render_scene_narrator({ entities, round: 1, input: "The station groans." });
     expect(narrator.system).not.toContain("<NATURAL_DIALOGUE>");
     expect(narrator.system).toContain("<TYPOGRAPHY>");
-    expect(narrator.system).toContain("<PHYSICALITY>");
-    expect(narrator.system).toContain("<ANTI_TROPES>");
-    expect(narrator.system).toContain("<BANNED_CLICHES>");
+    expect(narrator.system).toContain("<GROUNDING>");
+    expect(narrator.system).toContain("<SENTENCE_FORMULAS>");
+    expect(narrator.system).toContain("<SCENE_MOMENTUM>");
+    expect(narrator.system).toContain("<CLICHES>");
+    expect(narrator.system).toContain("<CONSENT>");
   });
 });
 

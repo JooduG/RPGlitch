@@ -27,6 +27,15 @@
 import { render_xml_tag } from "@utils";
 import { PROFILE_FIELDS } from "@data";
 
+/**
+ * Output-shape directives that emit as static protocol tags (resolved through
+ * the `OUTPUT.*` key space by the protocol plan). Kept here — not in the
+ * behavior catalog — because they command return shape, not simulation conduct.
+ */
+export const OUTPUT_DIRECTIVES = Object.freeze({
+  DATA: "Output strictly raw, unpadded structural data. Zero prose, conversational filler, or commentary.",
+});
+
 export const OUTPUT_FORMATS = Object.freeze({
   PROSE: "After closing </THINK>, emit strictly plain prose: no preamble, commentary, markdown, or structural tags.",
   PLAIN_PROSE: "Emit strictly plain prose: no preamble, commentary, markdown, or structural tags.",
@@ -282,6 +291,7 @@ export function render_output_format_xml({ mode = "", content = "", indent = 2 }
 
 /**
  * CHANGELOG
+ * - 2026-10-04: Added OUTPUT_DIRECTIVES (DATA return-shape directive, new home for the ex-protocol DATA atom).
  * - 2026-10-04: Plan/render split (Plan 2) — `resolve_output_plan` owns all routing as frozen pure data (kind/body/schema_keys/warnings), `render_output_plan` maps plans to the envelope without branching; `render_json_return` owns the schema interpolation; per-key dispatch factored into `render_schema_key_line` so composer and warnings agree; `get_output_format` is a thin body reader; retired the `is_temporal !== undefined` tripwire (explicit false now routes by mode); `render_output_format_xml` uses canonical `indent`.
  * - 2026-10-04: Created from task.js — output emission formats, schema atoms, JSON-schema composer, format router, and `<OUTPUT_FORMAT>` envelope move here; task.js keeps turn assembly and wires FORMATS to OUTPUT_FORMATS.
  */

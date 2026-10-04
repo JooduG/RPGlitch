@@ -20,7 +20,7 @@
  * ============================================================================
  */
 
-import { escape_xml, prompt_escape, render_xml_tag } from "@utils";
+import { escape_xml, prompt_escape, render_xml_tag, has_alternations } from "@utils";
 import { extract_style_dna } from "@data";
 
 // ============================================================================
@@ -72,6 +72,8 @@ export const REFLEX_LIBRARY = Object.freeze({
 
   ENVIRONMENTAL_HINT:
     'ENVIRONMENTAL HINT: Non-verbal environmental action. Strongly consider setting "speaker" to "fractal" to narrate the setting, unless AI character should react directly.',
+
+  ALTERNATION: `Resolve {Option A|Option B} alternations by selecting exactly ONE contextually fitting option. Emit only the chosen text—never echo braces or pipes, blend choices, or output multiple options simultaneously.`,
 });
 
 // ============================================================================
@@ -102,6 +104,20 @@ export function build_pacing_directive(input) {
   if (character_count <= 40 || word_count <= 8) return pacing.TERSE;
 
   return pacing.ADAPTIVE;
+}
+
+/**
+ * Compiles the canonical <ALTERNATION_OPTIONS> protocol tag if the input text contains {Option A|Option B} alternations.
+ * @param {string} text - Input text or serialized entity sheet
+ * @returns {string} Formatted <ALTERNATION_OPTIONS> block or empty string
+ */
+export function render_alternation_protocol(text = "") {
+  if (!has_alternations(text)) return "";
+  return render_xml_tag({
+    tag: "ALTERNATION_OPTIONS",
+    children: [REFLEX_LIBRARY.ALTERNATION],
+    inline: true,
+  });
 }
 
 /**
@@ -156,5 +172,6 @@ export function render_prose_reflex(snapshot, input, speaking_style = "") {
 
 /**
  * CHANGELOG
+ * - 2026-10-04: Absorbed the alternation conditional (REFLEX_LIBRARY.ALTERNATION + render_alternation_protocol, ex-protocols.js) — reactive option-picking lives with the other reflexes.
  * - 2026-10-04: Created from task.js Section 3 (pacing/reflex engine) plus stability/truncation recovery (from recovery.js, now deleted) — the reflex layer owns calibration + resilience; task.js keeps turn assembly with live TASK_LIBRARY references.
  */

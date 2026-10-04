@@ -128,10 +128,12 @@ const OPTICS_LAYERS = Object.freeze({
 function prose_protocols({ include_dialogue = false } = {}) {
   return [
     "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PRESENT",
+    "CORE_PROTOCOLS.GROUNDING",
     "CORE_PROTOCOLS.PROSE_DISCIPLINE.TYPOGRAPHY",
-    "CORE_PROTOCOLS.PROSE_DISCIPLINE.PHYSICALITY",
-    "CORE_PROTOCOLS.PROSE_DISCIPLINE.ANTI_TROPES",
-    "CORE_PROTOCOLS.PROSE_DISCIPLINE.BANNED_CLICHES",
+    "CORE_PROTOCOLS.PROSE_DISCIPLINE.SENTENCE_FORMULAS",
+    "CORE_PROTOCOLS.PROSE_DISCIPLINE.SCENE_MOMENTUM",
+    "CORE_PROTOCOLS.PROSE_DISCIPLINE.CLICHES",
+    "CORE_PROTOCOLS.PROSE_DISCIPLINE.CONSENT",
     ...(include_dialogue ? ["CORE_PROTOCOLS.PROSE_DISCIPLINE.NATURAL_DIALOGUE"] : []),
     "CORE_PROTOCOLS.ALTERNATION_OPTIONS",
   ];
@@ -337,7 +339,7 @@ export const PROMPTS = Object.freeze({
     directives: continuum_directives,
     constitution: false,
     protocols: [
-      "CORE_PROTOCOLS.DATA",
+      "OUTPUT.DATA",
       "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PRESENT",
       "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PAST",
       "CORE_PROTOCOLS.PERSPECTIVE.TENSE.FUTURE",
@@ -363,7 +365,7 @@ export const PROMPTS = Object.freeze({
     role_line: "ENHANCER",
     task_state: "enhancement",
     constitution: false,
-    protocols: ["CORE_PROTOCOLS.DATA"],
+    protocols: ["OUTPUT.DATA"],
     entities: { field_context: true },
     layers: ENHANCEMENT_LAYERS,
     think_format: "enhancement",
@@ -378,7 +380,7 @@ export const PROMPTS = Object.freeze({
     directives: sorting_directives,
     constitution: false,
     protocols: [
-      "CORE_PROTOCOLS.DATA",
+      "OUTPUT.DATA",
       "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PRESENT",
       "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PAST",
       "CORE_PROTOCOLS.PERSPECTIVE.TENSE.FUTURE",
@@ -400,14 +402,7 @@ export const PROMPTS = Object.freeze({
     directives: optics_directives,
     spatial_framing: optics_spatial_framing,
     constitution: false,
-    protocols: [
-      "CORE_PROTOCOLS.DATA",
-      "CORE_PROTOCOLS.ALTERNATION_OPTIONS",
-      "OPTICS.WEIGHTING_RESTRICTIONS",
-      "OPTICS.AFFIRMATIVE_FRAMING",
-      "OPTICS.TYPOGRAPHY",
-      "OPTICS.ENVIRONMENTAL_GROUNDING",
-    ],
+    protocols: ["OUTPUT.DATA", "CORE_PROTOCOLS.ALTERNATION_OPTIONS", "CORE_PROTOCOLS.GROUNDING", "OPTICS.IMAGE_VOCABULARY", "OPTICS.TEXT_RENDERING"],
     layers: OPTICS_LAYERS,
     think_format: "optics",
     format: {
@@ -451,6 +446,7 @@ export default PROMPTS;
 
 /**
  * CHANGELOG
+ * - 2026-10-04: Catalog restructure — prose bundles declare GROUNDING + split disciplines (SENTENCE_FORMULAS/SCENE_MOMENTUM/CLICHES/CONSENT), data modes declare OUTPUT.DATA, optics declares GROUNDING + IMAGE_VOCABULARY + TEXT_RENDERING.
  * - 2026-10-04: Narrator manifest declares normal `pov: "THIRD"` (`POV.NARRATOR` retired).
  * - 2026-10-04: sorting/continuum manifests declare `PERSPECTIVE.TENSE.*` (`LAYER_TENSE` folded into `TENSE`).
  * - 2026-10-04: sorting/continuum records declare three layer-tense keys (ETERNAL merged into PRESENT).

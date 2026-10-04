@@ -4,29 +4,48 @@
  * 🛡️ CORE PROTOCOLS & PROTOCOL LIBRARY MODULE
  * ============================================================================
  *
- * Provides the protocol registry (PROTOCOL_LIBRARY), universal Layer 3 compiler (render_core_protocols),
- * narrative and visual style XML formatters, POV resolution, and text layout helpers.
+ * Provides the protocol registry (PROTOCOL_LIBRARY), pure-data protocol plans
+ * (resolve_protocol_plan), the thin Layer 3 compiler (render_protocol_plan /
+ * render_core_protocols), narrative and visual style XML composition, POV
+ * resolution, and text layout helpers.
  *
  * Architecture & Modification Rules:
- * - Unidirectional layer flow: pure string compilation.
- * - Blueprint (protocols.js): `PROTOCOL_LIBRARY` catalog + `render_core_protocols` universal compiler over @utils `render_xml_tag`.
+ * - Unidirectional layer flow: pure data plans, then pure string compilation.
+ * - Blueprint (protocols.js): `PROTOCOL_LIBRARY` catalog + `resolve_protocol_plan`
+ *   over @utils `render_xml_tag`; `render_core_protocols` is a one-line composition.
  * - Single source of truth for formatting, anti-tropes, and POV mandates; simulation fidelity is a constitution axiom, not a protocol.
  * - Strict manifest alignment: `render_core_protocols` honors the declarative protocols list from `prompts.js`.
  * ============================================================================
  */
 
-import { has_alternations, prompt_escape, render_xml_tag } from "@utils";
+import { prompt_escape, render_xml_tag } from "@utils";
 import { render_narrative_style_xml, render_visual_style_xml } from "./style.js";
+import { render_alternation_protocol } from "./reflex.js";
+import { OUTPUT_DIRECTIVES } from "./output.js";
 
 // ============================================================================
 // [SECTION 1: CONSOLIDATED PROTOCOL LIBRARY]
 // ============================================================================
 
+/**
+ * Per-type macro subject lists plus the shared prefix/suffix/pronoun rule.
+ * Single source for the entity sets so the three MACROS records share one
+ * wording — the catalog below stays a scannable frozen record.
+ */
+const MACRO_PREFIX = "Use placeholder macros for entities: ";
+const MACRO_SUFFIX = " or specific '@ENTITY_NAME'.";
+const MACRO_SUBJECTS = Object.freeze({
+  CHARACTER: "'@ME' / '@SPEAKER' (self, actor), '@YOU' / '@LISTENER' (user persona, addressee), '@FRACTAL' (setting, environment),",
+  FRACTAL: "'@USER' (user persona), '@CHAR' (AI character), '@FRACTAL' (setting, environment),",
+  SORTING: "'@ME' / '@SPEAKER' (self), '@YOU' / '@LISTENER' (user persona), '@CHAR' (AI character), '@FRACTAL' (environment),",
+});
+const MACRO_PRONOUN_RULE = " Never use raw pronouns ambiguously.";
+
 export const PROTOCOL_LIBRARY = Object.freeze({
-  // ── 1.1 Core-Prose Scaffold (<CORE_PROTOCOLS> bodies) ──────────────────────
+  // ── 1.1 Shared Grounding & Core-Prose Scaffold (<CORE_PROTOCOLS> bodies) ──
   CORE_PROTOCOLS: Object.freeze({
-    DATA: "Output strictly raw, unpadded structural data. Zero prose, conversational filler, or commentary.",
-    ALTERNATION_OPTIONS: `Resolve {Option A|Option B} alternations by selecting exactly ONE contextually fitting option. Emit only the chosen text—never echo braces or pipes, blend choices, or output multiple options simultaneously.`,
+    GROUNDING:
+      "Ground every beat in tangible physical reality: localized objects over repetitive posture tags, emotion through observable micro-actions, vocal shifts, and tactile resistance rather than abstract outcomes. Anchor scenes with concrete light fixtures and physical surfaces.",
     PERSPECTIVE: Object.freeze({
       TENSE: Object.freeze({
         PRESENT: "Write strictly in the present tense.",
@@ -41,33 +60,27 @@ export const PROTOCOL_LIBRARY = Object.freeze({
     }),
     PROSE_DISCIPLINE: Object.freeze({
       TYPOGRAPHY: `Balance interior reflection against physical impact and speech. Maintain lingering sensory conditions across scene shifts. Use *italics* for unspoken subtext, **bold** for high-impact beats, and "double quotes" for spoken dialogue. Omit meta-commentary, preambles, headers, or user echoes. End on a complete sentence.`,
-      PHYSICALITY: `Ground interactions in localized objects rather than repetitive posture tags. Express emotion through observable micro-actions, physical choices, and vocal shifts. Describe tactile resistance, technique, and physical mechanics rather than abstract outcomes.`,
-      ANTI_TROPES: `Eliminate synthetic sentence formulas: denial-then-affirmation ('X did not just Y; it Z'd'), antithetical formulas ('Not X, but Y'), symmetrical binary comparisons, appositive dialogue sound tags, and formulaic action-dialogue sandwiches. State actions directly; never stall with permission loops ('Can I ask a question?'), teasing secrets, or begging quotas.`,
-      BANNED_CLICHES: `Prohibit cliché clusters such as 'spoke volumes', 'a testament to', 'tapestry of', 'shivers down the spine', 'unspoken understanding', 'dance of shadows', Wattpad dominance tropes ('feisty', 'playing with fire', 'death of me', 'mine'), and unprompted physical intimidation (wrist grabs, forced pinning).`,
+      SENTENCE_FORMULAS: `Eliminate synthetic sentence formulas: denial-then-affirmation ('X did not just Y; it Z'd'), antithetical formulas ('Not X, but Y'), symmetrical binary comparisons, appositive dialogue sound tags, and formulaic action-dialogue sandwiches.`,
+      SCENE_MOMENTUM: `State actions directly and keep the scene moving; never stall with permission loops ('Can I ask a question?'), teasing secrets, or begging quotas.`,
+      CLICHES: `Prohibit cliché clusters such as 'spoke volumes', 'a testament to', 'tapestry of', 'shivers down the spine', 'unspoken understanding', 'dance of shadows', and Wattpad dominance tropes ('feisty', 'playing with fire', 'death of me', 'mine').`,
+      CONSENT: `Never stage non-consensual physical domination: no forced grabs, pinning, or intimidation framing unless the other party explicitly invites it. Write desire and vulnerability; never write coercion.`,
       NATURAL_DIALOGUE: `Keep spoken dialogue grounded, clipped, uneven, and interrupted. Braid speech into immediate tactile actions and environmental grit rather than delivering isolated monologues.`,
     }),
   }),
 
   // ── 1.2 Sensory Optics Invariants (<CORE_PROTOCOLS> bodies) ────────────────
   OPTICS: Object.freeze({
-    WEIGHTING_RESTRICTIONS:
-      "Enforce FLUX_T5_WEIGHTING — NEVER emit bracket weight math ('(x:1.3)', '((x))', '[x:0.4]'): FLUX/T5 reads words, not weights. Emphasize via descriptors, varied rephrasing, and attenuation phrasing ('faint', 'subtle touch of', 'barely visible in the distance').",
-    AFFIRMATIVE_FRAMING:
-      "Describe positive presence in frame ('softly moonlit glade' not 'no harsh sunlight'); confine negative_prompt to global quality artifacts.",
-    TYPOGRAPHY:
-      'Render on-screen text ONLY when the scene itself calls for it — signs, graffiti, titles, or UI that are part of the subject matter. Never add text artificially. When text IS present, spell it out exactly and specify placement, font, and color (e.g. "OPEN" in glowing red neon, centered above the doors) — never invent, garble, or approximate lettering, and never output generic placeholders like "text" or "sign".',
-    ENVIRONMENTAL_GROUNDING:
-      "Ground scenes with tangible environmental light fixtures (e.g., flickering cathode tubes, wet pavement reflections, harsh key lamps) and tactile physical surfaces.",
+    IMAGE_VOCABULARY:
+      "Enforce FLUX_T5_WEIGHTING — NEVER emit bracket weight math ('(x:1.3)', '((x))', '[x:0.4]'): FLUX/T5 reads words, not weights. Emphasize via descriptors, varied rephrasing, and attenuation phrasing ('faint', 'subtle touch of', 'barely visible in the distance'). Describe positive presence in frame ('softly moonlit glade' not 'no harsh sunlight'); confine negative_prompt to global quality artifacts.",
+    TEXT_RENDERING:
+      'Render on-screen text ONLY when the scene itself calls for it — signs, graffiti, titles, or UI that are part of the subject matter. Never add text artificially. When text IS present, spell it out exactly with placement, font, and color — never invent, garble, or approximate lettering, and never emit generic placeholders like "text" or "sign".',
   }),
 
   // ── 1.3 Entity Macro Directives ─────────────────────────────────────────────
   MACROS: Object.freeze({
-    CHARACTER:
-      "Use placeholder macros for entities: '@ME' / '@SPEAKER' (self, actor), '@YOU' / '@LISTENER' (user persona, addressee), '@FRACTAL' (setting, environment), or specific '@ENTITY_NAME'. Never use raw pronouns ambiguously.",
-    FRACTAL:
-      "Use placeholder macros for entities: '@USER' (user persona), '@CHAR' (AI character), '@FRACTAL' (setting, environment), or specific '@ENTITY_NAME'.",
-    SORTING:
-      "Use '@' entity macros: '@ME' / '@SPEAKER' (self), '@YOU' / '@LISTENER' (user persona), '@CHAR' (AI character), '@FRACTAL' (environment), or specific '@ENTITY_NAME'.",
+    CHARACTER: `${MACRO_PREFIX}${MACRO_SUBJECTS.CHARACTER}${MACRO_SUFFIX}${MACRO_PRONOUN_RULE}`,
+    FRACTAL: `${MACRO_PREFIX}${MACRO_SUBJECTS.FRACTAL}${MACRO_SUFFIX}`,
+    SORTING: `${MACRO_PREFIX}${MACRO_SUBJECTS.SORTING}${MACRO_SUFFIX}`,
   }),
 });
 
@@ -86,47 +99,164 @@ export function resolve_macro_directive(entity_type = "character") {
 // ============================================================================
 
 /**
- * Compiles protocol keys into XML protocol tags with optional schema prefix.
- * Module-private compiler utilized by render_core_protocols.
- * @param {string | string[]} protocol_selection
- * @param {Object} [options]
- * @param {string} [options.schema=""]
- * @returns {string}
+ * Resolves one dotted registry key to its leaf tag + body, or null when the
+ * key names a branch or nothing at all. Looks in `PROTOCOL_LIBRARY` first,
+ * then the `OUTPUT.*` output-shape directives in output.js. The single exact
+ * matcher for static emission — substring/prefix guessing lives only in plan
+ * selection.
+ *
+ * @param {string} protocol_key - Dotted registry path (e.g. "OPTICS.IMAGE_VOCABULARY", "OUTPUT.DATA")
+ * @returns {{ tag: string, body: string }|null}
  */
-function compile_protocol_tags(protocol_selection, { schema = "" } = {}) {
-  const keys = Array.isArray(protocol_selection) ? protocol_selection : typeof protocol_selection === "string" ? protocol_selection.split(",") : [];
-
-  const protocol_tags = keys
-    .map((protocol_key) => {
-      const protocol_parts = protocol_key.trim().toUpperCase().split(".");
-      const rule = protocol_parts.reduce((node, part) => node?.[part], /** @type {any} */ (PROTOCOL_LIBRARY));
-      if (!rule || typeof rule !== "string") return "";
-      const tag = protocol_parts.at(-1);
-      return render_xml_tag({ tag, children: [rule], inline: true });
-    })
-    .filter(Boolean);
-
-  if (schema) protocol_tags.unshift(render_xml_tag({ tag: "SCHEMA", children: [schema] }));
-  return protocol_tags.join("\n\n");
+function resolve_static_rule(protocol_key) {
+  const protocol_parts = String(protocol_key).trim().toUpperCase().split(".");
+  const catalog = protocol_parts[0] === "OUTPUT" ? OUTPUT_DIRECTIVES : PROTOCOL_LIBRARY;
+  const lookup_parts = catalog === OUTPUT_DIRECTIVES ? protocol_parts.slice(1) : protocol_parts;
+  const rule = lookup_parts.reduce((node, part) => node?.[part], /** @type {any} */ (catalog));
+  if (!rule || typeof rule !== "string") return null;
+  return { tag: lookup_parts.at(-1), body: rule };
 }
 
 // ============================================================================
-// [SECTION 3: ALTERNATION & POV RESOLVERS]
+// [SECTION 2: PROTOCOL PLANS — PURE DATA, NO XML]
 // ============================================================================
 
 /**
- * Compiles the canonical <ALTERNATION_OPTIONS> protocol tag if the input text contains {Option A|Option B} alternations.
- * @param {string} text - Input text or serialized entity sheet
- * @returns {string} Formatted <ALTERNATION_OPTIONS> block or empty string
+ * Resolves protocol inputs into a frozen, render-ready plan. Every selection,
+ * tense fold, style choice, and drop decision happens here — the renderer maps
+ * plan fields to envelopes without branching.
+ *
+ * @param {Object} [parameters={}]
+ * @param {string[]|string} [parameters.protocols=[]] - Declarative protocol list from prompt manifest
+ * @param {string|null} [parameters.pov_protocol=null] - Optional override for perspective POV
+ * @param {any} [parameters.style=null] - Narrative or visual style record
+ * @param {any} [parameters.visual_style=null] - Explicit visual style record override
+ * @param {Record<string, any>} [parameters.engine_tokens={}] - Resolved visual engine tokens
+ * @param {boolean} [parameters.has_alternation=false] - Whether entity state contains selectable options
+ * @returns {Readonly<{ static_rules: ReadonlyArray<Readonly<{ tag: string, body: string }>>,
+ *   perspective: Readonly<{ person: string|null, tense: string, pov_body: string, tense_command: string }>|null,
+ *   alternation: boolean, style_kind: "visual"|"narrative"|null, style_xml: string,
+ *   disciplines: ReadonlyArray<Readonly<{ tag: string, body: string }>>,
+ *   dropped: Readonly<{ unknown: number }> }>}
  */
-export function render_alternation_protocol(text = "") {
-  if (!has_alternations(text)) return "";
-  return render_xml_tag({
-    tag: "ALTERNATION_OPTIONS",
-    children: [PROTOCOL_LIBRARY.CORE_PROTOCOLS.ALTERNATION_OPTIONS],
-    inline: true,
+export function resolve_protocol_plan({
+  protocols = [],
+  pov_protocol = null,
+  style = null,
+  visual_style = null,
+  engine_tokens = {},
+  has_alternation = false,
+} = {}) {
+  const protocol_list = Array.isArray(protocols) ? protocols : typeof protocols === "string" ? protocols.split(",").map((item) => item.trim()) : [];
+
+  const should_include = (key) => protocol_list.length === 0 || protocol_list.some((protocol_item) => protocol_item.includes(key));
+
+  const resolved_pov_protocol = pov_protocol || null;
+
+  const pov_key = resolved_pov_protocol ? String(resolved_pov_protocol).split(".").pop() : null;
+  const perspective = PROTOCOL_LIBRARY.CORE_PROTOCOLS.PERSPECTIVE;
+  const pov_body = pov_key ? perspective.POV[pov_key] || "" : "";
+  const person = pov_key ? (pov_key === "FIRST" ? "FIRST" : "THIRD") : null;
+
+  const is_specially_laid_out = (protocol_key) =>
+    protocol_key === "CORE_PROTOCOLS.ALTERNATION_OPTIONS" ||
+    protocol_key.startsWith("CORE_PROTOCOLS.PERSPECTIVE.") ||
+    protocol_key.startsWith("CORE_PROTOCOLS.PROSE_DISCIPLINE.");
+  let unknown_count = 0;
+  const static_rules = protocol_list
+    .filter((protocol_key) => !is_specially_laid_out(protocol_key))
+    .map((protocol_key) => {
+      const rule = resolve_static_rule(protocol_key);
+      if (!rule) unknown_count += 1;
+      return rule;
+    })
+    .filter(Boolean);
+
+  const layer_tense_keys = protocol_list.filter((protocol_key) => String(protocol_key).startsWith("CORE_PROTOCOLS.PERSPECTIVE.TENSE."));
+  const layer_tense_rules = layer_tense_keys.map((protocol_key) => perspective.TENSE[String(protocol_key).split(".").pop()]).filter(Boolean);
+
+  const perspective_tense =
+    layer_tense_rules.length > 1 ? "LAYER" : layer_tense_rules.length === 1 ? String(layer_tense_keys[0]).split(".").pop() : "PRESENT";
+  const tense_command =
+    layer_tense_rules.length > 1
+      ? `Match tense to the layer being written: ${layer_tense_rules
+          .map((rule) =>
+            String(rule)
+              .replace(/\s*\.\s*$/, "")
+              .replace(/^[A-Z]/, (letter) => letter.toLowerCase()),
+          )
+          .join("; ")}.`
+      : layer_tense_rules[0] || (should_include("TENSE.PRESENT") ? perspective.TENSE.PRESENT : "");
+
+  const core = PROTOCOL_LIBRARY.CORE_PROTOCOLS;
+  const disciplines = Object.entries(core.PROSE_DISCIPLINE)
+    .filter(([tag]) => should_include(`PROSE_DISCIPLINE.${tag}`))
+    .map(([tag, body]) => ({ tag, body }));
+
+  const active_visual_style = visual_style || (Object.keys(engine_tokens).length > 0 ? style : null);
+  const style_kind = active_visual_style ? "visual" : "narrative";
+  const style_xml = active_visual_style ? render_visual_style_xml(active_visual_style, engine_tokens) : render_narrative_style_xml(style);
+
+  return Object.freeze({
+    static_rules: Object.freeze(static_rules.map((rule) => Object.freeze(rule))),
+    perspective:
+      resolved_pov_protocol || layer_tense_rules.length > 0 ? Object.freeze({ person, tense: perspective_tense, pov_body, tense_command }) : null,
+    alternation: Boolean(has_alternation && should_include("ALTERNATION_OPTIONS")),
+    style_kind,
+    style_xml,
+    disciplines: Object.freeze(disciplines.map((discipline) => Object.freeze(discipline))),
+    dropped: Object.freeze({ unknown: unknown_count }),
   });
 }
+
+// ============================================================================
+// [SECTION 3: THIN PLAN RENDERER — NO DECISIONS, ONLY XML]
+// ============================================================================
+
+/**
+ * Maps a protocol plan to the Layer 3 `<CORE_PROTOCOLS>` envelope. Every
+ * selection is already plan data — this function only wraps.
+ *
+ * @param {ReturnType<typeof resolve_protocol_plan>|null|undefined} plan
+ * @returns {string} XML formatted `<CORE_PROTOCOLS>` block, or "" when empty
+ */
+export function render_protocol_plan(plan) {
+  if (!plan) return "";
+  const blocks = [
+    plan.static_rules.length > 0
+      ? plan.static_rules.map(({ tag, body }) => render_xml_tag({ tag, children: [body], inline: true })).join("\n\n")
+      : "",
+    plan.perspective
+      ? render_xml_tag({
+          tag: "PERSPECTIVE",
+          attrs: { person: plan.perspective.person, tense: plan.perspective.tense },
+          children: [prompt_escape(plan.perspective.pov_body), plan.perspective.tense_command],
+          child_indent: 2,
+          separator: "\n",
+        })
+      : null,
+    plan.alternation ? render_alternation_protocol("{Option A|Option B}") : null,
+    plan.style_xml,
+    plan.disciplines.length > 0
+      ? render_xml_tag({
+          tag: "PROSE_DISCIPLINE",
+          children: plan.disciplines.map(({ tag, body }) => render_xml_tag({ tag, children: [body], inline: true })),
+          child_indent: 2,
+          separator: "\n",
+        })
+      : null,
+  ].filter(Boolean);
+
+  if (blocks.length === 0) {
+    return "";
+  }
+
+  return render_xml_tag({ tag: "CORE_PROTOCOLS", children: blocks, indent: 2, child_indent: 2, separator: "\n\n" });
+}
+
+// ============================================================================
+// [SECTION 3: POV RESOLVERS]
+// ============================================================================
 
 /**
  * Resolves the active POV protocol key for an entity profile.
@@ -165,7 +295,7 @@ export function resolve_layer_tense_protocol(field_id = "", layer_key = "") {
 }
 
 // ============================================================================
-// [SECTION 4: CORE PROTOCOL BLOCK COMPILER]
+// [SECTION 4: PUBLIC CORE PROTOCOL COMPILER — ONE-LINE PLAN + RENDER]
 // ============================================================================
 
 /**
@@ -190,90 +320,13 @@ export function render_core_protocols({
   engine_tokens = {},
   has_alternation = false,
 } = {}) {
-  const protocol_list = Array.isArray(protocols) ? protocols : typeof protocols === "string" ? protocols.split(",").map((item) => item.trim()) : [];
-
-  const should_include = (key) => protocol_list.length === 0 || protocol_list.some((protocol_item) => protocol_item.includes(key));
-
-  const resolved_pov_protocol = pov_protocol || null;
-
-  const pov_key = resolved_pov_protocol ? String(resolved_pov_protocol).split(".").pop() : null;
-  const perspective = PROTOCOL_LIBRARY.CORE_PROTOCOLS.PERSPECTIVE;
-  const pov = pov_key ? perspective.POV[pov_key] || "" : "";
-  const person = pov_key ? (pov_key === "FIRST" ? "FIRST" : "THIRD") : null;
-  const core = PROTOCOL_LIBRARY.CORE_PROTOCOLS;
-
-  const prose_disciplines = Object.entries(core.PROSE_DISCIPLINE)
-    .filter(([tag]) => should_include(`PROSE_DISCIPLINE.${tag}`))
-    .map(([tag, body]) => render_xml_tag({ tag, children: [body], inline: true }));
-
-  const alternation_tag = has_alternation && should_include("ALTERNATION_OPTIONS") ? render_alternation_protocol("{Option A|Option B}") : null;
-
-  // Tense atoms (`PERSPECTIVE.TENSE.*`) never emit their own block:
-  // they fold into the single <PERSPECTIVE> element — the tense selection sets
-  // the `tense` attribute (one atom → its tense, several → "LAYER", none →
-  // "PRESENT") and the atoms compose its command body, so person and tense are
-  // stated exactly once per prompt instead of disagreeing across sibling tags.
-  const is_specially_laid_out = (protocol_key) =>
-    protocol_key === "CORE_PROTOCOLS.ALTERNATION_OPTIONS" ||
-    protocol_key.startsWith("CORE_PROTOCOLS.PERSPECTIVE.") ||
-    protocol_key.startsWith("CORE_PROTOCOLS.PROSE_DISCIPLINE.");
-  const static_protocols = protocol_list.filter((protocol_key) => !is_specially_laid_out(protocol_key));
-  const static_rules = static_protocols.length > 0 ? compile_protocol_tags(static_protocols) : "";
-
-  const layer_tense_keys = protocol_list.filter((protocol_key) => String(protocol_key).startsWith("CORE_PROTOCOLS.PERSPECTIVE.TENSE."));
-  const layer_tense_rules = layer_tense_keys.map((protocol_key) => perspective.TENSE[String(protocol_key).split(".").pop()]).filter(Boolean);
-
-  const perspective_tense =
-    layer_tense_rules.length > 1 ? "LAYER" : layer_tense_rules.length === 1 ? String(layer_tense_keys[0]).split(".").pop() : "PRESENT";
-  const tense_command =
-    layer_tense_rules.length > 1
-      ? `Match tense to the layer being written: ${layer_tense_rules
-          .map((rule) =>
-            String(rule)
-              .replace(/\s*\.\s*$/, "")
-              .replace(/^[A-Z]/, (letter) => letter.toLowerCase()),
-          )
-          .join("; ")}.`
-      : layer_tense_rules[0] || (should_include("TENSE.PRESENT") ? perspective.TENSE.PRESENT : "");
-
-  // Symmetrical style resolution
-  const active_visual_style = visual_style || (Object.keys(engine_tokens).length > 0 ? style : null);
-  const visual_style_xml = active_visual_style ? render_visual_style_xml(active_visual_style, engine_tokens) : "";
-  const narrative_style_xml = !active_visual_style ? render_narrative_style_xml(style) : "";
-
-  const blocks = [
-    static_rules,
-    resolved_pov_protocol || layer_tense_rules.length > 0
-      ? render_xml_tag({
-          tag: "PERSPECTIVE",
-          attrs: { person, tense: perspective_tense },
-          children: [prompt_escape(pov), tense_command],
-          child_indent: 2,
-          separator: "\n",
-        })
-      : null,
-    alternation_tag,
-    narrative_style_xml,
-    visual_style_xml,
-    prose_disciplines.length > 0
-      ? render_xml_tag({
-          tag: "PROSE_DISCIPLINE",
-          children: prose_disciplines,
-          child_indent: 2,
-          separator: "\n",
-        })
-      : null,
-  ].filter(Boolean);
-
-  if (blocks.length === 0) {
-    return "";
-  }
-
-  return render_xml_tag({ tag: "CORE_PROTOCOLS", children: blocks, indent: 2, child_indent: 2, separator: "\n\n" });
+  return render_protocol_plan(resolve_protocol_plan({ protocols, pov_protocol, style, visual_style, engine_tokens, has_alternation }));
 }
 
 /**
  * CHANGELOG
+ * - 2026-10-04: Catalog restructure (Suggestion 2 hybrid) — orthogonal single-concern atoms: ANTI_TROPES splits into SENTENCE_FORMULAS + SCENE_MOMENTUM, BANNED_CLICHES into CLICHES + standalone CONSENT, PHYSICALITY + ENVIRONMENTAL_GROUNDING fuse into shared GROUNDING, WEIGHTING + AFFIRMATIVE fuse into IMAGE_VOCABULARY, optics TYPOGRAPHY renamed TEXT_RENDERING (was colliding with prose TYPOGRAPHY); DATA moves to output.js OUTPUT_DIRECTIVES (manifests use OUTPUT.DATA); ALTERNATION atom + render_alternation_protocol move to reflex.js; MACROS records derive from shared MACRO_SUBJECTS (SORTING prefix normalized, byte-neutral in practice).
+ * - 2026-10-04: Plan/render split (Plan 2) — `resolve_protocol_plan` owns all selection/tense-fold/style/drop decisions as frozen pure data (with `dropped.unknown` counts), `render_protocol_plan` maps plans to envelopes without branching, `render_core_protocols` is a one-line composition; retired the private `compile_protocol_tags` in favor of the exact `resolve_static_rule` matcher.
  * - 2026-10-04: Retired CORE_PROTOCOLS.SIMULATION_FIDELITY — fidelity is now constitution axiom L4 (rendered in <AXIOMATIC_CONSTITUTION>); protocols.js has zero constitution imports.
  * - 2026-10-04: Removed MACRO_DIRECTIVES alias (P4) — consumers read PROTOCOL_LIBRARY.MACROS.
  * - 2026-10-04: Optics invariants merged inline into PROTOCOL_LIBRARY.OPTICS (standalone const deleted) — one registry, no indirection.
