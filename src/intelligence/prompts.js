@@ -165,7 +165,7 @@ export function director_directives({ has_input = false, round = 1, has_environm
  * @returns {string[]}
  */
 function continuum_directives() {
-  return ["CONTINUUM.TARGET_FOCUS", "CONTINUUM.MANDATE", "TEMPORAL.TENSE"];
+  return ["CONTINUUM.TARGET_FOCUS", "CONTINUUM.MANDATE"];
 }
 
 /**
@@ -176,11 +176,9 @@ function continuum_directives() {
  */
 function sorting_directives({ entity_type = "character", ingestion = false, redistribute = false } = {}) {
   return [
-    "SORTING.POV_THIRD",
     { group: [entity_type === "fractal" ? "SORTING.FOCUS_FRACTAL" : "SORTING.FOCUS_CHARACTER", "SORTING.MACRO"] },
     ...(ingestion ? ["SORTING.INGESTION"] : []),
     ...(redistribute ? ["SORTING.REDISTRIBUTE"] : []),
-    "TEMPORAL.TENSE",
   ];
 }
 
@@ -338,7 +336,12 @@ export const PROMPTS = Object.freeze({
     task_state: "continuum",
     directives: continuum_directives,
     constitution: false,
-    protocols: ["CORE_PROTOCOLS.DATA"],
+    protocols: [
+      "CORE_PROTOCOLS.DATA",
+      "CORE_PROTOCOLS.PERSPECTIVE.LAYER_TENSE.PRESENT",
+      "CORE_PROTOCOLS.PERSPECTIVE.LAYER_TENSE.PAST",
+      "CORE_PROTOCOLS.PERSPECTIVE.LAYER_TENSE.FUTURE",
+    ],
     entities: {
       target_context: true,
       nearby_entities: true,
@@ -374,7 +377,12 @@ export const PROMPTS = Object.freeze({
     task_state: "sorting",
     directives: sorting_directives,
     constitution: false,
-    protocols: ["CORE_PROTOCOLS.DATA"],
+    protocols: [
+      "CORE_PROTOCOLS.DATA",
+      "CORE_PROTOCOLS.PERSPECTIVE.LAYER_TENSE.PRESENT",
+      "CORE_PROTOCOLS.PERSPECTIVE.LAYER_TENSE.PAST",
+      "CORE_PROTOCOLS.PERSPECTIVE.LAYER_TENSE.FUTURE",
+    ],
     layers: SORTING_LAYERS,
     format: {
       mode: "json",
@@ -443,6 +451,8 @@ export default PROMPTS;
 
 /**
  * CHANGELOG
+ * - 2026-10-04: sorting/continuum records declare three layer-tense keys (ETERNAL merged into PRESENT).
+ * - 2026-10-04: sorting/continuum DIRECTIVES no longer carry person/tense (now SYSTEM protocols); both records declare the four LAYER_TENSE keys and sorting resolves POV.THIRD via pov_protocol; leads reverted accordingly.
  * - 2026-10-04: sorting_directives and continuum_directives now append TEMPORAL.TENSE (order pinned in MODE_DIRECTIVE_LEADS); field tense stated once per prompt instead of per schema value.
  * - 2026-10-01: Added think_format: "enhancement" and temporal_field format contract to enhancement mode, enabling cognitive thinking blocks for single profile field refinement.
  * - 2026-09-24: Ground-Up Refactor & Harmonization — (1) Hoisted `assemble_prompt` import to file top to establish clean ESM dependency hygiene; (2) Reconstructed module body into 6 cleanly sequenced sections following the simulation lifecycle (Envelope Presets, Protocol/Directive Composers, Mode Factory, Manifest Switchboard, Resolvers/Dispatcher, and Changelog); (3) Standardized Full-Name domain nomenclature across composers and factory options; (4) Preserved 100% contract invariance across all 100 unit and verification test cases.

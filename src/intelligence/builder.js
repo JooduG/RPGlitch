@@ -48,7 +48,7 @@ import { ensure_embeddings } from "@platform";
 import { get_prompt } from "./prompts.js";
 import { resolve_stability_lock, resolve_system_role_line, render_system_xml } from "./modules/system.js";
 import { render_axiomatic_constitution } from "./modules/constitution.js";
-import { render_core_protocols, resolve_pov_protocol, resolve_macro_directive } from "./modules/protocols.js";
+import { render_core_protocols, resolve_pov_protocol, resolve_macro_directive, resolve_layer_tense_protocol } from "./modules/protocols.js";
 import {
   render_entity_sheets,
   resolve_entities,
@@ -70,7 +70,6 @@ import {
   resolve_optics_cinematography,
   render_available_keywords_xml,
   render_subtext_xml,
-  get_directive_atom,
   get_output_format,
 } from "./modules/task.js";
 import { DYNAMICS_AXES, PHYSICS_PROTOCOLS, AVAILABLE_KEYWORDS, evaluate_dynamics_rules, evaluate_subtext_protocols } from "./physics.js";
@@ -852,10 +851,12 @@ export function render_enhancement({
     field_id.startsWith("present.") ||
     Boolean(catalog_meta?.layer_key);
 
+  const layer_tense_protocol = resolve_layer_tense_protocol(field_id, catalog_meta?.layer_key ?? layer_key);
+
   const task_xml = render_task({
     config,
     task_state: config.task_state,
-    directives: [resolved_directive, macro_directive, get_directive_atom("TEMPORAL.TENSE")],
+    directives: [resolved_directive, macro_directive],
     input: content,
     input_channel: "content",
     output_format: get_output_format(config.format, {
@@ -873,7 +874,9 @@ export function render_enhancement({
     config,
     {
       role_line,
-      core_protocols: render_core_protocols({ protocols: config.protocols }),
+      core_protocols: render_core_protocols({
+        protocols: layer_tense_protocol ? [...config.protocols, layer_tense_protocol] : config.protocols,
+      }),
       layer: resolved_layer_key ? render_xml_tag({ tag: "LAYER", children: [escape_xml(resolved_layer_key)], inline: true }) : null,
       field_context: entity_plan.field_context
         ? render_enhancement_field_context(entity, field_id, content, normalized_type, (e, c) =>
@@ -914,7 +917,10 @@ export function render_profile_sorting(entity_type = "character", options = {}) 
     config,
     {
       role_line,
-      core_protocols: render_core_protocols({ protocols: config.protocols }),
+      core_protocols: render_core_protocols({
+        protocols: config.protocols,
+        pov_protocol: resolve_pov_protocol("THIRD"),
+      }),
     },
     { attributes: { scope: "Entire Profile" } },
   );
@@ -1305,6 +1311,7 @@ export function assemble_prompt(config, context = {}) {
 
 /**
  * CHANGELOG
+ * - 2026-10-04: Sorting passes pov_protocol THIRD (POV_THIRD retired); enhancement resolves its field layer-tense protocol dynamically into core_protocols instead of a blanket DIRECTIVES paragraph.
  * - 2026-10-04: Enhancement DIRECTIVES now append the canonical TEMPORAL.TENSE atom after the field directive and macro.
  * - 2026-10-01: Re-routed resolve_macro_directive from protocols.js and parameterized render_enhancement with is_temporal and think-awareness for Layer 7 format compilation.
  * - 2026-09-25: Layer-6 refactor wiring — every `render_task` call site now passes its manifest `config`, so the task compiler resolves the mode's declarative `<DIRECTIVES>` selection (director/continuum/sorting/optics) and `optics` spatial framing instead of a hand-rolled builder array; `render_profile_sorting` passes `entity_type`/`ingestion`/`redistribute` rather than precompiled directive strings, and the now-unused `TASK_LIBRARY` import is dropped. Output bytes unchanged.

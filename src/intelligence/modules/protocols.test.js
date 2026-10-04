@@ -19,6 +19,7 @@ import {
   render_visual_style_xml,
   render_core_protocols,
   resolve_pov_protocol,
+  resolve_layer_tense_protocol,
   render_alternation_protocol,
 } from "./protocols.js";
 import { render_dynamics_axes_xml } from "./entities.js";
@@ -42,6 +43,25 @@ describe("protocols.js - Core Protocol Library & Compiler", () => {
     expect(resolve_pov_protocol({ type: "character", pov: "1st_person" })).toBe("CORE_PROTOCOLS.PERSPECTIVE.POV.FIRST");
     expect(resolve_pov_protocol({ type: "character", pov: "3rd_person" })).toBe("CORE_PROTOCOLS.PERSPECTIVE.POV.THIRD");
     expect(resolve_pov_protocol({ type: "fractal" })).toBe("CORE_PROTOCOLS.PERSPECTIVE.POV.THIRD");
+  });
+
+  it("resolves the correct layer-tense protocol per temporal field", () => {
+    expect(resolve_layer_tense_protocol("eternal.non_physical", "")).toBe("CORE_PROTOCOLS.PERSPECTIVE.LAYER_TENSE.PRESENT");
+    expect(resolve_layer_tense_protocol("present.physical", "")).toBe("CORE_PROTOCOLS.PERSPECTIVE.LAYER_TENSE.PRESENT");
+    expect(resolve_layer_tense_protocol("past", "")).toBe("CORE_PROTOCOLS.PERSPECTIVE.LAYER_TENSE.PAST");
+    expect(resolve_layer_tense_protocol("", "FUTURE")).toBe("CORE_PROTOCOLS.PERSPECTIVE.LAYER_TENSE.FUTURE");
+    expect(resolve_layer_tense_protocol("name", "")).toBe(null);
+  });
+
+  it("renders selected layer-tense atoms as one LAYER_TENSE block", () => {
+    const output = render_core_protocols({
+      protocols: ["CORE_PROTOCOLS.DATA", "CORE_PROTOCOLS.PERSPECTIVE.LAYER_TENSE.PAST", "CORE_PROTOCOLS.PERSPECTIVE.LAYER_TENSE.FUTURE"],
+    });
+    expect(output).toContain("<LAYER_TENSE>");
+    expect(output).toContain("settled history in past tense");
+    expect(output).toContain("active future tense");
+    expect(output).not.toContain("<PAST>");
+    expect(output).not.toContain("<FUTURE>");
   });
 
   it("renders alternation protocol if text contains alternations", () => {

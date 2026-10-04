@@ -10,7 +10,7 @@
  *
  * ── Multi-Shot Simulation Lifecycle Mapping ─────────────────────────────────
  * • Section 1: Unified Task Directives & Protocols Catalog (TASK_LIBRARY)
- *              (Protocols, Director, Continuum, Prose, Sorting, Optics directives, Output Formats, Temporal Tense)
+ *              (Protocols, Director, Continuum, Prose, Sorting, Optics directives, Output Formats)
  * • Section 2: Dynamic Directive Compiler (get_directive_atom / compile_directive_tags)
  *              (Dotted-key resolution + {placeholder} interpolation → ordered paragraphs)
  * • Section 3: Prose Reflex & Input Reaction Engine
@@ -162,7 +162,6 @@ Analyze recent turns in «HISTORY». Synthesize memories, update physical appear
 
   // ── 1.6 Tool B: Profile Structuring & Ingestion Directives (sorting) ───────
   SORTING: Object.freeze({
-    POV_THIRD: "Write strictly in third-person limited ('he', 'she', 'they', or character name). Never use first-person pronouns in narrative prose.",
     FOCUS_CHARACTER: "FOCUS: Extracting data for an individual CHARACTER. Re-contextualize or discard environmental/setting text.",
     FOCUS_FRACTAL: "FOCUS: Extracting data for a FRACTAL (scene/setting/environment). Re-contextualize or discard character-specific traits.",
     MACRO: "{macro_directive}",
@@ -261,11 +260,6 @@ Analyze recent turns in «HISTORY». Synthesize memories, update physical appear
     PLAIN_TEXT: "After closing </THINK>, emit clean text: no preamble, commentary, markdown, or structural tags.",
     JSON_RETURN:
       "Return a single, COMPLETE, VALID JSON object matching this schema:\n{schema}\n\nNo preamble, no markdown backticks, no external XML tags. Output must start with { and end with }.",
-  }),
-  // -- 1.9 Temporal Layer Tense (single-field + schema modes) --
-  TEMPORAL: Object.freeze({
-    TENSE:
-      "TEMPORAL TENSE: ETERNAL fields are timeless permanent baselines, true in any scene. PRESENT fields layer over the eternal baseline and hold true in THIS moment only. PAST fields are settled history in past tense. FUTURE fields are active trajectory in active future tense, distinct from Present.",
   }),
 });
 
@@ -1080,6 +1074,7 @@ export function render_output_format_xml({ mode = "", content = "", indent_level
 
 /**
  * CHANGELOG
+ * - 2026-10-04: Retired TASK_LIBRARY.SORTING.POV_THIRD (sorting now resolves CORE_PROTOCOLS.PERSPECTIVE.POV.THIRD through pov_protocol) and TASK_LIBRARY.TEMPORAL (replaced by per-layer PERSPECTIVE.LAYER_TENSE atoms); PROSE.BASE stays - bespoke ghostwrite text, not a POV duplicate.
  * - 2026-10-04: Added TASK_LIBRARY.TEMPORAL.TENSE (new 1.9 section) - one canonical temporal-tense paragraph for single-field and schema modes; per-field tense clauses removed from the profile layer directives.
  * - 2026-10-04: Moved the five output emission strings plus the JSON-return template into TASK_LIBRARY.FORMATS (new 1.8 section); retired format_json_return in favor of get_directive_atom with FORMATS.JSON_RETURN - byte-identical output, schema still interpolated verbatim; profile.test.js now reads TASK_LIBRARY.FORMATS.PROSE. No contract size change.
  * - 2026-10-01: Consolidated Layer 7 (OUTPUT_FORMAT, format.js) directly into task.js. Eliminated cross-sibling module import and unified turn execution with output schema definitions.

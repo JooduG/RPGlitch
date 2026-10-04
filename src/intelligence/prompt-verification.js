@@ -667,6 +667,7 @@ export const CONTRACT = {
       "SYSTEM",
       "CORE_PROTOCOLS",
       "DATA",
+      "LAYER_TENSE",
       "TARGET_ENTITY_CONTEXT",
       "AI_CHARACTER",
       "PSYCHOLOGY",
@@ -691,12 +692,12 @@ export const CONTRACT = {
     messages: 0,
   },
   enhancement: {
-    system: ["SYSTEM", "CORE_PROTOCOLS", "DATA", "LAYER", "ENTITY_CONTEXT", "APPEARANCE", "BUILD"],
+    system: ["SYSTEM", "CORE_PROTOCOLS", "DATA", "LAYER_TENSE", "LAYER", "ENTITY_CONTEXT", "APPEARANCE", "BUILD"],
     task: ["TASK", "THINK_FORMAT", "THINK", "INPUT", "DIRECTIVES", "OUTPUT_FORMAT"],
     messages: 0,
   },
   sorting: {
-    system: ["SYSTEM", "CORE_PROTOCOLS", "DATA"],
+    system: ["SYSTEM", "CORE_PROTOCOLS", "DATA", "LAYER_TENSE", "PERSPECTIVE"],
     task: ["TASK", "INPUT", "DIRECTIVES", "OUTPUT_FORMAT"],
     messages: 0,
   },
@@ -751,13 +752,11 @@ export const MODE_DIRECTIVE_LEADS = Object.freeze({
     "NEXT ACTION ROUTING RULES:",
     "CONVERGENCE & ENTITY REUSE:",
   ]),
-  continuum: Object.freeze(["TARGET FOCUS: Consolidate state and extract relational vectors for", "EXECUTION MANDATE:", "TEMPORAL TENSE:"]),
+  continuum: Object.freeze(["TARGET FOCUS: Consolidate state and extract relational vectors for", "EXECUTION MANDATE:"]),
   sorting: Object.freeze([
-    "Write strictly in third-person limited",
     "FOCUS: Extracting data for an individual CHARACTER",
     "Use placeholder macros for entities:",
     "SOURCE OF TRUTH & INGESTION RULES:",
-    "TEMPORAL TENSE:",
   ]),
   optics: Object.freeze([
     "Convert narrative intent into a structured image prompt payload depicting",
@@ -778,14 +777,16 @@ export const CONTRACT_SIZES = {
   narrator: { system: 5189, task: 1922 },
   narrator_prologue: { system: 5189, task: 2170 },
   narrator_epilogue: { system: 5189, task: 1839 },
-  continuum: { system: 1244, task: 2487 },
-  enhancement: { system: 452, task: 1352 },
-  sorting: { system: 287, task: 2962 },
+  continuum: { system: 1518, task: 2186 },
+  enhancement: { system: 583, task: 1051 },
+  sorting: { system: 812, task: 2523 },
   optics: { system: 1761, task: 3785 },
 };
 
 /**
  * CHANGELOG
+ * - 2026-10-04: Re-baselined sorting (system 287→812, task 2962→2523), continuum (system 1244→1518, task 2487→2186), and enhancement (system 452→583, task 1352→1051) for the PERSPECTIVE unification (person/tense as SYSTEM protocols) plus the three-tense simplification. Director/optics still on old baselines (within tripwire; drift predates these changes).
+ * - 2026-10-04: Contract leads reverted (sorting 3, continuum 2) and system inventories gained LAYER_TENSE (+PERSPECTIVE for sorting) for the PERSPECTIVE unification; sizes to re-baseline after measurement.
  * - 2026-10-04: Re-baselined `CONTRACT_SIZES.sorting.task` (2838→2962), `CONTRACT_SIZES.continuum.task` (2363→2487), and `CONTRACT_SIZES.enhancement.task` (1051→1352) after centralizing temporal tense into `TASK_LIBRARY.TEMPORAL.TENSE` (sorting/continuum deltas are identical because they share the temporal schema fragment). Director/optics measured 4358/4051 against unchanged baselines — still inside the 25% tripwire, and this change cannot affect those modes (atom-only schemas, untouched selections), so their baselines are left alone pending an explanation for the drift.
  * - 2026-10-04: Re-baselined `CONTRACT_SIZES.sorting.task` (4296→2838), `CONTRACT_SIZES.continuum` (system 1210→1244, task 3821→2363), and `CONTRACT_SIZES.enhancement.task` (867→1051) after removing the HELPERS.BRACKETS boilerplate from all profile field directives; bracket instruction now comes from the task-layer output format only. Measured via debug-sizes run (my 6×370 arithmetic overestimated the removal).
  * - 2026-10-03: Re-baselined `CONTRACT_SIZES.continuum.task` (2818→3821) and `CONTRACT_SIZES.sorting.task` (3904→4296) after applying unified `HELPERS.BRACKETS` across all non-physical and future fields in `profile-fields.js`.
