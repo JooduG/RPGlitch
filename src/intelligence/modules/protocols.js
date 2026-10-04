@@ -20,7 +20,7 @@
 
 import { prompt_escape, render_xml_tag } from "@utils";
 import { render_narrative_style_xml, render_visual_style_xml } from "./style.js";
-import { render_alternation_block } from "./reflex.js";
+import { render_alternation_protocol } from "./reflex.js";
 import { OUTPUT_DIRECTIVES } from "./output.js";
 
 // ============================================================================
@@ -235,7 +235,7 @@ export function render_protocol_plan(plan) {
           separator: "\n",
         })
       : null,
-    plan.alternation ? render_alternation_block() : null,
+    plan.alternation ? render_alternation_protocol("", { force: true }) : null,
     plan.style_xml,
     plan.disciplines.length > 0
       ? render_xml_tag({

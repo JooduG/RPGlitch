@@ -25,7 +25,7 @@ const TAG_PATTERN = /<([A-Z][A-Z0-9_]{1,})(?=[\s>/])/g;
 const RESERVED_REFERENCE_PATTERN = /<(INPUT|AGENDA|TRAJECTORY|SHIRT|JACKET)\s*\/>/;
 
 /** Manifest layer keys that emit plain text rather than a tag (never match a direct-child tag). */
-const TEXT_ONLY_LAYERS = new Set(["role", "stability_lock"]);
+const TEXT_ONLY_LAYERS = new Set(["role"]);
 
 /**
  * Extracts ONLY the direct (indent-2) child element tags of an envelope string, so nested

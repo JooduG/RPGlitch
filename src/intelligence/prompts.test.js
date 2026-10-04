@@ -4,7 +4,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { PROMPTS as prompt_modes, get_prompt, resolve_prompt_mode, compile_prompt } from "./prompts.js";
+import { PROMPTS as prompt_modes, get_prompt, resolve_prompt_mode, compile_prompt, director_directives } from "./prompts.js";
 import { render_story_prose, render_scene_narrator, MODE_ADAPTERS } from "./builder.js";
 import { render_history } from "./modules/history.js";
 
@@ -206,6 +206,17 @@ describe("prompt-modes registry", () => {
 });
 
 describe("fused rendering per mode", () => {
+  it("prefers a pre-resolved turn_state over deriving from has_input/round", () => {
+    const selection = director_directives({
+      has_input: false,
+      round: 1,
+      turn_state: { first_contact: false, round_one: false, evaluation: "EVALUATION_INPUT" },
+    });
+    const flat = JSON.stringify(selection);
+    expect(flat).toContain("REFLEX.TURN_STATE.EVALUATION_INPUT");
+    expect(flat).not.toContain("ROUND_ONE");
+  });
+
   it("renders the interaction mode", () => {
     const result = render_story_prose({ round: 3, entities, input: "Beast steps forward." });
     expect(assert_fused_shape(result, "interaction")).toBe(true);

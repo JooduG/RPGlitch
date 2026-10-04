@@ -37,6 +37,7 @@
  */
 
 import { assemble_prompt } from "./builder.js";
+import { resolve_turn_state_plan } from "./modules/reflex.js";
 
 // ============================================================================
 // 1. ENVELOPE CONSTANTS & LAYER PRESETS
@@ -140,18 +141,21 @@ function prose_protocols({ include_dialogue = false } = {}) {
 }
 
 /**
- * Composes the Director's ordered `<DIRECTIVES>` selections.
+ * Composes the Director's ordered `<DIRECTIVES>` selections. Turn-state flags
+ * arrive pre-resolved on the values bag (resolve_task_values); standalone
+ * callers omit them and the plan derives from has_input/round.
  *
- * @param {{ has_input?: boolean, round?: number, has_environmental_hint?: boolean }} [parameters={}]
+ * @param {{ has_input?: boolean, round?: number, has_environmental_hint?: boolean, turn_state?: { first_contact: boolean, round_one: boolean, evaluation: string } }} [parameters={}]
  * @returns {Array<string | { group: string[] }>}
  */
-export function director_directives({ has_input = false, round = 1, has_environmental_hint = false } = {}) {
+export function director_directives({ has_input = false, round = 1, has_environmental_hint = false, turn_state = null } = {}) {
+  const situation = turn_state ?? resolve_turn_state_plan({ has_input, round });
   return [
     "DIRECTOR.DYNAMICS_CALIBRATION",
     {
       group: [
-        has_input ? "DIRECTOR.EVALUATION_INPUT" : "DIRECTOR.EVALUATION_SCENE",
-        ...(Number(round) <= 1 ? ["DIRECTOR.ROUND_ONE"] : []),
+        `REFLEX.TURN_STATE.${situation.evaluation}`,
+        ...(situation.round_one ? ["REFLEX.TURN_STATE.ROUND_ONE"] : []),
         "DIRECTOR.USER_PERSONA_LOCK",
       ],
     },
@@ -446,7 +450,9 @@ export default PROMPTS;
 
 /**
  * CHANGELOG
+ * - 2026-10-04: director_directives prefers the pre-resolved values.turn_state (single has_input resolution) — prompt bytes byte-identical.
  * - 2026-10-04: Director environmental-hint key follows the normalized reflex catalog (REFLEX.CONDITIONALS.ENVIRONMENTAL_HINT).
+ * - 2026-10-04: director_directives reads the reflex turn-state plan (evaluation/round-one fire from TURN_STATE atoms).
  * - 2026-10-04: Catalog restructure — prose bundles declare GROUNDING + split disciplines (SENTENCE_FORMULAS/SCENE_MOMENTUM/CLICHES/CONSENT), data modes declare OUTPUT.DATA, optics declares GROUNDING + IMAGE_VOCABULARY + TEXT_RENDERING.
  * - 2026-10-04: Narrator manifest declares normal `pov: "THIRD"` (`POV.NARRATOR` retired).
  * - 2026-10-04: sorting/continuum manifests declare `PERSPECTIVE.TENSE.*` (`LAYER_TENSE` folded into `TENSE`).

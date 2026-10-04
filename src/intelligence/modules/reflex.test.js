@@ -9,18 +9,15 @@ import { describe, it, expect } from "vitest";
 import {
   REFLEX_DEFAULTS,
   REFLEX_LIBRARY,
-  STABILITY_LOCK,
-  TRUNCATION_COMPLETE_NOTE,
   classify_pacing,
   detect_environmental_hint,
   resolve_prose_posture_plan,
   resolve_stability_plan,
+  resolve_turn_state_plan,
   get_reflex_atom,
   render_prose_posture_plan,
   render_stability_plan,
-  render_alternation_block,
   render_alternation_protocol,
-  build_pacing_directive,
   render_environmental_hint,
   render_prose_reflex,
   resolve_stability_lock,
@@ -50,11 +47,13 @@ describe("reflex.js - pacing plans", () => {
     expect(classify_pacing(Array(60).fill("word").join(" ")).level).toBe("EXPANSIVE");
   });
 
-  it("renders the exact legacy <PACING> envelopes", () => {
-    expect(build_pacing_directive("")).toBe(`<PACING mode="TERSE">Brief, weighted reply in 1-2 sharp beats. Zero padding.</PACING>`);
-    expect(build_pacing_directive("x".repeat(350))).toBe(
-      `<PACING mode="EXPANSIVE">Expand to match message breadth; close on one decisive hook.</PACING>`,
-    );
+  it("classifies empty, short, and long input into pacing levels", () => {
+    expect(classify_pacing("").level).toBe("TERSE");
+    expect(classify_pacing("x".repeat(350)).level).toBe("EXPANSIVE");
+  });
+
+  it("renders the exact legacy <PACING> envelope inside the posture", () => {
+    expect(render_prose_reflex(null, "")).toContain(`<PACING mode="TERSE">Brief, weighted reply in 1-2 sharp beats. Zero padding.</PACING>`);
   });
 });
 
@@ -70,35 +69,36 @@ describe("reflex.js - environmental hint detection", () => {
     expect(detect_environmental_hint("cold stone walls loom overhead").hit).toBe(true);
   });
 
-  it("renders the exact legacy hint text on hits and blank on misses", () => {
+  it("renders the enveloped hint on hits and blank on misses", () => {
     expect(render_environmental_hint("The knight draws his sword and steps forward")).toBe(
-      'ENVIRONMENTAL HINT: Non-verbal environmental action. Strongly consider setting "speaker" to "fractal" to narrate the setting, unless AI character should react directly.',
+      '<ENVIRONMENTAL_HINT>Non-verbal environmental action. Strongly consider setting "speaker" to "fractal" to narrate the setting, unless AI character should react directly.</ENVIRONMENTAL_HINT>',
     );
     expect(render_environmental_hint("I wonder what happens next")).toBe("");
   });
 });
 
 describe("reflex.js - posture plans and envelopes", () => {
-  it("resolves rhythm source, drive kind, and voice chain as plan data", () => {
-    const plan = resolve_prose_posture_plan({ speaker: { speaking_style: "Primal" } }, "");
+  it("resolves rhythm source and drive kind as plan data", () => {
+    const plan = resolve_prose_posture_plan({}, "");
     expect(plan.pacing.level).toBe("TERSE");
     expect(plan.rhythm).toEqual({
       source: "default",
       body: REFLEX_LIBRARY.RHYTHM.DEFAULT.body,
     });
     expect(plan.drive.kind).toBe("without_input");
-    expect(plan.voice).toEqual({ style: "Primal", mode: "primal" });
+    expect(plan).not.toHaveProperty("voice");
+  });
+
+  it("honors pre-resolved has_input over deriving from the text", () => {
+    expect(resolve_prose_posture_plan({}, "", { has_input: true }).drive.kind).toBe("with_input");
+    expect(resolve_prose_posture_plan({}, "The door slams open.", { has_input: false }).drive.kind).toBe("without_input");
+    expect(resolve_prose_posture_plan({}, "").drive.kind).toBe("without_input");
   });
 
   it("prefers style_dna rhythm and input-driven drive when present", () => {
-    const plan = resolve_prose_posture_plan({ style: { dna: { rhythm: "Short hammering bursts." } } }, "The door slams open.", "Clinical");
+    const plan = resolve_prose_posture_plan({ style_dna: { sentence_rhythm: "Short hammering bursts." } }, "The door slams open.");
     expect(plan.rhythm).toEqual({ source: "style_dna", body: "Short hammering bursts." });
     expect(plan.drive.kind).toBe("with_input");
-    expect(plan.voice).toEqual({ style: "Clinical", mode: "clinical" });
-  });
-
-  it("leaves voice null without a speaking style", () => {
-    expect(resolve_prose_posture_plan({}, "Hello.").voice).toBeNull();
   });
 
   it("renders the exact legacy <DELIVERY_POSTURE> envelope", () => {
@@ -107,9 +107,32 @@ describe("reflex.js - posture plans and envelopes", () => {
     );
   });
 
-  it("renders voice only when a register resolves", () => {
-    expect(render_prose_posture_plan(resolve_prose_posture_plan({}, "Hello."))).not.toContain("<VOICE");
-    expect(render_prose_reflex({ speaking_style: "Lyrical" }, "Hello.")).toContain('<VOICE mode="lyrical">');
+  it("never emits a VOICE tag", () => {
+    expect(render_prose_posture_plan(resolve_prose_posture_plan({}, "Hello."))).not.toContain("VOICE");
+    expect(render_prose_reflex({ speaking_style: "Lyrical" }, "Hello.")).not.toContain("VOICE");
+  });
+});
+
+describe("reflex.js - turn-state plans", () => {
+  it("resolves firing flags from transient turn metadata", () => {
+    expect(resolve_turn_state_plan({})).toEqual({ first_contact: false, round_one: true, evaluation: "EVALUATION_SCENE" });
+    expect(resolve_turn_state_plan({ has_input: true, round: 3 })).toEqual({
+      first_contact: false,
+      round_one: false,
+      evaluation: "EVALUATION_INPUT",
+    });
+    expect(resolve_turn_state_plan({ is_first_contact: true })).toEqual({
+      first_contact: true,
+      round_one: true,
+      evaluation: "EVALUATION_SCENE",
+    });
+  });
+
+  it("resolves every TURN_STATE atom by dotted key", () => {
+    expect(get_reflex_atom("REFLEX.TURN_STATE.FIRST_CONTACT")).toContain("First encounter");
+    expect(get_reflex_atom("REFLEX.TURN_STATE.ROUND_ONE")).toContain("AI_CHARACTER");
+    expect(get_reflex_atom("REFLEX.TURN_STATE.EVALUATION_INPUT")).toContain("EPILOGUE_COLLAPSED");
+    expect(get_reflex_atom("REFLEX.TURN_STATE.EVALUATION_SCENE")).toContain("EPILOGUE_COLLAPSED");
   });
 });
 
@@ -120,23 +143,29 @@ describe("reflex.js - stability plans", () => {
     expect(resolve_stability_plan({ structural_errors: 5 })).toEqual({ level: "CRITICAL", errors: 5 });
   });
 
-  it("renders the exact legacy escalation strings", () => {
+  it("renders the <STABILITY_LOCK> envelope with the level as attribute", () => {
     expect(resolve_stability_lock({})).toBe("");
-    expect(resolve_stability_lock({ structural_errors: 1 })).toBe(STABILITY_LOCK.WARNING);
-    expect(resolve_stability_lock({ structural_errors: 3 })).toBe(STABILITY_LOCK.CRITICAL);
+    expect(resolve_stability_lock({ structural_errors: 1 })).toBe(
+      `<STABILITY_LOCK level="WARNING">Structural drift detected. Ensure all XML tags close cleanly.</STABILITY_LOCK>`,
+    );
+    expect(resolve_stability_lock({ structural_errors: 3 })).toBe(
+      `<STABILITY_LOCK level="CRITICAL">Structural collapse. Every XML tag must close cleanly.</STABILITY_LOCK>`,
+    );
     expect(render_stability_plan(null)).toBe("");
   });
 });
 
 describe("reflex.js - atom compiler", () => {
-  it("resolves conditional atoms by dotted key", () => {
-    expect(get_reflex_atom("REFLEX.CONDITIONALS.ENVIRONMENTAL_HINT")).toBe(REFLEX_LIBRARY.CONDITIONALS.ENVIRONMENTAL_HINT.body);
+  it("resolves the enveloped conditional atom by dotted key", () => {
+    expect(get_reflex_atom("REFLEX.CONDITIONALS.ENVIRONMENTAL_HINT")).toBe(
+      '<ENVIRONMENTAL_HINT>Non-verbal environmental action. Strongly consider setting "speaker" to "fractal" to narrate the setting, unless AI character should react directly.</ENVIRONMENTAL_HINT>',
+    );
     expect(get_reflex_atom("REFLEX.CONDITIONALS.ALTERNATION")).toContain("exactly ONE");
     expect(get_reflex_atom("REFLEX.PACING.TERSE")).toContain("Zero padding");
   });
 
-  it("interpolates voice tokens from the values bag", () => {
-    expect(get_reflex_atom("REFLEX.VOICE", { speaking_style: "Lyrical" })).toBe("Deliver dialogue matching the Lyrical speaking register.");
+  it("resolves the retired VOICE key to blank", () => {
+    expect(get_reflex_atom("REFLEX.VOICE", { speaking_style: "Lyrical" })).toBe("");
   });
 
   it("resolves branches and unknown keys to blank", () => {
@@ -146,8 +175,8 @@ describe("reflex.js - atom compiler", () => {
 });
 
 describe("reflex.js - alternation blocks", () => {
-  it("renders the exact legacy <ALTERNATION_OPTIONS> block", () => {
-    expect(render_alternation_block()).toBe(
+  it("renders the exact legacy <ALTERNATION_OPTIONS> block when forced", () => {
+    expect(render_alternation_protocol("", { force: true })).toBe(
       `<ALTERNATION_OPTIONS>Resolve {Option A|Option B} alternations by selecting exactly ONE contextually fitting option. Emit only the chosen text—never echo braces or pipes, blend choices, or output multiple options simultaneously.</ALTERNATION_OPTIONS>`,
     );
   });
@@ -159,10 +188,10 @@ describe("reflex.js - alternation blocks", () => {
 });
 
 describe("reflex.js - recovery catalog ownership", () => {
-  it("derives legacy exports from the catalog", () => {
-    expect(STABILITY_LOCK.WARNING).toBe(REFLEX_LIBRARY.RECOVERY.STABILITY.WARNING.body);
-    expect(STABILITY_LOCK.CRITICAL).toBe(REFLEX_LIBRARY.RECOVERY.STABILITY.CRITICAL.body);
-    expect(TRUNCATION_COMPLETE_NOTE).toBe(REFLEX_LIBRARY.RECOVERY.TRUNCATION.body);
+  it("owns recovery copy in the catalog with no derived aliases", () => {
+    expect(REFLEX_LIBRARY.RECOVERY.STABILITY.WARNING.body).toContain("Structural drift detected");
+    expect(REFLEX_LIBRARY.RECOVERY.STABILITY.CRITICAL.body).toContain("Structural collapse");
+    expect(REFLEX_LIBRARY.RECOVERY.TRUNCATION.body).toContain("Previous reply cut off mid-sentence");
     expect(REFLEX_DEFAULTS.STABILITY_LADDER.map((rung) => rung.level)).toEqual(["CRITICAL", "WARNING"]);
   });
 });

@@ -39,10 +39,11 @@
  */
 
 import { escape_xml, prompt_escape, inline_or_block, render_xml_tag } from "@utils";
-import { extract_style_dna, STYLE_MOTIF_REGISTRY } from "@data";
+import { STYLE_MOTIF_REGISTRY } from "@data";
+import { resolve_style_dna } from "./style.js";
 import { resolve_output_plan, render_output_plan, render_json_return } from "./output.js";
 import { resolve_macro_directive } from "./protocols.js";
-import { get_reflex_atom, render_environmental_hint, render_prose_reflex } from "./reflex.js";
+import { get_reflex_atom, render_environmental_hint, render_prose_reflex, resolve_turn_state_plan } from "./reflex.js";
 
 // ============================================================================
 // [SECTION 1: UNIFIED TASK DIRECTIVES & PROTOCOLS CATALOG]
@@ -81,12 +82,6 @@ Close </THINK> before the narrative. This think block is internal reasoning and 
 1. Calibrate dynamics_deltas conservatively (±1 to ±4 standard; ±8 to ±12 extreme).
 2. Adjust deltas carefully near boundaries (5 or 95) to prevent clipping at 0 or 100.
 3. Calibrate dynamics_deltas to reflect the psychological and environmental shift of the turn.`,
-
-    EVALUATION_INPUT:
-      'Evaluate state mutations caused by «INPUT». Evaluate biological limits and physical causality strictly: if «INPUT» or physical events describe definitively fatal, terminal bodily destruction (e.g. biological death, irreversible drowning/asphyxiation, decapitation, or lethal cranial destruction with zero chance of medical survival), you MUST emit next_action: "EPILOGUE_COLLAPSED" and story_status: "COLLAPSED". Severe but survivable trauma (maiming, crushed limbs, severe blood loss, unconsciousness) should remain in-progress with somatic penalties in present.physical. Never hallucinate physical survival, bypass consequence, or continue casual dialogue across fatal events.',
-    EVALUATION_SCENE:
-      'Evaluate state mutations caused by the current situation. If environmental catastrophe or definitively fatal bodily destruction has occurred, emit next_action: "EPILOGUE_COLLAPSED" and story_status: "COLLAPSED". Severe non-lethal injuries remain in-progress.',
-    ROUND_ONE: 'Round 1 follows the Fractal prologue, so next_action MUST be "AI_CHARACTER".',
     USER_PERSONA_LOCK:
       '"USER_PERSONA", "USER", "PLAYER", or the player character\'s name is NEVER a valid next_action — the Director never speaks for the player. The window for the player to act opens automatically right after the AI beat, so you never need a "yield to player" action: if you believe the player should act next, output "AI_CHARACTER" (the default). Valid actions are strictly: "AI_CHARACTER", "FRACTAL", "npc:<id>", { "genesis": ... }, "EPILOGUE_COLLAPSED", or "EPILOGUE_CONCLUDED". Furthermore, "directors_note" MUST ONLY direct the next_action speaker (AI, Fractal, or NPC) — NEVER direct, script, or suggest actions or thoughts for «USER_PERSONA» (the player has absolute agency).',
 
@@ -106,8 +101,6 @@ Inspect candidate secondary characters below before minting. If an existing enti
   PROSE: Object.freeze({
     CHARACTER: Object.freeze({
       BASE: "Stay in character: own only your own voice, actions, and perspective. Never speak, act, or decide for other participants.",
-      FIRST_CONTACT:
-        "First encounter: characters are strangers. Acknowledge visual first impressions, physical distance, and tone before full dialogue.",
       NPC_BOUNDARY:
         "Respond strictly as {speaker_name} (supporting character). Own only your voice, actions, and perspective; never speak for others or resolve overarching quests. End on a natural beat.",
     }),
@@ -387,10 +380,11 @@ export function render_keyword_directives_xml(available_keywords_content, option
  * @returns {string}
  */
 export function resolve_character_action_directive({ speaker_name = "", is_npc = false, is_ghostwrite = false, is_first_contact = false } = {}) {
+  const situation = resolve_turn_state_plan({ is_first_contact });
   return compile_directive_tags(
     [
       is_ghostwrite ? "PROSE.GHOSTWRITE.BASE" : "PROSE.CHARACTER.BASE",
-      ...(is_first_contact ? ["PROSE.CHARACTER.FIRST_CONTACT"] : []),
+      ...(situation.first_contact ? ["REFLEX.TURN_STATE.FIRST_CONTACT"] : []),
       ...(is_npc ? ["PROSE.CHARACTER.NPC_BOUNDARY"] : []),
     ],
     { speaker_name },
@@ -558,7 +552,7 @@ export const TASK_SLOT_RESOLVERS = Object.freeze({
   prose_think: (values) => {
     const think_format = values.config?.think_format;
     if (think_format === "character") {
-      const grounding = extract_style_dna(values.style).emotional_grounding || TASK_LIBRARY.PROTOCOLS.THINK_GROUNDING_DEFAULT;
+      const grounding = values.style_dna.emotional_grounding || TASK_LIBRARY.PROTOCOLS.THINK_GROUNDING_DEFAULT;
       return render_think_format(get_directive_atom("PROTOCOLS.THINK_CHARACTER", { emotional_grounding: grounding }));
     }
     if (think_format === "narrator") return render_think_format(TASK_LIBRARY.PROTOCOLS.THINK_NARRATOR);
@@ -567,7 +561,7 @@ export const TASK_SLOT_RESOLVERS = Object.freeze({
   },
   optics_think: () => render_think_format(TASK_LIBRARY.OPTICS.THINK_FORMAT),
 
-  prose_currents: (values) => render_task_currents(extract_style_dna(values.style), values.subtext_xml),
+  prose_currents: (values) => render_task_currents(values.style_dna, values.subtext_xml),
 
   optics_target: (values) => (values.target_tier ? render_xml_tag({ tag: "TARGET", children: [escape_xml(values.target_tier)], inline: true }) : ""),
 
@@ -608,7 +602,7 @@ export const TASK_SLOT_RESOLVERS = Object.freeze({
     return directive ? [directive] : [];
   },
 
-  prose_posture: (values) => render_prose_reflex(values.snapshot, values.input, values.speaking_style),
+  prose_posture: (values) => render_prose_reflex(values.snapshot, values.input, { has_input: values.has_input }),
   stability_lock: (values) => String(values.stability_lock || "").trim(),
 
   output_format: (values) => {
@@ -677,8 +671,14 @@ function resolve_task_values(parameters, config) {
   values.mode = config?.task_state || parameters.task_state || "prose";
   values.has_input = Boolean(String(parameters.input ?? "").trim());
   values.has_environmental_hint = Boolean(render_environmental_hint(parameters.input));
-  values.speaking_style = parameters.speaking_style || "";
   values.macro_directive = parameters.entity_type ? resolve_macro_directive(parameters.entity_type) : "";
+  values.turn_state = resolve_turn_state_plan({
+    has_input: values.has_input,
+    round: parameters.round ?? 1,
+    is_first_contact: parameters.is_first_contact ?? false,
+  });
+  values.style_dna = resolve_style_dna(values.style ?? values.snapshot?.style ?? null);
+  if (values.snapshot) values.snapshot = { ...values.snapshot, style_dna: values.style_dna };
 
   if (parameters.is_prologue || parameters.scene_template === "PROLOGUE") {
     values.scene_input = prompt_escape(String(parameters.input || "").trim() || "The scene begins.");
@@ -846,7 +846,11 @@ export function render_subtext_xml(ai_dynamics = {}, fractal_dynamics = {}, opti
 
 /**
  * CHANGELOG
+ * - 2026-10-04: Single has_input resolution (Plan A) — resolve_task_values owns values.has_input + values.turn_state; prose_posture threads the bag flag into the posture plan — prompt bytes byte-identical.
+ * - 2026-10-04: Style-DNA parsed once per turn — resolve_task_values owns values.style_dna (style.js resolve_style_dna, from values.style ?? snapshot.style); prose_think/prose_currents/prose_posture read it, @data extract_style_dna import dropped — prompt bytes byte-identical.
  * - 2026-10-04: REFLEX.* directive keys delegate to reflex.js get_reflex_atom (catalog ownership moves to reflex.js; TASK_LIBRARY branch retired).
+ * - 2026-10-04: Dropped the dead speaking_style values passthrough and prose_posture override (VOICE removed in reflex.js).
+ * - 2026-10-04: Retired DIRECTOR.EVALUATION_INPUT/EVALUATION_SCENE/ROUND_ONE and PROSE.CHARACTER.FIRST_CONTACT (moved to reflex.js TURN_STATE); resolve_character_action_directive reads the turn-state plan.
  * - 2026-10-04: Collapsed json_output/prose_output/external_output into one `output_format` slot resolver over output.js plans (pre-routed body → schema → prose-mode fallback); all six mode plans point at it; OUTPUT_FORMATS import dropped.
  * - 2026-10-04: Removed all catalog aliases (P4) — TASK_LIBRARY drops PACING/RECENCY/VOICE, DIRECTOR.ENVIRONMENTAL_HINT, and FORMATS; REFLEX.* keys resolve against REFLEX_LIBRARY, output resolvers read OUTPUT_FORMATS directly.
  * - 2026-10-04: Moved pacing/reflex engine plus stability/truncation recovery (ex-recovery.js, deleted) into reflex.js; TASK_LIBRARY keeps live references so directive keys and prompt bytes are unchanged.

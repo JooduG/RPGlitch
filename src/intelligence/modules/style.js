@@ -19,6 +19,17 @@ import { escape_xml, prompt_escape, render_xml_tag } from "@utils";
 import { extract_style_dna } from "@data";
 
 /**
+ * Resolves a style record into its frozen style-DNA plan. Single owner of the
+ * @data parse — prompt plans read the frozen result instead of parsing inline,
+ * so one turn parses its style exactly once (in resolve_task_values).
+ * @param {any} style - Narrative style record (or null/undefined)
+ * @returns {Readonly<{ internal_ratio: string, sentence_rhythm: string, sensory_order: string, emotional_grounding: string }>}
+ */
+export function resolve_style_dna(style) {
+  return Object.freeze(extract_style_dna(style));
+}
+
+/**
  * Renders the declarative `<NARRATIVE_STYLE>` XML block.
  * Mirrors `<VISUAL_STYLE>` from Sensory Optics. Omitted if style is default or undefined.
  *
@@ -31,7 +42,7 @@ export function render_narrative_style_xml(style) {
   }
 
   const origin = String(style.id).toUpperCase();
-  const style_dna = extract_style_dna(style);
+  const style_dna = resolve_style_dna(style);
   const description = String(style.description || "").trim();
   const elements = Array.isArray(style.elements) ? style.elements.filter(Boolean).join(", ") : "";
 
@@ -75,3 +86,8 @@ export function render_visual_style_xml(style_definition, engine_tokens = {}) {
     separator: "\n",
   });
 }
+
+/**
+ * CHANGELOG
+ * - 2026-10-04: Added resolve_style_dna — frozen single-owner @data parse; render_narrative_style_xml and all prompt plans read through it.
+ */

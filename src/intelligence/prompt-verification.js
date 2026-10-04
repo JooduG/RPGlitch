@@ -786,6 +786,7 @@ export const CONTRACT_SIZES = {
 
 /**
  * CHANGELOG
+ * - 2026-10-04: Director contract inventory left unchanged by the hint envelope (no fixture input fires the hint — verified against the failing assumption; unit tests pin the envelope).
  * - 2026-10-04: Catalog restructure re-baseline (orthogonal atoms: GROUNDING shared, SENTENCE_FORMULAS/SCENE_MOMENTUM/CLICHES/CONSENT split, IMAGE_VOCABULARY merged, TEXT_RENDERING renamed, DATA→OUTPUT, ALTERNATION→reflex): interaction 5468→5703, ghostwrite 5469→5704, npc 5800→6035, narrator 5055→5290 (×3), optics 1761→1716 (+235 prose/+235 narrator/−45 optics CORE_PROTOCOLS deltas, measured via bundle); all tasks unchanged; inventories updated.
  * - 2026-10-04: 4-axiom re-baseline (fidelity absorbed as constitution L4, style law dropped, SIMULATION_FIDELITY retired from CORE_PROTOCOLS): interaction 5617→5468, ghostwrite 5618→5469, npc 5949→5800, narrator 5204→5055 (×3); all tasks unchanged. Net −149 system bytes/mode.
  * - 2026-10-04: Mandate-drop re-baseline (`PERSPECTIVE.MANDATE` deleted): interaction 5745→5617, ghostwrite 5746→5618, npc 6077→5949, narrator 5332→5204 (×3), continuum 1584→1456, enhancement 657→529, sorting 781→653; all tasks unchanged.

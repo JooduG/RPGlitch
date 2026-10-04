@@ -42,7 +42,7 @@ import { build_scoring_context, context_builder } from "./builder.js";
 import { compile_prompt } from "./prompts.js";
 import { prune, temporal_engine } from "./temporal.js";
 import { spawn_character } from "./profile.js";
-import { TRUNCATION_COMPLETE_NOTE } from "./modules/reflex.js";
+import { REFLEX_LIBRARY } from "./modules/reflex.js";
 
 /**
  * @typedef {Object} GenerationOptions
@@ -551,7 +551,7 @@ export const gamemaster = {
         if (prose_only && prose_only.length >= TRUNCATION_MIN_PROSE) {
           state_bridge.app.log("[GameMaster] Reply truncated — regenerating with completion directive...", "warn");
           state_bridge.app.streaming.content = director_monologue || "";
-          validation_result = await this.execute_with_retry(() => make_character_try(TRUNCATION_COMPLETE_NOTE), 1, 500);
+          validation_result = await this.execute_with_retry(() => make_character_try(REFLEX_LIBRARY.RECOVERY.TRUNCATION.body), 1, 500);
           if (looks_truncated(validation_result.text)) {
             validation_result.text = force_close_response(validation_result.text, generation_name);
             validation_result.has_structural_repair = true;

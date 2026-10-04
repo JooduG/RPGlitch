@@ -6,7 +6,7 @@
  *
  * Validates Layer 6 (<TASK>) turn execution and output format integration:
  * 1. Pacing classification and environmental hint detection
- * 2. Delivery posture synthesis (rhythm, drive, voice register)
+ * 2. Delivery posture synthesis (rhythm, drive, pacing — no voice steering)
  * 3. Universal task envelope compilation across all simulation modes:
  *    - TASK_LAYERS: the single ordered grammar every mode walks
  *    - Director: evaluation, environmental hint in <DIRECTIVES>, and <OUTPUT_FORMAT mode="json">
@@ -29,7 +29,7 @@ import {
   TASK_LAYERS,
   TASK_LIBRARY,
 } from "./task.js";
-import { build_pacing_directive, render_environmental_hint, render_prose_reflex } from "./reflex.js";
+import { classify_pacing, render_environmental_hint, render_prose_reflex } from "./reflex.js";
 import { get_prompt } from "../prompts.js";
 
 // ============================================================================
@@ -38,23 +38,23 @@ import { get_prompt } from "../prompts.js";
 
 describe("Pacing and Environmental Reaction", () => {
   it("classifies empty or short input as TERSE pacing", () => {
-    expect(build_pacing_directive("")).toContain('mode="TERSE"');
-    expect(build_pacing_directive("Yes.")).toContain('mode="TERSE"');
+    expect(classify_pacing("").level).toBe("TERSE");
+    expect(classify_pacing("Yes.").level).toBe("TERSE");
   });
 
   it("classifies medium input as ADAPTIVE pacing", () => {
     const medium = "She looked at him across the fire. The flames cast long, dancing shadows on the cave wall.";
-    expect(build_pacing_directive(medium)).toContain('mode="ADAPTIVE"');
+    expect(classify_pacing(medium).level).toBe("ADAPTIVE");
   });
 
   it("classifies expansive input as EXPANSIVE pacing", () => {
     const long_text =
       "The storm raged outside, battering against the reinforced shutters with relentless ferocity. Every gust of wind shook the ancient stone foundation of the watchtower, rattling the glass vials lining the alchemical workbench. Bob stepped toward the window, pulling the heavy velvet drape aside to glimpse the jagged lightning splitting the abyssal clouds over the distant spire.";
-    expect(build_pacing_directive(long_text)).toContain('mode="EXPANSIVE"');
+    expect(classify_pacing(long_text).level).toBe("EXPANSIVE");
   });
 
   it("detects environmental actions without dialogue", () => {
-    expect(render_environmental_hint("The rain pours down the stone steps.")).toContain("ENVIRONMENTAL HINT:");
+    expect(render_environmental_hint("The rain pours down the stone steps.")).toContain("<ENVIRONMENTAL_HINT>");
     expect(render_environmental_hint('"Hello there," she said.')).toBe("");
     expect(render_environmental_hint("")).toBe("");
   });
@@ -66,7 +66,7 @@ describe("Pacing and Environmental Reaction", () => {
 
 describe("render_prose_reflex", () => {
   it("synthesizes DELIVERY_POSTURE with rhythm, drive, and pacing", () => {
-    const reflex = render_prose_reflex({ style: { dna: { rhythm: "Clipped, staccato." } } }, "He draws his sword.");
+    const reflex = render_prose_reflex({ style_dna: { sentence_rhythm: "Clipped, staccato." } }, "He draws his sword.");
     expect(reflex).toContain("<DELIVERY_POSTURE>");
     expect(reflex).toContain("<RHYTHM>");
     expect(reflex).toContain("Clipped, staccato.");
@@ -74,16 +74,16 @@ describe("render_prose_reflex", () => {
     expect(reflex).toContain("Advance the scene in response to «INPUT»");
   });
 
-  it("injects voice register into DELIVERY_POSTURE when speaking_style is provided", () => {
+  it("ignores a stale speaking_style third argument (voice is entity data, not prompt steering)", () => {
     const reflex = render_prose_reflex({ style: null }, "He steps forward.", "lyrical");
-    expect(reflex).toContain('<VOICE mode="lyrical">');
-    expect(reflex).toContain("Deliver dialogue matching the lyrical speaking register.");
+    expect(reflex).toContain("<DELIVERY_POSTURE>");
+    expect(reflex).not.toContain("VOICE");
   });
 
-  it("resolves speaking_style from snapshot if not passed explicitly", () => {
+  it("ignores speaking_style on the snapshot (enforced by detox_prose, not the prompt)", () => {
     const reflex = render_prose_reflex({ speaking_style: "primal" }, "He growls.");
-    expect(reflex).toContain('<VOICE mode="primal">');
-    expect(reflex).toContain("Deliver dialogue matching the primal speaking register.");
+    expect(reflex).toContain("<DELIVERY_POSTURE>");
+    expect(reflex).not.toContain("VOICE");
   });
 });
 
@@ -130,12 +130,11 @@ describe("render_task — Director Mode", () => {
 });
 
 describe("render_task — Story Prose Mode", () => {
-  it("renders Story Prose task with OUTPUT_FORMAT mode='prose'", () => {
+  it("renders Story Prose task with OUTPUT_FORMAT mode='prose' and no VOICE steering", () => {
     const task = render_task({
       config: { think_format: "character" },
       input: "Alice examines the vault.",
       action_directive: "Respond strictly as Alice.",
-      speaking_style: "clinical",
     });
 
     expect(task).toContain("<TASK>");
@@ -144,7 +143,7 @@ describe("render_task — Story Prose Mode", () => {
     expect(task).toContain('<INPUT channel="action">');
     expect(task).toContain("Respond strictly as Alice.");
     expect(task).toContain("<DELIVERY_POSTURE>");
-    expect(task).toContain('<VOICE mode="clinical">');
+    expect(task).not.toContain("VOICE");
     expect(task).toContain('<OUTPUT_FORMAT mode="prose">');
     expect(task).toContain("After closing </THINK>, emit strictly plain prose: no preamble, commentary, markdown, or structural tags.");
     expect(task).toContain("</OUTPUT_FORMAT>");

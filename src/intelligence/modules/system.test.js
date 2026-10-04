@@ -13,7 +13,7 @@
 
 import { describe, expect, it } from "vitest";
 import { SYSTEM_ROLES, resolve_system_role_line, render_system_xml } from "./system.js";
-import { resolve_stability_lock, STABILITY_LOCK } from "./reflex.js";
+import { resolve_stability_lock, REFLEX_LIBRARY } from "./reflex.js";
 
 // ============================================================================
 // [SECTION 1: SYSTEM ROLES & RESOLUTION]
@@ -57,10 +57,18 @@ describe("resolve_stability_lock", () => {
   });
 
   it("escalates to WARNING on 1-2 errors and CRITICAL on 3+ errors", () => {
-    expect(resolve_stability_lock({ structural_errors: 1 })).toBe(STABILITY_LOCK.WARNING);
-    expect(resolve_stability_lock({ structural_errors: 2 })).toBe(STABILITY_LOCK.WARNING);
-    expect(resolve_stability_lock({ structural_errors: 3 })).toBe(STABILITY_LOCK.CRITICAL);
-    expect(resolve_stability_lock({ structural_errors: 5 })).toBe(STABILITY_LOCK.CRITICAL);
+    expect(resolve_stability_lock({ structural_errors: 1 })).toBe(
+      `<STABILITY_LOCK level="WARNING">${REFLEX_LIBRARY.RECOVERY.STABILITY.WARNING.body}</STABILITY_LOCK>`,
+    );
+    expect(resolve_stability_lock({ structural_errors: 2 })).toBe(
+      `<STABILITY_LOCK level="WARNING">${REFLEX_LIBRARY.RECOVERY.STABILITY.WARNING.body}</STABILITY_LOCK>`,
+    );
+    expect(resolve_stability_lock({ structural_errors: 3 })).toBe(
+      `<STABILITY_LOCK level="CRITICAL">${REFLEX_LIBRARY.RECOVERY.STABILITY.CRITICAL.body}</STABILITY_LOCK>`,
+    );
+    expect(resolve_stability_lock({ structural_errors: 5 })).toBe(
+      `<STABILITY_LOCK level="CRITICAL">${REFLEX_LIBRARY.RECOVERY.STABILITY.CRITICAL.body}</STABILITY_LOCK>`,
+    );
   });
 });
 
