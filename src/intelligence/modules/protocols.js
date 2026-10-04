@@ -40,7 +40,6 @@ export const PROTOCOL_LIBRARY = Object.freeze({
           "Write strictly in first-person ('I', 'me', 'my'). Describe actions and sensations through your own eyes—never use third-person pronouns or your character name.",
         THIRD: "Write strictly in third-person limited ('he', 'she', 'they', or character name). Never use first-person pronouns in narrative prose.",
       }),
-      MANDATE: "Hold the stated perspective exactly on every line — drift in person or tense is a structural failure, not a style choice.",
     }),
     PROSE_DISCIPLINE: Object.freeze({
       TYPOGRAPHY: `Balance interior reflection against physical impact and speech. Maintain lingering sensory conditions across scene shifts. Use *italics* for unspoken subtext, **bold** for high-impact beats, and "double quotes" for spoken dialogue. Omit meta-commentary, preambles, headers, or user echoes. End on a complete sentence.`,
@@ -314,7 +313,7 @@ export function render_core_protocols({
       ? render_xml_tag({
           tag: "PERSPECTIVE",
           attrs: { person, tense: perspective_tense },
-          children: [prompt_escape(pov), tense_command, perspective.MANDATE],
+          children: [prompt_escape(pov), tense_command],
           child_indent: 2,
           separator: "\n",
         })
@@ -341,6 +340,7 @@ export function render_core_protocols({
 
 /**
  * CHANGELOG
+ * - 2026-10-04: Dropped the `PERSPECTIVE.MANDATE` line (pure throat-clearing — the tense/POV atoms already command; ~30 tokens saved per prompt).
  * - 2026-10-04: Retired the `POV.NARRATOR` atom (narrator mode resolves normal `THIRD`; the role line already establishes the Fractal-itself identity).
  * - 2026-10-04: Dropped the fractal type-sniffing fallback in `resolve_pov_protocol` (normal 3rd-person default; entities always carry explicit `pov`); fixtures now stamp `pov` like production entities.
  * - 2026-10-04: Tense atoms cut to pure grammar (truth-state lives in field directives) — `TENSE` is now three one-line tense commands.

@@ -773,20 +773,21 @@ export const MODE_DIRECTIVE_LEADS = Object.freeze({
 export const CONTRACT_SIZES = {
   director: { system: 1989, task: 4065 },
   director_terse: { system: 105, task: 909 },
-  interaction: { system: 5745, task: 2158 },
-  ghostwrite: { system: 5746, task: 2129 },
-  npc: { system: 6077, task: 2922 },
-  narrator: { system: 5332, task: 1922 },
-  narrator_prologue: { system: 5332, task: 2170 },
-  narrator_epilogue: { system: 5332, task: 1839 },
-  continuum: { system: 1584, task: 2186 },
-  enhancement: { system: 657, task: 1051 },
-  sorting: { system: 781, task: 2523 },
+  interaction: { system: 5617, task: 2158 },
+  ghostwrite: { system: 5618, task: 2129 },
+  npc: { system: 5949, task: 2922 },
+  narrator: { system: 5204, task: 1922 },
+  narrator_prologue: { system: 5204, task: 2170 },
+  narrator_epilogue: { system: 5204, task: 1839 },
+  continuum: { system: 1456, task: 2186 },
+  enhancement: { system: 529, task: 1051 },
+  sorting: { system: 653, task: 2523 },
   optics: { system: 1761, task: 3785 },
 };
 
 /**
  * CHANGELOG
+ * - 2026-10-04: Mandate-drop re-baseline (`PERSPECTIVE.MANDATE` deleted): interaction 5745→5617, ghostwrite 5746→5618, npc 6077→5949, narrator 5332→5204 (×3), continuum 1584→1456, enhancement 657→529, sorting 781→653; all tasks unchanged.
  * - 2026-10-04: Narrator re-baseline (`POV.NARRATOR` → normal `THIRD`): narrator 5317→5332 (×3); all else unchanged.
  * - 2026-10-04: Pure-grammar re-baseline — tense atoms stripped of truth-state (now in field directives): interaction 5841→5745, ghostwrite 5842→5746, npc 6173→6077, narrator 5413→5317 (×3), continuum 1813→1584, enhancement 753→657, sorting 1010→781; all tasks unchanged.
  * - 2026-10-04: Unified-tense re-baseline — `LAYER_TENSE` folded into reworded `TENSE` atoms, mandates merged: interaction 5758→5841, ghostwrite 5759→5842, npc 6090→6173, narrator 5330→5413 (×3), continuum 1690→1813, enhancement 709→753, sorting 898→1010; all tasks unchanged.
