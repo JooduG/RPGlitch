@@ -155,7 +155,7 @@ export function director_directives({ has_input = false, round = 1, has_environm
         "DIRECTOR.USER_PERSONA_LOCK",
       ],
     },
-    ...(has_environmental_hint ? ["REFLEX.ENVIRONMENTAL_HINT"] : []),
+    ...(has_environmental_hint ? ["REFLEX.CONDITIONALS.ENVIRONMENTAL_HINT"] : []),
     "DIRECTOR.ROUTING",
     "DIRECTOR.CONVERGENCE",
   ];
@@ -446,6 +446,7 @@ export default PROMPTS;
 
 /**
  * CHANGELOG
+ * - 2026-10-04: Director environmental-hint key follows the normalized reflex catalog (REFLEX.CONDITIONALS.ENVIRONMENTAL_HINT).
  * - 2026-10-04: Catalog restructure — prose bundles declare GROUNDING + split disciplines (SENTENCE_FORMULAS/SCENE_MOMENTUM/CLICHES/CONSENT), data modes declare OUTPUT.DATA, optics declares GROUNDING + IMAGE_VOCABULARY + TEXT_RENDERING.
  * - 2026-10-04: Narrator manifest declares normal `pov: "THIRD"` (`POV.NARRATOR` retired).
  * - 2026-10-04: sorting/continuum manifests declare `PERSPECTIVE.TENSE.*` (`LAYER_TENSE` folded into `TENSE`).

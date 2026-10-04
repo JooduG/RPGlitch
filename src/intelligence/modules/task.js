@@ -42,7 +42,7 @@ import { escape_xml, prompt_escape, inline_or_block, render_xml_tag } from "@uti
 import { extract_style_dna, STYLE_MOTIF_REGISTRY } from "@data";
 import { resolve_output_plan, render_output_plan, render_json_return } from "./output.js";
 import { resolve_macro_directive } from "./protocols.js";
-import { REFLEX_LIBRARY, render_environmental_hint, render_prose_reflex } from "./reflex.js";
+import { get_reflex_atom, render_environmental_hint, render_prose_reflex } from "./reflex.js";
 
 // ============================================================================
 // [SECTION 1: UNIFIED TASK DIRECTIVES & PROTOCOLS CATALOG]
@@ -243,7 +243,7 @@ Analyze recent turns in «HISTORY». Synthesize memories, update physical appear
 // distinct key chosen by the selection function, so atoms never branch.
 
 /**
- * Resolves one dotted directive key against `TASK_LIBRARY` (`REFLEX.*` resolves against `REFLEX_LIBRARY`) and interpolates its
+ * Resolves one dotted directive key against `TASK_LIBRARY` (`REFLEX.*` keys delegate to reflex.js `get_reflex_atom`) and interpolates its
  * `{placeholder}` tokens from the shared values bag. Missing keys resolve to "".
  *
  * @param {string} directive_key
@@ -251,14 +251,16 @@ Analyze recent turns in «HISTORY». Synthesize memories, update physical appear
  * @returns {string}
  */
 export function get_directive_atom(directive_key, values = {}) {
-  const directive_parts = String(directive_key ?? "")
+  if (
+    String(directive_key ?? "")
+      .trim()
+      .split(".")[0] === "REFLEX"
+  )
+    return get_reflex_atom(directive_key, values);
+  const atom = String(directive_key ?? "")
     .trim()
-    .split(".");
-  const catalog = directive_parts[0] === "REFLEX" ? REFLEX_LIBRARY : TASK_LIBRARY;
-  const atom = (directive_parts[0] === "REFLEX" ? directive_parts.slice(1) : directive_parts).reduce(
-    (node, part) => node?.[part],
-    /** @type {any} */ (catalog),
-  );
+    .split(".")
+    .reduce((node, part) => node?.[part], /** @type {any} */ (TASK_LIBRARY));
   if (atom == null) return "";
   return String(atom).replace(/\{([a-z0-9_]+)\}/g, (match, token) => (values[token] != null ? String(values[token]) : ""));
 }
@@ -844,6 +846,7 @@ export function render_subtext_xml(ai_dynamics = {}, fractal_dynamics = {}, opti
 
 /**
  * CHANGELOG
+ * - 2026-10-04: REFLEX.* directive keys delegate to reflex.js get_reflex_atom (catalog ownership moves to reflex.js; TASK_LIBRARY branch retired).
  * - 2026-10-04: Collapsed json_output/prose_output/external_output into one `output_format` slot resolver over output.js plans (pre-routed body → schema → prose-mode fallback); all six mode plans point at it; OUTPUT_FORMATS import dropped.
  * - 2026-10-04: Removed all catalog aliases (P4) — TASK_LIBRARY drops PACING/RECENCY/VOICE, DIRECTOR.ENVIRONMENTAL_HINT, and FORMATS; REFLEX.* keys resolve against REFLEX_LIBRARY, output resolvers read OUTPUT_FORMATS directly.
  * - 2026-10-04: Moved pacing/reflex engine plus stability/truncation recovery (ex-recovery.js, deleted) into reflex.js; TASK_LIBRARY keeps live references so directive keys and prompt bytes are unchanged.
