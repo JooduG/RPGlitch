@@ -107,6 +107,19 @@ export function build_pacing_directive(input) {
 }
 
 /**
+ * Renders the unconditional <ALTERNATION_OPTIONS> block (plan-gated callers
+ * use this; text-gated callers use render_alternation_protocol).
+ * @returns {string} Formatted <ALTERNATION_OPTIONS> block
+ */
+export function render_alternation_block() {
+  return render_xml_tag({
+    tag: "ALTERNATION_OPTIONS",
+    children: [REFLEX_LIBRARY.ALTERNATION],
+    inline: true,
+  });
+}
+
+/**
  * Compiles the canonical <ALTERNATION_OPTIONS> protocol tag if the input text contains {Option A|Option B} alternations.
  * @param {string} text - Input text or serialized entity sheet
  * @returns {string} Formatted <ALTERNATION_OPTIONS> block or empty string
@@ -172,6 +185,7 @@ export function render_prose_reflex(snapshot, input, speaking_style = "") {
 
 /**
  * CHANGELOG
+ * - 2026-10-04: Added render_alternation_block for plan-gated callers (protocols.js plan renderer); text-gated render_alternation_protocol unchanged.
  * - 2026-10-04: Absorbed the alternation conditional (REFLEX_LIBRARY.ALTERNATION + render_alternation_protocol, ex-protocols.js) — reactive option-picking lives with the other reflexes.
  * - 2026-10-04: Created from task.js Section 3 (pacing/reflex engine) plus stability/truncation recovery (from recovery.js, now deleted) — the reflex layer owns calibration + resilience; task.js keeps turn assembly with live TASK_LIBRARY references.
  */

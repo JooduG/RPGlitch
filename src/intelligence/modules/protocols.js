@@ -20,7 +20,7 @@
 
 import { prompt_escape, render_xml_tag } from "@utils";
 import { render_narrative_style_xml, render_visual_style_xml } from "./style.js";
-import { render_alternation_protocol } from "./reflex.js";
+import { render_alternation_block } from "./reflex.js";
 import { OUTPUT_DIRECTIVES } from "./output.js";
 
 // ============================================================================
@@ -118,7 +118,7 @@ function resolve_static_rule(protocol_key) {
 }
 
 // ============================================================================
-// [SECTION 2: PROTOCOL PLANS — PURE DATA, NO XML]
+// [SECTION 3: PROTOCOL PLANS — PURE DATA, NO XML]
 // ============================================================================
 
 /**
@@ -210,7 +210,7 @@ export function resolve_protocol_plan({
 }
 
 // ============================================================================
-// [SECTION 3: THIN PLAN RENDERER — NO DECISIONS, ONLY XML]
+// [SECTION 4: THIN PLAN RENDERER — NO DECISIONS, ONLY XML]
 // ============================================================================
 
 /**
@@ -235,7 +235,7 @@ export function render_protocol_plan(plan) {
           separator: "\n",
         })
       : null,
-    plan.alternation ? render_alternation_protocol("{Option A|Option B}") : null,
+    plan.alternation ? render_alternation_block() : null,
     plan.style_xml,
     plan.disciplines.length > 0
       ? render_xml_tag({
@@ -255,7 +255,7 @@ export function render_protocol_plan(plan) {
 }
 
 // ============================================================================
-// [SECTION 3: POV RESOLVERS]
+// [SECTION 5: POV RESOLVERS]
 // ============================================================================
 
 /**
@@ -295,7 +295,7 @@ export function resolve_layer_tense_protocol(field_id = "", layer_key = "") {
 }
 
 // ============================================================================
-// [SECTION 4: PUBLIC CORE PROTOCOL COMPILER — ONE-LINE PLAN + RENDER]
+// [SECTION 6: PUBLIC CORE PROTOCOL COMPILER — ONE-LINE PLAN + RENDER]
 // ============================================================================
 
 /**
@@ -325,6 +325,7 @@ export function render_core_protocols({
 
 /**
  * CHANGELOG
+ * - 2026-10-04: Renumbered duplicate section headers (1 library, 2 matcher, 3 plans, 4 renderer, 5 POV, 6 public compiler); plan-gated alternation renders via reflex.js render_alternation_block instead of a dummy-text has_alternations probe — byte-identical output.
  * - 2026-10-04: Catalog restructure (Suggestion 2 hybrid) — orthogonal single-concern atoms: ANTI_TROPES splits into SENTENCE_FORMULAS + SCENE_MOMENTUM, BANNED_CLICHES into CLICHES + standalone CONSENT, PHYSICALITY + ENVIRONMENTAL_GROUNDING fuse into shared GROUNDING, WEIGHTING + AFFIRMATIVE fuse into IMAGE_VOCABULARY, optics TYPOGRAPHY renamed TEXT_RENDERING (was colliding with prose TYPOGRAPHY); DATA moves to output.js OUTPUT_DIRECTIVES (manifests use OUTPUT.DATA); ALTERNATION atom + render_alternation_protocol move to reflex.js; MACROS records derive from shared MACRO_SUBJECTS (SORTING prefix normalized, byte-neutral in practice).
  * - 2026-10-04: Plan/render split (Plan 2) — `resolve_protocol_plan` owns all selection/tense-fold/style/drop decisions as frozen pure data (with `dropped.unknown` counts), `render_protocol_plan` maps plans to envelopes without branching, `render_core_protocols` is a one-line composition; retired the private `compile_protocol_tags` in favor of the exact `resolve_static_rule` matcher.
  * - 2026-10-04: Retired CORE_PROTOCOLS.SIMULATION_FIDELITY — fidelity is now constitution axiom L4 (rendered in <AXIOMATIC_CONSTITUTION>); protocols.js has zero constitution imports.

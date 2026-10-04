@@ -176,6 +176,7 @@ export function resolve_output_plan({
   fallback = "",
 } = {}) {
   if (!format_spec) {
+    // 1. Empty spec → `empty` plan carrying the fallback body.
     return Object.freeze({ kind: "empty", body: fallback, schema_keys: Object.freeze([]), warnings: Object.freeze([]) });
   }
 
@@ -208,6 +209,7 @@ export function resolve_output_plan({
     return Object.freeze({ kind: "json", body, schema_keys: Object.freeze(schema_keys), warnings: Object.freeze(warnings) });
   }
 
+  // 5. Anything else → `empty` plan carrying the fallback body.
   return Object.freeze({ kind: "empty", body: fallback, schema_keys: Object.freeze([]), warnings: Object.freeze([]) });
 }
 
