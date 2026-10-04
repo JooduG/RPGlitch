@@ -48,13 +48,7 @@ import { resolve_system_role_line, render_system_xml } from "./modules/system.js
 import { resolve_stability_lock } from "./modules/reflex.js";
 import { render_constitution } from "./modules/constitution.js";
 import { render_core_protocols, resolve_pov_protocol, resolve_macro_directive, resolve_layer_tense_protocol } from "./modules/protocols.js";
-import {
-  render_entity_sheets,
-  resolve_entities,
-  render_optics_entities_xml,
-  render_nearby_entities_xml,
-  render_candidate_cast_xml,
-} from "./modules/entities.js";
+import { render_entity_sheets, resolve_entities, render_optics_entities_xml, render_nearby_entities_xml } from "./modules/entities.js";
 import { render_entity_memory_context, render_enhancement_field_context, render_chapter_history_xml } from "./modules/sheets.js";
 import { render_dynamics_axes_xml } from "./physics.js";
 import { verify_epistemic_integrity } from "./veil.js";
@@ -444,12 +438,10 @@ export function render_director({
   const active_messages = raw_messages.length > 0 ? raw_messages : simulation_log;
   const accessors = render_accessors || create_render_accessors(scene_entities, input, active_messages);
   const config = get_prompt("director");
-  const entity_plan = resolve_entities(config);
   const schema = get_output_format(config.format);
   const active_style_keywords = get_style_keywords(resolve_active_style_key());
 
   const merged_dynamics = { ...(compressed_snapshot?.fractal?.dynamics || {}), ...(compressed_snapshot?.ai?.dynamics || {}) };
-  const cast_xml = entity_plan.candidate_entities ? render_candidate_cast_xml({ entities: scene_entities, npc_entities, in_scene_ids }) : null;
 
   const entity_sheets = render_entity_sheets({
     entities: scene_entities,
@@ -461,7 +453,6 @@ export function render_director({
     render_axes: (dynamics, scope) => render_dynamics_axes_xml(dynamics, scope, DYNAMICS_AXES),
     speaker_dynamics: compressed_snapshot?.ai?.dynamics,
     fractal_dynamics: compressed_snapshot?.fractal?.dynamics,
-    cast_xml,
   });
 
   const core_protocols_xml = render_core_protocols({
@@ -1306,6 +1297,7 @@ export function assemble_prompt(config, context = {}) {
 
 /**
  * CHANGELOG
+ * - 2026-10-04: Director candidates render inside render_entity_sheets (cast_xml string param retired; unused director entity_plan dropped).
  * - 2026-10-04: Rewired module imports for the prompt-architecture split (recovery.js, output.js, style.js, sheets.js, media optics/history shaping); assembly logic unchanged.
  * - 2026-10-04: Dropped the enhancement `<LAYER>` tag (tense now rides the `<PERSPECTIVE tense>` attribute) and flipped `render_enhancement` to catalog-first enhancer priority.
  * - 2026-10-04: Sorting passes pov_protocol THIRD (POV_THIRD retired); enhancement resolves its field layer-tense protocol dynamically into core_protocols instead of a blanket DIRECTIVES paragraph.
@@ -1324,7 +1316,7 @@ export function assemble_prompt(config, context = {}) {
  * - 2026-09-19: Collapsed facades (P7) — the public chain is now `compile_prompt` (prompts.js) → `assemble_prompt`; retired `compile_pipeline_prompt`, the `render_builder` wrapper object (now the standalone `create_render_accessors`, and the test-only `render_history` passthrough deleted), the `render_narrator_prose` alias (callers use `render_scene_narrator`), and the `render_ghostwriter` wrapper (the production ghostwrite path is `MODE_ADAPTERS.prose`); added `normalize_context(context)` so the entity / snapshot / accessor / history fallbacks live in one place.
  * - 2026-09-19: Unified Optics (P6) — `render_optics_prompt` takes a single options object (dropped the 3-positional-arg shuffling) and emits its `<SYSTEM role="SENSORY_CORTEX">` envelope through the shared `PROMPT_LAYERS` table with the Task nested via `render_system_xml`'s `task` parameter; `PROMPT_LAYERS` gains a `history` layer (protocols → entities → history). Media callers already pass one options object, so no call-site change was required.
  * - 2026-09-19: Table-driven assembler (P4) — the `compile_pipeline_prompt` switch is replaced by `MODE_ADAPTERS` (one assembler per mode + a `prose` fallback) dispatched through `assemble_prompt(config, context)`; the prose envelope is emitted from the `PROMPT_LAYERS` table. Adding a mode no longer edits a switch.
- * - 2026-09-19: Entity gate consolidation (P2) — `render_director`/`render_memory`/`render_enhancement` read their `config.entities` gates through `resolve_entities(config)` (the single resolver in sheets.js); the dead `config.task?.schema` fallback was pruned from `get_output_format`.
+ * - 2026-09-19: Entity gate consolidation (P2) — `render_director`/`render_memory`/`render_enhancement` read their `config.entities` gates through `resolve_entities(config)` (the single resolver in modules/entities.js); the dead `config.task?.schema` fallback was pruned from `get_output_format`.
  * - 2026-09-19: Package-contract unification (P1) — `continuum`, `enhancement`, and `sorting` now return through `pack_prompt` (no hand-rolled package shapes); `render_optics_prompt` drops its `new String()` subclass and returns a plain `{ system, task }` package; `extract_somatic_inner` deleted — the `<SUBTEXT>` block is composed once by `render_subtext_xml` and passed whole to `render_task`; `<LAYER>` emits through `render_xml_tag`.
  * - 2026-09-19: First-contact now derives solely from `director_data.first_contact` (dropped the dead `meta.is_opening_turn` and empty `snapshot.flags` checks and the synthetic "first_contact" keyword); it maps to the single TASK_LIBRARY.PROSE.CHARACTER.FIRST_CONTACT directive.
  * - 2026-09-19: Moved the profile-sorting FOCUS directive into TASK_LIBRARY.SORTING.FOCUS(entity_type) (task.js), folding in the macro rule; render_profile_sorting now simply calls it.
