@@ -53,15 +53,26 @@ describe("protocols.js - Core Protocol Library & Compiler", () => {
     expect(resolve_layer_tense_protocol("name", "")).toBe(null);
   });
 
-  it("renders selected layer-tense atoms as one LAYER_TENSE block", () => {
+  it("folds layer-tense atoms into PERSPECTIVE instead of a LAYER_TENSE block", () => {
     const output = render_core_protocols({
       protocols: ["CORE_PROTOCOLS.DATA", "CORE_PROTOCOLS.PERSPECTIVE.LAYER_TENSE.PAST", "CORE_PROTOCOLS.PERSPECTIVE.LAYER_TENSE.FUTURE"],
     });
-    expect(output).toContain("<LAYER_TENSE>");
+    expect(output).not.toContain("<LAYER_TENSE>");
+    expect(output).toContain('<PERSPECTIVE tense="LAYER">');
+    expect(output).toContain("Match tense to the layer being written:");
     expect(output).toContain("settled history in past tense");
     expect(output).toContain("active future tense");
     expect(output).not.toContain("<PAST>");
     expect(output).not.toContain("<FUTURE>");
+  });
+
+  it("pins a single tense atom to the PERSPECTIVE tense attribute", () => {
+    const output = render_core_protocols({
+      protocols: ["CORE_PROTOCOLS.DATA", "CORE_PROTOCOLS.PERSPECTIVE.LAYER_TENSE.PAST"],
+      pov_protocol: "CORE_PROTOCOLS.PERSPECTIVE.POV.THIRD",
+    });
+    expect(output).toContain('<PERSPECTIVE person="THIRD" tense="PAST">');
+    expect(output).toContain("State settled history in past tense.");
   });
 
   it("renders alternation protocol if text contains alternations", () => {
@@ -170,6 +181,7 @@ describe("protocols.js - Visual Style & Optics Protocols", () => {
 
 /**
  * CHANGELOG
+ * - 2026-10-04: Rewrote the layer-tense test for the PERSPECTIVE merge (`<LAYER_TENSE>` gone; tense asserts against the `tense` attribute plus the composed command).
  * - 2026-09-23: Prompt-grammar harmonization — dropped the `render_dynamics_xml` `<DYNAMICS>` coverage (that compiler was deleted); the suite keeps the scoped `render_dynamics_axes_xml` `<DYNAMIC_AXES>` case the Director now shares.
  * - 2026-09-23: Added coverage for the consolidated `render_dynamics_xml` `<DYNAMICS>` block — each axis carries `value` plus both poles, and a value-less axis keeps its legend.
  * - 2026-09-19: Added unit test suite validating render_visual_style_xml and render_optics_protocols for Layer 3.

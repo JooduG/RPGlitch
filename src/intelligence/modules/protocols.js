@@ -44,6 +44,9 @@ export const PROTOCOL_LIBRARY = Object.freeze({
         THIRD: "Write strictly in third-person limited ('he', 'she', 'they', or character name). Never use first-person pronouns in narrative prose.",
         NARRATOR: "You are the setting narrator («FRACTAL»). Write strictly in third-person omniscient POV. Never write in first-person.",
       }),
+      MANDATE:
+        "Perspective is structural: hold the stated person and tense exactly on every line — drift is a structural failure, not a style choice.",
+      TENSE_MANDATE: "Tense is structural: hold the stated tense exactly on every line — tense drift is a structural failure, not a style choice.",
     }),
     PROSE_DISCIPLINE: Object.freeze({
       TYPOGRAPHY: `Balance interior reflection against physical impact and speech. Maintain lingering sensory conditions across scene shifts. Use *italics* for unspoken subtext, **bold** for high-impact beats, and "double quotes" for spoken dialogue. Omit meta-commentary, preambles, headers, or user echoes. End on a complete sentence.`,
@@ -265,7 +268,7 @@ export function render_core_protocols({
   const pov_key = resolved_pov_protocol ? String(resolved_pov_protocol).split(".").pop() : null;
   const perspective = PROTOCOL_LIBRARY.CORE_PROTOCOLS.PERSPECTIVE;
   const pov = pov_key ? perspective.POV[pov_key] || "" : "";
-  const person = pov_key === "FIRST" ? "FIRST" : "THIRD";
+  const person = pov_key ? (pov_key === "FIRST" ? "FIRST" : "THIRD") : null;
   const core = PROTOCOL_LIBRARY.CORE_PROTOCOLS;
 
   const prose_disciplines = Object.entries(core.PROSE_DISCIPLINE)
@@ -274,13 +277,11 @@ export function render_core_protocols({
 
   const alternation_tag = has_alternation && should_include("ALTERNATION_OPTIONS") ? render_alternation_protocol("{Option A|Option B}") : null;
 
-  // Resolve static protocol rules — every key outside the specially-laid-out core
-  // scaffolding (SIMULATION_FIDELITY / ALTERNATION_OPTIONS / PERSPECTIVE.* /
-  // PROSE_DISCIPLINE.*) resolves through one registry lookup and emits its leaf
-  // tag, so `CORE_PROTOCOLS.DATA` and `OPTICS.*` share a single emission path.
-  // Layer-tense atoms (`PERSPECTIVE.LAYER_TENSE.*`) are the one PERSPECTIVE.*
-  // exception with block emission: the selected atoms render together as one
-  // <LAYER_TENSE> element (POV.* still renders only via the `pov_protocol` slot).
+  // Layer-tense atoms (`PERSPECTIVE.LAYER_TENSE.*`) never emit their own block:
+  // they fold into the single <PERSPECTIVE> element — the tense selection sets
+  // the `tense` attribute (one atom → its tense, several → "LAYER", none →
+  // "PRESENT") and the atoms compose its command body, so person and tense are
+  // stated exactly once per prompt instead of disagreeing across sibling tags.
   const is_specially_laid_out = (protocol_key) =>
     protocol_key === "CORE_PROTOCOLS.SIMULATION_FIDELITY" ||
     protocol_key === "CORE_PROTOCOLS.ALTERNATION_OPTIONS" ||
@@ -289,10 +290,21 @@ export function render_core_protocols({
   const static_protocols = protocol_list.filter((protocol_key) => !is_specially_laid_out(protocol_key));
   const static_rules = static_protocols.length > 0 ? compile_protocol_tags(static_protocols) : "";
 
-  const layer_tense_rules = protocol_list
-    .filter((protocol_key) => String(protocol_key).startsWith("CORE_PROTOCOLS.PERSPECTIVE.LAYER_TENSE."))
-    .map((protocol_key) => perspective.LAYER_TENSE[String(protocol_key).split(".").pop()])
-    .filter(Boolean);
+  const layer_tense_keys = protocol_list.filter((protocol_key) => String(protocol_key).startsWith("CORE_PROTOCOLS.PERSPECTIVE.LAYER_TENSE."));
+  const layer_tense_rules = layer_tense_keys.map((protocol_key) => perspective.LAYER_TENSE[String(protocol_key).split(".").pop()]).filter(Boolean);
+
+  const perspective_tense =
+    layer_tense_rules.length > 1 ? "LAYER" : layer_tense_rules.length === 1 ? String(layer_tense_keys[0]).split(".").pop() : "PRESENT";
+  const tense_command =
+    layer_tense_rules.length > 1
+      ? `Match tense to the layer being written: ${layer_tense_rules
+          .map((rule) =>
+            String(rule)
+              .replace(/\s*\.\s*$/, "")
+              .replace(/^[A-Z]/, (letter) => letter.toLowerCase()),
+          )
+          .join("; ")}.`
+      : layer_tense_rules[0] || (should_include("TENSE.PRESENT") ? perspective.TENSE.PRESENT : "");
 
   // Symmetrical style resolution
   const active_visual_style = visual_style || (Object.keys(engine_tokens).length > 0 ? style : null);
@@ -301,15 +313,14 @@ export function render_core_protocols({
 
   const blocks = [
     static_rules,
-    layer_tense_rules.length > 0 ? render_xml_tag({ tag: "LAYER_TENSE", children: layer_tense_rules, child_indent: 2, separator: "\n" }) : null,
     should_include("SIMULATION_FIDELITY")
       ? render_xml_tag({ tag: "SIMULATION_FIDELITY", children: [core.SIMULATION_FIDELITY], child_indent: 2 })
       : null,
-    resolved_pov_protocol
+    resolved_pov_protocol || layer_tense_rules.length > 0
       ? render_xml_tag({
           tag: "PERSPECTIVE",
-          attrs: { person, tense: "PRESENT" },
-          children: [prompt_escape(pov), ...(should_include("TENSE.PRESENT") ? [perspective.TENSE.PRESENT] : [])],
+          attrs: { person, tense: perspective_tense },
+          children: [prompt_escape(pov), tense_command, person ? perspective.MANDATE : perspective.TENSE_MANDATE],
           child_indent: 2,
           separator: "\n",
         })
@@ -336,6 +347,7 @@ export function render_core_protocols({
 
 /**
  * CHANGELOG
+ * - 2026-10-04: PERSPECTIVE merge — added `PERSPECTIVE.MANDATE`/`TENSE_MANDATE`; `render_core_protocols` folds `LAYER_TENSE.*` selections into the single `<PERSPECTIVE person tense>` element (tense attr + composed command + mandate) and no longer emits a `<LAYER_TENSE>` block; `<PERSPECTIVE>` now also renders for tense-only modes (no `person` attr then).
  * - 2026-10-04: Simplified LAYER_TENSE to three reusable tenses (PAST/PRESENT/FUTURE) - ETERNAL merges into PRESENT and every atom is phrased as a generic writing rule with no field references, usable anywhere in the application.
  * - 2026-10-04: PERSPECTIVE is now the single tense/person authority - added LAYER_TENSE (per-layer ETERNAL/PRESENT/PAST/FUTURE atoms) plus resolve_layer_tense_protocol, and render_core_protocols renders selected layer-tense atoms as one <LAYER_TENSE> block (POV.* still only via pov_protocol).
  * - 2026-10-01: Repatriated MACRO_DIRECTIVES and resolve_macro_directive to PROTOCOL_LIBRARY.MACROS per Layer 3 prompt architecture.

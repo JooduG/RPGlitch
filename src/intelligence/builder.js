@@ -29,13 +29,11 @@ import {
   PROFILE_FIELD_CATALOG,
 } from "@data";
 import {
-  escape_xml,
   prompt_escape,
   parse_macros,
   strip_cognition_blocks,
   has_alternations,
   wrap_tag,
-  render_xml_tag,
   parse_relational_vector,
   resolve_alternations,
   alternation_field_label,
@@ -838,11 +836,9 @@ export function render_enhancement({
   const normalized_type = entity_type === "user" ? "character" : entity_type || "character";
   const catalog_meta = field_id ? PROFILE_FIELD_CATALOG[`${normalized_type}.${field_id}`] || PROFILE_FIELD_CATALOG[field_id] : null;
 
-  const resolved_enhancer = enhancer || catalog_meta?.enhancer || config.role_line || "ENHANCER";
+  const resolved_enhancer = catalog_meta?.enhancer || enhancer || config.role_line || "ENHANCER";
   const resolved_label = label || catalog_meta?.label || "";
   const resolved_directive = directive ?? catalog_meta?.directive ?? "";
-  const resolved_layer_key = layer_key ?? catalog_meta?.layer_key ?? "";
-
   const macro_directive = !is_image_field ? resolve_macro_directive(normalized_type) : "";
   const is_temporal_field =
     field_id === "past" ||
@@ -877,7 +873,6 @@ export function render_enhancement({
       core_protocols: render_core_protocols({
         protocols: layer_tense_protocol ? [...config.protocols, layer_tense_protocol] : config.protocols,
       }),
-      layer: resolved_layer_key ? render_xml_tag({ tag: "LAYER", children: [escape_xml(resolved_layer_key)], inline: true }) : null,
       field_context: entity_plan.field_context
         ? render_enhancement_field_context(entity, field_id, content, normalized_type, (e, c) =>
             temporal_engine.format(resolve_vector_pool(e), c || "", { max_chars: 1500 }),
@@ -1311,6 +1306,7 @@ export function assemble_prompt(config, context = {}) {
 
 /**
  * CHANGELOG
+ * - 2026-10-04: Dropped the enhancement `<LAYER>` tag (tense now rides the `<PERSPECTIVE tense>` attribute) and flipped `render_enhancement` to catalog-first enhancer priority.
  * - 2026-10-04: Sorting passes pov_protocol THIRD (POV_THIRD retired); enhancement resolves its field layer-tense protocol dynamically into core_protocols instead of a blanket DIRECTIVES paragraph.
  * - 2026-10-04: Enhancement DIRECTIVES now append the canonical TEMPORAL.TENSE atom after the field directive and macro.
  * - 2026-10-01: Re-routed resolve_macro_directive from protocols.js and parameterized render_enhancement with is_temporal and think-awareness for Layer 7 format compilation.

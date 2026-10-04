@@ -363,7 +363,7 @@ describe("master switchboard compile_prompt", () => {
     expect(physical_enhancement.system).toContain('mode="enhancement"');
     expect(physical_enhancement.system).toContain("You are the BIOMETRIC_RENDERER Profile Enhancer");
     expect(physical_enhancement.system).toContain('scope="Physical Appearance"');
-    expect(physical_enhancement.system).toContain("<LAYER>ETERNAL</LAYER>");
+    expect(physical_enhancement.system).toContain('tense="PRESENT"');
     expect(physical_enhancement.task).toContain("[KEY: value] permanent biometrics");
 
     const non_physical_enhancement = compile_prompt("enhancement", {
@@ -376,13 +376,14 @@ describe("master switchboard compile_prompt", () => {
     expect(non_physical_enhancement.system).toContain('mode="enhancement"');
     expect(non_physical_enhancement.system).toContain("You are the COGNITIVE_ARCHITECT Profile Enhancer");
     expect(non_physical_enhancement.system).toContain('scope="Personality"');
-    expect(non_physical_enhancement.system).toContain("<LAYER>ETERNAL</LAYER>");
+    expect(non_physical_enhancement.system).toContain('tense="PRESENT"');
     expect(non_physical_enhancement.task).toContain("[KEY: value]");
   });
 });
 
 /**
  * CHANGELOG
+ * - 2026-10-04: Enhancement assertions track the `<PERSPECTIVE tense>` attribute instead of the deleted `<LAYER>` tag.
  * - 2026-09-23: Prompt-grammar harmonization — task envelopes now assert `<INPUT … channel="action">` (the `mode=` signal discriminator was retired for `channel=` across every signal).
  * - 2026-09-23: Registry assertions realigned to the consolidated record — the required module keys drop `task` (now a flattened `think_format`), and the task-key test asserts `think_format` at the top level with no `task` bag.
  * - 2026-09-23: Envelope-harmonization assertions — the registry reads the single `mode` discriminator (`mode.system.mode`; the `role` attribute was retired).

@@ -27,7 +27,6 @@ import {
   physical_to_xml,
   strip_leading_key_echo,
   render_field_value,
-  indent_continuation,
   render_xml_tag,
   strip_visual_excluded,
   collapse_whitespace,
@@ -773,7 +772,7 @@ export function render_enhancement_field_context(entity, field_identifier, conte
     const sibling_subsection = subsection_name === "physical" ? "non_physical" : "physical";
     const target_paths = [`${section_name}.${sibling_subsection}`, ...(section_name === "present" ? [`eternal.${subsection_name}`] : [])];
 
-    const inner_content = target_paths
+    const inner_blocks = target_paths
       .map((path) => {
         const tag = path.endsWith(".physical")
           ? path.startsWith("present")
@@ -785,17 +784,16 @@ export function render_enhancement_field_context(entity, field_identifier, conte
         const sanitized_raw_value = strip_epistemic_secrets(String(raw_value ?? ""));
         const value = path.endsWith(".physical") ? extract_physical_body(sanitized_raw_value) : escape_xml(sanitized_raw_value.trim());
         if (!value) return "";
-        return `<${tag}>\n${indent_continuation(value, 8)}\n    </${tag}>`;
+        return render_xml_tag({ tag, children: [value], child_indent: 2 });
       })
-      .filter(Boolean)
-      .join("\n    ");
+      .filter(Boolean);
 
-    if (!inner_content) return "";
+    if (!inner_blocks.length) return "";
     return render_xml_tag({
       tag: "ENTITY_CONTEXT",
-      children: [inner_content],
+      children: [inner_blocks.join("\n")],
       indent: 2,
-      child_indent: 4,
+      child_indent: 2,
     });
   }
 
@@ -912,6 +910,7 @@ export function render_dynamics_axes_xml(live_dynamics = null, scope = null, axe
 
 /**
  * CHANGELOG
+ * - 2026-10-04: Fixed `render_enhancement_field_context` ragged indentation — sibling blocks now compose through `render_xml_tag` (uniform depth) instead of hand-rolled strings with mismatched hardcoded indents; dropped the now-unused `indent_continuation` import.
  * ============================================================================
  * - 2026-10-01: Consolidated presence.js and sheets.js into single src/intelligence/modules/entities.js module under P4 Zero Backwards Compatibility. Relational dispositions now harvest 100% from universal bracket predicates via veil.js.
  * ============================================================================

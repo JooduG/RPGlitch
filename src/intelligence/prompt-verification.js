@@ -667,7 +667,7 @@ export const CONTRACT = {
       "SYSTEM",
       "CORE_PROTOCOLS",
       "DATA",
-      "LAYER_TENSE",
+      "PERSPECTIVE",
       "TARGET_ENTITY_CONTEXT",
       "AI_CHARACTER",
       "PSYCHOLOGY",
@@ -692,12 +692,12 @@ export const CONTRACT = {
     messages: 0,
   },
   enhancement: {
-    system: ["SYSTEM", "CORE_PROTOCOLS", "DATA", "LAYER_TENSE", "LAYER", "ENTITY_CONTEXT", "APPEARANCE", "BUILD"],
+    system: ["SYSTEM", "CORE_PROTOCOLS", "DATA", "PERSPECTIVE", "ENTITY_CONTEXT", "APPEARANCE", "BUILD"],
     task: ["TASK", "THINK_FORMAT", "THINK", "INPUT", "DIRECTIVES", "OUTPUT_FORMAT"],
     messages: 0,
   },
   sorting: {
-    system: ["SYSTEM", "CORE_PROTOCOLS", "DATA", "LAYER_TENSE", "PERSPECTIVE"],
+    system: ["SYSTEM", "CORE_PROTOCOLS", "DATA", "PERSPECTIVE"],
     task: ["TASK", "INPUT", "DIRECTIVES", "OUTPUT_FORMAT"],
     messages: 0,
   },
@@ -771,20 +771,22 @@ export const MODE_DIRECTIVE_LEADS = Object.freeze({
 export const CONTRACT_SIZES = {
   director: { system: 1989, task: 4065 },
   director_terse: { system: 105, task: 909 },
-  interaction: { system: 5617, task: 2158 },
-  ghostwrite: { system: 5618, task: 2129 },
-  npc: { system: 5949, task: 2922 },
-  narrator: { system: 5189, task: 1922 },
-  narrator_prologue: { system: 5189, task: 2170 },
-  narrator_epilogue: { system: 5189, task: 1839 },
-  continuum: { system: 1518, task: 2186 },
-  enhancement: { system: 583, task: 1051 },
-  sorting: { system: 812, task: 2523 },
+  interaction: { system: 5758, task: 2158 },
+  ghostwrite: { system: 5759, task: 2129 },
+  npc: { system: 6090, task: 2922 },
+  narrator: { system: 5330, task: 1922 },
+  narrator_prologue: { system: 5330, task: 2170 },
+  narrator_epilogue: { system: 5330, task: 1839 },
+  continuum: { system: 1690, task: 2186 },
+  enhancement: { system: 709, task: 1051 },
+  sorting: { system: 898, task: 2523 },
   optics: { system: 1761, task: 3785 },
 };
 
 /**
  * CHANGELOG
+ * - 2026-10-04: PERSPECTIVE merge — `<LAYER_TENSE>` block deleted; tense selection folds into the single `<PERSPECTIVE>` element (`tense` attr: one atom → its tense, several → "LAYER", none → "PRESENT"; multi-tense atoms compose one "Match tense to the layer being written" command) with a structural mandate body (person-aware variant when a POV is present, tense-only variant otherwise). Enhancement `<LAYER>` tag dropped (tense now lives in the attr). Contract inventories updated (continuum/enhancement/sorting) and system sizes re-measured via the esbuild live bundle: interaction 5617→5758, ghostwrite 5618→5759, npc 5949→6090, narrator 5189→5330 (×3), continuum 1518→1690, enhancement 597→709, sorting 812→898; all tasks unchanged. Director/optics/director_terse left on old baselines (pre-existing drift, inside tripwire).
+ * - 2026-10-04: Re-baselined `CONTRACT_SIZES.enhancement.system` (583→597) after flipping the enhancer priority in `render_enhancement` to catalog-first (`catalog_meta?.enhancer || enhancer`): the fixture's explicit `VOICE` no longer stomps the catalog value, so the fixture role line now reads `COGNITIVE_ARCHITECT` (+14 bytes, single occurrence). Production callers pass no `enhancer`, so production output is byte-identical.
  * - 2026-10-04: Re-baselined sorting (system 287→812, task 2962→2523), continuum (system 1244→1518, task 2487→2186), and enhancement (system 452→583, task 1352→1051) for the PERSPECTIVE unification (person/tense as SYSTEM protocols) plus the three-tense simplification. Director/optics still on old baselines (within tripwire; drift predates these changes).
  * - 2026-10-04: Contract leads reverted (sorting 3, continuum 2) and system inventories gained LAYER_TENSE (+PERSPECTIVE for sorting) for the PERSPECTIVE unification; sizes to re-baseline after measurement.
  * - 2026-10-04: Re-baselined `CONTRACT_SIZES.sorting.task` (2838→2962), `CONTRACT_SIZES.continuum.task` (2363→2487), and `CONTRACT_SIZES.enhancement.task` (1051→1352) after centralizing temporal tense into `TASK_LIBRARY.TEMPORAL.TENSE` (sorting/continuum deltas are identical because they share the temporal schema fragment). Director/optics measured 4358/4051 against unchanged baselines — still inside the 25% tripwire, and this change cannot affect those modes (atom-only schemas, untouched selections), so their baselines are left alone pending an explanation for the drift.
