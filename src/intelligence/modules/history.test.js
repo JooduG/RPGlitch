@@ -7,14 +7,25 @@
  * Verifies the token-optimized history formatting contracts:
  * 1. resolve_history configuration resolver
  * 2. render_history transcript log formatting with <ENTRY> XML tags
- * 3. format_recent_history dialogue formatting with <think> tag stripping
- * 4. render_input_history_xml enveloped history block
- * 5. render_chapter_history_xml episodic milestone formatting
+ * 3. render_input_history_xml enveloped history block
+ * 4. render_chapter_history_xml episodic milestone formatting (sheets.js)
+ * 5. resolve_history_plan pure-data plans + render_history_plan thin mapping
+ * 6. resolve_sensory_plan line plans for optics shaping
  * ============================================================================
  */
 
 import { describe, expect, it } from "vitest";
-import { HISTORY_DEFAULTS, resolve_history, render_history, render_input_history_xml, render_visual_history } from "./history.js";
+import {
+  HISTORY_DEFAULTS,
+  resolve_history,
+  render_history,
+  render_input_history_xml,
+  render_visual_history,
+  resolve_history_plan,
+  resolve_sensory_plan,
+  render_history_plan,
+  format_sensory_history,
+} from "./history.js";
 import { render_chapter_history_xml } from "./sheets.js";
 
 describe("src/intelligence/modules/history.js", () => {
@@ -176,7 +187,54 @@ describe("src/intelligence/modules/history.js — render_visual_history", () => 
   });
 });
 
+describe("src/intelligence/modules/history.js — history plans", () => {
+  it("resolves frozen entry plans with drop counts and stable rounds", () => {
+    const fixture = [
+      { role: "system", text: "hidden directive" },
+      { role: "user", character_name: "Benedict", text: "Hello" },
+      { role: "user", character_name: "Benedict", text: "   " },
+      { role: "ai", character_name: "Elias", text: "<think>Plotting.</think>Good day." },
+    ];
+    const plan = resolve_history_plan(fixture, { collapse: false });
+    expect(Object.isFrozen(plan)).toBe(true);
+    expect(Object.isFrozen(plan.included)).toBe(true);
+    expect(plan.dropped.excluded).toBe(0);
+    expect(plan.dropped.empty).toBe(1);
+    expect(plan.included.map((record) => record.round)).toEqual([1, 2, 4]);
+    expect(render_history_plan(plan)).toBe(render_history(fixture, { collapse: false }));
+  });
+
+  it("excludes roles pre-window so dropped rows never consume the window", () => {
+    const plan = resolve_history_plan(
+      [
+        { role: "system", text: "telemetry: chaos +1" },
+        { role: "ai", character_name: "First", text: "One." },
+        { role: "ai", character_name: "Second", text: "Two." },
+      ],
+      { collapse: false, exclude_roles: ["system"], limit: 2 },
+    );
+    expect(plan.dropped.excluded).toBe(1);
+    expect(plan.included.map((record) => record.origin)).toEqual(["First", "Second"]);
+  });
+
+  it("passes pre-rendered strings through as preformatted plans", () => {
+    const plan = resolve_history_plan("pre-rendered history");
+    expect(plan.kind).toBe("preformatted");
+    expect(render_history_plan(plan)).toBe("pre-rendered history");
+    expect(render_history_plan(null)).toBe("");
+  });
+
+  it("resolves sensory line plans with telemetry counts", () => {
+    const plan = resolve_sensory_plan("Silvers: He watches.\ntelemetry: chaos +1\n\nsystem: intensity +2 | active");
+    expect(plan.lines).toEqual(["Silvers: He watches."]);
+    expect(plan.dropped.telemetry).toBe(2);
+    expect(plan.dropped.empty).toBe(1);
+    expect(format_sensory_history("")).toBe("");
+  });
+});
+
 /**
  * CHANGELOG
+ * - 2026-10-04: Plan/render split coverage — history-plan describes (frozen plans, drop counts, round-gap stability, pre-window exclusion, preformatted passthrough, sensory telemetry counts); refreshed the stale header (format_recent_history pruned, chapter rendering lives in sheets.js).
  * - 2026-09-13: Initial unit test suite for history.js covering resolve_history, render_history, format_recent_history, render_input_history_xml, and render_chapter_history_xml with token-optimized XML contracts.
  */

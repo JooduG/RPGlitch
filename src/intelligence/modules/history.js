@@ -1,32 +1,45 @@
 /**
  * src/intelligence/modules/history.js
  * ============================================================================
- * 📜 HISTORY MODULE — Turn History, Chapter Milestones & Dialogue Ingestion
+ * 📜 HISTORY MODULE — History Plans & Thin Transcript Renderers
  * ============================================================================
  *
- * Orchestrates conversation history, episodic milestone boundary XML, and turn
- * log serialization across the intelligence layer, establishing direct symmetrical
- * alignment with the prompt manifest specifications in `prompts.js`:
+ * Owns conversation-history windowing for the intelligence layer. Two stages,
+ * mirroring the entities.js actor-plan split:
  *
- * 1. Manifest Window Resolver (HISTORY_DEFAULTS, resolve_history)
- * 2. Turn Transcript Log Formatter (render_history)
- * 3. Recent Dialogue Feed Formatter (render_input_history_xml)
- * 4. Sensory & Visual History Shaping (format_sensory_history, render_visual_history)
+ * 1. Pure-data plans (`resolve_history_plan`, `resolve_sensory_plan`) decide
+ *    WHAT survives: role exclusion, collapse, window slicing, stripping, and
+ *    per-entry budgets. Every filter/migrate/drop decision is plan data.
+ * 2. Thin renderers (`render_history_plan`, `render_sensory_plan`) map plans
+ *    to XML or `Name: prose` lines without branching.
  *
- * Symmetrical Manifest Mapping:
- * - `config.history`                 ➔ `resolve_history`
- * - `config.task.input_tag`          ➔ `render_input_history_xml` wrapper tag
- * - `accessors.simulation_log`       ➔ `render_history`
+ * Public compilers (`render_history`, `render_input_history_xml`,
+ * `render_visual_history`, `format_sensory_history`) are one-line plan+render
+ * compositions preserving the exact established output contracts.
+ *
+ * Single planning vocabulary across all four windows (replacing the old
+ * `limit` vs `max_entries` split and the retired `maximum_characters` /
+ * `input_tag` aliases): `limit` / `offset` / `max_chars` / `collapse` /
+ * `exclude_roles` / `text_source`.
  *
  * Architecture & Design Laws:
- * - Unidirectional layer flow: pure string and structured XML compilation.
- * - Single source of truth for conversational, turn-based, and episodic history formatting.
+ * - Unidirectional layer flow: pure data plans, then pure string compilation.
+ * - Single source of truth for which history entries reach a prompt.
  * - Strict Full-Name domain nomenclature (zero clipped or single-letter variables).
- * - Zero Backwards Compatibility: Ruthless purity, no deprecated wrappers or shims.
+ * - Zero Backwards Compatibility: ruthless purity, no deprecated wrappers or shims.
  * ============================================================================
  */
 
-import { render_xml_tag, format_history_entries, strip_cognition_blocks, collapse_whitespace, truncate_at_word, prompt_escape } from "@utils";
+import {
+  render_xml_tag,
+  collapse_history,
+  strip_cognition_blocks,
+  collapse_whitespace,
+  truncate_at_word,
+  prompt_escape,
+  escape_xml,
+  role_display_label,
+} from "@utils";
 
 // ============================================================================
 // [SECTION 1: MANIFEST CONFIGURATION & WINDOW RESOLVER]
@@ -49,56 +62,245 @@ export const HISTORY_DEFAULTS = Object.freeze({
  * Resolves a prompt manifest mode's `history` configuration over canonical defaults.
  *
  * @param {Partial<typeof HISTORY_DEFAULTS>|null|undefined} [configuration]
- * @returns {{ enabled: boolean, limit: number, max_chars: number, offset: number }}
+ * @returns {Readonly<{ enabled: boolean, limit: number, max_chars: number, offset: number }>}
  */
 export function resolve_history(configuration) {
-  return {
+  return Object.freeze({
     ...HISTORY_DEFAULTS,
     ...(configuration && typeof configuration === "object" ? configuration : {}),
-  };
-}
-
-// ============================================================================
-// [SECTION 2: TURN & DIALOGUE TRANSCRIPT FORMATTER]
-// ============================================================================
-
-/**
- * Collapses and formats turn-based simulation history or dialogue messages into clean XML <ENTRY> sequences.
- * Strips internal unvoiced <think> blocks and attaches verified round indices and origins.
- *
- * @param {any[]} history - Array of raw dialogue entries or message objects.
- * @param {Object} [options={}]
- * @param {number} [options.limit=16] - Number of recent collapsed turns or messages to display.
- * @param {number} [options.offset=0] - Offset from the end of the history window.
- * @param {number} [options.max_chars] - Optional maximum characters to truncate entry content at word boundaries.
- * @param {boolean} [options.collapse=true] - Whether to collapse consecutive turns via collapse_history.
- * @param {number} [options.indent=0] - Indentation spaces preceding each <ENTRY> tag.
- * @returns {string}
- */
-export function render_history(history, options = {}) {
-  const limit = options.limit ?? HISTORY_DEFAULTS.limit;
-  const offset = options.offset ?? 0;
-  const max_chars = options.max_chars;
-  const should_collapse = options.collapse ?? true;
-  const indent = options.indent ?? 0;
-
-  return format_history_entries(history, {
-    limit,
-    offset,
-    max_chars,
-    collapse: should_collapse,
-    separator: "\n",
-    stripBoldQuotes: true,
-    indent,
   });
 }
 
 // ============================================================================
-// [SECTION 3: RECENT DIALOGUE FEED XML ENVELOPE]
+// [SECTION 2: HISTORY PLANS — PURE DATA, NO XML]
 // ============================================================================
 
 /**
+ * Telemetry lines stripped from sensory shaping. The canonical dynamics metric
+ * names live in physics.js (`build_turn_summary`); these patterns mirror them
+ * so the optics `<HISTORY>` never carries `system:` telemetry or `metric ±N |` rows.
+ */
+const TELEMETRY_PREFIX_PATTERN = /^(system|telemetry):\s*(?:chaos|intensity|openness|affinity|velocity|entropy)\s*[+-]\d+/i;
+const TELEMETRY_INLINE_PATTERN = /(?:chaos|intensity|openness|affinity|velocity|entropy)\s*[+-]\d+\s*\|/i;
+
+/**
+ * Resolves raw dialogue/feed entries into a frozen, render-ready plan. Every
+ * filter, collapse, window, strip, and budget decision happens here — renderers
+ * map `plan.included` to output without branching.
+ *
+ * Stage order (each stage's drops are counted in `plan.dropped`):
+ * 1. Exclude `exclude_roles` entries and (for `text` sources) non-string or
+ *    blank raw texts — pre-window, so excluded rows never consume the window.
+ * 2. Collapse consecutive same-speaker turns (transcript windows only).
+ * 3. Slice the `limit`/`offset` window; round numbers are assigned here, so
+ *    rows dropped in stage 4 keep their round gaps (established contract).
+ * 4. Strip cognition blocks, normalize whitespace, drop telemetry-shaped
+ *    rows when requested, drop newly-emptied rows, truncate to `max_chars`.
+ *
+ * @param {any[]|string|null|undefined} entries - Raw dialogue entries, feed rows,
+ *   or a pre-rendered string (passed through untouched as a preformatted plan).
+ * @param {Object} [options={}]
+ * @param {number} [options.limit] - Window size taken from the end (falsy = all).
+ * @param {number} [options.offset=0] - Rows skipped from the end of the window.
+ * @param {number} [options.max_chars] - Per-entry budget (word-boundary truncated).
+ * @param {boolean} [options.collapse=true] - Merge consecutive same-speaker turns.
+ * @param {string} [options.separator="\n"] - Paragraph separator for merged turns.
+ * @param {boolean} [options.stripBoldQuotes=false] - Unwrap bold-markdown quotes while collapsing.
+ * @param {string[]} [options.exclude_roles=[]] - Exact-match roles dropped pre-window.
+ * @param {string} [options.text_source="content"] - `"content"` reads
+ *   `content ?? text`; `"text"` reads `text` only (visual feed rows).
+ * @param {boolean} [options.normalize_whitespace=false] - Collapse whitespace post-strip.
+ * @param {string} [options.label_policy="entry"] - `"entry"` resolves the full
+ *   origin chain; `"visual"` resolves the `Name:` line label.
+ * @param {string} [options.label_fallback] - Origin fallback (entry: `"Character"`, visual: `"narrator"`).
+ * @returns {Readonly<{ kind: string, included: ReadonlyArray<Readonly<{ origin: string, round: number, text: string }>>,
+ *   dropped: Readonly<{ excluded: number, empty: number }>, total: number, start_index: number, preformatted: string }>}
+ */
+export function resolve_history_plan(entries, options = {}) {
+  const {
+    limit,
+    offset = 0,
+    max_chars,
+    collapse = true,
+    separator = "\n",
+    stripBoldQuotes = false,
+    exclude_roles = [],
+    text_source = "content",
+    normalize_whitespace = false,
+    label_policy = "entry",
+    label_fallback,
+  } = options;
+
+  if (typeof entries === "string") {
+    return Object.freeze({
+      kind: "preformatted",
+      included: Object.freeze([]),
+      dropped: Object.freeze({ excluded: 0, empty: 0 }),
+      total: 0,
+      start_index: 0,
+      preformatted: entries,
+    });
+  }
+
+  const excluded_roles = new Set(Array.isArray(exclude_roles) ? exclude_roles : []);
+  let excluded_count = 0;
+  const eligible = (Array.isArray(entries) ? entries : []).filter((entry) => {
+    if (!entry || (entry.role && excluded_roles.has(entry.role))) {
+      excluded_count += 1;
+      return false;
+    }
+    if (text_source === "text" && (typeof entry.text !== "string" || !entry.text.trim())) {
+      excluded_count += 1;
+      return false;
+    }
+    return true;
+  });
+
+  const collapsed = collapse ? collapse_history(eligible, { separator, stripBoldQuotes }) : eligible;
+
+  const total = collapsed.length;
+  const start_index = limit ? Math.max(0, total - (limit + offset)) : 0;
+  const end_index = Math.max(0, total - offset);
+  const windowed = collapsed.slice(start_index, end_index);
+
+  const fallback = label_fallback ?? (label_policy === "visual" ? "narrator" : "Character");
+  let empty_count = 0;
+  const included = [];
+  windowed.forEach((entry, window_position) => {
+    const raw_text = text_source === "text" ? entry?.text : (entry?.content ?? entry?.text);
+    let cleaned = strip_cognition_blocks(String(raw_text ?? "")).trim();
+    if (normalize_whitespace) cleaned = collapse_whitespace(cleaned);
+    if (!cleaned) {
+      empty_count += 1;
+      return;
+    }
+    const origin =
+      label_policy === "visual"
+        ? entry?.character_name || entry?.role || fallback
+        : entry?.origin || entry?.character_name || entry?.name || (entry?.role ? role_display_label(entry.role) : "") || fallback;
+    included.push(
+      Object.freeze({
+        origin: String(origin),
+        round: start_index + window_position + 1,
+        text: max_chars ? truncate_at_word(cleaned, max_chars) : cleaned,
+      }),
+    );
+  });
+
+  return Object.freeze({
+    kind: "entries",
+    included: Object.freeze(included),
+    dropped: Object.freeze({ excluded: excluded_count, empty: empty_count }),
+    total,
+    start_index,
+    preformatted: "",
+  });
+}
+
+/**
+ * Resolves a pre-rendered narrative string (typically visual `Name: prose`
+ * lines) into a frozen sensory line plan: cognition-stripped, telemetry-free
+ * lines ready for the optics `<HISTORY>` wrap.
+ *
+ * @param {string|null|undefined} [history_text]
+ * @returns {Readonly<{ lines: ReadonlyArray<string>, dropped: Readonly<{ empty: number, telemetry: number }> }>}
+ */
+export function resolve_sensory_plan(history_text) {
+  if (!history_text || typeof history_text !== "string") {
+    return Object.freeze({ lines: Object.freeze([]), dropped: Object.freeze({ empty: 0, telemetry: 0 }) });
+  }
+  let empty_count = 0;
+  let telemetry_count = 0;
+  const lines = strip_cognition_blocks(history_text)
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => {
+      if (!line) {
+        empty_count += 1;
+        return false;
+      }
+      if (TELEMETRY_PREFIX_PATTERN.test(line) || TELEMETRY_INLINE_PATTERN.test(line)) {
+        telemetry_count += 1;
+        return false;
+      }
+      return true;
+    });
+  return Object.freeze({
+    lines: Object.freeze(lines),
+    dropped: Object.freeze({ empty: empty_count, telemetry: telemetry_count }),
+  });
+}
+
+// ============================================================================
+// [SECTION 3: THIN PLAN RENDERERS — NO DECISIONS, ONLY XML]
+// ============================================================================
+
+/**
+ * Maps an entry plan to a clean XML `<ENTRY>` sequence. Preformatted plans
+ * pass through verbatim; every other decision is already plan data.
+ *
+ * @param {ReturnType<typeof resolve_history_plan>} plan
+ * @param {Object} [options={}]
+ * @param {number} [options.indent=0] - Indentation spaces preceding each `<ENTRY>` tag.
+ * @returns {string}
+ */
+export function render_history_plan(plan, { indent = 0 } = {}) {
+  if (!plan) return "";
+  if (plan.kind === "preformatted") return plan.preformatted;
+  const prefix = indent > 0 ? " ".repeat(indent) : "";
+  return plan.included
+    .map((record) => `${prefix}<ENTRY round="${record.round}" origin="${escape_xml(record.origin)}">${prompt_escape(record.text)}</ENTRY>`)
+    .join("\n");
+}
+
+/**
+ * Maps a sensory line plan to the optics `<HISTORY>` block.
+ *
+ * @param {ReturnType<typeof resolve_sensory_plan>} plan
+ * @returns {string}
+ */
+export function render_sensory_plan(plan) {
+  if (!plan || plan.lines.length === 0) return "";
+  return `<HISTORY>\n${prompt_escape(plan.lines.join("\n"))}\n</HISTORY>\n`;
+}
+
+// ============================================================================
+// [SECTION 4: PUBLIC WINDOW COMPILERS — ONE-LINE PLAN + RENDER]
+// ============================================================================
+
+/**
+ * Collapses and formats turn-based simulation history or dialogue messages
+ * into clean XML `<ENTRY>` sequences.
+ *
+ * @param {any[]} history - Array of raw dialogue entries or message objects.
+ * @param {Object} [options={}]
+ * @param {number} [options.limit=16] - Number of recent collapsed turns to display.
+ * @param {number} [options.offset=0] - Offset from the end of the history window.
+ * @param {number} [options.max_chars] - Optional per-entry budget at word boundaries.
+ * @param {boolean} [options.collapse=true] - Whether to collapse consecutive turns.
+ * @param {number} [options.indent=0] - Indentation spaces preceding each `<ENTRY>` tag.
+ * @returns {string}
+ */
+export function render_history(history, options = {}) {
+  const should_collapse = options.collapse ?? true;
+  return render_history_plan(
+    resolve_history_plan(history, {
+      limit: options.limit ?? HISTORY_DEFAULTS.limit,
+      offset: options.offset ?? 0,
+      max_chars: options.max_chars,
+      collapse: should_collapse,
+      separator: "\n",
+      stripBoldQuotes: true,
+      exclude_roles: should_collapse ? ["system"] : [],
+    }),
+    { indent: options.indent ?? 0 },
+  );
+}
+
+/**
  * Renders the enveloped recent dialogue history XML block (the single `<HISTORY>` tag).
+ * Uncollapsed by contract; system entries pass through here exactly as before —
+ * the exclusion policy is plan data (`exclude_roles`), deliberately unchanged.
  *
  * @param {Array<any>} [history=[]]
  * @param {Object} [options={}]
@@ -110,60 +312,38 @@ export function render_history(history, options = {}) {
  * @returns {string}
  */
 export function render_input_history_xml(history = [], options = {}) {
-  const resolved_limit = options.limit ?? HISTORY_DEFAULTS.limit;
-  const resolved_characters = options.max_chars ?? options.maximum_characters ?? HISTORY_DEFAULTS.max_chars;
-  const tag = options.tag || options.input_tag || "HISTORY";
-  const indent = options.indent ?? 2;
-  const child_indent = options.child_indent ?? 2;
-
-  const formatted_history = render_history(history, {
-    limit: resolved_limit,
-    max_chars: resolved_characters,
-    collapse: false,
-    indent: 0,
-  });
-
+  const formatted_history = render_history_plan(
+    resolve_history_plan(history, {
+      limit: options.limit ?? HISTORY_DEFAULTS.limit,
+      max_chars: options.max_chars ?? HISTORY_DEFAULTS.max_chars,
+      collapse: false,
+    }),
+  );
   if (!formatted_history) return "";
-
   return render_xml_tag({
-    tag,
+    tag: options.tag || "HISTORY",
     children: [formatted_history],
-    indent,
-    child_indent,
+    indent: options.indent ?? 2,
+    child_indent: options.child_indent ?? 2,
     separator: "\n",
   });
 }
 
-// ============================================================================
-// [SECTION 4: SENSORY & VISUAL HISTORY SHAPING]
-// ============================================================================
-// Recent-narrative windows shaped for image prompting live here with the rest
-// of history shaping (reverted from media/optics.js per review).
-
 /**
- * Formats recent narrative history for the sensory cortex, stripping dangling think tags and telemetry lines.
+ * Formats recent narrative history for the sensory cortex, stripping dangling
+ * think tags and telemetry lines.
+ *
  * @param {string} [history_text]
  * @returns {string}
  */
 export function format_sensory_history(history_text) {
-  if (!history_text || typeof history_text !== "string") return "";
-  const cleaned = strip_cognition_blocks(history_text)
-    .split("\n")
-    .map((line) => line.trim())
-    .filter((line) => {
-      if (!line) return false;
-      if (/^(system|telemetry):\s*(?:chaos|intensity|openness|affinity|velocity|entropy)\s*[+-]\d+/i.test(line)) return false;
-      if (/(?:chaos|intensity|openness|affinity|velocity|entropy)\s*[+-]\d+\s*\|/i.test(line)) return false;
-      return true;
-    })
-    .join("\n")
-    .trim();
-  return cleaned ? `<HISTORY>\n${prompt_escape(cleaned)}\n</HISTORY>\n` : "";
+  return render_sensory_plan(resolve_sensory_plan(history_text));
 }
 
 /**
- * Builds the compact recent-narrative history fed to the optics (Sensory Cortex) prompt —
- * one `Character: prose` line per recent non-system beat, truncated at word boundaries.
+ * Builds the compact recent-narrative history fed to the optics (Sensory Cortex)
+ * prompt — one `Character: prose` line per recent non-system beat, truncated at
+ * word boundaries.
  *
  * @param {any[]} [entries] - Simulation feed entries (typically `simulation_log.feed`).
  * @param {Object} [options={}]
@@ -172,21 +352,22 @@ export function format_sensory_history(history_text) {
  * @returns {string}
  */
 export function render_visual_history(entries, { max_entries = 2, max_chars = 200 } = {}) {
-  if (!Array.isArray(entries) || entries.length === 0) return "";
-  return entries
-    .filter((entry) => entry && entry.role !== "system" && typeof entry.text === "string" && entry.text.trim())
-    .slice(-max_entries)
-    .map((entry) => {
-      const prose = collapse_whitespace(strip_cognition_blocks(entry.text));
-      if (!prose) return "";
-      return `${entry.character_name || entry.role || "narrator"}: ${truncate_at_word(prose, max_chars)}`;
-    })
-    .filter(Boolean)
-    .join("\n");
+  const plan = resolve_history_plan(entries, {
+    limit: max_entries,
+    max_chars,
+    collapse: false,
+    exclude_roles: ["system"],
+    text_source: "text",
+    normalize_whitespace: true,
+    label_policy: "visual",
+  });
+  if (plan.kind !== "entries" || plan.included.length === 0) return "";
+  return plan.included.map((record) => `${record.origin}: ${record.text}`).join("\n");
 }
 
 /**
  * CHANGELOG
+ * - 2026-10-04: Plan/render split (Plan 2) — `resolve_history_plan` owns all filter/collapse/window/strip/budget decisions as frozen pure data, `render_history_plan` maps plans to `<ENTRY>` XML without branching; sensory shaping splits into `resolve_sensory_plan` + `render_sensory_plan`; the four public compilers become one-line compositions with byte-identical output; retired the `maximum_characters` / `input_tag` aliases (P4) and the dual `limit` vs `max_entries` wording now shares one vocabulary.
  * - 2026-10-04: Reverted sensory/visual history shaping (format_sensory_history, render_visual_history) from media/optics.js — history shaping lives here; chapter milestones stay in sheets.js.
  * - 2026-10-04: Optics history shaping (format_sensory_history, render_visual_history) moves to media/optics.js; chapter milestones move to sheets.js. This module owns transcript windows only.
  * - 2026-09-25: Unified History Pipeline — `render_history` now delegates directly to `format_history_entries` from `@utils/text.js`, unifying turn transcript serialization across platform and intelligence layers.
