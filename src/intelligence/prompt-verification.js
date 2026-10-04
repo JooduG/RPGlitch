@@ -41,6 +41,7 @@ export function create_contract_fixtures() {
       id: "BOB",
       name: "Bob",
       type: "character",
+      pov: "1st_person",
       eternal: { physical: "[BUILD: broad shoulders]", non_physical: "Veteran decker." },
       present: { physical: "[COAT: dark trench coat]", non_physical: "Patient. [@ALICE: protective ally]" },
       future: "Provide tactical cover.",
@@ -63,6 +64,7 @@ export function create_contract_fixtures() {
     id: "MERCHANT",
     name: "Merchant",
     type: "npc",
+    pov: "1st_person",
     eternal: { physical: "[BUILD: stooped]", non_physical: "Scavenger." },
     present: { physical: "[CLOTHING: rags]", non_physical: "Suspicious. [@ALICE: wary curiosity]" },
     future: "Survive.",
@@ -771,20 +773,22 @@ export const MODE_DIRECTIVE_LEADS = Object.freeze({
 export const CONTRACT_SIZES = {
   director: { system: 1989, task: 4065 },
   director_terse: { system: 105, task: 909 },
-  interaction: { system: 5758, task: 2158 },
-  ghostwrite: { system: 5759, task: 2129 },
-  npc: { system: 6090, task: 2922 },
-  narrator: { system: 5330, task: 1922 },
-  narrator_prologue: { system: 5330, task: 2170 },
-  narrator_epilogue: { system: 5330, task: 1839 },
-  continuum: { system: 1690, task: 2186 },
-  enhancement: { system: 709, task: 1051 },
-  sorting: { system: 898, task: 2523 },
+  interaction: { system: 5745, task: 2158 },
+  ghostwrite: { system: 5746, task: 2129 },
+  npc: { system: 6077, task: 2922 },
+  narrator: { system: 5317, task: 1922 },
+  narrator_prologue: { system: 5317, task: 2170 },
+  narrator_epilogue: { system: 5317, task: 1839 },
+  continuum: { system: 1584, task: 2186 },
+  enhancement: { system: 657, task: 1051 },
+  sorting: { system: 781, task: 2523 },
   optics: { system: 1761, task: 3785 },
 };
 
 /**
  * CHANGELOG
+ * - 2026-10-04: Pure-grammar re-baseline — tense atoms stripped of truth-state (now in field directives): interaction 5841→5745, ghostwrite 5842→5746, npc 6173→6077, narrator 5413→5317 (×3), continuum 1813→1584, enhancement 753→657, sorting 1010→781; all tasks unchanged.
+ * - 2026-10-04: Unified-tense re-baseline — `LAYER_TENSE` folded into reworded `TENSE` atoms, mandates merged: interaction 5758→5841, ghostwrite 5759→5842, npc 6090→6173, narrator 5330→5413 (×3), continuum 1690→1813, enhancement 709→753, sorting 898→1010; all tasks unchanged.
  * - 2026-10-04: PERSPECTIVE merge — `<LAYER_TENSE>` block deleted; tense selection folds into the single `<PERSPECTIVE>` element (`tense` attr: one atom → its tense, several → "LAYER", none → "PRESENT"; multi-tense atoms compose one "Match tense to the layer being written" command) with a structural mandate body (person-aware variant when a POV is present, tense-only variant otherwise). Enhancement `<LAYER>` tag dropped (tense now lives in the attr). Contract inventories updated (continuum/enhancement/sorting) and system sizes re-measured via the esbuild live bundle: interaction 5617→5758, ghostwrite 5618→5759, npc 5949→6090, narrator 5189→5330 (×3), continuum 1518→1690, enhancement 597→709, sorting 812→898; all tasks unchanged. Director/optics/director_terse left on old baselines (pre-existing drift, inside tripwire).
  * - 2026-10-04: Re-baselined `CONTRACT_SIZES.enhancement.system` (583→597) after flipping the enhancer priority in `render_enhancement` to catalog-first (`catalog_meta?.enhancer || enhancer`): the fixture's explicit `VOICE` no longer stomps the catalog value, so the fixture role line now reads `COGNITIVE_ARCHITECT` (+14 bytes, single occurrence). Production callers pass no `enhancer`, so production output is byte-identical.
  * - 2026-10-04: Re-baselined sorting (system 287→812, task 2962→2523), continuum (system 1244→1518, task 2487→2186), and enhancement (system 452→583, task 1352→1051) for the PERSPECTIVE unification (person/tense as SYSTEM protocols) plus the three-tense simplification. Director/optics still on old baselines (within tripwire; drift predates these changes).

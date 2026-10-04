@@ -46,21 +46,21 @@ describe("protocols.js - Core Protocol Library & Compiler", () => {
   });
 
   it("resolves the correct layer-tense protocol per temporal field", () => {
-    expect(resolve_layer_tense_protocol("eternal.non_physical", "")).toBe("CORE_PROTOCOLS.PERSPECTIVE.LAYER_TENSE.PRESENT");
-    expect(resolve_layer_tense_protocol("present.physical", "")).toBe("CORE_PROTOCOLS.PERSPECTIVE.LAYER_TENSE.PRESENT");
-    expect(resolve_layer_tense_protocol("past", "")).toBe("CORE_PROTOCOLS.PERSPECTIVE.LAYER_TENSE.PAST");
-    expect(resolve_layer_tense_protocol("", "FUTURE")).toBe("CORE_PROTOCOLS.PERSPECTIVE.LAYER_TENSE.FUTURE");
+    expect(resolve_layer_tense_protocol("eternal.non_physical", "")).toBe("CORE_PROTOCOLS.PERSPECTIVE.TENSE.PRESENT");
+    expect(resolve_layer_tense_protocol("present.physical", "")).toBe("CORE_PROTOCOLS.PERSPECTIVE.TENSE.PRESENT");
+    expect(resolve_layer_tense_protocol("past", "")).toBe("CORE_PROTOCOLS.PERSPECTIVE.TENSE.PAST");
+    expect(resolve_layer_tense_protocol("", "FUTURE")).toBe("CORE_PROTOCOLS.PERSPECTIVE.TENSE.FUTURE");
     expect(resolve_layer_tense_protocol("name", "")).toBe(null);
   });
 
-  it("folds layer-tense atoms into PERSPECTIVE instead of a LAYER_TENSE block", () => {
+  it("folds tense atoms into PERSPECTIVE instead of a LAYER_TENSE block", () => {
     const output = render_core_protocols({
-      protocols: ["CORE_PROTOCOLS.DATA", "CORE_PROTOCOLS.PERSPECTIVE.LAYER_TENSE.PAST", "CORE_PROTOCOLS.PERSPECTIVE.LAYER_TENSE.FUTURE"],
+      protocols: ["CORE_PROTOCOLS.DATA", "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PAST", "CORE_PROTOCOLS.PERSPECTIVE.TENSE.FUTURE"],
     });
     expect(output).not.toContain("<LAYER_TENSE>");
     expect(output).toContain('<PERSPECTIVE tense="LAYER">');
     expect(output).toContain("Match tense to the layer being written:");
-    expect(output).toContain("settled history in past tense");
+    expect(output).toContain("write strictly in the past tense");
     expect(output).toContain("active future tense");
     expect(output).not.toContain("<PAST>");
     expect(output).not.toContain("<FUTURE>");
@@ -68,11 +68,11 @@ describe("protocols.js - Core Protocol Library & Compiler", () => {
 
   it("pins a single tense atom to the PERSPECTIVE tense attribute", () => {
     const output = render_core_protocols({
-      protocols: ["CORE_PROTOCOLS.DATA", "CORE_PROTOCOLS.PERSPECTIVE.LAYER_TENSE.PAST"],
+      protocols: ["CORE_PROTOCOLS.DATA", "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PAST"],
       pov_protocol: "CORE_PROTOCOLS.PERSPECTIVE.POV.THIRD",
     });
     expect(output).toContain('<PERSPECTIVE person="THIRD" tense="PAST">');
-    expect(output).toContain("State settled history in past tense.");
+    expect(output).toContain("Write strictly in the past tense.");
   });
 
   it("renders alternation protocol if text contains alternations", () => {
@@ -181,6 +181,7 @@ describe("protocols.js - Visual Style & Optics Protocols", () => {
 
 /**
  * CHANGELOG
+ * - 2026-10-04: Unified-tense round — resolver/merge tests track `PERSPECTIVE.TENSE.*` keys and the reworded atoms.
  * - 2026-10-04: Rewrote the layer-tense test for the PERSPECTIVE merge (`<LAYER_TENSE>` gone; tense asserts against the `tense` attribute plus the composed command).
  * - 2026-09-23: Prompt-grammar harmonization — dropped the `render_dynamics_xml` `<DYNAMICS>` coverage (that compiler was deleted); the suite keeps the scoped `render_dynamics_axes_xml` `<DYNAMIC_AXES>` case the Director now shares.
  * - 2026-09-23: Added coverage for the consolidated `render_dynamics_xml` `<DYNAMICS>` block — each axis carries `value` plus both poles, and a value-less axis keeps its legend.

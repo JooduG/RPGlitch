@@ -338,9 +338,9 @@ export const PROMPTS = Object.freeze({
     constitution: false,
     protocols: [
       "CORE_PROTOCOLS.DATA",
-      "CORE_PROTOCOLS.PERSPECTIVE.LAYER_TENSE.PRESENT",
-      "CORE_PROTOCOLS.PERSPECTIVE.LAYER_TENSE.PAST",
-      "CORE_PROTOCOLS.PERSPECTIVE.LAYER_TENSE.FUTURE",
+      "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PRESENT",
+      "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PAST",
+      "CORE_PROTOCOLS.PERSPECTIVE.TENSE.FUTURE",
     ],
     entities: {
       target_context: true,
@@ -379,9 +379,9 @@ export const PROMPTS = Object.freeze({
     constitution: false,
     protocols: [
       "CORE_PROTOCOLS.DATA",
-      "CORE_PROTOCOLS.PERSPECTIVE.LAYER_TENSE.PRESENT",
-      "CORE_PROTOCOLS.PERSPECTIVE.LAYER_TENSE.PAST",
-      "CORE_PROTOCOLS.PERSPECTIVE.LAYER_TENSE.FUTURE",
+      "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PRESENT",
+      "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PAST",
+      "CORE_PROTOCOLS.PERSPECTIVE.TENSE.FUTURE",
     ],
     layers: SORTING_LAYERS,
     format: {
@@ -451,6 +451,7 @@ export default PROMPTS;
 
 /**
  * CHANGELOG
+ * - 2026-10-04: sorting/continuum manifests declare `PERSPECTIVE.TENSE.*` (`LAYER_TENSE` folded into `TENSE`).
  * - 2026-10-04: sorting/continuum records declare three layer-tense keys (ETERNAL merged into PRESENT).
  * - 2026-10-04: sorting/continuum DIRECTIVES no longer carry person/tense (now SYSTEM protocols); both records declare the four LAYER_TENSE keys and sorting resolves POV.THIRD via pov_protocol; leads reverted accordingly.
  * - 2026-10-04: sorting_directives and continuum_directives now append TEMPORAL.TENSE (order pinned in MODE_DIRECTIVE_LEADS); field tense stated once per prompt instead of per schema value.
