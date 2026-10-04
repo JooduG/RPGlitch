@@ -7,16 +7,16 @@ import { describe, expect, it, vi } from "vitest";
 import { apply_profile_to_entity } from "./profile.js";
 import { render_enhancement, render_profile_sorting } from "./builder.js";
 import { TASK_LIBRARY } from "./modules/task.js";
-import { get_output_format } from "./modules/output.js";
+import { get_output_format, OUTPUT_FORMATS } from "./modules/output.js";
 import { PROMPTS } from "./prompts.js";
-import { MACRO_DIRECTIVES } from "./modules/protocols.js";
+import { PROTOCOL_LIBRARY } from "./modules/protocols.js";
 
 // ── 1. Protocols & Schema Specifications ──────────────────────────────────────
 
 describe("Profile Domain (profile.js)", () => {
   describe("profile protocol primitives", () => {
     it("are frozen and expose a valid schema and formats", () => {
-      expect(Object.isFrozen(MACRO_DIRECTIVES)).toBe(true);
+      expect(Object.isFrozen(PROTOCOL_LIBRARY.MACROS)).toBe(true);
       expect(Object.isFrozen(TASK_LIBRARY.SORTING)).toBe(true);
       expect(Object.isFrozen(PROMPTS.sorting.format)).toBe(true);
 
@@ -27,7 +27,7 @@ describe("Profile Domain (profile.js)", () => {
       expect(profile_schema).toContain('"past"');
       expect(profile_schema).toContain('"future"');
 
-      expect(TASK_LIBRARY.FORMATS.PROSE).toBeDefined();
+      expect(OUTPUT_FORMATS.PROSE).toBeDefined();
       expect(get_output_format(PROMPTS.director.format)).toBeDefined();
       expect(profile_schema).toBeDefined();
       expect(get_output_format(PROMPTS.continuum.format)).toBeDefined();

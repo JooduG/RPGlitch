@@ -19,21 +19,6 @@ import { has_alternations, prompt_escape, render_xml_tag } from "@utils";
 import { SIMULATION_FIDELITY } from "./constitution.js";
 import { render_narrative_style_xml, render_visual_style_xml } from "./style.js";
 
-/**
- * Sensory-optics invariants for the prompt pipeline's `<CORE_PROTOCOLS>` block.
- * Owned here in the behavior catalog (reverted from media/optics.js per review).
- */
-export const OPTICS_INVARIANTS = Object.freeze({
-  WEIGHTING_RESTRICTIONS:
-    "Enforce FLUX_T5_WEIGHTING — NEVER emit bracket weight math ('(x:1.3)', '((x))', '[x:0.4]'): FLUX/T5 reads words, not weights. Emphasize via descriptors, varied rephrasing, and attenuation phrasing ('faint', 'subtle touch of', 'barely visible in the distance').",
-  AFFIRMATIVE_FRAMING:
-    "Describe positive presence in frame ('softly moonlit glade' not 'no harsh sunlight'); confine negative_prompt to global quality artifacts.",
-  TYPOGRAPHY:
-    'Render on-screen text ONLY when the scene itself calls for it — signs, graffiti, titles, or UI that are part of the subject matter. Never add text artificially. When text IS present, spell it out exactly and specify placement, font, and color (e.g. "OPEN" in glowing red neon, centered above the doors) — never invent, garble, or approximate lettering, and never output generic placeholders like "text" or "sign".',
-  ENVIRONMENTAL_GROUNDING:
-    "Ground scenes with tangible environmental light fixtures (e.g., flickering cathode tubes, wet pavement reflections, harsh key lamps) and tactile physical surfaces.",
-});
-
 // ============================================================================
 // [SECTION 1: CONSOLIDATED PROTOCOL LIBRARY]
 // ============================================================================
@@ -66,7 +51,16 @@ export const PROTOCOL_LIBRARY = Object.freeze({
   }),
 
   // ── 1.2 Sensory Optics Invariants (<CORE_PROTOCOLS> bodies) ────────────────
-  OPTICS: OPTICS_INVARIANTS,
+  OPTICS: Object.freeze({
+    WEIGHTING_RESTRICTIONS:
+      "Enforce FLUX_T5_WEIGHTING — NEVER emit bracket weight math ('(x:1.3)', '((x))', '[x:0.4]'): FLUX/T5 reads words, not weights. Emphasize via descriptors, varied rephrasing, and attenuation phrasing ('faint', 'subtle touch of', 'barely visible in the distance').",
+    AFFIRMATIVE_FRAMING:
+      "Describe positive presence in frame ('softly moonlit glade' not 'no harsh sunlight'); confine negative_prompt to global quality artifacts.",
+    TYPOGRAPHY:
+      'Render on-screen text ONLY when the scene itself calls for it — signs, graffiti, titles, or UI that are part of the subject matter. Never add text artificially. When text IS present, spell it out exactly and specify placement, font, and color (e.g. "OPEN" in glowing red neon, centered above the doors) — never invent, garble, or approximate lettering, and never output generic placeholders like "text" or "sign".',
+    ENVIRONMENTAL_GROUNDING:
+      "Ground scenes with tangible environmental light fixtures (e.g., flickering cathode tubes, wet pavement reflections, harsh key lamps) and tactile physical surfaces.",
+  }),
 
   // ── 1.3 Entity Macro Directives ─────────────────────────────────────────────
   MACROS: Object.freeze({
@@ -79,16 +73,14 @@ export const PROTOCOL_LIBRARY = Object.freeze({
   }),
 });
 
-export const MACRO_DIRECTIVES = PROTOCOL_LIBRARY.MACROS;
-
 /**
  * Resolves the macro placeholder directive according to the entity type or mode.
  * @param {string} [entity_type="character"]
  * @returns {string}
  */
 export function resolve_macro_directive(entity_type = "character") {
-  if (entity_type === "sorting") return MACRO_DIRECTIVES.SORTING;
-  return entity_type === "fractal" ? MACRO_DIRECTIVES.FRACTAL : MACRO_DIRECTIVES.CHARACTER;
+  if (entity_type === "sorting") return PROTOCOL_LIBRARY.MACROS.SORTING;
+  return entity_type === "fractal" ? PROTOCOL_LIBRARY.MACROS.FRACTAL : PROTOCOL_LIBRARY.MACROS.CHARACTER;
 }
 
 // ============================================================================
@@ -288,6 +280,8 @@ export function render_core_protocols({
 
 /**
  * CHANGELOG
+ * - 2026-10-04: Removed MACRO_DIRECTIVES alias (P4) — consumers read PROTOCOL_LIBRARY.MACROS.
+ * - 2026-10-04: Optics invariants merged inline into PROTOCOL_LIBRARY.OPTICS (standalone const deleted) — one registry, no indirection.
  * - 2026-10-04: Reverted OPTICS_INVARIANTS here (was media/optics.js) — optics protocol texts live in the behavior catalog; style renderers stay in style.js.
  * - 2026-10-04: Sourced SIMULATION_FIDELITY from constitution.js and style renderers from style.js; protocols.js keeps the behavior catalog + core compiler only.
  * - 2026-10-04: Dropped the `PERSPECTIVE.MANDATE` line (pure throat-clearing — the tense/POV atoms already command; ~30 tokens saved per prompt).

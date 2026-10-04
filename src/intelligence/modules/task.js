@@ -10,7 +10,7 @@
  *
  * ── Multi-Shot Simulation Lifecycle Mapping ─────────────────────────────────
  * • Section 1: Unified Task Directives & Protocols Catalog (TASK_LIBRARY)
- *              (Protocols, Director, Continuum, Prose, Sorting, Optics directives, Output Formats)
+ *              (Protocols, Director, Continuum, Prose, Sorting, Optics directives)
  * • Section 2: Dynamic Directive Compiler (get_directive_atom / compile_directive_tags)
  *              (Dotted-key resolution + {placeholder} interpolation → ordered paragraphs)
  * • Section 3: Task Signals & Currents
@@ -49,12 +49,8 @@ import { REFLEX_LIBRARY, render_environmental_hint, render_prose_reflex } from "
 // ============================================================================
 
 export const TASK_LIBRARY = Object.freeze({
-  // ── 1.1 Turn Foundations, Pacing & Cognition Protocols ─────────────────────
+  // ── 1.1 Turn Foundations & Cognition Protocols ─────────────────────────────
   PROTOCOLS: Object.freeze({
-    PACING: REFLEX_LIBRARY.PACING,
-
-    RECENCY: REFLEX_LIBRARY.RECENCY,
-
     THINK_GROUNDING_DEFAULT: "Hold your established temperament.",
 
     THINK_CHARACTER: `Open your output with one internal <THINK> block (under 200 words). Reason across 4 sequential beats:
@@ -69,8 +65,6 @@ Close </THINK> before the narrative. This think block is internal reasoning and 
 
     THINK_ENHANCEMENT:
       "Open your output with one internal <THINK> block. Analyze entity identity, coherence with existing traits, and plan the bracket directives or refined phrasing. Close </THINK> before emitting the final content.",
-
-    VOICE: REFLEX_LIBRARY.VOICE,
   }),
 
   // ── 1.2 Keyword Directives (Director & Sensory Optics) ─────────────────────
@@ -87,8 +81,6 @@ Close </THINK> before the narrative. This think block is internal reasoning and 
 1. Calibrate dynamics_deltas conservatively (±1 to ±4 standard; ±8 to ±12 extreme).
 2. Adjust deltas carefully near boundaries (5 or 95) to prevent clipping at 0 or 100.
 3. Calibrate dynamics_deltas to reflect the psychological and environmental shift of the turn.`,
-
-    ENVIRONMENTAL_HINT: REFLEX_LIBRARY.ENVIRONMENTAL_HINT,
 
     EVALUATION_INPUT:
       'Evaluate state mutations caused by «INPUT». Evaluate biological limits and physical causality strictly: if «INPUT» or physical events describe definitively fatal, terminal bodily destruction (e.g. biological death, irreversible drowning/asphyxiation, decapitation, or lethal cranial destruction with zero chance of medical survival), you MUST emit next_action: "EPILOGUE_COLLAPSED" and story_status: "COLLAPSED". Severe but survivable trauma (maiming, crushed limbs, severe blood loss, unconsciousness) should remain in-progress with somatic penalties in present.physical. Never hallucinate physical survival, bypass consequence, or continue casual dialogue across fatal events.',
@@ -239,8 +231,6 @@ Analyze recent turns in «HISTORY». Synthesize memories, update physical appear
       }),
     }),
   }),
-  // ---- 1.8 Output Emission Formats (prose / bracket / text / json) ----
-  FORMATS: OUTPUT_FORMATS,
 });
 
 // ============================================================================
@@ -253,7 +243,7 @@ Analyze recent turns in «HISTORY». Synthesize memories, update physical appear
 // distinct key chosen by the selection function, so atoms never branch.
 
 /**
- * Resolves one dotted directive key against `TASK_LIBRARY` and interpolates its
+ * Resolves one dotted directive key against `TASK_LIBRARY` (`REFLEX.*` resolves against `REFLEX_LIBRARY`) and interpolates its
  * `{placeholder}` tokens from the shared values bag. Missing keys resolve to "".
  *
  * @param {string} directive_key
@@ -264,7 +254,11 @@ export function get_directive_atom(directive_key, values = {}) {
   const directive_parts = String(directive_key ?? "")
     .trim()
     .split(".");
-  const atom = directive_parts.reduce((node, part) => node?.[part], /** @type {any} */ (TASK_LIBRARY));
+  const catalog = directive_parts[0] === "REFLEX" ? REFLEX_LIBRARY : TASK_LIBRARY;
+  const atom = (directive_parts[0] === "REFLEX" ? directive_parts.slice(1) : directive_parts).reduce(
+    (node, part) => node?.[part],
+    /** @type {any} */ (catalog),
+  );
   if (atom == null) return "";
   return String(atom).replace(/\{([a-z0-9_]+)\}/g, (match, token) => (values[token] != null ? String(values[token]) : ""));
 }
@@ -616,14 +610,22 @@ export const TASK_SLOT_RESOLVERS = Object.freeze({
   stability_lock: (values) => String(values.stability_lock || "").trim(),
 
   json_output: (values) =>
-    values.schema ? render_output_format_xml({ mode: "json", content: get_directive_atom("FORMATS.JSON_RETURN", values) }) : "",
+    values.schema
+      ? render_output_format_xml({
+          mode: "json",
+          content: OUTPUT_FORMATS.JSON_RETURN.replace("{schema}", values.schema != null ? String(values.schema) : ""),
+        })
+      : "",
   prose_output: (values) =>
-    render_output_format_xml({ mode: "prose", content: values.config?.think_format ? TASK_LIBRARY.FORMATS.PROSE : TASK_LIBRARY.FORMATS.PLAIN_PROSE }),
+    render_output_format_xml({ mode: "prose", content: values.config?.think_format ? OUTPUT_FORMATS.PROSE : OUTPUT_FORMATS.PLAIN_PROSE }),
   external_output: (values) =>
     values.output_format
       ? render_output_format_xml({ mode: values.output_mode || "prose", content: values.output_format })
       : values.schema
-        ? render_output_format_xml({ mode: "json", content: get_directive_atom("FORMATS.JSON_RETURN", values) })
+        ? render_output_format_xml({
+            mode: "json",
+            content: OUTPUT_FORMATS.JSON_RETURN.replace("{schema}", values.schema != null ? String(values.schema) : ""),
+          })
         : "",
 });
 
@@ -845,6 +847,7 @@ export function render_subtext_xml(ai_dynamics = {}, fractal_dynamics = {}, opti
 
 /**
  * CHANGELOG
+ * - 2026-10-04: Removed all catalog aliases (P4) — TASK_LIBRARY drops PACING/RECENCY/VOICE, DIRECTOR.ENVIRONMENTAL_HINT, and FORMATS; REFLEX.* keys resolve against REFLEX_LIBRARY, output resolvers read OUTPUT_FORMATS directly.
  * - 2026-10-04: Moved pacing/reflex engine plus stability/truncation recovery (ex-recovery.js, deleted) into reflex.js; TASK_LIBRARY keeps live references so directive keys and prompt bytes are unchanged.
  * - 2026-10-04: Moved output contracts to output.js (emission formats, schema atoms, JSON composer, format router, `<OUTPUT_FORMAT>` envelope); task.js keeps turn assembly with FORMATS wired to OUTPUT_FORMATS.
  * - 2026-10-04: Retired TASK_LIBRARY.SORTING.POV_THIRD (sorting now resolves CORE_PROTOCOLS.PERSPECTIVE.POV.THIRD through pov_protocol) and TASK_LIBRARY.TEMPORAL (replaced by per-layer PERSPECTIVE.LAYER_TENSE atoms); PROSE.BASE stays - bespoke ghostwrite text, not a POV duplicate.

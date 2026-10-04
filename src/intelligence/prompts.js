@@ -153,7 +153,7 @@ export function director_directives({ has_input = false, round = 1, has_environm
         "DIRECTOR.USER_PERSONA_LOCK",
       ],
     },
-    ...(has_environmental_hint ? ["DIRECTOR.ENVIRONMENTAL_HINT"] : []),
+    ...(has_environmental_hint ? ["REFLEX.ENVIRONMENTAL_HINT"] : []),
     "DIRECTOR.ROUTING",
     "DIRECTOR.CONVERGENCE",
   ];
