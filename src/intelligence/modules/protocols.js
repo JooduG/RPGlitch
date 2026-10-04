@@ -10,13 +10,12 @@
  * Architecture & Modification Rules:
  * - Unidirectional layer flow: pure string compilation.
  * - Blueprint (protocols.js): `PROTOCOL_LIBRARY` catalog + `render_core_protocols` universal compiler over @utils `render_xml_tag`.
- * - Single source of truth for formatting, anti-tropes, and POV mandates; the simulation-fidelity law is sourced from constitution.js.
+ * - Single source of truth for formatting, anti-tropes, and POV mandates; simulation fidelity is a constitution axiom, not a protocol.
  * - Strict manifest alignment: `render_core_protocols` honors the declarative protocols list from `prompts.js`.
  * ============================================================================
  */
 
 import { has_alternations, prompt_escape, render_xml_tag } from "@utils";
-import { SIMULATION_FIDELITY } from "./constitution.js";
 import { render_narrative_style_xml, render_visual_style_xml } from "./style.js";
 
 // ============================================================================
@@ -27,7 +26,6 @@ export const PROTOCOL_LIBRARY = Object.freeze({
   // ── 1.1 Core-Prose Scaffold (<CORE_PROTOCOLS> bodies) ──────────────────────
   CORE_PROTOCOLS: Object.freeze({
     DATA: "Output strictly raw, unpadded structural data. Zero prose, conversational filler, or commentary.",
-    SIMULATION_FIDELITY,
     ALTERNATION_OPTIONS: `Resolve {Option A|Option B} alternations by selecting exactly ONE contextually fitting option. Emit only the chosen text—never echo braces or pipes, blend choices, or output multiple options simultaneously.`,
     PERSPECTIVE: Object.freeze({
       TENSE: Object.freeze({
@@ -216,7 +214,6 @@ export function render_core_protocols({
   // "PRESENT") and the atoms compose its command body, so person and tense are
   // stated exactly once per prompt instead of disagreeing across sibling tags.
   const is_specially_laid_out = (protocol_key) =>
-    protocol_key === "CORE_PROTOCOLS.SIMULATION_FIDELITY" ||
     protocol_key === "CORE_PROTOCOLS.ALTERNATION_OPTIONS" ||
     protocol_key.startsWith("CORE_PROTOCOLS.PERSPECTIVE.") ||
     protocol_key.startsWith("CORE_PROTOCOLS.PROSE_DISCIPLINE.");
@@ -246,9 +243,6 @@ export function render_core_protocols({
 
   const blocks = [
     static_rules,
-    should_include("SIMULATION_FIDELITY")
-      ? render_xml_tag({ tag: "SIMULATION_FIDELITY", children: [core.SIMULATION_FIDELITY], child_indent: 2 })
-      : null,
     resolved_pov_protocol || layer_tense_rules.length > 0
       ? render_xml_tag({
           tag: "PERSPECTIVE",
@@ -280,6 +274,7 @@ export function render_core_protocols({
 
 /**
  * CHANGELOG
+ * - 2026-10-04: Retired CORE_PROTOCOLS.SIMULATION_FIDELITY — fidelity is now constitution axiom L4 (rendered in <AXIOMATIC_CONSTITUTION>); protocols.js has zero constitution imports.
  * - 2026-10-04: Removed MACRO_DIRECTIVES alias (P4) — consumers read PROTOCOL_LIBRARY.MACROS.
  * - 2026-10-04: Optics invariants merged inline into PROTOCOL_LIBRARY.OPTICS (standalone const deleted) — one registry, no indirection.
  * - 2026-10-04: Reverted OPTICS_INVARIANTS here (was media/optics.js) — optics protocol texts live in the behavior catalog; style renderers stay in style.js.

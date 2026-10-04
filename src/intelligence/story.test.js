@@ -2103,11 +2103,11 @@ describe("ghostwrite identity", () => {
     expect(task).toContain("Take active initiative: drive events forward on your own terms");
   });
 
-  it("maintains universal L5_AGENCY in the constitution protecting the listener", () => {
+  it("maintains universal SOVEREIGNTY axiom in the constitution protecting the listener", () => {
     const ghostwrite = render_story_prose({ entities: _prompt_test_entities, input: "I step forward.", ghostwrite: true });
     const interaction = render_story_prose({ round: 3, entities: _prompt_test_entities, input: "Beast steps forward." });
-    expect(interaction.system).toContain('id="L5_AGENCY"');
-    expect(ghostwrite.system).toContain('id="L5_AGENCY"');
+    expect(interaction.system).toContain('id="L3" title="Sovereignty"');
+    expect(ghostwrite.system).toContain('id="L3" title="Sovereignty"');
     expect(ghostwrite.system).toContain("Never puppeteer the listener");
   });
 });

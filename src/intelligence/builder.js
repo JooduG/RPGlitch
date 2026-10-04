@@ -46,7 +46,7 @@ import { ensure_embeddings } from "@platform";
 import { get_prompt } from "./prompts.js";
 import { resolve_system_role_line, render_system_xml } from "./modules/system.js";
 import { resolve_stability_lock } from "./modules/reflex.js";
-import { render_axiomatic_constitution } from "./modules/constitution.js";
+import { render_constitution } from "./modules/constitution.js";
 import { render_core_protocols, resolve_pov_protocol, resolve_macro_directive, resolve_layer_tense_protocol } from "./modules/protocols.js";
 import {
   render_entity_sheets,
@@ -565,7 +565,7 @@ function render_prose_turn_core({
     evaluate_subtext_protocols,
   });
 
-  const constitution = config.constitution ? render_axiomatic_constitution() : "";
+  const constitution = config.constitution ? render_constitution() : "";
 
   const entities_block = render_entity_sheets({
     entities,

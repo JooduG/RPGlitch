@@ -22,7 +22,7 @@
  *
  * ── The 7-Layer Universal Pipeline ──────────────────────────────────────────
  * 1. system       : Root <SYSTEM> envelope mode & SYSTEM_ROLES factory key
- * 2. constitution : Axiomatic core laws (L1–L5) toggle
+ * 2. constitution : Axiomatic core laws (L1–L4) toggle
  * 3. protocols    : Ordered protocol atoms emitting <CORE_PROTOCOLS>
  * 4. entities     : Entity scoping for sheets, dispositions, dynamic axes, and spotlight
  * 5. history      : Conversation history windowing configuration
@@ -119,14 +119,14 @@ const OPTICS_LAYERS = Object.freeze({
 
 /**
  * Composes the Shot-2A prose protocol bundle shared by the interaction/ghostwrite/npc/narrator
- * sibling modes: fidelity → tense → prose discipline → (optional dialogue) → alternation.
+ * sibling modes: tense → prose discipline → (optional dialogue) → alternation.
+ * (Fidelity is constitution axiom L4, not a protocol.)
  *
  * @param {{ include_dialogue?: boolean }} [parameter_options={}]
  * @returns {string[]}
  */
 function prose_protocols({ include_dialogue = false } = {}) {
   return [
-    "CORE_PROTOCOLS.SIMULATION_FIDELITY",
     "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PRESENT",
     "CORE_PROTOCOLS.PROSE_DISCIPLINE.TYPOGRAPHY",
     "CORE_PROTOCOLS.PROSE_DISCIPLINE.PHYSICALITY",

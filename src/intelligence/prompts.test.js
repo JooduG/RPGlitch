@@ -149,7 +149,6 @@ describe("prompt-modes registry", () => {
       "CORE_PROTOCOLS.PROSE_DISCIPLINE.BANNED_CLICHES",
     ];
     const compose = (natural) => [
-      "CORE_PROTOCOLS.SIMULATION_FIDELITY",
       "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PRESENT",
       ...discipline,
       ...(natural ? ["CORE_PROTOCOLS.PROSE_DISCIPLINE.NATURAL_DIALOGUE"] : []),

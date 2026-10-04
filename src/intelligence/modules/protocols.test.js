@@ -30,12 +30,12 @@ import { render_dynamics_axes_xml } from "../physics.js";
 describe("protocols.js - Core Protocol Library & Compiler", () => {
   it("renders selected protocol tags via render_core_protocols", () => {
     const output = render_core_protocols({
-      protocols: ["CORE_PROTOCOLS.DATA", "CORE_PROTOCOLS.SIMULATION_FIDELITY"],
+      protocols: ["CORE_PROTOCOLS.DATA"],
     });
     expect(output).toContain("<CORE_PROTOCOLS>");
     expect(output).toContain("<DATA>");
     expect(output).toContain(PROTOCOL_LIBRARY.CORE_PROTOCOLS.DATA);
-    expect(output).toContain("<SIMULATION_FIDELITY>");
+    expect(output).not.toContain("SIMULATION_FIDELITY");
   });
 
   it("resolves POV protocols correctly", () => {

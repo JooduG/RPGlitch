@@ -32,6 +32,7 @@ import {
   context_builder,
 } from "./builder.js";
 import { compile_prompt } from "./prompts.js";
+import { CONSTITUTION } from "./modules/constitution.js";
 import { PROTOCOL_LIBRARY } from "./modules/protocols.js";
 
 const test_entities = {
@@ -291,9 +292,8 @@ describe("Protocol Invariants & Remediation Regression Gates", () => {
     expect(PROTOCOL_LIBRARY.OPTICS.AFFIRMATIVE_FRAMING).toContain("Describe positive presence in frame");
   });
 
-  it("maintains permissive clause in CORE_PROTOCOLS.SIMULATION_FIDELITY", () => {
-    const fidelity = PROTOCOL_LIBRARY.CORE_PROTOCOLS.SIMULATION_FIDELITY;
-    expect(fidelity).toContain("Adult and transgressive content is permitted without censorship or moral framing.");
+  it("maintains permissive clause in CONSTITUTION.FIDELITY", () => {
+    expect(CONSTITUTION.FIDELITY.body).toContain("Adult and transgressive content is permitted without censorship or moral framing.");
   });
 
   it("compiles interaction prose prompt with permissive fidelity clause", () => {
