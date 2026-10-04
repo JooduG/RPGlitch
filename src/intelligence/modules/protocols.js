@@ -39,7 +39,6 @@ export const PROTOCOL_LIBRARY = Object.freeze({
         FIRST:
           "Write strictly in first-person ('I', 'me', 'my'). Describe actions and sensations through your own eyes—never use third-person pronouns or your character name.",
         THIRD: "Write strictly in third-person limited ('he', 'she', 'they', or character name). Never use first-person pronouns in narrative prose.",
-        NARRATOR: "You are the setting narrator («FRACTAL»). Write strictly in third-person omniscient POV. Never write in first-person.",
       }),
       MANDATE: "Hold the stated perspective exactly on every line — drift in person or tense is a structural failure, not a style choice.",
     }),
@@ -142,7 +141,7 @@ export function render_alternation_protocol(text = "") {
 export function resolve_pov_protocol(source) {
   if (typeof source === "string") {
     const pov_name = source.toUpperCase();
-    return pov_name === "FIRST" || pov_name === "THIRD" || pov_name === "NARRATOR" ? `CORE_PROTOCOLS.PERSPECTIVE.POV.${pov_name}` : null;
+    return pov_name === "FIRST" || pov_name === "THIRD" ? `CORE_PROTOCOLS.PERSPECTIVE.POV.${pov_name}` : null;
   }
   const pov = source?.pov || "3rd_person";
   return pov === "3rd_person" ? "CORE_PROTOCOLS.PERSPECTIVE.POV.THIRD" : "CORE_PROTOCOLS.PERSPECTIVE.POV.FIRST";
@@ -342,6 +341,7 @@ export function render_core_protocols({
 
 /**
  * CHANGELOG
+ * - 2026-10-04: Retired the `POV.NARRATOR` atom (narrator mode resolves normal `THIRD`; the role line already establishes the Fractal-itself identity).
  * - 2026-10-04: Dropped the fractal type-sniffing fallback in `resolve_pov_protocol` (normal 3rd-person default; entities always carry explicit `pov`); fixtures now stamp `pov` like production entities.
  * - 2026-10-04: Tense atoms cut to pure grammar (truth-state lives in field directives) — `TENSE` is now three one-line tense commands.
  * - 2026-10-04: Unified tense — `LAYER_TENSE` folded into `TENSE` with reworded atoms that command grammar and truth-state together (prose narration and profile data share one wording); `MANDATE`/`TENSE_MANDATE` merged into one mandate.

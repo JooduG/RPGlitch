@@ -320,7 +320,7 @@ export const PROMPTS = Object.freeze({
     visibility: "omniscient",
     role_line: "NARRATOR",
     task_state: "prose",
-    pov: "NARRATOR",
+    pov: "THIRD",
     protocols: prose_protocols(),
     entities: { nearby_entities: true },
     layers: PROSE_LAYERS,
@@ -451,6 +451,7 @@ export default PROMPTS;
 
 /**
  * CHANGELOG
+ * - 2026-10-04: Narrator manifest declares normal `pov: "THIRD"` (`POV.NARRATOR` retired).
  * - 2026-10-04: sorting/continuum manifests declare `PERSPECTIVE.TENSE.*` (`LAYER_TENSE` folded into `TENSE`).
  * - 2026-10-04: sorting/continuum records declare three layer-tense keys (ETERNAL merged into PRESENT).
  * - 2026-10-04: sorting/continuum DIRECTIVES no longer carry person/tense (now SYSTEM protocols); both records declare the four LAYER_TENSE keys and sorting resolves POV.THIRD via pov_protocol; leads reverted accordingly.
