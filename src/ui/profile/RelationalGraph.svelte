@@ -286,7 +286,7 @@
     </div>
   {:else}
     <!-- Radial Visual Constellation -->
-    <div class="relative flex flex-col items-center justify-center overflow-visible py-2">
+    <div class="relative flex flex-col items-center justify-center overflow-visible">
       <div class="relative flex items-center justify-center" style="width: {size}px; height: {size}px;">
         <!-- SVG Canvas for Connecting Directional Curves -->
         <svg class="absolute inset-0 z-0 h-full w-full overflow-visible" viewBox="0 0 {size} {size}" style="width: {size}px; height: {size}px;">

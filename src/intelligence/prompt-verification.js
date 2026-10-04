@@ -777,14 +777,15 @@ export const CONTRACT_SIZES = {
   narrator: { system: 5189, task: 1922 },
   narrator_prologue: { system: 5189, task: 2170 },
   narrator_epilogue: { system: 5189, task: 1839 },
-  continuum: { system: 1210, task: 3821 },
-  enhancement: { system: 452, task: 867 },
-  sorting: { system: 287, task: 4296 },
+  continuum: { system: 1244, task: 2363 },
+  enhancement: { system: 452, task: 1051 },
+  sorting: { system: 287, task: 2838 },
   optics: { system: 1761, task: 3785 },
 };
 
 /**
  * CHANGELOG
+ * - 2026-10-04: Re-baselined `CONTRACT_SIZES.sorting.task` (4296→2838), `CONTRACT_SIZES.continuum` (system 1210→1244, task 3821→2363), and `CONTRACT_SIZES.enhancement.task` (867→1051) after removing the HELPERS.BRACKETS boilerplate from all profile field directives; bracket instruction now comes from the task-layer output format only. Measured via debug-sizes run (my 6×370 arithmetic overestimated the removal).
  * - 2026-10-03: Re-baselined `CONTRACT_SIZES.continuum.task` (2818→3821) and `CONTRACT_SIZES.sorting.task` (3904→4296) after applying unified `HELPERS.BRACKETS` across all non-physical and future fields in `profile-fields.js`.
  * - 2026-10-03: Re-baselined `CONTRACT_SIZES.sorting.task` (3004→3904) after consolidating `HELPERS.BRACKETS` and `HELPERS.RELATIONAL_BRACKETS` across field directives in `profile-fields.js`.
  * - 2026-10-03: Re-baselined `CONTRACT_SIZES.director.task` (2863→4065) for Director Speaker Lock (2.7) and Biological Causality & Terminal State Arbitration (2.6).

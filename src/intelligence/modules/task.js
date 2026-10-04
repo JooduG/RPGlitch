@@ -1017,14 +1017,14 @@ export const PLAIN_PROSE_FORMAT = "Emit strictly plain prose: no preamble, comme
  * @type {string}
  */
 export const BRACKET_FORMAT =
-  "After closing </THINK>, emit strictly bracketed directives: [KEY: value] — one per line, no outer braces, no conversational prose outside brackets. Optional flags: '| hide' (for covert items, secrets, private thoughts), '| w: 1-10' (importance weight). Atomic clearing: [KEY: none].";
+  "After closing </THINK>, emit strictly bracketed directives: [KEY: value] — one per line, no outer braces, no conversational prose outside brackets. Keys support natural spaces. Relational brackets targeting other entities or active roles MUST begin with '@': [@TARGET_ENTITY: relationship dynamic | flags] (flags: 'hide' for covert items / 'show', 'w: 1-10' importance weight). Atomic clearing: [KEY: none].";
 
 /**
  * Think-free variant of bracket directive for non-think callers.
  * @type {string}
  */
 export const PLAIN_BRACKET_FORMAT =
-  "Emit strictly bracketed directives: [KEY: value] — one per line, no outer braces, no conversational prose outside brackets. Optional flags: '| hide' (for covert items, secrets, private thoughts), '| w: 1-10' (importance weight). Atomic clearing: [KEY: none].";
+  "Emit strictly bracketed directives: [KEY: value] — one per line, no outer braces, no conversational prose outside brackets. Keys support natural spaces. Relational brackets targeting other entities or active roles MUST begin with '@': [@TARGET_ENTITY: relationship dynamic | flags] (flags: 'hide' for covert items / 'show', 'w: 1-10' importance weight). Atomic clearing: [KEY: none].";
 
 /**
  * Clean text emission instruction for non-temporal fields (name, description) with think block.

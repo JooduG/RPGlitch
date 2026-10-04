@@ -19,10 +19,6 @@
 import { format_key_as_label } from "@utils";
 import { SIGNATURE_COLORS } from "./signature-colors.js";
 
-const HELPERS = Object.freeze({
-  BRACKETS: `Format using bracket directives: [KEY: value] — one per line, no outer braces. Keys support natural spaces. Relational brackets targeting other entities or active roles MUST begin with '@': [@TARGET_ENTITY: relationship dynamic | flags] (target may be entity name or ID, or role macros like @USER/@CHAR; flags: 'hide' / 'show', 'w: 1-10'). Atomic clearing: [KEY: none].`,
-});
-
 // ── 1. Canonical Field Taxonomy ───────────────────────────────────────────────
 
 /**
@@ -50,13 +46,13 @@ export const PROFILE_FIELDS = {
       physical: {
         label: "Physical Appearance",
         description: "Permanent biometric features for image generation (gender, age, ethnicity, build, face, eyes, hair, height).",
-        directive: `[KEY: value] permanent biometrics (gender, age, ethnicity, build, face, eyes, hair, scars). Visible body details only — no clothing, equipment, or psychological traits. ${HELPERS.BRACKETS}`,
+        directive: `[KEY: value] permanent biometrics (gender, age, ethnicity, build, face, eyes, hair, scars). Visible body details only — no clothing, equipment, or psychological traits.`,
         enhancer: "BIOMETRIC_RENDERER",
       },
       non_physical: {
         label: "Personality",
         description: "Timeless psychology: core beliefs, personality drivers, cognitive patterns, vocal tone, and communication tics.",
-        directive: `Core beliefs, personality drivers, cognitive patterns, vocal tone, speech cadence, and communication tics. Timeless psychological baseline that holds true in any scene. ${HELPERS.BRACKETS}`,
+        directive: `Core beliefs, personality drivers, cognitive patterns, vocal tone, speech cadence, and communication tics. Timeless psychological baseline that holds true in any scene.`,
         enhancer: "COGNITIVE_ARCHITECT",
       },
     },
@@ -65,13 +61,13 @@ export const PROFILE_FIELDS = {
         label: "Current Look",
         description:
           "Current physical appearance for image generation (clothing, colors, expression, posture, condition). Use {Option A|Option B} for variables.",
-        directive: `[KEY: value] current appearance layered over eternal baseline (clothing, colors, expression, posture, condition, held). Use {Option A|Option B} for variables. Visible temporary items and poses only. ${HELPERS.BRACKETS}`,
+        directive: `[KEY: value] current appearance layered over eternal baseline (clothing, colors, expression, posture, condition, held). Use {Option A|Option B} for variables. Visible temporary items and poses only.`,
         enhancer: "SOMATIC_TRACKER",
       },
       non_physical: {
         label: "State of Mind",
         description: "Current state of mind: immediate emotional pressure, active mental focus, and present behavioral drivers.",
-        directive: `Immediate emotional pressure, active mental focus, and present behavioral drivers true in THIS moment only. ${HELPERS.BRACKETS}`,
+        directive: `Immediate emotional pressure, active mental focus, and present behavioral drivers true in THIS moment only.`,
         enhancer: "TACTICAL_ANALYZER",
       },
     },
@@ -79,13 +75,13 @@ export const PROFILE_FIELDS = {
       label: "Agenda",
       description:
         "The entity's active trajectory or standing agenda: clear intent, building pressure, or impending event driving the next state change.",
-      directive: `Active trajectory or standing agenda in active future tense: clear intent, building pressure, or impending event driving this entity toward its next state change. Distinct from Present. No story scenes or dialogue. ${HELPERS.BRACKETS}`,
+      directive: `Active trajectory or standing agenda in active future tense: clear intent, building pressure, or impending event driving this entity toward its next state change. Distinct from Present. No story scenes or dialogue.`,
       enhancer: "TRAJECTORY_SIMULATOR",
     },
     past: {
       label: "Memories",
       description: "Formative memories or critical precedents: specific anchored events or established historical facts.",
-      directive: `Settled historical fact or precedent in past tense: [KEY: value | flags] (flags: 'hide' / 'show', 'w: 1-10'). Specific over vague; exclude transient moods or immediate dialogue. ${HELPERS.BRACKETS}`,
+      directive: `Settled historical fact or precedent in past tense: [KEY: value | flags] (flags: 'hide' / 'show', 'w: 1-10'). Specific over vague; exclude transient moods or immediate dialogue.`,
       enhancer: "EPISODIC_MEMORY_COMPILER",
     },
   },
@@ -94,13 +90,13 @@ export const PROFILE_FIELDS = {
       physical: {
         label: "Environment",
         description: "Permanent physical geography for image generation (terrain, architecture, materials, landmarks, scale).",
-        directive: `[KEY: value] permanent geography (terrain, architecture, materials, landmarks, scale). Concrete visible landscape features only — no transient weather, lighting, or lore. ${HELPERS.BRACKETS}`,
+        directive: `[KEY: value] permanent geography (terrain, architecture, materials, landmarks, scale). Concrete visible landscape features only — no transient weather, lighting, or lore.`,
         enhancer: "SPATIAL_RENDERER",
       },
       non_physical: {
         label: "Permanent Truths",
         description: "Timeless metaphysical substrate: governing laws, constant environmental forces, and physical constants.",
-        directive: `Timeless metaphysical substrate: governing laws, constant environmental forces, and physical constants. ${HELPERS.BRACKETS}`,
+        directive: `Timeless metaphysical substrate: governing laws, constant environmental forces, and physical constants.`,
         enhancer: "METAPHYSICAL_ARCHITECT",
       },
     },
@@ -108,26 +104,26 @@ export const PROFILE_FIELDS = {
       physical: {
         label: "Atmosphere",
         description: "Current atmospheric state for image generation (lighting, weather, atmosphere, events). Use {Option A|Option B} for variables.",
-        directive: `[KEY: value] current atmospheric state layered over eternal baseline (lighting, weather, atmosphere, events). Use {Option A|Option B} for variables. Momentary sensory elements only. ${HELPERS.BRACKETS}`,
+        directive: `[KEY: value] current atmospheric state layered over eternal baseline (lighting, weather, atmosphere, events). Use {Option A|Option B} for variables. Momentary sensory elements only.`,
         enhancer: "ATMOSPHERIC_TRACKER",
       },
       non_physical: {
         label: "Current State",
         description: "Current environmental state: active anomalies, immediate pressure, and momentary shifts in physics or atmosphere.",
-        directive: `Current environmental state: active anomaly, immediate pressure, momentary shifts in physics or atmosphere. ${HELPERS.BRACKETS}`,
+        directive: `Current environmental state: active anomaly, immediate pressure, momentary shifts in physics or atmosphere.`,
         enhancer: "ECOSYSTEM_ANALYZER",
       },
     },
     future: {
       label: "Trajectory",
       description: "Environmental trajectory, building anomaly, or converging weather event driving the next scene state change.",
-      directive: `Environmental trajectory, building atmospheric pressure, impending environmental event, or anomaly apex driving this world toward its next state change in active future tense. ${HELPERS.BRACKETS}`,
+      directive: `Environmental trajectory, building atmospheric pressure, impending environmental event, or anomaly apex driving this world toward its next state change in active future tense.`,
       enhancer: "ECOSYSTEM_SIMULATOR",
     },
     past: {
       label: "History",
       description: "Historical cataclysms, founding myths, and settled geographic epochs.",
-      directive: `Settled historical cataclysm, founding myth, or defining epoch in past tense: [KEY: value | flags] (flags: 'hide' / 'show', 'w: 1-10'). Specific over vague; exclude active weather or temporary conditions. ${HELPERS.BRACKETS}`,
+      directive: `Settled historical cataclysm, founding myth, or defining epoch in past tense: [KEY: value | flags] (flags: 'hide' / 'show', 'w: 1-10'). Specific over vague; exclude active weather or temporary conditions.`,
       enhancer: "HISTORIAN",
     },
   },
