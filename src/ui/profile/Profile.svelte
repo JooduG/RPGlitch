@@ -18,6 +18,7 @@
   import TimelineModal from "./TimelineModal.svelte";
   import { ProfileState } from "./Profile.svelte.js";
   import ProfileHeader from "./ProfileHeader.svelte";
+  import RelationalGraph from "./RelationalGraph.svelte";
   import { app, runtime, simulation_state } from "@state";
   import { resolve_display_macro_segments } from "@utils";
   import MacroText from "./MacroText.svelte";
@@ -1054,6 +1055,38 @@
         {/each}
       </div>
     {/each}
+
+    <!-- RADIAL RELATIONAL CONSTELLATION GRAPH (Vertical Rotated Headline Grid) -->
+    <div
+      class={get_section_class()}
+      style:border-color={app.viewport.mobile ? "color-mix(in srgb, var(--signature-color) 30%, transparent)" : undefined}
+      data-section="relationships"
+      role="presentation"
+    >
+      <div class="relative flex w-full flex-col items-center" style={get_inner_section_style("relationships")}>
+        <h6
+          class="relative m-0 flex items-center justify-center text-center tracking-wider uppercase transition-colors duration-300"
+          style="color: var(--signature-color); text-shadow: none;"
+        >
+          <span
+            class={get_label_span_class()}
+            style:text-orientation={app.viewport.mobile ? undefined : "mixed"}
+            style:writing-mode={app.viewport.mobile ? undefined : "vertical-rl"}>Relationships</span
+          >
+        </h6>
+      </div>
+    </div>
+
+    <div class="relative flex h-full w-full min-w-0 flex-col items-stretch justify-stretch">
+      <RelationalGraph
+        entity={profile_state.char}
+        on_select_entity={(selected) => {
+          if (selected) {
+            app.open_profile(selected);
+          }
+        }}
+      />
+    </div>
 
     {#if entity_type !== "fractal"}
       <div class="col-start-2 mt-0 flex w-full flex-col items-center gap-2 py-1">

@@ -103,40 +103,16 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
     // Satellite node harvested from bracket
     expect(await screen.findByText("Hank")).toBeTruthy();
   });
-
-  it("purges corresponding target bracket from present.non_physical when an edge is deleted", async () => {
-    const mock_entity = {
-      id: "silvers",
-      name: "Lord Benedict Silvers",
-      type: "character",
-      present: {
-        non_physical: "[@HANK: custom pyrotechnics]",
-      },
-    };
-
-    const on_update_relationships = vi.fn();
-    render(RelationalGraph, { props: { entity: mock_entity, is_editing: true, on_update_relationships } });
-
-    // Wait for the button to appear in the DOM (initial render with all_entities=[])
-    await screen.findByRole("button", { name: /Remove Bond/i });
-    // Re-query immediately before clicking: the async $effect loading all_entities
-    // may re-key the {#each} block (target_name changes from "HANK" to "Hank"),
-    // destroying and recreating the DOM node. A fresh query avoids the stale ref.
-    const live_remove_btn = screen.getByRole("button", { name: /Remove Bond/i });
-    console.log("Found remove_btn outerHTML:", live_remove_btn.outerHTML);
-    await fireEvent.click(live_remove_btn);
-
-    expect(on_update_relationships).toHaveBeenCalled();
-    expect(mock_entity.present.non_physical).toBe("");
-  });
 });
 
 /**
  * CHANGELOG
  * ============================================================================
+ * - 2026-10-04: Graph-only split — removed edge-deletion test with the retired
+ *   bond-card editor; suite covers constellation rendering, bracket harvesting,
+ *   and satellite-node selection.
  * - 2026-10-01: Universal Predicates Migration — updated test suite to drive
- *   constellation nodes and deletions 100% through universal bracket predicates.
- * - 2026-09-30: Added test verifying handle_delete_edge cleanses present.non_physical bracket predicates.
+ *   constellation nodes 100% through universal bracket predicates.
  * - 2026-09-29: Added unit test verifying universal bracket relationship harvesting into constellation satellite nodes.
  * ============================================================================
  */

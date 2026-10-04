@@ -13,32 +13,21 @@
 <script>
   import { entities, PREMADE_ENTITIES } from "@data";
   import { get_signature_color } from "@media";
-  import { TextField, tooltip } from "@primitives";
-  import { extract_entity_relationships, apply_bracket_mutation } from "@intelligence";
+  import { tooltip } from "@primitives";
+  import { extract_entity_relationships } from "@intelligence";
 
   /**
    * @typedef {Object} Props
    * @property {any} entity - The central active entity.
-   * @property {boolean} [is_editing=false] - Whether the profile is in edit mode.
    * @property {(selected: any) => void} [on_select_entity] - Callback when a satellite node is clicked.
-   * @property {(relationships: string[]) => void} [on_update_relationships] - Callback when relationships are mutated in edit mode.
    * @property {string} [class] - Additional container class.
    */
 
   /** @type {Props} */
-  let {
-    entity,
-    is_editing = false,
-    show_add_form = $bindable(false),
-    on_select_entity = () => {},
-    on_update_relationships = () => {},
-    class: custom_class = "",
-  } = $props();
+  let { entity, on_select_entity = () => {}, class: custom_class = "" } = $props();
 
   let all_entities = $state([]);
   let hovered_edge = $state(null);
-  let new_target_name = $state("");
-  let new_dynamic = $state("");
 
   // Load all known characters and fractals to resolve incoming relationships and satellite entity profiles
   $effect(() => {
@@ -275,139 +264,6 @@
     return tip;
   }
 
-  function handle_add_edge() {
-    if (!new_target_name.trim() || !new_dynamic.trim() || !entity?.name) return;
-    const clean_target = new_target_name.trim();
-    const clean_dyn = new_dynamic.trim();
-
-    // Mutate universal bracket predicates in present.non_physical
-    if (!entity.present) entity.present = {};
-    const target_identifier = clean_target.startsWith("@") ? clean_target : `@${clean_target}`;
-    const mutation = apply_bracket_mutation(entity.present.non_physical || "", `[${target_identifier}: ${clean_dyn}]`);
-    entity.present.non_physical = mutation.text;
-
-    try {
-      import("@data").then(({ append_ledger_entry }) => {
-        append_ledger_entry({
-          story_id: null,
-          round: 0,
-          seq: 0,
-          entity_id: entity.id,
-          field: "present.non_physical",
-          key: target_identifier,
-          new_value: clean_dyn,
-          writer: "user",
-        }).catch(() => {});
-      });
-    } catch (_e) {
-      /* empty */
-    }
-
-    on_update_relationships();
-    new_target_name = "";
-    new_dynamic = "";
-    show_add_form = false;
-  }
-
-  function handle_delete_edge(target_name) {
-    if (!target_name || !entity?.present) return;
-    const clean_target = String(target_name).trim();
-    const target_identifier = clean_target.startsWith("@") ? clean_target : `@${clean_target}`;
-
-    // Purge corresponding target bracket from present.non_physical via atomic [TARGET: none] directive
-    const mutation = apply_bracket_mutation(entity.present.non_physical || "", `[${target_identifier}: none]`);
-    entity.present.non_physical = mutation.text;
-
-    try {
-      import("@data").then(({ append_ledger_entry }) => {
-        append_ledger_entry({
-          story_id: null,
-          round: 0,
-          seq: 0,
-          entity_id: entity.id,
-          field: "present.non_physical",
-          key: target_identifier,
-          new_value: null,
-          writer: "user",
-        }).catch(() => {});
-      });
-    } catch (_e) {
-      /* empty */
-    }
-
-    on_update_relationships();
-  }
-
-  function handle_update_edge_dynamic(target_name, new_dyn) {
-    if (!target_name || !entity?.present) return;
-    const clean_target = String(target_name).trim();
-    const target_identifier = clean_target.startsWith("@") ? clean_target : `@${clean_target}`;
-
-    const mutation = apply_bracket_mutation(entity.present.non_physical || "", `[${target_identifier}: ${String(new_dyn || "").trim()}]`);
-    entity.present.non_physical = mutation.text;
-
-    try {
-      import("@data").then(({ append_ledger_entry }) => {
-        append_ledger_entry({
-          story_id: null,
-          round: 0,
-          seq: 0,
-          entity_id: entity.id,
-          field: "present.non_physical",
-          key: target_identifier,
-          new_value: String(new_dyn || "").trim(),
-          writer: "user",
-        }).catch(() => {});
-      });
-    } catch (_e) {
-      /* empty */
-    }
-
-    on_update_relationships();
-  }
-
-  function handle_retarget_edge(old_target, new_target, dyn) {
-    if (!old_target || !new_target || !entity?.present) return;
-    const old_identifier = String(old_target).trim().startsWith("@") ? String(old_target).trim() : `@${String(old_target).trim()}`;
-    const new_identifier = String(new_target).trim().startsWith("@") ? String(new_target).trim() : `@${String(new_target).trim()}`;
-
-    // Atomically clear old and apply new
-    let text = entity.present.non_physical || "";
-    text = apply_bracket_mutation(text, `[${old_identifier}: none]`).text;
-    text = apply_bracket_mutation(text, `[${new_identifier}: ${String(dyn || "").trim()}]`).text;
-    entity.present.non_physical = text;
-
-    try {
-      import("@data").then(({ append_ledger_entries }) => {
-        append_ledger_entries([
-          {
-            story_id: null,
-            round: 0,
-            seq: 0,
-            entity_id: entity.id,
-            field: "present.non_physical",
-            key: old_identifier,
-            new_value: null,
-            writer: "user",
-          },
-          {
-            story_id: null,
-            round: 0,
-            seq: 0,
-            entity_id: entity.id,
-            field: "present.non_physical",
-            key: new_identifier,
-            new_value: String(dyn || "").trim(),
-            writer: "user",
-          },
-        ]).catch(() => {});
-      });
-    } catch (_e) {
-      /* empty */
-    }
-
-    on_update_relationships();
-  }
   const center_color = $derived(get_signature_color(entity));
 </script>
 
@@ -426,11 +282,7 @@
         </svg>
       </div>
       <span class="mt-2 text-xs font-semibold text-slate-300">No recorded relationships yet</span>
-      <p class="mt-1 max-w-xs text-[11px] text-slate-400">
-        {is_editing
-          ? "Add directed relational vectors to connect this entity to other characters or fractals in the mesh."
-          : "This entity has not yet established directed bonds with other entities."}
-      </p>
+      <p class="mt-1 max-w-xs text-[11px] text-slate-400">This entity has not yet established directed bonds with other entities.</p>
     </div>
   {:else}
     <!-- Radial Visual Constellation -->
@@ -536,118 +388,6 @@
     </div>
   {/if}
 </div>
-
-<!-- Edit Mode: Create New Relationship Modal Form -->
-{#if show_add_form}
-  <div class="mt-4 w-full rounded-xl border border-slate-700/80 bg-slate-900/90 p-4 shadow-xl">
-    <div class="mb-3 flex items-center justify-between">
-      <span class="text-xs font-bold text-slate-200">Add Directed Relationship Bond</span>
-      <button type="button" onclick={() => (show_add_form = false)} class="text-xs text-slate-400 hover:text-slate-200"> ✕ </button>
-    </div>
-
-    <div class="flex flex-col gap-3">
-      <!-- Target Entity Selection -->
-      <div>
-        <label for="rel-target-select" class="mb-1 block text-[11px] font-semibold text-slate-300">Target Entity</label>
-        <select
-          id="rel-target-select"
-          bind:value={new_target_name}
-          class="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-xs text-slate-200 focus:border-slate-500 focus:outline-none"
-        >
-          <option value="" disabled>Select connected character or fractal...</option>
-          {#each all_entities.filter((e) => norm(e.name) !== norm(entity?.name)) as opt (opt.id || opt.name)}
-            <option value={opt.name}>{opt.name} ({opt.type || "character"})</option>
-          {/each}
-        </select>
-      </div>
-
-      <!-- Relational Dynamic Description -->
-      <div>
-        <label for="rel-dynamic-desc" class="mb-1 block text-[11px] font-semibold text-slate-300">Relationship Dynamic</label>
-        <input
-          id="rel-dynamic-desc"
-          type="text"
-          bind:value={new_dynamic}
-          placeholder="e.g. underground arms supplier, childhood mentor, rival hacker"
-          class="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:border-slate-500 focus:outline-none"
-        />
-      </div>
-
-      <div class="mt-1 flex items-center justify-end gap-2">
-        <button type="button" onclick={() => (show_add_form = false)} class="rounded-lg px-3 py-1 text-xs text-slate-400 hover:text-slate-200">
-          Cancel
-        </button>
-        <button
-          type="button"
-          disabled={!new_target_name || !new_dynamic.trim()}
-          onclick={handle_add_edge}
-          class="rounded-lg border border-indigo-500/50 bg-indigo-600/80 px-3 py-1 text-xs font-semibold text-white shadow transition-colors hover:bg-indigo-500 disabled:opacity-40"
-        >
-          Save Bond
-        </button>
-      </div>
-    </div>
-  </div>
-{/if}
-
-<!-- Edit Mode: Existing Outgoing Bonds List (Derived directly from universal bracket predicates) -->
-{#if is_editing}
-  {@const outgoing_edges = resolved_edges.filter((e) => e.is_outgoing)}
-  {#if outgoing_edges.length > 0}
-    <div class="flex w-full flex-col gap-4" style="--accent-color: {center_color}">
-      {#each outgoing_edges as edge, i (edge.target_name || i)}
-        {@const current_target = edge.target_name || ""}
-        {@const current_dynamic = edge.dynamic || ""}
-        <div class="flex animate-[slide-down-item_400ms_cubic-bezier(0.23,1,0.32,1)_forwards] items-start gap-1.5">
-          <!-- Delete button rendered directly in component template (not inside snippet) for reliable event binding -->
-          <button
-            type="button"
-            aria-label="Remove Bond"
-            use:tooltip={"Remove Bond"}
-            class="mt-1 inline-flex size-5 shrink-0 cursor-pointer items-center justify-center rounded p-0.5 text-slate-400 transition-all duration-150 hover:bg-white/20 hover:text-white active:scale-95"
-            onclick={() => handle_delete_edge(current_target)}
-          >
-            <svg viewBox="0 0 24 24" class="size-3.5 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]">
-              <polyline points="3 6 5 6 21 6" stroke="currentColor"></polyline>
-              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="currentColor"></path>
-            </svg>
-          </button>
-          <div class="min-w-0 flex-1">
-            <TextField
-              is_edit={true}
-              collapsed={false}
-              signature_color={center_color}
-              value={current_dynamic}
-              placeholder="Enter relationship dynamic detail..."
-              oninput={(e) => {
-                handle_update_edge_dynamic(current_target, e.currentTarget.value);
-              }}
-            >
-              {#snippet status()}
-                <div class="my-auto flex max-w-full min-w-0 items-center gap-2 text-left">
-                  <select
-                    value={current_target}
-                    onchange={(e) => {
-                      handle_retarget_edge(current_target, e.currentTarget.value, current_dynamic);
-                    }}
-                    class="cursor-pointer rounded-sm border border-white/10 bg-white/10 px-1.5 py-0.5 font-sans text-xs font-normal tracking-normal text-white opacity-90 transition-opacity hover:opacity-100 focus:border-white/30 focus:outline-none"
-                  >
-                    {#if !current_target || !all_entities.some((e) => norm(e.name) === norm(current_target))}
-                      <option value={current_target} class="bg-slate-900 text-slate-200">{current_target || "Select target..."}</option>
-                    {/if}
-                    {#each all_entities.filter((e) => norm(e.name) !== norm(entity?.name)) as opt (opt.id || opt.name)}
-                      <option value={opt.name} class="bg-slate-900 text-slate-200">{opt.name} ({opt.type || "character"})</option>
-                    {/each}
-                  </select>
-                </div>
-              {/snippet}
-            </TextField>
-          </div>
-        </div>
-      {/each}
-    </div>
-  {/if}
-{/if}
 
 <!--
   CHANGELOG
