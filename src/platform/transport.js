@@ -4,18 +4,18 @@
  *
  * Core Responsibilities:
  * - Single point of communication with the Perchance AI text generation engine (`window.generate_text` / `window.pluginGenerateText`).
- * - Formats prompt instruction blocks: `[System Prefix]` ➔ `[Conversation History]` ➔ `[Task Directive]` ➔ `[System Close]`.
+ * - Sends the builder-sealed closed envelope (`payload.system`) verbatim.
  * - Bridges streaming tokens to `stream_bridge` (`start`, `update`, `end`) for real-time UI typewriter rendering.
  * - Handles AbortSignal cancellation by invoking Perchance plugin `.stop()` hooks.
  * - Normalizes and sanitizes raw model output (unwrapping `String` objects, stripping outer quotes, code fences, and conversational filler).
  * - Provides a mock streaming driver for local development and offline automated testing.
  *
  * Dependencies & Cross-Module Invariants:
- * - `@utils` (`format_history_entries`, `strip_cognition_blocks`, `stream_bridge`): Conversation history serialization, output sanitization, and reactive stream dispatch.
+ * - `@utils` (`strip_cognition_blocks`, `stream_bridge`): output sanitization and reactive stream dispatch.
  * - Invariant: Transport does NOT alter narrative content or invent prompt rules; it exclusively transports, streams, and cleans.
  */
 
-import { format_history_entries, stream_bridge, strip_cognition_blocks } from "@utils";
+import { stream_bridge, strip_cognition_blocks } from "@utils";
 import { LLM_PRIORITY, get_llm_gate_status, merge_abort_signals, run_llm_job } from "./llm-gate.js";
 
 // ============================================================================
@@ -159,31 +159,12 @@ function get_ai_engine() {
 }
 
 // ============================================================================
-// [SECTION 3: CONVERSATION HISTORY ENCODING]
-// ============================================================================
-
-/**
- * Formats message history into an XML-tagged conversation block for instruction assembly.
- * Collapses consecutive messages from the same character label into a single entry.
- * Emits entity ids (when available on the message as `origin`) so <ENTRY> references
- * the application's entity ids (e.g. premade ids like "RUST", "JULIEN") and a
- * `round` index that increments per collapsed entry.
- * @param {Array<{role: string, content?: string, text?: string, character_name?: string, origin?: string}>} messages
- * @returns {string}
- */
-export function format_conversation_history(messages) {
-  return format_history_entries(messages, { separator: "\n\n", indent: 2 });
-}
-
-// ============================================================================
-// [SECTION 4: CORE LLM SERVICE & GENERATION DRIVER]
+// [SECTION 3: CORE LLM SERVICE & GENERATION DRIVER]
 // ============================================================================
 
 /**
  * @typedef {Object} PromptPayload
- * @property {string} [system] - The stable system prompt prefix.
- * @property {string} [task] - The volatile task directive.
- * @property {Array<{role: string, content?: string, text?: string, character_name?: string}>} [messages] - Conversation history.
+ * @property {string} [system] - The complete closed-envelope prompt (`<SYSTEM>…</SYSTEM>`, task sealed inside at compile time).
  * @property {string} [startWith] - Prefix to force model generation to begin with.
  * @property {string} [role] - Generation speaker role (e.g. 'ai', 'fractal').
  * @property {string} [node_id] - UI node identifier for stream targeting.
@@ -255,42 +236,8 @@ export const llm_service = {
   async _execute_generation(ai_engine, payload, options, gate_signal) {
     options = { ...options, signal: merge_abort_signals(options.signal, gate_signal) };
 
-    // 1. Assemble instruction block: universal nested envelope
-    const chat_history = format_conversation_history(payload.messages || []);
-    const system_text = String(payload.system || "").trim();
-    const task_text = String(payload.task || "").trim();
-
-    let instruction = "";
-
-    const has_system_tag = system_text.includes("<SYSTEM");
-
-    if (has_system_tag) {
-      const is_closed = system_text.endsWith("</SYSTEM>");
-      const base_system = is_closed ? system_text.slice(0, system_text.lastIndexOf("</SYSTEM>")).trimEnd() : system_text;
-
-      const inner_parts = [];
-      if (chat_history) {
-        inner_parts.push(`<HISTORY>\n${chat_history}\n</HISTORY>`);
-      }
-      if (task_text) {
-        inner_parts.push(task_text);
-      }
-
-      if (inner_parts.length > 0) {
-        instruction = `${base_system}\n\n${inner_parts.join("\n\n")}\n</SYSTEM>`;
-      } else {
-        instruction = is_closed ? system_text : `${base_system}\n</SYSTEM>`;
-      }
-    } else {
-      const parts = [system_text];
-      if (chat_history) {
-        parts.push(`<HISTORY>\n${chat_history}\n</HISTORY>`);
-      }
-      if (task_text) {
-        parts.push(task_text);
-      }
-      instruction = parts.filter(Boolean).join("\n\n");
-    }
+    // 1. Instruction block: the closed compile-time envelope, sent verbatim.
+    const instruction = String(payload.system || "").trim();
 
     try {
       // 2. Prepare Perchance plugin parameters
@@ -474,6 +421,7 @@ export const llm_service = {
 
 /**
  * CHANGELOG:
+ * - 2026-10-05: Single-envelope send — builder seals the closed `<SYSTEM>…<TASK>…</SYSTEM>` package; transport sends `payload.system` verbatim (fusion, `<HISTORY>` injection, and `format_conversation_history` retired).
  * - 2026-09-26: Global LLM gate — every generation now dispatches through `run_llm_job` (single-slot, foreground-priority, preemptible background work) so background memory/optics calls cannot stale-abort the user-visible reply; added `gate_status()` telemetry for the freeze watchdog.
  * - 2026-09-25: Unified History Pipeline — `format_conversation_history` now delegates directly to the canonical `format_history_entries` in `@utils/text.js`, eliminating duplicate collapsing and XML serialization.
  * - 2026-09-25: DRY pass — `format_conversation_history`'s label fallback now calls the shared `role_display_label`.

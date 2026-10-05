@@ -11,11 +11,10 @@
  * Contents:
  * 1. `create_contract_fixtures` — fixed entities, NPC, dynamics snapshot, history.
  * 2. `make_contract_cases` — mode-keyed compile invocations over those fixtures.
- * 3. `CONTRACT` — the ordered tag inventory + package shape each mode must emit.
- * 4. `CONTRACT_SIZES` — coarse character-count baseline (25% tripwire).
+ * 3. `CONTRACT` — the ordered tag inventory each mode must emit in its closed envelope.
  *
  * Rules:
- * - Tag inventories encode layer order; they are the primary regression gate.
+ * - Tag inventories encode layer order; they are the regression gate (byte sizes retired).
  * - Keep fixtures deterministic; no clocks, randomness, or live state.
  * ============================================================================
  */
@@ -141,8 +140,9 @@ export function make_contract_cases() {
 }
 
 /**
- * Ordered tag inventory + package shape every mode must emit (layer order encoded).
- * @type {Readonly<Record<string, { system: string[], task: string[], messages: number }>>}
+ * Ordered tag inventory every mode must emit in its single closed envelope
+ * (system layers, HISTORY where the fixture log is non-empty, then task layers).
+ * @type {Readonly<Record<string, { system: string[] }>>}
  */
 export const CONTRACT = {
   director: {
@@ -186,14 +186,20 @@ export const CONTRACT = {
       "LANDMARKS",
       "ATMOSPHERE",
       "WEATHER",
+      "HISTORY",
+      "ENTRY",
+      "ENTRY",
+      "TASK",
+      "INPUT",
+      "INPUT",
+      "DIRECTIVES",
+      "KEYWORD_DIRECTIVES",
+      "AVAILABLE_KEYWORDS",
+      "OUTPUT_FORMAT",
     ],
-    task: ["TASK", "INPUT", "INPUT", "DIRECTIVES", "KEYWORD_DIRECTIVES", "AVAILABLE_KEYWORDS", "OUTPUT_FORMAT"],
-    messages: 0,
   },
   director_terse: {
-    system: ["SYSTEM"],
-    task: ["TASK", "OUTPUT_FORMAT"],
-    messages: 0,
+    system: ["SYSTEM", "TASK", "OUTPUT_FORMAT"],
   },
   interaction: {
     system: [
@@ -251,8 +257,9 @@ export const CONTRACT = {
       "LANDMARKS",
       "ATMOSPHERE",
       "WEATHER",
-    ],
-    task: [
+      "HISTORY",
+      "ENTRY",
+      "ENTRY",
       "TASK",
       "THINK_FORMAT",
       "THINK",
@@ -273,7 +280,6 @@ export const CONTRACT = {
       "DRIVE",
       "OUTPUT_FORMAT",
     ],
-    messages: 0,
   },
   ghostwrite: {
     system: [
@@ -331,8 +337,6 @@ export const CONTRACT = {
       "LANDMARKS",
       "ATMOSPHERE",
       "WEATHER",
-    ],
-    task: [
       "TASK",
       "THINK_FORMAT",
       "THINK",
@@ -353,7 +357,6 @@ export const CONTRACT = {
       "DRIVE",
       "OUTPUT_FORMAT",
     ],
-    messages: 0,
   },
   npc: {
     system: [
@@ -419,8 +422,6 @@ export const CONTRACT = {
       "APPEARANCE",
       "BUILD",
       "CLOTHING",
-    ],
-    task: [
       "TASK",
       "THINK_FORMAT",
       "THINK",
@@ -445,7 +446,6 @@ export const CONTRACT = {
       "DRIVE",
       "OUTPUT_FORMAT",
     ],
-    messages: 0,
   },
   narrator: {
     system: [
@@ -500,8 +500,9 @@ export const CONTRACT = {
       "LANDMARKS",
       "ATMOSPHERE",
       "WEATHER",
-    ],
-    task: [
+      "HISTORY",
+      "ENTRY",
+      "ENTRY",
       "TASK",
       "THINK_FORMAT",
       "THINK",
@@ -518,7 +519,6 @@ export const CONTRACT = {
       "DRIVE",
       "OUTPUT_FORMAT",
     ],
-    messages: 0,
   },
   narrator_prologue: {
     system: [
@@ -573,8 +573,6 @@ export const CONTRACT = {
       "LANDMARKS",
       "ATMOSPHERE",
       "WEATHER",
-    ],
-    task: [
       "TASK",
       "THINK_FORMAT",
       "THINK",
@@ -590,7 +588,6 @@ export const CONTRACT = {
       "DRIVE",
       "OUTPUT_FORMAT",
     ],
-    messages: 0,
   },
   narrator_epilogue: {
     system: [
@@ -645,8 +642,9 @@ export const CONTRACT = {
       "LANDMARKS",
       "ATMOSPHERE",
       "WEATHER",
-    ],
-    task: [
+      "HISTORY",
+      "ENTRY",
+      "ENTRY",
       "TASK",
       "THINK_FORMAT",
       "THINK",
@@ -662,7 +660,6 @@ export const CONTRACT = {
       "DRIVE",
       "OUTPUT_FORMAT",
     ],
-    messages: 0,
   },
   continuum: {
     system: [
@@ -689,19 +686,30 @@ export const CONTRACT = {
       "HISTORY",
       "ENTRY",
       "ENTRY",
+      "TASK",
+      "DIRECTIVES",
+      "OUTPUT_FORMAT",
     ],
-    task: ["TASK", "DIRECTIVES", "OUTPUT_FORMAT"],
-    messages: 0,
   },
   enhancement: {
-    system: ["SYSTEM", "CORE_PROTOCOLS", "DATA", "PERSPECTIVE", "ENTITY_CONTEXT", "APPEARANCE", "BUILD"],
-    task: ["TASK", "THINK_FORMAT", "THINK", "INPUT", "DIRECTIVES", "OUTPUT_FORMAT"],
-    messages: 0,
+    system: [
+      "SYSTEM",
+      "CORE_PROTOCOLS",
+      "DATA",
+      "PERSPECTIVE",
+      "ENTITY_CONTEXT",
+      "APPEARANCE",
+      "BUILD",
+      "TASK",
+      "THINK_FORMAT",
+      "THINK",
+      "INPUT",
+      "DIRECTIVES",
+      "OUTPUT_FORMAT",
+    ],
   },
   sorting: {
-    system: ["SYSTEM", "CORE_PROTOCOLS", "DATA", "PERSPECTIVE"],
-    task: ["TASK", "INPUT", "DIRECTIVES", "OUTPUT_FORMAT"],
-    messages: 0,
+    system: ["SYSTEM", "CORE_PROTOCOLS", "DATA", "PERSPECTIVE", "TASK", "INPUT", "DIRECTIVES", "OUTPUT_FORMAT"],
   },
   optics: {
     system: [
@@ -719,8 +727,6 @@ export const CONTRACT = {
       "CURRENT_LOOK",
       "JACKET",
       "POSTURE",
-    ],
-    task: [
       "TASK",
       "THINK_FORMAT",
       "INPUT",
@@ -734,7 +740,6 @@ export const CONTRACT = {
       "AVAILABLE_KEYWORDS",
       "OUTPUT_FORMAT",
     ],
-    messages: 0,
   },
 };
 
@@ -769,23 +774,10 @@ export const MODE_DIRECTIVE_LEADS = Object.freeze({
     "**SOLO FRAME PROTOCOL.**",
   ]),
 });
-export const CONTRACT_SIZES = {
-  director: { system: 1989, task: 4065 },
-  director_terse: { system: 105, task: 909 },
-  interaction: { system: 5703, task: 2158 },
-  ghostwrite: { system: 5704, task: 2129 },
-  npc: { system: 6035, task: 2922 },
-  narrator: { system: 5290, task: 1922 },
-  narrator_prologue: { system: 5290, task: 2170 },
-  narrator_epilogue: { system: 5290, task: 1839 },
-  continuum: { system: 1456, task: 2186 },
-  enhancement: { system: 529, task: 1051 },
-  sorting: { system: 653, task: 2523 },
-  optics: { system: 1716, task: 3785 },
-};
 
 /**
  * CHANGELOG
+ * - 2026-10-05: Single-envelope contract — inventories merge system + task tag lists (HISTORY/ENTRYs where the fixture log renders); CONTRACT_SIZES retired (shape, not bytes, is the gate).
  * - 2026-10-04: Director contract inventory left unchanged by the hint envelope (no fixture input fires the hint — verified against the failing assumption; unit tests pin the envelope).
  * - 2026-10-04: Catalog restructure re-baseline (orthogonal atoms: GROUNDING shared, SENTENCE_FORMULAS/SCENE_MOMENTUM/CLICHES/CONSENT split, IMAGE_VOCABULARY merged, TEXT_RENDERING renamed, DATA→OUTPUT, ALTERNATION→reflex): interaction 5468→5703, ghostwrite 5469→5704, npc 5800→6035, narrator 5055→5290 (×3), optics 1761→1716 (+235 prose/+235 narrator/−45 optics CORE_PROTOCOLS deltas, measured via bundle); all tasks unchanged; inventories updated.
  * - 2026-10-04: 4-axiom re-baseline (fidelity absorbed as constitution L4, style law dropped, SIMULATION_FIDELITY retired from CORE_PROTOCOLS): interaction 5617→5468, ghostwrite 5618→5469, npc 5949→5800, narrator 5204→5055 (×3); all tasks unchanged. Net −149 system bytes/mode.

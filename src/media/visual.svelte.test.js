@@ -242,7 +242,7 @@ describe("VisualEngine.generate — fractal profile pictures render in landscape
   });
 });
 
-describe("VisualEngine optics envelope — the compiled <TASK> reaches the LLM", () => {
+describe("VisualEngine optics envelope — the sealed <SYSTEM> carries the <TASK> to the LLM", () => {
   let engine;
 
   beforeEach(() => {
@@ -254,27 +254,27 @@ describe("VisualEngine optics envelope — the compiled <TASK> reaches the LLM",
     );
   });
 
-  it("forwards the <TASK> package during visualize()", async () => {
+  it("sends the sealed envelope during visualize()", async () => {
     await engine.visualize("story-1", "The vault door slams shut.", "story_scene", { silent: true });
 
     expect(llm_service.generate).toHaveBeenCalledTimes(1);
     const [payload] = llm_service.generate.mock.calls[0];
     expect(payload.system).toContain('mode="optics"');
-    expect(payload.task).toBeTruthy();
-    expect(payload.task).toContain("<TASK>");
-    expect(payload.task).toContain('<OUTPUT_FORMAT mode="json">');
-    expect(payload.task).toContain('"negative_prompt"');
+    expect(payload.system).toContain("<TASK>");
+    expect(payload.system).toContain('<OUTPUT_FORMAT mode="json">');
+    expect(payload.system).toContain('"negative_prompt"');
+    expect(payload.task).toBeUndefined();
   });
 
-  it("forwards the <TASK> package during enhance()", async () => {
+  it("sends the sealed envelope during enhance()", async () => {
     await engine.enhance("a lone wolf on a ridge", "story_character");
 
     expect(llm_service.generate).toHaveBeenCalledTimes(1);
     const [payload] = llm_service.generate.mock.calls[0];
     expect(payload.system).toContain('mode="optics"');
-    expect(payload.task).toBeTruthy();
-    expect(payload.task).toContain("<TASK>");
-    expect(payload.task).toContain('<OUTPUT_FORMAT mode="json">');
+    expect(payload.system).toContain("<TASK>");
+    expect(payload.system).toContain('<OUTPUT_FORMAT mode="json">');
+    expect(payload.task).toBeUndefined();
   });
 });
 

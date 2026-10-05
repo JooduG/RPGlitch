@@ -79,8 +79,6 @@ export async function execute_director_shot(payload, snapshot, options = {}) {
         llm_service.generate(
           {
             system: prompt.system,
-            task: prompt.task,
-            messages: [],
             role: "system",
             node_id: `${node_id}-director`,
           },

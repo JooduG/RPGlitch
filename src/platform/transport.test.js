@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { format_conversation_history, llm_service, looks_truncated, raw_stop_reason, raw_to_text, sanitize_llm } from "./transport.js";
+import { llm_service, looks_truncated, raw_stop_reason, raw_to_text, sanitize_llm } from "./transport.js";
 
 vi.mock("@utils", async (importOriginal) => {
   const actual = await importOriginal();
@@ -118,39 +118,8 @@ describe("raw_to_text and raw_stop_reason", () => {
   });
 });
 
-describe("format_conversation_history", () => {
-  it("formats messages into XML tags with origin and turn", () => {
-    const messages = [
-      { role: "USER_PERSONA", content: "Hello" },
-      { role: "AI_CHARACTER", content: "Greetings." },
-    ];
-    const formatted = format_conversation_history(messages);
-    expect(formatted).toContain('<ENTRY round="1" origin="User">Hello</ENTRY>');
-    expect(formatted).toContain('<ENTRY round="2" origin="Character">Greetings.</ENTRY>');
-  });
-
-  it("prefers the entity id origin when present", () => {
-    const messages = [{ role: "AI_CHARACTER", character_name: "Iris", origin: "iris", content: "Greetings." }];
-    const formatted = format_conversation_history(messages);
-    expect(formatted).toContain('<ENTRY round="1" origin="iris">Greetings.</ENTRY>');
-  });
-
-  it("preserves quotes and apostrophes without entity escaping, and strips think tags", () => {
-    const messages = [{ role: "USER_PERSONA", content: "<think>Planning action.</think>Joodu's posture was solid. \"You're Raphael,\" he said." }];
-    const formatted = format_conversation_history(messages);
-    expect(formatted).toContain('<ENTRY round="1" origin="User">Joodu\'s posture was solid. "You\'re Raphael," he said.</ENTRY>');
-    expect(formatted).not.toContain("&apos;");
-    expect(formatted).not.toContain("&quot;");
-    expect(formatted).not.toContain("<think>");
-  });
-
-  it("returns empty string when no messages are provided", () => {
-    expect(format_conversation_history([])).toBe("");
-  });
-});
-
 describe("llm_service instruction envelope", () => {
-  it("nests conversation history and the task inside <SYSTEM>, closing after the task without system_close", async () => {
+  it("sends the closed compile-time envelope verbatim", async () => {
     let captured = "";
     globalThis.window = globalThis;
     // @ts-ignore
@@ -158,12 +127,11 @@ describe("llm_service instruction envelope", () => {
       captured = typeof opts.instruction === "function" ? opts.instruction() : opts.instruction;
       return "ok";
     };
+    const sealed = '<SYSTEM mode="narrator">\n<HISTORY>\n<ENTRY round="1" origin="User">I wait.</ENTRY>\n</HISTORY>\n\n<TASK></TASK>\n</SYSTEM>';
     try {
       await llm_service.generate(
         {
-          system: '<SYSTEM round="5" mode="narrator">',
-          messages: [{ role: "USER_PERSONA", origin: "SILVERS", content: "I wait." }],
-          task: "<TASK></TASK>",
+          system: sealed,
         },
         { silent: true, raw: true },
       );
@@ -171,43 +139,7 @@ describe("llm_service instruction envelope", () => {
       // @ts-ignore
       delete window.generate_text;
     }
-    const history = captured.indexOf("<HISTORY>");
-    const history_close = captured.indexOf("</HISTORY>");
-    const task = captured.indexOf("<TASK>");
-    const system_close = captured.indexOf("</SYSTEM>");
-    expect(history).toBeGreaterThan(-1);
-    expect(task).toBeGreaterThan(history_close);
-    expect(system_close).toBeGreaterThan(task);
-    expect(captured.match(/<\/SYSTEM>/g)?.length).toBe(1);
-  });
-
-  it("embeds task inside already-closed <SYSTEM> envelope and re-closes cleanly", async () => {
-    let captured = "";
-    globalThis.window = globalThis;
-    // @ts-ignore
-    window.generate_text = async (opts) => {
-      captured = typeof opts.instruction === "function" ? opts.instruction() : opts.instruction;
-      return "ok";
-    };
-    try {
-      await llm_service.generate(
-        {
-          system: '<SYSTEM mode="director">\n<CORE_PROTOCOLS>Rules</CORE_PROTOCOLS>\n</SYSTEM>',
-          task: "<TASK>Evaluate</TASK>",
-        },
-        { silent: true, raw: true },
-      );
-    } finally {
-      // @ts-ignore
-      delete window.generate_text;
-    }
-    const protocols = captured.indexOf("<CORE_PROTOCOLS>Rules</CORE_PROTOCOLS>");
-    const task = captured.indexOf("<TASK>Evaluate</TASK>");
-    const system_close = captured.indexOf("</SYSTEM>");
-    expect(protocols).toBeGreaterThan(-1);
-    expect(task).toBeGreaterThan(protocols);
-    expect(system_close).toBeGreaterThan(task);
-    expect(captured.match(/<\/SYSTEM>/g)?.length).toBe(1);
+    expect(captured).toBe(sealed);
   });
 
   it("preserves self-contained <SYSTEM>...<TASK>...</TASK></SYSTEM> without modification", async () => {

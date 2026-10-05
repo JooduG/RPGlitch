@@ -13,7 +13,7 @@ import { FLAT_LEAF_MAP, entities, stories } from "@data";
 import { parse_profile_json } from "./parser.js";
 import { temporal_engine } from "./temporal.js";
 import { llm_service } from "@platform";
-import { render_profile_sorting } from "./builder.js";
+import { compile_prompt } from "./prompts.js";
 
 // ── 1. Profile Structuring & Schema Mapper ────────────────────────────────────
 
@@ -26,8 +26,9 @@ import { render_profile_sorting } from "./builder.js";
  * @returns {Promise<Object | null>}
  */
 export async function structure_profile(raw, type) {
-  const payload = render_profile_sorting(type, {
-    ingestion: true,
+  const payload = compile_prompt("sorting", {
+    entity_type: type,
+    options: { ingestion: true },
     input_data: typeof raw === "string" ? raw : JSON.stringify(raw, null, 2),
   });
   const result = await llm_service.enhance(payload);

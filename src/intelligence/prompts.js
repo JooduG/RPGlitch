@@ -81,7 +81,7 @@ const TEMPORAL_SCHEMA_FRAGMENT = Object.freeze(["eternal", "present", "past", "f
  * @type {Readonly<{ system: ReadonlyArray<string>, task: ReadonlyArray<string> }>}
  */
 const PROSE_LAYERS = Object.freeze({
-  system: Object.freeze(["role", "axiomatic_constitution", "core_protocols", "entities"]),
+  system: Object.freeze(["role", "axiomatic_constitution", "core_protocols", "entities", "history"]),
   task: Object.freeze(["think_format", "input", "currents", "directives", "delivery_posture", "stability_lock", "output_format"]),
 });
 
@@ -90,7 +90,7 @@ const PROSE_LAYERS = Object.freeze({
  * @type {Readonly<{ system: ReadonlyArray<string>, task: ReadonlyArray<string> }>}
  */
 export const DIRECTOR_LAYERS = Object.freeze({
-  system: Object.freeze(["role", "core_protocols", "dynamic_axes", "entities"]),
+  system: Object.freeze(["role", "core_protocols", "dynamic_axes", "entities", "history"]),
   task: Object.freeze(["input", "directives", "output_format"]),
 });
 
@@ -440,7 +440,7 @@ export const resolve_prompt_mode = ({ is_npc = false, ghostwrite = false } = {})
  *
  * @param {string} mode_key - Manifest key from PROMPTS catalog
  * @param {Object} [context={}] - Dynamic runtime context, entities, dynamics, and options
- * @returns {{ system: string, task: string, meta?: Record<string, any>, messages?: any[] }}
+ * @returns {{ system: string, meta?: Record<string, any> }}
  */
 export function compile_prompt(mode_key, context = {}) {
   return assemble_prompt(get_prompt(mode_key), context);

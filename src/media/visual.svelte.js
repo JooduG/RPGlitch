@@ -333,7 +333,7 @@ export class VisualEngine {
     return await this.breaker.execute(async () => {
       return await this.retryer.retry(
         async () => {
-          const { system, task } = compile_prompt("optics", {
+          const { system } = compile_prompt("optics", {
             tier: type,
             target_type: type,
             raw_intent: text,
@@ -341,7 +341,7 @@ export class VisualEngine {
             mode: "enhance",
             variant: type === "selfie" ? "selfie" : undefined,
           });
-          const result = await llm_service.generate({ system, task, messages: [] }, { silent: true, priority: "background" });
+          const result = await llm_service.generate({ system }, { silent: true, priority: "background" });
           if (!result) throw new Error("Prompt enhancement failed - no content.");
 
           const parsed = parse_llm_image_prompt_response(result);
@@ -433,7 +433,7 @@ export class VisualEngine {
 
       let refined = null;
       if (use_llm) {
-        const { system, task } = compile_prompt("optics", {
+        const { system } = compile_prompt("optics", {
           tier,
           target_type: tier,
           raw_intent: sanitized_prompt,
@@ -459,10 +459,7 @@ export class VisualEngine {
 
         try {
           const extraction_timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("LLM prompt extraction timed out")), 90000));
-          refined = await Promise.race([
-            llm_service.generate({ system, task, messages: [] }, { silent: true, priority: "background" }),
-            extraction_timeout,
-          ]);
+          refined = await Promise.race([llm_service.generate({ system }, { silent: true, priority: "background" }), extraction_timeout]);
         } catch (extract_error) {
           console.warn("[VisualEngine] visualize: LLM prompt extraction failed, using fallback:", /** @type {Error} */ (extract_error).message);
         }
@@ -959,7 +956,7 @@ export async function spawn_image_beat(tier, options = {}) {
  * - 2026-09-26: Optics LLM passes (enhance + visualize extraction) now dispatch at `priority: "background"`, so the global LLM gate preempts them whenever a foreground reply is queued.
  * - 2026-09-24: Media layer consolidation — absorbed image-beats.js (queue bounds, in-flight registry, ghost sweeping, spawn_image_beat) directly into visual.svelte.js per P4 Zero Backwards Compatibility.
  * - 2026-09-24: Prompt-domain fold-in — the optics recent-narrative window now calls `render_visual_history` (@intelligence), the empty-response fallback now calls `render_optics_fallback` (@intelligence), the `<image_prompt>`/`<caption>` extraction now uses `parse_llm_image_prompt_response`, and `generate()` consumes the finished spec from `compose_visual_generation_prompt` (@media/image-aesthetics); removed the local `_build_visual_history`, fallback templates, caption regexes, and inline token assembly.
- * - 2026-09-24: Optics envelope regression — enhance() and visualize() now forward the compiled <TASK> (task) alongside the <SYSTEM> fragment, honoring the universal { system, task } package contract; previously only .system was sent, so the LLM never received the OUTPUT_FORMAT JSON schema and improvised XML/Markdown envelopes.
+ * - 2026-10-05: Single closed envelope — enhance() and visualize() send the sealed `system` (the <TASK> rides inside <SYSTEM>); the old { system, task } split is retired.
  * - 2026-09-19: Prompt Unification (Mega Report S1, R4): Retired prompt_templates; routed enhance and visualize prompt compilation directly through switchboard compile_prompt("optics", ...).
  * - 2026-09-19: Pipeline correctness & fidelity fixes: (1) Fixed tier mapping so story_scene passes without character negatives (R2); (2) Applied VISUAL_STYLES.none as universal baseline quality floor in generate() (F2); (3) Case-folded and stripped punctuation during negative token deduplication (F5); (4) Enforced signature color trait verification in visualize() (F1).
  * - 2026-09-18: Migrated image prompt templates and response parsers from local image-prompts.js to @intelligence barrel.

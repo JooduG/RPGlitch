@@ -176,7 +176,7 @@ describe("prompt-modes registry", () => {
       input: "Beast moves.",
     });
     expect(director_shot.system).toContain('mode="director"');
-    expect(director_shot.task).toContain("<TASK>");
+    expect(director_shot.system).toContain("<TASK>");
 
     // 2. Prose shot (interaction)
     const interaction_shot = compile_prompt("interaction", {
@@ -185,7 +185,7 @@ describe("prompt-modes registry", () => {
       input: "Beast prepares.",
     });
     expect(interaction_shot.system).toContain('mode="interaction"');
-    expect(interaction_shot.task).toContain("<TASK>");
+    expect(interaction_shot.system).toContain("<TASK>");
 
     // 3. Continuum caretaker
     const continuum_shot = compile_prompt("continuum", {
@@ -308,7 +308,7 @@ describe("master switchboard compile_prompt", () => {
     const result = compile_prompt("optics", context);
     expect(result.system).toContain("<SYSTEM");
     expect(result.system).toContain('mode="optics"');
-    expect(result.task).toContain("<TASK");
+    expect(result.system).toContain("<TASK");
     expect(picks.length).toBeGreaterThan(0);
     expect(["wearing a slicker", "holding an umbrella"]).toContain(picks[0].option);
   });
@@ -323,7 +323,7 @@ describe("master switchboard compile_prompt", () => {
 
     const result = compile_prompt("optics", context);
     expect(result.system).toContain('mode="optics"');
-    expect(result.task).toContain("SIGNATURE COLORS:");
+    expect(result.system).toContain("SIGNATURE COLORS:");
   });
 
   it("compiles director prompt directly through compile_prompt", () => {
@@ -335,7 +335,7 @@ describe("master switchboard compile_prompt", () => {
     });
 
     expect(result.system).toContain('mode="director"');
-    expect(result.task).toContain('"_thought_process"');
+    expect(result.system).toContain('"_thought_process"');
   });
 
   it("compiles continuum prompt directly through compile_prompt", () => {
@@ -378,7 +378,7 @@ describe("master switchboard compile_prompt", () => {
     expect(physical_enhancement.system).toContain("You are the BIOMETRIC_RENDERER Profile Enhancer");
     expect(physical_enhancement.system).toContain('scope="Physical Appearance"');
     expect(physical_enhancement.system).toContain('tense="PRESENT"');
-    expect(physical_enhancement.task).toContain("[KEY: value] permanent biometrics");
+    expect(physical_enhancement.system).toContain("[KEY: value] permanent biometrics");
 
     const non_physical_enhancement = compile_prompt("enhancement", {
       field_id: "eternal.non_physical",
@@ -391,7 +391,7 @@ describe("master switchboard compile_prompt", () => {
     expect(non_physical_enhancement.system).toContain("You are the COGNITIVE_ARCHITECT Profile Enhancer");
     expect(non_physical_enhancement.system).toContain('scope="Personality"');
     expect(non_physical_enhancement.system).toContain('tense="PRESENT"');
-    expect(non_physical_enhancement.task).toContain("[KEY: value]");
+    expect(non_physical_enhancement.system).toContain("[KEY: value]");
   });
 });
 

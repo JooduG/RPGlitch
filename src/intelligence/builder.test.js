@@ -337,8 +337,8 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
     // Schema should NOT be inside <CORE_PROTOCOLS> in system
     expect(director_package.system).not.toContain("<SCHEMA>");
     // Schema should be inside task
-    expect(director_package.task).toContain('<OUTPUT_FORMAT mode="json">');
-    expect(director_package.task).toContain('"next_action"');
+    expect(director_package.system).toContain('<OUTPUT_FORMAT mode="json">');
+    expect(director_package.system).toContain('"next_action"');
   });
 
   it("compiles director mode with <ALTERNATION_OPTIONS> in <CORE_PROTOCOLS> when entities have alternations (R1, T1)", () => {
@@ -369,9 +369,9 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
     });
 
     expect(terse_package.system).toContain("<SYSTEM");
-    expect(terse_package.task).toContain("<TASK>");
-    expect(terse_package.task).toContain('<OUTPUT_FORMAT mode="json">');
-    expect(terse_package.task).toContain('"next_action"');
+    expect(terse_package.system).toContain("<TASK>");
+    expect(terse_package.system).toContain('<OUTPUT_FORMAT mode="json">');
+    expect(terse_package.system).toContain('"next_action"');
   });
 
   it("compiles continuum mode via compile_prompt", () => {
@@ -406,7 +406,7 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
     });
     expect(sorting_package.system).toContain('mode="sorting"');
     expect(sorting_package.messages).toBeUndefined();
-    expect(sorting_package.task).toContain('<INPUT channel="ingestion">Raw bio text</INPUT>');
+    expect(sorting_package.system).toContain('<INPUT channel="ingestion">Raw bio text</INPUT>');
   });
 
   it("compiles optics mode via compile_prompt", () => {
@@ -417,10 +417,10 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
     });
 
     expect(optics_package.system).toContain('mode="optics"');
-    expect(optics_package.task).toContain("<TASK>");
-    expect(optics_package.task).toContain('<OUTPUT_FORMAT mode="json">');
-    expect(optics_package.task).toContain('"prompt"');
-    expect(optics_package.task).toContain('"negative_prompt"');
+    expect(optics_package.system).toContain("<TASK>");
+    expect(optics_package.system).toContain('<OUTPUT_FORMAT mode="json">');
+    expect(optics_package.system).toContain('"prompt"');
+    expect(optics_package.system).toContain('"negative_prompt"');
   });
 
   it("unifies character, npc, narrator, prologue, epilogue, and ghostwrite via compile_prompt", () => {

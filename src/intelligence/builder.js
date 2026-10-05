@@ -333,22 +333,23 @@ function resolve_accessors(payload, override_entities = null) {
 }
 
 /**
- * Packages rendered prompt text into a normalized prompt package with metadata.
+ * Packages rendered prompt text into the single closed-envelope prompt package.
  *
- * The package is always `{ system, task }` (+ optional `meta` / `messages`): `system` is an OPEN
- * `<SYSTEM>` fragment and `task` is the separate `<TASK>` block. `transport.js` owns assembling and
- * closing the final envelope, so there is no `system_close` field.
+ * The package is always `{ system }` (+ optional `meta`): `system` is the complete
+ * closed `<SYSTEM>…</SYSTEM>` envelope with the `<TASK>` block sealed inside, so what
+ * `platform/transport.js` used to fuse at send time is now fixed at compile time.
  *
  * @param {{ system?: string, task?: string }} rendered
  * @param {Record<string, any>} [meta]
- * @param {any[]} [messages]
+ * @returns {{ system: string, meta?: Record<string, any> }}
  */
-function pack_prompt(rendered, meta = {}, messages = []) {
+function pack_prompt(rendered, meta = {}) {
+  const system = clean_prompt_text(rendered?.system);
+  const task = clean_prompt_text(rendered?.task);
+  const sealed = task ? `${system}\n\n${task}\n</SYSTEM>` : `${system}\n</SYSTEM>`;
   return {
-    system: clean_prompt_text(rendered?.system),
-    task: clean_prompt_text(rendered?.task),
+    system: sealed,
     ...(Object.keys(meta).length > 0 ? { meta } : {}),
-    ...(Array.isArray(messages) && messages.length > 0 ? { messages } : {}),
   };
 }
 
@@ -471,6 +472,7 @@ export function render_director({
       core_protocols: core_protocols_xml,
       dynamics: render_dynamics_axes_xml(merged_dynamics, null, DYNAMICS_AXES),
       entities_block: entity_sheets,
+      history_block: wrap_tag("HISTORY", accessors.simulation_log(), 2),
     },
     { round },
   );
@@ -590,7 +592,11 @@ function render_prose_turn_core({
     fractal_name,
   });
 
-  const system = compose_system(config, { role_line, constitution, core_protocols: core, entities_block }, { round });
+  const system = compose_system(
+    config,
+    { role_line, constitution, core_protocols: core, entities_block, history_block: wrap_tag("HISTORY", accessors.simulation_log(), 2) },
+    { round },
+  );
 
   const stability_lock_content = resolve_stability_lock(meta);
 
@@ -719,6 +725,7 @@ export function render_scene_narrator({
   scene_template = null,
   input = "",
   compressed_snapshot = {},
+  render_accessors = null,
 }) {
   const is_prologue_beat = is_prologue || scene_template === "PROLOGUE";
 
@@ -747,7 +754,7 @@ export function render_scene_narrator({
     entities,
     speaker_name,
     pov_protocol,
-    accessors: create_render_accessors(entities, input, []),
+    accessors: render_accessors || create_render_accessors(entities, input, []),
     speaker_dynamics,
     fractal_dynamics,
     keywords: meta?.keywords || [],
@@ -1150,7 +1157,7 @@ function normalize_context(context = {}, entities_override = null, { require_tri
  * `prose` is the fallback for interaction/ghostwrite and any unknown key.
  * Adding a mode is a manifest record plus, at most, one entry here — no switch edits.
  *
- * @type {Record<string, (config: any, context: Record<string, any>) => { system: string, task: string, meta?: Record<string, any>, messages?: any[] }>}
+ * @type {Record<string, (config: any, context: Record<string, any>) => { system: string, meta?: Record<string, any> }>}
  */
 export const MODE_ADAPTERS = {
   director: (config, context) => {
@@ -1237,7 +1244,6 @@ export const MODE_ADAPTERS = {
         fractal: narrator_snapshot.fractal?.dynamics,
         flags: snapshot.flags || {},
       }),
-      [],
     );
   },
 
@@ -1266,9 +1272,11 @@ export const MODE_ADAPTERS = {
   },
 
   prose: (config, context) => {
+    const { render_accessors } = normalize_context(context);
     const rendered = render_story_prose({
       ...context,
       prompt_mode: config.key,
+      render_accessors,
     });
     return pack_prompt(
       rendered,
@@ -1278,7 +1286,6 @@ export const MODE_ADAPTERS = {
         flags: context.compressed_snapshot?.flags || {},
         ...(context.meta || {}),
       }),
-      context.messages || [],
     );
   },
 };
@@ -1288,7 +1295,7 @@ export const MODE_ADAPTERS = {
  *
  * @param {any} config - Resolved prompt manifest record (carries its canonical `key`).
  * @param {Object} [context={}] - Dynamic runtime context, entities, dynamics, and options
- * @returns {{ system: string, task: string, meta?: Record<string, any>, messages?: any[] }}
+ * @returns {{ system: string, meta?: Record<string, any> }}
  */
 export function assemble_prompt(config, context = {}) {
   const adapter = MODE_ADAPTERS[config.key] || MODE_ADAPTERS.prose;
@@ -1297,6 +1304,7 @@ export function assemble_prompt(config, context = {}) {
 
 /**
  * CHANGELOG
+ * - 2026-10-05: Single closed envelope — pack_prompt seals `<TASK>` inside `<SYSTEM>` (package is `{ system, meta }`); prose/director compile a builder-owned `<HISTORY>` block (transport fusion + messages retired).
  * - 2026-10-04: Director candidates render inside render_entity_sheets (cast_xml string param retired; unused director entity_plan dropped).
  * - 2026-10-04: Rewired module imports for the prompt-architecture split (recovery.js, output.js, style.js, sheets.js, media optics/history shaping); assembly logic unchanged.
  * - 2026-10-04: Dropped the enhancement `<LAYER>` tag (tense now rides the `<PERSPECTIVE tense>` attribute) and flipped `render_enhancement` to catalog-first enhancer priority.

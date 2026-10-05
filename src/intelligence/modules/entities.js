@@ -268,7 +268,7 @@ export function resolve_actor_plan({
       spec: key === "AI" ? SHEET_SPECS.AI_CHARACTER : key === "USER" ? SHEET_SPECS.USER_PERSONA : SHEET_SPECS.FRACTAL,
       entity,
       dynamics: dynamics_for(key),
-      is_owner: key === "FRACTAL" ? true : speaker_key === key,
+      is_owner: config?.visibility === "director" ? true : key === "FRACTAL" ? true : speaker_key === key,
       show_dispositions: dispositions_for.has(key),
       include_agenda: agendas.has(key),
       include_memories: undefined,

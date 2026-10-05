@@ -64,7 +64,7 @@ const director_background_queue = create_job_queue({ max_concurrency: 1 });
 
 /**
  * Attaches entity ids (e.g. premade ids like "RUST", "JULIEN", "TARTARUS") to
- * conversation-history messages so the transport layer can emit
+ * conversation-history messages so the builder history layer can emit
  * <ENTRY origin="…"> with the entity id rather than a display label.
  * Falls back to leaving the message untouched when no id matches.
  * @param {Array<{role: string, content?: string, character_name?: string, origin?: string}>} messages
@@ -504,12 +504,12 @@ export const gamemaster = {
       const make_character_try = async (completion_note) => {
         const { onToken, json, signal, silent, raw } = llm_options;
 
-        const task = completion_note ? character_prompt.task + completion_note : character_prompt.task;
+        const system = completion_note
+          ? character_prompt.system.replace(/<\/SYSTEM>\s*$/, `\n\n${completion_note}\n</SYSTEM>`)
+          : character_prompt.system;
         const generated_text = await llm_service.generate(
           {
-            system: character_prompt.system,
-            task,
-            messages: simulation_log,
+            system,
             role: generation_role,
             node_id: node_id,
 
@@ -696,7 +696,6 @@ export const gamemaster = {
       const response = await this.execute_with_retry(async () => {
         const text = await llm_service.generate({
           system: result.system,
-          task: result.task,
           role: "fractal",
           node_id: node_id,
         });
@@ -816,7 +815,7 @@ export const gamemaster = {
     const raw_messages = await state_bridge.session_driver.load_log(story_id);
     const recent_history = filter_narrative_messages(raw_messages).slice(-10);
 
-    const { system, task } = compile_prompt("narrator", {
+    const { system } = compile_prompt("narrator", {
       entities: clean_entities,
       simulation_log: recent_history,
       compressed_snapshot: current_dynamics,
@@ -831,7 +830,7 @@ export const gamemaster = {
     const fractal_name = state_bridge.runtime.active_fractal?.name || "Fractal Entity";
 
     const response = await this.execute_with_retry(async () => {
-      const text = await llm_service.generate({ system, task, role: "fractal", node_id: node_id });
+      const text = await llm_service.generate({ system, role: "fractal", node_id: node_id });
 
       if (!text || !strip_cognition_blocks(text).trim()) {
         throw new Error("EMPTY_EPILOGUE_PROSE");
@@ -909,8 +908,6 @@ export const gamemaster = {
     const result = await llm_service.generate(
       {
         system: ghost_prompt.system,
-        task: ghost_prompt.task,
-        messages: [],
         role: "user",
       },
 

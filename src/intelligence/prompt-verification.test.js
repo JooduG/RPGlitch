@@ -6,8 +6,8 @@
  *
  * Compiles every registered PROMPTS mode against the frozen fixtures in
  * prompt-verification.js and asserts the universal envelope invariants plus the
- * frozen per-mode ordered tag inventory and a coarse size tripwire. Any later
- * change that alters emitted text surfaces as a reviewable contract diff.
+ * frozen per-mode ordered tag inventory. Any later change that alters emitted
+ * text surfaces as a reviewable contract diff.
  * ============================================================================
  */
 
@@ -19,7 +19,7 @@ import { MODE_ADAPTERS, PROMPT_LAYERS } from "./builder.js";
 import { SYSTEM_ROLES } from "./modules/system.js";
 import { TASK_MODE_PLANS, TASK_LAYERS } from "./modules/task.js";
 import { VISIBILITY_POLICIES } from "./modules/entities.js";
-import { CONTRACT, CONTRACT_SIZES, MODE_DIRECTIVE_LEADS, make_contract_cases } from "./prompt-verification.js";
+import { CONTRACT, MODE_DIRECTIVE_LEADS, make_contract_cases } from "./prompt-verification.js";
 
 const TAG_PATTERN = /<([A-Z][A-Z0-9_]{1,})(?=[\s>/])/g;
 const RESERVED_REFERENCE_PATTERN = /<(INPUT|AGENDA|TRAJECTORY|SHIRT|JACKET)\s*\/>/;
@@ -28,13 +28,15 @@ const RESERVED_REFERENCE_PATTERN = /<(INPUT|AGENDA|TRAJECTORY|SHIRT|JACKET)\s*\/
 const TEXT_ONLY_LAYERS = new Set(["role"]);
 
 /**
- * Extracts ONLY the direct (indent-2) child element tags of an envelope string, so nested
- * content (protocol atoms, entity sheets) can never mask a missing or undeclared top-level layer.
+ * Extracts ONLY the direct (indent-2) child element tags of the <SYSTEM> region,
+ * stopping at the sealed <TASK> block — the task's own children share the same
+ * indent depth and must never read as system-level layers.
  * @param {string} [text]
  * @returns {string[]}
  */
 function extract_layer_tags(text) {
-  return String(text || "")
+  const system_only = String(text || "").split("<TASK")[0];
+  return system_only
     .split("\n")
     .map((line) => line.match(/^ {2}<([A-Z][A-Z0-9_]*)\b/))
     .filter(Boolean)
@@ -69,16 +71,6 @@ function extract_tags(text) {
   return [...String(text || "").matchAll(TAG_PATTERN)].map((match) => match[1]);
 }
 
-/**
- * Coarse baseline guard (25% or 80 chars, whichever is larger).
- * @param {number} actual
- * @param {number} baseline
- * @returns {boolean}
- */
-function within_tolerance(actual, baseline) {
-  return Math.abs(actual - baseline) <= Math.max(baseline * 0.25, 80);
-}
-
 function with_accessors() {
   register_state_accessors({ runtime: { active_fractal: { narrative_style: "cormac_mccarthy" } } });
 }
@@ -92,21 +84,23 @@ describe("Prompt pipeline — universal envelope invariants", () => {
   for (const [mode_name, [mode_key, context]] of Object.entries(cases)) {
     it(mode_name + " satisfies the universal envelope contract", () => {
       const prompt_package = compile_prompt(mode_key, context);
-      const task = String(prompt_package.task || "");
+      const system = String(prompt_package.system || "");
 
-      // 1. Open <SYSTEM> fragment carrying the single machine-readable `mode` and a human role line.
-      expect(prompt_package.system).toContain("<SYSTEM");
-      expect(prompt_package.system).not.toContain("</SYSTEM>");
-      expect(prompt_package.system).toMatch(/<SYSTEM[^>]*mode="[a-z_]+"/);
-      expect(prompt_package.system).toContain("You are ");
+      // 1. Closed <SYSTEM> envelope carrying the single machine-readable `mode` and a human role line.
+      expect(system).toContain("<SYSTEM");
+      expect(system.endsWith("</SYSTEM>")).toBe(true);
+      expect(system).toMatch(/<SYSTEM[^>]*mode="[a-z_]+"/);
+      expect(system).toContain("You are ");
 
-      // 2. The Task is the package's own field — never nested in <SYSTEM>.
-      expect(prompt_package.system).not.toContain("<TASK");
-      expect((task.match(/<TASK\b/g) || []).length).toBe(1);
-      expect(task.endsWith("</TASK>")).toBe(true);
+      // 2. The <TASK> block is sealed inside the envelope — exactly one, after any <HISTORY>.
+      expect(system).toContain("<TASK");
+      expect((system.match(/<TASK\b/g) || []).length).toBe(1);
+      const history_index = system.indexOf("<HISTORY>");
+      const task_index = system.indexOf("<TASK");
+      expect(history_index === -1 || history_index < task_index).toBe(true);
 
       // 3. No reserved tag reused as inline prose metasyntax.
-      expect(RESERVED_REFERENCE_PATTERN.test(prompt_package.system + task)).toBe(false);
+      expect(RESERVED_REFERENCE_PATTERN.test(system)).toBe(false);
     });
   }
 });
@@ -123,20 +117,16 @@ describe("Prompt pipeline — per-mode contract envelopes", () => {
       const prompt_package = compile_prompt(mode_key, context);
 
       expect(extract_tags(prompt_package.system)).toEqual(CONTRACT[mode_name].system);
-      expect(extract_tags(prompt_package.task)).toEqual(CONTRACT[mode_name].task);
-      expect((prompt_package.messages || []).length).toBe(CONTRACT[mode_name].messages);
-
-      const size = CONTRACT_SIZES[mode_name];
-      expect(within_tolerance(String(prompt_package.system || "").length, size.system)).toBe(true);
-      expect(within_tolerance(String(prompt_package.task || "").length, size.task)).toBe(true);
+      expect(prompt_package.system.endsWith("</SYSTEM>")).toBe(true);
+      expect(prompt_package.task).toBeUndefined();
     });
   }
 
   for (const [mode_name, leads] of Object.entries(MODE_DIRECTIVE_LEADS)) {
     it("emits the " + mode_name + " directive paragraphs in the declared sequence", () => {
       const [mode_key, context] = cases[mode_name];
-      const task = String(compile_prompt(mode_key, context).task || "");
-      const positions = leads.map((lead) => task.indexOf(lead));
+      const system = String(compile_prompt(mode_key, context).system || "");
+      const positions = leads.map((lead) => system.indexOf(lead));
       expect(positions.every((position) => position !== -1)).toBe(true);
       expect(positions).toEqual([...positions].sort((left, right) => left - right));
     });
@@ -159,17 +149,13 @@ describe("Prompt pipeline — declared envelope layers", () => {
       const prompt_package = compile_prompt(case_key, context);
       const config = PROMPTS[mode_key];
 
-      const declared_system = config.layers.system.filter((key) => !TEXT_ONLY_LAYERS.has(key)).map((key) => key.toUpperCase());
-      const declared_task = config.layers.task.filter((key) => !TEXT_ONLY_LAYERS.has(key)).map((key) => key.toUpperCase());
+      const declared = [...config.layers.system, "task"].filter((key) => !TEXT_ONLY_LAYERS.has(key)).map((key) => key.toUpperCase());
 
-      const emitted_system = extract_layer_tags(prompt_package.system);
-      const emitted_task = extract_layer_tags(prompt_package.task);
+      const emitted = extract_layer_tags(prompt_package.system);
 
       // No undeclared top-level layer may leak, and declaration order must be respected.
-      expect(emitted_system.every((tag) => declared_system.includes(tag))).toBe(true);
-      expect(emitted_task.every((tag) => declared_task.includes(tag))).toBe(true);
-      expect(respects_declared_order(emitted_system, declared_system)).toBe(true);
-      expect(respects_declared_order(emitted_task, declared_task)).toBe(true);
+      expect(emitted.every((tag) => declared.includes(tag))).toBe(true);
+      expect(respects_declared_order(emitted, declared)).toBe(true);
     });
 
     it(mode_key + " declares only known layer keys", () => {

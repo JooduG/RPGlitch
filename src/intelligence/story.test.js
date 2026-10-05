@@ -101,8 +101,7 @@ vi.mock("./builder.js", async (importOriginal) => {
       case "director":
         if (context.terse) {
           return {
-            system: '<SYSTEM mode="director" round="1"><ROLE>DIRECTOR</ROLE></SYSTEM>',
-            task: "<TASK>Return a single, COMPLETE, VALID JSON object</TASK>",
+            system: '<SYSTEM mode="director" round="1"><ROLE>DIRECTOR</ROLE><TASK>Return a single, COMPLETE, VALID JSON object</TASK></SYSTEM>',
           };
         }
         return mock_prompt_spies.build_director(context, context.compressed_snapshot);
@@ -1896,7 +1895,7 @@ describe("execute_with_retry resilience diagnostics", () => {
 
     vi.mocked(llm_service.generate).mockImplementation(async (payload) => {
       call_count++;
-      tasks_received.push(payload.task);
+      tasks_received.push(payload.system);
       if (call_count === 1) {
         // Director turn 1: Model refusal trigger phrase
         return "I cannot fulfill this request as an AI safety precaution.";
