@@ -15,8 +15,8 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { register_state_accessors } from "@utils";
 import { compile_prompt, PROMPTS } from "./prompts.js";
-import { MODE_ADAPTERS, PROMPT_LAYERS } from "./builder.js";
-import { SYSTEM_ROLES } from "./modules/system.js";
+import { MODE_ADAPTERS } from "./builder.js";
+import { PROMPT_LAYERS, ROLE_LIBRARY } from "./modules/system.js";
 import { TASK_MODE_PLANS, TASK_LAYERS } from "./modules/task.js";
 import { VISIBILITY_POLICIES } from "./modules/entities.js";
 import { CONTRACT, MODE_DIRECTIVE_LEADS, make_contract_cases } from "./prompt-verification.js";
@@ -198,9 +198,9 @@ describe("Prompt pipeline — mode-record single-source-of-truth invariants", ()
     }
   });
 
-  it("resolves every role_line key against SYSTEM_ROLES", () => {
+  it("resolves every role_line key against ROLE_LIBRARY", () => {
     for (const config of Object.values(PROMPTS)) {
-      expect(SYSTEM_ROLES[config.role_line]).toBeDefined();
+      expect(ROLE_LIBRARY[config.role_line]).toBeDefined();
     }
   });
 

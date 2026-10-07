@@ -21,7 +21,7 @@
  * • Sensory Cortex       : optics      — Diffusion image prompt synthesis
  *
  * ── The 7-Layer Universal Pipeline ──────────────────────────────────────────
- * 1. system       : Root <SYSTEM> envelope mode & SYSTEM_ROLES factory key
+ * 1. system       : Root <SYSTEM> envelope mode & ROLE_LIBRARY key
  * 2. constitution : Axiomatic core laws (L1–L4) toggle
  * 3. protocols    : Ordered protocol atoms emitting <CORE_PROTOCOLS>
  * 4. entities     : Entity scoping for sheets, dispositions, dynamic axes, and spotlight

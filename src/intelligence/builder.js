@@ -36,7 +36,7 @@ import {
 } from "@utils";
 import { ensure_embeddings } from "@platform";
 import { get_prompt } from "./prompts.js";
-import { resolve_system_role_line, render_system_xml } from "./modules/system.js";
+import { resolve_system_role_line, compose_system, pack_prompt, resolve_prompt_meta } from "./modules/system.js";
 import { resolve_style_snapshot } from "./modules/style.js";
 import { resolve_stability_lock } from "./modules/reflex.js";
 import { render_constitution } from "./modules/constitution.js";
@@ -299,20 +299,6 @@ function extract_plan_from_state(text) {
 }
 
 /**
- * Trims trailing line whitespace and consolidates excessive newlines.
- * @param {string} [text]
- * @returns {string}
- */
-function clean_prompt_text(text) {
-  return typeof text === "string"
-    ? text
-        .replace(/[ \t]+$/gm, "")
-        .replace(/\n{3,}/g, "\n")
-        .trim()
-    : "";
-}
-
-/**
  * Resolves or creates a render_accessors bundle for prompt generation.
  * Accepts either raw_messages or simulation_log from the payload.
  * @param {any} payload
@@ -323,94 +309,6 @@ function resolve_accessors(payload, override_entities = null) {
   const entities = override_entities || payload?.entities || {};
   const messages = Array.isArray(payload?.raw_messages) && payload.raw_messages.length > 0 ? payload.raw_messages : payload?.simulation_log || [];
   return create_render_accessors(entities, payload?.input || "", messages);
-}
-
-/**
- * Packages rendered prompt text into the single closed-envelope prompt package.
- *
- * The package is always `{ system }` (+ optional `meta`): `system` is the complete
- * closed `<SYSTEM>…</SYSTEM>` envelope with the `<TASK>` block sealed inside, so what
- * `platform/transport.js` used to fuse at send time is now fixed at compile time.
- *
- * @param {{ system?: string, task?: string }} rendered
- * @param {Record<string, any>} [meta]
- * @returns {{ system: string, meta?: Record<string, any> }}
- */
-function pack_prompt(rendered, meta = {}) {
-  const system = clean_prompt_text(rendered?.system);
-  const task = clean_prompt_text(rendered?.task);
-  const sealed = task ? `${system}\n\n${task}\n</SYSTEM>` : `${system}\n</SYSTEM>`;
-  return {
-    system: sealed,
-    ...(Object.keys(meta).length > 0 ? { meta } : {}),
-  };
-}
-
-/**
- * Builds the canonical prompt-package `meta` record — one shape for every mode.
- * @param {{ ai?: any, fractal?: any, flags?: any, role?: string|null, entity_id?: string|null }} [parameters={}]
- * @returns {Record<string, any>}
- */
-function resolve_prompt_meta({ ai = null, fractal = null, flags = {}, role = null, entity_id = null } = {}) {
-  return {
-    ai,
-    fractal,
-    flags,
-    ...(role ? { role } : {}),
-    ...(entity_id ? { entity_id } : {}),
-  };
-}
-
-/**
- * Canonical prose-envelope layer table — the ordered emitters that fill a `<SYSTEM>`.
- * Emitters read from the assembled layer state, so adding/reordering a system layer is a
- * table edit rather than a change to every compiler.
- */
-export const PROMPT_LAYERS = Object.freeze([
-  { key: "role", emit: (state) => state.role_line },
-  { key: "axiomatic_constitution", emit: (state) => state.constitution },
-  { key: "core_protocols", emit: (state) => state.core_protocols },
-  { key: "dynamic_axes", emit: (state) => state.dynamics },
-  { key: "entities", emit: (state) => state.entities_block },
-  { key: "target_entity_context", emit: (state) => state.target_context },
-  { key: "cast", emit: (state) => state.nearby_cast },
-  { key: "layer", emit: (state) => state.layer },
-  { key: "entity_context", emit: (state) => state.field_context },
-  { key: "chapter_history", emit: (state) => state.chapter_history },
-  { key: "history", emit: (state) => state.history_block },
-]);
-
-/**
- * Walks the canonical `PROMPT_LAYERS` table and returns the ordered, non-empty `<SYSTEM>` children.
- * Every compiler composes its envelope through this single emitter, so a layer reorder/insert is a
- * table edit, never a change to an individual mode's children array.
- *
- * @param {Partial<Record<"role_line"|"constitution"|"core_protocols"|"dynamics"|"entities_block"|"target_context"|"nearby_cast"|"layer"|"field_context"|"chapter_history"|"history_block", string|null|undefined>>} state
- * @returns {string[]}
- */
-function render_prompt_layers(state, allowed_keys = null) {
-  return PROMPT_LAYERS.filter((layer) => !allowed_keys || allowed_keys.includes(layer.key))
-    .map((layer) => layer.emit(state))
-    .filter(Boolean);
-}
-
-/**
- * Composes the open `<SYSTEM>` envelope for a mode from its manifest record and a layer state
- * bag. The single envelope-assembly surface: every compiler routes through here, so a new
- * `<SYSTEM>` attribute or layer change is a one-line edit rather than a seven-site sweep.
- *
- * @param {any} config - Resolved prompt manifest record (carries `system.mode` and `layers.system`).
- * @param {Record<string, any>} [state={}] - Emitter state bag keyed by `PROMPT_LAYERS` slots.
- * @param {{ round?: number|string|null, attributes?: Record<string, any> }} [options={}]
- * @returns {string}
- */
-function compose_system(config, state = {}, { round = null, attributes = {} } = {}) {
-  return render_system_xml({
-    mode: config.system.mode,
-    round,
-    attributes,
-    children: render_prompt_layers(state, config.layers.system),
-  });
 }
 
 // ── 3. Prompt Compilers ───────────────────────────────────────────────────────
