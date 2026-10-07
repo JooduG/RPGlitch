@@ -8,7 +8,7 @@
  * 1. resolve_history configuration resolver
  * 2. render_history transcript log formatting with <ENTRY> XML tags
  * 3. render_input_history_xml enveloped history block
- * 4. render_chapter_history_xml episodic milestone formatting (sheets.js)
+ * 4. render_chapter_history_xml episodic milestone formatting (history.js)
  * 5. resolve_history_plan pure-data plans + render_history_plan thin mapping
  * 6. resolve_sensory_plan line plans for optics shaping
  * ============================================================================
@@ -25,8 +25,8 @@ import {
   resolve_sensory_plan,
   render_history_plan,
   format_sensory_history,
+  render_chapter_history_xml,
 } from "./history.js";
-import { render_chapter_history_xml } from "./sheets.js";
 
 describe("src/intelligence/modules/history.js", () => {
   describe("HISTORY_DEFAULTS & resolve_history()", () => {
@@ -139,8 +139,8 @@ describe("src/intelligence/modules/history.js", () => {
 
       const xml = render_chapter_history_xml(entity, 2);
       expect(xml).toContain("<CHAPTER_HISTORY>");
-      expect(xml).toContain("- Chapter 1: The Descent: Entered the cavern.");
-      expect(xml).toContain("- Chapter The Ambush: Ambushed by goblins.");
+      expect(xml).toContain('<CHAPTER index="1" title="1: The Descent">Entered the cavern.</CHAPTER>');
+      expect(xml).toContain('<CHAPTER index="2" title="The Ambush">Ambushed by goblins.</CHAPTER>');
       expect(xml).not.toContain("Chapter Chapter");
       expect(xml).not.toContain("Current");
     });

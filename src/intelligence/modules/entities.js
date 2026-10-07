@@ -22,7 +22,7 @@
  */
 
 import { escape_xml, render_xml_tag, strip_visual_excluded, collapse_whitespace, truncate_at_word } from "@utils";
-import { SHEET_SPECS, VISUAL_SECTIONS, render_sheet } from "./sheets.js";
+import { SHEET_SPECS, render_sheet } from "./sheets.js";
 
 // ============================================================================
 // [SECTION 1: SPATIAL PRESENCE & RELATIONAL TOPOLOGY]
@@ -393,9 +393,8 @@ export function render_actor_sheets(
     if (actor.include_memories !== undefined) {
       sheet_arguments.include_memories = actor.include_memories;
     }
-    if (actor.physical_mode) {
-      sheet_arguments.physical_mode = actor.physical_mode;
-      sheet_arguments.sections = actor.sections;
+    if (actor.mode) {
+      sheet_arguments.mode = actor.mode;
       sheet_arguments.transform_physical = (value) => roll(strip_visual_excluded(value));
     }
     return render_sheet(actor.spec, sheet_arguments);
@@ -410,8 +409,7 @@ function render_optics_actor(actor, { macro_entities = {}, roll = (text) => text
   return render_sheet(actor.spec, {
     entity: actor.entity,
     entities: macro_entities,
-    physical_mode: "separate",
-    sections: VISUAL_SECTIONS,
+    mode: "physical",
     include_agenda: false,
     include_memories: false,
     is_owner: true,

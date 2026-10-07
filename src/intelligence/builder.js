@@ -49,11 +49,11 @@ import { resolve_stability_lock } from "./modules/reflex.js";
 import { render_constitution } from "./modules/constitution.js";
 import { render_core_protocols, resolve_pov_protocol, resolve_macro_directive, resolve_layer_tense_protocol } from "./modules/protocols.js";
 import { render_entity_sheets, resolve_entities, render_optics_entities_xml, render_nearby_entities_xml } from "./modules/entities.js";
-import { render_entity_memory_context, render_enhancement_field_context, render_chapter_history_xml } from "./modules/sheets.js";
+import { render_entity_memory_context, render_enhancement_field_context } from "./modules/sheets.js";
 import { render_dynamics_axes_xml } from "./physics.js";
 import { verify_epistemic_integrity } from "./veil.js";
 
-import { render_history, render_input_history_xml, resolve_history, format_sensory_history } from "./modules/history.js";
+import { render_history, render_input_history_xml, resolve_history, format_sensory_history, render_chapter_history_xml } from "./modules/history.js";
 import {
   render_task,
   render_keyword_directives_xml,

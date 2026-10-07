@@ -366,6 +366,38 @@ export function render_visual_history(entries, { max_entries = 2, max_chars = 20
 }
 
 /**
+ * Renders an entity's closed-chapter milestone boundaries into a structured
+ * <CHAPTER_HISTORY> XML block carrying one <CHAPTER> child per closed chapter.
+ * @param {any} target_entity
+ * @param {number} [indentation_level=0]
+ * @returns {string}
+ */
+export function render_chapter_history_xml(target_entity, indentation_level = 0) {
+  const chapters = Array.isArray(target_entity?.chapters) ? target_entity.chapters : [];
+  const closed_chapters = chapters.filter((chapter) => chapter?.status === "closed");
+  if (!closed_chapters.length) return "";
+
+  const chapter_rows = closed_chapters.slice(-6).map((chapter, position) => {
+    const raw_title = String(chapter.title || "Untitled").trim();
+    const normalized_title = raw_title.replace(/^Chapter\s+/i, "");
+    const clean_summary = truncate_at_word(String(chapter.summary || ""), 220);
+    return render_xml_tag({
+      tag: "CHAPTER",
+      attrs: { index: position + 1, title: normalized_title },
+      children: [clean_summary],
+      inline: true,
+    });
+  });
+
+  return render_xml_tag({
+    tag: "CHAPTER_HISTORY",
+    children: chapter_rows,
+    indent: indentation_level,
+    separator: "\n",
+  });
+}
+
+/**
  * CHANGELOG
  * - 2026-10-04: Plan/render split (Plan 2) — `resolve_history_plan` owns all filter/collapse/window/strip/budget decisions as frozen pure data, `render_history_plan` maps plans to `<ENTRY>` XML without branching; sensory shaping splits into `resolve_sensory_plan` + `render_sensory_plan`; the four public compilers become one-line compositions with byte-identical output; retired the `maximum_characters` / `input_tag` aliases (P4) and the dual `limit` vs `max_entries` wording now shares one vocabulary.
  * - 2026-10-04: Reverted sensory/visual history shaping (format_sensory_history, render_visual_history) from media/optics.js — history shaping lives here; chapter milestones stay in sheets.js.

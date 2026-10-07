@@ -141,7 +141,7 @@ export function strip_leading_key_echo(value, keys = []) {
  * @param {Record<string, any>} parsed
  * @returns {Record<string, string>}
  */
-function normalize_physical_entries(parsed) {
+export function normalize_physical_entries(parsed) {
   const out = {};
   for (const [k, v] of Object.entries(parsed || {})) {
     if (k === "__raw_prose__") continue;
