@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Task Module & Somatics Repatriation (Plan Omega for Task)**:
+  - **Somatic Repatriation (`src/intelligence/modules/reflex.js`, `src/intelligence/modules/task.js`, `src/intelligence/builder.js`)**: Relocated Section 5 somatic functions (`render_subtext_xml`, `resolve_physics_protocols`, `render_available_keywords_xml`) out of `task.js` into `reflex.js`, consolidating somatic physics, motility, and keywords under the reflex domain. Purged `STYLE_MOTIF_REGISTRY` import from `task.js`.
+  - **Director `REFLEX.*` Inverted Delegation (`src/intelligence/modules/task.js`)**: Removed cross-catalog prefix sniffing from `get_directive_atom` making it pure `TASK_LIBRARY`. Moved delegation into `compile_directive_tags`, delegating `REFLEX.*` keys directly to `get_reflex_atom`.
+  - **Declarative `CINEMATOGRAPHY_RULES` Catalog (`src/intelligence/modules/task.js`)**: Replaced procedural if/else ladders in `resolve_cinematography_preset` with a pure declarative rules array matching `{ is_fractal_target?, chaos_gte?, intensity_gte?, affinity_gte?, tier?, preset }`.
+  - **Signature Modernization & Dead Surface Elimination (`src/intelligence/modules/task.js`, `builder.js`, `physics.test.js`)**: Standardized `render_keyword_directives_xml(content = "", mode = "DIRECTOR")`, eliminating obsolete `directive` string and indentation arguments. Retired `build_task_state` under P4 Zero Backwards Compatibility.
+  - **Plan / Render Split**: Implemented `resolve_task_plan(parameters)` returning frozen `{ tag: "TASK", mode, children }` and `render_task_plan(plan)`, with `render_task(parameters)` delegating cleanly through the pair.
+
 - **System Prompt Module & Envelope Unification (Plan Omega for System)**:
   - **Declarative `ROLE_LIBRARY` Data Catalog (`src/intelligence/modules/system.js`)**: Replaced closure-based `SYSTEM_ROLES` with frozen `{ body }` role templates and `{placeholder}` tokens (`INTERACTION`, `NPC`, `NARRATOR`, `DIRECTOR`, `CONTINUUM_CARETAKER`, `NARRATIVE_STRUCTURER`, `ENHANCER`, `SENSORY_CORTEX`). Introduced `ROLE_DEFAULTS` (`ENHANCER: { enhancer_name: "GENERAL" }`) and missing-slot safe resolution to `""` instead of `"undefined"`.
   - **Sovereign Root Envelope Assembly (`src/intelligence/modules/system.js`, `src/intelligence/builder.js`)**: Relocated `PROMPT_LAYERS`, `render_prompt_layers`, `compose_system`, `pack_prompt`, and `resolve_prompt_meta` from `builder.js` into `system.js`, making `system.js` the single owner of the `<SYSTEM>` envelope lifecycle while transforming `builder.js` into a pure coordinator.

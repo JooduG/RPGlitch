@@ -15,10 +15,13 @@ This roadmap defines the authoritative technical backlog, active engineering spr
 ## 1. Track 0: Sovereign Intelligence Kernel Refactors (Completed & In Flight)
 
 Completed ground-up architectural deconstructions bringing the intelligence module layer to 100% pure data catalogs and frozen plan/render pipelines:
+
 - [x] **0.1 Entities & Sheets Refactor (`sheets.js`, `entities.js`)**: Universal sheet compilers, macro hydration, and epistemic isolation.
 - [x] **0.2 Task & Directives Refactor (`task.js`, `reflex.js`, `protocols.js`, `output.js`, `constitution.js`, `history.js`)**: Declarative atom libraries, normalized pacing/stability ladders, and pure data format schemas.
 - [x] **0.3 Style Engine & Prose Detox (`style.js`, `detox.js`, `styles.js`)**: Single-turn style snapshot resolution, dedicated `detox.js` AI tell scrubbers, and normalized Style DNA `{ internal_ratio, rhythm, sensory, grounding }`.
 - [x] **0.4 Sovereign System Envelope & Role Declarations (`system.js`)**: Pure data `ROLE_LIBRARY`, re-homed `PROMPT_LAYERS` and `pack_prompt`, and formal plan/render split (`resolve_system_plan` -> `render_system_plan`).
+- [x] **0.5 Task Module & Somatics Repatriation (`task.js`, `reflex.js`, `builder.js`)**: Somatics re-homing to `reflex.js`, pure data `CINEMATOGRAPHY_RULES`, inverted `REFLEX.*` delegation in `compile_directive_tags`, P4 signature modernization, and `resolve_task_plan` / `render_task_plan` split.
+  - **Touchpoints**: [`src/intelligence/modules/task.js`](src/intelligence/modules/task.js), [`src/intelligence/modules/task.test.js`](src/intelligence/modules/task.test.js), [`src/intelligence/modules/reflex.js`](src/intelligence/modules/reflex.js), [`src/intelligence/modules/reflex.test.js`](src/intelligence/modules/reflex.test.js), [`src/intelligence/builder.js`](src/intelligence/builder.js), [`src/intelligence/physics.test.js`](src/intelligence/physics.test.js).
 
 ---
 

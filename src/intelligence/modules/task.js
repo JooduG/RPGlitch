@@ -39,7 +39,6 @@
  */
 
 import { escape_xml, prompt_escape, inline_or_block, render_xml_tag } from "@utils";
-import { STYLE_MOTIF_REGISTRY } from "@data";
 import { resolve_style_dna } from "./style.js";
 import { resolve_output_plan, render_output_plan, render_json_return } from "./output.js";
 import { resolve_macro_directive } from "./protocols.js";
@@ -244,12 +243,6 @@ Analyze recent turns in «HISTORY». Synthesize memories, update physical appear
  * @returns {string}
  */
 export function get_directive_atom(directive_key, values = {}) {
-  if (
-    String(directive_key ?? "")
-      .trim()
-      .split(".")[0] === "REFLEX"
-  )
-    return get_reflex_atom(directive_key, values);
   const atom = String(directive_key ?? "")
     .trim()
     .split(".")
@@ -259,24 +252,43 @@ export function get_directive_atom(directive_key, values = {}) {
 }
 
 /**
- * Generic directive compiler — resolves an ordered dotted-key selection through
- * `TASK_LIBRARY` into directive paragraphs (the Layer 6 analogue of protocols.js
+ * Generic directive compiler — resolves an ordered dotted-key selection into directive
+ * paragraphs (the Layer 6 analogue of protocols.js
  * `compile_protocol_tags`). Each entry is either a dotted key (one paragraph) or a
  * `{ group: [keys], separator? }` shape (one paragraph joining its atoms, spaces by
  * default). Blanks are dropped; order is the selection's order.
  *
+ * `REFLEX.*` leaf keys delegate to reflex.js `get_reflex_atom` (both as bare entries
+ * and inside `{ group }` members); every other key resolves against `TASK_LIBRARY`.
  * @param {Array<string|{ group: string[], separator?: string }>} directive_selection
  * @param {Record<string, any>} [values={}]
  * @returns {string[]} Ordered, non-empty directive paragraphs.
  */
+/**
+ * Resolves one selection entry: `REFLEX.*` keys delegate to the reflex catalog,
+ * everything else compiles against `TASK_LIBRARY`.
+ * @param {string|null|undefined} directive_key
+ * @param {Record<string, any>} [values={}]
+ * @returns {string}
+ */
+function resolve_directive_entry(directive_key, values = {}) {
+  if (
+    String(directive_key ?? "")
+      .trim()
+      .split(".")[0] === "REFLEX"
+  )
+    return get_reflex_atom(directive_key, values);
+  return get_directive_atom(directive_key, values);
+}
+
 export function compile_directive_tags(directive_selection, values = {}) {
   const directive_entries = Array.isArray(directive_selection) ? directive_selection : [];
   return directive_entries
     .map((entry) =>
       typeof entry === "string" || entry == null
-        ? get_directive_atom(entry, values).trim()
+        ? resolve_directive_entry(entry, values).trim()
         : (entry.group || [])
-            .map((directive_key) => get_directive_atom(directive_key, values).trim())
+            .map((directive_key) => resolve_directive_entry(directive_key, values).trim())
             .filter(Boolean)
             .join(entry.separator ?? " ")
             .trim(),
@@ -336,26 +348,15 @@ export function render_task_input({ input = "", input_origin = null, input_round
 
 /**
  * Renders the canonical <KEYWORD_DIRECTIVES> XML block for Director or Optics.
- * Supports passing either raw keywords XML or raw keywords string, with mode-specific directive resolution.
- *
- * @param {string} available_keywords_content - Raw XML or escaped keyword string
- * @param {string|{ mode?: 'DIRECTOR'|'OPTICS', directive?: string, indent?: number }} [options_or_directive="DIRECTOR"]
+ * Takes raw keywords XML or a raw keyword string; the mode selects the directive.
+ * @param {string} [content=""] - Raw <AVAILABLE_KEYWORDS> XML or escaped keyword string
+ * @param {string} [mode="DIRECTOR"] - "DIRECTOR" | "OPTICS"
  * @returns {string} Formatted <KEYWORD_DIRECTIVES> block
  */
-export function render_keyword_directives_xml(available_keywords_content, options_or_directive = "DIRECTOR") {
-  const options =
-    typeof options_or_directive === "string"
-      ? options_or_directive === "OPTICS" || options_or_directive === "DIRECTOR"
-        ? { mode: options_or_directive }
-        : { directive: options_or_directive }
-      : options_or_directive || {};
+export function render_keyword_directives_xml(content = "", mode = "DIRECTOR") {
+  const directive = mode === "OPTICS" ? TASK_LIBRARY.KEYWORD_DIRECTIVES.OPTICS : TASK_LIBRARY.KEYWORD_DIRECTIVES.DIRECTOR;
 
-  const directive =
-    options.directive || (options.mode === "OPTICS" ? TASK_LIBRARY.KEYWORD_DIRECTIVES.OPTICS : TASK_LIBRARY.KEYWORD_DIRECTIVES.DIRECTOR);
-
-  const indent = options.indent ?? 0;
-
-  const inner_content = String(available_keywords_content || "").trim();
+  const inner_content = String(content || "").trim();
   const available_tag = inner_content.startsWith("<AVAILABLE_KEYWORDS>")
     ? inner_content
     : `<AVAILABLE_KEYWORDS>${inner_content}</AVAILABLE_KEYWORDS>`;
@@ -363,7 +364,6 @@ export function render_keyword_directives_xml(available_keywords_content, option
   return render_xml_tag({
     tag: "KEYWORD_DIRECTIVES",
     children: [directive, available_tag],
-    indent,
     child_indent: 2,
     separator: "\n",
   });
@@ -417,6 +417,36 @@ export function resolve_scene_action_directive({ scene_template = null, is_prolo
 }
 
 /**
+ * Declarative optics framing rules: ordered descriptor rows walked first-match-wins.
+ * Each row declares a single constraint; tuning framing is a data edit here —
+ * never a branch edit in `resolve_optics_cinematography`.
+ * @type {ReadonlyArray<Readonly<{ preset: string, is_fractal_target?: boolean, chaos_gte?: number, intensity_gte?: number, affinity_gte?: number, tier?: string }>>}
+ */
+export const CINEMATOGRAPHY_RULES = Object.freeze([
+  Object.freeze({ is_fractal_target: true, preset: "WIDE_ENVIRONMENTAL" }),
+  Object.freeze({ chaos_gte: 75, preset: "DUTCH_LOW_ANGLE" }),
+  Object.freeze({ intensity_gte: 75, preset: "INTIMATE_CLOSE_UP" }),
+  Object.freeze({ affinity_gte: 75, preset: "INTIMATE_CLOSE_UP" }),
+  Object.freeze({ tier: "solo_entity", preset: "SOLO_PORTRAIT" }),
+]);
+
+/**
+ * Tests one cinematography descriptor row: a row matches when every constraint it
+ * declares holds against the normalized framing context.
+ * @param {{ preset: string }} rule
+ * @param {{ is_fractal_target: boolean, chaos: number, intensity: number, affinity: number, tier: string }} framing
+ * @returns {boolean}
+ */
+function matches_cinematography_rule(rule, framing) {
+  if (rule.is_fractal_target === true && !framing.is_fractal_target) return false;
+  if (rule.chaos_gte != null && !(framing.chaos >= rule.chaos_gte)) return false;
+  if (rule.intensity_gte != null && !(framing.intensity >= rule.intensity_gte)) return false;
+  if (rule.affinity_gte != null && !(framing.affinity >= rule.affinity_gte)) return false;
+  if (rule.tier != null && framing.tier !== rule.tier) return false;
+  return true;
+}
+
+/**
  * Resolves camera framing, scale tokens, and staging directives for Sensory Optics.
  * Generates dynamic camera framing tokens and context descriptions for Layer 6 (<TASK>).
  *
@@ -439,17 +469,9 @@ export function resolve_optics_cinematography({
   const affinity = Number(ai_dynamics.affinity ?? 50);
 
   const { PRESETS } = TASK_LIBRARY.OPTICS.CINEMATOGRAPHY;
-  let preset = PRESETS.MEDIUM_ACTION;
-
-  if (is_fractal_target) {
-    preset = PRESETS.WIDE_ENVIRONMENTAL;
-  } else if (chaos >= 75) {
-    preset = PRESETS.DUTCH_LOW_ANGLE;
-  } else if (intensity >= 75 || affinity >= 75) {
-    preset = PRESETS.INTIMATE_CLOSE_UP;
-  } else if (tier === "solo_entity") {
-    preset = PRESETS.SOLO_PORTRAIT;
-  }
+  const framing = { is_fractal_target, chaos, intensity, affinity, tier };
+  const hit = CINEMATOGRAPHY_RULES.find((rule) => matches_cinematography_rule(rule, framing));
+  const preset = hit ? PRESETS[hit.preset] : PRESETS.MEDIUM_ACTION;
 
   const visual_staging_directive = visual_staging
     ? get_directive_atom("OPTICS.CINEMATOGRAPHY.STAGING_DIRECTIVE", { visual_staging: prompt_escape(visual_staging) })
@@ -701,14 +723,13 @@ function resolve_task_values(parameters, config) {
 }
 
 /**
- * Builds the ordered `<TASK>` state bag for a mode: resolve the mode's slot plan,
- * drop slots outside the manifest's declared task layers, and run each slot's named
- * resolver against the values bag.
- *
+ * Resolves turn parameters into a frozen, render-ready task plan. Mode fallback
+ * (`"prose"`), manifest layer filtering, slot resolution, and child ordering all
+ * happen here — the renderer maps plan children to the envelope without branching.
  * @param {Record<string, any>} [parameters={}]
- * @returns {Record<string, any>}
+ * @returns {Readonly<{ tag: string, mode: string, children: ReadonlyArray<string> }>}
  */
-export function build_task_state(parameters = {}) {
+export function resolve_task_plan(parameters = {}) {
   const config = parameters.config || null;
   const mode_key = config?.task_state || parameters.task_state;
   const mode = mode_key && TASK_MODE_PLANS[mode_key] ? mode_key : "prose";
@@ -721,7 +742,21 @@ export function build_task_state(parameters = {}) {
     if (allowed_layers && !allowed_layers.includes(slot_key)) continue;
     state[slot_key] = TASK_SLOT_RESOLVERS[resolver_key](values);
   }
-  return state;
+  const children = TASK_LAYERS.filter((layer) => !allowed_layers || allowed_layers.includes(layer.key))
+    .map((layer) => layer.emit(state))
+    .filter(Boolean);
+  return Object.freeze({ tag: "TASK", mode, children: Object.freeze(children) });
+}
+
+/**
+ * Maps a task plan to the canonical `<TASK>` envelope. Every selection is already
+ * plan data — this function only wraps.
+ * @param {ReturnType<typeof resolve_task_plan>|null|undefined} plan
+ * @returns {string}
+ */
+export function render_task_plan(plan) {
+  if (!plan) return "";
+  return plan.children.length ? render_xml_tag({ tag: "TASK", children: [...plan.children], indent: 0, child_indent: 2, separator: "\n" }) : "";
 }
 
 /**
@@ -735,117 +770,12 @@ export function build_task_state(parameters = {}) {
  * @returns {string}
  */
 export function render_task(parameters = {}) {
-  const state = build_task_state(parameters);
-  const allowed_layers = Array.isArray(parameters.layers) ? parameters.layers : null;
-  const children = TASK_LAYERS.filter((layer) => !allowed_layers || allowed_layers.includes(layer.key))
-    .map((layer) => layer.emit(state))
-    .filter(Boolean);
-  return children.length ? render_xml_tag({ tag: "TASK", children, indent: 0, child_indent: 2, separator: "\n" }) : "";
-}
-
-// ============================================================================
-// [SECTION 5: SUBTEXT, AVAILABLE KEYWORDS & PROTOCOL RESOLVERS]
-// ============================================================================
-
-/**
- * Resolves a list of chosen keywords against a physics protocol registry and style-motif registry.
- * @param {string[]} [keywords=[]]
- * @param {Record<string, any>} [physics_protocols={}]
- * @returns {{ id: string, tells?: string, directive: string }[]}
- */
-export function resolve_physics_protocols(keywords = [], physics_protocols = {}) {
-  const resolved = [];
-  for (const keyword of keywords || []) {
-    if (!keyword || typeof keyword !== "string") continue;
-    const clean_key = keyword.trim();
-    const upper_key = clean_key.toUpperCase();
-    const protocol_def = physics_protocols[upper_key] || physics_protocols[clean_key];
-    if (protocol_def) {
-      if (typeof protocol_def === "object") {
-        resolved.push({ id: upper_key, tells: protocol_def.tells, directive: protocol_def.directive });
-      } else {
-        resolved.push({ id: upper_key, directive: String(protocol_def) });
-      }
-      continue;
-    }
-    const motif = STYLE_MOTIF_REGISTRY[clean_key] || STYLE_MOTIF_REGISTRY[clean_key.toLowerCase()];
-    if (motif) resolved.push({ id: clean_key, directive: motif.directive });
-  }
-  return resolved;
-}
-
-/**
- * Builds <AVAILABLE_KEYWORDS> listing for the Director as a unified, flat bracketed list of tags.
- * @param {string[]} [active_style_keywords=[]]
- * @param {readonly string[]} [available_keywords=[]]
- * @returns {string}
- */
-export function render_available_keywords_xml(active_style_keywords = [], available_keywords = []) {
-  const motifs = (active_style_keywords || []).filter((k) => typeof k === "string" && k.trim()).map((k) => k.trim().toUpperCase());
-  const combined = Array.from(new Set([...available_keywords, ...motifs]));
-  return combined.map((k) => `[${k}]`).join(" ");
-}
-
-/**
- * Compiles dynamic somatic directives and narrative signals into a single unified <SUBTEXT> XML block.
- *
- * @param {Record<string, number>} [ai_dynamics={}] - Active character dynamics
- * @param {Record<string, number>} [fractal_dynamics={}] - Active fractal/environmental dynamics
- * @param {object} [options={}] - Options containing style, keywords, evaluators, and protocol registries
- * @returns {string} XML block string or "" if no signals or directives are active.
- */
-export function render_subtext_xml(ai_dynamics = {}, fractal_dynamics = {}, options = {}) {
-  const tags = [];
-  const seen = new Set();
-
-  const push = (id, directive) => {
-    const tag =
-      String(id || "")
-        .trim()
-        .toUpperCase()
-        .replace(/[^A-Z0-9_]/g, "_") || "";
-    const text = String(directive || "").trim();
-    if (!tag || !text || seen.has(tag)) return;
-    seen.add(tag);
-    tags.push(`<${tag}>${escape_xml(text)}</${tag}>`);
-  };
-
-  const physics_protocols = options?.physics_protocols || {};
-  const manual_keywords = options?.keywords || [];
-  const evaluate_dynamics_rules = options?.evaluate_dynamics_rules;
-  const resolved_keywords =
-    ai_dynamics && Object.keys(ai_dynamics).length && typeof evaluate_dynamics_rules === "function"
-      ? evaluate_dynamics_rules(ai_dynamics, manual_keywords)
-      : manual_keywords;
-
-  const resolved_directives = resolve_physics_protocols(resolved_keywords, physics_protocols);
-  for (const entry of resolved_directives) {
-    push(entry.id, entry.directive);
-  }
-
-  const evaluate_subtext_protocols = options?.evaluate_subtext_protocols;
-  const active_protocols =
-    typeof evaluate_subtext_protocols === "function"
-      ? evaluate_subtext_protocols({
-          ai_dynamics,
-          fractal_dynamics,
-          style: options?.style,
-        })
-      : [];
-
-  for (const protocol of active_protocols) {
-    const text =
-      protocol.text ||
-      (typeof physics_protocols[protocol.id] === "string" ? physics_protocols[protocol.id] : physics_protocols[protocol.id]?.directive);
-    push(protocol.id, text);
-  }
-
-  if (tags.length === 0) return "";
-  return render_xml_tag({ tag: "SUBTEXT", children: tags, child_indent: 2, separator: "\n" });
+  return render_task_plan(resolve_task_plan(parameters));
 }
 
 /**
  * CHANGELOG
+ * - 2026-10-07: Plan Omega for Task — Section 5 repatriated to reflex.js (STYLE_MOTIF_REGISTRY import dropped); REFLEX.* delegation moved from get_directive_atom (now pure TASK_LIBRARY) into compile_directive_tags; CINEMATOGRAPHY_RULES descriptor table replaces preset if/else; render_keyword_directives_xml collapsed to (content, mode); plan/render split (resolve_task_plan/render_task_plan, build_task_state retired) — prompt bytes byte-identical.
  * - 2026-10-04: Single has_input resolution (Plan A) — resolve_task_values owns values.has_input + values.turn_state; prose_posture threads the bag flag into the posture plan — prompt bytes byte-identical.
  * - 2026-10-04: Style-DNA parsed once per turn — resolve_task_values owns values.style_dna (style.js resolve_style_dna, from values.style ?? snapshot.style); prose_think/prose_currents/prose_posture read it, @data extract_style_dna import dropped — prompt bytes byte-identical.
  * - 2026-10-04: REFLEX.* directive keys delegate to reflex.js get_reflex_atom (catalog ownership moves to reflex.js; TASK_LIBRARY branch retired).

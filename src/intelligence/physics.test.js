@@ -16,7 +16,7 @@ import {
   build_turn_summary,
 } from "./physics.js";
 import { render_dynamics_axes_xml } from "./physics.js";
-import { render_available_keywords_xml } from "./modules/task.js";
+import { render_available_keywords_xml } from "./modules/reflex.js";
 
 describe("physics.js", () => {
   describe("DYNAMICS_AXES", () => {

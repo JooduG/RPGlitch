@@ -38,7 +38,7 @@ import { ensure_embeddings } from "@platform";
 import { get_prompt } from "./prompts.js";
 import { resolve_system_role_line, compose_system, pack_prompt, resolve_prompt_meta } from "./modules/system.js";
 import { resolve_style_snapshot } from "./modules/style.js";
-import { resolve_stability_lock } from "./modules/reflex.js";
+import { resolve_stability_lock, render_available_keywords_xml, render_subtext_xml } from "./modules/reflex.js";
 import { render_constitution } from "./modules/constitution.js";
 import { render_core_protocols, resolve_pov_protocol, resolve_macro_directive, resolve_layer_tense_protocol } from "./modules/protocols.js";
 import { render_entity_sheets, resolve_entities, render_optics_entities_xml, render_nearby_entities_xml } from "./modules/entities.js";
@@ -53,8 +53,6 @@ import {
   resolve_character_action_directive,
   resolve_scene_action_directive,
   resolve_optics_cinematography,
-  render_available_keywords_xml,
-  render_subtext_xml,
 } from "./modules/task.js";
 import { get_output_format } from "./modules/output.js";
 import { DYNAMICS_AXES, PHYSICS_PROTOCOLS, AVAILABLE_KEYWORDS, evaluate_dynamics_rules, evaluate_subtext_protocols } from "./physics.js";

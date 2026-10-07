@@ -22,10 +22,11 @@ import {
   render_directives_xml,
   render_keyword_directives_xml,
   resolve_optics_cinematography,
-  render_subtext_xml,
-  render_available_keywords_xml,
-  resolve_physics_protocols,
   get_directive_atom,
+  compile_directive_tags,
+  resolve_task_plan,
+  render_task_plan,
+  CINEMATOGRAPHY_RULES,
   TASK_LAYERS,
   TASK_LIBRARY,
 } from "./task.js";
@@ -287,44 +288,6 @@ describe("task.js - Optics Task Staging", () => {
     expect(get_directive_atom("OPTICS.CINEMATOGRAPHY.STAGING_DIRECTIVE", { visual_staging: "look left" })).toBe("\n  Staging Directive: look left");
     expect(resolve_optics_cinematography({ tier: "solo_entity" }).visual_staging).toBe("");
   });
-
-  describe("Subtext & Keyword XML Compilers", () => {
-    const mock_physics_protocols = {
-      SHAME: "Averted eye contact, hunched shoulders.",
-      FEAR: "Shallow breathing, scanning exits.",
-      ADRENALINE: "High-adrenaline pacing.",
-    };
-
-    it("resolves physics protocols against registry and style motifs", () => {
-      const resolved = resolve_physics_protocols(["shame", "unknown_key"], mock_physics_protocols);
-      expect(resolved).toHaveLength(1);
-      expect(resolved[0].id).toBe("SHAME");
-      expect(resolved[0].directive).toBe("Averted eye contact, hunched shoulders.");
-    });
-
-    it("renders available keywords XML with uppercase brackets", () => {
-      const xml = render_available_keywords_xml(["cyberpunk", "sensual"], ["SHAME", "FEAR"]);
-      expect(xml).toContain("[SHAME]");
-      expect(xml).toContain("[FEAR]");
-      expect(xml).toContain("[CYBERPUNK]");
-      expect(xml).toContain("[SENSUAL]");
-    });
-
-    it("renders subtext XML block with somatic directives and subtext protocols", () => {
-      const xml = render_subtext_xml(
-        { intensity: 80 },
-        { velocity: 20 },
-        {
-          keywords: ["SHAME"],
-          physics_protocols: mock_physics_protocols,
-          evaluate_subtext_protocols: () => [{ id: "ADRENALINE" }],
-        },
-      );
-      expect(xml).toContain("<SUBTEXT>");
-      expect(xml).toContain("<SHAME>Averted eye contact, hunched shoulders.</SHAME>");
-      expect(xml).toContain("<ADRENALINE>High-adrenaline pacing.</ADRENALINE>");
-    });
-  });
 });
 
 // ============================================================================
@@ -424,3 +387,88 @@ describe("render_task — per-mode state dispatch", () => {
  * - 2026-09-18: Added unit tests for render_keyword_directives_xml supporting DIRECTOR and OPTICS modes.
  * - 2026-09-18: Initial creation of comprehensive task.test.js validating pacing directives, environmental hints, delivery posture voice injection, and Layer 7 <OUTPUT_FORMAT> integration across director, continuum, and story prose.
  */
+
+// ============================================================================
+// [SECTION 8: TASK PLAN / RENDER SPLIT & CINEMATOGRAPHY RULES]
+// ============================================================================
+
+describe("resolve_task_plan and render_task_plan", () => {
+  it("resolves a frozen plan with tag, mode, and ordered children", () => {
+    const plan = resolve_task_plan({
+      config: get_prompt("sorting"),
+      task_state: "sorting",
+      input: "Mira was born in theRust.",
+      layers: ["input"],
+    });
+    expect(plan.tag).toBe("TASK");
+    expect(plan.mode).toBe("sorting");
+    expect(Object.isFrozen(plan)).toBe(true);
+    expect(Object.isFrozen(plan.children)).toBe(true);
+    expect(plan.children).toHaveLength(1);
+    expect(plan.children[0]).toContain('<INPUT channel="ingestion">');
+  });
+
+  it("falls back to prose for unknown modes", () => {
+    expect(resolve_task_plan({ task_state: "no_such_mode" }).mode).toBe("prose");
+  });
+
+  it("renders an empty envelope when no children survive filtering", () => {
+    expect(render_task_plan(resolve_task_plan({ layers: [] }))).toBe("");
+    expect(render_task_plan(null)).toBe("");
+  });
+
+  it("render_task delegates through the plan without byte drift", () => {
+    const parameters = {
+      config: get_prompt("director"),
+      task_state: "director",
+      round: 1,
+      input: "Bob draws a weapon.",
+      schema: '{\n  "next_action": "AI_CHARACTER"\n}',
+      entities: { AI: { id: "ALICE", name: "Alice" }, USER: { id: "BOB", name: "Bob" } },
+    };
+    expect(render_task(parameters)).toBe(render_task_plan(resolve_task_plan(parameters)));
+    expect(render_task(parameters)).toContain("<TASK>");
+  });
+});
+
+describe("CINEMATOGRAPHY_RULES descriptor table", () => {
+  it("declares ordered single-constraint rows with a MEDIUM_ACTION tail", () => {
+    expect(CINEMATOGRAPHY_RULES.map((rule) => rule.preset)).toEqual([
+      "WIDE_ENVIRONMENTAL",
+      "DUTCH_LOW_ANGLE",
+      "INTIMATE_CLOSE_UP",
+      "INTIMATE_CLOSE_UP",
+      "SOLO_PORTRAIT",
+    ]);
+    expect(Object.isFrozen(CINEMATOGRAPHY_RULES)).toBe(true);
+  });
+
+  it("falls back to MEDIUM_ACTION when no row matches", () => {
+    const neutral = resolve_optics_cinematography({
+      tier: "story_character",
+      active_ai_character: { name: "Bob", dynamics: { intensity: 10, chaos: 10, affinity: 10 } },
+    });
+    expect(neutral.mode).toBe("Medium Action");
+  });
+
+  it("keeps affinity-driven close-ups matching intensity-driven ones", () => {
+    const by_affinity = resolve_optics_cinematography({
+      tier: "story_character",
+      active_ai_character: { name: "Bob", dynamics: { intensity: 10, chaos: 10, affinity: 80 } },
+    });
+    expect(by_affinity.mode).toBe("Intimate Close-Up");
+  });
+});
+
+describe("directive compiler REFLEX delegation", () => {
+  it("keeps get_directive_atom a pure TASK_LIBRARY lookup", () => {
+    expect(get_directive_atom("REFLEX.TURN_STATE.FIRST_CONTACT")).toBe("");
+    expect(get_directive_atom("PROSE.CHARACTER.NPC_BOUNDARY", { speaker_name: "Al" })).toContain("Al");
+    expect(get_directive_atom("PROSE.CHARACTER.BASE")).toBe(TASK_LIBRARY.PROSE.CHARACTER.BASE);
+  });
+
+  it("resolves REFLEX keys through compile_directive_tags in both entry shapes", () => {
+    expect(compile_directive_tags(["REFLEX.TURN_STATE.FIRST_CONTACT"], {})[0]).toContain("First encounter");
+    expect(compile_directive_tags([{ group: ["REFLEX.TURN_STATE.ROUND_ONE"] }], {})[0]).toContain("AI_CHARACTER");
+  });
+});

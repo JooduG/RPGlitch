@@ -9,6 +9,9 @@ import { describe, it, expect } from "vitest";
 import {
   REFLEX_DEFAULTS,
   REFLEX_LIBRARY,
+  resolve_physics_protocols,
+  render_available_keywords_xml,
+  render_subtext_xml,
   classify_pacing,
   detect_environmental_hint,
   resolve_prose_posture_plan,
@@ -193,5 +196,43 @@ describe("reflex.js - recovery catalog ownership", () => {
     expect(REFLEX_LIBRARY.RECOVERY.STABILITY.CRITICAL.body).toContain("Structural collapse");
     expect(REFLEX_LIBRARY.RECOVERY.TRUNCATION.body).toContain("Previous reply cut off mid-sentence");
     expect(REFLEX_DEFAULTS.STABILITY_LADDER.map((rung) => rung.level)).toEqual(["CRITICAL", "WARNING"]);
+  });
+});
+
+describe("reflex.js - somatic subtext & keyword resolvers (repatriated from task.js)", () => {
+  const mock_physics_protocols = {
+    SHAME: "Averted eye contact, hunched shoulders.",
+    FEAR: "Shallow breathing, scanning exits.",
+    ADRENALINE: "High-adrenaline pacing.",
+  };
+
+  it("resolves physics protocols against registry and style motifs", () => {
+    const resolved = resolve_physics_protocols(["shame", "unknown_key"], mock_physics_protocols);
+    expect(resolved).toHaveLength(1);
+    expect(resolved[0].id).toBe("SHAME");
+    expect(resolved[0].directive).toBe("Averted eye contact, hunched shoulders.");
+  });
+
+  it("renders available keywords XML with uppercase brackets", () => {
+    const xml = render_available_keywords_xml(["cyberpunk", "sensual"], ["SHAME", "FEAR"]);
+    expect(xml).toContain("[SHAME]");
+    expect(xml).toContain("[FEAR]");
+    expect(xml).toContain("[CYBERPUNK]");
+    expect(xml).toContain("[SENSUAL]");
+  });
+
+  it("renders subtext XML block with somatic directives and subtext protocols", () => {
+    const xml = render_subtext_xml(
+      { intensity: 80 },
+      { velocity: 20 },
+      {
+        keywords: ["SHAME"],
+        physics_protocols: mock_physics_protocols,
+        evaluate_subtext_protocols: () => [{ id: "ADRENALINE" }],
+      },
+    );
+    expect(xml).toContain("<SUBTEXT>");
+    expect(xml).toContain("<SHAME>Averted eye contact, hunched shoulders.</SHAME>");
+    expect(xml).toContain("<ADRENALINE>High-adrenaline pacing.</ADRENALINE>");
   });
 });
