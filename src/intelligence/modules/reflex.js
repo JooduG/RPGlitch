@@ -188,7 +188,7 @@ export function detect_environmental_hint(input) {
  */
 export function resolve_prose_posture_plan(snapshot, input, { has_input = Boolean(String(input || "").trim()) } = {}) {
   const pacing = classify_pacing(input);
-  const rhythm_body = snapshot?.style_dna?.sentence_rhythm || "";
+  const rhythm_body = snapshot?.style_dna?.rhythm || "";
   const drive_key = has_input ? "WITH_INPUT" : "WITHOUT_INPUT";
   return Object.freeze({
     pacing,

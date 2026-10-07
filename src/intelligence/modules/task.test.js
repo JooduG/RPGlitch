@@ -66,7 +66,7 @@ describe("Pacing and Environmental Reaction", () => {
 
 describe("render_prose_reflex", () => {
   it("synthesizes DELIVERY_POSTURE with rhythm, drive, and pacing", () => {
-    const reflex = render_prose_reflex({ style_dna: { sentence_rhythm: "Clipped, staccato." } }, "He draws his sword.");
+    const reflex = render_prose_reflex({ style_dna: { rhythm: "Clipped, staccato." } }, "He draws his sword.");
     expect(reflex).toContain("<DELIVERY_POSTURE>");
     expect(reflex).toContain("<RHYTHM>");
     expect(reflex).toContain("Clipped, staccato.");

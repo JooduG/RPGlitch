@@ -21,7 +21,7 @@
  * ============================================================================
  */
 
-import { state_bridge, resolve_style } from "@utils";
+import { resolve_style } from "@utils";
 
 // ============================================================================
 // 1. Type Definitions
@@ -914,23 +914,23 @@ export const STYLE_MOTIF_REGISTRY = Object.freeze(aggregated_motifs);
  * Directly returns normalized strings from structured `style.dna`.
  *
  * @param {NarrativeStyle | { dna?: StyleDNA } | null | undefined} style
- * @returns {{ internal_ratio: string, sentence_rhythm: string, sensory_order: string, emotional_grounding: string }}
+ * @returns {{ internal_ratio: string, rhythm: string, sensory: string, grounding: string }}
  */
 export function extract_style_dna(style) {
   const dna = style?.dna;
   if (!dna) {
     return {
       internal_ratio: "0.50",
-      sentence_rhythm: "",
-      sensory_order: "",
-      emotional_grounding: "",
+      rhythm: "",
+      sensory: "",
+      grounding: "",
     };
   }
   return {
     internal_ratio: typeof dna.internal_ratio === "number" ? dna.internal_ratio.toFixed(2) : String(dna.internal_ratio || "0.50"),
-    sentence_rhythm: String(dna.rhythm || "").trim(),
-    sensory_order: String(dna.sensory || "").trim(),
-    emotional_grounding: String(dna.grounding || "").trim(),
+    rhythm: String(dna.rhythm || "").trim(),
+    sensory: String(dna.sensory || "").trim(),
+    grounding: String(dna.grounding || "").trim(),
   };
 }
 
@@ -955,12 +955,13 @@ export function get_style_keywords(style_key = "") {
 }
 
 /**
- * Resolves the active narrative style key from fractal or application settings.
+ * Resolves the active narrative style key from an explicit fractal value or application settings.
  * Returns "" if no valid style is active.
+ * @param {string} [explicit_narrative_style=""] - Explicit narrative style key (e.g. from the active fractal)
  * @returns {string}
  */
-export function resolve_active_style_key() {
-  return resolve_style(state_bridge.runtime?.active_fractal?.narrative_style, "narrative_style", NARRATIVE_STYLES, "");
+export function resolve_active_style_key(explicit_narrative_style = "") {
+  return resolve_style(explicit_narrative_style, "narrative_style", NARRATIVE_STYLES, "");
 }
 
 // ============================================================================

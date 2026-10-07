@@ -15,18 +15,52 @@
  * ============================================================================
  */
 
-import { escape_xml, prompt_escape, render_xml_tag } from "@utils";
-import { extract_style_dna } from "@data";
+import { escape_xml, prompt_escape, render_xml_tag, state_bridge } from "@utils";
+import {
+  extract_style_dna,
+  get_narrative_style,
+  get_style_keywords,
+  get_visual_style,
+  resolve_active_style_key,
+  resolve_story_visual_style_key,
+} from "@data";
 
 /**
  * Resolves a style record into its frozen style-DNA plan. Single owner of the
  * @data parse — prompt plans read the frozen result instead of parsing inline,
  * so one turn parses its style exactly once (in resolve_task_values).
  * @param {any} style - Narrative style record (or null/undefined)
- * @returns {Readonly<{ internal_ratio: string, sentence_rhythm: string, sensory_order: string, emotional_grounding: string }>}
+ * @returns {Readonly<{ internal_ratio: string, rhythm: string, sensory: string, grounding: string }>}
  */
 export function resolve_style_dna(style) {
   return Object.freeze(extract_style_dna(style));
+}
+
+/**
+ * Resolves the full per-compile style snapshot: narrative record + keywords +
+ * pre-parsed DNA plus the story visual record. Single stateful owner of style
+ * resolution — prompt builders read this once per compile and thread the frozen
+ * result instead of resolving keys ad hoc.
+ * @param {Object} [parameters={}]
+ * @param {string|null|undefined} [parameters.explicit_narrative_style] - Narrative override (defaults to the active fractal value)
+ * @param {any} [parameters.fractal=null] - Active fractal record for story-visual resolution
+ * @param {any} [parameters.fallback_fractal] - Fallback fractal record (defaults to runtime/app selection)
+ * @returns {Readonly<{ narrative_key: string, style: any, keywords: ReadonlyArray<string>, style_dna: any, visual_key: string, visual_style: any }>}
+ */
+export function resolve_style_snapshot({ explicit_narrative_style, fractal = null, fallback_fractal } = {}) {
+  const narrative_explicit = explicit_narrative_style ?? state_bridge.runtime?.active_fractal?.narrative_style;
+  const narrative_key = resolve_active_style_key(narrative_explicit);
+  const style = get_narrative_style(narrative_key);
+  const visual_fallback = fallback_fractal ?? state_bridge.runtime?.active_fractal ?? state_bridge.app?.selected_fractal ?? null;
+  const visual_key = resolve_story_visual_style_key(fractal, visual_fallback);
+  return Object.freeze({
+    narrative_key,
+    style,
+    keywords: Object.freeze(get_style_keywords(narrative_key)),
+    style_dna: resolve_style_dna(style),
+    visual_key,
+    visual_style: get_visual_style(visual_key),
+  });
 }
 
 /**

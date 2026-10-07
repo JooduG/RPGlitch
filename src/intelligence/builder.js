@@ -19,15 +19,7 @@
  * ============================================================================
  */
 
-import {
-  VISUAL_STYLES,
-  resolve_portrait_visual_style_key,
-  resolve_story_visual_style_key,
-  get_style_keywords,
-  get_narrative_style,
-  resolve_active_style_key,
-  PROFILE_FIELD_CATALOG,
-} from "@data";
+import { VISUAL_STYLES, resolve_portrait_visual_style_key, PROFILE_FIELD_CATALOG } from "@data";
 import {
   prompt_escape,
   parse_macros,
@@ -45,6 +37,7 @@ import {
 import { ensure_embeddings } from "@platform";
 import { get_prompt } from "./prompts.js";
 import { resolve_system_role_line, render_system_xml } from "./modules/system.js";
+import { resolve_style_snapshot } from "./modules/style.js";
 import { resolve_stability_lock } from "./modules/reflex.js";
 import { render_constitution } from "./modules/constitution.js";
 import { render_core_protocols, resolve_pov_protocol, resolve_macro_directive, resolve_layer_tense_protocol } from "./modules/protocols.js";
@@ -440,7 +433,8 @@ export function render_director({
   const accessors = render_accessors || create_render_accessors(scene_entities, input, active_messages);
   const config = get_prompt("director");
   const schema = get_output_format(config.format);
-  const active_style_keywords = get_style_keywords(resolve_active_style_key());
+  const style_snapshot = resolve_style_snapshot();
+  const active_style_keywords = style_snapshot.keywords;
 
   const merged_dynamics = { ...(compressed_snapshot?.fractal?.dynamics || {}), ...(compressed_snapshot?.ai?.dynamics || {}) };
 
@@ -548,7 +542,8 @@ function render_prose_turn_core({
   is_npc = false,
   speaker_key = "AI",
 }) {
-  const style = get_narrative_style(resolve_active_style_key());
+  const style_snapshot = resolve_style_snapshot();
+  const style = style_snapshot.style;
 
   const subtext_xml = render_subtext_xml(speaker_dynamics, fractal_dynamics, {
     keywords,
@@ -608,7 +603,7 @@ function render_prose_turn_core({
     round,
     style,
     subtext_xml,
-    snapshot: snapshot ? { ...snapshot, style } : { style },
+    snapshot: snapshot ? { ...snapshot, style, style_dna: style_snapshot.style_dna } : { style, style_dna: style_snapshot.style_dna },
     action_directive,
     stability_lock: stability_lock_content,
     layers: config.layers.task,
@@ -988,10 +983,8 @@ export function render_optics_prompt(options = {}) {
   const macro_entities = { AI: active_ai_character, USER: active_user_persona, FRACTAL: active_fractal_setting };
 
   const combined_input_text = `${raw_intent || ""} ${main_entity?.present?.physical || ""} ${main_entity?.eternal?.physical || ""}`;
-  const style_key =
-    tier === "solo_entity" || mode === "enhance"
-      ? resolve_portrait_visual_style_key(solo_subject)
-      : resolve_story_visual_style_key(active_fractal_setting);
+  const style_snapshot = resolve_style_snapshot({ fractal: active_fractal_setting });
+  const style_key = tier === "solo_entity" || mode === "enhance" ? resolve_portrait_visual_style_key(solo_subject) : style_snapshot.visual_key;
   const style_definition = VISUAL_STYLES[style_key] || VISUAL_STYLES.none;
   const engine_tokens = resolve_visual_engine_tokens(style_key);
 

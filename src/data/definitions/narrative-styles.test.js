@@ -78,18 +78,20 @@ describe("Narrative Style Helper Accessors", () => {
 
   it("resolves active style key safely with fallback to empty string", () => {
     expect(resolve_active_style_key()).toBe("");
+    expect(resolve_active_style_key("cormac_mccarthy")).toBe("cormac_mccarthy");
+    expect(resolve_active_style_key("unknown_key")).toBe("");
   });
 
   it("extracts style DNA directly from structured style object", () => {
     const dna = extract_style_dna(NARRATIVE_STYLES.cormac_mccarthy);
     expect(dna.internal_ratio).toBe("0.20");
-    expect(dna.sentence_rhythm).toContain("Polysyndetic");
-    expect(dna.sensory_order).toContain("Sight");
-    expect(dna.emotional_grounding).toContain("Fatalistic");
+    expect(dna.rhythm).toContain("Polysyndetic");
+    expect(dna.sensory).toContain("Sight");
+    expect(dna.grounding).toContain("Fatalistic");
 
     const empty_dna = extract_style_dna(null);
     expect(empty_dna.internal_ratio).toBe("0.50");
-    expect(empty_dna.sentence_rhythm).toBe("");
+    expect(empty_dna.rhythm).toBe("");
   });
 
   it("evaluates trigger conditions without throwing errors", () => {

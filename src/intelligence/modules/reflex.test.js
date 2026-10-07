@@ -96,7 +96,7 @@ describe("reflex.js - posture plans and envelopes", () => {
   });
 
   it("prefers style_dna rhythm and input-driven drive when present", () => {
-    const plan = resolve_prose_posture_plan({ style_dna: { sentence_rhythm: "Short hammering bursts." } }, "The door slams open.");
+    const plan = resolve_prose_posture_plan({ style_dna: { rhythm: "Short hammering bursts." } }, "The door slams open.");
     expect(plan.rhythm).toEqual({ source: "style_dna", body: "Short hammering bursts." });
     expect(plan.drive.kind).toBe("with_input");
   });

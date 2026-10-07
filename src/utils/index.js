@@ -94,7 +94,10 @@ export * from "./job-queue.js";
 // Style Hierarchy Resolution & AI Prose Detoxification
 // ============================================================================
 
+export * from "./detox.js";
+
 export * from "./styles.js";
+export { VALID_SPEAKING_STYLES } from "./detox.js";
 
 // ============================================================================
 // Entity-Aware Macro Resolution & Profile-Field Text Codecs

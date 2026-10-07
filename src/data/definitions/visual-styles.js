@@ -16,7 +16,7 @@
  * - No "default" tags (reserved sentinel).
  */
 
-import { state_bridge, resolve_style } from "@utils";
+import { resolve_style } from "@utils";
 
 // ============================================================================
 // 1. TYPE DEFINITIONS
@@ -593,11 +593,12 @@ export function resolve_portrait_visual_style_key(entity = {}) {
 /**
  * Resolves the active visual style key for story/scene generation from a fractal or application setting.
  *
- * @param {any} [fractal] - Active fractal record or null
+ * @param {any} [fractal=null] - Active fractal record or null
+ * @param {any} [fallback_fractal=null] - Fallback fractal record (e.g. runtime-selected) or null
  * @returns {string} Resolved visual style key
  */
-export function resolve_story_visual_style_key(fractal) {
-  const explicit = fractal?.visual_style || state_bridge.runtime?.active_fractal?.visual_style || state_bridge.app?.selected_fractal?.visual_style;
+export function resolve_story_visual_style_key(fractal = null, fallback_fractal = null) {
+  const explicit = fractal?.visual_style || fallback_fractal?.visual_style;
   return resolve_style(explicit, "visual_style", VISUAL_STYLES, "none");
 }
 

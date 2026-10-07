@@ -56,7 +56,7 @@ export const TASK_LIBRARY = Object.freeze({
 
     THINK_CHARACTER: `Open your output with one internal <THINK> block (under 200 words). Reason across 4 sequential beats:
 <BEAT id="VISCERAL_IMPACT" step="1">Immediate non-verbal reaction to the «INPUT» element.</BEAT>
-<BEAT id="EMOTIONAL_CALIBRATION" step="2">{emotional_grounding}</BEAT>
+<BEAT id="EMOTIONAL_CALIBRATION" step="2">{grounding}</BEAT>
 <BEAT id="STRATEGIC_DRIVE" step="3">How active «AGENDA» and/or «TRAJECTORY» navigates immediate friction.</BEAT>
 <BEAT id="CADENCE_TEST" step="4">Draft a dialogue line before generating outward prose.</BEAT>
 Close </THINK> before the narrative. This think block is internal reasoning and is never part of the visible prose.`,
@@ -298,7 +298,7 @@ export function compile_directive_tags(directive_selection, values = {}) {
  */
 export function render_task_currents(style_dna, subtext_xml) {
   const children = [
-    style_dna?.sensory_order ? `<SENSORY_EXPERIENCE>${prompt_escape(style_dna.sensory_order)}</SENSORY_EXPERIENCE>` : null,
+    style_dna?.sensory ? `<SENSORY_EXPERIENCE>${prompt_escape(style_dna.sensory)}</SENSORY_EXPERIENCE>` : null,
     String(subtext_xml || "").trim() ? subtext_xml : null,
   ].filter(Boolean);
 
@@ -552,8 +552,8 @@ export const TASK_SLOT_RESOLVERS = Object.freeze({
   prose_think: (values) => {
     const think_format = values.config?.think_format;
     if (think_format === "character") {
-      const grounding = values.style_dna.emotional_grounding || TASK_LIBRARY.PROTOCOLS.THINK_GROUNDING_DEFAULT;
-      return render_think_format(get_directive_atom("PROTOCOLS.THINK_CHARACTER", { emotional_grounding: grounding }));
+      const grounding = values.style_dna.grounding || TASK_LIBRARY.PROTOCOLS.THINK_GROUNDING_DEFAULT;
+      return render_think_format(get_directive_atom("PROTOCOLS.THINK_CHARACTER", { grounding }));
     }
     if (think_format === "narrator") return render_think_format(TASK_LIBRARY.PROTOCOLS.THINK_NARRATOR);
     if (think_format === "enhancement") return render_think_format(TASK_LIBRARY.PROTOCOLS.THINK_ENHANCEMENT);
@@ -677,7 +677,7 @@ function resolve_task_values(parameters, config) {
     round: parameters.round ?? 1,
     is_first_contact: parameters.is_first_contact ?? false,
   });
-  values.style_dna = resolve_style_dna(values.style ?? values.snapshot?.style ?? null);
+  values.style_dna = values.snapshot?.style_dna ?? resolve_style_dna(values.style ?? values.snapshot?.style ?? null);
   if (values.snapshot) values.snapshot = { ...values.snapshot, style_dna: values.style_dna };
 
   if (parameters.is_prologue || parameters.scene_template === "PROLOGUE") {

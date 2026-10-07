@@ -137,6 +137,8 @@ describe("VISUAL_STYLES Preset Registry", () => {
     expect(resolve_story_visual_style_key({ visual_style: "noir" })).toBe("noir");
     expect(resolve_story_visual_style_key({ visual_style: "vintage" })).toBe("vintage");
     expect(resolve_story_visual_style_key(null)).toBe("none");
+    expect(resolve_story_visual_style_key(null, { visual_style: "noir" })).toBe("noir");
+    expect(resolve_story_visual_style_key({ visual_style: "unknown_key" }, { visual_style: "vintage" })).toBe("none");
   });
 });
 
