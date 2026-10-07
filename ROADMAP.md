@@ -12,7 +12,17 @@ This roadmap defines the authoritative technical backlog, active engineering spr
 
 ---
 
-## 1. Track 1: Live Simulation Forensics & Integrity Remediation (Active Observation)
+## 1. Track 0: Sovereign Intelligence Kernel Refactors (Completed & In Flight)
+
+Completed ground-up architectural deconstructions bringing the intelligence module layer to 100% pure data catalogs and frozen plan/render pipelines:
+- [x] **0.1 Entities & Sheets Refactor (`sheets.js`, `entities.js`)**: Universal sheet compilers, macro hydration, and epistemic isolation.
+- [x] **0.2 Task & Directives Refactor (`task.js`, `reflex.js`, `protocols.js`, `output.js`, `constitution.js`, `history.js`)**: Declarative atom libraries, normalized pacing/stability ladders, and pure data format schemas.
+- [x] **0.3 Style Engine & Prose Detox (`style.js`, `detox.js`, `styles.js`)**: Single-turn style snapshot resolution, dedicated `detox.js` AI tell scrubbers, and normalized Style DNA `{ internal_ratio, rhythm, sensory, grounding }`.
+- [x] **0.4 Sovereign System Envelope & Role Declarations (`system.js`)**: Pure data `ROLE_LIBRARY`, re-homed `PROMPT_LAYERS` and `pack_prompt`, and formal plan/render split (`resolve_system_plan` -> `render_system_plan`).
+
+---
+
+## 2. Track 1: Live Simulation Forensics & Integrity Remediation (Active Observation)
 
 Follow-up hardening and behavioral verification derived directly from stress-test trace logs.
 
@@ -20,6 +30,7 @@ Follow-up hardening and behavioral verification derived directly from stress-tes
   - **Issue**: In rounds 3 and 6 of the stress test, the AI persona hijacked the player avatar in the first person ("my thigh... I adjust posture").
   - **Status**: Under empirical observation following completion of Director's Note Speaker Lock (which disconnected user directives from Director thoughts). Evaluating whether this root fix prevents downstream first-person player hijacking before adding further prompt or regex layers.
   - **Touchpoints**: [`src/intelligence/modules/task.js`](src/intelligence/modules/task.js), [`src/intelligence/prompts.js`](src/intelligence/prompts.js), [`src/intelligence/director.js`](src/intelligence/director.js), [`src/intelligence/director.test.js`](src/intelligence/director.test.js), [`src/intelligence/prompt-verification.js`](src/intelligence/prompt-verification.js), [`src/media/optics.js`](src/media/optics.js), [`src/media/optics.test.js`](src/media/optics.test.js), [`src/utils/story-export.js`](src/utils/story-export.js), [`src/utils/story-export.test.js`](src/utils/story-export.test.js), [`src/utils/text.js`](src/utils/text.js), [`src/utils/text.test.js`](src/utils/text.test.js), [`src/data/definitions/profile-fields.js`](src/data/definitions/profile-fields.js), [`src/data/definitions/profile-fields.test.js`](src/data/definitions/profile-fields.test.js), [`src/data/definitions/premade-entities.js`](src/data/definitions/premade-entities.js), [`src/data/definitions/premade-entities.test.js`](src/data/definitions/premade-entities.test.js), [`src/data/sessions.svelte.js`](src/data/sessions.svelte.js), [`src/ui/profile/Profile.svelte`](src/ui/profile/Profile.svelte), [src/intelligence/veil.js](src/intelligence/veil.js), [src/intelligence/veil.test.js](src/intelligence/veil.test.js).
+
   - _Completed Track 1 items (Ghost Empty Rows, Think-Only Turn Recovery, Telemetry Deduplication, Lens Biasing, Terminal Biological Causality, Bracket Auto-Repair, Field History Clock Trigger, Premade Past String Standardization) have shipped and are recorded in [CHANGELOG.md](CHANGELOG.md)._
 
 ---

@@ -9,7 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
-- **Code Review & Regression Remediation**:
+- **System Prompt Module & Envelope Unification (Plan Omega for System)**:
+  - **Declarative `ROLE_LIBRARY` Data Catalog (`src/intelligence/modules/system.js`)**: Replaced closure-based `SYSTEM_ROLES` with frozen `{ body }` role templates and `{placeholder}` tokens (`INTERACTION`, `NPC`, `NARRATOR`, `DIRECTOR`, `CONTINUUM_CARETAKER`, `NARRATIVE_STRUCTURER`, `ENHANCER`, `SENSORY_CORTEX`). Introduced `ROLE_DEFAULTS` (`ENHANCER: { enhancer_name: "GENERAL" }`) and missing-slot safe resolution to `""` instead of `"undefined"`.
+  - **Sovereign Root Envelope Assembly (`src/intelligence/modules/system.js`, `src/intelligence/builder.js`)**: Relocated `PROMPT_LAYERS`, `render_prompt_layers`, `compose_system`, `pack_prompt`, and `resolve_prompt_meta` from `builder.js` into `system.js`, making `system.js` the single owner of the `<SYSTEM>` envelope lifecycle while transforming `builder.js` into a pure coordinator.
+  - **Plan / Render Split**: Implemented `resolve_system_plan` returning frozen `{ tag: "SYSTEM", mode, round, attributes, children }` and wired `compose_system` cleanly through `render_system_plan(resolve_system_plan(...))`.
+  - **Dead Surface & Contract Purge**: Purged obsolete `closed` flag and dead `task` option from `render_system_xml` under P4 Zero Backwards Compatibility. Corrected stale `recovery.js` comments and retargeted test contracts in `prompt-verification.test.js` and `system.test.js`.
+
   - **Prompt Action Alignment (`src/intelligence/modules/task.js`)**: Updated `USER_PERSONA_LOCK` to explicitly include `EPILOGUE_COLLAPSED` and `EPILOGUE_CONCLUDED` in its permitted actions list, reconciling the direct contradiction between lock constraints and the routing rules.
   - **Terminal Trauma Severity Grading (`src/intelligence/modules/task.js`)**: Graded `EVALUATION_INPUT` and `EVALUATION_SCENE` to distinguish definitively fatal terminal destruction from severe but survivable bodily trauma, preventing premature story collapse on non-fatal high-stakes injuries.
   - **Image Preservation in Story Exports (`src/utils/story-export.js`)**: Updated `format_story_beat` and `export_story_markdown` to preserve log rows with image attachments and format them as Markdown media (`![prompt](src)`), preventing image loss on empty-text fractal rows.
