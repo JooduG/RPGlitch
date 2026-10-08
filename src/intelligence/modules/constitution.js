@@ -42,7 +42,45 @@ export const CONSTITUTION = Object.freeze({
   }),
 });
 
-const CONSTITUTION_ORDER = Object.freeze(["CAUSALITY", "EPISTEMICS", "SOVEREIGNTY", "FIDELITY"]);
+export const CONSTITUTION_ORDER = Object.freeze(["CAUSALITY", "EPISTEMICS", "SOVEREIGNTY", "FIDELITY"]);
+
+/**
+ * Resolves a law selection into a frozen, render-ready constitution plan.
+ * Unknown keys are dropped and counted — the renderer maps plan laws
+ * to <LAW> elements without branching.
+ * @param {Object} [options={}]
+ * @param {string[]} [options.laws] - Constitution keys to render (defaults to all four).
+ * @returns {Readonly<{ tag: string, laws: ReadonlyArray<Record<string, string>>, dropped: Readonly<{ unknown: number }> }>}}
+ */
+export function resolve_constitution_plan({ laws = [...CONSTITUTION_ORDER] } = {}) {
+  const requested = Array.isArray(laws) ? laws : [];
+  const selected = requested.map((key) => CONSTITUTION[key]).filter(Boolean);
+  return Object.freeze({
+    tag: "AXIOMATIC_CONSTITUTION",
+    laws: Object.freeze(selected),
+    dropped: Object.freeze({ unknown: requested.length - selected.length }),
+  });
+}
+
+/**
+ * Maps a constitution plan to the <AXIOMATIC_CONSTITUTION> block.
+ * @param {ReturnType<typeof resolve_constitution_plan>|null|undefined} plan
+ * @param {Object} [options={}]
+ * @param {number} [options.indent=2] - Left shift for the whole block.
+ * @returns {string}
+ */
+export function render_constitution_plan(plan, { indent = 2 } = {}) {
+  const tags = (plan?.laws || []).map(({ id, title, body }) =>
+    render_xml_tag({ tag: "LAW", attrs: { id, title }, children: [prompt_escape(body)], inline: true }),
+  );
+  return render_xml_tag({
+    tag: "AXIOMATIC_CONSTITUTION",
+    children: tags,
+    indent,
+    child_indent: indent + 2,
+    separator: "\n",
+  });
+}
 
 /**
  * Compiles the `<AXIOMATIC_CONSTITUTION>` XML block rendering the selected axioms in canonical order.
@@ -52,17 +90,7 @@ const CONSTITUTION_ORDER = Object.freeze(["CAUSALITY", "EPISTEMICS", "SOVEREIGNT
  * @returns {string}
  */
 export function render_constitution({ laws = [...CONSTITUTION_ORDER], indent = 2 } = {}) {
-  const tags = laws
-    .map((key) => CONSTITUTION[key])
-    .filter(Boolean)
-    .map(({ id, title, body }) => render_xml_tag({ tag: "LAW", attrs: { id, title }, children: [prompt_escape(body)], inline: true }));
-  return render_xml_tag({
-    tag: "AXIOMATIC_CONSTITUTION",
-    children: tags,
-    indent,
-    child_indent: indent + 2,
-    separator: "\n",
-  });
+  return render_constitution_plan(resolve_constitution_plan({ laws }), { indent });
 }
 
 /**
@@ -74,4 +102,5 @@ export function render_constitution({ laws = [...CONSTITUTION_ORDER], indent = 2
  * - 2026-09-13: Enriched L2_CONTINUITY (perspective isolation) and L3_SPATIAL (sensory horizon, unvoiced thoughts are Null Data) during the epistemic physics deconstruction pass.
  * - 2026-09-12: Standardization pass — the `<AXIOMATIC_CONSTITUTION>` block is now composed from the shared `render_xml_tag` primitive (catalog + compiler, format.js blueprint); the block's indentation is a parameter.
  * - 2026-09-11: Initial creation of modular constitution.js extracting Axiomatic Constitution laws and compiler.
+ * Modules Ground Refactor Phase 1 — plan/render split (resolve_constitution_plan/render_constitution_plan, CONSTITUTION_ORDER exported); render_constitution is a one-line composition — prompt bytes byte-identical.
  */

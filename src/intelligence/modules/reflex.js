@@ -25,7 +25,7 @@
  * ============================================================================
  */
 
-import { escape_xml, prompt_escape, render_xml_tag, has_alternations } from "@utils";
+import { escape_xml, prompt_escape, render_xml_tag, has_alternations, resolve_catalog_atom } from "@utils";
 import { STYLE_MOTIF_REGISTRY } from "@data";
 
 // ============================================================================
@@ -251,18 +251,18 @@ export function get_reflex_atom(directive_key, values = {}) {
   const directive_parts = String(directive_key ?? "")
     .trim()
     .split(".");
-  const atom = (directive_parts[0] === "REFLEX" ? directive_parts.slice(1) : directive_parts).reduce(
-    (node, part) => node?.[part],
-    /** @type {any} */ (REFLEX_LIBRARY),
-  );
-  if (atom == null) return "";
-  const template = typeof atom === "string" ? atom : (atom.body ?? "");
-  if (typeof template !== "string" || !template) return "";
-  const text = template.replace(/\{([a-z0-9_]+)\}/g, (match, token) => (values[token] != null ? String(values[token]) : ""));
-  if (typeof atom === "object" && atom.enveloped) {
-    return render_xml_tag({ tag: atom.tag, children: [text], inline: true });
+  const stripped_key = (directive_parts[0] === "REFLEX" ? directive_parts.slice(1) : directive_parts).join(".");
+  const resolved = resolve_catalog_atom(REFLEX_LIBRARY, stripped_key, values);
+  if (typeof resolved === "string") return resolved;
+  if (resolved && typeof resolved === "object") {
+    const text = resolved.body ?? "";
+    if (!text) return "";
+    if (resolved.enveloped) {
+      return render_xml_tag({ tag: resolved.tag, children: [text], inline: true });
+    }
+    return text;
   }
-  return text;
+  return "";
 }
 
 // ============================================================================
@@ -477,4 +477,5 @@ export function render_subtext_xml(ai_dynamics = {}, fractal_dynamics = {}, opti
  * - 2026-10-04: Added render_alternation_block for plan-gated callers (protocols.js plan renderer); text-gated render_alternation_protocol unchanged.
  * - 2026-10-04: Absorbed the alternation conditional (REFLEX_LIBRARY.ALTERNATION + render_alternation_protocol, ex-protocols.js) — reactive option-picking lives with the other reflexes.
  * - 2026-10-04: Created from task.js Section 3 (pacing/reflex engine) plus stability/truncation recovery (from recovery.js, now deleted) — the reflex layer owns calibration + resilience; task.js keeps turn assembly with live TASK_LIBRARY references.
+ * Modules Ground Refactor Phase 1 — get_reflex_atom delegates lookup to utils/catalog.js resolve_catalog_atom; enveloped wrapping stays record-driven — prompt bytes byte-identical.
  */

@@ -21,12 +21,10 @@ import {
   render_task,
   render_directives_xml,
   render_keyword_directives_xml,
-  resolve_optics_cinematography,
   get_directive_atom,
   compile_directive_tags,
   resolve_task_plan,
   render_task_plan,
-  CINEMATOGRAPHY_RULES,
   TASK_LAYERS,
   TASK_LIBRARY,
 } from "./task.js";
@@ -243,53 +241,7 @@ describe("task.js - Optics Task Staging", () => {
     expect(task).toContain('<INPUT channel="intent">Standing alone in the pouring rain</INPUT>');
     expect(task).toContain('<OUTPUT_FORMAT mode="json">');
   });
-
-  it("resolves optics cinematography mode, tokens, and context correctly", () => {
-    const solo = resolve_optics_cinematography({
-      tier: "solo_entity",
-      solo_subject: { name: "Alice", type: "character" },
-    });
-    expect(solo.mode).toBe("Solo Portrait");
-    expect(solo.tokens).toContain("medium portrait framing");
-
-    const close_up = resolve_optics_cinematography({
-      tier: "story_character",
-      active_ai_character: { name: "Bob", dynamics: { intensity: 80 } },
-    });
-    expect(close_up.mode).toBe("Intimate Close-Up");
-
-    const dutch = resolve_optics_cinematography({
-      tier: "story_character",
-      active_ai_character: { name: "Bob", dynamics: { chaos: 90 } },
-    });
-    expect(dutch.mode).toBe("Dutch / Low-Angle");
-
-    const environmental = resolve_optics_cinematography({
-      tier: "story_scene",
-      active_fractal_setting: { name: "Neon City" },
-    });
-    expect(environmental.mode).toBe("Wide Environmental");
-
-    const group = resolve_optics_cinematography({
-      tier: "story_entities",
-      active_ai_character: { name: "Aria" },
-      active_user_persona: { name: "Protagonist" },
-      visual_staging: "side by side under neon light",
-    });
-    expect(group.narrative_context).toContain("Group Mandate: Feature both Aria and Protagonist");
-    expect(group.visual_staging).toContain("Staging Directive: side by side under neon light");
-
-    // Direct assertions on TASK_LIBRARY.OPTICS.CINEMATOGRAPHY
-    expect(TASK_LIBRARY.OPTICS.CINEMATOGRAPHY.PRESETS.WIDE_ENVIRONMENTAL.mode).toBe("Wide Environmental");
-    expect(TASK_LIBRARY.OPTICS.CINEMATOGRAPHY.PRESETS.DUTCH_LOW_ANGLE.mode).toBe("Dutch / Low-Angle");
-    expect(TASK_LIBRARY.OPTICS.CINEMATOGRAPHY.PRESETS.INTIMATE_CLOSE_UP.mode).toBe("Intimate Close-Up");
-    expect(TASK_LIBRARY.OPTICS.CINEMATOGRAPHY.PRESETS.MEDIUM_ACTION.mode).toBe("Medium Action");
-    expect(TASK_LIBRARY.OPTICS.CINEMATOGRAPHY.PRESETS.SOLO_PORTRAIT.mode).toBe("Solo Portrait");
-    expect(get_directive_atom("OPTICS.CINEMATOGRAPHY.STAGING_DIRECTIVE", { visual_staging: "look left" })).toBe("\n  Staging Directive: look left");
-    expect(resolve_optics_cinematography({ tier: "solo_entity" }).visual_staging).toBe("");
-  });
 });
-
 // ============================================================================
 // [SECTION 7: TASK LAYER TABLE & MODE DISPATCH]
 // ============================================================================
@@ -389,7 +341,7 @@ describe("render_task — per-mode state dispatch", () => {
  */
 
 // ============================================================================
-// [SECTION 8: TASK PLAN / RENDER SPLIT & CINEMATOGRAPHY RULES]
+// [SECTION 8: TASK PLAN / RENDER SPLIT]
 // ============================================================================
 
 describe("resolve_task_plan and render_task_plan", () => {
@@ -428,35 +380,6 @@ describe("resolve_task_plan and render_task_plan", () => {
     };
     expect(render_task(parameters)).toBe(render_task_plan(resolve_task_plan(parameters)));
     expect(render_task(parameters)).toContain("<TASK>");
-  });
-});
-
-describe("CINEMATOGRAPHY_RULES descriptor table", () => {
-  it("declares ordered single-constraint rows with a MEDIUM_ACTION tail", () => {
-    expect(CINEMATOGRAPHY_RULES.map((rule) => rule.preset)).toEqual([
-      "WIDE_ENVIRONMENTAL",
-      "DUTCH_LOW_ANGLE",
-      "INTIMATE_CLOSE_UP",
-      "INTIMATE_CLOSE_UP",
-      "SOLO_PORTRAIT",
-    ]);
-    expect(Object.isFrozen(CINEMATOGRAPHY_RULES)).toBe(true);
-  });
-
-  it("falls back to MEDIUM_ACTION when no row matches", () => {
-    const neutral = resolve_optics_cinematography({
-      tier: "story_character",
-      active_ai_character: { name: "Bob", dynamics: { intensity: 10, chaos: 10, affinity: 10 } },
-    });
-    expect(neutral.mode).toBe("Medium Action");
-  });
-
-  it("keeps affinity-driven close-ups matching intensity-driven ones", () => {
-    const by_affinity = resolve_optics_cinematography({
-      tier: "story_character",
-      active_ai_character: { name: "Bob", dynamics: { intensity: 10, chaos: 10, affinity: 80 } },
-    });
-    expect(by_affinity.mode).toBe("Intimate Close-Up");
   });
 });
 

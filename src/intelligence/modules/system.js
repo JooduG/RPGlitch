@@ -14,7 +14,7 @@
  * ============================================================================
  */
 
-import { render_xml_tag } from "@utils";
+import { render_xml_tag, resolve_catalog_atom } from "@utils";
 
 // ============================================================================
 // [SECTION 1: ROLE LIBRARY & RESOLUTION]
@@ -65,13 +65,12 @@ export const ROLE_DEFAULTS = Object.freeze({
  */
 export function get_role_atom(role_key = "INTERACTION", parameters = {}) {
   const normalized_key = String(role_key || "INTERACTION").toUpperCase();
-  const atom = ROLE_LIBRARY[normalized_key] || ROLE_LIBRARY.INTERACTION;
-  const defaults = ROLE_DEFAULTS[normalized_key] || {};
-  const values = { ...(parameters || {}) };
-  for (const [slot, fallback] of Object.entries(defaults)) {
-    if (values[slot] === undefined) values[slot] = fallback;
-  }
-  return String(atom.body).replace(/\{([a-z0-9_]+)\}/g, (match, token) => (values[token] != null ? String(values[token]) : ""));
+  const defined_parameters = Object.fromEntries(Object.entries(parameters || {}).filter(([, value]) => value !== undefined));
+  const resolved = resolve_catalog_atom(ROLE_LIBRARY, normalized_key, defined_parameters, {
+    defaults: ROLE_DEFAULTS[normalized_key] || null,
+    fallback_key: "INTERACTION",
+  });
+  return typeof resolved === "string" ? resolved : (resolved?.body ?? "");
 }
 
 /**
@@ -269,4 +268,5 @@ export function resolve_prompt_meta({ ai = null, fractal = null, flags = {}, rol
  * - 2026-09-11: Added complete XML system envelopes (render_prose_system_xml, render_director_system_xml, render_memory_system_xml, render_enhancement_system_xml, render_sorting_system_xml).
  * - 2026-09-11: Added CONTINUUM_CARETAKER role line and harmonized DEFAULT, NPC, NARRATOR, DIRECTOR role strings.
  * - 2026-09-11: Initial creation of modular system.js extracting root XML envelope, role lines, and stability locks.
+ * Modules Ground Refactor Phase 1 — get_role_atom delegates to utils/catalog.js resolve_catalog_atom (defaults spread + INTERACTION fallback preserved) — prompt bytes byte-identical.
  */

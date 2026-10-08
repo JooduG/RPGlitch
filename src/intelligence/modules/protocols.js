@@ -18,7 +18,7 @@
  * ============================================================================
  */
 
-import { prompt_escape, render_xml_tag } from "@utils";
+import { prompt_escape, render_xml_tag, resolve_catalog_atom } from "@utils";
 import { render_narrative_style_xml, render_visual_style_xml } from "./style.js";
 import { render_alternation_protocol } from "./reflex.js";
 import { OUTPUT_DIRECTIVES } from "./output.js";
@@ -85,6 +85,12 @@ export const PROTOCOL_LIBRARY = Object.freeze({
 });
 
 /**
+ * Unified static-emission registry: behavior catalog plus output-shape
+ * directives, so OUTPUT.* keys resolve with no namespace branch.
+ */
+const STATIC_REGISTRY = Object.freeze({ ...PROTOCOL_LIBRARY, OUTPUT: OUTPUT_DIRECTIVES });
+
+/**
  * Resolves the macro placeholder directive according to the entity type or mode.
  * @param {string} [entity_type="character"]
  * @returns {string}
@@ -109,12 +115,10 @@ export function resolve_macro_directive(entity_type = "character") {
  * @returns {{ tag: string, body: string }|null}
  */
 function resolve_static_rule(protocol_key) {
-  const protocol_parts = String(protocol_key).trim().toUpperCase().split(".");
-  const catalog = protocol_parts[0] === "OUTPUT" ? OUTPUT_DIRECTIVES : PROTOCOL_LIBRARY;
-  const lookup_parts = catalog === OUTPUT_DIRECTIVES ? protocol_parts.slice(1) : protocol_parts;
-  const rule = lookup_parts.reduce((node, part) => node?.[part], /** @type {any} */ (catalog));
-  if (!rule || typeof rule !== "string") return null;
-  return { tag: lookup_parts.at(-1), body: rule };
+  const normalized_key = String(protocol_key).trim().toUpperCase();
+  const resolved = resolve_catalog_atom(STATIC_REGISTRY, normalized_key, {}, { uppercase: true });
+  if (typeof resolved !== "string" || !resolved) return null;
+  return { tag: normalized_key.split(".").at(-1), body: resolved };
 }
 
 // ============================================================================
@@ -371,4 +375,5 @@ export function render_core_protocols({
  * - 2026-09-11: Added render_director_protocols_xml for Director Quick Shot prompt assembly.
  * - 2026-09-11: Added SIMULATION causality/pacing protocols, CHARACTER_DIRECTIVES, OUTPUT_FORMATS, and TEMPORAL_CONTRACT.
  * - 2026-09-11: Initial creation of modular protocols.js extracting PROTOCOL_LIBRARY, core protocols, and layout utilities.
+ * Modules Ground Refactor Phase 1 — resolve_static_rule delegates to utils/catalog.js resolve_catalog_atom over the hoisted STATIC_REGISTRY (OUTPUT branch retired) — prompt bytes byte-identical.
  */

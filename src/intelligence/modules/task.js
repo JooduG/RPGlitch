@@ -10,7 +10,7 @@
  *
  * ── Multi-Shot Simulation Lifecycle Mapping ─────────────────────────────────
  * • Section 1: Unified Task Directives & Protocols Catalog (TASK_LIBRARY)
- *              (Protocols, Director, Continuum, Prose, Sorting, Optics directives)
+ *              (Protocols, Director, Continuum, Prose, Sorting directives; optics lives in sensory.js)
  * • Section 2: Dynamic Directive Compiler (get_directive_atom / compile_directive_tags)
  *              (Dotted-key resolution + {placeholder} interpolation → ordered paragraphs)
  * • Section 3: Task Signals & Currents
@@ -38,11 +38,18 @@
  * ============================================================================
  */
 
-import { escape_xml, prompt_escape, inline_or_block, render_xml_tag } from "@utils";
+import { escape_xml, prompt_escape, inline_or_block, render_xml_tag, resolve_catalog_atom } from "@utils";
 import { resolve_style_dna } from "./style.js";
 import { resolve_output_plan, render_output_plan, render_json_return } from "./output.js";
 import { resolve_macro_directive } from "./protocols.js";
 import { get_reflex_atom, render_environmental_hint, render_prose_reflex, resolve_turn_state_plan } from "./reflex.js";
+import {
+  get_sensory_atom,
+  resolve_optics_subject,
+  resolve_optics_think_slot,
+  resolve_optics_target_slot,
+  resolve_optics_spatial_framing_slot,
+} from "./sensory.js";
 
 // ============================================================================
 // [SECTION 1: UNIFIED TASK DIRECTIVES & PROTOCOLS CATALOG]
@@ -146,83 +153,6 @@ Analyze recent turns in «HISTORY». Synthesize memories, update physical appear
 - For absent details (attire, motivations): synthesize lore-consistent defaults.
 - Never emit null, undefined, or empty strings.`,
   }),
-
-  // ── 1.7 Shot 3: Sensory Cortex & Visual Directives (optics) ───────────────
-  OPTICS: Object.freeze({
-    MANDATE: "Convert narrative intent into a structured image prompt payload depicting {subject_description}.",
-
-    SUBJECT_RULES: Object.freeze({
-      DYNAMIC_OVERRIDES:
-        "DYNAMIC OVERRIDES: Follow a strict bottom-up hierarchy where the most recent (bottom-most) physical condition update ALWAYS overrides preceding static tags like «SHIRT» or «JACKET». If a conflicting state appears later (e.g. 'no clothes' then later 'shirt: white'), the most recent/latest state wins.",
-      GARMENT_ANATOMY:
-        "GARMENT ANATOMY: When rendering specialized or revealing garments (e.g., jockstraps, thongs, harnesses), explicitly specify their physical mechanics and bare skin exposure in natural prose. For a jockstrap, describe: 'wearing an athletic jockstrap featuring a supportive front pouch, open sides and back with bare exposed butt cheeks, and dual wide elastic straps circling under the glutes/thighs'. For thongs, describe: 'a narrow string back leaving the rear completely bare'. Never allow jockstraps to collapse into generic briefs or full-coverage shorts.",
-      IDENTIFIERS: 'IDENTIFIERS: Always explicitly state gender and physical identifiers (e.g., "a handsome young male high-elf man").',
-      CREATURE_DISAMBIGUATION:
-        'CREATURE DISAMBIGUATION: Never use bare animal/creature proper names (e.g., "Beast"). Translate to explicit physical traits (e.g., "a massive grey-green male orc warrior").',
-      SIGNATURE_COLORS:
-        "SIGNATURE COLORS: Every character's distinctive visual anchors — declared hair color AND length, eye color, skin markings, and signature accent colors — are non-negotiable. Copy them EXACTLY as written in the ENTITIES sheet; never recolor, lengthen, shorten, or substitute them, and never derive a subject's hair or eye color from the environment (silver fog, twilight, moonlight), the lighting, or accessories (e.g., silver jewelry). If the sheet declares a specific hair color or length, the output prompt MUST state that exact value.",
-    }),
-
-    SOLO_FRAME:
-      "**SOLO FRAME PROTOCOL.** Isolated single-subject portrait. No secondary characters, no story scene context. The backdrop must be drawn solely from the subject's own identity and signature colors.",
-    ENVIRONMENTAL_SCALE:
-      "**AFFIRMATIVE ENVIRONMENTAL SCALE.** Focus completely on vast landscape architecture, atmospheric density, weather effects, and physical spatial structures.",
-    BACKGROUND:
-      "You MUST synthesize an evocative, atmospheric background environment that naturally fits the personality, visual theme, and signature colors of {subject_name}.",
-    THINK_FORMAT: `In "_thought_process", calibrate:
-1. Focal subject & identity traits (strip proper names)
-2. Spatial layers (foreground, focal subject, background)
-3. Light sources, color palette, and textures from active style
-4. Wardrobe mechanics & exposure checks`,
-
-    FIRST_SENTENCE_MANDATE: Object.freeze({
-      SCENE:
-        "<FIRST_SENTENCE_MANDATE>Always establish vast environmental geometry, architectural structures, terrain scale, and atmospheric lighting in the VERY FIRST sentence before any secondary elements.</FIRST_SENTENCE_MANDATE>",
-      ENTITY:
-        "<FIRST_SENTENCE_MANDATE>Always place main entities and active physical interactions in the VERY FIRST sentence.</FIRST_SENTENCE_MANDATE>",
-    }),
-    SPATIAL_GEOMETRY:
-      "<SPATIAL_GEOMETRY>Spatial orientation: direct depiction of focal elements, absolute geometry, camera angles, elevations, lighting positions, and depth layers without metaphor or narrative scaffolding.</SPATIAL_GEOMETRY>",
-    SELFIE_DIRECTIVE: '<SELFIE_DIRECTIVE>Generate a short, in-character social media caption inside "caption".</SELFIE_DIRECTIVE>',
-
-    SUBJECT_TIERS: Object.freeze({
-      solo_entity:
-        "an isolated solo portrait of the subject, self-contained framing drawn entirely from the subject's own identity, appearance, and signature colors",
-      story_scene: "an expansive landscape environment, architecture, or interior space capturing environmental depth and natural forces",
-      story_entities: "a cinematic group shot featuring both the AI character and user persona together within the fractal environment",
-      story_character: "a character framed within their environment, emphasizing their presence with an evocative background setting",
-    }),
-
-    CINEMATOGRAPHY: Object.freeze({
-      PRESETS: Object.freeze({
-        WIDE_ENVIRONMENTAL: Object.freeze({
-          mode: "Wide Environmental",
-          tokens: "wide-angle environmental shot, deep spatial composition, atmospheric scale, full silhouette",
-        }),
-        DUTCH_LOW_ANGLE: Object.freeze({
-          mode: "Dutch / Low-Angle",
-          tokens: "dutch angle composition, low-angle perspective, imposing scale, dramatic lighting contrast",
-        }),
-        INTIMATE_CLOSE_UP: Object.freeze({
-          mode: "Intimate Close-Up",
-          tokens: "tight close-up portrait, shallow depth of field, sharp focus on eyes, macro expression detail",
-        }),
-        MEDIUM_ACTION: Object.freeze({
-          mode: "Medium Action",
-          tokens: "medium shot, waist-up framing, dynamic posture, clear wardrobe & prop details",
-        }),
-        SOLO_PORTRAIT: Object.freeze({
-          mode: "Solo Portrait",
-          tokens: "medium portrait framing, waist-up composition, distinctive wardrobe, signature atmospheric backdrop",
-        }),
-      }),
-      STAGING_DIRECTIVE: "\n  Staging Directive: {visual_staging}",
-      NARRATIVE_CONTEXT: Object.freeze({
-        GROUP: "\n  Group Mandate: Feature both {ai_name} and {user_name} engaged together in their active positions within the fractal environment.",
-        CHARACTER_IN_SCENE: "\n  Character In Scene: Depict {character_name} situated directly within {setting_name}.",
-      }),
-    }),
-  }),
 });
 
 // ============================================================================
@@ -243,12 +173,8 @@ Analyze recent turns in «HISTORY». Synthesize memories, update physical appear
  * @returns {string}
  */
 export function get_directive_atom(directive_key, values = {}) {
-  const atom = String(directive_key ?? "")
-    .trim()
-    .split(".")
-    .reduce((node, part) => node?.[part], /** @type {any} */ (TASK_LIBRARY));
-  if (atom == null) return "";
-  return String(atom).replace(/\{([a-z0-9_]+)\}/g, (match, token) => (values[token] != null ? String(values[token]) : ""));
+  const resolved = resolve_catalog_atom(TASK_LIBRARY, directive_key, values);
+  return typeof resolved === "string" ? resolved : (resolved?.body ?? "");
 }
 
 /**
@@ -272,12 +198,11 @@ export function get_directive_atom(directive_key, values = {}) {
  * @returns {string}
  */
 function resolve_directive_entry(directive_key, values = {}) {
-  if (
-    String(directive_key ?? "")
-      .trim()
-      .split(".")[0] === "REFLEX"
-  )
-    return get_reflex_atom(directive_key, values);
+  const directive_head = String(directive_key ?? "")
+    .trim()
+    .split(".")[0];
+  if (directive_head === "REFLEX") return get_reflex_atom(directive_key, values);
+  if (directive_head === "OPTICS") return get_sensory_atom(directive_key, values);
   return get_directive_atom(directive_key, values);
 }
 
@@ -416,87 +341,6 @@ export function resolve_scene_action_directive({ scene_template = null, is_prolo
   }).join("\n\n");
 }
 
-/**
- * Declarative optics framing rules: ordered descriptor rows walked first-match-wins.
- * Each row declares a single constraint; tuning framing is a data edit here —
- * never a branch edit in `resolve_optics_cinematography`.
- * @type {ReadonlyArray<Readonly<{ preset: string, is_fractal_target?: boolean, chaos_gte?: number, intensity_gte?: number, affinity_gte?: number, tier?: string }>>}
- */
-export const CINEMATOGRAPHY_RULES = Object.freeze([
-  Object.freeze({ is_fractal_target: true, preset: "WIDE_ENVIRONMENTAL" }),
-  Object.freeze({ chaos_gte: 75, preset: "DUTCH_LOW_ANGLE" }),
-  Object.freeze({ intensity_gte: 75, preset: "INTIMATE_CLOSE_UP" }),
-  Object.freeze({ affinity_gte: 75, preset: "INTIMATE_CLOSE_UP" }),
-  Object.freeze({ tier: "solo_entity", preset: "SOLO_PORTRAIT" }),
-]);
-
-/**
- * Tests one cinematography descriptor row: a row matches when every constraint it
- * declares holds against the normalized framing context.
- * @param {{ preset: string }} rule
- * @param {{ is_fractal_target: boolean, chaos: number, intensity: number, affinity: number, tier: string }} framing
- * @returns {boolean}
- */
-function matches_cinematography_rule(rule, framing) {
-  if (rule.is_fractal_target === true && !framing.is_fractal_target) return false;
-  if (rule.chaos_gte != null && !(framing.chaos >= rule.chaos_gte)) return false;
-  if (rule.intensity_gte != null && !(framing.intensity >= rule.intensity_gte)) return false;
-  if (rule.affinity_gte != null && !(framing.affinity >= rule.affinity_gte)) return false;
-  if (rule.tier != null && framing.tier !== rule.tier) return false;
-  return true;
-}
-
-/**
- * Resolves camera framing, scale tokens, and staging directives for Sensory Optics.
- * Generates dynamic camera framing tokens and context descriptions for Layer 6 (<TASK>).
- *
- * @param {Object} [parameters={}]
- * @returns {{ mode: string, tokens: string, narrative_context: string, visual_staging: string }}
- */
-export function resolve_optics_cinematography({
-  tier = "solo_entity",
-  solo_subject = null,
-  active_ai_character = null,
-  active_user_persona = null,
-  active_fractal_setting = null,
-  main_entity = null,
-  visual_staging = "",
-} = {}) {
-  const is_fractal_target = tier === "story_scene" || solo_subject?.type === "fractal";
-  const ai_dynamics = active_ai_character?.dynamics || {};
-  const intensity = Number(ai_dynamics.intensity ?? 50);
-  const chaos = Number(ai_dynamics.chaos ?? 50);
-  const affinity = Number(ai_dynamics.affinity ?? 50);
-
-  const { PRESETS } = TASK_LIBRARY.OPTICS.CINEMATOGRAPHY;
-  const framing = { is_fractal_target, chaos, intensity, affinity, tier };
-  const hit = CINEMATOGRAPHY_RULES.find((rule) => matches_cinematography_rule(rule, framing));
-  const preset = hit ? PRESETS[hit.preset] : PRESETS.MEDIUM_ACTION;
-
-  const visual_staging_directive = visual_staging
-    ? get_directive_atom("OPTICS.CINEMATOGRAPHY.STAGING_DIRECTIVE", { visual_staging: prompt_escape(visual_staging) })
-    : "";
-  const narrative_context_desc =
-    tier === "story_entities"
-      ? get_directive_atom("OPTICS.CINEMATOGRAPHY.NARRATIVE_CONTEXT.GROUP", {
-          ai_name: prompt_escape(active_ai_character?.name || "AI"),
-          user_name: prompt_escape(active_user_persona?.name || "User"),
-        })
-      : tier === "story_character" && active_fractal_setting && main_entity?.type !== "fractal" && main_entity !== active_fractal_setting
-        ? get_directive_atom("OPTICS.CINEMATOGRAPHY.NARRATIVE_CONTEXT.CHARACTER_IN_SCENE", {
-            character_name: prompt_escape(main_entity?.name || "Subject"),
-            setting_name: prompt_escape(active_fractal_setting.name || "Setting"),
-          })
-        : "";
-
-  return {
-    mode: preset.mode,
-    tokens: preset.tokens,
-    narrative_context: narrative_context_desc,
-    visual_staging: visual_staging_directive,
-  };
-}
-
 // ============================================================================
 // [SECTION 4: UNIVERSAL TASK ENVELOPE COMPILER]
 // ============================================================================
@@ -542,7 +386,7 @@ export function render_directives_xml(directives = []) {
  * @param {string} [directive=""]
  * @returns {string}
  */
-function render_think_format(directive = "") {
+export function render_think_format(directive = "") {
   const text = String(directive || "").trim();
   return text ? render_xml_tag({ tag: "THINK_FORMAT", children: [text], child_indent: 2 }) : "";
 }
@@ -581,37 +425,13 @@ export const TASK_SLOT_RESOLVERS = Object.freeze({
     if (think_format === "enhancement") return render_think_format(TASK_LIBRARY.PROTOCOLS.THINK_ENHANCEMENT);
     return "";
   },
-  optics_think: () => render_think_format(TASK_LIBRARY.OPTICS.THINK_FORMAT),
+  optics_think: (values) => resolve_optics_think_slot(values),
 
   prose_currents: (values) => render_task_currents(values.style_dna, values.subtext_xml),
 
-  optics_target: (values) => (values.target_tier ? render_xml_tag({ tag: "TARGET", children: [escape_xml(values.target_tier)], inline: true }) : ""),
+  optics_target: (values) => resolve_optics_target_slot(values),
 
-  optics_spatial_framing: (values) => {
-    const selection = typeof values.config?.spatial_framing === "function" ? values.config.spatial_framing(values) : [];
-    const children = compile_directive_tags(selection, values);
-    const cinematography = values.cinematography;
-    if (cinematography && typeof cinematography === "object") {
-      const { mode = "Medium Action", tokens = "", narrative_context = "", visual_staging = "" } = cinematography;
-      children.push(
-        render_xml_tag({
-          tag: "CINEMATOGRAPHY",
-          attrs: { mode },
-          children: [tokens, narrative_context, visual_staging],
-          child_indent: 2,
-          separator: "\n",
-        }),
-      );
-    }
-    const engine_tokens = values.engine_tokens;
-    if (engine_tokens?.camera) {
-      children.push(render_xml_tag({ tag: "CAMERA", children: [escape_xml(engine_tokens.camera)], inline: true }));
-    } else if (engine_tokens?.composition) {
-      children.push(render_xml_tag({ tag: "COMPOSITION", children: [escape_xml(engine_tokens.composition)], inline: true }));
-    }
-    return render_xml_tag({ tag: "SPATIAL_FRAMING", children, child_indent: 2, separator: "\n" });
-  },
-
+  optics_spatial_framing: (values) => resolve_optics_spatial_framing_slot(values),
   manifest_directives: (values) => {
     const selection = typeof values.config?.directives === "function" ? values.config.directives(values) : values.config?.directives || [];
     return [...compile_directive_tags(selection, values), ...(values.directives || []), values.keyword_directives]
@@ -706,9 +526,7 @@ function resolve_task_values(parameters, config) {
     values.scene_input = prompt_escape(String(parameters.input || "").trim() || "The scene begins.");
   }
 
-  const target_tier = parameters.target_tier || "";
-  values.subject_description =
-    parameters.subject || TASK_LIBRARY.OPTICS.SUBJECT_TIERS[target_tier] || TASK_LIBRARY.OPTICS.SUBJECT_TIERS.story_character;
+  values.subject_description = resolve_optics_subject(parameters.target_tier || "", parameters.subject);
   values.subject_name = prompt_escape(String(parameters.main_entity_name || ""));
 
   if (parameters.keyword_directives != null) {
@@ -850,4 +668,6 @@ export function render_task(parameters = {}) {
  * - 2026-09-11: Added DIRECTOR_SCHEMA, PROFILE_SCHEMA, MEMORY_FORGE_SCHEMA, DIRECTOR_TASK_RULES, render_terse_director_task, SCENE_DIRECTIVES, GHOSTWRITE_DIRECTIVES, and SORTING_DIRECTIVES.
  * - 2026-09-11: Initial creation of modular task.js extracting turn block formatting, pacing, and think formats.
  * - 2026-10-03: Prompt alignment & trauma severity grading — aligned USER_PERSONA_LOCK with ROUTING to explicitly authorize EPILOGUE_COLLAPSED and EPILOGUE_CONCLUDED next_actions without contradiction; graded EVALUATION_INPUT and EVALUATION_SCENE to distinguish definitively fatal terminal destruction from severe but survivable bodily trauma.
+ * Modules Ground Refactor Phase 1 — get_directive_atom delegates to utils/catalog.js resolve_catalog_atom (REFLEX delegation stays in compile_directive_tags) — prompt bytes byte-identical.
+ * - 2026-10-07: Modules Ground Refactor Phase 3 — optics domain re-cut to sensory.js (OPTICS catalog, framing rules and cinematography moved; OPTICS delegation in resolve_directive_entry; optics slots and subject delegate; render_think_format exported) — prompt bytes byte-identical.
  */

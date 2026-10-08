@@ -191,7 +191,7 @@ export function join_past_vectors(entity) {
  * Sourced 100% from universal bracket predicates via veil.js.
  *
  * @param {any} entity
- * @param {Set<string>} active_names
+ * @param {string[]} active_names
  * @param {Map<string, string>} name_to_id_map
  * @returns {string}
  */
@@ -208,7 +208,7 @@ export function render_dispositions(entity, active_names, name_to_id_map) {
 
   for (const [target_key, links] of bracket_relationships) {
     const target_normalized = target_key.toLowerCase().trim();
-    if (!active_names.has(target_normalized)) continue;
+    if (!active_names.includes(target_normalized)) continue;
 
     const dynamic = links.present || links.eternal;
     if (!dynamic) continue;
@@ -465,4 +465,5 @@ export function render_enhancement_field_context(entity, field_identifier, conte
  * CHANGELOG
  * - 2026-10-06: Plan Omega ground-up rebuild — define_sheet derives all tags from PROFILE_FIELD_CATALOG (epistemic defaults to "always", only owner-state written down); snapshot-first pipeline (resolve_sheet_snapshot normalizes epistemics/vectors/dispositions/physical rows once); direct physical row parsing via normalize_physical_entries (BODY regex round-trip retired); one mode axis (full/physical/separate, VISUAL_SECTIONS retired); render_chapter_history_xml relocated to history.js with structured <CHAPTER> grammar; byte-identical sheet output.
  * - 2026-10-04: Created from entities.js Sections 3-4 + dispositions renderer + Section 6 memory contexts, plus render_chapter_history_xml from history.js — sheet rendering and memory fragments live here; entities.js keeps presence/cast/visibility/assembly.
+ * Modules Ground Refactor Phase 1 — render_dispositions reads the frozen active_names array (.includes) — prompt bytes byte-identical.
  */

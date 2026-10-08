@@ -19,7 +19,7 @@
  * ============================================================================
  */
 
-import { VISUAL_STYLES, resolve_portrait_visual_style_key, PROFILE_FIELD_CATALOG } from "@data";
+import { PROFILE_FIELD_CATALOG } from "@data";
 import {
   prompt_escape,
   parse_macros,
@@ -27,9 +27,6 @@ import {
   has_alternations,
   wrap_tag,
   parse_relational_vector,
-  resolve_alternations,
-  alternation_field_label,
-  detox_prose,
   state_bridge,
   get_value,
   clean_text,
@@ -41,23 +38,17 @@ import { resolve_style_snapshot } from "./modules/style.js";
 import { resolve_stability_lock, render_available_keywords_xml, render_subtext_xml } from "./modules/reflex.js";
 import { render_constitution } from "./modules/constitution.js";
 import { render_core_protocols, resolve_pov_protocol, resolve_macro_directive, resolve_layer_tense_protocol } from "./modules/protocols.js";
-import { render_entity_sheets, resolve_entities, render_optics_entities_xml, render_nearby_entities_xml } from "./modules/entities.js";
+import { render_entity_sheets, resolve_entities, render_nearby_entities_xml } from "./modules/entities.js";
 import { render_entity_memory_context, render_enhancement_field_context } from "./modules/sheets.js";
 import { render_dynamics_axes_xml } from "./physics.js";
 import { verify_epistemic_integrity } from "./veil.js";
 
-import { render_history, render_input_history_xml, resolve_history, format_sensory_history, render_chapter_history_xml } from "./modules/history.js";
-import {
-  render_task,
-  render_keyword_directives_xml,
-  resolve_character_action_directive,
-  resolve_scene_action_directive,
-  resolve_optics_cinematography,
-} from "./modules/task.js";
+import { render_history, render_input_history_xml, resolve_history, render_chapter_history_xml } from "./modules/history.js";
+import { render_task, render_keyword_directives_xml, resolve_character_action_directive, resolve_scene_action_directive } from "./modules/task.js";
+import { render_optics_prompt } from "./modules/sensory.js";
 import { get_output_format } from "./modules/output.js";
 import { DYNAMICS_AXES, PHYSICS_PROTOCOLS, AVAILABLE_KEYWORDS, evaluate_dynamics_rules, evaluate_subtext_protocols } from "./physics.js";
 import { temporal_engine, resolve_vector_pool } from "./temporal.js";
-import { aesthetic_resolver, normalize_image_tier, resolve_visual_engine_tokens } from "@media";
 
 /**
  * Converts entity data into raw statistical data points according to the canonical profile field catalog.
@@ -324,13 +315,14 @@ export function render_director({
   simulation_log = [],
   npc_entities = [],
   in_scene_ids = [],
+  style_snapshot = null,
 }) {
   const active_messages = raw_messages.length > 0 ? raw_messages : simulation_log;
   const accessors = render_accessors || create_render_accessors(scene_entities, input, active_messages);
   const config = get_prompt("director");
   const schema = get_output_format(config.format);
-  const style_snapshot = resolve_style_snapshot();
-  const active_style_keywords = style_snapshot.keywords;
+  const resolved_style_snapshot = style_snapshot ?? resolve_builder_style_snapshot();
+  const active_style_keywords = resolved_style_snapshot.keywords;
 
   const merged_dynamics = { ...(compressed_snapshot?.fractal?.dynamics || {}), ...(compressed_snapshot?.ai?.dynamics || {}) };
 
@@ -437,9 +429,10 @@ function render_prose_turn_core({
   snapshot = null,
   is_npc = false,
   speaker_key = "AI",
+  style_snapshot = null,
 }) {
-  const style_snapshot = resolve_style_snapshot();
-  const style = style_snapshot.style;
+  const resolved_style_snapshot = style_snapshot ?? resolve_builder_style_snapshot();
+  const style = resolved_style_snapshot.style;
 
   const subtext_xml = render_subtext_xml(speaker_dynamics, fractal_dynamics, {
     keywords,
@@ -499,7 +492,9 @@ function render_prose_turn_core({
     round,
     style,
     subtext_xml,
-    snapshot: snapshot ? { ...snapshot, style, style_dna: style_snapshot.style_dna } : { style, style_dna: style_snapshot.style_dna },
+    snapshot: snapshot
+      ? { ...snapshot, style, style_dna: resolved_style_snapshot.style_dna }
+      : { style, style_dna: resolved_style_snapshot.style_dna },
     action_directive,
     stability_lock: stability_lock_content,
     layers: config.layers.task,
@@ -525,6 +520,7 @@ export function render_story_prose({
   director_data = null,
   npc_entities = [],
   in_scene_ids = [],
+  style_snapshot = null,
 }) {
   const is_npc_hint = !ghostwrite && !!speaker && speaker !== entities?.AI && speaker !== entities?.USER;
   const config = get_prompt(prompt_mode || (ghostwrite ? "ghostwrite" : is_npc_hint ? "npc" : "interaction"));
@@ -601,6 +597,7 @@ export function render_story_prose({
     snapshot: { dynamics: speaker_dynamics },
     is_npc,
     speaker_key,
+    style_snapshot,
   });
 }
 
@@ -617,6 +614,7 @@ export function render_scene_narrator({
   input = "",
   compressed_snapshot = {},
   render_accessors = null,
+  style_snapshot = null,
 }) {
   const is_prologue_beat = is_prologue || scene_template === "PROLOGUE";
 
@@ -655,6 +653,7 @@ export function render_scene_narrator({
     action_directive,
     snapshot: { dynamics: fractal_dynamics },
     is_npc: false,
+    style_snapshot,
   });
 }
 
@@ -812,200 +811,6 @@ export function render_profile_sorting(entity_type = "character", options = {}) 
   return { system, task: task_xml };
 }
 
-/**
- * Compiles the Optics <SYSTEM mode="optics"> envelope for every image-generation task
- * (solo entity portraits and multi-character scenes):
- * <SYSTEM mode="optics">               (open fragment; transport closes it)
- *   <CORE_PROTOCOLS>
- *   <ENTITIES>                         (contains <CAST mode="active">)
- *   <HISTORY>                          (optional)
- * </SYSTEM>
- * <TASK>
- *   <THINK_FORMAT>
- *   <INPUT channel="intent">
- *   <TARGET>
- *   <SPATIAL_FRAMING>
- *   <DIRECTIVES>                      (contains <KEYWORD_DIRECTIVES>)
- *   <OUTPUT_FORMAT mode="json">
- * </TASK>
- *
- * System children are emitted through the shared `PROMPT_LAYERS` table (bounded by the mode's
- * declared `layers.system`); the `<TASK>` is returned as the package's own field, so Optics no
- * longer hand-assembles an envelope or nests a task inside `<SYSTEM>`.
- *
- * @param {Object} [options={}] - Single options object; no positional shuffling.
- * @param {string} [options.tier] - Canonical image tier ("solo_entity" | "story_character" | "story_entities" | "story_scene").
- * @param {string} [options.target_type] - Alias for `tier`.
- * @param {string} [options.raw_intent] - Raw subject/prompt intent (rolled through alternation dice).
- * @param {string} [options.prompt_context] - Alias for `raw_intent`.
- * @param {string} [options.input] - Alias for `raw_intent`.
- * @param {any} [options.ai] - Active AI-character entity.
- * @param {any} [options.user] - Active user-persona entity.
- * @param {any} [options.fractal] - Active fractal/setting entity.
- * @param {any} [options.entity] - Focus entity (tier-derived when ai/user/fractal are omitted).
- * @param {any[]} [options.history] - Sensory conversation history entries.
- * @param {string} [options.mode="visualize"] - "visualize" | "enhance".
- * @param {string} [options.variant] - Variant selector (e.g. "selfie").
- * @param {string} [options.visual_staging] - Staging directive.
- * @param {(picks: any[]) => void} [options.onAlternationPick] - Alternation dice-pick callback.
- * @returns {{ system: string, task: string }}
- */
-export function render_optics_prompt(options = {}) {
-  const target_type = options.tier || options.target_type || "solo_entity";
-  const raw_intent = options.raw_intent || options.prompt_context || options.input || "";
-
-  const { ai, user, fractal, entity, history, mode = "visualize", variant, onAlternationPick } = options;
-
-  const dice_picks = [];
-  const roll = (text) => {
-    const resolved = resolve_alternations(text, {
-      onPick: (pick) => {
-        const item = { ...pick, label: alternation_field_label(text, pick.raw) };
-        dice_picks.push(item);
-        if (typeof onAlternationPick === "function") onAlternationPick([item]);
-      },
-    });
-    return resolved.text;
-  };
-
-  const tier = normalize_image_tier(target_type);
-  const is_selfie = variant === "selfie" || target_type === "selfie";
-
-  const active_ai_character = ai || (entity && entity.type !== "user" && entity.type !== "fractal" ? entity : null);
-  const active_user_persona = user || (entity?.type === "user" ? entity : null);
-  const active_fractal_setting = fractal || (entity?.type === "fractal" ? entity : null);
-  const main_entity = entity || active_ai_character || active_user_persona;
-  const solo_subject = entity || active_ai_character || active_user_persona || active_fractal_setting;
-  const macro_entities = { AI: active_ai_character, USER: active_user_persona, FRACTAL: active_fractal_setting };
-
-  const combined_input_text = `${raw_intent || ""} ${main_entity?.present?.physical || ""} ${main_entity?.eternal?.physical || ""}`;
-  const style_snapshot = resolve_style_snapshot({ fractal: active_fractal_setting });
-  const style_key = tier === "solo_entity" || mode === "enhance" ? resolve_portrait_visual_style_key(solo_subject) : style_snapshot.visual_key;
-  const style_definition = VISUAL_STYLES[style_key] || VISUAL_STYLES.none;
-  const engine_tokens = resolve_visual_engine_tokens(style_key);
-
-  const keywords_raw = style_definition.keywords || style_definition.tags || [];
-  const keyword_list = Array.isArray(keywords_raw)
-    ? keywords_raw
-    : typeof keywords_raw === "string"
-      ? keywords_raw.split(",").map((s) => s.trim())
-      : [];
-  const valid_keywords = keyword_list.filter(Boolean);
-
-  const config = get_prompt("optics");
-
-  // Layer 3: Core Protocols (<CORE_PROTOCOLS>)
-  const protocols_xml = render_core_protocols({
-    visual_style: style_definition,
-    engine_tokens,
-    protocols: config.protocols,
-    has_alternation: has_alternations(combined_input_text),
-  });
-
-  // Cinematography Resolution (Layer 6 Spatial Framing)
-  const cinematography = resolve_optics_cinematography({
-    tier,
-    solo_subject,
-    active_ai_character,
-    active_user_persona,
-    active_fractal_setting,
-    main_entity,
-    visual_staging: options.visual_staging || "",
-  });
-
-  // Layer 4: Entities Context (<ENTITIES>)
-  const entities_xml = render_optics_entities_xml({
-    tier,
-    solo_subject,
-    active_ai_character,
-    active_user_persona,
-    active_fractal_setting,
-    main_entity,
-    macro_entities,
-    roll,
-  });
-
-  // Layer 5: Sensory History (<CONVERSATION_HISTORY>)
-  const history_xml = format_sensory_history(history);
-
-  // Layer 7: Output Schema Format (<OUTPUT_FORMAT>)
-  const resolved_negative_prompt = engine_tokens.negative_prompt || "";
-  const schema = get_output_format(config.format, { variant: is_selfie ? "selfie" : variant, negative_prompt: resolved_negative_prompt });
-
-  const rolled_intent = detox_prose(roll(raw_intent || ""));
-
-  // Layer 6: Universal Task (<TASK>)
-  const task_xml = render_task({
-    config,
-    task_state: config.task_state,
-    target_tier: tier,
-    input_intent: rolled_intent,
-    think_format: config.think_format || "optics",
-    cinematography,
-    engine_tokens,
-    keywords: valid_keywords,
-    is_selfie,
-    main_entity_name: main_entity?.name || "",
-    has_fractal_setting: Boolean(active_fractal_setting),
-    schema,
-    layers: config.layers.task,
-  });
-
-  const full_system = compose_system(config, {
-    role_line: resolve_system_role_line({ role: config.role_line }),
-    core_protocols: protocols_xml,
-    entities_block: entities_xml,
-    history_block: history_xml ? history_xml.trim() : null,
-  });
-
-  return pack_prompt(
-    { system: full_system, task: task_xml },
-    resolve_prompt_meta({
-      ai: active_ai_character?.dynamics,
-      fractal: active_fractal_setting?.dynamics,
-    }),
-  );
-}
-
-/**
- * Deterministic fallback image prompt for when the optics LLM pass yields nothing.
- * Owned beside `render_optics_prompt` so the fallback template strings stay inside the
- * prompt pipeline rather than in the media orchestration layer.
- *
- * @param {Object} [options={}]
- * @param {string} [options.tier] - Canonical image tier ("solo_entity" | "story_character" | "story_entities" | "story_scene").
- * @param {string} [options.subject] - Resolved subject key ("ai" | "user" | "fractal").
- * @param {any} [options.ai]
- * @param {any} [options.user]
- * @param {any} [options.fractal]
- * @param {string} [options.intent] - Raw visual intent (used verbatim only when short).
- * @returns {string}
- */
-export function render_optics_fallback({ tier = "solo_entity", subject = "ai", ai, user, fractal, intent = "" } = {}) {
-  const normalized_tier = normalize_image_tier(tier);
-  const fallback_entity =
-    normalized_tier === "solo_entity"
-      ? subject === "user"
-        ? user
-        : subject === "fractal"
-          ? fractal
-          : ai
-      : normalized_tier === "story_scene" || normalized_tier === "story_entities"
-        ? fractal
-        : subject === "user"
-          ? user
-          : ai;
-  const fallback_description = aesthetic_resolver.flatten(fallback_entity);
-  const fallback_name = fallback_entity?.name || normalized_tier;
-  const short_intent = intent && intent.length < 200 ? intent : "";
-
-  if (normalized_tier === "story_character" && fractal) {
-    const fractal_description = aesthetic_resolver.flatten(fractal);
-    return `<image_prompt>${short_intent ? `${short_intent}, ` : ""}${fallback_name}, ${fallback_description || "detailed character"}, situated within ${fractal.name || "the setting"}, ${fractal_description || "atmospheric environment, dramatic lighting"}</image_prompt>`;
-  }
-  return `<image_prompt>${short_intent ? `${short_intent}, ` : ""}${fallback_name}, ${fallback_description || "detailed character portrait, dramatic lighting"}</image_prompt>`;
-}
-
 // ── 4. Declarative Pipeline Runner ──────────────────────────────────────────
 
 /**
@@ -1020,6 +825,22 @@ export function render_optics_fallback({ tier = "solo_entity", subject = "ai", a
  * @param {{ require_trio?: boolean }} [options={}]
  * @returns {{ entities: Record<string, any>, snapshot: Record<string, any>, render_accessors: any, director_data: Record<string, any>, recent_history: any[], npc: any }}
  */
+/**
+ * Builder-owned style resolution: the single place allowed to read global
+ * runtime style state. Mirrors the retired style.js fallback chain exactly,
+ * so pure resolve_style_snapshot receives pre-resolved explicit values and
+ * each compile parses its style record once (via normalize_context).
+ * @param {Object} [parameters={}]
+ * @returns {ReturnType<typeof resolve_style_snapshot>}
+ */
+export function resolve_builder_style_snapshot({ explicit_narrative_style, fractal = null, fallback_fractal } = {}) {
+  return resolve_style_snapshot({
+    explicit_narrative_style: explicit_narrative_style ?? state_bridge.runtime?.active_fractal?.narrative_style,
+    fractal,
+    fallback_fractal: fallback_fractal ?? state_bridge.runtime?.active_fractal ?? state_bridge.app?.selected_fractal ?? null,
+  });
+}
+
 function normalize_context(context = {}, entities_override = null, { require_trio = false } = {}) {
   const recent_history = context.recent_history || context.simulation_log || context.raw_messages || [];
   let entities = entities_override || context.entities || {};
@@ -1034,6 +855,11 @@ function normalize_context(context = {}, entities_override = null, { require_tri
     entities,
     snapshot: context.snapshot || context.compressed_snapshot || {},
     render_accessors: require_trio ? create_render_accessors(entities, "", recent_history) : resolve_accessors(context, entities),
+    style_snapshot: resolve_builder_style_snapshot({
+      explicit_narrative_style: context.explicit_narrative_style,
+      fractal: context.fractal ?? null,
+      fallback_fractal: context.fallback_fractal,
+    }),
     director_data: context.director_data || {},
     recent_history,
     npc: context.npc || context.speaker,
@@ -1062,10 +888,11 @@ export const MODE_ADAPTERS = {
         }),
       );
     }
-    const { render_accessors } = normalize_context(context);
+    const { render_accessors, style_snapshot } = normalize_context(context);
     const rendered = render_director({
       ...context,
       render_accessors,
+      style_snapshot,
       compressed_snapshot: context.compressed_snapshot || {},
     });
     return pack_prompt(
@@ -1102,12 +929,15 @@ export const MODE_ADAPTERS = {
     return pack_prompt({ system, task }, resolve_prompt_meta());
   },
 
-  optics: (config, context) => render_optics_prompt(context),
+  optics: (config, context) => {
+    const { style_snapshot } = normalize_context(context);
+    return render_optics_prompt({ ...context, style_snapshot });
+  },
 
   narrator: (config, context) => {
     const scene_template = context.scene_template || (context.is_prologue ? "PROLOGUE" : context.is_epilogue ? "EPILOGUE" : "CONTINUATION");
     const is_conclusion = scene_template === "EPILOGUE" || scene_template === "COLLAPSE" || Boolean(context.is_epilogue);
-    const { entities, snapshot, render_accessors } = normalize_context(context, null, { require_trio: is_conclusion });
+    const { entities, snapshot, render_accessors, style_snapshot } = normalize_context(context, null, { require_trio: is_conclusion });
 
     let resolved_template = scene_template || "CONTINUATION";
     let narrator_snapshot = snapshot;
@@ -1126,6 +956,7 @@ export const MODE_ADAPTERS = {
         scene_template: resolved_template,
         entities,
         render_accessors,
+        style_snapshot,
         compressed_snapshot: narrator_snapshot,
       }),
       resolve_prompt_meta({
@@ -1140,7 +971,7 @@ export const MODE_ADAPTERS = {
     const npc_entity = context.npc || context.speaker;
     const raw_entities = context.entities || {};
     const combined_entities = npc_entity?.id ? { ...raw_entities, [npc_entity.id]: npc_entity } : raw_entities;
-    const { snapshot, render_accessors: npc_accessors } = normalize_context(context, combined_entities);
+    const { snapshot, render_accessors: npc_accessors, style_snapshot } = normalize_context(context, combined_entities);
     return pack_prompt(
       render_story_prose({
         prompt_mode: "npc",
@@ -1148,6 +979,7 @@ export const MODE_ADAPTERS = {
         entities: combined_entities,
         speaker: npc_entity,
         render_accessors: npc_accessors,
+        style_snapshot,
         compressed_snapshot: snapshot,
         director_data: context.director_data || {},
       }),
@@ -1161,11 +993,12 @@ export const MODE_ADAPTERS = {
   },
 
   prose: (config, context) => {
-    const { render_accessors } = normalize_context(context);
+    const { render_accessors, style_snapshot } = normalize_context(context);
     const rendered = render_story_prose({
       ...context,
       prompt_mode: config.key,
       render_accessors,
+      style_snapshot,
     });
     return pack_prompt(
       rendered,
@@ -1248,4 +1081,6 @@ export function assemble_prompt(config, context = {}) {
  * - 2026-09-06: Deduplicated scoring context assembly in create_render_accessors(); standardized nomenclature; purged fallback in build_prologue(); standardized window.exposed bridge.
  * - 2026-08-28: Co-located render_builder directly in builder.js to eliminate circular imports from shared.js.
  * - 2026-10-01: Consolidated entity presence and sheet renderers from modules/entities.js.
+ * Modules Ground Refactor Phase 2 — builder-owned style resolution (resolve_builder_style_snapshot + once-per-compile threading through normalize_context into every compiler) — prompt bytes byte-identical.
+ * - 2026-10-07: Modules Ground Refactor Phase 3 — optics staging re-cut to sensory.js (prompt and fallback moved; adapter delegates; resolve_builder_style_snapshot exported; optics-only imports pruned) — prompt bytes byte-identical.
  */

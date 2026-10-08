@@ -100,6 +100,12 @@ export * from "./styles.js";
 export { VALID_SPEAKING_STYLES } from "./detox.js";
 
 // ============================================================================
+// Dotted-Catalog Compiler Core (Atoms & Token Interpolation)
+// ============================================================================
+
+export * from "./catalog.js";
+
+// ============================================================================
 // Entity-Aware Macro Resolution & Profile-Field Text Codecs
 // ============================================================================
 

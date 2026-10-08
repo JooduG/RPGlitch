@@ -9,9 +9,9 @@
  * optics entity block. Sheet rendering (SHEET_SPECS, render_sheet, memory
  * contexts) lives in sheets.js and is consumed here.
  *
- * Two stages: pure-data actor plans (resolve_actor_plan, resolve_optics_segments)
- * decide WHO renders with WHICH flags; thin renderers (render_actor_sheets,
- * render_optics_actor) map actors to sheet blocks. No epistemic branching lives
+ * Two stages: pure-data actor plans (resolve_actor_plan)
+ * decide WHO renders with WHICH flags; thin renderer (render_actor_sheets)
+ * maps actors to sheet blocks. No epistemic branching lives
  * in the renderers — every owner/bystander/disposition decision is plan data.
  *
  * Architecture & Modification Rules:
@@ -21,7 +21,7 @@
  * ============================================================================
  */
 
-import { escape_xml, render_xml_tag, strip_visual_excluded, collapse_whitespace, truncate_at_word } from "@utils";
+import { escape_xml, render_xml_tag, collapse_whitespace, truncate_at_word } from "@utils";
 import { SHEET_SPECS, render_sheet } from "./sheets.js";
 
 // ============================================================================
@@ -229,11 +229,11 @@ const TRIO_KEYS = Object.freeze(["AI", "USER", "FRACTAL"]);
  * map actors to blocks without branching.
  *
  * @param {Object} [parameters]
- * @returns {{ dispositions: Set<string>, dynamic_axes: Set<string>, agendas: Set<string>,
+ * @returns {{ dispositions: string[], dynamic_axes: string[], agendas: string[],
  *   nearby_entities: boolean, candidate_entities: boolean, field_context: boolean,
  *   target_context: boolean, chapter_history: boolean,
  *   sheet_actors: Array<Record<string, any>>, nearby_npcs: any[],
- *   active_names: Set<string>, name_to_id: Map<string, string> }}
+ *   active_names: string[], name_to_id: Map<string, string> }}
  */
 export function resolve_actor_plan({
   config = null,
@@ -317,26 +317,26 @@ export function resolve_actor_plan({
 
   const nearby_npcs = (npc_entities || []).filter((npc) => (in_scene_ids || []).includes(npc?.id) && !rendered_npc_ids.has(String(npc?.id)));
 
-  return {
-    dispositions,
-    dynamic_axes,
-    agendas,
+  return Object.freeze({
+    dispositions: Object.freeze([...dispositions]),
+    dynamic_axes: Object.freeze([...dynamic_axes]),
+    agendas: Object.freeze([...agendas]),
     nearby_entities: Boolean(configuration.nearby_entities),
     candidate_entities: Boolean(configuration.candidate_entities),
     field_context: Boolean(configuration.field_context),
     target_context: Boolean(configuration.target_context),
     chapter_history: Boolean(configuration.chapter_history),
-    sheet_actors,
-    nearby_npcs,
-    active_names,
+    sheet_actors: Object.freeze(sheet_actors),
+    nearby_npcs: Object.freeze(nearby_npcs),
+    active_names: Object.freeze([...active_names]),
     name_to_id,
-  };
+  });
 }
 
 /**
  * Manifest gate resolver: gate sets plus entity-layer flags for one prompt manifest record.
  * @param {any} [config=null] - Resolved prompt manifest record
- * @returns {Readonly<{ dispositions: Set<string>, dynamic_axes: Set<string>, agendas: Set<string>,
+ * @returns {Readonly<{ dispositions: string[], dynamic_axes: string[], agendas: string[],
  *   nearby_entities: boolean, candidate_entities: boolean, field_context: boolean,
  *   target_context: boolean, chapter_history: boolean }>}
  */
@@ -364,15 +364,7 @@ export function resolve_entities(config = null) {
  */
 export function render_actor_sheets(
   actors = [],
-  {
-    entities = {},
-    npc_entities = [],
-    accessors = null,
-    render_axes = null,
-    roll = (text) => text,
-    active_names = new Set(),
-    name_to_id = new Map(),
-  } = {},
+  { entities = {}, npc_entities = [], accessors = null, render_axes = null, active_names = [], name_to_id = new Map() } = {},
 ) {
   return (actors || []).map((actor) => {
     const sheet_arguments = {
@@ -393,31 +385,11 @@ export function render_actor_sheets(
     if (actor.include_memories !== undefined) {
       sheet_arguments.include_memories = actor.include_memories;
     }
-    if (actor.mode) {
-      sheet_arguments.mode = actor.mode;
-      sheet_arguments.transform_physical = (value) => roll(strip_visual_excluded(value));
-    }
     return render_sheet(actor.spec, sheet_arguments);
   });
 }
 
-/**
- * Maps one optics actor to its sheet block with the exact visual call shape.
- */
-function render_optics_actor(actor, { macro_entities = {}, roll = (text) => text } = {}) {
-  if (!actor) return "";
-  return render_sheet(actor.spec, {
-    entity: actor.entity,
-    entities: macro_entities,
-    mode: "physical",
-    include_agenda: false,
-    include_memories: false,
-    is_owner: true,
-    transform_physical: (value) => roll(strip_visual_excluded(value)),
-  });
-}
-
-function wrap_entities(parts) {
+export function wrap_entities(parts) {
   return render_xml_tag({
     tag: "ENTITIES",
     children: parts,
@@ -484,90 +456,6 @@ export function render_entity_sheets({
   return wrap_entities(parts);
 }
 
-// ============================================================================
-// [SECTION 7: SENSORY OPTICS ACTORS]
-// ============================================================================
-
-function plan_optics_actor(tag_name, entity_instance) {
-  if (!entity_instance) return null;
-  const base_specification = tag_name === "FRACTAL" || entity_instance.type === "fractal" ? SHEET_SPECS.FRACTAL : SHEET_SPECS.AI_CHARACTER;
-  return {
-    spec: { ...base_specification, tag: tag_name, default_name: tag_name },
-    entity: entity_instance,
-  };
-}
-
-/**
- * Compiles the pure-data segment plan for optics tiers: ordered
- * `{ cast, actors }` segments where `cast` wraps its actors in `<CAST mode="active">`.
- */
-function resolve_optics_segments({
-  tier = "solo_entity",
-  solo_subject = null,
-  active_ai_character = null,
-  active_user_persona = null,
-  active_fractal_setting = null,
-  main_entity = null,
-} = {}) {
-  const is_story_tier = tier === "story_entities" || tier === "story_character" || tier === "story_scene";
-  const fractal_actor = is_story_tier && active_fractal_setting ? plan_optics_actor("FRACTAL", active_fractal_setting) : null;
-
-  switch (tier) {
-    case "solo_entity":
-      return [{ cast: true, actors: [plan_optics_actor("SOLO_ENTITY", solo_subject)] }];
-    case "story_scene":
-      return [{ cast: false, actors: [fractal_actor] }];
-    case "story_entities":
-      return [
-        {
-          cast: true,
-          actors: [plan_optics_actor("AI_CHARACTER", active_ai_character), plan_optics_actor("USER_PERSONA", active_user_persona)],
-        },
-        { cast: false, actors: [fractal_actor] },
-      ];
-    case "story_character":
-    default: {
-      const main_tag =
-        main_entity === active_user_persona || main_entity?.type === "user"
-          ? "USER_PERSONA"
-          : main_entity?.type === "fractal"
-            ? "FRACTAL"
-            : "AI_CHARACTER";
-      return [
-        { cast: true, actors: [plan_optics_actor(main_tag, main_entity)] },
-        { cast: false, actors: [fractal_actor] },
-      ];
-    }
-  }
-}
-
-export function render_optics_entities_xml({
-  tier = "solo_entity",
-  solo_subject = null,
-  active_ai_character = null,
-  active_user_persona = null,
-  active_fractal_setting = null,
-  main_entity = null,
-  macro_entities = {},
-  roll = (text) => text,
-} = {}) {
-  const context_block = resolve_optics_segments({
-    tier,
-    solo_subject,
-    active_ai_character,
-    active_user_persona,
-    active_fractal_setting,
-    main_entity,
-  })
-    .map((segment) => {
-      const blocks = segment.actors.map((actor) => render_optics_actor(actor, { macro_entities, roll }));
-      return segment.cast ? render_cast_xml({ mode: CAST_MODES.ACTIVE, children: blocks }) : blocks.join("\n");
-    })
-    .join("\n");
-
-  return wrap_entities([context_block.trim()].filter(Boolean));
-}
-
 /**
  * CHANGELOG
  * - 2026-10-04: C rebuild — data-first split: resolve_actor_plan (pure gates + ordered sheet actors + nearby list) feeds thin render_actor_sheets; optics tiers compile through resolve_optics_segments into the shared wrap_entities; four empty visibility policies collapse into one blank policy; candidate summary precedence unified to present → eternal → description; render_entity_sheets renders candidates internally (cast_xml string param retired).
@@ -576,4 +464,6 @@ export function render_optics_entities_xml({
  * ============================================================================
  * - 2026-10-01: Consolidated presence.js and sheets.js into single src/intelligence/modules/entities.js module under P4 Zero Backwards Compatibility. Relational dispositions now harvest 100% from universal bracket predicates via veil.js.
  * ============================================================================
+ * Modules Ground Refactor Phase 1 — actor plans frozen at the boundary (gate Sets become frozen arrays; name_to_id stays a Map) — prompt bytes byte-identical.
+ * - 2026-10-07: Modules Ground Refactor Phase 3 — optics actors re-cut to sensory.js (wrap_entities exported; Section 7 moved; dead actor.mode branch retired) — prompt bytes byte-identical.
  */

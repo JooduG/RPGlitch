@@ -40,6 +40,7 @@ import {
   escape_xml,
   role_display_label,
 } from "@utils";
+import { DYNAMICS_METRIC_NAMES } from "../physics.js";
 
 // ============================================================================
 // [SECTION 1: MANIFEST CONFIGURATION & WINDOW RESOLVER]
@@ -80,8 +81,9 @@ export function resolve_history(configuration) {
  * names live in physics.js (`build_turn_summary`); these patterns mirror them
  * so the optics `<HISTORY>` never carries `system:` telemetry or `metric ±N |` rows.
  */
-const TELEMETRY_PREFIX_PATTERN = /^(system|telemetry):\s*(?:chaos|intensity|openness|affinity|velocity|entropy)\s*[+-]\d+/i;
-const TELEMETRY_INLINE_PATTERN = /(?:chaos|intensity|openness|affinity|velocity|entropy)\s*[+-]\d+\s*\|/i;
+const TELEMETRY_METRICS_PATTERN = DYNAMICS_METRIC_NAMES.join("|");
+const TELEMETRY_PREFIX_PATTERN = new RegExp(`^(system|telemetry):\\s*(?:${TELEMETRY_METRICS_PATTERN})\\s*[+-]\\d+`, "i");
+const TELEMETRY_INLINE_PATTERN = new RegExp(`(?:${TELEMETRY_METRICS_PATTERN})\\s*[+-]\\d+\\s*\\|`, "i");
 
 /**
  * Resolves raw dialogue/feed entries into a frozen, render-ready plan. Every
@@ -415,4 +417,5 @@ export function render_chapter_history_xml(target_entity, indentation_level = 0)
  * - 2026-09-13: Comprehensive architectural rebuild & prompts.js symmetry — aligned history configuration with prompts.js manifest; supported direct configuration objects in render_input_history_xml with dynamic input_tag; enforced strict Full-Name nomenclature (eliminated single-letter variables m, c); structured into 4 distinct temporal horizon sections with Universal File Architecture.
  * - 2026-09-12: Standardization pass — added the `HISTORY_DEFAULTS` catalog + `resolve_history` resolver so modes drive their history window via `prompts.js` instead of call-site literals; `render_chapter_history_xml` / `render_input_history_xml` now compose through `render_xml_tag` (the `<INPUT_HISTORY>` JSON is uniformly indented).
  * - 2026-09-11: Initial creation of modular history.js extracting render_history, format_recent_history, render_chapter_history_xml, and render_input_history_xml.
+ * Modules Ground Refactor Phase 2 — telemetry patterns built from physics DYNAMICS_METRIC_NAMES (mirrored copy retired) — prompt bytes byte-identical.
  */

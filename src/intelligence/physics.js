@@ -40,6 +40,13 @@ export const DYNAMICS_AXES = Object.freeze({
   entropy: { label: "Entropy", low: "Glitching", high: "Coherence", scope: "fractal" },
 });
 
+/**
+ * Canonical dynamics metric names. Single source for telemetry shaping
+ * (history.js builds its stripping patterns from this list — never mirror it).
+ * @type {ReadonlyArray<string>}
+ */
+export const DYNAMICS_METRIC_NAMES = Object.freeze(["chaos", "intensity", "openness", "affinity", "velocity", "entropy"]);
+
 // ── 2. Physics Protocols & Directives Registry ────────────────────────────────
 
 /**
@@ -631,4 +638,5 @@ export function render_dynamics_axes_xml(live_dynamics = null, scope = null, axe
  * - 2026-09-11: Refactored physics.js to functional paradigm: dismantled physics_engine singleton into top-level exports, renamed resolve_non_verbal_reactions to evaluate_dynamics_rules, and enforced Universal File Architecture.
  * - 2026-09-11: Consolidated GLOBAL_TRIGGERS and DYNAMIC_NON_VERBAL_RULES into unified DYNAMICS_RULES; trigger directives co-located into PHYSICS_PROTOCOLS in physics-prompt.js.
  * - 2026-08-28: Harmonized dynamics nomenclature: DYNAMIC_NON_VERBAL_RULES, extract_entity_dynamics_baselines, compute_dynamics_deltas, evaluate_dynamics_signals, and apply_dynamics_gravity.
+ * Modules Ground Refactor Phase 2 — exports DYNAMICS_METRIC_NAMES (single source for telemetry shaping).
  */

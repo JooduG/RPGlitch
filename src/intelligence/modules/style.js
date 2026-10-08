@@ -15,7 +15,7 @@
  * ============================================================================
  */
 
-import { escape_xml, prompt_escape, render_xml_tag, state_bridge } from "@utils";
+import { escape_xml, prompt_escape, render_xml_tag } from "@utils";
 import {
   extract_style_dna,
   get_narrative_style,
@@ -42,16 +42,16 @@ export function resolve_style_dna(style) {
  * resolution — prompt builders read this once per compile and thread the frozen
  * result instead of resolving keys ad hoc.
  * @param {Object} [parameters={}]
- * @param {string|null|undefined} [parameters.explicit_narrative_style] - Narrative override (defaults to the active fractal value)
+ * @param {string|null|undefined} [parameters.explicit_narrative_style] - Narrative override (no implicit runtime lookup; callers pass pre-resolved values)
  * @param {any} [parameters.fractal=null] - Active fractal record for story-visual resolution
- * @param {any} [parameters.fallback_fractal] - Fallback fractal record (defaults to runtime/app selection)
+ * @param {any} [parameters.fallback_fractal] - Explicit fallback fractal record (no implicit runtime/app lookup)
  * @returns {Readonly<{ narrative_key: string, style: any, keywords: ReadonlyArray<string>, style_dna: any, visual_key: string, visual_style: any }>}
  */
 export function resolve_style_snapshot({ explicit_narrative_style, fractal = null, fallback_fractal } = {}) {
-  const narrative_explicit = explicit_narrative_style ?? state_bridge.runtime?.active_fractal?.narrative_style;
+  const narrative_explicit = explicit_narrative_style;
   const narrative_key = resolve_active_style_key(narrative_explicit);
   const style = get_narrative_style(narrative_key);
-  const visual_fallback = fallback_fractal ?? state_bridge.runtime?.active_fractal ?? state_bridge.app?.selected_fractal ?? null;
+  const visual_fallback = fallback_fractal ?? null;
   const visual_key = resolve_story_visual_style_key(fractal, visual_fallback);
   return Object.freeze({
     narrative_key,
@@ -124,4 +124,5 @@ export function render_visual_style_xml(style_definition, engine_tokens = {}) {
 /**
  * CHANGELOG
  * - 2026-10-04: Added resolve_style_dna — frozen single-owner @data parse; render_narrative_style_xml and all prompt plans read through it.
+ * Modules Ground Refactor Phase 2 — style.js is pure (state_bridge evicted to builder resolve_builder_style_snapshot); snapshot takes explicit records — prompt bytes byte-identical.
  */

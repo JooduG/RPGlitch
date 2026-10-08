@@ -139,7 +139,7 @@ describe("resolve_sheet_snapshot", () => {
   it("resolves dispositions only for active participants", () => {
     const snapshot = resolve_sheet_snapshot(test_character, SHEET_SPECS.AI_CHARACTER, {
       show_dispositions: true,
-      active_names: new Set(["bob"]),
+      active_names: ["bob"],
       name_to_id: new Map([["bob", "BOB"]]),
     });
     expect(snapshot.dispositions).toContain("<DISPOSITIONS>");
