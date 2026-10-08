@@ -5,7 +5,7 @@
 
 import { describe, expect, it, vi } from "vitest";
 import { apply_profile_to_entity } from "./profile.js";
-import { render_enhancement, render_profile_sorting } from "./builder.js";
+import { compile_prompt } from "./prompts.js";
 import { TASK_LIBRARY } from "./modules/task.js";
 import { get_output_format, OUTPUT_FORMATS } from "./modules/output.js";
 import { PROMPTS } from "./prompts.js";
@@ -36,12 +36,12 @@ describe("Profile Domain (profile.js)", () => {
 
   // ── 2. Field Enhancement Compilers ──────────────────────────────────────────
 
-  describe("render_enhancement()", () => {
+  describe("enhancement via compile_prompt()", () => {
     it("formats physical properties to XML correctly", () => {
       const entity = {
         present: { physical: '{"eyeColor": "blue", "hair": "black"}' },
       };
-      const result = render_enhancement({
+      const result = compile_prompt("enhancement", {
         field_id: "present.non_physical",
         content: "Content",
         label: "Mood",
@@ -49,31 +49,31 @@ describe("Profile Domain (profile.js)", () => {
         enhancer: "AESTHETICS",
         entity,
       });
-      expect(result.system + result.task).toContain("<CURRENT_LOOK>");
-      expect(result.system + result.task).toContain("<eyeColor>blue</eyeColor>");
-      expect(result.system + result.task).toContain("<hair>black</hair>");
+      expect(result.system).toContain("<CURRENT_LOOK>");
+      expect(result.system).toContain("<eyeColor>blue</eyeColor>");
+      expect(result.system).toContain("<hair>black</hair>");
     });
 
     it("injects MACRO_PROTOCOL correctly for characters vs fractals", () => {
-      const char_result = render_enhancement({
+      const char_result = compile_prompt("enhancement", {
         field_id: "eternal.non_physical",
         content: "Content",
         label: "Personality",
         directive: "Enhance.",
         entity_type: "character",
       });
-      expect(char_result.system + char_result.task).toContain("Use placeholder macros for entities: '@ME' / '@SPEAKER' (self, actor)");
-      expect(char_result.system + char_result.task).not.toContain("'@USER' (user persona), '@CHAR' (AI character)");
+      expect(char_result.system).toContain("Use placeholder macros for entities: '@ME' / '@SPEAKER' (self, actor)");
+      expect(char_result.system).not.toContain("'@USER' (user persona), '@CHAR' (AI character)");
 
-      const fractal_result = render_enhancement({
+      const fractal_result = compile_prompt("enhancement", {
         field_id: "eternal.non_physical",
         content: "Content",
         label: "Lore",
         directive: "Enhance.",
         entity_type: "fractal",
       });
-      expect(fractal_result.system + fractal_result.task).toContain("'@USER' (user persona), '@CHAR' (AI character)");
-      expect(fractal_result.system + fractal_result.task).not.toContain("'@ME' / '@SPEAKER' (self, actor)");
+      expect(fractal_result.system).toContain("'@USER' (user persona), '@CHAR' (AI character)");
+      expect(fractal_result.system).not.toContain("'@ME' / '@SPEAKER' (self, actor)");
     });
 
     it("injects the same-layer sibling + eternal baseline (no whole-profile bleed)", () => {
@@ -83,7 +83,7 @@ describe("Profile Domain (profile.js)", () => {
         past: [{ id: "p1", content: "Old memory anchor", type: "past", emotional_weight: 5 }],
         future: "Impending prophecy",
       };
-      const result = render_enhancement({
+      const result = compile_prompt("enhancement", {
         field_id: "present.non_physical",
         content: "Present mood.",
         label: "Mood",
@@ -91,25 +91,25 @@ describe("Profile Domain (profile.js)", () => {
         entity,
         entity_type: "character",
       });
-      expect(result.system + result.task).toContain("Present mood.");
-      expect(result.system + result.task).toContain("Present outfit.");
-      expect(result.system + result.task).toContain("Eternal psyche.");
-      expect(result.system + result.task).not.toContain("Eternal body.");
-      expect(result.system + result.task).not.toContain("Old memory anchor");
-      expect(result.system + result.task).not.toContain("Impending prophecy");
+      expect(result.system).toContain("Present mood.");
+      expect(result.system).toContain("Present outfit.");
+      expect(result.system).toContain("Eternal psyche.");
+      expect(result.system).not.toContain("Eternal body.");
+      expect(result.system).not.toContain("Old memory anchor");
+      expect(result.system).not.toContain("Impending prophecy");
     });
   });
 
-  describe("render_profile_sorting()", () => {
+  describe("sorting via compile_prompt()", () => {
     it("renders valid schema, macros, and focus directive", () => {
-      const char_result = render_profile_sorting("character", { ingestion: true });
-      expect(char_result.system + char_result.task).toContain('<SYSTEM mode="sorting"');
-      expect(char_result.system + char_result.task).toContain("FOCUS: Extracting data for an individual CHARACTER.");
-      expect(char_result.system + char_result.task).toContain("SOURCE OF TRUTH & INGESTION RULES:");
+      const char_result = compile_prompt("sorting", { entity_type: "character", options: { ingestion: true } });
+      expect(char_result.system).toContain('<SYSTEM mode="sorting"');
+      expect(char_result.system).toContain("FOCUS: Extracting data for an individual CHARACTER.");
+      expect(char_result.system).toContain("SOURCE OF TRUTH & INGESTION RULES:");
 
-      const fractal_result = render_profile_sorting("fractal", { redistribute: true });
-      expect(fractal_result.system + fractal_result.task).toContain("FOCUS: Extracting data for a FRACTAL");
-      expect(fractal_result.system + fractal_result.task).toContain("REDISTRIBUTE: The source profile may have content");
+      const fractal_result = compile_prompt("sorting", { entity_type: "fractal", options: { redistribute: true } });
+      expect(fractal_result.system).toContain("FOCUS: Extracting data for a FRACTAL");
+      expect(fractal_result.system).toContain("REDISTRIBUTE: The source profile may have content");
     });
   });
 

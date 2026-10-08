@@ -18,7 +18,6 @@ import {
 } from "./temporal.js";
 import { get_output_format } from "./modules/output.js";
 import { PROMPTS } from "./prompts.js";
-import { render_memory } from "./builder.js";
 import { llm_service, embed } from "@platform";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cosine_similarity } from "@utils";
@@ -46,11 +45,11 @@ vi.mock("@data", async (importOriginal) => {
   };
 });
 
-vi.mock("./builder.js", async (importOriginal) => {
+vi.mock("./prompts.js", async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
-    assemble_prompt: vi.fn(() => ({ system: "mock prompt", messages: [] })),
+    compile_prompt: vi.fn(() => ({ system: "mock prompt", messages: [] })),
   };
 });
 
@@ -1008,9 +1007,10 @@ describe("temporal_engine per-entity consolidation progress tracking (Track 2 Ph
     expect(mock_runtime.active_ai.present.non_physical).toContain("[@GHOST: Growing mutual respect under fire]");
   });
 
-  it("exports the continuum schema and renders the continuum prompt correctly", () => {
+  it("exports the continuum schema and renders the continuum prompt correctly", async () => {
+    const { compile_prompt: real_compile_prompt } = await vi.importActual("./prompts.js");
     expect(get_output_format(PROMPTS.continuum.format)).toBeDefined();
-    const prompt = render_memory({
+    const prompt = real_compile_prompt("continuum", {
       target_entity: { name: "Viper", eternal: {}, present: {} },
       target_key: "AI_CHARACTER",
       other_entities: {},

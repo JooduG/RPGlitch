@@ -18,7 +18,7 @@
  * ============================================================================
  */
 
-import { prompt_escape, render_xml_tag, resolve_catalog_atom } from "@utils";
+import { has_alternations, prompt_escape, render_xml_tag, resolve_catalog_atom } from "@utils";
 import { render_narrative_style_xml, render_visual_style_xml } from "./style.js";
 import { render_alternation_protocol } from "./reflex.js";
 import { OUTPUT_DIRECTIVES } from "./output.js";
@@ -325,6 +325,23 @@ export function render_core_protocols({
   has_alternation = false,
 } = {}) {
   return render_protocol_plan(resolve_protocol_plan({ protocols, pov_protocol, style, visual_style, engine_tokens, has_alternation }));
+}
+
+/**
+ * System-layer slot: seals core protocols from normalized arguments. The
+ * alternation flag derives from the resolved entities block (sheets modes)
+ * or from normalized text (optics), mirroring the historical call shapes.
+ */
+export function resolve_core_protocols_slot(config, normalized = {}, resolved = {}) {
+  const source = { ...(normalized.core_protocols_args || {}) };
+  if (source.alternation_source === "entities") {
+    source.has_alternation = has_alternations(resolved.entities || "");
+  } else if (source.alternation_source === "text") {
+    source.has_alternation = has_alternations(source.alternation_text || "");
+  }
+  delete source.alternation_source;
+  delete source.alternation_text;
+  return render_core_protocols({ protocols: config?.protocols || [], ...source });
 }
 
 /**

@@ -8,44 +8,39 @@
  * Consumes the declarative manifest in ./prompts.js and the 5 structural modules
  * (system, constitution, protocols, entities, task) to compile all prompt payloads:
  * 1. Render Accessor Factory (create_render_accessors)
- * 2. Declarative Pipeline Runner (MODE_ADAPTERS / assemble_prompt)
- * 3. Director Planning Compiler (render_director)
- * 4. Temporal Continuum Distillation (render_memory)
- * 5. Profile Ingestion & Enhancement Compilers (render_enhancement, render_profile_sorting)
+ * 2. Shared Context Normalization (normalize_context)
+ * 3. Mode Context Normalizers (per-mode slot-input bags)
+ * 4. Mode Adapter Table (MODE_ADAPTERS normalize dispatch)
  *
  * Architecture & Purity Invariant:
- * - Pure assembly layer: coordinates structural modules.
+ * - Pure normalization layer: prepares slot inputs; prompts.js seals the plan.
  * - Leaves domain engines (director.js, story.js, temporal.js, profile.js) 100% prompt-free.
  * ============================================================================
  */
 
-import { PROFILE_FIELD_CATALOG } from "@data";
+import { PROFILE_FIELD_CATALOG, VISUAL_STYLES, resolve_portrait_visual_style_key } from "@data";
 import {
   prompt_escape,
   parse_macros,
   strip_cognition_blocks,
-  has_alternations,
-  wrap_tag,
   parse_relational_vector,
+  resolve_alternations,
+  alternation_field_label,
   state_bridge,
   get_value,
   clean_text,
 } from "@utils";
 import { ensure_embeddings } from "@platform";
-import { get_prompt } from "./prompts.js";
-import { resolve_system_role_line, compose_system, pack_prompt, resolve_prompt_meta } from "./modules/system.js";
+import { normalize_image_tier, resolve_visual_engine_tokens } from "@media";
 import { resolve_style_snapshot } from "./modules/style.js";
 import { resolve_stability_lock, render_available_keywords_xml, render_subtext_xml } from "./modules/reflex.js";
-import { render_constitution } from "./modules/constitution.js";
-import { render_core_protocols, resolve_pov_protocol, resolve_macro_directive, resolve_layer_tense_protocol } from "./modules/protocols.js";
-import { render_entity_sheets, resolve_entities, render_nearby_entities_xml } from "./modules/entities.js";
-import { render_entity_memory_context, render_enhancement_field_context } from "./modules/sheets.js";
+import { resolve_pov_protocol, resolve_macro_directive, resolve_layer_tense_protocol } from "./modules/protocols.js";
+import { resolve_entities } from "./modules/entities.js";
 import { render_dynamics_axes_xml } from "./physics.js";
-import { verify_epistemic_integrity } from "./veil.js";
 
-import { render_history, render_input_history_xml, resolve_history, render_chapter_history_xml } from "./modules/history.js";
-import { render_task, render_keyword_directives_xml, resolve_character_action_directive, resolve_scene_action_directive } from "./modules/task.js";
-import { render_optics_prompt } from "./modules/sensory.js";
+import { render_history, resolve_history } from "./modules/history.js";
+import { render_keyword_directives_xml, resolve_character_action_directive, resolve_scene_action_directive } from "./modules/task.js";
+import { resolve_optics_cinematography } from "./modules/sensory.js";
 import { get_output_format } from "./modules/output.js";
 import { DYNAMICS_AXES, PHYSICS_PROTOCOLS, AVAILABLE_KEYWORDS, evaluate_dynamics_rules, evaluate_subtext_protocols } from "./physics.js";
 import { temporal_engine, resolve_vector_pool } from "./temporal.js";
@@ -300,248 +295,27 @@ function resolve_accessors(payload, override_entities = null) {
   return create_render_accessors(entities, payload?.input || "", messages);
 }
 
-// ── 3. Prompt Compilers ───────────────────────────────────────────────────────
+// ── 3. Mode Context Normalizers ─────────────────────────────────────────────
+// Each normalizer mirrors its retired compiler's data gathering exactly and
+// returns a frozen-ready bag of slot inputs; prompts.js resolves + seals.
 
-/**
- * Compiles Director prompt (Shot 1).
- */
-export function render_director({
-  round,
-  entities: scene_entities = {},
-  input = "",
-  render_accessors = null,
-  compressed_snapshot = {},
-  raw_messages = [],
-  simulation_log = [],
-  npc_entities = [],
-  in_scene_ids = [],
-  style_snapshot = null,
-}) {
-  const active_messages = raw_messages.length > 0 ? raw_messages : simulation_log;
-  const accessors = render_accessors || create_render_accessors(scene_entities, input, active_messages);
-  const config = get_prompt("director");
-  const schema = get_output_format(config.format);
-  const resolved_style_snapshot = style_snapshot ?? resolve_builder_style_snapshot();
-  const active_style_keywords = resolved_style_snapshot.keywords;
-
-  const merged_dynamics = { ...(compressed_snapshot?.fractal?.dynamics || {}), ...(compressed_snapshot?.ai?.dynamics || {}) };
-
-  const entity_sheets = render_entity_sheets({
-    entities: scene_entities,
-    npc_entities,
-    in_scene_ids,
-    accessors,
-    config,
-    is_npc: false,
-    render_axes: (dynamics, scope) => render_dynamics_axes_xml(dynamics, scope, DYNAMICS_AXES),
-    speaker_dynamics: compressed_snapshot?.ai?.dynamics,
-    fractal_dynamics: compressed_snapshot?.fractal?.dynamics,
-  });
-
-  const core_protocols_xml = render_core_protocols({
-    protocols: config.protocols,
-    has_alternation: has_alternations(entity_sheets),
-  });
-
-  const keyword_directives_xml = render_keyword_directives_xml(render_available_keywords_xml(active_style_keywords, AVAILABLE_KEYWORDS));
-
-  const role_line = resolve_system_role_line({ role: config.role_line });
-
-  const system = compose_system(
-    config,
-    {
-      role_line,
-      core_protocols: core_protocols_xml,
-      dynamics: render_dynamics_axes_xml(merged_dynamics, null, DYNAMICS_AXES),
-      entities_block: entity_sheets,
-      history_block: wrap_tag("HISTORY", accessors.simulation_log(), 2),
-    },
-    { round },
-  );
-
-  const last_ai_message = (active_messages || []).filter((message) => message.role === "model").at(-1);
-  const last_ai_text = last_ai_message ? strip_cognition_blocks(last_ai_message.content || last_ai_message.text || "").trim() : "";
-
-  const task = render_task({
-    config,
-    task_state: config.task_state,
-    entities: scene_entities,
-    round,
-    input,
-    last_ai_text,
-    schema,
-    keyword_directives: keyword_directives_xml,
-    layers: config.layers.task,
-  });
-
-  return { system, task };
+function create_axes_renderer() {
+  return (dynamics, scope) => render_dynamics_axes_xml(dynamics, scope, DYNAMICS_AXES);
 }
 
-/**
- * Shared Shot-2A prose compilation core executing the unified 9-step pipeline:
- * style resolution -> subtext parsing -> constitution -> entity sheets ->
- * core protocols -> system envelope -> stability lock -> task compilation.
- *
- * @param {Object} parameters
- * @param {any} parameters.config
- * @param {number|null} [parameters.round=null]
- * @param {Record<string, any>} [parameters.entities={}]
- * @param {any[]} [parameters.npc_entities=[]]
- * @param {string[]} [parameters.in_scene_ids=[]]
- * @param {any} [parameters.active_speaker=null]
- * @param {string} [parameters.speaker_name=""]
- * @param {string} [parameters.listener_name=""]
- * @param {string} [parameters.fractal_name=""]
- * @param {string|null} [parameters.pov_protocol=null]
- * @param {any} parameters.accessors
- * @param {Record<string, any>} [parameters.speaker_dynamics={}]
- * @param {Record<string, any>} [parameters.fractal_dynamics={}]
- * @param {string[]} [parameters.keywords=[]]
- * @param {boolean} [parameters.suppress_style_subtext=false]
- * @param {any} [parameters.meta=null]
- * @param {string} [parameters.input=""]
- * @param {string} [parameters.input_origin="USER"]
- * @param {string} [parameters.action_directive=""]
- * @param {any} [parameters.snapshot=null]
- * @param {boolean} [parameters.is_npc=false]
- * @returns {{ system: string, task: string }}
- */
-function render_prose_turn_core({
-  config,
-  round = null,
-  entities = {},
-  npc_entities = [],
-  in_scene_ids = [],
-  active_speaker = null,
-  speaker_name = "",
-  listener_name = "",
-  fractal_name = "",
-  pov_protocol = null,
-  accessors,
-  speaker_dynamics = {},
-  fractal_dynamics = {},
-  keywords = [],
-  suppress_style_subtext = false,
-  meta = null,
-  input = "",
-  input_origin = "USER",
-  action_directive = "",
-  snapshot = null,
-  is_npc = false,
-  speaker_key = "AI",
-  style_snapshot = null,
-}) {
-  const resolved_style_snapshot = style_snapshot ?? resolve_builder_style_snapshot();
-  const style = resolved_style_snapshot.style;
-
-  const subtext_xml = render_subtext_xml(speaker_dynamics, fractal_dynamics, {
-    keywords,
-    style: suppress_style_subtext ? null : style,
-    physics_protocols: PHYSICS_PROTOCOLS,
-    evaluate_dynamics_rules,
-    evaluate_subtext_protocols,
-  });
-
-  const constitution = config.constitution ? render_constitution() : "";
-
-  const entities_block = render_entity_sheets({
-    entities,
-    npc_entities,
-    in_scene_ids,
-    active_speaker,
-    accessors,
-    config,
-    is_npc,
-    render_axes: (dynamics, scope) => render_dynamics_axes_xml(dynamics, scope, DYNAMICS_AXES),
-    speaker_dynamics,
-    fractal_dynamics,
-    speaker_key,
-  });
-
-  if (!verify_epistemic_integrity(entities_block)) {
-    console.warn("[builder] Epistemic Wall integrity alert: leaked secrets or plans detected across boundary.");
-  }
-
-  const core = render_core_protocols({
-    protocols: config.protocols,
-    pov_protocol,
-    style,
-    has_alternation: has_alternations(entities_block),
-  });
-
-  const role_line = resolve_system_role_line({
-    role: config.role_line,
-    speaker_name,
-    listener_name,
-    fractal_name,
-  });
-
-  const system = compose_system(
-    config,
-    { role_line, constitution, core_protocols: core, entities_block, history_block: wrap_tag("HISTORY", accessors.simulation_log(), 2) },
-    { round },
-  );
-
-  const stability_lock_content = resolve_stability_lock(meta);
-
-  const task = render_task({
-    task_state: config.task_state,
-    config,
-    input,
-    input_origin,
-    round,
-    style,
-    subtext_xml,
-    snapshot: snapshot
-      ? { ...snapshot, style, style_dna: resolved_style_snapshot.style_dna }
-      : { style, style_dna: resolved_style_snapshot.style_dna },
-    action_directive,
-    stability_lock: stability_lock_content,
-    layers: config.layers.task,
-  });
-
-  return { system, task };
-}
-
-/**
- * Compiles Story Prose prompt for interaction, npc, or ghostwrite.
- */
-export function render_story_prose({
-  round = null,
-  entities = {},
-  speaker = null,
-  listener = null,
-  input = "",
-  compressed_snapshot = {},
-  meta = {},
-  render_accessors = null,
-  ghostwrite = false,
-  prompt_mode = null,
-  director_data = null,
-  npc_entities = [],
-  in_scene_ids = [],
-  style_snapshot = null,
-}) {
-  const is_npc_hint = !ghostwrite && !!speaker && speaker !== entities?.AI && speaker !== entities?.USER;
-  const config = get_prompt(prompt_mode || (ghostwrite ? "ghostwrite" : is_npc_hint ? "npc" : "interaction"));
+function resolve_prose_bag(config, context, bag_inputs) {
+  const { entities, speaker, listener, accessors, style_snapshot, snapshot, director_data } = bag_inputs;
   const is_ghostwrite = config.speaker === "USER";
   const is_npc = config.speaker === "NPC";
-
   const active_speaker = speaker || (is_ghostwrite ? entities?.USER : entities?.AI);
   const active_listener = listener || (is_ghostwrite ? entities?.AI : entities?.USER);
-
-  const accessors = render_accessors || create_render_accessors(entities, input);
   const pov_protocol = resolve_pov_protocol(config.system.pov || active_speaker);
-
   const speaker_name = prompt_escape(active_speaker?.name || (is_npc ? "NPC" : "AI"));
   const listener_name = prompt_escape(active_listener?.name || "Listener");
   const fractal_name = prompt_escape(entities?.FRACTAL?.name || "the setting");
-
   const speaker_key = config.speaker || "AI";
-  const speaker_dynamics =
-    config.speaker === "AI" ? compressed_snapshot?.ai?.dynamics || entities?.AI?.dynamics || {} : active_speaker?.dynamics || {};
-  const fractal_dynamics = compressed_snapshot?.fractal?.dynamics || entities?.FRACTAL?.dynamics || {};
-
+  const speaker_dynamics = config.speaker === "AI" ? snapshot?.ai?.dynamics || entities?.AI?.dynamics || {} : active_speaker?.dynamics || {};
+  const fractal_dynamics = snapshot?.fractal?.dynamics || entities?.FRACTAL?.dynamics || {};
   const speaker_name_lc = String(active_speaker?.name || "")
     .toLowerCase()
     .trim();
@@ -552,8 +326,8 @@ export function render_story_prose({
     speaker_name_lc &&
     listener_name_lc &&
     Array.isArray(active_speaker?.relationships) &&
-    active_speaker.relationships.some((r) => {
-      const parsed = parse_relational_vector(r);
+    active_speaker.relationships.some((relation) => {
+      const parsed = parse_relational_vector(relation);
       return (
         parsed &&
         String(parsed.source_name).toLowerCase().trim() === speaker_name_lc &&
@@ -561,257 +335,440 @@ export function render_story_prose({
       );
     }),
   );
-
   const is_first_contact = !has_prior_relationship && director_data?.first_contact === true;
-
   const action_directive = resolve_character_action_directive({
     speaker_name,
     is_npc,
     is_ghostwrite,
     is_first_contact,
   });
-
   const input_origin_entity = is_ghostwrite ? active_speaker : entities?.USER;
   const input_origin = input_origin_entity?.id || input_origin_entity?.name || "USER";
-
-  return render_prose_turn_core({
-    config,
-    round,
-    entities,
-    npc_entities,
-    in_scene_ids,
-    active_speaker,
-    speaker_name,
-    listener_name,
-    fractal_name,
-    pov_protocol,
-    accessors,
-    speaker_dynamics,
-    fractal_dynamics,
+  const style = style_snapshot.style;
+  const subtext_xml = render_subtext_xml(speaker_dynamics, fractal_dynamics, {
     keywords: director_data?.keywords || [],
-    suppress_style_subtext: is_ghostwrite,
-    meta,
-    input,
-    input_origin,
-    action_directive,
-    snapshot: { dynamics: speaker_dynamics },
-    is_npc,
-    speaker_key,
+    style: is_ghostwrite ? null : style,
+    physics_protocols: PHYSICS_PROTOCOLS,
+    evaluate_dynamics_rules,
+    evaluate_subtext_protocols,
+  });
+  const turn_meta = context.meta ?? {};
+  return {
+    round: context.round ?? null,
+    attributes: {},
+    role_args: { speaker_name, listener_name, fractal_name },
+    core_protocols_args: { pov_protocol, style, alternation_source: "entities" },
+    entities_kind: "sheets",
+    sheets_args: {
+      entities,
+      npc_entities: context.npc_entities || [],
+      in_scene_ids: context.in_scene_ids || [],
+      active_speaker,
+      accessors,
+      config,
+      is_npc,
+      render_axes: create_axes_renderer(),
+      speaker_dynamics,
+      fractal_dynamics,
+      speaker_key,
+    },
+    history_args: { kind: "simulation_log", accessors },
+    task_params: {
+      task_state: config.task_state,
+      input: context.input ?? "",
+      input_origin,
+      round: context.round ?? null,
+      style,
+      subtext_xml,
+      snapshot: { dynamics: speaker_dynamics, style, style_dna: style_snapshot.style_dna },
+      action_directive,
+      stability_lock: resolve_stability_lock(turn_meta),
+    },
+    meta_args: {
+      ai: context.compressed_snapshot?.ai?.dynamics,
+      fractal: context.compressed_snapshot?.fractal?.dynamics,
+      flags: context.compressed_snapshot?.flags || {},
+      ...(context.meta || {}),
+    },
+  };
+}
+
+function normalize_prose_context(config, context) {
+  const { render_accessors, style_snapshot } = normalize_context(context);
+  return resolve_prose_bag(config, context, {
+    entities: context.entities || {},
+    speaker: context.speaker ?? null,
+    listener: context.listener ?? null,
+    accessors: render_accessors,
     style_snapshot,
+    snapshot: context.snapshot || context.compressed_snapshot || {},
+    director_data: context.director_data || {},
   });
 }
 
-/**
- * Scene narrator prompt compiler (e.g. for Prologues and Epilogues).
- */
-export function render_scene_narrator({
-  entities,
-  round = 0,
-  conclusion_status = null,
-  meta = null,
-  is_prologue = false,
-  scene_template = null,
-  input = "",
-  compressed_snapshot = {},
-  render_accessors = null,
-  style_snapshot = null,
-}) {
-  const is_prologue_beat = is_prologue || scene_template === "PROLOGUE";
+function normalize_npc_context(config, context) {
+  const npc_entity = context.npc || context.speaker;
+  const raw_entities = context.entities || {};
+  const combined_entities = npc_entity?.id ? { ...raw_entities, [npc_entity.id]: npc_entity } : raw_entities;
+  const { snapshot, render_accessors: npc_accessors, style_snapshot } = normalize_context(context, combined_entities);
+  const bag = resolve_prose_bag(config, context, {
+    entities: combined_entities,
+    speaker: npc_entity,
+    listener: context.listener ?? null,
+    accessors: npc_accessors,
+    style_snapshot,
+    snapshot,
+    director_data: context.director_data || {},
+  });
+  return {
+    ...bag,
+    meta_args: {
+      ai: snapshot.ai?.dynamics,
+      fractal: snapshot.fractal?.dynamics,
+      role: "npc",
+      entity_id: npc_entity?.id,
+    },
+  };
+}
 
-  const config = get_prompt("narrator");
-
+function normalize_narrator_context(config, context) {
+  const scene_template = context.scene_template || (context.is_prologue ? "PROLOGUE" : context.is_epilogue ? "EPILOGUE" : "CONTINUATION");
+  const is_conclusion = scene_template === "EPILOGUE" || scene_template === "COLLAPSE" || Boolean(context.is_epilogue);
+  const { entities, snapshot, render_accessors, style_snapshot } = normalize_context(context, null, { require_trio: is_conclusion });
+  let resolved_template = scene_template || "CONTINUATION";
+  let narrator_snapshot = snapshot;
+  if (is_conclusion) {
+    const conclusion_status = context.conclusion_status || (scene_template === "COLLAPSE" ? "COLLAPSED" : "EPILOGUE");
+    resolved_template = conclusion_status === "COLLAPSED" ? "COLLAPSE" : "EPILOGUE";
+    narrator_snapshot = {
+      ai: { dynamics: snapshot.ai?.dynamics || context.dynamics?.ai },
+      fractal: { dynamics: snapshot.fractal?.dynamics || context.dynamics?.fractal },
+    };
+  }
+  const is_prologue = context.is_prologue ?? false;
+  const is_prologue_beat = is_prologue || resolved_template === "PROLOGUE";
   const speaker = entities?.FRACTAL;
   const speaker_name = prompt_escape(speaker?.name || "The Scene");
-
   const pov_protocol = resolve_pov_protocol(config.system.pov);
-  const speaker_dynamics = compressed_snapshot?.ai?.dynamics || null;
-  const fractal_dynamics = compressed_snapshot?.fractal?.dynamics || null;
-
+  const speaker_dynamics = narrator_snapshot?.ai?.dynamics || null;
+  const fractal_dynamics = narrator_snapshot?.fractal?.dynamics || null;
   const action_directive = resolve_scene_action_directive({
-    scene_template,
+    scene_template: resolved_template,
     is_prologue,
-    conclusion_status,
-    input,
+    conclusion_status: context.conclusion_status ?? null,
+    input: context.input ?? "",
   });
-
   const input_origin_entity = entities?.USER;
   const input_origin = input_origin_entity?.id || input_origin_entity?.name || "USER";
-
-  return render_prose_turn_core({
-    config,
-    round,
-    entities,
-    speaker_name,
-    pov_protocol,
-    accessors: render_accessors || create_render_accessors(entities, input, []),
-    speaker_dynamics,
-    fractal_dynamics,
-    keywords: meta?.keywords || [],
-    meta,
-    input: is_prologue_beat ? "" : input,
-    input_origin,
-    action_directive,
-    snapshot: { dynamics: fractal_dynamics },
-    is_npc: false,
-    style_snapshot,
+  const turn_meta = context.meta ?? {};
+  const style = style_snapshot.style;
+  const subtext_xml = render_subtext_xml(speaker_dynamics, fractal_dynamics, {
+    keywords: turn_meta?.keywords || [],
+    style,
+    physics_protocols: PHYSICS_PROTOCOLS,
+    evaluate_dynamics_rules,
+    evaluate_subtext_protocols,
   });
+  const beat_input = is_prologue_beat ? "" : (context.input ?? "");
+  return {
+    round: context.round ?? 0,
+    attributes: {},
+    role_args: { speaker_name, listener_name: "", fractal_name: "" },
+    core_protocols_args: { pov_protocol, style, alternation_source: "entities" },
+    entities_kind: "sheets",
+    sheets_args: {
+      entities,
+      npc_entities: [],
+      in_scene_ids: [],
+      active_speaker: null,
+      accessors: render_accessors,
+      config,
+      is_npc: false,
+      render_axes: create_axes_renderer(),
+      speaker_dynamics,
+      fractal_dynamics,
+      speaker_key: "AI",
+    },
+    history_args: { kind: "simulation_log", accessors: render_accessors },
+    task_params: {
+      task_state: config.task_state,
+      input: beat_input,
+      input_origin,
+      round: context.round ?? 0,
+      style,
+      subtext_xml,
+      snapshot: { dynamics: fractal_dynamics, style, style_dna: style_snapshot.style_dna },
+      action_directive,
+      stability_lock: resolve_stability_lock(turn_meta),
+    },
+    meta_args: {
+      ai: narrator_snapshot.ai?.dynamics,
+      fractal: narrator_snapshot.fractal?.dynamics,
+      flags: snapshot.flags || {},
+    },
+  };
 }
 
-/**
- * Continuum prompt compiler (Shot-2 back-shot).
- */
-export function render_memory({ target_entity, target_key = "AI_CHARACTER", other_entities = {}, history = [] }) {
-  const config = get_prompt("continuum");
+function normalize_director_context(config, context) {
+  if (context.terse) {
+    return {
+      terse: true,
+      round: context.round ?? null,
+      attributes: {},
+      task_params: { schema: context.schema || get_output_format(config.format) },
+      meta_args: {
+        ai: context.compressed_snapshot?.ai?.dynamics,
+        fractal: context.compressed_snapshot?.fractal?.dynamics,
+      },
+    };
+  }
+  const { render_accessors, style_snapshot } = normalize_context(context);
+  const snapshot_bag = context.compressed_snapshot || {};
+  const raw_messages = context.raw_messages || [];
+  const simulation_log = context.simulation_log || [];
+  const active_messages = raw_messages.length > 0 ? raw_messages : simulation_log;
+  const schema = get_output_format(config.format);
+  const merged_dynamics = { ...(snapshot_bag?.fractal?.dynamics || {}), ...(snapshot_bag?.ai?.dynamics || {}) };
+  const last_ai_message = (active_messages || []).filter((message) => message.role === "model").at(-1);
+  const last_ai_text = last_ai_message ? strip_cognition_blocks(last_ai_message.content || last_ai_message.text || "").trim() : "";
+  const keyword_directives_xml = render_keyword_directives_xml(render_available_keywords_xml(style_snapshot.keywords, AVAILABLE_KEYWORDS));
+  return {
+    round: context.round ?? null,
+    attributes: {},
+    role_args: {},
+    core_protocols_args: { alternation_source: "entities" },
+    merged_dynamics,
+    entities_kind: "sheets",
+    sheets_args: {
+      entities: context.entities || {},
+      npc_entities: context.npc_entities || [],
+      in_scene_ids: context.in_scene_ids || [],
+      active_speaker: null,
+      accessors: render_accessors,
+      config,
+      is_npc: false,
+      render_axes: create_axes_renderer(),
+      speaker_dynamics: snapshot_bag?.ai?.dynamics,
+      fractal_dynamics: snapshot_bag?.fractal?.dynamics,
+      speaker_key: "AI",
+    },
+    history_args: { kind: "simulation_log", accessors: render_accessors },
+    task_params: {
+      task_state: config.task_state,
+      entities: context.entities || {},
+      round: context.round ?? null,
+      input: context.input ?? "",
+      last_ai_text,
+      schema,
+      keyword_directives: keyword_directives_xml,
+    },
+    meta_args: {
+      ai: snapshot_bag?.ai?.dynamics,
+      fractal: snapshot_bag?.fractal?.dynamics,
+    },
+  };
+}
+
+function normalize_continuum_context(config, context) {
+  const target_entity = context.target_entity;
+  const target_key = context.target_key || "AI_CHARACTER";
+  const other_entities = context.other_entities || {};
+  const history = context.history || [];
   const entity_plan = resolve_entities(config);
   const history_config = resolve_history(config.history);
   const target_name = target_entity?.name || target_key;
-  const target_xml = entity_plan.target_context ? render_entity_memory_context(target_key, target_entity) : "";
-  const nearby_entities_xml = entity_plan.nearby_entities
-    ? render_nearby_entities_xml(other_entities, { exclude_id: target_entity?.id || target_entity?.name, indent: 2 })
-    : "";
-  const chapter_xml = entity_plan.chapter_history && target_entity ? render_chapter_history_xml(target_entity, 2) : "";
-
   const target_type = target_entity?.type || (target_key === "FRACTAL" ? "fractal" : "character");
-  const task_xml = render_task({
-    config,
-    task_state: config.task_state,
-    target_name,
-    schema: get_output_format(config.format, { entity_type: target_type }),
-    layers: config.layers.task,
-  });
-
-  const history_xml = history_config.enabled
-    ? render_input_history_xml(history, {
-        limit: history_config.limit,
-        max_chars: history_config.max_chars,
-      })
-    : "";
-
-  const role_line = resolve_system_role_line({ role: config.role_line, target_name });
-
-  const system = compose_system(
-    config,
-    {
-      role_line,
-      core_protocols: render_core_protocols({ protocols: config.protocols }),
-      target_context: wrap_tag("TARGET_ENTITY_CONTEXT", target_xml, 2),
-      nearby_cast: nearby_entities_xml,
-      chapter_history: chapter_xml,
-      history_block: history_xml,
+  return {
+    round: null,
+    attributes: { target: target_name },
+    role_args: { target_name },
+    core_protocols_args: {},
+    target_context_args: { enabled: entity_plan.target_context, target_key, target_entity },
+    cast_args: {
+      enabled: entity_plan.nearby_entities,
+      other_entities,
+      exclude_id: target_entity?.id || target_entity?.name,
     },
-    { attributes: { target: target_name } },
-  );
-
-  return { system, task: task_xml };
+    chapter_history_args: { enabled: entity_plan.chapter_history, target_entity },
+    history_args: {
+      kind: "input_history",
+      enabled: history_config.enabled,
+      history,
+      limit: history_config.limit,
+      max_chars: history_config.max_chars,
+    },
+    task_params: {
+      task_state: config.task_state,
+      target_name,
+      schema: get_output_format(config.format, { entity_type: target_type }),
+    },
+    meta_args: {
+      ai: other_entities?.AI?.dynamics,
+      fractal: other_entities?.FRACTAL?.dynamics,
+    },
+  };
 }
 
-/**
- * Profile field enhancement prompt compiler.
- */
-export function render_enhancement({
-  enhancer,
-  label,
-  directive,
-  content,
-  is_image_field = false,
-  field_id = "",
-  layer_key,
-  entity = null,
-  entity_type = "character",
-}) {
-  const config = get_prompt("enhancement");
+function normalize_enhancement_context(config, context) {
   const entity_plan = resolve_entities(config);
+  const entity_type = context.entity_type || "character";
   const normalized_type = entity_type === "user" ? "character" : entity_type || "character";
+  const field_id = context.field_id || "";
+  const content = context.content;
   const catalog_meta = field_id ? PROFILE_FIELD_CATALOG[`${normalized_type}.${field_id}`] || PROFILE_FIELD_CATALOG[field_id] : null;
-
-  const resolved_enhancer = catalog_meta?.enhancer || enhancer || config.role_line || "ENHANCER";
-  const resolved_label = label || catalog_meta?.label || "";
-  const resolved_directive = directive ?? catalog_meta?.directive ?? "";
-  const macro_directive = !is_image_field ? resolve_macro_directive(normalized_type) : "";
+  const resolved_enhancer = catalog_meta?.enhancer || context.enhancer || config.role_line || "ENHANCER";
+  const resolved_label = context.label || catalog_meta?.label || "";
+  const resolved_directive = context.directive ?? catalog_meta?.directive ?? "";
+  const macro_directive = !context.is_image_field ? resolve_macro_directive(normalized_type) : "";
   const is_temporal_field =
     field_id === "past" ||
     field_id === "future" ||
     field_id.startsWith("eternal.") ||
     field_id.startsWith("present.") ||
     Boolean(catalog_meta?.layer_key);
-
-  const layer_tense_protocol = resolve_layer_tense_protocol(field_id, catalog_meta?.layer_key ?? layer_key);
-
-  const task_xml = render_task({
-    config,
-    task_state: config.task_state,
-    directives: [resolved_directive, macro_directive],
-    input: content,
-    input_channel: "content",
-    output_format: get_output_format(config.format, {
-      has_think: Boolean(config.think_format),
-      ...(is_temporal_field ? { is_temporal: true } : {}),
-      entity_type: normalized_type,
-    }),
-    output_mode: "prose",
-    layers: config.layers.task,
-  });
-
-  const role_line = resolve_system_role_line({ role: config.role_line, enhancer_name: resolved_enhancer });
-
-  const system = compose_system(
-    config,
-    {
-      role_line,
-      core_protocols: render_core_protocols({
-        protocols: layer_tense_protocol ? [...config.protocols, layer_tense_protocol] : config.protocols,
-      }),
-      field_context: entity_plan.field_context
-        ? render_enhancement_field_context(entity, field_id, content, normalized_type, (e, c) =>
-            temporal_engine.format(resolve_vector_pool(e), c || "", { max_chars: 1500 }),
-          )
-        : null,
+  const layer_tense_protocol = resolve_layer_tense_protocol(field_id, catalog_meta?.layer_key ?? context.layer_key);
+  return {
+    round: null,
+    attributes: { scope: resolved_label, field: field_id },
+    role_args: { enhancer_name: resolved_enhancer },
+    core_protocols_args: { protocols: layer_tense_protocol ? [...config.protocols, layer_tense_protocol] : config.protocols },
+    entity_context_args: {
+      enabled: entity_plan.field_context,
+      entity: context.entity,
+      field_id,
+      content,
+      normalized_type,
+      format_past_function: (entry, entry_content) => temporal_engine.format(resolve_vector_pool(entry), entry_content || "", { max_chars: 1500 }),
     },
-    { attributes: { scope: resolved_label, field: field_id } },
-  );
-
-  return { system, task: task_xml };
+    task_params: {
+      task_state: config.task_state,
+      directives: [resolved_directive, macro_directive],
+      input: content,
+      input_channel: "content",
+      output_format: get_output_format(config.format, {
+        has_think: Boolean(config.think_format),
+        ...(is_temporal_field ? { is_temporal: true } : {}),
+        entity_type: normalized_type,
+      }),
+      output_mode: "prose",
+    },
+    meta_args: { ai: context.entity?.dynamics },
+  };
 }
 
-/**
- * Profile sorting prompt compiler.
- */
-export function render_profile_sorting(entity_type = "character", options = {}) {
-  const config = get_prompt("sorting");
-  const resolved_type = entity_type === "user" ? "character" : entity_type || "character";
+function normalize_sorting_context(config, context) {
+  const merged_options = { ...(context.options || {}), input_data: context.input_data };
+  const resolved_type = context.entity_type === "user" ? "character" : context.entity_type || "character";
   const input_text =
-    options.input_data == null ? "" : typeof options.input_data === "string" ? options.input_data : JSON.stringify(options.input_data, null, 2);
-
-  const task_xml = render_task({
-    config,
-    task_state: config.task_state,
-    schema: get_output_format(config.format, { entity_type: resolved_type }),
-    input: input_text,
-    input_channel: "ingestion",
-    entity_type: resolved_type,
-    ingestion: Boolean(options.ingestion),
-    redistribute: Boolean(options.redistribute),
-    layers: config.layers.task,
-  });
-
-  const role_line = resolve_system_role_line({ role: config.role_line });
-
-  const system = compose_system(
-    config,
-    {
-      role_line,
-      core_protocols: render_core_protocols({
-        protocols: config.protocols,
-        pov_protocol: resolve_pov_protocol("THIRD"),
-      }),
+    merged_options.input_data == null
+      ? ""
+      : typeof merged_options.input_data === "string"
+        ? merged_options.input_data
+        : JSON.stringify(merged_options.input_data, null, 2);
+  return {
+    round: null,
+    attributes: { scope: "Entire Profile" },
+    role_args: {},
+    core_protocols_args: { pov_protocol: resolve_pov_protocol("THIRD") },
+    task_params: {
+      task_state: config.task_state,
+      schema: get_output_format(config.format, { entity_type: resolved_type }),
+      input: input_text,
+      input_channel: "ingestion",
+      entity_type: resolved_type,
+      ingestion: Boolean(merged_options.ingestion),
+      redistribute: Boolean(merged_options.redistribute),
     },
-    { attributes: { scope: "Entire Profile" } },
-  );
-
-  return { system, task: task_xml };
+    meta_args: {},
+  };
 }
 
-// ── 4. Declarative Pipeline Runner ──────────────────────────────────────────
+function normalize_optics_context(config, context) {
+  const target_type = context.tier || context.target_type || "solo_entity";
+  const raw_intent = context.raw_intent || context.prompt_context || context.input || "";
+  const mode = context.mode || "visualize";
+  const variant = context.variant;
+  const onAlternationPick = context.onAlternationPick;
+  const roll = (text) => {
+    const resolved = resolve_alternations(text, {
+      onPick: (pick) => {
+        const item = { ...pick, label: alternation_field_label(text, pick.raw) };
+        if (typeof onAlternationPick === "function") onAlternationPick([item]);
+      },
+    });
+    return resolved.text;
+  };
+  const tier = normalize_image_tier(target_type);
+  const is_selfie = variant === "selfie" || target_type === "selfie";
+  const active_ai_character =
+    context.ai || (context.entity && context.entity.type !== "user" && context.entity.type !== "fractal" ? context.entity : null);
+  const active_user_persona = context.user || (context.entity?.type === "user" ? context.entity : null);
+  const active_fractal_setting = context.fractal || (context.entity?.type === "fractal" ? context.entity : null);
+  const main_entity = context.entity || active_ai_character || active_user_persona;
+  const solo_subject = context.entity || active_ai_character || active_user_persona || active_fractal_setting;
+  const macro_entities = { AI: active_ai_character, USER: active_user_persona, FRACTAL: active_fractal_setting };
+  const combined_input_text = `${raw_intent || ""} ${main_entity?.present?.physical || ""} ${main_entity?.eternal?.physical || ""}`;
+  const { style_snapshot } = normalize_context(context);
+  const resolved_style_snapshot = style_snapshot ?? resolve_builder_style_snapshot({ fractal: active_fractal_setting });
+  const style_key =
+    tier === "solo_entity" || mode === "enhance" ? resolve_portrait_visual_style_key(solo_subject) : resolved_style_snapshot.visual_key;
+  const style_definition = VISUAL_STYLES[style_key] || VISUAL_STYLES.none;
+  const engine_tokens = resolve_visual_engine_tokens(style_key);
+  const keywords_raw = style_definition.keywords || style_definition.tags || [];
+  const keyword_list = Array.isArray(keywords_raw)
+    ? keywords_raw
+    : typeof keywords_raw === "string"
+      ? keywords_raw.split(",").map((entry) => entry.trim())
+      : [];
+  const valid_keywords = keyword_list.filter(Boolean);
+  const cinematography = resolve_optics_cinematography({
+    tier,
+    solo_subject,
+    active_ai_character,
+    active_user_persona,
+    active_fractal_setting,
+    main_entity,
+    visual_staging: context.visual_staging || "",
+  });
+  const schema = get_output_format(config.format, {
+    variant: is_selfie ? "selfie" : variant,
+    negative_prompt: engine_tokens.negative_prompt || "",
+  });
+  return {
+    round: null,
+    attributes: {},
+    role_args: {},
+    core_protocols_args: { visual_style: style_definition, engine_tokens, alternation_source: "text", alternation_text: combined_input_text },
+    entities_kind: "optics",
+    optics_entities_args: {
+      tier,
+      solo_subject,
+      active_ai_character,
+      active_user_persona,
+      active_fractal_setting,
+      main_entity,
+      macro_entities,
+      roll,
+    },
+    history_args: { kind: "sensory", history: context.history },
+    intent_roll: { roll, raw_intent: raw_intent || "" },
+    task_params: {
+      task_state: config.task_state,
+      target_tier: tier,
+      cinematography,
+      engine_tokens,
+      keywords: valid_keywords,
+      is_selfie,
+      main_entity_name: main_entity?.name || "",
+      has_fractal_setting: Boolean(active_fractal_setting),
+      schema,
+    },
+    meta_args: {
+      ai: active_ai_character?.dynamics,
+      fractal: active_fractal_setting?.dynamics,
+    },
+  };
+}
 
 /**
  * Normalizes the recurring runtime-context fallbacks shared by the mode adapters — the entity
@@ -866,150 +823,18 @@ function normalize_context(context = {}, entities_override = null, { require_tri
   };
 }
 
-/**
- * Mode adapter table — the single dispatch surface for prompt assembly.
- * Every manifest mode maps to an assembler that returns a normalized prompt package;
- * `prose` is the fallback for interaction/ghostwrite and any unknown key.
- * Adding a mode is a manifest record plus, at most, one entry here — no switch edits.
- *
- * @type {Record<string, (config: any, context: Record<string, any>) => { system: string, meta?: Record<string, any> }>}
- */
+// ── 4. Mode Adapter Table ───────────────────────────────────────────────────
+// Mode-specific normalization only; prompts.js owns plan resolution + sealing.
+
 export const MODE_ADAPTERS = {
-  director: (config, context) => {
-    if (context.terse) {
-      const schema = context.schema || get_output_format(config.format);
-      const task = render_task({ config, task_state: config.task_state, terse: true, schema, layers: ["output_format"] });
-      const system = compose_system(config, { role_line: resolve_system_role_line({ role: config.role_line }) }, { round: context.round });
-      return pack_prompt(
-        { system, task },
-        resolve_prompt_meta({
-          ai: context.compressed_snapshot?.ai?.dynamics,
-          fractal: context.compressed_snapshot?.fractal?.dynamics,
-        }),
-      );
-    }
-    const { render_accessors, style_snapshot } = normalize_context(context);
-    const rendered = render_director({
-      ...context,
-      render_accessors,
-      style_snapshot,
-      compressed_snapshot: context.compressed_snapshot || {},
-    });
-    return pack_prompt(
-      rendered,
-      resolve_prompt_meta({
-        ai: context.compressed_snapshot?.ai?.dynamics,
-        fractal: context.compressed_snapshot?.fractal?.dynamics,
-      }),
-    );
-  },
-
-  continuum: (config, context) =>
-    pack_prompt(
-      render_memory(context),
-      resolve_prompt_meta({
-        ai: context.other_entities?.AI?.dynamics,
-        fractal: context.other_entities?.FRACTAL?.dynamics,
-      }),
-    ),
-
-  enhancement: (config, context) =>
-    pack_prompt(
-      render_enhancement(context),
-      resolve_prompt_meta({
-        ai: context.entity?.dynamics,
-      }),
-    ),
-
-  sorting: (config, context) => {
-    // Layer-Order Design Intent: the NARRATIVE_STRUCTURER rules, POV, and JSON schema live
-    // in <SYSTEM>/<TASK>, and the raw profile text to be sorted is delivered through the
-    // single <INPUT channel="ingestion"> channel inside <TASK> (no ad-hoc `messages` payload).
-    const { system, task } = render_profile_sorting(context.entity_type, { ...context.options, input_data: context.input_data });
-    return pack_prompt({ system, task }, resolve_prompt_meta());
-  },
-
-  optics: (config, context) => {
-    const { style_snapshot } = normalize_context(context);
-    return render_optics_prompt({ ...context, style_snapshot });
-  },
-
-  narrator: (config, context) => {
-    const scene_template = context.scene_template || (context.is_prologue ? "PROLOGUE" : context.is_epilogue ? "EPILOGUE" : "CONTINUATION");
-    const is_conclusion = scene_template === "EPILOGUE" || scene_template === "COLLAPSE" || Boolean(context.is_epilogue);
-    const { entities, snapshot, render_accessors, style_snapshot } = normalize_context(context, null, { require_trio: is_conclusion });
-
-    let resolved_template = scene_template || "CONTINUATION";
-    let narrator_snapshot = snapshot;
-    if (is_conclusion) {
-      const conclusion_status = context.conclusion_status || (scene_template === "COLLAPSE" ? "COLLAPSED" : "EPILOGUE");
-      resolved_template = conclusion_status === "COLLAPSED" ? "COLLAPSE" : "EPILOGUE";
-      narrator_snapshot = {
-        ai: { dynamics: snapshot.ai?.dynamics || context.dynamics?.ai },
-        fractal: { dynamics: snapshot.fractal?.dynamics || context.dynamics?.fractal },
-      };
-    }
-
-    return pack_prompt(
-      render_scene_narrator({
-        ...context,
-        scene_template: resolved_template,
-        entities,
-        render_accessors,
-        style_snapshot,
-        compressed_snapshot: narrator_snapshot,
-      }),
-      resolve_prompt_meta({
-        ai: narrator_snapshot.ai?.dynamics,
-        fractal: narrator_snapshot.fractal?.dynamics,
-        flags: snapshot.flags || {},
-      }),
-    );
-  },
-
-  npc: (config, context) => {
-    const npc_entity = context.npc || context.speaker;
-    const raw_entities = context.entities || {};
-    const combined_entities = npc_entity?.id ? { ...raw_entities, [npc_entity.id]: npc_entity } : raw_entities;
-    const { snapshot, render_accessors: npc_accessors, style_snapshot } = normalize_context(context, combined_entities);
-    return pack_prompt(
-      render_story_prose({
-        prompt_mode: "npc",
-        ...context,
-        entities: combined_entities,
-        speaker: npc_entity,
-        render_accessors: npc_accessors,
-        style_snapshot,
-        compressed_snapshot: snapshot,
-        director_data: context.director_data || {},
-      }),
-      resolve_prompt_meta({
-        ai: snapshot.ai?.dynamics,
-        fractal: snapshot.fractal?.dynamics,
-        role: "npc",
-        entity_id: npc_entity?.id,
-      }),
-    );
-  },
-
-  prose: (config, context) => {
-    const { render_accessors, style_snapshot } = normalize_context(context);
-    const rendered = render_story_prose({
-      ...context,
-      prompt_mode: config.key,
-      render_accessors,
-      style_snapshot,
-    });
-    return pack_prompt(
-      rendered,
-      resolve_prompt_meta({
-        ai: context.compressed_snapshot?.ai?.dynamics,
-        fractal: context.compressed_snapshot?.fractal?.dynamics,
-        flags: context.compressed_snapshot?.flags || {},
-        ...(context.meta || {}),
-      }),
-    );
-  },
+  director: { normalize: normalize_director_context },
+  continuum: { normalize: normalize_continuum_context },
+  enhancement: { normalize: normalize_enhancement_context },
+  sorting: { normalize: normalize_sorting_context },
+  optics: { normalize: normalize_optics_context },
+  narrator: { normalize: normalize_narrator_context },
+  npc: { normalize: normalize_npc_context },
+  prose: { normalize: normalize_prose_context },
 };
 
 /**
@@ -1019,13 +844,9 @@ export const MODE_ADAPTERS = {
  * @param {Object} [context={}] - Dynamic runtime context, entities, dynamics, and options
  * @returns {{ system: string, meta?: Record<string, any> }}
  */
-export function assemble_prompt(config, context = {}) {
-  const adapter = MODE_ADAPTERS[config.key] || MODE_ADAPTERS.prose;
-  return adapter(config, context);
-}
-
 /**
  * CHANGELOG
+ * - 2026-10-08: Modules Ground Refactor Phase 4 — compilers re-cut to per-mode normalize bags (MODE_ADAPTERS normalize table); assembly deleted.
  * - 2026-10-05: Single closed envelope — pack_prompt seals `<TASK>` inside `<SYSTEM>` (package is `{ system, meta }`); prose/director compile a builder-owned `<HISTORY>` block (transport fusion + messages retired).
  * - 2026-10-04: Director candidates render inside render_entity_sheets (cast_xml string param retired; unused director entity_plan dropped).
  * - 2026-10-04: Rewired module imports for the prompt-architecture split (recovery.js, output.js, style.js, sheets.js, media optics/history shaping); assembly logic unchanged.

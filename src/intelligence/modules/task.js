@@ -541,13 +541,13 @@ function resolve_task_values(parameters, config) {
 }
 
 /**
- * Resolves turn parameters into a frozen, render-ready task plan. Mode fallback
- * (`"prose"`), manifest layer filtering, slot resolution, and child ordering all
- * happen here — the renderer maps plan children to the envelope without branching.
+ * Resolves turn parameters into the keyed task slot map consumed by the
+ * universal prompt plan. Mode fallback, manifest layer filtering, and slot
+ * resolution happen here; child ordering stays in resolve_task_plan.
  * @param {Record<string, any>} [parameters={}]
- * @returns {Readonly<{ tag: string, mode: string, children: ReadonlyArray<string> }>}
+ * @returns {Readonly<{ mode: string, slots: Readonly<Record<string, any>> }>}
  */
-export function resolve_task_plan(parameters = {}) {
+export function resolve_task_slots(parameters = {}) {
   const config = parameters.config || null;
   const mode_key = config?.task_state || parameters.task_state;
   const mode = mode_key && TASK_MODE_PLANS[mode_key] ? mode_key : "prose";
@@ -555,15 +555,28 @@ export function resolve_task_plan(parameters = {}) {
   const values = resolve_task_values(parameters, config);
   const allowed_layers = Array.isArray(parameters.layers) ? parameters.layers : null;
 
-  const state = {};
+  const slots = {};
   for (const [slot_key, resolver_key] of Object.entries(plan)) {
     if (allowed_layers && !allowed_layers.includes(slot_key)) continue;
-    state[slot_key] = TASK_SLOT_RESOLVERS[resolver_key](values);
+    slots[slot_key] = TASK_SLOT_RESOLVERS[resolver_key](values);
   }
+  return Object.freeze({ mode, slots: Object.freeze(slots) });
+}
+
+/**
+ * Resolves turn parameters into a frozen, render-ready task plan. Mode fallback
+ * and manifest layer filtering happen here — the renderer maps plan children
+ * to the envelope without branching.
+ * @param {Record<string, any>} [parameters={}]
+ * @returns {Readonly<{ tag: string, mode: string, slots: Readonly<Record<string, any>>, children: ReadonlyArray<string> }>}
+ */
+export function resolve_task_plan(parameters = {}) {
+  const allowed_layers = Array.isArray(parameters.layers) ? parameters.layers : null;
+  const resolved = resolve_task_slots(parameters);
   const children = TASK_LAYERS.filter((layer) => !allowed_layers || allowed_layers.includes(layer.key))
-    .map((layer) => layer.emit(state))
+    .map((layer) => layer.emit(resolved.slots))
     .filter(Boolean);
-  return Object.freeze({ tag: "TASK", mode, children: Object.freeze(children) });
+  return Object.freeze({ tag: "TASK", mode: resolved.mode, slots: resolved.slots, children: Object.freeze(children) });
 }
 
 /**

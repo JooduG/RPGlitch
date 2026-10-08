@@ -627,6 +627,13 @@ export function render_dynamics_axes_xml(live_dynamics = null, scope = null, axe
 }
 
 /**
+ * System-layer slot: seals the merged director dynamics axes.
+ */
+export function resolve_dynamic_axes_slot(config, normalized = {}) {
+  return render_dynamics_axes_xml(normalized.merged_dynamics, null, DYNAMICS_AXES);
+}
+
+/**
  * CHANGELOG
  * - 2026-10-04: Absorbed render_dynamics_axes_xml from entities.js — dynamics presentation lives with the dynamics engine.
  * - 2026-09-25: Module consolidation — absorbed telemetry builders, dynamics delta capture, and turn summaries from telemetry.js into physics.js.

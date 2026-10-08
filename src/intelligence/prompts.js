@@ -36,7 +36,15 @@
  * ============================================================================
  */
 
-import { assemble_prompt } from "./builder.js";
+import { MODE_ADAPTERS } from "./builder.js";
+import { resolve_task_slots, render_task_plan, TASK_LAYERS } from "./modules/task.js";
+import { resolve_role_slot, resolve_layer_slot, compose_system, pack_prompt, resolve_prompt_meta } from "./modules/system.js";
+import { resolve_constitution_slot } from "./modules/constitution.js";
+import { resolve_core_protocols_slot } from "./modules/protocols.js";
+import { resolve_dynamic_axes_slot } from "./physics.js";
+import { resolve_entities_slot, resolve_target_context_slot, resolve_cast_slot, resolve_entity_context_slot } from "./modules/entities.js";
+import { resolve_history_slot, resolve_chapter_history_slot } from "./modules/history.js";
+import { verify_epistemic_integrity } from "./veil.js";
 import { resolve_turn_state_plan } from "./modules/reflex.js";
 
 // ============================================================================
@@ -248,6 +256,19 @@ function define_mode(mode_key, specification) {
       system: Object.freeze([...(declared_layers.system || [])]),
       task: Object.freeze([...(declared_layers.task || [])]),
     }),
+    variants: specification.variants
+      ? Object.freeze(
+          Object.fromEntries(
+            Object.entries(specification.variants).map(([variant_key, variant_layers]) => [
+              variant_key,
+              Object.freeze({
+                system: Object.freeze([...(variant_layers.system || [])]),
+                task: Object.freeze([...(variant_layers.task || [])]),
+              }),
+            ]),
+          ),
+        )
+      : null,
     constitution: specification.constitution ?? true,
     protocols: Object.freeze(specification.protocols || []),
     entities: Object.freeze({
@@ -283,6 +304,7 @@ export const PROMPTS = Object.freeze({
     protocols: ["CORE_PROTOCOLS.ALTERNATION_OPTIONS"],
     entities: { candidate_entities: true },
     layers: DIRECTOR_LAYERS,
+    variants: { terse: { system: ["role"], task: ["output_format"] } },
     format: { mode: "json", schema: DIRECTOR_SCHEMA },
   }),
 
@@ -434,6 +456,105 @@ export const get_prompt = (key) => (key && PROMPTS[key]) || PROMPTS.interaction;
 export const resolve_prompt_mode = ({ is_npc = false, ghostwrite = false } = {}) =>
   PROMPTS[ghostwrite ? "ghostwrite" : is_npc ? "npc" : "interaction"];
 
+// ============================================================================
+// 6. UNIVERSAL PROMPT PLAN — DISTRIBUTED SLOTS, MANIFEST ASSEMBLY
+// ============================================================================
+
+export const SYSTEM_SLOT_RESOLVERS = Object.freeze({
+  role: resolve_role_slot,
+  axiomatic_constitution: resolve_constitution_slot,
+  core_protocols: resolve_core_protocols_slot,
+  dynamic_axes: resolve_dynamic_axes_slot,
+  entities: resolve_entities_slot,
+  target_entity_context: resolve_target_context_slot,
+  cast: resolve_cast_slot,
+  layer: resolve_layer_slot,
+  entity_context: resolve_entity_context_slot,
+  chapter_history: resolve_chapter_history_slot,
+  history: resolve_history_slot,
+});
+
+const SYSTEM_STATE_KEYS = Object.freeze({
+  role: "role_line",
+  axiomatic_constitution: "constitution",
+  core_protocols: "core_protocols",
+  dynamic_axes: "dynamics",
+  entities: "entities_block",
+  target_entity_context: "target_context",
+  cast: "nearby_cast",
+  layer: "layer",
+  entity_context: "field_context",
+  chapter_history: "chapter_history",
+  history: "history_block",
+});
+
+function resolve_meta_args(normalized = {}) {
+  return { ...(normalized.meta_args || {}) };
+}
+
+export const PROMPT_META_RESOLVERS = Object.freeze({
+  director: resolve_meta_args,
+  interaction: resolve_meta_args,
+  ghostwrite: resolve_meta_args,
+  npc: resolve_meta_args,
+  narrator: resolve_meta_args,
+  continuum: resolve_meta_args,
+  enhancement: resolve_meta_args,
+  sorting: resolve_meta_args,
+  optics: resolve_meta_args,
+});
+
+export function resolve_prompt_plan(config, normalized = {}) {
+  const variant = normalized.terse && config.variants?.terse ? config.variants.terse : null;
+  const system_order = Object.freeze([...(variant?.system || config.layers.system)]);
+  const task_order = Object.freeze([...(variant?.task || config.layers.task)]);
+  const system_slots = {};
+  for (const slot_key of system_order) {
+    if (slot_key === "core_protocols") continue;
+    const resolver = SYSTEM_SLOT_RESOLVERS[slot_key];
+    if (typeof resolver !== "function") throw new Error(`Unknown system slot: ${slot_key}`);
+    system_slots[slot_key] = resolver(config, normalized, system_slots);
+  }
+  if (system_order.includes("core_protocols")) {
+    system_slots.core_protocols = SYSTEM_SLOT_RESOLVERS.core_protocols(config, normalized, system_slots);
+  }
+  const task_resolved = resolve_task_slots({ ...(normalized.task_params || {}), config, layers: [...task_order] });
+  const meta_resolver = PROMPT_META_RESOLVERS[config.key] || resolve_meta_args;
+  return Object.freeze({
+    tag: "PROMPT",
+    mode: config.key,
+    layers: Object.freeze({
+      system: Object.freeze({ order: system_order, slots: Object.freeze({ ...system_slots }) }),
+      task: Object.freeze({ mode: task_resolved.mode, order: task_order, slots: task_resolved.slots }),
+    }),
+    meta: resolve_prompt_meta(meta_resolver(normalized)),
+    round: normalized.round ?? null,
+    attributes: Object.freeze({ ...(normalized.attributes || {}) }),
+    epistemic_guard: config.task_state === "prose",
+  });
+}
+
+export function render_prompt_plan(plan) {
+  if (!plan) return { system: "", task: "" };
+  const config = get_prompt(plan.mode);
+  if (plan.epistemic_guard) {
+    if (!verify_epistemic_integrity(plan.layers.system.slots.entities)) {
+      console.warn("[builder] Epistemic Wall integrity alert: leaked secrets or plans detected across boundary.");
+    }
+  }
+  const seal_config = { ...config, layers: { system: [...plan.layers.system.order], task: [...plan.layers.task.order] } };
+  const state = {};
+  for (const slot_key of plan.layers.system.order) {
+    state[SYSTEM_STATE_KEYS[slot_key]] = plan.layers.system.slots[slot_key];
+  }
+  const system = compose_system(seal_config, state, { round: plan.round, attributes: { ...plan.attributes } });
+  const task_children = TASK_LAYERS.filter((layer) => plan.layers.task.order.includes(layer.key))
+    .map((layer) => layer.emit(plan.layers.task.slots))
+    .filter(Boolean);
+  const task = render_task_plan({ tag: "TASK", children: task_children });
+  return { system, task };
+}
+
 /**
  * Master Switchboard Compiler.
  * Compiles a normalized prompt package for any registered simulation mode.
@@ -443,13 +564,18 @@ export const resolve_prompt_mode = ({ is_npc = false, ghostwrite = false } = {})
  * @returns {{ system: string, meta?: Record<string, any> }}
  */
 export function compile_prompt(mode_key, context = {}) {
-  return assemble_prompt(get_prompt(mode_key), context);
+  const config = get_prompt(mode_key);
+  const adapter = MODE_ADAPTERS[mode_key] || MODE_ADAPTERS.prose;
+  const normalized = adapter.normalize(config, context);
+  const plan = resolve_prompt_plan(config, normalized);
+  return pack_prompt(render_prompt_plan(plan), plan.meta);
 }
 
 export default PROMPTS;
 
 /**
  * CHANGELOG
+ * - 2026-10-08: Modules Ground Refactor Phase 4 — universal prompt plan (distributed slot registries, terse variant, plan pipeline; assemble_prompt retired).
  * - 2026-10-04: director_directives prefers the pre-resolved values.turn_state (single has_input resolution) — prompt bytes byte-identical.
  * - 2026-10-04: Director environmental-hint key follows the normalized reflex catalog (REFLEX.CONDITIONALS.ENVIRONMENTAL_HINT).
  * - 2026-10-04: director_directives reads the reflex turn-state plan (evaluation/round-one fire from TURN_STATE atoms).

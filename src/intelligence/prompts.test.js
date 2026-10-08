@@ -5,7 +5,7 @@
 
 import { describe, expect, it } from "vitest";
 import { PROMPTS as prompt_modes, get_prompt, resolve_prompt_mode, compile_prompt, director_directives } from "./prompts.js";
-import { render_story_prose, render_scene_narrator, MODE_ADAPTERS } from "./builder.js";
+import { MODE_ADAPTERS } from "./builder.js";
 import { render_history } from "./modules/history.js";
 
 const entities = {
@@ -73,13 +73,12 @@ function slice_axes(xml) {
 
 function assert_fused_shape(result, mode) {
   const system = result.system;
-  const task = result.task;
   expect((system.match(/<SYSTEM\b/g) || []).length).toBe(1);
-  expect(system).not.toContain("</SYSTEM>");
+  expect(system).toContain("</SYSTEM>");
   expect(system).toMatch(new RegExp(`<SYSTEM[^>]*mode="${mode}"`));
-  expect(task.startsWith("<TASK>")).toBe(true);
-  expect(task.endsWith("</TASK>")).toBe(true);
-  expect(task).not.toMatch(/<TASK[^>]*mode=/);
+  expect(system).toContain("<TASK>");
+  expect(system).toContain("</TASK>");
+  expect(system).not.toMatch(/<TASK[^>]*mode=/);
   const axiom = system.indexOf("<AXIOMATIC_CONSTITUTION>");
   const core = system.indexOf("<CORE_PROTOCOLS>");
   expect(axiom).toBeGreaterThan(-1);
@@ -134,10 +133,10 @@ describe("prompt-modes registry", () => {
     }
   });
 
-  it("routes every manifest mode through the adapter table (no switch)", () => {
-    expect(typeof MODE_ADAPTERS.prose).toBe("function");
+  it("routes every manifest mode through the normalize table (no switch)", () => {
+    expect(typeof MODE_ADAPTERS.prose.normalize).toBe("function");
     for (const mode_key of Object.keys(prompt_modes)) {
-      expect(typeof (MODE_ADAPTERS[mode_key] || MODE_ADAPTERS.prose)).toBe("function");
+      expect(typeof (MODE_ADAPTERS[mode_key] || MODE_ADAPTERS.prose).normalize).toBe("function");
     }
   });
 
@@ -218,16 +217,16 @@ describe("fused rendering per mode", () => {
   });
 
   it("renders the interaction mode", () => {
-    const result = render_story_prose({ round: 3, entities, input: "Beast steps forward." });
+    const result = compile_prompt("interaction", { round: 3, entities, input: "Beast steps forward." });
     expect(assert_fused_shape(result, "interaction")).toBe(true);
   });
 
   it("renders the npc mode", () => {
-    const result = render_story_prose({
+    const result = compile_prompt("npc", {
       round: 4,
       entities,
-      speaker: npc,
       input: "Gaoler sneers.",
+      npc,
       npc_entities: [npc],
       in_scene_ids: ["GAOLER"],
     });
@@ -235,20 +234,20 @@ describe("fused rendering per mode", () => {
   });
 
   it("renders the ghostwrite mode", () => {
-    const result = render_story_prose({ entities, input: "I step forward and bare my teeth.", ghostwrite: true });
+    const result = compile_prompt("ghostwrite", { entities, input: "I step forward and bare my teeth.", ghostwrite: true });
     expect(assert_fused_shape(result, "ghostwrite")).toBe(true);
   });
 
   it("carries the <INPUT origin> inside the interaction task", () => {
-    const interaction = render_story_prose({ round: 3, entities, input: "Beast steps forward." });
-    expect(interaction.task).toContain('<INPUT origin="SILVERS" round="3" channel="action">Beast steps forward.</INPUT>');
+    const interaction = compile_prompt("interaction", { round: 3, entities, input: "Beast steps forward." });
+    expect(interaction.system).toContain('<INPUT origin="SILVERS" round="3" channel="action">Beast steps forward.</INPUT>');
   });
 
   it("strictly respects the manifest protocol list: interaction includes NATURAL_DIALOGUE, narrator omits it", () => {
-    const interaction = render_story_prose({ round: 3, entities, input: "Beast steps forward." });
+    const interaction = compile_prompt("interaction", { round: 3, entities, input: "Beast steps forward." });
     expect(interaction.system).toContain("<NATURAL_DIALOGUE>");
 
-    const narrator = render_scene_narrator({ entities, round: 1, input: "The station groans." });
+    const narrator = compile_prompt("narrator", { entities, round: 1, input: "The station groans." });
     expect(narrator.system).not.toContain("<NATURAL_DIALOGUE>");
     expect(narrator.system).toContain("<TYPOGRAPHY>");
     expect(narrator.system).toContain("<GROUNDING>");
@@ -260,12 +259,12 @@ describe("fused rendering per mode", () => {
 });
 
 describe("dynamic-axes scoping", () => {
-  const interaction = render_story_prose({ round: 3, entities, input: "Beast steps forward." });
-  const npc_result = render_story_prose({
+  const interaction = compile_prompt("interaction", { round: 3, entities, input: "Beast steps forward." });
+  const npc_result = compile_prompt("npc", {
     round: 4,
     entities,
-    speaker: npc,
     input: "Gaoler sneers.",
+    npc,
     npc_entities: [npc],
     in_scene_ids: ["GAOLER"],
   });
@@ -392,6 +391,170 @@ describe("master switchboard compile_prompt", () => {
     expect(non_physical_enhancement.system).toContain('scope="Personality"');
     expect(non_physical_enhancement.system).toContain('tense="PRESENT"');
     expect(non_physical_enhancement.system).toContain("[KEY: value]");
+  });
+});
+
+// ── Relocated Prose Compiler Tests (from story.test.js; compile_prompt switchboard) ──
+
+const _relocated_prompt_entities = {
+  AI: {
+    id: "BEAST",
+    name: "Beast",
+    type: "character",
+    pov: "1st_person",
+    eternal: { physical: "[BUILD: massive grey-green orc]", non_physical: "A brutal arena fighter." },
+    present: { physical: "[SHIRT: leather harness]", non_physical: "Protective. [@SILVERS: wary respect] [@ABSENT_STRANGER: dread]" },
+    future: "Break the challenger.",
+    past: [],
+    dynamics: { chaos: 40, intensity: 60, openness: 30, affinity: 20 },
+  },
+  USER: {
+    id: "SILVERS",
+    name: "Lord Benedict Silvers",
+    type: "character",
+    eternal: { physical: "[HAIR: dark with silver streaks]", non_physical: "An ancient vampire." },
+    present: { physical: "[SUIT: charcoal suit]", non_physical: "Observing. [@BEAST: prized asset]" },
+    future: "Claim Beast.",
+    past: [],
+    dynamics: { chaos: 20, intensity: 40, openness: 50, affinity: 60 },
+  },
+  FRACTAL: {
+    id: "TARTARUS",
+    name: "Project Tartarus",
+    type: "fractal",
+    eternal: { physical: "[LANDMARKS: rows of vat tanks]", non_physical: "A sterile station." },
+    present: { physical: "[STATE: alert]", non_physical: "Cold." },
+    future: "Drift.",
+    past: [],
+    dynamics: { velocity: 40, entropy: 60 },
+  },
+};
+
+describe("ghostwrite identity", () => {
+  it("enhances the PLAYER persona's draft, addressed against the AI character", () => {
+    const { system } = compile_prompt("ghostwrite", {
+      entities: _relocated_prompt_entities,
+      input: "I step forward and bare my teeth.",
+      ghostwrite: true,
+    });
+    const task = system;
+    expect(system).toContain("You are Lord Benedict Silvers within FRACTAL Project Tartarus, interacting with Beast.");
+    expect(task).toContain('<INPUT origin="SILVERS" channel="action">I step forward and bare my teeth.</INPUT>');
+    expect(task).toContain("<DELIVERY_POSTURE>");
+    expect(task).toContain("Advance the scene in response to");
+  });
+
+  it("drafts for the PLAYER persona in response to the AI character when no input is given", () => {
+    const { system } = compile_prompt("ghostwrite", { entities: _relocated_prompt_entities, input: "", ghostwrite: true });
+    const task = system;
+    expect(system).toContain("You are Lord Benedict Silvers within FRACTAL Project Tartarus, interacting with Beast.");
+    expect(task).toContain("<DELIVERY_POSTURE>");
+    expect(task).toContain("Take active initiative: drive events forward on your own terms");
+  });
+
+  it("maintains universal SOVEREIGNTY axiom in the constitution protecting the listener", () => {
+    const ghostwrite = compile_prompt("ghostwrite", { entities: _relocated_prompt_entities, input: "I step forward.", ghostwrite: true });
+    const interaction = compile_prompt("interaction", { round: 3, entities: _relocated_prompt_entities, input: "Beast steps forward." });
+    expect(interaction.system).toContain('id="L3" title="Sovereignty"');
+    expect(ghostwrite.system).toContain('id="L3" title="Sovereignty"');
+    expect(ghostwrite.system).toContain("Never puppeteer the listener");
+  });
+});
+
+describe("interaction structural integrity", () => {
+  it("never includes the USER persona's DISPOSITIONS block", () => {
+    const { system } = compile_prompt("interaction", { round: 3, entities: _relocated_prompt_entities, input: "Beast steps forward." });
+    const user_sheet = system.match(/<USER_PERSONA\b[\s\S]*?<\/USER_PERSONA>/)[0];
+    expect(user_sheet).not.toContain("<DISPOSITIONS");
+  });
+
+  it("renders only relationships whose target is present in the story", () => {
+    const { system } = compile_prompt("interaction", { round: 3, entities: _relocated_prompt_entities, input: "Beast steps forward." });
+    expect(system).toContain('<DISPOSITION target="SILVERS">wary respect</DISPOSITION>');
+    expect(system).not.toContain("Absent Stranger");
+    expect(system).not.toContain("dread");
+  });
+
+  it("hides the user persona's dispositions from the AI-visible prompt", () => {
+    const { system } = compile_prompt("interaction", { round: 3, entities: _relocated_prompt_entities, input: "Beast steps forward." });
+    const persona = (system.match(/<USER_PERSONA[\s\S]*?<\/USER_PERSONA>/) || [])[0] || "";
+    expect(persona).toContain("<PERSONALITY>");
+    expect(persona).not.toContain("<DISPOSITIONS>");
+    expect(system).not.toContain("prized asset");
+  });
+
+  it("places AGENDA inside PSYCHOLOGY on character sheets", () => {
+    const { system } = compile_prompt("interaction", { round: 3, entities: _relocated_prompt_entities, input: "Beast steps forward." });
+    const ai_sheet = system.match(/<AI_CHARACTER\b[\s\S]*?<\/AI_CHARACTER>/)[0];
+    expect(ai_sheet).toMatch(/<PSYCHOLOGY>[\s\S]*<AGENDA>Break the challenger\.<\/AGENDA>[\s\S]*<\/PSYCHOLOGY>/);
+  });
+
+  it("places TRAJECTORY inside PSYCHOLOGY on the fractal sheet", () => {
+    const { system } = compile_prompt("interaction", { round: 3, entities: _relocated_prompt_entities, input: "Beast steps forward." });
+    const fractal_sheet = system.match(/<FRACTAL\b[\s\S]*?<\/FRACTAL>/)[0];
+    expect(fractal_sheet).toMatch(/<PSYCHOLOGY>[\s\S]*<TRAJECTORY>Drift\.<\/TRAJECTORY>[\s\S]*<\/PSYCHOLOGY>/);
+  });
+
+  it("never emits USER_SOVEREIGNTY", () => {
+    const interaction = compile_prompt("interaction", { round: 3, entities: _relocated_prompt_entities, input: "Beast steps forward." });
+    const continuation = compile_prompt("narrator", {
+      scene_template: "CONTINUATION",
+      round: 5,
+      entities: _relocated_prompt_entities,
+      input: "The station hums.",
+    });
+    expect(interaction.system).not.toContain("USER_SOVEREIGNTY");
+    expect(continuation.system).not.toContain("USER_SOVEREIGNTY");
+  });
+
+  it("renders ALTERNATION_OPTIONS only when a rendered entity field carries alternation syntax", () => {
+    const plain = compile_prompt("interaction", { round: 3, entities: _relocated_prompt_entities, input: "Beast steps forward." });
+    expect(plain.system).not.toContain("<ALTERNATION_OPTIONS>");
+
+    const with_alt = {
+      ..._relocated_prompt_entities,
+      USER: { ..._relocated_prompt_entities.USER, present: { physical: "[PANTS: {worn denim|charcoal cargo}]", non_physical: "Observing." } },
+    };
+    const alt = compile_prompt("interaction", { round: 3, entities: with_alt, input: "Beast steps forward." });
+    expect(alt.system).toContain("<ALTERNATION_OPTIONS>");
+  });
+
+  it("matches the blueprint THINK_FORMAT beats", () => {
+    const { system: task } = compile_prompt("interaction", { round: 3, entities: _relocated_prompt_entities, input: "Beast steps forward." });
+    expect(task).toContain("Open your output with one internal <THINK> block (under 200 words). Reason across 4 sequential beats");
+    expect(task).toContain('<BEAT id="VISCERAL_IMPACT" step="1">Immediate non-verbal reaction to the «INPUT» element.</BEAT>');
+    expect(task).toContain('<BEAT id="EMOTIONAL_CALIBRATION" step="2">Situational realism and physical presence.</BEAT>');
+    expect(task).toContain('<BEAT id="STRATEGIC_DRIVE" step="3">How active «AGENDA» and/or «TRAJECTORY» navigates immediate friction.</BEAT>');
+    expect(task).toContain('<BEAT id="CADENCE_TEST" step="4">Draft a dialogue line before generating outward prose.</BEAT>');
+    expect(task).toContain("Close </THINK> before the narrative. This think block is internal reasoning and is never part of the visible prose.");
+  });
+});
+
+describe("narrator prose compiler", () => {
+  it("renders continuation beat with fractal role line and third-person narrator perspective", () => {
+    const result = compile_prompt("narrator", {
+      scene_template: "CONTINUATION",
+      round: 1,
+      entities: _relocated_prompt_entities,
+      input: "The reactor pulses.",
+    });
+    expect(result.system).toContain('<SYSTEM round="1" mode="narrator">');
+    expect(result.system).toContain("You are Project Tartarus, the Fractal itself, narrating the story.");
+    expect(result.system).toContain('<PERSPECTIVE person="THIRD" tense="PRESENT">');
+    expect(result.system).toContain("<TASK>");
+    expect(result.system).toContain("You are the Fractal itself, narrating the scene.");
+  });
+
+  it("renders prologue beat omitting input tag and guiding opening sequence", () => {
+    const result = compile_prompt("narrator", {
+      scene_template: "PROLOGUE",
+      round: 0,
+      entities: _relocated_prompt_entities,
+      input: "A quiet arrival.",
+    });
+    expect(result.system).toContain("You see everything. Open the scene.");
+    expect(result.system).toContain("Input: A quiet arrival.");
+    expect(result.system).not.toContain("<INPUT");
   });
 });
 

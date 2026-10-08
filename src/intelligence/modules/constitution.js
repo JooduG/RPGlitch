@@ -94,6 +94,13 @@ export function render_constitution({ laws = [...CONSTITUTION_ORDER], indent = 2
 }
 
 /**
+ * System-layer slot: seals the axiomatic constitution for gated modes.
+ */
+export function resolve_constitution_slot(config) {
+  return config?.constitution ? render_constitution() : "";
+}
+
+/**
  * CHANGELOG
  * - 2026-10-04: Rebuilt as 4 axioms (CAUSALITY/EPISTEMICS/SOVEREIGNTY/FIDELITY) — sportsmanship yield folded into L1, fidelity absorbed as L4, style-obedience law dropped (the style block below already commands it); structured {id,title,body} catalog with per-law selection.
  * - 2026-10-04: Added SIMULATION_FIDELITY as the single-source global fidelity law (consumed by protocols.js).

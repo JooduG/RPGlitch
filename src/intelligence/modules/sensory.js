@@ -10,28 +10,11 @@
  * Call-time-only cycles with task.js and builder.js mirror the existing
  * prompts/builder cycle; every cycle edge fires at render time, never at load.
  */
-import {
-  escape_xml,
-  prompt_escape,
-  render_xml_tag,
-  resolve_catalog_atom,
-  resolve_alternations,
-  alternation_field_label,
-  detox_prose,
-  has_alternations,
-  strip_visual_excluded,
-} from "@utils";
-import { VISUAL_STYLES, resolve_portrait_visual_style_key } from "@data";
-import { aesthetic_resolver, normalize_image_tier, resolve_visual_engine_tokens } from "@media";
-import { get_prompt } from "../prompts.js";
-import { resolve_system_role_line, compose_system, pack_prompt, resolve_prompt_meta } from "./system.js";
-import { render_core_protocols } from "./protocols.js";
-import { render_task, render_think_format, compile_directive_tags } from "./task.js";
-import { format_sensory_history } from "./history.js";
-import { get_output_format } from "./output.js";
+import { escape_xml, prompt_escape, render_xml_tag, resolve_catalog_atom, strip_visual_excluded } from "@utils";
+import { aesthetic_resolver, normalize_image_tier } from "@media";
+import { render_think_format, compile_directive_tags } from "./task.js";
 import { wrap_entities, render_cast_xml, CAST_MODES } from "./entities.js";
 import { define_sheet, render_sheet } from "./sheets.js";
-import { resolve_builder_style_snapshot } from "../builder.js";
 // ============================================================================
 // [SECTION 1: SENSORY DIRECTIVE CATALOG]
 // ============================================================================
@@ -350,162 +333,6 @@ export function render_optics_entities_xml({
 // ============================================================================
 
 /**
- * Compiles the Optics <SYSTEM mode="optics"> envelope for every image-generation task
- * (solo entity portraits and multi-character scenes):
- * <SYSTEM mode="optics">               (open fragment; transport closes it)
- *   <CORE_PROTOCOLS>
- *   <ENTITIES>                         (contains <CAST mode="active">)
- *   <HISTORY>                          (optional)
- * </SYSTEM>
- * <TASK>
- *   <THINK_FORMAT>
- *   <INPUT channel="intent">
- *   <TARGET>
- *   <SPATIAL_FRAMING>
- *   <DIRECTIVES>                      (contains <KEYWORD_DIRECTIVES>)
- *   <OUTPUT_FORMAT mode="json">
- * </TASK>
- *
- * System children are emitted through the shared `PROMPT_LAYERS` table (bounded by the mode's
- * declared `layers.system`); the `<TASK>` is returned as the package's own field, so Optics no
- * longer hand-assembles an envelope or nests a task inside `<SYSTEM>`.
- *
- * @param {Object} [options={}] - Single options object; no positional shuffling.
- * @param {string} [options.tier] - Canonical image tier ("solo_entity" | "story_character" | "story_entities" | "story_scene").
- * @param {string} [options.target_type] - Alias for `tier`.
- * @param {string} [options.raw_intent] - Raw subject/prompt intent (rolled through alternation dice).
- * @param {string} [options.prompt_context] - Alias for `raw_intent`.
- * @param {string} [options.input] - Alias for `raw_intent`.
- * @param {any} [options.ai] - Active AI-character entity.
- * @param {any} [options.user] - Active user-persona entity.
- * @param {any} [options.fractal] - Active fractal/setting entity.
- * @param {any} [options.entity] - Focus entity (tier-derived when ai/user/fractal are omitted).
- * @param {any[]} [options.history] - Sensory conversation history entries.
- * @param {string} [options.mode="visualize"] - "visualize" | "enhance".
- * @param {string} [options.variant] - Variant selector (e.g. "selfie").
- * @param {string} [options.visual_staging] - Staging directive.
- * @param {(picks: any[]) => void} [options.onAlternationPick] - Alternation dice-pick callback.
- * @returns {{ system: string, task: string }}
- */
-export function render_optics_prompt(options = {}) {
-  const target_type = options.tier || options.target_type || "solo_entity";
-  const raw_intent = options.raw_intent || options.prompt_context || options.input || "";
-
-  const { ai, user, fractal, entity, history, mode = "visualize", variant, onAlternationPick } = options;
-
-  const dice_picks = [];
-  const roll = (text) => {
-    const resolved = resolve_alternations(text, {
-      onPick: (pick) => {
-        const item = { ...pick, label: alternation_field_label(text, pick.raw) };
-        dice_picks.push(item);
-        if (typeof onAlternationPick === "function") onAlternationPick([item]);
-      },
-    });
-    return resolved.text;
-  };
-
-  const tier = normalize_image_tier(target_type);
-  const is_selfie = variant === "selfie" || target_type === "selfie";
-
-  const active_ai_character = ai || (entity && entity.type !== "user" && entity.type !== "fractal" ? entity : null);
-  const active_user_persona = user || (entity?.type === "user" ? entity : null);
-  const active_fractal_setting = fractal || (entity?.type === "fractal" ? entity : null);
-  const main_entity = entity || active_ai_character || active_user_persona;
-  const solo_subject = entity || active_ai_character || active_user_persona || active_fractal_setting;
-  const macro_entities = { AI: active_ai_character, USER: active_user_persona, FRACTAL: active_fractal_setting };
-
-  const combined_input_text = `${raw_intent || ""} ${main_entity?.present?.physical || ""} ${main_entity?.eternal?.physical || ""}`;
-  const resolved_style_snapshot = options.style_snapshot ?? resolve_builder_style_snapshot({ fractal: active_fractal_setting });
-  const style_key =
-    tier === "solo_entity" || mode === "enhance" ? resolve_portrait_visual_style_key(solo_subject) : resolved_style_snapshot.visual_key;
-  const style_definition = VISUAL_STYLES[style_key] || VISUAL_STYLES.none;
-  const engine_tokens = resolve_visual_engine_tokens(style_key);
-
-  const keywords_raw = style_definition.keywords || style_definition.tags || [];
-  const keyword_list = Array.isArray(keywords_raw)
-    ? keywords_raw
-    : typeof keywords_raw === "string"
-      ? keywords_raw.split(",").map((s) => s.trim())
-      : [];
-  const valid_keywords = keyword_list.filter(Boolean);
-
-  const config = get_prompt("optics");
-
-  // Layer 3: Core Protocols (<CORE_PROTOCOLS>)
-  const protocols_xml = render_core_protocols({
-    visual_style: style_definition,
-    engine_tokens,
-    protocols: config.protocols,
-    has_alternation: has_alternations(combined_input_text),
-  });
-
-  // Cinematography Resolution (Layer 6 Spatial Framing)
-  const cinematography = resolve_optics_cinematography({
-    tier,
-    solo_subject,
-    active_ai_character,
-    active_user_persona,
-    active_fractal_setting,
-    main_entity,
-    visual_staging: options.visual_staging || "",
-  });
-
-  // Layer 4: Entities Context (<ENTITIES>)
-  const entities_xml = render_optics_entities_xml({
-    tier,
-    solo_subject,
-    active_ai_character,
-    active_user_persona,
-    active_fractal_setting,
-    main_entity,
-    macro_entities,
-    roll,
-  });
-
-  // Layer 5: Sensory History (<CONVERSATION_HISTORY>)
-  const history_xml = format_sensory_history(history);
-
-  // Layer 7: Output Schema Format (<OUTPUT_FORMAT>)
-  const resolved_negative_prompt = engine_tokens.negative_prompt || "";
-  const schema = get_output_format(config.format, { variant: is_selfie ? "selfie" : variant, negative_prompt: resolved_negative_prompt });
-
-  const rolled_intent = detox_prose(roll(raw_intent || ""));
-
-  // Layer 6: Universal Task (<TASK>)
-  const task_xml = render_task({
-    config,
-    task_state: config.task_state,
-    target_tier: tier,
-    input_intent: rolled_intent,
-    think_format: config.think_format || "optics",
-    cinematography,
-    engine_tokens,
-    keywords: valid_keywords,
-    is_selfie,
-    main_entity_name: main_entity?.name || "",
-    has_fractal_setting: Boolean(active_fractal_setting),
-    schema,
-    layers: config.layers.task,
-  });
-
-  const full_system = compose_system(config, {
-    role_line: resolve_system_role_line({ role: config.role_line }),
-    core_protocols: protocols_xml,
-    entities_block: entities_xml,
-    history_block: history_xml ? history_xml.trim() : null,
-  });
-
-  return pack_prompt(
-    { system: full_system, task: task_xml },
-    resolve_prompt_meta({
-      ai: active_ai_character?.dynamics,
-      fractal: active_fractal_setting?.dynamics,
-    }),
-  );
-}
-
-/**
  * Deterministic fallback image prompt for when the optics LLM pass yields nothing.
  * Owned beside `render_optics_prompt` so the fallback template strings stay inside the
  * prompt pipeline rather than in the media orchestration layer.
@@ -546,5 +373,6 @@ export function render_optics_fallback({ tier = "solo_entity", subject = "ai", a
 
 /**
  * CHANGELOG
+ * - 2026-10-08: Modules Ground Refactor Phase 4 — optics staging re-cut to the universal prompt plan (render_optics_prompt deleted; fallback stays).
  * - 2026-10-07: Modules Ground Refactor Phase 3 — new sensory domain module (absorbs optics catalog, framing rules, cinematography, optics entities, prompt staging and fallback; plan specs harden via define_sheet) — prompt bytes byte-identical.
  */

@@ -176,7 +176,7 @@ describe("Prompt pipeline — declared envelope layers", () => {
 describe("Prompt pipeline — mode-record single-source-of-truth invariants", () => {
   it("maps every manifest mode to a registered adapter (and every adapter to a manifest mode)", () => {
     for (const mode_key of Object.keys(PROMPTS)) {
-      expect(typeof (MODE_ADAPTERS[mode_key] || MODE_ADAPTERS.prose)).toBe("function");
+      expect(typeof (MODE_ADAPTERS[mode_key] || MODE_ADAPTERS.prose).normalize).toBe("function");
     }
     for (const adapter_key of Object.keys(MODE_ADAPTERS)) {
       if (adapter_key === "prose") continue;

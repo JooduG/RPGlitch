@@ -88,7 +88,7 @@ export { build_turn_summary } from "./physics.js";
 export { render_core_protocols, resolve_protocol_plan, render_protocol_plan } from "./modules/protocols.js";
 export { render_narrative_style_xml, render_visual_style_xml, resolve_style_dna, resolve_style_snapshot } from "./modules/style.js";
 export { render_visual_history, format_sensory_history, resolve_history_plan, resolve_sensory_plan, render_history_plan } from "./modules/history.js";
-export { render_optics_prompt, render_optics_fallback } from "./modules/sensory.js";
+export { render_optics_fallback } from "./modules/sensory.js";
 
 // ============================================================================
 // Veil Engine & Universal Bracket Predicates (Epistemic Wall)

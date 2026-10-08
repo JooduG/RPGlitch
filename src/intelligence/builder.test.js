@@ -20,16 +20,7 @@
 import { describe, expect, it, beforeEach, afterEach } from "vitest";
 
 import { register_state_accessors } from "@utils";
-import {
-  render_story_prose,
-  render_scene_narrator,
-  render_memory,
-  render_profile_sorting,
-  render_enhancement,
-  render_director,
-  to_data_points,
-  context_builder,
-} from "./builder.js";
+import { to_data_points, context_builder } from "./builder.js";
 import { compile_prompt } from "./prompts.js";
 import { CONSTITUTION } from "./modules/constitution.js";
 import { PROTOCOL_LIBRARY } from "./modules/protocols.js";
@@ -104,7 +95,7 @@ const test_npc = {
 // [SECTION 1: NARRATOR STYLE OBJECT PLUMBING & REGRESSION VERIFICATION]
 // ============================================================================
 
-describe("render_scene_narrator — Style Object Plumbing (Bug #1 Regression)", () => {
+describe("narrator style plumbing via compile_prompt (Bug #1 Regression)", () => {
   beforeEach(() => {
     register_state_accessors({ runtime: { active_fractal: { narrative_style: "cormac_mccarthy" } } });
   });
@@ -114,7 +105,7 @@ describe("render_scene_narrator — Style Object Plumbing (Bug #1 Regression)", 
   });
 
   it("compiles narrator prompt with full style object and never leaks origin='UNDEFINED'", () => {
-    const result = render_scene_narrator({
+    const result = compile_prompt("narrator", {
       entities: test_entities,
       round: 1,
       input: "The sirens echo down the alleyway.",
@@ -128,29 +119,29 @@ describe("render_scene_narrator — Style Object Plumbing (Bug #1 Regression)", 
   });
 
   it("extracts style DNA sentence rhythm and sensory order into narrator task", () => {
-    const result = render_scene_narrator({
+    const result = compile_prompt("narrator", {
       entities: test_entities,
       round: 2,
       input: "Rain patters on the rusted metal.",
       scene_template: "CONTINUATION",
     });
 
-    expect(result.task).toContain("<DELIVERY_POSTURE>");
-    expect(result.task).toContain("<RHYTHM>");
-    expect(result.task).toContain("<DRIVE>");
+    expect(result.system).toContain("<DELIVERY_POSTURE>");
+    expect(result.system).toContain("<RHYTHM>");
+    expect(result.system).toContain("<DRIVE>");
     // Cormac McCarthy style defines biblical cadence sentence rhythm
-    expect(result.task).toContain("Polysyndetic");
+    expect(result.system).toContain("Polysyndetic");
   });
 
   it("passes dynamics snapshot into narrator task recency anchor", () => {
-    const result = render_scene_narrator({
+    const result = compile_prompt("narrator", {
       entities: test_entities,
       round: 3,
       input: "A shadow moves behind the vents.",
       scene_template: "CONTINUATION",
     });
 
-    expect(result.task).toContain("<DELIVERY_POSTURE>");
+    expect(result.system).toContain("<DELIVERY_POSTURE>");
   });
 });
 
@@ -160,28 +151,28 @@ describe("render_scene_narrator — Style Object Plumbing (Bug #1 Regression)", 
 
 describe("Shot-2A Prose Modes Symmetrical Compilation", () => {
   it("renders interaction, ghostwrite, npc, and narrator with consistent system envelope structures", () => {
-    const interaction_result = render_story_prose({
+    const interaction_result = compile_prompt("interaction", {
       round: 1,
       entities: test_entities,
       input: "Alice draws her sidearm.",
     });
 
-    const ghostwrite_result = render_story_prose({
+    const ghostwrite_result = compile_prompt("ghostwrite", {
       entities: test_entities,
       input: "I check my magazines.",
       ghostwrite: true,
     });
 
-    const npc_result = render_story_prose({
+    const npc_result = compile_prompt("npc", {
       round: 1,
       entities: test_entities,
-      speaker: test_npc,
       input: "Merchant scurries into the shadows.",
+      npc: test_npc,
       npc_entities: [test_npc],
       in_scene_ids: ["MERCHANT"],
     });
 
-    const narrator_result = render_scene_narrator({
+    const narrator_result = compile_prompt("narrator", {
       entities: test_entities,
       round: 1,
       input: "Steam hisses from an overhead pipe.",
@@ -191,15 +182,15 @@ describe("Shot-2A Prose Modes Symmetrical Compilation", () => {
       expect(mode_result.system).toContain("<SYSTEM");
       expect(mode_result.system).toContain("<AXIOMATIC_CONSTITUTION>");
       expect(mode_result.system).toContain("<CORE_PROTOCOLS>");
-      expect(mode_result.system).not.toContain("</SYSTEM>");
-      expect(mode_result.task).toMatch(/^<TASK>/);
-      expect(mode_result.task).toMatch(/<\/TASK>$/);
+      expect(mode_result.system).toContain("</SYSTEM>");
+      expect(mode_result.system).toContain("<TASK>");
+      expect(mode_result.system).toContain("</TASK>");
       expect(mode_result.system).not.toContain('origin="UNDEFINED"');
     }
   });
 
   it("uses canonical <SIGNATURE_ELEMENTS> tag instead of <SIGNUM> in core protocols", () => {
-    const interaction_result = render_story_prose({
+    const interaction_result = compile_prompt("interaction", {
       round: 1,
       entities: test_entities,
       input: "Alice steps forward.",
@@ -215,36 +206,36 @@ describe("Shot-2A Prose Modes Symmetrical Compilation", () => {
 
 describe("Parameter-Aware Layer 7 Output Format Routing", () => {
   it("routes continuum schema dynamically by target taxonomy type", () => {
-    const character_memory = render_memory({
+    const character_memory = compile_prompt("continuum", {
       target_entity: test_entities.AI,
       target_key: "AI_CHARACTER",
       other_entities: test_entities,
     });
 
-    expect(character_memory.task).toContain('"eternal"');
-    expect(character_memory.task).toContain('"relationships"');
+    expect(character_memory.system).toContain('"eternal"');
+    expect(character_memory.system).toContain('"relationships"');
 
-    const fractal_memory = render_memory({
+    const fractal_memory = compile_prompt("continuum", {
       target_entity: test_entities.FRACTAL,
       target_key: "FRACTAL",
       other_entities: test_entities,
     });
 
-    expect(fractal_memory.task).toContain('"eternal"');
+    expect(fractal_memory.system).toContain('"eternal"');
   });
 
   it("routes profile sorting schema dynamically by resolved taxonomy type", () => {
-    const character_sorting = render_profile_sorting("character");
-    expect(character_sorting.task).toContain('"name"');
-    expect(character_sorting.task).toContain('"signature_color"');
+    const character_sorting = compile_prompt("sorting", { entity_type: "character" });
+    expect(character_sorting.system).toContain('"name"');
+    expect(character_sorting.system).toContain('"signature_color"');
 
-    const fractal_sorting = render_profile_sorting("fractal");
-    expect(fractal_sorting.task).toContain('"name"');
-    expect(fractal_sorting.task).toContain('"signature_color"');
+    const fractal_sorting = compile_prompt("sorting", { entity_type: "fractal" });
+    expect(fractal_sorting.system).toContain('"name"');
+    expect(fractal_sorting.system).toContain('"signature_color"');
   });
 
   it("routes enhancement output rules via get_output_format", () => {
-    const bracket_enhancement = render_enhancement({
+    const bracket_enhancement = compile_prompt("enhancement", {
       enhancer: "VOICE",
       label: "Personality",
       directive: "Expand vocal cadence",
@@ -255,9 +246,9 @@ describe("Parameter-Aware Layer 7 Output Format Routing", () => {
       entity_type: "character",
     });
 
-    expect(bracket_enhancement.task).toContain("<TASK>");
-    expect(bracket_enhancement.task).toContain("<THINK_FORMAT>");
-    expect(bracket_enhancement.task).toContain("[KEY: value]");
+    expect(bracket_enhancement.system).toContain("<TASK>");
+    expect(bracket_enhancement.system).toContain("<THINK_FORMAT>");
+    expect(bracket_enhancement.system).toContain("[KEY: value]");
   });
 });
 
@@ -278,7 +269,7 @@ describe("Protocol Invariants & Remediation Regression Gates", () => {
   });
 
   it("compiles interaction prose prompt with permissive fidelity clause", () => {
-    const interaction_prompt = render_story_prose({
+    const interaction_prompt = compile_prompt("interaction", {
       round: 1,
       entities: test_entities,
       input: "Bob scans the perimeter.",
@@ -288,13 +279,13 @@ describe("Protocol Invariants & Remediation Regression Gates", () => {
   });
 
   it("compiles Director prompt with user persona lock", () => {
-    const director_prompt = render_director({
+    const director_prompt = compile_prompt("director", {
       round: 1,
       entities: test_entities,
       input: "Bob scans the perimeter.",
     });
 
-    expect(director_prompt.task).toContain('"USER_PERSONA", "USER", "PLAYER", or the player character\'s name is NEVER a valid next_action');
+    expect(director_prompt.system).toContain('"USER_PERSONA", "USER", "PLAYER", or the player character\'s name is NEVER a valid next_action');
   });
 });
 

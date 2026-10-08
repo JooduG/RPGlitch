@@ -21,8 +21,9 @@
  * ============================================================================
  */
 
-import { escape_xml, render_xml_tag, collapse_whitespace, truncate_at_word } from "@utils";
-import { SHEET_SPECS, render_sheet } from "./sheets.js";
+import { detox_prose, escape_xml, render_xml_tag, collapse_whitespace, truncate_at_word, wrap_tag } from "@utils";
+import { SHEET_SPECS, render_sheet, render_entity_memory_context, render_enhancement_field_context } from "./sheets.js";
+import { render_optics_entities_xml } from "./sensory.js";
 
 // ============================================================================
 // [SECTION 1: SPATIAL PRESENCE & RELATIONAL TOPOLOGY]
@@ -454,6 +455,50 @@ export function render_entity_sheets({
   }
 
   return wrap_entities(parts);
+}
+
+// ── Universal Prompt Plan slot resolvers ────────────────────────────────────
+/**
+ * System-layer slot: seals the entities block. Sheets modes render through
+ * render_entity_sheets; the optics kind delegates to sensory at call time.
+ */
+export function resolve_entities_slot(config, normalized = {}) {
+  if (normalized.entities_kind === "optics") {
+    const rendered = render_optics_entities_xml(normalized.optics_entities_args || {});
+    if (normalized.task_params && normalized.intent_roll) {
+      normalized.task_params.input_intent = detox_prose(normalized.intent_roll.roll(normalized.intent_roll.raw_intent));
+    }
+    return rendered;
+  }
+  return render_entity_sheets(normalized.sheets_args || {});
+}
+
+/**
+ * System-layer slot: seals the continuum target-entity memory context.
+ */
+export function resolve_target_context_slot(config, normalized = {}) {
+  const args = normalized.target_context_args || {};
+  if (!args.enabled) return "";
+  const target_xml = render_entity_memory_context(args.target_key, args.target_entity);
+  return wrap_tag("TARGET_ENTITY_CONTEXT", target_xml, 2);
+}
+
+/**
+ * System-layer slot: seals the continuum nearby cast roster.
+ */
+export function resolve_cast_slot(config, normalized = {}) {
+  const args = normalized.cast_args || {};
+  if (!args.enabled) return "";
+  return render_nearby_entities_xml(args.other_entities || {}, { exclude_id: args.exclude_id, indent: 2 });
+}
+
+/**
+ * System-layer slot: seals the enhancement field context.
+ */
+export function resolve_entity_context_slot(config, normalized = {}) {
+  const args = normalized.entity_context_args || {};
+  if (!args.enabled) return null;
+  return render_enhancement_field_context(args.entity, args.field_id, args.content, args.normalized_type, args.format_past_function);
 }
 
 /**

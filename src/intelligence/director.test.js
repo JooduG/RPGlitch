@@ -14,7 +14,7 @@ import {
   strip_npc_id,
   STORY_STATUS_VALUES,
 } from "./director.js";
-import { render_director } from "./builder.js";
+import { compile_prompt } from "./prompts.js";
 import { llm_service } from "@platform";
 
 const _mock_app = {
@@ -55,7 +55,7 @@ vi.mock("@utils", async (importOriginal) => {
   };
 });
 
-describe("Director Quick Shot Prompt (render_director)", () => {
+describe("Director Quick Shot Prompt (compile_prompt director)", () => {
   const base_payload = () => ({
     round: 1,
     entities: {
@@ -95,20 +95,20 @@ describe("Director Quick Shot Prompt (render_director)", () => {
   };
 
   it("exposes <AVAILABLE_KEYWORDS> and JSON schema keys", () => {
-    const result = render_director({ ...base_payload(), compressed_snapshot: base_snapshot });
-    expect(result.task).toContain("<AVAILABLE_KEYWORDS>");
-    expect(result.task).toContain("SHAME");
-    expect(result.task).toContain("BETRAYAL");
-    expect(result.task).toContain('"next_action"');
-    expect(result.task).toContain('"keywords"');
-    expect(result.task).toContain('"directors_note"');
-    expect(result.task).toContain('"dynamics_deltas"');
-    expect(result.task).toContain('"visual_staging"');
-    expect(result.task).toContain("EPILOGUE_CONCLUDED");
+    const result = compile_prompt("director", { ...base_payload(), compressed_snapshot: base_snapshot });
+    expect(result.system).toContain("<AVAILABLE_KEYWORDS>");
+    expect(result.system).toContain("SHAME");
+    expect(result.system).toContain("BETRAYAL");
+    expect(result.system).toContain('"next_action"');
+    expect(result.system).toContain('"keywords"');
+    expect(result.system).toContain('"directors_note"');
+    expect(result.system).toContain('"dynamics_deltas"');
+    expect(result.system).toContain('"visual_staging"');
+    expect(result.system).toContain("EPILOGUE_CONCLUDED");
   });
 
   it("includes PAST state for all active entities in the Director prompt", () => {
-    const result = render_director({ ...base_payload(), compressed_snapshot: base_snapshot });
+    const result = compile_prompt("director", { ...base_payload(), compressed_snapshot: base_snapshot });
     expect(result.system).toContain("<MEMORIES>");
     expect(result.system).toContain("Viper past 1");
     expect(result.system).toContain("Ghost past 1");
@@ -117,15 +117,15 @@ describe("Director Quick Shot Prompt (render_director)", () => {
 
   it("nudges Director toward fractal narration on non-verbal environmental turns", () => {
     const env_payload = { ...base_payload(), input: "I press my palm flat against the cold iron gate and wait.", compressed_snapshot: base_snapshot };
-    const result = render_director(env_payload);
-    expect(result.task).toContain("<ENVIRONMENTAL_HINT>");
-    expect(result.task).toContain('"speaker" to "fractal"');
-    expect(result.task).toContain("NEXT ACTION ROUTING RULES");
+    const result = compile_prompt("director", env_payload);
+    expect(result.system).toContain("<ENVIRONMENTAL_HINT>");
+    expect(result.system).toContain('"speaker" to "fractal"');
+    expect(result.system).toContain("NEXT ACTION ROUTING RULES");
   });
 
   it("gives on-stage NPCs a full sheet and never restates the sheeted trio in a CAST block", () => {
     const npc_entities = [{ id: "npc-elias", name: "Elias", description: "Archivist", relationships: ["Elias → Viper: wary"] }];
-    const result = render_director({ ...base_payload(), npc_entities, in_scene_ids: ["npc-elias"], compressed_snapshot: base_snapshot });
+    const result = compile_prompt("director", { ...base_payload(), npc_entities, in_scene_ids: ["npc-elias"], compressed_snapshot: base_snapshot });
     expect(result.system).toContain('<NPC id="npc-elias" name="Elias">');
     expect(result.system).not.toContain("<CAST");
     expect(result.system).not.toContain("Primary Companion");
@@ -138,7 +138,7 @@ describe("Director Quick Shot Prompt (render_director)", () => {
 
   it('emits a consolidated <CAST mode="candidates"> for off-stage reuse candidates only', () => {
     const npc_entities = [{ id: "npc-mira", name: "Mira", description: "Street medic", relationships: ["Mira → Viper: neutral"] }];
-    const result = render_director({ ...base_payload(), npc_entities, in_scene_ids: [], compressed_snapshot: base_snapshot });
+    const result = compile_prompt("director", { ...base_payload(), npc_entities, in_scene_ids: [], compressed_snapshot: base_snapshot });
     expect(result.system).toContain('<CAST mode="candidates">');
     expect(result.system).toContain("Mira (id: npc-mira)");
     expect(result.system).toContain("Street medic");
@@ -148,15 +148,15 @@ describe("Director Quick Shot Prompt (render_director)", () => {
   });
 
   it("stamps entity-id origins on the Director inputs", () => {
-    const result = render_director({
+    const result = compile_prompt("director", {
       ...base_payload(),
       simulation_log: [{ role: "model", content: "Viper nods." }],
       compressed_snapshot: base_snapshot,
     });
-    expect(result.task).toContain('<INPUT origin="GHOST" round="1" channel="action">Check the door.</INPUT>');
-    expect(result.task).toContain('<INPUT origin="VIPER" channel="reply">Viper nods.</INPUT>');
-    expect(result.task).not.toContain('origin="USER"');
-    expect(result.task).not.toContain('origin="AI_CHARACTER"');
+    expect(result.system).toContain('<INPUT origin="GHOST" round="1" channel="action">Check the door.</INPUT>');
+    expect(result.system).toContain('<INPUT origin="VIPER" channel="reply">Viper nods.</INPUT>');
+    expect(result.system).not.toContain('origin="USER"');
+    expect(result.system).not.toContain('origin="AI_CHARACTER"');
   });
 });
 
@@ -517,7 +517,7 @@ describe("apply_relationships()", () => {
  * - 2026-09-24: Cast/input de-duplication — the fixture entities now carry real ids; the cast assertions split into "on-stage NPC owns a sheet, no CAST restatement of the trio" and "off-stage reuse candidates emit `<CAST mode="candidates">`", and a new test pins the Director's `<INPUT>` origins to the real entity ids (GHOST/VIPER).
  * - 2026-09-23: Prompt-grammar harmonization — the cast assertion now expects `<CAST mode="in_scene">` (was `present`) and the Director's routing heading is asserted as `NEXT ACTION ROUTING RULES` (was `SPEAKER ROUTING RULES`).
  * - 2026-09-23: Cast assertions follow the harmonized roster — `<CAST mode="present">` is the final child of `<ENTITIES>`, with the `ACTIVE PRESENT PARTICIPANTS` header retired.
- * - 2026-09-21: Keyword directives now live in the Director <TASK> envelope (single source of truth for directive prose) — the <AVAILABLE_KEYWORDS> assertions target `result.task`; the <INPUT_NOTE> environmental nudge remains in `result.task` inside <DIRECTIVES>.
+ * - 2026-09-21: Keyword directives now live in the Director <TASK> envelope (single source of truth for directive prose) — the <AVAILABLE_KEYWORDS> assertions target `result.system`; the <INPUT_NOTE> environmental nudge remains in `result.system` inside <DIRECTIVES>.
  * - 2026-09-19: Opening-turn first-contact is now an explicit `director_data.first_contact` flag (no longer smuggled as a "first_contact" keyword, which polluted the somatic keyword channel and truncated a real keyword); test added.
  * - 2026-09-13: Added execute_director_shot integration unit tests covering clean parse, terse recovery, and fallback synthesis.
  * - 2026-09-11: Consolidated prompt and orchestration unit tests into director.test.js.

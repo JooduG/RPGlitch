@@ -39,6 +39,7 @@ import {
   prompt_escape,
   escape_xml,
   role_display_label,
+  wrap_tag,
 } from "@utils";
 import { DYNAMICS_METRIC_NAMES } from "../physics.js";
 
@@ -397,6 +398,33 @@ export function render_chapter_history_xml(target_entity, indentation_level = 0)
     indent: indentation_level,
     separator: "\n",
   });
+}
+
+// ── Universal Prompt Plan slot resolvers ────────────────────────────────────
+/**
+ * System-layer slot: seals history. Prose modes wrap the accessor simulation
+ * log; continuum renders the input window; optics shapes sensory history.
+ */
+export function resolve_history_slot(config, normalized = {}) {
+  const args = normalized.history_args || {};
+  if (args.kind === "input_history") {
+    if (!args.enabled) return "";
+    return render_input_history_xml(args.history || [], { limit: args.limit, max_chars: args.max_chars });
+  }
+  if (args.kind === "sensory") {
+    const rendered = format_sensory_history(args.history);
+    return rendered ? rendered.trim() : null;
+  }
+  return wrap_tag("HISTORY", args.accessors.simulation_log(), 2);
+}
+
+/**
+ * System-layer slot: seals the continuum chapter history for the target.
+ */
+export function resolve_chapter_history_slot(config, normalized = {}) {
+  const args = normalized.chapter_history_args || {};
+  if (!args.enabled || !args.target_entity) return "";
+  return render_chapter_history_xml(args.target_entity, 2);
 }
 
 /**

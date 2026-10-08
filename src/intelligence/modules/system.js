@@ -252,6 +252,21 @@ export function resolve_prompt_meta({ ai = null, fractal = null, flags = {}, rol
 }
 
 /**
+ * System-layer slot: resolves the mode role line from manifest key plus the
+ * normalized role arguments prepared by the mode adapter.
+ */
+export function resolve_role_slot(config, normalized = {}) {
+  return resolve_system_role_line({ role: config.role_line, ...(normalized.role_args || {}) });
+}
+
+/**
+ * System-layer slot: the enhancement layer key currently seals no block.
+ */
+export function resolve_layer_slot() {
+  return "";
+}
+
+/**
  * CHANGELOG
  * - 2026-10-07: Plan Omega for System — SYSTEM_ROLES closures replaced by declarative ROLE_LIBRARY + ROLE_DEFAULTS + get_role_atom; PROMPT_LAYERS/render_prompt_layers/compose_system/pack_prompt/resolve_prompt_meta/clean_prompt_text re-homed from builder.js; plan/render split (resolve_system_plan/render_system_plan) wired through compose_system; purged dead `closed`/`task` options and SYSTEM_TAG now names the plan tag; resolve_stability_lock tests live in reflex.test.js only.
  * - 2026-10-04: Moved stability-lock/truncation recovery copy to recovery.js; system.js owns identity + envelope only.
