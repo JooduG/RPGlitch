@@ -23,7 +23,7 @@ import {
 } from "./protocols.js";
 import { render_alternation_protocol } from "./reflex.js";
 import { render_narrative_style_xml, render_visual_style_xml } from "./style.js";
-import { render_dynamics_axes_xml } from "../physics.js";
+import { render_dynamics_axes_xml } from "../dynamics.js";
 
 // ============================================================================
 // [SECTION 1: CORE PROTOCOL LIBRARY & COMPILER]

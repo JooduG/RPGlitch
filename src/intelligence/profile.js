@@ -275,12 +275,11 @@ export async function spawn_character(bridge, draft = {}) {
     }
   }
 
-  // 5. Hydrate into active runtime state & stage spotlight
+  // 5. Hydrate into active runtime state & stage spotlight (Track 1.3: presence 'active')
   const npcs = { ...(bridge.runtime?.active_npcs || {}) };
-  npcs[saved_entity.id] = saved_entity;
+  npcs[saved_entity.id] = { ...saved_entity, presence: "active" };
   if (bridge.runtime) {
     bridge.runtime.active_npcs = npcs;
-    bridge.runtime.in_scene_npc_ids = [...new Set([...(bridge.runtime.in_scene_npc_ids || []), saved_entity.id])];
   }
   state_bridge.app?.log(`[GameMaster] Roster expanded: ${name}.`, "system");
   return saved_entity;

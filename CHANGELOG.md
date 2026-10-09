@@ -9,6 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Completed Tracks 0, 1 & 2 Execution Pulse**:
+  - **Track 0: Intelligence Kernel Language & Domain Purity**:
+    - Enforced grammar law across instruction tags and 3-layer token contracts (`{...}` build-time, `«ABSOLUTE»` runtime referents, `@` output vocabulary).
+    - Pruned dead identity claims and merged `NPC_BOUNDARY` into `CHARACTER.BASE`.
+    - Redesigned 3-sentence universal think block shell and streamlined ghostwrite as pure speaker-swap.
+    - Derived continuum mandates and profile sorting rules dynamically from `PROFILE_FIELD_CATALOG`.
+    - Dissolved `sensory.js` into sovereign domains (`protocols.js`, `entities.js`, `style.js`, `task.js`, `physics.js`, `optics.js`) and stood up automated metasyntax gating (`metasyntax.test.js`).
+  - **Track 1: State & Physics Core Unification**:
+    - Unified somatic and environmental dynamics in stateless reducer `reduce_dynamics` in `dynamics.js`.
+    - Identity-stamped history logs with `origin="${entry.entity_id}"` directly at log creation in `log.svelte.js`.
+    - Unified cast registry with explicit presence enum (`'active' | 'nearby' | 'dormant'`) in `runtime.svelte.js`.
+    - Universal bracket predicates (`[@TARGET: ...]`) and role target macro expansion.
+    - Lifecycle task worker in `job-queue.js` aborting stale background tasks mid-flight on story/round shifts.
+  - **Track 2: Hierarchical Memory & 6k Context Protection (Project Prism-DCM)**:
+    - Implemented multi-tier tree compactor in `temporal.js` with `PRISM_FANOUT = 8`, rolling Tier 0 turn events into Tier 1 chapters and Tier 2 arcs within height bounds (`COMPACTOR_MAX_HEIGHT = 5`), plus selective leaf expansion.
+    - Established context cliff protection (`CONTEXT_TOKEN_CLIFF = 6000`, `HISTORY_TOKEN_BUDGET = 1600`, `RECALL_TOKEN_BUDGET = 800`) proactively pruning lowest-weight leaves and oldest history.
+    - Deterministic hybrid retrieval ranker in `temporal.js` (`Score = Entity Overlap × 3.0 + Lexical Frequency × 1.0 + Emotional Salience × 0.4 + Recency × 1.2`) with dynamics-modulated recall clarity (`[fragmented recall]` when Chaos/Entropy > 70).
+    - Write-time rot prevention via FNV-1a normalized `eventKey` provenance folding and top 12 known settled facts extraction advisory (`# ALREADY REMEMBERED`) wired into `PROMPT_LAYERS`.
+
 - **Modules Ground Refactor — Phases 1 to 4 (One Compiler Core, Domain Re-Cut & Universal Prompt Plan)**:
   - **Shared Catalog Engine (`src/utils/catalog.js`, `src/utils/index.js`)**: Created centralized dotted-catalog compiler with byte-exact `{token}` interpolation (`interpolate_tokens`), dotted-path traversal with non-leaf guards returning `""` instead of `"[object Object]"`, default spreads, and fallback key policies (`resolve_catalog_atom`). Added unit test suite `catalog.test.js`.
   - **Harmonized Atom Resolvers (`src/intelligence/modules/{system,task,reflex,protocols}.js`)**: Delegated dotted resolution across all intelligence modules to `resolve_catalog_atom`. Preserved `ROLE_DEFAULTS` and `INTERACTION` fallback in `system.js`, record-driven `{tag, body}` enveloped wrapping and `REFLEX.` prefix stripping in `reflex.js`, and unified `STATIC_REGISTRY` with `{ uppercase: true }` in `protocols.js`.

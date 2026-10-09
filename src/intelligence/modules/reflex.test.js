@@ -22,7 +22,7 @@ import {
   render_prose_reflex,
   resolve_stability_lock,
 } from "./reflex.js";
-import { render_subtext_xml, resolve_physics_protocols } from "../physics.js";
+import { render_subtext_xml, resolve_physics_protocols } from "../dynamics.js";
 import { render_available_keywords_xml } from "./task.js";
 
 describe("reflex.js - pacing plans", () => {
