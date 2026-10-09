@@ -146,7 +146,6 @@ describe("prompt-modes registry", () => {
       "CORE_PROTOCOLS.PROSE_DISCIPLINE.SENTENCE_FORMULAS",
       "CORE_PROTOCOLS.PROSE_DISCIPLINE.SCENE_MOMENTUM",
       "CORE_PROTOCOLS.PROSE_DISCIPLINE.CLICHES",
-      "CORE_PROTOCOLS.PROSE_DISCIPLINE.CONSENT",
     ];
     const compose = (natural) => [
       "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PRESENT",
@@ -254,7 +253,6 @@ describe("fused rendering per mode", () => {
     expect(narrator.system).toContain("<SENTENCE_FORMULAS>");
     expect(narrator.system).toContain("<SCENE_MOMENTUM>");
     expect(narrator.system).toContain("<CLICHES>");
-    expect(narrator.system).toContain("<CONSENT>");
   });
 });
 

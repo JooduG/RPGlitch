@@ -32,10 +32,10 @@ import { render_dynamics_axes_xml } from "../physics.js";
 describe("protocols.js - Core Protocol Library & Compiler", () => {
   it("renders selected protocol tags via render_core_protocols", () => {
     const output = render_core_protocols({
-      protocols: ["OUTPUT.DATA"],
+      protocols: ["CORE_PROTOCOLS.GROUNDING"],
     });
     expect(output).toContain("<CORE_PROTOCOLS>");
-    expect(output).toContain("<DATA>");
+    expect(output).toContain("<GROUNDING>");
     expect(output).not.toContain("SIMULATION_FIDELITY");
   });
 
@@ -55,7 +55,7 @@ describe("protocols.js - Core Protocol Library & Compiler", () => {
 
   it("folds tense atoms into PERSPECTIVE instead of a LAYER_TENSE block", () => {
     const output = render_core_protocols({
-      protocols: ["OUTPUT.DATA", "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PAST", "CORE_PROTOCOLS.PERSPECTIVE.TENSE.FUTURE"],
+      protocols: ["CORE_PROTOCOLS.PERSPECTIVE.TENSE.PAST", "CORE_PROTOCOLS.PERSPECTIVE.TENSE.FUTURE"],
     });
     expect(output).not.toContain("<LAYER_TENSE>");
     expect(output).toContain('<PERSPECTIVE tense="LAYER">');
@@ -68,7 +68,7 @@ describe("protocols.js - Core Protocol Library & Compiler", () => {
 
   it("pins a single tense atom to the PERSPECTIVE tense attribute", () => {
     const output = render_core_protocols({
-      protocols: ["OUTPUT.DATA", "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PAST"],
+      protocols: ["CORE_PROTOCOLS.PERSPECTIVE.TENSE.PAST"],
       pov_protocol: "CORE_PROTOCOLS.PERSPECTIVE.POV.THIRD",
     });
     expect(output).toContain('<PERSPECTIVE person="THIRD" tense="PAST">');
@@ -140,11 +140,10 @@ describe("protocols.js - Visual Style & Optics Protocols", () => {
     const protocols_xml = render_core_protocols({
       visual_style: style_definition,
       engine_tokens,
-      protocols: ["OUTPUT.DATA", "OPTICS.IMAGE_VOCABULARY", "OPTICS.TEXT_RENDERING", "CORE_PROTOCOLS.GROUNDING"],
+      protocols: ["OPTICS.IMAGE_VOCABULARY", "OPTICS.TEXT_RENDERING", "CORE_PROTOCOLS.GROUNDING"],
     });
 
     expect(protocols_xml).toContain("<CORE_PROTOCOLS>");
-    expect(protocols_xml).toContain("<DATA>");
     expect(protocols_xml).toContain("<IMAGE_VOCABULARY>");
     expect(protocols_xml).toContain("<TEXT_RENDERING>");
     expect(protocols_xml).toContain("<GROUNDING>");
@@ -193,7 +192,7 @@ describe("protocols.js - Protocol Plans", () => {
 
   it("maps plans to the identical envelopes as the compiler", () => {
     const inputs = {
-      protocols: ["OUTPUT.DATA", ...prose_bundle],
+      protocols: [...prose_bundle],
       pov_protocol: "CORE_PROTOCOLS.PERSPECTIVE.POV.THIRD",
       has_alternation: true,
     };
@@ -203,45 +202,37 @@ describe("protocols.js - Protocol Plans", () => {
 
   it("records visual style selection as plan data", () => {
     const plan = resolve_protocol_plan({
-      protocols: ["OUTPUT.DATA", "OPTICS.IMAGE_VOCABULARY"],
+      protocols: ["OPTICS.IMAGE_VOCABULARY"],
       visual_style: { id: "photo", description: "Candid." },
       engine_tokens: { medium: "35mm" },
     });
     expect(plan.style_kind).toBe("visual");
     expect(plan.style_xml).toContain('<VISUAL_STYLE origin="PHOTO">');
-    expect(plan.static_rules.map((rule) => rule.tag)).toEqual(["DATA", "IMAGE_VOCABULARY"]);
+    expect(plan.static_rules.map((rule) => rule.tag)).toEqual(["IMAGE_VOCABULARY"]);
   });
 });
 
 describe("protocols.js - Restructured Catalog", () => {
-  it("resolves OUTPUT.DATA through the output-shape fallback with the same tag", () => {
-    const plan = resolve_protocol_plan({ protocols: ["OUTPUT.DATA"] });
-    expect(plan.static_rules).toEqual([{ tag: "DATA", body: expect.stringContaining("raw, unpadded structural data") }]);
-    expect(plan.dropped.unknown).toBe(0);
-    expect(render_core_protocols({ protocols: ["OUTPUT.DATA"] })).toContain("<DATA>");
-  });
-
   it("shares one GROUNDING atom between prose and optics lists", () => {
     const prose = resolve_protocol_plan({
       protocols: ["CORE_PROTOCOLS.GROUNDING", "CORE_PROTOCOLS.PROSE_DISCIPLINE.TYPOGRAPHY"],
     });
     expect(prose.static_rules.map((rule) => rule.tag)).toEqual(["GROUNDING"]);
     const optics = resolve_protocol_plan({
-      protocols: ["OUTPUT.DATA", "OPTICS.IMAGE_VOCABULARY", "OPTICS.TEXT_RENDERING", "CORE_PROTOCOLS.GROUNDING"],
+      protocols: ["OPTICS.IMAGE_VOCABULARY", "OPTICS.TEXT_RENDERING", "CORE_PROTOCOLS.GROUNDING"],
     });
-    expect(optics.static_rules.map((rule) => rule.tag)).toEqual(["DATA", "IMAGE_VOCABULARY", "TEXT_RENDERING", "GROUNDING"]);
+    expect(optics.static_rules.map((rule) => rule.tag)).toEqual(["IMAGE_VOCABULARY", "TEXT_RENDERING", "GROUNDING"]);
   });
 
-  it("emits single-concern discipline atoms including standalone consent", () => {
+  it("emits single-concern discipline atoms", () => {
     const output = render_core_protocols({
       protocols: [
         "CORE_PROTOCOLS.PROSE_DISCIPLINE.SENTENCE_FORMULAS",
         "CORE_PROTOCOLS.PROSE_DISCIPLINE.SCENE_MOMENTUM",
         "CORE_PROTOCOLS.PROSE_DISCIPLINE.CLICHES",
-        "CORE_PROTOCOLS.PROSE_DISCIPLINE.CONSENT",
       ],
     });
-    for (const tag of ["SENTENCE_FORMULAS", "SCENE_MOMENTUM", "CLICHES", "CONSENT"]) {
+    for (const tag of ["SENTENCE_FORMULAS", "SCENE_MOMENTUM", "CLICHES"]) {
       expect(output).toContain(`<${tag}>`);
     }
     expect(output).not.toContain("ANTI_TROPES");

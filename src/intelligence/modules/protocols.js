@@ -21,7 +21,6 @@
 import { has_alternations, prompt_escape, render_xml_tag, resolve_catalog_atom } from "@utils";
 import { render_narrative_style_xml, render_visual_style_xml } from "./style.js";
 import { render_alternation_protocol } from "./reflex.js";
-import { OUTPUT_DIRECTIVES } from "./output.js";
 
 // ============================================================================
 // [SECTION 1: CONSOLIDATED PROTOCOL LIBRARY]
@@ -63,7 +62,6 @@ export const PROTOCOL_LIBRARY = Object.freeze({
       SENTENCE_FORMULAS: `Eliminate synthetic sentence formulas: denial-then-affirmation ('X did not just Y; it Z'd'), antithetical formulas ('Not X, but Y'), symmetrical binary comparisons, appositive dialogue sound tags, and formulaic action-dialogue sandwiches.`,
       SCENE_MOMENTUM: `State actions directly and keep the scene moving; never stall with permission loops ('Can I ask a question?'), teasing secrets, or begging quotas.`,
       CLICHES: `Prohibit cliché clusters such as 'spoke volumes', 'a testament to', 'tapestry of', 'shivers down the spine', 'unspoken understanding', 'dance of shadows', and Wattpad dominance tropes ('feisty', 'playing with fire', 'death of me', 'mine').`,
-      CONSENT: `Never stage non-consensual physical domination: no forced grabs, pinning, or intimidation framing unless the other party explicitly invites it. Write desire and vulnerability; never write coercion.`,
       NATURAL_DIALOGUE: `Keep spoken dialogue grounded, clipped, uneven, and interrupted. Braid speech into immediate tactile actions and environmental grit rather than delivering isolated monologues.`,
     }),
   }),
@@ -85,12 +83,6 @@ export const PROTOCOL_LIBRARY = Object.freeze({
 });
 
 /**
- * Unified static-emission registry: behavior catalog plus output-shape
- * directives, so OUTPUT.* keys resolve with no namespace branch.
- */
-const STATIC_REGISTRY = Object.freeze({ ...PROTOCOL_LIBRARY, OUTPUT: OUTPUT_DIRECTIVES });
-
-/**
  * Resolves the macro placeholder directive according to the entity type or mode.
  * @param {string} [entity_type="character"]
  * @returns {string}
@@ -106,17 +98,15 @@ export function resolve_macro_directive(entity_type = "character") {
 
 /**
  * Resolves one dotted registry key to its leaf tag + body, or null when the
- * key names a branch or nothing at all. Looks in `PROTOCOL_LIBRARY` first,
- * then the `OUTPUT.*` output-shape directives in output.js. The single exact
- * matcher for static emission — substring/prefix guessing lives only in plan
- * selection.
+ * key names a branch or nothing at all. The single exact matcher for static
+ * emission — substring/prefix guessing lives only in plan selection.
  *
- * @param {string} protocol_key - Dotted registry path (e.g. "OPTICS.IMAGE_VOCABULARY", "OUTPUT.DATA")
+ * @param {string} protocol_key - Dotted registry path (e.g. "OPTICS.IMAGE_VOCABULARY")
  * @returns {{ tag: string, body: string }|null}
  */
 function resolve_static_rule(protocol_key) {
   const normalized_key = String(protocol_key).trim().toUpperCase();
-  const resolved = resolve_catalog_atom(STATIC_REGISTRY, normalized_key, {}, { uppercase: true });
+  const resolved = resolve_catalog_atom(PROTOCOL_LIBRARY, normalized_key, {}, { uppercase: true });
   if (typeof resolved !== "string" || !resolved) return null;
   return { tag: normalized_key.split(".").at(-1), body: resolved };
 }

@@ -106,9 +106,7 @@ ${SEP}
 
     // 5. VERIFICATION — Prompts are generated
     expect(result.director_prompt).toBeDefined();
-    expect(result.director_task).toBeDefined();
     expect(result.character_prompt).toBeDefined();
-    expect(result.character_task).toBeDefined();
   });
 
   it("Character prompt builds delivery posture and think format in task", async () => {
@@ -121,9 +119,9 @@ ${SEP}
 
     const result = await SimulationAudit.execute_turn("Test input", scenario);
 
-    expect(result.character_task).toContain("<DELIVERY_POSTURE>");
-    expect(result.character_task).toContain("<THINK>");
-    expect(result.character_task).toMatch(/<INPUT origin="JULIEN"/);
+    expect(result.character_prompt).toContain("<DELIVERY_POSTURE>");
+    expect(result.character_prompt).toContain("<THINK>");
+    expect(result.character_prompt).toMatch(/<INPUT origin="JULIEN"/);
   });
 
   it("Pipeline verification passes all critical checks", async () => {
@@ -154,8 +152,8 @@ ${SEP}
 
     const result = await SimulationAudit.execute_turn("I submit.", scenario);
 
-    expect(result.director_task).toContain('<INPUT origin="AI" channel="reply">');
-    expect(result.director_task).toContain("The vampire lord smiles coldly.");
+    expect(result.director_prompt).toContain('<INPUT origin="AI" channel="reply">');
+    expect(result.director_prompt).toContain("The vampire lord smiles coldly.");
   });
 });
 

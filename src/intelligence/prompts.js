@@ -142,7 +142,6 @@ function prose_protocols({ include_dialogue = false } = {}) {
     "CORE_PROTOCOLS.PROSE_DISCIPLINE.SENTENCE_FORMULAS",
     "CORE_PROTOCOLS.PROSE_DISCIPLINE.SCENE_MOMENTUM",
     "CORE_PROTOCOLS.PROSE_DISCIPLINE.CLICHES",
-    "CORE_PROTOCOLS.PROSE_DISCIPLINE.CONSENT",
     ...(include_dialogue ? ["CORE_PROTOCOLS.PROSE_DISCIPLINE.NATURAL_DIALOGUE"] : []),
     "CORE_PROTOCOLS.ALTERNATION_OPTIONS",
   ];
@@ -364,12 +363,7 @@ export const PROMPTS = Object.freeze({
     task_state: "continuum",
     directives: continuum_directives,
     constitution: false,
-    protocols: [
-      "OUTPUT.DATA",
-      "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PRESENT",
-      "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PAST",
-      "CORE_PROTOCOLS.PERSPECTIVE.TENSE.FUTURE",
-    ],
+    protocols: ["CORE_PROTOCOLS.PERSPECTIVE.TENSE.PRESENT", "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PAST", "CORE_PROTOCOLS.PERSPECTIVE.TENSE.FUTURE"],
     entities: {
       target_context: true,
       nearby_entities: true,
@@ -391,7 +385,7 @@ export const PROMPTS = Object.freeze({
     role_line: "ENHANCER",
     task_state: "enhancement",
     constitution: false,
-    protocols: ["OUTPUT.DATA"],
+    protocols: [],
     entities: { field_context: true },
     layers: ENHANCEMENT_LAYERS,
     think_format: "enhancement",
@@ -405,12 +399,7 @@ export const PROMPTS = Object.freeze({
     task_state: "sorting",
     directives: sorting_directives,
     constitution: false,
-    protocols: [
-      "OUTPUT.DATA",
-      "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PRESENT",
-      "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PAST",
-      "CORE_PROTOCOLS.PERSPECTIVE.TENSE.FUTURE",
-    ],
+    protocols: ["CORE_PROTOCOLS.PERSPECTIVE.TENSE.PRESENT", "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PAST", "CORE_PROTOCOLS.PERSPECTIVE.TENSE.FUTURE"],
     layers: SORTING_LAYERS,
     format: {
       mode: "json",
@@ -428,7 +417,7 @@ export const PROMPTS = Object.freeze({
     directives: optics_directives,
     spatial_framing: optics_spatial_framing,
     constitution: false,
-    protocols: ["OUTPUT.DATA", "CORE_PROTOCOLS.ALTERNATION_OPTIONS", "CORE_PROTOCOLS.GROUNDING", "OPTICS.IMAGE_VOCABULARY", "OPTICS.TEXT_RENDERING"],
+    protocols: ["CORE_PROTOCOLS.ALTERNATION_OPTIONS", "CORE_PROTOCOLS.GROUNDING", "OPTICS.IMAGE_VOCABULARY", "OPTICS.TEXT_RENDERING"],
     layers: OPTICS_LAYERS,
     think_format: "optics",
     format: {

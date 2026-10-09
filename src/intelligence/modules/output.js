@@ -8,7 +8,7 @@
  * entities.js / history.js plan split:
  *
  * 1. Pure-data plans (`resolve_output_plan`) decide WHAT the output shape is:
- *    prose, bracket, text, or json — plus the compiled body, the schema keys
+ *    prose, bracket, or json — plus the compiled body, the schema keys
  *    behind it, and the keys that rendered nothing (`warnings`). Every routing
  *    decision is plan data.
  * 2. Thin renderers (`render_output_plan`, `render_json_return`) map plans to
@@ -27,23 +27,11 @@
 import { render_xml_tag } from "@utils";
 import { PROFILE_FIELDS } from "@data";
 
-/**
- * Output-shape directives that emit as static protocol tags (resolved through
- * the `OUTPUT.*` key space by the protocol plan). Kept here — not in the
- * behavior catalog — because they command return shape, not simulation conduct.
- */
-export const OUTPUT_DIRECTIVES = Object.freeze({
-  DATA: "Output strictly raw, unpadded structural data. Zero prose, conversational filler, or commentary.",
-});
-
 export const OUTPUT_FORMATS = Object.freeze({
   PROSE: "After closing </THINK>, emit strictly plain prose: no preamble, commentary, markdown, or structural tags.",
   PLAIN_PROSE: "Emit strictly plain prose: no preamble, commentary, markdown, or structural tags.",
   BRACKET:
     "After closing </THINK>, emit strictly bracketed directives: [KEY: value] — one per line, no outer braces, no conversational prose outside brackets. Keys support natural spaces. Relational brackets targeting other entities or active roles MUST begin with '@': [@TARGET_ENTITY: relationship dynamic | flags] (flags: 'hide' for covert items / 'show', 'w: 1-10' importance weight). Atomic clearing: [KEY: none].",
-  PLAIN_BRACKET:
-    "Emit strictly bracketed directives: [KEY: value] — one per line, no outer braces, no conversational prose outside brackets. Keys support natural spaces. Relational brackets targeting other entities or active roles MUST begin with '@': [@TARGET_ENTITY: relationship dynamic | flags] (flags: 'hide' for covert items / 'show', 'w: 1-10' importance weight). Atomic clearing: [KEY: none].",
-  PLAIN_TEXT: "After closing </THINK>, emit clean text: no preamble, commentary, markdown, or structural tags.",
   JSON_RETURN:
     "Return a single, COMPLETE, VALID JSON object matching this schema:\n{schema}\n\nNo preamble, no markdown backticks, no external XML tags. Output must start with { and end with }.",
 });
@@ -162,7 +150,7 @@ export function render_json_schema(schema_keys, entity_type = "character", { neg
  * @param {string} [parameters.negative_baseline=""] - Style baseline injected into the negative_prompt atom.
  * @param {boolean} [parameters.is_temporal] - Explicit temporal-field routing (builder passes it only when true).
  * @param {string} [parameters.fallback=""] - Body for unroutable specs.
- * @returns {Readonly<{ kind: "prose"|"bracket"|"text"|"json"|"empty", body: string,
+ * @returns {Readonly<{ kind: "prose"|"bracket"|"json"|"empty", body: string,
  *   schema_keys: ReadonlyArray<string>, warnings: ReadonlyArray<string> }>}
  */
 export function resolve_output_plan({
@@ -180,18 +168,14 @@ export function resolve_output_plan({
     return Object.freeze({ kind: "empty", body: fallback, schema_keys: Object.freeze([]), warnings: Object.freeze([]) });
   }
 
-  // 2. Single profile field enhancement format routing
-  if (format_spec.mode === "temporal_field" || is_temporal === true) {
-    if (is_temporal) {
-      const body = has_think !== false ? OUTPUT_FORMATS.BRACKET : OUTPUT_FORMATS.PLAIN_BRACKET;
-      return Object.freeze({ kind: "bracket", body, schema_keys: Object.freeze([]), warnings: Object.freeze([]) });
-    }
-    const body = has_think !== false ? OUTPUT_FORMATS.PLAIN_TEXT : OUTPUT_FORMATS.PLAIN_PROSE;
-    return Object.freeze({ kind: "text", body, schema_keys: Object.freeze([]), warnings: Object.freeze([]) });
+  // 2. Single profile field enhancement format routing: temporal fields emit
+  //    bracketed directives; non-temporal fields fall through to the prose directive.
+  if ((format_spec.mode === "temporal_field" || is_temporal === true) && is_temporal) {
+    return Object.freeze({ kind: "bracket", body: OUTPUT_FORMATS.BRACKET, schema_keys: Object.freeze([]), warnings: Object.freeze([]) });
   }
 
   // 3. Plain narrative prose directive (think-free variant for modes that open no <THINK> block)
-  if (format_spec.mode === "prose") {
+  if (format_spec.mode === "prose" || format_spec.mode === "temporal_field") {
     const body = has_think === false ? OUTPUT_FORMATS.PLAIN_PROSE : OUTPUT_FORMATS.PROSE;
     return Object.freeze({ kind: "prose", body, schema_keys: Object.freeze([]), warnings: Object.freeze([]) });
   }

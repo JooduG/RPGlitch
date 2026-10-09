@@ -5,7 +5,7 @@
  * ============================================================================
  *
  * Verifies the output plan contracts:
- * 1. resolve_output_plan routing kinds (prose/bracket/text/json/empty)
+ * 1. resolve_output_plan routing kinds (prose/bracket/json/empty)
  * 2. Think-aware emission variants
  * 3. Temporal routing with explicit is_temporal (tripwire retired)
  * 4. JSON schema warnings for unrenderable keys
@@ -40,8 +40,8 @@ describe("src/intelligence/modules/output.js — resolve_output_plan", () => {
     expect(bracket.body).toContain("[KEY: value]");
 
     const text = resolve_output_plan({ format_spec: { mode: "temporal_field" }, has_think: true });
-    expect(text.kind).toBe("text");
-    expect(text.body).toBe(OUTPUT_FORMATS.PLAIN_TEXT);
+    expect(text.kind).toBe("prose");
+    expect(text.body).toBe(OUTPUT_FORMATS.PROSE);
 
     const retired_tripwire = resolve_output_plan({ format_spec: { mode: "prose" }, has_think: true, is_temporal: false });
     expect(retired_tripwire.kind).toBe("prose");

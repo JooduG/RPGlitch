@@ -119,17 +119,16 @@ export const SimulationAudit = {
       payload,
       snapshot,
       director_prompt: director_prompt.system,
-      director_task: director_prompt.task,
       character_prompt: character_prompt.system,
-      character_task: character_prompt.task,
       verification,
     };
   },
 
   /**
    * Verifies that the generated prompts contain all expected pipeline features.
-   * @param {{ system: string, task: string }} director
-   * @param {{ system: string, task: string }} character
+   * Prompts are compiled closed envelopes where task layers are sealed inside system.
+   * @param {{ system: string }} director
+   * @param {{ system: string }} character
    * @returns {{ passed: string[], failed: string[] }}
    */
   verify_pipeline(director, character) {
@@ -145,17 +144,17 @@ export const SimulationAudit = {
     check("director:system_has_role_line", director.system.includes("You are the Director"));
     check("director:system_has_DYNAMIC_AXES", director.system.includes("<DYNAMIC_AXES"));
     check("director:system_has_ENTITIES", director.system.includes("<ENTITIES>"));
-    check("director:task_has_KEYWORD_DIRECTIVES", director.task.includes("<KEYWORD_DIRECTIVES>"));
+    check("director:task_has_KEYWORD_DIRECTIVES", director.system.includes("<KEYWORD_DIRECTIVES>"));
     check(
       "director:system_no_empty_protocols",
       !director.system.includes("<CORE_PROTOCOLS></CORE_PROTOCOLS>") && !director.system.includes("<CORE_PROTOCOLS>\n  </CORE_PROTOCOLS>"),
     );
-    check("director:task_has_JSON_schema", director.task.includes('"_thought_process"'));
-    check("director:task_has_next_action", director.task.includes('"next_action"'));
-    check("director:task_has_keywords", director.task.includes('"keywords"'));
-    check("director:task_has_dynamics_deltas", director.task.includes("dynamics_deltas"));
-    check("director:task_has_visual_staging", director.task.includes('"visual_staging"'));
-    check("director:task_has_spotlight_schema", director.task.includes('"spotlight"'));
+    check("director:task_has_JSON_schema", director.system.includes('"_thought_process"'));
+    check("director:task_has_next_action", director.system.includes('"next_action"'));
+    check("director:task_has_keywords", director.system.includes('"keywords"'));
+    check("director:task_has_dynamics_deltas", director.system.includes("dynamics_deltas"));
+    check("director:task_has_visual_staging", director.system.includes('"visual_staging"'));
+    check("director:task_has_spotlight_schema", director.system.includes('"spotlight"'));
 
     // --- Character (Shot 2) Feature Verification ---
     check("character:system_has_AXIOMATIC_CONSTITUTION", character.system.includes("<AXIOMATIC_CONSTITUTION>"));
@@ -165,10 +164,10 @@ export const SimulationAudit = {
     // Prefix-cache & Task Verification:
     check("character:system_lacks_dynamics_attrs", !character.system.includes("chaos="));
     check("character:system_lacks_PRESENT", !character.system.includes("<PRESENT>"));
-    check("character:task_has_INPUT", character.task.includes("<INPUT"));
-    check("character:task_has_CURRENTS", character.task.includes("<CURRENTS>"));
-    check("character:task_has_DELIVERY_POSTURE", character.task.includes("<DELIVERY_POSTURE>"));
-    check("character:task_has_THINK", character.task.includes("<THINK>"));
+    check("character:task_has_INPUT", character.system.includes("<INPUT"));
+    check("character:task_has_CURRENTS", character.system.includes("<CURRENTS>"));
+    check("character:task_has_DELIVERY_POSTURE", character.system.includes("<DELIVERY_POSTURE>"));
+    check("character:task_has_THINK", character.system.includes("<THINK>"));
 
     return { passed, failed };
   },
