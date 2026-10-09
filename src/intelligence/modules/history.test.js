@@ -17,6 +17,8 @@
 import { describe, expect, it } from "vitest";
 import {
   HISTORY_DEFAULTS,
+  CONTEXT_TOKEN_CLIFF,
+  HISTORY_TOKEN_BUDGET,
   resolve_history,
   render_history,
   render_input_history_xml,
@@ -26,6 +28,7 @@ import {
   render_history_plan,
   format_sensory_history,
   render_chapter_history_xml,
+  prune_history_plan_to_budget,
 } from "./history.js";
 
 describe("src/intelligence/modules/history.js", () => {
@@ -237,10 +240,45 @@ describe("src/intelligence/modules/history.js — history plans", () => {
     expect(plan.dropped.empty).toBe(1);
     expect(format_sensory_history("")).toBe("");
   });
+
+  it("prunes the oldest rows first under a token budget and always keeps the newest", () => {
+    const fixture = [
+      { role: "ai", character_name: "First", text: "Oldest turn at the docks." },
+      { role: "ai", character_name: "Second", text: "Middle turn at the docks." },
+      { role: "ai", character_name: "Third", text: "Newest turn at the docks." },
+    ];
+    const pruned = resolve_history_plan(fixture, { collapse: false, token_budget: 12 });
+    expect(pruned.budget_pruned).toBeGreaterThan(0);
+    expect(pruned.included.map((record) => record.origin)).toEqual(["Third"]);
+    expect(pruned.included[0].round).toBe(3);
+    const unbounded = resolve_history_plan(fixture, { collapse: false });
+    expect(unbounded.budget_pruned).toBe(0);
+    expect(unbounded.included).toHaveLength(3);
+  });
+
+  it("threads token budgets through the render compilers", () => {
+    const fixture = [
+      { role: "ai", character_name: "First", text: "Oldest turn at the docks." },
+      { role: "ai", character_name: "Second", text: "Newest turn at the docks." },
+    ];
+    const budgeted = render_history(fixture, { collapse: false, token_budget: 12 });
+    expect(budgeted).toContain("Newest turn");
+    expect(budgeted).not.toContain("Oldest turn");
+    const xml = render_input_history_xml(fixture, { token_budget: 12 });
+    expect(xml).toContain("Newest turn");
+    expect(xml).not.toContain("Oldest turn");
+  });
+
+  it("exports the cliff budgets with sane magnitudes", () => {
+    expect(CONTEXT_TOKEN_CLIFF).toBe(6000);
+    expect(HISTORY_TOKEN_BUDGET).toBe(1600);
+    expect(prune_history_plan_to_budget([{ origin: "A", round: 1, text: "hi" }], 100).pruned).toBe(0);
+  });
 });
 
 /**
  * CHANGELOG
+ * - Track 2.2: Cliff-guard coverage — oldest-first budget pruning (round gaps kept), render-compiler threading, budget magnitude pins.
  * - 2026-10-04: Plan/render split coverage — history-plan describes (frozen plans, drop counts, round-gap stability, pre-window exclusion, preformatted passthrough, sensory telemetry counts); refreshed the stale header (format_recent_history pruned, chapter rendering lives in sheets.js).
  * - 2026-09-13: Initial unit test suite for history.js covering resolve_history, render_history, format_recent_history, render_input_history_xml, and render_chapter_history_xml with token-optimized XML contracts.
  */

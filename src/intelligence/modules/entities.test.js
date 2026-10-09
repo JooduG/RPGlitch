@@ -11,7 +11,13 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { SUBJECT_TIERS, resolve_optics_subject, render_optics_entities_xml } from "./entities.js";
+import {
+  SUBJECT_TIERS,
+  resolve_optics_subject,
+  render_optics_entities_xml,
+  render_memory_advisory_xml,
+  resolve_memory_advisory_slot,
+} from "./entities.js";
 import { resolve_optics_atom } from "./protocols.js";
 
 const test_entities = {
@@ -98,5 +104,34 @@ describe("render_optics_entities_xml", () => {
     });
     expect(xml).toContain("AI_CHARACTER");
     expect(xml).toContain("FRACTAL");
+  });
+});
+
+describe("Track 2.4 memory advisory slot", () => {
+  const facts = [
+    { text: "Sworn oath at the docks", source: "origin" },
+    { text: "Descent — Entered the cavern", source: "chapter" },
+  ];
+
+  it("renders the MEMORY_ADVISORY block with numbered settled facts", () => {
+    const xml = render_memory_advisory_xml(facts);
+    expect(xml).toContain("<MEMORY_ADVISORY>");
+    expect(xml).toContain("# ALREADY REMEMBERED");
+    expect(xml).toContain("1. Sworn oath at the docks");
+    expect(xml).toContain("2. Descent — Entered the cavern");
+    expect(xml).toContain("</MEMORY_ADVISORY>");
+  });
+
+  it("renders empty string when no settled facts exist", () => {
+    expect(render_memory_advisory_xml([])).toBe("");
+    expect(render_memory_advisory_xml(null)).toBe("");
+    expect(resolve_memory_advisory_slot({}, { memory_advisory_args: { enabled: true, facts: [] } })).toBe("");
+    expect(resolve_memory_advisory_slot({}, { memory_advisory_args: { enabled: false, facts } })).toBe("");
+  });
+
+  it("seals facts through the slot resolver when enabled", () => {
+    const sealed = resolve_memory_advisory_slot({}, { memory_advisory_args: { enabled: true, facts } });
+    expect(sealed).toContain("<MEMORY_ADVISORY>");
+    expect(sealed).toContain("# ALREADY REMEMBERED");
   });
 });

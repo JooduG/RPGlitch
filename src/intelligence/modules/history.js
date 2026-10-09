@@ -40,6 +40,7 @@ import {
   escape_xml,
   role_display_label,
   wrap_tag,
+  estimate_tokens,
 } from "@utils";
 import { DYNAMICS_METRIC_NAMES } from "../dynamics.js";
 
@@ -72,6 +73,17 @@ export function resolve_history(configuration) {
     ...(configuration && typeof configuration === "object" ? configuration : {}),
   });
 }
+
+// ── Track 2.2: Context Window Compiler budgets ──────────────────────────────
+// Inference servers truncate the middle of prompts past ~6,000 tokens. Every
+// variable-size block carries a token budget; dispatchers that stay under
+// budget (including all CONTRACT fixtures) compile byte-identical output.
+
+/** Hard cliff: no dispatched assembly may exceed ~6,000 tokens. */
+export const CONTEXT_TOKEN_CLIFF = 6000;
+
+/** Token budget for one transcript window (history slot, all modes). */
+export const HISTORY_TOKEN_BUDGET = 1600;
 
 // ============================================================================
 // [SECTION 2: HISTORY PLANS — PURE DATA, NO XML]
@@ -116,6 +128,8 @@ const TELEMETRY_INLINE_PATTERN = new RegExp(`(?:${TELEMETRY_METRICS_PATTERN})\\s
  * @param {string} [options.label_policy="entry"] - `"entry"` resolves the full
  *   origin chain; `"visual"` resolves the `Name:` line label.
  * @param {string} [options.label_fallback] - Origin fallback (entry: `"Character"`, visual: `"narrator"`).
+ * @param {number} [options.token_budget=Infinity] - Track 2.2 cliff guard: prunes oldest rows first
+ *   (recency is the transcript weight proxy) until the window fits; pruned rows keep round gaps.
  * @returns {Readonly<{ kind: string, included: ReadonlyArray<Readonly<{ origin: string, round: number, text: string }>>,
  *   dropped: Readonly<{ excluded: number, empty: number }>, total: number, start_index: number, preformatted: string }>}
  */
@@ -132,6 +146,7 @@ export function resolve_history_plan(entries, options = {}) {
     normalize_whitespace = false,
     label_policy = "entry",
     label_fallback,
+    token_budget = Infinity,
   } = options;
 
   if (typeof entries === "string") {
@@ -142,6 +157,7 @@ export function resolve_history_plan(entries, options = {}) {
       total: 0,
       start_index: 0,
       preformatted: entries,
+      budget_pruned: 0,
     });
   }
 
@@ -168,7 +184,7 @@ export function resolve_history_plan(entries, options = {}) {
 
   const fallback = label_fallback ?? (label_policy === "visual" ? "narrator" : "Character");
   let empty_count = 0;
-  const included = [];
+  let included = [];
   windowed.forEach((entry, window_position) => {
     const raw_text = text_source === "text" ? entry?.text : (entry?.content ?? entry?.text);
     let cleaned = strip_cognition_blocks(String(raw_text ?? "")).trim();
@@ -195,14 +211,39 @@ export function resolve_history_plan(entries, options = {}) {
     );
   });
 
+  const budgeted = prune_history_plan_to_budget(included, token_budget);
   return Object.freeze({
     kind: "entries",
-    included: Object.freeze(included),
+    included: Object.freeze(budgeted.kept),
     dropped: Object.freeze({ excluded: excluded_count, empty: empty_count }),
     total,
     start_index,
     preformatted: "",
+    budget_pruned: budgeted.pruned,
   });
+}
+
+/**
+ * Prunes the oldest plan rows until the window fits a token budget
+ * (Track 2.2: recency is the transcript weight proxy, so the oldest — the
+ * lowest-weight leaves — fall first; the newest row always survives).
+ * @param {Array<{ origin: string, round: number, text: string }>} rows - Newest last.
+ * @param {number} [token_budget=Infinity]
+ * @returns {{ kept: Array, pruned: number }}
+ */
+export function prune_history_plan_to_budget(rows, token_budget = Infinity) {
+  if (!Number.isFinite(token_budget) || !Array.isArray(rows) || rows.length <= 1) return { kept: rows, pruned: 0 };
+  const row_cost = (record) => estimate_tokens(`${record.origin || ""}: ${record.text || ""}`);
+  let running_total = rows.reduce((sum, record) => sum + row_cost(record), 0);
+  if (running_total <= token_budget) return { kept: rows, pruned: 0 };
+  const kept = [...rows];
+  let pruned = 0;
+  while (kept.length > 1 && running_total > token_budget) {
+    const dropped_record = kept.shift();
+    running_total -= row_cost(dropped_record);
+    pruned += 1;
+  }
+  return { kept, pruned };
 }
 
 /**
@@ -287,6 +328,7 @@ export function render_sensory_plan(plan) {
  * @param {number} [options.max_chars] - Optional per-entry budget at word boundaries.
  * @param {boolean} [options.collapse=true] - Whether to collapse consecutive turns.
  * @param {number} [options.indent=0] - Indentation spaces preceding each `<ENTRY>` tag.
++ * @param {number} [options.token_budget=Infinity] - Track 2.2 cliff guard (oldest pruned first).
  * @returns {string}
  */
 export function render_history(history, options = {}) {
@@ -300,6 +342,7 @@ export function render_history(history, options = {}) {
       separator: "\n",
       stripBoldQuotes: true,
       exclude_roles: should_collapse ? ["system"] : [],
+      token_budget: options.token_budget ?? Infinity,
     }),
     { indent: options.indent ?? 0 },
   );
@@ -314,6 +357,7 @@ export function render_history(history, options = {}) {
  * @param {Object} [options={}]
  * @param {number} [options.limit=16]
  * @param {number} [options.max_chars=400]
++ * @param {number} [options.token_budget=Infinity] - Track 2.2 cliff guard (oldest pruned first).
  * @param {string} [options.tag="HISTORY"]
  * @param {number} [options.indent=2]
  * @param {number} [options.child_indent=2]
@@ -325,6 +369,7 @@ export function render_input_history_xml(history = [], options = {}) {
       limit: options.limit ?? HISTORY_DEFAULTS.limit,
       max_chars: options.max_chars ?? HISTORY_DEFAULTS.max_chars,
       collapse: false,
+      token_budget: options.token_budget ?? Infinity,
     }),
   );
   if (!formatted_history) return "";
@@ -414,13 +459,17 @@ export function resolve_history_slot(config, normalized = {}) {
   const args = normalized.history_args || {};
   if (args.kind === "input_history") {
     if (!args.enabled) return "";
-    return render_input_history_xml(args.history || [], { limit: args.limit, max_chars: args.max_chars });
+    return render_input_history_xml(args.history || [], {
+      limit: args.limit,
+      max_chars: args.max_chars,
+      token_budget: args.token_budget ?? Infinity,
+    });
   }
   if (args.kind === "sensory") {
     const rendered = format_sensory_history(args.history);
     return rendered ? rendered.trim() : null;
   }
-  return wrap_tag("HISTORY", args.accessors.simulation_log(), 2);
+  return wrap_tag("HISTORY", args.accessors.simulation_log(10, 0, { token_budget: HISTORY_TOKEN_BUDGET }), 2);
 }
 
 /**
@@ -434,6 +483,7 @@ export function resolve_chapter_history_slot(config, normalized = {}) {
 
 /**
  * CHANGELOG
+ * - Track 2.2: Context cliff guard — CONTEXT_TOKEN_CLIFF (6000) + HISTORY_TOKEN_BUDGET (1600); token_budget option on resolve_history_plan/render_history/render_input_history_xml (oldest pruned first, newest survives, round gaps kept); prose HISTORY slot compiles under budget; prune_history_plan_to_budget exported pure helper.
  * - 2026-10-04: Plan/render split (Plan 2) — `resolve_history_plan` owns all filter/collapse/window/strip/budget decisions as frozen pure data, `render_history_plan` maps plans to `<ENTRY>` XML without branching; sensory shaping splits into `resolve_sensory_plan` + `render_sensory_plan`; the four public compilers become one-line compositions with byte-identical output; retired the `maximum_characters` / `input_tag` aliases (P4) and the dual `limit` vs `max_entries` wording now shares one vocabulary.
  * - 2026-10-04: Reverted sensory/visual history shaping (format_sensory_history, render_visual_history) from media/optics.js — history shaping lives here; chapter milestones stay in sheets.js.
  * - 2026-10-04: Optics history shaping (format_sensory_history, render_visual_history) moves to media/optics.js; chapter milestones move to sheets.js. This module owns transcript windows only.

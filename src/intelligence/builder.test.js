@@ -354,6 +354,34 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
     expect(continuum_package.system).toContain("<TARGET_ENTITY_CONTEXT>");
   });
 
+  it("omits the extraction advisory when the target carries no settled memory", () => {
+    const bare_package = compile_prompt("continuum", {
+      target_entity: test_entities.AI,
+      target_key: "AI_CHARACTER",
+      other_entities: test_entities,
+      history: [],
+    });
+
+    expect(bare_package.system).not.toContain("<MEMORY_ADVISORY>");
+  });
+
+  it("seals settled facts into the extraction advisory when memory exists", () => {
+    const remembering_entity = {
+      ...test_entities.AI,
+      past: [{ id: "usr_oath", content: "Sworn oath at the docks", emotional_weight: 10, meta: {} }],
+    };
+    const advisory_package = compile_prompt("continuum", {
+      target_entity: remembering_entity,
+      target_key: "AI_CHARACTER",
+      other_entities: test_entities,
+      history: [],
+    });
+
+    expect(advisory_package.system).toContain("<MEMORY_ADVISORY>");
+    expect(advisory_package.system).toContain("# ALREADY REMEMBERED");
+    expect(advisory_package.system).toContain("Sworn oath at the docks");
+  });
+
   it("compiles enhancement and sorting via compile_prompt", () => {
     const enhancement_package = compile_prompt("enhancement", {
       enhancer: "VOICE",

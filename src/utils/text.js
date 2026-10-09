@@ -259,6 +259,19 @@ export function truncate_at_word(text, limit = 200, options = {}) {
 }
 
 /**
+ * Heuristic token estimator for prompt budgeting (Track 2.2: 6k cliff guard).
+ * Inference servers bill and truncate on tokens; prose averages ~4 characters
+ * per token, so character length divided by four is the proactive yardstick.
+ * @param {string} text
+ * @returns {number} Estimated token count (0 for blank input).
+ */
+export function estimate_tokens(text) {
+  const length = String(text ?? "").length;
+  if (length === 0) return 0;
+  return Math.max(1, Math.ceil(length / 4));
+}
+
+/**
  * Text sanitization for prompt safety.
  * Removes markdown-like characters and collapses redundant whitespace.
  * @param {string | null | undefined} text

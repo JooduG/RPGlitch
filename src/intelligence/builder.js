@@ -37,7 +37,7 @@ import { resolve_pov_protocol, resolve_macro_directive, resolve_layer_tense_prot
 import { resolve_entities } from "./modules/entities.js";
 import { render_dynamics_axes_xml, render_subtext_xml } from "./dynamics.js";
 
-import { render_history, resolve_history } from "./modules/history.js";
+import { render_history, resolve_history, HISTORY_TOKEN_BUDGET } from "./modules/history.js";
 import {
   render_available_keywords_xml,
   render_keyword_directives_xml,
@@ -47,7 +47,7 @@ import {
 import { resolve_optics_cinematography } from "./modules/style.js";
 import { get_output_format } from "./modules/output.js";
 import { DYNAMICS_AXES, PHYSICS_PROTOCOLS, AVAILABLE_KEYWORDS, evaluate_dynamics_rules, evaluate_subtext_protocols } from "./dynamics.js";
-import { temporal_engine, resolve_vector_pool } from "./temporal.js";
+import { temporal_engine, resolve_vector_pool, resolve_settled_facts } from "./temporal.js";
 
 /**
  * Converts entity data into raw statistical data points according to the canonical profile field catalog.
@@ -267,7 +267,8 @@ export function create_render_accessors(entities = {}, input = "", raw_messages 
       const combined_future = [raw_future, extracted_plan ? `Active Plan: ${extracted_plan}` : ""].filter(Boolean).join("\n");
       return parse_macros(combined_future.trim(), entity, entities);
     },
-    simulation_log: (limit = 10, offset = 0) => render_history(raw_messages, { limit, offset, indent: 2 }),
+    simulation_log: (limit = 10, offset = 0, options = {}) =>
+      render_history(raw_messages, { limit, offset, indent: 2, token_budget: options?.token_budget ?? Infinity }),
   };
 }
 
@@ -606,12 +607,14 @@ function normalize_continuum_context(config, context) {
       exclude_id: target_entity?.id || target_entity?.name,
     },
     chapter_history_args: { enabled: entity_plan.chapter_history, target_entity },
+    memory_advisory_args: { enabled: true, facts: resolve_settled_facts(target_entity) },
     history_args: {
       kind: "input_history",
       enabled: history_config.enabled,
       history,
       limit: history_config.limit,
       max_chars: history_config.max_chars,
+      token_budget: HISTORY_TOKEN_BUDGET,
     },
     task_params: {
       task_state: config.task_state,
@@ -863,6 +866,8 @@ export const MODE_ADAPTERS = {
  */
 /**
  * CHANGELOG
+ * - Track 2.4: normalize_continuum_context seals memory_advisory_args (settled facts via resolve_settled_facts) and budgets the input-history window (HISTORY_TOKEN_BUDGET).
+ * - Track 2.2: create_render_accessors.simulation_log accepts a token_budget option (default Infinity).
  * - Track 0.11: resolve_optics_cinematography now imports from style.js (sensory.js dissolved). Prompt bytes byte-identical.
  * - Track 0.10: Re-sourced compilers - render_subtext_xml from physics.js, render_available_keywords_xml from task.js (stability lock stays reflex.js). Prompt bytes byte-identical.
  * - Track 0.8: normalize_continuum_context passes target_type through task_params so the taxonomy walker selects the target's entity model.

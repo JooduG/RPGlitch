@@ -6,10 +6,12 @@
  * 1. Vector Pool Access & Creation (resolve_vector_pool, create, prune)
  * 2. Relevance Scoring & Context Embeddings (score, score_async, precompute_context_embedding)
  * 3. Vector Math & Dynamic Retrieval (format, score, score_async, score_by_semantics)
- * 4. Memory Forge Consolidation Prompt Rendering (render_memory; contracts/schemas live in modules/format.js)
- * 5. Deduplication, Caps & Eviction (is_origin, ensure_unique_vector_id, append_past_vector, reconcile_vector_caps)
- * 6. State Mutations & Chapter Archival (archive_chapter)
- * 7. Memory Forge & Consolidation Engine (forge_memory, temporal_engine)
+ * 4. Hierarchical Memory Tree & Deterministic Retrieval (Track 2: compactor,
+ *    hybrid ranker, recall clarity, leaf expansion, eventKey rot prevention)
+ * 5. Memory Forge Consolidation Prompt Rendering (render_memory; contracts/schemas live in modules/format.js)
+ * 6. Deduplication, Caps & Eviction (is_origin, ensure_unique_vector_id, append_past_vector, reconcile_vector_caps)
+ * 7. State Mutations & Chapter Archival (archive_chapter)
+ * 8. Memory Forge & Consolidation Engine (forge_memory, temporal_engine)
  */
 
 import {
@@ -22,6 +24,9 @@ import {
   truncate_at_word,
   is_narrative_role,
   state_bridge,
+  estimate_tokens,
+  first_sentence,
+  fnv1a_hash,
 } from "@utils";
 import { llm_service, ensure_embedding, score_by_semantics, embed, is_ready, deserialize_embedding } from "@platform";
 import { apply_relationships } from "./director.js";
@@ -65,6 +70,43 @@ export const TEMPORAL_SCORING = {
   DECAY_SOFTEN: 0.5,
   IN_SCENE_SALIENCE_BOOST: 1.3,
 };
+
+// ── Track 2: Hierarchical Memory & 6k Context Protection ─────────────────────
+// Tier model: Tier 0 = atomic turn-event vectors in `entity.past`; Tier 1 =
+// chapter summary anchors in `entity.chapters` (fanout PRISM_FANOUT = 8);
+// Tier 2 = arc milestones merging Tier-1 summaries (tree height <= 5).
+
+/** Fanout threshold: Tier-0 vectors per Tier-1 chapter, Tier-1 chapters per Tier-2 arc. */
+export const PRISM_FANOUT = 8;
+
+/** Hard bound on memory-tree height (occupied tier levels + entity root). */
+export const COMPACTOR_MAX_HEIGHT = 5;
+
+/** Character budget for a deterministic Tier-1 compaction summary. */
+export const COMPACTOR_SUMMARY_MAX_CHARS = 600;
+
+/** Max settled facts surfaced to the extraction advisory (Track 2.4). */
+export const SETTLED_FACT_LIMIT = 12;
+
+/** Token budget for a single recall block (Track 2.2 cliff guard). */
+export const RECALL_TOKEN_BUDGET = 800;
+
+/** Deterministic hybrid retrieval weights (Track 2.3: Project Prism-DCM). */
+export const HYBRID_RETRIEVAL_WEIGHTS = Object.freeze({
+  ENTITY_OVERLAP: 3.0,
+  LEXICAL_FREQUENCY: 1.0,
+  EMOTIONAL_SALIENCE: 0.4,
+  RECENCY: 1.2,
+});
+
+/** Recall clarity states modulated by live dynamics (Track 2.3). */
+export const RECALL_CLARITY = Object.freeze({
+  CRISP: "crisp",
+  FRAGMENTED: "fragmented",
+});
+
+/** Chaos/Entropy value above which recalled memories fragment. */
+export const DYNAMICS_FRAGMENTATION_THRESHOLD = 70;
 
 const VALID_FORGED_TYPES = new Set(["past", "present"]);
 
@@ -273,9 +315,14 @@ function compute_relevance(vector, semantic_similarity, current_round, in_scene 
 export function score(vectors, in_scene = false) {
   if (!Array.isArray(vectors) || !vectors.length) return [];
 
-  const has_embeddings = vectors.some((vector) => vector._embedding && vector._embedding.length);
+  // Track 2.1: compacted Tier-0 leaves are represented by their Tier-1/Tier-2
+  // summary anchors; they re-enter retrieval only via expand_compacted_leaves.
+  const eligible = vectors.filter((vector) => !vector?.meta?.compacted_into);
+  if (!eligible.length) return [];
 
-  const scored = vectors.map((vector) => {
+  const has_embeddings = eligible.some((vector) => vector._embedding && vector._embedding.length);
+
+  const scored = eligible.map((vector) => {
     let semantic = 0;
     if (has_embeddings && vector._embedding && _context_embedding) {
       semantic = cosine_similarity(_context_embedding, vector._embedding);
@@ -330,6 +377,29 @@ export async function score_async(vectors, input, current_round, in_scene = fals
 }
 
 /**
+ * Drops the lowest-relevance tail of a relevance-sorted vector list until the
+ * block fits a token budget (Track 2.2: prune lower-weight leaves first).
+ * Always keeps at least one vector; an infinite budget is a no-op.
+ * @param {any[]} ranked_vectors - Relevance-sorted (best first).
+ * @param {number} [token_budget=Infinity]
+ * @returns {any[]}
+ */
+function apply_recall_token_budget(ranked_vectors, token_budget = Infinity) {
+  if (!Number.isFinite(token_budget) || !Array.isArray(ranked_vectors) || ranked_vectors.length <= 1) return ranked_vectors;
+  const costs = ranked_vectors.map((vector) => estimate_tokens(vector.content || vector.directive || ""));
+  let running_total = costs.reduce((sum, cost) => sum + cost, 0);
+  if (running_total <= token_budget) return ranked_vectors;
+  const keep = ranked_vectors.map(() => true);
+  let kept_count = ranked_vectors.length;
+  for (let drop_index = ranked_vectors.length - 1; drop_index >= 0 && running_total > token_budget && kept_count > 1; drop_index -= 1) {
+    keep[drop_index] = false;
+    running_total -= costs[drop_index];
+    kept_count -= 1;
+  }
+  return ranked_vectors.filter((_, position) => keep[position]);
+}
+
+/**
  * Formats scored vectors into a string block within budget limits.
  * @param {any[]} vectors
  * @param {string} input
@@ -340,8 +410,9 @@ export function format(vectors, input, options = {}) {
   const show_text = options.vector_text ?? true;
   const max_chars = options.max_chars || 1500;
   const offset = options.offset || 0;
+  const token_budget = options.token_budget ?? Infinity;
 
-  const ranked = score(vectors, options.in_scene).slice(offset);
+  const ranked = apply_recall_token_budget(score(vectors, options.in_scene).slice(offset), token_budget);
 
   let running_chars = 0;
   const selected = [];
@@ -377,9 +448,10 @@ export async function format_async(vectors, input, options = {}) {
   const show_text = options.vector_text ?? true;
   const max_chars = options.max_chars || 1500;
   const offset = options.offset || 0;
+  const token_budget = options.token_budget ?? Infinity;
 
   const ranked = is_ready() ? await score_async(vectors, input, undefined, options.in_scene) : score(vectors, options.in_scene);
-  const sliced = ranked.slice(offset);
+  const sliced = apply_recall_token_budget(ranked.slice(offset), token_budget);
 
   let running_chars = 0;
   const selected = [];
@@ -493,6 +565,52 @@ export function ensure_unique_vector_id(entity, vector) {
   return vector;
 }
 
+/**
+ * Resolves the deterministic write-time identity key for a memory string
+ * (Track 2.4: rot prevention). Normalization folds case, punctuation, and
+ * whitespace so rephrased repeats hash together; FNV-1a keeps it stable
+ * across sessions with zero storage cost.
+ * @param {string} text
+ * @returns {string} Eight hex chars, or "" for blank input.
+ */
+export function resolve_event_key(text) {
+  const normalized = collapse_whitespace(
+    String(text ?? "")
+      .toLowerCase()
+      .replace(/[^a-z0-9' ]+/g, " "),
+  ).trim();
+  if (!normalized) return "";
+  return fnv1a_hash(normalized).toString(16).padStart(8, "0");
+}
+
+/**
+ * Folds a repeat observation into an existing node's provenance instead of
+ * appending a duplicate vector (Track 2.4). Returns the folded node, or null
+ * when no eventKey match exists.
+ * @param {any[]} pool - Entity past array.
+ * @param {string} incoming_key
+ * @param {number} current_round
+ * @returns {any|null}
+ */
+function fold_repeat_into_provenance(pool, incoming_key, current_round) {
+  if (!incoming_key || !Array.isArray(pool)) return null;
+  for (const existing of pool) {
+    if (!existing || typeof existing !== "object") continue;
+    const existing_content = existing.content || existing.directive || "";
+    const existing_key = existing.meta?.event_key || resolve_event_key(existing_content);
+    if (existing_key && existing_key === incoming_key) {
+      const prior_sightings = existing.meta?.provenance?.sightings ?? 1;
+      existing.meta = {
+        ...(existing.meta || {}),
+        event_key: incoming_key,
+        provenance: { sightings: prior_sightings + 1, last_seen_round: current_round },
+      };
+      return existing;
+    }
+  }
+  return null;
+}
+
 /** Appends a past vector under caps, skipping duplicates and protecting origin records. */
 export function append_past_vector(entity, vector) {
   if (!entity) return;
@@ -519,6 +637,12 @@ export function append_past_vector(entity, vector) {
   }
 
   if (!Array.isArray(entity.past)) entity.past = [];
+  const current_round = state_bridge.runtime?.round ?? 0;
+  const incoming_key = resolve_event_key(content);
+  if (fold_repeat_into_provenance(entity.past, incoming_key, current_round)) return;
+  if (vector && typeof vector === "object" && vector.meta !== undefined && incoming_key) {
+    vector.meta = { ...vector.meta, event_key: vector.meta?.event_key || incoming_key };
+  }
   if (is_near_duplicate(entity.past, content)) return;
   if (is_semantic_duplicate(entity.past, vector)) return;
 
@@ -552,6 +676,330 @@ export function reconcile_vector_caps(entity) {
     }
   }
   return changed;
+}
+
+// ── 4. Hierarchical Memory Tree & Deterministic Retrieval (Track 2) ──────────
+
+/**
+ * Returns the Tier-1/Tier-2 summary nodes of an entity's memory tree.
+ * Legacy agenda chapters (no tier stamp) read as Tier 1.
+ * @param {any} entity
+ * @returns {any[]}
+ */
+function resolve_summary_nodes(entity) {
+  if (!entity || !Array.isArray(entity.chapters)) return [];
+  return entity.chapters.filter((node) => node && typeof node === "object" && (node.tier ?? 1) >= 1);
+}
+
+/**
+ * Pure view over an entity's hierarchical memory tree (Track 2.1):
+ * Tier 0 atomic turn events, Tier 1 chapter anchors, Tier 2 arc milestones.
+ * @param {any} entity
+ * @returns {{ tier_zero: any[], tier_one: any[], tier_two: any[], height: number }}
+ */
+export function resolve_memory_tiers(entity) {
+  const past_pool = Array.isArray(entity?.past) ? entity.past : [];
+  const tier_zero = past_pool.filter((vector) => vector && typeof vector === "object" && !is_origin(vector) && !vector.meta?.compacted_into);
+  const nodes = resolve_summary_nodes(entity);
+  const tier_one = nodes.filter((node) => (node.tier ?? 1) === 1);
+  const tier_two = nodes.filter((node) => node.tier === 2);
+  const height = 1 + (tier_one.length > 0 ? 1 : 0) + (tier_two.length > 0 ? 1 : 0);
+  return { tier_zero, tier_one, tier_two, height };
+}
+
+/**
+ * Deterministically summarizes a compaction batch: the weightiest vector
+ * supplies the title, the top three supply the extractive summary.
+ * @param {any[]} batch - Tier-0 vectors, oldest first.
+ * @returns {{ title: string, summary: string }}
+ */
+function summarize_compaction_batch(batch) {
+  const by_weight = [...batch].sort((left, right) => (right.emotional_weight ?? 5) - (left.emotional_weight ?? 5));
+  const top_text = String(by_weight[0]?.content || by_weight[0]?.directive || "Compacted events").trim();
+  const summary = by_weight
+    .slice(0, 3)
+    .map((vector) => collapse_whitespace(String(vector.content || vector.directive || "")).trim())
+    .filter(Boolean)
+    .join(" | ");
+  return {
+    title: first_sentence(top_text, 60) || "Compacted events",
+    summary: truncate_at_word(summary, COMPACTOR_SUMMARY_MAX_CHARS),
+  };
+}
+
+/**
+ * Compacts an entity's Tier-0 pool into Tier-1 chapter anchors and overgrown
+ * Tier-1 sets into Tier-2 arc milestones (Track 2.1, Project Prism-DCM).
+ * Origin-protected vectors never compact. Compacted leaves move into their
+ * summary node (`leaves[]`), so the live pool stays lean while keyword
+ * expansion can still recover them on demand. Mutates the entity in place.
+ * @param {any} entity
+ * @returns {{ tier_one: any|null, tier_two: any|null }}
+ */
+export function maybe_compact_memory(entity) {
+  const report = { tier_one: null, tier_two: null };
+  if (!entity || typeof entity !== "object" || !Array.isArray(entity.past)) return report;
+  if (!Array.isArray(entity.chapters)) entity.chapters = [];
+  const now = Date.now();
+
+  let compactable = entity.past.filter((vector) => vector && typeof vector === "object" && !is_origin(vector) && !vector.meta?.compacted_into);
+  while (compactable.length >= PRISM_FANOUT) {
+    const batch = compactable.slice(0, PRISM_FANOUT);
+    const batch_ids = new Set(batch.map((vector) => vector.id));
+    const { title, summary } = summarize_compaction_batch(batch);
+    const chapter_id = `ch_${generate_unique_id()}`;
+    const chapter_node = {
+      id: chapter_id,
+      tier: 1,
+      title,
+      summary,
+      agenda: "",
+      status: "closed",
+      created_at: now,
+      closed_at: now,
+      leaves: batch.map((vector) => ({
+        id: vector.id,
+        content: String(vector.content || vector.directive || ""),
+        weight: vector.emotional_weight ?? 5,
+        round: vector.meta?.round ?? null,
+      })),
+      compacted_count: batch.length,
+    };
+    entity.past = entity.past.filter((vector) => !(vector && typeof vector === "object" && batch_ids.has(vector.id)));
+    entity.chapters.push(chapter_node);
+    report.tier_one = chapter_node;
+    compactable = entity.past.filter((vector) => vector && typeof vector === "object" && !is_origin(vector) && !vector.meta?.compacted_into);
+  }
+
+  let tier_one_nodes = entity.chapters.filter((node) => node && (node.tier ?? 1) === 1 && node.status === "closed");
+  while (tier_one_nodes.length >= PRISM_FANOUT) {
+    const batch = tier_one_nodes.slice(0, PRISM_FANOUT);
+    const batch_ids = new Set(batch.map((node) => node.id));
+    const merged_leaves = batch.flatMap((node) => (Array.isArray(node.leaves) ? node.leaves : []));
+    const arc_node = {
+      id: `arc_${generate_unique_id()}`,
+      tier: 2,
+      title: truncate_at_word(`Arc: ${String(batch[0]?.title || "untold events")}`, 60),
+      summary: truncate_at_word(
+        batch.map((node) => `${node.title || "Untitled"} — ${node.summary || ""}`.trim()).join(" | "),
+        COMPACTOR_SUMMARY_MAX_CHARS,
+      ),
+      agenda: "",
+      status: "closed",
+      created_at: now,
+      closed_at: now,
+      leaves: merged_leaves,
+      compacted_count: merged_leaves.length,
+    };
+    entity.chapters = entity.chapters.filter((node) => !(node && batch_ids.has(node.id)));
+    entity.chapters.push(arc_node);
+    report.tier_two = arc_node;
+    tier_one_nodes = entity.chapters.filter((node) => node && (node.tier ?? 1) === 1 && node.status === "closed");
+  }
+
+  return report;
+}
+
+/**
+ * Tokenizes a query into lowercase content words for deterministic ranking.
+ * @param {string} query
+ * @returns {string[]}
+ */
+function extract_query_terms(query) {
+  const terms = String(query || "")
+    .toLowerCase()
+    .split(/[^a-z0-9']+/)
+    .filter((term) => term.length > 2);
+  return [...new Set(terms)];
+}
+
+/**
+ * Collects an entity vector's referent tags: forge keys plus bracket keys.
+ * @param {any} vector
+ * @returns {Set<string>}
+ */
+function extract_vector_entity_tags(vector) {
+  const tags = new Set();
+  for (const candidate of [vector?.meta?.key, vector?.meta?.forged_for]) {
+    if (typeof candidate === "string" && candidate.trim()) tags.add(candidate.toLowerCase().trim());
+  }
+  const content = String(vector?.content || vector?.directive || "");
+  for (const match of content.matchAll(/\[@?([A-Za-z][A-Za-z0-9_]*)/g)) {
+    tags.add(match[1].toLowerCase());
+  }
+  return tags;
+}
+
+/**
+ * Counts whole-word occurrences of a term in lowercase content.
+ * @param {string} lowered_content
+ * @param {string} term
+ * @returns {number}
+ */
+function count_term_hits(lowered_content, term) {
+  if (!term) return 0;
+  let hits = 0;
+  let position = lowered_content.indexOf(term);
+  while (position !== -1) {
+    hits += 1;
+    position = lowered_content.indexOf(term, position + term.length);
+  }
+  return hits;
+}
+
+/**
+ * Deterministic hybrid retrieval ranking (Track 2.3, Project Prism-DCM).
+ * Score = EntityOverlap × 3.0 + LexicalFrequency × 1.0 +
+ * EmotionalSalience × 0.4 + Recency × 1.2. Pure: input order-independent,
+ * no embeddings, no clocks when rounds are stamped.
+ * @param {any[]} vectors
+ * @param {string} query
+ * @param {Object} [options={}]
+ * @param {number} [options.current_round]
+ * @returns {any[]} Ranked copies stamped with `_hybrid_score` + `_hybrid_parts`.
+ */
+export function rank_hybrid_vectors(vectors, query, options = {}) {
+  if (!Array.isArray(vectors) || !vectors.length) return [];
+  const current_round = options.current_round ?? _current_round;
+  const terms = extract_query_terms(query);
+  const { ENTITY_OVERLAP, LEXICAL_FREQUENCY, EMOTIONAL_SALIENCE, RECENCY } = HYBRID_RETRIEVAL_WEIGHTS;
+
+  const ranked = vectors.map((vector) => {
+    const content = String(vector?.content || vector?.directive || "");
+    const lowered = content.toLowerCase();
+    const tags = extract_vector_entity_tags(vector);
+    const entity_overlap = terms.filter((term) => tags.has(term)).length;
+    const lexical_frequency = terms.reduce((sum, term) => sum + count_term_hits(lowered, term), 0);
+    const emotional_salience = (vector?.emotional_weight ?? 5) / 10;
+    const recency =
+      vector?.meta?.round != null && current_round != null
+        ? 1 / (1 + Math.log10(Math.max(0, current_round - vector.meta.round) + 1))
+        : recency_factor(vector || {}, current_round);
+    const parts = { entity_overlap, lexical_frequency, emotional_salience, recency };
+    const hybrid_score =
+      entity_overlap * ENTITY_OVERLAP + lexical_frequency * LEXICAL_FREQUENCY + emotional_salience * EMOTIONAL_SALIENCE + recency * RECENCY;
+    return { ...vector, _hybrid_score: hybrid_score, _hybrid_parts: parts };
+  });
+
+  return ranked.sort((left, right) => {
+    const diff = (right._hybrid_score || 0) - (left._hybrid_score || 0);
+    if (diff !== 0) return diff;
+    return (right.timestamp ?? 0) - (left.timestamp ?? 0);
+  });
+}
+
+/**
+ * Resolves recall clarity from live dynamics (Track 2.3): Chaos or Entropy
+ * above threshold fragments recall; anything lower delivers crisp recall.
+ * @param {{ chaos?: number, entropy?: number }|null|undefined} dynamics
+ * @returns {'crisp'|'fragmented'}
+ */
+export function resolve_recall_clarity(dynamics) {
+  const chaos = Number(dynamics?.chaos);
+  const entropy = Number(dynamics?.entropy);
+  if (
+    (Number.isFinite(chaos) && chaos > DYNAMICS_FRAGMENTATION_THRESHOLD) ||
+    (Number.isFinite(entropy) && entropy > DYNAMICS_FRAGMENTATION_THRESHOLD)
+  ) {
+    return RECALL_CLARITY.FRAGMENTED;
+  }
+  return RECALL_CLARITY.CRISP;
+}
+
+/**
+ * Formats hybrid-ranked vectors into a recall block with dynamics-modulated
+ * clarity (Track 2.3): fragmented states carry the `[fragmented recall]`
+ * prefix; crisp states render bare.
+ * @param {any[]} vectors
+ * @param {string} query
+ * @param {Object} [options={}]
+ * @param {number} [options.current_round]
+ * @param {Object} [options.dynamics]
+ * @param {number} [options.max_chars=1500]
+ * @returns {string}
+ */
+export function format_hybrid_recall(vectors, query, options = {}) {
+  const max_chars = options.max_chars || 1500;
+  const ranked = rank_hybrid_vectors(vectors, query, { current_round: options.current_round });
+  const selected = [];
+  const selected_texts = [];
+  let running_chars = 0;
+  for (const vector of ranked) {
+    const text = vector.content || vector.directive || "";
+    if (!text.trim()) continue;
+    if (is_duplicate(text, selected_texts.join(" "))) continue;
+    if (running_chars + text.length > max_chars && selected.length > 0) break;
+    selected.push(text);
+    selected_texts.push(text);
+    running_chars += text.length;
+  }
+  if (!selected.length) return "";
+  const clarity = resolve_recall_clarity(options.dynamics);
+  const body = selected.join("\n");
+  return clarity === RECALL_CLARITY.FRAGMENTED ? `[fragmented recall]\n${body}` : body;
+}
+
+/**
+ * Recovers compacted Tier-0 leaves on demand (Track 2.1 selective leaf
+ * expansion): summary nodes whose title/summary match a query term release
+ * their embedded leaves, hybrid-ranked for relevance.
+ * @param {any} entity
+ * @param {string} query
+ * @param {Object} [options={}]
+ * @param {number} [options.current_round]
+ * @param {number} [options.max_leaves=8]
+ * @returns {any[]} Expanded leaf vectors (`meta.expanded_from` = node id).
+ */
+export function expand_compacted_leaves(entity, query, options = {}) {
+  const max_leaves = options.max_leaves ?? PRISM_FANOUT;
+  const terms = extract_query_terms(query);
+  if (!terms.length) return [];
+  const candidates = [];
+  for (const node of resolve_summary_nodes(entity)) {
+    const haystack = `${node.title || ""} ${node.summary || ""}`.toLowerCase();
+    if (!terms.some((term) => haystack.includes(term))) continue;
+    for (const leaf of Array.isArray(node.leaves) ? node.leaves : []) {
+      if (!leaf || !String(leaf.content || "").trim()) continue;
+      candidates.push({
+        id: leaf.id,
+        timestamp: 0,
+        content: String(leaf.content),
+        emotional_weight: leaf.weight ?? 5,
+        meta: { round: leaf.round ?? null, expanded_from: node.id },
+      });
+    }
+  }
+  return rank_hybrid_vectors(candidates, query, { current_round: options.current_round }).slice(0, max_leaves);
+}
+
+/**
+ * Resolves an entity's settled facts for the extraction advisory (Track 2.4):
+ * origin-pinned vectors first, then chapter/arc summary anchors, capped at
+ * SETTLED_FACT_LIMIT. These are the `# ALREADY REMEMBERED` lines that stop
+ * the forge from re-extracting known history.
+ * @param {any} entity
+ * @param {number} [limit=12]
+ * @returns {Array<{ text: string, source: 'origin'|'chapter' }>}
+ */
+export function resolve_settled_facts(entity, limit = SETTLED_FACT_LIMIT) {
+  const cap = Number.isFinite(limit) ? Math.max(0, limit) : SETTLED_FACT_LIMIT;
+  if (cap === 0) return [];
+  const facts = [];
+  if (Array.isArray(entity?.past)) {
+    for (const vector of entity.past) {
+      if (facts.length >= cap) break;
+      if (!vector || typeof vector !== "object" || !is_origin(vector)) continue;
+      const text = truncate_at_word(collapse_whitespace(String(vector.content || vector.directive || "")).trim(), 220);
+      if (text) facts.push({ text, source: "origin" });
+    }
+  }
+  for (const node of resolve_summary_nodes(entity)) {
+    if (facts.length >= cap) break;
+    if (!node || node.status !== "closed") continue;
+    const text = truncate_at_word(collapse_whitespace(`${node.title || "Untitled"} — ${node.summary || ""}`).trim(), 260);
+    if (text) facts.push({ text, source: "chapter" });
+  }
+  return facts;
 }
 
 // ── 5. State Mutations & Chapter Archival ─────────────────────────────────────
@@ -859,6 +1307,14 @@ export const temporal_engine = {
   score_async,
   format,
   format_async,
+  rank_hybrid_vectors,
+  format_hybrid_recall,
+  resolve_recall_clarity,
+  maybe_compact_memory,
+  resolve_memory_tiers,
+  expand_compacted_leaves,
+  resolve_event_key,
+  resolve_settled_facts,
   forge_memory,
   append_past_vector,
   reconcile_vector_caps,
@@ -1144,6 +1600,15 @@ export const temporal_engine = {
         await fallback_consolidate([target_item], slice, runtime, session);
       }
 
+      // Track 2.1: compact the Tier-0 pool into summary anchors once the
+      // fanout threshold is reached; no-op for small pools (no extra writes).
+      const compaction = maybe_compact_memory(entity);
+      if (compaction.tier_one || compaction.tier_two) {
+        await runtime.update_entity(type, entity.id, { chapters: entity.chapters });
+        const tier_label = compaction.tier_two ? "Tier 2 arc" : "Tier 1 chapter";
+        app.log?.(`[TemporalEngine] 🗜️ ${tier_label} compacted for ${entity.name || target_key}.`, "system");
+      }
+
       // Persist ONLY the consolidation marker (`meta`) for each turn. A whole-row
       // `bulkPut(slice)` here would clobber fields written by other pipelines during
       // the forge's LLM latency (the slice was loaded *before* the forge ran) — e.g.
@@ -1191,6 +1656,10 @@ if (typeof window !== "undefined") {
 
 /**
  * CHANGELOG
+ * - Track 2.1: Multi-tier tree compactor — maybe_compact_memory folds Tier-0 pools into Tier-1 chapter anchors at PRISM_FANOUT (8) and Tier-1 sets into Tier-2 arcs (height <= COMPACTOR_MAX_HEIGHT); resolve_memory_tiers pure view; expand_compacted_leaves keyword leaf expansion; score() excludes compacted leaves; consolidate persists chapters on compaction.
+ * - Track 2.2: Recall token budgets — format/format_async accept token_budget (lowest-relevance tail pruned via apply_recall_token_budget; default Infinity).
+ * - Track 2.3: Deterministic hybrid retrieval — rank_hybrid_vectors (EntityOverlap×3.0 + LexicalFrequency×1.0 + EmotionalSalience×0.4 + Recency×1.2), resolve_recall_clarity (Chaos/Entropy > 70 fragments), format_hybrid_recall.
+ * - Track 2.4: Write-time rot prevention — resolve_event_key (FNV-1a over normalized text); append_past_vector folds repeats into node provenance and stamps event_key; resolve_settled_facts feeds the extraction advisory.
  * - 2026-10-03: Memory Forge Compare-Then-Skip Guard — In `temporal_engine.consolidate`, inspect prior states across all 4 quadrants (`present.physical`, `present.non_physical`, `eternal.physical`, `eternal.non_physical`, `future`, `past`) before writing mutations, skipping no-ops, populating `old_value`, and setting `decider: "forge"`.
  * - 2026-10-01: Strip internal bracket engine flags (| hide, | show, | w: N) before embedding calculations in score_async, eliminating false semantic collisions on control words.
  * - 2026-09-29: `resolve_vector_pool` now supports flat universal bracket strings and bracket entry arrays via `parse_bracket_entries`, chunking on bracket boundaries with emotional weight synchronized from `w:`. `append_past_vector` seamlessly supports both flat strings and arrays.

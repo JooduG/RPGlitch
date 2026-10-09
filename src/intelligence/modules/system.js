@@ -102,6 +102,7 @@ export const PROMPT_LAYERS = Object.freeze([
   { key: "cast", emit: (state) => state.nearby_cast },
   { key: "entity_context", emit: (state) => state.field_context },
   { key: "chapter_history", emit: (state) => state.chapter_history },
+  { key: "memory_advisory", emit: (state) => state.memory_advisory },
   { key: "history", emit: (state) => state.history_block },
 ]);
 
@@ -260,6 +261,7 @@ export function resolve_role_slot(config, normalized = {}) {
 
 /**
  * CHANGELOG
+ * - Track 2.4: PROMPT_LAYERS gains the memory_advisory emitter (empty slots stay filtered, so unaffected modes seal byte-identical envelopes).
  * - Track 0.10: Purged dead layer system slot (PROMPT_LAYERS entry + resolve_layer_slot) - enhancement no longer seals an empty layer.
  * - 2026-10-07: Plan Omega for System — SYSTEM_ROLES closures replaced by declarative ROLE_LIBRARY + ROLE_DEFAULTS + get_role_atom; PROMPT_LAYERS/render_prompt_layers/compose_system/pack_prompt/resolve_prompt_meta/clean_prompt_text re-homed from builder.js; plan/render split (resolve_system_plan/render_system_plan) wired through compose_system; purged dead `closed`/`task` options and SYSTEM_TAG now names the plan tag; resolve_stability_lock tests live in reflex.test.js only.
  * - 2026-10-04: Moved stability-lock/truncation recovery copy to recovery.js; system.js owns identity + envelope only.

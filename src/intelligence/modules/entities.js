@@ -21,7 +21,16 @@
  * ============================================================================
  */
 
-import { detox_prose, escape_xml, render_xml_tag, collapse_whitespace, truncate_at_word, wrap_tag, strip_visual_excluded } from "@utils";
+import {
+  detox_prose,
+  escape_xml,
+  render_xml_tag,
+  collapse_whitespace,
+  truncate_at_word,
+  wrap_tag,
+  strip_visual_excluded,
+  prompt_escape,
+} from "@utils";
 import { define_sheet, SHEET_SPECS, render_sheet, render_entity_memory_context, render_enhancement_field_context } from "./sheets.js";
 
 // ============================================================================
@@ -610,6 +619,42 @@ export function resolve_cast_slot(config, normalized = {}) {
 }
 
 /**
+ * Renders settled memory facts into the extraction advisory block
+ * (Track 2.4): the `# ALREADY REMEMBERED` register that stops the forge
+ * from re-extracting known history. Empty fact lists render "" so modes
+ * without settled memory compile byte-identical output.
+ * @param {Array<{ text: string, source: string }>} facts
+ * @param {number} [indentation_level=2]
+ * @returns {string}
+ */
+export function render_memory_advisory_xml(facts, indentation_level = 2) {
+  if (!Array.isArray(facts) || facts.length === 0) return "";
+  const numbered = facts
+    .slice(0, 12)
+    .map((fact, position) => {
+      const clean = truncate_at_word(collapse_whitespace(String(fact?.text || "")).trim(), 260);
+      return `${position + 1}. ${prompt_escape(clean)}`;
+    })
+    .filter((line) => line.replace(/^\d+\.\s*/, "").trim().length > 0);
+  if (!numbered.length) return "";
+  return render_xml_tag({
+    tag: "MEMORY_ADVISORY",
+    children: ["# ALREADY REMEMBERED", ...numbered, "Treat these as settled — consolidate only genuinely new developments."],
+    indent: indentation_level,
+    separator: "\n",
+  });
+}
+
+/**
+ * System-layer slot: seals the continuum extraction advisory.
+ */
+export function resolve_memory_advisory_slot(config, normalized = {}) {
+  const args = normalized.memory_advisory_args || {};
+  if (!args.enabled) return "";
+  return render_memory_advisory_xml(args.facts || []);
+}
+
+/**
  * System-layer slot: seals the enhancement field context.
  */
 export function resolve_entity_context_slot(config, normalized = {}) {
@@ -620,6 +665,7 @@ export function resolve_entity_context_slot(config, normalized = {}) {
 
 /**
  * CHANGELOG
+ * - Track 2.4: Extraction advisory — render_memory_advisory_xml + resolve_memory_advisory_slot (MEMORY_ADVISORY block with # ALREADY REMEMBERED; empty facts render "" for byte-identical compiles).
  * - Track 0.11: Absorbed optics subject tiers + actors/entities block from sensory.js (new Section 2; define_sheet + strip_visual_excluded imports added; sensory import dropped). Prompt bytes byte-identical.
  * - 2026-10-04: C rebuild — data-first split: resolve_actor_plan (pure gates + ordered sheet actors + nearby list) feeds thin render_actor_sheets; optics tiers compile through resolve_optics_segments into the shared wrap_entities; four empty visibility policies collapse into one blank policy; candidate summary precedence unified to present → eternal → description; render_entity_sheets renders candidates internally (cast_xml string param retired).
  * - 2026-10-04: Split sheet rendering out to sheets.js (specs, field renderers, memory/enhancement contexts, dispositions); dynamics axes move to physics.js. This module keeps presence, cast, visibility, assembly, and optics entities.

@@ -147,6 +147,7 @@ describe("pack_prompt and resolve_prompt_meta", () => {
       "cast",
       "entity_context",
       "chapter_history",
+      "memory_advisory",
       "history",
     ]);
   });
@@ -154,6 +155,7 @@ describe("pack_prompt and resolve_prompt_meta", () => {
 
 /**
  * CHANGELOG
+ * - Track 2.4: Canonical PROMPT_LAYERS key assertion gains memory_advisory.
  * - Track 0.10: Dropped layer from the canonical PROMPT_LAYERS key assertion.
  * - 2026-10-07: Plan Omega for System — rewritten for ROLE_LIBRARY/ROLE_DEFAULTS/get_role_atom, the plan/render split, relocated pack_prompt/resolve_prompt_meta, and the purged render_system_xml (closed/task options gone; stability-lock tests live in reflex.test.js).
  * - 2026-09-20: Retargeted the envelope test to the open-fragment contract.

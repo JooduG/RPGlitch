@@ -42,7 +42,13 @@ import { resolve_role_slot, compose_system, pack_prompt, resolve_prompt_meta } f
 import { resolve_constitution_slot } from "./modules/constitution.js";
 import { resolve_core_protocols_slot } from "./modules/protocols.js";
 import { resolve_dynamic_axes_slot } from "./dynamics.js";
-import { resolve_entities_slot, resolve_target_context_slot, resolve_cast_slot, resolve_entity_context_slot } from "./modules/entities.js";
+import {
+  resolve_entities_slot,
+  resolve_target_context_slot,
+  resolve_cast_slot,
+  resolve_entity_context_slot,
+  resolve_memory_advisory_slot,
+} from "./modules/entities.js";
 import { resolve_history_slot, resolve_chapter_history_slot } from "./modules/history.js";
 import { verify_epistemic_integrity } from "./veil.js";
 import { resolve_turn_state_plan } from "./modules/reflex.js";
@@ -103,7 +109,7 @@ export const DIRECTOR_LAYERS = Object.freeze({
 });
 
 const TOOL_LAYERS = Object.freeze({
-  system: Object.freeze(["role", "core_protocols", "target_entity_context", "cast", "chapter_history", "history"]),
+  system: Object.freeze(["role", "core_protocols", "target_entity_context", "cast", "chapter_history", "memory_advisory", "history"]),
   task: Object.freeze(["directives", "output_format"]),
 });
 
@@ -455,6 +461,7 @@ export const SYSTEM_SLOT_RESOLVERS = Object.freeze({
   cast: resolve_cast_slot,
   entity_context: resolve_entity_context_slot,
   chapter_history: resolve_chapter_history_slot,
+  memory_advisory: resolve_memory_advisory_slot,
   history: resolve_history_slot,
 });
 
@@ -468,6 +475,7 @@ const SYSTEM_STATE_KEYS = Object.freeze({
   cast: "nearby_cast",
   entity_context: "field_context",
   chapter_history: "chapter_history",
+  memory_advisory: "memory_advisory",
   history: "history_block",
 });
 
@@ -558,6 +566,7 @@ export default PROMPTS;
 
 /**
  * CHANGELOG
+ * - Track 2.4: TOOL_LAYERS continuum envelope gains the memory_advisory system layer (MEMORY_ADVISORY slot; empty facts seal "" for byte-identical compiles).
  * - Track 0.10: Purged dead layer system slot (resolver import, SYSTEM_SLOT_RESOLVERS/SYSTEM_STATE_KEYS entries, ENHANCEMENT_LAYERS key).
  * - Track 0.8/0.9: continuum_directives selects the folded MANDATE alone; sorting_directives selects the single generated SORTING.FOCUS (macro rides the values bag; entity_type branching retired).
  * - 2026-10-08: Modules Ground Refactor Phase 4 — universal prompt plan (distributed slot registries, terse variant, plan pipeline; assemble_prompt retired).

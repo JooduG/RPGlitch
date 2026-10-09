@@ -15,6 +15,19 @@ import {
   archive_chapter,
   sanitize_non_physical_prose,
   append_past_vector,
+  PRISM_FANOUT,
+  COMPACTOR_MAX_HEIGHT,
+  SETTLED_FACT_LIMIT,
+  HYBRID_RETRIEVAL_WEIGHTS,
+  RECALL_CLARITY,
+  rank_hybrid_vectors,
+  format_hybrid_recall,
+  resolve_recall_clarity,
+  maybe_compact_memory,
+  resolve_memory_tiers,
+  expand_compacted_leaves,
+  resolve_event_key,
+  resolve_settled_facts,
 } from "./temporal.js";
 import { get_output_format } from "./modules/output.js";
 import { PROMPTS } from "./prompts.js";
@@ -1121,10 +1134,217 @@ describe("temporal_engine per-entity consolidation progress tracking (Track 2 Ph
       expect(entity.past).toContain("Once upon a storm.");
     });
   });
+
+  describe("Track 2.1 multi-tier tree compactor", () => {
+    const make_past_vector = (index, overrides = {}) => ({
+      id: `ai_vector_${index}`,
+      timestamp: 1000 + index,
+      content: `Dockside event number ${index} under neon rain`,
+      emotional_weight: 5,
+      meta: { round: index },
+      ...overrides,
+    });
+
+    it("leaves small pools untouched with a null report", () => {
+      const entity = { past: [make_past_vector(1), make_past_vector(2)], chapters: [] };
+      const report = maybe_compact_memory(entity);
+      expect(report.tier_one).toBeNull();
+      expect(report.tier_two).toBeNull();
+      expect(entity.past).toHaveLength(2);
+    });
+
+    it("folds eight Tier-0 vectors into one closed Tier-1 chapter anchor", () => {
+      const entity = { past: Array.from({ length: PRISM_FANOUT }, (_, index) => make_past_vector(index)), chapters: [] };
+      const report = maybe_compact_memory(entity);
+      expect(report.tier_one).not.toBeNull();
+      expect(report.tier_one.tier).toBe(1);
+      expect(report.tier_one.status).toBe("closed");
+      expect(report.tier_one.leaves).toHaveLength(PRISM_FANOUT);
+      expect(entity.past).toHaveLength(0);
+      expect(entity.chapters).toHaveLength(1);
+    });
+
+    it("never compacts origin-protected vectors", () => {
+      const entity = {
+        past: [
+          ...Array.from({ length: PRISM_FANOUT }, (_, index) => make_past_vector(index)),
+          { id: "usr_pinned", content: "Sworn oath", emotional_weight: 10, meta: {} },
+        ],
+        chapters: [],
+      };
+      maybe_compact_memory(entity);
+      expect(entity.past).toHaveLength(1);
+      expect(entity.past[0].id).toBe("usr_pinned");
+    });
+
+    it("merges eight closed Tier-1 chapters into one Tier-2 arc", () => {
+      const chapter = (index) => ({
+        id: `ch_${index}`,
+        tier: 1,
+        title: `Chapter ${index}`,
+        summary: `Summary ${index}`,
+        status: "closed",
+        created_at: index,
+        leaves: [],
+      });
+      const entity = { past: [], chapters: Array.from({ length: PRISM_FANOUT }, (_, index) => chapter(index)) };
+      const report = maybe_compact_memory(entity);
+      expect(report.tier_two).not.toBeNull();
+      expect(report.tier_two.tier).toBe(2);
+      expect(entity.chapters).toHaveLength(1);
+      expect(entity.chapters[0].tier).toBe(2);
+    });
+
+    it("keeps the tree height within the bound", () => {
+      expect(resolve_memory_tiers({ past: [], chapters: [] }).height).toBe(1);
+      const tiers = resolve_memory_tiers({ past: [], chapters: [{ tier: 1, status: "closed", title: "A", summary: "B" }] });
+      expect(tiers.tier_one).toHaveLength(1);
+      expect(tiers.tier_two).toHaveLength(0);
+      expect(tiers.height).toBeLessThanOrEqual(COMPACTOR_MAX_HEIGHT);
+    });
+
+    it("expands compacted leaves on keyword match only", () => {
+      const entity = {
+        past: [],
+        chapters: [
+          {
+            id: "ch_docks",
+            tier: 1,
+            status: "closed",
+            title: "Docks ambush",
+            summary: "Orion met at docks",
+            leaves: [{ id: "ai_leaf", content: "Orion handed over the cipher", weight: 7, round: 3 }],
+          },
+        ],
+      };
+      const expanded = expand_compacted_leaves(entity, "orion docks", { current_round: 9 });
+      expect(expanded).toHaveLength(1);
+      expect(expanded[0].meta.expanded_from).toBe("ch_docks");
+      expect(expand_compacted_leaves(entity, "unrelated banquet", { current_round: 9 })).toEqual([]);
+    });
+
+    it("excludes compacted leaves from synchronous scoring", () => {
+      const vectors = [
+        { id: "ai_live", content: "Live event", emotional_weight: 5, timestamp: 2, meta: {} },
+        { id: "ai_old", content: "Compacted event", emotional_weight: 5, timestamp: 1, meta: { compacted_into: "ch_x" } },
+      ];
+      const ranked = temporal_engine.score(vectors);
+      expect(ranked.map((vector) => vector.id)).toEqual(["ai_live"]);
+    });
+  });
+
+  describe("Track 2.3 deterministic hybrid retrieval", () => {
+    const dockside_vector = {
+      id: "ai_dock",
+      timestamp: 9,
+      content: "[ORION: covert ally meeting at docks]",
+      emotional_weight: 8,
+      meta: { round: 10, key: "ORION" },
+    };
+    const rain_vector = { id: "ai_rain", timestamp: 1, content: "The rain falls on empty streets", emotional_weight: 5, meta: { round: 0 } };
+
+    it("exposes the frozen Prism-DCM weights", () => {
+      expect(HYBRID_RETRIEVAL_WEIGHTS.ENTITY_OVERLAP).toBe(3.0);
+      expect(HYBRID_RETRIEVAL_WEIGHTS.LEXICAL_FREQUENCY).toBe(1.0);
+      expect(HYBRID_RETRIEVAL_WEIGHTS.EMOTIONAL_SALIENCE).toBe(0.4);
+      expect(HYBRID_RETRIEVAL_WEIGHTS.RECENCY).toBe(1.2);
+      expect(Object.isFrozen(HYBRID_RETRIEVAL_WEIGHTS)).toBe(true);
+    });
+
+    it("scores the exact roadmap formula on a hand-computed case", () => {
+      const [first, second] = rank_hybrid_vectors([rain_vector, dockside_vector], "orion docks", { current_round: 10 });
+      expect(first.id).toBe("ai_dock");
+      expect(first._hybrid_score).toBeCloseTo(6.52, 2);
+      expect(first._hybrid_parts).toEqual({ entity_overlap: 1, lexical_frequency: 2, emotional_salience: 0.8, recency: 1 });
+      expect(second.id).toBe("ai_rain");
+      expect(second._hybrid_score).toBeCloseTo(0.79, 2);
+    });
+
+    it("ranks deterministically across repeated runs", () => {
+      const first_run = rank_hybrid_vectors([dockside_vector, rain_vector], "orion docks", { current_round: 10 });
+      const second_run = rank_hybrid_vectors([rain_vector, dockside_vector], "orion docks", { current_round: 10 });
+      expect(second_run.map((vector) => vector._hybrid_score)).toEqual(first_run.map((vector) => vector._hybrid_score));
+    });
+
+    it("fragments recall above the dynamics threshold and stays crisp at or below it", () => {
+      expect(resolve_recall_clarity({ chaos: 71, entropy: 10 })).toBe(RECALL_CLARITY.FRAGMENTED);
+      expect(resolve_recall_clarity({ chaos: 10, entropy: 95 })).toBe(RECALL_CLARITY.FRAGMENTED);
+      expect(resolve_recall_clarity({ chaos: 70, entropy: 70 })).toBe(RECALL_CLARITY.CRISP);
+      expect(resolve_recall_clarity({})).toBe(RECALL_CLARITY.CRISP);
+      expect(resolve_recall_clarity(null)).toBe(RECALL_CLARITY.CRISP);
+    });
+
+    it("prefixes fragmented recall and renders crisp recall bare", () => {
+      const fragmented = format_hybrid_recall([dockside_vector], "orion", { current_round: 10, dynamics: { chaos: 80, entropy: 10 } });
+      expect(fragmented.startsWith("[fragmented recall]\n")).toBe(true);
+      const crisp = format_hybrid_recall([dockside_vector], "orion", { current_round: 10, dynamics: { chaos: 20, entropy: 10 } });
+      expect(crisp).not.toContain("[fragmented recall]");
+      expect(crisp.length).toBeGreaterThan(0);
+      expect(format_hybrid_recall([], "orion", { dynamics: { chaos: 99 } })).toBe("");
+    });
+  });
+
+  describe("Track 2.4 write-time rot prevention", () => {
+    it("hashes normalized text into stable eight-hex event keys", () => {
+      expect(resolve_event_key("  Hello, WORLD!  ")).toBe(resolve_event_key("hello world"));
+      expect(resolve_event_key("")).toBe("");
+      expect(resolve_event_key("Orion met at docks")).toMatch(/^[0-9a-f]{8}$/);
+    });
+
+    it("folds repeat observations into node provenance instead of appending", () => {
+      const entity = { past: [{ id: "ai_first", content: "Orion met at docks", emotional_weight: 5, meta: { round: 1 } }] };
+      append_past_vector(entity, { content: "ORION MET AT DOCKS!", emotional_weight: 5, meta: { round: 2 } });
+      expect(entity.past).toHaveLength(1);
+      expect(entity.past[0].meta.provenance.sightings).toBe(2);
+      expect(entity.past[0].meta.event_key).toBe(resolve_event_key("Orion met at docks"));
+    });
+
+    it("appends genuinely new memories with an event key stamp", () => {
+      const entity = { past: [{ id: "ai_first", content: "Orion met at docks", emotional_weight: 5, meta: { round: 1 } }] };
+      append_past_vector(entity, { content: "Elara shared birthday cake", emotional_weight: 5, meta: { round: 2 } });
+      expect(entity.past).toHaveLength(2);
+      expect(entity.past[1].meta.event_key).toBe(resolve_event_key("Elara shared birthday cake"));
+    });
+
+    it("resolves settled facts origin-first, chapters second, capped at twelve", () => {
+      const entity = {
+        past: [
+          { id: "ai_loose", content: "Loose rumor", emotional_weight: 3, meta: {} },
+          { id: "usr_oath", content: "Sworn oath", emotional_weight: 10, meta: {} },
+        ],
+        chapters: [
+          { tier: 1, status: "open", title: "Active", summary: "Ongoing" },
+          { tier: 1, status: "closed", title: "Descent", summary: "Entered the cavern" },
+        ],
+      };
+      const facts = resolve_settled_facts(entity);
+      expect(facts).toHaveLength(2);
+      expect(facts[0].source).toBe("origin");
+      expect(facts[1].source).toBe("chapter");
+      const crowded = { past: Array.from({ length: 20 }, (_, index) => ({ id: `usr_${index}`, content: `Oath ${index}`, meta: {} })) };
+      expect(resolve_settled_facts(crowded)).toHaveLength(SETTLED_FACT_LIMIT);
+    });
+  });
+
+  describe("Track 2.2 recall token budgets", () => {
+    it("prunes the lowest-relevance tail under a token budget and keeps one survivor", () => {
+      const vectors = [
+        { id: "ai_alpha", content: "alpha bravo charlie delta echo", emotional_weight: 5, timestamp: 3, meta: {} },
+        { id: "ai_beta", content: "foxtrot golf hotel india juliet", emotional_weight: 5, timestamp: 2, meta: {} },
+        { id: "ai_gamma", content: "kilo lima mike november oscar", emotional_weight: 5, timestamp: 1, meta: {} },
+      ];
+      const budgeted = temporal_engine.format(vectors, "", { token_budget: 10 });
+      expect(budgeted).toBe("alpha bravo charlie delta echo");
+      const unbounded = temporal_engine.format(vectors, "");
+      expect(unbounded).toContain("foxtrot golf hotel india juliet");
+      expect(unbounded).toContain("kilo lima mike november oscar");
+    });
+  });
 });
 
 /**
  * CHANGELOG
+ * - Track 2: Tree compactor (fanout trigger, origin immunity, Tier-2 merge, height bound, leaf expansion, score exclusion), hybrid retrieval (frozen weights, exact formula, determinism, clarity thresholds, recall prefix), rot prevention (event keys, provenance folding, settled facts), recall token budgets.
  * - 2026-09-29: Added tests for flat universal bracket string resolution and appending in resolve_vector_pool and append_past_vector.
  * - 2026-09-23: Assertion follows the single `mode` discriminator (`mode="continuum" target="Viper"`).
  * - 2026-09-12: Updated imports for TEMPORAL_CONTRACT and MEMORY_FORGE_SCHEMA from modules/format.js.
