@@ -38,7 +38,7 @@
 
 import { MODE_ADAPTERS } from "./builder.js";
 import { resolve_task_slots, render_task_plan, TASK_LAYERS } from "./modules/task.js";
-import { resolve_role_slot, resolve_layer_slot, compose_system, pack_prompt, resolve_prompt_meta } from "./modules/system.js";
+import { resolve_role_slot, compose_system, pack_prompt, resolve_prompt_meta } from "./modules/system.js";
 import { resolve_constitution_slot } from "./modules/constitution.js";
 import { resolve_core_protocols_slot } from "./modules/protocols.js";
 import { resolve_dynamic_axes_slot } from "./physics.js";
@@ -108,7 +108,7 @@ const TOOL_LAYERS = Object.freeze({
 });
 
 const ENHANCEMENT_LAYERS = Object.freeze({
-  system: Object.freeze(["role", "core_protocols", "layer", "entity_context"]),
+  system: Object.freeze(["role", "core_protocols", "entity_context"]),
   task: Object.freeze(["think_format", "input", "directives", "output_format"]),
 });
 
@@ -178,7 +178,7 @@ export function director_directives({ has_input = false, round = 1, has_environm
  * @returns {string[]}
  */
 function continuum_directives() {
-  return ["CONTINUUM.TARGET_FOCUS", "CONTINUUM.MANDATE"];
+  return ["CONTINUUM.MANDATE"];
 }
 
 /**
@@ -187,12 +187,8 @@ function continuum_directives() {
  * @param {{ entity_type?: string, ingestion?: boolean, redistribute?: boolean }} [parameter_options={}]
  * @returns {Array<string | { group: string[] }>}
  */
-function sorting_directives({ entity_type = "character", ingestion = false, redistribute = false } = {}) {
-  return [
-    { group: [entity_type === "fractal" ? "SORTING.FOCUS_FRACTAL" : "SORTING.FOCUS_CHARACTER", "SORTING.MACRO"] },
-    ...(ingestion ? ["SORTING.INGESTION"] : []),
-    ...(redistribute ? ["SORTING.REDISTRIBUTE"] : []),
-  ];
+function sorting_directives({ ingestion = false, redistribute = false } = {}) {
+  return ["SORTING.FOCUS", ...(ingestion ? ["SORTING.INGESTION"] : []), ...(redistribute ? ["SORTING.REDISTRIBUTE"] : [])];
 }
 
 /**
@@ -457,7 +453,6 @@ export const SYSTEM_SLOT_RESOLVERS = Object.freeze({
   entities: resolve_entities_slot,
   target_entity_context: resolve_target_context_slot,
   cast: resolve_cast_slot,
-  layer: resolve_layer_slot,
   entity_context: resolve_entity_context_slot,
   chapter_history: resolve_chapter_history_slot,
   history: resolve_history_slot,
@@ -471,7 +466,6 @@ const SYSTEM_STATE_KEYS = Object.freeze({
   entities: "entities_block",
   target_entity_context: "target_context",
   cast: "nearby_cast",
-  layer: "layer",
   entity_context: "field_context",
   chapter_history: "chapter_history",
   history: "history_block",
@@ -564,6 +558,8 @@ export default PROMPTS;
 
 /**
  * CHANGELOG
+ * - Track 0.10: Purged dead layer system slot (resolver import, SYSTEM_SLOT_RESOLVERS/SYSTEM_STATE_KEYS entries, ENHANCEMENT_LAYERS key).
+ * - Track 0.8/0.9: continuum_directives selects the folded MANDATE alone; sorting_directives selects the single generated SORTING.FOCUS (macro rides the values bag; entity_type branching retired).
  * - 2026-10-08: Modules Ground Refactor Phase 4 — universal prompt plan (distributed slot registries, terse variant, plan pipeline; assemble_prompt retired).
  * - 2026-10-04: director_directives prefers the pre-resolved values.turn_state (single has_input resolution) — prompt bytes byte-identical.
  * - 2026-10-04: Director environmental-hint key follows the normalized reflex catalog (REFLEX.CONDITIONALS.ENVIRONMENTAL_HINT).

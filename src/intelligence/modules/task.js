@@ -10,15 +10,15 @@
  *
  * ── Multi-Shot Simulation Lifecycle Mapping ─────────────────────────────────
  * • Section 1: Unified Task Directives & Protocols Catalog (TASK_LIBRARY)
- *              (Protocols, Director, Continuum, Prose, Sorting directives; optics lives in sensory.js)
+ *              (Protocols, Director, Continuum, Prose, Sorting directives; optics atoms resolve through protocols.js)
  * • Section 2: Dynamic Directive Compiler (get_directive_atom / compile_directive_tags)
  *              (Dotted-key resolution + {placeholder} interpolation → ordered paragraphs)
  * • Section 3: Task Signals & Currents
  *              (Turn-signal envelopes and currents; pacing/reflex live in reflex.js)
  * • Section 4: Universal Task Envelope Compiler (TASK_LAYERS / TASK_MODE_PLANS / render_task)
  *              (One slot-resolver registry + one ordered layer table; modes are data)
- * • Section 5: Subtext, Available Keywords & Protocol Resolvers
- *              (Somatic signals, keyword listings, physics-protocol resolution)
+ * • Section 5: Available Keyword Listing
+ *              (Keyword listing co-located with KEYWORD_DIRECTIVES; subtext lives in physics.js)
  *
  * Architecture & Design Laws (protocols.js pattern, applied to Layer 6):
  * - Pure-data catalog: `TASK_LIBRARY` holds only strings or `{placeholder}` template
@@ -35,21 +35,31 @@
  * - Zero Sibling Imports: layout primitives imported exclusively from @utils.
  * - Strict Full-Name Domain Nomenclature: zero clipped tokens or single-letter identifiers.
  * - Zero Backwards Compatibility (P4): pure, uncompromising modern architecture.
+ *
+ * ── Instruction Grammar Law (Track 0.1) ─────────────────────────────────────
+ * Tags draw the boxes, lists fill them: exactly one XML tag per instruction
+ * block (stable, CONTRACT-testable identity); no nested headline restating the
+ * tag name inside the block; bodies are numbered lines (sequence), bullets
+ * (sets), or bare prose (single mandate). Per-step tags are forbidden —
+ * mode-specific cognition steps are ordered lists, never `<BEAT id step>`
+ * wrappers. Concept-level tags (`<TYPOGRAPHY>`, `<GROUNDING>`) remain.
+ *
+ * ── Three-Layer Token Contract (Track 0.2) ──────────────────────────────────
+ * `{...}` = build-time parameter interpolation within catalog atoms;
+ * `«ABSOLUTE»` = runtime entity/regional referents (never raw tag literals in
+ * prose, per the metasyntax law); `@` = output vocabulary ONLY, reserved
+ * strictly for bracket directives (`[@TARGET: ...]`, `[@USER: ...]`). Never
+ * emit `@`-tokens outside bracket directives in narrative prose.
  * ============================================================================
  */
 
 import { escape_xml, prompt_escape, inline_or_block, render_xml_tag, resolve_catalog_atom } from "@utils";
+import { PROFILE_FIELD_CATALOG } from "@data";
 import { resolve_style_dna } from "./style.js";
 import { resolve_output_plan, render_output_plan, render_json_return } from "./output.js";
-import { resolve_macro_directive } from "./protocols.js";
+import { resolve_macro_directive, resolve_optics_atom } from "./protocols.js";
 import { get_reflex_atom, render_environmental_hint, render_prose_reflex, resolve_turn_state_plan } from "./reflex.js";
-import {
-  get_sensory_atom,
-  resolve_optics_subject,
-  resolve_optics_think_slot,
-  resolve_optics_target_slot,
-  resolve_optics_spatial_framing_slot,
-} from "./sensory.js";
+import { resolve_optics_subject } from "./entities.js";
 
 // ============================================================================
 // [SECTION 1: UNIFIED TASK DIRECTIVES & PROTOCOLS CATALOG]
@@ -60,18 +70,31 @@ export const TASK_LIBRARY = Object.freeze({
   PROTOCOLS: Object.freeze({
     THINK_GROUNDING_DEFAULT: "Hold your established temperament.",
 
-    THINK_CHARACTER: `Open your output with one internal <THINK> block (under 200 words). Reason across 4 sequential beats:
-<BEAT id="VISCERAL_IMPACT" step="1">Immediate non-verbal reaction to the «INPUT» element.</BEAT>
-<BEAT id="EMOTIONAL_CALIBRATION" step="2">{grounding}</BEAT>
-<BEAT id="STRATEGIC_DRIVE" step="3">How active «AGENDA» and/or «TRAJECTORY» navigates immediate friction.</BEAT>
-<BEAT id="CADENCE_TEST" step="4">Draft a dialogue line before generating outward prose.</BEAT>
+    THINK_CHARACTER: `Open your output with one internal <THINK> block (under 200 words). {grounding} Reason in order:
+1. Stance — the speaker's unsaid want and internal feeling.
+2. Friction — what resists that want in this beat.
+3. Mask — how their psychology leaks or conceals the feeling.
+4. Smallest observable action — the single physical tell or movement that carries the beat. Never pre-draft dialogue.
 Close </THINK> before the narrative. This think block is internal reasoning and is never part of the visible prose.`,
 
-    THINK_NARRATOR:
-      "Open your output with one internal <THINK> block. All internal calculations, scene shifts, and headers must remain inside it, in the conversation language. Close </THINK> before the narrative. This think block is internal reasoning and is never part of the visible prose.",
+    THINK_NARRATOR: `Open your output with one internal <THINK> block (under 200 words). Reason in order:
+1. Tableau — freeze every body in space; fix positions before psychology.
+2. Vector — the single mechanical or environmental change this beat delivers.
+3. Sensorium — {grounding} Commit to one dominant sensory channel.
+Close </THINK> before the narrative. This think block is internal reasoning and is never part of the visible prose.`,
 
-    THINK_ENHANCEMENT:
-      "Open your output with one internal <THINK> block. Analyze entity identity, coherence with existing traits, and plan the bracket directives or refined phrasing. Close </THINK> before emitting the final content.",
+    THINK_ENHANCEMENT: `Open your output with one internal <THINK> block (under 200 words). Reason in order:
+1. Canon check — verify the new trait against established identity.
+2. Contrast — differentiate from the rest of the cast on this axis.
+3. Compression — cut everything that does not sharpen the field; subtract, never pad.
+Close </THINK> before emitting the final content.`,
+
+    THINK_OPTICS: `Calibrate "_thought_process" first (under 200 words). Reason in order:
+1. Focal subject — identity traits, stripped of proper names.
+2. Spatial layers — foreground, focal subject, background.
+3. Light and palette — sources, color, and textures from the active style.
+4. Wardrobe mechanics — exposure checks before composing.
+Close "_thought_process" before composing the image payload. This calibration is internal reasoning and is never part of the payload.`,
   }),
 
   // ── 1.2 Keyword Directives (Director & Sensory Optics) ─────────────────────
@@ -89,34 +112,28 @@ Close </THINK> before the narrative. This think block is internal reasoning and 
 2. Adjust deltas carefully near boundaries (5 or 95) to prevent clipping at 0 or 100.
 3. Calibrate dynamics_deltas to reflect the psychological and environmental shift of the turn.`,
     USER_PERSONA_LOCK:
-      '"USER_PERSONA", "USER", "PLAYER", or the player character\'s name is NEVER a valid next_action — the Director never speaks for the player. The window for the player to act opens automatically right after the AI beat, so you never need a "yield to player" action: if you believe the player should act next, output "AI_CHARACTER" (the default). Valid actions are strictly: "AI_CHARACTER", "FRACTAL", "npc:<id>", { "genesis": ... }, "EPILOGUE_COLLAPSED", or "EPILOGUE_CONCLUDED". Furthermore, "directors_note" MUST ONLY direct the next_action speaker (AI, Fractal, or NPC) — NEVER direct, script, or suggest actions or thoughts for «USER_PERSONA» (the player has absolute agency).',
+      '"USER_PERSONA", "USER", "PLAYER", and the player character\'s name are NEVER valid next_action — the Director never speaks for the player and never scripts player dialogue, actions, or thoughts. Furthermore, "directors_note" MUST ONLY direct the next_action speaker (AI, Fractal, or NPC) — NEVER direct, script, or suggest actions or thoughts for «USER_PERSONA» (the player has absolute agency). The window for the player to act opens automatically right after the AI beat, so if the player should act next, output "AI_CHARACTER" (the default).',
 
     ROUTING: `NEXT ACTION ROUTING RULES:
-- "AI_CHARACTER": (Default) AI companion reacts to protagonist. Choose this whenever the player might act next — the player's turn opens immediately after this beat.
+- "AI_CHARACTER": (Default) AI companion reacts to the protagonist.
 - "FRACTAL": Environmental action (exploring atmosphere, architecture, weather, objects without dialogue) or breaking long AI speech streaks.
-- "npc:<id>": Present secondary character takes action.
-- "GENESIS": Mint a new character only if no candidate below applies.
+- "npc:<id>": Present secondary character takes action; when its dialogue is unfinished, let it continue before moving on.
+- "GENESIS": Mint a new character only when no candidate below fills the gap — the reuse discipline below governs.
 - "EPILOGUE_COLLAPSED": Fatal consequence, player death, irreversible collapse, or catastrophic defeat. Ends the scenario in tragedy.
 - "EPILOGUE_CONCLUDED": Triumphant or peaceful narrative resolution. Concludes the active arc.`,
 
     CONVERGENCE: `CONVERGENCE & ENTITY REUSE:
-Inspect candidate secondary characters below before minting. If an existing entity matches the role or location (medical, security, merchant), you MUST reuse that entity rather than creating a duplicate.`,
+Reuse before mint: inspect candidate secondary characters below before minting. If an existing entity matches the role or location (medical, security, merchant), you MUST reuse that entity rather than creating a duplicate.`,
   }),
 
   // ── 1.4 Shot 2A: Prose Turn Directives (character / scene / ghostwrite) ─────
   PROSE: Object.freeze({
     CHARACTER: Object.freeze({
-      BASE: "Stay in character: own only your own voice, actions, and perspective. Never speak, act, or decide for other participants.",
-      NPC_BOUNDARY:
-        "Respond strictly as {speaker_name} (supporting character). Own only your voice, actions, and perspective; never speak for others or resolve overarching quests. End on a natural beat.",
-    }),
-
-    GHOSTWRITE: Object.freeze({
-      BASE: "Draft «USER_PERSONA»'s turn strictly from their own first-person perspective — their actions, dialogue, and intent. Never narrate other characters' reactions or resolve the scene for them.",
+      BASE: "Own only your voice, actions, and perspective; never speak, act, or decide for other participants, or resolve overarching quests; end on a natural beat.",
     }),
 
     SCENE: Object.freeze({
-      PROLOGUE: `You see everything. Open the scene. Use thinking to establish: What does this Fractal demand? What brought «AI_CHARACTER» and «USER_PERSONA» here? Unless context explicitly states otherwise, treat as strangers.
+      PROLOGUE: `Open the scene. Use thinking to establish: What does this Fractal demand? What brought «AI_CHARACTER» and «USER_PERSONA» here? Unless context explicitly states otherwise, treat as strangers.
 Narrative Sequence:
 1. Present the Fractal atmosphere and current state.
 2. Place «USER_PERSONA» inside, connecting them via their profile thread.
@@ -124,29 +141,29 @@ Narrative Sequence:
 4. Trigger the encounter. End the prologue immediately before interaction begins.
 Strictly zero spoken dialogue or quote marks. No dialogue.
     Input: {scene_input}`,
-      EPILOGUE: `You see everything. Close the scene. Evaluate unresolved threads and active agendas in thinking. Depict environmental aftermath and physical changes without forcing player physical surrender. End on lingering sensation, not summary. Strictly zero spoken dialogue or quote marks. No dialogue.`,
-      COLLAPSE: `You see everything. Close the scene on irrevocable tragedy. Weigh permanent loss in thinking. Depict aftermath and environmental scars without forcing player physical surrender or unearned closure. End on enduring sensory silence. Strictly zero spoken dialogue or quote marks. No dialogue.`,
-      CONTINUATION: `You are the Fractal itself, narrating the scene. Narrate through ambient physics, sensory textures, and environmental shifts in reaction to recent events. Never puppeteer «AI_CHARACTER» or «USER_PERSONA». End on one dominant hook (decisive statement, single action, or deliberate silence). Zero bracket labels.`,
+      EPILOGUE: `Close the scene. Evaluate unresolved threads and active agendas in thinking. Depict environmental aftermath and physical changes without forcing player physical surrender. End on lingering sensation, not summary. Strictly zero spoken dialogue or quote marks. No dialogue.`,
+      COLLAPSE: `Close the scene on irrevocable tragedy. Weigh permanent loss in thinking. Depict aftermath and environmental scars without forcing player physical surrender or unearned closure. End on enduring sensory silence. Strictly zero spoken dialogue or quote marks. No dialogue.`,
+      CONTINUATION: `Narrate through ambient physics, sensory textures, and environmental shifts in reaction to recent events. Never puppeteer «AI_CHARACTER» or «USER_PERSONA». End on one dominant hook (decisive statement, single action, or deliberate silence). Zero bracket labels.`,
     }),
   }),
 
   // ── 1.5 Shot 2B: Continuum Caretaker Consolidation Directives (continuum) ──
   CONTINUUM: Object.freeze({
-    TARGET_FOCUS: `TARGET FOCUS: Consolidate state and extract relational vectors for {target_name}.
-Analyze recent turns in «HISTORY». Synthesize memories, update physical appearance, record active state of mind, and log directed relational bonds.`,
-    MANDATE: `EXECUTION MANDATE:
+    MANDATE: `TARGET FOCUS: Consolidate state and extract relational vectors for {target_name}. Analyze recent turns in «HISTORY».
+EXECUTION MANDATE:
 1. Memory Formation: Extract 1-3 anchored memories in past tense. Empty list if nothing noteworthy transpired.
-2. Dynamic State: Update physical and non_physical condition.
+2. Dynamic State: Update each taxonomy layer below per its schema directive — key shapes are documented in the schema, never re-documented here.
+{taxonomy_lines}
 3. Future Trajectory: Consolidate active standing agenda in future tense.
-4. Relational Graph: Update directed relational brackets in present.non_physical: '[@TARGET: dynamic description | flags]'.`,
+4. Relational Graph: Update directed relational brackets ([@TARGET: dynamic | flags]) across all non-physical layers — eternal.non_physical carries baseline bonds, present.non_physical carries situational dynamics.`,
   }),
 
   // ── 1.6 Tool B: Profile Structuring & Ingestion Directives (sorting) ───────
   SORTING: Object.freeze({
-    FOCUS_CHARACTER: "FOCUS: Extracting data for an individual CHARACTER. Re-contextualize or discard environmental/setting text.",
-    FOCUS_FRACTAL: "FOCUS: Extracting data for a FRACTAL (scene/setting/environment). Re-contextualize or discard character-specific traits.",
-    MACRO: "{macro_directive}",
-    REDISTRIBUTE: `REDISTRIBUTE: The source profile may have content in the wrong field. Relocate each fact to its correct field (e.g., temporary states belong under 'present.non_physical', transient moods under 'present.physical'). For physical and temporal layers, structure traits into [KEY: value] bracket directives. Never move content into or out of 'description' (internal notes). Preserve factual truth; update only field locations and phrasing. Strip XML tags, markdown bolding, or headers from values—output clean bracket directives and prose.`,
+    FOCUS: `FOCUS: Extracting data for {entity_label}. Discard text belonging to the other entity half.
+{macro_directive}
+{taxonomy_lines}`,
+    REDISTRIBUTE: `REDISTRIBUTE: The source profile may have content in the wrong field. Relocate each fact to its correct field per the taxonomy lines above — anything outside a field's stated domain is misplaced. For physical and temporal layers, structure traits into [KEY: value] bracket directives. Never move content into or out of 'description' (internal notes). Preserve factual truth; update only field locations and phrasing. Strip XML tags, markdown bolding, or headers from values — output clean bracket directives and prose.`,
     INGESTION: `SOURCE OF TRUTH & INGESTION RULES:
 - Source text is absolute truth. Map details faithfully into schema fields.
 - For physical and temporal layers, structure traits into canonical [KEY: value] bracket directives.
@@ -202,7 +219,7 @@ function resolve_directive_entry(directive_key, values = {}) {
     .trim()
     .split(".")[0];
   if (directive_head === "REFLEX") return get_reflex_atom(directive_key, values);
-  if (directive_head === "OPTICS") return get_sensory_atom(directive_key, values);
+  if (directive_head === "OPTICS") return resolve_optics_atom(directive_key, values);
   return get_directive_atom(directive_key, values);
 }
 
@@ -271,6 +288,21 @@ export function render_task_input({ input = "", input_origin = null, input_round
   return `<INPUT${attribute_string}>${inline_or_block(content, 2)}</INPUT>`;
 }
 
+// Track 0.10: moved verbatim from reflex.js Section 6 - the Director keyword
+// listing lives beside KEYWORD_DIRECTIVES and render_keyword_directives_xml.
+
+/**
+ * Builds <AVAILABLE_KEYWORDS> listing for the Director as a unified, flat bracketed list of tags.
+ * @param {string[]} [active_style_keywords=[]]
+ * @param {readonly string[]} [available_keywords=[]]
+ * @returns {string}
+ */
+export function render_available_keywords_xml(active_style_keywords = [], available_keywords = []) {
+  const motifs = (active_style_keywords || []).filter((k) => typeof k === "string" && k.trim()).map((k) => k.trim().toUpperCase());
+  const combined = Array.from(new Set([...available_keywords, ...motifs]));
+  return combined.map((k) => `[${k}]`).join(" ");
+}
+
 /**
  * Renders the canonical <KEYWORD_DIRECTIVES> XML block for Director or Optics.
  * Takes raw keywords XML or a raw keyword string; the mode selects the directive.
@@ -296,24 +328,19 @@ export function render_keyword_directives_xml(content = "", mode = "DIRECTOR") {
 
 /**
  * Resolves character prose action directive across standard, NPC, ghostwrite, and stranger encounter turns.
- * Every prose turn carries a base role-boundary directive; the NPC and first-contact cases layer extras on top.
+ * Every prose turn carries the single merged role-boundary directive (ghostwrite is a standard
+ * interaction turn with the USER as speaker; speaker naming lives in the role line); the
+ * first-contact case layers its turn-state extra on top.
  * @param {Object} [parameters]
  * @param {string} [parameters.speaker_name=""]
- * @param {boolean} [parameters.is_npc=false]
- * @param {boolean} [parameters.is_ghostwrite=false]
  * @param {boolean} [parameters.is_first_contact=false]
  * @returns {string}
  */
-export function resolve_character_action_directive({ speaker_name = "", is_npc = false, is_ghostwrite = false, is_first_contact = false } = {}) {
+export function resolve_character_action_directive({ speaker_name = "", is_first_contact = false } = {}) {
   const situation = resolve_turn_state_plan({ is_first_contact });
-  return compile_directive_tags(
-    [
-      is_ghostwrite ? "PROSE.GHOSTWRITE.BASE" : "PROSE.CHARACTER.BASE",
-      ...(situation.first_contact ? ["REFLEX.TURN_STATE.FIRST_CONTACT"] : []),
-      ...(is_npc ? ["PROSE.CHARACTER.NPC_BOUNDARY"] : []),
-    ],
-    { speaker_name },
-  ).join("\n\n");
+  return compile_directive_tags(["PROSE.CHARACTER.BASE", ...(situation.first_contact ? ["REFLEX.TURN_STATE.FIRST_CONTACT"] : [])], {
+    speaker_name,
+  }).join("\n\n");
 }
 
 /**
@@ -391,6 +418,37 @@ export function render_think_format(directive = "") {
   return text ? render_xml_tag({ tag: "THINK_FORMAT", children: [text], child_indent: 2 }) : "";
 }
 
+export function resolve_optics_target_slot(values) {
+  return values.target_tier ? render_xml_tag({ tag: "TARGET", children: [escape_xml(values.target_tier)], inline: true }) : "";
+}
+
+export function resolve_optics_spatial_framing_slot(values) {
+  const selection = typeof values.config?.spatial_framing === "function" ? values.config.spatial_framing(values) : [];
+  const children = compile_directive_tags(selection, values);
+  const cinematography = values.cinematography;
+  if (cinematography && typeof cinematography === "object") {
+    const { mode = "Medium Action", tokens = "", narrative_context = "", visual_staging = "" } = cinematography;
+    children.push(
+      render_xml_tag({
+        tag: "CINEMATOGRAPHY",
+        attrs: { mode },
+        children: [tokens, narrative_context, visual_staging],
+        child_indent: 2,
+        separator: "\n",
+      }),
+    );
+  }
+  const engine_tokens = values.engine_tokens;
+  if (engine_tokens?.camera) {
+    children.push(render_xml_tag({ tag: "CAMERA", children: [escape_xml(engine_tokens.camera)], inline: true }));
+  } else if (engine_tokens?.composition) {
+    children.push(render_xml_tag({ tag: "COMPOSITION", children: [escape_xml(engine_tokens.composition)], inline: true }));
+  }
+  return render_xml_tag({ tag: "SPATIAL_FRAMING", children, child_indent: 2, separator: "\n" });
+}
+
+// ============================================================================
+
 /**
  * Named slot resolvers — the enumerated set of genuinely dynamic Layer-6 computations.
  * Everything else is compiled from the manifest's declarative directive selection.
@@ -415,17 +473,15 @@ export const TASK_SLOT_RESOLVERS = Object.freeze({
   ingestion_signal: (values) => render_task_input({ input: values.input, input_channel: "ingestion" }),
   intent_signal: (values) => render_task_input({ input: values.input_intent, input_channel: "intent" }),
 
-  prose_think: (values) => {
+  think: (values) => {
     const think_format = values.config?.think_format;
-    if (think_format === "character") {
-      const grounding = values.style_dna.grounding || TASK_LIBRARY.PROTOCOLS.THINK_GROUNDING_DEFAULT;
-      return render_think_format(get_directive_atom("PROTOCOLS.THINK_CHARACTER", { grounding }));
-    }
-    if (think_format === "narrator") return render_think_format(TASK_LIBRARY.PROTOCOLS.THINK_NARRATOR);
+    const grounding = values.style_dna.grounding || TASK_LIBRARY.PROTOCOLS.THINK_GROUNDING_DEFAULT;
+    if (think_format === "character") return render_think_format(get_directive_atom("PROTOCOLS.THINK_CHARACTER", { grounding }));
+    if (think_format === "narrator") return render_think_format(get_directive_atom("PROTOCOLS.THINK_NARRATOR", { grounding }));
     if (think_format === "enhancement") return render_think_format(TASK_LIBRARY.PROTOCOLS.THINK_ENHANCEMENT);
+    if (think_format === "optics") return render_think_format(TASK_LIBRARY.PROTOCOLS.THINK_OPTICS);
     return "";
   },
-  optics_think: (values) => resolve_optics_think_slot(values),
 
   prose_currents: (values) => render_task_currents(values.style_dna, values.subtext_xml),
 
@@ -473,14 +529,14 @@ export const TASK_MODE_PLANS = Object.freeze({
   director: Object.freeze({ input: "director_signals", directives: "manifest_directives", output_format: "output_format" }),
   continuum: Object.freeze({ directives: "manifest_directives", output_format: "output_format" }),
   enhancement: Object.freeze({
-    think_format: "prose_think",
+    think_format: "think",
     input: "content_signal",
     directives: "external_directives",
     output_format: "output_format",
   }),
   sorting: Object.freeze({ input: "ingestion_signal", directives: "manifest_directives", output_format: "output_format" }),
   optics: Object.freeze({
-    think_format: "optics_think",
+    think_format: "think",
     input: "intent_signal",
     target: "optics_target",
     spatial_framing: "optics_spatial_framing",
@@ -488,7 +544,7 @@ export const TASK_MODE_PLANS = Object.freeze({
     output_format: "output_format",
   }),
   prose: Object.freeze({
-    think_format: "prose_think",
+    think_format: "think",
     input: "action_signal",
     currents: "prose_currents",
     directives: "action_directive",
@@ -508,12 +564,59 @@ export const TASK_MODE_PLANS = Object.freeze({
  * @param {Record<string, any>|null} config
  * @returns {Record<string, any>}
  */
+/**
+ * Taxonomy layer order walked by the continuum mandate and the sorting focus block.
+ */
+const TAXONOMY_LAYER_PATHS = Object.freeze([
+  "eternal.physical",
+  "eternal.non_physical",
+  "present.physical",
+  "present.non_physical",
+  "past",
+  "future",
+]);
+
+const taxonomy_lines_cache = new Map();
+
+/**
+ * Procedural taxonomy walker (Track 0.8/0.9) — emits one instruction line per taxonomy layer
+ * from PROFILE_FIELD_CATALOG metadata for the type-selected entity model, so consolidation
+ * and sorting directives never restate per-key documentation the JSON schemas already provide.
+ * @param {string} [entity_type="character"]
+ * @returns {string}
+ */
+export function resolve_taxonomy_lines(entity_type = "character") {
+  const normalized = entity_type === "fractal" ? "fractal" : "character";
+  const cached = taxonomy_lines_cache.get(normalized);
+  if (cached) return cached;
+  const lines = TAXONOMY_LAYER_PATHS.map((path) => {
+    const entry = PROFILE_FIELD_CATALOG[`${normalized}.${path}`] || {};
+    return `- ${path} (${entry.label || path}): ${entry.directive || ""}`.trim();
+  }).join("\n");
+  taxonomy_lines_cache.set(normalized, lines);
+  return lines;
+}
+
+/**
+ * Resolves the sorting focus scope label for an entity type.
+ * @param {string} [entity_type="character"]
+ * @returns {string}
+ */
+export function resolve_entity_label(entity_type = "character") {
+  return entity_type === "fractal" ? "a FRACTAL" : "an individual CHARACTER";
+}
+
 function resolve_task_values(parameters, config) {
   const values = { ...parameters, config };
   values.mode = config?.task_state || parameters.task_state || "prose";
   values.has_input = Boolean(String(parameters.input ?? "").trim());
   values.has_environmental_hint = Boolean(render_environmental_hint(parameters.input));
   values.macro_directive = parameters.entity_type ? resolve_macro_directive(parameters.entity_type) : "";
+  if (values.mode === "continuum") values.taxonomy_lines = resolve_taxonomy_lines(values.target_type);
+  if (values.mode === "sorting") {
+    values.entity_label = resolve_entity_label(values.entity_type);
+    values.taxonomy_lines = resolve_taxonomy_lines(values.entity_type);
+  }
   values.turn_state = resolve_turn_state_plan({
     has_input: values.has_input,
     round: parameters.round ?? 1,
@@ -606,6 +709,16 @@ export function render_task(parameters = {}) {
 
 /**
  * CHANGELOG
+ * - Track 0.11: Sensory dissolution - OPTICS directive keys resolve via protocols resolve_optics_atom; optics envelope slots (target, spatial framing) compile locally; subject tiers via entities.js; sensory.js import dropped.
+ * - Track 0.10: Absorbed render_available_keywords_xml from reflex.js (co-located with KEYWORD_DIRECTIVES/render_keyword_directives_xml); subtext assembly now lives in physics.js.
+ * - Track 0.9: Taxonomy-derived sorting directives — SORTING.FOCUS carries the type-selected walker lines plus the one filter rule; SORTING.MACRO/FOCUS_CHARACTER/FOCUS_FRACTAL deleted (@-vocabulary rides values.macro_directive); REDISTRIBUTE examples replaced by inverted taxonomy references. Key names kept (no manifest renames).
+ * - Track 0.8: Taxonomy-derived continuum mandate — TARGET_FOCUS folded into the MANDATE header; per-layer lines generated by resolve_taxonomy_lines from PROFILE_FIELD_CATALOG; relational brackets span all non-physical layers.
+ * - Track 0.7: Director reconstruction — USER_PERSONA_LOCK is pure agency shield (action enum lives only in ROUTING); ROUTING is the single decision tree (unfinished-NPC-dialogue and genesis-reuse rules folded in); CONVERGENCE is the reuse-before-mint discipline. Key names kept (AGENCY/ROUTING/CAST_ECONOMY are roles, not renames).
+ * - Track 0.6: Ghostwrite is a pure speaker-swap (GHOSTWRITE.BASE retired — ghost drafts route through merged CHARACTER.BASE; is_ghostwrite branch pruned; user-turn SUBTEXT dropped in builder.js).
+ * - Track 0.5: Cognition think redesign — universal 3-sentence shell with mode-numbered steps (character stance/friction/mask/action with dialogue pre-drafting purged; narrator tableau/vector/sensorium; enhancer canon/contrast/compression; optics camera calibration absorbed as THINK_OPTICS); prose_think/optics_think unify into one think slot resolver (manifest think_format key retained).
+ * - Track 0.4: Merged NPC_BOUNDARY into CHARACTER.BASE (single boundary directive for interaction + npc turns; speaker naming lives in the role line); retired the is_npc branch in resolve_character_action_directive.
+ * - Track 0.3: Stripped redundant identity preambles from PROSE.SCENE (CONTINUATION role restatement, PROLOGUE/EPILOGUE/COLLAPSE omniscience claims); scene directives open on sequencing mandates.
+ * - Track 0.1/0.2: Documented the instruction grammar law (tags draw the boxes, lists fill them) and the three-layer token contract ({...} build-time, «ABSOLUTE» runtime, @ output-vocabulary-only) in the module header.
  * - 2026-10-07: Plan Omega for Task — Section 5 repatriated to reflex.js (STYLE_MOTIF_REGISTRY import dropped); REFLEX.* delegation moved from get_directive_atom (now pure TASK_LIBRARY) into compile_directive_tags; CINEMATOGRAPHY_RULES descriptor table replaces preset if/else; render_keyword_directives_xml collapsed to (content, mode); plan/render split (resolve_task_plan/render_task_plan, build_task_state retired) — prompt bytes byte-identical.
  * - 2026-10-04: Single has_input resolution (Plan A) — resolve_task_values owns values.has_input + values.turn_state; prose_posture threads the bag flag into the posture plan — prompt bytes byte-identical.
  * - 2026-10-04: Style-DNA parsed once per turn — resolve_task_values owns values.style_dna (style.js resolve_style_dna, from values.style ?? snapshot.style); prose_think/prose_currents/prose_posture read it, @data extract_style_dna import dropped — prompt bytes byte-identical.

@@ -16,22 +16,20 @@ This roadmap defines the authoritative technical backlog, active engineering spr
 
 ```mermaid
 flowchart TD
-    subgraph Sprints["Active Engineering Sprints"]
-        T0["Track 0: Intelligence Kernel Language & Directive Redesign<br>(Phases 0–5: Prompt Grammar, Think Redesign, Taxonomy Rebuild, Sensory Dissolution)"]
-        T1["Track 1: Live Simulation Forensics & Integrity Remediation<br>(P1 User Agency Hard-Negative Enforcement)"]
-        T2["Track 2: Hierarchical Memory Compaction & Context Protection<br>(Tree Compactor, 6k Cliff Budgeting, Hybrid Retrieval)"]
-        T3["Track 3: Clean-Slate Sovereign Engine Reconstruction<br>(Cast Registry, Macro Predicates, Pure Dynamics, Stamped Logs)"]
-        T4["Track 4: Narrative Pacing & Lorebook Systems<br>(Dynamic Pacing Contracts, Slop Linter, Lorebooks, Alternative Branches)"]
+    subgraph Execution["Sovereign Execution Pipeline"]
+        T0["Track 0: Intelligence Kernel Language & Domain Purity<br>(Grammar, Think Blocks, Taxonomy-Derived Directives, Sensory Dissolution)"]
+        T1["Track 1: State & Physics Core Unification<br>(Pure Dynamics Reducer, Stamped History Logs, Unified Cast Registry, Macro Predicates)"]
+        T2["Track 2: Hierarchical Memory & 6k Context Protection<br>(Multi-Tier Tree Compactor, 6,000-Token Cliff Guard, Hybrid Retrieval)"]
+        T3["Track 3: Narrative Pacing, Lorebooks & Story Experience<br>(Pacing Contracts, Slop Linter, Lorebooks, Alternative Branches, User Agency)"]
     end
     T0 --> T1
-    T0 --> T3
+    T1 --> T2
     T2 --> T3
-    T3 --> T4
 ```
 
 ---
 
-## 1. Track 0: Intelligence Kernel Language & Directive Redesign (The Synthetic Plan)
+## 1. Track 0: Intelligence Kernel Language & Domain Purity (The Synthetic Plan)
 
 Ground-up linguistic and structural reconstruction across prompt compilers and intelligence domain modules (`task.js`, `reflex.js`, `protocols.js`, `style.js`, `sensory.js`, `physics.js`, `prompts.js`, `builder.js`). Enforces uniform grammar, eliminates circular dependencies, redesigns cognition think blocks, and rebuilds directives dynamically from the `PROFILE_FIELDS` taxonomy.
 
@@ -147,20 +145,48 @@ flowchart LR
 
 ---
 
-## 2. Track 1: Live Simulation Forensics & Integrity Remediation
+## 2. Track 1: State & Physics Core Unification
 
-Active behavioral hardening derived directly from stress-test forensic trace logs.
+Architectural unification of the core simulation runtime and physical models under **P4 Zero Backwards Compatibility (Pre-Beta Purity)**. Establishes pure functional state reducers, unified entity presence, and unambiguous identity-stamped logs.
 
-- [ ] **1.1 P1 User Agency Hard-Negative Enforcement (Anti-First-Person Hijacking)**:
-  - **Issue**: In stress test logs, persona models occasionally hijacked the player avatar in first person (_"my thigh... I adjust posture"_).
-  - **Remediation**: Evaluate post-Director's-Note-Lock stability. If first-person bleeding recurs, inject hard-negative boundary constraints into `CHARACTER.BASE` and `PROSE_DISCIPLINE` forbidding first-person pronouns when addressing or observing the player persona.
-  - **Touchpoints**: `src/intelligence/modules/task.js`, `src/intelligence/modules/protocols.js`, `src/intelligence/story.js`, `src/intelligence/director.test.js`.
+```mermaid
+flowchart TD
+    subgraph Sovereign Topology
+        RED["1.1 Pure Dynamics Reducer (reduce_dynamics)"]
+        EVT["1.2 Identity-Stamped History Log (origin=entity_id)"]
+        ENT["1.3 Unified Cast Registry (active | nearby | dormant)"]
+        UPM["1.4 Universal Relational Brackets ([@TARGET: dynamic])"]
+        QUE["1.5 Durable Lifecycle Task Worker (stale task abort)"]
+    end
+    RED --> EVT --> ENT --> UPM --> QUE
+```
+
+- [ ] **1.1 Pure Functional Dynamics Reducer (`src/intelligence/dynamics.js`)**:
+  - **Scope**: Rename `physics.js` $\rightarrow$ `dynamics.js` and unify all somatic and environmental metric calculations into a single stateless module.
+  - **Mechanic**: Export a pure functional reducer `reduce_dynamics(current, deltas, baselines, entropy) => next_dynamics` used uniformly across all entity types.
+  - **Touchpoints**: [`src/intelligence/physics.js`](src/intelligence/physics.js), [`src/intelligence/dynamics.js`](src/intelligence/dynamics.js).
+- [ ] **1.2 Identity-Stamped History Log**:
+  - **Scope**: Stamp `entity_id` directly onto log entries at creation in `src/state/log.svelte.js`.
+  - **Mechanic**: Prompt compilation directly emits `<ENTRY origin="${entry.entity_id}">`, eliminating runtime reverse name-to-ID lookup maps (`_attach_history_origins`).
+  - **Touchpoints**: [`src/state/log.svelte.js`](src/state/log.svelte.js), [`src/intelligence/modules/history.js`](src/intelligence/modules/history.js).
+- [ ] **1.3 Unified Entity Cast Registry (Scene Presence & Genesis)**:
+  - **Scope**: Unify the active trio and supporting NPCs into a single entity cast registry.
+  - **Mechanic**: Track presence strictly via explicit state enum: `'active' | 'nearby' | 'dormant'` (eliminating the detached `in_scene_npc_ids` array and fuzzy name lookups). Character Genesis instantiates an entity directly with `presence: 'active'` and an assigned `entity_id`.
+  - **Touchpoints**: [`src/state/runtime.svelte.js`](src/state/runtime.svelte.js), [`src/intelligence/story.js`](src/intelligence/story.js), [`src/intelligence/profile.js`](src/intelligence/profile.js).
+- [ ] **1.4 Universal Predicates & Macro Relational Engine**:
+  - **Scope**: Fully retire legacy `entity.relationships: string[]` plain-text arrays.
+  - **Mechanic**: Store all relational dynamics as universal bracket predicates (`[@TARGET: dynamic | flags]`) across temporal layers (`eternal.non_physical` for baseline bonds, `present.non_physical` for situational dynamics). Integrate dynamic role targets (`[@USER: ...]`, `[@CHAR: ...]`, `[@FRACTAL: ...]`) and **Unified Perspective Resolution** (`{me}` = Source Entity, `{you}` = Target Entity) natively.
+  - **Touchpoints**: [`src/utils/macros.js`](src/utils/macros.js), [`src/intelligence/modules/entities.js`](src/intelligence/modules/entities.js), [`src/intelligence/veil.js`](src/intelligence/veil.js), [`src/ui/profile/RelationalGraph.svelte`](src/ui/profile/RelationalGraph.svelte).
+- [ ] **1.5 Durable Lifecycle Task Worker**:
+  - **Scope**: Enhance `src/utils/job-queue.js` with session/round context gating (`queue.run(task, { story_id, round, latest: true })`).
+  - **Mechanic**: Automatically abort stale background tasks with `{ stale: true }` if the story switches or round advances mid-flight.
+  - **Touchpoint**: [`src/utils/job-queue.js`](src/utils/job-queue.js).
 
 ---
 
-## 3. Track 2: Hierarchical Memory Compaction & Context Protection
+## 3. Track 2: Hierarchical Memory & 6k Context Protection
 
-Eliminates flat FIFO memory eviction, middle-out context truncation cliff drops, and flat retrieval limits (Project Prism-DCM).
+Eliminates flat FIFO memory eviction, middle-out context truncation cliff drops, and flat retrieval limits (Project Prism-DCM). Built on top of clean identity-stamped logs and modular slot budgeting.
 
 ```mermaid
 flowchart TD
@@ -180,78 +206,42 @@ flowchart TD
     - _Tier 1 (Chapters)_: Cluster compacts into summary anchor when reaching fanout threshold (`prismFanout = 8`).
     - _Tier 2 (Arcs)_: Condenses Tier 1 summaries into arc milestones (height $\le 5$).
     - _Selective Leaf Expansion_: Active context retains summary anchors; keyword matching expands relevant leaf events on demand.
-  - **Touchpoints**: `src/intelligence/temporal.js`, `src/intelligence/temporal.test.js`.
+  - **Touchpoints**: [`src/intelligence/temporal.js`](src/intelligence/temporal.js), [`src/intelligence/temporal.test.js`](src/intelligence/temporal.test.js).
 - [ ] **2.2 Context Window Compiler & 6,000-Token Cliff Protection**:
   - LLM inference servers truncate the middle of prompts when input exceeds ~6,000 tokens. Build proactive token budgeting into prompt compilation to clamp assemblies securely under the cliff, dynamically pruning lower-weight leaves before dispatch.
-  - **Touchpoints**: `src/intelligence/builder.js`, `src/intelligence/modules/task.js`, `src/intelligence/prompts.js`.
+  - **Touchpoints**: [`src/intelligence/builder.js`](src/intelligence/builder.js), [`src/intelligence/modules/task.js`](src/intelligence/modules/task.js), [`src/intelligence/prompts.js`](src/intelligence/prompts.js).
 - [ ] **2.3 Deterministic Hybrid Lexical & Semantic Retrieval Ranking**:
   - Calculate retrieval rank via deterministic multi-factor formula:
     $$\text{Score} = (\text{Entity Overlap} \times 3.0) + (\text{Lexical Frequency} \times 1.0) + (\text{Emotional Salience} \times 0.4) + (\text{Recency} \times 1.2)$$
   - Modulate recalled memory clarity/uncertainty via live dynamics (e.g. Chaos $> 70$ or Entropy $> 70$ prefixes fragmented recall; low chaos delivers crisp recall).
-  - **Touchpoints**: `src/intelligence/temporal.js`, `src/intelligence/temporal.test.js`.
+  - **Touchpoints**: [`src/intelligence/temporal.js`](src/intelligence/temporal.js), [`src/intelligence/temporal.test.js`](src/intelligence/temporal.test.js).
 - [ ] **2.4 Memory Extraction Advisory & Write-Time Rot Prevention**:
   - Provide top 12 known settled facts in extraction prompts (`# ALREADY REMEMBERED`) and hash normalized strings (`eventKey`) to fold repeated events into existing node provenance instead of appending duplicates.
-  - **Touchpoints**: `src/intelligence/temporal.js`, `src/intelligence/prompts.js`.
+  - **Touchpoints**: [`src/intelligence/temporal.js`](src/intelligence/temporal.js), [`src/intelligence/prompts.js`](src/intelligence/prompts.js).
 
 ---
 
-## 4. Track 3: Clean-Slate Sovereign Engine Reconstruction
-
-Architectural unification of the core simulation runtime, deconstructing duplicate representations under **P4 Zero Backwards Compatibility (Pre-Beta Purity)**.
-
-```mermaid
-flowchart TD
-    subgraph Sovereign Topology
-        ENT["3.1 Unified Cast Registry (active | nearby | dormant)"]
-        UPM["3.2 Macro Relational Engine (@USER, {me}, {you})"]
-        RED["3.3 Pure Dynamics Reducer (reduce_dynamics)"]
-        EVT["3.4 Identity-Stamped History Log (origin=entity_id)"]
-        QUE["3.5 Durable Lifecycle Task Worker (stale task abort)"]
-    end
-    ENT --> UPM --> RED --> EVT --> QUE
-```
-
-- [ ] **3.1 Unified Entity Cast Registry (Scene Presence & Genesis)**:
-  - Unify active trio and supporting NPCs into a single entity cast registry.
-  - Track presence strictly via explicit enum: `'active' | 'nearby' | 'dormant'` (eliminating the detached `in_scene_npc_ids` array and fuzzy name lookups). Genesis instantiates directly with `presence: 'active'`.
-  - **Touchpoints**: `src/state/runtime.svelte.js`, `src/intelligence/story.js`, `src/intelligence/profile.js`.
-- [ ] **3.2 Universal Predicates & Macro Relational Engine**:
-  - Fully retire legacy `entity.relationships: string[]` array.
-  - Store all relational dynamics as universal bracket predicates (`[@TARGET: dynamic | flags]`) across temporal layers (`eternal.non_physical` for baseline bonds, `present.non_physical` for situational dynamics).
-  - Unify perspective resolution: `{me}` = Source Entity, `{you}` = Target Entity.
-  - **Touchpoints**: `src/utils/macros.js`, `src/intelligence/modules/entities.js`, `src/intelligence/veil.js`, `src/ui/profile/RelationalGraph.svelte`.
-- [ ] **3.3 Pure Functional Dynamics Reducer (`src/intelligence/dynamics.js`)**:
-  - Rename `physics.js` $\rightarrow$ `dynamics.js` and unify state calculations into a stateless module.
-  - Export pure functional reducer `reduce_dynamics(current, deltas, baselines, entropy) => next_dynamics` used uniformly across all entities.
-  - **Touchpoints**: `src/intelligence/physics.js`, `src/intelligence/dynamics.js`.
-- [ ] **3.4 Identity-Stamped History Log**:
-  - Stamp `entity_id` directly onto log entries at creation in `src/state/log.svelte.js`.
-  - Prompt compilation directly emits `<ENTRY origin="${entry.entity_id}">`, eliminating runtime reverse name-to-ID lookup maps (`_attach_history_origins`).
-  - **Touchpoints**: `src/state/log.svelte.js`, `src/intelligence/modules/history.js`.
-- [ ] **3.5 Durable Lifecycle Task Worker**:
-  - Enhance `src/utils/job-queue.js` with session/round context gating (`queue.run(task, { story_id, round, latest: true })`).
-  - Automatically abort stale background tasks with `{ stale: true }` if story switches or round advances mid-flight.
-  - **Touchpoint**: `src/utils/job-queue.js`.
-
----
-
-## 5. Track 4: Pacing, World Info & Advanced Narrative Mechanics
+## 4. Track 3: Narrative Pacing, Lorebooks & Story Experience
 
 Advanced storytelling mechanisms, conversational pacing heuristics, and world simulation modules.
 
-- [ ] **4.1 Dynamic Pacing Contracts & Prose Heuristics Engine**:
+- [ ] **3.1 Dynamic Pacing Contracts & Prose Heuristics Engine**:
   - _Input-Proportional Sizing_: Classify user inputs into size categories (`TINY` $\le 12$ chars, `SMALL` $\le 90$ chars, `MEDIUM` $\le 400$ chars, `EXPANSIVE` $> 400$ chars) and clamp reply beat counts accordingly to eliminate unprompted essays on simple user actions.
   - _Anti-Staging Constraints_: Forbid gratuitous physical movement on terse dialogue turns.
   - _Multi-Tier Slop Linter (`src/utils/styles.js`)_: Purge repetitive narrative clichés (`not X, but Y`, `against better judgment`) and cap cliché somatic markers to $\le 1$ per reply.
   - _Held-Moment Permitting_: Detect conversational pauses and silence without forcing abrupt scene transitions.
-  - **Touchpoints**: `src/intelligence/modules/task.js`, `src/utils/styles.js`.
-- [ ] **4.2 Standalone World Info & Triggered Lorebook System**:
+  - **Touchpoints**: [`src/intelligence/modules/task.js`](src/intelligence/modules/task.js), [`src/utils/styles.js`](src/utils/styles.js).
+- [ ] **3.2 Standalone World Info & Triggered Lorebook System**:
   - Standalone lorebook entities `(id, name, description, scan_depth, token_budget, recursive, entries[])`.
   - Multi-pass regex, glob wildcards, and whole-word matching over last $N$ turns with secondary filter logic (`any`, `all`, `not_any`).
   - Budget-conscious insertion into prompt envelopes with strict token ceilings.
-  - **Touchpoints**: `src/data/db.js`, `src/intelligence/modules/`.
-- [ ] **4.3 Epistemic Hardening & Director Alternative Branches**:
+  - **Touchpoints**: [`src/data/db.js`](src/data/db.js), [`src/intelligence/modules/`](src/intelligence/modules/).
+- [ ] **3.3 Epistemic Hardening & Director Alternative Branches**:
   - _Private Directive Purging_: Scrub covert directives and secret flags across entity boundaries before compiling persona prompts.
   - _Fractal & NPC Audio Stream Concurrency_: Prevent audio synthesis cutoffs when ambient fractal dialogue overlaps with AI character speech.
   - _Director Alternative Branches_: Allow Director to supply bracketed alternative dialogue branches for user-guided exploration.
-  - **Touchpoints**: `src/intelligence/director.js`, `src/intelligence/story.js`, `src/media/audio.svelte.js`.
+  - **Touchpoints**: [`src/intelligence/director.js`](src/intelligence/director.js), [`src/intelligence/story.js`](src/intelligence/story.js), [`src/media/audio.svelte.js`](src/media/audio.svelte.js).
+- [ ] **3.4 P1 User Agency Hard-Negative Enforcement (Anti-First-Person Hijacking)**:
+  - **Issue**: In stress test logs, persona models occasionally hijacked the player avatar in first person (_"my thigh... I adjust posture"_).
+  - **Remediation**: Evaluate post-Director's-Note-Lock stability. If first-person bleeding recurs, inject hard-negative boundary constraints into `CHARACTER.BASE` and `PROSE_DISCIPLINE` forbidding first-person pronouns when addressing or observing the player persona.
+  - **Touchpoints**: `src/intelligence/modules/task.js`, `src/intelligence/modules/protocols.js`, `src/intelligence/story.js`, `src/intelligence/director.test.js`.

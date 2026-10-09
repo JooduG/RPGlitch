@@ -6,6 +6,7 @@ import {
   compute_dynamics_deltas,
   evaluate_subtext_protocols,
   evaluate_dynamics_rules,
+  evaluate_image_trigger,
   DYNAMICS_AXES,
   DYNAMICS_RULES,
   AVAILABLE_KEYWORDS,
@@ -16,7 +17,7 @@ import {
   build_turn_summary,
 } from "./physics.js";
 import { render_dynamics_axes_xml } from "./physics.js";
-import { render_available_keywords_xml } from "./modules/reflex.js";
+import { render_available_keywords_xml } from "./modules/task.js";
 
 describe("physics.js", () => {
   describe("DYNAMICS_AXES", () => {
@@ -410,5 +411,58 @@ describe("physics.js", () => {
         expect(tokens.length).toBe(unique_tokens.size);
       });
     });
+  });
+});
+
+// ============================================================================
+// [IMAGE-TRIGGER DYNAMICS GATE — Track 0.11: moved from media/optics.test.js]
+// ============================================================================
+
+describe("evaluate_image_trigger (Pure-JS Dynamics Gate)", () => {
+  it("triggers on Signal B high-band entry (transitioning into >= 85)", () => {
+    const prev = { ai: { intensity: 80 } };
+    const curr = { ai: { intensity: 88 } };
+    const res = evaluate_image_trigger(curr, prev);
+
+    expect(res.triggered).toBe(true);
+    expect(res.signals.band_entry).toEqual({ axis: "intensity", from: 80, to: 88, band: "high" });
+    expect(res.tier).toBe("story_character");
+  });
+
+  it("triggers on Signal B low-band entry (transitioning into <= 15)", () => {
+    const prev = { fractal: { entropy: 20 } };
+    const curr = { fractal: { entropy: 12 } };
+    const res = evaluate_image_trigger(curr, prev);
+
+    expect(res.triggered).toBe(true);
+    expect(res.signals.band_entry).toEqual({ axis: "entropy", from: 20, to: 12, band: "low" });
+    expect(res.tier).toBe("story_scene");
+  });
+
+  it("does not trigger when staying within an extreme band", () => {
+    const prev = { ai: { intensity: 86 } };
+    const curr = { ai: { intensity: 90 } };
+    const res = evaluate_image_trigger(curr, prev);
+
+    expect(res.triggered).toBe(false);
+    expect(res.signals.band_entry).toBeNull();
+  });
+
+  it("triggers on Signal A displacement sum exceeding threshold (60)", () => {
+    const prev = { ai: { intensity: 50, dominance: 50 }, fractal: { entropy: 50 } };
+    const curr = { ai: { intensity: 75, dominance: 70 }, fractal: { entropy: 70 } };
+    const res = evaluate_image_trigger(curr, prev);
+
+    expect(res.triggered).toBe(true);
+    expect(res.signals.displacement).toBe(65);
+    expect(res.tier).toBe("story_scene");
+  });
+
+  it("handles non-finite values safely without crashing", () => {
+    const prev = { ai: { intensity: NaN } };
+    const curr = { ai: { intensity: 50 } };
+    const res = evaluate_image_trigger(curr, prev);
+
+    expect(res.triggered).toBe(false);
   });
 });

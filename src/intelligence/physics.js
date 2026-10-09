@@ -10,7 +10,8 @@
  * 3. Unified Dynamics Rules (DYNAMICS_RULES: subtext protocols & somatic thresholds)
  * 4. Physics Engine & Gravity Settlement (apply_dynamics_gravity, extract_entity_dynamics_baselines)
  * 5. Delta Computation & Subtext Protocol Evaluators (compute_dynamics_deltas, evaluate_subtext_protocols, evaluate_dynamics_rules)
- * 6. Consumed by modules/entities/sheets.js (axis XML) and modules/task.js (subtext/keyword compilers), which own all XML generation.
+ * 8. Image-Trigger Dynamics Gate (IMAGE_TRIGGER, evaluate_image_trigger) with literal tier values (never media taxonomy)
+ * 6. Somatic subtext and physics-protocol resolution (render_subtext_xml, resolve_physics_protocols) beside the registries and evaluators they read; keyword listing lives in modules/task.js.
  *
  * Architecture & Modification Rules:
  * - Unidirectional layer flow: pure data, math calculations, and XML generation.
@@ -18,7 +19,8 @@
  * ============================================================================
  */
 
-import { clamp, escape_xml } from "@utils";
+import { clamp, escape_xml, render_xml_tag } from "@utils";
+import { STYLE_MOTIF_REGISTRY } from "@data";
 
 // ── 1. Dynamics Axes ──────────────────────────────────────────────────────────
 
@@ -633,8 +635,197 @@ export function resolve_dynamic_axes_slot(config, normalized = {}) {
   return render_dynamics_axes_xml(normalized.merged_dynamics, null, DYNAMICS_AXES);
 }
 
+// ============================================================================
+// [SECTION 7: SOMATIC SUBTEXT & PHYSICS-PROTOCOL RESOLUTION]
+// ============================================================================
+// Track 0.10: moved verbatim from reflex.js Section 6 - subtext assembly and
+// physics-protocol resolution live beside the registries (PHYSICS_PROTOCOLS,
+// STYLE_MOTIF_REGISTRY) and evaluators they read. reflex.js keeps posture,
+// recovery, and turn-state.
+
+/**
+ * Resolves a list of chosen keywords against a physics protocol registry and style-motif registry.
+ * @param {string[]} [keywords=[]]
+ * @param {Record<string, any>} [physics_protocols={}]
+ * @returns {{ id: string, tells?: string, directive: string }[]}
+ */
+export function resolve_physics_protocols(keywords = [], physics_protocols = {}) {
+  const resolved = [];
+  for (const keyword of keywords || []) {
+    if (!keyword || typeof keyword !== "string") continue;
+    const clean_key = keyword.trim();
+    const upper_key = clean_key.toUpperCase();
+    const protocol_def = physics_protocols[upper_key] || physics_protocols[clean_key];
+    if (protocol_def) {
+      if (typeof protocol_def === "object") {
+        resolved.push({ id: upper_key, tells: protocol_def.tells, directive: protocol_def.directive });
+      } else {
+        resolved.push({ id: upper_key, directive: String(protocol_def) });
+      }
+      continue;
+    }
+    const motif = STYLE_MOTIF_REGISTRY[clean_key] || STYLE_MOTIF_REGISTRY[clean_key.toLowerCase()];
+    if (motif) resolved.push({ id: clean_key, directive: motif.directive });
+  }
+  return resolved;
+}
+
+/**
+ * Compiles dynamic somatic directives and narrative signals into a single unified <SUBTEXT> XML block.
+ *
+ * @param {Record<string, number>} [ai_dynamics={}] - Active character dynamics
+ * @param {Record<string, number>} [fractal_dynamics={}] - Active fractal/environmental dynamics
+ * @param {object} [options={}] - Options containing style, keywords, evaluators, and protocol registries
+ * @returns {string} XML block string or "" if no signals or directives are active.
+ */
+export function render_subtext_xml(ai_dynamics = {}, fractal_dynamics = {}, options = {}) {
+  const tags = [];
+  const seen = new Set();
+
+  const push = (id, directive) => {
+    const tag =
+      String(id || "")
+        .trim()
+        .toUpperCase()
+        .replace(/[^A-Z0-9_]/g, "_") || "";
+    const text = String(directive || "").trim();
+    if (!tag || !text || seen.has(tag)) return;
+    seen.add(tag);
+    tags.push(`<${tag}>${escape_xml(text)}</${tag}>`);
+  };
+
+  const physics_protocols = options?.physics_protocols || {};
+  const manual_keywords = options?.keywords || [];
+  const evaluate_dynamics_rules = options?.evaluate_dynamics_rules;
+  const resolved_keywords =
+    ai_dynamics && Object.keys(ai_dynamics).length && typeof evaluate_dynamics_rules === "function"
+      ? evaluate_dynamics_rules(ai_dynamics, manual_keywords)
+      : manual_keywords;
+
+  const resolved_directives = resolve_physics_protocols(resolved_keywords, physics_protocols);
+  for (const entry of resolved_directives) {
+    push(entry.id, entry.directive);
+  }
+
+  const evaluate_subtext_protocols = options?.evaluate_subtext_protocols;
+  const active_protocols =
+    typeof evaluate_subtext_protocols === "function"
+      ? evaluate_subtext_protocols({
+          ai_dynamics,
+          fractal_dynamics,
+          style: options?.style,
+        })
+      : [];
+
+  for (const protocol of active_protocols) {
+    const text =
+      protocol.text ||
+      (typeof physics_protocols[protocol.id] === "string" ? physics_protocols[protocol.id] : physics_protocols[protocol.id]?.directive);
+    push(protocol.id, text);
+  }
+
+  if (tags.length === 0) return "";
+  return render_xml_tag({ tag: "SUBTEXT", children: tags, child_indent: 2, separator: "\n" });
+}
+
+// ============================================================================
+// [SECTION 8: IMAGE-TRIGGER DYNAMICS GATE]
+// ============================================================================
+// Track 0.11: moved verbatim from media/optics.js Section 2 (one token changed:
+// default_tier falls back to the "story_scene" literal - physics never imports
+// media taxonomy). resolve_image_trigger stays in media/optics.js, reading
+// these thresholds through its physics import.
+
+export const IMAGE_TRIGGER = Object.freeze({
+  band_high: 85,
+  band_low: 15,
+  displacement_threshold: 60,
+  director_cooldown_rounds: 2,
+  dynamics_cooldown_rounds: 3,
+  default_tier: "story_scene",
+  tiers: Object.freeze(["story_entities", "story_character", "solo_entity", "story_scene"]),
+});
+/** Character-domain entities bias image beats toward character tiers. */
+const CHARACTER_DOMAIN_ENTITIES = Object.freeze(new Set(["ai", "user"]));
+
+export function evaluate_image_trigger(current = {}, previous = {}, options = {}) {
+  const band_high = options.band_high ?? 85;
+  const band_low = options.band_low ?? 15;
+  const displacement_threshold = options.displacement_threshold ?? 60;
+  const default_tier = options.default_tier ?? "story_scene";
+
+  const entities_set = new Set([...Object.keys(current || {}), ...Object.keys(previous || {})]);
+  const axis_names = new Set();
+
+  for (const entity of entities_set) {
+    for (const axis of Object.keys((current || {})[entity] || {})) axis_names.add(axis);
+    for (const axis of Object.keys((previous || {})[entity] || {})) axis_names.add(axis);
+  }
+
+  const deltas = [];
+  const band_entries = [];
+  let band_entry = null;
+  let displacement = 0;
+
+  for (const axis of axis_names) {
+    let from = null;
+    let to = null;
+    let from_entity = null;
+    let to_entity = null;
+
+    for (const entity of entities_set) {
+      const previous_entity_dynamics = (previous || {})[entity] || {};
+      const current_entity_dynamics = (current || {})[entity] || {};
+      if (from === null && Number.isFinite(previous_entity_dynamics[axis])) {
+        from = previous_entity_dynamics[axis];
+        from_entity = entity;
+      }
+      if (to === null && Number.isFinite(current_entity_dynamics[axis])) {
+        to = current_entity_dynamics[axis];
+        to_entity = entity;
+      }
+    }
+
+    if (!Number.isFinite(from) || !Number.isFinite(to)) continue;
+
+    const delta = Math.round((to - from) * 10) / 10;
+    deltas.push({ axis, from, to, delta, entity: to_entity || from_entity });
+    displacement += Math.abs(to - from);
+
+    const entry_entity = to_entity || from_entity;
+    if (to >= band_high && from < band_high) {
+      band_entries.push({ axis, from, to, band: "high", entity: entry_entity });
+      if (!band_entry) band_entry = { axis, from, to, band: "high" };
+    } else if (to <= band_low && from > band_low) {
+      band_entries.push({ axis, from, to, band: "low", entity: entry_entity });
+      if (!band_entry) band_entry = { axis, from, to, band: "low" };
+    }
+  }
+
+  displacement = Math.round(displacement * 10) / 10;
+  const triggered = band_entry !== null || displacement >= displacement_threshold;
+
+  const character_band_entry = band_entries.find((entry) => CHARACTER_DOMAIN_ENTITIES.has(entry.entity));
+  const tier = character_band_entry ? "story_character" : band_entries.length > 0 ? "story_scene" : default_tier;
+
+  return {
+    triggered,
+    signals: {
+      band_entry,
+      displacement,
+      displacement_threshold,
+    },
+    tier,
+    deltas,
+  };
+}
+
+// ============================================================================
+
 /**
  * CHANGELOG
+ * - Track 0.11: Absorbed IMAGE_TRIGGER + evaluate_image_trigger from media/optics.js (new Section 8; default_tier falls back to the story_scene literal - no media imports). resolve_image_trigger stays in media. Prompt bytes byte-identical.
+ * - Track 0.10: Absorbed render_subtext_xml + resolve_physics_protocols from reflex.js (new Section 7; render_xml_tag + STYLE_MOTIF_REGISTRY imports added) - subtext assembly lives with PHYSICS_PROTOCOLS and the dynamics evaluators. Prompt bytes byte-identical.
  * - 2026-10-04: Absorbed render_dynamics_axes_xml from entities.js — dynamics presentation lives with the dynamics engine.
  * - 2026-09-25: Module consolidation — absorbed telemetry builders, dynamics delta capture, and turn summaries from telemetry.js into physics.js.
  * - 2026-09-19: Removed PHYSICS_PROTOCOLS.FIRST_CONTACT (the "System-Forced Context Directives" section) — first-contact is a prose directive, now single-sourced as TASK_LIBRARY.PROSE.CHARACTER.FIRST_CONTACT; the registry is strictly 12 somatic archetypes + 18 dynamics triggers.

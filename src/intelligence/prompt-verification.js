@@ -262,10 +262,6 @@ export const CONTRACT = {
       "TASK",
       "THINK_FORMAT",
       "THINK",
-      "BEAT",
-      "BEAT",
-      "BEAT",
-      "BEAT",
       "INPUT",
       "CURRENTS",
       "SENSORY_EXPERIENCE",
@@ -338,16 +334,9 @@ export const CONTRACT = {
       "TASK",
       "THINK_FORMAT",
       "THINK",
-      "BEAT",
-      "BEAT",
-      "BEAT",
-      "BEAT",
       "INPUT",
       "CURRENTS",
       "SENSORY_EXPERIENCE",
-      "SUBTEXT",
-      "RECOVERY",
-      "INSTABILITY",
       "DIRECTIVES",
       "DELIVERY_POSTURE",
       "PACING",
@@ -422,10 +411,6 @@ export const CONTRACT = {
       "TASK",
       "THINK_FORMAT",
       "THINK",
-      "BEAT",
-      "BEAT",
-      "BEAT",
-      "BEAT",
       "INPUT",
       "CURRENTS",
       "SENSORY_EXPERIENCE",
@@ -723,8 +708,6 @@ export const CONTRACT = {
       "INPUT",
       "TARGET",
       "SPATIAL_FRAMING",
-      "FIRST_SENTENCE_MANDATE",
-      "SPATIAL_GEOMETRY",
       "CINEMATOGRAPHY",
       "DIRECTIVES",
       "KEYWORD_DIRECTIVES",
@@ -768,6 +751,7 @@ export const MODE_DIRECTIVE_LEADS = Object.freeze({
 
 /**
  * CHANGELOG
+ * - Track 0.12: Optics CONTRACT inventory drops FIRST_SENTENCE_MANDATE + SPATIAL_GEOMETRY (wrapper literals purged from the atom bodies; bare mandate prose remains).
  * - 2026-10-05: Single-envelope contract — inventories merge system + task tag lists (HISTORY/ENTRYs where the fixture log renders); CONTRACT_SIZES retired (shape, not bytes, is the gate).
  * - 2026-10-04: Director contract inventory left unchanged by the hint envelope (no fixture input fires the hint — verified against the failing assumption; unit tests pin the envelope).
  * - 2026-10-04: Catalog restructure re-baseline (orthogonal atoms: GROUNDING shared, SENTENCE_FORMULAS/SCENE_MOMENTUM/CLICHES/CONSENT split, IMAGE_VOCABULARY merged, TEXT_RENDERING renamed, DATA→OUTPUT, ALTERNATION→reflex): interaction 5468→5703, ghostwrite 5469→5704, npc 5800→6035, narrator 5055→5290 (×3), optics 1761→1716 (+235 prose/+235 narrator/−45 optics CORE_PROTOCOLS deltas, measured via bundle); all tasks unchanged; inventories updated.

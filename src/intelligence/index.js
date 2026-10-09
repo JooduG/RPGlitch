@@ -88,7 +88,7 @@ export { build_turn_summary } from "./physics.js";
 export { render_core_protocols, resolve_protocol_plan, render_protocol_plan } from "./modules/protocols.js";
 export { render_narrative_style_xml, render_visual_style_xml, resolve_style_dna, resolve_style_snapshot } from "./modules/style.js";
 export { render_visual_history, format_sensory_history, resolve_history_plan, resolve_sensory_plan, render_history_plan } from "./modules/history.js";
-export { render_optics_fallback } from "./modules/sensory.js";
+export { render_optics_fallback } from "../media/optics.js";
 
 // ============================================================================
 // Veil Engine & Universal Bracket Predicates (Epistemic Wall)
@@ -108,6 +108,7 @@ export {
 
 /**
  * CHANGELOG:
+ * - Track 0.11: render_optics_fallback now re-exports from media/optics.js (sensory.js dissolved).
  * - 2026-10-01: Re-exported consolidated Veil Engine functions (bracket parsing, epistemic wall, secrecy signals) from veil.js.
  * - 2026-09-29: Exported universal bracket predicate domain engine functions from synaptic.js.
  * - 2026-09-24: Purged VISUAL_EXCLUDED_KEYS and strip_visual_excluded re-exports under P4 Zero Backwards Compatibility (now accessed directly from @utils).

@@ -15,6 +15,8 @@
  *   over @utils `render_xml_tag`; `render_core_protocols` is a one-line composition.
  * - Single source of truth for formatting, anti-tropes, and POV mandates; simulation fidelity is a constitution axiom, not a protocol.
  * - Strict manifest alignment: `render_core_protocols` honors the declarative protocols list from `prompts.js`.
+ * - Instruction grammar (Track 0.1): one XML tag per instruction block, list-shaped bodies, no per-step tags;
+ *   `@` output vocabulary lives only in bracket directives and macro rules (Track 0.2).
  * ============================================================================
  */
 
@@ -39,6 +41,7 @@ const MACRO_SUBJECTS = Object.freeze({
   SORTING: "'@ME' / '@SPEAKER' (self), '@YOU' / '@LISTENER' (user persona), '@CHAR' (AI character), '@FRACTAL' (environment),",
 });
 const MACRO_PRONOUN_RULE = " Never use raw pronouns ambiguously.";
+const MACRO_TOKEN_RULE = " Emit @-tokens only inside bracket directives — never in narrative prose.";
 
 export const PROTOCOL_LIBRARY = Object.freeze({
   // ── 1.1 Shared Grounding & Core-Prose Scaffold (<CORE_PROTOCOLS> bodies) ──
@@ -58,7 +61,7 @@ export const PROTOCOL_LIBRARY = Object.freeze({
       }),
     }),
     PROSE_DISCIPLINE: Object.freeze({
-      TYPOGRAPHY: `Balance interior reflection against physical impact and speech. Maintain lingering sensory conditions across scene shifts. Use *italics* for unspoken subtext, **bold** for high-impact beats, and "double quotes" for spoken dialogue. Omit meta-commentary, preambles, headers, or user echoes. End on a complete sentence.`,
+      TYPOGRAPHY: `Balance interior reflection against physical impact and speech. Maintain lingering sensory conditions across scene shifts. Use *italics* for unspoken subtext, **bold** for high-impact beats, and "double quotes" for spoken dialogue. Omit meta-commentary, preambles, headers, or user echoes. End on a complete sentence. Never emit @-tokens outside bracket directives in narrative prose.`,
       SENTENCE_FORMULAS: `Eliminate synthetic sentence formulas: denial-then-affirmation ('X did not just Y; it Z'd'), antithetical formulas ('Not X, but Y'), symmetrical binary comparisons, appositive dialogue sound tags, and formulaic action-dialogue sandwiches.`,
       SCENE_MOMENTUM: `State actions directly and keep the scene moving; never stall with permission loops ('Can I ask a question?'), teasing secrets, or begging quotas.`,
       CLICHES: `Prohibit cliché clusters such as 'spoke volumes', 'a testament to', 'tapestry of', 'shivers down the spine', 'unspoken understanding', 'dance of shadows', and Wattpad dominance tropes ('feisty', 'playing with fire', 'death of me', 'mine').`,
@@ -72,13 +75,49 @@ export const PROTOCOL_LIBRARY = Object.freeze({
       "Enforce FLUX_T5_WEIGHTING — NEVER emit bracket weight math ('(x:1.3)', '((x))', '[x:0.4]'): FLUX/T5 reads words, not weights. Emphasize via descriptors, varied rephrasing, and attenuation phrasing ('faint', 'subtle touch of', 'barely visible in the distance'). Describe positive presence in frame ('softly moonlit glade' not 'no harsh sunlight'); confine negative_prompt to global quality artifacts.",
     TEXT_RENDERING:
       'Render on-screen text ONLY when the scene itself calls for it — signs, graffiti, titles, or UI that are part of the subject matter. Never add text artificially. When text IS present, spell it out exactly with placement, font, and color — never invent, garble, or approximate lettering, and never emit generic placeholders like "text" or "sign".',
+    MANDATE: "Convert narrative intent into a structured image prompt payload depicting {subject_description}.",
+
+    SUBJECT_RULES: Object.freeze({
+      DYNAMIC_OVERRIDES:
+        "DYNAMIC OVERRIDES: Follow a strict bottom-up hierarchy where the most recent (bottom-most) physical condition update ALWAYS overrides preceding static tags like «SHIRT» or «JACKET». If a conflicting state appears later (e.g. 'no clothes' then later 'shirt: white'), the most recent/latest state wins.",
+      GARMENT_ANATOMY:
+        "GARMENT ANATOMY: When rendering specialized or revealing garments (e.g., jockstraps, thongs, harnesses), explicitly specify their physical mechanics and bare skin exposure in natural prose. For a jockstrap, describe: 'wearing an athletic jockstrap featuring a supportive front pouch, open sides and back with bare exposed butt cheeks, and dual wide elastic straps circling under the glutes/thighs'. For thongs, describe: 'a narrow string back leaving the rear completely bare'. Never allow jockstraps to collapse into generic briefs or full-coverage shorts.",
+      IDENTIFIERS: 'IDENTIFIERS: Always explicitly state gender and physical identifiers (e.g., "a handsome young male high-elf man").',
+      CREATURE_DISAMBIGUATION:
+        'CREATURE DISAMBIGUATION: Never use bare animal/creature proper names (e.g., "Beast"). Translate to explicit physical traits (e.g., "a massive grey-green male orc warrior").',
+      SIGNATURE_COLORS:
+        "SIGNATURE COLORS: Every character's distinctive visual anchors — declared hair color AND length, eye color, skin markings, and signature accent colors — are non-negotiable. Copy them EXACTLY as written in the ENTITIES sheet; never recolor, lengthen, shorten, or substitute them, and never derive a subject's hair or eye color from the environment (silver fog, twilight, moonlight), the lighting, or accessories (e.g., silver jewelry). If the sheet declares a specific hair color or length, the output prompt MUST state that exact value.",
+    }),
+
+    SOLO_FRAME:
+      "**SOLO FRAME PROTOCOL.** Isolated single-subject portrait. No secondary characters, no story scene context. The backdrop must be drawn solely from the subject's own identity and signature colors.",
+    ENVIRONMENTAL_SCALE:
+      "**AFFIRMATIVE ENVIRONMENTAL SCALE.** Focus completely on vast landscape architecture, atmospheric density, weather effects, and physical spatial structures.",
+    BACKGROUND:
+      "You MUST synthesize an evocative, atmospheric background environment that naturally fits the personality, visual theme, and signature colors of {subject_name}.",
+
+    FIRST_SENTENCE_MANDATE: Object.freeze({
+      SCENE:
+        "Always establish vast environmental geometry, architectural structures, terrain scale, and atmospheric lighting in the VERY FIRST sentence before any secondary elements.",
+      ENTITY: "Always place main entities and active physical interactions in the VERY FIRST sentence.",
+    }),
+    SPATIAL_GEOMETRY:
+      "Spatial orientation: direct depiction of focal elements, absolute geometry, camera angles, elevations, lighting positions, and depth layers without metaphor or narrative scaffolding.",
+    SELFIE_DIRECTIVE: 'Generate a short, in-character social media caption inside "caption".',
+    CINEMATOGRAPHY: Object.freeze({
+      STAGING_DIRECTIVE: "\n  Staging Directive: {visual_staging}",
+      NARRATIVE_CONTEXT: Object.freeze({
+        GROUP: "\n  Group Mandate: Feature both {ai_name} and {user_name} engaged together in their active positions within the fractal environment.",
+        CHARACTER_IN_SCENE: "\n  Character In Scene: Depict {character_name} situated directly within {setting_name}.",
+      }),
+    }),
   }),
 
   // ── 1.3 Entity Macro Directives ─────────────────────────────────────────────
   MACROS: Object.freeze({
-    CHARACTER: `${MACRO_PREFIX}${MACRO_SUBJECTS.CHARACTER}${MACRO_SUFFIX}${MACRO_PRONOUN_RULE}`,
-    FRACTAL: `${MACRO_PREFIX}${MACRO_SUBJECTS.FRACTAL}${MACRO_SUFFIX}`,
-    SORTING: `${MACRO_PREFIX}${MACRO_SUBJECTS.SORTING}${MACRO_SUFFIX}`,
+    CHARACTER: `${MACRO_PREFIX}${MACRO_SUBJECTS.CHARACTER}${MACRO_SUFFIX}${MACRO_PRONOUN_RULE}${MACRO_TOKEN_RULE}`,
+    FRACTAL: `${MACRO_PREFIX}${MACRO_SUBJECTS.FRACTAL}${MACRO_SUFFIX}${MACRO_TOKEN_RULE}`,
+    SORTING: `${MACRO_PREFIX}${MACRO_SUBJECTS.SORTING}${MACRO_SUFFIX}${MACRO_TOKEN_RULE}`,
   }),
 });
 
@@ -102,16 +141,32 @@ export function resolve_macro_directive(entity_type = "character") {
  * emission — substring/prefix guessing lives only in plan selection.
  *
  * @param {string} protocol_key - Dotted registry path (e.g. "OPTICS.IMAGE_VOCABULARY")
+ * @param {Record<string, any>} [values={}] - Interpolation bag for {placeholder} atoms
  * @returns {{ tag: string, body: string }|null}
  */
-function resolve_static_rule(protocol_key) {
+function resolve_static_rule(protocol_key, values = {}) {
   const normalized_key = String(protocol_key).trim().toUpperCase();
-  const resolved = resolve_catalog_atom(PROTOCOL_LIBRARY, normalized_key, {}, { uppercase: true });
+  const resolved = resolve_catalog_atom(PROTOCOL_LIBRARY, normalized_key, values, { uppercase: true });
   if (typeof resolved !== "string" || !resolved) return null;
   return { tag: normalized_key.split(".").at(-1), body: resolved };
 }
 
 // ============================================================================
+/**
+ * Resolves one optics atom against PROTOCOL_LIBRARY.OPTICS with values
+ * interpolation (retires sensory.js get_sensory_atom; key names kept).
+ * Accepts OPTICS-prefixed or bare keys; missing keys resolve to "".
+ * @param {string|null|undefined} key
+ * @param {Record<string, any>} [values={}]
+ * @returns {string}
+ */
+export function resolve_optics_atom(key, values = {}) {
+  const key_text = String(key == null ? "" : key);
+  const full_key = key_text.slice(0, 7) === "OPTICS." ? key_text : "OPTICS." + key_text;
+  const resolved = resolve_catalog_atom(PROTOCOL_LIBRARY, full_key, values);
+  return typeof resolved === "string" ? resolved : resolved == null ? "" : resolved.body;
+}
+
 // [SECTION 3: PROTOCOL PLANS — PURE DATA, NO XML]
 // ============================================================================
 
@@ -336,6 +391,9 @@ export function resolve_core_protocols_slot(config, normalized = {}, resolved = 
 
 /**
  * CHANGELOG
+ * - Track 0.12: Token-hygiene purge - FIRST_SENTENCE_MANDATE.*, SPATIAL_GEOMETRY, and SELFIE_DIRECTIVE bodies drop their raw <TAG> wrapper literals (bare mandate prose; optics CONTRACT inventory loses two entries). Standing metasyntax gate added in src/intelligence/metasyntax.test.js.
+ * - Track 0.11: Absorbed sensory statics into PROTOCOL_LIBRARY.OPTICS (MANDATE, SUBJECT_RULES, SOLO_FRAME, ENVIRONMENTAL_SCALE, BACKGROUND, FIRST_SENTENCE_MANDATE, SPATIAL_GEOMETRY, SELFIE_DIRECTIVE, CINEMATOGRAPHY templates); resolve_static_rule takes values; new exported resolve_optics_atom (retires sensory get_sensory_atom). Prompt bytes byte-identical.
+ * - Track 0.1/0.2: Documented the instruction grammar law in the module header; added the @-token containment rule to PROSE_DISCIPLINE.TYPOGRAPHY and to every MACROS record (output vocabulary lives only in bracket directives).
  * - 2026-10-04: Renumbered duplicate section headers (1 library, 2 matcher, 3 plans, 4 renderer, 5 POV, 6 public compiler); plan-gated alternation renders via reflex.js render_alternation_block instead of a dummy-text has_alternations probe — byte-identical output.
  * - 2026-10-04: Catalog restructure (Suggestion 2 hybrid) — orthogonal single-concern atoms: ANTI_TROPES splits into SENTENCE_FORMULAS + SCENE_MOMENTUM, BANNED_CLICHES into CLICHES + standalone CONSENT, PHYSICALITY + ENVIRONMENTAL_GROUNDING fuse into shared GROUNDING, WEIGHTING + AFFIRMATIVE fuse into IMAGE_VOCABULARY, optics TYPOGRAPHY renamed TEXT_RENDERING (was colliding with prose TYPOGRAPHY); DATA moves to output.js OUTPUT_DIRECTIVES (manifests use OUTPUT.DATA); ALTERNATION atom + render_alternation_protocol move to reflex.js; MACROS records derive from shared MACRO_SUBJECTS (SORTING prefix normalized, byte-neutral in practice).
  * - 2026-10-04: Plan/render split (Plan 2) — `resolve_protocol_plan` owns all selection/tense-fold/style/drop decisions as frozen pure data (with `dropped.unknown` counts), `render_protocol_plan` maps plans to envelopes without branching, `render_core_protocols` is a one-line composition; retired the private `compile_protocol_tags` in favor of the exact `resolve_static_rule` matcher.

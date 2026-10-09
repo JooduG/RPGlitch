@@ -100,7 +100,6 @@ export const PROMPT_LAYERS = Object.freeze([
   { key: "entities", emit: (state) => state.entities_block },
   { key: "target_entity_context", emit: (state) => state.target_context },
   { key: "cast", emit: (state) => state.nearby_cast },
-  { key: "layer", emit: (state) => state.layer },
   { key: "entity_context", emit: (state) => state.field_context },
   { key: "chapter_history", emit: (state) => state.chapter_history },
   { key: "history", emit: (state) => state.history_block },
@@ -111,7 +110,7 @@ export const PROMPT_LAYERS = Object.freeze([
  * Every compiler composes its envelope through this single emitter, so a layer reorder/insert is a
  * table edit, never a change to an individual mode's children array.
  *
- * @param {Partial<Record<"role_line"|"constitution"|"core_protocols"|"dynamics"|"entities_block"|"target_context"|"nearby_cast"|"layer"|"field_context"|"chapter_history"|"history_block", string|null|undefined>>} state
+ * @param {Partial<Record<"role_line"|"constitution"|"core_protocols"|"dynamics"|"entities_block"|"target_context"|"nearby_cast"|"field_context"|"chapter_history"|"history_block", string|null|undefined>>} state
  * @returns {string[]}
  */
 function render_prompt_layers(state, allowed_keys = null) {
@@ -260,14 +259,8 @@ export function resolve_role_slot(config, normalized = {}) {
 }
 
 /**
- * System-layer slot: the enhancement layer key currently seals no block.
- */
-export function resolve_layer_slot() {
-  return "";
-}
-
-/**
  * CHANGELOG
+ * - Track 0.10: Purged dead layer system slot (PROMPT_LAYERS entry + resolve_layer_slot) - enhancement no longer seals an empty layer.
  * - 2026-10-07: Plan Omega for System — SYSTEM_ROLES closures replaced by declarative ROLE_LIBRARY + ROLE_DEFAULTS + get_role_atom; PROMPT_LAYERS/render_prompt_layers/compose_system/pack_prompt/resolve_prompt_meta/clean_prompt_text re-homed from builder.js; plan/render split (resolve_system_plan/render_system_plan) wired through compose_system; purged dead `closed`/`task` options and SYSTEM_TAG now names the plan tag; resolve_stability_lock tests live in reflex.test.js only.
  * - 2026-10-04: Moved stability-lock/truncation recovery copy to recovery.js; system.js owns identity + envelope only.
  * - 2026-09-22: `render_system_xml` passes `child_indent: 2` so every `<SYSTEM>` child (role line, protocols, entities, cast, history) sits at one uniform depth (recommendation #1).

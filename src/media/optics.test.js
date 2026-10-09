@@ -9,12 +9,10 @@ import {
   IMAGE_TIERS,
   ORDERED_VISUAL_STYLE_KEYS,
   aesthetic_resolver,
-  build_aesthetic_map,
-  compose_visual_generation_prompt,
-  evaluate_image_trigger,
   get_resolution,
   get_tier_guidance_scale,
   normalize_image_tier,
+  render_optics_fallback,
   resolve_image_trigger,
 } from "./optics.js";
 import { VISUAL_EXCLUDED_KEYS, strip_visual_excluded } from "@utils";
@@ -93,55 +91,6 @@ describe("optics.js — 4-Tier Image Taxonomy & Resolutions", () => {
 });
 
 describe("optics.js — Trigger Decision Engine & Dynamics Gate", () => {
-  describe("evaluate_image_trigger (Pure-JS Dynamics Gate)", () => {
-    it("triggers on Signal B high-band entry (transitioning into >= 85)", () => {
-      const prev = { ai: { intensity: 80 } };
-      const curr = { ai: { intensity: 88 } };
-      const res = evaluate_image_trigger(curr, prev);
-
-      expect(res.triggered).toBe(true);
-      expect(res.signals.band_entry).toEqual({ axis: "intensity", from: 80, to: 88, band: "high" });
-      expect(res.tier).toBe("story_character");
-    });
-
-    it("triggers on Signal B low-band entry (transitioning into <= 15)", () => {
-      const prev = { fractal: { entropy: 20 } };
-      const curr = { fractal: { entropy: 12 } };
-      const res = evaluate_image_trigger(curr, prev);
-
-      expect(res.triggered).toBe(true);
-      expect(res.signals.band_entry).toEqual({ axis: "entropy", from: 20, to: 12, band: "low" });
-      expect(res.tier).toBe("story_scene");
-    });
-
-    it("does not trigger when staying within an extreme band", () => {
-      const prev = { ai: { intensity: 86 } };
-      const curr = { ai: { intensity: 90 } };
-      const res = evaluate_image_trigger(curr, prev);
-
-      expect(res.triggered).toBe(false);
-      expect(res.signals.band_entry).toBeNull();
-    });
-
-    it("triggers on Signal A displacement sum exceeding threshold (60)", () => {
-      const prev = { ai: { intensity: 50, dominance: 50 }, fractal: { entropy: 50 } };
-      const curr = { ai: { intensity: 75, dominance: 70 }, fractal: { entropy: 70 } };
-      const res = evaluate_image_trigger(curr, prev);
-
-      expect(res.triggered).toBe(true);
-      expect(res.signals.displacement).toBe(65);
-      expect(res.tier).toBe("story_scene");
-    });
-
-    it("handles non-finite values safely without crashing", () => {
-      const prev = { ai: { intensity: NaN } };
-      const curr = { ai: { intensity: 50 } };
-      const res = evaluate_image_trigger(curr, prev);
-
-      expect(res.triggered).toBe(false);
-    });
-  });
-
   describe("resolve_image_trigger (Dual-Source & Decoupled Cooldown Orchestration)", () => {
     it("resolves dynamics trigger when dynamics cooldown has elapsed", () => {
       const snapshot = { ai: { dynamics: { intensity: 90 } } };
@@ -305,44 +254,6 @@ describe("optics.js — Aesthetic Map & Prompt Composition", () => {
     });
   });
 
-  describe("build_aesthetic_map", () => {
-    it("merges eternal and present traits while respecting clothing overrides", () => {
-      const entity = {
-        name: "Test Subject",
-        signature_color: "Electric Cyan",
-        eternal: {
-          physical: "[BUILD: lean athletic] [JACKET: worn brown duster] [EYES: silver]",
-        },
-        present: {
-          physical: "[CLOTHING: none] [POSTURE: defensive]",
-        },
-      };
-
-      const map = build_aesthetic_map(entity);
-      expect(map.BUILD).toBe("lean athletic");
-      expect(map.EYES).toBe("silver");
-      expect(map.POSTURE).toBe("defensive");
-      expect(map.JACKET).toBeUndefined();
-      expect(map.aesthetic).toContain("#11aecc");
-    });
-  });
-
-  describe("compose_visual_generation_prompt", () => {
-    it("assembles positive tokens and deduplicates negative tokens", () => {
-      const { prompt, negative_prompt } = compose_visual_generation_prompt({
-        prompt: "A neon lit alleyway in rain",
-        style_key: "none",
-        is_character_shot: false,
-        base_negative_prompt: "blurry, low resolution, ugly",
-      });
-
-      expect(prompt).toBe("A neon lit alleyway in rain");
-      expect(negative_prompt).toContain("blurry");
-      expect(negative_prompt).toContain("low resolution");
-      expect(negative_prompt).toContain("ugly");
-    });
-  });
-
   describe("aesthetic_resolver", () => {
     it("extracts formatted JSON properties", () => {
       const entity = {
@@ -370,3 +281,62 @@ describe("optics.js — Aesthetic Map & Prompt Composition", () => {
     });
   });
 });
+
+const test_entities = {
+  AI: {
+    id: "ALICE",
+    name: "Alice",
+    type: "character",
+    pov: "1st_person",
+    eternal: {
+      physical: "[BUILD: tall and athletic]",
+      non_physical: "Analytical cybernetic specialist.",
+    },
+    present: {
+      physical: "[JACKET: worn leather] [POSTURE: alert]",
+      non_physical: "Guarded vigilance.",
+    },
+    future: "Infiltrate the mainframe.",
+    past: [],
+    relationships: ["Alice -> Bob: guarded trust"],
+    dynamics: { chaos: 30, intensity: 70, openness: 40, affinity: 20 },
+  },
+  FRACTAL: {
+    id: "SECTOR_FOUR",
+    name: "Sector Four",
+    type: "fractal",
+    eternal: {
+      physical: "[LANDMARKS: rusted catwalks] [ATMOSPHERE: neon haze]",
+      non_physical: "Degraded industrial district.",
+    },
+    present: {
+      physical: "[WEATHER: acid drizzle]",
+      non_physical: "Hostile and oppressive.",
+    },
+    future: "Decay under acid rain.",
+    past: [],
+    dynamics: { velocity: 50, entropy: 80 },
+  },
+};
+
+// ============================================================================
+
+// [SECTION 1: OPTICS FALLBACK COMPILER]
+// ============================================================================
+
+describe("render_optics_fallback()", () => {
+  it("builds an <image_prompt> grounded in the setting entity for scene tiers", () => {
+    const fallback = render_optics_fallback({ tier: "story_scene", subject: "ai", fractal: test_entities.FRACTAL });
+    expect(fallback).toContain("<image_prompt>");
+    expect(fallback).toContain("</image_prompt>");
+    expect(fallback).toContain(test_entities.FRACTAL.name);
+  });
+
+  it("situates a story_character inside the fractal setting", () => {
+    const fallback = render_optics_fallback({ tier: "story_character", subject: "ai", ai: test_entities.AI, fractal: test_entities.FRACTAL });
+    expect(fallback).toContain(test_entities.AI.name);
+    expect(fallback).toContain(test_entities.FRACTAL.name);
+  });
+});
+
+// ============================================================================

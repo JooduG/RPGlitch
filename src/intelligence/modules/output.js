@@ -21,6 +21,9 @@
  * Architecture & Modification Rules:
  * - Unidirectional layer flow: pure string compilation over @utils + @data.
  * - Single source of truth for output shapes; no turn logic here.
+ * - Close-and-conceal contract: every prose/bracket body assumes the mode's think block (or
+ *   optics calibration) is sealed and invisible before the output starts — bodies never
+ *   re-open, reference, or leak think content (Track 0.5).
  * ============================================================================
  */
 
@@ -277,6 +280,7 @@ export function render_output_format_xml({ mode = "", content = "", indent = 2 }
 
 /**
  * CHANGELOG
+ * - Track 0.5: Documented the close-and-conceal contract (output bodies assume a sealed, invisible think block).
  * - 2026-10-04: Added OUTPUT_DIRECTIVES (DATA return-shape directive, new home for the ex-protocol DATA atom).
  * - 2026-10-04: Plan/render split (Plan 2) — `resolve_output_plan` owns all routing as frozen pure data (kind/body/schema_keys/warnings), `render_output_plan` maps plans to the envelope without branching; `render_json_return` owns the schema interpolation; per-key dispatch factored into `render_schema_key_line` so composer and warnings agree; `get_output_format` is a thin body reader; retired the `is_temporal !== undefined` tripwire (explicit false now routes by mode); `render_output_format_xml` uses canonical `indent`.
  * - 2026-10-04: Created from task.js — output emission formats, schema atoms, JSON-schema composer, format router, and `<OUTPUT_FORMAT>` envelope move here; task.js keeps turn assembly and wires FORMATS to OUTPUT_FORMATS.

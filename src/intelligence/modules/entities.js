@@ -21,9 +21,8 @@
  * ============================================================================
  */
 
-import { detox_prose, escape_xml, render_xml_tag, collapse_whitespace, truncate_at_word, wrap_tag } from "@utils";
-import { SHEET_SPECS, render_sheet, render_entity_memory_context, render_enhancement_field_context } from "./sheets.js";
-import { render_optics_entities_xml } from "./sensory.js";
+import { detox_prose, escape_xml, render_xml_tag, collapse_whitespace, truncate_at_word, wrap_tag, strip_visual_excluded } from "@utils";
+import { define_sheet, SHEET_SPECS, render_sheet, render_entity_memory_context, render_enhancement_field_context } from "./sheets.js";
 
 // ============================================================================
 // [SECTION 1: SPATIAL PRESENCE & RELATIONAL TOPOLOGY]
@@ -457,10 +456,128 @@ export function render_entity_sheets({
   return wrap_entities(parts);
 }
 
+// ============================================================================
+// [SECTION 2: OPTICS SUBJECT TIERS, ACTORS & ENTITIES BLOCK]
+// ============================================================================
+// Track 0.11: moved verbatim from sensory.js Sections 1+4 - subject tiers and
+// the optics actor/entities compilers live with presence and assembly; the
+// sensory.js double cycles (sensory<->task, sensory<->entities) are gone.
+
+export const SUBJECT_TIERS = Object.freeze({
+  solo_entity:
+    "an isolated solo portrait of the subject, self-contained framing drawn entirely from the subject's own identity, appearance, and signature colors",
+  story_scene: "an expansive landscape environment, architecture, or interior space capturing environmental depth and natural forces",
+  story_entities: "a cinematic group shot featuring both the AI character and user persona together within the fractal environment",
+  story_character: "a character framed within their environment, emphasizing their presence with an evocative background setting",
+});
+
+export function resolve_optics_subject(target_tier = "", subject = "") {
+  return subject || SUBJECT_TIERS[target_tier] || SUBJECT_TIERS.story_character;
+}
+
+// ============================================================================
+
+function plan_optics_actor(tag_name, entity_instance) {
+  if (!entity_instance) return null;
+  const spec_kind = tag_name === "FRACTAL" || entity_instance.type === "fractal" ? "fractal" : "character";
+  return {
+    spec: define_sheet(spec_kind, { tag: tag_name, default_name: tag_name, ...(spec_kind === "character" ? { owner_state: true } : {}) }),
+    entity: entity_instance,
+  };
+}
+/**
+ * Compiles the pure-data segment plan for optics tiers: ordered
+ * `{ cast, actors }` segments where `cast` wraps its actors in `<CAST mode="active">`.
+ */
+function resolve_optics_segments({
+  tier = "solo_entity",
+  solo_subject = null,
+  active_ai_character = null,
+  active_user_persona = null,
+  active_fractal_setting = null,
+  main_entity = null,
+} = {}) {
+  const is_story_tier = tier === "story_entities" || tier === "story_character" || tier === "story_scene";
+  const fractal_actor = is_story_tier && active_fractal_setting ? plan_optics_actor("FRACTAL", active_fractal_setting) : null;
+
+  switch (tier) {
+    case "solo_entity":
+      return [{ cast: true, actors: [plan_optics_actor("SOLO_ENTITY", solo_subject)] }];
+    case "story_scene":
+      return [{ cast: false, actors: [fractal_actor] }];
+    case "story_entities":
+      return [
+        {
+          cast: true,
+          actors: [plan_optics_actor("AI_CHARACTER", active_ai_character), plan_optics_actor("USER_PERSONA", active_user_persona)],
+        },
+        { cast: false, actors: [fractal_actor] },
+      ];
+    case "story_character":
+    default: {
+      const main_tag =
+        main_entity === active_user_persona || main_entity?.type === "user"
+          ? "USER_PERSONA"
+          : main_entity?.type === "fractal"
+            ? "FRACTAL"
+            : "AI_CHARACTER";
+      return [
+        { cast: true, actors: [plan_optics_actor(main_tag, main_entity)] },
+        { cast: false, actors: [fractal_actor] },
+      ];
+    }
+  }
+}
+
+/**
+ * Maps one optics actor to its sheet block with the exact visual call shape.
+ */
+function render_optics_actor(actor, { macro_entities = {}, roll = (text) => text } = {}) {
+  if (!actor) return "";
+  return render_sheet(actor.spec, {
+    entity: actor.entity,
+    entities: macro_entities,
+    mode: "physical",
+    include_agenda: false,
+    include_memories: false,
+    is_owner: true,
+    transform_physical: (value) => roll(strip_visual_excluded(value)),
+  });
+}
+
+export function render_optics_entities_xml({
+  tier = "solo_entity",
+  solo_subject = null,
+  active_ai_character = null,
+  active_user_persona = null,
+  active_fractal_setting = null,
+  main_entity = null,
+  macro_entities = {},
+  roll = (text) => text,
+} = {}) {
+  const context_block = resolve_optics_segments({
+    tier,
+    solo_subject,
+    active_ai_character,
+    active_user_persona,
+    active_fractal_setting,
+    main_entity,
+  })
+    .map((segment) => {
+      const blocks = segment.actors.map((actor) => render_optics_actor(actor, { macro_entities, roll }));
+      return segment.cast ? render_cast_xml({ mode: CAST_MODES.ACTIVE, children: blocks }) : blocks.join("\n");
+    })
+    .join("\n");
+
+  return wrap_entities([context_block.trim()].filter(Boolean));
+}
+
+// ============================================================================
+
 // ── Universal Prompt Plan slot resolvers ────────────────────────────────────
 /**
  * System-layer slot: seals the entities block. Sheets modes render through
- * render_entity_sheets; the optics kind delegates to sensory at call time.
+ * render_entity_sheets; the optics kind compiles locally in Section 2.
  */
 export function resolve_entities_slot(config, normalized = {}) {
   if (normalized.entities_kind === "optics") {
@@ -503,6 +620,7 @@ export function resolve_entity_context_slot(config, normalized = {}) {
 
 /**
  * CHANGELOG
+ * - Track 0.11: Absorbed optics subject tiers + actors/entities block from sensory.js (new Section 2; define_sheet + strip_visual_excluded imports added; sensory import dropped). Prompt bytes byte-identical.
  * - 2026-10-04: C rebuild — data-first split: resolve_actor_plan (pure gates + ordered sheet actors + nearby list) feeds thin render_actor_sheets; optics tiers compile through resolve_optics_segments into the shared wrap_entities; four empty visibility policies collapse into one blank policy; candidate summary precedence unified to present → eternal → description; render_entity_sheets renders candidates internally (cast_xml string param retired).
  * - 2026-10-04: Split sheet rendering out to sheets.js (specs, field renderers, memory/enhancement contexts, dispositions); dynamics axes move to physics.js. This module keeps presence, cast, visibility, assembly, and optics entities.
  * - 2026-10-04: Fixed `render_enhancement_field_context` ragged indentation — sibling blocks now compose through `render_xml_tag` (uniform depth) instead of hand-rolled strings with mismatched hardcoded indents; dropped the now-unused `indent_continuation` import.

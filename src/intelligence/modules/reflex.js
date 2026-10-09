@@ -25,8 +25,7 @@
  * ============================================================================
  */
 
-import { escape_xml, prompt_escape, render_xml_tag, has_alternations, resolve_catalog_atom } from "@utils";
-import { STYLE_MOTIF_REGISTRY } from "@data";
+import { prompt_escape, render_xml_tag, has_alternations, resolve_catalog_atom } from "@utils";
 
 // ============================================================================
 // [SECTION 1: REFLEX DEFAULTS — FROZEN CALIBRATION CONFIG]
@@ -358,112 +357,9 @@ export function resolve_stability_lock(metadata) {
   return render_stability_plan(resolve_stability_plan(metadata));
 }
 
-// ============================================================================
-// [SECTION 6: SOMATIC SUBTEXT & KEYWORD RESOLVERS]
-// ============================================================================
-// Repatriated from task.js (Plan Omega for Task): subtext assembly, physics-protocol
-// resolution, and keyword listing are somatic calibration — they live with the
-// pacing/posture/recovery engine, not the turn-assembly envelope.
-
-/**
- * Resolves a list of chosen keywords against a physics protocol registry and style-motif registry.
- * @param {string[]} [keywords=[]]
- * @param {Record<string, any>} [physics_protocols={}]
- * @returns {{ id: string, tells?: string, directive: string }[]}
- */
-export function resolve_physics_protocols(keywords = [], physics_protocols = {}) {
-  const resolved = [];
-  for (const keyword of keywords || []) {
-    if (!keyword || typeof keyword !== "string") continue;
-    const clean_key = keyword.trim();
-    const upper_key = clean_key.toUpperCase();
-    const protocol_def = physics_protocols[upper_key] || physics_protocols[clean_key];
-    if (protocol_def) {
-      if (typeof protocol_def === "object") {
-        resolved.push({ id: upper_key, tells: protocol_def.tells, directive: protocol_def.directive });
-      } else {
-        resolved.push({ id: upper_key, directive: String(protocol_def) });
-      }
-      continue;
-    }
-    const motif = STYLE_MOTIF_REGISTRY[clean_key] || STYLE_MOTIF_REGISTRY[clean_key.toLowerCase()];
-    if (motif) resolved.push({ id: clean_key, directive: motif.directive });
-  }
-  return resolved;
-}
-
-/**
- * Builds <AVAILABLE_KEYWORDS> listing for the Director as a unified, flat bracketed list of tags.
- * @param {string[]} [active_style_keywords=[]]
- * @param {readonly string[]} [available_keywords=[]]
- * @returns {string}
- */
-export function render_available_keywords_xml(active_style_keywords = [], available_keywords = []) {
-  const motifs = (active_style_keywords || []).filter((k) => typeof k === "string" && k.trim()).map((k) => k.trim().toUpperCase());
-  const combined = Array.from(new Set([...available_keywords, ...motifs]));
-  return combined.map((k) => `[${k}]`).join(" ");
-}
-
-/**
- * Compiles dynamic somatic directives and narrative signals into a single unified <SUBTEXT> XML block.
- *
- * @param {Record<string, number>} [ai_dynamics={}] - Active character dynamics
- * @param {Record<string, number>} [fractal_dynamics={}] - Active fractal/environmental dynamics
- * @param {object} [options={}] - Options containing style, keywords, evaluators, and protocol registries
- * @returns {string} XML block string or "" if no signals or directives are active.
- */
-export function render_subtext_xml(ai_dynamics = {}, fractal_dynamics = {}, options = {}) {
-  const tags = [];
-  const seen = new Set();
-
-  const push = (id, directive) => {
-    const tag =
-      String(id || "")
-        .trim()
-        .toUpperCase()
-        .replace(/[^A-Z0-9_]/g, "_") || "";
-    const text = String(directive || "").trim();
-    if (!tag || !text || seen.has(tag)) return;
-    seen.add(tag);
-    tags.push(`<${tag}>${escape_xml(text)}</${tag}>`);
-  };
-
-  const physics_protocols = options?.physics_protocols || {};
-  const manual_keywords = options?.keywords || [];
-  const evaluate_dynamics_rules = options?.evaluate_dynamics_rules;
-  const resolved_keywords =
-    ai_dynamics && Object.keys(ai_dynamics).length && typeof evaluate_dynamics_rules === "function"
-      ? evaluate_dynamics_rules(ai_dynamics, manual_keywords)
-      : manual_keywords;
-
-  const resolved_directives = resolve_physics_protocols(resolved_keywords, physics_protocols);
-  for (const entry of resolved_directives) {
-    push(entry.id, entry.directive);
-  }
-
-  const evaluate_subtext_protocols = options?.evaluate_subtext_protocols;
-  const active_protocols =
-    typeof evaluate_subtext_protocols === "function"
-      ? evaluate_subtext_protocols({
-          ai_dynamics,
-          fractal_dynamics,
-          style: options?.style,
-        })
-      : [];
-
-  for (const protocol of active_protocols) {
-    const text =
-      protocol.text ||
-      (typeof physics_protocols[protocol.id] === "string" ? physics_protocols[protocol.id] : physics_protocols[protocol.id]?.directive);
-    push(protocol.id, text);
-  }
-
-  if (tags.length === 0) return "";
-  return render_xml_tag({ tag: "SUBTEXT", children: tags, child_indent: 2, separator: "\n" });
-}
-
 /**
  * CHANGELOG
+ * - Track 0.10: Section 6 dissolved - render_subtext_xml + resolve_physics_protocols move to physics.js (beside the registries they read), render_available_keywords_xml moves to task.js (beside KEYWORD_DIRECTIVES); STYLE_MOTIF_REGISTRY and escape_xml imports dropped. Prompt bytes byte-identical.
  * - 2026-10-07: Plan Omega for Task — repatriated render_subtext_xml, resolve_physics_protocols, and render_available_keywords_xml from task.js (new Section 6; STYLE_MOTIF_REGISTRY imported from @data, escape_xml added to @utils import) — prompt bytes byte-identical.
 
  * - 2026-10-04: Single has_input resolution (Plan A) — resolve_task_values owns values.has_input + values.turn_state; posture plan and director_directives accept the pre-resolved flags (standalone callers still derive); prose_posture threads the bag flag — prompt bytes byte-identical.

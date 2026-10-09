@@ -9,9 +9,6 @@ import { describe, it, expect } from "vitest";
 import {
   REFLEX_DEFAULTS,
   REFLEX_LIBRARY,
-  resolve_physics_protocols,
-  render_available_keywords_xml,
-  render_subtext_xml,
   classify_pacing,
   detect_environmental_hint,
   resolve_prose_posture_plan,
@@ -25,6 +22,8 @@ import {
   render_prose_reflex,
   resolve_stability_lock,
 } from "./reflex.js";
+import { render_subtext_xml, resolve_physics_protocols } from "../physics.js";
+import { render_available_keywords_xml } from "./task.js";
 
 describe("reflex.js - pacing plans", () => {
   it("classifies empty input as TERSE", () => {

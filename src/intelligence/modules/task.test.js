@@ -138,7 +138,7 @@ describe("render_task — Story Prose Mode", () => {
 
     expect(task).toContain("<TASK>");
     expect(task).toContain("<THINK>");
-    expect(task).toContain("VISCERAL_IMPACT");
+    expect(task).toContain("1. Stance — the speaker's unsaid want and internal feeling.");
     expect(task).toContain('<INPUT channel="action">');
     expect(task).toContain("Respond strictly as Alice.");
     expect(task).toContain("<DELIVERY_POSTURE>");
@@ -233,11 +233,11 @@ describe("task.js - Optics Task Staging", () => {
     expect(task).toContain("<THINK_FORMAT>");
     expect(task).toContain("_thought_process");
     expect(task).toContain("<SPATIAL_FRAMING>");
-    expect(task).toContain("<FIRST_SENTENCE_MANDATE>");
-    expect(task).toContain("<SPATIAL_GEOMETRY>");
+    expect(task).toContain("VERY FIRST sentence");
+    expect(task).toContain("without metaphor or narrative scaffolding");
     expect(task).toContain('<CINEMATOGRAPHY mode="Intimate Close-Up">');
     expect(task).toContain("<KEYWORD_DIRECTIVES>");
-    expect(task).toContain("<SELFIE_DIRECTIVE>");
+    expect(task).toContain('inside "caption"');
     expect(task).toContain('<INPUT channel="intent">Standing alone in the pouring rain</INPUT>');
     expect(task).toContain('<OUTPUT_FORMAT mode="json">');
   });
@@ -386,7 +386,8 @@ describe("resolve_task_plan and render_task_plan", () => {
 describe("directive compiler REFLEX delegation", () => {
   it("keeps get_directive_atom a pure TASK_LIBRARY lookup", () => {
     expect(get_directive_atom("REFLEX.TURN_STATE.FIRST_CONTACT")).toBe("");
-    expect(get_directive_atom("PROSE.CHARACTER.NPC_BOUNDARY", { speaker_name: "Al" })).toContain("Al");
+    expect(get_directive_atom("PROSE.CHARACTER.NPC_BOUNDARY")).toBe("");
+    expect(get_directive_atom("PROSE.CHARACTER.BASE")).toBe(TASK_LIBRARY.PROSE.CHARACTER.BASE);
     expect(get_directive_atom("PROSE.CHARACTER.BASE")).toBe(TASK_LIBRARY.PROSE.CHARACTER.BASE);
   });
 

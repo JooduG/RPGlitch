@@ -285,7 +285,7 @@ describe("Protocol Invariants & Remediation Regression Gates", () => {
       input: "Bob scans the perimeter.",
     });
 
-    expect(director_prompt.system).toContain('"USER_PERSONA", "USER", "PLAYER", or the player character\'s name is NEVER a valid next_action');
+    expect(director_prompt.system).toContain('"USER_PERSONA", "USER", "PLAYER", and the player character\'s name are NEVER valid next_action');
   });
 });
 

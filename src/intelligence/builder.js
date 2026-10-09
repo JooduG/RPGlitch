@@ -33,14 +33,19 @@ import {
 import { ensure_embeddings } from "@platform";
 import { normalize_image_tier, resolve_visual_engine_tokens } from "@media";
 import { resolve_style_snapshot } from "./modules/style.js";
-import { resolve_stability_lock, render_available_keywords_xml, render_subtext_xml } from "./modules/reflex.js";
+import { resolve_stability_lock } from "./modules/reflex.js";
 import { resolve_pov_protocol, resolve_macro_directive, resolve_layer_tense_protocol } from "./modules/protocols.js";
 import { resolve_entities } from "./modules/entities.js";
-import { render_dynamics_axes_xml } from "./physics.js";
+import { render_dynamics_axes_xml, render_subtext_xml } from "./physics.js";
 
 import { render_history, resolve_history } from "./modules/history.js";
-import { render_keyword_directives_xml, resolve_character_action_directive, resolve_scene_action_directive } from "./modules/task.js";
-import { resolve_optics_cinematography } from "./modules/sensory.js";
+import {
+  render_available_keywords_xml,
+  render_keyword_directives_xml,
+  resolve_character_action_directive,
+  resolve_scene_action_directive,
+} from "./modules/task.js";
+import { resolve_optics_cinematography } from "./modules/style.js";
 import { get_output_format } from "./modules/output.js";
 import { DYNAMICS_AXES, PHYSICS_PROTOCOLS, AVAILABLE_KEYWORDS, evaluate_dynamics_rules, evaluate_subtext_protocols } from "./physics.js";
 import { temporal_engine, resolve_vector_pool } from "./temporal.js";
@@ -336,22 +341,19 @@ function resolve_prose_bag(config, context, bag_inputs) {
     }),
   );
   const is_first_contact = !has_prior_relationship && director_data?.first_contact === true;
-  const action_directive = resolve_character_action_directive({
-    speaker_name,
-    is_npc,
-    is_ghostwrite,
-    is_first_contact,
-  });
+  const action_directive = resolve_character_action_directive({ speaker_name, is_first_contact });
   const input_origin_entity = is_ghostwrite ? active_speaker : entities?.USER;
   const input_origin = input_origin_entity?.id || input_origin_entity?.name || "USER";
   const style = style_snapshot.style;
-  const subtext_xml = render_subtext_xml(speaker_dynamics, fractal_dynamics, {
-    keywords: director_data?.keywords || [],
-    style: is_ghostwrite ? null : style,
-    physics_protocols: PHYSICS_PROTOCOLS,
-    evaluate_dynamics_rules,
-    evaluate_subtext_protocols,
-  });
+  const subtext_xml = is_ghostwrite
+    ? ""
+    : render_subtext_xml(speaker_dynamics, fractal_dynamics, {
+        keywords: director_data?.keywords || [],
+        style,
+        physics_protocols: PHYSICS_PROTOCOLS,
+        evaluate_dynamics_rules,
+        evaluate_subtext_protocols,
+      });
   const turn_meta = context.meta ?? {};
   return {
     round: context.round ?? null,
@@ -600,6 +602,7 @@ function normalize_continuum_context(config, context) {
     task_params: {
       task_state: config.task_state,
       target_name,
+      target_type,
       schema: get_output_format(config.format, { entity_type: target_type }),
     },
     meta_args: {
@@ -846,6 +849,11 @@ export const MODE_ADAPTERS = {
  */
 /**
  * CHANGELOG
+ * - Track 0.11: resolve_optics_cinematography now imports from style.js (sensory.js dissolved). Prompt bytes byte-identical.
+ * - Track 0.10: Re-sourced compilers - render_subtext_xml from physics.js, render_available_keywords_xml from task.js (stability lock stays reflex.js). Prompt bytes byte-identical.
+ * - Track 0.8: normalize_continuum_context passes target_type through task_params so the taxonomy walker selects the target's entity model.
+ * - Track 0.6: Ghostwrite purity — resolve_prose_bag drops the style:null subtext special case (real style always passes) and emits no SUBTEXT for ghostwrite turns (user dynamics are static profile baselines); is_ghostwrite stays for speaker/input-origin routing only.
+ * - Track 0.4: resolve_prose_bag no longer passes is_npc to resolve_character_action_directive (merged CHARACTER.BASE covers npc turns; is_npc stays for sheet presence only).
  * - 2026-10-08: Modules Ground Refactor Phase 4 — compilers re-cut to per-mode normalize bags (MODE_ADAPTERS normalize table); assembly deleted.
  * - 2026-10-05: Single closed envelope — pack_prompt seals `<TASK>` inside `<SYSTEM>` (package is `{ system, meta }`); prose/director compile a builder-owned `<HISTORY>` block (transport fusion + messages retired).
  * - 2026-10-04: Director candidates render inside render_entity_sheets (cast_xml string param retired; unused director entity_plan dropped).

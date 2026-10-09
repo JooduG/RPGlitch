@@ -517,14 +517,16 @@ describe("interaction structural integrity", () => {
     expect(alt.system).toContain("<ALTERNATION_OPTIONS>");
   });
 
-  it("matches the blueprint THINK_FORMAT beats", () => {
+  it("matches the universal think shell with character steps", () => {
     const { system: task } = compile_prompt("interaction", { round: 3, entities: _relocated_prompt_entities, input: "Beast steps forward." });
-    expect(task).toContain("Open your output with one internal <THINK> block (under 200 words). Reason across 4 sequential beats");
-    expect(task).toContain('<BEAT id="VISCERAL_IMPACT" step="1">Immediate non-verbal reaction to the «INPUT» element.</BEAT>');
-    expect(task).toContain('<BEAT id="EMOTIONAL_CALIBRATION" step="2">Situational realism and physical presence.</BEAT>');
-    expect(task).toContain('<BEAT id="STRATEGIC_DRIVE" step="3">How active «AGENDA» and/or «TRAJECTORY» navigates immediate friction.</BEAT>');
-    expect(task).toContain('<BEAT id="CADENCE_TEST" step="4">Draft a dialogue line before generating outward prose.</BEAT>');
+    expect(task).toContain("Open your output with one internal <THINK> block (under 200 words).");
+    expect(task).toContain("Reason in order:");
+    expect(task).toContain("1. Stance — the speaker's unsaid want and internal feeling.");
+    expect(task).toContain("2. Friction — what resists that want in this beat.");
+    expect(task).toContain("3. Mask — how their psychology leaks or conceals the feeling.");
+    expect(task).toContain("4. Smallest observable action — the single physical tell or movement that carries the beat. Never pre-draft dialogue.");
     expect(task).toContain("Close </THINK> before the narrative. This think block is internal reasoning and is never part of the visible prose.");
+    expect(task).not.toContain("<BEAT");
   });
 });
 
@@ -540,7 +542,7 @@ describe("narrator prose compiler", () => {
     expect(result.system).toContain("You are Project Tartarus, the Fractal itself, narrating the story.");
     expect(result.system).toContain('<PERSPECTIVE person="THIRD" tense="PRESENT">');
     expect(result.system).toContain("<TASK>");
-    expect(result.system).toContain("You are the Fractal itself, narrating the scene.");
+    expect(result.system).toContain("Narrate through ambient physics, sensory textures, and environmental shifts in reaction to recent events.");
   });
 
   it("renders prologue beat omitting input tag and guiding opening sequence", () => {
@@ -550,7 +552,7 @@ describe("narrator prose compiler", () => {
       entities: _relocated_prompt_entities,
       input: "A quiet arrival.",
     });
-    expect(result.system).toContain("You see everything. Open the scene.");
+    expect(result.system).toContain("Open the scene. Use thinking to establish:");
     expect(result.system).toContain("Input: A quiet arrival.");
     expect(result.system).not.toContain("<INPUT");
   });

@@ -145,7 +145,6 @@ describe("pack_prompt and resolve_prompt_meta", () => {
       "entities",
       "target_entity_context",
       "cast",
-      "layer",
       "entity_context",
       "chapter_history",
       "history",
@@ -155,6 +154,7 @@ describe("pack_prompt and resolve_prompt_meta", () => {
 
 /**
  * CHANGELOG
+ * - Track 0.10: Dropped layer from the canonical PROMPT_LAYERS key assertion.
  * - 2026-10-07: Plan Omega for System — rewritten for ROLE_LIBRARY/ROLE_DEFAULTS/get_role_atom, the plan/render split, relocated pack_prompt/resolve_prompt_meta, and the purged render_system_xml (closed/task options gone; stability-lock tests live in reflex.test.js).
  * - 2026-09-20: Retargeted the envelope test to the open-fragment contract.
  * - 2026-09-18: Initial creation of comprehensive system.test.js.
