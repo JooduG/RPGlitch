@@ -7,6 +7,7 @@ import {
   evaluate_subtext_protocols,
   evaluate_dynamics_rules,
   evaluate_image_trigger,
+  reduce_dynamics,
   DYNAMICS_AXES,
   DYNAMICS_RULES,
   AVAILABLE_KEYWORDS,
@@ -19,7 +20,7 @@ import {
 import { render_dynamics_axes_xml } from "./dynamics.js";
 import { render_available_keywords_xml } from "./modules/task.js";
 
-describe("physics.js compatibility shim", () => {
+describe("dynamics.js", () => {
   describe("DYNAMICS_AXES", () => {
     it("defines all 6 axes with label, low, and high spectrum bounds (without desc)", () => {
       const axes = ["chaos", "intensity", "openness", "affinity", "velocity", "entropy"];
@@ -49,6 +50,26 @@ describe("physics.js compatibility shim", () => {
     it("returns empty object when entity is null or undefined", () => {
       expect(extract_entity_dynamics_baselines(null)).toEqual({});
       expect(extract_entity_dynamics_baselines(undefined)).toEqual({});
+    });
+  });
+
+  describe("reduce_dynamics", () => {
+    it("applies deltas then settles deterministically toward baselines without mutating inputs", () => {
+      const current = { chaos: 80, intensity: 20 };
+      const first = reduce_dynamics(current, { chaos: 30, intensity: 70 }, 50);
+      const second = reduce_dynamics(current, { chaos: 30, intensity: 70 }, 50);
+      expect(first).toEqual(second);
+      expect(first.chaos).toBeLessThan(80);
+      expect(first.intensity).toBeGreaterThan(20);
+      expect(current).toEqual({ chaos: 80, intensity: 20 });
+      expect(Object.isFrozen(first)).toBe(true);
+    });
+
+    it("applies caller deltas before settlement and clamps to 0-100", () => {
+      const next = reduce_dynamics({ chaos: 95 }, {}, 50, { chaos: 50 });
+      expect(next.chaos).toBeLessThanOrEqual(100);
+      const floored = reduce_dynamics({ chaos: 5 }, {}, 50, { chaos: -50 });
+      expect(floored.chaos).toBeGreaterThanOrEqual(0);
     });
   });
 

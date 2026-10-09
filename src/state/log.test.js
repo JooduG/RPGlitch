@@ -105,6 +105,19 @@ describe("SimulationLogStore", () => {
     await simulation_log.delete_attachment("msg-attach", 2);
     expect(session_driver.delete_log_attachment).toHaveBeenCalledWith("msg-attach", 2);
   });
+
+  it("stamps entity_id at creation from the runtime trio by character_name", () => {
+    const prior_ai = runtime.active_ai;
+    runtime.active_ai = { id: "CHAR_STAMP", name: "Stampy McTest" };
+    simulation_log.add({ id: "msg-stamp", role: "model", text: "Hi", character_name: "Stampy McTest" });
+    expect(simulation_log.feed.find((e) => e.id === "msg-stamp").entity_id).toBe("CHAR_STAMP");
+    runtime.active_ai = prior_ai;
+  });
+
+  it("keeps an explicit entity_id untouched", () => {
+    simulation_log.add({ id: "msg-explicit", role: "model", text: "Hi", character_name: "Anyone", entity_id: "CHAR_X" });
+    expect(simulation_log.feed.find((e) => e.id === "msg-explicit").entity_id).toBe("CHAR_X");
+  });
 });
 
 describe("DeveloperLogStore", () => {

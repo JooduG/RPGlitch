@@ -5,7 +5,8 @@
  * Core Responsibilities:
  * - Owns the reactive Svelte 5 Runes representing active simulation state:
  *   - Active Entities: `character` (User Persona), `active_user`, `active_ai`, `active_fractal`.
- *   - NPC World Cast: `active_npcs` (hydrated records) and `in_scene_npc_ids` (Stage Spotlight).
+ *   - NPC World Cast: `active_npcs` (hydrated records; each carries
+ *     `presence: 'active' | 'nearby' | 'dormant'` — the Stage Spotlight).
  *   - Live Physics & Dynamics: `ai_physics`, `fractal_physics`, and per-entity dynamic baselines.
  *   - Macro Chronology: `story_id`, `round`, `turn_type`, and `is_ready` flags.
  *   - Generation Concurrency Mutex: `is_foreground_generating` vs `is_background_generating`.
@@ -160,10 +161,10 @@ export class RuntimeEngineStore {
   /** @type {SimulationEntity | null} */
   active_fractal = $state(null);
 
-  // --- NPC World Cast & Stage Spotlight ---
+  // --- NPC World Cast & Stage Spotlight (Track 1.3: presence enum owns staging) ---
   /** @type {Record<string, any>} */
   #active_npcs = $state({});
-  /** @type {string[]} */
+  /** @type {string[]} @deprecated Presence enum owns staging; kept as a derived mirror. */
   #in_scene_npc_ids = $state([]);
   /** @type {string | null} */
   streaming_entity_id = $state(null);
@@ -262,9 +263,11 @@ export class RuntimeEngineStore {
     return Object.fromEntries(Object.entries(this.#active_npcs).map(([id, e]) => [id, $state.snapshot(e)]));
   }
 
-  /** Non-reactive snapshot of on-stage NPC IDs. */
+  /** Non-reactive snapshot of on-stage NPC IDs (derived from the presence enum). */
   get snapshot_in_scene_npc_ids() {
-    return [...this.#in_scene_npc_ids];
+    return Object.values(this.#active_npcs)
+      .filter((e) => e?.presence === "active")
+      .map((e) => String(e.id));
   }
 
   // --------------------------------------------------------------------------
@@ -276,13 +279,29 @@ export class RuntimeEngineStore {
   }
   set active_npcs(val) {
     this.#active_npcs = val || {};
+    this.#sync_presence_mirror();
+  }
+
+  /**
+   * Re-derives the legacy in-scene id mirror from the presence enum.
+   * All writers must go through presence; this setter only accepts the
+   * mirror for backward-compatible call sites being migrated.
+   */
+  #sync_presence_mirror() {
+    this.#in_scene_npc_ids = Object.values(this.#active_npcs)
+      .filter((e) => e?.presence === "active")
+      .map((e) => String(e.id));
   }
 
   get in_scene_npc_ids() {
     return this.#in_scene_npc_ids;
   }
   set in_scene_npc_ids(val) {
-    this.#in_scene_npc_ids = Array.isArray(val) ? [...new SvelteSet(val.map((x) => String(x)))] : [];
+    const ids = new SvelteSet((Array.isArray(val) ? val : []).map((x) => String(x)));
+    for (const npc of Object.values(this.#active_npcs)) {
+      if (npc) npc.presence = ids.has(String(npc.id)) ? "active" : npc.presence === "active" ? "nearby" : (npc.presence ?? "nearby");
+    }
+    this.#in_scene_npc_ids = [...ids].filter((id) => this.#active_npcs[id]);
   }
 
   // --------------------------------------------------------------------------
@@ -472,17 +491,15 @@ export class RuntimeEngineStore {
         this.active_fractal.dynamics_baseline = { ...story.entity_snapshots.fractal.dynamics };
       }
 
-      // NPC World Cast hydration
+      // NPC World Cast hydration (Track 1.3: presence enum owns staging)
       const npc_ids = Array.isArray(story.npc_ids) ? story.npc_ids : [];
       if (npc_ids.length) {
         const npc_list = (await Promise.all(npc_ids.map((nid) => entities.get("character", nid)))).filter(Boolean);
-        this.#active_npcs = Object.fromEntries(npc_list.map((n) => [String(n.id), n]));
-        const valid_npc_id_set = new SvelteSet(npc_list.map((n) => String(n.id)));
-        if (Array.isArray(story.in_scene_npc_ids)) {
-          this.#in_scene_npc_ids = story.in_scene_npc_ids.map(String).filter((id) => valid_npc_id_set.has(id));
-        } else {
-          this.#in_scene_npc_ids = npc_list.map((n) => String(n.id));
-        }
+        const staged = new Set((Array.isArray(story.in_scene_npc_ids) ? story.in_scene_npc_ids : npc_list.map((n) => String(n.id))).map(String));
+        this.#active_npcs = Object.fromEntries(
+          npc_list.map((n) => [String(n.id), { ...n, presence: staged.has(String(n.id)) ? "active" : "nearby" }]),
+        );
+        this.#sync_presence_mirror();
       } else {
         this.#active_npcs = {};
         this.#in_scene_npc_ids = [];
@@ -634,7 +651,7 @@ export class RuntimeEngineStore {
         const next_npcs = { ...this.#active_npcs };
         delete next_npcs[id];
         this.#active_npcs = next_npcs;
-        this.#in_scene_npc_ids = this.#in_scene_npc_ids.filter((x) => x !== String(id));
+        this.#sync_presence_mirror();
       }
     } catch (err) {
       console.error("[Data] Entity Delete Failed:", err);

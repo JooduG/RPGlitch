@@ -43,6 +43,12 @@ describe("Universal @ENTITY Macro Engine", () => {
       const resolved = parse_macros(text, user, entities);
       expect(resolved).toBe("A message meant for Julien.");
     });
+
+    it("resolves unified perspective braces {me}/{you} like @ME/@YOU", () => {
+      expect(parse_macros("{me} speaks to {you}.", user, entities)).toBe("Alice speaks to Julien.");
+      expect(parse_macros("{me} observes {you}.", ai, entities)).toBe("Julien observes Alice.");
+      expect(parse_macros("A pact between {you} and {me}.", ai, entities)).toBe("A pact between Alice and Julien.");
+    });
   });
 
   describe("resolve_display_macro_segments", () => {

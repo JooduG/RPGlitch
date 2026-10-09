@@ -723,6 +723,8 @@ export async function forge_memory(entity_targets, history_slice, options = {}) 
       eternal: {},
       future: {},
       relationships: Array.isArray(memory?.relationships) ? memory.relationships : [],
+      // (Track 1.4: relational edges arrive as bracket predicates inside the
+      // layer blocks; the flat array is the legacy carrier, retired below.)
     };
 
     for (const { key } of entity_targets) {

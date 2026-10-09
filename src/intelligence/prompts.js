@@ -41,7 +41,7 @@ import { resolve_task_slots, render_task_plan, TASK_LAYERS } from "./modules/tas
 import { resolve_role_slot, compose_system, pack_prompt, resolve_prompt_meta } from "./modules/system.js";
 import { resolve_constitution_slot } from "./modules/constitution.js";
 import { resolve_core_protocols_slot } from "./modules/protocols.js";
-import { resolve_dynamic_axes_slot } from "./physics.js";
+import { resolve_dynamic_axes_slot } from "./dynamics.js";
 import { resolve_entities_slot, resolve_target_context_slot, resolve_cast_slot, resolve_entity_context_slot } from "./modules/entities.js";
 import { resolve_history_slot, resolve_chapter_history_slot } from "./modules/history.js";
 import { verify_epistemic_integrity } from "./veil.js";

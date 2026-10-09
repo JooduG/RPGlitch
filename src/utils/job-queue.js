@@ -24,6 +24,8 @@
 /**
  * @typedef {Object} JobRunOptions
  * @property {boolean} [latest=false] - If true, supersedes older still-queued latest tasks.
+ * @property {string} [story_id] - Lifecycle gate: story this task belongs to.
+ * @property {number} [round] - Lifecycle gate: round this task belongs to.
  */
 
 /**
@@ -39,6 +41,9 @@ export const CLEARED_RESULT = Object.freeze({ cleared: true });
 /** @type {Readonly<{ superseded: true }>} */
 export const SUPERSEDED_RESULT = Object.freeze({ superseded: true });
 
+/** @type {Readonly<{ stale: true }>} */
+export const STALE_RESULT = Object.freeze({ stale: true });
+
 // ============================================================================
 // [SECTION 2: JOB QUEUE FACTORY]
 // ============================================================================
@@ -53,10 +58,38 @@ export function create_job_queue(options = {}) {
   let active_count = 0;
 
   /**
+   * Current lifecycle context. Jobs enqueued with a story_id/round older than
+   * this resolve `{ stale: true }` instead of executing.
+   * @type {{ story_id?: string|null, round?: number|null }}
+   */
+  let lifecycle = { story_id: null, round: null };
+
+  /**
+   * Advances the lifecycle gate: pending jobs gated to an older story or
+   * round resolve `{ stale: true }` without executing.
+   * @param {{ story_id?: string|null, round?: number|null }} [context={}]
+   */
+  function advance(context = {}) {
+    if (context?.story_id !== undefined) lifecycle.story_id = context.story_id;
+    if (context?.round !== undefined) lifecycle.round = context.round;
+  }
+
+  /**
+   * True when a gated job predates the current lifecycle context.
+   */
+  function is_stale(job) {
+    if (job.story_id != null && lifecycle.story_id != null && String(job.story_id) !== String(lifecycle.story_id)) return true;
+    if (job.round != null && lifecycle.round != null && Number(job.round) !== Number(lifecycle.round)) return true;
+    return false;
+  }
+
+  /**
    * @type {Array<{
    *   task: () => Promise<any>,
    *   latest: boolean,
    *   superseded: boolean,
+   *   story_id?: string|null,
+   *   round?: number|null,
    *   resolve: (value: any) => void,
    *   reject: (error: any) => void
    * }>}
@@ -73,6 +106,11 @@ export function create_job_queue(options = {}) {
 
       if (job.superseded) {
         job.resolve(SUPERSEDED_RESULT);
+        continue;
+      }
+
+      if (is_stale(job)) {
+        job.resolve(STALE_RESULT);
         continue;
       }
 
@@ -110,6 +148,8 @@ export function create_job_queue(options = {}) {
           task,
           latest: is_latest,
           superseded: false,
+          story_id: opts?.story_id ?? null,
+          round: opts?.round ?? null,
           resolve,
           reject,
         };
@@ -152,6 +192,14 @@ export function create_job_queue(options = {}) {
       for (const job of leftover) {
         job.resolve(CLEARED_RESULT);
       }
+    },
+
+    /**
+     * Advances the lifecycle gate (see `advance` above).
+     * @param {{ story_id?: string|null, round?: number|null }} [context={}]
+     */
+    advance(context = {}) {
+      advance(context);
     },
   };
 }

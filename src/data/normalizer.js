@@ -37,7 +37,7 @@
  * ============================================================================
  */
 
-import { generate_uuid, pick_random, truncate_at_word } from "@utils";
+import { generate_uuid, pick_random } from "@utils";
 import { security } from "@platform";
 import { SIGNATURE_COLORS } from "./definitions/signature-colors.js";
 import { is_valid_speaking_style } from "./definitions/speaking-styles.js";
@@ -79,7 +79,6 @@ export const ENTITY_TEMPLATES = {
     pov: "1st_person",
     speaking_style: "",
     is_wanderer: false,
-    relationships: [],
     chapters: [],
   },
   fractal: {
@@ -99,7 +98,6 @@ export const ENTITY_TEMPLATES = {
     pov: "3rd_person",
     speaking_style: "",
     is_wanderer: false,
-    relationships: [],
     chapters: [],
   },
 };
@@ -183,17 +181,11 @@ function normalize_tags(raw_tags) {
 }
 
 /**
- * Normalizes entity relationships array.
- * @param {any} raw_relationships
- * @returns {string[]}
+ * CHANGELOG (retired helpers pruned under Track 1.4 P4 purity):
+ * - Track 1.4: Retired the legacy `relationships: string[]` plain-text array
+ *   (relational dynamics live as universal bracket predicates in the temporal
+ *   layers); normalize_relationships deleted.
  */
-function normalize_relationships(raw_relationships) {
-  return (Array.isArray(raw_relationships) ? raw_relationships : [])
-    .map((relationship) => (relationship != null ? sanitize_html(String(relationship)).trim() : ""))
-    .filter(Boolean)
-    .map((relationship) => truncate_at_word(relationship, 240))
-    .slice(0, 40);
-}
 
 /**
  * Normalizes chapter archive entries.
@@ -282,7 +274,6 @@ export function normalize(base = {}) {
     pov = "",
     speaking_style = "",
     is_wanderer,
-    relationships,
     chapters,
   } = base;
 
@@ -310,9 +301,9 @@ export function normalize(base = {}) {
     speaking_style: normalize_speaking_style(speaking_style),
     tags: normalize_tags(tags),
 
-    // --- NPC WORLD-CAST (Relationships & Wandering) ---
+    // --- NPC WORLD-CAST (Wandering; relational dynamics live as universal
+    // --- bracket predicates in the temporal layers, never a string array)
     is_wanderer: Boolean(is_wanderer),
-    relationships: normalize_relationships(relationships),
 
     // --- MACRO-QUEST CHAPTER ARCHIVE ---
     chapters: normalize_chapters(chapters),

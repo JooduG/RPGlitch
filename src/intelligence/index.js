@@ -71,15 +71,16 @@ export {
   compute_dynamics_deltas,
   evaluate_subtext_protocols,
   evaluate_dynamics_rules,
+  reduce_dynamics,
   DYNAMICS_AXES,
   DYNAMICS_RULES,
-} from "./physics.js";
+} from "./dynamics.js";
 
 // ============================================================================
 // Telemetry & Turn Summary Generation
 // ============================================================================
 
-export { build_turn_summary } from "./physics.js";
+export { build_turn_summary } from "./dynamics.js";
 
 // ============================================================================
 // Optics & Visual Prompt Compilation (Sensory Cortex)
@@ -108,6 +109,7 @@ export {
 
 /**
  * CHANGELOG:
+ * - Track 1.1: Re-sourced dynamics barrel from dynamics.js (physics.js renamed); exports the pure reduce_dynamics reducer.
  * - Track 0.11: render_optics_fallback now re-exports from media/optics.js (sensory.js dissolved).
  * - 2026-10-01: Re-exported consolidated Veil Engine functions (bracket parsing, epistemic wall, secrecy signals) from veil.js.
  * - 2026-09-29: Exported universal bracket predicate domain engine functions from synaptic.js.

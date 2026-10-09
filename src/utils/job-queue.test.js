@@ -150,4 +150,48 @@ describe("create_job_queue", () => {
     q.clear();
     expect(await q.run(async () => "fresh")).toBe("fresh");
   });
+
+  it("resolves gated jobs with { stale: true } when the story switches mid-flight", async () => {
+    const q = create_job_queue({ max_concurrency: 1 });
+    const blocker = q.run(async () => {
+      await tick(30);
+    });
+    const ran = [];
+    const stale = q.run(
+      async () => {
+        ran.push("stale");
+        return "stale-result";
+      },
+      { story_id: "story-a", round: 3 },
+    );
+    q.advance({ story_id: "story-b", round: 3 });
+    const fresh = q.run(
+      async () => {
+        ran.push("fresh");
+        return "fresh-result";
+      },
+      { story_id: "story-b", round: 3 },
+    );
+    const [, r_stale, r_fresh] = await Promise.all([blocker, stale, fresh]);
+    expect(r_stale).toEqual({ stale: true });
+    expect(r_fresh).toBe("fresh-result");
+    expect(ran).toEqual(["fresh"]);
+  });
+
+  it("resolves gated jobs with { stale: true } when the round advances mid-flight", async () => {
+    const q = create_job_queue({ max_concurrency: 1 });
+    const blocker = q.run(async () => {
+      await tick(30);
+    });
+    const stale = q.run(async () => "old-round", { story_id: "story-a", round: 3 });
+    q.advance({ story_id: "story-a", round: 4 });
+    const [, r_stale] = await Promise.all([blocker, stale]);
+    expect(r_stale).toEqual({ stale: true });
+  });
+
+  it("runs ungated jobs regardless of lifecycle advances", async () => {
+    const q = create_job_queue({ max_concurrency: 1 });
+    q.advance({ story_id: "story-b", round: 9 });
+    expect(await q.run(async () => "plain", { latest: true })).toBe("plain");
+  });
 });

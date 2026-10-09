@@ -208,7 +208,6 @@ describe("runtime world-cast hydration (track-npc-expansion)", () => {
       await db.entities.put(
         base_entity(e.id, e.name, "character", {
           role_tier: e.role_tier ?? 1,
-          relationships: e.relationships || [],
         }),
       );
     }
@@ -237,6 +236,7 @@ describe("runtime world-cast hydration (track-npc-expansion)", () => {
     expect(Object.keys(runtime.active_npcs).sort()).toEqual(["npc-elias", "npc-mira"]);
     expect(runtime.active_npcs["npc-elias"].name).toBe("Elias");
     expect(runtime.snapshot_npcs["npc-mira"].name).toBe("Mira");
+    expect(runtime.active_npcs["npc-elias"].presence).toBe("active");
     expect(runtime.in_scene_npc_ids).toEqual(expect.arrayContaining(["npc-elias", "npc-mira"]));
     expect([...runtime.snapshot_in_scene_npc_ids].sort()).toEqual(["npc-elias", "npc-mira"]);
   });
@@ -252,6 +252,8 @@ describe("runtime world-cast hydration (track-npc-expansion)", () => {
     await runtime.sync();
 
     expect(Object.keys(runtime.active_npcs).sort()).toEqual(["npc-elias", "npc-mira"]);
+    expect(runtime.active_npcs["npc-elias"].presence).toBe("nearby");
+    expect(runtime.active_npcs["npc-mira"].presence).toBe("active");
     expect(runtime.in_scene_npc_ids).toEqual(["npc-mira"]);
     expect(runtime.snapshot_in_scene_npc_ids).toEqual(["npc-mira"]);
   });
@@ -282,7 +284,7 @@ describe("runtime world-cast hydration (track-npc-expansion)", () => {
     expect(runtime.in_scene_npc_ids).not.toContain("npc-elias");
   });
 
-  it("persists stage moves through the in_scene_npc_ids setter (Stage Spotlight)", async () => {
+  it("persists stage moves through the presence enum with the id mirror derived (Stage Spotlight)", async () => {
     const { story_id } = await seed_story_with_npcs([
       { id: "npc-elias", name: "Elias" },
       { id: "npc-mira", name: "Mira" },
@@ -291,6 +293,8 @@ describe("runtime world-cast hydration (track-npc-expansion)", () => {
     await runtime.sync();
 
     runtime.in_scene_npc_ids = ["npc-mira"];
+    expect(runtime.active_npcs["npc-mira"].presence).toBe("active");
+    expect(runtime.active_npcs["npc-elias"].presence).toBe("nearby");
     expect(runtime.in_scene_npc_ids).toEqual(["npc-mira"]);
     expect(runtime.snapshot_in_scene_npc_ids).toEqual(["npc-mira"]);
 

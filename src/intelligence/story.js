@@ -36,7 +36,7 @@ import {
 } from "@media";
 import { validate_and_repair_response, force_close_response, balance_think_tags, strip_directors_note_seed, THINK_OPEN_TAG } from "./parser.js";
 import { llm_service, looks_truncated } from "@platform";
-import { apply_dynamics_gravity, extract_entity_dynamics_baselines, capture_dynamics_delta } from "./physics.js";
+import { apply_dynamics_gravity, extract_entity_dynamics_baselines, capture_dynamics_delta } from "./dynamics.js";
 import { execute_director_shot, resolve_npc_entity, apply_in_scene_change } from "./director.js";
 import { build_scoring_context, context_builder } from "./builder.js";
 import { compile_prompt } from "./prompts.js";
@@ -61,29 +61,6 @@ import { REFLEX_LIBRARY } from "./modules/reflex.js";
  * Bound to concurrency 1 to prevent overlapping Memory Forge write races on entity vectors in IndexedDB.
  */
 const director_background_queue = create_job_queue({ max_concurrency: 1 });
-
-/**
- * Attaches entity ids (e.g. premade ids like "RUST", "JULIEN", "TARTARUS") to
- * conversation-history messages so the builder history layer can emit
- * <ENTRY origin="…"> with the entity id rather than a display label.
- * Falls back to leaving the message untouched when no id matches.
- * @param {Array<{role: string, content?: string, character_name?: string, origin?: string}>} messages
- * @returns {Array<Record<string, any>>}
- */
-function _attach_history_origins(messages) {
-  const map = new Map();
-  const add = (e) => {
-    if (e?.name && e?.id) map.set(String(e.name).toLowerCase().trim(), String(e.id));
-  };
-  const snap = state_bridge.runtime?.snapshot_entities ?? {};
-  for (const e of [snap.AI, snap.USER, snap.FRACTAL]) add(e);
-  for (const n of Object.values(state_bridge.runtime?.snapshot_npcs ?? {})) add(n);
-  return messages.map((m) => {
-    if (m?.origin || !m?.character_name) return m;
-    const id = map.get(String(m.character_name).toLowerCase().trim());
-    return id ? { ...m, origin: id } : m;
-  });
-}
 
 /** Minimum narrative prose length before missing punctuation is treated as cut-off. */
 const TRUNCATION_MIN_PROSE = 40;
@@ -206,14 +183,14 @@ export const gamemaster = {
       temporal_engine.set_round(state_bridge.runtime.round);
 
       // 2. HYDRATION: Fetch history and hydrate context
+      // (Track 1.2: entries carry stamped entity_id, so origins resolve in history.js with no reverse lookup.)
       const raw_messages = await state_bridge.session_driver.load_log(story_id);
-      const simulation_log = _attach_history_origins(
-        filter_narrative_messages(raw_messages, { exclude_consolidated: true }).map((m) => ({
-          role: m.role === "user" ? "user" : m.role === "fractal" ? "fractal" : "model",
-          content: m.text || m.content || "",
-          character_name: m.character_name,
-        })),
-      );
+      const simulation_log = filter_narrative_messages(raw_messages, { exclude_consolidated: true }).map((m) => ({
+        role: m.role === "user" ? "user" : m.role === "fractal" ? "fractal" : "model",
+        content: m.text || m.content || "",
+        character_name: m.character_name,
+        entity_id: m.entity_id,
+      }));
 
       if (input && simulation_log.length > 0) {
         const last = simulation_log[simulation_log.length - 1];
@@ -892,13 +869,12 @@ export const gamemaster = {
   async execute_ghostwriter(input_text = "", signal = null, on_token = null) {
     const story_id = state_bridge.runtime.story_id;
     const raw_messages = story_id ? await state_bridge.session_driver.load_log(story_id) : [];
-    const simulation_log = _attach_history_origins(
-      filter_narrative_messages(raw_messages, { exclude_consolidated: true }).map((m) => ({
-        role: m.role === "user" ? "user" : m.role === "fractal" ? "fractal" : "model",
-        content: m.text || m.content || "",
-        character_name: m.character_name,
-      })),
-    );
+    const simulation_log = filter_narrative_messages(raw_messages, { exclude_consolidated: true }).map((m) => ({
+      role: m.role === "user" ? "user" : m.role === "fractal" ? "fractal" : "model",
+      content: m.text || m.content || "",
+      character_name: m.character_name,
+      entity_id: m.entity_id,
+    }));
     const payload = await context_builder.build_context(input_text || "", "simulation", simulation_log);
     const ghost_prompt = compile_prompt("ghostwrite", { ...payload, input: input_text, ghostwrite: true });
 

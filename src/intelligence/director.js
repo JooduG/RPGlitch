@@ -401,31 +401,30 @@ export function resolve_npc_entity(bridge, npc_id) {
 
 /**
  * Applies the Director's Stage Spotlight choreography (enter/exit) to
- * runtime.in_scene_npc_ids.
+ * NPC presence (Track 1.3: enter → presence 'active', exit → 'nearby').
  *
  * @param {any} bridge - State bridge handle
  * @param {{ enter?: string[], exit?: string[] } | null} change - Enter and exit lists
- * @returns {Promise<boolean>} Whether in_scene_npc_ids mutated
+ * @returns {Promise<boolean>} Whether NPC presence mutated
  */
 export async function apply_in_scene_change(bridge, change) {
   if (!change || typeof change !== "object") return false;
   const npcs = bridge.runtime?.active_npcs || {};
-  const current = new Set(bridge.runtime?.in_scene_npc_ids || []);
 
   let changed = false;
   for (const id of change.enter || []) {
     const resolved = normalize_actor_id(id, npcs, true);
-    if (resolved && !current.has(resolved)) {
-      current.add(resolved);
+    if (resolved && npcs[resolved] && npcs[resolved].presence !== "active") {
+      npcs[resolved].presence = "active";
       changed = true;
     }
   }
   for (const id of change.exit || []) {
     const resolved = normalize_actor_id(id, npcs);
-    if (resolved && current.delete(resolved)) changed = true;
-  }
-  if (changed && bridge.runtime) {
-    bridge.runtime.in_scene_npc_ids = [...current];
+    if (resolved && npcs[resolved]?.presence === "active") {
+      npcs[resolved].presence = "nearby";
+      changed = true;
+    }
   }
   return changed;
 }

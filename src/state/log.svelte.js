@@ -32,6 +32,27 @@ export const MAX_DEVELOPER_LOG_ENTRIES = 500;
 
 export { generate_uuid };
 
+/**
+ * Resolves a speaker display name to its canonical entity id against the
+ * runtime trio + hydrated NPC cast (case-insensitive). Null when no id matches.
+ * @param {string} name
+ * @returns {string|null}
+ */
+export function resolve_entity_id_by_name(name) {
+  const key = String(name || "")
+    .toLowerCase()
+    .trim();
+  if (!key) return null;
+  const snap = runtime?.snapshot_entities ?? {};
+  for (const candidate of [snap.AI, snap.USER, snap.FRACTAL]) {
+    if (candidate?.name && String(candidate.name).toLowerCase().trim() === key && candidate?.id) return String(candidate.id);
+  }
+  for (const npc of Object.values(runtime?.snapshot_npcs ?? {})) {
+    if (npc?.name && String(npc.name).toLowerCase().trim() === key && npc?.id) return String(npc.id);
+  }
+  return null;
+}
+
 // ============================================================================
 // [SECTION 2: JSDOC SCHEMAS & TYPE DEFINITIONS]
 // ============================================================================
@@ -44,6 +65,7 @@ export { generate_uuid };
  * @property {string} text - Message body or dialogue prose.
  * @property {string} [turn_type] - Temporal turn category.
  * @property {string} [character_name] - Name of speaking entity.
+ * @property {string} [entity_id] - Canonical entity id of the speaker (Track 1.2: stamped at creation; prompt compilation emits `<ENTRY origin="entity_id">` directly).
  * @property {number} [round] - Round number when message was recorded.
  * @property {Record<string, any>} [meta] - Telemetry metadata, tags, dynamics, or prologue/epilogue flags.
  * @property {number} [created_at] - Creation timestamp in milliseconds.
@@ -87,11 +109,18 @@ export class SimulationLogStore {
 
   /**
    * Appends a log entry to the feed if not already present.
+   * Stamps `entity_id` at creation: an explicit id wins; otherwise the
+   * speaker's `character_name` resolves against the runtime trio + NPC cast
+   * (case-insensitive), replacing the old prompt-time reverse lookup.
    * @param {LogEntry} entry - The log entry to append.
    */
   add(entry) {
     if (entry.id != null && this.#id_set.has(entry.id)) return;
     if (entry.id != null) this.#id_set.add(entry.id);
+    if (entry && entry.entity_id == null && entry.character_name) {
+      const stamped = resolve_entity_id_by_name(entry.character_name);
+      if (stamped) entry = { ...entry, entity_id: stamped };
+    }
     this.feed.push(entry);
   }
 

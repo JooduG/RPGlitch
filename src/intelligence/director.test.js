@@ -124,7 +124,7 @@ describe("Director Quick Shot Prompt (compile_prompt director)", () => {
   });
 
   it("gives on-stage NPCs a full sheet and never restates the sheeted trio in a CAST block", () => {
-    const npc_entities = [{ id: "npc-elias", name: "Elias", description: "Archivist", relationships: ["Elias → Viper: wary"] }];
+    const npc_entities = [{ id: "npc-elias", name: "Elias", description: "Archivist" }];
     const result = compile_prompt("director", { ...base_payload(), npc_entities, in_scene_ids: ["npc-elias"], compressed_snapshot: base_snapshot });
     expect(result.system).toContain('<NPC id="npc-elias" name="Elias">');
     expect(result.system).not.toContain("<CAST");
@@ -137,7 +137,7 @@ describe("Director Quick Shot Prompt (compile_prompt director)", () => {
   });
 
   it('emits a consolidated <CAST mode="candidates"> for off-stage reuse candidates only', () => {
-    const npc_entities = [{ id: "npc-mira", name: "Mira", description: "Street medic", relationships: ["Mira → Viper: neutral"] }];
+    const npc_entities = [{ id: "npc-mira", name: "Mira", description: "Street medic" }];
     const result = compile_prompt("director", { ...base_payload(), npc_entities, in_scene_ids: [], compressed_snapshot: base_snapshot });
     expect(result.system).toContain('<CAST mode="candidates">');
     expect(result.system).toContain("Mira (id: npc-mira)");

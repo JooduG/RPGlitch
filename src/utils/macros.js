@@ -40,7 +40,22 @@ export function parse_macros(text, owner, entities = {}, context = {}) {
   const speaker_entity = context.speaker || (perspective === "user" ? user_entity : ai_entity);
   const listener_entity = context.listener || (perspective === "user" ? ai_entity : user_entity);
 
-  return text.replace(/(?<!\w)@([a-zA-Z0-9_-]+)\b/gi, (match, raw_token) => {
+  return text.replace(/(?<!\w)@([a-zA-Z0-9_-]+)\b|\{(\s*(?:me|you)\s*)\}/gi, (match, raw_token, brace_token) => {
+    if (brace_token) {
+      const token = brace_token.trim().toUpperCase();
+      if (token === "ME") {
+        if (speaker_entity?.name) return speaker_entity.name;
+        if (perspective === "ai") return ai_name;
+        if (perspective === "user") return user_name;
+        if (perspective === "fractal") return fractal_name;
+        return match;
+      }
+      if (listener_entity?.name) return listener_entity.name;
+      if (perspective === "ai") return user_name;
+      if (perspective === "user") return ai_name;
+      if (perspective === "fractal") return `${ai_name} and ${user_name}`;
+      return match;
+    }
     const token = raw_token.toUpperCase();
 
     // 1. Direct role targets
@@ -267,13 +282,13 @@ export function resolve_display_macro_segments(text, owner, entities = {}, conte
   const segments = [];
   const source = String(text);
   let last = 0;
-  const re = /(?<!\w)@([a-zA-Z0-9_-]+)\b/gi;
+  const re = /(?<!\w)@([a-zA-Z0-9_-]+)\b|\{(\s*(?:me|you)\s*)\}/gi;
   let m;
   while ((m = re.exec(source)) !== null) {
     if (m.index > last) {
       segments.push({ text: source.slice(last, m.index), macro: null, entity: null });
     }
-    const raw_token = m[1];
+    const raw_token = m[1] || m[2].trim();
     const token = raw_token.toUpperCase();
     let label = null;
     let entity = null;

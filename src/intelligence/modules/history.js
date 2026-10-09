@@ -41,7 +41,7 @@ import {
   role_display_label,
   wrap_tag,
 } from "@utils";
-import { DYNAMICS_METRIC_NAMES } from "../physics.js";
+import { DYNAMICS_METRIC_NAMES } from "../dynamics.js";
 
 // ============================================================================
 // [SECTION 1: MANIFEST CONFIGURATION & WINDOW RESOLVER]
@@ -180,7 +180,12 @@ export function resolve_history_plan(entries, options = {}) {
     const origin =
       label_policy === "visual"
         ? entry?.character_name || entry?.role || fallback
-        : entry?.origin || entry?.character_name || entry?.name || (entry?.role ? role_display_label(entry.role) : "") || fallback;
+        : entry?.entity_id ||
+          entry?.origin ||
+          entry?.character_name ||
+          entry?.name ||
+          (entry?.role ? role_display_label(entry.role) : "") ||
+          fallback;
     included.push(
       Object.freeze({
         origin: String(origin),

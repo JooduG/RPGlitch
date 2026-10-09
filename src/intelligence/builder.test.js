@@ -41,7 +41,6 @@ const test_entities = {
     },
     future: "Infiltrate the mainframe.",
     past: [],
-    relationships: ["Alice -> Bob: guarded trust"],
     dynamics: { chaos: 30, intensity: 70, openness: 40, affinity: 20 },
   },
   USER: {
@@ -58,7 +57,6 @@ const test_entities = {
     },
     future: "Provide tactical cover.",
     past: [],
-    relationships: ["Bob -> Alice: protective ally"],
     dynamics: { chaos: 20, intensity: 50, openness: 60, affinity: 70 },
   },
   FRACTAL: {
@@ -87,7 +85,6 @@ const test_npc = {
   present: { physical: "[CLOTHING: rags]", non_physical: "Suspicious." },
   future: "Survive.",
   past: [],
-  relationships: ["Merchant -> Alice: wary curiosity"],
   dynamics: { chaos: 15, intensity: 25, openness: 15, affinity: 10 },
 };
 

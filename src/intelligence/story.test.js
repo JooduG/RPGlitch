@@ -4,13 +4,13 @@
  */
 
 import { gamemaster, balance_think_tags, strip_directors_note_seed } from "./story.js";
-import { apply_dynamics_gravity } from "./physics.js";
+import { apply_dynamics_gravity } from "./dynamics.js";
 import { build_scoring_context, context_builder } from "./builder.js";
 import { temporal_engine } from "./temporal.js";
 import { resolve_npc_entity, apply_in_scene_change, apply_relationships } from "./director.js";
 import { spawn_character } from "./profile.js";
-import { capture_dynamics_delta } from "./physics.js";
-import * as physics from "./physics.js";
+import { capture_dynamics_delta } from "./dynamics.js";
+import * as dynamics from "./dynamics.js";
 import { llm_service } from "@platform";
 import { session_driver } from "@data";
 import {
@@ -32,7 +32,23 @@ const _mock_runtime = {
   active_fractal: { name: "Void" },
   active_user: null,
   active_npcs: {},
-  in_scene_npc_ids: [],
+  get snapshot_npcs() {
+    return this.active_npcs;
+  },
+  get snapshot_in_scene_npc_ids() {
+    return Object.values(this.active_npcs)
+      .filter((e) => e?.presence === "active")
+      .map((e) => String(e.id));
+  },
+  get in_scene_npc_ids() {
+    return this.snapshot_in_scene_npc_ids;
+  },
+  set in_scene_npc_ids(val) {
+    const ids = new Set((Array.isArray(val) ? val : []).map((x) => String(x)));
+    for (const npc of Object.values(this.active_npcs)) {
+      if (npc) npc.presence = ids.has(String(npc.id)) ? "active" : npc.presence === "active" ? "nearby" : (npc.presence ?? "nearby");
+    }
+  },
   streaming_entity_id: null,
   round: 1,
   turn_type: "USER_TURN",
@@ -275,7 +291,7 @@ vi.mock("./temporal.js", async (importOriginal) => {
   };
 });
 
-vi.mock("./physics.js", async (importOriginal) => {
+vi.mock("./dynamics.js", async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
@@ -324,7 +340,6 @@ describe("gamemaster (Intelligence Kernel)", () => {
     _mock_runtime.last_director_beat_round = -1;
     _mock_runtime.last_dynamics_beat_round = -1;
     _mock_runtime.active_npcs = {};
-    _mock_runtime.in_scene_npc_ids = [];
     _mock_runtime.streaming_entity_id = null;
     vi.spyOn(context_builder, "build_context");
   });
@@ -996,7 +1011,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
     });
 
     it("triggers capture_dynamics_delta exactly once per execution turn sequence", async () => {
-      const telemetry_spy = vi.spyOn(physics, "capture_dynamics_delta");
+      const telemetry_spy = vi.spyOn(dynamics, "capture_dynamics_delta");
       vi.mocked(llm_service.generate).mockResolvedValue("Clean output response");
 
       await gamemaster.execute_turn("story-123", {
@@ -1400,7 +1415,6 @@ describe("NPC world cast (track-npc-expansion)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     _mock_runtime.active_npcs = {};
-    _mock_runtime.in_scene_npc_ids = [];
     _mock_runtime.streaming_entity_id = null;
     _mock_runtime.story_id = null;
     vi.spyOn(context_builder, "build_context");
@@ -1415,20 +1429,25 @@ describe("NPC world cast (track-npc-expansion)", () => {
     expect(resolve_npc_entity({ runtime: _mock_runtime }, "")).toBeNull();
   });
 
-  it("_apply_in_scene_change() moves NPCs on/off stage via the Director choreography", async () => {
-    _mock_runtime.active_npcs = { a: { id: "a", name: "A" }, b: { id: "b", name: "B" } };
-    _mock_runtime.in_scene_npc_ids = ["a", "b"];
+  it("_apply_in_scene_change() moves NPCs on/off stage via presence (Director choreography)", async () => {
+    _mock_runtime.active_npcs = {
+      a: { id: "a", name: "A", presence: "active" },
+      b: { id: "b", name: "B", presence: "active" },
+      c: { id: "c", name: "C", presence: "nearby" },
+    };
 
     const changed = await apply_in_scene_change({ runtime: _mock_runtime }, { enter: ["c", "a"], exit: ["b"] });
     expect(changed).toBe(true);
-    expect(_mock_runtime.in_scene_npc_ids.sort()).toEqual(["a", "c"]);
+    expect(_mock_runtime.active_npcs.a.presence).toBe("active");
+    expect(_mock_runtime.active_npcs.b.presence).toBe("nearby");
+    expect(_mock_runtime.active_npcs.c.presence).toBe("active");
   });
 
   it("_apply_in_scene_change() is a no-op when the stage is unchanged", async () => {
-    _mock_runtime.in_scene_npc_ids = ["a"];
+    _mock_runtime.active_npcs = { a: { id: "a", name: "A", presence: "active" } };
     const changed = await apply_in_scene_change({ runtime: _mock_runtime }, { enter: ["a"] });
     expect(changed).toBe(false);
-    expect(_mock_runtime.in_scene_npc_ids).toEqual(["a"]);
+    expect(_mock_runtime.active_npcs.a.presence).toBe("active");
 
     const noop = await apply_in_scene_change({ runtime: _mock_runtime }, null);
     expect(noop).toBe(false);
@@ -1438,8 +1457,7 @@ describe("NPC world cast (track-npc-expansion)", () => {
     vi.mocked(entities.upsert).mockImplementation(async (type, entity) => ({ ...entity, id: "npc-mira-1", type: "character" }));
     vi.mocked(stories.get).mockResolvedValue({ id: 7, npc_ids: ["ben1"] });
     _mock_runtime.story_id = 7;
-    _mock_runtime.active_npcs = { ben1: { id: "ben1", name: "Benedict" } };
-    _mock_runtime.in_scene_npc_ids = ["ben1"];
+    _mock_runtime.active_npcs = { ben1: { id: "ben1", name: "Benedict", presence: "active" } };
 
     const npc = await spawn_character({ runtime: _mock_runtime, app: _mock_app }, { name: "Mira", description: "A fixer." });
 
@@ -1447,7 +1465,7 @@ describe("NPC world cast (track-npc-expansion)", () => {
     expect(entities.upsert).toHaveBeenCalledWith("character", expect.objectContaining({ name: "Mira" }));
     expect(stories.update_cast).toHaveBeenCalledWith(7, ["ben1", "npc-mira-1"]);
     expect(_mock_runtime.active_npcs["npc-mira-1"].name).toBe("Mira");
-    expect(_mock_runtime.in_scene_npc_ids).toEqual(["ben1", "npc-mira-1"]);
+    expect(_mock_runtime.active_npcs["npc-mira-1"].presence).toBe("active");
   });
 
   it("spawn_character() requires a name", async () => {
@@ -1657,27 +1675,26 @@ describe("NPC world cast (track-npc-expansion)", () => {
 
 describe("apply_in_scene_change (in-scene name tolerance)", () => {
   beforeEach(() => {
-    _mock_runtime.active_npcs = { npc1: { id: "npc1", name: "Lord Benedict" } };
-    _mock_runtime.in_scene_npc_ids = [];
+    _mock_runtime.active_npcs = { npc1: { id: "npc1", name: "Lord Benedict", presence: "nearby" } };
   });
 
   it("resolves raw cast names (case-insensitive) as well as bare ids", async () => {
     await apply_in_scene_change(state_bridge, { enter: ["lord benedict"] });
-    expect(_mock_runtime.in_scene_npc_ids).toContain("npc1");
+    expect(_mock_runtime.active_npcs.npc1.presence).toBe("active");
 
     await apply_in_scene_change(state_bridge, { exit: ["LORD BENEDICT"] });
-    expect(_mock_runtime.in_scene_npc_ids).not.toContain("npc1");
+    expect(_mock_runtime.active_npcs.npc1.presence).toBe("nearby");
   });
 
   it("still resolves bare ids directly", async () => {
     await apply_in_scene_change(state_bridge, { enter: ["npc1"] });
-    expect(_mock_runtime.in_scene_npc_ids).toContain("npc1");
+    expect(_mock_runtime.active_npcs.npc1.presence).toBe("active");
   });
 
   it("ignores unknown names without mutating the roster", async () => {
     const changed = await apply_in_scene_change(state_bridge, { enter: ["Nobody Here"] });
     expect(changed).toBe(false);
-    expect(_mock_runtime.in_scene_npc_ids).toEqual([]);
+    expect(_mock_runtime.active_npcs.npc1.presence).toBe("nearby");
   });
 });
 
@@ -1734,7 +1751,6 @@ describe("spawn_character (World-Cast Expansion)", () => {
     _mock_runtime.active_user = { id: "user-1", name: "Ghost", type: "character" };
     _mock_runtime.active_fractal = { id: "fx-1", name: "Void", type: "fractal" };
     _mock_runtime.active_npcs = {};
-    _mock_runtime.in_scene_npc_ids = [];
     _mock_runtime.story_id = null;
   });
 
@@ -1744,7 +1760,7 @@ describe("spawn_character (World-Cast Expansion)", () => {
     expect(npc.name).toBe("Mira");
     const spawned = Object.values(_mock_runtime.active_npcs);
     expect(spawned).toHaveLength(1);
-    expect(_mock_runtime.in_scene_npc_ids).toContain(npc.id);
+    expect(_mock_runtime.active_npcs[npc.id].presence).toBe("active");
     expect(_mock_app.log).toHaveBeenCalledWith(expect.stringContaining("Roster expanded"), "system");
   });
 

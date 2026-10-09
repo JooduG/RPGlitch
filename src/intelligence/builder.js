@@ -23,7 +23,6 @@ import {
   prompt_escape,
   parse_macros,
   strip_cognition_blocks,
-  parse_relational_vector,
   resolve_alternations,
   alternation_field_label,
   state_bridge,
@@ -36,7 +35,7 @@ import { resolve_style_snapshot } from "./modules/style.js";
 import { resolve_stability_lock } from "./modules/reflex.js";
 import { resolve_pov_protocol, resolve_macro_directive, resolve_layer_tense_protocol } from "./modules/protocols.js";
 import { resolve_entities } from "./modules/entities.js";
-import { render_dynamics_axes_xml, render_subtext_xml } from "./physics.js";
+import { render_dynamics_axes_xml, render_subtext_xml } from "./dynamics.js";
 
 import { render_history, resolve_history } from "./modules/history.js";
 import {
@@ -47,7 +46,7 @@ import {
 } from "./modules/task.js";
 import { resolve_optics_cinematography } from "./modules/style.js";
 import { get_output_format } from "./modules/output.js";
-import { DYNAMICS_AXES, PHYSICS_PROTOCOLS, AVAILABLE_KEYWORDS, evaluate_dynamics_rules, evaluate_subtext_protocols } from "./physics.js";
+import { DYNAMICS_AXES, PHYSICS_PROTOCOLS, AVAILABLE_KEYWORDS, evaluate_dynamics_rules, evaluate_subtext_protocols } from "./dynamics.js";
 import { temporal_engine, resolve_vector_pool } from "./temporal.js";
 
 /**
@@ -173,7 +172,6 @@ export const context_builder = {
         present: fragments.present,
         memories: resolve_vector_pool(raw),
         future: typeof raw.future === "string" ? raw.future : "",
-        relationships: Array.isArray(raw.relationships) ? raw.relationships : [],
         past: Array.isArray(raw.past) ? raw.past : [],
         dynamics: raw.dynamics,
         dynamics_baseline: raw.dynamics_baseline,
@@ -182,19 +180,25 @@ export const context_builder = {
     }
 
     // 3. NPC World Cast — Hydrate secondary characters for Director choreography
+    // (Track 1.3: staging reads presence; Track 1.4: relations are bracket predicates)
     const npc_map = state_bridge.runtime?.snapshot_npcs ?? {};
-    const in_scene_ids = state_bridge.runtime?.snapshot_in_scene_npc_ids ?? [];
+    const in_scene_ids = Object.values(npc_map)
+      .filter(
+        (raw) =>
+          raw?.presence === "active" || (raw?.presence == null && (state_bridge.runtime?.snapshot_in_scene_npc_ids ?? []).includes(String(raw?.id))),
+      )
+      .map((raw) => String(raw.id));
     const npc_entities = Object.values(npc_map).map((raw) => ({
       id: raw.id,
       name: raw.name || raw.id,
       type: "character",
+      presence: raw.presence ?? "nearby",
       eternal: { physical: raw.eternal?.physical || "", non_physical: raw.eternal?.non_physical || "" },
       present: { physical: raw.present?.physical || "", non_physical: raw.present?.non_physical || "" },
       memories: resolve_vector_pool(raw),
       dynamics: raw.dynamics,
       dynamics_baseline: raw.dynamics_baseline,
       future: raw.future || "",
-      relationships: Array.isArray(raw.relationships) ? raw.relationships : [],
       past: Array.isArray(raw.past) ? raw.past : [],
       is_wanderer: !!raw.is_wanderer,
       voice: raw.voice,
@@ -327,19 +331,7 @@ function resolve_prose_bag(config, context, bag_inputs) {
   const listener_name_lc = String(active_listener?.name || "")
     .toLowerCase()
     .trim();
-  const has_prior_relationship = Boolean(
-    speaker_name_lc &&
-    listener_name_lc &&
-    Array.isArray(active_speaker?.relationships) &&
-    active_speaker.relationships.some((relation) => {
-      const parsed = parse_relational_vector(relation);
-      return (
-        parsed &&
-        String(parsed.source_name).toLowerCase().trim() === speaker_name_lc &&
-        String(parsed.target_name).toLowerCase().trim() === listener_name_lc
-      );
-    }),
-  );
+  const has_prior_relationship = Boolean(speaker_name_lc && listener_name_lc && has_bracket_bond_between(active_speaker, listener_name_lc));
   const is_first_contact = !has_prior_relationship && director_data?.first_contact === true;
   const action_directive = resolve_character_action_directive({ speaker_name, is_first_contact });
   const input_origin_entity = is_ghostwrite ? active_speaker : entities?.USER;
@@ -393,6 +385,28 @@ function resolve_prose_bag(config, context, bag_inputs) {
       ...(context.meta || {}),
     },
   };
+}
+
+/**
+ * True when the speaker's temporal layers carry a universal bracket predicate
+ * targeting the listener (Track 1.4: replaces the legacy relationships[] check).
+ */
+function has_bracket_bond_between(speaker, listener_name_lc) {
+  if (!speaker || !listener_name_lc) return false;
+  const layers = [speaker?.eternal?.non_physical, speaker?.present?.non_physical, speaker?.eternal?.physical, speaker?.present?.physical];
+  for (const text of layers) {
+    if (typeof text !== "string" || text.indexOf("[") < 0) continue;
+    const matches = text.matchAll(/\[@?([^\]:]+):/g);
+    for (const match of matches) {
+      if (
+        String(match[1] || "")
+          .trim()
+          .toLowerCase() === listener_name_lc
+      )
+        return true;
+    }
+  }
+  return false;
 }
 
 function normalize_prose_context(config, context) {

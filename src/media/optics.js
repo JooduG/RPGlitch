@@ -25,7 +25,7 @@
 
 import { normalize_comma_spacing } from "@utils";
 import { build_aesthetic_map, compose_visual_generation_prompt, resolve_visual_engine_tokens } from "../intelligence/modules/style.js";
-import { IMAGE_TRIGGER, evaluate_image_trigger } from "../intelligence/physics.js";
+import { IMAGE_TRIGGER, evaluate_image_trigger } from "../intelligence/dynamics.js";
 
 // Re-exported so @media consumers (media/index.js, visual.svelte.js) keep one
 // import surface while the compilers live in their domain homes.

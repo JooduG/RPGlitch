@@ -18,12 +18,62 @@
  *   - Adhere strictly to P4: Zero Backwards Compatibility and full descriptive naming.
  */
 
-import { parse_relational_vector, state_bridge, stories_bridge } from "@utils";
+import { state_bridge, stories_bridge } from "@utils";
 import { db } from "./db.js";
 import { append_ledger_entries } from "./ledger.js";
 
 /** Durable IndexedDB key for the active-session pointer (kv_settings). */
 export const SESSION_ID_KEY = "active_session_id";
+
+/**
+ * True when any universal bracket predicate in an entity's temporal layers
+ * targets `name` (Track 1.4: replaces legacy `relationships[]` edge checks).
+ * @param {any} entity
+ * @param {string} name - Lowercased target name
+ * @returns {boolean}
+ */
+function has_bracket_bond(entity, name) {
+  if (!entity || !name) return false;
+  const layers = [entity?.eternal?.non_physical, entity?.present?.non_physical, entity?.eternal?.physical, entity?.present?.physical];
+  for (const text of layers) {
+    if (typeof text !== "string" || text.indexOf("[") < 0) continue;
+    const matches = text.matchAll(/\[@?([^\]:]+):/g);
+    for (const match of matches) {
+      if (
+        String(match[1] || "")
+          .trim()
+          .toLowerCase() === name
+      )
+        return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Resolves a log speaker to its canonical entity id at creation (Track 1.2):
+ * explicit ids win; otherwise `character_name` matches the runtime trio + NPC
+ * cast case-insensitively, falling back to role-keyed trio ids.
+ * @param {string} role
+ * @param {string} character_name
+ * @returns {string|null}
+ */
+function resolve_log_entity_id(role, character_name) {
+  const key = String(character_name || "")
+    .toLowerCase()
+    .trim();
+  const snap = state_bridge.runtime?.snapshot_entities ?? {};
+  if (key) {
+    for (const candidate of [snap.AI, snap.USER, snap.FRACTAL]) {
+      if (candidate?.name && String(candidate.name).toLowerCase().trim() === key && candidate?.id) return String(candidate.id);
+    }
+    for (const npc of Object.values(state_bridge.runtime?.snapshot_npcs ?? {})) {
+      if (npc?.name && String(npc.name).toLowerCase().trim() === key && npc?.id) return String(npc.id);
+    }
+  }
+  const trio = role === "user" ? snap.USER : role === "fractal" ? snap.FRACTAL : role === "model" ? snap.AI : null;
+  return trio?.id ? String(trio.id) : null;
+}
 
 /** @type {string | null} */
 let _active_id = null;
@@ -158,24 +208,17 @@ export const session_driver = {
           continue;
         }
 
-        // 2. Check if Fractal has outgoing relationship to this Character
-        const fractal_relationships = Array.isArray(fractal_entity?.relationships) ? fractal_entity.relationships : [];
+        // 2. Check if Fractal has an outgoing bracket bond to this Character
+        // (Track 1.4: universal predicates replace the legacy relationships array)
         const character_name = (character.name || "").trim().toLowerCase();
-        const has_fractal_bond = fractal_relationships.some((rel) => {
-          const parsed = parse_relational_vector(rel);
-          return parsed && parsed.target_name.toLowerCase() === character_name;
-        });
+        const has_fractal_bond = has_bracket_bond(fractal_entity, character_name);
         if (has_fractal_bond) {
           initial_npc_ids.add(character_id);
           continue;
         }
 
-        // 3. Check if Character has outgoing relationship to this Fractal
-        const character_relationships = Array.isArray(character.relationships) ? character.relationships : [];
-        const has_character_to_fractal_bond = character_relationships.some((rel) => {
-          const parsed = parse_relational_vector(rel);
-          return parsed && fractal_name && parsed.target_name.toLowerCase() === fractal_name;
-        });
+        // 3. Check if Character has an outgoing bracket bond to this Fractal
+        const has_character_to_fractal_bond = fractal_name ? has_bracket_bond(character, fractal_name) : false;
         if (has_character_to_fractal_bond) {
           initial_npc_ids.add(character_id);
         }
@@ -388,7 +431,7 @@ export const session_driver = {
    * @param {string|number|null} [options.story_id]
    * @returns {Promise<Record<string, any>>}
    */
-  async log_message(text, role, character_name, { turn_type = "USER_TURN", meta = {}, attachments = [], story_id = null } = {}) {
+  async log_message(text, role, character_name, { turn_type = "USER_TURN", meta = {}, attachments = [], story_id = null, entity_id = null } = {}) {
     const effective_story_id = story_id ?? session_driver.require_active();
     const is_empty =
       typeof text === "string" && !text.trim() && (!attachments || attachments.length === 0) && !meta?.is_prologue && !meta?.is_epilogue;
@@ -402,6 +445,7 @@ export const session_driver = {
       type: "text",
       text,
       character_name,
+      entity_id: entity_id ?? resolve_log_entity_id(role, character_name),
       turn_type,
       round: state_bridge.runtime?.round ?? 0,
       meta: $state.snapshot(meta),

@@ -170,7 +170,7 @@ describe("normalizer.js", () => {
     });
   });
 
-  describe("world-cast fields (is_wanderer / relationships)", () => {
+  describe("world-cast field (is_wanderer)", () => {
     it("coerces is_wanderer to a boolean", () => {
       expect(normalize({}).is_wanderer).toBe(false);
       expect(normalize({ is_wanderer: true }).is_wanderer).toBe(true);
@@ -178,32 +178,14 @@ describe("normalizer.js", () => {
       expect(normalize({ is_wanderer: 0 }).is_wanderer).toBe(false);
     });
 
-    it("sanitizes, trims, caps (240 chars each / 40 items) and dedupes not — relationships array", () => {
-      const long_rel = "[Mira] → [Elias]: " + "devoted ".repeat(60);
-      const input = {
-        relationships: [`[Mira] → [Elias]: allies `, long_rel, "", null, 42, `[Elias] → [Mira]: wary`],
-      };
-      const result = normalize(input);
-      expect(result.relationships).toHaveLength(4);
-      expect(result.relationships[0]).toBe("[Mira] → [Elias]: allies");
-      expect(result.relationships[0]).not.toMatch(/\s$/);
-      // 240 content chars + the "…" truncation marker = 241 max.
-      expect(result.relationships.every((r) => r.length <= 241)).toBe(true);
-    });
-
-    it("caps the relationships array at 40 entries", () => {
-      const many = Array.from({ length: 50 }, (_, i) => `[A${i}] → [B${i}]: contact`);
-      expect(normalize({ relationships: many }).relationships).toHaveLength(40);
-    });
-
-    it("defaults relationships to an empty array", () => {
-      expect(normalize({}).relationships).toEqual([]);
-      expect(normalize({ relationships: "not-an-array" }).relationships).toEqual([]);
+    it("drops the retired relationships array (bracket predicates own relations)", () => {
+      expect(normalize({ relationships: ["[Mira] → [Elias]: allies"] }).relationships).toBeUndefined();
+      expect(normalize({}).relationships).toBeUndefined();
     });
 
     it("seeds the world-cast fields from templates", () => {
       expect(ENTITY_TEMPLATES.character.is_wanderer).toBe(false);
-      expect(ENTITY_TEMPLATES.character.relationships).toEqual([]);
+      expect(ENTITY_TEMPLATES.character.relationships).toBeUndefined();
     });
 
     it("preserves well-formed chapter archives", () => {

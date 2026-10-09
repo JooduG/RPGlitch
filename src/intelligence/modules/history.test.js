@@ -83,6 +83,12 @@ describe("src/intelligence/modules/history.js", () => {
       expect(formatted).not.toContain("It is treacherous.");
     });
 
+    it("prefers stamped entity_id over origin and character_name", () => {
+      const history = [{ role: "model", character_name: "Benedict", origin: "OLD_ID", entity_id: "CHAR_BEN", text: "Stamped." }];
+      const formatted = render_history(history, { limit: 16, collapse: false });
+      expect(formatted).toContain('<ENTRY round="1" origin="CHAR_BEN">Stamped.</ENTRY>');
+    });
+
     it("resolves origins fallback gracefully when character_name is absent", () => {
       const history = [
         { role: "user", text: "Look out!" },

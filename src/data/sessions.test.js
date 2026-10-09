@@ -30,12 +30,12 @@ describe("sessions.svelte.js session_driver", () => {
   });
 
   it("seeds wanderer NPCs and bidirectional fractal bonds into story.npc_ids upon create_from_selection", async () => {
-    // Seed fractal
+    // Seed fractal (bracket bond to Hank in the temporal layer)
     const fractal = {
       id: "ashenweald",
       name: "Ashenweald",
       type: "fractal",
-      relationships: ["Ashenweald → Hank: Old wanderer sits at the tavern"],
+      present: { physical: "", non_physical: "[@HANK: lodger | show]" },
       dynamics: { velocity: 50, entropy: 50 },
     };
     await db.entities.put(fractal);
@@ -46,17 +46,16 @@ describe("sessions.svelte.js session_driver", () => {
       name: "Hank",
       type: "character",
       is_wanderer: true,
-      relationships: [],
     };
     await db.entities.put(wanderer);
 
-    // Seed connected character (via character's outgoing relationship to fractal)
+    // Seed connected character (via character's outgoing bracket bond to fractal)
     const forest_guardian = {
       id: "guardian",
       name: "Guardian",
       type: "character",
       is_wanderer: false,
-      relationships: ["Guardian → Ashenweald: Protects the heart tree"],
+      present: { physical: "", non_physical: "[@ASHENWEALD: ward | show]" },
     };
     await db.entities.put(forest_guardian);
 
