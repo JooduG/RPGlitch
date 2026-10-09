@@ -10,6 +10,10 @@ import {
   REFLEX_DEFAULTS,
   REFLEX_LIBRARY,
   classify_pacing,
+  classify_input_size,
+  resolve_beat_budget_plan,
+  detect_staged_dialogue_turn,
+  detect_held_moment,
   detect_environmental_hint,
   resolve_prose_posture_plan,
   resolve_stability_plan,
@@ -59,6 +63,45 @@ describe("reflex.js - pacing plans", () => {
   });
 });
 
+describe("reflex.js - input-size tiers and beat budgets", () => {
+  it("classifies inputs into TINY/SMALL/MEDIUM/EXPANSIVE at the char edges", () => {
+    expect(classify_input_size("").tier).toBe("TINY");
+    expect(classify_input_size("x".repeat(12)).tier).toBe("TINY");
+    expect(classify_input_size("x".repeat(13)).tier).toBe("SMALL");
+    expect(classify_input_size("x".repeat(90)).tier).toBe("SMALL");
+    expect(classify_input_size("x".repeat(91)).tier).toBe("MEDIUM");
+    expect(classify_input_size("x".repeat(400)).tier).toBe("MEDIUM");
+    expect(classify_input_size("x".repeat(401)).tier).toBe("EXPANSIVE");
+    expect(classify_input_size(null).tier).toBe("TINY");
+  });
+
+  it("resolves beat budgets per tier", () => {
+    expect(resolve_beat_budget_plan("Hi")).toEqual({ tier: "TINY", beats: "1", mandate: REFLEX_DEFAULTS.INPUT_SIZE_TIERS[0].mandate });
+    expect(resolve_beat_budget_plan("x".repeat(50)).beats).toBe("1-2");
+    expect(resolve_beat_budget_plan("x".repeat(200)).beats).toBe("2-4");
+    expect(resolve_beat_budget_plan("x".repeat(500)).beats).toBe("open");
+  });
+
+  it("reports staged-dialogue reasons", () => {
+    expect(detect_staged_dialogue_turn("")).toEqual({ hit: false, reason: "blank" });
+    expect(detect_staged_dialogue_turn("Alice prepares to move.")).toEqual({ hit: false, reason: "no-quotes" });
+    expect(detect_staged_dialogue_turn('"I draw my blade and advance."')).toEqual({ hit: false, reason: "has-action-verbs" });
+    expect(detect_staged_dialogue_turn('"We ride at dawn."')).toEqual({ hit: true, reason: "terse-dialogue" });
+  });
+
+  it("reports held-moment reasons, never firing on blank input", () => {
+    expect(detect_held_moment("")).toEqual({ hit: false, reason: "blank" });
+    expect(detect_held_moment("Alice prepares to move.")).toEqual({ hit: false, reason: "no-pause-marker" });
+    expect(detect_held_moment("...")).toEqual({ hit: true, reason: "held-pause" });
+    expect(detect_held_moment("She remains silent.")).toEqual({ hit: true, reason: "held-pause" });
+  });
+
+  it("carries constraint flags on the posture plan", () => {
+    expect(resolve_prose_posture_plan({}, '"We ride at dawn."').constraints).toEqual({ anti_staging: true, held_moment: false });
+    expect(resolve_prose_posture_plan({}, "...").constraints).toEqual({ anti_staging: false, held_moment: true });
+    expect(resolve_prose_posture_plan({}, "Alice prepares to move.").constraints).toEqual({ anti_staging: false, held_moment: false });
+  });
+});
 describe("reflex.js - environmental hint detection", () => {
   it("reports reasons for misses", () => {
     expect(detect_environmental_hint("")).toEqual({ hit: false, reason: "blank" });
@@ -105,8 +148,28 @@ describe("reflex.js - posture plans and envelopes", () => {
 
   it("renders the exact legacy <DELIVERY_POSTURE> envelope", () => {
     expect(render_prose_reflex(null, "")).toBe(
-      `<DELIVERY_POSTURE>\n    <PACING mode="TERSE">Brief, weighted reply in 1-2 sharp beats. Zero padding.</PACING>\n    <RHYTHM>Hold temperament; resist passive compliance. Match conversational scale and build situational friction rather than rushing resolution.</RHYTHM>\n    <DRIVE>Take active initiative: drive events forward on your own terms through decisive actions and end on an unresolved hook demanding response.</DRIVE>\n</DELIVERY_POSTURE>`,
+      `<DELIVERY_POSTURE>\n    <PACING mode="TERSE">Brief, weighted reply in 1-2 sharp beats. Zero padding.</PACING>\n    <BEAT_BUDGET size="TINY" beats="1">Reply in exactly 1 beat — a fragment, a single line, or a single action. Zero padding.</BEAT_BUDGET>\n    <RHYTHM>Hold temperament; resist passive compliance. Match conversational scale and build situational friction rather than rushing resolution.</RHYTHM>\n    <DRIVE>Take active initiative: drive events forward on your own terms through decisive actions and end on an unresolved hook demanding response.</DRIVE>\n</DELIVERY_POSTURE>`,
     );
+  });
+
+  it("emits no constraint children for plain fixture inputs", () => {
+    const envelope = render_prose_reflex(null, "Alice prepares to move.");
+    expect(envelope).toContain("<BEAT_BUDGET");
+    expect(envelope).not.toContain("<ANTI_STAGING>");
+    expect(envelope).not.toContain("<HELD_MOMENT>");
+  });
+
+  it("emits ANTI_STAGING only for terse quoted dialogue without action verbs", () => {
+    expect(render_prose_reflex(null, '"We ride at dawn."')).toContain("<ANTI_STAGING>");
+    expect(render_prose_reflex(null, "Alice prepares to move.")).not.toContain("<ANTI_STAGING>");
+    expect(render_prose_reflex(null, '"I draw my blade and advance."')).not.toContain("<ANTI_STAGING>");
+  });
+
+  it("emits HELD_MOMENT only for explicit pause markers, never blank input", () => {
+    expect(render_prose_reflex(null, "...")).toContain("<HELD_MOMENT>");
+    expect(render_prose_reflex(null, "She says nothing.")).toContain("<HELD_MOMENT>");
+    expect(render_prose_reflex(null, "")).not.toContain("<HELD_MOMENT>");
+    expect(render_prose_reflex(null, "Alice prepares to move.")).not.toContain("<HELD_MOMENT>");
   });
 
   it("never emits a VOICE tag", () => {

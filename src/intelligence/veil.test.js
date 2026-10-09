@@ -27,6 +27,7 @@ import {
   strip_epistemic_tags,
   strip_epistemic_secrets,
   verify_epistemic_integrity,
+  strip_covert_directives,
   strip_bracket_engine_flags,
 } from "./veil.js";
 
@@ -273,3 +274,17 @@ describe("veil: extract_entity_relationships", () => {
  * - 2026-09-29: Initial comprehensive TDD test suite for the Synaptic Bracket Engine (synaptic.js).
  * ============================================================================
  */
+
+describe("veil: strip_covert_directives (Track 3.3 private directive purging)", () => {
+  it("strips covert/secret/private/hidden brackets while preserving veil brackets", () => {
+    expect(strip_covert_directives("Advance. [COVERT: betray the pact] Keep walking.")).toBe("Advance. Keep walking.");
+    expect(strip_covert_directives("[SECRET: hidden dagger] Strike. [DAGGER: stiletto | hide]")).toBe(" Strike. [DAGGER: stiletto | hide]");
+    expect(strip_covert_directives("Move «COVERT: silently» forward.")).toBe("Move forward.");
+  });
+
+  it("returns empty for empty input and passes clean text through", () => {
+    expect(strip_covert_directives("")).toBe("");
+    expect(strip_covert_directives(null)).toBe("");
+    expect(strip_covert_directives("Alice checks the charge on her deck.")).toBe("Alice checks the charge on her deck.");
+  });
+});

@@ -10,6 +10,7 @@
  * TABLES:
  *   - entities:       All Character and Fractal records.
  *   - stories:        Narrative session descriptors and cast rosters (*npc_ids).
+ *   - lorebooks:      Standalone world-info books scoped to stories (Track 3.2).
  *   - simulation_log: Turn-by-turn simulation message log.
  *   - kv_settings:    Key-value application and debug configuration.
  *   - sessions:       Session tracking timestamps.
@@ -60,6 +61,10 @@ db.version(1).stores({
 
 db.version(2).stores({
   mutation_ledger: "++id, story_id, entity_id, [story_id+round+seq], [entity_id+field], round, timestamp",
+});
+
+db.version(3).stores({
+  lorebooks: "id, story_id, name, updated_at",
 });
 
 // ============================================================================
@@ -124,6 +129,7 @@ export { db };
 
 /**
  * CHANGELOG
+ * - Track 3.2: Schema v3 adds the lorebooks table (id, story_id, name, updated_at) for standalone world-info books.
  * - 2026-09-06: Flattened schema to clean canonical v1 under P4 Zero Backwards Compatibility;
  *   purged legacy v10-v13 migration chain and retired tables/indexes (settings, isChosen).
  * - 2026-08-29: Harmonized module structure, updated nomenclature (quiesce_callback, transaction, error, _is_versionchange_pending), added Universal File Architecture header and changelog blocks.

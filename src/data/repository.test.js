@@ -99,6 +99,55 @@ describe("entity embedding persistence", () => {
   }, 15000);
 });
 
+describe("world-info lorebook archive", () => {
+  beforeEach(async () => {
+    try {
+      const { db } = await import("./db.js");
+      db.close();
+    } catch (err) {
+      void err;
+    }
+    vi.resetModules();
+    const Dexie = (await import("dexie")).default;
+    await Dexie.delete("rpglitch");
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+  }, 15000);
+
+  it("round-trips lorebooks story-scoped through upsert, list, get, and remove", async () => {
+    const { init_db } = await import("./db.js");
+    await init_db();
+    const { lorebooks } = await import("./repository.js");
+
+    const saved = await lorebooks.upsert({
+      story_id: "story-1",
+      name: "Docks",
+      description: "Harbor district.",
+      scan_depth: 3,
+      token_budget: 400,
+      recursive: false,
+      entries: [{ keys: ["cipher", "  ", ""], content: "The cipher opens the tide gate." }],
+    });
+
+    expect(saved.id).toBeTruthy();
+    expect(saved.story_id).toBe("story-1");
+    expect(saved.entries).toHaveLength(1);
+    expect(saved.entries[0].keys).toEqual(["cipher"]);
+    expect(saved.entries[0].enabled).toBe(true);
+
+    await lorebooks.upsert({ story_id: "story-2", name: "Other", entries: [] });
+
+    expect((await lorebooks.list_for_story("story-1")).map((book) => book.id)).toEqual([saved.id]);
+    expect(await lorebooks.list_for_story("story-2")).toHaveLength(1);
+    expect((await lorebooks.get(saved.id))?.name).toBe("Docks");
+    expect(await lorebooks.get("missing")).toBeNull();
+
+    await lorebooks.remove(saved.id);
+    expect(await lorebooks.get(saved.id)).toBeNull();
+    expect(await lorebooks.list_for_story("story-1")).toHaveLength(0);
+  }, 15000);
+});
+
 describe("story entity claims", () => {
   beforeEach(async () => {
     try {

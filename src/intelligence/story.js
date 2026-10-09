@@ -11,7 +11,7 @@
  * 5. Network Retry & Resilience (execute_with_retry)
  */
 
-import { db, entities, stories } from "@data";
+import { db, entities, stories, lorebooks } from "@data";
 import {
   generate_uuid,
   create_job_queue,
@@ -25,6 +25,7 @@ import {
   alternation_field_label,
   strip_alternation_braces,
   filter_narrative_messages,
+  cap_somatic_markers,
 } from "@utils";
 import {
   visual_engine,
@@ -243,6 +244,12 @@ export const gamemaster = {
       // 3.4.5. MACRO LEAK — log the alternation options the Director (narrative) committed to
       log_narrative_alternations(payload.entities, director_data);
 
+      // 3.4.6. ALTERNATIVE BRANCHES (Track 3.3) — surface Director-supplied dialogue options for user-guided exploration.
+      const alternative_branches = Array.isArray(director_data.alternative_branches) ? director_data.alternative_branches : [];
+      for (const [branch_index, branch] of alternative_branches.entries()) {
+        state_bridge.app?.log?.(`[ALT-BRANCH] option ${branch_index + 1}${branch.label ? ` (${branch.label})` : ""}: "${branch.dialogue}"`, "system");
+      }
+
       // 3.5. STAGE SPOTLIGHT
       await apply_in_scene_change(state_bridge, director_data.in_scene_change);
 
@@ -353,9 +360,19 @@ export const gamemaster = {
       });
 
       // 4.5. PHYSICS SYNC & TELEMETRY
+      // 4.4b. LOREBOOK HYDRATION (Track 3.2): story-scoped world entries scanned over recent turns.
+      let turn_lorebooks = [];
+      try {
+        turn_lorebooks = await lorebooks.list_for_story(story_id);
+      } catch {
+        turn_lorebooks = [];
+      }
+      const lore_turns = simulation_log.slice(-8).map((message) => ({ text: String(message?.content || "") }));
       const prompt_mode = npc_entity ? "npc" : is_using_narrator_engine ? "narrator" : "interaction";
       const character_prompt = compile_prompt(prompt_mode, {
         ...payload,
+        lorebooks: turn_lorebooks,
+        lore_turns,
         compressed_snapshot: snapshot,
         director_data,
         speaker: npc_entity,
@@ -366,6 +383,7 @@ export const gamemaster = {
       let final_meta = { ...meta };
       final_meta.ai = snapshot.ai?.dynamics;
       final_meta.fractal = snapshot.fractal?.dynamics;
+      if (alternative_branches.length > 0) final_meta.alternative_branches = alternative_branches;
 
       const director_mutations = director_data.mutations || {};
       final_meta.mutations = {
@@ -551,7 +569,9 @@ export const gamemaster = {
 
       const speaker_style = resolve_speaking_style(generation_entity);
       const persisted_text = strip_alternation_braces(
-        detox_prose(strip_directors_note_seed(validation_result.text || "", director_monologue, director_data?.directors_note), speaker_style),
+        cap_somatic_markers(
+          detox_prose(strip_directors_note_seed(validation_result.text || "", director_monologue, director_data?.directors_note), speaker_style),
+        ),
       );
 
       if (persisted_text && persisted_text.trim()) {
@@ -839,7 +859,7 @@ export const gamemaster = {
     const fractal_entity = state_bridge.runtime.active_fractal;
     const narrative_style = state_bridge.app?.settings?.narrative_style;
     const speaking_style = resolve_speaking_style(fractal_entity, narrative_style);
-    const cleaned_prose = detox_prose(response, speaking_style);
+    const cleaned_prose = cap_somatic_markers(detox_prose(response, speaking_style));
 
     await state_bridge.session_driver.log_message(cleaned_prose, "fractal", fractal_name, {
       turn_type: "SYSTEM_TURN",

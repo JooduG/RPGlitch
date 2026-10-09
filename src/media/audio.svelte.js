@@ -18,7 +18,15 @@
 
 import { state_bridge, strip_cognition_blocks, onnx_mutex, wait_ort_ready } from "@utils";
 import { db } from "@data";
-import { KOKORO_VOICES, get_cadence_rate, normalize_role, resolve_voice_name, resolve_voice_uri, split_speech_sentences } from "./speech.js";
+import {
+  KOKORO_VOICES,
+  get_cadence_rate,
+  normalize_role,
+  resolve_stream_preemption,
+  resolve_voice_name,
+  resolve_voice_uri,
+  split_speech_sentences,
+} from "./speech.js";
 
 // ============================================================================
 // [SECTION 1: CONSTANTS & GLOBAL AUDIO GRAPH]
@@ -155,6 +163,8 @@ export class VoiceEngine {
   entity_voice = $state({ ai: false, user: false, fractal: false });
   is_paused = $state(false);
   spoken_character_cursor = $state(0);
+  /** @type {string | null} Voice role selected for the incoming stream (ai|user|fractal|npc) */
+  active_voice_role = $state(null);
 
   // --- Model Readiness Alias ---
   get model_ready() {
@@ -173,7 +183,7 @@ export class VoiceEngine {
   #speech_synthesis_fallback = null;
   /** @type {Array<{ name: string, uri: string, _ref: SpeechSynthesisVoice }>} */
   #platform_speech_voices = [];
-  /** @type {Array<{ text: string, voice_id: string | null, message_id: string | null, audio_promise?: Promise<any>, audio_data?: any }>} */
+  /** @type {Array<{ text: string, voice_id: string | null, message_id: string | null, role: string | null, audio_promise?: Promise<any>, audio_data?: any }>} */
   #synthesis_queue = [];
   /** @type {boolean} */
   #is_processing_queue = false;
@@ -189,6 +199,10 @@ export class VoiceEngine {
   #next_playback_time = 0;
   /** @type {boolean} Flag indicating whether current stream playback has been cancelled */
   #is_stream_stopped = false;
+  /** @type {string | null} Role of the currently in-flight audio chunk */
+  #playing_role = null;
+  /** @type {Set<string|number>} Message ids allowed to coexist with the primary stream (persona/ambient overlap) */
+  #coexisting_message_ids = new Set();
 
   constructor() {
     this.voices = KOKORO_VOICES.map((voice) => ({
@@ -398,10 +412,20 @@ export class VoiceEngine {
     if (!this.enabled && !force) return;
 
     if (should_clear_queue) {
-      const pending_message_id = this.active_message_id;
-      this.stop();
-      this.active_message_id = pending_message_id;
-      this.#is_stream_stopped = false;
+      const decision = resolve_stream_preemption({
+        active_role: this.#playing_role,
+        incoming_role: this.active_voice_role,
+        is_speaking: this.is_speaking,
+      });
+      if (decision.preserve_inflight) {
+        this.#clear_role_backlog(this.active_voice_role);
+        this.#is_stream_stopped = false;
+      } else {
+        const pending_message_id = this.active_message_id;
+        this.stop();
+        this.active_message_id = pending_message_id;
+        this.#is_stream_stopped = false;
+      }
     }
 
     const speech_ready_text = strip_cognition_blocks(text)
@@ -415,6 +439,29 @@ export class VoiceEngine {
     const { sentences, tail } = split_speech_sentences(speech_ready_text);
     const text_chunks = tail ? [...sentences, tail] : sentences;
     this.#enqueue_chunks(text_chunks.map((sentence_text) => ({ text: sentence_text, voice_id: this.selected_voice })));
+  }
+
+  /**
+   * Drops queued (not in-flight) chunks of one role, preserving the head chunk
+   * and every other role's backlog — the scoped clear behind persona/ambient
+   * coexistence (Track 3.3).
+   * @param {string | null} role
+   */
+  #clear_role_backlog(role) {
+    if (!role) return;
+    this.#synthesis_queue = this.#synthesis_queue.filter((item, index) => index === 0 || item.role !== role);
+  }
+
+  /**
+   * True when a chunk's message is the primary stream or a registered
+   * coexisting stream — the only chunks the queue processor may play.
+   * @param {string | null | number} message_id
+   * @returns {boolean}
+   */
+  #is_message_live(message_id) {
+    if (!message_id) return true;
+    if (!this.active_message_id) return true;
+    return message_id === this.active_message_id || this.#coexisting_message_ids.has(message_id);
   }
 
   /**
@@ -432,6 +479,7 @@ export class VoiceEngine {
         text: text_content,
         voice_id: chunk.voice_id || this.selected_voice,
         message_id: this.active_message_id,
+        role: chunk.role || this.active_voice_role,
       });
     }
 
@@ -455,7 +503,7 @@ export class VoiceEngine {
         pregeneration_budget--;
         const item_message_id = queue_item.message_id;
         queue_item.audio_promise = this.#cached_generate(queue_item.text, queue_item.voice_id || "am_adam", this.rate).then((generation_result) => {
-          if (this.active_message_id && item_message_id && item_message_id !== this.active_message_id) {
+          if (!this.#is_message_live(item_message_id)) {
             return null;
           }
           return generation_result;
@@ -498,6 +546,8 @@ export class VoiceEngine {
       this.#is_processing_queue = false;
       this.is_speaking = false;
       this.active_message_id = null;
+      this.#playing_role = null;
+      this.#coexisting_message_ids.clear();
       return;
     }
 
@@ -520,11 +570,12 @@ export class VoiceEngine {
       return;
     }
 
-    if (current_item.message_id && this.active_message_id && current_item.message_id !== this.active_message_id) {
+    if (!this.#is_message_live(current_item.message_id)) {
       this.#synthesis_queue.shift();
       this.#process_queue();
       return;
     }
+    this.#playing_role = current_item.role || this.#playing_role;
 
     try {
       const audio = current_item.audio_data
@@ -533,7 +584,7 @@ export class VoiceEngine {
           ? await current_item.audio_promise
           : await this.#cached_generate(current_item.text, current_item.voice_id || "am_adam", this.rate);
 
-      if (!this.#is_processing_queue || (current_item.message_id && this.active_message_id && current_item.message_id !== this.active_message_id)) {
+      if (!this.#is_processing_queue || !this.#is_message_live(current_item.message_id)) {
         return;
       }
 
@@ -730,6 +781,8 @@ export class VoiceEngine {
   stop() {
     this.#is_stream_stopped = true;
     this.#synthesis_queue = [];
+    this.#playing_role = null;
+    this.#coexisting_message_ids.clear();
     this.#is_processing_queue = false;
     this.#is_playback_paused = false;
     this.is_paused = false;
@@ -778,13 +831,20 @@ export class VoiceEngine {
 
   /**
    * Configures voice parameters for a streaming message.
+   * Persona/ambient overlap (Track 3.3) preserves in-flight audio: the previous
+   * message stays live, the playback clock keeps chaining, and only the text
+   * cursor resets. All other role switches reset the stream as before.
    * @param {string | null | undefined} role
    * @param {string | null | number} message_id
    */
   apply_stream_role(role, message_id) {
-    this.reset_stream();
-    this.active_message_id = message_id;
-    if (!role || role === "system") return;
+    if (!role || role === "system") {
+      this.#coexisting_message_ids.clear();
+      this.reset_stream();
+      this.active_message_id = message_id;
+      this.active_voice_role = null;
+      return;
+    }
 
     const normalized_role = normalize_role(role, { preserve_npc: true });
     if (!normalized_role) return;
@@ -809,6 +869,19 @@ export class VoiceEngine {
             : (speaking_entity.dynamics?.velocity ?? 50);
       this.rate = get_cadence_rate(speaking_entity.voice.cadence, dynamics_value);
     }
+
+    const decision = resolve_stream_preemption({ active_role: this.#playing_role, incoming_role: normalized_role, is_speaking: this.is_speaking });
+    if (decision.preserve_inflight) {
+      if (this.active_message_id && message_id && message_id !== this.active_message_id) this.#coexisting_message_ids.add(this.active_message_id);
+      this.active_message_id = message_id;
+      this.#is_stream_stopped = false;
+      this.spoken_character_cursor = 0;
+    } else {
+      this.#coexisting_message_ids.clear();
+      this.reset_stream();
+      this.active_message_id = message_id;
+    }
+    this.active_voice_role = normalized_role;
   }
 
   /**

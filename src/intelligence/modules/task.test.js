@@ -396,3 +396,11 @@ describe("directive compiler REFLEX delegation", () => {
     expect(compile_directive_tags([{ group: ["REFLEX.TURN_STATE.ROUND_ONE"] }], {})[0]).toContain("AI_CHARACTER");
   });
 });
+
+describe("task.js - Track 3.4 anti-hijacking agency", () => {
+  it("CHARACTER.BASE carries the first-person player hard negative", async () => {
+    const { TASK_LIBRARY, get_directive_atom } = await import("./task.js");
+    expect(TASK_LIBRARY.PROSE.CHARACTER.BASE).toContain("Never narrate «USER_PERSONA» in the first person");
+    expect(get_directive_atom("PROSE.CHARACTER.BASE")).toContain("the player owns their voice");
+  });
+});

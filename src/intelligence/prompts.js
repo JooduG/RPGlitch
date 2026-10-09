@@ -50,6 +50,7 @@ import {
   resolve_memory_advisory_slot,
 } from "./modules/entities.js";
 import { resolve_history_slot, resolve_chapter_history_slot } from "./modules/history.js";
+import { resolve_lorebook_slot } from "./modules/lorebook.js";
 import { verify_epistemic_integrity } from "./veil.js";
 import { resolve_turn_state_plan } from "./modules/reflex.js";
 
@@ -78,6 +79,7 @@ export const DIRECTOR_SCHEMA = Object.freeze([
   "next_action",
   "keywords",
   "directors_note",
+  "alternative_branches",
   "dynamics_deltas",
   "visual_staging",
   "spotlight",
@@ -95,7 +97,7 @@ const TEMPORAL_SCHEMA_FRAGMENT = Object.freeze(["eternal", "present", "past", "f
  * @type {Readonly<{ system: ReadonlyArray<string>, task: ReadonlyArray<string> }>}
  */
 const PROSE_LAYERS = Object.freeze({
-  system: Object.freeze(["role", "axiomatic_constitution", "core_protocols", "entities", "history"]),
+  system: Object.freeze(["role", "axiomatic_constitution", "core_protocols", "entities", "lorebook", "history"]),
   task: Object.freeze(["think_format", "input", "currents", "directives", "delivery_posture", "stability_lock", "output_format"]),
 });
 
@@ -148,6 +150,7 @@ function prose_protocols({ include_dialogue = false } = {}) {
     "CORE_PROTOCOLS.PROSE_DISCIPLINE.SENTENCE_FORMULAS",
     "CORE_PROTOCOLS.PROSE_DISCIPLINE.SCENE_MOMENTUM",
     "CORE_PROTOCOLS.PROSE_DISCIPLINE.CLICHES",
+    "CORE_PROTOCOLS.PROSE_DISCIPLINE.AGENCY",
     ...(include_dialogue ? ["CORE_PROTOCOLS.PROSE_DISCIPLINE.NATURAL_DIALOGUE"] : []),
     "CORE_PROTOCOLS.ALTERNATION_OPTIONS",
   ];
@@ -175,6 +178,7 @@ export function director_directives({ has_input = false, round = 1, has_environm
     ...(has_environmental_hint ? ["REFLEX.CONDITIONALS.ENVIRONMENTAL_HINT"] : []),
     "DIRECTOR.ROUTING",
     "DIRECTOR.CONVERGENCE",
+    "DIRECTOR.BRANCHES",
   ];
 }
 
@@ -457,6 +461,7 @@ export const SYSTEM_SLOT_RESOLVERS = Object.freeze({
   core_protocols: resolve_core_protocols_slot,
   dynamic_axes: resolve_dynamic_axes_slot,
   entities: resolve_entities_slot,
+  lorebook: resolve_lorebook_slot,
   target_entity_context: resolve_target_context_slot,
   cast: resolve_cast_slot,
   entity_context: resolve_entity_context_slot,
@@ -471,6 +476,7 @@ const SYSTEM_STATE_KEYS = Object.freeze({
   core_protocols: "core_protocols",
   dynamic_axes: "dynamics",
   entities: "entities_block",
+  lorebook: "lorebook_block",
   target_entity_context: "target_context",
   cast: "nearby_cast",
   entity_context: "field_context",
@@ -529,7 +535,10 @@ export function render_prompt_plan(plan) {
   if (!plan) return { system: "", task: "" };
   const config = get_prompt(plan.mode);
   if (plan.epistemic_guard) {
-    if (!verify_epistemic_integrity(plan.layers.system.slots.entities)) {
+    const guarded_slots = [plan.layers.system.slots.entities, plan.layers.system.slots.cast, plan.layers.system.slots.target_entity_context].filter(
+      (slot) => typeof slot === "string" && slot,
+    );
+    if (guarded_slots.some((slot) => !verify_epistemic_integrity(slot))) {
       console.warn("[builder] Epistemic Wall integrity alert: leaked secrets or plans detected across boundary.");
     }
   }
@@ -566,6 +575,7 @@ export default PROMPTS;
 
 /**
  * CHANGELOG
+ * - Track 3.2: PROSE_LAYERS gains the lorebook system layer (resolve_lorebook_slot; disabled/empty seals "" for byte-identical compiles).
  * - Track 2.4: TOOL_LAYERS continuum envelope gains the memory_advisory system layer (MEMORY_ADVISORY slot; empty facts seal "" for byte-identical compiles).
  * - Track 0.10: Purged dead layer system slot (resolver import, SYSTEM_SLOT_RESOLVERS/SYSTEM_STATE_KEYS entries, ENHANCEMENT_LAYERS key).
  * - Track 0.8/0.9: continuum_directives selects the folded MANDATE alone; sorting_directives selects the single generated SORTING.FOCUS (macro rides the values bag; entity_type branching retired).

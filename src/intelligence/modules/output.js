@@ -53,6 +53,7 @@ export const SCHEMA_ATOMS = Object.freeze({
   next_action: `'AI_CHARACTER' | 'FRACTAL' | 'npc:<id>' | { \\"genesis\\": { \\"name\\": \\"<Name>\\", \\"description\\": \\"<description>\\" } } | 'EPILOGUE_CONCLUDED' | 'EPILOGUE_COLLAPSED'`,
   keywords: ["<1-5 keywords from AVAILABLE_KEYWORDS>"],
   directors_note: "<1-5 lines staging directives ONLY for the next_action speaker (never for player/user_persona), or empty string>",
+  alternative_branches: [{ label: "<branch label>", dialogue: "<alternative dialogue line for user-guided exploration, or empty>" }],
   dynamics_deltas: { chaos: 0, intensity: 0, openness: 0, affinity: 0, velocity: 0, entropy: 0 },
   visual_staging: "<optional: camera & lighting directive if scene image shifts>",
   spotlight: { enter: ["npc:<id>"], exit: ["npc:<id>"] },

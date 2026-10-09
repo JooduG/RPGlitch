@@ -1594,7 +1594,11 @@ describe("NPC world cast (track-npc-expansion)", () => {
     const result = await gamemaster.execute_turn("story-123", { input: "Who guards the gate?", role: "ai" });
 
     expect(mock_prompt_spies.build_npc).toHaveBeenCalledWith(
-      mock_payload,
+      expect.objectContaining({
+        input: "Who guards the gate?",
+        type: "simulation",
+        round: 2,
+      }),
       expect.objectContaining({ id: "ben1", name: "Benedict" }),
       expect.anything(),
       expect.objectContaining({ speaker: "npc" }),

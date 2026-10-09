@@ -26,7 +26,7 @@ export { db, init_db, set_versionchange_quiesce } from "./db.js";
 // Repositories & State Bridges
 // ============================================================================
 
-export { seed_premades, stories, entities, coerce_story_key } from "./repository.js";
+export { seed_premades, stories, entities, lorebooks, coerce_story_key } from "./repository.js";
 export {
   ledger_repository,
   append_ledger_entry,

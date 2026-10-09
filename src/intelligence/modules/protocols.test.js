@@ -257,3 +257,12 @@ describe("protocols.js - Restructured Catalog", () => {
  * - 2026-09-23: Added coverage for the consolidated `render_dynamics_xml` `<DYNAMICS>` block — each axis carries `value` plus both poles, and a value-less axis keeps its legend.
  * - 2026-09-19: Added unit test suite validating render_visual_style_xml and render_optics_protocols for Layer 3.
  */
+
+describe("protocols.js - Track 3.4 AGENCY discipline", () => {
+  it("renders the AGENCY hard negative inside PROSE_DISCIPLINE", async () => {
+    const { render_core_protocols } = await import("./protocols.js");
+    const output = render_core_protocols({ protocols: ["CORE_PROTOCOLS.PROSE_DISCIPLINE.AGENCY"] });
+    expect(output).toContain("<AGENCY>");
+    expect(output).toContain("Never narrate «USER_PERSONA» in the first person");
+  });
+});

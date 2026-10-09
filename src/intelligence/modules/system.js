@@ -98,6 +98,7 @@ export const PROMPT_LAYERS = Object.freeze([
   { key: "core_protocols", emit: (state) => state.core_protocols },
   { key: "dynamic_axes", emit: (state) => state.dynamics },
   { key: "entities", emit: (state) => state.entities_block },
+  { key: "lorebook", emit: (state) => state.lorebook_block },
   { key: "target_entity_context", emit: (state) => state.target_context },
   { key: "cast", emit: (state) => state.nearby_cast },
   { key: "entity_context", emit: (state) => state.field_context },
@@ -261,6 +262,7 @@ export function resolve_role_slot(config, normalized = {}) {
 
 /**
  * CHANGELOG
+ * - Track 3.2: PROMPT_LAYERS gains the lorebook emitter (empty slots stay filtered, so unaffected modes seal byte-identical envelopes).
  * - Track 2.4: PROMPT_LAYERS gains the memory_advisory emitter (empty slots stay filtered, so unaffected modes seal byte-identical envelopes).
  * - Track 0.10: Purged dead layer system slot (PROMPT_LAYERS entry + resolve_layer_slot) - enhancement no longer seals an empty layer.
  * - 2026-10-07: Plan Omega for System — SYSTEM_ROLES closures replaced by declarative ROLE_LIBRARY + ROLE_DEFAULTS + get_role_atom; PROMPT_LAYERS/render_prompt_layers/compose_system/pack_prompt/resolve_prompt_meta/clean_prompt_text re-homed from builder.js; plan/render split (resolve_system_plan/render_system_plan) wired through compose_system; purged dead `closed`/`task` options and SYSTEM_TAG now names the plan tag; resolve_stability_lock tests live in reflex.test.js only.

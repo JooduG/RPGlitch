@@ -11,6 +11,7 @@
  *   3. Entity Data Access (`entities`: `list`, `get`, `upsert`, `remove`, `update`)
  *   4. Narrative Story Access (`stories`: `list`, `get`, `update`, `update_cast`, `conclude`, `active_entity_ids`, `delete`)
  *   5. Key Coercion (`coerce_story_key`)
+ *   6. World-Info Lorebook Access (`lorebooks`: `list_for_story`, `get`, `upsert`, `remove`)
  *
  * ARCHITECTURAL INVARIANTS:
  *   - Normalization: Every entity is normalized through `format_premade` / `normalize`
@@ -402,8 +403,115 @@ export const stories = {
   },
 };
 
+// ============================================================================
+// 5. WORLD-INFO LOREBOOK ARCHIVE (Track 3.2: Standalone Lorebook Data Access)
+// ============================================================================
+
+/**
+ * Sanitizes a lorebook entry into a storable trigger record.
+ * @param {any} raw
+ * @returns {Record<string, any>}
+ */
+function sanitize_lorebook_entry(raw) {
+  const keys = Array.isArray(raw?.keys) ? [...new Set(raw.keys.map((key) => (key == null ? "" : String(key).trim())).filter(Boolean))] : [];
+  const filter_raw = raw?.filter && typeof raw.filter === "object" ? raw.filter : null;
+  return {
+    id: String(raw?.id || generate_uuid()),
+    keys,
+    content: String(raw?.content ?? ""),
+    enabled: raw?.enabled !== false,
+    ...(filter_raw ? { filter: JSON.parse(JSON.stringify(filter_raw)) } : {}),
+  };
+}
+
+/**
+ * Sanitizes a lorebook record into a storable, story-scoped document.
+ * @param {any} raw
+ * @returns {Record<string, any>}
+ */
+function sanitize_lorebook(raw) {
+  const scan_depth = Number(raw?.scan_depth);
+  const token_budget = Number(raw?.token_budget);
+  return {
+    id: String(raw?.id || generate_uuid()),
+    story_id: String(raw?.story_id ?? ""),
+    name: String(raw?.name || "Untitled Lorebook"),
+    description: String(raw?.description ?? ""),
+    scan_depth: Number.isFinite(scan_depth) && scan_depth > 0 ? Math.floor(scan_depth) : 5,
+    token_budget: Number.isFinite(token_budget) && token_budget > 0 ? Math.floor(token_budget) : 800,
+    recursive: raw?.recursive === true,
+    entries: Array.isArray(raw?.entries) ? raw.entries.map(sanitize_lorebook_entry) : [],
+    updated_at: Date.now(),
+  };
+}
+
+export const lorebooks = {
+  /**
+   * Lists all lorebooks scoped to one story, oldest first.
+   * @param {string|number} story_id
+   * @returns {Promise<Record<string, any>[]>}
+   */
+  async list_for_story(story_id) {
+    try {
+      const scoped_ids = [...new Set([String(story_id), story_id])];
+      return await db.lorebooks.where("story_id").anyOf(scoped_ids).sortBy("updated_at");
+    } catch (error) {
+      console.error(`[Repository] Failed to list lorebooks for story [${story_id}]:`, error);
+      return [];
+    }
+  },
+
+  /**
+   * Retrieves one lorebook by id.
+   * @param {string} id
+   * @returns {Promise<Record<string, any>|null>}
+   */
+  async get(id) {
+    try {
+      return (await db.lorebooks.get(String(id))) || null;
+    } catch (error) {
+      console.error(`[Repository] Failed to fetch lorebook [${id}]:`, error);
+      return null;
+    }
+  },
+
+  /**
+   * Saves or updates a lorebook, sanitizing triggers and refreshing updated_at.
+   * @param {Record<string, any>} lorebook
+   * @returns {Promise<Record<string, any>>}
+   */
+  async upsert(lorebook) {
+    try {
+      const base_record = (lorebook?.id && (await db.lorebooks.get(String(lorebook.id)))) || {};
+      const saved_record = { ...base_record, ...sanitize_lorebook({ ...base_record, ...lorebook }) };
+      await db.lorebooks.put(saved_record);
+      stories_bridge.bump();
+      return saved_record;
+    } catch (error) {
+      console.error(`[Repository] Failed to upsert lorebook [${lorebook?.id}]:`, error);
+      throw error;
+    }
+  },
+
+  /**
+   * Deletes one lorebook by id.
+   * @param {string} id
+   * @returns {Promise<void>}
+   */
+  async remove(id) {
+    try {
+      await db.lorebooks.delete(String(id));
+      stories_bridge.bump();
+    } catch (error) {
+      console.error(`[Repository] Failed to delete lorebook [${id}]:`, error);
+      throw error;
+    }
+  },
+};
+
 /**
  * CHANGELOG
+ * - Track 3.2: World-info lorebook archive — sanitize_lorebook(_entry) + lorebooks CRUD (list_for_story, get, upsert, remove) over the v3 lorebooks table.
  * - 2026-10-03: Added `revert_story_entities` to restore baseline entity snapshots from story metadata.
  * - 2026-09-10: Premade fallback lookup now uses `get_premade_entity_by_id` (case-insensitive)
  *   so lowercase ids (e.g. "orion") resolve their canonical SCREAMING_SNAKE premade (ORION).

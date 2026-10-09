@@ -23,6 +23,92 @@ import { VALID_SPEAKING_STYLES } from "./detox.js";
 export { VALID_SPEAKING_STYLES };
 
 // ============================================================================
+// [SECTION 1: NARRATIVE SLOP LINTER (Track 3.1)]
+// ============================================================================
+
+/**
+ * Frozen slop catalog: repetitive narrative clichés the detox pass does not
+ * structurally rewrite, plus the cliché somatic-marker set capped at one
+ * occurrence per reply. Data-only — detection and enforcement below walk it.
+ */
+export const SLOP_PATTERNS = Object.freeze({
+  CLICHES: Object.freeze([
+    /\bagainst better judgment\b/i,
+    /\bfor what felt like an eternity\b/i,
+    /\btime (seemed|felt) to (slow|stop|stand still)\b/i,
+    /\ba shiver (ran|went|crawled) down\b/i,
+    /\bher word(s)? (hung|lingered) in the air\b/i,
+    /\bhis word(s)? (hung|lingered) in the air\b/i,
+    /\bwords? (hung|lingered) in the air\b/i,
+    /\bcould cut the tension with a knife\b/i,
+    /\bdeafening silence\b/i,
+    /\bpregnant (pause|silence)\b/i,
+  ]),
+  SOMATIC_MARKERS: Object.freeze([
+    /\bheart (pounded|hammered|raced|thudded|fluttered)\b/i,
+    /\bbreath (hitched|caught|hitched in|caught in)\b/i,
+    /\bheld (his|her|their) breath\b/i,
+    /\bstomach (dropped|twisted|churned|lurched)\b/i,
+    /\bblood ran cold\b/i,
+    /\bskin (prickled|crawled)\b/i,
+    /\bknees (went weak|buckled)\b/i,
+    /\bhands? (trembled|shook)\b/i,
+    /\bpulse (quickened|roared|pounded)\b/i,
+    /\bthroat (went dry|tightened|closed)\b/i,
+  ]),
+});
+
+export const SOMATIC_MARKER_CAP = 1;
+
+/**
+ * Lints a prose reply for narrative slop: cliché hits plus cliché somatic
+ * markers over the per-reply cap.
+ * @param {string|null|undefined} text
+ * @returns {Readonly<{ violations: ReadonlyArray<Readonly<{ kind: string, match: string }>>, somatic_count: number, over_cap: boolean }>}
+ */
+export function lint_narrative_slop(text) {
+  const source = String(text || "");
+  const violations = [];
+  for (const pattern of SLOP_PATTERNS.CLICHES) {
+    const hit = source.match(pattern);
+    if (hit) violations.push(Object.freeze({ kind: "cliche", match: hit[0] }));
+  }
+  let somatic_count = 0;
+  for (const pattern of SLOP_PATTERNS.SOMATIC_MARKERS) {
+    const hits = source.match(new RegExp(pattern.source, "gi")) || [];
+    for (const hit of hits) {
+      somatic_count += 1;
+      violations.push(Object.freeze({ kind: "somatic_marker", match: hit }));
+    }
+  }
+  return Object.freeze({ violations: Object.freeze(violations), somatic_count, over_cap: somatic_count > SOMATIC_MARKER_CAP });
+}
+
+/**
+ * Enforces the somatic-marker cap: keeps the first marker occurrence intact and
+ * strips the matched marker phrase from every later occurrence, collapsing the
+ * leftover whitespace. Pure text surgery — sentence structure is preserved.
+ * @param {string|null|undefined} text
+ * @returns {string}
+ */
+export function cap_somatic_markers(text) {
+  const source = String(text || "");
+  if (!source) return "";
+  const hits = [];
+  for (const pattern of SLOP_PATTERNS.SOMATIC_MARKERS) {
+    for (const match of source.matchAll(new RegExp(pattern.source, "gi"))) {
+      hits.push({ index: match.index ?? 0, length: match[0].length });
+    }
+  }
+  if (hits.length <= SOMATIC_MARKER_CAP) return source;
+  hits.sort((left, right) => left.index - right.index);
+  const doomed = hits.slice(SOMATIC_MARKER_CAP).sort((left, right) => right.index - left.index);
+  let output = source;
+  for (const hit of doomed) output = output.slice(0, hit.index) + output.slice(hit.index + hit.length);
+  return output.replace(/[ \t]{2,}/g, " ").replace(/\s+([,;.!?])/g, "$1");
+}
+
+// ============================================================================
 // [SECTION 2: STYLE HIERARCHY RESOLVERS]
 // ============================================================================
 

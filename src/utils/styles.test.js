@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { resolve_speaking_style, resolve_style, VALID_SPEAKING_STYLES } from "./styles.js";
+import { resolve_speaking_style, resolve_style, VALID_SPEAKING_STYLES, lint_narrative_slop, cap_somatic_markers } from "./styles.js";
 import "../data/definitions/speaking-styles.js";
 import { NARRATIVE_STYLES } from "../data/definitions/narrative-styles.js";
 
@@ -50,6 +50,39 @@ describe("resolve_style()", () => {
   });
 });
 
+describe("narrative slop linter", () => {
+  it("reports clean prose with zero violations", () => {
+    expect(lint_narrative_slop("Alice checks the charge on her deck.")).toEqual({ violations: [], somatic_count: 0, over_cap: false });
+    expect(lint_narrative_slop("")).toEqual({ violations: [], somatic_count: 0, over_cap: false });
+  });
+
+  it("flags clichés and counts somatic markers against the cap", () => {
+    const report = lint_narrative_slop("Against better judgment, her heart pounded. His breath caught.");
+    expect(report.violations.some((violation) => violation.kind === "cliche")).toBe(true);
+    expect(report.somatic_count).toBe(2);
+    expect(report.over_cap).toBe(true);
+  });
+
+  it("allows a single somatic marker", () => {
+    const report = lint_narrative_slop("Her heart pounded as the door opened.");
+    expect(report.somatic_count).toBe(1);
+    expect(report.over_cap).toBe(false);
+  });
+});
+
+describe("cap_somatic_markers()", () => {
+  it("keeps the textually-first marker and strips later ones", () => {
+    const capped = cap_somatic_markers("Her heart pounded. His breath caught. Her stomach dropped.");
+    expect(capped).toContain("heart pounded");
+    expect(capped).not.toMatch(/breath caught|stomach dropped/i);
+  });
+
+  it("leaves single-marker and clean prose untouched", () => {
+    expect(cap_somatic_markers("Her heart pounded as the door opened.")).toBe("Her heart pounded as the door opened.");
+    expect(cap_somatic_markers("Alice checks the charge on her deck.")).toBe("Alice checks the charge on her deck.");
+    expect(cap_somatic_markers("")).toBe("");
+  });
+});
 describe("VALID_SPEAKING_STYLES", () => {
   it("exposes canonical speaking styles in a frozen Set", () => {
     expect(VALID_SPEAKING_STYLES.has("casual")).toBe(true);

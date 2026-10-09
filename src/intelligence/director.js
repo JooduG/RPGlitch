@@ -20,7 +20,7 @@ import { extract_json_block, collapse_whitespace, state_bridge } from "@utils";
 import { llm_service, raw_stop_reason, raw_to_text } from "@platform";
 import { compile_prompt } from "./prompts.js";
 import { extract_and_repair_json, parse_think_block, validate_and_repair_response } from "./parser.js";
-import { apply_bracket_mutation, parse_bracket_entries } from "./veil.js";
+import { apply_bracket_mutation, parse_bracket_entries, strip_covert_directives } from "./veil.js";
 
 // ============================================================================
 // 1. DOMAIN CONSTANTS & SCHEMA CONTRACTS
@@ -191,6 +191,7 @@ export function synthesize_director_fallback(previous_data, input, _bridge) {
     next_action: "AI_CHARACTER",
     keywords: [],
     directors_note: "Continue the scene with grounded immersion and physical causality.",
+    alternative_branches: [],
     visual_staging: "",
     dynamics_deltas: {},
     in_scene_change: { enter: [], exit: [] },
@@ -259,18 +260,44 @@ export function normalize_speaker(raw) {
 
 /**
  * Sanitizes director's note to a clean 1-5 line string (max 500 chars).
- *
+ * Covert directives and secret flags are purged (Track 3.3) so the note never
+ * smuggles private directives across entity boundaries into persona prompts.
  * @param {any} raw - Raw note string
  * @returns {string} Sanitized multi-line note string
  */
 export function normalize_directors_note(raw) {
   if (typeof raw !== "string") return "";
-  const lines = raw
+  const lines = strip_covert_directives(raw)
     .split(/\r?\n/)
     .map((line) => line.trim())
     .filter(Boolean)
     .slice(0, 5);
   return lines.join("\n").slice(0, 500);
+}
+
+/**
+ * Normalizes Director-supplied alternative dialogue branches (Track 3.3) into
+ * at most 3 frozen {label, dialogue} records, stripped of covert directives
+ * and XML, each capped for prompt and log safety.
+ * @param {any} raw
+ * @returns {ReadonlyArray<Readonly<{ label: string, dialogue: string }>>}
+ */
+export function normalize_alternative_branches(raw) {
+  if (!Array.isArray(raw)) return Object.freeze([]);
+  return Object.freeze(
+    raw
+      .filter((branch) => branch && typeof branch === "object")
+      .map((branch) => {
+        const label = collapse_whitespace(String(branch.label ?? "").trim()).slice(0, 80);
+        const dialogue = strip_covert_directives(String(branch.dialogue ?? branch.text ?? ""))
+          .replace(/<[^>]*>/g, "")
+          .trim()
+          .slice(0, 500);
+        return Object.freeze({ label, dialogue });
+      })
+      .filter((branch) => branch.dialogue)
+      .slice(0, 3),
+  );
 }
 
 /**
@@ -334,6 +361,7 @@ export function normalize_director_data(payload) {
     npc_id,
     keywords,
     directors_note: normalize_directors_note(base.directors_note || base.directive),
+    alternative_branches: normalize_alternative_branches(base.alternative_branches || base.alt_branches),
     visual_staging: typeof base.visual_staging === "string" ? base.visual_staging.trim() : "",
     story_status,
     in_scene_change: normalize_in_scene_change(base.spotlight || base.in_scene_change),
@@ -557,6 +585,7 @@ export async function apply_relationships(bridge, rels) {
 
 /**
  * CHANGELOG
+ * - Track 3.3: Private directive purging (normalize_directors_note strips covert brackets) + Director alternative branches (normalize_alternative_branches, DIRECTOR_SCHEMA key, fallback default).
  * - 2026-10-03: Speaker & NPC ID synchronization and case-insensitive status normalization — fixed discrepancy where base.speaker ("npc:<id>") with separate next_action caused npc_id loss; ensured raw_status is matched case-insensitively against STORY_STATUS_VALUES.
  * - 2026-10-03: Hardened Ledger Integration — In `apply_relationships`, inspect prior state to populate `old_value`, `old_visibility`, `old_weight`, parse incoming flags (`visibility`, `weight`), set sequence to `seq: 1`, writer to `director`, and decider to `director`.
  * - 2026-10-01: Universal Predicates Migration — `apply_relationships` now writes dynamic relational updates exclusively to `source.present.non_physical` bracket predicates (`[@TARGET: dynamic]`), purging legacy `source.relationships` array mutations under P4 Zero Backwards Compatibility.

@@ -274,3 +274,50 @@ describe("split_speech_by_speaker (multi-voice streaming segments)", () => {
     expect(split_speech_by_speaker(null, roster)).toEqual([]);
   });
 });
+
+describe("resolve_stream_preemption (Track 3.3 persona/ambient concurrency)", () => {
+  it("preempts when idle, roleless, or same-role", async () => {
+    const { resolve_stream_preemption } = await import("./speech.js");
+    expect(resolve_stream_preemption({ active_role: "ai", incoming_role: "fractal", is_speaking: false })).toEqual({
+      preempt: true,
+      preserve_inflight: false,
+    });
+    expect(resolve_stream_preemption({ active_role: "ai", incoming_role: "ai", is_speaking: true })).toEqual({
+      preempt: true,
+      preserve_inflight: false,
+    });
+    expect(resolve_stream_preemption({ active_role: null, incoming_role: "fractal", is_speaking: true })).toEqual({
+      preempt: true,
+      preserve_inflight: false,
+    });
+    expect(resolve_stream_preemption({})).toEqual({ preempt: true, preserve_inflight: false });
+  });
+
+  it("preserves in-flight audio on ai/fractal and ai/npc overlap", async () => {
+    const { resolve_stream_preemption } = await import("./speech.js");
+    expect(resolve_stream_preemption({ active_role: "ai", incoming_role: "fractal", is_speaking: true })).toEqual({
+      preempt: false,
+      preserve_inflight: true,
+    });
+    expect(resolve_stream_preemption({ active_role: "fractal", incoming_role: "ai", is_speaking: true })).toEqual({
+      preempt: false,
+      preserve_inflight: true,
+    });
+    expect(resolve_stream_preemption({ active_role: "npc", incoming_role: "ai", is_speaking: true })).toEqual({
+      preempt: false,
+      preserve_inflight: true,
+    });
+  });
+
+  it("preempts across unrelated roles", async () => {
+    const { resolve_stream_preemption } = await import("./speech.js");
+    expect(resolve_stream_preemption({ active_role: "user", incoming_role: "ai", is_speaking: true })).toEqual({
+      preempt: true,
+      preserve_inflight: false,
+    });
+    expect(resolve_stream_preemption({ active_role: "fractal", incoming_role: "npc", is_speaking: true })).toEqual({
+      preempt: true,
+      preserve_inflight: false,
+    });
+  });
+});

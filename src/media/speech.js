@@ -338,7 +338,28 @@ export function split_speech_by_speaker(text, active_roster = [], options = {}) 
 }
 
 /**
+ * Resolves stream preemption between the in-flight voice role and an incoming
+ * role (Track 3.3: fractal & NPC audio-stream concurrency). Same-role or idle
+ * streams preempt fully; overlapping persona (ai) and ambient (fractal/npc)
+ * streams coexist — the incoming role queues behind without killing in-flight
+ * audio, preventing synthesis cutoffs when ambient dialogue overlaps speech.
+ * @param {{ active_role?: string|null, incoming_role?: string|null, is_speaking?: boolean }} [parameters={}]
+ * @returns {Readonly<{ preempt: boolean, preserve_inflight: boolean }>}
+ */
+export function resolve_stream_preemption({ active_role = null, incoming_role = null, is_speaking = false } = {}) {
+  const ambient = new Set(["fractal", "npc"]);
+  const active = typeof active_role === "string" && active_role ? active_role : null;
+  const incoming = typeof incoming_role === "string" && incoming_role ? incoming_role : null;
+  if (!is_speaking || !active || !incoming || active === incoming) return Object.freeze({ preempt: true, preserve_inflight: false });
+  if ((active === "ai" && ambient.has(incoming)) || (ambient.has(active) && incoming === "ai")) {
+    return Object.freeze({ preempt: false, preserve_inflight: true });
+  }
+  return Object.freeze({ preempt: true, preserve_inflight: false });
+}
+
+/**
  * CHANGELOG:
+ * - Track 3.3: resolve_stream_preemption — persona/ambient overlap preserves in-flight audio instead of preempting.
  * - 2026-08-29: Applied /harmonize protocol: purged shorthand abbreviations (char -> character,
  *   str -> normalized_string, dyn -> dynamics, r/s/v -> roster_entry/sentence/voice), enforced
  *   constitutional nomenclature, verified JSDoc accuracy, and validated 100% test coverage.

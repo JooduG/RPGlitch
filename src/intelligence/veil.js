@@ -424,6 +424,23 @@ export function verify_epistemic_integrity(prompt_text, { is_owner = false } = {
 }
 
 /**
+ * Scrubs covert directives and secret flags (Track 3.3: private directive
+ * purging) — [COVERT|SECRET|PRIVATE|HIDDEN: …] brackets and «COVERT»-style
+ * runtime refs are stripped across entity boundaries before persona prompts
+ * compile, while legitimate veil brackets ([KEY: value | hide]) pass through
+ * to the perspective filter untouched.
+ * @param {string|null|undefined} text
+ * @returns {string}
+ */
+export function strip_covert_directives(text) {
+  if (!text || typeof text !== "string") return "";
+  return text
+    .replace(/\[(?:covert|secret|private|hidden)\s*:[^\]]*\]/gi, "")
+    .replace(/«(?:covert|secret|private|hidden)(?::[^»]*)?»/gi, "")
+    .replace(/[ \t]{2,}/g, " ");
+}
+
+/**
  * Strips internal engine flags (| hide, | show, | w: N) from bracketed entries
  * for clean vector embedding calculations, eliminating false semantic collisions.
  *

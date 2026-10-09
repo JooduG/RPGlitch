@@ -146,6 +146,7 @@ describe("prompt-modes registry", () => {
       "CORE_PROTOCOLS.PROSE_DISCIPLINE.SENTENCE_FORMULAS",
       "CORE_PROTOCOLS.PROSE_DISCIPLINE.SCENE_MOMENTUM",
       "CORE_PROTOCOLS.PROSE_DISCIPLINE.CLICHES",
+      "CORE_PROTOCOLS.PROSE_DISCIPLINE.AGENCY",
     ];
     const compose = (natural) => [
       "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PRESENT",
@@ -526,7 +527,8 @@ describe("interaction structural integrity", () => {
     expect(task).toContain("3. Mask — how their psychology leaks or conceals the feeling.");
     expect(task).toContain("4. Smallest observable action — the single physical tell or movement that carries the beat. Never pre-draft dialogue.");
     expect(task).toContain("Close </THINK> before the narrative. This think block is internal reasoning and is never part of the visible prose.");
-    expect(task).not.toContain("<BEAT");
+    expect(task).toContain("<BEAT_BUDGET");
+    expect(task).not.toContain("<BEAT>");
   });
 });
 

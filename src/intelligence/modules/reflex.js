@@ -44,6 +44,18 @@ export const REFLEX_DEFAULTS = Object.freeze({
     Object.freeze({ level: "TERSE", at_most: Object.freeze({ chars: 40, words: 8 }) }),
   ]),
   STABILITY_LADDER: Object.freeze([Object.freeze({ at: 3, level: "CRITICAL" }), Object.freeze({ at: 1, level: "WARNING" })]),
+  INPUT_SIZE_TIERS: Object.freeze([
+    Object.freeze({
+      tier: "TINY",
+      at_most_chars: 12,
+      beats: "1",
+      mandate: "Reply in exactly 1 beat — a fragment, a single line, or a single action. Zero padding.",
+    }),
+    Object.freeze({ tier: "SMALL", at_most_chars: 90, beats: "1-2", mandate: "Reply in 1-2 sharp beats. No unprompted exposition." }),
+    Object.freeze({ tier: "MEDIUM", at_most_chars: 400, beats: "2-4", mandate: "Reply in 2-4 beats, proportionate to «INPUT» breadth." }),
+    Object.freeze({ tier: "EXPANSIVE", at_most_chars: Infinity, beats: "open", mandate: "Match «INPUT» breadth; close on one decisive hook." }),
+  ]),
+  PAUSE_MARKERS: /(\.\.\.|…|\(silence\)|\(pause\)|\bsays nothing\b|\bremains silent\b|\bno response\b|\bno answer\b)/i,
   DETECTORS: Object.freeze({
     DIALOGUE_QUOTES: /["'“”‘’]/,
     ACTION_VERBS:
@@ -120,6 +132,14 @@ export const REFLEX_LIBRARY = Object.freeze({
       tag: "ALTERNATION_OPTIONS",
       body: `Resolve {Option A|Option B} alternations by selecting exactly ONE contextually fitting option. Emit only the chosen text—never echo braces or pipes, blend choices, or output multiple options simultaneously.`,
     }),
+    ANTI_STAGING: Object.freeze({
+      tag: "ANTI_STAGING",
+      body: "Terse dialogue turn: deliver the line and hold position. Forbid gratuitous physical movement, blocking, or scene re-staging on this beat.",
+    }),
+    HELD_MOMENT: Object.freeze({
+      tag: "HELD_MOMENT",
+      body: "Held moment: the other side offers pause or silence. Permit lingering — stay in the beat, do not force a scene transition or manufacture urgency.",
+    }),
   }),
 
   RECOVERY: Object.freeze({
@@ -157,6 +177,64 @@ export function classify_pacing(input) {
 }
 
 /**
+ * Input-size calibration plan (Track 3.1): walks INPUT_SIZE_TIERS first-match-wins
+ * over trimmed character length into a frozen {tier, chars, words} plan.
+ * @param {string|null|undefined} input
+ * @returns {Readonly<{ tier: "TINY"|"SMALL"|"MEDIUM"|"EXPANSIVE", chars: number, words: number }>}
+ */
+export function classify_input_size(input) {
+  const text = String(input || "").trim();
+  const chars = text.length;
+  const words = text ? text.split(/\s+/).filter(Boolean).length : 0;
+  const hit =
+    REFLEX_DEFAULTS.INPUT_SIZE_TIERS.find((tier) => chars <= tier.at_most_chars) ||
+    REFLEX_DEFAULTS.INPUT_SIZE_TIERS[REFLEX_DEFAULTS.INPUT_SIZE_TIERS.length - 1];
+  return Object.freeze({ tier: hit.tier, chars, words });
+}
+
+/**
+ * Beat-budget plan (Track 3.1): maps the input-size tier onto its frozen
+ * {tier, beats, mandate} contract — the input-proportional reply clamp.
+ * @param {string|null|undefined} input
+ * @returns {Readonly<{ tier: string, beats: string, mandate: string }>}
+ */
+export function resolve_beat_budget_plan(input) {
+  const size = classify_input_size(input);
+  const tier = REFLEX_DEFAULTS.INPUT_SIZE_TIERS.find((candidate) => candidate.tier === size.tier);
+  return Object.freeze({ tier: size.tier, beats: tier.beats, mandate: tier.mandate });
+}
+
+/**
+ * Anti-staging detection plan (Track 3.1): a terse dialogue turn carries quoted
+ * speech, no physical action verbs, and fits the TINY/SMALL bands — movement
+ * on such beats is gratuitous staging.
+ * @param {string|null|undefined} input
+ * @returns {Readonly<{ hit: boolean, reason: "blank"|"no-quotes"|"has-action-verbs"|"too-long"|"terse-dialogue" }>}
+ */
+export function detect_staged_dialogue_turn(input) {
+  const defaults = REFLEX_DEFAULTS;
+  if (!input?.trim()) return Object.freeze({ hit: false, reason: "blank" });
+  if (!defaults.DETECTORS.DIALOGUE_QUOTES.test(input)) return Object.freeze({ hit: false, reason: "no-quotes" });
+  if (defaults.DETECTORS.ACTION_VERBS.test(input)) return Object.freeze({ hit: false, reason: "has-action-verbs" });
+  const size = classify_input_size(input);
+  if (size.tier !== "TINY" && size.tier !== "SMALL") return Object.freeze({ hit: false, reason: "too-long" });
+  return Object.freeze({ hit: true, reason: "terse-dialogue" });
+}
+
+/**
+ * Held-moment detection plan (Track 3.1): explicit conversational pause/silence
+ * markers permit lingering. Blank input is NOT a held moment (initiative drive
+ * owns the empty turn), so fixtures without pause markers stay silent.
+ * @param {string|null|undefined} input
+ * @returns {Readonly<{ hit: boolean, reason: "blank"|"no-pause-marker"|"held-pause" }>}
+ */
+export function detect_held_moment(input) {
+  if (!input?.trim()) return Object.freeze({ hit: false, reason: "blank" });
+  if (!REFLEX_DEFAULTS.PAUSE_MARKERS.test(input)) return Object.freeze({ hit: false, reason: "no-pause-marker" });
+  return Object.freeze({ hit: true, reason: "held-pause" });
+}
+
+/**
  * Environmental-hint detection plan: classifies a user turn as verbal or
  * non-verbal/environmental, with the reason for the decision. Signal
  * precedence (verb before noun) comes from HINT_SIGNALS order.
@@ -188,15 +266,21 @@ export function detect_environmental_hint(input) {
  */
 export function resolve_prose_posture_plan(snapshot, input, { has_input = Boolean(String(input || "").trim()) } = {}) {
   const pacing = classify_pacing(input);
+  const beat_budget = resolve_beat_budget_plan(input);
   const rhythm_body = snapshot?.style_dna?.rhythm || "";
   const drive_key = has_input ? "WITH_INPUT" : "WITHOUT_INPUT";
   return Object.freeze({
     pacing,
+    beat_budget,
     rhythm: Object.freeze({
       source: rhythm_body ? "style_dna" : "default",
       body: rhythm_body || REFLEX_LIBRARY.RHYTHM.DEFAULT.body,
     }),
     drive: Object.freeze({ kind: has_input ? "with_input" : "without_input", body: REFLEX_LIBRARY.DRIVE[drive_key].body }),
+    constraints: Object.freeze({
+      anti_staging: detect_staged_dialogue_turn(input).hit,
+      held_moment: detect_held_moment(input).hit,
+    }),
   });
 }
 
@@ -279,6 +363,16 @@ function render_pacing_atom(level = "ADAPTIVE") {
 }
 
 /**
+ * Wraps a beat-budget plan in its canonical <BEAT_BUDGET size beats> element.
+ * @param {ReturnType<typeof resolve_beat_budget_plan>|null|undefined} plan
+ * @returns {string}
+ */
+function render_beat_budget_atom(plan) {
+  const budget = plan || resolve_beat_budget_plan("");
+  return render_xml_tag({ tag: "BEAT_BUDGET", attrs: { size: budget.tier, beats: budget.beats }, children: [budget.mandate], inline: true });
+}
+
+/**
  * Maps a prose-posture plan to the Layer 6 <DELIVERY_POSTURE> envelope. Every
  * selection is already plan data — this function only wraps.
  * @param {ReturnType<typeof resolve_prose_posture_plan>|null|undefined} plan
@@ -286,10 +380,21 @@ function render_pacing_atom(level = "ADAPTIVE") {
  */
 export function render_prose_posture_plan(plan) {
   if (!plan) return "";
+  const constraints = [];
+  if (plan.constraints?.anti_staging) {
+    const atom = REFLEX_LIBRARY.CONDITIONALS.ANTI_STAGING;
+    constraints.push(render_xml_tag({ tag: atom.tag, children: [atom.body], inline: true }));
+  }
+  if (plan.constraints?.held_moment) {
+    const atom = REFLEX_LIBRARY.CONDITIONALS.HELD_MOMENT;
+    constraints.push(render_xml_tag({ tag: atom.tag, children: [atom.body], inline: true }));
+  }
   const children = [
     render_pacing_atom(plan.pacing?.level),
+    render_beat_budget_atom(plan.beat_budget),
     render_xml_tag({ tag: REFLEX_LIBRARY.RHYTHM.DEFAULT.tag, children: [prompt_escape(plan.rhythm.body)], inline: true }),
     render_xml_tag({ tag: REFLEX_LIBRARY.DRIVE.WITH_INPUT.tag, children: [prompt_escape(plan.drive.body)], inline: true }),
+    ...constraints,
   ].filter(Boolean);
   return render_xml_tag({ tag: "DELIVERY_POSTURE", children, indent: 0, child_indent: 4, separator: "\n" });
 }
@@ -359,6 +464,7 @@ export function resolve_stability_lock(metadata) {
 
 /**
  * CHANGELOG
+ * - Track 3.1: Input-proportional pacing contracts — INPUT_SIZE_TIERS (TINY<=12/SMALL<=90/MEDIUM<=400/EXPANSIVE) with beat budgets, classify_input_size + resolve_beat_budget_plan, <BEAT_BUDGET> child in every DELIVERY_POSTURE; gated ANTI_STAGING (terse dialogue) + HELD_MOMENT (explicit pause markers, never blank) constraint children via plan.constraints.
  * - Track 0.10: Section 6 dissolved - render_subtext_xml + resolve_physics_protocols move to physics.js (beside the registries they read), render_available_keywords_xml moves to task.js (beside KEYWORD_DIRECTIVES); STYLE_MOTIF_REGISTRY and escape_xml imports dropped. Prompt bytes byte-identical.
  * - 2026-10-07: Plan Omega for Task — repatriated render_subtext_xml, resolve_physics_protocols, and render_available_keywords_xml from task.js (new Section 6; STYLE_MOTIF_REGISTRY imported from @data, escape_xml added to @utils import) — prompt bytes byte-identical.
 

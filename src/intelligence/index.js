@@ -89,6 +89,14 @@ export { build_turn_summary } from "./dynamics.js";
 export { render_core_protocols, resolve_protocol_plan, render_protocol_plan } from "./modules/protocols.js";
 export { render_narrative_style_xml, render_visual_style_xml, resolve_style_dna, resolve_style_snapshot } from "./modules/style.js";
 export { render_visual_history, format_sensory_history, resolve_history_plan, resolve_sensory_plan, render_history_plan } from "./modules/history.js";
+export {
+  normalize_lorebook,
+  match_lorebook_key,
+  scan_lorebooks,
+  resolve_lorebook_plan,
+  render_lorebook_xml,
+  resolve_lorebook_slot,
+} from "./modules/lorebook.js";
 export { render_optics_fallback } from "../media/optics.js";
 
 // ============================================================================
@@ -104,6 +112,7 @@ export {
   strip_epistemic_tags,
   strip_epistemic_secrets,
   verify_epistemic_integrity,
+  strip_covert_directives,
   strip_bracket_engine_flags,
 } from "./veil.js";
 

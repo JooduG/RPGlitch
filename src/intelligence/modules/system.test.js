@@ -143,6 +143,7 @@ describe("pack_prompt and resolve_prompt_meta", () => {
       "core_protocols",
       "dynamic_axes",
       "entities",
+      "lorebook",
       "target_entity_context",
       "cast",
       "entity_context",
@@ -155,6 +156,7 @@ describe("pack_prompt and resolve_prompt_meta", () => {
 
 /**
  * CHANGELOG
+ * - Track 3.2: Canonical PROMPT_LAYERS key assertion gains lorebook.
  * - Track 2.4: Canonical PROMPT_LAYERS key assertion gains memory_advisory.
  * - Track 0.10: Dropped layer from the canonical PROMPT_LAYERS key assertion.
  * - 2026-10-07: Plan Omega for System — rewritten for ROLE_LIBRARY/ROLE_DEFAULTS/get_role_atom, the plan/render split, relocated pack_prompt/resolve_prompt_meta, and the purged render_system_xml (closed/task options gone; stability-lock tests live in reflex.test.js).

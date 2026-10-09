@@ -219,6 +219,7 @@ export const CONTRACT = {
       "SENTENCE_FORMULAS",
       "SCENE_MOMENTUM",
       "CLICHES",
+      "AGENCY",
       "NATURAL_DIALOGUE",
       "ENTITIES",
       "AI_CHARACTER",
@@ -271,6 +272,7 @@ export const CONTRACT = {
       "DIRECTIVES",
       "DELIVERY_POSTURE",
       "PACING",
+      "BEAT_BUDGET",
       "RHYTHM",
       "DRIVE",
       "OUTPUT_FORMAT",
@@ -294,6 +296,7 @@ export const CONTRACT = {
       "SENTENCE_FORMULAS",
       "SCENE_MOMENTUM",
       "CLICHES",
+      "AGENCY",
       "NATURAL_DIALOGUE",
       "ENTITIES",
       "AI_CHARACTER",
@@ -340,6 +343,7 @@ export const CONTRACT = {
       "DIRECTIVES",
       "DELIVERY_POSTURE",
       "PACING",
+      "BEAT_BUDGET",
       "RHYTHM",
       "DRIVE",
       "OUTPUT_FORMAT",
@@ -363,6 +367,7 @@ export const CONTRACT = {
       "SENTENCE_FORMULAS",
       "SCENE_MOMENTUM",
       "CLICHES",
+      "AGENCY",
       "NATURAL_DIALOGUE",
       "ENTITIES",
       "AI_CHARACTER",
@@ -424,6 +429,7 @@ export const CONTRACT = {
       "DIRECTIVES",
       "DELIVERY_POSTURE",
       "PACING",
+      "BEAT_BUDGET",
       "RHYTHM",
       "DRIVE",
       "OUTPUT_FORMAT",
@@ -447,6 +453,7 @@ export const CONTRACT = {
       "SENTENCE_FORMULAS",
       "SCENE_MOMENTUM",
       "CLICHES",
+      "AGENCY",
       "ENTITIES",
       "AI_CHARACTER",
       "PSYCHOLOGY",
@@ -496,6 +503,7 @@ export const CONTRACT = {
       "DIRECTIVES",
       "DELIVERY_POSTURE",
       "PACING",
+      "BEAT_BUDGET",
       "RHYTHM",
       "DRIVE",
       "OUTPUT_FORMAT",
@@ -519,6 +527,7 @@ export const CONTRACT = {
       "SENTENCE_FORMULAS",
       "SCENE_MOMENTUM",
       "CLICHES",
+      "AGENCY",
       "ENTITIES",
       "AI_CHARACTER",
       "PSYCHOLOGY",
@@ -564,6 +573,7 @@ export const CONTRACT = {
       "DIRECTIVES",
       "DELIVERY_POSTURE",
       "PACING",
+      "BEAT_BUDGET",
       "RHYTHM",
       "DRIVE",
       "OUTPUT_FORMAT",
@@ -587,6 +597,7 @@ export const CONTRACT = {
       "SENTENCE_FORMULAS",
       "SCENE_MOMENTUM",
       "CLICHES",
+      "AGENCY",
       "ENTITIES",
       "AI_CHARACTER",
       "PSYCHOLOGY",
@@ -635,6 +646,7 @@ export const CONTRACT = {
       "DIRECTIVES",
       "DELIVERY_POSTURE",
       "PACING",
+      "BEAT_BUDGET",
       "RHYTHM",
       "DRIVE",
       "OUTPUT_FORMAT",
@@ -751,6 +763,7 @@ export const MODE_DIRECTIVE_LEADS = Object.freeze({
 
 /**
  * CHANGELOG
+ * - Track 3.1/3.4: Prose inventories gain BEAT_BUDGET (after PACING) + AGENCY (after CLICHES).
  * - Track 0.12: Optics CONTRACT inventory drops FIRST_SENTENCE_MANDATE + SPATIAL_GEOMETRY (wrapper literals purged from the atom bodies; bare mandate prose remains).
  * - 2026-10-05: Single-envelope contract — inventories merge system + task tag lists (HISTORY/ENTRYs where the fixture log renders); CONTRACT_SIZES retired (shape, not bytes, is the gate).
  * - 2026-10-04: Director contract inventory left unchanged by the hint envelope (no fixture input fires the hint — verified against the failing assumption; unit tests pin the envelope).

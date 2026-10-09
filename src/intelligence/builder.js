@@ -368,6 +368,11 @@ function resolve_prose_bag(config, context, bag_inputs) {
       speaker_key,
     },
     history_args: { kind: "simulation_log", accessors },
+    lorebook_args: {
+      enabled: Array.isArray(context.lorebooks) && context.lorebooks.length > 0,
+      lorebooks: Array.isArray(context.lorebooks) ? context.lorebooks : [],
+      turns: Array.isArray(context.lore_turns) ? context.lore_turns : [],
+    },
     task_params: {
       task_state: config.task_state,
       input: context.input ?? "",
@@ -507,6 +512,11 @@ function normalize_narrator_context(config, context) {
       speaker_key: "AI",
     },
     history_args: { kind: "simulation_log", accessors: render_accessors },
+    lorebook_args: {
+      enabled: Array.isArray(context.lorebooks) && context.lorebooks.length > 0,
+      lorebooks: Array.isArray(context.lorebooks) ? context.lorebooks : [],
+      turns: Array.isArray(context.lore_turns) ? context.lore_turns : [],
+    },
     task_params: {
       task_state: config.task_state,
       input: beat_input,
