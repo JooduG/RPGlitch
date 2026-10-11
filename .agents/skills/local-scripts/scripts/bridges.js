@@ -29,8 +29,8 @@ import readline from "readline";
 
 const GLOBAL_TOOL_PATHS = Object.freeze({
   summarize: ".gemini/config/skills/planning/scripts/summarize.js",
-  knowledge: ".gemini/config/skills/developer-database/scripts/developer-database.js",
-  "ingest-web": ".gemini/config/skills/developer-database/scripts/ingest-web.js",
+  knowledge: ".gemini/config/plugins/developer-database-plugin/scripts/developer-database.js",
+  "ingest-web": ".gemini/config/plugins/developer-database-plugin/scripts/ingest-web.js",
   "sync-backlog": ".gemini/config/skills/planning/scripts/sync-backlog.js",
   "forge-skill": ".gemini/config/skills/skill-writing/scripts/forge-skill.js",
 });
