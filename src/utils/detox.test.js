@@ -94,4 +94,3 @@ describe("detox_prose() with speaking styles", () => {
     expect(detox_prose("She quietly watched the monitors.")).toBe("She watched the monitors.");
   });
 });
-

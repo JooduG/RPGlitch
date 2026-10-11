@@ -82,8 +82,6 @@ const themeRules = [
   },
 ];
 
-
-
 let scanned = 0;
 let violations = 0;
 let hasHeresy = false;

@@ -21,7 +21,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Symmetrically unified Ghostwriting as Shot-2A prose speaker swap resolving POV via `resolve_pov_protocol`, retiring legacy bespoke ghostwrite directive branches.
   - Deep-froze catalog and static slot directives into immutable `{ tag, children }` structures, eliminating ad-hoc string concatenation across task generation.
 
-
 ---
 
 ## [0.7.0] - 2026-10-11

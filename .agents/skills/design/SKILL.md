@@ -102,6 +102,7 @@ Every UI transition and kinetic effect is governed by these non-negotiable stand
 ### 7. Bits UI (`^2.18.1`) Headless Primitives
 
 When building complex interactive overlays (Dropdowns, Dialogs, Popovers, Tooltips, Collapsibles):
+
 - **Headless Foundation**: Use `bits-ui` primitives (`DropdownMenu`, `Dialog`, `Popover`, `Tooltip`). They supply accessible ARIA attributes, keyboard traps, and `var(--transform-origin)` out of the box.
 - **Render Delegation**: Use `{#snippet child({ props })}` instead of legacy wrappers.
 - **Reference Binding**: Use `ref = $bindable(null)` instead of `el`.
@@ -113,15 +114,23 @@ When building complex interactive overlays (Dropdowns, Dialogs, Popovers, Toolti
   ```ts
   import { flushSync } from "svelte";
   document.startViewTransition(() => {
-    flushSync(() => { active_view = target_view; });
+    flushSync(() => {
+      active_view = target_view;
+    });
   });
   ```
 
 - **Rigid-Body Morphing**: Suppress crossfade ghosting via CSS pseudo-element overrides:
 
   ```css
-  ::view-transition-old(telemetry-card) { animation: none; opacity: 0 !important; }
-  ::view-transition-new(telemetry-card) { animation: none; opacity: 1 !important; }
+  ::view-transition-old(telemetry-card) {
+    animation: none;
+    opacity: 0 !important;
+  }
+  ::view-transition-new(telemetry-card) {
+    animation: none;
+    opacity: 1 !important;
+  }
   ::view-transition-group(telemetry-card) {
     animation-duration: 250ms;
     animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
