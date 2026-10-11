@@ -1,20 +1,12 @@
 # RPGlitch Specification & Simulation Engine Rules
 
-This document serves as the sovereign technical blueprint for **RPGlitch**. It defines the core engine mechanics, Svelte 5 state management, layer boundaries, aesthetic laws, and memory paradigms, complementing the global `GEMINI.md`.
+This document serves as the sovereign technical blueprint for **RPGlitch**. It defines simulation physics, Svelte 5 state management, layer boundaries, and memory paradigms, extending the constitutional laws in global `GEMINI.md`.
 
 ---
 
 ## ⚔️ Sovereign Identity & Core Engine Laws
 
 > **The Unified Persona**: I am the Sovereign Engine of RPGlitch. I orchestrate the convergence of state and story, enforcing Svelte 5 purity and Design laws to ensure high-fidelity immersion. The User is the Protagonist; I am the Physics.
-
-### The Triad Protocol
-
-We bridge creative prose and mechanical truth through three distinct layers:
-
-1. **ETERNAL (The Spec)**: Deep lore, taxonomies, and immutable character archetypes.
-2. **PRESENT (The State)**: Reactive Svelte 5 Runes mirroring physical and psychological reality.
-3. **PAST (The Echo)**: Persistent logs (Dexie.js / Pinecone) that provide contextual weight to every decision.
 
 ### Operational Mandates
 
@@ -25,293 +17,74 @@ We bridge creative prose and mechanical truth through three distinct layers:
   - **Meaningful Interactions**: Favor intuitive actions over explicit controls (e.g., clicking a slot triggers character selection).
   - **Minimalist Restraint**: Only display tools relevant to the active narrative moment.
   - **Prose Style**: Deliver high-fidelity immersion with distinct entity voices dictated by entity profiles.
-- **P4: Zero Backwards Compatibility (Pre-Beta Purity)**: **Never write backwards-compatible fallbacks, legacy aliases, deprecated wrappers, or schema shims**. Backwards compatibility at this stage is a symptom of technical debt and degraded code quality. When an abstraction, key, or format changes, refactor all downstream consumers and prune dead code immediately. We prioritize a pristine, minimal, and uncompromising codebase/database over maintaining legacy ballast.
+- **P4: Zero Backwards Compatibility (Pre-Beta Purity)**: **Never write backwards-compatible fallbacks, legacy aliases, deprecated wrappers, or schema shims**. Refactor all downstream consumers and prune dead code immediately.
 
 ---
 
 ## ⚡ The Simulation Physics Engine
 
-```mermaid
-flowchart LR
-    Input["Input"] --> Sanity["Sanity"] --> Execution["Execution"] --> Persistence["Persistence"] --> Expression["Expression"]
-```
-
 ### 1. The Simulation Heartbeat (Rounds, Shots & Sub-Processes)
 
-The Simulation Cycle is the overarching heartbeat of the engine—a complete sequence of cause and effect.
-
-#### The Round (Macro-State)
-
-A **Round** tracks linear session progression. It increments strictly when the user submits a new message payload.
-
-- **The Absolute Interrupt**: Human message input finalizes the current loop and births the next.
-- **Round Completion**: A round concludes only when the user submits their next message payload during Turn 3 (Head Shot).
-
-#### The 3-Turn Sequence: Shot & Sub-Process
-
-Within each round, active intelligence and mechanical engines execute as sequential **Turns (Shot & Sub-Process)**:
-
-- 🎬 **Turn 1: Director Turn (Quick Shot)**:
-  - _Shot (Quick Shot)_: Fast staging inference (`phase = "generating"`, `director_thinking = true`) executed in response to the **previous round**. Evaluates rules, updates numerical dynamics, delegates the chosen actor (`AI`, `FRACTAL`, or `NPC`), conditionally schedules image beats (`trigger_image`), and delivers the Director's Note. Emits `DYNAMICS_DELTA` telemetry.
-  - _Sub-Process (Physics Pre-Pass)_: Evaluates deterministic somatic physics, slider bounds, and spatial presence synchronously before LLM invocation (no LLM).
-- 🎭 **Turn 2: Actor Turn (Narrative Shot)**:
-  - _Shot (Narrative Shot)_: Storyteller pass executed in response to the **Director Turn**. The chosen speaker transitions to `speaker_thinking = true` then streams in-character dialogue, inner `<think>` cognition, and sensory prose directly into the view.
-  - _Sub-Process (Optional Visual Generation)_: If scheduled by the Director in Turn 1, the visual synthesis pipeline compiles prompt optics and dispatches image diffusion via the Perchance Image Plugin immediately upon narrative stream completion.
-- 🧑‍🚀 **Turn 3: User Turn (Head Shot)**:
-  - _Shot (Head Shot)_: Biological protagonist deliberation executed in response to the **Actor Turn**. Generation completes (`phase = "idle"`), interface controls release, and input is enabled. The user authors and submits their next message without arbitrary time constraints.
-  - _Sub-Process (Full-State Consolidation)_: Runs silently in the background on `director_background_queue` while the user composes their message in Turn 3. Sweeps one entity round-robin style across multiple historical rounds, consolidating all 4 entity quadrants (`eternal`, `present`, `past`, `future`), computing 384-d embeddings, enforcing vector caps (`PAST_VECTOR_CAP = 20`), appending change-only diffs to `mutation_ledger`, and emitting `MEMORY_FORMATION` / `VECTOR_RESOLUTION` telemetry cards.
-- 🏁 **Round Completion**: The user submits their message, which finalizes the round and immediately births the next.
+- **The Round (Macro-State)**: Increments strictly when the user submits a new message payload. Concludes only upon user submission in Turn 3.
+- **Turn 1: Director Turn (Quick Shot)**: Fast staging inference (`phase = "generating"`, `director_thinking = true`). Evaluates rules, updates numerical dynamics, delegates actor (`AI`, `FRACTAL`, or `NPC`), conditionally schedules image beats (`trigger_image`), and delivers Director's Note. Emits `DYNAMICS_DELTA` telemetry. Pre-pass evaluates deterministic somatic physics synchronously before LLM invocation.
+- **Turn 2: Actor Turn (Narrative Shot)**: Storyteller pass (`speaker_thinking = true`). Streams in-character dialogue, inner `<think>` cognition, and sensory prose. Dispatches visual synthesis via Perchance Image Plugin if scheduled.
+- **Turn 3: User Turn (Head Shot)**: Biological protagonist deliberation (`phase = "idle"`). User authors message. Sub-process consolidates one entity round-robin in background (`director_background_queue`), computing 384-d embeddings, enforcing `PAST_VECTOR_CAP = 20`, appending change diffs to `mutation_ledger`, and emitting `MEMORY_FORMATION` / `VECTOR_RESOLUTION` telemetry cards.
 
 ---
 
 ### 2. Narrative Hierarchy & AI Protocols
 
-#### Conflict Resolution Priority
-
-When narrative constraints compete, resolve them strictly in this order of precedence:
-
-1. **User Agency**: Absolute protection of user control (P1).
-2. **Physical & Temporal Truth**: Established physical state, causality, and entity integrity.
-3. **Plot & Sensory Momentum**: Environmental scene stakes, active objectives, and atmospheric texture.
-4. **Style & Delivery**: Prose tone, speaking registers, and expressive formatting.
-
-#### Narrative Integrity Directives
-
-- **Restraint**: Simulation AI **MUST NOT** use a narrator voice and **MUST NEVER** control the user persona.
-- **Descriptive Soul (3rd-Person Affirmative)**: **Describe presence, never absence**. Refine non-physical entity fields without using first-person or narrative prose.
-- **Outcome Evaluation**: Before drafting prose, **compare intended user actions against physical state mutations in [ChronoEngine](./src/state/chrono.svelte.js)** to preserve causality.
-- **Atmospheric Signaling**: **Keep internal mechanics invisible in output**. Express statistical stress or intensity strictly via body language or internal `<think>` blocks. Use the [Simulation](./.agents/skills/simulation/SKILL.md) skill to bridge mechanics and prose.
-
-#### Multi-Channel Communication
-
-- **AI Characters**: In-character dialogue and physical actions.
-- **System Messages**: Out-of-Character (`/OOC`) scaffolding and technical alerts.
-- **The Fractal**: Sensory environment and world messaging.
-
-#### Speaking Styles & Prose Detox
-
-- **Canonical Enum**: `casual` (default), `lyrical`, `primal`, `clinical` (defined in `src/data/definitions/speaking-styles.js`).
-- **Resolution Hierarchy**: Entity speaking style > Narrative style preset > `"casual"`.
-- **Detox Rule**: All generated prose passes through `detox_prose(text, resolved_style)` to cleanse clichés while preserving individual entity tone.
-
-#### Telemetry & Telemetry Cards Architecture
-
-- **Turn 1 (Quick Shot)**: Logs `DYNAMICS_DELTA` events exclusively.
-- **Turn 2 (Narrative Shot)**: Streams user-facing, in-character narrative prose.
-- **Turn 3 Sub-Process (Full-State Consolidation)**: Logs `MEMORY_FORMATION` and `VECTOR_RESOLUTION` telemetry events upon background completion.
+- **Precedence**: User Agency (P1) > Physical & Temporal Truth > Plot & Sensory Momentum > Style & Delivery.
+- **Directives**: No narrator voice, never control user persona, describe presence (not absence), keep internal mechanics invisible in output.
+- **Speaking Styles & Prose Detox**: `casual` (default), `lyrical`, `primal`, `clinical` (`src/data/definitions/speaking-styles.js`). Resolved via: Entity > Preset > `"casual"`. Pass generated prose through `detox_prose(text, resolved_style)`.
 
 ---
 
 ### 3. Temporal Engine & Entity Architecture
 
-A simulation requires entities (Characters and Fractals) to execute a narrative.
-
-- **Swapping**: Design state transitions so ending a story and loading a new one is seamless.
-- **Management**: Manage active entities via the profile modal in edit mode.
-- **The Four Entity Fragments**:
+- **Quad-Partitioned Entity Schema**:
   - **Eternal**: Baseline physical features and core essence.
-  - **Present**: Immediate physical conditions and active processing states. Governed by Pseudo-JSON bracket parameters (`[KEY: VALUE]`):
-    - _Direct Overwrites_: `[SHIRT: sweater]` replaces `SHIRT` cleanly without string duplication.
-    - _Universal Atomic Clearing_: `[KEY: none]` or `[KEY: cleared]` deletes that specific key. Natural descriptive states (e.g. `[MOOD: normal]`, `[CHEST: bare]`, `[WOUND: healed]`) are preserved as valid values without silent deletion.
-    - _Multi-Item Aggregation_: Repeated `[INVENTORY: ...]` / `[STASH: ...]` brackets merge into an aggregated array.
-    - _Undress / Redress Lifecycle_: Undressing stashes garments in `[INVENTORY: ...]`; redressing reads items back from inventory without hallucination.
-  - **Past (Memories)**: Durable facts and session memories stored as a multiline bracket string (`[KEY: settled fact]`) indexed by semantic embeddings:
-    - _ID Provenance & Forge-Skip_: `usr_` prefixed memories (user/lore authored) are origin-protected (`is_origin`), immune to Memory Forge eviction/compression, and receive a 1.5x relevance multiplier in `compute_relevance()`. `ai_` session memories roll with a cap of 20 (`PAST_VECTOR_CAP = 20`).
-    - _Bound Limits_: Maximum 200 total vectors per entity; <= 220 characters per entry. Deduplication uses > 60% word overlap and > 0.92 cosine similarity.
-  - **Future (Standing Agenda)**: Active trajectory, impending intent, and standing agenda stored as a single consolidated prose field (rewritten wholesale by the Memory Forge each cycle).
-- **Event-Sourced Mutation Ledger**: All dynamic state mutations (`present`, `past`, `future`) record discrete change-only diffs to `mutation_ledger` (`round`, `seq`, `writer`, `decider`, `old_value`, `new_value`, `visibility`, `weight`) enabling deterministic `replay_entity_field` reconstruction and field inspection.
+  - **Present**: Immediate physical condition via Pseudo-JSON `[KEY: VALUE]`. Direct overwrites replace cleanly; `[KEY: none]` / `[KEY: cleared]` deletes key; natural descriptive states (`[MOOD: normal]`, `[CHEST: bare]`) are preserved. Multi-bracket `INVENTORY`/`STASH` aggregate. Undress stashes into `INVENTORY`; redress reads back.
+  - **Past (Memories)**: Durable facts (`[KEY: fact]`) indexed by semantic embeddings. `usr_` prefixed memories are origin-protected (`is_origin`), immune to eviction, and receive a 1.5x relevance multiplier. `ai_` session memories cap at 20 (`PAST_VECTOR_CAP = 20`). Max 200 total vectors, <= 220 chars each.
+  - **Future (Standing Agenda)**: Active trajectory and standing agenda rewritten wholesale by Memory Forge each cycle.
+- **Event-Sourced Mutation Ledger**: State mutations record change-only diffs (`round`, `seq`, `writer`, `decider`, `old_value`, `new_value`, `visibility`, `weight`) to `mutation_ledger` for deterministic replay.
 - **Dual Filter Engine**:
-  - _Visual Prompt Filter_: `INVENTORY`, `STASH`, and bracket elements bearing `| hide` flags are strictly stripped from image generation prompts (`build_aesthetic_map` & `strip_visual_excluded`).
-  - _Epistemic Prompt Filter_: Brackets flagged with `| hide` belonging to other entities are stripped across the Epistemic Wall in `render_character()` to prevent AI telepathy, while remaining fully visible in `render_director()`. Owner perspectives preserve their own `| hide` signals directly (e.g., `[DAGGER: stiletto | hide]`) so persona LLMs do not voice covert items/plans openly.
+  - _Visual Prompt Filter_: `INVENTORY`, `STASH`, and `| hide` flags are stripped from diffusion prompts (`build_aesthetic_map`).
+  - _Epistemic Prompt Filter_: Brackets flagged `| hide` belonging to others are stripped across the Epistemic Wall in `render_character()` to prevent AI telepathy.
 
 ---
 
 ## 🏛️ System Architecture & State Sovereignty
 
-### 1. Physical Tech Stack & Perchance Constraints
+### 1. Stack & Constraints
 
-RPGlitch is a **Local-First Reactive Monolith (PWA)** built for the Perchance iframe ecosystem.
-
-- **Framework**: Svelte 5 (Runes-only) built via Vite 8 (`vite-plugin-singlefile`).
-- **Persistence Rules**: **Use Dexie.js (IndexedDB) exclusively for persistence**. `localStorage` is forbidden due to iframe access limits.
-- **Sovereign Modules**: **Consolidate domain logic into domain pipelines** (e.g., temporal engine in `temporal-pipeline.js`, story flow in `story-pipeline.js`).
-- **Audio Protocol**: **Initialize AudioContext strictly during a direct user gesture**. **Always call `.close()` or `.suspend()` when unmounting audio nodes**.
-- **MCP Workspace Ecosystem**:
-  - `chrome-devtools`: Headless browser automation, UI testing, console audits, and visual debugging.
-  - `firecrawl-mcp`: Web research, data extraction, and real-time doc retrieval.
-  - `mcp-sequentialthinking-tools`: Multi-step debugging and dynamic planning scratchpads.
-  - `svelte`: Official Svelte 5 logic and verification.
-
----
+- **Framework**: Svelte 5 (Runes-only) via Vite 8 (`vite-plugin-singlefile`). Local-First PWA for Perchance iframe.
+- **Persistence**: Dexie.js (IndexedDB) exclusively. `localStorage` is forbidden.
+- **Audio Protocol**: Initialize AudioContext strictly on direct user gesture. Suspend/close when unmounting.
 
 ### 2. Svelte 5 Sovereignty & Security
 
-- **Forbidden Legacy Syntax**: **Never use `export let`, `$:`, `writable()`, `readable()`, `<slot />`, or `createEventDispatcher**`.
-- **Rune Directives**: **Use Svelte 5 Runes exclusively (`$state()`, `$derived()`, `$effect()`, `{@render snippet}`)**.
-- **State Ownership**: **Never read UI state from HTML DOM elements**. Maintain single-source truth inside Svelte Runes.
-- **Sanitization Boundary**: **Pass all untrusted external inputs through DOMPurify before rendering via `{@html ...}**`. Validate all cross-boundary data with strict runtime type assertions.
-
----
+- **Forbidden**: `export let`, `$:`, `writable()`, `readable()`, `<slot />`, `createEventDispatcher`.
+- **Mandatory**: Svelte 5 Runes exclusively (`$state()`, `$derived()`, `$effect()`, `{@render snippet}`).
+- **State Ownership**: Never read state from DOM elements. Single source of truth in Svelte Runes.
+- **Sanitization**: Pass untrusted inputs through DOMPurify before `{@html ...}` rendering.
 
 ### 3. Layer Boundaries & Import Hierarchy
 
-```mermaid
-flowchart LR
-    UI["src/ui"] --> State["src/state"] --> Intelligence["src/intelligence"] --> Data["src/data"] --> Platform["src/platform"]
-```
+- `src/ui/` (Presentation) → `src/state/` (Reactive Controllers) → `src/intelligence/` (Inference) → `src/data/` (Persistence) → `src/platform/` & `src/media/`.
+- Downward imports allowed. Upward imports strictly forbidden (`src/state/` cannot import `src/ui/`, lower levels cannot import state or UI).
 
-#### Structural Glossary
+### 4. State Ownership Matrix
 
-- **Presentation Layer (`src/ui/`)**: Atomic UI components, layouts, and rendering views. Subscribes to reactive state controllers but declares no global domain state.
-- **Reactive State Management Layer (`src/state/`)**: Reactive domain controllers (`runtime.svelte.js`, `chrono.svelte.js`, `status.svelte.js`, `interface.svelte.js`). Coordinates data between user events, persistence, and inference.
-- **Agent Orchestration & Inference Layer (`src/intelligence/`)**: AI Kernel, prompt pipeline compilers, multi-stage LLM calling, and narrative filtering.
-- **Client Persistence Layer (`src/data/`)**: Persistence layer. Manages Dexie.js schemas, repositories, and transactional mutations.
-- **Platform & Hardware Services (`src/platform/`, `src/media/`)**: External API bridges, Web Audio, Kokoro TTS, ONNX runtime workers, and DOMPurify safety.
-
-#### Import Rules (Unidirectional Flow)
-
-**Allowed Downward Imports**:
-
-- `src/ui/` (Presentation) may import from any layer.
-- `src/state/` (Reactive State) may import from `intelligence`, `data`, `platform`, `media`, `utils`.
-- `src/data/` (Persistence) may import from `platform`, `utils`.
-
-**Forbidden Upward Imports**:
-
-- Lower-level layers **MUST NEVER** import from higher-level layers.
-- `src/intelligence/`, `src/data/`, `src/media/`, `src/utils/`, and `src/platform/` **MUST NEVER** import from `src/ui/` or `src/state/**`.
-- `src/state/` **MUST NEVER** import from `src/ui/**`.
+- **Active Entities & Chronology** (`user`, `ai`, `fractal`, `round`, `story_id`): `runtime.svelte.js`.
+- **Simulation Phase** (`idle`, `generating`, `locked`): `status.svelte.js`.
+- **UI Flow & Modals** (`view`, `profile_open`): `interface.svelte.js`.
+- **Audio Context**: `src/media/`.
 
 ---
 
-### 4. State Ownership Matrix & Lifecycle Verbs
+## 🎨 Aesthetics & Visual Protocols
 
-#### State Ownership Matrix
-
-| State Domain                                          | Owner Store File      | Description & Mutators                                       | Observers      |
-| ----------------------------------------------------- | --------------------- | ------------------------------------------------------------ | -------------- |
-| **Active Entities** (`user`, `ai`, `fractal`)         | `runtime.svelte.js`   | Live clones of DB entities. Mutated by `load()` and physics. | `ui`, `engine` |
-| **Chronology** (`round`, `story_id`)                  | `runtime.svelte.js`   | Macro heartbeat of the simulation.                           | `ui`, `engine` |
-| **Simulation Phase** (`idle`, `generating`, `locked`) | `status.svelte.js`    | Execution status and UI lock state (STASIS).                 | `ui`, `engine` |
-| **UI Flow & Modals** (`view`, `profile_open`)         | `interface.svelte.js` | Ephemeral layout and view state.                             | `ui`           |
-| **Audio Context**                                     | `src/media/`          | Browser audio state. Requires user gesture initialization.   | `ui`           |
-
-#### Standardized Lifecycle Verbs
-
-- **`initialize`**: Setting up a service or store for the first time in a session.
-- **`load`**: Pulling static data from persistence (`src/data/`) into memory (`src/state/`) without running physics.
-- **`sync`**: Reconciling reactive state with IndexedDB before generating turns.
-- **`refresh`**: Triggering an imperative recalculation when `$derived` runes are insufficient.
-- **`boot`**: Global application startup sequence (`src/main.js`).
-
----
-
-### 5. Development Protocols & Navigator Rules
-
-**4-Step Implementation Loop**:
-
-1. **Anchor Tasks**: **Verify the active initiative and implementation plan in `./ROADMAP.md` is aligned with `./GEMINI.md`, `./README.md`, and `./ARCHITECTURE.md`**.
-2. **Wire State**: Connect Svelte 5 Runes and bind to decoupled state bridges (`state_bridge`, `stream_bridge`).
-3. **Apply Styling**: Implement rules from `./DESIGN.md`.
-4. **Anchor Persistence**: Bind dynamic changes to Dexie.js repositories.
-
-**Navigator Protocol**:
-
-- **Relative Resolution**: **Always use relative paths for internal references** (e.g., `./ROADMAP.md`, `./ARCHITECTURE.md`, `./README.md`).
-- **Absolute Grounding**: **Map all code claims to specific file paths and line numbers**.
-- **Epistemic Context Cartography**: When gathering context or diagnosing issues, explicitly separate facts into four distinct evidentiary tiers:
-  1. _User Facts_: Explicit requirements stated directly by the user.
-  2. _Repository Evidence_: Verified source code quotes, line numbers, and file paths.
-  3. _Inferences_: Logical deductions based on repository evidence.
-  4. _Unknowns_: Unverified assumptions or missing data requiring validation.
-- **Conductor Auditable Proof Matrix**: Mandate a 3-column verification matrix in milestone completion reviews:
-  `| Requirement / Criterion | Implementation Location (file:line) | Automated Test / Verification Proof (test:line or command) |`
-- **Archival Standard**: The global archive (`C:/Users/johng/.gemini/antigravity-ide/archive/YYYY-MM/`) preserves deep forensic analysis, major completed architectural blueprints, and historical research artifacts. Record concise release and turn pulses in `CHANGELOG.md`.
-
----
-
-### 6. The Documentation Hierarchy & Specification Law
-
-RPGlitch operates under a strict four-layer documentation architecture:
-
-1. **Strategic Layer (`README.md`)**: The front door. Governs high-level product vision, game design, narrative concepts, and the canonical Story Triad (`active_user`, `active_ai`, `active_fractal`).
-2. **Tactical Layer (`ARCHITECTURE.md`, `DESIGN.md`, `SECURITY.md`, `ROADMAP.md`)**:
-   - `ARCHITECTURE.md`: Authoritative software engineering reality, layer boundaries, and state mechanisms in `src/`.
-   - `DESIGN.md`: Nordic visual tokens, typography, and motion rules.
-   - `SECURITY.md`: Defense-in-depth threat model, input sanitization, and DOM sink controls.
-   - `ROADMAP.md`: The **FUTURE mirror** documenting the delta between current state and target state.
-3. **Operational Layer (Plan Artifacts & `CHANGELOG.md`)**:
-   - Plan Artifacts (`<brain>/plan.md`): The actionable execution bridge translating tactical roadmap targets into step-by-step TDD commits.
-   - `CHANGELOG.md`: The **PAST mirror** documenting historical release pulses and completed milestones.
-4. **Governance & Skill Laws**:
-   - **Parallel Constitutional Authority**: `GEMINI.md` provides navigation instructions and compliance laws spanning all layers.
-   - **Specification vs. Skill Law**:
-     - **Specifications (WHAT)** live exclusively in core markdown files (`ARCHITECTURE.md`, `DESIGN.md`, `SECURITY.md`, `README.md`).
-     - **Skills** are layer-agnostic behavioral playbooks and runbooks ("do this, don't do that", framework patterns, recipes).
-     - Skills must **never define project-specific product specifications or data schemas**; they must link directly to the authoritative specifications. Generic, project-agnostic best practices (e.g. Svelte 5 runes rules, AudioContext user gestures) belong in skills.
-   - **Idea Promotion Lifecycle**: Uncommitted proposals and mechanical brainstorming incubate in `.agents/skills/simulation/references/` as `suggestion-*.md`. When an idea is **promoted** to a planned initiative, it is **removed from the incubator and fully migrated to `ROADMAP.md`**.
-
----
-
-## 🎨 Aesthetics, Sensory & The Weaver Protocol
-
-### 1. Visual Philosophy & Token Sovereignty
-
-- **Single Source of Truth**: `./DESIGN.md` governs all visual, auditory, and kinetic choices.
-- **The Nordic Collection**: High-end research terminal in a sub-zero facility—abyssal depth, clinical precision, subterranean light.
-- **Tailwind v4 Rule**: **Tailwind CSS v4 IDE IntelliSense is the absolute source of truth for syntax**. Never override IDE shorthand suggestions.
-
-### 2. Transition & Modal Alignment Standards
-
-- **Directive Isolation**: **Never assign `view-transition-name` to elements using Svelte transition directives (`transition:`, `in:`, `out:`)**. Dual engines cause visual snapping.
-- **Overlay Animations**: Animate live elements via Svelte CSS transitions inside root transition groups; apply layout/blur classes unconditionally.
-- **Compact Action Modals**:
-- **Header / Title**: Left-aligned
-- **Body Description**: Left-aligned
-- **Footer Action Buttons**: Right-aligned
-
-### 3. The Weaver Protocol
-
-- **Synchronization Mandate**: **Run `npm run sync` after any edit to `./DESIGN.md**` to reconcile CSS variables, Svelte components, and memory models.
-- **Tool Location**: Auxiliary scripts live in `.agents/skills/local-scripts/scripts`. **Use the `local-scripts` agent skill exclusively to retrieve and run Weaver utilities**.
-
----
-
-## 📖 System Lexicon & Memory Boundaries
-
-### 1. System Lexicon & Architecture
-
-> [!TIP]
-> **Authoritative Definitions & Specs**: The full canonical blueprint of simulation physics, entity hierarchies, directorial mechanics, and persistence rules is documented in [ARCHITECTURE.md](./ARCHITECTURE.md).
-
-- **RPGlitch**: The core simulation engine and repository.
-- **Simulation Lifecycle**: The turn-based execution loop managed by `ChronoEngine`.
-- **Quad-Partitioned Entity Schema**: The four-quadrant state architecture (**Static Profile / eternal**, **Dynamic State / present**, **Episodic Vector Store / past**, **Strategic Trajectory / future**).
-- **Domain Entity**: Base class for interactive simulation components—either a `character` or an environment entity (`fractal`).
-- **Environment Entity (`fractal`)**: The world model governing environmental hazards, sensory motifs, and overarching scene objectives.
-- **User Persona Entity**: The human-controlled participant (strictly protected by P1: User Agency).
-- **AI Persona Entity**: The primary autonomous agent-controlled co-star in the scene.
-- **Context Culling / Active Scene Scope**: In-scene presence tracking (`presence: 'active' | 'nearby' | 'dormant'`) while dormant entities remain serialized in IndexedDB with zero token consumption.
-- **Directed Relational Graph**: Directed plain-text relationship vectors (`"[Source] → [Target]: [Dynamic]"`) defining interpersonal dynamics and world affiliations without foreign key rigidity.
-- **Numerical State Vectors (0–100)**: Somatic and psychological metrics (`chaos`, `intensity`, `openness`, `affinity`, `velocity`, `entropy`).
-- **Epistemic Partitioning**: The boundary stripping private tags and brackets bearing `| hide` flags across entity perspectives to prevent AI telepathy while keeping them visible to the Director.
-- **Narrative Post-Processing Pipeline (`src/utils/styles.js`)**: Deterministic sanitization pipeline cleansing generated prose of AI clichés, repetition, and structural prompt bleed.
-- **Full Specification**: Consult [ARCHITECTURE.md](./ARCHITECTURE.md) for complete entries.
-
----
-
-## 2. Memory Protocol Boundaries
-
-> [!NOTE]
-> **CRITICAL DISTINCTION**:
->
-> - **Application Memory** (Temporal Engine, Dexie.js, RPGlitch State): Consult the [Simulation](./.agents/skills/simulation/SKILL.md) skill and [ARCHITECTURE.md](./ARCHITECTURE.md).
-> - **Development Data** (Pinecone, Supabase, Agent Context): Consult the global `developer-database` skill.
-
----
-
-## 🏛️ Constitutional Authority & Precedence
-
-1. **Global `GEMINI.md`**: Supreme arbiter of constitutional agent persona, core engineering laws (SOLID, TDD, Clean Code, P4 Zero Backwards Compatibility), compliance, and operational behaviors across all workspaces.
-2. **Workspace `GEMINI.md` (This Document)**: Sovereign arbiter of RPGlitch-specific technical architecture, simulation physics, Svelte 5 state management, and local operational specifications, extending and specializing the global constitution.
-3. In the event of conflicting operational instructions, **always resolve conflicts in favor of Passive Governance, Core Compliance Laws, and Explicit User Constraints**.
+- **Visual Spec**: `./DESIGN.md` governs all visual tokens and animations. Run `npm run sync` after edits.
+- **Transitions**: Never mix `view-transition-name` with Svelte transition directives (`transition:`, `in:`, `out:`).
+- **Modals**: Left-aligned header & description; right-aligned footer action buttons.
