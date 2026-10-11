@@ -15,7 +15,6 @@
 **/Thumbs.db
 **/__snapshots__/**
 **/archive/**
-**/moechat/**
 **/build/**
 **/bun.lockb
 **/coverage/**
@@ -42,4 +41,3 @@ tmp/**/*
 !**/templates/**
 act_output.log
 gha-creds-*.json
-shot2.xml

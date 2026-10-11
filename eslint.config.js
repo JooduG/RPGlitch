@@ -32,7 +32,6 @@ export default defineConfig([
       "**/Thumbs.db",
       "**/__snapshots__/**",
       "**/archive/**",
-      "**/moechat/**",
       "**/build/**",
       "**/bun.lockb",
       "**/coverage/**",

@@ -32,7 +32,8 @@ flowchart LR
         direction TB
         T_ACT1["Track 1: Perspective & Relational Macro Unification<br>(Dynamic Macro Graph, Universal {me}/{you} Role Binding)"]
         T_ACT2["Track 2: Simulation Log Pipeline Harmonization<br>(Unified Simulation History Pipeline, Transcript Harmonization)"]
-        T_ACT1 --> T_ACT2
+        T_ACT4["Track 4: Somatic Dynamics & Memory Fragmentation Review<br>(Evaluate [fragmented recall] vs Bracket Attributes)"]
+        T_ACT1 --> T_ACT2 --> T_ACT4
     end
 
     Shipped ==> ActiveBacklog
@@ -66,6 +67,13 @@ flowchart LR
   - [x] **3.1 Punctuation Normalization**: Replace raw em-dashes and en-dashes with clean punctuation.
   - [x] **3.2 Cliché Filter Expansion**: Cleanse pseudo-poetic formulas ("quietly [verb]", "testament to", "dance/symphony of").
   - [x] **3.3 Motion & Defensive Layout Gates**: Enforce Ten Commandments of Motion and defensive text bounds.
+
+### Track 4: Somatic Dynamics & Memory Fragmentation Review
+
+- **Objective**: Re-evaluate and refine the dynamics-modulated recall clarity system (`[fragmented recall]` prefix when Chaos/Entropy > 70) in `src/intelligence/temporal.js`.
+- **Key Modules**: `src/intelligence/temporal.js`, `src/intelligence/temporal.test.js`, `src/data/definitions/profile-fields.js`.
+- **Planned Sub-Items**:
+  - [ ] **4.1 Recall Modulation Review & Tuning**: Audit whether prefixing raw `[fragmented recall]` provides desirable narrative impact or causes LLM confusion/hallucinations; evaluate alternatives such as bracket attribute tags (`| hazy`, `| fragmented`), probabilistic recall omission, or noise injection into vector scores.
 
 ---
 
