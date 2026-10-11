@@ -192,7 +192,7 @@ Consolidation executes silently on `director_background_queue` during Turn 3 whi
 
 Instead of artificial floating-point confidence scores, RPGlitch bridges somatic physics and narrative cognition:
 
-- **High Glitch / Instability (`Chaos > 70` or `Entropy > 70`)**: Memories are prefixed with sensory instability flags (`[fragmented recall]`, `[hazy recollection]`).
+- **High Glitch / Instability (`Chaos > 70` or `Entropy > 70`)**: Memories are prefixed with sensory instability flags (`[fragmented recall]`).
 - **High Stability (`Stability > 75` or `Entropy < 30`)**: Recalled facts are framed with sensory crispness and immediate grounding.
 - Grounded in live somatic dynamics without hallucinating synthetic metric indicators.
 

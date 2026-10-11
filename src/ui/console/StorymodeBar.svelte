@@ -160,8 +160,8 @@
   <span
     class="flex shrink-0 items-center gap-2 text-[10px] font-bold tracking-widest text-amber-300 uppercase"
     use:tooltip={pending_count > 1
-      ? `${pending_count} messages queued — they send when the current turn finishes.`
-      : "Message queued — it sends when the current turn finishes."}
+      ? `${pending_count} messages queued; they send when the current turn finishes.`
+      : "Message queued; it sends when the current turn finishes."}
   >
     <Indicator color="bg-amber-400" size="sm" />
     {pending_count > 1 ? `${pending_count} queued` : "Queued"}

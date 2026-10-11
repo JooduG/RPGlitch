@@ -16,10 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Integrated Bits UI v1 (`child` snippets, `ref = $bindable()`, `--transform-origin`) and Svelte 5 `flushSync` View Transitions into design skill.
   - Added automated audit gates in `audit-design.js` surfacing raw em-dashes, `h-screen`, `scale(0)`, `transition: all`, and `ease-in`.
 
-- **Track 4: Deep Task Compiler Deconstruction (`src/intelligence/modules/task.js`)**:
-  - Implemented declarative slot plan table `TASK_MODE_PLANS` and plan/render separation (`resolve_task_slots`, `resolve_task_plan`, `render_task_plan`).
-  - Symmetrically unified Ghostwriting as Shot-2A prose speaker swap resolving POV via `resolve_pov_protocol`, retiring legacy bespoke ghostwrite directive branches.
-  - Deep-froze catalog and static slot directives into immutable `{ tag, children }` structures, eliminating ad-hoc string concatenation across task generation.
+- **Forensics Protocol Audit Reconciliation (`src/ui/console/`, `memory-rag-budget-architecture.md`)**:
+  - Scrubbed user-facing raw em-dashes from `Console.svelte` (rewind system notification) and `StorymodeBar.svelte` (message queue tooltip) into clean punctuation (`:` and `;`).
+  - Reconciled sensory instability memory flags in `memory-rag-budget-architecture.md` with runtime code (`temporal.js`), removing non-existent `[hazy recollection]` and retaining canonical `[fragmented recall]`.
+  - Baseline aligned motion transition audits (`audit:design`) and future-track features (`finishTail`, `merge_field_content`, `PROSE.GHOSTWRITE.BASE`) against Roadmap Tracks 2, 4, 6, and 7.
 
 ---
 

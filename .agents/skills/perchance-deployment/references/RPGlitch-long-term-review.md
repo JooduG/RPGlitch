@@ -2,122 +2,133 @@
 
 > **System Designation**: Sovereign AI Roleplay Engine (Perchance Iframe Environment)  
 > **Protocol Focus**: Live 25–30 Turn Interactive Roleplay Stress Test & State Audit  
-> **Target Scope**: End-to-end verification of recent Track 1 remediations, Four-Quadrant memory integrity, mutation ledger event sourcing, and architectural backlog targets from `ROADMAP.md`.
+> **Target Scope**: End-to-end verification of v0.7.0 Sovereign Core, Track 3 Anti-Slop Narrative Detox, Track 4 Deep Task Compiler Deconstruction, Prism-DCM Hierarchical Memory, and 6k Context Protection.
 
 ---
 
 ## 1. Primary Objectives & Inquiries Under Test
 
-1. **Track 1 & Code Review Remediations Verification**:
-   - **Ghost Row Suppression & Export Image Preservation**: Image beat placeholders mount cleanly without emitting blank dialogue rows into the context window, and Markdown exports (`export_story_markdown`) retain generated image markdown (`![prompt](src)`).
-   - **Think-Only Recovery**: If an AI persona emits solely internal reasoning (`<think>`), verify the engine triggers the automatic recovery retry directive to guarantee dialogue prose.
-   - **Telemetry Deduplication**: Confirm `DYNAMICS_DELTA` tokens in HUD cards and simlog contain zero duplicated metric tokens.
-   - **Bracket Auto-Repair**: Unclosed (`[KEY: val`) and unopened (`key | w: 8]`) brackets auto-balance without falsely turning ordinary narrative prose (e.g. `Note: ...`) into pseudo-JSON predicates.
-2. **Behavioral & Narrative Integrity Audits**:
-   - **P1 User Agency & Speaker Lock**: Verify the Director's Note strictly directs the chosen actor (AI, Fractal, or NPC) and never scripts thoughts or actions for `«USER_PERSONA»`.
-   - **Action Routing Alignment**: Verify the Director can freely emit `EPILOGUE_COLLAPSED` or `EPILOGUE_CONCLUDED` without prompt lock conflicts.
-   - **Physical Causality & Graded Biological Limits**: Fatal trauma (death, drowning, decapitation) triggers `EPILOGUE_COLLAPSED` / `COLLAPSED`, while severe survivable injury (maiming, blood loss) remains in-progress with somatic penalties in `present.physical`.
-   - **Dynamic Optics & Environmental Preservation**: Staging intimate cues biases the tier to `story_character`, while panoramic environmental cues (`wide`, `landscape`, `distant`) preserve `story_scene` even under high intensity/affinity dynamics.
-   - **Speaker & NPC Target Sync**: Specifying an NPC speaker (`speaker: "npc:id"`) preserves `npc_id` target resolution even across diverse action descriptors.
-3. **State, Ledger & Profile Studio Audits**:
-   - **Genesis Ledger Attribution**: Verify whether story creation/character imports emit proper R0:S0 genesis rows in `db.mutation_ledger` for all 4 quadrants.
-   - **Compare-Then-Skip Dedup**: Ensure no-op rounds append 0 redundant rows to `mutation_ledger`.
-   - **Bracketed Field History Clock Trigger**: Verify the Field History Inspector clock button appears on fields containing brackets (`safe_parse_pseudo_json`) as well as raw prose.
-   - **Profile Timeline Scrubber & Branching Mode**: Verify the Readonly Profile Timeline Mode reconstructs history at round $X$ and allows both "Update from this point" and "Clone from this point".
-   - **Background Queue & Concurrency**: Ensure deferred image generation and rolling Memory Forge passes execute asynchronously without locking the UI or causing audio/streaming stutter.
+### 1. Track 3 & Track 4 Architecture Verification (`[Unreleased]`)
+
+- **Anti-Slop Narrative Detox & Punctuation Normalization**: Verify streaming narrative prose and dialogue undergo real-time scrubbing of raw em-dashes (`—`) and en-dashes (`–`), converting them to clean standard punctuation without trailing hyphens.
+- **Cliché & Pseudo-Poetic Filter**: Verify negative antithesis constructions (`not X, it was Y`), throat-clearing clichés (`quietly [verb]`, `testament to`, `symphony/dance/tapestry of`), and somatic marker flooding ($\le 1$ per character per turn) are caught and neutralized.
+- **Deep Task Compiler (`TASK_MODE_PLANS`)**: Verify declarative plan/render execution across all prompt modes (`director`, `interaction`, `ghostwrite`, `npc`, `narrator`, `continuum`, `enhancement`, `sorting`, `optics`).
+- **Ghostwrite Shot-2A Speaker Swap**: Trigger ghostwrite from `StorymodeBar.svelte`; verify draft prose runs as a symmetrical first-class character turn with POV protocol, producing player actions without narrator cognitive leaks or `CHARACTER.BASE` contradictions.
+- **UI Motion & Kinetic Law Gates**: Audit frontend for Emil Kowalski's motion standards (zero `transition: all`, sub-300ms transitions, responsive `--ease-out` curves, compositor-only `transform`/`opacity`, and zero em-dashes anywhere in UI copy).
+
+### 2. v0.7.0 Sovereign Core & Intelligence Hardening
+
+- **Universal Prompt Plan & Sealed `<SYSTEM>` Envelope**: Verify all modes compile through `compile_prompt` -> `resolve_prompt_plan` -> `render_prompt_plan` -> `pack_prompt`, keeping `<TASK>` cleanly sealed inside the root `<SYSTEM>` envelope.
+- **Hierarchical Memory (Prism-DCM)**: Multi-tier tree compactor (`temporal.js`, `PRISM_FANOUT = 8`) rolling Tier 0 turns into Tier 1 chapters and Tier 2 arcs within height bounds (`COMPACTOR_MAX_HEIGHT = 5`).
+- **6,000 Token Context Cliff Protection**: Proactive budgeting enforcing `CONTEXT_TOKEN_CLIFF = 6000`, `HISTORY_TOKEN_BUDGET = 1600`, and `RECALL_TOKEN_BUDGET = 800` without middle-prompt truncation.
+- **Settled Facts Write-Time Rot Prevention**: Inspect prompt for `# ALREADY REMEMBERED` advisory passing top 12 known settled facts to prevent episodic memory duplication.
+- **Dynamics-Modulated Recall Clarity**: High somatic stress (`Chaos > 70` or `Entropy > 70`) prefixes recalled memories with `[fragmented recall]` / `[hazy recollection]` instead of artificial confidence floats.
+- **Input-Proportional Reflex Pacing**: Validate reflex pacing contracts (`TINY <= 12`, `SMALL <= 90`, `MEDIUM <= 400`, `EXPANSIVE > 400`) capping turn beat length on brief inputs.
+- **Standalone Lorebook Engine**: Keywords trigger world-info entries into the `<LOREBOOK>` prompt slot within token budget limits.
+- **Relational Bracket `@` Mandatory Prefix**: Verify relational brackets strictly use `[@TARGET: dynamic | flags]`, eliminating trait key collisions.
 
 ---
 
-## 2. Part 4 — Turn-by-Turn Narrative Stress Test Matrix (25–30 Turns)
+## 2. Turn-by-Turn Narrative Stress Test Matrix (25–30 Turns)
 
 Follow this targeted round sequence to systematically trigger and audit each engine capability:
 
 ```text
-[T0: Prologue & Genesis Ledger] ──► [T1–T4: Quick Shot Latency & Relational Mesh] ──► [T5–T8: Forge Compare-Then-Skip Guard]
-                                                                                                    │
-[T25–T30: Replay Audit & History UI] ◄── [T17–T24: Epistemic Wall & Agency] ◄── [T9–T16: Image Cooldowns & Optics Lenses] ◄┘
+[T0: Genesis & Prompt Envelope] ──► [T1–T4: Pacing & Lorebook Trigger] ──► [T5–T8: Forge Guard & Databox]
+                                                                                      │
+[T25–T30: Prism Compaction & UI Gate] ◄── [T17–T24: Detox & Ghostwrite] ◄── [T9–T16: Recall Degradation & Optics] ◄┘
 ```
 
 ---
 
-### Phase 1: Genesis, Quick Shot Latency & Telemetry (Turns 0–4)
+### Phase 1: Genesis, Universal Prompt Plan & Lorebooks (Turns 0–4)
 
-- **Turn 0 — Genesis & Baseline Setup**:
-  - _Action_: Launch story with active Cast (AI Character, Protagonist, Fractal World).
-  - _Audit Gate_: `Prologue.svelte` renders baseline tone lock. Inspect IndexedDB `db.mutation_ledger`: verify `birth_entity_core` emitted genesis entries (`round: 0, seq: 0, writer: "genesis", decider: "genesis"`) for all populated quadrants (`eternal`, `present`, `past`, `future`). Note behavior if using seeded premade cast.
-- **Turns 1–2 — Quick Shot Latency & Telemetry Deduplication**:
-  - _Action_: Alternate between a short physical command (_"Draw your blade."_) and expansive dialogue.
-  - _Audit Gate_: Director returns streamlined 4-field schema (`next_action`, `keywords`, `directors_note`, `dynamics_deltas`). `runtime.last_director_ms` captures high-res execution duration. Verify `DYNAMICS_DELTA` card contains zero duplicate metric tokens.
-- **Turns 3–4 — Relational Mesh Mutation & Ledger Dedup Check**:
-  - _Action_: Challenge the AI character, triggering a dynamic relationship update in Director output (e.g. `User → AI: tense stand-off | hide w:8`).
-  - _Audit Gate_: Director writes `seq: 1, writer: "director", decider: "director"` to `db.mutation_ledger` with `visibility: "hide"` and `weight: 8`. In Turn 4, repeat a neutral action with the same dynamic: confirm the Director's compare-then-skip guard suppresses redundant ledger appends.
-
----
-
-### Phase 2: Memory Forge Compare-Then-Skip Guard & Single-Entity Databox (Turns 5–8)
-
-- **Turn 5 — Rolling Worker: Target 1 (AI Character) & Delta Inspection**:
-  - _Action_: Advance scene with high emotional weight.
-  - _Audit Gate_: Back Shot worker targets AI Character (`forged_entity: "ai"`). Ledger logs entries with `seq: 3, writer: "forge", decider: "forge"`. Verify `old_value` is populated with pre-mutation content.
-- **Turn 6 — Memory Forge Compare-Then-Skip Guard (No-Op Round)**:
-  - _Action_: Maintain steady-state dialogue where character trajectory and physical states do not shift.
-  - _Audit Gate_: Memory Forge runs; confirm that fields returning unchanged values are **skipped** from `ledger_batch`, adding 0 duplicate lines to `db.mutation_ledger`.
-- **Turn 7 — Non-Physical Bracket Preservation**:
-  - _Action_: Forge updates `present.non_physical` summary prose while active relational brackets (`[@TARGET: dynamic]`) exist.
-  - _Audit Gate_: Verify `sanitize_non_physical_prose` and bracket preservation logic keep the active relational brackets intact in `present.non_physical`, preventing summary prose from wiping interpersonal bonds.
-- **Turn 8 — Single-Entity Cyan Databox & Telemetry Sync**:
-  - _Action_: Inspect the Telemetry Card in the feed.
-  - _Audit Gate_: Telemetry card renders a focused single-entity databox in research terminal cyan (`var(--color-dev-accent)`) with forged memory vectors, round decay, and updated trajectory.
+- **Turn 0 — Genesis, Cast Setup & Root Envelope Assembly**:
+  - _Action_: Launch a new story with active Cast (AI Character, Protagonist, Fractal World).
+  - _Audit Gate_: Inspect browser DevTools console. Verify `[Director]` prompt compilation succeeds via `compile_prompt`. Confirm the sealed root `<SYSTEM>` envelope encapsulates role, constitution, protocols, entities, and directives without legacy `system_close` leaks. Inspect `db.mutation_ledger` for `round: 0, seq: 0, writer: "genesis"` rows across all 4 quadrants.
+- **Turns 1–2 — Quick Shot Latency, Lorebook Keyword Matching & Telemetry**:
+  - _Action_: Player inputs text containing a designated lorebook keyword (e.g. city name, artifact, or faction).
+  - _Audit Gate_: Verify `lorebook.js` matches the keyword and injects the entry into the `<LOREBOOK>` prompt slot. Confirm Director completes with sub-second latency and `DYNAMICS_DELTA` contains zero duplicate metric tokens.
+- **Turns 3–4 — Mandatory `@` Relational Brackets & Ledger Dedup**:
+  - _Action_: Player establishes a tense interpersonal bond with the AI character.
+  - _Audit Gate_: Director emits relational bracket using mandatory `@` prefix (e.g. `[@AI: wary alliance | hide w:8]`). In Turn 4, maintain the same relationship: confirm the Director's compare-then-skip guard suppresses redundant ledger appends.
 
 ---
 
-### Phase 3: Decoupled Image Cooldowns & Optics Framing Lenses (Turns 9–16)
+### Phase 2: Input-Proportional Reflex Pacing & Forge Consolidation (Turns 5–8)
 
-- **Turns 9–11 — Decoupled Image Cooldown Arbitration & Ghost Check**:
+- **Turn 5 — Tiny Input Pacing Contract (`TINY <= 12 chars`)**:
+  - _Action_: Player enters a 1-word or short action (_"Nod."_ or _"Draw blade."_).
+  - _Audit Gate_: `reflex.js` registers `TINY` input class. Storyteller output terminates promptly at the end of the first beat (~1–2 sentences) without ballooning into multi-paragraph monologues.
+- **Turn 6 — Expansive Input Pacing Contract (`EXPANSIVE > 400 chars`)**:
+  - _Action_: Player authors detailed sensory dialogue with physical action and environmental exploration.
+  - _Audit Gate_: `reflex.js` registers `EXPANSIVE` input class, unlocking the full beat budget with rich multi-beat sensory progression.
+- **Turn 7 — Memory Forge Target 1 & Non-Physical Bracket Preservation**:
+  - _Action_: Scene advances with significant emotional stakes.
+  - _Audit Gate_: Background Memory Forge processes target AI character (`forged_entity: "ai"`). Verify active relational brackets (`[@USER: ...]`) in `present.non_physical` remain preserved alongside forged prose summaries.
+- **Turn 8 — Memory Forge Compare-Then-Skip Guard & Cyan Databox**:
+  - _Action_: Maintain steady-state dialogue where character trajectory and physical state do not shift.
+  - _Audit Gate_: Memory Forge runs; confirm unchanged fields are **skipped** from `ledger_batch`, adding 0 duplicate lines to `db.mutation_ledger`. Telemetry card renders a focused single databox in terminal cyan (`var(--color-dev-accent)`).
+
+---
+
+### Phase 3: Optics Framing, Dynamics-Modulated Recall & Settled Facts (Turns 9–16)
+
+- **Turns 9–11 — Decoupled Image Cooldowns & Optics Cinematography Lenses**:
   - _Action_: Push scene intensity across displacement threshold while Director requests an image beat.
-  - _Audit Gate_: `IMAGE_TRIGGER.director_cooldown_rounds = 2` and `IMAGE_TRIGGER.dynamics_cooldown_rounds = 3` operate independently. When both trigger simultaneously, Priority 1 (Director) > Priority 2 (Dynamics) arbitration fires with strict 1-image-per-round ceiling. Verify placeholder mounts as an image card without generating an empty dialogue bubble or leaking into next round's context.
-- **Turns 12–14 — Photographic Dynamic Framing Lenses**:
-  - _Action_: Shift from wide environmental exploration to high-intensity close confrontation.
-  - _Audit Gate_: Audit whether photographic framing lenses (`<CINEMATIC_FRAMING>`: `Intimate Close-Up`, `Medium Action`, `Wide Environmental`, `Dutch / Low-Angle`) break free of wide-angle lock and adapt to scene intimacy.
-- **Turns 15–16 — Universal Bracket State Grounding**:
-  - _Action_: Player alters an item or outfit (e.g. `[SHIRT: armored jacket]`, `[DAGGER: hidden boot knife | hide]`).
-  - _Audit Gate_: `merge_prose_into_field` updates `present.physical` in place; subsequent turns show AI reacting accurately to current items without ghosting superseded apparel.
+  - _Audit Gate_: `IMAGE_TRIGGER` independent cooldowns (`director: 2`, `dynamics: 3`) arbitrate with a strict 1-image-per-round ceiling. Verify placeholder mounts cleanly without blank dialogue rows. Framing lenses adapt to intimacy (`Intimate Close-Up` on high affinity vs `Wide Environmental` on panoramic scene focus).
+- **Turns 12–14 — Settled Facts `# ALREADY REMEMBERED` Advisory**:
+  - _Action_: Inquire about past events established in earlier turns.
+  - _Audit Gate_: Inspect the compiled Story prompt in DevTools console. Verify the prompt tail contains `# ALREADY REMEMBERED` with up to 12 top settled facts, preventing the model from re-extracting known history.
+- **Turns 15–16 — Somatic Dynamics & Recall Degradation (`[fragmented recall]`)**:
+  - _Action_: Elevate scene danger or psychological instability until `Chaos > 70` or `Entropy > 70`.
+  - _Audit Gate_: Inspect recalled memories in the prompt. Verify memories retrieved under high somatic stress receive sensory instability tags (`[fragmented recall]` or `[hazy recollection]`). Verify AI expresses memory uncertainty organically in narrative prose.
 
 ---
 
-### Phase 4: Epistemic Wall, User Agency & Terminal States (Turns 17–24)
+### Phase 4: Anti-Slop Detox Linter, Ghostwrite Speaker Swap & Epistemic Wall (Turns 17–24)
 
-- **Turns 17–20 — Epistemic Horizon & Secret Planning (`| hide`)**:
-  - _Action_: Player conceals an item or formulates private plans using hidden brackets (`[PLAN: poison the cup | hide]`).
-  - _Audit Gate_: Epistemic filter in `src/intelligence/veil.js` strips private brackets from the other entity's generation prompt. Persona LLM exhibits zero telepathic leak or awareness of the concealed plan.
-- **Turns 21–22 — P1 User Agency & Anti-First-Person Hijacking**:
-  - _Action_: Present high-stress sensory or psychological moments where the AI might attempt to puppeteer the player.
-  - _Audit Gate_: AI strictly adheres to third-person descriptive observation of the protagonist; zero first-person pronouns ("I feel", "my body") assumed on behalf of the player.
-- **Turns 23–24 — Physical Causality & Terminal State Evaluation**:
-  - _Action_: Introduce fatal biological states or irreversible environmental collapse.
-  - _Audit Gate_: Director evaluates physical causality instead of ignoring damage; correctly transitions `story_status` towards `COLLAPSED` or `CONCLUDED` with appropriate epilogue dispatch.
-
----
-
-### Phase 5: Replay Reconstruction, Field History Inspector & Storyboard Resume (Turns 25–30)
-
-- **Turns 25–27 — Read-Side History Inspector (`FieldHistoryModal`) Audit**:
-  - _Action_: Open `Profile` -> click the clock history button on `present.non_physical` or open `DevWing` -> click "Inspect History".
-  - _Audit Gate_: `FieldHistoryModal.svelte` opens.
-    - **Timeline Tab**: Displays chronological mutations with `R{round}:S{seq}`, `writer`, `decider`, `old_value -> new_value`, and `hide`/`w:N` badges.
-    - **Reconstructed Tab**: Displays replayed bracket predicates assembled via `replay_entity_field(entity_id, field)`. Confirm flags (`| hide w:8`) are restored faithfully.
-- **Turns 28–30 — Storyboard 1-Click Resume, Console Prompt Capture & Trace Output**:
-  - _Action_: Click "Return to Storyboard" in `ControlPanel.svelte` while the story is in progress.
-  - _Audit Gate_: `session_driver.clear_active()` is **not** called. Story session and `runtime.story_id` remain intact in memory and Dexie. Storyboard bottom bar displays **`"ENTER STORYMODE"`** in emerald green. Clicking it instantly returns to the active conversation.
-  - _Browser Console & Prompt Inspection_:
-    - Open the browser DevTools Console (`F12` / `Ctrl+Shift+I`).
-    - Inspect the live prompt dispatches: each turn logs the compiled prompts (`[Director] Prompt compiled`, `[Story] Prompt compiled`).
-    - Capture representative prompt-and-output pairs (especially Director Shot 1 and Storyteller Shot 2) for key rounds (e.g. Genesis R0, Quick-shot R4, Trauma R21).
-  - _Final Step_: Export session JSON trace to `tmp/rpglitch-long-term-review-trace-<timestamp>.json` and copy key console prompt snippets alongside the scorecard.
+- **Turns 17–18 — Anti-Slop Prose Detox & Punctuation Normalization**:
+  - _Action_: Stream dialogue and narrative prose across multiple turns.
+  - _Audit Gate_: Audit narrative output against the Track 3 anti-slop rules:
+    - **Zero raw em-dashes (`—`) or en-dashes (`–`)**: Verify prose uses clean standard punctuation (commas, periods, colons).
+    - **Zero pseudo-poetic clichés**: Verify phrases like `quietly [verb]`, `testament to`, `tapestry of`, and `not fear, but something worse` are absent.
+    - **Somatic marker cap**: Confirm somatic physical reactions (`throat tightened`, `shivers`) do not exceed 1 per character per turn.
+- **Turns 19–20 — Ghostwrite Shot-2A Speaker Swap**:
+  - _Action_: In `StorymodeBar.svelte`, click the Ghostwrite button to draft the user persona's next move.
+  - _Audit Gate_: Ghostwrite executes via `TASK_MODE_PLANS` declarative plan. Verify:
+    - Draft streams directly into the input bar.
+    - Draft is authored strictly in the player's perspective without narrator cognitive labels (`(Sylvie's thoughts: ...)`).
+    - No prompt contradiction between `CHARACTER.BASE` and ghostwriting.
+- **Turns 21–22 — Epistemic Wall & Concealed Actions (`| hide`)**:
+  - _Action_: Player conceals an item or hatches a secret plan (`[DAGGER: boot knife | hide]`, `[PLAN: poisoned cup | hide]`).
+  - _Audit Gate_: Epistemic filter in `src/intelligence/veil.js` strips private brackets from the AI character's generation prompt. AI persona demonstrates zero telepathic awareness.
+- **Turns 23–24 — Physical Causality & Terminal States**:
+  - _Action_: Introduce severe survivable injury vs fatal destruction.
+  - _Audit Gate_: Severe injury updates `present.physical` with somatic penalties while staying in-progress. Lethal destruction triggers `EPILOGUE_COLLAPSED` without prompt lock conflicts.
 
 ---
 
-## 3. Part 5 — Round-by-Round Telemetry & Mutation Ledger Trace Capture
+### Phase 5: Prism-DCM Tree Compaction, Context Protection & UI Motion Audit (Turns 25–30)
+
+- **Turns 25–27 — Prism-DCM Compaction & 6k Context Cliff Protection**:
+  - _Action_: Advance roleplay beyond Turn 25 with deep historical context.
+  - _Audit Gate_:
+    - Verify `temporal.js` Prism tree compactor rolls Tier 0 turn events into Tier 1 chapter vectors and Tier 2 arc summaries (`PRISM_FANOUT = 8`, `COMPACTOR_MAX_HEIGHT = 5`).
+    - Verify total prompt token count stays strictly below `CONTEXT_TOKEN_CLIFF = 6000` with `HISTORY_TOKEN_BUDGET = 1600` and `RECALL_TOKEN_BUDGET = 800`.
+- **Turns 28–29 — Replay Reconstruction & Field History Inspector**:
+  - _Action_: In `Profile`, click the clock button on `present.non_physical`.
+  - _Audit Gate_: `FieldHistoryModal.svelte` opens. Timeline tab shows chronological mutations (`R{round}:S{seq}`). Reconstructed tab displays replayed bracket predicates assembled via `replay_entity_field` with flags (`| hide w:8`) intact.
+- **Turn 30 — UI Motion & Storyboard Resume Audit**:
+  - _Action_: Navigate between Storyboard and Storymode, open modals, trigger toolbars.
+  - _Audit Gate_:
+    - Verify Emil Kowalski motion compliance: zero `transition: all`, sub-300ms durations, compositor-only transforms, and zero layout snapping.
+    - Click "Return to Storyboard" in `ControlPanel.svelte`. Confirm session remains intact; clicking `"ENTER STORYMODE"` in emerald green resumes session in 1 click.
+    - Export session JSON trace to `tmp/rpglitch-long-term-review-trace-<timestamp>.json`.
+
+---
+
+## 3. Round-by-Round Telemetry & Mutation Ledger Trace Capture
 
 Record all turn data into this live audit table:
 
@@ -129,35 +140,47 @@ Record all turn data into this live audit table:
 
 ---
 
-## 4. Part 6 — Runtime Quality Scorecard
+## 4. Runtime Quality Scorecard
 
-### Core Physics & Prompt Integrity
+### Intelligence Architecture & Universal Prompt Plan
 
-- [ ] **P1 User Agency & Speaker Lock**: AI strictly respects user autonomy; Director's Note only directs the chosen actor and never puppeteers `«USER_PERSONA»`.
+- [ ] **Universal Prompt Plan Purity**: All modes compile through `define_mode` and `pack_prompt`; `<TASK>` sealed inside closed `<SYSTEM>` envelope.
+- [ ] **Declarative Task Compiler (`TASK_MODE_PLANS`)**: Plan/render split executes cleanly without legacy procedural string building.
+- [ ] **P1 User Agency**: AI persona strictly respects user autonomy; Director's Note never scripts thoughts or choices for `«USER_PERSONA»`.
 - [ ] **Epistemic Partitioning**: Zero telepathic prompt bleed of `| hide` brackets across character viewpoints.
-- [ ] **Track 1 — Quick Shot Streamlining**: 4-field schema executes with sub-second latency; `last_director_ms` records accurate timings.
-- [ ] **Track 1 — Think-Only Guard**: Model never persists empty speech bubble when reasoning exclusively in `<think>`.
-- [ ] **Track 1 — Telemetry Deduplication**: `DYNAMICS_DELTA` telemetry logs zero duplicate metric tokens.
-- [ ] **Track 1 — Ghost Row Suppression & Export Image Markdown**: Standalone image beats do not emit blank dialogue entries into prompt history, and markdown exports retain image attachments (`![prompt](src)`).
-- [ ] **Track 1 — Framing Lenses & Environmental Protection**: Optics pipeline biases toward intimate character framing on close-ups/high affinity while preserving panoramic `story_scene` framing when requested.
-- [ ] **Track 1 — Graded Biological Limits**: Lethal consequences trigger `EPILOGUE_COLLAPSED` / `COLLAPSED`; severe survivable injuries stay in-progress with physical penalties.
-- [ ] **Track 1 — Bracket Auto-Repair**: Auto-balances brackets without corrupting natural language dialogue lines.
+- [ ] **Think-Only Guard**: Model never persists empty speech bubble when reasoning exclusively in `<think>`.
+- [ ] **Telemetry Deduplication**: `DYNAMICS_DELTA` telemetry logs zero duplicate metric tokens.
+- [ ] **Ghost Row Suppression & Markdown Image Export**: Standalone image beats emit 0 blank dialogue rows; Markdown exports retain `![prompt](src)`.
 
-### Event Sourcing & Ledger Hardening
+### Memory Architecture & Context Protection (Prism-DCM)
+
+- [ ] **Prism-DCM Tree Compaction**: Turn events roll cleanly into Tier 1 chapters and Tier 2 arcs within height bounds (`COMPACTOR_MAX_HEIGHT = 5`).
+- [ ] **6,000 Token Cliff Protection**: Total prompt tokens respect `CONTEXT_TOKEN_CLIFF = 6000` with `HISTORY_TOKEN_BUDGET = 1600` and `RECALL_TOKEN_BUDGET = 800`.
+- [ ] **Settled Facts Write-Time Rot Prevention**: Prompt includes `# ALREADY REMEMBERED` top 12 settled facts advisory.
+- [ ] **Dynamics-Modulated Recall Clarity**: High Chaos/Entropy (> 70) prefixes memories with `[fragmented recall]` / `[hazy recollection]`.
+- [ ] **Whole-Vector Budget Protection**: Memory loop breaks at bracket boundaries without emitting half-sliced tags (`[CLOTHING: dark wool...`).
+
+### Narrative Pacing, Anti-Slop Detox & Ghostwriting
+
+- [ ] **Input-Proportional Reflex Pacing**: `TINY` inputs produce tight, unpadded replies; `EXPANSIVE` inputs unlock full multi-beat progression.
+- [ ] **Punctuation Normalization (Zero Em-Dashes)**: Real-time scrubbing eliminates raw em-dashes (`—`) and en-dashes (`–`) from prose and dialogue.
+- [ ] **Cliché & Negative Antithesis Filter**: Generated prose contains zero `not X, it was Y`, `quietly [verb]`, or `testament to`.
+- [ ] **Somatic Marker Cap**: Max 1 physical reaction per character per turn; zero somatic flooding.
+- [ ] **Ghostwriting Shot-2A Speaker Swap**: Ghostwrite button drafts on behalf of the player persona without narrator leaks or persona lock conflicts.
+- [ ] **Standalone Lorebook Engine**: Keywords trigger world-info entries into `<LOREBOOK>` prompt slot within token budget limits.
+
+### Event Sourcing, State & Optics
 
 - [ ] **Genesis Quadrant Logging**: All 4 quadrants log `round: 0, seq: 0, writer: "genesis"` on entity creation and import.
 - [ ] **Director Dedup-Before-Write**: Identical relational directives are skipped from the ledger on subsequent rounds.
-- [ ] **Memory Forge Compare-Then-Skip**: Unchanged fields during Shot 2 consolidation are skipped from `ledger_batch`.
-- [ ] **Sequence & Writer Reconciliation**: Director logs `seq: 1, writer: "director", decider: "director"`; Forge logs `seq: 3, writer: "forge", decider: "forge"`.
-- [ ] **Flag Preservation**: `visibility` (`hide`) and `weight` (`w:N`) persist in `db.mutation_ledger` and restore via `replay_entity_field`.
-- [ ] **Field History Inspector Clock Button**: Clock button renders on both bracket-parsed and raw prose fields in Profile Studio.
-- [ ] **Profile Timeline Scrubber & Branching**: Reconstructs state at round $X$; supports both "Update from this point" and "Clone from this point".
+- [ ] **Memory Forge Compare-Then-Skip**: Unchanged fields during consolidation are skipped from `ledger_batch`.
+- [ ] **Mandatory `@` Relational Brackets**: Directed relationships strictly use `[@TARGET: dynamic | flags]`.
+- [ ] **Field History Inspector & Replay**: Clock button opens modal; Reconstructed tab reproduces exact bracket states with flags.
+- [ ] **Decoupled Image Cooldowns & Optics Lenses**: Independent cooldowns enforce 1-image-per-round ceiling; photographic framing lenses adapt to scene intimacy.
 
-### Directorial Mechanics & UI/UX
+### UI Kinetics & Design System Compliance
 
-- [ ] **Single-Target Rolling Worker**: Back Shot forges exactly 1 entity per round round-robin ($\text{AI} \rightarrow \text{USER} \rightarrow \text{FRACTAL}$) with non-physical bracket preservation.
-- [ ] **Decoupled Image Cooldowns**: Independent cooldown timers (`director: 2`, `dynamics: 3`) enforce strict 1-image-per-round ceiling.
-- [ ] **Single-Entity Cyan Databox**: Telemetry cards render a focused single databox in pure terminal cyan (`var(--color-dev-accent)`) without portraits.
-- [ ] **Click-to-Pin Message Header**: Clicking message body pins header open; action toolbars execute without collapse.
+- [ ] **Zero Em-Dashes in UI**: All button labels, modal titles, toasts, and descriptions use standard hyphens or clean sentence structure.
+- [ ] **Emil Kowalski Kinetic Laws**: Zero `transition: all`, sub-300ms transitions, compositor-only transforms, and zero animation on high-frequency actions ($100+$ times/day).
 - [ ] **Storyboard Direct Resume Navigation**: Returning to storyboard preserves `story_id`; emerald `"ENTER STORYMODE"` button resumes session in 1 click.
 - [ ] **Trace Artifact**: Complete session trace dumped to `tmp/rpglitch-long-term-review-trace-<timestamp>.json`.

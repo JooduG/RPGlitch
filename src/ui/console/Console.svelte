@@ -69,7 +69,7 @@
         await stories.update(runtime.story_id, { is_concluded: 0, conclusion_status: null });
         await session_driver.set_active(runtime.story_id);
       }
-      app.log("Story rewound — you can continue chatting.", "system");
+      app.log("Story rewound: you can continue chatting.", "system");
     } catch (err) {
       console.error("[Rewind Error]", err);
       app.log(`Rewind failed: ${err.message || err}`, "error");
