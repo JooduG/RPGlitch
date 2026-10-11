@@ -83,4 +83,15 @@ describe("detox_prose() with speaking styles", () => {
     const input = "It's not just a tool — it's a movement.";
     expect(detox_prose(input)).toBe("It is a movement.");
   });
+
+  it("normalizes raw em-dashes and en-dashes into clean commas", () => {
+    const input = "The door opened — he stepped inside — into the dark.";
+    expect(detox_prose(input)).toBe("The door opened, he stepped inside, into the dark.");
+  });
+
+  it("cleanses throat-clearing 'quietly [verb]' crutches", () => {
+    expect(detox_prose("He quietly stepped toward the door.")).toBe("He stepped toward the door.");
+    expect(detox_prose("She quietly watched the monitors.")).toBe("She watched the monitors.");
+  });
 });
+

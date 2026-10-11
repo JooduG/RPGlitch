@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Track 3: Anti-Slop Design & Narrative Detox Hardening (`src/utils/detox.js`, `.agents/skills/design/`)**:
+  - Normalized raw em-dashes (`—`) and en-dashes (`–`) from narrative prose and dialogue into clean punctuation.
+  - Added throat-clearing and pseudo-poetic cliché filters (`quietly [verb]`, `testament to`, `symphony/dance/tapestry of`).
+  - Embedded Emil Kowalski's Ten Commandments of Motion into `.agents/skills/design/SKILL.md` (responsive easing `--ease-out`, sub-300ms budget, origin-awareness, compositor-only properties, hover gating).
+  - Integrated Bits UI v1 (`child` snippets, `ref = $bindable()`, `--transform-origin`) and Svelte 5 `flushSync` View Transitions into design skill.
+  - Added automated audit gates in `audit-design.js` surfacing raw em-dashes, `h-screen`, `scale(0)`, `transition: all`, and `ease-in`.
+
+- **Track 4: Deep Task Compiler Deconstruction (`src/intelligence/modules/task.js`)**:
+  - Implemented declarative slot plan table `TASK_MODE_PLANS` and plan/render separation (`resolve_task_slots`, `resolve_task_plan`, `render_task_plan`).
+  - Symmetrically unified Ghostwriting as Shot-2A prose speaker swap resolving POV via `resolve_pov_protocol`, retiring legacy bespoke ghostwrite directive branches.
+  - Deep-froze catalog and static slot directives into immutable `{ tag, children }` structures, eliminating ad-hoc string concatenation across task generation.
+
+
 ---
 
 ## [0.7.0] - 2026-10-11

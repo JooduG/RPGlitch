@@ -192,5 +192,20 @@ export function detox_prose(raw_text, speaking_style = "casual", custom_rules = 
     "It is a $1",
   );
 
+  // 9. Em-Dash & En-Dash Punctuation Normalizer
+  // Replace conversational/pseudo-poetic em-dashes and en-dashes with clean commas or periods.
+  clean_text = clean_text.replace(/\s*[—–]\s*/g, ", ");
+
+  // 10. Throat-Clearing "Quietly [Verb]" Filter
+  clean_text = clean_text.replace(
+    /\bquietly\s+(stepped|walked|said|spoke|looked|watched|turned|reached|stood)\b/gi,
+    "$1",
+  );
+
+  // 11. Cliché Abstractions ("a testament to", "a symphony / tapestry / dance of")
+  clean_text = clean_text.replace(/\ba\s+testament\s+to\s+/gi, "proof of ");
+  clean_text = clean_text.replace(/\ba\s+(?:symphony|tapestry|dance)\s+of\s+/gi, "a mix of ");
+
   return clean_text;
 }
+

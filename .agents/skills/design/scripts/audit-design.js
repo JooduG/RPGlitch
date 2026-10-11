@@ -44,7 +44,45 @@ const themeRules = [
       /\b(margin|padding|gap|row-gap|column-gap|grid-gap|top|bottom|left|right|inset|width|height|min-width|min-height|max-width|max-height|flex-basis)\s*:[^;]*\bvar\(--spacing-[0-9]+\)/i,
     message: "Legacy hardcoded spacing scale used inside structural descriptors. Update rules.",
   },
+  {
+    id: "EM_DASH_VIOLATION",
+    severity: "ADVICE",
+    regex: /[—–]/,
+    message: "❌ Typographic slop detected: Raw em-dash or en-dash in UI file. Use clean punctuation or hyphens.",
+  },
+  {
+    id: "VIEWPORT_H_SCREEN",
+    severity: "ADVICE",
+    regex: /\b(h-screen|min-h-screen)\b/,
+    message: "❌ Viewport instability detected: Use min-h-[100dvh] instead of h-screen.",
+  },
+  {
+    id: "MOTION_SCALE_ZERO",
+    severity: "ADVICE",
+    regex: /scale\(0\)/,
+    message: "❌ Rule 05 violation: Never animate scale(0). Start from scale(0.95) with opacity: 0.",
+  },
+  {
+    id: "MOTION_TRANSITION_ALL",
+    severity: "ADVICE",
+    regex: /transition:\s*all\b|\btransition-all\b/,
+    message: "❌ Rule 07 violation: Banned transition: all. Name exact animated properties.",
+  },
+  {
+    id: "MOTION_EASE_IN",
+    severity: "ADVICE",
+    regex: /transition:[^;]*\bease-in\b|\btransition-timing-function:\s*ease-in\b/,
+    message: "❌ Rule 03 violation: Banned ease-in on UI. Use ease-out or custom cubic-bezier.",
+  },
+  {
+    id: "MOTION_LAYOUT_PROPS",
+    severity: "ADVICE",
+    regex: /transition:[^;]*\b(width|height|top|left|margin|padding)\b/,
+    message: "❌ Rule 07 violation: Animating layout properties triggers repaint/reflow. Animate transform or opacity.",
+  },
 ];
+
+
 
 let scanned = 0;
 let violations = 0;
