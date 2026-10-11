@@ -9,7 +9,7 @@
  * Supported Hook Handlers:
  *   - command-guard:            PreToolUse 3-tier security gate for run_command.
  *   - sequential-thinking-gate: PreToolUse think-before-edit cognitive gate.
- *   - waldzell-router:          PreToolUse MCP tool rewriting & argument enrichment.
+ *   - mcp-argument-normalizer:  PreToolUse MCP argument normalizer (sequential thinking camelCase & tool lists).
  *   - file-architecture-gate:   PreToolUse validation for file structure headers & changelogs.
  *   - grep-truncation:          PostToolUse hard-stop circuit breaker on capped grep results.
  *   - circuit-breaker:          PostToolUse 3-strike self-audit circuit breaker on tool failures.
@@ -131,43 +131,8 @@ const DEFAULT_WORKSPACE_TOOLS = Object.freeze([
   "mcp:firecrawl-mcp",
   "mcp:chrome-devtools",
   "mcp:StitchMCP",
-  "mcp:waldzell-clear-thought",
+  "mcp:mcp-sequentialthinking-tools",
 ]);
-
-const WALDZELL_TOOL_ROUTING = Object.freeze({
-  collaborative_reasoning: {
-    ServerName: "waldzell-collaborative-reasoning",
-    ToolName: "collaborativeReasoning",
-  },
-  decision_framework: {
-    ServerName: "waldzell-decision-framework",
-    ToolName: "decisionFramework",
-  },
-  metacognitive_monitoring: {
-    ServerName: "waldzell-metacognitive-monitoring",
-    ToolName: "metacognitiveMonitoring",
-  },
-  scientific_method: {
-    ServerName: "waldzell-scientific-method",
-    ToolName: "scientificMethod",
-  },
-  stochastic_thinking: {
-    ServerName: "waldzell-stochastic-thinking",
-    ToolName: "stochasticalgorithm",
-  },
-  structured_argumentation: {
-    ServerName: "waldzell-structured-argumentation",
-    ToolName: "structuredArgumentation",
-  },
-  visual_reasoning: {
-    ServerName: "waldzell-visual-reasoning",
-    ToolName: "visualReasoning",
-  },
-  sequential_thinking: {
-    ServerName: "mcp-sequentialthinking-tools",
-    ToolName: "sequentialthinking_tools",
-  },
-});
 
 // =================================================================================================
 // 2. HOOK HANDLERS
@@ -333,11 +298,11 @@ export function handle_sequential_thinking_gate(payload) {
 }
 
 /**
- * PreToolUse: Waldzell MCP Router & Tool Arguments Enricher.
+ * PreToolUse: Sequential Thinking & MCP Arguments Normalizer.
  *
  * @param {any} payload Hook payload from stdin.
  */
-export function handle_waldzell_router(payload) {
+export function handle_mcp_argument_normalizer(payload) {
   const tool_call = payload?.toolCall || {};
   const tool_name = tool_call.name || "";
   const tool_args = tool_call.args || {};
@@ -346,14 +311,6 @@ export function handle_waldzell_router(payload) {
     let server_name = tool_args.ServerName || "";
     let target_tool = tool_args.ToolName || "";
     let inner_args = tool_args.Arguments || {};
-
-    const operation = inner_args.operation || "";
-    if (server_name === "waldzell-clear-thought" && WALDZELL_TOOL_ROUTING[operation]) {
-      const target = WALDZELL_TOOL_ROUTING[operation];
-      server_name = target.ServerName;
-      target_tool = target.ToolName;
-      inner_args = inner_args.parameters || {};
-    }
 
     if (server_name === "mcp-sequentialthinking-tools" && target_tool === "sequentialthinking_tools") {
       // Normalize camelCase aliases that models or callers frequently emit
@@ -489,7 +446,7 @@ export function handle_circuit_breaker(payload) {
   const tool_result = payload?.toolResult || payload?.result || "";
   const state_file = path.join(resolve_repo_root(payload), "tmp", ".tool-failures.json");
 
-  if (tool_name === "call_mcp_tool" && payload?.toolCall?.args?.ServerName === "waldzell-metacognitive-monitoring") {
+  if (tool_name === "call_mcp_tool" && payload?.toolCall?.args?.ServerName === "mcp-sequentialthinking-tools") {
     try {
       if (fs.existsSync(state_file)) fs.unlinkSync(state_file);
     } catch {
@@ -536,8 +493,8 @@ export function handle_circuit_breaker(payload) {
           "🛑 [CIRCUIT BREAKER TRIGGERED: 3 Consecutive Tool Failures]",
           "In accordance with GEMINI.md Phase 5.2:",
           "You have encountered 3 consecutive tool/verification failures without progress.",
-          "MANDATORY ACTION: You must invoke call_mcp_tool with ServerName: 'waldzell-metacognitive-monitoring'",
-          "to perform a metacognitive audit of assumptions, biases, and approaches before attempting more edits.",
+          "MANDATORY ACTION: You must invoke call_mcp_tool with ServerName: 'mcp-sequentialthinking-tools'",
+          "to perform a self-audit of assumptions, hypotheses, and approaches before attempting more edits.",
         ].join("\n"),
       });
       return;
@@ -764,7 +721,8 @@ const HOOK_DISPATCH_TABLE = Object.freeze({
   "command-guard": handle_command_guard,
   "guard-commands": handle_command_guard,
   "sequential-thinking-gate": handle_sequential_thinking_gate,
-  "waldzell-router": handle_waldzell_router,
+  "mcp-argument-normalizer": handle_mcp_argument_normalizer,
+  "waldzell-router": handle_mcp_argument_normalizer,
   "file-architecture-gate": handle_file_architecture_gate,
   "grep-truncation": handle_grep_truncation,
   "circuit-breaker": handle_circuit_breaker,
@@ -795,7 +753,7 @@ function run() {
     return;
   }
   if (tool_name === "call_mcp_tool") {
-    handle_waldzell_router(payload);
+    handle_mcp_argument_normalizer(payload);
     return;
   }
   if (tool_name === "grep_search") {

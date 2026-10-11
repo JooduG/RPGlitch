@@ -14,18 +14,62 @@ This roadmap defines the authoritative technical backlog, active engineering spr
 
 ## 🏛️ Engineering Backlog & Tracks at a Glance
 
+All foundational sprints for the Sovereign Engine Core (**Track 0 through Track 3**) have successfully shipped in **v0.7.0** (recorded in [CHANGELOG.md](CHANGELOG.md)).
+
 ```mermaid
 flowchart TD
-    subgraph Execution["Sovereign Execution Pipeline"]
+    subgraph Shipped["Shipped Core Architecture (v0.7.0)"]
         T0["Track 0: Intelligence Kernel Language & Domain Purity<br>(Grammar, Think Blocks, Taxonomy-Derived Directives, Sensory Dissolution)"]
         T1["Track 1: State & Physics Core Unification<br>(Pure Dynamics Reducer, Stamped History Logs, Unified Cast Registry, Macro Predicates)"]
         T2["Track 2: Hierarchical Memory & 6k Context Protection<br>(Multi-Tier Tree Compactor, 6,000-Token Cliff Guard, Hybrid Retrieval)"]
         T3["Track 3: Narrative Pacing, Lorebooks & Story Experience<br>(Pacing Contracts, Slop Linter, Lorebooks, Alternative Branches, User Agency)"]
     end
-    T0 --> T1
-    T1 --> T2
-    T2 --> T3
+    T0 --> T1 --> T2 --> T3
+
+    subgraph ActiveBacklog["Upcoming Engineering Backlog (v0.8.0 Delta)"]
+        T4["Track 4: Deep Task Compiler Deconstruction (`task.js`)<br>(Unified Directive Registry, Ground-Zero Task Plan Refactor)"]
+        T5["Track 5: Relational & Perspective Macro Unification<br>(Dynamic Macro Graph, Universal {me}/{you} Role Binding)"]
+        T6["Track 6: Log Generation Consolidation & Scrubbing<br>(Unified Simulation History Pipeline, Transcript Harmonization)"]
+    end
+    T3 -.-> T4
+    T4 --> T5 --> T6
 ```
+
+---
+
+## 🚀 Active Engineering Backlog (Target Delta)
+
+### Track 4: Deep Task Compiler Deconstruction (`src/intelligence/modules/task.js`)
+
+- **Objective**: Complete ground-zero modernization of `task.js` matching the plan/render split of `system.js`, `reflex.js`, and `protocols.js`.
+- **Key Modules**: `src/intelligence/modules/task.js`, `src/intelligence/prompts.js`, `src/intelligence/builder.js`.
+- **Planned Sub-Items**:
+  - [ ] **4.1 Plan/Render Separation for All Task Modes**: Implement declarative `resolve_task_plan` across `interaction`, `director`, `continuum`, `optics`, `sorting`, `epilogue`.
+  - [ ] **4.2 Ghostwrite 1st vs 3rd Person Alignment**: Support profile-selected narrative perspective for user persona ghostwrites without hardcoding 1st-person pronouns.
+  - [ ] **4.3 Task Schema Tree & Static Atom Freezing**: Purge remaining dynamic string builders into frozen `{ tag, children }` structures.
+
+### Track 5: Perspective & Relational Macro Unification
+
+- **Objective**: Deconstruct and unify entity relational perspectives with role resolution.
+- **Key Modules**: `src/utils/macros.js`, `src/intelligence/veil.js`, `src/ui/profile/RelationalGraph.svelte`.
+- **Planned Sub-Items**:
+  - [ ] **5.1 Dynamic Perspective Resolution**: Wire `{me}` and `{you}` dynamically across speaker, listener, and target owner contexts.
+  - [ ] **5.2 Cross-Quadrant Relational Propagation**: Synchronize relational vectors between `eternal.non_physical` and `present.non_physical`.
+
+### Track 6: Simulation Log Pipeline Harmonization
+
+- **Objective**: Eliminate redundant conversation log generators across the engine.
+- **Key Modules**: `src/state/log.svelte.js`, `src/utils/story-export.js`, `src/intelligence/modules/history.js`.
+- **Planned Sub-Items**:
+  - [ ] **6.1 Single Canonical History Formatter**: Unify prompt history compilation and export transcript serialization into a single shared pipeline.
+  - [ ] **6.2 High-Performance Dexie Query Windowing**: Streamline log history fetch queries during active round advancement.
+
+---
+
+## 🏛️ Historical Shipped Milestones (v0.7.0)
+
+<details>
+  <summary><b>Click to expand completed Tracks 0 to 3 milestone records</b></summary>
 
 ---
 
@@ -225,23 +269,27 @@ flowchart TD
 
 Advanced storytelling mechanisms, conversational pacing heuristics, and world simulation modules.
 
-- [ ] **3.1 Dynamic Pacing Contracts & Prose Heuristics Engine**:
+- [x] **3.1 Dynamic Pacing Contracts & Prose Heuristics Engine**:
   - _Input-Proportional Sizing_: Classify user inputs into size categories (`TINY` $\le 12$ chars, `SMALL` $\le 90$ chars, `MEDIUM` $\le 400$ chars, `EXPANSIVE` $> 400$ chars) and clamp reply beat counts accordingly to eliminate unprompted essays on simple user actions.
   - _Anti-Staging Constraints_: Forbid gratuitous physical movement on terse dialogue turns.
   - _Multi-Tier Slop Linter (`src/utils/styles.js`)_: Purge repetitive narrative clichés (`not X, but Y`, `against better judgment`) and cap cliché somatic markers to $\le 1$ per reply.
   - _Held-Moment Permitting_: Detect conversational pauses and silence without forcing abrupt scene transitions.
   - **Touchpoints**: [`src/intelligence/modules/task.js`](src/intelligence/modules/task.js), [`src/utils/styles.js`](src/utils/styles.js).
-- [ ] **3.2 Standalone World Info & Triggered Lorebook System**:
+- [x] **3.2 Standalone World Info & Triggered Lorebook System**:
   - Standalone lorebook entities `(id, name, description, scan_depth, token_budget, recursive, entries[])`.
   - Multi-pass regex, glob wildcards, and whole-word matching over last $N$ turns with secondary filter logic (`any`, `all`, `not_any`).
   - Budget-conscious insertion into prompt envelopes with strict token ceilings.
   - **Touchpoints**: [`src/data/db.js`](src/data/db.js), [`src/intelligence/modules/`](src/intelligence/modules/).
-- [ ] **3.3 Epistemic Hardening & Director Alternative Branches**:
+- [x] **3.3 Epistemic Hardening & Director Alternative Branches**:
   - _Private Directive Purging_: Scrub covert directives and secret flags across entity boundaries before compiling persona prompts.
   - _Fractal & NPC Audio Stream Concurrency_: Prevent audio synthesis cutoffs when ambient fractal dialogue overlaps with AI character speech.
   - _Director Alternative Branches_: Allow Director to supply bracketed alternative dialogue branches for user-guided exploration.
   - **Touchpoints**: [`src/intelligence/director.js`](src/intelligence/director.js), [`src/intelligence/story.js`](src/intelligence/story.js), [`src/media/audio.svelte.js`](src/media/audio.svelte.js).
-- [ ] **3.4 P1 User Agency Hard-Negative Enforcement (Anti-First-Person Hijacking)**:
+- [x] **3.4 P1 User Agency Hard-Negative Enforcement (Anti-First-Person Hijacking)**:
   - **Issue**: In stress test logs, persona models occasionally hijacked the player avatar in first person (_"my thigh... I adjust posture"_).
   - **Remediation**: Evaluate post-Director's-Note-Lock stability. If first-person bleeding recurs, inject hard-negative boundary constraints into `CHARACTER.BASE` and `PROSE_DISCIPLINE` forbidding first-person pronouns when addressing or observing the player persona.
   - **Touchpoints**: `src/intelligence/modules/task.js`, `src/intelligence/modules/protocols.js`, `src/intelligence/story.js`, `src/intelligence/director.test.js`.
+
+</details>
+
+---

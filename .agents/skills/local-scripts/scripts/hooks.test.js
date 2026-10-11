@@ -73,25 +73,7 @@ const TEST_CASES = [
     mockFile: "test-transient.tmp",
     expectedDecision: "continue",
   },
-  {
-    name: "hooks.js waldzell-router: Rewrite clear-thought with decisionFramework",
-    file: "skills/local-scripts/scripts/hooks.js",
-    args: ["waldzell-router"],
-    input: {
-      toolCall: {
-        name: "call_mcp_tool",
-        args: {
-          ServerName: "waldzell-clear-thought",
-          ToolName: "clear_thought",
-          Arguments: {
-            operation: "decision_framework",
-            parameters: { problem: "Architecture trade-offs" },
-          },
-        },
-      },
-    },
-    expectedServer: "waldzell-decision-framework",
-  },
+
   {
     name: "hooks.js waldzell-router: Enrich sequentialthinking with available_tools",
     file: "skills/local-scripts/scripts/hooks.js",

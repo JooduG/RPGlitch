@@ -53,10 +53,11 @@ Sitting above the in-scene triad is the **Director** (executing via Shot 1 / Qui
 
 ### Secondary Characters & Supporting Cast (`runtime.active_npcs`)
 
-Secondary characters are **narrative tools for the Director to tell an engaging story**. Rather than cluttering the primary dynamic between the User and AI Co-Star, the Director can pull lesser secondary characters into the **Stage Spotlight** (`runtime.in_scene_npc_ids`)—or mint them on the fly—to serve as shopkeepers, guards, rivals, witnesses, or specialists.
+Secondary characters are **narrative tools for the Director to tell an engaging story**. Rather than cluttering the primary dynamic between the User and AI Co-Star, the Director or User can manage cast members via explicit scene presence (`presence: 'active' | 'nearby' | 'dormant'`):
 
-- **Stage Spotlight**: NPCs in the spotlight can be delegated speaking turns (`npc:<id>`), engage in dialogue, and carry relational vectors.
-- **Zero-Token Storage**: Off-stage cast members remain serialized in IndexedDB with zero token consumption until summoned.
+- **Stage Spotlight (`presence: 'active'`)**: Entities in the active spotlight receive full somatic dynamics evaluation, can be delegated speaking turns (`npc:<id>`), engage in dialogue, and carry relational vectors.
+- **Ambient Awareness (`presence: 'nearby'`)**: Entities nearby are contextually observed and tracked without receiving speaking turns.
+- **Zero-Token Storage (`presence: 'dormant'`)**: Dormant cast members remain serialized in IndexedDB with zero token consumption until summoned.
 
 > [!NOTE]
 > **Shared Character Pool**: The repository holds characters ranging from fully fleshed-out primary personas to lesser secondary supporting characters. Any character can seamlessly be assigned as the active player avatar, the primary co-star, or an in-scene supporting NPC.

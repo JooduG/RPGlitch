@@ -291,7 +291,7 @@ RPGlitch operates under a strict four-layer documentation architecture:
 - **Environment Entity (`fractal`)**: The world model governing environmental hazards, sensory motifs, and overarching scene objectives.
 - **User Persona Entity**: The human-controlled participant (strictly protected by P1: User Agency).
 - **AI Persona Entity**: The primary autonomous agent-controlled co-star in the scene.
-- **Context Culling / Active Scene Scope**: In-scene presence tracking (`runtime.in_scene_npc_ids`) while inactive entities remain serialized in IndexedDB with zero token consumption.
+- **Context Culling / Active Scene Scope**: In-scene presence tracking (`presence: 'active' | 'nearby' | 'dormant'`) while dormant entities remain serialized in IndexedDB with zero token consumption.
 - **Directed Relational Graph**: Directed plain-text relationship vectors (`"[Source] → [Target]: [Dynamic]"`) defining interpersonal dynamics and world affiliations without foreign key rigidity.
 - **Numerical State Vectors (0–100)**: Somatic and psychological metrics (`chaos`, `intensity`, `openness`, `affinity`, `velocity`, `entropy`).
 - **Epistemic Partitioning**: The boundary stripping private tags and brackets bearing `| hide` flags across entity perspectives to prevent AI telepathy while keeping them visible to the Director.

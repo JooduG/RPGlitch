@@ -9,7 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
-- **Completed Tracks 0, 1 & 2 Execution Pulse**:
+---
+
+## [0.7.0] - 2026-10-11
+
+- **Sovereign Engine Core & Intelligence Architecture Pulse (Tracks 0 to 3)**:
   - **Track 0: Intelligence Kernel Language & Domain Purity**:
     - Enforced grammar law across instruction tags and 3-layer token contracts (`{...}` build-time, `«ABSOLUTE»` runtime referents, `@` output vocabulary).
     - Pruned dead identity claims and merged `NPC_BOUNDARY` into `CHARACTER.BASE`.
@@ -27,6 +31,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Established context cliff protection (`CONTEXT_TOKEN_CLIFF = 6000`, `HISTORY_TOKEN_BUDGET = 1600`, `RECALL_TOKEN_BUDGET = 800`) proactively pruning lowest-weight leaves and oldest history.
     - Deterministic hybrid retrieval ranker in `temporal.js` (`Score = Entity Overlap × 3.0 + Lexical Frequency × 1.0 + Emotional Salience × 0.4 + Recency × 1.2`) with dynamics-modulated recall clarity (`[fragmented recall]` when Chaos/Entropy > 70).
     - Write-time rot prevention via FNV-1a normalized `eventKey` provenance folding and top 12 known settled facts extraction advisory (`# ALREADY REMEMBERED`) wired into `PROMPT_LAYERS`.
+  - **Track 3: Narrative Pacing, Lorebooks & Story Experience**:
+    - Built input-proportional pacing contracts in `reflex.js` (`TINY <= 12`, `SMALL <= 90`, `MEDIUM <= 400`, `EXPANSIVE > 400`) with beat budgets, anti-staging constraints, and held-moment detection.
+    - Established multi-tier narrative slop linter in `styles.js` with regex clichés and somatic marker caps.
+    - Created standalone world-info lorebook engine (`lorebook.js`, `db.js`, `repository.js`) supporting multi-pass key matching (word, glob, regex), secondary filter criteria (`any`, `all`, `not_any`), and budget-sealed `<LOREBOOK>` slot injection.
+    - Delivered epistemic hardening (`strip_covert_directives` in `veil.js`), non-preempting concurrent audio streams in `speech.js`, and Director alternative branches in `director.js`.
+    - Hardened P1 User Agency with hard-negative anti-hijacking directives in `task.js` and `protocols.js`.
 
 - **Modules Ground Refactor — Phases 1 to 4 (One Compiler Core, Domain Re-Cut & Universal Prompt Plan)**:
   - **Shared Catalog Engine (`src/utils/catalog.js`, `src/utils/index.js`)**: Created centralized dotted-catalog compiler with byte-exact `{token}` interpolation (`interpolate_tokens`), dotted-path traversal with non-leaf guards returning `""` instead of `"[object Object]"`, default spreads, and fallback key policies (`resolve_catalog_atom`). Added unit test suite `catalog.test.js`.

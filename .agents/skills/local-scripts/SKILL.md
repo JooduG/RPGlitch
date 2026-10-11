@@ -62,9 +62,9 @@ flowchart TD
      - Multi-file edits spanning across `src/` or `.agents/skills/`.
      - Thrashing loops (2+ consecutive edits on the same file).
      - Single-file isolated edits pass through without added latency.
-3. **`waldzell-mcp-router`** (`hooks.js waldzell-router`):
+3. **`mcp-argument-normalizer`** (`hooks.js mcp-argument-normalizer`):
    - _Target_: `call_mcp_tool`.
-   - _Behavior_: Intercepts calls targeting `waldzell-clear-thought` with specialized operations (`collaborative_reasoning`, `decision_framework`, etc.) and transparently reroutes them to their dedicated MCP servers; enriches `sequentialthinking_tools` with workspace `available_tools`.
+   - _Behavior_: Normalizes camelCase aliases and enriches `sequentialthinking_tools` with workspace `available_tools`.
 4. **`active-track-gate`** (`hooks.js active-track-gate`):
    - _Target_: `write_to_file`, `replace_file_content`, `multi_replace_file_content`.
    - _Behavior_: Enforces the Single Active Track Law (GEMINI.md Phase 3.1 & 3.3). Intercepts modifications to `tasks/future/*.md` and denies any operation attempting to set `status: active` if another track in `tasks/future/` is already active.
@@ -79,7 +79,7 @@ flowchart TD
    - _Behavior_: Detects when ripgrep results hit the 50-match cap or contain truncation warnings. Injects an immediate Hard Stop mandate instructing the agent to run recursive searches with subdirectory filters until 100% of matches are audited.
 2. **`strike-circuit-breaker`** (`hooks.js circuit-breaker`):
    - _Target_: All tools (`.*`).
-   - _Behavior_: Tracks consecutive tool failures in `tmp/.tool-failures.json`. When failures reach 3 consecutive strikes, it triggers an immediate mandate for self-audit via `waldzell-metacognitive-monitoring`.
+   - _Behavior_: Tracks consecutive tool failures in `tmp/.tool-failures.json`. When failures reach 3 consecutive strikes, it triggers an immediate mandate for self-audit via `mcp-sequentialthinking-tools`.
 
 ### 3.3 PreInvocation Hooks (Context Injection)
 

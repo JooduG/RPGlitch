@@ -61,7 +61,21 @@ Browser DOM insertion sinks represent the primary vulnerability surface in clien
 - **Sanitize all dynamic HTML and rendered markdown via DOMPurify** before passing content to Svelte rendering expressions (`{@html ...}`).
 - **Rely on Svelte compile-time template auto-escaping** for all standard string interpolations.
 
-### 2.4 Exception Handling and Information Disclosure Prevention
+### 2.4 Epistemic Isolation & Directive Leak Prevention
+
+RPGlitch employs strict Epistemic Partitioning to preserve player agency and narrative immersion across agent boundaries.
+
+- **Covert Directive Stripping (`strip_covert_directives`)**: Directives flagged with `| hide` or internal control tags belonging to other entities are stripped before rendering persona prompts. This prevents autonomous personas from gaining illicit telepathy or acting on unrevealed player intentions.
+- **Visual Prompt Stripping (`strip_visual_excluded`)**: Hidden items, covert weapons, or stashed inventory are scrubbed from visual diffusion prompts to prevent rendering unrevealed state.
+
+### 2.5 Lorebook Ingestion & ReDoS Defense
+
+The triggered lorebook system ingests dynamic world lore based on pattern keys across recent dialogue turns.
+
+- **Regular Expression Sanitization & ReDoS Defense**: User-supplied or lorebook trigger keys are sanitized to prevent polynomial Regular Expression Denial of Service (ReDoS). Exponential patterns and unbounded catastrophic backtracking are strictly forbidden.
+- **Scan Depth & Token Ceilings**: Ingestion is bounded by explicit `scan_depth` limits (maximum previous turns evaluated) and hard `token_budget` ceilings per lorebook injection, preventing context-window exhaustion and prompt injection denial of service.
+
+### 2.6 Exception Handling and Information Disclosure Prevention
 
 Runtime failures must provide clear application recovery without leaking internal implementation details.
 
