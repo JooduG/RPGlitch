@@ -17,6 +17,8 @@ import {
   render_optics_entities_xml,
   render_memory_advisory_xml,
   resolve_memory_advisory_slot,
+  summarize_entity,
+  render_nearby_entities_xml,
 } from "./entities.js";
 import { resolve_optics_atom } from "./protocols.js";
 
@@ -133,5 +135,43 @@ describe("Track 2.4 memory advisory slot", () => {
     const sealed = resolve_memory_advisory_slot({}, { memory_advisory_args: { enabled: true, facts } });
     expect(sealed).toContain("<MEMORY_ADVISORY>");
     expect(sealed).toContain("# ALREADY REMEMBERED");
+  });
+});
+
+describe("Track 1: In-Scene NPC Sheet Compression", () => {
+  it("summarizes secondary characters combining eternal core and present stance", () => {
+    const npc = {
+      id: "npc-elias",
+      name: "Elias",
+      eternal: {
+        non_physical: "Ancient archivist of forbidden ruins.",
+      },
+      present: {
+        non_physical: "Desperately trying to decipher the ancient terminal.",
+      },
+    };
+    const summary = summarize_entity(npc);
+    expect(summary).toContain("Ancient archivist of forbidden ruins.");
+    expect(summary).toContain("Desperately trying to decipher the ancient terminal.");
+    expect(summary.length).toBeLessThanOrEqual(130);
+  });
+
+  it("renders nearby entities XML with compact SUMMARY tags", () => {
+    const npcs = [
+      {
+        id: "npc-glitch",
+        name: "Glitch",
+        role: "Technician",
+        eternal: { non_physical: "Flickering digital anomaly." },
+        present: { non_physical: "Observing with static eyes." },
+      },
+    ];
+    const xml = render_nearby_entities_xml(npcs);
+    expect(xml).toContain('<CAST mode="nearby">');
+    expect(xml).toContain('<ENTITY id="npc-glitch" name="Glitch" role="Technician">');
+    expect(xml).toContain("<SUMMARY>");
+    expect(xml).toContain("Flickering digital anomaly.");
+    expect(xml).toContain("Observing with static eyes.");
+    expect(xml).toContain("</CAST>");
   });
 });

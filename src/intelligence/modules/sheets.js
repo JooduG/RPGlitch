@@ -40,6 +40,9 @@ import {
 } from "@utils";
 import { PROFILE_FIELD_CATALOG } from "@data";
 import { strip_epistemic_secrets, extract_entity_relationships, strip_relational_brackets } from "../veil.js";
+import { whole_vector_slice } from "../temporal.js";
+
+export { whole_vector_slice };
 
 // ============================================================================
 // [SECTION 1: DECLARATIVE SHEET SPECIFICATIONS]

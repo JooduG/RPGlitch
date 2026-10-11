@@ -16,6 +16,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Integrated Bits UI v1 (`child` snippets, `ref = $bindable()`, `--transform-origin`) and Svelte 5 `flushSync` View Transitions into design skill.
   - Added automated audit gates in `audit-design.js` surfacing raw em-dashes, `h-screen`, `scale(0)`, `transition: all`, and `ease-in`.
 
+- **Track 1: Sovereign 4-Quadrant RAG & Dynamic Token Budget Reservoir (`src/intelligence/`)**:
+  - Implemented `merge_field_content` in `temporal.js`: key-aware pseudo-JSON bracket merger with deletion triggers (`cleared`/`none`) and word-boundary prose truncation.
+  - Implemented `calculate_physical_salience`: 0.5x penalty on physical descriptor brackets during narrative turns, 1.5x boost on scheduled image generation turns, and 1.0x on high semantic similarity (>0.80).
+  - Implemented `whole_vector_slice`: slices multi-line bracket vectors at clean tag boundaries without mid-bracket cuts.
+  - Compressed secondary in-scene NPCs in `entities.js` and `sheets.js`: non-speaking in-scene NPCs render concise 1-2 line summaries combining eternal baseline core and immediate present stance within `<CAST mode="nearby">`, eliminating full sheet bloat while preserving active speaker sheets.
+  - Added unit test coverage in `temporal.test.js` and `entities.test.js` validating all 4 quadrants and NPC cast compression.
+
 - **Forensics Protocol Audit Reconciliation (`src/ui/console/`, `memory-rag-budget-architecture.md`)**:
   - Scrubbed user-facing raw em-dashes from `Console.svelte` (rewind system notification) and `StorymodeBar.svelte` (message queue tooltip) into clean punctuation (`:` and `;`).
   - Reconciled sensory instability memory flags in `memory-rag-budget-architecture.md` with runtime code (`temporal.js`), removing non-existent `[hazy recollection]` and retaining canonical `[fragmented recall]`.

@@ -113,13 +113,18 @@ export function render_cast_xml({ mode = CAST_MODES.NEARBY, children = [], inden
 }
 
 /**
- * Generates a concise summary for an entity, preferring live state over static copy.
+ * Generates a concise summary for an entity, combining eternal baseline essence
+ * with immediate present stance (capped at ~120 chars).
  * @param {any} entity
  * @returns {string}
  */
-function summarize_entity(entity) {
-  const description = collapse_whitespace(String(entity?.present?.non_physical || entity?.eternal?.non_physical || entity?.description || ""));
-  return truncate_at_word(description, 130);
+export function summarize_entity(entity) {
+  const core = collapse_whitespace(String(entity?.eternal?.non_physical || entity?.description || ""));
+  const stance = collapse_whitespace(String(entity?.present?.non_physical || ""));
+
+  const combined = core && stance && core !== stance ? `${core} | ${stance}` : stance || core || "";
+
+  return truncate_at_word(combined, 120);
 }
 
 /**
@@ -150,7 +155,7 @@ export function render_nearby_entities_xml(entities = [], options = {}) {
     if (exclude_id && (entity_id === exclude_id || String(entity.name) === exclude_id)) continue;
     if (exclude_key && (entity._key === exclude_key || entity.role === exclude_key)) continue;
 
-    const summary = entity.present?.non_physical || entity.eternal?.non_physical || entity.description || "";
+    const summary = summarize_entity(entity);
     const attrs = { id: entity_id, name: String(entity.name), role: entity.role || "NPC" };
     rows.push(
       summary

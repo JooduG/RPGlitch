@@ -28,6 +28,9 @@ import {
   expand_compacted_leaves,
   resolve_event_key,
   resolve_settled_facts,
+  merge_field_content,
+  calculate_physical_salience,
+  whole_vector_slice,
 } from "./temporal.js";
 import { get_output_format } from "./modules/output.js";
 import { PROMPTS } from "./prompts.js";
@@ -1338,6 +1341,67 @@ describe("temporal_engine per-entity consolidation progress tracking (Track 2 Ph
       const unbounded = temporal_engine.format(vectors, "");
       expect(unbounded).toContain("foxtrot golf hotel india juliet");
       expect(unbounded).toContain("kilo lima mike november oscar");
+    });
+  });
+
+  describe("Track 1: Sovereign 4-Quadrant RAG & Dynamic Reservoir", () => {
+    describe("merge_field_content", () => {
+      it("replaces matching [KEY: old] with [KEY: new] while preserving other keys", () => {
+        const current = "[MOOD: calm]\n[POSTURE: leaning against wall]\n[EYES: narrow]";
+        const mutation = "[POSTURE: stepping forward aggressively]";
+        const merged = merge_field_content(current, mutation);
+        expect(merged).toContain("[MOOD: calm]");
+        expect(merged).toContain("[POSTURE: stepping forward aggressively]");
+        expect(merged).toContain("[EYES: narrow]");
+        expect(merged).not.toContain("[POSTURE: leaning against wall]");
+      });
+
+      it("removes keys when assigned none or cleared", () => {
+        const current = "[HELD: knife]\n[CHEST: bare]";
+        const mutation = "[HELD: cleared]";
+        const merged = merge_field_content(current, mutation);
+        expect(merged).not.toContain("[HELD:");
+        expect(merged).toContain("[CHEST: bare]");
+      });
+
+      it("appends new keys seamlessly", () => {
+        const current = "[MOOD: tense]";
+        const mutation = "[BREATHING: rapid]";
+        const merged = merge_field_content(current, mutation);
+        expect(merged).toContain("[MOOD: tense]");
+        expect(merged).toContain("[BREATHING: rapid]");
+      });
+
+      it("appends and caps prose fields without cutting words mid-sentence", () => {
+        const current = "First sentence of standing agenda.";
+        const incoming = "Second sentence advancing toward the target.";
+        const merged = merge_field_content(current, incoming, { max_chars: 100 });
+        expect(merged).toBe("First sentence of standing agenda.\nSecond sentence advancing toward the target.");
+      });
+    });
+
+    describe("physical salience scoring", () => {
+      it("applies 0.5x penalty to physical brackets in normal turns and boosts to 1.5x on image schedule", () => {
+        const physical_tag = "[CLOTHING: dark wool trench coat]";
+        const narrative_multiplier = calculate_physical_salience(physical_tag, { is_image_turn: false, cosine_similarity: 0.4 });
+        expect(narrative_multiplier).toBe(0.5);
+
+        const visual_multiplier = calculate_physical_salience(physical_tag, { is_image_turn: true, cosine_similarity: 0.4 });
+        expect(visual_multiplier).toBe(1.5);
+
+        const high_sim_multiplier = calculate_physical_salience(physical_tag, { is_image_turn: false, cosine_similarity: 0.85 });
+        expect(high_sim_multiplier).toBe(1.0);
+      });
+    });
+
+    describe("whole_vector_slice", () => {
+      it("never slices mid-bracket and breaks before exceeding max characters", () => {
+        const input = "[EYES: obsidian black]\n[BUILD: massive towering orc]\n[SCARS: claw marks across chest]";
+        const sliced = whole_vector_slice(input, 55);
+        expect(sliced).toContain("[EYES: obsidian black]");
+        expect(sliced).not.toContain("claw marks");
+        expect(sliced).not.toMatch(/\[[A-Z]+:\s*[^\]]+$/); // No open unclosed bracket
+      });
     });
   });
 });

@@ -216,7 +216,7 @@ _Truncation: 30,294 → 26,429 chars before reaching the model (~3.9k chars cut 
       </APPEARANCE>
     </NPC>
 
-    <NPC id="RUST" name="Hank &apos;Rust&apos; Brawley">
+    <NPC id="RUST" name="Hank 'Rust' Brawley">
       <PSYCHOLOGY>
         <AGENDA>
           [AGENDA: stalk and claim a highly vocal arrogant target]
@@ -474,22 +474,22 @@ _startWith seed: "Beast should ignore the intellectual curiosity about the vats.
     <CAST mode="nearby">
       <ENTITY id="ELIAS" name="Dr. Elias Tariq" role="NPC">
       <SUMMARY>
-      &#91;FOCUS: chuckling softly to himself as he adjusts a harness strap across a sedated specimen&apos;s shoulder&#93;
-      &#91;MURMUR: quiet clinical praise about the subject&apos;s excellent physical substrate&#93;
-      &#91;INFUSION CHART: calculating dosage volumes for the next chemical infusion sequence&#93;
-      &#91;INSPECTION: deliberately taking his time, seeming in no hurry to conclude the physical examination&#93;
-      &#91;@SPECIMENS: cold clinical detachment and biological curiosity&#93;
+      [FOCUS: chuckling softly to himself as he adjusts a harness strap across a sedated specimen's shoulder]
+      [MURMUR: quiet clinical praise about the subject's excellent physical substrate]
+      [INFUSION CHART: calculating dosage volumes for the next chemical infusion sequence]
+      [INSPECTION: deliberately taking his time, seeming in no hurry to conclude the physical examination]
+      [@SPECIMENS: cold clinical detachment and biological curiosity]
       </SUMMARY>
       </ENTITY>
       <ENTITY id="GLITCH" name="Glitch" role="NPC">
-      <SUMMARY>Focus: pausing mid-breach to observe patrol routes. Emotional state: flickering anticipation, flushing faintly while maintaining a facade of clinical verification. &#91;FOCUS: crouched low on a rooftop vent mid-breach but paused&#93; &#91;@ORION THE PINK PROTECTOR: flirtatious provocation, daring him to use force&#93; &#91;RATIONALIZATION: flushing faintly while insisting he is only verifying a patrol route | hide&#93; &#91;@PROJECT TARTARUS: systemic sabotage and mainframe infiltration&#93; &#91;@DR. ELIAS TARIQ: adversarial sabotage&#93; &#91;@NOVA CITY: playground and home base&#93;</SUMMARY>
+      <SUMMARY>Focus: pausing mid-breach to observe patrol routes. Emotional state: flickering anticipation, flushing faintly while maintaining a facade of clinical verification. [FOCUS: crouched low on a rooftop vent mid-breach but paused] [@ORION THE PINK PROTECTOR: flirtatious provocation, daring him to use force] [RATIONALIZATION: flushing faintly while insisting he is only verifying a patrol route | hide] [@PROJECT TARTARUS: systemic sabotage and mainframe infiltration] [@DR. ELIAS TARIQ: adversarial sabotage] [@NOVA CITY: playground and home base]</SUMMARY>
       </ENTITY>
-      <ENTITY id="RUST" name="Hank &apos;Rust&apos; Brawley" role="NPC">
+      <ENTITY id="RUST" name="Hank 'Rust' Brawley" role="NPC">
       <SUMMARY>
-      &#91;STANCE: leaning against his workbench with heavy shoulders relaxed&#93;
-      &#91;MEASURING TAPE: grips a regular customer&apos;s bicep with his cloth tape on a thin pretense&#93;
-      &#91;PROLONGED GRIP: lets the reading drag on several seconds too long while staring down the subject&#93;
-      &#91;TOOTHPICK: constantly rolls a wooden toothpick between his teeth with a crude mocking smirk&#93;
+      [STANCE: leaning against his workbench with heavy shoulders relaxed]
+      [MEASURING TAPE: grips a regular customer's bicep with his cloth tape on a thin pretense]
+      [PROLONGED GRIP: lets the reading drag on several seconds too long while staring down the subject]
+      [TOOTHPICK: constantly rolls a wooden toothpick between his teeth with a crude mocking smirk]
       </SUMMARY>
       </ENTITY>
     </CAST>
@@ -533,7 +533,7 @@ _startWith seed: "Beast should ignore the intellectual curiosity about the vats.
   </THINK_FORMAT>
   <INPUT origin="SILVERS" round="7" channel="action">Silvers notices the tank labels. What is Tariq growing in there?</INPUT>
   <CURRENTS>
-      <SENSORY_EXPERIENCE>Sound (Static/Distorted Voices) &gt; Sight (Glitching Form) &gt; Touch (Synthetic Texture) &gt; Scent</SENSORY_EXPERIENCE>
+      <SENSORY_EXPERIENCE>Sound (Static/Distorted Voices) > Sight (Glitching Form) > Touch (Synthetic Texture) > Scent</SENSORY_EXPERIENCE>
       <SUBTEXT>
         <DOMINANCE>Deliberate unhurried movements, spatial expansion, steady downward gaze. Assert spatial control; unwavering presence and physical command.</DOMINANCE>
         <INTIMACY>Leaning inward, softened micro-expressions, matched breathing tempo, lingering contact. Sensory closeness and reduced spatial distance; warmth and physical presence.</INTIMACY>
@@ -623,29 +623,29 @@ _startWith seed: "Beast should ignore the intellectual curiosity about the vats.
 
   <CAST mode="nearby">
     <ENTITY id="BEAST" name="Beast" role="AI_CHARACTER">
-    <SUMMARY>high territorial arousal&#93; &#91;FOCUS: physical dominance over Silvers&#93; &#91;DRIVE: asserting ownership/claiming &#91;CIRCULATING: circling a claimed partner with a low rumbling inspection hum&#93; &#91;INSPECTION GRIP: one huge hand spanning their waist as he checks for injuries he knows are not there&#93; &#91;PRETEXT: rationalizes lingering touch as standard protective protocol | hide&#93; &#91;POSSESSION: reluctant to break physical contact or release his hold&#93; &#91;@LORD BENEDICT SILVERS: possessive, territorial inspection and physical dominance&#93; &#91;@SILVERS: claimed property / source of fascination&#93; &#91;@DR. ELIAS TARIQ: feral resentment / escaped subject&#93; &#91;@PROJECT TARTARUS: site of trauma and origin&#93;</SUMMARY>
+    <SUMMARY>high territorial arousal] [FOCUS: physical dominance over Silvers] [DRIVE: asserting ownership/claiming [CIRCULATING: circling a claimed partner with a low rumbling inspection hum] [INSPECTION GRIP: one huge hand spanning their waist as he checks for injuries he knows are not there] [PRETEXT: rationalizes lingering touch as standard protective protocol | hide] [POSSESSION: reluctant to break physical contact or release his hold] [@LORD BENEDICT SILVERS: possessive, territorial inspection and physical dominance] [@SILVERS: claimed property / source of fascination] [@DR. ELIAS TARIQ: feral resentment / escaped subject] [@PROJECT TARTARUS: site of trauma and origin]</SUMMARY>
     </ENTITY>
     <ENTITY id="TARTARUS" name="Project Tartarus" role="FRACTAL">
-    <SUMMARY>immediate territorial aggression&#93;, &#91;SENSORY_SHIFT: high-voltage electrical static humming in corridors&#93;, &#91;DYNAMICS: power shift from observer to target &#91;CORRIDOR STATIC: white corridors humming with high-voltage electrical static&#93; &#91;CELLULAR MONITORS: automated diagnostics tracking muscular cellular density in real time&#93; &#91;STAFF DISPATCH: research staff pacing the corridors, preparing the next phase of chemical infusions&#93; &#91;TEST PREPARATION: next unscheduled test subject is strapped onto the gurney&#93;</SUMMARY>
+    <SUMMARY>immediate territorial aggression], [SENSORY_SHIFT: high-voltage electrical static humming in corridors], [DYNAMICS: power shift from observer to target [CORRIDOR STATIC: white corridors humming with high-voltage electrical static] [CELLULAR MONITORS: automated diagnostics tracking muscular cellular density in real time] [STAFF DISPATCH: research staff pacing the corridors, preparing the next phase of chemical infusions] [TEST PREPARATION: next unscheduled test subject is strapped onto the gurney]</SUMMARY>
     </ENTITY>
     <ENTITY id="ELIAS" name="Dr. Elias Tariq" role="NPC_ELIAS">
     <SUMMARY>
-    &#91;FOCUS: chuckling softly to himself as he adjusts a harness strap across a sedated specimen&apos;s shoulder&#93;
-    &#91;MURMUR: quiet clinical praise about the subject&apos;s excellent physical substrate&#93;
-    &#91;INFUSION CHART: calculating dosage volumes for the next chemical infusion sequence&#93;
-    &#91;INSPECTION: deliberately taking his time, seeming in no hurry to conclude the physical examination&#93;
-    &#91;@SPECIMENS: cold clinical detachment and biological curiosity&#93;
+    [FOCUS: chuckling softly to himself as he adjusts a harness strap across a sedated specimen's shoulder]
+    [MURMUR: quiet clinical praise about the subject's excellent physical substrate]
+    [INFUSION CHART: calculating dosage volumes for the next chemical infusion sequence]
+    [INSPECTION: deliberately taking his time, seeming in no hurry to conclude the physical examination]
+    [@SPECIMENS: cold clinical detachment and biological curiosity]
     </SUMMARY>
     </ENTITY>
     <ENTITY id="GLITCH" name="Glitch" role="NPC_GLITCH">
-    <SUMMARY>Focus: pausing mid-breach to observe patrol routes. Emotional state: flickering anticipation, flushing faintly while maintaining a facade of clinical verification. &#91;FOCUS: crouched low on a rooftop vent mid-breach but paused&#93; &#91;@ORION THE PINK PROTECTOR: flirtatious provocation, daring him to use force&#93; &#91;RATIONALIZATION: flushing faintly while insisting he is only verifying a patrol route | hide&#93; &#91;@PROJECT TARTARUS: systemic sabotage and mainframe infiltration&#93; &#91;@DR. ELIAS TARIQ: adversarial sabotage&#93; &#91;@NOVA CITY: playground and home base&#93;</SUMMARY>
+    <SUMMARY>Focus: pausing mid-breach to observe patrol routes. Emotional state: flickering anticipation, flushing faintly while maintaining a facade of clinical verification. [FOCUS: crouched low on a rooftop vent mid-breach but paused] [@ORION THE PINK PROTECTOR: flirtatious provocation, daring him to use force] [RATIONALIZATION: flushing faintly while insisting he is only verifying a patrol route | hide] [@PROJECT TARTARUS: systemic sabotage and mainframe infiltration] [@DR. ELIAS TARIQ: adversarial sabotage] [@NOVA CITY: playground and home base]</SUMMARY>
     </ENTITY>
-    <ENTITY id="RUST" name="Hank &apos;Rust&apos; Brawley" role="NPC_RUST">
+    <ENTITY id="RUST" name="Hank 'Rust' Brawley" role="NPC_RUST">
     <SUMMARY>
-    &#91;STANCE: leaning against his workbench with heavy shoulders relaxed&#93;
-    &#91;MEASURING TAPE: grips a regular customer&apos;s bicep with his cloth tape on a thin pretense&#93;
-    &#91;PROLONGED GRIP: lets the reading drag on several seconds too long while staring down the subject&#93;
-    &#91;TOOTHPICK: constantly rolls a wooden toothpick between his teeth with a crude mocking smirk&#93;
+    [STANCE: leaning against his workbench with heavy shoulders relaxed]
+    [MEASURING TAPE: grips a regular customer's bicep with his cloth tape on a thin pretense]
+    [PROLONGED GRIP: lets the reading drag on several seconds too long while staring down the subject]
+    [TOOTHPICK: constantly rolls a wooden toothpick between his teeth with a crude mocking smirk]
     </SUMMARY>
     </ENTITY>
   </CAST>
@@ -720,6 +720,6 @@ _startWith seed: "Beast should ignore the intellectual curiosity about the vats.
 
 ## Scorecard delta vs protocol audit
 
-Promote to PASS (observed live): genesis quadrant logging (18 R0:S0 rows); think-block shape (Stance/Friction/Mask/Smallest-action + <200wd budget respected); detox punctuation + cliché output gates (4 samples); sealed SYSTEM envelope (verified byte-level in captures — <TASK> inside <SYSTEM>, OUTPUT_FORMAT last-mile, no system_close); BEAT_BUDGET present in DELIVERY_POSTURE (SMALL 1-2 beats).
+Promote to PASS (observed live): genesis quadrant logging (18 R0:S0 rows); think-block shape (Stance/Friction/Mask/Smallest-action + <200wd budget respected); detox punctuation + cliché output gates (4 samples); sealed SYSTEM envelope (verified byte-level in captures — <TASK></task> inside <SYSTEM></system>, OUTPUT_FORMAT last-mile, no system_close); BEAT_BUDGET present in DELIVERY_POSTURE (SMALL 1-2 beats).
 Hold as FAIL: TINY pacing (467c reply to 4c input — model-side, compounded by truncation); prose-repeat collapse T2–T5; motion gates (static); CHARACTER.BASE ghostwrite contradiction (not yet probed live); whole-vector protection (Track 4.3 future).
 Not yet probed live (needs further turns): lorebook slot (no lorebooks seeded), @-bracket emission by director, forge compare-then-skip under steady state, image cooldowns, recall clarity (no stress yet), epilogue paths, ghostwrite swap, FieldHistoryModal, storyboard resume.

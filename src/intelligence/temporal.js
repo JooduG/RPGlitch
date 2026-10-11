@@ -1020,14 +1020,142 @@ function eternal_field_dedup(existing, incoming) {
   return false;
 }
 
-/** Merges new prose into an ETERNAL identity field without pollution. */
-function merge_eternal_field(current_field_value, new_prose) {
-  const incoming = String(new_prose || "").trim();
+// Physical tag keys for salience calculations (Track 1)
+const PHYSICAL_TAG_KEYS = new Set([
+  "CLOTHING",
+  "APPAREL",
+  "HAIR",
+  "EYES",
+  "ACCESSORY",
+  "ACCESSORIES",
+  "HARDWARE",
+  "BUILD",
+  "FACE",
+  "EARS",
+  "SKIN",
+  "SUIT",
+  "COAT",
+  "SCRUBS",
+  "PANTS",
+  "SHIRT",
+  "ARM",
+  "DENTAL_FEATURES",
+  "SOMATIC",
+]);
+
+/**
+ * Calculates the dynamic salience multiplier for a bracket or vector.
+ * In normal narrative mode, physical tags receive a 0.5x penalty unless cosine_similarity > 0.80.
+ * When image generation is scheduled, physical tags receive a 1.5x boost.
+ *
+ * @param {string} tag_content
+ * @param {Object} [options={}]
+ * @param {boolean} [options.is_image_turn=false]
+ * @param {number} [options.cosine_similarity=0]
+ * @returns {number}
+ */
+export function calculate_physical_salience(tag_content, options = {}) {
+  const { is_image_turn = false, cosine_similarity = 0 } = options;
+  const match = String(tag_content || "").match(/^\[([A-Z_ ]{2,30}):/i);
+  if (!match) return 1.0;
+
+  const tag_key = match[1].trim().toUpperCase();
+  if (!PHYSICAL_TAG_KEYS.has(tag_key)) return 1.0;
+
+  if (is_image_turn) return 1.5;
+  if (cosine_similarity > 0.8) return 1.0;
+  return 0.5;
+}
+
+/**
+ * Slices a newline-delimited bracket string to fit max_chars without cutting mid-bracket.
+ *
+ * @param {string} text
+ * @param {number} max_chars
+ * @returns {string}
+ */
+export function whole_vector_slice(text, max_chars = 1500) {
+  if (!text || typeof text !== "string") return "";
+  const lines = text
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean);
+  const selected = [];
+  let running_chars = 0;
+
+  for (const line of lines) {
+    const line_len = line.length + (selected.length > 0 ? 1 : 0);
+    if (running_chars + line_len > max_chars) {
+      break;
+    }
+    selected.push(line);
+    running_chars += line_len;
+  }
+
+  return selected.join("\n");
+}
+
+/**
+ * Unified atomic field merger (Track 1 / Track 4.4).
+ * Replaces matching [KEY: old] with [KEY: new] when brackets are used;
+ * For freeform prose, appends and enforces max_chars / segment boundaries cleanly.
+ *
+ * @param {string} current_field_value
+ * @param {string} incoming_mutation
+ * @param {Object} [options={}]
+ * @param {number} [options.max_chars=ETERNAL_MAX_CHARS]
+ * @param {number} [options.max_segments=PRESENT_MAX_SEGMENTS]
+ * @returns {string}
+ */
+export function merge_field_content(current_field_value, incoming_mutation, options = {}) {
+  const incoming = String(incoming_mutation || "").trim();
   if (!incoming) return current_field_value || "";
   const existing = String(current_field_value || "").trim();
+  const max_chars = options.max_chars || ETERNAL_MAX_CHARS;
+
+  const incoming_has_brackets = /\[[A-Z_ ]{2,30}:/i.test(incoming);
+  const existing_has_brackets = /\[[A-Z_ ]{2,30}:/i.test(existing);
+
+  if (incoming_has_brackets || existing_has_brackets) {
+    const existing_entries = parse_bracket_entries(existing);
+    const incoming_entries = parse_bracket_entries(incoming);
+    const key_map = new Map();
+
+    for (const entry of existing_entries) {
+      if (entry.key) key_map.set(entry.key.toUpperCase(), entry);
+    }
+
+    for (const entry of incoming_entries) {
+      if (!entry.key) continue;
+      const upper_key = entry.key.toUpperCase();
+      const val_lower = String(entry.value || "")
+        .trim()
+        .toLowerCase();
+      if (val_lower === "none" || val_lower === "cleared") {
+        key_map.delete(upper_key);
+      } else {
+        key_map.set(upper_key, entry);
+      }
+    }
+
+    const lines = [];
+    for (const [, entry] of key_map) {
+      lines.push(format_bracket_entry(entry));
+    }
+    return lines.join("\n");
+  }
+
+  // Freeform prose branch
   if (existing && eternal_field_dedup(existing, incoming)) return existing;
   const combined = existing ? `${existing}\n${incoming}` : incoming;
-  return combined.length > ETERNAL_MAX_CHARS ? combined.slice(0, ETERNAL_MAX_CHARS) : combined;
+  if (combined.length <= max_chars) return combined;
+
+  return truncate_at_word(combined, max_chars, { min_bound_ratio: 0.8, reserve_ellipsis: false });
+}
+
+/** Merges new prose into an ETERNAL identity field without pollution. */
+function merge_eternal_field(current_field_value, new_prose) {
+  return merge_field_content(current_field_value, new_prose, { max_chars: ETERNAL_MAX_CHARS });
 }
 
 /** Decays a PRESENT prose field to its most recent segments. */
