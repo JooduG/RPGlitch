@@ -93,4 +93,28 @@ describe("detox_prose() with speaking styles", () => {
     expect(detox_prose("He quietly stepped toward the door.")).toBe("He stepped toward the door.");
     expect(detox_prose("She quietly watched the monitors.")).toBe("She watched the monitors.");
   });
+
+  it("rewrites Tier 1 fatal syntactic constructions (Track 3.2)", () => {
+    expect(detox_prose("Not quite a smile, more like a warning.")).toBe("More like a warning.");
+    expect(detox_prose("Not a flinch; she simply stopped breathing.")).toBe("She simply stopped breathing.");
+    expect(detox_prose("She didn't answer him; she looked at the door.")).toBe("She looked at the door.");
+    expect(detox_prose("The air grew thick between them.")).toBe("The room went quiet between them.");
+    expect(detox_prose("She brushed lint from his shoulder, a gesture of ownership.")).toBe("She brushed lint from his shoulder.");
+  });
+
+  it("rewrites Tier 1B clarity edits (Track 3.5)", () => {
+    expect(detox_prose("We utilize the deck in order to breach the vault.")).toBe("We use the deck to breach the vault.");
+    expect(detox_prose("Due to the fact that the terminal commenced shutting down.")).toBe("Because the terminal started shutting down.");
+    expect(detox_prose("She endeavors to ascertain the passkey.")).toBe("She attempts to find out the passkey.");
+    expect(detox_prose("This console serves as the mainframe backup.")).toBe("This console is the mainframe backup.");
+  });
+
+  it("rewrites Tier 1A high-frequency AI vocabulary markers (Track 3.5)", () => {
+    expect(detox_prose("We delve into the intricate complexities of the digital realm.")).toBe(
+      "We dig into the complex details of the digital domain.",
+    );
+    expect(detox_prose("A cutting-edge paradigm, a beacon of seamless progress.")).toBe("An advanced model, a signal of smooth progress.");
+    expect(detox_prose("A comprehensive update leveraging robust mechanisms at its core.")).toBe("A thorough update using solid mechanisms.");
+    expect(detox_prose("This game-changing moment was a pivotal watershed moment.")).toBe("This turning point moment was a key turning point.");
+  });
 });

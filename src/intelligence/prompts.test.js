@@ -216,6 +216,19 @@ describe("fused rendering per mode", () => {
     expect(flat).not.toContain("ROUND_ONE");
   });
 
+  it("injects MOMENTUM_SOFT_PERMIT at 8 stagnant turns and MOMENTUM_HARD_MANDATE at 16 turns", () => {
+    const neutral = director_directives({ stagnation_turns: 0 });
+    expect(JSON.stringify(neutral)).not.toContain("MOMENTUM");
+
+    const soft = director_directives({ stagnation_turns: 8 });
+    expect(JSON.stringify(soft)).toContain("DIRECTOR.MOMENTUM_SOFT_PERMIT");
+    expect(JSON.stringify(soft)).not.toContain("DIRECTOR.MOMENTUM_HARD_MANDATE");
+
+    const hard = director_directives({ stagnation_turns: 16 });
+    expect(JSON.stringify(hard)).toContain("DIRECTOR.MOMENTUM_HARD_MANDATE");
+    expect(JSON.stringify(hard)).not.toContain("DIRECTOR.MOMENTUM_SOFT_PERMIT");
+  });
+
   it("renders the interaction mode", () => {
     const result = compile_prompt("interaction", { round: 3, entities, input: "Beast steps forward." });
     expect(assert_fused_shape(result, "interaction")).toBe(true);

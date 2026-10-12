@@ -197,6 +197,12 @@ export class RuntimeEngineStore {
   /** @type {number} */
   back_shot_cursor = $state(0);
 
+  // --- Scene Momentum & Stagnation Backstop (Track 4) ---
+  /** @type {number} */
+  stagnation_turns = $state(0);
+  /** @type {number} */
+  last_semantic_drift = $state(1.0);
+
   // --- Generation Concurrency Mutex ---
   is_foreground_generating = $state(false);
   is_background_generating = $state(false);
@@ -218,6 +224,8 @@ export class RuntimeEngineStore {
         const _fractal = this.#fractal_physics;
         const _director_beat = this.last_director_beat_round;
         const _dynamics_beat = this.last_dynamics_beat_round;
+        const _stagnation_turns = this.stagnation_turns;
+        const _last_drift = this.last_semantic_drift;
         if (this.is_ready && this.#story_id) {
           db.stories
             .update(coerce_story_key(this.#story_id), {
@@ -228,6 +236,8 @@ export class RuntimeEngineStore {
               fractal_dynamics: $state.snapshot(_fractal),
               last_director_beat_round: _director_beat,
               last_dynamics_beat_round: _dynamics_beat,
+              stagnation_turns: _stagnation_turns,
+              last_semantic_drift: _last_drift,
             })
             .catch((err) => console.error("[Data] Auto-save failed:", err));
         }
@@ -377,6 +387,21 @@ export class RuntimeEngineStore {
     this.director_ms_pool = next;
   }
 
+  /**
+   * Records a turn's semantic drift and updates the stagnation counter.
+   * Increments stagnation_turns when drift < 0.15; resets to 0 otherwise.
+   * @param {number} drift - Semantic drift score in [0.0, 1.0]
+   */
+  record_turn_drift(drift) {
+    const valid_drift = Math.max(0.0, Math.min(1.0, Number(drift) || 0.0));
+    this.last_semantic_drift = valid_drift;
+    if (valid_drift < 0.15) {
+      this.stagnation_turns += 1;
+    } else {
+      this.stagnation_turns = 0;
+    }
+  }
+
   // --------------------------------------------------------------------------
   // Generation Concurrency Mutex
   // --------------------------------------------------------------------------
@@ -445,6 +470,8 @@ export class RuntimeEngineStore {
       }
       this.last_director_beat_round = typeof story.last_director_beat_round === "number" ? story.last_director_beat_round : -1;
       this.last_dynamics_beat_round = typeof story.last_dynamics_beat_round === "number" ? story.last_dynamics_beat_round : -1;
+      this.stagnation_turns = typeof story.stagnation_turns === "number" ? story.stagnation_turns : 0;
+      this.last_semantic_drift = typeof story.last_semantic_drift === "number" ? story.last_semantic_drift : 1.0;
 
       const [user_data, ai_data, fractal_data] = await Promise.all([
         /** @type {Promise<SimulationEntity | null>} */ (entities.get("character", story.user_id)),
@@ -495,7 +522,9 @@ export class RuntimeEngineStore {
       const npc_ids = Array.isArray(story.npc_ids) ? story.npc_ids : [];
       if (npc_ids.length) {
         const npc_list = (await Promise.all(npc_ids.map((nid) => entities.get("character", nid)))).filter(Boolean);
-        const staged = new Set((Array.isArray(story.in_scene_npc_ids) ? story.in_scene_npc_ids : npc_list.map((n) => String(n.id))).map(String));
+        const staged = new SvelteSet(
+          (Array.isArray(story.in_scene_npc_ids) ? story.in_scene_npc_ids : npc_list.map((n) => String(n.id))).map(String),
+        );
         this.#active_npcs = Object.fromEntries(
           npc_list.map((n) => [String(n.id), { ...n, presence: staged.has(String(n.id)) ? "active" : "nearby" }]),
         );
@@ -702,6 +731,7 @@ if (typeof window !== "undefined") {
 
 /**
  * CHANGELOG:
+ * - 2026-10-12: Added Track 4 Scene Momentum & Stagnation Backstop: `stagnation_turns` and `last_semantic_drift` reactive fields, `record_turn_drift` mutation method, auto-save effect persistence, and IndexedDB hydration in `sync()`.
  * - 2026-09-24: Explicitly declared reactive `$state(0)` fields `structural_errors` and `back_shot_cursor` on `RuntimeEngineStore`, preventing undeclared dynamic property mutations and enabling reactive tracking.
  * - 2026-09-24: Refactored `create_runtime_store()` into idiomatic Svelte 5 `RuntimeEngineStore` class, eliminating closure getters/setters in favor of direct `$state` fields while preserving 100% API compatibility.
  * - 2026-09-24: Extracted `apply_story_title` and added `restore_story_title()` so entering storymode re-asserts the

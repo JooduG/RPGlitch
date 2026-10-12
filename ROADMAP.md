@@ -69,11 +69,11 @@ flowchart TD
 - **Problem Diagnosis**: In live simulations (`forensics-report.md`), the `<ENTITIES>` block alone consumes 72% of the Director prompt and 55% of the interaction prompt, causing Perchance to trigger destructive middle-out prompt truncations that slice entities and history. Vector scoring is isolated to `past`, while `eternal`, `present`, and `future` dump unbudgeted raw text.
 - **Key Modules**: `src/intelligence/temporal.js`, `src/intelligence/modules/sheets.js`, `src/intelligence/modules/entities.js`, `src/intelligence/modules/entities.test.js`, `src/intelligence/builder.js`.
 - **Planned Sub-Items**:
-  - [ ] **1.1 Universal 3-Tier Prompt Reservoir**: Allocate ~250 tokens for Tier 1 Core Anchors, ~750 tokens for Tier 2 Scored Reservoir, and ~250 tokens for Tier 3 Contextual Spillover.
-  - [ ] **1.2 Active Speaker / Target Dynamic Pruning**: Include full detailed sheets strictly for active speaker and target; compress all background cast to terse 1-line summaries.
-  - [ ] **1.3 The 0.5x Physical Salience Penalty**: Apply a 0.5x scoring penalty to physical descriptor brackets (`CLOTHING`, `HAIR`, `EYES`, `ACCESSORY`) during narrative turns unless cosine similarity $> 0.80$, redirecting $\approx 350$ tokens to memories.
-  - [ ] **1.4 Whole-Vector Budget Protection**: Enforce bracket-boundary chunking (`temporal.js:421-435`) preventing half-sliced brackets from entering the LLM prompt.
-  - [ ] **1.5 Unified Field Merger (`merge_field_content`)**: Merge `merge_eternal_field` and `merge_prose_into_field` into a single atomic helper with key-aware replacement and head/tail budget capping.
+  - [x] **1.1 Universal 3-Tier Prompt Reservoir**: Allocate ~250 tokens for Tier 1 Core Anchors, ~750 tokens for Tier 2 Scored Reservoir, and ~250 tokens for Tier 3 Contextual Spillover.
+  - [x] **1.2 Active Speaker / Target Dynamic Pruning**: Include full detailed sheets strictly for active speaker and target; compress all background cast to terse 1-line summaries.
+  - [x] **1.3 The 0.5x Physical Salience Penalty**: Apply a 0.5x scoring penalty to physical descriptor brackets (`CLOTHING`, `HAIR`, `EYES`, `ACCESSORY`) during narrative turns unless cosine similarity $> 0.80$, redirecting $\approx 350$ tokens to memories.
+  - [x] **1.4 Whole-Vector Budget Protection**: Enforce bracket-boundary chunking (`temporal.js:421-435`) preventing half-sliced brackets from entering the LLM prompt.
+  - [x] **1.5 Unified Field Merger (`merge_field_content`)**: Merge `merge_eternal_field` and `merge_prose_into_field` into a single atomic helper with key-aware replacement and head/tail budget capping.
 
 ---
 
@@ -87,11 +87,11 @@ flowchart TD
   4. `src/intelligence/builder.js`: Prompt construction querying message arrays and mapping speaker/user turns.
   5. `src/data/db.js`: IndexedDB `messages` table storing raw message rows.
      Each system maintains its own mapping of `{ role, content, thoughts, metadata, timestamp }`, creating drift in role translation, formatting, and token budgeting.
-- **Key Modules**: `src/state/log.svelte.js`, `src/utils/story-export.js`, `src/intelligence/modules/history.js`, `src/intelligence/builder.js`.
+- **Key Modules**: `src/state/log.svelte.js`, `src/state/log.test.js`, `src/utils/text.js`, `src/utils/story-export.js`, `src/utils/story-export.test.js`, `src/intelligence/modules/history.js`, `src/intelligence/modules/history.test.js`, `src/intelligence/builder.js`.
 - **Planned Sub-Items**:
-  - [ ] **2.1 Single Canonical History Formatter**: Build a shared pipeline module that standardizes message normalization, role mapping, and thought stripping across prompt building, UI display, and story export.
-  - [ ] **2.2 High-Performance Dexie Query Windowing**: Streamline log history fetch queries during active round advancement, eliminating duplicate fetches between the UI feed and LLM prompt compilers.
-  - [ ] **2.3 Unified Transcript Exporter**: Refactor `story-export.js` to consume the canonical history pipeline directly under P4 Zero Backwards Compatibility.
+  - [x] **2.1 Single Canonical History Formatter**: Build a shared pipeline module that standardizes message normalization, role mapping, and thought stripping across prompt building, UI display, and story export (`normalize_history_beat` in `history.js`).
+  - [x] **2.2 High-Performance Dexie Query Windowing**: Streamline log history fetch queries during active round advancement, eliminating duplicate fetches between the UI feed and LLM prompt compilers (`get_recent_window` in `log.svelte.js`).
+  - [x] **2.3 Unified Transcript Exporter**: Refactor `story-export.js` to consume the canonical history pipeline directly under P4 Zero Backwards Compatibility.
 
 ---
 
@@ -99,24 +99,24 @@ flowchart TD
 
 - **Objective**: Harden narrative prose and design system against AI tropes, repetitious physical posture loops, and motion jank using the comprehensive anti-slop suite from `tmp/writing/`.
 - **Problem Diagnosis**: Live simulations suffer from severe output-anchored repetition loops (`forensics-report.md: T2-T5`) where characters repeat the exact same physical grip and grunts across consecutive turns because the model anchors to preceding history without a spent ledger.
-- **Key Modules**: `src/utils/detox.js`, `src/utils/detox.test.js`, `src/utils/styles.js`, `src/intelligence/modules/protocols.js`.
+- **Key Modules**: `src/intelligence/modules/spent-ledger.js`, `src/intelligence/modules/spent-ledger.test.js`, `src/intelligence/modules/protocols.js`, `src/intelligence/modules/protocols.test.js`, `src/intelligence/builder.js`, `src/utils/detox.js`, `src/utils/detox.test.js`, `src/utils/styles.js`, `src/utils/styles.test.js`.
 - **Planned Sub-Items**:
-  - [ ] **3.1 The Spent Ledger Engine (`slop.js` / `protocols.js`)**: Inspect the last 4–6 turns for repeated opening clauses, physical mannerisms, and 3–5 word n-grams, injecting `# SPENT LEDGER` into the prompt tail prohibiting re-use.
-  - [ ] **3.2 Fatal Syntactic Construction Linter (Tier 1 & P0)**: Deterministic regex detector in `detox.js` flagging negative antithesis (`not X, it's Y`, `it's not X, it's Y`, `not quite X, more like Y`, `she didn't X; she Y`), parenthetical thought leaks, purple weather (`air grew thick`), and explicit subtext naming (`gesture of ownership`).
-  - [ ] **3.3 Somatic Flooding & Stock Face Gate (Tier 2 & P1)**: Cap facial clichés (`ghost of a smirk`, `barely above a whisper`, `eyes darkened`, `let out a breath she didn't know she was holding`, `a beat passed`) at maximum 1 per reply.
-  - [ ] **3.4 Macro-Shape & Heuristic Auditing (Tier 3 & P2)**: Enforce rules against `as-if-overuse` (> 2 per turn), `every-para-question`, `familiar-closer` (`Meanwhile`, `Then`, `Suddenly`), and `door-slam-closer`.
-  - [ ] **3.5 112-Word Replacement Lexicon & Blacklist (`word-tiers.md`)**: Integrate Tier 1A (49 forbidden AI frequency markers: `delve`, `tapestry`, `embark`, `testament to`, `beacon`, `interplay`, `pivotal`, `robust`, `comprehensive`, `realm`), Tier 1B (clarity replacements: `utilize` $\rightarrow$ `use`), and Tier 2 density caps.
-  - [ ] **3.6 Frontend & Kinetic Anti-Slop**: Enforce zero em-dashes in UI and uphold Emil Kowalski motion constraints (compositor-only transforms, sub-300ms budgets, zero animation on $100+$ times/day actions).
+  - [x] **3.1 The Spent Ledger Engine (`slop.js` / `protocols.js`)**: Inspect the last 4–6 turns for repeated opening clauses, physical mannerisms, and 3–5 word n-grams, injecting `# SPENT LEDGER` into the prompt tail prohibiting re-use.
+  - [x] **3.2 Fatal Syntactic Construction Linter (Tier 1 & P0)**: Deterministic regex detector in `detox.js` flagging negative antithesis (`not X, it's Y`, `it's not X, it's Y`, `not quite X, more like Y`, `she didn't X; she Y`), parenthetical thought leaks, purple weather (`air grew thick`), and explicit subtext naming (`gesture of ownership`).
+  - [x] **3.3 Somatic Flooding & Stock Face Gate (Tier 2 & P1)**: Cap facial clichés (`ghost of a smirk`, `barely above a whisper`, `eyes darkened`, `let out a breath she didn't know she was holding`, `a beat passed`) at maximum 1 per reply.
+  - [x] **3.4 Macro-Shape & Heuristic Auditing (Tier 3 & P2)**: Enforce rules against `as-if-overuse` (> 2 per turn), `every-para-question`, `familiar-closer` (`Meanwhile`, `Then`, `Suddenly`), and `door-slam-closer`.
+  - [x] **3.5 112-Word Replacement Lexicon & Blacklist (`word-tiers.md`)**: Integrate Tier 1A (49 forbidden AI frequency markers: `delve`, `tapestry`, `embark`, `testament to`, `beacon`, `interplay`, `pivotal`, `robust`, `comprehensive`, `realm`), Tier 1B (clarity replacements: `utilize` $\rightarrow$ `use`), and Tier 2 density caps.
+  - [x] **3.6 Frontend & Kinetic Anti-Slop**: Enforce zero em-dashes in UI and uphold Emil Kowalski motion constraints (compositor-only transforms, sub-300ms budgets, zero animation on $100+$ times/day actions).
 
 ---
 
 ### Track 4: Scene Momentum & Stagnation Backstop
 
 - **Objective**: Prevent repetitive circular roleplays and stagnant physical poses by tracking semantic drift across turns.
-- **Key Modules**: `src/intelligence/modules/history.js`, `src/intelligence/modules/reflex.js`, `src/intelligence/director.js`.
+- **Key Modules**: `src/platform/embeddings.svelte.js`, `src/platform/embeddings.test.js`, `src/platform/index.js`, `src/state/runtime.svelte.js`, `src/state/runtime.test.js`, `src/intelligence/modules/reflex.js`, `src/intelligence/modules/reflex.test.js`, `src/intelligence/modules/task.js`, `src/intelligence/prompts.js`, `src/intelligence/prompts.test.js`, `src/intelligence/builder.js`, `src/intelligence/story.js`.
 - **Planned Sub-Items**:
-  - [ ] **4.1 Semantic Drift Tracker**: Compute turn-to-turn semantic movement ($1 - \text{cosine\_similarity}$) across active turns.
-  - [ ] **4.2 Directorial Momentum Tiers**: Soft permit at 8 stagnant turns (Director ceases anti-staging directives); hard scene-crossing mandate at 16 stagnant turns (forcing environmental transit or character arrival).
+  - [x] **4.1 Semantic Drift Tracker**: Compute turn-to-turn semantic movement ($1 - \text{cosine\_similarity}$) across active turns.
+  - [x] **4.2 Directorial Momentum Tiers**: Soft permit at 8 stagnant turns (Director ceases anti-staging directives); hard scene-crossing mandate at 16 stagnant turns (forcing environmental transit or character arrival).
 
 ---
 

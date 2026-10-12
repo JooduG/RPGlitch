@@ -19,6 +19,9 @@ import {
   HISTORY_DEFAULTS,
   CONTEXT_TOKEN_CLIFF,
   HISTORY_TOKEN_BUDGET,
+  CANONICAL_ROLES,
+  canonicalize_role,
+  normalize_history_beat,
   resolve_history,
   render_history,
   render_input_history_xml,
@@ -273,6 +276,69 @@ describe("src/intelligence/modules/history.js — history plans", () => {
     expect(CONTEXT_TOKEN_CLIFF).toBe(6000);
     expect(HISTORY_TOKEN_BUDGET).toBe(1600);
     expect(prune_history_plan_to_budget([{ origin: "A", round: 1, text: "hi" }], 100).pruned).toBe(0);
+  });
+});
+
+describe("src/intelligence/modules/history.js — normalize_history_beat", () => {
+  it("resolves canonical roles correctly", () => {
+    expect(canonicalize_role("user")).toBe(CANONICAL_ROLES.USER);
+    expect(canonicalize_role("USER_PERSONA")).toBe(CANONICAL_ROLES.USER);
+    expect(canonicalize_role("ai")).toBe(CANONICAL_ROLES.AI);
+    expect(canonicalize_role("AI_CHARACTER")).toBe(CANONICAL_ROLES.AI);
+    expect(canonicalize_role("assistant")).toBe(CANONICAL_ROLES.AI);
+    expect(canonicalize_role("model")).toBe(CANONICAL_ROLES.AI);
+    expect(canonicalize_role("npc")).toBe(CANONICAL_ROLES.NPC);
+    expect(canonicalize_role("fractal")).toBe(CANONICAL_ROLES.FRACTAL);
+    expect(canonicalize_role("prologue")).toBe(CANONICAL_ROLES.FRACTAL);
+    expect(canonicalize_role("narrator")).toBe(CANONICAL_ROLES.FRACTAL);
+    expect(canonicalize_role("system")).toBe(CANONICAL_ROLES.SYSTEM);
+    expect(canonicalize_role("telemetry")).toBe(CANONICAL_ROLES.SYSTEM);
+    expect(canonicalize_role(null)).toBe(CANONICAL_ROLES.AI);
+  });
+
+  it("normalizes beats with stripped cognition, attribution, and attachments", () => {
+    const raw = {
+      role: "assistant",
+      character_name: "Vael",
+      text: "<think>Hidden thought</think> The stars align.",
+      attachments: [{ src: "https://example.com/img.png" }],
+      round: 2,
+    };
+    const beat = normalize_history_beat(raw);
+    expect(beat).not.toBeNull();
+    expect(beat.role).toBe(CANONICAL_ROLES.AI);
+    expect(beat.raw_role).toBe("assistant");
+    expect(beat.origin).toBe("Vael");
+    expect(beat.character_name).toBe("Vael");
+    expect(beat.text).toBe("The stars align.");
+    expect(beat.attachments.length).toBe(1);
+    expect(beat.round).toBe(2);
+  });
+
+  it("returns null for non-object or null input", () => {
+    expect(normalize_history_beat(null)).toBeNull();
+    expect(normalize_history_beat(undefined)).toBeNull();
+    expect(normalize_history_beat("not an object")).toBeNull();
+  });
+
+  it("handles user persona defaults and origin hierarchy", () => {
+    const user_beat = normalize_history_beat({ role: "user", text: "Ready." });
+    expect(user_beat.role).toBe(CANONICAL_ROLES.USER);
+    expect(user_beat.origin).toBe("User");
+    expect(user_beat.character_name).toBe("You");
+
+    const named_user_beat = normalize_history_beat({ role: "user", character_name: "Silver", text: "Ready." });
+    expect(named_user_beat.origin).toBe("Silver");
+    expect(named_user_beat.character_name).toBe("Silver");
+
+    const id_beat = normalize_history_beat({
+      role: "ai",
+      entity_id: "ENT_VAEL",
+      origin: "OLD_ID",
+      character_name: "Vael",
+      text: "Speaking.",
+    });
+    expect(id_beat.origin).toBe("ENT_VAEL");
   });
 });
 

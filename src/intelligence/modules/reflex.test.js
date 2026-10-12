@@ -97,9 +97,27 @@ describe("reflex.js - input-size tiers and beat budgets", () => {
   });
 
   it("carries constraint flags on the posture plan", () => {
-    expect(resolve_prose_posture_plan({}, '"We ride at dawn."').constraints).toEqual({ anti_staging: true, held_moment: false });
-    expect(resolve_prose_posture_plan({}, "...").constraints).toEqual({ anti_staging: false, held_moment: true });
-    expect(resolve_prose_posture_plan({}, "Alice prepares to move.").constraints).toEqual({ anti_staging: false, held_moment: false });
+    expect(resolve_prose_posture_plan({}, '"We ride at dawn."').constraints).toEqual({
+      anti_staging: true,
+      held_moment: false,
+      momentum_soft_permit: false,
+      momentum_hard_mandate: false,
+      stagnation_turns: 0,
+    });
+    expect(resolve_prose_posture_plan({}, "...").constraints).toEqual({
+      anti_staging: false,
+      held_moment: true,
+      momentum_soft_permit: false,
+      momentum_hard_mandate: false,
+      stagnation_turns: 0,
+    });
+    expect(resolve_prose_posture_plan({}, "Alice prepares to move.").constraints).toEqual({
+      anti_staging: false,
+      held_moment: false,
+      momentum_soft_permit: false,
+      momentum_hard_mandate: false,
+      stagnation_turns: 0,
+    });
   });
 });
 describe("reflex.js - environmental hint detection", () => {
@@ -175,6 +193,30 @@ describe("reflex.js - posture plans and envelopes", () => {
   it("never emits a VOICE tag", () => {
     expect(render_prose_posture_plan(resolve_prose_posture_plan({}, "Hello."))).not.toContain("VOICE");
     expect(render_prose_reflex({ speaking_style: "Lyrical" }, "Hello.")).not.toContain("VOICE");
+  });
+
+  it("lifts ANTI_STAGING and emits MOMENTUM_SOFT_PERMIT when stagnation_turns >= 8", () => {
+    const plan = resolve_prose_posture_plan({}, '"We ride at dawn."', { stagnation_turns: 8 });
+    expect(plan.constraints.anti_staging).toBe(false);
+    expect(plan.constraints.momentum_soft_permit).toBe(true);
+    expect(plan.constraints.momentum_hard_mandate).toBe(false);
+
+    const rendered = render_prose_posture_plan(plan);
+    expect(rendered).not.toContain("<ANTI_STAGING>");
+    expect(rendered).toContain("<MOMENTUM_SOFT_PERMIT>");
+    expect(rendered).toContain("Narrative movement has plateaued for 8 beats");
+  });
+
+  it("emits MOMENTUM_HARD_MANDATE when stagnation_turns >= 16", () => {
+    const plan = resolve_prose_posture_plan({}, '"We ride at dawn."', { stagnation_turns: 16 });
+    expect(plan.constraints.anti_staging).toBe(false);
+    expect(plan.constraints.momentum_soft_permit).toBe(false);
+    expect(plan.constraints.momentum_hard_mandate).toBe(true);
+
+    const rendered = render_prose_posture_plan(plan);
+    expect(rendered).not.toContain("<ANTI_STAGING>");
+    expect(rendered).toContain("<MOMENTUM_HARD_MANDATE>");
+    expect(rendered).toContain("Extreme stagnation detected (16 beats)");
   });
 });
 

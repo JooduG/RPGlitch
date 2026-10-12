@@ -34,11 +34,9 @@ import {
   render_xml_tag,
   collapse_history,
   strip_cognition_blocks,
-  collapse_whitespace,
   truncate_at_word,
   prompt_escape,
   escape_xml,
-  role_display_label,
   wrap_tag,
   estimate_tokens,
 } from "@utils";
@@ -85,8 +83,12 @@ export const CONTEXT_TOKEN_CLIFF = 6000;
 /** Token budget for one transcript window (history slot, all modes). */
 export const HISTORY_TOKEN_BUDGET = 1600;
 
+import { CANONICAL_ROLES, canonicalize_role, normalize_history_beat } from "@utils";
+
+export { CANONICAL_ROLES, canonicalize_role, normalize_history_beat };
+
 // ============================================================================
-// [SECTION 2: HISTORY PLANS — PURE DATA, NO XML]
+// [SECTION 3: HISTORY PLANS — PURE DATA, NO XML]
 // ============================================================================
 
 /**
@@ -182,31 +184,25 @@ export function resolve_history_plan(entries, options = {}) {
   const end_index = Math.max(0, total - offset);
   const windowed = collapsed.slice(start_index, end_index);
 
-  const fallback = label_fallback ?? (label_policy === "visual" ? "narrator" : "Character");
   let empty_count = 0;
   let included = [];
   windowed.forEach((entry, window_position) => {
-    const raw_text = text_source === "text" ? entry?.text : (entry?.content ?? entry?.text);
-    let cleaned = strip_cognition_blocks(String(raw_text ?? "")).trim();
-    if (normalize_whitespace) cleaned = collapse_whitespace(cleaned);
-    if (!cleaned) {
+    const beat = normalize_history_beat(entry, {
+      text_source,
+      normalize_whitespace,
+      max_chars,
+      label_policy,
+      label_fallback,
+    });
+    if (!beat || !beat.text) {
       empty_count += 1;
       return;
     }
-    const origin =
-      label_policy === "visual"
-        ? entry?.character_name || entry?.role || fallback
-        : entry?.entity_id ||
-          entry?.origin ||
-          entry?.character_name ||
-          entry?.name ||
-          (entry?.role ? role_display_label(entry.role) : "") ||
-          fallback;
     included.push(
       Object.freeze({
-        origin: String(origin),
+        origin: beat.origin,
         round: start_index + window_position + 1,
-        text: max_chars ? truncate_at_word(cleaned, max_chars) : cleaned,
+        text: beat.text,
       }),
     );
   });
@@ -483,6 +479,7 @@ export function resolve_chapter_history_slot(config, normalized = {}) {
 
 /**
  * CHANGELOG
+ * - Track 2: Simulation Log Pipeline Harmonization — added `CANONICAL_ROLES`, `canonicalize_role`, and `normalize_history_beat` (frozen record with canonical role taxonomy, attribution, cognition stripping, and attachment handling); wired `resolve_history_plan` to use `normalize_history_beat`.
  * - Track 2.2: Context cliff guard — CONTEXT_TOKEN_CLIFF (6000) + HISTORY_TOKEN_BUDGET (1600); token_budget option on resolve_history_plan/render_history/render_input_history_xml (oldest pruned first, newest survives, round gaps kept); prose HISTORY slot compiles under budget; prune_history_plan_to_budget exported pure helper.
  * - 2026-10-04: Plan/render split (Plan 2) — `resolve_history_plan` owns all filter/collapse/window/strip/budget decisions as frozen pure data, `render_history_plan` maps plans to `<ENTRY>` XML without branching; sensory shaping splits into `resolve_sensory_plan` + `render_sensory_plan`; the four public compilers become one-line compositions with byte-identical output; retired the `maximum_characters` / `input_tag` aliases (P4) and the dual `limit` vs `max_entries` wording now shares one vocabulary.
  * - 2026-10-04: Reverted sensory/visual history shaping (format_sensory_history, render_visual_history) from media/optics.js — history shaping lives here; chapter milestones stay in sheets.js.

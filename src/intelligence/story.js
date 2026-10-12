@@ -36,7 +36,7 @@ import {
   clear_generation_in_flight,
 } from "@media";
 import { validate_and_repair_response, force_close_response, balance_think_tags, strip_directors_note_seed, THINK_OPEN_TAG } from "./parser.js";
-import { llm_service, looks_truncated } from "@platform";
+import { llm_service, looks_truncated, calculate_semantic_drift } from "@platform";
 import { apply_dynamics_gravity, extract_entity_dynamics_baselines, capture_dynamics_delta } from "./dynamics.js";
 import { execute_director_shot, resolve_npc_entity, apply_in_scene_change } from "./director.js";
 import { build_scoring_context, context_builder } from "./builder.js";
@@ -200,9 +200,28 @@ export const gamemaster = {
         }
       }
 
+      const previous_turn_entry = simulation_log.at(-1);
+      const previous_turn_text = previous_turn_entry ? strip_cognition_blocks(previous_turn_entry.content || "").trim() : "";
+      if (input && previous_turn_text) {
+        try {
+          const drift = await calculate_semantic_drift(input, previous_turn_text);
+          state_bridge.runtime?.record_turn_drift?.(drift);
+          const current_stagnation = state_bridge.runtime?.stagnation_turns ?? 0;
+          if (current_stagnation >= 16) {
+            state_bridge.app?.log?.(`[Momentum] Drift: ${drift.toFixed(2)} | Stagnation count: ${current_stagnation} (Hard Mandate active)`, "warn");
+          } else if (current_stagnation >= 8) {
+            state_bridge.app?.log?.(`[Momentum] Drift: ${drift.toFixed(2)} | Stagnation count: ${current_stagnation} (Soft Permit active)`, "system");
+          }
+        } catch (drift_error) {
+          console.warn("[Story] Semantic drift computation failed:", drift_error);
+        }
+      }
+
       const payload = await context_builder.build_context(input || "", "simulation", simulation_log);
       payload.meta = payload.meta || {};
       payload.meta.structural_errors = state_bridge.runtime.structural_errors || 0;
+      payload.meta.stagnation_turns = state_bridge.runtime.stagnation_turns || 0;
+      payload.stagnation_turns = state_bridge.runtime.stagnation_turns || 0;
 
       const scoring_context = build_scoring_context(input, simulation_log);
       if (scoring_context) {
@@ -978,6 +997,7 @@ export const story_pipeline = gamemaster;
 
 /**
  * CHANGELOG
+ * - 2026-10-12: Added Track 4 Scene Momentum & Stagnation Backstop: computes turn-to-turn semantic movement using calculate_semantic_drift, records stagnation counts into state_bridge.runtime, injects stagnation_turns into context payload, and logs momentum telemetry.
  * - 2026-09-26: Deferred background LLM enrichment — the image-beat optics dispatch and the Continuum memory forge now fire AFTER the character pass (step 8.2) instead of racing it, and the prologue image waits for the opening reply (replacing the image-resolve budget race), so the foreground reply always owns the single-slot global LLM gate first.
  * - 2026-09-24: Streamlined dependencies: routed `capture_dynamics_delta` from `physics.js` and `context_builder` from `builder.js`, removing orphaned imports to retired standalone modules (`telemetry.js`, `payload.js`).
  * - 2026-09-25: Unified history message filtering — migrated execute_turn, execute_epilogue, and execute_ghostwriter to consume canonical `filter_narrative_messages` from @utils.

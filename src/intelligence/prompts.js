@@ -164,8 +164,9 @@ function prose_protocols({ include_dialogue = false } = {}) {
  * @param {{ has_input?: boolean, round?: number, has_environmental_hint?: boolean, turn_state?: { first_contact: boolean, round_one: boolean, evaluation: string } }} [parameters={}]
  * @returns {Array<string | { group: string[] }>}
  */
-export function director_directives({ has_input = false, round = 1, has_environmental_hint = false, turn_state = null } = {}) {
+export function director_directives({ has_input = false, round = 1, has_environmental_hint = false, turn_state = null, stagnation_turns = 0 } = {}) {
   const situation = turn_state ?? resolve_turn_state_plan({ has_input, round });
+  const stagnation = Math.max(0, Number(stagnation_turns) || 0);
   return [
     "DIRECTOR.DYNAMICS_CALIBRATION",
     {
@@ -179,6 +180,7 @@ export function director_directives({ has_input = false, round = 1, has_environm
     "DIRECTOR.ROUTING",
     "DIRECTOR.CONVERGENCE",
     "DIRECTOR.BRANCHES",
+    ...(stagnation >= 16 ? ["DIRECTOR.MOMENTUM_HARD_MANDATE"] : stagnation >= 8 ? ["DIRECTOR.MOMENTUM_SOFT_PERMIT"] : []),
   ];
 }
 

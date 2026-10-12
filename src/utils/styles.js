@@ -46,7 +46,7 @@ export const SLOP_PATTERNS = Object.freeze({
   ]),
   SOMATIC_MARKERS: Object.freeze([
     /\bheart (pounded|hammered|raced|thudded|fluttered)\b/i,
-    /\bbreath (hitched|caught|hitched in|caught in)\b/i,
+    /\bbreath (hitched|caught|hitched in|caught in|stuttered)\b/i,
     /\bheld (his|her|their) breath\b/i,
     /\bstomach (dropped|twisted|churned|lurched)\b/i,
     /\bblood ran cold\b/i,
@@ -55,6 +55,13 @@ export const SLOP_PATTERNS = Object.freeze({
     /\bhands? (trembled|shook)\b/i,
     /\bpulse (quickened|roared|pounded)\b/i,
     /\bthroat (went dry|tightened|closed)\b/i,
+    /\bghost of a (smirk|smile)\b/i,
+    /\bbarely above a whisper\b/i,
+    /\beyes (darkened|flashed|narrowed|hardened)\b/i,
+    /\b(jaw|mouth) (tight|tightened|set|clenched|locked)\b/i,
+    /\bfists? (clenched|tightened)\b/i,
+    /\bran a hand through (his|her|their) hair\b/i,
+    /\btime seemed to (stop|slow)\b/i,
   ]),
 });
 
@@ -154,3 +161,80 @@ export function resolve_speaking_style(entity = null, narrative_style = null) {
 
   return "casual";
 }
+
+// ============================================================================
+// [SECTION 3: MACRO SHAPE AUDITOR (Track 3.4)]
+// ============================================================================
+
+/**
+ * Audits macro shape of narrative prose:
+ * - as_if_overuse: `as if` / `as though` > 2 in one reply
+ * - every_para_question: every paragraph in a multi-paragraph reply ends in ?
+ * - familiar_closer: final paragraph opens with Meanwhile / Then / Suddenly
+ * - door_slam_closer: closing sentence ends on a door slam/shut beat
+ *
+ * @param {string|null|undefined} text
+ * @returns {Readonly<{
+ *   as_if_count: number,
+ *   as_if_overuse: boolean,
+ *   every_para_question: boolean,
+ *   familiar_closer: boolean,
+ *   door_slam_closer: boolean,
+ *   violations: ReadonlyArray<string>
+ * }>}
+ */
+export function audit_macro_shape(text) {
+  const source = String(text || "").trim();
+  if (!source) {
+    return Object.freeze({
+      as_if_count: 0,
+      as_if_overuse: false,
+      every_para_question: false,
+      familiar_closer: false,
+      door_slam_closer: false,
+      violations: Object.freeze([]),
+    });
+  }
+
+  const violations = [];
+
+  // 1. as if overuse (> 2)
+  const as_if_matches = source.match(/\bas\s+(?:if|though)\b/gi) || [];
+  const as_if_count = as_if_matches.length;
+  const as_if_overuse = as_if_count > 2;
+  if (as_if_overuse) violations.push("as-if-overuse");
+
+  // 2. every paragraph ends in a question
+  const paragraphs = source
+    .split(/\n\s*\n/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+  const every_para_question = paragraphs.length >= 2 && paragraphs.every((p) => /\?["'”’]?$/.test(p));
+  if (every_para_question) violations.push("every-para-question");
+
+  // 3. familiar closer (final paragraph opens with Meanwhile / Then / Suddenly)
+  const last_para = paragraphs[paragraphs.length - 1] || "";
+  const familiar_closer = /^(?:meanwhile|then|suddenly)\b/i.test(last_para);
+  if (familiar_closer) violations.push("familiar-closer");
+
+  // 4. door slam closer
+  const sentences = (source.match(/[^.!?…\n]+[.!?…]*/g) || []).map((s) => s.trim()).filter(Boolean);
+  const last_sentence = sentences[sentences.length - 1] || "";
+  const door_slam_closer = /\b(?:the\s+)?door\s+(?:slammed|slams|slam|shut|clicked)\b/i.test(last_sentence);
+  if (door_slam_closer) violations.push("door-slam-closer");
+
+  return Object.freeze({
+    as_if_count,
+    as_if_overuse,
+    every_para_question,
+    familiar_closer,
+    door_slam_closer,
+    violations: Object.freeze(violations),
+  });
+}
+
+/**
+ * CHANGELOG
+ * - Track 3.3: Expanded SOMATIC_MARKERS with stock faces (smirks, whispers, clenched fists, etc.) capped at 1 per reply.
+ * - Track 3.4: Added audit_macro_shape auditing as-if-overuse (> 2), every-para-question, familiar-closer, and door-slam-closer.
+ */

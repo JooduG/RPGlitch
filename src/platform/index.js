@@ -61,6 +61,7 @@ export {
   deserialize_embedding,
   quantize_vector_q8,
   dequantize_vector_q8,
+  calculate_semantic_drift,
   EMBEDDING_DIM,
 } from "./embeddings.svelte.js";
 

@@ -9,12 +9,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
-- **Track 3: Anti-Slop Design & Narrative Detox Hardening (`src/utils/detox.js`, `.agents/skills/design/`)**:
-  - Normalized raw em-dashes (`—`) and en-dashes (`–`) from narrative prose and dialogue into clean punctuation.
-  - Added throat-clearing and pseudo-poetic cliché filters (`quietly [verb]`, `testament to`, `symphony/dance/tapestry of`).
-  - Embedded Emil Kowalski's Ten Commandments of Motion into `.agents/skills/design/SKILL.md` (responsive easing `--ease-out`, sub-300ms budget, origin-awareness, compositor-only properties, hover gating).
-  - Integrated Bits UI v1 (`child` snippets, `ref = $bindable()`, `--transform-origin`) and Svelte 5 `flushSync` View Transitions into design skill.
-  - Added automated audit gates in `audit-design.js` surfacing raw em-dashes, `h-screen`, `scale(0)`, `transition: all`, and `ease-in`.
+- **Track 4: Scene Momentum & Stagnation Backstop (`src/platform/embeddings.svelte.js`, `src/state/runtime.svelte.js`, `src/intelligence/modules/reflex.js`, `src/intelligence/modules/task.js`, `src/intelligence/prompts.js`, `src/intelligence/builder.js`, `src/intelligence/story.js`)**:
+  - Implemented `calculate_semantic_drift(current_text, previous_text)` in `embeddings.svelte.js` returning normalized $(1 - \text{cosine\_similarity})$ via 384-d neural embeddings.
+  - Added reactive `stagnation_turns` and `last_semantic_drift` to `RuntimeEngineStore` (`runtime.svelte.js`), auto-persisting to IndexedDB `db.stories` and updating via `record_turn_drift(drift)`.
+  - Added Directorial Momentum Tiers in `reflex.js`: `MOMENTUM_TIERS` calibration in `REFLEX_DEFAULTS`, `MOMENTUM_SOFT_PERMIT` and `MOMENTUM_HARD_MANDATE` atoms in `REFLEX_LIBRARY.CONDITIONALS`.
+  - `resolve_prose_posture_plan` lifts `ANTI_STAGING` at $\ge 8$ stagnant turns and emits soft permit / hard mandate flags into `<DELIVERY_POSTURE>`.
+  - Added `MOMENTUM_SOFT_PERMIT` and `MOMENTUM_HARD_MANDATE` directives to `TASK_LIBRARY.DIRECTOR` (`task.js`) and wired prompt compiler injection via `director_directives` (`prompts.js`).
+  - Integrated turn-to-turn semantic drift evaluation and telemetry logs into `story.js:execute_turn`.
+  - Added full test coverage in `embeddings.test.js`, `runtime.test.js`, `reflex.test.js`, and `prompts.test.js`.
+
+- **Track 3: Anti-Slop Narrative Detox & The Spent Ledger (`src/intelligence/modules/spent-ledger.js`, `src/intelligence/builder.js`, `src/utils/detox.js`, `src/utils/styles.js`)**:
+  - Implemented the Spent Ledger engine in `spent-ledger.js`, scanning recent dialogue turns (default 5) for opening clauses, physical mannerisms, and 3-5 word n-grams, compiling the `# SPENT LEDGER` directive into the prompt pipeline via `builder.js`.
+  - Implemented fatal syntactic construction rewrites in `detox.js` (`not quite X, more like Y`, `she didn't X; she Y`, `the air grew thick`, and naming subtext like `gesture of ownership`).
+  - Added Tier 1A high-frequency AI vocabulary marker replacements (49 terms: `delve`, `tapestry`, `realm`, `paradigm`, `embark`, `beacon`, `robust`, `comprehensive`, `cutting-edge`, `leverage`, `pivotal`, etc.) and Tier 1B clarity rewrites (`utilize` $\rightarrow$ `use`, `in order to` $\rightarrow$ `to`, `due to the fact that` $\rightarrow$ `because`, `serves as` $\rightarrow$ `is`, `commence` $\rightarrow$ `start`, `ascertain` $\rightarrow$ `find out`, `endeavor` $\rightarrow$ `attempt`).
+  - Expanded somatic markers in `styles.js` with stock facial expressions and mannerisms (`ghost of a smirk`, `barely above a whisper`, `eyes darkened`, `jaw tight`, `fists clenched`, `ran a hand through hair`, `time seemed to stop`), enforcing a 1-per-reply cap.
+  - Implemented macro-shape auditor `audit_macro_shape` in `styles.js` guarding against `as-if-overuse` (> 2), `every-para-question`, `familiar-closer`, and `door-slam-closer`.
+  - Enforced zero raw em-dashes and preserved Emil Kowalski motion constraints in frontend UI.
+
+- **Track 2: Simulation Log Pipeline Harmonization (`src/intelligence/modules/history.js`, `src/utils/story-export.js`, `src/state/log.svelte.js`)**:
+  - Implemented `normalize_history_beat` and `canonicalize_role` in `history.js`, unifying turn beat normalization across prompt compilation, story export, and diagnostic logs.
+  - Standardized canonical Sovereign entity roles (`USER`, `AI`, `NPC`, `FRACTAL`, `SYSTEM`) and purged generic LLM terminology (`assistant`, `narrator`).
+  - Refactored `format_story_beat` in `story-export.js` to consume `normalize_history_beat`, eliminating duplicate cognition stripping and ad-hoc role handling.
+  - Added `get_recent_window(limit, offset)` to `SimulationLogStore` in `log.svelte.js` for zero-query in-memory window slicing during active simulation rounds.
+  - Added full unit test coverage in `history.test.js`, `story-export.test.js`, and `log.test.js`.
 
 - **Track 1: Sovereign 4-Quadrant RAG & Dynamic Token Budget Reservoir (`src/intelligence/`)**:
   - Implemented `merge_field_content` in `temporal.js`: key-aware pseudo-JSON bracket merger with deletion triggers (`cleared`/`none`) and word-boundary prose truncation.

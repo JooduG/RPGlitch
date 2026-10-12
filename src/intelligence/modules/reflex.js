@@ -56,6 +56,11 @@ export const REFLEX_DEFAULTS = Object.freeze({
     Object.freeze({ tier: "EXPANSIVE", at_most_chars: Infinity, beats: "open", mandate: "Match «INPUT» breadth; close on one decisive hook." }),
   ]),
   PAUSE_MARKERS: /(\.\.\.|…|\(silence\)|\(pause\)|\bsays nothing\b|\bremains silent\b|\bno response\b|\bno answer\b)/i,
+  MOMENTUM_TIERS: Object.freeze({
+    SOFT_PERMIT_THRESHOLD: 8,
+    HARD_MANDATE_THRESHOLD: 16,
+    DRIFT_STAGNATION_THRESHOLD: 0.15,
+  }),
   DETECTORS: Object.freeze({
     DIALOGUE_QUOTES: /["'“”‘’]/,
     ACTION_VERBS:
@@ -139,6 +144,14 @@ export const REFLEX_LIBRARY = Object.freeze({
     HELD_MOMENT: Object.freeze({
       tag: "HELD_MOMENT",
       body: "Held moment: the other side offers pause or silence. Permit lingering — stay in the beat, do not force a scene transition or manufacture urgency.",
+    }),
+    MOMENTUM_SOFT_PERMIT: Object.freeze({
+      tag: "MOMENTUM_SOFT_PERMIT",
+      body: "Scene momentum warning: Narrative movement has plateaued for {stagnation_turns} beats. Cease holding position — grant permission to break physical blocking, shift focus, or escalate tension.",
+    }),
+    MOMENTUM_HARD_MANDATE: Object.freeze({
+      tag: "MOMENTUM_HARD_MANDATE",
+      body: "Scene momentum critical: Extreme stagnation detected ({stagnation_turns} beats). Forbid circular banter. Force an irreversible environmental transition or immediate external arrival.",
     }),
   }),
 
@@ -264,11 +277,15 @@ export function detect_environmental_hint(input) {
  * @param {boolean} [options.has_input] - pre-resolved input presence (defaults to deriving from input)
  * @returns {Readonly<{ pacing: Readonly<{ level: string, chars: number, words: number }>, rhythm: Readonly<{ source: "style_dna"|"default", body: string }>, drive: Readonly<{ kind: "with_input"|"without_input", body: string }> }>}
  */
-export function resolve_prose_posture_plan(snapshot, input, { has_input = Boolean(String(input || "").trim()) } = {}) {
+export function resolve_prose_posture_plan(snapshot, input, { has_input = Boolean(String(input || "").trim()), stagnation_turns = 0 } = {}) {
   const pacing = classify_pacing(input);
   const beat_budget = resolve_beat_budget_plan(input);
   const rhythm_body = snapshot?.style_dna?.rhythm || "";
   const drive_key = has_input ? "WITH_INPUT" : "WITHOUT_INPUT";
+  const stagnation = Math.max(0, Number(stagnation_turns) || 0);
+  const is_soft_permit =
+    stagnation >= REFLEX_DEFAULTS.MOMENTUM_TIERS.SOFT_PERMIT_THRESHOLD && stagnation < REFLEX_DEFAULTS.MOMENTUM_TIERS.HARD_MANDATE_THRESHOLD;
+  const is_hard_mandate = stagnation >= REFLEX_DEFAULTS.MOMENTUM_TIERS.HARD_MANDATE_THRESHOLD;
   return Object.freeze({
     pacing,
     beat_budget,
@@ -278,8 +295,11 @@ export function resolve_prose_posture_plan(snapshot, input, { has_input = Boolea
     }),
     drive: Object.freeze({ kind: has_input ? "with_input" : "without_input", body: REFLEX_LIBRARY.DRIVE[drive_key].body }),
     constraints: Object.freeze({
-      anti_staging: detect_staged_dialogue_turn(input).hit,
+      anti_staging: stagnation >= REFLEX_DEFAULTS.MOMENTUM_TIERS.SOFT_PERMIT_THRESHOLD ? false : detect_staged_dialogue_turn(input).hit,
       held_moment: detect_held_moment(input).hit,
+      momentum_soft_permit: is_soft_permit,
+      momentum_hard_mandate: is_hard_mandate,
+      stagnation_turns: stagnation,
     }),
   });
 }
@@ -389,6 +409,16 @@ export function render_prose_posture_plan(plan) {
     const atom = REFLEX_LIBRARY.CONDITIONALS.HELD_MOMENT;
     constraints.push(render_xml_tag({ tag: atom.tag, children: [atom.body], inline: true }));
   }
+  if (plan.constraints?.momentum_soft_permit) {
+    const atom = REFLEX_LIBRARY.CONDITIONALS.MOMENTUM_SOFT_PERMIT;
+    const body = atom.body.replace("{stagnation_turns}", String(plan.constraints.stagnation_turns || 8));
+    constraints.push(render_xml_tag({ tag: atom.tag, children: [body], inline: true }));
+  }
+  if (plan.constraints?.momentum_hard_mandate) {
+    const atom = REFLEX_LIBRARY.CONDITIONALS.MOMENTUM_HARD_MANDATE;
+    const body = atom.body.replace("{stagnation_turns}", String(plan.constraints.stagnation_turns || 16));
+    constraints.push(render_xml_tag({ tag: atom.tag, children: [body], inline: true }));
+  }
   const children = [
     render_pacing_atom(plan.pacing?.level),
     render_beat_budget_atom(plan.beat_budget),
@@ -464,6 +494,7 @@ export function resolve_stability_lock(metadata) {
 
 /**
  * CHANGELOG
+ * - Track 4.2: Directorial Momentum Tiers & Stagnation Backstop — added MOMENTUM_TIERS calibration config (SOFT_PERMIT_THRESHOLD=8, HARD_MANDATE_THRESHOLD=16, DRIFT_STAGNATION_THRESHOLD=0.15) to REFLEX_DEFAULTS; added MOMENTUM_SOFT_PERMIT and MOMENTUM_HARD_MANDATE atoms to REFLEX_LIBRARY.CONDITIONALS; resolve_prose_posture_plan lifts anti_staging at >= 8 turns and records momentum constraint flags; render_prose_posture_plan emits matching envelopes.
  * - Track 3.1: Input-proportional pacing contracts — INPUT_SIZE_TIERS (TINY<=12/SMALL<=90/MEDIUM<=400/EXPANSIVE) with beat budgets, classify_input_size + resolve_beat_budget_plan, <BEAT_BUDGET> child in every DELIVERY_POSTURE; gated ANTI_STAGING (terse dialogue) + HELD_MOMENT (explicit pause markers, never blank) constraint children via plan.constraints.
  * - Track 0.10: Section 6 dissolved - render_subtext_xml + resolve_physics_protocols move to physics.js (beside the registries they read), render_available_keywords_xml moves to task.js (beside KEYWORD_DIRECTIVES); STYLE_MOTIF_REGISTRY and escape_xml imports dropped. Prompt bytes byte-identical.
  * - 2026-10-07: Plan Omega for Task — repatriated render_subtext_xml, resolve_physics_protocols, and render_available_keywords_xml from task.js (new Section 6; STYLE_MOTIF_REGISTRY imported from @data, escape_xml added to @utils import) — prompt bytes byte-identical.

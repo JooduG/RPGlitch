@@ -179,6 +179,19 @@ export class SimulationLogStore {
   }
 
   /**
+   * Returns a sliced recent window from the in-memory feed without querying persistence.
+   * @param {number} [limit=16] - Maximum number of entries from end of feed.
+   * @param {number} [offset=0] - Offset from end of feed.
+   * @returns {LogEntry[]} Sliced entries (newest last).
+   */
+  get_recent_window(limit = 16, offset = 0) {
+    const total = this.feed.length;
+    const start_index = limit ? Math.max(0, total - (limit + offset)) : 0;
+    const end_index = Math.max(0, total - offset);
+    return this.feed.slice(start_index, end_index);
+  }
+
+  /**
    * Empties the in-memory feed and resets the ID deduplication cache.
    */
   clear() {
@@ -313,6 +326,7 @@ if (typeof window !== "undefined") {
 
 /**
  * CHANGELOG:
+ * - Track 2: Simulation Log Pipeline Harmonization — added `get_recent_window(limit, offset)` on `SimulationLogStore` to read directly from the in-memory `feed` without issuing redundant database queries during active gameplay rounds.
  * - 2026-09-23: Consolidated developer telemetry store (`developer-log.svelte.js`) directly
  *   into log.svelte.js under P4 Zero Backwards Compatibility.
  * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,

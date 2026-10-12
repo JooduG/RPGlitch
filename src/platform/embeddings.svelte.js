@@ -416,6 +416,30 @@ export async function score_by_semantics(vectors, context_text) {
 }
 
 /**
+ * Computes semantic drift between two texts as (1 - cosine_similarity).
+ * Returns a value in [0.0, 1.0], where 0.0 means identical semantics and 1.0 means maximum drift or blank/missing text.
+ *
+ * @param {string|null|undefined} current_text
+ * @param {string|null|undefined} previous_text
+ * @returns {Promise<number>} Semantic drift in range [0.0, 1.0]
+ */
+export async function calculate_semantic_drift(current_text, previous_text) {
+  const current_trimmed = String(current_text || "").trim();
+  const previous_trimmed = String(previous_text || "").trim();
+
+  if (!current_trimmed || !previous_trimmed) return 1.0;
+  if (current_trimmed === previous_trimmed) return 0.0;
+
+  const [current_embedding, previous_embedding] = await Promise.all([embed(current_trimmed), embed(previous_trimmed)]);
+
+  if (!current_embedding || !previous_embedding) return 1.0;
+
+  const similarity = cosine_similarity(current_embedding, previous_embedding);
+  const drift = Math.max(0.0, Math.min(1.0, 1.0 - similarity));
+  return drift;
+}
+
+/**
  * Checks whether the embeddings model is loaded and ready.
  * @returns {boolean}
  */
@@ -432,6 +456,7 @@ export const embeddings_engine = {
   ensure_embedding,
   ensure_embeddings,
   score_by_semantics,
+  calculate_semantic_drift,
   load_model,
   is_ready,
   get load_progress() {

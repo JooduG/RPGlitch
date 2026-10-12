@@ -17,7 +17,7 @@
  * - `src/ui/console/Console.svelte` (Dev console story export).
  */
 
-import { format_datetime, strip_cognition_blocks, filter_narrative_messages } from "./text.js";
+import { format_datetime, filter_narrative_messages, normalize_history_beat, CANONICAL_ROLES } from "./text.js";
 
 // ============================================================================
 // [SECTION 1: CONSTANTS & NARRATOR ROLES]
@@ -65,16 +65,20 @@ export const NARRATOR_ROLES = Object.freeze(new Set(["prologue", "fractal", "nar
 export function format_story_beat(entry, options = {}) {
   if (!entry || typeof entry !== "object") return null;
 
-  const raw_entry = /** @type {StoryBeatEntry} */ (entry);
-  const raw_text = raw_entry.text ?? raw_entry.content ?? "";
-  const role = String(raw_entry.role || "").toLowerCase();
-  if (role === "system" && !options.include_system) return null;
+  const beat = normalize_history_beat(entry, {
+    include_cognition: false,
+    normalize_whitespace: false,
+  });
+  if (!beat) return null;
 
-  const text = typeof raw_text === "string" ? strip_cognition_blocks(raw_text).trim() : "";
-  const first_attachment = Array.isArray(raw_entry.attachments) ? raw_entry.attachments[0] : null;
+  if (beat.role === CANONICAL_ROLES.SYSTEM && !options.include_system) return null;
+
+  const first_attachment = beat.attachments[0] || null;
   const image_src = typeof first_attachment?.src === "string" && first_attachment.src.trim() ? first_attachment.src.trim() : null;
 
-  if (!text && !image_src) return null;
+  if (!beat.text && !image_src) return null;
+
+  const is_narrator_or_fractal = beat.role === CANONICAL_ROLES.FRACTAL || NARRATOR_ROLES.has(beat.raw_role.toLowerCase());
 
   if (image_src) {
     const prompt_caption =
@@ -82,21 +86,21 @@ export function format_story_beat(entry, options = {}) {
         ? first_attachment.metadata.prompt.trim()
         : "Scene Illustration";
     const image_md = `![${prompt_caption}](${image_src})`;
-    if (!text) return image_md;
-    return `${image_md}\n\n${NARRATOR_ROLES.has(role) ? `> ${text.replace(/\n+/g, "\n> ")}` : text}`;
+    if (!beat.text) return image_md;
+    return `${image_md}\n\n${is_narrator_or_fractal ? `> ${beat.text.replace(/\n+/g, "\n> ")}` : beat.text}`;
   }
 
-  if (NARRATOR_ROLES.has(role)) {
-    return `> ${text.replace(/\n+/g, "\n> ")}`;
+  if (is_narrator_or_fractal) {
+    return `> ${beat.text.replace(/\n+/g, "\n> ")}`;
   }
 
-  if (role === "system") {
-    return `_${text.replace(/\n+/g, " ")}_`;
+  if (beat.role === CANONICAL_ROLES.SYSTEM) {
+    return `_${beat.text.replace(/\n+/g, " ")}_`;
   }
 
-  const name = String(raw_entry.character_name || "").trim();
-  const label = role === "user" ? name || "You" : name || "Unknown";
-  return `**${label}:** ${text.replace(/\n+/g, " ")}`;
+  const raw_name = String(/** @type {StoryBeatEntry} */ (entry).character_name || "").trim();
+  const label = beat.role === CANONICAL_ROLES.USER ? raw_name || "You" : raw_name || beat.origin || "Unknown";
+  return `**${label}:** ${beat.text.replace(/\n+/g, " ")}`;
 }
 
 // ============================================================================
@@ -167,6 +171,7 @@ export function build_story_export_filename(story = {}, date = new Date()) {
 
 /**
  * CHANGELOG:
+ * - Track 2: Simulation Log Pipeline Harmonization — refactored `format_story_beat` to consume `normalize_history_beat` and `CANONICAL_ROLES` from `history.js`, eliminating duplicated cognition stripping and ad-hoc role handling.
  * - 2026-10-03: Image preservation in story markdown exports — format_story_beat now supports attachments with image src URLs and renders markdown images (![prompt](src)), preventing image loss on empty-text fractal rows.
  * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,
  *   structured section dividers, exported frozen NARRATOR_ROLES collection, defined StoryRecord/Beat

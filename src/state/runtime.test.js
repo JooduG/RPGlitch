@@ -368,6 +368,29 @@ describe("runtime world-cast hydration (track-npc-expansion)", () => {
       runtime.structural_errors = 0;
       runtime.back_shot_cursor = 0;
     });
+
+    it("tracks scene momentum and increments stagnation_turns when drift < 0.15", () => {
+      expect(runtime.stagnation_turns).toBe(0);
+      expect(runtime.last_semantic_drift).toBe(1.0);
+
+      // Low drift: stagnation increments
+      runtime.record_turn_drift(0.08);
+      expect(runtime.last_semantic_drift).toBe(0.08);
+      expect(runtime.stagnation_turns).toBe(1);
+
+      runtime.record_turn_drift(0.12);
+      expect(runtime.last_semantic_drift).toBe(0.12);
+      expect(runtime.stagnation_turns).toBe(2);
+
+      // Substantive drift: stagnation resets
+      runtime.record_turn_drift(0.45);
+      expect(runtime.last_semantic_drift).toBe(0.45);
+      expect(runtime.stagnation_turns).toBe(0);
+
+      // Reset
+      runtime.record_turn_drift(1.0);
+      expect(runtime.stagnation_turns).toBe(0);
+    });
   });
 });
 

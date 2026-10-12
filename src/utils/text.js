@@ -792,6 +792,136 @@ export function role_display_label(role) {
 }
 
 /**
+ * Sovereign canonical entity roles. Generic LLM roles (e.g. assistant, narrator)
+ * are mapped to these canonical forms.
+ * @type {Readonly<{ USER: "USER", AI: "AI", NPC: "NPC", FRACTAL: "FRACTAL", SYSTEM: "SYSTEM" }>}
+ */
+export const CANONICAL_ROLES = Object.freeze({
+  USER: "USER",
+  AI: "AI",
+  NPC: "NPC",
+  FRACTAL: "FRACTAL",
+  SYSTEM: "SYSTEM",
+});
+
+/**
+ * Resolves any raw role string to its canonical Sovereign RPGlitch role.
+ *
+ * @param {string|null|undefined} role
+ * @returns {"USER" | "AI" | "NPC" | "FRACTAL" | "SYSTEM" | string}
+ */
+export function canonicalize_role(role) {
+  const normalized = String(role || "")
+    .toLowerCase()
+    .trim();
+  if (normalized === "user" || normalized === "user_persona") {
+    return CANONICAL_ROLES.USER;
+  }
+  if (normalized === "ai" || normalized === "ai_character" || normalized === "model" || normalized === "assistant") {
+    return CANONICAL_ROLES.AI;
+  }
+  if (normalized === "npc") {
+    return CANONICAL_ROLES.NPC;
+  }
+  if (normalized === "fractal" || normalized === "prologue" || normalized === "epilogue" || normalized === "narrator") {
+    return CANONICAL_ROLES.FRACTAL;
+  }
+  if (normalized === "system" || normalized === "telemetry") {
+    return CANONICAL_ROLES.SYSTEM;
+  }
+  return role ? String(role).toUpperCase().trim() : CANONICAL_ROLES.AI;
+}
+
+/**
+ * Canonical normalizer for turn beats, simulation log rows, and narrative dialog.
+ * Unifies role mapping, cognition stripping, whitespace normalization, speaker
+ * attribution, and image attachments into a clean, frozen record.
+ *
+ * @param {any} entry - Raw dialogue or log entry object.
+ * @param {Object} [options={}]
+ * @param {boolean} [options.include_cognition=false] - Whether to preserve <think> blocks.
+ * @param {boolean} [options.normalize_whitespace=false] - Collapse multiple whitespace chars to single spaces.
+ * @param {number} [options.max_chars] - Word-boundary character truncation limit.
+ * @param {string} [options.text_source="content"] - "content" reads content ?? text; "text" reads text only.
+ * @param {string} [options.label_policy="entry"] - "entry" resolves full origin chain; "visual" resolves Name: label.
+ * @param {string} [options.label_fallback] - Fallback when attribution is unresolved.
+ * @returns {Readonly<{
+ *   role: string,
+ *   raw_role: string,
+ *   origin: string,
+ *   character_name: string,
+ *   text: string,
+ *   attachments: ReadonlyArray<any>,
+ *   round: number | null,
+ *   timestamp: number | null,
+ *   raw_entry: any
+ * }>|null}
+ */
+export function normalize_history_beat(entry, options = {}) {
+  if (!entry || typeof entry !== "object") return null;
+
+  const {
+    include_cognition = false,
+    normalize_whitespace = false,
+    max_chars,
+    text_source = "content",
+    label_policy = "entry",
+    label_fallback,
+  } = options;
+
+  const raw_role = String(entry.role || "");
+  const canonical_role = canonicalize_role(raw_role);
+
+  const raw_text = text_source === "text" ? entry?.text : (entry?.content ?? entry?.text);
+  let text = String(raw_text ?? "");
+  if (!include_cognition) {
+    text = strip_cognition_blocks(text);
+  }
+  text = text.trim();
+  if (normalize_whitespace) {
+    text = collapse_whitespace(text);
+  }
+  if (max_chars && max_chars > 0) {
+    text = truncate_at_word(text, max_chars);
+  }
+
+  const fallback =
+    label_fallback ??
+    (label_policy === "visual"
+      ? "narrator"
+      : canonical_role === CANONICAL_ROLES.USER
+        ? "User"
+        : canonical_role === CANONICAL_ROLES.FRACTAL
+          ? "Fractal"
+          : "Character");
+
+  const origin =
+    label_policy === "visual"
+      ? entry?.character_name || entry?.role || fallback
+      : entry?.entity_id || entry?.origin || entry?.character_name || entry?.name || (entry?.role ? role_display_label(entry.role) : "") || fallback;
+
+  const character_name = String(
+    entry?.character_name || (canonical_role === CANONICAL_ROLES.USER ? "You" : entry?.origin || entry?.name || (origin !== fallback ? origin : "")),
+  ).trim();
+
+  const attachments = Array.isArray(entry.attachments) ? Object.freeze([...entry.attachments]) : Object.freeze([]);
+  const round = entry.round != null && Number.isFinite(Number(entry.round)) ? Number(entry.round) : null;
+  const timestamp = entry.timestamp ?? entry.created_at ?? null;
+
+  return Object.freeze({
+    role: canonical_role,
+    raw_role,
+    origin: String(origin),
+    character_name,
+    text,
+    attachments,
+    round,
+    timestamp,
+    raw_entry: entry,
+  });
+}
+
+/**
  * Roles that carry narrative dialogue/history (as opposed to `system` telemetry).
  * @type {ReadonlySet<string>}
  */
@@ -1129,6 +1259,7 @@ export function alternation_field_label(text, raw) {
 
 /**
  * CHANGELOG:
+ * - Track 2: Simulation Log Pipeline Harmonization — added `CANONICAL_ROLES`, `canonicalize_role`, and `normalize_history_beat` to `@utils/text.js`, unifying turn beat normalization across UI, platform, intelligence, and utility export layers without circular dependencies.
  * - 2026-10-03: Hardened balance_brackets Case 3 — restricted predicate auto-enclosure to uppercase state keys (^[A-Z][A-Z0-9_]{1,24}:) or entity targets (^@[A-Z0-9_]{1,24}:) and strict bracket flags to prevent false-positive predicate creation on natural language prose lines.
  * - 2026-09-23: Relocated VISUAL_EXCLUDED_KEYS and strip_visual_excluded here from @intelligence/epistemic.js to break circular dependency between media and intelligence layers.
 

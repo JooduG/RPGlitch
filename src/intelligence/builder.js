@@ -44,6 +44,7 @@ import {
   resolve_character_action_directive,
   resolve_scene_action_directive,
 } from "./modules/task.js";
+import { extract_spent_ledger, render_spent_ledger_directive } from "./modules/spent-ledger.js";
 import { resolve_optics_cinematography } from "./modules/style.js";
 import { get_output_format } from "./modules/output.js";
 import { DYNAMICS_AXES, PHYSICS_PROTOCOLS, AVAILABLE_KEYWORDS, evaluate_dynamics_rules, evaluate_subtext_protocols } from "./dynamics.js";
@@ -334,7 +335,11 @@ function resolve_prose_bag(config, context, bag_inputs) {
     .trim();
   const has_prior_relationship = Boolean(speaker_name_lc && listener_name_lc && has_bracket_bond_between(active_speaker, listener_name_lc));
   const is_first_contact = !has_prior_relationship && director_data?.first_contact === true;
-  const action_directive = resolve_character_action_directive({ speaker_name, is_first_contact });
+  const base_action_directive = resolve_character_action_directive({ speaker_name, is_first_contact });
+  const spent_ledger_directive = render_spent_ledger_directive(
+    extract_spent_ledger(context.recent_history || context.simulation_log || context.raw_messages || []),
+  );
+  const action_directive = [base_action_directive, spent_ledger_directive].filter(Boolean).join("\n\n");
   const input_origin_entity = is_ghostwrite ? active_speaker : entities?.USER;
   const input_origin = input_origin_entity?.id || input_origin_entity?.name || "USER";
   const style = style_snapshot.style;
@@ -383,6 +388,7 @@ function resolve_prose_bag(config, context, bag_inputs) {
       snapshot: { dynamics: speaker_dynamics, style, style_dna: style_snapshot.style_dna },
       action_directive,
       stability_lock: resolve_stability_lock(turn_meta),
+      stagnation_turns: turn_meta.stagnation_turns ?? 0,
     },
     meta_args: {
       ai: context.compressed_snapshot?.ai?.dynamics,
@@ -474,12 +480,16 @@ function normalize_narrator_context(config, context) {
   const pov_protocol = resolve_pov_protocol(config.system.pov);
   const speaker_dynamics = narrator_snapshot?.ai?.dynamics || null;
   const fractal_dynamics = narrator_snapshot?.fractal?.dynamics || null;
-  const action_directive = resolve_scene_action_directive({
+  const base_action_directive = resolve_scene_action_directive({
     scene_template: resolved_template,
     is_prologue,
     conclusion_status: context.conclusion_status ?? null,
     input: context.input ?? "",
   });
+  const spent_ledger_directive = render_spent_ledger_directive(
+    extract_spent_ledger(context.recent_history || context.simulation_log || context.raw_messages || []),
+  );
+  const action_directive = [base_action_directive, spent_ledger_directive].filter(Boolean).join("\n\n");
   const input_origin_entity = entities?.USER;
   const input_origin = input_origin_entity?.id || input_origin_entity?.name || "USER";
   const turn_meta = context.meta ?? {};
@@ -588,6 +598,7 @@ function normalize_director_context(config, context) {
       last_ai_text,
       schema,
       keyword_directives: keyword_directives_xml,
+      stagnation_turns: context.stagnation_turns ?? context.meta?.stagnation_turns ?? 0,
     },
     meta_args: {
       ai: snapshot_bag?.ai?.dynamics,
@@ -941,4 +952,6 @@ export const MODE_ADAPTERS = {
  * - 2026-10-01: Consolidated entity presence and sheet renderers from modules/entities.js.
  * Modules Ground Refactor Phase 2 — builder-owned style resolution (resolve_builder_style_snapshot + once-per-compile threading through normalize_context into every compiler) — prompt bytes byte-identical.
  * - 2026-10-07: Modules Ground Refactor Phase 3 — optics staging re-cut to sensory.js (prompt and fallback moved; adapter delegates; resolve_builder_style_snapshot exported; optics-only imports pruned) — prompt bytes byte-identical.
+ * - Track 3.1: Wires spent ledger extraction into resolve_prose_bag and normalize_narrator_context to prohibit recent phrasing repetitions.
+ * - Track 4.2: Directorial Momentum Tiers & Stagnation Backstop — wired stagnation_turns through normalize_director_context and resolve_prose_bag into task_params.
  */

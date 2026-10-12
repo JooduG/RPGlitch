@@ -203,5 +203,140 @@ export function detox_prose(raw_text, speaking_style = "casual", custom_rules = 
   clean_text = clean_text.replace(/\ba\s+testament\s+to\s+/gi, "proof of ");
   clean_text = clean_text.replace(/\ba\s+(?:symphony|tapestry|dance)\s+of\s+/gi, "a mix of ");
 
+  // 12. Tier 1 Constructions & Stock Syntactic Formulas (Track 3.2)
+  // "not quite X, more like Y" -> "more like Y"
+  clean_text = clean_text.replace(/\bnot\s+quite\s+[^.!?\n;]{1,44}?,\s*(?:more\s+like|more\s+a)\s+([^.!?]+)/gi, (match, target) => {
+    if (!target) return match;
+    return /^[A-Z]/.test(match) ? `More like ${target.trim()}` : `more like ${target.trim()}`;
+  });
+
+  // "not X; she/he/they Y" -> "she/he/they Y"
+  clean_text = clean_text.replace(
+    /\bnot\s+(?:a\s+|an\s+|the\s+|so\s+|too\s+)?[^.!?\n;]{1,44};\s*(she|he|they|it|that|this|there|I|you)\b/gi,
+    (match, pronoun) => {
+      return /^[A-Z]/.test(match) ? match_case(match, pronoun) : pronoun;
+    },
+  );
+
+  // "she didn't X; she Y" -> "she Y"
+  clean_text = clean_text.replace(
+    /\b(?:she|he|they|I|you)\s+(?:didn'?t|doesn'?t|hadn'?t|wasn'?t|isn'?t|won'?t)\s+[^.!?\n;]{1,60};\s*(she|he|they|it|I|you)\b/gi,
+    (match, pronoun) => {
+      return /^[A-Z]/.test(match) ? match_case(match, pronoun) : pronoun;
+    },
+  );
+
+  // "the air grew thick" -> "the air went quiet" / "the room was still"
+  clean_text = clean_text.replace(/\bthe\s+air\s+(?:grew|went|turned|had\s+turned|was)\s+thick\b/gi, (match) =>
+    match_case(match, "the room went quiet"),
+  );
+  clean_text = clean_text.replace(/\bair\s+(?:grew|went|turned|had\s+turned|was)\s+thick\b/gi, (match) => match_case(match, "room went quiet"));
+
+  // Naming the subtext ("a gesture of ownership", "a display of dominance", etc.)
+  clean_text = clean_text.replace(
+    /,\s*(?:a\s+|an\s+)?(?:gesture|act|display|show|performance)\s+of\s+(?:ownership|dominance|possession|control)\b/gi,
+    "",
+  );
+
+  // 13. Tier 1B Clarity Edits (Track 3.5)
+  clean_text = clean_text.replace(/\butiliz(e|ed|es|ing)\b/gi, (match) => {
+    const lower = match.toLowerCase();
+    if (lower === "utilize") return match_case(match, "use");
+    if (lower === "utilized") return match_case(match, "used");
+    if (lower === "utilizes") return match_case(match, "uses");
+    if (lower === "utilizing") return match_case(match, "using");
+    return match_case(match, "use");
+  });
+  clean_text = clean_text.replace(/\bin\s+order\s+to\b/gi, (match) => match_case(match, "to"));
+  clean_text = clean_text.replace(/\bdue\s+to\s+the\s+fact\s+that\b/gi, (match) => match_case(match, "because"));
+  clean_text = clean_text.replace(/\bserves\s+as\b/gi, (match) => match_case(match, "is"));
+  clean_text = clean_text.replace(/\bcommenc(e|ed|es|ing)\b/gi, (match) => {
+    const lower = match.toLowerCase();
+    if (lower === "commence") return match_case(match, "start");
+    if (lower === "commenced") return match_case(match, "started");
+    if (lower === "commences") return match_case(match, "starts");
+    if (lower === "commencing") return match_case(match, "starting");
+    return match_case(match, "start");
+  });
+  clean_text = clean_text.replace(/\bascertain(ed|s|ing)?\b/gi, (match) => {
+    const lower = match.toLowerCase();
+    if (lower === "ascertain") return match_case(match, "find out");
+    if (lower === "ascertained") return match_case(match, "found out");
+    if (lower === "ascertains") return match_case(match, "finds out");
+    if (lower === "ascertaining") return match_case(match, "finding out");
+    return match_case(match, "find out");
+  });
+  clean_text = clean_text.replace(/\bendeavor(ed|s|ing)?\b/gi, (match) => {
+    const lower = match.toLowerCase();
+    if (lower === "endeavor") return match_case(match, "attempt");
+    if (lower === "endeavored") return match_case(match, "attempted");
+    if (lower === "endeavors") return match_case(match, "attempts");
+    if (lower === "endeavoring") return match_case(match, "attempting");
+    return match_case(match, "attempt");
+  });
+
+  // 14. Tier 1A High-Frequency AI Vocabulary Replacements (Track 3.5)
+  clean_text = clean_text.replace(/\bdelv(e|ed|es|ing)(?:\s+into)?\b/gi, (match) => {
+    const lower = match.toLowerCase();
+    if (lower.startsWith("delving")) return match_case(match, "digging into");
+    if (lower.startsWith("delved")) return match_case(match, "dug into");
+    if (lower.startsWith("delves")) return match_case(match, "digs into");
+    return match_case(match, "dig into");
+  });
+  clean_text = clean_text.replace(/\btapestr(y|ies)\b/gi, (match) => {
+    return match.toLowerCase() === "tapestry" ? match_case(match, "weave") : match_case(match, "weaves");
+  });
+  clean_text = clean_text.replace(/\brealm(s)?\b/gi, (match) => {
+    return match.toLowerCase() === "realm" ? match_case(match, "domain") : match_case(match, "domains");
+  });
+  clean_text = clean_text.replace(/\bparadigm(s)?\b/gi, (match) => {
+    return match.toLowerCase() === "paradigm" ? match_case(match, "model") : match_case(match, "models");
+  });
+  clean_text = clean_text.replace(/\bembark(ed|s|ing)?\b/gi, (match) => {
+    const lower = match.toLowerCase();
+    if (lower === "embark") return match_case(match, "start");
+    if (lower === "embarked") return match_case(match, "started");
+    if (lower === "embarks") return match_case(match, "starts");
+    if (lower === "embarking") return match_case(match, "starting");
+    return match_case(match, "start");
+  });
+  clean_text = clean_text.replace(/\bbeacon(s)?\b/gi, (match) => {
+    return match.toLowerCase() === "beacon" ? match_case(match, "signal") : match_case(match, "signals");
+  });
+  clean_text = clean_text.replace(/\brobust\b/gi, (match) => match_case(match, "solid"));
+  clean_text = clean_text.replace(/\bcomprehensive\b/gi, (match) => match_case(match, "thorough"));
+  clean_text = clean_text.replace(/\ba\s+cutting-edge\b/gi, (match) => match_case(match, "an advanced"));
+  clean_text = clean_text.replace(/\bcutting-edge\b/gi, (match) => match_case(match, "advanced"));
+  clean_text = clean_text.replace(/\bleverag(e|ed|es|ing)\b/gi, (match) => {
+    const lower = match.toLowerCase();
+    if (lower === "leverage") return match_case(match, "use");
+    if (lower === "leveraged") return match_case(match, "used");
+    if (lower === "leverages") return match_case(match, "uses");
+    if (lower === "leveraging") return match_case(match, "using");
+    return match_case(match, "use");
+  });
+  clean_text = clean_text.replace(/\bpivotal\b/gi, (match) => match_case(match, "key"));
+  clean_text = clean_text.replace(/\bseamless(ly)?\b/gi, (match) => {
+    return match.toLowerCase() === "seamlessly" ? match_case(match, "smoothly") : match_case(match, "smooth");
+  });
+  clean_text = clean_text.replace(/\bgame-chang(er|ing)\b/gi, (match) => match_case(match, "turning point"));
+  clean_text = clean_text.replace(/\bwatershed\s+moment\b/gi, (match) => match_case(match, "turning point"));
+  clean_text = clean_text.replace(/\bdeep\s+dive\b/gi, (match) => match_case(match, "close look"));
+  clean_text = clean_text.replace(/\bintricate\b/gi, (match) => match_case(match, "complex"));
+  clean_text = clean_text.replace(/\bcomplexities\b/gi, (match) => match_case(match, "details"));
+  clean_text = clean_text.replace(/\bintricacies\b/gi, (match) => match_case(match, "details"));
+  clean_text = clean_text.replace(/\bactionable\b/gi, (match) => match_case(match, "practical"));
+  clean_text = clean_text.replace(/\bholistic(ally)?\b/gi, (match) => {
+    return match.toLowerCase() === "holistically" ? match_case(match, "completely") : match_case(match, "complete");
+  });
+  clean_text = clean_text.replace(/\s*\bat\s+its\s+core\b(?=\s*[,;.!?]|\s*$)/gi, "");
+  clean_text = clean_text.replace(/\bat\s+its\s+core\b\s*/gi, "");
+
   return clean_text;
 }
+
+/**
+ * CHANGELOG
+ * - Track 3.2: Implemented fatal syntactic construction rewrites (not quite X more like Y, didn't X she Y, purple weather, naming subtext).
+ * - Track 3.5: Implemented Tier 1A frequency markers and Tier 1B clarity rewrites (utilize -> use, in order to -> to, delve -> dig into, etc.).
+ */

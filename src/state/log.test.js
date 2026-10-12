@@ -66,6 +66,26 @@ describe("SimulationLogStore", () => {
     expect(simulation_log.feed[0].text).toBe("Re-added");
   });
 
+  it("slices recent window from in-memory feed via get_recent_window", () => {
+    for (let index = 1; index <= 5; index++) {
+      simulation_log.add({ id: `msg-${index}`, role: "user", text: `Turn ${index}` });
+    }
+    const window_all = simulation_log.get_recent_window(10);
+    expect(window_all.length).toBe(5);
+    expect(window_all[0].text).toBe("Turn 1");
+    expect(window_all[4].text).toBe("Turn 5");
+
+    const window_recent = simulation_log.get_recent_window(2);
+    expect(window_recent.length).toBe(2);
+    expect(window_recent[0].text).toBe("Turn 4");
+    expect(window_recent[1].text).toBe("Turn 5");
+
+    const window_offset = simulation_log.get_recent_window(2, 1);
+    expect(window_offset.length).toBe(2);
+    expect(window_offset[0].text).toBe("Turn 3");
+    expect(window_offset[1].text).toBe("Turn 4");
+  });
+
   it("refreshes the feed from session_driver when story_id is set", async () => {
     runtime.story_id = "story-test";
     const mock_messages = [

@@ -126,6 +126,10 @@ Close "_thought_process" before composing the image payload. This calibration is
 Reuse before mint: inspect candidate secondary characters below before minting. If an existing entity matches the role or location (medical, security, merchant), you MUST reuse that entity rather than creating a duplicate.`,
 
     BRANCHES: `ALTERNATIVE BRANCHES: You MAY supply up to 3 alternative dialogue branches for the next beat as alternative_branches [{label, dialogue}] — short user-guidable options the story can explore if chosen. Never script «USER_PERSONA» or resolve the scene inside a branch.`,
+
+    MOMENTUM_SOFT_PERMIT: `SCENE MOMENTUM (TIER 1): The interaction has lingered in the same physical and conversational loop for {stagnation_turns} turns. Cease passive holding. Steer the next speaker to introduce new physical activity, change topic, or escalate.`,
+
+    MOMENTUM_HARD_MANDATE: `SCENE MOMENTUM (TIER 2 - CRITICAL): Scene stagnation reached {stagnation_turns} turns. Forbid continuing static conversation in the same room. You MUST route next_action to "FRACTAL" to force an environmental event/transit, or introduce a third-party arrival via "npc:<id>" / "GENESIS".`,
   }),
 
   // ── 1.4 Shot 2A: Prose Turn Directives (character / scene / ghostwrite) ─────
@@ -502,7 +506,11 @@ export const TASK_SLOT_RESOLVERS = Object.freeze({
     return directive ? [directive] : [];
   },
 
-  prose_posture: (values) => render_prose_reflex(values.snapshot, values.input, { has_input: values.has_input }),
+  prose_posture: (values) =>
+    render_prose_reflex(values.snapshot, values.input, {
+      has_input: values.has_input,
+      stagnation_turns: values.stagnation_turns ?? values.meta?.stagnation_turns ?? 0,
+    }),
   stability_lock: (values) => String(values.stability_lock || "").trim(),
 
   output_format: (values) => {

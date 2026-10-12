@@ -9,6 +9,7 @@ import {
   deserialize_embedding,
   quantize_vector_q8,
   dequantize_vector_q8,
+  calculate_semantic_drift,
 } from "./embeddings.svelte.js";
 
 describe("embedding serialization", () => {
@@ -55,7 +56,7 @@ describe("embedding serialization", () => {
 });
 
 /**
- * Deterministic fake pipeline: maps text → a unit-ish Float32Array via hashing.
+ * Deterministic fake pipeline: maps text → a unit Float32Array via hashing.
  * @param {string} text
  * @returns {{ data: Float32Array }}
  */
@@ -63,7 +64,14 @@ function fake_pipeline(text) {
   const arr = new Float32Array(EMBEDDING_DIM);
   let h = 7;
   for (let i = 0; i < text.length; i++) h = (h * 31 + text.charCodeAt(i)) | 0;
-  arr[0] = 1 + (h % 1000) / 1000;
+  let norm = 0;
+  for (let i = 0; i < EMBEDDING_DIM; i++) {
+    const val = Math.sin((h + i) * 0.1);
+    arr[i] = val;
+    norm += val * val;
+  }
+  norm = Math.sqrt(norm);
+  for (let i = 0; i < EMBEDDING_DIM; i++) arr[i] /= norm;
   return { data: arr };
 }
 
@@ -161,5 +169,27 @@ describe("embeddings LRU cache", () => {
     expect(call_count).toBe(2);
     expect(warn_spy).toHaveBeenCalled();
     warn_spy.mockRestore();
+  });
+
+  describe("calculate_semantic_drift", () => {
+    it("returns 0.0 for identical texts", async () => {
+      embeddings_engine._debug_set_pipeline(async (text) => fake_pipeline(text));
+      const drift = await calculate_semantic_drift("Hello world", "Hello world");
+      expect(drift).toBeCloseTo(0.0, 4);
+    });
+
+    it("returns positive drift for different texts", async () => {
+      embeddings_engine._debug_set_pipeline(async (text) => fake_pipeline(text));
+      const drift = await calculate_semantic_drift("The quick brown fox", "Quantum physics and black holes");
+      expect(drift).toBeGreaterThan(0.0);
+      expect(drift).toBeLessThanOrEqual(1.0);
+    });
+
+    it("returns 1.0 fallback when either text is missing or blank", async () => {
+      embeddings_engine._debug_set_pipeline(async (text) => fake_pipeline(text));
+      expect(await calculate_semantic_drift("", "Hello")).toBe(1.0);
+      expect(await calculate_semantic_drift("Hello", "")).toBe(1.0);
+      expect(await calculate_semantic_drift(null, "Hello")).toBe(1.0);
+    });
   });
 });

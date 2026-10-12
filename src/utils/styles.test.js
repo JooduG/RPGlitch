@@ -1,5 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { resolve_speaking_style, resolve_style, VALID_SPEAKING_STYLES, lint_narrative_slop, cap_somatic_markers } from "./styles.js";
+import {
+  resolve_speaking_style,
+  resolve_style,
+  VALID_SPEAKING_STYLES,
+  lint_narrative_slop,
+  cap_somatic_markers,
+  audit_macro_shape,
+} from "./styles.js";
 import "../data/definitions/speaking-styles.js";
 import { NARRATIVE_STYLES } from "../data/definitions/narrative-styles.js";
 
@@ -90,5 +97,63 @@ describe("VALID_SPEAKING_STYLES", () => {
     expect(VALID_SPEAKING_STYLES.has("primal")).toBe(true);
     expect(VALID_SPEAKING_STYLES.has("clinical")).toBe(true);
     expect(VALID_SPEAKING_STYLES.size).toBe(4);
+  });
+});
+
+describe("cap_somatic_markers() with stock faces (Track 3.3)", () => {
+  it("caps stock facial expressions and mannerisms to 1 occurrence per reply", () => {
+    const text = "A ghost of a smirk crossed her face. He spoke, barely above a whisper. Her eyes darkened.";
+    const capped = cap_somatic_markers(text);
+    expect(capped).toContain("ghost of a smirk");
+    expect(capped).not.toMatch(/barely above a whisper|eyes darkened/i);
+  });
+});
+
+describe("audit_macro_shape() (Track 3.4)", () => {
+  it("flags as-if overuse when occurring more than twice", () => {
+    const text = "She moved as if the floor were ice, and smiled as if nothing had happened, and left as though she had never come.";
+    const report = audit_macro_shape(text);
+    expect(report.as_if_overuse).toBe(true);
+    expect(report.as_if_count).toBe(3);
+    expect(report.violations).toContain("as-if-overuse");
+  });
+
+  it("does not flag clean as-if usage (<= 2)", () => {
+    const text = "She moved through the room as if she owned it.";
+    const report = audit_macro_shape(text);
+    expect(report.as_if_overuse).toBe(false);
+    expect(report.as_if_count).toBe(1);
+    expect(report.violations).not.toContain("as-if-overuse");
+  });
+
+  it("flags multi-paragraph replies where every paragraph ends in a question", () => {
+    const text = "Why are you here?\n\nDo you want me to leave?\n\nIs that what you came to say?";
+    const report = audit_macro_shape(text);
+    expect(report.every_para_question).toBe(true);
+    expect(report.violations).toContain("every-para-question");
+  });
+
+  it("flags familiar closer opening with Meanwhile, Then, or Suddenly", () => {
+    const text = "She closed the ledger.\n\nMeanwhile, across the yard, the gate swung open.";
+    const report = audit_macro_shape(text);
+    expect(report.familiar_closer).toBe(true);
+    expect(report.violations).toContain("familiar-closer");
+  });
+
+  it("flags door slam closing sentence", () => {
+    const text = "He said nothing else. The door slammed.";
+    const report = audit_macro_shape(text);
+    expect(report.door_slam_closer).toBe(true);
+    expect(report.violations).toContain("door-slam-closer");
+  });
+
+  it("returns clean zero-violation report on normal prose", () => {
+    const text = "Alice stood by the terminal.\n\nShe accessed the memory bank and confirmed the coordinates.";
+    const report = audit_macro_shape(text);
+    expect(report.violations.length).toBe(0);
+    expect(report.as_if_overuse).toBe(false);
+    expect(report.every_para_question).toBe(false);
+    expect(report.familiar_closer).toBe(false);
+    expect(report.door_slam_closer).toBe(false);
   });
 });
