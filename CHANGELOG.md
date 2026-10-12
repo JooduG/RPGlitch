@@ -9,6 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Stage 3 Preparations**: Groundwork for perspective and persona systems (Tracks 6–7).
+- **Engine Hardening Backlog**: Queued remediations for live simulation forensic findings:
+  - Hard budget constraints on `<ENTITIES>` block to eliminate reliance on host middle-out truncation.
+  - Fix E2 concealed bracket eviction across background Memory Forge consolidation cycles.
+  - Ghostwrite perspective alignment to prevent 3rd-person narrator contradiction on user turns.
+  - Recalibrate semantic drift comparison formula to evaluate consecutive turns by the same interlocutor.
+
+---
+
+## [0.8.0] - 2026-10-12
+
+- **Live Simulation Forensics & Integrity Verification (29-Round Run, R0–R28 across 111 generations)**:
+  - Validated Track 5 Stream Beat Monitor live: `TINY` 4-character input (`"Nod."`) clamped cleanly to 1 beat (~140 chars) without ballooning; `EXPANSIVE` 456-character input unlocked full 2,326-character multi-beat depth.
+  - Validated Track 3 Narrative Detox across 48 interaction turns: zero raw em/en-dashes, zero Tier 1A frequency slop, zero syntactic clichés, and somatic markers capped at $\le 1$ per character.
+  - Validated Third-Party Epistemic Isolation: `[DAGGER|hide]` stripped cleanly from AI prompts while visible sibling accessories passed through.
+  - Validated Prism-DCM Tier-1 chapter compaction rolling turn events into chapter nodes within height bounds.
+  - Validated Event Sourcing: genesis quadrant logging, director relational compare-then-skip deduplication, and field history replay.
+  - Identified critical backlog remediations: unbudgeted `<ENTITIES>` block swamping 6k cliff, E2 concealed memory eviction during forge consolidation, ghostwriter POV agency conflict, and input-vs-reply stagnation drift calculation flaw.
+
 - **P4 Zero Backwards Compatibility Purges: Lorebook & Physics Shim (`src/data/`, `src/intelligence/`, `src/utils/`)**:
   - Purged `src/intelligence/physics.js` compatibility shim and test file, pointing all downstream concerns directly to `dynamics.js`.
   - Purged standalone `src/intelligence/modules/lorebook.js`, `lorebook.test.js`, and `db.lorebooks` Dexie table.

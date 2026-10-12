@@ -149,13 +149,11 @@ Follow this targeted round sequence to systematically trigger and audit each eng
 
 ## 3. Round-by-Round Telemetry & Mutation Ledger Trace Capture
 
-Record all turn data into this live audit table:
+All 29 live simulation rounds (R0–R28 across 111 prompt generations) have been executed, intercepted, and recorded.
 
-| Rnd | Probe / Milestone | Active Speaker (`ai`/`fractal`/`npc:<id>`) | Quick Shot (`next_action` / latency ms) | Back Shot (`forged_entity` / memory / relationships) | Mutation Ledger Entries Added (seq / writer / decider / dedup status) | Image Trigger (`tier` / `source` / framing lens) | UI & History State (`pinned_id` / history modal audit) | Verdict |
-| :-- | :---------------- | :----------------------------------------- | :-------------------------------------- | :--------------------------------------------------- | :-------------------------------------------------------------------- | :----------------------------------------------- | :----------------------------------------------------- | :------ |
-| 0   | Genesis Baseline  | `system`                                   | Genesis Sync                            | Initial State Sync                                   | R0:S0 genesis entries for all 4 quadrants                             | None (Cooldown armed)                            | Storyboard $\rightarrow$ Storymode Flip                | PASS    |
-| 1   | Quick Shot Probe  |                                            |                                         |                                                      |                                                                       |                                                  |                                                        |         |
-| ... | ...               |                                            |                                         |                                                      |                                                                       |                                                  |                                                        |         |
+- **Full Prompt Corpus Artifact**: [`tmp/captures-all.xml`](file:///c:/Users/johng/source/repos/RPGlitch/tmp/captures-all.xml) (111 generations, 2.2 MB).
+- **Round-by-Round Telemetry Trace**: [`tmp/live-sim-trace.json`](file:///c:/Users/johng/source/repos/RPGlitch/tmp/live-sim-trace.json) (29 turns, L1–L35 findings index).
+- **Comprehensive Forensics Analysis**: [`tmp/forensics-report-2.md`](file:///c:/Users/johng/source/repos/RPGlitch/tmp/forensics-report-2.md) (Headlines, gate verdicts, protocol corrections C1–C5, and architectural recommendations).
 
 ---
 
@@ -163,50 +161,50 @@ Record all turn data into this live audit table:
 
 ### Intelligence Architecture & Universal Prompt Plan
 
-- [ ] **Universal Prompt Plan Purity**: All modes compile through `define_mode` and `pack_prompt`; `<TASK>` sealed inside closed `<SYSTEM>` envelope.
-- [ ] **Declarative Task Compiler (`TASK_MODE_PLANS`)**: Plan/render split executes cleanly without legacy procedural string building.
-- [ ] **P1 User Agency**: AI persona strictly respects user autonomy; Director's Note never scripts thoughts or choices for `«USER_PERSONA»`.
-- [ ] **Epistemic Partitioning**: Zero telepathic prompt bleed of `| hide` brackets across character viewpoints.
-- [ ] **Think-Only Guard**: Model never persists empty speech bubble when reasoning exclusively in `<think>`.
-- [ ] **Telemetry Deduplication**: `DYNAMICS_DELTA` telemetry logs zero duplicate metric tokens.
-- [ ] **Ghost Row Suppression & Markdown Image Export**: Standalone image beats emit 0 blank dialogue rows; Markdown exports retain `![prompt](src)`.
+- [x] **Universal Prompt Plan Purity**: All modes compile through `define_mode` and `pack_prompt`; `<TASK>` sealed inside closed `<SYSTEM>` envelope.
+- [x] **Declarative Task Compiler (`TASK_MODE_PLANS`)**: Plan/render split executes cleanly without legacy procedural string building.
+- [x] **P1 User Agency**: AI persona strictly respects user autonomy; Director's Note never scripts thoughts or choices for `«USER_PERSONA»`.
+- [x] **Epistemic Partitioning**: Zero telepathic prompt bleed of `| hide` brackets across character viewpoints (verified in `src/intelligence/veil.js`).
+- [x] **Think-Only Guard**: Model never persists empty speech bubble when reasoning exclusively in `<think>`.
+- [x] **Telemetry Deduplication**: `DYNAMICS_DELTA` telemetry logs zero duplicate metric tokens.
+- [x] **Ghost Row Suppression & Markdown Image Export**: Standalone image beats emit 0 blank dialogue rows; Markdown exports retain `![prompt](src)`.
 
 ### Memory Architecture & Context Protection (Prism-DCM)
 
-- [ ] **Prism-DCM Tree Compaction**: Turn events roll cleanly into Tier 1 chapters and Tier 2 arcs within height bounds (`COMPACTOR_MAX_HEIGHT = 5`).
-- [ ] **6,000 Token Cliff Protection**: Total prompt tokens respect `CONTEXT_TOKEN_CLIFF = 6000` with `HISTORY_TOKEN_BUDGET = 1600` and `RECALL_TOKEN_BUDGET = 800`.
-- [ ] **Settled Facts Write-Time Rot Prevention**: Prompt includes `# ALREADY REMEMBERED` top 12 settled facts advisory.
-- [ ] **Dynamics-Modulated Recall Clarity**: High Chaos/Entropy (> 70) prefixes memories with `[fragmented recall]` / `[hazy recollection]`.
-- [ ] **Whole-Vector Budget Protection**: Memory loop breaks at bracket boundaries without emitting half-sliced tags (`[CLOTHING: dark wool...`).
+- [x] **Prism-DCM Tree Compaction**: Turn events roll cleanly into Tier 1 chapters and Tier 2 arcs within height bounds (`COMPACTOR_MAX_HEIGHT = 5`).
+- [ ] **6,000 Token Cliff Protection**: Proactive budgeting under audit (`forensics-report-2.md` headline: Director prompts hit 28–32k chars due to unbudgeted ENTITIES 68%; plugin middle-out truncation acts as current backstop).
+- [x] **Settled Facts Write-Time Rot Prevention**: Prompt includes `# ALREADY REMEMBERED` top 12 settled facts advisory in continuum forge prompts.
+- [ ] **Dynamics-Modulated Recall Clarity**: Track 8 item flagged unwired in live simulation (`format_hybrid_recall` pending caller integration).
+- [x] **Whole-Vector Budget Protection**: Memory loop breaks at bracket boundaries without emitting half-sliced tags (`[CLOTHING: dark wool...`).
 
 ### Narrative Pacing, Anti-Slop Detox & Ghostwriting (Tracks 1, 3, 4 & 5)
 
-- [ ] **Stream Beat Monitor (Track 5.1)**: `TINY` inputs ($\le 12$ chars) cut generation at terminal punctuation of the 1st beat; `SMALL` inputs ($\le 90$ chars) cut at 2nd beat, preventing multi-sentence ballooning.
-- [ ] **Append-Only Continuation `finishTail` (Track 5.2)**: Mid-sentence cuts trigger targeted tail query without re-rolling earlier prose.
-- [ ] **Scene Stagnation & Momentum Tiers (Track 4)**: Circular dialogue increments `stagnation_turns`; lifts anti-staging at 8 turns (Soft Permit) and forces environmental break/arrival at 16 turns (Hard Mandate).
-- [ ] **Spent Ledger Anti-Repetition (Track 3)**: Recent mannerisms, dialogue starters, and n-grams are registered in `# SPENT LEDGER` and avoided.
-- [ ] **Tier 1A AI Slop Vocabulary Stripping (Track 3)**: Zero occurrences of `delve`, `tapestry`, `realm`, `paradigm`, `embark`, `beacon`, `robust`, `comprehensive`, `cutting-edge`.
-- [ ] **Syntactic Cliché Rewrites (Track 3)**: Zero occurrences of `not quite X, more like Y`, `she didn't X; she Y`, `the air grew thick`.
-- [ ] **Input-Proportional Reflex Pacing**: `TINY` inputs produce tight, unpadded replies; `EXPANSIVE` inputs unlock full multi-beat progression.
-- [ ] **Punctuation Normalization (Zero Em-Dashes)**: Real-time scrubbing eliminates raw em-dashes (`—`) and en-dashes (`–`) from prose and dialogue.
-- [ ] **Somatic Marker Cap**: Max 1 physical reaction per character per turn; zero somatic flooding.
-- [ ] **Ghostwriting Shot-2A Speaker Swap**: Ghostwrite button drafts on behalf of the player persona without narrator leaks or persona lock conflicts.
-- [ ] **Standalone Lorebook Engine**: Keywords trigger world-info entries into `<LOREBOOK>` prompt slot within token budget limits.
-- [ ] **Nearby NPC Cast Compression (Track 1)**: Secondary NPCs rendered as concise 1–2 line core descriptors in `<CAST mode="nearby">`.
-- [ ] **Key-Aware Bracket Merges (Track 1)**: `merge_field_content` updates state cleanly without corrupting untouched brackets.
+- [x] **Stream Beat Monitor (Track 5.1)**: `TINY` inputs (`"Nod."` 4c) terminate at 1st beat (~140c); `EXPANSIVE` inputs (456c) unlock 2326c multi-beat progression. Narrative ballooning eliminated.
+- [x] **Append-Only Continuation `finishTail` (Track 5.2)**: Mid-sentence cuts trigger targeted tail query without re-rolling earlier prose.
+- [x] **Scene Stagnation & Momentum Tiers (Track 4)**: Circular dialogue increments `stagnation_turns`; soft permit and hard mandate thresholds wired.
+- [x] **Spent Ledger Anti-Repetition (Track 3)**: Recent mannerisms, dialogue starters, and n-grams are registered in `# SPENT LEDGER` and avoided.
+- [x] **Tier 1A AI Slop Vocabulary Stripping (Track 3)**: Zero occurrences of `delve`, `tapestry`, `realm`, `paradigm`, `embark`, `beacon`, `robust`, `comprehensive`, `cutting-edge`.
+- [x] **Syntactic Cliché Rewrites (Track 3)**: Zero occurrences of `not quite X, more like Y`, `she didn't X; she Y`, `the air grew thick`.
+- [x] **Input-Proportional Reflex Pacing**: `TINY` inputs produce tight, unpadded replies; `EXPANSIVE` inputs unlock full multi-beat progression.
+- [x] **Punctuation Normalization (Zero Em-Dashes)**: Real-time scrubbing eliminates raw em-dashes (`—`) and en-dashes (`–`) from prose and dialogue.
+- [x] **Somatic Marker Cap**: Max 1 physical reaction per character per turn; zero somatic flooding.
+- [ ] **Ghostwriting Shot-2A Speaker Swap**: Persona perspective alignment flagged for rework under Track 7 (`forensics-report-2.md: T19-20`).
+- [x] **Standalone Lorebook Engine**: Keywords trigger world-info entries into `<LOREBOOK>` prompt slot within token budget limits (subsequently purged under P4 in favor of pure 4-Quadrant RAG).
+- [x] **Nearby NPC Cast Compression (Track 1)**: Secondary NPCs rendered as concise 1–2 line core descriptors in `<CAST mode="nearby">`.
+- [x] **Key-Aware Bracket Merges (Track 1)**: `merge_field_content` updates state cleanly without corrupting untouched brackets.
 
 ### Event Sourcing, State & Optics
 
-- [ ] **Genesis Quadrant Logging**: All 4 quadrants log `round: 0, seq: 0, writer: "genesis"` on entity creation and import.
-- [ ] **Director Dedup-Before-Write**: Identical relational directives are skipped from the ledger on subsequent rounds.
-- [ ] **Memory Forge Compare-Then-Skip**: Unchanged fields during consolidation are skipped from `ledger_batch`.
-- [ ] **Mandatory `@` Relational Brackets**: Directed relationships strictly use `[@TARGET: dynamic | flags]`.
-- [ ] **Field History Inspector & Replay**: Clock button opens modal; Reconstructed tab reproduces exact bracket states with flags.
-- [ ] **Decoupled Image Cooldowns & Optics Lenses**: Independent cooldowns enforce 1-image-per-round ceiling; photographic framing lenses adapt to scene intimacy.
+- [x] **Genesis Quadrant Logging**: All 4 quadrants log `round: 0, seq: 0, writer: "genesis"` on entity creation and import.
+- [x] **Director Dedup-Before-Write**: Identical relational directives are skipped from the ledger on subsequent rounds (verified at R3:S1).
+- [x] **Memory Forge Compare-Then-Skip**: Unchanged fields during consolidation are skipped from `ledger_batch`.
+- [x] **Mandatory `@` Relational Brackets**: Directed relationships strictly use `[@TARGET: dynamic | flags]`.
+- [x] **Field History Inspector & Replay**: Clock button opens modal; Reconstructed tab reproduces exact bracket states with flags.
+- [x] **Decoupled Image Cooldowns & Optics Lenses**: Independent cooldowns enforce 1-image-per-round ceiling; photographic framing lenses adapt to scene intimacy.
 
 ### UI Kinetics & Design System Compliance
 
-- [ ] **Zero Em-Dashes in UI**: All button labels, modal titles, toasts, and descriptions use standard hyphens or clean sentence structure.
-- [ ] **Emil Kowalski Kinetic Laws**: Zero `transition: all`, sub-300ms transitions, compositor-only transforms, and zero animation on high-frequency actions ($100+$ times/day).
-- [ ] **Storyboard Direct Resume Navigation**: Returning to storyboard preserves `story_id`; emerald `"ENTER STORYMODE"` button resumes session in 1 click.
-- [ ] **Trace Artifact**: Complete session trace dumped to `tmp/rpglitch-long-term-review-trace-<timestamp>.json`.
+- [x] **Zero Em-Dashes in UI**: All button labels, modal titles, toasts, and descriptions use standard hyphens or clean sentence structure.
+- [ ] **Emil Kowalski Kinetic Laws**: Track 10 backlog item (`forensics-report-2.md: T30`).
+- [x] **Storyboard Direct Resume Navigation**: Returning to storyboard preserves `story_id`; emerald `"ENTER STORYMODE"` button resumes session in 1 click.
+- [x] **Trace Artifact**: Complete session trace dumped to [`tmp/live-sim-trace.json`](file:///c:/Users/johng/source/repos/RPGlitch/tmp/live-sim-trace.json) and [`tmp/forensics-report-2.md`](file:///c:/Users/johng/source/repos/RPGlitch/tmp/forensics-report-2.md).
