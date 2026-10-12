@@ -63,10 +63,6 @@ db.version(2).stores({
   mutation_ledger: "++id, story_id, entity_id, [story_id+round+seq], [entity_id+field], round, timestamp",
 });
 
-db.version(3).stores({
-  lorebooks: "id, story_id, name, updated_at",
-});
-
 // ============================================================================
 // 2. LIFECYCLE & RESILIENCE HOOKS
 // ============================================================================

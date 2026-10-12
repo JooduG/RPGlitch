@@ -11,7 +11,7 @@
  * 5. Network Retry & Resilience (execute_with_retry)
  */
 
-import { db, entities, stories, lorebooks } from "@data";
+import { db, entities, stories } from "@data";
 import {
   generate_uuid,
   create_job_queue,
@@ -379,19 +379,9 @@ export const gamemaster = {
       });
 
       // 4.5. PHYSICS SYNC & TELEMETRY
-      // 4.4b. LOREBOOK HYDRATION (Track 3.2): story-scoped world entries scanned over recent turns.
-      let turn_lorebooks = [];
-      try {
-        turn_lorebooks = await lorebooks.list_for_story(story_id);
-      } catch {
-        turn_lorebooks = [];
-      }
-      const lore_turns = simulation_log.slice(-8).map((message) => ({ text: String(message?.content || "") }));
       const prompt_mode = npc_entity ? "npc" : is_using_narrator_engine ? "narrator" : "interaction";
       const character_prompt = compile_prompt(prompt_mode, {
         ...payload,
-        lorebooks: turn_lorebooks,
-        lore_turns,
         compressed_snapshot: snapshot,
         director_data,
         speaker: npc_entity,

@@ -155,5 +155,22 @@ describe("audit_macro_shape() (Track 3.4)", () => {
     expect(report.every_para_question).toBe(false);
     expect(report.familiar_closer).toBe(false);
     expect(report.door_slam_closer).toBe(false);
+    expect(report.vocabulary_cluster).toBe(false);
+  });
+
+  it("flags Tier 2 vocabulary clusters when two or more appear in the text", () => {
+    const text = "We must harness our resources to cultivate a stronger community.";
+    const report = audit_macro_shape(text);
+    expect(report.vocabulary_cluster).toBe(true);
+    expect(report.cluster_hit_count).toBe(2);
+    expect(report.violations).toContain("vocabulary-cluster");
+  });
+
+  it("does not flag isolated single Tier 2 words", () => {
+    const text = "We must harness our resources for the winter ahead.";
+    const report = audit_macro_shape(text);
+    expect(report.vocabulary_cluster).toBe(false);
+    expect(report.cluster_hit_count).toBe(1);
+    expect(report.violations).not.toContain("vocabulary-cluster");
   });
 });

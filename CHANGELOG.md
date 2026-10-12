@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **P4 Zero Backwards Compatibility Purges: Lorebook & Physics Shim (`src/data/`, `src/intelligence/`, `src/utils/`)**:
+  - Purged `src/intelligence/physics.js` compatibility shim and test file, pointing all downstream concerns directly to `dynamics.js`.
+  - Purged standalone `src/intelligence/modules/lorebook.js`, `lorebook.test.js`, and `db.lorebooks` Dexie table.
+  - Salvaged `match_keyword_pattern` (regex/glob/whole-word pattern matcher) to `src/utils/text.js`.
+  - Removed `lorebook` prompt slot from `PROSE_LAYERS`, `SYSTEM_SLOT_RESOLVERS`, and `story.js` in favor of pure 4-Quadrant Neural RAG.
+
+- **Metasyntax Standing Gate Consolidation (`src/intelligence/prompts.test.js`, `src/intelligence/metasyntax.test.js`)**:
+  - Consolidated Section 9 Metasyntax standing gate tests (catalog prose hygiene, frozen referent allowlist, stray `{placeholder}` brace detection, and `@` token confinement) into `src/intelligence/prompts.test.js`.
+  - Retired standalone `src/intelligence/metasyntax.test.js` to simplify test suite topography and eliminate duplicate contract suite setup.
+
 - **Track 5: Runtime Stream Beat Backstop & Continuation (`finishTail`) (`src/intelligence/story.js`, `src/intelligence/modules/reflex.js`, `src/platform/transport.js`, `src/platform/llm-gate.js`)**:
   - Implemented `count_prose_beats(prose)` and `is_stream_beat_limit_reached(prose, tier)` in `reflex.js` for beat-boundary punctuation counting outside `<think>` cognition blocks.
   - Implemented runtime Stream Beat Monitor in `story.js:make_character_try` wrapping token streaming with a beat-abort controller when input is classified as `TINY` (cuts after 1st beat) or `SMALL` (cuts after 2nd beat).
@@ -25,8 +35,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Integrated turn-to-turn semantic drift evaluation and telemetry logs into `story.js:execute_turn`.
   - Added full test coverage in `embeddings.test.js`, `runtime.test.js`, `reflex.test.js`, and `prompts.test.js`.
 
-- **Track 3: Anti-Slop Narrative Detox & The Spent Ledger (`src/intelligence/modules/spent-ledger.js`, `src/intelligence/builder.js`, `src/utils/detox.js`, `src/utils/styles.js`)**:
-  - Implemented the Spent Ledger engine in `spent-ledger.js`, scanning recent dialogue turns (default 5) for opening clauses, physical mannerisms, and 3-5 word n-grams, compiling the `# SPENT LEDGER` directive into the prompt pipeline via `builder.js`.
+- **Track 3: Anti-Slop Narrative Detox & The Spent Ledger (`src/intelligence/modules/reflex.js`, `src/intelligence/modules/style.js`, `src/intelligence/builder.js`, `src/utils/detox.js`, `src/utils/styles.js`, `src/data/definitions/speaking-styles.js`, `src/data/index.js`)**:
+  - Folded Spent Ledger engine (`extract_spent_ledger`, `render_spent_ledger_directive`, mannerism patterns, and windowing constants) directly into `src/intelligence/modules/reflex.js` (Section 8), eliminating redundant standalone `spent-ledger.js` and `spent-ledger.test.js`.
+  - Harmonized `src/intelligence/modules/style.js` by deduplicating bare clothing markers dynamically using canonical `CLOTHING_KEYS` and `CLEAR_TOKENS`.
+  - Decoupled hardcoded word replacement lists from `src/utils/detox.js` into canonical data definition dictionaries in `src/data/definitions/speaking-styles.js` (`ANTI_AI_REPLACEMENTS`, `TIER_2_CLUSTER_WORDS`), registering them dynamically with `detox.js` and `styles.js` to preserve layer boundary purity (`@utils` does not import `@data`).
+  - Implemented Tier 2 vocabulary cluster linter in `src/utils/styles.js:audit_macro_shape` flagging responses when $\ge 2$ Tier 2 cluster words appear.
   - Implemented fatal syntactic construction rewrites in `detox.js` (`not quite X, more like Y`, `she didn't X; she Y`, `the air grew thick`, and naming subtext like `gesture of ownership`).
   - Added Tier 1A high-frequency AI vocabulary marker replacements (49 terms: `delve`, `tapestry`, `realm`, `paradigm`, `embark`, `beacon`, `robust`, `comprehensive`, `cutting-edge`, `leverage`, `pivotal`, etc.) and Tier 1B clarity rewrites (`utilize` $\rightarrow$ `use`, `in order to` $\rightarrow$ `to`, `due to the fact that` $\rightarrow$ `because`, `serves as` $\rightarrow$ `is`, `commence` $\rightarrow$ `start`, `ascertain` $\rightarrow$ `find out`, `endeavor` $\rightarrow$ `attempt`).
   - Expanded somatic markers in `styles.js` with stock facial expressions and mannerisms (`ghost of a smirk`, `barely above a whisper`, `eyes darkened`, `jaw tight`, `fists clenched`, `ran a hand through hair`, `time seemed to stop`), enforcing a 1-per-reply cap.

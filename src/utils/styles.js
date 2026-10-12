@@ -223,18 +223,44 @@ export function audit_macro_shape(text) {
   const door_slam_closer = /\b(?:the\s+)?door\s+(?:slammed|slams|slam|shut|clicked)\b/i.test(last_sentence);
   if (door_slam_closer) violations.push("door-slam-closer");
 
+  // 5. Tier 2 vocabulary cluster (>= 2 cluster words in single response)
+  const cluster_words = _cached_cluster_words || [];
+  let cluster_hit_count = 0;
+  for (const word of cluster_words) {
+    const word_regex = new RegExp(`\\b${word}(?:s|ed|ing|ly)?\\b`, "i");
+    if (word_regex.test(source)) {
+      cluster_hit_count += 1;
+    }
+  }
+  const vocabulary_cluster = cluster_hit_count >= 2;
+  if (vocabulary_cluster) violations.push("vocabulary-cluster");
+
   return Object.freeze({
     as_if_count,
     as_if_overuse,
     every_para_question,
     familiar_closer,
     door_slam_closer,
+    cluster_hit_count,
+    vocabulary_cluster,
     violations: Object.freeze(violations),
   });
+}
+
+/** @type {ReadonlyArray<string> | null} */
+let _cached_cluster_words = null;
+
+/**
+ * Registers Tier 2 cluster words with the styles macro shape auditor.
+ * @param {ReadonlyArray<string>} words
+ */
+export function register_cluster_words(words) {
+  _cached_cluster_words = words;
 }
 
 /**
  * CHANGELOG
  * - Track 3.3: Expanded SOMATIC_MARKERS with stock faces (smirks, whispers, clenched fists, etc.) capped at 1 per reply.
  * - Track 3.4: Added audit_macro_shape auditing as-if-overuse (> 2), every-para-question, familiar-closer, and door-slam-closer.
+ * - Track 3.5: Added Tier 2 vocabulary cluster linter (>= 2 cluster words per reply) via register_cluster_words.
  */

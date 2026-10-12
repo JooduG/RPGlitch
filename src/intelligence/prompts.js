@@ -50,7 +50,6 @@ import {
   resolve_memory_advisory_slot,
 } from "./modules/entities.js";
 import { resolve_history_slot, resolve_chapter_history_slot } from "./modules/history.js";
-import { resolve_lorebook_slot } from "./modules/lorebook.js";
 import { verify_epistemic_integrity } from "./veil.js";
 import { resolve_turn_state_plan } from "./modules/reflex.js";
 
@@ -97,7 +96,7 @@ const TEMPORAL_SCHEMA_FRAGMENT = Object.freeze(["eternal", "present", "past", "f
  * @type {Readonly<{ system: ReadonlyArray<string>, task: ReadonlyArray<string> }>}
  */
 const PROSE_LAYERS = Object.freeze({
-  system: Object.freeze(["role", "axiomatic_constitution", "core_protocols", "entities", "lorebook", "history"]),
+  system: Object.freeze(["role", "axiomatic_constitution", "core_protocols", "entities", "history"]),
   task: Object.freeze(["think_format", "input", "currents", "directives", "delivery_posture", "stability_lock", "output_format"]),
 });
 
@@ -463,7 +462,6 @@ export const SYSTEM_SLOT_RESOLVERS = Object.freeze({
   core_protocols: resolve_core_protocols_slot,
   dynamic_axes: resolve_dynamic_axes_slot,
   entities: resolve_entities_slot,
-  lorebook: resolve_lorebook_slot,
   target_entity_context: resolve_target_context_slot,
   cast: resolve_cast_slot,
   entity_context: resolve_entity_context_slot,
@@ -478,7 +476,6 @@ const SYSTEM_STATE_KEYS = Object.freeze({
   core_protocols: "core_protocols",
   dynamic_axes: "dynamics",
   entities: "entities_block",
-  lorebook: "lorebook_block",
   target_entity_context: "target_context",
   cast: "nearby_cast",
   entity_context: "field_context",

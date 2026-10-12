@@ -27,7 +27,7 @@
  * ============================================================================
  */
 
-import { register_speaking_rules } from "@utils";
+import { register_speaking_rules, register_anti_ai_rules, register_cluster_words, match_case } from "@utils";
 
 // ============================================================================
 // 1. Declarative Rule Builder Primitive
@@ -995,7 +995,187 @@ export const SPEAKING_STYLE_RULES = Object.freeze([...VOCAL_RULES, ...SOUND_RULE
 register_speaking_rules(SPEAKING_STYLE_RULES);
 
 // ============================================================================
-// 8. Canonical Taxonomy & Validation
+// 8. Canonical Anti-AI Word Tiers & Clarity Dictionaries (Track 3.5)
+// ============================================================================
+
+/**
+ * Canonical Tier 1A & Tier 1B Anti-AI substitution rules.
+ * Governs high-frequency AI markers and clarity rewrites centrally in the data layer.
+ */
+export const ANTI_AI_REPLACEMENTS = Object.freeze([
+  // Tier 1B: Clarity Edits
+  {
+    pattern: /\butiliz(e|ed|es|ing)\b/gi,
+    replace: (match) => {
+      const lower = match.toLowerCase();
+      if (lower === "utilize") return match_case(match, "use");
+      if (lower === "utilized") return match_case(match, "used");
+      if (lower === "utilizes") return match_case(match, "uses");
+      if (lower === "utilizing") return match_case(match, "using");
+      return match_case(match, "use");
+    },
+  },
+  { pattern: /\bin\s+order\s+to\b/gi, replace: (match) => match_case(match, "to") },
+  { pattern: /\bdue\s+to\s+the\s+fact\s+that\b/gi, replace: (match) => match_case(match, "because") },
+  { pattern: /\bserves\s+as\b/gi, replace: (match) => match_case(match, "is") },
+  {
+    pattern: /\bcommenc(e|ed|es|ing)\b/gi,
+    replace: (match) => {
+      const lower = match.toLowerCase();
+      if (lower === "commence") return match_case(match, "start");
+      if (lower === "commenced") return match_case(match, "started");
+      if (lower === "commences") return match_case(match, "starts");
+      if (lower === "commencing") return match_case(match, "starting");
+      return match_case(match, "start");
+    },
+  },
+  {
+    pattern: /\bascertain(ed|s|ing)?\b/gi,
+    replace: (match) => {
+      const lower = match.toLowerCase();
+      if (lower === "ascertain") return match_case(match, "find out");
+      if (lower === "ascertained") return match_case(match, "found out");
+      if (lower === "ascertains") return match_case(match, "finds out");
+      if (lower === "ascertaining") return match_case(match, "finding out");
+      return match_case(match, "find out");
+    },
+  },
+  {
+    pattern: /\bendeavor(ed|s|ing)?\b/gi,
+    replace: (match) => {
+      const lower = match.toLowerCase();
+      if (lower === "endeavor") return match_case(match, "attempt");
+      if (lower === "endeavored") return match_case(match, "attempted");
+      if (lower === "endeavors") return match_case(match, "attempts");
+      if (lower === "endeavoring") return match_case(match, "attempting");
+      return match_case(match, "attempt");
+    },
+  },
+
+  // Tier 1A: High-Frequency AI Vocabulary Markers
+  {
+    pattern: /\bdelv(e|ed|es|ing)(?:\s+into)?\b/gi,
+    replace: (match) => {
+      const lower = match.toLowerCase();
+      if (lower.startsWith("delving")) return match_case(match, "digging into");
+      if (lower.startsWith("delved")) return match_case(match, "dug into");
+      if (lower.startsWith("delves")) return match_case(match, "digs into");
+      return match_case(match, "dig into");
+    },
+  },
+  {
+    pattern: /\btapestr(y|ies)\b/gi,
+    replace: (match) => (match.toLowerCase() === "tapestry" ? match_case(match, "weave") : match_case(match, "weaves")),
+  },
+  {
+    pattern: /\brealm(s)?\b/gi,
+    replace: (match) => (match.toLowerCase() === "realm" ? match_case(match, "domain") : match_case(match, "domains")),
+  },
+  {
+    pattern: /\bparadigm(s)?\b/gi,
+    replace: (match) => (match.toLowerCase() === "paradigm" ? match_case(match, "model") : match_case(match, "models")),
+  },
+  {
+    pattern: /\bembark(ed|s|ing)?\b/gi,
+    replace: (match) => {
+      const lower = match.toLowerCase();
+      if (lower === "embark") return match_case(match, "start");
+      if (lower === "embarked") return match_case(match, "started");
+      if (lower === "embarks") return match_case(match, "starts");
+      if (lower === "embarking") return match_case(match, "starting");
+      return match_case(match, "start");
+    },
+  },
+  {
+    pattern: /\bbeacon(s)?\b/gi,
+    replace: (match) => (match.toLowerCase() === "beacon" ? match_case(match, "signal") : match_case(match, "signals")),
+  },
+  { pattern: /\brobust\b/gi, replace: (match) => match_case(match, "solid") },
+  { pattern: /\bcomprehensive\b/gi, replace: (match) => match_case(match, "thorough") },
+  { pattern: /\ba\s+cutting-edge\b/gi, replace: (match) => match_case(match, "an advanced") },
+  { pattern: /\bcutting-edge\b/gi, replace: (match) => match_case(match, "advanced") },
+  {
+    pattern: /\bleverag(e|ed|es|ing)\b/gi,
+    replace: (match) => {
+      const lower = match.toLowerCase();
+      if (lower === "leverage") return match_case(match, "use");
+      if (lower === "leveraged") return match_case(match, "used");
+      if (lower === "leverages") return match_case(match, "uses");
+      if (lower === "leveraging") return match_case(match, "using");
+      return match_case(match, "use");
+    },
+  },
+  { pattern: /\bpivotal\b/gi, replace: (match) => match_case(match, "key") },
+  {
+    pattern: /\bseamless(ly)?\b/gi,
+    replace: (match) => (match.toLowerCase() === "seamlessly" ? match_case(match, "smoothly") : match_case(match, "smooth")),
+  },
+  { pattern: /\bgame-chang(er|ing)\b/gi, replace: (match) => match_case(match, "turning point") },
+  { pattern: /\bwatershed\s+moment\b/gi, replace: (match) => match_case(match, "turning point") },
+  { pattern: /\bdeep\s+dive\b/gi, replace: (match) => match_case(match, "close look") },
+  { pattern: /\bintricate\b/gi, replace: (match) => match_case(match, "complex") },
+  { pattern: /\bcomplexities\b/gi, replace: (match) => match_case(match, "details") },
+  { pattern: /\bintricacies\b/gi, replace: (match) => match_case(match, "details") },
+  { pattern: /\bactionable\b/gi, replace: (match) => match_case(match, "practical") },
+  {
+    pattern: /\bholistic(ally)?\b/gi,
+    replace: (match) => (match.toLowerCase() === "holistically" ? match_case(match, "completely") : match_case(match, "complete")),
+  },
+  { pattern: /\s*\bat\s+its\s+core\b(?=\s*[,;.!?]|\s*$)/gi, replace: () => "" },
+  { pattern: /\bat\s+its\s+core\b\s*/gi, replace: () => "" },
+]);
+
+// Register Tier 1 substitution rules with the detox engine
+register_anti_ai_rules(ANTI_AI_REPLACEMENTS);
+
+/**
+ * Tier 2 Cluster Words: Words legitimate on their own, but flagged when 2 or more appear together.
+ */
+export const TIER_2_CLUSTER_WORDS = Object.freeze([
+  "harness",
+  "navigate",
+  "foster",
+  "elevate",
+  "unleash",
+  "streamline",
+  "empower",
+  "bolster",
+  "spearhead",
+  "resonate",
+  "revolutionize",
+  "facilitate",
+  "underpin",
+  "nuanced",
+  "crucial",
+  "multifaceted",
+  "ecosystem",
+  "myriad",
+  "plethora",
+  "encompass",
+  "catalyze",
+  "reimagine",
+  "galvanize",
+  "augment",
+  "cultivate",
+  "illuminate",
+  "elucidate",
+  "juxtapose",
+  "transformative",
+  "cornerstone",
+  "paramount",
+  "poised",
+  "burgeoning",
+  "nascent",
+  "quintessential",
+  "overarching",
+  "underpinnings",
+]);
+
+// Register Tier 2 cluster words with the styles macro shape auditor
+register_cluster_words(TIER_2_CLUSTER_WORDS);
+
+// ============================================================================
+// 9. Canonical Taxonomy & Validation
 // ============================================================================
 
 export const SPEAKING_STYLES = Object.freeze(["casual", "lyrical", "primal", "clinical"]);
@@ -1014,6 +1194,7 @@ export function is_valid_speaking_style(candidate_style) {
 /**
  * ============================================================================
  * CHANGELOG:
+ * - 2026-10-12: Decoupled Tier 1A, Tier 1B, and Tier 2 anti-AI vocabulary dictionaries from utils/detox.js into data/definitions/speaking-styles.js.
  * - 2026-09-24: Added Community Speaking rules for Wikipedia AI stock vocabulary clusters (realm of, stands as a testament to, plays a vital role in, seamless, holistic, fast-paced world, game-changer).
  * - 2026-09-14: Registered Community Speaking rules for common Ai-isms (pang of guilt/fear/desire, playing with fire, death of me, feisty).
  * - 2026-09-06: Harmonized rule registries and detox conjugation: (1) Added full

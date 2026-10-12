@@ -8,13 +8,32 @@
 
 ## 1. Primary Objectives & Inquiries Under Test
 
-### 1. Track 3 & Track 4 Architecture Verification (`[Unreleased]`)
+### 1. Recent Updates Verification (Tracks 1 through 5 — `[Unreleased]`)
 
-- **Anti-Slop Narrative Detox & Punctuation Normalization**: Verify streaming narrative prose and dialogue undergo real-time scrubbing of raw em-dashes (`—`) and en-dashes (`–`), converting them to clean standard punctuation without trailing hyphens.
-- **Cliché & Pseudo-Poetic Filter**: Verify negative antithesis constructions (`not X, it was Y`), throat-clearing clichés (`quietly [verb]`, `testament to`, `symphony/dance/tapestry of`), and somatic marker flooding ($\le 1$ per character per turn) are caught and neutralized.
-- **Deep Task Compiler (`TASK_MODE_PLANS`)**: Verify declarative plan/render execution across all prompt modes (`director`, `interaction`, `ghostwrite`, `npc`, `narrator`, `continuum`, `enhancement`, `sorting`, `optics`).
-- **Ghostwrite Shot-2A Speaker Swap**: Trigger ghostwrite from `StorymodeBar.svelte`; verify draft prose runs as a symmetrical first-class character turn with POV protocol, producing player actions without narrator cognitive leaks or `CHARACTER.BASE` contradictions.
-- **UI Motion & Kinetic Law Gates**: Audit frontend for Emil Kowalski's motion standards (zero `transition: all`, sub-300ms transitions, responsive `--ease-out` curves, compositor-only `transform`/`opacity`, and zero em-dashes anywhere in UI copy).
+Verify that the recently shipped architectural updates across Tracks 1 through 5 are functioning properly and producing the high-fidelity narrative, immersion, and stability results we are aiming for:
+
+- **Track 1: 4-Quadrant RAG & Dynamic Token Reservoir**:
+  - Verify key-aware pseudo-JSON bracket merges (`merge_field_content`) cleanly overwrite values, purge on `none`/`cleared`, and preserve unmutated brackets.
+  - Verify physical descriptors in `present.physical` receive the 0.5x token salience penalty on narrative turns and the 1.5x boost on scheduled image generation turns.
+  - Verify `whole_vector_slice` prevents sliced bracket tags (`[CLOTHING: dark...`) at prompt boundary limits.
+  - Verify background NPC cast compression renders concise 1–2 line summaries (`<CAST mode="nearby">`), preserving prompt tokens while giving the active speaker full depth.
+- **Track 2: Simulation Log Pipeline Harmonization**:
+  - Verify turn beat normalization via `normalize_history_beat` guarantees identical output across live prompt compilation, UI rendering, and story exports.
+  - Verify canonical Sovereign roles (`USER`, `AI`, `NPC`, `FRACTAL`, `SYSTEM`) are strictly preserved with zero generic LLM markers (`assistant`, `narrator`).
+  - Verify in-memory window slicing (`get_recent_window`) prevents redundant database queries during active simulation rounds.
+- **Track 3: Anti-Slop Narrative Detox & The Spent Ledger**:
+  - Verify `# SPENT LEDGER` scans recent dialogue turns, compiling opening clauses, physical mannerisms, and repeated n-grams into the active prompt.
+  - Verify real-time detoxification strips Tier 1A frequency markers (49 terms: `delve`, `tapestry`, `realm`, `paradigm`, `embark`, `beacon`, `robust`, etc.) and rewrites Tier 1B clarity terms (`utilize` $\rightarrow$ `use`).
+  - Verify fatal syntactic tropes (`not quite X, more like Y`, `she didn't X; she Y`, `the air grew thick`, and named subtext tags) are neutralized.
+  - Verify somatic physical markers are capped at 1 per character per turn.
+  - Verify zero raw em-dashes (`—`) or en-dashes (`–`) appear in prose, dialogue, or UI.
+- **Track 4: Scene Momentum & Stagnation Backstop**:
+  - Verify turn-to-turn semantic drift ($1 - \text{cosine\_similarity}$) is computed via 384-d embeddings between consecutive turns.
+  - Verify reactive `stagnation_turns` tracks circular dialogue and persists to `db.stories`.
+  - Verify Directorial Momentum Tiers fire at thresholds: Soft Permit at 8 turns (lifts anti-staging restrictions) and Hard Mandate at 16 turns (forces an environmental shift or new arrival).
+- **Track 5: Runtime Stream Beat Backstop & Continuation (`finishTail`)**:
+  - Verify the runtime Stream Beat Monitor cuts generation on terminal punctuation after the 1st beat on `TINY` inputs ($\le 12$ chars) and after the 2nd beat on `SMALL` inputs ($\le 90$ chars), stopping narrative ballooning (e.g. 4-char `"Nod."` ballooning into multi-sentence monologues).
+  - Verify that when generation truncates mid-sentence (`looks_truncated`), `finishTail` preserves already-streamed text, prompts for only the missing concluding clause, and concatenates without a full re-roll.
 
 ### 2. v0.7.0 Sovereign Core & Intelligence Hardening
 
@@ -160,14 +179,21 @@ Record all turn data into this live audit table:
 - [ ] **Dynamics-Modulated Recall Clarity**: High Chaos/Entropy (> 70) prefixes memories with `[fragmented recall]` / `[hazy recollection]`.
 - [ ] **Whole-Vector Budget Protection**: Memory loop breaks at bracket boundaries without emitting half-sliced tags (`[CLOTHING: dark wool...`).
 
-### Narrative Pacing, Anti-Slop Detox & Ghostwriting
+### Narrative Pacing, Anti-Slop Detox & Ghostwriting (Tracks 1, 3, 4 & 5)
 
+- [ ] **Stream Beat Monitor (Track 5.1)**: `TINY` inputs ($\le 12$ chars) cut generation at terminal punctuation of the 1st beat; `SMALL` inputs ($\le 90$ chars) cut at 2nd beat, preventing multi-sentence ballooning.
+- [ ] **Append-Only Continuation `finishTail` (Track 5.2)**: Mid-sentence cuts trigger targeted tail query without re-rolling earlier prose.
+- [ ] **Scene Stagnation & Momentum Tiers (Track 4)**: Circular dialogue increments `stagnation_turns`; lifts anti-staging at 8 turns (Soft Permit) and forces environmental break/arrival at 16 turns (Hard Mandate).
+- [ ] **Spent Ledger Anti-Repetition (Track 3)**: Recent mannerisms, dialogue starters, and n-grams are registered in `# SPENT LEDGER` and avoided.
+- [ ] **Tier 1A AI Slop Vocabulary Stripping (Track 3)**: Zero occurrences of `delve`, `tapestry`, `realm`, `paradigm`, `embark`, `beacon`, `robust`, `comprehensive`, `cutting-edge`.
+- [ ] **Syntactic Cliché Rewrites (Track 3)**: Zero occurrences of `not quite X, more like Y`, `she didn't X; she Y`, `the air grew thick`.
 - [ ] **Input-Proportional Reflex Pacing**: `TINY` inputs produce tight, unpadded replies; `EXPANSIVE` inputs unlock full multi-beat progression.
 - [ ] **Punctuation Normalization (Zero Em-Dashes)**: Real-time scrubbing eliminates raw em-dashes (`—`) and en-dashes (`–`) from prose and dialogue.
-- [ ] **Cliché & Negative Antithesis Filter**: Generated prose contains zero `not X, it was Y`, `quietly [verb]`, or `testament to`.
 - [ ] **Somatic Marker Cap**: Max 1 physical reaction per character per turn; zero somatic flooding.
 - [ ] **Ghostwriting Shot-2A Speaker Swap**: Ghostwrite button drafts on behalf of the player persona without narrator leaks or persona lock conflicts.
 - [ ] **Standalone Lorebook Engine**: Keywords trigger world-info entries into `<LOREBOOK>` prompt slot within token budget limits.
+- [ ] **Nearby NPC Cast Compression (Track 1)**: Secondary NPCs rendered as concise 1–2 line core descriptors in `<CAST mode="nearby">`.
+- [ ] **Key-Aware Bracket Merges (Track 1)**: `merge_field_content` updates state cleanly without corrupting untouched brackets.
 
 ### Event Sourcing, State & Optics
 

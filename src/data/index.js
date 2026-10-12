@@ -26,7 +26,7 @@ export { db, init_db, set_versionchange_quiesce } from "./db.js";
 // Repositories & State Bridges
 // ============================================================================
 
-export { seed_premades, stories, entities, lorebooks, coerce_story_key } from "./repository.js";
+export { seed_premades, stories, entities, coerce_story_key } from "./repository.js";
 export {
   ledger_repository,
   append_ledger_entry,
@@ -80,7 +80,14 @@ export {
 // Speaking Styles & Dialogue Registries
 // ============================================================================
 
-export { SPEAKING_STYLES, VALID_SPEAKING_STYLES, is_valid_speaking_style, SPEAKING_STYLE_RULES } from "./definitions/speaking-styles.js";
+export {
+  SPEAKING_STYLES,
+  VALID_SPEAKING_STYLES,
+  is_valid_speaking_style,
+  SPEAKING_STYLE_RULES,
+  ANTI_AI_REPLACEMENTS,
+  TIER_2_CLUSTER_WORDS,
+} from "./definitions/speaking-styles.js";
 
 // ============================================================================
 // Narrative Styles & Motif Registries

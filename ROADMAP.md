@@ -8,7 +8,7 @@ This roadmap defines the authoritative technical backlog, active engineering spr
   - [ARCHITECTURE.md](ARCHITECTURE.md): Authoritative software architecture, layer boundaries, and state reality in `src/`.
   - [DESIGN.md](DESIGN.md): Nordic visual design tokens, typography, and motion contracts.
   - [SECURITY.md](SECURITY.md): Threat defense, input sanitization, and sink controls.
-  - [memory-rag-budget-architecture.md](memory-rag-budget-architecture.md): Sovereign memory RAG, token budget reservoirs, and comprehensive anti-slop specification.
+  - [memory-rag-budget-architecture.md](tmp/memory-rag-budget-architecture.md): Sovereign memory RAG, token budget reservoirs, and comprehensive anti-slop specification.
 - **Idea Promotion Lifecycle**: Uncommitted mechanical ideas and exploratory proposals incubate in [`.agents/skills/simulation/references/`](.agents/skills/simulation/references/) as `suggestion-*.md`. When an idea is **promoted** from an exploratory possibility into a planned initiative, it is **removed from the incubator and fully migrated into this roadmap**.
 
 ---
@@ -65,7 +65,7 @@ flowchart TD
 
 ### Track 1: Sovereign 4-Quadrant RAG & Dynamic Token Budget Reservoir
 
-- **Objective**: Implement the 3-Tier Budget Reservoir and Unified 4-Quadrant RAG from [memory-rag-budget-architecture.md](memory-rag-budget-architecture.md).
+- **Objective**: Implement the 3-Tier Budget Reservoir and Unified 4-Quadrant RAG from [memory-rag-budget-architecture.md](tmp/memory-rag-budget-architecture.md).
 - **Problem Diagnosis**: In live simulations (`forensics-report.md`), the `<ENTITIES>` block alone consumes 72% of the Director prompt and 55% of the interaction prompt, causing Perchance to trigger destructive middle-out prompt truncations that slice entities and history. Vector scoring is isolated to `past`, while `eternal`, `present`, and `future` dump unbudgeted raw text.
 - **Key Modules**: `src/intelligence/temporal.js`, `src/intelligence/modules/sheets.js`, `src/intelligence/modules/entities.js`, `src/intelligence/modules/entities.test.js`, `src/intelligence/builder.js`.
 - **Planned Sub-Items**:
@@ -129,6 +129,22 @@ flowchart TD
   - [x] **5.1 Input-Proportional Sizing**: Stream beat monitor cutting generation at terminal punctuation of the first beat on `TINY` ($\le 12$ chars) and `SMALL` ($\le 90$ chars) user inputs.
   - [x] **5.2 Append-Only Continuation (`finishTail`)**: Detect unclosed clauses upon stream termination and trigger targeted append prompt rather than full re-rolls.
 
+- **Active Maintenance & Test Consolidation**:
+  - [x] **Metasyntax Standing Gate Consolidation**: Merged `src/intelligence/metasyntax.test.js` into `src/intelligence/prompts.test.js` (Section 9) and pruned redundant standalone test file.
+  - [x] **P4 Pre-Beta Purity Purges (Lorebook & Physics Shim)**:
+    - Purged `src/intelligence/physics.js` and `src/intelligence/physics.test.js`.
+    - Purged `src/intelligence/modules/lorebook.js` and `src/intelligence/modules/lorebook.test.js`.
+    - Removed lorebooks persistence from `src/data/db.js`, `src/data/repository.js`, `src/data/repository.test.js`, and `src/data/index.js`.
+    - Removed lorebook slot from `src/intelligence/prompts.js`, `src/intelligence/story.js`, and `src/intelligence/index.js`.
+    - Salvaged `match_keyword_pattern` into `src/utils/text.js`.
+  - [x] **Spent Ledger & Style Consolidation**:
+    - Consolidated `spent-ledger.js` and its test suite into `src/intelligence/modules/reflex.js` (Section 8) and deleted standalone spent-ledger files.
+    - Harmonized clothing markers in `src/intelligence/modules/style.js` using `CLOTHING_KEYS` and `CLEAR_TOKENS`.
+  - [x] **Anti-AI Detox & Dictionary Harmonization**:
+    - Centralized Tier 1A, Tier 1B, and Tier 2 word tier dictionaries into `src/data/definitions/speaking-styles.js`.
+    - Transformed `src/utils/detox.js` into an abstract cleaner broom via `register_anti_ai_rules` without hardcoded vocabulary tables.
+    - Integrated Tier 2 cluster linter into `src/utils/styles.js:audit_macro_shape` via `register_cluster_words`.
+
 ---
 
 ### Track 6: Relational Macro Graph & Perspective Unification
@@ -167,14 +183,14 @@ flowchart TD
 
 ---
 
-### Track 9: Knowledge, Lorebook Studio & Prompt Diagnostics
+### Track 9: Knowledge, 4-Quadrant Memory & Prompt Diagnostics
 
-- **Objective**: Deliver world lore management, depth placement, and token transparency tools.
-- **Key Modules**: `src/ui/lorebook/LorebookModal.svelte`, `src/intelligence/modules/lorebook.js`, `src/ui/profile/DevWing.svelte`, `src/intelligence/builder.js`.
+- **Objective**: Deliver comprehensive world knowledge management, semantic 4-Quadrant memory explorer, and prompt token transparency tools.
+- **Key Modules**: `src/ui/profile/DevWing.svelte`, `src/intelligence/temporal.js`, `src/intelligence/builder.js`.
 - **Planned Sub-Items**:
-  - [ ] **9.1 Lorebook Studio UI & SillyTavern Import/Export**: Build UI modal supporting SillyTavern JSON import/export and `@depth` history placement (injecting world lore $N$ turns back into dialogue history).
-  - [ ] **9.2 "All 4 Quadrants Are Lorebook" Educational Guidance**: Update UI descriptions and docs to teach users how `eternal` + `present` + `past` + `lorebooks` form the complete world encyclopedia.
-  - [ ] **9.3 Prompt Token Map ("What the Model Sees")**: Visual proportional token bar chart in `DevWing.svelte` showing active allocations (`SYSTEM`, `HISTORY`, `ENTITIES`, `PAST`, `TASK`).
+  - [ ] **9.1 "All 4 Quadrants Are Lorebook" Educational Guidance**: Update UI descriptions and docs to teach users how `eternal` + `present` + `past` + `future` form the complete, vectorized world encyclopedia without legacy keyword dumps.
+  - [ ] **9.2 Prompt Token Map ("What the Model Sees")**: Visual proportional token bar chart in `DevWing.svelte` showing active allocations (`SYSTEM`, `HISTORY`, `ENTITIES`, `PAST`, `TASK`).
+  - [x] **9.3 P4 Lorebook Purge**: Retired legacy keyword-matching `lorebook.js`, `db.lorebooks`, and prompt slots in favor of pure 4-Quadrant Neural RAG supremacy.
 
 ---
 

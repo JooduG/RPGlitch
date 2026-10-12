@@ -1258,11 +1258,53 @@ export function alternation_field_label(text, raw) {
 }
 
 /**
+ * Tests one pattern/key against a haystack. Pass precedence: /regex/ literals
+ * first, * ? glob wildcards second, bare strings as case-insensitive
+ * whole-word matches last.
+ * @param {string} pattern
+ * @param {string} haystack
+ * @returns {Readonly<{ hit: boolean, pass: "regex"|"glob"|"word"|"none" }>}
+ */
+export function match_keyword_pattern(pattern, haystack) {
+  const needle = String(pattern ?? "").trim();
+  const text = String(haystack ?? "");
+  if (!needle || !text) return Object.freeze({ hit: false, pass: "none" });
+  if (needle.length > 2 && needle.startsWith("/") && needle.lastIndexOf("/") > 0) {
+    const last_slash = needle.lastIndexOf("/");
+    try {
+      if (new RegExp(needle.slice(1, last_slash), needle.slice(last_slash + 1)).test(text)) {
+        return Object.freeze({ hit: true, pass: "regex" });
+      }
+    } catch {
+      /* invalid regex falls through to literal matching */
+    }
+    return Object.freeze({ hit: false, pass: "none" });
+  }
+  if (needle.includes("*") || needle.includes("?")) {
+    const glob = needle
+      .split("")
+      .map((char) => (char === "*" ? ".*" : char === "?" ? "." : char.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")))
+      .join("");
+    try {
+      if (new RegExp(glob, "i").test(text)) return Object.freeze({ hit: true, pass: "glob" });
+    } catch {
+      /* unreachable — escaped construction cannot throw */
+    }
+    return Object.freeze({ hit: false, pass: "none" });
+  }
+  const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  if (new RegExp(`(^|[^A-Za-z0-9])${escaped}([^A-Za-z0-9]|$)`, "i").test(text)) {
+    return Object.freeze({ hit: true, pass: "word" });
+  }
+  return Object.freeze({ hit: false, pass: "none" });
+}
+
+/**
  * CHANGELOG:
+ * - 2026-10-12: Salvaged match_keyword_pattern from lorebook.js into @utils/text.js.
  * - Track 2: Simulation Log Pipeline Harmonization — added `CANONICAL_ROLES`, `canonicalize_role`, and `normalize_history_beat` to `@utils/text.js`, unifying turn beat normalization across UI, platform, intelligence, and utility export layers without circular dependencies.
  * - 2026-10-03: Hardened balance_brackets Case 3 — restricted predicate auto-enclosure to uppercase state keys (^[A-Z][A-Z0-9_]{1,24}:) or entity targets (^@[A-Z0-9_]{1,24}:) and strict bracket flags to prevent false-positive predicate creation on natural language prose lines.
  * - 2026-09-23: Relocated VISUAL_EXCLUDED_KEYS and strip_visual_excluded here from @intelligence/epistemic.js to break circular dependency between media and intelligence layers.
-
  * - 2026-09-11: Purification pass — renamed the lazy stem `ind` to `indent_continuation` (full-name law).
  * - 2026-09-25: History formatting standardization — added `format_history_entries` and `filter_narrative_messages` to unify conversation history collapsing, XML `<ENTRY>` serialization, and narrative turn extraction across platform and intelligence layers.
  * - 2026-09-25: DRY pass — consolidated `compute_initials` (was duplicated verbatim in Storyboard.svelte.js and ProfilePicture.svelte) and `NAME_PREFIX_STEMS` here; added `role_display_label` + `NARRATIVE_ROLES`/`is_narrative_role` so the role→label and narrative-role checks live in one place.

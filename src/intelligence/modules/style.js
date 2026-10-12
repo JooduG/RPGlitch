@@ -15,7 +15,7 @@
  * ============================================================================
  */
 
-import { CLOTHING_KEYS, escape_xml, prompt_escape, render_xml_tag, safe_parse_pseudo_json, VISUAL_EXCLUDED_KEYS } from "@utils";
+import { CLEAR_TOKENS, CLOTHING_KEYS, escape_xml, prompt_escape, render_xml_tag, safe_parse_pseudo_json, VISUAL_EXCLUDED_KEYS } from "@utils";
 import {
   extract_style_dna,
   get_narrative_style,
@@ -243,10 +243,10 @@ export function resolve_optics_cinematography({
 
 /**
  * Pre-compiled regex matching clothing removal markers in present state strings.
+ * Built dynamically from shared canonical CLOTHING_KEYS and CLEAR_TOKENS sets.
  * @type {RegExp}
  */
-const BARE_MARKER_REGEX =
-  /\[(?:CLOTHING|SHIRT|PANTS|SUIT|JACKET|DRESS|SKIRT|COAT|ROBE|ROBES|APPAREL|UNDERWEAR|OUTFIT|CLOAK|BOTTOMS|TOPS|ACCESSORIES|HARNESS|SCRUBS|HARDWARE|EQUIPMENT|GEAR)\s*:\s*(?:none|bare|naked|off|removed|disrobed)\s*\]/i;
+const BARE_MARKER_REGEX = new RegExp(`\\[(?:${CLOTHING_KEYS.join("|")})\\s*:\\s*(?:${[...CLEAR_TOKENS].join("|")})\\s*\\]`, "i");
 
 export function resolve_visual_engine_tokens(visual_style_key) {
   const visual_style = VISUAL_STYLES[visual_style_key] || VISUAL_STYLES.none;
