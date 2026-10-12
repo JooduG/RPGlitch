@@ -36,14 +36,14 @@ import {
   clear_generation_in_flight,
 } from "@media";
 import { validate_and_repair_response, force_close_response, balance_think_tags, strip_directors_note_seed, THINK_OPEN_TAG } from "./parser.js";
-import { llm_service, looks_truncated, calculate_semantic_drift } from "@platform";
+import { llm_service, looks_truncated, calculate_semantic_drift, merge_abort_signals } from "@platform";
 import { apply_dynamics_gravity, extract_entity_dynamics_baselines, capture_dynamics_delta } from "./dynamics.js";
 import { execute_director_shot, resolve_npc_entity, apply_in_scene_change } from "./director.js";
 import { build_scoring_context, context_builder } from "./builder.js";
 import { compile_prompt } from "./prompts.js";
 import { prune, temporal_engine } from "./temporal.js";
 import { spawn_character } from "./profile.js";
-import { REFLEX_LIBRARY } from "./modules/reflex.js";
+import { REFLEX_LIBRARY, classify_input_size, is_stream_beat_limit_reached } from "./modules/reflex.js";
 
 /**
  * @typedef {Object} GenerationOptions
@@ -515,8 +515,29 @@ export const gamemaster = {
       }
 
       // 6. GENERATION: Character pass with completion retry
+      const input_size = classify_input_size(input);
+
       const make_character_try = async (completion_note) => {
         const { onToken, json, signal, silent, raw } = llm_options;
+        const beat_controller = new AbortController();
+        const effective_signal = merge_abort_signals(signal, beat_controller.signal);
+
+        let streamed_raw = "";
+        const wrapped_onToken = (chunk) => {
+          streamed_raw += chunk;
+          if (typeof onToken === "function") {
+            onToken(chunk);
+          }
+          if (input_size.tier === "TINY" || input_size.tier === "SMALL") {
+            const inside_think = streamed_raw.includes("<think>") && !streamed_raw.includes("</think>");
+            if (!inside_think) {
+              const prose_so_far = strip_cognition_blocks(streamed_raw);
+              if (is_stream_beat_limit_reached(prose_so_far, input_size.tier)) {
+                beat_controller.abort("BEAT_LIMIT_REACHED");
+              }
+            }
+          }
+        };
 
         const system = completion_note
           ? character_prompt.system.replace(/<\/SYSTEM>\s*$/, `\n\n${completion_note}\n</SYSTEM>`)
@@ -530,9 +551,9 @@ export const gamemaster = {
             ...(director_data?.directors_note ? { startWith: `${THINK_OPEN_TAG}${director_data.directors_note} ` } : {}),
           },
           {
-            onToken,
+            onToken: wrapped_onToken,
             json,
-            signal,
+            signal: effective_signal,
             silent,
             raw,
           },
@@ -563,9 +584,37 @@ export const gamemaster = {
       if (looks_truncated(validation_result.text)) {
         const prose_only = strip_cognition_blocks(validation_result.text);
         if (prose_only && prose_only.length >= TRUNCATION_MIN_PROSE) {
-          state_bridge.app.log("[GameMaster] Reply truncated — regenerating with completion directive...", "warn");
-          state_bridge.app.streaming.content = director_monologue || "";
-          validation_result = await this.execute_with_retry(() => make_character_try(REFLEX_LIBRARY.RECOVERY.TRUNCATION.body), 1, 500);
+          state_bridge.app.log("[GameMaster] Reply truncated — appending completion clause (finishTail)...", "warn");
+          const tail_snippet = prose_only.slice(-60).trim();
+          const finish_tail_prompt = REFLEX_LIBRARY.RECOVERY.FINISH_TAIL.body.replace("{tail_snippet}", tail_snippet);
+
+          try {
+            const tail_system = character_prompt.system.replace(/<\/SYSTEM>\s*$/, `\n\n${finish_tail_prompt}\n</SYSTEM>`);
+            const tail_result = await llm_service.generate(
+              {
+                system: tail_system,
+                role: generation_role,
+                node_id: node_id,
+              },
+              {
+                silent: true,
+                raw: true,
+                priority: "foreground",
+                signal: llm_options.signal,
+              },
+            );
+            const clean_tail = strip_cognition_blocks(typeof tail_result === "string" ? tail_result : tail_result?.text || "").trim();
+            if (clean_tail) {
+              const separator = /[\s\n]$/.test(validation_result.text) || /^[\s\n.,!?;:]/.test(clean_tail) ? "" : " ";
+              validation_result.text = `${validation_result.text}${separator}${clean_tail}`;
+              if (state_bridge.app.streaming?.active) {
+                state_bridge.app.update_stream(separator + clean_tail);
+              }
+            }
+          } catch (tail_err) {
+            console.warn("[GameMaster] finishTail continuation failed:", tail_err);
+          }
+
           if (looks_truncated(validation_result.text)) {
             validation_result.text = force_close_response(validation_result.text, generation_name);
             validation_result.has_structural_repair = true;

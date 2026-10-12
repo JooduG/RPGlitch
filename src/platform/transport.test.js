@@ -173,4 +173,22 @@ describe("llm_service mock and enhance", () => {
     expect(result).toBe("The sun rose.");
     spy.mockRestore();
   });
+
+  it("handles BEAT_LIMIT_REACHED abort reason cleanly without throwing AbortError", async () => {
+    globalThis.window = globalThis;
+    const controller = new AbortController();
+    // @ts-ignore
+    window.generate_text = async (opts) => {
+      if (opts.onToken) opts.onToken("Single beat.");
+      controller.abort("BEAT_LIMIT_REACHED");
+      return "Single beat.";
+    };
+    try {
+      const result = await llm_service.generate({ system: "test" }, { silent: true, signal: controller.signal });
+      expect(result).toBe("Single beat.");
+    } finally {
+      // @ts-ignore
+      delete window.generate_text;
+    }
+  });
 });

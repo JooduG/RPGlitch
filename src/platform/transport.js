@@ -267,6 +267,9 @@ export const llm_service = {
 
       // 4. Execute generation with AbortSignal bridge to plugin `.stop()`
       if (options.signal?.aborted) {
+        if (options.signal.reason === "BEAT_LIMIT_REACHED") {
+          return "";
+        }
         const err = new Error("Generation aborted by caller.");
         err.name = "AbortError";
         throw err;
@@ -300,6 +303,9 @@ export const llm_service = {
         result = await generation;
 
         if (options.signal?.aborted) {
+          if (options.signal.reason === "BEAT_LIMIT_REACHED") {
+            return result;
+          }
           const err = new Error("Generation aborted by caller.");
           err.name = "AbortError";
           throw err;
@@ -390,6 +396,10 @@ export const llm_service = {
 
     while (index < text.length) {
       if (options.signal?.aborted) {
+        if (options.signal.reason === "BEAT_LIMIT_REACHED") {
+          const cut = text.slice(0, index);
+          return typeof cut === "string" && !options.raw ? sanitize_llm(cut) : cut;
+        }
         const err = new Error("Generation aborted by caller.");
         err.name = "AbortError";
         throw err;

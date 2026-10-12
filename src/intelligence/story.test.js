@@ -11,7 +11,7 @@ import { resolve_npc_entity, apply_in_scene_change, apply_relationships } from "
 import { spawn_character } from "./profile.js";
 import { capture_dynamics_delta } from "./dynamics.js";
 import * as dynamics from "./dynamics.js";
-import { llm_service } from "@platform";
+import { llm_service, looks_truncated } from "@platform";
 import { session_driver } from "@data";
 import {
   visual_engine,
@@ -2073,6 +2073,82 @@ describe("THINK tag balancing (startWith seed regression)", () => {
     expect(balance_think_tags("<THINK>a</THINK> b")).toBe("<THINK>a</THINK> b");
     expect(balance_think_tags("a</THINK> b")).toBe("a b");
     expect(balance_think_tags("a <THINK>b")).toBe("a <THINK>b</THINK>");
+  });
+});
+
+describe("Track 5: Runtime Stream Beat Backstop & Continuation", () => {
+  it("cuts stream on beat limit for TINY input during token streaming", async () => {
+    const mock_payload = {
+      input: "Nod.",
+      type: "simulation",
+      round: 1,
+      entities: { AI: { name: "Viper" }, USER: { name: "Ghost" }, FRACTAL: { name: "Void" } },
+      view_id: "global",
+      simulation_log: "",
+      raw_messages: [],
+      meta: { timestamp: new Date().toISOString() },
+    };
+
+    vi.mocked(context_builder.build_context).mockResolvedValue(mock_payload);
+    mock_prompt_spies.build_director.mockReturnValue({ system: "D", task: "T" });
+    mock_prompt_spies.build_character.mockReturnValue({
+      system: "AI_PROMPT",
+      task: "AI_TASK",
+      meta: { ai: {}, fractal: {}, role: "ai" },
+    });
+
+    vi.mocked(llm_service.generate)
+      .mockResolvedValueOnce('{"story_status":"IN_PROGRESS","next_action":"AI_CHARACTER","keywords":[],"directors_note":"","dynamics_deltas":{}}')
+      .mockImplementationOnce(async (payload, options) => {
+        // Stream multiple sentences
+        if (options?.onToken) {
+          options.onToken("First beat.");
+          // Beat controller should abort here for TINY input
+          if (options.signal?.aborted) {
+            return "First beat.";
+          }
+          options.onToken(" Second unprompted beat.");
+        }
+        return options.signal?.aborted ? "First beat." : "First beat. Second unprompted beat.";
+      });
+
+    const result = await gamemaster.execute_turn("story-123", { input: "Nod.", role: "ai" });
+    expect(result.response).toBe("First beat.");
+  });
+
+  it("triggers finishTail continuation on truncated response and concatenates tail", async () => {
+    const mock_payload = {
+      input: "Tell me what happened next in the corridor.",
+      type: "simulation",
+      round: 2,
+      entities: { AI: { name: "Viper" }, USER: { name: "Ghost" }, FRACTAL: { name: "Void" } },
+      view_id: "global",
+      simulation_log: "",
+      raw_messages: [],
+      meta: { timestamp: new Date().toISOString() },
+    };
+
+    vi.mocked(context_builder.build_context).mockResolvedValue(mock_payload);
+    mock_prompt_spies.build_director.mockReturnValue({ system: "D", task: "T" });
+    mock_prompt_spies.build_character.mockReturnValue({
+      system: "AI_PROMPT",
+      task: "AI_TASK",
+      meta: { ai: {}, fractal: {}, role: "ai" },
+    });
+
+    // Mock looks_truncated: first call true, after continuation false
+    vi.mocked(looks_truncated).mockReturnValueOnce(true).mockReturnValueOnce(false);
+
+    vi.mocked(llm_service.generate)
+      .mockResolvedValueOnce('{"story_status":"IN_PROGRESS","next_action":"AI_CHARACTER","keywords":[],"directors_note":"","dynamics_deltas":{}}')
+      .mockResolvedValueOnce("The corridor stretched into impenetrable darkness, the air smelling faintly of iron and")
+      .mockResolvedValueOnce(" cold dust as the heavy blast doors shuddered shut.");
+
+    const result = await gamemaster.execute_turn("story-123", { input: "Tell me what happened next in the corridor.", role: "ai" });
+
+    expect(result.response).toBe(
+      "The corridor stretched into impenetrable darkness, the air smelling faintly of iron and cold dust as the heavy blast doors shuddered shut.",
+    );
   });
 });
 

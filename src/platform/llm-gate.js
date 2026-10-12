@@ -166,16 +166,13 @@ export function get_llm_gate_status() {
 export function merge_abort_signals(caller, gate) {
   if (!caller) return gate || undefined;
   if (!gate) return caller;
-  if (caller.aborted || gate.aborted) {
-    const controller = new AbortController();
-    controller.abort();
-    return controller.signal;
-  }
+  if (caller.aborted) return caller;
+  if (gate.aborted) return gate;
   if (typeof AbortSignal !== "undefined" && typeof AbortSignal.any === "function") {
     return AbortSignal.any([caller, gate]);
   }
   const controller = new AbortController();
-  const relay = () => controller.abort();
+  const relay = (event) => controller.abort(event?.target?.reason);
   caller.addEventListener("abort", relay, { once: true });
   gate.addEventListener("abort", relay, { once: true });
   return controller.signal;

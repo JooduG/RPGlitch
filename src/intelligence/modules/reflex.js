@@ -164,6 +164,10 @@ export const REFLEX_LIBRARY = Object.freeze({
       tag: "TRUNCATION_NOTE",
       body: "\n\nIMPORTANT: Previous reply cut off mid-sentence. Complete the response directly without repeating earlier text or rehashing events. Conclude on a complete sentence.",
     }),
+    FINISH_TAIL: Object.freeze({
+      tag: "FINISH_TAIL",
+      body: '\n\nCRITICAL: The previous generation ended abruptly on: "{tail_snippet}". Provide ONLY the concluding clause or sentence to cleanly complete the thought. Do not repeat previous text.',
+    }),
   }),
 });
 
@@ -215,6 +219,58 @@ export function resolve_beat_budget_plan(input) {
   const size = classify_input_size(input);
   const tier = REFLEX_DEFAULTS.INPUT_SIZE_TIERS.find((candidate) => candidate.tier === size.tier);
   return Object.freeze({ tier: size.tier, beats: tier.beats, mandate: tier.mandate });
+}
+
+/**
+ * Counts completed narrative beats in prose (Track 5.1).
+ * A completed beat is delimited by terminal sentence punctuation ([.!?] or ellipsis),
+ * optionally closed with quotes/parentheses, followed by whitespace, newline, or end of string.
+ * @param {string} prose
+ * @returns {number}
+ */
+export function count_prose_beats(prose) {
+  if (!prose || typeof prose !== "string") return 0;
+  const cleaned = prose.trim();
+  if (!cleaned) return 0;
+
+  // Match sentences ending in [.!?…] or multiple punctuation followed by whitespace/newlines or string end
+  const matches = cleaned.match(/[^.!?…\n]+(?:[.!?…]+["'”’)]*|\n+|$)/g);
+  if (!matches) return 0;
+
+  // Filter out empty or pure whitespace chunks and count chunks ending with terminal punctuation
+  return matches.filter((chunk) => {
+    const trimmed = chunk.trim();
+    return trimmed.length > 0 && /[.!?…]["'”’)]*$/.test(trimmed);
+  }).length;
+}
+
+/**
+ * Determines whether the active stream has satisfied its proportional beat limit (Track 5.1).
+ * For TINY (<= 12 chars), maximum completed beats is 1.
+ * For SMALL (<= 90 chars), maximum completed beats is 2.
+ * Other tiers do not enforce a hard stream cut.
+ * @param {string} prose - Narrative text (outside of <think> cognition tags).
+ * @param {string} tier - Input tier ("TINY" | "SMALL" | "MEDIUM" | "EXPANSIVE").
+ * @returns {boolean}
+ */
+export function is_stream_beat_limit_reached(prose, tier) {
+  if (!prose || typeof prose !== "string") return false;
+  const trimmed = prose.trim();
+  if (!trimmed) return false;
+
+  // Must end on terminal punctuation right now to be a clean cut point
+  if (!/[.!?…]["'”’)]*$/.test(trimmed)) {
+    return false;
+  }
+
+  const beats = count_prose_beats(trimmed);
+  if (tier === "TINY") {
+    return beats >= 1;
+  }
+  if (tier === "SMALL") {
+    return beats >= 2;
+  }
+  return false;
 }
 
 /**

@@ -124,10 +124,10 @@ flowchart TD
 
 - **Objective**: Prevent narrative ballooning on short inputs and enable clean append-only recovery on clipped generations.
 - **Problem Diagnosis**: As seen in `forensics-report.md: T3`, a 4-character input (`"Nod."`) resulted in an unprompted 467-character, 4-sentence reply because prompt-level beat sizing lacked hard stream-level enforcement.
-- **Key Modules**: `src/intelligence/story.js`, `src/ui/message/Message.svelte`.
+- **Key Modules**: `src/intelligence/story.js`, `src/intelligence/modules/reflex.js`, `src/platform/transport.js`, `src/platform/llm-gate.js`, `src/platform/transport.test.js`.
 - **Planned Sub-Items**:
-  - [ ] **5.1 Input-Proportional Sizing**: Stream beat monitor cutting generation at terminal punctuation of the first beat on `TINY` ($\le 12$ chars) and `SMALL` ($\le 90$ chars) user inputs.
-  - [ ] **5.2 Append-Only Continuation (`finishTail`)**: Detect unclosed clauses upon stream termination and trigger targeted append prompt rather than full re-rolls.
+  - [x] **5.1 Input-Proportional Sizing**: Stream beat monitor cutting generation at terminal punctuation of the first beat on `TINY` ($\le 12$ chars) and `SMALL` ($\le 90$ chars) user inputs.
+  - [x] **5.2 Append-Only Continuation (`finishTail`)**: Detect unclosed clauses upon stream termination and trigger targeted append prompt rather than full re-rolls.
 
 ---
 

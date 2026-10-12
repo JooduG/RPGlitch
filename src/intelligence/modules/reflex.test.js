@@ -12,6 +12,8 @@ import {
   classify_pacing,
   classify_input_size,
   resolve_beat_budget_plan,
+  count_prose_beats,
+  is_stream_beat_limit_reached,
   detect_staged_dialogue_turn,
   detect_held_moment,
   detect_environmental_hint,
@@ -80,6 +82,21 @@ describe("reflex.js - input-size tiers and beat budgets", () => {
     expect(resolve_beat_budget_plan("x".repeat(50)).beats).toBe("1-2");
     expect(resolve_beat_budget_plan("x".repeat(200)).beats).toBe("2-4");
     expect(resolve_beat_budget_plan("x".repeat(500)).beats).toBe("open");
+  });
+
+  it("counts prose beats and detects stream beat limits correctly (Track 5.1)", () => {
+    expect(count_prose_beats("")).toBe(0);
+    expect(count_prose_beats("Single sentence.")).toBe(1);
+    expect(count_prose_beats('"Dialogue sentence!"')).toBe(1);
+    expect(count_prose_beats("First beat. Second beat? Third beat...")).toBe(3);
+
+    // Stream beat limit checks
+    expect(is_stream_beat_limit_reached("Incomplete beat without terminal punct", "TINY")).toBe(false);
+    expect(is_stream_beat_limit_reached("One beat.", "TINY")).toBe(true);
+    expect(is_stream_beat_limit_reached('"One quoted beat!"', "TINY")).toBe(true);
+    expect(is_stream_beat_limit_reached("One beat.", "SMALL")).toBe(false);
+    expect(is_stream_beat_limit_reached("One beat. Two beats.", "SMALL")).toBe(true);
+    expect(is_stream_beat_limit_reached("One beat. Two beats. Three beats.", "MEDIUM")).toBe(false);
   });
 
   it("reports staged-dialogue reasons", () => {

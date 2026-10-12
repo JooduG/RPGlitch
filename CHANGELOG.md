@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Track 5: Runtime Stream Beat Backstop & Continuation (`finishTail`) (`src/intelligence/story.js`, `src/intelligence/modules/reflex.js`, `src/platform/transport.js`, `src/platform/llm-gate.js`)**:
+  - Implemented `count_prose_beats(prose)` and `is_stream_beat_limit_reached(prose, tier)` in `reflex.js` for beat-boundary punctuation counting outside `<think>` cognition blocks.
+  - Implemented runtime Stream Beat Monitor in `story.js:make_character_try` wrapping token streaming with a beat-abort controller when input is classified as `TINY` (cuts after 1st beat) or `SMALL` (cuts after 2nd beat).
+  - Enhanced `transport.js` and `llm-gate.js` with graceful abort reason propagation, resolving `BEAT_LIMIT_REACHED` cleanly without raising an unhandled `AbortError` exception.
+  - Replaced full re-roll truncation retries with append-only continuation `finishTail`: when `looks_truncated` triggers, the engine preserves the streamed prefix, issues a targeted `FINISH_TAIL` recovery directive, appends the completion clause, and falls back to `force_close_response` if still unclosed.
+  - Added unit test suites covering beat limit aborts and append-only continuation in `reflex.test.js`, `transport.test.js`, and `story.test.js`.
+
 - **Track 4: Scene Momentum & Stagnation Backstop (`src/platform/embeddings.svelte.js`, `src/state/runtime.svelte.js`, `src/intelligence/modules/reflex.js`, `src/intelligence/modules/task.js`, `src/intelligence/prompts.js`, `src/intelligence/builder.js`, `src/intelligence/story.js`)**:
   - Implemented `calculate_semantic_drift(current_text, previous_text)` in `embeddings.svelte.js` returning normalized $(1 - \text{cosine\_similarity})$ via 384-d neural embeddings.
   - Added reactive `stagnation_turns` and `last_semantic_drift` to `RuntimeEngineStore` (`runtime.svelte.js`), auto-persisting to IndexedDB `db.stories` and updating via `record_turn_drift(drift)`.
