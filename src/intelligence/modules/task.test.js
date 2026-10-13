@@ -103,7 +103,7 @@ describe("render_task — Director Mode", () => {
       entities: { AI: { id: "ALICE", name: "Alice" }, USER: { id: "BOB", name: "Bob" } },
     });
 
-    expect(task).toContain('<INPUT origin="BOB" round="1" channel="action">');
+    expect(task).toContain('<INPUT origin="BOB" round="1">');
     expect(task).toContain("<TASK>");
     expect(task).toContain('next_action MUST be "AI_CHARACTER"');
     expect(task).toContain('<OUTPUT_FORMAT mode="json">');
@@ -139,7 +139,7 @@ describe("render_task — Story Prose Mode", () => {
     expect(task).toContain("<TASK>");
     expect(task).toContain("<THINK>");
     expect(task).toContain("1. Stance — the speaker's unsaid want and internal feeling.");
-    expect(task).toContain('<INPUT channel="action">');
+    expect(task).toContain("<INPUT>");
     expect(task).toContain("Respond strictly as Alice.");
     expect(task).toContain("<DELIVERY_POSTURE>");
     expect(task).not.toContain("VOICE");
@@ -238,7 +238,7 @@ describe("task.js - Optics Task Staging", () => {
     expect(task).toContain('<CINEMATOGRAPHY mode="Intimate Close-Up">');
     expect(task).toContain("<KEYWORD_DIRECTIVES>");
     expect(task).toContain('inside "caption"');
-    expect(task).toContain('<INPUT channel="intent">Standing alone in the pouring rain</INPUT>');
+    expect(task).toContain('<INPUT type="intent">Standing alone in the pouring rain</INPUT>');
     expect(task).toContain('<OUTPUT_FORMAT mode="json">');
   });
 });
@@ -283,8 +283,8 @@ describe("render_task — per-mode state dispatch", () => {
       schema: '{"a":1}',
       entities: { AI: { id: "ALICE", name: "Alice" }, USER: { id: "BOB", name: "Bob" } },
     });
-    expect(full).toContain('<INPUT origin="BOB" round="2" channel="action">hi</INPUT>');
-    expect(full).toContain('<INPUT origin="ALICE" channel="reply">');
+    expect(full).toContain('<INPUT origin="BOB" round="2">hi</INPUT>');
+    expect(full).toContain('<INPUT origin="ALICE" type="reply">');
     expect(full).toContain("<DIRECTIVES>");
     expect(full).toContain('<OUTPUT_FORMAT mode="json">');
 
@@ -357,7 +357,7 @@ describe("resolve_task_plan and render_task_plan", () => {
     expect(Object.isFrozen(plan)).toBe(true);
     expect(Object.isFrozen(plan.children)).toBe(true);
     expect(plan.children).toHaveLength(1);
-    expect(plan.children[0]).toContain('<INPUT channel="ingestion">');
+    expect(plan.children[0]).toContain('<INPUT type="ingestion">');
   });
 
   it("falls back to prose for unknown modes", () => {
@@ -398,9 +398,14 @@ describe("directive compiler REFLEX delegation", () => {
 });
 
 describe("task.js - Track 3.4 anti-hijacking agency", () => {
-  it("CHARACTER.BASE carries the first-person player hard negative", async () => {
+  it("CHARACTER.BASE enforces persona boundary under single-source Sovereignty", async () => {
     const { TASK_LIBRARY, get_directive_atom } = await import("./task.js");
-    expect(TASK_LIBRARY.PROSE.CHARACTER.BASE).toContain("Never narrate «USER_PERSONA» in the first person");
-    expect(get_directive_atom("PROSE.CHARACTER.BASE")).toContain("the player owns their voice");
+    expect(TASK_LIBRARY.PROSE.CHARACTER.BASE).toContain("Own only your voice, actions, and perspective");
+    expect(get_directive_atom("PROSE.CHARACTER.BASE")).toContain("never speak, act, or decide for other participants");
   });
 });
+
+/**
+ * CHANGELOG
+ * - 2026-10-14: Phase 1 — Updated INPUT assertions to typed/omitted attributes and CHARACTER.BASE to single-source Sovereignty.
+ */

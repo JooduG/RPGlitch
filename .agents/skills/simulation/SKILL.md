@@ -133,6 +133,15 @@ When instructing models to output structured JSON (e.g., Director Quick Shot, Me
 - **Lean Placeholders**: Keep placeholder values purely structural (e.g., `"directors_note": "<1-3 lines of unseen acting/staging directives, or empty string>"`).
 - **Last-Mile Placement**: Place the schema at the bottom of the `<TASK>` prompt directly before generation to leverage recency attention.
 
+### 4.3 Constitutional Single-Sourcing (The Sovereignty Standard)
+
+When defining invariant simulation boundaries (e.g., Player Agency, Physical Truth, Epistemic Walls), **single-source them strictly into `<AXIOMATIC_CONSTITUTION>`** rather than distributing ad-hoc, fragmented micro-directives across disparate prompt layers:
+
+- **Single Authority**: Establish the invariant rule once in constitutional law (e.g., Law L3 Sovereignty). Never sprinkle redundant, conflicting micro-prohibitions across task directives, role templates, or schemas (e.g., avoid duplicating `<AGENCY>`, `<USER_PERSONA_LOCK>`, or per-role warnings).
+- **Universal Precedence**: Mount `<AXIOMATIC_CONSTITUTION>` universally at the highest system level across all simulation passes (Director Shot 1, Storyteller Shot 2, Epilogue, etc.).
+- **Total Prohibition Across All Perspectives**: Prohibit unauthorized puppeteering in *any* grammatical person or tense (1st, 2nd, or 3rd person); mandate describing protagonist actions strictly as observed from the outside.
+- **Zero Token Waste**: Eliminate redundant ad-hoc warnings to keep token economics lean and prevent conflicting instruction weights in LLM attention.
+
 ---
 
 ## 5.0 SIMULATION DRIFT & FAILURE MODES

@@ -58,3 +58,11 @@ When the Director detects a climax or turning point, it appends a `<choices>` bl
 2. **Storymode Action Chips (`Console.svelte` / `Body.svelte`)**:
    - Renders interactive chips above the input textarea.
    - Clicking a choice chip prefills the player input or auto-submits the chosen action payload.
+
+---
+
+## 5. Architectural Chronology & P4 Retirement Note
+
+In Phase 1 of `ROADMAP.md` (2026-10-14), the legacy Shot 1 `alternative_branches` payload was completely purged from the prompt schemas (`DIRECTOR_SCHEMA`), prompt directives (`DIRECTOR.BRANCHES`), and runtime normalizers (`normalize_director_data`). The feature was retired because running dialogue branching during Shot 1 consumed 60–120 tokens/turn while generating passive dialogue branches rather than player-driven tactical options.
+
+Future branching implementations will strictly utilize the interactive `<choices>` format specified in this document, rendered as interactive choice chips in the UI without polluting Shot 1 JSON contracts.

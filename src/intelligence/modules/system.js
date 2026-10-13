@@ -98,7 +98,6 @@ export const PROMPT_LAYERS = Object.freeze([
   { key: "core_protocols", emit: (state) => state.core_protocols },
   { key: "dynamic_axes", emit: (state) => state.dynamics },
   { key: "entities", emit: (state) => state.entities_block },
-  { key: "lorebook", emit: (state) => state.lorebook_block },
   { key: "target_entity_context", emit: (state) => state.target_context },
   { key: "cast", emit: (state) => state.nearby_cast },
   { key: "entity_context", emit: (state) => state.field_context },
@@ -262,6 +261,7 @@ export function resolve_role_slot(config, normalized = {}) {
 
 /**
  * CHANGELOG
+ * - 2026-10-14: Purged dead lorebook layer from PROMPT_LAYERS under P4 Pre-Beta Purity.
  * - Track 3.2: PROMPT_LAYERS gains the lorebook emitter (empty slots stay filtered, so unaffected modes seal byte-identical envelopes).
  * - Track 2.4: PROMPT_LAYERS gains the memory_advisory emitter (empty slots stay filtered, so unaffected modes seal byte-identical envelopes).
  * - Track 0.10: Purged dead layer system slot (PROMPT_LAYERS entry + resolve_layer_slot) - enhancement no longer seals an empty layer.

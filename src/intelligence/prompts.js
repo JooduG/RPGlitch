@@ -78,7 +78,6 @@ export const DIRECTOR_SCHEMA = Object.freeze([
   "next_action",
   "keywords",
   "directors_note",
-  "alternative_branches",
   "dynamics_deltas",
   "visual_staging",
   "spotlight",
@@ -105,7 +104,7 @@ const PROSE_LAYERS = Object.freeze({
  * @type {Readonly<{ system: ReadonlyArray<string>, task: ReadonlyArray<string> }>}
  */
 export const DIRECTOR_LAYERS = Object.freeze({
-  system: Object.freeze(["role", "core_protocols", "dynamic_axes", "entities", "history"]),
+  system: Object.freeze(["role", "axiomatic_constitution", "core_protocols", "dynamic_axes", "entities", "history"]),
   task: Object.freeze(["input", "directives", "output_format"]),
 });
 
@@ -149,7 +148,6 @@ function prose_protocols({ include_dialogue = false } = {}) {
     "CORE_PROTOCOLS.PROSE_DISCIPLINE.SENTENCE_FORMULAS",
     "CORE_PROTOCOLS.PROSE_DISCIPLINE.SCENE_MOMENTUM",
     "CORE_PROTOCOLS.PROSE_DISCIPLINE.CLICHES",
-    "CORE_PROTOCOLS.PROSE_DISCIPLINE.AGENCY",
     ...(include_dialogue ? ["CORE_PROTOCOLS.PROSE_DISCIPLINE.NATURAL_DIALOGUE"] : []),
     "CORE_PROTOCOLS.ALTERNATION_OPTIONS",
   ];
@@ -160,10 +158,17 @@ function prose_protocols({ include_dialogue = false } = {}) {
  * arrive pre-resolved on the values bag (resolve_task_values); standalone
  * callers omit them and the plan derives from has_input/round.
  *
- * @param {{ has_input?: boolean, round?: number, has_environmental_hint?: boolean, turn_state?: { first_contact: boolean, round_one: boolean, evaluation: string } }} [parameters={}]
+ * @param {{ has_input?: boolean, round?: number, has_environmental_hint?: boolean, turn_state?: { first_contact: boolean, round_one: boolean, evaluation: string }, stagnation_turns?: number, has_candidates?: boolean }} [parameters={}]
  * @returns {Array<string | { group: string[] }>}
  */
-export function director_directives({ has_input = false, round = 1, has_environmental_hint = false, turn_state = null, stagnation_turns = 0 } = {}) {
+export function director_directives({
+  has_input = false,
+  round = 1,
+  has_environmental_hint = false,
+  turn_state = null,
+  stagnation_turns = 0,
+  has_candidates = false,
+} = {}) {
   const situation = turn_state ?? resolve_turn_state_plan({ has_input, round });
   const stagnation = Math.max(0, Number(stagnation_turns) || 0);
   return [
@@ -172,13 +177,11 @@ export function director_directives({ has_input = false, round = 1, has_environm
       group: [
         `REFLEX.TURN_STATE.${situation.evaluation}`,
         ...(situation.round_one ? ["REFLEX.TURN_STATE.ROUND_ONE"] : []),
-        "DIRECTOR.USER_PERSONA_LOCK",
       ],
     },
     ...(has_environmental_hint ? ["REFLEX.CONDITIONALS.ENVIRONMENTAL_HINT"] : []),
     "DIRECTOR.ROUTING",
-    "DIRECTOR.CONVERGENCE",
-    "DIRECTOR.BRANCHES",
+    ...(has_candidates ? ["DIRECTOR.CONVERGENCE"] : []),
     ...(stagnation >= 16 ? ["DIRECTOR.MOMENTUM_HARD_MANDATE"] : stagnation >= 8 ? ["DIRECTOR.MOMENTUM_SOFT_PERMIT"] : []),
   ];
 }
@@ -306,7 +309,7 @@ export const PROMPTS = Object.freeze({
     role_line: "DIRECTOR",
     task_state: "director",
     directives: director_directives,
-    constitution: false,
+    constitution: true,
     protocols: ["CORE_PROTOCOLS.ALTERNATION_OPTIONS"],
     entities: { candidate_entities: true },
     layers: DIRECTOR_LAYERS,
@@ -614,4 +617,5 @@ export default PROMPTS;
  * - 2026-09-11: Wired the manifest to the assembly line — protocol lists, constitution gating, entity context gates, role keys, schema/contract keys and the sorting POV key are now consumed by builder.js. Pruned inert task.directive/task.rules/task.directives keys and reconciled protocol lists with emitted output. Removed the PROMPT_MODES/get_prompt_mode compatibility aliases (P4).
  * - 2026-09-11: Renamed prompt-modes.js -> prompts.js. Elevated to module-keyed manifest registering all 8 prompt modes (system, constitution, protocols, entities, task).
  * - 2026-09-11: Converted prompt-modes.json into canonical ESM module with frozen schemas.
+ * - 2026-10-14: Phase 1 Prompt Pipeline Hygiene & P4 Purges — (1) Set constitution: true for director mode and added axiomatic_constitution to DIRECTOR_LAYERS; (2) Purged alternative_branches from DIRECTOR_SCHEMA; (3) Purged AGENCY from prose_protocols; (4) Purged USER_PERSONA_LOCK and BRANCHES from director_directives and gated CONVERGENCE on has_candidates.
  */

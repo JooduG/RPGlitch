@@ -64,7 +64,7 @@ describe("reflex.js - pacing plans", () => {
   });
 
   it("renders the exact legacy <PACING> envelope inside the posture", () => {
-    expect(render_prose_reflex(null, "")).toContain(`<PACING mode="TERSE">Brief, weighted reply in 1-2 sharp beats. Zero padding.</PACING>`);
+    expect(render_prose_reflex(null, "")).toContain(`<PACING mode="TERSE">Brief, weighted reply. Zero padding.</PACING>`);
   });
 });
 
@@ -186,7 +186,7 @@ describe("reflex.js - posture plans and envelopes", () => {
 
   it("renders the exact legacy <DELIVERY_POSTURE> envelope", () => {
     expect(render_prose_reflex(null, "")).toBe(
-      `<DELIVERY_POSTURE>\n    <PACING mode="TERSE">Brief, weighted reply in 1-2 sharp beats. Zero padding.</PACING>\n    <BEAT_BUDGET size="TINY" beats="1">Reply in exactly 1 beat — a fragment, a single line, or a single action. Zero padding.</BEAT_BUDGET>\n    <RHYTHM>Hold temperament; resist passive compliance. Match conversational scale and build situational friction rather than rushing resolution.</RHYTHM>\n    <DRIVE>Take active initiative: drive events forward on your own terms through decisive actions and end on an unresolved hook demanding response.</DRIVE>\n</DELIVERY_POSTURE>`,
+      `<DELIVERY_POSTURE>\n    <PACING mode="TERSE">Brief, weighted reply. Zero padding.</PACING>\n    <BEAT_BUDGET size="TINY" beats="1">Reply in exactly 1 beat — a fragment, a single line, or a single action. Zero padding.</BEAT_BUDGET>\n    <RHYTHM>Hold temperament; resist passive compliance. Match conversational scale and build situational friction rather than rushing resolution.</RHYTHM>\n    <DRIVE>Take active initiative: drive events forward on your own terms through decisive actions and end on an unresolved hook demanding response.</DRIVE>\n</DELIVERY_POSTURE>`,
     );
   });
 
@@ -396,9 +396,10 @@ describe("reflex.js - spent ledger engine", () => {
     };
 
     const directive = render_spent_ledger_directive(mock_ledger);
-    expect(directive).toContain("# SPENT LEDGER (PROHIBITED REPETITIONS)");
-    expect(directive).toContain('"gripped the hilt"');
-    expect(directive).toContain('"shifted his weight"');
+    expect(directive).toContain("<SPENT_LEDGER>");
+    expect(directive).toContain("<PROHIBITED_PATTERNS>");
+    expect(directive).toContain('<ITEM>"gripped the hilt"</ITEM>');
+    expect(directive).toContain('<ITEM>"shifted his weight"</ITEM>');
   });
 
   it("exports frozen pattern array", () => {
@@ -406,3 +407,8 @@ describe("reflex.js - spent ledger engine", () => {
     expect(MANNERISM_PATTERNS.length).toBeGreaterThan(0);
   });
 });
+
+/**
+ * CHANGELOG
+ * - 2026-10-14: Phase 1 — Updated render_spent_ledger_directive tests to expect SPENT_LEDGER pseudo-XML elements.
+ */

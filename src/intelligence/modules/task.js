@@ -111,21 +111,16 @@ Close "_thought_process" before composing the image payload. This calibration is
 1. Calibrate dynamics_deltas conservatively (±1 to ±4 standard; ±8 to ±12 extreme).
 2. Adjust deltas carefully near boundaries (5 or 95) to prevent clipping at 0 or 100.
 3. Calibrate dynamics_deltas to reflect the psychological and environmental shift of the turn.`,
-    USER_PERSONA_LOCK:
-      '"USER_PERSONA", "USER", "PLAYER", and the player character\'s name are NEVER valid next_action — the Director never speaks for the player and never scripts player dialogue, actions, or thoughts. Furthermore, "directors_note" MUST ONLY direct the next_action speaker (AI, Fractal, or NPC) — NEVER direct, script, or suggest actions or thoughts for «USER_PERSONA» (the player has absolute agency). The window for the player to act opens automatically right after the AI beat, so if the player should act next, output "AI_CHARACTER" (the default).',
-
     ROUTING: `NEXT ACTION ROUTING RULES:
 - "AI_CHARACTER": (Default) AI companion reacts to the protagonist.
 - "FRACTAL": Environmental action (exploring atmosphere, architecture, weather, objects without dialogue) or breaking long AI speech streaks.
 - "npc:<id>": Present secondary character takes action; when its dialogue is unfinished, let it continue before moving on.
-- "GENESIS": Mint a new character only when no candidate below fills the gap — the reuse discipline below governs.
+- "GENESIS": Mint a new character only when no candidate in the candidate cast above fills the gap — the reuse discipline above governs.
 - "EPILOGUE_COLLAPSED": Fatal consequence, player death, irreversible collapse, or catastrophic defeat. Ends the scenario in tragedy.
 - "EPILOGUE_CONCLUDED": Triumphant or peaceful narrative resolution. Concludes the active arc.`,
 
     CONVERGENCE: `CONVERGENCE & ENTITY REUSE:
-Reuse before mint: inspect candidate secondary characters below before minting. If an existing entity matches the role or location (medical, security, merchant), you MUST reuse that entity rather than creating a duplicate.`,
-
-    BRANCHES: `ALTERNATIVE BRANCHES: You MAY supply up to 3 alternative dialogue branches for the next beat as alternative_branches [{label, dialogue}] — short user-guidable options the story can explore if chosen. Never script «USER_PERSONA» or resolve the scene inside a branch.`,
+Reuse before mint: inspect candidate secondary characters in the candidate cast above before minting. If an existing entity matches the role or location (medical, security, merchant), you MUST reuse that entity rather than creating a duplicate.`,
 
     MOMENTUM_SOFT_PERMIT: `SCENE MOMENTUM (TIER 1): The interaction has lingered in the same physical and conversational loop for {stagnation_turns} turns. Cease passive holding. Steer the next speaker to introduce new physical activity, change topic, or escalate.`,
 
@@ -135,7 +130,7 @@ Reuse before mint: inspect candidate secondary characters below before minting. 
   // ── 1.4 Shot 2A: Prose Turn Directives (character / scene / ghostwrite) ─────
   PROSE: Object.freeze({
     CHARACTER: Object.freeze({
-      BASE: "Own only your voice, actions, and perspective; never speak, act, or decide for other participants, or resolve overarching quests; end on a natural beat. Never narrate «USER_PERSONA» in the first person — the player owns their voice, body, and choices.",
+      BASE: "Own only your voice, actions, and perspective; never speak, act, or decide for other participants, or resolve overarching quests; end on a natural beat.",
     }),
 
     SCENE: Object.freeze({
@@ -273,22 +268,32 @@ export function render_task_currents(style_dna, subtext_xml) {
     : "";
 }
 
+export const TASK_INPUT_TYPES = Object.freeze({
+  ACTION: "action",
+  REPLY: "reply",
+  INTENT: "intent",
+  CONTENT: "content",
+  INGESTION: "ingestion",
+});
+
 /**
  * Renders a turn-signal block — the ONE signal channel every mode uses. Every signal, from
  * any origin, is an `<INPUT>`; the `origin` attribute names the sender by its real entity id
- * (never a role token, so the attribute always matches the `<ENTITIES>` sheets) and `channel`
- * names the payload kind ("action" | "reply" | "content" | "intent" | "ingestion"). `round`
- * is the turn index when known. Blank attributes are omitted.
+ * (never a role token, so the attribute always matches the `<ENTITIES>` sheets). For standard
+ * user action signals, the type attribute is omitted for clean minimal output. Special payload
+ * kinds ("reply" | "content" | "intent" | "ingestion") carry `type="kind"`. `round` is the turn index
+ * when known. Blank attributes are omitted.
  *
- * @param {{ input?: string, input_origin?: string|null, input_round?: number|string|null, input_channel?: string|null }} [parameters]
+ * @param {{ input?: string, input_origin?: string|null, input_round?: number|string|null, input_type?: string|null, input_channel?: string|null }} [parameters]
  * @returns {string}
  */
-export function render_task_input({ input = "", input_origin = null, input_round = null, input_channel = null } = {}) {
+export function render_task_input({ input = "", input_origin = null, input_round = null, input_type = null, input_channel = null } = {}) {
   if (!String(input || "").trim()) return "";
   const attributes = [];
   if (input_origin) attributes.push(`origin="${escape_xml(String(input_origin))}"`);
   if (input_round != null && String(input_round) !== "") attributes.push(`round="${escape_xml(String(input_round))}"`);
-  if (input_channel) attributes.push(`channel="${escape_xml(String(input_channel))}"`);
+  const effective_type = input_type || (input_channel && input_channel !== "action" ? input_channel : null);
+  if (effective_type && effective_type !== "action") attributes.push(`type="${escape_xml(String(effective_type))}"`);
   const attribute_string = attributes.length ? ` ${attributes.join(" ")}` : "";
   const content = prompt_escape(String(input).trim());
   return `<INPUT${attribute_string}>${inline_or_block(content, 2)}</INPUT>`;
@@ -466,18 +471,18 @@ export const TASK_SLOT_RESOLVERS = Object.freeze({
     const user_origin = entities?.USER?.id || entities?.USER?.name || "USER";
     const ai_origin = entities?.AI?.id || entities?.AI?.name || "AI_CHARACTER";
     return [
-      render_task_input({ input: values.input, input_origin: user_origin, input_round: values.round, input_channel: "action" }),
-      values.last_ai_text ? render_task_input({ input: values.last_ai_text, input_origin: ai_origin, input_channel: "reply" }) : "",
+      render_task_input({ input: values.input, input_origin: user_origin, input_round: values.round }),
+      values.last_ai_text ? render_task_input({ input: values.last_ai_text, input_origin: ai_origin, input_type: "reply" }) : "",
     ]
       .filter(Boolean)
       .join("\n");
   },
 
   action_signal: (values) =>
-    render_task_input({ input: values.input, input_origin: values.input_origin, input_round: values.round, input_channel: "action" }),
-  content_signal: (values) => render_task_input({ input: values.input, input_channel: "content" }),
-  ingestion_signal: (values) => render_task_input({ input: values.input, input_channel: "ingestion" }),
-  intent_signal: (values) => render_task_input({ input: values.input_intent, input_channel: "intent" }),
+    render_task_input({ input: values.input, input_origin: values.input_origin, input_round: values.round }),
+  content_signal: (values) => render_task_input({ input: values.input, input_type: "content" }),
+  ingestion_signal: (values) => render_task_input({ input: values.input, input_type: "ingestion" }),
+  intent_signal: (values) => render_task_input({ input: values.input_intent, input_type: "intent" }),
 
   think: (values) => {
     const think_format = values.config?.think_format;
@@ -650,6 +655,8 @@ function resolve_task_values(parameters, config) {
     values.keyword_directives = null;
   }
 
+  values.has_candidates = Boolean(parameters.has_candidates);
+
   return values;
 }
 
@@ -807,5 +814,6 @@ export function render_task(parameters = {}) {
  * - 2026-09-11: Initial creation of modular task.js extracting turn block formatting, pacing, and think formats.
  * - 2026-10-03: Prompt alignment & trauma severity grading — aligned USER_PERSONA_LOCK with ROUTING to explicitly authorize EPILOGUE_COLLAPSED and EPILOGUE_CONCLUDED next_actions without contradiction; graded EVALUATION_INPUT and EVALUATION_SCENE to distinguish definitively fatal terminal destruction from severe but survivable bodily trauma.
  * Modules Ground Refactor Phase 1 — get_directive_atom delegates to utils/catalog.js resolve_catalog_atom (REFLEX delegation stays in compile_directive_tags) — prompt bytes byte-identical.
+ * - 2026-10-14: Phase I hygiene — purged USER_PERSONA_LOCK and BRANCHES; inverted candidate cast spatial pointer to <CANDIDATE_CAST> above; stripped redundant agency sentence from CHARACTER.BASE; streamlined render_task_input to omit attribute for default action inputs and use type= for special payloads; exported TASK_INPUT_TYPES.
  * - 2026-10-07: Modules Ground Refactor Phase 3 — optics domain re-cut to sensory.js (OPTICS catalog, framing rules and cinematography moved; OPTICS delegation in resolve_directive_entry; optics slots and subject delegate; render_think_format exported) — prompt bytes byte-identical.
  */

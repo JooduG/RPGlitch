@@ -85,8 +85,8 @@ export const REFLEX_DEFAULTS = Object.freeze({
  */
 export const REFLEX_LIBRARY = Object.freeze({
   PACING: Object.freeze({
-    TERSE: Object.freeze({ tag: "PACING", mode: "TERSE", body: "Brief, weighted reply in 1-2 sharp beats. Zero padding." }),
-    ADAPTIVE: Object.freeze({ tag: "PACING", mode: "ADAPTIVE", body: "A reply of 2-4 sentences—substantive, driving the scene forward." }),
+    TERSE: Object.freeze({ tag: "PACING", mode: "TERSE", body: "Brief, weighted reply. Zero padding." }),
+    ADAPTIVE: Object.freeze({ tag: "PACING", mode: "ADAPTIVE", body: "Substantive reply, driving the scene forward." }),
     EXPANSIVE: Object.freeze({ tag: "PACING", mode: "EXPANSIVE", body: "Expand to match message breadth; close on one decisive hook." }),
   }),
 
@@ -658,17 +658,35 @@ export function render_spent_ledger_directive(spent_ledger) {
     return "";
   }
 
-  const items_list = spent_ledger.spent_items.map((item) => `"${item}"`).join(", ");
-  return `# SPENT LEDGER (PROHIBITED REPETITIONS)\nThe following mannerisms and opening phrasing have been exhausted in recent turns. Do NOT repeat or echo them:\n${items_list}`;
+  const items = spent_ledger.spent_items.map((item) =>
+    render_xml_tag({ tag: "ITEM", children: [`"${prompt_escape(item)}"`], inline: true }),
+  );
+  const patterns = render_xml_tag({
+    tag: "PROHIBITED_PATTERNS",
+    children: items,
+    indent: 2,
+    child_indent: 4,
+    separator: "\n",
+  });
+  return render_xml_tag({
+    tag: "SPENT_LEDGER",
+    children: [
+      "The following mannerisms and opening phrasing have been exhausted in recent turns. Do NOT repeat or echo them:",
+      patterns,
+    ],
+    indent: 0,
+    child_indent: 2,
+    separator: "\n",
+  });
 }
 
 /**
  * CHANGELOG
+ * - 2026-10-14: Refactored render_spent_ledger_directive to emit typed pseudo-XML (<SPENT_LEDGER><PROHIBITED_PATTERNS><ITEM>...); stripped conflicting sentence counts from PACING bodies to leave BEAT_BUDGET as the sole numerical controller.
  * - Track 4.2: Directorial Momentum Tiers & Stagnation Backstop — added MOMENTUM_TIERS calibration config (SOFT_PERMIT_THRESHOLD=8, HARD_MANDATE_THRESHOLD=16, DRIFT_STAGNATION_THRESHOLD=0.15) to REFLEX_DEFAULTS; added MOMENTUM_SOFT_PERMIT and MOMENTUM_HARD_MANDATE atoms to REFLEX_LIBRARY.CONDITIONALS; resolve_prose_posture_plan lifts anti_staging at >= 8 turns and records momentum constraint flags; render_prose_posture_plan emits matching envelopes.
  * - Track 3.1: Input-proportional pacing contracts — INPUT_SIZE_TIERS (TINY<=12/SMALL<=90/MEDIUM<=400/EXPANSIVE) with beat budgets, classify_input_size + resolve_beat_budget_plan, <BEAT_BUDGET> child in every DELIVERY_POSTURE; gated ANTI_STAGING (terse dialogue) + HELD_MOMENT (explicit pause markers, never blank) constraint children via plan.constraints.
  * - Track 0.10: Section 6 dissolved - render_subtext_xml + resolve_physics_protocols move to physics.js (beside the registries they read), render_available_keywords_xml moves to task.js (beside KEYWORD_DIRECTIVES); STYLE_MOTIF_REGISTRY and escape_xml imports dropped. Prompt bytes byte-identical.
  * - 2026-10-07: Plan Omega for Task — repatriated render_subtext_xml, resolve_physics_protocols, and render_available_keywords_xml from task.js (new Section 6; STYLE_MOTIF_REGISTRY imported from @data, escape_xml added to @utils import) — prompt bytes byte-identical.
-
  * - 2026-10-04: Single has_input resolution (Plan A) — resolve_task_values owns values.has_input + values.turn_state; posture plan and director_directives accept the pre-resolved flags (standalone callers still derive); prose_posture threads the bag flag — prompt bytes byte-identical.
  * - 2026-10-04: Environmental-hint envelope (stability-lock treatment) — prefix drops from the body, CONDITIONALS.ENVIRONMENTAL_HINT flags enveloped:true, get_reflex_atom wraps flagged records, render_environmental_hint shares the compiler path; no fixture input fires the hint so contract baselines are untouched.
  * - 2026-10-04: Style-DNA single parse (style.js resolve_style_dna) — resolve_prose_posture_plan reads pre-resolved snapshot.style_dna, @data import dropped; build_pacing_directive retired (no production callers; pacing covered by the posture plan) — prompt bytes byte-identical.

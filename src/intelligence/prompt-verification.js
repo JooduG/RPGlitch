@@ -148,6 +148,11 @@ export const CONTRACT = {
   director: {
     system: [
       "SYSTEM",
+      "AXIOMATIC_CONSTITUTION",
+      "LAW",
+      "LAW",
+      "LAW",
+      "LAW",
       "DYNAMIC_AXES",
       "CHAOS",
       "INTENSITY",
@@ -219,7 +224,6 @@ export const CONTRACT = {
       "SENTENCE_FORMULAS",
       "SCENE_MOMENTUM",
       "CLICHES",
-      "AGENCY",
       "NATURAL_DIALOGUE",
       "ENTITIES",
       "AI_CHARACTER",
@@ -270,6 +274,9 @@ export const CONTRACT = {
       "DISSONANCE",
       "INSTABILITY",
       "DIRECTIVES",
+      "SPENT_LEDGER",
+      "PROHIBITED_PATTERNS",
+      "ITEM",
       "DELIVERY_POSTURE",
       "PACING",
       "BEAT_BUDGET",
@@ -296,7 +303,6 @@ export const CONTRACT = {
       "SENTENCE_FORMULAS",
       "SCENE_MOMENTUM",
       "CLICHES",
-      "AGENCY",
       "NATURAL_DIALOGUE",
       "ENTITIES",
       "AI_CHARACTER",
@@ -367,7 +373,6 @@ export const CONTRACT = {
       "SENTENCE_FORMULAS",
       "SCENE_MOMENTUM",
       "CLICHES",
-      "AGENCY",
       "NATURAL_DIALOGUE",
       "ENTITIES",
       "AI_CHARACTER",
@@ -453,7 +458,6 @@ export const CONTRACT = {
       "SENTENCE_FORMULAS",
       "SCENE_MOMENTUM",
       "CLICHES",
-      "AGENCY",
       "ENTITIES",
       "AI_CHARACTER",
       "PSYCHOLOGY",
@@ -501,6 +505,9 @@ export const CONTRACT = {
       "DISSONANCE",
       "INSTABILITY",
       "DIRECTIVES",
+      "SPENT_LEDGER",
+      "PROHIBITED_PATTERNS",
+      "ITEM",
       "DELIVERY_POSTURE",
       "PACING",
       "BEAT_BUDGET",
@@ -527,7 +534,6 @@ export const CONTRACT = {
       "SENTENCE_FORMULAS",
       "SCENE_MOMENTUM",
       "CLICHES",
-      "AGENCY",
       "ENTITIES",
       "AI_CHARACTER",
       "PSYCHOLOGY",
@@ -597,7 +603,6 @@ export const CONTRACT = {
       "SENTENCE_FORMULAS",
       "SCENE_MOMENTUM",
       "CLICHES",
-      "AGENCY",
       "ENTITIES",
       "AI_CHARACTER",
       "PSYCHOLOGY",
@@ -644,6 +649,9 @@ export const CONTRACT = {
       "DISSONANCE",
       "INSTABILITY",
       "DIRECTIVES",
+      "SPENT_LEDGER",
+      "PROHIBITED_PATTERNS",
+      "ITEM",
       "DELIVERY_POSTURE",
       "PACING",
       "BEAT_BUDGET",
@@ -742,7 +750,6 @@ export const MODE_DIRECTIVE_LEADS = Object.freeze({
     "DYNAMICS CALIBRATION:",
     "Evaluate state mutations caused by",
     "NEXT ACTION ROUTING RULES:",
-    "CONVERGENCE & ENTITY REUSE:",
   ]),
   continuum: Object.freeze(["TARGET FOCUS: Consolidate state and extract relational vectors for", "EXECUTION MANDATE:"]),
   sorting: Object.freeze([
@@ -793,4 +800,5 @@ export const MODE_DIRECTIVE_LEADS = Object.freeze({
  * - 2026-09-19: Renamed the golden fixtures to the prompt contract (prompt-goldens.fixtures.js -> prompt-verification.js).
  * - 2026-09-20: Regenerated after envelope unification (P1/P2) + metasyntax ban (P3) + universal role lines (P5); dropped `system_close` (transport owns the close).
  * - 2026-09-20: Re-froze `CONTRACT` tag inventories and `CONTRACT_SIZES` byte counts against the post-unification output; removed the vestigial `system_close` fixture key.
+ * - 2026-10-14: Phase 1 Re-baseline — Director system inventory gains AXIOMATIC_CONSTITUTION + 4 LAW tags; Prose inventories drop AGENCY (consolidated into constitution L3).
  */

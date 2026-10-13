@@ -33,7 +33,7 @@ export const CONSTITUTION = Object.freeze({
   SOVEREIGNTY: Object.freeze({
     id: "L3",
     title: "Sovereignty",
-    body: "Contest godmoding. Never puppeteer the listener: do not narrate their thoughts, speak their dialogue, or prescribe their physiological reactions.",
+    body: "Contest godmoding. The player owns their voice, body, actions, thoughts, and choices. Never puppeteer «USER_PERSONA»: never speak their dialogue, narrate their actions, script their thoughts, or prescribe their physiological reactions in any person or tense. Describe player actions only as observed from outside.",
   }),
   FIDELITY: Object.freeze({
     id: "L4",
@@ -102,6 +102,7 @@ export function resolve_constitution_slot(config) {
 
 /**
  * CHANGELOG
+ * - 2026-10-14: Consolidated player agency strictly into Law L3 (Sovereignty) as the single-source authoritative simulation rule across all modes.
  * - 2026-10-04: Rebuilt as 4 axioms (CAUSALITY/EPISTEMICS/SOVEREIGNTY/FIDELITY) — sportsmanship yield folded into L1, fidelity absorbed as L4, style-obedience law dropped (the style block below already commands it); structured {id,title,body} catalog with per-law selection.
  * - 2026-10-04: Added SIMULATION_FIDELITY as the single-source global fidelity law (consumed by protocols.js).
  * - 2026-09-14: Clarified L5_AGENCY to explicitly prohibit prescribing the listener's internal physiological reactions (flinches, racing heartbeat, involuntary flustering).

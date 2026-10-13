@@ -152,7 +152,6 @@ describe("prompt-modes registry", () => {
       "CORE_PROTOCOLS.PROSE_DISCIPLINE.SENTENCE_FORMULAS",
       "CORE_PROTOCOLS.PROSE_DISCIPLINE.SCENE_MOMENTUM",
       "CORE_PROTOCOLS.PROSE_DISCIPLINE.CLICHES",
-      "CORE_PROTOCOLS.PROSE_DISCIPLINE.AGENCY",
     ];
     const compose = (natural) => [
       "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PRESENT",
@@ -259,7 +258,7 @@ describe("fused rendering per mode", () => {
 
   it("carries the <INPUT origin> inside the interaction task", () => {
     const interaction = compile_prompt("interaction", { round: 3, entities, input: "Beast steps forward." });
-    expect(interaction.system).toContain('<INPUT origin="SILVERS" round="3" channel="action">Beast steps forward.</INPUT>');
+    expect(interaction.system).toContain('<INPUT origin="SILVERS" round="3">Beast steps forward.</INPUT>');
   });
 
   it("strictly respects the manifest protocol list: interaction includes NATURAL_DIALOGUE, narrator omits it", () => {
@@ -457,7 +456,7 @@ describe("ghostwrite identity", () => {
     });
     const task = system;
     expect(system).toContain("You are Lord Benedict Silvers within FRACTAL Project Tartarus, interacting with Beast.");
-    expect(task).toContain('<INPUT origin="SILVERS" channel="action">I step forward and bare my teeth.</INPUT>');
+    expect(task).toContain('<INPUT origin="SILVERS">I step forward and bare my teeth.</INPUT>');
     expect(task).toContain("<DELIVERY_POSTURE>");
     expect(task).toContain("Advance the scene in response to");
   });
@@ -475,7 +474,7 @@ describe("ghostwrite identity", () => {
     const interaction = compile_prompt("interaction", { round: 3, entities: _relocated_prompt_entities, input: "Beast steps forward." });
     expect(interaction.system).toContain('id="L3" title="Sovereignty"');
     expect(ghostwrite.system).toContain('id="L3" title="Sovereignty"');
-    expect(ghostwrite.system).toContain("Never puppeteer the listener");
+    expect(ghostwrite.system).toContain("The player owns their voice, body, actions, thoughts, and choices.");
   });
 });
 
@@ -833,4 +832,5 @@ describe("metasyntax gate — compiled prompt hygiene", () => {
  * - 2026-09-11: Updated imports/assertions to the modern manifest (PROMPTS/get_prompt) after PROMPT_MODES/get_prompt_mode were removed.
  * - 2026-09-11: Renamed from prompt-modes.test.js to prompts.test.js reflecting prompts.js master registry.
  * - 2026-09-11: Moved prompt-modes.test.js to root of intelligence folder and updated imports to story-prompts.js and builder.js.
+ * - 2026-10-14: Phase 1 — Updated INPUT assertions to omit channel attribute on standard protagonist actions.
  */

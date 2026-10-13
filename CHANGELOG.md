@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Phase I: Prompt Pipeline Hygiene, P4 Purges & Release Safety**:
+  - **Single-Source Player Sovereignty**: Consolidated player agency constraints into `<AXIOMATIC_CONSTITUTION>` Law L3 (Sovereignty) in `constitution.js`. Enabled constitution across all simulation modes (including Director Shot 1). Purged duplicate agency text from `protocols.js`, `task.js` (`CHARACTER.BASE`), and Director directives (`USER_PERSONA_LOCK`).
+  - **P4 Purge of `alternative_branches`**: Removed `alternative_branches` from `DIRECTOR_SCHEMA`, `director.js`, and Director directives, saving 60–120 output tokens/turn. Archived proposal specification in `.agents/skills/simulation/references/suggestion-fate-branching-choices.md`.
+  - **Typed `<INPUT>` Signals**: Standard protagonist inputs omit the transport attribute (`<INPUT origin="..." round="...">`), while auxiliary inputs use `type="..."` (`reply`, `content`, `intent`, `ingestion`).
+  - **Pacing Hierarchy Resolution**: Striped conflicting sentence counts from `PACING` bodies in `reflex.js`, establishing `<BEAT_BUDGET>` as the authoritative structural controller.
+  - **Spent Ledger Pseudo-XML**: Refactored `render_spent_ledger_directive` in `reflex.js` to emit `<SPENT_LEDGER><PROHIBITED_PATTERNS><ITEM>...`.
+  - **Lorebook Ghost-Layer Purge**: Completely eradicated `{ key: "lorebook" }` from `PROMPT_LAYERS` in `system.js`, removed `lorebook_args` from `builder.js`, purged Section 2.5 from `SECURITY.md`, and cleaned schema comments in `db.js`.
+  - **Candidate Cast Spatial Pointer & Empty-Roster Guard**: Corrected pointer in `task.js` to "the candidate cast above" and gated `DIRECTOR.CONVERGENCE` on `has_candidates`.
+  - **Grounding Hygiene**: Stripped studio lighting ("light fixtures") from `CORE_PROTOCOLS.GROUNDING` in `protocols.js` and isolated to optics.
+
+- **Prompt Pipeline & Entity Referencing Master Rollout Order (`potential-fixes.md`)**: Consolidated audit forensics and entity referencing failure modes into an authoritative 4-batch execution plan combining target-state architecture with contract byte-pin protection, empirical A/B gating, and confidence-rated implementation solutions.
 - **Developer Database Keepalive Integration**: Automatic, non-blocking keepalive ping to Supabase Cold Storage (`GET /rest/v1/development_logs?select=id&limit=1`, throttled to $\le 1$ per 10 minutes) on Pinecone access to prevent free-tier project dormancy.
 - **Stage 3 Preparations**: Groundwork for perspective and persona systems (Tracks 6–7).
 - **Engine Hardening Backlog**: Queued remediations for live simulation forensic findings:

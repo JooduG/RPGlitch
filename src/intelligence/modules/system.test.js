@@ -143,7 +143,6 @@ describe("pack_prompt and resolve_prompt_meta", () => {
       "core_protocols",
       "dynamic_axes",
       "entities",
-      "lorebook",
       "target_entity_context",
       "cast",
       "entity_context",
@@ -156,6 +155,7 @@ describe("pack_prompt and resolve_prompt_meta", () => {
 
 /**
  * CHANGELOG
+ * - 2026-10-14: Phase 1 P4 Purge — Removed lorebook from PROMPT_LAYERS assertion list.
  * - Track 3.2: Canonical PROMPT_LAYERS key assertion gains lorebook.
  * - Track 2.4: Canonical PROMPT_LAYERS key assertion gains memory_advisory.
  * - Track 0.10: Dropped layer from the canonical PROMPT_LAYERS key assertion.

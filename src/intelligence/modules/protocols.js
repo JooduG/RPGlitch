@@ -47,7 +47,7 @@ export const PROTOCOL_LIBRARY = Object.freeze({
   // ── 1.1 Shared Grounding & Core-Prose Scaffold (<CORE_PROTOCOLS> bodies) ──
   CORE_PROTOCOLS: Object.freeze({
     GROUNDING:
-      "Ground every beat in tangible physical reality: localized objects over repetitive posture tags, emotion through observable micro-actions, vocal shifts, and tactile resistance rather than abstract outcomes. Anchor scenes with concrete light fixtures and physical surfaces.",
+      "Ground every beat in tangible physical reality: localized objects over repetitive posture tags, emotion through observable micro-actions, vocal shifts, and tactile resistance rather than abstract outcomes.",
     PERSPECTIVE: Object.freeze({
       TENSE: Object.freeze({
         PRESENT: "Write strictly in the present tense.",
@@ -65,7 +65,6 @@ export const PROTOCOL_LIBRARY = Object.freeze({
       SENTENCE_FORMULAS: `Eliminate synthetic sentence formulas: denial-then-affirmation ('X did not just Y; it Z'd'), antithetical formulas ('Not X, but Y'), symmetrical binary comparisons, appositive dialogue sound tags, and formulaic action-dialogue sandwiches.`,
       SCENE_MOMENTUM: `State actions directly and keep the scene moving; never stall with permission loops ('Can I ask a question?'), teasing secrets, or begging quotas.`,
       CLICHES: `Prohibit cliché clusters such as 'spoke volumes', 'a testament to', 'tapestry of', 'shivers down the spine', 'unspoken understanding', 'dance of shadows', and Wattpad dominance tropes ('feisty', 'playing with fire', 'death of me', 'mine').`,
-      AGENCY: `Never narrate «USER_PERSONA» in the first person — the player owns their voice, body, and choices. Describe player actions only as observed from outside; never emit 'I', 'me', 'my', or 'we' for the player persona.`,
       NATURAL_DIALOGUE: `Keep spoken dialogue grounded, clipped, uneven, and interrupted. Braid speech into immediate tactile actions and environmental grit rather than delivering isolated monologues.`,
     }),
   }),
@@ -104,6 +103,8 @@ export const PROTOCOL_LIBRARY = Object.freeze({
     }),
     SPATIAL_GEOMETRY:
       "Spatial orientation: direct depiction of focal elements, absolute geometry, camera angles, elevations, lighting positions, and depth layers without metaphor or narrative scaffolding.",
+    ENVIRONMENTAL_GROUNDING:
+      "Anchor scenes with concrete lighting sources, luminary fixtures, and physical surfaces.",
     SELFIE_DIRECTIVE: 'Generate a short, in-character social media caption inside "caption".',
     CINEMATOGRAPHY: Object.freeze({
       STAGING_DIRECTIVE: "\n  Staging Directive: {visual_staging}",
@@ -392,6 +393,7 @@ export function resolve_core_protocols_slot(config, normalized = {}, resolved = 
 
 /**
  * CHANGELOG
+ * - 2026-10-14: Purged diffusion studio lighting from narrative GROUNDING (relocated to OPTICS.ENVIRONMENTAL_GROUNDING); removed redundant AGENCY from PROSE_DISCIPLINE in favor of single-source Law L3 (Sovereignty) in constitution.js.
  * - Track 0.12: Token-hygiene purge - FIRST_SENTENCE_MANDATE.*, SPATIAL_GEOMETRY, and SELFIE_DIRECTIVE bodies drop their raw <TAG> wrapper literals (bare mandate prose; optics CONTRACT inventory loses two entries). Standing metasyntax gate added in src/intelligence/metasyntax.test.js.
  * - Track 0.11: Absorbed sensory statics into PROTOCOL_LIBRARY.OPTICS (MANDATE, SUBJECT_RULES, SOLO_FRAME, ENVIRONMENTAL_SCALE, BACKGROUND, FIRST_SENTENCE_MANDATE, SPATIAL_GEOMETRY, SELFIE_DIRECTIVE, CINEMATOGRAPHY templates); resolve_static_rule takes values; new exported resolve_optics_atom (retires sensory get_sensory_atom). Prompt bytes byte-identical.
  * - Track 3.4: PROSE_DISCIPLINE gains the AGENCY hard negative (never narrate the player persona in first person).

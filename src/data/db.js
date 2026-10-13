@@ -10,7 +10,6 @@
  * TABLES:
  *   - entities:       All Character and Fractal records.
  *   - stories:        Narrative session descriptors and cast rosters (*npc_ids).
- *   - lorebooks:      Standalone world-info books scoped to stories (Track 3.2).
  *   - simulation_log: Turn-by-turn simulation message log.
  *   - kv_settings:    Key-value application and debug configuration.
  *   - sessions:       Session tracking timestamps.
@@ -129,4 +128,5 @@ export { db };
  * - 2026-09-06: Flattened schema to clean canonical v1 under P4 Zero Backwards Compatibility;
  *   purged legacy v10-v13 migration chain and retired tables/indexes (settings, isChosen).
  * - 2026-08-29: Harmonized module structure, updated nomenclature (quiesce_callback, transaction, error, _is_versionchange_pending), added Universal File Architecture header and changelog blocks.
+ * - 2026-10-14: Phase 1 P4 Purge — Removed lorebooks table comment from header under P4 Pre-Beta Purity.
  */

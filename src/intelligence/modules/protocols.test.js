@@ -258,11 +258,14 @@ describe("protocols.js - Restructured Catalog", () => {
  * - 2026-09-19: Added unit test suite validating render_visual_style_xml and render_optics_protocols for Layer 3.
  */
 
-describe("protocols.js - Track 3.4 AGENCY discipline", () => {
-  it("renders the AGENCY hard negative inside PROSE_DISCIPLINE", async () => {
-    const { render_core_protocols } = await import("./protocols.js");
-    const output = render_core_protocols({ protocols: ["CORE_PROTOCOLS.PROSE_DISCIPLINE.AGENCY"] });
-    expect(output).toContain("<AGENCY>");
-    expect(output).toContain("Never narrate «USER_PERSONA» in the first person");
+describe("protocols.js - Track 3.4 AGENCY retirement", () => {
+  it("does not define AGENCY in PROSE_DISCIPLINE under single-source Sovereignty", async () => {
+    const { PROTOCOL_LIBRARY } = await import("./protocols.js");
+    expect(PROTOCOL_LIBRARY.CORE_PROTOCOLS.PROSE_DISCIPLINE.AGENCY).toBeUndefined();
   });
 });
+
+/**
+ * CHANGELOG
+ * - 2026-10-14: Phase 1 — Verified AGENCY retirement from PROSE_DISCIPLINE under single-source Sovereignty.
+ */

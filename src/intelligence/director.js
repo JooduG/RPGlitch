@@ -276,38 +276,14 @@ export function normalize_directors_note(raw) {
 }
 
 /**
- * Normalizes Director-supplied alternative dialogue branches (Track 3.3) into
- * at most 3 frozen {label, dialogue} records, stripped of covert directives
- * and XML, each capped for prompt and log safety.
- * @param {any} raw
- * @returns {ReadonlyArray<Readonly<{ label: string, dialogue: string }>>}
- */
-export function normalize_alternative_branches(raw) {
-  if (!Array.isArray(raw)) return Object.freeze([]);
-  return Object.freeze(
-    raw
-      .filter((branch) => branch && typeof branch === "object")
-      .map((branch) => {
-        const label = collapse_whitespace(String(branch.label ?? "").trim()).slice(0, 80);
-        const dialogue = strip_covert_directives(String(branch.dialogue ?? branch.text ?? ""))
-          .replace(/<[^>]*>/g, "")
-          .trim()
-          .slice(0, 500);
-        return Object.freeze({ label, dialogue });
-      })
-      .filter((branch) => branch.dialogue)
-      .slice(0, 3),
-  );
-}
-
-/**
  * Normalizes an entire Director payload with defensive fallbacks for every field.
  *
  * @param {any} payload - Raw or parsed Director payload
  * @returns {any} Normalized Director output data object
  */
 export function normalize_director_data(payload) {
-  const base = payload && typeof payload === "object" ? payload : {};
+  const raw_base = payload && typeof payload === "object" ? payload : {};
+  const { alternative_branches, alt_branches, ...base } = raw_base;
   const raw_action = base.next_action || base.speaker;
   const parsed_action = normalize_next_action(raw_action);
   const raw_status = typeof base.story_status === "string" ? base.story_status.trim().toUpperCase() : "";
@@ -361,7 +337,6 @@ export function normalize_director_data(payload) {
     npc_id,
     keywords,
     directors_note: normalize_directors_note(base.directors_note || base.directive),
-    alternative_branches: normalize_alternative_branches(base.alternative_branches || base.alt_branches),
     visual_staging: typeof base.visual_staging === "string" ? base.visual_staging.trim() : "",
     story_status,
     in_scene_change: normalize_in_scene_change(base.spotlight || base.in_scene_change),
@@ -607,4 +582,5 @@ export async function apply_relationships(bridge, rels) {
  * - 2026-09-05: Added support for unified spotlight schema (enter, exit, genesis) in normalize_director_data.
  * - 2026-08-28: Ground-up deconstruct & refactor: normalized action and speaker resolution, defensive JSON extraction, Stage Spotlight choreography, and unified Relational Mesh persistence.
  * - 2026-09-04: normalize_next_action warns on unknown/non-string next_action; synthesize_director_fallback also emits internal_monologue so the fallback keeps its think block.
+ * - 2026-10-14: Phase 1 Purge alternative_branches — Removed normalize_alternative_branches and alternative_branches field from normalize_director_data under P4 Zero Backwards Compatibility.
  */

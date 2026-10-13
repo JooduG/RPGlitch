@@ -275,14 +275,16 @@ describe("Protocol Invariants & Remediation Regression Gates", () => {
     expect(interaction_prompt.system).toContain("Adult and transgressive content is permitted without censorship or moral framing.");
   });
 
-  it("compiles Director prompt with user persona lock", () => {
+  it("compiles Director prompt with user persona sovereignty via constitution Law L3", () => {
     const director_prompt = compile_prompt("director", {
       round: 1,
       entities: test_entities,
       input: "Bob scans the perimeter.",
     });
 
-    expect(director_prompt.system).toContain('"USER_PERSONA", "USER", "PLAYER", and the player character\'s name are NEVER valid next_action');
+    expect(director_prompt.system).toContain('<AXIOMATIC_CONSTITUTION>');
+    expect(director_prompt.system).toContain('id="L3" title="Sovereignty"');
+    expect(director_prompt.system).toContain("Never puppeteer «USER_PERSONA»");
   });
 });
 
@@ -402,7 +404,7 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
     });
     expect(sorting_package.system).toContain('mode="sorting"');
     expect(sorting_package.messages).toBeUndefined();
-    expect(sorting_package.system).toContain('<INPUT channel="ingestion">Raw bio text</INPUT>');
+    expect(sorting_package.system).toContain('<INPUT type="ingestion">Raw bio text</INPUT>');
   });
 
   it("compiles optics mode via compile_prompt", () => {
@@ -574,4 +576,5 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
  * - 2026-09-18: Added Section 5 tests covering `compile_pipeline_prompt` (director, director_terse, continuum, enhancement, sorting, optics) and `build_story_prose` unification.
  * - 2026-09-17: Remediation pass — Added regression tests for PROTOCOL_LIBRARY.HYGIENE.AFFIRMATIVE_FRAMING, SIMULATION_FIDELITY permissive clause, and Director USER_PERSONA_LOCK prompt invariants.
  * - 2026-09-15: Initialized comprehensive builder.test.js unit suite covering narrator style resolution regression, symmetrical Shot-2A compilation, <SIGNATURE_ELEMENTS> tag standardization, and parameter-aware Layer 7 schema routing.
+ * - 2026-10-14: Phase 1 — Updated sorting INPUT assertion from channel="ingestion" to type="ingestion".
  */

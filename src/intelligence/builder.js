@@ -34,7 +34,7 @@ import { normalize_image_tier, resolve_visual_engine_tokens } from "@media";
 import { resolve_style_snapshot } from "./modules/style.js";
 import { resolve_stability_lock } from "./modules/reflex.js";
 import { resolve_pov_protocol, resolve_macro_directive, resolve_layer_tense_protocol } from "./modules/protocols.js";
-import { resolve_entities } from "./modules/entities.js";
+import { resolve_entities, resolve_available_entities } from "./modules/entities.js";
 import { render_dynamics_axes_xml, render_subtext_xml } from "./dynamics.js";
 
 import { render_history, resolve_history, HISTORY_TOKEN_BUDGET } from "./modules/history.js";
@@ -373,11 +373,6 @@ function resolve_prose_bag(config, context, bag_inputs) {
       speaker_key,
     },
     history_args: { kind: "simulation_log", accessors },
-    lorebook_args: {
-      enabled: Array.isArray(context.lorebooks) && context.lorebooks.length > 0,
-      lorebooks: Array.isArray(context.lorebooks) ? context.lorebooks : [],
-      turns: Array.isArray(context.lore_turns) ? context.lore_turns : [],
-    },
     task_params: {
       task_state: config.task_state,
       input: context.input ?? "",
@@ -522,11 +517,6 @@ function normalize_narrator_context(config, context) {
       speaker_key: "AI",
     },
     history_args: { kind: "simulation_log", accessors: render_accessors },
-    lorebook_args: {
-      enabled: Array.isArray(context.lorebooks) && context.lorebooks.length > 0,
-      lorebooks: Array.isArray(context.lorebooks) ? context.lorebooks : [],
-      turns: Array.isArray(context.lore_turns) ? context.lore_turns : [],
-    },
     task_params: {
       task_state: config.task_state,
       input: beat_input,
@@ -569,6 +559,12 @@ function normalize_director_context(config, context) {
   const last_ai_message = (active_messages || []).filter((message) => message.role === "model").at(-1);
   const last_ai_text = last_ai_message ? strip_cognition_blocks(last_ai_message.content || last_ai_message.text || "").trim() : "";
   const keyword_directives_xml = render_keyword_directives_xml(render_available_keywords_xml(style_snapshot.keywords, AVAILABLE_KEYWORDS));
+  const candidate_state = resolve_available_entities({
+    entities: context.entities || {},
+    npc_entities: context.npc_entities || [],
+    in_scene_ids: context.in_scene_ids || [],
+  });
+  const has_candidates = candidate_state.dormant.length > 0;
   return {
     round: context.round ?? null,
     attributes: {},
@@ -599,6 +595,7 @@ function normalize_director_context(config, context) {
       schema,
       keyword_directives: keyword_directives_xml,
       stagnation_turns: context.stagnation_turns ?? context.meta?.stagnation_turns ?? 0,
+      has_candidates,
     },
     meta_args: {
       ai: snapshot_bag?.ai?.dynamics,
@@ -954,4 +951,5 @@ export const MODE_ADAPTERS = {
  * - 2026-10-07: Modules Ground Refactor Phase 3 — optics staging re-cut to sensory.js (prompt and fallback moved; adapter delegates; resolve_builder_style_snapshot exported; optics-only imports pruned) — prompt bytes byte-identical.
  * - Track 3.1: Wires spent ledger extraction into resolve_prose_bag and normalize_narrator_context to prohibit recent phrasing repetitions.
  * - Track 4.2: Directorial Momentum Tiers & Stagnation Backstop — wired stagnation_turns through normalize_director_context and resolve_prose_bag into task_params.
+ * - 2026-10-14: Phase 1 Prompt Pipeline Hygiene & P4 Purges — (1) Purged dead lorebook_args constructions; (2) Computed has_candidates via resolve_available_entities and passed to Director task_params.
  */

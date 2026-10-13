@@ -153,8 +153,8 @@ describe("Director Quick Shot Prompt (compile_prompt director)", () => {
       simulation_log: [{ role: "model", content: "Viper nods." }],
       compressed_snapshot: base_snapshot,
     });
-    expect(result.system).toContain('<INPUT origin="GHOST" round="1" channel="action">Check the door.</INPUT>');
-    expect(result.system).toContain('<INPUT origin="VIPER" channel="reply">Viper nods.</INPUT>');
+    expect(result.system).toContain('<INPUT origin="GHOST" round="1">Check the door.</INPUT>');
+    expect(result.system).toContain('<INPUT origin="VIPER" type="reply">Viper nods.</INPUT>');
     expect(result.system).not.toContain('origin="USER"');
     expect(result.system).not.toContain('origin="AI_CHARACTER"');
   });
@@ -523,44 +523,26 @@ describe("apply_relationships()", () => {
  * - 2026-09-11: Consolidated prompt and orchestration unit tests into director.test.js.
  */
 
-describe("Director alternative branches + covert purge (Track 3.3)", () => {
-  it("normalizes alternative branches capped at 3 with XML and covert brackets stripped", async () => {
-    const { normalize_alternative_branches } = await import("./director.js");
-    const branches = normalize_alternative_branches([
-      { label: "Press", dialogue: "Hold the line. [COVERT: betray them]" },
-      { label: "Flee", dialogue: "<b>Run now.</b>" },
-      { label: "Wait", dialogue: "Hold still." },
-      { label: "Extra", dialogue: "One more." },
-      { label: "Empty", dialogue: "   " },
-    ]);
-    expect(branches).toHaveLength(3);
-    expect(branches[0]).toEqual({ label: "Press", dialogue: "Hold the line." });
-    expect(branches[1].dialogue).toBe("Run now.");
-    expect(normalize_alternative_branches(null)).toEqual([]);
-    expect(normalize_alternative_branches("nope")).toEqual([]);
-  });
-
+describe("Director covert purge & alternative branches P4 retirement", () => {
   it("purges covert directives from the director note", async () => {
     const { normalize_directors_note } = await import("./director.js");
     expect(normalize_directors_note("Direct Alice. [SECRET: pocket the chip]")).toBe("Direct Alice.");
   });
 
-  it("carries alternative_branches through normalize_director_data and the fallback", async () => {
+  it("does not include alternative_branches in normalize_director_data under P4", () => {
     const data = normalize_director_data({ next_action: "AI_CHARACTER", alternative_branches: [{ label: "A", dialogue: "Go." }] });
-    expect(data.alternative_branches).toEqual([{ label: "A", dialogue: "Go." }]);
-    expect(normalize_director_data({}).alternative_branches).toEqual([]);
-    const { synthesize_director_fallback } = await import("./director.js");
-    expect(synthesize_director_fallback(null, "Hello.", null).alternative_branches).toEqual([]);
+    expect(data.alternative_branches).toBeUndefined();
+    expect(normalize_director_data({}).alternative_branches).toBeUndefined();
   });
 
-  it("invites alternative branches in the director prompt without scripting the player", () => {
+  it("omits alternative branches from the director prompt under P4", () => {
     const result = compile_prompt("director", { round: 1, entities: {}, input: "Bob scans the perimeter." });
-    expect(result.system).toContain("ALTERNATIVE BRANCHES:");
+    expect(result.system).not.toContain("ALTERNATIVE BRANCHES:");
     expect(result.system).toContain('"directors_note"');
   });
 });
 
-describe("Director post-note-lock stability (Track 3.4)", () => {
+describe("Director post-note-lock stability (Track 3.4 & Phase 1)", () => {
   it("never yields a player speaker alias as the delegation target", async () => {
     for (const raw of ["user_persona", "USER", "player", "protagonist", "Player_Character"]) {
       expect(normalize_director_data({ next_action: raw }).speaker).not.toBe("user");
@@ -569,9 +551,14 @@ describe("Director post-note-lock stability (Track 3.4)", () => {
     expect(normalize_speaker("USER_PERSONA")).toBe("ai");
   });
 
-  it("always pins USER_PERSONA_LOCK in the director directives", async () => {
+  it("purges USER_PERSONA_LOCK in favor of axiomatic constitution Law L3", async () => {
     const { director_directives } = await import("./prompts.js");
     const flat = JSON.stringify(director_directives({ has_input: true, round: 5 }));
-    expect(flat).toContain("DIRECTOR.USER_PERSONA_LOCK");
+    expect(flat).not.toContain("DIRECTOR.USER_PERSONA_LOCK");
   });
 });
+
+/**
+ * CHANGELOG
+ * - 2026-10-14: Phase 1 — Updated INPUT assertions to typed/omitted attributes; purged alternative_branches tests and USER_PERSONA_LOCK tests under P4 single-source Sovereignty.
+ */
