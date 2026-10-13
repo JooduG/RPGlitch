@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Developer Database Keepalive Integration**: Automatic, non-blocking keepalive ping to Supabase Cold Storage (`GET /rest/v1/development_logs?select=id&limit=1`, throttled to $\le 1$ per 10 minutes) on Pinecone access to prevent free-tier project dormancy.
 - **Stage 3 Preparations**: Groundwork for perspective and persona systems (Tracks 6–7).
 - **Engine Hardening Backlog**: Queued remediations for live simulation forensic findings:
   - Hard budget constraints on `<ENTITIES>` block to eliminate reliance on host middle-out truncation.
