@@ -1,6 +1,6 @@
 ---
 name: local-scripts
-description: Operational tooling, verification scripts, and Antigravity runtime lifecycle hooks for the RPGlitch ecosystem. Trigger when running automated audits, reconciling ignore layers, or debugging hook gates.
+description: Operational tooling and verification scripts for RPGlitch. Use when executing audit scripts (npm run verify), managing ignore layers (ignores.master.json, .gitignore), or running repository hygiene sweeps.
 ---
 
 # 🛠️ Local Operational Tooling & Lifecycle Hooks

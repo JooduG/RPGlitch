@@ -1,6 +1,6 @@
 ---
 name: audio
-description: Triggered by any task involving sound effects (SFX), ambient tracks, Text-to-Speech (TTS) logic, or audio preference state management.
+description: Web Audio API, sound design, and synthesis manager. Use when implementing, refactoring, or asking about sound effects (SFX), ambient looping audio, Web Speech / TTS, user-gesture AudioContext initialization, or audio preference state management.
 ---
 
 # Audio & Soundscape

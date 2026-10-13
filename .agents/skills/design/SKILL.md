@@ -1,6 +1,6 @@
 ---
 name: design
-description: Triggered by any task involving styling, layout, structural robustness, kinetic motion, or design token implementations.
+description: Visual design system and kinetic UI engine. Use when authoring or reviewing DESIGN.md tokens, color palettes, typography, CSS micro-animations, glassmorphism, layout robustness, or running npm run sync.
 ---
 
 # Design (Styling, UI Structure & Kinetics)

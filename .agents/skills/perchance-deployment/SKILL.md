@@ -1,6 +1,6 @@
 ---
 name: perchance-deployment
-description: The Quality Gatekeeper and Release Engineer. Automates build pipelines, local verification, and Perchance deployment. Use when performing pre-flight checks or shipping to production.
+description: Production release gatekeeper and deployment automation for Perchance. Use when preparing releases, verifying the single-file HTML bundle, running pre-flight gates (npm run deploy:prepare, npm run verify), executing automated Playwright deployments (npm run deploy:auto), or troubleshooting production release syncs.
 ---
 
 # Perchance Deployment

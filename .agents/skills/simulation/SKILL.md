@@ -1,6 +1,6 @@
 ---
 name: simulation
-description: Mental model, cognitive principles, and architectural heuristics for the RPGlitch simulation engine, turn/round Chronos flow, multi-shot telemetry, epistemic isolation, and temporal memory consolidation.
+description: Sovereign RPGlitch simulation physics and chronology guide. Use when implementing, debugging, or asking about turn/round flow (Round, Shot 1 Director, Shot 2 Storyteller/Actor, Shot 3 User), multi-shot telemetry cards, epistemic isolation, somatic physics, or temporal memory consolidation.
 ---
 
 # 🕹️ The Simulation Physics & Cognitive Playbook
@@ -168,7 +168,7 @@ When implementing changes, consult the canonical source files rather than duplic
 | **Simulation Lifecycle**         | [`src/state/chrono.svelte.js`](../../../src/state/chrono.svelte.js)                | Round counter, Stasis lock, atomic turn dispatch (`send`, `retry`, `continue`).       |
 | **Turn Pipeline (Orchestrator)** | [`src/intelligence/story.js`](../../../src/intelligence/story.js)                  | Turn orchestration, Stage 1 execution, dynamics settlement, Stage 2 streaming.        |
 | **Director & Story Prompts**     | [`src/intelligence/prompts.js`](../../../src/intelligence/prompts.js)              | Master prompt manifest, Stage 1 & Stage 2 blueprints, schemas, speaker routing rules. |
-| **Dynamics & Settlement**        | [`src/intelligence/physics.js`](../../../src/intelligence/physics.js)              | 0-100 slider math, baseline gravity, entropy velocity calculations.                   |
+| **Dynamics & Settlement**        | [`src/intelligence/dynamics.js`](../../../src/intelligence/dynamics.js)            | 0-100 slider math, baseline gravity, entropy velocity calculations.                   |
 | **Temporal Memory & Compaction** | [`src/intelligence/temporal.js`](../../../src/intelligence/temporal.js)            | Vector scoring, cosine deduplication, Memory consolidation, past/future sync.         |
 | **Prompt Complexity Triage**     | [`.agents/skills/simulation/scripts/triage-prompt.js`](./scripts/triage-prompt.js) | D1–D5 scoring, R1 parameter density risk, and tier ceilings for prompt layer tuning.  |
 
