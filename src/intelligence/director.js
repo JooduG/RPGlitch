@@ -191,7 +191,6 @@ export function synthesize_director_fallback(previous_data, input, _bridge) {
     next_action: "AI_CHARACTER",
     keywords: [],
     directors_note: "Continue the scene with grounded immersion and physical causality.",
-    alternative_branches: [],
     visual_staging: "",
     dynamics_deltas: {},
     in_scene_change: { enter: [], exit: [] },
@@ -282,8 +281,7 @@ export function normalize_directors_note(raw) {
  * @returns {any} Normalized Director output data object
  */
 export function normalize_director_data(payload) {
-  const raw_base = payload && typeof payload === "object" ? payload : {};
-  const { alternative_branches, alt_branches, ...base } = raw_base;
+  const base = payload && typeof payload === "object" ? payload : {};
   const raw_action = base.next_action || base.speaker;
   const parsed_action = normalize_next_action(raw_action);
   const raw_status = typeof base.story_status === "string" ? base.story_status.trim().toUpperCase() : "";

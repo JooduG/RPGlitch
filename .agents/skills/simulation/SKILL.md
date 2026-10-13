@@ -139,7 +139,7 @@ When defining invariant simulation boundaries (e.g., Player Agency, Physical Tru
 
 - **Single Authority**: Establish the invariant rule once in constitutional law (e.g., Law L3 Sovereignty). Never sprinkle redundant, conflicting micro-prohibitions across task directives, role templates, or schemas (e.g., avoid duplicating `<AGENCY>`, `<USER_PERSONA_LOCK>`, or per-role warnings).
 - **Universal Precedence**: Mount `<AXIOMATIC_CONSTITUTION>` universally at the highest system level across all simulation passes (Director Shot 1, Storyteller Shot 2, Epilogue, etc.).
-- **Total Prohibition Across All Perspectives**: Prohibit unauthorized puppeteering in *any* grammatical person or tense (1st, 2nd, or 3rd person); mandate describing protagonist actions strictly as observed from the outside.
+- **Total Prohibition Across All Perspectives**: Prohibit unauthorized puppeteering in _any_ grammatical person or tense (1st, 2nd, or 3rd person); mandate describing protagonist actions strictly as observed from the outside.
 - **Zero Token Waste**: Eliminate redundant ad-hoc warnings to keep token economics lean and prevent conflicting instruction weights in LLM attention.
 
 ---

@@ -103,8 +103,7 @@ export const PROTOCOL_LIBRARY = Object.freeze({
     }),
     SPATIAL_GEOMETRY:
       "Spatial orientation: direct depiction of focal elements, absolute geometry, camera angles, elevations, lighting positions, and depth layers without metaphor or narrative scaffolding.",
-    ENVIRONMENTAL_GROUNDING:
-      "Anchor scenes with concrete lighting sources, luminary fixtures, and physical surfaces.",
+    ENVIRONMENTAL_GROUNDING: "Anchor scenes with concrete lighting sources, luminary fixtures, and physical surfaces.",
     SELFIE_DIRECTIVE: 'Generate a short, in-character social media caption inside "caption".',
     CINEMATOGRAPHY: Object.freeze({
       STAGING_DIRECTIVE: "\n  Staging Directive: {visual_staging}",

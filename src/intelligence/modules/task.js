@@ -478,8 +478,7 @@ export const TASK_SLOT_RESOLVERS = Object.freeze({
       .join("\n");
   },
 
-  action_signal: (values) =>
-    render_task_input({ input: values.input, input_origin: values.input_origin, input_round: values.round }),
+  action_signal: (values) => render_task_input({ input: values.input, input_origin: values.input_origin, input_round: values.round }),
   content_signal: (values) => render_task_input({ input: values.input, input_type: "content" }),
   ingestion_signal: (values) => render_task_input({ input: values.input, input_type: "ingestion" }),
   intent_signal: (values) => render_task_input({ input: values.input_intent, input_type: "intent" }),

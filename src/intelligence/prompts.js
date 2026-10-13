@@ -174,10 +174,7 @@ export function director_directives({
   return [
     "DIRECTOR.DYNAMICS_CALIBRATION",
     {
-      group: [
-        `REFLEX.TURN_STATE.${situation.evaluation}`,
-        ...(situation.round_one ? ["REFLEX.TURN_STATE.ROUND_ONE"] : []),
-      ],
+      group: [`REFLEX.TURN_STATE.${situation.evaluation}`, ...(situation.round_one ? ["REFLEX.TURN_STATE.ROUND_ONE"] : [])],
     },
     ...(has_environmental_hint ? ["REFLEX.CONDITIONALS.ENVIRONMENTAL_HINT"] : []),
     "DIRECTOR.ROUTING",

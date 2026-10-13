@@ -658,9 +658,7 @@ export function render_spent_ledger_directive(spent_ledger) {
     return "";
   }
 
-  const items = spent_ledger.spent_items.map((item) =>
-    render_xml_tag({ tag: "ITEM", children: [`"${prompt_escape(item)}"`], inline: true }),
-  );
+  const items = spent_ledger.spent_items.map((item) => render_xml_tag({ tag: "ITEM", children: [`"${prompt_escape(item)}"`], inline: true }));
   const patterns = render_xml_tag({
     tag: "PROHIBITED_PATTERNS",
     children: items,
@@ -670,10 +668,7 @@ export function render_spent_ledger_directive(spent_ledger) {
   });
   return render_xml_tag({
     tag: "SPENT_LEDGER",
-    children: [
-      "The following mannerisms and opening phrasing have been exhausted in recent turns. Do NOT repeat or echo them:",
-      patterns,
-    ],
+    children: ["The following mannerisms and opening phrasing have been exhausted in recent turns. Do NOT repeat or echo them:", patterns],
     indent: 0,
     child_indent: 2,
     separator: "\n",

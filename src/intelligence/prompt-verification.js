@@ -746,11 +746,7 @@ export const CONTRACT = {
  * @type {Readonly<Record<string, ReadonlyArray<string>>>}
  */
 export const MODE_DIRECTIVE_LEADS = Object.freeze({
-  director: Object.freeze([
-    "DYNAMICS CALIBRATION:",
-    "Evaluate state mutations caused by",
-    "NEXT ACTION ROUTING RULES:",
-  ]),
+  director: Object.freeze(["DYNAMICS CALIBRATION:", "Evaluate state mutations caused by", "NEXT ACTION ROUTING RULES:"]),
   continuum: Object.freeze(["TARGET FOCUS: Consolidate state and extract relational vectors for", "EXECUTION MANDATE:"]),
   sorting: Object.freeze([
     "FOCUS: Extracting data for an individual CHARACTER",

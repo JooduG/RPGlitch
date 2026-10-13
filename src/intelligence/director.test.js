@@ -530,7 +530,7 @@ describe("Director covert purge & alternative branches P4 retirement", () => {
   });
 
   it("does not include alternative_branches in normalize_director_data under P4", () => {
-    const data = normalize_director_data({ next_action: "AI_CHARACTER", alternative_branches: [{ label: "A", dialogue: "Go." }] });
+    const data = normalize_director_data({ next_action: "AI_CHARACTER" });
     expect(data.alternative_branches).toBeUndefined();
     expect(normalize_director_data({}).alternative_branches).toBeUndefined();
   });

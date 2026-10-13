@@ -282,7 +282,7 @@ describe("Protocol Invariants & Remediation Regression Gates", () => {
       input: "Bob scans the perimeter.",
     });
 
-    expect(director_prompt.system).toContain('<AXIOMATIC_CONSTITUTION>');
+    expect(director_prompt.system).toContain("<AXIOMATIC_CONSTITUTION>");
     expect(director_prompt.system).toContain('id="L3" title="Sovereignty"');
     expect(director_prompt.system).toContain("Never puppeteer «USER_PERSONA»");
   });
