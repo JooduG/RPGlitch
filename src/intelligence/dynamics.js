@@ -636,10 +636,12 @@ export function build_turn_summary(feed, round) {
 }
 
 /**
- * Renders live dynamics values as a `<DYNAMIC_AXES scale="0-100">` block.
+ * Renders live dynamics values as a `<DYNAMIC_AXES>` block.
+ * When rendered for Director system envelope (scope=null), co-locates delta bounds
+ * attributes and qualitative calibration guidance directly on the block.
  * Dynamics presentation lives with the dynamics engine, not the entity sheets.
  */
-export function render_dynamics_axes_xml(live_dynamics = null, scope = null, axes_registry = {}) {
+export function render_dynamics_axes_xml(live_dynamics = null, scope = null, axes_registry = {}, { include_calibration = !scope } = {}) {
   if (!live_dynamics || typeof live_dynamics !== "object") return "";
 
   const tags = Object.entries(axes_registry)
@@ -650,7 +652,17 @@ export function render_dynamics_axes_xml(live_dynamics = null, scope = null, axe
       return `  <${tag} value="${value}" low="${escape_xml(meta.low)}" high="${escape_xml(meta.high)}" />`;
     });
 
-  return tags.length > 0 ? `<DYNAMIC_AXES scale="0-100">\n${tags.join("\n")}\n</DYNAMIC_AXES>` : "";
+  if (tags.length === 0) return "";
+
+  const calibration = include_calibration
+    ? '  <CALIBRATION>Calibrate dynamics_deltas to reflect the psychological tension, environmental friction, and interpersonal shift of the turn without clipping.</CALIBRATION>\n'
+    : "";
+
+  const attrs = include_calibration
+    ? ' scale="0-100" delta_standard="±1-4" delta_extreme="±8-12" boundary_clip="5-95"'
+    : ' scale="0-100"';
+
+  return `<DYNAMIC_AXES${attrs}>\n${calibration}${tags.join("\n")}\n</DYNAMIC_AXES>`;
 }
 
 /**
@@ -863,4 +875,5 @@ export function evaluate_image_trigger(current = {}, previous = {}, options = {}
  * - 2026-09-11: Consolidated GLOBAL_TRIGGERS and DYNAMIC_NON_VERBAL_RULES into unified DYNAMICS_RULES; trigger directives co-located into PHYSICS_PROTOCOLS in physics-prompt.js.
  * - 2026-08-28: Harmonized dynamics nomenclature: DYNAMIC_NON_VERBAL_RULES, extract_entity_dynamics_baselines, compute_dynamics_deltas, evaluate_dynamics_signals, and apply_dynamics_gravity.
  * Modules Ground Refactor Phase 2 — exports DYNAMICS_METRIC_NAMES (single source for telemetry shaping).
+ * - 2026-10-14: Phase 2 Atom 2.3 — Co-located delta bounds attributes (delta_standard, delta_extreme, boundary_clip) and non-overlapping qualitative CALIBRATION element in render_dynamics_axes_xml for Director system envelope.
  */

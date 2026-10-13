@@ -224,10 +224,19 @@ describe("dynamics.js", () => {
       expect(xml).not.toContain("<CHAOS");
     });
 
-    it("renders every axis when no scope is given", () => {
+    it("renders every axis when no scope is given, co-locating delta bounds and CALIBRATION", () => {
       const xml = render_dynamics_axes_xml(dynamics, null, DYNAMICS_AXES);
+      expect(xml).toContain('<DYNAMIC_AXES scale="0-100" delta_standard="±1-4" delta_extreme="±8-12" boundary_clip="5-95">');
+      expect(xml).toContain("<CALIBRATION>Calibrate dynamics_deltas to reflect the psychological tension");
       expect(xml).toContain("<CHAOS");
       expect(xml).toContain("<VELOCITY");
+    });
+
+    it("does not include CALIBRATION or delta bounds when rendered with an explicit scope", () => {
+      const xml = render_dynamics_axes_xml(dynamics, "somatic", DYNAMICS_AXES);
+      expect(xml).toContain('<DYNAMIC_AXES scale="0-100">');
+      expect(xml).not.toContain("<CALIBRATION>");
+      expect(xml).not.toContain("delta_standard");
     });
 
     it("returns an empty string for empty dynamics", () => {

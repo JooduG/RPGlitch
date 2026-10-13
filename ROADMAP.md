@@ -56,7 +56,7 @@ flowchart TD
 
 ---
 
-### Phase I: Prompt Pipeline Hygiene, P4 Purges & Release Safety [COMPLETED 2026-10-14]
+### Phase I: Prompt Pipeline Hygiene, P4 Purges & Release Safety `[COMPLETED 2026-10-14]`
 
 Foundational cleanup, dead-code removal, and immediate token-saving optimizations that establish a clean baseline for subsequent structural refactors.
 
