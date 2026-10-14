@@ -665,8 +665,6 @@ function resolve_task_values(parameters, config) {
     values.keyword_directives = null;
   }
 
-  values.has_candidates = Boolean(parameters.has_candidates);
-
   return values;
 }
 

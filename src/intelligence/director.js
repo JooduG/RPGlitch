@@ -282,23 +282,44 @@ export function normalize_directors_note(raw) {
  * @param {string|null|undefined} user_input
  * @returns {boolean}
  */
+const IDIOM_EXCLUSIONS = Object.freeze([
+  /\b(?:it|that|this|joke|humor|comedy)\s+(?:just\s+)?kills\s+me\b/i,
+  /\bkills\s+me\s+(?:every\s+time|to\s+see|to\s+watch|inside)\b/i,
+  /\byou(?:'re|\s+are)\s+killing\s+me\b/i,
+  /\bdie[\s-]cast(?:ing|s|ed)?\b/i,
+  /\bdeathly\s+pale\b/i,
+  /\bdead\s+(?:tired|serious|center|silent|ahead|ring|ringer)\b/i,
+]);
+
+const FATAL_PATTERNS = Object.freeze([
+  /\b(?:i|my\s+character)\s+die(?:s)?\b/i,
+  /\bi\s+am\s+dead\b/i,
+  /\b(?:kills|killed)\s+me\b/i,
+  /\bkill\s+myself\b/i,
+  /\bbleed(?:s|ing)?\s+out\b/i,
+  /\bgive\s+up\s+and\s+die\b/i,
+  /\bsurrender\s+to\s+death\b/i,
+  /\bmy\s+final\s+breath\b/i,
+  /\bi\s+perish\b/i,
+  /\bmy\s+death\b/i,
+  /\bmy\s+body\s+goes\s+limp\s+and\s+dies\b/i,
+]);
+
+/**
+ * Detects whether the user explicitly declared their own destruction or fatal surrender.
+ * Used by the Climax Sovereignty Dual Defense to prevent the Director from killing the player
+ * without explicit player consent while safely disregarding figurative idioms.
+ *
+ * @param {string|null|undefined} user_input
+ * @returns {boolean}
+ */
 export function is_explicit_player_destruction_declared(user_input) {
   if (!user_input || typeof user_input !== "string") return false;
-  const normalized = user_input.toLowerCase();
-  const fatal_markers = [
-    "i die",
-    "i am dead",
-    "kills me",
-    "kill myself",
-    "bleed out",
-    "give up and die",
-    "surrender to death",
-    "my final breath",
-    "i perish",
-    "my death",
-    "my body goes limp and dies",
-  ];
-  return fatal_markers.some((marker) => normalized.includes(marker));
+  let sanitized = user_input.toLowerCase();
+  for (const idiom of IDIOM_EXCLUSIONS) {
+    sanitized = sanitized.replace(idiom, " ");
+  }
+  return FATAL_PATTERNS.some((pattern) => pattern.test(sanitized));
 }
 
 /**

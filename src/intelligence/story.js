@@ -35,7 +35,14 @@ import {
   mark_generation_in_flight,
   clear_generation_in_flight,
 } from "@media";
-import { validate_and_repair_response, force_close_response, balance_think_tags, strip_directors_note_seed, THINK_OPEN_TAG } from "./parser.js";
+import {
+  validate_and_repair_response,
+  force_close_response,
+  balance_think_tags,
+  strip_directors_note_seed,
+  THINK_OPEN_TAG,
+  THINK_CLOSE_TAG,
+} from "./parser.js";
 import { llm_service, looks_truncated, calculate_semantic_drift, merge_abort_signals } from "@platform";
 import { apply_dynamics_gravity, extract_entity_dynamics_baselines, capture_dynamics_delta } from "./dynamics.js";
 import { execute_director_shot, resolve_npc_entity, apply_in_scene_change } from "./director.js";
@@ -266,12 +273,6 @@ export const gamemaster = {
       // 3.4.5. MACRO LEAK — log the alternation options the Director (narrative) committed to
       log_narrative_alternations(payload.entities, director_data);
 
-      // 3.4.6. ALTERNATIVE BRANCHES (Track 3.3) — surface Director-supplied dialogue options for user-guided exploration.
-      const alternative_branches = Array.isArray(director_data.alternative_branches) ? director_data.alternative_branches : [];
-      for (const [branch_index, branch] of alternative_branches.entries()) {
-        state_bridge.app?.log?.(`[ALT-BRANCH] option ${branch_index + 1}${branch.label ? ` (${branch.label})` : ""}: "${branch.dialogue}"`, "system");
-      }
-
       // 3.5. STAGE SPOTLIGHT
       await apply_in_scene_change(state_bridge, director_data.in_scene_change);
 
@@ -395,7 +396,6 @@ export const gamemaster = {
       let final_meta = { ...meta };
       final_meta.ai = snapshot.ai?.dynamics;
       final_meta.fractal = snapshot.fractal?.dynamics;
-      if (alternative_branches.length > 0) final_meta.alternative_branches = alternative_branches;
 
       const director_mutations = director_data.mutations || {};
       final_meta.mutations = {
@@ -522,7 +522,9 @@ export const gamemaster = {
             onToken(chunk);
           }
           if (input_size.tier === "TINY" || input_size.tier === "SMALL") {
-            const inside_think = streamed_raw.includes("<think>") && !streamed_raw.includes("</think>");
+            const inside_think =
+              (streamed_raw.includes(THINK_OPEN_TAG) || /<think>/i.test(streamed_raw)) &&
+              !(streamed_raw.includes(THINK_CLOSE_TAG) || /<\/think>/i.test(streamed_raw));
             if (!inside_think) {
               const prose_so_far = strip_cognition_blocks(streamed_raw);
               if (is_stream_beat_limit_reached(prose_so_far, input_size.tier)) {
@@ -1004,9 +1006,12 @@ export const gamemaster = {
         onToken: (chunk) => {
           full_accumulated += chunk;
           if (typeof on_token === "function") {
-            const starts_think = full_accumulated.trimStart().startsWith("<think") || full_accumulated.trimStart() === "<";
-            if (starts_think || full_accumulated.includes("<think>")) {
-              is_inside_think = !full_accumulated.includes("</think>");
+            const starts_think =
+              full_accumulated.trimStart().startsWith("<think") ||
+              full_accumulated.trimStart().startsWith("<THINK") ||
+              full_accumulated.trimStart() === "<";
+            if (starts_think || full_accumulated.includes(THINK_OPEN_TAG) || /<think>/i.test(full_accumulated)) {
+              is_inside_think = !(full_accumulated.includes(THINK_CLOSE_TAG) || /<\/think>/i.test(full_accumulated));
               if (!is_inside_think) {
                 const cleaned = strip_cognition_blocks(full_accumulated).trimStart();
                 if (cleaned) on_token(cleaned, true);

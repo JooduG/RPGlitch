@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Bugs & Debt Remediation — Phase A: Dead Code Purges & Level 1 Fixes**:
+  - **Syntax & Quantifier Correction (`ProfileHeader.svelte`)**: Corrected malformed regex quantifier `pattern="^[A-Za-z0-9_-]{(2, 20)}$"` to `pattern="^[A-Za-z0-9_-]{2,20}$"`, restoring HTML5 input validation for custom entity handle editing.
+  - **Inert `alternative_branches` Purge (`story.js`, `output.js`)**: Eliminated dead `[ALT-BRANCH]` console logging loop and meta-assignment in `story.js`; pruned lingering schema field in `output.js:56`.
+  - **Dead `has_candidates` Purge (`task.js`, `builder.js`)**: Removed unread `values.has_candidates` assignment in `task.js` and discontinued its calculation in `builder.js`.
+  - **Think Tag Constant Harmonization (`story.js`, `parser.js`)**: Exported `THINK_CLOSE_TAG` from `parser.js` and replaced literal string matches in `story.js` with canonical constants and case-insensitive regexes.
+  - **Idiom-Safe Player Destruction Guard (`director.js`, `director.test.js`)**: Upgraded `is_explicit_player_destruction_declared` with regex word boundaries and idiom exclusion sanitization ("kills me every time", "I die-cast", "deathly pale", "dead tired"), preventing false-positive blocks while strictly preserving Law L3 player sovereignty.
+  - **Phase III 3.8 Storage-Ban Gate (`prompts.test.js`)**: Added standing verification test ensuring ephemeral turn pragmatics (`speaker`, `listener`) are banned from durable entity schemas and prompt persistence metadata.
+
 - **Phase III: Relational Macro Graph, Epistemic Wall & Perspective (Track 6)**:
   - **Secondary NPC Identity Inversion Fix (`macros.js`)**: Eliminated blanket `owner.type === "character" ? "ai"` catch-all in `_resolve_owner_perspective`. Classifies secondary NPCs as `entity:<id>` so `@ME` resolves to the NPC's own name instead of stealing the AI companion's identity.
   - **Epistemic-First Sequencing Invariant (`builder.js`, `sheets.js`)**: Removed premature `parse_macros` from `accessors.past` and `accessors.future` in `builder.js`. Established strict two-step pipeline in `sheets.js:resolve_sheet_snapshot` where all 4 entity fields are sanitized first (`strip_epistemic_secrets` to purge `| hide` brackets for unauthorized viewers), and then passed through `render_field_value` for macro expansion on surviving text with proper owner gating.

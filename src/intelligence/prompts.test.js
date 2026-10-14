@@ -13,6 +13,7 @@ import { TASK_LIBRARY } from "./modules/task.js";
 import { PROTOCOL_LIBRARY } from "./modules/protocols.js";
 import { REFLEX_LIBRARY } from "./modules/reflex.js";
 import { ROLE_LIBRARY } from "./modules/system.js";
+import { PREMADE_ENTITIES } from "@data";
 
 const entities = {
   AI: {
@@ -810,6 +811,44 @@ describe("metasyntax gate — compiled prompt hygiene", () => {
       for (const token of collect_at_tokens(text)) violations.push(mode_name + ": " + token);
     }
     expect(violations).toEqual([]);
+  });
+
+  describe("Phase III 3.8 — Storage Ban Gate on Turn Pragmatics (speaker/listener)", () => {
+    it("enforces that speaker and listener attributes never exist in serialized durable entity schemas or vector memory", () => {
+      // 1. Check all premade entity definitions in the catalog
+      for (const premade of PREMADE_ENTITIES) {
+        expect(premade.speaker).toBeUndefined();
+        expect(premade.listener).toBeUndefined();
+        expect(premade.eternal?.speaker).toBeUndefined();
+        expect(premade.eternal?.listener).toBeUndefined();
+        expect(premade.present?.speaker).toBeUndefined();
+        expect(premade.present?.listener).toBeUndefined();
+      }
+
+      // 2. Check test entity fixtures
+      for (const ent of Object.values(entities)) {
+        expect(ent).not.toHaveProperty("speaker");
+        expect(ent).not.toHaveProperty("listener");
+        expect(ent.eternal).not.toHaveProperty("speaker");
+        expect(ent.eternal).not.toHaveProperty("listener");
+        expect(ent.present).not.toHaveProperty("speaker");
+        expect(ent.present).not.toHaveProperty("listener");
+      }
+
+      // 3. Check compiled prompt meta and output formats — turn pragmatics must be ephemeral XML envelope attributes only
+      const interaction_pkg = compile_prompt("interaction", {
+        entities,
+        active_speaker: "AI",
+        in_scene_ids: ["AI", "USER"],
+        round: 1,
+      });
+      // System envelope must contain turn attributes
+      expect(interaction_pkg.system).toMatch(/<TURN[^>]*speaker="[a-z0-9_]+"[^>]*listener="[a-z0-9_]+"/);
+      // But meta objects returned for persistence must NEVER carry speaker or listener
+      expect(interaction_pkg.meta).toBeDefined();
+      expect(interaction_pkg.meta).not.toHaveProperty("speaker");
+      expect(interaction_pkg.meta).not.toHaveProperty("listener");
+    });
   });
 });
 

@@ -53,6 +53,7 @@ export function is_refusal_response(text) {
 // ── 2. Think Block Parsing & Tag Repair ───────────────────────────────────────
 
 export const THINK_OPEN_TAG = "<THINK>";
+export const THINK_CLOSE_TAG = "</THINK>";
 
 /**
  * Drops `</think>` closing tags that appear while no think block is open.

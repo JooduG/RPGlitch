@@ -25,7 +25,7 @@ import { normalize_image_tier, resolve_visual_engine_tokens } from "@media";
 import { resolve_style_snapshot } from "./modules/style.js";
 import { resolve_stability_lock } from "./modules/reflex.js";
 import { resolve_pov_protocol, resolve_macro_directive, resolve_layer_tense_protocol } from "./modules/protocols.js";
-import { resolve_entities, resolve_available_entities } from "./modules/entities.js";
+import { resolve_entities } from "./modules/entities.js";
 import { render_dynamics_axes_xml, render_subtext_xml } from "./dynamics.js";
 
 import { render_history, resolve_history, HISTORY_TOKEN_BUDGET } from "./modules/history.js";
@@ -568,12 +568,6 @@ function normalize_director_context(config, context) {
   const last_ai_message = (active_messages || []).filter((message) => message.role === "model").at(-1);
   const last_ai_text = last_ai_message ? strip_cognition_blocks(last_ai_message.content || last_ai_message.text || "").trim() : "";
   const keyword_directives_xml = render_keyword_directives_xml(render_available_keywords_xml(style_snapshot.keywords, AVAILABLE_KEYWORDS));
-  const candidate_state = resolve_available_entities({
-    entities: context.entities || {},
-    npc_entities: context.npc_entities || [],
-    in_scene_ids: context.in_scene_ids || [],
-  });
-  const has_candidates = candidate_state.dormant.length > 0;
   return {
     round: context.round ?? null,
     attributes: {},
@@ -604,7 +598,6 @@ function normalize_director_context(config, context) {
       schema,
       keyword_directives: keyword_directives_xml,
       stagnation_turns: context.stagnation_turns ?? context.meta?.stagnation_turns ?? 0,
-      has_candidates,
     },
     meta_args: {
       ai: snapshot_bag?.ai?.dynamics,

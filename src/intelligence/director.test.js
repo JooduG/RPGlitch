@@ -569,6 +569,11 @@ describe("Atom 2.5 Climax Sovereignty Dual Defense", () => {
 
     expect(is_explicit_player_destruction_declared("I dodge the attack and strike back")).toBe(false);
     expect(is_explicit_player_destruction_declared("I am bleeding heavily from my arm")).toBe(false);
+    expect(is_explicit_player_destruction_declared("It kills me every time")).toBe(false);
+    expect(is_explicit_player_destruction_declared("I die-cast the miniature")).toBe(false);
+    expect(is_explicit_player_destruction_declared("He looked deathly pale")).toBe(false);
+    expect(is_explicit_player_destruction_declared("I am dead tired")).toBe(false);
+    expect(is_explicit_player_destruction_declared("You're killing me with these jokes")).toBe(false);
     expect(is_explicit_player_destruction_declared("")).toBe(false);
     expect(is_explicit_player_destruction_declared(null)).toBe(false);
   });
