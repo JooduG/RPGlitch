@@ -374,9 +374,7 @@ export function render_core_protocols({
   has_alternation = false,
   player_name = null,
 } = {}) {
-  return render_protocol_plan(
-    resolve_protocol_plan({ protocols, pov_protocol, style, visual_style, engine_tokens, has_alternation, player_name }),
-  );
+  return render_protocol_plan(resolve_protocol_plan({ protocols, pov_protocol, style, visual_style, engine_tokens, has_alternation, player_name }));
 }
 
 /**

@@ -22,7 +22,7 @@ if (process.argv[1] && path.resolve(fileURLToPath(import.meta.url)) === path.res
   const result = spawnSync(
     process.platform === "win32" ? "npx.cmd" : "npx",
     ["vitest", "run", ".agents/skills/simulation/scripts/simulation-audit.test.js"],
-    { stdio: "inherit", shell: true }
+    { stdio: "inherit", shell: true },
   );
   process.exit(result.status ?? 0);
 }
@@ -41,7 +41,6 @@ async function ensure_simulation_dependencies() {
     get_premade_entity_by_id = premades_module.get_premade_entity_by_id;
   }
 }
-
 
 /**
  * Enriches a vector with category and triggers fields if missing.

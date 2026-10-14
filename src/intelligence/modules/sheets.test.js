@@ -241,14 +241,7 @@ describe("parse_profile_field_rows and relational rendering", () => {
   ]);
 
   it("parses unbracketed prose and formats canonical relation target", () => {
-    const rows = parse_profile_field_rows(
-      entity_with_relations.present.non_physical,
-      entity_with_relations,
-      null,
-      null,
-      null,
-      active_map,
-    );
+    const rows = parse_profile_field_rows(entity_with_relations.present.non_physical, entity_with_relations, null, null, null, active_map);
     expect(rows).toContain("Watchful.");
     expect(rows).toContain('<RELATION target="bob">immediate tactical ally</RELATION>');
     expect(rows).toContain('<RELATION target="eve">concealed rival | hide</RELATION>');

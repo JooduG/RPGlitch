@@ -242,14 +242,7 @@ export const render_physical_block = render_profile_field_block;
  * @param {Map<string, string>|null} [name_to_id_map=null]
  * @returns {string[]}
  */
-export function parse_profile_field_rows(
-  raw_value,
-  owner_entity = null,
-  entities = null,
-  transform = null,
-  context = null,
-  name_to_id_map = null,
-) {
+export function parse_profile_field_rows(raw_value, owner_entity = null, entities = null, transform = null, context = null, name_to_id_map = null) {
   const resolved_value = owner_entity ? render_field_value(raw_value, owner_entity, entities, context) : raw_value;
   const final_value = typeof transform === "function" ? transform(String(resolved_value ?? "")) : resolved_value;
   const parsed = typeof final_value === "string" ? safe_parse_pseudo_json(final_value) : (final_value ?? {});
@@ -267,7 +260,9 @@ export function parse_profile_field_rows(
   if (entities && typeof entities === "object") {
     for (const item of Object.values(entities)) {
       if (item?.name) {
-        const id_slug = String(item.id || item.name).toLowerCase().trim();
+        const id_slug = String(item.id || item.name)
+          .toLowerCase()
+          .trim();
         known_slugs.set(String(item.name).toLowerCase().trim(), id_slug);
         if (item.id) known_slugs.set(String(item.id).toLowerCase().trim(), id_slug);
       }
@@ -292,7 +287,7 @@ export function parse_profile_field_rows(
 
       const is_explicit_handle = clean_key.startsWith("@");
       const bare_key = clean_key.replace(/^@/, "").trim().toLowerCase();
-      const matched_target_id = is_explicit_handle || known_slugs.has(bare_key) ? (known_slugs.get(bare_key) || bare_key) : null;
+      const matched_target_id = is_explicit_handle || known_slugs.has(bare_key) ? known_slugs.get(bare_key) || bare_key : null;
 
       if (matched_target_id) {
         const target_slug = matched_target_id.replace(/\s+/g, "_");
@@ -301,14 +296,20 @@ export function parse_profile_field_rows(
       }
 
       if (string_value.length <= 40 && !string_value.includes("\n") && !string_value.includes('"')) {
-        const attr_name = clean_key.toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "");
+        const attr_name = clean_key
+          .toLowerCase()
+          .replace(/\s+/g, "_")
+          .replace(/[^a-z0-9_]/g, "");
         if (attr_name) {
           rows.push(`${attr_name}="${string_value}"`);
           continue;
         }
       }
 
-      const tag = clean_key.toUpperCase().replace(/\s+/g, "_").replace(/[^A-Z0-9_]/g, "");
+      const tag = clean_key
+        .toUpperCase()
+        .replace(/\s+/g, "_")
+        .replace(/[^A-Z0-9_]/g, "");
       if (tag) {
         const row = `<${tag}>${string_value}</${tag}>`;
         for (const line of row.split("\n")) {
@@ -354,16 +355,7 @@ export function join_past_vectors(entity) {
  * @returns {Object}
  */
 export function resolve_sheet_snapshot(entity, specification, options = {}) {
-  const {
-    is_owner = false,
-    accessors = null,
-    entities = {},
-    transform_physical = null,
-    relational_context = null,
-    show_dispositions = false,
-    active_names = null,
-    name_to_id = null,
-  } = options;
+  const { is_owner = false, accessors = null, entities = {}, transform_physical = null, relational_context = null, name_to_id = null } = options;
   const epistemic = specification?.epistemic || {};
   const sanitize = (value, policy) => {
     if (!policy || policy === EPISTEMIC_POLICY.NONE) return value;
