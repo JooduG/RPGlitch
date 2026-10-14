@@ -123,10 +123,10 @@ Elevating Shot 1 (Director) from an ad-hoc, unformatted text script into a const
   - [x] **2.6 Stagnation Semantic Drift Recalibration (Track 11.3 / Finding L18)**:
     - In `src/intelligence/story.js`, update `calculate_semantic_drift` to compare consecutive turns by the same interlocutor (`user[n]` vs `user[n-1]` and `companion[n]` vs `companion[n-1]`), allowing conversational circularity to naturally trip stagnation thresholds.
     - Add unit tests in `src/intelligence/story.test.js`.
-  - [ ] **2.7 Comprehensive Director Task Routing, Keyword Triggers & Prompt Handoff Audit**:
-    - **Routing & Delegation Audit**: Systematically review `next_action` allocation rules (`AI_CHARACTER`, `FRACTAL`, `npc:<id>`, `GENESIS`, `EPILOGUE_COLLAPSED`, `EPILOGUE_CONCLUDED`) in `src/intelligence/modules/task.js`, `src/intelligence/director.js`, and `src/intelligence/story.js:352-388`. Verify the exact condition matrix for when Director delegates to environmental narration vs NPC dialogue vs companion interaction.
-    - **Keyword Triggers & Subtext Ingestion**: Trace the complete end-to-end lifecycle of keywords: from `AVAILABLE_KEYWORDS` in `task.js` and `STYLE_MOTIF_REGISTRY` offered to Director Shot 1, through Director selection (`director_data.keywords`), to `render_subtext_xml` resolution against `PHYSICS_PROTOCOLS`, and final `<SUBTEXT>` tag injection in Shot 2 character/narrator prompts.
-    - **Staging Directives & Think Seeding**: Audit how `directors_note` seeds the Shot 2 `<THINK>` block via `startWith` in `story.js:547` and ensure robust stripping in `strip_directors_note_seed` without bleeding into persisted narrative prose.
+  - [x] **2.7 Comprehensive Director Task Routing, Keyword Triggers & Prompt Handoff Audit**:
+    - **Routing & Delegation Audit**: Systematically audited and co-located all `next_action` turn allocation rules (`AI_CHARACTER`, `FRACTAL`, `npc:<id>`, `{ "genesis": ... }`, `EPILOGUE_COLLAPSED`, `EPILOGUE_CONCLUDED`) directly in the `<OUTPUT_FORMAT mode="json">` schema (`SCHEMA_ATOMS.next_action`), purging duplicate `<ROUTING_RULES>` text blocks from `<DIRECTIVES>`.
+    - **Keyword Triggers & Subtext Ingestion**: Co-located the full keyword whitelist directly into the JSON schema definition in `SCHEMA_ATOMS.keywords`, eliminating redundant `<KEYWORD_DIRECTIVES>` text walls while preserving runtime keyword subtext resolution in `dynamics.js`. Pruned unused keyword directive builders and imports from `builder.js`.
+    - **Unified Constraints Architecture**: Consolidated scattered negative directives from `protocols.js` (`SENTENCE_FORMULAS`, `CLICHES`) and exhausted phrasing into a unified `<CONSTRAINTS>` layer via `render_constraints_directive` in `reflex.js`, completely retiring the legacy `<SPENT_LEDGER>` wrapper.
 
 ---
 

@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Director Schema Co-Location & Unified Constraints Architecture (Wave 2)**:
+  - **Director Schema Routing & Keyword Co-Location (`output.js`, `prompts.js`, `task.js`, `builder.js`)**:
+    - Co-located all `next_action` turn allocation options (companion, fractal, secondary NPC, genesis minting, and fatal/triumphant epilogues) and the full keyword whitelist directly into the `<OUTPUT_FORMAT mode="json">` schema definition in `SCHEMA_ATOMS.next_action` and `SCHEMA_ATOMS.keywords`.
+    - Purged duplicate text-wall blocks (`<ROUTING_RULES>` and `<KEYWORD_DIRECTIVES>`) from Director `<DIRECTIVES>`, eliminating redundant instructions and reducing token load.
+    - Cleaned unused keyword helper imports and variables from `builder.js`.
+  - **Unified `<CONSTRAINTS>` Layer & Negative Directive Consolidation (`reflex.js`, `protocols.js`, `prompts.js`, `builder.js`)**:
+    - Consolidated scattered negative prose constraints (Overarching Quests, Synthetic Formulas, Cliché Clusters) from `protocols.js` alongside recent exhausted phrasing into a unified `<CONSTRAINTS>` directive block without double negatives, retiring the legacy `<SPENT_LEDGER>` wrapper.
+    - Exported `PROSE_CONSTRAINTS` catalog and `render_constraints_directive` from `reflex.js`, threading unified constraints into character and scene tasks in `builder.js`.
+  - **Pipeline Verification & Single-File Build (`simulation-audit.js`, `dist/index.html`)**:
+    - Synchronized `SimulationAudit` drivetrain checks to validate schema-co-located keywords and unified character `<CONSTRAINTS>`, passing all 21 pipeline checks in `tmp/audit_report.md`.
+    - Validated all 71 test suites (1,430 unit tests) green and successfully rebuilt single-file distribution bundle via `npm run deploy:prepare`.
+
 - **Unified Turn Architecture, Director Hygiene & Universal Sovereignty**:
   - **Universal `<ACTION round="..." origin="...">` Envelope (`text.js`, `history.js`, `task.js`)**:
     - Unified all conversation history entries and immediate task inputs across the entire prompt pipeline into a singular, symmetrical schema: `<ACTION round="X" origin="...">...</ACTION>`.

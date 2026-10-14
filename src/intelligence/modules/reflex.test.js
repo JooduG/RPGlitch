@@ -30,6 +30,8 @@ import {
   render_momentum_directive_xml,
   extract_spent_ledger,
   render_spent_ledger_directive,
+  render_constraints_directive,
+  PROSE_CONSTRAINTS,
   MANNERISM_PATTERNS,
 } from "./reflex.js";
 import { render_subtext_xml, resolve_physics_protocols } from "../dynamics.js";
@@ -397,10 +399,24 @@ describe("reflex.js - spent ledger engine", () => {
     };
 
     const directive = render_spent_ledger_directive(mock_ledger);
-    expect(directive).toContain("<SPENT_LEDGER>");
+    expect(directive).not.toContain("<SPENT_LEDGER>");
     expect(directive).toContain("<CONSTRAINTS>");
-    expect(directive).toContain('<ITEM>"gripped the hilt"</ITEM>');
-    expect(directive).toContain('<ITEM>"shifted his weight"</ITEM>');
+    expect(directive).toContain('Exhausted Openings: Do not repeat or echo recent phrasing: "gripped the hilt", "shifted his weight".');
+  });
+
+  it("renders unified constraints directive with static constraints and spent ledger", () => {
+    const mock_ledger = {
+      opening_clauses: ["silvers looked toward the gate"],
+      mannerisms: ["gripped the hilt", "shifted his weight"],
+      spent_items: ["gripped the hilt", "shifted his weight"],
+    };
+
+    const directive = render_constraints_directive(mock_ledger);
+    expect(directive).toContain("<CONSTRAINTS>");
+    expect(directive).toContain(PROSE_CONSTRAINTS.QUESTS);
+    expect(directive).toContain(PROSE_CONSTRAINTS.SYNTHETIC_FORMULAS);
+    expect(directive).toContain(PROSE_CONSTRAINTS.CLICHES);
+    expect(directive).toContain('Exhausted Openings: Do not repeat or echo recent phrasing: "gripped the hilt", "shifted his weight".');
   });
 
   it("exports frozen pattern array", () => {
@@ -440,6 +456,7 @@ describe("reflex.js - spent ledger engine", () => {
 
 /**
  * CHANGELOG
+ * - 2026-10-14: Wave 2 — Updated tests to assert unified <CONSTRAINTS> directive without <SPENT_LEDGER>; added coverage for render_constraints_directive with PROSE_CONSTRAINTS.
  * - 2026-10-14: Atom 2.4 — Added unit tests for render_momentum_directive_xml.
  * - 2026-10-14: Phase 1 — Updated render_spent_ledger_directive tests to expect SPENT_LEDGER pseudo-XML elements.
  */

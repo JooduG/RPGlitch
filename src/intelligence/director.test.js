@@ -95,13 +95,14 @@ describe("Director Quick Shot Prompt (compile_prompt director)", () => {
     flags: {},
   };
 
-  it("exposes <AVAILABLE_KEYWORDS> and JSON schema keys", () => {
+  it("exposes available keywords and routing rules co-located in JSON schema", () => {
     const result = compile_prompt("director", { ...base_payload(), compressed_snapshot: base_snapshot });
-    expect(result.system).toContain("<AVAILABLE_KEYWORDS>");
-    expect(result.system).toContain("SHAME");
-    expect(result.system).toContain("BETRAYAL");
     expect(result.system).toContain('"next_action"');
     expect(result.system).toContain('"keywords"');
+    expect(result.system).toContain("SHAME");
+    expect(result.system).toContain("BETRAYAL");
+    expect(result.system).toContain("AI_CHARACTER");
+    expect(result.system).toContain("FRACTAL");
     expect(result.system).toContain('"directors_note"');
     expect(result.system).toContain('"dynamics_deltas"');
     expect(result.system).toContain('"visual_staging"');
@@ -121,7 +122,6 @@ describe("Director Quick Shot Prompt (compile_prompt director)", () => {
     const result = compile_prompt("director", env_payload);
     expect(result.system).toContain("<ENVIRONMENTAL_HINT>");
     expect(result.system).toContain('"speaker" to "fractal"');
-    expect(result.system).toContain("<ROUTING_RULES>");
   });
 
   it("gives on-stage NPCs a full sheet and never restates the sheeted trio in a CAST block", () => {
@@ -608,6 +608,7 @@ describe("Atom 2.5 Climax Sovereignty Dual Defense", () => {
 
 /**
  * CHANGELOG
+ * - 2026-10-14: Wave 2 — Updated Director keyword and routing assertions to validate schema-level co-location; purged <ROUTING_RULES> tag expectation.
  * - 2026-10-14: Phase 3 Atom 3.4 — updated on-stage NPC assertions to validate unified <CHARACTER id="NPC-ELIAS" name="Elias"> envelope.
  * - 2026-10-14: Atom 2.5 — Added unit tests for is_explicit_player_destruction_declared and Climax Sovereignty Dual Defense in normalize_director_data.
  * - 2026-10-14: Phase 1 — Updated INPUT assertions to typed/omitted attributes; purged alternative_branches tests and USER_PERSONA_LOCK tests under P4 single-source Sovereignty.

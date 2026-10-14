@@ -171,7 +171,7 @@ export const SimulationAudit = {
     check("director:system_has_role_line", director.system.includes("You are the Director"));
     check("director:system_has_DYNAMIC_AXES", director.system.includes("<DYNAMIC_AXES"));
     check("director:system_has_ENTITIES", director.system.includes("<ENTITIES>"));
-    check("director:task_has_KEYWORD_DIRECTIVES", director.system.includes("<KEYWORD_DIRECTIVES>"));
+    check("director:task_has_schema_keywords", director.system.includes('"keywords": ["<1-5 from:'));
     check(
       "director:system_no_empty_protocols",
       !director.system.includes("<CORE_PROTOCOLS></CORE_PROTOCOLS>") && !director.system.includes("<CORE_PROTOCOLS>\n  </CORE_PROTOCOLS>"),
@@ -195,6 +195,7 @@ export const SimulationAudit = {
     check("character:task_has_CURRENTS", character.system.includes("<CURRENTS>"));
     check("character:task_has_DELIVERY_POSTURE", character.system.includes("<DELIVERY_POSTURE>"));
     check("character:task_has_THINK", character.system.includes("<THINK>"));
+    check("character:task_has_CONSTRAINTS", character.system.includes("<CONSTRAINTS>"));
 
     return { passed, failed };
   },
@@ -235,5 +236,6 @@ export const SimulationAudit = {
  * - 2026-09-19: Retired prompt_builder import. Migrated PHASE 3 synthesis to compile_prompt("director") and compile_prompt("interaction") under P4 Zero Backwards Compatibility (Mega Report D1).
  * - 2026-09-19: Retired stale character:system_has_DYNAMIC_AXES verification check — DYNAMIC_AXES are now exclusively in the Director shot's <DYNAMICS> envelope and are conditional on entity dynamics data.
  * - 2026-09-24: Updated context_builder import from retired payload.js to builder.js under P4 Zero Backwards Compatibility.
+ * - 2026-10-14: Wave 2 — Updated pipeline verification to validate schema-co-located keywords and unified character <CONSTRAINTS> layer, retiring stale director:task_has_KEYWORD_DIRECTIVES check.
  * - 2026-10-14: Added direct Node CLI execution delegation to Vitest and lazy-loaded Vite/Svelte dependencies so 'node .agents/skills/simulation/scripts/simulation-audit.js' runs seamlessly from the terminal.
  */

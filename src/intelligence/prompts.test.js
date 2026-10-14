@@ -153,12 +153,7 @@ describe("prompt-modes registry", () => {
   });
 
   it("composes the Shot-2A prose protocol bundles without duplicated key lists", () => {
-    const discipline = [
-      "CORE_PROTOCOLS.PROSE_DISCIPLINE.TYPOGRAPHY",
-      "CORE_PROTOCOLS.PROSE_DISCIPLINE.SENTENCE_FORMULAS",
-      "CORE_PROTOCOLS.PROSE_DISCIPLINE.SCENE_MOMENTUM",
-      "CORE_PROTOCOLS.PROSE_DISCIPLINE.CLICHES",
-    ];
+    const discipline = ["CORE_PROTOCOLS.PROSE_DISCIPLINE.TYPOGRAPHY", "CORE_PROTOCOLS.PROSE_DISCIPLINE.SCENE_MOMENTUM"];
     const compose = (natural) => [
       "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PRESENT",
       "CORE_PROTOCOLS.GROUNDING",
@@ -274,9 +269,10 @@ describe("fused rendering per mode", () => {
     expect(narrator.system).not.toContain("<NATURAL_DIALOGUE>");
     expect(narrator.system).toContain("<TYPOGRAPHY>");
     expect(narrator.system).toContain("<GROUNDING>");
-    expect(narrator.system).toContain("<SENTENCE_FORMULAS>");
     expect(narrator.system).toContain("<SCENE_MOMENTUM>");
-    expect(narrator.system).toContain("<CLICHES>");
+    expect(narrator.system).toContain("<CONSTRAINTS>");
+    expect(narrator.system).toContain("Synthetic Formulas");
+    expect(narrator.system).toContain("Cliché Clusters");
   });
 });
 
@@ -871,5 +867,6 @@ describe("metasyntax gate — compiled prompt hygiene", () => {
  * - 2026-09-11: Renamed from prompt-modes.test.js to prompts.test.js reflecting prompts.js master registry.
  * - 2026-09-11: Moved prompt-modes.test.js to root of intelligence folder and updated imports to story-prompts.js and builder.js.
  * - 2026-10-14: Atom 2.2 & 2.4 — Updated director_directives momentum test to assert typed XML tags <MOMENTUM tier="soft|critical">.
+ * - 2026-10-14: Wave 2 — Updated narrator protocol assertions to validate <CONSTRAINTS> inclusion and migration of formulas/clichés from PROSE_DISCIPLINE.
  * - 2026-10-14: Phase 1 — Updated INPUT assertions to omit channel attribute on standard protagonist actions.
  */

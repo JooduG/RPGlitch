@@ -38,16 +38,11 @@ import { resolve_entities } from "./modules/entities.js";
 import { render_dynamics_axes_xml, render_subtext_xml } from "./dynamics.js";
 
 import { render_history, resolve_history, HISTORY_TOKEN_BUDGET } from "./modules/history.js";
-import {
-  render_available_keywords_xml,
-  render_keyword_directives_xml,
-  resolve_character_action_directive,
-  resolve_scene_action_directive,
-} from "./modules/task.js";
-import { extract_spent_ledger, render_spent_ledger_directive } from "./modules/reflex.js";
+import { resolve_character_action_directive, resolve_scene_action_directive } from "./modules/task.js";
+import { extract_spent_ledger, render_constraints_directive } from "./modules/reflex.js";
 import { resolve_optics_cinematography } from "./modules/style.js";
 import { get_output_format } from "./modules/output.js";
-import { DYNAMICS_AXES, PHYSICS_PROTOCOLS, AVAILABLE_KEYWORDS, evaluate_dynamics_rules, evaluate_subtext_protocols } from "./dynamics.js";
+import { DYNAMICS_AXES, PHYSICS_PROTOCOLS, evaluate_dynamics_rules, evaluate_subtext_protocols } from "./dynamics.js";
 import { temporal_engine, resolve_vector_pool, resolve_settled_facts } from "./temporal.js";
 
 /**
@@ -336,10 +331,10 @@ function resolve_prose_bag(config, context, bag_inputs) {
   const has_prior_relationship = Boolean(speaker_name_lc && listener_name_lc && has_bracket_bond_between(active_speaker, listener_name_lc));
   const is_first_contact = !has_prior_relationship && director_data?.first_contact === true;
   const base_action_directive = resolve_character_action_directive({ speaker_name, is_first_contact, is_ghostwrite });
-  const spent_ledger_directive = render_spent_ledger_directive(
+  const constraints_directive = render_constraints_directive(
     extract_spent_ledger(context.recent_history || context.simulation_log || context.raw_messages || []),
   );
-  const action_directive = [base_action_directive, spent_ledger_directive].filter(Boolean).join("\n\n");
+  const action_directive = [base_action_directive, constraints_directive].filter(Boolean).join("\n\n");
   const input_origin_entity = is_ghostwrite ? active_speaker : entities?.USER;
   const input_origin = input_origin_entity?.id || input_origin_entity?.name || "USER";
   const style = style_snapshot.style;
@@ -500,10 +495,10 @@ function normalize_narrator_context(config, context) {
     conclusion_status: context.conclusion_status ?? null,
     input: context.input ?? "",
   });
-  const spent_ledger_directive = render_spent_ledger_directive(
+  const constraints_directive = render_constraints_directive(
     extract_spent_ledger(context.recent_history || context.simulation_log || context.raw_messages || []),
   );
-  const action_directive = [base_action_directive, spent_ledger_directive].filter(Boolean).join("\n\n");
+  const action_directive = [base_action_directive, constraints_directive].filter(Boolean).join("\n\n");
   const input_origin_entity = entities?.USER;
   const input_origin = input_origin_entity?.id || input_origin_entity?.name || "USER";
   const turn_meta = context.meta ?? {};
@@ -587,7 +582,7 @@ function normalize_director_context(config, context) {
       },
     };
   }
-  const { render_accessors, style_snapshot } = normalize_context(context);
+  const { render_accessors } = normalize_context(context);
   const snapshot_bag = context.compressed_snapshot || {};
   const raw_messages = context.raw_messages || [];
   const simulation_log = context.simulation_log || [];
@@ -596,7 +591,6 @@ function normalize_director_context(config, context) {
   const merged_dynamics = { ...(snapshot_bag?.fractal?.dynamics || {}), ...(snapshot_bag?.ai?.dynamics || {}) };
   const last_ai_message = (active_messages || []).filter((message) => message.role === "model").at(-1);
   const last_ai_text = last_ai_message ? strip_cognition_blocks(last_ai_message.content || last_ai_message.text || "").trim() : "";
-  const keyword_directives_xml = render_keyword_directives_xml(render_available_keywords_xml(style_snapshot.keywords, AVAILABLE_KEYWORDS));
   const director_speaker = context.entities?.AI || null;
   const director_listener = context.entities?.USER || null;
   const director_relational_context = create_relational_context({
@@ -636,7 +630,6 @@ function normalize_director_context(config, context) {
       input: context.input ?? "",
       last_ai_text,
       schema,
-      keyword_directives: keyword_directives_xml,
       stagnation_turns: context.stagnation_turns ?? context.meta?.stagnation_turns ?? 0,
       relational_context: director_relational_context,
     },
@@ -999,5 +992,6 @@ export const MODE_ADAPTERS = {
  * - 2026-10-14: Phase B — Atom 3.3 RelationalContext tuple wiring: builder.js constructs RelationalContext tuple via create_relational_context across resolve_prose_bag, normalize_narrator_context, and normalize_director_context, forwarding it to sheets_args and task_params.
  * - 2026-10-14: Phase 1 Prompt Pipeline Hygiene & P4 Purges — (1) Purged dead lorebook_args constructions; (2) Computed has_candidates via resolve_available_entities and passed to Director task_params.
  * - 2026-10-14: Atom 3.1 — Epistemic-First Sequencing Invariant (Issue 20). Removed premature parse_macros from accessors.past and accessors.future; un-macro'd text is returned to sheets.js for epistemic sanitization prior to macro resolution.
+ * - 2026-10-14: Wave 2 — Routed prose action directives through render_constraints_directive (unifying quests, synthetic formulas, clichés, and spent openings into <CONSTRAINTS>); purged redundant keyword_directives from Director task_params (co-located in output schema).
  * - 2026-10-14: Phase C — Passed is_ghostwrite flag into resolve_character_action_directive in resolve_prose_bag for scoped ghostwrite base directive routing.
  */

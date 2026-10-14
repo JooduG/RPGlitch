@@ -700,28 +700,39 @@ export function extract_spent_ledger(messages, options = {}) {
   });
 }
 
-/**
- * Compiles a spent ledger into a prompt directive prohibiting repetition.
- *
- * @param {ReturnType<typeof extract_spent_ledger>} spent_ledger
- * @returns {string}
- */
-export function render_spent_ledger_directive(spent_ledger) {
-  if (!spent_ledger || !Array.isArray(spent_ledger.spent_items) || spent_ledger.spent_items.length === 0) {
-    return "";
-  }
+export const PROSE_CONSTRAINTS = Object.freeze({
+  QUESTS: "Overarching Quests: Never resolve macro scenario mysteries, unearned feats, or declare final victory in standard dialogue turns.",
+  SYNTHETIC_FORMULAS:
+    "Synthetic Formulas: Denial-then-affirmation ('X did not just Y; it Z\\'d'), antithetical formulas ('Not X, but Y'), symmetrical binary comparisons, appositive dialogue sound tags, and formulaic action-dialogue sandwiches.",
+  CLICHES:
+    "Cliché Clusters: 'spoke volumes', 'a testament to', 'tapestry of', 'shivers down the spine', 'unspoken understanding', 'dance of shadows', and Wattpad dominance tropes ('feisty', 'playing with fire', 'death of me', 'mine').",
+});
 
-  const items = spent_ledger.spent_items.map((item) => render_xml_tag({ tag: "ITEM", children: [`"${prompt_escape(item)}"`], inline: true }));
-  const patterns = render_xml_tag({
+/**
+ * Compiles unified prose constraints into a <CONSTRAINTS> directive.
+ * Groups overarching quests, synthetic formulas, cliché clusters, and exhausted phrasing.
+ *
+ * @param {ReturnType<typeof extract_spent_ledger>|null} [spent_ledger=null]
+ * @param {{ include_static?: boolean }} [options={}]
+ * @returns {string} Formatted <CONSTRAINTS> XML block
+ */
+export function render_constraints_directive(spent_ledger = null, { include_static = true } = {}) {
+  const items = [];
+  if (include_static) {
+    items.push(
+      render_xml_tag({ tag: "ITEM", children: [PROSE_CONSTRAINTS.QUESTS], inline: true }),
+      render_xml_tag({ tag: "ITEM", children: [PROSE_CONSTRAINTS.SYNTHETIC_FORMULAS], inline: true }),
+      render_xml_tag({ tag: "ITEM", children: [PROSE_CONSTRAINTS.CLICHES], inline: true }),
+    );
+  }
+  if (spent_ledger && Array.isArray(spent_ledger.spent_items) && spent_ledger.spent_items.length > 0) {
+    const formatted = spent_ledger.spent_items.map((item) => `"${prompt_escape(item)}"`).join(", ");
+    items.push(render_xml_tag({ tag: "ITEM", children: [`Exhausted Openings: Do not repeat or echo recent phrasing: ${formatted}.`], inline: true }));
+  }
+  if (items.length === 0) return "";
+  return render_xml_tag({
     tag: "CONSTRAINTS",
     children: items,
-    indent: 2,
-    child_indent: 4,
-    separator: "\n",
-  });
-  return render_xml_tag({
-    tag: "SPENT_LEDGER",
-    children: ["The following mannerisms and opening phrasing have been exhausted in recent turns. Do NOT repeat or echo them:", patterns],
     indent: 0,
     child_indent: 2,
     separator: "\n",
@@ -729,7 +740,22 @@ export function render_spent_ledger_directive(spent_ledger) {
 }
 
 /**
+ * Compiles a spent ledger into a prompt directive prohibiting repetition.
+ *
+ * @param {ReturnType<typeof extract_spent_ledger>} spent_ledger
+ * @param {{ include_static?: boolean }} [options={}]
+ * @returns {string}
+ */
+export function render_spent_ledger_directive(spent_ledger, { include_static = false } = {}) {
+  if (!spent_ledger || !Array.isArray(spent_ledger.spent_items) || spent_ledger.spent_items.length === 0) {
+    return include_static ? render_constraints_directive(null, { include_static: true }) : "";
+  }
+  return render_constraints_directive(spent_ledger, { include_static });
+}
+
+/**
  * CHANGELOG
+ * - 2026-10-14: Wave 2 — Exported PROSE_CONSTRAINTS and render_constraints_directive, unifying overarching quests, synthetic formulas, cliché clusters, and exhausted phrasing into clean <CONSTRAINTS> without double negatives; retired <SPENT_LEDGER> wrapper.
  * - 2026-10-14: Atom 2.4 — exported render_momentum_directive_xml(stagnation_turns) emitting typed <MOMENTUM> XML directive for soft (>=8) and critical (>=16) stagnation thresholds.
  * - 2026-10-14: Refactored render_spent_ledger_directive to emit typed pseudo-XML (<SPENT_LEDGER><PROHIBITED_PATTERNS><ITEM>...); stripped conflicting sentence counts from PACING bodies to leave BEAT_BUDGET as the sole numerical controller.
  * - Track 4.2: Directorial Momentum Tiers & Stagnation Backstop — added MOMENTUM_TIERS calibration config (SOFT_PERMIT_THRESHOLD=8, HARD_MANDATE_THRESHOLD=16, DRIFT_STAGNATION_THRESHOLD=0.15) to REFLEX_DEFAULTS; added MOMENTUM_SOFT_PERMIT and MOMENTUM_HARD_MANDATE atoms to REFLEX_LIBRARY.CONDITIONALS; resolve_prose_posture_plan lifts anti_staging at >= 8 turns and records momentum constraint flags; render_prose_posture_plan emits matching envelopes.

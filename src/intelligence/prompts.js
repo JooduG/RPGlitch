@@ -145,9 +145,7 @@ function prose_protocols({ include_dialogue = false } = {}) {
     "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PRESENT",
     "CORE_PROTOCOLS.GROUNDING",
     "CORE_PROTOCOLS.PROSE_DISCIPLINE.TYPOGRAPHY",
-    "CORE_PROTOCOLS.PROSE_DISCIPLINE.SENTENCE_FORMULAS",
     "CORE_PROTOCOLS.PROSE_DISCIPLINE.SCENE_MOMENTUM",
-    "CORE_PROTOCOLS.PROSE_DISCIPLINE.CLICHES",
     ...(include_dialogue ? ["CORE_PROTOCOLS.PROSE_DISCIPLINE.NATURAL_DIALOGUE"] : []),
     "CORE_PROTOCOLS.ALTERNATION_OPTIONS",
   ];
@@ -169,7 +167,6 @@ export function director_directives({ has_input = false, round = 1, has_environm
       group: [`REFLEX.TURN_STATE.${situation.evaluation}`, ...(situation.round_one ? ["REFLEX.TURN_STATE.ROUND_ONE"] : [])],
     },
     ...(has_environmental_hint ? ["REFLEX.CONDITIONALS.ENVIRONMENTAL_HINT"] : []),
-    "DIRECTOR.ROUTING_RULES",
     ...(momentum ? [momentum] : []),
   ];
 }
@@ -606,5 +603,6 @@ export default PROMPTS;
  * - 2026-09-11: Renamed prompt-modes.js -> prompts.js. Elevated to module-keyed manifest registering all 8 prompt modes (system, constitution, protocols, entities, task).
  * - 2026-09-11: Converted prompt-modes.json into canonical ESM module with frozen schemas.
  * - 2026-10-14: Atom 2.2, 2.3 & 2.4 — updated director_directives to use unified DIRECTOR.ROUTING_RULES and reflex render_momentum_directive_xml; purged DIRECTOR.DYNAMICS_CALIBRATION, DIRECTOR.ROUTING, DIRECTOR.CONVERGENCE, and task momentum keys.
+ * - 2026-10-14: Wave 2 — Purged duplicate DIRECTOR.ROUTING_RULES from director_directives (co-located in output schema); migrated SENTENCE_FORMULAS and CLICHES from prose_protocols into unified CONSTRAINTS layer.
  * - 2026-10-14: Phase 1 Prompt Pipeline Hygiene & P4 Purges — (1) Set constitution: true for director mode and added axiomatic_constitution to DIRECTOR_LAYERS; (2) Purged alternative_branches from DIRECTOR_SCHEMA; (3) Purged AGENCY from prose_protocols; (4) Purged USER_PERSONA_LOCK and BRANCHES from director_directives and gated CONVERGENCE on has_candidates.
  */
