@@ -140,7 +140,7 @@ Close "_thought_process" before composing the image payload. This calibration is
   // ── 1.4 Shot 2A: Prose Turn Directives (character / scene / ghostwrite) ─────
   PROSE: Object.freeze({
     CHARACTER: Object.freeze({
-      BASE: "Own only your voice, actions, and perspective; never speak, act, or decide for other participants, or resolve overarching quests; end on a natural beat.",
+      BASE: "Advance the scene authentically from your own perspective; end on a natural beat.",
       GHOSTWRITE:
         "Draft an assistive turn suggestion for {speaker_name} to review, edit, or send. Embody {speaker_name}'s voice, perspective, and physical agency without speaking for other participants.",
     }),
@@ -303,26 +303,23 @@ export const TASK_INPUT_TYPES = Object.freeze({
 export function render_task_input({ input = "", input_origin = null, input_round = null, input_type = null, input_channel = null } = {}) {
   if (!String(input || "").trim()) return "";
   const attributes = [];
-  if (input_origin) attributes.push(`origin="${escape_xml(String(input_origin))}"`);
   if (input_round != null && String(input_round) !== "") attributes.push(`round="${escape_xml(String(input_round))}"`);
+  if (input_origin) attributes.push(`origin="${escape_xml(String(input_origin))}"`);
   const effective_type = input_type || (input_channel && input_channel !== "action" ? input_channel : null);
   if (effective_type && effective_type !== "action") attributes.push(`type="${escape_xml(String(effective_type))}"`);
   const attribute_string = attributes.length ? ` ${attributes.join(" ")}` : "";
   const content = prompt_escape(String(input).trim());
-  return `<INPUT${attribute_string}>${inline_or_block(content, 2)}</INPUT>`;
+  return `<ACTION${attribute_string}>${inline_or_block(content, 2)}</ACTION>`;
 }
 
 /**
- * Renders a semantic turn block (<PREVIOUS_TURN> or <CURRENT_TURN>) for Shot 1 Director signals.
+ * Renders a semantic turn block for Shot 1 Director signals.
  *
- * @param {{ tag: string, input?: string, origin?: string|null }} parameters
+ * @param {{ tag?: string, input?: string, origin?: string|null, round?: number|string|null }} parameters
  * @returns {string}
  */
-export function render_task_turn({ tag, input = "", origin = null } = {}) {
-  if (!String(input || "").trim()) return "";
-  const attrs = origin ? ` origin="${escape_xml(String(origin))}"` : "";
-  const content = prompt_escape(String(input).trim());
-  return `<${tag}${attrs}>${inline_or_block(content, 2)}</${tag}>`;
+export function render_task_turn({ _tag = "ACTION", input = "", origin = null, round = null } = {}) {
+  return render_task_input({ input, input_origin: origin, input_round: round });
 }
 
 // Track 0.10: moved verbatim from reflex.js Section 6 - the Director keyword
@@ -497,9 +494,11 @@ export const TASK_SLOT_RESOLVERS = Object.freeze({
     const entities = values.entities || {};
     const user_origin = entities?.USER?.id || entities?.USER?.name || "USER";
     const ai_origin = entities?.AI?.id || entities?.AI?.name || "AI_CHARACTER";
+    const current_round = values.round ?? null;
+    const previous_round = values.last_ai_round ?? (current_round != null ? Math.max(0, Number(current_round) - 1) : null);
     return [
-      values.last_ai_text ? render_task_turn({ tag: "PREVIOUS_TURN", input: values.last_ai_text, origin: ai_origin }) : "",
-      render_task_turn({ tag: "CURRENT_TURN", input: values.input, origin: user_origin }),
+      values.last_ai_text ? render_task_input({ input: values.last_ai_text, input_origin: ai_origin, input_round: previous_round }) : "",
+      render_task_input({ input: values.input, input_origin: user_origin, input_round: current_round }),
     ]
       .filter(Boolean)
       .join("\n");

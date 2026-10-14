@@ -83,8 +83,8 @@ describe("src/intelligence/modules/history.js", () => {
       ];
 
       const formatted = render_history(history, { limit: 16, max_chars: 400, collapse: false });
-      expect(formatted).toContain('<ENTRY round="1" origin="Benedict">Is the road safe?</ENTRY>');
-      expect(formatted).toContain('<ENTRY round="2" origin="Elias">The pass is blocked by snow.</ENTRY>');
+      expect(formatted).toContain('<ACTION round="1" origin="Benedict">Is the road safe?</ACTION>');
+      expect(formatted).toContain('<ACTION round="2" origin="Elias">The pass is blocked by snow.</ACTION>');
       expect(formatted).not.toContain("<think>");
       expect(formatted).not.toContain("It is treacherous.");
     });
@@ -92,7 +92,7 @@ describe("src/intelligence/modules/history.js", () => {
     it("prefers stamped entity_id over origin and character_name", () => {
       const history = [{ role: "model", character_name: "Benedict", origin: "OLD_ID", entity_id: "CHAR_BEN", text: "Stamped." }];
       const formatted = render_history(history, { limit: 16, collapse: false });
-      expect(formatted).toContain('<ENTRY round="1" origin="CHAR_BEN">Stamped.</ENTRY>');
+      expect(formatted).toContain('<ACTION round="1" origin="CHAR_BEN">Stamped.</ACTION>');
     });
 
     it("resolves origins fallback gracefully when character_name is absent", () => {
@@ -129,7 +129,7 @@ describe("src/intelligence/modules/history.js", () => {
       const xml = render_input_history_xml(history, { tag: "INPUT_HISTORY", limit: 5 });
 
       expect(xml).toContain("<INPUT_HISTORY>");
-      expect(xml).toContain('<ENTRY round="1" origin="Benedict">Hello</ENTRY>');
+      expect(xml).toContain('<ACTION round="1" origin="Benedict">Hello</ACTION>');
       expect(xml).toContain("</INPUT_HISTORY>");
     });
 

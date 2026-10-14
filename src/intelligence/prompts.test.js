@@ -261,9 +261,9 @@ describe("fused rendering per mode", () => {
     expect(assert_fused_shape(result, "ghostwrite")).toBe(true);
   });
 
-  it("carries the <INPUT origin> inside the interaction task", () => {
+  it("carries the <ACTION origin> inside the interaction task", () => {
     const interaction = compile_prompt("interaction", { round: 3, entities, input: "Beast steps forward." });
-    expect(interaction.system).toContain('<INPUT origin="SILVERS" round="3">Beast steps forward.</INPUT>');
+    expect(interaction.system).toContain('<ACTION round="3" origin="SILVERS">Beast steps forward.</ACTION>');
   });
 
   it("strictly respects the manifest protocol list: interaction includes NATURAL_DIALOGUE, narrator omits it", () => {
@@ -461,7 +461,7 @@ describe("ghostwrite identity", () => {
     });
     const task = system;
     expect(system).toContain("You are Lord Benedict Silvers within FRACTAL Project Tartarus, interacting with Beast.");
-    expect(task).toContain('<INPUT origin="SILVERS">I step forward and bare my teeth.</INPUT>');
+    expect(task).toContain('<ACTION origin="SILVERS">I step forward and bare my teeth.</ACTION>');
     expect(task).toContain("<DELIVERY_POSTURE>");
     expect(task).toContain("Advance the scene in response to");
   });
@@ -479,7 +479,7 @@ describe("ghostwrite identity", () => {
     const interaction = compile_prompt("interaction", { round: 3, entities: _relocated_prompt_entities, input: "Beast steps forward." });
     expect(interaction.system).toContain('id="L3" title="Sovereignty"');
     expect(ghostwrite.system).toContain('id="L3" title="Sovereignty"');
-    expect(ghostwrite.system).toContain("The player owns their voice, body, actions, thoughts, and choices.");
+    expect(ghostwrite.system).toContain("Every participant owns their voice, body, actions, thoughts, and choices.");
   });
 });
 

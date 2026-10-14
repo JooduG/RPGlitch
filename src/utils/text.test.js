@@ -405,14 +405,14 @@ describe("filter_narrative_messages", () => {
 });
 
 describe("format_history_entries", () => {
-  it("formats messages into canonical XML <ENTRY> sequences with origin, round, and stripped think tags", () => {
+  it("formats messages into canonical XML <ACTION> sequences with origin, round, and stripped think tags", () => {
     const messages = [
       { role: "user", text: "Hello", character_name: "Orion", origin: "ORION" },
       { role: "assistant", text: "<think>He greets me.</think>Greetings.", character_name: "Glitch", origin: "GLITCH" },
     ];
     const xml = format_history_entries(messages);
-    expect(xml).toContain('<ENTRY round="1" origin="ORION">Hello</ENTRY>');
-    expect(xml).toContain('<ENTRY round="2" origin="GLITCH">Greetings.</ENTRY>');
+    expect(xml).toContain('<ACTION round="1" origin="ORION">Hello</ACTION>');
+    expect(xml).toContain('<ACTION round="2" origin="GLITCH">Greetings.</ACTION>');
     expect(xml).not.toContain("<think>");
   });
 
@@ -422,7 +422,7 @@ describe("format_history_entries", () => {
       { role: "user", text: "Two", character_name: "Orion" },
     ];
     const xml = format_history_entries(messages, { separator: "\n\n", indent: 2 });
-    expect(xml).toBe('  <ENTRY round="1" origin="Orion">One\n\nTwo</ENTRY>');
+    expect(xml).toBe('  <ACTION round="1" origin="Orion">One\n\nTwo</ACTION>');
   });
 
   it("returns empty string on empty or null inputs", () => {

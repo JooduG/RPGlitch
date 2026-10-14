@@ -110,7 +110,7 @@ ${SEP}
 
     expect(result.character_prompt).toContain("<DELIVERY_POSTURE>");
     expect(result.character_prompt).toContain("<THINK>");
-    expect(result.character_prompt).toMatch(/<INPUT origin="JULIEN"/);
+    expect(result.character_prompt).toMatch(/<ACTION round="\d+" origin="JULIEN"/);
   });
 
   it("Pipeline verification passes all critical checks", async () => {
@@ -141,8 +141,8 @@ ${SEP}
 
     const result = await SimulationAudit.execute_turn("I submit.", scenario);
 
-    expect(result.director_prompt).toContain('<PREVIOUS_TURN origin="AI">');
-    expect(result.director_prompt).toContain('<CURRENT_TURN origin="USER">');
+    expect(result.director_prompt).toContain('<ACTION round="0" origin="AI">');
+    expect(result.director_prompt).toContain('<ACTION round="1" origin="USER">');
     expect(result.director_prompt).toContain("The vampire lord smiles coldly.");
   });
 });

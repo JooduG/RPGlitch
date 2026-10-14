@@ -294,7 +294,7 @@ export function render_history_plan(plan, { indent = 0 } = {}) {
   if (plan.kind === "preformatted") return plan.preformatted;
   const prefix = indent > 0 ? " ".repeat(indent) : "";
   return plan.included
-    .map((record) => `${prefix}<ENTRY round="${record.round}" origin="${escape_xml(record.origin)}">${prompt_escape(record.text)}</ENTRY>`)
+    .map((record) => `${prefix}<ACTION round="${record.round}" origin="${escape_xml(record.origin)}">${prompt_escape(record.text)}</ACTION>`)
     .join("\n");
 }
 

@@ -127,7 +127,7 @@ describe("llm_service instruction envelope", () => {
       captured = typeof opts.instruction === "function" ? opts.instruction() : opts.instruction;
       return "ok";
     };
-    const sealed = '<SYSTEM mode="narrator">\n<HISTORY>\n<ENTRY round="1" origin="User">I wait.</ENTRY>\n</HISTORY>\n\n<TASK></TASK>\n</SYSTEM>';
+    const sealed = '<SYSTEM mode="narrator">\n<HISTORY>\n<ACTION round="1" origin="User">I wait.</ACTION>\n</HISTORY>\n\n<TASK></TASK>\n</SYSTEM>';
     try {
       await llm_service.generate(
         {

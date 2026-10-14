@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Unified Turn Architecture, Director Hygiene & Universal Sovereignty**:
+  - **Universal `<ACTION round="..." origin="...">` Envelope (`text.js`, `history.js`, `task.js`)**:
+    - Unified all conversation history entries and immediate task inputs across the entire prompt pipeline into a singular, symmetrical schema: `<ACTION round="X" origin="...">...</ACTION>`.
+    - Eliminated disparate `<ENTRY>`, `<PREVIOUS_TURN>`, `<CURRENT_TURN>`, and `<INPUT>` tags, establishing perfect serialization symmetry across all 9 prompt modes.
+  - **Director Prompt Hygiene (`prompts.js`, `builder.test.js`, `prompt-verification.js`)**:
+    - Purged `<PROSE_DISCIPLINE><SCENE_MOMENTUM>` from Shot 1 Director protocols and contract inventories; Director is a pure JSON engine for staging mechanics and dynamics deltas, not narrative prose generation.
+  - **Universal Participant Sovereignty & Base Task Deconstruction (`constitution.js`, `task.js`, `prompts.test.js`)**:
+    - Elevated Axiomatic Constitution Law L3 (`SOVEREIGNTY`) to explicitly protect every participant from being puppeteered, declaring universal voice, body, and action ownership across all characters and player personas.
+    - Deconstructed `TASK_LIBRARY.PROSE.CHARACTER.BASE`, stripping redundant agency duplication already guarded by Law L3.
+  - **Pipeline Verification & Single-File Production Build (`simulation-audit.js`, `dist/index.html`)**:
+    - Synchronized `SimulationAudit` drivetrain checks to validate `<ACTION>` tags; achieved 100% pass across all 20 pipeline checks in `tmp/audit_report.md`.
+    - Executed `npm run deploy:prepare` and `npm run build`; verified all 71 test suites (1,429 unit tests) green with single-file bundle updated.
+
 - **Relational Macro Graph, Handle Preservation & Directive Hygiene**:
   - **Entity Handle Preservation & Multi-Relation Aggregation (`macros.js`, `text.js`)**:
     - Purged legacy Rule #3 from `parse_macros` which was replacing entity handles like `@JULIEN` or `@USER` with entity names or uppercase tags (`JULIEN_THE_BANISHED_PRINCE`), keeping handles intact.

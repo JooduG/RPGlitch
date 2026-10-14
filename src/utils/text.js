@@ -1093,7 +1093,7 @@ export function format_history_entries(messages, options = {}) {
       const round_number = start_index + index + 1;
       const content = max_chars ? truncate_at_word(clean_text, max_chars) : clean_text;
 
-      return `${prefix}<ENTRY round="${round_number}" origin="${escape_xml(origin)}">${prompt_escape(content)}</ENTRY>`;
+      return `${prefix}<ACTION round="${round_number}" origin="${escape_xml(origin)}">${prompt_escape(content)}</ACTION>`;
     })
     .filter(Boolean)
     .join("\n");

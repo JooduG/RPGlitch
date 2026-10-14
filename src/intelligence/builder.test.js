@@ -301,11 +301,11 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
       input: "Bob scans the perimeter.",
     });
 
-    expect(director_package.system).toContain("<SYSTEM");
-    // Director includes GROUNDING and SCENE_MOMENTUM in CORE_PROTOCOLS
+    // Director includes GROUNDING in CORE_PROTOCOLS, but no prose SCENE_MOMENTUM
     expect(director_package.system).toContain("<CORE_PROTOCOLS>");
     expect(director_package.system).toContain("<GROUNDING>");
-    expect(director_package.system).toContain("<SCENE_MOMENTUM>");
+    expect(director_package.system).not.toContain("<SCENE_MOMENTUM>");
+    expect(director_package.system).not.toContain("<PROSE_DISCIPLINE>");
     // Schema should NOT be inside <CORE_PROTOCOLS> in system
     expect(director_package.system).not.toContain("<SCHEMA>");
     // Schema should be inside task
@@ -406,7 +406,7 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
     });
     expect(sorting_package.system).toContain('mode="sorting"');
     expect(sorting_package.messages).toBeUndefined();
-    expect(sorting_package.system).toContain('<INPUT type="ingestion">Raw bio text</INPUT>');
+    expect(sorting_package.system).toContain('<ACTION type="ingestion">Raw bio text</ACTION>');
   });
 
   it("compiles optics mode via compile_prompt", () => {
