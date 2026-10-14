@@ -46,8 +46,6 @@ const MACRO_TOKEN_RULE = " Emit @-tokens only inside bracket directives — neve
 export const PROTOCOL_LIBRARY = Object.freeze({
   // ── 1.1 Shared Grounding & Core-Prose Scaffold (<CORE_PROTOCOLS> bodies) ──
   CORE_PROTOCOLS: Object.freeze({
-    GROUNDING:
-      "Ground every beat in tangible physical reality: localized objects over repetitive posture tags, emotion through observable micro-actions, vocal shifts, and tactile resistance rather than abstract outcomes.",
     PERSPECTIVE: Object.freeze({
       TENSE: Object.freeze({
         PRESENT: "Write strictly in the present tense.",
@@ -61,7 +59,7 @@ export const PROTOCOL_LIBRARY = Object.freeze({
       }),
     }),
     PROSE_DISCIPLINE: Object.freeze({
-      TYPOGRAPHY: `Balance interior reflection against physical impact and speech. Maintain lingering sensory conditions across scene shifts. Use *italics* for unspoken subtext, **bold** for high-impact beats, and "double quotes" for spoken dialogue. Omit meta-commentary, preambles, headers, or user echoes. End on a complete sentence. Never emit @-tokens outside bracket directives in narrative prose.`,
+      TYPOGRAPHY: `Balance interior reflection against physical impact and speech: prefer localized objects over repetitive posture tags. Maintain lingering sensory conditions across scene shifts. Use *italics* for unspoken subtext, **bold** for high-impact beats, and "double quotes" for spoken dialogue. Omit meta-commentary, preambles, headers, or user echoes. End on a complete sentence. Never emit @-tokens outside bracket directives in narrative prose.`,
       SENTENCE_FORMULAS: `Eliminate synthetic sentence formulas: denial-then-affirmation ('X did not just Y; it Z'd'), antithetical formulas ('Not X, but Y'), symmetrical binary comparisons, appositive dialogue sound tags, and formulaic action-dialogue sandwiches.`,
       SCENE_MOMENTUM: `State actions directly and keep the scene moving; never stall with permission loops ('Can I ask a question?'), teasing secrets, or begging quotas.`,
       CLICHES: `Prohibit cliché clusters such as 'spoke volumes', 'a testament to', 'tapestry of', 'shivers down the spine', 'unspoken understanding', 'dance of shadows', and Wattpad dominance tropes ('feisty', 'playing with fire', 'death of me', 'mine').`,
@@ -197,6 +195,7 @@ export function resolve_protocol_plan({
   engine_tokens = {},
   has_alternation = false,
   player_name = null,
+  constraints_xml = null,
 } = {}) {
   const protocol_list = Array.isArray(protocols) ? protocols : typeof protocols === "string" ? protocols.split(",").map((item) => item.trim()) : [];
 
@@ -284,6 +283,7 @@ export function resolve_protocol_plan({
     style_kind,
     style_xml,
     disciplines: Object.freeze(disciplines.map((discipline) => Object.freeze(discipline))),
+    constraints_xml: constraints_xml || null,
     dropped: Object.freeze({ unknown: unknown_count }),
   });
 }
@@ -323,6 +323,7 @@ export function render_protocol_plan(plan) {
           separator: "\n",
         })
       : null,
+    plan.constraints_xml,
   ].filter(Boolean);
 
   if (blocks.length === 0) {
@@ -398,8 +399,20 @@ export function render_core_protocols({
   engine_tokens = {},
   has_alternation = false,
   player_name = null,
+  constraints_xml = null,
 } = {}) {
-  return render_protocol_plan(resolve_protocol_plan({ protocols, pov_protocol, style, visual_style, engine_tokens, has_alternation, player_name }));
+  return render_protocol_plan(
+    resolve_protocol_plan({
+      protocols,
+      pov_protocol,
+      style,
+      visual_style,
+      engine_tokens,
+      has_alternation,
+      player_name,
+      constraints_xml,
+    }),
+  );
 }
 
 /**
@@ -414,13 +427,16 @@ export function resolve_core_protocols_slot(config, normalized = {}, resolved = 
   } else if (source.alternation_source === "text") {
     source.has_alternation = has_alternations(source.alternation_text || "");
   }
+  const constraints_xml = source.constraints_xml || null;
   delete source.alternation_source;
   delete source.alternation_text;
-  return render_core_protocols({ protocols: config?.protocols || [], ...source });
+  delete source.constraints_xml;
+  return render_core_protocols({ protocols: config?.protocols || [], constraints_xml, ...source });
 }
 
 /**
  * CHANGELOG
+ * - 2026-10-14: Absorbed standalone GROUNDING into Constitution Law L1 and PROSE_DISCIPLINE.TYPOGRAPHY; added support for constraints_xml in resolve_protocol_plan and render_protocol_plan, placing <CONSTRAINTS> inside <CORE_PROTOCOLS>.
  * - 2026-10-14: Purged diffusion studio lighting from narrative GROUNDING (relocated to OPTICS.ENVIRONMENTAL_GROUNDING); removed redundant AGENCY from PROSE_DISCIPLINE in favor of single-source Law L3 (Sovereignty) in constitution.js.
  * - Track 0.12: Token-hygiene purge - FIRST_SENTENCE_MANDATE.*, SPATIAL_GEOMETRY, and SELFIE_DIRECTIVE bodies drop their raw <TAG> wrapper literals (bare mandate prose; optics CONTRACT inventory loses two entries). Standing metasyntax gate added in src/intelligence/metasyntax.test.js.
  * - Track 0.11: Absorbed sensory statics into PROTOCOL_LIBRARY.OPTICS (MANDATE, SUBJECT_RULES, SOLO_FRAME, ENVIRONMENTAL_SCALE, BACKGROUND, FIRST_SENTENCE_MANDATE, SPATIAL_GEOMETRY, SELFIE_DIRECTIVE, CINEMATOGRAPHY templates); resolve_static_rule takes values; new exported resolve_optics_atom (retires sensory get_sensory_atom). Prompt bytes byte-identical.

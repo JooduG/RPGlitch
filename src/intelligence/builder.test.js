@@ -301,9 +301,11 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
       input: "Bob scans the perimeter.",
     });
 
-    // Director includes GROUNDING in CORE_PROTOCOLS, but no prose SCENE_MOMENTUM
+    // Director includes CONSTRAINTS in CORE_PROTOCOLS, but no prose SCENE_MOMENTUM
     expect(director_package.system).toContain("<CORE_PROTOCOLS>");
-    expect(director_package.system).toContain("<GROUNDING>");
+    expect(director_package.system).toContain("<CONSTRAINTS>");
+    expect(director_package.system).toContain("<LETHALITY>");
+    expect(director_package.system).not.toContain("<GROUNDING>");
     expect(director_package.system).not.toContain("<SCENE_MOMENTUM>");
     expect(director_package.system).not.toContain("<PROSE_DISCIPLINE>");
     // Schema should NOT be inside <CORE_PROTOCOLS> in system

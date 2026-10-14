@@ -32,10 +32,10 @@ import { render_dynamics_axes_xml } from "../dynamics.js";
 describe("protocols.js - Core Protocol Library & Compiler", () => {
   it("renders selected protocol tags via render_core_protocols", () => {
     const output = render_core_protocols({
-      protocols: ["CORE_PROTOCOLS.GROUNDING"],
+      protocols: ["OPTICS.IMAGE_VOCABULARY"],
     });
     expect(output).toContain("<CORE_PROTOCOLS>");
-    expect(output).toContain("<GROUNDING>");
+    expect(output).toContain("<IMAGE_VOCABULARY>");
     expect(output).not.toContain("SIMULATION_FIDELITY");
   });
 
@@ -141,13 +141,12 @@ describe("protocols.js - Visual Style & Optics Protocols", () => {
     const protocols_xml = render_core_protocols({
       visual_style: style_definition,
       engine_tokens,
-      protocols: ["OPTICS.IMAGE_VOCABULARY", "OPTICS.TEXT_RENDERING", "CORE_PROTOCOLS.GROUNDING"],
+      protocols: ["OPTICS.IMAGE_VOCABULARY", "OPTICS.TEXT_RENDERING"],
     });
 
     expect(protocols_xml).toContain("<CORE_PROTOCOLS>");
     expect(protocols_xml).toContain("<IMAGE_VOCABULARY>");
     expect(protocols_xml).toContain("<TEXT_RENDERING>");
-    expect(protocols_xml).toContain("<GROUNDING>");
     expect(protocols_xml).toContain('<VISUAL_STYLE origin="CYBERPUNK">');
     // Verify no legacy nested <VISUAL_SYNTHESIS> wrapper exists
     expect(protocols_xml).not.toContain("<VISUAL_SYNTHESIS>");
@@ -214,15 +213,17 @@ describe("protocols.js - Protocol Plans", () => {
 });
 
 describe("protocols.js - Restructured Catalog", () => {
-  it("shares one GROUNDING atom between prose and optics lists", () => {
+  it("resolves static rules and disciplines cleanly across protocol plans", () => {
     const prose = resolve_protocol_plan({
-      protocols: ["CORE_PROTOCOLS.GROUNDING", "CORE_PROTOCOLS.PROSE_DISCIPLINE.TYPOGRAPHY"],
+      protocols: ["CORE_PROTOCOLS.PROSE_DISCIPLINE.TYPOGRAPHY"],
     });
-    expect(prose.static_rules.map((rule) => rule.tag)).toEqual(["GROUNDING"]);
+    expect(prose.disciplines.map((d) => d.tag)).toEqual(["TYPOGRAPHY"]);
+    expect(prose.static_rules).toEqual([]);
+
     const optics = resolve_protocol_plan({
-      protocols: ["OPTICS.IMAGE_VOCABULARY", "OPTICS.TEXT_RENDERING", "CORE_PROTOCOLS.GROUNDING"],
+      protocols: ["OPTICS.IMAGE_VOCABULARY", "OPTICS.TEXT_RENDERING"],
     });
-    expect(optics.static_rules.map((rule) => rule.tag)).toEqual(["IMAGE_VOCABULARY", "TEXT_RENDERING", "GROUNDING"]);
+    expect(optics.static_rules.map((rule) => rule.tag)).toEqual(["IMAGE_VOCABULARY", "TEXT_RENDERING"]);
   });
 
   it("emits single-concern discipline atoms", () => {
@@ -268,5 +269,6 @@ describe("protocols.js - Track 3.4 AGENCY retirement", () => {
 
 /**
  * CHANGELOG
+ * - 2026-10-14: Grounding Deconstruction — Updated tests to reflect deconstruction and absorption of <GROUNDING> into Constitution Law L1 and Prose Discipline.
  * - 2026-10-14: Phase 1 — Verified AGENCY retirement from PROSE_DISCIPLINE under single-source Sovereignty.
  */

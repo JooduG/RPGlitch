@@ -488,7 +488,7 @@ export function render_sheet(specification, options = {}) {
     const present_block = render_profile_field_block("CURRENT_LOOK", snapshot.present_rows);
     if (present_block) blocks.push(present_block);
     const attrs = {
-      ...(entity.id ? { id: String(entity.id).toUpperCase() } : {}),
+      ...(entity.id ? { id: String(entity.id).toLowerCase() } : {}),
       name: entity.name || specification.default_name,
     };
     return render_xml_tag({ tag: specification.tag, attrs, children: blocks, child_indent: 2, separator: "\n" });
@@ -522,7 +522,7 @@ export function render_sheet(specification, options = {}) {
   }
 
   const attrs = {
-    ...(entity.id ? { id: String(entity.id).toUpperCase() } : {}),
+    ...(entity.id ? { id: String(entity.id).toLowerCase() } : {}),
     name: entity.name || specification.default_name,
   };
   return render_xml_tag({ tag: specification.tag, attrs, children: section_blocks, child_indent: 2, separator: "\n" });
@@ -611,5 +611,5 @@ export function render_enhancement_field_context(entity, field_identifier, conte
  * - 2026-10-14: Atom 3.1 — Epistemic-First Sequencing Invariant (Issue 20). resolve_sheet_snapshot sanitizes past memories and future agendas prior to render_field_value macro expansion with proper owner gating.
  * - 2026-10-06: Plan Omega ground-up rebuild — define_sheet derives all tags from PROFILE_FIELD_CATALOG (epistemic defaults to "always", only owner-state written down); snapshot-first pipeline (resolve_sheet_snapshot normalizes epistemics/vectors/dispositions/physical rows once); direct physical row parsing via normalize_physical_entries (BODY regex round-trip retired); one mode axis (full/physical/separate, VISUAL_SECTIONS retired); render_chapter_history_xml relocated to history.js with structured <CHAPTER> grammar; byte-identical sheet output.
  * - 2026-10-04: Created from entities.js Sections 3-4 + dispositions renderer + Section 6 memory contexts, plus render_chapter_history_xml from history.js — sheet rendering and memory fragments live here; entities.js keeps presence/cast/visibility/assembly.
- * Modules Ground Refactor Phase 1 — render_dispositions reads the frozen active_names array (.includes) — prompt bytes byte-identical.
+ * - 2026-10-14: Option A Casing Standardization — Standardized XML entity id attribute to lowercase slug (String(entity.id).toLowerCase()), aligning with target slugs in <RELATION target="...">.
  */

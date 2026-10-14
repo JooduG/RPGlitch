@@ -84,6 +84,20 @@ export const REFLEX_DEFAULTS = Object.freeze({
  * rewording, and every sentence is individually manifest-addressable.
  */
 export const REFLEX_LIBRARY = Object.freeze({
+  DEFAULTS: REFLEX_DEFAULTS,
+  CONSTRAINTS: Object.freeze({
+    OVERARCHING_QUESTS: "Never resolve macro scenario mysteries, unearned feats, or declare final victory in standard dialogue turns.",
+    SYNTHETIC_FORMULAS:
+      "Denial-then-affirmation ('X did not just Y; it Z\\'d'), antithetical formulas ('Not X, but Y'), symmetrical binary comparisons, appositive dialogue sound tags, and formulaic action-dialogue sandwiches.",
+    CLICHES:
+      "'spoke volumes', 'a testament to', 'tapestry of', 'shivers down the spine', 'unspoken understanding', 'dance of shadows', and Wattpad dominance tropes ('feisty', 'playing with fire', 'death of me', 'mine').",
+  }),
+  DIRECTOR_CONSTRAINTS: Object.freeze({
+    LETHALITY:
+      'Never hallucinate physical survival, bypass consequence, or continue casual dialogue across fatal events. Emit next_action: "EPILOGUE_COLLAPSED" and story_status: "COLLAPSED" strictly on definitive death.',
+    AGENCY: "Never author dialogue, actions, thoughts, or decisions for «USER_PERSONA» in directors_note.",
+    GENESIS: "Do not mint new secondary characters when existing candidates, companion, or fractal can act.",
+  }),
   PACING: Object.freeze({
     // Trigger condition: User input is <= 40 characters or <= 8 words.
     TERSE: Object.freeze({ tag: "PACING", mode: "TERSE", body: "Brief, weighted reply. Zero padding." }),
@@ -701,11 +715,10 @@ export function extract_spent_ledger(messages, options = {}) {
 }
 
 export const PROSE_CONSTRAINTS = Object.freeze({
-  QUESTS: "Overarching Quests: Never resolve macro scenario mysteries, unearned feats, or declare final victory in standard dialogue turns.",
-  SYNTHETIC_FORMULAS:
-    "Synthetic Formulas: Denial-then-affirmation ('X did not just Y; it Z\\'d'), antithetical formulas ('Not X, but Y'), symmetrical binary comparisons, appositive dialogue sound tags, and formulaic action-dialogue sandwiches.",
-  CLICHES:
-    "Cliché Clusters: 'spoke volumes', 'a testament to', 'tapestry of', 'shivers down the spine', 'unspoken understanding', 'dance of shadows', and Wattpad dominance tropes ('feisty', 'playing with fire', 'death of me', 'mine').",
+  QUESTS: REFLEX_LIBRARY.CONSTRAINTS.OVERARCHING_QUESTS,
+  OVERARCHING_QUESTS: REFLEX_LIBRARY.CONSTRAINTS.OVERARCHING_QUESTS,
+  SYNTHETIC_FORMULAS: REFLEX_LIBRARY.CONSTRAINTS.SYNTHETIC_FORMULAS,
+  CLICHES: REFLEX_LIBRARY.CONSTRAINTS.CLICHES,
 });
 
 /**
@@ -720,16 +733,37 @@ export function render_constraints_directive(spent_ledger = null, { include_stat
   const items = [];
   if (include_static) {
     items.push(
-      render_xml_tag({ tag: "ITEM", children: [PROSE_CONSTRAINTS.QUESTS], inline: true }),
-      render_xml_tag({ tag: "ITEM", children: [PROSE_CONSTRAINTS.SYNTHETIC_FORMULAS], inline: true }),
-      render_xml_tag({ tag: "ITEM", children: [PROSE_CONSTRAINTS.CLICHES], inline: true }),
+      render_xml_tag({ tag: "OVERARCHING_QUESTS", children: [REFLEX_LIBRARY.CONSTRAINTS.OVERARCHING_QUESTS], inline: true }),
+      render_xml_tag({ tag: "SYNTHETIC_FORMULAS", children: [REFLEX_LIBRARY.CONSTRAINTS.SYNTHETIC_FORMULAS], inline: true }),
+      render_xml_tag({ tag: "CLICHES", children: [REFLEX_LIBRARY.CONSTRAINTS.CLICHES], inline: true }),
     );
   }
   if (spent_ledger && Array.isArray(spent_ledger.spent_items) && spent_ledger.spent_items.length > 0) {
     const formatted = spent_ledger.spent_items.map((item) => `"${prompt_escape(item)}"`).join(", ");
-    items.push(render_xml_tag({ tag: "ITEM", children: [`Exhausted Openings: Do not repeat or echo recent phrasing: ${formatted}.`], inline: true }));
+    items.push(render_xml_tag({ tag: "EXHAUSTED_OPENINGS", children: [`Do not repeat or echo recent phrasing: ${formatted}.`], inline: true }));
   }
   if (items.length === 0) return "";
+  return render_xml_tag({
+    tag: "CONSTRAINTS",
+    children: items,
+    indent: 0,
+    child_indent: 2,
+    separator: "\n",
+  });
+}
+
+/**
+ * Compiles Director simulation constraints into a <CONSTRAINTS> directive.
+ *
+ * @returns {string} Formatted <CONSTRAINTS> XML block for Shot 1 Director
+ */
+export function render_director_constraints_directive() {
+  const constraints = REFLEX_LIBRARY.DIRECTOR_CONSTRAINTS;
+  const items = [
+    render_xml_tag({ tag: "LETHALITY", children: [constraints.LETHALITY], inline: true }),
+    render_xml_tag({ tag: "AGENCY", children: [constraints.AGENCY], inline: true }),
+    render_xml_tag({ tag: "GENESIS", children: [constraints.GENESIS], inline: true }),
+  ];
   return render_xml_tag({
     tag: "CONSTRAINTS",
     children: items,
@@ -755,6 +789,7 @@ export function render_spent_ledger_directive(spent_ledger, { include_static = f
 
 /**
  * CHANGELOG
+ * - 2026-10-14: Merged REFLEX_DEFAULTS, PROSE_CONSTRAINTS, and DIRECTOR_CONSTRAINTS into REFLEX_LIBRARY; updated render_constraints_directive to emit specific semantic tags (<OVERARCHING_QUESTS>, <SYNTHETIC_FORMULAS>, <CLICHES>, <EXHAUSTED_OPENINGS>); exported render_director_constraints_directive.
  * - 2026-10-14: Wave 2 — Exported PROSE_CONSTRAINTS and render_constraints_directive, unifying overarching quests, synthetic formulas, cliché clusters, and exhausted phrasing into clean <CONSTRAINTS> without double negatives; retired <SPENT_LEDGER> wrapper.
  * - 2026-10-14: Atom 2.4 — exported render_momentum_directive_xml(stagnation_turns) emitting typed <MOMENTUM> XML directive for soft (>=8) and critical (>=16) stagnation thresholds.
  * - 2026-10-14: Refactored render_spent_ledger_directive to emit typed pseudo-XML (<SPENT_LEDGER><PROHIBITED_PATTERNS><ITEM>...); stripped conflicting sentence counts from PACING bodies to leave BEAT_BUDGET as the sole numerical controller.

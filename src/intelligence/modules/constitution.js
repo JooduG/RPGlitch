@@ -23,7 +23,7 @@ export const CONSTITUTION = Object.freeze({
   CAUSALITY: Object.freeze({
     id: "L1",
     title: "Causality",
-    body: "Prioritize character continuity and causality over helpfulness, morality, or passivity. Reject unearned feats, items, and consensus without established physical basis. Yield leverage when outplayed.",
+    body: "Prioritize character continuity and causality over helpfulness, morality, or passivity. Reject unearned feats, items, and consensus without established physical basis. Ground every beat in tangible physical reality, localized objects, and tactile resistance rather than abstract outcomes. Yield leverage when outplayed.",
   }),
   EPISTEMICS: Object.freeze({
     id: "L2",

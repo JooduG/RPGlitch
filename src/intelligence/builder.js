@@ -39,7 +39,7 @@ import { render_dynamics_axes_xml, render_subtext_xml } from "./dynamics.js";
 
 import { render_history, resolve_history, HISTORY_TOKEN_BUDGET } from "./modules/history.js";
 import { resolve_character_action_directive, resolve_scene_action_directive } from "./modules/task.js";
-import { extract_spent_ledger, render_constraints_directive } from "./modules/reflex.js";
+import { extract_spent_ledger, render_constraints_directive, render_director_constraints_directive } from "./modules/reflex.js";
 import { resolve_optics_cinematography } from "./modules/style.js";
 import { get_output_format } from "./modules/output.js";
 import { DYNAMICS_AXES, PHYSICS_PROTOCOLS, evaluate_dynamics_rules, evaluate_subtext_protocols } from "./dynamics.js";
@@ -333,21 +333,22 @@ function resolve_prose_bag(config, context, bag_inputs) {
   const base_action_directive = resolve_character_action_directive({ speaker_name, is_first_contact, is_ghostwrite });
   const constraints_directive = render_constraints_directive(
     extract_spent_ledger(context.recent_history || context.simulation_log || context.raw_messages || []),
+    { include_static: true },
   );
-  const action_directive = [base_action_directive, constraints_directive].filter(Boolean).join("\n\n");
+  const action_directive = base_action_directive;
   const input_origin_entity = is_ghostwrite ? active_speaker : entities?.USER;
   const input_origin = input_origin_entity?.id || input_origin_entity?.name || "USER";
   const style = style_snapshot.style;
+  const turn_meta = context.meta ?? {};
   const subtext_xml = is_ghostwrite
     ? ""
     : render_subtext_xml(speaker_dynamics, fractal_dynamics, {
-        keywords: director_data?.keywords || [],
+        keywords: director_data?.keywords || turn_meta?.keywords || [],
         style,
         physics_protocols: PHYSICS_PROTOCOLS,
         evaluate_dynamics_rules,
         evaluate_subtext_protocols,
       });
-  const turn_meta = context.meta ?? {};
   const speaker_slug = String(active_speaker?.id || active_speaker?.name || (is_npc ? "npc" : "companion"))
     .toLowerCase()
     .replace(/\s+/g, "_");
@@ -369,7 +370,13 @@ function resolve_prose_bag(config, context, bag_inputs) {
       listener: listener_slug,
     },
     role_args: { speaker_name, listener_name, fractal_name },
-    core_protocols_args: { pov_protocol, style, alternation_source: "entities", player_name: entities.USER?.name || null },
+    core_protocols_args: {
+      pov_protocol,
+      style,
+      alternation_source: "entities",
+      player_name: entities.USER?.name || null,
+      constraints_xml: constraints_directive,
+    },
     entities_kind: "sheets",
     sheets_args: {
       entities,
@@ -396,7 +403,7 @@ function resolve_prose_bag(config, context, bag_inputs) {
       snapshot: { dynamics: speaker_dynamics, style, style_dna: style_snapshot.style_dna },
       action_directive,
       stability_lock: resolve_stability_lock(turn_meta),
-      stagnation_turns: turn_meta.stagnation_turns ?? 0,
+      stagnation_turns: turn_meta.stagnation_turns ?? context.stagnation_turns ?? 0,
       relational_context,
     },
     meta_args: {
@@ -497,8 +504,9 @@ function normalize_narrator_context(config, context) {
   });
   const constraints_directive = render_constraints_directive(
     extract_spent_ledger(context.recent_history || context.simulation_log || context.raw_messages || []),
+    { include_static: true },
   );
-  const action_directive = [base_action_directive, constraints_directive].filter(Boolean).join("\n\n");
+  const action_directive = base_action_directive;
   const input_origin_entity = entities?.USER;
   const input_origin = input_origin_entity?.id || input_origin_entity?.name || "USER";
   const turn_meta = context.meta ?? {};
@@ -532,7 +540,13 @@ function normalize_narrator_context(config, context) {
       listener: narrator_listener_slug,
     },
     role_args: { speaker_name, listener_name: "", fractal_name: "" },
-    core_protocols_args: { pov_protocol, style, alternation_source: "entities", player_name: entities.USER?.name || null },
+    core_protocols_args: {
+      pov_protocol,
+      style,
+      alternation_source: "entities",
+      player_name: entities.USER?.name || null,
+      constraints_xml: constraints_directive,
+    },
     entities_kind: "sheets",
     sheets_args: {
       entities,
@@ -605,7 +619,7 @@ function normalize_director_context(config, context) {
     round: context.round ?? null,
     attributes: {},
     role_args: {},
-    core_protocols_args: { alternation_source: "entities" },
+    core_protocols_args: { alternation_source: "entities", constraints_xml: render_director_constraints_directive() },
     merged_dynamics,
     entities_kind: "sheets",
     sheets_args: {
@@ -882,13 +896,14 @@ function normalize_context(context = {}, entities_override = null, { require_tri
       FRACTAL: entities?.FRACTAL || { name: "FRACTAL", present: {}, eternal: {} },
     };
   }
+  const resolved_fractal = context.fractal ?? entities?.FRACTAL ?? null;
   return {
     entities,
     snapshot: context.snapshot || context.compressed_snapshot || {},
     render_accessors: require_trio ? create_render_accessors(entities, "", recent_history) : resolve_accessors(context, entities),
     style_snapshot: resolve_builder_style_snapshot({
-      explicit_narrative_style: context.explicit_narrative_style,
-      fractal: context.fractal ?? null,
+      explicit_narrative_style: context.explicit_narrative_style || resolved_fractal?.narrative_style,
+      fractal: resolved_fractal,
       fallback_fractal: context.fallback_fractal,
     }),
     director_data: context.director_data || {},
@@ -920,6 +935,7 @@ export const MODE_ADAPTERS = {
  */
 /**
  * CHANGELOG
+ * - 2026-10-14: Conditional Style & Subtext — Wired normalize_context to inherit narrative_style from entities.FRACTAL and resolve_prose_bag subtext to inherit keywords from turn_meta.
  * - 2026-10-14: Phase C — Task C.2 (Ghostwrite Perspective Alignment): Passed is_ghostwrite to resolve_character_action_directive so ghostwrite turns emit dedicated player-assistive draft framing.
  * - 2026-10-14: Atom 3.4 — Turn Pragmatics (Issue 13 / Sub-item 6.10). resolve_prose_bag and normalize_narrator_context emit speaker and listener slug attributes for root <TURN> envelope compilation.
  * - Track 2.4: normalize_continuum_context seals memory_advisory_args (settled facts via resolve_settled_facts) and budgets the input-history window (HISTORY_TOKEN_BUDGET).
@@ -994,4 +1010,5 @@ export const MODE_ADAPTERS = {
  * - 2026-10-14: Atom 3.1 — Epistemic-First Sequencing Invariant (Issue 20). Removed premature parse_macros from accessors.past and accessors.future; un-macro'd text is returned to sheets.js for epistemic sanitization prior to macro resolution.
  * - 2026-10-14: Wave 2 — Routed prose action directives through render_constraints_directive (unifying quests, synthetic formulas, clichés, and spent openings into <CONSTRAINTS>); purged redundant keyword_directives from Director task_params (co-located in output schema).
  * - 2026-10-14: Phase C — Passed is_ghostwrite flag into resolve_character_action_directive in resolve_prose_bag for scoped ghostwrite base directive routing.
+ * - 2026-10-14: Protocol Constraints & Clean Directives Refactor — Embedded static and dynamic <CONSTRAINTS> into <CORE_PROTOCOLS> across Director, Story Prose, and Narrator contexts; kept <TASK><DIRECTIVES> focused on turn action directives.
  */

@@ -114,6 +114,24 @@ export const SimulationAudit = {
     // Ensure raw_messages is available for Director's AI_LAST_TURN block
     payload.raw_messages = history;
 
+    // Wire stagnation turns, narrative style, and keywords for full conditional prompt coverage
+    const stagnation_turns = overrides.stagnation_turns ?? scenario.stagnation_turns ?? 8;
+    const explicit_narrative_style =
+      overrides.explicit_narrative_style ?? scenario.explicit_narrative_style ?? payload.entities.FRACTAL?.narrative_style ?? "gothic";
+    const keywords = overrides.keywords ?? scenario.keywords ?? ["MASKING", "SUSPICION"];
+
+    payload.stagnation_turns = stagnation_turns;
+    payload.explicit_narrative_style = explicit_narrative_style;
+    payload.meta = {
+      ...(payload.meta || {}),
+      stagnation_turns,
+      keywords,
+    };
+    payload.director_data = {
+      ...(payload.director_data || {}),
+      keywords,
+    };
+
     // 2. PHASE 2: PHYSICS (Snapshot Construction)
     const snapshot = {
       ai: {
@@ -136,8 +154,18 @@ export const SimulationAudit = {
     };
 
     // 3. PHASE 3: SYNTHESIS (Prompt Construction)
-    const director_prompt = compile_prompt("director", { ...payload, compressed_snapshot: snapshot });
-    const character_prompt = compile_prompt("interaction", { ...payload, snapshot });
+    const director_prompt = compile_prompt("director", {
+      ...payload,
+      compressed_snapshot: snapshot,
+      stagnation_turns,
+    });
+    const character_prompt = compile_prompt("interaction", {
+      ...payload,
+      snapshot,
+      stagnation_turns,
+      explicit_narrative_style,
+      director_data: { keywords },
+    });
 
     // 4. PHASE 4: VERIFICATION (Pipeline Feature Audit)
     const verification = this.verify_pipeline(director_prompt, character_prompt);
@@ -171,6 +199,7 @@ export const SimulationAudit = {
     check("director:system_has_role_line", director.system.includes("You are the Director"));
     check("director:system_has_DYNAMIC_AXES", director.system.includes("<DYNAMIC_AXES"));
     check("director:system_has_ENTITIES", director.system.includes("<ENTITIES>"));
+    check("director:system_has_CONSTRAINTS", director.system.includes("<CONSTRAINTS>"));
     check("director:task_has_schema_keywords", director.system.includes('"keywords": ["<1-5 from:'));
     check(
       "director:system_no_empty_protocols",
@@ -186,6 +215,7 @@ export const SimulationAudit = {
     // --- Character (Shot 2) Feature Verification ---
     check("character:system_has_AXIOMATIC_CONSTITUTION", character.system.includes("<AXIOMATIC_CONSTITUTION>"));
     check("character:system_has_CORE_PROTOCOLS", character.system.includes("<CORE_PROTOCOLS>"));
+    check("character:system_has_AUTHORIAL_VOICE", character.system.includes("<AUTHORIAL_VOICE"));
     check("character:system_has_ENTITIES", character.system.includes("<ENTITIES>"));
 
     // Prefix-cache & Task Verification:
@@ -194,6 +224,8 @@ export const SimulationAudit = {
     check("character:task_has_ACTION", character.system.includes("<ACTION"));
     check("character:task_has_CURRENTS", character.system.includes("<CURRENTS>"));
     check("character:task_has_DELIVERY_POSTURE", character.system.includes("<DELIVERY_POSTURE>"));
+    check("character:task_has_SUBTEXT", character.system.includes("<SUBTEXT>"));
+    check("character:task_has_MOMENTUM_SOFT_PERMIT", character.system.includes("<MOMENTUM_SOFT_PERMIT>"));
     check("character:task_has_THINK", character.system.includes("<THINK>"));
     check("character:task_has_CONSTRAINTS", character.system.includes("<CONSTRAINTS>"));
 

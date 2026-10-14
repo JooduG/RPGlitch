@@ -9,6 +9,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Option A Slug Casing Harmonization, Unified Protocol Constraints, Grounding Deconstruction & XML Tag Directory**:
+  - **Option A Slug Casing Harmonization (`premade-entities.js`, `sheets.js`, `repository.test.js`, `premade-entities.test.js`, `director.test.js`)**:
+    - Harmonized all entity ID slugs and attribute slugs to lowercase (`id="julien"`, `target="julien"`, `speaker="julien"`, `origin="julien"`), display names to Title Case (`name="Julien the Banished Prince"`), and XML tags to UPPERCASE (`<CHARACTER>`, `<FRACTAL>`, `<RELATION>`, `<CONSTRAINTS>`).
+    - Updated all 10 premade entity blueprints in `premade-entities.js` and their directed relational `@` bracket keys (`[@nova: ...]`, `[@silvers: ...]`, etc.) to lowercase slugs.
+    - Maintained `PREMADE_ENTITY_MAP` 1:1 mapping with case-insensitive getters `get_premade_entity_by_id` and `has_premade_entity`.
+  - **Merged `REFLEX_DEFAULTS`, `PROSE_CONSTRAINTS`, and `DIRECTOR_CONSTRAINTS` into `REFLEX_LIBRARY` (`reflex.js`, `protocols.js`, `builder.js`)**:
+    - Consolidated all constraint definitions into `REFLEX_LIBRARY` emitting typed domain child elements (`<OVERARCHING_QUESTS>`, `<SYNTHETIC_FORMULAS>`, `<CLICHES>`, `<EXHAUSTED_OPENINGS>`, `<LETHALITY>`, `<AGENCY>`, `<GENESIS>`) instead of generic `<item>` tags.
+    - Embedded `<CONSTRAINTS>` into `<CORE_PROTOCOLS>` across all simulation prompts (Director, Interaction, Narrator), adhering to the anti-caching mandate.
+    - Stripped redundant `<CONSTRAINTS>` from `<TASK><DIRECTIVES>` to keep turn action directives pure.
+  - **Grounding Deconstruction (`constitution.js`, `protocols.js`, `prompts.js`)**:
+    - Deconstructed standalone `<GROUNDING>` protocol tag and absorbed its physical reality requirements directly into Constitution Law L1 Causality ("Ground every beat in tangible physical reality, localized objects, and tactile resistance rather than abstract outcomes.") and tactical dialogue into `PROSE_DISCIPLINE.TYPOGRAPHY` and `NATURAL_DIALOGUE`.
+  - **Simulation Audit Modernization & Markdown Lint Remediation (`simulation-audit.js`, `simulation-audit.test.js`)**:
+    - Eliminated header brackets (e.g. `## PHASE 1: THE KERNEL (HYDRATION)`) to resolve IDE markdownlint reference-link warnings.
+    - Sanitized consecutive blank lines (MD012) throughout the generated report.
+    - Injected conditional prompt layers (Gothic narrative style `<AUTHORIAL_VOICE>`, somatic `<SUBTEXT>` from keywords, and `<MOMENTUM_SOFT_PERMIT>` for stagnation >= 8) into the audit run.
+    - Expanded pipeline verification to 25 automated checks (100% passed).
+  - **Comprehensive Programmatic XML Tag Specification Map (`prompt-schema-map.js`, `tmp/audit_report.md`)**:
+    - Implemented `prompt-schema-map.js` generating an authoritative XML schema directory across all 9 prompt modes, complete with canonical slot hierarchies, parent/child relationships, cardinality, and conditional trigger rules.
+    - Appended `## PHASE 5: COMPREHENSIVE XML TAG SPECIFICATION MAP` to `tmp/audit_report.md`.
+
 - **Director Schema Co-Location & Unified Constraints Architecture (Wave 2)**:
   - **Director Schema Routing & Keyword Co-Location (`output.js`, `prompts.js`, `task.js`, `builder.js`)**:
     - Co-located all `next_action` turn allocation options (companion, fractal, secondary NPC, genesis minting, and fatal/triumphant epilogues) and the full keyword whitelist directly into the `<OUTPUT_FORMAT mode="json">` schema definition in `SCHEMA_ATOMS.next_action` and `SCHEMA_ATOMS.keywords`.

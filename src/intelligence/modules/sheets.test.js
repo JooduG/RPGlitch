@@ -176,7 +176,7 @@ describe("resolve_sheet_snapshot", () => {
 describe("render_sheet full mode", () => {
   it("renders the AI character envelope with psychology, appearance, and memories", () => {
     const xml = render_sheet(SHEET_SPECS.AI_CHARACTER, { entity: test_character, is_owner: true });
-    expect(xml).toContain('<CHARACTER id="ALICE" name="Alice">');
+    expect(xml).toContain('<CHARACTER id="alice" name="Alice">');
     expect(xml).toContain("<PSYCHOLOGY>");
     expect(xml).toContain('<APPEARANCE build="tall and athletic" jacket="worn leather" posture="alert" />');
     expect(xml).toContain("Infiltrate the mainframe.");
@@ -187,14 +187,14 @@ describe("render_sheet full mode", () => {
 
   it("renders the fractal envelope", () => {
     const xml = render_sheet(SHEET_SPECS.FRACTAL, { entity: test_fractal, is_owner: true });
-    expect(xml).toContain('<FRACTAL id="SECTOR_FOUR" name="Sector Four">');
+    expect(xml).toContain('<FRACTAL id="sector_four" name="Sector Four">');
     expect(xml).toContain('landmarks="rusted catwalks"');
     expect(xml).toContain("Decay under acid rain.");
   });
 
   it("renders USER_PERSONA with universal CHARACTER envelope and a BACKSTORY tag", () => {
     const xml = render_sheet(SHEET_SPECS.USER_PERSONA, { entity: { ...test_character, id: "BOB", name: "Bob" } });
-    expect(xml).toContain('<CHARACTER id="BOB" name="Bob">');
+    expect(xml).toContain('<CHARACTER id="bob" name="Bob">');
     expect(xml).not.toContain("<USER_PERSONA");
     expect(xml).toContain("<BACKSTORY>");
   });
@@ -280,7 +280,7 @@ describe("parse_profile_field_rows and relational rendering", () => {
 describe("render_sheet physical / separate modes", () => {
   it("renders visual-only separate blocks in physical mode with compacted attributes", () => {
     const xml = render_sheet(SHEET_SPECS.AI_CHARACTER, { entity: test_character, mode: "physical" });
-    expect(xml).toContain('<CHARACTER id="ALICE" name="Alice">');
+    expect(xml).toContain('<CHARACTER id="alice" name="Alice">');
     expect(xml).toContain('<APPEARANCE build="tall and athletic" />');
     expect(xml).toContain('<CURRENT_LOOK jacket="worn leather" posture="alert" />');
     expect(xml).not.toContain("<PSYCHOLOGY>");
@@ -288,7 +288,7 @@ describe("render_sheet physical / separate modes", () => {
 
   it("renders the full envelope with separate blocks in separate mode", () => {
     const xml = render_sheet(SHEET_SPECS.AI_CHARACTER, { entity: test_character, mode: "separate", is_owner: true });
-    expect(xml).toContain('<CHARACTER id="ALICE" name="Alice">');
+    expect(xml).toContain('<CHARACTER id="alice" name="Alice">');
     expect(xml).toContain("<PSYCHOLOGY>");
     expect(xml).toContain('<CURRENT_LOOK jacket="worn leather" posture="alert" />');
   });
@@ -325,7 +325,7 @@ describe("render_sheet physical / separate modes", () => {
 describe("render_entity_memory_context", () => {
   it("renders an owner-view separate sheet with CHARACTER envelope", () => {
     const xml = render_entity_memory_context("AI_CHARACTER", test_character);
-    expect(xml).toContain('<CHARACTER id="ALICE" name="Alice">');
+    expect(xml).toContain('<CHARACTER id="alice" name="Alice">');
     expect(xml).not.toContain("<AI_CHARACTER");
     expect(xml).toContain('<CURRENT_LOOK jacket="worn leather" posture="alert" />');
     expect(xml).toContain("Infiltrate the mainframe.");

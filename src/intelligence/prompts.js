@@ -143,7 +143,6 @@ const OPTICS_LAYERS = Object.freeze({
 function prose_protocols({ include_dialogue = false } = {}) {
   return [
     "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PRESENT",
-    "CORE_PROTOCOLS.GROUNDING",
     "CORE_PROTOCOLS.PROSE_DISCIPLINE.TYPOGRAPHY",
     "CORE_PROTOCOLS.PROSE_DISCIPLINE.SCENE_MOMENTUM",
     ...(include_dialogue ? ["CORE_PROTOCOLS.PROSE_DISCIPLINE.NATURAL_DIALOGUE"] : []),
@@ -605,4 +604,5 @@ export default PROMPTS;
  * - 2026-10-14: Atom 2.2, 2.3 & 2.4 — updated director_directives to use unified DIRECTOR.ROUTING_RULES and reflex render_momentum_directive_xml; purged DIRECTOR.DYNAMICS_CALIBRATION, DIRECTOR.ROUTING, DIRECTOR.CONVERGENCE, and task momentum keys.
  * - 2026-10-14: Wave 2 — Purged duplicate DIRECTOR.ROUTING_RULES from director_directives (co-located in output schema); migrated SENTENCE_FORMULAS and CLICHES from prose_protocols into unified CONSTRAINTS layer.
  * - 2026-10-14: Phase 1 Prompt Pipeline Hygiene & P4 Purges — (1) Set constitution: true for director mode and added axiomatic_constitution to DIRECTOR_LAYERS; (2) Purged alternative_branches from DIRECTOR_SCHEMA; (3) Purged AGENCY from prose_protocols; (4) Purged USER_PERSONA_LOCK and BRANCHES from director_directives and gated CONVERGENCE on has_candidates.
+ * - 2026-10-14: Deconstructed Grounding — Removed standalone CORE_PROTOCOLS.GROUNDING from prose_protocols (absorbed into Constitution Law L1 and Prose Discipline).
  */

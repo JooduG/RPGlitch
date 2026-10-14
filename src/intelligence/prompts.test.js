@@ -156,7 +156,6 @@ describe("prompt-modes registry", () => {
     const discipline = ["CORE_PROTOCOLS.PROSE_DISCIPLINE.TYPOGRAPHY", "CORE_PROTOCOLS.PROSE_DISCIPLINE.SCENE_MOMENTUM"];
     const compose = (natural) => [
       "CORE_PROTOCOLS.PERSPECTIVE.TENSE.PRESENT",
-      "CORE_PROTOCOLS.GROUNDING",
       ...discipline,
       ...(natural ? ["CORE_PROTOCOLS.PROSE_DISCIPLINE.NATURAL_DIALOGUE"] : []),
       "CORE_PROTOCOLS.ALTERNATION_OPTIONS",
@@ -267,12 +266,12 @@ describe("fused rendering per mode", () => {
 
     const narrator = compile_prompt("narrator", { entities, round: 1, input: "The station groans." });
     expect(narrator.system).not.toContain("<NATURAL_DIALOGUE>");
+    expect(narrator.system).not.toContain("<GROUNDING>");
     expect(narrator.system).toContain("<TYPOGRAPHY>");
-    expect(narrator.system).toContain("<GROUNDING>");
     expect(narrator.system).toContain("<SCENE_MOMENTUM>");
     expect(narrator.system).toContain("<CONSTRAINTS>");
-    expect(narrator.system).toContain("Synthetic Formulas");
-    expect(narrator.system).toContain("Cliché Clusters");
+    expect(narrator.system).toContain("<SYNTHETIC_FORMULAS>");
+    expect(narrator.system).toContain("<CLICHES>");
   });
 });
 
@@ -490,14 +489,14 @@ describe("interaction structural integrity", () => {
 
   it("renders characters using universal egalitarian CHARACTER envelope", () => {
     const { system } = compile_prompt("interaction", { round: 3, entities: _relocated_prompt_entities, input: "Beast steps forward." });
-    expect(system).toContain('<CHARACTER id="BEAST" name="Beast">');
-    expect(system).toContain('<CHARACTER id="SILVERS" name="Lord Benedict Silvers">');
-    expect(system).toContain('<FRACTAL id="TARTARUS" name="Project Tartarus">');
+    expect(system).toContain('<CHARACTER id="beast" name="Beast">');
+    expect(system).toContain('<CHARACTER id="silvers" name="Lord Benedict Silvers">');
+    expect(system).toContain('<FRACTAL id="tartarus" name="Project Tartarus">');
   });
 
   it("places AGENDA inside PSYCHOLOGY on character sheets", () => {
     const { system } = compile_prompt("interaction", { round: 3, entities: _relocated_prompt_entities, input: "Beast steps forward." });
-    const ai_sheet = system.match(/<CHARACTER[^>]*id="BEAST"[\s\S]*?<\/CHARACTER>/)[0];
+    const ai_sheet = system.match(/<CHARACTER[^>]*id="beast"[\s\S]*?<\/CHARACTER>/)[0];
     expect(ai_sheet).toMatch(/<PSYCHOLOGY>[\s\S]*<AGENDA>[\s\S]*Break the challenger\.[\s\S]*<\/AGENDA>[\s\S]*<\/PSYCHOLOGY>/);
   });
 

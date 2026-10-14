@@ -31,6 +31,7 @@ import {
   extract_spent_ledger,
   render_spent_ledger_directive,
   render_constraints_directive,
+  render_director_constraints_directive,
   PROSE_CONSTRAINTS,
   MANNERISM_PATTERNS,
 } from "./reflex.js";
@@ -401,7 +402,9 @@ describe("reflex.js - spent ledger engine", () => {
     const directive = render_spent_ledger_directive(mock_ledger);
     expect(directive).not.toContain("<SPENT_LEDGER>");
     expect(directive).toContain("<CONSTRAINTS>");
-    expect(directive).toContain('Exhausted Openings: Do not repeat or echo recent phrasing: "gripped the hilt", "shifted his weight".');
+    expect(directive).toContain(
+      '<EXHAUSTED_OPENINGS>Do not repeat or echo recent phrasing: "gripped the hilt", "shifted his weight".</EXHAUSTED_OPENINGS>',
+    );
   });
 
   it("renders unified constraints directive with static constraints and spent ledger", () => {
@@ -413,10 +416,20 @@ describe("reflex.js - spent ledger engine", () => {
 
     const directive = render_constraints_directive(mock_ledger);
     expect(directive).toContain("<CONSTRAINTS>");
-    expect(directive).toContain(PROSE_CONSTRAINTS.QUESTS);
-    expect(directive).toContain(PROSE_CONSTRAINTS.SYNTHETIC_FORMULAS);
-    expect(directive).toContain(PROSE_CONSTRAINTS.CLICHES);
-    expect(directive).toContain('Exhausted Openings: Do not repeat or echo recent phrasing: "gripped the hilt", "shifted his weight".');
+    expect(directive).toContain(`<OVERARCHING_QUESTS>${PROSE_CONSTRAINTS.QUESTS}</OVERARCHING_QUESTS>`);
+    expect(directive).toContain(`<SYNTHETIC_FORMULAS>${PROSE_CONSTRAINTS.SYNTHETIC_FORMULAS}</SYNTHETIC_FORMULAS>`);
+    expect(directive).toContain(`<CLICHES>${PROSE_CONSTRAINTS.CLICHES}</CLICHES>`);
+    expect(directive).toContain(
+      '<EXHAUSTED_OPENINGS>Do not repeat or echo recent phrasing: "gripped the hilt", "shifted his weight".</EXHAUSTED_OPENINGS>',
+    );
+  });
+
+  it("renders director constraints directive with lethality, agency, and genesis tags", () => {
+    const directive = render_director_constraints_directive();
+    expect(directive).toContain("<CONSTRAINTS>");
+    expect(directive).toContain("<LETHALITY>");
+    expect(directive).toContain("<AGENCY>");
+    expect(directive).toContain("<GENESIS>");
   });
 
   it("exports frozen pattern array", () => {

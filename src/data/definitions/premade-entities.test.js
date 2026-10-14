@@ -133,12 +133,12 @@ describe("premade-entities registry", () => {
       expect(has_premade_entity(null)).toBe(false);
     });
 
-    it("uses SCREAMING_SNAKE canonical IDs and resolves them case-insensitively", () => {
+    it("uses lowercase canonical IDs and resolves them case-insensitively", () => {
       for (const entity of PREMADE_ENTITIES) {
-        expect(entity.id).toBe(String(entity.id).toUpperCase());
+        expect(entity.id).toBe(String(entity.id).toLowerCase());
       }
-      expect(get_premade_entity_by_id("SILVERS")?.id).toBe("SILVERS");
-      expect(get_premade_entity_by_id("silvers")?.id).toBe("SILVERS");
+      expect(get_premade_entity_by_id("SILVERS")?.id).toBe("silvers");
+      expect(get_premade_entity_by_id("silvers")?.id).toBe("silvers");
       expect(has_premade_entity("TARTARUS")).toBe(true);
       expect(has_premade_entity("tartarus")).toBe(true);
     });
@@ -153,7 +153,7 @@ describe("premade-entities registry", () => {
       expect(fractals.length).toBe(PREMADE_FRACTALS.length);
     });
 
-    it("enforces canonical single-word uppercase slugs for all directed @ brackets", () => {
+    it("enforces canonical single-word lowercase slugs for all directed @ brackets", () => {
       const valid_ids = new Set(PREMADE_ENTITIES.map((e) => e.id));
       for (const entity of PREMADE_ENTITIES) {
         const all_text = [
@@ -167,12 +167,12 @@ describe("premade-entities registry", () => {
           .filter(Boolean)
           .join("\n");
 
-        expect(all_text).not.toMatch(/\[@[A-Z0-9_-]+\s+[A-Z0-9_-]+:/);
+        expect(all_text).not.toMatch(/\[@[a-z0-9_-]+\s+[a-z0-9_-]+:/);
 
-        const matches = [...all_text.matchAll(/\[@([A-Z0-9_'-]+):/g)];
+        const matches = [...all_text.matchAll(/\[@([a-z0-9_'-]+):/g)];
         for (const match of matches) {
           const slug = match[1];
-          expect(valid_ids.has(slug) || ["USER", "CHAR", "FRACTAL"].includes(slug)).toBe(true);
+          expect(valid_ids.has(slug) || ["user", "char", "fractal"].includes(slug)).toBe(true);
         }
       }
     });
@@ -182,6 +182,7 @@ describe("premade-entities registry", () => {
 /**
  * CHANGELOG
  * ============================================================================
+ * - 2026-10-14: Option A Casing Harmonization — Updated tests to enforce lowercase canonical entity IDs and lowercase directed relational bracket slugs (@silvers, @orion, @elias, etc.).
  * - 2026-10-14: Atom 3.3 — Added test asserting that all directed relational brackets conform strictly to canonical single-word uppercase slugs matching registered entity IDs.
  * - 2026-10-01: Initial test suite for premade-entities registry and query primitives.
  * ============================================================================
