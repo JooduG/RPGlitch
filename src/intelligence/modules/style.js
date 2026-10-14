@@ -68,26 +68,39 @@ export function resolve_style_snapshot({ explicit_narrative_style, fractal = nul
 }
 
 /**
- * Renders the declarative `<NARRATIVE_STYLE>` XML block.
- * Mirrors `<VISUAL_STYLE>` from Sensory Optics. Omitted if style is default or undefined.
+ * Renders the declarative `<AUTHORIAL_VOICE>` XML block.
+ * Emits author and internal_ratio attributes, with a child `<SOVEREIGNTY player="...">` element.
  *
  * @param {Object|null} style - Narrative style record
- * @returns {string} XML formatted `<NARRATIVE_STYLE>` block or empty string
+ * @param {string|null} [player_name=null] - Name of biological protagonist
+ * @returns {string} XML formatted `<AUTHORIAL_VOICE>` block or empty string
  */
-export function render_narrative_style_xml(style) {
+export function render_narrative_style_xml(style, player_name = null) {
   if (!style || typeof style !== "object" || !style.id || style.id === "default") {
     return "";
   }
 
-  const origin = String(style.id).toUpperCase();
+  const author = String(style.id).toUpperCase();
   const style_dna = resolve_style_dna(style);
   const description = String(style.description || "").trim();
   const elements = Array.isArray(style.elements) ? style.elements.filter(Boolean).join(", ") : "";
+  const sovereignty = player_name
+    ? render_xml_tag({
+        tag: "SOVEREIGNTY",
+        attrs: { player: player_name },
+        children: [`Never depict or decide internal thoughts, feelings, or involuntary physiological reactions for ${player_name}.`],
+        child_indent: 2,
+      })
+    : "";
 
   return render_xml_tag({
-    tag: "NARRATIVE_STYLE",
-    attrs: { origin, internal_ratio: style_dna.internal_ratio || "0.5" },
-    children: [description ? prompt_escape(description) : "", elements ? `<SIGNATURE_ELEMENTS>${prompt_escape(elements)}</SIGNATURE_ELEMENTS>` : ""],
+    tag: "AUTHORIAL_VOICE",
+    attrs: { author, internal_ratio: style_dna.internal_ratio || "0.5" },
+    children: [
+      description ? prompt_escape(description) : "",
+      elements ? `<SIGNATURE_ELEMENTS>${prompt_escape(elements)}</SIGNATURE_ELEMENTS>` : "",
+      sovereignty,
+    ].filter(Boolean),
     child_indent: 2,
     separator: "\n",
   });

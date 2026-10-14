@@ -12,9 +12,36 @@
  *   ACTIVE_GOALS, ATMOSPHERIC_CHANGES, trigger amplification, goal arbitration
  */
 
-import { context_builder } from "../../../../src/intelligence/builder.js";
-import { compile_prompt } from "../../../../src/intelligence/prompts.js";
-import { get_premade_entity_by_id } from "../../../../src/data/definitions/premade-entities.js";
+import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
+import path from "node:path";
+
+// CLI Runner: When executed directly via Node (node .agents/skills/simulation/scripts/simulation-audit.js),
+// delegate to Vitest to run the audit harness in the Vite / Svelte 5 compilation environment.
+if (process.argv[1] && path.resolve(fileURLToPath(import.meta.url)) === path.resolve(process.argv[1])) {
+  const result = spawnSync(
+    process.platform === "win32" ? "npx.cmd" : "npx",
+    ["vitest", "run", ".agents/skills/simulation/scripts/simulation-audit.test.js"],
+    { stdio: "inherit", shell: true }
+  );
+  process.exit(result.status ?? 0);
+}
+
+let context_builder = null;
+let compile_prompt = null;
+let get_premade_entity_by_id = null;
+
+async function ensure_simulation_dependencies() {
+  if (!context_builder) {
+    const builder_module = await import("../../../../src/intelligence/builder.js");
+    context_builder = builder_module.context_builder;
+    const prompts_module = await import("../../../../src/intelligence/prompts.js");
+    compile_prompt = prompts_module.compile_prompt;
+    const premades_module = await import("../../../../src/data/definitions/premade-entities.js");
+    get_premade_entity_by_id = premades_module.get_premade_entity_by_id;
+  }
+}
+
 
 /**
  * Enriches a vector with category and triggers fields if missing.
@@ -69,6 +96,7 @@ export const SimulationAudit = {
    * @param {object} [overrides] - Optional overrides for dynamics, flags, etc.
    */
   async execute_turn(input, scenario, overrides = {}) {
+    await ensure_simulation_dependencies();
     // 1. PHASE 1: HYDRATION (Context Assembly)
     const raw_entities = await this.resolve_entities(scenario);
     const history = scenario.history || [];
@@ -176,6 +204,7 @@ export const SimulationAudit = {
    * Resolves entity data from IDs or static premades.
    */
   async resolve_entities(scenario) {
+    await ensure_simulation_dependencies();
     const result = {};
     const types = ["ai", "user", "fractal"];
 
@@ -207,4 +236,5 @@ export const SimulationAudit = {
  * - 2026-09-19: Retired prompt_builder import. Migrated PHASE 3 synthesis to compile_prompt("director") and compile_prompt("interaction") under P4 Zero Backwards Compatibility (Mega Report D1).
  * - 2026-09-19: Retired stale character:system_has_DYNAMIC_AXES verification check — DYNAMIC_AXES are now exclusively in the Director shot's <DYNAMICS> envelope and are conditional on entity dynamics data.
  * - 2026-09-24: Updated context_builder import from retired payload.js to builder.js under P4 Zero Backwards Compatibility.
+ * - 2026-10-14: Added direct Node CLI execution delegation to Vitest and lazy-loaded Vite/Svelte dependencies so 'node .agents/skills/simulation/scripts/simulation-audit.js' runs seamlessly from the terminal.
  */

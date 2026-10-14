@@ -142,7 +142,7 @@ Close "_thought_process" before composing the image payload. This calibration is
     CHARACTER: Object.freeze({
       BASE: "Own only your voice, actions, and perspective; never speak, act, or decide for other participants, or resolve overarching quests; end on a natural beat.",
       GHOSTWRITE:
-        "Draft an assistive, first-person turn suggestion for {speaker_name} to review, edit, or send. Embody {speaker_name}'s voice, perspective, and physical agency without speaking for other participants.",
+        "Draft an assistive turn suggestion for {speaker_name} to review, edit, or send. Embody {speaker_name}'s voice, perspective, and physical agency without speaking for other participants.",
     }),
 
     SCENE: Object.freeze({
@@ -310,6 +310,19 @@ export function render_task_input({ input = "", input_origin = null, input_round
   const attribute_string = attributes.length ? ` ${attributes.join(" ")}` : "";
   const content = prompt_escape(String(input).trim());
   return `<INPUT${attribute_string}>${inline_or_block(content, 2)}</INPUT>`;
+}
+
+/**
+ * Renders a semantic turn block (<PREVIOUS_TURN> or <CURRENT_TURN>) for Shot 1 Director signals.
+ *
+ * @param {{ tag: string, input?: string, origin?: string|null }} parameters
+ * @returns {string}
+ */
+export function render_task_turn({ tag, input = "", origin = null } = {}) {
+  if (!String(input || "").trim()) return "";
+  const attrs = origin ? ` origin="${escape_xml(String(origin))}"` : "";
+  const content = prompt_escape(String(input).trim());
+  return `<${tag}${attrs}>${inline_or_block(content, 2)}</${tag}>`;
 }
 
 // Track 0.10: moved verbatim from reflex.js Section 6 - the Director keyword
@@ -485,8 +498,8 @@ export const TASK_SLOT_RESOLVERS = Object.freeze({
     const user_origin = entities?.USER?.id || entities?.USER?.name || "USER";
     const ai_origin = entities?.AI?.id || entities?.AI?.name || "AI_CHARACTER";
     return [
-      render_task_input({ input: values.input, input_origin: user_origin, input_round: values.round }),
-      values.last_ai_text ? render_task_input({ input: values.last_ai_text, input_origin: ai_origin, input_type: "reply" }) : "",
+      values.last_ai_text ? render_task_turn({ tag: "PREVIOUS_TURN", input: values.last_ai_text, origin: ai_origin }) : "",
+      render_task_turn({ tag: "CURRENT_TURN", input: values.input, origin: user_origin }),
     ]
       .filter(Boolean)
       .join("\n");

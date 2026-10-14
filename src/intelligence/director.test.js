@@ -154,8 +154,8 @@ describe("Director Quick Shot Prompt (compile_prompt director)", () => {
       simulation_log: [{ role: "model", content: "Viper nods." }],
       compressed_snapshot: base_snapshot,
     });
-    expect(result.system).toContain('<INPUT origin="GHOST" round="1">Check the door.</INPUT>');
-    expect(result.system).toContain('<INPUT origin="VIPER" type="reply">Viper nods.</INPUT>');
+    expect(result.system).toContain('<PREVIOUS_TURN origin="VIPER">Viper nods.</PREVIOUS_TURN>');
+    expect(result.system).toContain('<CURRENT_TURN origin="GHOST">Check the door.</CURRENT_TURN>');
     expect(result.system).not.toContain('origin="USER"');
     expect(result.system).not.toContain('origin="AI_CHARACTER"');
   });

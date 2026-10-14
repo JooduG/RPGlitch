@@ -53,8 +53,9 @@ describe("resolve_style_snapshot()", () => {
 
   it("renders byte-identical style XML from snapshot records", () => {
     const snapshot = resolve_style_snapshot({ explicit_narrative_style: "cormac_mccarthy", fractal: { visual_style: "noir" } });
-    const narrative_xml = render_narrative_style_xml(snapshot.style);
-    expect(narrative_xml).toContain('origin="CORMAC_MCCARTHY"');
+    const narrative_xml = render_narrative_style_xml(snapshot.style, "Silvers");
+    expect(narrative_xml).toContain('<AUTHORIAL_VOICE author="CORMAC_MCCARTHY" internal_ratio="0.20">');
+    expect(narrative_xml).toContain('<SOVEREIGNTY player="Silvers">');
     expect(narrative_xml).toContain("<SIGNATURE_ELEMENTS>");
     expect(render_visual_style_xml(snapshot.visual_style, {})).toContain('origin="NOIR"');
   });

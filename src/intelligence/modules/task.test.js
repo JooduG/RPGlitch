@@ -105,7 +105,7 @@ describe("render_task — Director Mode", () => {
       entities: { AI: { id: "ALICE", name: "Alice" }, USER: { id: "BOB", name: "Bob" } },
     });
 
-    expect(task).toContain('<INPUT origin="BOB" round="1">');
+    expect(task).toContain('<CURRENT_TURN origin="BOB">');
     expect(task).toContain("<TASK>");
     expect(task).toContain('next_action MUST be "AI_CHARACTER"');
     expect(task).toContain('<OUTPUT_FORMAT mode="json">');
@@ -285,14 +285,15 @@ describe("render_task — per-mode state dispatch", () => {
       schema: '{"a":1}',
       entities: { AI: { id: "ALICE", name: "Alice" }, USER: { id: "BOB", name: "Bob" } },
     });
-    expect(full).toContain('<INPUT origin="BOB" round="2">hi</INPUT>');
-    expect(full).toContain('<INPUT origin="ALICE" type="reply">');
+    expect(full).toContain('<PREVIOUS_TURN origin="ALICE">prev</PREVIOUS_TURN>');
+    expect(full).toContain('<CURRENT_TURN origin="BOB">hi</CURRENT_TURN>');
     expect(full).toContain("<DIRECTIVES>");
     expect(full).toContain('<OUTPUT_FORMAT mode="json">');
 
     const terse = render_task({ config: get_prompt("director"), task_state: "director", terse: true, schema: '{"a":1}', layers: ["output_format"] });
     expect(terse).not.toContain("<DIRECTIVES>");
-    expect(terse).not.toContain("<INPUT");
+    expect(terse).not.toContain("<CURRENT_TURN");
+    expect(terse).not.toContain("<PREVIOUS_TURN");
     expect(terse).toContain('<OUTPUT_FORMAT mode="json">');
   });
 

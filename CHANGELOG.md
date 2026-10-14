@@ -9,6 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Phase IV & Prompt Architecture Harmonization (Issues 13, 21, 22)**:
+  - **Quad Profile Field XML Expansion (`sheets.js`, `sheets.test.js`)**:
+    - Unified `parse_profile_field_rows` across all quad profile fields (`PERSONALITY`, `STATE`, `AGENDA`, `MEMORIES`), replacing unformatted bracket dumps with structured child XML elements (`<CORE>`, `<SPEECH>`, `<FOCUS>`) and compact attributes (<= 40 chars) identical to `APPEARANCE`.
+    - Preserved unbracketed prose alongside bracketed entries within field envelopes (`Guarded vigilance.` rendered alongside structured keys).
+    - Extracted relational brackets natively into `<RELATION target="slug">...</RELATION>` within `STATE` and `PERSONALITY` envelopes.
+    - Completely purged duplicate `<DISPOSITION>` tag generation from `sheets.js` and `resolve_sheet_snapshot`.
+  - **Symmetrical Semantic Director Signals (`task.js`, `task.test.js`, `director.test.js`)**:
+    - Replaced disjoint `<INPUT origin="JULIEN" round="1">` and `<INPUT origin="SILVERS" type="reply">` in Director input signals with chronological, symmetrical semantic tags: `<PREVIOUS_TURN origin="...">` for companion prior output and `<CURRENT_TURN origin="...">` for player input.
+    - Exported `render_task_turn` and enforced Full-Name & Anti-Abbreviation Mandate (`previous` over `last`).
+  - **Pronoun-Agnostic Ghostwriting & Authorial Voice Sovereignty (Sub-item 4.2 & 4.4 / Issue 22)**:
+    - Stripped hardcoded "first-person" constraint from `TASK_LIBRARY.PROSE.CHARACTER.GHOSTWRITE`, making ghostwrite perspective grammar dynamically governed by `<PERSPECTIVE person="...">` from the entity profile's canonical `pov` field.
+    - Registered top-level `pov` in `PROFILE_FIELDS` (`profile-fields.js`).
+    - Updated `render_narrative_style_xml` in `style.js` to emit `<AUTHORIAL_VOICE author="..." internal_ratio="...">` with nested `<SOVEREIGNTY player="...">` non-puppeteering constraint.
+    - Threaded `player_name: entities.USER?.name || null` through `builder.js` and `protocols.js`.
+  - **Prompt Contracts & Simulation Audit (`prompt-verification.js`, `prompt-verification.test.js`, `prompts.test.js`, `simulation-audit.js`)**:
+    - Updated frozen `CONTRACT` inventories to reflect native `<RELATION>` tags, `<AUTHORIAL_VOICE>` + `<SOVEREIGNTY>`, and Director `<PREVIOUS_TURN>` / `<CURRENT_TURN>` inputs.
+    - Enhanced `.agents/skills/simulation/scripts/simulation-audit.js` CLI runner to intercept direct node execution and delegate to Vitest, resolving `@data` path alias imports cleanly.
+
 - **Bugs & Debt Remediation — Phase C: Narrative Architecture, Perspectives & Budgeting**:
   - **Phase III 3.9 LLM Epistemic Dispositions (`sheets.js`, `sheets.test.js`, `prompt-verification.js`)**:
     - Implemented `render_dispositions` to render relational dynamics from `present.non_physical` into character envelopes as `<DISPOSITION target="...">` for authorized observers across the Epistemic Wall.

@@ -502,13 +502,13 @@ describe("interaction structural integrity", () => {
   it("places AGENDA inside PSYCHOLOGY on character sheets", () => {
     const { system } = compile_prompt("interaction", { round: 3, entities: _relocated_prompt_entities, input: "Beast steps forward." });
     const ai_sheet = system.match(/<CHARACTER[^>]*id="BEAST"[\s\S]*?<\/CHARACTER>/)[0];
-    expect(ai_sheet).toMatch(/<PSYCHOLOGY>[\s\S]*<AGENDA>Break the challenger\.<\/AGENDA>[\s\S]*<\/PSYCHOLOGY>/);
+    expect(ai_sheet).toMatch(/<PSYCHOLOGY>[\s\S]*<AGENDA>[\s\S]*Break the challenger\.[\s\S]*<\/AGENDA>[\s\S]*<\/PSYCHOLOGY>/);
   });
 
   it("places TRAJECTORY inside PSYCHOLOGY on the fractal sheet", () => {
     const { system } = compile_prompt("interaction", { round: 3, entities: _relocated_prompt_entities, input: "Beast steps forward." });
     const fractal_sheet = system.match(/<FRACTAL\b[\s\S]*?<\/FRACTAL>/)[0];
-    expect(fractal_sheet).toMatch(/<PSYCHOLOGY>[\s\S]*<TRAJECTORY>Drift\.<\/TRAJECTORY>[\s\S]*<\/PSYCHOLOGY>/);
+    expect(fractal_sheet).toMatch(/<PSYCHOLOGY>[\s\S]*<TRAJECTORY>[\s\S]*Drift\.[\s\S]*<\/TRAJECTORY>[\s\S]*<\/PSYCHOLOGY>/);
   });
 
   it("never emits USER_SOVEREIGNTY", () => {

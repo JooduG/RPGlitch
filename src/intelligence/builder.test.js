@@ -109,8 +109,9 @@ describe("narrator style plumbing via compile_prompt (Bug #1 Regression)", () =>
       scene_template: "CONTINUATION",
     });
 
-    expect(result.system).not.toContain('origin="UNDEFINED"');
-    expect(result.system).toContain('origin="CORMAC_MCCARTHY"');
+    expect(result.system).not.toContain('author="UNDEFINED"');
+    expect(result.system).toContain('author="CORMAC_MCCARTHY"');
+    expect(result.system).toContain("<AUTHORIAL_VOICE");
     expect(result.system).toContain("<SIGNATURE_ELEMENTS>");
     expect(result.system).not.toContain("<SIGNUM>");
   });

@@ -41,6 +41,11 @@ export const PROFILE_FIELDS = {
     description: `Entity signature color name: ${SIGNATURE_COLORS.join(" | ")}`,
     directive: `Entity signature color name: ${SIGNATURE_COLORS.join(" | ")}`,
   },
+  pov: {
+    label: "Point of View",
+    description: "Narrative perspective: 1st_person ('I') vs 3rd_person ('He/She/They')",
+    directive: "Narrative perspective: 1st_person vs 3rd_person",
+  },
   character: {
     eternal: {
       physical: {
@@ -307,6 +312,7 @@ export function build_profile_sections(entity_type = "character") {
 
 /**
  * CHANGELOG:
+ * - 2026-10-14: Phase IV Sub-item 4.2 — Formally registered canonical top-level pov metadata field in PROFILE_FIELDS taxonomy.
  * - 2026-10-04: Stripped per-field tense clauses from the temporal layer directives (tense now stated once via TASK_LIBRARY.TEMPORAL.TENSE); field text is pure content guidance.
  * - 2026-10-03: Instructed and preferred bracket directives across all fields (eternal/present non_physical and future) using HELPERS.BRACKETS, allowing prose while documenting bracket syntax.
  * - 2026-10-03: Consolidated HELPERS.BRACKETS and HELPERS.RELATIONAL_BRACKETS into unified BRACKETS helper documenting both standard and relational bracket syntax.

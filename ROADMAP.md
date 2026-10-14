@@ -168,22 +168,26 @@ Resolving the fundamental conflation between slot, perspective, and identity acr
 
 ---
 
-### Phase IV: Ghostwriter Perspective & Narrative POV Rework (Track 7)
+### Phase IV: Ghostwriter Perspective & Narrative POV Rework (Track 7) `[COMPLETED 2026-10-14]`
 
 Reworking the Ghostwriter pipeline so user persona drafts match the player's selected POV without constitutional agency panics.
 
 - **Objective**: Ensure the Ghostwriter drafts strictly for the user persona without narrating other participants or panicking under interaction constraints.
 - **Code reality / DECISION CONFLICT**: `task.js:729` records that Track 0.6 deliberately merged `GHOSTWRITE.BASE` into `CHARACTER.BASE`, a decision that also covers npc turns (`builder.js:896`). Live forensics (dossier T19-20) proved the merged base contradicts ghostwriting (Beast-POV draft, AGENCY panic). So 4.1 does NOT resurrect the retired directive wholesale — it adds a narrowly SCOPED additive branch for ghostwriting that leaves the Track 0.6 merge intact everywhere else.
-- **Key Modules**: `src/intelligence/prompts.js`, `src/intelligence/modules/task.js`, `src/intelligence/story.js`, `src/ui/console/StorymodeBar.svelte`, `src/intelligence/veil.js`, `src/data/definitions/profile-fields.js`.
-- **Planned Sub-Items**:
+- **Key Modules & Verification**: `src/intelligence/prompts.js`, `src/intelligence/prompts.test.js`, `src/intelligence/builder.js`, `src/intelligence/builder.test.js`, `src/intelligence/director.test.js`, `src/intelligence/modules/task.js`, `src/intelligence/modules/task.test.js`, `src/intelligence/modules/style.js`, `src/intelligence/modules/style.test.js`, `src/intelligence/modules/protocols.js`, `src/intelligence/modules/protocols.test.js`, `src/intelligence/modules/sheets.js`, `src/intelligence/modules/sheets.test.js`, `src/intelligence/prompt-verification.js`, `src/intelligence/story.js`, `src/ui/console/StorymodeBar.svelte`, `src/intelligence/veil.js`, `src/data/definitions/profile-fields.js`, `.agents/skills/simulation/scripts/simulation-audit.js`, `.agents/skills/simulation/scripts/simulation-audit.test.js`.
+- **Shipped Sub-Items**:
   - [x] **4.1 Scoped Ghostwrite Base Directive (Sub-item 7.1 / Additive Branch)**:
     - Add a dedicated base directive used SOLELY when `is_ghostwrite` routes — instructing the LLM to draft strictly on behalf of the player persona without narrating NPC reactions — while `CHARACTER.BASE` keeps governing interaction + npc turns unchanged. Regression gate: npc-turn coverage from Track 0.6 merge must not shift.
-  - [ ] **4.2 Persona POV Setting + Binding (Sub-item 7.2)**:
-    - Add a `1st` vs `3rd` person setting to the user-persona profile in `profile-fields.js`, then bind it at ghostwrite compile time (`"I stepped forward"` vs `"Benedict stepped forward"`).
+  - [x] **4.2 Persona POV Setting + Binding (Sub-item 7.2)**:
+    - Added canonical top-level `pov` setting to the profile schema in `src/data/definitions/profile-fields.js`. Stripped hardcoded "first-person" constraint from `GHOSTWRITE` in `task.js`, binding grammatical perspective dynamically via `<PERSPECTIVE person="FIRST|THIRD">` resolved from `active_speaker.pov`.
   - [x] **4.3 Owner-Perspective Veil Preservation on Ghostwrite Path (Sub-item 7.3)**:
     - Ensure the player's own `| hide` brackets remain visible to the ghostwrite compiler while staying sealed from third-party AI characters. Builds on the 3.3 Relational Context model.
-  - [ ] **4.4 Decoupled Authorial Voice Framing (Sub-item 7.4 / Issue 22)**:
-    - Inject celebrated author priors (_Anna Zaires_, _Anaïs Nin_) strictly through dedicated `<AUTHORIAL_VOICE>` envelopes paired with an inviolable `<SOVEREIGNTY player="...">` non-puppeteering constraint. Allows rich literary prose styling while preventing authorial godmoding over the player persona.
+  - [x] **4.4 Decoupled Authorial Voice Framing (Sub-item 7.4 / Issue 22)**:
+    - Replaced `<NARRATIVE_STYLE>` with dedicated `<AUTHORIAL_VOICE author="..." internal_ratio="...">` envelopes paired with an inviolable `<SOVEREIGNTY player="...">` non-puppeteering constraint. Allows rich literary prose styling while preventing authorial godmoding over the player persona.
+  - [x] **4.5 Quad Profile Field XML Expansion & Epistemic Parity (Issue 13, 21)**:
+    - Unified `parse_profile_field_rows` across all quad profile fields (`PERSONALITY`, `STATE`, `AGENDA`, `MEMORIES`) to expand brackets into structured child XML elements and compact short attributes identical to `APPEARANCE`. Extracted relational brackets natively into `<RELATION target="slug">` within `STATE` and `PERSONALITY` envelopes and purged duplicate `<DISPOSITION>` generation.
+  - [x] **4.6 Symmetrical Semantic Director Signals**:
+    - Replaced disjoint `<INPUT origin="..." round="...">` and `<INPUT origin="..." type="reply">` in Director input signals with chronological, symmetrical semantic tags: `<PREVIOUS_TURN origin="...">` for companion's prior output and `<CURRENT_TURN origin="...">` for player input.
 
 ---
 

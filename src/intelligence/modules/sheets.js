@@ -40,7 +40,7 @@ import {
   create_relational_context,
 } from "@utils";
 import { PROFILE_FIELD_CATALOG } from "@data";
-import { strip_epistemic_secrets, extract_entity_relationships, strip_relational_brackets } from "../veil.js";
+import { strip_epistemic_secrets } from "../veil.js";
 import { whole_vector_slice } from "../temporal.js";
 
 export { whole_vector_slice };
@@ -193,14 +193,14 @@ export function render_appearance_rows(eternal_rows = [], present_rows = []) {
 }
 
 /**
- * Renders a physical block (<APPEARANCE> or <CURRENT_LOOK>) separating compacted
- * biometric attributes from complex child rows. Emits self-closing tag when child rows are empty.
+ * Renders a profile field block (<APPEARANCE>, <PERSONALITY>, <STATE>, etc.) separating compacted
+ * attributes from complex child rows. Emits self-closing tag when child rows are empty.
  *
  * @param {string} tag
  * @param {string[]} [rows=[]]
  * @returns {string|null}
  */
-export function render_physical_block(tag, rows = []) {
+export function render_profile_field_block(tag, rows = []) {
   if (!rows || !rows.length) return null;
   const attrs = {};
   const children = [];
@@ -221,6 +221,106 @@ export function render_physical_block(tag, rows = []) {
   return `${open}\n${children.map((c) => `  ${c}`).join("\n")}\n</${tag}>`;
 }
 
+export const render_physical_block = render_profile_field_block;
+
+/**
+ * Parses raw profile state (non-physical or physical) into compacted attributes,
+ * child XML elements, or <RELATION target="..."> entity tags.
+ *
+ * Short entries (<= 40 chars, single line, no quotes) serialize as attributes:
+ * `mood="calm"`
+ * Complex, multiline, or descriptive entries (> 40 chars) expand into child elements:
+ * `<CORE>...</CORE>`
+ * Relational brackets ([@TARGET: ...] or [TARGET: ...] matching known entities) expand into:
+ * `<RELATION target="slug">...</RELATION>`
+ *
+ * @param {string|Record<string, any>|null|undefined} raw_value
+ * @param {any} [owner_entity=null]
+ * @param {any} [entities=null]
+ * @param {((value: string) => string)|null} [transform=null]
+ * @param {any} [context=null]
+ * @param {Map<string, string>|null} [name_to_id_map=null]
+ * @returns {string[]}
+ */
+export function parse_profile_field_rows(
+  raw_value,
+  owner_entity = null,
+  entities = null,
+  transform = null,
+  context = null,
+  name_to_id_map = null,
+) {
+  const resolved_value = owner_entity ? render_field_value(raw_value, owner_entity, entities, context) : raw_value;
+  const final_value = typeof transform === "function" ? transform(String(resolved_value ?? "")) : resolved_value;
+  const parsed = typeof final_value === "string" ? safe_parse_pseudo_json(final_value) : (final_value ?? {});
+  if (parsed.__raw_prose__) {
+    const prose = prompt_escape(String(parsed.__raw_prose__)).trim();
+    return prose ? [prose] : [];
+  }
+
+  const known_slugs = new Map();
+  if (name_to_id_map instanceof Map) {
+    for (const [name, id] of name_to_id_map) {
+      known_slugs.set(String(name).toLowerCase().trim(), String(id).toLowerCase().trim());
+    }
+  }
+  if (entities && typeof entities === "object") {
+    for (const item of Object.values(entities)) {
+      if (item?.name) {
+        const id_slug = String(item.id || item.name).toLowerCase().trim();
+        known_slugs.set(String(item.name).toLowerCase().trim(), id_slug);
+        if (item.id) known_slugs.set(String(item.id).toLowerCase().trim(), id_slug);
+      }
+    }
+  }
+
+  const rows = [];
+  if (typeof final_value === "string") {
+    const unbracketed = final_value.replace(/\[[^[\]]+\]/g, "").trim();
+    if (unbracketed) {
+      const prose = prompt_escape(unbracketed).trim();
+      if (prose) rows.push(prose);
+    }
+  }
+  for (const [key, raw_entry_val] of Object.entries(parsed)) {
+    const clean_key = String(key).trim();
+    const entry_values = Array.isArray(raw_entry_val) ? raw_entry_val : [raw_entry_val];
+
+    for (const raw_val of entry_values) {
+      const string_value = prompt_escape(String(raw_val ?? "")).trim();
+      if (!string_value) continue;
+
+      const is_explicit_handle = clean_key.startsWith("@");
+      const bare_key = clean_key.replace(/^@/, "").trim().toLowerCase();
+      const matched_target_id = is_explicit_handle || known_slugs.has(bare_key) ? (known_slugs.get(bare_key) || bare_key) : null;
+
+      if (matched_target_id) {
+        const target_slug = matched_target_id.replace(/\s+/g, "_");
+        rows.push(`<RELATION target="${escape_xml(target_slug)}">${string_value}</RELATION>`);
+        continue;
+      }
+
+      if (string_value.length <= 40 && !string_value.includes("\n") && !string_value.includes('"')) {
+        const attr_name = clean_key.toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "");
+        if (attr_name) {
+          rows.push(`${attr_name}="${string_value}"`);
+          continue;
+        }
+      }
+
+      const tag = clean_key.toUpperCase().replace(/\s+/g, "_").replace(/[^A-Z0-9_]/g, "");
+      if (tag) {
+        const row = `<${tag}>${string_value}</${tag}>`;
+        for (const line of row.split("\n")) {
+          const trimmed = line.trim();
+          if (trimmed) rows.push(trimmed);
+        }
+      }
+    }
+  }
+  return rows;
+}
+
 /**
  * Joins an entity's past memory vectors into one newline-delimited text.
  *
@@ -232,74 +332,6 @@ export function join_past_vectors(entity) {
     .map((vector) => vector.content || "")
     .filter(Boolean)
     .join("\n");
-}
-
-/**
- * Renders directed relational dispositions for an entity toward active scene participants.
- * Sourced primarily from present.non_physical, falling back to eternal.non_physical.
- * Emits individual <DISPOSITION target="slug">dynamic</DISPOSITION> tags without legacy wrappers.
- *
- * @param {any} entity
- * @param {string[]} [active_names=[]]
- * @param {Map<string, string>} [name_to_id_map=null]
- * @param {boolean} [is_owner=false]
- * @param {Record<string, any>} [entities={}]
- * @returns {string[]}
- */
-export function render_dispositions(entity, active_names = [], name_to_id_map = null, is_owner = false, entities = {}) {
-  if (!entity?.name) return [];
-  const rows = [];
-
-  const known_entities = [];
-  if (name_to_id_map instanceof Map) {
-    for (const [lowercase_name, entity_id] of name_to_id_map) {
-      known_entities.push({ id: entity_id, name: lowercase_name });
-    }
-  } else if (entities && typeof entities === "object") {
-    for (const item of Object.values(entities)) {
-      if (item?.name) {
-        known_entities.push({ id: item.id || item.name, name: item.name });
-      }
-    }
-  }
-
-  const perspective = is_owner ? "owner" : "other";
-  const bracket_relationships = extract_entity_relationships(entity, known_entities, perspective, entities);
-
-  const active_names_lc = Array.isArray(active_names) ? active_names.map((n) => String(n).toLowerCase().trim()) : [];
-
-  for (const [target_key, links] of bracket_relationships) {
-    const target_normalized = String(target_key).toLowerCase().trim();
-    if (
-      active_names_lc.length > 0 &&
-      !active_names_lc.includes(target_normalized) &&
-      !active_names_lc.includes(
-        String(links.target_name || "")
-          .toLowerCase()
-          .trim(),
-      )
-    ) {
-      continue;
-    }
-
-    // Phase III 3.9: Present dynamic is the primary source, falling back to eternal
-    const dynamic = links.present || links.eternal;
-    if (!dynamic || typeof dynamic !== "string" || !dynamic.trim()) continue;
-
-    const target_id = (name_to_id_map instanceof Map && name_to_id_map.get(target_normalized)) || links.target_id || target_key;
-    const target_slug = String(target_id).toLowerCase().replace(/\s+/g, "_");
-
-    rows.push(
-      render_xml_tag({
-        tag: "DISPOSITION",
-        attrs: { target: target_slug },
-        children: [prompt_escape(dynamic.trim())],
-        inline: true,
-      }),
-    );
-  }
-
-  return rows;
 }
 
 // ============================================================================
@@ -369,6 +401,12 @@ export function resolve_sheet_snapshot(entity, specification, options = {}) {
 
   const sanitized_agenda = sanitize(agenda_raw, epistemic.agenda);
   const sanitized_past = sanitize(memory_raw, epistemic.memory);
+
+  const agenda_rows = parse_profile_field_rows(sanitized_agenda, entity, entities, null, sheet_context, name_to_id);
+  const personality_rows = parse_profile_field_rows(personality_raw, entity, entities, null, sheet_context, name_to_id);
+  const state_rows = parse_profile_field_rows(state_raw, entity, entities, null, sheet_context, name_to_id);
+  const past_rows = parse_profile_field_rows(sanitized_past, entity, entities, null, sheet_context, name_to_id);
+
   const eternal_rows = parse_physical_rows(
     sanitize(entity?.eternal?.physical, epistemic.appearance),
     entity,
@@ -384,15 +422,14 @@ export function resolve_sheet_snapshot(entity, specification, options = {}) {
     sheet_context,
   );
 
-  const disposition_rows = show_dispositions ? render_dispositions(entity, active_names, name_to_id, is_owner, entities) : [];
-  const state_clean = show_dispositions ? strip_relational_brackets(state_raw) : state_raw;
-
   return Object.freeze({
     agenda: render_field_value(sanitized_agenda, entity, entities, sheet_context),
     personality: render_field_value(personality_raw, entity, entities, sheet_context),
-    state: strip_leading_key_echo(render_field_value(state_clean, entity, entities, sheet_context), specification?.state_strip_keys || []),
-    disposition_rows: Object.freeze(disposition_rows),
-    dispositions: disposition_rows.join("\n"),
+    state: strip_leading_key_echo(render_field_value(state_raw, entity, entities, sheet_context), specification?.state_strip_keys || []),
+    agenda_rows: Object.freeze(agenda_rows),
+    personality_rows: Object.freeze(personality_rows),
+    state_rows: Object.freeze(state_rows),
+    past_rows: Object.freeze(past_rows),
     eternal_rows: Object.freeze(eternal_rows),
     present_rows: Object.freeze(present_rows),
     appearance_rows: Object.freeze(render_appearance_rows(eternal_rows, present_rows)),
@@ -403,18 +440,6 @@ export function resolve_sheet_snapshot(entity, specification, options = {}) {
 // ============================================================================
 // [SECTION 4: UNIFIED SHEET RENDERER — ONE MODE AXIS]
 // ============================================================================
-
-/**
- * Renders one inline `<TAG>content</TAG>` sheet field, or null when blank.
- *
- * @param {string} tag
- * @param {string|null|undefined} content
- * @returns {string|null}
- */
-function render_sheet_field(tag, content) {
-  const text = String(content ?? "").trim();
-  return text ? render_xml_tag({ tag, children: [text], inline: true, child_indent: 2 }) : null;
-}
 
 /**
  * Compiles a single entity sheet XML block from its spec and a frozen snapshot.
@@ -461,9 +486,9 @@ export function render_sheet(specification, options = {}) {
 
   if (mode === "physical") {
     const blocks = [];
-    const eternal_block = render_physical_block("APPEARANCE", snapshot.eternal_rows);
+    const eternal_block = render_profile_field_block("APPEARANCE", snapshot.eternal_rows);
     if (eternal_block) blocks.push(eternal_block);
-    const present_block = render_physical_block("CURRENT_LOOK", snapshot.present_rows);
+    const present_block = render_profile_field_block("CURRENT_LOOK", snapshot.present_rows);
     if (present_block) blocks.push(present_block);
     const attrs = {
       ...(entity.id ? { id: String(entity.id).toUpperCase() } : {}),
@@ -473,10 +498,9 @@ export function render_sheet(specification, options = {}) {
   }
 
   const psychology_blocks = [
-    include_agenda ? render_sheet_field(specification.agenda_key, snapshot.agenda) : null,
-    render_sheet_field(specification.personality_tag, snapshot.personality),
-    render_sheet_field(specification.state_tag, snapshot.state),
-    ...(snapshot.disposition_rows || []),
+    include_agenda ? render_profile_field_block(specification.agenda_key, snapshot.agenda_rows) : null,
+    render_profile_field_block(specification.personality_tag, snapshot.personality_rows),
+    render_profile_field_block(specification.state_tag, snapshot.state_rows),
     typeof render_axes === "function" && specification.axes_scope ? render_axes(dynamics, specification.axes_scope) : null,
   ].filter(Boolean);
 
@@ -486,17 +510,17 @@ export function render_sheet(specification, options = {}) {
   }
 
   if (mode === "separate") {
-    const eternal_block = render_physical_block("APPEARANCE", snapshot.eternal_rows);
+    const eternal_block = render_profile_field_block("APPEARANCE", snapshot.eternal_rows);
     if (eternal_block) section_blocks.push(eternal_block);
-    const present_block = render_physical_block("CURRENT_LOOK", snapshot.present_rows);
+    const present_block = render_profile_field_block("CURRENT_LOOK", snapshot.present_rows);
     if (present_block) section_blocks.push(present_block);
   } else if (snapshot.appearance_rows.length) {
-    const appearance_block = render_physical_block(specification.appearance_tag, snapshot.appearance_rows);
+    const appearance_block = render_profile_field_block(specification.appearance_tag, snapshot.appearance_rows);
     if (appearance_block) section_blocks.push(appearance_block);
   }
 
   if (include_memories) {
-    const memory_block = render_sheet_field(specification.memory_tag, snapshot.past_text);
+    const memory_block = render_profile_field_block(specification.memory_tag, snapshot.past_rows);
     if (memory_block) section_blocks.push(memory_block);
   }
 

@@ -80,17 +80,18 @@ describe("protocols.js - Core Protocol Library & Compiler", () => {
     expect(render_alternation_protocol("choice: {red|blue}")).toContain("<ALTERNATION_OPTIONS>");
   });
 
-  it("renders <NARRATIVE_STYLE> symmetrically via render_narrative_style_xml", () => {
+  it("renders <AUTHORIAL_VOICE> symmetrically via render_narrative_style_xml", () => {
     const style = {
       id: "noir",
       description: "Shadow-drenched cynicism.",
       elements: ["rain", "cynicism", "venetian blinds"],
       dna: { internal_ratio: 0.7 },
     };
-    const xml = render_narrative_style_xml(style);
-    expect(xml).toContain('<NARRATIVE_STYLE origin="NOIR" internal_ratio="0.70">');
+    const xml = render_narrative_style_xml(style, "Silvers");
+    expect(xml).toContain('<AUTHORIAL_VOICE author="NOIR" internal_ratio="0.70">');
     expect(xml).toContain("Shadow-drenched cynicism.");
     expect(xml).toContain("<SIGNATURE_ELEMENTS>rain, cynicism, venetian blinds</SIGNATURE_ELEMENTS>");
+    expect(xml).toContain('<SOVEREIGNTY player="Silvers">');
     expect(render_narrative_style_xml({ id: "default" })).toBe("");
     expect(render_narrative_style_xml(null)).toBe("");
   });

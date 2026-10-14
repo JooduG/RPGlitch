@@ -374,7 +374,7 @@ function resolve_prose_bag(config, context, bag_inputs) {
       listener: listener_slug,
     },
     role_args: { speaker_name, listener_name, fractal_name },
-    core_protocols_args: { pov_protocol, style, alternation_source: "entities" },
+    core_protocols_args: { pov_protocol, style, alternation_source: "entities", player_name: entities.USER?.name || null },
     entities_kind: "sheets",
     sheets_args: {
       entities,
@@ -537,7 +537,7 @@ function normalize_narrator_context(config, context) {
       listener: narrator_listener_slug,
     },
     role_args: { speaker_name, listener_name: "", fractal_name: "" },
-    core_protocols_args: { pov_protocol, style, alternation_source: "entities" },
+    core_protocols_args: { pov_protocol, style, alternation_source: "entities", player_name: entities.USER?.name || null },
     entities_kind: "sheets",
     sheets_args: {
       entities,

@@ -196,6 +196,7 @@ export function resolve_protocol_plan({
   visual_style = null,
   engine_tokens = {},
   has_alternation = false,
+  player_name = null,
 } = {}) {
   const protocol_list = Array.isArray(protocols) ? protocols : typeof protocols === "string" ? protocols.split(",").map((item) => item.trim()) : [];
 
@@ -245,7 +246,9 @@ export function resolve_protocol_plan({
 
   const active_visual_style = visual_style || (Object.keys(engine_tokens).length > 0 ? style : null);
   const style_kind = active_visual_style ? "visual" : "narrative";
-  const style_xml = active_visual_style ? render_visual_style_xml(active_visual_style, engine_tokens) : render_narrative_style_xml(style);
+  const style_xml = active_visual_style
+    ? render_visual_style_xml(active_visual_style, engine_tokens)
+    : render_narrative_style_xml(style, player_name);
 
   return Object.freeze({
     static_rules: Object.freeze(static_rules.map((rule) => Object.freeze(rule))),
@@ -369,8 +372,11 @@ export function render_core_protocols({
   visual_style = null,
   engine_tokens = {},
   has_alternation = false,
+  player_name = null,
 } = {}) {
-  return render_protocol_plan(resolve_protocol_plan({ protocols, pov_protocol, style, visual_style, engine_tokens, has_alternation }));
+  return render_protocol_plan(
+    resolve_protocol_plan({ protocols, pov_protocol, style, visual_style, engine_tokens, has_alternation, player_name }),
+  );
 }
 
 /**
