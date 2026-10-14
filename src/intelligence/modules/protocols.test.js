@@ -72,7 +72,7 @@ describe("protocols.js - Core Protocol Library & Compiler", () => {
       pov_protocol: "CORE_PROTOCOLS.PERSPECTIVE.POV.THIRD",
     });
     expect(output).toContain('<PERSPECTIVE person="THIRD" tense="PAST">');
-    expect(output).toContain("Write strictly in the past tense.");
+    expect(output).toContain("in the past tense");
   });
 
   it("renders alternation protocol if text contains alternations", () => {

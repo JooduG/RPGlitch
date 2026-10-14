@@ -38,10 +38,10 @@ describe("Universal @ENTITY Macro Engine", () => {
       expect(parse_macros(text, user, entities)).toBe("A pact between Alice and Julien.");
     });
 
-    it("resolves concrete @JULIEN token to Julien", () => {
+    it("preserves concrete @JULIEN token without mangling it into a display name", () => {
       const text = "A message meant for @JULIEN.";
       const resolved = parse_macros(text, user, entities);
-      expect(resolved).toBe("A message meant for Julien.");
+      expect(resolved).toBe("A message meant for @JULIEN.");
     });
 
     it("does not parse legacy {me} and {you} curly braces (purged per P4)", () => {

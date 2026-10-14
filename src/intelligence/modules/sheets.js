@@ -258,13 +258,14 @@ export function parse_profile_field_rows(raw_value, owner_entity = null, entitie
     }
   }
   if (entities && typeof entities === "object") {
-    for (const item of Object.values(entities)) {
+    for (const [entity_role, item] of Object.entries(entities)) {
       if (item?.name) {
         const id_slug = String(item.id || item.name)
           .toLowerCase()
           .trim();
         known_slugs.set(String(item.name).toLowerCase().trim(), id_slug);
         if (item.id) known_slugs.set(String(item.id).toLowerCase().trim(), id_slug);
+        if (entity_role) known_slugs.set(String(entity_role).toLowerCase().trim(), id_slug);
       }
     }
   }
@@ -282,7 +283,11 @@ export function parse_profile_field_rows(raw_value, owner_entity = null, entitie
     const entry_values = Array.isArray(raw_entry_val) ? raw_entry_val : [raw_entry_val];
 
     for (const raw_val of entry_values) {
-      const string_value = prompt_escape(String(raw_val ?? "")).trim();
+      const clean_val = String(raw_val ?? "")
+        .replace(/\s*\|\s*show\b/gi, "")
+        .replace(/\s*\|\s*w:\s*\d+\b/gi, "")
+        .trim();
+      const string_value = prompt_escape(clean_val).trim();
       if (!string_value) continue;
 
       const is_explicit_handle = clean_key.startsWith("@");

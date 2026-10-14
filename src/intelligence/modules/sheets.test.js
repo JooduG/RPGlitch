@@ -267,6 +267,14 @@ describe("parse_profile_field_rows and relational rendering", () => {
     expect(state_xml).toContain('<RELATION target="bob">immediate tactical ally</RELATION>');
     expect(state_xml).toContain('<RELATION target="eve">concealed rival | hide</RELATION>');
   });
+
+  it("resolves @USER relation to entities.USER.id and strips | show and | w:10 flags", () => {
+    const context_entities = {
+      USER: { id: "JULIEN", name: "Julien the Banished Prince" },
+    };
+    const rows = parse_profile_field_rows("[@USER: submitted to royal authority | show | w:10]", null, context_entities);
+    expect(rows).toEqual(['<RELATION target="julien">submitted to royal authority</RELATION>']);
+  });
 });
 
 describe("render_sheet physical / separate modes", () => {

@@ -398,7 +398,7 @@ describe("reflex.js - spent ledger engine", () => {
 
     const directive = render_spent_ledger_directive(mock_ledger);
     expect(directive).toContain("<SPENT_LEDGER>");
-    expect(directive).toContain("<PROHIBITED_PATTERNS>");
+    expect(directive).toContain("<CONSTRAINTS>");
     expect(directive).toContain('<ITEM>"gripped the hilt"</ITEM>');
     expect(directive).toContain('<ITEM>"shifted his weight"</ITEM>');
   });

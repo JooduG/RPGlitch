@@ -9,6 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Relational Macro Graph, Handle Preservation & Directive Hygiene**:
+  - **Entity Handle Preservation & Multi-Relation Aggregation (`macros.js`, `text.js`)**:
+    - Purged legacy Rule #3 from `parse_macros` which was replacing entity handles like `@JULIEN` or `@USER` with entity names or uppercase tags (`JULIEN_THE_BANISHED_PRINCE`), keeping handles intact.
+    - Updated `safe_parse_pseudo_json` to aggregate repeated `@`-prefixed relational keys into arrays rather than overwriting previous entries, allowing multiple directed relations to the same target (e.g. multiple `[@ASHENWEALD: ...]`) to serialize into distinct `<RELATION>` tags.
+  - **Premade Entities Harmonization (`premade-entities.js`)**:
+    - Renamed Rust's entity ID to `HANK` (`Hank 'Rust' Brawley`) across all definitions and relational links (`[@HANK: ...]`) to eliminate noun collisions with physical rust.
+    - Anchored Silvers' and Julien's backstory memories cleanly to `[@ASHENWEALD: ...]` relations, capturing historical exile and court scandals with full relational graph connectivity.
+  - **Engine Flag Sanitization & Entity Role Resolution (`sheets.js`, `sheets.test.js`)**:
+    - Stripped engine visibility (`| show`) and weight (`| w:\d+`) flags in `parse_profile_field_rows` while preserving `| hide` for owner epistemic clarity.
+    - Mapped dynamic entity roles (`user`, `ai`, `fractal`) to their actual canonical entity IDs in `known_slugs`, ensuring `[@USER: ...]` correctly emits `<RELATION target="...">` directed to the player's entity ID.
+  - **Clean Unified Perspective & Tense Directive (`protocols.js`, `protocols.test.js`)**:
+    - Merged `PERSPECTIVE` and `TENSE` into a single authoritative sentence: `"Narrate in third-person limited ('he', 'she', 'they', or character name) in the present tense. Never use first-person pronouns in narrative prose."` eliminating awkward blank lines and redundant `"Write strictly in"` phrasing.
+  - **Directorial Grounding & Momentum Protocol (`prompts.js`, `prompt-verification.js`, `builder.test.js`)**:
+    - Added `CORE_PROTOCOLS.GROUNDING` and `CORE_PROTOCOLS.PROSE_DISCIPLINE.SCENE_MOMENTUM` to Director protocols and verification contracts, establishing physical reality grounding and anti-stagnation rules directly in Director prompts.
+  - **Negative Constraint Grouping & Reflex Documentation (`reflex.js`, `reflex.test.js`, `prompt-verification.js`)**:
+    - Renamed `<PROHIBITED_PATTERNS>` inside `<SPENT_LEDGER>` to `<CONSTRAINTS>` to eliminate the semantic double-negative.
+    - Added exhaustive trigger condition comments above every prompt atom in `REFLEX_LIBRARY`.
+
 - **Phase IV & Prompt Architecture Harmonization (Issues 13, 21, 22)**:
   - **Quad Profile Field XML Expansion (`sheets.js`, `sheets.test.js`)**:
     - Unified `parse_profile_field_rows` across all quad profile fields (`PERSONALITY`, `STATE`, `AGENDA`, `MEMORIES`), replacing unformatted bracket dumps with structured child XML elements (`<CORE>`, `<SPEECH>`, `<FOCUS>`) and compact attributes (<= 40 chars) identical to `APPEARANCE`.

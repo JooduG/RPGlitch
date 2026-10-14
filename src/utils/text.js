@@ -89,11 +89,13 @@ function _store_parsed_entry(target, k, v) {
     delete target[k];
     return;
   }
-  if (AGGREGATE_KEYS.has(k)) {
-    const items = v
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
+  if (AGGREGATE_KEYS.has(k) || k.startsWith("@")) {
+    const items = AGGREGATE_KEYS.has(k)
+      ? v
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
+      : [v];
     const existing = target[k];
     const list = Array.isArray(existing) ? existing : existing ? [existing] : [];
     for (const item of items) {

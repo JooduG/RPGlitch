@@ -298,7 +298,7 @@ export const PROMPTS = Object.freeze({
     task_state: "director",
     directives: director_directives,
     constitution: true,
-    protocols: ["CORE_PROTOCOLS.ALTERNATION_OPTIONS"],
+    protocols: ["CORE_PROTOCOLS.GROUNDING", "CORE_PROTOCOLS.PROSE_DISCIPLINE.SCENE_MOMENTUM", "CORE_PROTOCOLS.ALTERNATION_OPTIONS"],
     entities: { candidate_entities: true },
     layers: DIRECTOR_LAYERS,
     variants: { terse: { system: ["role"], task: ["output_format"] } },

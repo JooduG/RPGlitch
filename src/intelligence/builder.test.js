@@ -302,9 +302,10 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
     });
 
     expect(director_package.system).toContain("<SYSTEM");
-    expect(director_package.system).toContain('mode="director"');
-    // Empty protocol block should be completely omitted (R5)
-    expect(director_package.system).not.toContain("<CORE_PROTOCOLS>");
+    // Director includes GROUNDING and SCENE_MOMENTUM in CORE_PROTOCOLS
+    expect(director_package.system).toContain("<CORE_PROTOCOLS>");
+    expect(director_package.system).toContain("<GROUNDING>");
+    expect(director_package.system).toContain("<SCENE_MOMENTUM>");
     // Schema should NOT be inside <CORE_PROTOCOLS> in system
     expect(director_package.system).not.toContain("<SCHEMA>");
     // Schema should be inside task

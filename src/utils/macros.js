@@ -123,15 +123,6 @@ export function parse_macros(text, owner_or_context, entities = {}, context = {}
       return match;
     }
 
-    // 3. Concrete entity name/id match
-    const token_lc = raw_token.toLowerCase();
-    for (const entity of [ai_entity, user_entity, fractal_entity, owner, rel_ctx.target]) {
-      if (!entity) continue;
-      if ((entity.id && String(entity.id).toLowerCase() === token_lc) || (entity.name && String(entity.name).toLowerCase() === token_lc)) {
-        return entity.name;
-      }
-    }
-
     return match;
   });
 }

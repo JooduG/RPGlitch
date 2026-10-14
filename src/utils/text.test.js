@@ -106,6 +106,11 @@ describe("safe_parse_pseudo_json", () => {
     expect(parsed.INVENTORY).toEqual(["potion", "map", "dagger"]);
   });
 
+  it("aggregates multiple relational @-prefixed entries under the same target", () => {
+    const parsed = safe_parse_pseudo_json("[@ASHENWEALD: high court birthplace] [@ASHENWEALD: site of public stripping of princehood]");
+    expect(parsed["@ASHENWEALD"]).toEqual(["high court birthplace", "site of public stripping of princehood"]);
+  });
+
   it("falls back to quoted JSON or raw prose", () => {
     expect(safe_parse_pseudo_json('"STATUS": "active"')).toEqual({ STATUS: "active" });
     expect(safe_parse_pseudo_json("Just raw narrative prose.")).toEqual({

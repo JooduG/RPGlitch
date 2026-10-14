@@ -85,12 +85,16 @@ export const REFLEX_DEFAULTS = Object.freeze({
  */
 export const REFLEX_LIBRARY = Object.freeze({
   PACING: Object.freeze({
+    // Trigger condition: User input is <= 40 characters or <= 8 words.
     TERSE: Object.freeze({ tag: "PACING", mode: "TERSE", body: "Brief, weighted reply. Zero padding." }),
+    // Trigger condition: Default fallback when user input is between terse and expansive scales.
     ADAPTIVE: Object.freeze({ tag: "PACING", mode: "ADAPTIVE", body: "Substantive reply, driving the scene forward." }),
+    // Trigger condition: User input is >= 300 characters or >= 60 words.
     EXPANSIVE: Object.freeze({ tag: "PACING", mode: "EXPANSIVE", body: "Expand to match message breadth; close on one decisive hook." }),
   }),
 
   RHYTHM: Object.freeze({
+    // Trigger condition: Standard narrative cadence applied across all active interaction turns.
     DEFAULT: Object.freeze({
       tag: "RHYTHM",
       body: "Hold temperament; resist passive compliance. Match conversational scale and build situational friction rather than rushing resolution.",
@@ -98,10 +102,12 @@ export const REFLEX_LIBRARY = Object.freeze({
   }),
 
   DRIVE: Object.freeze({
+    // Trigger condition: User provided non-empty input on the current turn (has_input === true).
     WITH_INPUT: Object.freeze({
       tag: "DRIVE",
       body: "Advance the scene in response to «INPUT»: drive the beat forward independently and end on an unresolved hook demanding response.",
     }),
+    // Trigger condition: User submitted empty turn, blank whitespace, or silence (has_input === false).
     WITHOUT_INPUT: Object.freeze({
       tag: "DRIVE",
       body: "Take active initiative: drive events forward on your own terms through decisive actions and end on an unresolved hook demanding response.",
@@ -109,18 +115,22 @@ export const REFLEX_LIBRARY = Object.freeze({
   }),
 
   TURN_STATE: Object.freeze({
+    // Trigger condition: Director staging on opening turn where characters are unacquainted strangers.
     FIRST_CONTACT: Object.freeze({
       tag: "FIRST_CONTACT",
       body: "First encounter: characters are strangers. Acknowledge visual first impressions, physical distance, and tone before full dialogue.",
     }),
+    // Trigger condition: Director staging on Round 1 following Fractal prologue (round === 1).
     ROUND_ONE: Object.freeze({
       tag: "ROUND_ONE",
       body: 'Round 1 follows the Fractal prologue, so next_action MUST be "AI_CHARACTER".',
     }),
+    // Trigger condition: Director turn evaluation when user input is present (has_input === true).
     EVALUATION_INPUT: Object.freeze({
       tag: "EVALUATION_INPUT",
       body: 'Evaluate state mutations caused by «INPUT». Evaluate biological limits and physical causality strictly: if «INPUT» or physical events describe definitively fatal, terminal bodily destruction (e.g. biological death, irreversible drowning/asphyxiation, decapitation, or lethal cranial destruction with zero chance of medical survival), you MUST emit next_action: "EPILOGUE_COLLAPSED" and story_status: "COLLAPSED". Severe but survivable trauma (maiming, crushed limbs, severe blood loss, unconsciousness) should remain in-progress with somatic penalties in present.physical. Never hallucinate physical survival, bypass consequence, or continue casual dialogue across fatal events.',
     }),
+    // Trigger condition: Director turn evaluation when user input is empty or ambient (has_input === false).
     EVALUATION_SCENE: Object.freeze({
       tag: "EVALUATION_SCENE",
       body: 'Evaluate state mutations caused by the current situation. If environmental catastrophe or definitively fatal bodily destruction has occurred, emit next_action: "EPILOGUE_COLLAPSED" and story_status: "COLLAPSED". Severe non-lethal injuries remain in-progress.',
@@ -128,27 +138,33 @@ export const REFLEX_LIBRARY = Object.freeze({
   }),
 
   CONDITIONALS: Object.freeze({
+    // Trigger condition: Non-verbal action verbs or spatial nouns detected without spoken quotes.
     ENVIRONMENTAL_HINT: Object.freeze({
       tag: "ENVIRONMENTAL_HINT",
       enveloped: true,
       body: 'Non-verbal environmental action. Strongly consider setting "speaker" to "fractal" to narrate the setting, unless AI character should react directly.',
     }),
+    // Trigger condition: Text contains selectable options in {Option A|Option B} macro syntax.
     ALTERNATION: Object.freeze({
       tag: "ALTERNATION_OPTIONS",
       body: `Resolve {Option A|Option B} alternations by selecting exactly ONE contextually fitting option. Emit only the chosen text—never echo braces or pipes, blend choices, or output multiple options simultaneously.`,
     }),
+    // Trigger condition: Short dialogue turn (< 90 chars / tiny or small tier) without active stagnation (stagnation_turns < 8).
     ANTI_STAGING: Object.freeze({
       tag: "ANTI_STAGING",
       body: "Terse dialogue turn: deliver the line and hold position. Forbid gratuitous physical movement, blocking, or scene re-staging on this beat.",
     }),
+    // Trigger condition: User input contains silence or hesitation markers (..., pause, silence).
     HELD_MOMENT: Object.freeze({
       tag: "HELD_MOMENT",
       body: "Held moment: the other side offers pause or silence. Permit lingering — stay in the beat, do not force a scene transition or manufacture urgency.",
     }),
+    // Trigger condition: Stagnation turns reach or exceed soft permit threshold (stagnation_turns >= 8 && stagnation_turns < 16).
     MOMENTUM_SOFT_PERMIT: Object.freeze({
       tag: "MOMENTUM_SOFT_PERMIT",
       body: "Scene momentum warning: Narrative movement has plateaued for {stagnation_turns} beats. Cease holding position — grant permission to break physical blocking, shift focus, or escalate tension.",
     }),
+    // Trigger condition: Stagnation turns reach or exceed hard mandate threshold (stagnation_turns >= 16).
     MOMENTUM_HARD_MANDATE: Object.freeze({
       tag: "MOMENTUM_HARD_MANDATE",
       body: "Scene momentum critical: Extreme stagnation detected ({stagnation_turns} beats). Forbid circular banter. Force an irreversible environmental transition or immediate external arrival.",
@@ -157,13 +173,17 @@ export const REFLEX_LIBRARY = Object.freeze({
 
   RECOVERY: Object.freeze({
     STABILITY: Object.freeze({
+      // Trigger condition: Moderate structural drift or unclosed XML tag detected (structural_errors === 1 || 2).
       WARNING: Object.freeze({ tag: "STABILITY_LOCK", level: "WARNING", body: "Structural drift detected. Ensure all XML tags close cleanly." }),
+      // Trigger condition: Repeated structural breakdown or unparseable schema payload (structural_errors >= 3).
       CRITICAL: Object.freeze({ tag: "STABILITY_LOCK", level: "CRITICAL", body: "Structural collapse. Every XML tag must close cleanly." }),
     }),
+    // Trigger condition: Generation was truncated mid-sentence due to token budget or stream stop.
     TRUNCATION: Object.freeze({
       tag: "TRUNCATION_NOTE",
       body: "\n\nIMPORTANT: Previous reply cut off mid-sentence. Complete the response directly without repeating earlier text or rehashing events. Conclude on a complete sentence.",
     }),
+    // Trigger condition: Truncation finish recovery where trailing snippet is passed to cleanly complete the thought.
     FINISH_TAIL: Object.freeze({
       tag: "FINISH_TAIL",
       body: '\n\nCRITICAL: The previous generation ended abruptly on: "{tail_snippet}". Provide ONLY the concluding clause or sentence to cleanly complete the thought. Do not repeat previous text.',
@@ -693,7 +713,7 @@ export function render_spent_ledger_directive(spent_ledger) {
 
   const items = spent_ledger.spent_items.map((item) => render_xml_tag({ tag: "ITEM", children: [`"${prompt_escape(item)}"`], inline: true }));
   const patterns = render_xml_tag({
-    tag: "PROHIBITED_PATTERNS",
+    tag: "CONSTRAINTS",
     children: items,
     indent: 2,
     child_indent: 4,

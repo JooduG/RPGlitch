@@ -250,10 +250,36 @@ export function resolve_protocol_plan({
     ? render_visual_style_xml(active_visual_style, engine_tokens)
     : render_narrative_style_xml(style, player_name);
 
+  const format_unified_perspective = (person_key, tense_key, pov_text, tense_cmd) => {
+    const tense_phrases = {
+      PRESENT: "in the present tense",
+      PAST: "in the past tense",
+      FUTURE: "in the active future tense",
+    };
+    const phrase = tense_phrases[tense_key];
+    if (person_key === "THIRD" && phrase) {
+      return `Narrate in third-person limited ('he', 'she', 'they', or character name) ${phrase}. Never use first-person pronouns in narrative prose.`;
+    }
+    if (person_key === "FIRST" && phrase) {
+      return `Narrate in first-person ('I', 'me', 'my') ${phrase}. Describe actions and sensations through your own eyes—never use third-person pronouns or your character name.`;
+    }
+    if (person_key === "THIRD" && tense_key === "LAYER") {
+      return `Narrate in third-person limited ('he', 'she', 'they', or character name). Never use first-person pronouns in narrative prose. ${tense_cmd}`.trim();
+    }
+    if (person_key === "FIRST" && tense_key === "LAYER") {
+      return `Narrate in first-person ('I', 'me', 'my'). Describe actions and sensations through your own eyes—never use third-person pronouns or your character name. ${tense_cmd}`.trim();
+    }
+    return [pov_text, tense_cmd].filter(Boolean).join(" ");
+  };
+
+  const perspective_body = format_unified_perspective(person, perspective_tense, pov_body, tense_command);
+
   return Object.freeze({
     static_rules: Object.freeze(static_rules.map((rule) => Object.freeze(rule))),
     perspective:
-      resolved_pov_protocol || layer_tense_rules.length > 0 ? Object.freeze({ person, tense: perspective_tense, pov_body, tense_command }) : null,
+      resolved_pov_protocol || layer_tense_rules.length > 0
+        ? Object.freeze({ person, tense: perspective_tense, pov_body, tense_command, body: perspective_body })
+        : null,
     alternation: Boolean(has_alternation && should_include("ALTERNATION_OPTIONS")),
     style_kind,
     style_xml,
@@ -283,9 +309,8 @@ export function render_protocol_plan(plan) {
       ? render_xml_tag({
           tag: "PERSPECTIVE",
           attrs: { person: plan.perspective.person, tense: plan.perspective.tense },
-          children: [prompt_escape(plan.perspective.pov_body), plan.perspective.tense_command],
-          child_indent: 2,
-          separator: "\n",
+          children: [prompt_escape(plan.perspective.body || plan.perspective.pov_body)],
+          inline: true,
         })
       : null,
     plan.alternation ? render_alternation_protocol("", { force: true }) : null,

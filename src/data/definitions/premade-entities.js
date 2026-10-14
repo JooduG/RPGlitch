@@ -187,7 +187,7 @@ export const PREMADE_CHARACTERS = Object.freeze([
 [DESIRE: true devotion while hiding terror of being genuinely seen behind silver-tongued promises and gold-plated collars]
 [@ORION: corporate sponsorship marketing puppet and sculpted prize | show | w:8]
 [@JULIEN: hypnotic conditioning and shared exile origin | show | w:9]
-[@RUST: underground arena arms client | show | w:7]
+[@HANK: underground arena arms client | show | w:7]
 [@BEAST: prized gladiatorial combat asset | show | w:7]
 [@ASHENWEALD: ancient aristocratic high court birthplace and site of exile | show | w:10]
 [@NOVA: corporate syndicate headquarters and underground arena empire | show | w:9]`,
@@ -208,14 +208,14 @@ export const PREMADE_CHARACTERS = Object.freeze([
 [EXPANSION: expand corporate dominance into deep space by securing control of Project Tartarus experimental biological pipelines]
 [BUILDING PRESSURE: next candidate for aesthetic conditioning is already under surveillance; resistance only sharpens anticipation]
 [@TARTARUS: target for deep-space corporate expansion | show | w:8]
-[@RUST: planned go-between for prototype acquisition | show | w:6]`,
+[@HANK: scrap-merchant weapons specialist and planned go-between for prototype acquisition | show | w:6]`,
     past: `[@ASHENWEALD: formally exiled from the high court when forbidden hypnotic compulsions on nobles were exposed | show | w:10]
-[EMPIRE FOUNDING: stripped of royal standing, channeled fortune into building an empire beyond elven law]
+[@ASHENWEALD: stripped of royal standing, channeled fortune into founding an empire beyond elven law | show | w:9]
 [@JULIEN: shared a quiet manipulative confrontation in the palace gardens before exile, planting seeds of downfall and longing for surrender | show | w:9]`,
   },
 
   {
-    id: "RUST",
+    id: "HANK",
     name: "Hank 'Rust' Brawley",
     type: "character",
     description: "Grizzled honky-tonk weapons specialist, scrap-merchant and scrapyard genius with a crude, aggressive, zero-filter attitude.",
@@ -304,7 +304,7 @@ export const PREMADE_CHARACTERS = Object.freeze([
 [BLIND SPOT: insistence on detached clinical curiosity masking desperate craving for absolute mindless devotion of the specimens he creates]
 [DESIRE: keep massive specimens bound to his syringes and growth vats]
 [@BEAST: creator, growth architect, and escaped laboratory specimen | show | w:10]
-[@RUST: trades specialized biotech for rare scrap while refusing Silvers Corp buyouts | show | w:7]
+[@HANK: trades specialized biotech for rare scrap while refusing Silvers Corp buyouts | show | w:7]
 [@TARTARUS: personal orbital research station and independent sandbox | show | w:10]`,
     },
     present: {
@@ -375,7 +375,7 @@ export const PREMADE_CHARACTERS = Object.freeze([
 [SURRENDER: wear revealing delicate luxury and provide the absolute authoritative structure his psyche craves]
 [RESOLVE: the next authoritative presence that notices him will not be permitted to leave without a clear claim]
 [NEED: replacement father-figure structure has become the only internal compass he trusts]`,
-    past: `[GARDEN SCANDAL: royal father caught him submitting to palace guards on The Night of the Silver Whispers, leading to public stripping of princehood | show | w:10]
+    past: `[@ASHENWEALD: royal father caught him submitting to palace guards on The Night of the Silver Whispers; this garden scandal led to public stripping of princehood | show | w:10]
 [@ASHENWEALD: disowned and banished from royal kingdom, fleeing into exile | show | w:10]
 [@SILVERS: shared exile origin who planted lingering longings for hypnotic surrender in the palace gardens | show | w:8]`,
   },
