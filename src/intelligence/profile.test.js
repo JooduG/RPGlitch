@@ -49,9 +49,8 @@ describe("Profile Domain (profile.js)", () => {
         enhancer: "AESTHETICS",
         entity,
       });
-      expect(result.system).toContain("<CURRENT_LOOK>");
-      expect(result.system).toContain("<eyeColor>blue</eyeColor>");
-      expect(result.system).toContain("<hair>black</hair>");
+      expect(result.system).toMatch(/<CURRENT_LOOK[^>]*eyecolor="blue"/);
+      expect(result.system).toMatch(/<CURRENT_LOOK[^>]*hair="black"/);
     });
 
     it("injects MACRO_PROTOCOL correctly for characters vs fractals", () => {
@@ -203,6 +202,7 @@ describe("Profile Domain (profile.js)", () => {
 
 /**
  * CHANGELOG
+ * - 2026-10-14: Phase 3 Atom 3.4 — updated physical properties assertions to validate biometric attribute compaction on <CURRENT_LOOK>.
  * - 2026-09-23: Assertion follows the single `mode` discriminator (`<SYSTEM mode="sorting"`).
  * - 2026-09-16: Updated primitive protocol assertions from SORTING_DIRECTIVES to TASK_LIBRARY.SORTING following catalog unification in task.js.
  * - 2026-09-12: Updated protocol tests to assert the 7 unified SCREAMING_SNAKE_CASE OUTPUT_FORMATS.

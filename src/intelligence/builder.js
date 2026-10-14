@@ -19,16 +19,7 @@
  */
 
 import { PROFILE_FIELD_CATALOG, VISUAL_STYLES, resolve_portrait_visual_style_key } from "@data";
-import {
-  prompt_escape,
-  parse_macros,
-  strip_cognition_blocks,
-  resolve_alternations,
-  alternation_field_label,
-  state_bridge,
-  get_value,
-  clean_text,
-} from "@utils";
+import { prompt_escape, strip_cognition_blocks, resolve_alternations, alternation_field_label, state_bridge, get_value, clean_text } from "@utils";
 import { ensure_embeddings } from "@platform";
 import { normalize_image_tier, resolve_visual_engine_tokens } from "@media";
 import { resolve_style_snapshot } from "./modules/style.js";
@@ -259,14 +250,14 @@ export function create_render_accessors(entities = {}, input = "", raw_messages 
         max_chars: 1500,
         ...options,
       });
-      return parse_macros(formatted, entity, entities);
+      return formatted;
     },
     future: (reference) => {
       const entity = resolve(reference);
       const raw_future = String(entity?.future || "").trim();
       const extracted_plan = extract_plan_from_state(entity?.present?.non_physical);
       const combined_future = [raw_future, extracted_plan ? `Active Plan: ${extracted_plan}` : ""].filter(Boolean).join("\n");
-      return parse_macros(combined_future.trim(), entity, entities);
+      return combined_future.trim();
     },
     simulation_log: (limit = 10, offset = 0, options = {}) =>
       render_history(raw_messages, { limit, offset, indent: 2, token_budget: options?.token_budget ?? Infinity }),
@@ -353,9 +344,18 @@ function resolve_prose_bag(config, context, bag_inputs) {
         evaluate_subtext_protocols,
       });
   const turn_meta = context.meta ?? {};
+  const speaker_slug = String(active_speaker?.id || active_speaker?.name || (is_npc ? "npc" : "companion"))
+    .toLowerCase()
+    .replace(/\s+/g, "_");
+  const listener_slug = String(active_listener?.id || active_listener?.name || "traveler")
+    .toLowerCase()
+    .replace(/\s+/g, "_");
   return {
     round: context.round ?? null,
-    attributes: {},
+    attributes: {
+      speaker: speaker_slug,
+      listener: listener_slug,
+    },
     role_args: { speaker_name, listener_name, fractal_name },
     core_protocols_args: { pov_protocol, style, alternation_source: "entities" },
     entities_kind: "sheets",
@@ -497,9 +497,18 @@ function normalize_narrator_context(config, context) {
     evaluate_subtext_protocols,
   });
   const beat_input = is_prologue_beat ? "" : (context.input ?? "");
+  const narrator_speaker_slug = String(speaker?.id || speaker?.name || "fractal")
+    .toLowerCase()
+    .replace(/\s+/g, "_");
+  const narrator_listener_slug = String(input_origin_entity?.id || input_origin_entity?.name || "traveler")
+    .toLowerCase()
+    .replace(/\s+/g, "_");
   return {
     round: context.round ?? 0,
-    attributes: {},
+    attributes: {
+      speaker: narrator_speaker_slug,
+      listener: narrator_listener_slug,
+    },
     role_args: { speaker_name, listener_name: "", fractal_name: "" },
     core_protocols_args: { pov_protocol, style, alternation_source: "entities" },
     entities_kind: "sheets",
@@ -884,6 +893,7 @@ export const MODE_ADAPTERS = {
  */
 /**
  * CHANGELOG
+ * - 2026-10-14: Atom 3.4 — Turn Pragmatics (Issue 13 / Sub-item 6.10). resolve_prose_bag and normalize_narrator_context emit speaker and listener slug attributes for root <TURN> envelope compilation.
  * - Track 2.4: normalize_continuum_context seals memory_advisory_args (settled facts via resolve_settled_facts) and budgets the input-history window (HISTORY_TOKEN_BUDGET).
  * - Track 2.2: create_render_accessors.simulation_log accepts a token_budget option (default Infinity).
  * - Track 0.11: resolve_optics_cinematography now imports from style.js (sensory.js dissolved). Prompt bytes byte-identical.
@@ -952,4 +962,5 @@ export const MODE_ADAPTERS = {
  * - Track 3.1: Wires spent ledger extraction into resolve_prose_bag and normalize_narrator_context to prohibit recent phrasing repetitions.
  * - Track 4.2: Directorial Momentum Tiers & Stagnation Backstop — wired stagnation_turns through normalize_director_context and resolve_prose_bag into task_params.
  * - 2026-10-14: Phase 1 Prompt Pipeline Hygiene & P4 Purges — (1) Purged dead lorebook_args constructions; (2) Computed has_candidates via resolve_available_entities and passed to Director task_params.
+ * - 2026-10-14: Atom 3.1 — Epistemic-First Sequencing Invariant (Issue 20). Removed premature parse_macros from accessors.past and accessors.future; un-macro'd text is returned to sheets.js for epistemic sanitization prior to macro resolution.
  */

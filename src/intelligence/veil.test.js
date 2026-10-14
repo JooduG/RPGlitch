@@ -264,11 +264,40 @@ describe("veil: extract_entity_relationships", () => {
     expect(other_rels.has("ALICE")).toBe(false);
     expect(other_rels.has("BENEDICT")).toBe(true);
   });
+
+  it("resolves canonical single-word slugs and returns 4-quadrant relational record", () => {
+    const actor = {
+      name: "Glitch",
+      eternal: { non_physical: "[@SILVERS: corporate syndicate rival | show | w:9]" },
+      present: { non_physical: "[@SILVERS: hacking financial accounts | hide | w:8]" },
+      past: "[@SILVERS: stole security keys | show | w:7]",
+      future: "[@SILVERS: expose corruption | show | w:10]",
+    };
+    const known = [{ id: "SILVERS", name: "Lord Benedict Silvers" }];
+
+    // Owner sees all 4 quadrants
+    const owner_rels = extract_entity_relationships(actor, known, "owner");
+    expect(owner_rels.has("SILVERS")).toBe(true);
+    const silvers_link = owner_rels.get("SILVERS");
+    expect(silvers_link.target_id).toBe("SILVERS");
+    expect(silvers_link.target_name).toBe("Lord Benedict Silvers");
+    expect(silvers_link.eternal).toBe("corporate syndicate rival");
+    expect(silvers_link.present).toBe("hacking financial accounts");
+    expect(silvers_link.past).toEqual(["stole security keys"]);
+    expect(silvers_link.future).toBe("expose corruption");
+
+    // Other perspective redacts present (which is hidden)
+    const other_rels = extract_entity_relationships(actor, known, "other");
+    expect(other_rels.has("SILVERS")).toBe(true);
+    expect(other_rels.get("SILVERS").present).toBeUndefined();
+    expect(other_rels.get("SILVERS").eternal).toBe("corporate syndicate rival");
+  });
 });
 
 /**
  * CHANGELOG
  * ============================================================================
+ * - 2026-10-14: Atom 3.3 — Added test for canonical single-word slugs and 4-quadrant relational record extraction in extract_entity_relationships.
  * - 2026-10-01: Renamed synaptic.test.js to veil.test.js and added tests for strip_epistemic_tags, strip_epistemic_secrets, verify_epistemic_integrity, and strip_bracket_engine_flags.
  * - 2026-09-30: Added tests for restricted clearing keywords (none/cleared only), | private token alias, owner round-trip resiliency, and perspective-aware relationship harvesting.
  * - 2026-09-29: Initial comprehensive TDD test suite for the Synaptic Bracket Engine (synaptic.js).

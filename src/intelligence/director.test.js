@@ -127,7 +127,7 @@ describe("Director Quick Shot Prompt (compile_prompt director)", () => {
   it("gives on-stage NPCs a full sheet and never restates the sheeted trio in a CAST block", () => {
     const npc_entities = [{ id: "npc-elias", name: "Elias", description: "Archivist" }];
     const result = compile_prompt("director", { ...base_payload(), npc_entities, in_scene_ids: ["npc-elias"], compressed_snapshot: base_snapshot });
-    expect(result.system).toContain('<NPC id="npc-elias" name="Elias">');
+    expect(result.system).toContain('<CHARACTER id="NPC-ELIAS" name="Elias">');
     expect(result.system).not.toContain("<CAST");
     expect(result.system).not.toContain("Primary Companion");
     expect(result.system).not.toContain("Protagonist");
@@ -603,6 +603,7 @@ describe("Atom 2.5 Climax Sovereignty Dual Defense", () => {
 
 /**
  * CHANGELOG
+ * - 2026-10-14: Phase 3 Atom 3.4 — updated on-stage NPC assertions to validate unified <CHARACTER id="NPC-ELIAS" name="Elias"> envelope.
  * - 2026-10-14: Atom 2.5 — Added unit tests for is_explicit_player_destruction_declared and Climax Sovereignty Dual Defense in normalize_director_data.
  * - 2026-10-14: Phase 1 — Updated INPUT assertions to typed/omitted attributes; purged alternative_branches tests and USER_PERSONA_LOCK tests under P4 single-source Sovereignty.
  */

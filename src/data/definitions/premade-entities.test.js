@@ -152,5 +152,37 @@ describe("premade-entities registry", () => {
       expect(fractals.every((f) => f.type === "fractal")).toBe(true);
       expect(fractals.length).toBe(PREMADE_FRACTALS.length);
     });
+
+    it("enforces canonical single-word uppercase slugs for all directed @ brackets", () => {
+      const valid_ids = new Set(PREMADE_ENTITIES.map((e) => e.id));
+      for (const entity of PREMADE_ENTITIES) {
+        const all_text = [
+          entity.eternal?.physical,
+          entity.eternal?.non_physical,
+          entity.present?.physical,
+          entity.present?.non_physical,
+          entity.future,
+          entity.past,
+        ]
+          .filter(Boolean)
+          .join("\n");
+
+        expect(all_text).not.toMatch(/\[@[A-Z0-9_-]+\s+[A-Z0-9_-]+:/);
+
+        const matches = [...all_text.matchAll(/\[@([A-Z0-9_'-]+):/g)];
+        for (const match of matches) {
+          const slug = match[1];
+          expect(valid_ids.has(slug) || ["USER", "CHAR", "FRACTAL"].includes(slug)).toBe(true);
+        }
+      }
+    });
   });
 });
+
+/**
+ * CHANGELOG
+ * ============================================================================
+ * - 2026-10-14: Atom 3.3 — Added test asserting that all directed relational brackets conform strictly to canonical single-word uppercase slugs matching registered entity IDs.
+ * - 2026-10-01: Initial test suite for premade-entities registry and query primitives.
+ * ============================================================================
+ */

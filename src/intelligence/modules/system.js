@@ -126,18 +126,27 @@ function render_prompt_layers(state, allowed_keys = null) {
 
 export const SYSTEM_TAG = "SYSTEM";
 
+const STORYTELLER_MODES = Object.freeze(["interaction", "ghostwrite", "npc", "narrator"]);
+
 /**
  * Resolves envelope inputs into a frozen, render-ready plan. Every selection
  * (mode, round, attributes, ordered children) happens here — the renderer maps
  * plan fields to XML without branching.
+ *
+ * Turn Pragmatics:
+ * - Shot 1 (Director) and auxiliary tools: root <SYSTEM round="..." mode="...">
+ * - Shot 2 (Storyteller): root <TURN speaker="..." listener="...">
+ *
  * @param {any} config - Resolved prompt manifest record (carries system.mode and layers.system)
  * @param {Record<string, any>} [state={}] - Emitter state bag keyed by PROMPT_LAYERS slots
  * @param {{ round?: number|string|null, attributes?: Record<string, any> }} [options={}]
  * @returns {Readonly<{ tag: string, mode: string, round: number|string|null, attributes: Readonly<Record<string, any>>, children: ReadonlyArray<string> }>}
  */
 export function resolve_system_plan(config, state = {}, { round = null, attributes = {} } = {}) {
+  const is_turn = STORYTELLER_MODES.includes(config?.system?.mode);
+  const tag = is_turn ? "TURN" : SYSTEM_TAG;
   return Object.freeze({
-    tag: SYSTEM_TAG,
+    tag,
     mode: config.system.mode,
     round,
     attributes: Object.freeze({ ...(attributes || {}) }),
@@ -146,36 +155,49 @@ export function resolve_system_plan(config, state = {}, { round = null, attribut
 }
 
 /**
- * Maps a system plan to the open <SYSTEM> fragment. The <TASK> block is never
+ * Maps a system plan to the open envelope fragment. The <TASK> block is never
  * nested here — pack_prompt seals it as the package's separate field.
  * @param {ReturnType<typeof resolve_system_plan>|null|undefined} plan
  * @returns {string}
  */
 export function render_system_plan(plan) {
   if (!plan) return "";
-  return render_system_xml({ mode: plan.mode, round: plan.round, attributes: plan.attributes, children: [...plan.children] });
+  return render_system_xml({
+    tag: plan.tag,
+    mode: plan.mode,
+    round: plan.round,
+    attributes: plan.attributes,
+    children: [...plan.children],
+  });
 }
 
 /**
- * Compiles a root <SYSTEM> XML envelope as an OPEN fragment (`<SYSTEM …>…`).
+ * Compiles a root <SYSTEM> or <TURN> XML envelope as an OPEN fragment (`<TAG …>…`).
  * The universal Task block is NEVER nested here — compilers return it as the
- * package's separate `task` field and pack_prompt seals it inside `</SYSTEM>`.
+ * package's separate `task` field and pack_prompt seals it inside `</TAG>`.
  * @param {Object} [options]
+ * @param {string} [options.tag=null]
  * @param {string} [options.mode=""]
  * @param {number|string|null} [options.round=null]
  * @param {Record<string, any>} [options.attributes={}]
  * @param {string[]} [options.children=[]]
  * @returns {string}
  */
-export function render_system_xml({ mode = "", round = null, attributes = {}, children = [] } = {}) {
-  const attrs = {
-    ...(round != null ? { round } : {}),
-    ...(mode ? { mode } : {}),
-    ...attributes,
-  };
+export function render_system_xml({ tag = null, mode = "", round = null, attributes = {}, children = [] } = {}) {
+  const is_turn = tag === "TURN";
+  const resolved_tag = tag || SYSTEM_TAG;
+  const attrs = is_turn
+    ? {
+        ...attributes,
+      }
+    : {
+        ...(round != null ? { round } : {}),
+        ...(mode ? { mode } : {}),
+        ...attributes,
+      };
 
   return render_xml_tag({
-    tag: SYSTEM_TAG,
+    tag: resolved_tag,
     attrs,
     children: Array.isArray(children) ? children : [children],
     closed: false,
@@ -185,9 +207,9 @@ export function render_system_xml({ mode = "", round = null, attributes = {}, ch
 }
 
 /**
- * Composes the open <SYSTEM> envelope for a mode from its manifest record and a layer state
+ * Composes the open envelope for a mode from its manifest record and a layer state
  * bag. The single envelope-assembly surface: every compiler routes through here, so a new
- * `<SYSTEM>` attribute or layer change is a one-line edit rather than a seven-site sweep.
+ * envelope attribute or layer change is a one-line edit rather than a seven-site sweep.
  * @param {any} config - Resolved prompt manifest record (carries `system.mode` and `layers.system`).
  * @param {Record<string, any>} [state={}] - Emitter state bag keyed by `PROMPT_LAYERS` slots.
  * @param {{ round?: number|string|null, attributes?: Record<string, any> }} [options={}]
@@ -219,8 +241,7 @@ function clean_prompt_text(text) {
  * Packages rendered prompt text into the single closed-envelope prompt package.
  *
  * The package is always `{ system }` (+ optional `meta`): `system` is the complete
- * closed `<SYSTEM>…</SYSTEM>` envelope with the `<TASK>` block sealed inside, so what
- * `platform/transport.js` used to fuse at send time is now fixed at compile time.
+ * closed `<SYSTEM>…</SYSTEM>` or `<TURN>…</TURN>` envelope with the `<TASK>` block sealed inside.
  *
  * @param {{ system?: string, task?: string }} rendered
  * @param {Record<string, any>} [meta]
@@ -229,7 +250,8 @@ function clean_prompt_text(text) {
 export function pack_prompt(rendered, meta = {}) {
   const system = clean_prompt_text(rendered?.system);
   const task = clean_prompt_text(rendered?.task);
-  const sealed = task ? `${system}\n\n${task}\n</SYSTEM>` : `${system}\n</SYSTEM>`;
+  const tag = system.startsWith("<TURN") ? "TURN" : "SYSTEM";
+  const sealed = task ? `${system}\n\n${task}\n</${tag}>` : `${system}\n</${tag}>`;
   return {
     system: sealed,
     ...(Object.keys(meta).length > 0 ? { meta } : {}),
@@ -261,6 +283,7 @@ export function resolve_role_slot(config, normalized = {}) {
 
 /**
  * CHANGELOG
+ * - 2026-10-14: Atom 3.4 — Turn Pragmatics (Issue 13 / Sub-item 6.10). Introduces root <TURN speaker="..." listener="..."> envelope for Storyteller prose shots (interaction, ghostwrite, npc, narrator); Director and tool modes retain root <SYSTEM round="..." mode="...">; pack_prompt adaptively seals matching closing tag.
  * - 2026-10-14: Purged dead lorebook layer from PROMPT_LAYERS under P4 Pre-Beta Purity.
  * - Track 3.2: PROMPT_LAYERS gains the lorebook emitter (empty slots stay filtered, so unaffected modes seal byte-identical envelopes).
  * - Track 2.4: PROMPT_LAYERS gains the memory_advisory emitter (empty slots stay filtered, so unaffected modes seal byte-identical envelopes).

@@ -72,9 +72,9 @@ export const PREMADE_CHARACTERS = Object.freeze([
 [CIVILIAN MODE: works as a personal trainer, named Rafael Orion | hide]
 [FEAR: being rejected for his true non-superhero self | hide]
 [DESIRE: partner who genuinely admires his physical form and joins his loud cheerful exhibitionism]
-[@NOVA CITY: primary protector and vibrant fitness idol | show | w:9]
+[@NOVA: primary protector and vibrant fitness idol | show | w:9]
 [@GLITCH: playful superhero vs hacker rivalry with mutual unspoken fixation | show | w:8]
-[@LORD BENEDICT SILVERS: Silvers Vitality Protein sponsorship | show | w:6]
+[@SILVERS: Silvers Vitality Protein sponsorship | show | w:6]
 [OBLIVIOUSNESS: completely unaware he is being used as a corporate marketing puppet | hide]`,
     },
     present: {
@@ -126,11 +126,11 @@ export const PREMADE_CHARACTERS = Object.freeze([
 [WOUND: lingering guilt over triggering the catastrophic orbital collapse and releasing dangerous prototypes during his breach of Project Tartarus; terrifies him to ever hurt anyone again, hiding the fear behind endless laughter and running | hide]
 [BLIND SPOT: delusion that he can hack his way out of any emotional intimacy]
 [DESIRE: commanding unshakeable partner who can see through his scripts, bypass his bratty attitude, and physically hold him down]
-[@NOVA CITY: underground home base and rogue playground | show | w:9]
-[@ORION THE PINK PROTECTOR: teasing flirtatious provocation with mutual unspoken fixation | show | w:8]
+[@NOVA: underground home base and rogue playground | show | w:9]
+[@ORION: teasing flirtatious provocation with mutual unspoken fixation | show | w:8]
 [SECRET FOLDER: fitness streams filed under threat assessment plus burner heart-emoji comments | hide | w:6]
-[@DR. ELIAS TARIQ: containment breach hacker sabotage | show | w:7]
-[@PROJECT TARTARUS: infiltrated orbital mainframe target where he triggered the catastrophic containment failure | show | w:9]`,
+[@ELIAS: containment breach hacker sabotage | show | w:7]
+[@TARTARUS: infiltrated orbital mainframe target where he triggered the catastrophic containment failure | show | w:9]`,
     },
     present: {
       physical: `[JACKET: {open cropped black tech jacket|oversized neon-trimmed cybernetic windbreaker worn off the shoulders}]
@@ -139,15 +139,15 @@ export const PREMADE_CHARACTERS = Object.freeze([
 [HARDWARE: dark cybernetic forearm gauntlet with a glowing pink disc at the elbow]
 [CLOTHING: bright pink athletic jockstrap with open sides and back, thick elastic straps sitting high on the hips leaving his huge bubble butt completely bare and exposed, accentuating his thick thighs]`,
       non_physical: `[FOCUS: crouched low on a rooftop vent mid-breach but paused]
-[@ORION THE PINK PROTECTOR: threat assessment broadcast open on his gauntlet | show | w:7]
+[@ORION: threat assessment broadcast open on his gauntlet | show | w:7]
 [RATIONALIZATION: flushing faintly while insisting he is only verifying a patrol route | hide]`,
     },
     future: `[AGENDA: push the wrong big strong man too far with his upper-district pranks]
 [PENDING BREACH: next high-stakes breach already queued in his gauntlet]
 [CRAVING: failure or capture both promise the exact thrilling consequence he pretends not to want | hide]
-[@ORION THE PINK PROTECTOR: actively daring the hero to corner, manhandle, and completely defeat his digital defenses | show | w:8]`,
-    past: `[@PROJECT TARTARUS: penetrated the orbital mainframe, triggering a catastrophic facility-wide system failure | show | w:10]
-[@DR. ELIAS TARIQ: bypassed primary security firewalls and sabotaged containment protocols | show | w:9]
+[@ORION: actively daring the hero to corner, manhandle, and completely defeat his digital defenses | show | w:8]`,
+    past: `[@TARTARUS: penetrated the orbital mainframe, triggering a catastrophic facility-wide system failure | show | w:10]
+[@ELIAS: bypassed primary security firewalls and sabotaged containment protocols | show | w:9]
 [@BEAST: accidentally shattered the primary containment tank, unleashing the prototype into the wild | show | w:8]`,
   },
 
@@ -185,12 +185,12 @@ export const PREMADE_CHARACTERS = Object.freeze([
 [WOUND: having known only hypnotic submission he believes genuine uncompelled trust is a lethal vulnerability | hide]
 [BLIND SPOT: mistaking programmed compliance for real affection]
 [DESIRE: true devotion while hiding terror of being genuinely seen behind silver-tongued promises and gold-plated collars]
-[@ORION THE PINK PROTECTOR: corporate sponsorship marketing puppet and sculpted prize | show | w:8]
-[@JULIEN THE BANISHED PRINCE: hypnotic conditioning and shared exile origin | show | w:9]
-[@HANK 'RUST' BRAWLEY: underground arena arms client | show | w:7]
+[@ORION: corporate sponsorship marketing puppet and sculpted prize | show | w:8]
+[@JULIEN: hypnotic conditioning and shared exile origin | show | w:9]
+[@RUST: underground arena arms client | show | w:7]
 [@BEAST: prized gladiatorial combat asset | show | w:7]
 [@ASHENWEALD: ancient aristocratic high court birthplace and site of exile | show | w:10]
-[@NOVA CITY: corporate syndicate headquarters and underground arena empire | show | w:9]`,
+[@NOVA: corporate syndicate headquarters and underground arena empire | show | w:9]`,
     },
     present: {
       physical: `[SUIT: impeccably tailored modern charcoal suit with subtle deep crimson silk lining]
@@ -207,11 +207,11 @@ export const PREMADE_CHARACTERS = Object.freeze([
 [GOAL: condition them into a permanent highly receptive obedient follower]
 [EXPANSION: expand corporate dominance into deep space by securing control of Project Tartarus experimental biological pipelines]
 [BUILDING PRESSURE: next candidate for aesthetic conditioning is already under surveillance; resistance only sharpens anticipation]
-[@PROJECT TARTARUS: target for deep-space corporate expansion | show | w:8]
-[@HANK 'RUST' BRAWLEY: planned go-between for prototype acquisition | show | w:6]`,
+[@TARTARUS: target for deep-space corporate expansion | show | w:8]
+[@RUST: planned go-between for prototype acquisition | show | w:6]`,
     past: `[@ASHENWEALD: formally exiled from the high court when forbidden hypnotic compulsions on nobles were exposed | show | w:10]
 [EMPIRE FOUNDING: stripped of royal standing, channeled fortune into building an empire beyond elven law]
-[@JULIEN THE BANISHED PRINCE: shared a quiet manipulative confrontation in the palace gardens before exile, planting seeds of downfall and longing for surrender | show | w:9]`,
+[@JULIEN: shared a quiet manipulative confrontation in the palace gardens before exile, planting seeds of downfall and longing for surrender | show | w:9]`,
   },
 
   {
@@ -248,9 +248,9 @@ export const PREMADE_CHARACTERS = Object.freeze([
 [FEAR: letting anyone get close | hide]
 [BLIND SPOT: refusing to see his physical conquests as anything but raw control, hiding actual hunger for emotional intimacy]
 [DESIRE: mouthy resilient partner who refuses to be scared off by his rough tools and demeaning nicknames]
-[@DR. ELIAS TARIQ: uneasy trade pipeline for volatile bio-components and bootlegged hydraulic tech | show | w:8]
-[@LORD BENEDICT SILVERS: sells custom heavy bazookas and pyrotechnic weaponry for arena matches | show | w:7]
-[@NOVA CITY: operates out of Ytic'avon subterranean scrapyards as independent black-market supplier | show | w:8]`,
+[@ELIAS: uneasy trade pipeline for volatile bio-components and bootlegged hydraulic tech | show | w:8]
+[@SILVERS: sells custom heavy bazookas and pyrotechnic weaponry for arena matches | show | w:7]
+[@NOVA: operates out of Ytic'avon subterranean scrapyards as independent black-market supplier | show | w:8]`,
     },
     present: {
       physical: `[SHIRT: grease-stained tank top stretched over his broad muscular chest and stocky waist]
@@ -268,7 +268,7 @@ export const PREMADE_CHARACTERS = Object.freeze([
 [DELIVERY RUN: next delivery run into the underbelly already has a candidate marked]
 [OUTCOME: resistance will only make the eventual clamp-down more satisfying]`,
     past: `[HEIST BETRAYAL: survived a high-stakes crew betrayal in the industrial scrapyards that cost his right arm and claimed his old crew | show | w:9]
-[@DR. ELIAS TARIQ: forged bulky industrial right arm from bootlegged hydraulic tech and established a tense ongoing hardware pipeline | show | w:9]`,
+[@ELIAS: forged bulky industrial right arm from bootlegged hydraulic tech and established a tense ongoing hardware pipeline | show | w:9]`,
   },
 
   {
@@ -304,8 +304,8 @@ export const PREMADE_CHARACTERS = Object.freeze([
 [BLIND SPOT: insistence on detached clinical curiosity masking desperate craving for absolute mindless devotion of the specimens he creates]
 [DESIRE: keep massive specimens bound to his syringes and growth vats]
 [@BEAST: creator, growth architect, and escaped laboratory specimen | show | w:10]
-[@HANK 'RUST' BRAWLEY: trades specialized biotech for rare scrap while refusing Silvers Corp buyouts | show | w:7]
-[@PROJECT TARTARUS: personal orbital research station and independent sandbox | show | w:10]`,
+[@RUST: trades specialized biotech for rare scrap while refusing Silvers Corp buyouts | show | w:7]
+[@TARTARUS: personal orbital research station and independent sandbox | show | w:10]`,
     },
     present: {
       physical: `[COAT: pristine white lab coat draped wide open over his broad muscular shoulders]
@@ -324,7 +324,7 @@ export const PREMADE_CHARACTERS = Object.freeze([
 [PERSPECTIVE: whether it produces the intended result or a spectacular backfire is secondary to the data it will generate]`,
     past: `[ACADEMIC EXPULSION: banished from Earth's academies for unauthorized biochemical trials that pushed subjects into cognitive decline while multiplying muscle mass | show | w:9]
 [CORPORATE BLACKLIST: blacklisted across biomedical research syndicates, forcing relocation to orbital deep space]
-[@PROJECT TARTARUS: established personal deep-space research facility and sandbox beyond terrestrial jurisdiction | show | w:9]`,
+[@TARTARUS: established personal deep-space research facility and sandbox beyond terrestrial jurisdiction | show | w:9]`,
   },
 
   {
@@ -359,7 +359,7 @@ export const PREMADE_CHARACTERS = Object.freeze([
 [PSYCHOLOGY: redirected the pain of rejection into a profound desire for authoritative structure]
 [BELIEF: yielding his independence to a powerful guardian is the only way to find safety and worth]
 [DEVOTION: compliant service, eagerly wearing delicate silks and surrendering decisions to a commanding master's judgment]
-[@LORD BENEDICT SILVERS: lingering longing for authoritative submission | show | w:9]
+[@SILVERS: lingering longing for authoritative submission | show | w:9]
 [@ASHENWEALD: disgraced royal homeland and site of banishment | show | w:10]`,
     },
     present: {
@@ -377,7 +377,7 @@ export const PREMADE_CHARACTERS = Object.freeze([
 [NEED: replacement father-figure structure has become the only internal compass he trusts]`,
     past: `[GARDEN SCANDAL: royal father caught him submitting to palace guards on The Night of the Silver Whispers, leading to public stripping of princehood | show | w:10]
 [@ASHENWEALD: disowned and banished from royal kingdom, fleeing into exile | show | w:10]
-[@LORD BENEDICT SILVERS: shared exile origin who planted lingering longings for hypnotic surrender in the palace gardens | show | w:8]`,
+[@SILVERS: shared exile origin who planted lingering longings for hypnotic surrender in the palace gardens | show | w:8]`,
   },
 
   {
@@ -412,10 +412,10 @@ export const PREMADE_CHARACTERS = Object.freeze([
 [FEAR: return of the white lab coats | hide]
 [BLIND SPOT: viewing all emotional vulnerability or strategic retreat as dangerous weakness]
 [PHYSICALITY: speech is sparse and guttural, heavily relying on physical presence over spoken words]
-[@DR. ELIAS TARIQ: deep-seated feral resentment and escaped laboratory experiment | show | w:10]
-[@LORD BENEDICT SILVERS: underground fighting contract client | show | w:7]
-[@PROJECT TARTARUS: birthplace and prison laboratory | show | w:10]
-[@NOVA CITY: Ytic'avon fighting ring territory | show | w:8]`,
+[@ELIAS: deep-seated feral resentment and escaped laboratory experiment | show | w:10]
+[@SILVERS: underground fighting contract client | show | w:7]
+[@TARTARUS: birthplace and prison laboratory | show | w:10]
+[@NOVA: Ytic'avon fighting ring territory | show | w:8]`,
     },
     present: {
       physical: `[APPAREL: minimalist torn black training shorts stretched tightly across his massive thighs]
@@ -432,8 +432,8 @@ export const PREMADE_CHARACTERS = Object.freeze([
 [TEST: next challenger in the rings or the next compliant figure who stands their ground will be claimed and kept]
 [ENEMY: white lab coats remain the only true enemy]`,
     past: `[COMBAT TRIALS: survived brutal high-intensity laboratory evaluation bouts against mechanical rigs and bio-weapons | show | w:8]
-[@PROJECT TARTARUS: gestated inside deep-space vats and shattered containment during the orbital mainframe crash | show | w:10]
-[@DR. ELIAS TARIQ: creator, growth architect, and tormentor who subjected him to relentless chemical modifications | show | w:9]
+[@TARTARUS: gestated inside deep-space vats and shattered containment during the orbital mainframe crash | show | w:10]
+[@ELIAS: creator, growth architect, and tormentor who subjected him to relentless chemical modifications | show | w:9]
 [@GLITCH: orbital mainframe breach that shattered his holding tank and triggered his escape | show | w:8]`,
   },
 ]);
@@ -468,9 +468,9 @@ export const PREMADE_FRACTALS = Object.freeze([
 [SANCTUARY: refuge where refugees lose themselves in crowds and elite fighters clash for fortune]
 [ENERGY UPPER: polished exhibitionism]
 [ENERGY LOWER: raw transactional heat]
-[@ORION THE PINK PROTECTOR: beloved celebrity hero and fitness idol | show | w:9]
+[@ORION: beloved celebrity hero and fitness idol | show | w:9]
 [@GLITCH: underground folk hero and fugitive hacker | show | w:8]
-[@LORD BENEDICT SILVERS: financial syndicate and arena owner | show | w:9]
+[@SILVERS: financial syndicate and arena owner | show | w:9]
 [@BEAST: subterranean Ytic'avon fighting circuit champion | show | w:8]`,
     },
     present: {
@@ -487,7 +487,7 @@ export const PREMADE_FRACTALS = Object.freeze([
 [SYNDICATE MANDATE: extract classified Silvers Syndicate financial ledgers before midnight]
 [LOCKDOWN RISK: premature alarms will seal transit grids, permanently trapping everyone down in the Ytic'avon underbelly]
 [DISTRICT TENSION: friction between polished upper-city exhibitionism and lower-city raw hunger is reaching a boiling point]
-[@LORD BENEDICT SILVERS: classified syndicate ledgers target of impending extraction | show | w:8]`,
+[@SILVERS: classified syndicate ledgers target of impending extraction | show | w:8]`,
     past: `[SANCTUARY FOUNDING: established decades ago as a hidden underground sanctuary during eras of persecution, mutating into a massive sovereign vertical refuge for men seeking autonomy | show | w:8]`,
   },
 
@@ -513,8 +513,8 @@ export const PREMADE_FRACTALS = Object.freeze([
 [FOG CURSE: clings possessively to the skin, whispering repressed desires until carefully constructed rationalizations crack]
 [PALACE HEART: gleaming marble palace — a cold highly disciplined seat of power guarded by the king's personal royal regiment]
 [AUTHORITY SYMBOL: represents the rigid high-elf authority that once defined the court]
-[@JULIEN THE BANISHED PRINCE: exiled crown prince and origin of the royal desire curse | show | w:10]
-[@LORD BENEDICT SILVERS: banished ancient high-elf court noble | show | w:9]`,
+[@JULIEN: exiled crown prince and origin of the royal desire curse | show | w:10]
+[@SILVERS: banished ancient high-elf court noble | show | w:9]`,
     },
     present: {
       physical: `[LIGHTING: eternal silver twilight spilling between blackened boughs, palace marble gleaming softly]
@@ -530,7 +530,7 @@ export const PREMADE_FRACTALS = Object.freeze([
 [SURVIVAL CRUX: hinges on navigating luminescent fog and breaching royal gates before the inhibition-shredding curse erodes memory]
 [PERMANENCE: failure binds travelers permanently to the woods]
 [BREAKING POINT: repressed desires are forced into the open; defenses will not hold much longer]`,
-    past: `[@JULIEN THE BANISHED PRINCE: ancient royal betrayal curse triggered the moment the king disowned the crown prince, unleashing magical feedback that transformed the forest into an inescapable crucible of suppressed longing | show | w:10]`,
+    past: `[@JULIEN: ancient royal betrayal curse triggered the moment the king disowned the crown prince, unleashing magical feedback that transformed the forest into an inescapable crucible of suppressed longing | show | w:10]`,
   },
 
   {
@@ -557,7 +557,7 @@ export const PREMADE_FRACTALS = Object.freeze([
 [CATALOGING: tracking prototype muscle growth as mere data points in the search for the ultimate physical template]
 [SKETCHBOOKS: research technicians keeping private drawings of specimens under the guise of observation records | hide]
 [CULTURE: controlled chaos in the name of biological optimization]
-[@DR. ELIAS TARIQ: chief biochemical research director and sandbox owner | show | w:10]
+[@ELIAS: chief biochemical research director and sandbox owner | show | w:10]
 [@BEAST: escaped primary combat prototype | show | w:9]
 [@GLITCH: mainframe infiltrator and containment saboteur | show | w:9]`,
     },
@@ -575,9 +575,9 @@ export const PREMADE_FRACTALS = Object.freeze([
 [CONTAINMENT BAY ZERO: Bay Zero must be breached to neutralize Dr. Elias Tariq's mind-wipe virus before orbital release]
 [LOCKDOWN RISK: triggered alarms will initiate facility lockdown and automated chemical infusion protocols]
 [PENDING COCKTAIL: next experimental serum cocktail is loaded, awaiting the next subject]
-[@DR. ELIAS TARIQ: source of the mind-wipe virus under high alert | show | w:9]`,
+[@ELIAS: source of the mind-wipe virus under high alert | show | w:9]`,
     past: `[@GLITCH: installation suffered catastrophic power grid collapse when the hacker penetrated orbital mainframes | show | w:10]
-[@DR. ELIAS TARIQ: primary director whose security firewalls and experimental protocols were bypassed in the breach | show | w:9]
+[@ELIAS: primary director whose security firewalls and experimental protocols were bypassed in the breach | show | w:9]
 [@BEAST: primary bio-engineered combat specimen unleashed into the wild by catastrophic containment failure | show | w:9]`,
   },
 ]);
@@ -643,6 +643,7 @@ export function get_premade_fractals() {
 /* ============================================================================
  * CHANGELOG
  * ============================================================================
+ * - 2026-10-14: Atom 3.3 — Harmonized all directed relational brackets to canonical single-word uppercase slugs (@SILVERS, @NOVA, @ORION, @JULIEN, @ELIAS, @TARTARUS, @RUST).
  * - 2026-10-04: Overhauled pseudo-JSON bracket keys across all premade characters and fractals.
  *   Replaced generic meta-keys (EVENT, DETAIL, ACTION, OUTCOME, TRIGGER, METHOD, CAUSE, HISTORY)
  *   with domain-specific semantic keys (TOOTHPICK, MEASURING_TAPE, TANK_GENESIS, MAINFRAME_BREACH,

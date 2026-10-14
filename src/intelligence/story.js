@@ -533,7 +533,7 @@ export const gamemaster = {
         };
 
         const system = completion_note
-          ? character_prompt.system.replace(/<\/SYSTEM>\s*$/, `\n\n${completion_note}\n</SYSTEM>`)
+          ? character_prompt.system.replace(/<\/(?:SYSTEM|TURN)>\s*$/, (match) => `\n\n${completion_note}\n${match}`)
           : character_prompt.system;
         const generated_text = await llm_service.generate(
           {
@@ -582,7 +582,7 @@ export const gamemaster = {
           const finish_tail_prompt = REFLEX_LIBRARY.RECOVERY.FINISH_TAIL.body.replace("{tail_snippet}", tail_snippet);
 
           try {
-            const tail_system = character_prompt.system.replace(/<\/SYSTEM>\s*$/, `\n\n${finish_tail_prompt}\n</SYSTEM>`);
+            const tail_system = character_prompt.system.replace(/<\/(?:SYSTEM|TURN)>\s*$/, (match) => `\n\n${finish_tail_prompt}\n${match}`);
             const tail_result = await llm_service.generate(
               {
                 system: tail_system,
@@ -1069,6 +1069,7 @@ export const story_pipeline = gamemaster;
 
 /**
  * CHANGELOG
+ * - 2026-10-14: Atom 3.4 — Turn Pragmatics (Issue 13 / Sub-item 6.10). Adapted prompt completion injection and truncation finishTail recovery to match either </SYSTEM> or </TURN> root tags.
  * - 2026-10-14: Atom 2.6 Same-Role Semantic Drift Recalibration — Updated drift calculations in Step 2 and Step 7.5 to compare consecutive turns by the same interlocutor (user vs previous user, companion vs previous companion), allowing conversational circularity to naturally trip stagnation thresholds.
  * - 2026-10-12: Added Track 4 Scene Momentum & Stagnation Backstop: computes turn-to-turn semantic movement using calculate_semantic_drift, records stagnation counts into state_bridge.runtime, injects stagnation_turns into context payload, and logs momentum telemetry.
  * - 2026-09-26: Deferred background LLM enrichment — the image-beat optics dispatch and the Continuum memory forge now fire AFTER the character pass (step 8.2) instead of racing it, and the prologue image waits for the opening reply (replacing the image-resolve budget race), so the foreground reply always owns the single-slot global LLM gate first.

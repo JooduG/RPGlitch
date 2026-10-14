@@ -9,6 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Phase III: Relational Macro Graph, Epistemic Wall & Perspective (Track 6)**:
+  - **Secondary NPC Identity Inversion Fix (`macros.js`)**: Eliminated blanket `owner.type === "character" ? "ai"` catch-all in `_resolve_owner_perspective`. Classifies secondary NPCs as `entity:<id>` so `@ME` resolves to the NPC's own name instead of stealing the AI companion's identity.
+  - **Epistemic-First Sequencing Invariant (`builder.js`, `sheets.js`)**: Removed premature `parse_macros` from `accessors.past` and `accessors.future` in `builder.js`. Established strict two-step pipeline in `sheets.js:resolve_sheet_snapshot` where all 4 entity fields are sanitized first (`strip_epistemic_secrets` to purge `| hide` brackets for unauthorized viewers), and then passed through `render_field_value` for macro expansion on surviving text with proper owner gating.
+  - **Canonical Single-Word Slugs & Universal Macro Expansion (`macros.js`, `premade-entities.js`, `veil.js`)**: Standardized all entity relational keys to canonical uppercase single-word slugs (`@SILVERS`, `@NOVA`, `@ORION`, `@JULIEN`, `@ELIAS`, `@TARTARUS`, `@RUST`, `@BEAST`, `@GLITCH`, `@ASHENWEALD`). Exported `create_relational_context` and purged legacy curly braces `{me}`, `{{me}}`, `{you}`, `{{you}}` across all modules under P4 Zero Backwards Compatibility.
+  - **Interactive Single-Word Entity Slug Editing (`ProfileHeader.svelte`, `Profile.svelte`)**: Added real-time uppercase `@SLUG` badge and configurable ID editor with strict character-set enforcement (`A-Z`, `0-9`, `_`) and automatic duplicate prevention.
+  - **Universal Envelope Contract & Biometric Attribute Compaction (`sheets.js`, `system.js`, `story.js`, `prompt-verification.js`)**:
+    - Replaced polymorphic slot tags (`<AI_CHARACTER>`, `<USER_PERSONA>`, `<NPC>`) with universal `<CHARACTER id="UPPERCASE_SLUG" name="...">` envelopes.
+    - Biometric appearance attribute compaction: packs concise appearance fields ($\le 40$ chars, no newlines/quotes) directly into XML attributes (`<APPEARANCE build="..." hair="..." />`), eliminating wrapper bloat.
+    - Completely purged `<DISPOSITIONS>` wrappers; relational brackets live directly within state/personality.
+    - Enforced root `<TURN speaker="..." listener="...">` envelopes for all Storyteller modes (`interaction`, `ghostwrite`, `npc`, `narrator`).
+  - **360° Relational Dossier & Omniscient Observer Mode (`RelationalGraph.svelte`)**:
+    - Interactive glassmorphic dossier card displaying complete 4-layer state (🏛️ Eternal, ⚡ Present, 📜 Past, 🚀 Future) on constellation node and SVG curve clicks.
+    - Omniscient Observer Mode: provides clear visual epistemic lock badges (`🔒 Epistemic Lock`) for concealed `| hide` brackets to allow director oversight while guaranteeing epistemic isolation during live narration.
+    - Direct radial graph navigation with single-click profile switching.
+  - **Comprehensive Quality Gates & Pre-Flight Verification**:
+    - 71 test suites passed (1,412 unit tests), 13 hook contract tests passed, and production bundle verified via `npm run deploy:prepare`.
+
 - **Phase II: Directorial Governance, Constitution & Syntax Parity**:
   - **Universal Axiomatic Constitutional Grounding (Shot 1)**: Grounded Director prompts with `<AXIOMATIC_CONSTITUTION>` (Laws L1–L4) universally across all simulation modes via `DIRECTOR_LAYERS.system` in `prompts.js`, eliminating cognitive divergence between director staging and narrative generation.
   - **Unified `<ROUTING_RULES>` XML Block**: Consolidated next-action turn allocation, candidate reuse discipline for `"GENESIS"`, and fatal trauma collapse thresholds for `"EPILOGUE_COLLAPSED"` into a typed `<ROUTING_RULES>` block in `task.js`. Purged fragmented text directives (`DIRECTOR.ROUTING`, `DIRECTOR.CONVERGENCE`).

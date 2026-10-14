@@ -483,62 +483,65 @@ export function extract_entity_relationships(entity, known_entities = [], perspe
   const relationships = new Map();
   if (!entity || typeof entity !== "object") return relationships;
 
-  const entity_name_set = new Set();
-  const id_to_name = new Map();
+  const slug_to_entity = new Map();
 
   for (const item of known_entities || []) {
     if (typeof item === "string") {
       const clean = item.trim().toUpperCase();
-      entity_name_set.add(clean);
-      entity_name_set.add(clean.replace(/\s+/g, "_"));
-      if (clean.startsWith("@")) {
-        entity_name_set.add(clean.slice(1));
-        entity_name_set.add(clean.slice(1).replace(/\s+/g, "_"));
-      }
+      slug_to_entity.set(clean, { id: clean, name: item.trim() });
     } else if (item && typeof item === "object") {
-      if (item.name) {
-        const clean = String(item.name).trim().toUpperCase();
-        entity_name_set.add(clean);
-        entity_name_set.add(clean.replace(/\s+/g, "_"));
-        id_to_name.set(clean.replace(/\s+/g, "_"), item.name);
-        if (item.id) id_to_name.set(String(item.id).toUpperCase(), item.name);
-      }
-      if (item.id) {
-        const id_clean = String(item.id).trim().toUpperCase();
-        entity_name_set.add(id_clean);
-        entity_name_set.add(id_clean.replace(/\s+/g, "_"));
-      }
+      const id_slug = item.id ? String(item.id).trim().toUpperCase() : null;
+      const name_slug = item.name ? String(item.name).trim().toUpperCase() : null;
+      const entity_meta = {
+        id: item.id || item.name || "",
+        name: item.name || item.id || "",
+      };
+      if (id_slug) slug_to_entity.set(id_slug, entity_meta);
+      if (name_slug) slug_to_entity.set(name_slug, entity_meta);
     }
   }
-
-  // Also register active role targets
-  entity_name_set.add("USER");
-  entity_name_set.add("CHAR");
-  entity_name_set.add("FRACTAL");
 
   const normalize_target = (raw_key) => {
     let clean = String(raw_key || "")
       .trim()
       .toUpperCase();
     if (clean.startsWith("@")) clean = clean.slice(1);
-    if (clean === "USER" && ambient_entities.USER?.name)
-      return { key: ambient_entities.USER.name.toUpperCase(), display: ambient_entities.USER.name };
-    if (clean === "CHAR" && ambient_entities.AI?.name) return { key: ambient_entities.AI.name.toUpperCase(), display: ambient_entities.AI.name };
-    if (clean === "FRACTAL" && ambient_entities.FRACTAL?.name)
-      return { key: ambient_entities.FRACTAL.name.toUpperCase(), display: ambient_entities.FRACTAL.name };
-    const mapped = id_to_name.get(clean) || id_to_name.get(clean.replace(/\s+/g, "_"));
-    return { key: mapped ? mapped.toUpperCase() : clean, display: mapped || clean };
+    if (clean === "USER" && ambient_entities.USER?.name) {
+      const user_key = ambient_entities.USER.name.toUpperCase();
+      return { key: user_key, display: ambient_entities.USER.name, id: ambient_entities.USER.id || user_key };
+    }
+    if (clean === "CHAR" && ambient_entities.AI?.name) {
+      const ai_key = ambient_entities.AI.name.toUpperCase();
+      return { key: ai_key, display: ambient_entities.AI.name, id: ambient_entities.AI.id || ai_key };
+    }
+    if (clean === "FRACTAL" && ambient_entities.FRACTAL?.name) {
+      const fractal_key = ambient_entities.FRACTAL.name.toUpperCase();
+      return { key: fractal_key, display: ambient_entities.FRACTAL.name, id: ambient_entities.FRACTAL.id || fractal_key };
+    }
+    const meta = slug_to_entity.get(clean);
+    if (meta) {
+      const key = meta.id ? String(meta.id).toUpperCase() : clean;
+      return { key, display: meta.name || clean, id: meta.id || key };
+    }
+    return { key: clean, display: clean, id: clean };
   };
 
-  const get_or_create_relationship = (normalized_name) => {
-    if (!relationships.has(normalized_name)) {
-      relationships.set(normalized_name, { past: [] });
+  const get_or_create_relationship = (target_key, target_id, target_name) => {
+    if (!relationships.has(target_key)) {
+      relationships.set(target_key, {
+        target_id: target_id || target_key,
+        target_name: target_name || target_key,
+        eternal: undefined,
+        present: undefined,
+        past: [],
+        future: undefined,
+      });
     }
-    return relationships.get(normalized_name);
+    return relationships.get(target_key);
   };
 
   const is_visible = (entry) => {
-    if (perspective === "owner") return true;
+    if (perspective === "owner" || perspective === "omniscient") return true;
     return entry.visibility !== "hide";
   };
 
@@ -566,7 +569,7 @@ export function extract_entity_relationships(entity, known_entities = [], perspe
       if (starts_with_at && is_visible(entry)) {
         const target = normalize_target(key);
         const processed_val = process_value(entry.value, target.display);
-        const record = get_or_create_relationship(target.key);
+        const record = get_or_create_relationship(target.key, target.id, target.display);
         if (field_name === "past") {
           record.past.push(processed_val);
         } else {
@@ -639,6 +642,7 @@ export function strip_relational_brackets(text) {
 /**
  * CHANGELOG
  * ============================================================================
+ * - 2026-10-14: Atom 3.3 — Updated extract_entity_relationships to key by canonical single-word slugs, return complete 4-quadrant relation records with target_id and target_name, and support omniscient UI inspection.
  * - 2026-10-01: Added strip_relational_brackets to remove @-prefixed entity-targeted brackets from STATE fields, preventing relational dynamics from leaking across the Epistemic Wall outside of DISPOSITIONS blocks.
  * - 2026-10-01: Renamed synaptic.js to veil.js and merged all epistemic wall functions from epistemic.js (strip_epistemic_tags, strip_epistemic_secrets, verify_epistemic_integrity).
  * - 2026-10-01: Standardized on | hide secrecy flag for owner perspective in filter_epistemic_brackets, eliminating redundant | private translation; exported strip_bracket_engine_flags for false semantic embedding protection.

@@ -87,8 +87,11 @@ describe("define_sheet + SHEET_SPECS", () => {
 });
 
 describe("parse_physical_rows + render_appearance_rows", () => {
-  it("expands bracket entries directly into tag rows", () => {
-    expect(parse_physical_rows("[BUILD: tall] [POSTURE: alert]")).toEqual(["<BUILD>tall</BUILD>", "<POSTURE>alert</POSTURE>"]);
+  it("expands short bracket entries into compacted attribute rows and long entries (> 40 chars) into tag rows", () => {
+    expect(parse_physical_rows("[BUILD: tall] [POSTURE: alert]")).toEqual(['build="tall"', 'posture="alert"']);
+    expect(parse_physical_rows("[SCARS: Deep cybernetic scarring running from left temple across jawline]")).toEqual([
+      "<SCARS>Deep cybernetic scarring running from left temple across jawline</SCARS>",
+    ]);
   });
 
   it("passes prose through as a single escaped row", () => {
@@ -101,8 +104,8 @@ describe("parse_physical_rows + render_appearance_rows", () => {
   });
 
   it("merges eternal and present with present winning in place", () => {
-    const merged = render_appearance_rows(["<BUILD>tall</BUILD>", "<JACKET>leather</JACKET>"], ["<BUILD>broad</BUILD>"]);
-    expect(merged).toEqual(["<BUILD>broad</BUILD>", "<JACKET>leather</JACKET>"]);
+    const merged = render_appearance_rows(['build="tall"', 'jacket="leather"'], ['build="broad"']);
+    expect(merged).toEqual(['build="broad"', 'jacket="leather"']);
   });
 });
 
@@ -130,33 +133,41 @@ describe("resolve_sheet_snapshot", () => {
     expect(snapshot.state).toContain("sealed");
   });
 
-  it("routes relational brackets out of state", () => {
+  it("enforces epistemic-first sequencing: strips hidden secrets before macro expansion in past and future", () => {
+    const bob = {
+      id: "BOB",
+      name: "Bob",
+      type: "character",
+      future: "Public agenda. [SECRET: poisoned dagger in @ME boot | hide]",
+      past: [{ content: "Public past. [CONCEALED: betrayed by @YOU | hide]" }],
+    };
+    const other_snapshot = resolve_sheet_snapshot(bob, SHEET_SPECS.AI_CHARACTER, {
+      is_owner: false,
+      entities: { USER: { id: "ALICE", name: "Alice" }, AI: bob },
+    });
+    expect(other_snapshot.agenda).toBe("Public agenda.");
+    expect(other_snapshot.past_text).toBe("Public past.");
+
+    // Owner sees them with macros resolved
+    const owner_snapshot = resolve_sheet_snapshot(bob, SHEET_SPECS.AI_CHARACTER, {
+      is_owner: true,
+      entities: { USER: { id: "ALICE", name: "Alice" }, AI: bob },
+    });
+    expect(owner_snapshot.agenda).toContain("poisoned dagger in Bob boot");
+    expect(owner_snapshot.past_text).toContain("betrayed by Alice");
+  });
+
+  it("preserves relational brackets natively in state", () => {
     const snapshot = resolve_sheet_snapshot(test_character, SHEET_SPECS.AI_CHARACTER, { is_owner: true });
     expect(snapshot.state).toContain("Guarded vigilance.");
-    expect(snapshot.state).not.toContain("@BOB");
-  });
-
-  it("resolves dispositions only for active participants", () => {
-    const snapshot = resolve_sheet_snapshot(test_character, SHEET_SPECS.AI_CHARACTER, {
-      show_dispositions: true,
-      active_names: ["bob"],
-      name_to_id: new Map([["bob", "BOB"]]),
-    });
-    expect(snapshot.dispositions).toContain("<DISPOSITIONS>");
-    expect(snapshot.dispositions).toContain('target="BOB"');
-    expect(snapshot.dispositions).toContain("guarded trust");
-  });
-
-  it("returns empty dispositions without an active roster", () => {
-    const snapshot = resolve_sheet_snapshot(test_character, SHEET_SPECS.AI_CHARACTER, {});
-    expect(snapshot.dispositions).toBe("");
+    expect(snapshot.state).toContain("[@BOB: guarded trust]");
   });
 
   it("freezes row arrays", () => {
     const snapshot = resolve_sheet_snapshot(test_character, SHEET_SPECS.AI_CHARACTER, {});
     expect(Object.isFrozen(snapshot)).toBe(true);
     expect(Object.isFrozen(snapshot.eternal_rows)).toBe(true);
-    expect(snapshot.appearance_rows).toContain("<BUILD>tall and athletic</BUILD>");
+    expect(snapshot.appearance_rows).toContain('build="tall and athletic"');
     expect(snapshot.past_text).toBe("First memory.\nSecond memory.");
   });
 });
@@ -164,25 +175,26 @@ describe("resolve_sheet_snapshot", () => {
 describe("render_sheet full mode", () => {
   it("renders the AI character envelope with psychology, appearance, and memories", () => {
     const xml = render_sheet(SHEET_SPECS.AI_CHARACTER, { entity: test_character, is_owner: true });
-    expect(xml).toContain('<AI_CHARACTER id="ALICE" name="Alice">');
+    expect(xml).toContain('<CHARACTER id="ALICE" name="Alice">');
     expect(xml).toContain("<PSYCHOLOGY>");
-    expect(xml).toContain("<APPEARANCE>");
-    expect(xml).toContain("<BUILD>tall and athletic</BUILD>");
+    expect(xml).toContain('<APPEARANCE build="tall and athletic" jacket="worn leather" posture="alert" />');
     expect(xml).toContain("Infiltrate the mainframe.");
     expect(xml).toContain("First memory.");
-    expect(xml).toContain("</AI_CHARACTER>");
+    expect(xml).toContain("</CHARACTER>");
+    expect(xml).not.toContain("<AI_CHARACTER");
   });
 
   it("renders the fractal envelope", () => {
     const xml = render_sheet(SHEET_SPECS.FRACTAL, { entity: test_fractal, is_owner: true });
     expect(xml).toContain('<FRACTAL id="SECTOR_FOUR" name="Sector Four">');
-    expect(xml).toContain("<LANDMARKS>rusted catwalks</LANDMARKS>");
+    expect(xml).toContain('landmarks="rusted catwalks"');
     expect(xml).toContain("Decay under acid rain.");
   });
 
-  it("renders USER_PERSONA with a BACKSTORY tag", () => {
+  it("renders USER_PERSONA with universal CHARACTER envelope and a BACKSTORY tag", () => {
     const xml = render_sheet(SHEET_SPECS.USER_PERSONA, { entity: { ...test_character, id: "BOB", name: "Bob" } });
-    expect(xml).toContain("<USER_PERSONA");
+    expect(xml).toContain('<CHARACTER id="BOB" name="Bob">');
+    expect(xml).not.toContain("<USER_PERSONA");
     expect(xml).toContain("<BACKSTORY>");
   });
 
@@ -199,21 +211,38 @@ describe("render_sheet full mode", () => {
 });
 
 describe("render_sheet physical / separate modes", () => {
-  it("renders visual-only separate blocks in physical mode", () => {
+  it("renders visual-only separate blocks in physical mode with compacted attributes", () => {
     const xml = render_sheet(SHEET_SPECS.AI_CHARACTER, { entity: test_character, mode: "physical" });
-    expect(xml).toContain('<AI_CHARACTER id="ALICE" name="Alice">');
-    expect(xml).toContain("<APPEARANCE>");
-    expect(xml).toContain("<CURRENT_LOOK>");
-    expect(xml).toContain("<JACKET>worn leather</JACKET>");
+    expect(xml).toContain('<CHARACTER id="ALICE" name="Alice">');
+    expect(xml).toContain('<APPEARANCE build="tall and athletic" />');
+    expect(xml).toContain('<CURRENT_LOOK jacket="worn leather" posture="alert" />');
     expect(xml).not.toContain("<PSYCHOLOGY>");
   });
 
   it("renders the full envelope with separate blocks in separate mode", () => {
     const xml = render_sheet(SHEET_SPECS.AI_CHARACTER, { entity: test_character, mode: "separate", is_owner: true });
-    expect(xml).toContain("<AI_CHARACTER");
+    expect(xml).toContain('<CHARACTER id="ALICE" name="Alice">');
     expect(xml).toContain("<PSYCHOLOGY>");
-    expect(xml).toContain("<CURRENT_LOOK>");
-    expect(xml).not.toContain("<BUILD>tall and athletic</BUILD>\n  <JACKET>");
+    expect(xml).toContain('<CURRENT_LOOK jacket="worn leather" posture="alert" />');
+  });
+
+  it("compacts short biometrics into attributes and expands long biometrics (> 40 chars) into child elements", () => {
+    const complex_char = {
+      id: "GLITCH",
+      name: "Glitch",
+      type: "character",
+      eternal: {
+        physical: "[EYES: amber] [SCARS: Deep cybernetic scarring running from left temple across the jawline to collarbone]",
+      },
+      present: {
+        physical: "[JACKET: worn duster]",
+      },
+    };
+    const xml = render_sheet(SHEET_SPECS.AI_CHARACTER, { entity: complex_char, mode: "separate" });
+    expect(xml).toContain('<APPEARANCE eyes="amber">');
+    expect(xml).toContain("<SCARS>Deep cybernetic scarring running from left temple across the jawline to collarbone</SCARS>");
+    expect(xml).toContain("</APPEARANCE>");
+    expect(xml).toContain('<CURRENT_LOOK jacket="worn duster" />');
   });
 
   it("applies the physical transform in every mode", () => {
@@ -222,15 +251,16 @@ describe("render_sheet physical / separate modes", () => {
       mode: "physical",
       transform_physical: (value) => String(value).replace("worn leather", "scrap plate"),
     });
-    expect(xml).toContain("scrap plate");
+    expect(xml).toContain('jacket="scrap plate"');
   });
 });
 
 describe("render_entity_memory_context", () => {
-  it("renders an owner-view separate sheet", () => {
+  it("renders an owner-view separate sheet with CHARACTER envelope", () => {
     const xml = render_entity_memory_context("AI_CHARACTER", test_character);
-    expect(xml).toContain("<AI_CHARACTER");
-    expect(xml).toContain("<CURRENT_LOOK>");
+    expect(xml).toContain('<CHARACTER id="ALICE" name="Alice">');
+    expect(xml).not.toContain("<AI_CHARACTER");
+    expect(xml).toContain('<CURRENT_LOOK jacket="worn leather" posture="alert" />');
     expect(xml).toContain("Infiltrate the mainframe.");
   });
 
@@ -245,7 +275,7 @@ describe("render_enhancement_field_context", () => {
     expect(xml).toContain("<ENTITY_CONTEXT>");
     expect(xml).toContain("<STATE_OF_MIND>");
     expect(xml).toContain("Guarded vigilance.");
-    expect(xml).toContain("<BUILD>tall and athletic</BUILD>");
+    expect(xml).toContain('build="tall and athletic"');
   });
 
   it("renders the eternal sibling for eternal physical fields", () => {

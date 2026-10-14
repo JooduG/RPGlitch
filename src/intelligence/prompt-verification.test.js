@@ -85,11 +85,14 @@ describe("Prompt pipeline — universal envelope invariants", () => {
     it(mode_name + " satisfies the universal envelope contract", () => {
       const prompt_package = compile_prompt(mode_key, context);
       const system = String(prompt_package.system || "");
+      const is_turn = ["interaction", "ghostwrite", "npc", "narrator", "narrator_prologue", "narrator_epilogue"].includes(mode_name);
+      const root_tag = is_turn ? "TURN" : "SYSTEM";
 
-      // 1. Closed <SYSTEM> envelope carrying the single machine-readable `mode` and a human role line.
-      expect(system).toContain("<SYSTEM");
-      expect(system.endsWith("</SYSTEM>")).toBe(true);
-      expect(system).toMatch(/<SYSTEM[^>]*mode="[a-z_]+"/);
+      // 1. Closed envelope carrying machine-readable metadata and a human role line.
+      expect(system).toContain(`<${root_tag}`);
+      expect(system.endsWith(`</${root_tag}>`)).toBe(true);
+      const expected_envelope_pattern = is_turn ? /<TURN[^>]*speaker="[a-z0-9_]+"/ : /<SYSTEM[^>]*mode="[a-z_]+"/;
+      expect(system).toMatch(expected_envelope_pattern);
       expect(system).toContain("You are ");
 
       // 2. The <TASK> block is sealed inside the envelope — exactly one, after any <HISTORY>.
@@ -115,9 +118,11 @@ describe("Prompt pipeline — per-mode contract envelopes", () => {
     it(mode_name + " emits its frozen layer envelope", () => {
       const [mode_key, context] = cases[mode_name];
       const prompt_package = compile_prompt(mode_key, context);
+      const is_turn = ["interaction", "ghostwrite", "npc", "narrator", "narrator_prologue", "narrator_epilogue"].includes(mode_name);
+      const expected_closing = is_turn ? "</TURN>" : "</SYSTEM>";
 
       expect(extract_tags(prompt_package.system)).toEqual(CONTRACT[mode_name].system);
-      expect(prompt_package.system.endsWith("</SYSTEM>")).toBe(true);
+      expect(prompt_package.system.endsWith(expected_closing)).toBe(true);
       expect(prompt_package.task).toBeUndefined();
     });
   }
@@ -213,6 +218,7 @@ describe("Prompt pipeline — mode-record single-source-of-truth invariants", ()
 
 /**
  * CHANGELOG
+ * - 2026-10-14: Phase 3 Atom 3.4 — updated universal envelope and per-mode contract assertions to recognize <TURN speaker="..." listener="..."> root envelopes and </TURN> closing tags for Storyteller modes alongside <SYSTEM> envelopes for Director/auxiliary modes.
  * - 2026-09-25: Layer-6 refactor — the mode-record gate now resolves `TASK_MODE_PLANS` (was `TASK_STATE_BUILDERS`), and the directive-sequence gate generalized from `DIRECTOR_DIRECTIVE_LEADS` to the per-mode `MODE_DIRECTIVE_LEADS` map.
  * - 2026-09-25: Added the Director directive-sequence gate (`DIRECTOR_DIRECTIVE_LEADS`) so the `<DIRECTIVES>` prose order is pinned independently of the tag inventory and size tripwire.
  * - 2026-09-23: Declared-envelope gate now tolerates one declared layer emitting the same tag repeatedly (non-decreasing declaration order) — the Director's single `inputs` layer emits both the user action and the AI reply as sibling `<INPUT>` blocks.

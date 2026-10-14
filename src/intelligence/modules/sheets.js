@@ -39,7 +39,7 @@ import {
   render_xml_tag,
 } from "@utils";
 import { PROFILE_FIELD_CATALOG } from "@data";
-import { strip_epistemic_secrets, extract_entity_relationships, strip_relational_brackets } from "../veil.js";
+import { strip_epistemic_secrets } from "../veil.js";
 import { whole_vector_slice } from "../temporal.js";
 
 export { whole_vector_slice };
@@ -69,8 +69,8 @@ export function define_sheet(kind, overrides = {}) {
     ...(overrides.epistemic || {}),
   };
   return Object.freeze({
-    tag: overrides.tag || "AI_CHARACTER",
-    default_name: overrides.default_name || "AI_CHARACTER",
+    tag: overrides.tag || (kind === "fractal" ? "FRACTAL" : "CHARACTER"),
+    default_name: overrides.default_name || (kind === "fractal" ? "the setting" : "Character"),
     psychology_tag: "PSYCHOLOGY",
     agenda_key: PROFILE_FIELD_CATALOG[`${kind}.future`].tag,
     personality_tag: PROFILE_FIELD_CATALOG[`${kind}.eternal.non_physical`].tag,
@@ -84,9 +84,10 @@ export function define_sheet(kind, overrides = {}) {
 }
 
 export const SHEET_SPECS = Object.freeze({
-  AI_CHARACTER: define_sheet("character", { tag: "AI_CHARACTER", default_name: "AI_CHARACTER", owner_state: true }),
-  NPC: define_sheet("character", { tag: "NPC", default_name: "NPC", owner_state: true }),
-  USER_PERSONA: define_sheet("character", { tag: "USER_PERSONA", default_name: "User", memory_tag: "BACKSTORY" }),
+  CHARACTER: define_sheet("character", { tag: "CHARACTER", default_name: "Character", owner_state: true }),
+  AI_CHARACTER: define_sheet("character", { tag: "CHARACTER", default_name: "Character", owner_state: true }),
+  NPC: define_sheet("character", { tag: "CHARACTER", default_name: "NPC", owner_state: true }),
+  USER_PERSONA: define_sheet("character", { tag: "CHARACTER", default_name: "User", memory_tag: "BACKSTORY" }),
   FRACTAL: define_sheet("fractal", { tag: "FRACTAL", default_name: "the setting" }),
 });
 
@@ -119,9 +120,13 @@ export function resolve_entity_field_value(entity, path) {
 }
 
 /**
- * Parses raw physical state directly into `<TAG>value</TAG>` child rows —
- * macro-resolved, transformed, then expanded via normalize_physical_entries
- * with no synthetic `<BODY>` XML round-trip.
+ * Parses raw physical state directly into compacted attributes or child XML tags —
+ * macro-resolved, transformed, then expanded via normalize_physical_entries.
+ *
+ * Short biometrics (<= 40 chars, no newlines/quotes) serialize as attributes:
+ * `build="tall and athletic"`
+ * Complex or multiline biometrics (> 40 chars) expand into child elements:
+ * `<SCARS>...</SCARS>`
  *
  * @param {string|Record<string, any>|null|undefined} raw_value
  * @param {any} [owner_entity]
@@ -139,11 +144,18 @@ export function parse_physical_rows(raw_value, owner_entity = null, entities = n
   }
   const rows = [];
   for (const [key, value] of Object.entries(normalize_physical_entries(parsed))) {
-    const tag = String(key).replace(/\s+/g, "_");
-    const row = `<${tag}>${prompt_escape(String(value))}</${tag}>`;
-    for (const line of row.split("\n")) {
-      const trimmed = line.trim();
-      if (trimmed) rows.push(trimmed);
+    const string_value = prompt_escape(String(value ?? "")).trim();
+    const clean_key = String(key).trim();
+    if (string_value.length <= 40 && !string_value.includes("\n") && !string_value.includes('"')) {
+      const attr_name = clean_key.toLowerCase().replace(/\s+/g, "_");
+      rows.push(`${attr_name}="${string_value}"`);
+    } else {
+      const tag = clean_key.toUpperCase().replace(/\s+/g, "_");
+      const row = `<${tag}>${string_value}</${tag}>`;
+      for (const line of row.split("\n")) {
+        const trimmed = line.trim();
+        if (trimmed) rows.push(trimmed);
+      }
     }
   }
   return rows;
@@ -151,7 +163,7 @@ export function parse_physical_rows(raw_value, owner_entity = null, entities = n
 
 /**
  * Merges eternal and present physical rows with present keys overwriting
- * eternal keys in place.
+ * eternal keys in place. Handles both compacted attributes and tag rows.
  *
  * @param {string[]} [eternal_rows=[]]
  * @param {string[]} [present_rows=[]]
@@ -159,21 +171,53 @@ export function parse_physical_rows(raw_value, owner_entity = null, entities = n
  */
 export function render_appearance_rows(eternal_rows = [], present_rows = []) {
   const merged_entries = [];
-  const index_by_tag = new Map();
-  const extract_tag_name = (row_content) => {
-    const match = String(row_content).match(/^<([A-Za-z0-9_]+)/);
-    return match ? match[1].toUpperCase() : String(row_content);
+  const index_by_key = new Map();
+  const extract_key = (row_content) => {
+    const attr_match = String(row_content).match(/^([a-z0-9_]+)="/);
+    if (attr_match) return attr_match[1].toUpperCase();
+    const tag_match = String(row_content).match(/^<([A-Za-z0-9_]+)/);
+    if (tag_match) return tag_match[1].toUpperCase();
+    return String(row_content);
   };
   for (const row_content of [...(eternal_rows || []), ...(present_rows || [])]) {
-    const key = extract_tag_name(row_content);
-    if (index_by_tag.has(key)) {
-      merged_entries[index_by_tag.get(key)] = row_content;
+    const key = extract_key(row_content);
+    if (index_by_key.has(key)) {
+      merged_entries[index_by_key.get(key)] = row_content;
     } else {
-      index_by_tag.set(key, merged_entries.length);
+      index_by_key.set(key, merged_entries.length);
       merged_entries.push(row_content);
     }
   }
   return merged_entries;
+}
+
+/**
+ * Renders a physical block (<APPEARANCE> or <CURRENT_LOOK>) separating compacted
+ * biometric attributes from complex child rows. Emits self-closing tag when child rows are empty.
+ *
+ * @param {string} tag
+ * @param {string[]} [rows=[]]
+ * @returns {string|null}
+ */
+export function render_physical_block(tag, rows = []) {
+  if (!rows || !rows.length) return null;
+  const attrs = {};
+  const children = [];
+  for (const row of rows) {
+    const attr_match = String(row).match(/^([a-z0-9_]+)="([\s\S]*)"$/);
+    if (attr_match) {
+      attrs[attr_match[1]] = attr_match[2];
+    } else {
+      children.push(row);
+    }
+  }
+  const attr_keys = Object.keys(attrs);
+  const attr_str = attr_keys.map((k) => `${k}="${attrs[k]}"`).join(" ");
+  if (!children.length) {
+    return attr_str ? `<${tag} ${attr_str} />` : `<${tag} />`;
+  }
+  const open = attr_str ? `<${tag} ${attr_str}>` : `<${tag}>`;
+  return `${open}\n${children.map((c) => `  ${c}`).join("\n")}\n</${tag}>`;
 }
 
 /**
@@ -189,48 +233,6 @@ export function join_past_vectors(entity) {
     .join("\n");
 }
 
-/**
- * Renders directed relational dispositions for an entity toward other active present participants.
- * Sourced 100% from universal bracket predicates via veil.js.
- *
- * @param {any} entity
- * @param {string[]} active_names
- * @param {Map<string, string>} name_to_id_map
- * @returns {string}
- */
-export function render_dispositions(entity, active_names, name_to_id_map) {
-  if (!entity?.name) return "";
-  const rows = [];
-
-  const active_entity_objects = [];
-  for (const [lowercase_name, entity_id] of name_to_id_map) {
-    active_entity_objects.push({ id: entity_id, name: lowercase_name });
-  }
-
-  const bracket_relationships = extract_entity_relationships(entity, active_entity_objects);
-
-  for (const [target_key, links] of bracket_relationships) {
-    const target_normalized = target_key.toLowerCase().trim();
-    if (!active_names.includes(target_normalized)) continue;
-
-    const dynamic = links.present || links.eternal;
-    if (!dynamic) continue;
-
-    const target_id = name_to_id_map.get(target_normalized) || target_key;
-    rows.push(
-      render_xml_tag({
-        tag: "DISPOSITION",
-        attrs: { target: target_id },
-        children: [prompt_escape(dynamic)],
-        inline: true,
-      }),
-    );
-  }
-
-  if (!rows.length) return "";
-  return render_xml_tag({ tag: "DISPOSITIONS", children: rows, child_indent: 2, separator: "\n" });
-}
-
 // ============================================================================
 // [SECTION 3: SPEC-AWARE SNAPSHOT RESOLVER]
 // ============================================================================
@@ -242,49 +244,45 @@ export function render_dispositions(entity, active_names, name_to_id_map) {
  * sheet, so Director and character views stay byte-identical to the legacy
  * per-field sanitize pass.
  *
+ * Relational brackets [@TARGET: dynamic | flags] reside natively in state and
+ * personality without redundant <DISPOSITIONS> extraction.
+ *
  * @param {any} entity
  * @param {Object} specification - Frozen SHEET_SPECS record.
  * @param {Object} [options={}]
  * @returns {Object}
  */
 export function resolve_sheet_snapshot(entity, specification, options = {}) {
-  const {
-    is_owner = false,
-    accessors = null,
-    entities = {},
-    active_names = null,
-    name_to_id = null,
-    show_dispositions = false,
-    transform_physical = null,
-  } = options;
+  const { is_owner = false, accessors = null, entities = {}, transform_physical = null } = options;
   const epistemic = specification?.epistemic || {};
   const sanitize = (value, policy) => {
     if (!policy || policy === EPISTEMIC_POLICY.NONE) return value;
-    return strip_epistemic_secrets(value, policy === EPISTEMIC_POLICY.OWNER ? Boolean(is_owner) : false);
+    return strip_epistemic_secrets(value, Boolean(is_owner));
   };
 
   const agenda_raw = accessors ? accessors.future(entity, { vector_text: true }) : entity?.future;
   const personality_raw = sanitize(entity?.eternal?.non_physical, epistemic.personality);
   const state_raw = sanitize(entity?.present?.non_physical, epistemic.state);
-  const state_without_relations = strip_relational_brackets(state_raw);
   const memory_raw = accessors
     ? accessors.past(entity, { vector_text: true })
     : Array.isArray(entity?.past)
       ? join_past_vectors(entity)
       : entity?.past || "";
 
+  const sanitized_agenda = sanitize(agenda_raw, epistemic.agenda);
+  const sanitized_past = sanitize(memory_raw, epistemic.memory);
   const eternal_rows = parse_physical_rows(sanitize(entity?.eternal?.physical, epistemic.appearance), entity, entities, transform_physical);
   const present_rows = parse_physical_rows(sanitize(entity?.present?.physical, epistemic.appearance), entity, entities, transform_physical);
 
   return Object.freeze({
-    agenda: sanitize(agenda_raw, epistemic.agenda),
+    agenda: render_field_value(sanitized_agenda, entity, entities),
     personality: render_field_value(personality_raw, entity, entities),
-    state: strip_leading_key_echo(render_field_value(state_without_relations, entity, entities), specification?.state_strip_keys || []),
-    dispositions: show_dispositions && active_names && name_to_id ? render_dispositions(entity, active_names, name_to_id) : "",
+    state: strip_leading_key_echo(render_field_value(state_raw, entity, entities), specification?.state_strip_keys || []),
+    dispositions: "",
     eternal_rows: Object.freeze(eternal_rows),
     present_rows: Object.freeze(present_rows),
     appearance_rows: Object.freeze(render_appearance_rows(eternal_rows, present_rows)),
-    past_text: sanitize(memory_raw, epistemic.memory),
+    past_text: render_field_value(sanitized_past, entity, entities),
   });
 }
 
@@ -310,6 +308,9 @@ function render_sheet_field(tag, content) {
  * `<APPEARANCE>`; `"physical"` renders visual-only separate blocks; `"separate"`
  * renders the full envelope with separate `<APPEARANCE>` / `<CURRENT_LOOK>`.
  *
+ * Universal Egalitarian <CHARACTER> envelope unifies all character entities with
+ * uppercase canonical id attributes.
+ *
  * @param {Object} specification
  * @param {Object} [options={}]
  * @returns {string}
@@ -322,10 +323,7 @@ export function render_sheet(specification, options = {}) {
     mode = "full",
     include_agenda = true,
     include_memories = true,
-    show_dispositions = false,
     is_owner = false,
-    active_names = null,
-    name_to_id = null,
     dynamics = null,
     render_axes = null,
     transform_physical = null,
@@ -336,22 +334,17 @@ export function render_sheet(specification, options = {}) {
     is_owner,
     accessors,
     entities,
-    active_names,
-    name_to_id,
-    show_dispositions,
     transform_physical,
   });
 
   if (mode === "physical") {
     const blocks = [];
-    if (snapshot.eternal_rows.length) {
-      blocks.push(render_xml_tag({ tag: "APPEARANCE", children: [snapshot.eternal_rows.join("\n")], child_indent: 2 }));
-    }
-    if (snapshot.present_rows.length) {
-      blocks.push(render_xml_tag({ tag: "CURRENT_LOOK", children: [snapshot.present_rows.join("\n")], child_indent: 2 }));
-    }
+    const eternal_block = render_physical_block("APPEARANCE", snapshot.eternal_rows);
+    if (eternal_block) blocks.push(eternal_block);
+    const present_block = render_physical_block("CURRENT_LOOK", snapshot.present_rows);
+    if (present_block) blocks.push(present_block);
     const attrs = {
-      ...(entity.id ? { id: String(entity.id) } : {}),
+      ...(entity.id ? { id: String(entity.id).toUpperCase() } : {}),
       name: entity.name || specification.default_name,
     };
     return render_xml_tag({ tag: specification.tag, attrs, children: blocks, child_indent: 2, separator: "\n" });
@@ -361,7 +354,6 @@ export function render_sheet(specification, options = {}) {
     include_agenda ? render_sheet_field(specification.agenda_key, snapshot.agenda) : null,
     render_sheet_field(specification.personality_tag, snapshot.personality),
     render_sheet_field(specification.state_tag, snapshot.state),
-    snapshot.dispositions || null,
     typeof render_axes === "function" && specification.axes_scope ? render_axes(dynamics, specification.axes_scope) : null,
   ].filter(Boolean);
 
@@ -371,14 +363,13 @@ export function render_sheet(specification, options = {}) {
   }
 
   if (mode === "separate") {
-    if (snapshot.eternal_rows.length) {
-      section_blocks.push(render_xml_tag({ tag: "APPEARANCE", children: [snapshot.eternal_rows.join("\n")], child_indent: 2 }));
-    }
-    if (snapshot.present_rows.length) {
-      section_blocks.push(render_xml_tag({ tag: "CURRENT_LOOK", children: [snapshot.present_rows.join("\n")], child_indent: 2 }));
-    }
+    const eternal_block = render_physical_block("APPEARANCE", snapshot.eternal_rows);
+    if (eternal_block) section_blocks.push(eternal_block);
+    const present_block = render_physical_block("CURRENT_LOOK", snapshot.present_rows);
+    if (present_block) section_blocks.push(present_block);
   } else if (snapshot.appearance_rows.length) {
-    section_blocks.push(render_xml_tag({ tag: specification.appearance_tag, children: [snapshot.appearance_rows.join("\n")], child_indent: 2 }));
+    const appearance_block = render_physical_block(specification.appearance_tag, snapshot.appearance_rows);
+    if (appearance_block) section_blocks.push(appearance_block);
   }
 
   if (include_memories) {
@@ -387,7 +378,7 @@ export function render_sheet(specification, options = {}) {
   }
 
   const attrs = {
-    ...(entity.id ? { id: String(entity.id) } : {}),
+    ...(entity.id ? { id: String(entity.id).toUpperCase() } : {}),
     name: entity.name || specification.default_name,
   };
   return render_xml_tag({ tag: specification.tag, attrs, children: section_blocks, child_indent: 2, separator: "\n" });
@@ -428,7 +419,11 @@ export function render_enhancement_field_context(entity, field_identifier, conte
         if (!tag) return "";
         const raw_value = resolve_entity_field_value(entity, path);
         const sanitized_raw_value = strip_epistemic_secrets(String(raw_value ?? ""));
-        const value = path.endsWith(".physical") ? parse_physical_rows(sanitized_raw_value).join("\n") : escape_xml(sanitized_raw_value.trim());
+        if (path.endsWith(".physical")) {
+          const physical_block = render_physical_block(tag, parse_physical_rows(sanitized_raw_value));
+          return physical_block || "";
+        }
+        const value = escape_xml(sanitized_raw_value.trim());
         if (!value) return "";
         return render_xml_tag({ tag, children: [value], child_indent: 2 });
       })
@@ -466,6 +461,8 @@ export function render_enhancement_field_context(entity, field_identifier, conte
 
 /**
  * CHANGELOG
+ * - 2026-10-14: Atom 3.4 — Universal <CHARACTER> Envelope & Biometric Compaction (Sub-items 6.5, 6.10, Issues 13 & 2.5). Unifies character sheets to <CHARACTER id="..." name="...">; composes short physical traits (<= 40 chars) into attributes on <APPEARANCE> and <CURRENT_LOOK>; purges redundant <DISPOSITIONS> envelope in favor of native directed relational brackets within state.
+ * - 2026-10-14: Atom 3.1 — Epistemic-First Sequencing Invariant (Issue 20). resolve_sheet_snapshot sanitizes past memories and future agendas prior to render_field_value macro expansion with proper owner gating.
  * - 2026-10-06: Plan Omega ground-up rebuild — define_sheet derives all tags from PROFILE_FIELD_CATALOG (epistemic defaults to "always", only owner-state written down); snapshot-first pipeline (resolve_sheet_snapshot normalizes epistemics/vectors/dispositions/physical rows once); direct physical row parsing via normalize_physical_entries (BODY regex round-trip retired); one mode axis (full/physical/separate, VISUAL_SECTIONS retired); render_chapter_history_xml relocated to history.js with structured <CHAPTER> grammar; byte-identical sheet output.
  * - 2026-10-04: Created from entities.js Sections 3-4 + dispositions renderer + Section 6 memory contexts, plus render_chapter_history_xml from history.js — sheet rendering and memory fragments live here; entities.js keeps presence/cast/visibility/assembly.
  * Modules Ground Refactor Phase 1 — render_dispositions reads the frozen active_names array (.includes) — prompt bytes byte-identical.

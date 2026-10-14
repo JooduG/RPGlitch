@@ -141,7 +141,7 @@ ${SEP}
 
     const result = await SimulationAudit.execute_turn("I submit.", scenario);
 
-    expect(result.director_prompt).toContain('<INPUT origin="AI" channel="reply">');
+    expect(result.director_prompt).toContain('<INPUT origin="AI" type="reply">');
     expect(result.director_prompt).toContain("The vampire lord smiles coldly.");
   });
 });

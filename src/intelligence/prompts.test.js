@@ -68,9 +68,11 @@ const npc = {
   dynamics: { chaos: 10, intensity: 20, openness: 10, affinity: 5 },
 };
 
-function slice_sheet(system, tag) {
-  const match = String(system).match(new RegExp(`<${tag}\\b[\\s\\S]*?</${tag}>`));
-  return match ? match[0] : "";
+function slice_sheet(system, identifier) {
+  const by_id = String(system).match(new RegExp(`<CHARACTER[^>]*id="${identifier}"[\\s\\S]*?</CHARACTER>`, "i"));
+  if (by_id) return by_id[0];
+  const by_tag = String(system).match(new RegExp(`<${identifier}\\b[\\s\\S]*?</${identifier}>`));
+  return by_tag ? by_tag[0] : "";
 }
 
 function slice_axes(xml) {
@@ -79,9 +81,13 @@ function slice_axes(xml) {
 
 function assert_fused_shape(result, mode) {
   const system = result.system;
-  expect((system.match(/<SYSTEM\b/g) || []).length).toBe(1);
-  expect(system).toContain("</SYSTEM>");
-  expect(system).toMatch(new RegExp(`<SYSTEM[^>]*mode="${mode}"`));
+  const is_turn = ["interaction", "ghostwrite", "npc", "narrator"].includes(mode);
+  const tag = is_turn ? "TURN" : "SYSTEM";
+  expect((system.match(new RegExp(`<${tag}\\b`, "g")) || []).length).toBe(1);
+  expect(system).toContain(`</${tag}>`);
+  if (!is_turn) {
+    expect(system).toMatch(new RegExp(`<SYSTEM[^>]*mode="${mode}"`));
+  }
   expect(system).toContain("<TASK>");
   expect(system).toContain("</TASK>");
   expect(system).not.toMatch(/<TASK[^>]*mode=/);
@@ -90,7 +96,6 @@ function assert_fused_shape(result, mode) {
   expect(axiom).toBeGreaterThan(-1);
   expect(core).toBeGreaterThan(-1);
   expect(axiom).toBeLessThan(core);
-  expect(system).toContain("<DISPOSITIONS>");
   return true;
 }
 
@@ -188,8 +193,9 @@ describe("prompt-modes registry", () => {
       entities,
       input: "Beast prepares.",
     });
-    expect(interaction_shot.system).toContain('mode="interaction"');
+    expect(interaction_shot.system).toContain('<TURN speaker="beast" listener="silvers">');
     expect(interaction_shot.system).toContain("<TASK>");
+    expect(interaction_shot.system).toContain("</TURN>");
 
     // 3. Continuum caretaker
     const continuum_shot = compile_prompt("continuum", {
@@ -285,13 +291,13 @@ describe("dynamic-axes scoping", () => {
   });
 
   it("scopes the AI_CHARACTER sheet to the somatic axes", () => {
-    const axes = slice_axes(slice_sheet(interaction.system, "AI_CHARACTER"));
+    const axes = slice_axes(slice_sheet(interaction.system, "BEAST"));
     expect(axes).toContain("<CHAOS");
     expect(axes).not.toContain("<VELOCITY");
   });
 
   it("scopes the NPC sheet to the somatic axes", () => {
-    const axes = slice_axes(slice_sheet(npc_result.system, "NPC"));
+    const axes = slice_axes(slice_sheet(npc_result.system, "GAOLER"));
     expect(axes).toContain("<CHAOS");
     expect(axes).not.toContain("<VELOCITY");
   });
@@ -477,30 +483,24 @@ describe("ghostwrite identity", () => {
 });
 
 describe("interaction structural integrity", () => {
-  it("never includes the USER persona's DISPOSITIONS block", () => {
+  it("never includes legacy computing slot tags in prompt output", () => {
     const { system } = compile_prompt("interaction", { round: 3, entities: _relocated_prompt_entities, input: "Beast steps forward." });
-    const user_sheet = system.match(/<USER_PERSONA\b[\s\S]*?<\/USER_PERSONA>/)[0];
-    expect(user_sheet).not.toContain("<DISPOSITIONS");
+    expect(system).not.toContain("<USER_PERSONA");
+    expect(system).not.toContain("<AI_CHARACTER");
+    expect(system).not.toContain("<NPC");
+    expect(system).not.toContain("<DISPOSITIONS");
   });
 
-  it("renders only relationships whose target is present in the story", () => {
+  it("renders characters using universal egalitarian CHARACTER envelope", () => {
     const { system } = compile_prompt("interaction", { round: 3, entities: _relocated_prompt_entities, input: "Beast steps forward." });
-    expect(system).toContain('<DISPOSITION target="SILVERS">wary respect</DISPOSITION>');
-    expect(system).not.toContain("Absent Stranger");
-    expect(system).not.toContain("dread");
-  });
-
-  it("hides the user persona's dispositions from the AI-visible prompt", () => {
-    const { system } = compile_prompt("interaction", { round: 3, entities: _relocated_prompt_entities, input: "Beast steps forward." });
-    const persona = (system.match(/<USER_PERSONA[\s\S]*?<\/USER_PERSONA>/) || [])[0] || "";
-    expect(persona).toContain("<PERSONALITY>");
-    expect(persona).not.toContain("<DISPOSITIONS>");
-    expect(system).not.toContain("prized asset");
+    expect(system).toContain('<CHARACTER id="BEAST" name="Beast">');
+    expect(system).toContain('<CHARACTER id="SILVERS" name="Lord Benedict Silvers">');
+    expect(system).toContain('<FRACTAL id="TARTARUS" name="Project Tartarus">');
   });
 
   it("places AGENDA inside PSYCHOLOGY on character sheets", () => {
     const { system } = compile_prompt("interaction", { round: 3, entities: _relocated_prompt_entities, input: "Beast steps forward." });
-    const ai_sheet = system.match(/<AI_CHARACTER\b[\s\S]*?<\/AI_CHARACTER>/)[0];
+    const ai_sheet = system.match(/<CHARACTER[^>]*id="BEAST"[\s\S]*?<\/CHARACTER>/)[0];
     expect(ai_sheet).toMatch(/<PSYCHOLOGY>[\s\S]*<AGENDA>Break the challenger\.<\/AGENDA>[\s\S]*<\/PSYCHOLOGY>/);
   });
 
@@ -556,11 +556,12 @@ describe("narrator prose compiler", () => {
       entities: _relocated_prompt_entities,
       input: "The reactor pulses.",
     });
-    expect(result.system).toContain('<SYSTEM round="1" mode="narrator">');
+    expect(result.system).toContain('<TURN speaker="tartarus" listener="silvers">');
     expect(result.system).toContain("You are Project Tartarus, the Fractal itself, narrating the story.");
     expect(result.system).toContain('<PERSPECTIVE person="THIRD" tense="PRESENT">');
     expect(result.system).toContain("<TASK>");
     expect(result.system).toContain("Narrate through ambient physics, sensory textures, and environmental shifts in reaction to recent events.");
+    expect(result.system).toContain("</TURN>");
   });
 
   it("renders prologue beat omitting input tag and guiding opening sequence", () => {

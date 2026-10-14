@@ -132,38 +132,38 @@ Resolving the fundamental conflation between slot, perspective, and identity acr
 
 - **Objective**: Establish the unified Relational Context Broker, enforce strict 1-word entity handles, eliminate double-name artifacts, enforce epistemic veil sequencing, and compact character sheet envelopes.
 - **Code reality**: `_resolve_owner_perspective(owner, entities)` exists and is called in 3 places (`src/utils/macros.js:39,225,278`); `{{me}}`/`{{you}}` display-layer resolution from owner perspective exists WITH tests (`macros.js:214-262`, `macros.test.js:47-50`). Line 209 holds a critical bug: `if (owner.type === "character") return "ai"`, causing secondary NPCs to steal the companion's identity. Multi-word `@` brackets pervasive in `premade-entities.js` (`@ORION THE PINK PROTECTOR`, `@JULIEN THE BANISHED PRINCE`), creating regex fragmentation and double-name artifacts (`[Julien the Banished Prince THE BANISHED PRINCE]`). `builder.js:262,269` expands macros _before_ `sheets.js:261` sanitizes epistemic secrets. `<APPEARANCE>` renders via verbose nested child rows in `sheets.js:348-381`.
-- **Key Modules**: `src/utils/macros.js`, `src/intelligence/veil.js`, `src/intelligence/modules/sheets.js`, `src/intelligence/builder.js`, `src/ui/profile/RelationalGraph.svelte`.
+- **Key Modules**: `src/utils/macros.js`, `src/utils/macros.test.js`, `src/intelligence/veil.js`, `src/intelligence/veil.test.js`, `src/intelligence/modules/sheets.js`, `src/intelligence/modules/sheets.test.js`, `src/intelligence/modules/system.js`, `src/intelligence/builder.js`, `src/intelligence/builder.test.js`, `src/intelligence/director.test.js`, `src/intelligence/profile.test.js`, `src/intelligence/story.js`, `src/intelligence/prompts.js`, `src/intelligence/prompts.test.js`, `src/intelligence/prompt-verification.js`, `src/intelligence/prompt-verification.test.js`, `src/data/definitions/premade-entities.js`, `src/data/definitions/premade-entities.test.js`, `src/ui/profile/RelationalGraph.svelte`, `src/ui/profile/RelationalGraph.test.js`, `src/ui/profile/Profile.svelte`, `src/ui/profile/ProfileHeader.svelte`.
 - **Planned Sub-Items**:
-  - [ ] **3.1 Secondary NPC Identity Classification Bug Fix (Issue 18 / Batch 1)**:
+  - [x] **3.1 Secondary NPC Identity Classification Bug Fix (Issue 18 / Batch 1)**:
     - In `src/utils/macros.js:204-211`, eliminate the blanket `if (owner.type === "character") return "ai"` catch-all. Explicitly classify the active companion by ID match (`_entity_ids_match(owner, entities?.AI)`). Secondary NPCs resolve perspective strictly to their own ID (`entity:${owner.id}`), fixing the bug where NPC self-references inverted to the companion.
-  - [ ] **3.2 Epistemic-First Pipeline Sequencing Invariant (Issue 20 / Security Gate)**:
+  - [x] **3.2 Epistemic-First Pipeline Sequencing Invariant (Issue 20 / Security Gate)**:
     - In `src/intelligence/builder.js:262,269` and `src/intelligence/modules/sheets.js:261-289`, enforce the cryptographic invariant: **Veil Sanitization MUST strictly precede Macro Expansion**. Never expand macros on raw bracket text before `strip_epistemic_secrets` runs, eliminating the risk of macro text obfuscating `| hide` flags across the Epistemic Wall.
-  - [ ] **3.3 Unified Relational Context Broker (Sub-item 6.1)**:
+  - [x] **3.3 Unified Relational Context Broker (Sub-item 6.1)**:
     - Consolidate `owner`, `speaker`, `listener`, and `target` into a single frozen `RelationalContext` tuple `{ me, you, speaker, listener, owner, target, witnesses }`.
-  - [ ] **3.4 Perspective Resolution in Prompt Compilation (Sub-item 6.2)**:
+  - [x] **3.4 Perspective Resolution in Prompt Compilation (Sub-item 6.2)**:
     - Extend existing display-layer `{{me}}`/`{{you}}` resolution into prompt assembly via the 3.3 tuple — no new syntax, same semantics, compiler-side.
-  - [ ] **3.5 Entity ID Macro Standard, `@` Scoping & User-Configurable ID (Sub-item 6.4 / Issue 17)**:
+  - [x] **3.5 Entity ID Macro Standard, `@` Scoping & User-Configurable ID (Sub-item 6.4 / Issue 17)**:
     - **`@` Scoping Law**: The `@` prefix is reserved strictly for living/active entities registered within the simulation universe (AI character, user persona, fractal setting, active NPCs, registered factions/items). External real-world or historical figures do not use `@`.
     - **Transition to Canonical `@id` Tokens**: Migrate directed relationship brackets and prompt macros from multi-word display names (`@JULIEN THE BANISHED PRINCE`) to strict canonical entity IDs (`@julien`, `@silvers`, `@ashenweald`). Eliminates regex tokenization fragmentation and double-name artifacts (`[Julien the Banished Prince THE BANISHED PRINCE]`).
     - **User-Configurable Entity ID**: Enable users in profile creation/editing to specify their own unique Entity ID slug (alphanumeric lowercase, 3–12 chars, no spaces or special symbols, e.g. `julien`, `silvers`, `hawk`).
     - **Premade Entity Harmonization**: Clean up directed relational brackets across `src/data/definitions/premade-entities.js` to conform to canonical `@id` syntax.
-  - [ ] **3.6 Single-Subject Bracket Key Law (Sub-item 6.7 / Issue 19)**:
+  - [x] **3.6 Single-Subject Bracket Key Law (Sub-item 6.7 / Issue 19)**:
     - **Entity-As-Key Rule**: If an agenda item, disposition, or trait targets a specific entity, that entity's `@id` MUST be the bracket key (e.g. `[@tartarus: primary acquisition target]`), not buried inside a generic noun key.
     - **Immutable State Keys**: Store durable memories and ledgers keyed by canonical IDs; late-bind display names at prompt assembly time. If an entity is renamed, durable vectors and state brackets remain valid.
-  - [ ] **3.7 Dynamic Character-Length XML Compaction & Universal `<CHARACTER>` Envelopes (Sub-item 6.5 / Issue 13)**:
+  - [x] **3.7 Dynamic Character-Length XML Compaction & Universal `<CHARACTER>` Envelopes (Sub-item 6.5 / Issue 13)**:
     - **Dynamic Length Decision Engine**: Automatically partition bracket values based on character count: values $\le 40$ characters and without newlines/quotes serialize as container XML attributes (e.g. `gender="male" height="193 cm"`), while values exceeding the threshold promote to nested child tags.
     - **Universal `<CHARACTER>` Envelope**: Replace computing slot tags (`<AI_CHARACTER>`, `<USER_PERSONA>`, `<NPC>`) with universal ontological `<CHARACTER id="..." role="..." name="...">` envelopes. Purges digital computing baggage (`AI`, `USER`) from character sheets and stabilizes KV-cache prefixes.
     - **Replay-Safety Constraint**: Compaction MUST preserve flag-preserving field replay (`ledger.js:193-256`) — compacted rows must round-trip through replay byte-identically.
-  - [ ] **3.8 Entity Label Taxonomy Standards & Storage Ban Gate (Sub-item 6.10 / §2.5 Decisions)**:
+  - [x] **3.8 Entity Label Taxonomy Standards & Storage Ban Gate (Sub-item 6.10 / §2.5 Decisions)**:
     - **Pragmatic Turn Roles (`speaker` / `listener`)**: Restricted strictly to transient turn headers in Shot 2 prose prompts. Enforce an automated test gate in `src/intelligence/prompts.test.js` banning `speaker` and `listener` from ever being persisted into durable Dexie memory or mutation ledgers.
     - **Label Proliferation Restraint**: Prohibit bloating the top-level entity taxonomy with excessive literary slot labels (`antagonist`, `deuteragonist`, `foil`, `captive`, `ward`). Represent complex character dynamics through relational bracket edges (`present.non_physical`) rather than proliferating structural XML schemas.
     - **Metasyntax Protection**: Formally reject bare unanchored `<ALICE>` or `<YOUR_IDENTITY>` tags to protect KV-cache prefixes, frozen metasyntax, and veil sigils.
-  - [ ] **3.9 360° Relational Dossier (UI) vs Epistemic Prompt Dispositions (LLM) (Sub-item 6.6)**:
+  - [x] **3.9 360° Relational Dossier (UI) vs Epistemic Prompt Dispositions (LLM) (Sub-item 6.6)**:
     - **User-Facing 360° Dossier (extend `RelationalGraph`)**: Build the unified visual relationship card aggregating all 4 quadrants (Baseline Bond from `eternal`, Current Dynamic from `present`, Shared Lore from `past`, Trajectory from `future`) with strict deduplication.
     - **LLM Epistemic Dispositions (Present-Driven Source)**: Sourced primarily from `present.non_physical` (`<DISPOSITION target="julien"> Immediate tension in the room</DISPOSITION>`), preventing the model from conflating past memories with active immediate sentiment.
-  - [ ] **3.10 Cross-Quadrant Relational Propagation (Sub-item 6.3)**:
+  - [x] **3.10 Cross-Quadrant Relational Propagation (Sub-item 6.3)**:
     - Synchronize relational vectors between `eternal.non_physical` (baseline bonds) and `present.non_physical` (situational dynamics).
-  - [ ] **3.11 Macro Fallback Unification & Token Cleansing (Issue 14, 15)**:
+  - [x] **3.11 Macro Fallback Unification & Token Cleansing (Issue 14, 15)**:
     - Replace literal computing fallbacks (`"AI"`, `"User"`) in `src/utils/macros.js:35-37` with natural diegetic descriptors (`"the companion"`, `"the traveler"`). Standardize exclusively on `@`-tokens, normalizing incoming `{me}` / `{you}` brackets during profile intake.
 
 ---

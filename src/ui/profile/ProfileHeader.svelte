@@ -12,6 +12,7 @@
 
   // --- PROP MATRIX BOUNDARIES ---
   let {
+    id = $bindable(""),
     name = $bindable(""),
     description = $bindable(""),
     is_editing = false,
@@ -59,6 +60,33 @@
   data-testid="profile-header"
   role="banner"
 >
+  {#if is_editing}
+    <div class="mb-1 flex items-center gap-2 font-mono text-xs opacity-80">
+      <span class="text-slate-400">@ID:</span>
+      <input
+        type="text"
+        bind:value={id}
+        placeholder="SLUG"
+        pattern="^[A-Za-z0-9_-]{(2, 20)}$"
+        maxlength="20"
+        class="border-b border-white/20 bg-transparent px-1 py-0.5 font-mono text-xs tracking-wider uppercase outline-none focus:border-white/60"
+        style="color: {signature_color};"
+        oninput={(event) => {
+          id = event.currentTarget.value
+            .toUpperCase()
+            .replace(/[^A-Z0-9_-]/g, "")
+            .slice(0, 20);
+        }}
+        onfocus={() => on_focus_field("id", "Entity Handle (@ID)")}
+        onblur={() => on_focus_field("", "")}
+      />
+    </div>
+  {:else if id}
+    <div class="mb-1 font-mono text-xs opacity-60 {entity_type === 'fractal' ? 'text-left' : 'text-right'}" style="color: {signature_color};">
+      @{id.toUpperCase()}
+    </div>
+  {/if}
+
   <div
     class="
     w-full
@@ -172,3 +200,8 @@
     </p>
   {/if}
 </div>
+
+<!--
+  CHANGELOG
+  - 2026-10-14: Atom 3.3 — Added user-configurable single-word entity ID handle editor and @SLUG display tag.
+-->

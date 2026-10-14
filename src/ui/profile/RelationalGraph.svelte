@@ -28,6 +28,30 @@
 
   let all_entities = $state([]);
   let hovered_edge = $state(null);
+  let selected_dossier = $state(null);
+
+  function get_entity_slug(ent) {
+    if (!ent) return "";
+    const raw = ent.id || ent.name || "";
+    return String(raw)
+      .toUpperCase()
+      .replace(/[^A-Z0-9_]/g, "_");
+  }
+
+  function parse_bracket_lines(text) {
+    if (!text || typeof text !== "string") return [];
+    return text
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .map((line) => {
+        const is_hidden = /\|\s*hide\b/i.test(line);
+        return {
+          raw: line,
+          is_hidden,
+        };
+      });
+  }
 
   // Load all known characters and fractals to resolve incoming relationships and satellite entity profiles
   $effect(() => {
@@ -308,15 +332,22 @@
           {#each visual_edges as ve (ve.id)}
             <!-- Hitbox (wide stroke for easy mouseover hover & tooltip trigger) -->
             <!-- svelte-ignore a11y_no_static_element_interactions -->
+            <!-- svelte-ignore a11y_click_events_have_key_events -->
             <path
               d={ve.path_d}
               fill="none"
               stroke="transparent"
               stroke-width="18"
-              class="pointer-events-auto cursor-help"
+              class="pointer-events-auto cursor-pointer"
               onmouseenter={() => (hovered_edge = ve.edge)}
               onmouseleave={() => (hovered_edge = null)}
-              use:tooltip={`${ve.edge.source_name} → ${ve.edge.target_name}: ${ve.edge.dynamic}`}
+              onclick={() => {
+                selected_dossier = {
+                  type: "edge",
+                  edge: ve.edge,
+                };
+              }}
+              use:tooltip={`${ve.edge.source_name} → ${ve.edge.target_name}: ${ve.edge.dynamic} (Click to inspect dossier)`}
             />
             <!-- Visible Styled Curve Path -->
             <path
@@ -334,8 +365,18 @@
 
         <!-- Center Node (Active Profile Entity) -->
         <div class="absolute z-10 flex flex-col items-center justify-center" style="left: {cx}px; top: {cy}px; transform: translate(-50%, -50%);">
-          <div
-            class="relative flex h-14 w-14 items-center justify-center rounded-full border-2 bg-slate-900 shadow-xl transition-transform duration-300 hover:scale-105"
+          <button
+            type="button"
+            aria-label={`Inspect central entity ${entity?.name || "Active"}`}
+            onclick={() => {
+              selected_dossier = {
+                type: "entity",
+                entity,
+                name: entity?.name || "Active",
+                is_center: true,
+              };
+            }}
+            class="relative flex h-14 w-14 cursor-pointer items-center justify-center rounded-full border-2 bg-slate-900 shadow-xl transition-transform duration-300 hover:scale-105 focus:outline-hidden"
             style="border-color: {center_color}; box-shadow: 0 0 20px {center_color}33;"
           >
             {#if entity?.profile_picture}
@@ -345,7 +386,7 @@
                 {(entity?.name || "?").slice(0, 2)}
               </span>
             {/if}
-          </div>
+          </button>
           <span class="mt-1 max-w-[90px] truncate text-center text-[11px] font-bold text-slate-200 drop-shadow-md">
             {entity?.name || "Active"}
           </span>
@@ -363,12 +404,16 @@
               type="button"
               aria-label={`Open profile for ${node.item.name}`}
               onclick={() => {
-                if (typeof on_select_entity === "function") {
-                  on_select_entity(sat_entity);
-                }
+                selected_dossier = {
+                  type: "entity",
+                  entity: sat_entity || node.item.entity || { name: node.item.name },
+                  name: node.item.name,
+                  temporal_links: node.item.temporal_links,
+                  is_center: false,
+                };
               }}
               use:tooltip={format_node_tooltip(node.item)}
-              class="group relative flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border-2 bg-slate-900 shadow-lg transition-all duration-300 hover:scale-115"
+              class="group relative flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border-2 bg-slate-900 shadow-lg transition-all duration-300 hover:scale-115 focus:outline-hidden"
               style="border-color: {sat_color}; box-shadow: 0 0 12px {sat_color}22;"
             >
               {#if sat_entity?.profile_picture}
@@ -385,6 +430,220 @@
           </div>
         {/each}
       </div>
+
+      <!-- 360° Relational Dossier Floating Card -->
+      {#if selected_dossier}
+        <div
+          data-testid="relational-dossier-card"
+          class="absolute inset-2 z-30 flex flex-col overflow-hidden rounded-2xl border border-slate-700/80 bg-slate-950/95 p-4 shadow-2xl backdrop-blur-xl"
+        >
+          <!-- Dossier Header -->
+          <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+            <div class="flex min-w-0 items-center gap-2.5">
+              {#if selected_dossier.type === "entity"}
+                {@const dossier_color = get_signature_color(selected_dossier.entity)}
+                <div
+                  class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border bg-slate-900 text-xs font-bold text-slate-200 uppercase"
+                  style="border-color: {dossier_color};"
+                >
+                  {#if selected_dossier.entity?.profile_picture}
+                    <img src={selected_dossier.entity.profile_picture} alt={selected_dossier.name} class="h-full w-full rounded-full object-cover" />
+                  {:else}
+                    {(selected_dossier.name || "?").slice(0, 2)}
+                  {/if}
+                </div>
+                <div class="min-w-0">
+                  <div class="flex flex-wrap items-center gap-1.5">
+                    <span class="truncate text-xs font-bold text-slate-200">{selected_dossier.name}</span>
+                    <span class="rounded border border-cyan-800/50 bg-cyan-950/40 px-1.5 py-0.5 font-mono text-[9px] font-medium text-cyan-300">
+                      @{get_entity_slug(selected_dossier.entity)}
+                    </span>
+                  </div>
+                  <span class="text-[10px] text-slate-400 capitalize">
+                    {selected_dossier.entity?.type || "Character"} Dossier
+                  </span>
+                </div>
+              {:else}
+                <div class="min-w-0">
+                  <div class="flex items-center gap-1.5 truncate text-xs font-bold text-slate-200">
+                    <span>{selected_dossier.edge?.source_name}</span>
+                    <span class="text-slate-500">➔</span>
+                    <span>{selected_dossier.edge?.target_name}</span>
+                  </div>
+                  <span class="text-[10px] text-slate-400">Directed Relational Vector</span>
+                </div>
+              {/if}
+            </div>
+
+            <button
+              type="button"
+              aria-label="Close dossier"
+              onclick={() => (selected_dossier = null)}
+              class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-slate-800 bg-slate-900/60 text-slate-400 transition-colors hover:border-slate-700 hover:text-slate-200"
+            >
+              <svg viewBox="0 0 24 24" class="h-3.5 w-3.5 fill-none stroke-current stroke-2">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Dossier Content -->
+          <div class="my-3 flex-1 scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent space-y-3 overflow-y-auto pr-1">
+            {#if selected_dossier.type === "entity"}
+              {@const ent = selected_dossier.entity}
+              {@const present_brackets = parse_bracket_lines(ent?.present?.non_physical || (typeof ent?.present === "string" ? ent.present : ""))}
+
+              <!-- 4 Quadrants -->
+              <div class="grid grid-cols-1 gap-2.5">
+                <!-- 1. Eternal -->
+                <div class="rounded-xl border border-slate-800/80 bg-slate-900/40 p-2.5">
+                  <span class="flex items-center gap-1 text-[10px] font-semibold tracking-wider text-cyan-400 uppercase"> 🏛️ Eternal </span>
+                  <div class="mt-1 space-y-1 text-[11px] text-slate-300">
+                    {#if ent?.eternal?.physical}
+                      <p><strong class="text-slate-400">Physical:</strong> {ent.eternal.physical}</p>
+                    {/if}
+                    {#if ent?.eternal?.non_physical}
+                      <p>{ent.eternal.non_physical}</p>
+                    {:else if !ent?.eternal?.physical}
+                      <p class="text-slate-500 italic">No eternal traits recorded.</p>
+                    {/if}
+                  </div>
+                </div>
+
+                <!-- 2. Present & Omniscient Observer Mode -->
+                <div class="rounded-xl border border-slate-800/80 bg-slate-900/40 p-2.5">
+                  <span class="flex items-center gap-1 text-[10px] font-semibold tracking-wider text-amber-400 uppercase"> ⚡ Present </span>
+                  <div class="mt-1 space-y-1.5 text-[11px] text-slate-300">
+                    {#if ent?.present?.physical}
+                      <p><strong class="text-slate-400">Condition:</strong> {ent.present.physical}</p>
+                    {/if}
+                    {#if present_brackets.length > 0}
+                      <div class="space-y-1">
+                        {#each present_brackets as bracket (bracket.raw)}
+                          <div
+                            class="flex items-start justify-between gap-1.5 rounded-lg border p-1.5 text-[11px] {bracket.is_hidden
+                              ? 'border-amber-800/50 bg-amber-950/25 text-amber-200'
+                              : 'border-slate-800/60 bg-slate-950/40 text-slate-300'}"
+                          >
+                            <span class="font-mono text-[10.5px] leading-relaxed break-words">{bracket.raw}</span>
+                            {#if bracket.is_hidden}
+                              <span
+                                class="inline-flex shrink-0 items-center gap-1 rounded border border-amber-700/60 bg-amber-950/80 px-1.5 py-0.5 text-[9px] font-semibold text-amber-300"
+                              >
+                                🔒 Epistemic Lock
+                              </span>
+                            {/if}
+                          </div>
+                        {/each}
+                      </div>
+                    {:else if !ent?.present?.physical}
+                      <p class="text-slate-500 italic">No present condition recorded.</p>
+                    {/if}
+                  </div>
+                </div>
+
+                <!-- 3. Past -->
+                <div class="rounded-xl border border-slate-800/80 bg-slate-900/40 p-2.5">
+                  <span class="flex items-center gap-1 text-[10px] font-semibold tracking-wider text-indigo-400 uppercase"> 📜 Past </span>
+                  <div class="mt-1 space-y-1 text-[11px] text-slate-300">
+                    {#if Array.isArray(ent?.past) && ent.past.length > 0}
+                      <ul class="list-disc space-y-0.5 pl-4">
+                        {#each ent.past.slice(0, 3) as mem, mem_idx (mem_idx)}
+                          <li>{typeof mem === "string" ? mem : mem.text || JSON.stringify(mem)}</li>
+                        {/each}
+                      </ul>
+                    {:else if selected_dossier.temporal_links?.past?.length}
+                      <ul class="list-disc space-y-0.5 pl-4">
+                        {#each selected_dossier.temporal_links.past as past_link, link_idx (link_idx)}
+                          <li>{past_link}</li>
+                        {/each}
+                      </ul>
+                    {:else}
+                      <p class="text-slate-500 italic">No historical memories indexed.</p>
+                    {/if}
+                  </div>
+                </div>
+
+                <!-- 4. Future -->
+                <div class="rounded-xl border border-slate-800/80 bg-slate-900/40 p-2.5">
+                  <span class="flex items-center gap-1 text-[10px] font-semibold tracking-wider text-emerald-400 uppercase"> 🚀 Future </span>
+                  <div class="mt-1 text-[11px] text-slate-300">
+                    <p>{ent?.future || "No standing agenda recorded."}</p>
+                  </div>
+                </div>
+              </div>
+            {:else if selected_dossier.type === "edge"}
+              {@const edge = selected_dossier.edge}
+              {@const is_hidden = /\|\s*hide\b/i.test(edge?.dynamic || "")}
+
+              <div class="space-y-3">
+                <div class="rounded-xl border border-slate-800/80 bg-slate-900/40 p-3">
+                  <span class="text-[10px] font-semibold tracking-wider text-slate-400 uppercase">Dynamic Vector</span>
+                  <p class="mt-1 font-mono text-xs text-slate-200">{edge?.dynamic}</p>
+                </div>
+
+                <div
+                  class="rounded-xl border p-2.5 text-xs {is_hidden
+                    ? 'border-amber-800/60 bg-amber-950/30 text-amber-200'
+                    : 'border-slate-800 bg-slate-900/40 text-slate-300'}"
+                >
+                  {#if is_hidden}
+                    <div class="flex items-center gap-2">
+                      <span class="text-sm text-amber-400">🔒</span>
+                      <div>
+                        <span class="font-semibold text-amber-300">Epistemic Lock Active</span>
+                        <p class="mt-0.5 text-[11px] text-amber-400/80">
+                          This dynamic is concealed from other participants across the Epistemic Wall in live narration.
+                        </p>
+                      </div>
+                    </div>
+                  {:else}
+                    <div class="flex items-center gap-2">
+                      <span class="text-sm text-slate-400">🌐</span>
+                      <div>
+                        <span class="font-semibold text-slate-200">Public Dynamic</span>
+                        <p class="mt-0.5 text-[11px] text-slate-400">Observable in shared scene context.</p>
+                      </div>
+                    </div>
+                  {/if}
+                </div>
+              </div>
+            {/if}
+          </div>
+
+          <!-- Dossier Footer -->
+          <div class="flex items-center justify-end gap-2 border-t border-slate-800/80 pt-2.5">
+            {#if selected_dossier.type === "entity"}
+              <button
+                type="button"
+                aria-label={`Open full profile for ${selected_dossier.name}`}
+                onclick={() => {
+                  if (typeof on_select_entity === "function") {
+                    on_select_entity(selected_dossier.entity);
+                  }
+                }}
+                class="flex cursor-pointer items-center gap-1.5 rounded-xl border border-cyan-500/50 bg-cyan-600/20 px-3 py-1.5 text-xs font-semibold text-cyan-200 transition-all hover:border-cyan-400 hover:bg-cyan-600/30"
+              >
+                Open Full Profile →
+              </button>
+            {:else if selected_dossier.edge?.target_entity}
+              <button
+                type="button"
+                aria-label={`Open full profile for ${selected_dossier.edge.target_name}`}
+                onclick={() => {
+                  if (typeof on_select_entity === "function") {
+                    on_select_entity(selected_dossier.edge.target_entity);
+                  }
+                }}
+                class="flex cursor-pointer items-center gap-1.5 rounded-xl border border-cyan-500/50 bg-cyan-600/20 px-3 py-1.5 text-xs font-semibold text-cyan-200 transition-all hover:border-cyan-400 hover:bg-cyan-600/30"
+              >
+                Open {selected_dossier.edge.target_name} Profile →
+              </button>
+            {/if}
+          </div>
+        </div>
+      {/if}
     </div>
   {/if}
 </div>
@@ -392,6 +651,10 @@
 <!--
   CHANGELOG
   ============================================================================
+  - 2026-10-14: Atom 3.5 — 360° Relational Dossier & Omniscient Observer Mode.
+    Interactive glassmorphic dossier card displaying 4-layer state (eternal,
+    present, past, future) on node and edge click; visual epistemic lock badge
+    for concealed `| hide` brackets.
   - 2026-10-01: Universal Predicates Migration — edit list and constellation nodes
     are driven 100% by universal bracket predicates (`present.non_physical`).
     Purged legacy `entity.relationships` array references under P4 Zero Backwards

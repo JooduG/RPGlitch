@@ -15,47 +15,82 @@
 import { prompt_escape } from "./xml.js";
 
 /**
+ * Creates a frozen RelationalContext tuple consolidating identity, perspective, and interlocutors.
+ *
+ * @param {Object} [parameters={}]
+ * @param {any} [parameters.me]
+ * @param {any} [parameters.you]
+ * @param {any} [parameters.speaker]
+ * @param {any} [parameters.listener]
+ * @param {any} [parameters.owner]
+ * @param {any} [parameters.target]
+ * @param {any[]} [parameters.witnesses=[]]
+ * @returns {Readonly<{ me: any, you: any, speaker: any, listener: any, owner: any, target: any, witnesses: ReadonlyArray<any>, is_relational_context: boolean }>}
+ */
+export function create_relational_context({
+  me = null,
+  you = null,
+  speaker = null,
+  listener = null,
+  owner = null,
+  target = null,
+  witnesses = [],
+} = {}) {
+  return Object.freeze({
+    me,
+    you,
+    speaker,
+    listener,
+    owner,
+    target,
+    witnesses: Object.freeze(Array.isArray(witnesses) ? [...witnesses] : []),
+    is_relational_context: true,
+  });
+}
+
+/**
  * Safely parses macros in dynamic text with entity references.
- * Supports @SPEAKER, @LISTENER, @OWNER, @ME, @YOU, @USER, @CHAR, @FRACTAL, and concrete @ENTITY_NAME tokens.
+ * Supports @SPEAKER, @LISTENER, @OWNER, @ME, @YOU, @TARGET, @USER, @CHAR, @FRACTAL, and concrete @ENTITY_NAME tokens.
  *
  * @param {string} text
- * @param {any} owner
+ * @param {any} owner_or_context
  * @param {any} entities
  * @param {Object} [context={}]
  * @param {any} [context.speaker]
  * @param {any} [context.listener]
  * @returns {string}
  */
-export function parse_macros(text, owner, entities = {}, context = {}) {
+export function parse_macros(text, owner_or_context, entities = {}, context = {}) {
   if (!text || !entities) return text || "";
+  const rel_ctx = owner_or_context?.is_relational_context
+    ? owner_or_context
+    : context?.is_relational_context
+      ? context
+      : create_relational_context({
+          owner: owner_or_context,
+          speaker: context?.speaker,
+          listener: context?.listener,
+        });
+
+  const owner = rel_ctx.owner || (!owner_or_context?.is_relational_context ? owner_or_context : null) || rel_ctx.me;
+
   const ai_entity = entities.AI || null;
   const user_entity = entities.USER || null;
   const fractal_entity = entities.FRACTAL || null;
 
-  const ai_name = ai_entity?.name || "AI";
-  const user_name = user_entity?.name || "User";
-  const fractal_name = fractal_entity?.name || "Fractal";
+  const ai_name = ai_entity?.name || "the companion";
+  const user_name = user_entity?.name || "the traveler";
+  const fractal_name = fractal_entity?.name || "the realm";
 
   const perspective = _resolve_owner_perspective(owner, entities);
-  const speaker_entity = context.speaker || (perspective === "user" ? user_entity : ai_entity);
-  const listener_entity = context.listener || (perspective === "user" ? ai_entity : user_entity);
+  const speaker_entity =
+    rel_ctx.speaker ||
+    rel_ctx.me ||
+    context.speaker ||
+    (perspective === "user" ? user_entity : perspective === "ai" ? ai_entity : perspective === "fractal" ? fractal_entity : owner || ai_entity);
+  const listener_entity = rel_ctx.listener || rel_ctx.you || context.listener || (perspective === "user" ? ai_entity : user_entity);
 
-  return text.replace(/(?<!\w)@([a-zA-Z0-9_-]+)\b|\{(\s*(?:me|you)\s*)\}/gi, (match, raw_token, brace_token) => {
-    if (brace_token) {
-      const token = brace_token.trim().toUpperCase();
-      if (token === "ME") {
-        if (speaker_entity?.name) return speaker_entity.name;
-        if (perspective === "ai") return ai_name;
-        if (perspective === "user") return user_name;
-        if (perspective === "fractal") return fractal_name;
-        return match;
-      }
-      if (listener_entity?.name) return listener_entity.name;
-      if (perspective === "ai") return user_name;
-      if (perspective === "user") return ai_name;
-      if (perspective === "fractal") return `${ai_name} and ${user_name}`;
-      return match;
-    }
+  return text.replace(/(?<!\w)@([a-zA-Z0-9_-]+)\b/gi, (match, raw_token) => {
     const token = raw_token.toUpperCase();
 
     // 1. Direct role targets
@@ -64,15 +99,23 @@ export function parse_macros(text, owner, entities = {}, context = {}) {
     if (token === "FRACTAL") return fractal_name;
 
     // 2. Perspective & stance tokens
+    if (token === "TARGET") {
+      if (rel_ctx.target?.name) return rel_ctx.target.name;
+      return match;
+    }
+
     if (token === "SPEAKER" || token === "ME" || token === "OWNER") {
+      if (token === "ME" && rel_ctx.me?.name) return rel_ctx.me.name;
       if (speaker_entity?.name) return speaker_entity.name;
       if (perspective === "ai") return ai_name;
       if (perspective === "user") return user_name;
       if (perspective === "fractal") return fractal_name;
+      if (owner?.name) return owner.name;
       return match;
     }
 
     if (token === "LISTENER" || token === "YOU") {
+      if (token === "YOU" && rel_ctx.you?.name) return rel_ctx.you.name;
       if (listener_entity?.name) return listener_entity.name;
       if (perspective === "ai") return user_name;
       if (perspective === "user") return ai_name;
@@ -82,7 +125,7 @@ export function parse_macros(text, owner, entities = {}, context = {}) {
 
     // 3. Concrete entity name/id match
     const token_lc = raw_token.toLowerCase();
-    for (const entity of [ai_entity, user_entity, fractal_entity, owner]) {
+    for (const entity of [ai_entity, user_entity, fractal_entity, owner, rel_ctx.target]) {
       if (!entity) continue;
       if ((entity.id && String(entity.id).toLowerCase() === token_lc) || (entity.name && String(entity.name).toLowerCase() === token_lc)) {
         return entity.name;
@@ -121,29 +164,22 @@ export function expand_entity_macros(entity, entities) {
 }
 
 /**
- * Friendly label used when `{{you}}` / `{{user}}` appears in a readonly display
- * but no user persona exists to resolve it to, viewed from the AI character's
- * (or an unknown owner's) perspective — there "you" is the user persona. Muted
- * (frozen-colored) so it reads naturally without drawing attention. When the
- * owning profile is the user persona (or the fractal), "you" flips to the other
- * party — see {@link _resolve_you_target}.
+ * Friendly label used when `@YOU` / `@USER` appears in a readonly display
+ * but no user persona exists to resolve it to, viewed from the companion's
+ * (or an unknown owner's) perspective.
  */
-const UNRESOLVED_YOU_LABEL = "the user persona";
+const UNRESOLVED_YOU_LABEL = "the traveler";
 
 /**
  * Friendly unresolved label for every KNOWN macro token. Each maps to a natural
  * muted label used when the entity it references isn't present in the display
- * context — so no known macro ever falls back to a raw `⟨token⟩` placeholder.
- * (Unknown/custom tokens still do, since their meaning is unknown. `me` and
- * `you` are special-cased in the resolver — `me` because its fallback depends
- * on the owner's type, `you` because its target flips with the owner's
- * perspective — see {@link resolve_display_macro_segments}.)
+ * context.
  */
 export const UNRESOLVED_LABELS = {
   user: UNRESOLVED_YOU_LABEL,
   you: UNRESOLVED_YOU_LABEL,
-  fractal: "the fractal",
-  char: "the ai character",
+  fractal: "the realm",
+  char: "the companion",
 };
 
 /**
@@ -206,7 +242,7 @@ function _resolve_owner_perspective(owner, entities = {}) {
   if (_owner_is_user_persona(owner, entities)) return "user";
   if (_entity_ids_match(owner, entities?.AI)) return "ai";
   if (_owner_is_fractal(owner, entities)) return "fractal";
-  if (owner.type === "character") return "ai";
+  if (owner.id) return `entity:${owner.id}`;
   return null;
 }
 
@@ -230,6 +266,10 @@ function _resolve_you_target(owner, entities = {}) {
   if (perspective === "fractal") {
     const parties = [ai_name ? ai_name : UNRESOLVED_LABELS.char, user_name ? user_name : UNRESOLVED_LABELS.user];
     return { label: parties.join(" and "), entity: null };
+  }
+  if (perspective?.startsWith("entity:")) {
+    if (user_name) return { label: user_name, entity: entities.USER };
+    if (ai_name) return { label: ai_name, entity: entities.AI };
   }
   if (user_name) return { label: user_name, entity: entities.USER };
   return { label: UNRESOLVED_LABELS.you, entity: null };
@@ -282,18 +322,23 @@ export function resolve_display_macro_segments(text, owner, entities = {}, conte
   const segments = [];
   const source = String(text);
   let last = 0;
-  const re = /(?<!\w)@([a-zA-Z0-9_-]+)\b|\{(\s*(?:me|you)\s*)\}/gi;
+  const re = /(?<!\w)@([a-zA-Z0-9_-]+)\b/gi;
   let m;
   while ((m = re.exec(source)) !== null) {
     if (m.index > last) {
       segments.push({ text: source.slice(last, m.index), macro: null, entity: null });
     }
-    const raw_token = m[1] || m[2].trim();
+    const raw_token = m[1];
     const token = raw_token.toUpperCase();
     let label = null;
     let entity = null;
 
-    if (token === "SPEAKER" || token === "ME" || token === "OWNER") {
+    if (token === "TARGET") {
+      if (context?.target?.name) {
+        label = context.target.name;
+        entity = context.target;
+      }
+    } else if (token === "SPEAKER" || token === "ME" || token === "OWNER") {
       if (speaker_entity?.name) {
         label = speaker_entity.name;
         entity = speaker_entity;
@@ -488,6 +533,8 @@ export function render_field_value(text, owner, entities) {
 
 /**
  * CHANGELOG
+ * - 2026-10-14: Atom 3.2 — Implemented create_relational_context tuple broker, purged {me}/{you} curly syntax in favor of canonical @ME/@YOU/@TARGET, replaced computing fallbacks with diegetic "the companion"/"the traveler"/"the realm".
+ * - 2026-10-14: Atom 3.1 — Fixed secondary NPC identity inversion bug (Issue 18). Eliminated blanket owner.type === "character" catch-all in _resolve_owner_perspective, classifying NPCs as entity:<id> so @ME resolves to the NPC's own name instead of the companion.
  * - 2026-10-01: Relocated prompt directive MACRO_DIRECTIVES and resolve_macro_directive to src/intelligence/modules/protocols.js per Layer 3 prompt architecture, keeping macros.js a pure stateless string utility.
  * - 2026-09-18: Added CORE_PROTOCOLS, ENTITIES, and HISTORY to PROFILE_WRAPPER_TAGS per scrobbles.md blueprint.
  * - 2026-09-16: Added TASK to PROFILE_WRAPPER_TAGS to ensure prompt envelope tags are stripped from raw profile generations.

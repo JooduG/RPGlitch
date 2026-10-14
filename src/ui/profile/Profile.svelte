@@ -627,6 +627,7 @@
 
         <div class={info_container_class} bind:this={info_container_el}>
           <ProfileHeader
+            bind:id={profile_state.char.id}
             bind:name={profile_state.char.name}
             bind:description={profile_state.char.description}
             is_editing={profile_state.is_editing}

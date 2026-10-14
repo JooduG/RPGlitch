@@ -7,7 +7,7 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { parse_macros, resolve_display_macro_segments } from "./macros.js";
+import { parse_macros, resolve_display_macro_segments, create_relational_context } from "./macros.js";
 
 // ============================================================================
 // [SECTION 1: TEST SUITE]
@@ -44,10 +44,34 @@ describe("Universal @ENTITY Macro Engine", () => {
       expect(resolved).toBe("A message meant for Julien.");
     });
 
-    it("resolves unified perspective braces {me}/{you} like @ME/@YOU", () => {
-      expect(parse_macros("{me} speaks to {you}.", user, entities)).toBe("Alice speaks to Julien.");
-      expect(parse_macros("{me} observes {you}.", ai, entities)).toBe("Julien observes Alice.");
-      expect(parse_macros("A pact between {you} and {me}.", ai, entities)).toBe("A pact between Alice and Julien.");
+    it("does not parse legacy {me} and {you} curly braces (purged per P4)", () => {
+      expect(parse_macros("{me} speaks to {you}.", user, entities)).toBe("{me} speaks to {you}.");
+    });
+
+    it("resolves @ME and @YOU from secondary NPC perspective without stealing companion identity", () => {
+      const npc = { id: "npc_rust", name: "Rust", type: "character" };
+      const text = "@ME speaks to @YOU.";
+      const resolved = parse_macros(text, npc, entities);
+      expect(resolved).toBe("Rust speaks to Alice.");
+    });
+
+    it("resolves diegetic fallbacks when entities are absent", () => {
+      expect(parse_macros("@CHAR observes @USER.", null, {})).toBe("the companion observes the traveler.");
+    });
+
+    it("supports frozen RelationalContext tuple resolving @ME, @YOU, @SPEAKER, @LISTENER, @TARGET", () => {
+      const target = { id: "char_silvers", name: "Silvers" };
+      const context = create_relational_context({
+        me: ai,
+        you: user,
+        speaker: ai,
+        listener: user,
+        target,
+      });
+      expect(Object.isFrozen(context)).toBe(true);
+      const text = "@SPEAKER says to @LISTENER: behold @TARGET! (Signed: @ME to @YOU)";
+      const resolved = parse_macros(text, context, entities);
+      expect(resolved).toBe("Julien says to Alice: behold Silvers! (Signed: Julien to Alice)");
     });
   });
 
@@ -77,6 +101,7 @@ describe("Universal @ENTITY Macro Engine", () => {
 /**
  * CHANGELOG
  * ============================================================================
+ * - 2026-10-14: Atom 3.2 — Added RelationalContext tests, purged {me}/{you} curly syntax tests, and tested diegetic fallbacks.
  * - 2026-10-01: Initial test suite for universal @ENTITY macro engine and role tokens.
  * ============================================================================
  */
