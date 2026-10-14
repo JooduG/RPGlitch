@@ -1005,6 +1005,7 @@ export function resolve_settled_facts(entity, limit = SETTLED_FACT_LIMIT) {
 // ── 5. State Mutations & Chapter Archival ─────────────────────────────────────
 
 /** Deduplicates an incoming eternal mutation against the existing identity field. */
+// eslint-disable-next-line no-unused-vars
 function eternal_field_dedup(existing, incoming) {
   const normalize = (text) => collapse_whitespace(String(text || "").toLowerCase());
   const incoming_normalized = normalize(incoming);
