@@ -221,17 +221,15 @@ describe("fused rendering per mode", () => {
     expect(flat).not.toContain("ROUND_ONE");
   });
 
-  it("injects MOMENTUM_SOFT_PERMIT at 8 stagnant turns and MOMENTUM_HARD_MANDATE at 16 turns", () => {
+  it("injects MOMENTUM tier='soft' at 8 stagnant turns and tier='critical' at 16 turns", () => {
     const neutral = director_directives({ stagnation_turns: 0 });
-    expect(JSON.stringify(neutral)).not.toContain("MOMENTUM");
+    expect(neutral.some((item) => typeof item === "string" && item.includes("<MOMENTUM"))).toBe(false);
 
     const soft = director_directives({ stagnation_turns: 8 });
-    expect(JSON.stringify(soft)).toContain("DIRECTOR.MOMENTUM_SOFT_PERMIT");
-    expect(JSON.stringify(soft)).not.toContain("DIRECTOR.MOMENTUM_HARD_MANDATE");
+    expect(soft.some((item) => typeof item === "string" && item.includes('<MOMENTUM tier="soft" turns="8">'))).toBe(true);
 
     const hard = director_directives({ stagnation_turns: 16 });
-    expect(JSON.stringify(hard)).toContain("DIRECTOR.MOMENTUM_HARD_MANDATE");
-    expect(JSON.stringify(hard)).not.toContain("DIRECTOR.MOMENTUM_SOFT_PERMIT");
+    expect(hard.some((item) => typeof item === "string" && item.includes('<MOMENTUM tier="critical" turns="16">'))).toBe(true);
   });
 
   it("renders the interaction mode", () => {
@@ -832,5 +830,6 @@ describe("metasyntax gate — compiled prompt hygiene", () => {
  * - 2026-09-11: Updated imports/assertions to the modern manifest (PROMPTS/get_prompt) after PROMPT_MODES/get_prompt_mode were removed.
  * - 2026-09-11: Renamed from prompt-modes.test.js to prompts.test.js reflecting prompts.js master registry.
  * - 2026-09-11: Moved prompt-modes.test.js to root of intelligence folder and updated imports to story-prompts.js and builder.js.
+ * - 2026-10-14: Atom 2.2 & 2.4 — Updated director_directives momentum test to assert typed XML tags <MOMENTUM tier="soft|critical">.
  * - 2026-10-14: Phase 1 — Updated INPUT assertions to omit channel attribute on standard protagonist actions.
  */

@@ -53,6 +53,17 @@ const _mock_runtime = {
   round: 1,
   turn_type: "USER_TURN",
   structural_errors: 0,
+  stagnation_turns: 0,
+  last_semantic_drift: 1.0,
+  record_turn_drift(drift) {
+    const valid = Math.max(0.0, Math.min(1.0, Number(drift) || 0.0));
+    this.last_semantic_drift = valid;
+    if (valid < 0.15) {
+      this.stagnation_turns += 1;
+    } else {
+      this.stagnation_turns = 0;
+    }
+  },
   story_id: null,
   last_director_beat_round: -1,
   last_dynamics_beat_round: -1,
@@ -333,6 +344,8 @@ describe("gamemaster (Intelligence Kernel)", () => {
     _mock_runtime.ai = { intensity: 50 };
     _mock_runtime.fractal = { entropy: 50 };
     _mock_runtime.structural_errors = 0;
+    _mock_runtime.stagnation_turns = 0;
+    _mock_runtime.last_semantic_drift = 1.0;
     // Cooldown state is now authoritative for BOTH image sources, so every test
     // starts from the open-gate sentinel (-1) instead of inheriting mutations
     // from earlier tests.
@@ -2150,10 +2163,85 @@ describe("Track 5: Runtime Stream Beat Backstop & Continuation", () => {
       "The corridor stretched into impenetrable darkness, the air smelling faintly of iron and cold dust as the heavy blast doors shuddered shut.",
     );
   });
+
+  describe("Atom 2.6 Same-Role Semantic Drift Recalibration", () => {
+    it("increments stagnation_turns when user input repeats previous user turn despite interleaved companion turn", async () => {
+      vi.mocked(session_driver.load_log).mockResolvedValue([
+        { role: "user", content: "I check the gate" },
+        { role: "model", content: "The gate is locked with rusty chains." },
+      ]);
+
+      const mock_payload = {
+        input: "I check the gate",
+        type: "simulation",
+        round: 2,
+        entities: {
+          AI: { name: "Viper", dynamics: { intensity: 50 } },
+          USER: { name: "Ghost" },
+          FRACTAL: { name: "Void", dynamics: { entropy: 50 } },
+        },
+        view_id: "global",
+        simulation_log: "",
+      };
+      vi.mocked(context_builder.build_context).mockResolvedValue(mock_payload);
+      mock_prompt_spies.build_director.mockReturnValue({ system: "D", task: "T" });
+      mock_prompt_spies.build_character.mockReturnValue({
+        system: "AI_PROMPT",
+        task: "AI_TASK",
+        meta: { ai: {}, fractal: {}, role: "ai" },
+      });
+
+      vi.mocked(llm_service.generate)
+        .mockResolvedValueOnce('{"story_status":"IN_PROGRESS","next_action":"AI_CHARACTER","keywords":[],"directors_note":"","dynamics_deltas":{}}')
+        .mockResolvedValueOnce("Viper stares at you. Still locked.");
+
+      expect(_mock_runtime.stagnation_turns).toBe(0);
+
+      await gamemaster.execute_turn("story-123", { input: "I check the gate", role: "ai" });
+
+      expect(_mock_runtime.stagnation_turns).toBe(1);
+    });
+
+    it("evaluates companion-to-companion drift against previous model turn", async () => {
+      vi.mocked(session_driver.load_log).mockResolvedValue([
+        { role: "user", content: "I check the gate" },
+        { role: "model", content: "The gate is locked." },
+      ]);
+
+      const mock_payload = {
+        input: "What now?",
+        type: "simulation",
+        round: 2,
+        entities: {
+          AI: { name: "Viper", dynamics: { intensity: 50 } },
+          USER: { name: "Ghost" },
+          FRACTAL: { name: "Void", dynamics: { entropy: 50 } },
+        },
+        view_id: "global",
+        simulation_log: "",
+      };
+      vi.mocked(context_builder.build_context).mockResolvedValue(mock_payload);
+      mock_prompt_spies.build_director.mockReturnValue({ system: "D", task: "T" });
+      mock_prompt_spies.build_character.mockReturnValue({
+        system: "AI_PROMPT",
+        task: "AI_TASK",
+        meta: { ai: {}, fractal: {}, role: "ai" },
+      });
+
+      vi.mocked(llm_service.generate)
+        .mockResolvedValueOnce('{"story_status":"IN_PROGRESS","next_action":"AI_CHARACTER","keywords":[],"directors_note":"","dynamics_deltas":{}}')
+        .mockResolvedValueOnce("The gate is locked.");
+
+      await gamemaster.execute_turn("story-123", { input: "What now?", role: "ai" });
+
+      expect(_mock_runtime.stagnation_turns).toBe(1);
+    });
+  });
 });
 
 /**
  * CHANGELOG
+ * - 2026-10-14: Atom 2.6 Added test suite for same-role semantic drift recalibration (consecutive user and companion turns).
  * - 2026-09-23: Prompt-grammar harmonization — the `THINK_FORMAT` beat assertion follows the reconciled wording ("Open your output with one internal `<THINK>` block (under 200 words). Reason across 4 sequential beats" … "Close `</THINK>` before the narrative. This think block is internal reasoning and is never part of the visible prose.").
  * - 2026-09-23: Prompt-grammar harmonization — the prose task assertion now expects `<INPUT origin="SILVERS" channel="action">` (the signal discriminator is `channel=`, not `mode=`).
  * - 2026-09-23: Envelope-harmonization assertions — `<INPUT>` now carries `mode="action"`, and the narrator envelope no longer emits a redundant `role="NARRATOR"` attribute (single `<SYSTEM mode="narrator">`).

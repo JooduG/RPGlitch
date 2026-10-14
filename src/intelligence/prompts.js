@@ -51,7 +51,7 @@ import {
 } from "./modules/entities.js";
 import { resolve_history_slot, resolve_chapter_history_slot } from "./modules/history.js";
 import { verify_epistemic_integrity } from "./veil.js";
-import { resolve_turn_state_plan } from "./modules/reflex.js";
+import { resolve_turn_state_plan, render_momentum_directive_xml } from "./modules/reflex.js";
 
 // ============================================================================
 // 1. ENVELOPE CONSTANTS & LAYER PRESETS
@@ -161,25 +161,16 @@ function prose_protocols({ include_dialogue = false } = {}) {
  * @param {{ has_input?: boolean, round?: number, has_environmental_hint?: boolean, turn_state?: { first_contact: boolean, round_one: boolean, evaluation: string }, stagnation_turns?: number, has_candidates?: boolean }} [parameters={}]
  * @returns {Array<string | { group: string[] }>}
  */
-export function director_directives({
-  has_input = false,
-  round = 1,
-  has_environmental_hint = false,
-  turn_state = null,
-  stagnation_turns = 0,
-  has_candidates = false,
-} = {}) {
+export function director_directives({ has_input = false, round = 1, has_environmental_hint = false, turn_state = null, stagnation_turns = 0 } = {}) {
   const situation = turn_state ?? resolve_turn_state_plan({ has_input, round });
-  const stagnation = Math.max(0, Number(stagnation_turns) || 0);
+  const momentum = render_momentum_directive_xml(stagnation_turns);
   return [
-    "DIRECTOR.DYNAMICS_CALIBRATION",
     {
       group: [`REFLEX.TURN_STATE.${situation.evaluation}`, ...(situation.round_one ? ["REFLEX.TURN_STATE.ROUND_ONE"] : [])],
     },
     ...(has_environmental_hint ? ["REFLEX.CONDITIONALS.ENVIRONMENTAL_HINT"] : []),
-    "DIRECTOR.ROUTING",
-    ...(has_candidates ? ["DIRECTOR.CONVERGENCE"] : []),
-    ...(stagnation >= 16 ? ["DIRECTOR.MOMENTUM_HARD_MANDATE"] : stagnation >= 8 ? ["DIRECTOR.MOMENTUM_SOFT_PERMIT"] : []),
+    "DIRECTOR.ROUTING_RULES",
+    ...(momentum ? [momentum] : []),
   ];
 }
 
@@ -614,5 +605,6 @@ export default PROMPTS;
  * - 2026-09-11: Wired the manifest to the assembly line — protocol lists, constitution gating, entity context gates, role keys, schema/contract keys and the sorting POV key are now consumed by builder.js. Pruned inert task.directive/task.rules/task.directives keys and reconciled protocol lists with emitted output. Removed the PROMPT_MODES/get_prompt_mode compatibility aliases (P4).
  * - 2026-09-11: Renamed prompt-modes.js -> prompts.js. Elevated to module-keyed manifest registering all 8 prompt modes (system, constitution, protocols, entities, task).
  * - 2026-09-11: Converted prompt-modes.json into canonical ESM module with frozen schemas.
+ * - 2026-10-14: Atom 2.2, 2.3 & 2.4 — updated director_directives to use unified DIRECTOR.ROUTING_RULES and reflex render_momentum_directive_xml; purged DIRECTOR.DYNAMICS_CALIBRATION, DIRECTOR.ROUTING, DIRECTOR.CONVERGENCE, and task momentum keys.
  * - 2026-10-14: Phase 1 Prompt Pipeline Hygiene & P4 Purges — (1) Set constitution: true for director mode and added axiomatic_constitution to DIRECTOR_LAYERS; (2) Purged alternative_branches from DIRECTOR_SCHEMA; (3) Purged AGENCY from prose_protocols; (4) Purged USER_PERSONA_LOCK and BRANCHES from director_directives and gated CONVERGENCE on has_candidates.
  */

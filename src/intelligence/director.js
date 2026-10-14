@@ -135,7 +135,7 @@ export async function execute_director_shot(payload, snapshot, options = {}) {
     state_bridge.runtime.record_director_latency(director_duration_ms);
   }
 
-  director_data = normalize_director_data(director_data);
+  director_data = normalize_director_data(director_data, { user_input: input });
   director_data.first_contact = Boolean(is_opening_turn || director_data.first_contact);
 
   return { director_data, director_duration_ms };
@@ -275,22 +275,71 @@ export function normalize_directors_note(raw) {
 }
 
 /**
+ * Detects whether the user explicitly declared their own character's destruction/death.
+ * Under Law L3 (Sovereignty), the Director may not collapse the scenario in fatal defeat
+ * without explicit player consent.
+ *
+ * @param {string|null|undefined} user_input
+ * @returns {boolean}
+ */
+export function is_explicit_player_destruction_declared(user_input) {
+  if (!user_input || typeof user_input !== "string") return false;
+  const normalized = user_input.toLowerCase();
+  const fatal_markers = [
+    "i die",
+    "i am dead",
+    "kills me",
+    "kill myself",
+    "bleed out",
+    "give up and die",
+    "surrender to death",
+    "my final breath",
+    "i perish",
+    "my death",
+    "my body goes limp and dies",
+  ];
+  return fatal_markers.some((marker) => normalized.includes(marker));
+}
+
+/**
  * Normalizes an entire Director payload with defensive fallbacks for every field.
+ * Constrains terminal scenario collapse under the Climax Sovereignty Dual Defense.
  *
  * @param {any} payload - Raw or parsed Director payload
+ * @param {string|object|null} [options_or_input=null] - User input string or options bag
  * @returns {any} Normalized Director output data object
  */
-export function normalize_director_data(payload) {
+export function normalize_director_data(payload, options_or_input = null) {
   const base = payload && typeof payload === "object" ? payload : {};
+  const user_input = typeof options_or_input === "string" ? options_or_input : (options_or_input?.user_input ?? options_or_input?.input ?? null);
+
   const raw_action = base.next_action || base.speaker;
   const parsed_action = normalize_next_action(raw_action);
   const raw_status = typeof base.story_status === "string" ? base.story_status.trim().toUpperCase() : "";
-  const effective_action =
+  let effective_action =
     raw_status === "COLLAPSED" && !raw_action
       ? "EPILOGUE_COLLAPSED"
       : raw_status === "CONCLUDED" && !raw_action
         ? "EPILOGUE_CONCLUDED"
         : parsed_action;
+
+  let note = normalize_directors_note(base.directors_note || base.directive);
+  let is_unconsented_collapse = false;
+
+  // Climax Sovereignty Dual Defense (Track 11.4 / Finding F6):
+  // Never permit EPILOGUE_COLLAPSED (terminal player defeat/death) without explicit player consent.
+  if (
+    (effective_action === "EPILOGUE_COLLAPSED" || raw_status === "COLLAPSED") &&
+    user_input !== null &&
+    !is_explicit_player_destruction_declared(user_input)
+  ) {
+    console.warn("[Director] Climax Sovereignty Guard: unconsented EPILOGUE_COLLAPSED intercepted. Downgrading to AI_CHARACTER with somatic trauma.");
+    effective_action = "AI_CHARACTER";
+    is_unconsented_collapse = true;
+    const trauma_directive =
+      "The protagonist sustains catastrophic injury but survives. Render physical aftermath with severe somatic trauma; do not conclude the scenario.";
+    note = note ? `${trauma_directive}\n${note}` : trauma_directive;
+  }
 
   const effective_speaker_source = typeof base.speaker === "string" && base.speaker.trim() ? base.speaker.trim() : effective_action;
   const speaker = normalize_speaker(effective_speaker_source);
@@ -301,8 +350,9 @@ export function normalize_director_data(payload) {
         : strip_npc_id(effective_action)
       : "";
 
-  const story_status =
-    effective_action === "EPILOGUE_CONCLUDED"
+  const story_status = is_unconsented_collapse
+    ? "IN_PROGRESS"
+    : effective_action === "EPILOGUE_CONCLUDED"
       ? "CONCLUDED"
       : effective_action === "EPILOGUE_COLLAPSED"
         ? "COLLAPSED"
@@ -334,7 +384,7 @@ export function normalize_director_data(payload) {
     speaker,
     npc_id,
     keywords,
-    directors_note: normalize_directors_note(base.directors_note || base.directive),
+    directors_note: note,
     visual_staging: typeof base.visual_staging === "string" ? base.visual_staging.trim() : "",
     story_status,
     in_scene_change: normalize_in_scene_change(base.spotlight || base.in_scene_change),
@@ -580,5 +630,6 @@ export async function apply_relationships(bridge, rels) {
  * - 2026-09-05: Added support for unified spotlight schema (enter, exit, genesis) in normalize_director_data.
  * - 2026-08-28: Ground-up deconstruct & refactor: normalized action and speaker resolution, defensive JSON extraction, Stage Spotlight choreography, and unified Relational Mesh persistence.
  * - 2026-09-04: normalize_next_action warns on unknown/non-string next_action; synthesize_director_fallback also emits internal_monologue so the fallback keeps its think block.
+ * - 2026-10-14: Atom 2.5 — implemented is_explicit_player_destruction_declared and Climax Sovereignty Dual Defense in normalize_director_data (downgrading unconsented EPILOGUE_COLLAPSED to AI_CHARACTER / IN_PROGRESS with severe somatic trauma staging notes).
  * - 2026-10-14: Phase 1 Purge alternative_branches — Removed normalize_alternative_branches and alternative_branches field from normalize_director_data under P4 Zero Backwards Compatibility.
  */

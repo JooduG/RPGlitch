@@ -154,6 +154,7 @@ export const CONTRACT = {
       "LAW",
       "LAW",
       "DYNAMIC_AXES",
+      "CALIBRATION",
       "CHAOS",
       "INTENSITY",
       "OPENNESS",
@@ -198,6 +199,7 @@ export const CONTRACT = {
       "INPUT",
       "INPUT",
       "DIRECTIVES",
+      "ROUTING_RULES",
       "KEYWORD_DIRECTIVES",
       "AVAILABLE_KEYWORDS",
       "OUTPUT_FORMAT",
@@ -746,7 +748,7 @@ export const CONTRACT = {
  * @type {Readonly<Record<string, ReadonlyArray<string>>>}
  */
 export const MODE_DIRECTIVE_LEADS = Object.freeze({
-  director: Object.freeze(["DYNAMICS CALIBRATION:", "Evaluate state mutations caused by", "NEXT ACTION ROUTING RULES:"]),
+  director: Object.freeze(["Evaluate state mutations caused by", "<ROUTING_RULES>"]),
   continuum: Object.freeze(["TARGET FOCUS: Consolidate state and extract relational vectors for", "EXECUTION MANDATE:"]),
   sorting: Object.freeze([
     "FOCUS: Extracting data for an individual CHARACTER",
@@ -766,6 +768,7 @@ export const MODE_DIRECTIVE_LEADS = Object.freeze({
 
 /**
  * CHANGELOG
+ * - 2026-10-14: Atom 2.2, 2.3 & 2.4 — added CALIBRATION and ROUTING_RULES to CONTRACT.director inventory; updated MODE_DIRECTIVE_LEADS.director to reflect unified ROUTING_RULES and purged DYNAMICS_CALIBRATION.
  * - Track 3.1/3.4: Prose inventories gain BEAT_BUDGET (after PACING) + AGENCY (after CLICHES).
  * - Track 0.12: Optics CONTRACT inventory drops FIRST_SENTENCE_MANDATE + SPATIAL_GEOMETRY (wrapper literals purged from the atom bodies; bare mandate prose remains).
  * - 2026-10-05: Single-envelope contract — inventories merge system + task tag lists (HISTORY/ENTRYs where the fixture log renders); CONTRACT_SIZES retired (shape, not bytes, is the gate).

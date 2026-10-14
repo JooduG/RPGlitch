@@ -200,20 +200,23 @@ export const gamemaster = {
         }
       }
 
-      const previous_turn_entry = simulation_log.at(-1);
-      const previous_turn_text = previous_turn_entry ? strip_cognition_blocks(previous_turn_entry.content || "").trim() : "";
-      if (input && previous_turn_text) {
+      const previous_user_entry = simulation_log
+        .slice()
+        .reverse()
+        .find((entry) => entry.role === "user");
+      const previous_user_text = previous_user_entry ? strip_cognition_blocks(previous_user_entry.content || "").trim() : "";
+      if (input && previous_user_text) {
         try {
-          const drift = await calculate_semantic_drift(input, previous_turn_text);
+          const drift = await calculate_semantic_drift(input, previous_user_text);
           state_bridge.runtime?.record_turn_drift?.(drift);
           const current_stagnation = state_bridge.runtime?.stagnation_turns ?? 0;
           if (current_stagnation >= 16) {
-            state_bridge.app?.log?.(`[Momentum] Drift: ${drift.toFixed(2)} | Stagnation count: ${current_stagnation} (Hard Mandate active)`, "warn");
+            state_bridge.app?.log?.(`[Momentum] User Drift: ${drift.toFixed(2)} | Stagnation: ${current_stagnation} (Hard Mandate active)`, "warn");
           } else if (current_stagnation >= 8) {
-            state_bridge.app?.log?.(`[Momentum] Drift: ${drift.toFixed(2)} | Stagnation count: ${current_stagnation} (Soft Permit active)`, "system");
+            state_bridge.app?.log?.(`[Momentum] User Drift: ${drift.toFixed(2)} | Stagnation: ${current_stagnation} (Soft Permit active)`, "system");
           }
         } catch (drift_error) {
-          console.warn("[Story] Semantic drift computation failed:", drift_error);
+          console.warn("[Story] User semantic drift computation failed:", drift_error);
         }
       }
 
@@ -643,6 +646,36 @@ export const gamemaster = {
             entity_id: npc_entity ? npc_entity.id : undefined,
           },
         });
+
+        // 7.5. SAME-ROLE COMPANION DRIFT (Atom 2.6 / Track 11.3):
+        // Compare against previous companion/model turn to detect circular storytelling loops
+        const previous_companion_entry = simulation_log
+          .slice()
+          .reverse()
+          .find((entry) => entry.role === "model" || entry.role === "assistant" || entry.role === log_role);
+        const previous_companion_text = previous_companion_entry ? strip_cognition_blocks(previous_companion_entry.content || "").trim() : "";
+        if (persisted_text && previous_companion_text) {
+          try {
+            const companion_drift = await calculate_semantic_drift(persisted_text, previous_companion_text);
+            if (companion_drift < 0.15) {
+              state_bridge.runtime?.record_turn_drift?.(companion_drift);
+              const current_stagnation = state_bridge.runtime?.stagnation_turns ?? 0;
+              if (current_stagnation >= 16) {
+                state_bridge.app?.log?.(
+                  `[Momentum] Companion Drift: ${companion_drift.toFixed(2)} | Stagnation: ${current_stagnation} (Hard Mandate active)`,
+                  "warn",
+                );
+              } else if (current_stagnation >= 8) {
+                state_bridge.app?.log?.(
+                  `[Momentum] Companion Drift: ${companion_drift.toFixed(2)} | Stagnation: ${current_stagnation} (Soft Permit active)`,
+                  "system",
+                );
+              }
+            }
+          } catch (drift_error) {
+            console.warn("[Story] Companion semantic drift computation failed:", drift_error);
+          }
+        }
       }
 
       // 8. TRANSITION: Open the window for User
@@ -1036,6 +1069,7 @@ export const story_pipeline = gamemaster;
 
 /**
  * CHANGELOG
+ * - 2026-10-14: Atom 2.6 Same-Role Semantic Drift Recalibration — Updated drift calculations in Step 2 and Step 7.5 to compare consecutive turns by the same interlocutor (user vs previous user, companion vs previous companion), allowing conversational circularity to naturally trip stagnation thresholds.
  * - 2026-10-12: Added Track 4 Scene Momentum & Stagnation Backstop: computes turn-to-turn semantic movement using calculate_semantic_drift, records stagnation counts into state_bridge.runtime, injects stagnation_turns into context payload, and logs momentum telemetry.
  * - 2026-09-26: Deferred background LLM enrichment — the image-beat optics dispatch and the Continuum memory forge now fire AFTER the character pass (step 8.2) instead of racing it, and the prologue image waits for the opening reply (replacing the image-resolve budget race), so the foreground reply always owns the single-slot global LLM gate first.
  * - 2026-09-24: Streamlined dependencies: routed `capture_dynamics_delta` from `physics.js` and `context_builder` from `builder.js`, removing orphaned imports to retired standalone modules (`telemetry.js`, `payload.js`).

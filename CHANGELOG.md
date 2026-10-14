@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Phase II: Directorial Governance, Constitution & Syntax Parity**:
+  - **Universal Axiomatic Constitutional Grounding (Shot 1)**: Grounded Director prompts with `<AXIOMATIC_CONSTITUTION>` (Laws L1–L4) universally across all simulation modes via `DIRECTOR_LAYERS.system` in `prompts.js`, eliminating cognitive divergence between director staging and narrative generation.
+  - **Unified `<ROUTING_RULES>` XML Block**: Consolidated next-action turn allocation, candidate reuse discipline for `"GENESIS"`, and fatal trauma collapse thresholds for `"EPILOGUE_COLLAPSED"` into a typed `<ROUTING_RULES>` block in `task.js`. Purged fragmented text directives (`DIRECTOR.ROUTING`, `DIRECTOR.CONVERGENCE`).
+  - **Co-Located Dynamic Axes Calibration Bounds**: Emitted delta bounds as attributes on `<DYNAMIC_AXES scale="0-100" delta_standard="±1-4" delta_extreme="±8-12" boundary_clip="5-95">` and added qualitative behavioral `<CALIBRATION>` guidance in `dynamics.js`. Completely purged misplaced `DIRECTOR.DYNAMICS_CALIBRATION` from `task.js` and `prompts.js`.
+  - **Scene Momentum Directive XML Compilation in `reflex.js`**: Relocated momentum directive compilation to `render_momentum_directive_xml(stagnation_turns)` in `reflex.js`, emitting `<MOMENTUM tier="soft|critical" turns="...">` only when stagnation reaches threshold ($\ge 8$ soft, $\ge 16$ critical).
+  - **Climax Sovereignty Dual Defense (Track 11.4 / Finding F6)**: Implemented `is_explicit_player_destruction_declared(user_input)` in `director.js`. Programmatically intercepted unconsented `EPILOGUE_COLLAPSED` or `COLLAPSED` status in `normalize_director_data`, downgrading to `AI_CHARACTER` and `IN_PROGRESS` with severe somatic trauma staging notes to enforce Law L3 (Sovereignty).
+  - **Same-Role Semantic Drift Recalibration (Track 11.3 / Finding L18)**: Updated semantic drift calculations in `story.js` to compare consecutive turns by the same interlocutor (`user[n]` vs `user[n-1]` in Step 2, and `companion[n]` vs `companion[n-1]` in Step 7.5), enabling conversational circularity to naturally trip stagnation thresholds without interleaved speaker cross-talk contamination.
+
 - **Phase I: Prompt Pipeline Hygiene, P4 Purges & Release Safety**:
   - **Single-Source Player Sovereignty**: Consolidated player agency constraints into `<AXIOMATIC_CONSTITUTION>` Law L3 (Sovereignty) in `constitution.js`. Enabled constitution across all simulation modes (including Director Shot 1). Purged duplicate agency text from `protocols.js`, `task.js` (`CHARACTER.BASE`), and Director directives (`USER_PERSONA_LOCK`).
   - **P4 Purge of `alternative_branches`**: Removed `alternative_branches` from `DIRECTOR_SCHEMA`, `director.js`, and Director directives, saving 60–120 output tokens/turn. Archived proposal specification in `.agents/skills/simulation/references/suggestion-fate-branching-choices.md`.

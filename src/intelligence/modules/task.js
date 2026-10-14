@@ -61,6 +61,33 @@ import { resolve_macro_directive, resolve_optics_atom } from "./protocols.js";
 import { get_reflex_atom, render_environmental_hint, render_prose_reflex, resolve_turn_state_plan } from "./reflex.js";
 import { resolve_optics_subject } from "./entities.js";
 
+/**
+ * Shot 1 Director routing rules items.
+ * @type {ReadonlyArray<string>}
+ */
+export const DIRECTOR_ROUTING_RULES_ITEMS = Object.freeze([
+  '- "AI_CHARACTER": (Default) AI companion reacts to the protagonist.',
+  '- "FRACTAL": Environmental action (exploring atmosphere, architecture, weather, objects without dialogue) or breaking long companion speech streaks.',
+  '- "npc:<id>": Present secondary character takes action; when dialogue is unfinished, let it continue before moving on.',
+  '- "GENESIS": Mint a new character ONLY when no candidate in the candidate cast above fills the gap. Reuse existing entities before minting.',
+  '- "EPILOGUE_COLLAPSED": Fatal consequence, irreversible collapse, or defeat. Ends the scenario in tragedy when definitive fatal trauma occurs.',
+  '- "EPILOGUE_CONCLUDED": Triumphant or peaceful narrative resolution. Concludes the active arc.',
+]);
+
+/**
+ * Renders the canonical <ROUTING_RULES> XML block for Shot 1 Director.
+ * Consolidates turn allocation, candidate reuse, and trauma collapse thresholds.
+ * @returns {string} Formatted <ROUTING_RULES> block
+ */
+export function render_routing_rules_xml() {
+  return render_xml_tag({
+    tag: "ROUTING_RULES",
+    children: DIRECTOR_ROUTING_RULES_ITEMS,
+    child_indent: 2,
+    separator: "\n",
+  });
+}
+
 // ============================================================================
 // [SECTION 1: UNIFIED TASK DIRECTIVES & PROTOCOLS CATALOG]
 // ============================================================================
@@ -107,24 +134,7 @@ Close "_thought_process" before composing the image payload. This calibration is
 
   // ── 1.3 Shot 1: Directorial Staging & Evaluation Rules (director) ───────────
   DIRECTOR: Object.freeze({
-    DYNAMICS_CALIBRATION: `DYNAMICS CALIBRATION:
-1. Calibrate dynamics_deltas conservatively (±1 to ±4 standard; ±8 to ±12 extreme).
-2. Adjust deltas carefully near boundaries (5 or 95) to prevent clipping at 0 or 100.
-3. Calibrate dynamics_deltas to reflect the psychological and environmental shift of the turn.`,
-    ROUTING: `NEXT ACTION ROUTING RULES:
-- "AI_CHARACTER": (Default) AI companion reacts to the protagonist.
-- "FRACTAL": Environmental action (exploring atmosphere, architecture, weather, objects without dialogue) or breaking long AI speech streaks.
-- "npc:<id>": Present secondary character takes action; when its dialogue is unfinished, let it continue before moving on.
-- "GENESIS": Mint a new character only when no candidate in the candidate cast above fills the gap — the reuse discipline above governs.
-- "EPILOGUE_COLLAPSED": Fatal consequence, player death, irreversible collapse, or catastrophic defeat. Ends the scenario in tragedy.
-- "EPILOGUE_CONCLUDED": Triumphant or peaceful narrative resolution. Concludes the active arc.`,
-
-    CONVERGENCE: `CONVERGENCE & ENTITY REUSE:
-Reuse before mint: inspect candidate secondary characters in the candidate cast above before minting. If an existing entity matches the role or location (medical, security, merchant), you MUST reuse that entity rather than creating a duplicate.`,
-
-    MOMENTUM_SOFT_PERMIT: `SCENE MOMENTUM (TIER 1): The interaction has lingered in the same physical and conversational loop for {stagnation_turns} turns. Cease passive holding. Steer the next speaker to introduce new physical activity, change topic, or escalate.`,
-
-    MOMENTUM_HARD_MANDATE: `SCENE MOMENTUM (TIER 2 - CRITICAL): Scene stagnation reached {stagnation_turns} turns. Forbid continuing static conversation in the same room. You MUST route next_action to "FRACTAL" to force an environmental event/transit, or introduce a third-party arrival via "npc:<id>" / "GENESIS".`,
+    ROUTING_RULES: DIRECTOR_ROUTING_RULES_ITEMS,
   }),
 
   // ── 1.4 Shot 2A: Prose Turn Directives (character / scene / ghostwrite) ─────
@@ -191,6 +201,7 @@ EXECUTION MANDATE:
  * @returns {string}
  */
 export function get_directive_atom(directive_key, values = {}) {
+  if (directive_key === "DIRECTOR.ROUTING_RULES") return render_routing_rules_xml();
   const resolved = resolve_catalog_atom(TASK_LIBRARY, directive_key, values);
   return typeof resolved === "string" ? resolved : (resolved?.body ?? "");
 }
@@ -216,9 +227,9 @@ export function get_directive_atom(directive_key, values = {}) {
  * @returns {string}
  */
 function resolve_directive_entry(directive_key, values = {}) {
-  const directive_head = String(directive_key ?? "")
-    .trim()
-    .split(".")[0];
+  const text = String(directive_key ?? "").trim();
+  if (text.startsWith("<")) return text;
+  const directive_head = text.split(".")[0];
   if (directive_head === "REFLEX") return get_reflex_atom(directive_key, values);
   if (directive_head === "OPTICS") return resolve_optics_atom(directive_key, values);
   return get_directive_atom(directive_key, values);
@@ -813,6 +824,7 @@ export function render_task(parameters = {}) {
  * - 2026-09-11: Initial creation of modular task.js extracting turn block formatting, pacing, and think formats.
  * - 2026-10-03: Prompt alignment & trauma severity grading — aligned USER_PERSONA_LOCK with ROUTING to explicitly authorize EPILOGUE_COLLAPSED and EPILOGUE_CONCLUDED next_actions without contradiction; graded EVALUATION_INPUT and EVALUATION_SCENE to distinguish definitively fatal terminal destruction from severe but survivable bodily trauma.
  * Modules Ground Refactor Phase 1 — get_directive_atom delegates to utils/catalog.js resolve_catalog_atom (REFLEX delegation stays in compile_directive_tags) — prompt bytes byte-identical.
+ * - 2026-10-14: Atom 2.2 & 2.4 — exported render_routing_rules_xml() and consolidated turn routing, candidate reuse, and trauma thresholds into DIRECTOR.ROUTING_RULES; purged fragmented text walls (DYNAMICS_CALIBRATION, ROUTING, CONVERGENCE, MOMENTUM_*); allowed pre-rendered XML blocks to pass through resolve_directive_entry.
  * - 2026-10-14: Phase I hygiene — purged USER_PERSONA_LOCK and BRANCHES; inverted candidate cast spatial pointer to <CANDIDATE_CAST> above; stripped redundant agency sentence from CHARACTER.BASE; streamlined render_task_input to omit attribute for default action inputs and use type= for special payloads; exported TASK_INPUT_TYPES.
  * - 2026-10-07: Modules Ground Refactor Phase 3 — optics domain re-cut to sensory.js (OPTICS catalog, framing rules and cinematography moved; OPTICS delegation in resolve_directive_entry; optics slots and subject delegate; render_think_format exported) — prompt bytes byte-identical.
  */

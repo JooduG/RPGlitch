@@ -655,12 +655,10 @@ export function render_dynamics_axes_xml(live_dynamics = null, scope = null, axe
   if (tags.length === 0) return "";
 
   const calibration = include_calibration
-    ? '  <CALIBRATION>Calibrate dynamics_deltas to reflect the psychological tension, environmental friction, and interpersonal shift of the turn without clipping.</CALIBRATION>\n'
+    ? "  <CALIBRATION>Calibrate dynamics_deltas to reflect the psychological tension, environmental friction, and interpersonal shift of the turn without clipping.</CALIBRATION>\n"
     : "";
 
-  const attrs = include_calibration
-    ? ' scale="0-100" delta_standard="±1-4" delta_extreme="±8-12" boundary_clip="5-95"'
-    : ' scale="0-100"';
+  const attrs = include_calibration ? ' scale="0-100" delta_standard="±1-4" delta_extreme="±8-12" boundary_clip="5-95"' : ' scale="0-100"';
 
   return `<DYNAMIC_AXES${attrs}>\n${calibration}${tags.join("\n")}\n</DYNAMIC_AXES>`;
 }

@@ -100,37 +100,29 @@ Foundational cleanup, dead-code removal, and immediate token-saving optimization
 
 Elevating Shot 1 (Director) from an ad-hoc, unformatted text script into a constitutionally bounded, structurally typed simulation referee.
 
-- **Objective**: Provide the Director with inviolable simulation axioms, decouple lethal physical trauma from player sovereignty rules, co-locate simulation state with delta tuning bounds, and harmonize Shot 1 to typed XML elements.
+- **Objective**: Provide the Director with universal axiomatic constitution grounding, decouple lethal physical trauma from player sovereignty rules, co-locate simulation state with delta tuning bounds, harmonize Shot 1 to typed XML elements, enforce climax sovereignty dual defense, and recalibrate same-role semantic drift.
 - **Code reality**: `prompts.js:309` explicitly declares `constitution: false` and `protocols: ["CORE_PROTOCOLS.ALTERNATION_OPTIONS"]` (which collapses to empty string), leaving the Director completely stripped of constitutional grounding. Live sim Round 28 proved an ungrounded Director hallucinated terminal player destruction while sparing an NPC. `prompts.js:171-177` space-joins three modules into an unbroken 150-word run-on wall in `task.js:114-123`, mixing decapitation with player sovereignty, followed by redundant bullet points. `task.js:110` calibration instructions are separated by 170 lines from `<DYNAMIC_AXES>` in System.
-- **Key Modules**: `src/intelligence/prompts.js`, `src/intelligence/modules/constitution.js`, `src/intelligence/modules/task.js`, `src/intelligence/director.js`, `src/intelligence/story.js`.
+- **Key Modules**: `src/intelligence/prompts.js`, `src/intelligence/prompt-verification.js`, `src/intelligence/modules/constitution.js`, `src/intelligence/modules/constitution.test.js`, `src/intelligence/modules/task.js`, `src/intelligence/modules/task.test.js`, `src/intelligence/modules/reflex.js`, `src/intelligence/modules/reflex.test.js`, `src/intelligence/dynamics.js`, `src/intelligence/dynamics.test.js`, `src/intelligence/director.js`, `src/intelligence/director.test.js`, `src/intelligence/story.js`, `src/intelligence/story.test.js`.
 - **Planned Sub-Items**:
-  - [ ] **2.1 Author Dedicated `DIRECTOR_CONSTITUTION` (Issue 6 / Governance Grounding)**:
-    - Author `DIRECTOR_CONSTITUTION` in `src/intelligence/modules/constitution.js` containing 3 core directorial laws:
-      - **Law D1 (Objective Causality & Terminal Destruction):** Evaluate biological limits and physical causality strictly; enforce irreversible fatal trauma without moralizing, euphemism, or false survival.
-      - **Law D2 (Player Sovereignty & Agency Lock):** The Director never speaks, acts, or scripts thoughts for `«USER_PERSONA»`. The window for the player to act opens automatically after the companion beat; `directors_note` directs secondary actors only.
-      - **Law D3 (Impartial Routing & Entity Convergence):** Allocate turns impartially based on scene momentum; reuse existing cast before minting new entities.
-    - Add `axiomatic_constitution` to `DIRECTOR_LAYERS.system` in `prompts.js:108` and set `constitution: true` in `PROMPTS.director`.
-  - [ ] **2.2 Modular Deconstruction of Director Run-On Directives (Issue 9)**:
-    - Disassemble the 150-word space-joined blob in `task.js:114-123` into three distinct XML block children:
-      1. `<TRAUMA_EVALUATION>`: Biological limits and `EPILOGUE_COLLAPSED` triggers.
-      2. `<ROUTING_RULES>`: Turn allocation and valid `next_action` values.
-      3. `<SOVEREIGNTY_LOCK>`: Player non-puppeteering and Director's note boundary rules.
-    - Decouples visceral physical trauma from player agency rules and eliminates redundant routing bullet lists.
-  - [ ] **2.3 Co-Locate Dynamic Axes Calibration Bounds (Issue 8)**:
-    - Annotate `<DYNAMIC_AXES>` in System envelope (`prompts.js:108`) with delta bounds as XML attributes:
-
-      ```xml
-      <DYNAMIC_AXES scale="0-100" delta_standard="±1-4" delta_extreme="±8-12" boundary_clip="5-95">
-      ```
-
-    - Shorten the task directive in `task.js:110-113` to a concise psychological pointer (`"Calibrate dynamics_deltas per axes scale bounds to reflect scene tension"`), eliminating the 170-line cognitive dispersion gap.
-  - [ ] **2.4 Shot 1 Directives XML Harmonization (Issue 12 / Syntax Parity)**:
-    - Systematically migrate remaining Director directives in `src/intelligence/modules/task.js:109-133` through `render_xml_tag`, matching the clean architecture of Shot 2.
-    - Replaces the four clashing grammars (numbered lists, text walls, markdown dashes, XML) with uniform typed XML elements (`<DYNAMICS_CALIBRATION>`, `<TRAUMA_EVALUATION>`, `<ROUTING_RULES>`, `<KEYWORD_DIRECTIVES>`).
-  - [ ] **2.5 Climax Sovereignty Calibration (sim/dossier finding F6 / Track 11.4)**:
-    - In `src/intelligence/director.js`, constrain the Director's terminal evaluation rules to strictly forbid emitting `next_action: "EPILOGUE_COLLAPSED"` with player death unless the user's input explicitly declares their own character's destruction.
-  - [ ] **2.6 Stagnation Drift Recalibration (sim/dossier finding L18 / Track 11.3)**:
-    - In `src/intelligence/story.js:207`, update semantic drift calculation (`calculate_semantic_drift`) to compare consecutive turns by the same interlocutor (`input[n]` vs `input[n-1]` or `reply[n]` vs `reply[n-1]`), allowing circular dialogue to naturally trip the 8-turn soft permit and 16-turn hard mandate.
+  - [x] **2.1 Universal Axiomatic Constitutional Grounding for Shot 1**:
+    - Retain the single universal `<AXIOMATIC_CONSTITUTION>` (Laws L1–L4) as the sole constitutional authority across all simulation passes.
+    - Enable constitutional grounding for Shot 1: add `"axiomatic_constitution"` to `DIRECTOR_LAYERS.system` in `src/intelligence/prompts.js` and set `constitution: true` in `PROMPTS.director`.
+    - Update `src/intelligence/prompt-verification.js` and test suites to assert `<AXIOMATIC_CONSTITUTION>` and laws L1–L4 across Director system prompts.
+  - [x] **2.2 Unified `<ROUTING_RULES>` XML Block & Directives Parity (Issues 9 & 12)**:
+    - In `src/intelligence/modules/task.js`, consolidate next-action turn allocation, candidate reuse discipline for `"GENESIS"`, and fatal trauma collapse thresholds for `"EPILOGUE_COLLAPSED"` into a single typed `<ROUTING_RULES>` XML block via `render_xml_tag`.
+    - Purge fragmented text directives (`DIRECTOR.ROUTING`, `DIRECTOR.CONVERGENCE`).
+  - [x] **2.3 Co-Locate Dynamic Axes Calibration Bounds (Issue 8)**:
+    - In `src/intelligence/dynamics.js`, co-locate delta bounds as XML attributes on `<DYNAMIC_AXES scale="0-100" delta_standard="±1-4" delta_extreme="±8-12" boundary_clip="5-95">` and add qualitative behavioral `<CALIBRATION>` guidance when `scope = null`.
+    - Completely purge misplaced `DIRECTOR.DYNAMICS_CALIBRATION` from `task.js` and `prompts.js`, eliminating cognitive dispersion.
+  - [x] **2.4 Move Momentum Directive XML Compilation to `reflex.js`**:
+    - Relocate scene momentum directives to `src/intelligence/modules/reflex.js`, exporting `render_momentum_directive_xml(stagnation_turns)`.
+    - Emit `<MOMENTUM tier="soft|critical" turns="...">` only when `stagnation_turns >= 8` (soft permit) or `>= 16` (critical mandate). Purge duplicate momentum definitions from `task.js`.
+  - [x] **2.5 Climax Sovereignty Calibration & Dual Defense (Track 11.4 / Finding F6)**:
+    - In `src/intelligence/director.js`, implement `is_explicit_player_destruction_declared(user_input)` and programmatically intercept unconsented `next_action: "EPILOGUE_COLLAPSED"` with player death in `normalize_director_data`, safely downgrading to `"AI_CHARACTER"` / `"IN_PROGRESS"` with severe somatic trauma staging notes.
+    - Add comprehensive unit tests in `src/intelligence/director.test.js`.
+  - [x] **2.6 Stagnation Semantic Drift Recalibration (Track 11.3 / Finding L18)**:
+    - In `src/intelligence/story.js`, update `calculate_semantic_drift` to compare consecutive turns by the same interlocutor (`user[n]` vs `user[n-1]` and `companion[n]` vs `companion[n-1]`), allowing conversational circularity to naturally trip stagnation thresholds.
+    - Add unit tests in `src/intelligence/story.test.js`.
 
 ---
 

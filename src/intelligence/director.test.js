@@ -8,6 +8,7 @@ import {
   apply_relationships,
   execute_director_shot,
   normalize_director_data,
+  is_explicit_player_destruction_declared,
   normalize_speaker,
   normalize_in_scene_change,
   normalize_relationships,
@@ -120,7 +121,7 @@ describe("Director Quick Shot Prompt (compile_prompt director)", () => {
     const result = compile_prompt("director", env_payload);
     expect(result.system).toContain("<ENVIRONMENTAL_HINT>");
     expect(result.system).toContain('"speaker" to "fractal"');
-    expect(result.system).toContain("NEXT ACTION ROUTING RULES");
+    expect(result.system).toContain("<ROUTING_RULES>");
   });
 
   it("gives on-stage NPCs a full sheet and never restates the sheeted trio in a CAST block", () => {
@@ -558,7 +559,50 @@ describe("Director post-note-lock stability (Track 3.4 & Phase 1)", () => {
   });
 });
 
+describe("Atom 2.5 Climax Sovereignty Dual Defense", () => {
+  it("detects explicit player destruction declarations accurately", () => {
+    expect(is_explicit_player_destruction_declared("I bleed out in the snow")).toBe(true);
+    expect(is_explicit_player_destruction_declared("The beast kills me as I drop my sword")).toBe(true);
+    expect(is_explicit_player_destruction_declared("I surrender to death and close my eyes")).toBe(true);
+    expect(is_explicit_player_destruction_declared("My final breath leaves my lungs")).toBe(true);
+    expect(is_explicit_player_destruction_declared("I perish")).toBe(true);
+
+    expect(is_explicit_player_destruction_declared("I dodge the attack and strike back")).toBe(false);
+    expect(is_explicit_player_destruction_declared("I am bleeding heavily from my arm")).toBe(false);
+    expect(is_explicit_player_destruction_declared("")).toBe(false);
+    expect(is_explicit_player_destruction_declared(null)).toBe(false);
+  });
+
+  it("intercepts unconsented EPILOGUE_COLLAPSED and downgrades to AI_CHARACTER with somatic trauma note", () => {
+    const unconsented = normalize_director_data(
+      { next_action: "EPILOGUE_COLLAPSED", story_status: "COLLAPSED", directors_note: "The blade pierces his neck." },
+      { user_input: "I parry the blow with all my strength." },
+    );
+    expect(unconsented.next_action).toBe("AI_CHARACTER");
+    expect(unconsented.story_status).toBe("IN_PROGRESS");
+    expect(unconsented.directors_note).toContain("The protagonist sustains catastrophic injury but survives.");
+    expect(unconsented.directors_note).toContain("The blade pierces his neck.");
+  });
+
+  it("preserves EPILOGUE_COLLAPSED when player explicitly declares destruction", () => {
+    const consented = normalize_director_data(
+      { next_action: "EPILOGUE_COLLAPSED", story_status: "COLLAPSED", directors_note: "Silence falls." },
+      { user_input: "I surrender to death and close my eyes forever." },
+    );
+    expect(consented.next_action).toBe("EPILOGUE_COLLAPSED");
+    expect(consented.story_status).toBe("COLLAPSED");
+    expect(consented.directors_note).not.toContain("The protagonist sustains catastrophic injury");
+  });
+
+  it("preserves pure schema normalization when no user turn input is provided", () => {
+    const pure_schema = normalize_director_data({ next_action: "EPILOGUE_COLLAPSED" });
+    expect(pure_schema.next_action).toBe("EPILOGUE_COLLAPSED");
+    expect(pure_schema.story_status).toBe("COLLAPSED");
+  });
+});
+
 /**
  * CHANGELOG
+ * - 2026-10-14: Atom 2.5 — Added unit tests for is_explicit_player_destruction_declared and Climax Sovereignty Dual Defense in normalize_director_data.
  * - 2026-10-14: Phase 1 — Updated INPUT assertions to typed/omitted attributes; purged alternative_branches tests and USER_PERSONA_LOCK tests under P4 single-source Sovereignty.
  */

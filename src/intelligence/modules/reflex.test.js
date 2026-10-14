@@ -27,6 +27,7 @@ import {
   render_environmental_hint,
   render_prose_reflex,
   resolve_stability_lock,
+  render_momentum_directive_xml,
   extract_spent_ledger,
   render_spent_ledger_directive,
   MANNERISM_PATTERNS,
@@ -406,9 +407,39 @@ describe("reflex.js - spent ledger engine", () => {
     expect(Object.isFrozen(MANNERISM_PATTERNS)).toBe(true);
     expect(MANNERISM_PATTERNS.length).toBeGreaterThan(0);
   });
+
+  describe("render_momentum_directive_xml", () => {
+    it("returns empty string when stagnation turns are below threshold", () => {
+      expect(render_momentum_directive_xml(0)).toBe("");
+      expect(render_momentum_directive_xml(7)).toBe("");
+      expect(render_momentum_directive_xml(-3)).toBe("");
+    });
+
+    it("emits tier='soft' XML directive when stagnation_turns >= 8 and < 16", () => {
+      const directive = render_momentum_directive_xml(8);
+      expect(directive).toContain('<MOMENTUM tier="soft" turns="8">');
+      expect(directive).toContain("Scene momentum warning.");
+      expect(directive).toContain("</MOMENTUM>");
+
+      const directive12 = render_momentum_directive_xml(12);
+      expect(directive12).toContain('<MOMENTUM tier="soft" turns="12">');
+    });
+
+    it("emits tier='critical' XML directive when stagnation_turns >= 16", () => {
+      const directive = render_momentum_directive_xml(16);
+      expect(directive).toContain('<MOMENTUM tier="critical" turns="16">');
+      expect(directive).toContain("Scene stagnation critical.");
+      expect(directive).toContain("route next_action to 'FRACTAL'");
+      expect(directive).toContain("</MOMENTUM>");
+
+      const directive20 = render_momentum_directive_xml(20);
+      expect(directive20).toContain('<MOMENTUM tier="critical" turns="20">');
+    });
+  });
 });
 
 /**
  * CHANGELOG
+ * - 2026-10-14: Atom 2.4 — Added unit tests for render_momentum_directive_xml.
  * - 2026-10-14: Phase 1 — Updated render_spent_ledger_directive tests to expect SPENT_LEDGER pseudo-XML elements.
  */

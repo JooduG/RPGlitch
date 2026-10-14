@@ -548,6 +548,39 @@ export function resolve_stability_lock(metadata) {
   return render_stability_plan(resolve_stability_plan(metadata));
 }
 
+/**
+ * Renders scene momentum XML directive (<MOMENTUM>) based on stagnation turns.
+ * Emits tier="soft" when stagnation_turns >= 8, tier="critical" when stagnation_turns >= 16.
+ * Returns empty string when stagnation_turns < 8.
+ *
+ * @param {number} [stagnation_turns=0]
+ * @returns {string}
+ */
+export function render_momentum_directive_xml(stagnation_turns = 0) {
+  const count = Math.max(0, Number(stagnation_turns) || 0);
+  if (count >= REFLEX_DEFAULTS.MOMENTUM_TIERS.HARD_MANDATE_THRESHOLD) {
+    return render_xml_tag({
+      tag: "MOMENTUM",
+      attrs: { tier: "critical", turns: String(count) },
+      children: [
+        "Scene stagnation critical. Forbid continuing static conversation in the same room. You MUST route next_action to 'FRACTAL' to force an environmental event/transit, or introduce a third-party arrival via 'npc:<id>' / 'GENESIS'.",
+      ],
+      child_indent: 2,
+    });
+  }
+  if (count >= REFLEX_DEFAULTS.MOMENTUM_TIERS.SOFT_PERMIT_THRESHOLD) {
+    return render_xml_tag({
+      tag: "MOMENTUM",
+      attrs: { tier: "soft", turns: String(count) },
+      children: [
+        "Scene momentum warning. Interaction has lingered in the same loop. Cease passive holding. Steer the next speaker to introduce physical activity, change topic, or escalate.",
+      ],
+      child_indent: 2,
+    });
+  }
+  return "";
+}
+
 // ============================================================================
 // [SECTION 8: SPENT LEDGER — ANTI-REPETITION MANNERISM & CLAUSE TRACKER]
 // ============================================================================
@@ -677,6 +710,7 @@ export function render_spent_ledger_directive(spent_ledger) {
 
 /**
  * CHANGELOG
+ * - 2026-10-14: Atom 2.4 — exported render_momentum_directive_xml(stagnation_turns) emitting typed <MOMENTUM> XML directive for soft (>=8) and critical (>=16) stagnation thresholds.
  * - 2026-10-14: Refactored render_spent_ledger_directive to emit typed pseudo-XML (<SPENT_LEDGER><PROHIBITED_PATTERNS><ITEM>...); stripped conflicting sentence counts from PACING bodies to leave BEAT_BUDGET as the sole numerical controller.
  * - Track 4.2: Directorial Momentum Tiers & Stagnation Backstop — added MOMENTUM_TIERS calibration config (SOFT_PERMIT_THRESHOLD=8, HARD_MANDATE_THRESHOLD=16, DRIFT_STAGNATION_THRESHOLD=0.15) to REFLEX_DEFAULTS; added MOMENTUM_SOFT_PERMIT and MOMENTUM_HARD_MANDATE atoms to REFLEX_LIBRARY.CONDITIONALS; resolve_prose_posture_plan lifts anti_staging at >= 8 turns and records momentum constraint flags; render_prose_posture_plan emits matching envelopes.
  * - Track 3.1: Input-proportional pacing contracts — INPUT_SIZE_TIERS (TINY<=12/SMALL<=90/MEDIUM<=400/EXPANSIVE) with beat budgets, classify_input_size + resolve_beat_budget_plan, <BEAT_BUDGET> child in every DELIVERY_POSTURE; gated ANTI_STAGING (terse dialogue) + HELD_MOMENT (explicit pause markers, never blank) constraint children via plan.constraints.
