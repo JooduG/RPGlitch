@@ -51,6 +51,7 @@ import { compile_prompt } from "./prompts.js";
 import { prune, temporal_engine } from "./temporal.js";
 import { spawn_character } from "./profile.js";
 import { REFLEX_LIBRARY, classify_input_size, is_stream_beat_limit_reached } from "./modules/reflex.js";
+import { filter_epistemic_brackets } from "./veil.js";
 
 /**
  * @typedef {Object} GenerationOptions
@@ -989,6 +990,39 @@ export const gamemaster = {
       entity_id: m.entity_id,
     }));
     const payload = await context_builder.build_context(input_text || "", "simulation", simulation_log);
+
+    // Epistemic Wall: Sanitize all non-user entities across the Epistemic Wall so AI/NPC secrets are stripped
+    if (payload?.entities) {
+      for (const [key, entity] of Object.entries(payload.entities)) {
+        if (key !== "USER" && entity) {
+          payload.entities[key] = {
+            ...entity,
+            present: entity.present
+              ? {
+                  ...entity.present,
+                  physical: filter_epistemic_brackets(entity.present.physical, "other"),
+                  non_physical: filter_epistemic_brackets(entity.present.non_physical, "other"),
+                }
+              : entity.present,
+            eternal: entity.eternal
+              ? {
+                  ...entity.eternal,
+                  physical: filter_epistemic_brackets(entity.eternal.physical, "other"),
+                  non_physical: filter_epistemic_brackets(entity.eternal.non_physical, "other"),
+                }
+              : entity.eternal,
+            future: filter_epistemic_brackets(entity.future, "other"),
+            past: Array.isArray(entity.past)
+              ? entity.past.map((vector) => ({
+                  ...vector,
+                  content: filter_epistemic_brackets(vector.content || vector.text || "", "other"),
+                }))
+              : filter_epistemic_brackets(entity.past, "other"),
+          };
+        }
+      }
+    }
+
     const ghost_prompt = compile_prompt("ghostwrite", { ...payload, input: input_text, ghostwrite: true });
 
     let full_accumulated = "";
@@ -1074,6 +1108,7 @@ export const story_pipeline = gamemaster;
 
 /**
  * CHANGELOG
+ * - 2026-10-14: Phase C — Task C.2 (Ghostwrite Perspective Alignment): Sanitized all non-USER entities in execute_ghostwriter through filter_epistemic_brackets('other'), enforcing the Epistemic Wall so third-party secrets never leak into user persona ghostwrite draft prompts.
  * - 2026-10-14: Atom 3.4 — Turn Pragmatics (Issue 13 / Sub-item 6.10). Adapted prompt completion injection and truncation finishTail recovery to match either </SYSTEM> or </TURN> root tags.
  * - 2026-10-14: Atom 2.6 Same-Role Semantic Drift Recalibration — Updated drift calculations in Step 2 and Step 7.5 to compare consecutive turns by the same interlocutor (user vs previous user, companion vs previous companion), allowing conversational circularity to naturally trip stagnation thresholds.
  * - 2026-10-12: Added Track 4 Scene Momentum & Stagnation Backstop: computes turn-to-turn semantic movement using calculate_semantic_drift, records stagnation counts into state_bridge.runtime, injects stagnation_turns into context payload, and logs momentum telemetry.

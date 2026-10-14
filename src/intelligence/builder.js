@@ -19,7 +19,16 @@
  */
 
 import { PROFILE_FIELD_CATALOG, VISUAL_STYLES, resolve_portrait_visual_style_key } from "@data";
-import { prompt_escape, strip_cognition_blocks, resolve_alternations, alternation_field_label, state_bridge, get_value, clean_text, create_relational_context } from "@utils";
+import {
+  prompt_escape,
+  strip_cognition_blocks,
+  resolve_alternations,
+  alternation_field_label,
+  state_bridge,
+  get_value,
+  clean_text,
+  create_relational_context,
+} from "@utils";
 import { ensure_embeddings } from "@platform";
 import { normalize_image_tier, resolve_visual_engine_tokens } from "@media";
 import { resolve_style_snapshot } from "./modules/style.js";
@@ -326,7 +335,7 @@ function resolve_prose_bag(config, context, bag_inputs) {
     .trim();
   const has_prior_relationship = Boolean(speaker_name_lc && listener_name_lc && has_bracket_bond_between(active_speaker, listener_name_lc));
   const is_first_contact = !has_prior_relationship && director_data?.first_contact === true;
-  const base_action_directive = resolve_character_action_directive({ speaker_name, is_first_contact });
+  const base_action_directive = resolve_character_action_directive({ speaker_name, is_first_contact, is_ghostwrite });
   const spent_ledger_directive = render_spent_ledger_directive(
     extract_spent_ledger(context.recent_history || context.simulation_log || context.raw_messages || []),
   );
@@ -918,6 +927,7 @@ export const MODE_ADAPTERS = {
  */
 /**
  * CHANGELOG
+ * - 2026-10-14: Phase C — Task C.2 (Ghostwrite Perspective Alignment): Passed is_ghostwrite to resolve_character_action_directive so ghostwrite turns emit dedicated player-assistive draft framing.
  * - 2026-10-14: Atom 3.4 — Turn Pragmatics (Issue 13 / Sub-item 6.10). resolve_prose_bag and normalize_narrator_context emit speaker and listener slug attributes for root <TURN> envelope compilation.
  * - Track 2.4: normalize_continuum_context seals memory_advisory_args (settled facts via resolve_settled_facts) and budgets the input-history window (HISTORY_TOKEN_BUDGET).
  * - Track 2.2: create_render_accessors.simulation_log accepts a token_budget option (default Infinity).
@@ -989,4 +999,5 @@ export const MODE_ADAPTERS = {
  * - 2026-10-14: Phase B — Atom 3.3 RelationalContext tuple wiring: builder.js constructs RelationalContext tuple via create_relational_context across resolve_prose_bag, normalize_narrator_context, and normalize_director_context, forwarding it to sheets_args and task_params.
  * - 2026-10-14: Phase 1 Prompt Pipeline Hygiene & P4 Purges — (1) Purged dead lorebook_args constructions; (2) Computed has_candidates via resolve_available_entities and passed to Director task_params.
  * - 2026-10-14: Atom 3.1 — Epistemic-First Sequencing Invariant (Issue 20). Removed premature parse_macros from accessors.past and accessors.future; un-macro'd text is returned to sheets.js for epistemic sanitization prior to macro resolution.
+ * - 2026-10-14: Phase C — Passed is_ghostwrite flag into resolve_character_action_directive in resolve_prose_bag for scoped ghostwrite base directive routing.
  */

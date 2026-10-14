@@ -420,10 +420,16 @@ export function merge_prose_into_field(current_field_value, new_prose) {
     if (!existing) return clean_new_prose;
 
     const normalize = (t) => collapse_whitespace(String(t || "").toLowerCase());
-    const existing_lines = existing.split("\n").map((l) => l.trim()).filter(Boolean);
+    const existing_lines = existing
+      .split("\n")
+      .map((l) => l.trim())
+      .filter(Boolean);
     const existing_norm = new Set(existing_lines.map(normalize));
 
-    const incoming_lines = clean_new_prose.split("\n").map((l) => l.trim()).filter(Boolean);
+    const incoming_lines = clean_new_prose
+      .split("\n")
+      .map((l) => l.trim())
+      .filter(Boolean);
     const retained_new = incoming_lines.filter((l) => !existing_norm.has(normalize(l)));
 
     if (retained_new.length === 0) {
@@ -550,9 +556,7 @@ export function merge_prose_into_field(current_field_value, new_prose) {
         .split(",")
         .map((s) => s.trim())
         .filter(Boolean);
-      const new_phrases = incoming_phrases.filter(
-        (phrase) => !existing_phrases.includes(collapse_whitespace(phrase).toLowerCase())
-      );
+      const new_phrases = incoming_phrases.filter((phrase) => !existing_phrases.includes(collapse_whitespace(phrase).toLowerCase()));
       if (new_phrases.length > 0) {
         parsed[cond_key] = `${clean_existing}, ${new_phrases.join(", ")}`;
       }

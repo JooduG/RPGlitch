@@ -141,6 +141,8 @@ Close "_thought_process" before composing the image payload. This calibration is
   PROSE: Object.freeze({
     CHARACTER: Object.freeze({
       BASE: "Own only your voice, actions, and perspective; never speak, act, or decide for other participants, or resolve overarching quests; end on a natural beat.",
+      GHOSTWRITE:
+        "Draft an assistive, first-person turn suggestion for {speaker_name} to review, edit, or send. Embody {speaker_name}'s voice, perspective, and physical agency without speaking for other participants.",
     }),
 
     SCENE: Object.freeze({
@@ -358,9 +360,10 @@ export function render_keyword_directives_xml(content = "", mode = "DIRECTOR") {
  * @param {boolean} [parameters.is_first_contact=false]
  * @returns {string}
  */
-export function resolve_character_action_directive({ speaker_name = "", is_first_contact = false } = {}) {
+export function resolve_character_action_directive({ speaker_name = "", is_first_contact = false, is_ghostwrite = false } = {}) {
   const situation = resolve_turn_state_plan({ is_first_contact });
-  return compile_directive_tags(["PROSE.CHARACTER.BASE", ...(situation.first_contact ? ["REFLEX.TURN_STATE.FIRST_CONTACT"] : [])], {
+  const base_directive = is_ghostwrite ? "PROSE.CHARACTER.GHOSTWRITE" : "PROSE.CHARACTER.BASE";
+  return compile_directive_tags([base_directive, ...(situation.first_contact ? ["REFLEX.TURN_STATE.FIRST_CONTACT"] : [])], {
     speaker_name,
   }).join("\n\n");
 }
@@ -824,5 +827,6 @@ export function render_task(parameters = {}) {
  * Modules Ground Refactor Phase 1 — get_directive_atom delegates to utils/catalog.js resolve_catalog_atom (REFLEX delegation stays in compile_directive_tags) — prompt bytes byte-identical.
  * - 2026-10-14: Atom 2.2 & 2.4 — exported render_routing_rules_xml() and consolidated turn routing, candidate reuse, and trauma thresholds into DIRECTOR.ROUTING_RULES; purged fragmented text walls (DYNAMICS_CALIBRATION, ROUTING, CONVERGENCE, MOMENTUM_*); allowed pre-rendered XML blocks to pass through resolve_directive_entry.
  * - 2026-10-14: Phase I hygiene — purged USER_PERSONA_LOCK and BRANCHES; inverted candidate cast spatial pointer to <CANDIDATE_CAST> above; stripped redundant agency sentence from CHARACTER.BASE; streamlined render_task_input to omit attribute for default action inputs and use type= for special payloads; exported TASK_INPUT_TYPES.
+ * - 2026-10-14: Phase C — Task C.2 (Ghostwrite Perspective Alignment): Added PROSE.CHARACTER.GHOSTWRITE assistive drafting directive to TASK_LIBRARY, wired is_ghostwrite in resolve_character_action_directive to resolve the L3 Sovereignty agency contradiction on ghostwrite turns.
  * - 2026-10-07: Modules Ground Refactor Phase 3 — optics domain re-cut to sensory.js (OPTICS catalog, framing rules and cinematography moved; OPTICS delegation in resolve_directive_entry; optics slots and subject delegate; render_think_format exported) — prompt bytes byte-identical.
  */

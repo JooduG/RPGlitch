@@ -40,7 +40,7 @@ import {
   create_relational_context,
 } from "@utils";
 import { PROFILE_FIELD_CATALOG } from "@data";
-import { strip_epistemic_secrets } from "../veil.js";
+import { strip_epistemic_secrets, extract_entity_relationships, strip_relational_brackets } from "../veil.js";
 import { whole_vector_slice } from "../temporal.js";
 
 export { whole_vector_slice };
@@ -88,7 +88,7 @@ export const SHEET_SPECS = Object.freeze({
   CHARACTER: define_sheet("character", { tag: "CHARACTER", default_name: "Character", owner_state: true }),
   AI_CHARACTER: define_sheet("character", { tag: "CHARACTER", default_name: "Character", owner_state: true }),
   NPC: define_sheet("character", { tag: "CHARACTER", default_name: "NPC", owner_state: true }),
-  USER_PERSONA: define_sheet("character", { tag: "CHARACTER", default_name: "User", memory_tag: "BACKSTORY" }),
+  USER_PERSONA: define_sheet("character", { tag: "CHARACTER", default_name: "User", memory_tag: "BACKSTORY", owner_state: true }),
   FRACTAL: define_sheet("fractal", { tag: "FRACTAL", default_name: "the setting" }),
 });
 
@@ -234,6 +234,74 @@ export function join_past_vectors(entity) {
     .join("\n");
 }
 
+/**
+ * Renders directed relational dispositions for an entity toward active scene participants.
+ * Sourced primarily from present.non_physical, falling back to eternal.non_physical.
+ * Emits individual <DISPOSITION target="slug">dynamic</DISPOSITION> tags without legacy wrappers.
+ *
+ * @param {any} entity
+ * @param {string[]} [active_names=[]]
+ * @param {Map<string, string>} [name_to_id_map=null]
+ * @param {boolean} [is_owner=false]
+ * @param {Record<string, any>} [entities={}]
+ * @returns {string[]}
+ */
+export function render_dispositions(entity, active_names = [], name_to_id_map = null, is_owner = false, entities = {}) {
+  if (!entity?.name) return [];
+  const rows = [];
+
+  const known_entities = [];
+  if (name_to_id_map instanceof Map) {
+    for (const [lowercase_name, entity_id] of name_to_id_map) {
+      known_entities.push({ id: entity_id, name: lowercase_name });
+    }
+  } else if (entities && typeof entities === "object") {
+    for (const item of Object.values(entities)) {
+      if (item?.name) {
+        known_entities.push({ id: item.id || item.name, name: item.name });
+      }
+    }
+  }
+
+  const perspective = is_owner ? "owner" : "other";
+  const bracket_relationships = extract_entity_relationships(entity, known_entities, perspective, entities);
+
+  const active_names_lc = Array.isArray(active_names) ? active_names.map((n) => String(n).toLowerCase().trim()) : [];
+
+  for (const [target_key, links] of bracket_relationships) {
+    const target_normalized = String(target_key).toLowerCase().trim();
+    if (
+      active_names_lc.length > 0 &&
+      !active_names_lc.includes(target_normalized) &&
+      !active_names_lc.includes(
+        String(links.target_name || "")
+          .toLowerCase()
+          .trim(),
+      )
+    ) {
+      continue;
+    }
+
+    // Phase III 3.9: Present dynamic is the primary source, falling back to eternal
+    const dynamic = links.present || links.eternal;
+    if (!dynamic || typeof dynamic !== "string" || !dynamic.trim()) continue;
+
+    const target_id = (name_to_id_map instanceof Map && name_to_id_map.get(target_normalized)) || links.target_id || target_key;
+    const target_slug = String(target_id).toLowerCase().replace(/\s+/g, "_");
+
+    rows.push(
+      render_xml_tag({
+        tag: "DISPOSITION",
+        attrs: { target: target_slug },
+        children: [prompt_escape(dynamic.trim())],
+        inline: true,
+      }),
+    );
+  }
+
+  return rows;
+}
+
 // ============================================================================
 // [SECTION 3: SPEC-AWARE SNAPSHOT RESOLVER]
 // ============================================================================
@@ -254,7 +322,16 @@ export function join_past_vectors(entity) {
  * @returns {Object}
  */
 export function resolve_sheet_snapshot(entity, specification, options = {}) {
-  const { is_owner = false, accessors = null, entities = {}, transform_physical = null, relational_context = null } = options;
+  const {
+    is_owner = false,
+    accessors = null,
+    entities = {},
+    transform_physical = null,
+    relational_context = null,
+    show_dispositions = false,
+    active_names = null,
+    name_to_id = null,
+  } = options;
   const epistemic = specification?.epistemic || {};
   const sanitize = (value, policy) => {
     if (!policy || policy === EPISTEMIC_POLICY.NONE) return value;
@@ -292,14 +369,30 @@ export function resolve_sheet_snapshot(entity, specification, options = {}) {
 
   const sanitized_agenda = sanitize(agenda_raw, epistemic.agenda);
   const sanitized_past = sanitize(memory_raw, epistemic.memory);
-  const eternal_rows = parse_physical_rows(sanitize(entity?.eternal?.physical, epistemic.appearance), entity, entities, transform_physical, sheet_context);
-  const present_rows = parse_physical_rows(sanitize(entity?.present?.physical, epistemic.appearance), entity, entities, transform_physical, sheet_context);
+  const eternal_rows = parse_physical_rows(
+    sanitize(entity?.eternal?.physical, epistemic.appearance),
+    entity,
+    entities,
+    transform_physical,
+    sheet_context,
+  );
+  const present_rows = parse_physical_rows(
+    sanitize(entity?.present?.physical, epistemic.appearance),
+    entity,
+    entities,
+    transform_physical,
+    sheet_context,
+  );
+
+  const disposition_rows = show_dispositions ? render_dispositions(entity, active_names, name_to_id, is_owner, entities) : [];
+  const state_clean = show_dispositions ? strip_relational_brackets(state_raw) : state_raw;
 
   return Object.freeze({
     agenda: render_field_value(sanitized_agenda, entity, entities, sheet_context),
     personality: render_field_value(personality_raw, entity, entities, sheet_context),
-    state: strip_leading_key_echo(render_field_value(state_raw, entity, entities, sheet_context), specification?.state_strip_keys || []),
-    dispositions: "",
+    state: strip_leading_key_echo(render_field_value(state_clean, entity, entities, sheet_context), specification?.state_strip_keys || []),
+    disposition_rows: Object.freeze(disposition_rows),
+    dispositions: disposition_rows.join("\n"),
     eternal_rows: Object.freeze(eternal_rows),
     present_rows: Object.freeze(present_rows),
     appearance_rows: Object.freeze(render_appearance_rows(eternal_rows, present_rows)),
@@ -344,10 +437,14 @@ export function render_sheet(specification, options = {}) {
     mode = "full",
     include_agenda = true,
     include_memories = true,
+    show_dispositions = false,
     is_owner = false,
+    active_names = null,
+    name_to_id = null,
     dynamics = null,
     render_axes = null,
     transform_physical = null,
+    relational_context = null,
   } = options;
   if (!entity) return "";
 
@@ -356,7 +453,10 @@ export function render_sheet(specification, options = {}) {
     accessors,
     entities,
     transform_physical,
-    relational_context: options.relational_context,
+    relational_context,
+    show_dispositions,
+    active_names,
+    name_to_id,
   });
 
   if (mode === "physical") {
@@ -376,6 +476,7 @@ export function render_sheet(specification, options = {}) {
     include_agenda ? render_sheet_field(specification.agenda_key, snapshot.agenda) : null,
     render_sheet_field(specification.personality_tag, snapshot.personality),
     render_sheet_field(specification.state_tag, snapshot.state),
+    ...(snapshot.disposition_rows || []),
     typeof render_axes === "function" && specification.axes_scope ? render_axes(dynamics, specification.axes_scope) : null,
   ].filter(Boolean);
 
@@ -483,6 +584,7 @@ export function render_enhancement_field_context(entity, field_identifier, conte
 
 /**
  * CHANGELOG
+ * - 2026-10-14: Phase C — Task C.1 (Phase III 3.9 LLM Epistemic Dispositions): Implemented render_dispositions and integrated disposition_rows inside psychology_blocks when show_dispositions is enabled; stripped relational brackets from STATE to prevent redundant leakage across the Epistemic Wall; set owner_state on SHEET_SPECS.USER_PERSONA.
  * - 2026-10-14: Phase B — Atom 3.3 RelationalContext tuple wiring: sheets.js forwards relational_context into resolve_sheet_snapshot and parse_physical_rows to resolve live scene participants across @SPEAKER, @LISTENER, @TARGET, and @YOU.
  * - 2026-10-14: Atom 3.4 — Universal <CHARACTER> Envelope & Biometric Compaction (Sub-items 6.5, 6.10, Issues 13 & 2.5). Unifies character sheets to <CHARACTER id="..." name="...">; composes short physical traits (<= 40 chars) into attributes on <APPEARANCE> and <CURRENT_LOOK>; purges redundant <DISPOSITIONS> envelope in favor of native directed relational brackets within state.
  * - 2026-10-14: Atom 3.1 — Epistemic-First Sequencing Invariant (Issue 20). resolve_sheet_snapshot sanitizes past memories and future agendas prior to render_field_value macro expansion with proper owner gating.

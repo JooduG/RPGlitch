@@ -67,7 +67,7 @@
         type="text"
         bind:value={id}
         placeholder="SLUG"
-        pattern="^[A-Za-z0-9_-]{2,20}$"
+        pattern={"^[A-Za-z0-9_-]{2,20}$"}
         maxlength="20"
         class="border-b border-white/20 bg-transparent px-1 py-0.5 font-mono text-xs tracking-wider uppercase outline-none focus:border-white/60"
         style="color: {signature_color};"

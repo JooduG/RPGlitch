@@ -176,11 +176,11 @@ Reworking the Ghostwriter pipeline so user persona drafts match the player's sel
 - **Code reality / DECISION CONFLICT**: `task.js:729` records that Track 0.6 deliberately merged `GHOSTWRITE.BASE` into `CHARACTER.BASE`, a decision that also covers npc turns (`builder.js:896`). Live forensics (dossier T19-20) proved the merged base contradicts ghostwriting (Beast-POV draft, AGENCY panic). So 4.1 does NOT resurrect the retired directive wholesale — it adds a narrowly SCOPED additive branch for ghostwriting that leaves the Track 0.6 merge intact everywhere else.
 - **Key Modules**: `src/intelligence/prompts.js`, `src/intelligence/modules/task.js`, `src/intelligence/story.js`, `src/ui/console/StorymodeBar.svelte`, `src/intelligence/veil.js`, `src/data/definitions/profile-fields.js`.
 - **Planned Sub-Items**:
-  - [ ] **4.1 Scoped Ghostwrite Base Directive (Sub-item 7.1 / Additive Branch)**:
+  - [x] **4.1 Scoped Ghostwrite Base Directive (Sub-item 7.1 / Additive Branch)**:
     - Add a dedicated base directive used SOLELY when `is_ghostwrite` routes — instructing the LLM to draft strictly on behalf of the player persona without narrating NPC reactions — while `CHARACTER.BASE` keeps governing interaction + npc turns unchanged. Regression gate: npc-turn coverage from Track 0.6 merge must not shift.
   - [ ] **4.2 Persona POV Setting + Binding (Sub-item 7.2)**:
     - Add a `1st` vs `3rd` person setting to the user-persona profile in `profile-fields.js`, then bind it at ghostwrite compile time (`"I stepped forward"` vs `"Benedict stepped forward"`).
-  - [ ] **4.3 Owner-Perspective Veil Preservation on Ghostwrite Path (Sub-item 7.3)**:
+  - [x] **4.3 Owner-Perspective Veil Preservation on Ghostwrite Path (Sub-item 7.3)**:
     - Ensure the player's own `| hide` brackets remain visible to the ghostwrite compiler while staying sealed from third-party AI characters. Builds on the 3.3 Relational Context model.
   - [ ] **4.4 Decoupled Authorial Voice Framing (Sub-item 7.4 / Issue 22)**:
     - Inject celebrated author priors (_Anna Zaires_, _Anaïs Nin_) strictly through dedicated `<AUTHORIAL_VOICE>` envelopes paired with an inviolable `<SOVEREIGNTY player="...">` non-puppeteering constraint. Allows rich literary prose styling while preventing authorial godmoding over the player persona.
@@ -195,7 +195,7 @@ Hardening context windows against the 6,000-token cliff, eliminating memory cons
 - **Code reality**: `CONTEXT_TOKEN_CLIFF = 6000` lives in `history.js:81`. `calculate_physical_salience` (`temporal.js:1057`) and `whole_vector_slice` (`:1077`) exist and are unwired. `merge_field_content` (`:1110`) and consolidation engine (`:1592-1615`) are now hardened to preserve `| hide` brackets and weights across Memory Forge passes (E2 resolved) and deduplicate case-variant lines (M1 resolved). `resolve_recall_clarity` (`temporal.js:897`) and `format_hybrid_recall` (`:921`) exist, are tested, and exported — with zero callers in `builder.js`.
 - **Key Modules**: `src/intelligence/modules/entities.js`, `src/intelligence/modules/sheets.js`, `src/intelligence/temporal.js`, `src/intelligence/temporal.test.js`, `src/utils/text.js`, `src/utils/text.test.js`, `src/intelligence/builder.js`, `src/ui/profile/DevWing.svelte`.
 - **Planned Sub-Items**:
-  - [ ] **5.1 Wire Salience + Slice, Then Cap `<ENTITIES>` at 2,000 Tokens (Sub-item 11.1)**:
+  - [x] **5.1 Wire Salience + Slice, Then Cap `<ENTITIES>` at 2,000 Tokens (Sub-item 11.1)**:
     - Connect `calculate_physical_salience` and `whole_vector_slice` into sheets scoring, then enforce the ~2,000-token `<ENTITIES>` ceiling with dynamic pruning so total prompts stay beneath the 6,000 cliff by construction, eliminating reliance on Perchance host middle-out truncation.
   - [x] **5.2 E2 Concealed Bracket Persistence (Sub-item 11.2 / sim/dossier finding E2)**:
     - Fixed `merge_field_content` (`temporal.js:1110`) and the consolidation engine (`:1592-1615`) to preserve `| hide` brackets and weights across Memory Forge consolidation passes.

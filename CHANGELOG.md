@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Bugs & Debt Remediation — Phase C: Narrative Architecture, Perspectives & Budgeting**:
+  - **Phase III 3.9 LLM Epistemic Dispositions (`sheets.js`, `sheets.test.js`, `prompt-verification.js`)**:
+    - Implemented `render_dispositions` to render relational dynamics from `present.non_physical` into character envelopes as `<DISPOSITION target="...">` for authorized observers across the Epistemic Wall.
+    - Added `owner_state: true` to `SHEET_SPECS.USER_PERSONA` so user persona state correctly participates in owner veil filtering.
+    - Integrated `disposition_rows` inside `psychology_blocks` when `show_dispositions` is enabled, and applied `strip_relational_brackets` to `state` when `show_dispositions` is true so relational brackets do not duplicate or leak into raw state rows.
+    - Updated frozen `CONTRACT` inventories in `prompt-verification.js` across Director, Interaction, Ghostwrite, NPC, and Narrator prompt envelopes to assert `<DISPOSITION>` presence.
+  - **Ghostwriter Perspective Alignment & Owner Veil Filtering (Phase IV 4.1, 4.3) (`task.js`, `builder.js`, `story.js`)**:
+    - Added `PROSE.CHARACTER.GHOSTWRITE` assistive drafting directive to `TASK_LIBRARY` and wired `is_ghostwrite` into `resolve_character_action_directive`, resolving the L3 Sovereignty agency contradiction on ghostwrite turns by strictly framing ghostwriting as player-assistive draft suggestions rather than unconsented persona puppeteering.
+    - Sanitized all non-`USER` entities across the Epistemic Wall in `execute_ghostwriter` (`story.js`) using `filter_epistemic_brackets(..., "other")` so AI and NPC covert brackets never leak into user persona ghostwrite draft prompts, while preserving the user persona's own `| hide` brackets.
+  - **Phase V 5.1 ENTITIES Hard Budgeting Under 6k Cliff (`entities.js`, `builder.js`)**:
+    - Exported `ENTITIES_MAX_TOKENS = 2000` and `ENTITIES_MAX_CHARS = 8000` in `entities.js`.
+    - Wired `calculate_physical_salience` and `whole_vector_slice` from `temporal.js` to score and prune candidate cast and nearby secondary entities when `<ENTITIES>` block approaches budget limits, ensuring Director and Storyteller prompts remain strictly beneath the 6,000-token cliff by construction.
+
 - **Bugs & Debt Remediation — Phase B: Simulation Physics & Memory Integrity**:
   - **M1 Case-Variant Deduplication (`text.js`, `temporal.js`, `text.test.js`, `temporal.test.js`)**:
     - Implemented line-level case-folded deduplication in `merge_prose_into_field`, eliminating turn-over-turn duplication of identical physical states with differing casing ("Gash across chest" vs "gash across chest").

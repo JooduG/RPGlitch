@@ -1161,10 +1161,16 @@ export function merge_field_content(current_field_value, incoming_mutation, opti
 
   // Case-folded line deduplication before appending raw prose (M1)
   const normalize = (t) => collapse_whitespace(String(t || "").toLowerCase());
-  const existing_lines = existing.split("\n").map((l) => l.trim()).filter(Boolean);
+  const existing_lines = existing
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean);
   const existing_norm = new Set(existing_lines.map(normalize));
 
-  const incoming_lines = incoming.split("\n").map((l) => l.trim()).filter(Boolean);
+  const incoming_lines = incoming
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean);
   const retained_incoming = incoming_lines.filter((l) => {
     const l_norm = normalize(l);
     if (!l_norm || existing_norm.has(l_norm)) return false;
@@ -1634,7 +1640,9 @@ export const temporal_engine = {
             for (const entry of incoming_brackets) {
               if (!entry.key) continue;
               const upper_key = entry.key.toUpperCase();
-              const val_lower = String(entry.value || "").trim().toLowerCase();
+              const val_lower = String(entry.value || "")
+                .trim()
+                .toLowerCase();
               if (val_lower === "none" || val_lower === "cleared") {
                 bracket_map.delete(upper_key);
               } else {

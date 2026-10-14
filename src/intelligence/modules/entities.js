@@ -32,6 +32,10 @@ import {
   prompt_escape,
 } from "@utils";
 import { define_sheet, SHEET_SPECS, render_sheet, render_entity_memory_context, render_enhancement_field_context } from "./sheets.js";
+import { whole_vector_slice } from "../temporal.js";
+
+export const ENTITIES_MAX_TOKENS = 2000;
+export const ENTITIES_MAX_CHARS = ENTITIES_MAX_TOKENS * 4; // 8,000 chars
 
 // ============================================================================
 // [SECTION 1: SPATIAL PRESENCE & RELATIONAL TOPOLOGY]
@@ -378,7 +382,15 @@ export function resolve_entities(config = null) {
  */
 export function render_actor_sheets(
   actors = [],
-  { entities = {}, npc_entities = [], accessors = null, render_axes = null, active_names = [], name_to_id = new Map(), relational_context = null } = {},
+  {
+    entities = {},
+    npc_entities = [],
+    accessors = null,
+    render_axes = null,
+    active_names = [],
+    name_to_id = new Map(),
+    relational_context = null,
+  } = {},
 ) {
   return (actors || []).map((actor) => {
     const sheet_arguments = {
@@ -470,7 +482,41 @@ export function render_entity_sheets({
     if (candidates_xml) parts.push(candidates_xml);
   }
 
-  return wrap_entities(parts);
+  let wrapped = wrap_entities(parts);
+  if (wrapped.length <= ENTITIES_MAX_CHARS) {
+    return wrapped;
+  }
+
+  // Phase V 5.1: ENTITIES Hard Budgeting beneath 6k context cliff
+  const budgeted_parts = [...parts];
+
+  // 1. Prune candidate cast first
+  if (plan.candidate_entities) {
+    const candidate_index = budgeted_parts.findIndex((block) => block.includes('mode="candidates"'));
+    if (candidate_index >= 0) {
+      budgeted_parts.splice(candidate_index, 1);
+      wrapped = wrap_entities(budgeted_parts);
+      if (wrapped.length <= ENTITIES_MAX_CHARS) return wrapped;
+    }
+  }
+
+  // 2. Slice nearby cast using whole_vector_slice
+  if (plan.nearby_entities) {
+    const nearby_index = budgeted_parts.findIndex((block) => block.includes('mode="nearby"'));
+    if (nearby_index >= 0) {
+      const remaining_chars = Math.max(200, ENTITIES_MAX_CHARS - wrap_entities(budgeted_parts.filter((_, idx) => idx !== nearby_index)).length);
+      const sliced_nearby = whole_vector_slice(budgeted_parts[nearby_index], remaining_chars);
+      if (sliced_nearby && sliced_nearby.includes("</CAST>")) {
+        budgeted_parts[nearby_index] = sliced_nearby;
+      } else {
+        budgeted_parts.splice(nearby_index, 1);
+      }
+      wrapped = wrap_entities(budgeted_parts);
+      if (wrapped.length <= ENTITIES_MAX_CHARS) return wrapped;
+    }
+  }
+
+  return wrap_entities(budgeted_parts);
 }
 
 // ============================================================================
@@ -673,6 +719,7 @@ export function resolve_entity_context_slot(config, normalized = {}) {
 
 /**
  * CHANGELOG
+ * - 2026-10-14: Phase C — Task C.3 (Phase V 5.1 ENTITIES Hard Budgeting): Exported ENTITIES_MAX_TOKENS (2000) and ENTITIES_MAX_CHARS (8000), wired whole_vector_slice and candidate/nearby dynamic pruning in render_entity_sheets to protect the 6k token cliff.
  * - 2026-10-14: Phase B — Atom 3.3 RelationalContext tuple wiring: render_entity_sheets forwards relational_context into render_actor_sheets and sheet_arguments.
  * - Track 2.4: Extraction advisory — render_memory_advisory_xml + resolve_memory_advisory_slot (MEMORY_ADVISORY block with # ALREADY REMEMBERED; empty facts render "" for byte-identical compiles).
  * - Track 0.11: Absorbed optics subject tiers + actors/entities block from sensory.js (new Section 2; define_sheet + strip_visual_excluded imports added; sensory import dropped). Prompt bytes byte-identical.

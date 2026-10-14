@@ -25,6 +25,7 @@ import {
   join_past_vectors,
   resolve_sheet_snapshot,
   render_sheet,
+  render_dispositions,
   render_entity_memory_context,
   render_enhancement_field_context,
   resolve_profile_field_tag,
@@ -74,7 +75,7 @@ describe("define_sheet + SHEET_SPECS", () => {
   it("defaults epistemic to always, gating only owner state", () => {
     expect(SHEET_SPECS.AI_CHARACTER.epistemic.state).toBe(EPISTEMIC_POLICY.OWNER);
     expect(SHEET_SPECS.FRACTAL.epistemic.state).toBeUndefined();
-    expect(SHEET_SPECS.USER_PERSONA.epistemic.state).toBeUndefined();
+    expect(SHEET_SPECS.USER_PERSONA.epistemic.state).toBe(EPISTEMIC_POLICY.OWNER);
     expect(SHEET_SPECS.USER_PERSONA.memory_tag).toBe("BACKSTORY");
     expect(SHEET_SPECS.FRACTAL.axes_scope).toBe("fractal");
     expect(SHEET_SPECS.AI_CHARACTER.axes_scope).toBe("somatic");
@@ -205,8 +206,69 @@ describe("render_sheet full mode", () => {
     expect(xml).toContain("<PSYCHOLOGY>");
   });
 
+  it("renders dispositions within PSYCHOLOGY when show_dispositions is enabled and strips them from state", () => {
+    const xml = render_sheet(SHEET_SPECS.AI_CHARACTER, {
+      entity: test_character,
+      is_owner: true,
+      show_dispositions: true,
+      active_names: ["bob"],
+      name_to_id: new Map([["bob", "BOB"]]),
+    });
+    expect(xml).toContain('<DISPOSITION target="bob">guarded trust</DISPOSITION>');
+    expect(xml).toContain("<STATE>Guarded vigilance.</STATE>");
+    expect(xml).not.toContain("[@BOB: guarded trust]");
+    expect(xml).toMatch(
+      /<PSYCHOLOGY>[\s\S]*<STATE>Guarded vigilance\.<\/STATE>[\s\S]*<DISPOSITION target="bob">guarded trust<\/DISPOSITION>[\s\S]*<\/PSYCHOLOGY>/,
+    );
+  });
+
   it("returns empty for a missing entity", () => {
     expect(render_sheet(SHEET_SPECS.AI_CHARACTER, {})).toBe("");
+  });
+});
+
+describe("render_dispositions (Phase III 3.9 LLM Epistemic Dispositions)", () => {
+  const entity_with_relations = {
+    id: "ALICE",
+    name: "Alice",
+    present: {
+      non_physical: "Watchful. [@BOB: immediate tactical ally] [@EVE: concealed rival | hide]",
+    },
+    eternal: {
+      non_physical: "Veteran soldier. [@CHARLIE: old squad commander]",
+    },
+  };
+  const active_map = new Map([
+    ["bob", "BOB"],
+    ["eve", "EVE"],
+    ["charlie", "CHARLIE"],
+  ]);
+
+  it("renders present dynamics primarily and formats canonical target attribute", () => {
+    const rows = render_dispositions(entity_with_relations, ["bob"], active_map, false);
+    expect(rows).toEqual(['<DISPOSITION target="bob">immediate tactical ally</DISPOSITION>']);
+  });
+
+  it("falls back to eternal dynamic when present is absent", () => {
+    const rows = render_dispositions(entity_with_relations, ["charlie"], active_map, false);
+    expect(rows).toEqual(['<DISPOSITION target="charlie">old squad commander</DISPOSITION>']);
+  });
+
+  it("enforces Epistemic Wall: strips hidden dispositions for other observers", () => {
+    const other_rows = render_dispositions(entity_with_relations, ["bob", "eve"], active_map, false);
+    expect(other_rows).toEqual(['<DISPOSITION target="bob">immediate tactical ally</DISPOSITION>']);
+  });
+
+  it("preserves hidden dispositions for owner perspective", () => {
+    const owner_rows = render_dispositions(entity_with_relations, ["bob", "eve"], active_map, true);
+    expect(owner_rows).toContain('<DISPOSITION target="bob">immediate tactical ally</DISPOSITION>');
+    expect(owner_rows).toContain('<DISPOSITION target="eve">concealed rival</DISPOSITION>');
+  });
+
+  it("omits entities not present in active_names", () => {
+    const rows = render_dispositions(entity_with_relations, ["bob"], active_map, true);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toContain('target="bob"');
   });
 });
 
