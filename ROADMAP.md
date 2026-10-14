@@ -192,13 +192,13 @@ Reworking the Ghostwriter pipeline so user persona drafts match the player's sel
 Hardening context windows against the 6,000-token cliff, eliminating memory consolidation leaks, and wiring somatic physics into recall clarity.
 
 - **Objective**: Keep total prompt length beneath the 6,000-token cliff by construction, eliminate Memory Forge concealed item eviction (E2 bug), and modulate memory clarity through somatic metrics.
-- **Code reality**: `CONTEXT_TOKEN_CLIFF = 6000` lives in `history.js:81`. `calculate_physical_salience` (`temporal.js:1057`) and `whole_vector_slice` (`:1077`) exist and are unwired. `merge_field_content` (`:1110`) and consolidation engine (`:1380-1484`) are the real E2 memory leak sites where `| hide` brackets were evicted during forge passes. `resolve_recall_clarity` (`temporal.js:897`) and `format_hybrid_recall` (`:921`) exist, are tested, and exported — with zero callers in `builder.js`.
-- **Key Modules**: `src/intelligence/modules/entities.js`, `src/intelligence/modules/sheets.js`, `src/intelligence/temporal.js`, `src/intelligence/builder.js`, `src/ui/profile/DevWing.svelte`.
+- **Code reality**: `CONTEXT_TOKEN_CLIFF = 6000` lives in `history.js:81`. `calculate_physical_salience` (`temporal.js:1057`) and `whole_vector_slice` (`:1077`) exist and are unwired. `merge_field_content` (`:1110`) and consolidation engine (`:1592-1615`) are now hardened to preserve `| hide` brackets and weights across Memory Forge passes (E2 resolved) and deduplicate case-variant lines (M1 resolved). `resolve_recall_clarity` (`temporal.js:897`) and `format_hybrid_recall` (`:921`) exist, are tested, and exported — with zero callers in `builder.js`.
+- **Key Modules**: `src/intelligence/modules/entities.js`, `src/intelligence/modules/sheets.js`, `src/intelligence/temporal.js`, `src/intelligence/temporal.test.js`, `src/utils/text.js`, `src/utils/text.test.js`, `src/intelligence/builder.js`, `src/ui/profile/DevWing.svelte`.
 - **Planned Sub-Items**:
   - [ ] **5.1 Wire Salience + Slice, Then Cap `<ENTITIES>` at 2,000 Tokens (Sub-item 11.1)**:
     - Connect `calculate_physical_salience` and `whole_vector_slice` into sheets scoring, then enforce the ~2,000-token `<ENTITIES>` ceiling with dynamic pruning so total prompts stay beneath the 6,000 cliff by construction, eliminating reliance on Perchance host middle-out truncation.
-  - [ ] **5.2 E2 Concealed Bracket Persistence (Sub-item 11.2 / sim/dossier finding E2)**:
-    - Fix `merge_field_content` (`temporal.js:1110`) and the consolidation engine (`:1380-1484`) to preserve `| hide` brackets across Memory Forge consolidation passes.
+  - [x] **5.2 E2 Concealed Bracket Persistence (Sub-item 11.2 / sim/dossier finding E2)**:
+    - Fixed `merge_field_content` (`temporal.js:1110`) and the consolidation engine (`:1592-1615`) to preserve `| hide` brackets and weights across Memory Forge consolidation passes.
   - [ ] **5.3 Recall Modulation Review & Somatic Wiring (Sub-items 8.2, 8.1, 8.3)**:
     - Audit whether prefixing raw `[fragmented recall]` provides desirable narrative impact or causes LLM confusion/hallucinations; evaluate alternatives such as bracket attributes (`| hazy`, `| fragmented`) or noise injection into vector scores.
     - Connect the winning mechanism to active memory slot compilation in `builder.js`.

@@ -464,6 +464,23 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
     const sorting_result = compile_prompt("sorting", { input_data: "raw text", entity_type: "character" });
     expect(sorting_result.system).toContain('mode="sorting"');
   });
+  it("wires RelationalContext tuple into prompt compilation resolving @SPEAKER, @LISTENER, and @YOU in sheets (Atom 3.3)", () => {
+    const custom_entities = {
+      AI: { id: "ai_julien", name: "Julien", type: "character", eternal: { non_physical: "Observant" }, present: { physical: "[CLOTHING: tunic]" } },
+      USER: { id: "usr_alice", name: "Alice", type: "character", eternal: { non_physical: "Pensive" }, present: { physical: "[CLOTHING: robes]" } },
+      FRACTAL: { id: "frc_city", name: "The Citadel", type: "fractal" },
+    };
+    custom_entities.AI.future = "A plan between @ME and @YOU to protect @LISTENER.";
+    const result = compile_prompt("story", {
+      round: 1,
+      entities: custom_entities,
+      speaker: custom_entities.AI,
+      listener: custom_entities.USER,
+      input: "Hello there.",
+    });
+    expect(result.system).toContain("A plan between Julien and Alice to protect Alice.");
+  });
+
   it("audits epistemic integrity returning boolean without throwing unhandled errors", async () => {
     const { verify_epistemic_integrity } = await import("./veil.js");
     expect(verify_epistemic_integrity("<ENTITIES><CHARACTER>Clean state</CHARACTER></ENTITIES>")).toBe(true);

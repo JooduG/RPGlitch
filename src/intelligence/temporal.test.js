@@ -716,6 +716,76 @@ describe("temporal_engine.consolidate()", () => {
     expect(mock_user.present.non_physical).toBe("Deeply submissive");
   });
 
+  it("preserves concealed brackets across memory forge consolidation cycles (E2 regression)", async () => {
+    const mock_user = {
+      id: "user-1",
+      name: "Julien",
+      type: "character",
+      present: {
+        physical: "[ROBES: scholarly robes] [DAGGER: silver blade | hide | w: 8]",
+        non_physical: "Observant [SECRET: knows the cipher | hide]",
+      },
+      past: [],
+      future: "Seeking truth",
+    };
+    const mock_session = {
+      require_active: vi.fn(() => "story-1"),
+      load_log: vi.fn(async () => [
+        { id: 1, role: "user", text: "t1" },
+        { id: 2, role: "ai", text: "t2" },
+      ]),
+      log_system_entry: vi.fn(),
+    };
+    const mock_runtime = {
+      active_ai: { id: "ai-1", name: "Silvers", type: "character", present: { physical: "", non_physical: "" } },
+      active_user: mock_user,
+      update_entity: vi.fn(),
+    };
+    const mock_app = { log: vi.fn() };
+    const mock_db = { simulation_log: { update: vi.fn() } };
+
+    // Cycle 1: Forge emits updated values without | hide flags
+    llm_service.generate.mockResolvedValueOnce(
+      JSON.stringify({
+        _thought_process: "Consolidating state cycle 1.",
+        target: "USER_PERSONA",
+        present: {
+          physical: "[ROBES: torn robes] [DAGGER: silver stiletto]",
+          non_physical: "Guarded [SECRET: knows the cipher] [DISPOSITION: wary]",
+        },
+        future: "Seeking escape",
+        past: [],
+      }),
+    );
+
+    await temporal_engine.consolidate(mock_session, mock_db, {}, mock_runtime, mock_app, { target_key: "USER_PERSONA" });
+
+    expect(mock_user.present.physical).toContain("[DAGGER: silver stiletto | hide]");
+    expect(mock_user.present.non_physical).toContain("[SECRET: knows the cipher | hide]");
+    expect(mock_user.present.non_physical).toContain("[DISPOSITION: wary]");
+
+    // Cycle 2: Forge emits prose without mentioning DAGGER or SECRET at all
+    llm_service.generate.mockResolvedValueOnce(
+      JSON.stringify({
+        _thought_process: "Consolidating state cycle 2.",
+        target: "USER_PERSONA",
+        present: {
+          physical: "[EXPRESSION: grim]",
+          non_physical: "Quiet contemplation",
+        },
+        future: "Quiet wait",
+        past: [],
+      }),
+    );
+
+    await temporal_engine.consolidate(mock_session, mock_db, {}, mock_runtime, mock_app, { target_key: "USER_PERSONA" });
+
+    // Both concealed brackets survive cycle 2 cleanly
+    expect(mock_user.present.physical).toContain("[DAGGER: silver stiletto | hide]");
+    expect(mock_user.present.non_physical).toContain("[SECRET: knows the cipher | hide]");
+    expect(mock_user.present.non_physical).toContain("Quiet contemplation");
+  });
+
   it("skips appending ledger lines when forged values are identical to current entity state (compare-then-skip guard)", async () => {
     const { append_ledger_entries } = await import("@data");
     vi.mocked(append_ledger_entries).mockClear();
@@ -1377,6 +1447,28 @@ describe("temporal_engine per-entity consolidation progress tracking (Track 2 Ph
         const incoming = "Second sentence advancing toward the target.";
         const merged = merge_field_content(current, incoming, { max_chars: 100 });
         expect(merged).toBe("First sentence of standing agenda.\nSecond sentence advancing toward the target.");
+      });
+
+      it("deduplicates case-variant freeform lines without repeating (M1 regression)", () => {
+        const current = "Gash across chest\nBruised ribs";
+        const incoming = "gash across chest\nBroken arm";
+        const merged = merge_field_content(current, incoming);
+        expect(merged).toBe("Gash across chest\nBruised ribs\nBroken arm");
+      });
+
+      it("preserves concealment (| hide) and weight on key updates (E2 regression)", () => {
+        const current = "[DAGGER: silver blade | hide | w: 8]\n[MOOD: calm]";
+        const incoming = "[DAGGER: silver stiletto]\n[MOOD: tense]";
+        const merged = merge_field_content(current, incoming);
+        expect(merged).toContain("[DAGGER: silver stiletto | hide | w: 8]");
+        expect(merged).toContain("[MOOD: tense]");
+      });
+
+      it("allows explicit reveal with | show when overriding concealed bracket", () => {
+        const current = "[DAGGER: silver blade | hide]";
+        const incoming = "[DAGGER: drawn stiletto | show]";
+        const merged = merge_field_content(current, incoming);
+        expect(merged).toBe("[DAGGER: drawn stiletto]");
       });
     });
 

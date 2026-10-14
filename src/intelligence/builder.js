@@ -19,7 +19,7 @@
  */
 
 import { PROFILE_FIELD_CATALOG, VISUAL_STYLES, resolve_portrait_visual_style_key } from "@data";
-import { prompt_escape, strip_cognition_blocks, resolve_alternations, alternation_field_label, state_bridge, get_value, clean_text } from "@utils";
+import { prompt_escape, strip_cognition_blocks, resolve_alternations, alternation_field_label, state_bridge, get_value, clean_text, create_relational_context } from "@utils";
 import { ensure_embeddings } from "@platform";
 import { normalize_image_tier, resolve_visual_engine_tokens } from "@media";
 import { resolve_style_snapshot } from "./modules/style.js";
@@ -350,6 +350,14 @@ function resolve_prose_bag(config, context, bag_inputs) {
   const listener_slug = String(active_listener?.id || active_listener?.name || "traveler")
     .toLowerCase()
     .replace(/\s+/g, "_");
+  const relational_context = create_relational_context({
+    me: active_speaker,
+    you: active_listener,
+    speaker: active_speaker,
+    listener: active_listener,
+    target: active_listener,
+    witnesses: (context.npc_entities || []).filter((npc) => npc?.id !== active_speaker?.id && npc?.id !== active_listener?.id),
+  });
   return {
     round: context.round ?? null,
     attributes: {
@@ -371,6 +379,7 @@ function resolve_prose_bag(config, context, bag_inputs) {
       speaker_dynamics,
       fractal_dynamics,
       speaker_key,
+      relational_context,
     },
     history_args: { kind: "simulation_log", accessors },
     task_params: {
@@ -384,6 +393,7 @@ function resolve_prose_bag(config, context, bag_inputs) {
       action_directive,
       stability_lock: resolve_stability_lock(turn_meta),
       stagnation_turns: turn_meta.stagnation_turns ?? 0,
+      relational_context,
     },
     meta_args: {
       ai: context.compressed_snapshot?.ai?.dynamics,
@@ -503,6 +513,14 @@ function normalize_narrator_context(config, context) {
   const narrator_listener_slug = String(input_origin_entity?.id || input_origin_entity?.name || "traveler")
     .toLowerCase()
     .replace(/\s+/g, "_");
+  const narrator_relational_context = create_relational_context({
+    me: speaker,
+    you: input_origin_entity,
+    speaker,
+    listener: input_origin_entity,
+    target: input_origin_entity,
+    witnesses: [],
+  });
   return {
     round: context.round ?? 0,
     attributes: {
@@ -524,6 +542,7 @@ function normalize_narrator_context(config, context) {
       speaker_dynamics,
       fractal_dynamics,
       speaker_key: "AI",
+      relational_context: narrator_relational_context,
     },
     history_args: { kind: "simulation_log", accessors: render_accessors },
     task_params: {
@@ -536,6 +555,7 @@ function normalize_narrator_context(config, context) {
       snapshot: { dynamics: fractal_dynamics, style, style_dna: style_snapshot.style_dna },
       action_directive,
       stability_lock: resolve_stability_lock(turn_meta),
+      relational_context: narrator_relational_context,
     },
     meta_args: {
       ai: narrator_snapshot.ai?.dynamics,
@@ -568,6 +588,16 @@ function normalize_director_context(config, context) {
   const last_ai_message = (active_messages || []).filter((message) => message.role === "model").at(-1);
   const last_ai_text = last_ai_message ? strip_cognition_blocks(last_ai_message.content || last_ai_message.text || "").trim() : "";
   const keyword_directives_xml = render_keyword_directives_xml(render_available_keywords_xml(style_snapshot.keywords, AVAILABLE_KEYWORDS));
+  const director_speaker = context.entities?.AI || null;
+  const director_listener = context.entities?.USER || null;
+  const director_relational_context = create_relational_context({
+    me: director_speaker,
+    you: director_listener,
+    speaker: director_speaker,
+    listener: director_listener,
+    target: director_listener,
+    witnesses: context.npc_entities || [],
+  });
   return {
     round: context.round ?? null,
     attributes: {},
@@ -587,6 +617,7 @@ function normalize_director_context(config, context) {
       speaker_dynamics: snapshot_bag?.ai?.dynamics,
       fractal_dynamics: snapshot_bag?.fractal?.dynamics,
       speaker_key: "AI",
+      relational_context: director_relational_context,
     },
     history_args: { kind: "simulation_log", accessors: render_accessors },
     task_params: {
@@ -598,6 +629,7 @@ function normalize_director_context(config, context) {
       schema,
       keyword_directives: keyword_directives_xml,
       stagnation_turns: context.stagnation_turns ?? context.meta?.stagnation_turns ?? 0,
+      relational_context: director_relational_context,
     },
     meta_args: {
       ai: snapshot_bag?.ai?.dynamics,
@@ -954,6 +986,7 @@ export const MODE_ADAPTERS = {
  * - 2026-10-07: Modules Ground Refactor Phase 3 — optics staging re-cut to sensory.js (prompt and fallback moved; adapter delegates; resolve_builder_style_snapshot exported; optics-only imports pruned) — prompt bytes byte-identical.
  * - Track 3.1: Wires spent ledger extraction into resolve_prose_bag and normalize_narrator_context to prohibit recent phrasing repetitions.
  * - Track 4.2: Directorial Momentum Tiers & Stagnation Backstop — wired stagnation_turns through normalize_director_context and resolve_prose_bag into task_params.
+ * - 2026-10-14: Phase B — Atom 3.3 RelationalContext tuple wiring: builder.js constructs RelationalContext tuple via create_relational_context across resolve_prose_bag, normalize_narrator_context, and normalize_director_context, forwarding it to sheets_args and task_params.
  * - 2026-10-14: Phase 1 Prompt Pipeline Hygiene & P4 Purges — (1) Purged dead lorebook_args constructions; (2) Computed has_candidates via resolve_available_entities and passed to Director task_params.
  * - 2026-10-14: Atom 3.1 — Epistemic-First Sequencing Invariant (Issue 20). Removed premature parse_macros from accessors.past and accessors.future; un-macro'd text is returned to sheets.js for epistemic sanitization prior to macro resolution.
  */

@@ -178,6 +178,38 @@ describe("merge_prose_into_field", () => {
     const result = merge_prose_into_field(current, "Carries a bronze locket.");
     expect(result).toBe("A weathered nomad.\nCarries a bronze locket.");
   });
+
+  it("deduplicates case-variant raw prose lines (M1 regression)", () => {
+    const current = "Gash across chest\nBruised ribs";
+    const result = merge_prose_into_field(current, "gash across chest\nBroken arm");
+    expect(result).toBe("Gash across chest\nBruised ribs\nBroken arm");
+  });
+
+  it("deduplicates case-variant prose when appending to CONDITION (M1 regression)", () => {
+    const current = "[SHIRT: tunic] [CONDITION: Gash across chest]";
+    const result = merge_prose_into_field(current, "gash across chest");
+    expect(result).toContain("[CONDITION: Gash across chest]");
+    expect(result).not.toContain("gash across chest, gash across chest");
+  });
+
+  it("deduplicates case-variant items in aggregate keys (INVENTORY/STASH)", () => {
+    const current = "[INVENTORY: Iron Dagger, Map]";
+    const result = merge_prose_into_field(current, "[INVENTORY: iron dagger, Rations]");
+    expect(result).toContain("[INVENTORY: Iron Dagger, Map, Rations]");
+  });
+
+  it("preserves | hide concealment when updating structured bracket keys (E2 regression)", () => {
+    const current = "[DAGGER: silver blade | hide] [SHIRT: linen tunic]";
+    const result = merge_prose_into_field(current, "[DAGGER: silver stiletto]");
+    expect(result).toContain("[DAGGER: silver stiletto | hide]");
+    expect(result).toContain("[SHIRT: linen tunic]");
+  });
+
+  it("allows explicit | show reveal to override | hide concealment", () => {
+    const current = "[DAGGER: silver blade | hide]";
+    const result = merge_prose_into_field(current, "[DAGGER: drawn stiletto | show]");
+    expect(result).toBe("[DAGGER: drawn stiletto]");
+  });
 });
 
 describe("indent_continuation", () => {

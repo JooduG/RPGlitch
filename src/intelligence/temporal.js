@@ -1134,6 +1134,15 @@ export function merge_field_content(current_field_value, incoming_mutation, opti
       if (val_lower === "none" || val_lower === "cleared") {
         key_map.delete(upper_key);
       } else {
+        const existing_entry = key_map.get(upper_key);
+        // E2: Carry over | hide flag and custom weight from pre-existing concealed bracket unless explicitly revealed via | show
+        const is_explicit_show = entry.raw?.toLowerCase().includes("| show");
+        if (existing_entry?.visibility === "hide" && entry.visibility !== "hide" && !is_explicit_show) {
+          entry.visibility = "hide";
+        }
+        if (existing_entry?.weight !== undefined && (entry.weight === undefined || entry.weight === 5) && existing_entry.weight !== 5) {
+          entry.weight = existing_entry.weight;
+        }
         key_map.set(upper_key, entry);
       }
     }
@@ -1146,8 +1155,28 @@ export function merge_field_content(current_field_value, incoming_mutation, opti
   }
 
   // Freeform prose branch
-  if (existing && eternal_field_dedup(existing, incoming)) return existing;
-  const combined = existing ? `${existing}\n${incoming}` : incoming;
+  if (!existing) {
+    return incoming.length <= max_chars ? incoming : truncate_at_word(incoming, max_chars, { min_bound_ratio: 0.8, reserve_ellipsis: false });
+  }
+
+  // Case-folded line deduplication before appending raw prose (M1)
+  const normalize = (t) => collapse_whitespace(String(t || "").toLowerCase());
+  const existing_lines = existing.split("\n").map((l) => l.trim()).filter(Boolean);
+  const existing_norm = new Set(existing_lines.map(normalize));
+
+  const incoming_lines = incoming.split("\n").map((l) => l.trim()).filter(Boolean);
+  const retained_incoming = incoming_lines.filter((l) => {
+    const l_norm = normalize(l);
+    if (!l_norm || existing_norm.has(l_norm)) return false;
+    for (const el of existing_lines) {
+      if (is_duplicate(normalize(el), l_norm)) return false;
+    }
+    return true;
+  });
+
+  if (retained_incoming.length === 0) return existing;
+
+  const combined = `${existing}\n${retained_incoming.join("\n")}`;
   if (combined.length <= max_chars) return combined;
 
   return truncate_at_word(combined, max_chars, { min_bound_ratio: 0.8, reserve_ellipsis: false });
@@ -1593,9 +1622,36 @@ export const temporal_engine = {
             const old_non_physical = entity.present.non_physical || "";
             // Snapshot existing bracket entries to prevent prose replacement from nuking live relational links
             const existing_brackets = parse_bracket_entries(old_non_physical);
-            const sanitized_prose = sanitize_non_physical_prose(summary.non_physical);
-            const preserved_bracket_text = existing_brackets.map((b) => format_bracket_entry(b)).join(" ");
-            const merged_non_physical = [sanitized_prose, preserved_bracket_text].filter(Boolean).join(" ").trim();
+            const incoming_brackets = parse_bracket_entries(summary.non_physical);
+            const prose_only = summary.non_physical.replace(/\[[A-Z_ ]{2,30}:[\s\S]*?\]/gi, "").trim();
+            const sanitized_prose = sanitize_non_physical_prose(prose_only);
+
+            const bracket_map = new Map();
+            for (const entry of existing_brackets) {
+              if (entry.key) bracket_map.set(entry.key.toUpperCase(), entry);
+            }
+
+            for (const entry of incoming_brackets) {
+              if (!entry.key) continue;
+              const upper_key = entry.key.toUpperCase();
+              const val_lower = String(entry.value || "").trim().toLowerCase();
+              if (val_lower === "none" || val_lower === "cleared") {
+                bracket_map.delete(upper_key);
+              } else {
+                const existing_entry = bracket_map.get(upper_key);
+                const is_explicit_show = entry.raw?.toLowerCase().includes("| show");
+                if (existing_entry?.visibility === "hide" && entry.visibility !== "hide" && !is_explicit_show) {
+                  entry.visibility = "hide";
+                }
+                if (existing_entry?.weight !== undefined && (entry.weight === undefined || entry.weight === 5) && existing_entry.weight !== 5) {
+                  entry.weight = existing_entry.weight;
+                }
+                bracket_map.set(upper_key, entry);
+              }
+            }
+
+            const formatted_brackets = Array.from(bracket_map.values()).map(format_bracket_entry).join(" ");
+            const merged_non_physical = [sanitized_prose, formatted_brackets].filter(Boolean).join(" ").trim();
 
             if (merged_non_physical !== old_non_physical) {
               entity.present.non_physical = merged_non_physical;
@@ -1784,6 +1840,7 @@ if (typeof window !== "undefined") {
 
 /**
  * CHANGELOG
+ * - 2026-10-14: Phase B — M1 Case-Variant Deduplication in merge_field_content; E2 Concealment Preservation in merge_field_content and forge_memory present.non_physical synthesis (reconciles incoming/existing brackets, carries over | hide and weights, prevents concealment stripping).
  * - Track 2.1: Multi-tier tree compactor — maybe_compact_memory folds Tier-0 pools into Tier-1 chapter anchors at PRISM_FANOUT (8) and Tier-1 sets into Tier-2 arcs (height <= COMPACTOR_MAX_HEIGHT); resolve_memory_tiers pure view; expand_compacted_leaves keyword leaf expansion; score() excludes compacted leaves; consolidate persists chapters on compaction.
  * - Track 2.2: Recall token budgets — format/format_async accept token_budget (lowest-relevance tail pruned via apply_recall_token_budget; default Infinity).
  * - Track 2.3: Deterministic hybrid retrieval — rank_hybrid_vectors (EntityOverlap×3.0 + LexicalFrequency×1.0 + EmotionalSalience×0.4 + Recency×1.2), resolve_recall_clarity (Chaos/Entropy > 70 fragments), format_hybrid_recall.

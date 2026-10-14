@@ -524,15 +524,17 @@ export function unwrap_enhancement_text(text, field_id = "") {
  * @param {any} text
  * @param {any} owner
  * @param {any} entities
+ * @param {Object} [context={}]
  * @returns {string}
  */
-export function render_field_value(text, owner, entities) {
+export function render_field_value(text, owner, entities, context = {}) {
   if (!text) return "";
-  return prompt_escape(parse_macros(String(text).trim(), owner, entities));
+  return prompt_escape(parse_macros(String(text).trim(), owner, entities, context));
 }
 
 /**
  * CHANGELOG
+ * - 2026-10-14: Phase B — Atom 3.3 RelationalContext tuple wiring: render_field_value forwards context tuple to parse_macros.
  * - 2026-10-14: Atom 3.2 — Implemented create_relational_context tuple broker, purged {me}/{you} curly syntax in favor of canonical @ME/@YOU/@TARGET, replaced computing fallbacks with diegetic "the companion"/"the traveler"/"the realm".
  * - 2026-10-14: Atom 3.1 — Fixed secondary NPC identity inversion bug (Issue 18). Eliminated blanket owner.type === "character" catch-all in _resolve_owner_perspective, classifying NPCs as entity:<id> so @ME resolves to the NPC's own name instead of the companion.
  * - 2026-10-01: Relocated prompt directive MACRO_DIRECTIVES and resolve_macro_directive to src/intelligence/modules/protocols.js per Layer 3 prompt architecture, keeping macros.js a pure stateless string utility.

@@ -417,7 +417,20 @@ export function merge_prose_into_field(current_field_value, new_prose) {
   // Plain prose field (no structured keys, or raw-prose sentinel)
   if (!parsed || parsed.__raw_prose__ || Object.keys(parsed).length === 0) {
     const existing = (current_field_value || "").trim();
-    let result = !existing ? clean_new_prose : `${existing}\n${clean_new_prose}`;
+    if (!existing) return clean_new_prose;
+
+    const normalize = (t) => collapse_whitespace(String(t || "").toLowerCase());
+    const existing_lines = existing.split("\n").map((l) => l.trim()).filter(Boolean);
+    const existing_norm = new Set(existing_lines.map(normalize));
+
+    const incoming_lines = clean_new_prose.split("\n").map((l) => l.trim()).filter(Boolean);
+    const retained_new = incoming_lines.filter((l) => !existing_norm.has(normalize(l)));
+
+    if (retained_new.length === 0) {
+      return existing;
+    }
+
+    let result = `${existing}\n${retained_new.join("\n")}`;
     if (result.length > MAX_FIELD_CHARS) {
       result = result.substring(result.length - MAX_FIELD_CHARS);
     }
@@ -458,8 +471,9 @@ export function merge_prose_into_field(current_field_value, new_prose) {
     .trim();
 
   // Apply structured key updates in sequence
-  for (const { key, val } of key_updates) {
+  for (const { key, val: incoming_val } of key_updates) {
     let target_key = key;
+    let val = incoming_val;
     const is_clear_token = CLEAR_TOKENS.has(val.toLowerCase());
 
     // Wildcard purge: [CLOTHING: none] strips every clothing key at once.
@@ -492,8 +506,13 @@ export function merge_prose_into_field(current_field_value, new_prose) {
               .map((s) => s.trim())
               .filter(Boolean)
           : [];
+      const existing_norm = new Set(list.map((item) => collapse_whitespace(String(item)).toLowerCase()));
       for (const item of incoming) {
-        if (item && !list.includes(item)) list.push(item);
+        const item_norm = collapse_whitespace(item).toLowerCase();
+        if (item && !existing_norm.has(item_norm)) {
+          list.push(item);
+          existing_norm.add(item_norm);
+        }
       }
       parsed[key] = list;
       continue;
@@ -501,6 +520,18 @@ export function merge_prose_into_field(current_field_value, new_prose) {
 
     if (key === "CLOTHING" && parsed.SHIRT) target_key = "SHIRT";
     if (key === "SHIRT" && parsed.CLOTHING) target_key = "CLOTHING";
+
+    // E2: Concealment preservation on structured key overwrite
+    const existing_val = typeof parsed[target_key] === "string" ? parsed[target_key] : "";
+    const existing_had_hide = /\|\s*hide\b/i.test(existing_val);
+    const incoming_has_show = /\|\s*show\b/i.test(val);
+    const incoming_has_hide = /\|\s*hide\b/i.test(val);
+    if (existing_had_hide && !incoming_has_show && !incoming_has_hide) {
+      val = `${val} | hide`;
+    } else if (incoming_has_show) {
+      val = val.replace(/\|\s*show\b/gi, "").trim();
+    }
+
     parsed[target_key] = val;
   }
 
@@ -511,7 +542,20 @@ export function merge_prose_into_field(current_field_value, new_prose) {
       const clean_existing = String(parsed[cond_key])
         .replace(/^[\s,]+|[\s,]+$/g, "")
         .replace(/,\s*,+/g, ", ");
-      parsed[cond_key] = `${clean_existing}, ${remaining_prose}`;
+      const existing_phrases = clean_existing
+        .split(",")
+        .map((s) => collapse_whitespace(s).toLowerCase())
+        .filter(Boolean);
+      const incoming_phrases = remaining_prose
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      const new_phrases = incoming_phrases.filter(
+        (phrase) => !existing_phrases.includes(collapse_whitespace(phrase).toLowerCase())
+      );
+      if (new_phrases.length > 0) {
+        parsed[cond_key] = `${clean_existing}, ${new_phrases.join(", ")}`;
+      }
     } else {
       parsed[cond_key] = remaining_prose;
     }
@@ -1301,6 +1345,7 @@ export function match_keyword_pattern(pattern, haystack) {
 
 /**
  * CHANGELOG:
+ * - 2026-10-14: Phase B — M1 Case-Variant Deduplication & E2 Concealment Preservation in merge_prose_into_field (line-level deduplication for raw prose, case-folded deduplication in AGGREGATE_KEYS and CONDITION, and | hide preservation across structured key overwrites).
  * - 2026-10-12: Salvaged match_keyword_pattern from lorebook.js into @utils/text.js.
  * - Track 2: Simulation Log Pipeline Harmonization — added `CANONICAL_ROLES`, `canonicalize_role`, and `normalize_history_beat` to `@utils/text.js`, unifying turn beat normalization across UI, platform, intelligence, and utility export layers without circular dependencies.
  * - 2026-10-03: Hardened balance_brackets Case 3 — restricted predicate auto-enclosure to uppercase state keys (^[A-Z][A-Z0-9_]{1,24}:) or entity targets (^@[A-Z0-9_]{1,24}:) and strict bracket flags to prevent false-positive predicate creation on natural language prose lines.

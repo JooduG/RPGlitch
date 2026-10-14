@@ -378,7 +378,7 @@ export function resolve_entities(config = null) {
  */
 export function render_actor_sheets(
   actors = [],
-  { entities = {}, npc_entities = [], accessors = null, render_axes = null, active_names = [], name_to_id = new Map() } = {},
+  { entities = {}, npc_entities = [], accessors = null, render_axes = null, active_names = [], name_to_id = new Map(), relational_context = null } = {},
 ) {
   return (actors || []).map((actor) => {
     const sheet_arguments = {
@@ -392,6 +392,7 @@ export function render_actor_sheets(
       include_agenda: actor.include_agenda,
       active_names,
       name_to_id,
+      relational_context,
     };
     if (actor.with_accessors !== undefined) {
       sheet_arguments.accessors = actor.with_accessors ? accessors : null;
@@ -435,6 +436,7 @@ export function render_entity_sheets({
   speaker_dynamics = null,
   fractal_dynamics = null,
   speaker_key = "AI",
+  relational_context = null,
 }) {
   const plan = resolve_actor_plan({
     config,
@@ -455,6 +457,7 @@ export function render_entity_sheets({
     render_axes,
     active_names: plan.active_names,
     name_to_id: plan.name_to_id,
+    relational_context,
   });
 
   if (plan.nearby_entities) {
@@ -670,6 +673,7 @@ export function resolve_entity_context_slot(config, normalized = {}) {
 
 /**
  * CHANGELOG
+ * - 2026-10-14: Phase B — Atom 3.3 RelationalContext tuple wiring: render_entity_sheets forwards relational_context into render_actor_sheets and sheet_arguments.
  * - Track 2.4: Extraction advisory — render_memory_advisory_xml + resolve_memory_advisory_slot (MEMORY_ADVISORY block with # ALREADY REMEMBERED; empty facts render "" for byte-identical compiles).
  * - Track 0.11: Absorbed optics subject tiers + actors/entities block from sensory.js (new Section 2; define_sheet + strip_visual_excluded imports added; sensory import dropped). Prompt bytes byte-identical.
  * - 2026-10-04: C rebuild — data-first split: resolve_actor_plan (pure gates + ordered sheet actors + nearby list) feeds thin render_actor_sheets; optics tiers compile through resolve_optics_segments into the shared wrap_entities; four empty visibility policies collapse into one blank policy; candidate summary precedence unified to present → eternal → description; render_entity_sheets renders candidates internally (cast_xml string param retired).

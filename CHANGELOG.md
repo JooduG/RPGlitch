@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Bugs & Debt Remediation — Phase B: Simulation Physics & Memory Integrity**:
+  - **M1 Case-Variant Deduplication (`text.js`, `temporal.js`, `text.test.js`, `temporal.test.js`)**:
+    - Implemented line-level case-folded deduplication in `merge_prose_into_field`, eliminating turn-over-turn duplication of identical physical states with differing casing ("Gash across chest" vs "gash across chest").
+    - Added case-folded deduplication for `AGGREGATE_KEYS` (`INVENTORY`, `STASH`) and unstructured prose appending to `CONDITION`.
+    - Refactored `merge_field_content` to apply per-line case-folded duplicate filtering on freeform prose, eliminating the bug where a single matching phrase falsely suppressed new incoming lines.
+  - **E2 Concealment Preservation Across Memory Forge Cycles (`text.js`, `temporal.js`, `temporal.test.js`)**:
+    - Reconciled incoming synthesized brackets against `existing_brackets` in `temporal_engine.consolidate` and `forge_memory` (`present.non_physical` and `present.physical`), carrying over `| hide` flags and base weights unless an incoming mutation explicitly declares `| show` or clears with `none`/`cleared`.
+    - Hardened `merge_prose_into_field` to retain `| hide` flags across structured key overwrites.
+    - Added unit test asserting multi-cycle survival of concealed items (`[DAGGER: silver blade | hide]`) through repeated background consolidation passes.
+  - **RelationalContext Tuple Wiring (Atom 3.3) (`macros.js`, `builder.js`, `sheets.js`, `entities.js`, `builder.test.js`)**:
+    - Constructed `create_relational_context({ me, you, speaker, listener, target, witnesses })` in `builder.js` across Storyteller, Narrator, and Director prompt compilers.
+    - Forwarded the relational context tuple through `sheets_args` into `render_entity_sheets`, `render_actor_sheets`, `resolve_sheet_snapshot`, and `parse_physical_rows`.
+    - Resolved `@SPEAKER`, `@LISTENER`, `@TARGET`, `@ME`, and `@YOU` dynamically against live scene dialogue participants during prompt compilation and character sheet serialization.
+
 - **Bugs & Debt Remediation — Phase A: Dead Code Purges & Level 1 Fixes**:
   - **Syntax & Quantifier Correction (`ProfileHeader.svelte`)**: Corrected malformed regex quantifier `pattern="^[A-Za-z0-9_-]{(2, 20)}$"` to `pattern="^[A-Za-z0-9_-]{2,20}$"`, restoring HTML5 input validation for custom entity handle editing.
   - **Inert `alternative_branches` Purge (`story.js`, `output.js`)**: Eliminated dead `[ALT-BRANCH]` console logging loop and meta-assignment in `story.js`; pruned lingering schema field in `output.js:56`.

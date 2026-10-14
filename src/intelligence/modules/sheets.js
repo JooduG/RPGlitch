@@ -37,6 +37,7 @@ import {
   strip_leading_key_echo,
   render_field_value,
   render_xml_tag,
+  create_relational_context,
 } from "@utils";
 import { PROFILE_FIELD_CATALOG } from "@data";
 import { strip_epistemic_secrets } from "../veil.js";
@@ -134,8 +135,8 @@ export function resolve_entity_field_value(entity, path) {
  * @param {((value: string) => string)|null} [transform]
  * @returns {string[]}
  */
-export function parse_physical_rows(raw_value, owner_entity = null, entities = null, transform = null) {
-  const resolved_value = owner_entity ? render_field_value(raw_value, owner_entity, entities) : raw_value;
+export function parse_physical_rows(raw_value, owner_entity = null, entities = null, transform = null, context = null) {
+  const resolved_value = owner_entity ? render_field_value(raw_value, owner_entity, entities, context) : raw_value;
   const final_value = typeof transform === "function" ? transform(String(resolved_value ?? "")) : resolved_value;
   const parsed = typeof final_value === "string" ? safe_parse_pseudo_json(final_value) : (final_value ?? {});
   if (parsed.__raw_prose__) {
@@ -253,12 +254,32 @@ export function join_past_vectors(entity) {
  * @returns {Object}
  */
 export function resolve_sheet_snapshot(entity, specification, options = {}) {
-  const { is_owner = false, accessors = null, entities = {}, transform_physical = null } = options;
+  const { is_owner = false, accessors = null, entities = {}, transform_physical = null, relational_context = null } = options;
   const epistemic = specification?.epistemic || {};
   const sanitize = (value, policy) => {
     if (!policy || policy === EPISTEMIC_POLICY.NONE) return value;
     return strip_epistemic_secrets(value, Boolean(is_owner));
   };
+
+  const sheet_context = relational_context?.is_relational_context
+    ? create_relational_context({
+        owner: entity,
+        me: entity,
+        you: relational_context.you || (entity?.id === entities.USER?.id ? entities.AI : entities.USER),
+        speaker: relational_context.speaker,
+        listener: relational_context.listener,
+        target: relational_context.target,
+        witnesses: relational_context.witnesses,
+      })
+    : create_relational_context({
+        owner: entity,
+        me: entity,
+        you: entity?.id === entities.USER?.id ? entities.AI : entities.USER,
+        speaker: null,
+        listener: null,
+        target: null,
+        witnesses: [],
+      });
 
   const agenda_raw = accessors ? accessors.future(entity, { vector_text: true }) : entity?.future;
   const personality_raw = sanitize(entity?.eternal?.non_physical, epistemic.personality);
@@ -271,18 +292,18 @@ export function resolve_sheet_snapshot(entity, specification, options = {}) {
 
   const sanitized_agenda = sanitize(agenda_raw, epistemic.agenda);
   const sanitized_past = sanitize(memory_raw, epistemic.memory);
-  const eternal_rows = parse_physical_rows(sanitize(entity?.eternal?.physical, epistemic.appearance), entity, entities, transform_physical);
-  const present_rows = parse_physical_rows(sanitize(entity?.present?.physical, epistemic.appearance), entity, entities, transform_physical);
+  const eternal_rows = parse_physical_rows(sanitize(entity?.eternal?.physical, epistemic.appearance), entity, entities, transform_physical, sheet_context);
+  const present_rows = parse_physical_rows(sanitize(entity?.present?.physical, epistemic.appearance), entity, entities, transform_physical, sheet_context);
 
   return Object.freeze({
-    agenda: render_field_value(sanitized_agenda, entity, entities),
-    personality: render_field_value(personality_raw, entity, entities),
-    state: strip_leading_key_echo(render_field_value(state_raw, entity, entities), specification?.state_strip_keys || []),
+    agenda: render_field_value(sanitized_agenda, entity, entities, sheet_context),
+    personality: render_field_value(personality_raw, entity, entities, sheet_context),
+    state: strip_leading_key_echo(render_field_value(state_raw, entity, entities, sheet_context), specification?.state_strip_keys || []),
     dispositions: "",
     eternal_rows: Object.freeze(eternal_rows),
     present_rows: Object.freeze(present_rows),
     appearance_rows: Object.freeze(render_appearance_rows(eternal_rows, present_rows)),
-    past_text: render_field_value(sanitized_past, entity, entities),
+    past_text: render_field_value(sanitized_past, entity, entities, sheet_context),
   });
 }
 
@@ -335,6 +356,7 @@ export function render_sheet(specification, options = {}) {
     accessors,
     entities,
     transform_physical,
+    relational_context: options.relational_context,
   });
 
   if (mode === "physical") {
@@ -461,6 +483,7 @@ export function render_enhancement_field_context(entity, field_identifier, conte
 
 /**
  * CHANGELOG
+ * - 2026-10-14: Phase B — Atom 3.3 RelationalContext tuple wiring: sheets.js forwards relational_context into resolve_sheet_snapshot and parse_physical_rows to resolve live scene participants across @SPEAKER, @LISTENER, @TARGET, and @YOU.
  * - 2026-10-14: Atom 3.4 — Universal <CHARACTER> Envelope & Biometric Compaction (Sub-items 6.5, 6.10, Issues 13 & 2.5). Unifies character sheets to <CHARACTER id="..." name="...">; composes short physical traits (<= 40 chars) into attributes on <APPEARANCE> and <CURRENT_LOOK>; purges redundant <DISPOSITIONS> envelope in favor of native directed relational brackets within state.
  * - 2026-10-14: Atom 3.1 — Epistemic-First Sequencing Invariant (Issue 20). resolve_sheet_snapshot sanitizes past memories and future agendas prior to render_field_value macro expansion with proper owner gating.
  * - 2026-10-06: Plan Omega ground-up rebuild — define_sheet derives all tags from PROFILE_FIELD_CATALOG (epistemic defaults to "always", only owner-state written down); snapshot-first pipeline (resolve_sheet_snapshot normalizes epistemics/vectors/dispositions/physical rows once); direct physical row parsing via normalize_physical_entries (BODY regex round-trip retired); one mode axis (full/physical/separate, VISUAL_SECTIONS retired); render_chapter_history_xml relocated to history.js with structured <CHAPTER> grammar; byte-identical sheet output.
