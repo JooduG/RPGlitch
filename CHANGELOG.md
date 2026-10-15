@@ -26,7 +26,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Injected conditional prompt layers (Gothic narrative style `<AUTHORIAL_VOICE>`, somatic `<SUBTEXT>` from keywords, and `<MOMENTUM_SOFT_PERMIT>` for stagnation >= 8) into the audit run.
     - Expanded pipeline verification to 25 automated checks (100% passed).
   - **Comprehensive Programmatic XML Tag Specification Map (`prompt-schema-map.js`, `tmp/audit_report.md`)**:
-    - Implemented `prompt-schema-map.js` generating an authoritative XML schema directory across all 9 prompt modes, complete with canonical slot hierarchies, parent/child relationships, cardinality, and conditional trigger rules.
+    - Refactored `prompt-schema-map.js` into an automated declarative compiler (`PROMPT_LAYER_TREE` and `render_tag_skeleton`) uniting all 9 RPGlitch prompt modes (`director`, `interaction`, `narrator`, `ghostwrite`, `npc`, `continuum`, `enhancement`, `sorting`, `optics`) under a root `<PROMPT envelope="...">` envelope, eliminating synthetic `<SYSTEM><TURN>` nesting.
+    - Purged mocked internal character/fractal fields (`<CORE>`, `<WOUND>`, `<DESIRE>`, `<GOAL>`, `<METHOD>`, `<BUILD>`, `<FACE>`, `<EYES>`, `<GARMENTS>`, `gender`, `height`), keeping canonical identity attributes (`id="[slug]" name="[Title Case]"`) and operational placeholders like `<ACTION round="[number]" origin="[slug]">`.
+    - Removed synthetic `<RELATION>` tags from entity fields, establishing clean leaf tags for `<PERSONALITY>`, `<MEMORIES>`, `<BACKSTORY>`, `<PERMANENT_TRUTHS>`, and `<HISTORY>` while preserving `<CAST>` and `<CANDIDATE>`.
+    - Differentiated `<DIRECTIVES>` into `<STAGING>` (Director state evaluation and allocation), `<SCENE_ADVANCEMENT>` (Storyteller perspective and momentum), and `<TASK_INSTRUCTION>` (Tool extraction and synthesis) alongside stagnation `<MOMENTUM>`.
+    - Co-located accurate module provenance for narrative styles (`narrative-styles.js` for `<SIGNATURE_ELEMENTS>`, `<SENSORY_EXPERIENCE>`, `<RHYTHM>`), visual styles (`visual-styles.js` for `<MEDIUM>`, `<PALETTE>`, `<TEXTURES>`), and speech/detox (`speaking-styles.js` for `<CLICHES>`).
+    - Maintained pure, empty canonical XML tag skeletons (`<TAG></TAG>`) across individual prompt mode sections (Sections 2–10).
     - Appended `## PHASE 5: COMPREHENSIVE XML TAG SPECIFICATION MAP` to `tmp/audit_report.md`.
 
 - **Director Schema Co-Location & Unified Constraints Architecture (Wave 2)**:
