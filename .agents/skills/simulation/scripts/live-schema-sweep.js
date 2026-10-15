@@ -199,6 +199,21 @@ const SWEEP = [
   },
   { axis: "dissonance", round: 5, stag: 0, kw: [], beats: "S2", input: "S2", fc: false, cand: false, facts: false, chaos: 0, dyn: true, stab: false },
   { axis: "stability", round: 5, stag: 0, kw: [], beats: "S2", input: "S2", fc: false, cand: false, facts: false, chaos: 0, dyn: false, stab: true },
+  {
+    axis: "actioninput",
+    round: 1,
+    stag: 0,
+    kw: [],
+    beats: null,
+    input: "S2",
+    inputText: "The rusted gate swings inward on its own. I step through with my empty hands raised.",
+    fc: false,
+    cand: false,
+    facts: false,
+    chaos: 0,
+    dyn: false,
+    stab: false,
+  },
 ];
 
 const AXIS_WHEN = {
@@ -214,7 +229,10 @@ const AXIS_WHEN = {
   chaos: "chaos ≥ 90 dynamics",
   dissonance: "fixture dynamics (intensity 70 / affinity 20)",
   stability: "structural errors recorded (1–2)",
+  actioninput: "non-verbal action input, no quotes",
 };
+
+const ALL_AXES = [...SWEEP.map((d) => d.axis), "live"];
 
 const ASSERTED = [
   "FIRST_CONTACT",
@@ -268,8 +286,8 @@ const PROV = {
   SYNTHETIC_FORMULAS: "reflex.js",
   CLICHES: "speaking-styles.js via protocols.js",
   EXHAUSTED_OPENINGS: "reflex.js",
-  IMAGE_VOCABULARY: "optics.js",
-  TEXT_RENDERING: "optics.js",
+  IMAGE_VOCABULARY: "protocols.js",
+  TEXT_RENDERING: "protocols.js",
   VISUAL_STYLE: "visual-styles.js via optics.js",
   MEDIUM: "visual-styles.js",
   PALETTE: "visual-styles.js",
@@ -330,9 +348,9 @@ const PROV = {
   MOMENTUM_SOFT_PERMIT: "reflex.js",
   MOMENTUM_HARD_MANDATE: "reflex.js",
   STABILITY_LOCK: "reflex.js (structural_errors 1–2)",
-  TARGET: "optics.js",
-  SPATIAL_FRAMING: "optics.js",
-  CINEMATOGRAPHY: "optics.js",
+  TARGET: "task.js (optics tier)",
+  SPATIAL_FRAMING: "task.js",
+  CINEMATOGRAPHY: "task.js",
   SOLO_ENTITY: "entities.js (optics tier)",
   INPUT: "task.js (retired Wave 2)",
   DIRECTIVES: "task.js + prompts.js",
@@ -414,16 +432,6 @@ function parse_system(system) {
   return { roots, occurrences };
 }
 
-function attr_names(attrs) {
-  const out = [];
-  const re = /([a-zA-Z_][a-zA-Z0-9_-]*)=/g;
-  let m;
-  while ((m = re.exec(attrs)) !== null) {
-    if (!out.includes(m[1])) out.push(m[1]);
-  }
-  return out;
-}
-
 function check_problems(mode, system) {
   const problems = [];
   if (!system.endsWith("</SYSTEM>")) problems.push(mode + ": missing close");
@@ -488,7 +496,7 @@ function scenario_for(def) {
     stag: def.stag,
     kw: def.kw,
     beats: story ? story.beats : [],
-    input: inputStory.input,
+    input: def.inputText || inputStory.input,
     fc: def.fc,
     cand: def.cand ? [map_premade(get_premade_entity_by_id("elias")), map_premade(get_premade_entity_by_id("nova"))] : [],
     inScene: def.cand ? ["elias"] : [],
@@ -500,6 +508,7 @@ function scenario_for(def) {
 }
 
 function merge_node(parent_key, node, tag_index, schema) {
+  if (node.tag === "RELATION") return null;
   const key = (parent_key ? parent_key + ">" : "") + node.tag;
   if (!is_schema_node(node.tag, parent_key ? parent_key.split(">") : [], schema)) return null;
   let entry = tag_index.get(key);
@@ -521,7 +530,9 @@ function when_for(occ_list) {
   if (axes.length === 1 && axes[0] === "live") return "live-run only (premade/real-data dependent)";
   if (in_base) {
     const needs_history = !occ_list.some((o) => o.axis === "nohistory");
-    return "always" + (needs_history ? " + requires non-empty history" : "");
+    const missing = ALL_AXES.filter((a) => a !== "base" && a !== "live" && a !== "nohistory" && !axes.includes(a));
+    const miss_s = missing.length ? " · except: " + missing.map((a) => AXIS_WHEN[a] || a).join(" / ") : "";
+    return "always" + (needs_history ? " + requires non-empty history" : "") + miss_s;
   }
   return axes
     .filter((a) => a !== "live")
@@ -597,6 +608,7 @@ export function run_sweep(options = {}) {
       const { roots, occurrences } = parse_system(system);
       for (const root of roots) merge_node(null, root, tag_index, schema);
       for (const o of occurrences) {
+        if (o.node.tag === "RELATION") continue;
         if (!is_schema_node(o.node.tag, o.parents, schema)) {
           note_data(o.node.tag, o.parents);
           continue;
@@ -615,6 +627,7 @@ export function run_sweep(options = {}) {
       const { roots, occurrences } = parse_system(system);
       for (const root of roots) merge_node(null, root, tag_index, schema);
       for (const o of occurrences) {
+        if (o.node.tag === "RELATION") continue;
         if (!is_schema_node(o.node.tag, o.parents, schema)) {
           note_data(o.node.tag, o.parents);
           continue;
@@ -626,16 +639,42 @@ export function run_sweep(options = {}) {
     }
   }
 
+  const MODE_ORDER = ["continuum", "director", "enhancement", "ghostwrite", "interaction", "narrator", "npc", "optics", "sorting"];
+  function short_mode(m) {
+    const s = String(m).replace(" (live)", "");
+    return s === "director_terse" ? "director" : s;
+  }
+  function mode_labels(modes) {
+    const norm = [...new Set(modes.map(short_mode))];
+    const rest = norm.filter((m) => m !== "narrator" && m !== "narrator_epilogue" && m !== "narrator_prologue");
+    const epi = norm.includes("narrator_epilogue");
+    const pro = norm.includes("narrator_prologue");
+    if (norm.includes("narrator") || epi || pro) {
+      const which = [epi ? "epilogue" : null, pro ? "prologue" : null].filter(Boolean);
+      rest.push(which.length ? "narrator (" + which.join(" & ") + ")" : "narrator");
+    }
+    const rank = (m) => MODE_ORDER.indexOf(m.startsWith("narrator") ? "narrator" : m);
+    rest.sort((a, b) => rank(a) - rank(b));
+    return rest;
+  }
+  function compact_when(when) {
+    if (when === "always") return "always active";
+    if (when.startsWith("always")) return when.replace("always", "always active").replace("\u00b7 except:", "except");
+    if (when.startsWith("live-run only")) return when;
+    return when + " active";
+  }
   const lines = [];
   lines.push("# Live Prompt XML Schema Report");
   lines.push("");
   lines.push("Seed `" + seed + "` · " + compiles + " live compiles · fixed sweep trio `silvers / julien / ashenweald`.");
-  lines.push("Every tag below was observed in real compiled output. Content is stripped to attr names; annotations carry modes, trigger, source.");
+  lines.push(
+    "Every tag below was observed in real compiled output. Content and attrs are stripped; annotations carry merged modes, trigger, source.",
+  );
   lines.push("Data-driven bracket keys (HAIR, BIND, FAME…) are NOT schema — counted separately in Part 5.");
   lines.push("");
   lines.push("## Part 1 — Live runs (random trio × story)");
   lines.push("");
-  for (const run of live_runs) {
+  for (const run of live_runs.slice(0, 1)) {
     lines.push("### " + run.story.id + " — " + run.story.label);
     lines.push("");
     lines.push(
@@ -667,28 +706,29 @@ export function run_sweep(options = {}) {
     lines.push("```");
     lines.push("");
   }
-  lines.push("## Part 2 — Merged tag tree (content stripped, triggers annotated)");
+  lines.push("## Part 2 — Merged tag tree (compact: merged modes, no RELATIONs or attrs, except-clauses inline)");
   lines.push("");
-  lines.push("```xml");
+
   const render_entry = (entry, depth) => {
-    const modes = [...new Set(entry.occ.map((o) => o.mode))].sort();
-    const when = when_for(entry.occ);
-    const attrs = attr_names(entry.attrs);
-    const attr_s = attrs.length ? " " + attrs.join(" ") : "";
+    const modes = mode_labels(entry.occ.map((o) => o.mode));
     const pad = "  ".repeat(depth);
-    lines.push(
-      pad +
-        "<" +
-        entry.tag +
-        attr_s +
-        "> <!-- modes: " +
-        modes.join(", ") +
-        " · when: " +
-        when +
-        " · src: " +
-        prov_for(entry.tag, entry.parents) +
-        " -->",
-    );
+    if (depth === 0) {
+      lines.push(pad + "<" + entry.tag + ">" + modes.join(", "));
+      for (const ck of entry.children_keys) {
+        const child = tag_index.get(ck);
+        if (child) render_entry(child, depth + 1);
+      }
+      lines.push(pad + "</" + entry.tag + ">");
+      return;
+    }
+    if (!entry.children_keys.length) {
+      const when = compact_when(when_for(entry.occ));
+      lines.push(
+        pad + "<" + entry.tag + ">" + modes.join(", ") + ", " + when + " from " + prov_for(entry.tag, entry.parents) + "</" + entry.tag + ">",
+      );
+      return;
+    }
+    lines.push(pad + "<" + entry.tag + ">");
     for (const ck of entry.children_keys) {
       const child = tag_index.get(ck);
       if (child) render_entry(child, depth + 1);
@@ -698,7 +738,6 @@ export function run_sweep(options = {}) {
   for (const key of [...tag_index.keys()].filter((k) => !k.includes(">"))) {
     render_entry(tag_index.get(key), 0);
   }
-  lines.push("```");
   lines.push("");
   lines.push("## Part 3 — Conditionals (tags that only fire under trigger states)");
   lines.push("");

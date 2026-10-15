@@ -53,40 +53,13 @@
  * ============================================================================
  */
 
-import { escape_xml, prompt_escape, inline_or_block, render_xml_tag, resolve_catalog_atom } from "@utils";
+import { escape_xml, prompt_escape, inline_or_block, render_atom_xml, render_xml_tag } from "@utils";
 import { PROFILE_FIELD_CATALOG } from "@data";
 import { resolve_style_dna } from "./style.js";
 import { resolve_output_plan, render_output_plan, render_json_return } from "./output.js";
 import { resolve_macro_directive, resolve_optics_atom } from "./protocols.js";
 import { get_reflex_atom, render_environmental_hint, render_prose_reflex, resolve_turn_state_plan } from "./reflex.js";
 import { resolve_optics_subject } from "./entities.js";
-
-/**
- * Shot 1 Director routing rules items.
- * @type {ReadonlyArray<string>}
- */
-export const DIRECTOR_ROUTING_RULES_ITEMS = Object.freeze([
-  '- "AI_CHARACTER": (Default) AI companion reacts to the protagonist.',
-  '- "FRACTAL": Environmental action (exploring atmosphere, architecture, weather, objects without dialogue) or breaking long companion speech streaks.',
-  '- "npc:<id>": Present secondary character takes action; when dialogue is unfinished, let it continue before moving on.',
-  '- "GENESIS": Mint a new character ONLY when no candidate in the candidate cast above fills the gap. Reuse existing entities before minting.',
-  '- "EPILOGUE_COLLAPSED": Fatal consequence, irreversible collapse, or defeat. Ends the scenario in tragedy when definitive fatal trauma occurs.',
-  '- "EPILOGUE_CONCLUDED": Triumphant or peaceful narrative resolution. Concludes the active arc.',
-]);
-
-/**
- * Renders the canonical <ROUTING_RULES> XML block for Shot 1 Director.
- * Consolidates turn allocation, candidate reuse, and trauma collapse thresholds.
- * @returns {string} Formatted <ROUTING_RULES> block
- */
-export function render_routing_rules_xml() {
-  return render_xml_tag({
-    tag: "ROUTING_RULES",
-    children: DIRECTOR_ROUTING_RULES_ITEMS,
-    child_indent: 2,
-    separator: "\n",
-  });
-}
 
 // ============================================================================
 // [SECTION 1: UNIFIED TASK DIRECTIVES & PROTOCOLS CATALOG]
@@ -95,58 +68,81 @@ export function render_routing_rules_xml() {
 export const TASK_LIBRARY = Object.freeze({
   // ── 1.1 Turn Foundations & Cognition Protocols ─────────────────────────────
   PROTOCOLS: Object.freeze({
-    THINK_GROUNDING_DEFAULT: "Hold your established temperament.",
+    THINK_GROUNDING_DEFAULT: Object.freeze({
+      tag: "GROUNDING",
+      body: "Hold your established temperament.",
+    }),
 
-    THINK_CHARACTER: `Open your output with one internal <THINK> block (under 200 words). {grounding} Reason in order:
+    THINK_CHARACTER: Object.freeze({
+      tag: "THINK_FORMAT",
+      body: `Open your output with one internal <THINK> block (under 200 words). {grounding} Reason in order:
 1. Stance — the speaker's unsaid want and internal feeling.
 2. Friction — what resists that want in this beat.
 3. Mask — how their psychology leaks or conceals the feeling.
 4. Smallest observable action — the single physical tell or movement that carries the beat. Never pre-draft dialogue.
 Close </THINK> before the narrative. This think block is internal reasoning and is never part of the visible prose.`,
+    }),
 
-    THINK_NARRATOR: `Open your output with one internal <THINK> block (under 200 words). Reason in order:
+    THINK_NARRATOR: Object.freeze({
+      tag: "THINK_FORMAT",
+      body: `Open your output with one internal <THINK> block (under 200 words). Reason in order:
 1. Tableau — freeze every body in space; fix positions before psychology.
 2. Vector — the single mechanical or environmental change this beat delivers.
 3. Sensorium — {grounding} Commit to one dominant sensory channel.
 Close </THINK> before the narrative. This think block is internal reasoning and is never part of the visible prose.`,
+    }),
 
-    THINK_ENHANCEMENT: `Open your output with one internal <THINK> block (under 200 words). Reason in order:
+    THINK_ENHANCEMENT: Object.freeze({
+      tag: "THINK_FORMAT",
+      body: `Open your output with one internal <THINK> block (under 200 words). Reason in order:
 1. Canon check — verify the new trait against established identity.
 2. Contrast — differentiate from the rest of the cast on this axis.
 3. Compression — cut everything that does not sharpen the field; subtract, never pad.
 Close </THINK> before emitting the final content.`,
+    }),
 
-    THINK_OPTICS: `Calibrate "_thought_process" first (under 200 words). Reason in order:
+    THINK_OPTICS: Object.freeze({
+      tag: "THINK_FORMAT",
+      body: `Calibrate "_thought_process" first (under 200 words). Reason in order:
 1. Focal subject — identity traits, stripped of proper names.
 2. Spatial layers — foreground, focal subject, background.
 3. Light and palette — sources, color, and textures from the active style.
 4. Wardrobe mechanics — exposure checks before composing.
 Close "_thought_process" before composing the image payload. This calibration is internal reasoning and is never part of the payload.`,
+    }),
   }),
 
   // ── 1.2 Keyword Directives (Director & Sensory Optics) ─────────────────────
   KEYWORD_DIRECTIVES: Object.freeze({
-    DIRECTOR: `- Function: Select 1-5 keywords from the list below to steer the next speaker's physical tells and scene tone.
+    DIRECTOR: Object.freeze({
+      tag: "KEYWORD_DIRECTIVES",
+      body: `- Function: Select 1-5 keywords from the list below to steer the next speaker's physical tells and scene tone.
 - Neutral state: Emit "[]" if no keywords apply.
 - Whitelist rule: Select strictly from the list below. Never alter or invent keywords.`,
-    OPTICS: "Integrate 2-4 appropriate keywords from below.",
+    }),
+    OPTICS: Object.freeze({
+      tag: "KEYWORD_DIRECTIVES",
+      body: "Integrate 2-4 appropriate keywords from below.",
+    }),
   }),
 
-  // ── 1.3 Shot 1: Directorial Staging & Evaluation Rules (director) ───────────
-  DIRECTOR: Object.freeze({
-    ROUTING_RULES: DIRECTOR_ROUTING_RULES_ITEMS,
-  }),
-
-  // ── 1.4 Shot 2A: Prose Turn Directives (character / scene / ghostwrite) ─────
+  // ── 1.3 Shot 2A: Prose Turn Directives (character / scene / ghostwrite) ─────
   PROSE: Object.freeze({
     CHARACTER: Object.freeze({
-      BASE: "Advance the scene authentically from your own perspective; end on a natural beat.",
-      GHOSTWRITE:
-        "Draft an assistive turn suggestion for {speaker_name} to review, edit, or send. Embody {speaker_name}'s voice, perspective, and physical agency without speaking for other participants.",
+      BASE: Object.freeze({
+        tag: "DIRECTIVE",
+        body: "Advance the scene authentically from your own perspective; end on a natural beat.",
+      }),
+      GHOSTWRITE: Object.freeze({
+        tag: "DIRECTIVE",
+        body: "Draft an assistive turn suggestion for {speaker_name} to review, edit, or send. Embody {speaker_name}'s voice, perspective, and physical agency without speaking for other participants.",
+      }),
     }),
 
     SCENE: Object.freeze({
-      PROLOGUE: `Open the scene. Use thinking to establish: What does this Fractal demand? What brought «AI_CHARACTER» and «USER_PERSONA» here? Unless context explicitly states otherwise, treat as strangers.
+      PROLOGUE: Object.freeze({
+        tag: "DIRECTIVE",
+        body: `Open the scene. Use thinking to establish: What does this Fractal demand? What brought «AI_CHARACTER» and «USER_PERSONA» here? Unless context explicitly states otherwise, treat as strangers.
 Narrative Sequence:
 1. Present the Fractal atmosphere and current state.
 2. Place «USER_PERSONA» inside, connecting them via their profile thread.
@@ -154,34 +150,56 @@ Narrative Sequence:
 4. Trigger the encounter. End the prologue immediately before interaction begins.
 Strictly zero spoken dialogue or quote marks. No dialogue.
     Input: {scene_input}`,
-      EPILOGUE: `Close the scene. Evaluate unresolved threads and active agendas in thinking. Depict environmental aftermath and physical changes without forcing player physical surrender. End on lingering sensation, not summary. Strictly zero spoken dialogue or quote marks. No dialogue.`,
-      COLLAPSE: `Close the scene on irrevocable tragedy. Weigh permanent loss in thinking. Depict aftermath and environmental scars without forcing player physical surrender or unearned closure. End on enduring sensory silence. Strictly zero spoken dialogue or quote marks. No dialogue.`,
-      CONTINUATION: `Narrate through ambient physics, sensory textures, and environmental shifts in reaction to recent events. Never puppeteer «AI_CHARACTER» or «USER_PERSONA». End on one dominant hook (decisive statement, single action, or deliberate silence). Zero bracket labels.`,
+      }),
+      EPILOGUE: Object.freeze({
+        tag: "DIRECTIVE",
+        body: `Close the scene. Evaluate unresolved threads and active agendas in thinking. Depict environmental aftermath and physical changes without forcing player physical surrender. End on lingering sensation, not summary. Strictly zero spoken dialogue or quote marks. No dialogue.`,
+      }),
+      COLLAPSE: Object.freeze({
+        tag: "DIRECTIVE",
+        body: `Close the scene on irrevocable tragedy. Weigh permanent loss in thinking. Depict aftermath and environmental scars without forcing player physical surrender or unearned closure. End on enduring sensory silence. Strictly zero spoken dialogue or quote marks. No dialogue.`,
+      }),
+      CONTINUATION: Object.freeze({
+        tag: "DIRECTIVE",
+        body: `Narrate through ambient physics, sensory textures, and environmental shifts in reaction to recent events. Never puppeteer «AI_CHARACTER» or «USER_PERSONA». End on one dominant hook (decisive statement, single action, or deliberate silence). Zero bracket labels.`,
+      }),
     }),
   }),
 
   // ── 1.5 Shot 2B: Continuum Caretaker Consolidation Directives (continuum) ──
   CONTINUUM: Object.freeze({
-    MANDATE: `TARGET FOCUS: Consolidate state and extract relational vectors for {target_name}. Analyze recent turns in «HISTORY».
+    MANDATE: Object.freeze({
+      tag: "DIRECTIVE",
+      body: `TARGET FOCUS: Consolidate state and extract relational vectors for {target_name}. Analyze recent turns in «HISTORY».
 EXECUTION MANDATE:
 1. Memory Formation: Extract 1-3 anchored memories in past tense. Empty list if nothing noteworthy transpired.
 2. Dynamic State: Update each taxonomy layer below per its schema directive — key shapes are documented in the schema, never re-documented here.
 {taxonomy_lines}
 3. Future Trajectory: Consolidate active standing agenda in future tense.
 4. Relational Graph: Update directed relational brackets ([@TARGET: dynamic | flags]) across all non-physical layers — eternal.non_physical carries baseline bonds, present.non_physical carries situational dynamics.`,
+    }),
   }),
 
   // ── 1.6 Tool B: Profile Structuring & Ingestion Directives (sorting) ───────
   SORTING: Object.freeze({
-    FOCUS: `FOCUS: Extracting data for {entity_label}. Discard text belonging to the other entity half.
+    FOCUS: Object.freeze({
+      tag: "DIRECTIVE",
+      body: `FOCUS: Extracting data for {entity_label}. Discard text belonging to the other entity half.
 {macro_directive}
 {taxonomy_lines}`,
-    REDISTRIBUTE: `REDISTRIBUTE: The source profile may have content in the wrong field. Relocate each fact to its correct field per the taxonomy lines above — anything outside a field's stated domain is misplaced. For physical and temporal layers, structure traits into [KEY: value] bracket directives. Never move content into or out of 'description' (internal notes). Preserve factual truth; update only field locations and phrasing. Strip XML tags, markdown bolding, or headers from values — output clean bracket directives and prose.`,
-    INGESTION: `SOURCE OF TRUTH & INGESTION RULES:
+    }),
+    REDISTRIBUTE: Object.freeze({
+      tag: "DIRECTIVE",
+      body: `REDISTRIBUTE: The source profile may have content in the wrong field. Relocate each fact to its correct field per the taxonomy lines above — anything outside a field's stated domain is misplaced. For physical and temporal layers, structure traits into [KEY: value] bracket directives. Never move content into or out of 'description' (internal notes). Preserve factual truth; update only field locations and phrasing. Strip XML tags, markdown bolding, or headers from values — output clean bracket directives and prose.`,
+    }),
+    INGESTION: Object.freeze({
+      tag: "DIRECTIVE",
+      body: `SOURCE OF TRUTH & INGESTION RULES:
 - Source text is absolute truth. Map details faithfully into schema fields.
 - For physical and temporal layers, structure traits into canonical [KEY: value] bracket directives.
 - For absent details (attire, motivations): synthesize lore-consistent defaults.
 - Never emit null, undefined, or empty strings.`,
+    }),
   }),
 });
 
@@ -203,9 +221,7 @@ EXECUTION MANDATE:
  * @returns {string}
  */
 export function get_directive_atom(directive_key, values = {}) {
-  if (directive_key === "DIRECTOR.ROUTING_RULES") return render_routing_rules_xml();
-  const resolved = resolve_catalog_atom(TASK_LIBRARY, directive_key, values);
-  return typeof resolved === "string" ? resolved : (resolved?.body ?? "");
+  return render_atom_xml(TASK_LIBRARY, directive_key, values, { body_only: true });
 }
 
 /**
@@ -345,7 +361,8 @@ export function render_available_keywords_xml(active_style_keywords = [], availa
  * @returns {string} Formatted <KEYWORD_DIRECTIVES> block
  */
 export function render_keyword_directives_xml(content = "", mode = "DIRECTOR") {
-  const directive = mode === "OPTICS" ? TASK_LIBRARY.KEYWORD_DIRECTIVES.OPTICS : TASK_LIBRARY.KEYWORD_DIRECTIVES.DIRECTOR;
+  const directive_atom = mode === "OPTICS" ? TASK_LIBRARY.KEYWORD_DIRECTIVES.OPTICS : TASK_LIBRARY.KEYWORD_DIRECTIVES.DIRECTOR;
+  const directive = typeof directive_atom === "string" ? directive_atom : (directive_atom?.body ?? "");
 
   const inner_content = String(content || "").trim();
   const available_tag = inner_content.startsWith("<AVAILABLE_KEYWORDS>")
@@ -511,11 +528,12 @@ export const TASK_SLOT_RESOLVERS = Object.freeze({
 
   think: (values) => {
     const think_format = values.config?.think_format;
-    const grounding = values.style_dna.grounding || TASK_LIBRARY.PROTOCOLS.THINK_GROUNDING_DEFAULT;
+    const grounding_atom = values.style_dna.grounding || TASK_LIBRARY.PROTOCOLS.THINK_GROUNDING_DEFAULT;
+    const grounding = typeof grounding_atom === "string" ? grounding_atom : (grounding_atom?.body ?? "");
     if (think_format === "character") return render_think_format(get_directive_atom("PROTOCOLS.THINK_CHARACTER", { grounding }));
     if (think_format === "narrator") return render_think_format(get_directive_atom("PROTOCOLS.THINK_NARRATOR", { grounding }));
-    if (think_format === "enhancement") return render_think_format(TASK_LIBRARY.PROTOCOLS.THINK_ENHANCEMENT);
-    if (think_format === "optics") return render_think_format(TASK_LIBRARY.PROTOCOLS.THINK_OPTICS);
+    if (think_format === "enhancement") return render_think_format(get_directive_atom("PROTOCOLS.THINK_ENHANCEMENT"));
+    if (think_format === "optics") return render_think_format(get_directive_atom("PROTOCOLS.THINK_OPTICS"));
     return "";
   },
 
@@ -837,6 +855,7 @@ export function render_task(parameters = {}) {
  * - 2026-09-11: Initial creation of modular task.js extracting turn block formatting, pacing, and think formats.
  * - 2026-10-03: Prompt alignment & trauma severity grading — aligned USER_PERSONA_LOCK with ROUTING to explicitly authorize EPILOGUE_COLLAPSED and EPILOGUE_CONCLUDED next_actions without contradiction; graded EVALUATION_INPUT and EVALUATION_SCENE to distinguish definitively fatal terminal destruction from severe but survivable bodily trauma.
  * Modules Ground Refactor Phase 1 — get_directive_atom delegates to utils/catalog.js resolve_catalog_atom (REFLEX delegation stays in compile_directive_tags) — prompt bytes byte-identical.
+ * - 2026-10-15: Purged redundant DIRECTOR.ROUTING_RULES and render_routing_rules_xml from TASK_LIBRARY under P4 Zero Backwards Compatibility (routing enums unified in output schema).
  * - 2026-10-14: Wave 2 — Co-located Director routing rules and keywords in output schema, pruning duplicate directive text walls; deconstructed CHARACTER.BASE and unified negative constraints into <CONSTRAINTS>.
  * - 2026-10-14: Atom 2.2 & 2.4 — exported render_routing_rules_xml() and consolidated turn routing, candidate reuse, and trauma thresholds into DIRECTOR.ROUTING_RULES; purged fragmented text walls (DYNAMICS_CALIBRATION, ROUTING, CONVERGENCE, MOMENTUM_*); allowed pre-rendered XML blocks to pass through resolve_directive_entry.
  * - 2026-10-14: Phase I hygiene — purged USER_PERSONA_LOCK and BRANCHES; inverted candidate cast spatial pointer to <CANDIDATE_CAST> above; stripped redundant agency sentence from CHARACTER.BASE; streamlined render_task_input to omit attribute for default action inputs and use type= for special payloads; exported TASK_INPUT_TYPES.

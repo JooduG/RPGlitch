@@ -179,6 +179,10 @@ Resolving the fundamental conflation between slot, perspective, and identity acr
     - Simplified `pack_prompt` to unconditionally seal prompts with `</SYSTEM>`, dropping runtime regex tag detection.
     - Standardized completion injection and finishTail recovery in `story.js` on `</SYSTEM>` root closing tags.
     - Re-baselined `CONTRACT` inventories in `prompt-verification.js` and updated unit/contract tests across `prompt-verification.test.js`, `prompts.test.js`, and `builder.test.js`.
+  - [x] **3.14 Unified Prompt Library Catalog Grammar & Universal Atom XML Compiler**:
+    - **Single Catalog Schema Grammar**: Migrated all prompt catalog atoms across `protocols.js`, `reflex.js`, `constitution.js`, `system.js`, and `task.js` to a unified strict object schema: `{ tag, body, attrs?, inline? }`.
+    - **Universal Atom XML Compiler (`render_atom_xml`)**: Implemented dual-mode universal atom compiler in `src/utils/xml.js` (tested via `src/utils/xml.test.js`) supporting direct `{ tag, body }` objects and dotted catalog lookups with token interpolation, `body_only` bypass, and attribute merging.
+    - **Biometric Field Block Promotion & P4 Dead Code Purge**: Promoted `render_profile_field_block` to `src/utils/xml.js` and re-exported it from `sheets.js`, maintaining the invariant that relational brackets (`[@TARGET: ...]`) are strictly immune to attribute compaction. Purged dead `physical_to_xml` and its tests under P4 Zero Backwards Compatibility.
 
 ---
 

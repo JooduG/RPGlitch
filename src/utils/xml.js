@@ -20,7 +20,7 @@
  * - `src/utils/text.js` (Clothing key resolution).
  */
 
-import { safe_parse_pseudo_json } from "./text.js";
+import { resolve_catalog_atom, interpolate_tokens } from "./catalog.js";
 
 // ============================================================================
 // [SECTION 1: CONSTANTS & CLOTHING KEYS]
@@ -160,35 +160,33 @@ export function normalize_physical_entries(parsed) {
 }
 
 /**
- * Converts a raw physical/non-physical state value (prose string or pseudo-JSON) into
- * an escaped, structured XML block.
- * - Plain prose is wrapped in a single text node.
- * - Structured pseudo-JSON is expanded into one child XML tag per key.
+ * Renders a profile field block (<APPEARANCE>, <CURRENT_LOOK>, <PERSONALITY>, <STATE>, etc.)
+ * separating compacted attributes from complex child rows. Emits a self-closing tag when
+ * child rows are empty.
  *
- * @param {string | Record<string, any> | null | undefined} raw - State string or parsed dictionary.
- * @param {string} tagName - Enclosing XML tag name (e.g. "PHYSICAL", "ETERNAL", "PRESENT").
- * @returns {string} Structured XML block.
+ * @param {string} tag - XML tag name
+ * @param {string[]} [rows=[]] - Pre-parsed row strings (either `attr="val"` or `<TAG>val</TAG>`)
+ * @returns {string|null} Structured XML block, or null if rows is empty
  */
-export function physical_to_xml(raw, tagName) {
-  if (!raw) return "";
-
-  const parsed = typeof raw === "string" ? safe_parse_pseudo_json(raw) : (raw ?? {});
-
-  if (parsed.__raw_prose__) {
-    return `  <${tagName}>${prompt_escape(parsed.__raw_prose__)}</${tagName}>`;
+export function render_profile_field_block(tag, rows = []) {
+  if (!rows || !rows.length) return null;
+  const attrs = {};
+  const children = [];
+  for (const row of rows) {
+    const attr_match = String(row).match(/^([a-z0-9_]+)="([\s\S]*)"$/);
+    if (attr_match) {
+      attrs[attr_match[1]] = attr_match[2];
+    } else {
+      children.push(row);
+    }
   }
-
-  const entries = Object.entries(normalize_physical_entries(parsed));
-  if (entries.length === 0) return "";
-
-  const children = entries
-    .map(([k, v]) => {
-      const tag = String(k).replace(/\s+/g, "_");
-      return `    <${tag}>${prompt_escape(String(v))}</${tag}>`;
-    })
-    .join("\n");
-
-  return `  <${tagName}>\n${children}\n  </${tagName}>`;
+  const attr_keys = Object.keys(attrs);
+  const attr_str = attr_keys.map((k) => `${k}="${attrs[k]}"`).join(" ");
+  if (!children.length) {
+    return attr_str ? `<${tag} ${attr_str} />` : `<${tag} />`;
+  }
+  const open = attr_str ? `<${tag} ${attr_str}>` : `<${tag}>`;
+  return `${open}\n${children.map((c) => `  ${c}`).join("\n")}\n</${tag}>`;
 }
 
 // ============================================================================
@@ -331,7 +329,100 @@ export function render_xml_tag({
 }
 
 /**
+ * Universal Atom Compiler — resolves and compiles any prompt library atom into XML.
+ * Supports dual-mode invocation:
+ * 1. Direct Atom: `render_atom_xml(atom, options)`
+ * 2. Catalog Lookup: `render_atom_xml(catalog, key, values, options)`
+ *
+ * @param {Record<string, any>|string} atom_or_catalog - Atom record { tag, body, attrs?, inline? } OR catalog record
+ * @param {string|Object} [key_or_options={}] - Dotted key path if catalog lookup, else compiler options
+ * @param {Record<string, any>} [values_or_options={}] - Token interpolation bag if catalog lookup, else compiler options
+ * @param {Object} [options_param={}] - Compiler options when using 4-argument catalog lookup
+ * @returns {string} Clean, escaped XML string (or bare prompt prose if body_only: true)
+ */
+export function render_atom_xml(atom_or_catalog, key_or_options = {}, values_or_options = {}, options_param = {}) {
+  if (!atom_or_catalog) return "";
+
+  let atom = null;
+  let options = {};
+  let values = {};
+
+  const is_direct_atom =
+    typeof atom_or_catalog === "object" &&
+    atom_or_catalog !== null &&
+    (typeof atom_or_catalog.tag === "string" || typeof atom_or_catalog.body === "string");
+
+  if (is_direct_atom) {
+    atom = atom_or_catalog;
+    options = key_or_options && typeof key_or_options === "object" ? key_or_options : {};
+    values = options.values || {};
+  } else if (typeof atom_or_catalog === "object" && typeof key_or_options === "string") {
+    const catalog = atom_or_catalog;
+    const key = key_or_options;
+    const is_values_bag =
+      typeof values_or_options === "object" &&
+      values_or_options !== null &&
+      values_or_options.indent === undefined &&
+      values_or_options.body_only === undefined &&
+      values_or_options.inline === undefined &&
+      values_or_options.tag === undefined;
+
+    if (is_values_bag) {
+      values = values_or_options;
+      options = options_param || {};
+    } else {
+      options = values_or_options || {};
+      values = options.values || {};
+    }
+    atom = resolve_catalog_atom(catalog, key, values, options);
+  } else if (typeof atom_or_catalog === "string") {
+    atom = { tag: "DIRECTIVE", body: atom_or_catalog };
+    options = key_or_options && typeof key_or_options === "object" ? key_or_options : {};
+    values = options.values || {};
+  }
+
+  if (!atom) return "";
+
+  let raw_body = "";
+  let base_tag = "DIRECTIVE";
+  let base_attrs = {};
+  let base_inline = false;
+
+  if (typeof atom === "object" && atom !== null) {
+    raw_body = typeof atom.body === "string" ? atom.body : "";
+    base_tag = atom.tag || "DIRECTIVE";
+    base_attrs = atom.attrs || atom.attributes || {};
+    base_inline = Boolean(atom.inline);
+  } else if (typeof atom === "string") {
+    raw_body = atom;
+  }
+
+  // If atom came from direct object/string and not through resolve_catalog_atom, interpolate tokens
+  if (is_direct_atom && values && Object.keys(values).length > 0 && raw_body.includes("{")) {
+    raw_body = interpolate_tokens(raw_body, values);
+  }
+
+  if (options.body_only) {
+    return options.escape ? prompt_escape(raw_body) : raw_body;
+  }
+
+  const final_tag = options.tag || base_tag;
+  const final_attrs = { ...base_attrs, ...(options.attrs || {}) };
+  const final_inline = options.inline ?? base_inline;
+  const final_indent = options.indent ?? 0;
+
+  return render_xml_tag({
+    tag: final_tag,
+    attrs: final_attrs,
+    children: [prompt_escape(raw_body)],
+    indent: final_indent,
+    inline: final_inline,
+  });
+}
+
+/**
  * CHANGELOG
+ * - 2026-10-15: Added `render_atom_xml` (dual-mode universal atom compiler) and migrated `render_profile_field_block` from sheets.js; retired dead `physical_to_xml` under P4 Zero Backwards Compatibility.
  * - 2026-09-22: One indentation primitive (recommendation #1) — added `dedent_all` and routed `render_xml_tag`'s child normalization through it, so a pre-indented child block is re-embedded at a uniform depth instead of having only its first line trimmed (the cause of open tags at column 0 paired with closing tags at column 2).
  * - 2026-09-21: `render_xml_tag` no longer applies `child_indent` to a single-line `inline` body — inline emission now leaves `<tag>body</tag>` on one line, fixing the accidental double-space prefix on inline children.
  * - 2026-09-18: Pruned stale reference to deleted src/intelligence/optics.js from module header.

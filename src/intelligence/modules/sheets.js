@@ -36,6 +36,7 @@ import {
   normalize_physical_entries,
   strip_leading_key_echo,
   render_field_value,
+  render_profile_field_block,
   render_xml_tag,
   create_relational_context,
 } from "@utils";
@@ -192,35 +193,7 @@ export function render_appearance_rows(eternal_rows = [], present_rows = []) {
   return merged_entries;
 }
 
-/**
- * Renders a profile field block (<APPEARANCE>, <PERSONALITY>, <STATE>, etc.) separating compacted
- * attributes from complex child rows. Emits self-closing tag when child rows are empty.
- *
- * @param {string} tag
- * @param {string[]} [rows=[]]
- * @returns {string|null}
- */
-export function render_profile_field_block(tag, rows = []) {
-  if (!rows || !rows.length) return null;
-  const attrs = {};
-  const children = [];
-  for (const row of rows) {
-    const attr_match = String(row).match(/^([a-z0-9_]+)="([\s\S]*)"$/);
-    if (attr_match) {
-      attrs[attr_match[1]] = attr_match[2];
-    } else {
-      children.push(row);
-    }
-  }
-  const attr_keys = Object.keys(attrs);
-  const attr_str = attr_keys.map((k) => `${k}="${attrs[k]}"`).join(" ");
-  if (!children.length) {
-    return attr_str ? `<${tag} ${attr_str} />` : `<${tag} />`;
-  }
-  const open = attr_str ? `<${tag} ${attr_str}>` : `<${tag}>`;
-  return `${open}\n${children.map((c) => `  ${c}`).join("\n")}\n</${tag}>`;
-}
-
+export { render_profile_field_block };
 export const render_physical_block = render_profile_field_block;
 
 /**

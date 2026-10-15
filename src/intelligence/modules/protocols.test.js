@@ -243,9 +243,9 @@ describe("protocols.js - Restructured Catalog", () => {
   });
 
   it("builds macro directives from the shared subject lists", () => {
-    expect(PROTOCOL_LIBRARY.MACROS.CHARACTER).toContain("Never use raw pronouns ambiguously.");
-    expect(PROTOCOL_LIBRARY.MACROS.FRACTAL).toContain("'@USER' (user persona)");
-    expect(PROTOCOL_LIBRARY.MACROS.SORTING).toContain("Use placeholder macros for entities:");
+    expect(PROTOCOL_LIBRARY.MACROS.CHARACTER.body).toContain("Never use raw pronouns ambiguously.");
+    expect(PROTOCOL_LIBRARY.MACROS.FRACTAL.body).toContain("'@USER' (user persona)");
+    expect(PROTOCOL_LIBRARY.MACROS.SORTING.body).toContain("Use placeholder macros for entities:");
   });
 });
 

@@ -48,75 +48,150 @@ export const PROTOCOL_LIBRARY = Object.freeze({
   CORE_PROTOCOLS: Object.freeze({
     PERSPECTIVE: Object.freeze({
       TENSE: Object.freeze({
-        PRESENT: "Write strictly in the present tense.",
-        PAST: "Write strictly in the past tense.",
-        FUTURE: "Write strictly in the active future tense.",
+        PRESENT: Object.freeze({ tag: "TENSE", body: "Write strictly in the present tense." }),
+        PAST: Object.freeze({ tag: "TENSE", body: "Write strictly in the past tense." }),
+        FUTURE: Object.freeze({ tag: "TENSE", body: "Write strictly in the active future tense." }),
       }),
       POV: Object.freeze({
-        FIRST:
-          "Write strictly in first-person ('I', 'me', 'my'). Describe actions and sensations through your own eyes—never use third-person pronouns or your character name.",
-        THIRD: "Write strictly in third-person limited ('he', 'she', 'they', or character name). Never use first-person pronouns in narrative prose.",
+        FIRST: Object.freeze({
+          tag: "POV",
+          body: "Write strictly in first-person ('I', 'me', 'my'). Describe actions and sensations through your own eyes—never use third-person pronouns or your character name.",
+        }),
+        THIRD: Object.freeze({
+          tag: "POV",
+          body: "Write strictly in third-person limited ('he', 'she', 'they', or character name). Never use first-person pronouns in narrative prose.",
+        }),
       }),
     }),
     PROSE_DISCIPLINE: Object.freeze({
-      TYPOGRAPHY: `Balance interior reflection against physical impact and speech: prefer localized objects over repetitive posture tags. Maintain lingering sensory conditions across scene shifts. Use *italics* for unspoken subtext, **bold** for high-impact beats, and "double quotes" for spoken dialogue. Omit meta-commentary, preambles, headers, or user echoes. End on a complete sentence. Never emit @-tokens outside bracket directives in narrative prose.`,
-      SENTENCE_FORMULAS: `Eliminate synthetic sentence formulas: denial-then-affirmation ('X did not just Y; it Z'd'), antithetical formulas ('Not X, but Y'), symmetrical binary comparisons, appositive dialogue sound tags, and formulaic action-dialogue sandwiches.`,
-      SCENE_MOMENTUM: `State actions directly and keep the scene moving; never stall with permission loops ('Can I ask a question?'), teasing secrets, or begging quotas.`,
-      CLICHES: `Prohibit cliché clusters such as 'spoke volumes', 'a testament to', 'tapestry of', 'shivers down the spine', 'unspoken understanding', 'dance of shadows', and Wattpad dominance tropes ('feisty', 'playing with fire', 'death of me', 'mine').`,
-      NATURAL_DIALOGUE: `Keep spoken dialogue grounded, clipped, uneven, and interrupted. Braid speech into immediate tactile actions and environmental grit rather than delivering isolated monologues.`,
+      TYPOGRAPHY: Object.freeze({
+        tag: "TYPOGRAPHY",
+        body: `Balance interior reflection against physical impact and speech: prefer localized objects over repetitive posture tags. Maintain lingering sensory conditions across scene shifts. Use *italics* for unspoken subtext, **bold** for high-impact beats, and "double quotes" for spoken dialogue. Omit meta-commentary, preambles, headers, or user echoes. End on a complete sentence. Never emit @-tokens outside bracket directives in narrative prose.`,
+      }),
+      SENTENCE_FORMULAS: Object.freeze({
+        tag: "SENTENCE_FORMULAS",
+        body: `Eliminate synthetic sentence formulas: denial-then-affirmation ('X did not just Y; it Z'd'), antithetical formulas ('Not X, but Y'), symmetrical binary comparisons, appositive dialogue sound tags, and formulaic action-dialogue sandwiches.`,
+      }),
+      SCENE_MOMENTUM: Object.freeze({
+        tag: "SCENE_MOMENTUM",
+        body: `State actions directly and keep the scene moving; never stall with permission loops ('Can I ask a question?'), teasing secrets, or begging quotas.`,
+      }),
+      CLICHES: Object.freeze({
+        tag: "CLICHES",
+        body: `Prohibit cliché clusters such as 'spoke volumes', 'a testament to', 'tapestry of', 'shivers down the spine', 'unspoken understanding', 'dance of shadows', and Wattpad dominance tropes ('feisty', 'playing with fire', 'death of me', 'mine').`,
+      }),
+      NATURAL_DIALOGUE: Object.freeze({
+        tag: "NATURAL_DIALOGUE",
+        body: `Keep spoken dialogue grounded, clipped, uneven, and interrupted. Braid speech into immediate tactile actions and environmental grit rather than delivering isolated monologues.`,
+      }),
     }),
   }),
 
   // ── 1.2 Sensory Optics Invariants (<CORE_PROTOCOLS> bodies) ────────────────
   OPTICS: Object.freeze({
-    IMAGE_VOCABULARY:
-      "Enforce FLUX_T5_WEIGHTING — NEVER emit bracket weight math ('(x:1.3)', '((x))', '[x:0.4]'): FLUX/T5 reads words, not weights. Emphasize via descriptors, varied rephrasing, and attenuation phrasing ('faint', 'subtle touch of', 'barely visible in the distance'). Describe positive presence in frame ('softly moonlit glade' not 'no harsh sunlight'); confine negative_prompt to global quality artifacts.",
-    TEXT_RENDERING:
-      'Render on-screen text ONLY when the scene itself calls for it — signs, graffiti, titles, or UI that are part of the subject matter. Never add text artificially. When text IS present, spell it out exactly with placement, font, and color — never invent, garble, or approximate lettering, and never emit generic placeholders like "text" or "sign".',
-    MANDATE: "Convert narrative intent into a structured image prompt payload depicting {subject_description}.",
+    IMAGE_VOCABULARY: Object.freeze({
+      tag: "IMAGE_VOCABULARY",
+      body: "Enforce FLUX_T5_WEIGHTING — NEVER emit bracket weight math ('(x:1.3)', '((x))', '[x:0.4]'): FLUX/T5 reads words, not weights. Emphasize via descriptors, varied rephrasing, and attenuation phrasing ('faint', 'subtle touch of', 'barely visible in the distance'). Describe positive presence in frame ('softly moonlit glade' not 'no harsh sunlight'); confine negative_prompt to global quality artifacts.",
+    }),
+    TEXT_RENDERING: Object.freeze({
+      tag: "TEXT_RENDERING",
+      body: 'Render on-screen text ONLY when the scene itself calls for it — signs, graffiti, titles, or UI that are part of the subject matter. Never add text artificially. When text IS present, spell it out exactly with placement, font, and color — never invent, garble, or approximate lettering, and never emit generic placeholders like "text" or "sign".',
+    }),
+    MANDATE: Object.freeze({
+      tag: "MANDATE",
+      body: "Convert narrative intent into a structured image prompt payload depicting {subject_description}.",
+    }),
 
     SUBJECT_RULES: Object.freeze({
-      DYNAMIC_OVERRIDES:
-        "DYNAMIC OVERRIDES: Follow a strict bottom-up hierarchy where the most recent (bottom-most) physical condition update ALWAYS overrides preceding static tags like «SHIRT» or «JACKET». If a conflicting state appears later (e.g. 'no clothes' then later 'shirt: white'), the most recent/latest state wins.",
-      GARMENT_ANATOMY:
-        "GARMENT ANATOMY: When rendering specialized or revealing garments (e.g., jockstraps, thongs, harnesses), explicitly specify their physical mechanics and bare skin exposure in natural prose. For a jockstrap, describe: 'wearing an athletic jockstrap featuring a supportive front pouch, open sides and back with bare exposed butt cheeks, and dual wide elastic straps circling under the glutes/thighs'. For thongs, describe: 'a narrow string back leaving the rear completely bare'. Never allow jockstraps to collapse into generic briefs or full-coverage shorts.",
-      IDENTIFIERS: 'IDENTIFIERS: Always explicitly state gender and physical identifiers (e.g., "a handsome young male high-elf man").',
-      CREATURE_DISAMBIGUATION:
-        'CREATURE DISAMBIGUATION: Never use bare animal/creature proper names (e.g., "Beast"). Translate to explicit physical traits (e.g., "a massive grey-green male orc warrior").',
-      SIGNATURE_COLORS:
-        "SIGNATURE COLORS: Every character's distinctive visual anchors — declared hair color AND length, eye color, skin markings, and signature accent colors — are non-negotiable. Copy them EXACTLY as written in the ENTITIES sheet; never recolor, lengthen, shorten, or substitute them, and never derive a subject's hair or eye color from the environment (silver fog, twilight, moonlight), the lighting, or accessories (e.g., silver jewelry). If the sheet declares a specific hair color or length, the output prompt MUST state that exact value.",
+      DYNAMIC_OVERRIDES: Object.freeze({
+        tag: "DYNAMIC_OVERRIDES",
+        body: "DYNAMIC OVERRIDES: Follow a strict bottom-up hierarchy where the most recent (bottom-most) physical condition update ALWAYS overrides preceding static tags like «SHIRT» or «JACKET». If a conflicting state appears later (e.g. 'no clothes' then later 'shirt: white'), the most recent/latest state wins.",
+      }),
+      GARMENT_ANATOMY: Object.freeze({
+        tag: "GARMENT_ANATOMY",
+        body: "GARMENT ANATOMY: When rendering specialized or revealing garments (e.g., jockstraps, thongs, harnesses), explicitly specify their physical mechanics and bare skin exposure in natural prose. For a jockstrap, describe: 'wearing an athletic jockstrap featuring a supportive front pouch, open sides and back with bare exposed butt cheeks, and dual wide elastic straps circling under the glutes/thighs'. For thongs, describe: 'a narrow string back leaving the rear completely bare'. Never allow jockstraps to collapse into generic briefs or full-coverage shorts.",
+      }),
+      IDENTIFIERS: Object.freeze({
+        tag: "IDENTIFIERS",
+        body: 'IDENTIFIERS: Always explicitly state gender and physical identifiers (e.g., "a handsome young male high-elf man").',
+      }),
+      CREATURE_DISAMBIGUATION: Object.freeze({
+        tag: "CREATURE_DISAMBIGUATION",
+        body: 'CREATURE DISAMBIGUATION: Never use bare animal/creature proper names (e.g., "Beast"). Translate to explicit physical traits (e.g., "a massive grey-green male orc warrior").',
+      }),
+      SIGNATURE_COLORS: Object.freeze({
+        tag: "SIGNATURE_COLORS",
+        body: "SIGNATURE COLORS: Every character's distinctive visual anchors — declared hair color AND length, eye color, skin markings, and signature accent colors — are non-negotiable. Copy them EXACTLY as written in the ENTITIES sheet; never recolor, lengthen, shorten, or substitute them, and never derive a subject's hair or eye color from the environment (silver fog, twilight, moonlight), the lighting, or accessories (e.g., silver jewelry). If the sheet declares a specific hair color or length, the output prompt MUST state that exact value.",
+      }),
     }),
 
-    SOLO_FRAME:
-      "**SOLO FRAME PROTOCOL.** Isolated single-subject portrait. No secondary characters, no story scene context. The backdrop must be drawn solely from the subject's own identity and signature colors.",
-    ENVIRONMENTAL_SCALE:
-      "**AFFIRMATIVE ENVIRONMENTAL SCALE.** Focus completely on vast landscape architecture, atmospheric density, weather effects, and physical spatial structures.",
-    BACKGROUND:
-      "You MUST synthesize an evocative, atmospheric background environment that naturally fits the personality, visual theme, and signature colors of {subject_name}.",
+    SOLO_FRAME: Object.freeze({
+      tag: "SOLO_FRAME",
+      body: "**SOLO FRAME PROTOCOL.** Isolated single-subject portrait. No secondary characters, no story scene context. The backdrop must be drawn solely from the subject's own identity and signature colors.",
+    }),
+    ENVIRONMENTAL_SCALE: Object.freeze({
+      tag: "ENVIRONMENTAL_SCALE",
+      body: "**AFFIRMATIVE ENVIRONMENTAL SCALE.** Focus completely on vast landscape architecture, atmospheric density, weather effects, and physical spatial structures.",
+    }),
+    BACKGROUND: Object.freeze({
+      tag: "BACKGROUND",
+      body: "You MUST synthesize an evocative, atmospheric background environment that naturally fits the personality, visual theme, and signature colors of {subject_name}.",
+    }),
 
     FIRST_SENTENCE_MANDATE: Object.freeze({
-      SCENE:
-        "Always establish vast environmental geometry, architectural structures, terrain scale, and atmospheric lighting in the VERY FIRST sentence before any secondary elements.",
-      ENTITY: "Always place main entities and active physical interactions in the VERY FIRST sentence.",
+      SCENE: Object.freeze({
+        tag: "FIRST_SENTENCE_MANDATE",
+        body: "Always establish vast environmental geometry, architectural structures, terrain scale, and atmospheric lighting in the VERY FIRST sentence before any secondary elements.",
+      }),
+      ENTITY: Object.freeze({
+        tag: "FIRST_SENTENCE_MANDATE",
+        body: "Always place main entities and active physical interactions in the VERY FIRST sentence.",
+      }),
     }),
-    SPATIAL_GEOMETRY:
-      "Spatial orientation: direct depiction of focal elements, absolute geometry, camera angles, elevations, lighting positions, and depth layers without metaphor or narrative scaffolding.",
-    ENVIRONMENTAL_GROUNDING: "Anchor scenes with concrete lighting sources, luminary fixtures, and physical surfaces.",
-    SELFIE_DIRECTIVE: 'Generate a short, in-character social media caption inside "caption".',
+    SPATIAL_GEOMETRY: Object.freeze({
+      tag: "SPATIAL_GEOMETRY",
+      body: "Spatial orientation: direct depiction of focal elements, absolute geometry, camera angles, elevations, lighting positions, and depth layers without metaphor or narrative scaffolding.",
+    }),
+    ENVIRONMENTAL_GROUNDING: Object.freeze({
+      tag: "ENVIRONMENTAL_GROUNDING",
+      body: "Anchor scenes with concrete lighting sources, luminary fixtures, and physical surfaces.",
+    }),
+    SELFIE_DIRECTIVE: Object.freeze({
+      tag: "SELFIE_DIRECTIVE",
+      body: 'Generate a short, in-character social media caption inside "caption".',
+    }),
     CINEMATOGRAPHY: Object.freeze({
-      STAGING_DIRECTIVE: "\n  Staging Directive: {visual_staging}",
+      STAGING_DIRECTIVE: Object.freeze({
+        tag: "STAGING_DIRECTIVE",
+        body: "\n  Staging Directive: {visual_staging}",
+      }),
       NARRATIVE_CONTEXT: Object.freeze({
-        GROUP: "\n  Group Mandate: Feature both {ai_name} and {user_name} engaged together in their active positions within the fractal environment.",
-        CHARACTER_IN_SCENE: "\n  Character In Scene: Depict {character_name} situated directly within {setting_name}.",
+        GROUP: Object.freeze({
+          tag: "NARRATIVE_CONTEXT",
+          body: "\n  Group Mandate: Feature both {ai_name} and {user_name} engaged together in their active positions within the fractal environment.",
+        }),
+        CHARACTER_IN_SCENE: Object.freeze({
+          tag: "NARRATIVE_CONTEXT",
+          body: "\n  Character In Scene: Depict {character_name} situated directly within {setting_name}.",
+        }),
       }),
     }),
   }),
 
   // ── 1.3 Entity Macro Directives ─────────────────────────────────────────────
   MACROS: Object.freeze({
-    CHARACTER: `${MACRO_PREFIX}${MACRO_SUBJECTS.CHARACTER}${MACRO_SUFFIX}${MACRO_PRONOUN_RULE}${MACRO_TOKEN_RULE}`,
-    FRACTAL: `${MACRO_PREFIX}${MACRO_SUBJECTS.FRACTAL}${MACRO_SUFFIX}${MACRO_TOKEN_RULE}`,
-    SORTING: `${MACRO_PREFIX}${MACRO_SUBJECTS.SORTING}${MACRO_SUFFIX}${MACRO_TOKEN_RULE}`,
+    CHARACTER: Object.freeze({
+      tag: "MACRO",
+      body: `${MACRO_PREFIX}${MACRO_SUBJECTS.CHARACTER}${MACRO_SUFFIX}${MACRO_PRONOUN_RULE}${MACRO_TOKEN_RULE}`,
+    }),
+    FRACTAL: Object.freeze({
+      tag: "MACRO",
+      body: `${MACRO_PREFIX}${MACRO_SUBJECTS.FRACTAL}${MACRO_SUFFIX}${MACRO_TOKEN_RULE}`,
+    }),
+    SORTING: Object.freeze({
+      tag: "MACRO",
+      body: `${MACRO_PREFIX}${MACRO_SUBJECTS.SORTING}${MACRO_SUFFIX}${MACRO_TOKEN_RULE}`,
+    }),
   }),
 });
 
@@ -126,8 +201,8 @@ export const PROTOCOL_LIBRARY = Object.freeze({
  * @returns {string}
  */
 export function resolve_macro_directive(entity_type = "character") {
-  if (entity_type === "sorting") return PROTOCOL_LIBRARY.MACROS.SORTING;
-  return entity_type === "fractal" ? PROTOCOL_LIBRARY.MACROS.FRACTAL : PROTOCOL_LIBRARY.MACROS.CHARACTER;
+  if (entity_type === "sorting") return PROTOCOL_LIBRARY.MACROS.SORTING.body;
+  return entity_type === "fractal" ? PROTOCOL_LIBRARY.MACROS.FRACTAL.body : PROTOCOL_LIBRARY.MACROS.CHARACTER.body;
 }
 
 // ============================================================================
@@ -146,8 +221,10 @@ export function resolve_macro_directive(entity_type = "character") {
 function resolve_static_rule(protocol_key, values = {}) {
   const normalized_key = String(protocol_key).trim().toUpperCase();
   const resolved = resolve_catalog_atom(PROTOCOL_LIBRARY, normalized_key, values, { uppercase: true });
-  if (typeof resolved !== "string" || !resolved) return null;
-  return { tag: normalized_key.split(".").at(-1), body: resolved };
+  if (!resolved) return null;
+  const tag = typeof resolved === "object" && resolved.tag ? resolved.tag : normalized_key.split(".").at(-1);
+  const body = typeof resolved === "object" && resolved.body ? resolved.body : String(resolved);
+  return { tag, body };
 }
 
 // ============================================================================
@@ -163,7 +240,8 @@ export function resolve_optics_atom(key, values = {}) {
   const key_text = String(key == null ? "" : key);
   const full_key = key_text.slice(0, 7) === "OPTICS." ? key_text : "OPTICS." + key_text;
   const resolved = resolve_catalog_atom(PROTOCOL_LIBRARY, full_key, values);
-  return typeof resolved === "string" ? resolved : resolved == null ? "" : resolved.body;
+  if (!resolved) return "";
+  return typeof resolved === "object" ? resolved.body || "" : String(resolved);
 }
 
 // [SECTION 3: PROTOCOL PLANS — PURE DATA, NO XML]
@@ -205,7 +283,8 @@ export function resolve_protocol_plan({
 
   const pov_key = resolved_pov_protocol ? String(resolved_pov_protocol).split(".").pop() : null;
   const perspective = PROTOCOL_LIBRARY.CORE_PROTOCOLS.PERSPECTIVE;
-  const pov_body = pov_key ? perspective.POV[pov_key] || "" : "";
+  const pov_atom = pov_key ? perspective.POV[pov_key] : null;
+  const pov_body = pov_atom ? (typeof pov_atom === "object" ? pov_atom.body : String(pov_atom)) : "";
   const person = pov_key ? (pov_key === "FIRST" ? "FIRST" : "THIRD") : null;
 
   const is_specially_laid_out = (protocol_key) =>
@@ -223,10 +302,17 @@ export function resolve_protocol_plan({
     .filter(Boolean);
 
   const layer_tense_keys = protocol_list.filter((protocol_key) => String(protocol_key).startsWith("CORE_PROTOCOLS.PERSPECTIVE.TENSE."));
-  const layer_tense_rules = layer_tense_keys.map((protocol_key) => perspective.TENSE[String(protocol_key).split(".").pop()]).filter(Boolean);
+  const layer_tense_rules = layer_tense_keys
+    .map((protocol_key) => {
+      const item = perspective.TENSE[String(protocol_key).split(".").pop()];
+      return item ? (typeof item === "object" ? item.body : String(item)) : null;
+    })
+    .filter(Boolean);
 
   const perspective_tense =
     layer_tense_rules.length > 1 ? "LAYER" : layer_tense_rules.length === 1 ? String(layer_tense_keys[0]).split(".").pop() : "PRESENT";
+  const default_present_atom = perspective.TENSE.PRESENT;
+  const default_present_body = typeof default_present_atom === "object" ? default_present_atom.body : String(default_present_atom);
   const tense_command =
     layer_tense_rules.length > 1
       ? `Match tense to the layer being written: ${layer_tense_rules
@@ -236,12 +322,12 @@ export function resolve_protocol_plan({
               .replace(/^[A-Z]/, (letter) => letter.toLowerCase()),
           )
           .join("; ")}.`
-      : layer_tense_rules[0] || (should_include("TENSE.PRESENT") ? perspective.TENSE.PRESENT : "");
+      : layer_tense_rules[0] || (should_include("TENSE.PRESENT") ? default_present_body : "");
 
   const core = PROTOCOL_LIBRARY.CORE_PROTOCOLS;
   const disciplines = Object.entries(core.PROSE_DISCIPLINE)
     .filter(([tag]) => should_include(`PROSE_DISCIPLINE.${tag}`))
-    .map(([tag, body]) => ({ tag, body }));
+    .map(([tag, atom]) => ({ tag, body: typeof atom === "object" ? atom.body : String(atom) }));
 
   const active_visual_style = visual_style || (Object.keys(engine_tokens).length > 0 ? style : null);
   const style_kind = active_visual_style ? "visual" : "narrative";

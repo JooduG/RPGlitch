@@ -790,7 +790,7 @@ describe("metasyntax gate — compiled prompt hygiene", () => {
 
   it("confines @-tokens to bracket directives and macro rules", () => {
     const compiled = compile_all();
-    const macro_bodies = Object.values(PROTOCOL_LIBRARY.MACROS);
+    const macro_bodies = Object.values(PROTOCOL_LIBRARY.MACROS).map((atom) => (typeof atom === "string" ? atom : (atom?.body ?? "")));
     const violations = [];
     for (const [mode_name, system] of Object.entries(compiled)) {
       const decoded = decode_entities(system);

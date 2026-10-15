@@ -257,9 +257,10 @@ describe("Parameter-Aware Layer 7 Output Format Routing", () => {
 describe("Protocol Invariants & Remediation Regression Gates", () => {
   it("maintains image vocabulary in PROTOCOL_LIBRARY.OPTICS", () => {
     expect(PROTOCOL_LIBRARY.OPTICS.IMAGE_VOCABULARY).toBeDefined();
-    expect(typeof PROTOCOL_LIBRARY.OPTICS.IMAGE_VOCABULARY).toBe("string");
-    expect(PROTOCOL_LIBRARY.OPTICS.IMAGE_VOCABULARY).toContain("Describe positive presence in frame");
-    expect(PROTOCOL_LIBRARY.OPTICS.IMAGE_VOCABULARY).toContain("FLUX_T5_WEIGHTING");
+    expect(typeof PROTOCOL_LIBRARY.OPTICS.IMAGE_VOCABULARY).toBe("object");
+    expect(PROTOCOL_LIBRARY.OPTICS.IMAGE_VOCABULARY.tag).toBe("IMAGE_VOCABULARY");
+    expect(PROTOCOL_LIBRARY.OPTICS.IMAGE_VOCABULARY.body).toContain("Describe positive presence in frame");
+    expect(PROTOCOL_LIBRARY.OPTICS.IMAGE_VOCABULARY.body).toContain("FLUX_T5_WEIGHTING");
   });
 
   it("maintains permissive clause in CONSTITUTION.FIDELITY", () => {

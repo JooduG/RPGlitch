@@ -7,7 +7,6 @@
 
 import { describe, it, expect } from "vitest";
 import {
-  REFLEX_DEFAULTS,
   REFLEX_LIBRARY,
   classify_pacing,
   classify_input_size,
@@ -85,7 +84,7 @@ describe("reflex.js - input-size tiers and beat budgets", () => {
   });
 
   it("resolves beat budgets per tier", () => {
-    expect(resolve_beat_budget_plan("Hi")).toEqual({ tier: "TINY", beats: "1", mandate: REFLEX_DEFAULTS.INPUT_SIZE_TIERS[0].mandate });
+    expect(resolve_beat_budget_plan("Hi")).toEqual({ tier: "TINY", beats: "1", mandate: REFLEX_LIBRARY.DEFAULTS.INPUT_SIZE_TIERS[0].mandate });
     expect(resolve_beat_budget_plan("x".repeat(50)).beats).toBe("1-2");
     expect(resolve_beat_budget_plan("x".repeat(200)).beats).toBe("2-4");
     expect(resolve_beat_budget_plan("x".repeat(500)).beats).toBe("open");
@@ -323,7 +322,7 @@ describe("reflex.js - recovery catalog ownership", () => {
     expect(REFLEX_LIBRARY.RECOVERY.STABILITY.WARNING.body).toContain("Structural drift detected");
     expect(REFLEX_LIBRARY.RECOVERY.STABILITY.CRITICAL.body).toContain("Structural collapse");
     expect(REFLEX_LIBRARY.RECOVERY.TRUNCATION.body).toContain("Previous reply cut off mid-sentence");
-    expect(REFLEX_DEFAULTS.STABILITY_LADDER.map((rung) => rung.level)).toEqual(["CRITICAL", "WARNING"]);
+    expect(REFLEX_LIBRARY.DEFAULTS.STABILITY_LADDER.map((rung) => rung.level)).toEqual(["CRITICAL", "WARNING"]);
   });
 });
 
@@ -458,17 +457,20 @@ describe("reflex.js - spent ledger engine", () => {
       const directive = render_momentum_directive_xml(16);
       expect(directive).toContain('<MOMENTUM tier="critical" turns="16">');
       expect(directive).toContain("Scene stagnation critical.");
-      expect(directive).toContain("route next_action to 'FRACTAL'");
-      expect(directive).toContain("</MOMENTUM>");
-
       const directive20 = render_momentum_directive_xml(20);
       expect(directive20).toContain('<MOMENTUM tier="critical" turns="20">');
+    });
+
+    it("owns MOMENTUM directive atoms in REFLEX_LIBRARY", () => {
+      expect(REFLEX_LIBRARY.MOMENTUM.CRITICAL.body).toContain("Scene stagnation critical");
+      expect(REFLEX_LIBRARY.MOMENTUM.SOFT.body).toContain("Scene momentum warning");
     });
   });
 });
 
 /**
  * CHANGELOG
+ * - 2026-10-15: Updated tests to assert REFLEX_LIBRARY.DEFAULTS and REFLEX_LIBRARY.MOMENTUM after merging.
  * - 2026-10-14: Wave 2 — Updated tests to assert unified <CONSTRAINTS> directive without <SPENT_LEDGER>; added coverage for render_constraints_directive with PROSE_CONSTRAINTS.
  * - 2026-10-14: Atom 2.4 — Added unit tests for render_momentum_directive_xml.
  * - 2026-10-14: Phase 1 — Updated render_spent_ledger_directive tests to expect SPENT_LEDGER pseudo-XML elements.

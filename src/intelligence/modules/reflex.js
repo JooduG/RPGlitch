@@ -25,78 +25,89 @@
  * ============================================================================
  */
 
-import { prompt_escape, render_xml_tag, has_alternations, resolve_catalog_atom, strip_cognition_blocks, collapse_whitespace } from "@utils";
+import {
+  prompt_escape,
+  render_atom_xml,
+  render_xml_tag,
+  has_alternations,
+  resolve_catalog_atom,
+  strip_cognition_blocks,
+  collapse_whitespace,
+} from "@utils";
 
 // ============================================================================
-// [SECTION 1: REFLEX DEFAULTS — FROZEN CALIBRATION CONFIG]
-// ============================================================================
-
-/**
- * Frozen calibration config: pacing selection rules (first match wins, walked
- * in order with an ADAPTIVE fallback tail), stability escalation rungs (first
- * match wins, ordered most-severe first), input-signal detectors, and the
- * precedence order environmental-hint signals resolve in. Tuning calibration
- * is a data edit here — never a renderer edit.
- */
-export const REFLEX_DEFAULTS = Object.freeze({
-  PACING_RULES: Object.freeze([
-    Object.freeze({ level: "EXPANSIVE", at_least: Object.freeze({ chars: 300, words: 60 }) }),
-    Object.freeze({ level: "TERSE", at_most: Object.freeze({ chars: 40, words: 8 }) }),
-  ]),
-  STABILITY_LADDER: Object.freeze([Object.freeze({ at: 3, level: "CRITICAL" }), Object.freeze({ at: 1, level: "WARNING" })]),
-  INPUT_SIZE_TIERS: Object.freeze([
-    Object.freeze({
-      tier: "TINY",
-      at_most_chars: 12,
-      beats: "1",
-      mandate: "Reply in exactly 1 beat — a fragment, a single line, or a single action. Zero padding.",
-    }),
-    Object.freeze({ tier: "SMALL", at_most_chars: 90, beats: "1-2", mandate: "Reply in 1-2 sharp beats. No unprompted exposition." }),
-    Object.freeze({ tier: "MEDIUM", at_most_chars: 400, beats: "2-4", mandate: "Reply in 2-4 beats, proportionate to «INPUT» breadth." }),
-    Object.freeze({ tier: "EXPANSIVE", at_most_chars: Infinity, beats: "open", mandate: "Match «INPUT» breadth; close on one decisive hook." }),
-  ]),
-  PAUSE_MARKERS: /(\.\.\.|…|\(silence\)|\(pause\)|\bsays nothing\b|\bremains silent\b|\bno response\b|\bno answer\b)/i,
-  MOMENTUM_TIERS: Object.freeze({
-    SOFT_PERMIT_THRESHOLD: 8,
-    HARD_MANDATE_THRESHOLD: 16,
-    DRIFT_STAGNATION_THRESHOLD: 0.15,
-  }),
-  DETECTORS: Object.freeze({
-    DIALOGUE_QUOTES: /["'“”‘’]/,
-    ACTION_VERBS:
-      /\b(?:approach|ascend|bend|circle|climb|close|dash|descend|draw|draws|edge|enter|examine|follow|gaze|grab|grabs|gripp?|halt|kneel|leap|linger|listen|lower|move|nod|nods|observe|open|opens|pause|peer|press|pull|pulls|push|pushes|raise|raises|reach|rest|run|say|says|scan|set|settle|shake|shakes|shout|shouts|sit|sits|slam|slip|smell|stand|stands|stare|step|steps|strike|study|sweep|swing|take|takes|trail|turn|turns|wait|walk|watch|whisper|whispers)\b/i,
-    SPATIAL_NOUNS:
-      /\b(?:alcove|alley|altar|arch|belly|bridge|cave|ceiling|chamber|column|conduit|corridor|court|crevice|cylinder|deeps|door|field|floor|forest|gate|gear|hall|keep|ledge|light|lock|mechanism|mouth|passage|rain|river|rock|room|seal|shadow|sky|spillway|stair|stone|street|threshold|tower|tunnel|vault|wall|water|wheel|wind|window|yard)\b/i,
-  }),
-  HINT_SIGNALS: Object.freeze([
-    Object.freeze({ reason: "verb", detector: "ACTION_VERBS" }),
-    Object.freeze({ reason: "noun", detector: "SPATIAL_NOUNS" }),
-  ]),
-});
-
-// ============================================================================
-// [SECTION 2: REFLEX CATALOG — PACING, RHYTHM, DRIVE & CONDITIONALS]
+// [SECTION 1: REFLEX CATALOG & CALIBRATION DEFAULTS]
 // ============================================================================
 
 /**
  * Normalized reflex catalog: every atom is a bare body ({tag,body} records for
- * XML-wrapped atoms). Envelope wrapping is renderer-owned (Section 5), so atoms stay retaggable without
+ * XML-wrapped atoms). Calibration defaults live under `REFLEX_LIBRARY.DEFAULTS`.
+ * Envelope wrapping is renderer-owned (Section 5), so atoms stay retaggable without
  * rewording, and every sentence is individually manifest-addressable.
  */
 export const REFLEX_LIBRARY = Object.freeze({
-  DEFAULTS: REFLEX_DEFAULTS,
+  DEFAULTS: Object.freeze({
+    PACING_RULES: Object.freeze([
+      Object.freeze({ level: "EXPANSIVE", at_least: Object.freeze({ chars: 300, words: 60 }) }),
+      Object.freeze({ level: "TERSE", at_most: Object.freeze({ chars: 40, words: 8 }) }),
+    ]),
+    STABILITY_LADDER: Object.freeze([Object.freeze({ at: 3, level: "CRITICAL" }), Object.freeze({ at: 1, level: "WARNING" })]),
+    INPUT_SIZE_TIERS: Object.freeze([
+      Object.freeze({
+        tier: "TINY",
+        at_most_chars: 12,
+        beats: "1",
+        mandate: "Reply in exactly 1 beat — a fragment, a single line, or a single action. Zero padding.",
+      }),
+      Object.freeze({ tier: "SMALL", at_most_chars: 90, beats: "1-2", mandate: "Reply in 1-2 sharp beats. No unprompted exposition." }),
+      Object.freeze({ tier: "MEDIUM", at_most_chars: 400, beats: "2-4", mandate: "Reply in 2-4 beats, proportionate to «INPUT» breadth." }),
+      Object.freeze({ tier: "EXPANSIVE", at_most_chars: Infinity, beats: "open", mandate: "Match «INPUT» breadth; close on one decisive hook." }),
+    ]),
+    PAUSE_MARKERS: /(\.\.\.|…|\(silence\)|\(pause\)|\bsays nothing\b|\bremains silent\b|\bno response\b|\bno answer\b)/i,
+    MOMENTUM_TIERS: Object.freeze({
+      SOFT_PERMIT_THRESHOLD: 8,
+      HARD_MANDATE_THRESHOLD: 16,
+      DRIFT_STAGNATION_THRESHOLD: 0.15,
+    }),
+    DETECTORS: Object.freeze({
+      DIALOGUE_QUOTES: /["'“”‘’]/,
+      ACTION_VERBS:
+        /\b(?:approach|ascend|bend|circle|climb|close|dash|descend|draw|draws|edge|enter|examine|follow|gaze|grab|grabs|gripp?|halt|kneel|leap|linger|listen|lower|move|nod|nods|observe|open|opens|pause|peer|press|pull|pulls|push|pushes|raise|raises|reach|rest|run|say|says|scan|set|settle|shake|shakes|shout|shouts|sit|sits|slam|slip|smell|stand|stands|stare|step|steps|strike|study|sweep|swing|take|takes|trail|turn|turns|wait|walk|watch|whisper|whispers)\b/i,
+      SPATIAL_NOUNS:
+        /\b(?:alcove|alley|altar|arch|belly|bridge|cave|ceiling|chamber|column|conduit|corridor|court|crevice|cylinder|deeps|door|field|floor|forest|gate|gear|hall|keep|ledge|light|lock|mechanism|mouth|passage|rain|river|rock|room|seal|shadow|sky|spillway|stair|stone|street|threshold|tower|tunnel|vault|wall|water|wheel|wind|window|yard)\b/i,
+    }),
+    HINT_SIGNALS: Object.freeze([
+      Object.freeze({ reason: "verb", detector: "ACTION_VERBS" }),
+      Object.freeze({ reason: "noun", detector: "SPATIAL_NOUNS" }),
+    ]),
+  }),
   CONSTRAINTS: Object.freeze({
-    OVERARCHING_QUESTS: "Never resolve macro scenario mysteries, unearned feats, or declare final victory in standard dialogue turns.",
-    SYNTHETIC_FORMULAS:
-      "Denial-then-affirmation ('X did not just Y; it Z\\'d'), antithetical formulas ('Not X, but Y'), symmetrical binary comparisons, appositive dialogue sound tags, and formulaic action-dialogue sandwiches.",
-    CLICHES:
-      "'spoke volumes', 'a testament to', 'tapestry of', 'shivers down the spine', 'unspoken understanding', 'dance of shadows', and Wattpad dominance tropes ('feisty', 'playing with fire', 'death of me', 'mine').",
+    OVERARCHING_QUESTS: Object.freeze({
+      tag: "OVERARCHING_QUESTS",
+      body: "Never resolve macro scenario mysteries, unearned feats, or declare final victory in standard dialogue turns.",
+    }),
+    SYNTHETIC_FORMULAS: Object.freeze({
+      tag: "SYNTHETIC_FORMULAS",
+      body: "Denial-then-affirmation ('X did not just Y; it Z\\'d'), antithetical formulas ('Not X, but Y'), symmetrical binary comparisons, appositive dialogue sound tags, and formulaic action-dialogue sandwiches.",
+    }),
+    CLICHES: Object.freeze({
+      tag: "CLICHES",
+      body: "'spoke volumes', 'a testament to', 'tapestry of', 'shivers down the spine', 'unspoken understanding', 'dance of shadows', and Wattpad dominance tropes ('feisty', 'playing with fire', 'death of me', 'mine').",
+    }),
   }),
   DIRECTOR_CONSTRAINTS: Object.freeze({
-    LETHALITY:
-      'Never hallucinate physical survival, bypass consequence, or continue casual dialogue across fatal events. Emit next_action: "EPILOGUE_COLLAPSED" and story_status: "COLLAPSED" strictly on definitive death.',
-    AGENCY: "Never author dialogue, actions, thoughts, or decisions for «USER_PERSONA» in directors_note.",
-    GENESIS: "Do not mint new secondary characters when existing candidates, companion, or fractal can act.",
+    LETHALITY: Object.freeze({
+      tag: "LETHALITY",
+      body: 'Never hallucinate physical survival, bypass consequence, or continue casual dialogue across fatal events. Emit next_action: "EPILOGUE_COLLAPSED" and story_status: "COLLAPSED" strictly on definitive death.',
+    }),
+    AGENCY: Object.freeze({
+      tag: "AGENCY",
+      body: "Never author dialogue, actions, thoughts, or decisions for «USER_PERSONA» in directors_note.",
+    }),
+    GENESIS: Object.freeze({
+      tag: "GENESIS",
+      body: "Do not mint new secondary characters when existing candidates, companion, or fractal can act.",
+    }),
   }),
   PACING: Object.freeze({
     // Trigger condition: User input is <= 40 characters or <= 8 words.
@@ -185,6 +196,19 @@ export const REFLEX_LIBRARY = Object.freeze({
     }),
   }),
 
+  MOMENTUM: Object.freeze({
+    CRITICAL: Object.freeze({
+      tag: "MOMENTUM",
+      tier: "critical",
+      body: "Scene stagnation critical. Forbid continuing static conversation in the same room. You MUST route next_action to 'FRACTAL' to force an environmental event/transit, or introduce a third-party arrival via 'npc:<id>' / 'GENESIS'.",
+    }),
+    SOFT: Object.freeze({
+      tag: "MOMENTUM",
+      tier: "soft",
+      body: "Scene momentum warning. Interaction has lingered in the same loop. Cease passive holding. Steer the next speaker to introduce physical activity, change topic, or escalate.",
+    }),
+  }),
+
   RECOVERY: Object.freeze({
     STABILITY: Object.freeze({
       // Trigger condition: Moderate structural drift or unclosed XML tag detected (structural_errors === 1 || 2).
@@ -219,7 +243,7 @@ export function classify_pacing(input) {
   const text = String(input || "").trim();
   const chars = text.length;
   const words = text ? text.split(/\s+/).filter(Boolean).length : 0;
-  const hit = REFLEX_DEFAULTS.PACING_RULES.find(
+  const hit = REFLEX_LIBRARY.DEFAULTS.PACING_RULES.find(
     (rule) =>
       (rule.at_least && (chars >= rule.at_least.chars || words >= rule.at_least.words)) ||
       (rule.at_most && (chars <= rule.at_most.chars || words <= rule.at_most.words)),
@@ -238,8 +262,8 @@ export function classify_input_size(input) {
   const chars = text.length;
   const words = text ? text.split(/\s+/).filter(Boolean).length : 0;
   const hit =
-    REFLEX_DEFAULTS.INPUT_SIZE_TIERS.find((tier) => chars <= tier.at_most_chars) ||
-    REFLEX_DEFAULTS.INPUT_SIZE_TIERS[REFLEX_DEFAULTS.INPUT_SIZE_TIERS.length - 1];
+    REFLEX_LIBRARY.DEFAULTS.INPUT_SIZE_TIERS.find((tier) => chars <= tier.at_most_chars) ||
+    REFLEX_LIBRARY.DEFAULTS.INPUT_SIZE_TIERS[REFLEX_LIBRARY.DEFAULTS.INPUT_SIZE_TIERS.length - 1];
   return Object.freeze({ tier: hit.tier, chars, words });
 }
 
@@ -251,7 +275,7 @@ export function classify_input_size(input) {
  */
 export function resolve_beat_budget_plan(input) {
   const size = classify_input_size(input);
-  const tier = REFLEX_DEFAULTS.INPUT_SIZE_TIERS.find((candidate) => candidate.tier === size.tier);
+  const tier = REFLEX_LIBRARY.DEFAULTS.INPUT_SIZE_TIERS.find((candidate) => candidate.tier === size.tier);
   return Object.freeze({ tier: size.tier, beats: tier.beats, mandate: tier.mandate });
 }
 
@@ -315,7 +339,7 @@ export function is_stream_beat_limit_reached(prose, tier) {
  * @returns {Readonly<{ hit: boolean, reason: "blank"|"no-quotes"|"has-action-verbs"|"too-long"|"terse-dialogue" }>}
  */
 export function detect_staged_dialogue_turn(input) {
-  const defaults = REFLEX_DEFAULTS;
+  const defaults = REFLEX_LIBRARY.DEFAULTS;
   if (!input?.trim()) return Object.freeze({ hit: false, reason: "blank" });
   if (!defaults.DETECTORS.DIALOGUE_QUOTES.test(input)) return Object.freeze({ hit: false, reason: "no-quotes" });
   if (defaults.DETECTORS.ACTION_VERBS.test(input)) return Object.freeze({ hit: false, reason: "has-action-verbs" });
@@ -333,7 +357,7 @@ export function detect_staged_dialogue_turn(input) {
  */
 export function detect_held_moment(input) {
   if (!input?.trim()) return Object.freeze({ hit: false, reason: "blank" });
-  if (!REFLEX_DEFAULTS.PAUSE_MARKERS.test(input)) return Object.freeze({ hit: false, reason: "no-pause-marker" });
+  if (!REFLEX_LIBRARY.DEFAULTS.PAUSE_MARKERS.test(input)) return Object.freeze({ hit: false, reason: "no-pause-marker" });
   return Object.freeze({ hit: true, reason: "held-pause" });
 }
 
@@ -345,7 +369,7 @@ export function detect_held_moment(input) {
  * @returns {Readonly<{ hit: boolean, reason: "blank"|"quotes"|"no-signal"|"verb"|"noun" }>}
  */
 export function detect_environmental_hint(input) {
-  const defaults = REFLEX_DEFAULTS;
+  const defaults = REFLEX_LIBRARY.DEFAULTS;
   if (!input?.trim()) return Object.freeze({ hit: false, reason: "blank" });
   if (defaults.DETECTORS.DIALOGUE_QUOTES.test(input)) return Object.freeze({ hit: false, reason: "quotes" });
   const signal = defaults.HINT_SIGNALS.find((candidate) => defaults.DETECTORS[candidate.detector].test(input));
@@ -373,9 +397,9 @@ export function resolve_prose_posture_plan(snapshot, input, { has_input = Boolea
   const rhythm_body = snapshot?.style_dna?.rhythm || "";
   const drive_key = has_input ? "WITH_INPUT" : "WITHOUT_INPUT";
   const stagnation = Math.max(0, Number(stagnation_turns) || 0);
-  const is_soft_permit =
-    stagnation >= REFLEX_DEFAULTS.MOMENTUM_TIERS.SOFT_PERMIT_THRESHOLD && stagnation < REFLEX_DEFAULTS.MOMENTUM_TIERS.HARD_MANDATE_THRESHOLD;
-  const is_hard_mandate = stagnation >= REFLEX_DEFAULTS.MOMENTUM_TIERS.HARD_MANDATE_THRESHOLD;
+  const tiers = REFLEX_LIBRARY.DEFAULTS.MOMENTUM_TIERS;
+  const is_soft_permit = stagnation >= tiers.SOFT_PERMIT_THRESHOLD && stagnation < tiers.HARD_MANDATE_THRESHOLD;
+  const is_hard_mandate = stagnation >= tiers.HARD_MANDATE_THRESHOLD;
   return Object.freeze({
     pacing,
     beat_budget,
@@ -385,7 +409,7 @@ export function resolve_prose_posture_plan(snapshot, input, { has_input = Boolea
     }),
     drive: Object.freeze({ kind: has_input ? "with_input" : "without_input", body: REFLEX_LIBRARY.DRIVE[drive_key].body }),
     constraints: Object.freeze({
-      anti_staging: stagnation >= REFLEX_DEFAULTS.MOMENTUM_TIERS.SOFT_PERMIT_THRESHOLD ? false : detect_staged_dialogue_turn(input).hit,
+      anti_staging: stagnation >= tiers.SOFT_PERMIT_THRESHOLD ? false : detect_staged_dialogue_turn(input).hit,
       held_moment: detect_held_moment(input).hit,
       momentum_soft_permit: is_soft_permit,
       momentum_hard_mandate: is_hard_mandate,
@@ -403,7 +427,7 @@ export function resolve_prose_posture_plan(snapshot, input, { has_input = Boolea
  */
 export function resolve_stability_plan(metadata) {
   const errors = Number(metadata?.structural_errors) || 0;
-  const rung = REFLEX_DEFAULTS.STABILITY_LADDER.find((candidate) => errors >= candidate.at);
+  const rung = REFLEX_LIBRARY.DEFAULTS.STABILITY_LADDER.find((candidate) => errors >= candidate.at);
   return Object.freeze({ level: rung ? rung.level : "NONE", errors });
 }
 
@@ -592,23 +616,22 @@ export function resolve_stability_lock(metadata) {
  */
 export function render_momentum_directive_xml(stagnation_turns = 0) {
   const count = Math.max(0, Number(stagnation_turns) || 0);
-  if (count >= REFLEX_DEFAULTS.MOMENTUM_TIERS.HARD_MANDATE_THRESHOLD) {
+  const tiers = REFLEX_LIBRARY.DEFAULTS.MOMENTUM_TIERS;
+  if (count >= tiers.HARD_MANDATE_THRESHOLD) {
+    const atom = REFLEX_LIBRARY.MOMENTUM.CRITICAL;
     return render_xml_tag({
-      tag: "MOMENTUM",
-      attrs: { tier: "critical", turns: String(count) },
-      children: [
-        "Scene stagnation critical. Forbid continuing static conversation in the same room. You MUST route next_action to 'FRACTAL' to force an environmental event/transit, or introduce a third-party arrival via 'npc:<id>' / 'GENESIS'.",
-      ],
+      tag: atom.tag,
+      attrs: { tier: atom.tier, turns: String(count) },
+      children: [atom.body],
       child_indent: 2,
     });
   }
-  if (count >= REFLEX_DEFAULTS.MOMENTUM_TIERS.SOFT_PERMIT_THRESHOLD) {
+  if (count >= tiers.SOFT_PERMIT_THRESHOLD) {
+    const atom = REFLEX_LIBRARY.MOMENTUM.SOFT;
     return render_xml_tag({
-      tag: "MOMENTUM",
-      attrs: { tier: "soft", turns: String(count) },
-      children: [
-        "Scene momentum warning. Interaction has lingered in the same loop. Cease passive holding. Steer the next speaker to introduce physical activity, change topic, or escalate.",
-      ],
+      tag: atom.tag,
+      attrs: { tier: atom.tier, turns: String(count) },
+      children: [atom.body],
       child_indent: 2,
     });
   }
@@ -715,10 +738,10 @@ export function extract_spent_ledger(messages, options = {}) {
 }
 
 export const PROSE_CONSTRAINTS = Object.freeze({
-  QUESTS: REFLEX_LIBRARY.CONSTRAINTS.OVERARCHING_QUESTS,
-  OVERARCHING_QUESTS: REFLEX_LIBRARY.CONSTRAINTS.OVERARCHING_QUESTS,
-  SYNTHETIC_FORMULAS: REFLEX_LIBRARY.CONSTRAINTS.SYNTHETIC_FORMULAS,
-  CLICHES: REFLEX_LIBRARY.CONSTRAINTS.CLICHES,
+  QUESTS: REFLEX_LIBRARY.CONSTRAINTS.OVERARCHING_QUESTS.body,
+  OVERARCHING_QUESTS: REFLEX_LIBRARY.CONSTRAINTS.OVERARCHING_QUESTS.body,
+  SYNTHETIC_FORMULAS: REFLEX_LIBRARY.CONSTRAINTS.SYNTHETIC_FORMULAS.body,
+  CLICHES: REFLEX_LIBRARY.CONSTRAINTS.CLICHES.body,
 });
 
 /**
@@ -733,9 +756,9 @@ export function render_constraints_directive(spent_ledger = null, { include_stat
   const items = [];
   if (include_static) {
     items.push(
-      render_xml_tag({ tag: "OVERARCHING_QUESTS", children: [REFLEX_LIBRARY.CONSTRAINTS.OVERARCHING_QUESTS], inline: true }),
-      render_xml_tag({ tag: "SYNTHETIC_FORMULAS", children: [REFLEX_LIBRARY.CONSTRAINTS.SYNTHETIC_FORMULAS], inline: true }),
-      render_xml_tag({ tag: "CLICHES", children: [REFLEX_LIBRARY.CONSTRAINTS.CLICHES], inline: true }),
+      render_atom_xml(REFLEX_LIBRARY.CONSTRAINTS.OVERARCHING_QUESTS, { inline: true }),
+      render_atom_xml(REFLEX_LIBRARY.CONSTRAINTS.SYNTHETIC_FORMULAS, { inline: true }),
+      render_atom_xml(REFLEX_LIBRARY.CONSTRAINTS.CLICHES, { inline: true }),
     );
   }
   if (spent_ledger && Array.isArray(spent_ledger.spent_items) && spent_ledger.spent_items.length > 0) {
@@ -760,9 +783,9 @@ export function render_constraints_directive(spent_ledger = null, { include_stat
 export function render_director_constraints_directive() {
   const constraints = REFLEX_LIBRARY.DIRECTOR_CONSTRAINTS;
   const items = [
-    render_xml_tag({ tag: "LETHALITY", children: [constraints.LETHALITY], inline: true }),
-    render_xml_tag({ tag: "AGENCY", children: [constraints.AGENCY], inline: true }),
-    render_xml_tag({ tag: "GENESIS", children: [constraints.GENESIS], inline: true }),
+    render_atom_xml(constraints.LETHALITY, { inline: true }),
+    render_atom_xml(constraints.AGENCY, { inline: true }),
+    render_atom_xml(constraints.GENESIS, { inline: true }),
   ];
   return render_xml_tag({
     tag: "CONSTRAINTS",
@@ -789,6 +812,7 @@ export function render_spent_ledger_directive(spent_ledger, { include_static = f
 
 /**
  * CHANGELOG
+ * - 2026-10-15: Merged REFLEX_DEFAULTS calibration config into REFLEX_LIBRARY.DEFAULTS; added MOMENTUM directives to REFLEX_LIBRARY.MOMENTUM; refactored render_momentum_directive_xml into a thin renderer reading from REFLEX_LIBRARY.
  * - 2026-10-14: Merged REFLEX_DEFAULTS, PROSE_CONSTRAINTS, and DIRECTOR_CONSTRAINTS into REFLEX_LIBRARY; updated render_constraints_directive to emit specific semantic tags (<OVERARCHING_QUESTS>, <SYNTHETIC_FORMULAS>, <CLICHES>, <EXHAUSTED_OPENINGS>); exported render_director_constraints_directive.
  * - 2026-10-14: Wave 2 — Exported PROSE_CONSTRAINTS and render_constraints_directive, unifying overarching quests, synthetic formulas, cliché clusters, and exhausted phrasing into clean <CONSTRAINTS> without double negatives; retired <SPENT_LEDGER> wrapper.
  * - 2026-10-14: Atom 2.4 — exported render_momentum_directive_xml(stagnation_turns) emitting typed <MOMENTUM> XML directive for soft (>=8) and critical (>=16) stagnation thresholds.

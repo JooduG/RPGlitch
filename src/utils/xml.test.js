@@ -1,5 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { clean_xml, CLOTHING_KEYS, dedent_all, escape_xml, physical_to_xml, prompt_escape, render_xml_tag, strip_leading_key_echo } from "./xml.js";
+import {
+  clean_xml,
+  CLOTHING_KEYS,
+  dedent_all,
+  escape_xml,
+  prompt_escape,
+  render_atom_xml,
+  render_profile_field_block,
+  render_xml_tag,
+  strip_leading_key_echo,
+} from "./xml.js";
 
 describe("escape_xml", () => {
   it("escapes special characters including quotes and brackets", () => {
@@ -28,27 +38,74 @@ describe("prompt_escape", () => {
   });
 });
 
-describe("physical_to_xml", () => {
-  it("converts raw prose into a single XML text node", () => {
-    const prose = "Tall, athletic build with silver hair.";
-    const xml = physical_to_xml(prose, "PHYSICAL");
-    expect(xml).toBe("  <PHYSICAL>Tall, athletic build with silver hair.</PHYSICAL>");
+describe("render_atom_xml", () => {
+  it("renders a direct atom with default tag envelope", () => {
+    const atom = { tag: "DIRECTIVE", body: "Advance the scene independently." };
+    const xml = render_atom_xml(atom);
+    expect(xml).toBe("<DIRECTIVE>\nAdvance the scene independently.\n</DIRECTIVE>");
   });
 
-  it("converts structured pseudo-JSON into child tags", () => {
-    const pseudo = "[SHIRT: white tunic] [PANTS: black trousers] [INVENTORY: dagger, map]";
-    const xml = physical_to_xml(pseudo, "PRESENT");
-    expect(xml).toContain("  <PRESENT>");
-    expect(xml).toContain("    <SHIRT>white tunic</SHIRT>");
-    expect(xml).toContain("    <PANTS>black trousers</PANTS>");
-    expect(xml).toContain("    <INVENTORY>dagger, map</INVENTORY>");
-    expect(xml).toContain("  </PRESENT>");
+  it("renders direct atom with inline: true", () => {
+    const atom = { tag: "LAW", body: "Causality first.", attrs: { id: "L1" }, inline: true };
+    const xml = render_atom_xml(atom);
+    expect(xml).toBe('<LAW id="L1">Causality first.</LAW>');
   });
 
-  it("returns empty string on empty inputs", () => {
-    expect(physical_to_xml(null, "PHYSICAL")).toBe("");
-    expect(physical_to_xml("", "PHYSICAL")).toBe("");
-    expect(physical_to_xml({}, "PHYSICAL")).toBe("");
+  it("interpolates tokens in atom body", () => {
+    const atom = { tag: "ROLE", body: "You are {name} within {setting}." };
+    const xml = render_atom_xml(atom, { values: { name: "Silvers", setting: "Tartarus" } });
+    expect(xml).toContain("You are Silvers within Tartarus.");
+  });
+
+  it("supports body_only: true to return raw prompt text", () => {
+    const atom = { tag: "DIRECTIVE", body: "Raw instruction without tag." };
+    const text = render_atom_xml(atom, { body_only: true });
+    expect(text).toBe("Raw instruction without tag.");
+    expect(text).not.toContain("<DIRECTIVE>");
+  });
+
+  it("supports catalog lookup with dotted key", () => {
+    const catalog = {
+      MOMENTUM: {
+        CRITICAL: { tag: "MOMENTUM", body: "Force dynamic change now.", attrs: { tier: "critical" } },
+      },
+    };
+    const xml = render_atom_xml(catalog, "MOMENTUM.CRITICAL");
+    expect(xml).toContain('<MOMENTUM tier="critical">');
+    expect(xml).toContain("Force dynamic change now.");
+  });
+
+  it("allows tag override and attribute merging", () => {
+    const atom = { tag: "BASE_TAG", body: "Directive body", attrs: { original: "true" } };
+    const xml = render_atom_xml(atom, { tag: "CUSTOM_TAG", attrs: { added: "yes" } });
+    expect(xml).toContain('<CUSTOM_TAG original="true" added="yes">');
+    expect(xml).toContain("</CUSTOM_TAG>");
+  });
+
+  it("returns empty string on missing atom or invalid key", () => {
+    expect(render_atom_xml(null)).toBe("");
+    expect(render_atom_xml({}, "INVALID.KEY")).toBe("");
+  });
+});
+
+describe("render_profile_field_block", () => {
+  it("renders self-closing tag when all rows are compacted attributes", () => {
+    const rows = ['build="athletic"', 'hair="black"'];
+    const xml = render_profile_field_block("APPEARANCE", rows);
+    expect(xml).toBe('<APPEARANCE build="athletic" hair="black" />');
+  });
+
+  it("renders open and close tags when child elements exist", () => {
+    const rows = ['jacket="worn leather"', "<SCARS>Deep scar on jaw</SCARS>"];
+    const xml = render_profile_field_block("CURRENT_LOOK", rows);
+    expect(xml).toContain('<CURRENT_LOOK jacket="worn leather">');
+    expect(xml).toContain("  <SCARS>Deep scar on jaw</SCARS>");
+    expect(xml).toContain("</CURRENT_LOOK>");
+  });
+
+  it("returns null on empty rows", () => {
+    expect(render_profile_field_block("APPEARANCE", [])).toBeNull();
+    expect(render_profile_field_block("APPEARANCE", null)).toBeNull();
   });
 });
 
@@ -59,46 +116,6 @@ describe("CLOTHING_KEYS", () => {
     expect(CLOTHING_KEYS).toContain("ARMOR");
     expect(CLOTHING_KEYS).toContain("CLOTHING");
     expect(Object.isFrozen(CLOTHING_KEYS)).toBe(true);
-  });
-});
-
-describe("physical state key canonicalization", () => {
-  it("remaps non-canonical aliases to canonical keys", () => {
-    const xml = physical_to_xml("[SOMA: coiled tension] [SHORTS: silk shorts] [POSE: leaning]", "PRESENT");
-    expect(xml).toContain("<SOMATIC>coiled tension</SOMATIC>");
-    expect(xml).toContain("<APPAREL>silk shorts</APPAREL>");
-    expect(xml).toContain("<POSTURE>leaning</POSTURE>");
-    expect(xml).not.toContain("<SOMA>");
-    expect(xml).not.toContain("<SHORTS>");
-    expect(xml).not.toContain("<POSE>");
-  });
-
-  it("lets a canonically-named key win over an aliased duplicate", () => {
-    const xml = physical_to_xml("[SHORTS: denim shorts] [APPAREL: tailored suit]", "PRESENT");
-    expect(xml).toContain("<APPAREL>tailored suit</APPAREL>");
-    expect((xml.match(/<APPAREL>/g) || []).length).toBe(1);
-    expect(xml).not.toContain("denim shorts");
-  });
-
-  it("strips an echoed KEY: prefix from its own value", () => {
-    const xml = physical_to_xml("[STATE: protective, possessive]", "PRESENT");
-    expect(xml).toContain("<STATE>protective, possessive</STATE>");
-  });
-
-  it("regression: does not leak a following key into the previous value", () => {
-    const raw = "HAIR: dark with silver streaks at the temples DENTAL FEATURES: perfectly white sharp fangs";
-    const xml = physical_to_xml(raw, "PRESENT");
-    expect(xml).toContain("<HAIR>dark with silver streaks at the temples</HAIR>");
-    expect(xml).toContain("<DENTAL_FEATURES>perfectly white sharp fangs</DENTAL_FEATURES>");
-    expect(xml).not.toContain("temples DENTAL");
-  });
-
-  it("regression: splits a following key swallowed inside a single bracket", () => {
-    const raw = "[HAIR: dark with silver streaks at the temples DENTAL FEATURES: perfectly white sharp fangs]";
-    const xml = physical_to_xml(raw, "PHYSICAL");
-    expect(xml).toContain("<HAIR>dark with silver streaks at the temples</HAIR>");
-    expect(xml).toContain("<DENTAL_FEATURES>perfectly white sharp fangs</DENTAL_FEATURES>");
-    expect(xml).not.toContain("temples DENTAL");
   });
 });
 

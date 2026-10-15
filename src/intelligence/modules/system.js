@@ -14,7 +14,7 @@
  * ============================================================================
  */
 
-import { render_xml_tag, resolve_catalog_atom } from "@utils";
+import { render_atom_xml, render_xml_tag } from "@utils";
 
 // ============================================================================
 // [SECTION 1: ROLE LIBRARY & RESOLUTION]
@@ -22,27 +22,35 @@ import { render_xml_tag, resolve_catalog_atom } from "@utils";
 
 export const ROLE_LIBRARY = Object.freeze({
   INTERACTION: Object.freeze({
+    tag: "ROLE",
     body: "You are {speaker_name} within FRACTAL {fractal_name}, interacting with {listener_name}.",
   }),
   NPC: Object.freeze({
+    tag: "ROLE",
     body: "You are {speaker_name}, a supporting character within FRACTAL {fractal_name}, interacting with {listener_name}.",
   }),
   NARRATOR: Object.freeze({
+    tag: "ROLE",
     body: "You are {speaker_name}, the Fractal itself, narrating the story.",
   }),
   DIRECTOR: Object.freeze({
+    tag: "ROLE",
     body: "You are the Director orchestrating simulation mechanics and staging.",
   }),
   CONTINUUM_CARETAKER: Object.freeze({
+    tag: "ROLE",
     body: 'You are the Continuum Caretaker for target entity "{target_name}". Consolidate temporal state from recent events.',
   }),
   NARRATIVE_STRUCTURER: Object.freeze({
+    tag: "ROLE",
     body: "You are the Narrative Structurer, extracting profile fragments from narrative prose.",
   }),
   ENHANCER: Object.freeze({
+    tag: "ROLE",
     body: "You are the {enhancer_name} Profile Enhancer, refining target profile dimensions.",
   }),
   SENSORY_CORTEX: Object.freeze({
+    tag: "ROLE",
     body: "You are the Sensory Cortex synthesizing visual staging and descriptive optics.",
   }),
 });
@@ -66,11 +74,11 @@ export const ROLE_DEFAULTS = Object.freeze({
 export function get_role_atom(role_key = "INTERACTION", parameters = {}) {
   const normalized_key = String(role_key || "INTERACTION").toUpperCase();
   const defined_parameters = Object.fromEntries(Object.entries(parameters || {}).filter(([, value]) => value !== undefined));
-  const resolved = resolve_catalog_atom(ROLE_LIBRARY, normalized_key, defined_parameters, {
+  return render_atom_xml(ROLE_LIBRARY, normalized_key, defined_parameters, {
+    body_only: true,
     defaults: ROLE_DEFAULTS[normalized_key] || null,
     fallback_key: "INTERACTION",
   });
-  return typeof resolved === "string" ? resolved : (resolved?.body ?? "");
 }
 
 /**

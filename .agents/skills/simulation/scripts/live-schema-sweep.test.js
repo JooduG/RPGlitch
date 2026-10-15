@@ -4,7 +4,7 @@ import { register_state_accessors } from "../../../../src/utils/index.js";
 import { run_sweep } from "./live-schema-sweep.js";
 
 describe("live schema sweep", () => {
-  it("compiles all modes across trigger fixtures and writes the live schema report", () => {
+  it("compiles all modes across trigger fixtures and writes the live schema report", async () => {
     register_state_accessors({ runtime: { active_fractal: { narrative_style: "cormac_mccarthy" } } });
     try {
       const seed = Number(process.env.SWEEP_SEED || 7);

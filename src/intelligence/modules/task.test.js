@@ -21,8 +21,6 @@ import {
   render_task,
   render_directives_xml,
   render_keyword_directives_xml,
-  render_routing_rules_xml,
-  DIRECTOR_ROUTING_RULES_ITEMS,
   get_directive_atom,
   compile_directive_tags,
   resolve_task_plan,
@@ -196,7 +194,7 @@ describe("render_keyword_directives_xml", () => {
   it("renders OPTICS keyword directives XML cleanly", () => {
     const xml = render_keyword_directives_xml("cinematic, atmospheric", "OPTICS");
     expect(xml).toContain("<KEYWORD_DIRECTIVES>");
-    expect(xml).toContain(TASK_LIBRARY.KEYWORD_DIRECTIVES.OPTICS);
+    expect(xml).toContain(TASK_LIBRARY.KEYWORD_DIRECTIVES.OPTICS.body);
     expect(xml).toContain("<AVAILABLE_KEYWORDS>cinematic, atmospheric</AVAILABLE_KEYWORDS>");
     expect(xml).toContain("</KEYWORD_DIRECTIVES>");
   });
@@ -389,8 +387,8 @@ describe("directive compiler REFLEX delegation", () => {
   it("keeps get_directive_atom a pure TASK_LIBRARY lookup", () => {
     expect(get_directive_atom("REFLEX.TURN_STATE.FIRST_CONTACT")).toBe("");
     expect(get_directive_atom("PROSE.CHARACTER.NPC_BOUNDARY")).toBe("");
-    expect(get_directive_atom("PROSE.CHARACTER.BASE")).toBe(TASK_LIBRARY.PROSE.CHARACTER.BASE);
-    expect(get_directive_atom("PROSE.CHARACTER.BASE")).toBe(TASK_LIBRARY.PROSE.CHARACTER.BASE);
+    expect(get_directive_atom("PROSE.CHARACTER.BASE")).toBe(TASK_LIBRARY.PROSE.CHARACTER.BASE.body);
+    expect(get_directive_atom("PROSE.CHARACTER.BASE")).toBe(TASK_LIBRARY.PROSE.CHARACTER.BASE.body);
   });
 
   it("resolves REFLEX keys through compile_directive_tags in both entry shapes", () => {
@@ -402,32 +400,14 @@ describe("directive compiler REFLEX delegation", () => {
 describe("task.js - Track 3.4 anti-hijacking agency", () => {
   it("CHARACTER.BASE enforces persona boundary under single-source Sovereignty", async () => {
     const { TASK_LIBRARY, get_directive_atom } = await import("./task.js");
-    expect(TASK_LIBRARY.PROSE.CHARACTER.BASE).toContain("Advance the scene authentically");
+    expect(TASK_LIBRARY.PROSE.CHARACTER.BASE.body).toContain("Advance the scene authentically");
     expect(get_directive_atom("PROSE.CHARACTER.BASE")).toContain("from your own perspective");
-  });
-});
-
-describe("task.js - Atom 2.2 render_routing_rules_xml", () => {
-  it("renders canonical <ROUTING_RULES> XML block with all valid next_actions", () => {
-    const xml = render_routing_rules_xml();
-    expect(xml).toContain("<ROUTING_RULES>");
-    expect(xml).toContain('"AI_CHARACTER": (Default)');
-    expect(xml).toContain('"FRACTAL": Environmental action');
-    expect(xml).toContain('"npc:<id>": Present secondary character');
-    expect(xml).toContain('"GENESIS": Mint a new character ONLY when no candidate');
-    expect(xml).toContain('"EPILOGUE_COLLAPSED": Fatal consequence');
-    expect(xml).toContain('"EPILOGUE_CONCLUDED": Triumphant or peaceful narrative resolution');
-    expect(xml).toContain("</ROUTING_RULES>");
-  });
-
-  it("exposes ROUTING_RULES on TASK_LIBRARY.DIRECTOR and get_directive_atom", () => {
-    expect(TASK_LIBRARY.DIRECTOR.ROUTING_RULES).toEqual(DIRECTOR_ROUTING_RULES_ITEMS);
-    expect(get_directive_atom("DIRECTOR.ROUTING_RULES")).toBe(render_routing_rules_xml());
   });
 });
 
 /**
  * CHANGELOG
+ * - 2026-10-15: Purged obsolete render_routing_rules_xml and TASK_LIBRARY.DIRECTOR.ROUTING_RULES tests under P4 Zero Backwards Compatibility.
  * - 2026-10-14: Atom 2.2 & 2.4 — Added tests for render_routing_rules_xml and TASK_LIBRARY.DIRECTOR.ROUTING_RULES.
  * - 2026-10-14: Phase 1 — Updated INPUT assertions to typed/omitted attributes and CHARACTER.BASE to single-source Sovereignty.
  */

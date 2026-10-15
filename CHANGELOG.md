@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Unified Prompt Library Schema & Universal XML Compiler (`xml.js`, `protocols.js`, `reflex.js`, `constitution.js`, `system.js`, `task.js`, `sheets.js`)**:
+  - **Single Catalog Schema Grammar**: Migrated all prompt catalog atoms across `protocols.js` (`PROTOCOL_LIBRARY`), `reflex.js` (`REFLEX_LIBRARY`), `constitution.js` (`CONSTITUTION`), `system.js` (`ROLE_LIBRARY`), and `task.js` (`TASK_LIBRARY`) to a unified strict object schema: `{ tag, body, attrs?, inline? }`.
+  - **Universal Atom XML Compiler (`render_atom_xml`)**: Implemented dual-mode universal atom compiler in `src/utils/xml.js` (with tests in `src/utils/xml.test.js`) supporting direct `{ tag, body }` objects and dotted catalog lookups (`render_atom_xml(catalog, key, values, options)`) with token interpolation, `body_only` bypass, and attribute merging.
+  - **Biometric Field Block Promotion & P4 Dead Code Purge**: Promoted `render_profile_field_block` to `src/utils/xml.js` and re-exported it from `sheets.js`, maintaining the invariant that relational brackets (`[@TARGET: ...]`) are strictly immune to attribute compaction. Purged dead `physical_to_xml` and its tests under P4 Zero Backwards Compatibility.
+  - **Module Compiler Modernization**: Updated `resolve_static_rule`, `resolve_optics_atom`, `resolve_macro_directive`, `PROSE_CONSTRAINTS`, `render_constraints_directive`, `render_director_constraints_directive`, `render_constitution_plan`, `get_role_atom`, and `get_directive_atom` to compile through `render_atom_xml`.
+  - **Live Schema Provenance Realignment**: Updated `live-schema-sweep.js` provenance mappings so `TARGET`, `SPATIAL_FRAMING`, and `CINEMATOGRAPHY` map to `task.js`. Verified 174 live prompt compiles with 0 problems.
+
+- **Reflex Catalog Consolidation & Task Director Relic Purge (`reflex.js`, `task.js`, `reflex.test.js`, `task.test.js`)**:
+  - Merged `REFLEX_DEFAULTS` calibration config directly into `REFLEX_LIBRARY.DEFAULTS` as the single source of truth, eliminating the loose `REFLEX_DEFAULTS` export under P4 Zero Backwards Compatibility.
+  - Added typed `MOMENTUM.CRITICAL` and `MOMENTUM.SOFT` directive atoms to `REFLEX_LIBRARY.MOMENTUM`, converting `render_momentum_directive_xml` into a thin renderer free of hardcoded prose.
+  - Purged obsolete `DIRECTOR_ROUTING_RULES_ITEMS`, `render_routing_rules_xml`, and `TASK_LIBRARY.DIRECTOR` relic from `task.js` (routing enums are already unified in `output.js` schema), along with the special-case bypass in `get_directive_atom`.
+  - Updated `reflex.test.js` and `task.test.js` to assert the consolidated catalog topology.
+
 - **Root `<SYSTEM>` Envelope Unification & `<TURN>` Dual-System Purge (`system.js`, `story.js`, `prompt-verification.js`, `builder.test.js`, `prompts.test.js`, `prompt-verification.test.js`)**:
   - Eliminated `STORYTELLER_MODES` and `<TURN speaker="..." listener="...">` dual-envelope branching from `system.js`, unifying all 9 RPGlitch prompt modes under the canonical root `<SYSTEM round="..." mode="..." ...attributes>` envelope sealed with `</SYSTEM>`.
   - Simplified `pack_prompt` to unconditionally seal prompts with `</SYSTEM>`, dropping runtime regex tag detection.
