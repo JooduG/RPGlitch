@@ -73,6 +73,8 @@ This document serves as the sovereign technical blueprint for **RPGlitch**. It d
 
 - `src/ui/` (Presentation) → `src/state/` (Reactive Controllers) → `src/intelligence/` (Inference) → `src/data/` (Persistence) → `src/platform/` & `src/media/`.
 - Downward imports allowed. Upward imports strictly forbidden (`src/state/` cannot import `src/ui/`, lower levels cannot import state or UI).
+- **Prompt Catalog Grammar Law**: Every prompt catalog atom across `src/intelligence/modules/` must be a frozen object `{ tag, body, attrs?, inline? }` compiled exclusively via `render_atom_xml` from `@utils`. Naked strings in prompt catalogs are prohibited.
+- **Relational Invariant**: Entity relations (`[@TARGET: ...]`) ALWAYS emit child `<RELATION target="...">` tags and are strictly immune to XML attribute compaction in `render_profile_field_block`.
 
 ### 4. State Ownership Matrix
 

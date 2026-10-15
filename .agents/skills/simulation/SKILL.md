@@ -172,14 +172,38 @@ When authoring or modifying prompt architectures, watch for these common psychol
 
 When implementing changes, consult the canonical source files rather than duplicating schemas here:
 
-| Domain                           | Canonical Source File                                                              | Primary Responsibility                                                                |
-| :------------------------------- | :--------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------ |
-| **Simulation Lifecycle**         | [`src/state/chrono.svelte.js`](../../../src/state/chrono.svelte.js)                | Round counter, Stasis lock, atomic turn dispatch (`send`, `retry`, `continue`).       |
-| **Turn Pipeline (Orchestrator)** | [`src/intelligence/story.js`](../../../src/intelligence/story.js)                  | Turn orchestration, Stage 1 execution, dynamics settlement, Stage 2 streaming.        |
-| **Director & Story Prompts**     | [`src/intelligence/prompts.js`](../../../src/intelligence/prompts.js)              | Master prompt manifest, Stage 1 & Stage 2 blueprints, schemas, speaker routing rules. |
-| **Dynamics & Settlement**        | [`src/intelligence/dynamics.js`](../../../src/intelligence/dynamics.js)            | 0-100 slider math, baseline gravity, entropy velocity calculations.                   |
-| **Temporal Memory & Compaction** | [`src/intelligence/temporal.js`](../../../src/intelligence/temporal.js)            | Vector scoring, cosine deduplication, Memory consolidation, past/future sync.         |
-| **Prompt Complexity Triage**     | [`.agents/skills/simulation/scripts/triage-prompt.js`](./scripts/triage-prompt.js) | D1–D5 scoring, R1 parameter density risk, and tier ceilings for prompt layer tuning.  |
+| Domain                           | Canonical Source File                                                              | Primary Responsibility                                                                  |
+| :------------------------------- | :--------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------- |
+| **Simulation Lifecycle**         | [`src/state/chrono.svelte.js`](../../../src/state/chrono.svelte.js)                | Round counter, Stasis lock, atomic turn dispatch (`send`, `retry`, `continue`).         |
+| **Turn Pipeline (Orchestrator)** | [`src/intelligence/story.js`](../../../src/intelligence/story.js)                  | Turn orchestration, Stage 1 execution, dynamics settlement, Stage 2 streaming.          |
+| **Director & Story Prompts**     | [`src/intelligence/prompts.js`](../../../src/intelligence/prompts.js)              | Master prompt manifest, Stage 1 & Stage 2 blueprints, schemas, speaker routing rules.   |
+| **Dynamics & Settlement**        | [`src/intelligence/dynamics.js`](../../../src/intelligence/dynamics.js)            | 0-100 slider math, baseline gravity, entropy velocity calculations.                     |
+| **Temporal Memory & Compaction** | [`src/intelligence/temporal.js`](../../../src/intelligence/temporal.js)            | Vector scoring, cosine deduplication, Memory consolidation, past/future sync.           |
+| **Universal XML & Compaction**   | [`src/utils/xml.js`](../../../src/utils/xml.js)                                    | `render_atom_xml` universal compiler, `render_profile_field_block` attribute compactor. |
+| **Prompt Complexity Triage**     | [`.agents/skills/simulation/scripts/triage-prompt.js`](./scripts/triage-prompt.js) | D1–D5 scoring, R1 parameter density risk, and tier ceilings for prompt layer tuning.    |
+
+---
+
+### 6.1 Prompt Library Catalog Schema & Compiler Standards
+
+All simulation prompt libraries (`src/intelligence/modules/` — `protocols.js`, `reflex.js`, `constitution.js`, `system.js`, `task.js`) adhere to an authoritative unified architecture:
+
+1. **Strict Object Schema**:
+   - Every prompt catalog entry in `*_LIBRARY` MUST be a frozen object with `{ tag: string, body: string, attrs?: Record<string, any>, inline?: boolean }`.
+   - Naked or raw strings in prompt catalogs are strictly forbidden under P4 Pre-Beta Purity.
+
+2. **Universal Atom Compiler (`render_atom_xml`)**:
+   - All prompt atom compiling MUST route through `render_atom_xml(atom_or_catalog, key_or_options, values_or_options, options)` from `@utils`.
+   - Hand-rolled string interpolation and ad-hoc tag wrappers are prohibited.
+   - Dual-Mode Invocations:
+     - _Direct Atom_: `render_atom_xml(atom, { indent, inline, body_only, attrs, tag })`
+     - _Catalog Key Lookup_: `render_atom_xml(catalog, "DOTTED.KEY", { token_values }, { body_only, indent })`
+   - Use `{ body_only: true }` when nesting unadorned text inside multi-atom envelopes like `<DIRECTIVES>`.
+
+3. **Biometric Attribute Compaction Invariant**:
+   - `render_profile_field_block(tag, rows)` in `@utils/xml.js` serializes profile fields (`APPEARANCE`, `CURRENT_LOOK`, `PERSONALITY`, `STATE`, `AGENDA`, `MEMORIES`).
+   - Scalar values $\le 40$ characters without newlines/quotes compact into parent XML attributes (e.g., `build="tall and athletic"`).
+   - **Relational Invariant**: Relational brackets (`[@TARGET: ...]`) and targets matching registered entity slugs ALWAYS emit `<RELATION target="...">` child elements and are strictly immune to attribute compaction.
 
 ---
 
