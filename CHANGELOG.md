@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Standardized completion injection and finishTail recovery in `story.js` on `</SYSTEM>` root closing tags.
   - Re-baselined `CONTRACT` inventories in `prompt-verification.js` and updated unit/contract tests across `prompt-verification.test.js`, `prompts.test.js`, and `builder.test.js`.
   - Updated `live-schema-sweep.js` diagnostic problem checker to validate `</SYSTEM>` closures.
+  - Retired obsolete static `prompt-schema-map.js` in favor of dynamic `live-schema-sweep.js` and removed wire in `simulation-audit.test.js`.
 
 - **Option A Slug Casing Harmonization, Unified Protocol Constraints, Grounding Deconstruction & XML Tag Directory**:
   - **Option A Slug Casing Harmonization (`premade-entities.js`, `sheets.js`, `repository.test.js`, `premade-entities.test.js`, `director.test.js`)**:

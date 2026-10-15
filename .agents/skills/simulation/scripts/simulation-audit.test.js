@@ -9,7 +9,6 @@
 import fs from "fs";
 import { describe, it, expect } from "vitest";
 import { SimulationAudit } from "./simulation-audit.js";
-import { generate_prompt_schema_map } from "./prompt-schema-map.js";
 
 describe("🕹️ SYSTEM TURN: Source Audit", () => {
   it("executes the 'Gothic Trial' baseline and generates an audit report", async () => {
@@ -86,10 +85,6 @@ ${result.verification.failed.length > 0 ? "**Failed Checks:**\n" + result.verifi
 > Prompts are compiled closed envelopes where task layers are sealed inside \`<SYSTEM>\`.
 > Pipeline verification covers: \`<DYNAMIC_AXES>\`, \`<ENTITIES>\`, \`<AXIOMATIC_CONSTITUTION>\`,
 > \`<CORE_PROTOCOLS>\`, \`<CURRENTS>\`, \`<DELIVERY_POSTURE>\`, \`<THINK>\`, and prefix-cache separation.
-
-${SEP}
-
-${generate_prompt_schema_map()}
 `;
 
     const clean_report = report.replace(/\n{3,}/g, "\n\n");
@@ -160,6 +155,7 @@ ${generate_prompt_schema_map()}
 
 /**
  * CHANGELOG:
+ * - 2026-10-15: Retired prompt-schema-map.js in favor of live-schema-sweep.js; pruned import and report generation wire.
  * - 2026-10-14: Comprehensive XML Tag Specification Map & Lint Fixes — Appended Phase 5 XML tag directory generated via prompt-schema-map.js, removed header brackets to fix IDE markdownlint warnings, and sanitized consecutive blank lines (MD012).
  * - 2026-09-18: Updated assertions for canonical <ENTITIES> per scrobbles.md blueprint.
  * - 2026-09-18: Updated assertions to check for canonical <THINK> and <AVAILABLE_ENTITIES>.
