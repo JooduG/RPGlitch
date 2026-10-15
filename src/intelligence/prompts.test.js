@@ -82,13 +82,9 @@ function slice_axes(xml) {
 
 function assert_fused_shape(result, mode) {
   const system = result.system;
-  const is_turn = ["interaction", "ghostwrite", "npc", "narrator"].includes(mode);
-  const tag = is_turn ? "TURN" : "SYSTEM";
-  expect((system.match(new RegExp(`<${tag}\\b`, "g")) || []).length).toBe(1);
-  expect(system).toContain(`</${tag}>`);
-  if (!is_turn) {
-    expect(system).toMatch(new RegExp(`<SYSTEM[^>]*mode="${mode}"`));
-  }
+  expect((system.match(/<SYSTEM\b/g) || []).length).toBe(1);
+  expect(system).toContain("</SYSTEM>");
+  expect(system).toMatch(new RegExp(`<SYSTEM[^>]*mode="${mode}"`));
   expect(system).toContain("<TASK>");
   expect(system).toContain("</TASK>");
   expect(system).not.toMatch(/<TASK[^>]*mode=/);
@@ -188,9 +184,12 @@ describe("prompt-modes registry", () => {
       entities,
       input: "Beast prepares.",
     });
-    expect(interaction_shot.system).toContain('<TURN speaker="beast" listener="silvers">');
+    expect(interaction_shot.system).toContain("<SYSTEM");
+    expect(interaction_shot.system).toContain('mode="interaction"');
+    expect(interaction_shot.system).toContain('speaker="beast"');
+    expect(interaction_shot.system).toContain('listener="silvers"');
     expect(interaction_shot.system).toContain("<TASK>");
-    expect(interaction_shot.system).toContain("</TURN>");
+    expect(interaction_shot.system).toContain("</SYSTEM>");
 
     // 3. Continuum caretaker
     const continuum_shot = compile_prompt("continuum", {
@@ -552,12 +551,15 @@ describe("narrator prose compiler", () => {
       entities: _relocated_prompt_entities,
       input: "The reactor pulses.",
     });
-    expect(result.system).toContain('<TURN speaker="tartarus" listener="silvers">');
+    expect(result.system).toContain("<SYSTEM");
+    expect(result.system).toContain('mode="narrator"');
+    expect(result.system).toContain('speaker="tartarus"');
+    expect(result.system).toContain('listener="silvers"');
     expect(result.system).toContain("You are Project Tartarus, the Fractal itself, narrating the story.");
     expect(result.system).toContain('<PERSPECTIVE person="THIRD" tense="PRESENT">');
     expect(result.system).toContain("<TASK>");
     expect(result.system).toContain("Narrate through ambient physics, sensory textures, and environmental shifts in reaction to recent events.");
-    expect(result.system).toContain("</TURN>");
+    expect(result.system).toContain("</SYSTEM>");
   });
 
   it("renders prologue beat omitting input tag and guiding opening sequence", () => {
@@ -838,7 +840,7 @@ describe("metasyntax gate — compiled prompt hygiene", () => {
         round: 1,
       });
       // System envelope must contain turn attributes
-      expect(interaction_pkg.system).toMatch(/<TURN[^>]*speaker="[a-z0-9_]+"[^>]*listener="[a-z0-9_]+"/);
+      expect(interaction_pkg.system).toMatch(/<SYSTEM[^>]*speaker="[a-z0-9_]+"[^>]*listener="[a-z0-9_]+"/);
       // But meta objects returned for persistence must NEVER carry speaker or listener
       expect(interaction_pkg.meta).toBeDefined();
       expect(interaction_pkg.meta).not.toHaveProperty("speaker");
@@ -849,6 +851,7 @@ describe("metasyntax gate — compiled prompt hygiene", () => {
 
 /**
  * CHANGELOG
+ * - 2026-10-15: Standardized prompt tests to assert root <SYSTEM> envelopes across all modes under P4 Pre-Beta Purity.
  * - 2026-10-12: Merged Section 9 Metasyntax standing gate tests from metasyntax.test.js into prompts.test.js.
  * - 2026-10-04: Enhancement assertions track the `<PERSPECTIVE tense>` attribute instead of the deleted `<LAYER>` tag.
  * - 2026-09-23: Prompt-grammar harmonization — task envelopes now assert `<INPUT … channel="action">` (the `mode=` signal discriminator was retired for `channel=` across every signal).

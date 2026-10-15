@@ -621,7 +621,7 @@ function get_root_node_for_mode(mode_id) {
   if (mode_id === "all") {
     return {
       tag: "PROMPT",
-      attrs: 'envelope="TURN (character, fractal, ghost, npc) | SYSTEM (director, continuum, enhancement, sorting, optics)"',
+      attrs: 'envelope="SYSTEM (all 9 modes)"',
       modes: ["all"],
       children: PROMPT_LAYER_TREE,
     };
@@ -629,8 +629,8 @@ function get_root_node_for_mode(mode_id) {
 
   if (is_storyteller) {
     return {
-      tag: "TURN",
-      attrs: 'speaker="[slug]" listener="[slug]"',
+      tag: "SYSTEM",
+      attrs: `mode="${mode_id}" round="[number]" speaker="[slug]" listener="[slug]"`,
       modes: [mode_id],
       children: PROMPT_LAYER_TREE,
     };
@@ -692,6 +692,7 @@ export function generate_prompt_schema_map() {
 /* ============================================================================
  * CHANGELOG
  * ============================================================================
+ * - 2026-10-15: Standardized root envelope to <SYSTEM> across all modes including Storyteller, purging TURN under P4 Pre-Beta Purity.
  * - 2026-10-15: Unified 9-Mode Architecture & Trigger Provenance — Integrated all 9 prompt modes into the unified XML map, removed mock internal sheet fields, and annotated leaf tags with concise active triggers, audience modes, and external module origins.
  * - 2026-10-15: Pure Automated XML Schema Generator — Replaced 700+ lines of manual string pushes with a declarative PROMPT_LAYER_TREE and recursive render_tag_skeleton compiler.
  * - 2026-10-14: Pure XML Tag Schema Representation — Replaced markdown tables and arrow lists with genuine, hierarchical XML code blocks containing actual XML tags only and zero content between opening and closing tags.

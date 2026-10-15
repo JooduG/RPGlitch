@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Root `<SYSTEM>` Envelope Unification & `<TURN>` Dual-System Purge (`system.js`, `story.js`, `prompt-verification.js`, `builder.test.js`, `prompts.test.js`, `prompt-verification.test.js`)**:
+  - Eliminated `STORYTELLER_MODES` and `<TURN speaker="..." listener="...">` dual-envelope branching from `system.js`, unifying all 9 RPGlitch prompt modes under the canonical root `<SYSTEM round="..." mode="..." ...attributes>` envelope sealed with `</SYSTEM>`.
+  - Simplified `pack_prompt` to unconditionally seal prompts with `</SYSTEM>`, dropping runtime regex tag detection.
+  - Standardized completion injection and finishTail recovery in `story.js` on `</SYSTEM>` root closing tags.
+  - Re-baselined `CONTRACT` inventories in `prompt-verification.js` and updated unit/contract tests across `prompt-verification.test.js`, `prompts.test.js`, and `builder.test.js`.
+  - Updated `live-schema-sweep.js` diagnostic problem checker to validate `</SYSTEM>` closures.
+
 - **Option A Slug Casing Harmonization, Unified Protocol Constraints, Grounding Deconstruction & XML Tag Directory**:
   - **Option A Slug Casing Harmonization (`premade-entities.js`, `sheets.js`, `repository.test.js`, `premade-entities.test.js`, `director.test.js`)**:
     - Harmonized all entity ID slugs and attribute slugs to lowercase (`id="julien"`, `target="julien"`, `speaker="julien"`, `origin="julien"`), display names to Title Case (`name="Julien the Banished Prince"`), and XML tags to UPPERCASE (`<CHARACTER>`, `<FRACTAL>`, `<RELATION>`, `<CONSTRAINTS>`).

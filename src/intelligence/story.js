@@ -536,7 +536,7 @@ export const gamemaster = {
         };
 
         const system = completion_note
-          ? character_prompt.system.replace(/<\/(?:SYSTEM|TURN)>\s*$/, (match) => `\n\n${completion_note}\n${match}`)
+          ? character_prompt.system.replace(/<\/SYSTEM>\s*$/, (match) => `\n\n${completion_note}\n${match}`)
           : character_prompt.system;
         const generated_text = await llm_service.generate(
           {
@@ -585,7 +585,7 @@ export const gamemaster = {
           const finish_tail_prompt = REFLEX_LIBRARY.RECOVERY.FINISH_TAIL.body.replace("{tail_snippet}", tail_snippet);
 
           try {
-            const tail_system = character_prompt.system.replace(/<\/(?:SYSTEM|TURN)>\s*$/, (match) => `\n\n${finish_tail_prompt}\n${match}`);
+            const tail_system = character_prompt.system.replace(/<\/SYSTEM>\s*$/, (match) => `\n\n${finish_tail_prompt}\n${match}`);
             const tail_result = await llm_service.generate(
               {
                 system: tail_system,
@@ -1108,6 +1108,7 @@ export const story_pipeline = gamemaster;
 
 /**
  * CHANGELOG
+ * - 2026-10-15: Standardized prompt completion injection and finishTail recovery strictly on canonical </SYSTEM> root tag after purging TURN.
  * - 2026-10-14: Phase C — Task C.2 (Ghostwrite Perspective Alignment): Sanitized all non-USER entities in execute_ghostwriter through filter_epistemic_brackets('other'), enforcing the Epistemic Wall so third-party secrets never leak into user persona ghostwrite draft prompts.
  * - 2026-10-14: Atom 3.4 — Turn Pragmatics (Issue 13 / Sub-item 6.10). Adapted prompt completion injection and truncation finishTail recovery to match either </SYSTEM> or </TURN> root tags.
  * - 2026-10-14: Atom 2.6 Same-Role Semantic Drift Recalibration — Updated drift calculations in Step 2 and Step 7.5 to compare consecutive turns by the same interlocutor (user vs previous user, companion vs previous companion), allowing conversational circularity to naturally trip stagnation thresholds.

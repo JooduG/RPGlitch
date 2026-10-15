@@ -202,7 +202,7 @@ export const CONTRACT = {
   },
   interaction: {
     system: [
-      "TURN",
+      "SYSTEM",
       "AXIOMATIC_CONSTITUTION",
       "LAW",
       "LAW",
@@ -273,7 +273,7 @@ export const CONTRACT = {
   },
   ghostwrite: {
     system: [
-      "TURN",
+      "SYSTEM",
       "AXIOMATIC_CONSTITUTION",
       "LAW",
       "LAW",
@@ -337,7 +337,7 @@ export const CONTRACT = {
   },
   npc: {
     system: [
-      "TURN",
+      "SYSTEM",
       "AXIOMATIC_CONSTITUTION",
       "LAW",
       "LAW",
@@ -415,7 +415,7 @@ export const CONTRACT = {
   },
   narrator: {
     system: [
-      "TURN",
+      "SYSTEM",
       "AXIOMATIC_CONSTITUTION",
       "LAW",
       "LAW",
@@ -481,7 +481,7 @@ export const CONTRACT = {
   },
   narrator_prologue: {
     system: [
-      "TURN",
+      "SYSTEM",
       "AXIOMATIC_CONSTITUTION",
       "LAW",
       "LAW",
@@ -542,7 +542,7 @@ export const CONTRACT = {
   },
   narrator_epilogue: {
     system: [
-      "TURN",
+      "SYSTEM",
       "AXIOMATIC_CONSTITUTION",
       "LAW",
       "LAW",
@@ -704,6 +704,7 @@ export const MODE_DIRECTIVE_LEADS = Object.freeze({
 
 /**
  * CHANGELOG
+ * - 2026-10-15: Re-baselined CONTRACT inventories for interaction, ghostwrite, npc, and narrator modes from TURN to SYSTEM under P4 Pre-Beta Purity.
  * - 2026-10-14: Wave 2 — Updated CONTRACT inventories and MODE_DIRECTIVE_LEADS for Director schema co-location and unified CONSTRAINTS layer; retired SPENT_LEDGER wrapper and moved formulas/clichés from PROSE_DISCIPLINE.
  * - 2026-10-14: Phase 3 Atom 3.4 — unified CHARACTER envelopes (<CHARACTER id="SLUG" name="...">), purged DISPOSITIONS wrappers, applied biometric attribute compaction to short physical traits on APPEARANCE and CURRENT_LOOK, and established TURN root envelopes for Storyteller modes.
  * - 2026-10-14: Atom 2.2, 2.3 & 2.4 — added CALIBRATION and ROUTING_RULES to CONTRACT.director inventory; updated MODE_DIRECTIVE_LEADS.director to reflect unified ROUTING_RULES and purged DYNAMICS_CALIBRATION.

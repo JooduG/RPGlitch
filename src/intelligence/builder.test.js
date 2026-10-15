@@ -177,10 +177,10 @@ describe("Shot-2A Prose Modes Symmetrical Compilation", () => {
     });
 
     for (const mode_result of [interaction_result, ghostwrite_result, npc_result, narrator_result]) {
-      expect(mode_result.system).toContain("<TURN");
+      expect(mode_result.system).toContain("<SYSTEM");
       expect(mode_result.system).toContain("<AXIOMATIC_CONSTITUTION>");
       expect(mode_result.system).toContain("<CORE_PROTOCOLS>");
-      expect(mode_result.system).toContain("</TURN>");
+      expect(mode_result.system).toContain("</SYSTEM>");
       expect(mode_result.system).toContain("<TASK>");
       expect(mode_result.system).toContain("</TASK>");
       expect(mode_result.system).not.toContain('origin="UNDEFINED"');
@@ -432,19 +432,31 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
       entities: test_entities,
       input: "Alice prepares to move.",
     });
-    expect(character_result.system).toContain('<TURN speaker="alice" listener="bob">');
+    expect(character_result.system).toContain("<SYSTEM");
+    expect(character_result.system).toContain('mode="interaction"');
+    expect(character_result.system).toContain('speaker="alice"');
+    expect(character_result.system).toContain('listener="bob"');
 
     // 2. NPC
     const npc_result = compile_prompt("npc", { round: 1, entities: test_entities, input: "Merchant glances around.", npc: test_npc });
-    expect(npc_result.system).toContain('<TURN speaker="merchant" listener="bob">');
+    expect(npc_result.system).toContain("<SYSTEM");
+    expect(npc_result.system).toContain('mode="npc"');
+    expect(npc_result.system).toContain('speaker="merchant"');
+    expect(npc_result.system).toContain('listener="bob"');
 
     // 3. Narrator (continuation)
     const narrator_result = compile_prompt("narrator", { round: 1, entities: test_entities, input: "The wind howls.", is_narrator: true });
-    expect(narrator_result.system).toContain('<TURN speaker="sector_four" listener="bob">');
+    expect(narrator_result.system).toContain("<SYSTEM");
+    expect(narrator_result.system).toContain('mode="narrator"');
+    expect(narrator_result.system).toContain('speaker="sector_four"');
+    expect(narrator_result.system).toContain('listener="bob"');
 
     // 4. Prologue
     const prologue_result = compile_prompt("narrator", { round: 0, entities: test_entities, is_prologue: true, scene_template: "PROLOGUE" });
-    expect(prologue_result.system).toContain('<TURN speaker="sector_four" listener="bob">');
+    expect(prologue_result.system).toContain("<SYSTEM");
+    expect(prologue_result.system).toContain('mode="narrator"');
+    expect(prologue_result.system).toContain('speaker="sector_four"');
+    expect(prologue_result.system).toContain('listener="bob"');
 
     // 5. Epilogue
     const epilogue_result = compile_prompt("narrator", {
@@ -454,11 +466,17 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
       conclusion_status: "CONCLUDED",
       scene_template: "EPILOGUE",
     });
-    expect(epilogue_result.system).toContain('<TURN speaker="sector_four" listener="bob">');
+    expect(epilogue_result.system).toContain("<SYSTEM");
+    expect(epilogue_result.system).toContain('mode="narrator"');
+    expect(epilogue_result.system).toContain('speaker="sector_four"');
+    expect(epilogue_result.system).toContain('listener="bob"');
 
     // 6. Ghostwriter
     const ghostwriter_result = compile_prompt("ghostwrite", { entities: test_entities, input: "I steady my aim.", ghostwrite: true });
-    expect(ghostwriter_result.system).toContain('<TURN speaker="bob" listener="alice">');
+    expect(ghostwriter_result.system).toContain("<SYSTEM");
+    expect(ghostwriter_result.system).toContain('mode="ghostwrite"');
+    expect(ghostwriter_result.system).toContain('speaker="bob"');
+    expect(ghostwriter_result.system).toContain('listener="alice"');
   });
 
   it("exposes continuum and sorting as declarative pipeline modes", () => {
@@ -597,6 +615,7 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
  * - 2026-09-18: Added Section 5 tests covering `compile_pipeline_prompt` (director, director_terse, continuum, enhancement, sorting, optics) and `build_story_prose` unification.
  * - 2026-09-17: Remediation pass — Added regression tests for PROTOCOL_LIBRARY.HYGIENE.AFFIRMATIVE_FRAMING, SIMULATION_FIDELITY permissive clause, and Director USER_PERSONA_LOCK prompt invariants.
  * - 2026-09-15: Initialized comprehensive builder.test.js unit suite covering narrator style resolution regression, symmetrical Shot-2A compilation, <SIGNATURE_ELEMENTS> tag standardization, and parameter-aware Layer 7 schema routing.
+ * - 2026-10-15: Standardized Storyteller assertions to validate root <SYSTEM> envelopes with mode, speaker, and listener attributes under P4 Pre-Beta Purity.
  * - 2026-10-14: Phase 3 Atom 3.4 — updated Storyteller assertions to validate <TURN speaker="..." listener="..."> root envelopes instead of retired SYSTEM mode tags.
  * - 2026-10-14: Phase 1 — Updated sorting INPUT assertion from channel="ingestion" to type="ingestion".
  */

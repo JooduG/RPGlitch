@@ -174,6 +174,11 @@ Resolving the fundamental conflation between slot, perspective, and identity acr
     - **Merged `REFLEX_DEFAULTS`, `PROSE_CONSTRAINTS`, and `DIRECTOR_CONSTRAINTS` into `REFLEX_LIBRARY`**: Consolidated constraint definitions in `reflex.js` emitting typed domain child elements (`<OVERARCHING_QUESTS>`, `<SYNTHETIC_FORMULAS>`, `<CLICHES>`, `<EXHAUSTED_OPENINGS>`, `<LETHALITY>`, `<AGENCY>`, `<GENESIS>`) instead of generic `<item>` tags. Embedded `<CONSTRAINTS>` into `<CORE_PROTOCOLS>` across all simulation prompts (Director, Interaction, Narrator), adhering to the anti-caching mandate, while stripping redundant constraints from `<TASK><DIRECTIVES>`.
     - **Grounding Deconstruction**: Deconstructed standalone `<GROUNDING>` protocol tag and absorbed its physical reality requirements directly into Constitution Law L1 Causality and tactical dialogue into `PROSE_DISCIPLINE.TYPOGRAPHY` and `NATURAL_DIALOGUE`.
     - **Programmatic XML Tag Specification Map (`prompt-schema-map.js`)**: Implemented exhaustive prompt XML directory for all 9 prompt modes and appended `## PHASE 5: COMPREHENSIVE XML TAG SPECIFICATION MAP` to `tmp/audit_report.md`. Fixed markdownlint header reference and blank line errors.
+  - [x] **3.13 Root `<SYSTEM>` Envelope Unification & `<TURN>` Dual-System Purge (P4 Compliance)**:
+    - Under P4 Pre-Beta Purity, completely purged `STORYTELLER_MODES` and `<TURN speaker="..." listener="...">` dual-envelope branching from `system.js`, unifying all 9 simulation modes under the canonical root `<SYSTEM round="..." mode="..." ...attributes>` envelope sealed with `</SYSTEM>`.
+    - Simplified `pack_prompt` to unconditionally seal prompts with `</SYSTEM>`, dropping runtime regex tag detection.
+    - Standardized completion injection and finishTail recovery in `story.js` on `</SYSTEM>` root closing tags.
+    - Re-baselined `CONTRACT` inventories in `prompt-verification.js` and updated unit/contract tests across `prompt-verification.test.js`, `prompts.test.js`, and `builder.test.js`.
 
 ---
 

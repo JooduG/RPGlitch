@@ -126,16 +126,10 @@ function render_prompt_layers(state, allowed_keys = null) {
 
 export const SYSTEM_TAG = "SYSTEM";
 
-const STORYTELLER_MODES = Object.freeze(["interaction", "ghostwrite", "npc", "narrator"]);
-
 /**
  * Resolves envelope inputs into a frozen, render-ready plan. Every selection
  * (mode, round, attributes, ordered children) happens here — the renderer maps
  * plan fields to XML without branching.
- *
- * Turn Pragmatics:
- * - Shot 1 (Director) and auxiliary tools: root <SYSTEM round="..." mode="...">
- * - Shot 2 (Storyteller): root <TURN speaker="..." listener="...">
  *
  * @param {any} config - Resolved prompt manifest record (carries system.mode and layers.system)
  * @param {Record<string, any>} [state={}] - Emitter state bag keyed by PROMPT_LAYERS slots
@@ -143,10 +137,8 @@ const STORYTELLER_MODES = Object.freeze(["interaction", "ghostwrite", "npc", "na
  * @returns {Readonly<{ tag: string, mode: string, round: number|string|null, attributes: Readonly<Record<string, any>>, children: ReadonlyArray<string> }>}
  */
 export function resolve_system_plan(config, state = {}, { round = null, attributes = {} } = {}) {
-  const is_turn = STORYTELLER_MODES.includes(config?.system?.mode);
-  const tag = is_turn ? "TURN" : SYSTEM_TAG;
   return Object.freeze({
-    tag,
+    tag: SYSTEM_TAG,
     mode: config.system.mode,
     round,
     attributes: Object.freeze({ ...(attributes || {}) }),
@@ -172,9 +164,9 @@ export function render_system_plan(plan) {
 }
 
 /**
- * Compiles a root <SYSTEM> or <TURN> XML envelope as an OPEN fragment (`<TAG …>…`).
+ * Compiles a root <SYSTEM> XML envelope as an OPEN fragment (`<SYSTEM …>…`).
  * The universal Task block is NEVER nested here — compilers return it as the
- * package's separate `task` field and pack_prompt seals it inside `</TAG>`.
+ * package's separate `task` field and pack_prompt seals it inside `</SYSTEM>`.
  * @param {Object} [options]
  * @param {string} [options.tag=null]
  * @param {string} [options.mode=""]
@@ -184,20 +176,14 @@ export function render_system_plan(plan) {
  * @returns {string}
  */
 export function render_system_xml({ tag = null, mode = "", round = null, attributes = {}, children = [] } = {}) {
-  const is_turn = tag === "TURN";
-  const resolved_tag = tag || SYSTEM_TAG;
-  const attrs = is_turn
-    ? {
-        ...attributes,
-      }
-    : {
-        ...(round != null ? { round } : {}),
-        ...(mode ? { mode } : {}),
-        ...attributes,
-      };
+  const attrs = {
+    ...(round != null ? { round } : {}),
+    ...(mode ? { mode } : {}),
+    ...attributes,
+  };
 
   return render_xml_tag({
-    tag: resolved_tag,
+    tag: tag || SYSTEM_TAG,
     attrs,
     children: Array.isArray(children) ? children : [children],
     closed: false,
@@ -241,7 +227,7 @@ function clean_prompt_text(text) {
  * Packages rendered prompt text into the single closed-envelope prompt package.
  *
  * The package is always `{ system }` (+ optional `meta`): `system` is the complete
- * closed `<SYSTEM>…</SYSTEM>` or `<TURN>…</TURN>` envelope with the `<TASK>` block sealed inside.
+ * closed `<SYSTEM>…</SYSTEM>` envelope with the `<TASK>` block sealed inside.
  *
  * @param {{ system?: string, task?: string }} rendered
  * @param {Record<string, any>} [meta]
@@ -250,8 +236,7 @@ function clean_prompt_text(text) {
 export function pack_prompt(rendered, meta = {}) {
   const system = clean_prompt_text(rendered?.system);
   const task = clean_prompt_text(rendered?.task);
-  const tag = system.startsWith("<TURN") ? "TURN" : "SYSTEM";
-  const sealed = task ? `${system}\n\n${task}\n</${tag}>` : `${system}\n</${tag}>`;
+  const sealed = task ? `${system}\n\n${task}\n</${SYSTEM_TAG}>` : `${system}\n</${SYSTEM_TAG}>`;
   return {
     system: sealed,
     ...(Object.keys(meta).length > 0 ? { meta } : {}),
@@ -283,6 +268,7 @@ export function resolve_role_slot(config, normalized = {}) {
 
 /**
  * CHANGELOG
+ * - 2026-10-15: Purged root <TURN> envelope dual-system under P4 Pre-Beta Purity; unified all prompt modes under canonical root <SYSTEM round="..." mode="..." ...attributes> envelopes sealed by pack_prompt with </SYSTEM>.
  * - 2026-10-14: Atom 3.4 — Turn Pragmatics (Issue 13 / Sub-item 6.10). Introduces root <TURN speaker="..." listener="..."> envelope for Storyteller prose shots (interaction, ghostwrite, npc, narrator); Director and tool modes retain root <SYSTEM round="..." mode="...">; pack_prompt adaptively seals matching closing tag.
  * - 2026-10-14: Purged dead lorebook layer from PROMPT_LAYERS under P4 Pre-Beta Purity.
  * - Track 3.2: PROMPT_LAYERS gains the lorebook emitter (empty slots stay filtered, so unaffected modes seal byte-identical envelopes).
