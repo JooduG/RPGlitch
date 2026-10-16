@@ -70,7 +70,7 @@ describe("render_prose_reflex", () => {
     expect(reflex).toContain("<RHYTHM>");
     expect(reflex).toContain("Clipped, staccato.");
     expect(reflex).toContain("<DRIVE>");
-    expect(reflex).toContain("Advance the scene in response to «INPUT»");
+    expect(reflex).toContain("Advance the scene in response to «ACTION»");
   });
 
   it("ignores a stale speaking_style third argument (voice is entity data, not prompt steering)", () => {

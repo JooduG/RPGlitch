@@ -76,6 +76,7 @@ const DEFAULT_ENTITIES_CONFIG = Object.freeze({
 export const DIRECTOR_SCHEMA = Object.freeze([
   "_thought_process",
   "next_action",
+  "story_status",
   "keywords",
   "directors_note",
   "dynamics_deltas",
@@ -605,4 +606,5 @@ export default PROMPTS;
  * - 2026-10-14: Wave 2 — Purged duplicate DIRECTOR.ROUTING_RULES from director_directives (co-located in output schema); migrated SENTENCE_FORMULAS and CLICHES from prose_protocols into unified CONSTRAINTS layer.
  * - 2026-10-14: Phase 1 Prompt Pipeline Hygiene & P4 Purges — (1) Set constitution: true for director mode and added axiomatic_constitution to DIRECTOR_LAYERS; (2) Purged alternative_branches from DIRECTOR_SCHEMA; (3) Purged AGENCY from prose_protocols; (4) Purged USER_PERSONA_LOCK and BRANCHES from director_directives and gated CONVERGENCE on has_candidates.
  * - 2026-10-14: Deconstructed Grounding — Removed standalone CORE_PROTOCOLS.GROUNDING from prose_protocols (absorbed into Constitution Law L1 and Prose Discipline).
+ * - 2026-10-16: Added story_status to DIRECTOR_SCHEMA.
  */

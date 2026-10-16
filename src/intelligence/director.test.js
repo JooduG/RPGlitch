@@ -98,6 +98,7 @@ describe("Director Quick Shot Prompt (compile_prompt director)", () => {
   it("exposes available keywords and routing rules co-located in JSON schema", () => {
     const result = compile_prompt("director", { ...base_payload(), compressed_snapshot: base_snapshot });
     expect(result.system).toContain('"next_action"');
+    expect(result.system).toContain('"story_status"');
     expect(result.system).toContain('"keywords"');
     expect(result.system).toContain("SHAME");
     expect(result.system).toContain("BETRAYAL");
@@ -121,7 +122,7 @@ describe("Director Quick Shot Prompt (compile_prompt director)", () => {
     const env_payload = { ...base_payload(), input: "I press my palm flat against the cold iron gate and wait.", compressed_snapshot: base_snapshot };
     const result = compile_prompt("director", env_payload);
     expect(result.system).toContain("<ENVIRONMENTAL_HINT>");
-    expect(result.system).toContain('"speaker" to "fractal"');
+    expect(result.system).toContain('next_action to "FRACTAL"');
   });
 
   it("gives on-stage NPCs a full sheet and never restates the sheeted trio in a CAST block", () => {

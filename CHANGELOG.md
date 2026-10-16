@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Programmatic Prompt Sanitization & Epistemic Wall Hardening (`output.js`, `prompts.js`, `reflex.js`, `dynamics.js`, `entities.js`, `sheets.js`)**:
+  - **Director JSON Schema Alignment (`output.js`, `prompts.js`)**: Added `story_status` (`'IN_PROGRESS' | 'COLLAPSED' | 'CONCLUDED'`) to `SCHEMA_ATOMS` and `DIRECTOR_SCHEMA`, eliminating prompt-to-contract drift for scenario termination. Cleaned `next_action` JSON schema syntax.
+  - **Directives & Action Referencing Parity (`reflex.js`, `task.test.js`)**: Replaced broken `«INPUT»` meta-references with `«ACTION»` to match the actual emitted XML `<ACTION>` tag. Aligned `ENVIRONMENTAL_HINT` to recommend setting `next_action: "FRACTAL"` instead of non-existent `speaker`.
+  - **Entropy Polarity Alignment (`dynamics.js`)**: Inverted `DYNAMICS_AXES.entropy` spectrum bounds to `low="Coherence"` and `high="Glitching"` to match `INSTABILITY` (>70) and `STABILITY` (<30) trigger rules and Pathetic Fallacy background directives.
+  - **Symmetrical Epistemic Wall for FRACTAL (`entities.js`)**: Scoped `is_owner` in sheet actor resolution so that `FRACTAL` is only owned when FRACTAL is the active narrator or in director mode, preventing setting secrets from leaking across the Epistemic Wall into character actor prompts.
+  - **Programmatic DSL Scrubbing (`sheets.js`, `sheets.test.js`)**: Sanitized rendered profile field rows to strip internal engine flags (`| hide`, `| private`, `| show`, `| w:N`) prior to XML emission so raw metadata never pollutes LLM context. Verified with live schema sweep.
+
 - **Unified Prompt Library Schema & Universal XML Compiler (`xml.js`, `protocols.js`, `reflex.js`, `constitution.js`, `system.js`, `task.js`, `sheets.js`)**:
   - **Single Catalog Schema Grammar**: Migrated all prompt catalog atoms across `protocols.js` (`PROTOCOL_LIBRARY`), `reflex.js` (`REFLEX_LIBRARY`), `constitution.js` (`CONSTITUTION`), `system.js` (`ROLE_LIBRARY`), and `task.js` (`TASK_LIBRARY`) to a unified strict object schema: `{ tag, body, attrs?, inline? }`.
   - **Universal Atom XML Compiler (`render_atom_xml`)**: Implemented dual-mode universal atom compiler in `src/utils/xml.js` (with tests in `src/utils/xml.test.js`) supporting direct `{ tag, body }` objects and dotted catalog lookups (`render_atom_xml(catalog, key, values, options)`) with token interpolation, `body_only` bypass, and attribute merging.

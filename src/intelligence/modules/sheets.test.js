@@ -244,7 +244,7 @@ describe("parse_profile_field_rows and relational rendering", () => {
     const rows = parse_profile_field_rows(entity_with_relations.present.non_physical, entity_with_relations, null, null, null, active_map);
     expect(rows).toContain("Watchful.");
     expect(rows).toContain('<RELATION target="bob">immediate tactical ally</RELATION>');
-    expect(rows).toContain('<RELATION target="eve">concealed rival | hide</RELATION>');
+    expect(rows).toContain('<RELATION target="eve">concealed rival</RELATION>');
   });
 
   it("enforces Epistemic Wall in snapshot: strips hidden relations for other observers", () => {
@@ -265,7 +265,7 @@ describe("parse_profile_field_rows and relational rendering", () => {
       name_to_id: active_map,
     });
     expect(state_xml).toContain('<RELATION target="bob">immediate tactical ally</RELATION>');
-    expect(state_xml).toContain('<RELATION target="eve">concealed rival | hide</RELATION>');
+    expect(state_xml).toContain('<RELATION target="eve">concealed rival</RELATION>');
   });
 
   it("resolves @USER relation to entities.USER.id and strips | show and | w:10 flags", () => {

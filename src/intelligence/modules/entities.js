@@ -286,7 +286,7 @@ export function resolve_actor_plan({
       spec: key === "AI" ? SHEET_SPECS.AI_CHARACTER : key === "USER" ? SHEET_SPECS.USER_PERSONA : SHEET_SPECS.FRACTAL,
       entity,
       dynamics: dynamics_for(key),
-      is_owner: config?.visibility === "director" ? true : key === "FRACTAL" ? true : speaker_key === key,
+      is_owner: config?.visibility === "director" ? true : speaker_key === key,
       show_dispositions: dispositions_for.has(key),
       include_agenda: agendas.has(key),
       include_memories: undefined,
@@ -731,4 +731,5 @@ export function resolve_entity_context_slot(config, normalized = {}) {
  * ============================================================================
  * Modules Ground Refactor Phase 1 — actor plans frozen at the boundary (gate Sets become frozen arrays; name_to_id stays a Map) — prompt bytes byte-identical.
  * - 2026-10-07: Modules Ground Refactor Phase 3 — optics actors re-cut to sensory.js (wrap_entities exported; Section 7 moved; dead actor.mode branch retired) — prompt bytes byte-identical.
+ * - 2026-10-16: Symmetrical Epistemic Wall — FRACTAL sheet rendering respects speaker_key === key, preventing environmental secrets from leaking into Actor character prompts.
  */

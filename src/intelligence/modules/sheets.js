@@ -257,8 +257,8 @@ export function parse_profile_field_rows(raw_value, owner_entity = null, entitie
 
     for (const raw_val of entry_values) {
       const clean_val = String(raw_val ?? "")
-        .replace(/\s*\|\s*show\b/gi, "")
-        .replace(/\s*\|\s*w:\s*\d+\b/gi, "")
+        .replace(/\s*\|\s*(?:hide|private|show)\b/gi, "")
+        .replace(/\s*\|\s*(?:w|weight):\s*\d+\b/gi, "")
         .trim();
       const string_value = prompt_escape(clean_val).trim();
       if (!string_value) continue;
@@ -585,4 +585,5 @@ export function render_enhancement_field_context(entity, field_identifier, conte
  * - 2026-10-06: Plan Omega ground-up rebuild — define_sheet derives all tags from PROFILE_FIELD_CATALOG (epistemic defaults to "always", only owner-state written down); snapshot-first pipeline (resolve_sheet_snapshot normalizes epistemics/vectors/dispositions/physical rows once); direct physical row parsing via normalize_physical_entries (BODY regex round-trip retired); one mode axis (full/physical/separate, VISUAL_SECTIONS retired); render_chapter_history_xml relocated to history.js with structured <CHAPTER> grammar; byte-identical sheet output.
  * - 2026-10-04: Created from entities.js Sections 3-4 + dispositions renderer + Section 6 memory contexts, plus render_chapter_history_xml from history.js — sheet rendering and memory fragments live here; entities.js keeps presence/cast/visibility/assembly.
  * - 2026-10-14: Option A Casing Standardization — Standardized XML entity id attribute to lowercase slug (String(entity.id).toLowerCase()), aligning with target slugs in <RELATION target="...">.
+ * - 2026-10-16: Programmatic DSL Hygiene — Stripped '| hide', '| private', '| show', and '| w:N' flags in parse_profile_field_rows so raw engine metadata never leaks into compiled XML tags.
  */

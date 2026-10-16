@@ -39,7 +39,7 @@ export const DYNAMICS_AXES = Object.freeze({
 
   // Fractal (Environmental) axes
   velocity: { label: "Velocity", low: "Suspension", high: "Acceleration", scope: "fractal" },
-  entropy: { label: "Entropy", low: "Glitching", high: "Coherence", scope: "fractal" },
+  entropy: { label: "Entropy", low: "Coherence", high: "Glitching", scope: "fractal" },
 });
 
 /**
@@ -874,4 +874,5 @@ export function evaluate_image_trigger(current = {}, previous = {}, options = {}
  * - 2026-08-28: Harmonized dynamics nomenclature: DYNAMIC_NON_VERBAL_RULES, extract_entity_dynamics_baselines, compute_dynamics_deltas, evaluate_dynamics_signals, and apply_dynamics_gravity.
  * Modules Ground Refactor Phase 2 — exports DYNAMICS_METRIC_NAMES (single source for telemetry shaping).
  * - 2026-10-14: Phase 2 Atom 2.3 — Co-located delta bounds attributes (delta_standard, delta_extreme, boundary_clip) and non-overlapping qualitative CALIBRATION element in render_dynamics_axes_xml for Director system envelope.
+ * - 2026-10-16: Aligned entropy spectrum polarity (low: Coherence, high: Glitching) to match INSTABILITY/STABILITY triggers and Pathetic Fallacy directives.
  */

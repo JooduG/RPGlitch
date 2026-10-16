@@ -157,7 +157,7 @@ describe("reflex.js - environmental hint detection", () => {
 
   it("renders the enveloped hint on hits and blank on misses", () => {
     expect(render_environmental_hint("The knight draws his sword and steps forward")).toBe(
-      '<ENVIRONMENTAL_HINT>Non-verbal environmental action. Strongly consider setting "speaker" to "fractal" to narrate the setting, unless AI character should react directly.</ENVIRONMENTAL_HINT>',
+      '<ENVIRONMENTAL_HINT>Non-verbal environmental action. Strongly consider setting next_action to "FRACTAL" to narrate the setting, unless AI character should react directly.</ENVIRONMENTAL_HINT>',
     );
     expect(render_environmental_hint("I wonder what happens next")).toBe("");
   });
@@ -288,7 +288,7 @@ describe("reflex.js - stability plans", () => {
 describe("reflex.js - atom compiler", () => {
   it("resolves the enveloped conditional atom by dotted key", () => {
     expect(get_reflex_atom("REFLEX.CONDITIONALS.ENVIRONMENTAL_HINT")).toBe(
-      '<ENVIRONMENTAL_HINT>Non-verbal environmental action. Strongly consider setting "speaker" to "fractal" to narrate the setting, unless AI character should react directly.</ENVIRONMENTAL_HINT>',
+      '<ENVIRONMENTAL_HINT>Non-verbal environmental action. Strongly consider setting next_action to "FRACTAL" to narrate the setting, unless AI character should react directly.</ENVIRONMENTAL_HINT>',
     );
     expect(get_reflex_atom("REFLEX.CONDITIONALS.ALTERNATION")).toContain("exactly ONE");
     expect(get_reflex_atom("REFLEX.PACING.TERSE")).toContain("Zero padding");

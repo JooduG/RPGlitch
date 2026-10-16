@@ -50,7 +50,9 @@ export const OUTPUT_FORMATS = Object.freeze({
  */
 export const SCHEMA_ATOMS = Object.freeze({
   _thought_process: "<Tactical intent & state delta>",
-  next_action: `'AI_CHARACTER' (companion reacts) | 'FRACTAL' (environment/ambience) | 'npc:<id>' (secondary speaker) | { \\"genesis\\": { \\"name\\": \\"<Name>\\", \\"description\\": \\"<description>\\" } } (mint new when cast empty) | 'EPILOGUE_COLLAPSED' (fatal trauma) | 'EPILOGUE_CONCLUDED' (triumphant resolution)'`,
+  next_action:
+    "'AI_CHARACTER' (companion reacts) | 'FRACTAL' (environment/ambience) | 'npc:<id>' (secondary speaker) | { \"genesis\": { \"name\": \"<Name>\", \"description\": \"<description>\" } } (mint new when cast empty) | 'EPILOGUE_COLLAPSED' (fatal trauma) | 'EPILOGUE_CONCLUDED' (triumphant resolution)",
+  story_status: "'IN_PROGRESS' | 'COLLAPSED' (on definitive death/fatal catastrophe) | 'CONCLUDED' (on scenario climax/resolution)",
   keywords: [
     "<1-5 from: SHAME, FEAR, VULNERABILITY, BETRAYAL, ABANDONMENT, EMOTIONAL_NEGLECT, DEFIANCE, INTIMACY, GRIEF, DOMINANCE, DECEPTION, DYSREGULATION (or [] if neutral)>",
   ],
@@ -287,4 +289,5 @@ export function render_output_format_xml({ mode = "", content = "", indent = 2 }
  * - 2026-10-04: Added OUTPUT_DIRECTIVES (DATA return-shape directive, new home for the ex-protocol DATA atom).
  * - 2026-10-04: Plan/render split (Plan 2) — `resolve_output_plan` owns all routing as frozen pure data (kind/body/schema_keys/warnings), `render_output_plan` maps plans to the envelope without branching; `render_json_return` owns the schema interpolation; per-key dispatch factored into `render_schema_key_line` so composer and warnings agree; `get_output_format` is a thin body reader; retired the `is_temporal !== undefined` tripwire (explicit false now routes by mode); `render_output_format_xml` uses canonical `indent`.
  * - 2026-10-04: Created from task.js — output emission formats, schema atoms, JSON-schema composer, format router, and `<OUTPUT_FORMAT>` envelope move here; task.js keeps turn assembly and wires FORMATS to OUTPUT_FORMATS.
+ * - 2026-10-16: Added story_status atom and cleaned next_action JSON schema syntax in SCHEMA_ATOMS.
  */
