@@ -327,9 +327,9 @@ export async function embed(text) {
     return embedding;
   } catch (error) {
     console.warn("[Embeddings] Embed failed for text, clearing pipeline for retry:", text.substring(0, 60), error);
-    _pipeline = null;
+    _pipeline = _debug_pipeline_fn || null;
     _loading = null;
-    _model_ready = false;
+    _model_ready = Boolean(_debug_pipeline_fn);
     try {
       const pipeline = await get_pipeline();
       await new Promise((resolve) => setTimeout(resolve, 0));
@@ -491,6 +491,7 @@ export const embeddings_engine = {
 
 /**
  * CHANGELOG:
+ * - 2026-10-16: Preserved `_debug_pipeline_fn` when resetting pipeline during inference retry to prevent ESM import collisions under Node/Vitest test suites.
  * - 2026-09-30: Added `quantize_vector_q8` and `dequantize_vector_q8` 8-bit quantization codecs with base64 and Uint8Array serialization for Phase B memory compaction.
  * - 2026-08-29: Applied /harmonize protocol: purged shorthand variable abbreviations (`emb` → `raw_embedding`, `v` → `vector`), aligned JSDoc annotations, and validated Svelte 5 runes reactivity.
  * - 2026-08-29: Added Universal File Architecture header block, structured section dividers, normalized `cache_stats()` snake_case nomenclature, enforced P4 zero backwards compatibility.

@@ -375,8 +375,7 @@
           use:use_actions={actions}
           disabled={is_disabled}
           use:auto_resize={{ sync_id }}
-          data-sync-id={sync_id}
-        ></textarea>
+          data-sync-id={sync_id}></textarea>
       {:else}
         <ScrollArea class="w-full">
           <div

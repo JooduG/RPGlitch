@@ -287,7 +287,6 @@ export function sync_workspace() {
     { file: ".gitignore", patterns: [...common_patterns, ...(master_configuration.gitignore || [])] },
     { file: ".geminiignore", patterns: [...common_patterns, ...(master_configuration.geminiignore || [])] },
     { file: ".antigravityignore", patterns: [...common_patterns, ...(master_configuration.antigravityignore || [])] },
-    { file: ".htmlhintignore", patterns: [...common_patterns, ...(master_configuration.linters?.htmlhint || [])] },
     { file: ".markdownlintignore", patterns: [...common_patterns, ...(master_configuration.linters?.markdownlint || [])] },
     { file: ".prettierignore", patterns: [...common_patterns, ...(master_configuration.linters?.prettier || [])] },
     { file: ".stylelintignore", patterns: [...common_patterns, ...(master_configuration.linters?.stylelint || [])] },

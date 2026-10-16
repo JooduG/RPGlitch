@@ -52,7 +52,6 @@
   "gitignore": ["!.env.example", "!package-lock.json", "!**/*rpglitch-left-panel.txt", "!**/templates/**", "act_output.log", "gha-creds-*.json"],
   "linters": {
     "eslint": [],
-    "htmlhint": ["**/*.svelte"],
     "markdownlint": ["**/modern-web-guidance/guides/**", "**/suggestion*"],
     "prettier": ["**/suggestion*", "eslint.config.js", ".vscode/settings.json", "jsconfig.json", "vitest.config.js"],
     "stylelint": []

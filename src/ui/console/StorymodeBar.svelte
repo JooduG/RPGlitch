@@ -153,8 +153,7 @@
   placeholder={app.control_panel_open ? "" : is_ghostwriting ? "Ghostwriting..." : "Type a message..."}
   rows="1"
   disabled={app.control_panel_open || is_ghostwriting}
-  aria-label="Input message"
-></textarea>
+  aria-label="Input message"></textarea>
 
 {#if pending_count > 0}
   <span

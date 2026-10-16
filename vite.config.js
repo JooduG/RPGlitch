@@ -1,9 +1,10 @@
+import { defineConfig } from "vitest/config";
+import { playwright } from "@vitest/browser-playwright";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import tailwindcss from "@tailwindcss/vite";
 import { execSync } from "child_process";
 import fs from "fs";
 import path from "path";
-import { defineConfig } from "vite";
 import devtoolsJson from "vite-plugin-devtools-json";
 import { viteSingleFile } from "vite-plugin-singlefile";
 
@@ -41,7 +42,7 @@ function perchanceBase64Vault() {
   return {
     name: "perchance-base64-vault",
     closeBundle() {
-      const targetOutput = path.resolve(__dirname, "dist/index.html");
+      const targetOutput = path.resolve(import.meta.dirname, "dist/index.html");
       try {
         if (fs.existsSync(targetOutput)) {
           let html = fs.readFileSync(targetOutput, "utf8");
@@ -117,29 +118,29 @@ export default defineConfig(({ command, mode }) => {
     plugins: [
       designTokenSync(),
       tailwindcss(),
-      svelte({ configFile: path.resolve(__dirname, "svelte.config.js") }),
+      svelte({ configFile: path.resolve(import.meta.dirname, "svelte.config.js") }),
       !isDev && viteSingleFile(),
       !isDev && perchanceBase64Vault(),
       devtoolsJson(),
     ].filter(Boolean),
     resolve: {
       alias: {
-        "@": path.resolve(__dirname, "./src"),
-        "@platform": path.resolve(__dirname, "./src/platform"),
-        "@intelligence": path.resolve(__dirname, "./src/intelligence"),
-        "@data": path.resolve(__dirname, "./src/data"),
-        "@state": path.resolve(__dirname, "./src/state"),
-        "@media": path.resolve(__dirname, "./src/media"),
-        "@ui": path.resolve(__dirname, "./src/ui"),
-        "@console": path.resolve(__dirname, "./src/ui/console"),
-        "@story": path.resolve(__dirname, "./src/ui/story"),
-        "@message": path.resolve(__dirname, "./src/ui/message"),
-        "@entity": path.resolve(__dirname, "./src/ui/entity"),
-        "@profile": path.resolve(__dirname, "./src/ui/profile"),
-        "@image": path.resolve(__dirname, "./src/ui/image"),
-        "@primitives": path.resolve(__dirname, "./src/ui/primitives"),
-        "@motion": path.resolve(__dirname, "./src/ui/motion"),
-        "@utils": path.resolve(__dirname, "./src/utils"),
+        "@": path.resolve(import.meta.dirname, "./src"),
+        "@platform": path.resolve(import.meta.dirname, "./src/platform"),
+        "@intelligence": path.resolve(import.meta.dirname, "./src/intelligence"),
+        "@data": path.resolve(import.meta.dirname, "./src/data"),
+        "@state": path.resolve(import.meta.dirname, "./src/state"),
+        "@media": path.resolve(import.meta.dirname, "./src/media"),
+        "@ui": path.resolve(import.meta.dirname, "./src/ui"),
+        "@console": path.resolve(import.meta.dirname, "./src/ui/console"),
+        "@story": path.resolve(import.meta.dirname, "./src/ui/story"),
+        "@message": path.resolve(import.meta.dirname, "./src/ui/message"),
+        "@entity": path.resolve(import.meta.dirname, "./src/ui/entity"),
+        "@profile": path.resolve(import.meta.dirname, "./src/ui/profile"),
+        "@image": path.resolve(import.meta.dirname, "./src/ui/image"),
+        "@primitives": path.resolve(import.meta.dirname, "./src/ui/primitives"),
+        "@motion": path.resolve(import.meta.dirname, "./src/ui/motion"),
+        "@utils": path.resolve(import.meta.dirname, "./src/utils"),
       },
       extensions: [".svelte", ".js", ".ts", ".mjs"],
     },
@@ -175,6 +176,31 @@ export default defineConfig(({ command, mode }) => {
     test: {
       pool: "forks",
       teardownTimeout: 1000,
+      projects: [
+        {
+          extends: "./vite.config.js",
+          test: {
+            name: "client",
+            browser: {
+              enabled: true,
+              provider: playwright(),
+              instances: [{ browser: "chromium", headless: true }],
+            },
+            include: ["src/**/*.svelte.{test,spec}.{js,ts}"],
+            exclude: ["src/lib/server/**"],
+          },
+        },
+
+        {
+          extends: "./vite.config.js",
+          test: {
+            name: "server",
+            environment: "node",
+            include: ["src/**/*.{test,spec}.{js,ts}"],
+            exclude: ["src/**/*.svelte.{test,spec}.{js,ts}"],
+          },
+        },
+      ],
     },
   };
 });

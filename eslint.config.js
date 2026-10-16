@@ -1,3 +1,4 @@
+import prettier from "eslint-config-prettier";
 import css from "@eslint/css";
 import js from "@eslint/js";
 import json from "@eslint/json";
@@ -210,4 +211,6 @@ export default defineConfig([
       "better-tailwindcss/enforce-consistent-line-wrapping": "off",
     },
   },
+  prettier,
+  svelte.configs.prettier
 ]);

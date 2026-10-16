@@ -178,8 +178,7 @@
         bind:value={description}
         use:auto_resize
         onfocus={() => on_focus_field("description", "Description")}
-        onblur={() => on_focus_field("", "")}
-      ></textarea>
+        onblur={() => on_focus_field("", "")}></textarea>
     </GlassWrapper>
   {:else if description}
     <p

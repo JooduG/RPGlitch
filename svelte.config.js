@@ -1,11 +1,5 @@
-import { mdsvex } from "mdsvex";
-
 export default {
-  // Strip out svelte-preprocess and SCSS.
-  // The AI must use the vanilla CSS variables from design.css.
-  preprocess: [mdsvex()],
-
-  extensions: [".svelte", ".svx"],
+  extensions: [".svelte"],
 
   compilerOptions: {
     /* ========================================================================
