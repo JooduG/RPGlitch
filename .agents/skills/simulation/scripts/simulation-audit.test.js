@@ -149,12 +149,35 @@ ${result.verification.failed.length > 0 ? "**Failed Checks:**\n" + result.verifi
   });
 });
 
+describe("📐 LIVE SCHEMA SWEEP: Structural Specification Audit", () => {
+  it("compiles all modes across trigger fixtures and writes the live schema report", async () => {
+    const { register_state_accessors } = await import("../../../../src/utils/index.js");
+    const { run_sweep } = await import("./live-schema-sweep.js");
+
+    register_state_accessors({ runtime: { active_fractal: { narrative_style: "cormac_mccarthy" } } });
+    try {
+      const seed = Number(process.env.SWEEP_SEED || 7);
+      const result = run_sweep({ seed });
+      fs.mkdirSync("tmp", { recursive: true });
+      fs.writeFileSync("tmp/live-schema-report.md", result.markdown);
+      console.log(
+        `sweep: seed=${seed} compiles=${result.stats.compiles} tags=${result.stats.tagsObserved} conditional=${result.stats.conditionalTags} dataKeys=${result.stats.dataKeys}`,
+      );
+      expect(result.problems).toEqual([]);
+      expect(result.stats.tagsObserved).toBeGreaterThan(100);
+    } finally {
+      register_state_accessors({ runtime: null });
+    }
+  });
+});
+
 // =============================================================================
 // CHANGELOG
 // =============================================================================
 
 /**
  * CHANGELOG:
+ * - 2026-10-16: Consolidated schema sweep — Absorbed live schema sweep test suite directly into simulation-audit.test.js under a unified audit:simulation command.
  * - 2026-10-15: Retired prompt-schema-map.js in favor of live-schema-sweep.js; pruned import and report generation wire.
  * - 2026-10-14: Comprehensive XML Tag Specification Map & Lint Fixes — Appended Phase 5 XML tag directory generated via prompt-schema-map.js, removed header brackets to fix IDE markdownlint warnings, and sanitized consecutive blank lines (MD012).
  * - 2026-09-18: Updated assertions for canonical <ENTITIES> per scrobbles.md blueprint.
