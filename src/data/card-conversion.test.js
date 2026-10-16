@@ -44,8 +44,18 @@ describe("detect_card_format", () => {
     expect(detect_card_format({ eternal: { physical: "x" } })).toBe("rpglitch");
   });
 
+  it("detects flat classic cards without a spec/data envelope", () => {
+    expect(detect_card_format({ name: "Ilsa", description: "stern captain", personality: "disciplined" })).toBe("v2");
+    expect(detect_card_format({ name: "Ilsa", scenario: "airship" })).toBe("v2");
+  });
+
+  it("still prefers rpglitch for natives with a name", () => {
+    expect(detect_card_format({ name: "X", eternal: { physical: "y" } })).toBe("rpglitch");
+  });
+
   it("returns unknown for prose and junk", () => {
     expect(detect_card_format({ hello: "world" })).toBe("unknown");
+    expect(detect_card_format({ name: "Lonely" })).toBe("unknown");
     expect(detect_card_format("not json")).toBe("unknown");
     expect(detect_card_format(null)).toBe("unknown");
     expect(detect_card_format([1, 2])).toBe("unknown");
@@ -72,6 +82,13 @@ describe("parse_character_card", () => {
     expect(flat_profile.name).toBe("Bare");
     expect(flat_profile.personality).toBeUndefined();
     expect(flat_profile.tags).toBeUndefined();
+  });
+
+  it("reads top-level fields on flat cards without a data envelope", () => {
+    const flat_profile = parse_character_card({ name: "Ilsa", description: "stern captain", personality: "disciplined" });
+    expect(flat_profile.name).toBe("Ilsa");
+    expect(flat_profile.appearance).toBe("stern captain");
+    expect(flat_profile.personality).toBe("disciplined");
   });
 
   it("tolerates malformed cards", () => {

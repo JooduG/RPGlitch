@@ -32,7 +32,8 @@ export async function structure_profile(raw, type) {
     input_data: typeof raw === "string" ? raw : JSON.stringify(raw, null, 2),
   });
   const result = await llm_service.enhance(payload);
-  return parse_profile_json(result);
+  const text = typeof result === "string" ? result : String(result?.text ?? result ?? "");
+  return parse_profile_json(text);
 }
 
 /**
@@ -287,6 +288,7 @@ export async function spawn_character(bridge, draft = {}) {
 
 /**
  * CHANGELOG
+ * - 2026-10-16: Import reliability — `structure_profile` coerces the enhance() result to a primitive string before parsing (the raw:true engine path returns a boxed String object that the JSON parser rejects, silently voiding every sort).
  * - 2026-10-03: Hardened Ledger Integration — `birth_entity_core` now emits genesis ledger entries across all populated four-quadrant fields (`eternal.physical`, `eternal.non_physical`, `present.physical`, `present.non_physical`, `past`, `future`) with `writer: "genesis"` and `decider: "genesis"`.
  * - 2026-10-01: Universal Predicates Migration — purged legacy `relationships: []` array initialization from `spawn_character` under P4 Zero Backwards Compatibility.
  * - 2026-09-22: One input channel (recommendation #5) — `structure_profile` delivers the raw profile text through `<INPUT kind="ingestion">` via `render_profile_sorting({ input_data })` instead of a `messages` payload.

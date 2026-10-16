@@ -276,5 +276,6 @@ The complete historical specifications, task decompositions, and touchpoint refe
 
 ## 📌 Parking Lot & Tactical Backlog
 
+- **Card Conversion & Import Reliability**: Hardened character import parsing and normalization (`src/data/card-conversion.js`, `src/data/card-conversion.test.js`, `src/intelligence/parser.test.js`, `src/intelligence/profile.js`, `src/ui/entity/ImportModal.svelte`) supporting boxed String coerion and JSON salvage in parser layers during character card ingestion.
 - **Scattered Tuning Constants**: Re-evaluate a dedicated tuning surface (`src/intelligence/config.js` or `tuning.js`) consolidating stagnation trip points inline in `prompts.js:182` (8/16), salience multipliers inline in `temporal.js`, and token budgets in `history.js:81+`.
 - **Entity Label Taxonomy Storage Audit**: Implement an automated metasyntax standing gate in `src/intelligence/prompts.test.js` ensuring transient turn roles (`speaker`/`listener`) never leak into IndexedDB or event-sourced mutation ledgers.

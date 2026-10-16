@@ -20,8 +20,8 @@
 
   $effect(() => {
     if (open) {
-      import_character = true;
-      import_fractal = true;
+      import_character = _target_type !== "fractal";
+      import_fractal = _target_type === "fractal";
     }
   });
 
@@ -160,11 +160,9 @@
   bind:open
   variant="bare"
   z_index="1000"
-  class="relative w-[clamp(26rem,92vw,44rem)] max-w-2xl rounded-2xl bg-glass-elevated p-4 shadow-[0_16px_48px_rgba(0,0,0,0.8)] [backdrop-filter:var(--blur-mist)] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-(--noise-url) before:opacity-10 before:mix-blend-overlay before:content-['']"
+  class="relative max-h-[92vh] w-[clamp(26rem,92vw,44rem)] max-w-2xl overflow-y-auto rounded-2xl bg-glass-elevated p-4 shadow-[0_16px_48px_rgba(0,0,0,0.8)] [backdrop-filter:var(--blur-mist)] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-(--noise-url) before:opacity-10 before:mix-blend-overlay before:content-['']"
   on_close={() => {
     open = false;
-    raw_text = "";
-    image_data = null;
     error_message = "";
   }}
 >
@@ -188,7 +186,9 @@
     </div>
 
     <div class="flex items-center justify-between">
-      <span class="text-[10px] text-slate-500 italic"> JSON cards bypass the AI sorter; raw text is schema-sorted by the AI. </span>
+      <span class="text-[10px] text-slate-500 italic">
+        Native RPGlitch JSON imports directly; character cards and prose are structured by the AI sorter.
+      </span>
 
       <Button
         variant="primary"
@@ -210,6 +210,7 @@
 
 <!--
 CHANGELOG:
+- 2026-10-16: Import reliability + modal UX — target toggles default to the opening hand (no more surprise duplicate fractals); accidental backdrop/Escape close keeps the draft; modal scrolls (max-h-92vh) so long pastes can't push Import off-screen; caption now states cards+prose go through the sorter.
 - 2026-10-03: Route `import_native_json` through `birth_entity_core` to write genesis ledger lines and unify entity birth path across all import formats.
 - 2026-10-01: Migrated entity import handling to structured entity birth patterns.
 -->

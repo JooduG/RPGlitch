@@ -155,13 +155,16 @@ export async function execute_director_shot(payload, snapshot, options = {}) {
 export function parse_director_json(raw_text) {
   if (!raw_text || !raw_text.trim()) return null;
 
+  const json_string = extract_json_block(raw_text);
   const parsed = extract_and_repair_json(raw_text, null);
   if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
     if (parsed.prose) delete parsed.prose;
+    if (!json_string) {
+      parsed._parse_error = true;
+    }
     return normalize_director_data(parsed);
   }
 
-  const json_string = extract_json_block(raw_text);
   if (!json_string) {
     console.warn("[Director] Director JSON missing brackets, falling back to raw prose.");
     state_bridge.app?.log("[Director] Director JSON missing brackets — using raw prose fallback", "warn");
@@ -653,4 +656,5 @@ export async function apply_relationships(bridge, rels) {
  * - 2026-09-04: normalize_next_action warns on unknown/non-string next_action; synthesize_director_fallback also emits internal_monologue so the fallback keeps its think block.
  * - 2026-10-14: Atom 2.5 — implemented is_explicit_player_destruction_declared and Climax Sovereignty Dual Defense in normalize_director_data (downgrading unconsented EPILOGUE_COLLAPSED to AI_CHARACTER / IN_PROGRESS with severe somatic trauma staging notes).
  * - 2026-10-14: Phase 1 Purge alternative_branches — Removed normalize_alternative_branches and alternative_branches field from normalize_director_data under P4 Zero Backwards Compatibility.
+ * - 2026-10-16: Truncation Recovery Defense — `parse_director_json` now flags `_parse_error: true` when `extract_json_block` returns null (indicating truncated/unclosed JSON salvaged mid-stream), ensuring `execute_director_shot` dispatches the terse retry.
  */

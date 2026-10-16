@@ -405,6 +405,33 @@ describe("extract_and_repair_json", () => {
     expect(extract_and_repair_json("Just raw narrative prose without braces", null)).toBeNull();
     expect(extract_and_repair_json("", { fallback: true })).toEqual({ fallback: true });
   });
+
+  it("coerces boxed String objects from the raw:true engine path", () => {
+    const boxed = new String('{"name": "Ilsa", "role": "captain"}');
+    expect(extract_and_repair_json(boxed)).toEqual({ name: "Ilsa", role: "captain" });
+    expect(extract_and_repair_json({ text: '{"name": "Ilsa"}' })).toEqual({ name: "Ilsa" });
+    expect(extract_and_repair_json({})).toBeNull();
+  });
+
+  it("salvages output-budget truncation cut off mid-string", () => {
+    const truncated =
+      '{"_thought_process": "Extracting profile.", "name": "Captain Ilsa Renn", ' +
+      '"eternal": {"physical": "[Face: Weathered, lined] [Hair: Grey bun]", ' +
+      '"non_physical": "Disciplined and just. Speaks in orders", "present": {"physical": "[Clothing: captain';
+    const parsed = extract_and_repair_json(truncated);
+    expect(parsed?.name).toBe("Captain Ilsa Renn");
+    expect(parsed?.eternal?.physical).toContain("Weathered");
+    expect(parsed?.eternal?.non_physical).toContain("Disciplined");
+  });
+
+  it("returns fallback when truncation leaves nothing viable", () => {
+    expect(extract_and_repair_json('{"na', null)).toBeNull();
+    expect(extract_and_repair_json("no braces at all", null)).toBeNull();
+  });
+
+  it("salvages a cut-off value into a usable prefix", () => {
+    expect(extract_and_repair_json('{"name": "Cap', null)).toEqual({ name: "Cap" });
+  });
 });
 
 describe("balance_think_tags", () => {

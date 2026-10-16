@@ -269,6 +269,72 @@ export function force_close_response(text, character_name) {
   return `${t}\n\n${character_name} goes quiet, the moment settling around them like dust.`;
 }
 
+/**
+ * Closes a JSON prefix cut off mid-stream: terminates any open string and
+ * appends the missing bracket closers. Returns null on negative depth.
+ * @param {string} cut
+ * @returns {string|null}
+ */
+function close_truncated_json(cut) {
+  let out = cut;
+  let in_string = false;
+  let escaped = false;
+  let curly = 0;
+  let square = 0;
+  for (const ch of out) {
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+    if (ch === "\\" && in_string) {
+      escaped = true;
+      continue;
+    }
+    if (ch === '"') {
+      in_string = !in_string;
+      continue;
+    }
+    if (in_string) continue;
+    if (ch === "{") curly += 1;
+    else if (ch === "}") curly -= 1;
+    else if (ch === "[") square += 1;
+    else if (ch === "]") square -= 1;
+  }
+  if (curly < 0 || square < 0) return null;
+  if (in_string) out += '"';
+  return out + "]".repeat(square) + "}".repeat(curly);
+}
+
+/**
+ * Salvages a model response cut off mid-JSON (output-budget truncation).
+ * Trims back to the last viable boundary and returns the first
+ * non-degenerate parse — else the fallback.
+ * @param {string} stripped
+ * @param {any} fallback
+ * @returns {any}
+ */
+function repair_truncated_json(stripped, fallback) {
+  const start = stripped.indexOf("{");
+  if (start === -1) return fallback;
+  let cut = stripped.slice(start);
+  for (let attempt = 0; attempt < 24; attempt += 1) {
+    const closed = close_truncated_json(cut);
+    if (closed) {
+      try {
+        const value = JSON.parse(closed);
+        const keys = value && typeof value === "object" ? Object.keys(value).length : 1;
+        if (keys > 0) return value;
+      } catch {
+        /* keep trimming */
+      }
+    }
+    const next = Math.max(cut.lastIndexOf("\n"), cut.lastIndexOf(","), cut.lastIndexOf("{"));
+    if (next <= 0) return fallback;
+    cut = cut.slice(0, next);
+  }
+  return fallback;
+}
+
 // ── 4. Structured JSON Extraction & Repair ───────────────────────────────────
 
 /**
@@ -280,7 +346,13 @@ export function force_close_response(text, character_name) {
  * @returns {any}
  */
 export function extract_and_repair_json(raw, fallback = null) {
-  if (!raw || typeof raw !== "string") return fallback;
+  if (typeof raw !== "string") {
+    if (raw == null) return fallback;
+    const coerced = typeof raw.text === "string" ? raw.text : String(raw);
+    if (!coerced || coerced === "[object Object]") return fallback;
+    raw = coerced;
+  }
+  if (!raw) return fallback;
   const stripped = strip_cognition_blocks(raw)
     .replace(/```json\n?|```/g, "")
     .trim();
@@ -300,7 +372,7 @@ export function extract_and_repair_json(raw, fallback = null) {
     json_string = stripped.substring(first_curly, last_curly + 1);
   }
 
-  if (!json_string) return fallback;
+  if (!json_string) return repair_truncated_json(stripped, fallback);
 
   const try_parse = (s) => {
     try {
@@ -327,6 +399,10 @@ export function extract_and_repair_json(raw, fallback = null) {
     const parsed = try_parse(cumulative);
     if (parsed !== undefined) return parsed;
   }
+
+  const NEED_MORE = {};
+  const salvaged = repair_truncated_json(stripped, NEED_MORE);
+  if (salvaged !== NEED_MORE) return salvaged;
 
   return fallback;
 }
@@ -528,6 +604,7 @@ export function clean_image_prompt(raw, options = {}) {
 
 /**
  * CHANGELOG
+ * - 2026-10-16: Import reliability — `extract_and_repair_json` coerces boxed String objects (the raw:true engine path) instead of rejecting them, and salvages output-budget truncation (close open strings, balance brackets, trim to last viable boundary) after all other repairs fail.
  * - 2026-09-24: Optics JSON caption — `parse_llm_image_prompt_response` now surfaces the `caption` field from the contracted optics JSON (selfie variant), falling back to `<caption>` markup extraction only when the field is absent.
  * - 2026-09-24: Optics response parsing consolidation — `parse_llm_image_prompt_response` now also extracts the `<image_prompt>` element and `<caption>` (returning `{ prompt, negative_prompt, caption }`), and `clean_image_prompt` routes through the new `flatten_markup_to_prose`, so leaked XML/HTML containers and Markdown emphasis are flattened to prose instead of being forwarded to the image model.
  * - 2026-09-18: Absorbed image prompt response parsing & cleaning from image-prompts.js: (1) `parse_llm_image_prompt_response`, (2) `strip_proper_names`, (3) `clean_image_prompt`.

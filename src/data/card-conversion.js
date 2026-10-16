@@ -67,6 +67,17 @@ export function detect_card_format(payload_json) {
     return "rpglitch";
   }
 
+  if (
+    candidate.name !== undefined &&
+    (candidate.description !== undefined ||
+      candidate.personality !== undefined ||
+      candidate.scenario !== undefined ||
+      candidate.first_mes !== undefined ||
+      candidate.mes_example !== undefined)
+  ) {
+    return "v2";
+  }
+
   return "unknown";
 }
 
@@ -85,7 +96,7 @@ export function parse_character_card(payload_json) {
   const candidate =
     payload_json && typeof payload_json === "object" && !Array.isArray(payload_json) ? /** @type {Record<string, any>} */ (payload_json) : null;
 
-  const card_data = candidate?.data && typeof candidate.data === "object" && !Array.isArray(candidate.data) ? candidate.data : {};
+  const card_data = candidate?.data && typeof candidate.data === "object" && !Array.isArray(candidate.data) ? candidate.data : (candidate ?? {});
 
   /** @type {Record<string, any>} */
   const flat_profile = {};
@@ -242,6 +253,7 @@ export function serialize_rpglitch_entity(entity) {
 
 /**
  * CHANGELOG:
+ * - 2026-10-16: Import reliability — `detect_card_format` recognizes flat classic cards (top-level name + description/personality/scenario/first_mes, checked after the rpglitch branch so natives never hijack); `parse_character_card` reads top-level fields when no data envelope is present.
  * - 2026-08-29: Harmonized module structure, added formal Universal Header,
  *   organized dividers, full anti-abbreviation compliance, robust PNG chunk
  *   bounds handling and atob try/catch guard.
