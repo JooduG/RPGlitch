@@ -53,23 +53,23 @@ typography:
   font-mono: '"JetBrains Mono", monospace'
 rounded:
   radius-sharp: var(--spacing-unit)
-  radius-standard: calc(var(--spacing-unit) * 4)
+  radius-standard: calc(var(--spacing-unit) *4)
 spacing:
   spacing-column-unit: calc(var(--spacing-grid-width) / 12)
-  spacing-gap-standard: calc(var(--spacing-unit) * 4)
-  spacing-gap-tight: calc(var(--spacing-unit) * 2)
+  spacing-gap-standard: calc(var(--spacing-unit)* 4)
+  spacing-gap-tight: calc(var(--spacing-unit) *2)
   spacing-grid-height: clamp(20rem, 100dvh, var(--spacing-grid-height-max))
-  spacing-grid-height-max: clamp(25rem, calc(1.618 * 100vw), 100dvh)
+  spacing-grid-height-max: clamp(25rem, calc(1.618* 100vw), 100dvh)
   spacing-grid-width: clamp(20rem, 100vw, var(--spacing-grid-width-max))
-  spacing-grid-width-max: clamp(50rem, calc(1.618 * 100dvh), 100vw)
-  spacing-padding-standard: calc(var(--spacing-unit) * 4)
-  spacing-padding-tight: calc(var(--spacing-unit) * 2)
+  spacing-grid-width-max: clamp(50rem, calc(1.618 *100dvh), 100vw)
+  spacing-padding-standard: calc(var(--spacing-unit)* 4)
+  spacing-padding-tight: calc(var(--spacing-unit) *2)
   spacing-row-unit: calc(var(--spacing-grid-height) / 12)
   spacing-pixel: 1px
   spacing-unit: 0.25rem
 components:
   signature-color: var(--color-frozen)
-  blur-mist: blur(calc(var(--spacing-unit) * 4))
+  blur-mist: blur(calc(var(--spacing-unit)* 4))
   brightness-dim: "0.9"
   brightness-glow: "1.1"
   brightness-muted: "0.3"
@@ -79,14 +79,14 @@ components:
   duration-standard: 300ms
   ease-standard: cubic-bezier(0.4, 0, 0.2, 1)
   ease-elastic: cubic-bezier(0.34, 1.56, 0.64, 1)
-  spacing-icon-medium: calc(var(--spacing-unit) * 8)
-  spacing-icon-small: calc(var(--spacing-unit) * 4)
+  spacing-icon-medium: calc(var(--spacing-unit) *8)
+  spacing-icon-small: calc(var(--spacing-unit)* 4)
   kinetic-drag-threshold: "10"
   kinetic-momentum-friction: "0.95"
   kinetic-scroll-multiplier: "1.5"
   spacing-kinetic-shimmy-offset: var(--spacing-pixel)
   spacing-kinetic-shimmy-y: calc(var(--spacing-pixel) / 2)
-  spacing-kinetic-slide-y: calc(var(--spacing-pixel) * 10)
+  spacing-kinetic-slide-y: calc(var(--spacing-pixel) *10)
   spacing-kinetic-stab-distance: var(--spacing-unit)
   motion-dissolve: opacity var(--duration-standard) var(--ease-standard)
   motion-elastic: var(--duration-slow) var(--ease-elastic)
@@ -100,18 +100,18 @@ components:
   scale-pulse: "1.05"
   scale-sink: "0.96"
   shadow-ghost: 0 var(--spacing-pixel) var(--spacing-pixel) rgb(from var(--color-void-black) r g b / var(--opacity-ghost))
-  shadow-standard: 0 var(--spacing-unit) calc(var(--spacing-unit) * 4) rgb(from var(--color-void-black) r g b / var(--opacity-whisper))
-  shadow-ambient: 0 0 calc(var(--spacing-unit) * 5) var(--color-void-black)
-  signature-glow: 0 0 calc(var(--spacing-unit) * 4) var(--color-frozen)
+  shadow-standard: 0 var(--spacing-unit) calc(var(--spacing-unit)* 4) rgb(from var(--color-void-black) r g b / var(--opacity-whisper))
+  shadow-ambient: 0 0 calc(var(--spacing-unit) *5) var(--color-void-black)
+  signature-glow: 0 0 calc(var(--spacing-unit)* 4) var(--color-frozen)
   spring-damping-default: "0.8"
   spring-stiffness-default: "0.15"
   state-fill-end: 100%
   state-fill-start: 0%
   state-weight-intensity: "0"
-  spacing-character-card-height: calc(var(--spacing-row-unit) * 5)
-  spacing-character-card-width: calc(var(--spacing-column-unit) * 2)
-  spacing-fractal-card-height: calc(var(--spacing-row-unit) * 4)
-  spacing-fractal-card-width: calc(var(--spacing-column-unit) * 4)
+  spacing-character-card-height: calc(var(--spacing-row-unit) *5)
+  spacing-character-card-width: calc(var(--spacing-column-unit)* 2)
+  spacing-fractal-card-height: calc(var(--spacing-row-unit) *4)
+  spacing-fractal-card-width: calc(var(--spacing-column-unit)* 4)
   z-index-max: "999"
   empty-fill: "rgb(23 23 23 / 0.6)"
 ---

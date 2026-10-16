@@ -33,6 +33,9 @@ const GLOBAL_TOOL_PATHS = Object.freeze({
   "ingest-web": ".gemini/config/plugins/developer-database-plugin/scripts/ingest-web.js",
   "sync-backlog": ".gemini/config/skills/planning/scripts/sync-backlog.js",
   "forge-skill": ".gemini/config/skills/skill-writing/scripts/forge-skill.js",
+  "svelte-autofix": ".gemini/config/skills/svelte/scripts/svelte-autofix.js",
+  "audit-svelte": ".gemini/config/skills/svelte/scripts/audit-svelte.js",
+  "forge-svelte": ".gemini/config/skills/svelte/scripts/forge-svelte.js",
 });
 
 // =================================================================================================
@@ -219,5 +222,6 @@ if (requested_operation === "deepwiki" || requested_operation === "deepwiki-brid
 /**
  * CHANGELOG
  * -------------------------------------------------------------------------------------------------
+ * 2026-10-16: Added `svelte-autofix`, `audit-svelte`, and `forge-svelte` global tool proxies to ~/.gemini/config/skills/svelte/scripts/.
  * 2026-09-05: Consolidated tool-bridge.js and deepwiki-bridge.cjs into unified bridges.js with zero-abbreviation nomenclature.
  */

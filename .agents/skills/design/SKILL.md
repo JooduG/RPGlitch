@@ -156,7 +156,6 @@ The `design` skill maintains several scripts for token integrity:
 
 - `sync-css.js` / `sync-css.test.js`: Design token synchronization.
 - `audit-design.js` / `audit-google-design.js`: Token validation.
-- `audit-svelte.js`: Validates component structures.
 
 ### Visual & Browser Audit
 
