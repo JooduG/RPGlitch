@@ -216,6 +216,7 @@ The `.agents/skills/simulation/references/` directory serves as the local idea i
 3. **D20 Micro-Resolution Engine:** [`suggestion-d20-stat-resolution.md`](./references/suggestion-d20-stat-resolution.md) — Pure functional `evaluate_stat_check`, DC difficulty ladder, and success-with-a-cost thresholds.
 4. **Climax Fate Branching & Choices:** [`suggestion-fate-branching-choices.md`](./references/suggestion-fate-branching-choices.md) — Triad of Fate Paths (High, Middle, Low), Director `<choices>` XML format, and action chips.
 5. **Gambit 21 Push-Your-Luck Engine:** [`suggestion-gambit-blackjack-engine.md`](./references/suggestion-gambit-blackjack-engine.md) — Multi-turn Blackjack macro state machine (target 21) for sustained encounter pacing.
+6. **Model Overlays & Feature Catalog:** [`suggestion-model-overlays-and-features.md`](./references/suggestion-model-overlays-and-features.md) — Presets shelf, modular structural lenses cross-referenced with `narrative-styles.js`, dynamic recall tiering, and future `FEATURES.md` tour.
 
 > [!TIP]
 > **Idea Promotion Lifecycle**: These proposals represent exploratory possibilities. When an initiative is **promoted** to a planned milestone or active sprint, it is **migrated directly into [ROADMAP.md](../../../ROADMAP.md) and pruned from this directory**.
