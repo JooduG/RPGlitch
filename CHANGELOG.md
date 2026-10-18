@@ -9,6 +9,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Phase V: Memory RAG Hardening, Context Cliff & Somatics (Tracks 8, 9, 11)**:
+  - **Somatic Recall Degradation & Weight Unification (`temporal.js`, `temporal.test.js`, `protocols.js`, `builder.js`)**:
+    - Implemented `degrade_memory_text` using diegetic block glyphs (`■■■`, no ellipses) to signal missing memories directly to the LLM without contaminating XML grammar or hallucinated facts.
+    - Updated `format_hybrid_recall` to degrade lower-weight memories (`emotional_weight <= 6`) when `resolve_recall_clarity(dynamics) === 'fragmented'`, preserving high-weight canon crispness (`w >= 7`).
+    - Purged `is_origin` and `usr_` origin protection in favor of unified pure numeric weights (`w: 1-10`).
+    - Implemented `resolve_somatic_interference_protocol` to inject grounding rules when Chaos or Entropy exceeds 70.
+    - Wired `temporal_engine.format_hybrid` with entity dynamics into prompt builder past accessors and single-field enhancement.
+  - **Educational 4-Quadrant Lorebook Guidance (`profile-fields.js`, `Profile.svelte`)**:
+    - Enriched Character and Fractal taxonomy descriptions in `PROFILE_FIELDS` to explain how `eternal`, `present`, `past`, and `future` quadrants act as living vector slices of the world lorebook without keyword dumps.
+    - Embedded educational info (`"i"`) icons with field tooltips into parsed pseudo-JSON card headers and TextField headers in `Profile.svelte`.
+  - **Token Calculation Calibration & Token Budget HUD (`text.js`, `text.test.js`, `bridges.js`, `runtime.svelte.js`, `prompts.js`, `DevWing.svelte`)**:
+    - Calibrated token estimation ratio to `CHARS_PER_TOKEN = 3.35` in `src/utils/text.js`, eliminating token undercounting against live Perchance BPE tokenization.
+    - Wired real-time prompt compilation token snapshots (`system`, `entities`, `history`, `task`, and `<ENTITIES>` actors/cast/memories sub-breakdown) through `bridges.js` to `runtime.last_prompt_token_snapshot`.
+    - Integrated interactive Token Budget HUD badge and collapsible allocation breakdown popover in `DevWing.svelte`.
+  - **Unified Cooldown & Optics Preemption Protection (`dynamics.js`, `optics.js`, `story.js`)**:
+    - Unified `IMAGE_TRIGGER_COOLDOWN_ROUNDS = 2` across dynamics evaluation and optics trigger arbitration.
+    - Granted preemption protection to Turn 3 deferred optics runs, while caretaker background queue suppresses abort errors cleanly and advances `runtime.back_shot_cursor` only upon successful commit.
+  - **Barrel Architecture Purity & Design Token Unification**:
+    - Audited all 8 sites across `src/` containing re-exports outside canonical `index.js` barrels, completely eliminating dead re-exports, test-only aliasing, and layer-crossing bridge facades.
+    - Severed cross-domain circular coupling between `src/media/` and `src/intelligence/` by removing compiler re-exports from `src/media/optics.js`, repointing `src/media/visual.svelte.js` to `@intelligence`, and exporting `compose_visual_generation_prompt` directly from `@intelligence`.
+    - Unified the JS design token pipeline: updated `.agents/skills/design/scripts/sync-css.js` to emit pre-computed `SIGNATURE_COLORS`, `PALETTE`, and `PALETTE_CSS_VARIABLES` directly inside `src/media/tokens.js`, eliminating runtime string manipulation and regex filtering in `src/media/palette.js`.
+    - Removed `export { SIGNATURE_COLORS } from "@data"` from `src/media/index.js` in favor of a 100% local, self-contained export directly from `./tokens.js`.
+    - Removed dead `render_physical_block` and `whole_vector_slice` aliasing from `src/intelligence/modules/sheets.js`.
+    - Purged dead `export { DIRECTOR_SCHEMA }` from `src/intelligence/director.js` and `export { generate_uuid }` from `src/state/log.svelte.js`.
+    - Stripped internal parser re-exports from `src/intelligence/story.js`, canonical role re-exports from `src/intelligence/modules/history.js`, and style/color re-exports from `src/utils/styles.js` and `src/media/palette.js`.
+    - Repointed all direct unit test suites (`story.test.js`, `history.test.js`, `log.test.js`, `tokens.test.js`, `optics.test.js`, `styles.test.js`) to import directly from their sovereign modules or canonical `@utils`/`@data`/`@intelligence` barrels.
+
 - **Test Suite Narrowing & Type Safety (`prompts.test.js`)**:
   - Replaced raw `in` operator assertion (`expect("task" in mode).toBe(false)`) with `Reflect.has(mode, "task")` to resolve TypeScript/IDE `in-operator-narrowing` diagnostics cleanly.
 

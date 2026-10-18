@@ -83,9 +83,7 @@ export const CONTEXT_TOKEN_CLIFF = 6000;
 /** Token budget for one transcript window (history slot, all modes). */
 export const HISTORY_TOKEN_BUDGET = 1600;
 
-import { CANONICAL_ROLES, canonicalize_role, normalize_history_beat } from "@utils";
-
-export { CANONICAL_ROLES, canonicalize_role, normalize_history_beat };
+import { normalize_history_beat } from "@utils";
 
 // ============================================================================
 // [SECTION 3: HISTORY PLANS — PURE DATA, NO XML]

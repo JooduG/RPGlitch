@@ -62,7 +62,7 @@ export { temporal_engine, reconcile_vector_caps } from "./temporal.js";
 export { apply_profile_to_entity, structure_profile, spawn_character, birth_entity_core } from "./profile.js";
 
 // ============================================================================
-// Simulation Physics & Dynamics Axis Engine
+// Simulation Physics, Dynamics Engine & Telemetry
 // ============================================================================
 
 export {
@@ -72,24 +72,26 @@ export {
   evaluate_subtext_protocols,
   evaluate_dynamics_rules,
   reduce_dynamics,
+  build_turn_summary,
   DYNAMICS_AXES,
   DYNAMICS_RULES,
 } from "./dynamics.js";
-
-// ============================================================================
-// Telemetry & Turn Summary Generation
-// ============================================================================
-
-export { build_turn_summary } from "./dynamics.js";
 
 // ============================================================================
 // Optics & Visual Prompt Compilation (Sensory Cortex)
 // ============================================================================
 
 export { render_core_protocols, resolve_protocol_plan, render_protocol_plan } from "./modules/protocols.js";
-export { render_narrative_style_xml, render_visual_style_xml, resolve_style_dna, resolve_style_snapshot } from "./modules/style.js";
+export {
+  render_narrative_style_xml,
+  render_visual_style_xml,
+  resolve_style_dna,
+  resolve_style_snapshot,
+  render_optics_fallback,
+  compose_visual_generation_prompt,
+  resolve_visual_engine_tokens,
+} from "./modules/style.js";
 export { render_visual_history, format_sensory_history, resolve_history_plan, resolve_sensory_plan, render_history_plan } from "./modules/history.js";
-export { render_optics_fallback } from "../media/optics.js";
 
 // ============================================================================
 // Veil Engine & Universal Bracket Predicates (Epistemic Wall)
@@ -110,6 +112,7 @@ export {
 
 /**
  * CHANGELOG:
+ * - 2026-10-18: Sovereign prompt ownership — repointed `render_optics_fallback` to `./modules/style.js`, completely severing the cross-boundary export from `../media/optics.js`.
  * - Track 1.1: Re-sourced dynamics barrel from dynamics.js (physics.js renamed); exports the pure reduce_dynamics reducer.
  * - Track 0.11: render_optics_fallback now re-exports from media/optics.js (sensory.js dissolved).
  * - 2026-10-01: Re-exported consolidated Veil Engine functions (bracket parsing, epistemic wall, secrecy signals) from veil.js.

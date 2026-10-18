@@ -203,6 +203,10 @@ export class RuntimeEngineStore {
   /** @type {number} */
   last_semantic_drift = $state(1.0);
 
+  // --- Prompt Token Budget & Cliff Telemetry (Track 9 / 5.5) ---
+  /** @type {any} */
+  last_prompt_token_snapshot = $state(null);
+
   // --- Generation Concurrency Mutex ---
   is_foreground_generating = $state(false);
   is_background_generating = $state(false);

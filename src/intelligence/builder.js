@@ -30,10 +30,15 @@ import {
   create_relational_context,
 } from "@utils";
 import { ensure_embeddings } from "@platform";
-import { normalize_image_tier, resolve_visual_engine_tokens } from "@media";
-import { resolve_style_snapshot } from "./modules/style.js";
+import { normalize_image_tier } from "@media";
+import { resolve_style_snapshot, resolve_visual_engine_tokens } from "./modules/style.js";
 import { resolve_stability_lock } from "./modules/reflex.js";
-import { resolve_pov_protocol, resolve_macro_directive, resolve_layer_tense_protocol } from "./modules/protocols.js";
+import {
+  resolve_pov_protocol,
+  resolve_macro_directive,
+  resolve_layer_tense_protocol,
+  resolve_somatic_interference_protocol,
+} from "./modules/protocols.js";
 import { resolve_entities } from "./modules/entities.js";
 import { render_dynamics_axes_xml, render_subtext_xml } from "./dynamics.js";
 
@@ -249,9 +254,10 @@ export function create_render_accessors(entities = {}, input = "", raw_messages 
     _context: scoring_context,
     past: (reference, options = {}) => {
       const entity = resolve(reference);
-      const formatted = temporal_engine.format(resolve_vector_pool(entity), scoring_context, {
+      const formatted = temporal_engine.format_hybrid(resolve_vector_pool(entity), scoring_context, {
         offset: 0,
         max_chars: 1500,
+        dynamics: entity?.dynamics,
         ...options,
       });
       return formatted;
@@ -376,6 +382,7 @@ function resolve_prose_bag(config, context, bag_inputs) {
       alternation_source: "entities",
       player_name: entities.USER?.name || null,
       constraints_xml: constraints_directive,
+      protocols: [resolve_somatic_interference_protocol(speaker_dynamics)].filter(Boolean),
     },
     entities_kind: "sheets",
     sheets_args: {
@@ -546,6 +553,7 @@ function normalize_narrator_context(config, context) {
       alternation_source: "entities",
       player_name: entities.USER?.name || null,
       constraints_xml: constraints_directive,
+      protocols: [resolve_somatic_interference_protocol(speaker_dynamics || fractal_dynamics)].filter(Boolean),
     },
     entities_kind: "sheets",
     sheets_args: {
@@ -719,14 +727,20 @@ function normalize_enhancement_context(config, context) {
     round: null,
     attributes: { scope: resolved_label, field: field_id },
     role_args: { enhancer_name: resolved_enhancer },
-    core_protocols_args: { protocols: layer_tense_protocol ? [...config.protocols, layer_tense_protocol] : config.protocols },
+    core_protocols_args: {
+      protocols: [...(config.protocols || []), layer_tense_protocol, resolve_somatic_interference_protocol(context.entity?.dynamics)].filter(Boolean),
+    },
     entity_context_args: {
       enabled: entity_plan.field_context,
       entity: context.entity,
       field_id,
       content,
       normalized_type,
-      format_past_function: (entry, entry_content) => temporal_engine.format(resolve_vector_pool(entry), entry_content || "", { max_chars: 1500 }),
+      format_past_function: (entry, entry_content) =>
+        temporal_engine.format_hybrid(resolve_vector_pool(entry), entry_content || "", {
+          max_chars: 1500,
+          dynamics: entry?.dynamics,
+        }),
     },
     task_params: {
       task_state: config.task_state,

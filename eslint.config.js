@@ -42,7 +42,6 @@ export default defineConfig([
       "**/out/**",
       "**/pnpm-lock.yaml",
       "**/public/assets/**",
-      "src/data/definitions/signature-colors.js",
       "src/media/design.css",
       "src/media/tokens.js",
       "**/*scribbles**",

@@ -4,6 +4,7 @@ import {
   CINEMATOGRAPHY_PRESETS,
   CINEMATOGRAPHY_RULES,
   compose_visual_generation_prompt,
+  render_optics_fallback,
   resolve_optics_cinematography,
   resolve_style_dna,
   resolve_style_snapshot,
@@ -182,5 +183,43 @@ describe("compose_visual_generation_prompt", () => {
     expect(negative_prompt).toContain("blurry");
     expect(negative_prompt).toContain("low resolution");
     expect(negative_prompt).toContain("ugly");
+  });
+});
+
+describe("render_optics_fallback", () => {
+  const test_fractal = {
+    id: "fractal_1",
+    name: "Neon Alley",
+    type: "fractal",
+    eternal: { physical: "[LIGHTING: amber haze] [WEATHER: constant drizzle]" },
+    present: { physical: "[ATMOSPHERE: tense quiet]" },
+  };
+
+  const test_ai = {
+    id: "ai_1",
+    name: "Kira",
+    type: "ai",
+    eternal: { physical: "[HAIR: obsidian bob] [EYES: hazel]" },
+    present: { physical: "[POSTURE: alert]" },
+  };
+
+  it("builds an <image_prompt> grounded in the setting entity for scene tiers", () => {
+    const fallback = render_optics_fallback({ tier: "story_scene", subject: "ai", fractal: test_fractal });
+    expect(fallback).toContain("<image_prompt>");
+    expect(fallback).toContain("</image_prompt>");
+    expect(fallback).toContain("Neon Alley");
+  });
+
+  it("situates a story_character inside the fractal setting", () => {
+    const fallback = render_optics_fallback({ tier: "story_character", subject: "ai", ai: test_ai, fractal: test_fractal });
+    expect(fallback).toContain("Kira");
+    expect(fallback).toContain("Neon Alley");
+    expect(fallback).toContain("situated within");
+  });
+
+  it("renders a solo_entity portrait cleanly with default parameters", () => {
+    const fallback = render_optics_fallback({ tier: "solo_entity", subject: "ai", ai: test_ai, intent: "Close up portrait" });
+    expect(fallback).toContain("Close up portrait, Kira");
+    expect(fallback).toContain("obsidian bob");
   });
 });

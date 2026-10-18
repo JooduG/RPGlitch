@@ -20,6 +20,7 @@ import {
   render_protocol_plan,
   resolve_pov_protocol,
   resolve_layer_tense_protocol,
+  resolve_somatic_interference_protocol,
 } from "./protocols.js";
 import { render_alternation_protocol } from "./reflex.js";
 import { render_narrative_style_xml, render_visual_style_xml } from "./style.js";
@@ -51,6 +52,14 @@ describe("protocols.js - Core Protocol Library & Compiler", () => {
     expect(resolve_layer_tense_protocol("past", "")).toBe("CORE_PROTOCOLS.PERSPECTIVE.TENSE.PAST");
     expect(resolve_layer_tense_protocol("", "FUTURE")).toBe("CORE_PROTOCOLS.PERSPECTIVE.TENSE.FUTURE");
     expect(resolve_layer_tense_protocol("name", "")).toBe(null);
+  });
+
+  it("resolves somatic interference protocol above threshold (>70)", () => {
+    expect(resolve_somatic_interference_protocol({ chaos: 71, entropy: 10 })).toBe("CORE_PROTOCOLS.PROSE_DISCIPLINE.SOMATIC_INTERFERENCE");
+    expect(resolve_somatic_interference_protocol({ chaos: 10, entropy: 80 })).toBe("CORE_PROTOCOLS.PROSE_DISCIPLINE.SOMATIC_INTERFERENCE");
+    expect(resolve_somatic_interference_protocol({ chaos: 70, entropy: 70 })).toBe(null);
+    expect(resolve_somatic_interference_protocol({})).toBe(null);
+    expect(resolve_somatic_interference_protocol(null)).toBe(null);
   });
 
   it("folds tense atoms into PERSPECTIVE instead of a LAYER_TENSE block", () => {

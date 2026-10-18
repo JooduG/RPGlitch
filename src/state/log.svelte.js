@@ -30,8 +30,6 @@ import { runtime } from "./runtime.svelte.js";
 export const DEVELOPER_TELEMETRY_STORAGE_KEY = "dev_telemetry";
 export const MAX_DEVELOPER_LOG_ENTRIES = 500;
 
-export { generate_uuid };
-
 /**
  * Resolves a speaker display name to its canonical entity id against the
  * runtime trio + hydrated NPC cast (case-insensitive). Null when no id matches.

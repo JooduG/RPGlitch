@@ -15,46 +15,12 @@
  * Purity: 100% pure utility functions & frozen lookups. Zero Svelte runes, safe browser DOM guards.
  */
 
-import { SIGNATURE_COLORS } from "@data";
-import { TOKENS } from "./tokens.js";
+import { SIGNATURE_COLORS, PALETTE, PALETTE_CSS_VARIABLES, TOKENS } from "./tokens.js";
+
+export { SIGNATURE_COLORS, PALETTE, PALETTE_CSS_VARIABLES };
 
 // ============================================================================
-// [SECTION 1: DERIVED PALETTE CONSTANTS & TOKEN MAPS]
-// ============================================================================
-
-/**
- * Converts a kebab-case token name to Title Case label.
- * @param {string} token_name
- * @returns {string}
- */
-const format_token_label = (token_name) =>
-  token_name
-    .split("-")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-
-const color_entries = Object.entries(TOKENS)
-  .filter(([name, value]) => name.startsWith("color-") && typeof value === "string" && value.startsWith("#"))
-  .sort(([a], [b]) => a.localeCompare(b));
-
-/**
- * Map of human-readable color label -> Hex value (e.g. { "Neon Cyan": "#00f0ff" }).
- * @type {Readonly<Record<string, string>>}
- */
-export const PALETTE = Object.freeze(
-  Object.fromEntries(color_entries.map(([name, value]) => [format_token_label(name.slice("color-".length)), value])),
-);
-
-/**
- * Map of Hex value -> CSS variable string (e.g. { "#00f0ff": "var(--color-neon-cyan)" }).
- * @type {Readonly<Record<string, string>>}
- */
-export const PALETTE_CSS_VARIABLES = Object.freeze(Object.fromEntries(color_entries.map(([name, value]) => [value, `var(--${name})`])));
-
-export { SIGNATURE_COLORS };
-
-// ============================================================================
-// [SECTION 2: HASHING & COLOR RESOLUTION UTILITIES]
+// [SECTION 1: HASHING & COLOR RESOLUTION UTILITIES]
 // ============================================================================
 
 /**

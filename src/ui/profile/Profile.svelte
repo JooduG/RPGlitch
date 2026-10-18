@@ -911,6 +911,19 @@
                       >
                     </div>
                     <div class="ml-auto flex h-full shrink-0 items-center gap-2">
+                      {#if field.description}
+                        <span class="flex cursor-help items-center text-white/60 hover:text-white" use:tooltip aria-label={field.description}>
+                          <svg
+                            viewBox="0 0 24 24"
+                            class="size-icon-small fill-none stroke-current stroke-2"
+                            style="stroke-linecap: round; stroke-linejoin: round;"
+                          >
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                          </svg>
+                        </span>
+                      {/if}
                       <Button
                         variant="invisible"
                         size="small"
@@ -994,6 +1007,19 @@
                 {/snippet}
 
                 {#snippet header_actions()}
+                  {#if field.description}
+                    <span class="flex cursor-help items-center text-white/60 hover:text-white" use:tooltip aria-label={field.description}>
+                      <svg
+                        viewBox="0 0 24 24"
+                        class="size-icon-small fill-none stroke-current stroke-2"
+                        style="stroke-linecap: round; stroke-linejoin: round;"
+                      >
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                      </svg>
+                    </span>
+                  {/if}
                   <Button
                     variant="invisible"
                     size="small"
@@ -1181,6 +1207,7 @@
 
 <!--
 CHANGELOG:
+- 2026-10-18: Phase V Sub-item 5.4 — Embedded educational Lorebook Guidance info icons with field tooltips into parsed pseudo-JSON and TextField header bars.
 - 2026-10-04: Safeguarded raw profile field parsing to extract content from any legacy vector objects or arrays, preventing [object Object] leaks and standardizing past as bracket strings.
 - 2026-10-04: Grayed out hidden/private pseudo-JSON cards (dashed border, dimmed background, muted text) and stripped raw engine flags (| show, | hide, | w:N) from card values.
 - 2026-10-03: Added Field History Inspector launcher button to parsed pseudo-JSON bracket field headers so timeline inspection is available regardless of bracket existence.

@@ -131,7 +131,7 @@ export {
 // Palette & Color Constants
 // ============================================================================
 
-export { SIGNATURE_COLORS } from "./definitions/signature-colors.js";
+export { SIGNATURE_COLORS } from "../media/tokens.js";
 
 /**
  * CHANGELOG:

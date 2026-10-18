@@ -27,6 +27,7 @@
  * @property {any} [simulation_state] - State machine & intent lock store.
  * @property {any} [simulation_log] - Reactive message dialogue feed store.
  * @property {any} [session_driver] - Session log persistence driver.
+ * @property {((snapshot: any) => void)} [record_prompt_token_snapshot] - Live compiler token budget recorder.
  */
 
 /**
@@ -48,6 +49,7 @@ const _accessors = {
   simulation_state: null,
   simulation_log: null,
   session_driver: null,
+  record_prompt_token_snapshot: null,
 };
 
 /**
@@ -60,6 +62,7 @@ export function register_state_accessors(accessors) {
   _accessors.simulation_state = accessors.simulation_state ?? null;
   _accessors.simulation_log = accessors.simulation_log ?? null;
   _accessors.session_driver = accessors.session_driver ?? null;
+  _accessors.record_prompt_token_snapshot = accessors.record_prompt_token_snapshot ?? null;
 }
 
 /**
@@ -81,6 +84,13 @@ export const state_bridge = {
   },
   get session_driver() {
     return _accessors.session_driver;
+  },
+  record_prompt_token_snapshot(snapshot) {
+    if (typeof _accessors.record_prompt_token_snapshot === "function") {
+      _accessors.record_prompt_token_snapshot(snapshot);
+    } else if (_accessors.runtime) {
+      _accessors.runtime.last_prompt_token_snapshot = snapshot;
+    }
   },
 };
 

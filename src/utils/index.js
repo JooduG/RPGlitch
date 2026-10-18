@@ -95,9 +95,7 @@ export * from "./job-queue.js";
 // ============================================================================
 
 export * from "./detox.js";
-
 export * from "./styles.js";
-export { VALID_SPEAKING_STYLES } from "./detox.js";
 
 // ============================================================================
 // Dotted-Catalog Compiler Core (Atoms & Token Interpolation)

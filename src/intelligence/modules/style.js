@@ -15,7 +15,17 @@
  * ============================================================================
  */
 
-import { CLEAR_TOKENS, CLOTHING_KEYS, escape_xml, prompt_escape, render_xml_tag, safe_parse_pseudo_json, VISUAL_EXCLUDED_KEYS } from "@utils";
+import {
+  CLEAR_TOKENS,
+  CLOTHING_KEYS,
+  escape_xml,
+  normalize_comma_spacing,
+  prompt_escape,
+  render_xml_tag,
+  safe_parse_pseudo_json,
+  VISUAL_EXCLUDED_KEYS,
+} from "@utils";
+import { normalize_image_tier } from "@media";
 import {
   extract_style_dna,
   get_narrative_style,
@@ -394,8 +404,74 @@ export function build_aesthetic_map(entity = {}) {
   return merged_aesthetic_map;
 }
 
+// ============================================================================
+// [SECTION 4: DETERMINISTIC OPTICS FALLBACK]
+// ============================================================================
+
+/**
+ * Deterministically compiles a fallback <image_prompt> block for an entity when
+ * LLM prompt extraction fails or returns empty.
+ *
+ * @param {Object} [parameters={}]
+ * @param {string} [parameters.tier="solo_entity"]
+ * @param {"ai" | "user" | "fractal"} [parameters.subject="ai"]
+ * @param {any} [parameters.ai]
+ * @param {any} [parameters.user]
+ * @param {any} [parameters.fractal]
+ * @param {string} [parameters.intent=""]
+ * @returns {string}
+ */
+export function render_optics_fallback({ tier = "solo_entity", subject = "ai", ai, user, fractal, intent = "" } = {}) {
+  const normalized_tier = normalize_image_tier(tier);
+  const fallback_entity =
+    normalized_tier === "solo_entity"
+      ? subject === "user"
+        ? user
+        : subject === "fractal"
+          ? fractal
+          : ai
+      : normalized_tier === "story_scene" || normalized_tier === "story_entities"
+        ? fractal
+        : subject === "user"
+          ? user
+          : ai;
+
+  const flatten_traits = (entity) => {
+    if (!entity) return "";
+    const map = build_aesthetic_map(entity);
+    const style_keys = [
+      "_visual_style_medium",
+      "_visual_style_palette",
+      "_visual_style_camera",
+      "_visual_style_composition",
+      "_visual_style_texture",
+      "_visual_style_tags",
+    ];
+    const visual_values = style_keys.map((k) => map[k]).filter(Boolean);
+    const additional = Object.entries(map)
+      .filter(([k]) => !style_keys.includes(k))
+      .map(([k, v]) => {
+        const val_str = Array.isArray(v) ? v.join(", ") : String(v).trim();
+        return k.startsWith("_visual_style_") || k === "aesthetic" ? val_str : `${k.replace(/_/g, " ")}: ${val_str}`;
+      })
+      .filter(Boolean);
+    return normalize_comma_spacing([...visual_values, ...additional].join(". "));
+  };
+
+  const fallback_description = flatten_traits(fallback_entity);
+  const fallback_name = fallback_entity?.name || normalized_tier;
+  const short_intent = intent && intent.length < 200 ? intent : "";
+
+  if (normalized_tier === "story_character" && fractal) {
+    const fractal_description = flatten_traits(fractal);
+    return `<image_prompt>${short_intent ? `${short_intent}, ` : ""}${fallback_name}, ${fallback_description || "detailed character"}, situated within ${fractal.name || "the setting"}, ${fractal_description || "atmospheric environment, dramatic lighting"}</image_prompt>`;
+  }
+  return `<image_prompt>${short_intent ? `${short_intent}, ` : ""}${fallback_name}, ${fallback_description || "detailed character portrait, dramatic lighting"}</image_prompt>`;
+}
+
 /**
  * CHANGELOG
+ * - 2026-10-18: Sovereign prompt ownership — moved `render_optics_fallback` into style.js (Section 4) from media/optics.js, restoring strict unidirectional layer hierarchy and eliminating intelligence-to-media barrel exports.
  * - Track 0.11: Absorbed optics cinematography (presets, rules, resolver) + visual payload synthesis (engine tokens, prompt composer, aesthetic map) from sensory.js/media optics.js. Prompt bytes byte-identical.
  * - 2026-10-04: Added resolve_style_dna — frozen single-owner @data parse; render_narrative_style_xml and all prompt plans read through it.
  * Modules Ground Refactor Phase 2 — style.js is pure (state_bridge evicted to builder resolve_builder_style_snapshot); snapshot takes explicit records — prompt bytes byte-identical.

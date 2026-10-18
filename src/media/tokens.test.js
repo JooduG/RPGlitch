@@ -2,17 +2,8 @@
  * @file src/media/tokens.test.js
  * Unit tests for Design Tokens, Palette Resolution, and Color Generation logic.
  */
-import {
-  get_signature_color,
-  get_signature_label,
-  get_deterministic_color,
-  resolve_token,
-  get_color_name,
-  ensure_theme_tokens,
-  SIGNATURE_COLORS,
-  PALETTE,
-  PALETTE_CSS_VARIABLES,
-} from "./palette.js";
+import { get_signature_color, get_signature_label, get_deterministic_color, resolve_token, get_color_name, ensure_theme_tokens } from "./palette.js";
+import { SIGNATURE_COLORS, PALETTE, PALETTE_CSS_VARIABLES } from "./tokens.js";
 import { aesthetic_resolver } from "./optics.js";
 import { describe, expect, test } from "vitest";
 

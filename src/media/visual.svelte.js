@@ -22,15 +22,15 @@ import { SvelteSet } from "svelte/reactivity";
 import { db, entities, VISUAL_STYLES, resolve_portrait_visual_style_key, resolve_story_visual_style_key } from "@data";
 import { generate_secure_seed, strip_cognition_blocks, state_bridge, CircuitBreaker, ExponentialBackoffRetryer } from "@utils";
 import { llm_service } from "@platform";
+import { get_resolution, get_tier_guidance_scale, normalize_image_tier, aesthetic_resolver, IMAGE_TIERS } from "./optics.js";
 import {
-  get_resolution,
-  get_tier_guidance_scale,
-  normalize_image_tier,
-  aesthetic_resolver,
+  compile_prompt,
+  clean_image_prompt,
   compose_visual_generation_prompt,
-  IMAGE_TIERS,
-} from "./optics.js";
-import { compile_prompt, clean_image_prompt, parse_llm_image_prompt_response, render_optics_fallback, render_visual_history } from "@intelligence";
+  parse_llm_image_prompt_response,
+  render_optics_fallback,
+  render_visual_history,
+} from "@intelligence";
 
 // ============================================================================
 // [SECTION 1: HOST ENGINE DISCOVERY & CACHE]

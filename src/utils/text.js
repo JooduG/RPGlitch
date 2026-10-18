@@ -261,16 +261,22 @@ export function truncate_at_word(text, limit = 200, options = {}) {
 }
 
 /**
+ * Calibrated character-to-token ratio based on Perchance BPE tokenization
+ * across structured XML tags, pseudo-JSON brackets, and narrative prose.
+ */
+export const CHARS_PER_TOKEN = 3.35;
+
+/**
  * Heuristic token estimator for prompt budgeting (Track 2.2: 6k cliff guard).
- * Inference servers bill and truncate on tokens; prose averages ~4 characters
- * per token, so character length divided by four is the proactive yardstick.
+ * Inference servers bill and truncate on tokens; prose averages ~3.35 characters
+ * per token in BPE tokenizers when structured prompt XML and pseudo-JSON brackets are present.
  * @param {string} text
  * @returns {number} Estimated token count (0 for blank input).
  */
 export function estimate_tokens(text) {
   const length = String(text ?? "").length;
   if (length === 0) return 0;
-  return Math.max(1, Math.ceil(length / 4));
+  return Math.max(1, Math.ceil(length / CHARS_PER_TOKEN));
 }
 
 /**

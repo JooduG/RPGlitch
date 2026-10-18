@@ -12,9 +12,9 @@ import {
   get_resolution,
   get_tier_guidance_scale,
   normalize_image_tier,
-  render_optics_fallback,
   resolve_image_trigger,
 } from "./optics.js";
+import { render_optics_fallback } from "@intelligence";
 import { VISUAL_EXCLUDED_KEYS, strip_visual_excluded } from "@utils";
 
 describe("optics.js — 4-Tier Image Taxonomy & Resolutions", () => {
@@ -111,7 +111,7 @@ describe("optics.js — Trigger Decision Engine & Dynamics Gate", () => {
       expect(res.next_director_round).toBeNull();
     });
 
-    it("suppresses dynamics trigger when dynamics cooldown is active (3 rounds)", () => {
+    it("suppresses dynamics trigger when dynamics cooldown is active (2 rounds)", () => {
       const snapshot = { ai: { dynamics: { intensity: 90 } } };
       const prev_dynamics = { ai: { intensity: 50 } };
       const res = resolve_image_trigger({
@@ -127,7 +127,7 @@ describe("optics.js — Trigger Decision Engine & Dynamics Gate", () => {
       expect(res.tier).toBeNull();
     });
 
-    it("allows director explicit trigger on 2-round cooldown even if dynamics is on 3-round cooldown", () => {
+    it("allows director explicit trigger on 2-round cooldown when cooldown has elapsed", () => {
       const snapshot = { ai: { dynamics: { intensity: 50 } } };
       const prev_dynamics = { ai: { intensity: 50 } };
       const res = resolve_image_trigger({

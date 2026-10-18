@@ -32,14 +32,14 @@
  * DEPENDENCIES:
  *   - `@utils`: generate_uuid, pick_random
  *   - `@platform`: security.sanitize
- *   - `./definitions/signature-colors.js`: SIGNATURE_COLORS
+ *   - `../media/tokens.js`: SIGNATURE_COLORS
  *   - `./definitions/speaking-styles.js`: is_valid_speaking_style
  * ============================================================================
  */
 
 import { generate_uuid, pick_random } from "@utils";
 import { security } from "@platform";
-import { SIGNATURE_COLORS } from "./definitions/signature-colors.js";
+import { SIGNATURE_COLORS } from "../media/tokens.js";
 import { is_valid_speaking_style } from "./definitions/speaking-styles.js";
 
 const sanitize_html = (/** @type {any} */ value) => security.sanitize(value);

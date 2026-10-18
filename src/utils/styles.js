@@ -20,8 +20,6 @@
 import { state_bridge } from "./bridges.js";
 import { VALID_SPEAKING_STYLES } from "./detox.js";
 
-export { VALID_SPEAKING_STYLES };
-
 // ============================================================================
 // [SECTION 1: NARRATIVE SLOP LINTER (Track 3.1)]
 // ============================================================================

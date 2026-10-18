@@ -41,9 +41,8 @@ export {
 // Visual Color Palettes & Signature Tokens
 // ============================================================================
 
-export { get_signature_color, get_signature_label, ensure_theme_tokens, SIGNATURE_COLORS, PALETTE, PALETTE_CSS_VARIABLES } from "./palette.js";
-
-export { TOKENS } from "./tokens.js";
+export { get_signature_color, get_signature_label, ensure_theme_tokens } from "./palette.js";
+export { SIGNATURE_COLORS, PALETTE, PALETTE_CSS_VARIABLES, TOKENS } from "./tokens.js";
 
 // ============================================================================
 // Pure Visual Optics (Taxonomy, Triggers, Aesthetics & Prompts)
@@ -57,10 +56,7 @@ export {
   get_tier_guidance_scale,
   resolve_image_trigger,
   aesthetic_resolver,
-  build_aesthetic_map,
   ORDERED_VISUAL_STYLE_KEYS,
-  resolve_visual_engine_tokens,
-  compose_visual_generation_prompt,
 } from "./optics.js";
 
 // ============================================================================

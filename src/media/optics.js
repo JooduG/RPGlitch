@@ -14,22 +14,15 @@
  *    - Source A: Pure-JS physical dynamics displacement & extreme band crossings (Signal A & B).
  *    - Source B: LLM Director narrative beat requests (trigger_image / visual_staging).
  *    - Decoupled cooldown timers (2 rounds for Director, 3 rounds for Dynamics).
- * 3. Aesthetic Resolvers + Deterministic Fallback (aesthetic_resolver over the
- *    style.js aesthetic map; render_optics_fallback beside the taxonomy):
- *    - Re-exports the style.js visual payload compilers (build_aesthetic_map,
- *      compose_visual_generation_prompt, resolve_visual_engine_tokens) so media
- *      consumers keep one import surface.
+ * 3. Aesthetic Resolvers (aesthetic_resolver over the style.js aesthetic map):
+ *    - Pure trait extraction and continuous prose flattening of entity physical attributes.
  *
  * Purity: 100% pure deterministic functions and frozen tables. Zero Svelte runes, zero side effects.
  */
 
 import { normalize_comma_spacing } from "@utils";
-import { build_aesthetic_map, compose_visual_generation_prompt, resolve_visual_engine_tokens } from "../intelligence/modules/style.js";
+import { build_aesthetic_map } from "../intelligence/modules/style.js";
 import { IMAGE_TRIGGER, evaluate_image_trigger } from "../intelligence/dynamics.js";
-
-// Re-exported so @media consumers (media/index.js, visual.svelte.js) keep one
-// import surface while the compilers live in their domain homes.
-export { build_aesthetic_map, compose_visual_generation_prompt, resolve_visual_engine_tokens };
 
 // ============================================================================
 // [SECTION 1: TAXONOMY CONSTANTS & RESOLUTION SPECS]
@@ -290,38 +283,12 @@ export const aesthetic_resolver = {
 };
 
 // ============================================================================
-// [SECTION 5: DETERMINISTIC OPTICS FALLBACK]
+// CHANGELOG
 // ============================================================================
-// Track 0.11: moved verbatim from sensory.js - the deterministic
-// <image_prompt> fallback lives beside the taxonomy and resolvers it reads.
-
-export function render_optics_fallback({ tier = "solo_entity", subject = "ai", ai, user, fractal, intent = "" } = {}) {
-  const normalized_tier = normalize_image_tier(tier);
-  const fallback_entity =
-    normalized_tier === "solo_entity"
-      ? subject === "user"
-        ? user
-        : subject === "fractal"
-          ? fractal
-          : ai
-      : normalized_tier === "story_scene" || normalized_tier === "story_entities"
-        ? fractal
-        : subject === "user"
-          ? user
-          : ai;
-  const fallback_description = aesthetic_resolver.flatten(fallback_entity);
-  const fallback_name = fallback_entity?.name || normalized_tier;
-  const short_intent = intent && intent.length < 200 ? intent : "";
-
-  if (normalized_tier === "story_character" && fractal) {
-    const fractal_description = aesthetic_resolver.flatten(fractal);
-    return `<image_prompt>${short_intent ? `${short_intent}, ` : ""}${fallback_name}, ${fallback_description || "detailed character"}, situated within ${fractal.name || "the setting"}, ${fractal_description || "atmospheric environment, dramatic lighting"}</image_prompt>`;
-  }
-  return `<image_prompt>${short_intent ? `${short_intent}, ` : ""}${fallback_name}, ${fallback_description || "detailed character portrait, dramatic lighting"}</image_prompt>`;
-}
-
 /**
  * CHANGELOG:
+ * - 2026-10-18: Consolidated cross-domain compiler re-exports under unified header at top of optics.js.
+ * - 2026-10-18: Sovereign prompt ownership — moved `render_optics_fallback` implementation to `intelligence/modules/style.js`; optics.js now re-exports it to preserve media consumer ergonomics without circular barrel entanglement.
  * - Track 0.11: Sensory dissolution - IMAGE_TRIGGER + evaluate_image_trigger move to intelligence/physics.js (imported back for resolve_image_trigger, which stays); visual payload compilers move to style.js (re-exported for @media consumers); render_optics_fallback absorbed from sensory.js (new Section 5).
  * - 2026-10-04: Reverted OPTICS_INVARIANTS to intelligence protocols.js and sensory/visual history shaping to intelligence history.js — optics.js owns taxonomy/triggers/aesthetics only.
  * - 2026-10-04: Added OPTICS_INVARIANTS — single source of the sensory-optics protocol texts (consumed by intelligence protocols.js).

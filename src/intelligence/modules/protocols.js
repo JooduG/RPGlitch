@@ -84,6 +84,10 @@ export const PROTOCOL_LIBRARY = Object.freeze({
         tag: "NATURAL_DIALOGUE",
         body: `Keep spoken dialogue grounded, clipped, uneven, and interrupted. Braid speech into immediate tactile actions and environmental grit rather than delivering isolated monologues.`,
       }),
+      SOMATIC_INTERFERENCE: Object.freeze({
+        tag: "SOMATIC_INTERFERENCE",
+        body: "Somatic Interference: Memory entries marked with ■ represent degraded recall. Treat these as cognitive gaps or static—do not invent missing facts.",
+      }),
     }),
   }),
 
@@ -459,6 +463,20 @@ export function resolve_layer_tense_protocol(field_id = "", layer_key = "") {
   return layer ? `CORE_PROTOCOLS.PERSPECTIVE.TENSE.${layer}` : null;
 }
 
+/**
+ * Resolves the somatic interference protocol key when Chaos or Entropy exceeds threshold (Track 8 / 5.3).
+ * @param {{ chaos?: number, entropy?: number }|null|undefined} dynamics
+ * @returns {string|null}
+ */
+export function resolve_somatic_interference_protocol(dynamics) {
+  const chaos = Number(dynamics?.chaos);
+  const entropy = Number(dynamics?.entropy);
+  if ((Number.isFinite(chaos) && chaos > 70) || (Number.isFinite(entropy) && entropy > 70)) {
+    return "CORE_PROTOCOLS.PROSE_DISCIPLINE.SOMATIC_INTERFERENCE";
+  }
+  return null;
+}
+
 // ============================================================================
 // [SECTION 6: PUBLIC CORE PROTOCOL COMPILER — ONE-LINE PLAN + RENDER]
 // ============================================================================
@@ -510,14 +528,15 @@ export function resolve_core_protocols_slot(config, normalized = {}, resolved = 
   const source = { ...(normalized.core_protocols_args || {}) };
   if (source.alternation_source === "entities") {
     source.has_alternation = has_alternations(resolved.entities || "");
-  } else if (source.alternation_source === "text") {
-    source.has_alternation = has_alternations(source.alternation_text || "");
   }
   const constraints_xml = source.constraints_xml || null;
+  const extra_protocols = Array.isArray(source.protocols) ? source.protocols : [];
   delete source.alternation_source;
   delete source.alternation_text;
   delete source.constraints_xml;
-  return render_core_protocols({ protocols: config?.protocols || [], constraints_xml, ...source });
+  delete source.protocols;
+  const merged_protocols = [...(config?.protocols || []), ...extra_protocols];
+  return render_core_protocols({ protocols: merged_protocols, constraints_xml, ...source });
 }
 
 /**

@@ -42,9 +42,6 @@ import {
 } from "@utils";
 import { PROFILE_FIELD_CATALOG } from "@data";
 import { strip_epistemic_secrets } from "../veil.js";
-import { whole_vector_slice } from "../temporal.js";
-
-export { whole_vector_slice };
 
 // ============================================================================
 // [SECTION 1: DECLARATIVE SHEET SPECIFICATIONS]
@@ -192,9 +189,6 @@ export function render_appearance_rows(eternal_rows = [], present_rows = []) {
   }
   return merged_entries;
 }
-
-export { render_profile_field_block };
-export const render_physical_block = render_profile_field_block;
 
 /**
  * Parses raw profile state (non-physical or physical) into compacted attributes,
@@ -537,7 +531,7 @@ export function render_enhancement_field_context(entity, field_identifier, conte
         const raw_value = resolve_entity_field_value(entity, path);
         const sanitized_raw_value = strip_epistemic_secrets(String(raw_value ?? ""));
         if (path.endsWith(".physical")) {
-          const physical_block = render_physical_block(tag, parse_physical_rows(sanitized_raw_value));
+          const physical_block = render_profile_field_block(tag, parse_physical_rows(sanitized_raw_value));
           return physical_block || "";
         }
         const value = escape_xml(sanitized_raw_value.trim());

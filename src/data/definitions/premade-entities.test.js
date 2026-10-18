@@ -16,7 +16,7 @@ import {
   get_premade_characters,
   get_premade_fractals,
 } from "./premade-entities.js";
-import { SIGNATURE_COLORS } from "./signature-colors.js";
+import { SIGNATURE_COLORS } from "@data";
 import { VISUAL_STYLES } from "./visual-styles.js";
 import { SPEAKING_STYLES } from "./speaking-styles.js";
 import { NARRATIVE_STYLES } from "./narrative-styles.js";

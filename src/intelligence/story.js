@@ -35,14 +35,7 @@ import {
   mark_generation_in_flight,
   clear_generation_in_flight,
 } from "@media";
-import {
-  validate_and_repair_response,
-  force_close_response,
-  balance_think_tags,
-  strip_directors_note_seed,
-  THINK_OPEN_TAG,
-  THINK_CLOSE_TAG,
-} from "./parser.js";
+import { validate_and_repair_response, force_close_response, strip_directors_note_seed, THINK_OPEN_TAG, THINK_CLOSE_TAG } from "./parser.js";
 import { llm_service, looks_truncated, calculate_semantic_drift, merge_abort_signals } from "@platform";
 import { apply_dynamics_gravity, extract_entity_dynamics_baselines, capture_dynamics_delta } from "./dynamics.js";
 import { execute_director_shot, resolve_npc_entity, apply_in_scene_change } from "./director.js";
@@ -73,8 +66,6 @@ const director_background_queue = create_job_queue({ max_concurrency: 1 });
 
 /** Minimum narrative prose length before missing punctuation is treated as cut-off. */
 const TRUNCATION_MIN_PROSE = 40;
-
-export { balance_think_tags, strip_directors_note_seed };
 
 const ALTERNATION_FIELD_PATHS = ["present.physical", "present.non_physical", "eternal.physical", "eternal.non_physical", "future"];
 

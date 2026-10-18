@@ -771,12 +771,15 @@ export function render_subtext_xml(ai_dynamics = {}, fractal_dynamics = {}, opti
 // media taxonomy). resolve_image_trigger stays in media/optics.js, reading
 // these thresholds through its physics import.
 
+export const IMAGE_TRIGGER_COOLDOWN_ROUNDS = 2;
+
 export const IMAGE_TRIGGER = Object.freeze({
   band_high: 85,
   band_low: 15,
   displacement_threshold: 60,
-  director_cooldown_rounds: 2,
-  dynamics_cooldown_rounds: 3,
+  cooldown_rounds: IMAGE_TRIGGER_COOLDOWN_ROUNDS,
+  director_cooldown_rounds: IMAGE_TRIGGER_COOLDOWN_ROUNDS,
+  dynamics_cooldown_rounds: IMAGE_TRIGGER_COOLDOWN_ROUNDS,
   default_tier: "story_scene",
   tiers: Object.freeze(["story_entities", "story_character", "solo_entity", "story_scene"]),
 });

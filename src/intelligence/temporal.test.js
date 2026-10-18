@@ -22,6 +22,7 @@ import {
   RECALL_CLARITY,
   rank_hybrid_vectors,
   format_hybrid_recall,
+  degrade_memory_text,
   resolve_recall_clarity,
   maybe_compact_memory,
   resolve_memory_tiers,
@@ -1354,6 +1355,44 @@ describe("temporal_engine per-entity consolidation progress tracking (Track 2 Ph
       expect(crisp).not.toContain("[fragmented recall]");
       expect(crisp.length).toBeGreaterThan(0);
       expect(format_hybrid_recall([], "orion", { dynamics: { chaos: 99 } })).toBe("");
+    });
+
+    it("degrade_memory_text replaces periodic words with block glyphs without touching bracket tags or using ellipses", () => {
+      const input = "[ORION: covert ally meeting at docks behind the warehouse]";
+      const degraded = degrade_memory_text(input);
+      expect(degraded.startsWith("[ORION:")).toBe(true);
+      expect(degraded.endsWith("]")).toBe(true);
+      expect(degraded).toContain("■");
+      expect(degraded).not.toContain("...");
+      expect(degraded).not.toContain("…");
+    });
+
+    it("degrades lower-weight memories (w <= 6) under fragmented dynamics while keeping high-weight canon (w >= 7) crisp", () => {
+      const low_weight_vector = {
+        id: "ai_whisper",
+        timestamp: 9,
+        content: "[WHISPER: overheard strange gossip in taverns about smugglers]",
+        emotional_weight: 4,
+        meta: { round: 10 },
+      };
+      const high_weight_vector = {
+        id: "ai_canon",
+        timestamp: 9,
+        content: "[OATH: swore sacred allegiance before the high council]",
+        emotional_weight: 10,
+        meta: { round: 10 },
+      };
+
+      const fragmented = format_hybrid_recall([low_weight_vector, high_weight_vector], "gossip council", {
+        current_round: 10,
+        dynamics: { chaos: 85, entropy: 20 },
+      });
+
+      expect(fragmented).toContain("[fragmented recall]");
+      // Lower weight memory gets degraded with ■ block glyphs
+      expect(fragmented).toContain("■");
+      // High weight canon stays untouched
+      expect(fragmented).toContain("swore sacred allegiance before the high council");
     });
   });
 

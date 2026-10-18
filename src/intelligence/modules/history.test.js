@@ -19,9 +19,6 @@ import {
   HISTORY_DEFAULTS,
   CONTEXT_TOKEN_CLIFF,
   HISTORY_TOKEN_BUDGET,
-  CANONICAL_ROLES,
-  canonicalize_role,
-  normalize_history_beat,
   resolve_history,
   render_history,
   render_input_history_xml,
@@ -33,6 +30,7 @@ import {
   render_chapter_history_xml,
   prune_history_plan_to_budget,
 } from "./history.js";
+import { CANONICAL_ROLES, canonicalize_role, normalize_history_beat } from "@utils";
 
 describe("src/intelligence/modules/history.js", () => {
   describe("HISTORY_DEFAULTS & resolve_history()", () => {

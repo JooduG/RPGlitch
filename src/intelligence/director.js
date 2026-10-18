@@ -26,8 +26,6 @@ import { apply_bracket_mutation, parse_bracket_entries, strip_covert_directives 
 // 1. DOMAIN CONSTANTS & SCHEMA CONTRACTS
 // ============================================================================
 
-export { DIRECTOR_SCHEMA } from "./prompts.js";
-
 /**
  * Valid terminal story states emitted or observed by the Director.
  * @type {ReadonlyArray<"IN_PROGRESS" | "CONCLUDED" | "COLLAPSED">}

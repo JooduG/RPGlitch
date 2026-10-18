@@ -1,6 +1,20 @@
 import fs from "fs";
+import path from "path";
 import yaml from "js-yaml";
-import { PATHS, AUTHORITATIVE_CATEGORIES, getCategory } from "./token-utils.js";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export const PATHS = {
+  root: path.resolve(__dirname, "../../../../"),
+  src: path.resolve(__dirname, "../../../../src"),
+  designMd: process.env.DESIGN_MD_PATH || path.resolve(__dirname, "../../../../DESIGN.md"),
+  designCss: process.env.CSS_PATH || path.resolve(__dirname, "../../../../src/media/design.css"),
+  jsBridge: process.env.JS_BRIDGE_PATH || path.resolve(__dirname, "../../../../src/media/tokens.js"),
+};
+
+export const AUTHORITATIVE_CATEGORIES = ["colors", "typography", "rounded", "spacing", "components"];
 
 /**
  * Shared header for every generated artifact. It must always state where the
@@ -58,7 +72,7 @@ function flattenFrontmatter(data) {
       if (value && typeof value === "object") {
         traverse(value, category);
       } else {
-        const target_category = category || getCategory(key, value);
+        const target_category = category || "components";
         if (result[target_category]) {
           result[target_category][key] = value;
         } else {
@@ -81,9 +95,8 @@ function flattenFrontmatter(data) {
 }
 
 /**
- * Serializes DESIGN.md into src/media/tokens.js (TOKENS) and
- * src/data/definitions/signature-colors.js (SIGNATURE_COLORS). Both are written
- * in full — there is no hand-maintained section anymore.
+ * Serializes DESIGN.md into src/media/tokens.js (TOKENS, PALETTE, SIGNATURE_COLORS).
+ * Written in full — there is no hand-maintained section anymore.
  * @param {Record<string, Record<string, string> | string[]>} flat_data - Per-category token map.
  */
 function buildJsBridge(flat_data) {
@@ -95,6 +108,21 @@ function buildJsBridge(flat_data) {
   }
 
   const colors = flat_data.colors || {};
+  const palette = {};
+  const palette_css_variables = {};
+
+  for (const [name, value] of Object.entries(colors).sort()) {
+    if (typeof value === "string" && value.startsWith("#")) {
+      const label = name
+        .replace(/^color-/, "")
+        .split("-")
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(" ");
+      palette[label] = value;
+      palette_css_variables[value] = `var(--${name})`;
+    }
+  }
+
   const signature_names = (flat_data.signatures || [])
     .map((name) => {
       if (!(name in colors)) {
@@ -111,11 +139,17 @@ function buildJsBridge(flat_data) {
     })
     .sort();
 
-  const tokens_output = `${generatedHeader("src/media/tokens.js")}\n\nexport const TOKENS = ${JSON.stringify(tokens, null, 2)};\n`;
-  fs.writeFileSync(PATHS.jsBridge, tokens_output);
+  const tokens_output = `${generatedHeader("src/media/tokens.js")}
 
-  const signatures_output = `${generatedHeader("src/data/definitions/signature-colors.js")}\n\nexport const SIGNATURE_COLORS = ${JSON.stringify(signature_names, null, 2)};\n`;
-  fs.writeFileSync(PATHS.signatureColors, signatures_output);
+export const SIGNATURE_COLORS = ${JSON.stringify(signature_names, null, 2)};
+
+export const PALETTE = Object.freeze(${JSON.stringify(palette, null, 2)});
+
+export const PALETTE_CSS_VARIABLES = Object.freeze(${JSON.stringify(palette_css_variables, null, 2)});
+
+export const TOKENS = Object.freeze(${JSON.stringify(tokens, null, 2)});
+`;
+  fs.writeFileSync(PATHS.jsBridge, tokens_output);
 }
 
 /**

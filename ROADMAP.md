@@ -62,22 +62,25 @@ Hardening context windows against the 6,000-token cliff, eliminating memory cons
 
 - **Objective**: Keep total prompt length beneath the 6,000-token cliff by construction, eliminate Memory Forge concealed item eviction (E2 bug), and modulate memory clarity through somatic metrics.
 - **Code reality**: `CONTEXT_TOKEN_CLIFF = 6000` lives in `history.js:81`. `calculate_physical_salience` (`temporal.js:1057`) and `whole_vector_slice` (`:1077`) exist and are unwired. `merge_field_content` (`:1110`) and consolidation engine (`:1592-1615`) are now hardened to preserve `| hide` brackets and weights across Memory Forge passes (E2 resolved) and deduplicate case-variant lines (M1 resolved). `resolve_recall_clarity` (`temporal.js:897`) and `format_hybrid_recall` (`:921`) exist, are tested, and exported — with zero callers in `builder.js`.
-- **Key Modules**: `src/intelligence/modules/entities.js`, `src/intelligence/modules/sheets.js`, `src/intelligence/temporal.js`, `src/intelligence/temporal.test.js`, `src/utils/text.js`, `src/utils/text.test.js`, `src/intelligence/builder.js`, `src/ui/profile/DevWing.svelte`.
-- **Shipped in Foundation**:
+- **Key Modules**: `src/data/definitions/premade-entities.test.js`, `src/data/definitions/profile-fields.js`, `src/data/normalizer.js`, `src/data/index.js`, `src/intelligence/index.js`, `src/intelligence/director.js`, `src/intelligence/story.js`, `src/intelligence/story.test.js`, `src/intelligence/modules/history.js`, `src/intelligence/modules/history.test.js`, `src/intelligence/modules/sheets.js`, `src/intelligence/modules/style.js`, `src/intelligence/modules/style.test.js`, `src/intelligence/modules/entities.js`, `src/intelligence/temporal.js`, `src/intelligence/temporal.test.js`, `src/media/index.js`, `src/media/optics.js`, `src/media/optics.test.js`, `src/media/palette.js`, `src/media/tokens.js`, `src/media/tokens.test.js`, `src/media/visual.svelte.js`, `src/state/log.svelte.js`, `src/state/log.test.js`, `src/state/runtime.svelte.js`, `src/ui/profile/Profile.svelte`, `src/ui/profile/DevWing.svelte`, `src/utils/styles.js`, `src/utils/styles.test.js`, `src/utils/text.js`, `src/utils/text.test.js`, `src/intelligence/builder.js`.
+- **Shipped in Foundation & Completion**:
   - [x] **5.1 Wire Salience + Slice, Then Cap `<ENTITIES>` at 2,000 Tokens (Sub-item 11.1)**: Connected `calculate_physical_salience` and `whole_vector_slice` into sheet scoring, capping `<ENTITIES>` at ~2,000 tokens (8,000 chars) with dynamic pruning under the 6k context cliff. _(Recorded in [CHANGELOG.md](CHANGELOG.md#unreleased))_.
   - [x] **5.2 E2 Concealed Bracket Persistence (Sub-item 11.2 / sim/dossier finding E2)**: Hardened `merge_field_content` (`temporal.js:1110`) and background forge consolidation to carry over `| hide` brackets and custom weights. _(Recorded in [CHANGELOG.md](CHANGELOG.md#unreleased))_.
-- **Planned Sub-Items (Active Delta)**:
-  - [ ] **5.3 Recall Modulation Review & Somatic Wiring (Sub-items 8.2, 8.1, 8.3)**:
-    - Audit whether prefixing raw `[fragmented recall]` provides desirable narrative impact or causes LLM confusion/hallucinations; evaluate alternatives such as bracket attributes (`| hazy`, `| fragmented`) or noise injection into vector scores.
-    - Connect the winning mechanism to active memory slot compilation in `builder.js`.
-    - Connect memory clarity directly to live somatic metrics (`GLITCH` / `INSTABILITY` thresholds) rather than synthetic confidence floats.
-  - [ ] **5.4 "All 4 Quadrants Are Lorebook" Educational Guidance (Sub-item 9.1)**:
-    - Update UI descriptions and documentation to teach users how `eternal` + `present` + `past` + `future` form the complete, vectorized world encyclopedia without legacy keyword dumps.
-  - [ ] **5.5 Prompt Token Map & Tokenization Calibration (Sub-item 9.2 / [WATCH] Token Calculation Discrepancy)**:
-    - Visual proportional token bar chart in `DevWing.svelte` showing active allocations (`SYSTEM`, `HISTORY`, `ENTITIES`, `PAST`, `TASK`). Feeds directly into 5.1 budgeting verification.
-    - Calibrate character-to-token heuristics against live Perchance BPE tokenization to eliminate the ~19% undercount and protect the 6k context cliff.
-  - [ ] **5.6 Background Task Concurrency Lock & Abort Resilience ([BUG] F4 Starvation)**:
-    - Implement mutex / task queue arbitration between Turn 3 background Memory Forge consolidation and Optics diffusion passes to eliminate `Generation aborted by caller` collisions under heavy marathon turns.
+  - [x] **5.3 Recall Modulation Review & Somatic Wiring (Sub-items 8.2, 8.1, 8.3)**:
+    - Wired sensory memory degradation using diegetic block glyphs (`■■■`, no ellipses) for lower-weight recall (`emotional_weight <= 6`) under fragmented recall clarity (`resolve_recall_clarity(dynamics) === 'fragmented'`), preserving high-weight canon crispness (`w: 7-10`).
+    - Purged legacy `is_origin` and `usr_` memory biases in favor of pure numeric weights (`w: 1-10`).
+    - Added `resolve_somatic_interference_protocol` to inject grounding rules when Chaos or Entropy exceeds 70.
+    - Wired `temporal_engine.format_hybrid` with entity dynamics into prompt builder past accessors and single-field enhancement.
+  - [x] **5.4 "All 4 Quadrants Are Lorebook" Educational Guidance (Sub-item 9.1)**:
+    - Enriched taxonomy descriptions for Character and Fractal models in `src/data/definitions/profile-fields.js`, teaching users that `eternal` + `present` + `past` + `future` constitute the full lived vector lorebook rather than keyword dumps.
+    - Added educational info (`"i"`) icons with field tooltips into parsed pseudo-JSON card headers and TextField headers in `src/ui/profile/Profile.svelte`.
+  - [x] **5.5 Prompt Token Map & Tokenization Calibration (Sub-item 9.2 / [WATCH] Token Calculation Discrepancy)**:
+    - Calibrated character-to-token ratio to `CHARS_PER_TOKEN = 3.35` in `src/utils/text.js`, eliminating token undercounting against Perchance BPE tokenization.
+    - Added live prompt compilation token snapshots (`system`, `entities`, `history`, `task`, and `<ENTITIES>` actors/cast/memories sub-breakdown) via `bridges.js` to `runtime.last_prompt_token_snapshot`.
+    - Integrated interactive Token Budget HUD badge and collapsible allocation breakdown popover in `src/ui/profile/DevWing.svelte`.
+  - [x] **5.6 Background Task Concurrency Lock & Abort Resilience ([BUG] F4 Starvation)**:
+    - Unified `IMAGE_TRIGGER_COOLDOWN_ROUNDS = 2` across dynamics evaluation and optics trigger arbitration.
+    - Prioritized Turn 3 optics passes with preemption immunity, while caretaker consolidation advances `runtime.back_shot_cursor` only upon successful commit and handles aborts gracefully without starving queue position.
 
 ---
 

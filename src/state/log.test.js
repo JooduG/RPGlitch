@@ -3,13 +3,13 @@ import {
   DEVELOPER_TELEMETRY_STORAGE_KEY,
   DeveloperLogStore,
   developer_log,
-  generate_uuid,
   MAX_DEVELOPER_LOG_ENTRIES,
   SimulationLogStore,
   simulation_log,
 } from "./log.svelte.js";
 import { runtime } from "./runtime.svelte.js";
 import { session_driver } from "@data";
+import { generate_uuid } from "@utils";
 
 vi.mock("@data", async (importOriginal) => {
   const actual = await importOriginal();

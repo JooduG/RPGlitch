@@ -36,6 +36,7 @@
  * ============================================================================
  */
 
+import { estimate_tokens, state_bridge } from "@utils";
 import { MODE_ADAPTERS } from "./builder.js";
 import { resolve_task_slots, render_task_plan, TASK_LAYERS } from "./modules/task.js";
 import { resolve_role_slot, compose_system, pack_prompt, resolve_prompt_meta } from "./modules/system.js";
@@ -555,7 +556,49 @@ export function compile_prompt(mode_key, context = {}) {
   const adapter = MODE_ADAPTERS[mode_key] || MODE_ADAPTERS.prose;
   const normalized = adapter.normalize(config, context);
   const plan = resolve_prompt_plan(config, normalized);
-  return pack_prompt(render_prompt_plan(plan), plan.meta);
+  const rendered = render_prompt_plan(plan);
+  const packed = pack_prompt(rendered, plan.meta);
+
+  try {
+    const system_text = rendered.system || "";
+    const task_text = rendered.task || "";
+    const entities_text = String(
+      plan.layers.system.slots.entities || plan.layers.system.slots.cast || plan.layers.system.slots.target_entity_context || "",
+    );
+    const history_text = String(plan.layers.system.slots.history || "");
+
+    // Sub-breakdown of <ENTITIES>: Actors vs Cast vs Memories
+    const memories_matches = entities_text.match(/<MEMORIES>[\s\S]*?<\/MEMORIES>/gi) || [];
+    const memories_text = memories_matches.join("\n");
+    const cast_matches = entities_text.match(/<CAST[\s\S]*?<\/CAST>/gi) || [];
+    const cast_text = cast_matches.join("\n");
+    const actors_text = entities_text.replace(/<MEMORIES>[\s\S]*?<\/MEMORIES>/gi, "").replace(/<CAST[\s\S]*?<\/CAST>/gi, "");
+
+    const token_snapshot = {
+      mode: mode_key,
+      round: plan.round ?? 0,
+      timestamp: Date.now(),
+      total: estimate_tokens(packed.system),
+      cliff_limit: 6000,
+      layers: {
+        system: estimate_tokens(system_text),
+        entities: estimate_tokens(entities_text),
+        history: estimate_tokens(history_text),
+        task: estimate_tokens(task_text),
+      },
+      entities_breakdown: {
+        actors: estimate_tokens(actors_text),
+        cast: estimate_tokens(cast_text),
+        memories: estimate_tokens(memories_text),
+      },
+    };
+
+    state_bridge.record_prompt_token_snapshot?.(token_snapshot);
+  } catch (_err) {
+    // Non-blocking telemetry
+  }
+
+  return packed;
 }
 
 export default PROMPTS;

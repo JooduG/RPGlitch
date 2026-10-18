@@ -907,9 +907,34 @@ export function resolve_recall_clarity(dynamics) {
 }
 
 /**
+ * Degrades memory text under high somatic instability (Track 8 / 5.3):
+ * Replaces words with block glyphs '■' (no ellipses) on non-header text,
+ * diegetically signaling memory gaps to the LLM.
+ * @param {string} text
+ * @returns {string}
+ */
+export function degrade_memory_text(text) {
+  if (!text || typeof text !== "string") return "";
+  const match = text.match(/^(\[[A-Z0-9_@]+:\s*)([^\]]+)(\])(.*)$/i);
+  if (!match) {
+    return text.replace(/\b(\w{4,})\b/g, (w, idx) => (idx % 3 === 0 ? "■".repeat(Math.min(w.length, 4)) : w));
+  }
+  const [, prefix, body, suffix, rest] = match;
+  const degraded_body = body
+    .split(/\s+/)
+    .map((word, index) => {
+      if (index > 1 && index % 3 === 0) return "■".repeat(Math.min(word.length, 4));
+      return word;
+    })
+    .join(" ");
+  return `${prefix}${degraded_body}${suffix}${rest || ""}`;
+}
+
+/**
  * Formats hybrid-ranked vectors into a recall block with dynamics-modulated
- * clarity (Track 2.3): fragmented states carry the `[fragmented recall]`
- * prefix; crisp states render bare.
+ * clarity (Track 2.3 / 5.3): fragmented states carry the `[fragmented recall]`
+ * prefix and apply sensory block degradation ('■') to lower-weight memories (w <= 6);
+ * high-weight canon (w >= 7) and crisp states render bare and intact.
  * @param {any[]} vectors
  * @param {string} query
  * @param {Object} [options={}]
@@ -921,22 +946,28 @@ export function resolve_recall_clarity(dynamics) {
 export function format_hybrid_recall(vectors, query, options = {}) {
   const max_chars = options.max_chars || 1500;
   const ranked = rank_hybrid_vectors(vectors, query, { current_round: options.current_round });
+  const clarity = resolve_recall_clarity(options.dynamics);
+  const is_fragmented = clarity === RECALL_CLARITY.FRAGMENTED;
+
   const selected = [];
   const selected_texts = [];
   let running_chars = 0;
   for (const vector of ranked) {
-    const text = vector.content || vector.directive || "";
-    if (!text.trim()) continue;
-    if (is_duplicate(text, selected_texts.join(" "))) continue;
+    const raw_text = vector.content || vector.directive || "";
+    if (!raw_text.trim()) continue;
+    if (is_duplicate(raw_text, selected_texts.join(" "))) continue;
+
+    const weight = Number(vector.emotional_weight ?? 5);
+    const text = is_fragmented && weight <= 6 ? degrade_memory_text(raw_text) : raw_text;
+
     if (running_chars + text.length > max_chars && selected.length > 0) break;
     selected.push(text);
-    selected_texts.push(text);
+    selected_texts.push(raw_text);
     running_chars += text.length;
   }
   if (!selected.length) return "";
-  const clarity = resolve_recall_clarity(options.dynamics);
   const body = selected.join("\n");
-  return clarity === RECALL_CLARITY.FRAGMENTED ? `[fragmented recall]\n${body}` : body;
+  return is_fragmented ? `[fragmented recall]\n${body}` : body;
 }
 
 /**
@@ -1473,6 +1504,8 @@ export const temporal_engine = {
   format_async,
   rank_hybrid_vectors,
   format_hybrid_recall,
+  format_hybrid: format_hybrid_recall,
+  degrade_memory_text,
   resolve_recall_clarity,
   maybe_compact_memory,
   resolve_memory_tiers,
@@ -1514,6 +1547,7 @@ export const temporal_engine = {
       let target_item = null;
       let unconsolidated_slice = [];
 
+      let next_cursor = null;
       if (target_key) {
         target_item = entity_targets.find((target) => target.key === target_key) || entity_targets[0];
         target_key = target_item.key;
@@ -1536,7 +1570,7 @@ export const temporal_engine = {
             target_item = candidate;
             target_key = candidate.key;
             unconsolidated_slice = candidate_unconsolidated;
-            runtime.back_shot_cursor = (check_idx + 1) % entity_targets.length;
+            next_cursor = (check_idx + 1) % entity_targets.length;
             break;
           }
         }
@@ -1827,6 +1861,9 @@ export const temporal_engine = {
         }
       }
       await Promise.all(meta_persistence);
+      if (next_cursor !== null && next_cursor !== undefined) {
+        runtime.back_shot_cursor = next_cursor;
+      }
       state_bridge.simulation_log?.refresh();
     } catch (err) {
       state_bridge.app?.log?.(`[TemporalEngine] Consolidation forge failed: ${err?.message || err}`, "error");

@@ -17,7 +17,7 @@
  */
 
 import { format_key_as_label } from "@utils";
-import { SIGNATURE_COLORS } from "./signature-colors.js";
+import { SIGNATURE_COLORS } from "../../media/tokens.js";
 
 // ── 1. Canonical Field Taxonomy ───────────────────────────────────────────────
 
@@ -50,13 +50,15 @@ export const PROFILE_FIELDS = {
     eternal: {
       physical: {
         label: "Physical Appearance",
-        description: "Permanent biometric features for image generation (gender, age, ethnicity, build, face, eyes, hair, height).",
+        description:
+          "Lorebook Biometric Core: Permanent visual truth (gender, age, ethnicity, build, face, eyes, hair, scars). Anchors diffusion synthesis without equipment or clothing.",
         directive: `[KEY: value] permanent biometrics (gender, age, ethnicity, build, face, eyes, hair, scars). Visible body details only — no clothing, equipment, or psychological traits.`,
         enhancer: "BIOMETRIC_RENDERER",
       },
       non_physical: {
         label: "Personality",
-        description: "Timeless psychology: core beliefs, personality drivers, cognitive patterns, vocal tone, and communication tics.",
+        description:
+          "Lorebook Psychological Substrate: Timeless cognitive drivers, core beliefs, vocal cadence, and behavioural invariants. Never use keyword dumps — write lived traits.",
         directive: `Core beliefs, personality drivers, cognitive patterns, vocal tone, speech cadence, and communication tics.`,
         enhancer: "COGNITIVE_ARCHITECT",
       },
@@ -65,13 +67,14 @@ export const PROFILE_FIELDS = {
       physical: {
         label: "Current Look",
         description:
-          "Current physical appearance for image generation (clothing, colors, expression, posture, condition). Use {Option A|Option B} for variables.",
+          "Lorebook Somatic Staging: Immediate physical appearance, active attire, condition, posture, and held items. Use {Option A|Option B} for dynamic variants.",
         directive: `[KEY: value] current appearance (clothing, colors, expression, posture, condition, held). Use {Option A|Option B} for variables. Visible temporary items and poses only.`,
         enhancer: "SOMATIC_TRACKER",
       },
       non_physical: {
         label: "State of Mind",
-        description: "Current state of mind: immediate emotional pressure, active mental focus, and present behavioral drivers.",
+        description:
+          "Lorebook Emotional Vector: Immediate psychological pressure, tactical focus, and present behavioural drivers under current scene tensions.",
         directive: `Immediate emotional pressure, active mental focus, and present behavioral drivers.`,
         enhancer: "TACTICAL_ANALYZER",
       },
@@ -79,13 +82,14 @@ export const PROFILE_FIELDS = {
     future: {
       label: "Agenda",
       description:
-        "The entity's active trajectory or standing agenda: clear intent, building pressure, or impending event driving the next state change.",
+        "Lorebook Trajectory Vector: Active standing agenda, impending choice, or converging tension propelling this entity into the next state change.",
       directive: `Active trajectory or standing agenda: clear intent, building pressure, or impending event driving this entity toward its next state change. No story scenes or dialogue.`,
       enhancer: "TRAJECTORY_SIMULATOR",
     },
     past: {
       label: "Memories",
-      description: "Formative memories or critical precedents: specific anchored events or established historical facts.",
+      description:
+        "Lorebook Episodic Vector: Settled precedents, canon facts, and emotional anchors ([KEY: fact | flags]). Ranked via pure numeric weights (w: 1-10).",
       directive: `Settled historical fact or precedent: [KEY: value | flags] (flags: 'hide' / 'show', 'w: 1-10'). Specific over vague; exclude transient moods or immediate dialogue.`,
       enhancer: "EPISODIC_MEMORY_COMPILER",
     },
@@ -94,13 +98,15 @@ export const PROFILE_FIELDS = {
     eternal: {
       physical: {
         label: "Environment",
-        description: "Permanent physical geography for image generation (terrain, architecture, materials, landmarks, scale).",
+        description:
+          "Lorebook Spatial Geography: Permanent macro-features, landmarks, terrain, architecture, and enduring scale. Governs visual setting synthesis.",
         directive: `[KEY: value] permanent geography (terrain, architecture, materials, landmarks, scale). Concrete visible landscape features only — no transient weather, lighting, or lore.`,
         enhancer: "SPATIAL_RENDERER",
       },
       non_physical: {
         label: "Permanent Truths",
-        description: "Timeless metaphysical substrate: governing laws, constant environmental forces, and physical constants.",
+        description:
+          "Lorebook Metaphysical Axioms: Enduring physics, cultural taboos, governing laws, and environmental constants. Grounded lore over keyword lists.",
         directive: `Metaphysical substrate: governing laws, constant environmental forces, and physical constants.`,
         enhancer: "METAPHYSICAL_ARCHITECT",
       },
@@ -108,26 +114,29 @@ export const PROFILE_FIELDS = {
     present: {
       physical: {
         label: "Atmosphere",
-        description: "Current atmospheric state for image generation (lighting, weather, atmosphere, events). Use {Option A|Option B} for variables.",
+        description:
+          "Lorebook Momentary Physics: Dynamic atmospheric conditions, lighting, active weather, and sensory ephemera. Use {Option A|Option B} for variations.",
         directive: `[KEY: value] current atmospheric state (lighting, weather, atmosphere, events). Use {Option A|Option B} for variables. Momentary sensory elements only.`,
         enhancer: "ATMOSPHERIC_TRACKER",
       },
       non_physical: {
         label: "Current State",
-        description: "Current environmental state: active anomalies, immediate pressure, and momentary shifts in physics or atmosphere.",
+        description: "Lorebook Active Ecosystem: Momentary ecosystem shifts, active anomalies, social unrest, and immediate environmental pressures.",
         directive: `Current environmental state: active anomaly, immediate pressure, momentary shifts in physics or atmosphere.`,
         enhancer: "ECOSYSTEM_ANALYZER",
       },
     },
     future: {
       label: "Trajectory",
-      description: "Environmental trajectory, building anomaly, or converging weather event driving the next scene state change.",
+      description:
+        "Lorebook Macro-Trajectory: Brewing cataclysms, impending ecological shifts, or converging anomalies driving the world toward its next epoch.",
       directive: `Environmental trajectory, building atmospheric pressure, impending environmental event, or anomaly apex driving this world toward its next state change.`,
       enhancer: "ECOSYSTEM_SIMULATOR",
     },
     past: {
       label: "History",
-      description: "Historical cataclysms, founding myths, and settled geographic epochs.",
+      description:
+        "Lorebook Deep Time Chronology: Defining historical epochs, mythic origins, and settled cataclysms ([KEY: epoch | flags], w: 1-10).",
       directive: `Settled historical cataclysm, founding myth, or defining epoch: [KEY: value | flags] (flags: 'hide' / 'show', 'w: 1-10'). Specific over vague; exclude active weather or temporary conditions.`,
       enhancer: "HISTORIAN",
     },
@@ -312,6 +321,7 @@ export function build_profile_sections(entity_type = "character") {
 
 /**
  * CHANGELOG:
+ * - 2026-10-18: Phase V Sub-item 5.4 — Enriched character and fractal 4-quadrant field descriptions with educational lorebook guidance, establishing each quadrant as an active vector slice of the world lorebook without keyword dumps.
  * - 2026-10-14: Phase IV Sub-item 4.2 — Formally registered canonical top-level pov metadata field in PROFILE_FIELDS taxonomy.
  * - 2026-10-04: Stripped per-field tense clauses from the temporal layer directives (tense now stated once via TASK_LIBRARY.TEMPORAL.TENSE); field text is pure content guidance.
  * - 2026-10-03: Instructed and preferred bracket directives across all fields (eternal/present non_physical and future) using HELPERS.BRACKETS, allowing prose while documenting bracket syntax.

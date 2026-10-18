@@ -29,40 +29,22 @@ export { app, register_image_preview_handlers } from "./interface.svelte.js";
 export { runtime } from "./runtime.svelte.js";
 
 // ============================================================================
-// Simulation Phase & UI Status Locks
+// Simulation Phase, UI Locks, Streaming & Stasis Recovery
 // ============================================================================
 
-export { simulation_state, ui_state } from "./status.svelte.js";
+export { simulation_state, ui_state, streaming, force_recover_simulation, install_freeze_watchdog } from "./status.svelte.js";
 
 // ============================================================================
-// Narrative Message & System Log Store
+// Narrative Logs & Developer Telemetry HUD
 // ============================================================================
 
-export { simulation_log } from "./log.svelte.js";
+export { simulation_log, developer_log } from "./log.svelte.js";
 
 // ============================================================================
 // Chrono Engine (Turn Orchestration & Physics Loop)
 // ============================================================================
 
 export { chrono_engine } from "./chrono.svelte.js";
-
-// ============================================================================
-// Text Streaming & Audio Speech Buffer
-// ============================================================================
-
-export { streaming } from "./status.svelte.js";
-
-// ============================================================================
-// Developer Telemetry & Diagnostic HUD Store
-// ============================================================================
-
-export { developer_log } from "./log.svelte.js";
-
-// ============================================================================
-// Freeze Watchdog & Automatic Stasis Recovery
-// ============================================================================
-
-export { force_recover_simulation, install_freeze_watchdog } from "./status.svelte.js";
 
 /**
  * CHANGELOG:
