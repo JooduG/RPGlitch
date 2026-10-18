@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Test Suite Narrowing & Type Safety (`prompts.test.js`)**:
+  - Replaced raw `in` operator assertion (`expect("task" in mode).toBe(false)`) with `Reflect.has(mode, "task")` to resolve TypeScript/IDE `in-operator-narrowing` diagnostics cleanly.
+
 - **Programmatic Prompt Sanitization & Epistemic Wall Hardening (`output.js`, `prompts.js`, `reflex.js`, `dynamics.js`, `entities.js`, `sheets.js`)**:
   - **Director JSON Schema Alignment (`output.js`, `prompts.js`)**: Added `story_status` (`'IN_PROGRESS' | 'COLLAPSED' | 'CONCLUDED'`) to `SCHEMA_ATOMS` and `DIRECTOR_SCHEMA`, eliminating prompt-to-contract drift for scenario termination. Cleaned `next_action` JSON schema syntax.
   - **Directives & Action Referencing Parity (`reflex.js`, `task.test.js`)**: Replaced broken `«INPUT»` meta-references with `«ACTION»` to match the actual emitted XML `<ACTION>` tag. Aligned `ENVIRONMENTAL_HINT` to recommend setting `next_action: "FRACTAL"` instead of non-existent `speaker`.

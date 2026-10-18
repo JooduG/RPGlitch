@@ -137,7 +137,7 @@ describe("prompt-modes registry", () => {
   it("flattens the cognition key (think_format) onto every record", () => {
     for (const mode of Object.values(prompt_modes)) {
       expect(mode).toHaveProperty("think_format");
-      expect("task" in mode).toBe(false);
+      expect(Reflect.has(mode, "task")).toBe(false);
     }
   });
 
