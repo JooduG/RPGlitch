@@ -93,7 +93,7 @@
     <!-- Progress bar -->
     <div class="h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
       <div
-        class="h-full transition-all duration-300 {cliff_percent >= 90 ? 'bg-rose-500' : cliff_percent >= 75 ? 'bg-amber-400' : 'bg-emerald-400'}"
+        class="h-full transition-[width] duration-300 {cliff_percent >= 90 ? 'bg-rose-500' : cliff_percent >= 75 ? 'bg-amber-400' : 'bg-emerald-400'}"
         style="width: {cliff_percent}%;"
       ></div>
     </div>

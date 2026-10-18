@@ -23,6 +23,7 @@
 import { has_alternations, prompt_escape, render_xml_tag, resolve_catalog_atom } from "@utils";
 import { render_narrative_style_xml, render_visual_style_xml } from "./style.js";
 import { render_alternation_protocol } from "./reflex.js";
+import { DYNAMICS_FRAGMENTATION_THRESHOLD } from "../temporal.js";
 
 // ============================================================================
 // [SECTION 1: CONSOLIDATED PROTOCOL LIBRARY]
@@ -471,7 +472,10 @@ export function resolve_layer_tense_protocol(field_id = "", layer_key = "") {
 export function resolve_somatic_interference_protocol(dynamics) {
   const chaos = Number(dynamics?.chaos);
   const entropy = Number(dynamics?.entropy);
-  if ((Number.isFinite(chaos) && chaos > 70) || (Number.isFinite(entropy) && entropy > 70)) {
+  if (
+    (Number.isFinite(chaos) && chaos > DYNAMICS_FRAGMENTATION_THRESHOLD) ||
+    (Number.isFinite(entropy) && entropy > DYNAMICS_FRAGMENTATION_THRESHOLD)
+  ) {
     return "CORE_PROTOCOLS.PROSE_DISCIPLINE.SOMATIC_INTERFERENCE";
   }
   return null;

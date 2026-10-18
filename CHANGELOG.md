@@ -13,8 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Somatic Recall Degradation & Weight Unification (`temporal.js`, `temporal.test.js`, `protocols.js`, `builder.js`)**:
     - Implemented `degrade_memory_text` using diegetic block glyphs (`■■■`, no ellipses) to signal missing memories directly to the LLM without contaminating XML grammar or hallucinated facts.
     - Updated `format_hybrid_recall` to degrade lower-weight memories (`emotional_weight <= 6`) when `resolve_recall_clarity(dynamics) === 'fragmented'`, preserving high-weight canon crispness (`w >= 7`).
-    - Purged `is_origin` and `usr_` origin protection in favor of unified pure numeric weights (`w: 1-10`).
-    - Implemented `resolve_somatic_interference_protocol` to inject grounding rules when Chaos or Entropy exceeds 70.
+    - Keyed sensory memory degradation strictly off numeric weights (`emotional_weight <= 6`) under fragmented recall clarity (`resolve_recall_clarity(dynamics) === 'fragmented'`), preserving high-weight canon crispness (`w: 7-10`) regardless of origin provenance.
+    - Added `resolve_somatic_interference_protocol` to inject grounding rules when Chaos or Entropy exceeds threshold (`DYNAMICS_FRAGMENTATION_THRESHOLD = 70`).
     - Wired `temporal_engine.format_hybrid` with entity dynamics into prompt builder past accessors and single-field enhancement.
   - **Educational 4-Quadrant Lorebook Guidance (`profile-fields.js`, `Profile.svelte`)**:
     - Enriched Character and Fractal taxonomy descriptions in `PROFILE_FIELDS` to explain how `eternal`, `present`, `past`, and `future` quadrants act as living vector slices of the world lorebook without keyword dumps.

@@ -1365,6 +1365,12 @@ describe("temporal_engine per-entity consolidation progress tracking (Track 2 Ph
       expect(degraded).toContain("■");
       expect(degraded).not.toContain("...");
       expect(degraded).not.toContain("…");
+
+      const plain_input = "covert ally meeting at docks behind the warehouse where strange cargo sits";
+      const degraded_plain = degrade_memory_text(plain_input);
+      expect(degraded_plain).toContain("■");
+      expect(degraded_plain).not.toBe(plain_input);
+      expect(degraded_plain).not.toContain("...");
     });
 
     it("degrades lower-weight memories (w <= 6) under fragmented dynamics while keeping high-weight canon (w >= 7) crisp", () => {

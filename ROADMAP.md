@@ -68,8 +68,8 @@ Hardening context windows against the 6,000-token cliff, eliminating memory cons
   - [x] **5.2 E2 Concealed Bracket Persistence (Sub-item 11.2 / sim/dossier finding E2)**: Hardened `merge_field_content` (`temporal.js:1110`) and background forge consolidation to carry over `| hide` brackets and custom weights. _(Recorded in [CHANGELOG.md](CHANGELOG.md#unreleased))_.
   - [x] **5.3 Recall Modulation Review & Somatic Wiring (Sub-items 8.2, 8.1, 8.3)**:
     - Wired sensory memory degradation using diegetic block glyphs (`■■■`, no ellipses) for lower-weight recall (`emotional_weight <= 6`) under fragmented recall clarity (`resolve_recall_clarity(dynamics) === 'fragmented'`), preserving high-weight canon crispness (`w: 7-10`).
-    - Purged legacy `is_origin` and `usr_` memory biases in favor of pure numeric weights (`w: 1-10`).
-    - Added `resolve_somatic_interference_protocol` to inject grounding rules when Chaos or Entropy exceeds 70.
+    - Keyed sensory memory degradation strictly off numeric weights (`emotional_weight <= 6`) under fragmented recall clarity (`resolve_recall_clarity(dynamics) === 'fragmented'`), preserving high-weight canon crispness (`w: 7-10`) regardless of origin provenance.
+    - Added `resolve_somatic_interference_protocol` to inject grounding rules when Chaos or Entropy exceeds threshold (`DYNAMICS_FRAGMENTATION_THRESHOLD = 70`).
     - Wired `temporal_engine.format_hybrid` with entity dynamics into prompt builder past accessors and single-field enhancement.
   - [x] **5.4 "All 4 Quadrants Are Lorebook" Educational Guidance (Sub-item 9.1)**:
     - Enriched taxonomy descriptions for Character and Fractal models in `src/data/definitions/profile-fields.js`, teaching users that `eternal` + `present` + `past` + `future` constitute the full lived vector lorebook rather than keyword dumps.
@@ -78,9 +78,9 @@ Hardening context windows against the 6,000-token cliff, eliminating memory cons
     - Calibrated character-to-token ratio to `CHARS_PER_TOKEN = 3.35` in `src/utils/text.js`, eliminating token undercounting against Perchance BPE tokenization.
     - Added live prompt compilation token snapshots (`system`, `entities`, `history`, `task`, and `<ENTITIES>` actors/cast/memories sub-breakdown) via `bridges.js` to `runtime.last_prompt_token_snapshot`.
     - Integrated interactive Token Budget HUD badge and collapsible allocation breakdown popover in `src/ui/profile/DevWing.svelte`.
-  - [x] **5.6 Background Task Concurrency Lock & Abort Resilience ([BUG] F4 Starvation)**:
+  - [x] **5.6 Background Concurrency Cooldown & Cursor Commit Guard ([BUG] F4 Starvation)**:
     - Unified `IMAGE_TRIGGER_COOLDOWN_ROUNDS = 2` across dynamics evaluation and optics trigger arbitration.
-    - Prioritized Turn 3 optics passes with preemption immunity, while caretaker consolidation advances `runtime.back_shot_cursor` only upon successful commit and handles aborts gracefully without starving queue position.
+    - Protected Turn 3 deferred optics runs with preemption priority, while caretaker consolidation advances `runtime.back_shot_cursor` only upon successful commit and handles aborts gracefully without advancing prematurely.
 
 ---
 

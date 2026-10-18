@@ -917,7 +917,11 @@ export function degrade_memory_text(text) {
   if (!text || typeof text !== "string") return "";
   const match = text.match(/^(\[[A-Z0-9_@]+:\s*)([^\]]+)(\])(.*)$/i);
   if (!match) {
-    return text.replace(/\b(\w{4,})\b/g, (w, idx) => (idx % 3 === 0 ? "■".repeat(Math.min(w.length, 4)) : w));
+    let word_index = 0;
+    return text.replace(/\b[A-Za-z0-9_]{4,}\b/g, (word) => {
+      word_index += 1;
+      return word_index % 3 === 0 ? "■".repeat(Math.min(word.length, 4)) : word;
+    });
   }
   const [, prefix, body, suffix, rest] = match;
   const degraded_body = body
