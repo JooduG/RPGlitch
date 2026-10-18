@@ -155,6 +155,7 @@ ${SEP}
 
 ${sweep_result.markdown}
 
+${sweep_result.atom_matrix_markdown ? `${SEP}\n\n${sweep_result.atom_matrix_markdown}\n` : ""}
 ${SEP}
 
 > [!NOTE]

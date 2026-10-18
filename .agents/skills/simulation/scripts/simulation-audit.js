@@ -812,12 +812,15 @@ export function run_live_schema_sweep(options = {}) {
   lines.push("Total data-key occurrences: " + [...data_keys.values()].reduce((a, b) => a + b, 0));
   lines.push("");
 
+  const matrix_tables = generate_prompt_atom_matrix(tag_index, MODE_ORDER);
+
   const conditional_count = [...tag_index.values()].filter((e) => {
     const w = when_for(e.occ);
     return w !== "always" && !w.startsWith("always");
   }).length;
   return {
     markdown: lines.join("\n"),
+    atom_matrix_markdown: matrix_tables,
     stats: {
       seed,
       compiles,
@@ -828,6 +831,100 @@ export function run_live_schema_sweep(options = {}) {
     },
     problems,
   };
+}
+
+/**
+ * Generates the Prompt Atom Manifest and Mutual-Exclusion & Co-Existence Grid tables.
+ * @param {Map<string, any>} tag_index
+ * @param {string[]} mode_order
+ * @returns {string}
+ */
+export function generate_prompt_atom_matrix(tag_index, mode_order) {
+  const table_lines = [];
+
+  table_lines.push("## PART III: PROMPT ATOM & MUTUAL-EXCLUSION MATRIX");
+  table_lines.push("");
+  table_lines.push("### Table 1: Comprehensive Atom Manifest");
+  table_lines.push("");
+  table_lines.push("| XML Atom / Tag | Containing Modes | Attributes / Parameters | Sample Structure / Representation |");
+  table_lines.push("| :--- | :--- | :--- | :--- |");
+
+  // Collect distinct tags
+  const distinct_tags = new Map();
+  for (const entry of tag_index.values()) {
+    if (!distinct_tags.has(entry.tag)) {
+      distinct_tags.set(entry.tag, entry);
+    }
+  }
+
+  for (const [tag, entry] of [...distinct_tags.entries()].sort((a, b) => a[0].localeCompare(b[0]))) {
+    const modes = [...new Set(entry.occ.map((o) => String(o.mode).replace(" (live)", "").replace("director_terse", "director")))]
+      .filter((m) => mode_order.includes(m))
+      .sort((a, b) => mode_order.indexOf(a) - mode_order.indexOf(b));
+
+    const attrs = entry.attrs ? "`" + entry.attrs.replace(/\|/g, "\\|") + "`" : "*none*";
+    const sample = "`<" + tag + (entry.attrs ? " " + entry.attrs.split(" ")[0] : "") + ">Bla bla bla...</" + tag + ">`";
+    table_lines.push(`| \`<${tag}>\` | ${modes.map((m) => `\`${m}\``).join(", ") || "*all*"} | ${attrs} | ${sample} |`);
+  }
+
+  table_lines.push("");
+  table_lines.push("### Table 2: Cross-Mode Mutual-Exclusion & Co-Existence Matrix");
+  table_lines.push("");
+  table_lines.push("| Prompt Mode | Active XML Atoms | Mutually Exclusive With | Core Mission & Role |");
+  table_lines.push("| :--- | :--- | :--- | :--- |");
+
+  const mode_summaries = {
+    director: {
+      role: "Shot 1 Turn Orchestration & Directorial Staging",
+      exclusive: "prose-only tags (`<CURRENTS>`, `<AUTHORIAL_VOICE>`, `<DELIVERY_POSTURE>`)",
+    },
+    interaction: {
+      role: "Shot 2A Canonical In-Character Companion Voice",
+      exclusive: 'director JSON output (`<OUTPUT_FORMAT mode="json">`), optics cinematography',
+    },
+    npc: {
+      role: "Shot 2A Supporting / Cast World Entity Voice",
+      exclusive: "director JSON output, solo companion ego",
+    },
+    narrator: {
+      role: "Shot 2A World / Setting Voice & Scene Transitions",
+      exclusive: "director JSON output, first-person character POV",
+    },
+    ghostwrite: {
+      role: "User Persona Turn Drafting (Player Voice Assist)",
+      exclusive: "director JSON output, AI companion ego",
+    },
+    continuum: {
+      role: "Shot 2B Memory Forge Temporal Consolidation",
+      exclusive: "narrative prose streaming, real-time input history",
+    },
+    optics: {
+      role: "Sensory Staging & Diffusion Image Synthesis",
+      exclusive: "dialogue generation, director JSON output",
+    },
+    enhancement: {
+      role: "Single Profile Field Expansion (Magic Wand)",
+      exclusive: "full conversation history, multi-turn dynamics",
+    },
+    sorting: {
+      role: "Raw Profile Text Ingestion & Structuring",
+      exclusive: "real-time turn progression, narrative styles",
+    },
+  };
+
+  for (const mode of mode_order) {
+    const info = mode_summaries[mode] || { role: "Simulation subsystem", exclusive: "None" };
+    const active_tags = [...distinct_tags.values()]
+      .filter((entry) => entry.occ.some((o) => String(o.mode).replace(" (live)", "").replace("director_terse", "director") === mode))
+      .map((entry) => `\`<${entry.tag}>\``)
+      .slice(0, 10);
+
+    const tag_str = active_tags.join(", ") + (active_tags.length >= 10 ? ", *...*" : "");
+    table_lines.push(`| **\`${mode}\`** | ${tag_str} | ${info.exclusive} | ${info.role} |`);
+  }
+
+  table_lines.push("");
+  return table_lines.join("\n");
 }
 
 // -----------------------------------------------------------------------------

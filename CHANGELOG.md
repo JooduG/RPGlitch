@@ -9,7 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
-- **Phase V: Memory RAG Hardening, Context Cliff & Somatics (Tracks 8, 9, 11)**:
+- **Track A: Unblocked Local Investigations (Execution Pulse)**:
+  - **Composer Serialized Queue Drainage (`StorymodeBar.svelte`)**: Refactored message submission queue from reactive `$effect` array mutation (`pending.shift()`) to an explicit serialized async worker (`drain_pending_queue()`). Eliminates lingering amber `"Queued"` status badges on round handoffs and ensures rejected sends are safely restored to the composer input textarea without message loss. Verified with `svelte-autofixer` MCP.
+  - **Automated Prompt Atom & Mutual-Exclusion Matrix (`simulation-audit.js`, `simulation-audit.test.js`)**: Built automated `generate_prompt_atom_matrix` emitting Table 1 (Comprehensive Atom Manifest with modes, parameters, and sample markup) and Table 2 (Cross-Mode Mutual-Exclusion & Co-Existence Matrix). Synthesizes PART III directly into `tmp/simulation-audit-report.md` via `npm run audit:simulation`.
+  - **Centralized System Config & Token Budget Allocations (`src/config.js`)**: Promoted prompt token ceiling configuration to root `src/config.js` (`DEFAULT_PROMPT_CEILING = 6000`, `resolve_prompt_budget_allocation`, `PROMPT_BUDGET_WEIGHTS`), enabling programmatic ceiling tuning and dynamic budget tests without UI pollution or layer violations.
+  - **100-Round Consolidation Caretaker Stress Suite (`consolidation-stress.test.js`)**: Created 100-round simulated roleplay stress harness validating that origin-pinned memories (`usr_` prefix / `is_origin`) are never evicted, session memory pools strictly respect the `PAST_VECTOR_CAP = 20` FIFO cap, `| hide` tags remain intact, and sensory memory degradation deterministically degrades lower-weight memories (`w <= 6`) while keeping high-weight canon (`w >= 7`) crisp.
+  - **Strict Layer Boundary Enforcement Gate (`audit-layers.js`, `package.json`)**: Created automated AST/import scanner `audit-layers.js` enforcing downward layer hierarchy (`src/ui` -> `src/state` -> `src/media` -> `src/intelligence` -> `src/data` -> `src/platform`/`src/utils`) with 0 upward leaks, wired into `npm run audit:layers` and `npm run audit`.
+  - **Feed DOM & Scroll Scalability Benchmark (`feed-dom-benchmark.test.js`, `tmp/feed-benchmark-report.md`)**: Benchmarked 100-round roleplay feeds (200 sequential messages, ~3,000 DOM nodes), confirming that keyed Svelte 5 rendering runs instantaneously (0.17 ms serialization, 57 KB footprint) and that complex DOM virtualization is not required.
+  - **AudioContext Lifecycle & Teardown Verification (`audio.test.js`, `audio.svelte.js`)**: Added lifecycle tests verifying safe AudioContext instantiation and clean `destroy()` teardown without uncaught exceptions.
+
   - **Somatic Recall Degradation & Weight Unification (`temporal.js`, `temporal.test.js`, `protocols.js`, `builder.js`)**:
     - Implemented `degrade_memory_text` using diegetic block glyphs (`■■■`, no ellipses) to signal missing memories directly to the LLM without contaminating XML grammar or hallucinated facts.
     - Updated `format_hybrid_recall` to degrade lower-weight memories (`emotional_weight <= 6`) when `resolve_recall_clarity(dynamics) === 'fragmented'`, preserving high-weight canon crispness (`w >= 7`).

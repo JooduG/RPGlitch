@@ -29,15 +29,13 @@ flowchart TD
         S4["Phase II: Directorial Governance, Constitution & Syntax Parity"]
         S5["Phase III: Relational Macro Graph, Epistemic Wall & Perspective (Track 6)"]
         S6["Phase IV: Ghostwriter Perspective & Narrative POV Rework (Track 7)"]
-        S1 --> S2 --> S3 --> S4 --> S5 --> S6
+        S7["Phase V: Memory RAG Hardening, Context Cliff & Somatics (Tracks 8, 9, 11)"]
+        S1 --> S2 --> S3 --> S4 --> S5 --> S6 --> S7
     end
 
-    subgraph ActiveBacklog ["Active Engineering Delta (v0.9.0 The Sovereign Red Thread)"]
+    subgraph ActiveBacklog ["Active Engineering Delta (Pending Realignment)"]
         direction TB
-        T5["Phase V: Memory RAG Hardening, Context Cliff & Somatics (Tracks 8, 9, 11)"]
-        T6["Phase VI: Sensory Presentation, Virtualization & Live A/B Harness (Tracks 10, 11.5)"]
-
-        T5 --> T6
+        R1["State-of-the-Application Review & Strategic Realignment"]
     end
 
     ShippedCore ==> ActiveBacklog
@@ -56,68 +54,33 @@ flowchart TD
 
 ---
 
-### Phase V: Memory RAG Hardening, Context Cliff & Somatics (Tracks 8, 9, 11)
+### Sprint: State-of-the-Application Review & Track A Local Investigations
 
-Hardening context windows against the 6,000-token cliff, eliminating memory consolidation leaks, and wiring somatic physics into recall clarity.
+A comprehensive, code-grounded review of the running application and execution of Track A (Unblocked Local Investigations) to resolve known state machine bottlenecks, audit prompts, and enforce architectural invariants.
 
-- **Objective**: Keep total prompt length beneath the 6,000-token cliff by construction, eliminate Memory Forge concealed item eviction (E2 bug), and modulate memory clarity through somatic metrics.
-- **Code reality**: `CONTEXT_TOKEN_CLIFF = 6000` lives in `history.js:81`. `calculate_physical_salience` (`temporal.js:1057`) and `whole_vector_slice` (`:1077`) exist and are unwired. `merge_field_content` (`:1110`) and consolidation engine (`:1592-1615`) are now hardened to preserve `| hide` brackets and weights across Memory Forge passes (E2 resolved) and deduplicate case-variant lines (M1 resolved). `resolve_recall_clarity` (`temporal.js:897`) and `format_hybrid_recall` (`:921`) exist, are tested, and exported — with zero callers in `builder.js`.
-- **Key Modules**: `src/data/definitions/premade-entities.test.js`, `src/data/definitions/profile-fields.js`, `src/data/normalizer.js`, `src/data/index.js`, `src/intelligence/index.js`, `src/intelligence/director.js`, `src/intelligence/story.js`, `src/intelligence/story.test.js`, `src/intelligence/modules/history.js`, `src/intelligence/modules/history.test.js`, `src/intelligence/modules/sheets.js`, `src/intelligence/modules/style.js`, `src/intelligence/modules/style.test.js`, `src/intelligence/modules/entities.js`, `src/intelligence/temporal.js`, `src/intelligence/temporal.test.js`, `src/media/index.js`, `src/media/optics.js`, `src/media/optics.test.js`, `src/media/palette.js`, `src/media/tokens.js`, `src/media/tokens.test.js`, `src/media/visual.svelte.js`, `src/state/log.svelte.js`, `src/state/log.test.js`, `src/state/runtime.svelte.js`, `src/ui/profile/Profile.svelte`, `src/ui/profile/DevWing.svelte`, `src/utils/styles.js`, `src/utils/styles.test.js`, `src/utils/text.js`, `src/utils/text.test.js`, `src/intelligence/builder.js`.
-- **Shipped in Foundation & Completion**:
-  - [x] **5.1 Wire Salience + Slice, Then Cap `<ENTITIES>` at 2,000 Tokens (Sub-item 11.1)**: Connected `calculate_physical_salience` and `whole_vector_slice` into sheet scoring, capping `<ENTITIES>` at ~2,000 tokens (8,000 chars) with dynamic pruning under the 6k context cliff. _(Recorded in [CHANGELOG.md](CHANGELOG.md#unreleased))_.
-  - [x] **5.2 E2 Concealed Bracket Persistence (Sub-item 11.2 / sim/dossier finding E2)**: Hardened `merge_field_content` (`temporal.js:1110`) and background forge consolidation to carry over `| hide` brackets and custom weights. _(Recorded in [CHANGELOG.md](CHANGELOG.md#unreleased))_.
-  - [x] **5.3 Recall Modulation Review & Somatic Wiring (Sub-items 8.2, 8.1, 8.3)**:
-    - Wired sensory memory degradation using diegetic block glyphs (`■■■`, no ellipses) for lower-weight recall (`emotional_weight <= 6`) under fragmented recall clarity (`resolve_recall_clarity(dynamics) === 'fragmented'`), preserving high-weight canon crispness (`w: 7-10`).
-    - Keyed sensory memory degradation strictly off numeric weights (`emotional_weight <= 6`) under fragmented recall clarity (`resolve_recall_clarity(dynamics) === 'fragmented'`), preserving high-weight canon crispness (`w: 7-10`) regardless of origin provenance.
-    - Added `resolve_somatic_interference_protocol` to inject grounding rules when Chaos or Entropy exceeds threshold (`DYNAMICS_FRAGMENTATION_THRESHOLD = 70`).
-    - Wired `temporal_engine.format_hybrid` with entity dynamics into prompt builder past accessors and single-field enhancement.
-  - [x] **5.4 "All 4 Quadrants Are Lorebook" Educational Guidance (Sub-item 9.1)**:
-    - Enriched taxonomy descriptions for Character and Fractal models in `src/data/definitions/profile-fields.js`, teaching users that `eternal` + `present` + `past` + `future` constitute the full lived vector lorebook rather than keyword dumps.
-    - Added educational info (`"i"`) icons with field tooltips into parsed pseudo-JSON card headers and TextField headers in `src/ui/profile/Profile.svelte`.
-  - [x] **5.5 Prompt Token Map & Tokenization Calibration (Sub-item 9.2 / [WATCH] Token Calculation Discrepancy)**:
-    - Calibrated character-to-token ratio to `CHARS_PER_TOKEN = 3.35` in `src/utils/text.js`, eliminating token undercounting against Perchance BPE tokenization.
-    - Added live prompt compilation token snapshots (`system`, `entities`, `history`, `task`, and `<ENTITIES>` actors/cast/memories sub-breakdown) via `bridges.js` to `runtime.last_prompt_token_snapshot`.
-    - Integrated interactive Token Budget HUD badge and collapsible allocation breakdown popover in `src/ui/profile/DevWing.svelte`.
-  - [x] **5.6 Background Concurrency Cooldown & Cursor Commit Guard ([BUG] F4 Starvation)**:
-    - Unified `IMAGE_TRIGGER_COOLDOWN_ROUNDS = 2` across dynamics evaluation and optics trigger arbitration.
-    - Protected Turn 3 deferred optics runs with preemption priority, while caretaker consolidation advances `runtime.back_shot_cursor` only upon successful commit and handles aborts gracefully without advancing prematurely.
-
----
-
-### Phase VI: Sensory Presentation, Virtualization & Live A/B Harness (Tracks 10, 11.5)
-
-Optimizing UI performance for marathon sessions, providing director shortcuts, and empirically validating prompt steering quality.
-
-- **Objective**: Guarantee 60fps scrolling on 100+ turn sessions, introduce non-diegetic Director controls, and establish an automated A/B evaluation rig against live Perchance endpoints.
-- **Code reality**: `Feed.svelte` renders full `visible_feed` array (`{#each}`, `:262`) — no virtualization inside Feed. `InputBar.svelte` and `GalleryModal.svelte` do not exist.
-- **Key Modules**: `src/ui/message/Feed.svelte`, `src/ui/console/Console.svelte`, `src/ui/console/StorymodeBar.svelte`, `src/tools/harness/`, `src/utils/styles.js`.
-- **Planned Sub-Items**:
-  - [ ] **6.1 Feed Virtualization Recon & DOM Windowing (Sub-items 10.0, 10.1)**:
-    - Trace where `visible_feed` gets windowed upstream of `Feed.svelte`; implement measured DOM windowing keeping only visible messages mounted, ensuring smooth 60fps scrolling in 100+ turn roleplays.
-    - Audit round sequence step increments (`chrono.svelte.js`) under rapid user submissions and state recovery to resolve edge-case round jump anomalies ([BUG] F6).
-  - [ ] **6.2 Slash Command Directing Bar (Sub-item 10.2)**:
-    - Floating shortcut bar above message input allowing direct Director intervention (`/ooc`, `/time`, `/mood`) without polluting in-character dialogue.
-  - [ ] **6.3 Persistent Session Image Archive & Optics Framing Lenses (Sub-item 10.3 / [WATCH] Optics Framing)**:
-    - Dedicated gallery modal querying Dexie image attachments across the current story with thumbnail caching.
-    - Verify and assert that scheduled Director Visual Beats faithfully retain camera lenses, framing descriptors, and aesthetic negative maps through `render_optics_prompt`.
-  - [ ] **6.4 Live Prompt A/B Testing & Evaluation Harness on Perchance (Sub-item 11.5)**:
-    - Build an interactive prompt A/B evaluation harness against Perchance's live endpoint measuring: token budget economy, TTFT, `<THINK>` quality, detox compliance, and context truncation resilience across multi-round simulated roleplay conversations.
-    - **Cognitive Stimulus Ordering Test**: Empirically evaluate whether sequencing `<INPUT>` before `<THINK_FORMAT>` in `PROSE_LAYERS.task` improves reasoning depth and prompt attention weights before locking the order in production.
-    - **Prose Macro Shape & Anti-Slop Audit Integration ([BUG] Macro Shape Audit)**: Wire `audit_macro_shape` (`src/utils/styles.js:186`) into post-generation telemetry and harness reporting to flag as-if overuse, sentence structures, and repetitive closing tics.
-    - **Think-Channel Deduplication**: Evaluate extending spent-ledger n-gram suppression to repetitive `<think>` tropes and verbatim input echoes.
+- **Objective**: Execute Track A local investigations and hardening: fix composer queued state machine, generate prompt atom matrix in audit harness, establish central prompt ceiling, and enforce downward layer imports.
+- **Scope & Target Files**:
+  - `src/ui/console/StorymodeBar.svelte` (composer serialized queue drainer and unstick resilience)
+  - `src/config.js` (master prompt ceiling and budget allocations)
+  - `.agents/skills/simulation/scripts/simulation-audit.js` (automated prompt atom matrix)
+  - `.agents/skills/simulation/scripts/simulation-audit.test.js` (wire atom matrix tables into unified report)
+  - `.agents/skills/simulation/scripts/consolidation-stress.test.js` (100-round consolidation invariant test)
+  - `.agents/skills/local-scripts/scripts/audit-layers.js` (strict layer boundary enforcement gate)
+  - `src/ui/message/feed-dom-benchmark.test.js` (feed DOM profiling benchmark)
+  - `src/media/audio.test.js` (AudioContext lifecycle and teardown contract verification)
+- **Key Modules**: `src/ui/`, `src/state/`, `src/intelligence/`, `src/data/`, `src/media/`, `scribbles.md`, `state-of-the-application-investigation.md`.
 
 ---
 
 ## 🏛️ Master Verification & Auditable Proof Matrix
 
-| Phase / Track                  | Subsystem / Feature                                | Target Files                                                                                                                                                                                                                         | Verification Proof                                                                                                                                                                                                                                                                                                                                       |
-| :----------------------------- | :------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Phase I**                    | **Prompt Hygiene & P4 Foundation**                 | `src/intelligence/modules/system.js`, `src/intelligence/builder.js`, `src/intelligence/modules/task.js`, `src/intelligence/modules/protocols.js`, `src/intelligence/modules/reflex.js`, `src/intelligence/prompts.js`, `SECURITY.md` | Lorebook purge clean in `system.test.js`; byte-identical agency output verified; 5-channel registry frozen; alternative branches gated; candidate spatial pointer fixed; `<SPENT_LEDGER>` XML pilot passing in `reflex.test.js`; `<BEAT_BUDGET>` priority asserted; optics split asserted in `protocols.test.js`.                                        |
-| **Phase II**                   | **Directorial Governance & Syntax Parity**         | `src/intelligence/modules/constitution.js`, `src/intelligence/prompts.js`, `src/intelligence/modules/task.js`, `src/intelligence/director.js`, `src/intelligence/story.js`, `src/intelligence/dynamics.js`                           | Unit tests asserting `DIRECTOR_CONSTITUTION` rendered in Shot 1 system envelope; deconstructed directives verified; dynamic axes delta attributes verified; typed XML compilers verified across Shot 1; climax sovereignty guard verified; stagnation drift interlocutor comparison verified; Director routing rules & keyword subtext pipeline audited. |
-| **Phase III (Track 6)**        | **Relational Macro Graph & Perspective**           | `src/utils/macros.js`, `src/intelligence/veil.js`, `src/intelligence/modules/sheets.js`, `src/intelligence/builder.js`, `src/ui/profile/RelationalGraph.svelte`                                                                      | Secondary NPC identity isolation test passing; veil-first pipeline ordering test clean; `RelationalContext` tuple compiler-side test; 1-word `@id` resolution asserted; replay round-trip attribute compaction test; storage ban standing gate test for turn roles; 360° dossier dedup asserted.                                                         |
-| **Phase IV (Track 7)**         | **Ghostwriter Perspective & Narrative POV**        | `src/intelligence/prompts.js`, `src/intelligence/modules/task.js`, `src/intelligence/story.js`, `src/data/definitions/profile-fields.js`                                                                                             | Unit test verifying ghostwrite output reflects persona's POV setting via scoped base; npc-turn regression test pinning Track 0.6 merge behavior; owner `&#124; hide` preserved; decoupled authorial voice test clean.                                                                                                                                    |
-| **Phase V (Tracks 8, 9, 11)**  | **Memory RAG Hardening, Context Cliff & Somatics** | `src/intelligence/modules/entities.js`, `src/intelligence/modules/sheets.js`, `src/intelligence/temporal.js`, `src/ui/profile/DevWing.svelte`                                                                                        | Unit test verifying `<ENTITIES>` block respects 2,000 token cap; test verifying `&#124; hide` survival across forge consolidation; somatic recall clarity wiring test; live token breakdown bar chart in DevWing functional; background forge concurrency test clean.                                                                                    |
-| **Phase VI (Tracks 10, 11.5)** | **Sensory Presentation & Live Evaluation**         | `src/ui/message/Feed.svelte`, `src/ui/console/Console.svelte`, `src/tools/harness/`, `src/utils/styles.js`                                                                                                                           | Performance audit demonstrating 60fps scrolling on 100+ turns; gallery modal functional; live A/B evaluation harness passing on Perchance; `audit_macro_shape` wired into audit telemetry.                                                                                                                                                               |
+| Phase / Track                 | Subsystem / Feature                                | Target Files                                                                                                                                                                                                                         | Verification Proof                                                                                                                                                                                                                                                                                                                                       |
+| :---------------------------- | :------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Phase I**                   | **Prompt Hygiene & P4 Foundation**                 | `src/intelligence/modules/system.js`, `src/intelligence/builder.js`, `src/intelligence/modules/task.js`, `src/intelligence/modules/protocols.js`, `src/intelligence/modules/reflex.js`, `src/intelligence/prompts.js`, `SECURITY.md` | Lorebook purge clean in `system.test.js`; byte-identical agency output verified; 5-channel registry frozen; alternative branches gated; candidate spatial pointer fixed; `<SPENT_LEDGER>` XML pilot passing in `reflex.test.js`; `<BEAT_BUDGET>` priority asserted; optics split asserted in `protocols.test.js`.                                        |
+| **Phase II**                  | **Directorial Governance & Syntax Parity**         | `src/intelligence/modules/constitution.js`, `src/intelligence/prompts.js`, `src/intelligence/modules/task.js`, `src/intelligence/director.js`, `src/intelligence/story.js`, `src/intelligence/dynamics.js`                           | Unit tests asserting `DIRECTOR_CONSTITUTION` rendered in Shot 1 system envelope; deconstructed directives verified; dynamic axes delta attributes verified; typed XML compilers verified across Shot 1; climax sovereignty guard verified; stagnation drift interlocutor comparison verified; Director routing rules & keyword subtext pipeline audited. |
+| **Phase III (Track 6)**       | **Relational Macro Graph & Perspective**           | `src/utils/macros.js`, `src/intelligence/veil.js`, `src/intelligence/modules/sheets.js`, `src/intelligence/builder.js`, `src/ui/profile/RelationalGraph.svelte`                                                                      | Secondary NPC identity isolation test passing; veil-first pipeline ordering test clean; `RelationalContext` tuple compiler-side test; 1-word `@id` resolution asserted; replay round-trip attribute compaction test; storage ban standing gate test for turn roles; 360° dossier dedup asserted.                                                         |
+| **Phase IV (Track 7)**        | **Ghostwriter Perspective & Narrative POV**        | `src/intelligence/prompts.js`, `src/intelligence/modules/task.js`, `src/intelligence/story.js`, `src/data/definitions/profile-fields.js`                                                                                             | Unit test verifying ghostwrite output reflects persona's POV setting via scoped base; npc-turn regression test pinning Track 0.6 merge behavior; owner `&#124; hide` preserved; decoupled authorial voice test clean.                                                                                                                                    |
+| **Phase V (Tracks 8, 9, 11)** | **Memory RAG Hardening, Context Cliff & Somatics** | `src/intelligence/modules/entities.js`, `src/intelligence/modules/sheets.js`, `src/intelligence/temporal.js`, `src/ui/profile/DevWing.svelte`                                                                                        | Unit test verifying `<ENTITIES>` block respects 2,000 token cap; test verifying `&#124; hide` survival across forge consolidation; somatic recall clarity wiring test; live token breakdown bar chart in DevWing functional; background forge concurrency test clean.                                                                                    |
 
 ---
 
@@ -125,7 +88,7 @@ Optimizing UI performance for marathon sessions, providing director shortcuts, a
 
 The complete historical specifications, task decompositions, and touchpoint references have been preserved in the archive:
 
-- **[Release Notes (Unreleased)](CHANGELOG.md#unreleased)**: Sovereign Red Thread Phases I through IV & Phase V foundation (Phase I Prompt Pipeline Hygiene & Release Safety, Phase II Directorial Governance & Syntax Parity, Phase III Relational Macro Graph & Perspective, Phase IV Ghostwriter Perspective & Narrative POV Rework, and Phase V 5.1/5.2 ENTITIES Hard Budgeting & E2 Concealment Persistence).
+- **[Release Notes (Unreleased)](CHANGELOG.md#unreleased)**: Sovereign Red Thread Phases I through V (Phase I Prompt Pipeline Hygiene & Release Safety, Phase II Directorial Governance & Syntax Parity, Phase III Relational Macro Graph & Perspective, Phase IV Ghostwriter Perspective & Narrative POV Rework, and Phase V Memory RAG Hardening, Context Cliff & Somatics with sub-items 5.1–5.6, token calibration, somatic recall degradation, DevWing token HUD, and design token consolidation).
 - **[Release Notes (v0.8.0)](CHANGELOG.md#080---2026-10-12)**: Tracks 1 through 5 (4-Quadrant RAG & Dynamic Token Budget Reservoir, Simulation Log Pipeline Harmonization, Anti-Slop Narrative Detox & The Spent Ledger, Scene Momentum & Stagnation Backstop, Runtime Stream Beat Backstop & Continuation `finishTail`, and P4 Purges).
 - **[Release Notes (v0.7.0)](CHANGELOG.md#070---2026-10-11)**: Tracks 0 through 4 (Intelligence Kernel Language & Domain Purity, State & Physics Core Unification, Hierarchical Memory & 6k Context Protection, Narrative Pacing & Story Experience, Task Compiler Deconstruction).
 
@@ -133,6 +96,11 @@ The complete historical specifications, task decompositions, and touchpoint refe
 
 ## 📌 Parking Lot & Tactical Backlog
 
+- **Sensory Presentation, Virtualization & Live A/B Harness (Former Phase VI)**:
+  - _Feed Virtualization Recon & DOM Windowing_: Trace `visible_feed` upstream of `Feed.svelte`; implement measured DOM windowing keeping only visible messages mounted for smooth 60fps scrolling in 100+ turn roleplays. Audit round sequence step increments (`chrono.svelte.js`) under rapid user submissions ([BUG] F6).
+  - _Slash Command Directing Bar_: Floating shortcut bar above message input allowing direct Director intervention (`/ooc`, `/time`, `/mood`) without polluting in-character dialogue.
+  - _Persistent Session Image Archive & Optics Framing Lenses_: Dedicated gallery modal querying Dexie image attachments across the current story with thumbnail caching. Verify scheduled Director Visual Beats faithfully retain camera lenses, framing descriptors, and aesthetic negative maps through `render_optics_prompt`.
+  - _Live Prompt A/B Testing & Evaluation Harness on Perchance_: Interactive prompt A/B evaluation harness against Perchance's live endpoint measuring token budget economy, TTFT, `<THINK>` quality, detox compliance, and context truncation resilience. Test cognitive stimulus ordering (`<INPUT>` before `<THINK_FORMAT>`), prose macro shape anti-slop audit integration (`src/utils/styles.js:186`), and think-channel deduplication.
 - **Card Conversion & Import Reliability**: Hardened character import parsing and normalization (`src/data/card-conversion.js`, `src/data/card-conversion.test.js`, `src/intelligence/parser.test.js`, `src/intelligence/profile.js`, `src/ui/entity/ImportModal.svelte`, `src/ui/primitives/TextField.svelte`) supporting boxed String coerion, textarea layout formatting, and JSON salvage in parser layers during character card ingestion.
 - **Platform Embeddings Retry & Native Config Modernization**: Hardened `src/platform/embeddings.svelte.js` pipeline reset to preserve `_debug_pipeline_fn` under retry during Node/Vitest suites, eliminating ESM cross-origin import errors. Modernized `vitest.config.js` and `vite.config.js` to `import.meta.dirname` and tuned `teardownTimeout: 4000` to prevent fork pool timeouts.
 - **Intelligence Suite Type-Narrowing Hardening (`src/intelligence/prompts.test.js`)**: Replaced loose `in` operator assertion (`expect("task" in mode).toBe(false)`) with `Reflect.has(mode, "task")` to resolve TypeScript/IDE `in-operator-narrowing` diagnostics cleanly.

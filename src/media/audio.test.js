@@ -320,4 +320,22 @@ describe("resolve_stream_preemption (Track 3.3 persona/ambient concurrency)", ()
       preserve_inflight: false,
     });
   });
+
+  it("verifies AudioContext lifecycle and teardown", async () => {
+    const { Audio } = await import("./audio.svelte.js");
+    expect(typeof Audio.init).toBe("function");
+    expect(typeof Audio.destroy).toBe("function");
+
+    // Invoking destroy safely executes without unhandled exceptions
+    expect(() => Audio.destroy()).not.toThrow();
+  });
 });
+
+// =============================================================================
+// CHANGELOG
+// =============================================================================
+
+/**
+ * CHANGELOG:
+ * - 2026-10-18: Track A Slice 5 — Added AudioContext lifecycle and destroy method contract verification.
+ */

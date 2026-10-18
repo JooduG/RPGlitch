@@ -1,3 +1,20 @@
+<!--
+  Instructional Header Block
+  File: src/ui/console/StorymodeBar.svelte
+  Purpose: Storymode narrative input composer, handling user text submission,
+           serialized queued message drainage, ghostwriting trigger synchronization,
+           and generation interrupt/unstick affordances.
+  Dependencies:
+    - @primitives: Button, Indicator, tooltip
+    - @state: chrono_engine, app, runtime, simulation_state, force_recover_simulation
+    - @intelligence: gamemaster
+    - @motion: stab
+  Rules:
+    - Never mutate $state inside an $effect.
+    - All queued message drainage must be serialized via drain_pending_queue.
+    - A rejected send must restore text to the composer input without loss.
+-->
+
 <script>
   import { tick } from "svelte";
   import { Button, Indicator, tooltip } from "@primitives";
@@ -6,7 +23,7 @@
   import { stab } from "@motion";
   import { app, runtime, simulation_state, force_recover_simulation } from "@state";
 
-  // eslint-disable-next-line no-useless-assignment
+  /* eslint-disable-next-line no-useless-assignment */
   let { is_focused = $bindable(false), has_text = $bindable(false) } = $props();
 
   let value = $state("");
@@ -109,12 +126,38 @@
     await send_or_restore(text);
   }
 
-  // Auto-send queued messages the moment the composer is free again. Runs as
-  // fire-and-forget so sends never block a flush.
+  let is_draining = false;
+
+  async function drain_pending_queue() {
+    if (is_draining || send_blocked || pending.length === 0) return;
+    is_draining = true;
+    try {
+      while (!send_blocked && pending.length > 0) {
+        const next_text = pending[0];
+        const accepted = await chrono_engine.send(next_text);
+        if (accepted) {
+          pending.shift();
+        } else {
+          // If rejected by the engine, restore to input and halt draining
+          value = pending.shift();
+          break;
+        }
+      }
+    } catch (e) {
+      console.error("Failed to drain queued message:", e);
+      if (pending.length > 0) {
+        value = pending.shift();
+      }
+    } finally {
+      is_draining = false;
+    }
+  }
+
+  // Drain queued messages the moment the composer becomes unblocked.
   $effect(() => {
-    if (send_blocked || pending.length === 0) return;
-    const text = pending.shift();
-    if (text != null) send_or_restore(text);
+    if (!send_blocked && pending.length > 0 && !is_draining) {
+      drain_pending_queue();
+    }
   });
 
   function handle_keydown(e) {
@@ -206,3 +249,8 @@
     </svg>
   </Button>
 {/if}
+
+<!--
+  CHANGELOG:
+  - 2026-10-18: Track A Slice 1 — Refactored queue drainage from reactive effect mutation to serialized async drainer (drain_pending_queue). Prevents stale/lingering "queued" indicators on round handoffs and restores rejected sends to composer value cleanly.
+-->
