@@ -16,8 +16,8 @@
 
 # RPGlitch — State-of-the-Application Master Investigation Dossier
 
-> **Document Status**: COMPLETED MASTER DOSSIER (Track A Offline Audits + Track B Empirical R3 Run Merged)  
-> **Repository Pin**: Sovereign Core v0.9.0 (Phases I–V Shipped & Hardened)  
+> **Document Status**: COMPLETED MASTER DOSSIER (Track A Offline Audits + Track B Empirical R3 Run Merged)
+> **Repository Pin**: Sovereign Core v0.9.0 (Phases I–V Shipped & Hardened)
 > **Executive Mandate**: Holistic helicopter-level audit of code health, memory physics, token headroom, and live gameplay immersion to establish the definitive engineering roadmap.
 
 ---
@@ -122,12 +122,16 @@ flowchart TD
 
 1. **Semantic Embeddings**: 384-dimensional float vectors (`@platform/embeddings.svelte.js`). Internal control flags (`| hide`, `| show`, `| w:N`) are cleanly stripped _before_ computing cosine distance via `strip_bracket_engine_flags()`.
 2. **Relevance Mathematical Formula**:
-   $$\text{Relevance} = \text{weight} \times \left(1 + 2.0 \times \text{semantic}\right) \times \text{recency} \times \text{pinned\_boost} \times \text{in\_scene\_boost}$$
+
+   $$
+   \text{Relevance} = \text{weight} \times \left(1 + 2.0 \times \text{semantic}\right) \times \text{recency} \times \text{pinned\_boost} \times \text{in\_scene\_boost}
+   $$
    - **Weight**: Numerical emotional weight $w \in `[1, 10]`$ (default $5$).
    - **Semantic Gain**: $\text{SEMANTIC\_GAIN} = 2.0$, scaling semantic similarity `$[-1, 1]$` into a positive multiplier.
    - **Recency Decay**: $\text{recency} = \max\left(0.3, e^{-\frac{\Delta\text{round}^2}{2 \times 6^2}}\right)$, preventing historical memories from reaching zero relevance.
    - **Pinned Boost**: $1.5\times$ relevance multiplier for user-authored origin memories (`is_origin(vector)`, matching `usr_*` prefix, `origin` metadata, or `timestamp === 0`).
    - **Spotlight Boost**: $1.3\times$ multiplier (`IN_SCENE_SALIENCE_BOOST`) for characters active on stage.
+
 3. **Physical Trait Salience (`calculate_physical_salience`)**:
    - Trait brackets matching physical anatomy (`[HAIR:]`, `[EYES:]`, `[BUILD:]`, `[SCAR:]`, `[OUTFIT:]`):
      - **Image / Optics Turns**: Boosted by **$1.5\times$** to guarantee diffusion prompts reflect anatomy.
@@ -175,7 +179,7 @@ Every prompt is assembled from an ordered stack of discrete XML layers. Organic 
    - `SCENE.PROLOGUE`, `EPILOGUE`, and `COLLAPSE` in `task.js` repeat: _"Strictly zero spoken dialogue or quote marks. No dialogue."_
    - **Savings**: ~8 tokens per scene directive by simplifying to _"Zero dialogue or quote marks."_
 3. **`<THINK>` Envelopes Closing Boilerplate**:
-   - `THINK_CHARACTER`, `THINK_NARRATOR`, and `THINK_ENHANCEMENT` repeat: _"Close </THINK> before the narrative. This think block is internal reasoning and is never part of the visible prose."_
+   - `THINK_CHARACTER`, `THINK_NARRATOR`, and `THINK_ENHANCEMENT` repeat: _"Close before the narrative. This think block is internal reasoning and is never part of the visible prose."_
    - **Savings**: ~14 tokens per shot.
 4. **Token Escaping & Indentation**:
    - Typography macros echoed in `protocols.js` and whitespace indentation in `xml.js` consume ~45 tokens.
