@@ -18,6 +18,8 @@
  * without introducing a layer cycle.
  */
 
+import { LLM_GATE_POLICY } from "@config";
+
 // ============================================================================
 // [SECTION 1: PRIORITY CONTRACT]
 // ============================================================================
@@ -26,7 +28,10 @@
  * Canonical LLM job priorities (higher value = scheduled sooner).
  * @type {Readonly<{ FOREGROUND: number, BACKGROUND: number }>}
  */
-export const LLM_PRIORITY = Object.freeze({ FOREGROUND: 10, BACKGROUND: 1 });
+export const LLM_PRIORITY = Object.freeze({
+  FOREGROUND: LLM_GATE_POLICY.PRIORITY_FOREGROUND,
+  BACKGROUND: LLM_GATE_POLICY.PRIORITY_BACKGROUND,
+});
 
 // ============================================================================
 // [SECTION 2: GATE STATE]

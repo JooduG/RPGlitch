@@ -40,7 +40,7 @@ import {
   wrap_tag,
   estimate_tokens,
 } from "@utils";
-import { DIALOGUE_WINDOW, VISUAL_FEED_WINDOW, CHAPTER, PROSE, CONTEXT_TOKEN_CLIFF as CANONICAL_CONTEXT_TOKEN_CLIFF } from "@config";
+import { DIALOGUE_WINDOW, VISUAL_FEED_WINDOW, CHAPTER, PROSE, CONTEXT_TOKEN_CLIFF } from "@config";
 import { DYNAMICS_METRIC_NAMES } from "../dynamics.js";
 
 // ============================================================================
@@ -79,7 +79,7 @@ export function resolve_history(configuration) {
 // budget (including all CONTRACT fixtures) compile byte-identical output.
 
 /** Hard cliff: no dispatched assembly may exceed ~6,000 tokens. */
-export const CONTEXT_TOKEN_CLIFF = CANONICAL_CONTEXT_TOKEN_CLIFF;
+export { CONTEXT_TOKEN_CLIFF };
 
 /** Token budget for one transcript window (history slot, all modes). */
 export const HISTORY_TOKEN_BUDGET = 1600;

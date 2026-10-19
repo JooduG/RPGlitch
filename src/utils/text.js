@@ -18,6 +18,7 @@
  */
 
 import { CLOTHING_KEYS, escape_xml, prompt_escape } from "./xml.js";
+import { CHARS_PER_TOKEN } from "@config";
 
 // ============================================================================
 // [SECTION 1: CONSTANTS & TOKEN SETS]
@@ -261,10 +262,41 @@ export function truncate_at_word(text, limit = 200, options = {}) {
 }
 
 /**
+ * Universal text truncation ensuring pseudo-JSON bracket syntax integrity.
+ * If text contains pseudo-JSON brackets and a bracket tag is cut off mid-tag,
+ * clips cleanly at the last intact ']' before limit; otherwise falls back to truncate_at_word.
+ *
+ * @param {string | null | undefined} text
+ * @param {number} [limit=200]
+ * @param {Object} [options={}]
+ * @returns {string}
+ */
+export function truncate_at_boundary(text, limit = 200, options = {}) {
+  if (!text || typeof text !== "string") return "";
+  const trimmed = text.trim();
+  if (trimmed.length <= limit) return trimmed;
+
+  const sub = trimmed.slice(0, limit);
+  const last_open = sub.lastIndexOf("[");
+  const last_close = sub.lastIndexOf("]");
+
+  // If there is an unclosed bracket cut off mid-tag
+  if (last_open > last_close) {
+    if (last_close > 0) {
+      return sub.slice(0, last_close + 1).trimEnd();
+    }
+    // If the unclosed bracket is the very first one, drop it and return empty/trimmed
+    return "";
+  }
+
+  return truncate_at_word(text, limit, options);
+}
+
+/**
  * Calibrated character-to-token ratio based on Perchance BPE tokenization
  * across structured XML tags, pseudo-JSON brackets, and narrative prose.
  */
-export const CHARS_PER_TOKEN = 3.35;
+export { CHARS_PER_TOKEN };
 
 /**
  * Heuristic token estimator for prompt budgeting (Track 2.2: 6k cliff guard).

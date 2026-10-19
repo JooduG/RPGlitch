@@ -20,7 +20,7 @@
  */
 
 import { clamp, escape_xml, render_xml_tag } from "@utils";
-import { IMAGE_TRIGGER_COOLDOWN_ROUNDS as CANONICAL_IMAGE_TRIGGER_COOLDOWN_ROUNDS, DYNAMICS_SCALE, SEISMIC_SHIFT_DISPLACEMENT } from "@config";
+import { IMAGE_TRIGGER_COOLDOWN_ROUNDS, DYNAMICS_SCALE, SEISMIC_SHIFT_DISPLACEMENT } from "@config";
 import { STYLE_MOTIF_REGISTRY } from "@data";
 
 // ── 1. Dynamics Axes ──────────────────────────────────────────────────────────
@@ -772,7 +772,7 @@ export function render_subtext_xml(ai_dynamics = {}, fractal_dynamics = {}, opti
 // media taxonomy). resolve_image_trigger stays in media/optics.js, reading
 // these thresholds through its physics import.
 
-export const IMAGE_TRIGGER_COOLDOWN_ROUNDS = CANONICAL_IMAGE_TRIGGER_COOLDOWN_ROUNDS;
+export { IMAGE_TRIGGER_COOLDOWN_ROUNDS };
 
 export const IMAGE_TRIGGER = Object.freeze({
   band_high: DYNAMICS_SCALE.EXTREME_HIGH,

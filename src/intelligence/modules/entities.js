@@ -33,6 +33,7 @@ import {
 } from "@utils";
 import { define_sheet, SHEET_SPECS, render_sheet, render_entity_memory_context, render_enhancement_field_context } from "./sheets.js";
 import { whole_vector_slice } from "../temporal.js";
+import { ENTITY_SCHEMA } from "@config";
 
 export const ENTITIES_MAX_TOKENS = 2000;
 export const ENTITIES_MAX_CHARS = ENTITIES_MAX_TOKENS * 4; // 8,000 chars
@@ -118,7 +119,7 @@ export function render_cast_xml({ mode = CAST_MODES.NEARBY, children = [], inden
 
 /**
  * Generates a concise summary for an entity, combining eternal baseline essence
- * with immediate present stance (capped at ~120 chars).
+ * with immediate present stance (capped at ENTITY_SCHEMA.SUMMARY_MAX_CHARS chars).
  * @param {any} entity
  * @returns {string}
  */
@@ -128,7 +129,7 @@ export function summarize_entity(entity) {
 
   const combined = core && stance && core !== stance ? `${core} | ${stance}` : stance || core || "";
 
-  return truncate_at_word(combined, 120);
+  return truncate_at_word(combined, ENTITY_SCHEMA.SUMMARY_MAX_CHARS);
 }
 
 /**

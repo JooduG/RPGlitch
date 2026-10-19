@@ -39,31 +39,28 @@ import { render_available_keywords_xml } from "./task.js";
 
 describe("reflex.js - pacing plans", () => {
   it("classifies empty input as TERSE", () => {
-    expect(classify_pacing("")).toEqual({ level: "TERSE", chars: 0, words: 0 });
-    expect(classify_pacing(null)).toEqual({ level: "TERSE", chars: 0, words: 0 });
+    expect(classify_pacing("")).toEqual({ level: "TERSE", chars: 0 });
+    expect(classify_pacing(null)).toEqual({ level: "TERSE", chars: 0 });
   });
 
   it("classifies short input as TERSE at the band edge", () => {
     expect(classify_pacing("Hi").level).toBe("TERSE");
     expect(classify_pacing("x".repeat(40)).level).toBe("TERSE");
-    expect(classify_pacing(Array(8).fill("word").join(" ")).level).toBe("TERSE");
   });
 
   it("classifies mid input as ADAPTIVE", () => {
-    const plan = classify_pacing("This is a medium-length user turn with enough words to land squarely in the adaptive band.");
+    const plan = classify_pacing("This is a medium-length user turn with enough characters to land squarely in the adaptive band.");
     expect(plan.level).toBe("ADAPTIVE");
     expect(plan.chars).toBeGreaterThan(40);
-    expect(plan.words).toBeGreaterThan(8);
   });
 
-  it("classifies long input as EXPANSIVE at either band edge", () => {
-    expect(classify_pacing("x".repeat(300)).level).toBe("EXPANSIVE");
-    expect(classify_pacing(Array(60).fill("word").join(" ")).level).toBe("EXPANSIVE");
+  it("classifies long input as EXPANSIVE at band edge", () => {
+    expect(classify_pacing("x".repeat(500)).level).toBe("EXPANSIVE");
   });
 
   it("classifies empty, short, and long input into pacing levels", () => {
     expect(classify_pacing("").level).toBe("TERSE");
-    expect(classify_pacing("x".repeat(350)).level).toBe("EXPANSIVE");
+    expect(classify_pacing("x".repeat(500)).level).toBe("EXPANSIVE");
   });
 
   it("renders the exact legacy <PACING> envelope inside the posture", () => {
@@ -74,20 +71,20 @@ describe("reflex.js - pacing plans", () => {
 describe("reflex.js - input-size tiers and beat budgets", () => {
   it("classifies inputs into TINY/SMALL/MEDIUM/EXPANSIVE at the char edges", () => {
     expect(classify_input_size("").tier).toBe("TINY");
-    expect(classify_input_size("x".repeat(12)).tier).toBe("TINY");
-    expect(classify_input_size("x".repeat(13)).tier).toBe("SMALL");
-    expect(classify_input_size("x".repeat(90)).tier).toBe("SMALL");
-    expect(classify_input_size("x".repeat(91)).tier).toBe("MEDIUM");
-    expect(classify_input_size("x".repeat(400)).tier).toBe("MEDIUM");
-    expect(classify_input_size("x".repeat(401)).tier).toBe("EXPANSIVE");
+    expect(classify_input_size("x".repeat(15)).tier).toBe("TINY");
+    expect(classify_input_size("x".repeat(16)).tier).toBe("SMALL");
+    expect(classify_input_size("x".repeat(40)).tier).toBe("SMALL");
+    expect(classify_input_size("x".repeat(41)).tier).toBe("MEDIUM");
+    expect(classify_input_size("x".repeat(250)).tier).toBe("MEDIUM");
+    expect(classify_input_size("x".repeat(251)).tier).toBe("EXPANSIVE");
     expect(classify_input_size(null).tier).toBe("TINY");
   });
 
   it("resolves beat budgets per tier", () => {
     expect(resolve_beat_budget_plan("Hi")).toEqual({ tier: "TINY", beats: "1", mandate: REFLEX_LIBRARY.DEFAULTS.INPUT_SIZE_TIERS[0].mandate });
-    expect(resolve_beat_budget_plan("x".repeat(50)).beats).toBe("1-2");
-    expect(resolve_beat_budget_plan("x".repeat(200)).beats).toBe("2-4");
-    expect(resolve_beat_budget_plan("x".repeat(500)).beats).toBe("open");
+    expect(resolve_beat_budget_plan("x".repeat(30)).beats).toBe("1-2");
+    expect(resolve_beat_budget_plan("x".repeat(100)).beats).toBe("2-4");
+    expect(resolve_beat_budget_plan("x".repeat(300)).beats).toBe("open");
   });
 
   it("counts prose beats and detects stream beat limits correctly (Track 5.1)", () => {

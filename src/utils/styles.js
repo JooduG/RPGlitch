@@ -19,6 +19,7 @@
 
 import { state_bridge } from "./bridges.js";
 import { VALID_SPEAKING_STYLES } from "./detox.js";
+import { SOMATIC_MARKER_CAP } from "@config";
 
 // ============================================================================
 // [SECTION 1: NARRATIVE SLOP LINTER (Track 3.1)]
@@ -63,7 +64,7 @@ export const SLOP_PATTERNS = Object.freeze({
   ]),
 });
 
-export const SOMATIC_MARKER_CAP = 1;
+export { SOMATIC_MARKER_CAP };
 
 /**
  * Lints a prose reply for narrative slop: cliché hits plus cliché somatic

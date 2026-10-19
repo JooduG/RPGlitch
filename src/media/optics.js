@@ -21,7 +21,7 @@
  */
 
 import { normalize_comma_spacing } from "@utils";
-import { IMAGE_TRIGGER_COOLDOWN_ROUNDS, DYNAMICS_SCALE } from "@config";
+import { IMAGE_TRIGGER_COOLDOWN_ROUNDS, DYNAMICS_SCALE, IMAGE_RESOLUTIONS } from "@config";
 import { build_aesthetic_map } from "../intelligence/modules/style.js";
 import { IMAGE_TRIGGER, evaluate_image_trigger } from "../intelligence/dynamics.js";
 
@@ -46,10 +46,10 @@ export const DEFAULT_IMAGE_TIER = "story_scene";
  * @type {Readonly<Record<string, { width: number, height: number }>>}
  */
 const TIER_RESOLUTIONS = Object.freeze({
-  story_scene: Object.freeze({ width: 768, height: 512 }),
-  solo_entity: Object.freeze({ width: 512, height: 768 }),
-  story_character: Object.freeze({ width: 512, height: 768 }),
-  story_entities: Object.freeze({ width: 768, height: 768 }),
+  story_scene: IMAGE_RESOLUTIONS.LANDSCAPE,
+  solo_entity: IMAGE_RESOLUTIONS.PORTRAIT,
+  story_character: IMAGE_RESOLUTIONS.PORTRAIT,
+  story_entities: IMAGE_RESOLUTIONS.SQUARE_LARGE,
 });
 
 /**

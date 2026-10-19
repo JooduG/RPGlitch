@@ -77,7 +77,7 @@ export const DYNAMICS_CALIBRATION = Object.freeze({
 export const GRAVITY_RATE = 0.08;
 
 /** Cumulative displacement delta across all axes required to trigger an automated visual beat */
-export const SEISMIC_SHIFT_DISPLACEMENT = 60;
+export const SEISMIC_SHIFT_DISPLACEMENT = DYNAMICS_SCALE.MID; // 50: Displacement trip point aligned to neutral dynamics baseline
 
 /** Random atmospheric variance factor applied during turn dynamics progression */
 export const ENTROPY_VARIANCE = 0.05;
@@ -99,9 +99,7 @@ export const IMAGE_RESOLUTIONS = Object.freeze({
 
 // ── 1. Prompt Context Budgets & Compiler Handoff ──────────────────────────────
 export const CHARS_PER_TOKEN = 3.35; // Calibrated empirical ratio (~3.35 chars/token) for prompt text budgeting
-export const CONTEXT_CLIFF_CHARS = PROMPT_CHAR_ENVELOPE; // 20,000 chars: Hard platform context envelope ceiling
 export const CONTEXT_TOKEN_CLIFF = 6000; // 6,000 tokens: Hard inference ceiling past which server middle-truncation occurs
-export const GENERATION_HEADROOM_CHARS = PROSE.PAGE; // 1,500 chars reserved for LLM generation
 
 // ── 2. Temporal Memory, Compaction & Retrieval ──────────────────────────────
 export const PAST_ENTRIES = Object.freeze({
@@ -117,12 +115,9 @@ export const COMPACTION = Object.freeze({
 });
 
 export const FRAGMENTATION = Object.freeze({
-  THRESHOLD: 70, // Fires at 70% fragmented
+  THRESHOLD: DYNAMICS_SCALE.HIGH, // 75: Somatic fragmentation fires when chaos/entropy exceeds HIGH tension threshold
   WEIGHT_CUTOFF: 6, // Memories at weight <= 6 degrade under fragmentation; >= 7 stay canon
 });
-
-export const PRESENT_MAX_CHARS = PROSE.PARAGRAPH; // 500 chars: Immediate physical state layer
-export const ETERNAL_MAX_CHARS = PROSE.PAGE; // 1,500 chars: Permanent identity facts in core profile
 
 export const TEMPORAL_SCORING = Object.freeze({
   SEMANTIC_GAIN: 3, // Multiplier scaling vector cosine similarity in hybrid memory scoring formula
@@ -158,7 +153,7 @@ export const CHAPTER = Object.freeze({
 
 export const ENTITY_SCHEMA = Object.freeze({
   NAME_MAX_CHARS: IDENT.LABEL, // 80 chars: Maximum name string length
-  SUMMARY_MAX_CHARS: 100, // Word-boundary truncation limit for compact cast summaries (unwired: entities.js still truncates at 120)
+  SUMMARY_MAX_CHARS: 100, // 100 chars: Word-boundary truncation limit for compact cast summaries
 });
 
 export const STAGNATION = Object.freeze({
@@ -171,7 +166,6 @@ export const SPENT_ROUNDS = 5; // Number of recent rounds scanned for repetitive
 export const MAX_SPENT_ITEMS = 8; // Max unique repetitive phrases injected into negative prompt constraints
 export const OPENING_CLAUSE_MIN_CHARS = 15; // Minimum length to flag a repetitive opening clause (no tier: detector tuning, not prose)
 export const SOMATIC_MARKER_CAP = 1; // Maximum physical cliché reaction markers permitted per turn before stripping
-export const TRUNCATION_MIN_CHARS = IDENT.SLUG; // 40 chars: Minimum sentence floor before punctuation recovery
 
 /**
  * User input pacing thresholds mapping character lengths to beat generation.

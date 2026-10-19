@@ -34,7 +34,7 @@ import {
   strip_cognition_blocks,
   collapse_whitespace,
 } from "@utils";
-import { STAGNATION, SPENT_ROUNDS, MAX_SPENT_ITEMS as CANONICAL_MAX_SPENT_ITEMS, OPENING_CLAUSE_MIN_CHARS } from "@config";
+import { STAGNATION, SPENT_ROUNDS, MAX_SPENT_ITEMS, OPENING_CLAUSE_MIN_CHARS, INPUT_PACING } from "@config";
 
 // ============================================================================
 // [SECTION 1: REFLEX CATALOG & CALIBRATION DEFAULTS]
@@ -49,19 +49,29 @@ import { STAGNATION, SPENT_ROUNDS, MAX_SPENT_ITEMS as CANONICAL_MAX_SPENT_ITEMS,
 export const REFLEX_LIBRARY = Object.freeze({
   DEFAULTS: Object.freeze({
     PACING_RULES: Object.freeze([
-      Object.freeze({ level: "EXPANSIVE", at_least: Object.freeze({ chars: 300, words: 60 }) }),
-      Object.freeze({ level: "TERSE", at_most: Object.freeze({ chars: 40, words: 8 }) }),
+      Object.freeze({ level: "EXPANSIVE", at_least: Object.freeze({ chars: INPUT_PACING.STANDARD }) }),
+      Object.freeze({ level: "TERSE", at_most: Object.freeze({ chars: INPUT_PACING.TERSE }) }),
     ]),
     STABILITY_LADDER: Object.freeze([Object.freeze({ at: 3, level: "CRITICAL" }), Object.freeze({ at: 1, level: "WARNING" })]),
     INPUT_SIZE_TIERS: Object.freeze([
       Object.freeze({
         tier: "TINY",
-        at_most_chars: 12,
+        at_most_chars: 15,
         beats: "1",
         mandate: "Reply in exactly 1 beat — a fragment, a single line, or a single action. Zero padding.",
       }),
-      Object.freeze({ tier: "SMALL", at_most_chars: 90, beats: "1-2", mandate: "Reply in 1-2 sharp beats. No unprompted exposition." }),
-      Object.freeze({ tier: "MEDIUM", at_most_chars: 400, beats: "2-4", mandate: "Reply in 2-4 beats, proportionate to «ACTION» breadth." }),
+      Object.freeze({
+        tier: "SMALL",
+        at_most_chars: INPUT_PACING.TERSE,
+        beats: "1-2",
+        mandate: "Reply in 1-2 sharp beats. No unprompted exposition.",
+      }),
+      Object.freeze({
+        tier: "MEDIUM",
+        at_most_chars: INPUT_PACING.STANDARD,
+        beats: "2-4",
+        mandate: "Reply in 2-4 beats, proportionate to «ACTION» breadth.",
+      }),
       Object.freeze({ tier: "EXPANSIVE", at_most_chars: Infinity, beats: "open", mandate: "Match «ACTION» breadth; close on one decisive hook." }),
     ]),
     PAUSE_MARKERS: /(\.\.\.|…|\(silence\)|\(pause\)|\bsays nothing\b|\bremains silent\b|\bno response\b|\bno answer\b)/i,
@@ -238,18 +248,15 @@ export const REFLEX_LIBRARY = Object.freeze({
  * Pacing calibration plan: walks PACING_RULES first-match-wins over the input
  * scale into a frozen {level, chars, words} plan, falling back to ADAPTIVE.
  * @param {string|null|undefined} input
- * @returns {Readonly<{ level: "TERSE"|"ADAPTIVE"|"EXPANSIVE", chars: number, words: number }>}
+ * @returns {Readonly<{ level: "TERSE"|"ADAPTIVE"|"EXPANSIVE", chars: number }>}
  */
 export function classify_pacing(input) {
   const text = String(input || "").trim();
   const chars = text.length;
-  const words = text ? text.split(/\s+/).filter(Boolean).length : 0;
   const hit = REFLEX_LIBRARY.DEFAULTS.PACING_RULES.find(
-    (rule) =>
-      (rule.at_least && (chars >= rule.at_least.chars || words >= rule.at_least.words)) ||
-      (rule.at_most && (chars <= rule.at_most.chars || words <= rule.at_most.words)),
+    (rule) => (rule.at_least && chars >= rule.at_least.chars) || (rule.at_most && chars <= rule.at_most.chars),
   );
-  return Object.freeze({ level: hit ? hit.level : "ADAPTIVE", chars, words });
+  return Object.freeze({ level: hit ? hit.level : "ADAPTIVE", chars });
 }
 
 /**
@@ -661,7 +668,7 @@ export const MANNERISM_PATTERNS = Object.freeze([
 ]);
 
 export const DEFAULT_SPENT_WINDOW = SPENT_ROUNDS;
-export const MAX_SPENT_ITEMS = CANONICAL_MAX_SPENT_ITEMS;
+export { MAX_SPENT_ITEMS };
 
 /**
  * Extracts repetitive opening clauses, mannerisms, and n-grams from recent dialogue.
@@ -669,7 +676,7 @@ export const MAX_SPENT_ITEMS = CANONICAL_MAX_SPENT_ITEMS;
  * @param {Array<any>} messages - Chronological message array.
  * @param {Object} [options={}]
  * @param {number} [options.window_size=SPENT_ROUNDS] - Number of recent turns to inspect.
- * @param {number} [options.maximum_items=CANONICAL_MAX_SPENT_ITEMS] - Maximum spent items to include.
+ * @param {number} [options.maximum_items=MAX_SPENT_ITEMS] - Maximum spent items to include.
  * @returns {Readonly<{
  *   opening_clauses: ReadonlyArray<string>,
  *   mannerisms: ReadonlyArray<string>,

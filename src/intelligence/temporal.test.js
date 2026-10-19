@@ -1341,9 +1341,9 @@ describe("temporal_engine per-entity consolidation progress tracking (Track 2 Ph
     });
 
     it("fragments recall above the dynamics threshold and stays crisp at or below it", () => {
-      expect(resolve_recall_clarity({ chaos: 71, entropy: 10 })).toBe(RECALL_CLARITY.FRAGMENTED);
+      expect(resolve_recall_clarity({ chaos: 76, entropy: 10 })).toBe(RECALL_CLARITY.FRAGMENTED);
       expect(resolve_recall_clarity({ chaos: 10, entropy: 95 })).toBe(RECALL_CLARITY.FRAGMENTED);
-      expect(resolve_recall_clarity({ chaos: 70, entropy: 70 })).toBe(RECALL_CLARITY.CRISP);
+      expect(resolve_recall_clarity({ chaos: 75, entropy: 75 })).toBe(RECALL_CLARITY.CRISP);
       expect(resolve_recall_clarity({})).toBe(RECALL_CLARITY.CRISP);
       expect(resolve_recall_clarity(null)).toBe(RECALL_CLARITY.CRISP);
     });

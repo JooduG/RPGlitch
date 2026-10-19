@@ -25,16 +25,17 @@
 
 import { SvelteMap } from "svelte/reactivity";
 import { onnx_mutex, mark_ort_ready, cosine_similarity } from "@utils";
+import { EMBEDDING_SPECS } from "@config";
 
 // ============================================================================
 // Constants & Configurations
 // ============================================================================
 
 /** The canonical embedding dimension produced by the model and enforced on persisted vectors. */
-export const EMBEDDING_DIM = 384;
+export const EMBEDDING_DIM = EMBEDDING_SPECS.DIMENSIONS;
 
 /** The default maximum capacity for the in-memory LRU embedding cache. */
-export const EMBEDDING_CACHE_MAX = 1500;
+export const EMBEDDING_CACHE_MAX = EMBEDDING_SPECS.CACHE_CAPACITY;
 
 /** The Hugging Face model identifier for sentence transformation. */
 const MODEL_ID = "Xenova/all-MiniLM-L6-v2";

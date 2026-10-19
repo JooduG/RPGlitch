@@ -54,10 +54,10 @@ describe("protocols.js - Core Protocol Library & Compiler", () => {
     expect(resolve_layer_tense_protocol("name", "")).toBe(null);
   });
 
-  it("resolves somatic interference protocol above threshold (>70)", () => {
-    expect(resolve_somatic_interference_protocol({ chaos: 71, entropy: 10 })).toBe("CORE_PROTOCOLS.PROSE_DISCIPLINE.SOMATIC_INTERFERENCE");
+  it("resolves somatic interference protocol above threshold (>75)", () => {
+    expect(resolve_somatic_interference_protocol({ chaos: 76, entropy: 10 })).toBe("CORE_PROTOCOLS.PROSE_DISCIPLINE.SOMATIC_INTERFERENCE");
     expect(resolve_somatic_interference_protocol({ chaos: 10, entropy: 80 })).toBe("CORE_PROTOCOLS.PROSE_DISCIPLINE.SOMATIC_INTERFERENCE");
-    expect(resolve_somatic_interference_protocol({ chaos: 70, entropy: 70 })).toBe(null);
+    expect(resolve_somatic_interference_protocol({ chaos: 75, entropy: 75 })).toBe(null);
     expect(resolve_somatic_interference_protocol({})).toBe(null);
     expect(resolve_somatic_interference_protocol(null)).toBe(null);
   });

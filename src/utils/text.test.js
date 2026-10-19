@@ -38,6 +38,7 @@ import {
   strip_cognition_blocks,
   strip_visual_excluded,
   truncate_at_word,
+  truncate_at_boundary,
   VISUAL_EXCLUDED_KEYS,
   estimate_tokens,
   CHARS_PER_TOKEN,
@@ -791,6 +792,31 @@ describe("estimate_tokens & CHARS_PER_TOKEN calibration", () => {
     expect(estimate_tokens("1234567890")).toBe(3);
     // Minimum 1 token for non-empty string
     expect(estimate_tokens("x")).toBe(1);
+  });
+});
+
+describe("truncate_at_boundary", () => {
+  it("returns original text if within limit", () => {
+    expect(truncate_at_boundary("[MOOD: calm]", 50)).toBe("[MOOD: calm]");
+    expect(truncate_at_boundary("Plain text within limits.", 50)).toBe("Plain text within limits.");
+  });
+
+  it("clips at the last intact ']' when a pseudo-JSON bracket is sliced mid-tag", () => {
+    const input = "[MOOD: calm] [STATUS: alert and watching]";
+    // Slicing at 25 cuts inside [STATUS: ...
+    const truncated = truncate_at_boundary(input, 25);
+    expect(truncated).toBe("[MOOD: calm]");
+  });
+
+  it("falls back to truncate_at_word when no brackets are cut mid-tag", () => {
+    const input = "[MOOD: calm] Walking along the corridor into the open courtyard.";
+    const truncated = truncate_at_boundary(input, 35, { ellipsis: "…" });
+    expect(truncated).toBe("[MOOD: calm] Walking along the…");
+  });
+
+  it("handles empty or null gracefully", () => {
+    expect(truncate_at_boundary("", 20)).toBe("");
+    expect(truncate_at_boundary(null, 20)).toBe("");
   });
 });
 

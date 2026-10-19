@@ -16,6 +16,7 @@
  */
 
 import { truncate_at_word } from "./text.js";
+import { INGESTION } from "@config";
 
 // ============================================================================
 // [SECTION 1: CONSTANTS & INGESTION BUDGETS]
@@ -24,12 +25,12 @@ import { truncate_at_word } from "./text.js";
 /**
  * Character budget applied to fetched web text for character profile imports.
  */
-export const INGESTION_CHAR_LIMIT = 8000;
+export const INGESTION_CHAR_LIMIT = INGESTION.WEB_CHARS;
 
 /**
  * Character budget applied to fetched web text for fractal / world-lore imports.
  */
-export const INGESTION_LORE_LIMIT = 10000;
+export const INGESTION_LORE_LIMIT = INGESTION.LORE_CHARS;
 
 /**
  * Element tags treated as block boundaries when extracting text from HTML.

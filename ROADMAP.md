@@ -73,6 +73,15 @@ A comprehensive, code-grounded review of the running application and execution o
   - `src/intelligence/dynamics.test.js` (dynamics gate unit tests)
   - `src/media/optics.js` (unified 3-round image cooldown arbitration and dynamics scale thresholds)
   - `src/media/optics.test.js` (optics trigger arbitration test suite)
+  - `src/intelligence/modules/entities.js` (cast summary word-boundary truncation unified to 100 chars)
+  - `src/intelligence/modules/entities.test.js` (cast summary contract tests)
+  - `src/utils/text.js` (calibrated CHARS_PER_TOKEN and bracket-safe truncate_at_boundary)
+  - `src/utils/text.test.js` (text boundary truncation test suite)
+  - `src/utils/html.js` (web and lore ingestion limits wired to canonical system configuration)
+  - `src/utils/styles.js` (SOMATIC_MARKER_CAP wired to canonical system configuration)
+  - `src/platform/embeddings.svelte.js` (EMBEDDING_SPECS wired to canonical system configuration)
+  - `src/platform/llm-gate.js` (LLM_GATE_POLICY wired to canonical system configuration)
+  - `src/media/visual.svelte.js` (IMAGE_RESOLUTIONS alignment with canonical system configuration)
   - `src/utils/resilience.js` (canonical latency tiers and patience policy circuit breaker defaults)
   - `src/state/status.svelte.js` (freeze watchdog intervals wired to canonical latency tiers)
   - `.agents/skills/simulation/scripts/simulation-audit.js` (automated prompt atom matrix)
@@ -81,7 +90,7 @@ A comprehensive, code-grounded review of the running application and execution o
   - `.agents/skills/local-scripts/scripts/audit-layers.js` (strict layer boundary enforcement gate)
   - `src/ui/message/feed-dom-benchmark.test.js` (feed DOM profiling benchmark)
   - `src/media/audio.test.js` (AudioContext lifecycle and teardown contract verification)
-- **Key Modules**: `src/ui/`, `src/state/`, `src/intelligence/`, `src/data/`, `src/media/`, `src/utils/`, `config.md`.
+- **Key Modules**: `src/ui/`, `src/state/`, `src/intelligence/`, `src/data/`, `src/media/`, `src/utils/`, `src/config.js`.
 
 ---
 

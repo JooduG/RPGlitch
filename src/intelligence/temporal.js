@@ -22,6 +22,7 @@ import {
   collapse_whitespace,
   strip_cognition_blocks,
   truncate_at_word,
+  truncate_at_boundary,
   is_narrative_role,
   state_bridge,
   estimate_tokens,
@@ -55,16 +56,7 @@ import { append_ledger_entries } from "@data";
  * @property {number} [_recency_factor] - Calculated recency decay (transient)
  */
 
-import {
-  PAST_ENTRIES,
-  COMPACTION,
-  FRAGMENTATION,
-  PRESENT_MAX_CHARS,
-  ETERNAL_MAX_CHARS,
-  TEMPORAL_SCORING as CONFIG_TEMPORAL_SCORING,
-  HYBRID_WEIGHTS as CONFIG_HYBRID_WEIGHTS,
-  LATENCY_TIERS_MS,
-} from "@config";
+import { PAST_ENTRIES, COMPACTION, FRAGMENTATION, PROSE, TEMPORAL_SCORING, HYBRID_WEIGHTS, LATENCY_TIERS_MS } from "@config";
 
 // ── 1. Vector Pool Access & Creation ──────────────────────────────────────────
 
@@ -73,7 +65,7 @@ export const MAX_TOTAL_VECTORS = PAST_ENTRIES.TOTAL_CAP;
 export const MAX_VECTOR_CHARS = PAST_ENTRIES.ENTRY_MAX_CHARS;
 const FORGE_EMBED_BUDGET_MS = LATENCY_TIERS_MS.STALL;
 
-export const TEMPORAL_SCORING = CONFIG_TEMPORAL_SCORING;
+export { TEMPORAL_SCORING };
 
 // ── Track 2: Hierarchical Memory & 6k Context Protection ─────────────────────
 // Tier model: Tier 0 = atomic turn-event vectors in `entity.past`; Tier 1 =
@@ -96,7 +88,7 @@ export const SETTLED_FACT_LIMIT = 12;
 export const RECALL_TOKEN_BUDGET = 800;
 
 /** Deterministic hybrid retrieval weights (Track 2.3: Project Prism-DCM). */
-export const HYBRID_RETRIEVAL_WEIGHTS = CONFIG_HYBRID_WEIGHTS;
+export const HYBRID_RETRIEVAL_WEIGHTS = HYBRID_WEIGHTS;
 
 /** Recall clarity states modulated by live dynamics (Track 2.3). */
 export const RECALL_CLARITY = Object.freeze({
@@ -1138,15 +1130,15 @@ export function whole_vector_slice(text, max_chars = 1500) {
  * @param {string} current_field_value
  * @param {string} incoming_mutation
  * @param {Object} [options={}]
- * @param {number} [options.max_chars=ETERNAL_MAX_CHARS]
- * @param {number} [options.max_segments] - Reserved: segment capping retired; present fields enforce PRESENT_MAX_CHARS.
+ * @param {number} [options.max_chars=PROSE.PAGE]
+ * @param {number} [options.max_segments] - Reserved: segment capping retired; present fields enforce PROSE.PARAGRAPH.
  * @returns {string}
  */
 export function merge_field_content(current_field_value, incoming_mutation, options = {}) {
   const incoming = String(incoming_mutation || "").trim();
   if (!incoming) return current_field_value || "";
   const existing = String(current_field_value || "").trim();
-  const max_chars = options.max_chars || ETERNAL_MAX_CHARS;
+  const max_chars = options.max_chars || PROSE.PAGE;
 
   const incoming_has_brackets = /\[[A-Z_ ]{2,30}:/i.test(incoming);
   const existing_has_brackets = /\[[A-Z_ ]{2,30}:/i.test(existing);
@@ -1225,14 +1217,14 @@ export function merge_field_content(current_field_value, incoming_mutation, opti
 
 /** Merges new prose into an ETERNAL identity field without pollution. */
 function merge_eternal_field(current_field_value, new_prose) {
-  return merge_field_content(current_field_value, new_prose, { max_chars: ETERNAL_MAX_CHARS });
+  return merge_field_content(current_field_value, new_prose, { max_chars: PROSE.PAGE });
 }
 
-/** Decays a PRESENT prose field within canonical character boundary. */
+/** Decays a PRESENT prose field within canonical character boundary preserving bracket syntax. */
 function cap_present_prose(current_field_value) {
   const text = String(current_field_value || "").trim();
-  if (text.length <= PRESENT_MAX_CHARS) return text;
-  return truncate_at_word(text, PRESENT_MAX_CHARS);
+  if (text.length <= PROSE.PARAGRAPH) return text;
+  return truncate_at_boundary(text, PROSE.PARAGRAPH);
 }
 
 /** Sanitizes non_physical prose, unwrapping or cleaning accidental bracket-dicts (e.g. "{key: value}" or "[KEY: value]"). */
