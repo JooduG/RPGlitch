@@ -185,4 +185,12 @@ The `design` skill maintains several scripts for token integrity:
 
 ## 7.0 RPGlitch UI Directory Conventions
 
-- **Centralized State**: Coordinate state via centralized runes (`src/state/status.svelte.js`).
+- **Centralized State**: Coordinate state via centralized runes (`src/state/status.svelte.js` or `src/engine/simulation.svelte.js`).
+
+---
+
+## 8.0 Reference Catalogs & Craft Playbooks
+
+- [Anti-Slop Taste Guide](./references/anti-slop.md): Anti-default color calibration, eyebrow restraint, descender clearances, and layout diversity.
+- [Adversarial Breaking UI](./references/adversarial/break-ui.md): Stress-testing UI with realistic worst-case values, layout failure signatures, and fixes.
+- [Worst-Case Catalog](./references/adversarial/worst-case-catalog.md): Dictionary of edge-case strings (unbreakable identifiers, diacritics, surrogate pairs, numeric extremes).
