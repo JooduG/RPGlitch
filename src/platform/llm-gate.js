@@ -18,8 +18,6 @@
  * without introducing a layer cycle.
  */
 
-import { LLM_GATE_POLICY } from "@config";
-
 // ============================================================================
 // [SECTION 1: PRIORITY CONTRACT]
 // ============================================================================
@@ -29,8 +27,8 @@ import { LLM_GATE_POLICY } from "@config";
  * @type {Readonly<{ FOREGROUND: number, BACKGROUND: number }>}
  */
 export const LLM_PRIORITY = Object.freeze({
-  FOREGROUND: LLM_GATE_POLICY.PRIORITY_FOREGROUND,
-  BACKGROUND: LLM_GATE_POLICY.PRIORITY_BACKGROUND,
+  FOREGROUND: 10,
+  BACKGROUND: 1,
 });
 
 // ============================================================================

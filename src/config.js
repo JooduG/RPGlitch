@@ -201,12 +201,6 @@ export const EMBEDDING_SPECS = Object.freeze({
   QUANTIZE_MAX: 255, // 8-bit unsigned integer scalar ceiling (0-255) for quantized vector storage
 });
 
-export const LLM_GATE_POLICY = Object.freeze({
-  CONCURRENCY: 1, // Strict concurrency cap of 1 active turn executing on the inference pipe
-  PRIORITY_FOREGROUND: 10, // Priority score 10: High priority granted to user-facing narrative turns
-  PRIORITY_BACKGROUND: 1, // Priority score 1: Low priority granted to background tasks
-});
-
 // =============================================================================
 // CHANGELOG
 // =============================================================================
