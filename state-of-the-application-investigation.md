@@ -34,7 +34,7 @@ Following the delivery of **Phase V** (Memory RAG Hardening, Context Cliff Prote
 2. **Track B (Empirical Live Evaluation — R3 Run)**:
    - **37-Round Interactive Roleplay Stress Test**: Executed in deployed Perchance iframe with `Glitch` (AI, 1st Person), `Beast` (User Persona), and `Ashenweald` (Fractal, Edgar Allan Poe style).
 
-```text
+```
 ┌──────────────────────────────────────────────────────────────────────────────────┐
 │                             SYSTEM TOPOLOGY & DATA FLOW                          │
 ├──────────────────────────────────────────────────────────────────────────────────┤
@@ -62,10 +62,17 @@ Following the delivery of **Phase V** (Memory RAG Hardening, Context Cliff Prote
 │             ▼                                                                    │
 │   ┌───────────────────┐    Sensory Presentation Layer                            │
 │   │   Svelte 5 Feed   │ ── Feed.svelte (Keyed rendering, 57KB payload / 100 rnds)│
-│   │   & Audio Engine  │ ── Message.svelte (Markdown + dialogue spans, zero salad)│
+│   │   & Audio Engine  │ ── Message.svelte (Active F1 render-time salad defect)   │
 │   └───────────────────┘                                                          │
 └──────────────────────────────────────────────────────────────────────────────────┘
 ```
+
+> [!IMPORTANT]
+> **Executive Alignment & Review Scope**:
+>
+> 1. **Plan vs. Landing Distinction**: With the exception of the **StorymodeBar serialized drainer** (shipped and verified runtime bugfix preventing message loss), all 11 Master Recommendations constitute the **architectural blueprint for the next engineering sprint**—not deployed cures. `src/config.js` defines the uncoupled target constants as an unimported scaffold to preserve prompt byte-pins while live tests were in flight.
+> 2. **F9 Headless Proof Prerequisite**: The F9 Memory Forge fix (cast-scoped consolidation loop) modifies the background worker query path. Given the forge's historical sensitivity to silent aborts, it must be validated with an isolated headless proof suite before merging into production.
+> 3. **Byte-Contract Harness Gate**: Wiring `config.js` and cast-sheet compression into the prompt compiler will alter prompt character lengths and must be guarded by `npm run audit:simulation` and baseline tests.
 
 ---
 
@@ -139,7 +146,7 @@ flowchart TD
 
 Every prompt is assembled from an ordered stack of discrete XML layers. Organic iteration has created cross-layer directive duplications:
 
-```text
+```
 ┌────────────────────────────────────────────────────────────────────────┐
 │ Layer 1: <SYSTEM>                 (Role framing & identity)            │
 ├────────────────────────────────────────────────────────────────────────┤
@@ -286,7 +293,7 @@ Snapshot telemetry confirmed the 6,000 token prompt cliff failed from Round 0. D
 
 Synthesizing Track A code realities and Track B empirical gameplay results:
 
-```text
+```
 ┌────────────────────────────────────────────────────────────────────────┐
 │                              KEEP (Proven)                             │
 ├────────────────────────────────────────────────────────────────────────┤

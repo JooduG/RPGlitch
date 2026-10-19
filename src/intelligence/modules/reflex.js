@@ -34,6 +34,7 @@ import {
   strip_cognition_blocks,
   collapse_whitespace,
 } from "@utils";
+import { STAGNATION, SPENT_ROUNDS, MAX_SPENT_ITEMS as CANONICAL_MAX_SPENT_ITEMS, OPENING_CLAUSE_MIN_CHARS } from "@config";
 
 // ============================================================================
 // [SECTION 1: REFLEX CATALOG & CALIBRATION DEFAULTS]
@@ -65,9 +66,9 @@ export const REFLEX_LIBRARY = Object.freeze({
     ]),
     PAUSE_MARKERS: /(\.\.\.|…|\(silence\)|\(pause\)|\bsays nothing\b|\bremains silent\b|\bno response\b|\bno answer\b)/i,
     MOMENTUM_TIERS: Object.freeze({
-      SOFT_PERMIT_THRESHOLD: 8,
-      HARD_MANDATE_THRESHOLD: 16,
-      DRIFT_STAGNATION_THRESHOLD: 0.15,
+      SOFT_PERMIT_THRESHOLD: STAGNATION.SOFT_PERMIT_ROUNDS,
+      HARD_MANDATE_THRESHOLD: STAGNATION.HARD_MANDATE_ROUNDS,
+      DRIFT_STAGNATION_THRESHOLD: STAGNATION.DRIFT_CUTOFF,
     }),
     DETECTORS: Object.freeze({
       DIALOGUE_QUOTES: /["'“”‘’]/,
@@ -659,16 +660,16 @@ export const MANNERISM_PATTERNS = Object.freeze([
   /\b(?:crossed|crossing)\s+(?:his|her|their|your)\s+arms\b/gi,
 ]);
 
-export const DEFAULT_SPENT_WINDOW = 5;
-export const MAX_SPENT_ITEMS = 8;
+export const DEFAULT_SPENT_WINDOW = SPENT_ROUNDS;
+export const MAX_SPENT_ITEMS = CANONICAL_MAX_SPENT_ITEMS;
 
 /**
  * Extracts repetitive opening clauses, mannerisms, and n-grams from recent dialogue.
  *
  * @param {Array<any>} messages - Chronological message array.
  * @param {Object} [options={}]
- * @param {number} [options.window_size=5] - Number of recent turns to inspect.
- * @param {number} [options.maximum_items=8] - Maximum spent items to include.
+ * @param {number} [options.window_size=SPENT_ROUNDS] - Number of recent turns to inspect.
+ * @param {number} [options.maximum_items=CANONICAL_MAX_SPENT_ITEMS] - Maximum spent items to include.
  * @returns {Readonly<{
  *   opening_clauses: ReadonlyArray<string>,
  *   mannerisms: ReadonlyArray<string>,
@@ -698,12 +699,12 @@ export function extract_spent_ledger(messages, options = {}) {
     const clean_text = collapse_whitespace(strip_cognition_blocks(raw_text)).trim();
     if (!clean_text) continue;
 
-    // 1. Extract Opening Clause (first 4 to 6 words)
+    // 1. Extract Opening Clause (first up to 5 words, min OPENING_CLAUSE_MIN_CHARS)
     const words = clean_text.split(/\s+/);
-    if (words.length >= 4) {
+    if (words.length > 0) {
       const opening = words.slice(0, Math.min(words.length, 5)).join(" ");
       const normalized_opening = opening.toLowerCase().replace(/[^a-z0-9 ]/g, "");
-      if (normalized_opening.length >= 12) {
+      if (normalized_opening.length >= OPENING_CLAUSE_MIN_CHARS) {
         seen_openings.add(opening);
       }
     }

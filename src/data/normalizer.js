@@ -39,6 +39,7 @@
 
 import { generate_uuid, pick_random } from "@utils";
 import { security } from "@platform";
+import { CHAPTER, ENTITY_SCHEMA, TEXT_TIERS_CHARS } from "@config";
 import { SIGNATURE_COLORS } from "../media/tokens.js";
 import { is_valid_speaking_style } from "./definitions/speaking-styles.js";
 
@@ -123,7 +124,7 @@ function normalize_name(raw_name) {
   const sanitized_text = sanitize_html(raw_name || "")
     .replace(/[\r\n]+/g, " ")
     .trim();
-  return sanitized_text.length > 80 ? sanitized_text.slice(0, 80).trim() : sanitized_text;
+  return sanitized_text.length > ENTITY_SCHEMA.NAME_MAX_CHARS ? sanitized_text.slice(0, ENTITY_SCHEMA.NAME_MAX_CHARS).trim() : sanitized_text;
 }
 
 /**
@@ -198,25 +199,25 @@ function normalize_chapters(raw_chapters) {
       if (!chapter || typeof chapter !== "object") return null;
       const title = sanitize_html(String(chapter.title || ""))
         .trim()
-        .slice(0, 80);
+        .slice(0, TEXT_TIERS_CHARS.LABEL);
       return {
         id: sanitize_html(String(chapter.id || ""))
           .trim()
-          .slice(0, 40),
+          .slice(0, TEXT_TIERS_CHARS.SLUG),
         title: title || "Untitled chapter",
         summary: sanitize_html(String(chapter.summary || ""))
           .trim()
-          .slice(0, 400),
+          .slice(0, TEXT_TIERS_CHARS.PARAGRAPH),
         agenda: sanitize_html(String(chapter.agenda || ""))
           .trim()
-          .slice(0, 600),
+          .slice(0, TEXT_TIERS_CHARS.PARAGRAPH),
         status: chapter.status === "open" || chapter.status === "closed" ? chapter.status : "closed",
         created_at: Number(chapter.created_at) || 0,
         closed_at: chapter.closed_at ? Number(chapter.closed_at) || 0 : 0,
       };
     })
     .filter(Boolean)
-    .slice(-12);
+    .slice(-CHAPTER.ARCHIVE_CAPACITY);
 }
 
 /**

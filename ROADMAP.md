@@ -58,17 +58,30 @@ flowchart TD
 
 A comprehensive, code-grounded review of the running application and execution of Track A (Unblocked Local Investigations) to resolve known state machine bottlenecks, audit prompts, and enforce architectural invariants.
 
-- **Objective**: Execute Track A local investigations and hardening: fix composer queued state machine, generate prompt atom matrix in audit harness, establish central prompt ceiling, and enforce downward layer imports.
+- **Objective**: Execute Track A local investigations and canonical configuration harmonization: fix composer queued state machine, generate prompt atom matrix in audit harness, rebuild central `src/config.js` with literary scale, and wire canonical contracts across intelligence, data, media, and state layers under P4 purity.
 - **Scope & Target Files**:
   - `src/ui/console/StorymodeBar.svelte` (composer serialized queue drainer and unstick resilience)
-  - `src/config.js` (master prompt ceiling and budget allocations)
+  - `src/config.js` (master canonical system configuration, literary scale, latency tiers, and subsystem domain agreements)
+  - `src/intelligence/temporal.js` (memory past, eternal, present character caps and hybrid retrieval scoring weights)
+  - `src/intelligence/temporal.test.js` (memory RAG character budget tests)
+  - `src/intelligence/modules/history.js` (dialogue and visual feed window defaults and chapter prompt history slice)
+  - `src/intelligence/modules/history.test.js` (history defaults contract verification)
+  - `src/intelligence/modules/reflex.js` (momentum stagnation tiers, spent ledger window, and opening clause min chars)
+  - `src/intelligence/modules/reflex.test.js` (reflex pacing and spent ledger contract tests)
+  - `src/data/normalizer.js` (entity schema name bounds, chapter archive capacity, and paragraph summaries)
+  - `src/intelligence/dynamics.js` (dynamics scale and image trigger cooldown threshold)
+  - `src/intelligence/dynamics.test.js` (dynamics gate unit tests)
+  - `src/media/optics.js` (unified 3-round image cooldown arbitration and dynamics scale thresholds)
+  - `src/media/optics.test.js` (optics trigger arbitration test suite)
+  - `src/utils/resilience.js` (canonical latency tiers and patience policy circuit breaker defaults)
+  - `src/state/status.svelte.js` (freeze watchdog intervals wired to canonical latency tiers)
   - `.agents/skills/simulation/scripts/simulation-audit.js` (automated prompt atom matrix)
   - `.agents/skills/simulation/scripts/simulation-audit.test.js` (wire atom matrix tables into unified report)
   - `.agents/skills/simulation/scripts/consolidation-stress.test.js` (100-round consolidation invariant test)
   - `.agents/skills/local-scripts/scripts/audit-layers.js` (strict layer boundary enforcement gate)
   - `src/ui/message/feed-dom-benchmark.test.js` (feed DOM profiling benchmark)
   - `src/media/audio.test.js` (AudioContext lifecycle and teardown contract verification)
-- **Key Modules**: `src/ui/`, `src/state/`, `src/intelligence/`, `src/data/`, `src/media/`, `scribbles.md`, `state-of-the-application-investigation.md`.
+- **Key Modules**: `src/ui/`, `src/state/`, `src/intelligence/`, `src/data/`, `src/media/`, `src/utils/`, `config.md`.
 
 ---
 
@@ -97,11 +110,14 @@ The complete historical specifications, task decompositions, and touchpoint refe
 ## 📌 Parking Lot & Tactical Backlog
 
 - **Sensory Presentation, Virtualization & Live A/B Harness (Former Phase VI)**:
-  - _Feed Virtualization Recon & DOM Windowing_: Trace `visible_feed` upstream of `Feed.svelte`; implement measured DOM windowing keeping only visible messages mounted for smooth 60fps scrolling in 100+ turn roleplays. Audit round sequence step increments (`chrono.svelte.js`) under rapid user submissions ([BUG] F6).
+  - _Feed Virtualization Recon & DOM Windowing_: Trace `visible_feed` upstream of `Feed.svelte`; implement measured DOM windowing keeping only visible messages mounted for smooth 60fps scrolling in 100+ turn roleplays. Audit round sequence step increments (`chrono.svelte.js`) under rapid user submissions (`[BUG]` F6).
   - _Slash Command Directing Bar_: Floating shortcut bar above message input allowing direct Director intervention (`/ooc`, `/time`, `/mood`) without polluting in-character dialogue.
   - _Persistent Session Image Archive & Optics Framing Lenses_: Dedicated gallery modal querying Dexie image attachments across the current story with thumbnail caching. Verify scheduled Director Visual Beats faithfully retain camera lenses, framing descriptors, and aesthetic negative maps through `render_optics_prompt`.
   - _Live Prompt A/B Testing & Evaluation Harness on Perchance_: Interactive prompt A/B evaluation harness against Perchance's live endpoint measuring token budget economy, TTFT, `<THINK>` quality, detox compliance, and context truncation resilience. Test cognitive stimulus ordering (`<INPUT>` before `<THINK_FORMAT>`), prose macro shape anti-slop audit integration (`src/utils/styles.js:186`), and think-channel deduplication.
 - **Card Conversion & Import Reliability**: Hardened character import parsing and normalization (`src/data/card-conversion.js`, `src/data/card-conversion.test.js`, `src/intelligence/parser.test.js`, `src/intelligence/profile.js`, `src/ui/entity/ImportModal.svelte`, `src/ui/primitives/TextField.svelte`) supporting boxed String coerion, textarea layout formatting, and JSON salvage in parser layers during character card ingestion.
 - **Platform Embeddings Retry & Native Config Modernization**: Hardened `src/platform/embeddings.svelte.js` pipeline reset to preserve `_debug_pipeline_fn` under retry during Node/Vitest suites, eliminating ESM cross-origin import errors. Modernized `vitest.config.js` and `vite.config.js` to `import.meta.dirname` and tuned `teardownTimeout: 4000` to prevent fork pool timeouts.
 - **Intelligence Suite Type-Narrowing Hardening (`src/intelligence/prompts.test.js`)**: Replaced loose `in` operator assertion (`expect("task" in mode).toBe(false)`) with `Reflect.has(mode, "task")` to resolve TypeScript/IDE `in-operator-narrowing` diagnostics cleanly.
+- **Unified Boundary Truncation (`truncate_at_boundary`) & Present State Character Bounds**:
+  - _Universal Text-Clipping Contract (`src/utils/text.js`)_: Unify `truncate_at_word` and bracket boundary chunking into a single `truncate_at_boundary(text, max_chars)` helper. If pseudo-JSON brackets (`[...]`) exist in the text, it clips strictly at the last intact bracket boundary (`]`) to prevent mutilated syntax; otherwise falls back cleanly to word-boundary truncation.
+  - _Present State Character Harmonization (`src/intelligence/temporal.js`)_: Replace the arbitrary line-based `PRESENT_MAX_SEGMENTS: 3` sliding window with `PRESENT_MAX_CHARS: 500` (mirroring `ETERNAL_MAX_CHARS: 1500`), allowing rich physical condition prose without artificial 3-line chopping.
 - **Scattered Tuning Constants**: Re-evaluate a dedicated tuning surface (`src/intelligence/config.js` or `tuning.js`) consolidating stagnation trip points inline in `prompts.js:182` (8/16), salience multipliers inline in `temporal.js`, and token budgets in `history.js:81+`.

@@ -21,6 +21,7 @@
  */
 
 import { normalize_comma_spacing } from "@utils";
+import { IMAGE_TRIGGER_COOLDOWN_ROUNDS, DYNAMICS_SCALE } from "@config";
 import { build_aesthetic_map } from "../intelligence/modules/style.js";
 import { IMAGE_TRIGGER, evaluate_image_trigger } from "../intelligence/dynamics.js";
 
@@ -119,8 +120,9 @@ export function resolve_image_trigger({ snapshot, prev_dynamics, director_data, 
   const director_last_round = Number.isInteger(last_director_beat_round) ? last_director_beat_round : -1;
   const dynamics_last_round = Number.isInteger(last_dynamics_beat_round) ? last_dynamics_beat_round : -1;
 
-  const director_cooldown_elapsed = director_last_round < 0 || turn_round >= director_last_round + IMAGE_TRIGGER.director_cooldown_rounds;
-  const dynamics_cooldown_elapsed = dynamics_last_round < 0 || turn_round >= dynamics_last_round + IMAGE_TRIGGER.dynamics_cooldown_rounds;
+  const is_cooldown_elapsed = (last_round) => last_round < 0 || turn_round >= last_round + IMAGE_TRIGGER_COOLDOWN_ROUNDS;
+  const director_cooldown_elapsed = is_cooldown_elapsed(director_last_round);
+  const dynamics_cooldown_elapsed = is_cooldown_elapsed(dynamics_last_round);
 
   // 1. Evaluate Director Explicit Beat (Priority 1)
   const raw_trigger = typeof director_data?.trigger_image === "string" ? director_data.trigger_image.trim() : director_data?.trigger_image;
@@ -136,8 +138,8 @@ export function resolve_image_trigger({ snapshot, prev_dynamics, director_data, 
   // Check if visual_staging indicates character intimacy/confrontation or if dynamics show extreme intensity/affinity.
   // Environmental/panoramic staging cues explicitly preserve scene tier over character bias.
   const ai_dynamics = snapshot?.ai?.dynamics || {};
-  const current_intensity = Number(ai_dynamics.intensity ?? 50);
-  const current_affinity = Number(ai_dynamics.affinity ?? 50);
+  const current_intensity = Number(ai_dynamics.intensity ?? DYNAMICS_SCALE.MID);
+  const current_affinity = Number(ai_dynamics.affinity ?? DYNAMICS_SCALE.MID);
   const staging_has_scene_focus =
     has_visual_staging &&
     /\b(?:wide|panoramic|landscape|establishing|environment|aerial|distant|overview|scenery|room|corridor|cityscape|horizon)\b/i.test(raw_staging);
@@ -146,7 +148,8 @@ export function resolve_image_trigger({ snapshot, prev_dynamics, director_data, 
     /\b(?:close-?ups?|portraits?|faces?|eyes?|expressions?|intimate|intimacy|confrontations?|clutch(?:es|ed|ing)?|hold(?:s|ing)?|held|holding|combats?|wounds?|wounded|touch(?:es|ed|ing)?|profiles?|headshots?)\b/i.test(
       raw_staging,
     );
-  const dynamics_have_character_focus = !staging_has_scene_focus && (current_intensity >= 75 || current_affinity >= 75);
+  const dynamics_have_character_focus =
+    !staging_has_scene_focus && (current_intensity >= DYNAMICS_SCALE.HIGH || current_affinity >= DYNAMICS_SCALE.HIGH);
   const biased_character_tier = !staging_has_scene_focus && (staging_has_character_focus || dynamics_have_character_focus) ? "story_character" : null;
 
   // 2. Evaluate Pure-JS Dynamics Gate (Priority 2)

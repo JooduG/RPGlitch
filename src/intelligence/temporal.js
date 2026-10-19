@@ -55,21 +55,25 @@ import { append_ledger_entries } from "@data";
  * @property {number} [_recency_factor] - Calculated recency decay (transient)
  */
 
+import {
+  PAST_ENTRIES,
+  COMPACTION,
+  FRAGMENTATION,
+  PRESENT_MAX_CHARS,
+  ETERNAL_MAX_CHARS,
+  TEMPORAL_SCORING as CONFIG_TEMPORAL_SCORING,
+  HYBRID_WEIGHTS as CONFIG_HYBRID_WEIGHTS,
+  LATENCY_TIERS_MS,
+} from "@config";
+
 // ── 1. Vector Pool Access & Creation ──────────────────────────────────────────
 
-export const PAST_VECTOR_CAP = 20;
-export const MAX_TOTAL_VECTORS = 200;
-export const MAX_VECTOR_CHARS = 220;
-const ETERNAL_MAX_CHARS = 1500;
-const PRESENT_MAX_SEGMENTS = 3;
-const FORGE_EMBED_BUDGET_MS = 45000;
+export const PAST_VECTOR_CAP = PAST_ENTRIES.SESSION_CAP;
+export const MAX_TOTAL_VECTORS = PAST_ENTRIES.TOTAL_CAP;
+export const MAX_VECTOR_CHARS = PAST_ENTRIES.ENTRY_MAX_CHARS;
+const FORGE_EMBED_BUDGET_MS = LATENCY_TIERS_MS.STALL;
 
-export const TEMPORAL_SCORING = {
-  SEMANTIC_GAIN: 3,
-  RECENCY_FLOOR: 0.5,
-  DECAY_SOFTEN: 0.5,
-  IN_SCENE_SALIENCE_BOOST: 1.3,
-};
+export const TEMPORAL_SCORING = CONFIG_TEMPORAL_SCORING;
 
 // ── Track 2: Hierarchical Memory & 6k Context Protection ─────────────────────
 // Tier model: Tier 0 = atomic turn-event vectors in `entity.past`; Tier 1 =
@@ -77,13 +81,13 @@ export const TEMPORAL_SCORING = {
 // Tier 2 = arc milestones merging Tier-1 summaries (tree height <= 5).
 
 /** Fanout threshold: Tier-0 vectors per Tier-1 chapter, Tier-1 chapters per Tier-2 arc. */
-export const PRISM_FANOUT = 8;
+export const PRISM_FANOUT = COMPACTION.FANOUT;
 
 /** Hard bound on memory-tree height (occupied tier levels + entity root). */
-export const COMPACTOR_MAX_HEIGHT = 5;
+export const COMPACTOR_MAX_HEIGHT = COMPACTION.MAX_HEIGHT;
 
 /** Character budget for a deterministic Tier-1 compaction summary. */
-export const COMPACTOR_SUMMARY_MAX_CHARS = 600;
+export const COMPACTOR_SUMMARY_MAX_CHARS = COMPACTION.SUMMARY_MAX_CHARS;
 
 /** Max settled facts surfaced to the extraction advisory (Track 2.4). */
 export const SETTLED_FACT_LIMIT = 12;
@@ -92,12 +96,7 @@ export const SETTLED_FACT_LIMIT = 12;
 export const RECALL_TOKEN_BUDGET = 800;
 
 /** Deterministic hybrid retrieval weights (Track 2.3: Project Prism-DCM). */
-export const HYBRID_RETRIEVAL_WEIGHTS = Object.freeze({
-  ENTITY_OVERLAP: 3.0,
-  LEXICAL_FREQUENCY: 1.0,
-  EMOTIONAL_SALIENCE: 0.4,
-  RECENCY: 1.2,
-});
+export const HYBRID_RETRIEVAL_WEIGHTS = CONFIG_HYBRID_WEIGHTS;
 
 /** Recall clarity states modulated by live dynamics (Track 2.3). */
 export const RECALL_CLARITY = Object.freeze({
@@ -106,7 +105,7 @@ export const RECALL_CLARITY = Object.freeze({
 });
 
 /** Chaos/Entropy value above which recalled memories fragment. */
-export const DYNAMICS_FRAGMENTATION_THRESHOLD = 70;
+export const DYNAMICS_FRAGMENTATION_THRESHOLD = FRAGMENTATION.THRESHOLD;
 
 const VALID_FORGED_TYPES = new Set(["past", "present"]);
 
@@ -1229,13 +1228,11 @@ function merge_eternal_field(current_field_value, new_prose) {
   return merge_field_content(current_field_value, new_prose, { max_chars: ETERNAL_MAX_CHARS });
 }
 
-/** Decays a PRESENT prose field to its most recent segments. */
+/** Decays a PRESENT prose field within canonical character boundary. */
 function cap_present_prose(current_field_value) {
-  const lines = String(current_field_value || "")
-    .split("\n")
-    .filter((line) => line.trim());
-  if (lines.length <= PRESENT_MAX_SEGMENTS) return lines.join("\n");
-  return lines.slice(-PRESENT_MAX_SEGMENTS).join("\n");
+  const text = String(current_field_value || "").trim();
+  if (text.length <= PRESENT_MAX_CHARS) return text;
+  return truncate_at_word(text, PRESENT_MAX_CHARS);
 }
 
 /** Sanitizes non_physical prose, unwrapping or cleaning accidental bracket-dicts (e.g. "{key: value}" or "[KEY: value]"). */

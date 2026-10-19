@@ -33,6 +33,9 @@
       "@utils/*": [
         "src/utils/*"
       ],
+      "@config": [
+        "src/config.js"
+      ],
       "@data": [
         "src/data/index.js"
       ],

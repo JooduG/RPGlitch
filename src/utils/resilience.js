@@ -13,6 +13,8 @@
  * - 100% pure and self-contained with zero external dependencies.
  */
 
+import { LATENCY_TIERS_MS, PATIENCE_POLICY } from "@config";
+
 // ============================================================================
 // [SECTION 1: JSDOC SCHEMAS & RESILIENCE STATE TYPES]
 // ============================================================================
@@ -23,17 +25,17 @@
 
 /**
  * @typedef {Object} RetryOptions
- * @property {number} [max_attempts=3] - Maximum execution attempts before throwing.
- * @property {number} [initial_delay=1000] - Initial backoff delay in milliseconds.
- * @property {number} [max_delay=10000] - Maximum backoff delay cap in milliseconds.
+ * @property {number} [max_attempts=PATIENCE_POLICY.HARD_LIMIT] - Maximum execution attempts before throwing.
+ * @property {number} [initial_delay=LATENCY_TIERS_MS.TICK] - Initial backoff delay in milliseconds.
+ * @property {number} [max_delay=LATENCY_TIERS_MS.DELAY] - Maximum backoff delay cap in milliseconds.
  */
 
 /**
  * @typedef {Object} CircuitBreakerOptions
- * @property {number} [failure_threshold=3] - Consecutive failures needed to trip breaker OPEN.
- * @property {number} [success_threshold=2] - Consecutive successes in HALF_OPEN to reset to CLOSED.
- * @property {number} [recovery_timeout=30000] - Duration in ms before OPEN breaker transitions to HALF_OPEN.
- * @property {number} [max_concurrent=3] - Maximum parallel in-flight executions.
+ * @property {number} [failure_threshold=PATIENCE_POLICY.HARD_LIMIT] - Consecutive failures needed to trip breaker OPEN.
+ * @property {number} [success_threshold=PATIENCE_POLICY.SOFT_LIMIT] - Consecutive successes in HALF_OPEN to reset to CLOSED.
+ * @property {number} [recovery_timeout=LATENCY_TIERS_MS.STEP] - Duration in ms before OPEN breaker transitions to HALF_OPEN.
+ * @property {number} [max_concurrent=PATIENCE_POLICY.HARD_LIMIT] - Maximum parallel in-flight executions.
  */
 
 // ============================================================================
@@ -48,9 +50,9 @@ export class ExponentialBackoffRetryer {
    * @param {RetryOptions} [options={}]
    */
   constructor(options = {}) {
-    this.max_attempts = options.max_attempts ?? 3;
-    this.initial_delay = options.initial_delay ?? 1000;
-    this.max_delay = options.max_delay ?? 10000;
+    this.max_attempts = options.max_attempts ?? PATIENCE_POLICY.HARD_LIMIT;
+    this.initial_delay = options.initial_delay ?? LATENCY_TIERS_MS.TICK;
+    this.max_delay = options.max_delay ?? LATENCY_TIERS_MS.DELAY;
   }
 
   /**
@@ -105,10 +107,10 @@ export class CircuitBreaker {
    * @param {CircuitBreakerOptions} [options={}]
    */
   constructor(options = {}) {
-    this.failure_threshold = options.failure_threshold ?? 3;
-    this.success_threshold = options.success_threshold ?? 2;
-    this.recovery_timeout = options.recovery_timeout ?? 30000;
-    this.max_concurrent = options.max_concurrent ?? 3;
+    this.failure_threshold = options.failure_threshold ?? PATIENCE_POLICY.HARD_LIMIT;
+    this.success_threshold = options.success_threshold ?? PATIENCE_POLICY.SOFT_LIMIT;
+    this.recovery_timeout = options.recovery_timeout ?? LATENCY_TIERS_MS.STEP;
+    this.max_concurrent = options.max_concurrent ?? PATIENCE_POLICY.HARD_LIMIT;
   }
 
   /** @returns {CircuitBreakerState} Current breaker state. */

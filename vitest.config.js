@@ -24,6 +24,7 @@ export default defineConfig({
       "@primitives": path.resolve(import.meta.dirname, "./src/ui/primitives"),
       "@motion": path.resolve(import.meta.dirname, "./src/ui/motion"),
       "@utils": path.resolve(import.meta.dirname, "./src/utils"),
+      "@config": path.resolve(import.meta.dirname, "./src/config.js"),
     },
   },
   test: {

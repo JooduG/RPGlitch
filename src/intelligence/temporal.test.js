@@ -112,7 +112,7 @@ describe("temporal_engine", () => {
       expect(entry.id.startsWith("ai_")).toBe(true);
     });
 
-    it("truncates payloads to the 220-char budget on creation", () => {
+    it("truncates payloads to the canonical snippet budget on creation", () => {
       const entry = temporal_engine.create("x".repeat(500));
       expect(entry.content.length).toBeLessThanOrEqual(MAX_VECTOR_CHARS);
     });
@@ -142,7 +142,7 @@ describe("temporal_engine", () => {
       expect(entity.past.some((v) => v.id === "ai_overflow")).toBe(true);
     });
 
-    it("enforces the 200-record total ceiling", () => {
+    it("enforces the canonical total lifetime ceiling", () => {
       const entity = { past: [] };
       for (let i = 0; i < MAX_TOTAL_VECTORS; i++) {
         entity.past.push({ id: `usr_${i}`, timestamp: i, content: `pinned ${i}`, type: "past", emotional_weight: 5, meta: {} });

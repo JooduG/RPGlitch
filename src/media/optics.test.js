@@ -111,7 +111,7 @@ describe("optics.js — Trigger Decision Engine & Dynamics Gate", () => {
       expect(res.next_director_round).toBeNull();
     });
 
-    it("suppresses dynamics trigger when dynamics cooldown is active (2 rounds)", () => {
+    it("suppresses dynamics trigger when dynamics cooldown is active (3 rounds)", () => {
       const snapshot = { ai: { dynamics: { intensity: 90 } } };
       const prev_dynamics = { ai: { intensity: 50 } };
       const res = resolve_image_trigger({
@@ -127,14 +127,14 @@ describe("optics.js — Trigger Decision Engine & Dynamics Gate", () => {
       expect(res.tier).toBeNull();
     });
 
-    it("allows director explicit trigger on 2-round cooldown when cooldown has elapsed", () => {
+    it("allows director explicit trigger on 3-round cooldown when cooldown has elapsed", () => {
       const snapshot = { ai: { dynamics: { intensity: 50 } } };
       const prev_dynamics = { ai: { intensity: 50 } };
       const res = resolve_image_trigger({
         snapshot,
         prev_dynamics,
         director_data: { trigger_image: "story_entities" },
-        turn_round: 3,
+        turn_round: 4,
         last_director_beat_round: 1,
         last_dynamics_beat_round: 2,
       });
@@ -142,7 +142,7 @@ describe("optics.js — Trigger Decision Engine & Dynamics Gate", () => {
       expect(res.active).toBe(true);
       expect(res.tier).toBe("story_entities");
       expect(res.source).toBe("director");
-      expect(res.next_director_round).toBe(3);
+      expect(res.next_director_round).toBe(4);
     });
 
     it("biases director tier to story_character when visual_staging specifies intimate/close-up framing", () => {

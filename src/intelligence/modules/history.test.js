@@ -37,7 +37,7 @@ describe("src/intelligence/modules/history.js", () => {
     it("exports frozen defaults and resolves partial configurations", () => {
       expect(Object.isFrozen(HISTORY_DEFAULTS)).toBe(true);
       expect(HISTORY_DEFAULTS.limit).toBe(16);
-      expect(HISTORY_DEFAULTS.max_chars).toBe(400);
+      expect(HISTORY_DEFAULTS.max_chars).toBe(500);
 
       const resolved_default = resolve_history();
       expect(resolved_default).toEqual(HISTORY_DEFAULTS);

@@ -20,6 +20,7 @@
  */
 
 import { clamp, escape_xml, render_xml_tag } from "@utils";
+import { IMAGE_TRIGGER_COOLDOWN_ROUNDS as CANONICAL_IMAGE_TRIGGER_COOLDOWN_ROUNDS, DYNAMICS_SCALE, SEISMIC_SHIFT_DISPLACEMENT } from "@config";
 import { STYLE_MOTIF_REGISTRY } from "@data";
 
 // ── 1. Dynamics Axes ──────────────────────────────────────────────────────────
@@ -771,12 +772,12 @@ export function render_subtext_xml(ai_dynamics = {}, fractal_dynamics = {}, opti
 // media taxonomy). resolve_image_trigger stays in media/optics.js, reading
 // these thresholds through its physics import.
 
-export const IMAGE_TRIGGER_COOLDOWN_ROUNDS = 2;
+export const IMAGE_TRIGGER_COOLDOWN_ROUNDS = CANONICAL_IMAGE_TRIGGER_COOLDOWN_ROUNDS;
 
 export const IMAGE_TRIGGER = Object.freeze({
-  band_high: 85,
-  band_low: 15,
-  displacement_threshold: 60,
+  band_high: DYNAMICS_SCALE.EXTREME_HIGH,
+  band_low: DYNAMICS_SCALE.EXTREME_LOW,
+  displacement_threshold: SEISMIC_SHIFT_DISPLACEMENT,
   cooldown_rounds: IMAGE_TRIGGER_COOLDOWN_ROUNDS,
   director_cooldown_rounds: IMAGE_TRIGGER_COOLDOWN_ROUNDS,
   dynamics_cooldown_rounds: IMAGE_TRIGGER_COOLDOWN_ROUNDS,
@@ -787,9 +788,9 @@ export const IMAGE_TRIGGER = Object.freeze({
 const CHARACTER_DOMAIN_ENTITIES = Object.freeze(new Set(["ai", "user"]));
 
 export function evaluate_image_trigger(current = {}, previous = {}, options = {}) {
-  const band_high = options.band_high ?? 85;
-  const band_low = options.band_low ?? 15;
-  const displacement_threshold = options.displacement_threshold ?? 60;
+  const band_high = options.band_high ?? DYNAMICS_SCALE.EXTREME_HIGH;
+  const band_low = options.band_low ?? DYNAMICS_SCALE.EXTREME_LOW;
+  const displacement_threshold = options.displacement_threshold ?? SEISMIC_SHIFT_DISPLACEMENT;
   const default_tier = options.default_tier ?? "story_scene";
 
   const entities_set = new Set([...Object.keys(current || {}), ...Object.keys(previous || {})]);

@@ -141,6 +141,7 @@ export default defineConfig(({ command, mode }) => {
         "@primitives": path.resolve(import.meta.dirname, "./src/ui/primitives"),
         "@motion": path.resolve(import.meta.dirname, "./src/ui/motion"),
         "@utils": path.resolve(import.meta.dirname, "./src/utils"),
+        "@config": path.resolve(import.meta.dirname, "./src/config.js"),
       },
       extensions: [".svelte", ".js", ".ts", ".mjs"],
     },

@@ -25,6 +25,7 @@
  */
 
 import { Audio } from "@media";
+import { LATENCY_TIERS_MS } from "@config";
 import { get_llm_gate_status } from "@platform";
 import { developer_log } from "./log.svelte.js";
 
@@ -385,11 +386,11 @@ export class StreamingStore {
 // [SECTION 5: FREEZE WATCHDOG CONSTANTS & FORCE RECOVERY ENGINE]
 // ============================================================================
 
-export const FREEZE_WATCHDOG_INTERVAL_MS = 15000;
+export const FREEZE_WATCHDOG_INTERVAL_MS = LATENCY_TIERS_MS.HEARTBEAT;
 export const FREEZE_WATCHDOG_IDLE_GRACE_MS = 90000;
 export const FREEZE_WATCHDOG_CHUNK_STALL_MS = 90000;
 export const FREEZE_WATCHDOG_MAX_MS = 5 * 60 * 1000;
-export const FREEZE_WATCHDOG_CONSOLIDATE_GRACE_MS = 4 * 60 * 1000;
+export const FREEZE_WATCHDOG_CONSOLIDATE_GRACE_MS = LATENCY_TIERS_MS.LIFETIME;
 
 let _freeze_watchdog_started = false;
 

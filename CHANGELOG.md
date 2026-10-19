@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Canonical System Configuration Harmonization (`src/config.js`, `@config`, `config.md`)**:
+  - **Literary Scale & Tier Standardization (`src/config.js`, `TEXT_TIERS_CHARS`)**: Established canonical character scale (`TINY: 15`, `SLUG: 40`, `LABEL: 80`, `SHORT: 100`, `SNIPPET: 250`, `PARAGRAPH: 500`, `PAGE: 1500`, `CHAPTER: 5000`, `STORY: 8000`, `NOVELETTE: 10000`, `NOVELLA: 20000`, `ARCHIVE: 45000`, `LIBRARY: 100000`), standardized `LATENCY_TIERS_MS` (TICK to LIFETIME), `PATIENCE_POLICY` (2 soft / 3 hard), and universal `DYNAMICS_SCALE` (1-100). Purged obsolete static token budget allocation helpers in favor of dynamic runtime character headroom under P4 Pre-Beta Purity.
+  - **Temporal Memory Hardening (`src/intelligence/temporal.js`, `temporal.test.js`)**: Replaced magic numbers with canonical constants from `@config` (`PAST_ENTRIES.SESSION_CAP = 20`, `PAST_ENTRIES.TOTAL_CAP = 180`, `ENTRY_MAX_CHARS = 250`, `COMPACTION.FANOUT = 8`, `SUMMARY_MAX_CHARS = 500`, `PRESENT_MAX_CHARS = 500`, `ETERNAL_MAX_CHARS = 1500`, `TEMPORAL_SCORING`, `HYBRID_WEIGHTS`). All 82 unit tests 100% green.
+  - **Narrative Chronology & Window Calibration (`src/intelligence/modules/history.js`, `history.test.js`)**: Replaced magic numbers with `DIALOGUE_WINDOW` (`ROUNDS: 8`, `MAX_CHARS: 500`), `VISUAL_FEED_WINDOW` (`ROUNDS: 1`, `MAX_CHARS: 250`), `CHAPTER` (`ARCHIVE_CAPACITY: 12`, `PROMPT_HISTORY_LIMIT: 6`), and wired `CONTEXT_TOKEN_CLIFF` (6000 tokens) and `CONTEXT_CLIFF_CHARS` (20000 chars).
+  - **Pacing Contracts & Repetitive Prose Stagnation (`src/intelligence/modules/reflex.js`, `reflex.test.js`)**: Wired `MOMENTUM_TIERS` to `STAGNATION` (`SOFT_PERMIT_ROUNDS: 8`, `HARD_MANDATE_ROUNDS: 16`, `DRIFT_CUTOFF: 0.15`), `DEFAULT_SPENT_WINDOW = SPENT_ROUNDS` (5), `MAX_SPENT_ITEMS = 8`, and standardized opening clause repetitive extraction to a strict 15-character floor (`OPENING_CLAUSE_MIN_CHARS: TEXT_TIERS_CHARS.TINY`) without word-count constraints.
+  - **Entity Normalization Capping (`src/data/normalizer.js`, `normalizer.test.js`)**: Wired entity name truncation to strict 80 characters (`ENTITY_SCHEMA.NAME_MAX_CHARS: TEXT_TIERS_CHARS.LABEL`), chapter archive capacity to `CHAPTER.ARCHIVE_CAPACITY` (12), and chapter title/summary/agenda bounds to canonical tiers (`LABEL: 80`, `SLUG: 40`, `PARAGRAPH: 500`).
+  - **Unified Cooldown Arbitration & Dynamics Gate (`src/intelligence/dynamics.js`, `src/media/optics.js`, `optics.test.js`)**: Unified image generation cooldown to a single 3-round constant (`IMAGE_TRIGGER_COOLDOWN_ROUNDS = 3`) evaluated via a single helper function in `optics.js` (evaluating 1 message = 1 round count for cooldowns). Wired dynamics gate extreme bands to `DYNAMICS_SCALE.EXTREME_HIGH` (85), `EXTREME_LOW` (15), and `SEISMIC_SHIFT_DISPLACEMENT` (60).
+  - **Resilience & Watchdog Latency Alignment (`src/utils/resilience.js`, `src/state/status.svelte.js`)**: Wired `ExponentialBackoffRetryer` and `CircuitBreaker` constructor defaults to `PATIENCE_POLICY` (`HARD_LIMIT: 3`, `SOFT_LIMIT: 2`) and `LATENCY_TIERS_MS` (`TICK: 1000`, `DELAY: 10000`, `STEP: 30000`). Wired `FREEZE_WATCHDOG_INTERVAL_MS` to `LATENCY_TIERS_MS.HEARTBEAT` (15000) and `FREEZE_WATCHDOG_CONSOLIDATE_GRACE_MS` to `LATENCY_TIERS_MS.LIFETIME` (240000). Verified with `svelte-check` (0 errors, 0 warnings).
+
 - **Track A: Unblocked Local Investigations (Execution Pulse)**:
   - **Composer Serialized Queue Drainage (`StorymodeBar.svelte`)**: Refactored message submission queue from reactive `$effect` array mutation (`pending.shift()`) to an explicit serialized async worker (`drain_pending_queue()`). Eliminates lingering amber `"Queued"` status badges on round handoffs and ensures rejected sends are safely restored to the composer input textarea without message loss. Verified with `svelte-autofixer` MCP.
   - **Automated Prompt Atom & Mutual-Exclusion Matrix (`simulation-audit.js`, `simulation-audit.test.js`)**: Built automated `generate_prompt_atom_matrix` emitting Table 1 (Comprehensive Atom Manifest with modes, parameters, and sample markup) and Table 2 (Cross-Mode Mutual-Exclusion & Co-Existence Matrix). Synthesizes PART III directly into `tmp/simulation-audit-report.md` via `npm run audit:simulation`.
@@ -262,7 +271,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.8.0] - 2026-10-12
+## `[0.8.0]` - 2026-10-12
 
 - **Live Simulation Forensics & Integrity Verification (29-Round Run, R0–R28 across 111 generations)**:
   - Validated Track 5 Stream Beat Monitor live: `TINY` 4-character input (`"Nod."`) clamped cleanly to 1 beat (~140 chars) without ballooning; `EXPANSIVE` 456-character input unlocked full 2,326-character multi-beat depth.
@@ -330,7 +339,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.7.0] - 2026-10-11
+## `[0.7.0]` - 2026-10-11
 
 - **Sovereign Engine Core & Intelligence Architecture Pulse (Tracks 0 to 3)**:
   - **Track 0: Intelligence Kernel Language & Domain Purity**:
@@ -396,7 +405,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.6.0] - 2026-10-03
+## `[0.6.0]` - 2026-10-03
 
 - **Technical Debt & Codebase Stabilization (ROADMAP Section 1.1–1.4)**:
   - **Simulation Log & Export History Alignment (`src/utils/story-export.js`)**: Harmonized human-facing Markdown story exports with the canonical `filter_narrative_messages` filter from `src/utils/text.js`. Stripped empty-string rows and image beat placeholder tokens from export transcripts when `include_system: false`, preventing phantom entries in exported files while leaving raw system diagnostic logs intact for developer audits.
@@ -467,7 +476,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.5.0] - 2026-09-30
+## `[0.5.0]` - 2026-09-30
 
 ### Changed
 
@@ -515,7 +524,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.4.0] - 2026-09-29
+## `[0.4.0]` - 2026-09-29
 
 ### Added
 
@@ -537,7 +546,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.3.0] - 2026-09-24
+## `[0.3.0]` - 2026-09-24
 
 ### Added
 
@@ -574,6 +583,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.2.0] - Earlier Milestones
+## `[0.2.0]` - Earlier Milestones
 
 - Prior architecture and prototype iterations preserved in Git commit history.
