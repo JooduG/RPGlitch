@@ -70,9 +70,9 @@ export const REFLEX_LIBRARY = Object.freeze({
         tier: "MEDIUM",
         at_most_chars: INPUT_PACING.STANDARD,
         beats: "2-4",
-        mandate: "Reply in 2-4 beats, proportionate to «ACTION» breadth.",
+        mandate: "Reply in 2-4 beats, proportionate to «ENTRY» breadth.",
       }),
-      Object.freeze({ tier: "EXPANSIVE", at_most_chars: Infinity, beats: "open", mandate: "Match «ACTION» breadth; close on one decisive hook." }),
+      Object.freeze({ tier: "EXPANSIVE", at_most_chars: Infinity, beats: "open", mandate: "Match «ENTRY» breadth; close on one decisive hook." }),
     ]),
     PAUSE_MARKERS: /(\.\.\.|…|\(silence\)|\(pause\)|\bsays nothing\b|\bremains silent\b|\bno response\b|\bno answer\b)/i,
     MOMENTUM_TIERS: Object.freeze({
@@ -141,7 +141,7 @@ export const REFLEX_LIBRARY = Object.freeze({
     // Trigger condition: User provided non-empty input on the current turn (has_input === true).
     WITH_INPUT: Object.freeze({
       tag: "DRIVE",
-      body: "Advance the scene in response to «ACTION»: drive the beat forward independently and end on an unresolved hook demanding response.",
+      body: "Advance the scene in response to «ENTRY»: drive the beat forward independently and end on an unresolved hook demanding response.",
     }),
     // Trigger condition: User submitted empty turn, blank whitespace, or silence (has_input === false).
     WITHOUT_INPUT: Object.freeze({
@@ -164,7 +164,7 @@ export const REFLEX_LIBRARY = Object.freeze({
     // Trigger condition: Director turn evaluation when user input is present (has_input === true).
     EVALUATION_INPUT: Object.freeze({
       tag: "EVALUATION_INPUT",
-      body: 'Evaluate state mutations caused by «ACTION». Evaluate biological limits and physical causality strictly: if «ACTION» or physical events describe definitively fatal, terminal bodily destruction (e.g. biological death, irreversible drowning/asphyxiation, decapitation, or lethal cranial destruction with zero chance of medical survival), you MUST emit next_action: "EPILOGUE_COLLAPSED" and story_status: "COLLAPSED". Severe but survivable trauma (maiming, crushed limbs, severe blood loss, unconsciousness) should remain in-progress with somatic penalties in present.physical. Never hallucinate physical survival, bypass consequence, or continue casual dialogue across fatal events.',
+      body: 'Evaluate state mutations caused by «ENTRY». Evaluate biological limits and physical causality strictly: if «ENTRY» or physical events describe definitively fatal, terminal bodily destruction (e.g. biological death, irreversible drowning/asphyxiation, decapitation, or lethal cranial destruction with zero chance of medical survival), you MUST emit next_action: "EPILOGUE_COLLAPSED" and story_status: "COLLAPSED". Severe but survivable trauma (maiming, crushed limbs, severe blood loss, unconsciousness) should remain in-progress with somatic penalties in present.physical. Never hallucinate physical survival, bypass consequence, or continue casual dialogue across fatal events.',
     }),
     // Trigger condition: Director turn evaluation when user input is empty or ambient (has_input === false).
     EVALUATION_SCENE: Object.freeze({
@@ -841,5 +841,5 @@ export function render_spent_ledger_directive(spent_ledger, { include_static = f
  * - 2026-10-04: Absorbed the alternation conditional (REFLEX_LIBRARY.ALTERNATION + render_alternation_protocol, ex-protocols.js) — reactive option-picking lives with the other reflexes.
  * - 2026-10-04: Created from task.js Section 3 (pacing/reflex engine) plus stability/truncation recovery (from recovery.js, now deleted) — the reflex layer owns calibration + resilience; task.js keeps turn assembly with live TASK_LIBRARY references.
  * Modules Ground Refactor Phase 1 — get_reflex_atom delegates lookup to utils/catalog.js resolve_catalog_atom; enveloped wrapping stays record-driven — prompt bytes byte-identical.
- * - 2026-10-16: Harmonized «INPUT» references to «ACTION» and aligned ENVIRONMENTAL_HINT to next_action: "FRACTAL".
+ * - 2026-10-16: Harmonized «INPUT» references to «ENTRY» and aligned ENVIRONMENTAL_HINT to next_action: "FRACTAL".
  */

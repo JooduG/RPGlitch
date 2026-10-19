@@ -170,7 +170,7 @@ Strictly zero spoken dialogue or quote marks. No dialogue.
   CONTINUUM: Object.freeze({
     MANDATE: Object.freeze({
       tag: "DIRECTIVE",
-      body: `TARGET FOCUS: Consolidate state and extract relational vectors for {target_name}. Analyze recent turns in «HISTORY».
+      body: `TARGET FOCUS: Consolidate state and extract relational vectors for {target_name}. Analyze «RECENT_ROUNDS».
 EXECUTION MANDATE:
 1. Memory Formation: Extract 1-3 anchored memories in past tense. Empty list if nothing noteworthy transpired.
 2. Dynamic State: Update each taxonomy layer below per its schema directive — key shapes are documented in the schema, never re-documented here.

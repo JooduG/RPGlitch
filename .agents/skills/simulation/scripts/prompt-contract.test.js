@@ -35,15 +35,15 @@ import { ROLE_LIBRARY } from "../../../../src/intelligence/modules/system.js";
 // ---------------------------------------------------------------------------
 
 const BYTE_PINS = {
-  director: 6493,
+  director: 6491,
   director_terse: 1459,
-  interaction: 8209,
-  ghostwrite: 7582,
-  npc: 8939,
-  narrator: 7823,
+  interaction: 8208,
+  ghostwrite: 7581,
+  npc: 8938,
+  narrator: 7822,
   narrator_prologue: 7850,
   narrator_epilogue: 7785,
-  continuum: 4756,
+  continuum: 4746,
   enhancement: 1669,
   sorting: 4193,
   optics: 5394,
@@ -130,7 +130,7 @@ function compile_contract_modes() {
 // ---------------------------------------------------------------------------
 
 const TAG_BODY_ALLOWLIST = ["THINK"];
-const RUNTIME_REFERENT_ALLOWLIST = ["ACTION", "USER_PERSONA", "AI_CHARACTER", "HISTORY", "SHIRT", "JACKET"];
+const RUNTIME_REFERENT_ALLOWLIST = ["ACTION", "ENTRY", "USER_PERSONA", "AI_CHARACTER", "HISTORY", "RECENT_ROUNDS", "SHIRT", "JACKET"];
 
 const KNOWN_AT_TOKENS = [
   "enhancement: @ENTITY_NAME",

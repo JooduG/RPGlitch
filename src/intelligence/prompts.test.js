@@ -583,7 +583,17 @@ describe("narrator prose compiler", () => {
 const TAG_BODY_ALLOWLIST = Object.freeze(["THINK"]);
 
 /** Frozen runtime-referent vocabulary (Track 0.2 «ABSOLUTE» layer). */
-const RUNTIME_REFERENT_ALLOWLIST = Object.freeze(["ACTION", "INPUT", "USER_PERSONA", "AI_CHARACTER", "HISTORY", "SHIRT", "JACKET"]);
+const RUNTIME_REFERENT_ALLOWLIST = Object.freeze([
+  "ACTION",
+  "ENTRY",
+  "INPUT",
+  "USER_PERSONA",
+  "AI_CHARACTER",
+  "HISTORY",
+  "RECENT_ROUNDS",
+  "SHIRT",
+  "JACKET",
+]);
 
 function is_upper_letter(ch) {
   return ch >= "A" && ch <= "Z";
