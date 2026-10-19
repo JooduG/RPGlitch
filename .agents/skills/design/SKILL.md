@@ -76,28 +76,12 @@ Before writing any UI code, you MUST fetch the current state of the bridge:
 - **Interaction Locking**: Disable input, set `cursor: wait`, and apply `opacity: var(--opacity-whisper)` during busy states.
 - **Async Safety**: Use `finally` blocks to release UI locks.
 
-### 5. Kinetic Physics & State Standards
+### 5. Kinetic Feedback & Motion Jurisdiction
 
-See `data/interaction-audit.md` for specific hover/active state standards.
+Interactive motion, easing curves, button press reflexes, and animation duration budgets are governed by the dedicated [motion](../motion/SKILL.md) skill.
 
-- **Hover**: Standard is `hover:brightness-125`. Always gate hover styles behind `@media (hover: hover) and (pointer: fine)` to protect touch devices.
-- **Active / Press**: Discrete click uses `active:scale-[0.97] transition-transform duration-150 ease-out`. Continuous drag uses `active:scale-[1.05]`.
-- **View Transitions**: Use the Native View Transitions API (`document.startViewTransition`) for macro transitions instead of heavy node-cloning.
-
-### 6. The Ten Commandments of Motion & Craft
-
-Every UI transition and kinetic effect is governed by these non-negotiable standards:
-
-1. **Justified Motion**: Answer "why does this move?" (feedback, spatial continuity, state delta). "It looks cool" on core loops is banned.
-2. **Frequency-Appropriate**: 100+/day actions (turn submissions, hotkey navigation, command palette) receive **zero animation** (the Raycast law).
-3. **Responsive Easing**: Entering/exiting elements must use `--ease-out: cubic-bezier(0.23, 1, 0.32, 1)`. `ease-in` on UI transitions is strictly banned.
-4. **Sub-300ms Budget**: UI animations must finish under 300ms (buttons 160ms, tooltips 125–200ms, popovers 150–250ms, modals 200–250ms).
-5. **Origin & Physical Correctness**: Popovers/dropdowns scale from their trigger via `var(--transform-origin)`. Modals stay centered. Never animate from `scale(0)`; start from `scale(0.95)` with `opacity: 0`.
-6. **Interruptibility**: Use CSS transitions or springs for dynamic elements; keyframes restart from zero and are banned on rapidly-triggered UI.
-7. **GPU/Compositor-Only**: Animate `transform` and `opacity` only. Never animate layout properties (`width`, `height`, `top`, `left`, `margin`, `padding`). Hard ban on `transition: all`.
-8. **Accessibility & Hover Gating**: `prefers-reduced-motion` must retain opacity/color feedback while suppressing glitch shakes and position movement. All hover transitions are gated for fine pointers.
-9. **Asymmetric Timing**: Deliberate press actions (e.g. 2s linear hold-to-confirm) animate slow; system response snaps (200ms ease-out).
-10. **Nordic Cohesion**: Motion matches the sub-zero research facility personality—cold, clinical, crisp, never bouncy.
+- **Basic Reflex Tokens**: Standard hover is `hover:brightness-125` gated behind `@media (hover: hover) and (pointer: fine)`. Discrete button presses apply `active:scale-[0.97] transition-transform duration-150 ease-out`.
+- **Advanced Motion & Audits**: For animation curves (`--ease-out`, `--ease-in-out`), modal/drawer transitions, sub-300ms duration audits, or Emil Kowalski craft reviews, invoke `/motion`.
 
 ### 7. Bits UI (`^2.18.1`) Headless Primitives
 
