@@ -18,6 +18,8 @@ This document serves as the sovereign technical blueprint for **RPGlitch**. It d
   - **Minimalist Restraint**: Only display tools relevant to the active narrative moment.
   - **Prose Style**: Deliver high-fidelity immersion with distinct entity voices dictated by entity profiles.
 - **P4: Zero Backwards Compatibility (Pre-Beta Purity)**: **Never write backwards-compatible fallbacks, legacy aliases, deprecated wrappers, or schema shims**. Refactor all downstream consumers and prune dead code immediately.
+- **P5: Honest Literals & Scoped Scales**: Avoid forcing hardware constants, intake policies, or system quotas into artificial shared scales. Restrict semantic tier enums (e.g., `PROSE`, `IDENT`) strictly to their specific text domains, keeping non-prose limits as honest literals. Ensure every exported config constant has an active consumer.
+- **P6: Audit Scope Disambiguation**: When evaluating "what's left behind" or "pending agreements", explicitly distinguish between commitments concluded within the active chat log versus historical technical debt or parked features in `ROADMAP.md` and `scribbles.md`.
 
 ---
 
