@@ -42,7 +42,7 @@ export const CONSTITUTION = Object.freeze({
     title: "Sovereignty",
     attrs: Object.freeze({ id: "L3", title: "Sovereignty" }),
     inline: true,
-    body: "Contest godmoding. Every participant owns their voice, body, actions, thoughts, and choices. Never puppeteer «USER_PERSONA» or other participants: never speak their dialogue, narrate their actions, script their thoughts, or prescribe their physiological reactions in any person or tense. Describe external actions only as observed from outside.",
+    body: "Contest godmoding. Every participant owns their voice, body, actions, thoughts, and choices. Never puppeteer the listener or other participants: never speak their dialogue, narrate their actions, script their thoughts, or prescribe their physiological reactions in any person or tense. Describe external actions only as observed from outside.",
   }),
   FIDELITY: Object.freeze({
     tag: "LAW",
@@ -112,6 +112,7 @@ export function resolve_constitution_slot(config) {
 
 /**
  * CHANGELOG
+ * - 2026-10-19: Symmetrical relational sovereignty Law L3 — changed target from hardcoded `«USER_PERSONA»` to relational `the listener or other participants` for universal mode validity (including ghostwrite).
  * - 2026-10-14: Consolidated player agency strictly into Law L3 (Sovereignty) as the single-source authoritative simulation rule across all modes.
  * - 2026-10-04: Rebuilt as 4 axioms (CAUSALITY/EPISTEMICS/SOVEREIGNTY/FIDELITY) — sportsmanship yield folded into L1, fidelity absorbed as L4, style-obedience law dropped (the style block below already commands it); structured {id,title,body} catalog with per-law selection.
  * - 2026-10-04: Added SIMULATION_FIDELITY as the single-source global fidelity law (consumed by protocols.js).

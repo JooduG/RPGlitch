@@ -42,7 +42,7 @@ import {
 import { resolve_entities } from "./modules/entities.js";
 import { render_dynamics_axes_xml, render_subtext_xml } from "./dynamics.js";
 
-import { render_history, resolve_history, HISTORY_TOKEN_BUDGET } from "./modules/history.js";
+import { render_history, resolve_history, HISTORY_TOKEN_BUDGET } from "./modules/recency.js";
 import { resolve_character_action_directive, resolve_scene_action_directive } from "./modules/task.js";
 import { extract_spent_ledger, render_constraints_directive, render_director_constraints_directive } from "./modules/reflex.js";
 import { resolve_optics_cinematography } from "./modules/style.js";

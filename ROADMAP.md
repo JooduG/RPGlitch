@@ -92,7 +92,27 @@ A comprehensive, code-grounded review of the running application and execution o
   - `.agents/skills/local-scripts/scripts/audit-layers.js` (strict layer boundary enforcement gate)
   - `src/ui/message/feed-dom-benchmark.test.js` (feed DOM profiling benchmark)
   - `src/media/audio.test.js` (AudioContext lifecycle and teardown contract verification)
-- **Key Modules**: `src/ui/`, `src/state/`, `src/intelligence/`, `src/data/`, `src/media/`, `src/utils/`, `src/config.js`.
+  - `src/intelligence/modules/recency.js` (rebranded dialogue history emitting <RECENT_ROUNDS> and <ENTRY round="..." origin="...">)
+  - `src/intelligence/modules/recency.test.js` (recency module contract and window verification)
+  - `src/intelligence/modules/sheets.js` (dynamic 4-quadrant RAG entity sheet formatting and boundary-safe truncation)
+  - `src/intelligence/prompts.js` (dynamic prompt character headroom metering, director recency dedup, and ghostwriter draft seeding)
+  - `src/intelligence/modules/constitution.js` (symmetrical relational sovereignty Law L3)
+  - `src/intelligence/modules/task.js` (director staging instruction alignment and authorial voice sovereignty dedup)
+  - `src/intelligence/index.js` (barrel export migration from history.js to recency.js)
+  - `src/intelligence/builder.js` (import migration from history.js to recency.js)
+  - `src/intelligence/builder.test.js` (contract assertions update for ENTRY and ALTERNATION_OPTIONS)
+  - `src/intelligence/director.test.js` (director prompt origin and entry contract tests)
+  - `src/intelligence/modules/output.js` (director output formatting and lead-actor staging)
+  - `src/intelligence/modules/task.test.js` (task module contract test suite)
+  - `src/intelligence/prompt-verification.js` (mode contract envelope definitions and tag inventory)
+  - `src/intelligence/prompt-verification.test.js` (universal envelope contract and layer tests)
+  - `src/intelligence/prompts.test.js` (prompt compilation and structural tests)
+  - `.agents/skills/simulation/scripts/prompt-contract.test.js` (contract byte-pins re-pinning)
+  - `src/lib/vitest-examples/Welcome.svelte` (purged obsolete template file)
+  - `src/lib/vitest-examples/Welcome.svelte.spec.js` (purged obsolete template test)
+  - `src/lib/vitest-examples/greet.js` (purged obsolete template file)
+  - `src/lib/vitest-examples/greet.spec.js` (purged obsolete template test)
+- **Key Modules**: `src/ui/`, `src/state/`, `src/intelligence/`, `src/data/`, `src/media/`, `src/utils/`, `src/config.js`, `src/lib/`.
 
 ---
 

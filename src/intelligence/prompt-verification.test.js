@@ -91,10 +91,10 @@ describe("Prompt pipeline — universal envelope invariants", () => {
       expect(system).toMatch(/<SYSTEM[^>]*mode="[a-z_]+"/);
       expect(system).toContain("You are ");
 
-      // 2. The <TASK> block is sealed inside the envelope — exactly one, after any <HISTORY>.
+      // 2. The <TASK> block is sealed inside the envelope — exactly one, after any <RECENT_ROUNDS>.
       expect(system).toContain("<TASK");
       expect((system.match(/<TASK\b/g) || []).length).toBe(1);
-      const history_index = system.indexOf("<HISTORY>");
+      const history_index = system.indexOf("<RECENT_ROUNDS>");
       const task_index = system.indexOf("<TASK");
       expect(history_index === -1 || history_index < task_index).toBe(true);
 
@@ -147,7 +147,9 @@ describe("Prompt pipeline — declared envelope layers", () => {
       const prompt_package = compile_prompt(case_key, context);
       const config = PROMPTS[mode_key];
 
-      const declared = [...config.layers.system, "task"].filter((key) => !TEXT_ONLY_LAYERS.has(key)).map((key) => key.toUpperCase());
+      const declared = [...config.layers.system, "task"]
+        .filter((key) => !TEXT_ONLY_LAYERS.has(key))
+        .flatMap((key) => (key === "history" ? ["RECENT_ROUNDS", "HISTORY"] : [key.toUpperCase()]));
 
       const emitted = extract_layer_tags(prompt_package.system);
 

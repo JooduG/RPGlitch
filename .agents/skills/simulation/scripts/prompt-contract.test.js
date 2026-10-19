@@ -35,18 +35,18 @@ import { ROLE_LIBRARY } from "../../../../src/intelligence/modules/system.js";
 // ---------------------------------------------------------------------------
 
 const BYTE_PINS = {
-  director: 6600,
-  director_terse: 1456,
-  interaction: 8240,
-  ghostwrite: 7621,
-  npc: 8978,
-  narrator: 7822,
-  narrator_prologue: 7887,
-  narrator_epilogue: 7814,
-  continuum: 4748,
-  enhancement: 1671,
-  sorting: 4195,
-  optics: 5396,
+  director: 6493,
+  director_terse: 1459,
+  interaction: 8209,
+  ghostwrite: 7582,
+  npc: 8939,
+  narrator: 7823,
+  narrator_prologue: 7850,
+  narrator_epilogue: 7785,
+  continuum: 4756,
+  enhancement: 1669,
+  sorting: 4193,
+  optics: 5394,
 };
 
 // ---------------------------------------------------------------------------

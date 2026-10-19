@@ -103,7 +103,7 @@ describe("render_task — Director Mode", () => {
       entities: { AI: { id: "ALICE", name: "Alice" }, USER: { id: "BOB", name: "Bob" } },
     });
 
-    expect(task).toContain('<ACTION round="1" origin="BOB">');
+    expect(task).toContain('<ENTRY round="1" origin="BOB">');
     expect(task).toContain("<TASK>");
     expect(task).toContain('next_action MUST be "AI_CHARACTER"');
     expect(task).toContain('<OUTPUT_FORMAT mode="json">');
@@ -139,7 +139,7 @@ describe("render_task — Story Prose Mode", () => {
     expect(task).toContain("<TASK>");
     expect(task).toContain("<THINK>");
     expect(task).toContain("1. Stance — the speaker's unsaid want and internal feeling.");
-    expect(task).toContain("<ACTION>");
+    expect(task).toContain("<ENTRY>");
     expect(task).toContain("Respond strictly as Alice.");
     expect(task).toContain("<DELIVERY_POSTURE>");
     expect(task).not.toContain("VOICE");
@@ -238,7 +238,7 @@ describe("task.js - Optics Task Staging", () => {
     expect(task).toContain('<CINEMATOGRAPHY mode="Intimate Close-Up">');
     expect(task).toContain("<KEYWORD_DIRECTIVES>");
     expect(task).toContain('inside "caption"');
-    expect(task).toContain('<ACTION type="intent">Standing alone in the pouring rain</ACTION>');
+    expect(task).toContain('<ENTRY type="intent">Standing alone in the pouring rain</ENTRY>');
     expect(task).toContain('<OUTPUT_FORMAT mode="json">');
   });
 });
@@ -283,14 +283,14 @@ describe("render_task — per-mode state dispatch", () => {
       schema: '{"a":1}',
       entities: { AI: { id: "ALICE", name: "Alice" }, USER: { id: "BOB", name: "Bob" } },
     });
-    expect(full).toContain('<ACTION round="1" origin="ALICE">prev</ACTION>');
-    expect(full).toContain('<ACTION round="2" origin="BOB">hi</ACTION>');
+    expect(full).toContain('<ENTRY round="1" origin="ALICE">prev</ENTRY>');
+    expect(full).toContain('<ENTRY round="2" origin="BOB">hi</ENTRY>');
     expect(full).toContain("<DIRECTIVES>");
     expect(full).toContain('<OUTPUT_FORMAT mode="json">');
 
     const terse = render_task({ config: get_prompt("director"), task_state: "director", terse: true, schema: '{"a":1}', layers: ["output_format"] });
     expect(terse).not.toContain("<DIRECTIVES>");
-    expect(terse).not.toContain("<ACTION");
+    expect(terse).not.toContain("<ENTRY");
     expect(terse).toContain('<OUTPUT_FORMAT mode="json">');
   });
 
@@ -357,7 +357,7 @@ describe("resolve_task_plan and render_task_plan", () => {
     expect(Object.isFrozen(plan)).toBe(true);
     expect(Object.isFrozen(plan.children)).toBe(true);
     expect(plan.children).toHaveLength(1);
-    expect(plan.children[0]).toContain('<ACTION type="ingestion">');
+    expect(plan.children[0]).toContain('<ENTRY type="ingestion">');
   });
 
   it("falls back to prose for unknown modes", () => {

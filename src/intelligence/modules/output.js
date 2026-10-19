@@ -56,7 +56,7 @@ export const SCHEMA_ATOMS = Object.freeze({
   keywords: [
     "<1-5 from: SHAME, FEAR, VULNERABILITY, BETRAYAL, ABANDONMENT, EMOTIONAL_NEGLECT, DEFIANCE, INTIMACY, GRIEF, DOMINANCE, DECEPTION, DYSREGULATION (or [] if neutral)>",
   ],
-  directors_note: "<1-5 lines staging directives ONLY for the next_action speaker (never for player/user_persona), or empty string>",
+  directors_note: "<1-5 lines staging directives ONLY for the next_action lead actor (never for player/user_persona), or empty string>",
   dynamics_deltas: { chaos: 0, intensity: 0, openness: 0, affinity: 0, velocity: 0, entropy: 0 },
   visual_staging: "<optional: camera & lighting directive if scene image shifts>",
   spotlight: { enter: ["npc:<id>"], exit: ["npc:<id>"] },

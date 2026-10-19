@@ -37,6 +37,7 @@
  */
 
 import { estimate_tokens, state_bridge } from "@utils";
+import { PROMPT_CHAR_ENVELOPE } from "@config";
 import { MODE_ADAPTERS } from "./builder.js";
 import { resolve_task_slots, render_task_plan, TASK_LAYERS } from "./modules/task.js";
 import { resolve_role_slot, compose_system, pack_prompt, resolve_prompt_meta } from "./modules/system.js";
@@ -50,7 +51,7 @@ import {
   resolve_entity_context_slot,
   resolve_memory_advisory_slot,
 } from "./modules/entities.js";
-import { resolve_history_slot, resolve_chapter_history_slot } from "./modules/history.js";
+import { resolve_history_slot, resolve_chapter_history_slot } from "./modules/recency.js";
 import { verify_epistemic_integrity } from "./veil.js";
 import { resolve_turn_state_plan, render_momentum_directive_xml } from "./modules/reflex.js";
 
@@ -106,7 +107,7 @@ const PROSE_LAYERS = Object.freeze({
  * @type {Readonly<{ system: ReadonlyArray<string>, task: ReadonlyArray<string> }>}
  */
 export const DIRECTOR_LAYERS = Object.freeze({
-  system: Object.freeze(["role", "axiomatic_constitution", "core_protocols", "dynamic_axes", "entities", "history"]),
+  system: Object.freeze(["role", "axiomatic_constitution", "core_protocols", "dynamic_axes", "entities"]),
   task: Object.freeze(["input", "directives", "output_format"]),
 });
 
@@ -494,8 +495,10 @@ export function resolve_prompt_plan(config, normalized = {}) {
   const system_order = Object.freeze([...(variant?.system || config.layers.system)]);
   const task_order = Object.freeze([...(variant?.task || config.layers.task)]);
   const system_slots = {};
+
+  // Phase 1: Resolve all non-entity, non-protocol system slots
   for (const slot_key of system_order) {
-    if (slot_key === "core_protocols") continue;
+    if (slot_key === "core_protocols" || slot_key === "entities") continue;
     const resolver = SYSTEM_SLOT_RESOLVERS[slot_key];
     if (typeof resolver !== "function") throw new Error(`Unknown system slot: ${slot_key}`);
     system_slots[slot_key] = resolver(config, normalized, system_slots);
@@ -503,7 +506,41 @@ export function resolve_prompt_plan(config, normalized = {}) {
   if (system_order.includes("core_protocols")) {
     system_slots.core_protocols = SYSTEM_SLOT_RESOLVERS.core_protocols(config, normalized, system_slots);
   }
+
+  // Phase 2: Resolve task slots to measure the fixed task footprint
+  if (normalized.entities_kind === "optics" && normalized.task_params && normalized.intent_roll && !normalized.task_params.input_intent) {
+    normalized.task_params.input_intent = normalized.intent_roll.roll(normalized.intent_roll.raw_intent);
+  }
   const task_resolved = resolve_task_slots({ ...(normalized.task_params || {}), config, layers: [...task_order] });
+
+  // Phase 3: Dynamic Turn Headroom Metering
+  // Calculate serialized footprint of all guaranteed supportive modules
+  const task_children = TASK_LAYERS.filter((layer) => task_order.includes(layer.key))
+    .map((layer) => layer.emit(task_resolved.slots))
+    .filter(Boolean);
+  const task_rendered_length = render_task_plan({ tag: "TASK", children: task_children }).length;
+  const non_entity_system_length = Object.values(system_slots).reduce((sum, slot) => sum + (typeof slot === "string" ? slot.length : 0), 0);
+  // Reserve 300 characters for root <SYSTEM> and outer XML tags
+  const fixed_footprint = non_entity_system_length + task_rendered_length + 300;
+  const dynamic_headroom = Math.max(0, PROMPT_CHAR_ENVELOPE - fixed_footprint);
+
+  if (normalized.sheets_args && typeof normalized.sheets_args === "object") {
+    normalized.sheets_args.headroom = dynamic_headroom;
+  }
+  normalized.headroom = dynamic_headroom;
+
+  // Phase 4: Resolve entity sheets with dynamic headroom allocated
+  if (system_order.includes("entities")) {
+    const resolver = SYSTEM_SLOT_RESOLVERS.entities;
+    if (typeof resolver !== "function") throw new Error(`Unknown system slot: entities`);
+    system_slots.entities = resolver(config, normalized, system_slots);
+  }
+
+  // Re-resolve core_protocols so entity alternations are reflected in <CORE_PROTOCOLS>
+  if (system_order.includes("core_protocols")) {
+    system_slots.core_protocols = SYSTEM_SLOT_RESOLVERS.core_protocols(config, normalized, system_slots);
+  }
+
   const meta_resolver = PROMPT_META_RESOLVERS[config.key] || resolve_meta_args;
   return Object.freeze({
     tag: "PROMPT",
@@ -650,4 +687,5 @@ export default PROMPTS;
  * - 2026-10-14: Phase 1 Prompt Pipeline Hygiene & P4 Purges — (1) Set constitution: true for director mode and added axiomatic_constitution to DIRECTOR_LAYERS; (2) Purged alternative_branches from DIRECTOR_SCHEMA; (3) Purged AGENCY from prose_protocols; (4) Purged USER_PERSONA_LOCK and BRANCHES from director_directives and gated CONVERGENCE on has_candidates.
  * - 2026-10-14: Deconstructed Grounding — Removed standalone CORE_PROTOCOLS.GROUNDING from prose_protocols (absorbed into Constitution Law L1 and Prose Discipline).
  * - 2026-10-16: Added story_status to DIRECTOR_SCHEMA.
+ * - 2026-10-19: Dynamic Prompt Resource Allocation — (1) Switched import from history.js to recency.js; (2) Removed duplicate history from DIRECTOR_LAYERS.system; (3) Added Phase 3 Dynamic Turn Headroom Metering in resolve_prompt_plan computing headroom = Math.max(0, PROMPT_CHAR_ENVELOPE - fixed_footprint) and forwarding to sheets_args.
  */

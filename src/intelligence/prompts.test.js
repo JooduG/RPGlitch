@@ -6,7 +6,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { PROMPTS as prompt_modes, get_prompt, resolve_prompt_mode, compile_prompt, director_directives } from "./prompts.js";
 import { MODE_ADAPTERS } from "./builder.js";
-import { render_history } from "./modules/history.js";
+import { render_history } from "./modules/recency.js";
 import { register_state_accessors } from "@utils";
 import { make_contract_cases } from "./prompt-verification.js";
 import { TASK_LIBRARY } from "./modules/task.js";
@@ -254,9 +254,9 @@ describe("fused rendering per mode", () => {
     expect(assert_fused_shape(result, "ghostwrite")).toBe(true);
   });
 
-  it("carries the <ACTION origin> inside the interaction task", () => {
+  it("carries the <ENTRY origin> inside the interaction task", () => {
     const interaction = compile_prompt("interaction", { round: 3, entities, input: "Beast steps forward." });
-    expect(interaction.system).toContain('<ACTION round="3" origin="SILVERS">Beast steps forward.</ACTION>');
+    expect(interaction.system).toContain('<ENTRY round="3" origin="SILVERS">Beast steps forward.</ENTRY>');
   });
 
   it("strictly respects the manifest protocol list: interaction includes NATURAL_DIALOGUE, narrator omits it", () => {
@@ -455,7 +455,7 @@ describe("ghostwrite identity", () => {
     });
     const task = system;
     expect(system).toContain("You are Lord Benedict Silvers within FRACTAL Project Tartarus, interacting with Beast.");
-    expect(task).toContain('<ACTION origin="SILVERS">I step forward and bare my teeth.</ACTION>');
+    expect(task).toContain('<ENTRY origin="SILVERS">I step forward and bare my teeth.</ENTRY>');
     expect(task).toContain("<DELIVERY_POSTURE>");
     expect(task).toContain("Advance the scene in response to");
   });
@@ -537,7 +537,7 @@ describe("interaction structural integrity", () => {
     expect(task).toContain("2. Friction — what resists that want in this beat.");
     expect(task).toContain("3. Mask — how their psychology leaks or conceals the feeling.");
     expect(task).toContain("4. Smallest observable action — the single physical tell or movement that carries the beat. Never pre-draft dialogue.");
-    expect(task).toContain("Close </THINK> before the narrative. This think block is internal reasoning and is never part of the visible prose.");
+    expect(task).toContain("Close </THINK> before the narrative. Never emit visible prose inside think tags.");
     expect(task).toContain("<BEAT_BUDGET");
     expect(task).not.toContain("<BEAT>");
   });

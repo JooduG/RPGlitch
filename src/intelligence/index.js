@@ -91,7 +91,7 @@ export {
   compose_visual_generation_prompt,
   resolve_visual_engine_tokens,
 } from "./modules/style.js";
-export { render_visual_history, format_sensory_history, resolve_history_plan, resolve_sensory_plan, render_history_plan } from "./modules/history.js";
+export { render_visual_history, format_sensory_history, resolve_history_plan, resolve_sensory_plan, render_history_plan } from "./modules/recency.js";
 
 // ============================================================================
 // Veil Engine & Universal Bracket Predicates (Epistemic Wall)

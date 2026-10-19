@@ -80,7 +80,7 @@ export const TASK_LIBRARY = Object.freeze({
 2. Friction — what resists that want in this beat.
 3. Mask — how their psychology leaks or conceals the feeling.
 4. Smallest observable action — the single physical tell or movement that carries the beat. Never pre-draft dialogue.
-Close </THINK> before the narrative. This think block is internal reasoning and is never part of the visible prose.`,
+Close </THINK> before the narrative. Never emit visible prose inside think tags.`,
     }),
 
     THINK_NARRATOR: Object.freeze({
@@ -89,7 +89,7 @@ Close </THINK> before the narrative. This think block is internal reasoning and 
 1. Tableau — freeze every body in space; fix positions before psychology.
 2. Vector — the single mechanical or environmental change this beat delivers.
 3. Sensorium — {grounding} Commit to one dominant sensory channel.
-Close </THINK> before the narrative. This think block is internal reasoning and is never part of the visible prose.`,
+Close </THINK> before the narrative. Never emit visible prose inside think tags.`,
     }),
 
     THINK_ENHANCEMENT: Object.freeze({
@@ -325,7 +325,7 @@ export function render_task_input({ input = "", input_origin = null, input_round
   if (effective_type && effective_type !== "action") attributes.push(`type="${escape_xml(String(effective_type))}"`);
   const attribute_string = attributes.length ? ` ${attributes.join(" ")}` : "";
   const content = prompt_escape(String(input).trim());
-  return `<ACTION${attribute_string}>${inline_or_block(content, 2)}</ACTION>`;
+  return `<ENTRY${attribute_string}>${inline_or_block(content, 2)}</ENTRY>`;
 }
 
 /**
@@ -334,7 +334,7 @@ export function render_task_input({ input = "", input_origin = null, input_round
  * @param {{ tag?: string, input?: string, origin?: string|null, round?: number|string|null }} parameters
  * @returns {string}
  */
-export function render_task_turn({ _tag = "ACTION", input = "", origin = null, round = null } = {}) {
+export function render_task_turn({ _tag = "ENTRY", input = "", origin = null, round = null } = {}) {
   return render_task_input({ input, input_origin: origin, input_round: round });
 }
 
@@ -834,6 +834,7 @@ export function render_task(parameters = {}) {
  *   (2) Reworked lines 166-216 into Section 2 Prose Reflex & Input Reaction Engine (`render_prose_reflex`, `build_pacing_directive`, `render_environmental_hint`);
  *   (3) Consolidated ALL 5 task renderers into 1 single universal `render_task` compiler with clean mode dispatching;
  *   (4) Preserved 100% test compatibility.
+ * - 2026-10-19: Semantic turn tagging (<ENTRY> in render_task_input) and streamlined THINK_FORMAT closers.
  * - 2026-09-16: Standardized Director system envelope with `round` in `<SYSTEM round="...">` and standardized input via `render_task_input`; co-located input classification regexes and `render_environmental_hint`; repatriated `render_scene_spotlight_xml` to `entities.js`; unified Continuum directives in `TASK_LIBRARY.CONTINUUM`.
  * - 2026-09-16: Consolidated all loose directive/rules constants into unified, frozen `TASK_LIBRARY` catalog (PROTOCOLS, DIRECTOR, SPOTLIGHT, PROSE, SORTING) mirroring PROTOCOL_LIBRARY in protocols.js. Pruned legacy individual exports under P4 Zero Backwards Compatibility.
  * - 2026-09-16: Emphatically strengthened dialogue prohibition in SCENE_DIRECTIVES (PROLOGUE, EPILOGUE, COLLAPSE) with 'Strictly zero spoken dialogue or quote marks'.

@@ -1104,7 +1104,7 @@ describe("temporal_engine per-entity consolidation progress tracking (Track 2 Ph
       history: [{ role: "user", text: "Hello Viper" }],
     });
     expect(prompt.system).toContain('mode="continuum" target="Viper"');
-    expect(prompt.system).toContain("<HISTORY>");
+    expect(prompt.system).toContain("<RECENT_ROUNDS>");
     expect(prompt.system).toContain("Hello Viper");
   });
 

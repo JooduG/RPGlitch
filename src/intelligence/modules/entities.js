@@ -450,6 +450,7 @@ export function render_entity_sheets({
   fractal_dynamics = null,
   speaker_key = "AI",
   relational_context = null,
+  headroom = null,
 }) {
   const plan = resolve_actor_plan({
     config,
@@ -483,12 +484,13 @@ export function render_entity_sheets({
     if (candidates_xml) parts.push(candidates_xml);
   }
 
+  const effective_max_chars = headroom != null && headroom > 0 ? headroom : ENTITIES_MAX_CHARS;
   let wrapped = wrap_entities(parts);
-  if (wrapped.length <= ENTITIES_MAX_CHARS) {
+  if (wrapped.length <= effective_max_chars) {
     return wrapped;
   }
 
-  // Phase V 5.1: ENTITIES Hard Budgeting beneath 6k context cliff
+  // ENTITIES Dynamic Headroom Budgeting beneath prompt envelope
   const budgeted_parts = [...parts];
 
   // 1. Prune candidate cast first
@@ -497,7 +499,7 @@ export function render_entity_sheets({
     if (candidate_index >= 0) {
       budgeted_parts.splice(candidate_index, 1);
       wrapped = wrap_entities(budgeted_parts);
-      if (wrapped.length <= ENTITIES_MAX_CHARS) return wrapped;
+      if (wrapped.length <= effective_max_chars) return wrapped;
     }
   }
 
@@ -505,7 +507,7 @@ export function render_entity_sheets({
   if (plan.nearby_entities) {
     const nearby_index = budgeted_parts.findIndex((block) => block.includes('mode="nearby"'));
     if (nearby_index >= 0) {
-      const remaining_chars = Math.max(200, ENTITIES_MAX_CHARS - wrap_entities(budgeted_parts.filter((_, idx) => idx !== nearby_index)).length);
+      const remaining_chars = Math.max(200, effective_max_chars - wrap_entities(budgeted_parts.filter((_, idx) => idx !== nearby_index)).length);
       const sliced_nearby = whole_vector_slice(budgeted_parts[nearby_index], remaining_chars);
       if (sliced_nearby && sliced_nearby.includes("</CAST>")) {
         budgeted_parts[nearby_index] = sliced_nearby;
@@ -513,7 +515,7 @@ export function render_entity_sheets({
         budgeted_parts.splice(nearby_index, 1);
       }
       wrapped = wrap_entities(budgeted_parts);
-      if (wrapped.length <= ENTITIES_MAX_CHARS) return wrapped;
+      if (wrapped.length <= effective_max_chars) return wrapped;
     }
   }
 
@@ -733,4 +735,5 @@ export function resolve_entity_context_slot(config, normalized = {}) {
  * Modules Ground Refactor Phase 1 — actor plans frozen at the boundary (gate Sets become frozen arrays; name_to_id stays a Map) — prompt bytes byte-identical.
  * - 2026-10-07: Modules Ground Refactor Phase 3 — optics actors re-cut to sensory.js (wrap_entities exported; Section 7 moved; dead actor.mode branch retired) — prompt bytes byte-identical.
  * - 2026-10-16: Symmetrical Epistemic Wall — FRACTAL sheet rendering respects speaker_key === key, preventing environmental secrets from leaking into Actor character prompts.
+ * - 2026-10-19: Dynamic Prompt Resource Allocation — render_entity_sheets accepts dynamic headroom parameter, replacing static ENTITIES_MAX_CHARS ceiling.
  */

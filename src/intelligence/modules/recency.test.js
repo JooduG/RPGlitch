@@ -29,10 +29,10 @@ import {
   format_sensory_history,
   render_chapter_history_xml,
   prune_history_plan_to_budget,
-} from "./history.js";
+} from "./recency.js";
 import { CANONICAL_ROLES, canonicalize_role, normalize_history_beat } from "@utils";
 
-describe("src/intelligence/modules/history.js", () => {
+describe("src/intelligence/modules/recency.js", () => {
   describe("HISTORY_DEFAULTS & resolve_history()", () => {
     it("exports frozen defaults and resolves partial configurations", () => {
       expect(Object.isFrozen(HISTORY_DEFAULTS)).toBe(true);
@@ -81,8 +81,8 @@ describe("src/intelligence/modules/history.js", () => {
       ];
 
       const formatted = render_history(history, { limit: 16, max_chars: 400, collapse: false });
-      expect(formatted).toContain('<ACTION round="1" origin="Benedict">Is the road safe?</ACTION>');
-      expect(formatted).toContain('<ACTION round="2" origin="Elias">The pass is blocked by snow.</ACTION>');
+      expect(formatted).toContain('<ENTRY round="1" origin="Benedict">Is the road safe?</ENTRY>');
+      expect(formatted).toContain('<ENTRY round="2" origin="Elias">The pass is blocked by snow.</ENTRY>');
       expect(formatted).not.toContain("<think>");
       expect(formatted).not.toContain("It is treacherous.");
     });
@@ -90,7 +90,7 @@ describe("src/intelligence/modules/history.js", () => {
     it("prefers stamped entity_id over origin and character_name", () => {
       const history = [{ role: "model", character_name: "Benedict", origin: "OLD_ID", entity_id: "CHAR_BEN", text: "Stamped." }];
       const formatted = render_history(history, { limit: 16, collapse: false });
-      expect(formatted).toContain('<ACTION round="1" origin="CHAR_BEN">Stamped.</ACTION>');
+      expect(formatted).toContain('<ENTRY round="1" origin="CHAR_BEN">Stamped.</ENTRY>');
     });
 
     it("resolves origins fallback gracefully when character_name is absent", () => {
@@ -124,11 +124,11 @@ describe("src/intelligence/modules/history.js", () => {
   describe("render_input_history_xml()", () => {
     it("envelopes formatted history inside input tag with clean indentation", () => {
       const history = [{ role: "user", character_name: "Benedict", text: "Hello" }];
-      const xml = render_input_history_xml(history, { tag: "INPUT_HISTORY", limit: 5 });
+      const xml = render_input_history_xml(history, { tag: "RECENT_ROUNDS", limit: 5 });
 
-      expect(xml).toContain("<INPUT_HISTORY>");
-      expect(xml).toContain('<ACTION round="1" origin="Benedict">Hello</ACTION>');
-      expect(xml).toContain("</INPUT_HISTORY>");
+      expect(xml).toContain("<RECENT_ROUNDS>");
+      expect(xml).toContain('<ENTRY round="1" origin="Benedict">Hello</ENTRY>');
+      expect(xml).toContain("</RECENT_ROUNDS>");
     });
 
     it("returns empty string when history contains no valid content", () => {

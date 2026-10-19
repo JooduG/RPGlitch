@@ -113,7 +113,7 @@ export const REFLEX_LIBRARY = Object.freeze({
     }),
     AGENCY: Object.freeze({
       tag: "AGENCY",
-      body: "Never author dialogue, actions, thoughts, or decisions for «USER_PERSONA» in directors_note.",
+      body: "Stage directives ONLY for the next_action lead actor. Never author dialogue, thoughts, or actions for the protagonist or other participants.",
     }),
     GENESIS: Object.freeze({
       tag: "GENESIS",

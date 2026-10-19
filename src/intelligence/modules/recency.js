@@ -1,26 +1,23 @@
 /**
- * src/intelligence/modules/history.js
+ * src/intelligence/modules/recency.js
  * ============================================================================
- * 📜 HISTORY MODULE — History Plans & Thin Transcript Renderers
+ * 📜 RECENCY MODULE — Recent Rounds Plans & Thin Dialogue Renderers
  * ============================================================================
  *
- * Owns conversation-history windowing for the intelligence layer. Two stages,
- * mirroring the entities.js actor-plan split:
+ * Owns conversation-history and recent-turn windowing for the intelligence layer.
+ * Rebranded from history.js under P4 Pre-Beta Purity with the following upgrades:
  *
- * 1. Pure-data plans (`resolve_history_plan`, `resolve_sensory_plan`) decide
+ * 1. Semantic Tagging: Dialogue turns render as `<ENTRY round="..." origin="...">`
+ *    wrapped in `<RECENT_ROUNDS>`.
+ * 2. Pure-data plans (`resolve_history_plan`, `resolve_sensory_plan`) decide
  *    WHAT survives: role exclusion, collapse, window slicing, stripping, and
  *    per-entry budgets. Every filter/migrate/drop decision is plan data.
- * 2. Thin renderers (`render_history_plan`, `render_sensory_plan`) map plans
+ * 3. Thin renderers (`render_history_plan`, `render_sensory_plan`) map plans
  *    to XML or `Name: prose` lines without branching.
  *
  * Public compilers (`render_history`, `render_input_history_xml`,
  * `render_visual_history`, `format_sensory_history`) are one-line plan+render
  * compositions preserving the exact established output contracts.
- *
- * Single planning vocabulary across all four windows (replacing the old
- * `limit` vs `max_entries` split and the retired `maximum_characters` /
- * `input_tag` aliases): `limit` / `offset` / `max_chars` / `collapse` /
- * `exclude_roles` / `text_source`.
  *
  * Architecture & Design Laws:
  * - Unidirectional layer flow: pure data plans, then pure string compilation.
@@ -87,7 +84,7 @@ export const HISTORY_TOKEN_BUDGET = 1600;
 import { normalize_history_beat } from "@utils";
 
 // ============================================================================
-// [SECTION 3: HISTORY PLANS — PURE DATA, NO XML]
+// [SECTION 2: HISTORY PLANS — PURE DATA, NO XML]
 // ============================================================================
 
 /**
@@ -293,7 +290,7 @@ export function render_history_plan(plan, { indent = 0 } = {}) {
   if (plan.kind === "preformatted") return plan.preformatted;
   const prefix = indent > 0 ? " ".repeat(indent) : "";
   return plan.included
-    .map((record) => `${prefix}<ACTION round="${record.round}" origin="${escape_xml(record.origin)}">${prompt_escape(record.text)}</ACTION>`)
+    .map((record) => `${prefix}<ENTRY round="${record.round}" origin="${escape_xml(record.origin)}">${prompt_escape(record.text)}</ENTRY>`)
     .join("\n");
 }
 
@@ -323,7 +320,7 @@ export function render_sensory_plan(plan) {
  * @param {number} [options.max_chars] - Optional per-entry budget at word boundaries.
  * @param {boolean} [options.collapse=true] - Whether to collapse consecutive turns.
  * @param {number} [options.indent=0] - Indentation spaces preceding each `<ENTRY>` tag.
-+ * @param {number} [options.token_budget=Infinity] - Track 2.2 cliff guard (oldest pruned first).
+ * @param {number} [options.token_budget=Infinity] - Track 2.2 cliff guard (oldest pruned first).
  * @returns {string}
  */
 export function render_history(history, options = {}) {
@@ -344,7 +341,7 @@ export function render_history(history, options = {}) {
 }
 
 /**
- * Renders the enveloped recent dialogue history XML block (the single `<HISTORY>` tag).
+ * Renders the enveloped recent dialogue history XML block (default `<RECENT_ROUNDS>` tag).
  * Uncollapsed by contract; system entries pass through here exactly as before —
  * the exclusion policy is plan data (`exclude_roles`), deliberately unchanged.
  *
@@ -352,8 +349,8 @@ export function render_history(history, options = {}) {
  * @param {Object} [options={}]
  * @param {number} [options.limit=16]
  * @param {number} [options.max_chars=400]
-+ * @param {number} [options.token_budget=Infinity] - Track 2.2 cliff guard (oldest pruned first).
- * @param {string} [options.tag="HISTORY"]
+ * @param {number} [options.token_budget=Infinity] - Track 2.2 cliff guard (oldest pruned first).
+ * @param {string} [options.tag="RECENT_ROUNDS"]
  * @param {number} [options.indent=2]
  * @param {number} [options.child_indent=2]
  * @returns {string}
@@ -369,7 +366,7 @@ export function render_input_history_xml(history = [], options = {}) {
   );
   if (!formatted_history) return "";
   return render_xml_tag({
-    tag: options.tag || "HISTORY",
+    tag: options.tag || "RECENT_ROUNDS",
     children: [formatted_history],
     indent: options.indent ?? 2,
     child_indent: options.child_indent ?? 2,
@@ -447,7 +444,7 @@ export function render_chapter_history_xml(target_entity, indentation_level = 0)
 
 // ── Universal Prompt Plan slot resolvers ────────────────────────────────────
 /**
- * System-layer slot: seals history. Prose modes wrap the accessor simulation
+ * System-layer slot: seals history / recency. Prose modes wrap the accessor simulation
  * log; continuum renders the input window; optics shapes sensory history.
  */
 export function resolve_history_slot(config, normalized = {}) {
@@ -458,13 +455,14 @@ export function resolve_history_slot(config, normalized = {}) {
       limit: args.limit,
       max_chars: args.max_chars,
       token_budget: args.token_budget ?? Infinity,
+      tag: args.tag || "RECENT_ROUNDS",
     });
   }
   if (args.kind === "sensory") {
     const rendered = format_sensory_history(args.history);
     return rendered ? rendered.trim() : null;
   }
-  return wrap_tag("HISTORY", args.accessors.simulation_log(10, 0, { token_budget: HISTORY_TOKEN_BUDGET }), 2);
+  return wrap_tag("RECENT_ROUNDS", args.accessors.simulation_log(10, 0, { token_budget: HISTORY_TOKEN_BUDGET }), 2);
 }
 
 /**
@@ -478,23 +476,11 @@ export function resolve_chapter_history_slot(config, normalized = {}) {
 
 /**
  * CHANGELOG
+ * - 2026-10-19: Rebranded to recency.js — unified `<RECENT_ROUNDS>` container and `<ENTRY round="..." origin="...">` turn tags across all prompt modes.
  * - Track 2: Simulation Log Pipeline Harmonization — added `CANONICAL_ROLES`, `canonicalize_role`, and `normalize_history_beat` (frozen record with canonical role taxonomy, attribution, cognition stripping, and attachment handling); wired `resolve_history_plan` to use `normalize_history_beat`.
  * - Track 2.2: Context cliff guard — CONTEXT_TOKEN_CLIFF (6000) + HISTORY_TOKEN_BUDGET (1600); token_budget option on resolve_history_plan/render_history/render_input_history_xml (oldest pruned first, newest survives, round gaps kept); prose HISTORY slot compiles under budget; prune_history_plan_to_budget exported pure helper.
  * - 2026-10-04: Plan/render split (Plan 2) — `resolve_history_plan` owns all filter/collapse/window/strip/budget decisions as frozen pure data, `render_history_plan` maps plans to `<ENTRY>` XML without branching; sensory shaping splits into `resolve_sensory_plan` + `render_sensory_plan`; the four public compilers become one-line compositions with byte-identical output; retired the `maximum_characters` / `input_tag` aliases (P4) and the dual `limit` vs `max_entries` wording now shares one vocabulary.
  * - 2026-10-04: Reverted sensory/visual history shaping (format_sensory_history, render_visual_history) from media/optics.js — history shaping lives here; chapter milestones stay in sheets.js.
- * - 2026-10-04: Optics history shaping (format_sensory_history, render_visual_history) moves to media/optics.js; chapter milestones move to sheets.js. This module owns transcript windows only.
  * - 2026-09-25: Unified History Pipeline — `render_history` now delegates directly to `format_history_entries` from `@utils/text.js`, unifying turn transcript serialization across platform and intelligence layers.
- * - 2026-09-25: DRY pass — `resolve_entry_origin`'s role fallback now calls the shared `role_display_label`.
- * - 2026-09-25: Stripping standardization — retired the local `strip_think_blocks` helper (it duplicated `strip_cognition_blocks` minus the DYNAMICS/artifact passes) and routed `format_sensory_history` + `render_visual_history` through the shared `strip_cognition_blocks` + `collapse_whitespace`; chapter summaries now clip via `truncate_at_word` instead of a mid-word `slice`.
- * - 2026-09-24: `render_visual_history` now strips the leading cognition block (and collapses whitespace) BEFORE truncating, so a word-boundary slice can no longer leave an unclosed <THINK> that `format_sensory_history` strips through to end-of-string — which had collapsed the optics <HISTORY> to a bare `Name:` line.
- * - 2026-09-24: Added `render_visual_history` — the optics (Sensory Cortex) recent-narrative window moved out of `media/visual.svelte.js` (`_build_visual_history`) so history shaping lives with the rest of the history module.
- * - 2026-09-22: One input channel (recommendation #5) — `render_input_history_xml`'s default tag is now `HISTORY` (was `INPUT_HISTORY`), matching the single input/history vocabulary.
- * - 2026-09-18: Absorbed format_sensory_history from deconstructed optics.js into Section 5.
- * - 2026-09-16: Unified turn and dialogue transcript formatting: merged format_recent_history into render_history, pruned format_recent_history under P4 Zero Backwards Compatibility, and updated render_input_history_xml to consume render_history with structured options.
- * - 2026-09-16: Refactored and standardized: (1) Extracted shared strip_think_blocks and resolve_entry_origin helpers, eliminating duplicated regex and origin-fallback chains; (2) Aligned round/origin attributes and streamlined history options handling.
- * - 2026-09-13: Token Optimization pass: (1) Replaced bloated multi-line 2-space indented JSON in format_recent_history and render_input_history_xml with symmetrical XML <ENTRY> sequences, cutting ~150-250 tokens per Continuum Caretaker background turn; (2) Added unvoiced <think> tag stripping in format_recent_history to enforce epistemic law and preserve word-budget for dialogue; (3) Adjusted render_history indentation to canonical 2-space child indent; (4) Normalized chapter prefixes in render_chapter_history_xml to eliminate repetitive "Chapter Chapter" stutter; (5) Added comprehensive unit test suite history.test.js.
- * - 2026-09-13: Comprehensive architectural rebuild & prompts.js symmetry — aligned history configuration with prompts.js manifest; supported direct configuration objects in render_input_history_xml with dynamic input_tag; enforced strict Full-Name nomenclature (eliminated single-letter variables m, c); structured into 4 distinct temporal horizon sections with Universal File Architecture.
- * - 2026-09-12: Standardization pass — added the `HISTORY_DEFAULTS` catalog + `resolve_history` resolver so modes drive their history window via `prompts.js` instead of call-site literals; `render_chapter_history_xml` / `render_input_history_xml` now compose through `render_xml_tag` (the `<INPUT_HISTORY>` JSON is uniformly indented).
- * - 2026-09-11: Initial creation of modular history.js extracting render_history, format_recent_history, render_chapter_history_xml, and render_input_history_xml.
- * Modules Ground Refactor Phase 2 — telemetry patterns built from physics DYNAMICS_METRIC_NAMES (mirrored copy retired) — prompt bytes byte-identical.
+ * - 2026-09-13: Comprehensive architectural rebuild & prompts.js symmetry.
  */

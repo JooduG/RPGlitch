@@ -286,7 +286,7 @@ describe("Protocol Invariants & Remediation Regression Gates", () => {
 
     expect(director_prompt.system).toContain("<AXIOMATIC_CONSTITUTION>");
     expect(director_prompt.system).toContain('id="L3" title="Sovereignty"');
-    expect(director_prompt.system).toContain("Never puppeteer «USER_PERSONA»");
+    expect(director_prompt.system).toContain("Never puppeteer the listener or other participants");
   });
 });
 
@@ -409,7 +409,7 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
     });
     expect(sorting_package.system).toContain('mode="sorting"');
     expect(sorting_package.messages).toBeUndefined();
-    expect(sorting_package.system).toContain('<ACTION type="ingestion">Raw bio text</ACTION>');
+    expect(sorting_package.system).toContain('<ENTRY type="ingestion">Raw bio text</ENTRY>');
   });
 
   it("compiles optics mode via compile_prompt", () => {

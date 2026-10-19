@@ -156,6 +156,61 @@ export const ENTITY_SCHEMA = Object.freeze({
   SUMMARY_MAX_CHARS: 100, // 100 chars: Word-boundary truncation limit for compact cast summaries
 });
 
+/**
+ * Lean base character quotas guaranteed per entity role before dynamic RAG overflow allocation.
+ * Quadrant keys strictly follow universal nomenclature:
+ * ETERNAL_NON_PHYSICAL, ETERNAL_PHYSICAL, PRESENT_NON_PHYSICAL, PRESENT_PHYSICAL, FUTURE.
+ * PAST has zero static guarantee (100% dynamic RAG).
+ */
+export const ENTITY_GUARANTEES = Object.freeze({
+  ASYMMETRIC: Object.freeze({
+    SPEAKER: Object.freeze({
+      ETERNAL_NON_PHYSICAL: 500,
+      ETERNAL_PHYSICAL: 200,
+      PRESENT_NON_PHYSICAL: 300,
+      PRESENT_PHYSICAL: 200,
+      FUTURE: 200,
+    }),
+    LISTENER: Object.freeze({
+      ETERNAL_NON_PHYSICAL: 250,
+      ETERNAL_PHYSICAL: 150,
+      PRESENT_NON_PHYSICAL: 200,
+      PRESENT_PHYSICAL: 150,
+      FUTURE: 0,
+    }),
+    FRACTAL: Object.freeze({
+      ETERNAL_NON_PHYSICAL: 200,
+      ETERNAL_PHYSICAL: 150,
+      PRESENT_NON_PHYSICAL: 150,
+      PRESENT_PHYSICAL: 150,
+      FUTURE: 0,
+    }),
+  }),
+  SYMMETRICAL: Object.freeze({
+    AI: Object.freeze({
+      ETERNAL_NON_PHYSICAL: 350,
+      ETERNAL_PHYSICAL: 200,
+      PRESENT_NON_PHYSICAL: 250,
+      PRESENT_PHYSICAL: 200,
+      FUTURE: 150,
+    }),
+    USER: Object.freeze({
+      ETERNAL_NON_PHYSICAL: 350,
+      ETERNAL_PHYSICAL: 200,
+      PRESENT_NON_PHYSICAL: 250,
+      PRESENT_PHYSICAL: 200,
+      FUTURE: 150,
+    }),
+    FRACTAL: Object.freeze({
+      ETERNAL_NON_PHYSICAL: 250,
+      ETERNAL_PHYSICAL: 150,
+      PRESENT_NON_PHYSICAL: 200,
+      PRESENT_PHYSICAL: 150,
+      FUTURE: 0,
+    }),
+  }),
+});
+
 export const STAGNATION = Object.freeze({
   SOFT_PERMIT_ROUNDS: 8, // 8 stagnant rounds: lifts anti-staging constraints, allowing proactive entity movement
   HARD_MANDATE_ROUNDS: 16, // 16 stagnant rounds: forces external event, scene transit, or unexpected NPC arrival
@@ -207,6 +262,7 @@ export const EMBEDDING_SPECS = Object.freeze({
 
 /**
  * CHANGELOG:
+ * - 2026-10-19: Added ENTITY_GUARANTEES (ASYMMETRIC and SYMMETRICAL topologies) establishing lean character floors per quadrant for dynamic entity RAG allocation.
  * - 2026-10-19: Scoped tier scales — replaced 13-rung TEXT_TIERS_CHARS with PROSE/IDENT
  *   scales + PROMPT_CHAR_ENVELOPE; non-prose values back to honest literals. Zero value
  *   changes: every alias preserves its live number (harness 12/12 identical).

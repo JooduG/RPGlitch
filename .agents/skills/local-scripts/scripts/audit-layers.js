@@ -18,11 +18,11 @@ import fs from "fs";
 import path from "path";
 
 const LAYER_HIERARCHY = {
-  "src/ui": 6,
-  "src/state": 5,
-  "src/media": 4, // Sensory presentation & audio/visual engine
+  "src/ui": 5,
+  "src/state": 4,
   "src/intelligence": 3,
   "src/data": 2,
+  "src/media": 1, // Sensory presentation & audio/visual engine (platform sibling)
   "src/platform": 1,
   "src/utils": 1,
 };
