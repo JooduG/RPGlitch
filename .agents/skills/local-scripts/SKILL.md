@@ -65,10 +65,7 @@ flowchart TD
 3. **`mcp-argument-normalizer`** (`hooks.js mcp-argument-normalizer`):
    - _Target_: `call_mcp_tool`.
    - _Behavior_: Normalizes camelCase aliases and enriches `sequentialthinking_tools` with workspace `available_tools`.
-4. **`active-track-gate`** (`hooks.js active-track-gate`):
-   - _Target_: `write_to_file`, `replace_file_content`, `multi_replace_file_content`.
-   - _Behavior_: Enforces the Single Active Track Law (GEMINI.md Phase 3.1 & 3.3). Intercepts modifications to `tasks/future/*.md` and denies any operation attempting to set `status: active` if another track in `tasks/future/` is already active.
-5. **`file-architecture-gate`** (`hooks.js file-architecture-gate`):
+4. **`file-architecture-gate`** (`hooks.js file-architecture-gate`):
    - _Target_: `write_to_file`.
    - _Behavior_: Enforces Universal File Architecture (GEMINI.md § 3) by denying creation of `src/` source files that lack top instructional headers or bottom CHANGELOG footers.
 
@@ -89,7 +86,7 @@ flowchart TD
 ### 3.4 Stop Hooks (Session Completion Gatekeepers)
 
 1. **`planning-handoff-gate`** (`hooks.js planning-handoff`):
-   - _Behavior_: Automatically reconciles `tasks/PRESENT.md` frontmatter `active_track`, the Active Track link, and the `## 🚀 Future` queued tracks list directly from `tasks/future/*.md` blueprints. Then checks `git status --porcelain`: if substantive changes were made to `src/` without updating Section 3.0 (🧠 Pulse) in `tasks/PRESENT.md`, it blocks turn completion.
+   - _Behavior_: Validates spec-to-code alignment against the active blueprint in `ROADMAP.md` and checks `git status --porcelain`: if substantive changes were made to `src/` without recording them in `CHANGELOG.md` or `ROADMAP.md`, it blocks turn completion.
 2. **`workspace-hygiene-gate`** (`hooks.js stop-hygiene`):
    - _Behavior_: Inspects repository root. Blocks completion if transient files (`.tmp`, `.log`, `scratch_*`, `temp_*`) were generated outside of `tmp/`.
 3. **`svelte-autofixer-gate`** (`hooks.js svelte-stop-gate`):

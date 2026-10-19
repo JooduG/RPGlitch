@@ -28,6 +28,21 @@
     ]
   },
 
+  "mcp-argument-normalizer": {
+    "PreToolUse": [
+      {
+        "matcher": "call_mcp_tool",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node skills/local-scripts/scripts/hooks.js mcp-argument-normalizer",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
+
   "svelte-autofixer-reminder": {
     "PreInvocation": [
       {

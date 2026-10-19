@@ -463,9 +463,14 @@ export function handle_circuit_breaker(payload) {
     return;
   }
 
+  const error_text = typeof payload?.error === "string" ? payload.error : "";
   const result_text = typeof tool_result === "string" ? tool_result : JSON.stringify(tool_result);
+  const combined_text = `${error_text} ${result_text}`.trim();
   const has_error =
-    /error|failed|exception|rejection|command failed/i.test(result_text) && !result_text.includes("0 errors") && !result_text.includes("errors: 0");
+    Boolean(error_text) ||
+    (/error|failed|exception|rejection|command failed/i.test(combined_text) &&
+      !combined_text.includes("0 errors") &&
+      !combined_text.includes("errors: 0"));
 
   let count = 0;
   try {
@@ -774,6 +779,7 @@ run();
 /**
  * CHANGELOG
  * -------------------------------------------------------------------------------------------------
+ * 2026-10-19: Registered `mcp-argument-normalizer` under PreToolUse in `.agents/hooks.json`, inspected `payload.error` in `handle_circuit_breaker` for standard PostToolUse failure detection, and synchronized local-scripts documentation with ROADMAP.md.
  * 2026-09-30: Hardened `resolve_repo_root` to verify `fs.existsSync(payload.workspacePaths[0])` so non-existent test or cross-platform mock paths fall back safely to current workspace root.
  * 2026-09-25: Hardened porcelain git status path extraction regex in `handle_planning_handoff` (`/^..?\s+/`) to robustly handle both single-letter and two-letter status code prefixes.
  * 2026-09-24: Passed explicit `cwd: repo_root` to `git status --porcelain` in `handle_planning_handoff` so file paths are uniformly relative to workspace root regardless of subshell invocation CWD.
