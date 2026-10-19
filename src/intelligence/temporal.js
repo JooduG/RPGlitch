@@ -1139,7 +1139,7 @@ export function whole_vector_slice(text, max_chars = 1500) {
  * @param {string} incoming_mutation
  * @param {Object} [options={}]
  * @param {number} [options.max_chars=ETERNAL_MAX_CHARS]
- * @param {number} [options.max_segments=PRESENT_MAX_SEGMENTS]
+ * @param {number} [options.max_segments] - Reserved: segment capping retired; present fields enforce PRESENT_MAX_CHARS.
  * @returns {string}
  */
 export function merge_field_content(current_field_value, incoming_mutation, options = {}) {

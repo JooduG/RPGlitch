@@ -39,7 +39,7 @@
 
 import { generate_uuid, pick_random } from "@utils";
 import { security } from "@platform";
-import { CHAPTER, ENTITY_SCHEMA, TEXT_TIERS_CHARS } from "@config";
+import { CHAPTER, ENTITY_SCHEMA, PROSE, IDENT } from "@config";
 import { SIGNATURE_COLORS } from "../media/tokens.js";
 import { is_valid_speaking_style } from "./definitions/speaking-styles.js";
 
@@ -199,18 +199,18 @@ function normalize_chapters(raw_chapters) {
       if (!chapter || typeof chapter !== "object") return null;
       const title = sanitize_html(String(chapter.title || ""))
         .trim()
-        .slice(0, TEXT_TIERS_CHARS.LABEL);
+        .slice(0, IDENT.LABEL);
       return {
         id: sanitize_html(String(chapter.id || ""))
           .trim()
-          .slice(0, TEXT_TIERS_CHARS.SLUG),
+          .slice(0, IDENT.SLUG),
         title: title || "Untitled chapter",
         summary: sanitize_html(String(chapter.summary || ""))
           .trim()
-          .slice(0, TEXT_TIERS_CHARS.PARAGRAPH),
+          .slice(0, PROSE.PARAGRAPH),
         agenda: sanitize_html(String(chapter.agenda || ""))
           .trim()
-          .slice(0, TEXT_TIERS_CHARS.PARAGRAPH),
+          .slice(0, PROSE.PARAGRAPH),
         status: chapter.status === "open" || chapter.status === "closed" ? chapter.status : "closed",
         created_at: Number(chapter.created_at) || 0,
         closed_at: chapter.closed_at ? Number(chapter.closed_at) || 0 : 0,

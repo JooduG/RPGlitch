@@ -8,42 +8,30 @@
  */
 
 // =============================================================================
-// [SECTION 1: TIER 1 CANON — SCALES & UNIVERSAL PRIMITIVES]
+// [SECTION 1: SCOPED SCALES — PROSE/IDENT SHARED UNITS + PLATFORM PRIMITIVES]
 // =============================================================================
 
 /**
- * Literary character scale for text budgeting, prompt synthesis, and storage.
- * @type {Readonly<{
- *   TINY: 15,
- *   SLUG: 40,
- *   LABEL: 80,
- *   SHORT: 100,
- *   SNIPPET: 250,
- *   PARAGRAPH: 500,
- *   PAGE: 1500,
- *   CHAPTER: 5000,
- *   STORY: 8000,
- *   NOVELETTE: 10000,
- *   NOVELLA: 20000,
- *   ARCHIVE: 45000,
- *   LIBRARY: 100000
- * }>}
+ * Prose scale: the shared unit of story text. Dialogue turns, director notes,
+ * advisories and cluster summaries are all "one chunk of prose" by design, so
+ * they tune together. Nothing outside the prose family may reference these.
  */
-export const TEXT_TIERS_CHARS = Object.freeze({
-  TINY: 15, // A word or clause: repetitive start flag & minimum input floor (15 chars)
-  SLUG: 40, // An identifier: chapter slug ID, truncation recovery floor, terse input threshold (40 chars)
-  LABEL: 80, // A title: entity name and chapter title ceiling (80 chars)
-  SHORT: 100, // A short summary: small input clamp and cast list summary truncation (100 chars)
-  SNIPPET: 250, // A story beat: memory bracket entry, prompt chapter summary, visual snippet ceiling (250 chars)
-  PARAGRAPH: 500, // A narrative paragraph: present layer, chapter story summary, director note, agenda, dialogue message ceiling (500 chars)
-  PAGE: 1500, // A full page: eternal core entity profile facts and output generation headroom (1,500 chars)
-  CHAPTER: 5000, // A full chapter transcript: dialogue history transcript window ceiling (5,000 chars)
-  STORY: 8000, // A complete bio dossier: external web bio wiki import ceiling (8,000 chars)
-  NOVELETTE: 10000, // A deep lore volume: external web lore/wiki import ceiling (10,000 chars)
-  NOVELLA: 20000, // An entire novella context: Perchance platform inference cliff (~6,000 tokens @ 3.35) (20,000 chars)
-  ARCHIVE: 45000, // A complete entity lifetime memory: maximum historical past layer storage in DB (45,000 chars)
-  LIBRARY: 100000, // Multi-entity persistent storage campaign floor in IndexedDB (100,000 chars)
+export const PROSE = Object.freeze({
+  SNIPPET: 250, // A story beat: memory bracket entry, prompt chapter summary, visual snippet
+  PARAGRAPH: 500, // A narrative paragraph: present layer, dialogue turn, director note, agenda, cluster summary
+  PAGE: 1500, // A full page: eternal identity facts, generation headroom
 });
+
+/**
+ * Identifier scale: short machine-facing strings. Names, titles, slugs.
+ */
+export const IDENT = Object.freeze({
+  SLUG: 40, // An identifier: chapter slug, truncation floor, terse input threshold
+  LABEL: 80, // A title: entity name, chapter title
+});
+
+/** Hard platform prompt envelope in characters (~6,000 tokens @ 3.35). */
+export const PROMPT_CHAR_ENVELOPE = 20000;
 
 /**
  * Standard latency tiers (ms) for network probes, timeouts, and watchdog evaluation.
@@ -111,30 +99,30 @@ export const IMAGE_RESOLUTIONS = Object.freeze({
 
 // ── 1. Prompt Context Budgets & Compiler Handoff ──────────────────────────────
 export const CHARS_PER_TOKEN = 3.35; // Calibrated empirical ratio (~3.35 chars/token) for prompt text budgeting
-export const CONTEXT_CLIFF_CHARS = TEXT_TIERS_CHARS.NOVELLA; // 20,000 chars: Hard platform context envelope ceiling
+export const CONTEXT_CLIFF_CHARS = PROMPT_CHAR_ENVELOPE; // 20,000 chars: Hard platform context envelope ceiling
 export const CONTEXT_TOKEN_CLIFF = 6000; // 6,000 tokens: Hard inference ceiling past which server middle-truncation occurs
-export const GENERATION_HEADROOM_CHARS = TEXT_TIERS_CHARS.PAGE; // 1,500 chars reserved for LLM generation
+export const GENERATION_HEADROOM_CHARS = PROSE.PAGE; // 1,500 chars reserved for LLM generation
 
 // ── 2. Temporal Memory, Compaction & Retrieval ──────────────────────────────
 export const PAST_ENTRIES = Object.freeze({
   SESSION_CAP: 20, // Max 20 session bracket entries before background consolidation
   TOTAL_CAP: 180, // Max 180 total lifetime entries (45,000 chars / ARCHIVE tier)
-  ENTRY_MAX_CHARS: TEXT_TIERS_CHARS.SNIPPET, // 250 chars per bracket entry
+  ENTRY_MAX_CHARS: PROSE.SNIPPET, // 250 chars per bracket entry
 });
 
 export const COMPACTION = Object.freeze({
   FANOUT: 8, // 8 child entries clustered per node
   MAX_HEIGHT: 5, // Max tree depth 5
-  SUMMARY_MAX_CHARS: TEXT_TIERS_CHARS.PARAGRAPH, // 500 chars per cluster summary
+  SUMMARY_MAX_CHARS: PROSE.PARAGRAPH, // 500 chars per cluster summary
 });
 
 export const FRAGMENTATION = Object.freeze({
   THRESHOLD: 70, // Fires at 70% fragmented
-  WEIGHT_CUTOFF: 6, // Spares entries with emotional weight >= 6
+  WEIGHT_CUTOFF: 6, // Memories at weight <= 6 degrade under fragmentation; >= 7 stay canon
 });
 
-export const PRESENT_MAX_CHARS = TEXT_TIERS_CHARS.PARAGRAPH; // 500 chars: Immediate physical state layer
-export const ETERNAL_MAX_CHARS = TEXT_TIERS_CHARS.PAGE; // 1,500 chars: Permanent identity facts in core profile
+export const PRESENT_MAX_CHARS = PROSE.PARAGRAPH; // 500 chars: Immediate physical state layer
+export const ETERNAL_MAX_CHARS = PROSE.PAGE; // 1,500 chars: Permanent identity facts in core profile
 
 export const TEMPORAL_SCORING = Object.freeze({
   SEMANTIC_GAIN: 3, // Multiplier scaling vector cosine similarity in hybrid memory scoring formula
@@ -153,12 +141,12 @@ export const HYBRID_WEIGHTS = Object.freeze({
 // ── 3. Narrative Feed, Pacing & Story Chronology ──────────────────────────────
 export const DIALOGUE_WINDOW = Object.freeze({
   ROUNDS: 8, // 8 rounds of active conversational dialogue sliced into prompt context (~16 feed turns)
-  MAX_CHARS: TEXT_TIERS_CHARS.PARAGRAPH, // 500 chars per turn ceiling
+  MAX_CHARS: PROSE.PARAGRAPH, // 500 chars per turn ceiling
 });
 
 export const VISUAL_FEED_WINDOW = Object.freeze({
   ROUNDS: 1, // 1 round of immediate action context fed into visual prompt extraction (~2 feed turns)
-  MAX_CHARS: TEXT_TIERS_CHARS.SNIPPET, // 250 chars per beat snippet ceiling
+  MAX_CHARS: PROSE.SNIPPET, // 250 chars per beat snippet ceiling
 });
 
 export const SIMULATION_LOG_ROUNDS = 5; // 5 rounds of recent story history sliced for simulation logs (~10 feed turns)
@@ -169,8 +157,8 @@ export const CHAPTER = Object.freeze({
 });
 
 export const ENTITY_SCHEMA = Object.freeze({
-  NAME_MAX_CHARS: TEXT_TIERS_CHARS.LABEL, // 80 chars: Maximum name string length
-  SUMMARY_MAX_CHARS: TEXT_TIERS_CHARS.SHORT, // 100 chars: Word-boundary truncation limit for compact cast summaries
+  NAME_MAX_CHARS: IDENT.LABEL, // 80 chars: Maximum name string length
+  SUMMARY_MAX_CHARS: 100, // Word-boundary truncation limit for compact cast summaries (unwired: entities.js still truncates at 120)
 });
 
 export const STAGNATION = Object.freeze({
@@ -181,17 +169,17 @@ export const STAGNATION = Object.freeze({
 
 export const SPENT_ROUNDS = 5; // Number of recent rounds scanned for repetitive prose and mannerisms
 export const MAX_SPENT_ITEMS = 8; // Max unique repetitive phrases injected into negative prompt constraints
-export const OPENING_CLAUSE_MIN_CHARS = TEXT_TIERS_CHARS.TINY; // 15 chars: Minimum length to flag repetitive opening clause
+export const OPENING_CLAUSE_MIN_CHARS = 15; // Minimum length to flag a repetitive opening clause (no tier: detector tuning, not prose)
 export const SOMATIC_MARKER_CAP = 1; // Maximum physical cliché reaction markers permitted per turn before stripping
-export const TRUNCATION_MIN_CHARS = TEXT_TIERS_CHARS.SLUG; // 40 chars: Minimum sentence floor before punctuation recovery
+export const TRUNCATION_MIN_CHARS = IDENT.SLUG; // 40 chars: Minimum sentence floor before punctuation recovery
 
 /**
  * User input pacing thresholds mapping character lengths to beat generation.
  */
 export const INPUT_PACING = Object.freeze({
-  TERSE: TEXT_TIERS_CHARS.SLUG, // <= 40 chars -> clipped 1-beat response
-  STANDARD: TEXT_TIERS_CHARS.SNIPPET, // 41-250 chars -> standard 2-3 beats
-  EXPANSIVE: TEXT_TIERS_CHARS.PARAGRAPH, // > 250 chars -> expansive multi-beat response
+  TERSE: IDENT.SLUG, // <= 40 chars -> clipped 1-beat response
+  STANDARD: PROSE.SNIPPET, // 41-250 chars -> standard 2-3 beats
+  EXPANSIVE: PROSE.PARAGRAPH, // > 250 chars -> expansive multi-beat response
 });
 
 /**
@@ -201,14 +189,14 @@ export const IMAGE_TRIGGER_COOLDOWN_ROUNDS = 3;
 
 // ── 4. Web Ingestion & Story Import ───────────────────────────────────────────
 export const INGESTION = Object.freeze({
-  WEB_CHARS: TEXT_TIERS_CHARS.STORY, // 8,000 chars: Max characters parsed from external web bio pages
-  LORE_CHARS: TEXT_TIERS_CHARS.NOVELETTE, // 10,000 chars: Max characters parsed from external web lore/wiki pages
+  WEB_CHARS: 8000, // Max characters parsed from external web bio pages (no tier: intake policy, not prose)
+  LORE_CHARS: 10000, // Max characters parsed from external web lore/wiki pages (no tier: intake policy, not prose)
 });
 
 // ── 5. Engine Dynamics & Director Staging ────────────────────────────────────
 export const DIRECTOR_OUTPUT = Object.freeze({
   NOTE_LINES: 5, // Maximum number of lines permitted in the Director's staging guidance note
-  NOTE_CHARS: TEXT_TIERS_CHARS.PARAGRAPH, // 500 chars hard character ceiling for Director note
+  NOTE_CHARS: PROSE.PARAGRAPH, // 500 chars hard character ceiling for Director note
   KEYWORDS_MAX: 5, // Maximum number of thematic staging keywords extracted per turn
 });
 
@@ -231,6 +219,9 @@ export const LLM_GATE_POLICY = Object.freeze({
 
 /**
  * CHANGELOG:
+ * - 2026-10-19: Scoped tier scales — replaced 13-rung TEXT_TIERS_CHARS with PROSE/IDENT
+ *   scales + PROMPT_CHAR_ENVELOPE; non-prose values back to honest literals. Zero value
+ *   changes: every alias preserves its live number (harness 12/12 identical).
  * - 2026-10-19: Canonical System Configuration Harmonization — Rebuilt src/config.js with TEXT_TIERS_CHARS literary scale, LATENCY_TIERS_MS, PATIENCE_POLICY, DYNAMICS_SCALE, and full cross-module subsystem domain agreements. Purged obsolete static token budget allocation helpers.
  * - 2026-10-18: Track A Slice 3 — Created promoted root src/config.js with DEFAULT_PROMPT_CEILING and resolve_prompt_budget_allocation.
  */

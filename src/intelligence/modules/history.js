@@ -40,7 +40,7 @@ import {
   wrap_tag,
   estimate_tokens,
 } from "@utils";
-import { DIALOGUE_WINDOW, VISUAL_FEED_WINDOW, CHAPTER, TEXT_TIERS_CHARS, CONTEXT_TOKEN_CLIFF as CANONICAL_CONTEXT_TOKEN_CLIFF } from "@config";
+import { DIALOGUE_WINDOW, VISUAL_FEED_WINDOW, CHAPTER, PROSE, CONTEXT_TOKEN_CLIFF as CANONICAL_CONTEXT_TOKEN_CLIFF } from "@config";
 import { DYNAMICS_METRIC_NAMES } from "../dynamics.js";
 
 // ============================================================================
@@ -428,7 +428,7 @@ export function render_chapter_history_xml(target_entity, indentation_level = 0)
   const chapter_rows = closed_chapters.slice(-CHAPTER.PROMPT_HISTORY_LIMIT).map((chapter, position) => {
     const raw_title = String(chapter.title || "Untitled").trim();
     const normalized_title = raw_title.replace(/^Chapter\s+/i, "");
-    const clean_summary = truncate_at_word(String(chapter.summary || ""), TEXT_TIERS_CHARS.SNIPPET);
+    const clean_summary = truncate_at_word(String(chapter.summary || ""), PROSE.SNIPPET);
     return render_xml_tag({
       tag: "CHAPTER",
       attrs: { index: position + 1, title: normalized_title },
