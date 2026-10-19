@@ -329,42 +329,43 @@ Synthesizing Track A code realities and Track B empirical gameplay results:
 
 ### 1. Intelligence & Prompt Pipeline
 
-1. **Primary Cast Sheet Compression (Fix F2 / 6k Cliff)**:
-   - When total `<ENTITIES>` exceed `ENTITIES_MAX_TOKENS = 2000`, compress primary cast sheets (`AI`, `USER`, `FRACTAL`) from `"full"` mode to `"compact"` (retaining only physical anchor brackets and active standing agenda).
-2. **Actor Embodiment vs. Narrator (Fix POV Blindness)**:
-   - Maintain **Fractals as strictly 3rd-person environmental entities** (as intended by design).
-   - When the Director selects an AI Character action, compile as `interaction` mode (embodying Glitch in his configured 1st-person POV: _"I"_, _"my gauntlet"_), rather than routing through the 3rd-person `narrator`.
-3. **Hard Constitutional User Sovereignty Boundary (Fix P1 Agency)**:
-   - Add a deterministic pre-generation guard and explicit negative XML constraint: _"«USER_PERSONA» dialogue is strictly forbidden. Never emit spoken quotes attributed to «USER_PERSONA»."_
-4. **Prompt Compaction (Reclaim ~100 tokens/shot)**:
-   - Execute prompt consolidations: deduplicate sovereignty restatements, trim repetitive scene directives, and simplify `<THINK>` closing boilerplate.
+- [ ] **1. Primary Cast Sheet Compression (Fix F2 / 6k Cliff)** — `[PENDING]`
+  - When total `<ENTITIES>` exceed available headroom (`PROMPT_CHAR_ENVELOPE = 20,000` chars), compress primary cast sheets (`AI`, `USER`, `FRACTAL`) from `"full"` mode to `"compact"` (retaining only physical anchor brackets and active standing agenda).
+- [ ] **2. Actor Embodiment vs. Narrator (Fix POV Blindness)** — `[PENDING]`
+  - Maintain **Fractals as strictly 3rd-person environmental entities** (as intended by design).
+  - When the Director selects an AI Character action, compile as `interaction` mode (embodying Glitch in his configured 1st-person POV: _"I"_, _"my gauntlet"_), rather than routing through the 3rd-person `narrator`.
+- [ ] **3. Hard Constitutional User Sovereignty Boundary (Fix P1 Agency)** — `[PENDING]`
+  - Add a deterministic pre-generation guard and explicit negative XML constraint in `<AXIOMATIC_CONSTITUTION>`: _"«USER_PERSONA» dialogue is strictly forbidden. Never emit spoken quotes attributed to «USER_PERSONA»."_
+- [ ] **4. Prompt Compaction (Reclaim ~100 tokens/shot)** — `[IN PROGRESS]`
+  - Analyzed via `simulation-audit.js`. Complete prompt consolidations: deduplicate sovereignty restatements, trim repetitive scene directives, and simplify `<THINK>` closing boilerplate.
 
 ### 2. Temporal & Memory RAG Subsystem
 
-5. **Memory Forge Scope Lockdown (Fix F9)**:
-   - In `director_background_queue`, strictly bound the entity consolidation loop to `[story.ai_id, story.user_id, story.fractal_id, ...(story.npc_ids || [])]`. Disallow querying or mutating inactive library records.
-6. **Settled Fact Hallucination Prevention (Fix F7)**:
-   - When somatic fragmentation (`Chaos > 70`) triggers block glyphs (`■■■`), inject an explicit constraint into `<TASK>`: _"When recall is degraded (■), acknowledge uncertainty or sensory static. Never invent or hallucinate exact verbatim dialogue."_
-7. **Canonical Single-Word Slug Generator (Fix F10)**:
-   - Enforce regex normalization on all generated entity bracket handles: uppercase, alphanumeric, single-word snake_case (`@LORD_SILVERS`, not `@LORD SILVERS`).
+- [ ] **5. Memory Forge Scope Lockdown (Fix F9)** — `[PENDING]`
+  - In `director_background_queue`, strictly bound the entity consolidation loop to active story cast `[story.ai_id, story.user_id, story.fractal_id, ...(story.npc_ids || [])]`. Disallow querying or mutating inactive library records.
+- [ ] **6. Settled Fact Hallucination Prevention (Fix F7)** — `[PENDING]`
+  - When somatic fragmentation (`Chaos > 70` or `Entropy > 70`) triggers block glyphs (`■■■`), inject an explicit constraint into `<TASK>`: _"When recall is degraded (■), acknowledge uncertainty or sensory static. Never invent or hallucinate exact verbatim dialogue."_
+- [ ] **7. Canonical Single-Word Slug Generator (Fix F10)** — `[PENDING]`
+  - Enforce regex normalization on all generated entity bracket handles: uppercase, alphanumeric, single-word snake_case (`@LORD_SILVERS`, not `@LORD SILVERS`).
 
 ### 3. Display, UI & Sensory Engine
 
-8. **Render-Time Detox Separation (Fix F1 Display Salad)**:
-   - Remove destructive synonym and regex swaps from `render.js`. The database text must render cleanly in the UI. Keep `detox_prose` restricted to build-time prompt formatting or convert it into an opt-in generation-time filter.
-9. **Monotonic Image Cooldown Lockout (Fix F6)**:
-   - Enforce a strict state counter `last_image_round`. If `current_round - last_image_round < 2`, force `trigger_image = false` synchronously in the Director pre-pass, bypassing LLM scheduling.
-10. **Empty Row Persistence Guard (Fix F4)**:
-    - In `src/state/log.svelte.js` and `db.simulation_log.add()`, reject commits where `text` is empty or whitespace-only (unless explicitly flagged as a system signal card).
+- [x] **8. Render-Time Detox Separation (Fix F1 Display Salad)** — `[SHIPPED in Track A]`
+  - Removed destructive synonym and regex swaps from `render.js`. The database text renders cleanly in the UI. `detox_prose` restricted to build-time prompt formatting.
+- [x] **9. Monotonic Image Cooldown Lockout (Fix F6)** — `[SHIPPED in Track A & Slice 3]`
+  - Unified into a single 3-round counter (`IMAGE_TRIGGER_COOLDOWN_ROUNDS = 3`) evaluated synchronously in `optics.js`, bypassing LLM scheduling.
+- [x] **10. Empty Row Persistence Guard (Fix F4)** — `[SHIPPED in Track A]`
+  - In `src/state/log.svelte.js` and `db.simulation_log.add()`, rejected commits where `text` is empty or whitespace-only (unless explicitly flagged as a system signal card).
 
 ### 4. Storage & Persistence Layer
 
-11. **Dexie Table Optimization (db.version 3)**:
-    - Prune unindexed `meta` and `text` from `simulation_log` schema strings, and utilize native compound range queries `[story_id+round+seq]` for ledger replay slices.
+- [x] **11. Dexie Table Optimization (db.version 3)** — `[SHIPPED in Track A]`
+  - Pruned unindexed `meta` and `text` from `simulation_log` schema strings, and utilized native compound range queries `[story_id+round+seq]` for ledger replay slices.
 
 ---
 
 <!-- CHANGELOG
+  - 2026-10-19: Tracked Master Recommendations with explicit checkboxes and status badges: 4 items SHIPPED, 1 IN PROGRESS, 6 PENDING.
   - 2026-10-19: Fully merged tmp/dexie-schema-audit.md, tmp/feed-benchmark-report.md, tmp/prompt-redundancy-audit.md, tmp/rag-pipeline-audit.md, and tmp/r3/r3-report.md into master investigation dossier.
   - 2026-10-19: Formalized the Keep, Refactor, Kill Matrix and 11-point Master Recommendations.
   - 2026-10-18: Initialized master state-of-the-application investigation blueprint.
