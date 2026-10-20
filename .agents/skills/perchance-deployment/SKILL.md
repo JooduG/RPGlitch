@@ -51,18 +51,46 @@ For significant changes, fan out specialized sub-agents to verify the artifact f
 
 Merge these findings into a single Go/No-Go decision.
 
-### 3. The Perchance Bridge
+### 3. The Perchance MCP Bridge
 
-Execute the `npm run deploy:auto` script to automate the production update via Playwright.
-
-- **Rollback**: Maintain a path for instant recovery via previous Commit-SHAs.
+Deploying to production is executed directly via the **`perchance` MCP Server** (`perchance-editor-mcp`), bypassing brittle manual browser automation scripts.
 
 ```bash
-# Verify the build locally (Quality Gate)
+# 1. Verify and compile the single-file bundle locally
 npm run deploy:prepare
 
-# CROSS THE BRIDGE (deploy to production)
+# 2. Deploy directly via Perchance MCP tools:
+# - perch_start: Connects to generator room via collabKey
+# - perch_write: Writes dist/index.html to pane: 'output'
+# - perch_status: Verifies collabSynced and saveState: 'saved'
+# - perch_shot: Takes visual confirmation screenshot
+```
+
+Automated CLI bridge verification:
+
+```bash
 npm run deploy:auto
+```
+
+---
+
+### 4.0 Target Generator Registry
+
+The workspace maintains 5 official Perchance generator shards. **Security Note**: Collab keys are credentials and live in `.env` (never commit keys to git):
+
+| Shard Name | Generator ID | Role / Purpose | Environment Variable |
+| :--- | :--- | :--- | :--- |
+| **RPGlitch** | `rpglitch` | **Production Release**: Public stable player environment | `PERCHANCE_PROD_COLLAB` |
+| **RPGlitchen** | `rpglitchen` | **Developer Staging**: Pre-release verification & live debugging | `PERCHANCE_DEV_COLLAB` |
+| **BUTTON'T** | `buttont` | **Experimental**: "AI in the box" mechanics testbed | `PERCHANCE_BUTTONT_COLLAB` |
+| **NONAME** | `larsoklna2` | **Greenfield Prototype**: Clean slate card-table restart | `PERCHANCE_NONAME_COLLAB` |
+| **ImageGlitch** | `imageglitch` | **Sensory Cortex**: Pure text-to-image diffusion testbed | `PERCHANCE_IMAGE_COLLAB` |
+
+To switch the active MCP session to any shard:
+
+```js
+// Call perch_start via Perchance MCP
+perch_start({ name: "larsoklna2", collabKey: process.env.PERCHANCE_NONAME_COLLAB })
 ```
 
 ---
