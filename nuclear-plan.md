@@ -1,11 +1,11 @@
-# BOOM: Operation Ground-Up Simplification
+# BOOM
 
-## 1. Must Survive (The Core Jewels)
-
-- **Pseudo-JSON Brackets**: Fast, reliable bracket mutations (`[KEY: VALUE]`).
-- **Quad-Partitioned Entities**: `ETERNAL`, `PRESENT`, `PAST`, and `FUTURE`.
-- **The Two-Step Dance**: `User (Turn 3)` → `Director (Turn 1)` → `Actor (Turn 2)`.
-- **Director's Staging & Cognition Seeding**: Director's note seeded directly into the Actor's opening `<think>` tag.
+- **The Character Card First (Vertical Slice Focus)**:
+  - We begin with **one single card type: Character Card** (`name`, `image`, `definition`, `first_message`).
+  - The immediate target: Slap down **1 Character Card** and immediately chat with it in a clean, fast 1-shot loop.
+  - All other card types (Director, Persona, Location, Rule, Style) are modular future horizons that will drop seamlessly into this exact card architecture.
+- **Base Card Foundation**: Every card in the engine shares `{ id, name, type, image, definition, specs }`.
+- **Fast 1-Shot First, 2-Shot Ready**: Fast direct narrative loop first; ready for the Director Card 2-shot dance when the foundation is solid.
 
 ---
 
@@ -200,36 +200,93 @@ src/
 
 ---
 
-## 6. Execution Sequencing (The 4-Phase Transition)
+## 6. Execution Strategy: Parallel Greenfield Construction & Atomic Pivot
 
-To transition safely without breaking intermediate states, we execute in 4 discrete vertical phases:
+To avoid breaking work-in-progress code or falling into "half-migrated broken state limbo" across 170 legacy files, we execute via **Parallel Greenfield Construction** (building the clean architecture side-by-side in `src-next/` or parallel namespaces) followed by an **Atomic Pivot & Demolition**.
 
-### Phase 1: Foundation & Sensory Cortex
+### The 4 Execution Gates
 
-- **`src/config.js`**: Prune pseudo-physics, lock honest limits.
-- **`src/utils/`**: Create `format.js` and `actions.js`, delete legacy utility bloat.
-- **`src/media/`**: Merge `audio.svelte.js` (absorbing speech), create `visual.svelte.js`, and build unified `motion.js`.
+```mermaid
+flowchart TD
+    G1["Gate 1: Foundation & Substrates<br>(config, utils, media, data)"] --> G2["Gate 2: Simulation Engine Kernel<br>(src/engine: prompts, parser, turns, simulation)"]
+    G2 --> G3["Gate 3: Flat UI Domain Components<br>(11 domain components in src/ui)"]
+    G3 --> G4["Gate 4: Atomic Pivot, Demolition & Verification<br>(Rewire App.svelte, delete 140+ legacy files, verify)"]
+```
 
-### Phase 2: Persistence & Simulation Engine
+---
 
-- **`src/data/`**: Consolidate Dexie schema into `db.js`, 4-quadrant schema + public/private filter in `entities.js`, and canonical narrative styles in `presets.js`.
-- **`src/engine/`**: Build `prompts.js` (Director JSON + Storyteller prose), `parser.js` (`[KEY: VALUE]` + `<think>` stripper), `transport.js` (Perchance LLM queue), `turns.js` (two-step heartbeat), `simulation.svelte.js` (Svelte 5 state kernel), and `log.svelte.js`.
-- **Purge `src/intelligence/`, `src/state/`, and `src/platform/`**: Remove the 41 legacy files.
+### Gate 1: Foundation & Substrates (Zero UI Dependencies)
 
-### Phase 3: Flat UI Domain Components
+Build the pure, deterministic substrates first. These have zero presentation or state dependencies.
 
-- **Consolidate `src/ui/`**: Implement the 11 domain components:
-  1. `Modal.svelte` & `Slider.svelte` (primitives).
-  2. `Avatar.svelte` & `ImageLightbox.svelte` (sensory visuals).
-  3. `EntityCard.svelte` & `EntityProfile.svelte` (dossier & 4-quadrant editor).
-  4. `MessageCard.svelte` (turn prose, dialogue quotes, collapsible thoughts).
-  5. `StoryDrawer.svelte` & `SettingsDrawer.svelte` (drawers).
-  6. `Storyboard.svelte` (lobby hand & shuffle) & `Storymode.svelte` (chat feed & input).
-  7. `Layout.svelte` (top header & app shell).
-- **Purge legacy UI subfolders**: Demolish all 8 subdirectories in `src/ui/`.
+- [ ] **`src/config.js`**: Prune all pseudo-physics (`GRAVITY_RATE`, `DYNAMICS_SCALE`, `SEISMIC_SHIFT_DISPLACEMENT`) down to ~30 lines of honest hardware limits (`PROMPT_CHAR_LIMIT = 20000`, `CHARS_PER_TOKEN = 3.35`, timeouts).
+- [ ] **`src/utils/`**:
+  - `format.js`: Dialogue quote wrapping, markdown-it rendering, DOMPurify HTML sanitization, and Markdown story export.
+  - `actions.js`: Pure Svelte DOM actions (`click_outside`, `auto_resize`, `safe_html`).
+  - Purge `bridges.js`, `catalog.js`, `detox.js`, `styles.js`, `job-queue.js`, `xml.js`, and `field-path.js`.
+- [ ] **`src/media/`**:
+  - `audio.svelte.js`: Clean Web Audio SFX + speech dispatch (purge standalone `speech.js` / ONNX Kokoro bloat).
+  - `visual.svelte.js`: Direct Perchance `generate_image` caller with clean prompts (purge `optics.js`).
+  - `motion.js`: Pure kinetic physics, spring math, and card flight transitions (absorbs `transitions`, `engine`, `kinetic`, `card-flight`).
+- [ ] **`src/data/`**:
+  - `db.js`: Consolidated Dexie schema + clean CRUD operations (stories, characters, active sessions). Purges `repository.js`, `sessions.svelte.js`, `ledger.js`, and `normalizer.js`.
+  - `entities.js`: Canonical 4-quadrant entity schema (`ETERNAL`, `PRESENT`, `PAST`, `FUTURE`) with one-line public/private epistemic isolation filter (`public` vs `private`). Purges `profile-fields.js` and `card-conversion.js`.
+  - `presets.js`: 2 canonical narrative presets (Gritty & Cinematic) + default starter entity cards. Purges `speaking-styles.js`, `narrative-styles.js`, and `visual-styles.js`.
 
-### Phase 4: Integration, Styling & Verification
+---
 
-- **`src/App.svelte` & `src/main.js`**: Connect root layout to `simulation.svelte.js`.
-- **`src/design.css`**: Verify visual tokens and kinetic glassmorphic styles.
-- **Full Verification Sweep**: Run `npm run verify` and test simulation roundtrip.
+### Gate 2: Simulation Engine Kernel (`src/engine/`)
+
+Stand up the complete two-step simulation heartbeat in the new `src/engine/` module with dedicated unit tests.
+
+- [ ] **`prompts.js`**: The 2 canonical prompts (Director JSON staging & Storyteller in-character prose). Zero XML catalog atom sprawl.
+- [ ] **`parser.js`**: Clean pseudo-JSON bracket parser (`[KEY: VALUE]`), diff calculator, prose normalizer, and `<think>` stripper.
+- [ ] **`transport.js`**: Perchance LLM streaming (`onChunk`), stop sequence enforcement, and priority queue gatekeeper (absorbs `llm-gate.js`).
+- [ ] **`turns.js`**: Coordinates Director turn (staging JSON) and Storyteller turn (sensory prose).
+- [ ] **`simulation.svelte.js`**: Single authoritative Svelte 5 state kernel owning `user`, `ai`, `fractal`, `round`, `phase`, and dispatch functions.
+- [ ] **`log.svelte.js`**: Developer HUD and telemetry event stream.
+- [ ] **Unit Tests**: TDD verification for bracket parsing, prompt generation, and state transitions.
+
+---
+
+### Gate 3: Flat UI Domain Components (`src/ui/`)
+
+Build the 11 cohesive Svelte 5 domain components directly against `src/engine/` and `src/design.css` without subfolders or empty wrapper primitives.
+
+- [ ] **Chassis & Primitives**:
+  - `Modal.svelte`: Accessible dialog chassis (trap focus, escape key).
+  - `Slider.svelte`: Accessible range slider for audio volume.
+  - `Layout.svelte`: App shell, top navigation bar, title, and quick drawer toggles.
+- [ ] **Sensory & Visuals**:
+  - `Avatar.svelte`: Styled portrait frame with initials fallback and signature ring.
+  - `ImageLightbox.svelte`: Full-screen image preview lightbox and candidate selector.
+- [ ] **Entities**:
+  - `EntityCard.svelte`: Physical card in the lobby hand (flip, drag, signature glow).
+  - `EntityProfile.svelte`: Consolidated character dossier & 4-quadrant editor modal (Readonly & Edit mode, replacing 14 files / 170 KB of SVG graph bloat).
+- [ ] **Narrative & Chat**:
+  - `MessageCard.svelte`: Single turn card with dialogue quotes, sensory prose, and collapsible thoughts/subtext (absorbs 6 message micro-components via snippets).
+- [ ] **Drawers**:
+  - `StoryDrawer.svelte`: Saved stories drawer (load, rename, markdown export).
+  - `SettingsDrawer.svelte`: Quick settings, audio volume sliders, and end story action.
+- [ ] **Primary Screens**:
+  - `Storyboard.svelte`: The Lobby screen (3-card hand, slot picker, shuffle, flight).
+  - `Storymode.svelte`: The Game screen (chat feed, input bar, continue button).
+
+---
+
+### Gate 4: Atomic Pivot, Demolition & Verification
+
+Wire the master application switch, purge the legacy codebase, and verify build health.
+
+- [ ] **Wire `App.svelte` & `main.js`**:
+  - Mount `Layout.svelte`, `Storyboard.svelte`, and `Storymode.svelte` bound directly to `simulation.svelte.js`.
+  - Ensure `design.css` tokens are cleanly applied.
+- [ ] **Demolition Sweep (Delete ~140 legacy files)**:
+  - Delete `src/intelligence/` entirely (41 legacy files).
+  - Delete `src/state/` & `src/platform/` entirely (all legacy stores & shims).
+  - Delete all 8 nested subdirectories in `src/ui/` (`console/`, `entity/`, `image/`, `message/`, `motion/`, `primitives/`, `profile/`, `story/`).
+  - Delete dead definitions in `src/data/definitions/` (`speaking-styles.js`, etc.).
+- [ ] **Verification & Autofix**:
+  - Run `svelte-autofixer` across all components and state runes.
+  - Run `npm run verify` (linting, Vitest test suite, production build).
+  - Verify 0 errors, single-file bundle generation, and simulation roundtrip.
