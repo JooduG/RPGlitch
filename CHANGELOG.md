@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Repository Housekeeping & Simulation Audit Alignment (`simulation-audit.js`, `simulation-audit.test.js`, `sync:ignores`)**:
+  - Reconciled all workspace ignore layers across `.gitignore`, `.eslintcache`, `.markdownlintignore`, `.prettierignore`, `.stylelintignore`, and VS Code / Vitest configurations via `npm run sync:ignores`.
+  - Audited environment secrets and verified that `.env` is securely ignored with zero leaked secrets in tracked templates.
+  - Aligned the simulation audit test suite with the semantic `<ENTRY round="..." origin="...">` tag protocol in `simulation-audit.js` and `simulation-audit.test.js`. Verified 100% passing tests across `npm run audit:simulation` (5/5 tests green) and full unit test suite (72 test files, 1,451 tests green).
+
 - **Dynamic Prompt Resource Allocation & Unified Entity RAG Engine (`src/config.js`, `src/intelligence/`, `prompts.js`, `recency.js`, `prompt-contract.test.js`)**:
   - **Dynamic Turn Headroom Metering (`src/intelligence/prompts.js`)**: Replaced static 8k entity slicing with dynamic turn headroom metering. Prompt compiler calculates exact serialized length of guaranteed supportive modules (`role`, `axiomatic_constitution`, `core_protocols`, `dynamic_axes`, `task`, `recency`), deriving dynamic headroom `headroom = Math.max(0, PROMPT_CHAR_ENVELOPE - fixed_footprint)` (with `PROMPT_CHAR_ENVELOPE = 20000`) and allocating it directly to entity sheet generation.
   - **Rebranded Recency Module & Semantic Tagging (`src/intelligence/modules/recency.js`, `recency.test.js`)**: Rebranded `history.js` to `recency.js` under P4 Pre-Beta Purity with zero backward-compatibility wrappers. Renamed dialogue turn elements from `<ACTION>` to `<ENTRY round="..." origin="...">` inside `<RECENT_ROUNDS>` blocks. Director deduplication preserves history inside `<TASK>` without redundant `<RECENT_ROUNDS>` in root system envelope.
@@ -526,7 +531,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **8-Bit Vector Quantization Engine (`src/platform/embeddings.svelte.js` & `src/platform/index.js`)**:
-  - Implemented `quantize_vector_q8` and `dequantize_vector_q8` codecs mapping normalized 384-dimensional Float32 embeddings to uint8 $[0, 255]$ with base64 and Uint8Array serialization.
+  - Implemented `quantize_vector_q8` and `dequantize_vector_q8` codecs mapping normalized 384-dimensional Float32 embeddings to uint8 `$[0, 255]$` with base64 and Uint8Array serialization.
   - Preserved cosine similarity fidelity $> 0.99$ while slashing vector storage overhead in Dexie.js by 75%.
   - Upgraded `deserialize_embedding` to seamlessly accept Float32Array, JSON number arrays, and quantized base64/Uint8Array representations.
 - **Synaptic Bracket Engine Hardening (`src/intelligence/synaptic.js`)**:

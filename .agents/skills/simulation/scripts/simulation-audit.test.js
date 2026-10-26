@@ -50,7 +50,7 @@ describe("🕹️ SYSTEM TURN: Source Audit & Pipeline Verification", () => {
 
     expect(result.character_prompt).toContain("<DELIVERY_POSTURE>");
     expect(result.character_prompt).toContain("<THINK>");
-    expect(result.character_prompt).toMatch(/<ACTION round="\d+" origin="(?:julien|JULIEN)"/);
+    expect(result.character_prompt).toMatch(/<ENTRY round="\d+" origin="(?:julien|JULIEN)"/);
   });
 
   it("Pipeline verification passes all critical checks", async () => {
@@ -84,8 +84,8 @@ describe("🕹️ SYSTEM TURN: Source Audit & Pipeline Verification", () => {
 
     const result = await SimulationAudit.execute_turn("I submit.", scenario);
 
-    expect(result.director_prompt).toContain('<ACTION round="0" origin="AI">');
-    expect(result.director_prompt).toContain('<ACTION round="1" origin="USER">');
+    expect(result.director_prompt).toContain('<ENTRY round="0" origin="AI">');
+    expect(result.director_prompt).toContain('<ENTRY round="1" origin="USER">');
     expect(result.director_prompt).toContain("The vampire lord smiles coldly.");
   });
 

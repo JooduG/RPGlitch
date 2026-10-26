@@ -1063,7 +1063,7 @@ export const SimulationAudit = {
     // Prefix-cache & Task Verification:
     check("character:system_lacks_dynamics_attrs", !character.system.includes("chaos="));
     check("character:system_lacks_PRESENT", !character.system.includes("<PRESENT>"));
-    check("character:task_has_ACTION", character.system.includes("<ACTION"));
+    check("character:task_has_ENTRY", character.system.includes("<ENTRY"));
     check("character:task_has_CURRENTS", character.system.includes("<CURRENTS>"));
     check("character:task_has_DELIVERY_POSTURE", character.system.includes("<DELIVERY_POSTURE>"));
     check("character:task_has_SUBTEXT", character.system.includes("<SUBTEXT>"));
