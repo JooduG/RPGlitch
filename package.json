@@ -10,7 +10,7 @@
     "build:dev": "vite build --mode development",
     "deploy": "npm run summarize:sequential deploy:prepare deploy:auto",
     "deploy:audit": "npm run summarize:parallel audit:design audit:nomenclature audit:project audit:security audit:svelte",
-    "deploy:auto": "node C:/Users/johng/.gemini/config/plugins/perchance-plugin/skills/perchance-deployment/scripts/deploy-mcp.js",
+    "deploy:auto": "node C:/Users/johng/.gemini/config/plugins/perchance-plugin/scripts/deploy.js",
     "deploy:check": "npm run summarize:sequential lint:fix test:unit",
     "deploy:prepare": "npm run summarize:sequential sync deploy:check build",
     "// --- CHECKS & LINTING --- //": "",
