@@ -78,10 +78,3 @@ export function render_constitution({ laws = CONSTITUTION_ORDER, indent = 2 } = 
     separator: "\n",
   });
 }
-
-/**
- * System-layer slot: seals the axiomatic constitution for gated modes.
- */
-export function resolve_constitution_slot(config) {
-  return config?.constitution ? render_constitution() : "";
-}

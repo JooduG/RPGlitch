@@ -408,42 +408,33 @@ function resolve_prose_bag(config, context, bag_inputs) {
   };
 }
 
-function normalize_prose_context(config, context) {
-  const { render_accessors, style_snapshot } = normalize_context(context);
-  return resolve_prose_bag(config, context, {
-    entities: context.entities || {},
-    speaker: context.speaker ?? null,
+function build_prose_mode(config, context) {
+  const is_npc = config.key === "npc";
+  const npc_entity = is_npc ? context.npc || context.speaker : null;
+  const raw_entities = context.entities || {};
+  const combined_entities = is_npc && npc_entity?.id ? { ...raw_entities, [npc_entity.id]: npc_entity } : raw_entities;
+  const { snapshot, render_accessors, style_snapshot } = normalize_context(context, is_npc ? combined_entities : null);
+  const bag = resolve_prose_bag(config, context, {
+    entities: combined_entities,
+    speaker: is_npc ? npc_entity : (context.speaker ?? null),
     listener: context.listener ?? null,
     accessors: render_accessors,
     style_snapshot,
-    snapshot: context.snapshot || context.compressed_snapshot || {},
+    snapshot: is_npc ? snapshot : context.snapshot || context.compressed_snapshot || {},
     director_data: context.director_data || {},
   });
-}
-
-function normalize_npc_context(config, context) {
-  const npc_entity = context.npc || context.speaker;
-  const raw_entities = context.entities || {};
-  const combined_entities = npc_entity?.id ? { ...raw_entities, [npc_entity.id]: npc_entity } : raw_entities;
-  const { snapshot, render_accessors: npc_accessors, style_snapshot } = normalize_context(context, combined_entities);
-  const bag = resolve_prose_bag(config, context, {
-    entities: combined_entities,
-    speaker: npc_entity,
-    listener: context.listener ?? null,
-    accessors: npc_accessors,
-    style_snapshot,
-    snapshot,
-    director_data: context.director_data || {},
-  });
-  return {
-    ...bag,
-    meta_args: {
-      ai: snapshot.ai?.dynamics,
-      fractal: snapshot.fractal?.dynamics,
-      role: "npc",
-      entity_id: npc_entity?.id,
-    },
-  };
+  if (is_npc) {
+    return {
+      ...bag,
+      meta_args: {
+        ai: snapshot.ai?.dynamics,
+        fractal: snapshot.fractal?.dynamics,
+        role: "npc",
+        entity_id: npc_entity?.id,
+      },
+    };
+  }
+  return bag;
 }
 
 function normalize_narrator_context(config, context) {
@@ -900,6 +891,6 @@ export const MODE_ADAPTERS = {
   sorting: { normalize: normalize_sorting_context },
   optics: { normalize: normalize_optics_context },
   narrator: { normalize: normalize_narrator_context },
-  npc: { normalize: normalize_npc_context },
-  prose: { normalize: normalize_prose_context },
+  npc: { normalize: build_prose_mode },
+  prose: { normalize: build_prose_mode },
 };

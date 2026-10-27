@@ -1,56 +1,7 @@
 /**
  * src/intelligence/modules/task.js
- * ============================================================================
  * 🎯 TASK MODULE — Turn Execution, Action Directives, Somatics & Staging
- * ============================================================================
- *
- * Compiles the Layer 6 (<TASK>) turn execution block and instruction envelopes
- * across the RPGlitch simulation lifecycle. Symmetrically aligns with the prompt
- * manifest architecture in `src/intelligence/prompts.js`:
- *
- * ── Multi-Shot Simulation Lifecycle Mapping ─────────────────────────────────
- * • Section 1: Unified Task Directives & Protocols Catalog (TASK_LIBRARY)
- *              (Protocols, Director, Continuum, Prose, Sorting directives; optics atoms resolve through protocols.js)
- * • Section 2: Dynamic Directive Compiler (get_directive_atom / compile_directive_tags)
- *              (Dotted-key resolution + {placeholder} interpolation → ordered paragraphs)
- * • Section 3: Task Signals & Currents
- *              (Turn-signal envelopes and currents; pacing/reflex live in reflex.js)
- * • Section 4: Universal Task Envelope Compiler (TASK_LAYERS / TASK_MODE_PLANS / render_task)
- *              (One slot-resolver registry + one ordered layer table; modes are data)
- * • Section 5: Available Keyword Listing
- *              (Keyword listing co-located with KEYWORD_DIRECTIVES; subtext lives in physics.js)
- *
- * Architecture & Design Laws (protocols.js pattern, applied to Layer 6):
- * - Pure-data catalog: `TASK_LIBRARY` holds only strings or `{placeholder}` template
- *   strings — no functions, no per-mode branching. Conditional text is expressed as
- *   distinct keys chosen by a selection function (mirroring `resolve_pov_protocol`).
- * - One generic compiler: `compile_directive_tags` walks any dotted key through the
- *   catalog and emits directive paragraphs (the Layer-6 twin of `compile_protocol_tags`).
- * - Selection is data: each mode's `<DIRECTIVES>` key list lives in the manifest
- *   (`prompts.js` `directives`), compiled here; the slot vocabulary is `TASK_MODE_PLANS`.
- * - Enumerated special cases: the genuinely dynamic slots (inputs, think, currents,
- *   delivery posture, spatial framing, output format) are named slot resolvers, exactly
- *   like protocols.js leaves `PERSPECTIVE`/style resolution explicit.
- * - Layer 6 Sovereignty: single source of truth for turn-level prompt compilation.
- * - Zero Sibling Imports: layout primitives imported exclusively from @utils.
- * - Strict Full-Name Domain Nomenclature: zero clipped tokens or single-letter identifiers.
- * - Zero Backwards Compatibility (P4): pure, uncompromising modern architecture.
- *
- * ── Instruction Grammar Law (Track 0.1) ─────────────────────────────────────
- * Tags draw the boxes, lists fill them: exactly one XML tag per instruction
- * block (stable, CONTRACT-testable identity); no nested headline restating the
- * tag name inside the block; bodies are numbered lines (sequence), bullets
- * (sets), or bare prose (single mandate). Per-step tags are forbidden —
- * mode-specific cognition steps are ordered lists, never `<BEAT id step>`
- * wrappers. Concept-level tags (`<TYPOGRAPHY>`, `<GROUNDING>`) remain.
- *
- * ── Three-Layer Token Contract (Track 0.2) ──────────────────────────────────
- * `{...}` = build-time parameter interpolation within catalog atoms;
- * `«ABSOLUTE»` = runtime entity/regional referents (never raw tag literals in
- * prose, per the metasyntax law); `@` = output vocabulary ONLY, reserved
- * strictly for bracket directives (`[@TARGET: ...]`, `[@USER: ...]`). Never
- * emit `@`-tokens outside bracket directives in narrative prose.
- * ============================================================================
+ * Compiles the Layer 6 (<TASK>) turn execution block and instruction envelopes.
  */
 
 import { escape_xml, prompt_escape, inline_or_block, render_atom_xml, render_xml_tag } from "@utils";

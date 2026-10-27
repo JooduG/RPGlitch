@@ -16,7 +16,6 @@ import {
   resolve_optics_subject,
   render_optics_entities_xml,
   render_memory_advisory_xml,
-  resolve_memory_advisory_slot,
   summarize_entity,
   render_nearby_entities_xml,
 } from "./entities.js";
@@ -127,14 +126,6 @@ describe("Track 2.4 memory advisory slot", () => {
   it("renders empty string when no settled facts exist", () => {
     expect(render_memory_advisory_xml([])).toBe("");
     expect(render_memory_advisory_xml(null)).toBe("");
-    expect(resolve_memory_advisory_slot({}, { memory_advisory_args: { enabled: true, facts: [] } })).toBe("");
-    expect(resolve_memory_advisory_slot({}, { memory_advisory_args: { enabled: false, facts } })).toBe("");
-  });
-
-  it("seals facts through the slot resolver when enabled", () => {
-    const sealed = resolve_memory_advisory_slot({}, { memory_advisory_args: { enabled: true, facts } });
-    expect(sealed).toContain("<MEMORY_ADVISORY>");
-    expect(sealed).toContain("# ALREADY REMEMBERED");
   });
 });
 

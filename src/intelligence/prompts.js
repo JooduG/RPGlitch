@@ -1,57 +1,20 @@
 /**
  * src/intelligence/prompts.js
- * ============================================================================
  * 🎭 PROMPTS MANIFEST — Sovereign Module-Keyed Prompt Switchboard
- * ============================================================================
- *
- * Central switchboard declaring the 7-layer declarative blueprint for all 9
- * simulation prompt modes across the RPGlitch Intelligence Kernel.
- *
- * ── Multi-Shot Simulation Lifecycle ─────────────────────────────────────────
- * • Shot 1  (Quick Shot) : director    — Turn staging & mechanical state (+ terse fallback)
- * • Shot 2A (Prose Shot) : interaction — AI character canonical narrative voice
- *                        : ghostwrite  — User persona turn drafter
- *                        : npc         — Supporting stage character
- *                        : narrator    — Fractal environment/world voice
- * • Shot 2B (Back Shot)  : continuum   — Memory Forge temporal consolidation
- *
- * ── Auxiliary Tooling & Sensory Cortex ──────────────────────────────────────
- * • Tool A (Magic Wand)  : enhancement — Single profile field expansion
- * • Tool B (Structurer)  : sorting     — Raw entity ingestion & structuring
- * • Sensory Cortex       : optics      — Diffusion image prompt synthesis
- *
- * ── The 7-Layer Universal Pipeline ──────────────────────────────────────────
- * 1. system       : Root <SYSTEM> envelope mode & ROLE_LIBRARY key
- * 2. constitution : Axiomatic core laws (L1–L4) toggle
- * 3. protocols    : Ordered protocol atoms emitting <CORE_PROTOCOLS>
- * 4. entities     : Entity scoping for sheets, dispositions, dynamic axes, and spotlight
- * 5. history      : Conversation history windowing configuration
- * 6. task         : Think-format calibration, directives, and turn payload
- * 7. format       : Output specification key (PROSE, DIRECTOR, CONTINUUM, PROFILE)
- *
- * Architecture & Purity Invariants:
- * - P4 Zero Backwards Compatibility: Single frozen switchboard catalog.
- * - Imports Hoisted: Clean ESM dependencies hoisted to file top.
- * - Every mode is compiled via `define_mode`, layering deltas over canonical defaults.
- * ============================================================================
+ * Central switchboard declaring the 7-layer declarative blueprint for all prompt modes.
  */
 
-import { estimate_tokens, state_bridge } from "@utils";
+import { estimate_tokens, state_bridge, wrap_tag, detox_prose, has_alternations } from "@utils";
 import { PROMPT_CHAR_ENVELOPE } from "@config";
 import { MODE_ADAPTERS } from "./builder.js";
-import { resolve_task_slots, render_task_plan, TASK_LAYERS } from "./modules/task.js";
-import { resolve_role_slot, compose_system, pack_prompt, resolve_prompt_meta } from "./modules/system.js";
-import { resolve_constitution_slot } from "./modules/constitution.js";
-import { resolve_core_protocols_slot } from "./modules/protocols.js";
-import { resolve_dynamic_axes_slot } from "./dynamics.js";
-import {
-  resolve_entities_slot,
-  resolve_target_context_slot,
-  resolve_cast_slot,
-  resolve_entity_context_slot,
-  resolve_memory_advisory_slot,
-} from "./modules/entities.js";
-import { resolve_history_slot, resolve_chapter_history_slot } from "./modules/recency.js";
+import { render_task } from "./modules/task.js";
+import { resolve_system_role_line, render_system_xml, pack_prompt, resolve_prompt_meta } from "./modules/system.js";
+import { render_constitution } from "./modules/constitution.js";
+import { render_core_protocols } from "./modules/protocols.js";
+import { render_dynamics_axes_xml, DYNAMICS_AXES } from "./dynamics.js";
+import { render_entity_sheets, render_optics_entities_xml, render_nearby_entities_xml, render_memory_advisory_xml } from "./modules/entities.js";
+import { render_entity_memory_context, render_enhancement_field_context } from "./modules/sheets.js";
+import { render_input_history_xml, format_sensory_history, render_chapter_history_xml, HISTORY_TOKEN_BUDGET } from "./modules/recency.js";
 import { verify_epistemic_integrity } from "./veil.js";
 import { resolve_turn_state_plan, render_momentum_directive_xml } from "./modules/reflex.js";
 
@@ -446,138 +409,44 @@ export const resolve_prompt_mode = ({ is_npc = false, ghostwrite = false } = {})
 // 6. UNIVERSAL PROMPT PLAN — DISTRIBUTED SLOTS, MANIFEST ASSEMBLY
 // ============================================================================
 
-export const SYSTEM_SLOT_RESOLVERS = Object.freeze({
-  role: resolve_role_slot,
-  axiomatic_constitution: resolve_constitution_slot,
-  core_protocols: resolve_core_protocols_slot,
-  dynamic_axes: resolve_dynamic_axes_slot,
-  entities: resolve_entities_slot,
-  target_entity_context: resolve_target_context_slot,
-  cast: resolve_cast_slot,
-  entity_context: resolve_entity_context_slot,
-  chapter_history: resolve_chapter_history_slot,
-  memory_advisory: resolve_memory_advisory_slot,
-  history: resolve_history_slot,
-});
-
-const SYSTEM_STATE_KEYS = Object.freeze({
-  role: "role_line",
-  axiomatic_constitution: "constitution",
-  core_protocols: "core_protocols",
-  dynamic_axes: "dynamics",
-  entities: "entities_block",
-  target_entity_context: "target_context",
-  cast: "nearby_cast",
-  entity_context: "field_context",
-  chapter_history: "chapter_history",
-  memory_advisory: "memory_advisory",
-  history: "history_block",
-});
-
-function resolve_meta_args(normalized = {}) {
-  return { ...(normalized.meta_args || {}) };
+function render_prompt_history(args = {}) {
+  if (args.kind === "input_history") {
+    if (!args.enabled) return "";
+    return render_input_history_xml(args.history || [], {
+      limit: args.limit,
+      max_chars: args.max_chars,
+      token_budget: args.token_budget ?? Infinity,
+      tag: args.tag || "RECENT_ROUNDS",
+    });
+  }
+  if (args.kind === "sensory") {
+    const rendered = format_sensory_history(args.history);
+    return rendered ? rendered.trim() : "";
+  }
+  return wrap_tag("RECENT_ROUNDS", args.accessors?.simulation_log(10, 0, { token_budget: HISTORY_TOKEN_BUDGET }), 2);
 }
 
-export const PROMPT_META_RESOLVERS = Object.freeze({
-  director: resolve_meta_args,
-  interaction: resolve_meta_args,
-  ghostwrite: resolve_meta_args,
-  npc: resolve_meta_args,
-  narrator: resolve_meta_args,
-  continuum: resolve_meta_args,
-  enhancement: resolve_meta_args,
-  sorting: resolve_meta_args,
-  optics: resolve_meta_args,
-});
-
-export function resolve_prompt_plan(config, normalized = {}) {
-  const variant = normalized.terse && config.variants?.terse ? config.variants.terse : null;
-  const system_order = Object.freeze([...(variant?.system || config.layers.system)]);
-  const task_order = Object.freeze([...(variant?.task || config.layers.task)]);
-  const system_slots = {};
-
-  // Phase 1: Resolve all non-entity, non-protocol system slots
-  for (const slot_key of system_order) {
-    if (slot_key === "core_protocols" || slot_key === "entities") continue;
-    const resolver = SYSTEM_SLOT_RESOLVERS[slot_key];
-    if (typeof resolver !== "function") throw new Error(`Unknown system slot: ${slot_key}`);
-    system_slots[slot_key] = resolver(config, normalized, system_slots);
-  }
-  if (system_order.includes("core_protocols")) {
-    system_slots.core_protocols = SYSTEM_SLOT_RESOLVERS.core_protocols(config, normalized, system_slots);
-  }
-
-  // Phase 2: Resolve task slots to measure the fixed task footprint
-  if (normalized.entities_kind === "optics" && normalized.task_params && normalized.intent_roll && !normalized.task_params.input_intent) {
-    normalized.task_params.input_intent = normalized.intent_roll.roll(normalized.intent_roll.raw_intent);
-  }
-  const task_resolved = resolve_task_slots({ ...(normalized.task_params || {}), config, layers: [...task_order] });
-
-  // Phase 3: Dynamic Turn Headroom Metering
-  // Calculate serialized footprint of all guaranteed supportive modules
-  const task_children = TASK_LAYERS.filter((layer) => task_order.includes(layer.key))
-    .map((layer) => layer.emit(task_resolved.slots))
-    .filter(Boolean);
-  const task_rendered_length = render_task_plan({ tag: "TASK", children: task_children }).length;
-  const non_entity_system_length = Object.values(system_slots).reduce((sum, slot) => sum + (typeof slot === "string" ? slot.length : 0), 0);
-  // Reserve 300 characters for root <SYSTEM> and outer XML tags
-  const fixed_footprint = non_entity_system_length + task_rendered_length + 300;
-  const dynamic_headroom = Math.max(0, PROMPT_CHAR_ENVELOPE - fixed_footprint);
-
-  if (normalized.sheets_args && typeof normalized.sheets_args === "object") {
-    normalized.sheets_args.headroom = dynamic_headroom;
-  }
-  normalized.headroom = dynamic_headroom;
-
-  // Phase 4: Resolve entity sheets with dynamic headroom allocated
-  if (system_order.includes("entities")) {
-    const resolver = SYSTEM_SLOT_RESOLVERS.entities;
-    if (typeof resolver !== "function") throw new Error(`Unknown system slot: entities`);
-    system_slots.entities = resolver(config, normalized, system_slots);
-  }
-
-  // Re-resolve core_protocols so entity alternations are reflected in <CORE_PROTOCOLS>
-  if (system_order.includes("core_protocols")) {
-    system_slots.core_protocols = SYSTEM_SLOT_RESOLVERS.core_protocols(config, normalized, system_slots);
-  }
-
-  const meta_resolver = PROMPT_META_RESOLVERS[config.key] || resolve_meta_args;
-  return Object.freeze({
-    tag: "PROMPT",
-    mode: config.key,
-    layers: Object.freeze({
-      system: Object.freeze({ order: system_order, slots: Object.freeze({ ...system_slots }) }),
-      task: Object.freeze({ mode: task_resolved.mode, order: task_order, slots: task_resolved.slots }),
-    }),
-    meta: resolve_prompt_meta(meta_resolver(normalized)),
-    round: normalized.round ?? null,
-    attributes: Object.freeze({ ...(normalized.attributes || {}) }),
-    epistemic_guard: config.task_state === "prose",
+function render_mode_protocols(config, normalized, has_alternation = false) {
+  const source = { ...(normalized.core_protocols_args || {}) };
+  const alternation_flag =
+    source.alternation_source === "entities"
+      ? has_alternation
+      : source.alternation_source === "text"
+        ? has_alternations(source.alternation_text || "")
+        : false;
+  const constraints_xml = source.constraints_xml || null;
+  const extra_protocols = Array.isArray(source.protocols) ? source.protocols : [];
+  delete source.alternation_source;
+  delete source.alternation_text;
+  delete source.constraints_xml;
+  delete source.protocols;
+  const merged_protocols = [...(config?.protocols || []), ...extra_protocols];
+  return render_core_protocols({
+    protocols: merged_protocols,
+    constraints_xml,
+    has_alternation: alternation_flag,
+    ...source,
   });
-}
-
-export function render_prompt_plan(plan) {
-  if (!plan) return { system: "", task: "" };
-  const config = get_prompt(plan.mode);
-  if (plan.epistemic_guard) {
-    const guarded_slots = [plan.layers.system.slots.entities, plan.layers.system.slots.cast, plan.layers.system.slots.target_entity_context].filter(
-      (slot) => typeof slot === "string" && slot,
-    );
-    if (guarded_slots.some((slot) => !verify_epistemic_integrity(slot))) {
-      console.warn("[builder] Epistemic Wall integrity alert: leaked secrets or plans detected across boundary.");
-    }
-  }
-  const seal_config = { ...config, layers: { system: [...plan.layers.system.order], task: [...plan.layers.task.order] } };
-  const state = {};
-  for (const slot_key of plan.layers.system.order) {
-    state[SYSTEM_STATE_KEYS[slot_key]] = plan.layers.system.slots[slot_key];
-  }
-  const system = compose_system(seal_config, state, { round: plan.round, attributes: { ...plan.attributes } });
-  const task_children = TASK_LAYERS.filter((layer) => plan.layers.task.order.includes(layer.key))
-    .map((layer) => layer.emit(plan.layers.task.slots))
-    .filter(Boolean);
-  const task = render_task_plan({ tag: "TASK", children: task_children });
-  return { system, task };
 }
 
 /**
@@ -592,19 +461,137 @@ export function compile_prompt(mode_key, context = {}) {
   const config = get_prompt(mode_key);
   const adapter = MODE_ADAPTERS[mode_key] || MODE_ADAPTERS.prose;
   const normalized = adapter.normalize(config, context);
-  const plan = resolve_prompt_plan(config, normalized);
-  const rendered = render_prompt_plan(plan);
-  const packed = pack_prompt(rendered, plan.meta);
+
+  const variant = normalized.terse && config.variants?.terse ? config.variants.terse : null;
+  const system_order = variant?.system || config.layers.system;
+  const task_order = variant?.task || config.layers.task;
+
+  // 1. Render non-entity, non-protocol system slots
+  const role_xml = system_order.includes("role") ? resolve_system_role_line({ role: config.role_line, ...(normalized.role_args || {}) }) : "";
+  const constitution_xml = system_order.includes("axiomatic_constitution") && config.constitution ? render_constitution() : "";
+  const dynamic_axes_xml = system_order.includes("dynamic_axes") ? render_dynamics_axes_xml(normalized.merged_dynamics, null, DYNAMICS_AXES) : "";
+  const target_context_xml =
+    system_order.includes("target_entity_context") && normalized.target_context_args?.enabled
+      ? wrap_tag(
+          "TARGET_ENTITY_CONTEXT",
+          render_entity_memory_context(normalized.target_context_args.target_key, normalized.target_context_args.target_entity),
+          2,
+        )
+      : "";
+  const cast_xml =
+    system_order.includes("cast") && normalized.cast_args?.enabled
+      ? render_nearby_entities_xml(normalized.cast_args.other_entities || {}, {
+          exclude_id: normalized.cast_args.exclude_id,
+          indent: 2,
+        })
+      : "";
+  const entity_context_xml =
+    system_order.includes("entity_context") && normalized.entity_context_args?.enabled
+      ? render_enhancement_field_context(
+          normalized.entity_context_args.entity,
+          normalized.entity_context_args.field_id,
+          normalized.entity_context_args.content,
+          normalized.entity_context_args.normalized_type,
+          normalized.entity_context_args.format_past_function,
+        )
+      : "";
+  const chapter_history_xml =
+    system_order.includes("chapter_history") && normalized.chapter_history_args?.enabled && normalized.chapter_history_args?.target_entity
+      ? render_chapter_history_xml(normalized.chapter_history_args.target_entity, 2)
+      : "";
+  const memory_advisory_xml =
+    system_order.includes("memory_advisory") && normalized.memory_advisory_args?.enabled
+      ? render_memory_advisory_xml(normalized.memory_advisory_args.facts || [])
+      : "";
+  const history_xml = system_order.includes("history") ? render_prompt_history(normalized.history_args) : "";
+
+  // 2. Measure initial core_protocols footprint (before entity alternations)
+  const initial_core_protocols_xml = system_order.includes("core_protocols") ? render_mode_protocols(config, normalized, false) : "";
+
+  // 3. Render task XML
+  if (normalized.entities_kind === "optics" && normalized.task_params && normalized.intent_roll && !normalized.task_params.input_intent) {
+    normalized.task_params.input_intent = normalized.intent_roll.roll(normalized.intent_roll.raw_intent);
+  }
+  const task_xml = render_task({ ...(normalized.task_params || {}), config, layers: [...task_order] });
+
+  // 4. Dynamic turn headroom metering
+  const non_entity_system_length = [
+    role_xml,
+    constitution_xml,
+    initial_core_protocols_xml,
+    dynamic_axes_xml,
+    target_context_xml,
+    cast_xml,
+    entity_context_xml,
+    chapter_history_xml,
+    memory_advisory_xml,
+    history_xml,
+  ].reduce((sum, str) => sum + (typeof str === "string" ? str.length : 0), 0);
+
+  const fixed_footprint = non_entity_system_length + task_xml.length + 300;
+  const dynamic_headroom = Math.max(0, PROMPT_CHAR_ENVELOPE - fixed_footprint);
+
+  if (normalized.sheets_args && typeof normalized.sheets_args === "object") {
+    normalized.sheets_args.headroom = dynamic_headroom;
+  }
+  normalized.headroom = dynamic_headroom;
+
+  // 5. Render entities with allocated headroom
+  let entities_xml = "";
+  if (system_order.includes("entities")) {
+    if (normalized.entities_kind === "optics") {
+      entities_xml = render_optics_entities_xml(normalized.optics_entities_args || {});
+      if (normalized.task_params && normalized.intent_roll) {
+        normalized.task_params.input_intent = detox_prose(normalized.intent_roll.roll(normalized.intent_roll.raw_intent));
+      }
+    } else {
+      entities_xml = render_entity_sheets(normalized.sheets_args || {});
+    }
+  }
+
+  // 6. Final core_protocols reflecting entity alternations
+  const core_protocols_xml = system_order.includes("core_protocols") ? render_mode_protocols(config, normalized, has_alternations(entities_xml)) : "";
+
+  // 7. Epistemic integrity check across boundary
+  if (config.task_state === "prose") {
+    const guarded_slots = [entities_xml, cast_xml, target_context_xml].filter((slot) => typeof slot === "string" && slot);
+    if (guarded_slots.some((slot) => !verify_epistemic_integrity(slot))) {
+      console.warn("[builder] Epistemic Wall integrity alert: leaked secrets or plans detected across boundary.");
+    }
+  }
+
+  // 8. Assemble system envelope in declared order
+  const slot_map = {
+    role: role_xml,
+    axiomatic_constitution: constitution_xml,
+    core_protocols: core_protocols_xml,
+    dynamic_axes: dynamic_axes_xml,
+    entities: entities_xml,
+    target_entity_context: target_context_xml,
+    cast: cast_xml,
+    entity_context: entity_context_xml,
+    chapter_history: chapter_history_xml,
+    memory_advisory: memory_advisory_xml,
+    history: history_xml,
+  };
+
+  const children = system_order.map((key) => slot_map[key]).filter(Boolean);
+  const system_xml = render_system_xml({
+    mode: config.system.mode,
+    round: normalized.round ?? null,
+    attributes: { ...(normalized.attributes || {}) },
+    children,
+  });
+
+  const meta = resolve_prompt_meta({ ...(normalized.meta_args || {}) });
+  const packed = pack_prompt({ system: system_xml, task: task_xml }, meta);
 
   try {
-    const system_text = rendered.system || "";
-    const task_text = rendered.task || "";
-    const entities_text = String(
-      plan.layers.system.slots.entities || plan.layers.system.slots.cast || plan.layers.system.slots.target_entity_context || "",
-    );
-    const history_text = String(plan.layers.system.slots.history || "");
+    const system_text = system_xml || "";
+    const task_text = task_xml || "";
+    const entities_text = String(entities_xml || cast_xml || target_context_xml || "");
+    const history_text = String(history_xml || "");
 
-    // Sub-breakdown of <ENTITIES>: Actors vs Cast vs Memories
     const memories_matches = entities_text.match(/<MEMORIES>[\s\S]*?<\/MEMORIES>/gi) || [];
     const memories_text = memories_matches.join("\n");
     const cast_matches = entities_text.match(/<CAST[\s\S]*?<\/CAST>/gi) || [];
@@ -613,7 +600,7 @@ export function compile_prompt(mode_key, context = {}) {
 
     const token_snapshot = {
       mode: mode_key,
-      round: plan.round ?? 0,
+      round: normalized.round ?? 0,
       timestamp: Date.now(),
       total: estimate_tokens(packed.system),
       cliff_limit: 6000,
@@ -639,53 +626,3 @@ export function compile_prompt(mode_key, context = {}) {
 }
 
 export default PROMPTS;
-
-/**
- * CHANGELOG
- * - Track 3.2: PROSE_LAYERS gains the lorebook system layer (resolve_lorebook_slot; disabled/empty seals "" for byte-identical compiles).
- * - Track 2.4: TOOL_LAYERS continuum envelope gains the memory_advisory system layer (MEMORY_ADVISORY slot; empty facts seal "" for byte-identical compiles).
- * - Track 0.10: Purged dead layer system slot (resolver import, SYSTEM_SLOT_RESOLVERS/SYSTEM_STATE_KEYS entries, ENHANCEMENT_LAYERS key).
- * - Track 0.8/0.9: continuum_directives selects the folded MANDATE alone; sorting_directives selects the single generated SORTING.FOCUS (macro rides the values bag; entity_type branching retired).
- * - 2026-10-08: Modules Ground Refactor Phase 4 — universal prompt plan (distributed slot registries, terse variant, plan pipeline; assemble_prompt retired).
- * - 2026-10-04: director_directives prefers the pre-resolved values.turn_state (single has_input resolution) — prompt bytes byte-identical.
- * - 2026-10-04: Director environmental-hint key follows the normalized reflex catalog (REFLEX.CONDITIONALS.ENVIRONMENTAL_HINT).
- * - 2026-10-04: director_directives reads the reflex turn-state plan (evaluation/round-one fire from TURN_STATE atoms).
- * - 2026-10-04: Catalog restructure — prose bundles declare GROUNDING + split disciplines (SENTENCE_FORMULAS/SCENE_MOMENTUM/CLICHES/CONSENT), data modes declare OUTPUT.DATA, optics declares GROUNDING + IMAGE_VOCABULARY + TEXT_RENDERING.
- * - 2026-10-04: Narrator manifest declares normal `pov: "THIRD"` (`POV.NARRATOR` retired).
- * - 2026-10-04: sorting/continuum manifests declare `PERSPECTIVE.TENSE.*` (`LAYER_TENSE` folded into `TENSE`).
- * - 2026-10-04: sorting/continuum records declare three layer-tense keys (ETERNAL merged into PRESENT).
- * - 2026-10-04: sorting/continuum DIRECTIVES no longer carry person/tense (now SYSTEM protocols); both records declare the four LAYER_TENSE keys and sorting resolves POV.THIRD via pov_protocol; leads reverted accordingly.
- * - 2026-10-04: sorting_directives and continuum_directives now append TEMPORAL.TENSE (order pinned in MODE_DIRECTIVE_LEADS); field tense stated once per prompt instead of per schema value.
- * - 2026-10-01: Added think_format: "enhancement" and temporal_field format contract to enhancement mode, enabling cognitive thinking blocks for single profile field refinement.
- * - 2026-09-24: Ground-Up Refactor & Harmonization — (1) Hoisted `assemble_prompt` import to file top to establish clean ESM dependency hygiene; (2) Reconstructed module body into 6 cleanly sequenced sections following the simulation lifecycle (Envelope Presets, Protocol/Directive Composers, Mode Factory, Manifest Switchboard, Resolvers/Dispatcher, and Changelog); (3) Standardized Full-Name domain nomenclature across composers and factory options; (4) Preserved 100% contract invariance across all 100 unit and verification test cases.
- * - 2026-09-25: Task directive selection moved into the manifest — every mode now declares its Layer-6 `<DIRECTIVES>` key selection (`director_directives` / `continuum_directives` / `sorting_directives` / `optics_directives`) plus optics' `spatial_framing`; `define_mode` carries `directives` + `spatial_framing` through, so `modules/task.js` compiles selection instead of owning it.
- * - 2026-09-24: Director entity gate renamed `present_entities` → `candidate_entities` (the cast block now carries only off-stage reuse candidates); `TOOL_LAYERS.task` drops its never-filled `inputs` slot, so continuum's task declares only `directives` + `output_format`.
- * - 2026-09-23: Prompt-grammar harmonization (phases 0–3) — layer presets renamed (`dynamics`→`dynamic_axes`) and the task layer list collapsed to one `inputs` slot (retiring `last_turn`); `ENVELOPE_LAYER_TAGS` follows (`DYNAMIC_AXES`, `INPUT`, `input_content` pruned); enhancement moved its `<INPUT>` from `<SYSTEM>` to `<TASK>`; optics added `CORE_PROTOCOLS.ALTERNATION_OPTIONS` so its alternation protocol lives in `<CORE_PROTOCOLS>` (not `<SUBJECT_RULES>`).
- * - 2026-09-23: Pipeline consolidation (R1/R3/R5/R7) — the mode record is now the single source of truth: each mode declares `speaker`, `visibility`, `role_line`, `task_state`, `think_format`, a named layer preset (`DIRECTOR_LAYERS`/`TOOL_LAYERS`/`ENHANCEMENT_LAYERS`/`SORTING_LAYERS`/`OPTICS_LAYERS` alongside `PROSE_LAYERS`), and its format; `config.system.role` is retired (the `role_line` key indexes SYSTEM_ROLES), `config.task` collapses to a top-level `think_format`, `format` normalizes to `{ mode, schema? }` at `define_mode`, and the three per-mode visibility arrays (`dispositions`/`dynamic_axes`/`agendas`) are replaced by the `visibility` policy resolved in `sheets.js`. Output bytes unchanged.
- * - 2026-09-23: Envelope harmonization — dropped the `present_cast` system layer (the `<CAST>` roster now nests inside `<ENTITIES>`) and the `keyword_directives` task layer (the block now nests inside `<DIRECTIVES>`); the `user_agenda` boolean became an `agendas` list, the Director's `dynamic_axes` gate was removed (all six axes gather in the one `<DYNAMICS>` block), and ghostwrite's entity gates mirror interaction's with AI↔USER swapped.
- * - 2026-09-22: Declared envelope shape (recommendation #4) — every mode now carries a frozen `layers: { system, task }` manifest consumed by the `PROMPT_LAYERS`/`TASK_LAYERS` walkers and validated against `ENVELOPE_LAYER_TAGS`; the sorting schema gained `_thought_process` and the continuum/sorting schemas share `TEMPORAL_SCHEMA_FRAGMENT` (recommendation #8).
- * - 2026-09-22: One protocol namespace (recommendation #7) — the data-mode protocol lists now declare `CORE_PROTOCOLS.DATA` instead of the retired `HYGIENE.DATA` namespace.
- * - 2026-09-21: Standardization pass — retired the `director_terse` mode (now `compile_prompt("director", { terse: true })`), so the registry declares 9 modes; `prose_protocols({ include_dialogue })` no longer takes a POV key (resolved by `resolve_pov_protocol`), the continuum/sorting protocol lists dropped POV/TENSE, and the narrator declares `system.pov = "NARRATOR"` for the single POV resolver.
- * - 2026-09-19: Collapsed the facade chain (P7) — `compile_prompt` now calls `assemble_prompt(get_prompt(mode_key), context)` directly; the intermediate `compile_pipeline_prompt` facade was retired. `compile_prompt` remains the single public entry point.
- * - 2026-09-19: Table-driven assembler (P4) — `define_mode` now stamps each record with its canonical `key`, which `assemble_prompt` uses to select a `MODE_ADAPTERS` entry (needed because `director_terse` shares `system.mode = "director"`).
- * - 2026-09-19: Manifest DRY (P3) — the four Shot-2A prose modes now compose their protocol lists from one `prose_protocols(pov, { include_dialogue })` bundle, and `director`/`director_terse` share the `DIRECTOR_SCHEMA` constant (no duplicated key lists).
- * - 2026-09-19: Retired inert manifest data (P2) — `define_mode` no longer injects `history`/`input_tag` defaults; history is declared by continuum alone (its only `resolve_history` consumer), the inert `task.terse` override and optics' unconsumed `entities` gate are pruned, and `task` now only carries `think_format`.
- * - 2026-09-18: Repatriated output schema definitions from format.js into prompts.js: declared explicit { mode: "json", schema: [...] } arrays for director, director_terse, continuum, sorting, and optics.
- * - 2026-09-18: Purified define_mode and PROMPTS catalog: bound mode_key to system.mode, declared canonical DEFAULT_ENTITIES_CONFIG, and explicitly typed enhancement format as PROSE.
- * - 2026-09-18: Registered `director_terse` and `optics` modes in PROMPTS master manifest.
- * - 2026-09-16: Pruned inert `task.input_tag` overrides from `continuum` and `enhancement` modes under P4 Zero Backwards Compatibility.
- * - 2026-09-16: Standardized Director `input_tag` to canonical default `"INPUT"`, purging legacy `"USER_ACTION"` tag override under P4 Zero Backwards Compatibility.
- * - 2026-09-15: History Limit Harmonization — Explicitly harmonized history window to limit: 16 across all four Shot-2A prose sibling modes (interaction, ghostwrite, npc, narrator).
- * - 2026-09-12: Standardization pass — the `continuum` mode declares its history window (`history.limit`), now consumed by builder.js via history.js `resolve_history` (the window was previously hardcoded at the call site).
- * - 2026-09-12: Standardization pass — replaced the repeated 7-layer skeleton with a declarative `define_mode` factory (MODE_DEFAULTS + per-mode delta + deep-freeze), so each mode is a short data record and the layer defaults live in one place. Values are unchanged.
- * - 2026-09-12: Elevated prompts.js into a standardized 7-module switchboard aligning Shot 1 (Quick Shot: director), Shot 2A (Prose Shot: interaction/ghostwrite/npc/narrator), Shot 2B (Back Shot: continuum), and auxiliary tools (enhancement, sorting). Added explicit history configuration to all modes.
- * - 2026-09-11: Wired the manifest to the assembly line — protocol lists, constitution gating, entity context gates, role keys, schema/contract keys and the sorting POV key are now consumed by builder.js. Pruned inert task.directive/task.rules/task.directives keys and reconciled protocol lists with emitted output. Removed the PROMPT_MODES/get_prompt_mode compatibility aliases (P4).
- * - 2026-09-11: Renamed prompt-modes.js -> prompts.js. Elevated to module-keyed manifest registering all 8 prompt modes (system, constitution, protocols, entities, task).
- * - 2026-09-11: Converted prompt-modes.json into canonical ESM module with frozen schemas.
- * - 2026-10-14: Atom 2.2, 2.3 & 2.4 — updated director_directives to use unified DIRECTOR.ROUTING_RULES and reflex render_momentum_directive_xml; purged DIRECTOR.DYNAMICS_CALIBRATION, DIRECTOR.ROUTING, DIRECTOR.CONVERGENCE, and task momentum keys.
- * - 2026-10-14: Wave 2 — Purged duplicate DIRECTOR.ROUTING_RULES from director_directives (co-located in output schema); migrated SENTENCE_FORMULAS and CLICHES from prose_protocols into unified CONSTRAINTS layer.
- * - 2026-10-14: Phase 1 Prompt Pipeline Hygiene & P4 Purges — (1) Set constitution: true for director mode and added axiomatic_constitution to DIRECTOR_LAYERS; (2) Purged alternative_branches from DIRECTOR_SCHEMA; (3) Purged AGENCY from prose_protocols; (4) Purged USER_PERSONA_LOCK and BRANCHES from director_directives and gated CONVERGENCE on has_candidates.
- * - 2026-10-14: Deconstructed Grounding — Removed standalone CORE_PROTOCOLS.GROUNDING from prose_protocols (absorbed into Constitution Law L1 and Prose Discipline).
- * - 2026-10-16: Added story_status to DIRECTOR_SCHEMA.
- * - 2026-10-19: Dynamic Prompt Resource Allocation — (1) Switched import from history.js to recency.js; (2) Removed duplicate history from DIRECTOR_LAYERS.system; (3) Added Phase 3 Dynamic Turn Headroom Metering in resolve_prompt_plan computing headroom = Math.max(0, PROMPT_CHAR_ENVELOPE - fixed_footprint) and forwarding to sheets_args.
- */

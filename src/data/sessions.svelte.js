@@ -171,7 +171,6 @@ export const session_driver = {
         .equals("character")
         .toArray()
         .catch(() => []);
-      
 
       for (const character of all_characters) {
         const character_id = String(character.id);

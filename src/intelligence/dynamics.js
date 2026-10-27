@@ -664,13 +664,6 @@ export function render_dynamics_axes_xml(live_dynamics = null, scope = null, axe
   return `<DYNAMIC_AXES${attrs}>\n${calibration}${tags.join("\n")}\n</DYNAMIC_AXES>`;
 }
 
-/**
- * System-layer slot: seals the merged director dynamics axes.
- */
-export function resolve_dynamic_axes_slot(config, normalized = {}) {
-  return render_dynamics_axes_xml(normalized.merged_dynamics, null, DYNAMICS_AXES);
-}
-
 // ============================================================================
 // [SECTION 7: SOMATIC SUBTEXT & PHYSICS-PROTOCOL RESOLUTION]
 // ============================================================================

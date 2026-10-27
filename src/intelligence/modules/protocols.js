@@ -20,7 +20,7 @@
  * ============================================================================
  */
 
-import { has_alternations, prompt_escape, render_xml_tag, interpolate_tokens } from "@utils";
+import { prompt_escape, render_xml_tag, interpolate_tokens } from "@utils";
 import { render_narrative_style_xml, render_visual_style_xml } from "./style.js";
 import { render_alternation_protocol } from "./reflex.js";
 import { DYNAMICS_FRAGMENTATION_THRESHOLD } from "../temporal.js";
@@ -523,24 +523,4 @@ export function render_core_protocols({
       constraints_xml,
     }),
   );
-}
-
-/**
- * System-layer slot: seals core protocols from normalized arguments. The
- * alternation flag derives from the resolved entities block (sheets modes)
- * or from normalized text (optics), mirroring the historical call shapes.
- */
-export function resolve_core_protocols_slot(config, normalized = {}, resolved = {}) {
-  const source = { ...(normalized.core_protocols_args || {}) };
-  if (source.alternation_source === "entities") {
-    source.has_alternation = has_alternations(resolved.entities || "");
-  }
-  const constraints_xml = source.constraints_xml || null;
-  const extra_protocols = Array.isArray(source.protocols) ? source.protocols : [];
-  delete source.alternation_source;
-  delete source.alternation_text;
-  delete source.constraints_xml;
-  delete source.protocols;
-  const merged_protocols = [...(config?.protocols || []), ...extra_protocols];
-  return render_core_protocols({ protocols: merged_protocols, constraints_xml, ...source });
 }

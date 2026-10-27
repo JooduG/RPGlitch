@@ -27,16 +27,7 @@
  * ============================================================================
  */
 
-import {
-  render_xml_tag,
-  collapse_history,
-  strip_cognition_blocks,
-  truncate_at_word,
-  prompt_escape,
-  escape_xml,
-  wrap_tag,
-  estimate_tokens,
-} from "@utils";
+import { render_xml_tag, collapse_history, strip_cognition_blocks, truncate_at_word, prompt_escape, escape_xml, estimate_tokens } from "@utils";
 import { DIALOGUE_WINDOW, VISUAL_FEED_WINDOW, CHAPTER, PROSE, CONTEXT_TOKEN_CLIFF } from "@config";
 import { DYNAMICS_METRIC_NAMES } from "../dynamics.js";
 
@@ -401,36 +392,4 @@ export function render_chapter_history_xml(target_entity, indentation_level = 0)
     indent: indentation_level,
     separator: "\n",
   });
-}
-
-// ── Universal Prompt Plan slot resolvers ────────────────────────────────────
-/**
- * System-layer slot: seals history / recency. Prose modes wrap the accessor simulation
- * log; continuum renders the input window; optics shapes sensory history.
- */
-export function resolve_history_slot(config, normalized = {}) {
-  const args = normalized.history_args || {};
-  if (args.kind === "input_history") {
-    if (!args.enabled) return "";
-    return render_input_history_xml(args.history || [], {
-      limit: args.limit,
-      max_chars: args.max_chars,
-      token_budget: args.token_budget ?? Infinity,
-      tag: args.tag || "RECENT_ROUNDS",
-    });
-  }
-  if (args.kind === "sensory") {
-    const rendered = format_sensory_history(args.history);
-    return rendered ? rendered.trim() : null;
-  }
-  return wrap_tag("RECENT_ROUNDS", args.accessors.simulation_log(10, 0, { token_budget: HISTORY_TOKEN_BUDGET }), 2);
-}
-
-/**
- * System-layer slot: seals the continuum chapter history for the target.
- */
-export function resolve_chapter_history_slot(config, normalized = {}) {
-  const args = normalized.chapter_history_args || {};
-  if (!args.enabled || !args.target_entity) return "";
-  return render_chapter_history_xml(args.target_entity, 2);
 }

@@ -233,11 +233,3 @@ export function resolve_prompt_meta({ ai = null, fractal = null, flags = {}, rol
     ...(entity_id ? { entity_id } : {}),
   };
 }
-
-/**
- * System-layer slot: resolves the mode role line from manifest key plus the
- * normalized role arguments prepared by the mode adapter.
- */
-export function resolve_role_slot(config, normalized = {}) {
-  return resolve_system_role_line({ role: config.role_line, ...(normalized.role_args || {}) });
-}

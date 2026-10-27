@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Direct Prompt Compilation & Slot-Resolver Maze Collapse (`src/intelligence/prompts.js`, `builder.js`, `modules/`)**:
+  - **Slot-Resolver Indirection Demolished**: Deleted `SYSTEM_SLOT_RESOLVERS`, `SYSTEM_STATE_KEYS`, `PROMPT_META_RESOLVERS`, `resolve_meta_args`, `resolve_prompt_plan`, and `render_prompt_plan` in `src/intelligence/prompts.js`. Prompt assembly is now direct, flat, and linear from top to bottom.
+  - **Dead Module Wrappers Purged**: Deleted redundant `resolve_*_slot` wrapper functions across `src/intelligence/modules/` (`resolve_constitution_slot` in `constitution.js`, `resolve_core_protocols_slot` in `protocols.js`, `resolve_role_slot` in `system.js`, `resolve_entities_slot`, `resolve_target_context_slot`, `resolve_cast_slot`, `resolve_memory_advisory_slot`, and `resolve_entity_context_slot` in `entities.js`, `resolve_history_slot` and `resolve_chapter_history_slot` in `recency.js`, and `resolve_dynamic_axes_slot` in `dynamics.js`).
+  - **Unified Prose/NPC Mode Builder**: Merged `normalize_prose_context` and `normalize_npc_context` into a single, clean `build_prose_mode(config, context)` in `src/intelligence/builder.js`.
+  - **Byte-Identical Output**: Compiled prompt outputs across all 12 contract modes in `prompt-verification.test.js` and `prompt-contract.test.js` remain 100% byte-identical.
+  - **Net-Negative Footprint**: Achieved 240 net lines deleted across `src/intelligence/` with all bottom-of-file changelog comment blocks and bloated headers removed.
+
 - **Intelligence Pipeline Flattening & Plan/Catalog Indirection Purge (`src/intelligence/`, `src/utils/`, `src/data/`)**:
   - **Aggressive Intelligence Modules Flattening**: Eliminated intermediate plan object allocations across `src/intelligence/modules/` (`constitution.js`, `output.js`, `system.js`, `recency.js`, `reflex.js`, `protocols.js`, `entities.js`, `task.js`), collapsing redundant `resolve_*_plan()` -> `render_*_plan()` -> `render_*()` chains into direct string builders while preserving 100% byte-identical compiled prompt outputs across all 12 contract modes.
   - **Catalog Deletion & Direct Property Path Traversal**: Deleted `src/utils/catalog.js` and `src/utils/catalog.test.js`. Inlined `interpolate_tokens` into `src/utils/xml.js` and replaced `resolve_catalog_atom` with direct property traversal.
