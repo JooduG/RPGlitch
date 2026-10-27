@@ -1,18 +1,6 @@
 /**
  * src/intelligence/modules/style.js
- * ============================================================================
  * 🎨 PROMPT STYLE MODULE — Narrative & Visual Style XML Blocks
- * ============================================================================
- *
- * Renders the declarative `<NARRATIVE_STYLE>` and `<VISUAL_STYLE>` prompt
- * blocks from style records and engine tokens. Style presentation lives here,
- * not in the behavior catalog: protocols.js consumes these renderers when
- * composing `<CORE_PROTOCOLS>`.
- *
- * Architecture & Modification Rules:
- * - Unidirectional layer flow: pure string compilation over @utils + @data.
- * - Single source of truth for style-block XML shape.
- * ============================================================================
  */
 
 import {
@@ -404,6 +392,28 @@ export function build_aesthetic_map(entity = {}) {
   return merged_aesthetic_map;
 }
 
+export function flatten_aesthetic_map(entity = {}) {
+  if (!entity) return "";
+  const map = build_aesthetic_map(entity);
+  const style_keys = [
+    "_visual_style_medium",
+    "_visual_style_palette",
+    "_visual_style_camera",
+    "_visual_style_composition",
+    "_visual_style_texture",
+    "_visual_style_tags",
+  ];
+  const visual_values = style_keys.map((k) => map[k]).filter(Boolean);
+  const additional = Object.entries(map)
+    .filter(([k]) => !style_keys.includes(k))
+    .map(([k, v]) => {
+      const val_str = Array.isArray(v) ? v.join(", ") : String(v).trim();
+      return k.startsWith("_visual_style_") || k === "aesthetic" ? val_str : `${k.replace(/_/g, " ")}: ${val_str}`;
+    })
+    .filter(Boolean);
+  return normalize_comma_spacing([...visual_values, ...additional].join(". "));
+}
+
 // ============================================================================
 // [SECTION 4: DETERMINISTIC OPTICS FALLBACK]
 // ============================================================================
@@ -436,43 +446,13 @@ export function render_optics_fallback({ tier = "solo_entity", subject = "ai", a
           ? user
           : ai;
 
-  const flatten_traits = (entity) => {
-    if (!entity) return "";
-    const map = build_aesthetic_map(entity);
-    const style_keys = [
-      "_visual_style_medium",
-      "_visual_style_palette",
-      "_visual_style_camera",
-      "_visual_style_composition",
-      "_visual_style_texture",
-      "_visual_style_tags",
-    ];
-    const visual_values = style_keys.map((k) => map[k]).filter(Boolean);
-    const additional = Object.entries(map)
-      .filter(([k]) => !style_keys.includes(k))
-      .map(([k, v]) => {
-        const val_str = Array.isArray(v) ? v.join(", ") : String(v).trim();
-        return k.startsWith("_visual_style_") || k === "aesthetic" ? val_str : `${k.replace(/_/g, " ")}: ${val_str}`;
-      })
-      .filter(Boolean);
-    return normalize_comma_spacing([...visual_values, ...additional].join(". "));
-  };
-
-  const fallback_description = flatten_traits(fallback_entity);
+  const fallback_description = flatten_aesthetic_map(fallback_entity);
   const fallback_name = fallback_entity?.name || normalized_tier;
   const short_intent = intent && intent.length < 200 ? intent : "";
 
   if (normalized_tier === "story_character" && fractal) {
-    const fractal_description = flatten_traits(fractal);
+    const fractal_description = flatten_aesthetic_map(fractal);
     return `<image_prompt>${short_intent ? `${short_intent}, ` : ""}${fallback_name}, ${fallback_description || "detailed character"}, situated within ${fractal.name || "the setting"}, ${fractal_description || "atmospheric environment, dramatic lighting"}</image_prompt>`;
   }
   return `<image_prompt>${short_intent ? `${short_intent}, ` : ""}${fallback_name}, ${fallback_description || "detailed character portrait, dramatic lighting"}</image_prompt>`;
 }
-
-/**
- * CHANGELOG
- * - 2026-10-18: Sovereign prompt ownership — moved `render_optics_fallback` into style.js (Section 4) from media/optics.js, restoring strict unidirectional layer hierarchy and eliminating intelligence-to-media barrel exports.
- * - Track 0.11: Absorbed optics cinematography (presets, rules, resolver) + visual payload synthesis (engine tokens, prompt composer, aesthetic map) from sensory.js/media optics.js. Prompt bytes byte-identical.
- * - 2026-10-04: Added resolve_style_dna — frozen single-owner @data parse; render_narrative_style_xml and all prompt plans read through it.
- * Modules Ground Refactor Phase 2 — style.js is pure (state_bridge evicted to builder resolve_builder_style_snapshot); snapshot takes explicit records — prompt bytes byte-identical.
- */

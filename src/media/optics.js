@@ -1,28 +1,11 @@
 /**
  * @file src/media/optics.js
  * 👁️ SENSORY CORTEX — VISUAL OPTICS COMPILER, TAXONOMY & TRIGGER ARBITRATION
- *
- * Core Responsibilities:
- * 1. 4-Tier Image Taxonomy & Resolutions (IMAGE_TIERS, DEFAULT_IMAGE_TIER,
- *    normalize_image_tier, get_resolution, get_tier_guidance_scale):
- *    - story_entities: Multi-character group compositions (768x768).
- *    - story_character: In-story focused character portrayals (512x768).
- *    - solo_entity: Profile and isolated character portraits (512x768).
- *    - story_scene: Environmental, landscape, and establishing scene shots (768x512).
- * 2. Dual-Source Trigger Arbitration (resolve_image_trigger over the
- *    intelligence/physics.js dynamics gate):
- *    - Source A: Pure-JS physical dynamics displacement & extreme band crossings (Signal A & B).
- *    - Source B: LLM Director narrative beat requests (trigger_image / visual_staging).
- *    - Decoupled cooldown timers (2 rounds for Director, 3 rounds for Dynamics).
- * 3. Aesthetic Resolvers (aesthetic_resolver over the style.js aesthetic map):
- *    - Pure trait extraction and continuous prose flattening of entity physical attributes.
- *
- * Purity: 100% pure deterministic functions and frozen tables. Zero Svelte runes, zero side effects.
  */
 
 import { normalize_comma_spacing } from "@utils";
 import { IMAGE_TRIGGER_COOLDOWN_ROUNDS, DYNAMICS_SCALE, IMAGE_RESOLUTIONS } from "@config";
-import { build_aesthetic_map } from "../intelligence/modules/style.js";
+import { build_aesthetic_map, flatten_aesthetic_map } from "../intelligence/modules/style.js";
 import { IMAGE_TRIGGER, evaluate_image_trigger } from "../intelligence/dynamics.js";
 
 // ============================================================================
@@ -265,41 +248,7 @@ export const aesthetic_resolver = {
       .join(",\n");
   },
 
-  /**
-   * Deterministic flattening of entity physical traits into continuous descriptive sentences.
-   * @param {AestheticEntityInput} [entity={}]
-   * @returns {string}
-   */
   flatten(entity = {}) {
-    const merged_aesthetic_map = build_aesthetic_map(entity);
-    const visual_style_values = ORDERED_VISUAL_STYLE_KEYS.map((key) => merged_aesthetic_map[key]).filter(Boolean);
-    const additional_values = Object.entries(merged_aesthetic_map)
-      .filter(([key]) => !ORDERED_VISUAL_STYLE_KEYS.includes(key))
-      .map(([key, value]) => {
-        const value_string = Array.isArray(value) ? value.join(", ") : String(value).trim();
-        return key.startsWith("_visual_style_") || key === "aesthetic" ? value_string : `${key.replace(/_/g, " ")}: ${value_string}`;
-      })
-      .filter(Boolean);
-
-    return normalize_comma_spacing([...visual_style_values, ...additional_values].join(". "));
+    return flatten_aesthetic_map(entity);
   },
 };
-
-// ============================================================================
-// CHANGELOG
-// ============================================================================
-/**
- * CHANGELOG:
- * - 2026-10-18: Consolidated cross-domain compiler re-exports under unified header at top of optics.js.
- * - 2026-10-18: Sovereign prompt ownership — moved `render_optics_fallback` implementation to `intelligence/modules/style.js`; optics.js now re-exports it to preserve media consumer ergonomics without circular barrel entanglement.
- * - Track 0.11: Sensory dissolution - IMAGE_TRIGGER + evaluate_image_trigger move to intelligence/physics.js (imported back for resolve_image_trigger, which stays); visual payload compilers move to style.js (re-exported for @media consumers); render_optics_fallback absorbed from sensory.js (new Section 5).
- * - 2026-10-04: Reverted OPTICS_INVARIANTS to intelligence protocols.js and sensory/visual history shaping to intelligence history.js — optics.js owns taxonomy/triggers/aesthetics only.
- * - 2026-10-04: Added OPTICS_INVARIANTS — single source of the sensory-optics protocol texts (consumed by intelligence protocols.js).
- * - 2026-10-04: Absorbed optics history shaping (format_sensory_history, render_visual_history) from intelligence history.js.
- * - 2026-10-03: Environmental scene framing preservation — staging_has_scene_focus now checks for wide/landscape/environmental cues and preserves story_scene tier even under high intensity/affinity dynamics.
- * - 2026-09-24: Purged redundant re-exports of VISUAL_EXCLUDED_KEYS and strip_visual_excluded under P4 Zero Backwards Compatibility.
- * - 2026-09-24: Imported VISUAL_EXCLUDED_KEYS and strip_visual_excluded from @utils instead of @intelligence, breaking circular media↔intelligence dependency.
- * - 2026-09-24: Consolidated pure visual optics domain (optics.js) absorbing image-tiers.js (taxonomy, resolutions), image-trigger.js (dual-source trigger arbitration, dynamics gate), and image-aesthetics.js (aesthetic map synthesis, prompt composition, resolvers).
- * - 2026-09-24: Added compose_visual_generation_prompt() — positive style-token injection and negative-token assembly/dedup moved out of visual.svelte.js generate() into this pure compiler.
- * - 2026-09-19: Repatriated VISUAL_EXCLUDED_KEYS and strip_visual_excluded to @intelligence/modules/entities/epistemic.js; re-exported from @intelligence for backwards-clean imports.
- */

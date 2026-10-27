@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Dead Execution Code Purge & Persistence Hardening (`src/intelligence/`, `src/media/`, `src/data/`)**:
+  - **Dead Intelligence Functions Purged**: Deleted dead `eternal_field_dedup` from `temporal.js`, purged dead `strip_relational_brackets` from `veil.js`, and eliminated the redundant 30-line entity sanitization loop and unused import in `story.js` (`execute_ghostwriter`), as `sheets.js` already guarantees owner perspective isolation across the Epistemic Wall.
+  - **Aesthetic Trait Flattening Deduplicated**: Extracted single pure `flatten_aesthetic_map(entity)` in `src/intelligence/modules/style.js` and updated `render_optics_fallback` and `aesthetic_resolver.flatten` in `src/media/optics.js` to delegate directly to it, adhering to the Single Implementation Rule.
+  - **Ledger Genesis Bracket Replay Bug Fixed**: Updated `replay_entity_field` in `src/data/ledger.js` to parse bracket directives from `entry.new_value` when `key: null` (Genesis/sorter batch writes), ensuring subsequent single-key updates never erase un-mutated Genesis brackets. Normalized story ID queries in `query_story_snapshot` to match both string and numeric IDs.
+  - **Deep Clone Reactivity Modernization**: Replaced legacy `JSON.parse(JSON.stringify(...))` deep clones with `structuredClone(...)` and `$state.snapshot(...)` in `src/data/repository.js`, `src/data/sessions.svelte.js`, and `src/state/runtime.svelte.js`.
+  - **Clean Code & Git Mirror Purge**: Removed all bottom-of-file historical `CHANGELOG` comment blocks and kept top headers under 10 lines across touched files, yielding a net deletion of 288 lines of code.
+
 - **Direct Prompt Compilation & Slot-Resolver Maze Collapse (`src/intelligence/prompts.js`, `builder.js`, `modules/`)**:
   - **Slot-Resolver Indirection Demolished**: Deleted `SYSTEM_SLOT_RESOLVERS`, `SYSTEM_STATE_KEYS`, `PROMPT_META_RESOLVERS`, `resolve_meta_args`, `resolve_prompt_plan`, and `render_prompt_plan` in `src/intelligence/prompts.js`. Prompt assembly is now direct, flat, and linear from top to bottom.
   - **Dead Module Wrappers Purged**: Deleted redundant `resolve_*_slot` wrapper functions across `src/intelligence/modules/` (`resolve_constitution_slot` in `constitution.js`, `resolve_core_protocols_slot` in `protocols.js`, `resolve_role_slot` in `system.js`, `resolve_entities_slot`, `resolve_target_context_slot`, `resolve_cast_slot`, `resolve_memory_advisory_slot`, and `resolve_entity_context_slot` in `entities.js`, `resolve_history_slot` and `resolve_chapter_history_slot` in `recency.js`, and `resolve_dynamic_axes_slot` in `dynamics.js`).

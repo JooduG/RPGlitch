@@ -1,17 +1,6 @@
 /**
  * src/intelligence/temporal.js
  * ⏳ TEMPORAL ENGINE & MEMORY FORGE — Vector Math, Relevance Scoring & Prompt Compilers
- *
- * Sovereign domain file owning all temporal operations across Eternal, Present, Future, Past:
- * 1. Vector Pool Access & Creation (resolve_vector_pool, create, prune)
- * 2. Relevance Scoring & Context Embeddings (score, score_async, precompute_context_embedding)
- * 3. Vector Math & Dynamic Retrieval (format, score, score_async, score_by_semantics)
- * 4. Hierarchical Memory Tree & Deterministic Retrieval (Track 2: compactor,
- *    hybrid ranker, recall clarity, leaf expansion, eventKey rot prevention)
- * 5. Memory Forge Consolidation Prompt Rendering (render_memory; contracts/schemas live in modules/format.js)
- * 6. Deduplication, Caps & Eviction (is_origin, ensure_unique_vector_id, append_past_vector, reconcile_vector_caps)
- * 7. State Mutations & Chapter Archival (archive_chapter)
- * 8. Memory Forge & Consolidation Engine (forge_memory, temporal_engine)
  */
 
 import {
@@ -390,21 +379,7 @@ function apply_recall_token_budget(ranked_vectors, token_budget = Infinity) {
   return ranked_vectors.filter((_, position) => keep[position]);
 }
 
-/**
- * Formats scored vectors into a string block within budget limits.
- * @param {any[]} vectors
- * @param {string} input
- * @param {object} [options={}]
- * @returns {string}
- */
-export function format(vectors, input, options = {}) {
-  const show_text = options.vector_text ?? true;
-  const max_chars = options.max_chars || 1500;
-  const offset = options.offset || 0;
-  const token_budget = options.token_budget ?? Infinity;
-
-  const ranked = apply_recall_token_budget(score(vectors, options.in_scene).slice(offset), token_budget);
-
+function select_vectors_within_budget(ranked, max_chars, show_text = true) {
   let running_chars = 0;
   const selected = [];
   const selected_texts = [];
@@ -429,6 +404,23 @@ export function format(vectors, input, options = {}) {
 }
 
 /**
+ * Formats scored vectors into a string block within budget limits.
+ * @param {any[]} vectors
+ * @param {string} input
+ * @param {object} [options={}]
+ * @returns {string}
+ */
+export function format(vectors, input, options = {}) {
+  const show_text = options.vector_text ?? true;
+  const max_chars = options.max_chars || 1500;
+  const offset = options.offset || 0;
+  const token_budget = options.token_budget ?? Infinity;
+
+  const ranked = apply_recall_token_budget(score(vectors, options.in_scene).slice(offset), token_budget);
+  return select_vectors_within_budget(ranked, max_chars, show_text);
+}
+
+/**
  * Asynchronously formats scored vectors into a string block within budget limits.
  * @param {any[]} vectors
  * @param {string} input
@@ -443,28 +435,7 @@ export async function format_async(vectors, input, options = {}) {
 
   const ranked = is_ready() ? await score_async(vectors, input, undefined, options.in_scene) : score(vectors, options.in_scene);
   const sliced = apply_recall_token_budget(ranked.slice(offset), token_budget);
-
-  let running_chars = 0;
-  const selected = [];
-  const selected_texts = [];
-
-  for (const vector of sliced) {
-    const text = vector.content || vector.directive || "";
-    if (!text.trim()) continue;
-
-    if (is_duplicate(text, selected_texts.join(" "))) continue;
-
-    const payload_length = text.length;
-    if (running_chars + payload_length > max_chars && selected.length > 0) {
-      break;
-    }
-
-    selected.push(vector);
-    selected_texts.push(text);
-    running_chars += payload_length;
-  }
-
-  return selected.map((vector) => (show_text ? vector.content || vector.directive || "" : "")).join("\n");
+  return select_vectors_within_budget(sliced, max_chars, show_text);
 }
 
 // ── 3. Deduplication, Caps & Eviction ─────────────────────────────────────────
@@ -1029,23 +1000,6 @@ export function resolve_settled_facts(entity, limit = SETTLED_FACT_LIMIT) {
 }
 
 // ── 5. State Mutations & Chapter Archival ─────────────────────────────────────
-
-/** Deduplicates an incoming eternal mutation against the existing identity field. */
-// eslint-disable-next-line no-unused-vars
-function eternal_field_dedup(existing, incoming) {
-  const normalize = (text) => collapse_whitespace(String(text || "").toLowerCase());
-  const incoming_normalized = normalize(incoming);
-  if (!incoming_normalized) return true;
-  const lines = String(existing || "")
-    .split("\n")
-    .map(normalize)
-    .filter(Boolean);
-  if (lines.includes(incoming_normalized)) return true;
-  for (const line of lines) {
-    if (line && is_duplicate(line, incoming_normalized)) return true;
-  }
-  return false;
-}
 
 // Physical tag keys for salience calculations (Track 1)
 const PHYSICAL_TAG_KEYS = new Set([
@@ -1876,28 +1830,3 @@ export const temporal_engine = {
 if (typeof window !== "undefined") {
   window.temporal_engine = temporal_engine;
 }
-
-/**
- * CHANGELOG
- * - 2026-10-14: Phase B — M1 Case-Variant Deduplication in merge_field_content; E2 Concealment Preservation in merge_field_content and forge_memory present.non_physical synthesis (reconciles incoming/existing brackets, carries over | hide and weights, prevents concealment stripping).
- * - Track 2.1: Multi-tier tree compactor — maybe_compact_memory folds Tier-0 pools into Tier-1 chapter anchors at PRISM_FANOUT (8) and Tier-1 sets into Tier-2 arcs (height <= COMPACTOR_MAX_HEIGHT); resolve_memory_tiers pure view; expand_compacted_leaves keyword leaf expansion; score() excludes compacted leaves; consolidate persists chapters on compaction.
- * - Track 2.2: Recall token budgets — format/format_async accept token_budget (lowest-relevance tail pruned via apply_recall_token_budget; default Infinity).
- * - Track 2.3: Deterministic hybrid retrieval — rank_hybrid_vectors (EntityOverlap×3.0 + LexicalFrequency×1.0 + EmotionalSalience×0.4 + Recency×1.2), resolve_recall_clarity (Chaos/Entropy > 70 fragments), format_hybrid_recall.
- * - Track 2.4: Write-time rot prevention — resolve_event_key (FNV-1a over normalized text); append_past_vector folds repeats into node provenance and stamps event_key; resolve_settled_facts feeds the extraction advisory.
- * - 2026-10-03: Memory Forge Compare-Then-Skip Guard — In `temporal_engine.consolidate`, inspect prior states across all 4 quadrants (`present.physical`, `present.non_physical`, `eternal.physical`, `eternal.non_physical`, `future`, `past`) before writing mutations, skipping no-ops, populating `old_value`, and setting `decider: "forge"`.
- * - 2026-10-01: Strip internal bracket engine flags (| hide, | show, | w: N) before embedding calculations in score_async, eliminating false semantic collisions on control words.
- * - 2026-09-29: `resolve_vector_pool` now supports flat universal bracket strings and bracket entry arrays via `parse_bracket_entries`, chunking on bracket boundaries with emotional weight synchronized from `w:`. `append_past_vector` seamlessly supports both flat strings and arrays.
- * - 2026-09-26: Memory-forge generations now dispatch with `priority: "background"`, so the global LLM gate preempts opportunistic consolidation whenever a foreground reply is queued.
- * - 2026-09-25: DRY pass — `fallback_consolidate` now filters with the shared `is_narrative_role` and builds speaker labels through one local `speaker_label` helper.
- * - 2026-09-25: Stripping standardization — the deterministic memory-snippet builders now compose `strip_cognition_blocks` + `collapse_whitespace` + `truncate_at_word` instead of inline regex/slice chains, and `eternal_field_dedup` reuses `collapse_whitespace`.
- * - 2026-09-24: Consolidation persists the `meta` marker per-turn via `db.simulation_log.update(id, { meta })` instead of a whole-row `bulkPut(slice)`. The slice is loaded before the (slow) forge LLM call, so bulk-writing it clobbered any attachment resolved onto those turns during the forge — reverting a finished prologue/story image to a permanently stuck loading placeholder.
- * - 2026-09-18: Routed forge_memory directly through switchboard `compile_prompt("continuum")`, removing builder.js render_memory coupling.
- * - 2026-09-16: Added sanitize_non_physical_prose to sanitize and unwrap accidental bracket-dicts or pseudo-json key-value strings from LLM non_physical mutations.
- * - 2026-09-12: Header correction — contracts/schemas relocated to modules/format.js.
- * - 2026-09-11: Header correction — TEMPORAL_PROTOCOLS bundle pruned; memory-forge prompt rendering still via render_memory.
- * - 2026-09-11: Grand Purification: prompt compilation moved to builder.js, leaving temporal.js a 100% pure vector math, scoring, and persistence engine.
- * - 2026-09-11: Modularized TEMPORAL_PROTOCOLS: bound CONTRACT and SCHEMA to modular imports in modules/.
- * - 2026-09-11: Consolidated temporal-pipeline.js and temporal-prompt.js into temporal.js, absorbing TEMPORAL_PROTOCOLS and render_memory into a unified temporal domain module.
- * - 2026-09-06: Expanded Memory Forge unconsolidated slice from 8 to 16 turns per consolidation cycle.
- * - 2026-08-28: Reconstructed temporal-pipeline.js with 5 clean domain sections, robust state logging, safe error wrappers, and full JSDoc typings.
- */

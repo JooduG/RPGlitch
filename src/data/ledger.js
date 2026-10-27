@@ -1,40 +1,11 @@
 /**
- * ============================================================================
  * src/data/ledger.js
  * 📜 MUTATION LEDGER & EVENT-SOURCING ACCESS LAYER
- * ============================================================================
- *
- * Implements change-only event storage for the Four-Quadrant entity fields
- * (eternal, present, past, future). Each mutation record captures discrete key updates,
- * atomic clearings, or prose pivots.
- *
- * SCHEMA:
- *   - id: Auto-increment primary key
- *   - story_id: Story identifier (or null for library births)
- *   - round: Coarse arc counter
- *   - seq: Intra-round sequence number (e.g. 1 for Director, 2 for Character, 3 for Forge)
- *   - turn_id: Simulation log message ID if applicable
- *   - entity_id: UUID of the affected entity
- *   - field: Quadrant leaf ("eternal.physical", "eternal.non_physical", "present.physical", "present.non_physical", "past", "future")
- *   - key: Bracket directive key (e.g. "SHIRT", "MIRA") or null for bare prose
- *   - old_value: Previous value or null
- *   - new_value: Updated value or null (null represents an atomic clear)
- *   - supersedes: Array of superseded keys/ids if cross-key override
- *   - timestamp: Millisecond epoch
- *   - writer: Origin subsystem ("genesis", "sorter", "forge", "director", "user")
- *
- * INVARIANTS:
- *   - Ledger lines are never embedded; semantic RAG operates on reconstructed text or past vector stores.
- *   - Mutations are append-only.
- *   - Ordering is strictly by (round, seq, timestamp).
- *
- * RULES FOR MODIFICATION:
- *   - Maintain compatibility with Dexie db.mutation_ledger schema.
- *   - Do not import UI or state stores directly into this persistence file.
- * ============================================================================
  */
 
+import { parse_bracket_entries } from "../intelligence/veil.js";
 import { db } from "./db.js";
+import { coerce_story_key } from "./repository.js";
 
 /**
  * @typedef {Object} LedgerEntry
@@ -166,7 +137,8 @@ export async function query_entity_history(entity_id, field = null) {
  */
 export async function query_story_snapshot(story_id, max_round = Infinity, max_seq = Infinity) {
   if (story_id == null) return [];
-  const entries = await db.mutation_ledger.where("story_id").equals(story_id).sortBy("id");
+  const story_ids = [...new Set([String(story_id), coerce_story_key(story_id)])];
+  const entries = await db.mutation_ledger.where("story_id").anyOf(story_ids).sortBy("id");
 
   return entries.filter((e) => {
     if (e.round < max_round) return true;
@@ -219,7 +191,21 @@ export async function replay_entity_field(entity_id, field, up_to_round = Infini
         }
       }
     } else if (entry.new_value != null) {
-      raw_prose = entry.new_value;
+      const parsed_brackets = parse_bracket_entries(entry.new_value);
+      if (parsed_brackets.length > 0) {
+        for (const bracket of parsed_brackets) {
+          key_values.set(bracket.key, bracket.value);
+          entries_map.set(bracket.key, {
+            value: bracket.value,
+            visibility: bracket.visibility === "hide" ? "hide" : "show",
+            weight: typeof bracket.weight === "number" ? bracket.weight : 5,
+          });
+        }
+        const unbracketed = entry.new_value.replace(/\[[^\]:]+:[^\]]+\]/g, "").trim();
+        if (unbracketed) raw_prose = unbracketed;
+      } else {
+        raw_prose = entry.new_value;
+      }
     }
   }
 
@@ -279,13 +265,3 @@ export const ledger_repository = {
   replay_entity_field,
   replay_full_entity_at_round,
 };
-
-// -----------------------------------------------------------------------------
-// CHANGELOG
-// -----------------------------------------------------------------------------
-/**
- * CHANGELOG
- * - 2026-10-03: Added `replay_full_entity_at_round` to reconstruct an entity's complete Four-Quadrant state at any historical round.
- * - 2026-10-03: Phase B1.1 Hardening — Added `is_identical_mutation` dedup guard, `visibility`, `weight`, and `decider` properties, and enhanced `replay_entity_field` to reconstruct full bracket predicates preserving flags.
- * - 2026-10-02: Initial creation of the mutation ledger persistence module per Part 8 architecture.
- */

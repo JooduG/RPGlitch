@@ -1,14 +1,6 @@
 /**
  * src/intelligence/story.js
  * 🎬 STORY PIPELINE — Intelligence Kernel Turn Coordinator
- *
- * Unifies the Intelligence Kernel (Context Broker, Dynamics, Prompt Builder) and the
- * Transport Layer (llm_service) into a single execution pipeline for simulation turns:
- * 1. Pipeline Constants & Auxiliary Queues
- * 2. Narrative Turn Orchestration (execute_turn)
- * 3. Story Lifecycles (execute_prologue, execute_epilogue)
- * 4. Persona Ghostwriter (execute_ghostwriter)
- * 5. Network Retry & Resilience (execute_with_retry)
  */
 
 import { db, entities, stories } from "@data";
@@ -44,7 +36,6 @@ import { compile_prompt } from "./prompts.js";
 import { prune, temporal_engine } from "./temporal.js";
 import { spawn_character } from "./profile.js";
 import { REFLEX_LIBRARY, classify_input_size, is_stream_beat_limit_reached } from "./modules/reflex.js";
-import { filter_epistemic_brackets } from "./veil.js";
 
 /**
  * @typedef {Object} GenerationOptions
@@ -982,38 +973,6 @@ export const gamemaster = {
     }));
     const payload = await context_builder.build_context(input_text || "", "simulation", simulation_log);
 
-    // Epistemic Wall: Sanitize all non-user entities across the Epistemic Wall so AI/NPC secrets are stripped
-    if (payload?.entities) {
-      for (const [key, entity] of Object.entries(payload.entities)) {
-        if (key !== "USER" && entity) {
-          payload.entities[key] = {
-            ...entity,
-            present: entity.present
-              ? {
-                  ...entity.present,
-                  physical: filter_epistemic_brackets(entity.present.physical, "other"),
-                  non_physical: filter_epistemic_brackets(entity.present.non_physical, "other"),
-                }
-              : entity.present,
-            eternal: entity.eternal
-              ? {
-                  ...entity.eternal,
-                  physical: filter_epistemic_brackets(entity.eternal.physical, "other"),
-                  non_physical: filter_epistemic_brackets(entity.eternal.non_physical, "other"),
-                }
-              : entity.eternal,
-            future: filter_epistemic_brackets(entity.future, "other"),
-            past: Array.isArray(entity.past)
-              ? entity.past.map((vector) => ({
-                  ...vector,
-                  content: filter_epistemic_brackets(vector.content || vector.text || "", "other"),
-                }))
-              : filter_epistemic_brackets(entity.past, "other"),
-          };
-        }
-      }
-    }
-
     const ghost_prompt = compile_prompt("ghostwrite", { ...payload, input: input_text, ghostwrite: true });
 
     let full_accumulated = "";
@@ -1096,31 +1055,3 @@ export const gamemaster = {
 };
 
 export const story_pipeline = gamemaster;
-
-/**
- * CHANGELOG
- * - 2026-10-15: Standardized prompt completion injection and finishTail recovery strictly on canonical </SYSTEM> root tag after purging TURN.
- * - 2026-10-14: Phase C — Task C.2 (Ghostwrite Perspective Alignment): Sanitized all non-USER entities in execute_ghostwriter through filter_epistemic_brackets('other'), enforcing the Epistemic Wall so third-party secrets never leak into user persona ghostwrite draft prompts.
- * - 2026-10-14: Atom 3.4 — Turn Pragmatics (Issue 13 / Sub-item 6.10). Adapted prompt completion injection and truncation finishTail recovery to match either </SYSTEM> or </TURN> root tags.
- * - 2026-10-14: Atom 2.6 Same-Role Semantic Drift Recalibration — Updated drift calculations in Step 2 and Step 7.5 to compare consecutive turns by the same interlocutor (user vs previous user, companion vs previous companion), allowing conversational circularity to naturally trip stagnation thresholds.
- * - 2026-10-12: Added Track 4 Scene Momentum & Stagnation Backstop: computes turn-to-turn semantic movement using calculate_semantic_drift, records stagnation counts into state_bridge.runtime, injects stagnation_turns into context payload, and logs momentum telemetry.
- * - 2026-09-26: Deferred background LLM enrichment — the image-beat optics dispatch and the Continuum memory forge now fire AFTER the character pass (step 8.2) instead of racing it, and the prologue image waits for the opening reply (replacing the image-resolve budget race), so the foreground reply always owns the single-slot global LLM gate first.
- * - 2026-09-24: Streamlined dependencies: routed `capture_dynamics_delta` from `physics.js` and `context_builder` from `builder.js`, removing orphaned imports to retired standalone modules (`telemetry.js`, `payload.js`).
- * - 2026-09-25: Unified history message filtering — migrated execute_turn, execute_epilogue, and execute_ghostwriter to consume canonical `filter_narrative_messages` from @utils.
- * - 2026-09-25: Stripping standardization — dropped the local `clean_think` tag-scrub and the
- *   inline closure-strip in the truncation check, routing both through the shared
- *   `strip_cognition_blocks`; the image-trigger snippet now clips via `truncate_at_word`.
- * - 2026-09-24: Prologue image lifecycle fix — the placeholder now carries a `requested_at`
- *   stamp and the generation is registered in flight so the ghost sweeper can't reap it
- *   mid-render; the prologue only stops *waiting* on the image after the budget and no
- *   longer fakes a failure, and a null/errored render now marks the placeholder failed
- *   instead of leaving a live shimmer.
- * - 2026-09-19: Prompt Unification (Mega Report Phase 2): Migrated story.js prompt compilation (interaction, npc, narrator/prologue/epilogue, ghostwrite) directly to `compile_prompt` from prompts.js and `build_scoring_context` from builder.js, eliminating all references to prompt_builder under P4 Zero Backwards Compatibility.
- * - 2026-09-18: Master Prompt Pipeline Standardization: (1) Aligned character, prologue, epilogue, and ghostwriter prompt assembly with unified `compile_prompt`; (2) Pruned legacy `system_close` handling across all LLM generation calls.
- * - 2026-09-15: Domain Layer Prompt-Free Purity — Replaced literal <THINK> string with imported THINK_OPEN_TAG constant from parser.js.
- * - 2026-09-14: Updated prologue and epilogue visualization mode from story_entities to landscape story_scene (768x512).
- * - 2026-09-13: Deconstructed & Streamlined: (1) Outsourced Shot 1 LLM dispatch, refusal recovery, and terse fallback to director.js `execute_director_shot`; (2) Forked Shot 2A (storyteller stream) and Shot 2B (background Memory Forge consolidation) concurrently in parallel; (3) Centralized tag surgery (balance_think_tags, strip_directors_note_seed) into parser.js.
- * - 2026-08-29: Exported canonical story_pipeline alias alongside gamemaster (/harmonize).
- * - 2026-08-28: Reconstructed story-pipeline.js with 5 clean numbered sections, updated header path, and standard JSDoc typings.
- * - 2026-09-04: Macro-leak (narrative side): Director may select {A|B} alternation options; log_narrative_alternations logs each confirmed pick as [ALT] FIELD -> option N "..." (narrative); persisted prose is guarded via strip_alternation_braces + strip_directors_note_seed (I5); think_sections now surface internal_monologue.
- */

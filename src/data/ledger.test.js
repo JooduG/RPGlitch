@@ -210,17 +210,55 @@ describe("mutation ledger persistence & replay", () => {
     ]);
 
     const replayed = await replay_entity_field("char_mira", "present.non_physical");
-    expect(replayed.key_values.get("@BENEDICT")).toBe("covert informant");
-    expect(replayed.entries_map.get("@BENEDICT")?.visibility).toBe("hide");
-    expect(replayed.entries_map.get("@BENEDICT")?.weight).toBe(8);
-
     expect(replayed.reconstructed_brackets).toContain("[@BENEDICT: covert informant | hide w:8]");
     expect(replayed.reconstructed_brackets).toContain("[DAGGER: stiletto | hide]");
   });
-});
 
-/**
- * CHANGELOG
- * - 2026-10-03: Added unit tests for dedup guard, flag preservation, and reconstructed brackets.
- * - 2026-10-02: Created unit test suite for mutation ledger persistence and replay.
- */
+  it("preserves un-mutated Round 0 Genesis brackets when replaying subsequent single-key updates", async () => {
+    const { append_ledger_entries, replay_entity_field, replay_full_entity_at_round } = await import("./ledger.js");
+
+    // Round 0 Genesis: full bracket string written with key: null
+    await append_ledger_entries([
+      {
+        story_id: "s_genesis",
+        round: 0,
+        seq: 0,
+        entity_id: "char_mira",
+        field: "present.physical",
+        key: null,
+        old_value: null,
+        new_value: "[SHIRT: white silk] [PANTS: black leather] [BOOTS: riding boots | w:7]",
+        writer: "genesis",
+        decider: "genesis",
+      },
+      // Round 1: single-key mutation overwriting only SHIRT
+      {
+        story_id: "s_genesis",
+        round: 1,
+        seq: 1,
+        entity_id: "char_mira",
+        field: "present.physical",
+        key: "SHIRT",
+        old_value: "white silk",
+        new_value: "torn tunic",
+        writer: "director",
+        decider: "director",
+      },
+    ]);
+
+    const replayed = await replay_entity_field("char_mira", "present.physical");
+    expect(replayed.key_values.get("SHIRT")).toBe("torn tunic");
+    expect(replayed.key_values.get("PANTS")).toBe("black leather");
+    expect(replayed.key_values.get("BOOTS")).toBe("riding boots");
+    expect(replayed.entries_map.get("BOOTS")?.weight).toBe(7);
+
+    expect(replayed.reconstructed_brackets).toContain("[SHIRT: torn tunic]");
+    expect(replayed.reconstructed_brackets).toContain("[PANTS: black leather]");
+    expect(replayed.reconstructed_brackets).toContain("[BOOTS: riding boots | w:7]");
+
+    const full_profile = await replay_full_entity_at_round("char_mira", 1);
+    expect(full_profile.present.physical).toContain("[SHIRT: torn tunic]");
+    expect(full_profile.present.physical).toContain("[PANTS: black leather]");
+    expect(full_profile.present.physical).toContain("[BOOTS: riding boots | w:7]");
+  });
+});

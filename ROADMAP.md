@@ -129,6 +129,13 @@ A comprehensive, code-grounded review of the running application and execution o
   - `src/lib/vitest-examples/Welcome.svelte.spec.js` (purged obsolete template test)
   - `src/lib/vitest-examples/greet.js` (purged obsolete template file)
   - `src/lib/vitest-examples/greet.spec.js` (purged obsolete template test)
+  - `src/data/ledger.js` (event-sourcing ledger Genesis multiline bracket replay fix and story_id normalization)
+  - `src/data/ledger.test.js` (Genesis bracket preservation across single-key updates test suite)
+  - `src/data/repository.js` (entity deep clone structuredClone migration and header cleanup)
+  - `src/intelligence/modules/style.js` (pure flatten_aesthetic_map trait flattening extraction)
+  - `src/intelligence/story.js` (execute_ghostwriter redundant entity sanitization loop purge)
+  - `src/intelligence/veil.js` (dead strip_relational_brackets purge)
+  - `src/state/runtime.svelte.js` (save_entity $state.snapshot proxy decoupling)
 - **Key Modules**: `src/ui/`, `src/state/`, `src/intelligence/`, `src/data/`, `src/media/`, `src/utils/`, `src/config.js`, `src/lib/`.
 
 ---

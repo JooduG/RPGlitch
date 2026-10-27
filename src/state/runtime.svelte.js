@@ -609,7 +609,8 @@ export class RuntimeEngineStore {
    */
   async save_entity(type, entity) {
     try {
-      await entities.upsert(type, entity);
+      const entity_payload = $state.snapshot(entity);
+      await entities.upsert(type, entity_payload);
       if (this.character && this.character.id === entity.id) {
         Object.assign(this.character, entity);
       }

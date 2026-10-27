@@ -208,9 +208,9 @@ export const session_driver = {
       visual_style,
       narrative_style,
       entity_snapshots: {
-        ai: ai_entity ? JSON.parse(JSON.stringify(ai_entity)) : { dynamics: {} },
-        user: user_entity ? JSON.parse(JSON.stringify(user_entity)) : { dynamics: {} },
-        fractal: fractal_entity ? JSON.parse(JSON.stringify(fractal_entity)) : { dynamics: {}, visual_style, narrative_style },
+        ai: ai_entity ? structuredClone($state.snapshot(ai_entity)) : { dynamics: {} },
+        user: user_entity ? structuredClone($state.snapshot(user_entity)) : { dynamics: {} },
+        fractal: fractal_entity ? structuredClone($state.snapshot(fractal_entity)) : { dynamics: {}, visual_style, narrative_style },
       },
       npc_ids: Array.from(initial_npc_ids),
       created_at: Date.now(),

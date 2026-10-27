@@ -1,23 +1,6 @@
 /**
  * src/data/repository.js
  * 🏛️ REPOSITORY PERSISTENCE & ENTITY/STORY DATA ACCESS LAYER
- *
- * Provides high-level asynchronous CRUD operations for Characters, Fractals,
- * and Stories on top of the IndexedDB (Dexie) storage engine.
- *
- * DOMAINS:
- *   1. Foundry & Premade Seeding (`seed_premades`)
- *   2. Vector Embedding Serialization/Deserialization (`_map_vector_embeddings`)
- *   3. Entity Data Access (`entities`: `list`, `get`, `upsert`, `remove`, `update`)
- *   4. Narrative Story Access (`stories`: `list`, `get`, `update`, `update_cast`, `conclude`, `active_entity_ids`, `delete`)
- *   5. Key Coercion (`coerce_story_key`)
- *
- * ARCHITECTURAL INVARIANTS:
- *   - Normalization: Every entity is normalized through `format_premade` / `normalize`
- *     to preserve the canonical Four-Quadrant schema (eternal, present, past, future).
- *   - Float32Array Serialization: Temporal past memory vector embeddings are serialized
- *     into plain JSON arrays for Dexie storage and deserialized to Float32Array upon retrieval.
- *   - Reactive Story Bridge: Story mutations notify active subscribers via `stories_bridge.bump()`.
  */
 
 import { generate_uuid, stories_bridge } from "@utils";
@@ -154,7 +137,7 @@ export const entities = {
       const id = entity.id || generate_uuid();
       const base_entity = (await db.entities.get(id)) || {};
       const serializable_entity = _map_vector_embeddings(entity, serialize_embedding);
-      const cloned_entity = JSON.parse(JSON.stringify(serializable_entity));
+      const cloned_entity = structuredClone(serializable_entity);
 
       const saved_entity = {
         ...base_entity,
@@ -200,7 +183,7 @@ export const entities = {
   async update(type, id, data) {
     try {
       const serializable_data = _map_vector_embeddings(data, serialize_embedding);
-      const cloned_data = JSON.parse(JSON.stringify(serializable_data));
+      const cloned_data = structuredClone(serializable_data);
       const existing_entity = await db.entities.get(id);
       if (existing_entity && existing_entity.type === type) {
         return await db.entities.update(id, cloned_data);
@@ -401,21 +384,3 @@ export const stories = {
     stories_bridge.bump();
   },
 };
-
-/**
- * CHANGELOG
- * - 2026-10-12: Purged world-info lorebooks CRUD and table access under P4 Pre-Beta Purity.
- * - 2026-10-03: Added `revert_story_entities` to restore baseline entity snapshots from story metadata.
- * - 2026-09-10: Premade fallback lookup now uses `get_premade_entity_by_id` (case-insensitive)
- *   so lowercase ids (e.g. "orion") resolve their canonical SCREAMING_SNAKE premade (ORION).
- * - 2026-09-06: Purged obsolete `is_snapshot: 0` ballast under P4 Zero Backwards Compatibility;
- *   leveraged `$state.snapshot()` for fast reactivity decoupling in `upsert()` and `update()`.
- * - 2026-09-04: Converted `_seeding` guard from globalThis to module-scoped `_is_seeding_active` with robust finally reset.
- * - 2026-08-29: Harmonized `src/data/repository.js` via `/harmonize`:
- *   - Structured Universal File Architecture with instructional header, 4 domain dividers, and changelog footer.
- *   - Enforced Full-Name & Anti-Abbreviation Mandate across all identifiers (e.g. `global_scope`, `existing_records`,
- *     `entities_to_add`, `existing_entity_ids`, `blueprint`, `transformed_entity`, `vector_entry`, `mapped_embedding`,
- *     `found_entity`, `base_entity`, `serializable_entity`, `cloned_entity`, `saved_entity`, `sanitized_npc_ids`, `claimed_entity_ids`).
- *   - Retained Float32Array vector embedding serialization/deserialization and reactive `stories_bridge` events.
- *   - Verified 100% test pass on `repository.test.js` and 0 nomenclature audit violations.
- */

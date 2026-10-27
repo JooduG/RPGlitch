@@ -1,29 +1,6 @@
 /**
  * src/intelligence/veil.js
- * ============================================================================
  * 🛡️ THE VEIL ENGINE — Universal Bracket Predicates & Epistemic Wall
- * ============================================================================
- *
- * Provides sovereign, deterministic parsing, targeted mutation, epistemic
- * filtering, secrecy signaling, and relationship harvesting for RPGlitch.
- *
- * The Veil embodies phenomenological perspective and the Epistemic Wall:
- * what remains veiled from other entities versus what is unveiled to the
- * owner and omniscient director.
- *
- * Architecture & Modification Rules:
- * - Pure domain utility: zero UI, zero persistence, zero LLM dependencies.
- * - Universal bracket syntax: [KEY: value | flags]
- * - Brace-depth aware tokenization preserving Perchance alternations {a|b}.
- * - Targeted slice splicing: natural language prose and layout are 100% preserved.
- * - Supersession ledger contract: { text, superseded, history }.
- * - Three perspectives: 'owner', 'other', 'vision'.
- * - Secrecy signal preservation: hidden entries render as [KEY: value | hide]
- *   for the owner so persona LLMs do not voice covert items/plans openly.
- * - Epistemic wall enforcement: non-owner perspectives have all | hide brackets stripped.
- * - Vector retrieval sanitization: strip_bracket_engine_flags removes flags before embeddings.
- * - Strict full-name domain nomenclature.
- * ============================================================================
  */
 
 import { strip_visual_excluded } from "@utils";
@@ -600,53 +577,3 @@ export function extract_entity_relationships(entity, known_entities = [], perspe
 
   return relationships;
 }
-
-/**
- * Strips all `@`-prefixed relational bracket entries from a text string.
- * Used by the `<STATE>` renderer to ensure entity-targeted dynamics
- * (e.g. `[@BEAST: prized asset]`) are never rendered in the STATE field
- * where they would leak across the Epistemic Wall — they belong exclusively
- * in the `<DISPOSITIONS>` block.
- *
- * @param {string|null|undefined} text
- * @returns {string}
- */
-export function strip_relational_brackets(text) {
-  if (!text || typeof text !== "string") return "";
-  const entries = parse_bracket_entries(text);
-  if (entries.length === 0) return text;
-
-  let working_text = text;
-
-  // Process backwards to preserve character indices
-  for (let index = entries.length - 1; index >= 0; index--) {
-    const entry = entries[index];
-    const is_relational = entry.original_key?.startsWith("@") || entry.key.startsWith("@");
-    if (!is_relational) continue;
-
-    const before = working_text.slice(0, entry.start_index);
-    let after = working_text.slice(entry.end_index);
-
-    if (before.endsWith("\n") && after.startsWith("\n")) {
-      after = after.slice(1);
-    } else if (before.endsWith(" ") && after.startsWith(" ")) {
-      after = after.slice(1);
-    }
-
-    working_text = before + after;
-  }
-
-  return working_text.trim();
-}
-
-/**
- * CHANGELOG
- * ============================================================================
- * - 2026-10-14: Atom 3.3 — Updated extract_entity_relationships to key by canonical single-word slugs, return complete 4-quadrant relation records with target_id and target_name, and support omniscient UI inspection.
- * - 2026-10-01: Added strip_relational_brackets to remove @-prefixed entity-targeted brackets from STATE fields, preventing relational dynamics from leaking across the Epistemic Wall outside of DISPOSITIONS blocks.
- * - 2026-10-01: Renamed synaptic.js to veil.js and merged all epistemic wall functions from epistemic.js (strip_epistemic_tags, strip_epistemic_secrets, verify_epistemic_integrity).
- * - 2026-10-01: Standardized on | hide secrecy flag for owner perspective in filter_epistemic_brackets, eliminating redundant | private translation; exported strip_bracket_engine_flags for false semantic embedding protection.
- * - 2026-09-30: Tightened CLEARING_KEYWORDS to 'none' and 'cleared' preventing data loss of valid narrative values ('normal', 'bare', 'healed'). Added perspective parameter to extract_entity_relationships to prevent private relationship leaks.
- * - 2026-09-29: Initial implementation of the Synaptic Bracket Engine. Delivers brace-depth aware parsing for Perchance alternations, targeted slice mutation with supersession ledger, three-way epistemic filtering ('owner' | 'other' | 'vision') with owner secrecy signals, and cross-tempus relationship harvesting.
- * ============================================================================
- */
