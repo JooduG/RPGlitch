@@ -1,11 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   force_recover_simulation,
-  FREEZE_WATCHDOG_CHUNK_STALL_MS,
-  FREEZE_WATCHDOG_CONSOLIDATE_GRACE_MS,
-  FREEZE_WATCHDOG_IDLE_GRACE_MS,
-  FREEZE_WATCHDOG_INTERVAL_MS,
-  FREEZE_WATCHDOG_MAX_MS,
   SimulationStateStore,
   simulation_state,
   StreamingStore,
@@ -13,6 +8,7 @@ import {
   UIStateStore,
   ui_state,
 } from "./status.svelte.js";
+import { WATCHDOG_POLICY } from "@config";
 import { Audio } from "@media";
 
 vi.mock("@media", () => ({
@@ -276,12 +272,12 @@ describe("Freeze Watchdog & Recovery", () => {
     vi.restoreAllMocks();
   });
 
-  it("exports calibrated watchdog timing thresholds", () => {
-    expect(FREEZE_WATCHDOG_INTERVAL_MS).toBe(15000);
-    expect(FREEZE_WATCHDOG_IDLE_GRACE_MS).toBe(90000);
-    expect(FREEZE_WATCHDOG_CHUNK_STALL_MS).toBe(90000);
-    expect(FREEZE_WATCHDOG_MAX_MS).toBe(300000);
-    expect(FREEZE_WATCHDOG_CONSOLIDATE_GRACE_MS).toBe(240000);
+  it("exports calibrated watchdog timing thresholds in WATCHDOG_POLICY", () => {
+    expect(WATCHDOG_POLICY.INTERVAL_MS).toBe(15000);
+    expect(WATCHDOG_POLICY.IDLE_GRACE_MS).toBe(90000);
+    expect(WATCHDOG_POLICY.CHUNK_STALL_MS).toBe(90000);
+    expect(WATCHDOG_POLICY.MAX_MS).toBe(300000);
+    expect(WATCHDOG_POLICY.CONSOLIDATE_GRACE_MS).toBe(240000);
   });
 
   it("force_recover_simulation unlocks simulation_state and resets streaming/loading", () => {

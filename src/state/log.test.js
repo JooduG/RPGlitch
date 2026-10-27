@@ -1,12 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import {
-  DEVELOPER_TELEMETRY_STORAGE_KEY,
-  DeveloperLogStore,
-  developer_log,
-  MAX_DEVELOPER_LOG_ENTRIES,
-  SimulationLogStore,
-  simulation_log,
-} from "./log.svelte.js";
+import { DEVELOPER_TELEMETRY_STORAGE_KEY, DeveloperLogStore, developer_log, SimulationLogStore, simulation_log } from "./log.svelte.js";
+import { TELEMETRY_CAPS } from "@config";
 import { runtime } from "./runtime.svelte.js";
 import { session_driver } from "@data";
 import { generate_uuid } from "@utils";
@@ -174,12 +168,12 @@ describe("DeveloperLogStore", () => {
     expect(developer_log.entries[0]).toEqual(entry);
   });
 
-  it("caps log entries at MAX_DEVELOPER_LOG_ENTRIES", () => {
-    for (let i = 0; i < MAX_DEVELOPER_LOG_ENTRIES + 10; i++) {
+  it("caps log entries at TELEMETRY_CAPS.DEVELOPER_LOG_ENTRIES", () => {
+    for (let i = 0; i < TELEMETRY_CAPS.DEVELOPER_LOG_ENTRIES + 10; i++) {
       developer_log.log(`Log message #${i}`);
     }
-    expect(developer_log.entries.length).toBe(MAX_DEVELOPER_LOG_ENTRIES);
-    expect(developer_log.entries[developer_log.entries.length - 1].message).toBe(`Log message #${MAX_DEVELOPER_LOG_ENTRIES + 9}`);
+    expect(developer_log.entries.length).toBe(TELEMETRY_CAPS.DEVELOPER_LOG_ENTRIES);
+    expect(developer_log.entries[developer_log.entries.length - 1].message).toBe(`Log message #${TELEMETRY_CAPS.DEVELOPER_LOG_ENTRIES + 9}`);
   });
 
   it("restores entries via hydrate safely", async () => {

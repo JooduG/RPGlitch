@@ -25,7 +25,7 @@
  */
 
 import { Audio } from "@media";
-import { LATENCY_TIERS_MS } from "@config";
+import { WATCHDOG_POLICY } from "@config";
 import { get_llm_gate_status } from "@platform";
 import { developer_log } from "./log.svelte.js";
 
@@ -383,14 +383,8 @@ export class StreamingStore {
 }
 
 // ============================================================================
-// [SECTION 5: FREEZE WATCHDOG CONSTANTS & FORCE RECOVERY ENGINE]
+// [SECTION 5: FORCE RECOVERY ENGINE & FREEZE WATCHDOG]
 // ============================================================================
-
-export const FREEZE_WATCHDOG_INTERVAL_MS = LATENCY_TIERS_MS.HEARTBEAT;
-export const FREEZE_WATCHDOG_IDLE_GRACE_MS = 90000;
-export const FREEZE_WATCHDOG_CHUNK_STALL_MS = 90000;
-export const FREEZE_WATCHDOG_MAX_MS = 5 * 60 * 1000;
-export const FREEZE_WATCHDOG_CONSOLIDATE_GRACE_MS = LATENCY_TIERS_MS.LIFETIME;
 
 let _freeze_watchdog_started = false;
 
@@ -492,21 +486,21 @@ export function install_freeze_watchdog() {
 
     if (generating || locked) {
       // Tier 1: Generating/Locked with NO stream after idle grace
-      if (!streaming_active && elapsed >= FREEZE_WATCHDOG_IDLE_GRACE_MS) {
+      if (!streaming_active && elapsed >= WATCHDOG_POLICY.IDLE_GRACE_MS) {
         force_recover_simulation(`Simulation stuck ${Math.round(elapsed / 1000)}s with no stream`);
         stuck_since = 0;
         return;
       }
 
       // Tier 2a: Active stream stalled with no chunks
-      if (streaming_active && last_chunk_ts > 0 && Date.now() - last_chunk_ts >= FREEZE_WATCHDOG_CHUNK_STALL_MS) {
+      if (streaming_active && last_chunk_ts > 0 && Date.now() - last_chunk_ts >= WATCHDOG_POLICY.CHUNK_STALL_MS) {
         force_recover_simulation(`Stream produced no chunks for ${Math.round((Date.now() - last_chunk_ts) / 1000)}s`);
         stuck_since = 0;
         return;
       }
 
       // Tier 2: Broad max timeout without content progression
-      if (elapsed >= FREEZE_WATCHDOG_MAX_MS && !stream_grew) {
+      if (elapsed >= WATCHDOG_POLICY.MAX_MS && !stream_grew) {
         force_recover_simulation(`Simulation stuck ${Math.round(elapsed / 1000)}s with no progress`);
         stuck_since = 0;
         return;
@@ -515,7 +509,7 @@ export function install_freeze_watchdog() {
     }
 
     // Tier 3: Memory consolidation overrun grace
-    if (elapsed >= FREEZE_WATCHDOG_CONSOLIDATE_GRACE_MS) {
+    if (elapsed >= WATCHDOG_POLICY.CONSOLIDATE_GRACE_MS) {
       console.warn(`[Watchdog] Post-turn consolidation overran ${Math.round(elapsed / 1000)}s — releasing intent lock.`, { phase, intent_active });
       developer_log.log(`[Watchdog] Post-turn consolidation overran ${Math.round(elapsed / 1000)}s — releasing intent lock.`, "warn");
 
@@ -526,7 +520,7 @@ export function install_freeze_watchdog() {
       }
       stuck_since = 0;
     }
-  }, FREEZE_WATCHDOG_INTERVAL_MS);
+  }, WATCHDOG_POLICY.INTERVAL_MS);
 
   return timer_id;
 }

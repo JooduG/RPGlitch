@@ -30,6 +30,7 @@ import { db, entities, coerce_story_key, session_driver, SESSION_ID_KEY } from "
 import { load_session_checkpoint, clear_session_checkpoint } from "@platform";
 import { decompose_story_title } from "@utils";
 import { get_signature_color } from "@media";
+import { TELEMETRY_CAPS, DEFAULT_AI_DYNAMICS, DEFAULT_FRACTAL_DYNAMICS } from "@config";
 import { app } from "./interface.svelte.js";
 
 // ============================================================================
@@ -75,25 +76,7 @@ import { app } from "./interface.svelte.js";
  */
 
 // ============================================================================
-// [SECTION 2: CONSTANTS & DEFAULT CONFIGURATIONS]
-// ============================================================================
-
-export const DIRECTOR_MS_POOL_CAP = 50;
-
-const DEFAULT_AI_DYNAMICS = Object.freeze({
-  chaos: 50,
-  intensity: 50,
-  openness: 50,
-  affinity: 50,
-});
-
-const DEFAULT_FRACTAL_DYNAMICS = Object.freeze({
-  velocity: 50,
-  entropy: 50,
-});
-
-// ============================================================================
-// [SECTION 3: RUNTIME STORE FACTORY]
+// [SECTION 2: RUNTIME STORE FACTORY]
 // ============================================================================
 
 /**
@@ -361,7 +344,7 @@ export class RuntimeEngineStore {
     const valid = Math.max(0, Number(ms) || 0);
     this.last_director_ms = valid;
     const next = [...this.director_ms_pool, valid];
-    if (next.length > DIRECTOR_MS_POOL_CAP) {
+    if (next.length > TELEMETRY_CAPS.DIRECTOR_LATENCY_POOL) {
       next.shift();
     }
     this.director_ms_pool = next;

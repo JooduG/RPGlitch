@@ -249,11 +249,40 @@ export const DIRECTOR_OUTPUT = Object.freeze({
   KEYWORDS_MAX: 5, // Maximum number of thematic staging keywords extracted per turn
 });
 
+/** Default 4-axis somatic dynamics baseline at neutral equilibrium (MID 50) */
+export const DEFAULT_AI_DYNAMICS = Object.freeze({
+  chaos: DYNAMICS_SCALE.MID,
+  intensity: DYNAMICS_SCALE.MID,
+  openness: DYNAMICS_SCALE.MID,
+  affinity: DYNAMICS_SCALE.MID,
+});
+
+/** Default 2-axis environmental dynamics baseline at neutral equilibrium (MID 50) */
+export const DEFAULT_FRACTAL_DYNAMICS = Object.freeze({
+  velocity: DYNAMICS_SCALE.MID,
+  entropy: DYNAMICS_SCALE.MID,
+});
+
 // ── 6. Hardware Tensors, Concurrency & UI Subsystems ─────────────────────────
 export const EMBEDDING_SPECS = Object.freeze({
   DIMENSIONS: 384, // Tensor dimensionality (384-d) for all-MiniLM-L6-v2 semantic sentence embeddings
   CACHE_CAPACITY: 1500, // Maximum number of 384-d tensor vectors held in the in-memory LRU cache
   QUANTIZE_MAX: 255, // 8-bit unsigned integer scalar ceiling (0-255) for quantized vector storage
+});
+
+/** Calibrated watchdog timing and grace thresholds preventing engine hangs */
+export const WATCHDOG_POLICY = Object.freeze({
+  INTERVAL_MS: LATENCY_TIERS_MS.HEARTBEAT, // 15,000ms (15s): Watchdog probe heartbeat
+  IDLE_GRACE_MS: 90000, // 90,000ms (90s): Maximum idle stasis permitted before recovery
+  CHUNK_STALL_MS: 90000, // 90,000ms (90s): Maximum time without stream chunks before timeout
+  MAX_MS: 5 * 60 * 1000, // 300,000ms (5m): Hard maximum generation runtime
+  CONSOLIDATE_GRACE_MS: LATENCY_TIERS_MS.LIFETIME, // 240,000ms (4m): Max background memory consolidation grace
+});
+
+/** Telemetry and diagnostic ring buffer capacity caps */
+export const TELEMETRY_CAPS = Object.freeze({
+  DIRECTOR_LATENCY_POOL: 50, // Rolling window size for director execution latency tracking
+  DEVELOPER_LOG_ENTRIES: 500, // Maximum developer log buffer capacity before FIFO truncation
 });
 
 // =============================================================================

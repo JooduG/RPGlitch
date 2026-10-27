@@ -21,6 +21,7 @@
 import { SvelteSet } from "svelte/reactivity";
 import { db, session_driver } from "@data";
 import { generate_uuid } from "@utils";
+import { TELEMETRY_CAPS } from "@config";
 import { runtime } from "./runtime.svelte.js";
 
 // ============================================================================
@@ -28,7 +29,6 @@ import { runtime } from "./runtime.svelte.js";
 // ============================================================================
 
 export const DEVELOPER_TELEMETRY_STORAGE_KEY = "dev_telemetry";
-export const MAX_DEVELOPER_LOG_ENTRIES = 500;
 
 /**
  * Resolves a speaker display name to its canonical entity id against the
@@ -226,7 +226,9 @@ export class DeveloperLogStore {
       this.#persist_timer = null;
     }
     try {
-      db?.kv_settings?.put({ key: DEVELOPER_TELEMETRY_STORAGE_KEY, value: this.#entries.slice(-MAX_DEVELOPER_LOG_ENTRIES) })?.catch(() => {});
+      db?.kv_settings
+        ?.put({ key: DEVELOPER_TELEMETRY_STORAGE_KEY, value: this.#entries.slice(-TELEMETRY_CAPS.DEVELOPER_LOG_ENTRIES) })
+        ?.catch(() => {});
     } catch {
       /* Persistence errors must never break runtime flow */
     }
@@ -242,7 +244,9 @@ export class DeveloperLogStore {
     this.#persist_timer = setTimeout(() => {
       this.#persist_timer = null;
       try {
-        db?.kv_settings?.put({ key: DEVELOPER_TELEMETRY_STORAGE_KEY, value: this.#entries.slice(-MAX_DEVELOPER_LOG_ENTRIES) })?.catch(() => {});
+        db?.kv_settings
+          ?.put({ key: DEVELOPER_TELEMETRY_STORAGE_KEY, value: this.#entries.slice(-TELEMETRY_CAPS.DEVELOPER_LOG_ENTRIES) })
+          ?.catch(() => {});
       } catch {
         /* Persistence errors must never break runtime flow */
       }
@@ -251,7 +255,7 @@ export class DeveloperLogStore {
 
   /**
    * Records a developer or system diagnostic event.
-   * Capped to MAX_DEVELOPER_LOG_ENTRIES and asynchronously persisted to IndexedDB (debounced).
+   * Capped to TELEMETRY_CAPS.DEVELOPER_LOG_ENTRIES and asynchronously persisted to IndexedDB (debounced).
    * @param {string} message
    * @param {string} [type='system']
    * @returns {DeveloperLogEntry}
@@ -265,8 +269,8 @@ export class DeveloperLogStore {
     };
 
     this.#entries.push(entry);
-    if (this.#entries.length > MAX_DEVELOPER_LOG_ENTRIES) {
-      this.#entries.splice(0, this.#entries.length - MAX_DEVELOPER_LOG_ENTRIES);
+    if (this.#entries.length > TELEMETRY_CAPS.DEVELOPER_LOG_ENTRIES) {
+      this.#entries.splice(0, this.#entries.length - TELEMETRY_CAPS.DEVELOPER_LOG_ENTRIES);
     }
 
     this.#schedule_persist();
