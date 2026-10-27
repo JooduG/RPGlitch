@@ -135,7 +135,19 @@ A comprehensive, code-grounded review of the running application and execution o
   - `src/intelligence/modules/style.js` (pure flatten_aesthetic_map trait flattening extraction)
   - `src/intelligence/story.js` (execute_ghostwriter redundant entity sanitization loop purge)
   - `src/intelligence/veil.js` (dead strip_relational_brackets purge)
-  - `src/state/runtime.svelte.js` (save_entity $state.snapshot proxy decoupling)
+  - `src/state/runtime.svelte.js` (character getter reduction and save_entity proxy decoupling)
+  - `src/App.svelte` (unified run_image_regeneration and run_mock streaming lock)
+  - `src/ui/image/ImagePicker.svelte.js` (canonical run_image_regeneration pipeline)
+  - `src/ui/image/ImagePicker.svelte` (handle_regenerate deduplication)
+  - `src/ui/entity/ContextMenu.svelte` (reusable portalled viewport-clamped context menu component)
+  - `src/ui/entity/EntityCard.svelte` (portalled menu deduplication)
+  - `src/ui/message/Message.svelte` (portalled badge menu deduplication)
+  - `src/state/status.svelte.js` (purged bottom changelog block)
+  - `src/state/log.svelte.js` (purged bottom changelog block)
+  - `src/state/interface.svelte.js` (purged bottom changelog block)
+  - `src/state/chrono.svelte.js` (purged bottom changelog block)
+  - `src/state/index.js` (purged bottom changelog block)
+  - `src/state/runtime.test.js` (purged bottom changelog block)
 - **Key Modules**: `src/ui/`, `src/state/`, `src/intelligence/`, `src/data/`, `src/media/`, `src/utils/`, `src/config.js`, `src/lib/`.
 
 ---

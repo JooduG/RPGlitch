@@ -321,14 +321,3 @@ if (typeof window !== "undefined") {
     }
   });
 }
-
-/**
- * CHANGELOG:
- * - Track 2: Simulation Log Pipeline Harmonization — added `get_recent_window(limit, offset)` on `SimulationLogStore` to read directly from the in-memory `feed` without issuing redundant database queries during active gameplay rounds.
- * - 2026-09-23: Consolidated developer telemetry store (`developer-log.svelte.js`) directly
- *   into log.svelte.js under P4 Zero Backwards Compatibility.
- * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,
- *   structured section dividers, converted ID cache to private field (#id_set), added clear()
- *   method, aligned JSDoc LogEntry typedef, and verified test suite.
- * - 2026-08-16: Added deduplication ID cache and live attachment/text mutation methods.
- */

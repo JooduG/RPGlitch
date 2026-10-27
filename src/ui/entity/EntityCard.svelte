@@ -6,7 +6,7 @@
    * Standard: Ultra-Lean DOM and Svelte 5 `$props`.
    */
 
-  import { Button, StyleBadge } from "@primitives";
+  import { StyleBadge } from "@primitives";
   import { ProfilePicture } from "@image";
   import { guarded_transition } from "@utils";
   import { get_signature_color } from "@media";
@@ -14,7 +14,8 @@
   import { app, runtime } from "@state";
   import MacroText from "../profile/MacroText.svelte";
   import { flushSync } from "svelte";
-  import { claim_menu, get_menu_epoch, claim_morph_epoch, get_morph_epoch } from "./ContextMenu.svelte.js";
+  import ContextMenu from "./ContextMenu.svelte";
+  import { claim_menu, claim_morph_epoch, get_morph_epoch } from "./ContextMenu.svelte.js";
 
   const display_entities = $derived({
     AI: runtime.active_ai || app.selected_ai,
@@ -60,53 +61,18 @@
   let menu_open = $state(false);
   let menu_x = $state(0);
   let menu_y = $state(0);
-  let my_menu_epoch = 0;
+  let my_menu_epoch = $state(0);
   // Epoch of the last time THIS card's context menu opened. Only the most
   // recently opened menu's card is the profile-flip morph source.
   let my_morph_epoch = 0;
 
   function open_menu_at(x, y) {
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    // Anchor to the right edge of the menu on the right half, left edge on the left half
-    if (x > vw / 2) {
-      menu_x = Math.max(0, x - 160); // open leftward: left edge sits left of cursor
-    } else {
-      menu_x = Math.min(x, vw - 180);
-    }
-    // Spawn upward on the bottom half, downward on the top half
-    if (y > vh / 2) {
-      menu_y = y - 200; // initial estimate, corrected post-render
-    } else {
-      menu_y = Math.min(y, vh - 200);
-    }
+    menu_x = x;
+    menu_y = y;
     my_menu_epoch = claim_menu();
-    // Arm this card as the profile-flip source ("Profile" lives in the menu).
     my_morph_epoch = claim_morph_epoch();
     menu_open = true;
-    // Re-clamp after render using actual menu dimensions
-    requestAnimationFrame(() => {
-      const menu = document.body.querySelector('[role="menu"]');
-      if (!menu) return;
-      const { width, height } = menu.getBoundingClientRect();
-      // On bottom half: anchor bottom of menu to cursor position
-      if (y > vh / 2) {
-        menu_y = y - height;
-      }
-      if (menu_x + width > vw) menu_x = vw - width;
-      if (menu_y + height > vh) menu_y = vh - height;
-      if (menu_x < 0) menu_x = 0;
-      if (menu_y < 0) menu_y = 0;
-    });
   }
-
-  // Close this menu when another card opens its menu.
-  $effect(() => {
-    const current = get_menu_epoch();
-    if (menu_open && current !== my_menu_epoch) {
-      menu_open = false;
-    }
-  });
 
   function handle_card_click(e) {
     if (disabled) return;
@@ -116,15 +82,6 @@
       return;
     }
     handle_select();
-  }
-
-  function portal_to_body(node) {
-    document.body.appendChild(node);
-    return {
-      destroy() {
-        node.remove();
-      },
-    };
   }
 
   let fractal_storymode_ratio = $state("4 / 3");
@@ -144,16 +101,6 @@
     window.addEventListener("resize", update_ratio);
     return () => window.removeEventListener("resize", update_ratio);
   });
-
-  function handle_item_click(e, item) {
-    e.stopPropagation();
-    menu_open = false;
-    if (item.onSelect) item.onSelect();
-  }
-
-  function close_menu() {
-    menu_open = false;
-  }
 
   // --- TRANSITION LOGIC ---
   const transition_name = $derived.by(() => {
@@ -608,45 +555,7 @@
   {/if}
 </div>
 
-<svelte:window onclick={close_menu} onkeydown={(e) => e.key === "Escape" && close_menu()} />
-
-{#if menu_open}
-  <div
-    use:portal_to_body
-    class="fixed z-9999 min-w-40 overflow-hidden rounded-standard bg-glass-elevated shadow-(--shadow-standard) [backdrop-filter:var(--blur-mist)] outline-none
-      before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-(--noise-url) before:opacity-10 before:mix-blend-overlay"
-    style="left:{menu_x}px;top:{menu_y}px"
-    role="menu"
-    tabindex="-1"
-    onclick={(e) => e.stopPropagation()}
-    onkeydown={(e) => e.key === "Escape" && close_menu()}
-  >
-    {#each actions as item, i (i)}
-      {#if item.separator}
-        <div class="block h-px bg-current opacity-20"></div>
-      {:else}
-        <Button
-          variant="bare"
-          class="
-            flex h-9 w-full cursor-default items-center gap-2 px-2.5 text-xs font-bold tracking-widest text-slate-200 uppercase transition-colors duration-150 outline-none select-none hover:bg-(--signature-color,var(--color-slate-50))/10 hover:text-white
-            {item.danger ? 'text-red-400/80 hover:text-red-400' : ''}
-            {item.active ? 'text-(--signature-color,var(--color-slate-50))' : ''}
-          "
-          disabled={item.disabled}
-          onclick={(e) => handle_item_click(e, item)}
-          role="menuitem"
-        >
-          {#if item.active}
-            <span
-              class="size-1.5 shrink-0 rounded-full bg-(--signature-color,var(--color-slate-50)) shadow-[0_0_4px_var(--signature-color,var(--color-slate-50))]"
-            ></span>
-          {/if}
-          {item.label}
-        </Button>
-      {/if}
-    {/each}
-  </div>
-{/if}
+<ContextMenu bind:open={menu_open} x={menu_x} y={menu_y} epoch={my_menu_epoch} {actions} {signature_color} />
 
 <style>
   /* --- KINETIC HARDWARE KEYFRAMES --- */

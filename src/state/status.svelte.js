@@ -538,14 +538,3 @@ export function install_freeze_watchdog() {
 export const simulation_state = new SimulationStateStore();
 export const ui_state = new UIStateStore();
 export const streaming = new StreamingStore();
-
-/**
- * CHANGELOG:
- * - 2026-09-26: Watchdog back-pressure guard — a foreground turn queued behind the global LLM gate is treated as not-a-freeze (the gate preempts background work) instead of tripping `force_recover_simulation`.
- * - 2026-09-23: Consolidated streaming accumulator (`streaming.svelte.js`) and freeze watchdog
- *   recovery engine (`freeze-watchdog.js`) directly into status.svelte.js under P4 Zero Backwards Compatibility.
- * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,
- *   structured section dividers, defined JSDoc schemas (SimulationPhase, TurnRole, GeneratingEntity),
- *   exported store classes, and verified 100% test coverage.
- * - 2026-06-15: Added Director delegated speaker state (generating_entity_type, name, avatar, color).
- */

@@ -393,9 +393,3 @@ describe("runtime world-cast hydration (track-npc-expansion)", () => {
     });
   });
 });
-
-/**
- * CHANGELOG:
- * - 2026-09-24: Added unit tests for explicitly declared `structural_errors` and `back_shot_cursor` reactive fields on `RuntimeEngineStore`.
- * - 2026-06-15: Initial test suite for runtime state synchronization, NPC staging, and telemetry.
- */

@@ -357,12 +357,3 @@ export class ChronoEngine {
 // ============================================================================
 
 export const chrono_engine = new ChronoEngine();
-
-/**
- * CHANGELOG:
- * - 2026-10-03: Added `stop()` method to cleanly conclude active story, added AbortError round rollback and orphaned user turn row deletion, and cleared stale story titles on session start.
- * - 2026-08-29: Applied /harmonize protocol: structured Universal File Architecture,
- *   added section dividers, JSDoc typedefs, normalized variable naming (snake_case/question_snake),
- *   and verified turn pipeline integrity.
- * - 2026-08-16: Added orphaned-turn guard and sub-millisecond intent lock.
- */

@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **UI & State Hotspots Deduplication (`src/ui/`, `src/state/`, `src/App.svelte`)**:
+  - **Unified Image Regeneration Pipeline**: Extracted the duplicate 55-line prompt-refinement, JSON-peeling safety net, `visual_engine.generate_candidates`, and candidate delivery logic from `App.svelte` and `ImagePicker.svelte` into a single canonical `run_image_regeneration` function in `src/ui/image/ImagePicker.svelte.js`.
+  - **Deduplicated Portalled Context Menus**: Extracted reusable `src/ui/entity/ContextMenu.svelte` handling portalled body mounting, fixed z-9999 stacking, viewport-clamped positioning, and outside-click/escape dismissal. Replaced duplicate context menu DOM and logic across `EntityCard.svelte` and `Message.svelte`.
+  - **Streaming State Mutex Guard in `run_mock`**: Kept `simulation_state` active throughout word streaming in `App.svelte:run_mock` and wrapped stream termination and simulation completion in a `finally` block to prevent mid-stream re-triggers and UI unlocking.
+  - **Runtime Character Legacy Property Deprecation**: Reduced `runtime.character` in `src/state/runtime.svelte.js` to a clean 1-line getter pointing to `runtime.active_user` and removed redundant character mutation branches in `save_entity`.
+  - **Git Mirror Comments Purged**: Stripped all bottom-of-file historical `CHANGELOG` comment blocks across `src/state/` (`status.svelte.js`, `log.svelte.js`, `interface.svelte.js`, `chrono.svelte.js`, `index.js`, `runtime.test.js`, `runtime.svelte.js`) and touched `src/ui/` files.
+
 - **Dead Execution Code Purge & Persistence Hardening (`src/intelligence/`, `src/media/`, `src/data/`)**:
   - **Dead Intelligence Functions Purged**: Deleted dead `eternal_field_dedup` from `temporal.js`, purged dead `strip_relational_brackets` from `veil.js`, and eliminated the redundant 30-line entity sanitization loop and unused import in `story.js` (`execute_ghostwriter`), as `sheets.js` already guarantees owner perspective isolation across the Epistemic Wall.
   - **Aesthetic Trait Flattening Deduplicated**: Extracted single pure `flatten_aesthetic_map(entity)` in `src/intelligence/modules/style.js` and updated `render_optics_fallback` and `aesthetic_resolver.flatten` in `src/media/optics.js` to delegate directly to it, adhering to the Single Implementation Rule.

@@ -6,16 +6,8 @@
    * and pick their favorite. Includes a "Regenerate" button for a 2nd
    * round of generation with LLM-refined prompts.
    */
-  import {
-    image_picker,
-    select_candidate,
-    close_regenerate,
-    deliver_candidates,
-    set_regenerate_error,
-    begin_picker_regeneration,
-    get_persisted_meta,
-  } from "./ImagePicker.svelte.js";
-  import { visual_engine, get_resolution } from "@media";
+  import { image_picker, select_candidate, close_regenerate, run_image_regeneration } from "./ImagePicker.svelte.js";
+  import { get_resolution } from "@media";
   import { Backdrop, Button } from "@primitives";
   import { Shimmer } from "@motion";
   import { Dialog } from "bits-ui";
@@ -35,87 +27,9 @@
 
   async function handle_regenerate() {
     if (is_regenerating) return;
-    const key = image_picker.regenerating_key;
-    if (!key) {
-      set_regenerate_error("No image context available to regenerate.");
-      return;
-    }
-
-    // Read persisted meta BEFORE begin_picker_regeneration (plain variables, not $state)
-    const meta = get_persisted_meta();
-
     is_regenerating = true;
-    // Regenerate IN PLACE — the picker modal stays open, drops back to the
-    // Generating state, and fills with the fresh round of cards on
-    // deliver_candidates(). (Previously this called close_picker(), which made
-    // the button appear to do nothing: it just closed the modal and you had to
-    // click "Select Image" again.)
-    begin_picker_regeneration();
     try {
-      const signature_color = image_picker.signature_color;
-
-      const prompt = meta.prompt || "";
-      const mode = meta.mode || "character";
-      const negative_prompt = meta.negative_prompt || "";
-
-      if (!prompt) {
-        console.error("[ImagePicker] NO PROMPT! meta was:", meta);
-        set_regenerate_error("No prompt found for this image. Cannot regenerate.");
-        return;
-      }
-
-      let final_prompt = prompt;
-      let final_negative = negative_prompt;
-      try {
-        const refined = await visual_engine.enhance(prompt, mode);
-        if (refined?.prompt) {
-          final_prompt = refined.prompt;
-          final_negative = refined.negative_prompt || negative_prompt;
-        }
-      } catch (enhanceErr) {
-        console.warn("[ImagePicker] Prompt enhancement failed, using original prompt:", enhanceErr);
-      }
-
-      // SAFETY NET: If enhance() returned a full JSON blob instead of just the prompt field,
-      // extract the prompt field from it. This happens when parse_llm_refine_response fails to peel the JSON.
-      if (final_prompt.trim().startsWith("{")) {
-        try {
-          const parsed = JSON.parse(final_prompt.trim());
-          if (parsed.prompt && typeof parsed.prompt === "string") {
-            final_prompt = parsed.prompt;
-            if (parsed.negative_prompt) final_negative = parsed.negative_prompt;
-          }
-        } catch (_e) {
-          const prompt_match = final_prompt.match(/"prompt"\s*:\s*"((?:[^"\\]|\\.)*)"/i);
-          if (prompt_match && prompt_match[1]) {
-            final_prompt = prompt_match[1].replace(/\\"/g, '"').replace(/\\n/g, "\n");
-          }
-        }
-      }
-
-      const new_candidates = await visual_engine.generate_candidates(final_prompt, {
-        mode,
-        negative_prompt: final_negative,
-        count: 3,
-        min_success: 2,
-      });
-
-      if (new_candidates.length < 2) {
-        set_regenerate_error("Not enough images generated. Please try again.");
-        return;
-      }
-
-      deliver_candidates(
-        new_candidates.map((c) => ({
-          url: c.url,
-          metadata: { ...c.metadata, prompt: final_prompt, mode },
-          signature_color,
-        })),
-        { prompt: final_prompt, mode, negative_prompt: final_negative },
-      );
-    } catch (err) {
-      console.error("[Regenerate Error]", err);
-      set_regenerate_error(`Regenerate failed: ${err.message || err}`);
+      await run_image_regeneration({ in_picker: true });
     } finally {
       is_regenerating = false;
     }

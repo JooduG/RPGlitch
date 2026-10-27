@@ -617,17 +617,3 @@ if (typeof window !== "undefined") {
   // @ts-ignore
   Object.defineProperty(window, "visual", { get: () => app.visual, configurable: true });
 }
-
-/**
- * CHANGELOG:
- * - 2026-09-24: `set_view("storymode")` now re-asserts the active story's title via `runtime.restore_story_title()`
- *   once the view has flipped, so a transient storyboard mount during boot can no longer leave the lobby placeholder
- *   ("Your story begins here...") as the prologue header.
- * - 2026-09-06: Added take_photo_handler to interface store for entity portrait generation routing across badge menus.
- * - 2026-09-05: Suppressed DatabaseClosedError logging in save_settings to prevent test runner teardown clutter.
- * - 2026-08-29: Renamed from app-store.svelte.js to interface.svelte.js to eliminate name collision with App.svelte and legacy -store suffix (/harmonize).
- * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,
- *   structured section dividers, purged legacy window aliases (window.rpgApp, window.state),
- *   aligned JSDoc types, and verified test suite.
- * - 2026-08-16: Added claimed_entity_ids tracking, storyboard selection stashing, and profile transitions.
- */

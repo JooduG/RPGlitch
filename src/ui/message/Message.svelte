@@ -8,10 +8,10 @@
    */
   import { parse_message } from "./render.js";
   import { resolve_speaking_style } from "@utils";
-  import { Button } from "@primitives";
   import { Audio, get_cadence_rate, resolve_voice_uri, get_signature_color } from "@media";
   import { ProfilePicture } from "@image";
-  import { claim_menu, get_menu_epoch } from "../entity/ContextMenu.svelte.js";
+  import ContextMenu from "../entity/ContextMenu.svelte";
+  import { claim_menu } from "../entity/ContextMenu.svelte.js";
   import { app, runtime } from "@state";
   import TelemetryCard from "./TelemetryCard.svelte";
   import MessageHeader from "./MessageHeader.svelte";
@@ -211,16 +211,7 @@
   let menu_open = $state(false);
   let menu_x = $state(0);
   let menu_y = $state(0);
-  let my_menu_epoch = 0;
-
-  function portal_to_body(node) {
-    document.body.appendChild(node);
-    return {
-      destroy() {
-        node.remove();
-      },
-    };
-  }
+  let my_menu_epoch = $state(0);
 
   let badge_actions = $derived.by(() => {
     if (is_user) return card_actions.user;
@@ -277,31 +268,7 @@
     menu_x = x;
     menu_y = y;
     menu_open = true;
-
-    // Snapshot the derived length BEFORE the frame callback: reading a `$derived` from a
-    // requestAnimationFrame callback after the component's effect is destroyed logs a
-    // Svelte `derived_inert` warning and can yield a stale value.
-    const action_count = badge_actions.length || 1;
-
-    requestAnimationFrame(() => {
-      const vw = window.innerWidth;
-      const vh = window.innerHeight;
-      const width = 160;
-      const height = action_count * 36;
-      if (menu_x + width > vw) menu_x = vw - width;
-      if (menu_y + height > vh) menu_y = vh - height;
-      if (menu_x < 0) menu_x = 0;
-      if (menu_y < 0) menu_y = 0;
-    });
   }
-
-  // Close this menu when another card/badge claims the menu epoch
-  $effect(() => {
-    const current = get_menu_epoch();
-    if (menu_open && current !== my_menu_epoch) {
-      menu_open = false;
-    }
-  });
 
   function handle_badge_click(e) {
     e.stopPropagation();
@@ -311,16 +278,6 @@
     } else {
       app.toggle_profile(true, entity);
     }
-  }
-
-  function handle_item_click(e, item) {
-    e.stopPropagation();
-    menu_open = false;
-    if (item.onSelect) item.onSelect();
-  }
-
-  function close_menu() {
-    menu_open = false;
   }
 
   $effect(() => {
@@ -601,47 +558,4 @@
   </div>
 {/if}
 
-<svelte:window onclick={close_menu} onkeydown={(e) => e.key === "Escape" && close_menu()} />
-
-{#if menu_open}
-  <div
-    use:portal_to_body
-    class="fixed z-9999 min-w-40 overflow-hidden rounded-standard bg-glass-elevated shadow-(--shadow-standard) [backdrop-filter:var(--blur-mist)] outline-none
-      before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-(--noise-url) before:opacity-10 before:mix-blend-overlay"
-    style="left:{menu_x}px;top:{menu_y}px"
-    role="menu"
-    tabindex="-1"
-    onclick={(e) => e.stopPropagation()}
-    onkeydown={(e) => e.key === "Escape" && close_menu()}
-  >
-    {#each badge_actions as item, i (i)}
-      {#if item.separator}
-        <div class="block h-px bg-current opacity-20"></div>
-      {:else}
-        <Button
-          variant="bare"
-          class="
-            flex h-9 w-full cursor-default items-center gap-2 px-2.5 text-xs font-bold tracking-widest text-slate-200 uppercase transition-colors duration-150 outline-none select-none hover:bg-(--signature-color,var(--color-slate-50))/10 hover:text-white
-            {item.danger ? 'text-red-400/80 hover:text-red-400' : ''}
-            {item.active ? 'text-(--signature-color,var(--color-slate-50))' : ''}
-          "
-          disabled={item.disabled}
-          onclick={(e) => handle_item_click(e, item)}
-          role="menuitem"
-        >
-          {#if item.active}
-            <span
-              class="size-1.5 shrink-0 rounded-full bg-(--signature-color,var(--color-slate-50)) shadow-[0_0_4px_var(--signature-color,var(--color-slate-50))]"
-            ></span>
-          {/if}
-          {item.label}
-        </Button>
-      {/if}
-    {/each}
-  </div>
-{/if}
-
-<!--
-CHANGELOG:
-- 2026-09-06: Fixed "Generate NPC Picture" badge context menu handler to route through app.take_photo_handler with entity payload.
--->
+<ContextMenu bind:open={menu_open} x={menu_x} y={menu_y} epoch={my_menu_epoch} actions={badge_actions} {signature_color} />

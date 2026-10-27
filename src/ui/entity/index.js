@@ -7,9 +7,5 @@
 export { default as EntityCard } from "./EntityCard.svelte";
 export { default as CardHand } from "./CardHand.svelte";
 export { default as ImportModal } from "./ImportModal.svelte";
+export { default as ContextMenu } from "./ContextMenu.svelte";
 export * from "./ContextMenu.svelte.js";
-
-/**
- * CHANGELOG:
- * - 2026-09-19: Removed re-export of EntityCard.svelte.js following relocation of card flight engine to src/ui/motion/card-flight.svelte.js under P4 Pre-Beta Purity.
- */

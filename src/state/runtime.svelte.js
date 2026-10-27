@@ -92,32 +92,6 @@ const DEFAULT_FRACTAL_DYNAMICS = Object.freeze({
   entropy: 50,
 });
 
-/**
- * Creates a blank unlinked entity blueprint.
- * @returns {SimulationEntity}
- */
-function create_unlinked_entity() {
-  return {
-    id: null,
-    name: "Unlinked",
-    description: "No data stream connected.",
-    eternal: { non_physical: "", physical: "" },
-    present: { non_physical: "", physical: "" },
-    future: "",
-    past: [],
-    dynamics: { ...DEFAULT_AI_DYNAMICS },
-    voice: { rate: 1.0 },
-    profile_picture: null,
-    signature_color: "",
-    modifiers: {
-      prompt: "",
-      flipped: false,
-      profile_picture_seed: 0,
-      last_generated_seed: null,
-    },
-  };
-}
-
 // ============================================================================
 // [SECTION 3: RUNTIME STORE FACTORY]
 // ============================================================================
@@ -152,10 +126,12 @@ export class RuntimeEngineStore {
   // --------------------------------------------------------------------------
 
   // --- Active Entities State ---
-  /** @type {SimulationEntity} */
-  character = $state(create_unlinked_entity());
   /** @type {SimulationEntity | null} */
   active_user = $state(null);
+  /** Legacy mirror for active_user */
+  get character() {
+    return this.active_user;
+  }
   /** @type {SimulationEntity | null} */
   active_ai = $state(null);
   /** @type {SimulationEntity | null} */
@@ -484,9 +460,7 @@ export class RuntimeEngineStore {
       ]);
 
       if (user_data) {
-        Object.assign(this.character, user_data);
-        this.character.id = user_data.id;
-        this.active_user = this.character;
+        this.active_user = { ...user_data };
       }
 
       if (ai_data) {
@@ -611,9 +585,6 @@ export class RuntimeEngineStore {
     try {
       const entity_payload = $state.snapshot(entity);
       await entities.upsert(type, entity_payload);
-      if (this.character && this.character.id === entity.id) {
-        Object.assign(this.character, entity);
-      }
       if (this.active_ai?.id === entity.id) {
         Object.assign(this.active_ai, entity);
       }
@@ -675,7 +646,6 @@ export class RuntimeEngineStore {
         if (this.active_ai?.id === id) this.active_ai = null;
         if (this.active_user?.id === id) {
           this.active_user = null;
-          Object.assign(this.character, create_unlinked_entity());
         }
       } else {
         if (this.active_fractal?.id === id) this.active_fractal = null;
@@ -733,19 +703,3 @@ if (typeof window !== "undefined") {
   window.runtime = runtime;
   runtime.init_effects();
 }
-
-/**
- * CHANGELOG:
- * - 2026-10-12: Added Track 4 Scene Momentum & Stagnation Backstop: `stagnation_turns` and `last_semantic_drift` reactive fields, `record_turn_drift` mutation method, auto-save effect persistence, and IndexedDB hydration in `sync()`.
- * - 2026-09-24: Explicitly declared reactive `$state(0)` fields `structural_errors` and `back_shot_cursor` on `RuntimeEngineStore`, preventing undeclared dynamic property mutations and enabling reactive tracking.
- * - 2026-09-24: Refactored `create_runtime_store()` into idiomatic Svelte 5 `RuntimeEngineStore` class, eliminating closure getters/setters in favor of direct `$state` fields while preserving 100% API compatibility.
- * - 2026-09-24: Extracted `apply_story_title` and added `restore_story_title()` so entering storymode re-asserts the
- *   active story's authoritative title — a transient storyboard mount during boot was leaving "Your story begins here..."
- *   as the prologue header. Also reasserted at the end of `sync()` via the shared helper.
- * - 2026-09-16: Added support for explicit story.in_scene_npc_ids during story load, preventing un-staged NPCs from flooding in_scene_npc_ids.
- * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,
- *   structured section dividers, exported DIRECTOR_MS_POOL_CAP constant, cleaned up unlinked
- *   entity blueprint reset in delete_entity, and verified 100% test pass.
- * - 2026-08-16: Added Director Quick Shot latency telemetry pool (p50/p95) and Generation Mutex.
- * - 2026-06-15: Added NPC world cast and Stage Spotlight state hydration.
- */

@@ -45,10 +45,3 @@ export { simulation_log, developer_log } from "./log.svelte.js";
 // ============================================================================
 
 export { chrono_engine } from "./chrono.svelte.js";
-
-/**
- * CHANGELOG:
- * - 2026-09-23: Retargeted barrel exports for streaming, developer_log, and force_recover_simulation
- *   to consolidated status.svelte.js and log.svelte.js under P4 Zero Backwards Compatibility.
- * - 2026-08-29: Renamed app-store ➔ interface.svelte.js and dev-log ➔ developer-log.svelte.js with structured universal file architecture (/harmonize).
- */

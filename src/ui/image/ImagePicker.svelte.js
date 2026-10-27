@@ -6,6 +6,8 @@
  * Svelte 5 module-level runes state.
  */
 
+import { visual_engine } from "@media";
+
 /** @typedef {{ url: string, metadata: any, signature_color: string | null }} Candidate */
 
 // Plain module-level variables for prompt persistence — COMPLETELY outside Svelte's $state proxy.
@@ -226,4 +228,114 @@ export function get_persisted_meta() {
     mode: _persisted_mode,
     negative_prompt: _persisted_negative,
   };
+}
+
+/**
+ * Canonical image regeneration pipeline.
+ * Supports both:
+ * 1. Initial regeneration from message attachment ("start_regenerate" mode)
+ * 2. In-place re-regeneration from open picker modal ("begin_picker_regeneration" mode)
+ *
+ * @param {Object} options
+ * @param {string} [options.key] - Attachment identifier (`${log_id}:${attach_idx}`)
+ * @param {string} [options.prompt] - Diffusion prompt (falls back to persisted prompt)
+ * @param {string} [options.negative_prompt] - Negative prompt
+ * @param {string} [options.mode] - Diffusion mode ("story_character", "character", etc.)
+ * @param {string|null} [options.signature_color] - Accent color
+ * @param {number} [options.regenerate_count] - Prior regeneration count
+ * @param {(candidate: Candidate, index?: number) => void} [options.on_select] - Selection callback
+ * @param {boolean} [options.in_picker] - Whether this is an in-place picker re-regeneration
+ * @returns {Promise<void>}
+ */
+export async function run_image_regeneration(options = {}) {
+  const { in_picker = false } = options;
+
+  let key = options.key || state.regenerating_key;
+  if (!key && !in_picker) {
+    set_regenerate_error("No image context available to regenerate.");
+    return;
+  }
+
+  const persisted = get_persisted_meta();
+  const signature_color = options.signature_color ?? state.signature_color;
+  const regenerate_count = options.regenerate_count ?? 0;
+  const mode = options.mode || (in_picker ? persisted.mode : "story_character");
+  const prompt = options.prompt ?? (in_picker ? persisted.prompt : "");
+  const negative_prompt = options.negative_prompt ?? (in_picker ? persisted.negative_prompt : "");
+
+  if (in_picker) {
+    begin_picker_regeneration();
+  } else if (key) {
+    start_regenerate(key, {
+      signature_color,
+      on_select: options.on_select || (() => {}),
+    });
+  }
+
+  if (!prompt) {
+    set_regenerate_error("No prompt found for this image. Cannot regenerate.");
+    return;
+  }
+
+  try {
+    let final_prompt = prompt;
+    let final_negative = negative_prompt;
+
+    const is_unrefined =
+      !prompt || prompt.length < 30 || prompt.includes("<image_prompt>") || prompt.startsWith("RAW photograph or structured artistic rendering of");
+
+    if (in_picker || regenerate_count >= 1 || is_unrefined) {
+      try {
+        const refined = await visual_engine.enhance(prompt, mode);
+        if (refined?.prompt) {
+          final_prompt = refined.prompt;
+          final_negative = refined.negative_prompt || negative_prompt;
+        }
+      } catch (enhance_err) {
+        if (in_picker) {
+          console.warn("[ImagePicker] Prompt enhancement failed, using original prompt:", enhance_err);
+        }
+      }
+    }
+
+    // Safety net: peel JSON blob if enhance returned raw stringified JSON
+    if (final_prompt.trim().startsWith("{")) {
+      try {
+        const parsed = JSON.parse(final_prompt.trim());
+        if (parsed.prompt && typeof parsed.prompt === "string") {
+          final_prompt = parsed.prompt;
+          if (parsed.negative_prompt) final_negative = parsed.negative_prompt;
+        }
+      } catch (_e) {
+        const prompt_match = final_prompt.match(/"prompt"\s*:\s*"((?:[^"\\]|\\.)*)"/i);
+        if (prompt_match && prompt_match[1]) {
+          final_prompt = prompt_match[1].replace(/\\"/g, '"').replace(/\\n/g, "\n");
+        }
+      }
+    }
+
+    const candidates = await visual_engine.generate_candidates(final_prompt, {
+      mode,
+      negative_prompt: final_negative,
+      count: 3,
+      min_success: 2,
+    });
+
+    if (candidates.length < 2) {
+      set_regenerate_error("Not enough images generated. Please try again.");
+      return;
+    }
+
+    deliver_candidates(
+      candidates.map((c) => ({
+        url: c.url,
+        metadata: { ...c.metadata, prompt: final_prompt, mode },
+        signature_color,
+      })),
+      { prompt: final_prompt, mode, negative_prompt: final_negative },
+    );
+  } catch (err) {
+    console.error("[Regenerate Error]", err);
+    set_regenerate_error(`Regenerate failed: ${err.message || err}`);
+  }
 }
