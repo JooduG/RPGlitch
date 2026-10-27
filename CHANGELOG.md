@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Intelligence Pipeline Flattening & Plan/Catalog Indirection Purge (`src/intelligence/`, `src/utils/`, `src/data/`)**:
+  - **Aggressive Intelligence Modules Flattening**: Eliminated intermediate plan object allocations across `src/intelligence/modules/` (`constitution.js`, `output.js`, `system.js`, `recency.js`, `reflex.js`, `protocols.js`, `entities.js`, `task.js`), collapsing redundant `resolve_*_plan()` -> `render_*_plan()` -> `render_*()` chains into direct string builders while preserving 100% byte-identical compiled prompt outputs across all 12 contract modes.
+  - **Catalog Deletion & Direct Property Path Traversal**: Deleted `src/utils/catalog.js` and `src/utils/catalog.test.js`. Inlined `interpolate_tokens` into `src/utils/xml.js` and replaced `resolve_catalog_atom` with direct property traversal.
+  - **Round-Trip Data Point Purge in Context Builder**: Eliminated unnecessary `to_data_points` round-tripping for raw entity eternal and present fields in `src/intelligence/builder.js`, reading fields directly while preserving nascent default strings for empty entities.
+  - **Bracket Bond Deduplication & Bug Fix**: Extracted universal `has_bracket_bond(entity, target_identifier_or_entity)` helper to `src/utils/text.js`, unifying bracket relation resolution across `src/intelligence/builder.js` and `src/data/sessions.svelte.js`. Fixed bug in `create_from_selection` where `@id` bracket references were missed when comparing against names.
+  - **Git Mirror Comments Purge**: Removed bottom-of-file historical `CHANGELOG` comment blocks across all touched files, yielding a net deletion of 900 lines of code.
+
 - **Repository Housekeeping & Simulation Audit Alignment (`simulation-audit.js`, `simulation-audit.test.js`, `sync:ignores`)**:
   - Reconciled all workspace ignore layers across `.gitignore`, `.eslintcache`, `.markdownlintignore`, `.prettierignore`, `.stylelintignore`, and VS Code / Vitest configurations via `npm run sync:ignores`.
   - Audited environment secrets and verified that `.env` is securely ignored with zero leaked secrets in tracked templates.

@@ -20,7 +20,18 @@
  * - `src/utils/text.js` (Clothing key resolution).
  */
 
-import { resolve_catalog_atom, interpolate_tokens } from "./catalog.js";
+const TOKEN_PATTERN = /\{([a-z0-9_]+)\}/g;
+
+/**
+ * Interpolates `{token}` placeholders from the values bag. Missing slots
+ * resolve to "" (never "undefined").
+ * @param {string|null|undefined} template
+ * @param {Record<string, any>} [values={}]
+ * @returns {string}
+ */
+export function interpolate_tokens(template, values = {}) {
+  return String(template ?? "").replace(TOKEN_PATTERN, (match, token) => (values[token] != null ? String(values[token]) : ""));
+}
 
 // ============================================================================
 // [SECTION 1: CONSTANTS & CLOTHING KEYS]
@@ -374,7 +385,20 @@ export function render_atom_xml(atom_or_catalog, key_or_options = {}, values_or_
       options = values_or_options || {};
       values = options.values || {};
     }
-    atom = resolve_catalog_atom(catalog, key, values, options);
+    const walk = (dotted) =>
+      String(dotted ?? "")
+        .trim()
+        .split(".")
+        .reduce((node, part) => node?.[part], catalog);
+    atom = walk(key);
+    if (atom == null && options.fallback_key != null) atom = walk(options.fallback_key);
+    const bag = { ...(options.defaults || {}), ...(values || {}) };
+    if (typeof atom === "string") atom = interpolate_tokens(atom, bag);
+    else if (atom && typeof atom === "object" && typeof atom.body === "string") {
+      atom = { ...atom, body: interpolate_tokens(atom.body, bag) };
+    } else {
+      atom = null;
+    }
   } else if (typeof atom_or_catalog === "string") {
     atom = { tag: "DIRECTIVE", body: atom_or_catalog };
     options = key_or_options && typeof key_or_options === "object" ? key_or_options : {};
@@ -397,7 +421,7 @@ export function render_atom_xml(atom_or_catalog, key_or_options = {}, values_or_
     raw_body = atom;
   }
 
-  // If atom came from direct object/string and not through resolve_catalog_atom, interpolate tokens
+  // If atom came from direct object/string and not through catalog lookup, interpolate tokens
   if (is_direct_atom && values && Object.keys(values).length > 0 && raw_body.includes("{")) {
     raw_body = interpolate_tokens(raw_body, values);
   }
@@ -419,26 +443,3 @@ export function render_atom_xml(atom_or_catalog, key_or_options = {}, values_or_
     inline: final_inline,
   });
 }
-
-/**
- * CHANGELOG
- * - 2026-10-15: Added `render_atom_xml` (dual-mode universal atom compiler) and migrated `render_profile_field_block` from sheets.js; retired dead `physical_to_xml` under P4 Zero Backwards Compatibility.
- * - 2026-09-22: One indentation primitive (recommendation #1) — added `dedent_all` and routed `render_xml_tag`'s child normalization through it, so a pre-indented child block is re-embedded at a uniform depth instead of having only its first line trimmed (the cause of open tags at column 0 paired with closing tags at column 2).
- * - 2026-09-21: `render_xml_tag` no longer applies `child_indent` to a single-line `inline` body — inline emission now leaves `<tag>body</tag>` on one line, fixing the accidental double-space prefix on inline children.
- * - 2026-09-18: Pruned stale reference to deleted src/intelligence/optics.js from module header.
- * - 2026-09-12: `render_xml_tag` promoted to a true universal composer — `indent` now shifts the WHOLE block (open + body + close) so nested blocks can be emitted at any depth, and `inline: true` emits `<tag>body</tag>` for single-line bodies. This is the one primitive every `modules/*` compiler builds from.
- * - 2026-09-12: Added `render_xml_tag` — the universal XML block composer (attribute escaping, blank-child filtering, optional body indentation, optional open-only envelope) that every `modules/*` compiler now builds from, so tag layout lives in one place.
- * - 2026-09-11: Co-located indent_all, inline_or_block, and wrap_tag layout helpers in xml.js for cross-layer prompt formatting purity.
- * - 2026-09-10: physical_to_xml remaps known state-key aliases (SHORTS->APPAREL, SOMA->SOMATIC,
- *   POSE->POSTURE) while preserving the original casing of every other key, strips echoed
- *   `KEY:` value prefixes, and collapses duplicate keys (the canonical name wins);
- *   added PHYSICAL_KEY_ALIASES + strip_leading_key_echo.
- * - 2026-09-06: prompt_escape now escapes only `<`/`>`; brackets, ampersands, and quotes pass
- *   through verbatim. Transport passes instructions as a function so perchance never pjs-evaluates
- *   `[...]`/`{...}` — eliminates `&#91;`/`&#93;`/`&amp;` entity pollution in model-facing prompts.
- * - 2026-08-29: Added parse_visual_engine for structured <VISUAL_ENGINE> XML parsing.
- * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,
- *   structured 4 clear section dividers, exported frozen CLOTHING_KEYS array, added comprehensive
- *   JSDoc schemas, and created unit test suite xml.test.js.
- * - 2026-06-15: Initial XML escaping and physical-state prompt builder implementation.
- */

@@ -57,32 +57,19 @@ export const CONSTITUTION = Object.freeze({
 export const CONSTITUTION_ORDER = Object.freeze(["CAUSALITY", "EPISTEMICS", "SOVEREIGNTY", "FIDELITY"]);
 
 /**
- * Resolves a law selection into a frozen, render-ready constitution plan.
- * Unknown keys are dropped and counted — the renderer maps plan laws
- * to <LAW> elements without branching.
+ * Compiles the `<AXIOMATIC_CONSTITUTION>` XML block rendering the selected axioms in canonical order.
  * @param {Object} [options={}]
  * @param {string[]} [options.laws] - Constitution keys to render (defaults to all four).
- * @returns {Readonly<{ tag: string, laws: ReadonlyArray<Record<string, string>>, dropped: Readonly<{ unknown: number }> }>}}
- */
-export function resolve_constitution_plan({ laws = [...CONSTITUTION_ORDER] } = {}) {
-  const requested = Array.isArray(laws) ? laws : [];
-  const selected = requested.map((key) => CONSTITUTION[key]).filter(Boolean);
-  return Object.freeze({
-    tag: "AXIOMATIC_CONSTITUTION",
-    laws: Object.freeze(selected),
-    dropped: Object.freeze({ unknown: requested.length - selected.length }),
-  });
-}
-
-/**
- * Maps a constitution plan to the <AXIOMATIC_CONSTITUTION> block.
- * @param {ReturnType<typeof resolve_constitution_plan>|null|undefined} plan
- * @param {Object} [options={}]
  * @param {number} [options.indent=2] - Left shift for the whole block.
  * @returns {string}
  */
-export function render_constitution_plan(plan, { indent = 2 } = {}) {
-  const tags = (plan?.laws || []).map((law) => render_atom_xml(law, { indent: 0, escape: true }));
+export function render_constitution({ laws = CONSTITUTION_ORDER, indent = 2 } = {}) {
+  const requested = Array.isArray(laws) ? laws : [];
+  const tags = requested
+    .map((key) => CONSTITUTION[key])
+    .filter(Boolean)
+    .map((law) => render_atom_xml(law, { indent: 0, escape: true }));
+
   return render_xml_tag({
     tag: "AXIOMATIC_CONSTITUTION",
     children: tags,
@@ -93,33 +80,8 @@ export function render_constitution_plan(plan, { indent = 2 } = {}) {
 }
 
 /**
- * Compiles the `<AXIOMATIC_CONSTITUTION>` XML block rendering the selected axioms in canonical order.
- * @param {Object} [options={}]
- * @param {string[]} [options.laws] - Constitution keys to render (defaults to all four).
- * @param {number} [options.indent=2] - Left shift for the whole block.
- * @returns {string}
- */
-export function render_constitution({ laws = [...CONSTITUTION_ORDER], indent = 2 } = {}) {
-  return render_constitution_plan(resolve_constitution_plan({ laws }), { indent });
-}
-
-/**
  * System-layer slot: seals the axiomatic constitution for gated modes.
  */
 export function resolve_constitution_slot(config) {
   return config?.constitution ? render_constitution() : "";
 }
-
-/**
- * CHANGELOG
- * - 2026-10-19: Symmetrical relational sovereignty Law L3 — changed target from hardcoded `«USER_PERSONA»` to relational `the listener or other participants` for universal mode validity (including ghostwrite).
- * - 2026-10-14: Consolidated player agency strictly into Law L3 (Sovereignty) as the single-source authoritative simulation rule across all modes.
- * - 2026-10-04: Rebuilt as 4 axioms (CAUSALITY/EPISTEMICS/SOVEREIGNTY/FIDELITY) — sportsmanship yield folded into L1, fidelity absorbed as L4, style-obedience law dropped (the style block below already commands it); structured {id,title,body} catalog with per-law selection.
- * - 2026-10-04: Added SIMULATION_FIDELITY as the single-source global fidelity law (consumed by protocols.js).
- * - 2026-09-14: Clarified L5_AGENCY to explicitly prohibit prescribing the listener's internal physiological reactions (flinches, racing heartbeat, involuntary flustering).
- * - 2026-09-13: Streamlined L1–L5 axiomatic laws for LLM attention density and token economy — stripped academic fluff and cross-law redundancies across L2/L3, cutting law text tokens by ~43% while sharpening imperative constraints.
- * - 2026-09-13: Enriched L2_CONTINUITY (perspective isolation) and L3_SPATIAL (sensory horizon, unvoiced thoughts are Null Data) during the epistemic physics deconstruction pass.
- * - 2026-09-12: Standardization pass — the `<AXIOMATIC_CONSTITUTION>` block is now composed from the shared `render_xml_tag` primitive (catalog + compiler, format.js blueprint); the block's indentation is a parameter.
- * - 2026-09-11: Initial creation of modular constitution.js extracting Axiomatic Constitution laws and compiler.
- * Modules Ground Refactor Phase 1 — plan/render split (resolve_constitution_plan/render_constitution_plan, CONSTITUTION_ORDER exported); render_constitution is a one-line composition — prompt bytes byte-identical.
- */

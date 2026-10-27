@@ -30,7 +30,7 @@ import {
   render_atom_xml,
   render_xml_tag,
   has_alternations,
-  resolve_catalog_atom,
+  interpolate_tokens,
   strip_cognition_blocks,
   collapse_whitespace,
 } from "@utils";
@@ -476,14 +476,14 @@ export function get_reflex_atom(directive_key, values = {}) {
   const directive_parts = String(directive_key ?? "")
     .trim()
     .split(".");
-  const stripped_key = (directive_parts[0] === "REFLEX" ? directive_parts.slice(1) : directive_parts).join(".");
-  const resolved = resolve_catalog_atom(REFLEX_LIBRARY, stripped_key, values);
-  if (typeof resolved === "string") return resolved;
-  if (resolved && typeof resolved === "object") {
-    const text = resolved.body ?? "";
+  const stripped_parts = directive_parts[0] === "REFLEX" ? directive_parts.slice(1) : directive_parts;
+  const leaf = stripped_parts.reduce((o, k) => o?.[k], REFLEX_LIBRARY);
+  if (typeof leaf === "string") return interpolate_tokens(leaf, values);
+  if (leaf && typeof leaf === "object") {
+    const text = interpolate_tokens(leaf.body, values);
     if (!text) return "";
-    if (resolved.enveloped) {
-      return render_xml_tag({ tag: resolved.tag, children: [text], inline: true });
+    if (leaf.enveloped) {
+      return render_xml_tag({ tag: leaf.tag, children: [text], inline: true });
     }
     return text;
   }
@@ -817,29 +817,3 @@ export function render_spent_ledger_directive(spent_ledger, { include_static = f
   }
   return render_constraints_directive(spent_ledger, { include_static });
 }
-
-/**
- * CHANGELOG
- * - 2026-10-15: Merged REFLEX_DEFAULTS calibration config into REFLEX_LIBRARY.DEFAULTS; added MOMENTUM directives to REFLEX_LIBRARY.MOMENTUM; refactored render_momentum_directive_xml into a thin renderer reading from REFLEX_LIBRARY.
- * - 2026-10-14: Merged REFLEX_DEFAULTS, PROSE_CONSTRAINTS, and DIRECTOR_CONSTRAINTS into REFLEX_LIBRARY; updated render_constraints_directive to emit specific semantic tags (<OVERARCHING_QUESTS>, <SYNTHETIC_FORMULAS>, <CLICHES>, <EXHAUSTED_OPENINGS>); exported render_director_constraints_directive.
- * - 2026-10-14: Wave 2 — Exported PROSE_CONSTRAINTS and render_constraints_directive, unifying overarching quests, synthetic formulas, cliché clusters, and exhausted phrasing into clean <CONSTRAINTS> without double negatives; retired <SPENT_LEDGER> wrapper.
- * - 2026-10-14: Atom 2.4 — exported render_momentum_directive_xml(stagnation_turns) emitting typed <MOMENTUM> XML directive for soft (>=8) and critical (>=16) stagnation thresholds.
- * - 2026-10-14: Refactored render_spent_ledger_directive to emit typed pseudo-XML (<SPENT_LEDGER><PROHIBITED_PATTERNS><ITEM>...); stripped conflicting sentence counts from PACING bodies to leave BEAT_BUDGET as the sole numerical controller.
- * - Track 4.2: Directorial Momentum Tiers & Stagnation Backstop — added MOMENTUM_TIERS calibration config (SOFT_PERMIT_THRESHOLD=8, HARD_MANDATE_THRESHOLD=16, DRIFT_STAGNATION_THRESHOLD=0.15) to REFLEX_DEFAULTS; added MOMENTUM_SOFT_PERMIT and MOMENTUM_HARD_MANDATE atoms to REFLEX_LIBRARY.CONDITIONALS; resolve_prose_posture_plan lifts anti_staging at >= 8 turns and records momentum constraint flags; render_prose_posture_plan emits matching envelopes.
- * - Track 3.1: Input-proportional pacing contracts — INPUT_SIZE_TIERS (TINY<=12/SMALL<=90/MEDIUM<=400/EXPANSIVE) with beat budgets, classify_input_size + resolve_beat_budget_plan, <BEAT_BUDGET> child in every DELIVERY_POSTURE; gated ANTI_STAGING (terse dialogue) + HELD_MOMENT (explicit pause markers, never blank) constraint children via plan.constraints.
- * - Track 0.10: Section 6 dissolved - render_subtext_xml + resolve_physics_protocols move to physics.js (beside the registries they read), render_available_keywords_xml moves to task.js (beside KEYWORD_DIRECTIVES); STYLE_MOTIF_REGISTRY and escape_xml imports dropped. Prompt bytes byte-identical.
- * - 2026-10-07: Plan Omega for Task — repatriated render_subtext_xml, resolve_physics_protocols, and render_available_keywords_xml from task.js (new Section 6; STYLE_MOTIF_REGISTRY imported from @data, escape_xml added to @utils import) — prompt bytes byte-identical.
- * - 2026-10-04: Single has_input resolution (Plan A) — resolve_task_values owns values.has_input + values.turn_state; posture plan and director_directives accept the pre-resolved flags (standalone callers still derive); prose_posture threads the bag flag — prompt bytes byte-identical.
- * - 2026-10-04: Environmental-hint envelope (stability-lock treatment) — prefix drops from the body, CONDITIONALS.ENVIRONMENTAL_HINT flags enveloped:true, get_reflex_atom wraps flagged records, render_environmental_hint shares the compiler path; no fixture input fires the hint so contract baselines are untouched.
- * - 2026-10-04: Style-DNA single parse (style.js resolve_style_dna) — resolve_prose_posture_plan reads pre-resolved snapshot.style_dna, @data import dropped; build_pacing_directive retired (no production callers; pacing covered by the posture plan) — prompt bytes byte-identical.
- * - 2026-10-04: Catalog-owns-everything (Plan B) — PACING_BANDS becomes the ordered PACING_RULES table (first-match-wins + ADAPTIVE tail; classify_pacing walks it, zero English in logic), HINT_SIGNALS owns verb/noun precedence (detect_environmental_hint walks it), STABILITY_LOCK/TRUNCATION_COMPLETE_NOTE derived aliases retired (callers read REFLEX_LIBRARY.RECOVERY directly: story.js, system.test.js), render_alternation_block folds into render_alternation_protocol(text, {force}) (protocols.js plan renderer passes force:true) — prompt bytes byte-identical.
- * - 2026-10-04: Removed the VOICE atom (hallucinated steering — no caller ever set speaking_style, register is entity data enforced by detox_prose); posture plans are {pacing, rhythm, drive}.
- * - 2026-10-04: Absorbed the transient turn-state conditionals (FIRST_CONTACT ex-PROSE.CHARACTER, ROUND_ONE/EVALUATION_INPUT/EVALUATION_SCENE ex-DIRECTOR) into REFLEX_LIBRARY.TURN_STATE with resolve_turn_state_plan owning the firing flags — prompt bytes byte-identical.
- * - 2026-10-04: Stability escalation renders as the <STABILITY_LOCK level> envelope (bare WARNING:/CRITICAL: lines retired); contract fixtures never trigger errors so inventories and sizes are untouched.
- * - 2026-10-04: Plan/render split + catalog normalization (Plans 1+2) — REFLEX_LIBRARY atoms are bare bodies ({tag,body}/{tag,template}; envelope wrapping is renderer-owned), REFLEX_DEFAULTS owns pacing bands/stability ladder/detectors, resolve_*_plan functions own all selection as frozen data, render_* functions only wrap; get_reflex_atom is the single REFLEX.* resolver (task.js delegates); RECENCY splits into RHYTHM + DRIVE, recovery copy lives in RECOVERY with STABILITY_LOCK/TRUNCATION_COMPLETE_NOTE derived from it; build_pacing_directive/render_prose_reflex/render_environmental_hint/resolve_stability_lock are plan-backed adapters — prompt bytes byte-identical.
- * - 2026-10-04: Added render_alternation_block for plan-gated callers (protocols.js plan renderer); text-gated render_alternation_protocol unchanged.
- * - 2026-10-04: Absorbed the alternation conditional (REFLEX_LIBRARY.ALTERNATION + render_alternation_protocol, ex-protocols.js) — reactive option-picking lives with the other reflexes.
- * - 2026-10-04: Created from task.js Section 3 (pacing/reflex engine) plus stability/truncation recovery (from recovery.js, now deleted) — the reflex layer owns calibration + resilience; task.js keeps turn assembly with live TASK_LIBRARY references.
- * Modules Ground Refactor Phase 1 — get_reflex_atom delegates lookup to utils/catalog.js resolve_catalog_atom; enveloped wrapping stays record-driven — prompt bytes byte-identical.
- * - 2026-10-16: Harmonized «INPUT» references to «ENTRY» and aligned ENVIRONMENTAL_HINT to next_action: "FRACTAL".
- */

@@ -98,19 +98,7 @@ export * from "./detox.js";
 export * from "./styles.js";
 
 // ============================================================================
-// Dotted-Catalog Compiler Core (Atoms & Token Interpolation)
-// ============================================================================
-
-export * from "./catalog.js";
-
-// ============================================================================
 // Entity-Aware Macro Resolution & Profile-Field Text Codecs
 // ============================================================================
 
 export * from "./macros.js";
-
-/**
- * CHANGELOG:
- * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,
- *   categorized functional section dividers, and changelog footer.
- */

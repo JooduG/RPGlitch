@@ -237,48 +237,9 @@ export function prune_history_plan_to_budget(rows, token_budget = Infinity) {
   }
   return { kept, pruned };
 }
-
-/**
- * Resolves a pre-rendered narrative string (typically visual `Name: prose`
- * lines) into a frozen sensory line plan: cognition-stripped, telemetry-free
- * lines ready for the optics `<HISTORY>` wrap.
- *
- * @param {string|null|undefined} [history_text]
- * @returns {Readonly<{ lines: ReadonlyArray<string>, dropped: Readonly<{ empty: number, telemetry: number }> }>}
- */
-export function resolve_sensory_plan(history_text) {
-  if (!history_text || typeof history_text !== "string") {
-    return Object.freeze({ lines: Object.freeze([]), dropped: Object.freeze({ empty: 0, telemetry: 0 }) });
-  }
-  let empty_count = 0;
-  let telemetry_count = 0;
-  const lines = strip_cognition_blocks(history_text)
-    .split("\n")
-    .map((line) => line.trim())
-    .filter((line) => {
-      if (!line) {
-        empty_count += 1;
-        return false;
-      }
-      if (TELEMETRY_PREFIX_PATTERN.test(line) || TELEMETRY_INLINE_PATTERN.test(line)) {
-        telemetry_count += 1;
-        return false;
-      }
-      return true;
-    });
-  return Object.freeze({
-    lines: Object.freeze(lines),
-    dropped: Object.freeze({ empty: empty_count, telemetry: telemetry_count }),
-  });
-}
-
-// ============================================================================
-// [SECTION 3: THIN PLAN RENDERERS — NO DECISIONS, ONLY XML]
-// ============================================================================
-
 /**
  * Maps an entry plan to a clean XML `<ENTRY>` sequence. Preformatted plans
- * pass through verbatim; every other decision is already plan data.
+ * pass through verbatim.
  *
  * @param {ReturnType<typeof resolve_history_plan>} plan
  * @param {Object} [options={}]
@@ -294,18 +255,6 @@ export function render_history_plan(plan, { indent = 0 } = {}) {
     .join("\n");
 }
 
-/**
- * Maps a sensory line plan to the optics `<HISTORY>` block.
- *
- * @param {ReturnType<typeof resolve_sensory_plan>} plan
- * @returns {string}
- */
-export function render_sensory_plan(plan) {
-  if (!plan || plan.lines.length === 0) return "";
-  return `<HISTORY>\n${prompt_escape(plan.lines.join("\n"))}\n</HISTORY>\n`;
-}
-
-// ============================================================================
 // [SECTION 4: PUBLIC WINDOW COMPILERS — ONE-LINE PLAN + RENDER]
 // ============================================================================
 
@@ -382,7 +331,19 @@ export function render_input_history_xml(history = [], options = {}) {
  * @returns {string}
  */
 export function format_sensory_history(history_text) {
-  return render_sensory_plan(resolve_sensory_plan(history_text));
+  if (!history_text || typeof history_text !== "string") return "";
+  const lines = strip_cognition_blocks(history_text)
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => {
+      if (!line) return false;
+      if (TELEMETRY_PREFIX_PATTERN.test(line) || TELEMETRY_INLINE_PATTERN.test(line)) {
+        return false;
+      }
+      return true;
+    });
+  if (lines.length === 0) return "";
+  return `<HISTORY>\n${prompt_escape(lines.join("\n"))}\n</HISTORY>\n`;
 }
 
 /**
@@ -473,14 +434,3 @@ export function resolve_chapter_history_slot(config, normalized = {}) {
   if (!args.enabled || !args.target_entity) return "";
   return render_chapter_history_xml(args.target_entity, 2);
 }
-
-/**
- * CHANGELOG
- * - 2026-10-19: Rebranded to recency.js — unified `<RECENT_ROUNDS>` container and `<ENTRY round="..." origin="...">` turn tags across all prompt modes.
- * - Track 2: Simulation Log Pipeline Harmonization — added `CANONICAL_ROLES`, `canonicalize_role`, and `normalize_history_beat` (frozen record with canonical role taxonomy, attribution, cognition stripping, and attachment handling); wired `resolve_history_plan` to use `normalize_history_beat`.
- * - Track 2.2: Context cliff guard — CONTEXT_TOKEN_CLIFF (6000) + HISTORY_TOKEN_BUDGET (1600); token_budget option on resolve_history_plan/render_history/render_input_history_xml (oldest pruned first, newest survives, round gaps kept); prose HISTORY slot compiles under budget; prune_history_plan_to_budget exported pure helper.
- * - 2026-10-04: Plan/render split (Plan 2) — `resolve_history_plan` owns all filter/collapse/window/strip/budget decisions as frozen pure data, `render_history_plan` maps plans to `<ENTRY>` XML without branching; sensory shaping splits into `resolve_sensory_plan` + `render_sensory_plan`; the four public compilers become one-line compositions with byte-identical output; retired the `maximum_characters` / `input_tag` aliases (P4) and the dual `limit` vs `max_entries` wording now shares one vocabulary.
- * - 2026-10-04: Reverted sensory/visual history shaping (format_sensory_history, render_visual_history) from media/optics.js — history shaping lives here; chapter milestones stay in sheets.js.
- * - 2026-09-25: Unified History Pipeline — `render_history` now delegates directly to `format_history_entries` from `@utils/text.js`, unifying turn transcript serialization across platform and intelligence layers.
- * - 2026-09-13: Comprehensive architectural rebuild & prompts.js symmetry.
- */

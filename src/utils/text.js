@@ -1388,30 +1388,45 @@ export function match_keyword_pattern(pattern, haystack) {
 }
 
 /**
- * CHANGELOG:
- * - 2026-10-14: Phase B — M1 Case-Variant Deduplication & E2 Concealment Preservation in merge_prose_into_field (line-level deduplication for raw prose, case-folded deduplication in AGGREGATE_KEYS and CONDITION, and | hide preservation across structured key overwrites).
- * - 2026-10-12: Salvaged match_keyword_pattern from lorebook.js into @utils/text.js.
- * - Track 2: Simulation Log Pipeline Harmonization — added `CANONICAL_ROLES`, `canonicalize_role`, and `normalize_history_beat` to `@utils/text.js`, unifying turn beat normalization across UI, platform, intelligence, and utility export layers without circular dependencies.
- * - 2026-10-03: Hardened balance_brackets Case 3 — restricted predicate auto-enclosure to uppercase state keys (^[A-Z][A-Z0-9_]{1,24}:) or entity targets (^@[A-Z0-9_]{1,24}:) and strict bracket flags to prevent false-positive predicate creation on natural language prose lines.
- * - 2026-09-23: Relocated VISUAL_EXCLUDED_KEYS and strip_visual_excluded here from @intelligence/epistemic.js to break circular dependency between media and intelligence layers.
- * - 2026-09-11: Purification pass — renamed the lazy stem `ind` to `indent_continuation` (full-name law).
- * - 2026-09-25: History formatting standardization — added `format_history_entries` and `filter_narrative_messages` to unify conversation history collapsing, XML `<ENTRY>` serialization, and narrative turn extraction across platform and intelligence layers.
- * - 2026-09-25: DRY pass — consolidated `compute_initials` (was duplicated verbatim in Storyboard.svelte.js and ProfilePicture.svelte) and `NAME_PREFIX_STEMS` here; added `role_display_label` + `NARRATIVE_ROLES`/`is_narrative_role` so the role→label and narrative-role checks live in one place.
- * - 2026-09-25: Stripping/truncation standardization — `truncate_at_word` is now the one
- *   word-boundary truncator (options: ellipsis, reserve_ellipsis, min_bound_ratio/min_bound_chars,
- *   strip_trailing_punctuation) and `clean_text` + `derive_vector_title` delegate to it (no more
- *   bespoke `substring`/`slice` clipping); added `collapse_whitespace` and routed `first_sentence`
- *   through it, replacing the scattered `.replace(/\s+/g, " ").trim()` copies.
- * - 2026-09-10: Removed flatten_physical (its only consumer, the story-prose
- *   scene anchor, was deleted).
- * - 2026-09-04: Added alternation-macro section: extract_alternations, resolve_alternations
- *   (code-side dice roll for the image pipeline), diff_alternation_picks (narrative pick detection
- *   on the text path), strip_alternation_braces (output guard), alternation_field_label.
- * - 2026-09-04: strip_cognition_blocks now also removes leaked <DYNAMICS> state blocks and
- *   stray tags, so dynamics telemetry can never pollute stored prose or image prompts.
- * - 2026-08-29: Added flatten_physical and normalize_comma_spacing text formatting helpers.
- * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,
- *   structured 5 clear section dividers, exported frozen collections (CLEAR_TOKENS, AGGREGATE_KEYS,
- *   NAME_PREFIXES), added comprehensive JSDoc schemas, and verified 100% test pass.
- * - 2026-06-15: Initial text processing engine with bracket pseudo-JSON parser and state merging.
+ * Checks whether an entity has a directed bracket bond ([@target: ...]) or key targeting
+ * another entity's id or name (case-insensitively).
+ *
+ * @param {any} entity - The source entity
+ * @param {any|string} target_identifier_or_entity - Target entity object or identifier string
+ * @returns {boolean}
  */
+export function has_bracket_bond(entity, target_identifier_or_entity) {
+  if (!entity || !target_identifier_or_entity) return false;
+
+  const target_ids = new Set();
+  if (typeof target_identifier_or_entity === "object") {
+    if (target_identifier_or_entity.id) target_ids.add(String(target_identifier_or_entity.id).trim().toLowerCase());
+    if (target_identifier_or_entity.name) target_ids.add(String(target_identifier_or_entity.name).trim().toLowerCase());
+  } else {
+    target_ids.add(String(target_identifier_or_entity).trim().toLowerCase());
+  }
+
+  const layers = [
+    entity?.eternal?.non_physical,
+    entity?.present?.non_physical,
+    entity?.eternal?.physical,
+    entity?.present?.physical,
+    ...(Array.isArray(entity?.past) ? entity.past.map((item) => (typeof item === "string" ? item : item?.text)) : []),
+    typeof entity?.future === "string" ? entity.future : "",
+  ];
+
+  for (const text of layers) {
+    if (typeof text !== "string" || text.indexOf("[") < 0) continue;
+    const matches = text.matchAll(/\[@?([^\]:]+):/g);
+    for (const match of matches) {
+      const parsed_target = String(match[1] || "")
+        .trim()
+        .toLowerCase();
+      if (target_ids.has(parsed_target)) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}

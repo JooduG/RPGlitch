@@ -18,37 +18,12 @@
  *   - Adhere strictly to P4: Zero Backwards Compatibility and full descriptive naming.
  */
 
-import { state_bridge, stories_bridge } from "@utils";
+import { state_bridge, stories_bridge, has_bracket_bond } from "@utils";
 import { db } from "./db.js";
 import { append_ledger_entries } from "./ledger.js";
 
 /** Durable IndexedDB key for the active-session pointer (kv_settings). */
 export const SESSION_ID_KEY = "active_session_id";
-
-/**
- * True when any universal bracket predicate in an entity's temporal layers
- * targets `name` (Track 1.4: replaces legacy `relationships[]` edge checks).
- * @param {any} entity
- * @param {string} name - Lowercased target name
- * @returns {boolean}
- */
-function has_bracket_bond(entity, name) {
-  if (!entity || !name) return false;
-  const layers = [entity?.eternal?.non_physical, entity?.present?.non_physical, entity?.eternal?.physical, entity?.present?.physical];
-  for (const text of layers) {
-    if (typeof text !== "string" || text.indexOf("[") < 0) continue;
-    const matches = text.matchAll(/\[@?([^\]:]+):/g);
-    for (const match of matches) {
-      if (
-        String(match[1] || "")
-          .trim()
-          .toLowerCase() === name
-      )
-        return true;
-    }
-  }
-  return false;
-}
 
 /**
  * Resolves a log speaker to its canonical entity id at creation (Track 1.2):
@@ -196,7 +171,7 @@ export const session_driver = {
         .equals("character")
         .toArray()
         .catch(() => []);
-      const fractal_name = (fractal_entity?.name || "").trim().toLowerCase();
+      
 
       for (const character of all_characters) {
         const character_id = String(character.id);
@@ -210,15 +185,14 @@ export const session_driver = {
 
         // 2. Check if Fractal has an outgoing bracket bond to this Character
         // (Track 1.4: universal predicates replace the legacy relationships array)
-        const character_name = (character.name || "").trim().toLowerCase();
-        const has_fractal_bond = has_bracket_bond(fractal_entity, character_name);
+        const has_fractal_bond = has_bracket_bond(fractal_entity, character);
         if (has_fractal_bond) {
           initial_npc_ids.add(character_id);
           continue;
         }
 
         // 3. Check if Character has an outgoing bracket bond to this Fractal
-        const has_character_to_fractal_bond = fractal_name ? has_bracket_bond(character, fractal_name) : false;
+        const has_character_to_fractal_bond = fractal_entity ? has_bracket_bond(character, fractal_entity) : false;
         if (has_character_to_fractal_bond) {
           initial_npc_ids.add(character_id);
         }
@@ -500,13 +474,3 @@ export const session_driver = {
     state_bridge.simulation_log?.add?.(entry);
   },
 };
-
-/**
- * CHANGELOG
- * -------------------------------------------------------------------------------------------------
- * 2026-09-06: Consolidated entry lookup into _find_log_entry(); streamlined load_log() with
- *   anyOf() query; optimized regenerate() into single reverse pass; removed redundant fallback chains.
- * 2026-08-29: Harmonized sessions.svelte.js to adhere strictly to constitutional
- *   lexical standards (unabbreviated naming, full descriptive variables), added
- *   instructional header block, standard dividers, and changelog footer.
- */

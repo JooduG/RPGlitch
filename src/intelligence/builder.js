@@ -28,6 +28,7 @@ import {
   get_value,
   clean_text,
   create_relational_context,
+  has_bracket_bond,
 } from "@utils";
 import { ensure_embeddings } from "@platform";
 import { normalize_image_tier } from "@media";
@@ -135,42 +136,27 @@ export const context_builder = {
         dynamics: {},
       };
 
-      const data_points = to_data_points(raw);
-      const filtered = data_points.length
-        ? data_points
-        : [
-            {
-              text: `A nascent ${role.toLowerCase()} entity. State: Initializing.`,
-              type: "Status",
-              enhancer: "SYSTEM",
-              section: "Present",
-            },
-          ];
+      const has_content = Boolean(raw.eternal?.physical || raw.eternal?.non_physical || raw.present?.physical || raw.present?.non_physical);
 
-      const fragments = {
-        eternal: { physical: "", non_physical: "" },
-        present: { physical: "", non_physical: "" },
+      const eternal = {
+        physical: raw.eternal?.physical || "",
+        non_physical: raw.eternal?.non_physical || "",
       };
 
-      for (const item of filtered) {
-        const layer = item.layer?.toLowerCase();
-        const field = item.type === "Physical" ? "physical" : "non_physical";
-        if (layer === "eternal" || layer === "present") {
-          if (fragments[layer][field] === "") {
-            fragments[layer][field] = item.text;
-          } else {
-            fragments[layer][field] += `\n${item.text}`;
-          }
-        }
-      }
+      const present = {
+        physical: raw.present?.physical || "",
+        non_physical: raw.present?.non_physical || (has_content ? "" : `A nascent ${role.toLowerCase()} entity. State: Initializing.`),
+      };
+
+      const fragments = { eternal, present };
 
       entities[role] = {
         id: raw.id,
         name: raw.name || role,
-        _data_points: filtered,
+        _data_points: [],
         fragments,
-        eternal: fragments.eternal,
-        present: fragments.present,
+        eternal,
+        present,
         memories: resolve_vector_pool(raw),
         future: typeof raw.future === "string" ? raw.future : "",
         past: Array.isArray(raw.past) ? raw.past : [],
@@ -334,7 +320,7 @@ function resolve_prose_bag(config, context, bag_inputs) {
   const listener_name_lc = String(active_listener?.name || "")
     .toLowerCase()
     .trim();
-  const has_prior_relationship = Boolean(speaker_name_lc && listener_name_lc && has_bracket_bond_between(active_speaker, listener_name_lc));
+  const has_prior_relationship = Boolean(speaker_name_lc && listener_name_lc && has_bracket_bond(active_speaker, active_listener));
   const is_first_contact = !has_prior_relationship && director_data?.first_contact === true;
   const base_action_directive = resolve_character_action_directive({ speaker_name, is_first_contact, is_ghostwrite });
   const constraints_directive = render_constraints_directive(
@@ -420,28 +406,6 @@ function resolve_prose_bag(config, context, bag_inputs) {
       ...(context.meta || {}),
     },
   };
-}
-
-/**
- * True when the speaker's temporal layers carry a universal bracket predicate
- * targeting the listener (Track 1.4: replaces the legacy relationships[] check).
- */
-function has_bracket_bond_between(speaker, listener_name_lc) {
-  if (!speaker || !listener_name_lc) return false;
-  const layers = [speaker?.eternal?.non_physical, speaker?.present?.non_physical, speaker?.eternal?.physical, speaker?.present?.physical];
-  for (const text of layers) {
-    if (typeof text !== "string" || text.indexOf("[") < 0) continue;
-    const matches = text.matchAll(/\[@?([^\]:]+):/g);
-    for (const match of matches) {
-      if (
-        String(match[1] || "")
-          .trim()
-          .toLowerCase() === listener_name_lc
-      )
-        return true;
-    }
-  }
-  return false;
 }
 
 function normalize_prose_context(config, context) {
@@ -939,90 +903,3 @@ export const MODE_ADAPTERS = {
   npc: { normalize: normalize_npc_context },
   prose: { normalize: normalize_prose_context },
 };
-
-/**
- * Master prompt assembler: resolves a mode record and dispatches to its adapter.
- *
- * @param {any} config - Resolved prompt manifest record (carries its canonical `key`).
- * @param {Object} [context={}] - Dynamic runtime context, entities, dynamics, and options
- * @returns {{ system: string, meta?: Record<string, any> }}
- */
-/**
- * CHANGELOG
- * - 2026-10-14: Conditional Style & Subtext — Wired normalize_context to inherit narrative_style from entities.FRACTAL and resolve_prose_bag subtext to inherit keywords from turn_meta.
- * - 2026-10-14: Phase C — Task C.2 (Ghostwrite Perspective Alignment): Passed is_ghostwrite to resolve_character_action_directive so ghostwrite turns emit dedicated player-assistive draft framing.
- * - 2026-10-14: Atom 3.4 — Turn Pragmatics (Issue 13 / Sub-item 6.10). resolve_prose_bag and normalize_narrator_context emit speaker and listener slug attributes for root <TURN> envelope compilation.
- * - Track 2.4: normalize_continuum_context seals memory_advisory_args (settled facts via resolve_settled_facts) and budgets the input-history window (HISTORY_TOKEN_BUDGET).
- * - Track 2.2: create_render_accessors.simulation_log accepts a token_budget option (default Infinity).
- * - Track 0.11: resolve_optics_cinematography now imports from style.js (sensory.js dissolved). Prompt bytes byte-identical.
- * - Track 0.10: Re-sourced compilers - render_subtext_xml from physics.js, render_available_keywords_xml from task.js (stability lock stays reflex.js). Prompt bytes byte-identical.
- * - Track 0.8: normalize_continuum_context passes target_type through task_params so the taxonomy walker selects the target's entity model.
- * - Track 0.6: Ghostwrite purity — resolve_prose_bag drops the style:null subtext special case (real style always passes) and emits no SUBTEXT for ghostwrite turns (user dynamics are static profile baselines); is_ghostwrite stays for speaker/input-origin routing only.
- * - Track 0.4: resolve_prose_bag no longer passes is_npc to resolve_character_action_directive (merged CHARACTER.BASE covers npc turns; is_npc stays for sheet presence only).
- * - 2026-10-08: Modules Ground Refactor Phase 4 — compilers re-cut to per-mode normalize bags (MODE_ADAPTERS normalize table); assembly deleted.
- * - 2026-10-05: Single closed envelope — pack_prompt seals `<TASK>` inside `<SYSTEM>` (package is `{ system, meta }`); prose/director compile a builder-owned `<HISTORY>` block (transport fusion + messages retired).
- * - 2026-10-04: Director candidates render inside render_entity_sheets (cast_xml string param retired; unused director entity_plan dropped).
- * - 2026-10-04: Rewired module imports for the prompt-architecture split (recovery.js, output.js, style.js, sheets.js, media optics/history shaping); assembly logic unchanged.
- * - 2026-10-04: Dropped the enhancement `<LAYER>` tag (tense now rides the `<PERSPECTIVE tense>` attribute) and flipped `render_enhancement` to catalog-first enhancer priority.
- * - 2026-10-04: Sorting passes pov_protocol THIRD (POV_THIRD retired); enhancement resolves its field layer-tense protocol dynamically into core_protocols instead of a blanket DIRECTIVES paragraph.
- * - 2026-10-04: Enhancement DIRECTIVES now append the canonical TEMPORAL.TENSE atom after the field directive and macro.
- * - 2026-10-01: Re-routed resolve_macro_directive from protocols.js and parameterized render_enhancement with is_temporal and think-awareness for Layer 7 format compilation.
- * - 2026-09-25: Layer-6 refactor wiring — every `render_task` call site now passes its manifest `config`, so the task compiler resolves the mode's declarative `<DIRECTIVES>` selection (director/continuum/sorting/optics) and `optics` spatial framing instead of a hand-rolled builder array; `render_profile_sorting` passes `entity_type`/`ingestion`/`redistribute` rather than precompiled directive strings, and the now-unused `TASK_LIBRARY` import is dropped. Output bytes unchanged.
- * - 2026-09-24: Consolidated payload assembler (`to_data_points` and `context_builder`) directly into `builder.js`, pruning `payload.js` and streamlining intelligence kernel architecture.
- * - 2026-09-24: Optics fallback ownership — added `render_optics_fallback()` (moved the `<image_prompt>` fallback templates out of `media/visual.svelte.js`), so both the optics compile and its deterministic fallback live in the builder.
- * - 2026-09-24: Cast/input de-duplication — `render_director` now passes its entity bag into `render_task` (so the Director's `<INPUT>` origins are real entity ids) and mounts the renamed `render_candidate_cast_xml` behind the renamed `candidate_entities` gate; `render_enhancement` resolves its prose `<OUTPUT_FORMAT>` with `has_think: false` so it never references an unopened `</THINK>`.
- * - 2026-09-23: Prompt-grammar harmonization (phases 0–3) — the Director composes its six axes through the shared `render_dynamics_axes_xml` (dropping `render_dynamics_xml`/`<DYNAMICS>`); optics passes `has_alternation` to `render_core_protocols` and drops its entity-block rules; enhancement routes its content `<INPUT>` through `<TASK>`; the retired `input_content` system layer is pruned.
- * - 2026-09-23: Pipeline consolidation (R1–R7) — added `compose_system(config, state, { round, attributes })` and routed all seven `<SYSTEM>` assembly sites through it; compilers now read `config.role_line` (was `config.system.role`), `config.think_format`, and dispatch `render_task` via `config.task_state`; `render_story_prose` reads `config.speaker` (no more identity inference), and the narrator adapter's three branches collapse into one path via `normalize_context(context, override, { require_trio })`. Output bytes unchanged.
- * - 2026-09-23: Envelope harmonization + ghostwrite mirror — dropped the `<SYSTEM role>` attribute (single `mode`), folded `<KEYWORD_DIRECTIVES>` into `<DIRECTIVES>`, moved the `<CAST>` roster inside `<ENTITIES>` (via `render_entity_sheets`), consolidated all six dynamics axes into the Director's one `<DYNAMICS>` block, routed `render_prose_turn_core`/`render_story_prose` through `speaker_key` so ghostwrite is interaction with AI↔USER visibility swapped, and retired the now-dead `present_cast`/`keyword_directives` system layers.
- * - 2026-09-22: Recommendations 1–9 wiring — `render_prompt_layers(state, allowed_keys)` and `render_task({ layers })` now honor each mode's declared `config.layers`; continuum/enhancement/optics route through the shared `<APPEARANCE>`/`<CURRENT_LOOK>` sheet grammar, the single `<CAST mode>` block (continuum excludes its target entity), the single `<INPUT kind>` channel, and universal `<DIRECTIVES>`; `render_enhancement` emits `<OUTPUT_FORMAT>` for its prose fields; every package carries the full `{ ai, fractal, flags }` meta (recommendation #6).
- * - 2026-09-21: Standardization pass — Director keyword directives moved from `<SYSTEM>` into the `<TASK>` envelope; the `director_terse` adapter collapsed into the `director` adapter (`context.terse`); `render_story_prose` resolves POV through `resolve_pov_protocol(config.system.pov || active_speaker)`; `render_scene_narrator` now accepts `compressed_snapshot`/`pov_protocol` (the `entities._compressed_dynamics` side-channel is gone) so the narrator receives its dynamics; the `enhancing` attribute is renamed `scope`; sorting reads `TASK_LIBRARY.SORTING.POV_THIRD`; `resolve_prompt_meta` normalizes package meta; the `PROTOCOL_LIBRARY` import was retired.
- * - 2026-09-20: Universal envelope (`{ system, task }`) — every compiler (`render_director`, the prose core, `render_memory`, `render_enhancement`, `render_profile_sorting`, `render_optics_prompt`, `director_terse`) now composes through the extended `PROMPT_LAYERS` table via `render_prompt_layers`, returns the `<TASK>` as its own package field (fixing the Optics double-task regression), and emits a `SYSTEM_ROLES` role line + `role="…"` attribute; `pack_prompt` dropped the retired `system_close` field.
- * - 2026-09-19: Collapsed facades (P7) — the public chain is now `compile_prompt` (prompts.js) → `assemble_prompt`; retired `compile_pipeline_prompt`, the `render_builder` wrapper object (now the standalone `create_render_accessors`, and the test-only `render_history` passthrough deleted), the `render_narrator_prose` alias (callers use `render_scene_narrator`), and the `render_ghostwriter` wrapper (the production ghostwrite path is `MODE_ADAPTERS.prose`); added `normalize_context(context)` so the entity / snapshot / accessor / history fallbacks live in one place.
- * - 2026-09-19: Unified Optics (P6) — `render_optics_prompt` takes a single options object (dropped the 3-positional-arg shuffling) and emits its `<SYSTEM role="SENSORY_CORTEX">` envelope through the shared `PROMPT_LAYERS` table with the Task nested via `render_system_xml`'s `task` parameter; `PROMPT_LAYERS` gains a `history` layer (protocols → entities → history). Media callers already pass one options object, so no call-site change was required.
- * - 2026-09-19: Table-driven assembler (P4) — the `compile_pipeline_prompt` switch is replaced by `MODE_ADAPTERS` (one assembler per mode + a `prose` fallback) dispatched through `assemble_prompt(config, context)`; the prose envelope is emitted from the `PROMPT_LAYERS` table. Adding a mode no longer edits a switch.
- * - 2026-09-19: Entity gate consolidation (P2) — `render_director`/`render_memory`/`render_enhancement` read their `config.entities` gates through `resolve_entities(config)` (the single resolver in modules/entities.js); the dead `config.task?.schema` fallback was pruned from `get_output_format`.
- * - 2026-09-19: Package-contract unification (P1) — `continuum`, `enhancement`, and `sorting` now return through `pack_prompt` (no hand-rolled package shapes); `render_optics_prompt` drops its `new String()` subclass and returns a plain `{ system, task }` package; `extract_somatic_inner` deleted — the `<SUBTEXT>` block is composed once by `render_subtext_xml` and passed whole to `render_task`; `<LAYER>` emits through `render_xml_tag`.
- * - 2026-09-19: First-contact now derives solely from `director_data.first_contact` (dropped the dead `meta.is_opening_turn` and empty `snapshot.flags` checks and the synthetic "first_contact" keyword); it maps to the single TASK_LIBRARY.PROSE.CHARACTER.FIRST_CONTACT directive.
- * - 2026-09-19: Moved the profile-sorting FOCUS directive into TASK_LIBRARY.SORTING.FOCUS(entity_type) (task.js), folding in the macro rule; render_profile_sorting now simply calls it.
- * - 2026-09-19: Fix pass — render_enhancement treats explicit `null` directive/layer_key as missing (nullish coalescing) and dropped the dead `_array_mode` parameter; Profile enhancement callers now rely solely on catalog hydration (single source of truth).
- * - 2026-09-19: Replaced intermediate `modules/entities/index.js` aggregator with direct concrete imports from `sheets.js`, `presence.js`, and `epistemic.js` under P4 Zero Backwards Compatibility.
- * - 2026-09-19: Fixed E1 (Profile Field Enhancement Metadata): render_enhancement now defensively hydrates missing enhancer, label, directive, layer_key, and is_array_field from PROFILE_FIELD_CATALOG, and updated header to reflect modern compile_prompt architecture.
- * - 2026-09-19: Fixed Director alternation protocol resolution (R1): reordered render_entity_sheets before render_core_protocols and passed has_alternations(entity_sheets).
- * - 2026-09-18: Consolidated Optics keyword directives through render_keyword_directives_xml(..., "OPTICS") supplied to build_optics_builder_protocol.
- * - 2026-09-18: Promoted prompts.js as sovereign prompt switchboard; streamlined builder.js assembly line and unified story prose compilation facades.
- * - 2026-09-18: Absorbed render_optics_prompt from deconstructed optics.js, coordinating visual prompt synthesis through modules per scrobbles.md blueprint.
- * - 2026-09-18: Standardized <PROTOCOLS> to <CORE_PROTOCOLS> across Director, Continuum, Enhancement, Sorting, and Optics; ordered <CORE_PROTOCOLS> before entities and moved <TASK> to bottom in enhancement and profile sorting per scrobbles.md blueprint.
- * - 2026-09-18: Master Prompt Pipeline Standardization: (1) Added `compile_pipeline_prompt(mode_key, context)` implementing the 7-layer pipeline runner; (2) Added `build_story_prose` unifying character, npc, narrator, prologue, epilogue, and ghostwriter prose generation; (3) Added `build_continuum` and `build_sorting` unified facade methods; (4) Added Epistemic Wall verification guard via `verify_epistemic_integrity`; (5) Pruned duplicate schema from Director protocols.
- * - 2026-09-16: Spatial Architecture Standardization & Non-Theater Integration: (1) Connected `render_present_entities_xml` to `config.entities.present_entities` in Director compilation; (2) Connected `render_nearby_entities_xml` to `config.entities.nearby_entities` in Continuum memory compilation; (3) Pruned dead `render_scene_spotlight_xml` and `render_scene_cast_xml` imports.
- * - 2026-09-16: Task Simplification & Action Directive Repatriation — Delegated character and scene action directive assembly to `resolve_character_action_directive` and `resolve_scene_action_directive` from `task.js`; simplified `render_keyword_directives_xml` call.
- * - 2026-09-16: Task Nomenclature Standardization — Standardized prompt task compiler variables (`task_xml`) and `directives` parameters across `render_enhancement` and `render_profile_sorting`.
- * - 2026-09-16: Standardized Director system envelope with `round` attribute on `<SYSTEM mode="director" round="...">`, removing redundant `<ROUND>` child from Director task. Repatriated `render_scene_spotlight_xml` from `entities.js`.
- * - 2026-09-16: Switched task directive imports from loose constants to unified `TASK_LIBRARY` (`TASK_LIBRARY.DIRECTOR`, `TASK_LIBRARY.PROSE`, `TASK_LIBRARY.SORTING`), aligning with PROTOCOL_LIBRARY architecture.
- * - 2026-09-16: Task Compiler Standardization — Updated render_continuum_task, render_enhancement_instructions, and render_profile_sorting_instructions calls to render_task with mode parameter.
- * - 2026-09-15: Prompt Pipeline Symmetrical Consolidation — (1) Extracted shared `render_prose_turn_core` and `extract_somatic_inner` unifying `render_story_prose` and `render_scene_narrator` by construction; (2) Fixed live narrator style regression by resolving full NarrativeStyle objects and passing recency dynamics snapshots; (3) Routed CONTINUUM, PROFILE, and PROSE formats through parameter-aware `get_output_format(config.format, ...)`.
- * - 2026-09-13: Synchronized render_profile_sorting_instructions call with Full-Name nomenclature (`ingestion_instruction`, `redistribute_instruction`, `output_rules_instruction`).
- * - 2026-09-13: Inlined Director role line directly into render_system_xml; purged render_role_xml import.
- * - 2026-09-12: Standardization pass — render_memory resolves its history window via history.js `resolve_history(config.history)` and gates <INPUT_HISTORY> on `history_config.enabled`; fixed a double <CHAPTER_HISTORY> wrap; imported render_continuum_task following the task.js rename.
- * - 2026-09-12: Switched format references to unified OUTPUT_FORMATS.MEMORIES in render_enhancement and cleaned up output_rules_str in render_profile_sorting.
- * - 2026-09-12: Zero backwards compatibility pass — consumed OUTPUT_FORMATS with kebab-case keys and get_output_format from format.js. Relocated instruction renderers to task.js.
- * - 2026-09-12: Modularization pass — imported schemas (DIRECTOR_SCHEMA, PROFILE_SCHEMA, MEMORY_FORGE_SCHEMA), contracts (TEMPORAL_CONTRACT), OUTPUT_FORMATS, and instruction renderers from format.js.
- * - 2026-09-11: Purification pass — the prompts.js manifest now drives compilation (protocol lists, constitution gate, role keys, schema/contract/pov keys, and the entity context/spotlight gates); render_dynamics_axes_xml is injected into render_entity_sheets and resolve_context_directives is computed here, breaking the modules→physics imports; ind renamed to indent_continuation; render_history hop collapsed.
- * - 2026-09-11: Updated import of CHARACTER_DIRECTIVES from modules/task.js following modular boundary alignment.
- * - 2026-09-11: Standardized system prompt envelope imports: consuming resolve_system_role_line, default render_director_system_xml role_xml, and SYSTEM_CLOSE_TAG.
- * - 2026-09-11: Extracted raw XML formatting into modular Lego blocks in modules/ (history.js, system.js, protocols.js, entities.js, task.js), transforming builder.js into a pure coordinator.
- * - 2026-09-11: Grand Intelligence Purification: Consolidated all prompt compilation (Director, Story Prose, Ghostwriter, Narrator, Memory Forge, Enhancement, Sorting) into builder.js driven by prompts.js and modules/, freeing domain engines completely.
- * - 2026-09-10: Redundancy sweep. Dropped the unconsumed prompt_builder.render_protocols passthrough; extract_plan_from_state is module-private.
- * - 2026-09-06: Deduplicated scoring context assembly in create_render_accessors(); standardized nomenclature; purged fallback in build_prologue(); standardized window.exposed bridge.
- * - 2026-08-28: Co-located render_builder directly in builder.js to eliminate circular imports from shared.js.
- * - 2026-10-01: Consolidated entity presence and sheet renderers from modules/entities.js.
- * Modules Ground Refactor Phase 2 — builder-owned style resolution (resolve_builder_style_snapshot + once-per-compile threading through normalize_context into every compiler) — prompt bytes byte-identical.
- * - 2026-10-07: Modules Ground Refactor Phase 3 — optics staging re-cut to sensory.js (prompt and fallback moved; adapter delegates; resolve_builder_style_snapshot exported; optics-only imports pruned) — prompt bytes byte-identical.
- * - Track 3.1: Wires spent ledger extraction into resolve_prose_bag and normalize_narrator_context to prohibit recent phrasing repetitions.
- * - Track 4.2: Directorial Momentum Tiers & Stagnation Backstop — wired stagnation_turns through normalize_director_context and resolve_prose_bag into task_params.
- * - 2026-10-14: Phase B — Atom 3.3 RelationalContext tuple wiring: builder.js constructs RelationalContext tuple via create_relational_context across resolve_prose_bag, normalize_narrator_context, and normalize_director_context, forwarding it to sheets_args and task_params.
- * - 2026-10-14: Phase 1 Prompt Pipeline Hygiene & P4 Purges — (1) Purged dead lorebook_args constructions; (2) Computed has_candidates via resolve_available_entities and passed to Director task_params.
- * - 2026-10-14: Atom 3.1 — Epistemic-First Sequencing Invariant (Issue 20). Removed premature parse_macros from accessors.past and accessors.future; un-macro'd text is returned to sheets.js for epistemic sanitization prior to macro resolution.
- * - 2026-10-14: Wave 2 — Routed prose action directives through render_constraints_directive (unifying quests, synthetic formulas, clichés, and spent openings into <CONSTRAINTS>); purged redundant keyword_directives from Director task_params (co-located in output schema).
- * - 2026-10-14: Phase C — Passed is_ghostwrite flag into resolve_character_action_directive in resolve_prose_bag for scoped ghostwrite base directive routing.
- * - 2026-10-14: Protocol Constraints & Clean Directives Refactor — Embedded static and dynamic <CONSTRAINTS> into <CORE_PROTOCOLS> across Director, Story Prose, and Narrator contexts; kept <TASK><DIRECTIVES> focused on turn action directives.
- */

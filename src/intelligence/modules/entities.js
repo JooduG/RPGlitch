@@ -336,20 +336,20 @@ export function resolve_actor_plan({
 
   const nearby_npcs = (npc_entities || []).filter((npc) => (in_scene_ids || []).includes(npc?.id) && !rendered_npc_ids.has(String(npc?.id)));
 
-  return Object.freeze({
-    dispositions: Object.freeze([...dispositions]),
-    dynamic_axes: Object.freeze([...dynamic_axes]),
-    agendas: Object.freeze([...agendas]),
+  return {
+    dispositions: [...dispositions],
+    dynamic_axes: [...dynamic_axes],
+    agendas: [...agendas],
     nearby_entities: Boolean(configuration.nearby_entities),
     candidate_entities: Boolean(configuration.candidate_entities),
     field_context: Boolean(configuration.field_context),
     target_context: Boolean(configuration.target_context),
     chapter_history: Boolean(configuration.chapter_history),
-    sheet_actors: Object.freeze(sheet_actors),
-    nearby_npcs: Object.freeze(nearby_npcs),
-    active_names: Object.freeze([...active_names]),
+    sheet_actors,
+    nearby_npcs,
+    active_names: [...active_names],
     name_to_id,
-  });
+  };
 }
 
 /**
@@ -374,48 +374,8 @@ export function resolve_entities(config = null) {
 }
 
 // ============================================================================
-// [SECTION 5: ACTOR RENDERER — THIN MAPPER, NO DECISIONS]
+// [SECTION 5: MASTER ASSEMBLIES]
 // ============================================================================
-
-/**
- * Maps plan actors to sheet blocks. Optional keys are only attached when the actor
- * carries them, so each call matches the historical per-role call shape exactly.
- */
-export function render_actor_sheets(
-  actors = [],
-  {
-    entities = {},
-    npc_entities = [],
-    accessors = null,
-    render_axes = null,
-    active_names = [],
-    name_to_id = new Map(),
-    relational_context = null,
-  } = {},
-) {
-  return (actors || []).map((actor) => {
-    const sheet_arguments = {
-      entity: actor.entity,
-      entities,
-      npc_entities,
-      render_axes,
-      dynamics: actor.dynamics,
-      is_owner: actor.is_owner,
-      show_dispositions: actor.show_dispositions,
-      include_agenda: actor.include_agenda,
-      active_names,
-      name_to_id,
-      relational_context,
-    };
-    if (actor.with_accessors !== undefined) {
-      sheet_arguments.accessors = actor.with_accessors ? accessors : null;
-    }
-    if (actor.include_memories !== undefined) {
-      sheet_arguments.include_memories = actor.include_memories;
-    }
-    return render_sheet(actor.spec, sheet_arguments);
-  });
-}
 
 export function wrap_entities(parts) {
   return render_xml_tag({
@@ -426,10 +386,6 @@ export function wrap_entities(parts) {
     separator: "\n\n",
   });
 }
-
-// ============================================================================
-// [SECTION 6: MASTER ASSEMBLIES]
-// ============================================================================
 
 /**
  * Compiles the master <ENTITIES> XML block configured by the active prompt manifest.
@@ -464,14 +420,27 @@ export function render_entity_sheets({
     fractal_dynamics,
   });
 
-  const parts = render_actor_sheets(plan.sheet_actors, {
-    entities,
-    npc_entities,
-    accessors,
-    render_axes,
-    active_names: plan.active_names,
-    name_to_id: plan.name_to_id,
-    relational_context,
+  const parts = plan.sheet_actors.map((actor) => {
+    const sheet_arguments = {
+      entity: actor.entity,
+      entities,
+      npc_entities,
+      render_axes,
+      dynamics: actor.dynamics,
+      is_owner: actor.is_owner,
+      show_dispositions: actor.show_dispositions,
+      include_agenda: actor.include_agenda,
+      active_names: plan.active_names,
+      name_to_id: plan.name_to_id,
+      relational_context,
+    };
+    if (actor.with_accessors !== undefined) {
+      sheet_arguments.accessors = actor.with_accessors ? accessors : null;
+    }
+    if (actor.include_memories !== undefined) {
+      sheet_arguments.include_memories = actor.include_memories;
+    }
+    return render_sheet(actor.spec, sheet_arguments);
   });
 
   if (plan.nearby_entities) {
@@ -719,21 +688,3 @@ export function resolve_entity_context_slot(config, normalized = {}) {
   if (!args.enabled) return null;
   return render_enhancement_field_context(args.entity, args.field_id, args.content, args.normalized_type, args.format_past_function);
 }
-
-/**
- * CHANGELOG
- * - 2026-10-14: Phase C — Task C.3 (Phase V 5.1 ENTITIES Hard Budgeting): Exported ENTITIES_MAX_TOKENS (2000) and ENTITIES_MAX_CHARS (8000), wired whole_vector_slice and candidate/nearby dynamic pruning in render_entity_sheets to protect the 6k token cliff.
- * - 2026-10-14: Phase B — Atom 3.3 RelationalContext tuple wiring: render_entity_sheets forwards relational_context into render_actor_sheets and sheet_arguments.
- * - Track 2.4: Extraction advisory — render_memory_advisory_xml + resolve_memory_advisory_slot (MEMORY_ADVISORY block with # ALREADY REMEMBERED; empty facts render "" for byte-identical compiles).
- * - Track 0.11: Absorbed optics subject tiers + actors/entities block from sensory.js (new Section 2; define_sheet + strip_visual_excluded imports added; sensory import dropped). Prompt bytes byte-identical.
- * - 2026-10-04: C rebuild — data-first split: resolve_actor_plan (pure gates + ordered sheet actors + nearby list) feeds thin render_actor_sheets; optics tiers compile through resolve_optics_segments into the shared wrap_entities; four empty visibility policies collapse into one blank policy; candidate summary precedence unified to present → eternal → description; render_entity_sheets renders candidates internally (cast_xml string param retired).
- * - 2026-10-04: Split sheet rendering out to sheets.js (specs, field renderers, memory/enhancement contexts, dispositions); dynamics axes move to physics.js. This module keeps presence, cast, visibility, assembly, and optics entities.
- * - 2026-10-04: Fixed `render_enhancement_field_context` ragged indentation — sibling blocks now compose through `render_xml_tag` (uniform depth) instead of hand-rolled strings with mismatched hardcoded indents; dropped the now-unused `indent_continuation` import.
- * ============================================================================
- * - 2026-10-01: Consolidated presence.js and sheets.js into single src/intelligence/modules/entities.js module under P4 Zero Backwards Compatibility. Relational dispositions now harvest 100% from universal bracket predicates via veil.js.
- * ============================================================================
- * Modules Ground Refactor Phase 1 — actor plans frozen at the boundary (gate Sets become frozen arrays; name_to_id stays a Map) — prompt bytes byte-identical.
- * - 2026-10-07: Modules Ground Refactor Phase 3 — optics actors re-cut to sensory.js (wrap_entities exported; Section 7 moved; dead actor.mode branch retired) — prompt bytes byte-identical.
- * - 2026-10-16: Symmetrical Epistemic Wall — FRACTAL sheet rendering respects speaker_key === key, preventing environmental secrets from leaking into Actor character prompts.
- * - 2026-10-19: Dynamic Prompt Resource Allocation — render_entity_sheets accepts dynamic headroom parameter, replacing static ENTITIES_MAX_CHARS ceiling.
- */

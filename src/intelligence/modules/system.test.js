@@ -5,8 +5,6 @@ import {
   get_role_atom,
   resolve_system_role_line,
   PROMPT_LAYERS,
-  resolve_system_plan,
-  render_system_plan,
   render_system_xml,
   compose_system,
   pack_prompt,
@@ -71,30 +69,19 @@ describe("resolve_system_role_line", () => {
   });
 });
 
-describe("resolve_system_plan and render_system_plan", () => {
+describe("compose_system", () => {
   const config = { system: { mode: "director" }, layers: { system: ["role", "core_protocols"] } };
   const state = { role_line: "You are the Director.", core_protocols: "Rules", dynamics: "Axes" };
 
-  it("resolves a frozen plan bounded by the manifest layer list", () => {
-    const plan = resolve_system_plan(config, state, { round: 3 });
-    expect(plan).toEqual({ tag: "SYSTEM", mode: "director", round: 3, attributes: {}, children: ["You are the Director.", "Rules"] });
-    expect(Object.isFrozen(plan)).toBe(true);
-    expect(Object.isFrozen(plan.children)).toBe(true);
-  });
-
-  it("renders the open envelope without a closing tag", () => {
-    const xml = render_system_plan(resolve_system_plan(config, state, { round: 3 }));
+  it("renders the open envelope with bounded manifest layers", () => {
+    const xml = compose_system(config, state, { round: 3 });
     expect(xml).toContain("<SYSTEM");
+    expect(xml).toContain('round="3"');
+    expect(xml).toContain('mode="director"');
     expect(xml).toContain("You are the Director.");
+    expect(xml).toContain("Rules");
+    expect(xml).not.toContain("Axes");
     expect(xml).not.toContain("</SYSTEM>");
-  });
-
-  it("renders an empty string for a missing plan", () => {
-    expect(render_system_plan(null)).toBe("");
-  });
-
-  it("compose_system threads the plan to the renderer", () => {
-    expect(compose_system(config, state, { round: 3 })).toBe(render_system_plan(resolve_system_plan(config, state, { round: 3 })));
   });
 });
 
@@ -152,14 +139,3 @@ describe("pack_prompt and resolve_prompt_meta", () => {
     ]);
   });
 });
-
-/**
- * CHANGELOG
- * - 2026-10-14: Phase 1 P4 Purge — Removed lorebook from PROMPT_LAYERS assertion list.
- * - Track 3.2: Canonical PROMPT_LAYERS key assertion gains lorebook.
- * - Track 2.4: Canonical PROMPT_LAYERS key assertion gains memory_advisory.
- * - Track 0.10: Dropped layer from the canonical PROMPT_LAYERS key assertion.
- * - 2026-10-07: Plan Omega for System — rewritten for ROLE_LIBRARY/ROLE_DEFAULTS/get_role_atom, the plan/render split, relocated pack_prompt/resolve_prompt_meta, and the purged render_system_xml (closed/task options gone; stability-lock tests live in reflex.test.js).
- * - 2026-09-20: Retargeted the envelope test to the open-fragment contract.
- * - 2026-09-18: Initial creation of comprehensive system.test.js.
- */

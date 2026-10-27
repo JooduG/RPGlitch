@@ -324,22 +324,6 @@ describe("render_task — per-mode state dispatch", () => {
   });
 });
 
-/**
- * CHANGELOG
- * - 2026-09-25: Layer-6 refactor — directive-bearing `render_task` calls (director/continuum/optics) now pass their manifest `config` so the declarative `<DIRECTIVES>`/spatial-framing selections resolve; terse calls pass `layers: ["output_format"]` like production; the cinematography staging assertion moved from the retired `STAGING_DIRECTIVE(...)` closure to `get_directive_atom`.
- * - 2026-09-23: `render_task` calls updated to the `task_state` API (was `mode`) and the story-prose case passes the flattened `config.think_format` (was `config.task.think_format`).
- * - 2026-09-24: Entity-id origins — the Director `<INPUT>` assertions now expect the real entity ids (`origin="BOB"` / `origin="ALICE"`) from a supplied `entities` bag; added a think-free prose case asserting no orphaned `</THINK>` reference.
- * - 2026-09-23: Prompt-grammar harmonization — `<INPUT>` now carries `channel=` (was `mode=`), the Director's last turn is a second `<INPUT origin="AI_CHARACTER" channel="reply">` (no separate tag), the `input`/`last_turn` slots collapse into one `inputs` layer, and prose `OUTPUT_FORMAT` is asserted against the reconciled `</THINK>` wording.
- * - 2026-09-23: Harmonized signal channel + directives nesting — assertions now expect the `mode` discriminator (was `kind`), the `<AI_CHARACTER_LAST_TURN>` block carrying input-style attributes, the `keyword_directives` slot removed from `TASK_LAYERS`, and `<KEYWORD_DIRECTIVES>` nested inside `<DIRECTIVES>`.
- * - 2026-09-21: Realigned to the table-driven TASK envelope: removed the retired per-mode renderer imports and rewrote Section 3/7 around `render_task` + `TASK_LAYERS` + `render_directives_xml` (directive prose now lives inside the single `<DIRECTIVES>` element; optics `<MANDATE>` folded into `<DIRECTIVES>`).
- * - 2026-09-19: Added a per-mode compiler dispatch suite asserting render_task routes to render_director_task / render_structured_task / render_optics_task / render_prose_task.
- * - 2026-09-19: Dropped the resolve_context_directives test (resolver removed — FIRST_CONTACT is now the single TASK_LIBRARY.PROSE.CHARACTER directive, driven by director_data.first_contact).
- * - 2026-09-19: Added unit test assertions for TASK_LIBRARY.OPTICS.CINEMATOGRAPHY presets, group context, and staging directives.
- * - 2026-09-19: Added unit test for resolve_optics_cinematography following relocation from entities/sheets.js.
- * - 2026-09-18: Added unit tests for render_keyword_directives_xml supporting DIRECTOR and OPTICS modes.
- * - 2026-09-18: Initial creation of comprehensive task.test.js validating pacing directives, environmental hints, delivery posture voice injection, and Layer 7 <OUTPUT_FORMAT> integration across director, continuum, and story prose.
- */
-
 // ============================================================================
 // [SECTION 8: TASK PLAN / RENDER SPLIT]
 // ============================================================================
@@ -354,8 +338,6 @@ describe("resolve_task_plan and render_task_plan", () => {
     });
     expect(plan.tag).toBe("TASK");
     expect(plan.mode).toBe("sorting");
-    expect(Object.isFrozen(plan)).toBe(true);
-    expect(Object.isFrozen(plan.children)).toBe(true);
     expect(plan.children).toHaveLength(1);
     expect(plan.children[0]).toContain('<ENTRY type="ingestion">');
   });
@@ -404,10 +386,3 @@ describe("task.js - Track 3.4 anti-hijacking agency", () => {
     expect(get_directive_atom("PROSE.CHARACTER.BASE")).toContain("from your own perspective");
   });
 });
-
-/**
- * CHANGELOG
- * - 2026-10-15: Purged obsolete render_routing_rules_xml and TASK_LIBRARY.DIRECTOR.ROUTING_RULES tests under P4 Zero Backwards Compatibility.
- * - 2026-10-14: Atom 2.2 & 2.4 — Added tests for render_routing_rules_xml and TASK_LIBRARY.DIRECTOR.ROUTING_RULES.
- * - 2026-10-14: Phase 1 — Updated INPUT assertions to typed/omitted attributes and CHARACTER.BASE to single-source Sovereignty.
- */

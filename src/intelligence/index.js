@@ -81,7 +81,7 @@ export {
 // Optics & Visual Prompt Compilation (Sensory Cortex)
 // ============================================================================
 
-export { render_core_protocols, resolve_protocol_plan, render_protocol_plan } from "./modules/protocols.js";
+export { render_core_protocols } from "./modules/protocols.js";
 export {
   render_narrative_style_xml,
   render_visual_style_xml,
@@ -91,7 +91,7 @@ export {
   compose_visual_generation_prompt,
   resolve_visual_engine_tokens,
 } from "./modules/style.js";
-export { render_visual_history, format_sensory_history, resolve_history_plan, resolve_sensory_plan, render_history_plan } from "./modules/recency.js";
+export { render_visual_history, format_sensory_history } from "./modules/recency.js";
 
 // ============================================================================
 // Veil Engine & Universal Bracket Predicates (Epistemic Wall)
@@ -109,21 +109,3 @@ export {
   strip_covert_directives,
   strip_bracket_engine_flags,
 } from "./veil.js";
-
-/**
- * CHANGELOG:
- * - 2026-10-18: Sovereign prompt ownership — repointed `render_optics_fallback` to `./modules/style.js`, completely severing the cross-boundary export from `../media/optics.js`.
- * - Track 1.1: Re-sourced dynamics barrel from dynamics.js (physics.js renamed); exports the pure reduce_dynamics reducer.
- * - Track 0.11: render_optics_fallback now re-exports from media/optics.js (sensory.js dissolved).
- * - 2026-10-01: Re-exported consolidated Veil Engine functions (bracket parsing, epistemic wall, secrecy signals) from veil.js.
- * - 2026-09-29: Exported universal bracket predicate domain engine functions from synaptic.js.
- * - 2026-09-24: Purged VISUAL_EXCLUDED_KEYS and strip_visual_excluded re-exports under P4 Zero Backwards Compatibility (now accessed directly from @utils).
- * - 2026-09-24: Streamlined intelligence kernel domain: merged `telemetry.js` into `physics.js` (`build_turn_summary`), and merged `payload.js` into `builder.js` (`context_builder`, `to_data_points`).
- * - 2026-09-24: Folded the media-side optics prompt domain into the barrel — exported `render_visual_history` (history.js), `render_optics_fallback` (builder.js), and `flatten_markup_to_prose` (parser.js).
- * - 2026-09-19: Re-exported VISUAL_EXCLUDED_KEYS and strip_visual_excluded directly from concrete module epistemic.js under P4 Zero Backwards Compatibility.
- * - 2026-09-19: Exported VISUAL_EXCLUDED_KEYS and strip_visual_excluded from entities module following epistemic prompt filter unification.
- * - 2026-09-18: Exported visual optics pipeline (`optics.js`) and image prompt response parsers (`parser.js`) as part of prompt pipeline standardization.
- * - 2026-09-11: Updated barrel exports to reference consolidated root domain modules: story.js, builder.js, temporal.js, and profile.js.
- * - 2026-08-29: Applied /harmonize protocol: structured barrel into canonical functional sections with universal header/footer architecture and exported story_pipeline.
- * - 2026-10-07: Modules Ground Refactor Phase 3 — optics barrel repointed to modules/sensory.js — prompt bytes byte-identical.
- */

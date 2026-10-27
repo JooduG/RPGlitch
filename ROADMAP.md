@@ -10,7 +10,7 @@ This roadmap defines the authoritative technical backlog, active engineering spr
   - [ARCHITECTURE.md](ARCHITECTURE.md): Authoritative software architecture, layer boundaries, and state reality in `src/`.
   - [DESIGN.md](DESIGN.md): Nordic visual design tokens, typography, and motion contracts.
   - [SECURITY.md](SECURITY.md): Threat defense, input sanitization, and sink controls.
-  - [memory-rag-budget-architecture.md](tmp/memory/memory-rag-budget-architecture.md): Sovereign memory RAG, token budget reservoirs, and anti-slop specification.
+  - [memory-rag-budget-architecture.md](`tmp/memory/memory-rag-budget-architecture.md`): Sovereign memory RAG, token budget reservoirs, and anti-slop specification.
 - **Idea Promotion Lifecycle**: Uncommitted mechanical ideas and exploratory proposals incubate in [`.agents/skills/simulation/references/`](.agents/skills/simulation/references/) as `suggestion-*.md`. When an idea is **promoted** from an exploratory possibility into a planned initiative, it is **removed from the incubator and fully migrated into this roadmap**.
 
 ---
@@ -96,8 +96,25 @@ A comprehensive, code-grounded review of the running application and execution o
   - `src/intelligence/modules/recency.test.js` (recency module contract and window verification)
   - `src/intelligence/modules/sheets.js` (dynamic 4-quadrant RAG entity sheet formatting and boundary-safe truncation)
   - `src/intelligence/prompts.js` (dynamic prompt character headroom metering, director recency dedup, and ghostwriter draft seeding)
-  - `src/intelligence/modules/constitution.js` (symmetrical relational sovereignty Law L3)
-  - `src/intelligence/modules/task.js` (director staging instruction alignment and authorial voice sovereignty dedup)
+  - `src/intelligence/modules/constitution.js` (folded constitution plan into direct render_constitution)
+  - `src/intelligence/modules/constitution.test.js` (direct render_constitution contract tests)
+  - `src/intelligence/modules/output.js` (direct output string builder without plan wrapper hops)
+  - `src/intelligence/modules/protocols.js` (folded protocol plan into direct render_core_protocols and purged catalog usage)
+  - `src/intelligence/modules/protocols.test.js` (protocols module unit tests)
+  - `src/intelligence/modules/system.js` (direct compose_system with role interpolation without catalog indirection)
+  - `src/intelligence/modules/system.test.js` (system composition unit tests)
+  - `src/intelligence/modules/task.js` (folded task plan into direct render_task and authorial voice sovereignty dedup)
+  - `src/intelligence/modules/task.test.js` (task plan contract tests)
+  - `src/intelligence/modules/recency.js` (collapsed sensory and history formatting into direct string builders)
+  - `src/intelligence/modules/reflex.js` (direct stability and prose posture builders with inlined atom interpolation)
+  - `src/intelligence/modules/entities.js` (inlined actor sheet mapping into render_entity_sheets)
+  - `src/intelligence/builder.js` (eliminated to_data_points round-tripping for eternal and present fields; wired has_bracket_bond)
+  - `src/intelligence/index.js` (pruned internal plan function exports)
+  - `src/data/sessions.svelte.js` (wired universal has_bracket_bond for entity selection bracket checks)
+  - `src/utils/catalog.js` (purged obsolete catalog lookup engine)
+  - `src/utils/catalog.test.js` (purged catalog test suite)
+  - `src/utils/xml.js` (inlined interpolate_tokens and property path traversal in render_atom_xml)
+  - `src/utils/index.js` (purged catalog export barrel)
   - `src/intelligence/index.js` (barrel export migration from history.js to recency.js)
   - `src/intelligence/builder.js` (import migration from history.js to recency.js)
   - `src/intelligence/builder.test.js` (contract assertions update for ENTRY and ALTERNATION_OPTIONS)

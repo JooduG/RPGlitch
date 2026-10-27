@@ -24,7 +24,6 @@ import {
   render_input_history_xml,
   render_visual_history,
   resolve_history_plan,
-  resolve_sensory_plan,
   render_history_plan,
   format_sensory_history,
   render_chapter_history_xml,
@@ -234,11 +233,9 @@ describe("src/intelligence/modules/history.js — history plans", () => {
     expect(render_history_plan(null)).toBe("");
   });
 
-  it("resolves sensory line plans with telemetry counts", () => {
-    const plan = resolve_sensory_plan("Silvers: He watches.\ntelemetry: chaos +1\n\nsystem: intensity +2 | active");
-    expect(plan.lines).toEqual(["Silvers: He watches."]);
-    expect(plan.dropped.telemetry).toBe(2);
-    expect(plan.dropped.empty).toBe(1);
+  it("formats sensory history by stripping cognition and telemetry", () => {
+    const formatted = format_sensory_history("Silvers: He watches.\ntelemetry: chaos +1\n\nsystem: intensity +2 | active");
+    expect(formatted).toBe("<HISTORY>\nSilvers: He watches.\n</HISTORY>\n");
     expect(format_sensory_history("")).toBe("");
   });
 
@@ -339,10 +336,3 @@ describe("src/intelligence/modules/history.js — normalize_history_beat", () =>
     expect(id_beat.origin).toBe("ENT_VAEL");
   });
 });
-
-/**
- * CHANGELOG
- * - Track 2.2: Cliff-guard coverage — oldest-first budget pruning (round gaps kept), render-compiler threading, budget magnitude pins.
- * - 2026-10-04: Plan/render split coverage — history-plan describes (frozen plans, drop counts, round-gap stability, pre-window exclusion, preformatted passthrough, sensory telemetry counts); refreshed the stale header (format_recent_history pruned, chapter rendering lives in sheets.js).
- * - 2026-09-13: Initial unit test suite for history.js covering resolve_history, render_history, format_recent_history, render_input_history_xml, and render_chapter_history_xml with token-optimized XML contracts.
- */
