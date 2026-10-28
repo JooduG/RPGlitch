@@ -211,7 +211,7 @@ describe("Parameter-Aware Layer 7 Output Format Routing", () => {
     });
 
     expect(character_memory.system).toContain('"eternal"');
-    expect(character_memory.system).toContain('"relationships"');
+    expect(character_memory.system).toContain('"present"');
 
     const fractal_memory = compile_prompt("continuum", {
       target_entity: test_entities.FRACTAL,
