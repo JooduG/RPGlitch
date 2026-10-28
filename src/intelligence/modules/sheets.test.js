@@ -323,12 +323,18 @@ describe("render_sheet physical / separate modes", () => {
 });
 
 describe("render_entity_memory_context", () => {
-  it("renders an owner-view separate sheet with CHARACTER envelope", () => {
+  it("renders an owner-view separate sheet with CHARACTER envelope and clean quadrant tags", () => {
     const xml = render_entity_memory_context("AI_CHARACTER", test_character);
     expect(xml).toContain('<CHARACTER id="alice" name="Alice">');
     expect(xml).not.toContain("<AI_CHARACTER");
-    expect(xml).toContain('<CURRENT_LOOK jacket="worn leather" posture="alert" />');
+    expect(xml).toContain("<ETERNAL>");
+    expect(xml).toContain("[BUILD: tall and athletic]");
+    expect(xml).toContain("<PRESENT>");
+    expect(xml).toContain("[JACKET: worn leather] [POSTURE: alert]");
+    expect(xml).toContain("<FUTURE>");
     expect(xml).toContain("Infiltrate the mainframe.");
+    expect(xml).toContain("<PAST>");
+    expect(xml).toContain("First memory.");
   });
 
   it("returns empty for a missing entity", () => {

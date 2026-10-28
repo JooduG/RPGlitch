@@ -501,13 +501,37 @@ export function render_sheet(specification, options = {}) {
 
 export function render_entity_memory_context(entity_key, entity) {
   if (!entity) return "";
-  const specification = SHEET_SPECS[entity_key] || SHEET_SPECS.AI_CHARACTER;
-  return render_sheet(specification, {
-    entity,
-    mode: "separate",
-    is_owner: true,
-    include_agenda: true,
-  });
+  const tag = entity.type === "fractal" ? "FRACTAL" : "CHARACTER";
+  const attrs = {
+    ...(entity.id ? { id: String(entity.id).toLowerCase() } : {}),
+    name: entity.name || (tag === "FRACTAL" ? "FRACTAL" : "CHARACTER"),
+  };
+
+  const eternal_text =
+    typeof entity.eternal === "string" ? entity.eternal : [entity.eternal?.physical, entity.eternal?.non_physical].filter(Boolean).join("\n");
+
+  const present_text =
+    typeof entity.present === "string" ? entity.present : [entity.present?.physical, entity.present?.non_physical].filter(Boolean).join("\n");
+
+  const future_text = typeof entity.future === "string" ? entity.future : "";
+
+  const past_text = typeof entity.past === "string" ? entity.past : Array.isArray(entity.past) ? join_past_vectors(entity) : "";
+
+  const sections = [];
+  if (eternal_text.trim()) {
+    sections.push(render_xml_tag({ tag: "ETERNAL", children: [eternal_text.trim()], child_indent: 4 }));
+  }
+  if (present_text.trim()) {
+    sections.push(render_xml_tag({ tag: "PRESENT", children: [present_text.trim()], child_indent: 4 }));
+  }
+  if (future_text.trim()) {
+    sections.push(render_xml_tag({ tag: "FUTURE", children: [future_text.trim()], child_indent: 4 }));
+  }
+  if (past_text.trim()) {
+    sections.push(render_xml_tag({ tag: "PAST", children: [past_text.trim()], child_indent: 4 }));
+  }
+
+  return render_xml_tag({ tag, attrs, children: sections, child_indent: 2, separator: "\n" });
 }
 
 export function render_enhancement_field_context(entity, field_identifier, content = "", entity_type = "character", format_past_function = null) {

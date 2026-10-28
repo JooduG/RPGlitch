@@ -66,6 +66,8 @@ A comprehensive, code-grounded review of the running application and execution o
   - `src/ui/message/TelemetryCard.svelte` (consolidated telemetry module unifying quick shot, back shot, and vector resolution; renders individual bracket boxes with clean quadrant headers)
   - `src/ui/message/TelemetryCard.test.js` (telemetry formatting, directed edge parsing, and quadrant tests)
   - `src/ui/message/telemetry-format.js` (clean_text_debris, parse_relationship_edge, vector_label, and entity block projection)
+  - `src/intelligence/modules/sheets.js` (render_entity_memory_context clean bracket quadrant rendering for Continuum Caretaker)
+  - `src/intelligence/modules/sheets.test.js` (sheets module tests verifying clean quadrant envelopes)
   - `src/data/definitions/premade-entities.js` (flattening 10 premades to universal bracket strings across all 4 quadrants)
   - `src/data/normalizer.js` (schema normalization to 4 flat quadrant strings)
   - `src/intelligence/story.js` (somatic vs fractal dynamics delta scope isolation)
