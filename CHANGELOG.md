@@ -9,10 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
-<<<<<<< HEAD
 - **UI Ergonomics & Accordion Caret Alignment (`src/ui/primitives/Accordion.svelte`)**:
   - **Space-Between Alignment**: Updated `Accordion.svelte` trigger to `flex w-full items-center justify-between py-2 text-left`, placing the `▼` expansion caret at the far right edge of the card container while keeping the label left-aligned.
-=======
+
 - **Continuum Caretaker Delta Mandate & Biometric Guardrails (`src/intelligence/`, `src/data/`, `src/ui/`)**:
   - **Delta-Only Mandate**: Updated `TASK_LIBRARY.CONTINUUM.MANDATE` and `PROFILE_FIELDS` across all quadrants (`eternal`, `present`, `future`) to instruct the Caretaker to emit `""` for unchanged fields and emit strictly `[KEY: value]` bracket deltas. Unchanged biometric facts (`[AGE: 35]`, `[GENDER: male]`, etc.) are omitted by the Caretaker unless a permanent physical transformation occurred.
   - **Immutable Biometric Guardrails**: In `src/intelligence/temporal.js`, introduced `apply_bracket_delta_merge`, `normalize_incoming_bracket_mutation`, and guarded baseline biometric keys (`GENDER`, `AGE`, `ETHNICITY`, `BUILD`, `FACE`, `EYES`, `SKIN`, `HAIR`, `HEIGHT`, `SPECIES`) against cosmetic paraphrasing once established on an entity.
@@ -20,7 +19,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Zero-Mutation Telemetry Suppression**: In `src/intelligence/temporal.js`, suppressed `MEMORY_FORMATION` entries when a consolidation cycle yields zero bracket deltas and zero new memories, eliminating empty Back Shot cards in DevMode. Cleared brackets (`[KEY: none]` / `[KEY: cleared]`) are removed from live entity state and explicitly logged as `[KEY: cleared]` rows in Back Shot telemetry.
   - **Retire Redundant Relationships Array**: Purged the legacy `"relationships"` array from the continuum format schema, `SCHEMA_ATOMS`, and `TelemetryCard.svelte`, relying 100% on directed relational brackets (`[@TARGET: dynamic | flags]`).
   - **Primary Companion Coercion**: In `src/intelligence/director.js`, coerced `npc:<id>` to `AI_CHARACTER` when `<id>` matches the active primary companion, and filtered active players and companions from `in_scene_change` enter/exit lists.
->>>>>>> 04f48a9ab1a136dce045c0d00ab60c9703301c24
 
 - **Telemetry Engine Harmonization & Diagnostics Fix (`src/intelligence/`, `src/ui/message/`)**:
   - **Continuum Caretaker Raw Quadrant Formatting**: In `src/intelligence/modules/sheets.js:render_entity_memory_context`, updated the Continuum Caretaker's `<TARGET_ENTITY_CONTEXT>` to emit raw bracket text within `<ETERNAL>`, `<PRESENT>`, `<FUTURE>`, and `<PAST>` tags instead of decomposing traits into nested XML tags (`<APPEARANCE>`, `<PSYCHOLOGY>`, etc.). Updated `CONTRACT.continuum` in `src/intelligence/prompt-verification.js` to match the clean quadrant tag inventory.
