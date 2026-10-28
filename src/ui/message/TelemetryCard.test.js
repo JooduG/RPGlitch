@@ -191,11 +191,12 @@ describe("TelemetryCard Telemetry Logic", () => {
   });
 
   test("labels past memory and present vector types with their human-readable names", () => {
-    expect(vector_label("past", "past")).toBe("PAST MEMORY");
-    expect(vector_label("memory", "memory")).toBe("PAST MEMORY");
-    expect(vector_label(undefined, "memory")).toBe("MEMORY");
-    expect(vector_label(undefined, "past")).toBe("PAST MEMORY");
+    expect(vector_label("past", "past")).toBe("PAST");
+    expect(vector_label("memory", "memory")).toBe("PAST");
+    expect(vector_label(undefined, "memory")).toBe("PAST");
+    expect(vector_label(undefined, "past")).toBe("PAST");
     expect(vector_label("present", "past")).toBe("PRESENT");
+    expect(vector_label("future", "future")).toBe("FUTURE");
     expect(vector_label("PROPHECY", "memory")).toBe("PROPHECY");
   });
 

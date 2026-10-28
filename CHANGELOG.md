@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## `[Unreleased]`
 
 - **Telemetry Engine Harmonization & Diagnostics Fix (`src/intelligence/`, `src/ui/message/`)**:
+  - **Individual Bracket Boxes & Clean Quadrant Headers (Option A)**: In `src/ui/message/TelemetryCard.svelte`, standardized headers across all temporal shots to `ETERNAL`, `PRESENT`, `PAST`, and `FUTURE` with strictly zero sublabels (eliminating `PHYSICAL`, `NON-PHYSICAL`, `MEMORY`, and `AGENDUM`). Added `extract_bracket_items()` to parse every bracket entry into its own individual left-accented row/card matching the visual style of `PAST`.
   - **4 Somatic vs 2 Fractal Dynamics Isolation**: In `src/intelligence/story.js:295` and `src/intelligence/dynamics.js:352`, strictly enforced axis scope filtering (`DYNAMICS_AXES[axis]?.scope === "somatic"` for AI characters and NPCs vs `"fractal"` for Fractal). Quick Shot now displays strictly 4 somatic dynamics for the character and 2 environmental dynamics for the fractal, eliminating cross-contamination.
   - **Component Unification & P4 Deprecation**: Merged `TelemetryBlocks.svelte` and `TelemetryVector.svelte` into a unified `TelemetryCard.svelte` and deleted the redundant components under P4 Zero Backwards Compatibility.
   - **Unified Temporal Quadrants**: Standardized `ETERNAL`, `PRESENT`, `FUTURE`, and `PAST` across all telemetry shots (Quick Shot, Back Shot, Vector Resolution) on sleek, left-accented monospace rows with fixed-width label badges.
