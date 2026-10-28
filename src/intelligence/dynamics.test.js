@@ -123,6 +123,33 @@ describe("dynamics.js", () => {
       expect(deltas).toHaveLength(0);
       expect(log_strings).toHaveLength(0);
     });
+
+    it("strictly isolates somatic axes for 'ai' and fractal axes for 'fractal'", () => {
+      const mixed_dynamics = {
+        chaos: 70,
+        intensity: 60,
+        openness: 40,
+        affinity: 45,
+        velocity: 65,
+        entropy: 55,
+      };
+      const runtime_target = {
+        chaos: 50,
+        intensity: 50,
+        openness: 50,
+        affinity: 50,
+        velocity: 50,
+        entropy: 50,
+      };
+
+      const ai_result = compute_dynamics_deltas("ai", mixed_dynamics, runtime_target);
+      expect(ai_result.deltas.map((d) => d.axis)).toEqual(["chaos", "intensity", "openness", "affinity"]);
+      expect(ai_result.log_strings).toEqual(["Chaos +20", "Intensity +10", "Openness -10", "Affinity -5"]);
+
+      const fractal_result = compute_dynamics_deltas("fractal", mixed_dynamics, runtime_target);
+      expect(fractal_result.deltas.map((d) => d.axis)).toEqual(["velocity", "entropy"]);
+      expect(fractal_result.log_strings).toEqual(["Velocity +15", "Entropy +5"]);
+    });
   });
 
   describe("evaluate_subtext_protocols (Subtext Rules & Triggers Engine)", () => {

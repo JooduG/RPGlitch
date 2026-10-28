@@ -29,7 +29,7 @@ import {
 } from "@media";
 import { validate_and_repair_response, force_close_response, strip_directors_note_seed, THINK_OPEN_TAG, THINK_CLOSE_TAG } from "./parser.js";
 import { llm_service, looks_truncated, calculate_semantic_drift, merge_abort_signals } from "@platform";
-import { apply_dynamics_gravity, extract_entity_dynamics_baselines, capture_dynamics_delta } from "./dynamics.js";
+import { apply_dynamics_gravity, extract_entity_dynamics_baselines, capture_dynamics_delta, DYNAMICS_AXES } from "./dynamics.js";
 import { execute_director_shot, resolve_npc_entity, apply_in_scene_change } from "./director.js";
 import { build_scoring_context, context_builder } from "./builder.js";
 import { compile_prompt } from "./prompts.js";
@@ -293,6 +293,7 @@ export const gamemaster = {
           if (!snapshot.ai) snapshot.ai = {};
           if (!snapshot.ai.dynamics) snapshot.ai.dynamics = { ...state_bridge.runtime.ai };
           Object.entries(director_data.dynamics_deltas).forEach(([k, delta]) => {
+            if (DYNAMICS_AXES[k]?.scope !== "somatic") return;
             const val = Number(delta);
             if (!isNaN(val)) {
               ai_delta_axes.add(k);
@@ -305,6 +306,7 @@ export const gamemaster = {
           if (!snapshot.fractal) snapshot.fractal = {};
           if (!snapshot.fractal.dynamics) snapshot.fractal.dynamics = { ...state_bridge.runtime.fractal };
           Object.entries(director_data.dynamics_deltas).forEach(([k, delta]) => {
+            if (DYNAMICS_AXES[k]?.scope !== "fractal") return;
             const val = Number(delta);
             if (!isNaN(val)) {
               fractal_delta_axes.add(k);

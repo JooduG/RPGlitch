@@ -7,5 +7,3 @@ export { default as Prologue } from "./Prologue.svelte";
 export { default as Epilogue } from "./Epilogue.svelte";
 export { default as UndoToast } from "./UndoToast.svelte";
 export { default as TelemetryCard } from "./TelemetryCard.svelte";
-export { default as TelemetryBlocks } from "./TelemetryBlocks.svelte";
-export { default as TelemetryVector } from "./TelemetryVector.svelte";

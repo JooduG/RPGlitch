@@ -352,8 +352,10 @@ export function extract_entity_dynamics_baselines(entity) {
 export function compute_dynamics_deltas(target, dynamics, runtime_target) {
   const deltas = [];
   const log_strings = [];
+  const expected_scope = target === "fractal" ? "fractal" : "somatic";
 
   for (const [axis, val] of Object.entries(dynamics || {})) {
+    if (DYNAMICS_AXES[axis]?.scope !== expected_scope) continue;
     const old_value = /** @type {any} */ (runtime_target)?.[axis] ?? 50;
     const diff = val - old_value;
     if (diff !== 0) {
@@ -551,8 +553,9 @@ export async function capture_dynamics_delta(bridge, snapshot, meta = null) {
     deltas.push(...ai_delta_result.deltas);
     log_strings.push(...ai_delta_result.log_strings);
     if (bridge.runtime.active_ai?.id) {
+      const scoped_dynamics = Object.fromEntries(Object.entries(snapshot.ai.dynamics).filter(([k]) => DYNAMICS_AXES[k]?.scope === "somatic"));
       await bridge.runtime.update_entity("character", bridge.runtime.active_ai.id, {
-        dynamics: { ...snapshot.ai.dynamics },
+        dynamics: scoped_dynamics,
       });
     }
   }
@@ -562,8 +565,9 @@ export async function capture_dynamics_delta(bridge, snapshot, meta = null) {
     deltas.push(...fractal_delta_result.deltas);
     log_strings.push(...fractal_delta_result.log_strings);
     if (bridge.runtime.active_fractal?.id) {
+      const scoped_dynamics = Object.fromEntries(Object.entries(snapshot.fractal.dynamics).filter(([k]) => DYNAMICS_AXES[k]?.scope === "fractal"));
       await bridge.runtime.update_entity("fractal", bridge.runtime.active_fractal.id, {
-        dynamics: { ...snapshot.fractal.dynamics },
+        dynamics: scoped_dynamics,
       });
     }
   }

@@ -1,6 +1,13 @@
 import { describe, expect, test } from "vitest";
 
-import { get_telemetry_label, process_entity_blocks, resolve_entity_name, vector_label } from "./telemetry-format.js";
+import {
+  get_telemetry_label,
+  process_entity_blocks,
+  resolve_entity_name,
+  vector_label,
+  parse_relationship_edge,
+  clean_text_debris,
+} from "./telemetry-format.js";
 
 describe("TelemetryCard Telemetry Logic", () => {
   test("reads the updates shape into per-entity blocks (dynamics + present_mutations + new vectors)", () => {
@@ -263,5 +270,45 @@ describe("TelemetryCard Telemetry Logic", () => {
     expect(get_telemetry_label({ type: "DYNAMICS_DELTA" }, runtime)).toBe("Quick Shot");
 
     expect(get_telemetry_label({}, runtime)).toBe("Quick Shot");
+  });
+
+  test("parses directed relationship edge strings into structured objects", () => {
+    // String formats
+    expect(parse_relationship_edge("Beast → Glitch: protective hold")).toEqual({
+      source: "Beast",
+      target: "Glitch",
+      dynamic: "protective hold",
+    });
+    expect(parse_relationship_edge("Ghost -> Viper : cautious trust")).toEqual({
+      source: "Ghost",
+      target: "Viper",
+      dynamic: "cautious trust",
+    });
+    expect(parse_relationship_edge("Void —> Viper: looming danger")).toEqual({
+      source: "Void",
+      target: "Viper",
+      dynamic: "looming danger",
+    });
+
+    // Object format
+    expect(parse_relationship_edge({ source: "Mira", target: "Sorel", dynamic: "rivalry" })).toEqual({
+      source: "Mira",
+      target: "Sorel",
+      dynamic: "rivalry",
+    });
+
+    // Invalid / empty formats return null
+    expect(parse_relationship_edge("")).toBeNull();
+    expect(parse_relationship_edge("   ")).toBeNull();
+    expect(parse_relationship_edge("Random sentence with no arrow")).toBeNull();
+    expect(parse_relationship_edge(null)).toBeNull();
+    expect(parse_relationship_edge(undefined)).toBeNull();
+    expect(parse_relationship_edge({ source: "", target: "" })).toBeNull();
+  });
+
+  test("cleans up comma debris and leading/trailing punctuation in prose strings", () => {
+    expect(clean_text_debris(", , [CIRCULATING: low rumble]")).toBe("[CIRCULATING: low rumble]");
+    expect(clean_text_debris(", , ,  ")).toBe("");
+    expect(clean_text_debris("   [MOOD: intense]  , ")).toBe("[MOOD: intense]");
   });
 });

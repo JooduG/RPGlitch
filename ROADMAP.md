@@ -63,6 +63,10 @@ A comprehensive, code-grounded review of the running application and execution o
 
 - **Objective**: Execute Track A local investigations and canonical configuration harmonization: fix composer queued state machine, generate prompt atom matrix in audit harness, rebuild central `src/config.js` with literary scale, and wire canonical contracts across intelligence, data, media, and state layers under P4 purity.
 - **Scope & Target Files**:
+  - `src/ui/message/TelemetryCard.svelte` (consolidated telemetry module unifying quick shot, back shot, and vector resolution)
+  - `src/ui/message/TelemetryCard.test.js` (telemetry formatting, directed edge parsing, and quadrant tests)
+  - `src/ui/message/telemetry-format.js` (clean_text_debris, parse_relationship_edge, and entity block projection)
+  - `src/intelligence/story.js` (somatic vs fractal dynamics delta scope isolation)
   - `src/ui/console/StorymodeBar.svelte` (composer serialized queue drainer and unstick resilience)
   - `src/config.js` (master canonical system configuration, literary scale, latency tiers, and subsystem domain agreements)
   - `src/intelligence/temporal.js` (memory past, eternal, present character caps and hybrid retrieval scoring weights)

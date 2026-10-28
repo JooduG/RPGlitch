@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Telemetry Engine Harmonization & Diagnostics Fix (`src/intelligence/`, `src/ui/message/`)**:
+  - **4 Somatic vs 2 Fractal Dynamics Isolation**: In `src/intelligence/story.js:295` and `src/intelligence/dynamics.js:352`, strictly enforced axis scope filtering (`DYNAMICS_AXES[axis]?.scope === "somatic"` for AI characters and NPCs vs `"fractal"` for Fractal). Quick Shot now displays strictly 4 somatic dynamics for the character and 2 environmental dynamics for the fractal, eliminating cross-contamination.
+  - **Component Unification & P4 Deprecation**: Merged `TelemetryBlocks.svelte` and `TelemetryVector.svelte` into a unified `TelemetryCard.svelte` and deleted the redundant components under P4 Zero Backwards Compatibility.
+  - **Unified Temporal Quadrants**: Standardized `ETERNAL`, `PRESENT`, `FUTURE`, and `PAST` across all telemetry shots (Quick Shot, Back Shot, Vector Resolution) on sleek, left-accented monospace rows with fixed-width label badges.
+  - **Relational Edge String Parsing & Debris Stripping**: Added `parse_relationship_edge` and `clean_text_debris` to `src/ui/message/telemetry-format.js`. Directed edge strings (`Source → Target: dynamic`) are parsed cleanly into `{ source, target, dynamic }` items, while malformed, empty, or ghost relations (`Entity → Target:`) are strictly omitted from rendering. Leading/trailing orphan commas are stripped from bracket display.
+
 - **Visual Specimen Cleanup & Chat Flow Ergonomics (`src/ui/primitives/`, `src/ui/message/`, `src/ui/Storymode.svelte`)**:
   - **Quick Shot Accordion Caret Alignment**: In `src/ui/primitives/Accordion.svelte`, updated trigger from `justify-between` to `inline-flex gap-2`, placing the `▼` caret adjacent to the label text rather than drifting to the far right edge of wide cards.
   - **Thoughts & Stage Directions Collapsed**: In `src/ui/message/Body.svelte`, collapsed the `think_block` behind an `<Accordion label="Thoughts">` (collapsed by default), preventing internal stage directions from cluttering the message bubble unless intentionally expanded in Dev Mode.

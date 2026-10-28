@@ -70,6 +70,51 @@ export function vector_label(type, fallback = "memory") {
 }
 
 /**
+ * Cleans comma debris, double commas, and leading/trailing punctuation from prose strings.
+ * @param {any} text
+ * @returns {string}
+ */
+export function clean_text_debris(text) {
+  if (text == null) return "";
+  let s = String(text).trim();
+  // Strip leading commas, semicolons and whitespace
+  s = s.replace(/^[\s,;]+/g, "");
+  // Replace multiple commas with a single comma
+  s = s.replace(/,(\s*,)+/g, ",");
+  // Strip trailing commas, semicolons and whitespace (preserve closing periods)
+  s = s.replace(/[\s,;]+$/g, "");
+  return s.trim();
+}
+
+/**
+ * Parses a directed relationship edge string or object into a structured object.
+ * Returns null if the edge is invalid, empty, or cannot be parsed.
+ * @param {any} edge
+ * @returns {{ source: string, target: string, dynamic: string } | null}
+ */
+export function parse_relationship_edge(edge) {
+  if (!edge) return null;
+  if (typeof edge === "object") {
+    const source = String(edge.source || "").trim();
+    const target = String(edge.target || "").trim();
+    const dynamic = String(edge.dynamic ?? edge.content ?? "").trim();
+    if (!source && !target && !dynamic) return null;
+    return { source: source || "Entity", target: target || "Target", dynamic };
+  }
+  if (typeof edge === "string") {
+    const match = String(edge).match(/^\s*(.+?)\s*(?:→|->|—>\s*)\s*(.+?)\s*:\s*(.+)$/);
+    if (!match) return null;
+    const [, source, target, dynamic] = match;
+    const s = source.trim();
+    const t = target.trim();
+    const d = dynamic.trim();
+    if (!s && !t && !d) return null;
+    return { source: s || "Entity", target: t || "Target", dynamic: d };
+  }
+  return null;
+}
+
+/**
  * Projects a DYNAMICS_DELTA `updates` map into renderable per-entity blocks.
  * Entities with no content (no dynamics, vectors, or mutations) are omitted.
  * @param {any} meta
@@ -96,26 +141,29 @@ export function process_entity_blocks(meta) {
       type: v.type,
       weight: v.emotional_weight,
       ...(v.id ? { id: v.id } : {}),
-      content: v.content,
+      content: clean_text_debris(v.content),
     }));
 
     const retrieval = (Array.isArray(raw.vectors?.retrieval) ? raw.vectors.retrieval : []).map((v) => ({
       type: v.type,
       id: v.id,
-      content: v.content,
+      content: clean_text_debris(v.content),
       relevance: v._relevance,
     }));
 
-    const physical = raw.present_mutations?.physical ?? "";
-    const non_physical = raw.present_mutations?.non_physical ?? "";
-    const eternal_physical = raw.eternal_mutations?.physical ?? "";
-    const eternal_non_physical = raw.eternal_mutations?.non_physical ?? "";
+    const physical = clean_text_debris(raw.present_mutations?.physical ?? "");
+    const non_physical = clean_text_debris(raw.present_mutations?.non_physical ?? "");
+    const eternal_physical = clean_text_debris(raw.eternal_mutations?.physical ?? "");
+    const eternal_non_physical = clean_text_debris(raw.eternal_mutations?.non_physical ?? "");
     const has_mods = !!eternal_physical || !!eternal_non_physical;
-    const relationships = Array.isArray(raw.relationships)
+    const raw_relationships = Array.isArray(raw.relationships)
       ? raw.relationships
       : Array.isArray(meta?.relationships) && (meta.forged_entity === block_key || meta.target === key)
         ? meta.relationships
         : [];
+    const relationships = raw_relationships
+      .map(parse_relationship_edge)
+      .filter((r) => r !== null && (r.source !== "Entity" || r.target !== "Target" || r.dynamic));
 
     if (
       !dynamics.length &&
