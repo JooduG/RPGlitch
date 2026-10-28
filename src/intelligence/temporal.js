@@ -1513,6 +1513,19 @@ export const temporal_engine = {
             const forged = message.meta?.forged_entities || (message.meta?.consolidated ? entity_targets.map((target) => target.key) : []);
             return !forged.includes(candidate.key);
           });
+
+          // NPCs must have active dialogue or actions in the slice to be forged
+          if (candidate.is_npc) {
+            const npc_id = String(candidate.entity?.id || "").toLowerCase();
+            const npc_name = String(candidate.entity?.name || "").toLowerCase();
+            const has_scene_presence = candidate_unconsolidated.some((msg) => {
+              const msg_entity = String(msg.entity_id || msg.character_name || "").toLowerCase();
+              const msg_text = String(msg.text || msg.content || "").toLowerCase();
+              return msg_entity === npc_id || msg_entity === npc_name || (npc_name && msg_text.includes(npc_name));
+            });
+            if (!has_scene_presence) continue;
+          }
+
           if (candidate_unconsolidated.length > 0 || i === entity_targets.length - 1) {
             target_item = candidate;
             target_key = candidate.key;

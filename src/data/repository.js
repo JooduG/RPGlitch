@@ -182,8 +182,21 @@ export const entities = {
    */
   async update(type, id, data) {
     try {
-      const serializable_data = _map_vector_embeddings(data, serialize_embedding);
-      const cloned_data = structuredClone(serializable_data);
+      let raw_data = data;
+      try {
+        if (typeof globalThis !== "undefined" && typeof globalThis.$state?.snapshot === "function") {
+          raw_data = globalThis.$state.snapshot(data);
+        }
+      } catch {
+        raw_data = data;
+      }
+      const serializable_data = _map_vector_embeddings(raw_data, serialize_embedding);
+      let cloned_data;
+      try {
+        cloned_data = structuredClone(serializable_data);
+      } catch {
+        cloned_data = JSON.parse(JSON.stringify(serializable_data));
+      }
       const existing_entity = await db.entities.get(id);
       if (existing_entity && existing_entity.type === type) {
         return await db.entities.update(id, cloned_data);

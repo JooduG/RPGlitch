@@ -15,20 +15,25 @@ Verify that the recently shipped architectural updates across Phases I through V
   - Verify high-weight canon crispness (`w: 7-10`) remains 100% untouched and legible regardless of origin provenance (`usr_` or `ai_`).
   - Observe how the LLM reacts in narrative prose to blacked-out memory blocks (does it portray organic memory fog or trauma without hallucinating fake facts?).
 - **2. Director Staging Adherence (Shot 1 $\rightarrow$ Shot 2 Handoff)**:
-  - Verify Shot 1 Director Quick Shot evaluates the round, updates numerical dynamics, and emits a structured `directors_note` and 1–5 `keywords`. Measure Director latency (informational metric, not a hard pass/fail latency gate).
+  - Verify Shot 1 Director Quick Shot evaluates the round, updates numerical dynamics, and emits a structured `directors_note` and 1–5 `keywords`.
+  - Verify rolling Director latency buffer caps at `TELEMETRY_CAPS.DIRECTOR_LATENCY_POOL = 50` in runtime telemetry.
   - Verify Shot 2 Storyteller receives these directives inside `<TASK>` and faithfully reflects the staging guidance and keyword tone in its prose output.
 - **3. Real-Time Token Budget Headroom & 6,000 Cliff HUD**:
-  - Verify the new Token Budget HUD badge in `DevWing.svelte` accurately tracks live prompt compilation token snapshots (`system`, `entities`, `history`, `task`, and `<ENTITIES>` actors/cast/memories sub-breakdown).
+  - Verify the Token Budget HUD badge in `DevWing.svelte` accurately tracks live prompt compilation token snapshots (`system`, `entities`, `history`, `task`, and `<ENTITIES>` actors/cast/memories sub-breakdown).
   - Verify total prompt token length stays safely beneath `CONTEXT_TOKEN_CLIFF = 6000` (measured against `CHARS_PER_TOKEN = 3.35`) as the conversation scales from Round 1 to Round 25+.
-  - Verify `<ENTITIES>` caps at ~2,000 tokens (8,000 chars) via `whole_vector_slice` budget boundaries.
-- **4. Optics Scheduling, Preemption & Unified Cooldowns**:
-  - Verify unified cooldown `IMAGE_TRIGGER_COOLDOWN_ROUNDS = 2` enforces a minimum 2-round gap between scheduled image generations.
-  - Verify Turn 3 deferred optics runs enjoy preemption priority, and caretaker background queue advances `runtime.back_shot_cursor` only upon successful commit.
+  - Verify dynamic turn headroom metering in `prompts.js` cleanly computes `PROMPT_CHAR_ENVELOPE - fixed_footprint` (20,000 chars) for entity sheet allocations.
+- **4. Optics Scheduling, Cooldowns & Sensory History Tag Parity**:
+  - Verify unified cooldown `IMAGE_TRIGGER_COOLDOWN_ROUNDS = 3` enforces a 3-round gap between automatic scene image generations.
+  - Verify sensory history format emitted into optics prompts uses universal `<RECENT_ROUNDS>` (with nested `Name: prose` lines stripped of telemetry and `<think>` blocks), asserting complete retirement of legacy `<HISTORY>`.
   - Verify scheduled Director Visual Beats faithfully retain camera lenses, framing descriptors, and aesthetic negative maps through `render_optics_prompt`.
-- **5. 4-Quadrant Lorebook Influence & Epistemic Wall Integrity**:
+- **5. UI Deduplication & State Mutex Integrity**:
+  - **Shared Portalled ContextMenu**: Verify context menus on Entity Cards and Message Badges render cleanly via the unified `ContextMenu.svelte`, with viewport boundary clamping, fixed z-9999 stacking, and outside-click/escape dismissal.
+  - **Unified Image Regeneration**: Verify that triggering image regeneration from message attachments or modal picker flows through `run_image_regeneration` in `ImagePicker.svelte.js` without duplicate LLM prompt calls.
+  - **Streaming State Mutex Guard**: Verify `simulation_state` stays locked and `intent_active` remains guarded during word streaming in mock/live generation without early unlocking mid-stream.
+- **6. 4-Quadrant Lorebook Influence & Epistemic Wall Integrity**:
   - Verify the LLM actively draws upon all 4 quadrants (`eternal`, `present`, `past`, `future`) as a lived vector lorebook rather than keyword dumps.
   - Verify private brackets (`| hide`) on the player's entity are completely stripped across the Epistemic Wall via `filter_epistemic_brackets` / `strip_epistemic_secrets` (testable in console via `verify_epistemic_integrity(prompt, { is_owner: false })`) and never leak into AI generation prompts.
-- **6. Streaming Rhythm & Append-Only Continuation (`finishTail`)**:
+- **7. Streaming Rhythm & Append-Only Continuation (`finishTail`)**:
   - Verify real-time text streaming over the Perchance iframe postMessage bridge feels responsive.
   - Verify that any mid-sentence cuts or truncations trigger `finishTail` append-only recovery without re-rolling earlier prose.
 
@@ -79,9 +84,12 @@ Follow this targeted round sequence to systematically trigger and audit each eng
 
 ### Phase 3: Optics Framing, Dynamics-Modulated Recall & Settled Facts (Turns 9–16)
 
-- **Turns 9–11 — Unified Optics Cooldown & Photography Framing Lenses**:
+- **Turns 9–11 — Unified Optics Cooldown, Sensory History & Photography Framing Lenses**:
   - _Action_: Push scene intensity across displacement threshold while Director requests an image beat.
-  - _Audit Gate_: Unified cooldown `IMAGE_TRIGGER_COOLDOWN_ROUNDS = 2` enforces a minimum 2-round gap between scheduled image generations. Verify placeholder mounts cleanly without blank dialogue rows. Framing lenses adapt to intimacy (`Intimate Close-Up` on high affinity vs `Wide Environmental` on panoramic scene focus).
+  - _Audit Gate_:
+    - Unified cooldown `IMAGE_TRIGGER_COOLDOWN_ROUNDS = 3` enforces a minimum 3-round gap between scheduled image generations.
+    - Inspect prompt in DevTools console: confirm `<RECENT_ROUNDS>` wraps non-system dialogue beats for the sensory cortex without legacy `<HISTORY>` wrappers.
+    - Verify placeholder mounts cleanly without blank dialogue rows. Framing lenses adapt to intimacy (`Intimate Close-Up` on high affinity vs `Wide Environmental` on panoramic scene focus).
 - **Turns 12–14 — Settled Facts `# ALREADY REMEMBERED` Advisory**:
   - _Action_: Inquire about past events established in earlier turns.
   - _Audit Gate_: Inspect the compiled Story prompt in DevTools console (NOTE: Transport passes `instruction: () => instruction` as a closure — ensure console capture reads or executes the closure). Verify the prompt tail contains `# ALREADY REMEMBERED` with up to 12 top settled facts, preventing the model from re-extracting known history.
@@ -124,10 +132,15 @@ Follow this targeted round sequence to systematically trigger and audit each eng
 - **Turns 28–29 — Replay Reconstruction & Field History Inspector**:
   - _Action_: In `Profile`, click the clock button on `present.non_physical`.
   - _Audit Gate_: `FieldHistoryModal.svelte` opens. Timeline tab shows chronological mutations (`R{round}:S{seq}`). Reconstructed tab displays replayed bracket predicates assembled via `replay_entity_field` with flags (`| hide | w:8`) intact.
-- **Turn 30 — UI Motion & Storyboard Resume Audit**:
-  - _Action_: Navigate between Storyboard and Storymode, open modals, trigger toolbars.
+- **Turn 30 — UI Deduplication, ContextMenu & Storyboard Resume Audit**:
+  - _Action_:
+    - Right-click or long-press an EntityCard badge and a message badge in the chat feed to trigger the portalled context menu.
+    - Click image regeneration on a message attachment or inside `ImagePickerModal`.
+    - Navigate between Storyboard and Storymode, open modals, trigger toolbars.
   - _Audit Gate_:
-    - Verify that newly touched interactive elements (DevWing, modals) respect kinetic motion laws (sub-300ms durations, compositor transforms, no layout snapping).
+    - Verify `ContextMenu.svelte` portal mounts at `document.body`, clamps to screen boundaries without overflow, and dismisses smoothly on outside click or Escape key.
+    - Verify image regeneration executes via `run_image_regeneration` with proper LLM prompt refinement and candidate delivery without error.
+    - Verify newly touched interactive elements respect kinetic motion laws (sub-300ms durations, compositor transforms, no layout snapping).
     - Click "Return to Storyboard" in `ControlPanel.svelte`. Confirm session remains intact; clicking `"ENTER STORYMODE"` in emerald green resumes session in 1 click.
     - Export session JSON trace using the in-app export button in the Story Settings modal.
 
@@ -186,13 +199,18 @@ The tester agent executes exclusively in the live browser environment against th
 
 - [ ] **Genesis Quadrant Logging**: All 4 quadrants log `round: 0, seq: 0, writer: "genesis"` on entity creation and import.
 - [ ] **Director Dedup-Before-Write**: Identical relational directives are skipped from the ledger on subsequent rounds.
+- [ ] **Director Latency Ring Buffer**: Capped to `TELEMETRY_CAPS.DIRECTOR_LATENCY_POOL = 50` in runtime state.
 - [ ] **Memory Forge Compare-Then-Skip**: Unchanged fields during consolidation are skipped from `ledger_batch`.
 - [ ] **Mandatory `@` Relational Brackets**: Directed relationships strictly use `[@TARGET: dynamic | flags]`.
 - [ ] **Field History Inspector & Replay**: Clock button opens modal; Reconstructed tab reproduces exact bracket states with flags.
-- [ ] **Unified Image Cooldowns & Optics Lenses**: Unified `IMAGE_TRIGGER_COOLDOWN_ROUNDS = 2` enforces 2-round gap between image generations; photographic framing lenses adapt to scene intimacy.
+- [ ] **Unified Image Cooldowns & Optics Lenses**: Unified `IMAGE_TRIGGER_COOLDOWN_ROUNDS = 3` enforces 3-round gap between image generations; photographic framing lenses adapt to scene intimacy.
+- [ ] **Sensory History `<RECENT_ROUNDS>` Emitter**: Optics prompt renders sensory history wrapped in `<RECENT_ROUNDS>` without stale `<HISTORY>` tags.
 
-### UI Kinetics & Design System Compliance
+### UI Kinetics, Mutex Guards & Design System Compliance
 
+- [ ] **Portalled ContextMenu Deduplication**: Unified `ContextMenu.svelte` handles all EntityCard and message badge menus with fixed z-9999 stacking and viewport clamping.
+- [ ] **Unified Image Regeneration Pipeline**: Message attachments and modal picker share a single canonical `run_image_regeneration` pipeline.
+- [ ] **Streaming State Mutex Guard**: `simulation_state` and `intent_active` remain locked during streaming in mock/live generation without early UI release.
 - [ ] **Zero Em-Dashes in UI**: All button labels, modal titles, toasts, and descriptions use standard hyphens or clean sentence structure.
 - [ ] **Emil Kowalski Kinetic Laws (Scoped to Phase V UI)**: Newly added DevWing HUD, sliders, and popovers use sub-300ms durations, compositor-only transforms, and zero layout snapping.
 - [ ] **Trace Artifact**: Session trace exported via in-app settings and summarized in final test report.

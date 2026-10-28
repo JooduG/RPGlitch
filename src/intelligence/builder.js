@@ -163,6 +163,8 @@ export const context_builder = {
         dynamics: raw.dynamics,
         dynamics_baseline: raw.dynamics_baseline,
         associated_ids: raw.associated_ids || [],
+        pov: raw.pov,
+        type: raw.type,
       };
     }
 
@@ -307,7 +309,7 @@ function resolve_prose_bag(config, context, bag_inputs) {
   const is_npc = config.speaker === "NPC";
   const active_speaker = speaker || (is_ghostwrite ? entities?.USER : entities?.AI);
   const active_listener = listener || (is_ghostwrite ? entities?.AI : entities?.USER);
-  const pov_protocol = resolve_pov_protocol(config.system.pov || active_speaker);
+  const pov_protocol = resolve_pov_protocol(is_ghostwrite ? active_speaker?.pov || active_speaker : config.system.pov || active_speaker);
   const speaker_name = prompt_escape(active_speaker?.name || (is_npc ? "NPC" : "AI"));
   const listener_name = prompt_escape(active_listener?.name || "Listener");
   const fractal_name = prompt_escape(entities?.FRACTAL?.name || "the setting");

@@ -479,6 +479,40 @@ export function render_entity_sheets({
     }
   }
 
+  // 3. Dynamic Quadrant Pruning: If the primary triad sheets still exceed the headroom ceiling,
+  // prune non-essential bracket rows in present and eternal while preserving identity and closing tags.
+  for (let i = 0; i < budgeted_parts.length; i++) {
+    if (wrapped.length <= effective_max_chars) break;
+    const block = budgeted_parts[i];
+    if (typeof block !== "string" || (!block.includes("<CHARACTER") && !block.includes("<FRACTAL"))) continue;
+
+    // Prune excessive brackets in present or non_physical, preserving relations (@) and core essence
+    const lines = block.split("\n");
+    const preserved = [];
+    for (const line of lines) {
+      if (
+        line.includes("[@") ||
+        line.includes("<") ||
+        line.includes("[CORE:") ||
+        line.includes("[SPECIES:") ||
+        line.includes("[BUILD:") ||
+        line.includes("[TERRAIN:") ||
+        line.includes("[LIGHTING:")
+      ) {
+        preserved.push(line);
+      } else if (preserved.length < 25) {
+        preserved.push(line);
+      }
+    }
+    budgeted_parts[i] = preserved.join("\n");
+    wrapped = wrap_entities(budgeted_parts);
+  }
+
+  // 4. Final safety floor: if still over budget, slice using whole_vector_slice
+  if (wrapped.length > effective_max_chars) {
+    return whole_vector_slice(wrapped, effective_max_chars) + "\n</ENTITIES>";
+  }
+
   return wrap_entities(budgeted_parts);
 }
 

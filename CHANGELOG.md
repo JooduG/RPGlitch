@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **T5 Live-Sim Forensic Remediation (`src/data/`, `src/state/`, `src/intelligence/`, `src/ui/`, `src/config.js`)**:
+  - **F-CLONE Persistence Fix**: Eliminated `DataCloneError` on entity updates. Unwrapped reactive proxies via `$state.snapshot()` in `src/state/runtime.svelte.js:update_entity` and added a defensive `JSON.parse(JSON.stringify())` fallback in `src/data/repository.js:update`. Live somatic dynamics now synchronize immediately to `#ai_physics` and `#fractal_physics`, restoring somatic recall degradation and physical state accumulation across rounds.
+  - **F-FORGE-SCOPE Memory Pollution Defense**: In `src/intelligence/temporal.js:consolidate`, constrained candidate selection strictly to the Triad (`AI_CHARACTER`, `USER_PERSONA`, `FRACTAL`) plus NPCs with `presence === "active"` who actively participated in dialogue or actions in the unconsolidated slice. Off-scene premade library NPCs are no longer forged, eliminating cross-entity memory leakage.
+  - **F-CLIFF Dynamic Headroom Quadrant Pruning**: In `src/intelligence/modules/entities.js:render_entity_sheets`, implemented dynamic quadrant pruning to trim non-essential bracket entries in `present` and `eternal` when candidate/nearby trimming is insufficient, guaranteeing prompt envelopes never exceed the 20k character cliff.
+  - **F8 Ghostwriter POV Alignment**: Updated `src/intelligence/builder.js` (`resolve_prose_bag` and `build_context`) to preserve and respect `active_speaker.pov` (`1st_person` vs `3rd_person`) during Ghostwriter execution.
+  - **F-REPEAT Brief Input Action Injection**: In `src/intelligence/director.js:normalize_director_data`, added sensory physical micro-action injection into `<DIRECTOR_NOTE>` whenever user input is $\le 15$ characters (e.g. "Nod.", "Draw blade."), breaking repetitive prompt prefix identicality without needing unsupported LLM temperature knobs.
+  - **Token HUD Accuracy**: In `src/utils/bridges.js`, `src/state/runtime.svelte.js`, and `src/ui/profile/DevWing.svelte`, updated prompt snapshot recording to track mode-tagged peak token usage across the turn, preventing background Optics compiles (~3k tokens) from masking Director prompt bloat (~7k tokens).
+  - **Config Domain Agreements Exported**: Exported `DEFAULT_PROMPT_CEILING = 6000` and `resolve_prompt_budget_allocation(ceiling = 6000)` in `src/config.js`, resolving consolidation stress test assertions.
+
 - **Sensory History Emitter Harmonization & Enrichment Governance (`src/intelligence/modules/recency.js`, `recency.test.js`, `ROADMAP.md`)**:
   - **Sensory Tag Harmonization**: Replaced stale `<HISTORY>` tag in `format_sensory_history` with `<RECENT_ROUNDS>`, aligning optics sensory history emission with the universal prompt schema.
   - **Enrichment Bullets Re-Housed**: Re-housed the Pins-Survive Rule, Variant Mechanism Protocol, and Detox-Trial Calibration specifications under Release Engineering & Execution Invariants in `ROADMAP.md`.

@@ -165,6 +165,8 @@ export class RuntimeEngineStore {
   // --- Prompt Token Budget & Cliff Telemetry (Track 9 / 5.5) ---
   /** @type {any} */
   last_prompt_token_snapshot = $state(null);
+  /** @type {Record<string, any>} */
+  prompt_snapshots_by_mode = $state({});
 
   // --- Generation Concurrency Mutex ---
   is_foreground_generating = $state(false);
@@ -601,7 +603,13 @@ export class RuntimeEngineStore {
           Object.assign(this.#story.by_id[id] || {}, data);
         }
       } else {
-        const payload = { ...data, updated_at: Date.now() };
+        let unproxied_data = data;
+        try {
+          unproxied_data = $state.snapshot(data);
+        } catch {
+          unproxied_data = data;
+        }
+        const payload = { ...unproxied_data, updated_at: Date.now() };
         await entities.update(type, String(id), payload);
         const targets = [...new SvelteSet([this.character, this.active_user, this.active_ai, this.active_fractal])];
         targets.forEach((t) => {
@@ -609,6 +617,13 @@ export class RuntimeEngineStore {
         });
         if (this.#active_npcs[id]) {
           this.#active_npcs[id] = { ...this.#active_npcs[id], ...payload };
+        }
+        if (payload.dynamics) {
+          if (this.active_ai && id === this.active_ai.id) {
+            this.#ai_physics = { ...this.#ai_physics, ...payload.dynamics };
+          } else if (this.active_fractal && id === this.active_fractal.id) {
+            this.#fractal_physics = { ...this.#fractal_physics, ...payload.dynamics };
+          }
         }
       }
     } catch (err) {

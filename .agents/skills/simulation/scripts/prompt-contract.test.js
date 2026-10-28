@@ -38,7 +38,7 @@ const BYTE_PINS = {
   director: 6491,
   director_terse: 1459,
   interaction: 8208,
-  ghostwrite: 7581,
+  ghostwrite: 7429,
   npc: 8938,
   narrator: 7822,
   narrator_prologue: 7850,

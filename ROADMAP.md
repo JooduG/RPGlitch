@@ -153,6 +153,9 @@ A comprehensive, code-grounded review of the running application and execution o
   - `src/state/chrono.svelte.js` (purged bottom changelog block)
   - `src/state/index.js` (purged bottom changelog block)
   - `src/state/runtime.test.js` (purged bottom changelog block)
+  - `src/utils/bridges.js` (mode-tagged prompt token snapshot recording and peak tracking)
+  - `src/ui/profile/DevWing.svelte` (token budget HUD mode indicator and peak prompt load display)
+  - `src/intelligence/director.js` (brief input sensory physical micro-directive injection)
 - **Key Modules**: `src/ui/`, `src/state/`, `src/intelligence/`, `src/data/`, `src/media/`, `src/utils/`, `src/config.js`, `src/lib/`.
 
 ---

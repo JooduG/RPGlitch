@@ -89,7 +89,17 @@ export const state_bridge = {
     if (typeof _accessors.record_prompt_token_snapshot === "function") {
       _accessors.record_prompt_token_snapshot(snapshot);
     } else if (_accessors.runtime) {
-      _accessors.runtime.last_prompt_token_snapshot = snapshot;
+      const current = _accessors.runtime.last_prompt_token_snapshot;
+      // Tag active snapshot and preserve peak foreground compile if optics ran after
+      if (!current || (snapshot?.total ?? 0) >= (current?.total ?? 0) || current.round !== snapshot.round) {
+        _accessors.runtime.last_prompt_token_snapshot = snapshot;
+      }
+      if (!_accessors.runtime.prompt_snapshots_by_mode) {
+        _accessors.runtime.prompt_snapshots_by_mode = {};
+      }
+      if (snapshot?.mode) {
+        _accessors.runtime.prompt_snapshots_by_mode[snapshot.mode] = snapshot;
+      }
     }
   },
 };

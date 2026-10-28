@@ -100,6 +100,20 @@ export const IMAGE_RESOLUTIONS = Object.freeze({
 // ── 1. Prompt Context Budgets & Compiler Handoff ──────────────────────────────
 export const CHARS_PER_TOKEN = 3.35; // Calibrated empirical ratio (~3.35 chars/token) for prompt text budgeting
 export const CONTEXT_TOKEN_CLIFF = 6000; // 6,000 tokens: Hard inference ceiling past which server middle-truncation occurs
+export const DEFAULT_PROMPT_CEILING = CONTEXT_TOKEN_CLIFF;
+
+/**
+ * Resolves token allocation ceilings for major prompt partitions.
+ * @param {number} [ceiling=6000]
+ * @returns {{ ceiling: number, entities_max_tokens: number, history_max_tokens: number }}
+ */
+export function resolve_prompt_budget_allocation(ceiling = DEFAULT_PROMPT_CEILING) {
+  return {
+    ceiling,
+    entities_max_tokens: 2000,
+    history_max_tokens: 1600,
+  };
+}
 
 // ── 2. Temporal Memory, Compaction & Retrieval ──────────────────────────────
 export const PAST_ENTRIES = Object.freeze({

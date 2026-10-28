@@ -363,6 +363,15 @@ export function normalize_director_data(payload, options_or_input = null) {
     note = note ? `${trauma_directive}\n${note}` : trauma_directive;
   }
 
+  // F-REPEAT Defense: When user input is brief (<= 15 chars), inject a sensory physical
+  // micro-action into the director note so the storyteller prompt breaks repetitive verbatim prefix anchoring.
+  if (user_input !== null && typeof user_input === "string" && user_input.trim().length > 0 && user_input.trim().length <= 15) {
+    const brief_directive = "Input is brief: ground the reaction in immediate visceral physics, micro-movement, or shift in posture before speaking.";
+    if (!note.includes("Input is brief")) {
+      note = note ? `${note}\n${brief_directive}` : brief_directive;
+    }
+  }
+
   const effective_speaker_source = typeof base.speaker === "string" && base.speaker.trim() ? base.speaker.trim() : effective_action;
   const speaker = normalize_speaker(effective_speaker_source);
   const npc_id =

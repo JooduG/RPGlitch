@@ -77,7 +77,9 @@
           use:tooltip
           aria-label={`Current compile token load against ${cliff_limit.toLocaleString()} cliff threshold`}
         >
-          ⚡ {total_tokens.toLocaleString()} / {cliff_limit.toLocaleString()} tok ({cliff_percent}%)
+          ⚡ {total_tokens.toLocaleString()} / {cliff_limit.toLocaleString()} tok ({cliff_percent}%){snapshot?.mode
+            ? ` [${snapshot.mode.toUpperCase()}]`
+            : ""}
         </span>
       </div>
       <Button
