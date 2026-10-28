@@ -121,13 +121,16 @@ Strictly zero spoken dialogue or quote marks. No dialogue.
   CONTINUUM: Object.freeze({
     MANDATE: Object.freeze({
       tag: "DIRECTIVE",
-      body: `TARGET FOCUS: Consolidate state and extract relational vectors for {target_name}. Analyze «RECENT_ROUNDS».
+      body: `TARGET FOCUS: Consolidate temporal state for {target_name}. Analyze «RECENT_ROUNDS».
 EXECUTION MANDATE:
 1. Memory Formation: Extract 1-3 anchored memories in past tense. Empty list if nothing noteworthy transpired.
-2. Dynamic State: Update each taxonomy layer below per its schema directive — key shapes are documented in the schema, never re-documented here.
+2. Delta-Only Principle: For all temporal quadrants below, emit ONLY net changes or deltas. If a layer, condition, or agenda has not changed in «RECENT_ROUNDS», leave it empty ("") or omit it. DO NOT regurgitate unchanged established facts.
+3. Strict Bracket Syntax: Emit ONLY [KEY: value] brackets inside string fields. Unbracketed prose is forbidden. Atomic clearing: [KEY: none] or [KEY: cleared].
+4. Eternal Biometric Lock: Eternal biometrics (gender, age, ethnicity, build, face, eyes, hair) are permanent. Never re-submit or paraphrase baseline biometrics unless an irreversible transformation occurred.
+5. Dynamic State: Update physical and non-physical state per its schema directive:
 {taxonomy_lines}
-3. Future Trajectory: Consolidate active standing agenda in future tense.
-4. Relational Graph: Update directed relational brackets ([@TARGET: dynamic | flags]) across all non-physical layers — eternal.non_physical carries baseline bonds, present.non_physical carries situational dynamics.`,
+6. Future Trajectory: Consolidate only the active delta for standing agenda in future tense bracket syntax [KEY: value].
+7. Relational Graph: Update directed relational brackets ([@TARGET: dynamic | flags]) across non-physical layers — eternal.non_physical carries baseline bonds, present.non_physical carries situational dynamics.`,
     }),
   }),
 

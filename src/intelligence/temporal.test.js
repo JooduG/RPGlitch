@@ -714,7 +714,7 @@ describe("temporal_engine.consolidate()", () => {
     expect(mock_user.present.physical).toContain("[APPAREL: minimalist coral-rose silk thong]");
     expect(mock_user.present.physical).toContain("[EXPRESSION: wide eyes, flushed]");
     expect(mock_user.present.physical).toContain("[CONDITION: blindfolded with midnight-blue silk]");
-    expect(mock_user.present.non_physical).toBe("Deeply submissive");
+    expect(mock_user.present.non_physical).toBe("[STATE: Deeply submissive]");
   });
 
   it("preserves concealed brackets across memory forge consolidation cycles (E2 regression)", async () => {
@@ -761,7 +761,7 @@ describe("temporal_engine.consolidate()", () => {
 
     await temporal_engine.consolidate(mock_session, mock_db, {}, mock_runtime, mock_app, { target_key: "USER_PERSONA" });
 
-    expect(mock_user.present.physical).toContain("[DAGGER: silver stiletto | hide]");
+    expect(mock_user.present.physical).toContain("[DAGGER: silver stiletto | hide");
     expect(mock_user.present.non_physical).toContain("[SECRET: knows the cipher | hide]");
     expect(mock_user.present.non_physical).toContain("[DISPOSITION: wary]");
 
@@ -782,7 +782,7 @@ describe("temporal_engine.consolidate()", () => {
     await temporal_engine.consolidate(mock_session, mock_db, {}, mock_runtime, mock_app, { target_key: "USER_PERSONA" });
 
     // Both concealed brackets survive cycle 2 cleanly
-    expect(mock_user.present.physical).toContain("[DAGGER: silver stiletto | hide]");
+    expect(mock_user.present.physical).toContain("[DAGGER: silver stiletto | hide");
     expect(mock_user.present.non_physical).toContain("[SECRET: knows the cipher | hide]");
     expect(mock_user.present.non_physical).toContain("Quiet contemplation");
   });

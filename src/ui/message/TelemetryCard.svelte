@@ -59,12 +59,6 @@
 
   let card_label = $derived(get_telemetry_label(meta, runtime));
 
-  let back_shot_relationships = $derived(
-    Array.isArray(meta.relationships)
-      ? meta.relationships.map(parse_relationship_edge).filter((r) => r !== null && (r.source !== "Entity" || r.target !== "Target" || r.dynamic))
-      : [],
-  );
-
   const get_entity_name = (key) => {
     return resolve_entity_name(key, runtime);
   };
@@ -253,20 +247,6 @@
               {#each forged_vectors as v, i (v.id || v.content || i)}
                 {@render temporalRow(vector_label(v.type, "past"), v.content || v.directive)}
               {/each}
-            {/if}
-
-            {#if back_shot_relationships.length > 0}
-              <div class="flex flex-col gap-1.5 pt-2">
-                <header class="font-mono text-[10px] font-bold tracking-widest text-(--color-dev-accent) uppercase">RELATIONAL MUTATIONS</header>
-                <div class="flex flex-col gap-1">
-                  {#each back_shot_relationships as rel, i (i)}
-                    <div class="flex items-center gap-2 font-mono text-xs text-slate-300">
-                      <span class="text-(--color-dev-accent)">{rel.source} → {rel.target}:</span>
-                      <span class="text-slate-100">{rel.dynamic}</span>
-                    </div>
-                  {/each}
-                </div>
-              </div>
             {/if}
           </div>
         {/if}

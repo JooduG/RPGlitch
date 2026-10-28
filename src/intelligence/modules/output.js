@@ -51,7 +51,7 @@ export const OUTPUT_FORMATS = Object.freeze({
 export const SCHEMA_ATOMS = Object.freeze({
   _thought_process: "<Tactical intent & state delta>",
   next_action:
-    "'AI_CHARACTER' (companion reacts) | 'FRACTAL' (environment/ambience) | 'npc:<id>' (secondary speaker) | { \"genesis\": { \"name\": \"<Name>\", \"description\": \"<description>\" } } (mint new when cast empty) | 'EPILOGUE_COLLAPSED' (fatal trauma) | 'EPILOGUE_CONCLUDED' (triumphant resolution)",
+    "'AI_CHARACTER' (companion reacts) | 'FRACTAL' (environment/ambience) | 'npc:<id>' (secondary speaker only; use AI_CHARACTER for primary companion) | { \"genesis\": { \"name\": \"<Name>\", \"description\": \"<description>\" } } (mint new when cast empty) | 'EPILOGUE_COLLAPSED' (fatal trauma) | 'EPILOGUE_CONCLUDED' (triumphant resolution)",
   story_status: "'IN_PROGRESS' | 'COLLAPSED' (on definitive death/fatal catastrophe) | 'CONCLUDED' (on scenario climax/resolution)",
   keywords: [
     "<1-5 from: SHAME, FEAR, VULNERABILITY, BETRAYAL, ABANDONMENT, EMOTIONAL_NEGLECT, DEFIANCE, INTIMACY, GRIEF, DOMINANCE, DECEPTION, DYSREGULATION (or [] if neutral)>",
@@ -61,7 +61,6 @@ export const SCHEMA_ATOMS = Object.freeze({
   visual_staging: "<optional: camera & lighting directive if scene image shifts>",
   spotlight: { enter: ["npc:<id>"], exit: ["npc:<id>"] },
   target: "'AI_CHARACTER' | 'USER_PERSONA' | 'FRACTAL' | 'npc:<entity_id>'",
-  relationships: ["Source → Target: dynamic description"],
   prompt:
     "<Final image prompt as continuous fluid prose. Ground outputs using physical optics and real-world materials; zero quality buzzwords ('masterpiece', '8K', 'photorealistic').>",
   negative_prompt: (style_baseline = "") =>

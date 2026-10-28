@@ -678,7 +678,7 @@ export const CONTRACT = {
  */
 export const MODE_DIRECTIVE_LEADS = Object.freeze({
   director: Object.freeze(["Evaluate state mutations caused by"]),
-  continuum: Object.freeze(["TARGET FOCUS: Consolidate state and extract relational vectors for", "EXECUTION MANDATE:"]),
+  continuum: Object.freeze(["TARGET FOCUS: Consolidate temporal state for", "EXECUTION MANDATE:"]),
   sorting: Object.freeze([
     "FOCUS: Extracting data for an individual CHARACTER",
     "Use placeholder macros for entities:",

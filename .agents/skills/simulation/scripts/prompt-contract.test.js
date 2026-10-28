@@ -35,17 +35,17 @@ import { ROLE_LIBRARY } from "../../../../src/intelligence/modules/system.js";
 // ---------------------------------------------------------------------------
 
 const BYTE_PINS = {
-  director: 6491,
-  director_terse: 1459,
+  director: 6536,
+  director_terse: 1504,
   interaction: 8208,
   ghostwrite: 7429,
   npc: 8938,
   narrator: 7822,
   narrator_prologue: 7850,
   narrator_epilogue: 7785,
-  continuum: 4746,
+  continuum: 5365,
   enhancement: 1669,
-  sorting: 4193,
+  sorting: 4408,
   optics: 5394,
 };
 
