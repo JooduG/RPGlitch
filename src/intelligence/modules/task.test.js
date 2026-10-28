@@ -169,7 +169,7 @@ describe("render_task — Continuum Mode", () => {
     });
 
     expect(task).toContain("<TASK>");
-    expect(task).toContain("TARGET FOCUS: Consolidate state and extract relational vectors for Kaelen.");
+    expect(task).toContain("TARGET FOCUS: Consolidate temporal state for Kaelen.");
     expect(task).toContain('<OUTPUT_FORMAT mode="json">');
     expect(task).toContain("EXECUTION MANDATE:");
     expect(task).toContain("</TASK>");
@@ -297,7 +297,7 @@ describe("render_task — per-mode state dispatch", () => {
   it("routes continuum to target-focus + mandate directives and a JSON schema", () => {
     const task = render_task({ config: get_prompt("continuum"), task_state: "continuum", target_name: "Kaelen", schema: '{"m":[]}' });
     expect(task).toContain("<DIRECTIVES>");
-    expect(task).toContain("TARGET FOCUS: Consolidate state and extract relational vectors for Kaelen.");
+    expect(task).toContain("TARGET FOCUS: Consolidate temporal state for Kaelen.");
     expect(task).toContain("EXECUTION MANDATE:");
     expect(task).toContain('<OUTPUT_FORMAT mode="json">');
   });

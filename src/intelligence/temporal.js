@@ -1131,6 +1131,11 @@ export function apply_bracket_delta_merge(existing_text, incoming_mutation, opti
   const normalized_incoming = normalize_incoming_bracket_mutation(incoming_mutation, fallback_tag);
   if (!normalized_incoming) return { merged_text: existing, diffs: [] };
 
+  const existing_normalized = normalize_incoming_bracket_mutation(existing, fallback_tag);
+  if (existing_normalized === normalized_incoming) {
+    return { merged_text: existing, diffs: [] };
+  }
+
   const existing_entries = parse_bracket_entries(existing);
   const incoming_entries = parse_bracket_entries(normalized_incoming);
   const key_map = new Map();
@@ -1144,7 +1149,9 @@ export function apply_bracket_delta_merge(existing_text, incoming_mutation, opti
     if (!entry.key) continue;
     const upper_key = entry.key.toUpperCase();
     const existing_entry = key_map.get(upper_key);
-    const val_lower = String(entry.value || "").trim().toLowerCase();
+    const val_lower = String(entry.value || "")
+      .trim()
+      .toLowerCase();
     const is_cleared = val_lower === "none" || val_lower === "cleared";
 
     // Guard locked biometric keys in ETERNAL quadrant: if already established, reject cosmetic drift
@@ -1167,7 +1174,8 @@ export function apply_bracket_delta_merge(existing_text, incoming_mutation, opti
       if (existing_entry?.visibility === "hide" && entry.visibility !== "hide" && !is_explicit_show) {
         entry.visibility = "hide";
       }
-      if (existing_entry?.weight !== undefined && (entry.weight === undefined || entry.weight === 5) && existing_entry.weight !== 5) {
+      const has_explicit_weight = /\|\s*w:\s*\d+/i.test(entry.raw || "");
+      if (existing_entry?.weight !== undefined && !has_explicit_weight && existing_entry.weight !== 5) {
         entry.weight = existing_entry.weight;
       }
 
