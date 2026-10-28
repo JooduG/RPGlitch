@@ -1,5 +1,5 @@
 <script>
-  import { DataBox, TextField } from "@primitives";
+  import { Accordion, DataBox, TextField } from "@primitives";
   import TelemetryCard from "./TelemetryCard.svelte";
   import { Shimmer, Typewriter } from "@motion";
   import { safe_html } from "@ui";
@@ -39,9 +39,13 @@
 </script>
 
 {#if app.settings.dev_mode && think_block}
-  <DataBox label="Thoughts" isCode={false} isProse={true} class="mb-4 [&_.think-block-container]:font-mono! [&_.think-block-container_*]:font-mono!">
-    <div class="think-block-container" style="display: contents" use:safe_html={think_block}></div>
-  </DataBox>
+  <div class="mb-4">
+    <Accordion label="Thoughts">
+      <DataBox label="" isCode={false} isProse={true} class="[&_.think-block-container]:font-mono! [&_.think-block-container_*]:font-mono!">
+        <div class="think-block-container" style="display: contents" use:safe_html={think_block}></div>
+      </DataBox>
+    </Accordion>
+  </div>
 {/if}
 
 {#if !should_use_typewriter}

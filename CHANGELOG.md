@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Visual Specimen Cleanup & Chat Flow Ergonomics (`src/ui/primitives/`, `src/ui/message/`, `src/ui/Storymode.svelte`)**:
+  - **Quick Shot Accordion Caret Alignment**: In `src/ui/primitives/Accordion.svelte`, updated trigger from `justify-between` to `inline-flex gap-2`, placing the `▼` caret adjacent to the label text rather than drifting to the far right edge of wide cards.
+  - **Thoughts & Stage Directions Collapsed**: In `src/ui/message/Body.svelte`, collapsed the `think_block` behind an `<Accordion label="Thoughts">` (collapsed by default), preventing internal stage directions from cluttering the message bubble unless intentionally expanded in Dev Mode.
+  - **Back Shot Engine Flags & Resonance Settling**: In `src/ui/primitives/DataBox.svelte`, updated `isResonating` to pulse for exactly 2 cycles (`_2`) and permanently settle. In `src/ui/message/TelemetryVector.svelte` and `src/ui/message/TelemetryBlocks.svelte`, passed text through `strip_bracket_engine_flags` to eliminate raw `| hide`, `| show`, and `| w: N` markup leaks from memory cards.
+  - **Ghost Rows Eliminated**: In `src/ui/Storymode.svelte` and `src/ui/message/Message.svelte`, filtered out empty narrative entries (empty prose, empty think, and no attachments), preventing 14+ empty 512px cards from wasting vertical space in the feed.
+  - **Concealed Brackets & DOM Header Weight**: In `src/ui/message/render.js` and `render.test.js`, stripped `[KEY: ... | hide]` concealed brackets and covert directives from public prose bubbles across the Epistemic Wall. In `src/ui/message/MessageHeader.svelte`, removed the unextended `h-0` dummy element from the DOM using clean conditional rendering.
+
 - **T5 Live-Sim Forensic Remediation (`src/data/`, `src/state/`, `src/intelligence/`, `src/ui/`, `src/config.js`)**:
   - **F-CLONE Persistence Fix**: Eliminated `DataCloneError` on entity updates. Unwrapped reactive proxies via `$state.snapshot()` in `src/state/runtime.svelte.js:update_entity` and added a defensive `JSON.parse(JSON.stringify())` fallback in `src/data/repository.js:update`. Live somatic dynamics now synchronize immediately to `#ai_physics` and `#fractal_physics`, restoring somatic recall degradation and physical state accumulation across rounds.
   - **F-FORGE-SCOPE Memory Pollution Defense**: In `src/intelligence/temporal.js:consolidate`, constrained candidate selection strictly to the Triad (`AI_CHARACTER`, `USER_PERSONA`, `FRACTAL`) plus NPCs with `presence === "active"` who actively participated in dialogue or actions in the unconsolidated slice. Off-scene premade library NPCs are no longer forged, eliminating cross-entity memory leakage.

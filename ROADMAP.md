@@ -154,8 +154,16 @@ A comprehensive, code-grounded review of the running application and execution o
   - `src/state/index.js` (purged bottom changelog block)
   - `src/state/runtime.test.js` (purged bottom changelog block)
   - `src/utils/bridges.js` (mode-tagged prompt token snapshot recording and peak tracking)
-  - `src/ui/profile/DevWing.svelte` (token budget HUD mode indicator and peak prompt load display)
   - `src/intelligence/director.js` (brief input sensory physical micro-directive injection)
+  - `src/ui/primitives/Accordion.svelte` (trigger inline caret alignment)
+  - `src/ui/primitives/DataBox.svelte` (settled 2-cycle resonance pulse)
+  - `src/ui/message/Body.svelte` (collapsible developer mode thoughts accordion)
+  - `src/ui/message/TelemetryVector.svelte` (memory card engine flag stripping)
+  - `src/ui/message/TelemetryBlocks.svelte` (telemetry block engine flag stripping)
+  - `src/ui/message/render.js` (concealed bracket and covert directive suppression)
+  - `src/ui/message/render.test.js` (concealed bracket rendering unit tests)
+  - `src/ui/message/MessageHeader.svelte` (unextended h-0 header DOM weight elimination)
+  - `src/ui/Storymode.svelte` (feed ghost row suppression)
 - **Key Modules**: `src/ui/`, `src/state/`, `src/intelligence/`, `src/data/`, `src/media/`, `src/utils/`, `src/config.js`, `src/lib/`.
 
 ---

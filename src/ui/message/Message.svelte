@@ -317,6 +317,8 @@
       <Attachments {attachments} {id} {signature_color} {is_fractal} {has_display_text} {busy} {should_use_typewriter} />
     </div>
   </div>
+{:else if !has_display_text && !think_block && attachments.length === 0 && !busy && !is_telemetry && !is_editing && !meta?.is_prologue && !meta?.is_epilogue}
+  <!-- Empty ghost row suppressed: no DOM node emitted -->
 {:else}
   <div
     class="

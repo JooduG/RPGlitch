@@ -45,4 +45,12 @@ describe("parse_message updated behavior", () => {
     const { displayText } = parse_message(input);
     expect(displayText).toBe('<p>Orion said, <span class="dialogue">&ldquo;I\'m fine.&rdquo;</span></p>');
   });
+
+  it("should strip concealed [KEY: ... | hide] brackets and covert directives from public prose", () => {
+    const input = 'Beast steps into the shadows. [DAGGER: black glass shard | hide] "I am ready." [COVERT: preparing ambush]';
+    const { displayText } = parse_message(input);
+    expect(displayText).not.toContain("DAGGER");
+    expect(displayText).not.toContain("COVERT");
+    expect(displayText).toBe('<p>Beast steps into the shadows. <span class="dialogue">&ldquo;I am ready.&rdquo;</span></p>');
+  });
 });

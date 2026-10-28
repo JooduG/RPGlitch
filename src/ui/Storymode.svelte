@@ -49,6 +49,24 @@
     if (!app.settings.dev_mode) {
       list = list.filter((entry) => entry.role !== "system");
     }
+
+    // Filter out ghost rows (empty prose/think with no attachments or telemetry)
+    list = list.filter((entry) => {
+      if (entry.busy) return true;
+      if (entry.role === "system") return true;
+      if (entry.attachments && entry.attachments.length > 0) return true;
+      if (entry.meta?.is_prologue || entry.meta?.is_epilogue) return true;
+      if (
+        entry.meta?.type === "DYNAMICS_DELTA" ||
+        entry.meta?.type === "STORY_START" ||
+        entry.meta?.type === "VECTOR_RESOLUTION" ||
+        entry.meta?.type === "MEMORY_FORMATION"
+      )
+        return true;
+      const text = typeof entry.text === "string" ? entry.text.trim() : "";
+      return text.length > 0;
+    });
+
     if (is_active_turn && app.streaming.active) {
       const active_id = app.streaming.node_id ?? "temp";
       // Never render a transient system/director card in the UI stream

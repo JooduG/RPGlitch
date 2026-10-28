@@ -2,6 +2,7 @@
   import { get_percentage } from "@utils";
   import { vector_label } from "./telemetry-format.js";
   import { parse_message } from "./render.js";
+  import { strip_bracket_engine_flags } from "@intelligence";
   import { safe_html } from "@ui";
 
   /**
@@ -13,7 +14,7 @@
 
   const render_text = (txt) => {
     if (!txt) return "";
-    return parse_message(txt).displayText;
+    return parse_message(strip_bracket_engine_flags(txt)).displayText;
   };
 </script>
 

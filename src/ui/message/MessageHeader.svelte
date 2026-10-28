@@ -44,26 +44,30 @@
   } = $props();
 </script>
 
-<div
-  class="
-    relative
-    flex
-    w-full
-    items-center
-    justify-between
-    overflow-hidden
-    rounded-t-[15px]
-    bg-(--signature-color)
-    font-mono
-    tracking-widest
-    uppercase
-    transition-all
-    duration-300
-    ease-out
-    {!is_extended ? 'h-0 overflow-hidden border-b-0 px-0 opacity-0' : 'h-9 border-b border-white/10 px-4 opacity-100'}
-  "
->
-  {#if is_extended}
+{#if is_extended}
+  <div
+    class="
+      relative
+      flex
+      h-9
+      w-full
+      items-center
+      justify-between
+      overflow-hidden
+      rounded-t-[15px]
+      border-b
+      border-white/10
+      bg-(--signature-color)
+      px-4
+      font-mono
+      tracking-widest
+      uppercase
+      opacity-100
+      transition-all
+      duration-300
+      ease-out
+    "
+  >
     <div class="flex items-center gap-2 overflow-hidden">
       <span class="text-xs font-bold whitespace-nowrap text-white">
         {entity_name}
@@ -241,5 +245,5 @@
         </Button>
       {/if}
     </div>
-  {/if}
-</div>
+  </div>
+{/if}

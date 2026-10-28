@@ -9,6 +9,7 @@
 
 import MarkdownIt from "markdown-it";
 import { clean_image_prompts, parse_think_block } from "../../intelligence/parser.js";
+import { filter_epistemic_brackets, strip_covert_directives } from "@intelligence";
 import { detox_prose } from "@utils";
 import { sanitize } from "@platform";
 
@@ -78,6 +79,8 @@ export function parse_message(rawText, register = "plain") {
 
   // 3. Anti-Cliche Layer
   text = detox_prose(text, register);
+  // Epistemic filter: strip covert directives and [KEY: ... | hide] brackets from public display text
+  text = filter_epistemic_brackets(strip_covert_directives(text), "other");
   const detoxed_think = think_result.think ? detox_prose(think_result.think, register) : null;
   const detoxed_text = text;
 
