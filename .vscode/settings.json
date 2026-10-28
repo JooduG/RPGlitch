@@ -1,6 +1,4 @@
 {
-  "css.validate": false,
-  "html.validate.styles": false,
   "stylelint.validate": [
     "css",
     "svelte"
@@ -15,8 +13,6 @@
   "typescript.preferences.autoImportFileExcludePatterns": [
     "**/.gemini/**"
   ],
-  "markdown.validate.enabled": true,
-  "markdown.validate.referenceLinks.enabled": "ignore",
   "markdown.validate.ignoredLinks": [
     "always_on | on_change | manual",
     "high | medium | low",

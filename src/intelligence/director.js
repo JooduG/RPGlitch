@@ -345,6 +345,18 @@ export function normalize_director_data(payload, options_or_input = null) {
         ? "EPILOGUE_CONCLUDED"
         : parsed_action;
 
+  // Primary Companion Coercion: If the Director routed to npc:<id> where <id> matches
+  // the active primary companion, coerce it to AI_CHARACTER to preserve companion persona integrity.
+  if (typeof effective_action === "string" && effective_action.toLowerCase().startsWith("npc:")) {
+    const candidate_id = strip_npc_id(effective_action).toLowerCase();
+    const active_ai = state_bridge.runtime?.active_ai;
+    const companion_id = String(active_ai?.id || "").toLowerCase();
+    const companion_name = String(active_ai?.name || "").toLowerCase();
+    if (candidate_id && (candidate_id === companion_id || candidate_id === companion_name)) {
+      effective_action = "AI_CHARACTER";
+    }
+  }
+
   let note = normalize_directors_note(base.directors_note || base.directive);
   let is_unconsented_collapse = false;
 
@@ -437,7 +449,24 @@ export function normalize_director_data(payload, options_or_input = null) {
  */
 export function normalize_in_scene_change(raw) {
   const base = raw && typeof raw === "object" ? raw : {};
-  const clean = (list) => (Array.isArray(list) ? list : []).map(strip_npc_id).filter(Boolean);
+  const active_ai = state_bridge.runtime?.active_ai;
+  const companion_id = String(active_ai?.id || "").toLowerCase();
+  const companion_name = String(active_ai?.name || "").toLowerCase();
+  const user_persona = state_bridge.runtime?.active_user;
+  const user_id = String(user_persona?.id || "").toLowerCase();
+  const user_name = String(user_persona?.name || "").toLowerCase();
+
+  const is_active_companion_or_player = (candidate) => {
+    const norm = String(candidate || "").toLowerCase();
+    return norm && (norm === companion_id || norm === companion_name || norm === user_id || norm === user_name || norm === "user" || norm === "ai");
+  };
+
+  const clean = (list) =>
+    (Array.isArray(list) ? list : [])
+      .map(strip_npc_id)
+      .filter(Boolean)
+      .filter((id) => !is_active_companion_or_player(id));
+
   return { enter: clean(base.enter), exit: clean(base.exit) };
 }
 
