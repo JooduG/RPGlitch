@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **UI Ergonomics & Accordion Caret Alignment (`src/ui/primitives/Accordion.svelte`)**:
+  - **Space-Between Alignment**: Updated `Accordion.svelte` trigger to `flex w-full items-center justify-between py-2 text-left`, placing the `▼` expansion caret at the far right edge of the card container while keeping the label left-aligned.
+
 - **Telemetry Engine Harmonization & Diagnostics Fix (`src/intelligence/`, `src/ui/message/`)**:
   - **Continuum Caretaker Raw Quadrant Formatting**: In `src/intelligence/modules/sheets.js:render_entity_memory_context`, updated the Continuum Caretaker's `<TARGET_ENTITY_CONTEXT>` to emit raw bracket text within `<ETERNAL>`, `<PRESENT>`, `<FUTURE>`, and `<PAST>` tags instead of decomposing traits into nested XML tags (`<APPEARANCE>`, `<PSYCHOLOGY>`, etc.). Updated `CONTRACT.continuum` in `src/intelligence/prompt-verification.js` to match the clean quadrant tag inventory.
   - **Individual Bracket Boxes & Clean Quadrant Headers (Option A)**: In `src/ui/message/TelemetryCard.svelte`, standardized headers across all temporal shots to `ETERNAL`, `PRESENT`, `PAST`, and `FUTURE` with strictly zero sublabels (eliminating `PHYSICAL`, `NON-PHYSICAL`, `MEMORY`, and `AGENDUM`). Added `extract_bracket_items()` to parse every bracket entry into its own individual left-accented row/card matching the visual style of `PAST`.

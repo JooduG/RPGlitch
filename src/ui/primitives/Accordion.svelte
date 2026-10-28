@@ -24,7 +24,7 @@
 
 <Collapsible.Root bind:open {default_open} {disabled} class="w-full {className}">
   <Collapsible.Trigger
-    class="group inline-flex cursor-pointer items-center gap-2 py-2 text-left text-[10px] font-bold tracking-widest text-slate-400 uppercase transition-colors hover:text-white"
+    class="group flex w-full cursor-pointer items-center justify-between py-2 text-left text-[10px] font-bold tracking-widest text-slate-400 uppercase transition-colors hover:text-white"
   >
     <span>{label}</span>
     <span class="opacity-50 transition-transform {open ? 'rotate-180' : ''}">▼</span>
