@@ -322,12 +322,12 @@ export function resolve_protocol_plan({
   const default_present_body = typeof default_present_atom === "object" ? default_present_atom.body : String(default_present_atom);
   const tense_command =
     layer_tense_rules.length > 1
-      ? `Match tense to the layer being written: ${layer_tense_rules
-          .map((rule) =>
-            String(rule)
-              .replace(/\s*\.\s*$/, "")
-              .replace(/^[A-Z]/, (letter) => letter.toLowerCase()),
-          )
+      ? `Match tense to the layer being written: ${layer_tense_keys
+          .map((key) => {
+            const short_key = String(key).split(".").pop();
+            const tense_label = short_key === "PRESENT" ? "present" : short_key === "PAST" ? "past" : "active future";
+            return `${short_key.toLowerCase()} layer in the ${tense_label} tense`;
+          })
           .join("; ")}.`
       : layer_tense_rules[0] || (should_include("TENSE.PRESENT") ? default_present_body : "");
 

@@ -59,7 +59,7 @@ export const PROFILE_FIELDS = {
         label: "Personality",
         description:
           "Lorebook Psychological Substrate: Timeless cognitive drivers, core beliefs, vocal cadence, and behavioural invariants. Never use keyword dumps — write lived traits.",
-        directive: `Core beliefs, personality drivers, cognitive patterns, vocal tone, speech cadence, and communication tics.`,
+        directive: `[KEY: value] core beliefs, personality drivers, cognitive patterns, vocal tone, speech cadence, and communication tics. Bracketed traits only.`,
         enhancer: "COGNITIVE_ARCHITECT",
       },
     },
@@ -75,7 +75,7 @@ export const PROFILE_FIELDS = {
         label: "State of Mind",
         description:
           "Lorebook Emotional Vector: Immediate psychological pressure, tactical focus, and present behavioural drivers under current scene tensions.",
-        directive: `Immediate emotional pressure, active mental focus, and present behavioral drivers.`,
+        directive: `[KEY: value] immediate emotional pressure, active mental focus, and present behavioral drivers. Bracketed conditions only.`,
         enhancer: "TACTICAL_ANALYZER",
       },
     },
@@ -83,7 +83,7 @@ export const PROFILE_FIELDS = {
       label: "Agenda",
       description:
         "Lorebook Trajectory Vector: Active standing agenda, impending choice, or converging tension propelling this entity into the next state change.",
-      directive: `Active trajectory or standing agenda: clear intent, building pressure, or impending event driving this entity toward its next state change. No story scenes or dialogue.`,
+      directive: `[KEY: value] active trajectory or standing agenda: clear intent, building pressure, or impending event driving this entity toward its next state change. Bracketed items only; no story scenes or dialogue.`,
       enhancer: "TRAJECTORY_SIMULATOR",
     },
     past: {
@@ -107,7 +107,7 @@ export const PROFILE_FIELDS = {
         label: "Permanent Truths",
         description:
           "Lorebook Metaphysical Axioms: Enduring physics, cultural taboos, governing laws, and environmental constants. Grounded lore over keyword lists.",
-        directive: `Metaphysical substrate: governing laws, constant environmental forces, and physical constants.`,
+        directive: `[KEY: value] metaphysical substrate: governing laws, constant environmental forces, and physical constants. Bracketed truths only.`,
         enhancer: "METAPHYSICAL_ARCHITECT",
       },
     },
@@ -122,7 +122,7 @@ export const PROFILE_FIELDS = {
       non_physical: {
         label: "Current State",
         description: "Lorebook Active Ecosystem: Momentary ecosystem shifts, active anomalies, social unrest, and immediate environmental pressures.",
-        directive: `Current environmental state: active anomaly, immediate pressure, momentary shifts in physics or atmosphere.`,
+        directive: `[KEY: value] current environmental state: active anomaly, immediate pressure, momentary shifts in physics or atmosphere. Bracketed state only.`,
         enhancer: "ECOSYSTEM_ANALYZER",
       },
     },
@@ -130,7 +130,7 @@ export const PROFILE_FIELDS = {
       label: "Trajectory",
       description:
         "Lorebook Macro-Trajectory: Brewing cataclysms, impending ecological shifts, or converging anomalies driving the world toward its next epoch.",
-      directive: `Environmental trajectory, building atmospheric pressure, impending environmental event, or anomaly apex driving this world toward its next state change.`,
+      directive: `[KEY: value] environmental trajectory, building atmospheric pressure, impending environmental event, or anomaly apex driving this world toward its next state change. Bracketed items only.`,
       enhancer: "ECOSYSTEM_SIMULATOR",
     },
     past: {

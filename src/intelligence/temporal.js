@@ -985,8 +985,17 @@ export function resolve_settled_facts(entity, limit = SETTLED_FACT_LIMIT) {
   if (Array.isArray(entity?.past)) {
     for (const vector of entity.past) {
       if (facts.length >= cap) break;
-      if (!vector || typeof vector !== "object" || !is_origin(vector)) continue;
-      const text = truncate_at_word(collapse_whitespace(String(vector.content || vector.directive || "")).trim(), 220);
+      const content = typeof vector === "object" ? vector?.content || vector?.directive || "" : String(vector || "");
+      const is_origin_memory = typeof vector === "object" ? is_origin(vector) : String(content).startsWith("usr_");
+      if (!is_origin_memory) continue;
+      const text = truncate_at_word(collapse_whitespace(String(content)).trim(), 220);
+      if (text) facts.push({ text, source: "origin" });
+    }
+  } else if (typeof entity?.past === "string" && entity.past.trim()) {
+    const lines = parse_bracket_entries(entity.past);
+    for (const entry of lines) {
+      if (facts.length >= cap) break;
+      const text = truncate_at_word(collapse_whitespace(format_bracket_entry(entry)).trim(), 220);
       if (text) facts.push({ text, source: "origin" });
     }
   }
@@ -1074,6 +1083,119 @@ export function whole_vector_slice(text, max_chars = 1500) {
   }
 
   return selected.join("\n");
+}
+
+/**
+ * Immutable biometric keys in the ETERNAL quadrant.
+ * Once established on an entity, the Caretaker cannot cosmetic-paraphrase or overwrite
+ * these baseline biometric facts unless explicitly cleared.
+ */
+export const LOCKED_ETERNAL_BIOMETRIC_KEYS = Object.freeze(
+  new Set(["GENDER", "AGE", "ETHNICITY", "BUILD", "FACE", "EYES", "SKIN", "HAIR", "HEIGHT", "SPECIES"]),
+);
+
+/**
+ * Normalizes an incoming Caretaker string mutation.
+ * If the string contains no [KEY: value] bracket syntax, wraps it safely
+ * into a fallback bracket instead of dropping it or polluting raw prose.
+ *
+ * @param {string} raw_mutation
+ * @param {string} [fallback_tag="STATE"]
+ * @returns {string}
+ */
+export function normalize_incoming_bracket_mutation(raw_mutation, fallback_tag = "STATE") {
+  const text = String(raw_mutation || "").trim();
+  if (!text) return "";
+  if (/\[[A-Z_@][A-Za-z0-9_ ]*:/i.test(text)) return text;
+  return `[${fallback_tag}: ${text}]`;
+}
+
+/**
+ * Merges delta bracket entries into existing quadrant text.
+ * - Replaces matching keys
+ * - Deletes [KEY: none] or [KEY: cleared]
+ * - Preserves concealed visibility (| hide) unless explicitly shown (| show)
+ * - Guards immutable biometric keys in eternal quadrant
+ * - Returns structured { merged_text, diffs }
+ *
+ * @param {string} existing_text
+ * @param {string} incoming_mutation
+ * @param {Object} [options={}]
+ * @param {boolean} [options.is_eternal=false]
+ * @param {string} [options.fallback_tag="STATE"]
+ * @returns {{ merged_text: string, diffs: Array<{ key: string, old_value: string, new_value: string, is_cleared: boolean }> }}
+ */
+export function apply_bracket_delta_merge(existing_text, incoming_mutation, options = {}) {
+  const { is_eternal = false, fallback_tag = "STATE" } = options;
+  const existing = String(existing_text || "").trim();
+  const normalized_incoming = normalize_incoming_bracket_mutation(incoming_mutation, fallback_tag);
+  if (!normalized_incoming) return { merged_text: existing, diffs: [] };
+
+  const existing_normalized = normalize_incoming_bracket_mutation(existing, fallback_tag);
+  if (existing_normalized === normalized_incoming) {
+    return { merged_text: existing, diffs: [] };
+  }
+
+  const existing_entries = parse_bracket_entries(existing);
+  const incoming_entries = parse_bracket_entries(normalized_incoming);
+  const key_map = new Map();
+  const diffs = [];
+
+  for (const entry of existing_entries) {
+    if (entry.key) key_map.set(entry.key.toUpperCase(), entry);
+  }
+
+  for (const entry of incoming_entries) {
+    if (!entry.key) continue;
+    const upper_key = entry.key.toUpperCase();
+    const existing_entry = key_map.get(upper_key);
+    const val_lower = String(entry.value || "")
+      .trim()
+      .toLowerCase();
+    const is_cleared = val_lower === "none" || val_lower === "cleared";
+
+    // Guard locked biometric keys in ETERNAL quadrant: if already established, reject cosmetic drift
+    if (is_eternal && LOCKED_ETERNAL_BIOMETRIC_KEYS.has(upper_key) && existing_entry && !is_cleared) {
+      continue;
+    }
+
+    if (is_cleared) {
+      if (existing_entry) {
+        key_map.delete(upper_key);
+        diffs.push({
+          key: upper_key,
+          old_value: existing_entry.value,
+          new_value: "cleared",
+          is_cleared: true,
+        });
+      }
+    } else {
+      const is_explicit_show = entry.raw?.toLowerCase().includes("| show");
+      if (existing_entry?.visibility === "hide" && entry.visibility !== "hide" && !is_explicit_show) {
+        entry.visibility = "hide";
+      }
+      const has_explicit_weight = /\|\s*w:\s*\d+/i.test(entry.raw || "");
+      if (existing_entry?.weight !== undefined && !has_explicit_weight && existing_entry.weight !== 5) {
+        entry.weight = existing_entry.weight;
+      }
+
+      if (!existing_entry || existing_entry.value !== entry.value) {
+        diffs.push({
+          key: upper_key,
+          old_value: existing_entry ? existing_entry.value : "",
+          new_value: entry.value,
+          is_cleared: false,
+        });
+      }
+      key_map.set(upper_key, entry);
+    }
+  }
+
+  const lines = Array.from(key_map.values()).map(format_bracket_entry);
+  return {
+    merged_text: lines.join("\n"),
+    diffs,
+  };
 }
 
 /**
@@ -1595,16 +1717,18 @@ export const temporal_engine = {
         }
 
         const summary = forged.present?.[target_key];
+        const present_diffs = [];
         if (summary && typeof summary === "object") {
           if (!entity.present) entity.present = { physical: "", non_physical: "" };
           let present_changed = false;
 
           if (summary.physical !== undefined && summary.physical.trim()) {
             const old_physical = entity.present.physical || "";
-            const merged_physical = merge_prose_into_field(old_physical, summary.physical);
-            if (merged_physical !== old_physical) {
-              entity.present.physical = merged_physical;
+            const { merged_text, diffs } = apply_bracket_delta_merge(old_physical, summary.physical, { fallback_tag: "LOOK" });
+            if (merged_text !== old_physical) {
+              entity.present.physical = merged_text;
               present_changed = true;
+              present_diffs.push(...diffs);
               ledger_batch.push({
                 story_id,
                 round: current_round,
@@ -1621,44 +1745,11 @@ export const temporal_engine = {
 
           if (summary.non_physical !== undefined && summary.non_physical.trim()) {
             const old_non_physical = entity.present.non_physical || "";
-            // Snapshot existing bracket entries to prevent prose replacement from nuking live relational links
-            const existing_brackets = parse_bracket_entries(old_non_physical);
-            const incoming_brackets = parse_bracket_entries(summary.non_physical);
-            const prose_only = summary.non_physical.replace(/\[[A-Z_ ]{2,30}:[\s\S]*?\]/gi, "").trim();
-            const sanitized_prose = sanitize_non_physical_prose(prose_only);
-
-            const bracket_map = new Map();
-            for (const entry of existing_brackets) {
-              if (entry.key) bracket_map.set(entry.key.toUpperCase(), entry);
-            }
-
-            for (const entry of incoming_brackets) {
-              if (!entry.key) continue;
-              const upper_key = entry.key.toUpperCase();
-              const val_lower = String(entry.value || "")
-                .trim()
-                .toLowerCase();
-              if (val_lower === "none" || val_lower === "cleared") {
-                bracket_map.delete(upper_key);
-              } else {
-                const existing_entry = bracket_map.get(upper_key);
-                const is_explicit_show = entry.raw?.toLowerCase().includes("| show");
-                if (existing_entry?.visibility === "hide" && entry.visibility !== "hide" && !is_explicit_show) {
-                  entry.visibility = "hide";
-                }
-                if (existing_entry?.weight !== undefined && (entry.weight === undefined || entry.weight === 5) && existing_entry.weight !== 5) {
-                  entry.weight = existing_entry.weight;
-                }
-                bracket_map.set(upper_key, entry);
-              }
-            }
-
-            const formatted_brackets = Array.from(bracket_map.values()).map(format_bracket_entry).join(" ");
-            const merged_non_physical = [sanitized_prose, formatted_brackets].filter(Boolean).join(" ").trim();
-
-            if (merged_non_physical !== old_non_physical) {
-              entity.present.non_physical = merged_non_physical;
+            const { merged_text, diffs } = apply_bracket_delta_merge(old_non_physical, summary.non_physical, { fallback_tag: "STATE" });
+            if (merged_text !== old_non_physical) {
+              entity.present.non_physical = merged_text;
               present_changed = true;
+              present_diffs.push(...diffs);
               ledger_batch.push({
                 story_id,
                 round: current_round,
@@ -1679,16 +1770,21 @@ export const temporal_engine = {
         }
 
         const eternal_mutation = forged.eternal?.[target_key];
+        const eternal_diffs = [];
         if (eternal_mutation && typeof eternal_mutation === "object") {
           if (!entity.eternal) entity.eternal = { physical: "", non_physical: "" };
           let eternal_changed = false;
 
           if (eternal_mutation.physical?.trim()) {
             const old_eternal_physical = entity.eternal.physical || "";
-            const merged_eternal_physical = merge_eternal_field(old_eternal_physical, eternal_mutation.physical);
-            if (merged_eternal_physical !== old_eternal_physical) {
-              entity.eternal.physical = merged_eternal_physical;
+            const { merged_text, diffs } = apply_bracket_delta_merge(old_eternal_physical, eternal_mutation.physical, {
+              is_eternal: true,
+              fallback_tag: "BIOMETRIC",
+            });
+            if (merged_text !== old_eternal_physical) {
+              entity.eternal.physical = merged_text;
               eternal_changed = true;
+              eternal_diffs.push(...diffs);
               ledger_batch.push({
                 story_id,
                 round: current_round,
@@ -1705,13 +1801,14 @@ export const temporal_engine = {
 
           if (eternal_mutation.non_physical?.trim()) {
             const old_eternal_non_physical = entity.eternal.non_physical || "";
-            const merged_eternal_non_physical = merge_eternal_field(
-              old_eternal_non_physical,
-              sanitize_non_physical_prose(eternal_mutation.non_physical),
-            );
-            if (merged_eternal_non_physical !== old_eternal_non_physical) {
-              entity.eternal.non_physical = merged_eternal_non_physical;
+            const { merged_text, diffs } = apply_bracket_delta_merge(old_eternal_non_physical, eternal_mutation.non_physical, {
+              is_eternal: true,
+              fallback_tag: "TRAIT",
+            });
+            if (merged_text !== old_eternal_non_physical) {
+              entity.eternal.non_physical = merged_text;
               eternal_changed = true;
+              eternal_diffs.push(...diffs);
               ledger_batch.push({
                 story_id,
                 round: current_round,
@@ -1732,11 +1829,13 @@ export const temporal_engine = {
         }
 
         let rewritten = forged.future?.[target_key];
+        const future_diffs = [];
         if (typeof rewritten === "string" && rewritten.trim()) {
           const old_future = typeof entity.future === "string" ? entity.future : "";
-          const next_future = rewritten.trim();
-          if (next_future !== old_future) {
-            entity.future = next_future;
+          const { merged_text, diffs } = apply_bracket_delta_merge(old_future, rewritten, { fallback_tag: "AGENDA" });
+          if (merged_text !== old_future) {
+            entity.future = merged_text;
+            future_diffs.push(...diffs);
             const chapter_forked = archive_chapter(entity, old_future, entity.future);
             await runtime.update_entity(type, entity.id, { future: entity.future, ...(chapter_forked ? { chapters: entity.chapters } : {}) });
             ledger_batch.push({
@@ -1764,25 +1863,32 @@ export const temporal_engine = {
           await append_ledger_entries(ledger_batch);
         }
 
-        const text = memories.length ? memories.map((vector) => vector.content || vector.directive || "").join(" | ") : "State consolidated.";
-        await session.log_system_entry(
-          `Memory Forged (${target_key}): ${text.substring(0, 50)}...`,
-          "system",
-          {
-            type: "MEMORY_FORMATION",
-            target: target_key,
-            memories,
-            vectors: memories,
-            future: entity?.future || forged.future?.[target_key] || "",
-            present: entity?.present || forged.present?.[target_key] || null,
-            eternal: forged.eternal?.[target_key] || null,
-            thought_process: forged._thought_process || "",
-            relationships: forged.relationships || [],
-            turns_count: slice.length,
-          },
-          story_id,
-          current_round,
-        );
+        const total_diff_count = memories.length + present_diffs.length + eternal_diffs.length + future_diffs.length;
+        if (total_diff_count > 0) {
+          const text = memories.length ? memories.map((vector) => vector.content || vector.directive || "").join(" | ") : "State consolidated.";
+          const format_diff_row = (d) => `[${d.key}: ${d.new_value}]`;
+          const present_payload = present_diffs.length > 0 ? present_diffs.map(format_diff_row).join("\n") : "";
+          const eternal_payload = eternal_diffs.length > 0 ? eternal_diffs.map(format_diff_row).join("\n") : "";
+          const future_payload = future_diffs.length > 0 ? future_diffs.map(format_diff_row).join("\n") : "";
+
+          await session.log_system_entry(
+            `Memory Forged (${target_key}): ${text.substring(0, 50)}...`,
+            "system",
+            {
+              type: "MEMORY_FORMATION",
+              target: target_key,
+              memories,
+              vectors: memories,
+              future: future_payload,
+              present: present_payload,
+              eternal: eternal_payload,
+              thought_process: forged._thought_process || "",
+              turns_count: slice.length,
+            },
+            story_id,
+            current_round,
+          );
+        }
       } else {
         await fallback_consolidate([target_item], slice, runtime, session);
       }

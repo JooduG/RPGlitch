@@ -333,7 +333,7 @@ export const PROMPTS = Object.freeze({
     layers: TOOL_LAYERS,
     format: {
       mode: "json",
-      schema: ["_thought_process", "target", ...TEMPORAL_SCHEMA_FRAGMENT, "relationships"],
+      schema: ["_thought_process", "target", ...TEMPORAL_SCHEMA_FRAGMENT],
     },
   }),
 
