@@ -12,7 +12,7 @@
   import { runtime } from "@state";
   import { get_percentage } from "@utils";
   import { safe_html } from "@ui";
-  import { strip_bracket_engine_flags } from "@intelligence";
+  import { parse_bracket_entries, strip_bracket_engine_flags } from "@intelligence";
   import { parse_message } from "./render.js";
   import {
     get_telemetry_label,
@@ -37,8 +37,8 @@
    * @property {Array} [memories] - Alternate carrier for memory vectors.
    * @property {string} [target] - Entity key targeted by a MEMORY_FORMATION event.
    * @property {string} [future] - Rewritten standing trajectory for MEMORY_FORMATION events.
-   * @property {Object} [present] - Consolidated present conditions for MEMORY_FORMATION events.
-   * @property {Object} [eternal] - Consolidated eternal attributes for MEMORY_FORMATION events.
+   * @property {Object|string} [present] - Consolidated present conditions for MEMORY_FORMATION events.
+   * @property {Object|string} [eternal] - Consolidated eternal attributes for MEMORY_FORMATION events.
    * @property {Array} [relationships] - Direct relational mutations.
    * @property {string} [thought_process] - Thought process for MEMORY_FORMATION events.
    * @property {number} [turns_count] - Turns consolidated by a MEMORY_FORMATION event.
@@ -73,6 +73,22 @@
     if (!txt) return "";
     return parse_message(strip_bracket_engine_flags(clean_text_debris(txt))).displayText;
   };
+
+  /**
+   * Extracts individual bracket lines or sentences from a quadrant text payload.
+   * @param {any} text_or_obj
+   * @returns {string[]}
+   */
+  function extract_bracket_items(text_or_obj) {
+    if (!text_or_obj) return [];
+    const raw = typeof text_or_obj === "string" ? text_or_obj : `${text_or_obj.physical || ""} ${text_or_obj.non_physical || ""}`.trim();
+    if (!raw) return [];
+    const entries = parse_bracket_entries(raw);
+    if (entries.length > 0) {
+      return entries.map((e) => e.raw).filter(Boolean);
+    }
+    return [raw];
+  }
 </script>
 
 {#snippet temporalRow(label, content, isMuted = false)}
@@ -180,14 +196,16 @@
                 <!-- TEMPORAL ROWS -->
                 {#if block.physical || block.non_physical || block.eternal_physical || block.eternal_non_physical || block.new_vectors.length > 0 || block.retrieval?.length > 0}
                   <div class="flex flex-col gap-1.5 pt-1">
-                    {@render temporalRow("ETERNAL PHYSICAL", block.eternal_physical)}
-                    {@render temporalRow("ETERNAL NON-PHYSICAL", block.eternal_non_physical)}
-                    {@render temporalRow("PRESENT PHYSICAL", block.physical)}
-                    {@render temporalRow("PRESENT NON-PHYSICAL", block.non_physical)}
+                    {#each extract_bracket_items(`${block.eternal_physical || ""} ${block.eternal_non_physical || ""}`) as item, i (i)}
+                      {@render temporalRow("ETERNAL", item)}
+                    {/each}
+                    {#each extract_bracket_items(`${block.physical || ""} ${block.non_physical || ""}`) as item, i (i)}
+                      {@render temporalRow("PRESENT", item)}
+                    {/each}
 
                     {#if block.new_vectors.length > 0}
                       {#each block.new_vectors as nv, i (i)}
-                        {@render temporalRow(vector_label(nv.type, "memory"), nv.content)}
+                        {@render temporalRow(vector_label(nv.type, "past"), nv.content)}
                       {/each}
                     {/if}
 
@@ -221,11 +239,15 @@
         <!-- 3. BACK SHOT: MEMORY FORMATION -->
         {#if meta.type === "MEMORY_FORMATION"}
           <div class="flex flex-col gap-1.5 pt-1">
-            {@render temporalRow("ETERNAL PHYSICAL", meta.eternal?.physical)}
-            {@render temporalRow("ETERNAL NON-PHYSICAL", meta.eternal?.non_physical)}
-            {@render temporalRow("PRESENT PHYSICAL", meta.present?.physical)}
-            {@render temporalRow("PRESENT NON-PHYSICAL", meta.present?.non_physical)}
-            {@render temporalRow("FUTURE AGENDUM", meta.future)}
+            {#each extract_bracket_items(meta.eternal) as item, i (i)}
+              {@render temporalRow("ETERNAL", item)}
+            {/each}
+            {#each extract_bracket_items(meta.present) as item, i (i)}
+              {@render temporalRow("PRESENT", item)}
+            {/each}
+            {#each extract_bracket_items(meta.future) as item, i (i)}
+              {@render temporalRow("FUTURE", item)}
+            {/each}
 
             {#if forged_vectors.length > 0}
               {#each forged_vectors as v, i (v.id || v.content || i)}

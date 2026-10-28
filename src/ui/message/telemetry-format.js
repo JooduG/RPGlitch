@@ -54,18 +54,13 @@ export function get_telemetry_label(meta, runtime) {
   return "Quick Shot";
 }
 
-/**
- * Human-readable label for a vector type, falling back on the pool kind when
- * the type is missing. Unknown types pass through uppercased.
- * @param {any} [type]
- * @param {string} [fallback="memory"]
- * @returns {string}
- */
-export function vector_label(type, fallback = "memory") {
-  if (type == null) return fallback === "memory" ? "MEMORY" : "PAST MEMORY";
+export function vector_label(type, fallback = "past") {
+  if (type == null) return fallback === "memory" || fallback === "past" ? "PAST" : fallback.toUpperCase();
   const t = String(type).toUpperCase();
-  if (t === "PAST" || t === "MEMORY") return "PAST MEMORY";
+  if (t === "PAST" || t === "MEMORY") return "PAST";
+  if (t === "FUTURE" || t === "AGENDUM") return "FUTURE";
   if (t === "PRESENT") return "PRESENT";
+  if (t === "ETERNAL") return "ETERNAL";
   return t;
 }
 
