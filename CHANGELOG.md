@@ -9,10 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
-- **Promoted Configuration Surface Harmonization & Backwards-Compatibility Purge (`src/config.js`, `src/state/`)**:
-  - **Zero Backwards-Compatibility Purge**: In accordance with Core Engine Law P4, completely purged all shim re-exports (`DIRECTOR_MS_POOL_CAP`, `MAX_DEVELOPER_LOG_ENTRIES`, `FREEZE_WATCHDOG_*`).
-  - **Direct Consumer Wiring**: Updated downstream consumers across `src/state/runtime.svelte.js`, `src/state/log.svelte.js`, `src/state/log.test.js`, and `src/state/status.test.js` to import directly from `TELEMETRY_CAPS` (`DIRECTOR_LATENCY_POOL`, `DEVELOPER_LOG_ENTRIES`) and `WATCHDOG_POLICY` in `@config`.
-  - **Promoted Baseline Dynamics**: Promoted `DEFAULT_AI_DYNAMICS` (4-axis somatic) and `DEFAULT_FRACTAL_DYNAMICS` (2-axis environmental) to `src/config.js`, anchoring default baselines to `DYNAMICS_SCALE.MID` (50) and eliminating duplicated fallback definitions in `runtime.svelte.js`.
+- **Sensory History Emitter Harmonization & Enrichment Governance (`src/intelligence/modules/recency.js`, `recency.test.js`, `ROADMAP.md`)**:
+  - **Sensory Tag Harmonization**: Replaced stale `<HISTORY>` tag in `format_sensory_history` with `<RECENT_ROUNDS>`, aligning optics sensory history emission with the universal prompt schema.
+  - **Enrichment Bullets Re-Housed**: Re-housed the Pins-Survive Rule, Variant Mechanism Protocol, and Detox-Trial Calibration specifications under Release Engineering & Execution Invariants in `ROADMAP.md`.
   - **Unified Image Regeneration Pipeline**: Extracted the duplicate 55-line prompt-refinement, JSON-peeling safety net, `visual_engine.generate_candidates`, and candidate delivery logic from `App.svelte` and `ImagePicker.svelte` into a single canonical `run_image_regeneration` function in `src/ui/image/ImagePicker.svelte.js`.
   - **Deduplicated Portalled Context Menus**: Extracted reusable `src/ui/entity/ContextMenu.svelte` handling portalled body mounting, fixed z-9999 stacking, viewport-clamped positioning, and outside-click/escape dismissal. Replaced duplicate context menu DOM and logic across `EntityCard.svelte` and `Message.svelte`.
   - **Streaming State Mutex Guard in `run_mock`**: Kept `simulation_state` active throughout word streaming in `App.svelte:run_mock` and wrapped stream termination and simulation completion in a `finally` block to prevent mid-stream re-triggers and UI unlocking.

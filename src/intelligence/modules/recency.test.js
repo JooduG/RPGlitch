@@ -235,7 +235,7 @@ describe("src/intelligence/modules/history.js — history plans", () => {
 
   it("formats sensory history by stripping cognition and telemetry", () => {
     const formatted = format_sensory_history("Silvers: He watches.\ntelemetry: chaos +1\n\nsystem: intensity +2 | active");
-    expect(formatted).toBe("<HISTORY>\nSilvers: He watches.\n</HISTORY>\n");
+    expect(formatted).toBe("<RECENT_ROUNDS>\nSilvers: He watches.\n</RECENT_ROUNDS>\n");
     expect(format_sensory_history("")).toBe("");
   });
 

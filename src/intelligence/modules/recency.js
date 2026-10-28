@@ -334,7 +334,7 @@ export function format_sensory_history(history_text) {
       return true;
     });
   if (lines.length === 0) return "";
-  return `<HISTORY>\n${prompt_escape(lines.join("\n"))}\n</HISTORY>\n`;
+  return `<RECENT_ROUNDS>\n${prompt_escape(lines.join("\n"))}\n</RECENT_ROUNDS>\n`;
 }
 
 /**
