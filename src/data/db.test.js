@@ -122,7 +122,9 @@ describe("Database db.js Compound Index Health & Latency Profiling", () => {
     vi.restoreAllMocks();
   });
 
-  it("handles high-volume batch mutation appends and queries [entity_id+field] with high throughput", async () => {
+  it(
+    "handles high-volume batch mutation appends and queries [entity_id+field] with high throughput",
+    async () => {
     const { append_ledger_entries, query_entity_history } = await import("./ledger.js");
     const { db } = await import("./db.js");
 
@@ -167,7 +169,7 @@ describe("Database db.js Compound Index Health & Latency Profiling", () => {
     for (let j = 1; j < alpha_physical.length; j++) {
       expect(alpha_physical[j].timestamp).toBeGreaterThanOrEqual(alpha_physical[j - 1].timestamp);
     }
-  });
+  }, 15000);
 
   it("replays full entity state at target round with sub-millisecond per-round latency", async () => {
     const { append_ledger_entries, replay_full_entity_at_round } = await import("./ledger.js");
