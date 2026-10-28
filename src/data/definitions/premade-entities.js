@@ -646,7 +646,7 @@ export function get_premade_fractals() {
  *   Replaced generic meta-keys (EVENT, DETAIL, ACTION, OUTCOME, TRIGGER, METHOD, CAUSE, HISTORY)
  *   with domain-specific semantic keys (TOOTHPICK, MEASURING_TAPE, TANK_GENESIS, MAINFRAME_BREACH,
  *   HIGH_COURT_EXILE, ACADEMIC_EXPULSION), and relocated historical backstory from eternal to past.
- * - 2026-10-04: Standardized past memory fields across all premade characters and fractals
+ * - 2026-10-04: Standardized past fields across all premade characters and fractals
  *   into direct multiline bracket strings, matching the other five quadrant fields and eliminating
  *   legacy vector object arrays.
  * - 2026-10-03: Full pure-bracket conversion of every temporal field

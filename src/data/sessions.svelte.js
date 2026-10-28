@@ -88,7 +88,7 @@ async function _find_log_entry(id) {
 
 export const session_driver = {
   /**
-   * The currently active story session ID in memory.
+   * The currently active story session ID held in RAM.
    * @returns {string | null}
    */
   get active_id() {
@@ -124,7 +124,7 @@ export const session_driver = {
   },
 
   /**
-   * Restores active session ID in memory without redundant DB writes (used during sync).
+   * Restores active session ID in RAM without redundant DB writes (used during sync).
    * @param {string} id
    */
   restore_active(id) {

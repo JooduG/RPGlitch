@@ -432,7 +432,7 @@ export const llm_service = {
 /**
  * CHANGELOG:
  * - 2026-10-05: Single-envelope send — builder seals the closed `<SYSTEM>…<TASK>…</SYSTEM>` package; transport sends `payload.system` verbatim (fusion, `<HISTORY>` injection, and `format_conversation_history` retired).
- * - 2026-09-26: Global LLM gate — every generation now dispatches through `run_llm_job` (single-slot, foreground-priority, preemptible background work) so background memory/optics calls cannot stale-abort the user-visible reply; added `gate_status()` telemetry for the freeze watchdog.
+ * - 2026-09-26: Global LLM gate — every generation now dispatches through `run_llm_job` (single-slot, foreground-priority, preemptible background work) so background caretaker/optics calls cannot stale-abort the user-visible reply; added `gate_status()` telemetry for the freeze watchdog.
  * - 2026-09-25: Unified History Pipeline — `format_conversation_history` now delegates directly to the canonical `format_history_entries` in `@utils/text.js`, eliminating duplicate collapsing and XML serialization.
  * - 2026-09-25: DRY pass — `format_conversation_history`'s label fallback now calls the shared `role_display_label`.
  * - 2026-09-25: Stripping standardization — `looks_truncated` now calls the shared `strip_cognition_blocks` (also catching unclosed/leaked blocks), and `format_conversation_history` drops its redundant re-strip now that `collapse_history` guarantees cognition-free content.

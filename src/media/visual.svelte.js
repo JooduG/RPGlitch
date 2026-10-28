@@ -674,7 +674,7 @@ export const IMAGE_RESOLVE_TIMEOUT_MS = 120000;
 export const IMAGE_GHOST_MAX_AGE_MS = 2 * 60 * 1000;
 
 /**
- * In-memory generation queue tracking active image generation beats.
+ * In-RAM generation queue tracking active image generation beats.
  * @type {Array<{ id: string | number, tier: string, source: string, metadata: Record<string, any> }>}
  */
 export const _image_generation_queue = [];
@@ -688,7 +688,7 @@ export function get_image_generation_queue() {
 }
 
 /**
- * Resets the in-memory generation queue (used for testing and teardowns).
+ * Resets the in-RAM generation queue (used for testing and teardowns).
  */
 export function reset_image_generation_queue() {
   _image_generation_queue.length = 0;

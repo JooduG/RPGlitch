@@ -493,7 +493,7 @@ export const embeddings_engine = {
 /**
  * CHANGELOG:
  * - 2026-10-16: Preserved `_debug_pipeline_fn` when resetting pipeline during inference retry to prevent ESM import collisions under Node/Vitest test suites.
- * - 2026-09-30: Added `quantize_vector_q8` and `dequantize_vector_q8` 8-bit quantization codecs with base64 and Uint8Array serialization for Phase B memory compaction.
+ * - 2026-09-30: Added `quantize_vector_q8` and `dequantize_vector_q8` 8-bit quantization codecs with base64 and Uint8Array serialization for Phase B past-vector compaction.
  * - 2026-08-29: Applied /harmonize protocol: purged shorthand variable abbreviations (`emb` → `raw_embedding`, `v` → `vector`), aligned JSDoc annotations, and validated Svelte 5 runes reactivity.
  * - 2026-08-29: Added Universal File Architecture header block, structured section dividers, normalized `cache_stats()` snake_case nomenclature, enforced P4 zero backwards compatibility.
  * - 2026-08-27: Realigned layer boundaries: moved `embeddings.svelte.js` + vector codecs into `src/platform/` and unified `EMBEDDING_DIM = 384` validation.

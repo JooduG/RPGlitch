@@ -109,8 +109,8 @@ export const app_bootstrap = {
       }
 
       // Vector hygiene: entities saved under looser caps may still hold over-cap
-      // past memory pool. Trim once on load (origin/premade vectors are kept)
-      // so memory stays bounded going forward.
+      // past pool. Trim once on load (origin/premade vectors are kept)
+      // so the past stays bounded going forward.
       for (const { entity, type } of [
         { entity: runtime.active_ai, type: "character" },
         { entity: runtime.active_user, type: "character" },

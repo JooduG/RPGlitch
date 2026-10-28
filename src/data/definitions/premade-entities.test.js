@@ -68,7 +68,7 @@ describe("premade-entities registry", () => {
       expect(character.present?.non_physical).toBeTruthy();
       expect(character.future).toBeTruthy();
 
-      // Past memory verification
+      // Past vector verification
       expect(typeof character.past).toBe("string");
       expect(character.past).toContain("[");
       expect(character.past).toContain("]");
@@ -102,7 +102,7 @@ describe("premade-entities registry", () => {
       expect(fractal.present?.non_physical).toBeTruthy();
       expect(fractal.future).toBeTruthy();
 
-      // Past memory verification
+      // Past vector verification
       expect(typeof fractal.past).toBe("string");
       expect(fractal.past).toContain("[");
       expect(fractal.past).toContain("]");

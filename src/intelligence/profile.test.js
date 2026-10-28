@@ -79,7 +79,7 @@ describe("Profile Domain (profile.js)", () => {
       const entity = {
         eternal: { physical: "Eternal body.", non_physical: "Eternal psyche." },
         present: { physical: "Present outfit.", non_physical: "Present mood." },
-        past: [{ id: "p1", content: "Old memory anchor", type: "past", emotional_weight: 5 }],
+        past: [{ id: "p1", content: "Old past anchor", type: "past", emotional_weight: 5 }],
         future: "Impending prophecy",
       };
       const result = compile_prompt("enhancement", {
@@ -94,7 +94,7 @@ describe("Profile Domain (profile.js)", () => {
       expect(result.system).toContain("Present outfit.");
       expect(result.system).toContain("Eternal psyche.");
       expect(result.system).not.toContain("Eternal body.");
-      expect(result.system).not.toContain("Old memory anchor");
+      expect(result.system).not.toContain("Old past anchor");
       expect(result.system).not.toContain("Impending prophecy");
     });
   });
@@ -135,7 +135,7 @@ describe("Profile Domain (profile.js)", () => {
       expect(entity.name).toBe("A".repeat(80));
     });
 
-    it("appends past prose entries as pinned memory vectors", () => {
+    it("appends past prose entries as pinned past vectors", () => {
       const entity = { past: [] };
       apply_profile_to_entity(entity, { past: ["Washed ashore at Mournhold.", "Captured a smuggler's trust."] });
       expect(entity.past).toHaveLength(2);

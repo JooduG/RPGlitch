@@ -9,7 +9,7 @@
  * - Executes the atomic 5-phase Turn Advancement cycle:
  *     1. STASIS: System Lock & Intent Gate (sub-millisecond double-click protection).
  *     2. SYNTHESIS: Background LLM Stream Synthesis via Gamemaster.
- *     3. PAST: Echo & Vector Memory formation.
+ *     3. PAST: Echo & Continuum formation.
  *     4. ANCHOR: Timeline persistence into IndexedDB via Runtime.
  *     5. UNIFIED CLEANUP: Stream release, error handling, and orphaned-turn self-healing.
  *
@@ -232,9 +232,9 @@ export class ChronoEngine {
           state_bridge.app.end_stream();
         }
 
-        // 3. PAST: Commit to Memory (Echo)
+        // 3. PAST: Commit to Continuum (Echo)
         state_bridge.simulation_state.lock();
-        state_bridge.app.log("Recording memory...", "db");
+        state_bridge.app.log("Recording continuum...", "db");
 
         // 4. ANCHOR: Persist the timeline
         await state_bridge.runtime.save(state_bridge.runtime.round);

@@ -87,11 +87,11 @@ export const PROFILE_FIELDS = {
       enhancer: "TRAJECTORY_SIMULATOR",
     },
     past: {
-      label: "Memories",
+      label: "Past",
       description:
-        "Lorebook Episodic Vector: Settled precedents, canon facts, and emotional anchors ([KEY: fact | flags]). Ranked via pure numeric weights (w: 1-10).",
+        "Lorebook Continuum Vector: Settled precedents, canon facts, and emotional anchors ([KEY: fact | flags]). Ranked via pure numeric weights (w: 1-10).",
       directive: `Settled historical fact or precedent: [KEY: value | flags] (flags: 'hide' / 'show', 'w: 1-10'). Specific over vague; exclude transient moods or immediate dialogue.`,
-      enhancer: "EPISODIC_MEMORY_COMPILER",
+      enhancer: "PAST_COMPILER",
     },
   },
   fractal: {

@@ -8,7 +8,7 @@
  * entity data models (Characters and Fractals) against the Four-Quadrant schema:
  *   - Eternal:  Baseline physical and non-physical identity facts.
  *   - Present:  Active, momentary physical states and psychological condition.
- *   - Past:     Semantic memory vectors (RAG anchors with origin provenance).
+ *   - Past:     Past vectors (RAG anchors with origin provenance).
  *   - Future:   Impending standing agenda and active trajectory prose.
  *
  * RESPONSIBILITIES:
@@ -24,7 +24,7 @@
  *   - normalize(base):                  Normalizes raw objects into guaranteed entity schema.
  *   - create_new(type, overrides):       Instantiates a fresh entity with timestamps and UUID.
  *   - format_premade(data, type):        Formats catalog premades for database storage.
- *   - coerce_temporal_vectors(value):   Normalizes memory vector objects with origin stamps.
+ *   - coerce_temporal_vectors(value):   Normalizes past vector objects with origin stamps.
  *   - coerce_temporal_array(value):     Parses raw strings/arrays into clean string lists.
  *   - serialize_entity_for_export(ent): Strips transient database fields for export.
  *   - get_random_signature_key():        Selects a random palette signature color.

@@ -124,9 +124,9 @@ describe("create_job_queue", () => {
   it("isolates a failing worker: its promise rejects but the queue keeps draining", async () => {
     const q = create_job_queue({ max_concurrency: 1 });
     const boom = q.run(async () => {
-      throw new Error("forge outage");
+      throw new Error("caretaker outage");
     });
-    await expect(boom).rejects.toThrow("forge outage");
+    await expect(boom).rejects.toThrow("caretaker outage");
     const ok = await q.run(async () => "still-alive");
     expect(ok).toBe("still-alive");
     expect(q.is_busy()).toBe(false);

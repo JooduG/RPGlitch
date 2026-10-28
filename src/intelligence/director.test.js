@@ -112,7 +112,7 @@ describe("Director Quick Shot Prompt (compile_prompt director)", () => {
 
   it("includes PAST state for all active entities in the Director prompt", () => {
     const result = compile_prompt("director", { ...base_payload(), compressed_snapshot: base_snapshot });
-    expect(result.system).toContain("<MEMORIES>");
+    expect(result.system).toContain("<PAST>");
     expect(result.system).toContain("Viper past 1");
     expect(result.system).toContain("Ghost past 1");
     expect(result.system).toContain("Void past 1");

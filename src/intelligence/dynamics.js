@@ -86,7 +86,7 @@ export const PHYSICS_PROTOCOLS = Object.freeze({
   ADRENALINE:
     "High-adrenaline pacing. Slow narrative time: expand detail in decisive beats — micro-expressions, split-second thoughts, and immediate sensory physics.",
   SLOW_MOTION: "Pacing slow. Heavy fatigue. Deliberate, languid actions.",
-  GLITCH: "Reality glitching. Fragmented memory. Non-linear time perception.",
+  GLITCH: "Reality glitching. Fragmented recall. Non-linear time perception.",
   RECOVERY: "High clarity. Sharp recall. Stable environment.",
   EXPOSED:
     "Psychological armor down, highly receptive and unshielded. Reveal genuine reactions without reflexive deflection; raw unguarded openness.",

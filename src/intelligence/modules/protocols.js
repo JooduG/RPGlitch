@@ -87,7 +87,7 @@ export const PROTOCOL_LIBRARY = Object.freeze({
       }),
       SOMATIC_INTERFERENCE: Object.freeze({
         tag: "SOMATIC_INTERFERENCE",
-        body: "Somatic Interference: Memory entries marked with ■ represent degraded recall. Treat these as cognitive gaps or static—do not invent missing facts.",
+        body: "Somatic Interference: Past entries marked with ■ represent degraded recall. Treat these as cognitive gaps or static—do not invent missing facts.",
       }),
     }),
   }),

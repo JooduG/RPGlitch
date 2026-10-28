@@ -3,7 +3,7 @@
  * 🔀 ASYNCHRONOUS JOB QUEUE: Concurrency & Background Worker Pool
  *
  * Core Responsibilities:
- * - Manages asynchronous execution of non-critical background jobs (Memory Forge, visual prompt synthesis,
+ * - Manages asynchronous execution of non-critical background jobs (continuum consolidation, visual prompt synthesis,
  *   Dexie checkpoints, ghost sweeps) without blocking the critical narrative path or UI.
  * - Concurrency Control: Throttles execution up to `max_concurrency` parallel workers.
  * - Latest-Pending Coalescing: Tasks enqueued with `{ latest: true }` supersede older still-queued

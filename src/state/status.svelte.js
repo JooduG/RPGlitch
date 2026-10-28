@@ -4,7 +4,7 @@
  *
  * Core Responsibilities:
  * - Tracks macro simulation execution phase (`idle`, `generating`, `locked`).
- * - Manages intent lock (`intent_active`) preventing overlapping turns and protecting memory consolidation.
+ * - Manages intent lock (`intent_active`) preventing overlapping turns and protecting continuum consolidation.
  * - Tracks Director delegated speaker identity (`generating_entity_type`, `generating_entity_name`,
  *   `generating_entity_avatar`, `generating_entity_color`) for live UI speaker attribution.
  * - Exposes derived state flags (`busy`, `is_consolidating`).
@@ -15,7 +15,7 @@
  * - Enforces multi-tier diagnostic freeze recovery and provides unified `force_recover_simulation(reason)`.
  *
  * State Machine Lifecycle:
- * - `idle`: Engine is ready for user actions or silently running background memory consolidation.
+ * - `idle`: Engine is ready for user actions or silently running background continuum consolidation.
  * - `generating`: Foreground stream or prompt turn in flight.
  * - `locked`: System is processing an atomic state transition or awaiting stasis release.
  *
@@ -145,7 +145,7 @@ export class SimulationStateStore {
 
   /**
    * True while the engine has finished streaming a turn and is silently
-   * consolidating memory in the background (idle phase + intent lock held).
+   * consolidating the continuum in the background (idle phase + intent lock held).
    */
   get is_consolidating() {
     return this.#phase === "idle" && this.#intent_active;
@@ -508,7 +508,7 @@ export function install_freeze_watchdog() {
       return;
     }
 
-    // Tier 3: Memory consolidation overrun grace
+    // Tier 3: Continuum consolidation overrun grace
     if (elapsed >= WATCHDOG_POLICY.CONSOLIDATE_GRACE_MS) {
       console.warn(`[Watchdog] Post-turn consolidation overran ${Math.round(elapsed / 1000)}s — releasing intent lock.`, { phase, intent_active });
       developer_log.log(`[Watchdog] Post-turn consolidation overran ${Math.round(elapsed / 1000)}s — releasing intent lock.`, "warn");

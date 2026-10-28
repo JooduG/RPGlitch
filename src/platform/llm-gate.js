@@ -7,7 +7,7 @@
  *   text-generation embed serves one stream per client and drops queued requests as
  *   "stale" once its keep-alive threshold is reached, which starves the foreground reply.
  * - Priority scheduling: foreground (user-visible) turns always outrank background
- *   enrichment (memory forge consolidation, optics image-prompt synthesis).
+ *   enrichment (caretaker consolidation, optics image-prompt synthesis).
  * - Preemption: when a foreground request arrives while a background generation is
  *   running, the background generation is aborted so the user's reply is never queued
  *   behind opportunistic work.
@@ -184,6 +184,6 @@ export function merge_abort_signals(caller, gate) {
 /**
  * CHANGELOG:
  * - 2026-09-25: Created. Serializes Perchance generation behind a single-slot priority
- *   gate so background memory-forge/optics calls can no longer starve the foreground reply
+ *   gate so background caretaker/optics calls can no longer starve the foreground reply
  *   (the "Stream keep alive timeout" / stale-abort freeze class).
  */

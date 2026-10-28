@@ -365,17 +365,17 @@ describe("dynamics.js", () => {
     describe("build_retrieval()", () => {
       it("strips embeddings and internal scores while sorting by _relevance descending", () => {
         const raw_vectors = [
-          { content: "Low relevance memory", _relevance: 0.42, _embedding: [0.1, 0.2], _semantic_score: 0.3 },
-          { content: "High relevance memory", _relevance: 0.88, _embedding: [0.3, 0.4], _recency_factor: 1.0 },
+          { content: "Low relevance past", _relevance: 0.42, _embedding: [0.1, 0.2], _semantic_score: 0.3 },
+          { content: "High relevance past", _relevance: 0.88, _embedding: [0.3, 0.4], _recency_factor: 1.0 },
         ];
 
         const cleaned = build_retrieval(raw_vectors);
 
         expect(cleaned).toHaveLength(2);
-        expect(cleaned[0].content).toBe("High relevance memory");
+        expect(cleaned[0].content).toBe("High relevance past");
         expect(cleaned[0]._embedding).toBeUndefined();
         expect(cleaned[0]._recency_factor).toBeUndefined();
-        expect(cleaned[1].content).toBe("Low relevance memory");
+        expect(cleaned[1].content).toBe("Low relevance past");
       });
     });
 

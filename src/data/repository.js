@@ -62,7 +62,7 @@ export async function seed_premades() {
 // ============================================================================
 
 /**
- * Transforms `_embedding` Float32Array on temporal past memory vectors
+ * Transforms `_embedding` Float32Array on temporal past vectors
  * without mutating the input object.
  * @param {Record<string, any>} entity
  * @param {(embedding: any) => any} transform
