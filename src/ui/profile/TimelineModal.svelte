@@ -236,7 +236,7 @@
           <div class="flex flex-col gap-3">
             <!-- Past Quadrant -->
             <div class="flex flex-col gap-2 rounded-xl border border-white/5 bg-black/25 p-3">
-              <span class="font-mono text-xs font-bold text-cyan-300">PAST (MEMORIES)</span>
+              <span class="font-mono text-xs font-bold text-cyan-300">PAST</span>
               <div class="max-h-24 overflow-y-auto rounded bg-black/40 p-2 font-mono text-xs text-slate-300">
                 {reconstructed_state.past || "<empty>"}
               </div>

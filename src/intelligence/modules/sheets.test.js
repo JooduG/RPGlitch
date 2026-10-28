@@ -9,7 +9,7 @@
  * 2. parse_physical_rows direct row expansion + render_appearance_rows dedup
  * 3. resolve_sheet_snapshot spec-aware epistemic isolation (owner vs other)
  * 4. render_sheet full mode across AI, User, NPC, and Fractal
- * 5. render_sheet physical / separate modes for Optics and memory contexts
+ * 5. render_sheet physical / separate modes for Optics and continuum contexts
  * 6. render_enhancement_field_context across physical and past/future fields
  * ============================================================================
  */
@@ -26,7 +26,7 @@ import {
   resolve_sheet_snapshot,
   render_sheet,
   parse_profile_field_rows,
-  render_entity_memory_context,
+  render_entity_continuum_context,
   render_enhancement_field_context,
   resolve_profile_field_tag,
 } from "./sheets.js";
@@ -44,7 +44,7 @@ const test_character = {
     non_physical: "Guarded vigilance. [@BOB: guarded trust]",
   },
   future: "Infiltrate the mainframe.",
-  past: [{ content: "First memory." }, { content: "Second memory." }],
+  past: [{ content: "First past entry." }, { content: "Second past entry." }],
 };
 
 const test_fractal = {
@@ -67,16 +67,16 @@ describe("define_sheet + SHEET_SPECS", () => {
   it("derives every tag from PROFILE_FIELD_CATALOG", () => {
     expect(SHEET_SPECS.AI_CHARACTER.agenda_key).toBe(resolve_profile_field_tag("character", "future"));
     expect(SHEET_SPECS.AI_CHARACTER.personality_tag).toBe(resolve_profile_field_tag("character", "eternal.non_physical"));
-    expect(SHEET_SPECS.AI_CHARACTER.memory_tag).toBe(resolve_profile_field_tag("character", "past"));
+    expect(SHEET_SPECS.AI_CHARACTER.past_tag).toBe(resolve_profile_field_tag("character", "past"));
     expect(SHEET_SPECS.FRACTAL.agenda_key).toBe(resolve_profile_field_tag("fractal", "future"));
-    expect(SHEET_SPECS.FRACTAL.memory_tag).toBe(resolve_profile_field_tag("fractal", "past"));
+    expect(SHEET_SPECS.FRACTAL.past_tag).toBe(resolve_profile_field_tag("fractal", "past"));
   });
 
   it("defaults epistemic to always, gating only owner state", () => {
     expect(SHEET_SPECS.AI_CHARACTER.epistemic.state).toBe(EPISTEMIC_POLICY.OWNER);
     expect(SHEET_SPECS.FRACTAL.epistemic.state).toBeUndefined();
     expect(SHEET_SPECS.USER_PERSONA.epistemic.state).toBe(EPISTEMIC_POLICY.OWNER);
-    expect(SHEET_SPECS.USER_PERSONA.memory_tag).toBe("BACKSTORY");
+    expect(SHEET_SPECS.USER_PERSONA.past_tag).toBe("BACKSTORY");
     expect(SHEET_SPECS.FRACTAL.axes_scope).toBe("fractal");
     expect(SHEET_SPECS.AI_CHARACTER.axes_scope).toBe("somatic");
   });
@@ -112,7 +112,7 @@ describe("parse_physical_rows + render_appearance_rows", () => {
 
 describe("join_past_vectors", () => {
   it("joins vector contents with newlines", () => {
-    expect(join_past_vectors(test_character)).toBe("First memory.\nSecond memory.");
+    expect(join_past_vectors(test_character)).toBe("First past entry.\nSecond past entry.");
     expect(join_past_vectors({ past: [] })).toBe("");
     expect(join_past_vectors({})).toBe("");
   });
@@ -169,7 +169,7 @@ describe("resolve_sheet_snapshot", () => {
     expect(Object.isFrozen(snapshot)).toBe(true);
     expect(Object.isFrozen(snapshot.eternal_rows)).toBe(true);
     expect(snapshot.appearance_rows).toContain('build="tall and athletic"');
-    expect(snapshot.past_text).toBe("First memory.\nSecond memory.");
+    expect(snapshot.past_text).toBe("First past entry.\nSecond past entry.");
   });
 });
 
@@ -180,7 +180,7 @@ describe("render_sheet full mode", () => {
     expect(xml).toContain("<PSYCHOLOGY>");
     expect(xml).toContain('<APPEARANCE build="tall and athletic" jacket="worn leather" posture="alert" />');
     expect(xml).toContain("Infiltrate the mainframe.");
-    expect(xml).toContain("First memory.");
+    expect(xml).toContain("First past entry.");
     expect(xml).toContain("</CHARACTER>");
     expect(xml).not.toContain("<AI_CHARACTER");
   });
@@ -200,9 +200,9 @@ describe("render_sheet full mode", () => {
   });
 
   it("suppresses agenda and memories when excluded", () => {
-    const xml = render_sheet(SHEET_SPECS.AI_CHARACTER, { entity: test_character, include_agenda: false, include_memories: false });
+    const xml = render_sheet(SHEET_SPECS.AI_CHARACTER, { entity: test_character, include_agenda: false, include_past: false });
     expect(xml).not.toContain("Infiltrate the mainframe.");
-    expect(xml).not.toContain("First memory.");
+    expect(xml).not.toContain("First past entry.");
     expect(xml).toContain("<PSYCHOLOGY>");
   });
 
@@ -322,9 +322,9 @@ describe("render_sheet physical / separate modes", () => {
   });
 });
 
-describe("render_entity_memory_context", () => {
+describe("render_entity_continuum_context", () => {
   it("renders an owner-view separate sheet with CHARACTER envelope and clean quadrant tags", () => {
-    const xml = render_entity_memory_context("AI_CHARACTER", test_character);
+    const xml = render_entity_continuum_context("AI_CHARACTER", test_character);
     expect(xml).toContain('<CHARACTER id="alice" name="Alice">');
     expect(xml).not.toContain("<AI_CHARACTER");
     expect(xml).toContain("<ETERNAL>");
@@ -334,11 +334,11 @@ describe("render_entity_memory_context", () => {
     expect(xml).toContain("<FUTURE>");
     expect(xml).toContain("Infiltrate the mainframe.");
     expect(xml).toContain("<PAST>");
-    expect(xml).toContain("First memory.");
+    expect(xml).toContain("First past entry.");
   });
 
   it("returns empty for a missing entity", () => {
-    expect(render_entity_memory_context("AI_CHARACTER", null)).toBe("");
+    expect(render_entity_continuum_context("AI_CHARACTER", null)).toBe("");
   });
 });
 
@@ -359,7 +359,7 @@ describe("render_enhancement_field_context", () => {
   it("renders past vectors for the past field", () => {
     const xml = render_enhancement_field_context(test_character, "past");
     expect(xml).toContain("<ENTITY_CONTEXT>");
-    expect(xml).toContain("First memory.");
+    expect(xml).toContain("First past entry.");
   });
 
   it("renders future text for the future field", () => {

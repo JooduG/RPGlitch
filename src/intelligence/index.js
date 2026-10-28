@@ -5,7 +5,7 @@
  *
  * @file src/intelligence/index.js
  * @description Central barrel export providing unified access to turn orchestration,
- * response parsing, prompt synthesis, temporal consolidation (Memory Forge),
+ * response parsing, prompt synthesis, temporal consolidation (Continuum Caretaker),
  * profile generation, and physics/dynamics engines.
  *
  * Architectural Laws:
@@ -50,7 +50,7 @@ export { compile_prompt, PROMPTS, get_prompt, resolve_prompt_mode } from "./prom
 export { create_render_accessors, build_scoring_context, context_builder, to_data_points } from "./builder.js";
 
 // ============================================================================
-// Temporal Engine & Memory Forge (Shot 2 Consolidation)
+// Temporal Engine & Continuum Caretaker
 // ============================================================================
 
 export { temporal_engine, reconcile_vector_caps } from "./temporal.js";

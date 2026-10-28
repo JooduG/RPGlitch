@@ -126,8 +126,8 @@
               <span class="text-slate-200">{snapshot.entities_breakdown.cast?.toLocaleString() ?? 0} tok</span>
             </div>
             <div class="flex justify-between">
-              <span>Memories:</span>
-              <span class="text-slate-200">{snapshot.entities_breakdown.memories?.toLocaleString() ?? 0} tok</span>
+              <span>Past:</span>
+              <span class="text-slate-200">{snapshot.entities_breakdown.past?.toLocaleString() ?? 0} tok</span>
             </div>
           </div>
         {/if}

@@ -140,7 +140,7 @@ describe("Database db.js Compound Index Health & Latency Profiling", () => {
         key: `SLOT_${i % 15}`,
         old_value: null,
         new_value: `state_value_${i}`,
-        writer: "forge",
+        writer: "continuum",
         timestamp: 1700000000000 + i * 100,
       });
     }

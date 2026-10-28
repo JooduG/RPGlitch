@@ -51,7 +51,7 @@ import { REFLEX_LIBRARY, classify_input_size, is_stream_beat_limit_reached } fro
 
 /**
  * Background queue for non-blocking post-turn tasks (consolidation, ghost sweeps).
- * Bound to concurrency 1 to prevent overlapping Memory Forge write races on entity vectors in IndexedDB.
+ * Bound to concurrency 1 to prevent overlapping Continuum Caretaker write races on entity vectors in IndexedDB.
  */
 const director_background_queue = create_job_queue({ max_concurrency: 1 });
 
@@ -239,9 +239,9 @@ export const gamemaster = {
       const fractal_delta_axes = new Set();
 
       snapshot.pruned_vectors = {
-        AI: prune(payload.entities.AI?.memories),
-        USER: prune(payload.entities.USER?.memories),
-        FRACTAL: prune(payload.entities.FRACTAL?.memories),
+        AI: prune(payload.entities.AI?.vector_pool),
+        USER: prune(payload.entities.USER?.vector_pool),
+        FRACTAL: prune(payload.entities.FRACTAL?.vector_pool),
       };
 
       // 4. DIRECTOR PASS (Shot 1)
@@ -440,7 +440,7 @@ export const gamemaster = {
       const is_image_trigger_active = Boolean(resolved_image?.active);
       const image_tier = resolved_image?.tier;
 
-      // Background enrichment (image optics + memory forge) is DEFERRED until after the
+      // Background enrichment (image optics + caretaker consolidation) is DEFERRED until after the
       // foreground reply. Both enqueue LLM work through the single-slot global gate, and
       // the user-visible reply must own that slot first (see the deferred dispatch in step 8.2).
       let deferred_image_beat = /** @type {{ tier: string, options: any } | null} */ (null);
@@ -472,10 +472,10 @@ export const gamemaster = {
       state_bridge.runtime.ai = snapshot.ai?.dynamics;
       state_bridge.runtime.fractal = snapshot.fractal?.dynamics;
 
-      // 4.7. RESOLVED STATUS / FORGE ROUND: captured here so the deferred background
+      // 4.7. RESOLVED STATUS / CARETAKER ROUND: captured here so the deferred background
       // consolidation (step 8.2) gates on the same round and conclusion state.
       const resolved_status = director_data?.story_status;
-      const forge_round = state_bridge.runtime.round;
+      const consolidation_round = state_bridge.runtime.round;
 
       // 5. SHOT 2A: Diegetic Narrative Voice (Foreground Stream)
       state_bridge.app.log("[GameMaster] Routing to LLM (Character Pass)...", "system");
@@ -676,8 +676,7 @@ export const gamemaster = {
       state_bridge.simulation_state.phase = "idle";
 
       // 8.2. DEFERRED BACKGROUND ENRICHMENT — the foreground reply has landed and the LLM
-      // gate slot is free, so release the image beat (background optics) and the memory
-      // forge (background consolidation) onto the background lane.
+      // gate slot is free, so release the image beat (background optics) and the caretaker (background consolidation) onto the background lane.
       if (deferred_image_beat) {
         spawn_image_beat(deferred_image_beat.tier, deferred_image_beat.options).catch((err) => {
           state_bridge.app.log(`[GameMaster] Image beat dispatch failed: ${err?.message || err}`, "warn");
@@ -687,10 +686,10 @@ export const gamemaster = {
       director_background_queue
         .run(
           async () => {
-            if (state_bridge.runtime.round !== forge_round) return { skipped: true };
+            if (state_bridge.runtime.round !== consolidation_round) return { skipped: true };
             await temporal_engine.consolidate(state_bridge.session_driver, db, entities, state_bridge.runtime, state_bridge.app, {
-              skip_forge: false,
-              target_round: forge_round,
+              skip_consolidation: false,
+              target_round: consolidation_round,
             });
             return { skipped: false };
           },

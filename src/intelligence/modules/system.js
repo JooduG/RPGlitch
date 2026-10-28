@@ -109,7 +109,7 @@ export const PROMPT_LAYERS = Object.freeze([
   { key: "cast", emit: (state) => state.nearby_cast },
   { key: "entity_context", emit: (state) => state.field_context },
   { key: "chapter_history", emit: (state) => state.chapter_history },
-  { key: "memory_advisory", emit: (state) => state.memory_advisory },
+  { key: "settled_facts", emit: (state) => state.settled_facts },
   { key: "history", emit: (state) => state.history_block },
 ]);
 

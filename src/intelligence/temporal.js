@@ -1,6 +1,6 @@
 /**
  * src/intelligence/temporal.js
- * ⏳ TEMPORAL ENGINE & MEMORY FORGE — Vector Math, Relevance Scoring & Prompt Compilers
+ * ⏳ TEMPORAL ENGINE & CONTINUUM CARETAKER — Vector Math, Relevance Scoring & Prompt Compilers
  */
 
 import {
@@ -52,11 +52,11 @@ import { PAST_ENTRIES, COMPACTION, FRAGMENTATION, PROSE, TEMPORAL_SCORING, HYBRI
 export const PAST_VECTOR_CAP = PAST_ENTRIES.SESSION_CAP;
 export const MAX_TOTAL_VECTORS = PAST_ENTRIES.TOTAL_CAP;
 export const MAX_VECTOR_CHARS = PAST_ENTRIES.ENTRY_MAX_CHARS;
-const FORGE_EMBED_BUDGET_MS = LATENCY_TIERS_MS.STALL;
+const CARETAKER_EMBED_BUDGET_MS = LATENCY_TIERS_MS.STALL;
 
 export { TEMPORAL_SCORING };
 
-// ── Track 2: Hierarchical Memory & 6k Context Protection ─────────────────────
+// ── Track 2: Hierarchical Continuum & 6k Context Protection ─────────────────────
 // Tier model: Tier 0 = atomic turn-event vectors in `entity.past`; Tier 1 =
 // chapter summary anchors in `entity.chapters` (fanout PRISM_FANOUT = 8);
 // Tier 2 = arc milestones merging Tier-1 summaries (tree height <= 5).
@@ -64,7 +64,7 @@ export { TEMPORAL_SCORING };
 /** Fanout threshold: Tier-0 vectors per Tier-1 chapter, Tier-1 chapters per Tier-2 arc. */
 export const PRISM_FANOUT = COMPACTION.FANOUT;
 
-/** Hard bound on memory-tree height (occupied tier levels + entity root). */
+/** Hard bound on continuum-tree height (occupied tier levels + entity root). */
 export const COMPACTOR_MAX_HEIGHT = COMPACTION.MAX_HEIGHT;
 
 /** Character budget for a deterministic Tier-1 compaction summary. */
@@ -85,25 +85,25 @@ export const RECALL_CLARITY = Object.freeze({
   FRAGMENTED: "fragmented",
 });
 
-/** Chaos/Entropy value above which recalled memories fragment. */
+/** Chaos/Entropy value above which recalled past entries fragment. */
 export const DYNAMICS_FRAGMENTATION_THRESHOLD = FRAGMENTATION.THRESHOLD;
 
-const VALID_FORGED_TYPES = new Set(["past", "present"]);
+const VALID_CONSOLIDATED_TYPES = new Set(["past", "present"]);
 
 /**
- * Normalizes an arbitrary string type into a valid forged vector type.
+ * Normalizes an arbitrary string type into a valid consolidated vector type.
  * @param {any} value
  * @returns {'past'|'present'}
  */
-function normalize_forged_type(value) {
+function normalize_consolidated_type(value) {
   const type = String(value || "")
     .toLowerCase()
     .trim();
-  return VALID_FORGED_TYPES.has(type) ? /** @type {'past'|'present'} */ (type) : "past";
+  return VALID_CONSOLIDATED_TYPES.has(type) ? /** @type {'past'|'present'} */ (type) : "past";
 }
 
 /**
- * Creates a standard past memory vector.
+ * Creates a standard past vector.
  * @param {string} content
  * @param {string} [type='past']
  * @param {number} [weight=5]
@@ -122,7 +122,7 @@ function create(content, type = "past", weight = 5) {
 }
 
 /**
- * Merges an entity's memories into a single normalized array of TemporalVectors.
+ * Merges an entity's past entries into a single normalized array of TemporalVectors.
  * Supports both flat universal bracket strings (chunked on bracket boundaries) and
  * structured TemporalVector arrays.
  *
@@ -278,7 +278,7 @@ function compute_relevance(vector, semantic_similarity, current_round, in_scene 
   const recency = Math.max(RECENCY_FLOOR, Math.pow(raw_recency, DECAY_SOFTEN));
   vector._recency_factor = recency;
 
-  // Pinned memories (usr_ or origin-flagged) rank higher
+  // Pinned past entries (usr_ or origin-flagged) rank higher
   const pinned_boost = vector.id?.startsWith("usr_") || is_origin(vector) ? 1.5 : 1.0;
   // Stage Spotlight presence gives +30% salience boost
   const in_scene_boost = in_scene ? IN_SCENE_SALIENCE_BOOST : 1.0;
@@ -287,7 +287,7 @@ function compute_relevance(vector, semantic_similarity, current_round, in_scene 
 }
 
 /**
- * Synchronously scores memory vectors using cached context embeddings.
+ * Synchronously scores past vectors using cached context embeddings.
  * @param {any[]} vectors
  * @param {boolean} [in_scene=false]
  * @returns {any[]}
@@ -319,7 +319,7 @@ export function score(vectors, in_scene = false) {
 }
 
 /**
- * Asynchronously scores memory vectors with real-time semantic embedding comparison.
+ * Asynchronously scores past vectors with real-time semantic embedding comparison.
  * @param {any[]} vectors
  * @param {string} input
  * @param {number} [current_round]
@@ -528,7 +528,7 @@ export function ensure_unique_vector_id(entity, vector) {
 }
 
 /**
- * Resolves the deterministic write-time identity key for a memory string
+ * Resolves the deterministic write-time identity key for a past string
  * (Track 2.4: rot prevention). Normalization folds case, punctuation, and
  * whitespace so rephrased repeats hash together; FNV-1a keeps it stable
  * across sessions with zero storage cost.
@@ -640,10 +640,10 @@ export function reconcile_vector_caps(entity) {
   return changed;
 }
 
-// ── 4. Hierarchical Memory Tree & Deterministic Retrieval (Track 2) ──────────
+// ── 4. Hierarchical Continuum Tree & Deterministic Retrieval (Track 2) ──────────
 
 /**
- * Returns the Tier-1/Tier-2 summary nodes of an entity's memory tree.
+ * Returns the Tier-1/Tier-2 summary nodes of an entity's continuum tree.
  * Legacy agenda chapters (no tier stamp) read as Tier 1.
  * @param {any} entity
  * @returns {any[]}
@@ -654,12 +654,12 @@ function resolve_summary_nodes(entity) {
 }
 
 /**
- * Pure view over an entity's hierarchical memory tree (Track 2.1):
+ * Pure view over an entity's hierarchical continuum tree (Track 2.1):
  * Tier 0 atomic turn events, Tier 1 chapter anchors, Tier 2 arc milestones.
  * @param {any} entity
  * @returns {{ tier_zero: any[], tier_one: any[], tier_two: any[], height: number }}
  */
-export function resolve_memory_tiers(entity) {
+export function resolve_continuum_tiers(entity) {
   const past_pool = Array.isArray(entity?.past) ? entity.past : [];
   const tier_zero = past_pool.filter((vector) => vector && typeof vector === "object" && !is_origin(vector) && !vector.meta?.compacted_into);
   const nodes = resolve_summary_nodes(entity);
@@ -698,7 +698,7 @@ function summarize_compaction_batch(batch) {
  * @param {any} entity
  * @returns {{ tier_one: any|null, tier_two: any|null }}
  */
-export function maybe_compact_memory(entity) {
+export function maybe_compact_continuum(entity) {
   const report = { tier_one: null, tier_two: null };
   if (!entity || typeof entity !== "object" || !Array.isArray(entity.past)) return report;
   if (!Array.isArray(entity.chapters)) entity.chapters = [];
@@ -776,13 +776,13 @@ function extract_query_terms(query) {
 }
 
 /**
- * Collects an entity vector's referent tags: forge keys plus bracket keys.
+ * Collects an entity vector's referent tags: consolidation keys plus bracket keys.
  * @param {any} vector
  * @returns {Set<string>}
  */
 function extract_vector_entity_tags(vector) {
   const tags = new Set();
-  for (const candidate of [vector?.meta?.key, vector?.meta?.forged_for]) {
+  for (const candidate of [vector?.meta?.key, vector?.meta?.consolidated_for ?? vector?.meta?.forged_for]) {
     if (typeof candidate === "string" && candidate.trim()) tags.add(candidate.toLowerCase().trim());
   }
   const content = String(vector?.content || vector?.directive || "");
@@ -869,13 +869,13 @@ export function resolve_recall_clarity(dynamics) {
 }
 
 /**
- * Degrades memory text under high somatic instability (Track 8 / 5.3):
+ * Degrades past text under high somatic instability (Track 8 / 5.3):
  * Replaces words with block glyphs '■' (no ellipses) on non-header text,
- * diegetically signaling memory gaps to the LLM.
+ * diegetically signaling past gaps to the LLM.
  * @param {string} text
  * @returns {string}
  */
-export function degrade_memory_text(text) {
+export function degrade_past_text(text) {
   if (!text || typeof text !== "string") return "";
   const match = text.match(/^(\[[A-Z0-9_@]+:\s*)([^\]]+)(\])(.*)$/i);
   if (!match) {
@@ -899,7 +899,7 @@ export function degrade_memory_text(text) {
 /**
  * Formats hybrid-ranked vectors into a recall block with dynamics-modulated
  * clarity (Track 2.3 / 5.3): fragmented states carry the `[fragmented recall]`
- * prefix and apply sensory block degradation ('■') to lower-weight memories (w <= 6);
+ * prefix and apply sensory block degradation ('■') to lower-weight past entries (w <= 6);
  * high-weight canon (w >= 7) and crisp states render bare and intact.
  * @param {any[]} vectors
  * @param {string} query
@@ -924,7 +924,7 @@ export function format_hybrid_recall(vectors, query, options = {}) {
     if (is_duplicate(raw_text, selected_texts.join(" "))) continue;
 
     const weight = Number(vector.emotional_weight ?? 5);
-    const text = is_fragmented && weight <= 6 ? degrade_memory_text(raw_text) : raw_text;
+    const text = is_fragmented && weight <= 6 ? degrade_past_text(raw_text) : raw_text;
 
     if (running_chars + text.length > max_chars && selected.length > 0) break;
     selected.push(text);
@@ -972,8 +972,8 @@ export function expand_compacted_leaves(entity, query, options = {}) {
 /**
  * Resolves an entity's settled facts for the extraction advisory (Track 2.4):
  * origin-pinned vectors first, then chapter/arc summary anchors, capped at
- * SETTLED_FACT_LIMIT. These are the `# ALREADY REMEMBERED` lines that stop
- * the forge from re-extracting known history.
+ * SETTLED_FACT_LIMIT. These are the `# ALREADY SETTLED` lines that stop
+ * the caretaker from re-extracting known history.
  * @param {any} entity
  * @param {number} [limit=12]
  * @returns {Array<{ text: string, source: 'origin'|'chapter' }>}
@@ -986,8 +986,8 @@ export function resolve_settled_facts(entity, limit = SETTLED_FACT_LIMIT) {
     for (const vector of entity.past) {
       if (facts.length >= cap) break;
       const content = typeof vector === "object" ? vector?.content || vector?.directive || "" : String(vector || "");
-      const is_origin_memory = typeof vector === "object" ? is_origin(vector) : String(content).startsWith("usr_");
-      if (!is_origin_memory) continue;
+      const is_origin_past = typeof vector === "object" ? is_origin(vector) : String(content).startsWith("usr_");
+      if (!is_origin_past) continue;
       const text = truncate_at_word(collapse_whitespace(String(content)).trim(), 220);
       if (text) facts.push({ text, source: "origin" });
     }
@@ -1331,7 +1331,7 @@ export function sanitize_non_physical_prose(raw_prose) {
   return text;
 }
 
-/** Decides whether a forge rewrite crossed a chapter milestone (<45% vocabulary overlap). */
+/** Decides whether a caretaker rewrite crossed a chapter milestone (<45% vocabulary overlap). */
 function has_crossed_chapter_milestone(old_future, new_future) {
   if (!old_future || !new_future || old_future === new_future) return false;
   const extract_words = (text) =>
@@ -1370,10 +1370,10 @@ export function archive_chapter(entity, old_future, new_future) {
   return true;
 }
 
-// ── 6. Memory Forge & Consolidation Engine ────────────────────────────────────
+// ── 6. Continuum Caretaker & Consolidation Engine ────────────────────────────────────
 
-/** Parses an LLM forge response with conservative repair fallbacks. */
-function parse_forge_response(response) {
+/** Parses an LLM caretaker response with conservative repair fallbacks. */
+function parse_caretaker_response(response) {
   let raw_text = "";
   if (typeof response === "string") {
     raw_text = response.trim();
@@ -1384,20 +1384,20 @@ function parse_forge_response(response) {
 
   const stripped = raw_text.replace(/```json\n?|```/g, "").trim();
   if (stripped.length > 65536) {
-    state_bridge.app?.log?.("[TemporalEngine] Skipping memory forge: payload exceeds 64KB safety limit.", "warn");
+    state_bridge.app?.log?.("[TemporalEngine] Skipping caretaker: payload exceeds 64KB safety limit.", "warn");
     return null;
   }
 
   const parsed = extract_and_repair_json(raw_text, null);
   if (!parsed) {
-    state_bridge.app?.log?.("[TemporalEngine] Malformed JSON in memory forge: repair chain exhausted.", "warn");
+    state_bridge.app?.log?.("[TemporalEngine] Malformed JSON in caretaker response: repair chain exhausted.", "warn");
     return null;
   }
   return parsed;
 }
 
-/** Synthesizes memories and rewrites agenda for target entities using the LLM. */
-export async function forge_memory(entity_targets, history_slice, options = {}) {
+/** Synthesizes past entries and rewrites agenda for target entities using the LLM. */
+export async function caretaker_consolidate(entity_targets, history_slice, options = {}) {
   if (!Array.isArray(entity_targets) || entity_targets.length === 0) return null;
   try {
     const target_key = options.target_key || entity_targets[0]?.key || "AI_CHARACTER";
@@ -1417,45 +1417,45 @@ export async function forge_memory(entity_targets, history_slice, options = {}) 
         raw: true,
         priority: "background",
       });
-      return parse_forge_response(response);
+      return parse_caretaker_response(response);
     };
 
-    let memory = await attempt();
-    if (!memory) {
-      state_bridge.app?.log?.("[TemporalEngine] Memory forge returned no JSON — retrying once.", "warn");
-      memory = await attempt();
+    let response_data = await attempt();
+    if (!response_data) {
+      state_bridge.app?.log?.("[TemporalEngine] Caretaker returned no JSON — retrying once.", "warn");
+      response_data = await attempt();
     }
-    if (!memory) return null;
+    if (!response_data) return null;
 
-    const forged = {
-      _thought_process: memory?._thought_process || "",
-      target: memory?.target || target_key,
-      memories: {},
+    const consolidated = {
+      _thought_process: response_data?._thought_process || "",
+      target: response_data?.target || target_key,
+      past: {},
       present: {},
       eternal: {},
       future: {},
-      relationships: Array.isArray(memory?.relationships) ? memory.relationships : [],
+      relationships: Array.isArray(response_data?.relationships) ? response_data.relationships : [],
       // (Track 1.4: relational edges arrive as bracket predicates inside the
       // layer blocks; the flat array is the legacy carrier, retired below.)
     };
 
     for (const { key } of entity_targets) {
-      let entity_block = memory?.[key] && typeof memory[key] === "object" ? memory[key] : null;
-      if (!entity_block && (memory?.target === key || key === target_key)) {
-        entity_block = memory;
+      let entity_block = response_data?.[key] && typeof response_data[key] === "object" ? response_data[key] : null;
+      if (!entity_block && (response_data?.target === key || key === target_key)) {
+        entity_block = response_data;
       }
       if (!entity_block) continue;
 
       if (entity_block.future && typeof entity_block.future === "string") {
-        forged.future[key] = entity_block.future.trim();
+        consolidated.future[key] = entity_block.future.trim();
       }
 
       if (entity_block.present && typeof entity_block.present === "object") {
-        forged.present[key] = entity_block.present;
+        consolidated.present[key] = entity_block.present;
       }
 
       if (entity_block.eternal && typeof entity_block.eternal === "object") {
-        forged.eternal[key] = entity_block.eternal;
+        consolidated.eternal[key] = entity_block.eternal;
       }
 
       const raw_vectors = Array.isArray(entity_block.past)
@@ -1463,7 +1463,7 @@ export async function forge_memory(entity_targets, history_slice, options = {}) 
         : typeof entity_block.past === "string"
           ? resolve_vector_pool({ past: entity_block.past })
           : [];
-      forged.memories[key] = [];
+      consolidated.past[key] = [];
       const pending_embeds = [];
 
       for (const raw of raw_vectors) {
@@ -1475,44 +1475,44 @@ export async function forge_memory(entity_targets, history_slice, options = {}) 
         const vector = {
           id: `ai_${generate_unique_id()}`,
           timestamp: Date.now(),
-          type: normalize_forged_type(raw.type),
+          type: normalize_consolidated_type(raw.type),
           content,
           emotional_weight: Number(raw.emotional_weight ?? 5) || 5,
-          meta: { ...(memory?.meta || {}), forged_for: key, round: current_round },
+          meta: { ...(response_data?.meta || {}), consolidated_for: key, round: current_round },
         };
 
         if (vector.type !== "present") {
           pending_embeds.push(vector);
         }
 
-        forged.memories[key].push(vector);
+        consolidated.past[key].push(vector);
       }
 
       if (pending_embeds.length) {
         await Promise.race([
           Promise.allSettled(pending_embeds.map((vector) => ensure_embedding(vector))),
-          new Promise((resolve) => setTimeout(resolve, FORGE_EMBED_BUDGET_MS)),
+          new Promise((resolve) => setTimeout(resolve, CARETAKER_EMBED_BUDGET_MS)),
         ]);
       }
     }
 
-    const has_memories = Object.values(forged.memories).some((arr) => arr.length > 0);
-    const has_present = Object.keys(forged.present).length > 0;
-    const has_eternal = Object.keys(forged.eternal).length > 0;
-    const has_future = Object.keys(forged.future).length > 0;
-    const has_rels = forged.relationships.length > 0;
+    const has_past = Object.values(consolidated.past).some((arr) => arr.length > 0);
+    const has_present = Object.keys(consolidated.present).length > 0;
+    const has_eternal = Object.keys(consolidated.eternal).length > 0;
+    const has_future = Object.keys(consolidated.future).length > 0;
+    const has_rels = consolidated.relationships.length > 0;
 
-    if (!has_memories && !has_present && !has_eternal && !has_future && !has_rels) return null;
+    if (!has_past && !has_present && !has_eternal && !has_future && !has_rels) return null;
 
-    return forged;
+    return consolidated;
   } catch (err) {
-    console.error("[TemporalEngine] Resonance forge failed.", err);
-    state_bridge.app?.log?.(`[TemporalEngine] Resonance forge failed: ${err?.message || err}`, "error");
+    console.error("[TemporalEngine] Caretaker response parse failed.", err);
+    state_bridge.app?.log?.(`[TemporalEngine] Caretaker response parse failed: ${err?.message || err}`, "error");
     return null;
   }
 }
 
-/** Fallback memory extraction when LLM forge fails. */
+/** Fallback past extraction when caretaker LLM fails. */
 async function fallback_consolidate(entity_targets, slice, runtime, session) {
   try {
     const speaker_label = (message) =>
@@ -1549,17 +1549,17 @@ async function fallback_consolidate(entity_targets, slice, runtime, session) {
       ensure_unique_vector_id(entity, vector);
       append_past_vector(entity, vector);
       await runtime.update_entity(type, entity.id, { past: entity.past });
-      await session.log_system_entry(`Memory Forged (${key}): ${vector.content.substring(0, 50)}...`, "system", {
-        type: "MEMORY_FORMATION",
+      await session.log_system_entry(`Continuum consolidated (${key}): ${vector.content.substring(0, 50)}...`, "system", {
+        type: "CONTINUUM_FORMATION",
         target: key,
-        memories: [vector],
+        past: [vector],
         vectors: [vector],
         future: entity.future || "",
         present: entity.present || null,
         turns_count: slice.length,
       });
     }
-    state_bridge.app?.log?.("[TemporalEngine] LLM forge unavailable — past vectors derived deterministically.", "warn");
+    state_bridge.app?.log?.("[TemporalEngine] Caretaker LLM unavailable — past vectors derived deterministically.", "warn");
   } catch (err) {
     state_bridge.app?.log?.(`[TemporalEngine] Fallback consolidation incomplete: ${err?.message || err}`, "warn");
   }
@@ -1574,14 +1574,14 @@ export const temporal_engine = {
   rank_hybrid_vectors,
   format_hybrid_recall,
   format_hybrid: format_hybrid_recall,
-  degrade_memory_text,
+  degrade_past_text,
   resolve_recall_clarity,
-  maybe_compact_memory,
-  resolve_memory_tiers,
+  maybe_compact_continuum,
+  resolve_continuum_tiers,
   expand_compacted_leaves,
   resolve_event_key,
   resolve_settled_facts,
-  forge_memory,
+  caretaker_consolidate,
   append_past_vector,
   reconcile_vector_caps,
   ensure_unique_vector_id,
@@ -1596,7 +1596,7 @@ export const temporal_engine = {
     try {
       const story_id = session.require_active();
 
-      if (options.skip_forge) return;
+      if (options.skip_consolidation) return;
 
       const in_scene_ids = new Set((runtime.snapshot_in_scene_npc_ids || runtime.in_scene_npc_ids || []).map(String));
       const active_npcs = Object.values(runtime.active_npcs || {}).filter((npc) => npc && in_scene_ids.has(String(npc.id)));
@@ -1622,8 +1622,11 @@ export const temporal_engine = {
         target_key = target_item.key;
         unconsolidated_slice = messages.filter((message) => {
           if (message.role === "system") return false;
-          const forged = message.meta?.forged_entities || (message.meta?.consolidated ? entity_targets.map((target) => target.key) : []);
-          return !forged.includes(target_key);
+          const consolidated =
+            message.meta?.consolidated_entities ||
+            message.meta?.forged_entities ||
+            (message.meta?.consolidated ? entity_targets.map((target) => target.key) : []);
+          return !consolidated.includes(target_key);
         });
       } else {
         const cursor_index = Number(runtime.back_shot_cursor || 0) % entity_targets.length;
@@ -1632,11 +1635,14 @@ export const temporal_engine = {
           const candidate = entity_targets[check_idx];
           const candidate_unconsolidated = messages.filter((message) => {
             if (message.role === "system") return false;
-            const forged = message.meta?.forged_entities || (message.meta?.consolidated ? entity_targets.map((target) => target.key) : []);
-            return !forged.includes(candidate.key);
+            const consolidated =
+              message.meta?.consolidated_entities ||
+              message.meta?.forged_entities ||
+              (message.meta?.consolidated ? entity_targets.map((target) => target.key) : []);
+            return !consolidated.includes(candidate.key);
           });
 
-          // NPCs must have active dialogue or actions in the slice to be forged
+          // NPCs must have active dialogue or actions in the slice to be consolidated
           if (candidate.is_npc) {
             const npc_id = String(candidate.entity?.id || "").toLowerCase();
             const npc_name = String(candidate.entity?.name || "").toLowerCase();
@@ -1664,19 +1670,19 @@ export const temporal_engine = {
       const entity = target_item.entity;
       const type = target_item.type;
 
-      app.log?.(`[TemporalEngine] ⏳ Memory Forge cycling for ${entity.name || target_key} (${slice.length} turns)...`, "system");
+      app.log?.(`[TemporalEngine] ⏳ Continuum Caretaker consolidating ${entity.name || target_key} (${slice.length} turns)...`, "system");
 
-      const forged = await forge_memory(entity_targets, slice, { target_key });
-      if (forged) {
+      const consolidated = await caretaker_consolidate(entity_targets, slice, { target_key });
+      if (consolidated) {
         const current_round = typeof options.target_round === "number" ? options.target_round : (state_bridge.runtime?.round ?? 0);
         const ledger_batch = [];
 
-        const memories = forged.memories?.[target_key] || [];
-        for (const memory of memories) {
-          if (memory.type === "present") {
+        const past_entries = consolidated.past?.[target_key] || [];
+        for (const entry of past_entries) {
+          if (entry.type === "present") {
             if (!entity.present) entity.present = { physical: "", non_physical: "" };
             const old_non_physical = entity.present.non_physical || "";
-            const merged_non_physical = cap_present_prose(merge_prose_into_field(old_non_physical, memory.content || memory.directive || ""));
+            const merged_non_physical = cap_present_prose(merge_prose_into_field(old_non_physical, entry.content || entry.directive || ""));
             if (merged_non_physical !== old_non_physical) {
               entity.present.non_physical = merged_non_physical;
               await runtime.update_entity(type, entity.id, { present: entity.present });
@@ -1688,18 +1694,18 @@ export const temporal_engine = {
                 field: "present.non_physical",
                 old_value: old_non_physical,
                 new_value: entity.present.non_physical,
-                writer: "forge",
-                decider: "forge",
+                writer: "continuum",
+                decider: "continuum",
               });
             }
           } else {
-            const memory_content = String(memory.content || "").trim();
-            if (memory_content) {
+            const entry_content = String(entry.content || "").trim();
+            if (entry_content) {
               const old_past_content = Array.isArray(entity.past)
                 ? entity.past.map((v) => (typeof v === "object" ? v?.content || "" : String(v))).join(" | ")
                 : String(entity.past || "");
-              ensure_unique_vector_id(entity, memory);
-              append_past_vector(entity, memory);
+              ensure_unique_vector_id(entity, entry);
+              append_past_vector(entity, entry);
               await runtime.update_entity(type, entity.id, { past: entity.past });
               ledger_batch.push({
                 story_id,
@@ -1708,15 +1714,15 @@ export const temporal_engine = {
                 entity_id: entity.id,
                 field: "past",
                 old_value: old_past_content,
-                new_value: memory_content,
-                writer: "forge",
-                decider: "forge",
+                new_value: entry_content,
+                writer: "continuum",
+                decider: "continuum",
               });
             }
           }
         }
 
-        const summary = forged.present?.[target_key];
+        const summary = consolidated.present?.[target_key];
         const present_diffs = [];
         if (summary && typeof summary === "object") {
           if (!entity.present) entity.present = { physical: "", non_physical: "" };
@@ -1737,8 +1743,8 @@ export const temporal_engine = {
                 field: "present.physical",
                 old_value: old_physical,
                 new_value: entity.present.physical,
-                writer: "forge",
-                decider: "forge",
+                writer: "continuum",
+                decider: "continuum",
               });
             }
           }
@@ -1758,8 +1764,8 @@ export const temporal_engine = {
                 field: "present.non_physical",
                 old_value: old_non_physical,
                 new_value: entity.present.non_physical,
-                writer: "forge",
-                decider: "forge",
+                writer: "continuum",
+                decider: "continuum",
               });
             }
           }
@@ -1769,7 +1775,7 @@ export const temporal_engine = {
           }
         }
 
-        const eternal_mutation = forged.eternal?.[target_key];
+        const eternal_mutation = consolidated.eternal?.[target_key];
         const eternal_diffs = [];
         if (eternal_mutation && typeof eternal_mutation === "object") {
           if (!entity.eternal) entity.eternal = { physical: "", non_physical: "" };
@@ -1793,8 +1799,8 @@ export const temporal_engine = {
                 field: "eternal.physical",
                 old_value: old_eternal_physical,
                 new_value: entity.eternal.physical,
-                writer: "forge",
-                decider: "forge",
+                writer: "continuum",
+                decider: "continuum",
               });
             }
           }
@@ -1817,8 +1823,8 @@ export const temporal_engine = {
                 field: "eternal.non_physical",
                 old_value: old_eternal_non_physical,
                 new_value: entity.eternal.non_physical,
-                writer: "forge",
-                decider: "forge",
+                writer: "continuum",
+                decider: "continuum",
               });
             }
           }
@@ -1828,7 +1834,7 @@ export const temporal_engine = {
           }
         }
 
-        let rewritten = forged.future?.[target_key];
+        let rewritten = consolidated.future?.[target_key];
         const future_diffs = [];
         if (typeof rewritten === "string" && rewritten.trim()) {
           const old_future = typeof entity.future === "string" ? entity.future : "";
@@ -1846,8 +1852,8 @@ export const temporal_engine = {
               field: "future",
               old_value: old_future,
               new_value: entity.future,
-              writer: "forge",
-              decider: "forge",
+              writer: "continuum",
+              decider: "continuum",
             });
             if (chapter_forked) {
               app.log?.(`[TemporalEngine] 📜 Chapter archived for ${entity.name || target_key} — milestone crossed.`, "system");
@@ -1855,34 +1861,36 @@ export const temporal_engine = {
           }
         }
 
-        if (Array.isArray(forged.relationships) && forged.relationships.length > 0) {
-          await apply_relationships({ runtime, app }, forged.relationships);
+        if (Array.isArray(consolidated.relationships) && consolidated.relationships.length > 0) {
+          await apply_relationships({ runtime, app }, consolidated.relationships);
         }
 
         if (ledger_batch.length > 0) {
           await append_ledger_entries(ledger_batch);
         }
 
-        const total_diff_count = memories.length + present_diffs.length + eternal_diffs.length + future_diffs.length;
+        const total_diff_count = past_entries.length + present_diffs.length + eternal_diffs.length + future_diffs.length;
         if (total_diff_count > 0) {
-          const text = memories.length ? memories.map((vector) => vector.content || vector.directive || "").join(" | ") : "State consolidated.";
+          const text = past_entries.length
+            ? past_entries.map((vector) => vector.content || vector.directive || "").join(" | ")
+            : "State consolidated.";
           const format_diff_row = (d) => `[${d.key}: ${d.new_value}]`;
           const present_payload = present_diffs.length > 0 ? present_diffs.map(format_diff_row).join("\n") : "";
           const eternal_payload = eternal_diffs.length > 0 ? eternal_diffs.map(format_diff_row).join("\n") : "";
           const future_payload = future_diffs.length > 0 ? future_diffs.map(format_diff_row).join("\n") : "";
 
           await session.log_system_entry(
-            `Memory Forged (${target_key}): ${text.substring(0, 50)}...`,
+            `Continuum consolidated (${target_key}): ${text.substring(0, 50)}...`,
             "system",
             {
-              type: "MEMORY_FORMATION",
+              type: "CONTINUUM_FORMATION",
               target: target_key,
-              memories,
-              vectors: memories,
+              past: past_entries,
+              vectors: past_entries,
               future: future_payload,
               present: present_payload,
               eternal: eternal_payload,
-              thought_process: forged._thought_process || "",
+              thought_process: consolidated._thought_process || "",
               turns_count: slice.length,
             },
             story_id,
@@ -1895,7 +1903,7 @@ export const temporal_engine = {
 
       // Track 2.1: compact the Tier-0 pool into summary anchors once the
       // fanout threshold is reached; no-op for small pools (no extra writes).
-      const compaction = maybe_compact_memory(entity);
+      const compaction = maybe_compact_continuum(entity);
       if (compaction.tier_one || compaction.tier_two) {
         await runtime.update_entity(type, entity.id, { chapters: entity.chapters });
         const tier_label = compaction.tier_two ? "Tier 2 arc" : "Tier 1 chapter";
@@ -1904,23 +1912,23 @@ export const temporal_engine = {
 
       // Persist ONLY the consolidation marker (`meta`) for each turn. A whole-row
       // `bulkPut(slice)` here would clobber fields written by other pipelines during
-      // the forge's LLM latency (the slice was loaded *before* the forge ran) — e.g.
-      // an image beat that resolved onto one of these turns while the forge was
+      // the caretaker's LLM latency (the slice was loaded *before* the caretaker ran) — e.g.
+      // an image beat that resolved onto one of these turns while the caretaker was
       // working, silently reverting a finished prologue/story image back to its
       // loading placeholder with no path to ever resolve again.
       const meta_persistence = [];
       for (const message of slice) {
-        const prev_forged = Array.isArray(message.meta?.forged_entities)
-          ? message.meta.forged_entities
+        const prev_consolidated = Array.isArray(message.meta?.consolidated_entities)
+          ? message.meta.consolidated_entities
           : message.meta?.consolidated
             ? entity_targets.map((target) => target.key)
             : [];
-        const next_forged = Array.from(new Set([...prev_forged, target_key]));
-        const all_forged = entity_targets.every((target) => next_forged.includes(target.key));
+        const next_consolidated = Array.from(new Set([...prev_consolidated, target_key]));
+        const all_consolidated = entity_targets.every((target) => next_consolidated.includes(target.key));
         message.meta = {
           ...message.meta,
-          forged_entities: next_forged,
-          consolidated: all_forged,
+          consolidated_entities: next_consolidated,
+          consolidated: all_consolidated,
         };
         if (message.id !== undefined && message.id !== null) {
           meta_persistence.push(db.simulation_log.update(message.id, { meta: message.meta }));
@@ -1932,7 +1940,7 @@ export const temporal_engine = {
       }
       state_bridge.simulation_log?.refresh();
     } catch (err) {
-      state_bridge.app?.log?.(`[TemporalEngine] Consolidation forge failed: ${err?.message || err}`, "error");
+      state_bridge.app?.log?.(`[TemporalEngine] Consolidation failed: ${err?.message || err}`, "error");
     } finally {
       temporal_engine._is_consolidating = false;
     }

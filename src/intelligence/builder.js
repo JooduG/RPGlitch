@@ -157,7 +157,7 @@ export const context_builder = {
         fragments,
         eternal,
         present,
-        memories: resolve_vector_pool(raw),
+        vector_pool: resolve_vector_pool(raw),
         future: typeof raw.future === "string" ? raw.future : "",
         past: Array.isArray(raw.past) ? raw.past : [],
         dynamics: raw.dynamics,
@@ -184,7 +184,7 @@ export const context_builder = {
       presence: raw.presence ?? "nearby",
       eternal: { physical: raw.eternal?.physical || "", non_physical: raw.eternal?.non_physical || "" },
       present: { physical: raw.present?.physical || "", non_physical: raw.present?.non_physical || "" },
-      memories: resolve_vector_pool(raw),
+      vector_pool: resolve_vector_pool(raw),
       dynamics: raw.dynamics,
       dynamics_baseline: raw.dynamics_baseline,
       future: raw.future || "",
@@ -228,7 +228,7 @@ export function build_scoring_context(input = "", simulation_log = []) {
 }
 
 /**
- * Creates an accessor bundle for retrieving formatted memories, future agenda, and history.
+ * Creates an accessor bundle for retrieving formatted past vectors, future agenda, and history.
  * @param {Record<string, any>} [entities={}]
  * @param {string} [input=""]
  * @param {any[]} [raw_messages=[]]
@@ -640,7 +640,7 @@ function normalize_continuum_context(config, context) {
       exclude_id: target_entity?.id || target_entity?.name,
     },
     chapter_history_args: { enabled: entity_plan.chapter_history, target_entity },
-    memory_advisory_args: { enabled: true, facts: resolve_settled_facts(target_entity) },
+    settled_facts_args: { enabled: true, facts: resolve_settled_facts(target_entity) },
     history_args: {
       kind: "input_history",
       enabled: history_config.enabled,

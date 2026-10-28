@@ -6,7 +6,7 @@
  *
  * Owns entity presence and topology, the canonical cast vocabulary, visibility
  * gating, master <ENTITIES> assembly (render_entity_sheets), and the sensory
- * optics entity block. Sheet rendering (SHEET_SPECS, render_sheet, memory
+ * optics entity block. Sheet rendering (SHEET_SPECS, render_sheet, past
  * contexts) lives in sheets.js and is consumed here.
  *
  * Two stages: pure-data actor plans (resolve_actor_plan)
@@ -281,7 +281,7 @@ export function resolve_actor_plan({
       is_owner: config?.visibility === "director" ? true : speaker_key === key,
       show_dispositions: dispositions_for.has(key),
       include_agenda: agendas.has(key),
-      include_memories: undefined,
+      include_past: undefined,
       with_accessors: true,
     });
   }
@@ -320,7 +320,7 @@ export function resolve_actor_plan({
       is_owner: !bystander,
       show_dispositions: dispositions_for.has("NPC"),
       include_agenda: !bystander,
-      include_memories: !bystander,
+      include_past: !bystander,
       with_accessors: !bystander,
     });
   }
@@ -428,8 +428,8 @@ export function render_entity_sheets({
     if (actor.with_accessors !== undefined) {
       sheet_arguments.accessors = actor.with_accessors ? accessors : null;
     }
-    if (actor.include_memories !== undefined) {
-      sheet_arguments.include_memories = actor.include_memories;
+    if (actor.include_past !== undefined) {
+      sheet_arguments.include_past = actor.include_past;
     }
     return render_sheet(actor.spec, sheet_arguments);
   });
@@ -599,7 +599,7 @@ function render_optics_actor(actor, { macro_entities = {}, roll = (text) => text
     entities: macro_entities,
     mode: "physical",
     include_agenda: false,
-    include_memories: false,
+    include_past: false,
     is_owner: true,
     transform_physical: (value) => roll(strip_visual_excluded(value)),
   });
@@ -635,15 +635,15 @@ export function render_optics_entities_xml({
 // ============================================================================
 
 /**
- * Renders settled memory facts into the extraction advisory block
- * (Track 2.4): the `# ALREADY REMEMBERED` register that stops the forge
+ * Renders settled past facts into the extraction advisory block
+ * (Track 2.4): the `# ALREADY SETTLED` register that stops the caretaker
  * from re-extracting known history. Empty fact lists render "" so modes
- * without settled memory compile byte-identical output.
+ * without settled past compile byte-identical output.
  * @param {Array<{ text: string, source: string }>} facts
  * @param {number} [indentation_level=2]
  * @returns {string}
  */
-export function render_memory_advisory_xml(facts, indentation_level = 2) {
+export function render_settled_facts_xml(facts, indentation_level = 2) {
   if (!Array.isArray(facts) || facts.length === 0) return "";
   const numbered = facts
     .slice(0, 12)
@@ -654,8 +654,8 @@ export function render_memory_advisory_xml(facts, indentation_level = 2) {
     .filter((line) => line.replace(/^\d+\.\s*/, "").trim().length > 0);
   if (!numbered.length) return "";
   return render_xml_tag({
-    tag: "MEMORY_ADVISORY",
-    children: ["# ALREADY REMEMBERED", ...numbered, "Treat these as settled — consolidate only genuinely new developments."],
+    tag: "SETTLED_FACTS",
+    children: ["# ALREADY SETTLED", ...numbered, "Treat these as settled — consolidate only genuinely new developments."],
     indent: indentation_level,
     separator: "\n",
   });

@@ -15,7 +15,7 @@ import {
   SUBJECT_TIERS,
   resolve_optics_subject,
   render_optics_entities_xml,
-  render_memory_advisory_xml,
+  render_settled_facts_xml,
   summarize_entity,
   render_nearby_entities_xml,
 } from "./entities.js";
@@ -108,24 +108,24 @@ describe("render_optics_entities_xml", () => {
   });
 });
 
-describe("Track 2.4 memory advisory slot", () => {
+describe("Track 2.4 settled facts slot", () => {
   const facts = [
     { text: "Sworn oath at the docks", source: "origin" },
     { text: "Descent — Entered the cavern", source: "chapter" },
   ];
 
-  it("renders the MEMORY_ADVISORY block with numbered settled facts", () => {
-    const xml = render_memory_advisory_xml(facts);
-    expect(xml).toContain("<MEMORY_ADVISORY>");
-    expect(xml).toContain("# ALREADY REMEMBERED");
+  it("renders the SETTLED_FACTS block with numbered settled facts", () => {
+    const xml = render_settled_facts_xml(facts);
+    expect(xml).toContain("<SETTLED_FACTS>");
+    expect(xml).toContain("# ALREADY SETTLED");
     expect(xml).toContain("1. Sworn oath at the docks");
     expect(xml).toContain("2. Descent — Entered the cavern");
-    expect(xml).toContain("</MEMORY_ADVISORY>");
+    expect(xml).toContain("</SETTLED_FACTS>");
   });
 
   it("renders empty string when no settled facts exist", () => {
-    expect(render_memory_advisory_xml([])).toBe("");
-    expect(render_memory_advisory_xml(null)).toBe("");
+    expect(render_settled_facts_xml([])).toBe("");
+    expect(render_settled_facts_xml(null)).toBe("");
   });
 });
 

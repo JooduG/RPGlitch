@@ -63,7 +63,7 @@ export function define_sheet(kind, overrides = {}) {
     agenda: EPISTEMIC_POLICY.ALWAYS,
     personality: EPISTEMIC_POLICY.ALWAYS,
     appearance: EPISTEMIC_POLICY.ALWAYS,
-    memory: EPISTEMIC_POLICY.ALWAYS,
+    past: EPISTEMIC_POLICY.ALWAYS,
     ...(overrides.owner_state === true ? { state: EPISTEMIC_POLICY.OWNER } : {}),
     ...(overrides.epistemic || {}),
   };
@@ -76,7 +76,7 @@ export function define_sheet(kind, overrides = {}) {
     state_tag: "STATE",
     state_strip_keys: Object.freeze(overrides.state_strip_keys || (kind === "fractal" ? ["CURRENT_STATE", "STATE"] : ["STATE_OF_MIND", "STATE"])),
     appearance_tag: "APPEARANCE",
-    memory_tag: overrides.memory_tag || PROFILE_FIELD_CATALOG[`${kind}.past`].tag,
+    past_tag: overrides.past_tag || PROFILE_FIELD_CATALOG[`${kind}.past`].tag,
     axes_scope: overrides.axes_scope || (kind === "fractal" ? "fractal" : "somatic"),
     epistemic: Object.freeze(epistemic),
   });
@@ -86,7 +86,7 @@ export const SHEET_SPECS = Object.freeze({
   CHARACTER: define_sheet("character", { tag: "CHARACTER", default_name: "Character", owner_state: true }),
   AI_CHARACTER: define_sheet("character", { tag: "CHARACTER", default_name: "Character", owner_state: true }),
   NPC: define_sheet("character", { tag: "CHARACTER", default_name: "NPC", owner_state: true }),
-  USER_PERSONA: define_sheet("character", { tag: "CHARACTER", default_name: "User", memory_tag: "BACKSTORY", owner_state: true }),
+  USER_PERSONA: define_sheet("character", { tag: "CHARACTER", default_name: "User", past_tag: "BACKSTORY", owner_state: true }),
   FRACTAL: define_sheet("fractal", { tag: "FRACTAL", default_name: "the setting" }),
 });
 
@@ -295,7 +295,7 @@ export function parse_profile_field_rows(raw_value, owner_entity = null, entitie
 }
 
 /**
- * Joins an entity's past memory vectors into one newline-delimited text.
+ * Joins an entity's past vectors into one newline-delimited text.
  *
  * @param {any} entity
  * @returns {string}
@@ -357,14 +357,14 @@ export function resolve_sheet_snapshot(entity, specification, options = {}) {
   const agenda_raw = accessors ? accessors.future(entity, { vector_text: true }) : entity?.future;
   const personality_raw = sanitize(entity?.eternal?.non_physical, epistemic.personality);
   const state_raw = sanitize(entity?.present?.non_physical, epistemic.state);
-  const memory_raw = accessors
+  const past_raw = accessors
     ? accessors.past(entity, { vector_text: true })
     : Array.isArray(entity?.past)
       ? join_past_vectors(entity)
       : entity?.past || "";
 
   const sanitized_agenda = sanitize(agenda_raw, epistemic.agenda);
-  const sanitized_past = sanitize(memory_raw, epistemic.memory);
+  const sanitized_past = sanitize(past_raw, epistemic.past);
 
   const agenda_rows = parse_profile_field_rows(sanitized_agenda, entity, entities, null, sheet_context, name_to_id);
   const personality_rows = parse_profile_field_rows(personality_raw, entity, entities, null, sheet_context, name_to_id);
@@ -425,7 +425,7 @@ export function render_sheet(specification, options = {}) {
     accessors = null,
     mode = "full",
     include_agenda = true,
-    include_memories = true,
+    include_past = true,
     show_dispositions = false,
     is_owner = false,
     active_names = null,
@@ -483,9 +483,9 @@ export function render_sheet(specification, options = {}) {
     if (appearance_block) section_blocks.push(appearance_block);
   }
 
-  if (include_memories) {
-    const memory_block = render_profile_field_block(specification.memory_tag, snapshot.past_rows);
-    if (memory_block) section_blocks.push(memory_block);
+  if (include_past) {
+    const past_block = render_profile_field_block(specification.past_tag, snapshot.past_rows);
+    if (past_block) section_blocks.push(past_block);
   }
 
   const attrs = {
@@ -499,7 +499,7 @@ export function render_sheet(specification, options = {}) {
 // [SECTION 5: CONTEXT ADAPTERS]
 // ============================================================================
 
-export function render_entity_memory_context(entity_key, entity) {
+export function render_entity_continuum_context(entity_key, entity) {
   if (!entity) return "";
   const tag = entity.type === "fractal" ? "FRACTAL" : "CHARACTER";
   const attrs = {
@@ -575,7 +575,7 @@ export function render_enhancement_field_context(entity, field_identifier, conte
 
   if (field_identifier === "past" || field_identifier === "future") {
     const is_past = field_identifier === "past";
-    const tag = resolve_profile_field_tag(entity_kind, field_identifier, is_past ? "MEMORIES" : "AGENDA");
+    const tag = resolve_profile_field_tag(entity_kind, field_identifier, is_past ? "PAST" : "AGENDA");
     const text = is_past
       ? typeof format_past_function === "function"
         ? format_past_function(entity, content)
@@ -601,7 +601,7 @@ export function render_enhancement_field_context(entity, field_identifier, conte
  * - 2026-10-14: Atom 3.4 — Universal <CHARACTER> Envelope & Biometric Compaction (Sub-items 6.5, 6.10, Issues 13 & 2.5). Unifies character sheets to <CHARACTER id="..." name="...">; composes short physical traits (<= 40 chars) into attributes on <APPEARANCE> and <CURRENT_LOOK>; purges redundant <DISPOSITIONS> envelope in favor of native directed relational brackets within state.
  * - 2026-10-14: Atom 3.1 — Epistemic-First Sequencing Invariant (Issue 20). resolve_sheet_snapshot sanitizes past memories and future agendas prior to render_field_value macro expansion with proper owner gating.
  * - 2026-10-06: Plan Omega ground-up rebuild — define_sheet derives all tags from PROFILE_FIELD_CATALOG (epistemic defaults to "always", only owner-state written down); snapshot-first pipeline (resolve_sheet_snapshot normalizes epistemics/vectors/dispositions/physical rows once); direct physical row parsing via normalize_physical_entries (BODY regex round-trip retired); one mode axis (full/physical/separate, VISUAL_SECTIONS retired); render_chapter_history_xml relocated to history.js with structured <CHAPTER> grammar; byte-identical sheet output.
- * - 2026-10-04: Created from entities.js Sections 3-4 + dispositions renderer + Section 6 memory contexts, plus render_chapter_history_xml from history.js — sheet rendering and memory fragments live here; entities.js keeps presence/cast/visibility/assembly.
+ * - 2026-10-04: Created from entities.js Sections 3-4 + dispositions renderer + Section 6 continuum contexts, plus render_chapter_history_xml from history.js — sheet rendering and past fragments live here; entities.js keeps presence/cast/visibility/assembly.
  * - 2026-10-14: Option A Casing Standardization — Standardized XML entity id attribute to lowercase slug (String(entity.id).toLowerCase()), aligning with target slugs in <RELATION target="...">.
  * - 2026-10-16: Programmatic DSL Hygiene — Stripped '| hide', '| private', '| show', and '| w:N' flags in parse_profile_field_rows so raw engine metadata never leaks into compiled XML tags.
  */

@@ -1,7 +1,7 @@
 /**
  * src/ui/message/telemetry-format.js
  * 🔭 TELEMETRY FORMATTERS
- * Pure helpers that turn Director/memory metadata (DYNAMICS_DELTA, telemetry
+ * Pure helpers that turn Director/continuum metadata (DYNAMICS_DELTA, telemetry
  * cards) into renderable per-entity blocks: name resolution, dynamics
  * compaction, vector labels, and update-shape projection.
  */
@@ -43,13 +43,13 @@ export function resolve_entity_name(key, runtime) {
  * @returns {string}
  */
 export function get_telemetry_label(meta, runtime) {
-  if (meta?.type === "MEMORY_FORMATION") {
+  if (meta?.type === "MEMORY_FORMATION" || meta?.type === "CONTINUUM_FORMATION") {
     const name = resolve_entity_name(meta.target, runtime);
     const turns = meta.turns_count ? ` from ${meta.turns_count} turns` : "";
     return `${name} — Back Shot${turns}`;
   }
   if (meta?.type === "VECTOR_RESOLUTION") {
-    return "Memory Vector Resolved";
+    return "Past Vector Resolved";
   }
   return "Quick Shot";
 }
@@ -153,7 +153,7 @@ export function process_entity_blocks(meta) {
     const has_mods = !!eternal_physical || !!eternal_non_physical;
     const raw_relationships = Array.isArray(raw.relationships)
       ? raw.relationships
-      : Array.isArray(meta?.relationships) && (meta.forged_entity === block_key || meta.target === key)
+      : Array.isArray(meta?.relationships) && ((meta.consolidated_entity ?? meta.forged_entity) === block_key || meta.target === key)
         ? meta.relationships
         : [];
     const relationships = raw_relationships

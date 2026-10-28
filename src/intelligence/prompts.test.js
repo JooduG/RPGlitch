@@ -821,7 +821,7 @@ describe("metasyntax gate — compiled prompt hygiene", () => {
   });
 
   describe("Phase III 3.8 — Storage Ban Gate on Turn Pragmatics (speaker/listener)", () => {
-    it("enforces that speaker and listener attributes never exist in serialized durable entity schemas or vector memory", () => {
+    it("enforces that speaker and listener attributes never exist in serialized durable entity schemas or vector past", () => {
       // 1. Check all premade entity definitions in the catalog
       for (const premade of PREMADE_ENTITIES) {
         expect(premade.speaker).toBeUndefined();

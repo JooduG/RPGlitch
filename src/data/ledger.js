@@ -12,7 +12,7 @@ import { coerce_story_key } from "./repository.js";
  * @property {number} [id] - Auto-incremented ID
  * @property {number|string|null} story_id - Story ID
  * @property {number} [round] - Round index
- * @property {number} [seq] - Sequence index within round (0: genesis/user, 1: director, 2: character, 3: forge)
+ * @property {number} [seq] - Sequence index within round (0: genesis/user, 1: director, 2: character, 3: continuum)
  * @property {number|string|null} [turn_id] - Simulation log ID
  * @property {string} entity_id - Entity ID
  * @property {string} field - Quadrant field key
@@ -23,8 +23,8 @@ import { coerce_story_key } from "./repository.js";
  * @property {number|null} [weight] - Bracket weight flag (1-10)
  * @property {string[]} [supersedes] - Array of superseded keys
  * @property {number} [timestamp] - Timestamp
- * @property {'genesis'|'sorter'|'forge'|'director'|'user'|string} [writer] - Origin writer
- * @property {string|null} [decider] - Origin subsystem deciding the mutation ('director', 'forge', 'user', 'genesis')
+ * @property {'genesis'|'sorter'|'continuum'|'director'|'user'|string} [writer] - Origin writer
+ * @property {string|null} [decider] - Origin subsystem deciding the mutation ('director', 'continuum', 'user', 'genesis')
  */
 
 // -----------------------------------------------------------------------------

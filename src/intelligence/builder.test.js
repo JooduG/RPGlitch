@@ -204,22 +204,22 @@ describe("Shot-2A Prose Modes Symmetrical Compilation", () => {
 
 describe("Parameter-Aware Layer 7 Output Format Routing", () => {
   it("routes continuum schema dynamically by target taxonomy type", () => {
-    const character_memory = compile_prompt("continuum", {
+    const character_continuum = compile_prompt("continuum", {
       target_entity: test_entities.AI,
       target_key: "AI_CHARACTER",
       other_entities: test_entities,
     });
 
-    expect(character_memory.system).toContain('"eternal"');
-    expect(character_memory.system).toContain('"present"');
+    expect(character_continuum.system).toContain('"eternal"');
+    expect(character_continuum.system).toContain('"present"');
 
-    const fractal_memory = compile_prompt("continuum", {
+    const fractal_continuum = compile_prompt("continuum", {
       target_entity: test_entities.FRACTAL,
       target_key: "FRACTAL",
       other_entities: test_entities,
     });
 
-    expect(fractal_memory.system).toContain('"eternal"');
+    expect(fractal_continuum.system).toContain('"eternal"');
   });
 
   it("routes profile sorting schema dynamically by resolved taxonomy type", () => {
@@ -361,7 +361,7 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
     expect(continuum_package.system).toContain("<TARGET_ENTITY_CONTEXT>");
   });
 
-  it("omits the extraction advisory when the target carries no settled memory", () => {
+  it("omits the extraction advisory when the target carries no settled past", () => {
     const bare_package = compile_prompt("continuum", {
       target_entity: test_entities.AI,
       target_key: "AI_CHARACTER",
@@ -369,10 +369,10 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
       history: [],
     });
 
-    expect(bare_package.system).not.toContain("<MEMORY_ADVISORY>");
+    expect(bare_package.system).not.toContain("<SETTLED_FACTS>");
   });
 
-  it("seals settled facts into the extraction advisory when memory exists", () => {
+  it("seals settled facts into the extraction advisory when past exists", () => {
     const remembering_entity = {
       ...test_entities.AI,
       past: [{ id: "usr_oath", content: "Sworn oath at the docks", emotional_weight: 10, meta: {} }],
@@ -384,8 +384,8 @@ describe("Declarative Pipeline Runner & Facade Consolidation", () => {
       history: [],
     });
 
-    expect(advisory_package.system).toContain("<MEMORY_ADVISORY>");
-    expect(advisory_package.system).toContain("# ALREADY REMEMBERED");
+    expect(advisory_package.system).toContain("<SETTLED_FACTS>");
+    expect(advisory_package.system).toContain("# ALREADY SETTLED");
     expect(advisory_package.system).toContain("Sworn oath at the docks");
   });
 

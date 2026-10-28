@@ -1,9 +1,9 @@
 <!--
   src/ui/message/TelemetryCard.svelte
   =============================================================================
-  📊 UNIFIED TELEMETRY MODULE — Simulation Physics & Memory Vectors
+  📊 UNIFIED TELEMETRY MODULE — Simulation Physics & Past Vectors
   =============================================================================
-  Renders internal simulation physics, dynamics deltas, and memory vectors
+  Renders internal simulation physics, dynamics deltas, and past vectors
   across Quick Shot, Back Shot, and Vector Resolution events using standardized
   sleek left-accented rows and bar gauges.
 -->
@@ -33,15 +33,15 @@
    * @property {string} [image_tier] - The active 4-tier image target.
    * @property {string} [image_source] - Which source fired the trigger.
    * @property {Object} [image_signals] - Dynamics-gate signal details.
-   * @property {Object} [vectors] - Forged memory vectors for MEMORY_FORMATION events.
-   * @property {Array} [memories] - Alternate carrier for memory vectors.
-   * @property {string} [target] - Entity key targeted by a MEMORY_FORMATION event.
-   * @property {string} [future] - Rewritten standing trajectory for MEMORY_FORMATION events.
-   * @property {Object|string} [present] - Consolidated present conditions for MEMORY_FORMATION events.
-   * @property {Object|string} [eternal] - Consolidated eternal attributes for MEMORY_FORMATION events.
+   * @property {Object} [vectors] - Consolidated past vectors for CONTINUUM_FORMATION events.
+   * @property {Array} [memories] - Alternate carrier for past vectors.
+   * @property {string} [target] - Entity key targeted by a CONTINUUM_FORMATION event.
+   * @property {string} [future] - Rewritten standing trajectory for CONTINUUM_FORMATION events.
+   * @property {Object|string} [present] - Consolidated present conditions for CONTINUUM_FORMATION events.
+   * @property {Object|string} [eternal] - Consolidated eternal attributes for CONTINUUM_FORMATION events.
    * @property {Array} [relationships] - Direct relational mutations.
-   * @property {string} [thought_process] - Thought process for MEMORY_FORMATION events.
-   * @property {number} [turns_count] - Turns consolidated by a MEMORY_FORMATION event.
+   * @property {string} [thought_process] - Thought process for CONTINUUM_FORMATION events.
+   * @property {number} [turns_count] - Turns consolidated by a CONTINUUM_FORMATION event.
    * @property {Object} [vector] - Resolved vector detail for VECTOR_RESOLUTION events.
    * @property {string} [resolution] - Resolution summary for VECTOR_RESOLUTION events.
    */
@@ -53,7 +53,9 @@
   /** @type {Props} */
   let { meta = {} } = $props();
 
-  let forged_vectors = $derived(Array.isArray(meta.vectors) ? meta.vectors : Array.isArray(meta.memories) ? meta.memories : []);
+  let consolidated_vectors = $derived(
+    Array.isArray(meta.vectors) ? meta.vectors : Array.isArray(meta.past) ? meta.past : Array.isArray(meta.memories) ? meta.memories : [],
+  );
 
   let entity_blocks = $derived(process_entity_blocks(meta));
 
@@ -108,7 +110,11 @@
       <p class="mt-2 font-mono text-xs text-slate-300">The simulation engine has anchored a new narrative sequence.</p>
     </div>
   {:else}
-    <DataBox label={card_label} height="auto" isResonating={meta.type === "MEMORY_FORMATION" || meta.type === "VECTOR_RESOLUTION"}>
+    <DataBox
+      label={card_label}
+      height="auto"
+      isResonating={meta.type === "CONTINUUM_FORMATION" || meta.type === "MEMORY_FORMATION" || meta.type === "VECTOR_RESOLUTION"}
+    >
       <div class="flex flex-col gap-4">
         <!-- 1. IMAGE TRIGGER INDICATOR -->
         {#if meta.trigger_image === true || meta.image_trigger === true}
@@ -231,7 +237,7 @@
         {/if}
 
         <!-- 3. BACK SHOT: MEMORY FORMATION -->
-        {#if meta.type === "MEMORY_FORMATION"}
+        {#if meta.type === "CONTINUUM_FORMATION" || meta.type === "MEMORY_FORMATION"}
           <div class="flex flex-col gap-1.5 pt-1">
             {#each extract_bracket_items(meta.eternal) as item, i (i)}
               {@render temporalRow("ETERNAL", item)}
@@ -243,8 +249,8 @@
               {@render temporalRow("FUTURE", item)}
             {/each}
 
-            {#if forged_vectors.length > 0}
-              {#each forged_vectors as v, i (v.id || v.content || i)}
+            {#if consolidated_vectors.length > 0}
+              {#each consolidated_vectors as v, i (v.id || v.content || i)}
                 {@render temporalRow(vector_label(v.type, "past"), v.content || v.directive)}
               {/each}
             {/if}

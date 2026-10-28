@@ -44,7 +44,7 @@ describe("mutation ledger persistence & replay", () => {
       key: "OUTFIT",
       old_value: null,
       new_value: "red cloak",
-      writer: "forge",
+      writer: "continuum",
     });
 
     expect(row_id).toBeGreaterThan(0);
@@ -53,7 +53,7 @@ describe("mutation ledger persistence & replay", () => {
     expect(history).toHaveLength(1);
     expect(history[0].key).toBe("OUTFIT");
     expect(history[0].new_value).toBe("red cloak");
-    expect(history[0].writer).toBe("forge");
+    expect(history[0].writer).toBe("continuum");
   });
 
   it("replays entity field states correctly with supersession and clearing", async () => {
@@ -68,7 +68,7 @@ describe("mutation ledger persistence & replay", () => {
         field: "present.non_physical",
         key: "@ORION",
         new_value: "wary alliance",
-        writer: "forge",
+        writer: "continuum",
       },
       {
         story_id: "story_123",
@@ -79,7 +79,7 @@ describe("mutation ledger persistence & replay", () => {
         key: "@ORION",
         old_value: "wary alliance",
         new_value: "trusted companion",
-        writer: "forge",
+        writer: "continuum",
       },
       {
         story_id: "story_123",
@@ -99,7 +99,7 @@ describe("mutation ledger persistence & replay", () => {
         field: "present.non_physical",
         key: "MOOD",
         new_value: "cautious",
-        writer: "forge",
+        writer: "continuum",
       },
     ]);
 

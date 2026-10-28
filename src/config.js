@@ -17,7 +17,7 @@
  * they tune together. Nothing outside the prose family may reference these.
  */
 export const PROSE = Object.freeze({
-  SNIPPET: 250, // A story beat: memory bracket entry, prompt chapter summary, visual snippet
+  SNIPPET: 250, // A story beat: past bracket entry, prompt chapter summary, visual snippet
   PARAGRAPH: 500, // A narrative paragraph: present layer, dialogue turn, director note, agenda, cluster summary
   PAGE: 1500, // A full page: eternal identity facts, generation headroom
 });
@@ -44,7 +44,7 @@ export const LATENCY_TIERS_MS = Object.freeze({
   STEP: 30000, // 30,000ms (30s): Standard circuit breaker recovery probe timeout and prompt build vector budget
   STALL: 60000, // 60,000ms (60s): Visual prompt extraction pass timeout and streaming stall watchdog grace
   CEILING: 120000, // 120,000ms (2m): Hard timeout for text-to-image neural diffusion synthesis
-  LIFETIME: 240000, // 240,000ms (4m): Hard maximum generation lifetime and background forge consolidation ceiling
+  LIFETIME: 240000, // 240,000ms (4m): Hard maximum generation lifetime and background continuum-consolidation ceiling
 });
 
 /**
@@ -61,7 +61,7 @@ export const PATIENCE_POLICY = Object.freeze({
 export const DYNAMICS_SCALE = Object.freeze({
   MIN: 1, // Lowest possible value on the 1-100 narrative tension and significance scale
   EXTREME_LOW: 15, // Collapse / isolation floor triggering automated emotional beats
-  MID: 50, // Universal neutral equilibrium baseline for meters and new memory significance
+  MID: 50, // Universal neutral equilibrium baseline for meters and new past-vector significance
   HIGH: 75, // High tension threshold triggering dramatic escalation, intimate framing, or Dutch angles
   EXTREME_HIGH: 85, // Climax / breakthrough ceiling triggering automated visual synthesis beats
   MAX: 100, // Absolute ceiling on the 1-100 narrative tension and significance scale
@@ -82,7 +82,7 @@ export const SEISMIC_SHIFT_DISPLACEMENT = DYNAMICS_SCALE.MID; // 50: Displacemen
 /** Random atmospheric variance factor applied during turn dynamics progression */
 export const ENTROPY_VARIANCE = 0.05;
 
-/** Emotional salience scale for memory entries and veil flags */
+/** Emotional salience scale for past entries and veil flags */
 export const EMOTIONAL_WEIGHT_SCALE = Object.freeze({ MIN: 1, MAX: 10, DEFAULT: 5 });
 
 /** Standard image aspect ratios and resolutions for text-to-image diffusion */
@@ -115,7 +115,7 @@ export function resolve_prompt_budget_allocation(ceiling = DEFAULT_PROMPT_CEILIN
   };
 }
 
-// ── 2. Temporal Memory, Compaction & Retrieval ──────────────────────────────
+// ── 2. Temporal Continuum, Compaction & Retrieval ──────────────────────────────
 export const PAST_ENTRIES = Object.freeze({
   SESSION_CAP: 20, // Max 20 session bracket entries before background consolidation
   TOTAL_CAP: 180, // Max 180 total lifetime entries (45,000 chars / ARCHIVE tier)
@@ -130,11 +130,11 @@ export const COMPACTION = Object.freeze({
 
 export const FRAGMENTATION = Object.freeze({
   THRESHOLD: DYNAMICS_SCALE.HIGH, // 75: Somatic fragmentation fires when chaos/entropy exceeds HIGH tension threshold
-  WEIGHT_CUTOFF: 6, // Memories at weight <= 6 degrade under fragmentation; >= 7 stay canon
+  WEIGHT_CUTOFF: 6, // Past vectors at weight <= 6 degrade under fragmentation; >= 7 stay canon
 });
 
 export const TEMPORAL_SCORING = Object.freeze({
-  SEMANTIC_GAIN: 3, // Multiplier scaling vector cosine similarity in hybrid memory scoring formula
+  SEMANTIC_GAIN: 3, // Multiplier scaling vector cosine similarity in hybrid past scoring formula
   RECENCY_FLOOR: 0.5, // Baseline recency weight floor preventing older vital entries from zeroing out
   DECAY_SOFTEN: 0.5, // Damping factor softening exponential time decay of historical entries
   IN_SCENE_SALIENCE_BOOST: 1.3, // 1.3x multiplier boosting entries involving entities co-present in active scene
@@ -290,7 +290,7 @@ export const WATCHDOG_POLICY = Object.freeze({
   IDLE_GRACE_MS: 90000, // 90,000ms (90s): Maximum idle stasis permitted before recovery
   CHUNK_STALL_MS: 90000, // 90,000ms (90s): Maximum time without stream chunks before timeout
   MAX_MS: 5 * 60 * 1000, // 300,000ms (5m): Hard maximum generation runtime
-  CONSOLIDATE_GRACE_MS: LATENCY_TIERS_MS.LIFETIME, // 240,000ms (4m): Max background memory consolidation grace
+  CONSOLIDATE_GRACE_MS: LATENCY_TIERS_MS.LIFETIME, // 240,000ms (4m): Max background continuum-consolidation grace
 });
 
 /** Telemetry and diagnostic ring buffer capacity caps */

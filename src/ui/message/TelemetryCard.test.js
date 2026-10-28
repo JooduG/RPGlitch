@@ -202,23 +202,23 @@ describe("TelemetryCard Telemetry Logic", () => {
 
   test("MEMORY_FORMATION metadata includes future trajectory and consolidated present state", () => {
     const meta = {
-      type: "MEMORY_FORMATION",
+      type: "CONTINUUM_FORMATION",
       target: "AI_CHARACTER",
       future: "He plans to corner Glitch in the lower sector.",
       present: { non_physical: "Reinvigorated focus", physical: "[POSTURE: dominant stance]" },
-      memories: [],
+      past: [],
       turns_count: 8,
     };
     expect(meta.future).toBe("He plans to corner Glitch in the lower sector.");
     expect(meta.present.non_physical).toBe("Reinvigorated focus");
-    expect(meta.memories).toEqual([]);
+    expect(meta.past).toEqual([]);
     expect(meta.turns_count).toBe(8);
   });
 
-  test("processes single-entity forged telemetry with relational text vectors (Track 4)", () => {
+  test("processes single-entity consolidated telemetry with relational text vectors (Track 4)", () => {
     const meta = {
       type: "DYNAMICS_DELTA",
-      forged_entity: "ai",
+      consolidated_entity: "ai",
       relationships: [
         { source: "Viper", target: "Ghost", dynamic: "cautious trust" },
         { source: "Viper", target: "Dr. Elias", dynamic: "covert hostility" },
@@ -260,12 +260,12 @@ describe("TelemetryCard Telemetry Logic", () => {
     };
 
     // Back shot with turn count
-    expect(get_telemetry_label({ type: "MEMORY_FORMATION", target: "AI_CHARACTER", turns_count: 2 }, runtime)).toBe(
+    expect(get_telemetry_label({ type: "CONTINUUM_FORMATION", target: "AI_CHARACTER", turns_count: 2 }, runtime)).toBe(
       "Lord Benedict Silvers — Back Shot from 2 turns",
     );
 
     // Back shot without turn count
-    expect(get_telemetry_label({ type: "MEMORY_FORMATION", target: "user" }, runtime)).toBe("Glitch — Back Shot");
+    expect(get_telemetry_label({ type: "CONTINUUM_FORMATION", target: "user" }, runtime)).toBe("Glitch — Back Shot");
 
     // Default simulation update / Quick Shot
     expect(get_telemetry_label({ type: "DYNAMICS_DELTA" }, runtime)).toBe("Quick Shot");

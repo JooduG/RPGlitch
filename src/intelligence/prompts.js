@@ -12,8 +12,8 @@ import { resolve_system_role_line, render_system_xml, pack_prompt, resolve_promp
 import { render_constitution } from "./modules/constitution.js";
 import { render_core_protocols } from "./modules/protocols.js";
 import { render_dynamics_axes_xml, DYNAMICS_AXES } from "./dynamics.js";
-import { render_entity_sheets, render_optics_entities_xml, render_nearby_entities_xml, render_memory_advisory_xml } from "./modules/entities.js";
-import { render_entity_memory_context, render_enhancement_field_context } from "./modules/sheets.js";
+import { render_entity_sheets, render_optics_entities_xml, render_nearby_entities_xml, render_settled_facts_xml } from "./modules/entities.js";
+import { render_entity_continuum_context, render_enhancement_field_context } from "./modules/sheets.js";
 import { render_input_history_xml, format_sensory_history, render_chapter_history_xml, HISTORY_TOKEN_BUDGET } from "./modules/recency.js";
 import { verify_epistemic_integrity } from "./veil.js";
 import { resolve_turn_state_plan, render_momentum_directive_xml } from "./modules/reflex.js";
@@ -75,7 +75,7 @@ export const DIRECTOR_LAYERS = Object.freeze({
 });
 
 const TOOL_LAYERS = Object.freeze({
-  system: Object.freeze(["role", "core_protocols", "target_entity_context", "cast", "chapter_history", "memory_advisory", "history"]),
+  system: Object.freeze(["role", "core_protocols", "target_entity_context", "cast", "chapter_history", "settled_facts", "history"]),
   task: Object.freeze(["directives", "output_format"]),
 });
 
@@ -474,7 +474,7 @@ export function compile_prompt(mode_key, context = {}) {
     system_order.includes("target_entity_context") && normalized.target_context_args?.enabled
       ? wrap_tag(
           "TARGET_ENTITY_CONTEXT",
-          render_entity_memory_context(normalized.target_context_args.target_key, normalized.target_context_args.target_entity),
+          render_entity_continuum_context(normalized.target_context_args.target_key, normalized.target_context_args.target_entity),
           2,
         )
       : "";
@@ -499,9 +499,9 @@ export function compile_prompt(mode_key, context = {}) {
     system_order.includes("chapter_history") && normalized.chapter_history_args?.enabled && normalized.chapter_history_args?.target_entity
       ? render_chapter_history_xml(normalized.chapter_history_args.target_entity, 2)
       : "";
-  const memory_advisory_xml =
-    system_order.includes("memory_advisory") && normalized.memory_advisory_args?.enabled
-      ? render_memory_advisory_xml(normalized.memory_advisory_args.facts || [])
+  const settled_facts_xml =
+    system_order.includes("settled_facts") && normalized.settled_facts_args?.enabled
+      ? render_settled_facts_xml(normalized.settled_facts_args.facts || [])
       : "";
   const history_xml = system_order.includes("history") ? render_prompt_history(normalized.history_args) : "";
 
@@ -524,7 +524,7 @@ export function compile_prompt(mode_key, context = {}) {
     cast_xml,
     entity_context_xml,
     chapter_history_xml,
-    memory_advisory_xml,
+    settled_facts_xml,
     history_xml,
   ].reduce((sum, str) => sum + (typeof str === "string" ? str.length : 0), 0);
 
@@ -571,7 +571,7 @@ export function compile_prompt(mode_key, context = {}) {
     cast: cast_xml,
     entity_context: entity_context_xml,
     chapter_history: chapter_history_xml,
-    memory_advisory: memory_advisory_xml,
+    settled_facts: settled_facts_xml,
     history: history_xml,
   };
 
@@ -592,11 +592,11 @@ export function compile_prompt(mode_key, context = {}) {
     const entities_text = String(entities_xml || cast_xml || target_context_xml || "");
     const history_text = String(history_xml || "");
 
-    const memories_matches = entities_text.match(/<MEMORIES>[\s\S]*?<\/MEMORIES>/gi) || [];
-    const memories_text = memories_matches.join("\n");
+    const past_matches = entities_text.match(/<PAST>[\s\S]*?<\/PAST>/gi) || [];
+    const past_text = past_matches.join("\n");
     const cast_matches = entities_text.match(/<CAST[\s\S]*?<\/CAST>/gi) || [];
     const cast_text = cast_matches.join("\n");
-    const actors_text = entities_text.replace(/<MEMORIES>[\s\S]*?<\/MEMORIES>/gi, "").replace(/<CAST[\s\S]*?<\/CAST>/gi, "");
+    const actors_text = entities_text.replace(/<PAST>[\s\S]*?<\/PAST>/gi, "").replace(/<CAST[\s\S]*?<\/CAST>/gi, "");
 
     const token_snapshot = {
       mode: mode_key,
@@ -613,7 +613,7 @@ export function compile_prompt(mode_key, context = {}) {
       entities_breakdown: {
         actors: estimate_tokens(actors_text),
         cast: estimate_tokens(cast_text),
-        memories: estimate_tokens(memories_text),
+        past: estimate_tokens(past_text),
       },
     };
 

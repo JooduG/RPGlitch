@@ -75,7 +75,11 @@
   let is_fractal = $derived(sender === "fractal");
   let is_telemetry = $derived(
     sender === "system" &&
-      (meta?.type === "DYNAMICS_DELTA" || meta?.type === "STORY_START" || meta?.type === "VECTOR_RESOLUTION" || meta?.type === "MEMORY_FORMATION"),
+      (meta?.type === "DYNAMICS_DELTA" ||
+        meta?.type === "STORY_START" ||
+        meta?.type === "VECTOR_RESOLUTION" ||
+        meta?.type === "CONTINUUM_FORMATION" ||
+        meta?.type === "MEMORY_FORMATION"),
   );
 
   let entity = $derived(

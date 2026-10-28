@@ -1,6 +1,6 @@
 /**
  * src/intelligence/temporal.test.js
- * ⏳ UNIT TESTS: TEMPORAL ENGINE & MEMORY FORGE
+ * ⏳ UNIT TESTS: TEMPORAL ENGINE & CONTINUUM CARETAKER
  */
 
 import {
@@ -22,10 +22,10 @@ import {
   RECALL_CLARITY,
   rank_hybrid_vectors,
   format_hybrid_recall,
-  degrade_memory_text,
+  degrade_past_text,
   resolve_recall_clarity,
-  maybe_compact_memory,
-  resolve_memory_tiers,
+  maybe_compact_continuum,
+  resolve_continuum_tiers,
   expand_compacted_leaves,
   resolve_event_key,
   resolve_settled_facts,
@@ -106,9 +106,9 @@ describe("temporal_engine", () => {
     vi.restoreAllMocks();
   });
 
-  describe("usr_ / ai_ memory provenance", () => {
+  describe("usr_ / ai_ past provenance", () => {
     it("stamps ai_ prefixes on engine-created vectors", () => {
-      const entry = temporal_engine.create("A session memory.");
+      const entry = temporal_engine.create("A session past entry.");
       expect(entry.id.startsWith("ai_")).toBe(true);
     });
 
@@ -125,14 +125,14 @@ describe("temporal_engine", () => {
     it("usr_ memories survive consolidation evictions", () => {
       const entity = { past: [] };
       for (let i = 0; i < PAST_VECTOR_CAP; i++) {
-        entity.past.push({ id: `ai_${i}`, timestamp: i, content: `session memory ${i}`, type: "past", emotional_weight: 5, meta: {} });
+        entity.past.push({ id: `ai_${i}`, timestamp: i, content: `session past ${i}`, type: "past", emotional_weight: 5, meta: {} });
       }
       entity.past.push({ id: "usr_pinned", timestamp: 999999, content: "pinned backstory", type: "past", emotional_weight: 5, meta: {} });
 
       temporal_engine.append_past_vector(entity, {
         id: "ai_overflow",
         timestamp: 1000000,
-        content: "new overflow memory",
+        content: "new overflow entry",
         type: "past",
         emotional_weight: 5,
         meta: {},
@@ -231,7 +231,7 @@ describe("temporal_engine", () => {
       const off_scene = temporal_engine.score([{ ...base, id: "off" }])[0];
       const on_scene = temporal_engine.score([{ ...base, id: "on" }], true)[0];
       expect(on_scene._relevance).toBeCloseTo(off_scene._relevance * TEMPORAL_SCORING.IN_SCENE_SALIENCE_BOOST, 6);
-      // Off-scene NPCs must never outrank an identical on-stage memory.
+      // Off-scene NPCs must never outrank an identical on-stage past entry.
       expect(on_scene._relevance).toBeGreaterThan(off_scene._relevance);
     });
 
@@ -244,7 +244,7 @@ describe("temporal_engine", () => {
       expect(TEMPORAL_SCORING.IN_SCENE_SALIENCE_BOOST).toBeGreaterThan(1);
     });
 
-    it("lets an old-but-relevant memory outrank a fresh-but-irrelevant one", async () => {
+    it("lets an old-but-relevant past entry outrank a fresh-but-irrelevant one", async () => {
       const dot = (a, b) => {
         let s = 0;
         for (let i = 0; i < a.length; i++) s += a[i] * b[i];
@@ -313,7 +313,7 @@ describe("temporal_engine", () => {
       expect(scored[1].id).toBe("a");
     });
 
-    it("floors the recency factor so age can never zero out a memory", async () => {
+    it("floors the recency factor so age can never zero out a past entry", async () => {
       temporal_engine.set_round(1000);
       const ancient = {
         id: "ancient",
@@ -354,7 +354,7 @@ describe("temporal_engine", () => {
         {
           id: "p1",
           timestamp: 100,
-          content: "Core memory about dragons",
+          content: "Core past entry about dragons",
           type: "past",
           emotional_weight: 10,
           tags: [],
@@ -363,7 +363,7 @@ describe("temporal_engine", () => {
         {
           id: "p2",
           timestamp: 200,
-          content: "Major memory of battle",
+          content: "Major past entry of battle",
           type: "past",
           emotional_weight: 8,
           tags: [],
@@ -372,7 +372,7 @@ describe("temporal_engine", () => {
         {
           id: "p3",
           timestamp: 300,
-          content: "Minor memory of weather",
+          content: "Minor past entry of weather",
           type: "past",
           emotional_weight: 4,
           tags: [],
@@ -382,9 +382,9 @@ describe("temporal_engine", () => {
 
       const result = temporal_engine.format(past, "");
 
-      expect(result).toContain("Core memory about dragons");
-      expect(result).toContain("Major memory of battle");
-      expect(result).toContain("Minor memory of weather");
+      expect(result).toContain("Core past entry about dragons");
+      expect(result).toContain("Major past entry of battle");
+      expect(result).toContain("Minor past entry of weather");
     });
 
     it("labels future entries as impulses", () => {
@@ -406,15 +406,15 @@ describe("temporal_engine", () => {
     });
   });
 
-  describe("forge_memory (Entity-Specific Condensation)", () => {
+  describe("caretaker_consolidate (Entity-Specific Condensation)", () => {
     const targets = () => [
       { key: "AI_CHARACTER", type: "character", entity: /** @type {any} */ ({ name: "Viper" }) },
       { key: "USER_PERSONA", type: "character", entity: /** @type {any} */ ({ name: "Ghost" }) },
       { key: "FRACTAL", type: "fractal", entity: /** @type {any} */ ({ name: "Nova City" }) },
     ];
 
-    it("forges ONE distinct memory per entity from its own perspective", async () => {
-      const mock_memory = {
+    it("consolidates ONE distinct past entry per entity from its own perspective", async () => {
+      const mock_response = {
         AI_CHARACTER: {
           past: [
             {
@@ -447,15 +447,15 @@ describe("temporal_engine", () => {
         },
       };
 
-      vi.mocked(llm_service.generate).mockResolvedValue(JSON.stringify(mock_memory));
+      vi.mocked(llm_service.generate).mockResolvedValue(JSON.stringify(mock_response));
 
-      const result = await temporal_engine.forge_memory(targets(), [{ role: "user", content: "test" }]);
+      const result = await temporal_engine.caretaker_consolidate(targets(), [{ role: "user", content: "test" }]);
 
-      expect(result?.memories?.AI_CHARACTER?.[0]?.content).toContain("Viper");
-      expect(result?.memories?.USER_PERSONA?.[0]?.content).toContain("Ghost");
-      expect(result?.memories?.FRACTAL?.[0]?.content).toContain("market");
-      expect(result?.memories?.AI_CHARACTER?.[0]?.content).not.toBe(result?.memories?.USER_PERSONA?.[0]?.content);
-      expect(result?.memories?.AI_CHARACTER?.[0]?.timestamp).toBe(Date.now());
+      expect(result?.past?.AI_CHARACTER?.[0]?.content).toContain("Viper");
+      expect(result?.past?.USER_PERSONA?.[0]?.content).toContain("Ghost");
+      expect(result?.past?.FRACTAL?.[0]?.content).toContain("market");
+      expect(result?.past?.AI_CHARACTER?.[0]?.content).not.toBe(result?.past?.USER_PERSONA?.[0]?.content);
+      expect(result?.past?.AI_CHARACTER?.[0]?.timestamp).toBe(Date.now());
     });
 
     it("preserves present type while normalizing future and invalid types to past", async () => {
@@ -467,12 +467,12 @@ describe("temporal_engine", () => {
         }),
       );
 
-      const result = await temporal_engine.forge_memory(targets(), []);
+      const result = await temporal_engine.caretaker_consolidate(targets(), []);
 
-      // FUTURE is prose now, so a forge "future" vector is demoted to a past anchor.
-      expect(result?.memories?.AI_CHARACTER?.[0]?.type).toBe("past");
-      expect(result?.memories?.USER_PERSONA?.[0]?.type).toBe("present");
-      expect(result?.memories?.FRACTAL?.[0]?.type).toBe("past");
+      // FUTURE is prose now, so a caretaker "future" vector is demoted to a past anchor.
+      expect(result?.past?.AI_CHARACTER?.[0]?.type).toBe("past");
+      expect(result?.past?.USER_PERSONA?.[0]?.type).toBe("present");
+      expect(result?.past?.FRACTAL?.[0]?.type).toBe("past");
     });
 
     it("skips embeddings for present directives", async () => {
@@ -483,41 +483,41 @@ describe("temporal_engine", () => {
         }),
       );
 
-      const result = await temporal_engine.forge_memory(targets(), []);
-      expect(result?.memories?.AI_CHARACTER?.[0]?._embedding).toBeUndefined();
-      expect(result?.memories?.USER_PERSONA?.[0]?._embedding).toBeInstanceOf(Float32Array);
+      const result = await temporal_engine.caretaker_consolidate(targets(), []);
+      expect(result?.past?.AI_CHARACTER?.[0]?._embedding).toBeUndefined();
+      expect(result?.past?.USER_PERSONA?.[0]?._embedding).toBeInstanceOf(Float32Array);
     });
 
     it("handles malformed LLM JSON via non-greedy extraction", async () => {
       const json_str = JSON.stringify({ AI_CHARACTER: { past: [{ content: "First object" }] } });
       vi.mocked(llm_service.generate).mockResolvedValue(`Noise before ${json_str} noise after`);
 
-      const result = await temporal_engine.forge_memory(targets(), []);
+      const result = await temporal_engine.caretaker_consolidate(targets(), []);
 
-      expect(result?.memories?.AI_CHARACTER?.[0]?.content).toBe("First object");
+      expect(result?.past?.AI_CHARACTER?.[0]?.content).toBe("First object");
     });
 
     it("handles nested JSON structures robustly", async () => {
-      const nested_memory = {
+      const nested_response = {
         AI_CHARACTER: { past: [{ content: "Event with nested info.", details: { depth: 2, meta: "data" } }] },
       };
-      const response = `Here is the JSON: ${JSON.stringify(nested_memory)} and some noise.`;
+      const response = `Here is the JSON: ${JSON.stringify(nested_response)} and some noise.`;
       vi.mocked(llm_service.generate).mockResolvedValue(response);
 
-      const result = await temporal_engine.forge_memory(targets(), []);
+      const result = await temporal_engine.caretaker_consolidate(targets(), []);
 
-      expect(result?.memories?.AI_CHARACTER?.[0]?.content).toBe("Event with nested info.");
+      expect(result?.past?.AI_CHARACTER?.[0]?.content).toBe("Event with nested info.");
     });
 
     it("returns null when no entity targets are provided", async () => {
-      const result = await temporal_engine.forge_memory([], []);
+      const result = await temporal_engine.caretaker_consolidate([], []);
       expect(result).toBeNull();
     });
 
     it("returns null and logs error if LLM fails", async () => {
       vi.mocked(llm_service.generate).mockRejectedValue(new Error("LLM Down"));
 
-      const result = await temporal_engine.forge_memory(targets(), []);
+      const result = await temporal_engine.caretaker_consolidate(targets(), []);
 
       expect(result).toBeNull();
       expect(console.error).toHaveBeenCalled();
@@ -548,7 +548,7 @@ describe("temporal_engine", () => {
       expect(mock_db.simulation_log.update).toHaveBeenCalled();
     });
 
-    it("routes each entity's own memory by its forged type", async () => {
+    it("routes each entity's own past entry by its consolidated type", async () => {
       const mock_messages = Array(15).fill({ id: 1, meta: {} });
       const mock_session = {
         require_active: vi.fn(() => "story_1"),
@@ -636,7 +636,7 @@ describe("resolve_vector_pool()", () => {
     expect(pool[0].type).toBe("past");
   });
 
-  it("returns empty array for null, undefined, or memory-less objects", () => {
+  it("returns empty array for null, undefined, or past-less objects", () => {
     expect(resolve_vector_pool(null)).toEqual([]);
     expect(resolve_vector_pool(undefined)).toEqual([]);
     expect(resolve_vector_pool({})).toEqual([]);
@@ -651,7 +651,7 @@ describe("resolve_vector_pool()", () => {
 });
 
 describe("temporal_engine.consolidate()", () => {
-  it("preserves baseline clothing tags when merging memory forge present.physical updates", async () => {
+  it("preserves baseline clothing tags when merging caretaker present.physical updates", async () => {
     const mock_ai = {
       id: "ai-1",
       name: "Lord Benedict Silvers",
@@ -717,7 +717,7 @@ describe("temporal_engine.consolidate()", () => {
     expect(mock_user.present.non_physical).toBe("[STATE: Deeply submissive]");
   });
 
-  it("preserves concealed brackets across memory forge consolidation cycles (E2 regression)", async () => {
+  it("preserves concealed brackets across caretaker consolidation cycles (E2 regression)", async () => {
     const mock_user = {
       id: "user-1",
       name: "Julien",
@@ -745,7 +745,7 @@ describe("temporal_engine.consolidate()", () => {
     const mock_app = { log: vi.fn() };
     const mock_db = { simulation_log: { update: vi.fn() } };
 
-    // Cycle 1: Forge emits updated values without | hide flags
+    // Cycle 1: Caretaker emits updated values without | hide flags
     llm_service.generate.mockResolvedValueOnce(
       JSON.stringify({
         _thought_process: "Consolidating state cycle 1.",
@@ -765,7 +765,7 @@ describe("temporal_engine.consolidate()", () => {
     expect(mock_user.present.non_physical).toContain("[SECRET: knows the cipher | hide]");
     expect(mock_user.present.non_physical).toContain("[DISPOSITION: wary]");
 
-    // Cycle 2: Forge emits prose without mentioning DAGGER or SECRET at all
+    // Cycle 2: Caretaker emits prose without mentioning DAGGER or SECRET at all
     llm_service.generate.mockResolvedValueOnce(
       JSON.stringify({
         _thought_process: "Consolidating state cycle 2.",
@@ -787,7 +787,7 @@ describe("temporal_engine.consolidate()", () => {
     expect(mock_user.present.non_physical).toContain("Quiet contemplation");
   });
 
-  it("skips appending ledger lines when forged values are identical to current entity state (compare-then-skip guard)", async () => {
+  it("skips appending ledger lines when consolidated values are identical to current entity state (compare-then-skip guard)", async () => {
     const { append_ledger_entries } = await import("@data");
     vi.mocked(append_ledger_entries).mockClear();
 
@@ -856,11 +856,11 @@ describe("prune", () => {
 
   it("caps the pool to 3 past vectors", () => {
     const vectors = [
-      { id: "1", content: "Memory 1", type: "past", emotional_weight: 7 },
-      { id: "2", content: "Memory 2", type: "past", emotional_weight: 8 },
-      { id: "3", content: "Memory 3", type: "past", emotional_weight: 9 },
-      { id: "4", content: "Memory 4", type: "past", emotional_weight: 10 },
-      { id: "5", content: "Memory 5", type: "past", emotional_weight: 11 },
+      { id: "1", content: "Entry 1", type: "past", emotional_weight: 7 },
+      { id: "2", content: "Entry 2", type: "past", emotional_weight: 8 },
+      { id: "3", content: "Entry 3", type: "past", emotional_weight: 9 },
+      { id: "4", content: "Entry 4", type: "past", emotional_weight: 10 },
+      { id: "5", content: "Entry 5", type: "past", emotional_weight: 11 },
     ];
     const result = prune(vectors);
     expect(result).toHaveLength(3);
@@ -869,12 +869,12 @@ describe("prune", () => {
   });
 });
 
-describe("temporal_engine.consolidate() skip_forge", () => {
+describe("temporal_engine.consolidate() skip_consolidation", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("returns early before loading history when skip_forge is set", async () => {
+  it("returns early before loading history when skip_consolidation is set", async () => {
     const mock_session = {
       require_active: vi.fn(() => "story-1"),
       load_log: vi.fn(async () => [{ id: 1, role: "user", text: "t1" }]),
@@ -883,7 +883,7 @@ describe("temporal_engine.consolidate() skip_forge", () => {
     const mock_db = { simulation_log: { update: vi.fn() } };
     const mock_app = { log: vi.fn() };
 
-    await temporal_engine.consolidate(mock_session, mock_db, {}, {}, mock_app, { skip_forge: true });
+    await temporal_engine.consolidate(mock_session, mock_db, {}, {}, mock_app, { skip_consolidation: true });
 
     expect(mock_session.require_active).toHaveBeenCalled();
     expect(mock_session.load_log).not.toHaveBeenCalled();
@@ -891,7 +891,7 @@ describe("temporal_engine.consolidate() skip_forge", () => {
     expect(llm_service.generate).not.toHaveBeenCalled();
   });
 
-  it("forges normally when skip_forge is absent", async () => {
+  it("consolidates normally when skip_consolidation is absent", async () => {
     const mock_session = {
       require_active: vi.fn(() => "story-1"),
       load_log: vi.fn(async () => [{ id: 1, role: "user", text: "t1" }]),
@@ -984,7 +984,7 @@ describe("temporal_engine per-entity consolidation progress tracking (Track 2 Ph
 
     expect(mock_db.simulation_log.update).toHaveBeenCalled();
     const [, updated_patch] = mock_db.simulation_log.update.mock.calls[0];
-    expect(updated_patch.meta.forged_entities).toContain("AI_CHARACTER");
+    expect(updated_patch.meta.consolidated_entities).toContain("AI_CHARACTER");
   });
 
   it("persists only the meta marker so a concurrently-resolved image attachment is never clobbered", async () => {
@@ -1016,10 +1016,10 @@ describe("temporal_engine per-entity consolidation progress tracking (Track 2 Ph
     await temporal_engine.consolidate(mock_session, mock_db, {}, mock_runtime, mock_app, { target_key: "AI_CHARACTER" });
 
     expect(mock_db.simulation_log.update).toHaveBeenCalledWith(1, {
-      meta: expect.objectContaining({ is_prologue: true, forged_entities: ["AI_CHARACTER"] }),
+      meta: expect.objectContaining({ is_prologue: true, consolidated_entities: ["AI_CHARACTER"] }),
     });
     // The patch must carry ONLY `meta` — never the whole row, which would overwrite a
-    // finished image attachment that resolved while the forge LLM call was running.
+    // finished image attachment that resolved while the caretaker LLM call was running.
     for (const [, patch] of mock_db.simulation_log.update.mock.calls) {
       expect(Object.keys(patch)).toEqual(["meta"]);
     }
@@ -1027,8 +1027,8 @@ describe("temporal_engine per-entity consolidation progress tracking (Track 2 Ph
 
   it("rotates targets across AI -> USER -> FRACTAL -> NPCs in round-robin and auto-advances empty targets", async () => {
     const mock_messages = [
-      { id: 1, role: "user", text: "Hello", meta: { forged_entities: ["AI_CHARACTER"] } },
-      { id: 2, role: "ai", text: "Greetings.", meta: { forged_entities: ["AI_CHARACTER"] } },
+      { id: 1, role: "user", text: "Hello", meta: { consolidated_entities: ["AI_CHARACTER"] } },
+      { id: 2, role: "ai", text: "Greetings.", meta: { consolidated_entities: ["AI_CHARACTER"] } },
     ];
     const mock_session = {
       require_active: vi.fn(() => "story-1"),
@@ -1060,10 +1060,10 @@ describe("temporal_engine per-entity consolidation progress tracking (Track 2 Ph
 
     expect(mock_db.simulation_log.update).toHaveBeenCalled();
     const [, updated_patch] = mock_db.simulation_log.update.mock.calls[0];
-    expect(updated_patch.meta.forged_entities).toContain("USER_PERSONA");
+    expect(updated_patch.meta.consolidated_entities).toContain("USER_PERSONA");
   });
 
-  it("extracts and applies relationship edges from Memory Forge payload", async () => {
+  it("extracts and applies relationship edges from Continuum Caretaker payload", async () => {
     const mock_messages = [{ id: 1, role: "user", text: "Turn 1", meta: {} }];
     const mock_session = {
       require_active: vi.fn(() => "story-1"),
@@ -1221,7 +1221,7 @@ describe("temporal_engine per-entity consolidation progress tracking (Track 2 Ph
 
     it("leaves small pools untouched with a null report", () => {
       const entity = { past: [make_past_vector(1), make_past_vector(2)], chapters: [] };
-      const report = maybe_compact_memory(entity);
+      const report = maybe_compact_continuum(entity);
       expect(report.tier_one).toBeNull();
       expect(report.tier_two).toBeNull();
       expect(entity.past).toHaveLength(2);
@@ -1229,7 +1229,7 @@ describe("temporal_engine per-entity consolidation progress tracking (Track 2 Ph
 
     it("folds eight Tier-0 vectors into one closed Tier-1 chapter anchor", () => {
       const entity = { past: Array.from({ length: PRISM_FANOUT }, (_, index) => make_past_vector(index)), chapters: [] };
-      const report = maybe_compact_memory(entity);
+      const report = maybe_compact_continuum(entity);
       expect(report.tier_one).not.toBeNull();
       expect(report.tier_one.tier).toBe(1);
       expect(report.tier_one.status).toBe("closed");
@@ -1246,7 +1246,7 @@ describe("temporal_engine per-entity consolidation progress tracking (Track 2 Ph
         ],
         chapters: [],
       };
-      maybe_compact_memory(entity);
+      maybe_compact_continuum(entity);
       expect(entity.past).toHaveLength(1);
       expect(entity.past[0].id).toBe("usr_pinned");
     });
@@ -1262,7 +1262,7 @@ describe("temporal_engine per-entity consolidation progress tracking (Track 2 Ph
         leaves: [],
       });
       const entity = { past: [], chapters: Array.from({ length: PRISM_FANOUT }, (_, index) => chapter(index)) };
-      const report = maybe_compact_memory(entity);
+      const report = maybe_compact_continuum(entity);
       expect(report.tier_two).not.toBeNull();
       expect(report.tier_two.tier).toBe(2);
       expect(entity.chapters).toHaveLength(1);
@@ -1270,8 +1270,8 @@ describe("temporal_engine per-entity consolidation progress tracking (Track 2 Ph
     });
 
     it("keeps the tree height within the bound", () => {
-      expect(resolve_memory_tiers({ past: [], chapters: [] }).height).toBe(1);
-      const tiers = resolve_memory_tiers({ past: [], chapters: [{ tier: 1, status: "closed", title: "A", summary: "B" }] });
+      expect(resolve_continuum_tiers({ past: [], chapters: [] }).height).toBe(1);
+      const tiers = resolve_continuum_tiers({ past: [], chapters: [{ tier: 1, status: "closed", title: "A", summary: "B" }] });
       expect(tiers.tier_one).toHaveLength(1);
       expect(tiers.tier_two).toHaveLength(0);
       expect(tiers.height).toBeLessThanOrEqual(COMPACTOR_MAX_HEIGHT);
@@ -1357,9 +1357,9 @@ describe("temporal_engine per-entity consolidation progress tracking (Track 2 Ph
       expect(format_hybrid_recall([], "orion", { dynamics: { chaos: 99 } })).toBe("");
     });
 
-    it("degrade_memory_text replaces periodic words with block glyphs without touching bracket tags or using ellipses", () => {
+    it("degrade_past_text replaces periodic words with block glyphs without touching bracket tags or using ellipses", () => {
       const input = "[ORION: covert ally meeting at docks behind the warehouse]";
-      const degraded = degrade_memory_text(input);
+      const degraded = degrade_past_text(input);
       expect(degraded.startsWith("[ORION:")).toBe(true);
       expect(degraded.endsWith("]")).toBe(true);
       expect(degraded).toContain("■");
@@ -1367,7 +1367,7 @@ describe("temporal_engine per-entity consolidation progress tracking (Track 2 Ph
       expect(degraded).not.toContain("…");
 
       const plain_input = "covert ally meeting at docks behind the warehouse where strange cargo sits";
-      const degraded_plain = degrade_memory_text(plain_input);
+      const degraded_plain = degrade_past_text(plain_input);
       expect(degraded_plain).toContain("■");
       expect(degraded_plain).not.toBe(plain_input);
       expect(degraded_plain).not.toContain("...");
@@ -1395,7 +1395,7 @@ describe("temporal_engine per-entity consolidation progress tracking (Track 2 Ph
       });
 
       expect(fragmented).toContain("[fragmented recall]");
-      // Lower weight memory gets degraded with ■ block glyphs
+      // Lower weight past entry gets degraded with ■ block glyphs
       expect(fragmented).toContain("■");
       // High weight canon stays untouched
       expect(fragmented).toContain("swore sacred allegiance before the high council");

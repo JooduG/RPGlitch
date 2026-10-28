@@ -134,7 +134,7 @@ describe("pack_prompt and resolve_prompt_meta", () => {
       "cast",
       "entity_context",
       "chapter_history",
-      "memory_advisory",
+      "settled_facts",
       "history",
     ]);
   });
