@@ -1,6 +1,8 @@
 # Unified Prompt Pipeline Architecture Specification
 
-_Authoritative System Specification for v2 Prompt Compilation, State Projection & Memory Retrieval_
+_v2 Proposal (DRAFT) — canon for v2 direction. Does not describe the shipped system._
+
+Status key: SHIPPED = built + tested · PARTIAL = pieces landed, wiring pending · PROPOSED = designed, not built.
 
 ---
 
@@ -61,6 +63,8 @@ The simulation engine collapses all runtime operations into four canonical Purpo
 
 `PROSE_CORE` powers all four narrative voices (**`interaction`** for AI companion, **`ghostwrite`** for User persona, **`npc`** for supporting cast, and **`narrator`** for the voiced Fractal) using one clean 4-part `<TASK>` structure:
 
+> Canon: the v1 voiceless-Fractal rule is superseded — under v2 the Fractal is voiced and narrates as the world.
+
 - **1. Unified `<THINK_FORMAT>` (Single Template Across All Voices):**
   - Used identically whether a Character or the voiced Fractal is speaking (under 150 words, anchored at generation start by the Director's note via `startWith: "<think>${directors_note} "`):
     1. **Intent & Atmosphere:** What you want or demand in this moment and the dominant sensory pressure.
@@ -95,10 +99,11 @@ The simulation engine collapses all runtime operations into four canonical Purpo
   2. **Whole-Profile Ingestion & Redistribution (`history: "none"` — Profile Studio Sorting):** Reads raw biographical notes or misplaced profile text from `<TARGET_CONTENT>` in `<TASK>`, unlocks `eternal`, and maps all facts across the 1:1 field tags (`{ appearance, personality, current_look, state_of_mind, memories, agenda }` for Characters; `{ reality, scenario, memories, trajectory }` for Fractals).
   3. **Single-Field Polish (`history: "none"` — Profile Studio Magic Wand):** Reads the target entity's existing Spine blocks for canon consistency and polishes or expands one specific target field.
 - **Core Rules:** Enforces strict `[KEY: value]` bracket syntax, atomic deletion via `[KEY: none]` / `[KEY: cleared]`, and `@ME` / `@YOU` / `@FRACTAL` / `@ENTITY_ID` relational macro preservation.
+- **Wire-key → quadrant map (JS on receipt):** output keys mirror the rendered Spine tags 1:1 so the model never guesses mappings; the parser translates on receipt: `appearance` → `eternal.physical`, `personality` → `eternal.non_physical`, `current_look` → `present.physical`, `state_of_mind` → `present.non_physical`, `memories` → `past`, `agenda` → `future`, `reality` → `fractal.eternal`, `scenario` → `fractal.present`, `trajectory` → `fractal.future` (`target`, `_thought_process`, `relationships` pass through; unknown keys dropped). Wire aliases never touch storage — quadrants stay canonical.
 
 ---
 
-### 2.4 `OPTICS_CORE` — Sensory Cortex Visual Diffusion Synthesis
+### 2.4 `OPTICS_CORE` — Sensory Cortex Visual Diffusion Synthesis (PROPOSED — vocabulary has no renderer yet)
 
 `OPTICS_CORE` translates the current narrative moment (`<RECENT>`) and exterior physical appearance brackets (`<MAIN_CHARACTER>`, `<COUNTERPART>`, `<SCENARIO>`) into a precision diffusion image prompt:
 
@@ -138,7 +143,7 @@ Rather than maintaining separate summary generators (`depth: "brief"`) or duplic
 
 - **No Synthetic Summaries:** Secondary cast members in `<OTHER_CHARACTERS>` are not summarized into prose sentences; they have a smaller guaranteed token floor (`ENTITY_GUARANTEES`), admitting their highest-priority `[KEY: value]` brackets first and letting additional brackets compete in the RAG overflow pool.
 - **Zero-Duplication Dormant Mentions:** Any off-stage character already mentioned in `<MAIN_CHARACTER><RELATIONSHIPS>`, `<COUNTERPART><RELATIONSHIPS>`, `<REALITY>`, `<SCENARIO>`, or `<MEMORIES>` (e.g., `[@SISTER_MAYA: estranged younger sister]` or `[CARL: founded the city]`) is **never duplicated** into `<OTHER_CHARACTERS>` while off-stage. `DIRECTOR_CORE` treats any off-stage character referenced in those blocks as dormant and available for `spotlight.enter` (with JS resolving existing DB cards or triggering `GENESIS` if no card exists yet).
-- **The `<DORMANT>` Pool inside `<OTHER_CHARACTERS>` (`DIRECTOR_CORE` Only):**
+- **The `<DORMANT>` Pool inside `<OTHER_CHARACTERS>` (`DIRECTOR_CORE` Only)** (PROPOSED):
   - Characters in `story.npc_ids` who are **not** currently in the scene and are **not** already mentioned in the Trio's outgoing `<RELATIONSHIPS>` / `<REALITY>`—specifically:
     1. **Incoming Relationships:** DB characters whose _own_ profile has an `[@FRACTAL]`, `[@MAIN_CHARACTER]`, or `[@COUNTERPART]` bracket pointing into the story, rendered with their incoming bond description (e.g., `[DR_TARIQ: incoming bond -> @THE_CITADEL: smuggling contraband through the lower gates]`),
     2. **Wanderers (`is_wanderer: true`):** Roaming library characters rendered with their core identity hook, and
@@ -149,7 +154,7 @@ Rather than maintaining separate summary generators (`depth: "brief"`) or duplic
 
 ---
 
-## 4. The 11-Block Invariant Prompt Spine
+## 4. The 11-Block Invariant Prompt Spine (PROPOSED — new tag layer; shipped code uses `RECENT_ROUNDS` / `ENTRY` / `PAST`, zero `<HISTORY>` strings bundle-wide)
 
 The prompt compiler generates an invariant 11-block sequence. Character identity and immediate condition are compiled as contiguous cards mapping directly to the underlying entity partition nomenclature:
 
@@ -183,12 +188,12 @@ Every Purpose Core binds cleanly onto the same Spine. The Fractal is **never** b
 ### 4.2 History Management, Caretaker Headroom & Administrative Input Rules
 
 - **Native Transcript Consumption:** Turn prompts consume dialogue directly from the tail of `<RECENT>`, eliminating duplicate `<ENTRY>` tags. The legacy `.pop()` call in `src/intelligence/story.js` is removed so the user's latest message naturally remains as the final turn.
-- **Administrative Inputs:** When `history: "none"` is active (e.g. Profile Studio), `<RECENT>` evaluates to an empty string and the content being processed is passed natively inside Block 11 (`<TARGET_CONTENT>` for `CARETAKER_CORE`).
-- **Caretaker (`CARETAKER_CORE`) Full-Entity Headroom & Deduplication:** Because `CARETAKER_CORE` binds only a **single target entity** into `<MAIN_CHARACTER>` (or `<REALITY>`/`<SCENARIO>` for a Fractal, omitting counterpart and secondary sheets), dynamic token allotment leaves ample headroom within the 20,000-character envelope to project the target entity's complete existing bracket state (`eternal`, `present`, `future`, and active `past`). Combined with key-aware RAG bracket merging (`merge_field_content` deduplication) and 8:1 hierarchical chapter compaction (`COMPACTION.FANOUT = 8`), legacy constructs like `<SETTLED_FACTS>` are completely eliminated. The background Caretaker queue is strictly scoped to the active story cast (`[story.ai_id, story.user_id, story.fractal_id, ...story.npc_ids]`) so uncast library entities are never mutated.
+- **Administrative Inputs:** When `history: "none"` is active (e.g. Profile Studio), `<RECENT>` evaluates to an empty string and the content being processed is passed natively inside Block 11 (`<TARGET_CONTENT>` for `CARETAKER_CORE` — PROPOSED, no renderer yet).
+- **Caretaker (`CARETAKER_CORE`) Full-Entity Headroom & Deduplication:** Because `CARETAKER_CORE` binds only a **single target entity** into `<MAIN_CHARACTER>` (or `<REALITY>`/`<SCENARIO>` for a Fractal, omitting counterpart and secondary sheets), dynamic token allotment leaves ample headroom within the 20,000-character envelope to project the target entity's complete existing bracket state (`eternal`, `present`, `future`, and active `past`). Combined with key-aware RAG bracket merging (`merge_field_content` deduplication) and 8:1 hierarchical chapter compaction (`COMPACTION.FANOUT = 8`), legacy constructs like `<SETTLED_FACTS>` are completely eliminated (PROPOSED — `merge_field_content` is not implemented). The background Caretaker queue is strictly scoped to the active story cast (`[story.ai_id, story.user_id, story.fractal_id, ...story.npc_ids]`) so uncast library entities are never mutated.
 
 ---
 
-## 5. Blueprint: Full XML Macro Skeleton
+## 5. Blueprint: Full XML Macro Skeleton (PROPOSED — renderer note: `constitution.js:24-51` emits `id="L1..L4"` / `title`, not `amendment` / `name`; align attribute form on adoption)
 
 ```xml
 <SYSTEM round="{round}" identity="{role}">
@@ -360,12 +365,12 @@ flowchart TD
 ### 8.1 Retrieval Execution Lifecycle
 
 1. **Recency-Weighted Query Assembly:** The search query is assembled from dialogue history matching `DIALOGUE_WINDOW.ROUNDS` (`src/config.js:151`), giving highest focus to the latest user turn backed by the immediately preceding turn.
-2. **Hash-Indexed Vector Cache:** 384-dimensional embeddings are cached in a lightweight Dexie table (`vector_cache`) keyed by content hash. Embeddings are generated with control flags stripped so the vector represents pure semantic meaning.
+2. **Hash-Indexed Vector Cache:** 384-dimensional embeddings are cached in a lightweight Dexie table (`vector_cache`) keyed by content hash (`EMBEDDING_DIM = 384`, `src/platform/embeddings.svelte.js:20`). Embeddings are generated with control flags stripped so the vector represents pure semantic meaning.
 3. **Hybrid Blend Scoring:** Cosine semantic similarity provides the baseline ranking, boosted by an exact-match lexical bonus for entity handles (`@SILVERS`), locations, and specific inventory items.
 
 ### 8.2 The Two-Tier Sieve (Guaranteed Floors + Universal RAG Overflow)
 
-To guarantee core identity and prevent bloated character sheets from starving episodic memory or triggering Perchance's 6,000-token middle-cut cliff, **every entity quadrant operates under a single unified budgeting mechanism** (`ENTITY_GUARANTEES` and `RAG_MULTIPLIERS` in `src/config.js`), completely eliminating ad-hoc multi-step sacrificial pruning cascades:
+To guarantee core identity and prevent bloated character sheets from starving episodic memory or triggering Perchance's 6,000-token middle-cut cliff, **every entity quadrant operates under a single unified budgeting mechanism** (`ENTITY_GUARANTEES` and `RAG_MULTIPLIERS` in `src/config.js`) (PARTIAL — constants landed, `src/config.js:179`; overflow pool unwired), completely eliminating ad-hoc multi-step sacrificial pruning cascades:
 
 ```text
 ┌────────────────────────────────────────────────────────────────────────┐
@@ -422,7 +427,7 @@ The simulation engine governs physical, psychological, and environmental pressur
 
 ### 9.2 The 12 Somatic Archetypes & 18 Dynamics Triggers
 
-Director evaluations classify non-verbal reactions through **12 universal somatic archetypes** (`AVAILABLE_KEYWORDS` in `src/intelligence/dynamics.js`):
+Director evaluations classify non-verbal reactions through **12 universal somatic archetypes** (`AVAILABLE_KEYWORDS` in `src/intelligence/dynamics.js`, registry §2.1 `dynamics.js:61-83`):
 `SHAME`, `FEAR`, `VULNERABILITY`, `BETRAYAL`, `ABANDONMENT`, `EMOTIONAL_NEGLECT`, `DEFIANCE`, `INTIMACY`, `GRIEF`, `DOMINANCE`, `DECEPTION`, and `DYSREGULATION`.
 
 #### Somatic Archetype Selection Mechanics
@@ -434,11 +439,11 @@ In RPGlitch's turn flow, somatic directives are governed by a dual-channel archi
    - **Semantic Embeddings Resonance (Canonical Mandate):** Rather than arbitrary LLM hallucination or rigid integer thresholds, the 12 somatic archetypes in `PHYSICS_PROTOCOLS` (and active style motifs) are selected via continuous vector similarity. Pre-computed 384-dimensional embeddings of each archetype's involuntary physical tell descriptions are scored against the semantic embedding $\vec{Q}$ of recent conversational dialogue. The top-ranked matching archetypes are automatically selected to drive somatic subtext.
    - **Director Oversight & Fallback:** The Director can ratify or fine-tune the semantically selected keywords in Shot 1, with baseline numerical thresholds serving as a safety floor.
 
-Tension deltas and somatic states activate **18 dynamics trigger protocols** (`PHYSICS_PROTOCOLS` in `src/intelligence/dynamics.js`) evaluated by `evaluate_subtext_protocols` and injected into `<CURRENTS><SUBTEXT>` and `<DELIVERY_POSTURE>`:
+Tension deltas and somatic states activate **18 dynamics trigger protocols** (`PHYSICS_PROTOCOLS` registry `src/intelligence/dynamics.js:59-113`; the 18 triggers are the §2.2 keys, `dynamics.js:86-112`) evaluated by `evaluate_subtext_protocols` and injected into `<CURRENTS><SUBTEXT>` and `<DELIVERY_POSTURE>`:
 
 - **Kinetic / Surge:** `ADRENALINE`, `OVERDRIVE`, `INSTABILITY`, `CATACLYSM`.
-- **Intimacy / Resonance:** `PASSION`, `CONFESSION`, `INTIMACY`, `HARMONY`, `SYNCHRONY`.
-- **Defensive / Containment:** `EXPOSED`, `MASKING`, `SUSPICION`, `DISSONANCE`, `DEFIANCE`.
+- **Intimacy / Resonance:** `PASSION`, `CONFESSION`, `HARMONY`, `SYNCHRONY`. (`INTIMACY` is a §2.1 archetype, selected via the 12 — not a trigger.)
+- **Defensive / Containment:** `EXPOSED`, `MASKING`, `SUSPICION`, `DISSONANCE`. (`DEFIANCE` likewise lives in §2.1.)
 - **Pacing / Sensory State:** `SLOW_MOTION`, `GLITCH`, `RECOVERY`, `STASIS`, `TRANCE`, `STABILITY`.
 
 ### 9.3 Reactive Signal Bus, Reflex Sizing & Anti-Slop Detox
@@ -457,7 +462,7 @@ Turn reactivity is governed by a declarative signal architecture audited from `s
    - Conditionals: `ANTI_STAGING` (suppresses redundant setting recaps), `HELD_MOMENT` (preserves lingering sensory micro-beats), `ENVIRONMENTAL_HINT` (threads atmospheric cues), and `ALTERNATION` (resolves `{Option A | Option B}` trait syntax).
 3. **Delivery Posture Subscriptions:** Translates emitted signals into `<DELIVERY_POSTURE>` XML directives. Competing posture nudges consolidate so that at most **one** posture directive fires per turn.
 4. **The Spent Ledger & Pre-Commit Detox Discipline:**
-   - **Spent Ledger (`<EXHAUSTED_OPENINGS>`):** Scans the last 5 rounds (`SPENT_ROUNDS = 5`) for repeated sentence openings, overused physical mannerisms, and repeated n-grams, injecting them as dynamic negative constraints inside `<CONSTRAINTS>`.
+   - **Spent Ledger (`<EXHAUSTED_OPENINGS>`):** Scans the last 5 rounds (`SPENT_ROUNDS = 5`, `src/config.js:255`) for repeated sentence openings, overused physical mannerisms, and repeated n-grams, injecting them as dynamic negative constraints inside `<CONSTRAINTS>`.
    - **Pre-Commit Detox Only (`detox_prose`):** Deterministic anti-slop cleanup (stripping Tier-1 syntactic formulas like `"not X, but Y"`, normalizing typography, and capping stock somatic clichés to `SOMATIC_MARKER_CAP = 1`) executes strictly at generation commit time, never as destructive POS-blind synonym swapping in the UI render path.
 
 ### 9.4 Somatic Dynamics & Recall Degradation
@@ -476,5 +481,5 @@ Turn reactivity is governed by a declarative signal architecture audited from `s
 3. **TINY Stream Beat Backstop:** On interactive `WITH_INPUT` turns where user input is $\le 12$ characters, the streaming listener halts generation after the first completed terminal beat to prevent monologue runaways.
 4. **Mid-Sentence Truncation Continuation (`finishTail`):** If a prose stream terminates mid-sentence without terminal punctuation due to output token limits, the transport layer commits the partial text and dispatches an append-only tail completion (`FINISH_TAIL`) rather than discarding or re-rolling the turn.
 5. **`<think>`-Only Retry & `STABILITY_LOCK` Escalation:** If the model closes `</think>` with zero visible prose, the transport layer automatically re-prompts with a `<think>`-only recovery directive. If structural or format errors occur across consecutive turns (`structural_errors >= 1`), `<TASK>` injects `<STABILITY_LOCK>` (`WARNING` at 1 strike, `CRITICAL` format lock at 2+ strikes).
-6. **Monotonic Optics Cooldown:** Synchronous 3-round counter (`IMAGE_TRIGGER_COOLDOWN_ROUNDS = 3`) preventing consecutive image generation loops.
+6. **Monotonic Optics Cooldown:** Synchronous 3-round counter (`IMAGE_TRIGGER_COOLDOWN_ROUNDS = 3`, `src/config.js:272`) preventing consecutive image generation loops.
 7. **Final Note Injection (`<FINAL_NOTE>`):** Appends natural-language perspective and agency boundaries (`Maintain {pov} perspective and {tense} tense anchored strictly to your own identity... Never author dialogue, internal thoughts, or actions for anyone else`) to the final lines of `<TASK>`. Because `PROSE_CORE` binds the active character (including the User Persona during `ghostwrite`) to `<MAIN_CHARACTER>` and anchors `<SYSTEM identity="{role}">` across all four voices (`interaction`, `ghostwrite`, `npc`, and `narrator`), perspective and anti-godmoding resolve automatically without per-role template branching.

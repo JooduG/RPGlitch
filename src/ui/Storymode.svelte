@@ -62,6 +62,7 @@
         entry.meta?.type === "VECTOR_RESOLUTION" ||
         entry.meta?.type === "CONTINUUM_FORMATION" ||
         entry.meta?.type === "MEMORY_FORMATION" ||
+        // eslint-disable-next-line no-undef
         meta?.type === "MEMORY_FORMATION"
       )
         return true;
