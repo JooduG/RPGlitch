@@ -9,6 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Prompt Architecture Exploration & RAG Centralization (`src/config.js`, `architectural-exploration.md`)**:
+  - **Universal RAG Strategy B & Multipliers Registry**: In `src/config.js`, centralized `RAG_MULTIPLIERS` containing quadrant gravity multipliers (`ETERNAL_GRAVITY: 1.4`, `PRESENT_GRAVITY: 1.2`, `FUTURE_GRAVITY: 1.1`, `PAST_GRAVITY: 1.0`), task domain modifiers (`PHYSICAL_PROSE_PENALTY: 0.5`, `OPTICS_PHYSICAL_BOOST: 15.0`, `PHYSICAL_QUERY_RELEVANCE_THRESHOLD: 0.8`), and guaranteed token floors (`FLOOR_ETERNAL_TOKENS: 150`, `FLOOR_PRESENT_TOKENS: 100`).
+  - **Unified Prompt Pipeline Canonical Specification (`architectural-exploration.md`)**:
+    - Completely rewrote and structured `architectural-exploration.md` into an authoritative, clean 9-section technical specification: **Unified Prompt Pipeline Architecture Specification**.
+    - Replaced fragmented decision logs and exploratory design notes with a coherent, logical narrative:
+      1. Spatial State Spine + Purpose Cores architectural philosophy.
+      2. The Five Canonical Purpose Cores table.
+      3. Privacy, Epistemics & 4-Dial Entity Projector.
+      4. The 11-Block Invariant Prompt Spine with contiguous entity sheets.
+      5. Full XML Macro Skeleton blueprint with clean Block 1 / Block 11 separation.
+      6. Macro XML Containers + Canonical Single-String Brackets syntax.
+      7. The Bracket Specification, control modifiers, mutation rules, and 3-layer filtration.
+      8. Two-Tier Sieve Memory RAG with quadrant gravity multipliers and zero magic numbers.
+      9. Simulation Dynamics, Reactive Signal Bus, Hallucination Clamps, and Transport Lifecycle Controls.
+
 - **UI Ergonomics & Accordion Caret Alignment (`src/ui/primitives/Accordion.svelte`)**:
   - **Space-Between Alignment**: Updated `Accordion.svelte` trigger to `flex w-full items-center justify-between py-2 text-left`, placing the `▼` expansion caret at the far right edge of the card container while keeping the label left-aligned.
 

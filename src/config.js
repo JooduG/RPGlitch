@@ -147,6 +147,27 @@ export const HYBRID_WEIGHTS = Object.freeze({
   RECENCY: 1.2, // Weight factoring round distance and temporal decay
 });
 
+/**
+ * Universal RAG Strategy B Quadrant Gravity & Domain Modifiers.
+ * Centralized registry for calibrating token floors, quadrant gravity, and domain penalties.
+ */
+export const RAG_MULTIPLIERS = Object.freeze({
+  // Quadrant gravity multipliers in common overflow pool
+  ETERNAL_GRAVITY: 1.4, // 1.4x: Baseline identity traits heavily favored
+  PRESENT_GRAVITY: 1.2, // 1.2x: Active physical/somatic condition favored
+  FUTURE_GRAVITY: 1.1, // 1.1x: Impending standing agendas favored
+  PAST_GRAVITY: 1.0, // 1.0x: Baseline episodic memory stream
+
+  // Domain & Task-specific modifiers
+  PHYSICAL_PROSE_PENALTY: 0.5, // 0.5x: Damps clothing/appearance in PROSE_CORE to prioritize narrative/emotion
+  OPTICS_PHYSICAL_BOOST: 15.0, // 15.0x: Massive boost in OPTICS_CORE ensuring mandatory physical visual inclusion
+  PHYSICAL_QUERY_RELEVANCE_THRESHOLD: 0.8, // Cosine similarity threshold bypassing the prose physical penalty
+
+  // Strategy B Guaranteed token floors (character budget reservation)
+  FLOOR_ETERNAL_TOKENS: 150, // Guaranteed minimum token budget reserved for eternal identity traits
+  FLOOR_PRESENT_TOKENS: 100, // Guaranteed minimum token budget reserved for active present condition
+});
+
 // ── 3. Narrative Feed, Pacing & Story Chronology ──────────────────────────────
 export const DIALOGUE_WINDOW = Object.freeze({
   ROUNDS: 8, // 8 rounds of active conversational dialogue sliced into prompt context (~16 feed turns)

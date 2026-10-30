@@ -1292,9 +1292,6 @@ export function merge_field_content(current_field_value, incoming_mutation, opti
 }
 
 /** Merges new prose into an ETERNAL identity field without pollution. */
-function merge_eternal_field(current_field_value, new_prose) {
-  return merge_field_content(current_field_value, new_prose, { max_chars: PROSE.PAGE });
-}
 
 /** Decays a PRESENT prose field within canonical character boundary preserving bracket syntax. */
 function cap_present_prose(current_field_value) {

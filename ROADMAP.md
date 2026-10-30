@@ -43,6 +43,9 @@ flowchart TD
 
 ### 🛡️ Release Engineering & Execution Invariants
 
+- **Prompt Pipeline V2 Unification Initiative**:
+  - The architectural exploration dossier [architectural-exploration.md](architectural-exploration.md) is drafted and aligned around the Universal Spatial Spine (Model A) + Swappable Cores, Universal 4-Dial Entity Projector, and Strategy B Two-Tier RAG Sieve. Active open decisions (Decisions 4–7) are staged in Section 10 pending user commitment before initiating compiler refactoring.
+
 - **Prompt Byte Contract Gate:** Any change to prompt-emitted strings alters contract byte-pins and baseline fixtures. Prompt changes are bundled logically to minimize baseline re-cut frequency.
 - **Pins-Survive Rule:** Byte-pins in test fixtures must survive refactoring intact unless the prompt's emitted syntax is deliberately altered. When a prompt tag or delimiter changes across modes, all 12 contract modes must be audited and re-pinned together under a single atomic verification pulse.
 - **Variant Mechanism Protocol:** Output variants (such as `selfie`, character portraits, and scene visuals) must be resolved at the prompt compiler boundary through explicit schema options rather than ambient state or mutable global singletons.

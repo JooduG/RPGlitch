@@ -14,14 +14,7 @@
   import { safe_html } from "@ui";
   import { parse_bracket_entries, strip_bracket_engine_flags } from "@intelligence";
   import { parse_message } from "./render.js";
-  import {
-    get_telemetry_label,
-    process_entity_blocks,
-    resolve_entity_name,
-    vector_label,
-    parse_relationship_edge,
-    clean_text_debris,
-  } from "./telemetry-format.js";
+  import { get_telemetry_label, process_entity_blocks, resolve_entity_name, vector_label, clean_text_debris } from "./telemetry-format.js";
 
   /**
    * @typedef {Object} TelemetryMeta
