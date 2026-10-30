@@ -22,7 +22,7 @@ We do not throw out hard-won runtime discoveries bought with real bug reports. T
    - Rescued into `src/engine/turns.js` as pure integer calculations (~40 lines).
 3. **Track 2 Memory Core & Two-Tier Sieve RAG**:
    - The Two-Tier Sieve architecture (guaranteed token floors per entity + universal gravity-weighted RAG overflow pool) protects against Perchance's 6,000-token cliff while retiring legacy 8:1 chapter compaction trees.
-   - Rescued into `src/data/entities.js` and `src/engine/prompts.js` using the exact mathematical weights already proven live.
+   - Rescued into `src/data/entities.js`, `src/engine/sieve.js`, and `src/engine/prompts.js` using the exact mathematical weights already proven live.
 4. **The Detox Battery (Lightweight Tier-1/Tier-2 Linter)**:
    - Prompt directives alone leak clichés over time. The 38-rule regex linter remains as a clean post-processing step in `src/utils/format.js`.
    - We strip the 1,200 lines of speaking-style bloat, but preserve the lean detox cleaner.
@@ -45,27 +45,35 @@ We do not throw out hard-won runtime discoveries bought with real bug reports. T
     - `see_hidden: "none"` (`OPTICS_CORE`): Strips `| hide` and inventory from all entities for camera-only surface diffusion prompts.
   - Zero regex acrobatics during prompt compilation, zero telepathy, instant evaluation.
 
-### B. Dynamic Staging vs Protocol Bloat (Replacing 86 KB of XML Dictionaries)
+### B. Dynamic Staging & Structured JSON Output (Shot 1 Schema Alignment)
 
 - **The Problem**: Currently, `protocols.js` (40 KB) and `reflex.js` (46 KB) define dozens of static XML protocol atoms. The Director outputs keywords, which run through heavy lookup tables to inject giant static `<SHAME>`, `<TENSION>`, or `<COLD>` blocks into the prompt.
 - **The Elegant Fix**:
-  - The Director emits dynamic, contextual staging guidance:
+  - The Director emits a clean, structured JSON object:
 
     ```json
     {
-      "next_speaker": "ai",
-      "somatic_tension": "cold, shivers, breath misting in the alley",
-      "director_note": "She realizes he's lying about the key. Don't confront him outright; test his reaction."
+      "_thought_process": "Analysis of turn causality, lethal stakes, and emotional drift...",
+      "next_action": "AI_CHARACTER",
+      "story_status": "ACTIVE",
+      "keywords": ["BETRAYAL", "SUSPICION"],
+      "directors_note": "She notices the key missing from the desk. {Test his reaction with quiet suspicion | Conceal her discovery and play along}.",
+      "dynamics_deltas": {
+        "chaos": 5,
+        "intensity": 10,
+        "openness": -15,
+        "affinity": -10
+      },
+      "visual_staging": {
+        "lighting": "dim flickering sconce",
+        "camera": "tight close-up"
+      },
+      "spotlight": { "enter": null, "exit": null }
     }
     ```
 
-  - We inject this directly into the Actor prompt as:
-
-    ```xml
-    <staging subtext="${director.somatic_tension}">${director.director_note}</staging>
-    ```
-
-  - Zero protocol dictionaries, zero XML atom compilation bloat. Fluid, intelligent, and uses 95% less code.
+  - **Branching Staging Alternatives (`{Option A | Option B}`):** The Director can supply curly-bracketed alternatives in `directors_note`. The Actor's `<ALTERNATION_OPTIONS>` protocol commits to exactly ONE branch contextually during Shot 2.
+  - Zero XML protocol dictionary bloat, fluid context, and 100% schema alignment across Director and Actor.
 
 ---
 
@@ -106,13 +114,13 @@ _(Note: `prompt-verification.js` is NOT deleted without replacement; its core pi
 
 ### Data & Persistence Consolidation (`src/data/`)
 
-- **Consolidate Schemas & Persistence**: Merge `repository.js`, `sessions.svelte.js`, `ledger.js`, and `normalizer.js` directly into `src/data/db.js` with pure Dexie operations.
-- **Quad-Partitioned Entities (`src/data/entities.js`)**: Canonical 4-quadrant schema (`ETERNAL`, `PRESENT`, `PAST`, `FUTURE`) with single-string multiline brackets and `see_hidden` visibility + Two-Tier Sieve RAG weights. Delete `card-conversion.js`. Keep streamlined `profile-fields.js`.
+- **Consolidate Schemas & Persistence**: Merge `repository.js`, `sessions.svelte.js`, `ledger.js`, and `normalizer.js` directly into `src/data/db.js` with pure Dexie operations (including `vector_cache`).
+- **Quad-Partitioned Entities (`src/data/entities.js`)**: Canonical 4-quadrant schema (`ETERNAL`, `PRESENT`, `PAST`, `FUTURE`) with single-string multiline brackets, `see_hidden` visibility, and atomic naming constraints (no ambiguous pronouns). Delete `card-conversion.js`. Keep streamlined `profile-fields.js`.
 - **Presets & Starters (`src/data/presets.js`)**: 2 canonical narrative presets (Gritty & Cinematic) and starter entity cards.
 
 ### Media Layer Consolidation (`src/media/` - Governed by Design Skill)
 
-- **`audio.svelte.js`**: Web Audio SFX and native Web Speech API dispatch (`window.speechSynthesis`). Delete standalone `speech.js` (purging the 1,248-line in-browser ONNX Kokoro pipeline).
+- **`audio.svelte.js`**: Web Audio SFX and native Web Speech API dispatch (`window.speechSynthesis`) with chunking and watchdog timer. Delete standalone `speech.js` (purging the 1,248-line in-browser ONNX Kokoro pipeline).
 - **`visual.svelte.js`**: Lean Perchance `generate_image` caller with clean prompts. Delete `optics.js`.
 - **`motion.js`**: Unified kinetic physics, spring transitions, and card flight math. Absorbs `transitions.svelte.js`, `engine.svelte.js`, `kinetic.svelte.js`, and `card-flight.svelte.js`.
 - **Styling Root**: `design.css` lives at root `src/design.css`, retaining tokens and glassmorphism.
@@ -120,12 +128,13 @@ _(Note: `prompt-verification.js` is NOT deleted without replacement; its core pi
 ### State & Platform Consolidation (`src/state/` & `src/platform/` -> `src/engine/`)
 
 - **Authoritative Kernel (`src/engine/simulation.svelte.js`)**: Single Svelte 5 state class owning active entities (`user`, `ai`, `fractal`), `round`, `phase` (`idle`, `generating`), and turn dispatch. Purges `chrono.svelte.js`, `status.svelte.js`, `runtime.svelte.js`, `interface.svelte.js`, and `freeze-watchdog`.
-- **The Simulation Heartbeat (`src/engine/turns.js`)**: Coordinates Director turn (Shot 1 JSON staging, beat budgets, lethality), Storyteller turn (Shot 2 prose), Caretaker memory consolidation (Shot 3), and Optics diffusion synthesis.
-- **The 4 Purpose Cores (`src/engine/prompts.js`)**: Implements the 4 canonical cores from Section 4 below (`DIRECTOR_CORE`, `PROSE_CORE`, `CARETAKER_CORE`, `OPTICS_CORE`) over the invariant 11-block Spine. Zero XML catalog atom sprawl.
-- **Bracket Parser (`src/engine/parser.js`)**: Clean pseudo-JSON parser (`[KEY: VALUE]`), diff applier, `FLAT_LEAF_MAP` receiver, and `<think>` stripper.
-- **Transport Gatekeeper (`src/engine/transport.js`)**: Perchance LLM streaming (`onChunk`), stop sequence enforcement, single sequential queue (`max_concurrency: 1`), refusal detection, and lean Perchance embedding caller.
+- **The Simulation Heartbeat (`src/engine/turns.js`)**: Coordinates Director turn (Shot 1 JSON staging, beat budgets, lethality, paradox triage), Storyteller turn (Shot 2 prose), Caretaker memory consolidation (Shot 3), and Optics diffusion synthesis.
+- **The 4 Purpose Cores (`src/engine/prompts.js`)**: Implements the 4 canonical cores from Section 4 below (`DIRECTOR_CORE`, `PROSE_CORE`, `CARETAKER_CORE`, `OPTICS_CORE`) over the invariant 11-block Spine. Includes `render_terse_director_task()` fast-path recovery. Zero XML catalog atom sprawl.
+- **Two-Tier Sieve & Vector Math (`src/engine/sieve.js`)**: Two-Tier Sieve RAG ranking, guaranteed token floors, universal gravity-weighted overflow pool, and ephemeral uncompacted window motif resurgence.
+- **Bracket Parser (`src/engine/parser.js`)**: Clean pseudo-JSON parser (`[KEY: VALUE]`), diff applier, `FLAT_LEAF_MAP` receiver, `<think>` stripper, and brace/pipe alternation isolation.
+- **Transport Gatekeeper (`src/engine/transport.js`)**: Perchance LLM streaming (`onChunk`), stop sequence enforcement, single sequential queue (`max_concurrency: 1`), refusal detection, and slash command pre-pass (`/ooc`, `/reroll`, `/continue`).
 - **Telemetry HUD (`src/engine/log.svelte.js`)**: Event log and telemetry feed.
-- **Verification Gate (`src/engine/verifier.js`)**: Lean 100-line byte-contract gate replacing `prompt-verification.js`.
+- **Verification Gate (`src/engine/verifier.js`)**: Lean 100-line structural tag-inventory contract gate replacing `prompt-verification.js`.
 
 ### System Configuration Slimming (`src/config.js`)
 
@@ -135,7 +144,10 @@ _(Note: `prompt-verification.js` is NOT deleted without replacement; its core pi
 ### Utils Layer Pruning (`src/utils/`)
 
 - **Delete Indirection & Bloat**: Delete `bridges.js`, `catalog.js`, `styles.js`, `job-queue.js`, `xml.js`, `field-path.js`, and `ui-helpers.js`.
-- **`format.js`**: Dialogue quote wrapping, markdown-it rendering, DOMPurify HTML sanitization, story export, and Tier-1/Tier-2 detox cleaner.
+- **`format.js`**: Dialogue quote wrapping, markdown-it rendering, DOMPurify HTML sanitization, URL validation, story export, and Tier-1/Tier-2 detox cleaner.
+- **`macros.js`**: Mustache template interpolation (`{{user}}`, `{{char}}`) & `@handle` graph target expansion.
+- **`math.js`**: Pure cosine similarity math and vector normalizations.
+- **`onnx.js`**: Local ONNX runtime mutex lock and in-browser 384-d vector embeddings (`Xenova/all-MiniLM-L6-v2`).
 - **`actions.js`**: Pure Svelte DOM actions (`click_outside`, `auto_resize`, `safe_html`).
 
 ### UI Layer Complete Flattening (`src/ui/`)
@@ -168,8 +180,9 @@ RPGlitch cleanly separates **Simulation State** (what exists in the fictional un
 ┌────────────────────────────────────────────────────────────────────────┐
 │                        INVARIANT SPATIAL SPINE                         │
 │  Block 1: System & Constitution         Block 5: Support & Scene       │
-│  Block 2: Reality (World Truths)        Blocks 6-8: Chronology & Logs  │
-│  Blocks 3-4: Main Character & Partner   Blocks 9-10: Trajectories      │
+│  Block 2: Reality (World Truths)        Blocks 6-7: Unified Memories   │
+│  Blocks 3-4: Main Character & Partner   Blocks 8-9: Trajectories       │
+│                                         Block 10: History (Recent)     │
 └───────────────────────────────────┬────────────────────────────────────┘
                                     │ Parameterized by Purpose Module
                                     ▼
@@ -258,17 +271,17 @@ Translates current narrative moment and exterior physical traits into precision 
 
 ### 4.4 The 11-Block Invariant Prompt Spine
 
-| Block Number      | Semantic Scope                   | System Nomenclature                                                                    | XML Container                                           | Contents                                                                                                                                  |
-| :---------------- | :------------------------------- | :------------------------------------------------------------------------------------- | :------------------------------------------------------ | :---------------------------------------------------------------------------------------------------------------------------------------- |
-| **Block 1**       | System, Constitution & Protocols | `system.role`, `constitution`, `protocols`                                             | `<SYSTEM>` / `<AXIOMATIC_CONSTITUTION>` / `<PROTOCOLS>` | Invariant role line, the 4 Axiomatic Laws (Causality/Lethality, Epistemics, Sovereignty, Fidelity), and static Craft/Anti-Slop Protocols. |
-| **Block 2**       | Setting Baseline                 | `fractal.eternal`                                                                      | `<REALITY>`                                             | Permanent laws of world, physics, calendar truths, geography, standing world facts.                                                       |
-| **Block 3**       | Main Character                   | `eternal.physical`, `eternal.non_physical`, `present.physical`, `present.non_physical` | `<MAIN_CHARACTER>`                                      | Active speaker's permanent baseline (`eternal`) and immediate condition (`present`).                                                      |
-| **Block 4**       | Counterpart                      | `counterpart.eternal`, `counterpart.present`                                           | `<COUNTERPART>`                                         | Interacting partner's permanent baseline and visible condition.                                                                           |
-| **Block 5**       | Support & Scenario               | `other_characters`, `fractal.present`                                                  | `<OTHER_CHARACTERS>` + `<SCENARIO>`                     | Secondary cast in `<CHARACTER>` containers, followed by room presence, sensory anchors, velocity, entropy in `<SCENARIO>`.                |
-| **Blocks 6 & 7**  | Unified Memories                 | `past` (episodic), `fractal.past` (lore)                                               | `<MEMORIES>` (in `<HISTORY>`)                           | Personal memories and world facts retrieved via hybrid semantic RAG.                                                                      |
-| **Block 8**       | History Transcript               | `history.transcript`                                                                   | `<RECENT>` (in `<HISTORY>`)                             | Sliding window of recent dialogue/action turns (`DIALOGUE_WINDOW.ROUNDS`).                                                                |
-| **Blocks 9 & 10** | Unified Trajectory               | `fractal.future`, `future` (standing agenda)                                           | `<TRAJECTORY>`                                          | Macro world/scenario arc stacked hierarchically above character's standing agenda and forward drift cues.                                 |
-| **Block 11**      | Execution Core                   | `core.payload`                                                                         | `<TASK>`                                                | Turn-specific directives, thinking templates, delivery posture, and format contract. Concludes with `<FINAL_NOTE>`.                       |
+| Block Number     | Semantic Scope                   | System Nomenclature                                                                    | XML Container                                           | Contents                                                                                                                                                              |
+| :--------------- | :------------------------------- | :------------------------------------------------------------------------------------- | :------------------------------------------------------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Block 1**      | System, Constitution & Protocols | `system.role`, `constitution`, `protocols`                                             | `<SYSTEM>` / `<AXIOMATIC_CONSTITUTION>` / `<PROTOCOLS>` | Invariant role line, the 4 Axiomatic Laws (Causality/Lethality, Epistemics, Sovereignty, Fidelity), and static Craft/Anti-Slop Protocols.                             |
+| **Block 2**      | Setting Baseline                 | `fractal.eternal`                                                                      | `<REALITY>`                                             | Permanent laws of world, physics, calendar truths, geography, standing world facts.                                                                                   |
+| **Block 3**      | Main Character                   | `eternal.physical`, `eternal.non_physical`, `present.physical`, `present.non_physical` | `<MAIN_CHARACTER>`                                      | Active speaker's permanent baseline (`eternal`) and immediate condition (`present`).                                                                                  |
+| **Block 4**      | Counterpart                      | `counterpart.eternal`, `counterpart.present`                                           | `<COUNTERPART>`                                         | Interacting partner's permanent baseline and visible condition.                                                                                                       |
+| **Block 5**      | Support & Scenario               | `other_characters`, `fractal.present`                                                  | `<OTHER_CHARACTERS>` + `<SCENARIO>`                     | Secondary cast in `<CHARACTER>` containers, followed by room presence, sensory anchors, velocity, entropy in `<SCENARIO>`.                                            |
+| **Blocks 6 & 7** | Unified Memories                 | `past` (episodic), `fractal.past` (lore)                                               | `<MEMORIES>` (in `<HISTORY>`)                           | Personal memories and world facts retrieved via hybrid semantic RAG.                                                                                                  |
+| **Blocks 8 & 9** | Unified Trajectory               | `fractal.future`, `future` (standing agenda)                                           | `<TRAJECTORY>`                                          | Macro world/scenario arc stacked hierarchically above character's standing agenda and forward drift cues (placed above recent dialogue to maximize recency gradient). |
+| **Block 10**     | History Transcript               | `history.transcript`                                                                   | `<RECENT>` (in `<HISTORY>`)                             | Sliding window of recent dialogue/action turns (`DIALOGUE_WINDOW.ROUNDS`), immediately preceding `<TASK>`.                                                            |
+| **Block 11**     | Execution Core                   | `core.payload`                                                                         | `<TASK>`                                                | Turn-specific directives, thinking templates, delivery posture, and format contract. Concludes with `<FINAL_NOTE>`.                                                   |
 
 ```xml
 <SYSTEM round="{round}" identity="{role}">
@@ -284,9 +297,9 @@ Translates current narrative moment and exterior physical traits into precision 
     <TYPOGRAPHY>Balance interior reflection against physical impact and speech: prefer localized objects over repetitive posture tags. Maintain lingering sensory conditions across scene shifts. Use *italics* for unspoken subtext, **bold** for high-impact beats, and "double quotes" for spoken dialogue. End on a complete sentence.</TYPOGRAPHY>
     <SCENE_MOMENTUM>State actions directly and keep the scene moving.</SCENE_MOMENTUM>
     <NATURAL_DIALOGUE>Keep spoken dialogue grounded, clipped, uneven, and interrupted. Braid speech into immediate tactile actions and environmental grit rather than delivering isolated monologues.</NATURAL_DIALOGUE>
-    <ALTERNATION_OPTIONS>When a trait contains {Option A | Option B} syntax, select and commit to ONE contextually fitting option for the turn.</ALTERNATION_OPTIONS>
+    <ALTERNATION_OPTIONS>When a trait or director note contains {Option A | Option B} syntax, select and commit to ONE contextually fitting option for the turn.</ALTERNATION_OPTIONS>
     <ANTI_SLOP>
-      <PROSE_HYGIENE>Omit meta-commentary, preambles, headers, or user echoes. Never leak [BRACKET: tags], XML tags, meter numbers, @-tokens, or {A | B} braces/pipes into narrative prose. Never stall with permission loops ('Can I ask a question?'), teasing secrets, or begging quotas, and never resolve macro scenario mysteries or declare final victory in standard dialogue turns. Retrieved <MEMORIES> must color present perception and trigger involuntary physical reflex or hesitation; never author clunky historical exposition recaps ('he remembered when...').</PROSE_HYGIENE>
+      <PROSE_HYGIENE>Omit meta-commentary, preambles, headers, or user echoes. Never leak [BRACKET: tags], XML tags, meter numbers, @-tokens, or {A | B} braces/pipes into narrative prose. Never output memory static glyphs ('■■■') in dialogue. Never stall with permission loops ('Can I ask a question?'), teasing secrets, or begging quotas, and never resolve macro scenario mysteries or declare final victory in standard dialogue turns. Retrieved <MEMORIES> must color present perception and trigger involuntary physical reflex or hesitation; never author clunky historical exposition recaps ('he remembered when...').</PROSE_HYGIENE>
       <SYNTHETIC_FORMULAS>Ban denial-then-affirmation ('X did not just Y; it Z\'d'), antithetical formulas ('Not X, but Y'), symmetrical binary comparisons, appositive dialogue sound tags, and formulaic action-dialogue sandwiches.</SYNTHETIC_FORMULAS>
       <CLICHES>Ban overused tropes: 'spoke volumes', 'a testament to', 'tapestry of', 'shivers down the spine', 'unspoken understanding', 'dance of shadows', 'let out a breath they didn\'t know they were holding', and Wattpad dominance clichés ('feisty', 'playing with fire', 'death of me', 'mine').</CLICHES>
     </ANTI_SLOP>
@@ -333,16 +346,19 @@ Translates current narrative moment and exterior physical traits into precision 
       {main_character_past}
       {fractal_past}
     </MEMORIES>
-    <RECENT rounds="{core.settings.history}">
-      <ROUND type="sample" origin="{main_character_name}">{sample_character_reply}</ROUND>
-      <ROUND number="{round_num}" origin="{speaker_name}">{dialogue_and_action_text}</ROUND>
-    </RECENT>
   </HISTORY>
 
   <TRAJECTORY>
     {fractal_future}
     {main_character_future}
   </TRAJECTORY>
+
+  <HISTORY>
+    <RECENT rounds="{core.settings.history}">
+      <ROUND type="sample" origin="{main_character_name}">{sample_character_reply}</ROUND>
+      <ROUND number="{round_num}" origin="{speaker_name}">{dialogue_and_action_text}</ROUND>
+    </RECENT>
+  </HISTORY>
 
   <TASK>
     {core.task_payload}
@@ -355,9 +371,29 @@ Translates current narrative moment and exterior physical traits into precision 
 
 ---
 
-### 4.5 The Bracket Specification
+### 4.5 Core-Agnostic Conditional & Elective Directives
+
+_Directives and postures that evaluate runtime conditions, session metrics, or data patterns independently of which specific Purpose Core consumes them._
+
+| Directive Atom                | Condition / Trigger Rule                                                                                                                                    | Evaluated From                               | Injected Target Block & Core                          | Effect / Operational Payload                                                                                                                                                              |
+| :---------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------- | :---------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`<ALTERNATION_OPTIONS>`**   | Entity brackets or `directors_note` contain `{Option A \| Option B}` syntax.                                                                                | Profile text / director staging parser       | Block 1 `<PROTOCOLS>` (`DIRECTOR_CORE`, `PROSE_CORE`) | Enforces committing to strictly ONE contextually fitting option for the turn.                                                                                                             |
+| **`<MOMENTUM_SOFT_PERMIT>`**  | Scene stagnation metric $\ge 8$ stagnant turns (repeated topics, zero physical advancement).                                                                | Turn history / delta tracking                | Block 11 `<TASK>` (`DIRECTOR_CORE`, `PROSE_CORE`)     | Grants permission to break physical blocking, shift focus, introduce activity, or escalate scene tension.                                                                                 |
+| **`<MOMENTUM_HARD_MANDATE>`** | Scene stagnation metric $\ge 16$ stagnant turns.                                                                                                            | Turn history / delta tracking                | Block 11 `<TASK>` (`DIRECTOR_CORE`, `PROSE_CORE`)     | Critical override: forces an immediate external disruption, physical event, or arrival of off-stage entity.                                                                               |
+| **`<ENVIRONMENTAL_HINT>`**    | Player input is purely non-verbal / spatial exploration (no spoken quotation marks `""`) OR Round $\le 1$.                                                  | Player input analyzer                        | Block 11 `<TASK>` (`DIRECTOR_CORE`)                   | Nudges Director to evaluate selecting `next_action: "FRACTAL"` for world/setting agency.                                                                                                  |
+| **`<EXHAUSTED_OPENINGS>`**    | Round $> 1$ with prior assistant turns available.                                                                                                           | Last 3–5 assistant entries in history        | Block 11 `<TASK>` (`PROSE_CORE`)                      | Extracts first sentences of recent assistant entries into negative constraints to ban formulaic opening echoes (e.g. _"You stumble through the ash..."_).                                 |
+| **`<STABILITY_LOCK>`**        | Previous turn suffered structural failures (dropped XML tags, malformed JSON, unclosed `<think>`).                                                          | Transport verifier error ledger (1–2 errors) | Block 11 `<TASK>` (All Cores on retry)                | Emergency formatting lock: `<STABILITY_LOCK level="WARNING">Strictly enforce output formatting. Emit zero conversational preambles or thoughts outside declared format.</STABILITY_LOCK>` |
+| **`<PLAYER_DIRECTIVE>`**      | User input begins with `/ooc <directive>`.                                                                                                                  | Transport slash command pre-pass             | Block 11 `<TASK>` (`DIRECTOR_CORE`, `PROSE_CORE`)     | Encapsulates player meta-instruction, directing Director/Actor to honor request diegetically without breaking third-person limited prose.                                                 |
+| **`<RECALL_DEGRADATION>`**    | `chaos >= 70` OR `entropy >= 70`.                                                                                                                           | Dynamic axes engine                          | Block 6 & 7 `<MEMORIES>` (`PROSE_CORE`)               | Injects static glyphs (`■■■`) into retrieved memories and asserts negative constraint forbidding memory hallucinations.                                                                   |
+| **`<FIRST_CONTACT>`**         | No prior interaction records or bonds exist between active speaker and target counterpart.                                                                  | Relationship graph evaluator                 | Block 11 `<TASK>` (`PROSE_CORE`)                      | Injects initial-impression posture, heightened defensive evaluation, and wariness.                                                                                                        |
+| **`<SUBTEXT>` Triggers**      | Fixture or dynamic axes cross thresholds (e.g. `intensity >= 70` & `affinity <= 20` $\rightarrow$ `DISSONANCE`; `chaos >= 80` $\rightarrow$ `INSTABILITY`). | 6 Dynamic Axes + 12 Somatic Archetypes       | Block 11 `<TASK>` (`PROSE_CORE`)                      | Activates up to 4 somatic/dynamics behavioral subtext protocols to drive psychological undercurrents.                                                                                     |
+
+---
+
+### 4.6 The Bracket Specification & Slash Commands
 
 - **Single-String Quadrant Harmonization:** All quadrants stored as multiline strings of brackets: `[KEY: value | flags]`.
+- **Parsing Invariant (Pipes vs. Braces):** Metadata flags (`| hide`, `| w: <1-10>`, `| is_origin`) are parsed strictly **outside of brace `{Option A | Option B}` scopes**, ensuring trait alternations never collide with control pipes.
 - **Modifiers:**
   - `| hide`: Private marker. Stripped across Epistemic Wall for counterpart; stripped in image prompts.
   - `| show`: Public override rendering counterpart backstory/agenda across wall.
@@ -365,10 +401,13 @@ Translates current narrative moment and exterior physical traits into precision 
   - `| is_origin`: Origin lock protecting baseline canon and author memories from eviction.
 - **Mutation & Deletion:** Singular overwrites replace in place (`[MOOD: frantic]`); collections (`INVENTORY`, `STASH`) aggregate into lists; atomic deletion via `[KEY: none]` / `[KEY: cleared]`; indivisible token chunking (drop complete candidate bracket if over budget, never truncate mid-sentence).
 - **Template Separation:** Mustache macros `{{user}}`, `{{char}}`, `{{me}}`, `{{you}}`, `{{fractal}}` for text expansion; at-sign handles `@main_character`, `[@julien: ...]` strictly for graph targets and XML attributes.
+- **Slash Commands & Meta Directives:**
+  - Standard user commands (`/ooc <note>`, `/set_style <preset>`, `/continue`, `/collapse`, `/reroll`) are stripped of their slash prefix at the transport layer before entering `<RECENT>`.
+  - `/ooc` notes are wrapped in `<PLAYER_DIRECTIVE>` inside `<TASK>`, instructing the Director and Storyteller to address the out-of-character request diegetically without breaking the third-person wall.
 
 ---
 
-### 4.6 Memory RAG: Two-Tier Sieve & Dynamic Headroom
+### 4.7 Memory RAG: Two-Tier Sieve & Dynamic Headroom
 
 1. **Recency-Weighted Query Assembly:** Assembled from dialogue history matching `DIALOGUE_WINDOW.ROUNDS` (`src/config.js:151`).
 2. **Hash-Indexed Vector Cache:** 384-dimensional embeddings cached in Dexie `vector_cache` keyed by content hash (`EMBEDDING_DIM = 384`).
@@ -382,7 +421,7 @@ Translates current narrative moment and exterior physical traits into precision 
 
 ---
 
-### 4.7 Simulation Dynamics & Transport Controls
+### 4.8 Simulation Dynamics & Transport Controls
 
 - **Six Dynamic Axes:** Somatic (`chaos`, `intensity`, `openness`, `affinity`), Fractal (`velocity`, `entropy`).
 - **12 Somatic Archetypes (`PHYSICS_PROTOCOLS`):** `SHAME`, `FEAR`, `VULNERABILITY`, `BETRAYAL`, `ABANDONMENT`, `EMOTIONAL_NEGLECT`, `DEFIANCE`, `INTIMACY`, `GRIEF`, `DOMINANCE`, `DECEPTION`, `DYSREGULATION`. Selected via 384-d semantic vector similarity against recent dialogue.
@@ -403,7 +442,7 @@ Translates current narrative moment and exterior physical traits into precision 
 
 ---
 
-### 4.8 Refined Narrative Subsystems & Proposals
+### 4.9 Refined Narrative Subsystems & Proposals
 
 - **3-Layer Description Stack ("No Metaphor-Only Narration"):** Enforce _Anchor (Mandatory Object)_ $\rightarrow$ _Sensation (Mandatory Detail)_ $\rightarrow$ _Meaning/Metaphor (Optional Subtext)_.
 - **Scoped Mystery Mode (`FAIRPLAY_FUZZ` + `INSIGHT_SYNC`):** Baseline rule in Law 2 ensures `| hide` secrets are defended via deflection and micro-tells (not stonewalling or instant confession). Scoped mystery mode guarantees exactly one traceable anomaly per scene when pressed, with escalating clarity on accurate deductions (see `.agents/skills/simulation/references/mystery-mode-suggestion.md`).
@@ -418,37 +457,42 @@ Translates current narrative moment and exterior physical traits into precision 
 
 ## 5. The True "Start From Nothing" Masterpiece Map
 
-This is what RPGlitch looks like when built with zero legacy baggage: **4 Purpose Cores**, **4 Clean Folders**, and **~27 purposeful files total**.
+This is what RPGlitch looks like when built with zero legacy baggage: **4 Purpose Cores**, **4 Clean Folders**, and **~30 purposeful files total**.
 
 ```
 src/
 ├── main.js                     # Mounts App.svelte with design.css
 ├── App.svelte                  # Root layout router (Lobby vs. Story)
+├── RPGlitch-left-panel.pjs     # Perchance Lists Panel engine bridge
 ├── config.js                   # Canonical hardware limits (20k char ceiling, timeouts)
 ├── design.css                  # CSS design tokens, typography, glassmorphism, animations
 │
-├── engine/                     # 🧠 THE SIMULATION & STATE (7 Files)
+├── engine/                     # 🧠 THE SIMULATION & STATE (8 Files)
 │   ├── simulation.svelte.js    # Single authoritative state kernel (entities, round, phase, actions)
 │   ├── turns.js                # The Simulation Heartbeat (Director JSON staging, Actor prose, Caretaker memory consolidation, Optics)
-│   ├── prompts.js              # The 4 Purpose Cores (Director, Prose, Caretaker, Optics over the 11-block Spine)
-│   ├── parser.js               # Robust bracket parser ([KEY: VALUE], diffs, clean prose, strip <think>, FLAT_LEAF_MAP)
-│   ├── transport.js            # Perchance LLM streaming, single sequential queue (max_concurrency: 1), refusal interceptor
-│   ├── verifier.js             # Lean byte-contract harness & prompt verification gate
+│   ├── prompts.js              # The 4 Purpose Cores (Director, Prose, Caretaker, Optics over the 11-block Spine) + render_terse_director_task
+│   ├── parser.js               # Robust bracket parser ([KEY: VALUE], diffs, clean prose, strip <think>, FLAT_LEAF_MAP, pipe/brace isolation)
+│   ├── sieve.js                # Two-Tier Sieve RAG math, hybrid lexical scoring, cosine ranking, and ephemeral motif clustering
+│   ├── transport.js            # Perchance LLM streaming, single sequential queue (max_concurrency: 1), refusal interceptor, slash command pre-pass
+│   ├── verifier.js             # Lean tag-inventory contract gate & structural layer verifier
 │   └── log.svelte.js           # Developer HUD telemetry and event log feed
 │
 ├── data/                       # 💾 PERSISTENCE & SCHEMAS (4 Files)
-│   ├── db.js                   # Dexie database schema + clean CRUD persistence (stories, characters)
-│   ├── entities.js             # 4-quadrant schema + see_hidden visibility filter + Two-Tier Sieve RAG weights
+│   ├── db.js                   # Dexie database schema + clean CRUD persistence (stories, characters, vector_cache)
+│   ├── entities.js             # 4-quadrant schema + see_hidden visibility filter + atomic naming constraints
 │   ├── profile-fields.js       # Streamlined field definitions, UI labels, FLAT_LEAF_MAP, and Caretaker directives
 │   └── presets.js              # 2 Narrative Styles (Gritty/Cinematic) + default starter entities
 │
 ├── media/                      # 🎨 SENSORY CORTEX & DESIGN (3 Files, governed by design skill)
-│   ├── audio.svelte.js         # Web Audio SFX + speech dispatch
+│   ├── audio.svelte.js         # Web Audio SFX + chunked speech dispatch with watchdog
 │   ├── visual.svelte.js        # Perchance generate_image caller
 │   └── motion.js               # Kinetic physics, spring transitions & card flight math
 │
-├── utils/                      # 🛠️ PURE HELPERS (2 Files)
-│   ├── format.js               # Quotes, markdown, DOMPurify sanitization, detox cleaner, story export
+├── utils/                      # 🛠️ PURE HELPERS (5 Files)
+│   ├── format.js               # Quotes, markdown, DOMPurify HTML sanitization, URL validation, detox cleaner, story export
+│   ├── macros.js               # Mustache template interpolation ({{user}}, {{char}}) & @handle expansion
+│   ├── math.js                 # Cosine similarity and vector normalizations
+│   ├── onnx.js                 # Local ONNX runtime mutex lock & Xenova/all-MiniLM-L6-v2 vector embeddings
 │   └── actions.js              # Svelte DOM actions (click_outside, auto_resize, safe_html)
 │
 └── ui/                         # 🖥️ THE USER INTERFACE (12 Pure Svelte Components)
@@ -489,7 +533,7 @@ To permanently prevent the codebase from regressing into wrappers and over-engin
 
 ## 7. Execution Strategy: The Strangler Migration & 4 Gates
 
-We do not perform an unverified big-bang cut. We build the lean core parallel to the baseline, prove equivalence using the 12 pinned byte-contracts, and then execute the atomic demolition.
+We do not perform an unverified big-bang cut. We build the lean core parallel to the baseline, prove equivalence using the 12 pinned structural tag contracts, and then execute the atomic demolition.
 
 ```mermaid
 flowchart TD
@@ -502,6 +546,7 @@ flowchart TD
 ### Gate 0: Baseline Freeze & Pin Vault
 
 - [ ] Snapshot current prompt compile contracts and tag inventories from `src/intelligence/prompt-verification.js` into test fixtures.
+- [ ] Write the 4 new Purpose Core structural layer tests in `src/engine/verifier.test.js` asserting the 11-block sequence and `see_hidden` epistemic bounds.
 - [ ] Run `npm run verify` to ensure the starting baseline is 100% green.
 - [ ] Inventory all exports in `src/intelligence/` and tag genuine call sites vs dead aliases.
 
@@ -509,29 +554,36 @@ flowchart TD
 
 - [ ] **`src/config.js`**: Prune all pseudo-physics (`GRAVITY_RATE`, `DYNAMICS_SCALE`, `SEISMIC_SHIFT_DISPLACEMENT`) down to ~30 lines of honest hardware limits (`PROMPT_CHAR_LIMIT = 20000`, `CHARS_PER_TOKEN = 3.35`, timeouts).
 - [ ] **`src/utils/`**:
-  - `format.js`: Dialogue quote wrapping, markdown-it rendering, DOMPurify HTML sanitization, detox cleaner, and story export.
+  - `format.js`: Dialogue quote wrapping, markdown-it rendering, DOMPurify HTML sanitization, URL protocol validation, detox cleaner, and story export.
+  - `macros.js`: Mustache template token interpolation (`{{user}}`, `{{char}}`) & `@handle` graph target expansion.
+  - `math.js`: Pure cosine similarity math and vector normalizations.
+  - `onnx.js`: Local ONNX runtime mutex lock and in-browser 384-d vector embeddings (`Xenova/all-MiniLM-L6-v2`).
   - `actions.js`: Pure Svelte DOM actions (`click_outside`, `auto_resize`, `safe_html`).
   - Purge `bridges.js`, `catalog.js`, `styles.js`, `job-queue.js`, `xml.js`, and `field-path.js`.
 - [ ] **`src/media/`**:
-  - `audio.svelte.js`: Clean Web Audio SFX + native Web Speech API dispatch (`window.speechSynthesis`). Purge standalone `speech.js` / in-browser ONNX Kokoro pipeline.
+  - `audio.svelte.js`: Clean Web Audio SFX + chunked native Web Speech API dispatch (`window.speechSynthesis`) with watchdog timer. Purge standalone `speech.js` / in-browser ONNX Kokoro pipeline.
   - `visual.svelte.js`: Direct Perchance `generate_image` caller with clean prompts (purge `optics.js`).
   - `motion.js`: Pure kinetic physics, spring math, and card flight transitions (absorbs `transitions`, `engine`, `kinetic`, `card-flight`).
 - [ ] **`src/data/`**:
-  - `db.js`: Consolidated Dexie schema + clean CRUD operations (stories, characters, active sessions). Purges `repository.js`, `sessions.svelte.js`, `ledger.js`, and `normalizer.js`.
-  - `entities.js`: Canonical 4-quadrant entity schema (`ETERNAL`, `PRESENT`, `PAST`, `FUTURE`) with `see_hidden` visibility filter + Two-Tier Sieve RAG weights. Purges `card-conversion.js`.
+  - `db.js`: Consolidated Dexie schema + clean CRUD operations (stories, characters, active sessions, `vector_cache`). Purges `repository.js`, `sessions.svelte.js`, `ledger.js`, and `normalizer.js`.
+  - `entities.js`: Canonical 4-quadrant entity schema (`ETERNAL`, `PRESENT`, `PAST`, `FUTURE`) with `see_hidden` visibility filter and atomic entity naming constraints (no ambiguous pronouns). Purges `card-conversion.js`.
   - `profile-fields.js`: Streamlined UI labels, `FLAT_LEAF_MAP`, and Caretaker field-enhancement directives.
   - `presets.js`: 2 canonical narrative presets (Gritty & Cinematic) + default starter entity cards. Purges `speaking-styles.js`, `narrative-styles.js`, and `visual-styles.js`.
+- [ ] **`.agents/` Automation Sync**:
+  - Update `.agents/skills/local-scripts/scripts/audit-layers.js` to recognize the 4-layer topology (`engine`, `data`, `media`, `ui`).
+  - Update `.agents/skills/design/scripts/sync-css.js` to synchronize tokens to `src/design.css`.
 
 ### Gate 2: Simulation Engine Kernel (`src/engine/`)
 
-- [ ] **`prompts.js`**: The 4 canonical Purpose Cores (`DIRECTOR_CORE`, `PROSE_CORE`, `CARETAKER_CORE`, `OPTICS_CORE`) compiling over the invariant 11-block Spine. Zero XML catalog atom sprawl.
-- [ ] **`parser.js`**: Clean pseudo-JSON bracket parser (`[KEY: VALUE]`), diff calculator, `FLAT_LEAF_MAP` receiver, prose normalizer, and `<think>` stripper.
-- [ ] **`transport.js`**: Perchance LLM streaming (`onChunk`), stop sequence enforcement, single sequential queue (`max_concurrency: 1`), model refusal detection, and lean embedding helper.
-- [ ] **`turns.js`**: Coordinates Director turn (Shot 1 JSON staging, beat budgeting, lethality), Storyteller turn (Shot 2 prose), Caretaker memory consolidation (Shot 3), and Optics image prompts.
+- [ ] **`prompts.js`**: The 4 canonical Purpose Cores (`DIRECTOR_CORE`, `PROSE_CORE`, `CARETAKER_CORE`, `OPTICS_CORE`) compiling over the invariant 11-block Spine. Includes `render_terse_director_task()` fast-path recovery. Zero XML catalog atom sprawl.
+- [ ] **`parser.js`**: Clean pseudo-JSON bracket parser (`[KEY: VALUE]`), diff calculator, `FLAT_LEAF_MAP` receiver, prose normalizer, `<think>` stripper, and brace/pipe alternation isolation.
+- [ ] **`sieve.js`**: Two-Tier Sieve RAG math, guaranteed token floors, universal gravity-weighted overflow pool, and ephemeral uncompacted window motif resurgence.
+- [ ] **`transport.js`**: Perchance LLM streaming (`onChunk`), stop sequence enforcement, single sequential queue (`max_concurrency: 1`), model refusal detection, and slash command pre-pass (`/ooc`, `/reroll`, `/continue`).
+- [ ] **`turns.js`**: Coordinates Director turn (Shot 1 JSON staging, beat budgeting, lethality, paradox triage), Storyteller turn (Shot 2 prose), Caretaker memory consolidation (Shot 3), and Optics image prompts.
 - [ ] **`simulation.svelte.js`**: Single authoritative Svelte 5 state kernel owning `user`, `ai`, `fractal`, `round`, `phase`, and dispatch functions.
-- [ ] **`verifier.js`**: Lean 100-line tag inventory contract gate validating the 4 Purpose Cores against layer ordering contracts.
+- [ ] **`verifier.js`**: Lean 100-line tag inventory contract gate validating the 4 Purpose Cores against structural layer ordering contracts.
 - [ ] **`log.svelte.js`**: Developer HUD and telemetry event stream.
-- [ ] **Unit Tests**: TDD verification for bracket parsing, prompt generation against Gate 0 contracts, and state transitions.
+- [ ] **Unit Tests**: TDD verification for bracket parsing, prompt generation against structural tag contracts, and state transitions.
 
 ### Gate 3: Flat UI Domain Components (`src/ui/`)
 
