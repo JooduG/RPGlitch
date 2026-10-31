@@ -1,153 +1,92 @@
-# 🔷 RPGlitch
+# RPGlitch System Blueprint (Hay)
 
 > **A Simulation-Driven AI Roleplay Engine**  
 > _State is Truth. The User is the Protagonist; the Engine is the Physics._
 
-RPGlitch is a local-first web application designed for deep, stateful AI roleplay simulation. Superseding conventional, sterile chatbot patterns, RPGlitch separates physical and psychological truth from narrative prose. Characters possess biological limits, somatic signals, and secret trajectories, while living environmental fractals decay, shift, and react under player pressure.
+RPGlitch is an offline-capable, local-first web application designed for deep, stateful AI roleplay simulation. Compiled as a single-file portable bundle via Vite 8 (`vite-plugin-singlefile`), it strictly decouples physical/psychological truth from narrative prose.
+
+- **Visual & Sensory Tokens**: Consult [DESIGN.md](DESIGN.md).
+- **Security & Threat Defense**: Consult [SECURITY.md](SECURITY.md).
+- **Active Demolition & Nuclear Refactor Plan**: Consult [nuclear-plan.md](nuclear-plan.md).
+- **Future Engineering & Sprints**: Consult [ROADMAP.md](ROADMAP.md).
+- **Release History**: Consult [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
-## 1. The Simulation Philosophy
+## 1. System Topology & Technology Stack
 
-Traditional AI roleplay collapses because the language model is asked to be everything at once: the rule arbiter, the world simulator, the scene director, and the roleplaying actor. This inevitably causes **hallucinatory collapse**—characters magically read minds, physics bend to convenience, inventory evaporates, and conversations drift into agreeable, sterile pleasantness.
-
-RPGlitch solves this through mechanical separation of concerns:
-
-- **The Engine is the Physics**: Real mechanical truth (somatic dynamics, clothing, inventory, interpersonal relationship edges, environmental entropy) lives strictly inside structured state stores. It never lives inside ungrounded LLM memory.
-- **The LLM is the Sensory & Expression Layer**: The language model never invents core physical state out of thin air. Instead, the engine projects state geometry into prompt envelopes, and the model acts as a subjective lens experiencing and vocalizing that reality.
-- **User Agency Invariant (P1)**: The human participant owns the only unconstrained will in the simulation. The engine and autonomous agents may establish physical boundaries, emotional friction, and environmental consequences, but **never speak, act, predict, or think on behalf of the User Persona**.
-
----
-
-## 2. The Story Triad, The Director & Supporting Cast
-
-Every simulation session in RPGlitch is anchored by a core in-scene triad, overseen from above by the Director, with secondary characters summoned as narrative instruments:
+The codebase enforces strict unidirectional dependency flow. High-level presentation layers depend on core engine controllers; lower-level persistence and utility services never reference upward consumers.
 
 ```mermaid
 flowchart TD
-    Director["<b>The Director (Narrative Orchestrator)</b><br><i>Oversees the simulation, manages dramatic tension, and delegates turns</i>"]
+    UI["<code>src/ui/</code><br>Presentation Layer (12 Flat Components)"]
+    Engine["<code>src/engine/</code><br>Kernel & Simulation Heartbeat Layer"]
+    Data["<code>src/data/</code><br>Client Persistence Layer"]
+    Platform["<code>src/media/</code>, <code>src/utils/</code><br>Hardware, Sensory & Utility Services"]
 
-    subgraph StoryTriad ["The Story Triad (In-Scene Core)"]
-        direction LR
-        User["<b>User Persona Entity</b><br><code>runtime.active_user</code><br><i>Biological Protagonist</i>"]
-        AI["<b>AI Character Entity</b><br><code>runtime.active_ai</code><br><i>Autonomous Co-Star</i>"]
-        Fractal["<b>Fractal Entity</b><br><code>runtime.active_fractal</code><br><i>Living Setting & Horizon</i>"]
-    end
-
-    Director -->|Orchestrates & Stages| StoryTriad
-    Director -.->|Summons to Spotlight| Secondary["<b>Supporting Cast / NPCs</b><br><code>runtime.active_npcs</code><br><i>Lesser secondary characters</i>"]
-    Secondary -.->|Enters Scene| StoryTriad
+    UI --> |imports downward| Engine
+    Engine --> |imports downward| Data
+    Data --> |imports downward| Platform
 ```
 
-### The In-Scene Story Triad
+### Core Technologies
 
-The core dramatic relationship in every story revolves around three foundational anchors:
-
-1. **User Persona Entity (`runtime.active_user`)**: The player's avatar. Protected by the Agency Invariant; autonomous agents are strictly forbidden from scripting the user's motor actions, speech, or thoughts.
-2. **AI Character Entity (`runtime.active_ai`)**: The active autonomous co-star and primary counterpart in the scene. Governed by somatic dynamics, subtext, and private trajectories.
-3. **Fractal Entity (`runtime.active_fractal`)**: The living environment entity. Governs atmospheric hazards, sensory descriptors, acoustic profile, structural decay, and overarching scene objectives.
-
-### The Director (The Narrative Orchestrator)
-
-Sitting above the in-scene triad is the **Director** (executing via Shot 1 / Quick Shot). The Director is the unseen orchestrator behind the simulation—evaluating state deltas against physical rules, regulating dramatic tension, managing scene pacing, and deciding whether the next beat belongs to the AI Co-Star, the Fractal, or a supporting character.
-
-### Secondary Characters & Supporting Cast (`runtime.active_npcs`)
-
-Secondary characters are **narrative tools for the Director to tell an engaging story**. Rather than cluttering the primary dynamic between the User and AI Co-Star, the Director or User can manage cast members via explicit scene presence (`presence: 'active' | 'nearby' | 'dormant'`):
-
-- **Stage Spotlight (`presence: 'active'`)**: Entities in the active spotlight receive full somatic dynamics evaluation, can be delegated speaking turns (`npc:<id>`), engage in dialogue, and carry relational vectors.
-- **Ambient Awareness (`presence: 'nearby'`)**: Entities nearby are contextually observed and tracked without receiving speaking turns.
-- **Zero-Token Storage (`presence: 'dormant'`)**: Dormant cast members remain serialized in IndexedDB with zero token consumption until summoned.
-
-> [!NOTE]
-> **Shared Character Pool**: The repository holds characters ranging from fully fleshed-out primary personas to lesser secondary supporting characters. Any character can seamlessly be assigned as the active player avatar, the primary co-star, or an in-scene supporting NPC.
+- **UI & Reactivity**: **Svelte 5 Runes**. State synchronization is governed exclusively by **$state()**, **$derived()**, and **$effect()**. Legacy store contracts (`writable`) and Svelte 4 reactivity (`$:`) are disallowed.
+- **Persistence Engine**: **Dexie.js 4 (IndexedDB)**. Handles structured client-side storage for sessions, entities, environmental models, vector embeddings, and the mutation ledger (`db.mutation_ledger`). `localStorage` is forbidden.
+- **Client-Side Neural Inference**:
+  - **Transformers.js & 8-Bit Vector Quantization Engine**: Embedded ONNX vector embedding pipeline running a 384-dimensional model (`Xenova/all-MiniLM-L6-v2`) with `quantize_vector_q8()` and `dequantize_vector_q8()` codecs, compressing 32-bit float vector stores to uint8 base64 strings with 75% storage savings and $> 0.99$ cosine similarity preservation.
+- **Single-File Bundle Ceiling**: Strict invariant: production bundle must not exceed **4.00 MB** (`MAX_BUNDLE_BYTES`). Realtime TTS is explicitly parked to prevent bundle inflation.
 
 ---
 
-## 3. Simulation Dynamics (0–100)
+## 2. Subdirectories & Architectural Boundaries
 
-Dynamics are numerical state scalars representing somatic, emotional, and environmental pressure. The inference engine translates these metrics into prose subtext, body language, and behavioral modifiers:
+RPGlitch organizes its source code into clean, isolated subsystems:
 
-### Character Dynamics
-
-Present on all character entities. In active storymode, the primary AI Character's dynamics drive behavioral mutations and somatic tells:
-
-- **`chaos`**: Behavioral stability vs. erratic volatility.
-- **`intensity`**: Autonomic nervous activation, adrenaline response, and heartbeat cadence.
-- **`openness`**: Receptivity and vulnerability vs. defensive suspicion.
-- **`affinity`**: Interpersonal trust, warmth, and attraction vs. hostility.
-
-### Fractal Dynamics
-
-- **`velocity`**: Kinetic pacing and environmental movement rate.
-- **`entropy`**: Structural degradation, environmental noise, and physical breakdown.
+- **[src/engine/](src/engine/README.md)**: Authoritative simulation state kernel, 3-turn heartbeat (`turns.js`), 11-block Spatial Spine & 4 Purpose Cores (`prompts.js`), Two-Tier Sieve RAG (`sieve.js`), and Tag-Inventory Verifier Gate (`verifier.js`).
+- **[src/ui/](src/ui/README.md)**: Presentation layer containing 12 flat Svelte 5 domain components (zero nested wrapper subdirectories).
+- **[src/data/](src/data/README.md)**: Unified Dexie.js persistence (`db.js`), 4-quadrant entity models (`entities.js`), and starter presets (`presets.js`).
+- **[src/media/](src/media/README.md)**: Web Audio SFX (`audio.svelte.js`), Perchance diffusion image synthesis (`visual.svelte.js`), and kinetic spring physics (`motion.js`).
+- **[src/utils/](src/utils/README.md)**: Pure stateless codecs, DOMPurify HTML sanitization, 38-rule Tier-1/Tier-2 detox cleaner (`format.js`), vector cosine math (`math.js`), and Mustache interpolation (`macros.js`).
 
 ---
 
-## 4. The Simulation Heartbeat: Rounds & Turns
+## 3. Local Interface & Entry Points (`src/`)
 
-Time in RPGlitch progresses through a strict, discrete temporal heartbeat orchestrated across rounds and micro-turns:
-
-```mermaid
-flowchart TD
-    UserAction["User Action Submission"] --> SystemTurn["1. System Turn (Deterministic Physics / Non-LLM)"]
-    subgraph RoundCycle ["The Round Lifecycle"]
-        direction TB
-        SystemTurn --> Shot1["2. Director Turn (Shot 1: Quick Shot)"]
-        Shot1 --> Shot2["3. Agent Turn (Shot 2: Narrative Streaming)"]
-        Shot2 --> UserTurn["4. User Turn (Controls Released / Free to Compose)"]
-    end
-    Shot2 -. async fork .-> BackShot["The Back Shot (Memory Forge / Background Consolidation)"]
-    UserTurn --> NextAction["User Action Submission (Finalizes Current Round & Starts Next)"]
-```
-
-### The Turn Sequence
-
-1. **System Turn (Metaphysical Chronos)**: The instant an action is submitted, the engine evaluates deterministic state rules, somatic deltas, and spatial presence without calling an LLM.
-2. **Director Turn (Shot 1 / Quick Shot)**: Fast staging inference. Evaluates the state kernel, validates participant intent against physics, updates dynamics, delegates the active speaker, and stages narrative beats.
-3. **Agent Turn (Shot 2 / Narrative Turn)**: Asynchronous storyteller pass. Streams in-character prose from the delegated speaker's perspective, cleaned through deterministic prose detox filters.
-4. **User Turn (Biological Protagonist)**: Conceptually the **final turn of the round**. The interface releases, allowing the user to reflect and compose their next action. Submitting that action simultaneously **completes the active round** and triggers the next cycle.
-5. **The Back Shot (Background Narrative Support)**: An asynchronous process running in the background every round via a dedicated queue. Runs the **Memory Forge**, computing semantic embeddings, consolidating episodic vectors, and updating standing agendas without blocking the player.
+- `src/App.svelte`: Root application container mounting layout shells, modal overlays, storyboards, and feeds.
+- `src/main.js`: Client boot entry point, initializing IndexedDB, error hardening, and mounting `App.svelte`.
+- `src/config.js`: Honest hardware limits and physical simulation quotas (`PROMPT_CHAR_LIMIT`, `CHARS_PER_TOKEN`, `MAX_ACTIVE_MEMORIES`).
+- `src/RPGlitch-left-panel.pjs`: Perchance integration definition file.
+- `src/index.html`: Web application HTML host container.
 
 ---
 
-## 5. System Specification Hierarchy
+## 4. Global Invariants & System Laws
 
-RPGlitch organizes technical and operational governance across a structured documentation hierarchy:
-
-```
-┌──────────────────────────────────────────────────────────────────────────┐
-│ STRATEGIC: README.md (Product Vision, Game Design, Simulation Concepts)  │
-└────────────────────────────────────┬─────────────────────────────────────┘
-                                     ▼
-┌──────────────────────────────────────────────────────────────────────────┐
-│ TACTICAL SPECIFICATIONS: The Technical Contracts                         │
-│ • ARCHITECTURE.md (Software topology, Svelte 5 runes, layer boundaries)  │
-│ • DESIGN.md       (Visual tokens, typography, glassmorphism, motion)     │
-│ • SECURITY.md     (Threat model, XSS mitigation, input sanitization)     │
-│ • ROADMAP.md      (FUTURE: Target architectural specs & active backlog)  │
-└────────────────────────────────────┬─────────────────────────────────────┘
-                                     ▼
-┌──────────────────────────────────────────────────────────────────────────┐
-│ OPERATIONAL EXECUTION: Actionable Deliverables & History                 │
-│ • Native Plans    (<brain>/plan.md: Immediate implementation bridges)    │
-│ • CHANGELOG.md    (PAST: Historical release pulse & completed milestones)│
-└──────────────────────────────────────────────────────────────────────────┘
-```
-
-- **[ARCHITECTURE.md](ARCHITECTURE.md)**: Authoritative technical specification for layer boundaries, Svelte 5 reactive stores, Dexie.js persistence, and the Two-Shot execution pipeline.
-- **[DESIGN.md](DESIGN.md)**: Single source of truth for the Nordic design system, color tokens, typography, radii, and View Transition animations (adhering to the [design.md specification](https://github.com/google-labs-code/design.md)).
-- **[SECURITY.md](SECURITY.md)**: Client-side defense-in-depth model, input sanitization boundaries, DOMPurify sink controls, and epistemic leak verification.
-- **[ROADMAP.md](ROADMAP.md)**: Active engineering sprints, architectural blueprints for unbuilt features, and technical backlog.
-- **[CHANGELOG.md](CHANGELOG.md)**: Chronological record of completed releases and architectural refactors.
-- **[GEMINI.md](GEMINI.md)**: Sovereign engineering rules, coding standards, and agent operational behaviors.
+1. **Downward Layer Hierarchy**: Imports flow strictly downward (`src/ui` → `src/engine` → `src/data` → `src/media` & `src/utils`). Upward or circular imports trigger automated CI build failure.
+2. **P1 User Agency**: Never speak, act, or think on behalf of the biological User. Maintain strict third-person limited integrity for non-user entities.
+3. **P4 Zero Backwards Compatibility (Pre-Beta Purity)**: Never write backwards-compatible fallbacks, legacy aliases, deprecated wrappers, or schema shims. Refactor all downstream consumers immediately.
+4. **Epistemic Wall & Anti-Telepathy**: Hidden brackets (`| hide`) belonging to non-owner entities are stripped across the Epistemic Wall in prompt compilation (`see_hidden: "own"`).
+5. **Prompt Catalog Grammar Law**: Every prompt atom must be a frozen object `{ tag, body, attrs?, inline? }` compiled exclusively via `render_atom_xml` from `@utils`. Naked strings in prompt catalogs are prohibited.
+6. **Tag-Inventory Contract Gate**: All emitted prompts must pass structural verification in `verifier.js` verifying tag balance, ordering, and preventing unclosed `<THINK>` or unescaped control tags.
+7. **Single-Concurrency LLM Queue**: All LLM streaming calls pass through `transport.js` enforcing sequential execution (`max_concurrency: 1`).
 
 ---
 
-## ⚡ Quick Start
+## 5. System Verification
 
-```bash
-npm install    # Install dependencies
-npm run sync   # Sync design tokens and ignore layers
-npm run dev    # Launch the local Vite development server
-```
+- **Full Local CI Gate**:
+
+  ```bash
+  npm test
+  ```
+
+  Runs sequentially: `test:unit`, `test:sync`, `test:hooks`.
+
+- **Production Bundle Verification**:
+
+  ```bash
+  npm run build
+  ```
+
+  Verifies that single-file bundle generation succeeds and remains under the 4.00 MB limit.

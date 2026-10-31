@@ -10,7 +10,7 @@ description: Sovereign RPGlitch simulation physics and chronology guide. Use whe
 This skill serves as the operational engineering runbook for simulation physics, prompt architecture, and cognitive guardrails.
 
 - **Conceptual Game Design & Strategy**: Consult [README.md](../../../README.md) for the Story Triad, simulation philosophy, and turn progression concepts.
-- **Authoritative Technical Architecture**: Consult [ARCHITECTURE.md](../../../ARCHITECTURE.md) for reactive Svelte 5 state models, Quad-Partitioned entity schemas, and layer boundaries.
+- **Authoritative Technical Architecture**: Consult [README.md](../../../README.md) for reactive Svelte 5 state models, Quad-Partitioned entity schemas, and layer boundaries.
 - **Active Sprint & Delta**: Consult [ROADMAP.md](../../../ROADMAP.md) for target memory compaction blueprints.
 
 ---

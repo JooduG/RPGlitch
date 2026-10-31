@@ -7,7 +7,7 @@ This roadmap defines the authoritative technical backlog, active engineering spr
 - **Temporal Mirror**: `ROADMAP.md` is the **FUTURE mirror** representing exclusively the unbuilt delta between current state and desired target state. Completed milestones are recorded in [CHANGELOG.md](CHANGELOG.md) (the **PAST mirror**).
 - **Core Specifications**:
   - [README.md](README.md): Strategic product overview, game design, and simulation philosophy.
-  - [ARCHITECTURE.md](ARCHITECTURE.md): Authoritative software architecture, layer boundaries, and state reality in `src/`.
+  - [README.md](README.md): Authoritative software architecture, layer boundaries, and state reality in `src/`.
   - [DESIGN.md](DESIGN.md): Nordic visual design tokens, typography, and motion contracts.
   - [SECURITY.md](SECURITY.md): Threat defense, input sanitization, and sink controls.
   - [memory-rag-budget-architecture.md](`tmp/memory/memory-rag-budget-architecture.md`): Sovereign memory RAG, token budget reservoirs, and anti-slop specification.
@@ -44,7 +44,7 @@ flowchart TD
 ### 🛡️ Release Engineering & Execution Invariants
 
 - **Prompt Pipeline V2 Unification Initiative**:
-  - The architectural exploration dossier [architectural-exploration.md](architectural-exploration.md) is drafted and aligned around the Universal Spatial Spine (Model A) + Swappable Cores, Universal 4-Dial Entity Projector, and Strategy B Two-Tier RAG Sieve. Active open decisions (Decisions 4–7) are staged in Section 10 pending user commitment before initiating compiler refactoring.
+  - The architectural exploration dossier [architectural-exploration.md](`architectural-exploration.md`) is drafted and aligned around the Universal Spatial Spine (Model A) + Swappable Cores, Universal 4-Dial Entity Projector, and Strategy B Two-Tier RAG Sieve. Active open decisions (Decisions 4–7) are staged in Section 10 pending user commitment before initiating compiler refactoring.
 
 - **Prompt Byte Contract Gate:** Any change to prompt-emitted strings alters contract byte-pins and baseline fixtures. Prompt changes are bundled logically to minimize baseline re-cut frequency.
 - **Pins-Survive Rule:** Byte-pins in test fixtures must survive refactoring intact unless the prompt's emitted syntax is deliberately altered. When a prompt tag or delimiter changes across modes, all 12 contract modes must be audited and re-pinned together under a single atomic verification pulse.

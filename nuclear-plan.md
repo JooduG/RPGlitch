@@ -6,6 +6,7 @@
   - All other card types (Director, Persona, Location, Rule, Style) are modular future horizons that will drop seamlessly into this exact card architecture.
 - **Base Card Foundation**: Every card in the engine shares `{ id, name, type, image, definition, specs }`.
 - **Fast 1-Shot First, 2-Shot Ready**: Fast direct narrative loop first; ready for the Director Card 2-shot dance when the foundation is solid.
+- **Side-by-Side Parallel Tree Strategy**: Build the lean engine in parallel (`src/engine/` alongside legacy code), wire clean consumers, and purge legacy bloat in a decisive cutover without mid-flight regression.
 - **The Core Axiom**: _The treasure is the prompt wording and physical constraints, not the scaffolding code. Protect the battle-tested words and invariants; burn the wrappers, regex mazes, and indirection freely._
 
 ---
@@ -16,7 +17,7 @@ We do not throw out hard-won runtime discoveries bought with real bug reports. T
 
 1. **The Tag Inventory Contract Harness & Verification Gate**:
    - The contract cases in `src/intelligence/prompt-verification.js` validate that prompt synthesis emits the exact required layer order without structural drift (replacing brittle byte-size checks).
-   - Kept as a lean ~100-line `src/engine/verifier.js` and Vitest test suite. We do not nuke the safety net.
+   - Kept as a lean ~100-line `src/engine/verifier.js` and Vitest test suite. We build this FIRST to eliminate AI agent drift during the refactor. We do not nuke the safety net.
 2. **Track 5 Pacing & Beat Budgeting (`finishTail`)**:
    - Pacing contrast and integer beat enforcement prevent runaway 450-character sludge and keep dialogue snappy.
    - Rescued into `src/engine/turns.js` as pure integer calculations (~40 lines).
@@ -28,7 +29,7 @@ We do not throw out hard-won runtime discoveries bought with real bug reports. T
    - We strip the 1,200 lines of speaking-style bloat, but preserve the lean detox cleaner.
 5. **The Lethality & Staging Contract**:
    - Character death, `story_status`, and Director staging overrides must remain strictly deterministic.
-   - Rescued directly into `src/engine/turns.js` and `simulation.svelte.js`.
+   - Rescued directly into `src/engine/turns.js` and `src/engine/simulation.svelte.js`.
 
 ---
 
@@ -40,9 +41,9 @@ We do not throw out hard-won runtime discoveries bought with real bug reports. T
 - **The Elegant Fix**:
   - Keep entity state cleanly stored as canonical single-string multiline brackets `[KEY: value | flags]`.
   - Filter visible brackets via the unified `see_hidden` parameter (`"own"` | `"all"` | `"none"`):
-    - `see_hidden: "own"` (`PROSE_CORE`): Retains active character's own `| hide` brackets, strips counterpart `| hide` brackets and suppresses secret past/future across the Epistemic Wall. Merges physical traits into a single composite `<APPEARANCE>`.
+    - `see_hidden: "own"` (`CHARACTER_CORE`): Retains active character's own `| hide` brackets, strips counterpart `| hide` brackets and suppresses secret past/future across the Epistemic Wall. Merges physical traits into a single composite `<APPEARANCE>`.
     - `see_hidden: "all"` (`DIRECTOR_CORE` & `CARETAKER_CORE`): Retains all hidden brackets across the cast for omniscient evaluation and memory synthesis. Keeps physical traits un-merged (`<APPEARANCE>` + `<CURRENT_LOOK>`) for 1:1 Caretaker JSON mapping.
-    - `see_hidden: "none"` (`OPTICS_CORE`): Strips `| hide` and inventory from all entities for camera-only surface diffusion prompts.
+    - `see_hidden: "none"` (`VISUALIZER_CORE`): Strips `| hide` and inventory from all entities for camera-only surface diffusion prompts.
   - Zero regex acrobatics during prompt compilation, zero telepathy, instant evaluation.
 
 ### B. Dynamic Staging & Structured JSON Output (Shot 1 Schema Alignment)
@@ -58,16 +59,8 @@ We do not throw out hard-won runtime discoveries bought with real bug reports. T
       "story_status": "ACTIVE",
       "keywords": ["BETRAYAL", "SUSPICION"],
       "directors_note": "She notices the key missing from the desk. {Test his reaction with quiet suspicion | Conceal her discovery and play along}.",
-      "dynamics_deltas": {
-        "chaos": 5,
-        "intensity": 10,
-        "openness": -15,
-        "affinity": -10
-      },
-      "visual_staging": {
-        "lighting": "dim flickering sconce",
-        "camera": "tight close-up"
-      },
+      "dynamics_deltas": { "chaos": 5, "intensity": 10, "openness": -15, "affinity": -10 },
+      "visual_staging": { "lighting": "dim flickering sconce", "camera": "tight close-up" },
       "spotlight": { "enter": null, "exit": null }
     }
     ```
@@ -120,7 +113,7 @@ _(Note: `prompt-verification.js` is NOT deleted without replacement; its core pi
 
 ### Media Layer Consolidation (`src/media/` - Governed by Design Skill)
 
-- **`audio.svelte.js`**: Web Audio SFX and native Web Speech API dispatch (`window.speechSynthesis`) with chunking and watchdog timer. Delete standalone `speech.js` (purging the 1,248-line in-browser ONNX Kokoro pipeline).
+- **`audio.svelte.js`**: Web Audio SFX (clicks, transitions, ambient loops) strictly initialized on direct user gesture. **TTS IS PARKED**: Native browser Web Speech API and in-browser ONNX Kokoro pipelines (`speech.js`) are eliminated from the nuclear scope to protect the single-file bundle ceiling (< 4.00 MB), eliminate async latency, and avoid browser speech quirks. Dedicated TTS exploration is deferred to post-nuclear work.
 - **`visual.svelte.js`**: Lean Perchance `generate_image` caller with clean prompts. Delete `optics.js`.
 - **`motion.js`**: Unified kinetic physics, spring transitions, and card flight math. Absorbs `transitions.svelte.js`, `engine.svelte.js`, `kinetic.svelte.js`, and `card-flight.svelte.js`.
 - **Styling Root**: `design.css` lives at root `src/design.css`, retaining tokens and glassmorphism.
@@ -128,8 +121,8 @@ _(Note: `prompt-verification.js` is NOT deleted without replacement; its core pi
 ### State & Platform Consolidation (`src/state/` & `src/platform/` -> `src/engine/`)
 
 - **Authoritative Kernel (`src/engine/simulation.svelte.js`)**: Single Svelte 5 state class owning active entities (`user`, `ai`, `fractal`), `round`, `phase` (`idle`, `generating`), and turn dispatch. Purges `chrono.svelte.js`, `status.svelte.js`, `runtime.svelte.js`, `interface.svelte.js`, and `freeze-watchdog`.
-- **The Simulation Heartbeat (`src/engine/turns.js`)**: Coordinates Director turn (Shot 1 JSON staging, beat budgets, lethality, paradox triage), Storyteller turn (Shot 2 prose), Caretaker memory consolidation (Shot 3), and Optics diffusion synthesis.
-- **The 4 Purpose Cores (`src/engine/prompts.js`)**: Implements the 4 canonical cores from Section 4 below (`DIRECTOR_CORE`, `PROSE_CORE`, `CARETAKER_CORE`, `OPTICS_CORE`) over the invariant 11-block Spine. Includes `render_terse_director_task()` fast-path recovery. Zero XML catalog atom sprawl.
+- **The Simulation Heartbeat (`src/engine/turns.js`)**: Coordinates Director turn (Shot 1 JSON staging, beat budgets, lethality, paradox triage), Storyteller turn (Shot 2 prose), Caretaker memory consolidation (Shot 3), and Visualizer diffusion synthesis.
+- **The 4 Purpose Cores (`src/engine/prompts.js`)**: Implements the 4 canonical cores from Section 4 below (`DIRECTOR_CORE`, `CHARACTER_CORE`, `CARETAKER_CORE`, `VISUALIZER_CORE`) over the invariant 11-block Spine. Includes `render_terse_director_task()` fast-path recovery. Zero XML catalog atom sprawl.
 - **Two-Tier Sieve & Vector Math (`src/engine/sieve.js`)**: Two-Tier Sieve RAG ranking, guaranteed token floors, universal gravity-weighted overflow pool, and ephemeral uncompacted window motif resurgence.
 - **Bracket Parser (`src/engine/parser.js`)**: Clean pseudo-JSON parser (`[KEY: VALUE]`), diff applier, `FLAT_LEAF_MAP` receiver, `<think>` stripper, and brace/pipe alternation isolation.
 - **Transport Gatekeeper (`src/engine/transport.js`)**: Perchance LLM streaming (`onChunk`), stop sequence enforcement, single sequential queue (`max_concurrency: 1`), refusal detection, and slash command pre-pass (`/ooc`, `/reroll`, `/continue`).
@@ -194,12 +187,12 @@ RPGlitch cleanly separates **Simulation State** (what exists in the fictional un
 
 The simulation engine collapses all runtime operations into four canonical Purpose Cores:
 
-| Core Name            | Runtime Role                                                                                                                     | Spine Settings                                                                       | Task Directives & Output Contract                                                                                                                             |
-| :------------------- | :------------------------------------------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **`DIRECTOR_CORE`**  | Turn staging, rule evaluation, dynamics deltas, image beat scheduling                                                            | `system_role: "director"`<br />`see_hidden: "all"`<br />`history: "immediate"`       | Evaluates state mutations, physical causality, paradox triage, and tension deltas.<br />`OUTPUT_FORMAT mode="json"`                                           |
-| **`PROSE_CORE`**     | In-character & Fractal story prose streaming (`interaction`, `ghostwrite`, `npc`, `narrator`)                                    | `system_role: "{role}"`<br />`see_hidden: "own"`<br />`history: "full"`              | Parameterized by active speaker. Injects unified `<THINK_FORMAT>`, style/subtext, friction ambivalence, and pacing posture.<br />`OUTPUT_FORMAT mode="prose"` |
-| **`CARETAKER_CORE`** | Unified entity state & memory synthesis (background turn consolidation, Profile Studio ingestion/sorting, and field enhancement) | `system_role: "caretaker"`<br />`see_hidden: "all"`<br />`history: "full" \| "none"` | Transforms narrative text (`<RECENT>` dialogue or `<TARGET_CONTENT>` notes) into canonical profile brackets.<br />`OUTPUT_FORMAT mode="json" \| "brackets"`   |
-| **`OPTICS_CORE`**    | Sensory Cortex diffusion prompt synthesis                                                                                        | `system_role: "optics"`<br />`see_hidden: "none"`<br />`history: "immediate"`        | Mandatory physical baseline inclusion (`BUILD`, `EYES`, `HAIR`, `CLOTHING`). Strips hidden states and inventory.<br />`OUTPUT_FORMAT mode="json"`             |
+| Core Name             | Runtime Role                                                                                                                     | Spine Settings                                                                       | Task Directives & Output Contract                                                                                                                             |
+| :-------------------- | :------------------------------------------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **`DIRECTOR_CORE`**   | Turn staging, rule evaluation, dynamics deltas, image beat scheduling                                                            | `system_role: "director"`<br />`see_hidden: "all"`<br />`history: "immediate"`       | Evaluates state mutations, physical causality, paradox triage, and tension deltas.<br />`OUTPUT_FORMAT mode="json"`                                           |
+| **`CHARACTER_CORE`**  | In-character & Fractal story prose streaming (`interaction`, `ghostwrite`, `npc`, `narrator`)                                    | `system_role: "{role}"`<br />`see_hidden: "own"`<br />`history: "full"`              | Parameterized by active speaker. Injects unified `<THINK_FORMAT>`, style/subtext, friction ambivalence, and pacing posture.<br />`OUTPUT_FORMAT mode="prose"` |
+| **`CARETAKER_CORE`**  | Unified entity state & memory synthesis (background turn consolidation, Profile Studio ingestion/sorting, and field enhancement) | `system_role: "caretaker"`<br />`see_hidden: "all"`<br />`history: "full" \| "none"` | Transforms narrative text (`<RECENT>` dialogue or `<TARGET_CONTENT>` notes) into canonical profile brackets.<br />`OUTPUT_FORMAT mode="json" \| "brackets"`   |
+| **`VISUALIZER_CORE`** | Sensory Cortex diffusion prompt synthesis                                                                                        | `system_role: "visualizer"`<br />`see_hidden: "none"`<br />`history: "immediate"`    | Mandatory physical baseline inclusion (`BUILD`, `EYES`, `HAIR`, `CLOTHING`). Strips hidden states and inventory.<br />`OUTPUT_FORMAT mode="json"`             |
 
 ---
 
@@ -222,7 +215,7 @@ Evaluates simulation state after the user acts (or on scene transition) and stag
   - **Somatic Keyword Selection (`<KEYWORD_DIRECTIVES>`):** Ratifies or selects 0–5 somatic archetypes from `<AVAILABLE_KEYWORDS>` (the 12 universal archetypes + active style motifs).
 - **Output Contract (`<OUTPUT_FORMAT mode="json">`):** Emits `{ _thought_process, next_action, story_status, keywords, directors_note, dynamics_deltas, visual_staging, spotlight }`.
 
-#### `PROSE_CORE` — Unified Narrative & Dialogue Streaming (Shot 2A)
+#### `CHARACTER_CORE` — Unified Narrative & Dialogue Streaming (Shot 2A)
 
 Powers all four narrative voices (`interaction` companion, `ghostwrite` persona, `npc` supporting cast, and `narrator` voiced Fractal) using a 4-part `<TASK>` structure:
 
@@ -249,7 +242,7 @@ Transforms narrative text into structured profile brackets for a single target e
 - Three operational modes: Live Story Consolidation (delta updates from `<RECENT>`), Whole-Profile Ingestion & Redistribution (maps raw notes across fields), and Single-Field Polish.
 - Strict `[KEY: value]` grammar, atomic deletion via `[KEY: none]` / `[KEY: cleared]`, and preservation of `[@TARGET: ...]` and template macros.
 
-#### `OPTICS_CORE` — Sensory Cortex Visual Diffusion Synthesis
+#### `VISUALIZER_CORE` — Sensory Cortex Visual Diffusion Synthesis
 
 Translates current narrative moment and exterior physical traits into precision diffusion prompts:
 
@@ -262,9 +255,9 @@ Translates current narrative moment and exterior physical traits into precision 
 ### 4.3 Privacy, Epistemics & Entity Projection
 
 - **`see_hidden` Parameter:**
-  - `see_hidden: "own"` (`PROSE_CORE`): Active character sees own secrets (`| hide`); counterpart `| hide` brackets stripped; counterpart backstory/agenda suppressed across Epistemic Wall. Merges physical traits into single `<APPEARANCE>`.
+  - `see_hidden: "own"` (`CHARACTER_CORE`): Active character sees own secrets (`| hide`); counterpart `| hide` brackets stripped; counterpart backstory/agenda suppressed across Epistemic Wall. Merges physical traits into single `<APPEARANCE>`.
   - `see_hidden: "all"` (`DIRECTOR_CORE` & `CARETAKER_CORE`): Omniscient visibility across cast. Keeps physical traits un-merged (`<APPEARANCE>` + `<CURRENT_LOOK>`) for 1:1 Caretaker JSON mapping.
-  - `see_hidden: "none"` (`OPTICS_CORE`): Strips `| hide` and inventory from all entities for camera diffusion. Merges physical traits into single `<APPEARANCE>`.
+  - `see_hidden: "none"` (`VISUALIZER_CORE`): Strips `| hide` and inventory from all entities for camera diffusion. Merges physical traits into single `<APPEARANCE>`.
 - **Unified Bracket Projection & Cast Presence:** No synthetic summaries; secondary cast in `<OTHER_CHARACTERS>` operates under smaller guaranteed token floors (`ENTITY_GUARANTEES`). Off-stage characters mentioned in outgoing relationships/reality are never duplicated into `<OTHER_CHARACTERS>`. The `<DORMANT>` pool is rendered exclusively for `DIRECTOR_CORE`.
 
 ---
@@ -375,18 +368,18 @@ Translates current narrative moment and exterior physical traits into precision 
 
 _Directives and postures that evaluate runtime conditions, session metrics, or data patterns independently of which specific Purpose Core consumes them._
 
-| Directive Atom                | Condition / Trigger Rule                                                                                                                                    | Evaluated From                               | Injected Target Block & Core                          | Effect / Operational Payload                                                                                                                                                              |
-| :---------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------- | :---------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **`<ALTERNATION_OPTIONS>`**   | Entity brackets or `directors_note` contain `{Option A \| Option B}` syntax.                                                                                | Profile text / director staging parser       | Block 1 `<PROTOCOLS>` (`DIRECTOR_CORE`, `PROSE_CORE`) | Enforces committing to strictly ONE contextually fitting option for the turn.                                                                                                             |
-| **`<MOMENTUM_SOFT_PERMIT>`**  | Scene stagnation metric $\ge 8$ stagnant turns (repeated topics, zero physical advancement).                                                                | Turn history / delta tracking                | Block 11 `<TASK>` (`DIRECTOR_CORE`, `PROSE_CORE`)     | Grants permission to break physical blocking, shift focus, introduce activity, or escalate scene tension.                                                                                 |
-| **`<MOMENTUM_HARD_MANDATE>`** | Scene stagnation metric $\ge 16$ stagnant turns.                                                                                                            | Turn history / delta tracking                | Block 11 `<TASK>` (`DIRECTOR_CORE`, `PROSE_CORE`)     | Critical override: forces an immediate external disruption, physical event, or arrival of off-stage entity.                                                                               |
-| **`<ENVIRONMENTAL_HINT>`**    | Player input is purely non-verbal / spatial exploration (no spoken quotation marks `""`) OR Round $\le 1$.                                                  | Player input analyzer                        | Block 11 `<TASK>` (`DIRECTOR_CORE`)                   | Nudges Director to evaluate selecting `next_action: "FRACTAL"` for world/setting agency.                                                                                                  |
-| **`<EXHAUSTED_OPENINGS>`**    | Round $> 1$ with prior assistant turns available.                                                                                                           | Last 3–5 assistant entries in history        | Block 11 `<TASK>` (`PROSE_CORE`)                      | Extracts first sentences of recent assistant entries into negative constraints to ban formulaic opening echoes (e.g. _"You stumble through the ash..."_).                                 |
-| **`<STABILITY_LOCK>`**        | Previous turn suffered structural failures (dropped XML tags, malformed JSON, unclosed `<think>`).                                                          | Transport verifier error ledger (1–2 errors) | Block 11 `<TASK>` (All Cores on retry)                | Emergency formatting lock: `<STABILITY_LOCK level="WARNING">Strictly enforce output formatting. Emit zero conversational preambles or thoughts outside declared format.</STABILITY_LOCK>` |
-| **`<PLAYER_DIRECTIVE>`**      | User input begins with `/ooc <directive>`.                                                                                                                  | Transport slash command pre-pass             | Block 11 `<TASK>` (`DIRECTOR_CORE`, `PROSE_CORE`)     | Encapsulates player meta-instruction, directing Director/Actor to honor request diegetically without breaking third-person limited prose.                                                 |
-| **`<RECALL_DEGRADATION>`**    | `chaos >= 70` OR `entropy >= 70`.                                                                                                                           | Dynamic axes engine                          | Block 6 & 7 `<MEMORIES>` (`PROSE_CORE`)               | Injects static glyphs (`■■■`) into retrieved memories and asserts negative constraint forbidding memory hallucinations.                                                                   |
-| **`<FIRST_CONTACT>`**         | No prior interaction records or bonds exist between active speaker and target counterpart.                                                                  | Relationship graph evaluator                 | Block 11 `<TASK>` (`PROSE_CORE`)                      | Injects initial-impression posture, heightened defensive evaluation, and wariness.                                                                                                        |
-| **`<SUBTEXT>` Triggers**      | Fixture or dynamic axes cross thresholds (e.g. `intensity >= 70` & `affinity <= 20` $\rightarrow$ `DISSONANCE`; `chaos >= 80` $\rightarrow$ `INSTABILITY`). | 6 Dynamic Axes + 12 Somatic Archetypes       | Block 11 `<TASK>` (`PROSE_CORE`)                      | Activates up to 4 somatic/dynamics behavioral subtext protocols to drive psychological undercurrents.                                                                                     |
+| Directive Atom                | Condition / Trigger Rule                                                                                                                                    | Evaluated From                               | Injected Target Block & Core                              | Effect / Operational Payload                                                                                                                                                              |
+| :---------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------- | :-------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`<ALTERNATION_OPTIONS>`**   | Entity brackets or `directors_note` contain `{Option A \| Option B}` syntax.                                                                                | Profile text / director staging parser       | Block 1 `<PROTOCOLS>` (`DIRECTOR_CORE`, `CHARACTER_CORE`) | Enforces committing to strictly ONE contextually fitting option for the turn.                                                                                                             |
+| **`<MOMENTUM_SOFT_PERMIT>`**  | Scene stagnation metric $\ge 8$ stagnant turns (repeated topics, zero physical advancement).                                                                | Turn history / delta tracking                | Block 11 `<TASK>` (`DIRECTOR_CORE`, `CHARACTER_CORE`)     | Grants permission to break physical blocking, shift focus, introduce activity, or escalate scene tension.                                                                                 |
+| **`<MOMENTUM_HARD_MANDATE>`** | Scene stagnation metric $\ge 16$ stagnant turns.                                                                                                            | Turn history / delta tracking                | Block 11 `<TASK>` (`DIRECTOR_CORE`, `CHARACTER_CORE`)     | Critical override: forces an immediate external disruption, physical event, or arrival of off-stage entity.                                                                               |
+| **`<ENVIRONMENTAL_HINT>`**    | Player input is purely non-verbal / spatial exploration (no spoken quotation marks `""`) OR Round $\le 1$.                                                  | Player input analyzer                        | Block 11 `<TASK>` (`DIRECTOR_CORE`)                       | Nudges Director to evaluate selecting `next_action: "FRACTAL"` for world/setting agency.                                                                                                  |
+| **`<EXHAUSTED_OPENINGS>`**    | Round $> 1$ with prior assistant turns available.                                                                                                           | Last 3–5 assistant entries in history        | Block 11 `<TASK>` (`CHARACTER_CORE`)                      | Extracts first sentences of recent assistant entries into negative constraints to ban formulaic opening echoes (e.g. _"You stumble through the ash..."_).                                 |
+| **`<STABILITY_LOCK>`**        | Previous turn suffered structural failures (dropped XML tags, malformed JSON, unclosed `<think>`).                                                          | Transport verifier error ledger (1–2 errors) | Block 11 `<TASK>` (All Cores on retry)                    | Emergency formatting lock: `<STABILITY_LOCK level="WARNING">Strictly enforce output formatting. Emit zero conversational preambles or thoughts outside declared format.</STABILITY_LOCK>` |
+| **`<PLAYER_DIRECTIVE>`**      | User input begins with `/ooc <directive>`.                                                                                                                  | Transport slash command pre-pass             | Block 11 `<TASK>` (`DIRECTOR_CORE`, `CHARACTER_CORE`)     | Encapsulates player meta-instruction, directing Director/Actor to honor request diegetically without breaking third-person limited prose.                                                 |
+| **`<RECALL_DEGRADATION>`**    | `chaos >= 70` OR `entropy >= 70`.                                                                                                                           | Dynamic axes engine                          | Block 6 & 7 `<MEMORIES>` (`CHARACTER_CORE`)               | Injects static glyphs (`■■■`) into retrieved memories and asserts negative constraint forbidding memory hallucinations.                                                                   |
+| **`<FIRST_CONTACT>`**         | No prior interaction records or bonds exist between active speaker and target counterpart.                                                                  | Relationship graph evaluator                 | Block 11 `<TASK>` (`CHARACTER_CORE`)                      | Injects initial-impression posture, heightened defensive evaluation, and wariness.                                                                                                        |
+| **`<SUBTEXT>` Triggers**      | Fixture or dynamic axes cross thresholds (e.g. `intensity >= 70` & `affinity <= 20` $\rightarrow$ `DISSONANCE`; `chaos >= 80` $\rightarrow$ `INSTABILITY`). | 6 Dynamic Axes + 12 Somatic Archetypes       | Block 11 `<TASK>` (`CHARACTER_CORE`)                      | Activates up to 4 somatic/dynamics behavioral subtext protocols to drive psychological undercurrents.                                                                                     |
 
 ---
 
@@ -407,21 +400,72 @@ _Directives and postures that evaluate runtime conditions, session metrics, or d
 
 ---
 
-### 4.7 Memory RAG: Two-Tier Sieve & Dynamic Headroom
+### 4.7 Memory RAG, Somatic Classification & Motif Synthesis (`src/engine/sieve.js`)
 
-1. **Recency-Weighted Query Assembly:** Assembled from dialogue history matching `DIALOGUE_WINDOW.ROUNDS` (`src/config.js:151`).
-2. **Hash-Indexed Vector Cache:** 384-dimensional embeddings cached in Dexie `vector_cache` keyed by content hash (`EMBEDDING_DIM = 384`).
-3. **Hybrid Blend Scoring:** Cosine semantic similarity + exact lexical match bonus for entity handles (`@SILVERS`), locations, and inventory.
-4. **The Two-Tier Sieve:**
-   - _Tier 1 Guaranteed Floors:_ Fixed Spine & Floors (`FLOOR_ETERNAL_TOKENS = 150`, `FLOOR_PRESENT_TOKENS = 100`) mathematically bounded below `PROMPT_CHAR_ENVELOPE` (20,000 chars).
-   - _Tier 2 Universal Overflow Pool:_ Every bracket beyond guaranteed floors enters a common RAG pool competing by semantic score $\times$ quadrant gravity (Eternal 1.4x, Present 1.2x, Future 1.1x, Past 1.0x).
-   - _Prose Physical Penalty:_ Physical appearance brackets receive 0.5x penalty in `PROSE_CORE` (bypassed if cosine similarity $> 0.80$).
-   - _Optics Physical Boost:_ Mandatory 15.0x multiplier in `OPTICS_CORE`.
-5. **Deprecation of Legacy Chapter Compaction Trees:** Hierarchical chapter trees (`entity.chapters`, `PRISM_FANOUT = 8`, `COMPACTOR_MAX_HEIGHT = 5`, `<CHAPTER_HISTORY>`) are permanently retired in favor of atomic cosine ranking, session vector caps (`PAST_ENTRIES.SESSION_CAP = 20`), origin locks, and Caretaker synthesis.
+All semantic retrieval, emotional classification, and thematic clustering across the simulation converge into **one unified mathematical engine** in `src/engine/sieve.js` operating over normalized 384-d vectors (`EMBEDDING_DIM = 384`) and the in-memory LRU cache.
+
+#### 1. The Unified Retrieval & Classification Pipeline
+
+At runtime, standard RAG retrieval and stance classification are two expressions of the exact same cosine comparison pipeline:
+
+- **`score_and_filter(candidates, query_vector, options)`**:
+  - _For Memory RAG & Two-Tier Sieve Overflow:_ Compares stored database memory brackets and overflow character traits against the turn's recency-weighted dialogue query (`DIALOGUE_WINDOW.ROUNDS`). Applies quadrant gravity multipliers (Eternal 1.4x, Present 1.2x, Future 1.1x, Past 1.0x) and salience weights (`| w: <1-10>`).
+  - _For Somatic Stance Matching:_ Passes the 12 static somatic archetype definitions as the candidate list against the user's latest input vector, returning the top 0–2 emotional archetypes (`DEFIANCE`, `VULNERABILITY`, etc.) to seed Director keyword selection.
+
+#### 2. Emergent Motif Synthesis: How It Differs From Standard RAG
+
+Standard RAG searches for _pre-existing_ text matching a query. **Emergent Motif Synthesis (`MOTIF_RESURGENCE`)** does something fundamentally different: it discovers _unpredicted, repeating patterns_ that emerge organically across the conversation without any pre-defined motif vocabulary.
+
+- **The Flow:**
+  1. **Window Vector Inspection:** Gathers the vectors of the last 5–8 uncompacted conversation rounds (already cached in RAM in the LRU cache from turn processing—zero new ONNX calls).
+  2. **Cross-Turn Cosine Clustering:** Computes pairwise similarity across non-adjacent turns ($Turn_i \times Turn_{i-2}$, $Turn_i \times Turn_{i-3}$). When semantic drift between recent turns drops below a distance threshold around a specific noun or sensory phrase (e.g. repeated unprompted mentions of mirrors, ticking clocks, ash, or cages):
+  3. **Emergent Theme Extraction:** The overlapping high-salience terms from those matching turns are isolated (e.g. `"confinement / gilded cage"`).
+  4. **Dynamic Prompt Injection:** Injects an emergent motif instruction into `<TRAJECTORY>` (Block 8–9) or the Director's staging envelope:
+
+     ```xml
+     <EMERGENT_MOTIF echo="cages / gilded confinement">
+       Weave thematic resonance of physical confinement and patient predation into sensory beats and character tells.
+     </EMERGENT_MOTIF>
+     ```
+  - **Why This Matters:** It creates subtle literary callbacks and thematic depth unique to _that specific player's playthrough_, without maintaining a single static list of hardcoded tropes.
+
+#### 3. Deprecation of Legacy Chapter Compaction Trees
+
+Hierarchical chapter trees (`entity.chapters`, `PRISM_FANOUT = 8`, `COMPACTOR_MAX_HEIGHT = 5`, `<CHAPTER_HISTORY>`) are permanently retired in favor of atomic cosine ranking, session vector caps (`PAST_ENTRIES.SESSION_CAP = 20`), origin locks, and Caretaker synthesis.
 
 ---
 
-### 4.8 Simulation Dynamics & Transport Controls
+### 4.8 Neural Embeddings & ONNX Runtime Safeguards (`onnx.js` & `sieve.js`)
+
+_Hard-won browser WASM invariants and safeguards rescued from `src/platform/embeddings.svelte.js` and `src/utils/onnx.js` so that RAG and semantic scoring never crash, freeze, or poison persistence._
+
+1. **Pinned `onnxruntime-web@1.22.0` & Iframe Sandbox Discipline (`src/utils/onnx.js`):**
+   - **Why It Matters**: Default `esm.sh` resolution for `@huggingface/transformers@3.5.2` pulls `1.22.0-dev`, which fails WASM initialization inside the cross-origin Perchance iframe (`"WebAssembly is not initialized yet"`), silently degrading all RAG to lexical-only.
+   - **Hard Invariant**: Strictly pin `https://esm.sh/@huggingface/transformers@3.5.2?deps=onnxruntime-web@1.22.0` and explicitly enforce single-threaded WASM execution with worker proxy disabled before pipeline creation:
+
+     ```js
+     transformers.env.backends.onnx.wasm.proxy = false;
+     transformers.env.backends.onnx.wasm.numThreads = 1;
+     ```
+
+2. **Simplified `OnnxMutex` (Dead Kokoro Handshake Purged):**
+   - **What Was Needed Before**: Previously, `onnx.js` coordinated two heavy ONNX models sharing the same WASM heap: `Xenova/all-MiniLM-L6-v2` (embeddings) and `Kokoro-82M` (TTS voice), requiring `mark_ort_ready()` and `wait_ort_ready(45000)`.
+   - **What Changes Now**: Because the 1,248-line in-browser Kokoro TTS pipeline is purged in favor of native `window.speechSynthesis`, **only one ONNX model exists in the app**. We delete `mark_ort_ready`, `wait_ort_ready`, and `job-queue.js`, replacing them with a 15-line inline Promise-chain mutex inside `src/utils/onnx.js` so concurrent `embed()` calls never collide on the single-threaded WASM heap or cause main-thread UI jank (`await new Promise(r => setTimeout(r, 0))` yield before inference).
+3. **Where Embeddings Are Actually Used (Preventing "RAG Everywhere" Creep):**
+   - Embeddings (`EMBEDDING_DIM = 384`, `pooling: "mean"`, `normalize: true`) are strictly bounded to **3 deterministic call sites** in `src/engine/sieve.js` (and nowhere else):
+     1. **Two-Tier Sieve Overflow Pool**: Scoring candidate brackets against the recency-weighted dialogue query when an entity's brackets exceed its guaranteed token floor (`FLOOR_ETERNAL_TOKENS`, `FLOOR_PRESENT_TOKENS`). If a short character card fits entirely within its floor, **zero embedding calls are required to render its sheet**.
+     2. **Somatic Archetype Matching**: Scoring the turn's dialogue against the 12 Somatic Archetypes (`PHYSICS_PROTOCOLS`) only when needed to seed Director keyword selection.
+     3. **Ephemeral Motif Resurgence**: Comparing embeddings of the uncompacted dialogue window (`DIALOGUE_WINDOW.ROUNDS`) — which are **already cached in the in-memory LRU cache** from turn scoring — using pure dot-product math (`math.js`) with zero extra ONNX inference calls.
+4. **Vector Serialization, 8-Bit Quantization (`q8`) & Dexie Safety:**
+   - **No Raw `Float32Array` in IndexedDB**: Never persist raw `Float32Array` instances directly into JSON-serialized entity records. Use `quantize_vector_q8` / `dequantize_vector_q8` (base64 or `number[]` in `vector_cache`) to cut storage footprint by 4x while re-normalizing to unit length on hydration.
+   - **Strict Dimension Guard**: `to_embedding()` validates `embedding.length === 384` before caching or persisting; corrupt or mismatched vectors return `null` and trigger clean re-inference.
+5. **Bounded True-LRU In-Memory Cache & Test Isolation:**
+   - Maintain the bounded `SvelteMap` LRU cache (`EMBEDDING_CACHE_MAX = 1500`) keyed by trimmed text hash so repeated brackets, static archetype anchors, and recent chat lines hit memory in $O(1)$ time with zero WASM overhead.
+   - Preserve `_debug_set_pipeline(fn)` so Vitest unit tests run 100% offline in milliseconds using deterministic synthetic 384-d vectors without hitting network CDNs.
+
+---
+
+### 4.9 Simulation Dynamics & Transport Controls
 
 - **Six Dynamic Axes:** Somatic (`chaos`, `intensity`, `openness`, `affinity`), Fractal (`velocity`, `entropy`).
 - **12 Somatic Archetypes (`PHYSICS_PROTOCOLS`):** `SHAME`, `FEAR`, `VULNERABILITY`, `BETRAYAL`, `ABANDONMENT`, `EMOTIONAL_NEGLECT`, `DEFIANCE`, `INTIMACY`, `GRIEF`, `DOMINANCE`, `DECEPTION`, `DYSREGULATION`. Selected via 384-d semantic vector similarity against recent dialogue.
@@ -442,11 +486,11 @@ _Directives and postures that evaluate runtime conditions, session metrics, or d
 
 ---
 
-### 4.9 Refined Narrative Subsystems & Proposals
+### 4.10 Refined Narrative Subsystems & Proposals
 
 - **3-Layer Description Stack ("No Metaphor-Only Narration"):** Enforce _Anchor (Mandatory Object)_ $\rightarrow$ _Sensation (Mandatory Detail)_ $\rightarrow$ _Meaning/Metaphor (Optional Subtext)_.
 - **Scoped Mystery Mode (`FAIRPLAY_FUZZ` + `INSIGHT_SYNC`):** Baseline rule in Law 2 ensures `| hide` secrets are defended via deflection and micro-tells (not stonewalling or instant confession). Scoped mystery mode guarantees exactly one traceable anomaly per scene when pressed, with escalating clarity on accurate deductions (see `.agents/skills/simulation/references/mystery-mode-suggestion.md`).
-- **Ephemeral Uncompacted Window Motif Resurgence (`MOTIF_RESURGENCE`):** Scans the active uncompacted chat log (`MOTIF_SCAN_ROUNDS`, tied to `DIALOGUE_WINDOW.ROUNDS` in `src/config.js`) via local `embeddings.svelte.js` cosine clustering, injecting dynamic recurring motifs into `<TRAJECTORY>` with zero pre-defined lists, zero database cache bloat, and zero extra LLM calls.
+- **Ephemeral Uncompacted Window Motif Resurgence (`MOTIF_RESURGENCE`):** Scans the active uncompacted chat log (`MOTIF_SCAN_ROUNDS`, tied to `DIALOGUE_WINDOW.ROUNDS` in `src/config.js`) via local `onnx.js` cached embeddings cosine clustering, injecting dynamic recurring motifs into `<TRAJECTORY>` with zero pre-defined lists, zero database cache bloat, and zero extra LLM calls.
 - **Linear Ghost-Paths:** `CARETAKER_CORE` writes 1-line consequence brackets in `<TRAJECTORY>` or `fractal.past` for bypassed opportunities/warnings (e.g. `[UNCHECKED_ALARM: patrol alerted in east wing]`), surfaced as ambient bleed.
 - **Inaction & Evasion Escalation:** Consecutive silence or evasion under direct pressure escalates over a 3-turn window: Turn 1 dramatic pause (`HELD_MOMENT`) $\rightarrow$ Turn 2 NPC seizes initiative $\rightarrow$ Turn 3 window closes, logging an expired consequence in `<TRAJECTORY>`.
 - **Parked Proposals (For Future Review):**
@@ -469,8 +513,8 @@ src/
 │
 ├── engine/                     # 🧠 THE SIMULATION & STATE (8 Files)
 │   ├── simulation.svelte.js    # Single authoritative state kernel (entities, round, phase, actions)
-│   ├── turns.js                # The Simulation Heartbeat (Director JSON staging, Actor prose, Caretaker memory consolidation, Optics)
-│   ├── prompts.js              # The 4 Purpose Cores (Director, Prose, Caretaker, Optics over the 11-block Spine) + render_terse_director_task
+│   ├── turns.js                # The Simulation Heartbeat (Director JSON staging, Actor prose, Caretaker memory consolidation, Visualizer)
+│   ├── prompts.js              # The 4 Purpose Cores (Director, Character, Caretaker, Visualizer over the 11-block Spine) + render_terse_director_task
 │   ├── parser.js               # Robust bracket parser ([KEY: VALUE], diffs, clean prose, strip <think>, FLAT_LEAF_MAP, pipe/brace isolation)
 │   ├── sieve.js                # Two-Tier Sieve RAG math, hybrid lexical scoring, cosine ranking, and ephemeral motif clustering
 │   ├── transport.js            # Perchance LLM streaming, single sequential queue (max_concurrency: 1), refusal interceptor, slash command pre-pass
@@ -561,7 +605,7 @@ flowchart TD
   - `actions.js`: Pure Svelte DOM actions (`click_outside`, `auto_resize`, `safe_html`).
   - Purge `bridges.js`, `catalog.js`, `styles.js`, `job-queue.js`, `xml.js`, and `field-path.js`.
 - [ ] **`src/media/`**:
-  - `audio.svelte.js`: Clean Web Audio SFX + chunked native Web Speech API dispatch (`window.speechSynthesis`) with watchdog timer. Purge standalone `speech.js` / in-browser ONNX Kokoro pipeline.
+  - `audio.svelte.js`: Clean Web Audio SFX (clicks, transitions, ambient loops). Realtime TTS is explicitly parked (purging standalone `speech.js` and in-browser ONNX Kokoro pipeline, bypassing native Web Speech API quirks).
   - `visual.svelte.js`: Direct Perchance `generate_image` caller with clean prompts (purge `optics.js`).
   - `motion.js`: Pure kinetic physics, spring math, and card flight transitions (absorbs `transitions`, `engine`, `kinetic`, `card-flight`).
 - [ ] **`src/data/`**:
@@ -575,11 +619,11 @@ flowchart TD
 
 ### Gate 2: Simulation Engine Kernel (`src/engine/`)
 
-- [ ] **`prompts.js`**: The 4 canonical Purpose Cores (`DIRECTOR_CORE`, `PROSE_CORE`, `CARETAKER_CORE`, `OPTICS_CORE`) compiling over the invariant 11-block Spine. Includes `render_terse_director_task()` fast-path recovery. Zero XML catalog atom sprawl.
+- [ ] **`prompts.js`**: The 4 canonical Purpose Cores (`DIRECTOR_CORE`, `CHARACTER_CORE`, `CARETAKER_CORE`, `VISUALIZER_CORE`) compiling over the invariant 11-block Spine. Includes `render_terse_director_task()` fast-path recovery. Zero XML catalog atom sprawl.
 - [ ] **`parser.js`**: Clean pseudo-JSON bracket parser (`[KEY: VALUE]`), diff calculator, `FLAT_LEAF_MAP` receiver, prose normalizer, `<think>` stripper, and brace/pipe alternation isolation.
 - [ ] **`sieve.js`**: Two-Tier Sieve RAG math, guaranteed token floors, universal gravity-weighted overflow pool, and ephemeral uncompacted window motif resurgence.
 - [ ] **`transport.js`**: Perchance LLM streaming (`onChunk`), stop sequence enforcement, single sequential queue (`max_concurrency: 1`), model refusal detection, and slash command pre-pass (`/ooc`, `/reroll`, `/continue`).
-- [ ] **`turns.js`**: Coordinates Director turn (Shot 1 JSON staging, beat budgeting, lethality, paradox triage), Storyteller turn (Shot 2 prose), Caretaker memory consolidation (Shot 3), and Optics image prompts.
+- [ ] **`turns.js`**: Coordinates Director turn (Shot 1 JSON staging, beat budgeting, lethality, paradox triage), Storyteller turn (Shot 2 prose), Caretaker memory consolidation (Shot 3), and Visualizer image prompts.
 - [ ] **`simulation.svelte.js`**: Single authoritative Svelte 5 state kernel owning `user`, `ai`, `fractal`, `round`, `phase`, and dispatch functions.
 - [ ] **`verifier.js`**: Lean 100-line tag inventory contract gate validating the 4 Purpose Cores against structural layer ordering contracts.
 - [ ] **`log.svelte.js`**: Developer HUD and telemetry event stream.
