@@ -42,6 +42,12 @@
       "@data/*": [
         "src/data/*"
       ],
+      "@storage": [
+        "src/storage/index.js"
+      ],
+      "@storage/*": [
+        "src/storage/*"
+      ],
       "@intelligence": [
         "src/intelligence/index.js"
       ],

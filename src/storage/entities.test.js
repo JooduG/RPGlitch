@@ -1,0 +1,151 @@
+import { describe, it, expect } from "vitest";
+import { normalize_entity, create_entity, filter_entity_epistemics, serialize_entity_for_export } from "./entities.js";
+
+describe("src/storage/entities.js — 4-Quadrant Entity Model & Adapt-on-Read", () => {
+  describe("create_entity", () => {
+    it("creates a valid fresh character entity with defaults and random UUID", () => {
+      const character = create_entity("character", { name: "Aria" });
+      expect(character.id).toMatch(/^[0-9a-f-]+$/i);
+      expect(character.name).toBe("Aria");
+      expect(character.type).toBe("character");
+      expect(character.dynamics).toEqual({ chaos: 50, intensity: 50, openness: 50, affinity: 50 });
+      expect(character.eternal).toEqual({ physical: "", non_physical: "" });
+      expect(character.present).toEqual({ physical: "", non_physical: "" });
+      expect(character.future).toBe("");
+      expect(character.past).toBe("");
+      expect(character.created_at).toBeGreaterThan(0);
+      expect(character.updated_at).toBeGreaterThan(0);
+    });
+
+    it("creates a valid fresh fractal entity with default physics", () => {
+      const fractal = create_entity("fractal", { name: "Neon Haven" });
+      expect(fractal.type).toBe("fractal");
+      expect(fractal.dynamics).toEqual({ velocity: 50, entropy: 50 });
+      expect(fractal.eternal).toEqual({ physical: "", non_physical: "" });
+      expect(fractal.present).toEqual({ physical: "", non_physical: "" });
+      expect(fractal.future).toBe("");
+      expect(fractal.past).toBe("");
+    });
+  });
+
+  describe("normalize_entity & Legacy Adapt-on-Read", () => {
+    it("preserves canonical 4-quadrant multiline bracket strings unchanged", () => {
+      const canonical = {
+        id: "char_1",
+        name: "Test",
+        type: "character",
+        eternal: { physical: "[BUILD: tall]", non_physical: "[CORE: heroic]" },
+        present: { physical: "[CHEST: bare]", non_physical: "[MOOD: calm]" },
+        future: "[AGENDA: find exit]",
+        past: "[ORIGIN: born in vault | is_origin | w: 10]",
+        dynamics: { chaos: 60, intensity: 70, openness: 80, affinity: 90 },
+      };
+
+      const normalized = normalize_entity(canonical);
+      expect(normalized.eternal.physical).toBe("[BUILD: tall]");
+      expect(normalized.eternal.non_physical).toBe("[CORE: heroic]");
+      expect(normalized.present.physical).toBe("[CHEST: bare]");
+      expect(normalized.present.non_physical).toBe("[MOOD: calm]");
+      expect(normalized.future).toBe("[AGENDA: find exit]");
+      expect(normalized.past).toBe("[ORIGIN: born in vault | is_origin | w: 10]");
+      expect(normalized.dynamics).toEqual({ chaos: 60, intensity: 70, openness: 80, affinity: 90 });
+    });
+
+    it("adapts legacy object array past/memories into canonical multiline bracket string", () => {
+      const legacy_row = {
+        id: "legacy_hero",
+        name: "Old Hero",
+        type: "character",
+        eternal: { physical: "[EYES: blue]" },
+        present: { non_physical: "[MOOD: grim]" },
+        past: [
+          { key: "ORIGIN", text: "escaped cyber lab", is_origin: true, weight: 10 },
+          { key: "EVENT", text: "lost cybernetic arm", is_origin: false, weight: 8, hide: true },
+        ],
+        future: "Escape the city",
+      };
+
+      const normalized = normalize_entity(legacy_row);
+      expect(normalized.eternal.physical).toBe("[EYES: blue]");
+      expect(normalized.eternal.non_physical).toBe("");
+      expect(normalized.present.physical).toBe("");
+      expect(normalized.present.non_physical).toBe("[MOOD: grim]");
+      expect(normalized.future).toBe("[AGENDA: Escape the city]");
+
+      // Past must be pure string multiline brackets
+      expect(typeof normalized.past).toBe("string");
+      expect(normalized.past).toContain("[ORIGIN: escaped cyber lab | is_origin | w: 10]");
+      expect(normalized.past).toContain("[EVENT: lost cybernetic arm | hide | w: 8]");
+    });
+
+    it("adapts legacy raw string past or legacy memories property", () => {
+      const legacy_row = {
+        id: "legacy_2",
+        name: "Second Hero",
+        type: "character",
+        memories: [{ text: "survived the fall", is_origin: true }],
+      };
+
+      const normalized = normalize_entity(legacy_row);
+      expect(normalized.past).toContain("[MEMORY: survived the fall | is_origin]");
+    });
+
+    it("ensures dynamics sliders are clamped between 1 and 100", () => {
+      const row = {
+        type: "character",
+        dynamics: { chaos: -10, intensity: 150, openness: 50, affinity: NaN },
+      };
+      const normalized = normalize_entity(row);
+      expect(normalized.dynamics.chaos).toBe(1);
+      expect(normalized.dynamics.intensity).toBe(100);
+      expect(normalized.dynamics.affinity).toBe(50);
+    });
+  });
+
+  describe("filter_entity_epistemics", () => {
+    it("applies format_clean_brackets across all 4 quadrants", () => {
+      const entity = {
+        id: "char_secret",
+        name: "Agent",
+        type: "character",
+        eternal: { physical: "[BUILD: tall]", non_physical: "[CORE: spy | hide]" },
+        present: { physical: "[GUN: suppressed | hide]", non_physical: "[MOOD: tense]" },
+        future: "[AGENDA: meeting contact | hide]",
+        past: "[ORIGIN: double agent | hide | w: 10]",
+      };
+
+      const filtered = filter_entity_epistemics(entity, { see_hidden: "own", is_counterpart: true });
+      expect(filtered.eternal.physical).toBe("[BUILD: tall]");
+      expect(filtered.eternal.non_physical).toBe("");
+      expect(filtered.present.physical).toBe("");
+      expect(filtered.present.non_physical).toBe("[MOOD: tense]");
+      expect(filtered.future).toBe("");
+      expect(filtered.past).toBe("");
+    });
+  });
+
+  describe("serialize_entity_for_export", () => {
+    it("strips database IDs, transient timestamps, and internal flags for clean export", () => {
+      const entity = {
+        id: "uuid-12345",
+        created_at: 1700000000,
+        updated_at: 1700001000,
+        origin_id: "parent-uuid",
+        name: "Export Hero",
+        type: "character",
+        eternal: { physical: "[BUILD: muscular]", non_physical: "" },
+        present: { physical: "", non_physical: "" },
+        future: "",
+        past: "",
+        dynamics: { chaos: 50, intensity: 50, openness: 50, affinity: 50 },
+      };
+
+      const exported = serialize_entity_for_export(entity);
+      expect(exported.id).toBeUndefined();
+      expect(exported.created_at).toBeUndefined();
+      expect(exported.updated_at).toBeUndefined();
+      expect(exported.name).toBe("Export Hero");
+      expect(exported.eternal.physical).toBe("[BUILD: muscular]");
+    });
+  });
+});

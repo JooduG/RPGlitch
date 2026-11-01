@@ -50,14 +50,16 @@ flowchart TD
     - Verified against `differential.test.js` consuming canonical contract fixtures with cross-compilation assertions.
     - Contract synchronized in `src/engine/README.md` with explicit Parallel App coexistence and cutover lifecycle.
     - Audited and hardened via adversarial EGM Goldfish review (`egm-codebase-details`): JSON escaping in prefill streams, Caretaker 4-quadrant bracket parsing, dynamics delta integer clamping, and clean history-driven turn tempo.
-  - **Gate 2: Supporting Subsystems Consolidation (`src/data/`, `src/utils/`, `src/media/`)** — **NEXT**:
-    - Consolidate Dexie schema (`src/data/db.js`), 4-quadrant entity models (`src/data/entities.js`), streamlined profile fields (`src/data/profile-fields.js`), and presets (`src/data/presets.js`).
-    - Wire Two-Tier Sieve RAG from in-memory cache to Dexie `vector_cache`.
+  - **Gate 2: Storage & Persistence Consolidation (`src/storage/`)** — **COMPLETED**:
+    - Parallel persistence layer established in `src/storage/` (`parser.js`, `profile-fields.js`, `presets.js`, `entities.js`, `db.js`, `index.js`).
+    - Canonical bracket tokenizer, Epistemic Wall filtering, delta merging, and Sieve RAG memory candidate extraction.
+    - Strictly preserved IndexedDB schema at `db.version(2)` (`mutation_ledger` included, no vector_cache table) to prevent `versionchange` page collisions.
+    - Adapt-on-read legacy row conversion ensuring all 4 quadrants (`eternal`, `present`, `future`, `past`) are pure multiline bracket strings.
+    - All 10 premades preserved and author narrative styles inlined with fallback to `"cormac_mccarthy"`.
+    - Greenfield persistence test suite (`src/storage/`) passing 100% green (52/52 tests) and engine suites verified at 36/36 tests.
+  - **Gate 3: Media & Sensory Subsystems (`src/media/`)** — **NEXT ACTIVE SPRINT**:
     - Provide lean Perchance `generate_image` caller in `src/media/visual.svelte.js` consuming Visualizer prompt output.
     - Provide direct user-gesture Web Audio SFX in `src/media/audio.svelte.js`.
-    - Post-scaffolding audit completed with misses resolved and logged in [`ENGINE_AUDIT.md`](ENGINE_AUDIT.md).
-  - **Gate 2: Data Layer Realignment & Consolidation (`src/data/`)** — **NEXT ACTIVE SPRINT**:
-    - Consolidate legacy `db.js`, `entities.js`, and `presets.js` into clean single-store pattern with strict quadrant models.
     - Promoted Section 7 nuclear constants added to `src/config.js`; `test:engine` and `test:legacy` scripts added to `package.json`.
   - **Gate 2: Supporting Subsystems Consolidation (`src/data/`, `src/utils/`, `src/media/`)** — **NEXT**:
     - Consolidate Dexie schema (`src/data/db.js`), 4-quadrant entities (`src/data/entities.js`), presets (`src/data/presets.js`).

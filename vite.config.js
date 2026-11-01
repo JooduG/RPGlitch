@@ -129,6 +129,7 @@ export default defineConfig(({ command, mode }) => {
         "@platform": path.resolve(import.meta.dirname, "./src/platform"),
         "@intelligence": path.resolve(import.meta.dirname, "./src/intelligence"),
         "@data": path.resolve(import.meta.dirname, "./src/data"),
+        "@storage": path.resolve(import.meta.dirname, "./src/storage"),
         "@state": path.resolve(import.meta.dirname, "./src/state"),
         "@media": path.resolve(import.meta.dirname, "./src/media"),
         "@ui": path.resolve(import.meta.dirname, "./src/ui"),
