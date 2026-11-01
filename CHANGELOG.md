@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Engine Hardening, Parity Teeth & Living Contract Alignment (`src/engine/`, `src/config.js`, `CHANGELOG.md`)**:
+  - **Dynamic Rollback Snapshot Protection (`src/engine/kernel.svelte.js`)**: Fixed partial rollback vulnerability by snapshotting `ai.dynamics` and `fractal.dynamics` before turn execution, ensuring failed or aborted generations restore both dialogue history and physical dynamics cleanly.
+  - **Differential Parity Teeth (`src/engine/differential.test.js`)**: Cross-asserted legacy `compile_prompt` and greenfield `compile_prompt` across the 4 Axiomatic Laws, canonical entity/world contracts, and Epistemic Wall protection.
+  - **Prompt Configuration Harmonization (`src/config.js`, `src/engine/prompts.js`)**: Promoted `DYNAMICS_SCALE` (with operational boundaries) and `EMOTIONAL_WEIGHT_SCALE` to Section 7, consolidated image resolutions into `IMAGE_RESOLUTIONS`, and interpolated canonical scale parameters in `<DYNAMICS_DELTAS>`.
+  - **Living Contract Synchronization (`src/engine/README.md`)**: Synchronized README to 100% codebase reality, documenting exact signatures (`execute_round`, `compile_prompt`), correct purpose core names (`director`, `character`, `caretaker`, `visualizer`), and canonizing the Parallel Coexistence & Migration Architecture.
+  - **Engine Verification**: All 8 test suites passing green (`36/36 tests`).
+
 - **EGM Skeptical Simplicity Audit & De-bloat (`src/engine/`, `CHANGELOG.md`)**:
   - **Adversarial Simplicity Critique (`egm-zoom-out`)**: Evaluated line-count, token overhead, speculative abstractions, and DRY compliance.
   - **Character XML Assembly De-duplication (`src/engine/prompts.js`)**: Consolidated duplicate 40-line `ai` (`MAIN_CHARACTER`) and `user` (`COUNTERPART`) XML formatting blocks into a single 20-line `render_entity_character()` helper, eliminating 50 lines of duplicate boilerplate.

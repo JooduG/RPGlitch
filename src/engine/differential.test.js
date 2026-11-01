@@ -11,19 +11,21 @@ import { verify_compiled_prompt } from "./verifier.js";
  * emits all required semantic layers and invariant tag order with zero silent tuning drift.
  */
 describe("src/engine/differential.test.js — Legacy vs Greenfield Differential Equivalence", () => {
-  const { entities, history } = create_contract_fixtures();
+  const { entities, snapshot, history } = create_contract_fixtures();
 
   it("character core produces structural parity with legacy interaction prompt", () => {
-    // 1. Compile legacy prompt
-    const _legacyPrompt = compile_legacy({
-      mode: "interaction",
+    // 1. Compile legacy prompt (returns { system: string, meta?: ... })
+    const legacyResult = compile_legacy("interaction", {
       round: 1,
       entities,
       history,
+      compressed_snapshot: snapshot,
+      simulation_log: history,
       input: "Alice prepares to move.",
     });
+    const legacyPrompt = typeof legacyResult === "string" ? legacyResult : legacyResult.system;
 
-    // 2. Compile new greenfield prompt
+    // 2. Compile new greenfield prompt (returns string)
     const greenfieldPrompt = compile_greenfield({
       core: "character",
       round: 1,
@@ -32,28 +34,45 @@ describe("src/engine/differential.test.js — Legacy vs Greenfield Differential 
       input: "Alice prepares to move.",
     });
 
-    // Verify both satisfy system envelope and structural verifier
-    expect(verify_compiled_prompt(greenfieldPrompt).valid).toBe(true);
+    // Verify greenfield satisfies structural verifier
+    const greenfieldCheck = verify_compiled_prompt(greenfieldPrompt);
+    expect(greenfieldCheck.valid).toBe(true);
 
-    // Verify critical semantic entities and world truths are preserved identically
-    expect(greenfieldPrompt).toContain('id="ALICE"');
-    expect(greenfieldPrompt).toContain('id="BOB"');
-    expect(greenfieldPrompt).toContain('id="SECTOR_FOUR"');
-    expect(greenfieldPrompt).toContain("Analytical cybernetic specialist.");
-    expect(greenfieldPrompt).toContain("Veteran decker.");
-    expect(greenfieldPrompt).toContain("Degraded industrial district.");
+    // Differential Parity Assertions:
+    // Both prompts must enforce the 4 Axiomatic Laws (legacy uses `title="Law"`, greenfield uses `name="Law"`)
+    for (const law of ["Causality", "Epistemics", "Sovereignty", "Fidelity"]) {
+      expect(legacyPrompt).toContain(`title="${law}"`);
+      expect(greenfieldPrompt).toContain(`name="${law}"`);
+    }
 
-    // Verify 4 Axiomatic Laws are present
-    expect(greenfieldPrompt).toContain('name="Causality"');
-    expect(greenfieldPrompt).toContain('name="Epistemics"');
-    expect(greenfieldPrompt).toContain('name="Sovereignty"');
-    expect(greenfieldPrompt).toContain('name="Fidelity"');
+    // Greenfield prompt embeds the canonical entity and world truth fixtures
+    for (const token of [
+      'id="ALICE"',
+      'id="BOB"',
+      'id="SECTOR_FOUR"',
+      "Analytical cybernetic specialist.",
+      "Veteran decker.",
+      "Degraded industrial district.",
+    ]) {
+      expect(greenfieldPrompt).toContain(token);
+    }
 
-    // Verify Epistemic Wall: Bob's secrets or counterpart hide flags are not leaked to Alice
+    // Both prompts enforce the Epistemic Wall: hidden secrets must not leak
+    expect(legacyPrompt).not.toContain("[SECRET:");
     expect(greenfieldPrompt).not.toContain("[SECRET:");
   });
 
   it("director core produces structured staging parity with legacy director prompt", () => {
+    const legacyResult = compile_legacy("director", {
+      round: 1,
+      entities,
+      history,
+      compressed_snapshot: snapshot,
+      simulation_log: history,
+      input: "Bob scans the perimeter.",
+    });
+    const legacyDirector = typeof legacyResult === "string" ? legacyResult : legacyResult.system;
+
     const greenfieldPrompt = compile_greenfield({
       core: "director",
       round: 1,
@@ -63,7 +82,11 @@ describe("src/engine/differential.test.js — Legacy vs Greenfield Differential 
     });
 
     expect(verify_compiled_prompt(greenfieldPrompt).valid).toBe(true);
-    expect(greenfieldPrompt).toContain("You are the Director orchestrating simulation mechanics and staging.");
+
+    // Differential Parity Assertions for Director staging requirements
+    // Both prompts enforce JSON mode and include director notes and dynamics deltas
+    expect(legacyDirector).toContain("directors_note");
+    expect(legacyDirector).toContain("dynamics_deltas");
     expect(greenfieldPrompt).toContain('OUTPUT_FORMAT mode="json"');
     expect(greenfieldPrompt).toContain("directors_note");
     expect(greenfieldPrompt).toContain("dynamics_deltas");

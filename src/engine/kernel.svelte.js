@@ -54,6 +54,8 @@ export class Kernel {
     this.error = null;
     const previous_round = this.round;
     const previous_history_length = this.history.length;
+    const previous_ai_dynamics = this.ai?.dynamics ? { ...this.ai.dynamics } : null;
+    const previous_fractal_dynamics = this.fractal?.dynamics ? { ...this.fractal.dynamics } : null;
     this.round += 1;
 
     // Append user turn to history
@@ -114,9 +116,15 @@ export class Kernel {
 
       return outcome;
     } catch (err) {
-      // Transactional rollback on mid-stream failure to prevent orphan user turns
+      // Transactional rollback on mid-stream failure to prevent orphan user turns or partial dynamics
       this.history.length = previous_history_length;
       this.round = previous_round;
+      if (previous_ai_dynamics && this.ai?.dynamics) {
+        Object.assign(this.ai.dynamics, previous_ai_dynamics);
+      }
+      if (previous_fractal_dynamics && this.fractal?.dynamics) {
+        Object.assign(this.fractal.dynamics, previous_fractal_dynamics);
+      }
       this.error = err.message || String(err);
       dev_log.record("ERROR", { message: this.error, round: this.round });
       throw err;
