@@ -19,6 +19,7 @@
  */
 
 import { format_clean_brackets } from "./parser.js";
+import { ENHANCER_DIRECTIVES } from "../storage/profile-fields.js";
 import { DYNAMICS_SCALE } from "../config.js";
 
 /**
@@ -80,14 +81,14 @@ export const PURPOSE_CORES = Object.freeze({
     ### Directives
     - **Analysis (\`_thought_process\`)**: Review input notes or recent events and identify what shifts, updates, or polishes for the target.
     - **Eternal Baseline (\`eternal_physical\`, \`eternal_non_physical\`)**:
-      - Physical: Permanent visual biometrics (appearance, build, face) or spatial geography (terrain, architecture, landmarks).
-      - Non-Physical: Core beliefs, personality drivers, or governing metaphysical laws/axioms.
+      - Physical: ${ENHANCER_DIRECTIVES.BIOMETRIC_RENDERER} (or SPATIAL_RENDERER for worlds).
+      - Non-Physical: ${ENHANCER_DIRECTIVES.COGNITIVE_ARCHITECT} (or METAPHYSICAL_ARCHITECT for worlds).
       - Leave empty \`""\` unless establishing baseline lore or an irreversible transformation occurred.
     - **Present State (\`present_physical\`, \`present_non_physical\`)**:
-      - Physical: Immediate attire, held items, wounds, posture, or momentary weather/lighting.
-      - Non-Physical: Current psychological pressure, active focus, behavioral drivers, or momentary anomaly/tension.
-    - **Future Agenda (\`future\`)**: Active trajectory, next step, impending choice, or converging tension.
-    - **Past Memories (\`past\`)**: Durable facts, revelations, historical precedents, or lore to preserve in memory.
+      - Physical: ${ENHANCER_DIRECTIVES.SOMATIC_TRACKER} (or ATMOSPHERIC_TRACKER for worlds).
+      - Non-Physical: ${ENHANCER_DIRECTIVES.TACTICAL_ANALYZER} (or ECOSYSTEM_ANALYZER for worlds).
+    - **Future Agenda (\`future\`)**: ${ENHANCER_DIRECTIVES.TRAJECTORY_SIMULATOR}
+    - **Past Memories (\`past\`)**: ${ENHANCER_DIRECTIVES.PAST_COMPILER}
     - **Delta-Only Principle**: Emit ONLY non-empty \`"[KEY: value]"\` strings for fields being established, updated, or polished; leave all other fields empty \`""\`.
 
     ### Bracket Mutation Rules

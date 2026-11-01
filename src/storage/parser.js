@@ -172,11 +172,32 @@ export function format_clean_brackets(brackets_text, options = {}) {
 }
 
 /**
+ * Reconstructs a clean, normalized bracket string [KEY: value | flags].
+ * Ensures the key is always uppercase and flags are properly formatted.
+ *
+ * @param {ReturnType<typeof parse_bracket_token>} token
+ * @returns {string}
+ */
+function reconstruct_bracket_string(token) {
+  if (!token) return "";
+  const flags = [];
+  if (token.flags?.hide) flags.push("hide");
+  if (token.flags?.show) flags.push("show");
+  if (token.flags?.is_origin) flags.push("is_origin");
+  if (typeof token.flags?.weight === "number" && !isNaN(token.flags.weight)) {
+    flags.push(`w: ${token.flags.weight}`);
+  }
+  const flag_part = flags.length > 0 ? ` | ${flags.join(" | ")}` : "";
+  return `[${token.key}: ${token.value}${flag_part}]`;
+}
+
+/**
  * Merges delta brackets into an existing bracket text.
  * - Single-value keys overwrite existing entries.
  * - Multi-entry keys (INVENTORY, STASH) append to existing entries.
  * - Keys with value "none" or "cleared" delete the key.
  * - New keys append to the end.
+ * - All saved/merged bracket keys are normalized to uppercase.
  *
  * @param {string} existing_text - existing multiline bracket string
  * @param {string} delta_text - delta multiline bracket string
@@ -197,7 +218,7 @@ export function apply_bracket_deltas(existing_text, delta_text) {
   // Each entry: { key: string, raw: string, value: string }
   const current_entries = existing_tokens.map((token) => ({
     key: token.key,
-    raw: token.raw,
+    raw: reconstruct_bracket_string(token),
     value: token.value,
   }));
 
@@ -215,11 +236,13 @@ export function apply_bracket_deltas(existing_text, delta_text) {
       continue;
     }
 
+    const normalized_raw = reconstruct_bracket_string(delta);
+
     // Multi-entry keys append
     if (multi_entry_keys.has(delta_key)) {
       current_entries.push({
         key: delta_key,
-        raw: delta.raw,
+        raw: normalized_raw,
         value: delta.value,
       });
       continue;
@@ -230,13 +253,13 @@ export function apply_bracket_deltas(existing_text, delta_text) {
     if (existing_index !== -1) {
       current_entries[existing_index] = {
         key: delta_key,
-        raw: delta.raw,
+        raw: normalized_raw,
         value: delta.value,
       };
     } else {
       current_entries.push({
         key: delta_key,
-        raw: delta.raw,
+        raw: normalized_raw,
         value: delta.value,
       });
     }

@@ -117,9 +117,20 @@ describe("src/storage/parser.js — Canonical Bracket Tokenizer & Epistemic Wall
       expect(merged).not.toContain("[MOOD: relaxed]");
     });
 
-    it("deletes keys when incoming delta value is 'none' or 'cleared'", () => {
+    it("normalizes lowercase incoming keys to uppercase during merge", () => {
+      const current = "[CHEST: armored]";
+      const delta = "[chest: bare]\n[boots: combat leather]";
+
+      const merged = apply_bracket_deltas(current, delta);
+      expect(merged).toContain("[CHEST: bare]");
+      expect(merged).toContain("[BOOTS: combat leather]");
+      expect(merged).not.toContain("[chest: bare]");
+      expect(merged).not.toContain("[boots: combat leather]");
+    });
+
+    it("deletes keys when incoming delta value is 'none' or 'cleared', regardless of casing or whitespace", () => {
       const current = "[ARMOR: steel plate]\n[HELMET: iron visored]\n[BOOTS: leather]";
-      const delta = "[ARMOR: none]\n[HELMET: cleared]";
+      const delta = "[armor: None]\n[HELMET:  Cleared ]";
 
       const merged = apply_bracket_deltas(current, delta);
       expect(merged).not.toContain("ARMOR");
