@@ -43,6 +43,22 @@ flowchart TD
 
 ### 🛡️ Release Engineering & Execution Invariants
 
+- **Sovereign Nuclear Architecture & Simplification Protocol (`nuclear-plan.md`)**:
+  - **Gate 1: Foundational Scaffolding (`src/engine/`)** — **COMPLETED**:
+    - Parallel greenfield engine constructed in `src/engine/` (`verifier.js`, `parser.js`, `sieve.js`, `prompts.js`, `transport.js`, `turns.js`, `simulation.svelte.js`, `log.svelte.js`, `index.js`).
+    - 33/33 tests passing with 0 errors across 8 test suites.
+    - Verified against `differential.test.js` consuming canonical contract fixtures.
+    - Promoted Section 7 nuclear constants added to `src/config.js`; `test:engine` and `test:legacy` scripts added to `package.json`.
+  - **Gate 2: Supporting Subsystems Consolidation (`src/data/`, `src/utils/`, `src/media/`)** — **NEXT**:
+    - Consolidate Dexie schema (`src/data/db.js`), 4-quadrant entities (`src/data/entities.js`), presets (`src/data/presets.js`).
+    - Streamline formatting and Tier-1/Tier-2 detox cleaner (`src/utils/format.js`).
+    - Web Audio SFX (`src/media/audio.svelte.js`) and kinetic physics (`src/media/motion.js`). Realtime TTS explicitly parked.
+  - **Gate 3: Flat UI Domain Components (`src/ui/`)**:
+    - Collapse 8 nested UI directories into 12 flat Svelte 5 domain components without empty wrapper abstractions.
+  - **Gate 4: Atomic Cutover & Demolition**:
+    - Re-wire `App.svelte` and `main.js` to `src/engine/`.
+    - Delete 32 legacy files (450+ KB) in `src/intelligence/`, `src/state/`, and nested UI folders in a single commit.
+
 - **Prompt Pipeline V2 Unification Initiative**:
   - The architectural exploration dossier [architectural-exploration.md](`architectural-exploration.md`) is drafted and aligned around the Universal Spatial Spine (Model A) + Swappable Cores, Universal 4-Dial Entity Projector, and Strategy B Two-Tier RAG Sieve. Active open decisions (Decisions 4–7) are staged in Section 10 pending user commitment before initiating compiler refactoring.
 

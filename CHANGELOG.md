@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Sovereign Nuclear Architecture — Gate 1 Foundation (`src/engine/`, `src/config.js`, `package.json`)**:
+  - **Foundational Scaffolding in Parallel (`src/engine/`)**: Implemented the complete greenfield engine alongside legacy code without breaking any of the existing 70 test suites.
+  - **Structural Tag-Inventory Verifier Anchor (`src/engine/verifier.js`)**: Created lean (~120 lines) verification gate enforcing envelope closures (`<SYSTEM>...</SYSTEM>`), tag balance, ordered layer appearance, and prompt hygiene.
+  - **Pure Bracket & Stream Parser (`src/engine/parser.js`)**: Implemented canonical single-string bracket parser (`[KEY: value | flags]`) with strict flag/pipe isolation inside `{Option A | Option B}` alternation scopes, `<think>` extraction, and Epistemic Wall visibility filtering.
+  - **Two-Tier Sieve RAG & Vector Engine (`src/engine/sieve.js`)**: Algorithmic retrieval reserving guaranteed token floors (1,600 tokens) for primary participants and universal gravity overflow for lore/secondary cast over normalized 384-d vectors with an in-memory ephemeral vector cache adapter.
+  - **Invariant 11-Block Spine & 4 Purpose Cores (`src/engine/prompts.js`)**: Direct structural string compilation replacing 20 sprawling XML catalog modules. Swapped Blocks 6–7 and 8–9 so `<TRAJECTORY>` precedes a single, unified `<HISTORY>` container (`<MEMORIES>` + `<RECENT>`).
+  - **Streaming Transport Gateway (`src/engine/transport.js`)**: Dependency-injected transport supporting sequential single-concurrency queue execution and mockable streaming for deterministic testing.
+  - **Headless Turn Orchestrator (`src/engine/turns.js`)**: Pure stateless functions for Turn 1 (Director quick shot JSON staging), Turn 2 (Actor narrative shot), and Turn 3 (User deliberation/Caretaker) with fast 1-shot default, 2-shot ready toggle, and dynamic beat budgeting (`finishTail`).
+  - **Reactive Kernel & Telemetry HUD (`src/engine/simulation.svelte.js`, `src/engine/log.svelte.js`)**: Sovereign Svelte 5 state class managing rounds, phase transitions, and event logging.
+  - **Engine Barrel Entry Point (`src/engine/index.js`)**: Unified public export surface for the new engine layer.
+  - **Promoted Nuclear Constants in `src/config.js`**: Added Section 7 with honest hardware literals (`PROMPT_CHAR_LIMIT = 20000`, `CHARS_PER_TOKEN_RATIO = 3.35`, `MAX_ACTIVE_MEMORIES = 20`, `GUARANTEED_FLOOR_TOKENS = 1600`, `VECTOR_DIMENSIONS = 384`, `LLM_TIMEOUT_MS = 60000`, `MAX_BUNDLE_BYTES = 4194304`).
+  - **Dedicated Test Script Targets in `package.json`**: Added `npm run test:engine` for fast sub-second engine testing and `npm run test:legacy` for isolating legacy suites.
+  - **Differential Equivalence Suite (`src/engine/differential.test.js`)**: Added temporary equivalence suite proving zero tuning drift between legacy `compile_prompt` and new `src/engine/prompts.js`. All 33 engine tests passing 100% green.
+
 - **Prompt Architecture Exploration & RAG Centralization (`src/config.js`, `architectural-exploration.md`)**:
   - **Universal RAG Strategy B & Multipliers Registry**: In `src/config.js`, centralized `RAG_MULTIPLIERS` containing quadrant gravity multipliers (`ETERNAL_GRAVITY: 1.4`, `PRESENT_GRAVITY: 1.2`, `FUTURE_GRAVITY: 1.1`, `PAST_GRAVITY: 1.0`), task domain modifiers (`PHYSICAL_PROSE_PENALTY: 0.5`, `OPTICS_PHYSICAL_BOOST: 15.0`, `PHYSICAL_QUERY_RELEVANCE_THRESHOLD: 0.8`), and guaranteed token floors (`FLOOR_ETERNAL_TOKENS: 150`, `FLOOR_PRESENT_TOKENS: 100`).
   - **Unified Prompt Pipeline Canonical Specification (`architectural-exploration.md`)**:

@@ -42,6 +42,8 @@
     "// --- TESTING --- //": "",
     "test": "npm run summarize:sequential test:unit test:sync test:hooks",
     "test:unit": "vitest run src/",
+    "test:engine": "vitest run src/engine/",
+    "test:legacy": "vitest run src/ --exclude src/engine/**",
     "test:all": "vitest run",
     "test:ui": "vitest --ui",
     "test:sync": "vitest run .agents/skills/design/scripts/sync-css.test.js",

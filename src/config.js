@@ -321,6 +321,68 @@ export const TELEMETRY_CAPS = Object.freeze({
 });
 
 // =============================================================================
+// [SECTION 7: SOVEREIGN POST-APOCALYPSE CANONICAL CONFIGURATION]
+// Clean, unabbreviated, honest literals for src/engine/ and flat UI.
+// =============================================================================
+
+// ── 1. Hard Software & Platform Limits ───────────────────────────────────────
+export const HARD_LIMITS = Object.freeze({
+  PROMPT_MAX_CHARACTERS: 20000 /** Hard prompt character ceiling (~6,000 tokens / idealMaxContextTokens) */,
+  CHARACTERS_PER_TOKEN: 3.35 /** Real empirical tokenizer ratio (characters per token) */,
+  BUNDLE_MAX_BYTES: 4194304 /** Hard 4.00 MB production bundle ceiling for single-file portable HTML */,
+  STREAM_TIMEOUT_MILLISECONDS: 60000 /** Hard timeout ceiling for Perchance LLM streaming generation */,
+  VECTOR_DIMENSIONS: 384 /** Standard sentence embedding tensor width (Xenova/all-MiniLM-L6-v2) */,
+});
+
+// ── 2. Unified Temporal Tempo (4 -> 8 -> 16 Rounds) ──────────────────────────
+export const TEMPO_ROUNDS = Object.freeze({
+  FAST: 4, // 4 rounds: Image generation cooldown & spent openings scan
+  STANDARD: 8, // 8 rounds: Working memory transcript window & soft stagnation permit
+  SLOW: 16, // 16 rounds: Critical hard stagnation disruption mandate
+});
+
+// ── 3. Memory & Two-Tier Sieve RAG ───────────────────────────────────────────
+/** Origin protection multiplier boosting author canon and immutable memories */
+export const CANONICAL_ORIGIN_SCORE_MULTIPLIER = 1.5;
+
+/** Maximum somatic archetype keywords permitted per Director turn */
+export const MAXIMUM_DIRECTOR_KEYWORDS = 5;
+
+// ── 4. Canonical Length Thresholds & Field Floors ────────────────────────────
+export const LENGTH_THRESHOLDS = Object.freeze({
+  TINY: 25, // < 25 characters -> 1 snappy beat
+  SMALL: 150, // < 150 characters -> 1-2 beats
+  COMPACT: 200, // Physical & agenda baseline floor
+  MEDIUM: 300, // Psychological & past memory floor
+  EXPANSIVE: 500, // Core personality floor & expansive input cadence (>= 500)
+});
+
+/**
+ * Lean Floors per field (in string character length).
+ * In Tier 1, every field reserves this minimum floor so core identity is never crowded out.
+ * Any content beyond this floor spills into Tier 2 where it competes via RAG relevance.
+ */
+export const FIELD_FLOORS = Object.freeze({
+  ETERNAL_PHYSICAL: LENGTH_THRESHOLDS.COMPACT, // 200
+  ETERNAL_NON_PHYSICAL: LENGTH_THRESHOLDS.EXPANSIVE, // 500
+  PRESENT_PHYSICAL: LENGTH_THRESHOLDS.COMPACT, // 200
+  PRESENT_NON_PHYSICAL: LENGTH_THRESHOLDS.MEDIUM, // 300
+  FUTURE: LENGTH_THRESHOLDS.COMPACT, // 200
+  PAST: LENGTH_THRESHOLDS.MEDIUM, // 300
+});
+
+// ── 5. Directorial Staging & Dynamic Equilibrium ─────────────────────────────
+/** Neutral midpoint value for simulation dynamics */
+export const DYNAMICS_MID = 50;
+
+// ── 6. Visual Media & Sensory Cortex ─────────────────────────────────────────
+export const DIFFUSION_IMAGE_RESOLUTIONS = Object.freeze({
+  PORTRAIT: Object.freeze({ width: 512, height: 768 }),
+  LANDSCAPE: Object.freeze({ width: 768, height: 512 }),
+  SQUARE: Object.freeze({ width: 512, height: 512 }),
+});
+
+// =============================================================================
 // CHANGELOG
 // =============================================================================
 
