@@ -10,11 +10,14 @@
  * ============================================================================
  */
 
+export const MAX_DEV_EVENTS = 100;
+
 export class DevLog {
   events = $state([]);
 
   /**
    * Appends an event entry to the reactive in-game DevMode log.
+   * Enforces a sliding ring buffer (MAX_DEV_EVENTS) to protect iframe/mobile memory.
    *
    * @param {string} type - e.g. "DYNAMICS_DELTA", "TURN_TEMPO", "MEMORY_FORMATION"
    * @param {object} payload
@@ -27,6 +30,9 @@ export class DevLog {
       payload,
     };
     this.events.push(entry);
+    if (this.events.length > MAX_DEV_EVENTS) {
+      this.events.shift();
+    }
     return entry;
   }
 

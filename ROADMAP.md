@@ -48,6 +48,12 @@ flowchart TD
     - Parallel greenfield engine constructed in `src/engine/` (`verifier.js`, `parser.js`, `sieve.js`, `prompts.js`, `transport.js`, `turns.js`, `kernel.svelte.js`, `dev.svelte.js`, `index.js`).
     - Complete test suite coverage across engine units (`verifier.test.js`, `parser.test.js`, `sieve.test.js`, `prompts.test.js`, `transport.test.js`, `turns.test.js`, `kernel.test.js`, `differential.test.js`) with 36/36 tests passing green.
     - Verified against `differential.test.js` consuming canonical contract fixtures.
+    - Audited and hardened via adversarial EGM Goldfish review (`egm-codebase-details`): JSON escaping in prefill streams, Caretaker 4-quadrant bracket parsing, dynamics delta integer clamping, and clean history-driven turn tempo.
+  - **Gate 2: Supporting Subsystems Consolidation (`src/data/`, `src/utils/`, `src/media/`)** — **NEXT**:
+    - Consolidate Dexie schema (`src/data/db.js`), 4-quadrant entity models (`src/data/entities.js`), streamlined profile fields (`src/data/profile-fields.js`), and presets (`src/data/presets.js`).
+    - Wire Two-Tier Sieve RAG from in-memory cache to Dexie `vector_cache`.
+    - Provide lean Perchance `generate_image` caller in `src/media/visual.svelte.js` consuming Visualizer prompt output.
+    - Provide direct user-gesture Web Audio SFX in `src/media/audio.svelte.js`.
     - Post-scaffolding audit completed with misses resolved and logged in [`ENGINE_AUDIT.md`](ENGINE_AUDIT.md).
   - **Gate 2: Data Layer Realignment & Consolidation (`src/data/`)** — **NEXT ACTIVE SPRINT**:
     - Consolidate legacy `db.js`, `entities.js`, and `presets.js` into clean single-store pattern with strict quadrant models.

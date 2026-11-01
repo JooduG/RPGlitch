@@ -9,6 +9,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **EGM Skeptical Simplicity Audit & De-bloat (`src/engine/`, `CHANGELOG.md`)**:
+  - **Adversarial Simplicity Critique (`egm-zoom-out`)**: Evaluated line-count, token overhead, speculative abstractions, and DRY compliance.
+  - **Character XML Assembly De-duplication (`src/engine/prompts.js`)**: Consolidated duplicate 40-line `ai` (`MAIN_CHARACTER`) and `user` (`COUNTERPART`) XML formatting blocks into a single 20-line `render_entity_character()` helper, eliminating 50 lines of duplicate boilerplate.
+  - **Transport Interface Hygiene (`src/engine/transport.js`)**: Purged hardcoded fake mock prose and dead `DEFAULT_STOP_SEQUENCES` export. Transport now requires a genuine `stream_fn` injection or throws cleanly, keeping mock responses strictly in test fixtures.
+  - **Engine Verification**: All 8 test suites in `src/engine/` passing 100% green (`36/36 tests`).
+
+- **EGM Hostile Design Critic Audit & System Hardening (`src/engine/`, `CHANGELOG.md`, `ROADMAP.md`)**:
+  - **Adversarial Design Critique (`egm-design`)**: Evaluated concurrency safety, mid-stream abort resilience, memory limits, and streaming robustness across `transport.js`, `kernel.svelte.js`, `dev.svelte.js`, and `sieve.js`.
+  - **Transport Queue Drainage on Abort (`src/engine/transport.js`)**: Updated `stop()` to drain and reject all queued promises (`queue.shift().reject(...)`), preventing orphaned generation triggers on mid-flight stops.
+  - **Transactional Rollback on Mid-Stream Failure (`src/engine/kernel.svelte.js`)**: Added snapshot/rollback of `round` and `history.length` inside `submit_turn` so network or model drops never leave desynchronized user turns.
+  - **Dynamic Entity Mutation & Clamping (`src/engine/kernel.svelte.js`)**: Director deltas are now directly applied to active character and fractal dynamics (`chaos`, `intensity`, `velocity`, etc.) clamped to `[5, 95]`.
+  - **50MB Iframe Memory Protection (`src/engine/dev.svelte.js`, `src/engine/sieve.js`)**: Enforced a 100-event ring buffer in `DevLog` (`MAX_DEV_EVENTS = 100`) and a 200-vector FIFO cap in `create_ephemeral_vector_cache` (`MAX_EPHEMERAL_VECTORS = 200`), preventing OOM crashes over 100+ round sessions.
+  - **Engine Verification**: All 8 test suites in `src/engine/` passing 100% green (`36/36 tests`).
+
+- **EGM Codebase Details Audit & Greenfield Engine Hardening (`src/engine/`, `CHANGELOG.md`, `ROADMAP.md`)**:
+  - **Adversarial Goldfish Audit (`egm-codebase-details`)**: Conducted multi-vector audit of greenfield engine files across exports, schema realism, error handling, Svelte 5 purity, and anti-bloat.
+  - **Visualizer Staging & JSON Prefill Safety (`src/engine/prompts.js`)**: Safely escaped `camera_note` inside `start_with: '{"_thought_process": "${safe_note}. '` using `JSON.stringify().slice(1, -1)` to prevent syntax corruption from quotes or newlines.
+  - **Visualizer Purpose Core Overhaul (`src/engine/prompts.js`)**: Removed artificial 4-tier image system in favor of dynamic LLM resolution choice (`"512x768" | "768x512" | "768x768"`). Injected 4-step thinking hierarchy (focal subject, spatial depth, luminary lighting, wardrobe textures), affirmative framing, FLUX/T5 natural language weight discipline, and negative prompt quality anchors.
+  - **Universal Caretaker Core Consolidation (`src/engine/prompts.js`, `src/engine/turns.js`)**: Harmonized Story Consolidation, Profile Ingestion/Sorting, and Single-Field Magic Wand polishing into a single prompt core over the 6-field canonical schema (`eternal_physical`, `eternal_non_physical`, `present_physical`, `present_non_physical`, `future`, `past`). Partitioned returned bracket tokens per quadrant in `execute_turn_3_caretaker` output.
+  - **Character POV & Present Tense Preferences (`src/engine/prompts.js`, `src/engine/turns.js`)**: Added explicit POV management (`1st_person` strictly when set on Character, defaulting to `3rd_person` for all others and Fractals), present tense narrative prose rule, and replaced `<OUTPUT_FORMAT>` with a markdown alert.
+  - **Turn Tempo History Density & Orphan Input Purge (`src/engine/turns.js`, `src/engine/kernel.svelte.js`)**: `calculate_turn_tempo` now directly inspects recent history density (supporting unprompted fractal beats or continue actions), completely purging the redundant `input` parameter across `turns.js` and `kernel.svelte.js`.
+  - **Sanitized Dynamics Deltas (`src/engine/turns.js`)**: Validated and clamped all 6 dynamics axes (`chaos`, `intensity`, `openness`, `affinity`, `velocity`, `entropy`) within safe integer bounds (`[-20, 20]`) to protect against LLM hallucinations.
+  - **Engine Verification**: All 8 test suites in `src/engine/` passing 100% green (`36/36 tests`).
+
 - **Engine Scaffolding Audit, Misses Remediation & Audit Log (`src/engine/`, `ENGINE_AUDIT.md`)**:
   - **Comprehensive Deviations Audit**: Cross-referenced `nuclear-plan.md`, `gate-1-engine-scaffolding-plan.md`, and `src/engine/` code. Cataloged all user-driven **Clarifications**, open **Unsure/Deferred Items**, and **Implemented Misses** in a new root document `ENGINE_AUDIT.md`.
   - **Caretaker Emotional Weight Flag (`src/engine/prompts.js`)**: Documented the `| w: 1-10` emotional weight flag in the Caretaker's Bracket Mutation Rules alongside `| hide` and `@` relational targeting. All 36 engine tests passing green.

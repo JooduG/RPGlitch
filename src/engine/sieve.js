@@ -76,6 +76,8 @@ export function cosine_similarity(vecA, vecB) {
  *
  * @returns {{ get: (id: string) => Promise<Float32Array | null>, set: (id: string, vector: Float32Array) => Promise<void>, clear: () => Promise<void> }}
  */
+export const MAX_EPHEMERAL_VECTORS = 200;
+
 export function create_ephemeral_vector_cache() {
   const store = new Map();
 
@@ -84,6 +86,13 @@ export function create_ephemeral_vector_cache() {
       return store.get(id) || null;
     },
     async set(id, vector) {
+      if (store.size >= MAX_EPHEMERAL_VECTORS) {
+        // Evict oldest entry (FIFO) to enforce memory ceiling
+        const first_key = store.keys().next().value;
+        if (first_key !== undefined) {
+          store.delete(first_key);
+        }
+      }
       store.set(id, vector);
     },
     async clear() {

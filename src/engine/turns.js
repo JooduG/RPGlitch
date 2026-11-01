@@ -96,7 +96,26 @@ export async function execute_turn_1_director({ transport, round = 1, entities =
     // Locate JSON block within output
     const json_match = /\{[\s\S]*\}/.exec(raw_output);
     if (json_match) {
-      return JSON.parse(json_match[0]);
+      const parsed = JSON.parse(json_match[0]);
+
+      // Sanitize and clamp numeric dynamics deltas to safe bounds
+      const raw_deltas = parsed?.dynamics_deltas || {};
+      const dynamics_deltas = {
+        chaos: Math.max(-20, Math.min(20, Math.round(Number(raw_deltas.chaos) || 0))),
+        intensity: Math.max(-20, Math.min(20, Math.round(Number(raw_deltas.intensity) || 0))),
+        openness: Math.max(-20, Math.min(20, Math.round(Number(raw_deltas.openness) || 0))),
+        affinity: Math.max(-20, Math.min(20, Math.round(Number(raw_deltas.affinity) || 0))),
+        velocity: Math.max(-20, Math.min(20, Math.round(Number(raw_deltas.velocity) || 0))),
+        entropy: Math.max(-20, Math.min(20, Math.round(Number(raw_deltas.entropy) || 0))),
+      };
+
+      return {
+        _thought_process: typeof parsed?._thought_process === "string" ? parsed._thought_process : "",
+        next_action: typeof parsed?.next_action === "string" ? parsed.next_action : "MAIN_CHARACTER",
+        directors_note: typeof parsed?.directors_note === "string" ? parsed.directors_note : "",
+        dynamics_deltas,
+        camera_note: typeof parsed?.camera_note === "string" ? parsed.camera_note : "",
+      };
     }
   } catch (_err) {
     // Fallback default staging if JSON malformed
@@ -255,6 +274,18 @@ export async function execute_turn_3_caretaker({ transport, round = 1, entities 
   const future = typeof parsed?.future === "string" ? parsed.future : "";
   const past = typeof parsed?.past === "string" ? parsed.past : "";
 
+  // Parse brackets per temporal quadrant
+  const eternal = {
+    physical: parse_brackets(eternal_physical),
+    non_physical: parse_brackets(eternal_non_physical),
+  };
+  const present = {
+    physical: parse_brackets(present_physical),
+    non_physical: parse_brackets(present_non_physical),
+  };
+  const parsed_future = parse_brackets(future);
+  const parsed_past = parse_brackets(past);
+
   // Parse all bracket tokens across the consolidated fields
   const combined_bracket_text = [eternal_physical, eternal_non_physical, present_physical, present_non_physical, future, past]
     .filter(Boolean)
@@ -265,12 +296,16 @@ export async function execute_turn_3_caretaker({ transport, round = 1, entities 
     raw,
     target,
     _thought_process,
+    eternal,
+    present,
+    future: parsed_future,
+    past: parsed_past,
     eternal_physical,
     eternal_non_physical,
     present_physical,
     present_non_physical,
-    future,
-    past,
+    future_text: future,
+    past_text: past,
     brackets,
   };
 }

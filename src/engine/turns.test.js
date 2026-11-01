@@ -146,8 +146,13 @@ Alice steps into the shadow of the rusted girder, her hand resting on her holste
     expect(result.target).toBe("AI");
     expect(result.present_non_physical).toBe("[MOOD: vigilant]");
     expect(result.present_physical).toBe("[INVENTORY: rusted lockpick]");
-    expect(result.future).toBe("[GOAL: breach security hub]");
-    expect(result.past).toContain("[FACT: heard strange frequency on radio | w: 8]");
+    expect(result.future_text).toBe("[GOAL: breach security hub]");
+    expect(result.past_text).toContain("[FACT: heard strange frequency on radio | w: 8]");
+    expect(result.present.non_physical[0].key).toBe("MOOD");
+    expect(result.present.physical[0].key).toBe("INVENTORY");
+    expect(result.future[0].key).toBe("GOAL");
+    expect(result.past[0].key).toBe("FACT");
+    expect(result.past[0].flags.weight).toBe(8);
     expect(result.brackets).toHaveLength(4);
     expect(result.brackets[0].key).toBe("INVENTORY");
     expect(result.brackets[0].value).toBe("rusted lockpick");

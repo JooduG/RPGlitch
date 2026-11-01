@@ -44,4 +44,4 @@ export { extract_think_block, parse_bracket_token, parse_brackets, format_clean_
 export { count_text_tokens, cosine_similarity, create_ephemeral_vector_cache, score_and_rank_memories, two_tier_sieve_rag } from "./sieve.js";
 
 // Streaming transport boundary
-export { DEFAULT_STOP_SEQUENCES, create_transport } from "./transport.js";
+export { create_transport } from "./transport.js";

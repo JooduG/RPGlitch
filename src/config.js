@@ -55,18 +55,6 @@ export const PATIENCE_POLICY = Object.freeze({
   HARD_LIMIT: 3, // 3 strikes/attempts: max retry attempts, failure trip threshold, max concurrent probes
 });
 
-/**
- * Universal narrative tension and dramatic scale (1-100).
- */
-export const DYNAMICS_SCALE = Object.freeze({
-  MIN: 1, // Lowest possible value on the 1-100 narrative tension and significance scale
-  EXTREME_LOW: 15, // Collapse / isolation floor triggering automated emotional beats
-  MID: 50, // Universal neutral equilibrium baseline for meters and new past-vector significance
-  HIGH: 75, // High tension threshold triggering dramatic escalation, intimate framing, or Dutch angles
-  EXTREME_HIGH: 85, // Climax / breakthrough ceiling triggering automated visual synthesis beats
-  MAX: 100, // Absolute ceiling on the 1-100 narrative tension and significance scale
-});
-
 export const DYNAMICS_CALIBRATION = Object.freeze({
   DELTA_STANDARD: "±1-4", // Normal turn fluctuation guideline documented for LLM director in prompt
   DELTA_EXTREME: "±8-12", // High drama / crisis turn fluctuation guideline documented for LLM director in prompt
@@ -77,21 +65,10 @@ export const DYNAMICS_CALIBRATION = Object.freeze({
 export const GRAVITY_RATE = 0.08;
 
 /** Cumulative displacement delta across all axes required to trigger an automated visual beat */
-export const SEISMIC_SHIFT_DISPLACEMENT = DYNAMICS_SCALE.MID; // 50: Displacement trip point aligned to neutral dynamics baseline
+export const SEISMIC_SHIFT_DISPLACEMENT = 50; // 50: Displacement trip point aligned to neutral dynamics baseline
 
 /** Random atmospheric variance factor applied during turn dynamics progression */
 export const ENTROPY_VARIANCE = 0.05;
-
-/** Emotional salience scale for past entries and veil flags */
-export const EMOTIONAL_WEIGHT_SCALE = Object.freeze({ MIN: 1, MAX: 10, DEFAULT: 5 });
-
-/** Standard image aspect ratios and resolutions for text-to-image diffusion */
-export const IMAGE_RESOLUTIONS = Object.freeze({
-  LANDSCAPE: Object.freeze({ width: 768, height: 512 }),
-  PORTRAIT: Object.freeze({ width: 512, height: 768 }),
-  SQUARE_SMALL: Object.freeze({ width: 512, height: 512 }),
-  SQUARE_LARGE: Object.freeze({ width: 768, height: 768 }),
-});
 
 // =============================================================================
 // [SECTION 2: SUBSYSTEM DOMAIN AGREEMENTS]
@@ -129,7 +106,7 @@ export const COMPACTION = Object.freeze({
 });
 
 export const FRAGMENTATION = Object.freeze({
-  THRESHOLD: DYNAMICS_SCALE.HIGH, // 75: Somatic fragmentation fires when chaos/entropy exceeds HIGH tension threshold
+  THRESHOLD: 75, // 75: Somatic fragmentation fires when chaos/entropy exceeds HIGH tension threshold (DYNAMICS_SCALE.HIGH)
   WEIGHT_CUTOFF: 6, // Past vectors at weight <= 6 degrade under fragmentation; >= 7 stay canon
 });
 
@@ -286,16 +263,16 @@ export const DIRECTOR_OUTPUT = Object.freeze({
 
 /** Default 4-axis somatic dynamics baseline at neutral equilibrium (MID 50) */
 export const DEFAULT_AI_DYNAMICS = Object.freeze({
-  chaos: DYNAMICS_SCALE.MID,
-  intensity: DYNAMICS_SCALE.MID,
-  openness: DYNAMICS_SCALE.MID,
-  affinity: DYNAMICS_SCALE.MID,
+  chaos: 50,
+  intensity: 50,
+  openness: 50,
+  affinity: 50,
 });
 
 /** Default 2-axis environmental dynamics baseline at neutral equilibrium (MID 50) */
 export const DEFAULT_FRACTAL_DYNAMICS = Object.freeze({
-  velocity: DYNAMICS_SCALE.MID,
-  entropy: DYNAMICS_SCALE.MID,
+  velocity: 50,
+  entropy: 50,
 });
 
 // ── 6. Hardware Tensors, Concurrency & UI Subsystems ─────────────────────────
@@ -369,19 +346,31 @@ export const FIELD_FLOORS = Object.freeze({
 });
 
 // ── 5. Directorial Staging & Dynamic Equilibrium ─────────────────────────────
-/** Neutral midpoint value for simulation dynamics */
-export const DYNAMICS_MID = 50;
+/** Universal narrative tension and dramatic scale (1-100) with calibrated operational boundaries. */
+export const DYNAMICS_SCALE = Object.freeze({
+  MIN: 1, // Lowest possible value on the 1-100 narrative tension and significance scale
+  EXTREME_LOW: 15, // Collapse / isolation floor triggering automated emotional beats
+  LOW: 25,
+  MID: 50, // Universal neutral equilibrium baseline for meters and new past-vector significance
+  HIGH: 75, // High tension threshold triggering dramatic escalation, intimate framing, or Dutch angles
+  EXTREME_HIGH: 85, // Climax / breakthrough ceiling triggering automated visual synthesis beats
+  MAX: 100, // Absolute ceiling on the 1-100 narrative tension and significance scale
 
-// ── 6. Visual Media & Sensory Cortex ─────────────────────────────────────────
-export const DIFFUSION_IMAGE_RESOLUTIONS = Object.freeze({
-  PORTRAIT: Object.freeze({ width: 512, height: 768 }),
-  LANDSCAPE: Object.freeze({ width: 768, height: 512 }),
-  SQUARE: Object.freeze({ width: 512, height: 512 }),
+  DELTA_STANDARD: "±1-4", // Normal turn fluctuation guideline documented for LLM director in prompt
+  DELTA_EXTREME: "±8-12", // High drama / crisis turn fluctuation guideline documented for LLM director in prompt
+  BOUNDARY_CLIP: "5-95", // Safety buffer preventing ordinary turns from artificially slamming against scale endpoints
 });
 
-// =============================================================================
-// CHANGELOG
-// =============================================================================
+/** Emotional salience scale for past entries and veil flags */
+export const EMOTIONAL_WEIGHT_SCALE = Object.freeze({ MIN: 1, MAX: 10, DEFAULT: 5 });
+
+// ── 6. Visual Media & Sensory Cortex ─────────────────────────────────────────
+export const IMAGE_RESOLUTIONS = Object.freeze({
+  PORTRAIT: Object.freeze({ width: 512, height: 768 }),
+  LANDSCAPE: Object.freeze({ width: 768, height: 512 }),
+  SQUARE_SMALL: Object.freeze({ width: 512, height: 512 }),
+  SQUARE_LARGE: Object.freeze({ width: 768, height: 768 }),
+});
 
 /**
  * CHANGELOG:

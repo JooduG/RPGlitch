@@ -19,6 +19,7 @@
  */
 
 import { format_clean_brackets } from "./parser.js";
+import { DYNAMICS_SCALE } from "../config.js";
 
 /**
  * Co-located Purpose Core Definitions.
@@ -37,7 +38,7 @@ export const PURPOSE_CORES = Object.freeze({
     - **Staging Directive (\`directors_note\`)**: Acting guidance delivered exclusively to the \`next_action\` entity (never script actions for the protagonist).
     - **Cinematography (\`camera_note\`)**: Frame physical posture, lighting, and camera angle for visual synthesis.
 
-    <DYNAMICS_DELTAS scale="0-100" standard="±1-4" dramatic="±8-12" clamp="5-95">
+    <DYNAMICS_DELTAS scale="${DYNAMICS_SCALE.MIN}-${DYNAMICS_SCALE.MAX}" standard="${DYNAMICS_SCALE.DELTA_STANDARD}" dramatic="${DYNAMICS_SCALE.DELTA_EXTREME}" clamp="${DYNAMICS_SCALE.BOUNDARY_CLIP}">
       Character Dynamics:
       - **chaos**: (+) Volatility / Unpredictability vs (-) Order / Stability
       - **intensity**: (+) Surge / High Stakes vs (-) Stillness / Calm
@@ -55,11 +56,11 @@ export const PURPOSE_CORES = Object.freeze({
 
     <OUTPUT_FORMAT mode="json">
       {
-        "_thought_process": "...",
+        "_thought_process": "",
         "next_action": "MAIN_CHARACTER | SCENARIO | OTHER_CHARACTERS | EPILOGUE_COLLAPSED | EPILOGUE_CONCLUDED",
-        "directors_note": "...",
+        "directors_note": "",
         "dynamics_deltas": { "chaos": 0, "intensity": 0, "openness": 0, "affinity": 0, "velocity": 0, "entropy": 0 },
-        "camera_note": "..."
+        "camera_note": ""
       }
     </OUTPUT_FORMAT>
 
@@ -152,7 +153,11 @@ export const PURPOSE_CORES = Object.freeze({
   visualizer: {
     identity: "visualizer",
     see_hidden: "none",
-    start_with: (context) => (context?.camera_note ? `{"_thought_process": "${context.camera_note}. ` : '{"_thought_process": "'),
+    start_with: (context) => {
+      if (!context?.camera_note) return '{"_thought_process": "';
+      const safe_note = JSON.stringify(context.camera_note).slice(1, -1);
+      return `{"_thought_process": "${safe_note}. `;
+    },
     resolve_identity_text: () => "You are the Sensory Cortex synthesizing visual staging and descriptive optics.",
     task_block: `  <TASK>
     ### Think Format
@@ -281,55 +286,43 @@ export function compile_prompt({ core = "character", round = 1, entities = {}, h
   // --- Blocks 3 & 4: Main Character & Counterpart ---
   const characters_list = [];
 
-  if (ai) {
+  function render_entity_character(entity, tag_name, is_counterpart) {
+    if (!entity) return "";
     const strip_inventory = see_hidden === "none";
-    const ai_pres_phys = format_clean_brackets(ai.present?.physical || "", { see_hidden, is_counterpart: false, strip_inventory });
-    const ai_eter_phys = format_clean_brackets(ai.eternal?.physical || "", { see_hidden, is_counterpart: false, strip_inventory });
-    const ai_eter_non = ai.eternal?.non_physical?.trim() || "";
-    const ai_pres_non = ai.present?.non_physical?.trim() || "";
-    const ai_dyn = ai.dynamics || {};
+    const pres_phys = format_clean_brackets(entity.present?.physical || "", { see_hidden, is_counterpart, strip_inventory });
+    const eter_phys = format_clean_brackets(entity.eternal?.physical || "", { see_hidden, is_counterpart, strip_inventory });
+    const eter_non = entity.eternal?.non_physical?.trim() || "";
+    const pres_non = entity.present?.non_physical?.trim() || "";
+    const dyn = entity.dynamics || {};
 
-    const ai_children = [];
-    if (ai_eter_non) ai_children.push(`      ### Personality\n      ${ai_eter_non}`);
-    if (ai_pres_non) ai_children.push(`      ### State of Mind\n      ${ai_pres_non}`);
-    const appearance_content = [ai_pres_phys, ai_eter_phys].filter(Boolean).join("\n      ").trim();
+    const children = [];
+    if (eter_non) children.push(`      ### Personality\n      ${eter_non}`);
+    if (pres_non) children.push(`      ### State of Mind\n      ${pres_non}`);
+    const appearance_content = [pres_phys, eter_phys].filter(Boolean).join("\n      ").trim();
     if (appearance_content) {
-      ai_children.push(`      ### Appearance\n      ${appearance_content}`);
+      children.push(`      ### Appearance\n      ${appearance_content}`);
     }
 
     const dyn_attrs = [
-      ai_dyn.chaos !== undefined ? `chaos="${ai_dyn.chaos}"` : "",
-      ai_dyn.intensity !== undefined ? `intensity="${ai_dyn.intensity}"` : "",
-      ai_dyn.openness !== undefined ? `openness="${ai_dyn.openness}"` : "",
-      ai_dyn.affinity !== undefined ? `affinity="${ai_dyn.affinity}"` : "",
+      dyn.chaos !== undefined ? `chaos="${dyn.chaos}"` : "",
+      dyn.intensity !== undefined ? `intensity="${dyn.intensity}"` : "",
+      dyn.openness !== undefined ? `openness="${dyn.openness}"` : "",
+      dyn.affinity !== undefined ? `affinity="${dyn.affinity}"` : "",
     ]
       .filter(Boolean)
       .join(" ");
 
     const attr_str = dyn_attrs ? ` ${dyn_attrs}` : "";
-    characters_list.push(
-      `    <MAIN_CHARACTER id="${ai.id || "AI"}" name="${ai.name || "AI"}"${attr_str}>\n${ai_children.join("\n\n")}\n    </MAIN_CHARACTER>`,
-    );
+    return `    <${tag_name} id="${entity.id || tag_name}" name="${entity.name || tag_name}"${attr_str}>\n${children.join("\n\n")}\n    </${tag_name}>`;
+  }
+
+  if (ai) {
+    characters_list.push(render_entity_character(ai, "MAIN_CHARACTER", false));
   }
 
   if (user) {
-    const strip_inventory = see_hidden === "none";
-    const user_eter_non = user.eternal?.non_physical?.trim() || "";
-    const user_pres_non = user.present?.non_physical?.trim() || "";
-    const user_eter_phys = format_clean_brackets(user.eternal?.physical || "", { see_hidden, is_counterpart: true, strip_inventory });
-    const user_pres_phys = format_clean_brackets(user.present?.physical || "", { see_hidden, is_counterpart: true, strip_inventory });
-
-    const user_children = [];
-    if (user_eter_non) user_children.push(`      ### Personality\n      ${user_eter_non}`);
-    if (user_pres_non) user_children.push(`      ### State of Mind\n      ${user_pres_non}`);
-    const appearance_content = [user_eter_phys, user_pres_phys].filter(Boolean).join("\n      ").trim();
-    if (appearance_content) {
-      user_children.push(`      ### Appearance\n      ${appearance_content}`);
-    }
-
-    characters_list.push(
-      `    <COUNTERPART id="${user.id || "USER"}" name="${user.name || "USER"}>\n${user_children.join("\n\n")}\n    </COUNTERPART>`,
-    );
+    // For counterpart, order appearance eternal then present for natural perspective
+    characters_list.push(render_entity_character(user, "COUNTERPART", true));
   }
 
   if (npc) {

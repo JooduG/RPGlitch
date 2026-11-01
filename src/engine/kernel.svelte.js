@@ -52,6 +52,8 @@ export class Kernel {
 
     this.phase = "generating";
     this.error = null;
+    const previous_round = this.round;
+    const previous_history_length = this.history.length;
     this.round += 1;
 
     // Append user turn to history
@@ -73,14 +75,31 @@ export class Kernel {
         round: this.round,
         entities,
         history: this.history,
-        input: userText.trim(),
         director_enabled: this.director_enabled,
         onChunk: options.onChunk,
       });
 
-      // Record director deltas in DevMode log if present
-      if (outcome.director_staging) {
-        dev_log.record("DYNAMICS_DELTA", outcome.director_staging.dynamics_deltas);
+      // Apply director deltas to active entity dynamics with [5, 95] clamping
+      if (outcome.director_staging?.dynamics_deltas) {
+        const deltas = outcome.director_staging.dynamics_deltas;
+        dev_log.record("DYNAMICS_DELTA", deltas);
+
+        if (this.ai && typeof this.ai.dynamics === "object") {
+          for (const key of ["chaos", "intensity", "openness", "affinity"]) {
+            if (deltas[key] !== undefined && this.ai.dynamics[key] !== undefined) {
+              const current = Number(this.ai.dynamics[key]) || 50;
+              this.ai.dynamics[key] = Math.max(5, Math.min(95, current + deltas[key]));
+            }
+          }
+        }
+        if (this.fractal && typeof this.fractal.dynamics === "object") {
+          for (const key of ["velocity", "entropy"]) {
+            if (deltas[key] !== undefined && this.fractal.dynamics[key] !== undefined) {
+              const current = Number(this.fractal.dynamics[key]) || 50;
+              this.fractal.dynamics[key] = Math.max(5, Math.min(95, current + deltas[key]));
+            }
+          }
+        }
       }
 
       dev_log.record("TURN_TEMPO", { tempo: outcome.character_turn.turn_tempo });
@@ -95,6 +114,9 @@ export class Kernel {
 
       return outcome;
     } catch (err) {
+      // Transactional rollback on mid-stream failure to prevent orphan user turns
+      this.history.length = previous_history_length;
+      this.round = previous_round;
       this.error = err.message || String(err);
       dev_log.record("ERROR", { message: this.error, round: this.round });
       throw err;
