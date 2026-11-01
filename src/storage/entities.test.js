@@ -8,6 +8,7 @@ describe("src/storage/entities.js — 4-Quadrant Entity Model & Adapt-on-Read", 
       expect(character.id).toMatch(/^[0-9a-f-]+$/i);
       expect(character.name).toBe("Aria");
       expect(character.type).toBe("character");
+      expect(character.pov).toBe("3rd_person");
       expect(character.dynamics).toEqual({ chaos: 50, intensity: 50, openness: 50, affinity: 50 });
       expect(character.eternal).toEqual({ physical: "", non_physical: "" });
       expect(character.present).toEqual({ physical: "", non_physical: "" });

@@ -168,7 +168,7 @@ export function format_clean_brackets(brackets_text, options = {}) {
     kept.push(`[${token.key}: ${token.value}]`);
   }
 
-  return kept.join(", ");
+  return kept.join("\n");
 }
 
 /**
