@@ -45,9 +45,12 @@ flowchart TD
 
 - **Sovereign Nuclear Architecture & Simplification Protocol (`nuclear-plan.md`)**:
   - **Gate 1: Foundational Scaffolding (`src/engine/`)** — **COMPLETED**:
-    - Parallel greenfield engine constructed in `src/engine/` (`verifier.js`, `parser.js`, `sieve.js`, `prompts.js`, `transport.js`, `turns.js`, `simulation.svelte.js`, `log.svelte.js`, `index.js`).
-    - 33/33 tests passing with 0 errors across 8 test suites.
+    - Parallel greenfield engine constructed in `src/engine/` (`verifier.js`, `parser.js`, `sieve.js`, `prompts.js`, `transport.js`, `turns.js`, `kernel.svelte.js`, `dev.svelte.js`, `index.js`).
+    - Complete test suite coverage across engine units (`verifier.test.js`, `parser.test.js`, `sieve.test.js`, `prompts.test.js`, `transport.test.js`, `turns.test.js`, `kernel.test.js`, `differential.test.js`) with 36/36 tests passing green.
     - Verified against `differential.test.js` consuming canonical contract fixtures.
+    - Post-scaffolding audit completed with misses resolved and logged in [`ENGINE_AUDIT.md`](ENGINE_AUDIT.md).
+  - **Gate 2: Data Layer Realignment & Consolidation (`src/data/`)** — **NEXT ACTIVE SPRINT**:
+    - Consolidate legacy `db.js`, `entities.js`, and `presets.js` into clean single-store pattern with strict quadrant models.
     - Promoted Section 7 nuclear constants added to `src/config.js`; `test:engine` and `test:legacy` scripts added to `package.json`.
   - **Gate 2: Supporting Subsystems Consolidation (`src/data/`, `src/utils/`, `src/media/`)** — **NEXT**:
     - Consolidate Dexie schema (`src/data/db.js`), 4-quadrant entities (`src/data/entities.js`), presets (`src/data/presets.js`).

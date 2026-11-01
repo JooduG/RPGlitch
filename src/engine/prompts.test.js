@@ -30,7 +30,6 @@ describe("src/engine/prompts.js — 11-Block Spatial Spine & 4 Purpose Cores", (
       "MEMORIES",
       "RECENT",
       "TASK",
-      "FINAL_NOTE",
     ];
 
     const result = verify_compiled_prompt(prompt, { expected_tags });
@@ -65,7 +64,13 @@ describe("src/engine/prompts.js — 11-Block Spatial Spine & 4 Purpose Cores", (
 
     const result = verify_compiled_prompt(prompt);
     expect(result.valid).toBe(true);
-    expect(prompt).toContain('OUTPUT_FORMAT mode="brackets"');
+    expect(prompt).toContain('OUTPUT_FORMAT mode="json"');
+    expect(prompt).toContain('"eternal_physical"');
+    expect(prompt).toContain('"eternal_non_physical"');
+    expect(prompt).toContain('"present_physical"');
+    expect(prompt).toContain('"present_non_physical"');
+    expect(prompt).toContain('"future"');
+    expect(prompt).toContain('"past"');
   });
 
   it("compiles visualizer core with diffusion prompt directives", () => {
@@ -99,9 +104,9 @@ describe("src/engine/prompts.js — 11-Block Spatial Spine & 4 Purpose Cores", (
 
     // AI is present with only non-empty tags
     expect(single_entity_prompt).toContain('<MAIN_CHARACTER id="solo_ai" name="Viper">');
-    expect(single_entity_prompt).toContain("<PERSONALITY>Stoic, analytical.</PERSONALITY>");
-    expect(single_entity_prompt).not.toContain("<STATE_OF_MIND>");
-    expect(single_entity_prompt).not.toContain("<APPEARANCE>");
+    expect(single_entity_prompt).toContain("### Personality\n      Stoic, analytical.");
+    expect(single_entity_prompt).not.toContain("### State of Mind");
+    expect(single_entity_prompt).not.toContain("### Appearance");
 
     // Absent entities & empty blocks are omitted cleanly
     expect(single_entity_prompt).not.toContain("<COUNTERPART");

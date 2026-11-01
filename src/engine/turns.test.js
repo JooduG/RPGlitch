@@ -12,11 +12,12 @@ import { create_contract_fixtures } from "../intelligence/prompt-verification.js
 describe("src/engine/turns.js — Pure Functional Turn Orchestrator", () => {
   const { entities, history } = create_contract_fixtures();
 
-  it("calculates dynamic turn tempo based on input length", () => {
-    expect(calculate_turn_tempo("Hi")).toBe(1);
-    expect(calculate_turn_tempo("Let us proceed down the corridor cautiously.")).toBe(2);
-    expect(calculate_turn_tempo("A".repeat(300))).toBe(3);
-    expect(calculate_turn_tempo("A".repeat(600))).toBe(4);
+  it("calculates dynamic turn tempo based on history length", () => {
+    expect(calculate_turn_tempo([{ text: "Hi" }])).toBe(1);
+    expect(calculate_turn_tempo([{ text: "Let us proceed down the corridor cautiously." }])).toBe(2);
+    expect(calculate_turn_tempo([{ text: "A".repeat(300) }])).toBe(3);
+    expect(calculate_turn_tempo([{ text: "A".repeat(600) }])).toBe(4);
+    expect(calculate_turn_tempo([])).toBe(2);
   });
 
   it("executes Turn 1 Director quick shot and parses structured JSON", async () => {
@@ -24,9 +25,7 @@ describe("src/engine/turns.js — Pure Functional Turn Orchestrator", () => {
       async stream() {
         return JSON.stringify({
           _thought_process: "Tension rising.",
-          next_action: "AI_CHARACTER",
-          story_status: "ACTIVE",
-          keywords: ["SUSPICION"],
+          next_action: "MAIN_CHARACTER",
           directors_note: "Keep your hand near your weapon.",
           dynamics_deltas: { chaos: 5, intensity: 10, openness: -5, affinity: 0 },
         });
@@ -38,10 +37,9 @@ describe("src/engine/turns.js — Pure Functional Turn Orchestrator", () => {
       round: 1,
       entities,
       history,
-      input: "Bob unholsters his deck.",
     });
 
-    expect(staging.story_status).toBe("ACTIVE");
+    expect(staging.next_action).toBe("MAIN_CHARACTER");
     expect(staging.directors_note).toBe("Keep your hand near your weapon.");
     expect(staging.dynamics_deltas.intensity).toBe(10);
   });
@@ -61,8 +59,7 @@ Alice steps into the shadow of the rusted girder, her hand resting on her holste
       transport: mock_transport,
       round: 1,
       entities,
-      history,
-      input: "We move now.",
+      history: [{ text: "We move now." }],
     });
 
     expect(characterResult.think).toContain("Distrust Bob's reckless speed.");
@@ -81,8 +78,7 @@ Alice steps into the shadow of the rusted girder, her hand resting on her holste
       transport: mock_transport,
       round: 1,
       entities,
-      history,
-      input: "Ready?",
+      history: [{ text: "Ready?" }],
       director_enabled: false,
     });
 
@@ -109,8 +105,7 @@ Alice steps into the shadow of the rusted girder, her hand resting on her holste
       transport: mock_transport,
       round: 1,
       entities,
-      history,
-      input: "Ready?",
+      history: [{ text: "Ready?" }],
       director_enabled: true,
     });
 
@@ -129,7 +124,15 @@ Alice steps into the shadow of the rusted girder, her hand resting on her holste
   it("executes Turn 3 Caretaker memory synthesis and parses extracted brackets", async () => {
     const mock_transport = {
       async stream() {
-        return `[MOOD: vigilant]\n[INVENTORY: rusted lockpick]\n[FACT: heard strange frequency on radio | w: 8]`;
+        return JSON.stringify({
+          _thought_process: "Target observed the perimeter and gathered tools.",
+          eternal_physical: "",
+          eternal_non_physical: "",
+          present_physical: "[INVENTORY: rusted lockpick]",
+          present_non_physical: "[MOOD: vigilant]",
+          future: "[GOAL: breach security hub]",
+          past: "[FACT: heard strange frequency on radio | w: 8]",
+        });
       },
     };
 
@@ -141,11 +144,17 @@ Alice steps into the shadow of the rusted girder, her hand resting on her holste
     });
 
     expect(result.target).toBe("AI");
-    expect(result.brackets).toHaveLength(3);
-    expect(result.brackets[0].key).toBe("MOOD");
-    expect(result.brackets[0].value).toBe("vigilant");
-    expect(result.brackets[1].key).toBe("INVENTORY");
-    expect(result.brackets[2].key).toBe("FACT");
-    expect(result.brackets[2].flags.weight).toBe(8);
+    expect(result.present_non_physical).toBe("[MOOD: vigilant]");
+    expect(result.present_physical).toBe("[INVENTORY: rusted lockpick]");
+    expect(result.future).toBe("[GOAL: breach security hub]");
+    expect(result.past).toContain("[FACT: heard strange frequency on radio | w: 8]");
+    expect(result.brackets).toHaveLength(4);
+    expect(result.brackets[0].key).toBe("INVENTORY");
+    expect(result.brackets[0].value).toBe("rusted lockpick");
+    expect(result.brackets[1].key).toBe("MOOD");
+    expect(result.brackets[1].value).toBe("vigilant");
+    expect(result.brackets[2].key).toBe("GOAL");
+    expect(result.brackets[3].key).toBe("FACT");
+    expect(result.brackets[3].flags.weight).toBe(8);
   });
 });

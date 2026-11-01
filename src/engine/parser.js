@@ -157,16 +157,25 @@ export function parse_brackets(text) {
  * @param {object} options
  * @param {"all" | "own" | "none"} [options.see_hidden="own"]
  * @param {boolean} [options.is_counterpart=false] - whether this entity is counterpart across Epistemic Wall
+ * @param {boolean} [options.strip_inventory=false] - whether to strip INVENTORY and STASH brackets (e.g. for visualizer)
  * @returns {string} clean brackets string without metadata flags
  */
 export function format_clean_brackets(bracketsText, options = {}) {
-  const { see_hidden = "own", is_counterpart = false } = options;
+  const { see_hidden = "own", is_counterpart = false, strip_inventory = false } = options;
   const parsed = parse_brackets(bracketsText);
 
   const kept = [];
 
   for (const token of parsed) {
     if (!token) continue;
+
+    // Visual filter: strip inventory and stash containers if requested
+    if (strip_inventory) {
+      const upper_key = token.key.toUpperCase();
+      if (upper_key === "INVENTORY" || upper_key === "STASH") {
+        continue;
+      }
+    }
 
     // Epistemic Wall rules:
     // If see_hidden is "none": strip all hidden brackets
@@ -181,5 +190,5 @@ export function format_clean_brackets(bracketsText, options = {}) {
     kept.push(`[${token.key}: ${token.value}]`);
   }
 
-  return kept.join("\n");
+  return kept.join(", ");
 }

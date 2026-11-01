@@ -21,6 +21,182 @@
 import { format_clean_brackets } from "./parser.js";
 
 /**
+ * Co-located Purpose Core Definitions.
+ * Each core bundles its identity, Epistemic Wall visibility, startWith token, opening line, and task block.
+ */
+export const PURPOSE_CORES = Object.freeze({
+  director: {
+    identity: "director",
+    see_hidden: "all",
+    start_with: '{"_thought_process": "',
+    resolve_identity_text: () => "You are the Director orchestrating simulation mechanics and staging.",
+    task_block: `  <TASK>
+    ### Directives
+    - **Analysis (\`_thought_process\`)**: Evaluate recent events, physical causality, and emotional friction.
+    - **Next Action (\`next_action\`)**: Determine who or what reacts next (\`MAIN_CHARACTER\`, \`SCENARIO\`, or \`OTHER_CHARACTERS\`). On fatal trauma, emit \`"EPILOGUE_COLLAPSED"\`.
+    - **Staging Directive (\`directors_note\`)**: Acting guidance delivered exclusively to the \`next_action\` entity (never script actions for the protagonist).
+    - **Cinematography (\`camera_note\`)**: Frame physical posture, lighting, and camera angle for visual synthesis.
+
+    <DYNAMICS_DELTAS scale="0-100" standard="±1-4" dramatic="±8-12" clamp="5-95">
+      Character Dynamics:
+      - **chaos**: (+) Volatility / Unpredictability vs (-) Order / Stability
+      - **intensity**: (+) Surge / High Stakes vs (-) Stillness / Calm
+      - **openness**: (+) Permeability / Vulnerability vs (-) Insulation / Guarded
+      - **affinity**: (+) Connection / Coalescence vs (-) Isolation / Friction
+
+      Scenario Dynamics:
+      - **velocity**: (+) Acceleration / Rapid Pacing vs (-) Suspension / Slowness
+      - **entropy**: (+) Glitching / Decay / Fragmentation vs (-) Coherence / Purity
+
+      Calibrate integer deltas to turn friction. Avoid extreme swings near boundaries.
+    </DYNAMICS_DELTAS>
+
+    ---
+
+    <OUTPUT_FORMAT mode="json">
+      {
+        "_thought_process": "...",
+        "next_action": "MAIN_CHARACTER | SCENARIO | OTHER_CHARACTERS | EPILOGUE_COLLAPSED | EPILOGUE_CONCLUDED",
+        "directors_note": "...",
+        "dynamics_deltas": { "chaos": 0, "intensity": 0, "openness": 0, "affinity": 0, "velocity": 0, "entropy": 0 },
+        "camera_note": "..."
+      }
+    </OUTPUT_FORMAT>
+
+    > [!IMPORTANT]
+    > No conversational preamble, no markdown code fence backticks, no trailing comments.
+    > Output MUST start with { and end with }.
+  </TASK>`,
+  },
+
+  caretaker: {
+    identity: "caretaker",
+    see_hidden: "all",
+    start_with: '{"_thought_process": "',
+    resolve_identity_text: (context) =>
+      `You are the Continuum Caretaker for target entity "${context.target_name}". Organize temporal state into canonical profile brackets.`,
+    task_block: `  <TASK>
+    ### Directives
+    - **Analysis (\`_thought_process\`)**: Review input notes or recent events and identify what shifts, updates, or polishes for the target.
+    - **Eternal Baseline (\`eternal_physical\`, \`eternal_non_physical\`)**:
+      - Physical: Permanent visual biometrics (appearance, build, face) or spatial geography (terrain, architecture, landmarks).
+      - Non-Physical: Core beliefs, personality drivers, or governing metaphysical laws/axioms.
+      - Leave empty \`""\` unless establishing baseline lore or an irreversible transformation occurred.
+    - **Present State (\`present_physical\`, \`present_non_physical\`)**:
+      - Physical: Immediate attire, held items, wounds, posture, or momentary weather/lighting.
+      - Non-Physical: Current psychological pressure, active focus, behavioral drivers, or momentary anomaly/tension.
+    - **Future Agenda (\`future\`)**: Active trajectory, next step, impending choice, or converging tension.
+    - **Past Memories (\`past\`)**: Durable facts, revelations, historical precedents, or lore to preserve in memory.
+    - **Delta-Only Principle**: Emit ONLY non-empty \`"[KEY: value]"\` strings for fields being established, updated, or polished; leave all other fields empty \`""\`.
+
+    ### Bracket Mutation Rules
+    - Multiple brackets are supported per field separated by commas (e.g. \`[CHEST: bare], [MOOD: alert]\`).
+    - Matching keys cleanly overwrite existing state (e.g. \`[CHEST: bare]\` replaces \`[CHEST: shirt]\`).
+    - Use \`[KEY: cleared]\` or \`[KEY: none]\` to delete an established state.
+    - Relational dynamics targeting other entities must use \`@\` (e.g. \`[@TARGET: dynamic | flags]\`).
+    - Optional flags: \`| hide\` for covert facts, \`| w: 1-10\` for emotional weight/significance (e.g. \`[TRAUMA: betrayed by mentor | w: 9]\`).
+
+    ---
+
+    <OUTPUT_FORMAT mode="json">
+      {
+        "_thought_process": "...",
+        "eternal_physical": "[KEY: value]",
+        "eternal_non_physical": "[KEY: value]",
+        "present_physical": "[KEY: value]",
+        "present_non_physical": "[KEY: value]",
+        "future": "[KEY: value]",
+        "past": "[KEY: value]"
+      }
+    </OUTPUT_FORMAT>
+
+    > [!IMPORTANT]
+    > No conversational preamble, no markdown code fence backticks, no trailing comments.
+    > Output MUST start with { and end with }.
+  </TASK>`,
+  },
+
+  character: {
+    identity: "character",
+    see_hidden: "own",
+    start_with: (context) => (context?.directors_note ? `<think>${context.directors_note}\n` : "<think>"),
+    resolve_identity_text: (context) =>
+      `You are ${context.speaker_name} within FRACTAL ${context.fractal_name}, interacting with ${context.listener_name}.`,
+    task_block: (context) => {
+      const tempo = context?.turn_tempo || 2;
+      const is_first_person = context?.is_character && context?.pov === "1st_person";
+      const perspective_rule = is_first_person
+        ? "Maintain first-person limited perspective ('I', 'me', 'my') anchored strictly to your own sensory experience. Never speak, script, or dictate actions for the counterpart."
+        : "Maintain third-person limited perspective anchored strictly to your own identity. Never speak, script, or dictate actions for the counterpart.";
+
+      return `  <TASK>
+    ### Think Format
+    1. **Intent & Atmosphere**: Immediate sensory and physical demand.
+    2. **Friction**: Ambivalence, tension, and internal resistance.
+    3. **Subtext**: What remains unspoken beneath the dialogue.
+    4. **Physical Vector**: Concrete physical action, weight, or posture.
+
+    *Conclude internal cognition with a closing \\</think\\> tag before narrative prose.*
+
+    ### Pacing & Posture
+    - **Tense & Rhythm**: Write in present tense.
+    - **Pacing Budget**: ${tempo} beat(s). Deliver crisp, grounded interaction calibrated to this tempo.
+    - ${perspective_rule}
+
+    > [!IMPORTANT]
+    > Emit in-character narrative prose.
+  </TASK>`;
+    },
+  },
+
+  visualizer: {
+    identity: "visualizer",
+    see_hidden: "none",
+    start_with: (context) => (context?.camera_note ? `{"_thought_process": "${context.camera_note}. ` : '{"_thought_process": "'),
+    resolve_identity_text: () => "You are the Sensory Cortex synthesizing visual staging and descriptive optics.",
+    task_block: `  <TASK>
+    ### Think Format
+    1. **Focal Subject & Pose**: Primary subject, active physical posture, and concrete expression.
+    2. **Spatial Depth & Geometry**: Foreground, midground, and background layers, perspective, and camera angle.
+    3. **Lighting & Luminary Sources**: Concrete light sources, shadow falloff, ambient bounce, and color palette.
+    4. **Attire, Textures & Exposure**: Physical garment materials, surface textures, and visible skin mechanics.
+
+    ### Prompt Synthesis
+    Synthesize an evocative, photographic or artistic description in natural prose:
+    - **First Sentence Mandate**: Immediately establish the focal subject and primary setting.
+    - **Sensory Optics & Textures**: Focus on physical surfaces, fabric drape, skin texture, and concrete light sources. Avoid empty buzzwords ('photorealistic', 'hyperrealistic', 'trending on artstation').
+    - **Weight Discipline**: Never emit numeric weight math ('(word:1.3)', '[word:0.5]'). Emphasize through descriptive vocabulary and attenuation ('subtle', 'intense', 'faint').
+    - **Affirmative Description**: Describe what IS visible in frame ('softly moonlit room' instead of 'no daylight').
+    - **Signature Anchor Fidelity**: Preserve declared hair color, eye color, scars, and signature accents from the character sheet. Never allow environmental lighting to recolor established traits.
+    - **Filter Discipline**: Focus strictly on visible exterior details. Omit internal thoughts, psychological traits, and inventory items.
+
+    ### Negative Prompt
+    Confine negative constraints strictly to global artifacts in \`negative_prompt\`. Start with standard quality anchors ("blurry, low quality, distorted, bad anatomy, bad hands, missing fingers, text, watermark") and append scene-specific opposites (e.g., "modern, cars" for a fantasy setting).
+
+    ### Resolution
+    Select the optimal resolution based on subject framing:
+    - **"512x768"** (Portrait): Single character portrait, vertical figure, or standing pose.
+    - **"768x512"** (Landscape): Wide environmental landscape, multi-character scene, or panoramic scenery.
+    - **"768x768"** (Square): Tight macro shots, symmetrical compositions, close-up details, or compact vignettes.
+
+    ---
+
+    <OUTPUT_FORMAT mode="json">
+      {
+        "_thought_process": "",
+        "prompt": "",
+        "negative_prompt": "",
+        "resolution": "512x768 | 768x512 | 768x768"
+      }
+    </OUTPUT_FORMAT>
+
+    > [!IMPORTANT]
+    > Emit strictly clean JSON without markdown code fences or preambles. Output MUST start with { and end with }.
+  </TASK>`,
+  },
+});
+
+/**
  * Renders Block 1: System, Identity Anchor, Axiomatic Constitution, and Protocols.
  */
 function render_block_1_system({ round = 1, identity = "character", identity_text = "" }) {
@@ -34,24 +210,12 @@ ${identity_line}  <AXIOMATIC_CONSTITUTION>
   </AXIOMATIC_CONSTITUTION>
 
   <PROTOCOLS>
-    <PHYSICAL_GROUNDING>
-      Anchor every beat in tangible physical reality, localized objects, and tactile resistance. Enforce physical continuity: removed garments stay off until explicitly redressed, and maintain lingering sensory conditions across scene shifts.
-    </PHYSICAL_GROUNDING>
-    <NARRATIVE_MOMENTUM>
-      Keep the scene moving through direct action. Advance intimacy and high-stakes tension through gradual, stage-by-stage escalation rather than abrupt jumps. Never stall with permission loops ('Can I ask a question?'), teasing secrets, or begging quotas.
-    </NARRATIVE_MOMENTUM>
-    <SPOKEN_DIALOGUE>
-      Deliver spoken lines that are clipped, uneven, and naturally interrupted. Braid speech into immediate physical action and tactile grit rather than isolated theatrical monologues.
-    </SPOKEN_DIALOGUE>
-    <PROSE_DISCIPLINE>
-      Ban formulaic rhetoric ('Not X, but Y', denial-then-affirmation), melodramatic clichés ('tapestry', 'shivers down the spine'), and symmetrical comparisons. Weave retrieved memories into involuntary physical reflex rather than clunky historical exposition.
-    </PROSE_DISCIPLINE>
-    <NOTATION_AND_CHOICE>
-      Use *italics* for unspoken subtext, **bold** for high-impact beats, and "double quotes" for spoken dialogue. End on complete punctuation. When encountering {Option A | Option B} syntax, select and commit to ONE contextually fitting option.
-    </NOTATION_AND_CHOICE>
-    <DATA_SANITIZATION>
-      Emit strictly diegetic story content. Never leak internal [KEY: value] brackets, XML tags, @-tokens, debug meters, or conversational preambles into output.
-    </DATA_SANITIZATION>
+    - **Physical Grounding**: Anchor every beat in tangible physical reality, localized objects, and tactile resistance. Enforce physical continuity: removed garments stay off until explicitly redressed, and maintain lingering sensory conditions across scene shifts.
+    - **Narrative Momentum**: Keep the scene moving through direct action. Advance intimacy and high-stakes tension through gradual, stage-by-stage escalation rather than abrupt jumps. Never stall with permission loops ('Can I ask a question?'), teasing secrets, or begging quotas.
+    - **Spoken Dialogue**: Deliver spoken lines that are clipped, uneven, and naturally interrupted. Braid speech into immediate physical action and tactile grit rather than isolated theatrical monologues.
+    - **Prose Discipline**: Ban formulaic rhetoric ('Not X, but Y', denial-then-affirmation), melodramatic clichés ('tapestry', 'shivers down the spine'), and symmetrical comparisons. Weave retrieved memories into involuntary physical reflex rather than clunky historical exposition.
+    - **Notation & Choice**: Use *italics* for unspoken subtext, **bold** for high-impact beats, and "double quotes" for spoken dialogue. End on complete punctuation. When encountering {Option A | Option B} syntax, select and commit to ONE contextually fitting option.
+    - **Data Sanitization**: Emit strictly diegetic story content. Never leak internal [KEY: value] brackets, XML tags, @-tokens, debug meters, or conversational preambles into output.
   </PROTOCOLS>`;
 }
 
@@ -74,30 +238,31 @@ export function compile_prompt({ core = "character", round = 1, entities = {}, h
   const fractal = entities.FRACTAL || null;
   const npc = entities.npc || null;
 
-  // Determine visibility across Epistemic Wall and identity line based on active core
-  let see_hidden = "own";
-  let identity = "character";
   const speaker_name = ai?.name || "AI";
   const listener_name = user?.name || "USER";
   const fractal_name = fractal?.name || "World";
-  let identity_text = `You are ${speaker_name} within FRACTAL ${fractal_name}, interacting with ${listener_name}.`;
+  const target_name = task_options.target_entity_key
+    ? entities[task_options.target_entity_key]?.name || task_options.target_entity_key
+    : speaker_name;
 
-  if (core === "director") {
-    see_hidden = "all";
-    identity = "director";
-    identity_text = "You are the Director orchestrating simulation mechanics and staging.";
-  } else if (core === "caretaker") {
-    see_hidden = "all";
-    identity = "caretaker";
-    const target_name = task_options.target_entity_key
-      ? entities[task_options.target_entity_key]?.name || task_options.target_entity_key
-      : speaker_name;
-    identity_text = `You are the Continuum Caretaker for target entity "${target_name}". Consolidate temporal state from recent events.`;
-  } else if (core === "visualizer") {
-    see_hidden = "none";
-    identity = "visualizer";
-    identity_text = "You are the Sensory Cortex synthesizing visual staging and descriptive optics.";
-  }
+  // Resolve active purpose core definition
+  const purpose_core = PURPOSE_CORES[core] || PURPOSE_CORES.character;
+  const see_hidden = purpose_core.see_hidden;
+  const identity = purpose_core.identity;
+
+  const core_context = {
+    speaker_name,
+    listener_name,
+    fractal_name,
+    target_name,
+    pov: ai?.pov || "3rd_person",
+    is_character: Boolean(ai && ai.type !== "fractal"),
+    directors_note: task_options.directors_note || "",
+    camera_note: task_options.camera_note || "",
+    turn_tempo: task_options.turn_tempo || 2,
+  };
+
+  const identity_text = purpose_core.resolve_identity_text(core_context);
 
   // --- Block 1: System & Protocols ---
   const b1 = render_block_1_system({ round, identity, identity_text });
@@ -117,18 +282,19 @@ export function compile_prompt({ core = "character", round = 1, entities = {}, h
   const characters_list = [];
 
   if (ai) {
-    const ai_pres_phys = format_clean_brackets(ai.present?.physical || "", { see_hidden, is_counterpart: false });
-    const ai_eter_phys = format_clean_brackets(ai.eternal?.physical || "", { see_hidden, is_counterpart: false });
+    const strip_inventory = see_hidden === "none";
+    const ai_pres_phys = format_clean_brackets(ai.present?.physical || "", { see_hidden, is_counterpart: false, strip_inventory });
+    const ai_eter_phys = format_clean_brackets(ai.eternal?.physical || "", { see_hidden, is_counterpart: false, strip_inventory });
     const ai_eter_non = ai.eternal?.non_physical?.trim() || "";
     const ai_pres_non = ai.present?.non_physical?.trim() || "";
     const ai_dyn = ai.dynamics || {};
 
     const ai_children = [];
-    if (ai_eter_non) ai_children.push(`      <PERSONALITY>${ai_eter_non}</PERSONALITY>`);
-    if (ai_pres_non) ai_children.push(`      <STATE_OF_MIND>${ai_pres_non}</STATE_OF_MIND>`);
-    const appearance_content = [ai_pres_phys, ai_eter_phys].filter(Boolean).join("\n        ").trim();
+    if (ai_eter_non) ai_children.push(`      ### Personality\n      ${ai_eter_non}`);
+    if (ai_pres_non) ai_children.push(`      ### State of Mind\n      ${ai_pres_non}`);
+    const appearance_content = [ai_pres_phys, ai_eter_phys].filter(Boolean).join("\n      ").trim();
     if (appearance_content) {
-      ai_children.push(`      <APPEARANCE>\n        ${appearance_content}\n      </APPEARANCE>`);
+      ai_children.push(`      ### Appearance\n      ${appearance_content}`);
     }
 
     const dyn_attrs = [
@@ -141,28 +307,29 @@ export function compile_prompt({ core = "character", round = 1, entities = {}, h
       .join(" ");
 
     const attr_str = dyn_attrs ? ` ${dyn_attrs}` : "";
-    characters_list.push(`    <MAIN_CHARACTER id="${ai.id || "AI"}" name="${ai.name || "AI"}"${attr_str}>
-${ai_children.join("\n")}
-    </MAIN_CHARACTER>`);
+    characters_list.push(
+      `    <MAIN_CHARACTER id="${ai.id || "AI"}" name="${ai.name || "AI"}"${attr_str}>\n${ai_children.join("\n\n")}\n    </MAIN_CHARACTER>`,
+    );
   }
 
   if (user) {
+    const strip_inventory = see_hidden === "none";
     const user_eter_non = user.eternal?.non_physical?.trim() || "";
     const user_pres_non = user.present?.non_physical?.trim() || "";
-    const user_eter_phys = format_clean_brackets(user.eternal?.physical || "", { see_hidden, is_counterpart: true });
-    const user_pres_phys = format_clean_brackets(user.present?.physical || "", { see_hidden, is_counterpart: true });
+    const user_eter_phys = format_clean_brackets(user.eternal?.physical || "", { see_hidden, is_counterpart: true, strip_inventory });
+    const user_pres_phys = format_clean_brackets(user.present?.physical || "", { see_hidden, is_counterpart: true, strip_inventory });
 
     const user_children = [];
-    if (user_eter_non) user_children.push(`      <PERSONALITY>${user_eter_non}</PERSONALITY>`);
-    if (user_pres_non) user_children.push(`      <STATE_OF_MIND>${user_pres_non}</STATE_OF_MIND>`);
-    const appearance_content = [user_eter_phys, user_pres_phys].filter(Boolean).join("\n        ").trim();
+    if (user_eter_non) user_children.push(`      ### Personality\n      ${user_eter_non}`);
+    if (user_pres_non) user_children.push(`      ### State of Mind\n      ${user_pres_non}`);
+    const appearance_content = [user_eter_phys, user_pres_phys].filter(Boolean).join("\n      ").trim();
     if (appearance_content) {
-      user_children.push(`      <APPEARANCE>\n        ${appearance_content}\n      </APPEARANCE>`);
+      user_children.push(`      ### Appearance\n      ${appearance_content}`);
     }
 
-    characters_list.push(`    <COUNTERPART id="${user.id || "USER"}" name="${user.name || "USER"}">
-${user_children.join("\n")}
-    </COUNTERPART>`);
+    characters_list.push(
+      `    <COUNTERPART id="${user.id || "USER"}" name="${user.name || "USER"}>\n${user_children.join("\n\n")}\n    </COUNTERPART>`,
+    );
   }
 
   if (npc) {
@@ -217,7 +384,8 @@ ${user_children.join("\n")}
   const rendered_memories = memories
     .map((m) => (typeof m === "string" ? m : m.text || ""))
     .filter(Boolean)
-    .join("\n    ");
+    .map((text) => `    - ${text.trim()}`)
+    .join("\n");
   const round_count = history.length;
   const rendered_recent = history
     .map((h, idx) => {
@@ -247,65 +415,7 @@ ${user_children.join("\n")}
   }
 
   // --- Block 11: Swappable Purpose Core ---
-  let task_block;
-
-  if (core === "director") {
-    task_block = `  <TASK>
-    <DIRECTIVES>
-      Evaluate recent events, physical causality, and emotional friction.
-      Determine story status, dynamics deltas, and whether scene staging or external disruption is warranted.
-    </DIRECTIVES>
-    <OUTPUT_FORMAT mode="json">
-      Emit a clean JSON object containing:
-      {
-        "_thought_process": "Analysis of causality and tension...",
-        "next_action": "AI_CHARACTER",
-        "story_status": "ACTIVE",
-        "keywords": [],
-        "directors_note": "Guidance for character...",
-        "dynamics_deltas": { "chaos": 0, "intensity": 0, "openness": 0, "affinity": 0 }
-      }
-    </OUTPUT_FORMAT>
-  </TASK>`;
-  } else if (core === "caretaker") {
-    task_block = `  <TASK>
-    <DIRECTIVES>
-      Extract and consolidate newly revealed physical facts, items, or relationships into canonical bracket format.
-    </DIRECTIVES>
-    <OUTPUT_FORMAT mode="brackets">
-      Emit structured [KEY: value] tags.
-    </OUTPUT_FORMAT>
-  </TASK>`;
-  } else if (core === "visualizer") {
-    task_block = `  <TASK>
-    <DIRECTIVES>
-      Synthesize visual camera prompt focusing on physical appearance and lighting.
-    </DIRECTIVES>
-    <OUTPUT_FORMAT mode="json">
-      Emit { "_thought_process": "...", "prompt": "...", "negative_prompt": "..." }
-    </OUTPUT_FORMAT>
-  </TASK>`;
-  } else {
-    // Default: CHARACTER_CORE
-    const directors_note = task_options.directors_note ? `\n    <DIRECTORS_NOTE>${task_options.directors_note}</DIRECTORS_NOTE>` : "";
-    task_block = `  <TASK>${directors_note}
-    <THINK_FORMAT>
-      1. Intent & Atmosphere: Immediate sensory and physical demand.
-      2. Friction: Ambivalence and internal resistance.
-      3. Subtext: What remains unspoken.
-      4. Physical Vector: Concrete physical action or posture.
-    </THINK_FORMAT>
-    <PACING_AND_POSTURE>
-      Deliver crisp, cinematic interaction without formulaic clichés or repetition.
-    </PACING_AND_POSTURE>
-    <OUTPUT_FORMAT mode="prose">
-      Emit in-character narrative prose.
-    </OUTPUT_FORMAT>
-    <FINAL_NOTE>
-      Maintain third-person limited perspective anchored strictly to your own identity. Never speak or act for the counterpart.
-    </FINAL_NOTE>
-  </TASK>`;
-  }
+  const task_block = typeof purpose_core.task_block === "function" ? purpose_core.task_block(core_context) : purpose_core.task_block;
 
   // Assemble blocks, cleanly filtering out any empty layers
   const spine_blocks = [b1, b2, characters_block, b5_scenario, trajectory_block, history_block, task_block].filter(Boolean);

@@ -345,9 +345,6 @@ export const TEMPO_ROUNDS = Object.freeze({
 /** Origin protection multiplier boosting author canon and immutable memories */
 export const CANONICAL_ORIGIN_SCORE_MULTIPLIER = 1.5;
 
-/** Maximum somatic archetype keywords permitted per Director turn */
-export const MAXIMUM_DIRECTOR_KEYWORDS = 5;
-
 // ── 4. Canonical Length Thresholds & Field Floors ────────────────────────────
 export const LENGTH_THRESHOLDS = Object.freeze({
   TINY: 25, // < 25 characters -> 1 snappy beat
