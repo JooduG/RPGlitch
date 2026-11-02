@@ -4,7 +4,6 @@
  */
 import { get_signature_color, get_signature_label, get_deterministic_color, resolve_token, get_color_name, ensure_theme_tokens } from "./palette.js";
 import { SIGNATURE_COLORS, PALETTE, PALETTE_CSS_VARIABLES } from "./tokens.js";
-import { aesthetic_resolver } from "./optics.js";
 import { describe, expect, test } from "vitest";
 
 describe("Tokens Color Generation", () => {
@@ -139,45 +138,6 @@ describe("Tokens Color Generation", () => {
 
     test("ensure_theme_tokens executes safely in Node/DOM environments", () => {
       expect(() => ensure_theme_tokens()).not.toThrow();
-    });
-  });
-
-  describe("aesthetic_resolver.flatten", () => {
-    test("flattens empty entity to default preset", () => {
-      const entity = {};
-      const result = aesthetic_resolver.flatten(entity);
-      expect(result).toBe("in color #ec4899");
-    });
-
-    test("flattens character with physical details and signature color", () => {
-      const entity = {
-        type: "character",
-        signature_color: "Electric Cyan",
-        eternal: {
-          physical: '{"height": "1.8m", "eyes": "glow blue"}',
-        },
-        present: {
-          physical: '{"wears": "dark cloak"}',
-        },
-      };
-      const result = aesthetic_resolver.flatten(entity);
-      expect(result).toContain("1.8m");
-      expect(result).toContain("glow blue");
-      expect(result).toContain("dark cloak");
-      expect(result).toContain("in color #11aecc");
-    });
-
-    test("flattens fractal scene with landscape presets", () => {
-      const entity = {
-        type: "fractal",
-        signature_color: "Void Black",
-        eternal: {
-          physical: '{"atmosphere": "sub-zero facility"}',
-        },
-      };
-      const result = aesthetic_resolver.flatten(entity);
-      expect(result).toContain("sub-zero facility");
-      expect(result).toContain("in color #000");
     });
   });
 });

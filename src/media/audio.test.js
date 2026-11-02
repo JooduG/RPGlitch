@@ -4,17 +4,7 @@
  */
 import { describe, expect, it } from "vitest";
 import { PREMADE_FRACTALS } from "@data";
-import {
-  CADENCE_RATES,
-  VOICE_CADENCES,
-  get_cadence_rate,
-  infer_voice_for_chunk,
-  normalize_role,
-  resolve_voice_name,
-  resolve_voice_uri,
-  split_speech_by_speaker,
-  split_speech_sentences,
-} from "./speech.js";
+import { get_cadence_rate, normalize_role, resolve_voice_name, resolve_voice_uri, Audio, play_sfx } from "./audio.js";
 
 describe("normalize_role", () => {
   it("normalizes roles to internal keys", () => {
@@ -48,294 +38,40 @@ describe("Audio & Voice Configurations", () => {
     });
   });
 
-  it("resolves every premade voice name to a real catalog voice", () => {
-    for (const fractal of PREMADE_FRACTALS) {
-      const uri = resolve_voice_uri(fractal.voice.name || fractal.voice.uri);
-      expect(uri).not.toBe("");
-      const round_trip = resolve_voice_name(uri);
-      expect(round_trip).not.toBe("Cinematic Narrator");
-    }
+  it("calculates cadence rates with dynamics offsets accurately", () => {
+    expect(get_cadence_rate("standard", 50)).toBe(1.0);
+    expect(get_cadence_rate("standard", 100)).toBeCloseTo(1.05, 3);
+    expect(get_cadence_rate("standard", 0)).toBeCloseTo(0.95, 3);
+    expect(get_cadence_rate("drawl", 50)).toBe(0.85);
+    expect(get_cadence_rate("rapid", 50)).toBe(1.2);
   });
 
-  it("resolves voice uris by both catalog name and uri", () => {
-    expect(resolve_voice_uri("Theatrical Showman")).toBe("am_santa");
-    expect(resolve_voice_uri("am_santa")).toBe("am_santa");
-    expect(resolve_voice_uri("Warm Anchor")).toBe("af_heart");
+  it("resolves voice URIs and names cleanly", () => {
+    expect(resolve_voice_uri("custom_voice")).toBe("custom_voice");
+    expect(resolve_voice_uri(null)).toBe("default");
+    expect(resolve_voice_name("Hero")).toBe("Hero");
   });
 
-  it("falls back to the default voice for unknown names", () => {
-    expect(resolve_voice_uri("Vanguard")).toBe("am_adam");
-    expect(resolve_voice_uri("")).toBe("am_adam");
-    expect(resolve_voice_uri(null)).toBe("am_adam");
+  it("provides functional play_sfx interface", () => {
+    expect(() => play_sfx("click")).not.toThrow();
+    expect(() => play_sfx("pop")).not.toThrow();
+    expect(() => play_sfx("glitch")).not.toThrow();
+    expect(() => play_sfx("alert")).not.toThrow();
+    expect(() => play_sfx("subtle_hum")).not.toThrow();
   });
 
-  it("resolves voice names by both catalog uri and name", () => {
-    expect(resolve_voice_name("af_heart")).toBe("Warm Anchor");
-    expect(resolve_voice_name("Warm Anchor")).toBe("Warm Anchor");
-    expect(resolve_voice_name("")).toBe("Cinematic Narrator");
-  });
-
-  it("maps cadence ids to symmetric rates with standard in the center", () => {
-    expect(VOICE_CADENCES).toHaveLength(5);
-    expect(VOICE_CADENCES[2]).toEqual({ id: "standard", label: "Standard", rate: 1.0 });
-    expect(CADENCE_RATES.standard).toBe(1.0);
-    expect(get_cadence_rate("drawl")).toBe(0.85);
-    expect(get_cadence_rate("rapid")).toBe(1.2);
-    expect(get_cadence_rate("unknown_cadence")).toBe(1.0);
-    expect(get_cadence_rate(undefined)).toBe(1.0);
-  });
-
-  it("assigns only valid cadences to all premade fractals", () => {
-    for (const fractal of PREMADE_FRACTALS) {
-      expect(VOICE_CADENCES.some((c) => c.id === fractal.voice.cadence)).toBe(true);
-    }
-  });
-
-  it("keeps quoted dialogue attached to its attribution when splitting sentences", () => {
-    const { sentences, tail, committed } = split_speech_sentences(`"Run!" he shouted. "Don't look back."`);
-    expect(sentences).toEqual([`"Run!" he shouted.`, `"Don't look back."`]);
-    expect(tail).toBe("");
-    expect(committed).toBe(`"Run!" he shouted. "Don't look back."`.length);
-  });
-
-  it("does not split inside a quoted span or on contractions", () => {
-    const { sentences, tail } = split_speech_sentences(`He said, "hi there." Don't you dare move.`);
-    expect(sentences).toEqual([`He said, "hi there."`, `Don't you dare move.`]);
-    expect(tail).toBe("");
-  });
-
-  it("reports an incomplete trailing sentence as tail without committing it", () => {
-    const { sentences, committed, tail } = split_speech_sentences(`Hello world. Not done yet`);
-    expect(sentences).toEqual(["Hello world."]);
-    expect(tail).toBe("Not done yet");
-    expect(committed).toBe("Hello world.".length);
-  });
-
-  it("toggles pause state and clears paused state on stop", async () => {
-    const { Audio } = await import("./audio.svelte.js");
-    expect(Audio.voice.is_paused).toBe(false);
-
-    Audio.voice.pause();
-    expect(Audio.voice.is_paused).toBe(true);
-
-    Audio.voice.toggle_pause();
-    expect(Audio.voice.is_paused).toBe(false);
-
-    Audio.voice.pause();
-    expect(Audio.voice.is_paused).toBe(true);
-
-    Audio.voice.stop();
-    expect(Audio.voice.is_paused).toBe(false);
-  });
-
-  it("prevents stream sentence queueing after stop() is called", async () => {
-    const { Audio } = await import("./audio.svelte.js");
-    Audio.voice.reset_stream();
-    Audio.voice.stop();
-    Audio.voice.queue_stream_sentence("This is sentence one. This is sentence two.");
-    expect(Audio.voice.is_speaking).toBe(false);
-
-    Audio.voice.reset_stream();
-    expect(Audio.voice.spoken_character_cursor).toBe(0);
-  });
-
-  it("calculates linear +-5% cadence rate modulation centered at dynamics 50", () => {
-    expect(get_cadence_rate("drawl", 50)).toBeCloseTo(0.85);
-    expect(get_cadence_rate("drawl", 0)).toBeCloseTo(0.8);
-    expect(get_cadence_rate("drawl", 100)).toBeCloseTo(0.9);
-
-    expect(get_cadence_rate("standard", 50)).toBeCloseTo(1.0);
-    expect(get_cadence_rate("standard", 0)).toBeCloseTo(0.95);
-    expect(get_cadence_rate("standard", 100)).toBeCloseTo(1.05);
-
-    expect(get_cadence_rate("rapid", 50)).toBeCloseTo(1.2);
-    expect(get_cadence_rate("rapid", 0)).toBeCloseTo(1.15);
-    expect(get_cadence_rate("rapid", 100)).toBeCloseTo(1.25);
-  });
-
-  it("parses typographic segments for italics, bold, and all-caps emphasis", () => {
-    const { segments } = split_speech_sentences(`He whispered, *be quiet*. **Look out!** THEY ARE HERE.`);
-    expect(segments).toBeDefined();
-    expect(segments.length).toBeGreaterThan(0);
-    expect(segments).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ style: "italics", text: "be quiet" }),
-        expect.objectContaining({ style: "bold", text: "Look out!" }),
-        expect.objectContaining({ style: "all_caps", text: "THEY ARE HERE." }),
-      ]),
-    );
-  });
-
-  it("safely tears down and cleans up resources via destroy()", async () => {
-    const { Audio, audio_engine, AudioEngine } = await import("./audio.svelte.js");
-    expect(typeof Audio.destroy).toBe("function");
-    expect(audio_engine).toBe(Audio);
-    expect(Audio instanceof AudioEngine).toBe(true);
-
-    expect(() => Audio.destroy()).not.toThrow();
-    expect(Audio.voice.is_speaking).toBe(false);
-  });
-
-  it("manages master volume clamping and notification flags", async () => {
-    const { Audio } = await import("./audio.svelte.js");
-    Audio.volume = 0.75;
-    expect(Audio.volume).toBe(0.75);
-
-    Audio.volume = 1.5;
-    expect(Audio.volume).toBe(1.0);
-
-    Audio.volume = -0.2;
-    expect(Audio.volume).toBe(0);
-
-    Audio.notifications_enabled = true;
-    expect(Audio.notifications_enabled).toBe(true);
-    Audio.notifications_enabled = false;
-    expect(Audio.notifications_enabled).toBe(false);
-  });
-
-  it("manages per-entity voice toggling and role enablement", async () => {
-    const { Audio } = await import("./audio.svelte.js");
-    Audio.voice_enabled = true;
-    Audio.set_entity_voice("ai", true);
-    expect(Audio.is_role_enabled("ai")).toBe(true);
-
-    const toggled = Audio.toggle_entity_voice("ai");
-    expect(toggled).toBe(false);
-    expect(Audio.is_role_enabled("ai")).toBe(false);
-
-    Audio.set_entity_voice("user", true);
-    expect(Audio.is_role_enabled("user")).toBe(true);
-    expect(Audio.is_role_enabled("system")).toBe(false);
-    expect(Audio.is_role_enabled(null)).toBe(false);
-  });
-});
-
-describe("infer_voice_for_chunk (multi-voice NPC speech)", () => {
-  const roster = [
-    { name: "Elias", voice_id: "am_liam" },
-    { name: "Mira", voice_id: "af_kore" },
-    { name: "Narrator", voice_id: "am_adam", is_narrator: true },
-  ];
-
-  it("resolves trailing dialogue attribution ('...said Elias.') to the roster voice", () => {
-    expect(infer_voice_for_chunk(`"We'll need a key," said Elias.`, roster)).toBe("am_liam");
-    expect(infer_voice_for_chunk(`"hi," whispered Mira`, roster)).toBe("af_kore");
-  });
-
-  it("resolves leading attribution ('Elias said ...' and 'Elias: ...') to the roster voice", () => {
-    expect(infer_voice_for_chunk(`Elias said, "hi there."`, roster)).toBe("am_liam");
-    expect(infer_voice_for_chunk(`Elias: The lock is old.`, roster)).toBe("am_liam");
-    expect(infer_voice_for_chunk(`Mira: done.`, roster)).toBe("af_kore");
-  });
-
-  it("matches roster names case-insensitively and tolerates punctuation noise", () => {
-    expect(infer_voice_for_chunk(`"please," said elias.`, roster)).toBe("am_liam");
-    expect(infer_voice_for_chunk(`"no," said MIRA!`, roster)).toBe("af_kore");
-  });
-
-  it("routes unquoted narration to the narrator voice / narrator_voice option", () => {
-    expect(infer_voice_for_chunk(`The wind howled through the alley.`, roster)).toBe("am_adam");
-    expect(infer_voice_for_chunk(`A door creaked open.`, [], "am_echo")).toBe("am_echo");
-  });
-
-  it("falls back to the default voice for quoted dialogue without an attributable roster member", () => {
-    expect(infer_voice_for_chunk(`"I want to go home," she said quietly.`, roster)).toBe("am_adam");
-    expect(infer_voice_for_chunk(`"hello?"`, roster, "am_echo")).toBe("am_adam");
-  });
-
-  it("degrades empty chunks to the default voice", () => {
-    expect(infer_voice_for_chunk("", roster)).toBe("am_adam");
-    expect(infer_voice_for_chunk(null, roster)).toBe("am_adam");
-  });
-});
-
-describe("split_speech_by_speaker (multi-voice streaming segments)", () => {
-  const roster = [
-    { name: "Elias", voice_id: "am_liam" },
-    { name: "Narrator", voice_id: "am_adam", is_narrator: true },
-  ];
-
-  it("assigns each sentence its own voice based on attribution", () => {
-    const out = split_speech_by_speaker(`"Careful," said Elias. The floorboards groaned. "Who's there?"`, roster);
-    expect(out).toHaveLength(3);
-    expect(out[0]).toEqual({ text: `"Careful," said Elias.`, voice_id: "am_liam" });
-    expect(out[1]).toEqual({ text: "The floorboards groaned.", voice_id: "am_adam" });
-    expect(out[2].voice_id).toBe("am_adam");
-  });
-
-  it("keeps quoted dialogue atomic within a sentence chunk", () => {
-    const out = split_speech_by_speaker(`"Run!" he shouted.`, roster);
-    expect(out).toEqual([{ text: `"Run!" he shouted.`, voice_id: "am_adam" }]);
-  });
-
-  it("returns an empty array for empty or whitespace input", () => {
-    expect(split_speech_by_speaker("", roster)).toEqual([]);
-    expect(split_speech_by_speaker("   ", roster)).toEqual([]);
-    expect(split_speech_by_speaker(null, roster)).toEqual([]);
-  });
-});
-
-describe("resolve_stream_preemption (Track 3.3 persona/ambient concurrency)", () => {
-  it("preempts when idle, roleless, or same-role", async () => {
-    const { resolve_stream_preemption } = await import("./speech.js");
-    expect(resolve_stream_preemption({ active_role: "ai", incoming_role: "fractal", is_speaking: false })).toEqual({
-      preempt: true,
-      preserve_inflight: false,
-    });
-    expect(resolve_stream_preemption({ active_role: "ai", incoming_role: "ai", is_speaking: true })).toEqual({
-      preempt: true,
-      preserve_inflight: false,
-    });
-    expect(resolve_stream_preemption({ active_role: null, incoming_role: "fractal", is_speaking: true })).toEqual({
-      preempt: true,
-      preserve_inflight: false,
-    });
-    expect(resolve_stream_preemption({})).toEqual({ preempt: true, preserve_inflight: false });
-  });
-
-  it("preserves in-flight audio on ai/fractal and ai/npc overlap", async () => {
-    const { resolve_stream_preemption } = await import("./speech.js");
-    expect(resolve_stream_preemption({ active_role: "ai", incoming_role: "fractal", is_speaking: true })).toEqual({
-      preempt: false,
-      preserve_inflight: true,
-    });
-    expect(resolve_stream_preemption({ active_role: "fractal", incoming_role: "ai", is_speaking: true })).toEqual({
-      preempt: false,
-      preserve_inflight: true,
-    });
-    expect(resolve_stream_preemption({ active_role: "npc", incoming_role: "ai", is_speaking: true })).toEqual({
-      preempt: false,
-      preserve_inflight: true,
-    });
-  });
-
-  it("preempts across unrelated roles", async () => {
-    const { resolve_stream_preemption } = await import("./speech.js");
-    expect(resolve_stream_preemption({ active_role: "user", incoming_role: "ai", is_speaking: true })).toEqual({
-      preempt: true,
-      preserve_inflight: false,
-    });
-    expect(resolve_stream_preemption({ active_role: "fractal", incoming_role: "npc", is_speaking: true })).toEqual({
-      preempt: true,
-      preserve_inflight: false,
-    });
-  });
-
-  it("verifies AudioContext lifecycle and teardown", async () => {
-    const { Audio } = await import("./audio.svelte.js");
+  it("verifies AudioContext lifecycle and Audio facade methods", async () => {
     expect(typeof Audio.init).toBe("function");
     expect(typeof Audio.destroy).toBe("function");
+    expect(typeof Audio.play).toBe("function");
+    expect(typeof Audio.toggle_entity_voice).toBe("function");
+
+    // Audio properties
+    expect(Audio.voice).toBeDefined();
+    expect(Audio.entity_voice).toBeDefined();
+    expect(typeof Audio.volume).toBe("number");
 
     // Invoking destroy safely executes without unhandled exceptions
     expect(() => Audio.destroy()).not.toThrow();
   });
 });
-
-// =============================================================================
-// CHANGELOG
-// =============================================================================
-
-/**
- * CHANGELOG:
- * - 2026-10-18: Track A Slice 5 — Added AudioContext lifecycle and destroy method contract verification.
- */

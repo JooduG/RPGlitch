@@ -90,6 +90,10 @@ export {
   render_optics_fallback,
   compose_visual_generation_prompt,
   resolve_visual_engine_tokens,
+  build_aesthetic_map,
+  flatten_aesthetic_map,
+  extract_aesthetic_traits,
+  ORDERED_VISUAL_STYLE_KEYS,
 } from "./modules/style.js";
 export { render_visual_history, format_sensory_history } from "./modules/recency.js";
 

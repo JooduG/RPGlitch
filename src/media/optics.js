@@ -3,10 +3,8 @@
  * 👁️ SENSORY CORTEX — VISUAL OPTICS COMPILER, TAXONOMY & TRIGGER ARBITRATION
  */
 
-import { normalize_comma_spacing } from "@utils";
-import { IMAGE_TRIGGER_COOLDOWN_ROUNDS, DYNAMICS_SCALE, IMAGE_RESOLUTIONS } from "@config";
-import { build_aesthetic_map, flatten_aesthetic_map } from "../intelligence/modules/style.js";
-import { IMAGE_TRIGGER, evaluate_image_trigger } from "../intelligence/dynamics.js";
+import { IMAGE_TRIGGER_COOLDOWN_ROUNDS, DYNAMICS_SCALE, IMAGE_RESOLUTIONS, IMAGE_TRIGGER } from "@config";
+import { evaluate_image_trigger } from "@utils";
 
 // ============================================================================
 // [SECTION 1: TAXONOMY CONSTANTS & RESOLUTION SPECS]
@@ -173,82 +171,3 @@ export function resolve_image_trigger({ snapshot, prev_dynamics, director_data, 
     director_explicit,
   };
 }
-
-// [SECTION 3: ORDERED VISUAL STYLE KEYS]
-// ============================================================================
-
-/**
- * @typedef {Object} VisualEngineTokens
- * @property {string} [medium]
- * @property {string} [palette]
- * @property {string} [camera]
- * @property {string} [composition]
- * @property {string} [texture]
- * @property {string} [negative_prompt]
- */
-
-/**
- * @typedef {Object} EntityPhysicalFragment
- * @property {string} [physical]
- */
-
-/**
- * @typedef {Object} AestheticEntityInput
- * @property {string} [id]
- * @property {string} [name]
- * @property {string} [type]
- * @property {string} [kind]
- * @property {string[]} [tags]
- * @property {string} [signature_color]
- * @property {string} [visual_style]
- * @property {EntityPhysicalFragment} [eternal]
- * @property {EntityPhysicalFragment} [present]
- */
-
-/**
- * Ordered visual style token keys for deterministic prompt composition.
- * @type {ReadonlyArray<string>}
- */
-export const ORDERED_VISUAL_STYLE_KEYS = Object.freeze([
-  "_visual_style_medium",
-  "_visual_style_palette",
-  "_visual_style_camera",
-  "_visual_style_composition",
-  "_visual_style_texture",
-  "_visual_style_tags",
-]);
-
-// [SECTION 4: AESTHETIC RESOLVERS]
-// ============================================================================
-
-export const aesthetic_resolver = {
-  /**
-   * Deterministic extraction of traits from entity fields into formatted JSON property lines.
-   * @param {AestheticEntityInput} [entity={}]
-   * @returns {string}
-   */
-  extract(entity = {}) {
-    const merged_aesthetic_map = build_aesthetic_map(entity);
-    const ordered_aesthetic_keys = [
-      ...ORDERED_VISUAL_STYLE_KEYS.filter((key) => merged_aesthetic_map[key]),
-      ...Object.keys(merged_aesthetic_map).filter((key) => !ORDERED_VISUAL_STYLE_KEYS.includes(key)),
-    ];
-
-    return ordered_aesthetic_keys
-      .map((key) => {
-        const value = merged_aesthetic_map[key];
-        if (value === undefined || value === null) return "";
-        const value_string = Array.isArray(value) ? value.join(", ") : String(value).trim();
-        if (!value_string) return "";
-        const formatted_value = normalize_comma_spacing(value_string);
-        const cleaned_key = key.replace(/^_visual_style_/, "");
-        return `  "${cleaned_key}": "${formatted_value.replace(/"/g, '\\"')}"`;
-      })
-      .filter(Boolean)
-      .join(",\n");
-  },
-
-  flatten(entity = {}) {
-    return flatten_aesthetic_map(entity);
-  },
-};

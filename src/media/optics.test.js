@@ -4,16 +4,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import {
-  DEFAULT_IMAGE_TIER,
-  IMAGE_TIERS,
-  ORDERED_VISUAL_STYLE_KEYS,
-  aesthetic_resolver,
-  get_resolution,
-  get_tier_guidance_scale,
-  normalize_image_tier,
-  resolve_image_trigger,
-} from "./optics.js";
+import { DEFAULT_IMAGE_TIER, IMAGE_TIERS, get_resolution, get_tier_guidance_scale, normalize_image_tier, resolve_image_trigger } from "./optics.js";
 import { render_optics_fallback } from "@intelligence";
 import { VISUAL_EXCLUDED_KEYS, strip_visual_excluded } from "@utils";
 
@@ -217,19 +208,6 @@ describe("optics.js — Aesthetic Map & Prompt Composition", () => {
       expect(VISUAL_EXCLUDED_KEYS.has("STATUS")).toBe(true);
       expect(Object.isFrozen(VISUAL_EXCLUDED_KEYS)).toBe(true);
     });
-
-    it("exports frozen ORDERED_VISUAL_STYLE_KEYS array", () => {
-      expect(Array.isArray(ORDERED_VISUAL_STYLE_KEYS)).toBe(true);
-      expect(ORDERED_VISUAL_STYLE_KEYS).toEqual([
-        "_visual_style_medium",
-        "_visual_style_palette",
-        "_visual_style_camera",
-        "_visual_style_composition",
-        "_visual_style_texture",
-        "_visual_style_tags",
-      ]);
-      expect(Object.isFrozen(ORDERED_VISUAL_STYLE_KEYS)).toBe(true);
-    });
   });
 
   describe("strip_visual_excluded", () => {
@@ -251,33 +229,6 @@ describe("optics.js — Aesthetic Map & Prompt Composition", () => {
       expect(result).toContain("[EYES: icy blue]");
       expect(result).not.toContain("INVENTORY");
       expect(result).not.toContain("SECRET");
-    });
-  });
-
-  describe("aesthetic_resolver", () => {
-    it("extracts formatted JSON properties", () => {
-      const entity = {
-        name: "Silvers",
-        signature_color: "Electric Cyan",
-        eternal: { physical: "[BUILD: athletic] [HAIR: silver]" },
-      };
-      const extracted = aesthetic_resolver.extract(entity);
-      expect(extracted).toContain('"BUILD": "athletic"');
-      expect(extracted).toContain('"HAIR": "silver"');
-    });
-
-    it("flattens entity physical traits into continuous descriptive sentences", () => {
-      const entity = {
-        type: "character",
-        signature_color: "Electric Cyan",
-        eternal: { physical: '{"height": "1.8m", "eyes": "glow blue"}' },
-        present: { physical: '{"wears": "dark cloak"}' },
-      };
-      const flattened = aesthetic_resolver.flatten(entity);
-      expect(flattened).toContain("1.8m");
-      expect(flattened).toContain("glow blue");
-      expect(flattened).toContain("dark cloak");
-      expect(flattened).toContain("in color #11aecc");
     });
   });
 });

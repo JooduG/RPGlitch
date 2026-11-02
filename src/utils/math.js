@@ -167,6 +167,86 @@ export function stable_pick(list, seed = "", offset = 0) {
 }
 
 /**
+ * Evaluates whether dynamics deltas or band crossings trigger an image beat.
+ * @param {Record<string, any>} [current={}]
+ * @param {Record<string, any>} [previous={}]
+ * @param {Record<string, any>} [options={}]
+ * @returns {{ triggered: boolean, signals: any, tier: string, deltas: any[] }}
+ */
+export function evaluate_image_trigger(current = {}, previous = {}, options = {}) {
+  const band_high = options.band_high ?? 85;
+  const band_low = options.band_low ?? 15;
+  const displacement_threshold = options.displacement_threshold ?? 30;
+  const default_tier = options.default_tier ?? "story_scene";
+
+  const entities_set = new Set([...Object.keys(current || {}), ...Object.keys(previous || {})]);
+  const axis_names = new Set();
+
+  for (const entity of entities_set) {
+    for (const axis of Object.keys((current || {})[entity] || {})) axis_names.add(axis);
+    for (const axis of Object.keys((previous || {})[entity] || {})) axis_names.add(axis);
+  }
+
+  const deltas = [];
+  const band_entries = [];
+  let band_entry = null;
+  let displacement = 0;
+  const character_domain_entities = new Set(["ai", "user"]);
+
+  for (const axis of axis_names) {
+    let from = null;
+    let to = null;
+    let from_entity = null;
+    let to_entity = null;
+
+    for (const entity of entities_set) {
+      const previous_entity_dynamics = (previous || {})[entity] || {};
+      const current_entity_dynamics = (current || {})[entity] || {};
+      if (from === null && Number.isFinite(previous_entity_dynamics[axis])) {
+        from = previous_entity_dynamics[axis];
+        from_entity = entity;
+      }
+      if (to === null && Number.isFinite(current_entity_dynamics[axis])) {
+        to = current_entity_dynamics[axis];
+        to_entity = entity;
+      }
+    }
+
+    if (!Number.isFinite(from) || !Number.isFinite(to)) continue;
+
+    const delta = Math.round((to - from) * 10) / 10;
+    deltas.push({ axis, from, to, delta, entity: to_entity || from_entity });
+    displacement += Math.abs(to - from);
+
+    const entry_entity = to_entity || from_entity;
+    if (to >= band_high && from < band_high) {
+      band_entries.push({ axis, from, to, band: "high", entity: entry_entity });
+      if (!band_entry) band_entry = { axis, from, to, band: "high" };
+    } else if (to <= band_low && from > band_low) {
+      band_entries.push({ axis, from, to, band: "low", entity: entry_entity });
+      if (!band_entry) band_entry = { axis, from, to, band: "low" };
+    }
+  }
+
+  displacement = Math.round(displacement * 10) / 10;
+  const triggered = band_entry !== null || displacement >= displacement_threshold;
+
+  const character_band_entry = band_entries.find((entry) => character_domain_entities.has(entry.entity));
+  const tier = character_band_entry ? "story_character" : band_entries.length > 0 ? "story_scene" : default_tier;
+
+  return {
+    triggered,
+    signals: {
+      band_entry,
+      displacement,
+      displacement_threshold,
+    },
+    tier,
+    deltas,
+  };
+}
+
+/**
  * CHANGELOG:
  * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,
  *   structured section dividers, exported frozen hash constants (HASH_OFFSET_BASIS, HASH_PRIME),

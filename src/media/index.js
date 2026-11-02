@@ -4,38 +4,33 @@
  * ============================================================================
  *
  * @file src/media/index.js
- * @description Central barrel export providing unified access to neural audio
- * synthesis (Kokoro-82M TTS), design token palettes, image generation quality
- * tiers, prompt templates, aesthetic mapping filters, and Svelte 5 visual engine runes.
- *
- * Architectural Laws:
- * - Downward layer flow: Media layer may import from Data, Platform, and Utils.
- *   It MUST NEVER import from UI or State.
- * - Single source of truth: All sensory rendering, voice cadences, and visual
- *   image orchestration services are exposed through this barrel.
- *
- * ============================================================================
+ * Central barrel export providing unified access to procedural audio synthesis,
+ * design token palettes, image generation quality tiers, optics taxonomy,
+ * Perchance visual dispatch, and transitional facades.
  */
 
 // ============================================================================
-// Neural Audio & Voice Cadence Engine
+// Procedural Audio & Web Speech Fallback Engine
 // ============================================================================
 
-export { Audio, audio_engine, AudioEngine, VoiceEngine, AUDIO_STORAGE_KEY } from "./audio.svelte.js";
-
 export {
-  KOKORO_VOICES,
+  Audio,
+  audio_engine,
+  AudioEngine,
+  VoiceEngine,
+  get_audio_context,
+  get_master_gain,
+  init_audio_on_gesture,
+  suspend_audio,
+  close_audio_context,
+  play_sfx,
   CADENCE_RATES,
   VOICE_CADENCES,
-  get_cadence_rate,
+  normalize_role,
   resolve_voice_uri,
   resolve_voice_name,
-  normalize_role,
-  extract_styled_segments,
-  split_speech_sentences,
-  infer_voice_for_chunk,
-  split_speech_by_speaker,
-} from "./speech.js";
+  get_cadence_rate,
+} from "./audio.js";
 
 // ============================================================================
 // Visual Color Palettes & Signature Tokens
@@ -45,29 +40,19 @@ export { get_signature_color, get_signature_label, ensure_theme_tokens } from ".
 export { SIGNATURE_COLORS, PALETTE, PALETTE_CSS_VARIABLES, TOKENS } from "./tokens.js";
 
 // ============================================================================
-// Pure Visual Optics (Taxonomy, Triggers, Aesthetics & Prompts)
+// Pure Visual Optics (Taxonomy, Triggers & Guidance Scales)
+// ============================================================================
+
+export { IMAGE_TIERS, DEFAULT_IMAGE_TIER, normalize_image_tier, get_resolution, get_tier_guidance_scale, resolve_image_trigger } from "./optics.js";
+
+// ============================================================================
+// Stateless Visual Generation & Queue Lifecycle
 // ============================================================================
 
 export {
-  IMAGE_TIERS,
-  DEFAULT_IMAGE_TIER,
-  normalize_image_tier,
-  get_resolution,
-  get_tier_guidance_scale,
-  resolve_image_trigger,
-  aesthetic_resolver,
-  ORDERED_VISUAL_STYLE_KEYS,
-} from "./optics.js";
-
-// ============================================================================
-// Visual Engine Runtime (Svelte 5 Runes) & Image Beats Lifecycle
-// ============================================================================
-
-export {
-  visual_engine,
-  VisualEngine,
-  spawn_image_beat,
-  sweep_stale_ghosts,
+  dispatch_visual_generation,
+  find_image_engine,
+  reset_cached_image_engine,
   mark_generation_in_flight,
   clear_generation_in_flight,
   is_generation_in_flight,
@@ -75,20 +60,17 @@ export {
   get_image_generation_queue,
   reset_image_generation_queue,
   _image_generation_queue,
+  _in_flight_image_generations,
+  count_pending_ghosts,
+  mark_placeholder_failed,
+  sweep_stale_ghosts,
+  spawn_image_beat,
+  register_default_visual_engine,
+  get_default_visual_engine,
+  VisualEngine,
+  visual_engine,
   IMAGE_GENERATION_QUEUE_CAPACITY,
   IMAGE_PLACEHOLDER_HARD_CAP,
   IMAGE_RESOLVE_TIMEOUT_MS,
   IMAGE_GHOST_MAX_AGE_MS,
-} from "./visual.svelte.js";
-
-/**
- * CHANGELOG:
- * - 2026-09-24: Purged VISUAL_EXCLUDED_KEYS and strip_visual_excluded re-exports under P4 Zero Backwards Compatibility (now imported directly from @utils).
- * - 2026-09-24: Media layer consolidation — collapsed image-tiers.js, image-trigger.js, and image-aesthetics.js into optics.js; absorbed image-beats.js into visual.svelte.js; enforced P4 Zero Backwards Compatibility.
- * - 2026-09-24: Folded the visual prompt-token domain out of `visual.svelte.js` — exported `compose_visual_generation_prompt` from image-aesthetics.js.
- * - 2026-09-24: Re-exported the in-flight image generation registry helpers from image-beats.js.
- * - 2026-09-19: Purged cross-layer re-exports `parse_llm_image_prompt_response` and `clean_image_prompt` from intelligence/parser.js under P4 Zero Backwards Compatibility.
- * - 2026-09-19: Purged retired prompt_templates export under P4 Zero Backwards Compatibility.
- * - 2026-09-18: Re-exported image prompt compilers and parsers from @intelligence following prompt pipeline consolidation.
- * - 2026-08-29: Applied /harmonize protocol: structured barrel into canonical functional sections with universal header/footer architecture and exported PALETTE_CSS_VARIABLES / PALETTE_VARIABLES.
- */
+} from "./visual.js";

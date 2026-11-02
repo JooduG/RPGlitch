@@ -372,6 +372,17 @@ export const IMAGE_RESOLUTIONS = Object.freeze({
   SQUARE_LARGE: Object.freeze({ width: 768, height: 768 }),
 });
 
+export const IMAGE_TRIGGER = Object.freeze({
+  band_high: DYNAMICS_SCALE.EXTREME_HIGH,
+  band_low: DYNAMICS_SCALE.EXTREME_LOW,
+  displacement_threshold: SEISMIC_SHIFT_DISPLACEMENT,
+  cooldown_rounds: IMAGE_TRIGGER_COOLDOWN_ROUNDS,
+  director_cooldown_rounds: IMAGE_TRIGGER_COOLDOWN_ROUNDS,
+  dynamics_cooldown_rounds: IMAGE_TRIGGER_COOLDOWN_ROUNDS,
+  default_tier: "story_scene",
+  tiers: Object.freeze(["story_entities", "story_character", "solo_entity", "story_scene"]),
+});
+
 /**
  * CHANGELOG:
  * - 2026-10-19: Added ENTITY_GUARANTEES (ASYMMETRIC and SYMMETRICAL topologies) establishing lean character floors per quadrant for dynamic entity RAG allocation.

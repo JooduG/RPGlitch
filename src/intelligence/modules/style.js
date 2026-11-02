@@ -250,7 +250,16 @@ export function resolve_optics_cinematography({
 // Track 0.11: moved verbatim from media/optics.js Sections 3+4 - visual engine
 // tokens, prompt composition, and the aesthetic map live with style
 // presentation. Palette binding reads media/palette.js directly (permitted
-// intelligence-to-media direction); aesthetic_resolver stays in media/optics.js.
+// intelligence-to-media direction).
+
+export const ORDERED_VISUAL_STYLE_KEYS = Object.freeze([
+  "_visual_style_medium",
+  "_visual_style_palette",
+  "_visual_style_camera",
+  "_visual_style_composition",
+  "_visual_style_texture",
+  "_visual_style_tags",
+]);
 
 /**
  * Pre-compiled regex matching clothing removal markers in present state strings.
@@ -412,6 +421,27 @@ export function flatten_aesthetic_map(entity = {}) {
     })
     .filter(Boolean);
   return normalize_comma_spacing([...visual_values, ...additional].join(". "));
+}
+
+export function extract_aesthetic_traits(entity = {}) {
+  const merged_aesthetic_map = build_aesthetic_map(entity);
+  const ordered_aesthetic_keys = [
+    ...ORDERED_VISUAL_STYLE_KEYS.filter((key) => merged_aesthetic_map[key]),
+    ...Object.keys(merged_aesthetic_map).filter((key) => !ORDERED_VISUAL_STYLE_KEYS.includes(key)),
+  ];
+
+  return ordered_aesthetic_keys
+    .map((key) => {
+      const value = merged_aesthetic_map[key];
+      if (value === undefined || value === null) return "";
+      const value_string = Array.isArray(value) ? value.join(", ") : String(value).trim();
+      if (!value_string) return "";
+      const formatted_value = normalize_comma_spacing(value_string);
+      const cleaned_key = key.replace(/^_visual_style_/, "");
+      return `  "${cleaned_key}": "${formatted_value.replace(/"/g, '\\"')}"`;
+    })
+    .filter(Boolean)
+    .join(",\n");
 }
 
 // ============================================================================

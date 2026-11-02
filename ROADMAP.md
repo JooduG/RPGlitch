@@ -57,19 +57,18 @@ flowchart TD
     - Adapt-on-read legacy row conversion ensuring all 4 quadrants (`eternal`, `present`, `future`, `past`) are pure multiline bracket strings.
     - All 10 premades preserved and author narrative styles inlined with fallback to `"cormac_mccarthy"`.
     - Greenfield persistence test suite (`src/storage/`) passing 100% green (52/52 tests) and engine suites verified at 36/36 tests.
-  - **Gate 3: Media & Sensory Subsystems (`src/media/`)** — **NEXT ACTIVE SPRINT**:
-    - Provide lean Perchance `generate_image` caller in `src/media/visual.svelte.js` consuming Visualizer prompt output.
-    - Provide direct user-gesture Web Audio SFX in `src/media/audio.svelte.js`.
-    - Promoted Section 7 nuclear constants added to `src/config.js`; `test:engine` and `test:legacy` scripts added to `package.json`.
-  - **Gate 2: Supporting Subsystems Consolidation (`src/data/`, `src/utils/`, `src/media/`)** — **NEXT**:
-    - Consolidate Dexie schema (`src/data/db.js`), 4-quadrant entities (`src/data/entities.js`), presets (`src/data/presets.js`).
-    - Streamline formatting and Tier-1/Tier-2 detox cleaner (`src/utils/format.js`).
-    - Web Audio SFX (`src/media/audio.svelte.js`) and kinetic physics (`src/media/motion.js`). Realtime TTS explicitly parked.
-  - **Gate 3: Flat UI Domain Components (`src/ui/`)**:
-    - Collapse 8 nested UI directories into 12 flat Svelte 5 domain components without empty wrapper abstractions.
-  - **Gate 4: Atomic Cutover & Demolition**:
-    - Re-wire `App.svelte` and `main.js` to `src/engine/`.
-    - Delete 32 legacy files (450+ KB) in `src/intelligence/`, `src/state/`, and nested UI folders in a single commit.
+  - **Gate 3: Media & Sensory Subsystems (`src/media/`)** — **COMPLETED**:
+    - Greenfield stateless functional generator `dispatch_visual_generation` in `src/media/visual.js` supporting host Perchance discovery, exponential backoff (2500ms initial for 429/503), circuit breaker failure insulation, AbortSignal cancellation, and offline SVG data URI generation for testing.
+    - Pure procedural Web Audio synthesizer (`play_sfx`) in `src/media/audio.js` for UI sound effects (`click`, `pop`, `glitch`, `alert`, `subtle_hum`) and lightweight Web Speech API fallback preserving positional `speak()` and `Audio.voice` / `Audio.entity_voice` facade surface.
+    - Promoted Section 7 nuclear constants added to `src/config.js` and `evaluate_image_trigger` to `@utils/math.js`. Eliminated all upward imports from `src/media/optics.js` into `@intelligence` or `@data`.
+    - Transitional coexistence shims in `src/media/audio.svelte.js` and `src/media/visual.svelte.js` preserving parallel operation for legacy consumers (`Feed.svelte`, `Message.svelte`, `story.js`, `main.test.js`).
+    - Purged legacy 1,248-line `audio.svelte.js`, 978-line `visual.svelte.js`, and 373-line Kokoro `speech.js` stack.
+    - Updated test suites across sensory cortex: created `src/media/visual.test.js`, purged retired `src/media/visual.svelte.test.js`, updated `src/media/tokens.test.js` and `src/media/optics.test.js`, and migrated `src/ui/profile/VisualWing.svelte` to `extract_aesthetic_traits` from `@intelligence/modules/style.js` (`src/intelligence/index.js`) following `aesthetic_resolver` extraction.
+    - All 4 media test suites passing 100% green (65/65 tests).
+  - **Gate 4: Flat UI Domain Components & Atomic Cutover (`src/ui/`, `App.svelte`, `main.js`)** — **NEXT ACTIVE SPRINT**:
+    - Collapse nested UI directories into flat Svelte 5 domain components without empty wrapper abstractions.
+    - Re-wire `App.svelte` and `main.js` to `src/engine/` and `src/storage/`.
+    - Demolition of legacy directories (`src/intelligence/`, `src/data/`, `src/state/`).
 
 - **Prompt Pipeline V2 Unification Initiative**:
   - The architectural exploration dossier [architectural-exploration.md](`architectural-exploration.md`) is drafted and aligned around the Universal Spatial Spine (Model A) + Swappable Cores, Universal 4-Dial Entity Projector, and Strategy B Two-Tier RAG Sieve. Active open decisions (Decisions 4–7) are staged in Section 10 pending user commitment before initiating compiler refactoring.

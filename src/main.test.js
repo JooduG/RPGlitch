@@ -19,14 +19,26 @@ vi.mock("@state", () => ({
   simulation_log: {},
 }));
 
-vi.mock("@media/audio.svelte.js", () => ({
-  Audio: {
+const { _mock_audio } = vi.hoisted(() => ({
+  _mock_audio: {
     init: vi.fn(),
     _init_promise: null,
     voice: {
       load_model: vi.fn().mockResolvedValue(),
     },
   },
+}));
+
+vi.mock("@media", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    Audio: _mock_audio,
+  };
+});
+
+vi.mock("@media/audio.svelte.js", () => ({
+  Audio: _mock_audio,
 }));
 
 vi.mock("@platform", async (importOriginal) => {
