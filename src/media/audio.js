@@ -75,6 +75,23 @@ export function close_audio_context() {
   }
 }
 
+/**
+ * Sets the master volume level [0.0 - 1.0].
+ * @param {number} level
+ */
+export function set_master_volume(level) {
+  audio_engine.volume = level;
+}
+
+/**
+ * Toggles the audio mute state.
+ * @returns {boolean} New mute state
+ */
+export function toggle_mute() {
+  audio_engine.is_muted = !audio_engine.is_muted;
+  return audio_engine.is_muted;
+}
+
 // Auto-unlock on first user interaction if in browser
 if (typeof document !== "undefined") {
   const unlock_listener = () => {

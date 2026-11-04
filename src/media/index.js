@@ -23,6 +23,8 @@ export {
   init_audio_on_gesture,
   suspend_audio,
   close_audio_context,
+  set_master_volume,
+  toggle_mute,
   play_sfx,
   CADENCE_RATES,
   VOICE_CADENCES,

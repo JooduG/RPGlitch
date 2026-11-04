@@ -59,7 +59,7 @@ flowchart TD
     - Greenfield persistence test suite (`src/storage/`) passing 100% green (52/52 tests) and engine suites verified at 36/36 tests.
   - **Gate 3: Media & Sensory Subsystems (`src/media/`)** — **COMPLETED**:
     - Greenfield stateless functional generator `dispatch_visual_generation` in `src/media/visual.js` supporting host Perchance discovery, exponential backoff (2500ms initial for 429/503), circuit breaker failure insulation, AbortSignal cancellation, and offline SVG data URI generation for testing.
-    - Pure procedural Web Audio synthesizer (`play_sfx`) in `src/media/audio.js` for UI sound effects (`click`, `pop`, `glitch`, `alert`, `subtle_hum`) and lightweight Web Speech API fallback preserving positional `speak()` and `Audio.voice` / `Audio.entity_voice` facade surface.
+    - Pure procedural Web Audio synthesizer (`play_sfx`) in `src/media/audio.js` for UI sound effects (`click`, `pop`, `glitch`, `alert`, `subtle_hum`), standalone functions `set_master_volume` and `toggle_mute`, and lightweight Web Speech API fallback preserving positional `speak()` and `Audio.voice` / `Audio.entity_voice` facade surface.
     - Promoted Section 7 nuclear constants added to `src/config.js` and `evaluate_image_trigger` to `@utils/math.js`. Eliminated all upward imports from `src/media/optics.js` into `@intelligence` or `@data`.
     - Transitional coexistence shims in `src/media/audio.svelte.js` and `src/media/visual.svelte.js` preserving parallel operation for legacy consumers (`Feed.svelte`, `Message.svelte`, `story.js`, `main.test.js`).
     - Purged legacy 1,248-line `audio.svelte.js`, 978-line `visual.svelte.js`, and 373-line Kokoro `speech.js` stack.

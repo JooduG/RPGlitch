@@ -4,7 +4,7 @@
  */
 import { describe, expect, it } from "vitest";
 import { PREMADE_FRACTALS } from "@data";
-import { get_cadence_rate, normalize_role, resolve_voice_name, resolve_voice_uri, Audio, play_sfx } from "./audio.js";
+import { get_cadence_rate, normalize_role, resolve_voice_name, resolve_voice_uri, Audio, play_sfx, set_master_volume, toggle_mute } from "./audio.js";
 
 describe("normalize_role", () => {
   it("normalizes roles to internal keys", () => {
@@ -70,6 +70,15 @@ describe("Audio & Voice Configurations", () => {
     expect(Audio.voice).toBeDefined();
     expect(Audio.entity_voice).toBeDefined();
     expect(typeof Audio.volume).toBe("number");
+
+    // Standalone volume and mute functions
+    set_master_volume(0.3);
+    expect(Audio.volume).toBe(0.3);
+    const initial_mute = Audio.is_muted;
+    const toggled = toggle_mute();
+    expect(toggled).toBe(!initial_mute);
+    expect(Audio.is_muted).toBe(toggled);
+    toggle_mute(); // restore
 
     // Invoking destroy safely executes without unhandled exceptions
     expect(() => Audio.destroy()).not.toThrow();
