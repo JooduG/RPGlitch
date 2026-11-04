@@ -3,7 +3,7 @@
  * 📜 MUTATION LEDGER & EVENT-SOURCING ACCESS LAYER
  */
 
-import { parse_bracket_entries } from "../intelligence/veil.js";
+import { parse_bracket_entries } from "../storage/parser.js";
 import { db } from "./db.js";
 import { coerce_story_key } from "./repository.js";
 
@@ -195,10 +195,12 @@ export async function replay_entity_field(entity_id, field, up_to_round = Infini
       if (parsed_brackets.length > 0) {
         for (const bracket of parsed_brackets) {
           key_values.set(bracket.key, bracket.value);
+          const is_hidden = bracket.flags ? bracket.flags.hide : bracket.visibility === "hide";
+          const resolved_weight = bracket.flags?.weight ?? bracket.weight ?? 5;
           entries_map.set(bracket.key, {
             value: bracket.value,
-            visibility: bracket.visibility === "hide" ? "hide" : "show",
-            weight: typeof bracket.weight === "number" ? bracket.weight : 5,
+            visibility: is_hidden ? "hide" : "show",
+            weight: typeof resolved_weight === "number" ? resolved_weight : 5,
           });
         }
         const unbracketed = entry.new_value.replace(/\[[^\]:]+:[^\]]+\]/g, "").trim();

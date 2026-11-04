@@ -14,7 +14,14 @@
  */
 
 // 1. Bracket Parser, Delta Merging & Epistemic Wall
-export { parse_bracket_token, parse_brackets, format_clean_brackets, apply_bracket_deltas, extract_memory_candidates } from "./parser.js";
+export {
+  parse_bracket_token,
+  parse_brackets,
+  parse_bracket_entries,
+  format_clean_brackets,
+  apply_bracket_deltas,
+  extract_memory_candidates,
+} from "./parser.js";
 
 // 2. Profile Fields, Leaf Mapping & Enhancers
 export { FLAT_LEAF_MAP, resolve_flat_path, ENHANCER_DIRECTIVES } from "./profile-fields.js";

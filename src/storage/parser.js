@@ -128,6 +128,8 @@ export function parse_brackets(text) {
   return tokens;
 }
 
+export const parse_bracket_entries = parse_brackets;
+
 /**
  * Filters brackets based on visibility and strips internal flags for clean prompt rendering.
  *
