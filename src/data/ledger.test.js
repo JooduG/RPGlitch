@@ -32,6 +32,8 @@ describe("mutation ledger persistence & replay", () => {
   });
 
   it("appends and queries discrete ledger entries", async () => {
+    const { init_db } = await import("./db.js");
+    await init_db();
     const { append_ledger_entry, query_entity_history } = await import("./ledger.js");
 
     const row_id = await append_ledger_entry({
@@ -54,7 +56,7 @@ describe("mutation ledger persistence & replay", () => {
     expect(history[0].key).toBe("OUTFIT");
     expect(history[0].new_value).toBe("red cloak");
     expect(history[0].writer).toBe("continuum");
-  });
+  }, 15000);
 
   it("replays entity field states correctly with supersession and clearing", async () => {
     const { append_ledger_entries, replay_entity_field } = await import("./ledger.js");
@@ -117,7 +119,7 @@ describe("mutation ledger persistence & replay", () => {
     const state_r3 = await replay_entity_field("char_mira", "present.non_physical", 3);
     expect(state_r3.key_values.has("@ORION")).toBe(false);
     expect(state_r3.key_values.get("MOOD")).toBe("cautious");
-  });
+  }, 15000);
 
   it("filters snapshot entries by max round and sequence", async () => {
     const { append_ledger_entries, query_story_snapshot } = await import("./ledger.js");

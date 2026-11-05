@@ -115,10 +115,10 @@ describe("Profile Domain (profile.js)", () => {
   // ── 3. Profile Structuring & Schema Hydration ────────────────────────────────
 
   describe("apply_profile_to_entity()", () => {
-    it("maps flat appearance/personality keys onto the Twin-Cylinder leaves", () => {
+    it("maps flat profile keys onto the Twin-Cylinder leaves", () => {
       const entity = { eternal: {}, present: {} };
       apply_profile_to_entity(entity, {
-        appearance: "Tall, silver-eyed.",
+        physical_appearance: "Tall, silver-eyed.",
         personality: "Dry wit, fiercely loyal.",
         current_look: "Worn coat, brass compass.",
         state_of_mind: "Guarded but amused.",

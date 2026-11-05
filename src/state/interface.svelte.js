@@ -175,6 +175,7 @@ export class InterfaceStore {
     auto_scroll: true,
     dev_mode: false,
     dev_grid_visible: false,
+    use_greenfield_engine: true,
     narrative_style: "default",
     visual_style: "none",
   });
@@ -260,18 +261,16 @@ export class InterfaceStore {
   }
 
   get models_ready() {
-    return embeddings_engine.model_ready && Audio.voice.model_ready;
+    return embeddings_engine.model_ready;
   }
 
   get models_loading() {
-    return embeddings_engine.is_loading || Audio.voice.is_loading;
+    return embeddings_engine.is_loading;
   }
 
   get models_progress() {
     if (this.models_ready) return 100;
-    const emb_prog = embeddings_engine.model_ready ? 100 : embeddings_engine.load_progress;
-    const voice_prog = Audio.voice.model_ready ? 100 : Audio.voice.load_progress;
-    return Math.min(99, Math.round((emb_prog + voice_prog) / 2));
+    return Math.min(99, Math.round(embeddings_engine.load_progress));
   }
 
   get is_ready() {

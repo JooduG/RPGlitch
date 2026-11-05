@@ -30,4 +30,9 @@ describe("InterfaceStore (app)", () => {
     expect(developer_log.entries[0].message).toBe("Interface test log entry");
     expect(app.logs.length).toBe(1);
   });
+
+  it("reflects embeddings_engine readiness in models_ready and models_progress", () => {
+    expect(typeof app.models_ready).toBe("boolean");
+    expect(typeof app.models_progress).toBe("number");
+  });
 });

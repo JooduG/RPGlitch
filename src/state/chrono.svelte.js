@@ -22,6 +22,7 @@
 import { session_driver } from "@data";
 import { build_turn_summary, gamemaster } from "@intelligence";
 import { state_bridge } from "@utils";
+import { execute_greenfield_turn } from "../engine/bridge.js";
 
 // ============================================================================
 // [SECTION 1: JSDOC SCHEMAS & TYPE DEFINITIONS]
@@ -212,10 +213,15 @@ export class ChronoEngine {
         state_bridge.simulation_state.start_director_stage();
 
         try {
-          await gamemaster.execute_turn(story_id, {
-            input: final_input ?? undefined,
-            signal: controller.signal,
-          });
+          if (state_bridge.app?.settings?.use_greenfield_engine) {
+            state_bridge.app.log("Executing turn via Sovereign Greenfield Engine (Kernel)...", "system");
+            await execute_greenfield_turn(final_input || "", { signal: controller.signal });
+          } else {
+            await gamemaster.execute_turn(story_id, {
+              input: final_input ?? undefined,
+              signal: controller.signal,
+            });
+          }
           state_bridge.app.log("Generation complete.", "system");
 
           try {

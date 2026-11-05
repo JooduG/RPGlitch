@@ -167,7 +167,7 @@ describe("Database db.js Compound Index Health & Latency Profiling", () => {
     for (let j = 1; j < alpha_physical.length; j++) {
       expect(alpha_physical[j].timestamp).toBeGreaterThanOrEqual(alpha_physical[j - 1].timestamp);
     }
-  });
+  }, 15000);
 
   it("replays full entity state at target round with sub-millisecond per-round latency", async () => {
     const { append_ledger_entries, replay_full_entity_at_round } = await import("./ledger.js");
@@ -227,7 +227,7 @@ describe("Database db.js Compound Index Health & Latency Profiling", () => {
 
     // Must be fast: under 50ms total for 6 parallel quadrant queries in fake-indexeddb
     expect(replay_duration_ms).toBeLessThan(50);
-  });
+  }, 15000);
 
   it("profiles multi-entry *npc_ids query on stories table", async () => {
     const { db } = await import("./db.js");

@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Taxonomy Cleanup & Backwards-Compatibility Purge (`src/data/definitions/profile-fields.js`, `src/intelligence/profile.test.js`)**:
+  - **Pruned Stale Leaf Seeds**: Removed legacy hardcoded fallback seed object (`appearance`, `personality`, `metaphysical_truths`, etc.) from `build_profile_catalog()` in `profile-fields.js` per P4 Zero Backwards Compatibility.
+  - **Dynamic Ingestion Verification**: All leaf paths and tags are now strictly derived from dynamic traversal of canonical `PROFILE_FIELDS` declarations.
+  - **Test Suite Alignment**: Updated `src/intelligence/profile.test.js` to assert against canonical `physical_appearance` rather than obsolete aliases.
+
 - **Housekeeping, Layer Hygiene & Document Archiving (`src/data/ledger.js`, `src/storage/parser.js`, `src/storage/index.js`, `tmp/archive/`, `scribbles.md`)**:
   - **Eliminated Upward Layer Violation (`src/data/ledger.js`, `src/storage/parser.js`)**: Re-routed upward import from `../intelligence/veil.js` downward to `@storage/parser.js` by re-exporting `parse_bracket_entries` from `src/storage/parser.js`, achieving **0 layer boundary violations** across the repository in `npm run audit:layers`.
   - **Completed Documents Archival**: Archived completed `gate-3-media-consolidation-design.md` and historical `ENGINE_AUDIT.md` into `tmp/archive/` to preserve a zero-clutter root.

@@ -51,14 +51,14 @@ export const PROFILE_FIELDS = {
       physical: {
         label: "Physical Appearance",
         description:
-          "Lorebook Biometric Core: Permanent visual truth (gender, age, ethnicity, build, face, eyes, hair, scars). Anchors diffusion synthesis without equipment or clothing.",
+          "Permanent visual truth (gender, age, ethnicity, build, face, eyes, hair, scars). Anchors diffusion synthesis without equipment or clothing.",
         directive: `[KEY: value] permanent biometrics (gender, age, ethnicity, build, face, eyes, hair, scars). Visible body details only — no clothing, equipment, or psychological traits.`,
         enhancer: "BIOMETRIC_RENDERER",
       },
       non_physical: {
         label: "Personality",
         description:
-          "Lorebook Psychological Substrate: Timeless cognitive drivers, core beliefs, vocal cadence, and behavioural invariants. Never use keyword dumps — write lived traits.",
+          "Timeless cognitive drivers, core beliefs, vocal cadence, and behavioural invariants. Never use keyword dumps — write lived traits.",
         directive: `[KEY: value] core beliefs, personality drivers, cognitive patterns, vocal tone, speech cadence, and communication tics. Bracketed traits only.`,
         enhancer: "COGNITIVE_ARCHITECT",
       },
@@ -67,29 +67,26 @@ export const PROFILE_FIELDS = {
       physical: {
         label: "Current Look",
         description:
-          "Lorebook Somatic Staging: Immediate physical appearance, active attire, condition, posture, and held items. Use {Option A|Option B} for dynamic variants.",
+          "Immediate physical appearance, active attire, condition, posture, and held items. Use {Option A|Option B} for dynamic variants.",
         directive: `[KEY: value] current appearance (clothing, colors, expression, posture, condition, held). Use {Option A|Option B} for variables. Visible temporary items and poses only.`,
         enhancer: "SOMATIC_TRACKER",
       },
       non_physical: {
         label: "State of Mind",
-        description:
-          "Lorebook Emotional Vector: Immediate psychological pressure, tactical focus, and present behavioural drivers under current scene tensions.",
+        description: "Immediate psychological pressure, tactical focus, and present behavioural drivers under current scene tensions.",
         directive: `[KEY: value] immediate emotional pressure, active mental focus, and present behavioral drivers. Bracketed conditions only.`,
         enhancer: "TACTICAL_ANALYZER",
       },
     },
     future: {
       label: "Agenda",
-      description:
-        "Lorebook Trajectory Vector: Active standing agenda, impending choice, or converging tension propelling this entity into the next state change.",
+      description: "Active standing agenda, impending choice, or converging tension propelling this entity into the next state change.",
       directive: `[KEY: value] active trajectory or standing agenda: clear intent, building pressure, or impending event driving this entity toward its next state change. Bracketed items only; no story scenes or dialogue.`,
       enhancer: "TRAJECTORY_SIMULATOR",
     },
     past: {
       label: "Past",
-      description:
-        "Lorebook Continuum Vector: Settled precedents, canon facts, and emotional anchors ([KEY: fact | flags]). Ranked via pure numeric weights (w: 1-10).",
+      description: "Settled precedents, canon facts, and emotional anchors ([KEY: fact | flags]). Ranked via pure numeric weights (w: 1-10).",
       directive: `Settled historical fact or precedent: [KEY: value | flags] (flags: 'hide' / 'show', 'w: 1-10'). Specific over vague; exclude transient moods or immediate dialogue.`,
       enhancer: "PAST_COMPILER",
     },
@@ -98,15 +95,13 @@ export const PROFILE_FIELDS = {
     eternal: {
       physical: {
         label: "Environment",
-        description:
-          "Lorebook Spatial Geography: Permanent macro-features, landmarks, terrain, architecture, and enduring scale. Governs visual setting synthesis.",
+        description: "Permanent macro-features, landmarks, terrain, architecture, and enduring scale. Governs visual setting synthesis.",
         directive: `[KEY: value] permanent geography (terrain, architecture, materials, landmarks, scale). Concrete visible landscape features only — no transient weather, lighting, or lore.`,
         enhancer: "SPATIAL_RENDERER",
       },
       non_physical: {
         label: "Permanent Truths",
-        description:
-          "Lorebook Metaphysical Axioms: Enduring physics, cultural taboos, governing laws, and environmental constants. Grounded lore over keyword lists.",
+        description: "Enduring physics, cultural taboos, governing laws, and environmental constants. Grounded lore over keyword lists.",
         directive: `[KEY: value] metaphysical substrate: governing laws, constant environmental forces, and physical constants. Bracketed truths only.`,
         enhancer: "METAPHYSICAL_ARCHITECT",
       },
@@ -114,29 +109,26 @@ export const PROFILE_FIELDS = {
     present: {
       physical: {
         label: "Atmosphere",
-        description:
-          "Lorebook Momentary Physics: Dynamic atmospheric conditions, lighting, active weather, and sensory ephemera. Use {Option A|Option B} for variations.",
+        description: "Dynamic atmospheric conditions, lighting, active weather, and sensory ephemera. Use {Option A|Option B} for variations.",
         directive: `[KEY: value] current atmospheric state (lighting, weather, atmosphere, events). Use {Option A|Option B} for variables. Momentary sensory elements only.`,
         enhancer: "ATMOSPHERIC_TRACKER",
       },
       non_physical: {
         label: "Current State",
-        description: "Lorebook Active Ecosystem: Momentary ecosystem shifts, active anomalies, social unrest, and immediate environmental pressures.",
+        description: "Momentary ecosystem shifts, active anomalies, social unrest, and immediate environmental pressures.",
         directive: `[KEY: value] current environmental state: active anomaly, immediate pressure, momentary shifts in physics or atmosphere. Bracketed state only.`,
         enhancer: "ECOSYSTEM_ANALYZER",
       },
     },
     future: {
       label: "Trajectory",
-      description:
-        "Lorebook Macro-Trajectory: Brewing cataclysms, impending ecological shifts, or converging anomalies driving the world toward its next epoch.",
+      description: "Brewing cataclysms, impending ecological shifts, or converging anomalies driving the world toward its next epoch.",
       directive: `[KEY: value] environmental trajectory, building atmospheric pressure, impending environmental event, or anomaly apex driving this world toward its next state change. Bracketed items only.`,
       enhancer: "ECOSYSTEM_SIMULATOR",
     },
     past: {
       label: "History",
-      description:
-        "Lorebook Deep Time Chronology: Defining historical epochs, mythic origins, and settled cataclysms ([KEY: epoch | flags], w: 1-10).",
+      description: "Defining historical epochs, mythic origins, and settled cataclysms ([KEY: epoch | flags], w: 1-10).",
       directive: `Settled historical cataclysm, founding myth, or defining epoch: [KEY: value | flags] (flags: 'hide' / 'show', 'w: 1-10'). Specific over vague; exclude active weather or temporary conditions.`,
       enhancer: "HISTORIAN",
     },
@@ -238,6 +230,7 @@ function build_profile_catalog(fields) {
             leaf_map[leaf.label.toLowerCase().replace(/\s+/g, "_")] = path;
             leaf_map[tag.toLowerCase()] = path;
           }
+          leaf_map[sub_key] = path;
         });
       }
     });

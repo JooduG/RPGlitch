@@ -43,9 +43,9 @@ const BYTE_PINS = {
   narrator: 7822,
   narrator_prologue: 7850,
   narrator_epilogue: 7785,
-  continuum: 5365,
+  continuum: 5368,
   enhancement: 1669,
-  sorting: 4408,
+  sorting: 4404,
   optics: 5394,
 };
 

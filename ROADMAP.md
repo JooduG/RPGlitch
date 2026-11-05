@@ -93,6 +93,14 @@ A comprehensive, code-grounded review of the running application and execution o
 
 - **Objective**: Execute Track A local investigations and canonical configuration harmonization: fix composer queued state machine, generate prompt atom matrix in audit harness, rebuild central `src/config.js` with literary scale, and wire canonical contracts across intelligence, data, media, and state layers under P4 purity.
 - **Scope & Target Files**:
+  - `src/data/definitions/profile-fields.js` (dynamic flat leaf map derivation and legacy alias purge)
+  - `src/intelligence/profile.test.js` (profile domain schema hydration and canonical key mapping tests)
+  - `src/data/db.test.js` (compound index health and batch ledger query benchmark tests)
+  - `src/data/ledger.test.js` (discrete mutation ledger persistence and event-sourcing tests)
+  - `src/engine/bridge.js` (greenfield-to-UI coexistence bridge connecting Kernel to active Svelte views)
+  - `src/state/chrono.svelte.js` (wire greenfield engine bridge with toggleable use_greenfield_engine flag)
+  - `src/state/interface.svelte.js` (purge dead Kokoro neural voice checks from models_ready/models_progress)
+  - `src/state/interface.test.js` (verify models_ready and models_progress behavior)
   - `src/ui/message/TelemetryCard.svelte` (consolidated telemetry module unifying quick shot, back shot, and vector resolution; renders individual bracket boxes with clean quadrant headers)
   - `src/ui/message/TelemetryCard.test.js` (telemetry formatting, directed edge parsing, and quadrant tests)
   - `src/ui/message/telemetry-format.js` (clean_text_debris, parse_relationship_edge, vector_label, and entity block projection)
