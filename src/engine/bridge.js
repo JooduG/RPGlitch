@@ -186,10 +186,15 @@ export async function write_back_kernel_state(kernel, outcome, live_transport) {
     }
   }
 
-  // 3. Synchronize macro round counter
+  // 3. Write back User persona dynamics
+  if (kernel.user?.dynamics && runtime.active_user) {
+    runtime.active_user.dynamics = { ...kernel.user.dynamics };
+  }
+
+  // 4. Synchronize macro round counter
   runtime.round = kernel.round;
 
-  // 4. Persist updated entities & story round into IndexedDB
+  // 5. Persist updated entities & story round into IndexedDB
   const save_promises = [];
   if (runtime.active_ai) {
     save_promises.push(runtime.save_entity("character", runtime.active_ai));
@@ -197,11 +202,14 @@ export async function write_back_kernel_state(kernel, outcome, live_transport) {
   if (runtime.active_fractal) {
     save_promises.push(runtime.save_entity("fractal", runtime.active_fractal));
   }
+  if (runtime.active_user) {
+    save_promises.push(runtime.save_entity("character", runtime.active_user));
+  }
   save_promises.push(runtime.save(runtime.round));
 
   await Promise.allSettled(save_promises);
 
-  // 5. Turn 3: Caretaker background maintenance (dispatched un-awaited to free UI turn latency)
+  // 6. Turn 3: Caretaker background maintenance (dispatched un-awaited to free UI turn latency)
   dispatch_caretaker_consolidation(kernel, live_transport).catch((err) => {
     console.warn("[Bridge] Caretaker background execution error:", err);
   });

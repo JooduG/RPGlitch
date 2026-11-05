@@ -35,11 +35,11 @@
 
   const active_voice_name = $derived(resolve_voice_name(profile_state.char?.voice?.name || profile_state.char?.voice?.uri || "Cinematic Narrator"));
 
-  const selected_voice = $derived(Audio.voice.voices.find((v) => v.name === active_voice_name || v.uri === profile_state.char?.voice?.uri));
+  const selected_voice = $derived((Audio.voice.voices ?? []).find((v) => v.name === active_voice_name || v.uri === profile_state.char?.voice?.uri));
 
   // Derived list formatted for the Dropdown atom schema
   const dropdown_items = $derived(
-    Audio.voice.voices.map((voice) => ({
+    (Audio.voice.voices ?? []).map((voice) => ({
       value: voice.name,
       label: voice.name,
     })),
@@ -104,8 +104,8 @@
         bind:value={profile_state.char.voice.name}
         onchange={handle_voice_change}
         items={dropdown_items}
-        disabled={!profile_state.is_editing}
-        label="Select Voice"
+        disabled={!profile_state.is_editing || dropdown_items.length === 0}
+        label={dropdown_items.length === 0 ? "Loading Voices..." : "Select Voice"}
         uppercase={false}
         matchWidth
       />
