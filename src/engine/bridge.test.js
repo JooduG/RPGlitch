@@ -1,5 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { create_live_stream_fn, reconstruct_history_from_feed, write_back_kernel_state, execute_greenfield_turn } from "./bridge.js";
+import {
+  create_live_stream_fn,
+  reconstruct_history_from_feed,
+  write_back_kernel_state,
+  dispatch_caretaker_consolidation,
+  execute_greenfield_turn,
+} from "./bridge.js";
 import { Kernel } from "./kernel.svelte.js";
 import { register_state_accessors } from "../utils/index.js";
 import { session_driver } from "../data/index.js";
@@ -204,6 +210,45 @@ describe("src/engine/bridge.js - Greenfield-to-Legacy Bridge Unit Tests", () => 
       expect(mock_runtime.save_entity).toHaveBeenCalledWith("character", mock_runtime.active_ai);
       expect(mock_runtime.save_entity).toHaveBeenCalledWith("fractal", mock_runtime.active_fractal);
       expect(mock_runtime.save).toHaveBeenCalledWith(2);
+    });
+
+    it("persists all 4 quadrants (present_physical, present_non_physical, future, past) during Caretaker consolidation", async () => {
+      const mock_runtime = {
+        active_ai: {
+          id: "ai-1",
+          present: { physical: "[CLOTHING: jacket]", non_physical: "[MOOD: calm]" },
+          future: "[AGENDA: wait]",
+          past: "[MEMORY: met the traveler]",
+        },
+        save_entity: vi.fn().mockResolvedValue(true),
+      };
+      register_state_accessors({ runtime: mock_runtime });
+
+      const kernel = new Kernel({
+        ai: { id: "ai-1", name: "AI" },
+        round: 1, // Round 1 targets AI in CARETAKER_ROTATION
+      });
+
+      const mock_transport = {
+        stream: vi.fn().mockResolvedValue(
+          JSON.stringify({
+            _thought_process: "synthesizing all quadrants",
+            target: "AI",
+            present_physical: "[INJURY: bruised knee]",
+            present_non_physical: "[MOOD: alert]",
+            future: "[AGENDA: scout the perimeter]",
+            past: "[MEMORY: heard strange noises near the gate]",
+          }),
+        ),
+      };
+
+      await dispatch_caretaker_consolidation(kernel, mock_transport);
+
+      expect(mock_runtime.active_ai.present.physical).toContain("[INJURY: bruised knee]");
+      expect(mock_runtime.active_ai.present.non_physical).toContain("[MOOD: alert]");
+      expect(mock_runtime.active_ai.future).toContain("[AGENDA: scout the perimeter]");
+      expect(mock_runtime.active_ai.past).toContain("[MEMORY: heard strange noises near the gate]");
+      expect(mock_runtime.save_entity).toHaveBeenCalledWith("character", mock_runtime.active_ai);
     });
   });
 });

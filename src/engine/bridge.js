@@ -201,10 +201,27 @@ export async function write_back_kernel_state(kernel, outcome, live_transport) {
 
   await Promise.allSettled(save_promises);
 
-  // 5. Turn 3: Caretaker background maintenance
+  // 5. Turn 3: Caretaker background maintenance (dispatched un-awaited to free UI turn latency)
+  dispatch_caretaker_consolidation(kernel, live_transport).catch((err) => {
+    console.warn("[Bridge] Caretaker background execution error:", err);
+  });
+}
+
+/**
+ * Runs Turn 3 Caretaker maintenance in the background and commits full 4-quadrant bracket updates
+ * (present.physical, present.non_physical, future, and past) to active entity state and IndexedDB.
+ *
+ * @param {Kernel} kernel
+ * @param {object} transport
+ * @returns {Promise<void>}
+ */
+export async function dispatch_caretaker_consolidation(kernel, transport) {
+  const runtime = state_bridge.runtime;
+  if (!runtime) return;
+
   try {
     const caretaker_outcome = await execute_turn_3_caretaker({
-      transport: live_transport,
+      transport,
       round: kernel.round,
       entities: {
         AI: kernel.ai,
@@ -214,22 +231,50 @@ export async function write_back_kernel_state(kernel, outcome, live_transport) {
       history: kernel.history,
     });
 
-    if (caretaker_outcome?.target) {
-      const target_key = caretaker_outcome.target.toUpperCase();
-      const target_entity = target_key === "USER" ? runtime.active_user : target_key === "FRACTAL" ? runtime.active_fractal : runtime.active_ai;
+    if (!caretaker_outcome?.target) return;
 
-      if (target_entity && caretaker_outcome.present_physical) {
-        target_entity.present = target_entity.present || { physical: "", non_physical: "" };
-        target_entity.present.physical = apply_bracket_deltas(
-          typeof target_entity.present.physical === "string" ? target_entity.present.physical : "",
-          caretaker_outcome.present_physical,
-        );
-        const entity_type = target_key === "FRACTAL" ? "fractal" : "character";
-        await runtime.save_entity(entity_type, target_entity);
-      }
+    const target_key = caretaker_outcome.target.toUpperCase();
+    const target_entity = target_key === "USER" ? runtime.active_user : target_key === "FRACTAL" ? runtime.active_fractal : runtime.active_ai;
+
+    if (!target_entity) return;
+
+    let has_changes = false;
+
+    // 1. Present physical
+    if (caretaker_outcome.present_physical) {
+      target_entity.present = target_entity.present || { physical: "", non_physical: "" };
+      const current_phys = typeof target_entity.present.physical === "string" ? target_entity.present.physical : "";
+      target_entity.present.physical = apply_bracket_deltas(current_phys, caretaker_outcome.present_physical);
+      has_changes = true;
+    }
+
+    // 2. Present non-physical
+    if (caretaker_outcome.present_non_physical) {
+      target_entity.present = target_entity.present || { physical: "", non_physical: "" };
+      const current_non = typeof target_entity.present.non_physical === "string" ? target_entity.present.non_physical : "";
+      target_entity.present.non_physical = apply_bracket_deltas(current_non, caretaker_outcome.present_non_physical);
+      has_changes = true;
+    }
+
+    // 3. Future (standing agenda)
+    if (caretaker_outcome.future_text) {
+      const current_future = typeof target_entity.future === "string" ? target_entity.future : "";
+      target_entity.future = apply_bracket_deltas(current_future, caretaker_outcome.future_text);
+      has_changes = true;
+    }
+
+    // 4. Past (semantic memories)
+    if (caretaker_outcome.past_text) {
+      const current_past = typeof target_entity.past === "string" ? target_entity.past : "";
+      target_entity.past = apply_bracket_deltas(current_past, caretaker_outcome.past_text);
+      has_changes = true;
+    }
+
+    if (has_changes) {
+      const entity_type = target_key === "FRACTAL" ? "fractal" : "character";
+      await runtime.save_entity(entity_type, target_entity);
     }
   } catch (caretaker_err) {
-    // Caretaker background failure must never block or crash user turns
     console.warn("[Bridge] Caretaker write-back non-fatal warning:", caretaker_err);
   }
 }
