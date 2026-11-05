@@ -9,26 +9,34 @@
  * - Adapts active legacy entities (AI, User, Fractal) into 4-quadrant format
  * - Directs streaming tokens into the reactive Svelte streaming_store
  * - Synchronizes generated assistant prose into IndexedDB and UI timeline
+ * - Writes back updated entity dynamics and Caretaker changes to state and persistence
+ * - Preserves complete multi-role history (user, model, fractal, system)
  * ============================================================================
  */
 
 import { Kernel } from "./kernel.svelte.js";
 import { create_transport } from "./transport.js";
+import { execute_turn_3_caretaker } from "./turns.js";
 import { normalize_entity } from "../storage/entities.js";
+import { apply_bracket_deltas } from "../storage/parser.js";
 import { session_driver } from "../data/index.js";
 import { state_bridge } from "../utils/index.js";
 
 /**
  * Creates a live browser streaming function backed by window.generateText
  * or mock fallback for dev/testing.
+ *
+ * Resolves Gap 1 (handles both string and function prompt parameters)
+ * Resolves Gap 2 (guards accumulator to prevent duplicate tokens if both onToken and onChunk fire)
  */
-function create_live_stream_fn() {
+export function create_live_stream_fn() {
   return async (prompt, options = {}) => {
     const ai_engine = typeof window !== "undefined" ? window.generateText || window.generate_text || window.pluginGenerateText : null;
 
     if (!ai_engine || typeof ai_engine !== "function") {
       // Dev mock response if running in Vite dev server without Perchance plugin
-      const mock_text = `*Nods thoughtfully.* The greenfield engine receives your message: "${prompt.slice(0, 30)}..."`;
+      const prompt_str = typeof prompt === "function" ? prompt() : String(prompt || "");
+      const mock_text = `*Nods thoughtfully.* The greenfield engine receives your message: "${prompt_str.slice(0, 30)}..."`;
       if (options.onChunk) {
         for (const char of mock_text) {
           options.onChunk(char);
@@ -41,8 +49,12 @@ function create_live_stream_fn() {
     return new Promise((resolve, reject) => {
       let accumulated = "";
 
-      const on_token = (chunk) => {
+      // Deduplication guard: track characters emitted to prevent double-counting if onToken & onChunk fire
+      let token_streamed = false;
+
+      const handle_chunk = (chunk) => {
         const piece = typeof chunk === "string" ? chunk : chunk?.textChunk || "";
+        if (!piece) return;
         accumulated += piece;
         if (options.onChunk) {
           options.onChunk(piece);
@@ -51,11 +63,19 @@ function create_live_stream_fn() {
 
       try {
         const generation = ai_engine({
-          instruction: () => prompt,
+          instruction: () => (typeof prompt === "function" ? prompt() : String(prompt || "")),
           stop_sequences: options.stopSequences || [],
           signal: options.signal,
-          onToken: on_token,
-          onChunk: on_token,
+          onToken: (chunk) => {
+            token_streamed = true;
+            handle_chunk(chunk);
+          },
+          onChunk: (chunk) => {
+            // Only handle if onToken is not actively processing to prevent double-counting
+            if (!token_streamed) {
+              handle_chunk(chunk);
+            }
+          },
         });
 
         if (options.signal && typeof generation?.stop === "function") {
@@ -63,7 +83,12 @@ function create_live_stream_fn() {
         }
 
         if (generation && typeof generation.then === "function") {
-          generation.then((res) => resolve(typeof res === "string" ? res : accumulated)).catch(reject);
+          generation
+            .then((res) => {
+              const text_out = typeof res === "string" ? res : res?.text || res?.generatedText || accumulated;
+              resolve(text_out);
+            })
+            .catch(reject);
         } else {
           resolve(accumulated);
         }
@@ -81,6 +106,135 @@ function create_live_stream_fn() {
 let _active_kernel = null;
 
 /**
+ * Reconstructs clean Kernel dialogue history from the UI / simulation log feed.
+ *
+ * Resolves Gap 5: Preserves user, model, fractal (environmental), and system roles
+ * along with origin attribution so scene context is never lost.
+ *
+ * @param {Array<object>} feed
+ * @param {object} cast
+ * @returns {Array<object>}
+ */
+export function reconstruct_history_from_feed(feed = [], cast = {}) {
+  if (!Array.isArray(feed)) return [];
+
+  const user_name = cast.user?.name || "USER";
+  const ai_name = cast.ai?.name || "AI";
+  const fractal_name = cast.fractal?.name || "WORLD";
+
+  return feed
+    .filter((entry) => entry && entry.text && typeof entry.text === "string" && entry.text.trim())
+    .map((entry) => {
+      let role;
+      let origin = entry.character_name || entry.origin || "";
+
+      if (entry.role === "user") {
+        role = "user";
+        origin = origin || user_name;
+      } else if (entry.role === "fractal") {
+        role = "fractal";
+        origin = origin || fractal_name;
+      } else if (entry.role === "system") {
+        role = "system";
+        origin = origin || "SYSTEM";
+      } else {
+        role = "model";
+        origin = origin || ai_name;
+      }
+
+      return {
+        role,
+        origin,
+        text: entry.text.trim(),
+        round: Number(entry.round || 1),
+      };
+    });
+}
+
+/**
+ * Writes back Kernel execution outcomes into active legacy stores and IndexedDB.
+ *
+ * Resolves Gap 4:
+ * 1. Synchronizes updated AI dynamics into runtime.active_ai and runtime.ai_physics.
+ * 2. Synchronizes updated Fractal dynamics into runtime.active_fractal and runtime.fractal_physics.
+ * 3. Advances runtime.round to match Kernel.round.
+ * 4. Persists the updated entities and story round into IndexedDB via runtime.save_entity and runtime.save.
+ * 5. Runs Turn 3 Caretaker background consolidation and records state diffs.
+ *
+ * @param {Kernel} kernel
+ * @param {object} outcome
+ * @param {object} live_transport
+ * @returns {Promise<void>}
+ */
+export async function write_back_kernel_state(kernel, outcome, live_transport) {
+  const runtime = state_bridge.runtime;
+  if (!runtime) return;
+
+  // 1. Write back AI dynamics
+  if (kernel.ai?.dynamics && runtime.active_ai) {
+    runtime.active_ai.dynamics = { ...kernel.ai.dynamics };
+    if (runtime.ai_physics) {
+      Object.assign(runtime.ai_physics, kernel.ai.dynamics);
+    }
+  }
+
+  // 2. Write back Fractal dynamics
+  if (kernel.fractal?.dynamics && runtime.active_fractal) {
+    runtime.active_fractal.dynamics = { ...kernel.fractal.dynamics };
+    if (runtime.fractal_physics) {
+      Object.assign(runtime.fractal_physics, kernel.fractal.dynamics);
+    }
+  }
+
+  // 3. Synchronize macro round counter
+  runtime.round = kernel.round;
+
+  // 4. Persist updated entities & story round into IndexedDB
+  const save_promises = [];
+  if (runtime.active_ai) {
+    save_promises.push(runtime.save_entity("character", runtime.active_ai));
+  }
+  if (runtime.active_fractal) {
+    save_promises.push(runtime.save_entity("fractal", runtime.active_fractal));
+  }
+  save_promises.push(runtime.save(runtime.round));
+
+  await Promise.allSettled(save_promises);
+
+  // 5. Turn 3: Caretaker background maintenance
+  try {
+    const caretaker_outcome = await execute_turn_3_caretaker({
+      transport: live_transport,
+      round: kernel.round,
+      entities: {
+        AI: kernel.ai,
+        USER: kernel.user,
+        FRACTAL: kernel.fractal,
+      },
+      history: kernel.history,
+    });
+
+    if (caretaker_outcome?.target) {
+      const target_key = caretaker_outcome.target.toUpperCase();
+      const target_entity = target_key === "USER" ? runtime.active_user : target_key === "FRACTAL" ? runtime.active_fractal : runtime.active_ai;
+
+      if (target_entity && caretaker_outcome.present_physical) {
+        target_entity.present = target_entity.present || { physical: "", non_physical: "" };
+        target_entity.present.physical = apply_bracket_deltas(
+          typeof target_entity.present.physical === "string" ? target_entity.present.physical : "",
+          caretaker_outcome.present_physical,
+        );
+        const entity_type = target_key === "FRACTAL" ? "fractal" : "character";
+        await runtime.save_entity(entity_type, target_entity);
+      }
+    }
+  } catch (caretaker_err) {
+    // Caretaker background failure must never block or crash user turns
+    console.warn("[Bridge] Caretaker write-back non-fatal warning:", caretaker_err);
+  }
+}
+
+/**
  * Executes a simulation turn via the greenfield Kernel.
  *
  * @param {string} user_input - The submitted user message text.
@@ -88,7 +242,7 @@ let _active_kernel = null;
  * @param {AbortSignal} [options.signal]
  * @returns {Promise<object>} Outcome containing character_turn, director_staging, etc.
  */
-export async function execute_greenfield_turn(user_input, options = {}) {
+export async function execute_greenfield_turn(user_input, _options = {}) {
   const runtime = state_bridge.runtime;
   const app = state_bridge.app;
 
@@ -103,24 +257,26 @@ export async function execute_greenfield_turn(user_input, options = {}) {
     max_concurrency: 1,
   });
 
+  // Resolves Gap 3: Read director_enabled dynamically from app settings rather than hardcoding true
+  const director_enabled = Boolean(app?.settings?.director_enabled);
+
   _active_kernel = new Kernel({
     user: user_quadrant,
     ai: ai_quadrant,
     fractal: fractal_quadrant,
     round: Number(runtime.round || 0),
     transport: live_transport,
-    director_enabled: true,
+    director_enabled,
   });
 
   // 3. Reconstruct history from existing simulation log
+  // Resolves Gap 5: Reconstruct multi-role history (user, model, fractal, system)
   const feed = state_bridge.simulation_log?.feed || [];
-  _active_kernel.history = feed
-    .filter((entry) => entry.text && (entry.role === "user" || entry.role === "ai" || entry.role === "model"))
-    .map((entry) => ({
-      role: entry.role === "user" ? "user" : "model",
-      text: entry.text,
-      round: entry.round || 1,
-    }));
+  _active_kernel.history = reconstruct_history_from_feed(feed, {
+    user: user_quadrant,
+    ai: ai_quadrant,
+    fractal: fractal_quadrant,
+  });
 
   // 4. Begin UI streaming indicator
   const message_node_id = `msg-${Date.now()}`;
@@ -147,6 +303,9 @@ export async function execute_greenfield_turn(user_input, options = {}) {
         },
       });
     }
+
+    // Resolves Gap 4: Write back updated dynamics, macro round, and caretaker deltas
+    await write_back_kernel_state(_active_kernel, outcome, live_transport);
 
     return outcome;
   } finally {

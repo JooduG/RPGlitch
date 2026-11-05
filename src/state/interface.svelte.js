@@ -29,7 +29,7 @@ import { flushSync } from "svelte";
 import { SvelteSet } from "svelte/reactivity";
 import { guarded_transition, resolve_px, stories_bridge } from "@utils";
 import { db, entities, normalize, stories } from "@data";
-import { Audio, get_signature_color, visual_engine } from "@media";
+import { get_signature_color, visual_engine } from "@media";
 import { embeddings_engine } from "@platform";
 import { runtime } from "./runtime.svelte.js";
 import { developer_log } from "./log.svelte.js";
