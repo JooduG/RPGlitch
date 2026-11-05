@@ -20,7 +20,7 @@
 
 import { format_clean_brackets } from "./parser.js";
 import { ENHANCER_DIRECTIVES } from "../storage/profile-fields.js";
-import { DYNAMICS_SCALE } from "../config.js";
+import { DYNAMICS_SCALE, TEMPO_ROUNDS } from "../config.js";
 
 /**
  * Co-located Purpose Core Definitions.
@@ -380,8 +380,13 @@ export function compile_prompt({ core = "character", round = 1, entities = {}, h
     .filter(Boolean)
     .map((text) => `    - ${text.trim()}`)
     .join("\n");
-  const round_count = history.length;
-  const rendered_recent = history
+
+  // Invariant-aligned sliding window: TEMPO_ROUNDS.STANDARD (8 rounds) defines the canonical
+  // working-memory transcript window to prevent prompt context bloat and middle-out truncation.
+  const capped_history = Array.isArray(history) && history.length > TEMPO_ROUNDS.STANDARD ? history.slice(-TEMPO_ROUNDS.STANDARD) : history || [];
+
+  const round_count = capped_history.length;
+  const rendered_recent = capped_history
     .map((h, idx) => {
       let recency_attr = "";
       if (round_count > 1) {

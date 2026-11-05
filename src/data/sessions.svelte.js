@@ -404,7 +404,12 @@ export const session_driver = {
    * @param {string|number|null} [options.story_id]
    * @returns {Promise<Record<string, any>>}
    */
-  async log_message(text, role, character_name, { turn_type = "USER_TURN", meta = {}, attachments = [], story_id = null, entity_id = null } = {}) {
+  async log_message(
+    text,
+    role,
+    character_name,
+    { turn_type = "USER_TURN", meta = {}, attachments = [], story_id = null, entity_id = null, round = null } = {},
+  ) {
     const effective_story_id = story_id ?? session_driver.require_active();
     const is_empty =
       typeof text === "string" && !text.trim() && (!attachments || attachments.length === 0) && !meta?.is_prologue && !meta?.is_epilogue;
@@ -420,7 +425,7 @@ export const session_driver = {
       character_name,
       entity_id: entity_id ?? resolve_log_entity_id(role, character_name),
       turn_type,
-      round: state_bridge.runtime?.round ?? 0,
+      round: round != null ? round : (state_bridge.runtime?.round ?? 0),
       meta: $state.snapshot(meta),
       created_at: Date.now(),
     };

@@ -154,7 +154,7 @@ export async function dispatch_visual_generation(payload, options = {}) {
       result = await result;
     }
 
-    const image_url = typeof result === "string" ? result : result?.url || result?.imageUrl || result?.image_url;
+    const image_url = typeof result === "string" ? result : result?.dataUrl || result?.url || result?.imageUrl || result?.image_url || result?.image;
     if (!image_url) {
       throw new Error("EMPTY_IMAGE_RESPONSE: Engine returned no image URL");
     }
@@ -367,6 +367,30 @@ export class VisualEngine {
       refined_prompt: prompt,
       metadata: dispatched.metadata,
     };
+  }
+
+  async generate_candidates(prompt, options = {}) {
+    const count = options.count ?? 3;
+    const base_options = {
+      mode: options.mode || "character",
+      negative_prompt: options.negative_prompt,
+      resolution: options.resolution,
+      guidance_scale: options.guidance_scale,
+    };
+
+    const attempts = [];
+    for (let index = 0; index < count; index++) {
+      attempts.push(
+        this.generate(prompt, { ...base_options })
+          .then((payload) => {
+            if (payload?.image_url) return { index, url: payload.image_url, metadata: payload.metadata || {} };
+            return null;
+          })
+          .catch(() => null),
+      );
+    }
+    const settled = await Promise.all(attempts);
+    return settled.filter(Boolean);
   }
 }
 

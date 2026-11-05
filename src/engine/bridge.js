@@ -349,6 +349,7 @@ export async function execute_greenfield_turn(user_input, _options = {}) {
     if (prose && runtime.story_id) {
       await session_driver.log_message(prose, "ai", ai_quadrant.name || "AI", {
         turn_type: "AI_TURN",
+        round: _active_kernel.round,
         meta: {
           think,
           director_staging: outcome.director_staging,
