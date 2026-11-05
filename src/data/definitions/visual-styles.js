@@ -40,9 +40,7 @@ import { resolve_style } from "@utils";
  * @property {string[]} keywords - Visual descriptor keywords injected into generation
  * @property {VisualStyleEngine} [engine] - Structured prompt component tokens
  * @property {string} negative_prompt - Style-differentiating negative prompt
- * @property {boolean} [llm_refine] - When false, story tiers using this style skip LLM
- *   prompt refinement and use deterministic flattening (for raw/unmodified styles).
- *   Defaults to true when absent.
+ * @property {boolean} llm_refine - Always true: LLM prompt refinement is standard and mandatory across all styles
  * @property {number} [guidance_scale] - Optional per-style guidance scale nudge
  *   (higher = tighter prompt adherence). Tiers are authoritative: the value is
  *   clamped to within ±2 of the tier baseline (character 9 / scene 7).
@@ -64,7 +62,6 @@ import { resolve_style } from "@utils";
  * @param {string[]} definition.keywords - Style tags
  * @param {VisualStyleEngine} [definition.engine] - Declarative prompt components
  * @param {string} [definition.negative_prompt] - Style-specific negative exclusions
- * @param {boolean} [definition.llm_refine] - Whether LLM prompt refinement is allowed
  * @param {number} [definition.guidance_scale] - Optional guidance scale recommendation
  * @returns {VisualStyle}
  */
@@ -75,7 +72,7 @@ function define_visual_style(definition) {
     portrait: definition.portrait || "",
     description: definition.description,
     keywords: definition.keywords,
-    llm_refine: definition.llm_refine ?? true,
+    llm_refine: true,
     ...(definition.guidance_scale !== undefined ? { guidance_scale: definition.guidance_scale } : {}),
     engine: definition.engine,
     negative_prompt: definition.negative_prompt || "",
@@ -94,7 +91,6 @@ const _VISUAL_STYLES = {
     portrait: "https://user.uploads.dev/file/f968b744a4afde6ab81c0e751dc5e972.png",
     description: "Raw prompt generation without visual style engine tokens, enforcing baseline quality guards.",
     keywords: ["none", "raw", "unmodified"],
-    llm_refine: false,
     negative_prompt: "blurry, low resolution, compressed artifacts, watermark, bad anatomy, distorted features",
   }),
 
@@ -108,7 +104,6 @@ const _VISUAL_STYLES = {
     portrait: "https://user.uploads.dev/file/f3cf9efe77281754064a6629e354d799.png",
     description: "Authentic candid photograph capturing natural everyday lighting, unposed perspectives, and realistic skin micro-textures.",
     keywords: ["photography", "realistic", "candid", "raw", "lifelike", "natural", "snapshot"],
-    llm_refine: false,
     guidance_scale: 9,
     engine: {
       medium: "photorealistic live-action candid photograph, authentic real-life snapshot, unposed documentary capture",
