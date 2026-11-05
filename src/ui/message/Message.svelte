@@ -9,6 +9,7 @@
   import { parse_message } from "./render.js";
   import { resolve_speaking_style } from "@utils";
   import { Audio, get_cadence_rate, resolve_voice_uri, get_signature_color } from "@media";
+  import { render_optics_fallback } from "@intelligence";
   import { ProfilePicture } from "@image";
   import ContextMenu from "../entity/ContextMenu.svelte";
   import { claim_menu } from "../entity/ContextMenu.svelte.js";
@@ -251,12 +252,16 @@
         label: "Generate NPC Picture",
         onSelect: () => {
           if (app.take_photo_handler) {
-            app.take_photo_handler(
-              "npc",
-              `A cinematic shot of ${entity.name || "the NPC"} situated within the active setting`,
-              "story_character",
-              entity,
-            );
+            const active_fractal = runtime.active_fractal || app.selected_fractal;
+            const raw_fallback = render_optics_fallback({
+              tier: "story_character",
+              subject: "ai",
+              ai: entity,
+              fractal: active_fractal,
+            });
+            const photo_prompt = raw_fallback.replace(/<\/?image_prompt>/g, "").trim();
+
+            app.take_photo_handler("npc", photo_prompt, "story_character", entity);
           }
         },
       });

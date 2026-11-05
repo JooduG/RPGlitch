@@ -53,6 +53,7 @@ flowchart TD
       - Aligned `log_message` in `src/data/sessions.svelte.js` and `src/engine/bridge.js` to stamp the assistant turn with `_active_kernel.round` directly.
       - Implemented a canonical working-memory sliding window in `src/engine/prompts.js` capped at `TEMPO_ROUNDS.STANDARD` (8 rounds) to prevent context cliff host truncation.
       - Restored `generate_candidates` facade on `VisualEngine` in `src/media/visual.js` for safe multi-candidate rendering.
+      - Replaced hardcoded photo generation prompts in `src/App.svelte` and `src/ui/message/Message.svelte` with `render_optics_fallback` from `@intelligence`, generating prompt-ready aesthetic descriptors with entity traits situated inside the active fractal setting.
     - Added interactive `GREENFIELD` toggle in `src/ui/console/DevControls.svelte` next to `DEVMODE` for live one-click switching between legacy gamemaster and greenfield kernel.
     - Fixed voice loading guard in `src/ui/profile/AudioWing.svelte` and removed unreferenced `meta?.type` bug in `src/ui/Storymode.svelte`.
     - Resolved 4 greenfield edge cases: round double-increment on greenfield turn advancement in `src/state/chrono.svelte.js`, fractal/system history origin attribution fallback in `src/engine/prompts.js`, orphan retry greenfield branching in `src/state/chrono.svelte.js`, user dynamics rollback in `src/engine/kernel.svelte.js`, and explicit logging on malformed Turn 1 Director fallback in `src/engine/turns.js`.

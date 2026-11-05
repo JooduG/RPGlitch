@@ -19,6 +19,7 @@
   import { session_driver } from "@data";
   import { llm_service } from "@platform";
   import { Audio, visual_engine } from "@media";
+  import { render_optics_fallback } from "@intelligence";
 
   // --- DERIVED RUNES ---
 
@@ -265,12 +266,16 @@
     const entity = entity_map[type];
 
     const photo_label = type === "ai" ? "Generate AI Character Image" : type === "user" ? "Generate User Persona Image" : "Generate Fractal Image";
-    const photo_prompt =
-      type === "ai"
-        ? "A cinematic shot of the AI character situated within the active setting"
-        : type === "user"
-          ? "A cinematic shot of the user persona situated within the active setting"
-          : "An environmental shot of the current setting";
+    const tier = type === "fractal" ? "story_scene" : "story_character";
+    const raw_fallback = render_optics_fallback({
+      tier,
+      subject: type,
+      ai: entity_map.ai,
+      user: entity_map.user,
+      fractal: entity_map.fractal,
+    });
+    // Strip XML <image_prompt>...</image_prompt> wrapper for raw diffusion prompt payload
+    const photo_prompt = raw_fallback.replace(/<\/?image_prompt>/g, "").trim();
 
     const items = [{ label: "Profile", onSelect: () => app.toggle_profile(true, entity), disabled: !entity }];
 
