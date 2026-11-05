@@ -192,7 +192,9 @@ export class ChronoEngine {
 
     // 2. SYNTHESIS: Generate Narrative
     if (!options.is_retry && !options.is_continue) {
-      state_bridge.runtime.round = previous_round + 1;
+      if (!state_bridge.app?.settings?.use_greenfield_engine) {
+        state_bridge.runtime.round = previous_round + 1;
+      }
     }
     state_bridge.app.log(`LLM synthesizing turn ${state_bridge.runtime.round}...`, "ai");
     const controller = new AbortController();
@@ -289,10 +291,14 @@ export class ChronoEngine {
                   if (!has_reply_after) {
                     state_bridge.app.log("Detected orphaned turn — retrying generation once...", "warn");
                     state_bridge.simulation_state.start_generation(options.role || "ai");
-                    await gamemaster.execute_turn(story_id, {
-                      input: final_input,
-                      signal: controller.signal,
-                    });
+                    if (state_bridge.app?.settings?.use_greenfield_engine) {
+                      await execute_greenfield_turn(final_input, { signal: controller.signal });
+                    } else {
+                      await gamemaster.execute_turn(story_id, {
+                        input: final_input,
+                        signal: controller.signal,
+                      });
+                    }
                     retry_landed = true;
                     state_bridge.app.log("Orphaned turn recovered.", "system");
                   }

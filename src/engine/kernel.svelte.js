@@ -56,6 +56,7 @@ export class Kernel {
     const previous_history_length = this.history.length;
     const previous_ai_dynamics = this.ai?.dynamics ? { ...this.ai.dynamics } : null;
     const previous_fractal_dynamics = this.fractal?.dynamics ? { ...this.fractal.dynamics } : null;
+    const previous_user_dynamics = this.user?.dynamics ? { ...this.user.dynamics } : null;
     this.round += 1;
 
     // Append user turn to history
@@ -124,6 +125,9 @@ export class Kernel {
       }
       if (previous_fractal_dynamics && this.fractal?.dynamics) {
         Object.assign(this.fractal.dynamics, previous_fractal_dynamics);
+      }
+      if (previous_user_dynamics && this.user?.dynamics) {
+        Object.assign(this.user.dynamics, previous_user_dynamics);
       }
       this.error = err.message || String(err);
       dev_log.record("ERROR", { message: this.error, round: this.round });

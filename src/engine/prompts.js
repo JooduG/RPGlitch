@@ -390,7 +390,15 @@ export function compile_prompt({ core = "character", round = 1, entities = {}, h
       } else if (round_count === 1) {
         recency_attr = ' recency="newest"';
       }
-      const origin = h.origin || (h.role === "user" ? user?.name || "USER" : ai?.name || "AI");
+      const origin =
+        h.origin ||
+        (h.role === "user"
+          ? user?.name || "USER"
+          : h.role === "fractal"
+            ? fractal?.name || "WORLD"
+            : h.role === "system"
+              ? "SYSTEM"
+              : ai?.name || "AI");
       const round_number = h.round !== undefined ? h.round : idx + 1;
       return `    <ROUND number="${round_number}" origin="${origin}"${recency_attr}>${h.text}</ROUND>`;
     })

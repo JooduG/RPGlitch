@@ -117,8 +117,9 @@ export async function execute_turn_1_director({ transport, round = 1, entities =
         camera_note: typeof parsed?.camera_note === "string" ? parsed.camera_note : "",
       };
     }
-  } catch (_err) {
+  } catch (err) {
     // Fallback default staging if JSON malformed
+    console.warn("[Turns] Malformed Turn 1 Director JSON, falling back to default staging:", err);
   }
 
   return {
