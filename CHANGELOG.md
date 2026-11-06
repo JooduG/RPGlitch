@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Sessionless Simulation Log No-Op Guard (`src/data/sessions.svelte.js`)**:
+  - Guarded `session_driver.log_message()` and `session_driver.log_system_entry()` against unhandled errors when `effective_story_id` cannot be resolved via `session_driver.require_active()`.
+  - When background jobs (e.g. image beat, caretaker, telemetry) write while a story is wiped or ended without an active story session, `log_message` returns a no-op skip sentinel and `log_system_entry` safely returns instead of throwing an unhandled rejection.
+
 - **Story Beat Visual Style & Staging Composition (`src/media/visual.js`, `src/media/index.js`, `src/media/visual.test.js`)**:
   - Implemented `resolve_story_beat_style()` with documented precedence: explicit option > app-level choice (`app.settings.visual_style`) > active fractal visual style > caller-asserted subject entity > "none".
   - Implemented `compose_story_beat_prompt()` to weave base prompt, director visual staging, and style engine tokens together with style negative prompts and quality floor filters, ensuring story scenes and background beats are stylized cohesively.

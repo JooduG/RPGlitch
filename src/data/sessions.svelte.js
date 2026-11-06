@@ -423,7 +423,18 @@ export const session_driver = {
     character_name,
     { turn_type = "USER_TURN", meta = {}, attachments = [], story_id = null, entity_id = null, round = null } = {},
   ) {
-    const effective_story_id = story_id ?? session_driver.require_active();
+    let effective_story_id = story_id ?? null;
+    if (effective_story_id == null) {
+      try {
+        effective_story_id = session_driver.require_active();
+      } catch {
+        // Sessionless write (story wiped/ended while a fire-and-forget
+        // background job — image beat, caretaker, telemetry — was in flight):
+        // degrade to a no-op sentinel instead of throwing an unhandled
+        // rejection at the user. Foreground flows should check active_id first.
+        return { id: meta?.id || `skip-${Date.now()}`, story_id: null, role, text: "", character_name, turn_type, meta };
+      }
+    }
     const is_telemetry_meta =
       meta?.type === "DYNAMICS_DELTA" ||
       meta?.type === "STORY_START" ||
@@ -490,7 +501,16 @@ export const session_driver = {
    * @returns {Promise<void>}
    */
   async log_system_entry(text, role = "system", meta = {}, story_id = null, round = null) {
-    const effective_story_id = story_id ?? session_driver.require_active();
+    let effective_story_id = story_id ?? null;
+    if (effective_story_id == null) {
+      try {
+        effective_story_id = session_driver.require_active();
+      } catch {
+        // Same sessionless-write guard as log_message: background telemetry
+        // racing a story wipe/end must no-op, not crash.
+        return;
+      }
+    }
     const entry = {
       story_id: effective_story_id,
       role,
