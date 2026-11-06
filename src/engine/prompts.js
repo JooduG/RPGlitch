@@ -131,6 +131,10 @@ export const PURPOSE_CORES = Object.freeze({
         ? "Maintain first-person limited perspective ('I', 'me', 'my') anchored strictly to your own sensory experience. Never speak, script, or dictate actions for the counterpart."
         : "Maintain third-person limited perspective anchored strictly to your own identity. Never speak, script, or dictate actions for the counterpart.";
 
+      const continuation_directive = context?.is_continuation
+        ? "\n    - **Continuation Directive**: The scene has been prefilled up to the current moment. Advance the scene further with the next immediate action, visceral sensation, or dialogue beat. Never stop prematurely or repeat prior text."
+        : "";
+
       return `  <TASK>
     ### Think Format
     1. **Intent & Atmosphere**: Immediate sensory and physical demand.
@@ -143,7 +147,7 @@ export const PURPOSE_CORES = Object.freeze({
     ### Pacing & Posture
     - **Tense & Rhythm**: Write in present tense.
     - **Pacing Budget**: ${tempo} beat(s). Deliver crisp, grounded interaction calibrated to this tempo.
-    - ${perspective_rule}
+    - ${perspective_rule}${continuation_directive}
 
     > [!IMPORTANT]
     > Emit in-character narrative prose.

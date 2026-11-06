@@ -106,7 +106,7 @@ describe("src/engine/kernel.svelte.js — Sovereign Simulation Kernel", () => {
       target_history_index: 1,
     });
 
-    expect(captured_start_with).toBe("<think>Feel gentle</think>\nShe looks over");
+    expect(captured_start_with).toBe("<think>Feel gentle</think>\nShe looks over ");
     expect(outcome.prose).toBe("She looks over and smiles softly.");
     expect(outcome.continuation_prose).toBe("and smiles softly.");
     expect(kernel.history[1].text).toBe("She looks over and smiles softly.");

@@ -292,7 +292,8 @@ export async function execute_turn_2_continue({
   onChunk = null,
   signal = null,
 }) {
-  const turn_tempo = calculate_turn_tempo(history);
+  // Continuations allow dynamic storytelling; assign a healthy 3-beat budget and flag is_continuation
+  const turn_tempo = 3;
 
   const prompt = compile_prompt({
     core: "character",
@@ -300,17 +301,24 @@ export async function execute_turn_2_continue({
     entities,
     history,
     memories,
-    task_options: { turn_tempo },
+    task_options: { turn_tempo, is_continuation: true },
   });
 
   const clean_prose = typeof target_prose === "string" ? target_prose.trim() : "";
   const clean_think = typeof target_think === "string" ? target_think.trim() : "";
 
+  // Prepare start_with. If target_prose ends with terminal punctuation or quotes,
+  // append a space so the model does not perceive the sequence as closed.
+  let prose_lead = clean_prose;
+  if (prose_lead && !prose_lead.endsWith(" ") && !prose_lead.endsWith("\n")) {
+    prose_lead = `${prose_lead} `;
+  }
+
   let start_with = "<think>";
   if (clean_think) {
-    start_with = `<think>${clean_think}</think>\n${clean_prose}`;
+    start_with = `<think>${clean_think}</think>\n${prose_lead}`;
   } else if (clean_prose) {
-    start_with = clean_prose;
+    start_with = prose_lead;
   }
 
   let raw = await transport.stream(prompt, { onChunk, startWith: start_with, signal });
