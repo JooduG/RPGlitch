@@ -128,8 +128,11 @@ export function compose_story_beat_prompt(prompt_text, style_key, base_negative 
     ]
       .filter(Boolean)
       .join(", ");
+    // Style tokens lead: image models weight early tokens most, and story
+    // prose is saturated with color words that would otherwise drown a style
+    // coda. The medium dedupe still guards against double-injection.
     if (tokens && (!medium || !prompt.toLowerCase().includes(medium.toLowerCase()))) {
-      prompt = prompt ? `${prompt}, ${tokens}` : tokens;
+      prompt = prompt ? `${tokens}, ${prompt}` : tokens;
     }
     if (style_def.negative_prompt) negatives.push(style_def.negative_prompt);
   }

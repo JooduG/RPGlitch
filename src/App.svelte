@@ -93,13 +93,23 @@
 
       target_mode = kind || (subject === "fractal" ? "story_scene" : "story_character");
 
-      // Refine the prompt via the visualizer purpose core, falling back to original prompt on failure
+      // Refine the prompt via the visualizer purpose core, falling back to original prompt on failure.
+      // Story coherence: with no app camera set, the story-level override
+      // (carried on the active fractal) governs enhance too — otherwise the
+      // subject entity's own style gets painted into the prompt head and
+      // fights the story style at generate time.
       let refined_prompt = prompt;
+      let enhanced_negative = "";
       try {
-        const app_style = app.settings?.visual_style || null;
+        const configured_style = app.settings?.visual_style;
+        const story_style = runtime.active_fractal?.visual_style;
+        const app_style = configured_style && configured_style !== "none" && configured_style !== "default" ? configured_style : story_style || null;
         const enhanced = await visual_engine.enhance(prompt, subject, entity, app_style);
         if (enhanced?.prompt) {
           refined_prompt = enhanced.prompt;
+        }
+        if (enhanced?.negative_prompt) {
+          enhanced_negative = enhanced.negative_prompt;
         }
       } catch (enhance_err) {
         console.warn("[take_photo] Enhancement failed, falling back to draft prompt:", enhance_err);
@@ -111,7 +121,11 @@
         attachments: [{ src: null, metadata: { mode: target_mode, prompt: refined_prompt } }],
       });
 
-      const result = await visual_engine.visualize(runtime.story_id, refined_prompt, kind, { subject, entity });
+      const result = await visual_engine.visualize(runtime.story_id, refined_prompt, kind, {
+        subject,
+        entity,
+        negative_prompt: enhanced_negative,
+      });
 
       if (result?.imageUrl && placeholder_entry?.id) {
         await session_driver.update_log_attachment(placeholder_entry.id, 0, {
