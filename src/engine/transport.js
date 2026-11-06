@@ -60,6 +60,24 @@ export function create_transport({ stream_fn = null, max_concurrency = 1 } = {})
 
       // Extract resolved text string (handles Perchance String object with .text)
       const raw_resolved = typeof result === "string" ? result : result?.text || accumulated;
+      // DIAGNOSTIC (resolve-divergence, removable): log which result field won and their lengths.
+      try {
+        if (typeof result !== "string" && result != null) {
+          const picked = result?.text != null ? "text" : "accumulated";
+          console.log(
+            "[resolve-divergence] engine transport picked=" +
+              picked +
+              " " +
+              JSON.stringify({
+                text: typeof result?.text === "string" ? result.text.length : null,
+                generatedText: typeof result?.generatedText === "string" ? result.generatedText.length : null,
+                accumulated: accumulated.length,
+              }),
+          );
+        }
+      } catch {
+        /* diagnostic must never throw */
+      }
 
       resolve(raw_resolved);
     } catch (err) {

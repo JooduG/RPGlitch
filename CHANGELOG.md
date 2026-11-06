@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Resolve Divergence Diagnostic Probes (`src/engine/bridge.js`, `src/engine/transport.js`, `src/platform/transport.js`)**:
+  - Added temporary non-throwing diagnostic logging (`[resolve-divergence]`) at stream resolution sites across bridge, engine transport, and platform transport to trace winning result fields, token lengths, abort state, and stop reasons for cut-off investigation.
+
 - **Sessionless Simulation Log No-Op Guard (`src/data/sessions.svelte.js`)**:
   - Guarded `session_driver.log_message()` and `session_driver.log_system_entry()` against unhandled errors when `effective_story_id` cannot be resolved via `session_driver.require_active()`.
   - When background jobs (e.g. image beat, caretaker, telemetry) write while a story is wiped or ended without an active story session, `log_message` returns a no-op skip sentinel and `log_system_entry` safely returns instead of throwing an unhandled rejection.
