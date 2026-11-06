@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Story Beat Visual Style & Staging Composition (`src/media/visual.js`, `src/media/index.js`, `src/media/visual.test.js`)**:
+  - Implemented `resolve_story_beat_style()` with documented precedence: explicit option > app-level choice (`app.settings.visual_style`) > active fractal visual style > caller-asserted subject entity > "none".
+  - Implemented `compose_story_beat_prompt()` to weave base prompt, director visual staging, and style engine tokens together with style negative prompts and quality floor filters, ensuring story scenes and background beats are stylized cohesively.
+  - Updated `VisualEngine.visualize()` and background image queue fallback to compose prompt staging and style tokens across all story beats, prologue/finale scenes, and manual photo generations.
+  - Enhanced `sanitize_visual_text()` to clean comma/period punctuation artifacts (`,\s*\.` and `\.\s*,`).
+  - Exported `resolve_story_beat_style` and `compose_story_beat_prompt` from `@media`.
+
 - **Universal Comma-Separated Bracket Serialization & Prompt Instruction (`src/storage/parser.js`, `src/storage/entities.js`, `src/intelligence/modules/output.js`, `src/ui/profile/RelationalGraph.svelte`, `src/storage/README.md`)**:
   - **Single Source of Truth Formatting (`src/storage/parser.js`)**: Updated `format_clean_brackets` and `apply_bracket_deltas` to serialize bracket lists using comma separation (`kept.join(", ")` and `current_entries.map(...).join(", ")`), fully replacing the legacy newline separation.
   - **Memory & Quadrant Normalization (`src/storage/entities.js`)**: Updated `normalize_past_to_brackets` to join legacy memory items using `,` (`lines.join(", ")`), aligning normalized database records with the comma-separated standard.

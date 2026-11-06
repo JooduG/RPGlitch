@@ -14,6 +14,8 @@ import {
   reset_generation_in_flight,
   reset_image_generation_queue,
   visual_engine,
+  resolve_story_beat_style,
+  compose_story_beat_prompt,
 } from "./visual.js";
 import { llm_service } from "@platform";
 
@@ -230,6 +232,19 @@ Line 3 of thoughts",
       expect(scene_result.resolution).toBe("768x512");
 
       spy.mockRestore();
+    });
+
+    it("composes story beat prompt with visual staging and style tokens", () => {
+      const composed = compose_story_beat_prompt("A knight in an alleyway", "cyberpunk", "blurry");
+      expect(composed.prompt).toContain("A knight in an alleyway");
+      expect(composed.prompt).toContain("neon");
+      expect(composed.negative_prompt).toContain("blurry");
+    });
+
+    it("resolves story beat visual style with proper precedence", () => {
+      expect(resolve_story_beat_style({ style: "noir" })).toBe("noir");
+      expect(resolve_story_beat_style({ entity: { visual_style: "manga" } })).toBe("manga");
+      expect(resolve_story_beat_style({})).toBe("none");
     });
   });
 });

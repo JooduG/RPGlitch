@@ -79,7 +79,66 @@ export function rescue_visual_prose(text) {
  * otherwise be parsed as template syntax and throw).
  */
 export function sanitize_visual_text(text) {
-  return rescue_visual_prose(text).replace(/[{}[\]]/g, "");
+  return rescue_visual_prose(text)
+    .replace(/[{}[\]]/g, "")
+    .replace(/,\s*\./g, ",")
+    .replace(/\.\s*,/g, ",");
+}
+
+/**
+ * Resolves the visual style key governing a story image beat.
+ * Precedence mirrors enhance(): explicit option > app-level choice >
+ * active fractal (which carries the story-level override, else its own) >
+ * caller-asserted subject entity > "none".
+ * NOTE: entity flavor is deliberately last — story-level coherence wins for
+ * beats (a story-wide monochrome stays monochrome); per-entity styles still
+ * govern profile pictures via enhance().
+ */
+export function resolve_story_beat_style(options = {}) {
+  const explicit = options.style || options.app_style;
+  if (explicit && explicit !== "none" && explicit !== "default") return explicit;
+  const app_choice = state_bridge.app?.settings?.visual_style;
+  if (app_choice && app_choice !== "none" && app_choice !== "default") return app_choice;
+  const fractal_style = state_bridge.runtime?.active_fractal?.visual_style;
+  if (fractal_style && fractal_style !== "none" && fractal_style !== "default") return fractal_style;
+  const entity_style = options.entity?.visual_style;
+  if (entity_style && entity_style !== "none" && entity_style !== "default") return entity_style;
+  return "none";
+}
+
+/**
+ * Composes the final story-beat image prompt: prose + staging directive +
+ * style engine tokens, with the style negative over the baseline floor.
+ * Story beats never inherit the solo-portrait "empty background" guard —
+ * characters belong in scenes here.
+ */
+export function compose_story_beat_prompt(prompt_text, style_key, base_negative = "") {
+  const style_def = get_visual_style(style_key);
+  let prompt = String(prompt_text || "").trim();
+  const negatives = [];
+  if (String(base_negative || "").trim()) negatives.push(String(base_negative).trim());
+  if (style_def && style_key !== "none") {
+    const medium = style_def.engine?.medium || "";
+    const tokens = [
+      style_def.engine?.medium,
+      style_def.engine?.palette,
+      style_def.engine?.camera,
+      style_def.engine?.composition,
+      style_def.engine?.texture,
+    ]
+      .filter(Boolean)
+      .join(", ");
+    if (tokens && (!medium || !prompt.toLowerCase().includes(medium.toLowerCase()))) {
+      prompt = prompt ? `${prompt}, ${tokens}` : tokens;
+    }
+    if (style_def.negative_prompt) negatives.push(style_def.negative_prompt);
+  }
+  const floor = get_visual_style("none")?.negative_prompt;
+  if (floor) negatives.push(floor);
+  return {
+    prompt: sanitize_visual_text(prompt),
+    negative_prompt: sanitize_visual_text(negatives.filter(Boolean).join(", ")),
+  };
 }
 
 // ============================================================================
@@ -437,12 +496,18 @@ export class VisualEngine {
   }
 
   async visualize(story_id, text, tier, options = {}) {
-    const prompt = typeof text === "string" ? text : options.prompt || "Narrative scene";
+    const base_prompt = typeof text === "string" ? text : options.prompt || "Narrative scene";
     const tier_resolution = get_resolution_string(tier);
+    // Story beats previously dispatched raw model prose with no style tokens
+    // and no negative — and dropped visual_staging entirely. Compose everything
+    // here so all callers (beats, prologue/finale scenes, manual photos) are covered.
+    const staged = [base_prompt, options.visual_staging].filter((part) => part && String(part).trim()).join(" ");
+    const style_key = resolve_story_beat_style(options);
+    const composed = compose_story_beat_prompt(staged, style_key, options.negative_prompt || "");
     const dispatched = await dispatch_visual_generation(
       {
-        prompt,
-        negative_prompt: options.negative_prompt,
+        prompt: composed.prompt,
+        negative_prompt: composed.negative_prompt,
         resolution: options.resolution || tier_resolution,
         guidance_scale: options.guidance_scale,
         seed: options.seed,
@@ -453,9 +518,9 @@ export class VisualEngine {
       imageUrl: dispatched.image_url,
       image_url: dispatched.image_url,
       seed: dispatched.seed,
-      refinedPrompt: prompt,
-      refined_prompt: prompt,
-      metadata: dispatched.metadata,
+      refinedPrompt: composed.prompt,
+      refined_prompt: composed.prompt,
+      metadata: { ...dispatched.metadata, style_key },
     };
   }
 
@@ -737,11 +802,20 @@ export async function spawn_image_beat(tier, options = {}) {
             new Promise((_, reject) => setTimeout(() => reject(new Error("IMAGE_RESOLVE_TIMEOUT")), IMAGE_RESOLVE_TIMEOUT_MS)),
           ]);
         } else {
+          const fallback_style = resolve_story_beat_style({});
+          const fallback_composed = compose_story_beat_prompt(
+            [visual_prompt, visual_staging].filter((part) => part && String(part).trim()).join(" "),
+            fallback_style,
+          );
           const dispatched = await Promise.race([
-            dispatch_visual_generation({ prompt: visual_prompt }),
+            dispatch_visual_generation({ prompt: fallback_composed.prompt, negative_prompt: fallback_composed.negative_prompt }),
             new Promise((_, reject) => setTimeout(() => reject(new Error("IMAGE_RESOLVE_TIMEOUT")), IMAGE_RESOLVE_TIMEOUT_MS)),
           ]);
-          result = { imageUrl: dispatched.image_url, metadata: dispatched.metadata, refinedPrompt: visual_prompt };
+          result = {
+            imageUrl: dispatched.image_url,
+            metadata: { ...dispatched.metadata, style_key: fallback_style },
+            refinedPrompt: fallback_composed.prompt,
+          };
         }
 
         _remove_from_image_generation_queue(placeholder_entry.id);

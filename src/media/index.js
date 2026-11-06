@@ -81,6 +81,8 @@ export {
   visual_engine,
   rescue_visual_prose,
   sanitize_visual_text,
+  resolve_story_beat_style,
+  compose_story_beat_prompt,
   IMAGE_GENERATION_QUEUE_CAPACITY,
   IMAGE_PLACEHOLDER_HARD_CAP,
   IMAGE_RESOLVE_TIMEOUT_MS,

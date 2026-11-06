@@ -51,6 +51,7 @@ flowchart TD
     - Wired visualizer `camera_note` and aesthetic style cues through `PURPOSE_CORES.visualizer.start_with` and `task_block` to `VisualEngine.enhance()` (`src/media/visual.js`, `src/engine/prompts.js`).
     - Hardened visualizer prefill stripping and fallback guards against internal thought markers, and made profile picture resolutions deterministic via tier tables (`src/media/visual.js`, `src/media/optics.js`, `src/ui/profile/VisualWing.svelte`, `src/ui/profile/VisualWing.test.js`, `src/engine/prompts.js`).
     - Standardized comma-separated bracket formatting (`[KEY1: val1], [KEY2: val2]`) across prompt directives (`src/engine/prompts.js`, `src/intelligence/modules/output.js`), parser serialization (`format_clean_brackets`, `apply_bracket_deltas`), normalization (`src/storage/entities.js`), UI inspection (`RelationalGraph.svelte`), and premade archetype definitions (`src/data/definitions/premade-entities.js`, `src/storage/presets.js`).
+    - Unified story beat style resolution and prompt composition in `src/media/visual.js` (`resolve_story_beat_style`, `compose_story_beat_prompt`), threading active fractal/app style tokens into background image beats.
     - Resolved post-live-test scaling and sensory gaps:
       - Fixed diffusion output parsing in `src/media/visual.js` to extract `dataUrl` and `image` payloads from host plugins.
       - Aligned `log_message` in `src/data/sessions.svelte.js` and `src/engine/bridge.js` to stamp the assistant turn with `_active_kernel.round` directly.
