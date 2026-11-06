@@ -9,10 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
-- **Comma-Separated Bracket Formatting Harmonization (`src/data/definitions/premade-entities.js`, `src/storage/presets.js`)**:
-  - Replaced newline-separated bracket lists with comma-separated bracket lists (`[KEY1: val1], [KEY2: val2]`) across all 10 starter archetype blueprints (7 characters, 3 fractals) in both `src/data/definitions/premade-entities.js` and `src/storage/presets.js`.
-  - Harmonized starter entity blueprints with the system directive in `src/engine/prompts.js` establishing comma-separated brackets as the preferred format.
-  - Preserved bracket tokens, relational directives (`[@target: ...]`), and visibility flags across all quadrants (`eternal`, `present`, `future`, `past`).
+- **Universal Comma-Separated Bracket Serialization & Prompt Instruction (`src/storage/parser.js`, `src/storage/entities.js`, `src/intelligence/modules/output.js`, `src/ui/profile/RelationalGraph.svelte`, `src/storage/README.md`)**:
+  - **Single Source of Truth Formatting (`src/storage/parser.js`)**: Updated `format_clean_brackets` and `apply_bracket_deltas` to serialize bracket lists using comma separation (`kept.join(", ")` and `current_entries.map(...).join(", ")`), fully replacing the legacy newline separation.
+  - **Memory & Quadrant Normalization (`src/storage/entities.js`)**: Updated `normalize_past_to_brackets` to join legacy memory items using `,` (`lines.join(", ")`), aligning normalized database records with the comma-separated standard.
+  - **Prompt Instruction Standardization (`src/intelligence/modules/output.js`)**: Updated `OUTPUT_FORMATS.BRACKET` directive to instruct the model to emit bracket directives separated by commas (`[KEY1: value1], [KEY2: value2]`) instead of legacy `"one per line"`.
+  - **UI Resilient Bracket Splitting (`src/ui/profile/RelationalGraph.svelte`)**: Enhanced `parse_bracket_lines` to tokenize bracket sequences globally (`/\[[^\]]+\]/g`) with fallback to splitting on commas or newlines (`/[\n,]/`), ensuring comma-separated brackets render cleanly in the Dossier inspect view.
+  - **Premade Archetypes Harmonization (`src/data/definitions/premade-entities.js`, `src/storage/presets.js`)**: Converted all 10 starter archetype blueprints (7 characters, 3 fractals) across all 4 quadrants (`eternal`, `present`, `future`, `past`) to comma-separated bracket lists.
+  - **Documentation Alignment (`src/storage/README.md`)**: Updated the module specification to reflect universal comma-separated bracket serialization.
 
   - **Visualizer Response Hardening & Deterministic Resolution (`src/media/visual.js`, `src/media/optics.js`, `src/ui/profile/VisualWing.svelte`, `src/engine/prompts.js`)**:
     - Stripped echoed startWith prefill before parsing JSON in `VisualEngine.enhance()`, handling exact matches and whitespace-drifted echoes so continuation fields with raw newlines parse cleanly without tripping into fallback.

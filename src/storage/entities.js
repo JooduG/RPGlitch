@@ -121,7 +121,7 @@ function normalize_past_to_brackets(raw_past, raw_memories) {
     }
   }
 
-  return lines.join("\n");
+  return lines.join(", ");
 }
 
 /**

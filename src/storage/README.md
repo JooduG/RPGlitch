@@ -21,10 +21,10 @@ The package exposes its public interface via [`src/storage/index.js`](./index.js
 ### 1. Canonical Bracket Parser & Epistemic Wall
 
 - [`parse_bracket_token(bracket_string)`](./parser.js): Parses single bracket token `[KEY: value | flags]`. Normalizes key to uppercase, extracts value (isolating pipes inside `{Option A | Option B}` alternation scopes), and extracts metadata flags (`hide`, `show`, `is_origin`, `weight`).
-- [`parse_brackets(text)`](./parser.js) / `parse_bracket_entries`: Extracts all bracket tokens from multiline text strings.
-- [`format_clean_brackets(brackets_text, options)`](./parser.js): Filters multiline bracket text across the Epistemic Wall based on visibility (`see_hidden: "all" | "own" | "none"`, `is_counterpart`, `strip_inventory`) and strips internal control flags for clean prompt rendering.
-- [`apply_bracket_deltas(existing_text, delta_text)`](./parser.js): Merges incoming bracket deltas into existing multiline brackets. Handles single-value overwrites, multi-entry collection appending (`INVENTORY`, `STASH`), and atomic key deletion via `"none"` or `"cleared"`.
-- [`extract_memory_candidates(past_text)`](./parser.js): Converts canonical `past` multiline bracket strings into structured candidates `{ id, content, weight, is_origin }` for Sieve RAG vector scoring.
+- [`parse_brackets(text)`](./parser.js) / `parse_bracket_entries`: Extracts all bracket tokens from text strings (supporting both comma-separated and multiline bracket lists).
+- [`format_clean_brackets(brackets_text, options)`](./parser.js): Filters bracket text across the Epistemic Wall based on visibility (`see_hidden: "all" | "own" | "none"`, `is_counterpart`, `strip_inventory`) and strips internal control flags, rendering clean comma-separated bracket lists for prompts.
+- [`apply_bracket_deltas(existing_text, delta_text)`](./parser.js): Merges incoming bracket deltas into existing bracket text, returning a canonical comma-separated list. Handles single-value overwrites, multi-entry collection appending (`INVENTORY`, `STASH`), and atomic key deletion via `"none"` or `"cleared"`.
+- [`extract_memory_candidates(past_text)`](./parser.js): Converts canonical `past` bracket strings into structured candidates `{ id, content, weight, is_origin }` for Sieve RAG vector scoring.
 
 ### 2. Profile Fields, Leaf Mapping & Enhancers
 
@@ -63,8 +63,9 @@ The package exposes its public interface via [`src/storage/index.js`](./index.js
 ## Invariants
 
 - **Zero Upward Layer Violations**: `src/storage/` must never import from `@engine`, `@intelligence`, `@state`, or `@ui`.
-- **4-Quadrant Purity**: Every entity stored or normalized strictly stores its attributes in four multiline bracket quadrants: `eternal`, `present`, `past`, and `future`. No loose object properties for internal entity attributes.
+- **4-Quadrant Purity**: Every entity stored or normalized strictly stores its attributes in four bracket quadrants: `eternal`, `present`, `past`, and `future`. No loose object properties for internal entity attributes.
 - **Key Normalization**: Bracket keys are always normalized to uppercase (`[TOP: black harness]`, not `[top: ...]`).
+- **Comma-Separated Standard**: Multiple bracket directives per field are formatted cleanly as comma-separated lists (`[KEY1: val1], [KEY2: val2]`).
 - **Alternation Safety**: Metadata control flags (`| hide`, `| w: <1-10>`, `| is_origin`) are parsed strictly outside of `{Option A | Option B}` alternation scopes.
 - **IndexedDB Schema Lock**: Schema remains locked at Dexie `version(2)`. No bumping to `version(3)` or altering table indexes during Gate 3/4.
 - **Origin Memory Lock**: Memories tagged with `| is_origin` cannot be evicted or overwritten during Caretaker memory consolidation.

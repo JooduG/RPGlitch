@@ -34,7 +34,7 @@ export const OUTPUT_FORMATS = Object.freeze({
   PROSE: "After closing </THINK>, emit strictly plain prose: no preamble, commentary, markdown, or structural tags.",
   PLAIN_PROSE: "Emit strictly plain prose: no preamble, commentary, markdown, or structural tags.",
   BRACKET:
-    "After closing </THINK>, emit strictly bracketed directives: [KEY: value] — one per line, no outer braces, no conversational prose outside brackets. Keys support natural spaces. Relational brackets targeting other entities or active roles MUST begin with '@': [@TARGET_ENTITY: relationship dynamic | flags] (flags: 'hide' for covert items / 'show', 'w: 1-10' importance weight). Atomic clearing: [KEY: none].",
+    "After closing </THINK>, emit strictly bracketed directives: [KEY: value] — separated by commas (e.g. [KEY1: value1], [KEY2: value2]), no outer braces, no conversational prose outside brackets. Keys support natural spaces. Relational brackets targeting other entities or active roles MUST begin with '@': [@TARGET_ENTITY: relationship dynamic | flags] (flags: 'hide' for covert items / 'show', 'w: 1-10' importance weight). Atomic clearing: [KEY: none].",
   JSON_RETURN:
     "Return a single, COMPLETE, VALID JSON object matching this schema:\n{schema}\n\nNo preamble, no markdown backticks, no external XML tags. Output must start with { and end with }.",
 });

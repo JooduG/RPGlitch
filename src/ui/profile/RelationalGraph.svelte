@@ -40,8 +40,15 @@
 
   function parse_bracket_lines(text) {
     if (!text || typeof text !== "string") return [];
+    const tokens = text.match(/\[[^\]]+\]/g);
+    if (tokens && tokens.length > 0) {
+      return tokens.map((raw) => ({
+        raw: raw.trim(),
+        is_hidden: /\|\s*hide\b/i.test(raw),
+      }));
+    }
     return text
-      .split("\n")
+      .split(/[\n,]/)
       .map((line) => line.trim())
       .filter(Boolean)
       .map((line) => {

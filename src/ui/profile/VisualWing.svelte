@@ -6,8 +6,7 @@
    * Part of the RPGlitch UI.
    */
   import { Button, SourceField, TextField, Toggle, NumberField, Dropdown, tooltip, Label } from "@primitives";
-  import { strip_cognition_blocks } from "@utils";
-  import { get_signature_label, PALETTE, PALETTE_CSS_VARIABLES, SIGNATURE_COLORS } from "@media";
+  import { get_signature_label, PALETTE, PALETTE_CSS_VARIABLES, SIGNATURE_COLORS, sanitize_visual_text } from "@media";
   import { extract_aesthetic_traits } from "@intelligence";
   import { app } from "@state";
   import { VISUAL_STYLES } from "@data";
@@ -119,29 +118,18 @@
       } else if (has_prompt_text) {
         const result = await app.visual.enhance(profile_state.char.modifiers.prompt, profile_state.char.type, profile_state.char);
         if (result) {
-          let positive = result.prompt || "";
-          let negative = result.negative_prompt || "";
-
-          // Emergency extraction slice if upstream JSON.parse tripped and returned a raw string dump
-          if (!negative && (positive.includes('"prompt"') || positive.includes('"negative_prompt"'))) {
-            const clean_text = strip_cognition_blocks(positive);
-            const prompt_match = clean_text.match(/"prompt"\s*:\s*"((?:[^"\\]|\\.)*)"/i);
-            const neg_match = clean_text.match(/"negative(?:Prompt|_prompt)"\s*:\s*"((?:[^"\\]|\\.)*)"/i);
-
-            if (prompt_match && prompt_match[1]) {
-              positive = prompt_match[1].replace(/\\"/g, '"').replace(/\\n/g, "\n");
-            }
-            if (neg_match && neg_match[1]) {
-              negative = neg_match[1].replace(/\\"/g, '"').replace(/\\n/g, "\n");
-            }
-          }
+          // Rescue prose out of any JSON-shaped leftovers (older builds could
+          // persist raw blobs) and strip template-significant braces — the
+          // image plugin evaluates `{...}` / `[...]` as Perchance syntax.
+          const positive = sanitize_visual_text(result.prompt || "").trim();
+          const negative = sanitize_visual_text(result.negative_prompt || "").trim();
 
           // Guard against persisting prefill or internal thought markers as prompt
           if (!positive || positive.includes("_thought_process") || positive.trimStart().startsWith('{"_thought_process')) {
             app.log("Enhancement returned no usable prose — draft kept", "warn");
           } else {
-            profile_state.char.modifiers.prompt = positive.trim();
-            if (negative) profile_state.char.modifiers.negative_prompt = negative.trim();
+            profile_state.char.modifiers.prompt = positive;
+            if (negative) profile_state.char.modifiers.negative_prompt = negative;
           }
         }
       }

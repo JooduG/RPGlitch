@@ -79,6 +79,8 @@ export {
   get_default_visual_engine,
   VisualEngine,
   visual_engine,
+  rescue_visual_prose,
+  sanitize_visual_text,
   IMAGE_GENERATION_QUEUE_CAPACITY,
   IMAGE_PLACEHOLDER_HARD_CAP,
   IMAGE_RESOLVE_TIMEOUT_MS,

@@ -170,7 +170,7 @@ export function format_clean_brackets(brackets_text, options = {}) {
     kept.push(`[${token.key}: ${token.value}]`);
   }
 
-  return kept.join("\n");
+  return kept.join(", ");
 }
 
 /**
@@ -267,7 +267,7 @@ export function apply_bracket_deltas(existing_text, delta_text) {
     }
   }
 
-  return current_entries.map((entry) => entry.raw).join("\n");
+  return current_entries.map((entry) => entry.raw).join(", ");
 }
 
 /**

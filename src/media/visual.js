@@ -14,6 +14,75 @@ import { compile_prompt, PURPOSE_CORES } from "../engine/prompts.js";
 import { get_visual_style } from "../data/definitions/visual-styles.js";
 
 // ============================================================================
+// Visual prompt hygiene.
+//
+// The host text-to-image plugin evaluates prompt text as Perchance template
+// syntax, where `{...}` / `[...]` are structural. A raw visualizer JSON blob
+// (or a decapitated fragment of one) stored as the prompt therefore throws a
+// curly-bracket mismatch downstream. These helpers keep that from happening:
+// rescue prose out of JSON-shaped text, reject unusable leftovers, and strip
+// stray template-significant characters before dispatch.
+// ============================================================================
+
+const VISUAL_JSON_PROMPT_RE = /"prompt"\s*:\s*"((?:[^"\\]|\\.)*)"/i;
+const VISUAL_JSON_NEG_RE = /"negative(?:Prompt|_prompt)"\s*:\s*"((?:[^"\\]|\\.)*)"/i;
+
+function unescape_visual_json_value(value) {
+  return String(value || "")
+    .replace(/\\"/g, '"')
+    .replace(/\\n/g, "\n");
+}
+
+/** True when text still carries visualizer JSON structure instead of prose. */
+function looks_like_visual_json(text) {
+  const t = String(text || "");
+  return t.includes("_thought_process") || /"(negative_?prompt|prompt)"\s*:/i.test(t);
+}
+
+function has_unbalanced_visual_braces(text) {
+  const t = String(text || "");
+  let open = 0;
+  let close = 0;
+  for (const ch of t) {
+    if (ch === "{") open++;
+    else if (ch === "}") close++;
+  }
+  return open !== close;
+}
+
+/**
+ * Rescues image prose out of a persisted raw-JSON blob (or a fragment of one
+ * whose opener was stripped upstream — prose then runs up to the negative
+ * key). Returns the input unchanged when it is already prose.
+ */
+export function rescue_visual_prose(text) {
+  const t = String(text || "");
+  if (!looks_like_visual_json(t)) return t;
+  const full = VISUAL_JSON_PROMPT_RE.exec(t);
+  if (full && full[1]) {
+    const prose = unescape_visual_json_value(full[1]).trim();
+    if (prose && !looks_like_visual_json(prose)) return prose;
+  }
+  const neg = VISUAL_JSON_NEG_RE.exec(t);
+  if (neg && typeof neg.index === "number") {
+    const head = unescape_visual_json_value(t.slice(0, neg.index))
+      .replace(/["\s,]+$/, "")
+      .trim();
+    if (head && !looks_like_visual_json(head)) return head;
+  }
+  return t;
+}
+
+/**
+ * Makes prompt text safe for the template-evaluating image plugin: rescues
+ * prose out of JSON-shaped leftovers, then drops `{`/`}`/`[`/`]` (which would
+ * otherwise be parsed as template syntax and throw).
+ */
+export function sanitize_visual_text(text) {
+  return rescue_visual_prose(text).replace(/[{}[\]]/g, "");
+}
+
+// ============================================================================
 // [SECTION 1: HOST ENGINE DISCOVERY]
 // ============================================================================
 
@@ -109,7 +178,18 @@ function create_offline_svg(prompt, width, height) {
  * @returns {Promise<{ image_url: string, seed: number, metadata: Record<string, any> }>}
  */
 export async function dispatch_visual_generation(payload, options = {}) {
-  const { prompt, negative_prompt = "", resolution = "512x768", guidance_scale = 7, seed: explicit_seed } = payload || {};
+  const {
+    prompt: raw_prompt,
+    negative_prompt: raw_negative_prompt = "",
+    resolution = "512x768",
+    guidance_scale = 7,
+    seed: explicit_seed,
+  } = payload || {};
+  // The host image plugin evaluates prompt text as Perchance template syntax
+  // (`{...}` / `[...]` are structural). Sanitize first so a persisted raw-JSON
+  // blob or stray braces can never throw a curly-bracket mismatch downstream.
+  const prompt = sanitize_visual_text(raw_prompt);
+  const negative_prompt = sanitize_visual_text(raw_negative_prompt);
   const seed = explicit_seed != null ? explicit_seed : generate_secure_seed();
   const [width_str, height_str] = String(resolution).split("x");
   const width = parseInt(width_str, 10) || 512;
@@ -501,31 +581,62 @@ export class VisualEngine {
       let candidate_prompt = "";
       let candidate_negative = "";
 
-      // 1. Try JSON extraction on the stripped remainder
-      const json_match = /\{[\s\S]*\}/.exec(response_text);
-      if (json_match) {
-        try {
-          const parsed = JSON.parse(json_match[0]);
-          if (parsed && typeof parsed.prompt === "string" && parsed.prompt.trim()) {
-            candidate_prompt = parsed.prompt.trim();
-            if (typeof parsed.negative_prompt === "string" && parsed.negative_prompt.trim()) {
-              candidate_negative = parsed.negative_prompt.trim();
-            }
-          }
-        } catch (_json_err) {
-          /* Fall back to regex/text extraction */
-        }
-      }
+      // The prefill is a structural JSON opener, not redundant echo: a
+      // well-behaved model *continues* it, so the stripped remainder alone can
+      // be a decapitated fragment. Extract from the remainder first (echo
+      // case), then from the reattached document (continuation case).
+      const parse_documents = [response_text];
+      if (start_with) parse_documents.push(start_with + response_text);
 
-      // 2. Fall back to regex field extraction if JSON.parse threw due to unescaped newlines/quotes
-      if (!candidate_prompt) {
-        const prompt_field_match = /"prompt"\s*:\s*"((?:[^"\\]|\\.)*)"/i.exec(response_text);
-        if (prompt_field_match && prompt_field_match[1]) {
-          candidate_prompt = prompt_field_match[1].replace(/\\"/g, '"').replace(/\\n/g, "\n").trim();
+      for (const doc of parse_documents) {
+        if (candidate_prompt && candidate_negative) break;
+        // Matches inside the reattached prefill region belong to the draft
+        // excerpt, not the model's answer — only accept matches at or past it.
+        const search_from = doc === response_text ? 0 : start_with.length;
+
+        // 1. Try JSON extraction
+        const json_match = /\{[\s\S]*\}/.exec(doc);
+        if (json_match) {
+          try {
+            const parsed = JSON.parse(json_match[0]);
+            if (parsed && typeof parsed.prompt === "string" && parsed.prompt.trim()) {
+              candidate_prompt = parsed.prompt.trim();
+              if (typeof parsed.negative_prompt === "string" && parsed.negative_prompt.trim()) {
+                candidate_negative = parsed.negative_prompt.trim();
+              }
+              break;
+            }
+          } catch (_json_err) {
+            /* Fall through to regex extraction */
+          }
         }
-        const neg_field_match = /"negative(?:Prompt|_prompt)"\s*:\s*"((?:[^"\\]|\\.)*)"/i.exec(response_text);
-        if (neg_field_match && neg_field_match[1]) {
-          candidate_negative = neg_field_match[1].replace(/\\"/g, '"').replace(/\\n/g, "\n").trim();
+
+        // 2. Regex field extraction (unescaped newlines/quotes break JSON.parse)
+        // Both fields are read from the answer region only — matches inside
+        // the reattached prefill belong to the draft excerpt, not the model.
+        if (!candidate_prompt) {
+          const answer_region = doc.slice(search_from);
+          const prompt_field_match = VISUAL_JSON_PROMPT_RE.exec(answer_region);
+          if (prompt_field_match && prompt_field_match[1]) {
+            candidate_prompt = unescape_visual_json_value(prompt_field_match[1]).trim();
+          }
+          const neg_field_match = VISUAL_JSON_NEG_RE.exec(answer_region);
+          if (neg_field_match && neg_field_match[1]) {
+            candidate_negative = unescape_visual_json_value(neg_field_match[1]).trim();
+          }
+        }
+
+        // 2b. Decapitated fragment: the opener was stripped upstream, so the
+        // prose runs up to the negative key with no `"prompt":` label left.
+        if (!candidate_prompt) {
+          const answer_region = doc.slice(search_from);
+          const neg_only_match = VISUAL_JSON_NEG_RE.exec(answer_region);
+          if (neg_only_match && typeof neg_only_match.index === "number") {
+            const head = unescape_visual_json_value(answer_region.slice(0, neg_only_match.index))
+              .replace(/["\s,]+$/, "")
+              .trim();
+            if (head && !looks_like_visual_json(head)) candidate_prompt = head;
+          }
         }
       }
 
@@ -534,16 +645,24 @@ export class VisualEngine {
         candidate_prompt = strip_cognition_blocks(response_text).trim();
       }
 
-      // 4. Never persist our own prefill or thought process markers
-      if (!candidate_prompt || candidate_prompt.includes("_thought_process") || candidate_prompt.startsWith('{"_thought_process')) {
+      // 4. Never persist our own prefill, thought markers, raw JSON, or
+      // brace-imbalanced fragments — the image plugin evaluates `{...}` as
+      // Perchance template syntax and throws on mismatch.
+      if (
+        !candidate_prompt ||
+        candidate_prompt.includes("_thought_process") ||
+        candidate_prompt.trimStart().startsWith('{"_thought_process') ||
+        looks_like_visual_json(candidate_prompt) ||
+        has_unbalanced_visual_braces(candidate_prompt)
+      ) {
         console.warn("[VisualEngine.enhance] Response contained prefill or unusable thought markers, keeping draft.");
         return { prompt: text.trim(), negative_prompt: base_negative, resolution: tier_resolution };
       }
 
       const combined_negative = [base_negative, candidate_negative].filter(Boolean).join(", ");
       return {
-        prompt: candidate_prompt,
-        negative_prompt: combined_negative,
+        prompt: sanitize_visual_text(candidate_prompt),
+        negative_prompt: sanitize_visual_text(combined_negative),
         resolution: tier_resolution,
       };
     } catch (err) {
