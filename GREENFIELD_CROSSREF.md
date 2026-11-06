@@ -1,10 +1,10 @@
 # Unified Post-Nuclear Greenfield Cross-Reference Dossier (`GREENFIELD_CROSSREF.md`)
 
 > **Audit Baseline & Tree Immutability Notice**:  
-> **Audited Commit SHA**: `8fe4f5a5cf4621b38711771ebbc552f96593109d`  
-> **Audit Date**: 2026-11-06 (22:15 CET)  
+> **Audited Commit SHA**: `b21e0f618f1a1285e267bd8e5abae18ad7fcb147`  
+> **Audit Date**: 2026-11-06 (23:30 CET)  
 > **Authority**: VP of Engineering & Technical Quality Auditor  
-> _Notice: Every exact `file:line` citation, function signature, table schema, and constant in this document was verified on disk against tree `8fe4f5a` and is valid strictly for that commit. In a codebase averaging ~13 commits/day, unstamped line references become obsolete._
+> _Notice: Every exact `file:line` citation, function signature, table schema, and constant in this document was verified on disk against tree `b21e0f6` and is valid strictly for that commit. This dossier covers all four legacy branches: `src/platform/`, `src/state/`, `src/intelligence/`, and `src/data/` (including relocated holding assets in `src/definitions/`). In a codebase averaging ~13 commits/day, unstamped line references become obsolete._
 
 ---
 
@@ -15,6 +15,7 @@
 1. `src/platform/` (5 core modules: `transport.js`, `llm-gate.js`, `embeddings.svelte.js`, `security.js`, `web-fetch.js` + 4 test suites = 9 files, 1,385 LOC)
 2. `src/state/` (6 runtime stores: `index.js`, `status.svelte.js`, `interface.svelte.js`, `chrono.svelte.js`, `log.svelte.js`, `runtime.svelte.js` + 5 test suites = 11 files, 3,722 LOC)
 3. `src/intelligence/` (11 root modules, 10 submodules in `modules/`, 21 test suites = 42 files, 11,289 LOC)
+4. `src/data/` (4 core modules: `db.js`, `repository.js`, `ledger.js`, `normalizer.js`, 1 session driver: `sessions.svelte.js`, 1 barrel: `index.js` + 5 test suites = 11 files, 4,374 LOC; plus relocated holding location `src/definitions/`: 5 files + 5 test suites = 10 files, 5,310 LOC)
 
 **Post-Nuclear Greenfield Target Architecture**:
 
@@ -30,12 +31,13 @@
 - **Gate 3: Media & Sensory Subsystems (`src/media/`)** — **COMPLETED** (`ROADMAP.md:88-95`)
 - **Gate 4: Flat UI Domain Components & Atomic Demolition** — **ACTIVE SPRINT / BLOCKED** (`ROADMAP.md:96-106`)
 
-**Demolition Verdict**: **HARD NO-GO for immediate deletion of `src/platform/`, `src/state/`, or `src/intelligence/`.**  
-While the headless simulation engine and storage foundation exist, the live application still executes through `src/state/` and `src/engine/bridge.js`. Three genuine **LIVE BUGs** afflict the active greenfield bridge path today, **twenty-one MIGRATION GAPs** block cutover across the three legacy directories, 28 active files import from `@state`, 12 active files import from `@platform`, and 13 active files import from `@intelligence`. In particular:
+**Demolition Verdict**: **HARD NO-GO for immediate deletion of `src/platform/`, `src/state/`, `src/intelligence/`, or `src/data/`.**  
+While the headless simulation engine and parallel storage foundation exist, the live application still executes through `src/state/`, `src/engine/bridge.js`, and `src/data/`. Three genuine **LIVE BUGs** afflict the active greenfield bridge path today, **twenty-eight MIGRATION GAPs** block cutover across the four legacy directories, 28 active files import from `@state`, 12 active files import from `@platform`, 13 active files import from `@intelligence`, and 35 active files import from `@data`. In particular:
 
 - In `src/state/chrono.svelte.js:96`, opening prologue generation unconditionally executes legacy `gamemaster.execute_prologue(story_id)`.
 - In `src/state/chrono.svelte.js:249`, any story turn running when `use_greenfield_engine` is false executes legacy `gamemaster.execute_turn()`. (In contrast, retry in greenfield mode routes through `execute_greenfield_turn("")` -> `_active_kernel.submit_turn("")`, which aborts silently with `null` per S3.3).
-- Critical sensory cortex helpers (`render_optics_fallback`, `extract_aesthetic_traits`, `clean_image_prompts`), entity profiling (`birth_entity_core`, `structure_profile`), and `gamemaster.execute_ghostwriter` have not yet been relocated to `src/media/`, `src/storage/`, and `src/engine/`.
+- In `src/engine/bridge.js:23, 338`, the greenfield simulation bridge still calls legacy `session_driver.require_active()`, `session_driver.log_message()`, and `append_ledger_entries()` from `@data`.
+- Critical sensory cortex helpers (`render_optics_fallback`, `extract_aesthetic_traits`, `clean_image_prompts`), entity profiling (`birth_entity_core`, `structure_profile`), `gamemaster.execute_ghostwriter`, and persistence log editing/pruning have not yet been relocated to `src/media/`, `src/storage/`, and `src/engine/`.
 
 ---
 
@@ -58,7 +60,7 @@ Every discrepancy between previous roadmap claims / plans and verified disk real
 7. **Persistence Directory Split (`src/data/` vs. `src/storage/`) & Legacy Imports (`MIGRATION GAP`)**  
    _Proved at `8c2f335` (2026-11-06)_: `nuclear-plan.md:525-530` planned consolidation into `src/data/`. In reality, Gate 2 built the greenfield persistence layer in `src/storage/` ([src/storage/index.js](file:///c:/Users/johng/source/repos/RPGlitch/src/storage/index.js#L1-L70)), while legacy `src/data/` coexists. Greenfield [src/engine/bridge.js:23, 338](file:///c:/Users/johng/source/repos/RPGlitch/src/engine/bridge.js#L23) still imports `session_driver` from `../data/index.js` and `append_ledger_entries` from `../data/ledger.js`.
 8. **Discrepancy Between `src/storage/README.md` and `src/storage/db.js` (`MIGRATION GAP`)**  
-   _Proved at `8c2f335` (2026-11-06)_: `src/storage/README.md:56-61` documents method calls `db.entities.upsert()`, `db.stories.conclude()`, `db.simulation_logs.load()`, `db.kv_settings.set()`, and `db.mutation_ledger.append()`. In [src/storage/db.js:29-43, 65-401](file:///c:/Users/johng/source/repos/RPGlitch/src/storage/db.js#L29-L43), the table is named `simulation_log` (singular), and methods are exported as standalone functions ([`upsert_entity`](file:///c:/Users/johng/source/repos/RPGlitch/src/storage/db.js#L238), [`conclude_story`](file:///c:/Users/johng/source/repos/RPGlitch/src/storage/db.js#L145), [`get_story_log`](file:///c:/Users/johng/source/repos/RPGlitch/src/storage/db.js#L284)), not methods on `db` tables.
+   _Proved at `8c2f335` (2026-11-06); strengthened at `b21e0f6` (2026-11-06)_: `src/storage/README.md:56-61` documents method calls `db.entities.upsert()`, `db.stories.conclude()`, `db.simulation_logs.load()`, `db.kv_settings.set()`, and `db.mutation_ledger.append()`. In [src/storage/db.js:29-43, 65-401](file:///c:/Users/johng/source/repos/RPGlitch/src/storage/db.js#L29-L43), the table is named `simulation_log` (singular, matching legacy Dexie schema in `src/data/db.js:55`), and capabilities are exported as standalone, functional helper functions ([`upsert_entity`](file:///c:/Users/johng/source/repos/RPGlitch/src/storage/db.js#L238), [`conclude_story`](file:///c:/Users/johng/source/repos/RPGlitch/src/storage/db.js#L145), [`get_story_log`](file:///c:/Users/johng/source/repos/RPGlitch/src/storage/db.js#L284)), not instance methods on `db` table objects. The documentation in `src/storage/README.md` reflects an unbuilt fluent API design.
 9. **Dead Optional-Chained Voice Streaming Methods (`DEAD / INTENTIONALLY OMITTED`)**  
    _Proved at `8c2f335` (2026-11-06)_: [`StreamingStore`](file:///c:/Users/johng/source/repos/RPGlitch/src/state/status.svelte.js#L341-L368) calls `Audio.voice?.apply_stream_role?.()`, `queue_stream_sentence?.()`, `flush_stream_remainder?.()`, and `reset_stream?.()`. In greenfield [`VoiceEngine`](file:///c:/Users/johng/source/repos/RPGlitch/src/media/audio.js#L303-L402), none of those 4 methods exist (`VoiceEngine` only implements `resume_context`, `set_volume`, `speak`, `stop`, `pause`, `resume`, `toggle_pause`, `destroy`). They silently no-op at runtime per `nuclear-plan.md:116` parking streaming TTS.
 10. **Constant Discrepancies Across Engine & Spec (`DEAD / INTENTIONALLY OMITTED`)**  
@@ -73,6 +75,19 @@ Every discrepancy between previous roadmap claims / plans and verified disk real
     _Proved at `8fe4f5a` (2026-11-06)_: Previous draft incorrectly claimed Ghostwriter was dead code. Disk reality confirms active UI wiring: [src/ui/console/StorymodeBar.svelte:59](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/console/StorymodeBar.svelte#L59) invokes `gamemaster.execute_ghostwriter(value, null, onToken)` from `@intelligence`, triggered by [src/App.svelte:234-239](file:///c:/Users/johng/source/repos/RPGlitch/src/App.svelte#L234-L239) via `app.ghostwrite_request++`, backed by reactive state in [src/state/interface.svelte.js:183](file:///c:/Users/johng/source/repos/RPGlitch/src/state/interface.svelte.js#L183). Ghostwriting must be relocated into `src/engine/` before `@intelligence` demolition.
 15. **Runtime Memory Shape Reality (`reconcile_vector_caps` Safe Startup No-Op) (`MIGRATION GAP`)**  
     _Proved at `8fe4f5a` (2026-11-06)_: In [src/main.js:28, 121](file:///c:/Users/johng/source/repos/RPGlitch/src/main.js#L28), startup executes `if (reconcile_vector_caps(entity)) { ... }`. In [src/intelligence/temporal.js:622-641](file:///c:/Users/johng/source/repos/RPGlitch/src/intelligence/temporal.js#L622-L641), `reconcile_vector_caps` inspects `entity.past`. In the greenfield model ([src/storage/entities.js:162-205](file:///c:/Users/johng/source/repos/RPGlitch/src/storage/entities.js#L162-L205)), `entity.past` is a clean Array of bracket tokens. If the array length is $\le 20$, the while-loops never enter and `reconcile_vector_caps` returns `false` without modifying anything. Startup does NOT crash or corrupt state, but retains an active import from `@intelligence`. This is a clean **MIGRATION GAP**, not a live crash.
+16. **Non-Existent Legacy `src/data/driver.js` (`RETRACTION`)**  
+    _Proved at `b21e0f6` (2026-11-06)_: Multiple prior references in planning tickets and audit outlines cited `src/data/driver.js` as the legacy database driver. **No such file exists on disk.** The legacy session driver lives in [src/data/sessions.svelte.js:89-527](file:///c:/Users/johng/source/repos/RPGlitch/src/data/sessions.svelte.js#L89-L527) as `export const session_driver = { ... }`, and the database schema initializer lives in [src/data/db.js:1-125](file:///c:/Users/johng/source/repos/RPGlitch/src/data/db.js#L1-L125). All roadmap items citing `driver.js` are formally retracted and redirected to `src/data/sessions.svelte.js`.
+17. **Greenfield Simulation Bridge Calls vs. Imports Reality Check (`MIGRATION GAP`)**  
+    _Proved at `b21e0f6` (2026-11-06)_: [src/engine/bridge.js:23, 338](file:///c:/Users/johng/source/repos/RPGlitch/src/engine/bridge.js#L23) imports `session_driver` from `../data/index.js` and dynamically imports `append_ledger_entries` from `../data/ledger.js`. However, disk inspection reveals `bridge.js` calls exactly three functions across the legacy data layer:
+    - `session_driver.require_active()` ([bridge.js:348](file:///c:/Users/johng/source/repos/RPGlitch/src/engine/bridge.js#L348)) — gets the active story ID.
+    - `session_driver.log_message(payload)` ([bridge.js:404, 480](file:///c:/Users/johng/source/repos/RPGlitch/src/engine/bridge.js#L404)) — writes Director note cards and Caretaker consolidation notes.
+    - `append_ledger_entries(entries)` ([bridge.js:338](file:///c:/Users/johng/source/repos/RPGlitch/src/engine/bridge.js#L338)) — persists background Caretaker bracket diffs.  
+    `bridge.js` does NOT call any entity CRUD, story queries, normalization, or card parsing methods from `src/data/`.
+18. **Resolution of Three Open Review Questions (`AUDIT RESOLUTION`)**  
+    _Proved at `b21e0f6` (2026-11-06)_:
+    - **1. Test-Count Drift Explained**: Baseline was tallied as 85 test files / 1,498 tests, while post-move unit test runs reported 84 test files / 1,497 tests. Codebase analysis proves zero tests or test files were lost: `npm run test:unit` (`vitest run src/`) targets strictly `src/` (84 test files, 1,497 unit tests). The 85th file and 1,498th test is `.agents/skills/design/scripts/sync-css.test.js` (1 test), which is executed separately via `npm run test:sync` inside the composite `npm test` runner.
+    - **2. D20 Empty-Text Telemetry Guard Parity**: Legacy `session_driver.log_message()` ([src/data/sessions.svelte.js:446-456](file:///c:/Users/johng/source/repos/RPGlitch/src/data/sessions.svelte.js#L446-L456)) discards empty-prose messages unless `attachments`, `is_prologue`, `is_epilogue`, or `is_telemetry_meta` (`DYNAMICS_DELTA`, `STORY_START`, `VECTOR_RESOLUTION`, `CONTINUUM_FORMATION`, `MEMORY_FORMATION`) are present. In contrast, greenfield `append_log_entry()` ([src/storage/db.js:265-277](file:///c:/Users/johng/source/repos/RPGlitch/src/storage/db.js#L265-L277)) is an honest literal append with no empty-string filters. Storage parity is **FULLY ACCOUNTED** at the DB layer, while telemetry sentinel checks are preserved in the calling layer/session kernel.
+    - **3. D35 Target Destination (`src/media/styles.js`)**: Confirmed via disk inspection that `src/media/styles.js` does **not** currently exist on disk. It is a **new file to be created** as part of the future visual-styles relocation to house `VISUAL_STYLES`, `get_visual_style`, and `resolve_portrait_visual_style_key`.
 
 ---
 
