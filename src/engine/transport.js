@@ -90,7 +90,20 @@ export function create_transport({ stream_fn = null, max_concurrency = 1 } = {})
       return stopped;
     },
     async stream(prompt, options = {}) {
+      if (options.signal?.aborted) {
+        throw new Error("Stream aborted by user.");
+      }
       return new Promise((resolve, reject) => {
+        if (options.signal) {
+          const on_abort = () => {
+            const index = queue.findIndex((item) => item.resolve === resolve);
+            if (index !== -1) {
+              queue.splice(index, 1);
+            }
+            reject(new Error("Stream aborted by user."));
+          };
+          options.signal.addEventListener("abort", on_abort, { once: true });
+        }
         queue.push({ prompt, options, resolve, reject });
         process_queue();
       });

@@ -19,6 +19,86 @@
 import { compile_prompt } from "./prompts.js";
 import { extract_think_block, parse_brackets } from "./parser.js";
 import { LENGTH_THRESHOLDS } from "../config.js";
+import { dev_log } from "./dev.svelte.js";
+
+/** Output character budgets per turn_tempo beat level */
+export const TEMPO_OUTPUT_BUDGETS = Object.freeze({
+  1: { max_beats: 1, max_chars: 280 },
+  2: { max_beats: 2, max_chars: 600 },
+  3: { max_beats: 3, max_chars: 1200 },
+  4: { max_beats: 4, max_chars: 2400 },
+});
+
+/**
+ * Enforces post-hoc pacing backstop by truncating oversized prose at sentence boundaries.
+ *
+ * @param {string} prose
+ * @param {number} tempo
+ * @returns {{ prose: string, truncated: boolean }}
+ */
+export function enforce_pacing_backstop(prose, tempo = 2) {
+  if (!prose || typeof prose !== "string") {
+    return { prose: "", truncated: false };
+  }
+
+  const budget = TEMPO_OUTPUT_BUDGETS[tempo] || TEMPO_OUTPUT_BUDGETS[2];
+  const trimmed = prose.trim();
+
+  // Extract sentence/beat chunks ending with terminal punctuation [.!?…] optionally closed by quotes/parentheses
+  const sentence_regex = /[^.!?…\n]+(?:[.!?…]+["'”’)]*|\n+|$)/g;
+  const matches = trimmed.match(sentence_regex);
+
+  if (!matches || matches.length === 0) {
+    if (trimmed.length <= budget.max_chars) {
+      return { prose, truncated: false };
+    }
+    return { prose: trimmed.slice(0, budget.max_chars), truncated: true };
+  }
+
+  let accumulated = "";
+  let beats_count = 0;
+
+  for (const match of matches) {
+    const chunk = match.trim();
+    if (!chunk) continue;
+
+    const is_terminal = /[.!?…]["'”’)]*$/.test(chunk);
+    if (is_terminal) {
+      beats_count++;
+    }
+
+    const candidate = accumulated ? `${accumulated} ${chunk}` : chunk;
+
+    // Break when beat budget or character budget is exceeded
+    if (beats_count > budget.max_beats || candidate.length > budget.max_chars) {
+      if (accumulated) {
+        break;
+      }
+      // If the very first sentence exceeds char budget, keep it rather than returning empty
+      accumulated = chunk;
+      break;
+    }
+
+    accumulated = candidate;
+  }
+
+  const enforced_prose = accumulated || trimmed;
+  const is_truncated = enforced_prose.length < trimmed.length;
+
+  if (is_truncated) {
+    dev_log.record("PACING_BACKSTOP", {
+      tempo,
+      original_length: trimmed.length,
+      enforced_length: enforced_prose.length,
+      max_beats: budget.max_beats,
+    });
+  }
+
+  return {
+    prose: enforced_prose,
+    truncated: is_truncated,
+  };
+}
 
 /** Default round-robin entity rotation for Turn 3 Caretaker consolidation */
 export const CARETAKER_ROTATION = Object.freeze(["AI", "USER", "FRACTAL"]);
@@ -176,11 +256,12 @@ export async function execute_turn_2_character({
     raw = start_with + raw;
   }
   const { think, prose } = extract_think_block(raw);
+  const { prose: bounded_prose } = enforce_pacing_backstop(prose, turn_tempo);
 
   return {
     raw,
     think,
-    prose,
+    prose: bounded_prose,
     turn_tempo,
   };
 }
@@ -251,7 +332,10 @@ export async function execute_round({
  * @param {string} [params.target_entity_key] - Explicit target or resolved via round-robin
  * @returns {Promise<{ raw: string, target: string, _thought_process: string, present: string, future: string, past: string, brackets: Array<any> }>}
  */
-export async function execute_turn_3_caretaker({ transport, round = 1, entities = {}, history = [], target_entity_key = null }) {
+export async function execute_turn_3_caretaker({ transport, round = 1, entities = {}, history = [], target_entity_key = null, signal = null }) {
+  if (signal?.aborted) {
+    throw new Error("Stream aborted by user.");
+  }
   const target = target_entity_key || resolve_caretaker_target(round, entities);
 
   const prompt = compile_prompt({
@@ -263,7 +347,7 @@ export async function execute_turn_3_caretaker({ transport, round = 1, entities 
   });
 
   const start_prefix = '{"_thought_process": "';
-  let raw = await transport.stream(prompt, { startWith: start_prefix });
+  let raw = await transport.stream(prompt, { startWith: start_prefix, signal });
 
   if (raw && !raw.trimStart().startsWith("{")) {
     raw = start_prefix + raw;

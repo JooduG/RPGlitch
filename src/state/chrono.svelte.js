@@ -249,7 +249,8 @@ export class ChronoEngine {
         state_bridge.simulation_state.unlock();
       } catch (err) {
         const error = /** @type {any} */ (err);
-        if (error.name === "AbortError" || error.message?.includes("aborted")) {
+        const is_aborted = error.name === "AbortError" || error.message?.includes("aborted") || controller.signal.aborted;
+        if (is_aborted) {
           state_bridge.app.log("Generation interrupted cleanly.", "system");
           state_bridge.runtime.round = previous_round;
 

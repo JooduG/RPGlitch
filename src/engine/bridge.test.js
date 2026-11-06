@@ -250,5 +250,26 @@ describe("src/engine/bridge.js - Greenfield-to-Legacy Bridge Unit Tests", () => 
       expect(mock_runtime.active_ai.past).toContain("[MEMORY: heard strange noises near the gate]");
       expect(mock_runtime.save_entity).toHaveBeenCalledWith("character", mock_runtime.active_ai);
     });
+
+    it("skips dispatch_caretaker_consolidation when signal is aborted or character prose is empty", async () => {
+      const mock_runtime = {
+        active_ai: { id: "ai-1", present: {}, future: "", past: "" },
+        save_entity: vi.fn(),
+      };
+      register_state_accessors({ runtime: mock_runtime });
+
+      const kernel = new Kernel({
+        ai: { id: "ai-1", name: "AI" },
+        round: 1,
+      });
+
+      const mock_transport = { stream: vi.fn() };
+      const controller = new AbortController();
+      controller.abort();
+
+      await dispatch_caretaker_consolidation(kernel, mock_transport, controller.signal);
+      expect(mock_transport.stream).not.toHaveBeenCalled();
+      expect(mock_runtime.save_entity).not.toHaveBeenCalled();
+    });
   });
 });

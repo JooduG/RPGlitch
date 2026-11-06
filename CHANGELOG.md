@@ -9,6 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Greenfield Engine Live Fixes & Sensory Precedence Harmonization (`src/data/sessions.svelte.js`, `src/engine/bridge.js`, `src/engine/transport.js`, `src/engine/turns.js`, `src/state/chrono.svelte.js`, `src/media/visual.js`, `src/App.svelte`)**:
+  - **Issue 1: Greenfield Telemetry Row Emission & Log Exemption (`src/data/sessions.svelte.js`, `src/engine/bridge.js`)**:
+    - Exempted telemetry system rows (`DYNAMICS_DELTA`, `STORY_START`, `VECTOR_RESOLUTION`, `CONTINUUM_FORMATION`, `MEMORY_FORMATION`) from the empty-text skip in `session_driver.log_message()`, ensuring Director staging metrics persist to IndexedDB.
+    - Protected telemetry rows in `session_driver.regenerate()` to prevent trailing empty-text prune sweeps from deleting telemetry entries on retry.
+    - Emitted an explicit `DYNAMICS_DELTA` system message upon completing greenfield turns with Director staging so `Message.svelte` updates the Quick Shot telemetry card live.
+  - **Issue 2: Comprehensive Abort Signal Propagation & Hygiene (`src/engine/transport.js`, `src/engine/bridge.js`, `src/engine/turns.js`, `src/state/chrono.svelte.js`)**:
+    - Added upfront `signal.aborted` checks in `transport.stream()` and `create_live_stream_fn()` to reject immediately and cancel queued model calls when interrupted.
+    - Threaded `signal` through `execute_round`, `execute_turn_1_director`, `execute_turn_2_character`, and `execute_turn_3_caretaker` so interrupts during director staging or character streaming halt the pipeline without running subsequent stages.
+    - Enforced fizzle-path hygiene in `bridge.js`: gated Caretaker consolidation and ledger write-back on non-empty character prose and active `!signal.aborted`.
+    - Sanitized the Chrono abort path to skip orphan retries and avoid writing `TURN_ORPHANED` error markers on intentional user stops.
+  - **Issue 3: Post-Hoc Turn Pacing Backstop (`src/engine/turns.js`, `src/engine/index.js`)**:
+    - Implemented `TEMPO_OUTPUT_BUDGETS` and `enforce_pacing_backstop()` on `execute_turn_2_character()`, truncating oversized prose at sentence boundaries when the beat budget is exceeded and emitting `PACING_BACKSTOP` telemetry to `dev_log`.
+  - **Issue 4: Visual Style Hierarchy & Precedence (`src/media/visual.js`, `src/App.svelte`, `src/data/definitions/visual-styles.js`)**:
+    - Added explicit `app_style` parameter to `VisualEngine.enhance()` and threaded `app.settings.visual_style` from `take_photo()` in `App.svelte`.
+    - Established documented style precedence: explicit app-level choice > entity visual style > fractal visual style > "none".
+    - Disambiguated style `none` keywords to `["none", "unstyled", "draft", "unmodified"]` to prevent collisions with RAW Photography (`photo`).
+    - Injected visual style engine cues into the visualizer `camera_note` and preserved baseline `negative_prompt` exclusions across all refinement exits.
+
 - **Taxonomy Cleanup & Backwards-Compatibility Purge (`src/data/definitions/profile-fields.js`, `src/intelligence/profile.test.js`)**:
   - **Pruned Stale Leaf Seeds**: Removed legacy hardcoded fallback seed object (`appearance`, `personality`, `metaphysical_truths`, etc.) from `build_profile_catalog()` in `profile-fields.js` per P4 Zero Backwards Compatibility.
   - **Dynamic Ingestion Verification**: All leaf paths and tags are now strictly derived from dynamic traversal of canonical `PROFILE_FIELDS` declarations.

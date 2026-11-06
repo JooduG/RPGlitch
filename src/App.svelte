@@ -96,7 +96,8 @@
       // Refine the prompt via the visualizer purpose core, falling back to original prompt on failure
       let refined_prompt = prompt;
       try {
-        const enhanced = await visual_engine.enhance(prompt, subject, entity);
+        const app_style = app.settings?.visual_style || null;
+        const enhanced = await visual_engine.enhance(prompt, subject, entity, app_style);
         if (enhanced?.prompt) {
           refined_prompt = enhanced.prompt;
         }

@@ -301,9 +301,21 @@ export const session_driver = {
 
     for (let index = logs.length - 1; index >= 0; index--) {
       const entry = logs[index];
+      const is_telemetry_meta =
+        entry.meta?.type === "DYNAMICS_DELTA" ||
+        entry.meta?.type === "STORY_START" ||
+        entry.meta?.type === "VECTOR_RESOLUTION" ||
+        entry.meta?.type === "CONTINUUM_FORMATION" ||
+        entry.meta?.type === "MEMORY_FORMATION" ||
+        Boolean(entry.meta?.is_telemetry);
+
       if (!found_user_turn) {
         if (entry.role === "user") {
           found_user_turn = true;
+          continue;
+        }
+        // Preserve prior telemetry entries even if placed near trailing turns
+        if (is_telemetry_meta) {
           continue;
         }
         await db.simulation_log.delete(entry.id);
@@ -314,7 +326,8 @@ export const session_driver = {
           !entry.text.trim() &&
           (!entry.attachments || entry.attachments.length === 0) &&
           !entry.meta?.is_prologue &&
-          !entry.meta?.is_epilogue;
+          !entry.meta?.is_epilogue &&
+          !is_telemetry_meta;
 
         if (is_empty_stale) {
           await db.simulation_log.delete(entry.id);
@@ -411,8 +424,22 @@ export const session_driver = {
     { turn_type = "USER_TURN", meta = {}, attachments = [], story_id = null, entity_id = null, round = null } = {},
   ) {
     const effective_story_id = story_id ?? session_driver.require_active();
+    const is_telemetry_meta =
+      meta?.type === "DYNAMICS_DELTA" ||
+      meta?.type === "STORY_START" ||
+      meta?.type === "VECTOR_RESOLUTION" ||
+      meta?.type === "CONTINUUM_FORMATION" ||
+      meta?.type === "MEMORY_FORMATION" ||
+      Boolean(meta?.is_telemetry);
+
     const is_empty =
-      typeof text === "string" && !text.trim() && (!attachments || attachments.length === 0) && !meta?.is_prologue && !meta?.is_epilogue;
+      typeof text === "string" &&
+      !text.trim() &&
+      (!attachments || attachments.length === 0) &&
+      !meta?.is_prologue &&
+      !meta?.is_epilogue &&
+      !is_telemetry_meta;
+
     if (is_empty) {
       return { id: meta?.id || `skip-${Date.now()}`, story_id: effective_story_id, role, text: "", character_name, turn_type, meta };
     }

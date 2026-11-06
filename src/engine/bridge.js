@@ -47,6 +47,10 @@ export function create_live_stream_fn() {
     }
 
     return new Promise((resolve, reject) => {
+      if (options.signal?.aborted) {
+        reject(new Error("Stream aborted by user."));
+        return;
+      }
       let accumulated = "";
 
       // Deduplication guard: track characters emitted to prevent double-counting if onToken & onChunk fire
@@ -166,7 +170,7 @@ export function reconstruct_history_from_feed(feed = [], cast = {}) {
  * @param {object} live_transport
  * @returns {Promise<void>}
  */
-export async function write_back_kernel_state(kernel, outcome, live_transport) {
+export async function write_back_kernel_state(kernel, outcome, live_transport, options = {}) {
   const runtime = state_bridge.runtime;
   if (!runtime) return;
 
@@ -210,9 +214,13 @@ export async function write_back_kernel_state(kernel, outcome, live_transport) {
   await Promise.allSettled(save_promises);
 
   // 6. Turn 3: Caretaker background maintenance (dispatched un-awaited to free UI turn latency)
-  dispatch_caretaker_consolidation(kernel, live_transport).catch((err) => {
-    console.warn("[Bridge] Caretaker background execution error:", err);
-  });
+  // Gate execution on non-empty character prose and non-aborted signal (fizzle-path hygiene)
+  const prose = outcome?.character_turn?.prose || "";
+  if (prose.trim() && !options.signal?.aborted) {
+    dispatch_caretaker_consolidation(kernel, live_transport, options.signal).catch((err) => {
+      console.warn("[Bridge] Caretaker background execution error:", err);
+    });
+  }
 }
 
 /**
@@ -221,9 +229,11 @@ export async function write_back_kernel_state(kernel, outcome, live_transport) {
  *
  * @param {Kernel} kernel
  * @param {object} transport
+ * @param {AbortSignal} [signal]
  * @returns {Promise<void>}
  */
-export async function dispatch_caretaker_consolidation(kernel, transport) {
+export async function dispatch_caretaker_consolidation(kernel, transport, signal = null) {
+  if (signal?.aborted) return;
   const runtime = state_bridge.runtime;
   if (!runtime) return;
 
@@ -237,6 +247,7 @@ export async function dispatch_caretaker_consolidation(kernel, transport) {
         FRACTAL: kernel.fractal,
       },
       history: kernel.history,
+      signal,
     });
 
     if (!caretaker_outcome?.target) return;
@@ -412,7 +423,7 @@ export async function execute_greenfield_turn(user_input, _options = {}) {
     }
 
     // Resolves Gap 4: Write back updated dynamics, macro round, and caretaker deltas
-    await write_back_kernel_state(_active_kernel, outcome, live_transport);
+    await write_back_kernel_state(_active_kernel, outcome, live_transport, _options);
 
     return outcome;
   } finally {

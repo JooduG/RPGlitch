@@ -404,18 +404,44 @@ export class VisualEngine {
    * Refines draft prompt text via the greenfield Visualizer Purpose Core.
    * If style has `llm_refine === false`, bypasses the LLM and returns the prompt untouched.
    *
+   * Style Precedence:
+   * 1. Explicit app_style (if provided and != "none" / "default") wins as the user's active camera choice.
+   * 2. Otherwise entity.visual_style (if != "none" / "default").
+   * 3. Otherwise active_fractal.visual_style (if != "none" / "default").
+   * 4. Otherwise "none" (Unstyled Draft).
+   *
    * @param {string} text - Raw natural language intent or draft prompt
    * @param {string} [type="character"] - Entity type or generation mode ("character", "fractal", "story_scene", etc.)
    * @param {object} [entity=null] - Target entity snapshot (if available)
+   * @param {string|null} [app_style=null] - User-selected app-level visual style (e.g. from app.settings.visual_style)
    * @returns {Promise<{ prompt: string, negative_prompt: string, resolution?: string }>}
    */
-  async enhance(text, type = "character", entity = null) {
+  async enhance(text, type = "character", entity = null, app_style = null) {
     if (!text || typeof text !== "string") {
       return { prompt: "", negative_prompt: "" };
     }
 
-    // Check style-level bypass (default true; explicit false bypasses LLM)
-    const style_key = entity?.visual_style || state_bridge.runtime?.active_fractal?.visual_style || "none";
+    const app_choice = app_style || state_bridge.app?.settings?.visual_style;
+    let style_key = "none";
+    let style_source = "default";
+
+    if (app_choice && app_choice !== "none" && app_choice !== "default") {
+      style_key = app_choice;
+      style_source = "app";
+    } else if (entity?.visual_style && entity.visual_style !== "none" && entity.visual_style !== "default") {
+      style_key = entity.visual_style;
+      style_source = "entity";
+    } else if (
+      state_bridge.runtime?.active_fractal?.visual_style &&
+      state_bridge.runtime.active_fractal.visual_style !== "none" &&
+      state_bridge.runtime.active_fractal.visual_style !== "default"
+    ) {
+      style_key = state_bridge.runtime.active_fractal.visual_style;
+      style_source = "fractal";
+    }
+
+    console.debug(`[VisualEngine.enhance] Resolved visual style "${style_key}" from ${style_source} precedence.`);
+
     const style_def = get_visual_style(style_key);
     if (style_def && style_def.llm_refine === false) {
       return { prompt: text.trim(), negative_prompt: style_def.negative_prompt || "" };

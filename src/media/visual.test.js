@@ -128,5 +128,30 @@ describe("visual.js — Stateless Perchance Image Dispatcher", () => {
       expect(result.negative_prompt).toContain("amateur photo");
       expect(result.resolution).toBe("512x768");
     });
+
+    it("respects explicit app_style parameter over entity.visual_style precedence", async () => {
+      const mock_json = JSON.stringify({
+        _thought_process: "Photographic portrait",
+        prompt: "RAW candid photograph of the protagonist",
+        negative_prompt: "studio lighting",
+        resolution: "512x768",
+      });
+      vi.spyOn(llm_service, "generate").mockResolvedValueOnce(mock_json);
+
+      const result = await visual_engine.enhance(
+        "A photo",
+        "character",
+        {
+          name: "Orion",
+          visual_style: "pulp", // entity specifies pulp
+        },
+        "photo", // app-level explicitly requests photo
+      );
+
+      expect(result.prompt).toBe("RAW candid photograph of the protagonist");
+      expect(result.negative_prompt).toContain("studio lighting");
+      // Negative prompt should retain photo's style definition exclusions
+      expect(result.negative_prompt).toContain("anime, illustration");
+    });
   });
 });

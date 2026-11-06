@@ -137,20 +137,30 @@ describe("sessions.svelte.js session_driver", () => {
     expect(logs.length).toBe(0);
   });
 
-  it("regenerate prunes trailing turns back to user and cleans empty text entries", async () => {
+  it("regenerate prunes trailing turns back to user and cleans empty text entries, but exempts telemetry entries", async () => {
     await session_driver.set_active("regen_test_story");
 
     await session_driver.log_message("User prompt 1", "user", "Hero");
+    // Telemetry entry with empty text should persist because meta.type is DYNAMICS_DELTA
+    const telemetry_entry = await session_driver.log_message("", "system", "Director", {
+      turn_type: "SYSTEM_TURN",
+      meta: { type: "DYNAMICS_DELTA", deltas: { chaos: 5 } },
+    });
+    expect(String(telemetry_entry.id)).not.toMatch(/^skip-/);
+
     await session_driver.log_message("AI reply 1", "ai", "Companion");
-    // Empty text log should not even be persisted
-    await session_driver.log_message("", "ai", "Companion");
+    // Plain empty text log without telemetry meta should not be persisted
+    const skipped = await session_driver.log_message("", "ai", "Companion");
+    expect(skipped.id).toMatch(/^skip-/);
 
     let logs = await session_driver.load_log("regen_test_story");
-    expect(logs.length).toBe(2);
+    expect(logs.length).toBe(3); // User prompt 1, DYNAMICS_DELTA, AI reply 1
 
     await session_driver.regenerate();
     logs = await session_driver.load_log("regen_test_story");
-    expect(logs.length).toBe(1);
-    expect(logs[0].text).toBe("User prompt 1");
+    // Regenerate rolls back to user turn, leaving user turn and any prior telemetry intact
+    expect(logs.some((l) => l.text === "User prompt 1")).toBe(true);
+    expect(logs.some((l) => l.meta?.type === "DYNAMICS_DELTA")).toBe(true);
+    expect(logs.some((l) => l.text === "AI reply 1")).toBe(false);
   });
 });

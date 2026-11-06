@@ -64,6 +64,10 @@ flowchart TD
         - Disambiguated visual style `none` keywords to `["none", "unstyled", "draft", "unmodified"]` to prevent keyword collisions with RAW Photography (`photo`).
         - Emitted `DYNAMICS_DELTA` system telemetry entries on greenfield turns so Quick Shot TelemetryCards update live.
         - Appended Caretaker state mutations to Dexie `mutation_ledger` during `dispatch_caretaker_consolidation` so Back Shot history stays synchronized.
+        - Exempted telemetry system rows from empty-text pruning in `src/data/sessions.svelte.js` (`src/data/sessions.test.js`) and protected them against retry rewinds.
+        - Enforced upfront signal abortion and gated Caretaker execution on non-empty character prose.
+        - Implemented post-hoc sentence-bounded turn pacing backstops in `src/engine/turns.js`.
+        - Added explicit `app_style` precedence in `VisualEngine.enhance()` from `src/App.svelte`.
     - Added interactive `GREENFIELD` toggle in `src/ui/console/DevControls.svelte` next to `DEVMODE` for live one-click switching between legacy gamemaster and greenfield kernel.
     - Fixed voice loading guard in `src/ui/profile/AudioWing.svelte` and removed unreferenced `meta?.type` bug in `src/ui/Storymode.svelte`.
     - Resolved 4 greenfield edge cases: round double-increment on greenfield turn advancement in `src/state/chrono.svelte.js`, fractal/system history origin attribution fallback in `src/engine/prompts.js`, orphan retry greenfield branching in `src/state/chrono.svelte.js`, user dynamics rollback in `src/engine/kernel.svelte.js`, and explicit logging on malformed Turn 1 Director fallback in `src/engine/turns.js`.

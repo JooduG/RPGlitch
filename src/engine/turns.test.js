@@ -162,4 +162,42 @@ Alice steps into the shadow of the rusted girder, her hand resting on her holste
     expect(result.brackets[3].key).toBe("FACT");
     expect(result.brackets[3].flags.weight).toBe(8);
   });
+
+  it("enforces post-hoc pacing backstop by truncating oversized prose on small tempo", async () => {
+    const mock_transport = {
+      async stream() {
+        return "<think>quick thought</think>\nFirst beat sentence. Second beat sentence that should be pruned because tempo is 1.";
+      },
+    };
+
+    const turn = await execute_turn_2_character({
+      transport: mock_transport,
+      round: 1,
+      entities,
+      history: [{ text: "Hi" }], // len < 25 -> tempo 1
+    });
+
+    expect(turn.turn_tempo).toBe(1);
+    expect(turn.prose).toBe("First beat sentence.");
+  });
+
+  it("rejects execute_turn_3_caretaker immediately when signal is already aborted", async () => {
+    const mock_transport = {
+      async stream() {
+        throw new Error("Should not be called");
+      },
+    };
+    const controller = new AbortController();
+    controller.abort();
+
+    await expect(
+      execute_turn_3_caretaker({
+        transport: mock_transport,
+        round: 1,
+        entities,
+        history,
+        signal: controller.signal,
+      }),
+    ).rejects.toThrow("Stream aborted by user.");
+  });
 });
