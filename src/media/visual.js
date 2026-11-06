@@ -425,6 +425,12 @@ export class VisualEngine {
       const runtime_state = state_bridge.runtime || {};
       const target_entity = entity || (type === "fractal" ? runtime_state.active_fractal : runtime_state.active_ai);
 
+      // Assemble style cues for visualizer camera guidance
+      const style_cues = style_def?.engine
+        ? [style_def.engine.medium, style_def.engine.camera, style_def.engine.palette, style_def.engine.texture].filter(Boolean).join("; ")
+        : "";
+      const camera_note = style_cues ? `${text.trim()} | Aesthetic Style: ${style_cues}` : text.trim();
+
       const system = compile_prompt({
         core: "visualizer",
         round: runtime_state.round || 1,
@@ -434,14 +440,16 @@ export class VisualEngine {
           FRACTAL: type === "fractal" ? target_entity : runtime_state.active_fractal,
         },
         task_options: {
-          camera_note: text.trim(),
+          camera_note,
         },
       });
 
       const response = await llm_service.generate({ system, role: "model" }, { silent: true, priority: "background" });
 
+      const base_negative = style_def?.negative_prompt || "";
+
       if (!response) {
-        return { prompt: text.trim(), negative_prompt: "" };
+        return { prompt: text.trim(), negative_prompt: base_negative };
       }
 
       // Peel JSON format from visualizer output
@@ -450,9 +458,11 @@ export class VisualEngine {
         try {
           const parsed = JSON.parse(json_match[0]);
           if (parsed && typeof parsed.prompt === "string" && parsed.prompt.trim()) {
+            const parsed_neg = typeof parsed.negative_prompt === "string" ? parsed.negative_prompt.trim() : "";
+            const combined_negative = [base_negative, parsed_neg].filter(Boolean).join(", ");
             return {
               prompt: parsed.prompt.trim(),
-              negative_prompt: typeof parsed.negative_prompt === "string" ? parsed.negative_prompt.trim() : "",
+              negative_prompt: combined_negative,
               resolution: parsed.resolution,
             };
           }
@@ -463,10 +473,10 @@ export class VisualEngine {
 
       // Emergency fallback: strip think blocks and cleanup text
       const cleaned = strip_cognition_blocks(String(response)).trim();
-      return { prompt: cleaned || text.trim(), negative_prompt: "" };
+      return { prompt: cleaned || text.trim(), negative_prompt: base_negative };
     } catch (err) {
       console.warn("[VisualEngine.enhance] Visualizer refinement failed, using draft:", err);
-      return { prompt: text.trim(), negative_prompt: "" };
+      return { prompt: text.trim(), negative_prompt: style_def?.negative_prompt || "" };
     }
   }
 }

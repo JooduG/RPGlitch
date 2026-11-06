@@ -124,7 +124,8 @@ describe("visual.js — Stateless Perchance Image Dispatcher", () => {
       });
 
       expect(result.prompt).toBe("A detailed cinematic portrait of the protagonist with ambient backlighting");
-      expect(result.negative_prompt).toBe("blurry, low quality");
+      expect(result.negative_prompt).toContain("blurry, low quality");
+      expect(result.negative_prompt).toContain("amateur photo");
       expect(result.resolution).toBe("512x768");
     });
   });

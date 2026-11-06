@@ -76,7 +76,7 @@ export function calculate_turn_tempo(history = []) {
  * @param {string} params.input
  * @returns {Promise<object>} Parsed director staging payload
  */
-export async function execute_turn_1_director({ transport, round = 1, entities = {}, history = [] }) {
+export async function execute_turn_1_director({ transport, round = 1, entities = {}, history = [], signal = null }) {
   const prompt = compile_prompt({
     core: "director",
     round,
@@ -85,7 +85,7 @@ export async function execute_turn_1_director({ transport, round = 1, entities =
   });
 
   const start_prefix = '{"_thought_process": "';
-  let raw_output = await transport.stream(prompt, { startWith: start_prefix });
+  let raw_output = await transport.stream(prompt, { startWith: start_prefix, signal });
 
   // If transport returned only the delta, ensure prefix is restored for JSON parsing
   if (raw_output && !raw_output.trimStart().startsWith("{")) {
@@ -153,6 +153,7 @@ export async function execute_turn_2_character({
   memories = [],
   directors_note = "",
   onChunk = null,
+  signal = null,
 }) {
   const turn_tempo = calculate_turn_tempo(history);
 
@@ -166,7 +167,7 @@ export async function execute_turn_2_character({
   });
 
   const start_with = directors_note ? `<think>${directors_note}\n` : "<think>";
-  let raw = await transport.stream(prompt, { onChunk, startWith: start_with });
+  let raw = await transport.stream(prompt, { onChunk, startWith: start_with, signal });
 
   // If the model closed the prefilled <think> block or continued prose directly without closing it
   if (raw && !raw.includes("<think>")) {
@@ -199,7 +200,16 @@ export async function execute_turn_2_character({
  * @param {(chunk: string) => void} [params.onChunk] - Streaming callback for Character prose
  * @returns {Promise<{ director_staging: object | null, character_turn: object }>}
  */
-export async function execute_round({ transport, round = 1, entities = {}, history = [], memories = [], director_enabled = false, onChunk = null }) {
+export async function execute_round({
+  transport,
+  round = 1,
+  entities = {},
+  history = [],
+  memories = [],
+  director_enabled = false,
+  onChunk = null,
+  signal = null,
+}) {
   let director_staging = null;
 
   if (director_enabled) {
@@ -208,6 +218,7 @@ export async function execute_round({ transport, round = 1, entities = {}, histo
       round,
       entities,
       history,
+      signal,
     });
   }
 
@@ -219,6 +230,7 @@ export async function execute_round({ transport, round = 1, entities = {}, histo
     memories,
     directors_note: director_staging?.directors_note || "",
     onChunk,
+    signal,
   });
 
   return {

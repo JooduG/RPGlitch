@@ -42,6 +42,7 @@ export class Kernel {
    * @param {string} userText
    * @param {object} [options]
    * @param {(chunk: string) => void} [options.onChunk]
+   * @param {AbortSignal} [options.signal]
    * @returns {Promise<object>} The completed round outcome
    */
   async submit_turn(userText, options = {}) {
@@ -80,6 +81,7 @@ export class Kernel {
         history: this.history,
         director_enabled: this.director_enabled,
         onChunk: options.onChunk,
+        signal: options.signal,
       });
 
       // Apply director deltas to active entity dynamics with [5, 95] clamping

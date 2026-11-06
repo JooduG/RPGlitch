@@ -58,6 +58,12 @@ flowchart TD
       - Implemented `VisualEngine.enhance()` in `src/media/visual.js` wired to the greenfield `visualizer` purpose core in `src/engine/prompts.js`, resolving dead `visual_engine.enhance` calls in `ImagePicker` and `VisualWing` with structured JSON parsing and style-level bypasses.
       - Aligned `VisualEngine.generate()` return payload to supply both `url` and `image_url`, resolving the profile picture persistence mismatch in `src/ui/profile/VisualWing.svelte` and `src/intelligence/profile.js`.
       - Wired `take_photo()` in `src/App.svelte` to run `visual_engine.enhance()` via the `visualizer` purpose core before dispatching to `visualize()`, with transparent fallback to the draft prompt on failure.
+      - Resolved Greenfield Live Forensic Findings from `@752ee63`:
+        - Forwarded `options.signal` through `execute_greenfield_turn` -> `Kernel.submit_turn` -> `execute_round` -> `transport.stream` so client stop requests immediately abort in-flight generations.
+        - Preserved `style_def.negative_prompt` and injected visual style cues into `VisualEngine.enhance()` so refined diffusion prompts maintain camera/medium/texture style identity.
+        - Disambiguated visual style `none` keywords to `["none", "unstyled", "draft", "unmodified"]` to prevent keyword collisions with RAW Photography (`photo`).
+        - Emitted `DYNAMICS_DELTA` system telemetry entries on greenfield turns so Quick Shot TelemetryCards update live.
+        - Appended Caretaker state mutations to Dexie `mutation_ledger` during `dispatch_caretaker_consolidation` so Back Shot history stays synchronized.
     - Added interactive `GREENFIELD` toggle in `src/ui/console/DevControls.svelte` next to `DEVMODE` for live one-click switching between legacy gamemaster and greenfield kernel.
     - Fixed voice loading guard in `src/ui/profile/AudioWing.svelte` and removed unreferenced `meta?.type` bug in `src/ui/Storymode.svelte`.
     - Resolved 4 greenfield edge cases: round double-increment on greenfield turn advancement in `src/state/chrono.svelte.js`, fractal/system history origin attribution fallback in `src/engine/prompts.js`, orphan retry greenfield branching in `src/state/chrono.svelte.js`, user dynamics rollback in `src/engine/kernel.svelte.js`, and explicit logging on malformed Turn 1 Director fallback in `src/engine/turns.js`.

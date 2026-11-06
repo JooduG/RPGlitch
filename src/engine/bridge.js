@@ -18,7 +18,7 @@ import { Kernel } from "./kernel.svelte.js";
 import { create_transport } from "./transport.js";
 import { execute_turn_3_caretaker } from "./turns.js";
 import { normalize_entity } from "../storage/entities.js";
-import { apply_bracket_deltas } from "../storage/parser.js";
+import { apply_bracket_deltas, parse_bracket_entries } from "../storage/parser.js";
 import { session_driver } from "../data/index.js";
 import { state_bridge } from "../utils/index.js";
 
@@ -247,12 +247,37 @@ export async function dispatch_caretaker_consolidation(kernel, transport) {
     if (!target_entity) return;
 
     let has_changes = false;
+    const ledger_entries = [];
+    const story_id = runtime.story_id ?? null;
+    const round = Number(kernel.round ?? 0);
+    const entity_id = String(target_entity.id || target_key.toLowerCase());
+
+    const helper_record_ledger = (field, delta_text) => {
+      if (!delta_text) return;
+      const parsed_items = parse_bracket_entries(delta_text);
+      for (const item of parsed_items) {
+        ledger_entries.push({
+          story_id,
+          round,
+          seq: 3, // Caretaker continuum phase
+          entity_id,
+          field,
+          key: item.key,
+          new_value: item.value,
+          visibility: item.flags.hide ? "hide" : item.flags.show ? "show" : null,
+          weight: item.flags.weight ?? null,
+          writer: "caretaker",
+          decider: "caretaker",
+        });
+      }
+    };
 
     // 1. Present physical
     if (caretaker_outcome.present_physical) {
       target_entity.present = target_entity.present || { physical: "", non_physical: "" };
       const current_phys = typeof target_entity.present.physical === "string" ? target_entity.present.physical : "";
       target_entity.present.physical = apply_bracket_deltas(current_phys, caretaker_outcome.present_physical);
+      helper_record_ledger("present.physical", caretaker_outcome.present_physical);
       has_changes = true;
     }
 
@@ -261,6 +286,7 @@ export async function dispatch_caretaker_consolidation(kernel, transport) {
       target_entity.present = target_entity.present || { physical: "", non_physical: "" };
       const current_non = typeof target_entity.present.non_physical === "string" ? target_entity.present.non_physical : "";
       target_entity.present.non_physical = apply_bracket_deltas(current_non, caretaker_outcome.present_non_physical);
+      helper_record_ledger("present.non_physical", caretaker_outcome.present_non_physical);
       has_changes = true;
     }
 
@@ -268,6 +294,7 @@ export async function dispatch_caretaker_consolidation(kernel, transport) {
     if (caretaker_outcome.future_text) {
       const current_future = typeof target_entity.future === "string" ? target_entity.future : "";
       target_entity.future = apply_bracket_deltas(current_future, caretaker_outcome.future_text);
+      helper_record_ledger("future", caretaker_outcome.future_text);
       has_changes = true;
     }
 
@@ -275,12 +302,22 @@ export async function dispatch_caretaker_consolidation(kernel, transport) {
     if (caretaker_outcome.past_text) {
       const current_past = typeof target_entity.past === "string" ? target_entity.past : "";
       target_entity.past = apply_bracket_deltas(current_past, caretaker_outcome.past_text);
+      helper_record_ledger("past", caretaker_outcome.past_text);
       has_changes = true;
     }
 
     if (has_changes) {
       const entity_type = target_key === "FRACTAL" ? "fractal" : "character";
       await runtime.save_entity(entity_type, target_entity);
+
+      if (ledger_entries.length > 0) {
+        try {
+          const { append_ledger_entries } = await import("../data/ledger.js");
+          await append_ledger_entries(ledger_entries);
+        } catch (ledger_err) {
+          console.warn("[Bridge] Failed to append caretaker ledger entries:", ledger_err);
+        }
+      }
     }
   } catch (caretaker_err) {
     console.warn("[Bridge] Caretaker write-back non-fatal warning:", caretaker_err);
@@ -337,6 +374,7 @@ export async function execute_greenfield_turn(user_input, _options = {}) {
 
   try {
     const outcome = await _active_kernel.submit_turn(user_input, {
+      signal: _options.signal,
       onChunk: (chunk) => {
         app.update_stream(chunk);
       },
@@ -356,6 +394,21 @@ export async function execute_greenfield_turn(user_input, _options = {}) {
           greenfield: true,
         },
       });
+
+      // Emit a DYNAMICS_DELTA system entry so Quick Shot TelemetryCard stays live on greenfield turns
+      if (outcome.director_staging?.dynamics_deltas) {
+        await session_driver.log_message("", "system", "Director", {
+          turn_type: "SYSTEM_TURN",
+          round: _active_kernel.round,
+          meta: {
+            type: "DYNAMICS_DELTA",
+            deltas: outcome.director_staging.dynamics_deltas,
+            director_note: outcome.director_staging.directors_note,
+            camera_note: outcome.director_staging.camera_note,
+            greenfield: true,
+          },
+        });
+      }
     }
 
     // Resolves Gap 4: Write back updated dynamics, macro round, and caretaker deltas

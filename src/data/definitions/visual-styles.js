@@ -88,10 +88,10 @@ function define_visual_style(definition) {
 const _VISUAL_STYLES = {
   none: define_visual_style({
     id: "none",
-    name: "No Visual Style",
+    name: "Unstyled Draft",
     portrait: "https://user.uploads.dev/file/f968b744a4afde6ab81c0e751dc5e972.png",
     description: "Raw prompt generation without visual style engine tokens, enforcing baseline quality guards.",
-    keywords: ["none", "raw", "unmodified"],
+    keywords: ["none", "unstyled", "draft", "unmodified"],
     llm_refine: false,
     negative_prompt: "blurry, low resolution, compressed artifacts, watermark, bad anatomy, distorted features",
   }),
