@@ -427,6 +427,7 @@ Standard RAG searches for _pre-existing_ text matching a query. **Emergent Motif
        Weave thematic resonance of physical confinement and patient predation into sensory beats and character tells.
      </EMERGENT_MOTIF>
      ```
+
   - **Why This Matters:** It creates subtle literary callbacks and thematic depth unique to _that specific player's playthrough_, without maintaining a single static list of hardcoded tropes.
 
 #### 3. Deprecation of Legacy Chapter Compaction Trees
