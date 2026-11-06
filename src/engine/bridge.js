@@ -22,6 +22,7 @@ import { normalize_entity } from "../storage/entities.js";
 import { apply_bracket_deltas, parse_bracket_entries } from "../storage/parser.js";
 import { session_driver } from "../data/index.js";
 import { state_bridge } from "../utils/index.js";
+import { LLM_PRIORITY, merge_abort_signals, run_llm_job } from "../platform/llm-gate.js";
 
 /**
  * Creates a live browser streaming function backed by window.generateText
@@ -47,81 +48,89 @@ export function create_live_stream_fn() {
       return mock_text;
     }
 
-    return new Promise((resolve, reject) => {
-      if (options.signal?.aborted) {
-        reject(new Error("Stream aborted by user."));
-        return;
-      }
-      let accumulated = "";
+    const priority = options.priority === "background" ? LLM_PRIORITY.BACKGROUND : LLM_PRIORITY.FOREGROUND;
 
-      // Deduplication guard: track characters emitted to prevent double-counting if onToken & onChunk fire
-      let token_streamed = false;
+    return run_llm_job(
+      (gate_signal) =>
+        new Promise((resolve, reject) => {
+          const effective_signal = merge_abort_signals(options.signal, gate_signal);
 
-      const handle_chunk = (chunk) => {
-        const piece = typeof chunk === "string" ? chunk : chunk?.textChunk || "";
-        if (!piece) return;
-        accumulated += piece;
-        if (options.onChunk) {
-          options.onChunk(piece);
-        }
-      };
+          if (effective_signal?.aborted) {
+            reject(new Error("Stream aborted by user."));
+            return;
+          }
+          let accumulated = "";
 
-      try {
-        const generation = ai_engine({
-          instruction: () => (typeof prompt === "function" ? prompt() : String(prompt || "")),
-          startWith: options.startWith != null ? String(options.startWith) : "",
-          stopSequences: options.stopSequences || options.stop_sequences || [],
-          stop_sequences: options.stopSequences || options.stop_sequences || [],
-          signal: options.signal,
-          onToken: (chunk) => {
-            token_streamed = true;
-            handle_chunk(chunk);
-          },
-          onChunk: (chunk) => {
-            // Only handle if onToken is not actively processing to prevent double-counting
-            if (!token_streamed) {
-              handle_chunk(chunk);
+          // Deduplication guard: track characters emitted to prevent double-counting if onToken & onChunk fire
+          let token_streamed = false;
+
+          const handle_chunk = (chunk) => {
+            const piece = typeof chunk === "string" ? chunk : chunk?.textChunk || "";
+            if (!piece) return;
+            accumulated += piece;
+            if (options.onChunk) {
+              options.onChunk(piece);
             }
-          },
-        });
+          };
 
-        if (options.signal && typeof generation?.stop === "function") {
-          options.signal.addEventListener("abort", () => generation.stop(), { once: true });
-        }
+          try {
+            const generation = ai_engine({
+              instruction: () => (typeof prompt === "function" ? prompt() : String(prompt || "")),
+              startWith: options.startWith != null ? String(options.startWith) : "",
+              stopSequences: options.stopSequences || options.stop_sequences || [],
+              stop_sequences: options.stopSequences || options.stop_sequences || [],
+              signal: effective_signal,
+              onToken: (chunk) => {
+                token_streamed = true;
+                handle_chunk(chunk);
+              },
+              onChunk: (chunk) => {
+                // Only handle if onToken is not actively processing to prevent double-counting
+                if (!token_streamed) {
+                  handle_chunk(chunk);
+                }
+              },
+            });
 
-        if (generation && typeof generation.then === "function") {
-          generation
-            .then((res) => {
-              // DIAGNOSTIC (resolve-divergence, removable): log which result field won and their lengths.
-              try {
-                const picked =
-                  typeof res === "string" ? "string" : res?.text != null ? "text" : res?.generatedText != null ? "generatedText" : "accumulated";
-                console.log(
-                  "[resolve-divergence] bridge stream_fn picked=" +
-                    picked +
-                    " " +
-                    JSON.stringify({
-                      text: typeof res === "string" ? res.length : typeof res?.text === "string" ? res.text.length : null,
-                      generatedText: typeof res?.generatedText === "string" ? res.generatedText.length : null,
-                      accumulated: accumulated.length,
-                      aborted: !!options.signal?.aborted,
-                      reason: options.signal?.reason ?? null,
-                    }),
-                );
-              } catch {
-                /* diagnostic must never throw */
-              }
-              const text_out = typeof res === "string" ? res : res?.text || res?.generatedText || accumulated;
-              resolve(text_out);
-            })
-            .catch(reject);
-        } else {
-          resolve(accumulated);
-        }
-      } catch (err) {
-        reject(err);
-      }
-    });
+            if (effective_signal && typeof generation?.stop === "function") {
+              effective_signal.addEventListener("abort", () => generation.stop(), { once: true });
+            }
+
+            if (generation && typeof generation.then === "function") {
+              generation
+                .then((res) => {
+                  // DIAGNOSTIC (resolve-divergence, removable): log which result field won and their lengths.
+                  try {
+                    const picked =
+                      typeof res === "string" ? "string" : res?.text != null ? "text" : res?.generatedText != null ? "generatedText" : "accumulated";
+                    console.log(
+                      "[resolve-divergence] bridge stream_fn picked=" +
+                        picked +
+                        " " +
+                        JSON.stringify({
+                          text: typeof res === "string" ? res.length : typeof res?.text === "string" ? res.text.length : null,
+                          generatedText: typeof res?.generatedText === "string" ? res.generatedText.length : null,
+                          accumulated: accumulated.length,
+                          aborted: !!effective_signal?.aborted,
+                          reason: effective_signal?.reason ?? null,
+                        }),
+                    );
+                  } catch {
+                    /* diagnostic must never throw */
+                  }
+                  const text_out = typeof res === "string" ? res : res?.text || res?.generatedText || accumulated;
+                  resolve(text_out);
+                })
+                .catch(reject);
+            } else {
+              resolve(accumulated);
+            }
+          } catch (err) {
+            reject(err);
+          }
+        }),
+      priority,
+    );
   };
 }
 
@@ -518,8 +527,11 @@ export async function execute_greenfield_continue(target_entry, _options = {}) {
     }
   }
 
-  // 4. Begin UI streaming indicator targeting this message
+  // 4. Begin UI streaming indicator targeting this message, seeded with existing prose so continuation appends smoothly
   app.start_stream(target_entry.id, "ai");
+  if (target_prose) {
+    app.update_stream(`${target_prose} `);
+  }
 
   try {
     const outcome = await _active_kernel.continue_turn(

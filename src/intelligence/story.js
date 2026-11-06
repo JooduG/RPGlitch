@@ -28,14 +28,14 @@ import {
   clear_generation_in_flight,
 } from "@media";
 import { validate_and_repair_response, force_close_response, strip_directors_note_seed, THINK_OPEN_TAG, THINK_CLOSE_TAG } from "./parser.js";
-import { llm_service, looks_truncated, calculate_semantic_drift, merge_abort_signals } from "@platform";
+import { llm_service, looks_truncated, calculate_semantic_drift } from "@platform";
 import { apply_dynamics_gravity, extract_entity_dynamics_baselines, capture_dynamics_delta, DYNAMICS_AXES } from "./dynamics.js";
 import { execute_director_shot, resolve_npc_entity, apply_in_scene_change } from "./director.js";
 import { build_scoring_context, context_builder } from "./builder.js";
 import { compile_prompt } from "./prompts.js";
 import { prune, temporal_engine } from "./temporal.js";
 import { spawn_character } from "./profile.js";
-import { REFLEX_LIBRARY, classify_input_size, is_stream_beat_limit_reached } from "./modules/reflex.js";
+import { REFLEX_LIBRARY } from "./modules/reflex.js";
 
 /**
  * @typedef {Object} GenerationOptions
@@ -493,31 +493,8 @@ export const gamemaster = {
       }
 
       // 6. GENERATION: Character pass with completion retry
-      const input_size = classify_input_size(input);
-
       const make_character_try = async (completion_note) => {
         const { onToken, json, signal, silent, raw } = llm_options;
-        const beat_controller = new AbortController();
-        const effective_signal = merge_abort_signals(signal, beat_controller.signal);
-
-        let streamed_raw = "";
-        const wrapped_onToken = (chunk) => {
-          streamed_raw += chunk;
-          if (typeof onToken === "function") {
-            onToken(chunk);
-          }
-          if (input_size.tier === "TINY" || input_size.tier === "SMALL") {
-            const inside_think =
-              (streamed_raw.includes(THINK_OPEN_TAG) || /<think>/i.test(streamed_raw)) &&
-              !(streamed_raw.includes(THINK_CLOSE_TAG) || /<\/think>/i.test(streamed_raw));
-            if (!inside_think) {
-              const prose_so_far = strip_cognition_blocks(streamed_raw);
-              if (is_stream_beat_limit_reached(prose_so_far, input_size.tier)) {
-                beat_controller.abort("BEAT_LIMIT_REACHED");
-              }
-            }
-          }
-        };
 
         const system = completion_note
           ? character_prompt.system.replace(/<\/SYSTEM>\s*$/, (match) => `\n\n${completion_note}\n${match}`)
@@ -531,9 +508,9 @@ export const gamemaster = {
             ...(director_data?.directors_note ? { startWith: `${THINK_OPEN_TAG}${director_data.directors_note} ` } : {}),
           },
           {
-            onToken: wrapped_onToken,
+            onToken,
             json,
-            signal: effective_signal,
+            signal,
             silent,
             raw,
           },
@@ -616,9 +593,13 @@ export const gamemaster = {
       final_meta.structural_errors = state_bridge.runtime.structural_errors;
 
       const speaker_style = resolve_speaking_style(generation_entity);
+      const raw_validation_text = validation_result.text || "";
+      const extracted_think_match = /<think>([\s\S]*?)<\/think>/i.exec(raw_validation_text);
+      const extracted_think = extracted_think_match ? extracted_think_match[1].trim() : "";
+
       const persisted_text = strip_alternation_braces(
         cap_somatic_markers(
-          detox_prose(strip_directors_note_seed(validation_result.text || "", director_monologue, director_data?.directors_note), speaker_style),
+          detox_prose(strip_directors_note_seed(raw_validation_text, director_monologue, director_data?.directors_note), speaker_style),
         ),
       );
 
@@ -629,6 +610,7 @@ export const gamemaster = {
           meta: {
             id: node_id,
             round: state_bridge.runtime.round,
+            think: extracted_think || think_content || undefined,
             speaker_type: npc_entity ? "npc" : undefined,
             entity_id: npc_entity ? npc_entity.id : undefined,
           },

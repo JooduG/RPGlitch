@@ -2091,7 +2091,7 @@ describe("THINK tag balancing (startWith seed regression)", () => {
 });
 
 describe("Track 5: Runtime Stream Beat Backstop & Continuation", () => {
-  it("cuts stream on beat limit for TINY input during token streaming", async () => {
+  it("preserves full stream without aborting mid-stream on TINY input during token streaming", async () => {
     const mock_payload = {
       input: "Nod.",
       type: "simulation",
@@ -2114,20 +2114,19 @@ describe("Track 5: Runtime Stream Beat Backstop & Continuation", () => {
     vi.mocked(llm_service.generate)
       .mockResolvedValueOnce('{"story_status":"IN_PROGRESS","next_action":"AI_CHARACTER","keywords":[],"directors_note":"","dynamics_deltas":{}}')
       .mockImplementationOnce(async (payload, options) => {
-        // Stream multiple sentences
+        // Stream multiple sentences without mid-stream abort
         if (options?.onToken) {
           options.onToken("First beat.");
-          // Beat controller should abort here for TINY input
           if (options.signal?.aborted) {
             return "First beat.";
           }
-          options.onToken(" Second unprompted beat.");
+          options.onToken(" Second beat is preserved.");
         }
-        return options.signal?.aborted ? "First beat." : "First beat. Second unprompted beat.";
+        return options.signal?.aborted ? "First beat." : "First beat. Second beat is preserved.";
       });
 
     const result = await gamemaster.execute_turn("story-123", { input: "Nod.", role: "ai" });
-    expect(result.response).toBe("First beat.");
+    expect(result.response).toBe("First beat. Second beat is preserved.");
   });
 
   it("triggers finishTail continuation on truncated response and concatenates tail", async () => {

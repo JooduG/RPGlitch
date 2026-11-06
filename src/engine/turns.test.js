@@ -163,10 +163,10 @@ Alice steps into the shadow of the rusted girder, her hand resting on her holste
     expect(result.brackets[3].flags.weight).toBe(8);
   });
 
-  it("enforces post-hoc pacing backstop by truncating oversized prose on small tempo", async () => {
+  it("preserves full multi-sentence prose on small tempo without post-hoc truncation", async () => {
     const mock_transport = {
       async stream() {
-        return "<think>quick thought</think>\nFirst beat sentence. Second beat sentence that should be pruned because tempo is 1.";
+        return "<think>quick thought</think>\nFirst beat sentence. Second beat sentence that is preserved in full.";
       },
     };
 
@@ -178,7 +178,7 @@ Alice steps into the shadow of the rusted girder, her hand resting on her holste
     });
 
     expect(turn.turn_tempo).toBe(1);
-    expect(turn.prose).toBe("First beat sentence.");
+    expect(turn.prose).toBe("First beat sentence. Second beat sentence that is preserved in full.");
   });
 
   it("rejects execute_turn_3_caretaker immediately when signal is already aborted", async () => {

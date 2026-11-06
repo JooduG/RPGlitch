@@ -256,12 +256,11 @@ export async function execute_turn_2_character({
     raw = start_with + raw;
   }
   const { think, prose } = extract_think_block(raw);
-  const { prose: bounded_prose } = enforce_pacing_backstop(prose, turn_tempo);
 
   return {
     raw,
     think,
-    prose: bounded_prose,
+    prose,
     turn_tempo,
   };
 }
@@ -424,7 +423,7 @@ export async function execute_turn_3_caretaker({ transport, round = 1, entities 
   });
 
   const start_prefix = '{"_thought_process": "';
-  let raw = await transport.stream(prompt, { startWith: start_prefix, signal });
+  let raw = await transport.stream(prompt, { startWith: start_prefix, signal, priority: "background" });
 
   if (raw && !raw.trimStart().startsWith("{")) {
     raw = start_prefix + raw;
