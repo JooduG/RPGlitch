@@ -7,8 +7,11 @@
  * circuit breaking, cancellation via AbortSignal, and queue / in-flight bookkeeping.
  */
 
-import { generate_secure_seed, CircuitBreaker, ExponentialBackoffRetryer, state_bridge } from "@utils";
+import { generate_secure_seed, strip_cognition_blocks, CircuitBreaker, ExponentialBackoffRetryer, state_bridge } from "@utils";
 import { IMAGE_TIERS } from "./optics.js";
+import { llm_service } from "@platform";
+import { compile_prompt } from "../engine/prompts.js";
+import { get_visual_style } from "../data/definitions/visual-styles.js";
 
 // ============================================================================
 // [SECTION 1: HOST ENGINE DISCOVERY]
@@ -391,6 +394,76 @@ export class VisualEngine {
     }
     const settled = await Promise.all(attempts);
     return settled.filter(Boolean);
+  }
+
+  /**
+   * Refines draft prompt text via the greenfield Visualizer Purpose Core.
+   * If style has `llm_refine === false`, bypasses the LLM and returns the prompt untouched.
+   *
+   * @param {string} text - Raw natural language intent or draft prompt
+   * @param {string} [type="character"] - Entity type or generation mode ("character", "fractal", "story_scene", etc.)
+   * @param {object} [entity=null] - Target entity snapshot (if available)
+   * @returns {Promise<{ prompt: string, negative_prompt: string, resolution?: string }>}
+   */
+  async enhance(text, type = "character", entity = null) {
+    if (!text || typeof text !== "string") {
+      return { prompt: "", negative_prompt: "" };
+    }
+
+    // Check style-level bypass (default true; explicit false bypasses LLM)
+    const style_key = entity?.visual_style || state_bridge.runtime?.active_fractal?.visual_style || "none";
+    const style_def = get_visual_style(style_key);
+    if (style_def && style_def.llm_refine === false) {
+      return { prompt: text.trim(), negative_prompt: style_def.negative_prompt || "" };
+    }
+
+    try {
+      const runtime_state = state_bridge.runtime || {};
+      const target_entity = entity || (type === "fractal" ? runtime_state.active_fractal : runtime_state.active_ai);
+
+      const system = compile_prompt({
+        core: "visualizer",
+        round: runtime_state.round || 1,
+        entities: {
+          AI: type !== "fractal" ? target_entity : runtime_state.active_ai,
+          USER: runtime_state.active_user,
+          FRACTAL: type === "fractal" ? target_entity : runtime_state.active_fractal,
+        },
+        task_options: {
+          camera_note: text.trim(),
+        },
+      });
+
+      const response = await llm_service.generate({ system, role: "model" }, { silent: true, priority: "background" });
+
+      if (!response) {
+        return { prompt: text.trim(), negative_prompt: "" };
+      }
+
+      // Peel JSON format from visualizer output
+      const json_match = /\{[\s\S]*\}/.exec(String(response));
+      if (json_match) {
+        try {
+          const parsed = JSON.parse(json_match[0]);
+          if (parsed && typeof parsed.prompt === "string" && parsed.prompt.trim()) {
+            return {
+              prompt: parsed.prompt.trim(),
+              negative_prompt: typeof parsed.negative_prompt === "string" ? parsed.negative_prompt.trim() : "",
+              resolution: parsed.resolution,
+            };
+          }
+        } catch (_json_err) {
+          /* Fall back to regex/text extraction */
+        }
+      }
+
+      // Emergency fallback: strip think blocks and cleanup text
+      const cleaned = strip_cognition_blocks(String(response)).trim();
+      return { prompt: cleaned || text.trim(), negative_prompt: "" };
+    } catch (err) {
+      console.warn("[VisualEngine.enhance] Visualizer refinement failed, using draft:", err);
+      return { prompt: text.trim(), negative_prompt: "" };
+    }
   }
 }
 

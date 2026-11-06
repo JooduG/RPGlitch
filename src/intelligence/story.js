@@ -791,10 +791,9 @@ export const gamemaster = {
         metadata: { mode: "story_scene", requested_at: prologue_image_requested_at },
       });
 
-      // The prologue image runs an LLM "optics" refinement pass before texturing, so it
-      // routinely takes ~2 minutes. Its background LLM call is DEFERRED until the opening
-      // turn's foreground reply has landed, so it cannot contend with (and stale-abort) the
-      // reply on the single-slot global LLM gate. It is marked in flight up-front so the
+      // The prologue image visualization is DEFERRED until the opening turn's foreground
+      // reply has landed, so its background generation cannot contend with (and stale-abort)
+      // the reply on the single-slot global LLM gate. It is marked in flight up-front so the
       // ghost sweeper (which ages placeholders) never reaps it mid-generation.
       let release_prologue_image = () => {};
       const prologue_image_gate = new Promise((resolve) => {

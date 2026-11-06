@@ -13,7 +13,9 @@ import {
   is_generation_in_flight,
   reset_generation_in_flight,
   reset_image_generation_queue,
+  visual_engine,
 } from "./visual.js";
+import { llm_service } from "@platform";
 
 describe("visual.js — Stateless Perchance Image Dispatcher", () => {
   beforeEach(() => {
@@ -92,6 +94,38 @@ describe("visual.js — Stateless Perchance Image Dispatcher", () => {
       reset_generation_in_flight();
       expect(is_generation_in_flight("entry-1", 0)).toBe(false);
       expect(is_generation_in_flight("entry-2", 0)).toBe(false);
+    });
+  });
+
+  describe("visual_engine.enhance", () => {
+    it("bypasses LLM refinement when style has llm_refine === false", async () => {
+      const spy = vi.spyOn(llm_service, "generate");
+      const result = await visual_engine.enhance("A raw photographic snapshot", "character", {
+        visual_style: "none",
+      });
+
+      expect(spy).not.toHaveBeenCalled();
+      expect(result.prompt).toBe("A raw photographic snapshot");
+      expect(result.negative_prompt).toBeDefined();
+    });
+
+    it("routes through LLM visualizer core and parses structured JSON output", async () => {
+      const mock_json = JSON.stringify({
+        _thought_process: "Framing close portrait",
+        prompt: "A detailed cinematic portrait of the protagonist with ambient backlighting",
+        negative_prompt: "blurry, low quality",
+        resolution: "512x768",
+      });
+      vi.spyOn(llm_service, "generate").mockResolvedValueOnce(mock_json);
+
+      const result = await visual_engine.enhance("Rough concept of a hero", "character", {
+        name: "Aria",
+        visual_style: "cinematic",
+      });
+
+      expect(result.prompt).toBe("A detailed cinematic portrait of the protagonist with ambient backlighting");
+      expect(result.negative_prompt).toBe("blurry, low quality");
+      expect(result.resolution).toBe("512x768");
     });
   });
 });
