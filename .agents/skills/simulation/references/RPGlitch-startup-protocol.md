@@ -232,7 +232,7 @@ RPGlitch operates under the Four-Layer Documentation Architecture:
 - **`ROADMAP.md`**: The **FUTURE mirror** representing active engineering sprints, architectural blueprints, and unbuilt deltas.
 - **`CHANGELOG.md`**: The **PAST mirror** documenting historical release pulses and completed milestones.
 - **`nuclear-plan.md`**: Sovereign blueprint for the parallel engine cutover (Gates 1–4).
-- **`GREENFIELD_REPORT.md`**: Live verification findings and forensic test-round data on Perchance.
+- **`tmp/archive/GREENFIELD_REPORT.md`**: Live verification findings and forensic test-round data on Perchance (archived).
 
 ---
 

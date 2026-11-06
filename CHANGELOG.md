@@ -9,7 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
-- **Greenfield Engine Live Fixes & Sensory Precedence Harmonization (`src/data/sessions.svelte.js`, `src/engine/bridge.js`, `src/engine/prompts.js`, `src/engine/index.js`, `src/engine/transport.js`, `src/engine/turns.js`, `src/state/chrono.svelte.js`, `src/media/visual.js`, `src/media/optics.js`, `src/ui/profile/VisualWing.svelte`, `src/App.svelte`)**:
+- **Comma-Separated Bracket Formatting Harmonization (`src/data/definitions/premade-entities.js`, `src/storage/presets.js`)**:
+  - Replaced newline-separated bracket lists with comma-separated bracket lists (`[KEY1: val1], [KEY2: val2]`) across all 10 starter archetype blueprints (7 characters, 3 fractals) in both `src/data/definitions/premade-entities.js` and `src/storage/presets.js`.
+  - Harmonized starter entity blueprints with the system directive in `src/engine/prompts.js` establishing comma-separated brackets as the preferred format.
+  - Preserved bracket tokens, relational directives (`[@target: ...]`), and visibility flags across all quadrants (`eternal`, `present`, `future`, `past`).
+
   - **Visualizer Response Hardening & Deterministic Resolution (`src/media/visual.js`, `src/media/optics.js`, `src/ui/profile/VisualWing.svelte`, `src/engine/prompts.js`)**:
     - Stripped echoed startWith prefill before parsing JSON in `VisualEngine.enhance()`, handling exact matches and whitespace-drifted echoes so continuation fields with raw newlines parse cleanly without tripping into fallback.
     - Added guard against persisting prefill or internal thought markers (`_thought_process` or `{"_thought_process"`) in both `VisualEngine.enhance()` and `VisualWing.svelte`'s `handle_creative_action()`, keeping the user's draft intact and logging a warning.

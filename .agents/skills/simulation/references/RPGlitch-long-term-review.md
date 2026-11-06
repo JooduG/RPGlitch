@@ -2,7 +2,7 @@
 
 > **System Designation**: Sovereign AI Roleplay Engine (Perchance Iframe Environment)  
 > **Protocol Focus**: Live Interactive Roleplay Stress Test & State Audit for the Greenfield Nuclear Architecture  
-> **Target Scope**: End-to-end verification of Greenfield Shipped Reality (`src/engine/`, `src/storage/`, and modernized `src/media/` per `GREENFIELD_REPORT.md` and `nuclear-plan.md`). Covers 1-shot / 2-shot Director execution, Kernel round sovereignty, Caretaker 3-cycle rotation, sliding-window context budgeting, Epistemic Wall integrity, sensory diffusion dispatch, and transactional rollback.
+> **Target Scope**: End-to-end verification of Greenfield Shipped Reality (`src/engine/`, `src/storage/`, and modernized `src/media/` per `tmp/archive/GREENFIELD_REPORT.md` and `nuclear-plan.md`). Covers 1-shot / 2-shot Director execution, Kernel round sovereignty, Caretaker 3-cycle rotation, sliding-window context budgeting, Epistemic Wall integrity, sensory diffusion dispatch, and transactional rollback.
 
 ---
 
