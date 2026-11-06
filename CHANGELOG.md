@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Shortened visualizer startWith prefill to a compact cue (first 300 chars of `camera_note`) while preserving the full aesthetic direction in the task block.
     - Derived render resolution deterministically from canonical tier mapping (`IMAGE_RESOLUTIONS` in `src/media/optics.js`), mapping `solo_entity` (character/user portraits) to `512x768` portrait and `story_scene` (fractal/scene pictures) to `768x512` landscape.
     - Removed redundant `### Resolution` directive from the visualizer task block in `src/engine/prompts.js` and ensured `VisualEngine.generate()`, `visualize()`, and `enhance()` resolve tier dimensions deterministically.
+    - Deduplicated upfront `tier_resolution` calculation in `VisualEngine.enhance()` across refine bypass and fallback exits (`src/media/visual.js`).
   - **Visualizer Camera Note & Aesthetic Steering (`src/engine/prompts.js`, `src/engine/index.js`, `src/media/visual.js`)**:
     - Wired `PURPOSE_CORES.visualizer.start_with({ camera_note })` prefill through to `llm_service.generate()` in `VisualEngine.enhance()`, resolving model prefill with style guidance cues.
     - Exported `PURPOSE_CORES` from `src/engine/prompts.js` and barrel `src/engine/index.js` for clean downward access.

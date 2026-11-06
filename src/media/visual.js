@@ -478,7 +478,6 @@ export class VisualEngine {
       const response = await llm_service.generate({ system, role: "model", startWith: start_with }, { silent: true, priority: "background" });
 
       const base_negative = style_def?.negative_prompt || "";
-      const tier_resolution = get_resolution_string(type);
 
       if (!response) {
         return { prompt: text.trim(), negative_prompt: base_negative, resolution: tier_resolution };
@@ -549,7 +548,7 @@ export class VisualEngine {
       };
     } catch (err) {
       console.warn("[VisualEngine.enhance] Visualizer refinement failed, using draft:", err);
-      return { prompt: text.trim(), negative_prompt: style_def?.negative_prompt || "", resolution: get_resolution_string(type) };
+      return { prompt: text.trim(), negative_prompt: style_def?.negative_prompt || "", resolution: tier_resolution };
     }
   }
 }
