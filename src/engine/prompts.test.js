@@ -116,4 +116,17 @@ describe("src/engine/prompts.js — 11-Block Spatial Spine & 4 Purpose Cores", (
     expect(single_entity_prompt).not.toContain("<MEMORIES>");
     expect(single_entity_prompt).not.toContain("<RECENT");
   });
+
+  it("includes Continuation Directive and additive pacing budget when task_options.is_continuation is true", () => {
+    const prompt = compile_prompt({
+      core: "character",
+      round: 1,
+      entities,
+      history,
+      task_options: { turn_tempo: 3, is_continuation: true },
+    });
+
+    expect(prompt).toContain("Continuation Directive");
+    expect(prompt).toContain("Append 3 additional beat(s) beyond the prefilled text");
+  });
 });

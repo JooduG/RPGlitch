@@ -529,8 +529,11 @@ export async function execute_greenfield_continue(target_entry, _options = {}) {
 
   // 4. Begin UI streaming indicator targeting this message, seeded with existing prose so continuation appends smoothly
   app.start_stream(target_entry.id, "ai");
-  if (target_prose) {
-    app.update_stream(`${target_prose} `);
+  const clean_target_prose = target_prose.trim();
+  const ends_with_terminal = /[.!?…"”'’*)\]]$/.test(clean_target_prose);
+  const stream_seed_separator = ends_with_terminal ? "\n\n" : " ";
+  if (clean_target_prose) {
+    app.update_stream(`${clean_target_prose}${stream_seed_separator}`);
   }
 
   try {
@@ -544,6 +547,11 @@ export async function execute_greenfield_continue(target_entry, _options = {}) {
       {
         signal: _options.signal,
         onChunk: (chunk) => {
+          if (!chunk) return;
+          // Ignore echoed startWith chunk from Perchance ai-text-plugin so pre-seeded target_prose is never duplicated
+          if (clean_target_prose && (chunk.includes(clean_target_prose) || (target_think && chunk.includes(target_think)))) {
+            return;
+          }
           app.update_stream(chunk);
         },
       },

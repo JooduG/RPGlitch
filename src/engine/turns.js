@@ -307,11 +307,15 @@ export async function execute_turn_2_continue({
   const clean_prose = typeof target_prose === "string" ? target_prose.trim() : "";
   const clean_think = typeof target_think === "string" ? target_think.trim() : "";
 
-  // Prepare start_with. If target_prose ends with terminal punctuation or quotes,
-  // append a space so the model does not perceive the sequence as closed.
+  // Prepare start_with.
+  // Perchance ai-text-plugin strips trailing spaces (" ") from startWith while preserving newlines ("\n").
+  // When target_prose ends with terminal punctuation/quotes/asterisks, append "\n\n" so the host plugin
+  // preserves the open boundary and the model starts a fresh continuation beat instead of emitting EOS.
+  // For mid-sentence fragments (no terminal punctuation), append " " to continue inline.
+  const ends_with_terminal = /[.!?…"”'’*)\]]$/.test(clean_prose);
   let prose_lead = clean_prose;
-  if (prose_lead && !prose_lead.endsWith(" ") && !prose_lead.endsWith("\n")) {
-    prose_lead = `${prose_lead} `;
+  if (prose_lead) {
+    prose_lead = ends_with_terminal ? `${clean_prose}\n\n` : `${clean_prose} `;
   }
 
   let start_with = "<think>";
@@ -330,7 +334,7 @@ export async function execute_turn_2_continue({
     raw = `<think>${clean_think}</think>\n${raw}`;
   }
 
-  const { think, prose } = extract_think_block(raw);
+  let { think, prose } = extract_think_block(raw);
 
   // Compute just the delta continuation (strip original target_prose if echoed at the start of generated prose)
   let continuation_prose = prose;
@@ -338,8 +342,42 @@ export async function execute_turn_2_continue({
     continuation_prose = continuation_prose.slice(clean_prose.length).trimStart();
   }
 
+  // Fallback: when repeated continuations grow startWith past the model's single-turn output ceiling
+  // and the model emits 0 new tokens (EOS), move existing target_prose into history context and
+  // stream from a fresh cognitive anchor so continuation never stalls.
+  if (!continuation_prose.trim() && clean_prose && !signal?.aborted) {
+    const fallback_history = [...(Array.isArray(history) ? history : []), { role: "model", text: clean_prose, round }];
+    const fallback_prompt = compile_prompt({
+      core: "character",
+      round,
+      entities,
+      history: fallback_history,
+      memories,
+      task_options: { turn_tempo, is_continuation: true },
+    });
+    const fallback_start_with =
+      "<think>Continue immediately from the final sentence of my last turn with the next physical action, sensory shift, or spoken beat without repeating prior text.</think>\n";
+    const fallback_raw = await transport.stream(fallback_prompt, {
+      onChunk,
+      startWith: fallback_start_with,
+      signal,
+    });
+    const fallback_extracted = extract_think_block(
+      fallback_raw && !fallback_raw.includes("<think>") ? `${fallback_start_with}${fallback_raw}` : fallback_raw,
+    );
+    let fallback_delta = fallback_extracted.prose.trim();
+    if (clean_prose && fallback_delta.startsWith(clean_prose)) {
+      fallback_delta = fallback_delta.slice(clean_prose.length).trimStart();
+    }
+    if (fallback_delta) {
+      continuation_prose = fallback_delta;
+      raw = fallback_raw;
+    }
+  }
+
   // Fused result preserves the full continuation (continuations intentionally allow the scene to develop beyond initial turn tempo limits)
-  const final_fused_prose = clean_prose ? `${clean_prose}${continuation_prose ? ` ${continuation_prose}` : ""}` : continuation_prose;
+  const separator = ends_with_terminal ? "\n\n" : " ";
+  const final_fused_prose = clean_prose ? `${clean_prose}${continuation_prose ? `${separator}${continuation_prose}` : ""}` : continuation_prose;
 
   return {
     raw,

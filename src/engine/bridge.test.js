@@ -5,6 +5,7 @@ import {
   write_back_kernel_state,
   dispatch_caretaker_consolidation,
   execute_greenfield_turn,
+  execute_greenfield_continue,
 } from "./bridge.js";
 import { Kernel } from "./kernel.svelte.js";
 import { register_state_accessors } from "../utils/index.js";
@@ -293,6 +294,61 @@ describe("src/engine/bridge.js - Greenfield-to-Legacy Bridge Unit Tests", () => 
       await dispatch_caretaker_consolidation(kernel, mock_transport, controller.signal);
       expect(mock_transport.stream).not.toHaveBeenCalled();
       expect(mock_runtime.save_entity).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("execute_greenfield_continue streaming deduplication", () => {
+    it("does not duplicate target_prose in update_stream when ai-text-plugin echoes startWith chunk", async () => {
+      const original_gen = window.generate_text;
+      const streamed_chunks = [];
+
+      window.generate_text = vi.fn(({ startWith, onChunk }) => {
+        // Simulate Perchance ai-text-plugin emitting startWith first with isFromStartWith: true
+        onChunk({ textChunk: startWith, isFromStartWith: true });
+        onChunk({ textChunk: "Next paragraph beat.", isFromStartWith: false });
+        return Promise.resolve({
+          text: `${startWith}Next paragraph beat.`,
+          generatedText: "Next paragraph beat.",
+        });
+      });
+
+      const mock_app = {
+        settings: { director_enabled: false },
+        start_stream: vi.fn(),
+        update_stream: vi.fn((c) => streamed_chunks.push(c)),
+        end_stream: vi.fn(),
+      };
+      const target_entry = {
+        id: "msg-42",
+        role: "ai",
+        text: "Initial paragraph.",
+        round: 1,
+        meta: { think: "Initial thought." },
+      };
+      const edit_entry = vi.fn().mockResolvedValue(true);
+
+      register_state_accessors({
+        app: mock_app,
+        runtime: {
+          active_ai: { id: "ai-1", name: "Orion" },
+          active_user: { id: "u-1", name: "Glitch" },
+          active_fractal: { id: "f-1", name: "Nova" },
+          round: 1,
+        },
+        simulation_log: {
+          feed: [target_entry],
+          edit_entry,
+        },
+      });
+
+      try {
+        const outcome = await execute_greenfield_continue(target_entry);
+        expect(streamed_chunks.join("")).toBe("Initial paragraph.\n\nNext paragraph beat.");
+        expect(outcome.prose).toBe("Initial paragraph.\n\nNext paragraph beat.");
+        expect(edit_entry).toHaveBeenCalledWith("msg-42", "Initial paragraph.\n\nNext paragraph beat.");
+      } finally {
+        window.generate_text = original_gen;
+      }
     });
   });
 });

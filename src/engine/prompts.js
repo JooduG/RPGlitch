@@ -131,6 +131,10 @@ export const PURPOSE_CORES = Object.freeze({
         ? "Maintain first-person limited perspective ('I', 'me', 'my') anchored strictly to your own sensory experience. Never speak, script, or dictate actions for the counterpart."
         : "Maintain third-person limited perspective anchored strictly to your own identity. Never speak, script, or dictate actions for the counterpart.";
 
+      const pacing_budget_line = context?.is_continuation
+        ? `- **Pacing Budget**: Append ${tempo} additional beat(s) beyond the prefilled text. Deliver crisp, grounded continuation calibrated to this tempo.`
+        : `- **Pacing Budget**: ${tempo} beat(s). Deliver crisp, grounded interaction calibrated to this tempo.`;
+
       const continuation_directive = context?.is_continuation
         ? "\n    - **Continuation Directive**: The scene has been prefilled up to the current moment. Advance the scene further with the next immediate action, visceral sensation, or dialogue beat. Never stop prematurely or repeat prior text."
         : "";
@@ -146,7 +150,7 @@ export const PURPOSE_CORES = Object.freeze({
 
     ### Pacing & Posture
     - **Tense & Rhythm**: Write in present tense.
-    - **Pacing Budget**: ${tempo} beat(s). Deliver crisp, grounded interaction calibrated to this tempo.
+    ${pacing_budget_line}
     - ${perspective_rule}${continuation_directive}
 
     > [!IMPORTANT]
@@ -272,6 +276,7 @@ export function compile_prompt({ core = "character", round = 1, entities = {}, h
     directors_note: task_options.directors_note || "",
     camera_note: task_options.camera_note || "",
     turn_tempo: task_options.turn_tempo || 2,
+    is_continuation: Boolean(task_options.is_continuation),
   };
 
   const identity_text = purpose_core.resolve_identity_text(core_context);
