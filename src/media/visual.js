@@ -338,7 +338,7 @@ export class VisualEngine {
   is_offline = false;
 
   async generate(target, options = {}) {
-    return dispatch_visual_generation(
+    const dispatched = await dispatch_visual_generation(
       {
         prompt: typeof target === "string" ? target : options.prompt || "",
         negative_prompt: options.negative_prompt,
@@ -348,6 +348,10 @@ export class VisualEngine {
       },
       options,
     );
+    return {
+      ...dispatched,
+      url: dispatched.image_url,
+    };
   }
 
   async visualize(story_id, text, tier, options = {}) {

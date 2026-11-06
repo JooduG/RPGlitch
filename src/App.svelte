@@ -93,13 +93,24 @@
 
       target_mode = kind || (subject === "fractal" ? "story_scene" : "story_character");
 
+      // Refine the prompt via the visualizer purpose core, falling back to original prompt on failure
+      let refined_prompt = prompt;
+      try {
+        const enhanced = await visual_engine.enhance(prompt, subject, entity);
+        if (enhanced?.prompt) {
+          refined_prompt = enhanced.prompt;
+        }
+      } catch (enhance_err) {
+        console.warn("[take_photo] Enhancement failed, falling back to draft prompt:", enhance_err);
+      }
+
       // Log placeholder message immediately with null src attachment
       placeholder_entry = await session_driver.log_message("", subject, role_label, {
         turn_type,
-        attachments: [{ src: null, metadata: { mode: target_mode, prompt } }],
+        attachments: [{ src: null, metadata: { mode: target_mode, prompt: refined_prompt } }],
       });
 
-      const result = await visual_engine.visualize(runtime.story_id, prompt, kind, { subject, entity });
+      const result = await visual_engine.visualize(runtime.story_id, refined_prompt, kind, { subject, entity });
 
       if (result?.imageUrl && placeholder_entry?.id) {
         await session_driver.update_log_attachment(placeholder_entry.id, 0, {
