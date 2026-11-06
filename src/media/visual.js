@@ -11,7 +11,7 @@ import { generate_secure_seed, strip_cognition_blocks, safe_parse_json, CircuitB
 import { IMAGE_TIERS, get_resolution_string } from "./optics.js";
 import { llm_service } from "@platform";
 import { compile_prompt, PURPOSE_CORES } from "../engine/prompts.js";
-import { get_visual_style } from "../data/definitions/visual-styles.js";
+import { get_visual_style } from "../definitions/visual-styles.js";
 
 // ============================================================================
 // Visual prompt hygiene.

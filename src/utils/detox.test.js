@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { detox_prose } from "./detox.js";
-import "../data/definitions/speaking-styles.js";
+import "../definitions/speaking-styles.js";
 
 describe("detox_prose() with speaking styles", () => {
   it("strips purple prose idioms and cliché words cleanly using registered rules", () => {

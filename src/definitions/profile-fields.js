@@ -17,7 +17,7 @@
  */
 
 import { format_key_as_label } from "@utils";
-import { SIGNATURE_COLORS } from "../../media/tokens.js";
+import { SIGNATURE_COLORS } from "../media/tokens.js";
 
 // ── 1. Canonical Field Taxonomy ───────────────────────────────────────────────
 

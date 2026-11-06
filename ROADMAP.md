@@ -36,6 +36,7 @@ flowchart TD
     subgraph ActiveBacklog ["Active Engineering Delta (Pending Realignment)"]
         direction TB
         R1["State-of-the-Application Review & Strategic Realignment"]
+        R2["Definitions Relocation & Data Cross-Reference Audit (`src/definitions/`, `narrative-styles.js`, `narrative-styles.test.js`, `premade-entities.js`, `premade-entities.test.js`, `profile-fields.js`, `profile-fields.test.js`, `speaking-styles.js`, `speaking-styles.test.js`, `visual-styles.js`, `visual-styles.test.js`, `detox.test.js`, `styles.test.js`)"]
     end
 
     ShippedCore ==> ActiveBacklog

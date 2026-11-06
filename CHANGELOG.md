@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Definitions Relocation Holding Location (`src/definitions/`, `src/data/index.js`, `src/data/repository.js`, `src/data/normalizer.js`, `src/media/visual.js`, `src/utils/detox.test.js`, `src/utils/styles.test.js`)**:
+  - Relocated `src/data/definitions/` (5 files + test suites: `narrative-styles.js`, `premade-entities.js`, `profile-fields.js`, `speaking-styles.js`, `visual-styles.js`) to `src/definitions/` as a dependency-safe holding location ahead of legacy data decommissioning.
+  - Re-pointed all relative imports from `src/data/` barrel, repository, normalizer, `src/media/visual.js`, and test suites.
+
 - **Prompt Hygiene, Visualizer Optimization & JSON Prefill Hardening (`src/utils/text.js`, `src/utils/text.test.js`, `src/media/visual.js`, `src/media/visual.test.js`, `src/engine/prompts.js`, `src/engine/turns.js`, `src/intelligence/modules/sheets.js`, `src/storage/entities.js`, `src/storage/presets.js`, `src/data/definitions/premade-entities.js`)**:
   - **Unified `safe_parse_json` Prefix Re-Attachment (`src/utils/text.js`, `src/utils/text.test.js`)**: Enhanced `safe_parse_json(raw, { prefix })` to safely evaluate continuation payloads with prefix reconstruction if the model omits the `startWith` anchor, preventing decapitated JSON syntax errors.
   - **Visualizer Extraction Refactor (`src/media/visual.js`, `src/media/visual.test.js`)**: Replaced custom regex slicing with centralized `safe_parse_json` and streamlined fallback parsing.

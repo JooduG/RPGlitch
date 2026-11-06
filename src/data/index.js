@@ -74,7 +74,7 @@ export {
   has_premade_entity,
   get_premade_characters,
   get_premade_fractals,
-} from "./definitions/premade-entities.js";
+} from "../definitions/premade-entities.js";
 
 // ============================================================================
 // Speaking Styles & Dialogue Registries
@@ -87,7 +87,7 @@ export {
   SPEAKING_STYLE_RULES,
   ANTI_AI_REPLACEMENTS,
   TIER_2_CLUSTER_WORDS,
-} from "./definitions/speaking-styles.js";
+} from "../definitions/speaking-styles.js";
 
 // ============================================================================
 // Narrative Styles & Motif Registries
@@ -100,7 +100,7 @@ export {
   get_style_keywords,
   resolve_active_style_key,
   extract_style_dna,
-} from "./definitions/narrative-styles.js";
+} from "../definitions/narrative-styles.js";
 
 // ============================================================================
 // Visual Styles & Aesthetic Registries
@@ -113,7 +113,7 @@ export {
   get_visual_style,
   resolve_portrait_visual_style_key,
   resolve_story_visual_style_key,
-} from "./definitions/visual-styles.js";
+} from "../definitions/visual-styles.js";
 
 // ============================================================================
 // Profile Fields & Attribute Specifications
@@ -125,7 +125,7 @@ export {
   PROFILE_SECTIONS_BY_TYPE,
   FLAT_LEAF_MAP,
   build_profile_sections,
-} from "./definitions/profile-fields.js";
+} from "../definitions/profile-fields.js";
 
 // ============================================================================
 // Palette & Color Constants

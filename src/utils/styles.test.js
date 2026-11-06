@@ -1,8 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { resolve_speaking_style, resolve_style, lint_narrative_slop, cap_somatic_markers, audit_macro_shape } from "./styles.js";
 import { VALID_SPEAKING_STYLES } from "./detox.js";
-import "../data/definitions/speaking-styles.js";
-import { NARRATIVE_STYLES } from "../data/definitions/narrative-styles.js";
+import "../definitions/speaking-styles.js";
+import { NARRATIVE_STYLES } from "../definitions/narrative-styles.js";
 
 describe("resolve_speaking_style hierarchy", () => {
   it("prioritizes character speaking_style over narrative style", () => {
