@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Continue Message Feature (`src/engine/turns.js`, `src/engine/kernel.svelte.js`, `src/engine/bridge.js`, `src/state/chrono.svelte.js`, `src/ui/message/MessageHeader.svelte`, `src/ui/message/Feed.svelte`)**:
+  - **Turn 2 Continue Execution (`src/engine/turns.js`, `src/engine/index.js`)**: Implemented `execute_turn_2_continue()` to resume character dialogue in-place without triggering Turn 1 Director staging. Pre-fills `startWith` with `<think>${think}</think>\n${prose}` (or `${prose}`), cleanly strips echoed prefixes, and fuses bounded prose onto the message.
+  - **Kernel Continue Turn (`src/engine/kernel.svelte.js`)**: Added `continue_turn()` to the Sovereign Simulation Kernel, supporting contextual history scoping up to the target message and fusing prose/think into in-memory history.
+  - **Bridge & Controller Integration (`src/engine/bridge.js`, `src/state/chrono.svelte.js`)**: Added `execute_greenfield_continue()` and updated `chrono_engine.continue(target_id)` to stream into the target message node and persist the fused text to IndexedDB via `simulation_log.edit_entry()`.
+  - **UI Action Relaxation (`src/ui/message/MessageHeader.svelte`, `src/ui/message/Feed.svelte`)**: Relaxed `is_last` gating on `MessageHeader.svelte` action buttons so Continue and Regenerate can be invoked on any AI message in the storyboard, threading `entry.id` through to `chrono_engine.continue(id)`.
+
 - **Resolve Divergence Diagnostic Probes (`src/engine/bridge.js`, `src/engine/transport.js`, `src/platform/transport.js`)**:
   - Added temporary non-throwing diagnostic logging (`[resolve-divergence]`) at stream resolution sites across bridge, engine transport, and platform transport to trace winning result fields, token lengths, abort state, and stop reasons for cut-off investigation.
 

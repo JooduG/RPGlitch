@@ -267,6 +267,83 @@ export async function execute_turn_2_character({
 }
 
 /**
+ * Executes a direct Character continuation (Turn 2 continue-in-place).
+ * Pre-fills startWith with existing think (if present) and prose so the LLM resumes directly mid-thought/prose.
+ *
+ * @param {object} params
+ * @param {object} params.transport
+ * @param {number} params.round
+ * @param {object} params.entities
+ * @param {Array<any>} params.history
+ * @param {Array<any>} params.memories
+ * @param {string} [params.target_prose]
+ * @param {string} [params.target_think]
+ * @param {(chunk: string) => void} [params.onChunk]
+ * @param {AbortSignal} [params.signal]
+ * @returns {Promise<{ raw: string, think: string, prose: string, continuation_prose: string, turn_tempo: number }>}
+ */
+export async function execute_turn_2_continue({
+  transport,
+  round = 1,
+  entities = {},
+  history = [],
+  memories = [],
+  target_prose = "",
+  target_think = "",
+  onChunk = null,
+  signal = null,
+}) {
+  const turn_tempo = calculate_turn_tempo(history);
+
+  const prompt = compile_prompt({
+    core: "character",
+    round,
+    entities,
+    history,
+    memories,
+    task_options: { turn_tempo },
+  });
+
+  const clean_prose = typeof target_prose === "string" ? target_prose.trim() : "";
+  const clean_think = typeof target_think === "string" ? target_think.trim() : "";
+
+  let start_with = "<think>";
+  if (clean_think) {
+    start_with = `<think>${clean_think}</think>\n${clean_prose}`;
+  } else if (clean_prose) {
+    start_with = clean_prose;
+  }
+
+  let raw = await transport.stream(prompt, { onChunk, startWith: start_with, signal });
+
+  // Reconcile startWith prefix if stripped by transport or echoed by model
+  if (raw && !raw.includes("<think>") && clean_think) {
+    raw = `${start_with}\n${raw}`;
+  } else if (raw && !raw.trimStart().startsWith("<think>") && clean_think) {
+    raw = `<think>${clean_think}</think>\n${raw}`;
+  }
+
+  const { think, prose } = extract_think_block(raw);
+
+  // Compute just the delta continuation (strip original target_prose if echoed at the start of generated prose)
+  let continuation_prose = prose;
+  if (clean_prose && continuation_prose.startsWith(clean_prose)) {
+    continuation_prose = continuation_prose.slice(clean_prose.length).trimStart();
+  }
+
+  const { prose: bounded_continuation } = enforce_pacing_backstop(continuation_prose, turn_tempo);
+  const final_fused_prose = clean_prose ? `${clean_prose}${bounded_continuation ? ` ${bounded_continuation}` : ""}` : bounded_continuation;
+
+  return {
+    raw,
+    think: think || clean_think,
+    prose: final_fused_prose,
+    continuation_prose: bounded_continuation,
+    turn_tempo,
+  };
+}
+
+/**
  * Complete Round Orchestration Pipeline:
  * Coordinates Turn 1 (Director) conditionally and Turn 2 (Character).
  *

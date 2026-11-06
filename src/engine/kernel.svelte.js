@@ -12,7 +12,7 @@
  * ============================================================================
  */
 
-import { execute_round } from "./turns.js";
+import { execute_round, execute_turn_2_continue } from "./turns.js";
 import { create_transport } from "./transport.js";
 import { dev_log } from "./dev.svelte.js";
 
@@ -131,6 +131,73 @@ export class Kernel {
       if (previous_user_dynamics && this.user?.dynamics) {
         Object.assign(this.user.dynamics, previous_user_dynamics);
       }
+      this.error = err.message || String(err);
+      dev_log.record("ERROR", { message: this.error, round: this.round });
+      throw err;
+    } finally {
+      this.phase = "idle";
+    }
+  }
+
+  /**
+   * Continues an existing AI turn in-place by pre-filling startWith with existing think/prose.
+   *
+   * @param {object} params
+   * @param {string} params.target_prose - Existing prose of the message to continue
+   * @param {string} [params.target_think] - Existing think block (if any)
+   * @param {number} [params.target_round] - Target message round
+   * @param {number} [params.target_history_index] - Truncation index for history context
+   * @param {object} [options={}]
+   * @param {(chunk: string) => void} [options.onChunk]
+   * @param {AbortSignal} [options.signal]
+   * @returns {Promise<object>} The continuation outcome
+   */
+  async continue_turn({ target_prose = "", target_think = "", target_round = null, target_history_index = null }, options = {}) {
+    if (this.phase === "locked" || this.phase === "generating") {
+      throw new Error("Simulation is locked or actively generating.");
+    }
+
+    this.phase = "generating";
+    this.error = null;
+
+    try {
+      const entities = {
+        AI: this.ai,
+        USER: this.user,
+        FRACTAL: this.fractal,
+      };
+
+      // If target_history_index is provided, scope dialogue history up to that point
+      let contextual_history = this.history;
+      if (typeof target_history_index === "number" && target_history_index >= 0) {
+        contextual_history = this.history.slice(0, target_history_index);
+      }
+
+      const active_round = typeof target_round === "number" ? target_round : this.round;
+
+      const outcome = await execute_turn_2_continue({
+        transport: this.transport,
+        round: active_round,
+        entities,
+        history: contextual_history,
+        target_prose,
+        target_think,
+        onChunk: options.onChunk,
+        signal: options.signal,
+      });
+
+      dev_log.record("TURN_TEMPO", { tempo: outcome.turn_tempo });
+
+      // If updating the latest model turn in history, fuse the prose
+      if (typeof target_history_index === "number" && target_history_index >= 0 && this.history[target_history_index]) {
+        this.history[target_history_index].text = outcome.prose;
+        if (outcome.think) {
+          this.history[target_history_index].think = outcome.think;
+        }
+      }
+
+      return outcome;
+    } catch (err) {
       this.error = err.message || String(err);
       dev_log.record("ERROR", { message: this.error, round: this.round });
       throw err;

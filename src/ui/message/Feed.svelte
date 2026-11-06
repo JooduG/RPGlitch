@@ -294,7 +294,7 @@
             is_last={index === visible_feed.length - 1}
             on_delete={() => handle_delete(index)}
             on_regenerate={() => chrono_engine.retry()}
-            on_continue={() => chrono_engine.continue()}
+            on_continue={() => chrono_engine.continue(entry.id)}
             on_edit={() => handle_edit(index)}
             is_editing={index === editing_index}
             on_save={(new_text) => entry.id && handle_save_edit(entry.id, new_text)}

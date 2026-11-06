@@ -30,7 +30,7 @@
     time_label,
     is_editing,
     is_ai,
-    is_last,
+    is_last: _is_last,
     id,
     clean_markdown_available,
     on_save,
@@ -117,7 +117,7 @@
           </svg>
         </Button>
       {:else}
-        {#if is_ai && is_last}
+        {#if is_ai}
           <Button
             variant="invisible"
             size="small"

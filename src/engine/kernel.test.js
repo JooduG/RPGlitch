@@ -75,4 +75,41 @@ describe("src/engine/kernel.svelte.js — Sovereign Simulation Kernel", () => {
     expect(kernel.history).toHaveLength(2);
     expect(kernel.history.every((h) => h.round <= 1)).toBe(true);
   });
+
+  it("continues an existing AI message in-place via continue_turn", async () => {
+    let captured_start_with = null;
+    const mock_transport = {
+      async stream(prompt, options = {}) {
+        captured_start_with = options.startWith;
+        // Simulates model continuing after the pre-filled startWith
+        return `${options.startWith} and smiles softly.`;
+      },
+    };
+
+    const kernel = new Kernel({
+      user: entities.USER,
+      ai: entities.AI,
+      fractal: entities.FRACTAL,
+      transport: mock_transport,
+    });
+
+    kernel.round = 1;
+    kernel.history = [
+      { role: "user", text: "Look at me.", round: 1 },
+      { role: "model", text: "She looks over", think: "Feel gentle", round: 1 },
+    ];
+
+    const outcome = await kernel.continue_turn({
+      target_prose: "She looks over",
+      target_think: "Feel gentle",
+      target_round: 1,
+      target_history_index: 1,
+    });
+
+    expect(captured_start_with).toBe("<think>Feel gentle</think>\nShe looks over");
+    expect(outcome.prose).toBe("She looks over and smiles softly.");
+    expect(outcome.continuation_prose).toBe("and smiles softly.");
+    expect(kernel.history[1].text).toBe("She looks over and smiles softly.");
+    expect(kernel.phase).toBe("idle");
+  });
 });

@@ -22,7 +22,7 @@
 import { session_driver } from "@data";
 import { build_turn_summary, gamemaster } from "@intelligence";
 import { state_bridge } from "@utils";
-import { execute_greenfield_turn } from "../engine/bridge.js";
+import { execute_greenfield_turn, execute_greenfield_continue } from "../engine/bridge.js";
 
 // ============================================================================
 // [SECTION 1: JSDOC SCHEMAS & TYPE DEFINITIONS]
@@ -157,13 +157,40 @@ export class ChronoEngine {
 
   /**
    * Continues the story without user input (AI extends the active scene).
+   * If target_id is provided, continues that specific message in-place.
+   *
+   * @param {string} [target_id]
    */
-  async continue() {
+  async continue(target_id = null) {
     if (state_bridge.app.simulation.loading || state_bridge.simulation_state.intent_active) return;
     try {
       if (!state_bridge.simulation_log?.feed?.length && typeof state_bridge.simulation_log?.refresh === "function") {
         await state_bridge.simulation_log.refresh();
       }
+
+      // If target_id specified and greenfield engine active, run surgical continue-in-place
+      if (state_bridge.app?.settings?.use_greenfield_engine && target_id) {
+        const feed = state_bridge.simulation_log?.feed || [];
+        const target_entry = feed.find((e) => String(e.id) === String(target_id));
+        if (target_entry) {
+          state_bridge.simulation_state.set_intent_active(true);
+          state_bridge.app.simulation.loading = true;
+          const controller = new AbortController();
+          state_bridge.app.streaming.abort_controller = controller;
+          state_bridge.app.streaming.active = true;
+
+          try {
+            await execute_greenfield_continue(target_entry, { signal: controller.signal });
+            state_bridge.app.log("Continuation complete.", "system");
+          } finally {
+            state_bridge.simulation_state.set_intent_active(false);
+            state_bridge.app.simulation.loading = false;
+            state_bridge.app.streaming.active = false;
+          }
+          return;
+        }
+      }
+
       await this.advance_turn(null, { is_continue: true });
     } catch (e) {
       this.error = /** @type {Error} */ (e).message;

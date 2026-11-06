@@ -22,6 +22,7 @@ export {
   resolve_caretaker_target,
   execute_turn_1_director,
   execute_turn_2_character,
+  execute_turn_2_continue,
   execute_turn_3_caretaker,
   execute_round,
 } from "./turns.js";

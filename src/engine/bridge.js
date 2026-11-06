@@ -449,3 +449,99 @@ export async function execute_greenfield_turn(user_input, _options = {}) {
     app.end_stream();
   }
 }
+
+/**
+ * Continues an existing message using the Sovereign Greenfield Engine Kernel.
+ * Formulates startWith from the target message's think-block and prose, streams
+ * the continuation, and fuses the result directly onto the target message.
+ *
+ * @param {object} target_entry - Message entry to continue
+ * @param {object} [_options={}]
+ * @param {AbortSignal} [_options.signal]
+ * @returns {Promise<object>} The continuation outcome
+ */
+export async function execute_greenfield_continue(target_entry, _options = {}) {
+  const { app, runtime } = state_bridge;
+
+  if (!target_entry || !target_entry.id) {
+    throw new Error("Target message entry required for continuation.");
+  }
+
+  // 1. Build 4-quadrant character entities
+  const user_quadrant = normalize_entity(runtime.active_user || app.selected_user || {});
+  const ai_quadrant = normalize_entity(runtime.active_ai || app.selected_ai || {});
+  const fractal_quadrant = normalize_entity(runtime.active_fractal || app.selected_fractal || {});
+
+  // 2. Instantiate or reuse active transport
+  const live_stream_fn = create_live_stream_fn();
+  const live_transport = create_transport({
+    stream_fn: live_stream_fn,
+  });
+
+  const director_enabled = Boolean(app?.settings?.director_enabled);
+
+  _active_kernel = new Kernel({
+    user: user_quadrant,
+    ai: ai_quadrant,
+    fractal: fractal_quadrant,
+    round: Number(runtime.round || 0),
+    transport: live_transport,
+    director_enabled,
+  });
+
+  // 3. Reconstruct history up to target message
+  const feed = state_bridge.simulation_log?.feed || [];
+  const full_history = reconstruct_history_from_feed(feed, {
+    user: user_quadrant,
+    ai: ai_quadrant,
+    fractal: fractal_quadrant,
+  });
+
+  _active_kernel.history = full_history;
+
+  // Find target message index in feed for context slicing
+  const target_index_in_feed = feed.findIndex((e) => String(e.id) === String(target_entry.id));
+  const target_history_index = target_index_in_feed >= 0 ? target_index_in_feed : null;
+
+  // Extract existing think and prose from target entry
+  const target_prose = target_entry.text || "";
+  const target_think = target_entry.meta?.think || "";
+
+  // 4. Begin UI streaming indicator targeting this message
+  app.start_stream(target_entry.id, "ai");
+
+  try {
+    const outcome = await _active_kernel.continue_turn(
+      {
+        target_prose,
+        target_think,
+        target_round: target_entry.round || _active_kernel.round,
+        target_history_index,
+      },
+      {
+        signal: _options.signal,
+        onChunk: (chunk) => {
+          app.update_stream(chunk);
+        },
+      },
+    );
+
+    const fused_prose = outcome?.prose || target_prose;
+    const fused_think = outcome?.think || target_think;
+
+    // 5. Commit fused continuation to persistence and active feed
+    if (state_bridge.simulation_log && typeof state_bridge.simulation_log.edit_entry === "function") {
+      await state_bridge.simulation_log.edit_entry(target_entry.id, fused_prose);
+      // Update entry meta think in-memory if present
+      const entry = feed.find((e) => String(e.id) === String(target_entry.id));
+      if (entry) {
+        entry.meta = entry.meta || {};
+        entry.meta.think = fused_think;
+      }
+    }
+
+    return outcome;
+  } finally {
+    app.end_stream();
+  }
+}
