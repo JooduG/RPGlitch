@@ -15,14 +15,14 @@ External AI agents executing tasks on this repository operate without direct acc
 
 1. 🧠 **Context Window Priming & Grounding Hierarchy (`/context`)**
    - **Sovereign Ingestion Hierarchy**: Ingest and ground your context window strictly in order before drafting or modifying code:
-     `Rules (GEMINI.md)` ➔ `Specs (DESIGN.md, GLOSSARY.md, this protocol)` ➔ `Active State (tasks/PRESENT.md, tasks/FUTURE.md)` ➔ `Active Target Code (src/**)` ➔ `Feedback (Tests/Logs)`.
-   - **Targeted Source Ingestion**: Load the exact source files and matching test suites (`*.test.js`) required for the specific task. Avoid context flooding (>2000 lines without line ranges) to preserve a razor-sharp signal-to-noise ratio.
-   - **Anti-Hallucination Law**: Never invent APIs, Svelte 4 legacy patterns, or assume component props. Always read the authoritative declarations in `src/state/`, `src/intelligence/`, `src/data/`, or `src/ui/` into context first.
+     `Rules (GEMINI.md)` ➔ `Specs (DESIGN.md, README.md, nuclear-plan.md, this protocol)` ➔ `Active State (ROADMAP.md, CHANGELOG.md)` ➔ `Active Target Code (src/**)` ➔ `Feedback (Tests/Logs)`.
+   - **Targeted Source Ingestion**: Load the exact source files and matching test suites (`*.test.js`) required for the specific task. Avoid context flooding (>2,000 lines without line ranges) to preserve a razor-sharp signal-to-noise ratio.
+   - **Anti-Hallucination Law**: Never invent APIs, Svelte 4 legacy patterns, or assume component props. Always read the authoritative declarations in `src/engine/`, `src/storage/`, `src/media/`, `src/state/`, or `src/ui/` into context first.
 
 2. 📥 **Repository & Path Sovereignty**
    - Treat the workspace `src/` as the single source of truth.
-   - Always reference relative repository paths (e.g., `src/state/runtime.svelte.js`, `tasks/PRESENT.md`). Never invent or reference machine-specific absolute file paths.
-   - Ground all architectural decisions in the active conventions established in `GEMINI.md`, `DESIGN.md`, `GLOSSARY.md`, this specification, and global instructions in `https://github.com/JooduG/gemini`.
+   - Always reference relative repository paths (e.g., `src/engine/kernel.svelte.js`, `ROADMAP.md`). Never invent or reference machine-specific absolute file paths.
+   - Ground all architectural decisions in the active conventions established in `GEMINI.md`, `DESIGN.md`, `nuclear-plan.md`, `ROADMAP.md`, this specification, and global instructions in `https://github.com/JooduG/gemini`.
 
 3. 📜 **Shell & Template Protection**
    - The shell host `index.html` at the project root is hand-maintained between sessions.
@@ -31,19 +31,20 @@ External AI agents executing tasks on this repository operate without direct acc
 4. 🛡️ **Svelte 5 Sovereignty (Non-Negotiable)**
    - Utilize Svelte 5 **Runes exclusively** (`$state()`, `$derived()`, `$effect()`, `{@render snippet}`).
    - Legacy Svelte 4 primitives (`export let`, `$:`, `writable()`, `readable()`, `<slot />`, `createEventDispatcher`) are strictly forbidden.
+   - Always validate Svelte code with `svelte-autofixer` after authoring or modifying `.svelte` files.
 
 5. 💾 **Persistence Boundary (IndexedDB Only)**
    - Usage of `localStorage` is forbidden due to Perchance iframe sandbox security boundaries.
-   - All persistence must route exclusively through **Dexie.js (IndexedDB)** via `src/data/db.js` and `src/data/repository.js`. Reload-safe session checkpoints fall back through `sessionStorage` → `window.name` → in-memory in `src/platform/session-storage.js`.
+   - All persistence must route exclusively through **Dexie.js (IndexedDB)** via `src/storage/db.js` (greenfield) or `src/data/db.js` (legacy transitional) with schema version 2 preserving the `mutation_ledger`. Reload-safe session checkpoints fall back through `sessionStorage` → `window.name` → in-memory in `src/platform/session-storage.js`.
 
 6. 📦 **Code Modification & Handover Protocol**
    - Output complete, production-ready code with exact relative target filepaths (`src/...`).
    - When delivering multiple file changes, organize them clearly with explicit file paths or package them in a single drop-in archive/structure for unzipping into the local repository root.
-   - The developer locally verifies changes via `npm run verify` (lint → audit → test) and ships via `npm run deploy:prepare` (sync → `deploy:check` `[lint → test:unit + test:design]` → build), then `npm run deploy:auto` for the automated Playwright bridge (or a manual paste of `dist/index.html` into the generator).
+   - The developer locally verifies changes via `npm run verify` (lint ➔ audit ➔ test) and ships via `npm run deploy:prepare` (sync ➔ `deploy:check` `[lint:fix ➔ test:unit]` ➔ build), then `npm run deploy:auto` for the automated Playwright bridge (or a manual paste of `dist/index.html` into the generator).
 
 7. 🤝 **Session Acknowledgment & Kickoff**
    - Confirm full comprehension of the engine architecture, layer boundaries, and state schemas.
-   - State the active track or primary task (see `tasks/PRESENT.md` Roadmap) before providing modified code.
+   - State the active sprint, gate, or primary task (see `ROADMAP.md` and `nuclear-plan.md`) before providing modified code.
 
 ---
 
@@ -56,105 +57,91 @@ External AI agents executing tasks on this repository operate without direct acc
 - **Handoff & Build Path**:
   1. AI provides modified/created files with exact relative paths.
   2. Developer applies files into the local workspace.
-  3. Developer executes `npm run deploy:prepare` locally. Pipeline: `sync` (ignores + design-token sync) ➔ `deploy:check` (`lint:fix` `[js/css/md/prettier]` then `test` `[test:unit + test:design]`) ➔ `build` (vite build into `dist/index.html`, single-file + Base64 vault). Any test/lint failure aborts before build.
+  3. Developer executes `npm run deploy:prepare` locally. Pipeline: `sync` (ignores + design-token sync) ➔ `deploy:check` (`lint:fix` `[js/css/md/prettier]` then `test:unit`) ➔ `build` (vite build into `dist/index.html`, single-file + Base64 vault). Any test/lint failure aborts before build.
   4. Developer ships via `npm run deploy:auto` — a Playwright-automated paste of `dist/index.html` into the Perchance generator's code panel (rollback = revert to previous Commit-SHA). Manual fallback: paste `dist/index.html` into the generator panel directly.
 
 ---
 
 ## 🏗️ 3.0 Subsystem & Directory Topography
 
+The codebase is currently in Phase 4 of the Sovereign Nuclear Architecture (`nuclear-plan.md`), transitioning from legacy multi-layer trees to lean, direct subsystems:
+
 ```text
 src/
 ├── main.js                   # Composition root & entry point — install_environment_hardening(), ensure_theme_tokens(), then app_bootstrap.init()
-├── App.svelte                # Root Svelte 5 container component
+├── App.svelte                # Root Svelte 5 container component & persistent layout hoist
 ├── index.html                # Vite HTML host template (vite root = src, output = dist/index.html)
-├── RPGlitch-left-panel.pjs   # Perchance iframe left-panel integration script
-├── data/                     # Persistence layer — Dexie.js schemas, cards & entity repositories
-│   ├── db.js                   # Dexie.js IndexedDB schema definitions & database instance
-│   ├── repository.js           # Entity & session CRUD operations, seed_premades
-│   ├── normalizer.js           # Entity schema sanitization, defaults, ENTITY_TEMPLATES, format_premade, get_random_signature_key
-│   ├── sessions.svelte.js      # session_driver — active session lifecycle & state manager (SESSION_ID_KEY)
-│   ├── character-cards.js      # Character Card V2/V3 codec, PNG card extraction & JSON export/import
-│   ├── index.js                # @data barrel
-│   └── definitions/            # Static authorial & visual engine definitions
-│       ├── premades.js         # Sovereign Archetype Registry (7 characters + 3 fractals)
-│       ├── fragments.js        # ENTITY_FRAGMENTS taxonomy, ENTITY_CATALOG, TEMPORAL_CONTRACT, PROFILE_SECTIONS_BY_TYPE
-│       ├── protocols.js        # PROTOCOL_LIBRARY (HYGIENE, AGENCY, POV, COGNITION, EPISTEMIC_PHYSICS, SCENE, PROFILE, DYNAMICS, DIRECTOR, FORMATS)
-│       ├── signature-colors.js # SIGNATURE_COLORS (15 signature colors) — GENERATED from DESIGN.md
-│       ├── triggers.js         # SOMATIC_REGISTRY (12 archetypes), STYLE_MOTIF_REGISTRY, resolve/render somatic directives
-│       ├── narrative-styles.js # XML authorial narrative engines & style presets
-│       ├── visual-styles.js    # XML diffusion visual engines & parameters
-│       └── detox-rules.js      # Prose detoxification regex rules
-├── intelligence/           # Turn loop, XML prompt engineering, Director, temporal RAG & profile pipeline
-│   ├── kernel.js               # gamemaster — 2-Shot simulation pipeline (Director Shot 1 ➔ Executor Shot 2), execute_prologue, async job queue, auto-dispatch epilogue
-│   ├── director.js             # Director payload normalization (speaker delegation ai/fractal/npc, keywords, story_status, Stage Spotlight, promotions, minimal-mutation fallback)
-│   ├── prompts.js              # prompt_builder — render_character / render_director / render_npc / render_narrator / render_memory / render_enhancement / render_profile_sorting
-│   ├── context.js              # context_builder — context assembly, token budgeting, lexical filter, NPC world-cast hydration
-│   ├── temporal.js             # temporal_engine — vector RAG scoring, memory forge (8-turn consolidation), future standing agenda, caps & eviction
-│   ├── embeddings.svelte.js    # Semantic vector RAG embeddings via Transformers.js (main-thread WASM, numThreads = 1, onnx_mutex guarded)
-│   ├── profile-pipeline.js     # sort_into_profile (LLM ingestion sorter) + apply_profile_to_entity (flat profile → Twin-Cylinder entity)
-│   ├── parser.js               # Pseudo-JSON extraction, parse_profile_json (repair chain), <think> parsing, parse_director_json helpers
-│   ├── dynamics.js             # Gravity settlement math, slider metadata & somatic signals
-│   ├── telemetry.js            # Turn telemetry aggregation & snapshot logging
-│   └── index.js                # @intelligence barrel
-├── media/                  # Visual synthesis, visual parameters, design tokens & audio TTS pipelines
-│   ├── audio.svelte.js         # Audio / VoiceEngine — Kokoro-82M Neural TTS (wait_ort_ready gate, onnx_mutex guarded, user-gesture AudioContext)
-│   ├── speech.js               # Voice catalog (VOICE_CADENCES, CADENCE_RATES, resolve_voice_uri/name)
-│   ├── visual.svelte.js        # visual_engine — Visual Wing state & generated artwork gallery (ghost sweep watchdog)
-│   ├── image-trigger.js        # IMAGE_TRIGGER rule sets + evaluate/resolve helpers
-│   ├── image-tiers.js          # IMAGE_TIERS / DEFAULT_IMAGE_TIER / get_resolution
-│   ├── image-aesthetics.js     # aesthetic_resolver, flatten_physical, strip_visual_excluded, VISUAL_EXCLUDED_KEYS
-│   ├── image-beats.js          # Image generation queue + stale-ghost sweeper
-│   ├── image-prompts.js        # System image prompt templates, NEGATIVE_PROMPT, parse_llm_refine_response
-│   ├── palette.js              # PALETTE, SIGNATURE_COLORS bridge, ensure_theme_tokens (design-token theme injector)
-│   ├── tokens.js               # Design token registry — GENERATED from DESIGN.md
+├── main.pjs   # Perchance iframe left-panel integration script
+├── engine/                   # Greenfield Simulation Engine (Gate 1 - Shipped)
+│   ├── kernel.svelte.js        # Sovereign simulation Kernel ($state runes)
+│   ├── turns.js                # Headless turn orchestration (Turn 1 Director, Turn 2 Actor, Turn 3 Caretaker)
+│   ├── prompts.js              # Prompt pipeline & 4 Purpose Cores (character, director, caretaker, visualizer)
+│   ├── sieve.js                # Two-Tier Sieve RAG & token budget reservoirs (guaranteed floor + overflow pool)
+│   ├── verifier.js             # Structural XML tag sequence, balance, and order contract validator
+│   ├── parser.js               # Clean bracket tokenization & <think> extraction
+│   ├── transport.js            # Streaming transport boundary & token deduplication
+│   ├── bridge.js               # Greenfield-to-Legacy bridge & dynamics write-back sync
+│   ├── dev.svelte.js           # Reactive developer debug log
+│   └── index.js                # @engine barrel
+├── storage/                  # Greenfield Persistence Layer (Gate 2 - Shipped)
+│   ├── db.js                   # Dexie.js database instance (db.version(2), mutation_ledger)
+│   ├── entities.js             # 4-quadrant entity normalizer, creator & Epistemic Wall filter
+│   ├── parser.js               # Multiline bracket parser [KEY: value | flags], delta merge & memory extraction
+│   ├── profile-fields.js       # Flat leaf taxonomy (FLAT_LEAF_MAP) & enhancer directives
+│   ├── presets.js              # 10 Premade Archetypes (7 characters + 3 fractals) & narrative presets
+│   └── index.js                # @storage barrel
+├── media/                    # Media & Sensory Layer (Gate 3 - Shipped)
+│   ├── visual.js               # Stateless visual dispatcher (dispatch_visual_generation, VisualEngine.enhance, Perchance host hook)
+│   ├── audio.js                # Procedural Web Audio synthesizer (play_sfx, Audio singleton, Web Speech API fallback)
+│   ├── optics.js               # Visual guidance scales, image tiers & trigger rules
+│   ├── palette.js              # CSS theme token injection (ensure_theme_tokens)
+│   ├── tokens.js               # Design token registry — GENERATED from DESIGN.md via npm run sync
 │   ├── design.css              # Primary design stylesheet (token-driven, Tailwind v4)
 │   └── index.js                # @media barrel
-├── platform/               # External transport, security & iframe boundaries
+├── platform/                 # External transport, security & iframe boundaries
 │   ├── transport.js            # llm_service — core text/image generation, enhancement & visual API handlers
 │   ├── web-fetch.js            # fetch_web — superFetch-backed, CORS-free web fetch
 │   ├── security.js             # DOMPurify sanitization & boundary input validation
 │   ├── session-storage.js      # Reload-safe checkpoint tiers: sessionStorage → window.name → in-memory
 │   ├── environment.js          # install_environment_hardening — ResizeObserver loop + Perchance frame-error guards
 │   └── index.js                # @platform barrel
-├── state/                  # Centralized Svelte 5 Rune stores & reactive state
-│   ├── runtime.svelte.js       # runtime — active entity state, chronology, world-cast hydration & checkpoint restore
-│   ├── status.svelte.js        # simulation_state — execution stasis phase & simulation lock (STASIS)
+├── state/                    # Reactive state stores (Transitional - to be flattened in Gate 4)
+│   ├── runtime.svelte.js       # runtime — active entity state, chronology, world-cast hydration
+│   ├── status.svelte.js        # simulation_state — execution phase & lock
 │   ├── app-store.svelte.js     # app — configuration, view state & user preferences
-│   ├── chrono.svelte.js        # ChronoEngine (chrono_engine) — simulation turn/round state machine
+│   ├── chrono.svelte.js        # ChronoEngine — simulation turn/round state machine
 │   ├── streaming.svelte.js     # Generation streaming state
 │   ├── log.svelte.js           # simulation_log — telemetry & diagnostic log state
-│   ├── dev-log.svelte.js       # Developer log state
-│   ├── freeze-watchdog.js      # Freeze detection watchdog
 │   └── index.js                # @state barrel
-├── utils/                  # Shared utilities — safe for ANY layer to import via @utils
+├── data/                     # Legacy data layer (Transitional - coexists with src/storage/)
+│   ├── db.js                   # Legacy Dexie schema instance
+│   ├── repository.js           # Legacy entity CRUD & seed operations
+│   ├── sessions.svelte.js      # session_driver — active session lifecycle & log storage
+│   ├── character-cards.js      # Character Card V2/V3 codec, PNG card extraction & JSON export/import
+│   └── definitions/            # Static definitions (premades, speaking styles, visual styles)
+├── intelligence/             # Legacy intelligence layer (Transitional - coexists with src/engine/)
+│   ├── kernel.js               # Legacy gamemaster 2-Shot simulation pipeline
+│   ├── director.js             # Legacy Director payload normalization
+│   ├── prompts.js              # Legacy prompt compiler
+│   ├── profile.js              # Legacy profile operations
+│   └── index.js                # @intelligence barrel
+├── utils/                    # Shared utilities — safe for ANY layer to import via @utils
 │   ├── bridges.js              # state_bridge / stream_bridge — cross-layer state access
-│   ├── onnx.js                 # OnnxMutex + wait_ort_ready — WASM inference serialization
 │   ├── text.js                 # merge_prose_into_field, strip_cognition_blocks, collapse_history
-│   ├── xml.js                  # escape_xml, prompt_escape, physical_to_xml, CLOTHING_KEYS
-│   ├── html.js, markdown.js    # DOM + Markdown rendering helpers
-│   ├── math.js                 # clamp/log helpers
+│   ├── xml.js                  # escape_xml, prompt_escape, physical_to_xml
+│   ├── math.js                 # clamp/log helpers & evaluate_image_trigger
 │   ├── ui-helpers.js           # DOM & UI helper functions
-│   ├── story-export.js         # Story Markdown transcript exporter
-│   ├── job-queue.js            # Async concurrency engine (parallel workers, latest-pending overwrite)
-│   ├── embedding-serialization.js # Vector embedding byte serialization
-│   ├── field-path.js           # Nested field-path accessors
-│   ├── resilience.js           # ExponentialBackoffRetryer / CircuitBreaker
 │   └── index.js                # @utils barrel
-└── ui/                     # Sensory UI layer (Atomic design structure)
-    ├── Layout.svelte           # Top-level view: persistent app frame
-    ├── Storymode.svelte        # Top-level view: Storymode shell
-    ├── Storyboard.svelte(.js)  # Top-level view: Storyboard deck + sibling state module
-    ├── actions.js              # Svelte DOM actions
-    ├── index.js                # @ui barrel
-    ├── console/                # Console module (Console, ControlPanel, SettingsButton, DevControls, AudioControls, StoryboardBar, StorymodeBar)
-    ├── story/                  # Story library module (StoryCard, StoryManager)
-    ├── message/                # Message module (Message, Header, Body, Attachments, Feed, Prologue, Epilogue, TelemetryCard/Blocks/Vector, UndoToast, render.js)
-    ├── entity/                 # Entity module (EntityCard, CardHand, ContextMenu, ImportModal)
-    ├── profile/                # Profile module (Profile, ProfileHeader, Vectors, VisualWing, AudioWing, DevWing)
-    ├── image/                  # Image module (ImagePicker, ImagePreview, ProfilePicture)
-    ├── primitives/             # Shared UI primitives (Button, Modal, Dialog, Slider, TextField, Toggle, etc.)
-    └── motion/                 # Animation engines (Typewriter, kinetic, engine, transitions)
+└── ui/                       # UI Presentation Layer (Gate 4 Target)
+    ├── Layout.svelte           # Persistent app shell frame
+    ├── Storymode.svelte        # Storymode chat & feed view
+    ├── Storyboard.svelte       # Storyboard scene deck view
+    ├── console/                # Console module (Console, ControlPanel, DevControls with GREENFIELD toggle)
+    ├── message/                # Message feed, headers, attachments & telemetry cards
+    ├── entity/                 # Entity cards, CardHand & ContextMenu
+    ├── profile/                # Profile Studio, Wings (VisualWing, AudioWing, DevWing) & RelationalGraph
+    ├── image/                  # ImagePicker, ImagePreview & ProfilePicture
+    └── primitives/             # Shared UI primitives (Button, Modal, Dialog, Slider, TextField, Toggle)
 ```
 
 ---
@@ -164,20 +151,18 @@ src/
 Strict unidirectional import rules must be respected across all modules:
 
 ```text
-src/ui ➔ src/state ➔ src/intelligence ➔ src/data ➔ src/platform
+src/ui ➔ src/engine & src/state ➔ src/storage & src/data ➔ src/media & src/platform ➔ src/utils
 ```
 
 - **Downward imports only**: Upper layers may import from lower layers; lower layers **must never** import from upper layers.
 - **Allowed imports**:
   - `src/ui/` may import from any layer.
-  - `src/state/` may import from `intelligence`, `data`, `platform`, `media`, `utils`.
-  - `src/intelligence/` may import from `data`, `platform`, `media`, `utils`.
-  - `src/data/` may import from `platform`, `utils`.
-  - `src/media/` and `src/platform/` may import from `utils`.
-- **Forbidden upward imports**: `src/intelligence/`, `src/data/`, `src/media/`, `src/utils/`, and `src/platform/` **MUST NEVER** import from `src/ui/` or `src/state/**`. `src/state/` **MUST NEVER** import from `src/ui/**`.
+  - `src/engine/` is self-contained; imports pure math, parsers, and transport.
+  - `src/storage/` imports from Dexie, platform, and utils; never from engine, state, or ui.
+  - `src/media/` and `src/platform/` import from `utils`; never from ui, state, engine, or storage.
+- **Forbidden upward imports**: Subordinate layers (`src/storage/`, `src/media/`, `src/utils/`, `src/platform/`) **MUST NEVER** import from `src/ui/` or `src/state/**`.
 - **`@utils` sovereignty**: `src/utils/` contains pure helper modules safe for any layer to import.
-- **Path aliases** (defined in `vite.config.js`): `@`, `@platform`, `@intelligence`, `@data`, `@state`, `@media`, `@ui`, `@utils`, plus UI-module aliases (`@console`, `@story`, `@message`, `@entity`, `@profile`, `@image`, `@primitives`, `@motion`).
-- **`src/state/` owns the turn driver** (chrono + runtime + status). There is no separate `engine` layer — physics/mutation logic lives in `src/intelligence/` (kernel + temporal), and cross-layer state reads route through `state_bridge`/`stream_bridge` in `@utils`.
+- **Path aliases** (defined in `vite.config.js`): `@`, `@engine`, `@storage`, `@platform`, `@intelligence`, `@data`, `@state`, `@media`, `@ui`, `@utils`.
 
 ---
 
@@ -185,109 +170,79 @@ src/ui ➔ src/state ➔ src/intelligence ➔ src/data ➔ src/platform
 
 Treat naming violations as bugs; fix all consumers in the same change — **no backwards compatibility, no aliases**.
 
-- **Folders & files**: `kebab-case` (`freeze-watchdog.js`, `field-path.js`).
-- **PascalCase ONLY for**: Svelte components (`.svelte` files) and JS classes (`ChronoEngine`, `VoiceEngine`, `ExponentialBackoffRetryer`, `OnnxMutex`).
-- **snake_case for everything else**: variables, functions, instances, public methods, state runes, process state, save-schema keys, and DTO/persistence keys (`chrono_engine`, `temporal_engine`, `session_driver`, `security`, `aesthetic_resolver`, `prompt_templates`, `voice.load_model()`, `voice_id`, `message_id`, `non_physical`, `visual_style`).
+- **Folders & files**: `kebab-case` (`kernel.svelte.js`, `visual-styles.js`).
+- **PascalCase ONLY for**: Svelte components (`.svelte` files) and JS classes (`Kernel`, `ChronoEngine`, `VisualEngine`, `AudioEngine`).
+- **snake_case for everything else**: variables, functions, instances, public methods, state runes, process state, save-schema keys, and DTO/persistence keys (`chrono_engine`, `session_driver`, `visual_engine`, `two_tier_sieve_rag`, `compile_prompt`, `see_hidden`).
 - **Question-snake booleans**: `is_*` / `has_*` (`is_processing`, `is_concluded`, `is_snapshot`, `is_origin`, `has_token`).
-- **SCREAMING_SNAKE constants/globals**: `CONFIG`, `APP_VERSION`, `NEGATIVE_PROMPT`, `SIGNATURE_COLORS`, `PAST_VECTOR_CAP`.
-- **Documented exceptions** (do NOT rename):
-  - `Audio` singleton (PascalCase) — prevents collision with DOM `Audio` constructor.
-  - External plugin API keys stay camelCase (`startWith`, `onChunk`, `onToken` in `transport.js`).
+- **SCREAMING_SNAKE constants/globals**: `TEMPO_ROUNDS`, `CARETAKER_ROTATION`, `SIGNATURE_COLORS`, `PAST_VECTOR_CAP`, `IMAGE_TIERS`.
+- **Full-Name & Anti-Abbreviation Mandate**: Avoid clipped stems or lazy acronyms in newly authored code (`character` over `char`, `configuration` over `config`, `parameters` over `params`, `destination` over `dest`, `previous` over `prev`). Exceptions strictly limited to standard platform primitives (`id`, `url`, `html`, `css`, `ui`, `db`, `tts`).
 
 ---
 
-## 📋 6.0 Data Model, Temporal Engine & Memory Mechanics
+## 📋 6.0 Nuclear Simulation Physics & Data Model
 
-### 6.1 State Quadrants & Profile Hygiene
+### 6.1 State Quadrants & Multiline Bracket Storage
 
-Each simulation entity consists of 4 discrete temporal fragments (governed by the canonical **`TEMPORAL_CONTRACT`** in `src/data/definitions/fragments.js` — emitted verbatim into the Memory Forge task and every profile-enhance prompt):
+Entity state is stored cleanly as canonical multiline bracket strings `[KEY: value | flags]`:
 
 1. **ETERNAL — the evolving baseline** (`entity.eternal`)
-   - `physical`: Permanent physical features for image generation, bracket format (`[KEY: value]`), mandatory `[GENDER: ...]`, `[AGE: ...]`, `[ETHNICITY: ...]` for characters, max 15 lines. Fractal keys: terrain/architecture/materials/landmarks/scale.
-   - `non_physical`: Core essence, archetype, personality, and philosophical invariants (capped at **1,500 characters** with tail deduplication via `merge_eternal_field()`).
+   - `physical`: Permanent physical features for diffusion, bracket format (`[KEY: value]`). Mandatory `[GENDER: ...]`, `[AGE: ...]`, `[ETHNICITY: ...]` for characters. Max 15 lines.
+   - `non_physical`: Core essence, archetype, personality, and philosophical invariants.
 
 2. **PRESENT — the volatile delta layer** (`entity.present`)
-   - `physical`: Active physical condition, attire, and situational state governed by Pseudo-JSON brackets (`[KEY: VALUE]`):
-     - **Direct Overwrite**: `[SHIRT: sweater]` replaces `SHIRT` cleanly.
-     - **Universal Atomic Clearing**: `[KEY: none]`, `[KEY: bare]`, `[KEY: naked]`, `[KEY: off]`, `[KEY: removed]`, `[KEY: disrobed]`, `[KEY: healed]`, `[KEY: cleared]`, `[KEY: normal]` deletes that specific key.
-     - **Wildcard Purge**: `[CLOTHING: none]` purges all clothing keys atomically.
-     - **Multi-Item Aggregation**: Repeated `[INVENTORY: ...]` / `[STASH: ...]` brackets merge into an aggregated array.
-     - **Undress / Redress Lifecycle**: Undressing stashes garments in `[INVENTORY: ...]`; redressing reads items back from inventory without hallucination.
-   - `non_physical`: Dynamic immediate scene state and active processing state (capped at **3 concise segments** via `cap_present_prose()`). NEVER restates the eternal baseline.
+   - `physical`: Active attire and condition:
+     - **Direct Overwrite**: `[SHIRT: sweater]` replaces `SHIRT`.
+     - **Atomic Clearing**: `[KEY: none]`, `[KEY: bare]`, `[KEY: naked]`, `[KEY: off]`, `[KEY: removed]`, `[KEY: cleared]`, `[KEY: normal]` deletes key cleanly.
+     - **Wildcard Purge**: `[CLOTHING: none]` purges all clothing keys.
+     - **Multi-Item Aggregation**: Repeated `[INVENTORY: ...]` / `[STASH: ...]` merge into arrays.
+   - `non_physical`: Dynamic immediate scene state and emotional drift.
 
-3. **PAST — anchored memory** (`entity.past`)
-   - Vector array (`{ id, timestamp, content, type, emotional_weight, meta, _embedding }`) retrieved via vector RAG scored by `embeddings.svelte.js` and `temporal.js`. Appended, never rewritten in place.
-   - **ID Provenance & Forge-Skip**: Memories with `usr_` prefix (user/lore authored) are origin-protected (`is_origin`), immune to Memory Forge eviction/compression, and receive a **1.5x relevance multiplier** in `compute_relevance()`.
-   - **Session Vectors**: `ai_` session memories roll with a cap of 20 (`PAST_VECTOR_CAP = 20`).
-   - **Hard Boundaries**: Maximum 200 total vectors per entity (`MAX_TOTAL_VECTORS`); ≤ 220 characters per entry (`MAX_VECTOR_CHARS`). Deduplication uses > 60% word overlap and > 0.92 cosine similarity.
+3. **PAST — durable memories** (`entity.past`)
+   - Multiline string of bracketed memories (`[KEY: durable fact]`).
+   - Memories with `usr_` prefix are origin-protected (`is_origin`), immune to eviction, and receive a 1.5x relevance weight.
+   - Session memories cap at 20 (`PAST_VECTOR_CAP = 20`).
+   - Memory candidate extraction and Two-Tier Sieve RAG prioritize guaranteed floors before filling overflow reservoirs.
 
-4. **FUTURE — the single standing agenda** (`entity.future`)
-   - One consolidated prose field representing the entity's active trajectory, impending intent, or environmental prophecy. Active future tense, distinct from Present.
-   - Rewritten **wholesale** by the Memory Forge every consolidation cycle (batch of 8 unconsolidated messages), evolving post-climax into aftermath.
+4. **FUTURE — standing agenda** (`entity.future`)
+   - Consolidated active trajectory or prophecy rewritten by the Caretaker round-robin cycle.
 
-### 6.2 Dual Filter Engine
+### 6.2 Epistemic Isolation (`see_hidden`)
 
-- **Visual Prompt Filter**: `INVENTORY`, `STASH`, `SECRET`, `PLAN`, and `STATUS` are strictly stripped from image generation prompts (`aesthetic_resolver` / `strip_visual_excluded` / `VISUAL_EXCLUDED_KEYS` in `image-aesthetics.js`).
-- **Epistemic Prompt Filter**: `[SECRET: ...]` and `[PLAN: ...]` of the User are stripped across the Epistemic Wall in `render_character()` to prevent AI telepathy, while remaining fully visible in `render_director()`.
+Visibility across the Epistemic Wall is evaluated through `filter_entity_epistemics` via the unified `see_hidden` parameter:
 
-### 6.3 Intelligence Kernel XML Prompt Schema
+- **`see_hidden: "own"` (`character` core)**: Retains active character's own `| hide` brackets, strips counterpart `| hide` brackets, and suppresses counterpart secret past/future. Merges physical traits into a unified `<APPEARANCE>`.
+- **`see_hidden: "all"` (`director` & `caretaker` cores)**: Retains all hidden brackets across all entities for omniscient evaluation and memory synthesis. Keeps `<APPEARANCE>` and `<CURRENT_LOOK>` un-merged for clean 1:1 state mapping.
+- **`see_hidden: "none"` (`visualizer` core)**: Strips `| hide` and inventory items from all entities for camera-only diffusion prompts.
 
-The prompt compiler (`src/intelligence/prompts.js`) separates static archetypes into `<SYSTEM>` and volatile turn dynamics into `<SNAPSHOT>`:
+### 6.3 Greenfield 3-Turn Round Architecture (`src/engine/turns.js`)
 
-- **Static Identity (`<SYSTEM>`)**: `<ACTIVE_CHARACTERS>` / `<YOUR_IDENTITY>` (`<PERSONALITY>`, `<PERMANENT_APPEARANCE>`) and `<USER_PERSONA>`; `<FRACTAL>` (`<METAPHYSICAL_TRUTHS>`, `<ENVIRONMENT>`). Plus `<DYNAMICS_LEGEND>`, `<AVAILABLE_KEYWORDS>`, `<WORLD_CAST>`, `<SCENE_ROSTER>`, `<RELATIONAL_MESH>`, `<ENTITY_CONVERGENCE_LAW>`, `<EPISTEMIC_RULES>`, `<CURRENT_STORY_STATE>`, `<PROTOCOLS>`.
-- **Volatile Dynamic Snapshot (`<SNAPSHOT>`)**: `<YOUR_IDENTITY>` (`<STATE_OF_MIND>`, `<CURRENT_LOOK>`, `<INTENT>`, `<MEMORIES>`), `<USER_PERSONA>` (`<STATE_OF_MIND>`, `<CURRENT_LOOK>`, `<BACKSTORY>`), `<FRACTAL>` (`<CURRENT_STATE>`, `<ACTIVE_ATMOSPHERE>`, `<AGENDA>`, `<HISTORY>`), `<ROUND>`, `<USER_ACTION>`, `<TASK>` (with `<THINK_FORMAT>`, `<STABILITY_LOCK>`, `<EPISTEMIC_PHYSICS>`, `<POV_DIRECTIVE>`, `<GHOSTWRITE>`, `<DIRECTOR_NOTE>`, `<SOMATIC_DIRECTIVES>`).
-
-**2-Shot Turn Pipeline** (`src/intelligence/kernel.js`):
-
-1. **Shot 1 — Director**: `render_director()` produces a JSON payload — `internal_monologue`, `directive`, `state_append`/`vector_append` mutations, `trigger_image`, `speaker` (`"ai"` | `"fractal"` | `"npc:<id>"`), `keywords` (1-2 from `<AVAILABLE_KEYWORDS>`), `story_status` (`IN_PROGRESS` | `CONCLUDED` | `COLLAPSED`), `in_scene_change` (Stage Spotlight enter/exit), `promotions` (tier 2 = recurring, tier 3 = major). Normalized defensively in `src/intelligence/director.js`.
-2. **Shot 2 — Executor**: resolves the delegated speaker (`normalize_speaker` → `resolve_speaker_engine`) and renders the character, fractal-narrator, or NPC prompt. NPC prompts gate `<MEMORIES>` to in-scene cast.
-
-- Director mutations are scrubbed via `detox_prose` (`scrub_state_mutations`) so clichéd somatic idioms never seed future prompts; a minimal-mutation fallback (`synthesize_director_fallback`) keeps entity memory/dynamics alive when the Director's JSON fails to parse.
-- Dynamics gravity settlement runs after the Director's explicit deltas (`capture_dynamics_delta` exactly once per turn); somatic signals (`DYNAMICS_SIGNALS`) feed character reactions.
-- `CONCLUDED`/`COLLAPSED` auto-dispatch the epilogue; `execute_prologue()` precomputes the semantic-context embedding before synthesis. Ghost sweeps and auxiliary work run on the async `job-queue.js` engine.
-
-### 6.4 Enhance & Profile-Sorting Pipeline (the "Shape" Step)
-
-Raw source prose and per-field edits are normalized through a single shape step (`src/intelligence/profile-pipeline.js` + `prompt_builder`):
-
-- **Ingestion sorting**: `sort_into_profile(raw, type)` runs the LLM sorter (`render_profile_sorting` with the `INGESTION_DIRECTIVE` — SOURCE_OF_TRUTH + NO_NULL_FABRICATION) and `apply_profile_to_entity(entity, profile)` maps the flat keys onto the nested Twin-Cylinder schema. `past` entries become pinned `usr_` memories; `future` lands as prose.
-- **Redistribution**: `enhance_profile()` re-sorts an existing entity through `parse_profile_json` (repair chain) with the `REDISTRIBUTE` protocol — facts move to their correct fields; content never enters/leaves `description` (human-only).
-- **Per-field enhance**: `build_enhancement(field, content, ...)` emits a `<SYSTEM>` block with `enhancing=` label, `field=` attribute, `<LAYER>` tag, `<CONTRACT>` (the canonical `TEMPORAL_CONTRACT`), and a field format:
-  - `ENHANCE_PROSE` (eternal/present non-physical), `ENHANCE_ARRAY` (past — 3-5 new memories), `ENHANCE_ARRAY_SINGLE` (past — `patch_single`, one memory), `ENHANCE_AGENDA` (future — one consolidated active-tense block), `ENHANCE_IMAGE` (physical — bracket config).
-  - Present-layer edits receive **same-layer sibling context + eternal baseline** (no whole-profile bleed).
-- **Physical canonicalization**: `_normalize_physical_enhancement()` validates/canonicalizes physical results to uppercase brackets — mandatory `[GENDER:]`/`[AGE:]`/`[ETHNICITY:]` for character eternal.physical, 15-key cap; on parse failure the current value is kept.
-
-### 6.5 Data Portability & Card Codec
-
-- **3-in-1 Import Modal** (`src/ui/entity/ImportModal.svelte`):
-  - **Inbound Web URL Ingestion**: Proxy scraping via `fetch_web` (superFetch-backed, CORS-free) with schema and plain-text token budgeting.
-  - **Standalone Entity JSON**: Native RPGlitch entity serialization and deserialization.
-  - **Character Card V2/V3**: Full interoperability codec (`src/data/character-cards.js`) converting Tavern/Chub/Janitor character cards to and from RPGlitch entity schemas, including PNG card extraction (`extract_card_from_png`).
-- **Story Export**: Compiles clean Markdown transcripts from the Story Library (`src/utils/story-export.js`).
-- **Signature Identity**: Every entity carries one of the 15 `SIGNATURE_COLORS`; `ensure_theme_tokens()` (boot-time, in `src/media/palette.js`) materializes the CSS theme variables so the UI always resolves per-entity color.
+1. **Turn 1: Director Turn (Quick Shot)**
+   - Staging pass (`phase = "generating"`). Evaluates narrative rules, updates numerical dynamics, delegates actor (`ai`, `fractal`, `npc`), conditionally triggers image beats (`trigger_image`), and supplies Director's Notes or branching staging options (`{Option A | Option B}`).
+2. **Turn 2: Character / Actor Turn (Narrative Shot)**
+   - Storyteller pass. Streams in-character dialogue, inner `<think>` cognition, and sensory prose. Dispatches visual synthesis via Perchance image plugin if scheduled.
+3. **Turn 3: Caretaker Turn (Head Shot / Deliberation)**
+   - User authors message while background sub-process consolidates one entity per turn round-robin (`resolve_caretaker_target` rotating AI ➔ User ➔ Fractal), updating 4-quadrant memory diffs, enforcing caps, and appending diffs to `mutation_ledger`.
 
 ---
 
-## 🗺️ 7.0 Task Tracking & 2-File Temporal System
+## 🗺️ 7.0 Task Tracking & Engineering Backlog
 
-Maintain task planning and operational progress in the project root:
+RPGlitch operates under the Four-Layer Documentation Architecture:
 
-- **`tasks/PRESENT.md`**: Active mission board, Feature Maturity table, Roadmap (Tracks), and durable Pulse (History Log).
-- **`tasks/FUTURE.md`**: Implementation blueprint for the active track (Goal, Research, Audit, TDD, Steps).
-- **Track Files**: Active track blueprints live in `tasks/tracks/<track-slug>.md`.
-- **Track Archival**: Completed track blueprints are archived exclusively in `archive/YYYY-MM/` (e.g., `archive/2026-08/2026-08-16-track-memory-bundle.md`).
-- **Active Tracks** (see Roadmap in `tasks/PRESENT.md`):
-  - `track-director-expansion-2026-08-14`: Director turn pipeline (async job queue, fractal delegation, dual somatic/trauma injections, pacing calibration, Stage Spotlight, 12-archetype somatic registry + 23-style motif registry). Milestone 1 (Phases 1-2 + Phase 3 core routing) implemented; remaining: Phase 3 UI avatar/halo polish, Phase 4 "The End" screen, Phase 5 verification gate.
-  - `track-npc-expansion-2026-08-14`: Multi-NPC roster & scene presence (3-tier memory hierarchy, relational mesh, world cast, promotions, multi-voice Kokoro TTS).
+- **`ROADMAP.md`**: The **FUTURE mirror** representing active engineering sprints, architectural blueprints, and unbuilt deltas.
+- **`CHANGELOG.md`**: The **PAST mirror** documenting historical release pulses and completed milestones.
+- **`nuclear-plan.md`**: Sovereign blueprint for the parallel engine cutover (Gates 1–4).
+- **`GREENFIELD_REPORT.md`**: Live verification findings and forensic test-round data on Perchance.
+
+---
 
 ## 🧰 8.0 Auxiliary Skill & Tooling Ecosystem
 
-Auxiliary agent skills live under `.agents/skills/` (each with its own `SKILL.md` + scripts):
+Auxiliary agent skills live under `.agents/skills/` and global configurations:
 
-- **`perchance-deployment`**: Quality gate (`deploy:prepare`) and the automated Playwright bridge (`deploy:auto`). Use when shipping to production.
-- **`design`**: DESIGN.md token governance — `sync-css.js` regenerates `tokens.js`, `design.css`, `signature-colors.js` from `DESIGN.md` (run `npm run sync` after DESIGN.md edits).
-- **`local-scripts`**: The `tool-bridge` orchestrator (summarize/parallel-sequential runners, knowledge tooling, forge-skill, ingest-web).
-- **`simulation`**: Simulation-audit harness + market-research data files.
-- **`audio`**: Audio/TTS conventions.
-- **`swarm`**: Multi-agent planning/dispatch/merge CLI (`swarm:plan` / `swarm:dispatch` / `swarm:merge`).
-- **`chrome-devtools`, `firecrawl-mcp`, `svelte`, `mcp-sequentialthinking-tools`**: MCP workspace tools for headless verification, web research, and multi-step planning.
+- **`perchance-deployment`**: Release gates (`deploy:prepare`) and automated Playwright bridge (`deploy:auto`).
+- **`design`**: Design token governance — `sync-css.js` regenerates tokens from `DESIGN.md` (`npm run sync`).
+- **`simulation`**: Simulation physics, round choreography, and prompt compiler specs.
+- **`audio`**: Procedural Web Audio API sound synthesis and speech cadence management.
+- **`motion`**: Kinetic UI transitions and Emil Kowalski craft standards.
+- **`chrome-devtools`, `svelte`, `mcp-sequentialthinking-tools`**: MCP workspace tools for browser testing, Svelte 5 validation, and multi-step cognitive reasoning.

@@ -508,7 +508,7 @@ This is what RPGlitch looks like when built with zero legacy baggage: **4 Purpos
 src/
 ├── main.js                     # Mounts App.svelte with design.css
 ├── App.svelte                  # Root layout router (Lobby vs. Story)
-├── RPGlitch-left-panel.pjs     # Perchance Lists Panel engine bridge
+├── main.pjs     # Perchance Lists Panel engine bridge
 ├── config.js                   # Canonical hardware limits (20k char ceiling, timeouts)
 ├── design.css                  # CSS design tokens, typography, glassmorphism, animations
 │

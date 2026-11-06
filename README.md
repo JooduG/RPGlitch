@@ -56,7 +56,7 @@ RPGlitch organizes its source code into clean, isolated subsystems:
 - `src/App.svelte`: Root application container mounting layout shells, modal overlays, storyboards, and feeds.
 - `src/main.js`: Client boot entry point, initializing IndexedDB, error hardening, and mounting `App.svelte`.
 - `src/config.js`: Honest hardware limits and physical simulation quotas (`PROMPT_CHAR_LIMIT`, `CHARS_PER_TOKEN`, `MAX_ACTIVE_MEMORIES`).
-- `src/RPGlitch-left-panel.pjs`: Perchance integration definition file.
+- `src/main.pjs`: Perchance integration definition file.
 - `src/index.html`: Web application HTML host container.
 
 ---
