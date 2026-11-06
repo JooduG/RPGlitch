@@ -116,17 +116,37 @@ describe("visual.js — Stateless Perchance Image Dispatcher", () => {
         negative_prompt: "blurry, low quality",
         resolution: "512x768",
       });
-      vi.spyOn(llm_service, "generate").mockResolvedValueOnce(mock_json);
+      const spy = vi.spyOn(llm_service, "generate").mockResolvedValue(mock_json);
 
       const result = await visual_engine.enhance("Rough concept of a hero", "character", {
         name: "Aria",
         visual_style: "cinematic",
       });
 
+      expect(spy).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          role: "model",
+          system: expect.stringContaining("Aesthetic Direction"),
+          startWith: expect.stringContaining("Aesthetic Style:"),
+        }),
+        expect.any(Object),
+      );
+      expect(spy.mock.lastCall[0].startWith).toContain("Rough concept of a hero");
       expect(result.prompt).toBe("A detailed cinematic portrait of the protagonist with ambient backlighting");
       expect(result.negative_prompt).toContain("blurry, low quality");
       expect(result.negative_prompt).toContain("amateur photo");
       expect(result.resolution).toBe("512x768");
+      spy.mockRestore();
+    });
+
+    it("passes bare prefill to llm_service.generate when camera_note has no style cues or is empty", async () => {
+      // Direct unit check on PURPOSE_CORES.visualizer.start_with
+      const { PURPOSE_CORES } = await import("../engine/prompts.js");
+      expect(PURPOSE_CORES.visualizer.start_with()).toBe('{"_thought_process": "');
+      expect(PURPOSE_CORES.visualizer.start_with({})).toBe('{"_thought_process": "');
+      expect(PURPOSE_CORES.visualizer.start_with({ camera_note: "" })).toBe('{"_thought_process": "');
+      expect(PURPOSE_CORES.visualizer.start_with({ camera_note: "   " })).toBe('{"_thought_process": "');
+      expect(PURPOSE_CORES.visualizer.start_with({ camera_note: "Hero | Aesthetic Style: photo" })).toContain("Aesthetic Style: photo");
     });
 
     it("respects explicit app_style parameter over entity.visual_style precedence", async () => {
@@ -136,7 +156,7 @@ describe("visual.js — Stateless Perchance Image Dispatcher", () => {
         negative_prompt: "studio lighting",
         resolution: "512x768",
       });
-      vi.spyOn(llm_service, "generate").mockResolvedValueOnce(mock_json);
+      const spy = vi.spyOn(llm_service, "generate").mockResolvedValue(mock_json);
 
       const result = await visual_engine.enhance(
         "A photo",
@@ -152,6 +172,7 @@ describe("visual.js — Stateless Perchance Image Dispatcher", () => {
       expect(result.negative_prompt).toContain("studio lighting");
       // Negative prompt should retain photo's style definition exclusions
       expect(result.negative_prompt).toContain("anime, illustration");
+      spy.mockRestore();
     });
   });
 });

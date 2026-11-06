@@ -27,7 +27,7 @@ export {
 } from "./turns.js";
 
 // Unified prompt pipeline & 4 Purpose Cores
-export { compile_prompt } from "./prompts.js";
+export { compile_prompt, PURPOSE_CORES } from "./prompts.js";
 
 // Structural verification anchor
 export {

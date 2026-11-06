@@ -9,7 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
-- **Greenfield Engine Live Fixes & Sensory Precedence Harmonization (`src/data/sessions.svelte.js`, `src/engine/bridge.js`, `src/engine/transport.js`, `src/engine/turns.js`, `src/state/chrono.svelte.js`, `src/media/visual.js`, `src/App.svelte`)**:
+- **Greenfield Engine Live Fixes & Sensory Precedence Harmonization (`src/data/sessions.svelte.js`, `src/engine/bridge.js`, `src/engine/prompts.js`, `src/engine/index.js`, `src/engine/transport.js`, `src/engine/turns.js`, `src/state/chrono.svelte.js`, `src/media/visual.js`, `src/App.svelte`)**:
+  - **Visualizer Camera Note & Aesthetic Steering (`src/engine/prompts.js`, `src/engine/index.js`, `src/media/visual.js`)**:
+    - Wired `PURPOSE_CORES.visualizer.start_with({ camera_note })` prefill through to `llm_service.generate()` in `VisualEngine.enhance()`, resolving model prefill with style guidance cues.
+    - Exported `PURPOSE_CORES` from `src/engine/prompts.js` and barrel `src/engine/index.js` for clean downward access.
+    - Interpolated `camera_note` as an explicit `Aesthetic Direction` section inside the visualizer's `task_block` function in `src/engine/prompts.js`, ensuring aesthetic style cues persist even if startWith prefill is dropped by host providers.
   - **Issue 1: Greenfield Telemetry Row Emission & Log Exemption (`src/data/sessions.svelte.js`, `src/engine/bridge.js`)**:
     - Exempted telemetry system rows (`DYNAMICS_DELTA`, `STORY_START`, `VECTOR_RESOLUTION`, `CONTINUUM_FORMATION`, `MEMORY_FORMATION`) from the empty-text skip in `session_driver.log_message()`, ensuring Director staging metrics persist to IndexedDB.
     - Protected telemetry rows in `session_driver.regenerate()` to prevent trailing empty-text prune sweeps from deleting telemetry entries on retry.

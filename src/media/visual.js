@@ -10,7 +10,7 @@
 import { generate_secure_seed, strip_cognition_blocks, CircuitBreaker, ExponentialBackoffRetryer, state_bridge } from "@utils";
 import { IMAGE_TIERS } from "./optics.js";
 import { llm_service } from "@platform";
-import { compile_prompt } from "../engine/prompts.js";
+import { compile_prompt, PURPOSE_CORES } from "../engine/prompts.js";
 import { get_visual_style } from "../data/definitions/visual-styles.js";
 
 // ============================================================================
@@ -470,7 +470,8 @@ export class VisualEngine {
         },
       });
 
-      const response = await llm_service.generate({ system, role: "model" }, { silent: true, priority: "background" });
+      const start_with = PURPOSE_CORES.visualizer.start_with({ camera_note });
+      const response = await llm_service.generate({ system, role: "model", startWith: start_with }, { silent: true, priority: "background" });
 
       const base_negative = style_def?.negative_prompt || "";
 

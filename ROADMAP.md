@@ -48,6 +48,7 @@ flowchart TD
     - Parallel greenfield engine constructed in `src/engine/` (`verifier.js`, `parser.js`, `sieve.js`, `prompts.js`, `transport.js`, `turns.js`, `kernel.svelte.js`, `dev.svelte.js`, `bridge.js`, `index.js`).
     - Complete test suite coverage across engine units (`verifier.test.js`, `parser.test.js`, `sieve.test.js`, `prompts.test.js`, `transport.test.js`, `turns.test.js`, `kernel.test.js`, `differential.test.js`, `bridge.test.js`) with 42/42 tests passing green.
     - Closed the 5 bridge gaps in `src/engine/bridge.js`: function/string prompt normalization, stream token deduplication, dynamic `director_enabled` app setting toggle, write-back synchronization of entity dynamics (including active user persona dynamics and quadrants), macro round, and full 4-quadrant Caretaker memory diffs (present physical/non-physical, future, and past) dispatched in the background without UI latency, and full history reconstruction with origin attribution in `src/engine/prompts.js` preserving system/fractal roles.
+    - Wired visualizer `camera_note` and aesthetic style cues through `PURPOSE_CORES.visualizer.start_with` and `task_block` to `VisualEngine.enhance()` (`src/media/visual.js`, `src/engine/prompts.js`).
     - Resolved post-live-test scaling and sensory gaps:
       - Fixed diffusion output parsing in `src/media/visual.js` to extract `dataUrl` and `image` payloads from host plugins.
       - Aligned `log_message` in `src/data/sessions.svelte.js` and `src/engine/bridge.js` to stamp the assistant turn with `_active_kernel.round` directly.

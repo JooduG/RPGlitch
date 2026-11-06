@@ -155,18 +155,25 @@ export const PURPOSE_CORES = Object.freeze({
     identity: "visualizer",
     see_hidden: "none",
     start_with: (context) => {
-      if (!context?.camera_note) return '{"_thought_process": "';
-      const safe_note = JSON.stringify(context.camera_note).slice(1, -1);
+      const camera_note = typeof context === "string" ? context : context?.camera_note;
+      if (!camera_note || !String(camera_note).trim()) return '{"_thought_process": "';
+      const safe_note = JSON.stringify(String(camera_note).trim()).slice(1, -1);
       return `{"_thought_process": "${safe_note}. `;
     },
     resolve_identity_text: () => "You are the Sensory Cortex synthesizing visual staging and descriptive optics.",
-    task_block: `  <TASK>
+    task_block: (context) => {
+      const raw_note = typeof context === "string" ? context : context?.camera_note;
+      const camera_note = raw_note ? String(raw_note).trim() : "";
+      const aesthetic_direction = camera_note
+        ? `\n    ### Aesthetic Direction\n    Anchor the visual staging to the following camera note and aesthetic style:\n    - "${camera_note}"\n`
+        : "";
+
+      return `  <TASK>
     ### Think Format
     1. **Focal Subject & Pose**: Primary subject, active physical posture, and concrete expression.
     2. **Spatial Depth & Geometry**: Foreground, midground, and background layers, perspective, and camera angle.
     3. **Lighting & Luminary Sources**: Concrete light sources, shadow falloff, ambient bounce, and color palette.
-    4. **Attire, Textures & Exposure**: Physical garment materials, surface textures, and visible skin mechanics.
-
+    4. **Attire, Textures & Exposure**: Physical garment materials, surface textures, and visible skin mechanics.${aesthetic_direction}
     ### Prompt Synthesis
     Synthesize an evocative, photographic or artistic description in natural prose:
     - **First Sentence Mandate**: Immediately establish the focal subject and primary setting.
@@ -198,7 +205,8 @@ export const PURPOSE_CORES = Object.freeze({
 
     > [!IMPORTANT]
     > Emit strictly clean JSON without markdown code fences or preambles. Output MUST start with { and end with }.
-  </TASK>`,
+  </TASK>`;
+    },
   },
 });
 
