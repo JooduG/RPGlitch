@@ -409,31 +409,42 @@ export const safe_parse_pseudo_json = (raw) => {
 
 /**
  * Safely parses the first JSON object or array contained within raw text/prose.
+ * If prefix is supplied (e.g. from startWith), it evaluates raw with and without prefix.
  * Returns the parsed payload or null if no valid JSON is found.
  * @param {string | null | undefined} raw - Input string potentially containing JSON.
+ * @param {object} [options={}]
+ * @param {string} [options.prefix=""] - Optional prefill string (e.g. startWith) to reattach if model continued it.
  * @returns {any | null} Parsed object/array or null.
  */
-export function safe_parse_json(raw) {
+export function safe_parse_json(raw, options = {}) {
   if (!raw || typeof raw !== "string") return null;
 
-  const start = raw.indexOf("{");
-  const end = raw.lastIndexOf("}");
-
-  if (start !== -1 && end !== -1 && end > start) {
-    try {
-      return JSON.parse(raw.slice(start, end + 1));
-    } catch (_) {
-      // Continue to array check or return null
-    }
+  const prefix = typeof options === "string" ? options : options?.prefix || "";
+  const candidates = [raw];
+  if (prefix) {
+    candidates.push(prefix + raw);
   }
 
-  const arr_start = raw.indexOf("[");
-  const arr_end = raw.lastIndexOf("]");
-  if (arr_start !== -1 && arr_end !== -1 && arr_end > arr_start) {
-    try {
-      return JSON.parse(raw.slice(arr_start, arr_end + 1));
-    } catch (_) {
-      return null;
+  for (const candidate of candidates) {
+    const start = candidate.indexOf("{");
+    const end = candidate.lastIndexOf("}");
+
+    if (start !== -1 && end !== -1 && end > start) {
+      try {
+        return JSON.parse(candidate.slice(start, end + 1));
+      } catch (_) {
+        // Continue to array check or next candidate
+      }
+    }
+
+    const arr_start = candidate.indexOf("[");
+    const arr_end = candidate.lastIndexOf("]");
+    if (arr_start !== -1 && arr_end !== -1 && arr_end > arr_start) {
+      try {
+        return JSON.parse(candidate.slice(arr_start, arr_end + 1));
+      } catch (_) {
+        // Continue to next candidate
+      }
     }
   }
 

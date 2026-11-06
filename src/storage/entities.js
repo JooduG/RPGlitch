@@ -141,6 +141,18 @@ function normalize_future_to_brackets(raw_future) {
 }
 
 /**
+ * Normalizes bracket strings by ensuring all relational bracket targets ([@target: ...])
+ * are canonicalized to uppercase ([@TARGET: ...]).
+ *
+ * @param {string} text
+ * @returns {string}
+ */
+function normalize_relational_brackets(text) {
+  if (typeof text !== "string" || !text.includes("[@")) return text || "";
+  return text.replace(/\[@([a-z0-9_]+):/gi, (_, target) => `[@${target.toUpperCase()}:`);
+}
+
+/**
  * Enforces pure 4-quadrant multiline bracket strings across all fields.
  * Adapts legacy rows in-memory.
  *
@@ -169,17 +181,17 @@ export function normalize_entity(raw = {}) {
     created_at: Number(raw.created_at) || Date.now(),
     updated_at: Number(raw.updated_at) || Date.now(),
 
-    // 4-Quadrant Temporal Model
+    // 4-Quadrant Temporal Model (with canonical uppercase [@TARGET: ...] relations)
     eternal: {
-      physical: typeof eternal.physical === "string" ? eternal.physical.trim() : "",
-      non_physical: typeof eternal.non_physical === "string" ? eternal.non_physical.trim() : "",
+      physical: normalize_relational_brackets(typeof eternal.physical === "string" ? eternal.physical.trim() : ""),
+      non_physical: normalize_relational_brackets(typeof eternal.non_physical === "string" ? eternal.non_physical.trim() : ""),
     },
     present: {
-      physical: typeof present.physical === "string" ? present.physical.trim() : "",
-      non_physical: typeof present.non_physical === "string" ? present.non_physical.trim() : "",
+      physical: normalize_relational_brackets(typeof present.physical === "string" ? present.physical.trim() : ""),
+      non_physical: normalize_relational_brackets(typeof present.non_physical === "string" ? present.non_physical.trim() : ""),
     },
-    future: normalize_future_to_brackets(raw.future),
-    past: normalize_past_to_brackets(raw.past, raw.memories),
+    future: normalize_relational_brackets(normalize_future_to_brackets(raw.future)),
+    past: normalize_relational_brackets(normalize_past_to_brackets(raw.past, raw.memories)),
 
     // Dynamics Sliders (1-100)
     dynamics: normalize_dynamics(raw.dynamics, entity_type),

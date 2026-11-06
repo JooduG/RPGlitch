@@ -240,7 +240,8 @@ export function parse_profile_field_rows(raw_value, owner_entity = null, entitie
   const rows = [];
   if (typeof final_value === "string") {
     const unbracketed = final_value.replace(/\[[^[\]]+\]/g, "").trim();
-    if (unbracketed) {
+    // Only treat as prose if there's actual word content remaining, discarding punctuation-only leftovers (e.g. ", ,")
+    if (unbracketed && /[a-zA-Z0-9]/.test(unbracketed)) {
       const prose = prompt_escape(unbracketed).trim();
       if (prose) rows.push(prose);
     }

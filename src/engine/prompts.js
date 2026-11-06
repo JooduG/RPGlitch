@@ -162,13 +162,7 @@ export const PURPOSE_CORES = Object.freeze({
   visualizer: {
     identity: "visualizer",
     see_hidden: "none",
-    start_with: (context) => {
-      const camera_note = typeof context === "string" ? context : context?.camera_note;
-      if (!camera_note || !String(camera_note).trim()) return '{"_thought_process": "';
-      const compact_note = String(camera_note).trim().slice(0, 300);
-      const safe_note = JSON.stringify(compact_note).slice(1, -1);
-      return `{"_thought_process": "${safe_note}. `;
-    },
+    start_with: () => '{"_thought_process": "',
     resolve_identity_text: () => "You are the Sensory Cortex synthesizing visual staging and descriptive optics.",
     task_block: (context) => {
       const raw_note = typeof context === "string" ? context : context?.camera_note;

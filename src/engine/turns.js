@@ -18,6 +18,7 @@
 
 import { compile_prompt } from "./prompts.js";
 import { extract_think_block, parse_brackets } from "./parser.js";
+import { safe_parse_json } from "../utils/text.js";
 import { LENGTH_THRESHOLDS } from "../config.js";
 import { dev_log } from "./dev.svelte.js";
 
@@ -167,39 +168,27 @@ export async function execute_turn_1_director({ transport, round = 1, entities =
   const start_prefix = '{"_thought_process": "';
   let raw_output = await transport.stream(prompt, { startWith: start_prefix, signal });
 
-  // If transport returned only the delta, ensure prefix is restored for JSON parsing
-  if (raw_output && !raw_output.trimStart().startsWith("{")) {
-    raw_output = start_prefix + raw_output;
-  }
+  // Locate JSON block within output using safe_parse_json (with prefix restoration)
+  const parsed = safe_parse_json(raw_output, { prefix: start_prefix });
+  if (parsed) {
+    // Sanitize and clamp numeric dynamics deltas to safe bounds
+    const raw_deltas = parsed?.dynamics_deltas || {};
+    const dynamics_deltas = {
+      chaos: Math.max(-20, Math.min(20, Math.round(Number(raw_deltas.chaos) || 0))),
+      intensity: Math.max(-20, Math.min(20, Math.round(Number(raw_deltas.intensity) || 0))),
+      openness: Math.max(-20, Math.min(20, Math.round(Number(raw_deltas.openness) || 0))),
+      affinity: Math.max(-20, Math.min(20, Math.round(Number(raw_deltas.affinity) || 0))),
+      velocity: Math.max(-20, Math.min(20, Math.round(Number(raw_deltas.velocity) || 0))),
+      entropy: Math.max(-20, Math.min(20, Math.round(Number(raw_deltas.entropy) || 0))),
+    };
 
-  try {
-    // Locate JSON block within output
-    const json_match = /\{[\s\S]*\}/.exec(raw_output);
-    if (json_match) {
-      const parsed = JSON.parse(json_match[0]);
-
-      // Sanitize and clamp numeric dynamics deltas to safe bounds
-      const raw_deltas = parsed?.dynamics_deltas || {};
-      const dynamics_deltas = {
-        chaos: Math.max(-20, Math.min(20, Math.round(Number(raw_deltas.chaos) || 0))),
-        intensity: Math.max(-20, Math.min(20, Math.round(Number(raw_deltas.intensity) || 0))),
-        openness: Math.max(-20, Math.min(20, Math.round(Number(raw_deltas.openness) || 0))),
-        affinity: Math.max(-20, Math.min(20, Math.round(Number(raw_deltas.affinity) || 0))),
-        velocity: Math.max(-20, Math.min(20, Math.round(Number(raw_deltas.velocity) || 0))),
-        entropy: Math.max(-20, Math.min(20, Math.round(Number(raw_deltas.entropy) || 0))),
-      };
-
-      return {
-        _thought_process: typeof parsed?._thought_process === "string" ? parsed._thought_process : "",
-        next_action: typeof parsed?.next_action === "string" ? parsed.next_action : "MAIN_CHARACTER",
-        directors_note: typeof parsed?.directors_note === "string" ? parsed.directors_note : "",
-        dynamics_deltas,
-        camera_note: typeof parsed?.camera_note === "string" ? parsed.camera_note : "",
-      };
-    }
-  } catch (err) {
-    // Fallback default staging if JSON malformed
-    console.warn("[Turns] Malformed Turn 1 Director JSON, falling back to default staging:", err);
+    return {
+      _thought_process: typeof parsed?._thought_process === "string" ? parsed._thought_process : "",
+      next_action: typeof parsed?.next_action === "string" ? parsed.next_action : "MAIN_CHARACTER",
+      directors_note: typeof parsed?.directors_note === "string" ? parsed.directors_note : "",
+      dynamics_deltas,
+      camera_note: typeof parsed?.camera_note === "string" ? parsed.camera_note : "",
+    };
   }
 
   return {
@@ -469,21 +458,9 @@ export async function execute_turn_3_caretaker({ transport, round = 1, entities 
   });
 
   const start_prefix = '{"_thought_process": "';
-  let raw = await transport.stream(prompt, { startWith: start_prefix, signal, priority: "background" });
+  const raw = await transport.stream(prompt, { startWith: start_prefix, signal, priority: "background" });
 
-  if (raw && !raw.trimStart().startsWith("{")) {
-    raw = start_prefix + raw;
-  }
-
-  let parsed = null;
-  try {
-    const json_match = /\{[\s\S]*\}/.exec(raw);
-    if (json_match) {
-      parsed = JSON.parse(json_match[0]);
-    }
-  } catch (_err) {
-    // Malformed JSON fallback
-  }
+  const parsed = safe_parse_json(raw, { prefix: start_prefix });
 
   const _thought_process = parsed?._thought_process || "";
   const eternal_physical = typeof parsed?.eternal_physical === "string" ? parsed.eternal_physical : "";

@@ -129,11 +129,10 @@ describe("visual.js — Stateless Perchance Image Dispatcher", () => {
         expect.objectContaining({
           role: "model",
           system: expect.stringContaining("Aesthetic Direction"),
-          startWith: expect.stringContaining("Aesthetic Style:"),
+          startWith: '{"_thought_process": "',
         }),
         expect.any(Object),
       );
-      expect(spy.mock.lastCall[0].startWith).toContain("Rough concept of a hero");
       expect(result.prompt).toBe("A detailed cinematic portrait of the protagonist with ambient backlighting");
       expect(result.negative_prompt).toContain("blurry, low quality");
       expect(result.negative_prompt).toContain("amateur photo");
@@ -148,7 +147,7 @@ describe("visual.js — Stateless Perchance Image Dispatcher", () => {
       expect(PURPOSE_CORES.visualizer.start_with({})).toBe('{"_thought_process": "');
       expect(PURPOSE_CORES.visualizer.start_with({ camera_note: "" })).toBe('{"_thought_process": "');
       expect(PURPOSE_CORES.visualizer.start_with({ camera_note: "   " })).toBe('{"_thought_process": "');
-      expect(PURPOSE_CORES.visualizer.start_with({ camera_note: "Hero | Aesthetic Style: photo" })).toContain("Aesthetic Style: photo");
+      expect(PURPOSE_CORES.visualizer.start_with({ camera_note: "Hero | Aesthetic Style: photo" })).toBe('{"_thought_process": "');
     });
 
     it("respects explicit app_style parameter over entity.visual_style precedence", async () => {
@@ -201,7 +200,7 @@ Line 3 of thoughts",
     });
 
     it("falls back to original draft when model only echoes prefill or contains unusable thought markers", async () => {
-      const prefill_echo_only = '{"_thought_process": "Draft character concept. ';
+      const prefill_echo_only = '{"_thought_process": "Some unusable thought process. ';
       const spy = vi.spyOn(llm_service, "generate").mockResolvedValue(prefill_echo_only);
 
       const result = await visual_engine.enhance("Draft character concept", "character", {

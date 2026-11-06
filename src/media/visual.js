@@ -7,7 +7,7 @@
  * circuit breaking, cancellation via AbortSignal, and queue / in-flight bookkeeping.
  */
 
-import { generate_secure_seed, strip_cognition_blocks, CircuitBreaker, ExponentialBackoffRetryer, state_bridge } from "@utils";
+import { generate_secure_seed, strip_cognition_blocks, safe_parse_json, CircuitBreaker, ExponentialBackoffRetryer, state_bridge } from "@utils";
 import { IMAGE_TIERS, get_resolution_string } from "./optics.js";
 import { llm_service } from "@platform";
 import { compile_prompt, PURPOSE_CORES } from "../engine/prompts.js";
@@ -613,8 +613,8 @@ export class VisualEngine {
         core: "visualizer",
         round: runtime_state.round || 1,
         entities: {
-          AI: type !== "fractal" ? target_entity : runtime_state.active_ai,
-          USER: runtime_state.active_user,
+          AI: type !== "fractal" ? target_entity : null,
+          USER: null,
           FRACTAL: type === "fractal" ? target_entity : runtime_state.active_fractal,
         },
         task_options: {
@@ -631,7 +631,8 @@ export class VisualEngine {
         return { prompt: text.trim(), negative_prompt: base_negative, resolution: tier_resolution };
       }
 
-      let response_text = String(response);
+      let raw_response_text = String(response);
+      let response_text = raw_response_text;
 
       // Strip known prefill if echoed by model (exact or whitespace-drifted)
       if (start_with) {
@@ -649,67 +650,56 @@ export class VisualEngine {
       let candidate_prompt = "";
       let candidate_negative = "";
 
-      // The prefill is a structural JSON opener, not redundant echo: a
-      // well-behaved model *continues* it, so the stripped remainder alone can
-      // be a decapitated fragment. Extract from the remainder first (echo
-      // case), then from the reattached document (continuation case).
-      const parse_documents = [response_text];
-      if (start_with) parse_documents.push(start_with + response_text);
+      // 1. Try unified JSON extraction from @utils (handles prefix continuation cleanly)
+      const parsed = safe_parse_json(response_text, { prefix: start_with });
+      if (parsed && typeof parsed.prompt === "string" && parsed.prompt.trim()) {
+        candidate_prompt = parsed.prompt.trim();
+        if (typeof parsed.negative_prompt === "string" && parsed.negative_prompt.trim()) {
+          candidate_negative = parsed.negative_prompt.trim();
+        }
+      }
 
-      for (const doc of parse_documents) {
-        if (candidate_prompt && candidate_negative) break;
-        // Matches inside the reattached prefill region belong to the draft
-        // excerpt, not the model's answer — only accept matches at or past it.
-        const search_from = doc === response_text ? 0 : start_with.length;
+      if (!candidate_prompt) {
+        // Fallback regex extraction if raw JSON parsing fails
+        const parse_documents = [response_text];
+        if (start_with) parse_documents.push(start_with + response_text);
 
-        // 1. Try JSON extraction
-        const json_match = /\{[\s\S]*\}/.exec(doc);
-        if (json_match) {
-          try {
-            const parsed = JSON.parse(json_match[0]);
-            if (parsed && typeof parsed.prompt === "string" && parsed.prompt.trim()) {
-              candidate_prompt = parsed.prompt.trim();
-              if (typeof parsed.negative_prompt === "string" && parsed.negative_prompt.trim()) {
-                candidate_negative = parsed.negative_prompt.trim();
-              }
-              break;
+        for (const doc of parse_documents) {
+          if (candidate_prompt && candidate_negative) break;
+          const search_from = doc === response_text ? 0 : start_with.length;
+
+          // 2. Regex field extraction (unescaped newlines/quotes break JSON.parse)
+          // Both fields are read from the answer region only — matches inside
+          // the reattached prefill belong to the draft excerpt, not the model.
+          if (!candidate_prompt) {
+            const answer_region = doc.slice(search_from);
+            const prompt_field_match = VISUAL_JSON_PROMPT_RE.exec(answer_region);
+            if (prompt_field_match && prompt_field_match[1]) {
+              candidate_prompt = unescape_visual_json_value(prompt_field_match[1]).trim();
             }
-          } catch (_json_err) {
-            /* Fall through to regex extraction */
+            const neg_field_match = VISUAL_JSON_NEG_RE.exec(answer_region);
+            if (neg_field_match && neg_field_match[1]) {
+              candidate_negative = unescape_visual_json_value(neg_field_match[1]).trim();
+            }
           }
-        }
 
-        // 2. Regex field extraction (unescaped newlines/quotes break JSON.parse)
-        // Both fields are read from the answer region only — matches inside
-        // the reattached prefill belong to the draft excerpt, not the model.
-        if (!candidate_prompt) {
-          const answer_region = doc.slice(search_from);
-          const prompt_field_match = VISUAL_JSON_PROMPT_RE.exec(answer_region);
-          if (prompt_field_match && prompt_field_match[1]) {
-            candidate_prompt = unescape_visual_json_value(prompt_field_match[1]).trim();
-          }
-          const neg_field_match = VISUAL_JSON_NEG_RE.exec(answer_region);
-          if (neg_field_match && neg_field_match[1]) {
-            candidate_negative = unescape_visual_json_value(neg_field_match[1]).trim();
-          }
-        }
-
-        // 2b. Decapitated fragment: the opener was stripped upstream, so the
-        // prose runs up to the negative key with no `"prompt":` label left.
-        if (!candidate_prompt) {
-          const answer_region = doc.slice(search_from);
-          const neg_only_match = VISUAL_JSON_NEG_RE.exec(answer_region);
-          if (neg_only_match && typeof neg_only_match.index === "number") {
-            const head = unescape_visual_json_value(answer_region.slice(0, neg_only_match.index))
-              .replace(/["\s,]+$/, "")
-              .trim();
-            if (head && !looks_like_visual_json(head)) candidate_prompt = head;
+          // 2b. Decapitated fragment: the opener was stripped upstream, so the
+          // prose runs up to the negative key with no `"prompt":` label left.
+          if (!candidate_prompt) {
+            const answer_region = doc.slice(search_from);
+            const neg_only_match = VISUAL_JSON_NEG_RE.exec(answer_region);
+            if (neg_only_match && typeof neg_only_match.index === "number") {
+              const head = unescape_visual_json_value(answer_region.slice(0, neg_only_match.index))
+                .replace(/["\s,]+$/, "")
+                .trim();
+              if (head && !looks_like_visual_json(head)) candidate_prompt = head;
+            }
           }
         }
       }
 
-      // 3. Fall back to cognition stripping if still empty
-      if (!candidate_prompt) {
+      // 3. Fall back to cognition stripping only if no prompt structure was found and response doesn't look like thought prefill
+      if (!candidate_prompt && !raw_response_text.includes("_thought_process")) {
         candidate_prompt = strip_cognition_blocks(response_text).trim();
       }
 

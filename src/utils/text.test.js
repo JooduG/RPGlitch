@@ -61,6 +61,16 @@ describe("safe_parse_json", () => {
     expect(safe_parse_json(null)).toBeNull();
     expect(safe_parse_json("{ broken json ")).toBeNull();
   });
+
+  it("handles startWith prefix option when model continues prefill", () => {
+    const decapitated = 'thinking", "prompt": "neon city", "negative_prompt": "blurry"}';
+    const prefix = '{"_thought_process": "';
+    expect(safe_parse_json(decapitated, { prefix })).toEqual({
+      _thought_process: "thinking",
+      prompt: "neon city",
+      negative_prompt: "blurry",
+    });
+  });
 });
 
 describe("strip_cognition_blocks", () => {

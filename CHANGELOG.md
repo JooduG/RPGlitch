@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Prompt Hygiene, Visualizer Optimization & JSON Prefill Hardening (`src/utils/text.js`, `src/utils/text.test.js`, `src/media/visual.js`, `src/media/visual.test.js`, `src/engine/prompts.js`, `src/engine/turns.js`, `src/intelligence/modules/sheets.js`, `src/storage/entities.js`, `src/storage/presets.js`, `src/data/definitions/premade-entities.js`)**:
+  - **Unified `safe_parse_json` Prefix Re-Attachment (`src/utils/text.js`, `src/utils/text.test.js`)**: Enhanced `safe_parse_json(raw, { prefix })` to safely evaluate continuation payloads with prefix reconstruction if the model omits the `startWith` anchor, preventing decapitated JSON syntax errors.
+  - **Visualizer Extraction Refactor (`src/media/visual.js`, `src/media/visual.test.js`)**: Replaced custom regex slicing with centralized `safe_parse_json` and streamlined fallback parsing.
+  - **Visualizer `start_with` & Entity Scope (`src/engine/prompts.js`, `src/media/visual.js`)**: Trimmed `PURPOSE_CORES.visualizer.start_with` to a clean JSON opener `{"_thought_process": "` (excising the redundant 300-char camera note echo), and scoped visualizer entity compilation strictly to the targeted subject.
+  - **Engine Turns JSON Extraction (`src/engine/turns.js`)**: Standardized Turn 1 Director and Turn 3 Caretaker JSON parsing onto `safe_parse_json(..., { prefix: start_prefix })`.
+  - **Empty Comma Prompt Leak Elimination (`src/intelligence/modules/sheets.js`)**: Discarded punctuation-only residuals (`/[a-zA-Z0-9]/.test(unbracketed)`) in `parse_profile_field_rows`, eliminating stray `, , ,` tokens from `<AGENDA>`, `<PERSONALITY>`, and `<STATE>`.
+  - **Uppercase Relational Bracket Canonicalization (`src/storage/entities.js`, `src/storage/presets.js`, `src/data/definitions/premade-entities.js`)**: Normalized all `[@target: ...]` relation brackets to uppercase `[@TARGET: ...]`.
+
 - **Continue Message Feature, Stream Cutoff Elimination & LLM Concurrency Gate Alignment (`src/engine/turns.js`, `src/engine/kernel.svelte.js`, `src/engine/bridge.js`, `src/intelligence/story.js`, `src/state/chrono.svelte.js`, `src/ui/message/MessageHeader.svelte`, `src/ui/message/Feed.svelte`)**:
   - **Mid-Stream Beat Abort Elimination (`src/intelligence/story.js`)**: Removed the mid-stream `beat_controller.abort("BEAT_LIMIT_REACHED")` in `make_character_try` so opening turns and short-input turns never invoke `generation.stop()` mid-stream after one sentence.
   - **Opening Turn `<think>` Metadata Persistence (`src/intelligence/story.js`)**: Extracted `<think>...</think>` cognition blocks from `raw_validation_text` before stripping and persisted `meta.think` via `session_driver.log_message()`, ensuring messages from legacy opening turns retain their `<think>` blocks for continuations.
