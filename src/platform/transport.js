@@ -267,9 +267,6 @@ export const llm_service = {
 
       // 4. Execute generation with AbortSignal bridge to plugin `.stop()`
       if (options.signal?.aborted) {
-        if (options.signal.reason === "BEAT_LIMIT_REACHED") {
-          return "";
-        }
         const err = new Error("Generation aborted by caller.");
         err.name = "AbortError";
         throw err;
@@ -303,9 +300,6 @@ export const llm_service = {
         result = await generation;
 
         if (options.signal?.aborted) {
-          if (options.signal.reason === "BEAT_LIMIT_REACHED") {
-            return result;
-          }
           const err = new Error("Generation aborted by caller.");
           err.name = "AbortError";
           throw err;
@@ -330,25 +324,6 @@ export const llm_service = {
       if (result != null && typeof result !== "string") {
         const stop_reason = result.stopReason;
         const text = String(result.text ?? result.generatedText ?? result);
-        // DIAGNOSTIC (resolve-divergence, removable): log which result field won and their lengths.
-        try {
-          const picked = result.text != null ? "text" : result.generatedText != null ? "generatedText" : "fallback";
-          console.log(
-            "[resolve-divergence] platform transport picked=" +
-              picked +
-              " " +
-              JSON.stringify({
-                text: typeof result.text === "string" ? result.text.length : null,
-                generatedText: typeof result.generatedText === "string" ? result.generatedText.length : null,
-                coerced: text.length,
-                stopReason: stop_reason ?? null,
-                aborted: !!options.signal?.aborted,
-                reason: options.signal?.reason ?? null,
-              }),
-          );
-        } catch {
-          /* diagnostic must never throw */
-        }
         if (options.raw) {
           const kept = new String(text);
           // @ts-ignore
@@ -415,10 +390,6 @@ export const llm_service = {
 
     while (index < text.length) {
       if (options.signal?.aborted) {
-        if (options.signal.reason === "BEAT_LIMIT_REACHED") {
-          const cut = text.slice(0, index);
-          return typeof cut === "string" && !options.raw ? sanitize_llm(cut) : cut;
-        }
         const err = new Error("Generation aborted by caller.");
         err.name = "AbortError";
         throw err;

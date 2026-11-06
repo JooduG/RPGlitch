@@ -99,25 +99,6 @@ export function create_live_stream_fn() {
             if (generation && typeof generation.then === "function") {
               generation
                 .then((res) => {
-                  // DIAGNOSTIC (resolve-divergence, removable): log which result field won and their lengths.
-                  try {
-                    const picked =
-                      typeof res === "string" ? "string" : res?.text != null ? "text" : res?.generatedText != null ? "generatedText" : "accumulated";
-                    console.log(
-                      "[resolve-divergence] bridge stream_fn picked=" +
-                        picked +
-                        " " +
-                        JSON.stringify({
-                          text: typeof res === "string" ? res.length : typeof res?.text === "string" ? res.text.length : null,
-                          generatedText: typeof res?.generatedText === "string" ? res.generatedText.length : null,
-                          accumulated: accumulated.length,
-                          aborted: !!effective_signal?.aborted,
-                          reason: effective_signal?.reason ?? null,
-                        }),
-                    );
-                  } catch {
-                    /* diagnostic must never throw */
-                  }
                   const text_out = typeof res === "string" ? res : res?.text || res?.generatedText || accumulated;
                   resolve(text_out);
                 })
